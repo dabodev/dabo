@@ -25,12 +25,15 @@ class specHandler(xml.sax.ContentHandler):
 			self.currTableDict[fldName] = self.currFieldDict.copy()
 			
 		elif name == "relation":
-			nm = attrs.getValue("name")
-			self.relaDict[nm] = {}
-			self.relaDict[nm]["parent"] = nm.split(":")[0].strip()
-			self.relaDict[nm]["child"] = attrs.getValue("child")
-			self.relaDict[nm]["parentField"] = attrs.getValue("parentField")
-			self.relaDict[nm]["childField"] = attrs.getValue("childField")
+			relType = attrs.getValue("relationType")
+			if relType == "1M":
+				nm = attrs.getValue("name")
+				self.relaDict[nm] = {}
+				self.relaDict[nm]["relationType"] = "1M"
+				self.relaDict[nm]["source"] = nm.split(":")[0].strip()
+				self.relaDict[nm]["target"] = attrs.getValue("target")
+				self.relaDict[nm]["sourceField"] = attrs.getValue("sourceField")
+				self.relaDict[nm]["targetField"] = attrs.getValue("targetField")
 			
 	
 	def endElement(self, name):
