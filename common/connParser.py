@@ -49,9 +49,6 @@ def importConnections(file=None):
 	if file is None:
 		return None
 	file = fileRef(file)
-	
-	print "FILE", file
-	
 	ch = connHandler()
 	xml.sax.parse(file, ch)
 	ret = ch.getConnectionDict()
