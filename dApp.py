@@ -379,6 +379,8 @@ class dApp(dabo.common.dObject):
 	# layer to be handled there.
 	def onCmdWin(self, evt):
 		self.uiApp.onCmdWin(evt)
+	def onWinClose(self, evt):
+		self.uiApp.onWinClose(evt)
 	def onFileExit(self, evt):
 		self.uiApp.onFileExit(evt)
 	def onEditUndo(self, evt):
