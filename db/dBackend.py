@@ -195,3 +195,15 @@ class dBackend(dabo.common.dObject):
 		respectively.
 		"""
 		return " %(field)s = %(value)s "
+
+	def getUpdateTablePrefix(self, tbl):
+		""" By default, the update SQL statement will be in the form of
+					tablename.fieldname
+		but some backends do no accept this syntax. If not, change
+		this method to return an empty string, or whatever should 
+		preceed the field name in an update statement.
+		"""
+		return tbl + "."
+
+			
+			

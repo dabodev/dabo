@@ -588,7 +588,6 @@ class dCursorMixin(dabo.common.dObject):
 			if newrec:
 				flds = ""
 				vals = ""
-				
 				for kk, vv in diff.items():
 					if self.AutoPopulatePK and (kk == self.KeyField):
 						# we don't want to include the PK in the insert
@@ -960,7 +959,7 @@ class dCursorMixin(dabo.common.dObject):
 		""" Create the 'set field=val' section of the Update statement. 
 		"""
 		ret = ""
-		tblPrefix = self.Table + "."
+		tblPrefix = self.BackendObject.getUpdateTablePrefix(self.Table)
 		
 		for fld, val in diff.items():
 			# Skip the fields that are not to be updated.
