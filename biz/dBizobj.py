@@ -578,6 +578,19 @@ class dBizobj(dabo.common.dObject):
 
 
 	def onSaveNew(self):
+		""" Called after successfully saving a new record.
+		"""
+		# If this is a new parent record with a new auto-generated PK, pass it on
+		# to the children before they save themselves.
+		if self.AutoPopulatePK:
+			pk = self.getPK()
+			for child in self.__children:
+				child.setParentFK(pk)
+		# Call the custom hook method
+		self.onSaveNewHook()
+
+
+	def onSaveNewHook(self):
 		""" Hook method called after successfully saving a new record.
 		"""
 		pass
@@ -604,6 +617,14 @@ class dBizobj(dabo.common.dObject):
 		pass
 
 
+	def setParentFK(self, val):
+		""" Accepts and set the foreign key value linking to the parent table.
+		"""
+		if self.LinkField:
+			self.setFieldVal(self.LinkField, val)
+	
+	
+	
 	def addChild(self, child):
 		""" Add the passed child bizobj to this bizobj.
 		
