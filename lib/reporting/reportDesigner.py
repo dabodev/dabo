@@ -5,16 +5,64 @@ from reportWriter import ReportWriter
 
 default_bandHeight = 40
 
-class BandLabel(dabo.ui.dButton): pass
+class BandLabel(dabo.ui.dPanel):
+	def initEvents(self):
+		self.bindEvent(dEvents.Paint, self.onPaint)
+		self.bindEvent(dEvents.MouseLeftDown, self.onLeftDown)
+		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onDoubleClick)
+		self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
+
+	def onLeftDown(self, evt):
+		print "onLeftDown", self.Caption
+
+	def onMouseEnter(self, evt):
+		import wx		## need to abstract mouse cursor
+		try:
+			lock = self.Parent.props["designerLock"] 
+		except KeyError:
+			lock = False
+		if lock:
+			self.SetCursor(wx.NullCursor)
+		else:
+			self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENS))
+
+	def onDoubleClick(self, evt):
+		self.Parent.propertyDialog()
+
+	def onPaint(self, evt):
+		import wx		## (need to abstract DC drawing)
+		dc = wx.PaintDC(self)
+		rect = self.GetClientRect()
+		font = dc.GetFont()
+
+		dc.SetTextForeground(wx.BLACK)
+		dc.SetBrush(wx.Brush("WHEAT", wx.SOLID))
+		dc.SetFont(font)
+		dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
+		rect[0] = rect[0]+5
+		rect[1] = rect[1]+5
+		dc.DrawLabel(self.Caption, rect, wx.ALIGN_LEFT)
+
+	def _getCaption(self):
+		try:
+			c = self._caption
+		except:
+			c = self._caption = ""
+		return c
+
+	def _setCaption(self, val):
+		self._caption = val
+
+	Caption = property(_getCaption, _setCaption)
+
 
 class Band(dabo.ui.dPanel):
 	def afterInit(self):
 		self._bandLabelHeight = 27
 		self.BackColor = (255,255,255)
 		self.Top = 100
-		self.addObject(BandLabel, "bandLabel", FontSize=10, Height=self._bandLabelHeight)
-
-		self.bandLabel.bindEvent(dEvents.Hit, self._onBandLabelHit)
+		self.addObject(BandLabel, "bandLabel", FontSize=10, 
+		               BackColor=(128,128,128), Height=self._bandLabelHeight)
 
 
 	def propertyDialog(self):
@@ -24,14 +72,21 @@ class Band(dabo.ui.dPanel):
 				self.Accepted = False
 
 			def addControls(self):
+				try:
+					lock = eval(band.props["designerLock"])
+				except KeyError:
+					lock = False
+
 				self.addObject(dabo.ui.dLabel, Name="lblHeight", Caption="Band Height:",
 				               Alignment="Right", Width=125)
 				self.addObject(dabo.ui.dTextBox, Name="txtHeight", Width=200, 
 				               Value=band.props["height"])
+				self.addObject(dabo.ui.dCheckBox, Name="chkLock", Caption="Lock", Value=lock)
 			
 				h = dabo.ui.dSizer("h")
 				h.append(self.lblHeight, "fixed", alignment=("middle", "right"))
 				h.append(self.txtHeight, alignment=("middle", "right"), border=5)
+				h.append(self.chkLock, alignment=("middle", "right"), border=5)
 				self.Sizer.append(h, border=5)
 
 				self.addObject(dabo.ui.dButton, Name="cmdAccept", Caption="&Accept",
@@ -63,14 +118,11 @@ class Band(dabo.ui.dPanel):
 
 		if dlg.Accepted:
 			self.props["height"] = dlg.txtHeight.Value
+			self.props["designerLock"] = str(dlg.chkLock.Value)
 			self.reposition()
 
 	def reposition(self):
 		self.Parent._onFormResize(None)
-
-	def _onBandLabelHit(self, evt):
-		self.propertyDialog()
-
 
 	def _getCaption(self):
 		return self.bandLabel.Caption
@@ -116,7 +168,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.clearRulers()
 
 		tr = self.getRuler("h", pageWidth)
-		tr.Position = (0,0)
 
 		for index in range(len(self._bands)):
 			band = self._bands[index]
@@ -144,7 +195,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		totPageHeight = totPageHeight + mb
 
 		br = self.getRuler("h", pageWidth)
-		br.Position = (0, totPageHeight)
+		tr.Position = (lr.Width,0)
+		br.Position = (lr.Width, totPageHeight)
 		totPageHeight += br.Height
 
 		self.SetScrollbars(u,u,(pageWidth + lr.Width + rr.Width)/u,totPageHeight/u)
