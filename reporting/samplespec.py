@@ -12,16 +12,30 @@ Page = {"unit": "inch",
         "margin": {"left": .5,
                    "right": .5,
                    "top": .5,
-                   "bottom": .5}
+                   "bottom": .5},
 }
+
+
+PageBackground = {"objects": [{"type": "string",
+                           "expression": '''"Test"''',
+                           "alignment": "center",
+                           "rotation": 30,
+                           "x": 4.25,
+                           "y": 5.5,
+                           "fontFace": "Helvetica",
+                           "fontSize": 12,
+                          }]}
 
 
 PageHeader = {"height": 0.5,
               "objects": [{"type": "string",
                            "expression": '''"Dabo's Favorite Artists"''',
                            "alignment": "center",
-                           "geometry": {"x": 3.75,
-                                        "y": 0.3,},
+                           "x": 3.75,
+                           "y": 0.3,
+                           "width": 6,
+                           "height": .25,
+                           "borderWidth": 0,
                            "fontFace": "Helvetica",
                            "fontSize": 14,
                           }]
@@ -30,11 +44,11 @@ PageHeader = {"height": 0.5,
 PageFooter = {"height": 1.25,
               "objects": [{"type": "image",
                            "expression": '''"../icons/dabo_lettering_100x40.png"''',
-                           "geometry": {"x": 6.1,
-                                        "y": .01,
-                                        "width": None,
-                                        "height": None,
-                                        "mask": None},
+                           "x": 6.1,
+                           "y": .01,
+                           "width": None,
+                           "height": None,
+                           "mask": None,
                           }]
 }
 
@@ -45,10 +59,12 @@ Detail = {"height": .25,
                        "alignment": "left",
                        "fontFace": "Helvetica",
                        "fontSize": 12,
-                       "lineWidth": 0.25,
-                       "geometry": {"x": 1,
-                                    "y": .01},
-                          }]
+                       "borderWidth": .25,
+                       "x": 1,
+                       "y": .01,
+                       "width": 1.4,
+                       "height": 0.25
+                       }]
 }
 
 Group1Header = {"height": .5,

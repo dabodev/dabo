@@ -53,7 +53,7 @@ mr = u*form.Page["margin"]["right"]
 mb = u*form.Page["margin"]["bottom"]
 
 
-def	printBandOutline(band, x, y, width, height):
+def printBandOutline(band, x, y, width, height):
 		## draw a dotted rectangle around the entire band, and type a small faded 
 		## caption at the origin of the band.
 		c.saveState()
@@ -62,18 +62,54 @@ def	printBandOutline(band, x, y, width, height):
 		c.setDash(1,2)
 		c.rect(x,y,width,height)
 		c.setFont("Helvetica", 8)
-		c.drawString(ml, y, band)
+		c.drawString(x, y, band)
 		c.restoreState()
 
 def draw(object, x, y):
+	
 	c.saveState()
+
+	try: width = (u*object["width"])
+	except (KeyError, TypeError): width = None
+
+	try: height = (u*object["height"])
+	except (KeyError, TypeError): height = None
+
+	try: rotation = object["rotation"]
+	except KeyError:	rotation = 0
+
+	c.rotate(rotation)
+
 	if object["type"] == "rectangle":
-		geo = object["geometry"]
-		c.setLineWidth(object["lineWidth"])
-		width = (u*geo["width"])
-		height = (u*geo["height"])
+		try: lineWidth = object["lineWidth"]
+		except KeyError: lineWidth = 1
+		c.setLineWidth(lineWidth)
 		c.rect(x,y,width,height)
+
 	elif object["type"] == "string":
+		try: borderWidth = object["borderWidth"]
+		except KeyError: borderWidth=0
+
+		if borderWidth <= 0:
+			stroke = 0
+		else:
+			stroke = 1
+
+		c.setLineWidth(borderWidth)
+
+		if width is not None and height is not None:
+			# clip the text to the specified width and height
+			p = c.beginPath()
+			if object["alignment"] == "center":
+				posx = x - (width/2)
+			elif object["alignment"] == "right":
+				posx = x + width
+			else:
+				posx = x
+
+			p.rect(posx,y,width,height)
+			c.clipPath(p, stroke=stroke)
+
 		funcs = {"center": c.drawCentredString,
 		         "right": c.drawRightString,
 		         "left": c.drawString}
@@ -82,42 +118,44 @@ def draw(object, x, y):
 		fontSize = object["fontSize"]
 		c.setFont(fontFace, fontSize)
 		func(x,y,eval(object["expression"]))
+
 	elif object["type"] == "image":
-		geo = object["geometry"]
-		width = geo["width"]
-		height = geo["height"]
-		mask = geo["mask"]
-		if width is not None:
-			width = u*width
-		if height is not None:
-			height = u*height
+		try: mask = object["mask"]
+		except: mask = None
 		c.drawImage(eval(object["expression"]), x, y, width, height, mask)
 	c.restoreState()
 
 
-# Print the static bands (Page Header/Footer):
-for band in ("PageHeader", "PageFooter"):
+# Print the static bands (Page Header/Footer, Watermark):
+for band in ("PageBackground", "PageHeader", "PageFooter"):
 	bandDict = eval("form.%s" % band)
 	x = ml
 	if band == "PageHeader":
 		y = pageHeaderOrigin[1]
 	elif band == "PageFooter":
 		y = pageFooterOrigin[1]
-	width = pageWidth - ml - mr
-	height = bandDict["height"] * u
+	elif band == "PageBackground":
+		x,y = 0,1
+	
+	if band == "PageBackground":
+		width, height = pageWidth-1, pageHeight-1
+	else:
+		width = pageWidth - ml - mr
+		height = bandDict["height"] * u
 
 	if showBands:
 		printBandOutline(band, x, y, width, height)
 
 	for object in bandDict["objects"]:
 		if bandDict == form.PageFooter:
-			origin = pageFooterOrigin[1]
+			origin = pageFooterOrigin
 		elif bandDict == form.PageHeader:
-			origin = pageHeaderOrigin[1]
+			origin = pageHeaderOrigin
+		elif bandDict == form.PageBackground:
+			origin = (0,1)
 
-		geo = object["geometry"]
-		x = u*geo["x"] + ml
-		y = origin + (u*geo["y"])
+		x = u*object["x"] + origin[0]
+		y = origin[1] + (u*object["y"])
 
 		draw(object, x, y)
 
@@ -138,8 +176,8 @@ for record in data:
 			printBandOutline("%s (record %s)" % (band, recno), x, y, width, height)
 
 		for object in bandDict["objects"]:
-			x = ml + (u*object["geometry"]["x"])
-			y1 = y + (u*object["geometry"]["y"])
+			x = ml + (u*object["x"])
+			y1 = y + (u*object["y"])
 			draw(object, x, y1)
 				
 		recno += 1
