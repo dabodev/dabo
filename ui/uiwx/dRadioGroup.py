@@ -21,10 +21,6 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		pre = wx.PreRadioBox()
 		self._beforeInit(pre)                  # defined in dPemMixin
 		
-		# Determines if 'Value' is determined by position in 
-		# the group ("numeric"), or the associated caption for the
-		# selected button ("string")
-		self._valueType = "string"
 		# Internal reference to the choices available
 		self._choices = choices
 		
@@ -39,18 +35,17 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 
 		self.PostCreate(pre)
 
+		# Determines if 'Value' is determined by position in 
+		# the group, or the associated caption for the
+		# selected button
+		self._useStringValue = True
+	
 		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
 		
 		self.setProperties(properties)
 		self._afterInit()                      # defined in dPemMixin
 
 
-	def initProperties(self):
-		# Determines if 'Value' is determined by position in 
-		# the group, or the associated caption for the
-		# selected button
-		self._useStringValue = True
-	
 	def initEvents(self):
 		#dRadioGroup.doDefault()
 		super(dRadioGroup, self).initEvents()
@@ -109,16 +104,16 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		self._pemObject.SetStringSelection(str(value))
 
 	def _getValue(self):
-		if self.UseStringValue:
-			ret = self.StringValue
+		if self._useStringValue:
+			ret = self._getStrValue()
 		else:
-			ret = self.PositionValue
+			ret = self._getPosValue()
 		return ret
 	def _setValue(self, value):
-		if self.UseStringValue:
-			self.StringValue = value
+		if self._useStringValue:
+			self._setStrValue(value)
 		else:
-			self.PositionValue = value
+			self._setPosValue(value)
 	
 	def _getUseStringValue(self):
 		return self._useStringValue
