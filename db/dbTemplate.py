@@ -32,13 +32,13 @@ class NEWDATABASE(dBackend):
 		self.dbModuleName = "???"
 
 	def getConnection(self, connectInfo):
-		#### TODO: replace question marks with dbapi module name
-		import ??? as dbapi
+		#### TODO: replace 'ZZZ' with dbapi module name
+		import ZZZ as dbapi
 
 		port = connectInfo.Port
 		if not port:
 			#### TODO: Customize with standard NEWDATABASE port
-			port = ????
+			port = -1
 				
 		#### TODO: Customize to make correct connect string
 		self._connection = dbapi.connect(host=connectInfo.Host, 
@@ -50,9 +50,9 @@ class NEWDATABASE(dBackend):
 		return self._connection
 
 	def getDictCursorClass(self):
-		#### TODO: Replace with appropriate NEWDATABASE dbapi module class
-		####   or just a standard cursor, if it doesn't offer Dict cursors.
-		return ????.DictCursor
+		#### TODO: Replace 'ZZZ' with appropriate NEWDATABASE dbapi 
+		####  module class or just a standard cursor, if it doesn't offer Dict cursors.
+		return ZZZ.DictCursor
 
 	def escQuote(self, val):
 		#### TODO: Verify that NEWDATABASE uses this method for escaping quotes
