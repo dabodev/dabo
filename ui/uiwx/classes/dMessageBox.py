@@ -48,6 +48,13 @@ def stop(message='Stop'):
 	return None
 
 
+def info(message='Information'):
+	style = wx.OK|wx.ICON_INFORMATION
+	dlg = dMessageBox(message, 'Dabo', style)
+	retval = dlg.ShowModal()
+	return None
+
+	
 if __name__ == '__main__':
 	app = wx.PySimpleApp()
 	print areYouSure('Are you happy?')

@@ -79,13 +79,13 @@ class dConnectInfo(object):
 	def setPort(self, port): 
 		self._port = port
 
-	backendName = property(getBackendName, setBackendName)
-	host = property(getHost, setHost)
-	user = property(getUser, setUser)
-	password = property(getPassword, setPassword)
-	dbName = property(getDbName, setDbName)
-	backendObject = property(getBackendObject)
-	port = property(getPort, setPort)
+	BackendName = property(getBackendName, setBackendName)
+	Host = property(getHost, setHost)
+	User = property(getUser, setUser)
+	Password = property(getPassword, setPassword)
+	DbName = property(getDbName, setDbName)
+	BackendObject = property(getBackendObject)
+	Port = property(getPort, setPort)
 
 if __name__ == '__main__':
 	test = dConnectInfo()

@@ -1,5 +1,6 @@
 """ dabo.db.backend.py : abstractions for the various db api's """
 
+
 class dBackend(object):
 	""" Abstract object: inherit from this to define new dabo db interfaces.
 	"""
@@ -33,14 +34,14 @@ class MySQL(dBackend):
 	def getConnection(self, connectInfo):
 		import MySQLdb as dbapi
 
-		port = connectInfo.port
+		port = connectInfo.Port
 		if not port:
 			port = 3306
 
-		return dbapi.connect(host=connectInfo.host, 
-							user=connectInfo.user,
-							passwd=connectInfo.password,
-							db=connectInfo.dbName,
+		return dbapi.connect(host=connectInfo.Host, 
+							user=connectInfo.User,
+							passwd=connectInfo.Password,
+							db=connectInfo.DbName,
 							port=port)
 
 	def getDictCursor(self):
@@ -82,3 +83,4 @@ class GadflyClient(dBackend):
 							connectInfo.password,
 							connectInfo.host)
 
+							
