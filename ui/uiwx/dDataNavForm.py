@@ -30,7 +30,7 @@ class dDataNavForm(dForm.dForm):
 		# the form? Default is to only affect the current bizobj
 		self.saveCancelRequeryAll = False
 		# Used for turning sizer outline drawing on pages
-		self._drawSizerOutlines = False
+		self.drawSizerOutlines = False
 	
 	
 	def __init__(self, parent=None, previewMode=False, tbl=""):
@@ -227,7 +227,21 @@ class dDataNavForm(dForm.dForm):
 			self._appendToMenu(menu, "Delete Current Record", 
 							self.onDelete, 
 							bitmap=dIcons.getIconBitmap("delete"))
+
+		menu.AppendSeparator()
+		id = wx.NewId()
+		menu.AppendCheckItem(id, "Show/Hide Sizer Lines\tCtrl+L")
+		if wx.Platform == '__WXMAC__':
+			menu.Bind(wx.EVT_MENU, self.onShowSizerLines, id=id)
+		else:
+			self.Bind(wx.EVT_MENU, self.onShowSizerLines, id=id)
+
 		return menu
+
+
+	def onShowSizerLines(self, evt):
+		self.drawSizerOutlines = evt.IsChecked()
+		self.Refresh()
 
 
 	def setupMenu(self):

@@ -111,6 +111,29 @@ class dSizerMixin(dabo.common.dObject):
 		See append() for the parameters to use.
 		"""
 		self.insert(0, *args, **kwargs)			
+	
+	
+	def drawOutline(self, win):
+		""" There are some cases where being able to see the sizer
+		is helpful, such as at design time. This method can be called
+		to see the outline; it needs to be called whenever the containing
+		window is resized or repainted.
+		"""
+		if self.Orientation == "Vertical":
+			self.outlineColor = wx.BLUE
+		else:
+			self.outlineColor = wx.RED
+		x, y = self.GetPosition()
+		w, h = self.GetSize()
+		# Offset
+		off = 0
+		
+		dc = wx.ClientDC(win)
+		dc.SetPen(wx.Pen(self.outlineColor, 1, wx.SHORT_DASH))
+		dc.SetBrush(wx.TRANSPARENT_BRUSH)
+		dc.SetLogicalFunction(wx.COPY)
+		# Draw the outline
+		dc.DrawRectangle( x+off, y+off, w-(2*off), h-(2*off) )
 
 		
 	def _getWxFlags(self, alignment, borderFlags, layout):

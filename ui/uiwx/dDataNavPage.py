@@ -37,28 +37,23 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 		self.target = tgt
 		
 	def onChoiceMade(self, evt):
+		self.FontItalic = (IGNORE_STRING in self.StringValue)
 		if self.target is not None:
+			self.target.FontItalic = self.FontItalic
 			if IGNORE_STRING not in self.GetStringSelection():
 				# A comparison op was selected; let 'em enter a value
 				self.target.SetFocus()
-				
-class OutlineBoxSizer(wx.BoxSizer):
-	def __init__(self, win, *args, **kwargs):
-		wx.BoxSizer.__init__(self, *args, **kwargs)
-		self.win = win
-# 		win.bindEvent(dEvents.Resize, self.onResize)
-	
-	def onResize(self, evt):
-		self.win.drawOutline(self.GetPosition(), self.GetSize() )
-		
+			
+
 
 class DataNavPage(dPage.dPage):
 	def afterInit(self):
 		#DataNavPage.doDefault()
 		super(DataNavPage, self).afterInit()
 		# Needed for drawing sizer outlines
-		self.redrawOutlines = self.drawSizerOutlines = False
+		self.redrawOutlines = False
 		self.bindEvent(dEvents.Resize, self.onResize)
+		self.bindEvent(dEvents.Paint, self.onResize)
 		self.bindEvent(dEvents.Idle, self.onIdle)
 
 	def editRecord(self, ds=None):
@@ -73,17 +68,13 @@ class DataNavPage(dPage.dPage):
 
 		
 	def onResize(self, evt):
-		self.redrawOutlines = self.drawSizerOutlines
+		self.redrawOutlines = self.Form.drawSizerOutlines
 		
 	def onIdle(self, evt):
 		if self.redrawOutlines:
 			self.redrawOutlines = False
 			self.drawOutline(self, self.GetSizer(), 0)
 
-### pkm: this must be old code...	
-#	def onPaint(self, evt):
-#		self.drawOutline(self, self.GetSizer(), 0)
-		
 	def drawOutline(self, win, sz, level):
 		if sz is None:
 			return
@@ -113,36 +104,46 @@ class DataNavPage(dPage.dPage):
 		dc = wx.ClientDC(win)
 		if isinstance(sz, wx.NotebookSizer):
 			dc.SetPen(wx.Pen("green", 1, wx.SOLID))
-		elif isinstance(sz, wx.BoxSizer):
-			if sz.GetOrientation() == wx.HORIZONTAL:
-				dc.SetPen(wx.Pen("red", 1, wx.SHORT_DASH))
-			else:
-				dc.SetPen(wx.Pen("blue", 1, wx.SHORT_DASH))
+		if isinstance(sz, wx.NotebookSizer):
+			dc.SetPen(wx.Pen("green", 1, wx.SOLID))
 		else:
-			dc.SetPen(wx.Pen("cyan", 1, wx.TRANSPARENT))
+			if isinstance(sz, wx.GridBagSizer):
+				# This is necessary due to a bug in the subclassing of the
+				# wx.GridBagSizer class.
+				self.drawGridBagSizerOutline(win, sz)
+			else:
+				sz.drawOutline(win)
+
+
+	def drawGridBagSizerOutline(self, win, sz):
+		""" This is a hack to get around the bug in wxPython where
+		subclasses of wx.GridBagSizer added to another sizer lose their 
+		subclass info, and revert to the base wx.GridBagSizer class.
+		"""
+		dc = wx.ClientDC(win)
 		dc.SetBrush(wx.TRANSPARENT_BRUSH)
 		dc.SetLogicalFunction(wx.COPY)
-		# Draw the outline
-		dc.DrawRectangle( x+off, y+off, w-(2*off), h-(2*off) )
-		# If this is a GridBag Sizer, draw the cells
-		if isinstance(sz, wx.GridBagSizer):
-			import random
-			rows = sz.GetRows()
-			cols = sz.GetCols()
-			colors = ["red","blue","green", "cyan"]
-			dc.SetPen(wx.Pen("blue", 1, wx.SOLID))
-			vgap = sz.GetVGap()
-			hgap = sz.GetHGap()
-			y2 = y
-			rhts = sz.GetRowHeights()
-			for hh in rhts:
-				x2 = x
-				for ww in sz.GetColWidths():
-					dc.DrawRectangle(x2, y2, ww, hh)
-					x2 += ww+hgap
-				y2 += hh+vgap
-				clr = random.choice(colors)
-				dc.SetPen(wx.Pen(clr, 1, wx.SOLID))
+		x, y = sz.GetPosition()
+		w, h = sz.GetSize()
+		rows = sz.GetRows()
+		cols = sz.GetCols()
+		vgap = sz.GetVGap()
+		hgap = sz.GetHGap()
+		x2,y2 = x,y
+		rhts = sz.GetRowHeights()
+		dc.SetPen(wx.Pen("blue", 1, wx.SOLID))
+		for hh in rhts:
+			dc.DrawRectangle(x2, y2, w, hh)
+			y2 += hh+vgap
+		x2 = x
+		y2 = y
+		cwds = sz.GetColWidths()
+		dc.SetPen(wx.Pen("red", 1, wx.SOLID))
+		for ww in cwds:
+			dc.DrawRectangle(x2, y2, ww, h)
+			x2 += ww+hgap
+		dc.SetPen(wx.Pen("green", 3, wx.LONG_DASH))
+		dc.DrawRectangle(x,y,w,h)
 
 
 class SelectOptionsPanel(dPanel.dPanel):
@@ -420,16 +421,11 @@ class dSelectPage(DataNavPage):
 		panel = dPanel.dPanel(self)
 		gsz = dabo.ui.dGridSizer(vgap=5, hgap=10)
 		gsz.MaxCols = 3
-
 		label = dLabel.dLabel(panel)
 		label.Caption = _("Please enter your record selection criteria:")
 		label.FontSize = label.FontSize + 2
 		label.FontBold = True
 		gsz.append(label, colSpan=3, alignment="center")
-		
-#		ln = dabo.ui.dLine(panel)
-#		ln.Height = 5
-#		gsz.Add(ln, (1,0), (1,3), wx.ALIGN_CENTER | wx.ALL | wx.EXPAND, 5)
 		
 		# Get all the fields that should be included into a list. Order them
 		# into the order specified in the specs.
@@ -453,6 +449,7 @@ class dSelectPage(DataNavPage):
 			if not opList.GetStringSelection():
 				opList.SetSelection(0)
 			opList.setTarget(ctrl)
+			opList.FontItalic = (IGNORE_STRING in opList.StringValue)
 			
 			gsz.append(lbl, alignment="right")
 			gsz.append(opList, alignment="left")
@@ -483,9 +480,11 @@ class dSelectPage(DataNavPage):
 		
 		# Make the last column growable
 		gsz.setColExpand(True, 2)
-		panel.SetSizerAndFit(gsz)
-#		panel.SetAutoLayout(True)
-#		gsz.Fit(panel)
+#		panel.SetSizerAndFit(gsz)
+		
+		vsz = dabo.ui.dSizer("v")
+		vsz.append(gsz, 1, "expand")
+		panel.SetSizerAndFit(vsz)
 
 		return panel
 

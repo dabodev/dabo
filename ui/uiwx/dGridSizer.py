@@ -141,6 +141,36 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 						break
 				emptyCol += 1
 		return ret
+
+
+	def drawOutline(self, win):
+		""" Need to override this method to draw the outline
+		properly for the grid.
+		"""
+		dc = wx.ClientDC(win)
+		dc.SetBrush(wx.TRANSPARENT_BRUSH)
+		dc.SetLogicalFunction(wx.COPY)
+		x, y = self.GetPosition()
+		w, h = self.GetSize()
+		rows = self.GetRows()
+		cols = self.GetCols()
+		vgap = self.GetVGap()
+		hgap = self.GetHGap()
+		x2,y2 = x,y
+		rhts = self.GetRowHeights()
+		dc.SetPen(wx.Pen("blue", 1, wx.SOLID))
+		for hh in rhts:
+			dc.DrawRectangle(x2, y2, w, hh)
+			y2 += hh+vgap
+		x2 = x
+		y2 = y
+		cwds = self.GetColWidths()
+		dc.SetPen(wx.Pen("red", 1, wx.SOLID))
+		for ww in cwds:
+			dc.DrawRectangle(x2, y2, ww, h)
+			x2 += ww+hgap
+		dc.SetPen(wx.Pen("green", 3, wx.LONG_DASH))
+		dc.DrawRectangle(x,y,w,h)
 	
 	
 	def _getMaxRows(self):
