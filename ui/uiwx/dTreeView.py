@@ -264,7 +264,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		return ret
 	
 
-	def find(self, srch, top=self):
+	def find(self, srch, top=None):
 		""" Searches the nodes collection for all nodes that match
 		whose text matches the passed search value (if a text value
 		was passed). If a wxPython TreeItemID object is passed, returns
@@ -274,7 +274,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		Returns a list of matching nodes.
 		"""
 		ret = []
-		if top == self:
+		if top is None:
 			nodes = self.nodes
 		else:
 			nodes = top.Descendents
@@ -287,7 +287,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		return ret
 		
 		
-	def findPattern(self, srchPat, top=self):
+	def findPattern(self, srchPat, top=None):
 		""" Allows for regexp pattern matching in order to find matching
 		nodes using less than exact matches. If a specific node is passed
 		in the top property, the search is limited to descendents of that
@@ -295,7 +295,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		Returns a list of matching nodes.
 		"""
 		ret = []
-		if top == self:
+		if top is None:
 			nodes = self.nodes
 		else:
 			nodes = top.Descendents
