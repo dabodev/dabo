@@ -6,6 +6,7 @@ from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
 import dabo.dException as dException
 import dabo.common
+import sys
 
 class dCursorMixin(dabo.common.dObject):
 	def __init__(self, sql="", *args, **kwargs):
@@ -54,7 +55,8 @@ class dCursorMixin(dabo.common.dObject):
 		# User-editable list of non-updated fields
 		self.nonUpdateFields = []
 		# Default encoding
-		self.__encoding = "latin-1"
+		#sysenc = sys.getdefaultencoding()
+		#self.__encoding = sysenc == 'ascii' and 'latin-1' or sysenc
 
 		self._blank = {}
 		self.__unsortedRows = []
@@ -65,12 +67,6 @@ class dCursorMixin(dabo.common.dObject):
 		# Holds reference to auxiliary cursor that handles queries that
 		# are not supposed to affect the record set.
 		self.__auxCursor = None
-
-# Initialize the saved props stack.
-# self.holdrows = []
-# self.holdcount = []
-# self.holdpos = []
-# self.holddesc = []
 
 		# Reference to the object with backend-specific behaviors
 		self.__backend = None
@@ -124,7 +120,7 @@ class dCursorMixin(dabo.common.dObject):
 		
 		# Make sure all Unicode charcters are properly encoded.
 		if type(sql) == types.UnicodeType:
-			sqlEX = sql.encode(self.__encoding)
+			sqlEX = sql.encode(self.BackendObject.Encoding)
 		else:
 			sqlEX = sql
 
@@ -160,7 +156,7 @@ class dCursorMixin(dabo.common.dObject):
 					for i in range(0, fldcount):
 						if type(row[i]) == str:	
 							# String; convert it to unicode
-							dic[fldNames[i]] = unicode(row[i], self.__encoding)
+							dic[fldNames[i]] = unicode(row[i], self.BackendObject.Encoding)
 						else:
 							dic[fldNames[i]] = row[i]
 					tmpRows.append(dic)
@@ -173,7 +169,7 @@ class dCursorMixin(dabo.common.dObject):
 						val = row[fld]
 						if type(val) == str:	
 							# String; convert it to unicode
-							row[fld]= unicode(val, self.__encoding)
+							row[fld]= unicode(val, self.BackendObject.Encoding)
 			
 			# There can be a problem with the MySQLdb adapter if
 			# the mx modules are installed on the machine, the adapter
@@ -649,7 +645,6 @@ class dCursorMixin(dabo.common.dObject):
 				# Call the database backend-specific code to retrieve the
 				# most recently generated PK value.
 				newPKVal = self.getLastInsertID()
-
 			if newrec and self.AutoPopulatePK:
 				self.setFieldVal(self.KeyField, newPKVal)
 
@@ -993,7 +988,7 @@ class dCursorMixin(dabo.common.dObject):
 				ret += " AND "
 			pkVal = rec[fld]
 			if type(pkVal) in (types.StringType, types.UnicodeType):
-				ret += tblPrefix + fld + "='" + pkVal.encode(self.__encoding) + "' "  
+				ret += tblPrefix + fld + "='" + pkVal.encode(self.BackendObject.Encoding) + "' "
 			else:
 				ret += tblPrefix + fld + "=" + str(pkVal) + " "
 		return ret

@@ -1,6 +1,7 @@
 """ dabo.db.backend.py : abstractions for the various db api's """
 import dabo.dException as dException
 import dabo.common
+import sys
 
 class dBackend(dabo.common.dObject):
 	""" Abstract object: inherit from this to define new dabo db interfaces.
@@ -11,6 +12,8 @@ class dBackend(dabo.common.dObject):
 		super(dBackend, self).__init__()
 		self.dbModuleName = None
 		self._connection = None
+		sysenc = sys.getdefaultencoding()
+		self._encoding = sysenc == 'ascii' and 'latin-1' or sysenc
 
 	def isValidModule(self):
 		""" Test the dbapi to see if it is supported on this computer. 
@@ -208,7 +211,6 @@ class dBackend(dabo.common.dObject):
 		"""
 		return tbl + "."
 
-
 	###########################################	
 	# The following methods by default simply return the text 
 	# supplied to them. If a particular backend (Firebird comes
@@ -229,3 +231,14 @@ class dBackend(dabo.common.dObject):
 	def setOrderByClause(self, clause):
 		return clause
 	###########################################	
+
+	def setEncoding(self, enc):
+		""" Set backend encoding. Must be overridden in the subclass
+		to notify database about proper charset conversion.
+		"""
+		self._encoding = enc
+	def getEncoding(self):
+		""" Get backend encoding."""
+		return self._encoding
+
+	Encoding = property(getEncoding, setEncoding, None, "Backend encoding")
