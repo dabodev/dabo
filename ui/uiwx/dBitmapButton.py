@@ -1,7 +1,8 @@
-import wx, warnings
+import warnings, wx, dabo
 import dControlMixin as cm
 from dabo.dLocalize import _
 from dIcons import getIconBitmap
+import dEvents
 
 class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button.
@@ -16,7 +17,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		
 		if bitmap is None:
 			# Default to the Dabo icon
-			bitmap = getIconBitmap("daboIcon048")
+			bitmap = getIconBitmap("daboIcon016")
 		
 		pre.Create(parent, id, bitmap, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
@@ -31,10 +32,12 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		cm.dControlMixin.initEvents(self)
 
 		# init the widget's specialized event(s):
-		wx.EVT_BUTTON(self, self.GetId(), self.OnButton)
+		self.bindEvent(dEvents.Button, self.onButton)
 
 	# Event callback methods (override in subclasses):
-	def OnButton(self, event):
+	def onButton(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onButton received by %s") % self.Name)
 		event.Skip()
 
 
@@ -68,7 +71,4 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 
 if __name__ == "__main__":
 	import test
-	class c(dBitmapButton):
-		def OnButton(self, event): print "Button!"
-
-	test.Test().runTest(c)
+	test.Test().runTest(dBitmapButton)

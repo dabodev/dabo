@@ -17,16 +17,8 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self.mainPanel.txtName.Value = "test"
 		"""
 		
-		# First, try to delegate to self._tkObject:
-# 		try:
-# 			return eval("self._tkObject.%s" % att)
-# 		except AttributeError:
-# 			pass
-		
 		children = self.winfo_children()
 
-		print self, self.winfo_name(), children, att
-				
 		ret = None
 		for child in children:
 			if child.winfo_name() == att:

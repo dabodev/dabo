@@ -10,6 +10,7 @@ import wx, wx.grid
 import urllib
 import dIcons
 import dabo.dException as dException
+import dEvents
 
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
@@ -269,8 +270,8 @@ class dGridDataNav(dGrid.dGrid):
 		self.headerDragTo = 0
 		self.headerSizing = False
 
-		self.Bind(wx.EVT_TIMER, self.OnIncrementalSearchTimer, self.incrementalSearchTimer)
-		self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+		self.bindEvent(dEvents.Timer, self.onIncrementalSearchTimer, self.incrementalSearchTimer)
+		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
 
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.OnLeftDClick)
 		self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.OnGridRowSize)
@@ -389,7 +390,7 @@ class dGridDataNav(dGrid.dGrid):
 					rect, wx.ALIGN_CENTER | wx.ALIGN_TOP)
 
 
-	def OnIncrementalSearchTimer(self, evt):
+	def onIncrementalSearchTimer(self, evt):
 		""" Occurs when the incremental search timer reaches its interval. 
 
 		It is time to run the search, if there is any search in the buffer.
@@ -518,16 +519,17 @@ class dGridDataNav(dGrid.dGrid):
 		self.processSort(evt.GetCol())
 
 
-	def OnKeyDown(self, evt): 
+	def onKeyDown(self, evt): 
 		""" Occurs when the user presses a key inside the grid. 
 
 		Default actions depend on the key being pressed:
 
-					Enter:  edit the record
-						Del:  delete the record
-						F2:  sort the current column
-				AlphaNumeric:  incremental search
+			Enter:  edit the record
+			Del:  delete the record
+			F2:  sort the current column
+			AlphaNumeric:  incremental search
 		"""
+		
 		keyCode = evt.GetKeyCode()
 		try:
 			char = chr(keyCode)
@@ -556,19 +558,19 @@ class dGridDataNav(dGrid.dGrid):
 	def newRecord(self, event=None):
 		""" Request that a new row be added.
 		"""
-		self.GetParent().newRecord()
+		self.Parent.newRecord()
 
 
 	def editRecord(self, event=None):
 		""" Request that the current row be edited.
 		"""
-		self.GetParent().editRecord()
+		self.Parent.editRecord()
 
 
 	def deleteRecord(self, event=None):
 		""" Request that the current row be deleted.
 		"""
-		self.GetParent().deleteRecord()
+		self.Parent.deleteRecord()
 
 
 	def pickRecord(self, event=None):

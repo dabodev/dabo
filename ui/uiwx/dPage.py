@@ -38,7 +38,7 @@ class dPage(dPanel.dScrollPanel):
 			self.createItems()
 			self.itemsCreated = True
 		self.GetSizer().Layout()
-		self.SetSize((-1,-1))		# Needed on Linux to get the sizer to layout.
+		self.Size = (-1,-1)		# Needed on Linux to get the sizer to layout.
 		
 
 	def onLeavePage(self):

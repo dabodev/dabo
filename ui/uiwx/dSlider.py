@@ -1,6 +1,8 @@
-import wx
+import wx, dabo
 import dControlMixin as cm
 import dDataControlMixin as dcm
+import dEvents
+from dabo.dLocalize import _
 
 class dSlider(wx.Slider, dcm.dDataControlMixin, cm.dControlMixin):
 	""" Allows editing integer values with a slider control.
@@ -25,14 +27,18 @@ class dSlider(wx.Slider, dcm.dDataControlMixin, cm.dControlMixin):
 	def initEvents(self):
 		# init the common events:
 		cm.dControlMixin.initEvents(self)
-
-		self.Bind(wx.EVT_SCROLL, self.OnScroll)
+		self.bindEvent(dEvents.Scroll, self.onScroll)
+		self.bindEvent(dEvents.Scroll, self._onScroll)
 		
 		
-	def OnScroll(self, evt):
+	def onScroll(self, evt):
+		if self.debug:
+			dabo.infoLog.write("onScroll received by %s" % self.Name)
 		evt.Skip()
-		self.raiseValueChanged()
 		
+	def _onScroll(self, evt):
+		self.raiseEvent(dEvents.ValueChanged)
+		evt.Skip()
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.

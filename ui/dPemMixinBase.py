@@ -86,9 +86,37 @@ class dPemMixinBase(dabo.common.dObject):
 		
 	
 	def addObject(self, classRef, name, *args, **kwargs):
-		""" Abstract method: subclasses MUST override for UI-specifics.
+		""" Create an instance of classRef, and make it a child of self.
+		
+		Abstract method: subclasses MUST override for UI-specifics.
 		"""
+		pass
+		
+
+	def bindEvent(self, event, function, eventObject=None):
+		""" Bind a Dabo event raised by eventObject (or self) to the given function.
+		
+		Abstract method: subclasses MUST override for UI-specifics.
+		"""
+		pass
+		
 	
+	def unBindEvent(self, event, function, eventObject=None):
+		""" Unbind a previously bound event/function.
+		
+		Abstract method: subclasses MUST override for UI-specifics.
+		"""
+		pass
+		
+		
+	def raiseEvent(self, event):
+		""" Raise the specified event.
+		
+		Abstract method: subclasses MUST override for UI-specifics.
+		"""
+		pass
+		
+			
 	def getPropValDict(self, obj=None):
 		""" Return a dictionary of property name/value pairs.
 		"""

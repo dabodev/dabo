@@ -25,13 +25,16 @@ class dDataControlMixin(pm.dPemMixin):
 		pass
 		
 		
-	def OnCreateWindow(self, event):
+	def onCreate(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onCreate received by %s") % self.Name)
 		if self.SaveRestoreValue:
 			self.restoreValue()
 		event.Skip()
-		
 	
-	def OnDestroyWindow(self, event):
+	def onDestroy(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onDestroy received by %s") % self.Name)
 		if self.SaveRestoreValue:
 			self.saveValue()
 		event.Skip()
@@ -112,11 +115,11 @@ class dDataControlMixin(pm.dPemMixin):
 		self.SetSelection(-1,-1)    # select all text
 
 
-	def OnSetFocus(self, event):
+	def onGotFocus(self, event):
 		""" Occurs when the control receives the keyboard focus.
 		"""
 		if self.debug:
-			dabo.infoLog.write(_("OnSetFocus received by %s") % self.GetName())
+			dabo.infoLog.write(_("onGotFocus received by %s") % self.Name)
 
 		self._oldVal = self.Value
 
@@ -129,11 +132,11 @@ class dDataControlMixin(pm.dPemMixin):
 		event.Skip()
 
 
-	def OnKillFocus(self, event):
+	def onLostFocus(self, event):
 		""" Occurs when the control loses the keyboard focus.
 		"""
 		if self.debug:
-			dabo.infoLog.write(_("OnKillFocus received by %s") % self.GetName())
+			dabo.infoLog.write(_("onLostFocus received by %s") % self.Name)
 
 		self.flushValue()
 		
@@ -206,13 +209,6 @@ class dDataControlMixin(pm.dPemMixin):
 			dabo.infoLog.write(_("getShortDataType - unknown type:"), self, value)
 			return "?"
 			
-
-	def raiseValueChanged(self):
-		""" Raise EVT_VALUECHANGED event to notify any listeners.
-		"""
-		evt = dEvents.dEvent(dEvents.EVT_VALUECHANGED, self.GetId())
-		self.GetEventHandler().ProcessEvent(evt)
-	
 	
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -245,7 +241,7 @@ class dDataControlMixin(pm.dPemMixin):
 		
 	def _setValue(self, value):
 		self.SetValue(value)
-		self.raiseValueChanged()
+		self.raiseEvent(dEvents.ValueChanged)
 
 	# Property definitions:
 	DataSource = property(_getDataSource, _setDataSource, None,

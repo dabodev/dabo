@@ -1,7 +1,9 @@
 import wx
+import dabo
 import dControlMixin as cm
 import dDataControlMixin as dcm
-
+import dEvents
+from dabo.dLocalize import _
 
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 	""" Allows editing one line of string or unicode data.
@@ -17,7 +19,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
 		pre = wx.PreTextCtrl()
 		self._beforeInit(pre)                  # defined in dPemMixin
-		pre.Create(parent, id, name, style=style|pre.GetWindowStyleFlag(), *args, **kwargs)
+		pre.Create(parent, id, name=name, style=style|pre.GetWindowStyleFlag(), *args, **kwargs)
 		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)
@@ -37,14 +39,20 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 		dcm.dDataControlMixin.initEvents(self)
 
 		# init the widget's specialized event(s):
-		wx.EVT_TEXT(self, self.GetId(), self.OnText)
+		self.bindEvent(dEvents.Text, self._onText)
+		self.bindEvent(dEvents.Text, self.onText)
 
 
 	# Event callback method(s) (override in subclasses):
-	def OnText(self, event):
-		self.raiseValueChanged()
+	def onText(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onText received by %s") % self.Name)
 		event.Skip()
 
+	# Private Event callback method(s) (do not override):
+	def _onText(self, event):
+		self.raiseEvent(dEvents.ValueChanged)
+		event.Skip()
 
 	# property get/set functions
 	def _getAlignment(self):
@@ -116,6 +124,4 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
 if __name__ == "__main__":
 	import test
-	class c(dTextBox):
-		def OnText(self, event): print "OnText!"
-	test.Test().runTest(c)
+	test.Test().runTest(dTextBox)

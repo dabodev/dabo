@@ -23,6 +23,7 @@ class Test(object):
 		frame = wx.Frame(None, -1, "")
 		frame.SetSize((300,1))
 		object = classRef(frame)
+		object.debug = True
 		frame.SetLabel("Test of %s" % object.GetName())
 		object.SetFocus()
 		frame.Show()
@@ -44,23 +45,30 @@ class Test(object):
 
 		vs = wx.BoxSizer(wx.VERTICAL)
 
-		for obj in ((ui.dTextBox(panel), "txtCounty", "ccounty"), 
-					(ui.dTextBox(panel), "txtCity", "ccity"),
-					(ui.dTextBox(panel), "txtZipcode", "czip"),
-					(ui.dSpinner(panel), "spn1", "iid"),
-					(ui.dCheckBox(panel), "chk1"),
-					(ui.dEditBox(panel), "edt1"),
-					(ui.dCommandButton(panel), "cmd1")):
+		for obj in ((ui.dBitmapButton(panel), "dBitmapButton"),
+					(ui.dBox(panel), "dBox"),
+					(ui.dCheckBox(panel), "dCheckBox"),
+					(ui.dCommandButton(panel), "dCommandButton"),
+					(ui.dDateTextBox(panel), "dDateTextBox"),
+					(ui.dDropdownList(panel), "dDropdownList"),
+					(ui.dEditBox(panel), "dEditBox"),
+					(ui.dGauge(panel), "dGauge"),
+					(ui.dGrid(panel), "dGrid"),
+					(ui.dLabel(panel), "dLabel"),
+					(ui.dLine(panel), "dLine"),
+					(ui.dListbook(panel), "dListbook"),
+					(ui.dRadioGroup(panel), "dRadioGroup"),
+					(ui.dSlider(panel), "dSlider"),
+					(ui.dSpinner(panel), "dSpinner"),
+					(ui.dTextBox(panel), "dTextBox"), 
+					(ui.dToggleButton(panel), "dToggleButton")):
+					
 			bs = wx.BoxSizer(wx.HORIZONTAL)
 			label = ui.dLabel(panel, style=wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE)
 			label.Width = labelWidth
 
-			try:
-				label.Name = obj[2]
-				label.Caption = "%s:" % obj[2]
-			except IndexError:
-				label.Name = "lbl%s" % obj[1]
-				label.Caption = "%s:" % obj[1]
+			label.Name = "lbl%s" % obj[1]
+			label.Caption = "%s:" % obj[1]
 			bs.Add(label)
 
 			object = obj[0]
@@ -70,7 +78,6 @@ class Test(object):
 				expandFlags = 0
 
 			object.Name = "%s" % obj[1]
-				
 			object.debug = True # show the events
 
 			bs.Add(object, 1, expandFlags | wx.ALL, 0)

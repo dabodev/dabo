@@ -1,6 +1,8 @@
-import wx
+import wx, dabo
 import dControlMixin as cm
 import dDataControlMixin as dcm
+import dEvents
+from dabo.dLocalize import _
 
 class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 	""" Allows editing integer values.
@@ -26,17 +28,31 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 		dcm.dDataControlMixin.initEvents(self)
 
 		# init the widget's specialized event(s):
-		wx.EVT_SPINCTRL(self, self.GetId(), self.OnSpin)
-		wx.EVT_TEXT(self, self.GetId(), self.OnText)
+		self.bindEvent(dEvents.Spinner, self.onSpinner)
+		self.bindEvent(dEvents.Spinner, self._onSpinner)
+		self.bindEvent(dEvents.Text, self.onText)
+		self.bindEvent(dEvents.Text, self._onText)
 
 	# Event callback method(s) (override in subclasses):
-	def OnSpin(self, event):
-		self.raiseValueChanged()
+	def onSpinner(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onSpinner received by %s") % self.Name)
+		event.Skip()
 		
-	def OnText(self, event):
-		self.raiseValueChanged()
-
-
+	def onText(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onText received by %s") % self.Name)
+		event.Skip()
+		
+	# Private event callbacks (do not override):
+	def _onSpinner(self, event):
+		self.raiseEvent(dEvents.ValueChanged)
+		event.Skip()
+		
+	def _onText(self, event):
+		self.raiseEvent(dEvents.ValueChanged)
+		event.Skip()
+		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getMax(self):
@@ -82,7 +98,4 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
 if __name__ == "__main__":
 	import test
-	class c(dSpinner):
-		def OnSpin(self, event): print "OnSpin!"
-		def OnText(self, event): print "OnText!"
-	test.Test().runTest(c)
+	test.Test().runTest(dSpinner)

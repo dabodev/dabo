@@ -42,7 +42,7 @@ class dDataNavForm(dForm.dForm):
 			self.Bind(wx.EVT_MENU, self.Close, id=anId)
 
 							
-	def OnActivate(self, evt):
+	def onActivate(self, evt):
 		if self.RequeryOnLoad and not self._requeried:
 			self._requeried = True
 			self.pageFrame.GetPage(0).requery()
@@ -397,7 +397,7 @@ class dDataNavForm(dForm.dForm):
 		self._childBehavior[dataSource] = cb
 	
 	
-	def OnSetFocus(self, event):
+	def onGotFocus(self, event):
 		""" Occurs when the form receives the focus.
 
 		For dDataNavForm, the toolbar and menu need to be set up.
@@ -426,9 +426,7 @@ class dDataNavForm(dForm.dForm):
 		""" This form is a picklist, and the user chose a record in the grid.
 		"""
 		# Raise EVT_ITEMPICKED so the originating form can act
-		evt = dEvents.dEvent(dEvents.EVT_ITEMPICKED, self.GetId())
-		evt.SetEventObject(self)
-		self.GetEventHandler().ProcessEvent(evt)
+		self.raiseEvent(dEvents.ItemPicked)
 
 				
 	def _getFormType(self):

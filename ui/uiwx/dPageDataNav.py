@@ -53,13 +53,12 @@ class SelectOptionsCheckBox(dCheckBox.dCheckBox):
 	""" Base class for the checkboxes used in the select page.
 	"""
 	def afterInit(self):
-		EVT_VALUECHANGED = wx.PyEventBinder(dEvents.EVT_VALUECHANGED, 0)
-		self.Bind(EVT_VALUECHANGED, self.OnValueChanged)
+		self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
 
 	def initProperties(self):
 		self.SaveRestoreValue = True
 	
-	def OnValueChanged(self, evt):
+	def onValueChanged(self, evt):
 		self.Parent.setEnabled(self)
 		
 
@@ -286,7 +285,7 @@ class dSelectPage(dPage.dPage):
 		requeryButton = dCommandButton.dCommandButton(panel)
 		requeryButton.Caption = "&%s" % _("Requery")
 		requeryButton.Default = True             # Doesn't work on Linux, but test on win/mac
-		requeryButton.Bind(wx.EVT_BUTTON, self.onRequery)
+		requeryButton.bindEvent(dEvents.Button, self.onRequery)
 
 		box.Add(requeryButton, 0)
 		sizer.Add(box, 0, wx.GROW, 5)
@@ -353,7 +352,7 @@ class dBrowsePage(dPage.dPage):
 		
 		preview = self.addObject(dCommandButton.dCommandButton, "cmdPreview")
 		preview.Caption = "Preview"
-		preview.Bind(wx.EVT_BUTTON, self.onPreview)
+		preview.bindEvent(dEvents.Button, self.onPreview)
 		self.GetSizer().Add(preview, 0, 0)
 		
 		self.itemsCreated = True
@@ -525,7 +524,7 @@ class dChildViewPage(dPage.dPage):
 		if cb["EnableNew"]:
 			nb = self.addObject(dCommandButton.dCommandButton, "cmdNew")
 			nb.Caption = "Add new child record"
-			nb.Bind(wx.EVT_BUTTON, self.newRecord)
+			nb.bindEvent(dEvents.Button, self.newRecord)
 			self.GetSizer().Add(nb, 0, wx.EXPAND)
 		grid = self.addObject(dGridDataNav.dGridDataNav, "ChildViewGrid")
 		grid.DataSource = self.dataSource
@@ -596,8 +595,7 @@ class dChildViewPage(dPage.dPage):
 							ref = PickList(self.Form)
 							self.pickListRef = ref
 						
-							EVT_ITEMPICKED = wx.PyEventBinder(dEvents.EVT_ITEMPICKED, 0)    
-							ref.Bind(EVT_ITEMPICKED, self.newItemPicked)
+							ref.bindEvent(dEvents.ItemPicked, self.newItemPicked)
 							ref.Show()
 						ref.Raise()
 					else:

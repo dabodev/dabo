@@ -1,6 +1,8 @@
-import wx
+import wx, dabo
 import dControlMixin as cm
 import dDataControlMixin as dcm
+import dEvents
+from dabo.dLocalize import _
 
 class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 	""" Allows choosing one option from a list of options.
@@ -38,13 +40,19 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 		dcm.dDataControlMixin.initEvents(self)
 
 		# init the widget's specialized event(s):
-		self.Bind(wx.EVT_RADIOBOX, self.OnSelect)
+		self.bindEvent(dEvents.RadioBox, self.onRadioBox)
+		self.bindEvent(dEvents.RadioBox, self._onRadioBox)
 
 	# Event callback method(s) (override in subclasses):
-	def OnSelect(self, event):
-		self.raiseValueChanged()
+	def onRadioBox(self, event):
+		if self.debug:
+			dabo.infoLog.write("onRadioBox received by %s" % self.Name)
 		event.Skip()
 
+	# Private Event callback method(s) (do not override):
+	def _onRadioBox(self, event):
+		self.raiseEvent(dEvents.ValueChanged)
+		event.Skip()
 
 	def getPropertyInfo(self, name):
 		d = dRadioGroup.doDefault(name)
@@ -129,6 +137,4 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 
 if __name__ == "__main__":
 	import test
-	class c(dRadioGroup):
-		def OnSelect(self, event): print "OnSelect!"
-	test.Test().runTest(c)
+	test.Test().runTest(dRadioBox)

@@ -1,7 +1,8 @@
-import wx
+import wx, dabo
 import dControlMixin as cm
 import dDataControlMixin as dcm
-
+import dEvents
+from dabo.dLocalize import _
 
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
 	""" Allows visual editing of boolean values.
@@ -26,14 +27,20 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
 		dcm.dDataControlMixin.initEvents(self)
 
 		# init the widget's specialized event(s):
-		wx.EVT_CHECKBOX(self, self.GetId(), self.OnCheckBox)
+		self.bindEvent(dEvents.CheckBox, self._onCheckBox)
+		self.bindEvent(dEvents.CheckBox, self.onCheckBox)
 
-		
+	
 	# Event callback methods (override in subclasses):
-	def OnCheckBox(self, event):
-		self.raiseValueChanged()
+	def onCheckBox(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onCheckBox received by %s") % self.Name)
 		event.Skip()
-
+		
+	# Private callback methods (do not override):
+	def _onCheckBox(self, event):
+		self.raiseEvent(dEvents.ValueChanged)
+		event.Skip()
 		
 	# property get/set functions
 	def _getAlignment(self):
@@ -61,6 +68,4 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
 						'   Right : Checkbox to right of text')
 if __name__ == "__main__":
 	import test
-	class c(dCheckBox):
-		def OnCheckBox(self, event): print "OnCheckBox!" 
-	test.Test().runTest(c)
+	test.Test().runTest(dCheckBox)

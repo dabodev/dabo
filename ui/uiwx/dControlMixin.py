@@ -1,9 +1,9 @@
 """ dControlMixin.py: Provide behavior common to all dControls """
 
-import wx
 import dabo
 import dPemMixin as pm
 from dabo.dLocalize import _
+import dEvents
 
 class dControlMixin(pm.dPemMixin):
 	""" Provide common functionality for all controls.
@@ -17,14 +17,15 @@ class dControlMixin(pm.dPemMixin):
 			name = self.Name
 		
 		self.Name = name		
-		#self.Caption = self.getDefaultText()
 
 		# Subclass will intercept the initEvents first, allowing
 		# the framework user to completely override if desired.    
 		self.initEvents()
 		self.addToDform()
 
-
+	def initEvents(self):
+		pass
+		
 	def addToDform(self):
 		""" Ask the dForm to add this control to its registry.
 		"""
@@ -35,67 +36,70 @@ class dControlMixin(pm.dPemMixin):
 			pass
 
 
-	def getDefaultText(self):
-		""" Get default text to describe this object.
-		"""
-		return "Dabo: %s" % self.GetName()
-
-
-	def initEvents(self):
-		""" Initialize common event callbacks.
-		"""
-		self.Bind(wx.EVT_WINDOW_CREATE, self.OnCreateWindow)
-		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnDestroyWindow)
-		self.Bind(wx.EVT_ENTER_WINDOW, self.OnEnterWindow) 
-		self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeaveWindow) 
-		self.Bind(wx.EVT_SET_FOCUS, self.OnSetFocus)
-		self.Bind(wx.EVT_KILL_FOCUS, self.OnKillFocus)
-
-
-	def OnCreateWindow(self, event):
+	def onCreate(self, event):
 		""" Occurs after the init phase is complete.
 		"""
-		pass
+		if self.debug:
+			dabo.infoLog.write(_("onCreate received by %s") % self.Name)
+		event.Skip()
 		
 	
-	def OnDestroyWindow(self, event):
+	def onDestroy(self, event):
 		""" Occurs during the destroy phase.
 		
 		It is possible that not all attributes of the object will still
 		be available on all platforms.
 		"""
-		pass
+		if self.debug:
+			dabo.infoLog.write(_("onDestroy received by %s") % self.Name)
+		event.Skip()
 		
 		
-	def OnSetFocus(self, event):
+	def onGotFocus(self, event):
 		""" Occurs when the control receives the keyboard focus.
 		"""
 		if self.debug:
-			dabo.infoLog.write(_("OnSetFocus received by %s") % self.GetName())
+			dabo.infoLog.write(_("onGotFocus received by %s") % self.Name)
 		event.Skip()
 
 
-	def OnKillFocus(self, event):
+	def onLostFocus(self, event):
 		""" Occurs when the control loses the keyboard focus.
 		"""
 		if self.debug:
-			dabo.infoLog.write(_("OnKillWindow received by %s") % self.GetName())
+			dabo.infoLog.write(_("onLostFocus received by %s") % self.Name)
 		event.Skip()
 
 
-	def OnEnterWindow(self, event):
+	def onMouseEnter(self, event):
 		""" Occurs when the mouse pointer enters the bounds of the control.
 		"""
 		if self.debug:
-			dabo.infoLog.write(_("OnEnterWindow received by %s") % self.GetName())
+			dabo.infoLog.write(_("onMouseEnter received by %s") % self.Name)
 		event.Skip()
 
 
-	def OnLeaveWindow(self, event):
+	def onMouseLeave(self, event):
 		""" Occurs when the mouse pointer exits the bounds of the control.
 		"""
 		if self.debug:
-			dabo.infoLog.write(_("OnLeaveWindow received by %s") % self.GetName())
+			dabo.infoLog.write(_("onMouseLeave received by %s") % self.Name)
 		event.Skip()
 
+		
+	def onMouseLeftClick(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onMouseLeftClick received by %s") % self.Name)
+		event.Skip()
+		
+		
+	def onMouseRightClick(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onMouseRightClick received by %s") % self.Name)
+		event.Skip()
 
+		
+	def onMouseLeftDoubleClick(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onMouseLeftDoubleClick received by %s") % self.Name)
+		event.Skip()

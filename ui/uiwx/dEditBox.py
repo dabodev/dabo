@@ -1,6 +1,8 @@
-import wx
+import wx, dabo
 import dControlMixin as cm
 import dDataControlMixin as dcm
+import dEvents
+from dabo.dLocalize import _
 
 # The EditBox is just a TextBox with some additional styles.
 
@@ -35,13 +37,19 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 		dcm.dDataControlMixin.initEvents(self)
 
 		# init the widget's specialized event(s):
-		wx.EVT_TEXT(self, self.GetId(), self.OnText)
+		self.bindEvent(dEvents.Text, self.onText)
+		self.bindEvent(dEvents.Text, self._onText)	
 
 	# Event callback methods (override in subclasses):
-	def OnText(self, event):
-		self.raiseValueChanged()
+	def onText(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onText received by %s") % self.Name)
 		event.Skip()
 
+	# Private callbacks (do not override):
+	def _onText(self, event):
+		self.raiseEvent(dEvents.ValueChanged)
+		event.Skip()
 
 	# property get/set functions
 	def _getAlignment(self):
@@ -101,6 +109,4 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
 if __name__ == "__main__":
 	import test
-	class c(dEditBox):
-		def OnText(self, event): print "OnText!" 
-	test.Test().runTest(c)
+	test.Test().runTest(dEditBox)

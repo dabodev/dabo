@@ -1,10 +1,10 @@
+import wx, dabo
 from dLabel import dLabel
 from dTextBox import dTextBox
 from dDialog import dDialog
 from dCommandButton import dCommandButton
 from dabo.dLocalize import _
-import wx, dabo
-
+import dEvents
 
 class lbl(dLabel):
 	def initStyleProperties(self):
@@ -119,18 +119,18 @@ class dLogin(dDialog):
 		mainSizer.Add((0,5))
 		mainSizer.Layout()
 
-		self.cmdAccept.Bind(wx.EVT_BUTTON, self.OnAccept)
-		self.cmdCancel.Bind(wx.EVT_BUTTON, self.OnCancel)
+		self.cmdAccept.bindEvent(dEvents.Button, self.onAccept)
+		self.cmdCancel.bindEvent(dEvents.Button, self.onCancel)
 		
 		# Map escape key to cancelbutton:
 		anId = wx.NewId()
 		self.acceleratorTable.append((wx.ACCEL_NORMAL, wx.WXK_ESCAPE, anId))
-		self.Bind(wx.EVT_MENU, self.OnCancel, id=anId)
+		self.Bind(wx.EVT_MENU, self.onCancel, id=anId)
 
 		# Map enter key to accept button:
 		anId = wx.NewId()
 		self.acceleratorTable.append((wx.ACCEL_NORMAL, wx.WXK_RETURN, anId))
-		self.Bind(wx.EVT_MENU, self.OnAccept, id=anId)
+		self.Bind(wx.EVT_MENU, self.onAccept, id=anId)
 
 		
 	def setMessage(self, message):
@@ -138,11 +138,11 @@ class dLogin(dDialog):
 		self.GetSizer().Layout()
 				
 		
-	def OnCancel(self, evt):
+	def onCancel(self, evt):
 		self.user, self.password = None, None
 		self.Close()
 		
-	def OnAccept(self, evt):
+	def onAccept(self, evt):
 		self.user, self.password = self.txtUserName.Value, self.txtPassword.Value
 		self.Close()
 		

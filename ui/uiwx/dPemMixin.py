@@ -3,6 +3,7 @@ import wx, sys, types
 import dabo, dabo.common
 from dabo.dLocalize import _
 import dabo.ui.dPemMixinBase
+import dEvents
 
 class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	""" Provide Property/Event/Method interfaces for dForms and dControls.
@@ -57,15 +58,120 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			# to be able to save/restore help text.
 			wx.HelpProvider.Set(wx.SimpleHelpProvider())
 
+		self._mouseLeftDown, self._mouseRightDown = False, False
 
 	def _afterInit(self):
 		self.initProperties()
 		self.initChildObjects()
+		self._initEvents()
 		self.afterInit()
 		
 		self.SetAcceleratorTable(wx.AcceleratorTable(self.acceleratorTable))
 		
 
+	def _initEvents(self):
+		# Bind complex wx events to handlers that re-raise the Dabo events:
+		self.bindEvent(wx.EVT_LEFT_DOWN, self._onWxMouseLeftDown)
+		self.bindEvent(wx.EVT_LEFT_UP, self._onWxMouseLeftUp)
+		self.bindEvent(wx.EVT_RIGHT_DOWN, self._onWxMouseRightDown)
+		self.bindEvent(wx.EVT_RIGHT_UP, self._onWxMouseRightUp)
+		
+		# Binding for internal use:
+		self.bindEvent(dEvents.MouseLeave, self._onMouseLeave)
+		
+		# Convenience binding of common events:
+		self.bindEvent(dEvents.Create, self.onCreate)
+		self.bindEvent(dEvents.Destroy, self.onDestroy)
+		self.bindEvent(dEvents.GotFocus, self.onGotFocus)
+		self.bindEvent(dEvents.LostFocus, self.onLostFocus)
+		self.bindEvent(dEvents.MouseLeftClick, self.onMouseLeftClick)
+		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onMouseLeftDoubleClick)
+		self.bindEvent(dEvents.MouseRightClick, self.onMouseRightClick)
+		self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
+		self.bindEvent(dEvents.MouseLeave, self.onMouseLeave)
+	
+	
+	def _onWxMouseLeftDown(self, event):
+		self._mouseLeftDown = True
+		event.Skip()
+		
+	def _onWxMouseLeftUp(self, event):
+		if self._mouseLeftDown:
+			# mouse went down and up in this control: send a click:
+			self.raiseEvent(dEvents.MouseLeftClick)
+			self._mouseLeftDown = False
+		event.Skip()
+	
+	def _onWxMouseRightDown(self, event):
+		self._mouseRightDown = True
+		event.Skip()
+		
+	def _onWxMouseRightUp(self, event):
+		if self._mouseRightDown:
+			# mouse went down and up in this control: send a click:
+			self.raiseEvent(dEvents.MouseRightClick)
+			self._mouseRightDown = False
+		event.Skip()
+	
+	def _onMouseLeave(self, event):
+		self._mouseLeftDown, self._mouseRightDown = False, False
+		event.Skip()
+
+	def onCreate(self, event):
+		""" Occurs when the control is created.
+		"""
+		event.Skip()
+		
+	def onDestroy(self, event):
+		""" Occurs when the control is destroyed.
+		"""
+		event.Skip()
+					
+	def onGotFocus(self, event):
+		""" Occurs when the control or form gets the focus.
+		
+		Override in subclasses.
+		"""
+		event.Skip()
+	
+	def onLostFocus(self, event):
+		""" Occurs when the control or form loses the focus.
+		
+		Override in subclasses.
+		"""
+		event.Skip()
+		
+	def onMouseEnter(self, event):
+		""" Occurs when the mouse pointer enters the control.
+		"""
+		event.Skip()
+		
+	def onMouseLeave(self, event):
+		""" Occurs when the mouse pointer leaves the control.
+		"""
+		event.Skip()
+
+	def onMouseLeftClick(self, event):
+		""" Occurs when a mouse left-click happens on the control or form.
+		
+		Override in subclasses.
+		"""
+		event.Skip()
+		
+	def onMouseLeftDoubleClick(self, event):
+		""" Occurs when a mouse left-double-click happens on the control or form.
+		
+		Override in subclasses.
+		"""
+		event.Skip()
+		
+	def onMouseRightClick(self, event):
+		""" Occurs when a mouse right-click happens on the control or form.
+		
+		Override in subclasses.
+		"""
+		event.Skip()
+				
 	def getAbsoluteName(self):
 		""" Get self's fully-qualified name, such as 'dFormRecipes.dPageFrame.Page1.txtName'
 		"""
@@ -106,6 +212,29 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		object = classRef(self, name=name, *args, **kwargs)
 		return object
 
+	
+	def bindEvent(self, event, function, eventSource=None):
+		""" Bind a Dabo event raised by eventSource (or self) to the given function.
+		"""
+		self.Bind(event, function, eventSource)
+		
+	
+	def unBindEvent(self, event, eventSource=None):
+		""" Unbind a previously bound event/function.
+		
+		Abstract method: subclasses MUST override for UI-specifics.
+		"""
+		self.Unbind(self, event, eventSource)
+		
+		
+	def raiseEvent(self, event):
+		""" Raise the specified event.
+		
+		Abstract method: subclasses MUST override for UI-specifics.
+		"""
+		evt = dEvents.dEvent(event.evtType[0], self)
+		self.GetEventHandler().ProcessEvent(evt)
+	
 	
 	def reCreate(self, child=None):
 		""" Recreate self.

@@ -20,6 +20,7 @@ from dForm import dForm
 from dFormDataNav import dFormDataNav
 from dFormMain import dFormMain
 from dGauge import dGauge
+from dGrid import dGrid
 from dGridDataNav import dGridDataNav
 from dLabel import dLabel
 from dLine import dLine

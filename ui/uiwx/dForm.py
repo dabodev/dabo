@@ -114,10 +114,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 		This happens automatically for dControls.
 		"""
-		EVT_VALUEREFRESH = wx.PyEventBinder(dEvents.EVT_VALUEREFRESH, 0)
-		EVT_ROWNUMCHANGED = wx.PyEventBinder(dEvents.EVT_ROWNUMCHANGED, 0)    
-
-		self.dControls[control.GetName()] = control
+		self.dControls[control.Name] = control
 
 		# Set up the control to receive the notification 
 		# from the form that it's time to refresh its value,
@@ -128,7 +125,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		except AttributeError:
 			func = None
 		if func:
-			self.Bind(EVT_VALUEREFRESH, func)
+			self.bindEvent(dEvents.ValueRefresh, func)
 
 		# Set up the control to receive the notification 
 		# from the form that that the row number changed,
@@ -139,7 +136,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		except AttributeError:
 			func = None
 		if func:
-			self.Bind(EVT_ROWNUMCHANGED, func)
+			self.bindEvent(dEvents.RowNumChanged, func)
 
 
 	def refreshControls(self):
@@ -149,8 +146,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		in turn refresh themselves with the current value of the field in the
 		bizobj. 
 		"""
-		evt = dEvents.dEvent(dEvents.EVT_VALUEREFRESH, self.GetId())
-		self.GetEventHandler().ProcessEvent(evt)
+		self.raiseEvent(dEvents.ValueRefresh)
 		self.setStatusText(self.getCurrentRecordText())
 
 
@@ -164,9 +160,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.setStatusText(_("No records in dataset."))
 		else:
 			# Notify listeners that the row number changed:
-			evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
-			self.GetEventHandler().ProcessEvent(evt)
-
+			self.raiseEvent(dEvents.RowNumChanged)
 			self.refreshControls()
 
 
@@ -321,8 +315,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.refreshControls()
 
 			# Notify listeners that the row number changed:
-			evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
-			self.GetEventHandler().ProcessEvent(evt)
+			self.raiseEvent(dEvents.RowNumChanged)
 
 		except dException.dException, e:
 			if self.debug:
@@ -356,8 +349,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				self.setStatusText(_("Record Deleted."))
 				self.refreshControls()
 				# Notify listeners that the row number changed:
-				evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
-				self.GetEventHandler().ProcessEvent(evt)
+				self.raiseEvent(dEvents.RowNumChanged)
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
 				### TODO: What should be done here? Raise an exception?
@@ -384,8 +376,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 					dabo.infoLog.write(_("Delete All successful."))
 				self.refreshControls()
 				# Notify listeners that the row number changed:
-				evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
-				self.GetEventHandler().ProcessEvent(evt)
+				self.raiseEvent(dEvents.RowNumChanged)
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete All failed with response: %s") % str(e))
 				### TODO: What should be done here? Raise an exception?
@@ -409,9 +400,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.refreshControls()
 
 			# Notify listeners that the row number changed:
-			evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
-			self.GetEventHandler().ProcessEvent(evt)
-
+			self.raiseEvent(dEvents.RowNumChanged)
 			self.afterNew()
 
 		except dException.dException, e:

@@ -689,8 +689,7 @@ class dChildViewPage(DataNavPage):
 							ref = PickList(self.Form)
 							self.pickListRef = ref
 						
-							EVT_ITEMPICKED = wx.PyEventBinder(dEvents.EVT_ITEMPICKED, 0)    
-							ref.Bind(EVT_ITEMPICKED, self.newItemPicked)
+							self.bindEvent(dEvents.ItemPicked, self.newItemPicked)
 							ref.Show()
 						ref.Raise()
 					else:

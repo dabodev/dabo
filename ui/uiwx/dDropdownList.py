@@ -1,9 +1,11 @@
-import wx
+import wx, dabo
 import dControlMixin as cm
 import dDataControlMixin as dcm
+import dEvents
+from dabo.dLocalize import _
 
 class dDropdownList(wx.Choice, dcm.dDataControlMixin, cm.dControlMixin):
-	""" Allows editing integer values.
+	""" Allows presenting a choice of items for the user to choose from.
 	"""
 	def __init__(self, parent, id=-1, pos=wx.DefaultPosition, size=wx.DefaultSize, 
 			choices=["Dabo", "Default"], name="dDropdownList", style=0, *args, **kwargs):
@@ -28,11 +30,19 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin, cm.dControlMixin):
 		dcm.dDataControlMixin.initEvents(self)
 
 		# init the widget's specialized event(s):
-		wx.EVT_CHOICE(self, self.GetId(), self.OnChoice)
+		self.bindEvent(dEvents.Choice, self._onChoice)
+		self.bindEvent(dEvents.Choice, self.onChoice)
 
 	# Event callback method(s) (override in subclasses):
-	def OnChoice(self, event):
-		self.raiseValueChanged()
+	def onChoice(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onChoice received by %s") % self.Name)
+		event.Skip()
+			
+	# Private callback methods (do not override):
+	def _onChoice(self, event):
+		self.raiseEvent(dEvents.ValueChanged)
+		event.Skip()
 
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
@@ -42,7 +52,7 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin, cm.dControlMixin):
 		
 	def _setValue(self, value):
 		self.SetStringSelection(value)
-		self.raiseValueChanged()
+		self.raiseEvent(dEvents.ValueChanged)
 
 	# Property definitions:
 	Value = property(_getValue, _setValue, None,
@@ -50,6 +60,4 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin, cm.dControlMixin):
 
 if __name__ == "__main__":
 	import test
-	class c(dDropdownList):
-		def OnChoice(self, event): print "OnChoice!"
-	test.Test().runTest(c)
+	test.Test().runTest(dDropdownList)

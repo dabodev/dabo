@@ -1,5 +1,6 @@
-import wx, dControlMixin
-import dPage
+import wx, dabo
+import dControlMixin, dPage, dEvents
+from dabo.dLocalize import _
 
 class dListbook(wx.Listbook, dControlMixin.dControlMixin):
 	""" Create a container for an unlimited number of pages.
@@ -30,10 +31,15 @@ class dListbook(wx.Listbook, dControlMixin.dControlMixin):
 
 	def initEvents(self):
 		dControlMixin.dControlMixin.initEvents(self)
-		self.Bind(wx.EVT_LISTBOOK_PAGE_CHANGED, self.OnPageChanged)
+		self.bindEvent(dEvents.ListbookPageChanged, self.onPageChanged)
+		self.bindEvent(dEvents.ListbookPageChanged, self._onPageChanged)
 
-
-	def OnPageChanged(self, event):
+	def onPageChanged(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onPageChanged received by %s") % self.Name)
+		event.Skip()
+		
+	def _onPageChanged(self, event):
 		ls = self.lastSelection
 		cs = event.GetSelection()
 		event.Skip()    # This must happen before onLeave/EnterPage below

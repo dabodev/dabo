@@ -1,6 +1,7 @@
-import wx, warnings
+import wx, warnings, dabo
 import dControlMixin as cm
 from dabo.dLocalize import _
+import dEvents
 
 class dCommandButton(wx.Button, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button.
@@ -24,12 +25,13 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 		cm.dControlMixin.initEvents(self)
 
 		# init the widget's specialized event(s):
-		wx.EVT_BUTTON(self, self.GetId(), self.OnButton)
+		self.bindEvent(dEvents.Button, self.onButton)
 
 	# Event callback methods (override in subclasses):
-	def OnButton(self, event):
+	def onButton(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onButton received by %s") % self.Name)
 		event.Skip()
-
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -60,8 +62,5 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 
 
 if __name__ == "__main__":
-	import test
-	class c(dCommandButton):
-		def OnButton(self, event): print "Button!"
-
-	test.Test().runTest(c)
+	import dEvents, test
+	test.Test().runTest(dCommandButton)

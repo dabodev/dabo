@@ -1,9 +1,9 @@
+import re
 import wx
-import  wx.calendar
+import wx.calendar
 import dabo
 from dabo.dLocalize import _
-import dTextBox, dPanel, dCommandButton
-import re
+import dTextBox, dPanel, dCommandButton, dEvents
 
 
 class CalPanel(dPanel.dPanel):
@@ -79,15 +79,16 @@ class dDateTextBox(dTextBox.dTextBox):
 			self.calButton.Right = self.Right
 			self.calButton.Caption = "V"
 			self.calButton.Show(True)
-			self.Parent.Bind(wx.EVT_BUTTON, self.onDblClick, id=self.calButton.GetId() )
+			self.Parent.bindEvent(dEvents.Button, self.onDblClick, self.calButton)
+#			self.Parent.Bind(wx.EVT_BUTTON, self.onDblClick, id=self.calButton.GetId() )
 # 			calSizer = wx.BoxSizer(wx.HORIZONTAL)
 # 			calSizer.Add(self, 1, wx.EXPAND)
 # 			calSizer.Add(self.calButton)
 			
 
-		self.Bind(wx.EVT_RIGHT_DOWN, self.onRightClick)
-		self.Bind(wx.EVT_CHAR, self.onChar)
-		self.Bind(wx.EVT_LEFT_DCLICK, self.onDblClick)
+		self.bindEvent(dEvents.MouseRightDown, self.onRightClick)
+		self.bindEvent(dEvents.KeyChar, self.onChar)
+		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onDblClick)
 		# Tooltip help
 		self.ToolTipText = """Available Keys:
 =============
@@ -104,7 +105,7 @@ C: Popup Calendar to Select
 """
 	
 	
-	def OnKillFocus(self, evt):
+	def onLostFocus(self, evt):
 		""" Since the actual value is the date object, we need to refresh
 		the displayed text with the properly formatted character date.
 		"""
@@ -417,5 +418,4 @@ C: Popup Calendar to Select
 
 if __name__ == "__main__":
 	import test
-	class c(dDateTextBox): pass
-	test.Test().runTest(c)
+	test.Test().runTest(dDateTextBox)

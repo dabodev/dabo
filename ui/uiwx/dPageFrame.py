@@ -1,5 +1,5 @@
-import wx, dControlMixin
-import dPage
+import wx
+import dControlMixin, dPage, dEvents
 
 class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 	""" Create a container for an unlimited number of pages.
@@ -30,10 +30,10 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 
 	def initEvents(self):
 		dControlMixin.dControlMixin.initEvents(self)
-		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
+		self.bindEvent(dEvents.PageChanged, self.onPageChanged)
 
 
-	def OnPageChanged(self, event):
+	def onPageChanged(self, event):
 		ls = self.lastSelection
 		cs = event.GetSelection()
 

@@ -1,9 +1,10 @@
 """ dFormMixin.py """
-import wx
+import wx, dabo
 import dPemMixin as pm
 import dMainMenuBar as mnb
 import dMenu, dMessageBox, dabo.icons
 from dabo.dLocalize import _
+import dEvents
 
 class dFormMixin(pm.dPemMixin):
 	def __init__(self):
@@ -12,11 +13,8 @@ class dFormMixin(pm.dPemMixin):
 		
 		self.debugText = ""
 
-		wx.EVT_CLOSE(self, self.OnClose)
-		wx.EVT_SET_FOCUS(self, self.OnSetFocus)
-		wx.EVT_KILL_FOCUS(self, self.OnKillFocus)
-		wx.EVT_ACTIVATE(self, self.OnActivate)
-
+		self.initEvents()
+		
 		if self.Parent == wx.GetApp().GetTopWindow():
 			self.Application.uiForms.add(self)
 
@@ -32,15 +30,37 @@ class dFormMixin(pm.dPemMixin):
 
 		if not self.Icon:
 			self.Icon = wx.Icon(dabo.icons.getIconFileName('daboIcon048'), wx.BITMAP_TYPE_PNG)
+		
+				
+	def initEvents(self):
+		# Bind complex wx events to handlers that re-raise the Dabo events:
+		self.bindEvent(wx.EVT_ACTIVATE, self._onWxActivate)
 			
-	
-	def OnActivate(self, event): 
-		if bool(event.GetActive()) == True and self.restoredSP == False:
-			# Restore the saved size and position, which can't happen 
-			# in __init__ because we may not have our name yet.
+		# Convenience binding of common events:
+		self.bindEvent(dEvents.Close, self.onClose)
+		self.bindEvent(dEvents.Activate, self.onActivate)
+		self.bindEvent(dEvents.Deactivate, self.onDeactivate)
+			
+		
+	def _onWxActivate(self, event):
+		""" Raise the Dabo Activate or Deactivate appropriately.
+		"""
+		if bool(event.GetActive()):
+			self.raiseEvent(dEvents.Activate)
+		else:
+			self.raiseEvent(dEvents.Deactivate)
+			
+			
+	def onActivate(self, event): 
+		# Restore the saved size and position, which can't happen 
+		# in __init__ because we may not have our name yet.
+		if not self.restoredSP:
 			self.restoredSP = True
 			self.restoreSizeAndPosition()
 		event.Skip()
+		
+	def onDeactivate(self, event):
+		pass
 
 		
 	def afterSetMenuBar(self):
@@ -80,17 +100,10 @@ class dFormMixin(pm.dPemMixin):
 		return menu
 
 
-	def OnClose(self, event):
-		if self.GetParent() == wx.GetApp().GetTopWindow():
+	def onClose(self, event):
+		if self.Parent == wx.GetApp().GetTopWindow():
 			self.Application.uiForms.remove(self)
 		self.saveSizeAndPosition()
-		event.Skip()
-
-	def OnSetFocus(self, event):
-		event.Skip()
-
-
-	def OnKillFocus(self, event):
 		event.Skip()
 
 
