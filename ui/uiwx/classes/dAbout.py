@@ -8,9 +8,9 @@ import sys
 import wx
 import wx.html
 import wx.lib.wxpTag
-from dForm import dForm
+#from dForm import dForm
 
-class dAbout(dForm):
+class dAbout(wx.Dialog):
     text = '''
 <html>
 <body bgcolor="#AC76DE">
@@ -64,7 +64,7 @@ cellpadding="0" border="1">
 </html>
 '''
     def __init__(self, parent, dApp=None):
-        dForm.__init__(self, parent)
+        wx.Dialog.__init__(self, parent, -1, '')
         html = wx.html.HtmlWindow(self, -1, size=(420, -1))
         py_version = sys.version.split()[0]
         if dApp:

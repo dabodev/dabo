@@ -28,5 +28,4 @@ class uiApp(wx.App):
 
     def onHelpAbout(self):
         dlg = dAbout(self.mainFrame, self.dApp)
-        dlg.ShowModal()
-        dlg.Destroy()
+        dlg.Show()
