@@ -667,14 +667,13 @@ class EditPage(Page):
 		
 	def __onRowNumChanged(self, evt):
 		for cg in self.childGrids:
-			cg.fillGrid(True)
+			cg.fillGrid(redraw=True)
 
 	def __onPageLeave(self, evt):
 		self.Form.setPrimaryBizobjToDefault(self.dataSource)
 		
 	def __onPageEnter(self, evt):
 		self.Form.setPrimaryBizobj(self.dataSource)
-
 		
 		self.__onValueRefresh()
 		# The current row may have changed. Make sure that the

@@ -368,16 +368,18 @@ class Grid(dabo.ui.dGrid):
 		if redraw:
 			row = self.bizobj.RowNumber
 			col = max(0, self.GetGridCursorCol())
-			# Needed on Linux to get the grid to have the focus:
-			for window in self.GetChildren():
-				window.SetFocus()
-			# Needed on win and mac to get the grid to have the focus:
-			self.GetGridWindow().SetFocus()
 			if  not self.IsVisible(row, col):
 				self.MakeCellVisible(row, col)
 				self.MakeCellVisible(row, col)
 			self.SetGridCursor(row, col)
 		if currFocus is not None:
+			if currFocus is self:
+				# Needed on Linux to get the grid to have the focus:
+				for window in self.GetChildren():
+					window.SetFocus()
+				# Needed on win and mac to get the grid to have the focus:
+				self.GetGridWindow().SetFocus()
+
 			try:
 				currFocus.SetFocus()
 			except: pass
