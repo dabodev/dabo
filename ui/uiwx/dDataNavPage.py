@@ -395,6 +395,8 @@ class dBrowsePage(DataNavPage):
 	def updateGrid(self):
 		bizobj = self.Form.getBizobj()
 		justCreated = False
+		row = col = 0
+		
 		if self.Form.preview:
 			if not self.itemsCreated:
 				self.createItems()
@@ -412,11 +414,19 @@ class dBrowsePage(DataNavPage):
 			row = self.Form.getBizobj().RowNumber
 			col = self.BrowseGrid.GetGridCursorCol()
 			
-			col = max(0, col)
-			self.BrowseGrid.SetGridCursor(row, col)
-			
-			if not justCreated and not self.BrowseGrid.IsVisible(row, col):
-				self.BrowseGrid.MakeCellVisible(row, col)
+		col = max(0, col)
+		
+		# Needed on Linux to get the grid to have the focus:
+		for window in self.BrowseGrid.GetChildren():
+			window.SetFocus()
+		
+		# Needed on win and mac to get the grid to have the focus:
+		self.BrowseGrid.GetGridWindow().SetFocus()
+		
+		if  not self.BrowseGrid.IsVisible(row, col):
+			self.BrowseGrid.MakeCellVisible(row, col)
+			self.BrowseGrid.MakeCellVisible(row, col)
+		self.BrowseGrid.SetGridCursor(row, col)
 
 		
 	def onPageEnter(self, evt):
@@ -444,7 +454,7 @@ class dBrowsePage(DataNavPage):
 	def fillGrid(self):
 		bizobj = self.Form.getBizobj()
 		self.BrowseGrid.fillGrid()
-		self.GetSizer().Layout()
+		self.Layout()
 		for window in self.BrowseGrid.GetChildren():
 			window.SetFocus()
 
