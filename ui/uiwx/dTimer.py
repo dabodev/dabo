@@ -32,7 +32,7 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 		
 	def initEvents(self):
 		dControlMixin.dControlMixin.initEvents(self)
-		self.bindEvent(dEvents.Timer, self.onTimer, self._timer)
+		self.bindEvent(dEvents.Timer, self.onTimer)
 		self.bindEvent(dEvents.Timer, self._onTimer)
 		
 	def Show(self, *args, **kwargs):
