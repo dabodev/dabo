@@ -16,7 +16,7 @@ class Sqlite(dBackend):
 # 							passwd=connectInfo.Password,
 # 							db=connectInfo.DbName)
 
-	def getDictCursor(self):
+	def getDictCursorClass(self):
 		return None
 #		## TO DO 
 # 		import dbapi.cursors as cursors
