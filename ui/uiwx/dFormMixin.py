@@ -52,7 +52,6 @@ class dFormMixin(pm.dPemMixin):
 		# Restore the saved size and position, which can't happen 
 		# in __init__ because we may not have our name yet.
 		if not self.restoredSP:
-			self.restoredSP = True
 			self.restoreSizeAndPosition()
 		
 		
@@ -122,6 +121,8 @@ class dFormMixin(pm.dPemMixin):
 				self.Position = (left,top)
 			if (type(width), type(height)) == (type(int()), type(int())):
 				self.Size = (width,height)
+
+			self.restoredSP = True
 
 
 	def saveSizeAndPosition(self):
