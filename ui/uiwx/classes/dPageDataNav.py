@@ -1,5 +1,6 @@
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox, dIcons, dCommandButton
 import dPanel, dGrid, dCommandButton, dMessageBox, dEvents
+import dabo.dException as dException
 import wx
 from dabo.dLocalize import _
 
@@ -519,11 +520,21 @@ class dChildViewPage(dPage.dPage):
 			
 	def newRecord(self):
 		dMessageBox.stop("Adding new childview records isn't supported yet.")
+		#self.bizobj.new()
 		
 		
 	def deleteRecord(self):
-		dMessageBox.stop("Deleting childview records isn't supported yet.")
-
+		""" Ask the bizobj to delete the current record.
+		"""
+		message = _("This will delete the highlighted child record, and cannot "
+						"be canceled.\n\n Are you sure you want to do this?")
+		if dMessageBox.areYouSure(message, defaultNo=True):
+			try:
+				self.bizobj.delete()
+				self.getDform().setStatusText(_("Child record deleted."))
+			except dException.dException, e:
+				dMessageBox.stop("Delete failed with response:\n%s" % str(e))
+			self.fillGrid()
 	
 	def editRecord(self):
 		dMessageBox.stop("Editing childview records isn't supported yet.")

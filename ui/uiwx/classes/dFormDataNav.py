@@ -23,6 +23,7 @@ class dFormDataNav(frm.dForm):
 			self._requeried = True
 			self.pageFrame.GetPage(0).requery()
 		evt.Skip()
+		dFormDataNav.doDefault(evt)
 			
 		
 	def afterSetPrimaryBizobj(self):        

@@ -548,28 +548,19 @@ class dGrid(wx.grid.Grid):
 	def newRecord(self, event=None):
 		""" Request that a new row be added.
 		"""
-		try:
-			self.GetParent().newRecord()
-		except AttributeError:
-			pass
+		self.GetParent().newRecord()
 
 
 	def editRecord(self, event=None):
 		""" Request that the current row be edited.
 		"""
-		try:
-			self.GetParent().editRecord()
-		except AttributeError:
-			pass
+		self.GetParent().editRecord()
 
 
 	def deleteRecord(self, event=None):
 		""" Request that the current row be deleted.
 		"""
-		try:
-			self.GetParent().deleteRecord()
-		except AttributeError:
-			pass
+		self.GetParent().deleteRecord()
 
 
 	def processSort(self, gridCol=None):

@@ -81,7 +81,7 @@ class dFormMixin(pm.dPemMixin):
 		and set those properties on this form.
 		"""
 		if self.dApp:
-			name = self.GetName()
+			name = self.getAbsoluteName()
 
 			left = self.dApp.getUserSetting("%s.left" % name)
 			top = self.dApp.getUserSetting("%s.top" % name)
@@ -105,7 +105,7 @@ class dFormMixin(pm.dPemMixin):
 					except wx.PyDeadObjectError:
 						pass
 
-			name = self.GetName()
+			name = self.getAbsoluteName()
 
 			pos = self.GetPosition()
 			size = self.GetSize()
@@ -131,7 +131,7 @@ class dFormMixin(pm.dPemMixin):
 			controllingFrame.SetStatusText(*args)
 			controllingFrame.GetStatusBar().Update()
 
-
+		
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
 		item = wx.MenuItem(menu, menuId, caption)
 		item.SetBitmap(bitmap)
