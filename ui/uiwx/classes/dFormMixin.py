@@ -2,7 +2,7 @@
 import wx
 import dPemMixin as pm
 import dMainMenuBar as mnb
-import dMenu, dMessageBox
+import dMenu, dMessageBox, dabo.icons
 
 class dFormMixin(pm.dPemMixin):
 	def __init__(self, dApp):
@@ -24,6 +24,8 @@ class dFormMixin(pm.dPemMixin):
 			self.SetMenuBar(mnb.dMainMenuBar(self))
 			self.afterSetMenuBar()
 
+		if not self.Icon:
+			self.Icon = wx.Icon(dabo.icons.getIconFileName('daboIcon128'), wx.BITMAP_TYPE_PNG)
 
 	def OnActivate(self, event): 
 		if bool(event.GetActive()) == True and self.restoredSP == False:
