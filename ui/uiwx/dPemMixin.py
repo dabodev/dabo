@@ -91,11 +91,14 @@ class dPemMixin(dPemMixinBase):
 		elif isinstance(self, (dabo.ui.dMenu, dabo.ui.dMenuBar)):
 			# Hack: wx.Menu has no style, parent, or id arg.
 			del self._initProperties["style"]
+		elif isinstance(self, (dabo.ui.dWizardPage, )):
+			# wizard pages have no id or style, just parent.
+			del self._initProperties["style"]
+			self._initProperties["parent"] = parent
 		else:
 			self._initProperties["style"] = style
 			self._initProperties["parent"] = parent
 			self._initProperties["id"] = id_
-		
 		
 		# The user's subclass code has had a chance to tweak the style properties.
 		# Insert any of those into the arguments to send to the wx constructor:
@@ -106,7 +109,7 @@ class dPemMixin(dPemMixinBase):
 		# Allow the object a chance to add any required parms, such as OptionGroup
 		# which needs a choices parm in order to instantiate.
 		kwargs = self._preInitUI(kwargs)
-		
+
 		# Do the init:
 		if threeWayInit:
 			pre.Create(*args, **kwargs)
