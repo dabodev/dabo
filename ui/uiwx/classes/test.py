@@ -50,7 +50,8 @@ class Test(object):
                     (dTextBox(panel), "txtZipcode", "czip"),
                     (dSpinner(panel), "spn1", "iid"),
                     (dCheckBox(panel), "chk1"),
-                    (dEditBox(panel), "edt1")):
+                    (dEditBox(panel), "edt1"),
+                    (dCommandButton(panel), "cmd1")):
             bs = wx.BoxSizer(wx.HORIZONTAL)
             label = dLabel(panel, windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE)
             label.SetSize((labelWidth,-1))

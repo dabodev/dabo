@@ -1,18 +1,18 @@
 import wx
-from dControlMixin import dControlMixin
-from dDataControlMixin import dDataControlMixin
+import dControlMixin as cm
+import dDataControlMixin as dcm
 
-class dCheckBox(wx.CheckBox, dDataControlMixin, dControlMixin):
+class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
     def __init__(self, parent, name="dCheckBox", label=""):
         wx.CheckBox.__init__(self, parent, -1, label)
-        dControlMixin.__init__(self, name)
-        dDataControlMixin.__init__(self)
+        cm.dControlMixin.__init__(self, name)
+        dcm.dDataControlMixin.__init__(self)
 
             
     def initEvents(self):
         # init the common events:
-        dControlMixin.initEvents(self)
-        dDataControlMixin.initEvents(self)
+        cm.dControlMixin.initEvents(self)
+        dcm.dDataControlMixin.initEvents(self)
         
         # init the widget's specialized event(s):
         wx.EVT_CHECKBOX(self, self.GetId(), self.OnCheckBox)

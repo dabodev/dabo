@@ -1,6 +1,6 @@
 ''' dabo.ui.uiwx.dIcons.py 
 
-Icons are saved in dabo.icons in Python-xpm format. This is
+Icons are saved in dabo.icons in png format. This is
 the wrapper for wxPython to get the icon into a wxBitmap.
 '''
 import wx, dabo.icons

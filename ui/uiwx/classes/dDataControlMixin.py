@@ -2,14 +2,15 @@
     data-aware dControls.
 '''
 import wx
-from dPemMixin import dPemMixin
+import dPemMixin as pm
 
-class dDataControlMixin(dPemMixin):
+class dDataControlMixin(pm.dPemMixin):
     ''' Provide common functionality for the data-aware controls.
     '''
     def __init__(self):
+        pm.dPemMixin.__init__(self)
+        
         self._oldVal = None
-    
         self.enabled = True
         
         # Initialize runtime properties

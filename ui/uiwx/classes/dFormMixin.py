@@ -1,10 +1,10 @@
 ''' dFormMixin.py '''
 import wx
-from dMenu import *
-from dPemMixin import dPemMixin
-from dMainMenuBar import dMainMenuBar
+import dPemMixin as pm
+import dMainMenuBar as mnb
+import dMenu
 
-class dFormMixin(dPemMixin):
+class dFormMixin(pm.dPemMixin):
     def __init__(self, dApp):
         self.dApp = dApp
         
@@ -19,7 +19,7 @@ class dFormMixin(dPemMixin):
         self.restoredSP = False  
         
         if self.dApp:
-            self.SetMenuBar(dMainMenuBar(self))
+            self.SetMenuBar(mnb.dMainMenuBar(self))
             self.afterSetMenuBar()
 
         
@@ -29,6 +29,7 @@ class dFormMixin(dPemMixin):
             # in __init__ because we may not have our name yet.
             self.restoreSizeAndPosition()
             self.restoredSP = True
+        event.Skip()
     
     
     def afterSetMenuBar(self):
@@ -47,18 +48,21 @@ class dFormMixin(dPemMixin):
         This function sets up the internal menu, which can optionally be 
         inserted into the mainForm's menu bar during SetFocus.
         '''
-        menu = dMenu()
+        menu = dMenu.dMenu()
         return menu
     
+        
     def OnClose(self, event):
         if self.GetParent() == wx.GetApp().GetTopWindow():
             self.dApp.uiForms.remove(self)
         self.saveSizeAndPosition()
         event.Skip()
 
+        
     def OnSetFocus(self, event):
         event.Skip()
 
+        
     def OnKillFocus(self, event):
         event.Skip()
     
@@ -82,6 +86,7 @@ class dFormMixin(dPemMixin):
             if (type(width), type(height)) == (type(int()), type(int())):
                 self.SetSize((width,height))
         
+                
     def saveSizeAndPosition(self):
         ''' Save the current size and position of this form.
         '''
@@ -103,6 +108,7 @@ class dFormMixin(dPemMixin):
             self.dApp.setUserSetting("%s.width" % name, "I", size[0])
             self.dApp.setUserSetting("%s.height" % name, "I", size[1])
         
+            
     def setStatusText(self, *args):
         ''' Set the text of the status bar.
 
@@ -130,6 +136,7 @@ class dFormMixin(dPemMixin):
             controllingFrame = self
         wx.EVT_MENU(controllingFrame, menuId, function)
 
+        
     def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):
         toolId = wx.NewId()
         toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
@@ -153,6 +160,7 @@ class dFormMixin(dPemMixin):
     def _setIconBundle(self, icons):
         self.SetIcons(icons)
         self._Icons = icons       # wx doesn't provide GetIcons()
+    
     
     # property definitions follow:
     Icon = property(_getIcon, _setIcon, None, 'Specifies the icon for the form. (wxIcon)')

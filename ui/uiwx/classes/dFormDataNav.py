@@ -1,10 +1,8 @@
-from dForm import dForm
-from dPageFrame import dPageFrame
-from dPage import *
-from dMainMenuBar import *
-import dIcons
+import dForm as frm
+import dPageFrameDataNav as pgf
+import dIcons, wx
 
-class dFormDataNav(dForm):
+class dFormDataNav(frm.dForm):
     ''' This is a dForm but with the following added controls:
         + Navigation Menu
         + Navigation ToolBar
@@ -14,10 +12,11 @@ class dFormDataNav(dForm):
             + Edit   : Edit the current record in the result set.
     '''
     def __init__(self, parent=None, name="dFormDataNav", resourceString=None):
-        dForm.__init__(self, parent, name, resourceString)
+        super(dFormDataNav, self).__init__(parent, name, resourceString)
         
         self._columnDefs = {}
-    
+
+            
     def afterSetPrimaryBizobj(self):        
         self.setupToolBar()
         self.setupMenu()
@@ -71,7 +70,7 @@ class dFormDataNav(dForm):
                 
         
     def getMenu(self):
-        menu = dForm.getMenu(self)
+        menu = super(dFormDataNav, self).getMenu()
         
         self._appendToMenu(menu, "Set Selection Criteria\tAlt+1", 
                           self.onSetSelectionCriteria, 
@@ -146,7 +145,7 @@ class dFormDataNav(dForm):
         self.setupPageFrame, and/or self.afterSetupPageFrame().
         '''
         if self.beforeSetupPageFrame():
-            self.pageFrame = dPageFrame(self)
+            self.pageFrame = pgf.dPageFrameDataNav(self)
             nbSizer = wx.NotebookSizer(self.pageFrame)
             self.GetSizer().Add(nbSizer, 1, wx.EXPAND)
             self.afterSetupPageFrame()

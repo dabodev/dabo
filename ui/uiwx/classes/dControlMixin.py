@@ -1,14 +1,15 @@
 ''' dControlMixin.py: Provide behavior common to all dControls '''
 
 import wx
-from dPemMixin import dPemMixin
+import dPemMixin as pm
 
-class dControlMixin(dPemMixin):
+class dControlMixin(pm.dPemMixin):
     ''' Provide common functionality for all controls.
     '''
     def __init__(self, name):
-        self.debug = False
+        pm.dPemMixin.__init__(self)
         
+        self.debug = False
         self.Name = name
         self.Caption = self.getDefaultText()
         

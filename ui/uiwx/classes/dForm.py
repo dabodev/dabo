@@ -1,9 +1,9 @@
-import wx, dEvents, dControlMixin, dDataControlMixin
-from dFormMixin import dFormMixin
+import wx, dEvents
+import dFormMixin as fm
 import dabo.dError as dError
-from dabo.dLocalize import _
 import dabo.dConstants as k
 import dMessageBox, dProgressDialog
+from dabo.dLocalize import _
 
 # Different platforms expect different frame types. Notably,
 # most users on Windows expect and prefer the MDI parent/child
@@ -14,7 +14,7 @@ else:
     wxFrameClass = wx.Frame
 
 
-class dForm(wxFrameClass, dFormMixin):
+class dForm(wxFrameClass, fm.dFormMixin):
     ''' Create a dForm object, which is a bizobj-aware form.
         
     dForm knows how to handle one or more dBizobjs, providing proxy methods 
@@ -35,7 +35,7 @@ class dForm(wxFrameClass, dFormMixin):
             dApp = parent.dApp
         else:
             dApp = None
-        dFormMixin.__init__(self, dApp)
+        fm.dFormMixin.__init__(self, dApp)
         
         self.debug = False
         

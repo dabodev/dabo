@@ -1,39 +1,17 @@
-import wx
-from dPage import *
-from dControlMixin import dControlMixin
-import dIcons
+import wx, dControlMixin
 
-class dPageFrame(wx.Notebook, dControlMixin):
+class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
     def __init__(self, parent, name="dPageFrame"):
         wx.Notebook.__init__(self, parent, -1)
-        dControlMixin.__init__(self, name)
+        dControlMixin.dControlMixin.__init__(self, name)
         self.lastSelection = 0
-        self.addDefaultPages()        
 
         
     def initEvents(self):
-        dControlMixin.initEvents(self)
-        wx.EVT_NOTEBOOK_PAGE_CHANGED(self, self.GetId(), self.OnPageChanged)
+        dControlMixin.dControlMixin.initEvents(self)
+        self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.OnPageChanged)
 
-        
-    def addDefaultPages(self):
-        ''' Add the standard pages to the pageframe.
-        
-        Subclasses may override or extend.
-        '''
-        il = wx.ImageList(16, 16, initialCount=0)
-        il.Add(dIcons.getIconBitmap("checkMark"))
-        il.Add(dIcons.getIconBitmap("browse"))
-        il.Add(dIcons.getIconBitmap("edit"))
-        
-        self.AssignImageList(il)
-        self.AddPage(dSelectPage(self), "Select", imageId=0)
-        self.AddPage(dBrowsePage(self), "Browse", imageId=1)
-        self.AddPage(dEditPage(self), "Edit", imageId=2)
-        
-        self.GetPage(0).onEnterPage()
-        
-                
+    
     def OnPageChanged(self, event):
         ls = self.lastSelection
         cs = event.GetSelection()
