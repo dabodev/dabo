@@ -93,9 +93,14 @@ def _getPath(cls, **kwargs):
 	fd.release()
 	return ret
 
-def getFile(message="Choose a file", defaultPath="", defaultFile="", wildcard="*"):
-	return _getPath(dFileDialog, message=message, defaultPath=defaultPath, 
-			defaultFile=defaultFile, wildcard=wildcard)
+def getFile(*args, **kwargs):
+	wc = "*"
+	if args:
+		arglist = []
+		for a in args:
+			arglist.append("%s files (*.%s)|*.%s" % (a,a,a))
+		wc = "|".join(arglist)
+	return _getPath(dFileDialog, wildcard=wc, **kwargs)
 
 def getSaveAs(message="Save to:", defaultPath="", defaultFile="", wildcard="*"):
 	return _getPath(dSaveDialog, message=message, defaultPath=defaultPath, 
