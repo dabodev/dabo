@@ -304,4 +304,10 @@ class dFormDataNav(dForm):
         self.setSQL(self.sqlBuilder.getSQL())
         dForm.requery(self)
 
+    
+    def afterNew(self):
+        ''' dForm will call this after a new record has been successfully added.
         
+        Make the edit page active, as a convenience to the user.
+        '''
+        self.pageFrame.SetSelection(2)

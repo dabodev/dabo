@@ -330,13 +330,25 @@ class dForm(wxFrameClass, dFormMixin):
             statusText = self.getCurrentRecordText(dataSource)
             self.setStatusText(statusText)
             self.refreshControls()
+            
             # Notify listeners that the row number changed:
             evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
             self.GetEventHandler().ProcessEvent(evt)
+            
+            self.afterNew()
+            
         except dError.dError, e:
             dMessageBox.stop("Add new record failed with response:\n\n%s" % str(e))
 
     
+    def afterNew(self):
+        ''' Called after a new record is successfully added to the dataset.
+        
+        Override in subclasses for desired behavior.
+        '''
+        pass
+        
+        
     def getSQL(self, dataSource=None):
         ''' Get the current SQL from the bizobj.
         '''
