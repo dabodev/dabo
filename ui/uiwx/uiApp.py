@@ -168,7 +168,7 @@ class uiApp(wx.App, dObject):
 	def onEnterInFindDialog(self, evt):
 		## I don't know what to do from here: how do I simulate the user
 		## clicking "find"...
-#- 		pass
+		pass
 #- 		findButton = None
 #- 		dlg = self.findDialog
 #- #- 		print dir(dlg)
