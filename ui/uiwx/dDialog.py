@@ -15,13 +15,13 @@ class dDialog(wx.Dialog, dabo.ui.dPemMixin):
 		self._fit = True
 
 		try:
-			style = style | wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
+			kwargs["style"] = kwargs["style"] | wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
 		except:
-			style = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
+			kwargs["style"] = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
 
 		preClass = wx.PreDialog
 		dabo.ui.dPemMixin.__init__(self, preClass, parent, properties=properties, 
-				style=style, *args, **kwargs)
+				*args, **kwargs)
 
 	def _initEvents(self):
 		self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
