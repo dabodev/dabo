@@ -185,4 +185,13 @@ class dBackend(dabo.common.dObject):
 		"""
 		return clause
 		
-
+	def getWordMatchFormat(self):
+		""" By default, will return the standard format for an 
+		equality test. If search by words is available, the format
+		must be implemented in each specific backend.
+		
+		The format must have the expressions %(field)s and %(value)s
+		which will be replaced with the field and value strings, 
+		respectively.
+		"""
+		return " %(field)s = %(value)s "

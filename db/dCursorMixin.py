@@ -1284,6 +1284,10 @@ class dCursorMixin(dabo.common.dObject):
 	def executeSQL(self, *args, **kwargs):
 		self.execute(self.createSQL(), *args, **kwargs)
 	###     end - SQL Builder methods     ########
+	
+	
+	def getWordMatchFormat(self):
+		return self.BackendObject.getWordMatchFormat()
 
 	
 

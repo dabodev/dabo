@@ -110,3 +110,8 @@ class MySQL(dBackend):
 		""" Roll back (revert) a SQL transaction."""
 		if self.useTransactions:
 			cursor.execute("ROLLBACK")
+
+	def getWordMatchFormat(self):
+		""" MySQL's fulltext search expression
+		"""
+		return """ match (%(field)s) against ("%(value)s") """
