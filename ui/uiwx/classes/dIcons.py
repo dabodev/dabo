@@ -16,7 +16,7 @@ def getIconBitmap(iconName):
         r = wx.Image(fileName, wx.BITMAP_TYPE_PNG)
         r.SetMask(True)
         return r.ConvertToBitmap()
-    except (NameError, AttributeError):
+    except:
         r = wx.NullBitmap
     return r
 

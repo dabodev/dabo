@@ -102,10 +102,12 @@ class dDataControlMixin(pm.dPemMixin):
         '''
         if self.debug:
             print "OnKillFocus received by %s" % self.GetName()
-        try:
-            self.SetSelection(0,0)     # select no text in text box
-        except AttributeError:
-            pass                       # Only text controls have SetSelection()
+            
+        if self.SelectOnEntry:
+            try:
+                self.SetSelection(0,0)     # select no text in text box
+            except AttributeError:
+                pass                       # Only text controls have SetSelection()
         self.flushValue()          
         event.Skip()
     

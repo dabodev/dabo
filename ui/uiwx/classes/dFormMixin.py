@@ -8,6 +8,7 @@ class dFormMixin(pm.dPemMixin):
     def __init__(self, dApp):
         dFormMixin.doDefault()
         self.dApp = dApp
+        self.debug = False
         
         wx.EVT_CLOSE(self, self.OnClose)
         wx.EVT_SET_FOCUS(self, self.OnSetFocus)
@@ -33,9 +34,14 @@ class dFormMixin(pm.dPemMixin):
                 self.SetSize((1,1))
             else:
                 self.restoreSizeAndPosition()
+                
+            if self.debug:    
+                print "Form %s has the following properties:" % self.Name
+                for prop in self.getPropertyList():
+                    print "  %s: %s" % (prop, eval("self.%s" % prop))
         event.Skip()
     
-    
+        
     def afterSetMenuBar(self):
         ''' Subclasses can extend the menu bar here.
         '''
@@ -228,6 +234,36 @@ class dFormMixin(pm.dPemMixin):
         else:
             self.delWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
     
+    def _getWindowState(self):
+        try:
+            if self.IsFullScreen():
+                return 3
+            elif self.IsMaximized():
+                return 2
+            elif self.IsMinimized():
+                return 1
+            else:
+                return 0
+        except AttributeError:
+            # These only work on Windows, I fear
+            return 0
+    def _setWindowState(self, value):
+        if value == 0:
+            if self.IsFullScreen():
+                self.ShowFullScreen(False)
+            elif self.IsMaximized():
+                self.Maximize(False)
+            elif self.IsIconized:
+                self.Iconize(False)
+            else:
+                # window already normal, but just in case:
+                self.Maximize(False)
+        elif value == 1:
+            self.Iconize()
+        elif value == 2:
+            self.Maximize()
+        elif value == 3:
+            self.ShowFullScreen()
             
     # property definitions follow:
     Icon = property(_getIcon, _setIcon, None, 'Specifies the icon for the form. (wxIcon)')
@@ -255,3 +291,9 @@ class dFormMixin(pm.dPemMixin):
     TinyTitleBar = property(_getTinyTitleBar, _setTinyTitleBar, None,
                     'Specifies whether the title bar is small, like a tool window. (bool).')
     
+    WindowState = property(_getWindowState, _setWindowState, None,
+                    'Specifies the current state of the form. (int)\n'
+                    '    0 : Normal \n'
+                    '    1 : Minimized \n'
+                    '    2 : Maximized \n'
+                    '    3 : Full Screen')

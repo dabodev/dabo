@@ -36,6 +36,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
     # Event callback method(s) (override in subclasses):
     def OnText(self, event):
         event.Skip()
+
     
     # property get/set functions
     def _getAlignment(self):

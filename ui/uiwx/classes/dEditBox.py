@@ -39,6 +39,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
     def OnText(self, event):
         event.Skip()
 
+            
     # property get/set functions
     def _getAlignment(self):
         if self.hasWindowStyleFlag(wx.TE_RIGHT):

@@ -58,7 +58,7 @@ class dFormDataNav(frm.dForm):
         
         toolBar.AddSeparator()
             
-        self._appendToToolBar(toolBar, "Save", dIcons.getIconBitmap("fileSave"),
+        self._appendToToolBar(toolBar, "Save", dIcons.getIconBitmap("save"),
                               self.onSave, "Save changes")
     
         self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("revert"),
@@ -87,7 +87,7 @@ class dFormDataNav(frm.dForm):
                           bitmap=dIcons.getIconBitmap("requery"))
         self._appendToMenu(menu, "Save Changes\tCtrl+S", 
                           self.onSave, 
-                          bitmap=dIcons.getIconBitmap("fileSave"))
+                          bitmap=dIcons.getIconBitmap("save"))
         self._appendToMenu(menu, "Cancel Changes", 
                           self.onCancel, 
                           bitmap=dIcons.getIconBitmap("revert"))

@@ -89,14 +89,20 @@ class dApp(object):
         self._initUI()
         self._initDB()
         
-        self.actionList.setAction("FileExit", self.onFileExit)
-        self.actionList.setAction("HelpAbout", self.onHelpAbout)
-        self.actionList.setAction("EditPreferences", self.onEditPreferences)
-                
         self.uiApp = self.uiModule.uiApp()
+        
+        self.actionList.setAction("FileExit", self.uiApp.onFileExit)
+        self.actionList.setAction("HelpAbout", self.uiApp.onHelpAbout)
+        self.actionList.setAction("EditPreferences", self.uiApp.onEditPreferences)
+        self.actionList.setAction("EditCut", self.uiApp.onEditCut)
+        self.actionList.setAction("EditCopy", self.uiApp.onEditCopy)
+        self.actionList.setAction("EditPaste", self.uiApp.onEditPaste)
+        self.actionList.setAction("EditFind", self.uiApp.onEditFind)
+                
         self.uiApp.setup(self)
         self.mainFrame = self.uiApp.mainFrame
 
+        
     def start(self):
         """ 
         Start the application event loop, which involves
@@ -110,6 +116,7 @@ class dApp(object):
         self.uiApp.start(self)
         self.finish()
     
+        
     def finish(self):
         """ 
         The main event loop has exited and the application
@@ -117,6 +124,7 @@ class dApp(object):
         """
         print "Application finished."
         pass
+        
         
     def getAppInfo(self, item):
         ''' dApp.getAppInfo(self, item) -> value
@@ -129,34 +137,15 @@ class dApp(object):
             retVal = None
         return retVal
         
+        
     def setAppInfo(self, item, value):
         ''' dApp.getAppInfo(self, item, value) -> None
         
             Set item to value in the appinfo table.
         '''
         self._appInfo[item] = value
+
         
-    def onHelpAbout(self, event):
-        ''' dApp.onHelpAbout() -> None
-        
-            Display the application About screen. 
-        '''
-        self.uiApp.onHelpAbout()
-        
-    def onEditPreferences(self, event):
-        ''' dApp.onEditPreferences() -> None
-        
-            Display the preferences dialog.
-        '''
-        self.uiApp.onEditPreferences()
-        
-    def onFileExit(self, event):
-        ''' dApp.onFileExit() -> None
-        
-            Exit the application event loop.
-        '''
-        self.uiApp.onFileExit()
-            
     def getUserSetting(self, item, user="*", system="*"):
         ''' Return the value of the user settings table that 
             corresponds to the item, user, and system id 
