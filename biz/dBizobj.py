@@ -916,7 +916,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		try:
 			return self._restorePositionOnRequery
 		except AttributeError:
-			return False
+			return True
 			
 	def _setRestorePositionOnRequery(self, val):
 		self._restorePositionOnRequery = bool(val)
