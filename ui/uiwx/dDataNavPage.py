@@ -304,7 +304,7 @@ class dSelectPage(DataNavPage):
 							matchStr = biz.escQuote("%" + matchVal + "%")
 							
 				elif fldType in ("date", "datetime"):
-					if issubclass(ctrl, dabo.ui.dDateTextBox):
+					if isinstance(ctrl, dabo.ui.dDateTextBox):
 						dtTuple = ctrl.getDateTuple()
 						dt = "%s-%s-%s" % (dtTuple[0], padl(dtTuple[1], 2, "0"), 
 								padl(dtTuple[2], 2, "0") )
