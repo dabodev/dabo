@@ -76,6 +76,14 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 		return not self._pemObject.IsEditable()
 	def _setReadOnly(self, value):
 		self._pemObject.SetEditable(not value)
+	
+	def _getSelectOnEntry(self):
+		try:
+			return self._SelectOnEntry
+		except AttributeError:
+			return False
+	def _setSelectOnEntry(self, value):
+		self._SelectOnEntry = bool(value)
 
 	# property definitions follow:
 	Alignment = property(_getAlignment, _setAlignment, None,
@@ -83,8 +91,12 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 						'   Left (default) \n'
 						'   Center \n'
 						'   Right')
+	
 	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
 						'Specifies whether or not the text can be edited. (bool)')
+	
+	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
+						'Specifies whether all text gets selected upon receiving focus. (bool)')
 
 
 if __name__ == "__main__":

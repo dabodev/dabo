@@ -14,7 +14,6 @@ class dDataControlMixin(pm.dPemMixin):
 		self.enabled = True
 
 		# Initialize runtime properties
-		self.SelectOnEntry = False
 		self.bizobj = None
 
 
@@ -69,8 +68,13 @@ class dDataControlMixin(pm.dPemMixin):
 		if self.debug:
 			print "onValueRefresh received by %s" % (self.GetName(),)
 		self.refresh()
-		if self.SelectOnEntry and self.getDform().FindFocus() == self:
-			self.selectAll()
+		
+		try:
+			if self.SelectOnEntry and self.getDform().FindFocus() == self:
+				self.selectAll()
+		except AttributeError:
+			# only text controls have SelectOnEntry
+			pass 
 		event.Skip()
 
 
@@ -89,8 +93,12 @@ class dDataControlMixin(pm.dPemMixin):
 
 		self._oldVal = self.Value
 
-		if self.SelectOnEntry:
-			self.selectAll()
+		try:
+			if self.SelectOnEntry:
+				self.selectAll()
+		except AttributeError:
+			# only text controls have SelectOnEntry
+			pass
 		event.Skip()
 
 
@@ -100,11 +108,12 @@ class dDataControlMixin(pm.dPemMixin):
 		if self.debug:
 			print "OnKillFocus received by %s" % self.GetName()
 
-		if self.SelectOnEntry:
-			try:
+		try:
+			if self.SelectOnEntry:
 				self.SetSelection(0,0)     # select no text in text box
-			except AttributeError:
-				pass                       # Only text controls have SetSelection()
+		except AttributeError:
+			# only text controls have SelectOnEntry
+			pass
 		self.flushValue()          
 		event.Skip()
 
@@ -122,14 +131,6 @@ class dDataControlMixin(pm.dPemMixin):
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
-	def _getSelectOnEntry(self):
-		try:
-			return self._SelectOnEntry
-		except AttributeError:
-			return False
-	def _setSelectOnEntry(self, value):
-		self._SelectOnEntry = bool(value)
-
 	def _getDataSource(self):
 		try:
 			return self._DataSource
@@ -152,8 +153,6 @@ class dDataControlMixin(pm.dPemMixin):
 		self.SetValue(value)
 
 	# Property definitions:
-	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
-						'Specifies whether all text gets selected upon receiving focus. (bool)')
 	DataSource = property(_getDataSource, _setDataSource, None,
 						'Specifies the dataset to use as the source of data. (str)')
 	DataField = property(_getDataField, _setDataField, None,

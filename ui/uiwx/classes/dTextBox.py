@@ -82,6 +82,15 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 			self.addWindowStyleFlag(wx.TE_PASSWORD)
 		# Note: control needs to be recreated for this flag change
 		#       to take effect.
+	
+	def _getSelectOnEntry(self):
+		try:
+			return self._SelectOnEntry
+		except AttributeError:
+			return False
+	def _setSelectOnEntry(self, value):
+		self._SelectOnEntry = bool(value)
+
 
 	# Property definitions:
 	Alignment = property(_getAlignment, _setAlignment, None,
@@ -94,6 +103,9 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
 	PasswordEntry = property(_getPasswordEntry, _setPasswordEntry, None,
 						'Specifies whether plain-text or asterisks are echoed. (bool)')
+	
+	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
+						'Specifies whether all text gets selected upon receiving focus. (bool)')
 
 
 if __name__ == "__main__":
