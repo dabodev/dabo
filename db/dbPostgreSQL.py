@@ -10,7 +10,7 @@ class Postgres(dBackend):
 		#self.dbModuleName = "pgdb"
 		#self.dbModuleName = "PgSQL"
 		self.dbModuleName = "psycopg"
-		self.useTransactions = True
+		self.useTransactions = True  # this does not appear to be required
 
 	def getConnection(self, connectInfo):
 		### TODO: what connector should we use?
@@ -19,7 +19,7 @@ class Postgres(dBackend):
 		
 		#- jfcs 11/01/04 port needs to be a string
 		port = str(connectInfo.Port)
-		if not port:
+		if not port or port == 'None':
 			port = '5432'
 				
 		DSN = "host=%s port=%s dbname=%s user=%s password=%s" % (connectInfo.Host,
@@ -81,58 +81,56 @@ class Postgres(dBackend):
 		#comment it if your working with 7.3.x
 		# make sure you uncomment the other code out
 		
-		tempCursor.execute("select c.column_name as fielname, c.data_type as fieldtyp, \
-		i.indisprimary AS is_pkey \
-		FROM information_schema.columns c \
-		LEFT JOIN information_schema.key_column_usage cu \
-		ON (c.table_name=cu.table_name AND c.column_name=cu.column_name) \
-		LEFT JOIN pg_class cl ON(cl.relname=cu.table_name) \
-		LEFT JOIN pg_index i ON(cl.oid= i.indrelid) WHERE c.table_name= '%s'" % tableName)
-		rs=tempCursor.fetchall()
+		#tempCursor.execute("select c.column_name as fielname, c.data_type as fieldtyp, \
+		#i.indisprimary AS is_pkey \
+		#FROM information_schema.columns c \
+		#LEFT JOIN information_schema.key_column_usage cu \
+		#ON (c.table_name=cu.table_name AND c.column_name=cu.column_name) \
+		#LEFT JOIN pg_class cl ON(cl.relname=cu.table_name) \
+		#LEFT JOIN pg_index i ON(cl.oid= i.indrelid) WHERE c.table_name= '%s'" % tableName)
+		#rs=tempCursor.fetchall()
 		
 		
 		# jfcs 11/01/04 Below sucks but works with 7.3.x and 7.4.x (don't know anything
 		# about 8.0.x) 
 		# Ok get the 'field name', 'field type'
-		#tempCursor.execute("Select c.oid,a.attname, t.typname \
-		#from pg_class c inner join pg_attribute a \
-		#on a.attrelid = c.oid inner join pg_type t on a.atttypid = t.oid \
-		#where c.relname = '%s' and a.attnum > 0 " % tableName)
-		#rs = tempCursor.fetchall()
-		#myoid=rs[0][0]
+		tempCursor.execute("Select c.oid,a.attname, t.typname \
+		from pg_class c inner join pg_attribute a \
+		on a.attrelid = c.oid inner join pg_type t on a.atttypid = t.oid \
+		where c.relname = '%s' and a.attnum > 0 " % tableName)
+		rs = tempCursor.fetchall()
+		myoid=rs[0][0]
 		## get the PK 
-		#tempCursor.execute("SELECT c2.relname, i.indisprimary, i.indisunique, pg_catalog.pg_get_indexdef(i.indexrelid) \
-		#FROM pg_catalog.pg_class c, pg_catalog.pg_class c2, pg_catalog.pg_index i \
-		#WHERE c.oid = %s AND c.oid = i.indrelid AND i.indexrelid = c2.oid \
-		#AND i.indisprimary =TRUE \
-		#ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname" % myoid)	
-		#rs2=tempCursor.fetchall()
-		#if rs2==[]:
-			#thePKFieldName=False
-		#else:
-			#thestr=rs2[0][3]
-			#thePKFieldName=thestr[thestr.find('(')+1:thestr.find(')')]
+		tempCursor.execute("SELECT c2.relname, i.indisprimary, i.indisunique, pg_catalog.pg_get_indexdef(i.indexrelid) \
+		FROM pg_catalog.pg_class c, pg_catalog.pg_class c2, pg_catalog.pg_index i \
+		WHERE c.oid = %s AND c.oid = i.indrelid AND i.indexrelid = c2.oid \
+		AND i.indisprimary =TRUE \
+		ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname" % myoid)	
+		rs2=tempCursor.fetchall()
+		if rs2==[]:
+			thePKFieldName=False
+		else:
+			thestr=rs2[0][3]
+			thePKFieldName=thestr[thestr.find('(')+1:thestr.find(')')]
 		
 		fields = []
 		### TODO: Verify the field type names returned.
 		for r in rs:
-			#uncomment below for postgres 7.3.x
-			#name = r[1]
-			#fldType =r[2]
-			#if name == thePKFieldName:
-				#pk = True
-			#else:
-			        #pk = False
-			name = r[0]
-			fldType = r[1]
-			pk=r[2]
+			
+			name = r[1]
+			fldType =r[2]
+			if name == thePKFieldName:
+				pk = True
+			else:
+			        pk = False
+			
 			if 'int' in fldType:
 				fldType = 'I'
 			elif 'char' in fldType :
 				fldType = 'C'
 			elif 'text' in fldType:
 				fldType = 'M'
-			elif 'decimal' in fldType:
+			elif 'numeric' in fldType:
 				fldType = 'N'
 			elif 'datetime' in fldType:
 				fldType = 'T'
@@ -153,15 +151,46 @@ class Postgres(dBackend):
 		# jfcs 11/01/04 not sure of this
 		# Normally Postgres is in the 
 		# transaction mode always????
-		if self.useTransactions:
-			cursor.execute("BEGIN")
+		#if self.useTransactions:
+		cursor.execute("BEGIN")
 
 	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
-		if self.useTransactions:
-			cursor.execute("COMMIT")
+		#if self.useTransactions:
+		cursor.execute("COMMIT")
 
 	def rollbackTransaction(self, cursor):
 		""" Roll back (revert) a SQL transaction."""
-		if self.useTransactions:
-			cursor.execute("ROLLBACK")
+		#if self.useTransactions:
+		cursor.execute("ROLLBACK")
+		
+
+	
+	def getUpdateTablePrefix(self, tbl):
+		""" By default, the update SQL statement will be in the form of
+					tablename.fieldname
+		but Postgres does not accept this syntax. If not, change
+		this method to return an empty string, or whatever should 
+		preceed the field name in an update statement.
+		 Postgres needs to return an empty string."""
+		return ""
+	def noResultsOnSave(self):
+		""" Most backends will return a non-zero number if there are updates.
+		Some do not, so this will have to be customized in those cases.
+		"""
+		#TODO find out what it should return when it fails....
+		return 
+
+	def noResultsOnDelete(self):
+		""" Most backends will return a non-zero number if there are deletions.
+		Some do not, so this will have to be customized in those cases.
+		"""
+		#raise dException.dException, _("No records deleted")
+		#TODO find out what it should return when it fails....
+		return 
+	
+	def flush(self, cursor):
+		""" Postgres requires an explicit commit in order to have changes
+		to the database written to disk.
+		"""
+		cursor.execute("COMMIT")
