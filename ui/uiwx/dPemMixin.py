@@ -14,7 +14,7 @@ class dPemMixin(dPemMixinBase):
 	functions along with their own property() statements.
 	"""
 	def __init__(self, preClass=None, parent=None, properties=None, 
-				*args, **kwargs):
+	             *args, **kwargs):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
@@ -579,7 +579,11 @@ class dPemMixin(dPemMixinBase):
 		return self._pemObject.GetLabel()
 	
 	def _setCaption(self, caption):
+		## 2/23/2005: there is a bug in wxGTK that resets the font when the 
+		##            caption changes. So this is a workaround:
+		font = self.Font
 		self._pemObject.SetLabel(str(caption))
+		self.Font = font
 
 		# Frames have a Title separate from Label, but I can't think
 		# of a reason why that would be necessary... can you? 
