@@ -173,4 +173,16 @@ def colorTupleFromHex(hx):
 	return (red, green, blue)
 
 
+def colorTupleFromName(color):
+	"""Given a color name, such as "Blue" or "Aquamarine", return a color tuple.
+	
+	This is used internally in the ForeColor and BackColor property setters. The
+	color name is not case-sensitive. If the color name doesn't exist, an exception
+	is raised.
+	"""
+	try:
+		return colorDict[color.lower().strip()]
+	except KeyError:
+		raise KeyError, "Color '%s' is not defined." % color
+
 

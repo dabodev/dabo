@@ -40,6 +40,8 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, style=style, *args, **kwargs)
 		ListMixin.ListCtrlAutoWidthMixin.__init__(self)
 		self._selIndex = 0
+		# Dictionary for tracking images by key value
+		self.__imageList = {}	
 
 
 	def _initEvents(self):
@@ -157,6 +159,44 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	def clear(self):
 		""" Remove all the rows in the control. """
 		self.DeleteAllItems()
+		
+	
+	# Image-handling function
+	def addImage(self, img, key=None):
+		""" Adds the passed image to the control's ImageList, and maintains
+		a reference to it that is retrievable via the key value.
+		"""
+		if key is None:
+			key = str(img)
+		if type(img) in (str, unicode):
+			img = dabo.ui.dIcons.getIconBitmap(img)
+		il = self.GetImageList(wx.IMAGE_LIST_NORMAL)
+		if not il:
+			il = wx.ImageList(16, 16, initialCount=0)
+			self.AssignImageList(il, wx.IMAGE_LIST_NORMAL)
+		idx = il.Add(img)
+		self.__imageList[key] = idx
+		
+	
+	def setItemImg(self, itm, imgKey):
+		""" Sets the specified item's image to the image corresponding
+		to the specified key. May also optionally pass the index of the 
+		image in the ImageList rather than the key.
+		"""
+		if type(imgKey) == int:
+			imgIdx = imgKey
+		else:
+			imgIdx = self.__imageList[imgKey]
+		self.SetItemImage(itm, imgIdx, imgIdx)
+		self.GetItem(itm).SetImage(imgIdx)
+
+	
+	def getItemImg(self, itm):
+		""" Returns the index of the specified item's image in the 
+		current image list, or -1 if no image is set for the item.
+		"""
+		ret = GetItem(itm).GetImage()
+		return ret
 		
 	
 	def __onSelection(self, evt):

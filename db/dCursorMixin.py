@@ -331,7 +331,7 @@ class dCursorMixin(dabo.common.dObject):
 		""" Returns an XML string containing the information necessary to 
 		re-create this cursor.
 		"""
-		base = """<?xml version="1.0"?>
+		base = """<?xml version="1.0" encoding="%s"?>
 <dabocursor xmlns="http://www.dabodev.com"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://www.dabodev.com dabocursor.xsd"
@@ -354,7 +354,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					for k,v in rec.items() 
 					if k != "dabo-memento"]
 			rowXML += rowTemplate % "\n".join(recInfo)
-		return base % (self.AutoPopulatePK, self.KeyField, self.Table, rowXML)
+		return base % (self.Encoding, self.AutoPopulatePK, self.KeyField, 
+				self.Table, rowXML)
 
 	
 	def getType(self, val):

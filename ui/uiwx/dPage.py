@@ -1,5 +1,6 @@
 import dPanel, dSizer
 import dabo.dEvents as dEvents
+from dabo.dLocalize import _
 
 
 class dPage(dPanel.dScrollPanel):
@@ -66,12 +67,25 @@ class dPage(dPanel.dScrollPanel):
 		if pos > -1:
 			ret = self.Parent.GetPageText(pos)
 		return ret
-	
 	def _setCaption(self, val):
 		pos = self._getPagePosition()
 		if pos > -1:
 			self.Parent.SetPageText(pos, val)
+			
+	
+	def _getImg(self):
+		return self.Parent.getPageImg(self)
+	def _setImg(self, imgKey):
+		self.Parent.setPageImg(self, imgKey)
+		
 	
 	Caption = property(_getCaption, _setCaption, None, 
-			"The text identifying this particular page")
+			_("The text identifying this particular page.  (str)") )
+
+	Image = property(_getImg, _setImg, None, 
+			_("""Sets the image that is displayed on the page tab. This is
+			determined by the key value passed, which must refer to an 
+			image already added to the parent pageframe.
+			When used to retrieve an image, it returns the index of the
+			page's image in the parent pageframe's image list.   (int)""") )
 

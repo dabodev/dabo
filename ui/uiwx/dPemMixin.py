@@ -492,22 +492,6 @@ class dPemMixin(dPemMixinBase):
 		else:
 			self._initProperties["style"] = self._initProperties["style"] & (~flag)
 
-	def getColorTupleFromName(self, color):
-		"""Given a color name, such as "Blue" or "Aquamarine", return a color tuple.
-		
-		This is used internally in the ForeColor and BackColor property setters. The
-		color name is not case-sensitive. If the color name doesn't exist, an exception
-		is raised.
-		"""
-		try:
-			return dColors.colorDict[color.lower().strip()]
-		except KeyError:
-			raise KeyError, "Color '%s' is not defined." % color
-
-	# Scroll to the bottom to see the property definitions.
-
-	# Property get/set/delete methods follow.
-
 	def _getBackColor(self):
 		return self._pemObject.GetBackgroundColour()
 
@@ -517,7 +501,7 @@ class dPemMixin(dPemMixinBase):
 	def _setBackColor(self, value):
 		if type(value) == str:
 			try:
-				value = self.getColorTupleFromName(value)
+				value = dColors.colorTupleFromName(value)
 			except: pass
 		self._pemObject.SetBackgroundColour(value)
 		if self._pemObject == self:
@@ -690,7 +674,7 @@ class dPemMixin(dPemMixinBase):
 	def _setForeColor(self, value):
 		if type(value) == str:
 			try:
-				value = self.getColorTupleFromName(value)
+				value = dColors.colorTupleFromName(value)
 			except: pass
 		self._pemObject.SetForegroundColour(value)
 

@@ -1,20 +1,20 @@
 import wx
 import dabo.ui
 import Page as pag
-
+from dabo.dLocalize import _
 dabo.ui.loadUI("wx")
+
 
 class PageFrame(dabo.ui.dPageFrame):
 
 	def __init__(self, parent, Name="PageFrame", defaultPages=False):
 		self._defaultPagesOnLoad = defaultPages
 		super(PageFrame, self).__init__(parent, Name=Name)
-		il = wx.ImageList(16, 16, initialCount=0)
-		il.Add(dabo.ui.dIcons.getIconBitmap("checkMark"))
-		il.Add(dabo.ui.dIcons.getIconBitmap("browse"))
-		il.Add(dabo.ui.dIcons.getIconBitmap("edit"))
-		il.Add(dabo.ui.dIcons.getIconBitmap("childview"))
-		self.AssignImageList(il)
+		# Add the images for the various pages.
+		self.addImage("checkMark")
+		self.addImage("browse")
+		self.addImage("edit")
+		self.addImage("childview")
 
 
 	def initProperties(self):
@@ -41,22 +41,23 @@ class PageFrame(dabo.ui.dPageFrame):
 			if not self.Parent.preview:
 				bizobj = self.Parent.getBizobj()
 				for child in bizobj.getChildren():
-					self.AddPage(self.ChildPageClass(self, child.DataSource), child.Caption, imageId=3)
+					self.appendPage(self.ChildPageClass(self, child.DataSource), 
+							child.Caption, imgKey="childview")
 
 
 	def addSelectPage(self, title="Select"):
-		self.AddPage(self.SelectPageClass(self), title, imageId=0)
+		self.appendPage(self.SelectPageClass(self), caption=title, imgKey="checkMark")
 	
 	def addBrowsePage(self, title="Browse"):
-		self.AddPage(self.BrowsePageClass(self), title, imageId=1)
+		self.appendPage(self.BrowsePageClass(self), caption=title, imgKey="browse")
 	
 	def addEditPage(self, ds=None, title="Edit"):
-		self.AddPage(self.EditPageClass(self, ds), title, imageId=2)
+		self.appendPage(self.EditPageClass(self), caption=title, imgKey="edit")
 		# The page number will be the PageCount minus one.
 		self.dsEditPages[ds] = self.PageCount - 1
 	
 	def editByDataSource(self, ds):
-		self.SetSelection(self.dsEditPages[ds])
+		self.Selection = self.dsEditPages[ds]
 		
 	def _getSelectPageClass(self):
 		try:
