@@ -53,17 +53,26 @@ class Event(dObject):
 	def _logEvent(self):
 		""" Log the event if the event object's LogEvents property is set.
 		"""
+		eventName = self.__class__.__name__
+		
 		try:
 			logEvents = self._eventObject.LogEvents
 		except AttributeError:
 			logEvents = []
+		noLogEvents = []
 		
-		for eventName in logEvents:
-			if eventName.lower() == "all" or eventName == self.__class__.__name__:
-				dabo.infoLog.write("dEvent Fired: %s.%s %s" % (self._eventObject.getAbsoluteName(), 
-					self.__class__.__name__,
-					self._extraLogInfo))
-				break
+		if logEvents[0].lower() == "all":
+			# If there are any events listed explicitly, those must not be
+			# logged.
+			noLogEvents = logEvents[1:]
+
+		if eventName not in noLogEvents:		
+			for logEventName in logEvents:
+				if logEventName.lower() == "all" or logEventName == eventName:
+					dabo.infoLog.write("dEvent Fired: %s.%s %s" % (self._eventObject.getAbsoluteName(), 
+						self.__class__.__name__,
+						self._extraLogInfo))
+					break
 
 	def __getattr__(self, att):
 		return getattr(self._uiEvent, att)
@@ -210,6 +219,10 @@ class MouseRightUp(MouseEvent):
 	"""Occurs when the mouse's right button is released on the control."""
 	pass
 
+	
+class Paint(Event):
+	"""Occurs when it is time to paint the control."""
+	pass
 	
 class PageEnter(Event):
 	"""Occurs when the page becomes the active page."""

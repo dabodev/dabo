@@ -84,85 +84,90 @@ class dPemMixin(dPemMixinBase):
 	def _initEvents(self):
 		# Bind wx events to handlers that re-raise the Dabo events:
 		
-		self.Bind(wx.EVT_WINDOW_DESTROY, self._onWxDestroy)
+		self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
 		
-		self.Bind(wx.EVT_SET_FOCUS, self._onWxGotFocus)
-		self.Bind(wx.EVT_IDLE, self._onWxIdle)
-		self.Bind(wx.EVT_KILL_FOCUS, self._onWxLostFocus)
+		self.Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
+		self.Bind(wx.EVT_IDLE, self.__onWxIdle)
+		self.Bind(wx.EVT_KILL_FOCUS, self.__onWxLostFocus)
 			
-		self.Bind(wx.EVT_CHAR, self._onWxKeyChar)
-		self.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
-		self.Bind(wx.EVT_KEY_UP, self._onWxKeyUp)
+		self.Bind(wx.EVT_CHAR, self.__onWxKeyChar)
+		self.Bind(wx.EVT_KEY_DOWN, self.__onWxKeyDown)
+		self.Bind(wx.EVT_KEY_UP, self.__onWxKeyUp)
 		
-		self.Bind(wx.EVT_LEFT_DOWN, self._onWxMouseLeftDown)
-		self.Bind(wx.EVT_LEFT_UP, self._onWxMouseLeftUp)
-		self.Bind(wx.EVT_RIGHT_DOWN, self._onWxMouseRightDown)
-		self.Bind(wx.EVT_RIGHT_UP, self._onWxMouseRightUp)
-		self.Bind(wx.EVT_ENTER_WINDOW, self._onWxMouseEnter)
-		self.Bind(wx.EVT_LEAVE_WINDOW, self._onWxMouseLeave)
-		self.Bind(wx.EVT_LEFT_DCLICK, self._onWxMouseLeftDoubleClick)
-		self.Bind(wx.EVT_MOTION, self._onWxMouseMove)
+		self.Bind(wx.EVT_LEFT_DOWN, self.__onWxMouseLeftDown)
+		self.Bind(wx.EVT_LEFT_UP, self.__onWxMouseLeftUp)
+		self.Bind(wx.EVT_RIGHT_DOWN, self.__onWxMouseRightDown)
+		self.Bind(wx.EVT_RIGHT_UP, self.__onWxMouseRightUp)
+		self.Bind(wx.EVT_ENTER_WINDOW, self.__onWxMouseEnter)
+		self.Bind(wx.EVT_LEAVE_WINDOW, self.__onWxMouseLeave)
+		self.Bind(wx.EVT_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
+		self.Bind(wx.EVT_MOTION, self.__onWxMouseMove)
 		
-		self.Bind(wx.EVT_SIZE, self._onWxResize)
+		self.Bind(wx.EVT_PAINT, self.__onWxPaint)
+		self.Bind(wx.EVT_SIZE, self.__onWxResize)
 		
-		
-	def _onWxDestroy(self, evt):
+	
+	def __onWxDestroy(self, evt):
 		self.raiseEvent(dEvents.Destroy, evt)
 		
-	def _onWxIdle(self, evt):
+	def __onWxIdle(self, evt):
 		self.raiseEvent(dEvents.Idle, evt)
 		
-	def _onWxGotFocus(self, evt):
+	def __onWxGotFocus(self, evt):
 		self.raiseEvent(dEvents.GotFocus, evt)
 		
-	def _onWxKeyChar(self, evt):
+	def __onWxKeyChar(self, evt):
 		self.raiseEvent(dEvents.KeyChar, evt)
 		
-	def _onWxKeyUp(self, evt):
+	def __onWxKeyUp(self, evt):
 		self.raiseEvent(dEvents.KeyUp, evt)
 		
-	def _onWxKeyDown(self, evt):
+	def __onWxKeyDown(self, evt):
 		self.raiseEvent(dEvents.KeyDown, evt)
 	
-	def _onWxLostFocus(self, evt):
+	def __onWxLostFocus(self, evt):
 		self.raiseEvent(dEvents.LostFocus, evt)
 	
-	def _onWxMouseEnter(self, evt):
+	def __onWxMouseEnter(self, evt):
 		self.raiseEvent(dEvents.MouseEnter, evt)
 		
-	def _onWxMouseLeave(self, evt):
+	def __onWxMouseLeave(self, evt):
 		self._mouseLeftDown, self._mouseRightDown = False, False
 		self.raiseEvent(dEvents.MouseLeave, evt)
 		
-	def _onWxMouseLeftDoubleClick(self, evt):
+	def __onWxMouseLeftDoubleClick(self, evt):
 		self.raiseEvent(dEvents.MouseLeftDoubleClick, evt)
 
-	def _onWxMouseLeftDown(self, evt):
+	def __onWxMouseLeftDown(self, evt):
 		self.raiseEvent(dEvents.MouseLeftDown, evt)
 		self._mouseLeftDown = True
 		
-	def _onWxMouseLeftUp(self, evt):
+	def __onWxMouseLeftUp(self, evt):
 		self.raiseEvent(dEvents.MouseLeftUp, evt)
 		if self._mouseLeftDown:
 			# mouse went down and up in this control: send a click:
 			self.raiseEvent(dEvents.MouseLeftClick, evt)
 			self._mouseLeftDown = False
 		
-	def _onWxMouseMove(self, evt):
+	def __onWxMouseMove(self, evt):
 		self.raiseEvent(dEvents.MouseMove, evt)
 		
-	def _onWxMouseRightDown(self, evt):
+	def __onWxMouseRightDown(self, evt):
 		self._mouseRightDown = True
 		self.raiseEvent(dEvents.MouseRightDown, evt)
 		
-	def _onWxMouseRightUp(self, evt):
+	def __onWxMouseRightUp(self, evt):
 		self.raiseEvent(dEvents.MouseRightUp, evt)
 		if self._mouseRightDown:
 			# mouse went down and up in this control: send a click:
 			self.raiseEvent(dEvents.MouseRightClick, evt)
 			self._mouseRightDown = False
 	
-	def _onWxResize(self, evt):
+	
+	def __onWxPaint(self, evt):
+		self.raiseEvent(dEvents.Paint, evt)
+	
+	def __onWxResize(self, evt):
 		self.raiseEvent(dEvents.Resize, evt)
 				
 		

@@ -131,7 +131,10 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 					'The class the object is based on. Read-only. (class)')
  	
 	LogEvents = property(_getLogEvents, _setLogEvents, None, 
-					'Specifies which events to log. (list of strings)')
+					"Specifies which events to log. (list of strings)\n"
+					"\n"
+					"If the first element is 'All', all events except the following\n"
+					"listed events will be logged.")
 					
 	Name = property(_getName, _setName, None, 
  					'The name of the object. (str)')

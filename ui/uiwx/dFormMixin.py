@@ -28,17 +28,17 @@ class dFormMixin(pm.dPemMixin):
 	def initEvents(self):
 		dFormMixin.doDefault()
 		# Bind wx events to handlers that re-raise the Dabo events:
-		self.Bind(wx.EVT_ACTIVATE, self._onWxActivate)
-		self.Bind(wx.EVT_CLOSE, self._onWxClose)
+		self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
+		self.Bind(wx.EVT_CLOSE, self.__onWxClose)
 		
 		self.bindEvent(dEvents.Activate, self.__onActivate)
 		self.bindEvent(dEvents.Close, self.__onClose)
 	
 		
-	def _onWxClose(self, evt):
+	def __onWxClose(self, evt):
 		self.raiseEvent(dEvents.Close, evt)
 		
-	def _onWxActivate(self, evt):
+	def __onWxActivate(self, evt):
 		""" Raise the Dabo Activate or Deactivate appropriately.
 		"""
 		if bool(evt.GetActive()):
