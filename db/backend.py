@@ -36,7 +36,7 @@ class MySQL(Backend):
         
         port = connectInfo.port
         if not port:
-            port = "3690"
+            port = 3306
              
         return dbapi.connect(host=connectInfo.host, 
                              user=connectInfo.user,

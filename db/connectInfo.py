@@ -21,10 +21,7 @@ class ConnectInfo(object):
         self.setPort(port)
 
     def getConnection(self):
-        try:
-            return self._backendObject.getConnection(self)
-        except TypeError:
-            return None
+        return self._backendObject.getConnection(self)
 
     def getDictCursor(self):
         try:
