@@ -674,7 +674,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			except:
 				# Error was raised. Exit and rollback the changes
 				ok = False
-				exit
+				break
 		if ok:
 			self.commitTransaction()
 		else:
