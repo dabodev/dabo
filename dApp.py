@@ -87,7 +87,8 @@ class dApp(object):
         
         self.actionList.setAction("FileExit", self.onFileExit)
         self.actionList.setAction("HelpAbout", self.onHelpAbout)
-        
+        self.actionList.setAction("EditPreferences", self.onEditPreferences)
+                
         self.uiApp = self.uiModule.uiApp()
         self.uiApp.setup(self)
         self.mainFrame = self.uiApp.mainFrame
@@ -136,6 +137,13 @@ class dApp(object):
             Display the application About screen. 
         '''
         self.uiApp.onHelpAbout()
+        
+    def onEditPreferences(self, event):
+        ''' dApp.onEditPreferences() -> None
+        
+            Display the preferences dialog.
+        '''
+        self.uiApp.onEditPreferences()
         
     def onFileExit(self, event):
         ''' dApp.onFileExit() -> None

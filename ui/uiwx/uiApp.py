@@ -26,6 +26,9 @@ class uiApp(wx.App):
     def onFileExit(self):
         self.mainFrame.Close(True)
 
+    def onEditPreferences(self):
+        print "Stub: uiApp.onEditPreferences()"
+        
     def onHelpAbout(self):
         dlg = dAbout(self.mainFrame, self.dApp)
         dlg.Show()

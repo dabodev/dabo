@@ -95,8 +95,11 @@ class FileMenu(wx.Menu):
 #         self.Append(Id, "&New Record\tCtrl+N", "Add a new record in the current window.")
 #         #wx.EVT_MENU(mainFrame, Id,  mainFrame.OnNewRecord)
 #         
+        
+        'App_SetMacHelpMenuTitleName', 'App_SetMacPreferencesMenuItemId', 'App_SetMacSupportPCMenuShortcuts'
         Id = wx.NewId()
         self.Append(Id, "E&xit", "Exit")
+        wx.App_SetMacExitMenuItemId(Id)   # Put the Exit item in the App Menu on Mac
         wx.EVT_MENU(mainFrame, Id,  mainFrame.dApp.actionList.getAction("FileExit")["func"])
 
 
@@ -106,6 +109,13 @@ class EditMenu(dMenu):
         
         Id = wx.NewId()
         self.Append(Id, "&Copy", "Copy selected text")
+
+        self.AppendSeparator()
+        
+        Id = wx.NewId()
+        self.Append(Id, "Preferences", "Set user preferences")
+        wx.App_SetMacPreferencesMenuItemId(Id)   # Put the prefs item in the App Menu on Mac
+        wx.EVT_MENU(mainFrame, Id,  mainFrame.dApp.actionList.getAction("EditPreferences")["func"])
         
         
 class HelpMenu(dMenu):
@@ -114,8 +124,10 @@ class HelpMenu(dMenu):
         
         Id = wx.NewId()
         self.Append(Id, "&About", "About")
+        wx.App_SetMacAboutMenuItemId(Id)   # Put the about menu in the App Menu on Mac
         wx.EVT_MENU(mainFrame, Id, mainFrame.dApp.actionList.getAction("HelpAbout")["func"])
 
+        
 class dMainMenuBar(dMenuBar):
     def __init__(self, mainFrame):
         dMenuBar.__init__(self)
