@@ -1,6 +1,7 @@
 import wx
 from dPage import *
 from dControlMixin import dControlMixin
+import dIcons
 
 class dPageFrame(wx.Notebook, dControlMixin):
     def __init__(self, parent, name="dPageFrame"):
@@ -19,9 +20,15 @@ class dPageFrame(wx.Notebook, dControlMixin):
             Add the standard pages, plus the childview page(s)
             if there are any. Subclasses may override or extend.
         '''
-        self.AddPage(dSelectPage(self), "Select")
-        self.AddPage(dBrowsePage(self), "Browse")
-        self.AddPage(dEditPage(self), "Edit")
+        il = wx.ImageList(16,16)
+        il.Add(dIcons.getIconBitmap("checkMark"))
+        il.Add(dIcons.getIconBitmap("browse"))
+        il.Add(dIcons.getIconBitmap("edit"))
+        
+        self.AssignImageList(il)
+        self.AddPage(dSelectPage(self), "Select", imageId=0)
+        self.AddPage(dBrowsePage(self), "Browse", imageId=1)
+        self.AddPage(dEditPage(self), "Edit", imageId=2)
         
     def OnPageChanged(self, event):
         newPage = self.GetPage(event.GetSelection())

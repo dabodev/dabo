@@ -18,9 +18,12 @@ class dFormDataNav(dForm):
         self.setupMenu()
         self.setupToolBar()
                 
-    def _appendToMenu(self, menu, caption, function):
+    def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap):
         menuId = wx.NewId()
-        menu.Append(menuId, caption)
+        item = wx.MenuItem(menu, menuId, caption)
+        item.SetBitmap(bitmap)
+        menu.AppendItem(item)
+        
         wx.EVT_MENU(self, menuId, function)
 
     def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):
@@ -32,7 +35,7 @@ class dFormDataNav(dForm):
         self.CreateToolBar()
         toolBar = self.GetToolBar()
         
-        self._appendToToolBar(toolBar, "First", dIcons.getIconBitmap("leftArrows"),
+        self._appendToToolBar(toolBar, "First", dIcons.getIconBitmap("leftArrowsBeg"),
                               self.onFirst, "Go to the first record")
             
         self._appendToToolBar(toolBar, "Prior", dIcons.getIconBitmap("leftArrow"),
@@ -44,7 +47,7 @@ class dFormDataNav(dForm):
         self._appendToToolBar(toolBar, "Next", dIcons.getIconBitmap("rightArrow"),
                               self.onNext, "Go to the next record")
             
-        self._appendToToolBar(toolBar, "Last", dIcons.getIconBitmap("rightArrows"),
+        self._appendToToolBar(toolBar, "Last", dIcons.getIconBitmap("rightArrowsEnd"),
                               self.onLast, "Go to the last record")
         
         toolBar.AddSeparator()
@@ -60,41 +63,53 @@ class dFormDataNav(dForm):
         self._appendToToolBar(toolBar, "Save", dIcons.getIconBitmap("fileSave"),
                               self.onRequery, "Save changes")
     
-        self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("fileClose"),
+        self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("fileRevert"),
                               self.onRequery, "Cancel changes")
                               
     def getMenu(self):
         menu = dForm.getMenu(self)
         
         self._appendToMenu(menu, "Set Selection Criteria\tAlt+1", 
-                          self.onSetSelectionCriteria)
+                          self.onSetSelectionCriteria, 
+                          bitmap=dIcons.getIconBitmap("checkMark"))
         self._appendToMenu(menu, "Browse Records\tAlt+2", 
-                          self.onBrowseRecords)
+                          self.onBrowseRecords, 
+                          bitmap=dIcons.getIconBitmap("browse"))
         self._appendToMenu(menu, "Edit Current Record\tAlt+3", 
-                          self.onEditCurrentRecord)
+                          self.onEditCurrentRecord, 
+                          bitmap=dIcons.getIconBitmap("edit"))
         menu.AppendSeparator()
         
         self._appendToMenu(menu, "Requery\tCtrl+R", 
-                          self.onRequery)
+                          self.onRequery, 
+                          bitmap=dIcons.getIconBitmap("requery"))
         self._appendToMenu(menu, "Save Changes\tCtrl+S", 
-                          self.onSave)
+                          self.onSave, 
+                          bitmap=dIcons.getIconBitmap("fileSave"))
         self._appendToMenu(menu, "Cancel Changes", 
-                          self.onCancel)
+                          self.onCancel, 
+                          bitmap=dIcons.getIconBitmap("fileRevert"))
         menu.AppendSeparator()
         
         self._appendToMenu(menu, "Select First Record", 
-                          self.onFirst)
+                          self.onFirst, 
+                          bitmap=dIcons.getIconBitmap("leftArrowBeg"))
         self._appendToMenu(menu, "Select Prior Record\tCtrl+,", 
-                          self.onPrior)
+                          self.onPrior, 
+                          bitmap=dIcons.getIconBitmap("leftArrow"))
         self._appendToMenu(menu, "Select Next Record\tCtrl+.", 
-                          self.onNext)
+                          self.onNext, 
+                          bitmap=dIcons.getIconBitmap("rightArrow"))
         self._appendToMenu(menu, "Select Last Record", 
-                          self.onLast)
+                          self.onLast, 
+                          bitmap=dIcons.getIconBitmap("rightArrowEnd"))
         menu.AppendSeparator()
         self._appendToMenu(menu, "New Record\tCtrl+N", 
-                self.onNew)
+                          self.onNew, 
+                          bitmap=dIcons.getIconBitmap("blank"))
         self._appendToMenu(menu, "Delete Current Record", 
-                self.onDelete)
+                          self.onDelete, 
+                          bitmap=dIcons.getIconBitmap("remove"))
 
         return menu
         
