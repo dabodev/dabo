@@ -37,6 +37,7 @@ class Xml2Obj:
 	def CharacterData(self,data):
 		'SAX character data event handler'
 		if string.strip(data):
+			data = data.replace("&lt;", "<")
 			data = data.encode()
 			element = self.nodeStack[-1]
 			if not element.has_key("cdata"):
@@ -92,7 +93,7 @@ def dicttoxml(d, level=0):
 	else:
 		s += ">"
 		if d.has_key("cdata"):
-			s += "%s" % d["cdata"]
+			s += "%s" % d["cdata"].replace("<", "&lt;")
 
 		if d.has_key("children") and len(d["children"]) > 0:
 			s += "\n"

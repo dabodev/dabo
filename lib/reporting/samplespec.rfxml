@@ -1,25 +1,24 @@
 <report>
 	<detail>
+		<height>24.9230769231</height>
 		<objects>
 			<string>
 				<expr>self.Record['cArtist']</expr>
 				<height>15</height>
 				<name>cArtist</name>
-				<type>string</type>
 				<width>328.0</width>
 				<x>59.0</x>
-				<y>5</y>
+				<y>0</y>
 			</string>
 		</objects>
-		<height>24.9230769231</height>
 	</detail>
 
 	<page>
-		<orientation>"portrait"</orientation>
 		<marginBottom>".5 in"</marginBottom>
 		<marginLeft>".5 in"</marginLeft>
 		<marginRight>".5 in"</marginRight>
 		<marginTop>".5 in"</marginTop>
+		<orientation>"portrait"</orientation>
 		<size>"letter"</size>
 	</page>
 
@@ -35,7 +34,6 @@
 				<fontSize>7</fontSize>
 				<name>test1</name>
 				<rotation>55</rotation>
-				<type>string</type>
 				<width>"1 in"</width>
 				<x>"4.25 in"</x>
 				<y>"5.5 in"</y>
@@ -48,15 +46,22 @@
 				<strokeColor>(.7, .2, .5)</strokeColor>
 				<strokeDashArray>(2, 5, 1, 5)</strokeDashArray>
 				<strokeWidth>".25 pt"</strokeWidth>
-				<type>rect</type>
 				<width>"1 in"</width>
 				<x>"4.25 in"</x>
 				<y>"5 in"</y>
 			</rect>
+			<frameset>
+				<objects>
+					<paragraph>
+						<expr>"test"</expr>
+					</paragraph>
+				</objects>
+			</frameset>
 		</objects>
 	</pageBackground>
 
 	<pageFooter>
+		<height>"0.75 in"</height>
 		<objects>
 			<image>
 				<borderColor>(.65, .23, .42)</borderColor>
@@ -66,16 +71,15 @@
 				<height>"20 pt"</height>
 				<mode>"scale"</mode>
 				<name>daboIcon</name>
-				<type>image</type>
 				<width>"50 pt"</width>
 				<x>self.Bands["pageFooter"]["width"]-1</x>
 				<y>"1"</y>
 			</image>
 		</objects>
-		<height>"0.75 in"</height>
 	</pageFooter>
 
 	<pageHeader>
+		<height>"0.5 in"</height>
 		<objects>
 			<string>
 				<align>"center"</align>
@@ -86,13 +90,11 @@
 				<hAnchor>"center"</hAnchor>
 				<height>15.96</height>
 				<name>title</name>
-				<type>string</type>
 				<width>384.0</width>
 				<x>265.0</x>
-				<y>0.0</y>
+				<y>1.0</y>
 			</string>
 		</objects>
-		<height>"0.5 in"</height>
 	</pageHeader>
 
 	<testcursor cArtist="str" iid="int">

@@ -315,32 +315,32 @@ class ReportWriter(object):
 			for object in objects:
 				t = object["type"]
 				try:
-					s = styles_[object["style"]]
+					s = styles_[eval(object["style"])]
 				except:
 					s = styles_[self.default_style]
-				e = object["expr"]
+				e = eval(object["expr"])
 				s = copy.deepcopy(s)
 
 				if object.has_key("fontSize"):
-					s.fontSize = object["fontSize"]
+					s.fontSize = eval(object["fontSize"])
 
 				if object.has_key("fontName"):
-					s.fontName = object["fontName"]
+					s.fontName = eval(object["fontName"])
 				
 				if object.has_key("leading"):
-					s.leading = object["leading"]
+					s.leading = eval(object["leading"])
 
 				if object.has_key("spaceAfter"):
-					s.spaceAfter = object["spaceAfter"]
+					s.spaceAfter = eval(object["spaceAfter"])
 
 				if object.has_key("spaceBefore"):
-					s.spaceBefore = object["spaceBefore"]
+					s.spaceBefore = eval(object["spaceBefore"])
 
 				if object.has_key("leftIndent"):
-					s.leftIndent = object["leftIndent"]
+					s.leftIndent = eval(object["leftIndent"])
 
 				if object.has_key("firstLineIndent"):
-					s.firstLineIndent = object["firstLineIndent"]
+					s.firstLineIndent = eval(object["firstLineIndent"])
 
 				if t == "paragraph":
 					story.append(platypus.Paragraph(e, s))
@@ -597,7 +597,17 @@ class ReportWriter(object):
 		func = eval("pagesizes.%s" % orientation)
 		return func(pageSize)
 
+
+	def _getUniqueName(self):
+		"""Returns a name that should be unique, but it doesn't check to make sure."""
+		import time, md5, random
+		t1 = time.time()
+		t2 = t1 + random.random()
+		base = md5.new(str(t1 +t2))
+		name = "_" + base.hexdigest()
+		return name
 	
+
 	def _getEmptyForm(self):
 		"""Returns a report form with the minimal number of elements.
 
@@ -634,74 +644,79 @@ class ReportWriter(object):
 		            or self.ReportForm == self._reportFormMemento)
 
 
+	def _getXMLDictFromForm(self, form, d=None):
+		"""Recursively generate the dict format required for the dicttoxml() function."""
+		if d is None:
+			d = {"name": "report", "children": []}
+		elements = form.keys()
+		elements.sort()
+		for element in elements:
+			if element == "type":
+				continue
+			child = {"name": element, "children": []}
+			if type(form[element]) in (str, unicode):
+				child["cdata"] = form[element]
+			elif element == "testcursor":
+				row = form["testcursor"][0]
+				atts = {}
+				fields = row.keys()
+				fields.sort()
+				for field in fields:
+					if type(row[field]) in (str, unicode):
+						t = "str"
+					elif type(row[field]) in (float, ):
+						t = "float"
+					elif type(row[field]) in (int, long):
+						t = "int"
+					elif type(row[field]) in (bool,):
+						t = "bool"
+					atts[field] = t
+				child["attributes"] = atts
+					
+				cursor = []
+				for row in form["testcursor"]:
+					fields = row.keys()
+					fields.sort()
+					attr = {}
+					for field in fields:
+						attr[field] = row[field]
+					cursor.append({"name": "record", "attributes": attr})
+					child["children"] = cursor
+
+			elif element == "objects":
+				objects = []
+				for index in range(len(form[element])):
+					formobj = form[element][index]
+					obj = {"name": formobj["type"], "children": []}
+					props = formobj.keys()
+					props.sort()
+					if formobj.has_key("objects"):
+						# Recurse
+						self._getXMLDictFromForm(formobj, obj)
+					else:
+						for prop in props:
+							if prop != "type":
+								obj["children"].append({"name": prop, 
+								                        "cdata": formobj[prop]})
+					objects.append(obj)
+				child["children"] = objects
+
+			elif type(form[element]) == dict:
+				child = self._getXMLDictFromForm(form[element], child)
+
+			d["children"].append(child)
+		return d		
+
+
 	def _getXMLFromForm(self, form):
 		"""Returns a valid rfxml string from a report form dict."""
 		# We need to first convert the report form dict into the dict format
 		# as expected by the generic dicttoxml() function. This is a tree of
 		# dicts with keys on 'cdata', 'children', 'name', and 'attributes'.
-
-		d = {"name": "report", "children": []}
-		elements = form.keys()
-		elements.sort()
-		for element in elements:
-			child = {"name": element, "children": []}
-			if type(form[element]) in (str, unicode):
-				child["cdata"] = form[element]
-			else:
-				if element == "testcursor":
-					row = form["testcursor"][0]
-					atts = {}
-					fields = row.keys()
-					fields.sort()
-					for field in fields:
-						if type(row[field]) in (str, unicode):
-							t = "str"
-						elif type(row[field]) in (float, ):
-							t = "float"
-						elif type(row[field]) in (int, long):
-							t = "int"
-						elif type(row[field]) in (bool,):
-							t = "bool"
-						atts[field] = t
-					child["attributes"] = atts
-					
-					cursor = []
-					for row in form["testcursor"]:
-						fields = row.keys()
-						fields.sort()
-						attr = {}
-						for field in fields:
-							attr[field] = row[field]
-						cursor.append({"name": "record", "attributes": attr})
-
-					child["children"] = cursor
-				else:
-					keys = form[element].keys()
-					for key in keys:
-						if type(form[element][key]) in (str, unicode):
-							child["children"].append({"name": key, 
-							                          "cdata": form[element][key]})
-						elif key == "objects":
-							objects = []
-							for index in range(len(form[element][key])):
-								formobj = form[element][key][index]
-								obj = {"name": formobj["type"], "children": []}
-
-								props = formobj.keys()
-								props.sort()
-								for prop in props:
-									obj["children"].append({"name": prop, 
-									                        "cdata": formobj[prop]})
-								objects.append(obj)
-							child["children"].append({"name": "objects",
-							                          "children": objects})	
-					
-			
-
-			d["children"].append(child)
-		
+		d = self._getXMLDictFromForm(form)
 		# Now that the dict is in the correct format, get the xml:
 		return dicttoxml(d)
+
 
 	def _setMemento(self):
 		import copy
@@ -712,56 +727,58 @@ class ReportWriter(object):
 			m = copy.deepcopy(r)
 		self._reportFormMemento = m
 
+	
+	def _getFormFromXMLDict(self, xmldict, formdict=None, level=0):
+		"""Recursively generate the form dict from the given xmldict."""
+
+		if formdict is None:
+			formdict = {}
+
+		if xmldict.has_key("children"):
+			# children with name of "objects" are band object lists
+			# other children are sub-dictionaries.
+			for child in xmldict["children"]:
+				if child["name"] == "testcursor":
+					# special case.
+					records = []
+					datatypes = child["attributes"]
+					for childrecord in child["children"]:
+						record = {}
+						if childrecord["name"] == "record":
+							for field, value in childrecord["attributes"].items():
+								datatype = eval(datatypes[field])
+								record[field] = datatype(value)
+							records.append(record)
+					formdict[child["name"]] = records
+				elif child.has_key("cdata"):
+					formdict[child["name"]] = child["cdata"]
+				elif child.has_key("attributes"):
+					formdict[child["name"]] = child["attributes"]
+				elif child.has_key("children"):
+					if child["name"] == "objects":
+						formdict["objects"] = []
+						for obchild in child["children"]:
+							c = self._getFormFromXMLDict(obchild, {}, level+1)
+							c["type"] = obchild["name"]
+							formdict["objects"].append(c)
+					else:
+						formdict[child["name"]] = self._getFormFromXMLDict(child, {}, level+1)
+
+		return formdict
+
+
 	def _getFormFromXML(self, xml):
 		"""Returns the report form dict given xml in rfxml format."""
 
 		# Get the xml into a generic tree of dicts:
-		root = xmltodict(xml)
+		xmldict = xmltodict(xml)
 
-		# Now look for expected keys and values, and fill up the report dict
-		report = {}
-		
-		if root["name"] == "report":
-			for mainElement in root["children"]:
-
-				# This will get "title" and any other user-defined elements:
-				if mainElement.has_key("cdata"):
-					report[mainElement["name"]] = mainElement["cdata"]
-				else:
-					report[mainElement["name"]] = {}
-
-				# Special processing for the optional testcursor:
-				if mainElement["name"] == "testcursor":
-					fieldspecs = {}
-					for fname, ftype in mainElement["attributes"].items():
-						fieldspecs[fname] = eval(ftype)
-					tc = report["testcursor"] = []
-					for record in mainElement["children"]:
-						r = {}
-						for field, val in record["attributes"].items():
-							val = fieldspecs[field](val)
-							r[field] = val
-						tc.append(r)
-					continue
-
-				# Top children (pageFooter, pageHeader, etc.):
-				if mainElement.has_key("children"):
-					c = report[mainElement["name"]]
-					for topchild in mainElement["children"]:
-						if topchild.has_key("cdata"):
-							c[topchild["name"]] = topchild["cdata"]
-						elif topchild["name"] == "objects":
-							## special processing for objects (list of dicts):
-							c[topchild["name"]] = []
-							for objectdef in topchild["children"]:
-								ob = {"type": objectdef["name"]}
-								for prop in objectdef["children"]:
-									ob[prop["name"]] = prop["cdata"]
-								c[topchild["name"]].append(ob)
+		if xmldict["name"] == "report":
+			form = self._getFormFromXMLDict(xmldict)
 		else:
 			print "This isn't a valid rfxml string."
 
-		return report
+		return form
 
 
 	def _getBands(self):

@@ -1,5 +1,5 @@
 import sys, os
-import dabo.ui
+import dabo, dabo.ui
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.lib.reporting.reportWriter import ReportWriter
@@ -383,6 +383,18 @@ class Band(dabo.ui.dPanel):
 				o = self.getObject(obj)
 	
 	def getObject(self, obj):
+		if not obj.has_key("name"):
+			# The report designer needs to identify objects uniquely, and saves the
+			# 'name' property to the object in the rfxml file. However, perhaps a 
+			# separate builder or manual edit of the rfxml resulted in name not being
+			# included. Generate it now:
+			while True:
+				name = self.Parent._rw._getUniqueName()
+				if name not in self._objects.keys():
+					break
+			obj["name"] = name
+			dabo.infoLog.write("Report object didn't have a name... assigned '%s'." % name)
+
 		if obj["name"] not in self._objects.keys():
 			o = ObjectPanel(self)
 			self._objects[obj["name"]] = o
@@ -748,12 +760,13 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self._rulers["bottom"] = self.getRuler("h")
 
 		for band in ("pageHeader", "detail", "pageFooter"):
-			self._rulers["%s-left" % band] = self.getRuler("v")
-			self._rulers["%s-right" % band] = self.getRuler("v")
-			b = Band(self, Caption=band)
-			b.props = self.ReportForm[band]
-			b._rw = self._rw
-			self._bands.append(b)
+			if self.ReportForm.has_key(band):
+				self._rulers["%s-left" % band] = self.getRuler("v")
+				self._rulers["%s-right" % band] = self.getRuler("v")
+				b = Band(self, Caption=band)
+				b.props = self.ReportForm[band]
+				b._rw = self._rw
+				self._bands.append(b)
 
 		self.drawReportForm()
 
