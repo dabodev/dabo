@@ -67,13 +67,13 @@ class dConnectInfo(dabo.common.dObject):
 		""" Set the backend type for the connection if valid. 
 		"""
 		
+		_oldObject = self.BackendObject
+		
 		# As other backends are coded into the framework, we will need 
 		# to expand the if/elif list.
-		
 		if backendName is not None:
 			# Evaluate each type of backend
 			nm = backendName.lower()
-			self._backendName = nm
 			if nm == "mysql":
 				import dbMySQL
 				self._backendObject = dbMySQL.MySQL()
@@ -87,15 +87,22 @@ class dConnectInfo(dabo.common.dObject):
 				import dbFirebird
 				self._backendObject = dbFirebird.Firebird()
 			else:
-				self._backendName = None
-				self._backendObject = None
+				raise ValueError, "Invalid backend name: %s." % nm
+				
+			if _oldObject != self.BackendObject:
+				self._backendName = nm
+				
 		else:
 			self._backendName = None
 			self._backendObject = None
 
 			
 	def _getBackendObject(self):
-		return self._backendObject
+		try:
+			o = self._backendObject
+		except AttributeError:
+			o, self._backendObject = None, None
+		return o
 
 	def _getHost(self): 
 		return self._host
