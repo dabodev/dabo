@@ -1,10 +1,8 @@
 """ External libraries that can be loaded into Daboized applications.
 """
-import os as __os
 
-# OpenFox functions: (FoxPro syntax)
-__os.environ["OPENFOX_LOADUI"] = "0"
-import ofFunctions
-
-from ListSorter import ListSorter
+# Don't put any import statements here. Code will explicitly import 
+# what it needs. For example:
+#	from dabo.lib.ListSorter import ListSorter
+#	import dabo.lib.ofFunctions as oFox
 

@@ -1,5 +1,5 @@
 import dabo
-dabo.ui.loadUI("wx")
+#dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
 from dabo.dLocalize import _

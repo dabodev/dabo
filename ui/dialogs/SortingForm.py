@@ -1,5 +1,5 @@
 import dabo
-import dabo.lib
+from dabo.lib.ListSorter import ListSorter
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
@@ -16,7 +16,7 @@ class SortingForm(dabo.ui.dOkCancelDialog):
 	
 	
 	def addControls(self):
-		self.listBox = dabo.lib.ListSorter(self, Choices=self._itms)
+		self.listBox = ListSorter(self, Choices=self._itms)
 		self.Sizer.append(self.listBox, 1, "expand", border=30, borderFlags="all")
 		self.layout()
 
