@@ -123,9 +123,9 @@ class dDataControlMixin(pm.dPemMixin):
 		""" Save any changes to the underlying bizobj field.
 		"""
 		curVal = self.Value
-
 		if curVal != self._oldVal and self.DataSource and self.DataField:
 			response = self.setFieldVal(curVal)
+			self._oldVal = self.curVal
 			if not response:
 				raise ValueError, "bizobj.setFieldVal() failed."
 
