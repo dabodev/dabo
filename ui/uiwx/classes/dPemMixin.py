@@ -159,47 +159,69 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 		return s.replace(sl, sl+sl).replace(qt, sl+qt)
 	
 
+	def getPropValDict(self, obj):
+		propValDict = {}
+		propList = obj.getPropertyList()
+		for prop in propList:
+			propValDict[prop] = eval("obj.%s" % prop)
+		return propValDict
+	
+	
+	def applyPropValDict(self, obj, pvDict):
+		ignoreProps = ["BaseClass", "Bottom", "Class", "Font", "FontFace", "FontInfo", 
+				"MousePointer", "Parent", "Right", "SuperClass", "WindowHandle"]
+		propList = obj.getPropertyList()
+		name = obj.Name
+		for prop in propList:
+			if prop in ignoreProps:
+				continue
+			try:
+				sep = ""	# Empty String
+				val = pvDict[prop]
+				if type(val) in (types.UnicodeType, types.StringType):
+					sep = "'"	# Single Quote
+				try:
+					exp = "obj.%s = %s" % (prop, sep+self.escapeQt(str(val))+sep)
+					exec(exp)
+				except:
+					#pass
+					print "Could not set property:", exp
+			except:
+				pass
+		# Font assignment can be complicated during the iteration of properties,
+		# so assign it explicitly here at the end.
+		if pvDict.has_key("Font"):
+			obj.Font = pvDict["Font"]
+			
+	
 	def reCreate(self, child=None):
 		''' Recreate self.
 		'''
 		if child:
-			ignoreProps = ["BaseClass", "Bottom", "Class", "Font", "FontFace", "FontInfo", 
-					"MousePointer", "Parent", "Right", "SuperClass", "WindowHandle"]
-			propDict = {}
-			propList = child.getPropertyList()
-			for prop in propList:
-				propDict[prop] = eval('child.%s' % prop)
+			propValDict = self.getPropValDict(child)
 			style = child.GetWindowStyle()
 			classRef = child.__class__
 			name = child.Name
 			child.Destroy()
 			newObj = self.addObject(classRef, name, style=style)
-			for prop in propList:
-				if prop in ignoreProps:
-					continue
-				try:
-					sep = ""
-					val = propDict[prop]
-					if type(val) in (types.UnicodeType, types.StringType):
-						sep = "'"
-					try:
-						exp = 'self.%s.%s = %s' % (name, prop, sep+self.escapeQt(str(val))+sep)
-						exec(exp)
-					except:
-						#pass
-						print "Re-Create: could not set property:", exp
-
-				except:
-					pass
-			
-			# Font assignment can be complicated during the iteration of properties,
-			# so assign it explicitly here at the end.
-			if propDict.has_key("Font"):
-				newObj.Font = propDict["Font"]
-
+			self.applyPropValDict(newObj, propValDict)
 			return newObj
 		else:
 			return self.Parent.reCreate(self)
+	
+	
+	def clone(self, obj, name=None):
+		""" Create another object just like the passed object. It assumes that the 
+		calling object will be the container of the newly created object.
+		"""
+		propValDict = self.getPropValDict(obj)
+		if name is None:
+			name = obj.Name + "1"
+		newObj = self.addObject(obj.__class__, 
+				name, style=obj.GetWindowStyle() )
+		self.applyPropValDict(newObj, propValDict)
+		return newObj
+		
 
 	# The following 3 flag functions are used in some of the property
 	# get/set functions.
