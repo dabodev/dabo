@@ -18,9 +18,8 @@ class dPemMixin(object):
         except TypeError:
             ret = None
         if not ret:
-            name = self._name
             raise AttributeError, "%s object has no attribute %s" % (
-                name, att)
+                self._name, att)
         else:
             return ret
 
@@ -52,7 +51,21 @@ class dPemMixin(object):
         '''
         self._name = "?"
     
+        
+    def __init__(self, *args, **kwargs):
+        if self.Position == (-1, -1):
+            # The object was instantiated with a default position,
+            # which ended up being (-1,-1). Change this to (0,0). 
+            # This is completely moot when sizers are employed.
+            self.Position = (0, 0)
     
+        if self.Size == (-1, -1):
+            # The object was instantiated with a default position,
+            # which ended up being (-1,-1). Change this to (0,0). 
+            # This is completely moot when sizers are employed.
+            self.Size = (0, 0)
+
+                        
     def afterInit(self):
         ''' Called after the wx object's __init__ has run fully.
         
@@ -61,7 +74,7 @@ class dPemMixin(object):
         '''
         pass
         
-            
+                        
     def getPropertyList(classOrInstance):
         ''' Return the list of properties for this object (class or instance).
         '''
@@ -87,7 +100,7 @@ class dPemMixin(object):
         except AttributeError:
             return None
         
-    def _getParentClass(self):
+    def _getSuperClass(self):
         if self.BaseClass == self.Class:
             # Any higher up goes into the wx classes:
             return None
@@ -99,6 +112,42 @@ class dPemMixin(object):
         return self.GetFont()
     def _setFont(self, font):
         self.SetFont(font)
+    
+    def _getFontInfo(self):
+        return self.Font.GetNativeFontInfoDesc()
+    def _setFontInfo(self, fontInfo):
+        self.Font.SetNativeFontInfo(fontInfo)
+        
+    def _getFontBold(self):
+        return self.Font.GetWeight() == wx.BOLD
+    def _setFontBold(self, fontBold):
+        if fontBold:
+            self.Font.SetWeight(wx.BOLD)
+        else:
+            self.Font.SetWeight(wx.NORMAL)
+        
+    def _getFontItalic(self):
+        return self.Font.GetStyle() == wx.ITALIC
+    def _setFontItalic(self, fontItalic):
+        if fontItalic:
+            self.Font.SetStyle(wx.ITALIC)
+        else:
+            self.Font.SetStyle(wx.NORMAL)
+    
+    def _getFontFace(self):
+        return self.Font.GetFaceName()
+    def _setFontFace(self, fontFace):
+        self.Font.SetFaceName(fontFace)
+    
+    def _getFontSize(self):
+        return self.Font.GetPointSize()
+    def _setFontSize(self, fontSize):
+        self.Font.SetPointSize(fontSize)
+    
+    def _getFontUnderline(self):
+        return self.Font.GetUnderlined()
+    def _setFontUnderline(self, fontUnderline):
+        self.Font.SetUnderlined(fontUnderlined)
     
         
     def _getTop(self):
@@ -116,7 +165,17 @@ class dPemMixin(object):
     def _setPosition(self, position):
         self.SetPosition(position)
     
+    def _getBottom(self):
+        return self.Top + self.Height
+    def _setBottom(self, bottom):
+        self.Top = bottom - self.Height
         
+    def _getRight(self):
+        return self.Left + self.Width
+    def _setRight(self, right):
+        self.Left = right - self.Width
+
+                
     def _getWidth(self):
         return self.GetSize()[0]
     def _setWidth(self, width):
@@ -128,7 +187,7 @@ class dPemMixin(object):
         self.SetSize((self.Width, height))
     
     def _getSize(self): 
-        return self.GetPosition()
+        return self.GetSize()
     def _setSize(self, size):
         self.SetSize(size)
 
@@ -214,7 +273,7 @@ class dPemMixin(object):
                     'The class the object is based on. Read-only. (class)')
     BaseClass = property(_getBaseClass, None, None, 
                     'The base class of the object. Read-only. (class)')
-    ParentClass = property(_getParentClass, None, None, 
+    SuperClass = property(_getSuperClass, None, None, 
                     'The parent class of the object. Read-only. (class)')
     
     Parent = property(_getParent, None, None,
@@ -222,11 +281,27 @@ class dPemMixin(object):
                     
     Font = property(_getFont, _setFont, None,
                     'The font properties of the object. (wxFont)')
-
+    FontInfo = property(_getFontInfo, _setFontInfo, None,
+                    'Specifies the platform-native font info string. (str)')
+    FontBold = property(_getFontBold, _setFontBold, None,
+                    'Specifies if the font is bold-faced. (bool)')
+    FontItalic = property(_getFontItalic, _setFontItalic, None,
+                    'Specifies whether font is italicized. (bool)')
+    FontFace = property(_getFontFace, _setFontFace, None,
+                    'Specifies the font face. (str)')
+    FontSize = property(_getFontSize, _setFontSize, None,
+                    'Specifies the point size of the font. (int)')
+    FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
+                    'Specifies whether text is underlined. (bool)')
+    
     Top = property(_getTop, _setTop, None, 
                     'The top position of the object. (int)')
     Left = property(_getLeft, _setLeft, None,
                     'The left position of the object. (int)')
+    Bottom = property(_getBottom, _setBottom, None,
+                    'The position of the bottom part of the object. (int)')
+    Right = property(_getRight, _setRight, None,
+                    'The position of the right part of the object. (int)')
     Position = property(_getPosition, _setPosition, None, 
                     'The (x,y) position of the object. ((int,int))')
 

@@ -14,7 +14,7 @@ class dPanel(wx.Panel, dControlMixin.dControlMixin):
         
         pre = wx.PrePanel()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, 0)
+        pre.Create(parent, -1)
         
         self.this = pre.this
         self._setOORInfo(self)

@@ -1,7 +1,6 @@
 import dPage, dGrid, dEditBox, dTextBox, dSpinner, dCheckBox, dLabel
 import dMessageBox, dEvents, wx
 
-
 class dSelectPage(dPage.dPage):
 
     def __init__(self, parent):
