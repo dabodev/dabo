@@ -122,10 +122,12 @@ class dSelectPage(dPage):
     def requery(self):
         sqlBuilder = self.getDform().sqlBuilder
         where = self.getWhere()
-        print "where:" + where            
         sqlBuilder.setWhereClause(where)
-        print "sql:" + sqlBuilder.getSQL()  
+        print "\n\nsql:\n%s\n\n" % sqlBuilder.getSQL()   
         self.getDform().requery()
+        if self.GetParent().GetSelection() == 0:
+            # If the select page is active, now make the browse page active
+            self.GetParent().SetSelection(1)
     
         
     def _getSelectOptionsPanel(self):
@@ -287,14 +289,16 @@ class dBrowsePage(dPage):
         self.GetSizer().Add(self.grid, 1, wx.EXPAND)
         self.GetSizer().Layout()
         self.gridExists = True
-        self.grid.SetFocus()
 
     def fillGrid(self):
         form = self.getDform()
         bizobj = form.getBizobj()
         self.grid.columnDefs = form.getColumnDefs(bizobj.dataSource)
         self.grid.fillGrid()
-        
+        self.GetSizer().Layout()
+        for window in self.grid.GetChildren():
+            window.SetFocus()
+                
     def editRecord(self):
         # Called by the grid: user wants to edit the current row
         self.GetParent().SetSelection(2)

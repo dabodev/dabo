@@ -63,8 +63,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
         
         # Fill self.data based on bizobj records
         dataSet = self.bizobj.getDataSet()
-        if len(dataSet) == 0:
-            return
             
         for record in dataSet:
             recordDict = []
@@ -282,7 +280,7 @@ class dGrid(wx.grid.Grid):
             self.SetTable(dGridDataTable(self), True)
         self.GetTable().fillTable()
 
-        
+    
     def OnColSize(self, event):
         ''' Occurs when the user resizes the width of the column.
         '''
