@@ -162,7 +162,7 @@ class dGrid(wx.grid.Grid):
         
         ID_IncrementalSearchTimer = wx.NewId()
         self.currentIncrementalSearch = ""
-        self.incrementalSearchTimerInterval = 600
+        self.incrementalSearchTimerInterval = 400     # This needs to be user-tweakable
         self.incrementalSearchTimer = wx.Timer(self, ID_IncrementalSearchTimer)
         
         self.sortedColumn = None

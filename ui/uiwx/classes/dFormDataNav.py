@@ -34,6 +34,7 @@ class dFormDataNav(dForm):
     def setupToolBar(self):
         self.CreateToolBar()
         toolBar = self.GetToolBar()
+        toolBar.SetToolBitmapSize((16,16))    # Needed on non-Linux platforms
         
         self._appendToToolBar(toolBar, "First", dIcons.getIconBitmap("leftArrows"),
                               self.onFirst, "Go to the first record")
@@ -65,7 +66,10 @@ class dFormDataNav(dForm):
     
         self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("revert"),
                               self.onCancel, "Cancel changes")
-                              
+        
+        toolBar.Realize()    # Needed on non-Linux platforms
+
+                
     def getMenu(self):
         menu = dForm.getMenu(self)
         
