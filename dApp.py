@@ -81,8 +81,6 @@ class dApp(dabo.common.dObject):
 		super(dApp, self).__init__()
 		self._initProperties()
 		
-		print "app init", dabo.dAppRef
-		
 ### PKM: commented this out as I don't understand the need for it		
 # 		# Params may need to be sent to the main frame. These two 
 # 		# props allow that

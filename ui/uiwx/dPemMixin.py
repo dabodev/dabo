@@ -129,7 +129,7 @@ class dPemMixin(dPemMixinBase):
 			
 	def _beforeInit(self, pre):
 		self.acceleratorTable = []
-		self._name = '?'
+		self._name = "?"
 		self._pemObject = pre
 		self.initStyleProperties()
 		
@@ -180,8 +180,8 @@ class dPemMixin(dPemMixinBase):
 		return kwargs
 		
 	def _getInitPropertiesList(self):
-		return ('Alignment', 'BorderStyle', 'PasswordEntry', 'Orientation', 
-			'ShowLabels', 'TabPosition')
+		return ("Alignment", "BorderStyle", "PasswordEntry", "Orientation", 
+			"ShowLabels", "TabPosition")
 
 	def _setInitProperties(self, **_properties):
 		# Called before the wx object is fully instantiated. Allows for sending
@@ -296,10 +296,35 @@ class dPemMixin(dPemMixinBase):
 		d = super(dPemMixin, self).getPropertyInfo(name)
 
 		# Hide some wx-specific props in the designer:
-		d['showInDesigner'] = not name in ('Size', 'Position', 'WindowHandle', 'TypeID')
+		noShowDesigner = (
+			"EventBindings",
+			"FontInfo",
+			"LogEvents",
+			"Parent",
+			"Position", 
+			"Size", 
+			"TypeID",
+			"WindowHandle")
+		d["showInDesigner"] = name not in noShowDesigner
 
 		# Some wx-specific props need to be initialized early. Let the designer know:
-		d['preInitProperty'] = name in self._initProperties.values()
+		d["preInitProperty"] = name in self._initProperties.values()
+		
+		# Finally, override the default editable state. The base behavior
+		# is to make any prop with a setter method editable, but some simply
+		# should not be edited in the Designer.
+		if name in (
+				"BaseClass",
+				"Class",
+				"EventBindings",
+				"FontInfo",
+				"LogEvents",
+				"MousePointer",
+				"Parent",
+				"Sizer",
+				"SuperClass"):
+			d["editValueInDesigner"] = False
+
 
 		return d
 		
@@ -437,7 +462,7 @@ class dPemMixin(dPemMixinBase):
 		return self._pemObject.GetBackgroundColour()
 
 	def _getBackColorEditorInfo(self):
-		return {'editor': 'colour'}
+		return {"editor": "colour"}
 
 	def _setBackColor(self, value):
 		self._pemObject.SetBackgroundColour(value)
@@ -449,23 +474,23 @@ class dPemMixin(dPemMixinBase):
 
 	def _getBorderStyle(self):
 		if self.hasWindowStyleFlag(wx.RAISED_BORDER):
-			return 'Raised'
+			return "Raised"
 		elif self.hasWindowStyleFlag(wx.SUNKEN_BORDER):
-			return 'Sunken'
+			return "Sunken"
 		elif self.hasWindowStyleFlag(wx.SIMPLE_BORDER):
-			return 'Simple'
+			return "Simple"
 		elif self.hasWindowStyleFlag(wx.DOUBLE_BORDER):
-			return 'Double'
+			return "Double"
 		elif self.hasWindowStyleFlag(wx.STATIC_BORDER):
-			return 'Static'
+			return "Static"
 		elif self.hasWindowStyleFlag(wx.NO_BORDER):
-			return 'None'
+			return "None"
 		else:
-			return 'Default'
+			return "Default"
 
 	def _getBorderStyleEditorInfo(self):
-		return {'editor': 'list', 'values': ['Default', 'None', 'Simple', 'Sunken', 
-						'Raised', 'Double', 'Static']}
+		return {"editor": "list", "values": ["Default", "None", "Simple", "Sunken", 
+						"Raised", "Double", "Static"]}
 
 	def _setBorderStyle(self, style):
 		self.delWindowStyleFlag(wx.NO_BORDER)
@@ -477,19 +502,19 @@ class dPemMixin(dPemMixinBase):
 
 		style = str(style)
 
-		if style == 'None':
+		if style == "None":
 			self.addWindowStyleFlag(wx.NO_BORDER)
-		elif style == 'Simple':
+		elif style == "Simple":
 			self.addWindowStyleFlag(wx.SIMPLE_BORDER)
-		elif style == 'Sunken':
+		elif style == "Sunken":
 			self.addWindowStyleFlag(wx.SUNKEN_BORDER)
-		elif style == 'Raised':
+		elif style == "Raised":
 			self.addWindowStyleFlag(wx.RAISED_BORDER)
-		elif style == 'Double':
+		elif style == "Double":
 			self.addWindowStyleFlag(wx.DOUBLE_BORDER)
-		elif style == 'Static':
+		elif style == "Static":
 			self.addWindowStyleFlag(wx.STATIC_BORDER)
-		elif style == 'Default':
+		elif style == "Default":
 			pass
 		else:
 			raise ValueError, ("The only possible values are 'None', "
@@ -518,7 +543,7 @@ class dPemMixin(dPemMixinBase):
 		return self._pemObject.GetFont()
 	
 	def _getFontEditorInfo(self):
-		return {'editor': 'font'}
+		return {"editor": "font"}
 	
 	def _setFont(self, font):
 		self._pemObject.SetFont(font)
@@ -587,7 +612,7 @@ class dPemMixin(dPemMixinBase):
 		return self._pemObject.GetForegroundColour()
 
 	def _getForeColorEditorInfo(self):
-		return {'editor': 'colour'}
+		return {"editor": "colour"}
 
 	def _setForeColor(self, value):
 		self._pemObject.SetForegroundColour(value)
@@ -597,7 +622,7 @@ class dPemMixin(dPemMixinBase):
 		return self._pemObject.GetSize()[1]
 
 	def _getHeightEditorInfo(self):
-		return {'editor': 'integer', 'min': 0, 'max': 8192}
+		return {"editor": "integer", "min": 0, "max": 8192}
 
 	def _setHeight(self, height):
 		self._pemObject.SetSize((self._pemObject.GetSize()[0], int(height)))
@@ -643,7 +668,7 @@ class dPemMixin(dPemMixinBase):
 					if i == 0:
 						candidate = name
 					else:
-						candidate = '%s%s' % (name, i)
+						candidate = "%s%s" % (name, i)
 
 					for window in parent.GetChildren():
 						if window.GetName() == candidate and window != self:
@@ -713,10 +738,10 @@ class dPemMixin(dPemMixinBase):
 		if t:
 			return t.GetTip()
 		else:
-			return ''
+			return ""
 
 	def _getToolTipTextEditorInfo(self):
-		return {'editor': 'string', 'len': 8192}
+		return {"editor": "string", "len": 8192}
 
 	def _setToolTipText(self, value):
 		t = self._pemObject.GetToolTip()
@@ -746,7 +771,7 @@ class dPemMixin(dPemMixinBase):
 		return self._pemObject.GetSize()[0]
 
 	def _getWidthEditorInfo(self):
-		return {'editor': 'integer', 'min': 0, 'max': 8192}
+		return {"editor": "integer", "min": 0, "max": 8192}
 
 	def _setWidth(self, width):
 		self._pemObject.SetSize((int(width), self._pemObject.GetSize()[1]))
@@ -761,109 +786,109 @@ class dPemMixin(dPemMixinBase):
 
 	# Property definitions follow
 	BackColor = property(_getBackColor, _setBackColor, None,
-		'Specifies the background color of the object. (tuple)')
+			"Specifies the background color of the object. (tuple)")
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
-		'Specifies the type of border for this window. (int). \n'
-		'     None \n'
-		'     Simple \n'
-		'     Sunken \n'
-		'     Raised')
+			"Specifies the type of border for this window. (int). \n"
+			"     None \n"
+			"     Simple \n"
+			"     Sunken \n"
+			"     Raised")
 	
 	Caption = property(_getCaption, _setCaption, None, 
-		'The caption of the object. (str)')
+			"The caption of the object. (str)")
 	
 	Enabled = property(_getEnabled, _setEnabled, None,
-		'Specifies whether the object (and its children) can get user input. (bool)')
+			"Specifies whether the object (and its children) can get user input. (bool)")
 
 	Font = property(_getFont, _setFont, None,
-		'The font properties of the object. (obj)')
+			"The font properties of the object. (obj)")
 	
 	FontBold = property(_getFontBold, _setFontBold, None,
-		'Specifies if the font is bold-faced. (bool)')
+			"Specifies if the font is bold-faced. (bool)")
 	
 	FontDescription = property(_getFontDescription, None, None, 
-		"Human-readable description of the current font settings. (str)")
+			"Human-readable description of the current font settings. (str)")
 	
 	FontFace = property(_getFontFace, None, None,
-		'Specifies the font face. (str)')
+			"Specifies the font face. (str)")
 	
 	FontInfo = property(_getFontInfo, None, None,
-		'Specifies the platform-native font info string. Read-only. (str)')
+			"Specifies the platform-native font info string. Read-only. (str)")
 	
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
-		'Specifies whether font is italicized. (bool)')
+			"Specifies whether font is italicized. (bool)")
 	
 	FontSize = property(_getFontSize, _setFontSize, None,
-		'Specifies the point size of the font. (int)')
+			"Specifies the point size of the font. (int)")
 	
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
-		'Specifies whether text is underlined. (bool)')
+			"Specifies whether text is underlined. (bool)")
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
-		'Specifies the foreground color of the object. (tuple)')
+			"Specifies the foreground color of the object. (tuple)")
 
 	Height = property(_getHeight, _setHeight, None,
-		'The height of the object. (int)')
+			"The height of the object. (int)")
 	
 	HelpContextText = property(_getHelpContextText, _setHelpContextText, None,
-		'Specifies the context-sensitive help text associated with this window. (str)')
+			"Specifies the context-sensitive help text associated with this window. (str)")
 	
 	Left = property(_getLeft, _setLeft, None,
-		'The left position of the object. (int)')
+			"The left position of the object. (int)")
 	
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
-		'Specifies the shape of the mouse pointer when it enters this window. (obj)')
+			"Specifies the shape of the mouse pointer when it enters this window. (obj)")
 	
  	Name = property(_getName, _setName, None, 
-		"""Specifies the name of the object, which must be unique among siblings.
-		
-		If the specified name isn't unique, an exception will be raised. See also
-		NameBase, which let's you set a base name and Dabo will automatically append
-		integers to make it unique.
-		""")
+			"""Specifies the name of the object, which must be unique among siblings.
+			
+			If the specified name isn't unique, an exception will be raised. See also
+			NameBase, which let's you set a base name and Dabo will automatically append
+			integers to make it unique.
+			""")
 	
 	NameBase = property(None, _setNameBase, None,
-		"""Specifies the base name of the object.
-		
-		The base name specified will become the object's Name, unless another sibling
-		already has that name, in which case Dabo will find the next unique name by
-		adding integers to the end of the base name. For example, if your code says:
-		
-			self.NameBase = "txtAddress" 
+			"""Specifies the base name of the object.
 			
-		and there is already a sibling object with that name, your object will end up
-		with Name = "txtAddress1".
-		
-		This property is write-only at runtime.
-		""")
+			The base name specified will become the object's Name, unless another sibling
+			already has that name, in which case Dabo will find the next unique name by
+			adding integers to the end of the base name. For example, if your code says:
+			
+				self.NameBase = "txtAddress" 
+				
+			and there is already a sibling object with that name, your object will end up
+			with Name = "txtAddress1".
+			
+			This property is write-only at runtime.
+			""")
 		
 	Parent = property(_getParent, _setParent, None,	
-		'The containing object. (obj)')
+			"The containing object. (obj)")
 
 	Position = property(_getPosition, _setPosition, None, 
-		'The (x,y) position of the object. (tuple)')
+			"The (x,y) position of the object. (tuple)")
 
 	Size = property(_getSize, _setSize, None,
-		'The size of the object. (tuple)')
+			"The size of the object. (tuple)")
 
 	Sizer = property(_getSizer, _setSizer, None, 
-		'The sizer for the object.')
+			"The sizer for the object.")
 		
 	ToolTipText = property(_getToolTipText, _setToolTipText, None,
-		'Specifies the tooltip text associated with this window. (str)')
+			"Specifies the tooltip text associated with this window. (str)")
 
 	Top = property(_getTop, _setTop, None, 
-		'The top position of the object. (int)')
+			"The top position of the object. (int)")
 	
 	Visible = property(_getVisible, _setVisible, None,
-		'Specifies whether the object is visible at runtime. (bool)')                    
+			"Specifies whether the object is visible at runtime. (bool)")                    
 
 	Width = property(_getWidth, _setWidth, None,
-					'The width of the object. (int)')
+			"The width of the object. (int)")
 	
 	WindowHandle = property(_getWindowHandle, None, None,
-					'The platform-specific handle for the window. Read-only. (long)')
+			"The platform-specific handle for the window. Read-only. (long)")
 
 
 
