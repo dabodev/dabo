@@ -1,7 +1,9 @@
-import sys, os
+import sys, os, copy
 import reportlab.pdfgen.canvas as canvas
 import reportlab.graphics.shapes as shapesimport reportlab.lib.pagesizes as pagesizes
 import reportlab.lib.units as units
+import reportlab.lib.styles as styles
+import reportlab.platypus as platypus
 #import reportlab.lib.colors as colors
 from dabo.lib.xmltodict import xmltodict
 from dabo.lib.xmltodict import dicttoxml
@@ -73,7 +75,12 @@ class ReportWriter(object):
 	default_scaleMode = "scale"            # "clip" or "scale" for images.
 	default_bandHeight = 0
 	default_expr = "< New >"
-
+	default_style = "Normal"
+	default_frameId = None
+	default_padLeft = 0
+	default_padRight = 0
+	default_padTop = 0
+	default_padBottom = 0
 
 	def draw(self, object, origin):
 		"""Draw the given object on the Canvas.
@@ -243,6 +250,110 @@ class ReportWriter(object):
 			# draw the string using the function that matches the alignment:
 			s = eval(object["expr"])
 			func(posx, 0, s)
+	
+		elif object["type"] == "frameset":
+			# A frame is directly related to reportlab's platypus Frame.
+			try: 
+				borderWidth = self.getPt(eval(object["borderWidth"]))
+			except KeyError: 
+				borderWidth = self.default_borderWidth
+	
+			try: 
+				borderColor = eval(object["borderColor"])
+			except KeyError: 
+				borderColor = self.default_borderColor
+	
+			try:
+				frameId = eval(object["frameId"])
+			except KeyError:
+				frameId = self.default_frameId
+
+			try:
+				padLeft = self.getPt(eval(object["padLeft"]))
+			except:
+				padLeft = self.default_padLeft
+
+			try:
+				padRight = self.getPt(eval(object["padRight"]))
+			except:
+				padRight = self.default_padRight
+
+			try:
+				padTop = self.getPt(eval(object["padTop"]))
+			except:
+				padTop = self.default_padTop
+
+			try:
+				padBottom = self.getPt(eval(object["padBottom"]))
+			except:
+				padBottom = self.default_padBottom
+
+			try:
+				columns = eval(object["columns"])
+			except:
+				columns = 1
+
+			columnWidth = width/columns
+			print columnWidth
+
+			## Set canvas props based on our props:
+			c.translate(x, y)
+			c.rotate(rotation)
+			c.setLineWidth(borderWidth)
+			c.setStrokeColor(borderColor)
+	
+			if borderWidth > 0:
+				boundary = 1
+			else:
+				boundary = 0
+
+			story = []	
+			
+			styles_ = styles.getSampleStyleSheet()
+
+			objects = object["objects"]
+			story = []
+			for object in objects:
+				t = object["type"]
+				try:
+					s = styles_[object["style"]]
+				except:
+					s = styles_[self.default_style]
+				e = object["expr"]
+				print e
+				s = copy.deepcopy(s)
+
+				if object.has_key("fontSize"):
+					s.fontSize = object["fontSize"]
+
+				if object.has_key("fontName"):
+					s.fontName = object["fontName"]
+				
+				if object.has_key("leading"):
+					s.leading = object["leading"]
+
+				if object.has_key("spaceAfter"):
+					s.spaceAfter = object["spaceAfter"]
+
+				if object.has_key("spaceBefore"):
+					s.spaceBefore = object["spaceBefore"]
+
+				if object.has_key("leftIndent"):
+					s.leftIndent = object["leftIndent"]
+
+				if object.has_key("firstLineIndent"):
+					s.firstLineIndent = object["firstLineIndent"]
+
+				if t == "paragraph":
+					story.append(platypus.Paragraph(e, s))
+
+			for columnIndex in range(columns):
+				f = platypus.Frame(columnIndex*columnWidth, 0, columnWidth, height, leftPadding=padLeft,
+				                   rightPadding=padRight, topPadding=padTop,
+				                   bottomPadding=padBottom, id=frameId, 
+				                   showBoundary=boundary)
+
+				f.addFromList(story, c)
 	
 		elif object["type"] == "image":
 			try: 
