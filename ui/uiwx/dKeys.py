@@ -98,7 +98,7 @@ key_Numpad_delete = wx.WXK_NUMPAD_DELETE
 key_Numpad_equal = wx.WXK_NUMPAD_EQUAL
 key_Numpad_multiply = wx.WXK_NUMPAD_MULTIPLY
 key_Numpad_add = wx.WXK_NUMPAD_ADD
-key_Numpad_separatoR = wx.WXK_NUMPAD_SEPARATOR
+key_Numpad_separator = wx.WXK_NUMPAD_SEPARATOR
 key_Numpad_subtract = wx.WXK_NUMPAD_SUBTRACT
 key_Numpad_decimal = wx.WXK_NUMPAD_DECIMAL
 key_Numpad_divide = wx.WXK_NUMPAD_DIVIDE
@@ -106,6 +106,10 @@ key_Windows_left = wx.WXK_WINDOWS_LEFT
 key_Windows_right = wx.WXK_WINDOWS_RIGHT
 key_Windows_menu = wx.WXK_WINDOWS_MENU
 
+mod_Alt = wx.ACCEL_ALT
+mod_Shift = wx.ACCEL_SHIFT
+mod_Ctrl = wx.ACCEL_CTRL
+mod_Normal = wx.ACCEL_NORMAL
 
 arrowKeys = {
 		"up" : key_Up,

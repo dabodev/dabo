@@ -6,7 +6,7 @@ if dabo.ui.getUIType() is None:
 
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
-
+dKeys = dabo.ui.dKeys
 
 class lbl(dabo.ui.dLabel):
 	def initStyleProperties(self):
@@ -24,7 +24,7 @@ class lblMessage(dabo.ui.dLabel):
 	def initProperties(self):
 		self.FontBold = True
 		self.FontItalic = True
-		self.ForeColor = wx.BLUE
+		self.ForeColor = "Blue"
 		self.FontSize = 10
 		self.Caption = _("Please enter your login information.")
 
@@ -128,12 +128,12 @@ class Login(dabo.ui.dDialog):
 		
 		# Map escape key to cancelbutton:
 		anId = wx.NewId()
-		self.acceleratorTable.append((wx.ACCEL_NORMAL, wx.WXK_ESCAPE, anId))
+		self.acceleratorTable.append((dKeys.mod_Normal, dKeys.key_Escape, anId))
 		self.Bind(wx.EVT_MENU, self.onCancel, id=anId)
 
 		# Map enter key to accept button:
 		anId = wx.NewId()
-		self.acceleratorTable.append((wx.ACCEL_NORMAL, wx.WXK_RETURN, anId))
+		self.acceleratorTable.append((dKeys.mod_Normal, dKeys.key_Return, anId))
 		self.Bind(wx.EVT_MENU, self.onAccept, id=anId)
 
 		
