@@ -6,6 +6,11 @@ class dObject(DoDefaultMixin, PropertyHelperMixin):
 	""" The basic ancestor of all dabo objects.
 	"""
 	
+	def escapeQt(self, s):
+		sl = "\\"
+		qt = "\'"
+		return s.replace(sl, sl+sl).replace(qt, sl+qt)
+
 	def _getBaseClass(self):
 		# Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:
 		# 	class dBackend(object)

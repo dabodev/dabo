@@ -6,7 +6,6 @@ framework, both visual and non-visual, for the tk ui.
 
 # Copied from the uiwx package. Uncomment items as they get implemented.
 
-
 # Import into public namespace:
 #from dAbout import dAbout
 #from dCheckBox import dCheckBox
@@ -17,7 +16,7 @@ framework, both visual and non-visual, for the tk ui.
 #from dEditBox import dEditBox
 #from dForm import dForm
 #from dFormDataNav import dFormDataNav
-#from dFormMain import dFormMain
+from dFormMain import dFormMain
 #from dGauge import dGauge
 #from dGridDataNav import dGridDataNav
 #from dLabel import dLabel

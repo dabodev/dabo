@@ -1,5 +1,5 @@
 """ dPemMixin.py: Provide common PEM functionality """
-import wx, sys, types
+import sys, types
 import dabo, dabo.common
 from dabo.dLocalize import _
 
@@ -15,10 +15,23 @@ class dPemMixin(dabo.common.dObject):
 		This allows accessing children with the style:
 			self.mainPanel.txtName.Value = "test"
 		"""
-		try:
-			ret = self.FindWindowByName(att)
-		except TypeError:
-			ret = None
+		
+		# First, try to delegate to self._tkObject:
+# 		try:
+# 			return eval("self._tkObject.%s" % att)
+# 		except AttributeError:
+# 			pass
+		
+		children = self.winfo_children()
+
+		print self, self.winfo_name(), children, att
+				
+		ret = None
+		for child in children:
+			if child.winfo_name() == att:
+				ret = child
+				exit
+				
 		if not ret:
 			raise AttributeError, "%s object has no attribute %s" % (
 				self._name, att)
@@ -27,7 +40,6 @@ class dPemMixin(dabo.common.dObject):
 
 	
 	def _beforeInit(self, pre):
-		self.acceleratorTable = []
 		self._name = '?'
 		self._pemObject = pre
 		self.initStyleProperties()
@@ -38,40 +50,15 @@ class dPemMixin(dabo.common.dObject):
 		
 		
 	def beforeInit(self, preCreateObject):
-		""" Called before the wx object is fully instantiated.
-
-		Allows things like extra style flags to be set or XRC resources to
-		be loaded. Subclasses can override this as necessary.
+		""" Called before the object is fully instantiated.
 		"""
 		pass
 		
-
-	def __init__(self, *args, **kwargs):
-		
-		if self.Position == (-1, -1):
-			# The object was instantiated with a default position,
-			# which ended up being (-1,-1). Change this to (0,0). 
-			# This is completely moot when sizers are employed.
-			self.Position = (0, 0)
-
-		if self.Size == (-1, -1):
-			# The object was instantiated with a default position,
-			# which ended up being (-1,-1). Change this to (0,0). 
-			# This is completely moot when sizers are employed.
-			self.Size = (0, 0)
-
-		if not wx.HelpProvider.Get():
-			# The app hasn't set a help provider, and one is needed
-			# to be able to save/restore help text.
-			wx.HelpProvider.Set(wx.SimpleHelpProvider())
-
 
 	def _afterInit(self):
 		self.initProperties()
 		self.initChildObjects()
 		self.afterInit()
-		
-		self.SetAcceleratorTable(wx.AcceleratorTable(self.acceleratorTable))
 		
 
 	def afterInit(self):
@@ -118,9 +105,9 @@ class dPemMixin(dabo.common.dObject):
 		names = [self.Name, ]
 		object = self
 		while True:
-			parent = object.GetParent()
+			parent = object.nametowidget(object.winfo_parent())
 			if parent:
-				names.append(parent.GetName())
+				names.append(parent.winfo_name)
 				object = parent
 			else:
 				break
@@ -220,24 +207,6 @@ class dPemMixin(dabo.common.dObject):
 		self.applyPropValDict(newObj, propValDict)
 		return newObj
 		
-
-	# The following 3 flag functions are used in some of the property
-	# get/set functions.
-	def hasWindowStyleFlag(self, flag):
-		""" Return whether or not the flag is set. (bool)
-		"""
-		return (self._pemObject.GetWindowStyleFlag() & flag) == flag
-
-	def addWindowStyleFlag(self, flag):
-		""" Add the flag to the window style.
-		"""
-		self._pemObject.SetWindowStyleFlag(self._pemObject.GetWindowStyleFlag() | flag)
-
-	def delWindowStyleFlag(self, flag):
-		""" Remove the flag from the window style.
-		"""
-		self._pemObject.SetWindowStyleFlag(self._pemObject.GetWindowStyleFlag() & (~flag))
-
 
 	# Scroll to the bottom to see the property definitions.
 
@@ -372,7 +341,7 @@ class dPemMixin(dabo.common.dObject):
 		self._pemObject.SetMinSize(size)
 
 	def _getName(self):
-		name = self._pemObject.GetName()
+		name = self.winfo_name()
 		self._name = name      # keeps name available even after C++ object is gone.
 		return name
 	
@@ -487,11 +456,14 @@ class dPemMixin(dabo.common.dObject):
 		self._pemObject.Show(bool(value))
 
 	def _getParent(self):
-		return self._pemObject.GetParent()
-	def _setParent(self, newParentObject):
-		# Note that this isn't allowed in the property definition, however this
-		# is how we'd do it *if* it were allowed <g>:
-		self._pemObject.Reparent(newParentObject)
+		parent = self.nametowidget(self.winfo_parent())
+		if isinstance(parent, dPemMixin):
+			return parent
+		else:
+			return None
+		
+	def _setParent(self, obj):
+		return None
 
 	def _getWindowHandle(self):
 		return self._pemObject.GetHandle()

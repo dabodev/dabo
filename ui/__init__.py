@@ -33,8 +33,10 @@ def loadUI(uiType):
 	module = None
 	
 	if getUIType() is None:
-		if uiType in ('wx', 'wxPython', 'uiwx'):
+		if uiType.lower() in ('wx', 'wxpython', 'uiwx'):
 			module = "dabo.ui.uiwx"
+		elif uiType.lower() in ('tk', 'tkinter', 'uitk'):
+			module = "dabo.ui.uitk"
 			
 		if module:
 			try:
