@@ -33,6 +33,8 @@ class Test(object):
         ''' Create a dForm and populate it with example dWidgets. '''
         frame = dForm()
         frame.SetSize((640,480))
+        frame.debug = True
+        frame.SetLabel("A test of all the dControls")
         panel = wx.Panel(frame, -1)
         
         labelWidth = 150
@@ -43,6 +45,7 @@ class Test(object):
         for obj in ((dTextBox(panel), "txt1"), 
                     (dTextBox(panel), "txt2"),
                     (dEditBox(panel), "edt1"),
+                    (dEditBox(panel), "edt2"),
                     (dSpinner(panel), "spn1"),
                     (dCommandButton(panel), "cmd1")):
             bs = wx.BoxSizer(wx.HORIZONTAL)
@@ -67,11 +70,18 @@ class Test(object):
             else:
                 vs.Add(bs, 0, wx.EXPAND)
             
-            # Set up the frame to receive the notification that the field value changed
+            # Set up the frame to receive the notification that 
+            # the field value changed, and the object to receive
+            # the notification from the form that it's time to 
+            # refresh its value. This should be moved to
+            # dForm, to execute the moment a dControl gets registered
+            # with the dForm.
             dControlMixin.EVT_FIELDCHANGED(object, object.GetId(), frame.onFieldChanged)
+            dForm.EVT_VALUEREFRESH(frame, frame.GetId(), object.onValueRefresh)
         
         panel.SetSizer(vs)        
         panel.GetSizer().Layout()
+
 
         frame.Show(1)
         self.app.MainLoop()

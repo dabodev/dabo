@@ -1,14 +1,7 @@
 ''' dControlMixin.py: Provide behavior common to all controls '''
 
-import wx
+import wx, dEvents
 
-daboEVT_FIELDCHANGED = wx.NewEventType()
-
-class DaboEvent(wx.PyCommandEvent):
-    def __init__(self, evtType, id):
-        wx.PyCommandEvent.__init__(self, evtType, id)
-
-       
 class dControlMixin:
     ''' mixin class: inherited by the dabo widgets to
         provide common functionality. '''
@@ -26,9 +19,12 @@ class dControlMixin:
     
         self.selectOnEntry = False
         self.focusSet = False
+        
+        self.dataSource = None
+        self.dataField = None
     
     def EVT_FIELDCHANGED(win, id, func):
-        win.Connect(id, -1, daboEVT_FIELDCHANGED, func)
+        win.Connect(id, -1, dEvents.EVT_FIELDCHANGED, func)
 
     def getDefaultText(self):
         return "Dabo: %s" % self.GetName()
@@ -83,7 +79,7 @@ class dControlMixin:
         if curVal <> self._oldVal:
             # Raise an event that the field value has changed,
             # so that a parent can react appropriately
-            evt = DaboEvent(daboEVT_FIELDCHANGED, self.GetId())
+            evt = dEvents.dEvent(dEvents.EVT_FIELDCHANGED, self.GetId())
             self.GetEventHandler().ProcessEvent(evt)
             
     def OnEnterWindow(self, event):
@@ -125,6 +121,13 @@ class dControlMixin:
         # subclasses have already handled the event, so we can call
         # Skip() here in the framework, leaving that detail hidden from
         # the user of the framework.
+        event.Skip()
+    
+    def onValueRefresh(self, event): 
+        ''' Ask the dForm for the current value of the field.'''
+        form = self.FindWindowById(event.GetId())
+        
+        print "onValueRefresh received by %s" % (self.GetName(),)
         event.Skip()
     
     def _getEventNameFromIdentifier(self, Id):
