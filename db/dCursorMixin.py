@@ -473,10 +473,16 @@ class dCursorMixin:
             recs = self._rows
         else:
             recs = (self._rows[self.rownumber],)
+        
+        # Create a list of PKs for each 'eligible' row to cancel
+        cancelPKs = []
+        for rec in recs:
+            cancelPKs.append(rec[self.keyField])
 
         for i in range(self.rowcount-1, -1, -1):
             rec = self._rows[i]
-            if rec in recs:
+            
+            if rec[self.keyField] in cancelPKs:
                 if not self.isRowChanged(rec):
                     # Nothing to cancel
                     continue
