@@ -79,7 +79,7 @@ report["pageHeader"] = {"height": ''' "0.5 in" ''',
 
 report["pageFooter"] = {"height": ''' "1.25 in" ''',
                         "objects": [{"type": "image",
-                                     "expr": ''' "../icons/dabo_lettering_250x100.png" ''',
+                                     "expr": ''' "../../icons/dabo_lettering_250x100.png" ''',
                                      "x": ''' self.Bands["pageFooter"]["width"]-1 ''',
                                      "y": ''' "1" ''',
                                      "rotation": ''' 0 ''',
