@@ -15,6 +15,13 @@ class uiApp(wx.App):
 
 
 	def setup(self, dApp):
+		# wx has properties for appName and vendorName, so Dabo should update
+		# these. Among other possible uses, I know that on Win32 wx will use
+		# these for determining the registry key structure.
+		self.SetAppName(dApp.getAppInfo("appName"))
+		self.SetClassName(dApp.getAppInfo("appName"))
+		self.SetVendorName(dApp.getAppInfo("vendorName"))
+		
 		wx.InitAllImageHandlers()
 
 		self.dApp = dApp
@@ -28,13 +35,6 @@ class uiApp(wx.App):
 
 
 	def start(self, dApp):
-		# wx has properties for appName and vendorName, so Dabo should update
-		# these. Among other possible uses, I know that on Win32 wx will use
-		# these for determining the registry key structure.
-		self.SetAppName(dApp.getAppInfo("appName"))
-		self.SetClassName(dApp.getAppInfo("appName"))
-		self.SetVendorName(dApp.getAppInfo("vendorName"))
-		
 		self.MainLoop()
 
 

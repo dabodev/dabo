@@ -81,10 +81,12 @@ class dApp(object):
 		# dabo is going to want to import various things from the homeDir
 		sys.path.append(self.homeDir)
 
-		# Init some appInfo properties:
-#		self.setAppInfo("appName", "Dabo")
-#		self.setAppInfo("appVersion", "0.1")
-#		self.setAppInfo("vendorName", "")
+		if not self.getAppInfo("appName"):
+			self.setAppInfo("appName", "Dabo")
+		if not self.getAppInfo("appVersion"):
+			self.setAppInfo("appVersion", "0.1")
+		if not self.getAppInfo("vendorName"):
+			self.setAppInfo("vendorName", "Dabo")
 
 		self._initUI()
 		self._initDB()
@@ -109,12 +111,6 @@ class dApp(object):
 			wrapping the application object for the ui library
 			being used.
 		"""
-		if not self.getAppInfo("appName"):
-			self.setAppInfo("appName", "Dabo")
-		if not self.getAppInfo("appVersion"):
-			self.setAppInfo("appVersion", "0.1")
-		if not self.getAppInfo("vendorName"):
-			self.setAppInfo("vendorName", "Dabo")
 		self.uiApp.start(self)
 		self.finish()
 
