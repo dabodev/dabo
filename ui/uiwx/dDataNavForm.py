@@ -224,11 +224,11 @@ class dDataNavForm(dForm.dForm):
 			self.Freeze()
 			self.pageFrame = dDataNavPageFrame.dDataNavPageFrame(self)
 			nbSizer = wx.NotebookSizer(self.pageFrame)
-			self.GetSizer().Add(nbSizer, 1, wx.EXPAND)
+			self.Sizer.append(nbSizer, "expand", 1)
 			self.pageFrame.SetSelection(currPage)
 			self.afterSetupPageFrame()
 			self.Thaw()
-			self.GetSizer().Layout()
+			self.Sizer.layout()
 			self.Refresh()
 			
 	def beforeSetupPageFrame(self): return True

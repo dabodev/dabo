@@ -72,7 +72,7 @@ class Test(object):
 			label.Width = labelWidth
 
 			label.Caption = "%s:" % object.Name
-			bs.add(label)
+			bs.append(label)
 
 			if isinstance(object, ui.dEditBox):
 				layout = "expand"
@@ -81,21 +81,21 @@ class Test(object):
 
 			object.debug = True
 
-			bs.add(object, layout, 1)
+			bs.append(object, layout, 1)
 
 			if isinstance(object, ui.dEditBox):
-				vs.add(bs, "expand", 1)
+				vs.append(bs, "expand", 1)
 			else:
-				vs.add(bs, "expand")
+				vs.append(bs, "expand")
 
 		bs = ui.dSizer("horizontal")
 
-		vs.add(bs, "expand")
+		vs.append(bs, "expand")
 
 		panel.SetSizer(vs)
 
 		frame.SetSizer(ui.dSizer("vertical"))
-		frame.GetSizer().add(panel, "expand")
+		frame.GetSizer().append(panel, "expand")
 		frame.Show()
 		self.app.MainLoop()
 

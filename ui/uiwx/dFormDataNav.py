@@ -188,7 +188,7 @@ class dFormDataNav(dForm.dForm):
 		if self.beforeSetupPageFrame():
 			self.pageFrame = dPageFrameDataNav.dPageFrameDataNav(self)
 			nbSizer = wx.NotebookSizer(self.pageFrame)
-			self.Sizer.add(nbSizer, "expand", 1)
+			self.Sizer.append(nbSizer, "expand", 1)
 		
 			self.afterSetupPageFrame()
 

@@ -19,7 +19,7 @@ class dShell(dabo.ui.dForm):
 		self.setStatusText("Use this shell to interact with the runtime environment")
 		
  		self.Sizer = dabo.ui.dSizer()
- 		self.Sizer.add(self.shell, "expand", 1)
+ 		self.Sizer.append(self.shell, "expand", 1)
         
 		self.shell.SetFocus()
 		

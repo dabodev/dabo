@@ -67,7 +67,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.CreateStatusBar()
 
 		self.Sizer = dSizer.dSizer("vertical")
-		self.Sizer.Layout()
+		self.Sizer.layout()
 		
 		if self.Application is not None:
 			self.Application.uiForms.add(self)

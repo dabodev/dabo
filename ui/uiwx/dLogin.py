@@ -83,42 +83,42 @@ class dLogin(dDialog):
 		dLogin.doDefault()
 		mainSizer = self.Sizer
 		
-		mainSizer.add((0,5))
+		mainSizer.append((0,5))
 		
 		bs1 = dSizer("horizontal")
-		bs1.add(self.bm)
+		bs1.append(self.bm)
 
-		bs1.add((23,0))
+		bs1.append((23,0))
 		
 		vs = dSizer("vertical")
 		bs = dSizer("horizontal")
 		
-		bs.add(self.lblUserName)
-		bs.add(self.txtUserName, proportion=1)
-		bs.add((5,0))
-		vs.add(bs, "expand", 1)
+		bs.append(self.lblUserName)
+		bs.append(self.txtUserName, proportion=1)
+		bs.append((5,0))
+		vs.append(bs, "expand", 1)
 		
 		bs = dSizer("horizontal")
-		bs.add(self.lblPassword)
-		bs.add(self.txtPassword, proportion=1)
-		bs.add((5,0))
-		vs.add(bs, "expand", 1)
+		bs.append(self.lblPassword)
+		bs.append(self.txtPassword, proportion=1)
+		bs.append((5,0))
+		vs.append(bs, "expand", 1)
 		
-		bs1.add(vs, proportion=1)
-		mainSizer.add(bs1, "expand", 1)
+		bs1.append(vs, proportion=1)
+		mainSizer.append(bs1, "expand", 1)
 		
-		mainSizer.add((0,15))
+		mainSizer.append((0,15))
 		
-		mainSizer.add(self.lblMessage, "expand", 1)
+		mainSizer.append(self.lblMessage, "expand", 1)
 		
 		bs = dSizer("horizontal")
-		bs.add(self.cmdAccept, alignment=("bottom",))
-		bs.add((3,0))	
-		bs.add(self.cmdCancel, alignment=("bottom",))
-		bs.add((5,0))
-		mainSizer.add(bs, proportion=1, alignment=("right",))
-		mainSizer.add((0,5))
-		mainSizer.Layout()
+		bs.append(self.cmdAccept, alignment=("bottom",))
+		bs.append((3,0))	
+		bs.append(self.cmdCancel, alignment=("bottom",))
+		bs.append((5,0))
+		mainSizer.append(bs, proportion=1, alignment=("right",))
+		mainSizer.append((0,5))
+		mainSizer.layout()
 
 		self.cmdAccept.bindEvent(dEvents.Hit, self.onAccept)
 		self.cmdCancel.bindEvent(dEvents.Hit, self.onCancel)
@@ -136,7 +136,7 @@ class dLogin(dDialog):
 		
 	def setMessage(self, message):
 		self.lblMessage.Caption = message
-		self.Sizer.Layout()
+		self.Sizer.layout()
 				
 	def onCancel(self, evt):
 		self.user, self.password = None, None
