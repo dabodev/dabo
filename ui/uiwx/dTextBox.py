@@ -1,5 +1,5 @@
+import re, datetime
 import wx, dabo, dabo.ui
-import types
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
@@ -92,7 +92,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		dataType = type(_value)
 		
 		# Get the string value as reported by wx, which is the up-to-date 
-		# value of the control:
+		# string value of the control:
 		strVal = self.GetValue()
 		
 		# Convert the current string value of the control, as entered by the 
@@ -103,7 +103,22 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			if strVal == "True":
 				value = True
 			else:
-				value = False 		
+				value = False
+		elif dataType in (datetime.date, datetime.datetime):
+			# We expect the string to be in ISO 8601 format.
+			if dataType == datetime.date:
+				value = self._getDateFromString(strVal)
+			elif dataType == datetime.datetime:
+				value = self._getDateTimeFromString(strVal)
+				
+			if value is None:
+				# String wasn't in ISO 8601 format... put it back to a valid
+				# string with the previous value and the user will have to 
+				# try again.
+				dabo.errorLog.write("Couldn't convert literal '%s' to %s."
+					% (strVal, dataType))
+				value = self._value
+					
 		else:
 			# Other types can convert directly.
 			try:
@@ -147,12 +162,104 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		if type(value) in (str, unicode):
 			# keep it unicode instead of converting to str
 			strVal = value
+		elif type(value) == datetime.date:
+			# Use the ISO 8601 date string format so we can convert
+			# back from a known quantity later...
+			strVal = value.isoformat()
+		elif type(value) == datetime.datetime:
+			# Use the ISO 8601 datetime string format (with a " " separator
+			# instead of "T") 
+			strVal = value.isoformat(" ")
 		else:
 			# convert all other data types to string:
-			strVal = str(value)
+			strVal = str(value)   # (floats look like 25.55)
+			#strVal = repr(value) # (floats look like 25.55000000000001)
 		return strVal
 
 		
+	def _getDateFromString(self, string):
+		"""Given a string in ISO 8601 date format, return a 
+		datetime.date object.
+		"""
+		try:
+			regex = self._dregex
+		except AttributeError:
+			regex = self._dregex = re.compile(self._getDateRegex())
+			
+		m = regex.match(string)
+		if m is not None:
+			groups = m.groupdict()
+			try:		
+				return datetime.date(int(groups["year"]), 
+					int(groups["month"]),
+					int(groups["day"]))
+			except ValueError:
+				# Could be that the day was out of range for the particular month
+				# (Sept. only has 30 days but the regex will allow 31, etc.)
+				return None
+		else:
+			# The regex didn't match
+			return None
+	
+	def _getDateRegex(self):
+		exp = {}
+		exp["year"] = "(?P<year>[0-9]{4,4})"              ## year 0000-9999
+		exp["month"] = "(?P<month>0[1-9]|1[012])"         ## month 01-12
+		exp["day"] = "(?P<day>0[1-9]|[1-2][0-9]|3[0-1])"  ## day 01-31
+		
+		exps = "^%s-%s-%s$" % (exp["year"], exp["month"], exp["day"])
+			
+		return re.compile(exps)
+
+			
+	def _getDateTimeFromString(self, string):
+		"""Given a string in ISO 8601 datetime format, return a 
+		datetime.datetime object.
+		"""
+		try:
+			regex = self._dtregex
+		except AttributeError:
+			regex = self._dtregex = re.compile(self._getDateTimeRegex())
+			
+		m = regex.match(string)
+		if m is not None:
+			groups = m.groupdict()
+			if len(groups["ms"]) == 0:
+				# no ms in the expression
+				groups["ms"] = 0
+		
+			try:		
+				return datetime.datetime(int(groups["year"]), 
+					int(groups["month"]),
+					int(groups["day"]),
+					int(groups["hour"]),
+					int(groups["minute"]),
+					int(groups["second"]),
+					int(groups["ms"]))
+			except ValueError:
+				# Could be that the day was out of range for the particular month
+				# (Sept. only has 30 days but the regex will allow 31, etc.)
+				return None
+		else:
+			# The regex didn't match
+			return None
+	
+	def _getDateTimeRegex(self):
+		exp = {}
+		exp["year"] = "(?P<year>[0-9]{4,4})"              ## year 0000-9999
+		exp["month"] = "(?P<month>0[1-9]|1[012])"         ## month 01-12
+		exp["day"] = "(?P<day>0[1-9]|[1-2][0-9]|3[0-1])"  ## day 01-31
+		exp["hour"] = "(?P<hour>[0-1][0-9]|2[0-3])"       ## hour 00-23
+		exp["minute"] = "(?P<minute>[0-5][0-9])"          ## minute 00-59
+		exp["second"] = "(?P<second>[0-5][0-9])"          ## second 00-59
+		exp["ms"] = "\.{0,1}(?P<ms>[0-9]{0,6})"           ## optional ms
+		
+		exps = "^%s-%s-%s %s:%s:%s%s$" % (exp["year"], exp["month"],
+			exp["day"], exp["hour"], exp["minute"], exp["second"], exp["ms"])
+			
+		return re.compile(exps)
+
+			
 	# Property definitions:
 	Value = property(_getValue, _setValue, None,
 			"Specifies the current state of the control (the value of the field). (varies)")
@@ -192,22 +299,26 @@ if __name__ == "__main__":
 			
 	class IntText(TestBase):
 		def afterInit(self):
-			IntText.doDefault()
 			self.Value = 23
 		
 	class FloatText(TestBase):
 		def afterInit(self):
-			FloatText.doDefault()
 			self.Value = 23.5
 	
 	class BoolText(TestBase):
 		def afterInit(self):
-			BoolText.doDefault()
 			self.Value = False
 	
 	class StrText(TestBase):
 		def afterInit(self):
-			StrText.doDefault()
 			self.Value = "Lunchtime"
-			
-	test.Test().runTest((IntText, FloatText, StrText, BoolText))
+
+	class DateText(TestBase):
+		def afterInit(self):
+			self.Value = datetime.date.today()
+	
+	class DateTimeText(TestBase):
+		def afterInit(self):
+			self.Value = datetime.datetime.now()
+						
+	test.Test().runTest((IntText, FloatText, StrText, BoolText, DateText, DateTimeText))

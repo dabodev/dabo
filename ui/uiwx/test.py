@@ -34,6 +34,7 @@ class Test(object):
 			frame.SetSizer(ui.dSizer("Vertical"))
 			for class_ in classRefs:
 				object = class_(frame, LogEvents=logEvents, *args, **kwargs)
+				object.Width = 300
 				frame.GetSizer().append(object, 1, "expand")
 			
 			# This will get a good approximation of the required size
