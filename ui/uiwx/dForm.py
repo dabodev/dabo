@@ -41,8 +41,17 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.bizobjs = {}
 		self._primaryBizobj = None
 		
+		# If this is True, a panel will be automatically added to the
+		# form and sized to fill the form.
+		self.mainPanel = None
+		self.mkPanel = self.extractKey(kwargs, "panel")
+		
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
+		if self.mainPanel:
+			# Can't do this in the _afterInit, as properties haven't been
+			# applied at that point.
+			self.mainPanel.BackColor = self.BackColor
 		# Use this for timing queries and other long-
 		# running events
 		self.stopWatch = wx.StopWatch()
@@ -59,10 +68,16 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		# trying to overwrite it
 		self._holdStatusText = ""
 
+
 		
 	def _afterInit(self):
 		self.Sizer = dSizer.dSizer("vertical")
 		self.Sizer.layout()
+		if self.mkPanel:
+			mp = self.mainPanel = dabo.ui.dPanel(self)
+			self.Sizer.append(mp, 1, "x")
+			mp.Sizer = dabo.ui.dSizer(self.Sizer.Orientation)
+
 		dForm.doDefault()
 	
 
