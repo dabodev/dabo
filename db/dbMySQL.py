@@ -82,7 +82,13 @@ class MySQL(dBackend):
 				ft = "C"
 			else:
 				ft = "?"
-			pk = (r[3] == "PRI")
+			# Depending on the version of MySQL, the length
+			# of the returned list and the position of the
+			# PK field can change. If the list has 6 elements, the
+			# PK indicator is element #3, but if it has 7, it's in
+			# element 4
+			pkPos = 3 + ( len(r) - 6 )
+			pk = (r[pkPos] == "PRI")
 			
 			fields.append((name.strip(), ft, pk))
 			
