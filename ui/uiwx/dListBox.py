@@ -59,11 +59,13 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 		return self._pemObject.GetSelection()
 	def _setPosValue(self, value):
 		self._pemObject.SetSelection(int(value))
+		self._afterValueChanged()
 	
 	def _getStrValue(self):
 		return self._pemObject.GetStringSelection()
 	def _setStrValue(self, value):
 		self._pemObject.SetStringSelection(str(value))
+		self._afterValueChanged()
 
 	def _getValue(self):
 		if self._useStringValue:

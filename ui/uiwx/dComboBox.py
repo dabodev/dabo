@@ -39,15 +39,6 @@ class dComboBox(wx.ComboBox, dcm.dDataControlMixin):
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
-	def _getValue(self):
-		return self.GetValue()
-		
-	def _setValue(self, value):
-		self.SetValue(value)
-
-	# Property definitions:
-	Value = property(_getValue, _setValue, None,
-			"Specifies the current state of the control (the value of the field). (varies)")
 
 if __name__ == "__main__":
 	import test

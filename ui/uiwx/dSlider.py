@@ -72,9 +72,9 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 		return self.SetLineSize(value)
 
 	def _getValue(self):
-		return self.GetValue()
+		return super(dSlider, self)._getValue()
 	def _setValue(self, value):
-		self.SetValue(int(value))
+		super(dSlider, self)._setValue(int(value))
 		
 
 	def _getShowLabels(self):

@@ -15,7 +15,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		#dDataControlMixinBase.doDefault(name)
 		super(dDataControlMixinBase, self).__init__(name, _explicitName=_explicitName)
 
-		self._oldVal = self.Value
+		self._value = self.Value
 		self.enabled = True
 
 		# Initialize runtime properties
@@ -49,6 +49,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	
 	
 	def __onGotFocus(self, evt):
+		# self._oldVal will be compared to self.Value in flushValue()
 		self._oldVal = self.Value
 
 		try:
@@ -133,7 +134,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				self.Value = self.getBlankValue()
 				# Do we need to disable the control?
 				#self.Enabled = False
-		self._oldVal = self.Value
 			
 
 	def select(self, position, length):
@@ -163,13 +163,25 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def flushValue(self):
 		""" Save any changes to the underlying bizobj field.
 		"""
-		
 		curVal = self.Value
-		if curVal != self._oldVal and self.DataSource and self.DataField:
-			self.setFieldVal(curVal)
-		else:
-			self.Value = curVal
-		self._oldVal = curVal
+		
+		try:
+			oldVal = self._oldVal
+		except AttributeError:
+			oldVal = None
+		
+		if curVal != oldVal:
+			if self.DataSource and self.DataField:
+				self.setFieldVal(curVal)
+			self._afterValueChanged()
+		
+		# In most controls, self._oldVal is set upon GotFocus. Some controls
+		# like dCheckBox on Mac and dDropdownList don't emit focus events, so
+		# flushValue must stand alone (those controls call flushValue() upon
+		# every Hit, while other controls call flushValue() upon LostFocus. 
+		# Setting _oldVal to None here ensures that any changes will get saved
+		# no matter what type of control we are...
+		self._oldVal = None
 
 
 	def saveValue(self):
@@ -181,7 +193,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			app = None
 
 		# It is too late to get Value directly:		
-		value = self._oldVal	
+		value = self._value	
 
 		if app:
 			name = self.getAbsoluteName()
@@ -205,7 +217,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					self.Value = value
 				except TypeError:
 					self.Value = self.getBlankValue()		
-				self._oldVal = self.Value
 			
 			
 	def getShortDataType(self, value):
@@ -221,7 +232,29 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			dabo.infoLog.write(_("getShortDataType - unknown type: %s") % (value,))
 			return "?"
 			
-	
+			
+	def _afterValueChanged(self):
+		"""Called after the control's value has changed.
+		
+		This is defined as one of:
+			+ the user changed the value and then the control lost focus
+			+ the control's Value property was set and the value changed
+			
+		User code shouldn't need to access or override this.
+		"""
+		
+		# Maintain an internal copy of the value, separate from the
+		# property, so that we still have the value regardless of whether
+		# or not the underlying ui object still exists (in wx at least,
+		# the Destroy event fires after the c++ object is already gone,
+		# so we need a copy of the value for any routine that happens
+		# upon Destroy (saveValue, for instance)):
+		self._value = self.Value
+		
+		# Raise an event so that user code can react if needed:
+		self.raiseEvent(dabo.dEvents.ValueChanged)
+
+			
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getDataSource(self):

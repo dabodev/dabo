@@ -101,7 +101,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	def _getValue(self):
 		try:
 			typ = self.valueType
-			retVal = self.GetValue()
+			retVal = super(dTextBox, self)._getValue()
 			if typ == types.BooleanType:
 				if value == "True":
 					retVal = True
@@ -140,7 +140,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			strVal = value
 		else:
 			strVal = str(value)
-		self.SetValue(strVal)
+		super(dTextBox, self)._setValue(strVal)
 
 		
 	# Property definitions:

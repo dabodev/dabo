@@ -260,6 +260,10 @@ class RowNumChanged(DataEvent):
 	"""Occurs when the cursor's row number has changed."""
 	pass
 
+class ValueChanged(Event):
+	"""Occurs when the control's value has changed, whether programmatically or interactively."""
+	pass
+	
 class ValueRefresh(Event):
 	"""Occurs when the form wants the controls to refresh their values."""
 	pass

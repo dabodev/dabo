@@ -452,7 +452,7 @@ C: Popup Calendar to Select
 		super(dDateTextBox, self)._setValue(self.strFromDate())
 		
 	def _getValue(self):
-		return self.GetValue()
+		return super(dDateTextBox, self)._getValue()
 		
 	Value = property(_getValue, _setValue, None,
 			"Specifies the current state of the control (the value of the field). (varies)" )

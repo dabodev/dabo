@@ -56,11 +56,11 @@ class dGauge(wx.Gauge, cm.dControlMixin):
 	def _getOrientationEditorInfo(self):
 		return {"editor": "list", "values": ["Horizontal", "Vertical"]}
 
-
 	def _getValue(self):
-		return self.GetValue()
+		return super(dGauge, self)._getValue()
+		
 	def _setValue(self, value):
-		self.SetValue(int(value))
+		super(dGauge, self)._setValue(int(value))
 		
 	# Property definitions:
 	Orientation = property(_getOrientation, _setOrientation, None, 

@@ -44,10 +44,14 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 		# catch the wx event and raise the dabo event:
 		self.Bind(wx.EVT_CHOICE, self._onWxHit)
 		
-	def _onWxHit(self, evt):
-		super(dDropdownList, self)._onWxHit(evt)
-		self._oldVal = self.Value
+		# wx.Choice doesn't seem to emit lostfocus and gotfocus events. Therefore,
+		# flush the value on every hit.
+		self.bindEvent(dEvents.Hit, self._onHit )
+	
+	def _onHit(self, evt):
+		self.flushValue()
 		
+	
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getChoices(self):
@@ -68,7 +72,8 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 		return self._pemObject.GetSelection()
 	def _setPosValue(self, value):
 		self._pemObject.SetSelection(int(value))
-	
+		self._afterValueChanged()
+
 	def _getStrValue(self):
 		return self._pemObject.GetStringSelection()
 	def _setStrValue(self, value):
@@ -77,6 +82,7 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 		except:
 			raise ValueError, "Value must be present in the choices. (%s:%s)" % (
 				value, self.Choices)
+		self._afterValueChanged()
 
 	def _getValue(self):
 		if self._useStringValue:

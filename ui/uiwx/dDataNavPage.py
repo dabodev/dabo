@@ -450,8 +450,6 @@ class dSelectPage(DataNavPage):
 
 			if not opList.StringValue:
 				opList.StringValue = opList.GetString(0)
-			# Need this 'refresh' to update the internal _oldVal setting
-			opList.refresh()
 			opList.setTarget(ctrl)
 			opList.FontItalic = (IGNORE_STRING in opList.StringValue)
 			

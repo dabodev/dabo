@@ -38,7 +38,9 @@ class dDataControlMixin(dDataControlMixinBase):
 		return self.GetValue()
 		
 	def _setValue(self, value):
-		self.SetValue(value)
+		if (type(self.Value) != type(value) or self.Value != value):
+			self.SetValue(value)
+			self._afterValueChanged()
 
 		
 	Value = property(_getValue, _setValue, None,

@@ -36,6 +36,8 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		self.Bind(wx.EVT_CHECKBOX, self._onWxHit)
 		
 		if wx.Platform == "__WXMAC__":
+			# On Mac, checkboxes don't receive the focus, so we need to flush the value
+			# on every hit. (pkm: I'm thinking maybe we should do it this way for all platforms)
 			self.bindEvent(dEvents.Hit, self._onHit )
 	
 	def _onHit(self, evt):
@@ -60,14 +62,6 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		else:
 			raise ValueError, "The only possible values are 'Left' and 'Right'."
 
-	def _getValue(self):
-		#return dCheckBox.doDefault()
-		return super(dCheckBox, self)._getValue()
-		
-	def _setValue(self, value):
-		#dCheckBox.doDefault(value)
-		super(dCheckBox, self)._setValue(value)
-
 		
 	# property definitions follow:
 	Alignment = property(_getAlignment, _setAlignment, None,
@@ -75,8 +69,6 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 			"   Left  : Checkbox to left of text (default) \n"
 			"   Right : Checkbox to right of text")
 
-	Value = property(_getValue, _setValue, None,
-			"Specifies the current state of the control (the value of the field). (varies)")
 						
 if __name__ == "__main__":
 	import test
