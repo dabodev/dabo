@@ -331,6 +331,9 @@ class dBrowsePage(dPage.dPage):
 
 			row = self.Form.getBizobj().getRowNumber()
 			col = self.BrowseGrid.GetGridCursorCol()
+			
+			if col < 0:
+				col = 0
 			self.BrowseGrid.SetGridCursor(row, col)
 			
 			if not justCreated and not self.BrowseGrid.IsVisible(row, col):
