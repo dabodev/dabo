@@ -21,7 +21,6 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 	def __init__(self, parent, name='dTimer', *args, **kwargs):
 
 		self._baseClass = dTimer
-
 		self._beforeInit(None)
 		# no 2-stage creation for Timers
 		
@@ -31,6 +30,7 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 		
 		self.Hide()
 		self._timer = wx.Timer(self)
+		self._interval = 0
 
 		dControlMixin.dControlMixin.__init__(self, name)
 		
@@ -47,24 +47,51 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 		if designTime:
 			#dTimer.doDefault(*args, **kwargs)
 			super(dTimer, self).Show(*args, **kwargs)
+	
+	def Enable(self):
+		if self.Interval > 0:
+			self._timer.Start(self.Interval)
+		return self._timer.IsRunning()
+	
+	def Disable(self):
+		self._timer.Stop()
+		
+	def Start(self, interval=-1):
+		if interval >= 0:
+			self._interval = interval
+		if self._interval > 0:
+			self._timer.Start(self._interval)
+		else:
+			self._timer.Stop()
+		return self._timer.IsRunning()
+	
+	def Stop(self):
+		self._timer.Stop()
 		
 	# property get/set functions
 	def _getInterval(self):
-		if self._timer.IsRunning():
-			return self._timer.GetInterval()
-		else:
-			return 0
+		return self._interval
 	
 	def _setInterval(self, val):
-		if val <= 0:
-			self._timer.Stop()
+		self._interval = val
+	
+	def _getEnabled(self):
+		return self._timer.IsRunning()
+		
+	def _setEnabled(self, val):
+		if val:
+			self.Enable()
 		else:
-			self._timer.Start(val)
+			self.Disable()
 
 		
 	Interval = property(_getInterval, _setInterval, None,
-		 _("Specifies the timer interval (milliseconds) and starts the timer. Set to 0 "
-		 "to stop the timer."))
+		 _("Specifies the timer interval (milliseconds)."))
+	
+	Enabled = property(_getEnabled, _setEnabled, None,
+			_("Alternative means of starting/stopping the timer, or determining "
+			"its status. If Enabled is set to True and the timer has a positive value "
+			"for its Interval, the timer will be started."))
 	
 if __name__ == "__main__":
 	import test
