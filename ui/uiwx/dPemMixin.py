@@ -4,6 +4,7 @@ import dabo, dabo.common
 from dabo.dLocalize import _
 from dabo.ui.dPemMixinBase import dPemMixinBase
 import dabo.dEvents as dEvents
+import dabo.common.dColors as dColors
 
 class dPemMixin(dPemMixinBase):
 	""" Provides Property/Event/Method interfaces for dForms and dControls.
@@ -290,53 +291,10 @@ class dPemMixin(dPemMixinBase):
 
 	def colorTupleFromName(self, color):
 		color = color.lower().strip()
-		ret = (0,0,0)
-		if color == "white":
-			ret = (255, 255, 255)
-		elif color == "black":
-			ret = (0, 0, 0)
-		elif color in ("grey", "gray"):
-			ret = (168, 168, 168)
-		elif color in ("lightgrey", "lightgray"):
-			ret = (212, 212, 212)
-		elif color in ("darkgrey", "darkgray"):
-			ret = (96,96,96)
-		elif color == "red":
-			ret = (255, 0, 0)
-		elif color == "green":
-			ret = (0, 255, 0)
-		elif color == "blue":
-			ret = (0, 0, 255)
-		elif color == "yellow":
-			ret = (255, 255, 0)
-		elif color == "purple":
-			ret = (255, 0, 255)
-		elif color == "cyan":
-			ret = (0, 255, 255)
-		elif color == "lightred":
-			ret = (255, 128, 128)
-		elif color == "lightgreen":
-			ret = (128, 255, 128)
-		elif color == "lightblue":
-			ret = (128, 128, 255)
-		elif color == "lightyellow":
-			ret = (255, 255, 128)
-		elif color == "lightpurple":
-			ret = (255, 128, 255)
-		elif color == "lightcyan":
-			ret = (128, 255, 255)
-		elif color == "darkred":
-			ret = (128, 0, 0)
-		elif color == "darkgreen":
-			ret = (0, 128, 0)
-		elif color == "darkblue":
-			ret = (0, 0, 128)
-		elif color == "darkyellow":
-			ret = (128, 128, 0)
-		elif color == "darkpurple":
-			ret = (128, 0, 128)
-		elif color == "darkcyan":
-			ret = (0, 128, 128)
+		try:
+			ret = dColors.colorDict[color]
+		except:
+			ret = (0,0,0)
 		return ret
 
 	# Scroll to the bottom to see the property definitions.
