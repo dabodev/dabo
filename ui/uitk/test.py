@@ -12,7 +12,6 @@ test of dTextBox.
 If you instead run this test.py as a script, a form will be instantiated with 
 all the dControls.
 """
-import Tkinter
 import dabo
 import dabo.ui as ui
 
@@ -27,80 +26,36 @@ class Test(object):
 		self.app.setup()
 		frame = self.app.MainFrame
 		object = classRef(frame)
-#		print object.Value
 		object.debug = True
-#		object.pack()
-#		frame.SetLabel("Test of %s" % object.Name)
-#		object.SetFocus()
-#		frame.Show()
-#		object.Show()
 		self.app.start()
 
 	def testAll(self):
 		""" Create a dForm and populate it with example dWidgets. 
 		"""
-		frame = ui.dForm(name="formTest")
-		frame.Width, frame.Height = 640, 480
+		self.app.setup()
+		frame = self.app.MainFrame
 		frame.Caption = "Test of all the dControls"
 		frame.debug = True
 		frame.LogEvents = ["All"]
-
+		
 		panel = frame.addObject(ui.dPanel, "panelTest")
 		panel.LogEvents = ["All"]
 
 		labelWidth = 150
 
-		vs = wx.BoxSizer(wx.VERTICAL)
-
-		for object in (ui.dBitmapButton(panel),
-					ui.dBox(panel),
-					ui.dCheckBox(panel),
-					ui.dCommandButton(panel),
-					ui.dDateTextBox(panel),
-					ui.dDropdownList(panel),
-					ui.dEditBox(panel),
-					ui.dGauge(panel),
-					ui.dLine(panel),
-					ui.dRadioGroup(panel),
-					ui.dSlider(panel),
-					ui.dSpinner(panel),
-					ui.dTextBox(panel),
-					ui.dToggleButton(panel)):
+		for objClass in (ui.dCheckBox,):
 					
-			bs = wx.BoxSizer(wx.HORIZONTAL)
-			label = ui.dLabel(panel, name="lbl%s" % object.Name, 
-				style=wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE)
+			label = ui.dLabel(panel)
 			label.Width = labelWidth
 
+			object = objClass(panel)
 			label.Caption = "%s:" % object.Name
-			bs.Add(label)
-
-			if isinstance(object, ui.dEditBox):
-				expandFlags = wx.EXPAND
-			else:
-				expandFlags = 0
-
+			
 			object.debug = True
 			object.LogEvents = ["All"]
 
-			bs.Add(object, 1, expandFlags | wx.ALL, 0)
+		self.app.start()
 
-			if isinstance(object, ui.dEditBox):
-				vs.Add(bs, 1, wx.EXPAND)
-			else:
-				vs.Add(bs, 0, wx.EXPAND)
-
-		bs = wx.BoxSizer(wx.HORIZONTAL)
-
-		vs.Add(bs, 0, wx.EXPAND)
-
-		panel.SetSizer(vs)        
-		panel.GetSizer().Layout()
-
-		frame.GetSizer().Add(panel, 1, wx.EXPAND)
-		frame.GetSizer().Layout()
-		frame.Show()
-		self.app.MainLoop()
 
 if __name__ == "__main__":
 	t = Test()

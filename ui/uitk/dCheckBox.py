@@ -85,14 +85,10 @@ if __name__ == "__main__":
 		def initEvents(self):
 			C.doDefault()
 			self.bindEvent(dEvents.Hit, self.onHit)
-			self.bindEvent(dEvents.Hit, self.onHit2)
 			
 		def onHit(self, evt):
-			print "hit!"
-			#evt.stop()
+			self.Caption = self.Caption + "hit!"
 		
-		def onHit2(self, evt):
-			print "hit2"
 			
 	import test
 	test.Test().runTest(C)

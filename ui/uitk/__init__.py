@@ -14,7 +14,7 @@ dabo.ui.dControlMixin = dControlMixin
 
 # Import into public namespace:
 #from dAbout import dAbout
-#from dCheckBox import dCheckBox
+from dCheckBox import dCheckBox
 #from dComboBox import dComboBox
 #from dCommandButton import dCommandButton
 #from dDateControl import dDateControl
@@ -25,14 +25,14 @@ dabo.ui.dControlMixin = dControlMixin
 from dFormMain import dFormMain
 #from dGauge import dGauge
 #from dGridDataNav import dGridDataNav
-#from dLabel import dLabel
+from dLabel import dLabel
 #from dListbook import dListbook
 #from dLogin import dLogin
 #from dMainMenuBar import dMainMenuBar
 #from dMenuBar import dMenuBar
 #from dMenu import dMenu
 #from dRadioGroup import dRadioGroup
-#from dPanel import dPanel
+from dPanel import dPanel
 #from dPanel import dScrollPanel
 #from dPageFrame import dPageFrame
 #from dPage import dPage

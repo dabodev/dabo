@@ -5,7 +5,6 @@ from dabo.dLocalize import _
 import dabo.ui.dPemMixinBase
 import dabo.dEvents as dEvents
 
-
 class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	""" Provide Property/Event/Method interfaces for dForms and dControls.
 
@@ -207,7 +206,11 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		(left,top). This is used by the various property getters/setters for
 		left, top, height, width.
 		"""
-		g = self.wm_geometry()
+		# wm_geometry() for forms; winfo_geometry() for controls:
+		try:
+			g = self.wm_geometry()
+		except AttributeError:
+			g = self.winfo_geometry()
 		size = tuple([int(k) for k in (g[0:g.find('+')].split('x'))])
 		pos = tuple([int(k) for k in (g[g.find('+')+1:].split('+'))])
 		return (size, pos)
@@ -217,7 +220,11 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		"""
 		size = geometryTuple[0]
 		pos = geometryTuple[1]
-		self.wm_geometry("%sx%s+%s+%s" % (size[0], size[1], pos[0], pos[1]))
+		try:
+			self.wm_geometry("%sx%s+%s+%s" % (size[0], size[1], pos[0], pos[1]))
+		except AttributeError:
+			self.width, self.height = size[0], size[1]
+			#self.winfo_geometry("%sx%s+%s+%s" % (size[0], size[1], pos[0], pos[1]))
 		
 
 
@@ -328,9 +335,17 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	
 
 	def _getCaption(self):
-		return self.wm_title()
+		# For forms: wm_title(), for controls: configure("text")
+		try:
+			return self.wm_title()
+		except AttributeError:
+			return self.cget("text")
+			
 	def _setCaption(self, caption):
-		self.wm_title(str(caption))
+		try:
+			self.wm_title(str(caption))
+		except AttributeError:
+			self.configure(text=str(caption))
 
 	def _getEnabled(self):
 		return self.IsEnabled()
