@@ -10,7 +10,7 @@ from dForm import dForm
 from dLabel import dLabel
 from dTextBox import dTextBox
 from dControlMixin import dControlMixin
-from dCommandButton import dCommandButton
+from dCommandButton import *
 from dSpinner import dSpinner
 from dEditBox import dEditBox
 from dVCR import dVCR
@@ -76,7 +76,7 @@ class Test(object):
                     (dTextBox(panel), "txtZipcode", "czip"),
                     (dEditBox(panel), "edt1"),
                     (dEditBox(panel), "edt2"),
-                    (dSpinner(panel), "spn1"),
+                    (dSpinner(panel), "spn1", "iid"),
                     (dCommandButton(panel), "cmd1")):
             bs = wx.BoxSizer(wx.HORIZONTAL)
             label = dLabel(panel, windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE,
@@ -107,8 +107,17 @@ class Test(object):
             else:
                 vs.Add(bs, 0, wx.EXPAND)
 
+        bs = wx.BoxSizer(wx.HORIZONTAL)
         vcr = dVCR(panel)
-        vs.Add(vcr, 0, wx.EXPAND)
+        bs.Add(vcr, 1, wx.ALL, 0)
+        
+        button = dCommandButtonSave(panel)
+        bs.Add(button, 1, wx.ALL, 0)
+        
+        button = dCommandButtonCancel(panel)
+        bs.Add(button, 1, wx.ALL, 0)
+
+        vs.Add(bs, 0, wx.EXPAND)
                     
         panel.SetSizer(vs)        
         panel.GetSizer().Layout()

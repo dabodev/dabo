@@ -18,7 +18,7 @@ class dBizobj(object):
     # Reference to the cursor object 
     _cursor = None
     # Class to instantiate for the cursor object
-    dcursorMixinClass = dCursorMixin
+    dCursorMixinClass = dCursorMixin
     # Reference to the parent bizobj to this one.
     _parent = None
     # Collection of child bizobjs for this

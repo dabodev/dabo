@@ -10,6 +10,8 @@ class dForm(wx.Frame):
         self.bizobjs = {}
         self.primaryBizobj = None
         
+        self.saveAllRows = True    # Default should come from app
+        
         self.dControls = []
         self._resourceString = resourceString
         
@@ -98,7 +100,25 @@ class dForm(wx.Frame):
             print "in dForm.first(): No bizobjs defined."
         self.refreshControls()
     
-    def getBizobj(self, dataSource):
+    def save(self):
+        ''' bizobj interface: save(self, startTransaction=0, allRows=0, topLevel=1) '''
+        bizobj = self.getBizobj()
+        if bizobj.save(allRows=self.saveAllRows):
+            print "Save successful."
+        else:
+            print "Save failed: %s " % bizobj.getErrorMsg()
+    
+    def cancel(self):
+        bizobj = self.getBizobj()
+        if bizobj.cancel(allRows=self.saveAllRows):
+            print "Cancel successful."
+            self.refreshControls()
+        else:
+            print "Cancel failed: %s" % bizobj.getErrorMsg()
+            
+    def getBizobj(self, dataSource=None):
+        if not dataSource:
+            dataSource = self.primaryBizobj
         try:
             return self.bizobjs[dataSource]
         except KeyError:
