@@ -88,7 +88,7 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		d = dPemMixin.doDefault(name)   # the property helper does most of the work
 		
 		# Hide some wx-specific props in the designer:
-		d['showInDesigner'] = not name in ('Size', 'Position', 'WindowHandle')
+		d['showInDesigner'] = not name in ('Size', 'Position', 'WindowHandle', 'TypeID')
 
 		# Some wx-specific props need to be initialized early. Let the designer know:
 		d['preInitProperty'] = name in ('Alignment', 'BorderStyle', 'PasswordEntry', 
