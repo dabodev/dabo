@@ -28,23 +28,30 @@ class dToggleButton(wx.ToggleButton, dcm.dDataControlMixin, cm.dControlMixin):
 		cm.dControlMixin.initEvents(self)
 		dcm.dDataControlMixin.initEvents(self)
 
+		# Respond to EVT_TOGGLEBUTTON and raise dEvents.Button:
+		self.bindEvent(wx.EVT_TOGGLEBUTTON, self._onWxButton)
+		
 		# init the widget's specialized event(s):
-		self.bindEvent(dEvents.ToggleButton, self.onToggleButton)
-		self.bindEvent(dEvents.ToggleButton, self._onToggleButton)
+		self.bindEvent(dEvents.Button, self.onButton)
+		self.bindEvent(dEvents.Button, self._onButton)
 
 	# Event callback methods (override in subclasses):
-	def onToggleButton(self, event):
+	def onButton(self, event):
 		if self.debug:
 			if self.Value:
 				state = "down"
 			else:
 				state = "up"
-			dabo.infoLog.write(_("onToggleButton received by %s. State: %s") % (self.Name, state))
+			dabo.infoLog.write(_("onButton received by %s. State: %s") % (self.Name, state))
 		event.Skip()
 
 	# Private Event callback methods (do not override):
-	def _onToggleButton(self, event):
+	def _onButton(self, event):
 		self.raiseEvent(dEvents.ValueChanged)
+		event.Skip()
+		
+	def _onWxButton(self, event):
+		self.raiseEvent(dEvents.Button)
 		event.Skip()
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property

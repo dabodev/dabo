@@ -3,7 +3,6 @@ import dabo.ui.dEventsBase as dEventsBase
 
 # Assign Dabo event names to wx event objects in a 1:1 fashion:
 mapEvents = (
-	("Button", "wx.EVT_BUTTON"),
 	("CheckBox", "wx.EVT_CHECKBOX"),
 	("Choice", "wx.EVT_CHOICE"),
 	("Close", "wx.EVT_CLOSE"),
@@ -28,7 +27,6 @@ mapEvents = (
 	("Spinner", "wx.EVT_SPINCTRL"),
 	("Text", "wx.EVT_TEXT"),
 	("Timer", "wx.EVT_TIMER"),
-	("ToggleButton", "wx.EVT_TOGGLEBUTTON"),
 	)
 	
 for event in dEventsBase.events:

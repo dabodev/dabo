@@ -31,6 +31,9 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		# init the common events:
 		cm.dControlMixin.initEvents(self)
 
+		# Respond to EVT_BUTTON and raise dEvents.Button:
+		self.bindEvent(wx.EVT_BUTTON, self._onWxButton)
+		
 		# init the widget's specialized event(s):
 		self.bindEvent(dEvents.Button, self.onButton)
 
@@ -40,7 +43,10 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 			dabo.infoLog.write(_("onButton received by %s") % self.Name)
 		event.Skip()
 
-
+	def _onWxButton(self, event):
+		self.raiseEvent(dEvents.Button)
+		event.Skip()
+		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getCancelButton(self):
