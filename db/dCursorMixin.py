@@ -1021,8 +1021,7 @@ class dCursorMixin(dabo.common.dObject):
 	def getFields(self, tableName):
 		""" Get field information about the backend table.
 		
-		Returns a tuple of 3-tuples, where the outer tuple is the list
-		of fields, and the 3-tuple's elements are:
+		Returns a list of 3-tuples, where the 3-tuple's elements are:
 			0: the field name (string)
 			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
 			2: boolean specifying whether this is a pk field.

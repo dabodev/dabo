@@ -981,6 +981,16 @@ class dBizobj(dabo.common.dObject):
 		the bizobj notified of any row changes and field value changes manually.
 		"""
 		return self.Cursor.getDataSet()
+	
+	
+	def getDataStructure(self):
+		""" Gets the structure of the DataSource table. Returns a list
+		of 3-tuples, where the 3-tuple's elements are:
+			0: the field name (string)
+			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
+			2: boolean specifying whether this is a pk field.
+		"""
+		return self.Cursor.getFields(self.DataSource)
 
 
 	def getParams(self):

@@ -76,9 +76,16 @@ class MySQL(dBackend):
 				ft = "B"
 			elif "int" in ft:
 				ft = "I"
+			elif "varchar" in ft:
+				# will be followed by length
+				ln = int(ft.split("(")[1].split(")")[0])
+				if ln > 255:
+					ft = "M"
+				else:
+					ft = "C"
 			elif "char" in ft :
 				ft = "C"
-			elif "longtext" in ft:
+			elif "text" in ft:
 				ft = "M"
 			elif "decimal" in ft:
 				ft = "N"
@@ -93,7 +100,6 @@ class MySQL(dBackend):
 			pk = (r[pkPos] == "PRI")
 			
 			fields.append((name.strip(), ft, pk))
-			
 		return tuple(fields)
 		
 	def beginTransaction(self, cursor):
