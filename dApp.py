@@ -1,4 +1,5 @@
-''' app.py : The application object for Dabo.
+""" 
+    dApp.py : The application object for Dabo.
 
     This object gets instantiated from the client app's main.py,
     and lives through the life of the application.
@@ -30,43 +31,47 @@
         -- start the main app event loop.
 
         -- clean up and exit gracefully
-'''
+"""
 import sys, os
 import db, ui
 
 class Collection(list):
-    ''' Collection : Base class for the various collection
+    """ 
+    Collection : Base class for the various collection
                      classes used in the app object.
-    '''
+    """
    
     def __init__(self):
         list.__init__(self)
         
     def add(self, objRef):
-        ''' Collection.add(objRef)
+        """ 
+        Collection.add(objRef)
             Add the object reference to the collection.
-        '''
+        """
         self.append(objRef)
     
     def remove(self, index):
-        ''' Collection.remove(objRef)
+        """ 
+        Collection.remove(objRef)
             Delete the object reference from the collection.
-        '''
+        """
         del self[index]
 
                 
 class dApp(object):
-    ''' dabo.dApp : The containing object for the entire application.
+    """ 
+    dabo.dApp : The containing object for the entire application.
                    Various UI's will have app objects also, which 
                    dabo.App is a wrapper for. 
-    '''
+    """
 
     def __init__(self):
         object.__init__(self)
         self._initProperties()
         
     def setup(self):
-        ''' Set up the app - call this before start().'''
+        """ Set up the app - call this before start()."""
 
         # dabo is going to want to import various things from the homeDir
         sys.path.append(self.homeDir)
@@ -75,22 +80,24 @@ class dApp(object):
         self._initDB()
 
     def start(self):
-        ''' Start the application event loop, which involves
+        """ 
+        Start the application event loop, which involves
             wrapping the application object for the ui library
             being used.
-        '''
+        """
         self.uiApp = self.uiModule.uiApp()
         self.uiApp.start(self)
         self.finish()
     
     def finish(self):
-        ''' The main event loop has exited and the application
+        """ 
+        The main event loop has exited and the application
             is about to finish.
-        '''
+        """
         pass
         
     def _initProperties(self):
-        ''' Initialize the public properties of the app object. '''
+        """ Initialize the public properties of the app object. """
         
         # it is useful to know from where we came
         self.homeDir = os.getcwd()
@@ -108,7 +115,7 @@ class dApp(object):
         self.dbConnectionDefs = {} 
 
     def _initDB(self):
-        ''' Set the available connection definitions for use by the app. '''
+        """ Set the available connection definitions for use by the app. """
 
         dbConnectionDefs = None
         try:
@@ -131,7 +138,7 @@ class dApp(object):
         self.dbDynamicViews = self._getDynamicViews()
                 
     def _initUI(self):
-        ''' Set the user-interface library for the application. '''
+        """ Set the user-interface library for the application. """
         
         if self.uiType == None:
             # Future: read a config file in the homeDir

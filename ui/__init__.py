@@ -39,6 +39,9 @@
                              
 '''
 
+# TEMPORARY!!!!! Just to get the wx stuff working!
+from uiwx import *
+
 # Module factory function: generically return the 
 # proper module depending on the passed uiType.
 def getUI(uiType):

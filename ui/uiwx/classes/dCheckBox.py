@@ -1,0 +1,31 @@
+import wx
+from dControlMixin import dControlMixin
+from dDataControlMixin import dDataControlMixin
+
+class dCheckBox(wx.CheckBox, dDataControlMixin, dControlMixin):
+    def __init__(self, frame, widgetId=-1):
+        if widgetId < 0:
+            widgetId = wx.NewId()
+        wx.CheckBox.__init__(self, frame, widgetId, '', (-1,-1), (-1,-1))
+        self.SetName("dCheckBox")
+        dControlMixin.__init__(self)
+        dDataControlMixin.__init__(self)
+
+        self.selectOnEntry = False
+            
+    def initEvents(self):
+        # init the common events:
+        dControlMixin.initEvents(self)
+        dDataControlMixin.initEvents(self)
+        
+        # init the widget's specialized event(s):
+        wx.EVT_CHECKBOX(self, self.GetId(), self.onEvent)
+
+    # Event callback methods (override in subclasses):
+    def OnCheckBox(self, event): pass
+
+if __name__ == "__main__":
+    import test
+    class c(dCheckBox):
+        def OnCheckBox(self, event): print "OnCheckBox!" 
+    test.Test().runTest(c)
