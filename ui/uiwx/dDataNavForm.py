@@ -25,7 +25,7 @@ class dDataNavForm(dForm.dForm):
 		self._drawSizerOutlines = False
 	
 	
-	def __init__(self, parent, previewMode=False, tbl=""):
+	def __init__(self, parent=None, previewMode=False, tbl=""):
 		self.preview = previewMode
 		self.previewDataSource = tbl
 		dDataNavForm.doDefault(parent)
