@@ -78,11 +78,18 @@ import dShell
 
 # Tell Dabo Designer what classes to put in the selection menu:
 __dClasses = [dBox, dBitmapButton, dButton, dCheckBox, dComboBox, 
-		dDateTextBox, dDropdownList, dDialog, dOkCancelDialog, dEditBox, 
-		dFileDialog, dForm, dFormMain, dGauge, dGrid, dLabel, dLine, dListbook, 
-		dListBox, dLogin, dRadioGroup, dPanel, dScrollPanel, dPageFrame, dPage, 
-		dSlider, dSpinner, dSplitForm, dSplitter, dTextBox, dTimer, dToggleButton, 
-		dTreeView]
+		dDateTextBox, dDropdownList, dEditBox, dForm, dGauge, dGrid, 
+		dLabel, dLine, dListbook, dListBox, dRadioGroup, dPanel, 
+		dScrollPanel, dPageFrame, dPage, dSlider, dSpinner, dSplitForm, 
+		dSplitter, dTextBox, dTimer, dToggleButton, dTreeView]
+
+# These are the classes that can be added to any container class in 
+# the Designer.
+__dControlClasses = [dBox, dBitmapButton, dButton, dCheckBox, 
+		dComboBox, dDateTextBox, dDropdownList, dEditBox, dGauge, 
+		dGrid, dLabel, dLine, dListbook, dListBox, dRadioGroup, dPanel, 
+		dScrollPanel, dPageFrame, dPage, dSlider, dSpinner, dSplitter, 
+		dTextBox, dTimer, dToggleButton, dTreeView]
 
 daboDesignerClasses = []
 for __classRef in __dClasses:
@@ -127,6 +134,14 @@ propsToEditInDesigner = ("Alignment", "AskToSave", "AutoResize", "AutoSize",
 		"WindowState")
 
 
+def callAfter(fnc, *args, **kwargs):
+	"""There are times when this functionality is needed when creating UI
+	code. This function simply wraps the wx.CallAfter function so that 
+	developers do not need to use wx code in their apps.
+	"""
+	wx.CallAfter(fnc, *args, **kwargs)
+	
+	
 def continueEvent(evt):
 	evt.Skip()
 	

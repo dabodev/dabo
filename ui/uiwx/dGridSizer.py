@@ -22,6 +22,9 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			# Rows were passed.
 			self.MaxRows = maxRows
 		self.SetFlexibleDirection(wx.BOTH)
+		# Keep track of the highest numbered row/col that
+		# contains an item
+		self._highRow = self._highCol = -1
 
 
 	def append(self, item, layout="normal", row=-1, col=-1, 
@@ -41,6 +44,9 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan), 
 					flag=_wxFlags, border=border)
 		
+		self._highRow = max(self._highRow, targetRow)
+		self._highCol = max(self._highCol, targetCol)
+		
 		
 	def appendItems(self, items, *args, **kwargs):
 		""" Shortcut for appending multiple items at once. """
@@ -53,6 +59,54 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		return False
 	
 	
+	def removeRow(self, rowNum):
+		""" Deletes any items contained in the specified row, and
+		then moves all items below it up to fill the space.
+		"""
+		for c in range(self._highCol):
+			szitm = self.FindItemAtPosition( (rowNum, c) )
+			if not szitm:
+				continue
+			itm = None
+			if szitm.IsWindow():
+				itm = szitm.GetWindow()
+				self.Remove(itm)
+				itm.Destroy()
+			elif szitm.IsSpacer():
+				itm = szitm.GetSpacer()
+				self.Remove(itm)
+		# OK, all items are removed. Now move all higher rows upward
+		for r in range(rowNum+1, self._highRow+1):
+			for c in range(self._highCol+1):
+				self.moveCell(r, c, r-1, c, delay=True)
+		self.layout()
+		self._highRow -= 1
+		
+		
+	def removeCol(self, colNum):
+		""" Deletes any items contained in the specified column, and
+		then moves all items below it up to fill the space.
+		"""
+		for r in range(self._highRow):
+			szitm = self.FindItemAtPosition( (r, colNum) )
+			if not szitm:
+				continue
+			itm = None
+			if szitm.IsWindow():
+				itm = szitm.GetWindow()
+				self.Remove(itm)
+				itm.Destroy()
+			elif szitm.IsSpacer():
+				itm = szitm.GetSpacer()
+				self.Remove(itm)
+		# OK, all items are removed. Now move all higher columns upward
+		for r in range(self._highRow+1):
+			for c in range(colNum+1, self._highCol+1):
+				self.moveCell(r, c, r, c-1, delay=True)
+		self.layout()
+		self._highCol -= 1
+		
+		
 	def setColExpand(self, expand, colNums, proportion=0):
 		""" Sets the 'growable' status of one or more columns. """
 		# If the colNums argument was passed first, switch it with the 
@@ -111,13 +165,20 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		self.Layout()
 		
 	
-	def moveCell(self, fromRow, fromCol, toRow, toCol):
+	def moveCell(self, fromRow, fromCol, toRow, toCol, delay=False):
+		""" Move the contents of the specified cell to the target
+		location. By default, layout() is called; this can be changed when 
+		moving a number of cells by specifying delay=True. In this
+		event, the calling code is responsible for calling layout() when all
+		the moving is done.
+		"""
 		sz = self.FindItemAtPosition( (fromRow, fromCol) )
 		if sz:
 			if sz.IsWindow():
 				item = sz.GetWindow()
 				self.SetItemPosition(item, (toRow, toCol) )
-				self.layout()
+				if not delay:
+					self.layout()
 
 			
 	def determineAvailableCell(self, row, col):

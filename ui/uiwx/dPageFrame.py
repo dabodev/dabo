@@ -29,8 +29,8 @@ class dPageFrame(wx.Notebook, cm.dControlMixin):
 		# Make sure the PageEnter fires for the current page on 
 		# pageframe instantiation, as this doesn't happen automatically.
 		# Putting this code in afterInit() results in a segfault on Linux, btw.
-		wx.CallAfter(self.__pageChanged, 0, None)
-		
+		dabo.ui.callAfter(self.__pageChanged, 0, None)
+
 				
 	def __onPageChanged(self, evt):
 		evt.Skip()
