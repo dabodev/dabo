@@ -77,6 +77,8 @@ class dCursorMixin:
 
     def requery(self, params=None):
         self.lastSQL = self.sql
+        if type(params) == type(tuple()) and len(params) == 0:
+            params = None
         self.lastParams = params
         try:
             self.execute(self.sql, params)
