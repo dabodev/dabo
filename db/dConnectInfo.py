@@ -21,7 +21,6 @@ class dConnectInfo(dabo.common.dObject):
 		self.Password = password
 		self.DbName = dbName
 		self.Port = port
-
 		
 		
 	def getConnection(self):

@@ -1,3 +1,5 @@
+import inspect
+
 import dabo.dConstants as k
 from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
@@ -49,7 +51,9 @@ class dCursorMixin:
 		self.holdcount = []
 		self.holdpos = []
 		self.holddesc = []
-
+		# Reference to the object with backend-specific behaviors
+		self.__backend = None
+		
 
 	def setSQL(self, sql):
 		self.sql = sql
@@ -655,9 +659,10 @@ class dCursorMixin:
 
 		if res:
 			# First, delete the row from the held properties
-			tmprows = list(self.holdrows)
+			topOfStack = len(self.holdrows) - 1
+			tmprows = list(self.holdrows[topOfStack])
 			del tmprows[delRowNum]
-			self.holdrows = tuple(tmprows)
+			self.holdrows[topOfStack] = tuple(tmprows)
 			# Now restore the properties
 			self.__restoreProps()
 		else:
@@ -964,27 +969,50 @@ class dCursorMixin:
 		""" Return True if the current record is a new record.
 		"""
 		return self._rows[self.rownumber].has_key(k.CURSOR_NEWFLAG)
+	
+	
+	def getLastInsertID(self):
+		""" Return the most recently generated PK """
+		self.__saveProps()
+		ret = self.BackendObject.getLastInsertID(self)
+		self.__restoreProps()
+		return ret
+
+
+	def formatDateTime(self, val):
+		""" Format DateTime values for the backend """
+		return self.BackendObject.formatDateTime(val)
 
 
 	def beginTransaction(self):
-		""" Begin a SQL transaction.
-
-		Override in subclasses.
-		"""
-		pass
+		""" Begin a SQL transaction."""
+		self.__saveProps()
+		ret = self.BackendObject.beginTransaction(self)
+		self.__restoreProps()
+		return ret
 
 
 	def commitTransaction(self):
-		""" Commit a SQL transaction.
-
-		Override in subclasses.
-		"""
-		pass
+		""" Commit a SQL transaction."""
+		self.__saveProps()
+		ret = self.BackendObject.commitTransaction(self)
+		self.__restoreProps()
+		return ret
 
 
 	def rollbackTransaction(self):
-		""" Roll back (revert) a SQL transaction.
+		""" Roll back (revert) a SQL transaction."""
+		self.__saveProps()
+		ret = self.BackendObject.rollbackTransaction(self)
+		self.__restoreProps()
+		return ret
 
-		Override in subclasses.
-		"""
-		pass
+
+	def _setBackendObject(self, obj):
+		self.__backend = obj
+	
+	def _getBackendObject(self):
+		return self.__backend
+	
+	BackendObject = property(_getBackendObject, _setBackendObject, None,
+			"Reference to the object that handles backend-specific actions.""")

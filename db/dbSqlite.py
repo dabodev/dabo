@@ -27,35 +27,27 @@ class Sqlite(dBackend):
 		sqt = "'"		# single quote
 		return "%s%s%s" % (sqt, str(val), sqt)
 		
-	def getLastInsertID(self):
+	def getLastInsertID(self, cursor):
 		return None
 #		## TO DO 
-# 		self.__saveProps()
-# 		self.execute("select last_insert_id() as newid")
-# 		ret = self._rows[0]["newid"]
-# 		self.__restoreProps()
+# 		cursor.execute("select last_insert_id() as newid")
+# 		ret = cursor._rows[0]["newid"]
 # 		return ret
 
-	def beginTransaction(self):
+	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
 		pass
 #		## TO DO 
-# 		self.__saveProps()
-# 		self.execute("BEGIN TRANSACTION")
-# 		self.__restoreProps()
+# 		cursor.execute("BEGIN TRANSACTION")
 
-	def commitTransaction(self):
+	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
 		pass
 #		## TO DO 
-# 		self.__saveProps()
-# 		self.execute("COMMIT TRANSACTION")
-# 		self.__restoreProps()
+# 		cursor.execute("COMMIT TRANSACTION")
 
-	def rollbackTransaction(self):
+	def rollbackTransaction(self, cursor):
 		""" Roll back (revert) a SQL transaction."""
 		pass
 #		## TO DO 
-# 		self.__saveProps()
-# 		self.execute("ROLLBACK TRANSACTION")
-# 		self.__restoreProps()
+# 		cursor.execute("ROLLBACK TRANSACTION")

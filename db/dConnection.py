@@ -11,7 +11,6 @@ class dConnection(dabo.common.dObject):
 
 		self._connectInfo = connectInfo
 		self._connection = self._openConnection()
-
 		
 		
 	def getConnection(self):
@@ -23,6 +22,15 @@ class dConnection(dabo.common.dObject):
 	def _openConnection(self):
 		""" Open a connection to the database and store it for future use. """
 		return self._connectInfo.getConnection()
+	
+	def _getBackendObject(self):
+		""" Return a reference to the connectInfo's backend-specific
+		database object.
+		"""
+		return self._connectInfo.BackendObject
+	
+	BackendObject = property(_getBackendObject, None, None,
+			"Reference to the backend-specific object")
 
 if __name__ == "__main__":
 	from dConnectInfo import dConnectInfo

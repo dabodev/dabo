@@ -30,30 +30,22 @@ class MySQL(dBackend):
 		sqt = "'"		# single quote
 		return "%s%s%s" % (sqt, str(val), sqt)
 		
-	def getLastInsertID(self):
-		self.__saveProps()
-		self.execute("select last_insert_id() as newid")
-		ret = self._rows[0]["newid"]
-		self.__restoreProps()
+	def getLastInsertID(self, cursor):
+		cursor.execute("select last_insert_id() as newid")
+		ret = cursor._rows[0]["newid"]
 		return ret
 
-	def beginTransaction(self):
+	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
 		if self.useTransactions:
-			self.__saveProps()
-			self.execute("BEGIN")
-			self.__restoreProps()
+			cursor.execute("BEGIN")
 
-	def commitTransaction(self):
+	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
 		if self.useTransactions:
-			self.__saveProps()
-			self.execute("COMMIT")
-			self.__restoreProps()
+			cursor.execute("COMMIT")
 
-	def rollbackTransaction(self):
+	def rollbackTransaction(self, cursor):
 		""" Roll back (revert) a SQL transaction."""
 		if self.useTransactions:
-			self.__saveProps()
-			self.execute("ROLLBACK")
-			self.__restoreProps()
+			cursor.execute("ROLLBACK")

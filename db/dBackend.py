@@ -35,7 +35,7 @@ class dBackend(dabo.common.dObject):
 		"""
 		return val
 	
-	def getLastInsertID(self):
+	def getLastInsertID(self, cursor):
 		""" When inserting a new record in a table that auto-generates a PK
 		value, different databases have their own way of retrieving that value.
 		This method should be coded in backend-specific subclasses to address
@@ -43,3 +43,15 @@ class dBackend(dabo.common.dObject):
 		"""
 		return None
 
+	def beginTransaction(self, cursor):
+		""" Begin a SQL transaction."""
+		pass
+		
+	def commitTransaction(self, cursor):
+		""" Commit a SQL transaction."""
+		pass
+		
+	def rollbackTransaction(self, cursor):
+		""" Roll back (revert) a SQL transaction."""
+		pass
+		
