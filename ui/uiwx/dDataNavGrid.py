@@ -786,7 +786,17 @@ class dDataNavGrid(dGrid.dGrid):
 
 		if not justStub:
 			html.append("</BODY></HTML>")
-		return "\n".join(html)
+		
+		# There can be some high ASCII characters. This will handle the preview, but 
+		# we need more generic solutions.
+		ret = ""
+		for h in html:
+			try:
+				ret += h + "\n"
+			except:
+				ret += unicode(h, "latin-1") + "\n"
+		return ret
+# 		return "\n".join(html)
 
 
 	def getColByX(self, x):
