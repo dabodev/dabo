@@ -23,12 +23,12 @@ class dPanel(wx.Panel, cm.dControlMixin):
 
 	def layout(self):
 		""" Wrap the wx version of the call, if possible. """
+		self.Layout()
 		try:
 			# Call the Dabo version, if present
 			self.Sizer.layout()
 		except:
-			# Use the wx version.
-			self.Layout()
+			pass
 		
 
 class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
@@ -45,3 +45,13 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		self.SetScrollbars(10, 10, -1, -1)
 	
+
+	def layout(self):
+		""" Wrap the wx version of the call, if possible. """
+		self.Layout()
+		try:
+			# Call the Dabo version, if present
+			self.Sizer.layout()
+		except:
+			pass
+

@@ -6,4 +6,5 @@ import os as __os
 __os.environ["OPENFOX_LOADUI"] = "0"
 import ofFunctions
 
+from ListSorter import ListSorter
 

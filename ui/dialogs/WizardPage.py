@@ -6,7 +6,7 @@ import dabo.dConstants as k
 
 
 
-class WizardPage(dabo.ui.dPanel):
+class WizardPage(dabo.ui.dScrollPanel):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = WizardPage
 		self._titleCaption = self.extractKey(kwargs, "Title")

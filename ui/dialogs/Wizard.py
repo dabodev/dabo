@@ -129,8 +129,10 @@ class Wizard(dabo.ui.dForm):
 	
 	def _finish(self):
 		pg = self._pages[self.CurrentPage]
-		if pg.onLeavePage("forward"):
-			if self.finish():
+		ok = pg.onLeavePage("forward")
+		if ok or (ok is None):
+			finOK = self.finish()
+			if finOK or (finOK is None):
 				self.close()
 
 
@@ -245,8 +247,10 @@ class Wizard(dabo.ui.dForm):
 		else:
 			# First, see if the current page will allow us to leave
 			direction = {True: "forward", False: "back"}[self._currentPage < val]
-			if not self._pages[self._currentPage].onLeavePage(direction):
-				return
+			ok = self._pages[self._currentPage].onLeavePage(direction)
+			if ok is not None:
+				if not ok:
+					return
 		# Now make sure that the current page is valid
 		if val < 0:
 			val = 0

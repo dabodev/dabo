@@ -1,4 +1,5 @@
 import dabo
+import dabo.lib
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
@@ -15,48 +16,11 @@ class SortingForm(dabo.ui.dOkCancelDialog):
 	
 	
 	def addControls(self):
-		vsz = dabo.ui.dSizer("v")
-		bUp = dabo.ui.dButton(self, Caption="Up")
-		bDown = dabo.ui.dButton(self, Caption="Down")
-		vsz.appendSpacer(1, 1)
-		vsz.append(bUp)
-		vsz.appendSpacer(4)
-		vsz.append(bDown)
-		vsz.appendSpacer(1, 1)
-		hsz = dabo.ui.dSizer("h")
-		hsz.append(vsz, 0, "expand", alignment="middle")
-		bUp.bindEvent(dEvents.Hit, self.onUpButton)
-		bDown.bindEvent(dEvents.Hit, self.onDownButton)
-		
-		self.listBox = dabo.ui.dListBox(self, Choices=self._itms, ValueMode="Position")
-		hsz.append(self.listBox, "expand", 1)
-		self.Sizer.append(hsz, 1, "expand", border=30, borderFlags="all")
+		self.listBox = dabo.lib.ListSorter(self, Choices=self._itms)
+		self.Sizer.append(self.listBox, 1, "expand", border=30, borderFlags="all")
 		self.layout()
 
 
-	def onUpButton(self, evt):
-		self.reorder(-1)
-
-	def onDownButton(self, evt):
-		self.reorder(1)
-	
-	def reorder(self, dir):
-		pos = self.listBox.Value
-		if pos >= 0:
-			maxlen = len(self._itms) -1
-			choice = self._itms[pos]
-			del self._itms[pos]
-			newpos = min(maxlen, max(0, pos + dir) )
-			self._itms.insert(newpos, choice)
-			self.listBox.Choices = self._itms
-			self.listBox.Value = newpos
-	
-	def alphaSort(self):
-		""" Sort the list items alpahbetically."""
-		self._itms.sort()
-		self.listBox.Choices = self._itms
-
-	
 	def _getChoices(self):
 		return self._itms
 	def _setChoices(self, chc):
