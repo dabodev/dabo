@@ -73,10 +73,18 @@ class dForm(wx.Frame, dFormMixin):
             bo = None
         if bo:
             self._primaryBizobj = dataSource
-            self.setupMenu()
+            self.afterSetPrimaryBizobj()
         else:
             print "bizobj for data source %s does not exist." % dataSource
-            
+    
+    def afterSetPrimaryBizobj(self):
+        ''' dForm.afterSetPrimaryBizobj() -> None
+        
+            Occurs after the primary bizobj has changed. Subclasses may
+            override as necessary.
+        '''
+        pass
+                
     def addControl(self, control):
         ''' dForm.addControl(control) -> None
         

@@ -10,13 +10,16 @@ class dFormDataNav(dForm):
         dForm.__init__(self, parent, name, resourceString)
         
         self._gridColumnDefs = {}
-        self.setupPageFrame()
-        self.addVCR()
     
     def _appendToMenu(self, menu, caption, function):
         menuId = wx.NewId()
         menu.Append(menuId, caption)
         wx.EVT_MENU(self, menuId, function)
+
+    def afterSetPrimaryBizobj(self):        
+        self.setupPageFrame()
+        self.addVCR()
+        self.setupMenu()
         
     def getMenu(self):
         menu = dForm.getMenu(self)
