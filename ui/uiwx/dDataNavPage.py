@@ -24,31 +24,34 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 	def initProperties(self):
 		SelectionOpDropdown.doDefault()
 		self.SaveRestoreValue = True
-		self.target = None
 		
 	def initEvents(self):
 		SelectionOpDropdown.doDefault()
 		self.bindEvent(dEvents.Hit, self.onChoiceMade)
 		self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
 		
-	def setTarget(self, tgt):
-		""" Sets the reference to the object that will receive focus
-		after a choice is made with this control.
-		"""
-		self.target = tgt
-		
 	def onValueChanged(self, evt):
 		# italicize if we are ignoring the field:
-		self.FontItalic = (IGNORE_STRING in self.StringValue)
+		self.FontItalic = self.Target.FontItalic = (IGNORE_STRING in self.StringValue)
 		
 	def onChoiceMade(self, evt):
-		if self.target is not None:
-			self.target.FontItalic = self.FontItalic
-			if IGNORE_STRING not in self.StringValue:
-				# A comparison op was selected; let 'em enter a value
-				self.target.SetFocus()
+		if IGNORE_STRING not in self.StringValue:
+			# A comparison op was selected; let 'em enter a value
+			self.Target.SetFocus()
 		
-
+	def _getTarget(self):
+		try:
+			_target = self._target
+		except AttributeError:
+			_target = self._target = None
+		return _target
+			
+	def _setTarget(self, tgt):
+		self._target = tgt
+		self.Target.FontItalic = self.FontItalic
+		
+	Target = property(_getTarget, _setTarget, None, "Holds a reference to the edit control.")
+	
 				
 class DataNavPage(dPage.dPage):
 	def afterInit(self):
@@ -453,7 +456,7 @@ class dSelectPage(DataNavPage):
 
 			if not opList.StringValue:
 				opList.StringValue = opList.GetString(0)
-			opList.setTarget(ctrl)
+			opList.Target = ctrl
 			
 			gsz.append(lbl, alignment="right")
 			gsz.append(opList, alignment="left")
