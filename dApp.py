@@ -82,9 +82,9 @@ class dApp(object):
 		sys.path.append(self.homeDir)
 
 		# Init some appInfo properties:
-		self.setAppInfo("appName", "Dabo")
-		self.setAppInfo("appVersion", "0.1")
-		self.setAppInfo("vendorName", "")
+#		self.setAppInfo("appName", "Dabo")
+#		self.setAppInfo("appVersion", "0.1")
+#		self.setAppInfo("vendorName", "")
 
 		self._initUI()
 		self._initDB()
@@ -113,6 +113,8 @@ class dApp(object):
 			self.setAppInfo("appName", "Dabo")
 		if not self.getAppInfo("appVersion"):
 			self.setAppInfo("appVersion", "0.1")
+		if not self.getAppInfo("vendorName"):
+			self.setAppInfo("vendorName", "Dabo")
 		self.uiApp.start(self)
 		self.finish()
 
