@@ -72,7 +72,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self.refresh()
 		
 		try:
-			if self.SelectOnEntry and self.Form.FindFocus() == self:
+			if self.SelectOnEntry and self.Form.ActiveControl == self:
 				self.selectAll()
 		except AttributeError:
 			# only text controls have SelectOnEntry

@@ -535,12 +535,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		KillFocus code. This function effectively commands that update to
 		happen before it would have otherwise occurred.
 		"""
-		controlWithFocus = self.FindFocus()
-		if controlWithFocus:
+		ac = self.ActiveControl
+		if ac is not None:
 			try:
-				controlWithFocus.flushValue()
+				ac.flushValue()
 			except AttributeError:
-				# controlWithFocus may not be data-aware
+				# active control may not be data-aware
 				pass
 	
 	def __onClose(self, evt):
