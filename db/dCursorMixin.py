@@ -352,7 +352,6 @@ class dCursorMixin:
                 raise dError, loc("Already at the end of the data set.")
         else:
             raise dError, loc("No records in data set")
-        return ret
 
 
     def last(self):
