@@ -38,7 +38,7 @@ for event in dEventsBase.events:
 			# Map the Dabo event name to the appropriate wx event object.
 			exec "%s = %s" % (eventName, mapEvent[1])
 			done = True
-			exit
+			break
 	
 	if not done:
 		# Event is custom (non-wx), or requires more complicated interaction: 
