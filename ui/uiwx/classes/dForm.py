@@ -68,12 +68,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		Make the bizobj the form's primary bizobj if it is the first bizobj to 
 		be added.
 		'''
-		self.bizobjs[bizobj.dataSource] = bizobj
+		self.bizobjs[bizobj.DataSource] = bizobj
 		if len(self.bizobjs) == 1:
-			self.setPrimaryBizobj(bizobj.dataSource)
+			self.setPrimaryBizobj(bizobj.DataSource)
 		if self.debug:
-			print "added bizobj with dataSource of %s" % bizobj.dataSource
-		self.setStatusText("Bizobj '%s' %s." % (bizobj.dataSource, _("added")))
+			print "added bizobj with DataSource of %s" % bizobj.DataSource
+		self.setStatusText("Bizobj '%s' %s." % (bizobj.DataSource, _("added")))
 
 
 	def getPrimaryBizobj(self):

@@ -102,7 +102,7 @@ class dSelectPage(dPage.dPage):
 
 
 	def _getSelectOptionsPanel(self):
-		dataSource = self.getDform().getBizobj().dataSource
+		dataSource = self.getDform().getBizobj().DataSource
 		columnDefs = self.getDform().getColumnDefs(dataSource)
 		panel = dPanel.dPanel(self)
 
@@ -304,7 +304,7 @@ class dBrowsePage(dPage.dPage):
 	def fillGrid(self):
 		form = self.getDform()
 		bizobj = form.getBizobj()
-		self.grid.columnDefs = form.getColumnDefs(bizobj.dataSource)
+		self.grid.columnDefs = form.getColumnDefs(bizobj.DataSource)
 		self.grid.fillGrid()
 		self.GetSizer().Layout()
 		for window in self.grid.GetChildren():
@@ -360,7 +360,7 @@ class dEditPage(dPage.dPage):
 
 
 	def createItems(self):
-		dataSource = self.getDform().getBizobj().dataSource
+		dataSource = self.getDform().getBizobj().DataSource
 		columnDefs = self.getDform().getColumnDefs(dataSource)
 
 		for column in columnDefs:
@@ -413,3 +413,8 @@ class dEditPage(dPage.dPage):
 
 		self.GetSizer().Layout()
 
+
+class dChildViewPage(dPage.dPage):
+
+	def __init__(self, parent):
+		dChildViewPage.doDefault(parent, 'pageChildView')

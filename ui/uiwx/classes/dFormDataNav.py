@@ -18,11 +18,11 @@ class dFormDataNav(frm.dForm):
 
 
 	def afterSetPrimaryBizobj(self):        
-		self.setupToolBar()
-		self.setupMenu()
-
+		pass
 	def afterSetPrimaryColumnDef(self):
 		self.setupPageFrame()
+		self.setupToolBar()
+		self.setupMenu()
 
 	def setupToolBar(self):
 		if isinstance(self, wx.MDIChildFrame):
@@ -81,6 +81,13 @@ class dFormDataNav(frm.dForm):
 		self._appendToMenu(menu, "Edit Current Record\tAlt+3", 
 						self.onEditCurrentRecord, 
 						bitmap=dIcons.getIconBitmap("edit"))
+		i = 4
+		for child in self.getBizobj().getChildren():
+			self._appendToMenu(menu, "%s\tAlt+%s" % (child.Caption, i) ,
+							self.onChildView, 
+							bitmap=dIcons.getIconBitmap("childview"))
+			i += 1
+			
 		menu.AppendSeparator()
 
 		self._appendToMenu(menu, "Requery\tCtrl+R", 
@@ -158,17 +165,24 @@ class dFormDataNav(frm.dForm):
 		'''
 		self.pageFrame.SetSelection(0)
 
+		
 	def onBrowseRecords(self, event):
 		''' Occurs when the user chooses to browse the record set.
 		'''
 		self.pageFrame.SetSelection(1)
 
+		
 	def onEditCurrentRecord(self, event):
 		''' Occurs when the user chooses to edit the current record.
 		'''
 		self.pageFrame.SetSelection(2)
 
 
+	def onChildView(self, event):
+		print event.GetId()
+		print dir(event)
+		
+		
 	def getColumnDefs(self, dataSource):
 		''' Get the column definitions for the given data source.
 
@@ -269,7 +283,7 @@ class dFormDataNav(frm.dForm):
 					column['selectTypes'].append('stringMatchAll')
 
 		self._columnDefs[dataSource] = columnDefs
-		if dataSource == self.getBizobj().dataSource:
+		if dataSource == self.getBizobj().DataSource:
 			self.afterSetPrimaryColumnDef()
 
 

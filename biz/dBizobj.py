@@ -8,15 +8,6 @@ import dabo.common
 import types
 
 class dBizobj(dabo.common.DoDefaultMixin):
-	# Title of the cursor. Used in resolving DataSource references
-	dataSource = ""
-	# SQL statement used to create the cursor's data
-	sql = ""
-	# When true, the cursor object does not run its query immediately. This
-	# is useful for parameterized queries
-	noDataOnLoad = False
-	# Determines if we are using a table that auto-generates its PKs.
-	autoPopulatePK = True
 	# Holds the tuple of params to be merged with the sql in the cursor
 	_params = None
 	# Reference to the cursor object 
@@ -24,29 +15,11 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	# Class to instantiate for the cursor object
 	dCursorMixinClass = dCursorMixin
 	dSqlBuilderMixinClass = dSqlBuilderMixin
-	# Reference to the parent bizobj to this one.
-	_parent = None
 	# Collection of child bizobjs for this
 	__children = []
-	# Name of field that is the PK 
-	keyField = ""
-	# Name of field that is the FK back to the parent
-	linkField = ""
-	# Holds any error messages generated during a process
-	_errorMsg = ""
 	# Dictionary holding any default values to apply when a new record is created
 	defaultValues = {}      
-	# Do we requery child bizobjs after a Save()?
-	requeryChildOnSave = True
-	# Should new child records be added when a new parent record is added?
-	newChildOnNew = False
-	# If this bizobj's parent has newChildOnNew =True, do we create a record here?
-	newRecordOnNewParent = False
-	# In the onNew() method, do we fill in the linkField with the value returned by calling the parent
-	# bizobj's GetKeyValue() method?
-	fillLinkFromParent = False
-	# After a requery, do we try to restore the record position to the same PK?
-	savePosOnRequery = True
+
 
 	##########################################
 	### referential integrity stuff ####
@@ -67,8 +40,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def __init__(self, conn, testHack=False):
-		self.TESTING = testHack
-		# Save the connection reference
+		self.beforeInit()
 		self._conn = conn
 		if self.TESTING:
 			import MySQLdb
@@ -88,10 +60,17 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		self.afterInit()
 		
 		
+	def beforeInit(self):
+		''' Hook for subclasses.
+		'''
+		pass
+	
+	
 	def afterInit(self):
 		''' Hook for subclasses.
 		'''
-
+		pass
+		
 
 	def __getattr__(self, att):
 		"""
@@ -101,7 +80,10 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		If there is no object attribute named 'att', and no field in the cursor by that
 		name, an AttributeError is raised.
 		"""
-		ret = self.getFieldVal(att)
+		try:
+			ret = self.getFieldVal(att)
+		except (dError.dError, dError.NoRecordsError):
+			ret = None
 		if ret is None:
 			raise AttributeError, " '%s' object has no attribute '%s' " % (self.__class__.__name__, att)
 		return ret
@@ -118,7 +100,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		if self._cursor is not None:
 			isFld = self.setFieldVal(att, val)
 		if not isFld:
-			self.__dict__[att] = val
+			super(dBizobj, self).__setattr__(att, val)
 
 
 	def createCursor(self):        
@@ -132,11 +114,11 @@ class dBizobj(dabo.common.DoDefaultMixin):
 				self._cursor = self._conn.cursor(cursorclass=cursorClass)
 			else:
 				self._cursor = self._conn.getConnection().cursor(cursorclass=cursorClass)
-			self._cursor.setSQL(self.sql)
-			self._cursor.setKeyField(self.keyField)
-			self._cursor.setTable(self.dataSource)
-			self._cursor.setAutoPopulatePK(self.autoPopulatePK)
-			if not self.noDataOnLoad:
+			self._cursor.setSQL(self.SQL)
+			self._cursor.setKeyField(self.KeyField)
+			self._cursor.setTable(self.DataSource)
+			self._cursor.setAutoPopulatePK(self.AutoPopulatePK)
+			if self.RequeryOnLoad:
 				self._cursor.requery()
 			self.afterCreateCursor(self._cursor)
 
@@ -266,7 +248,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 			# Finish the transaction, and requery the children if needed.
 			if startTransaction:
 				self._cursor.commitTransaction()
-			if topLevel and self.requeryChildOnSave:
+			if topLevel and self.RequeryChildOnSave:
 				self.requeryAllChildren()
 
 			self.setMemento()
@@ -362,10 +344,10 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		# Update all child bizobjs
 		self.requeryAllChildren()
 
-		if self.newChildOnNew:
+		if self.NewChildOnNew:
 			# Add records to all children set to have records created on a new parent record.
 			for child in self.__children:
-				if child.newRecordOnNewParent:
+				if child.NewRecordOnNewParent:
 					child.new()
 
 		self.setMemento()
@@ -381,9 +363,13 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		to the current value returned by getSQL()
 		"""
 		if sql is None:
-			sql = self.getSQL()
-		self.sql = sql
-		self._cursor.setSQL(sql)
+			# sql not passed; get it from the sql mixin:
+			self.SQL = self.getSQL()
+		else:
+			# sql passed; set it explicitly
+			self.SQL = sql
+		# propagate the SQL downward:
+		self._cursor.setSQL(self.SQL)
 
 
 	def requery(self):
@@ -406,7 +392,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		# run the requery
 		self._cursor.requery(params)
 
-		if self.savePosOnRequery:
+		if self.RestorePositionOnRequery:
 			self.moveToPK(currPK)
 
 		self.requeryAllChildren()
@@ -577,7 +563,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 	def getPK(self):
 		""" Returns the value of the PK field """
-		return self._cursor.getFieldVal(self.keyField)
+		return self._cursor.getFieldVal(self.KeyField)
 
 
 	def getParentPK(self):
@@ -651,18 +637,25 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		inserting a newline if needed 
 		"""
 		if txt:
-			if self._errorMsg:
-				self._errorMsg += "\n"
-			self._errorMsg += txt
-
-	def getErrorMsg(self):
-		return self._errorMsg
+			if self.ErrorMessage:
+				self.ErrorMessage += "\n"
+			self.ErrorMessage += txt
 
 
 	def clearErrorMsg(self):
-		self._errorMsg = ""
+		self.ErrorMessage = ""
 		self._cursor.clearErrorMsg()
 
+		
+	def getChildren(self):
+		''' Return a tuple of the child bizobjs.
+		'''
+		ret = []
+		for child in self.__children:
+			ret.append(child)
+		return tuple(ret)
+		
+		
 	########## SQL Builder interface section ##############
 	def addField(self, exp):
 		return self._cursor.addField(exp)
@@ -721,3 +714,193 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	def afterConnection(self): pass
 	def afterCreateCursor(self, cursor): pass
 
+
+	def _getCaption(self):
+		try:
+			return self._caption
+		except AttributeError:
+			return self.DataSource
+			
+	
+	def _setCaption(self, val):
+		self._caption = str(val)
+	
+	
+	def _getDataSource(self):
+		try: 
+			return self._dataSource
+		except AttributeError:
+			return ''
+	
+	def _setDataSource(self, val):
+		self._dataSource = str(val)
+		
+		
+	def _getSQL(self):
+		try:
+			return self._SQL
+		except AttributeError:
+			return ''
+			
+	def _setSQL(self, val):
+		self._SQL = str(val)
+			
+
+	def _getRequeryOnLoad(self):
+		try:
+			ret = self._requeryOnLoad
+		except AttributeError:
+			ret = False
+		return ret
+			
+	def _setRequeryOnLoad(self, val):
+		self._requeryOnLoad = bool(val)
+		
+		
+	def _getParent(self):
+		try:
+			return self._parent
+		except AttributeError:
+			return None
+			
+	def _setParent(self, val):
+		print "in _setParent, reminder to check to make sure the parent descends from dBizobj."
+		print "val:", val
+		print "self:", self
+		
+		self._parent = val
+			
+		
+	def _getAutoPopulatePK(self):
+		try:
+			return self._autoPopulatePK
+		except AttributeError:
+			return True
+			
+	def _setAutoPopulatePK(self, val):
+		self._autoPopulatePK = bool(val)
+	
+	
+	def _getKeyField(self):
+		try:
+			return self._keyField
+		except AttributeError:
+			return ''
+			
+	def _setKeyField(self, val):
+		self._keyField = str(val)
+	
+	
+	def _getLinkField(self):
+		try:
+			return self._linkField
+		except AttributeError:
+			return ''
+			
+	def _setLinkField(self, val):
+		self._linkField = str(val)
+		
+	
+	def _getErrorMessage(self):
+		try:
+			return self._errorMessage
+		except AttributeError:
+			return ''
+			
+	def _setErrorMessage(self, val):
+		self._errorMessage = str(val)
+		
+		
+	def _getRequeryChildOnSave(self):
+		try:
+			return self._requeryChildOnSave
+		except AttributeError:
+			return False
+			
+	def _setRequeryChildOnSave(self, val):
+		self._requeryChildOnSave = bool(val)
+		
+			
+	def _getNewRecordOnNewParent(self):
+		try:
+			return self._newRecordOnNewParent
+		except AttributeError:
+			return False
+			
+	def _setNewRecordOnNewParent(self, val):
+		self._newRecordOnNewParent = bool(val)
+		
+	
+	def _getNewChildOnNew(self):
+		try:
+			return self._newChildOnNew
+		except AttributeError:
+			return False
+			
+	def _setNewChildOnNew(self, val):
+		self._newChildOnNew = bool(val)
+
+					
+	def _getFillLinkFromParent(self):
+		try:
+			return self._fillLinkFromParent
+		except AttributeError:
+			return False
+			
+	def _setFillLinkFromParent(self, val):
+		self._fillLinkFromParent = bool(val)
+		
+			
+	def _getRestorePositionOnRequery(self):
+		try:
+			return self._restorePositionOnRequery
+		except AttributeError:
+			return False
+			
+	def _setRestorePositionOnRequery(self, val):
+		self._restorePositionOnRequery = bool(val)
+		
+
+	Caption = property(_getCaption, _setCaption, None,
+				'The friendly title of the cursor, used in messages to the end user. (str)')
+	
+	DataSource = property(_getDataSource, _setDataSource, None,
+				'The title of the cursor. Used in resolving DataSource references. (str)')
+	
+	SQL = property(_getSQL, _setSQL, None, 
+				'SQL statement used to create the cursor\'s data. (str)')
+	
+	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None, 
+				'When true, the cursor object runs its query immediately. This '
+				'is useful for parameterized queries. (bool)')
+	
+	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None, 
+				'Determines if we are using a table that auto-generates its PKs. (bool)')
+
+	Parent = property(_getParent, _setParent, None,
+				'Reference to the parent bizobj to this one. (dBizobj)')
+
+	KeyField = property(_getKeyField, _setKeyField, None,
+				'Name of field that is the PK. (str)')
+	
+	LinkField = property(_getLinkField, _setLinkField, None,
+				'Name of the field that is the foreign key back to the parent. (str)')
+	
+	ErrorMessage = property(_getErrorMessage, _setErrorMessage, None,
+				'Holds any error messages generated during a process. (str)')
+
+	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
+				'Do we requery child bizobjs after a Save()? (bool)')
+				
+	NewChildOnNew = property(_getNewChildOnNew, _setNewChildOnNew, None, 
+				'Should new child records be added when a new parent record is added? (bool)')
+	
+	NewRecordOnNewParent = property(_getNewRecordOnNewParent, _setNewRecordOnNewParent, None,
+				'If this bizobj\'s parent has NewChildOnNew==True, do we create a record here? (bool)')
+
+	FillLinkFromParent = property(_getFillLinkFromParent, _setFillLinkFromParent, None,
+				'In the onNew() method, do we fill in the linkField with the value returned '
+				'by calling the parent bizobj\'s GetKeyValue() method? (bool)')
+				
+	RestorePositionOnRequery = property(_getRestorePositionOnRequery, _setRestorePositionOnRequery, None,
+				'After a requery, do we try to restore the record position to the same PK?')
