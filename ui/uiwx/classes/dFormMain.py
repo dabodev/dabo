@@ -5,7 +5,14 @@ import dFormMixin as fm
 # Different platforms expect different frame types. Notably,
 # most users on Windows expect and prefer the MDI parent/child
 # type frames.
-if wx.Platform == '__WXMSW__':      # Microsoft Windows
+
+# pkm 06/09/2004: disabled MDI even on Windows. There are some issues that I
+#                 don't have time to track down right now... better if it works
+#                 on Windows similarly to Linux instead of not at all... if you
+#                 want to enable MDI on Windows, just take out the "False and"
+#                 in the below if statement, and do the same in dForm.py.
+
+if False and wx.Platform == '__WXMSW__':      # Microsoft Windows
 	wxFrameClass = wx.MDIParentFrame
 	wxPreFrameClass = wx.PreMDIParentFrame
 else:
