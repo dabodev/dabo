@@ -54,4 +54,28 @@ from dFormMain import dFormMain
 def getEventData(uiEvent):
 	ed = {}
 	ed["mousePosition"] = (uiEvent.x, uiEvent.y)
+	
+	if "shift_" in uiEvent.keysym.lower():
+		ed["shiftDown"] = True
+	else:
+		ed["shiftDown"] = False
+	
+	if "alt_" in uiEvent.keysym.lower():
+		ed["altDown"] = True
+	else:
+		ed["altDown"] = False
+	
+	if "control_" in uiEvent.keysym.lower():
+		ed["controlDown"] = True
+	else:
+		ed["controlDown"] = False
+	
+	#ed["commandDown"] = wxEvt.CmdDown()
+	#ed["metaDown"] = wxEvt.MetaDown()
+	ed["keyCode"] = uiEvent.keycode
+	ed["rawKeyCode"] = uiEvent.keysym_num
+	#ed["rawKeyFlags"] = uiEvent.keysym_num
+	#ed["unicodeChar"] = wxEvt.GetUniChar()
+	#ed["unicodeKey"] = wxEvt.GetUnicodeKey()
+	#ed["hasModifiers"] = wxEvt.HasModifiers()
 	return ed

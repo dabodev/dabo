@@ -49,11 +49,14 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.initChildObjects()
 		self.afterInit()
 		
+		self._mouseLeftDown, self._mouseRightDown = False, False
+
 		self._initEvents()
 		self.initEvents()
 
 		self.raiseEvent(dEvents.Create)
-			
+
+					
 	def _initEvents(self):
 		# Bind tk events to handlers that re-raise the Dabo events:
 		
@@ -62,11 +65,19 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.bind("<FocusOut>", self._onTkLostFocus)
 
 		# Activate and Deactivate don't mean what we expect in Tk...
-		#self.bind(dEvents.Activate, self._onTkActivate)
-		#self.bind(dEvents.Deactivate, self._onTkDeactivate)
+# 		self.bind("<Activate>", self._onTkActivate)
+# 		self.bind("<Deactivate>", self._onTkDeactivate)
+
+		self.bind("<KeyPress>", self._onTkKeyDown)
+		self.bind("<KeyRelease>", self._onTkKeyUp)
 		
 		self.bind("<Enter>", self._onTkMouseEnter)
 		self.bind("<Leave>", self._onTkMouseLeave)
+		self.bind("<Button-1>", self._onTkMouseLeftDown)
+		self.bind("<ButtonRelease-1>", self._onTkMouseLeftUp)
+		self.bind("<Button-3>", self._onTkMouseRightDown)
+		self.bind("<ButtonRelease-3>", self._onTkMouseRightUp)
+				
 		
 			
 	def _onTkDestroy(self, event):
@@ -84,13 +95,42 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _onTkDeactivate(self, event):
 		self.raiseEvent(dEvents.Deactivate, event)
 
+	def _onTkKeyDown(self, event):
+		self.raiseEvent(dEvents.KeyDown, event)
+
+	def _onTkKeyUp(self, event):
+		self.raiseEvent(dEvents.KeyUp, event)
+
 	def _onTkMouseEnter(self, event):
 		self.raiseEvent(dEvents.MouseEnter, event)
 
 	def _onTkMouseLeave(self, event):
 		self.raiseEvent(dEvents.MouseLeave, event)
+		self._mouseLeftDown, self._mouseRightDown = False, False
 
-	
+	def _onTkMouseLeftDown(self, event):
+		self.raiseEvent(dEvents.MouseLeftDown, event)
+		self._mouseLeftDown = True
+
+	def _onTkMouseLeftUp(self, event):
+		self.raiseEvent(dEvents.MouseLeftUp, event)
+		if self._mouseLeftDown:
+			# mouse went down and up in this control: send a click:
+			self.raiseEvent(dEvents.MouseLeftClick, event)
+			self._mouseLeftDown = False
+
+	def _onTkMouseRightDown(self, event):
+		self.raiseEvent(dEvents.MouseRightDown, event)
+		self._mouseRightDown = True
+
+	def _onTkMouseRightUp(self, event):
+		self.raiseEvent(dEvents.MouseRightUp, event)
+		if self._mouseRightDown:
+			# mouse went down and up in this control: send a click:
+			self.raiseEvent(dEvents.MouseRightClick, event)
+			self._mouseLeftDown = False
+
+			
 	def raiseEvent(self, eventClass, nativeEvent=None, *args, **kwargs):
 		# Call the Dabo-native raiseEvent(), passing along the Tkinter after_idle
 		# function, so that the Dabo events can be processed at next idle.
