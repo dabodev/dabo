@@ -530,6 +530,14 @@ class dPemMixin(dPemMixinBase):
 		self._pemObject.SetTitle(str(caption))
 
 
+	def _getChildren(self):
+		children = []
+		for child in self.GetChildren():
+			if isinstance(child, dabo.common.dObject):
+				children.append(child)
+		return children
+		
+		
 	def _getEnabled(self):
 		return self._pemObject.IsEnabled()
 	
@@ -807,7 +815,10 @@ class dPemMixin(dPemMixinBase):
 	
 	Caption = property(_getCaption, _setCaption, None, 
 			"The caption of the object. (str)")
-	
+
+	Children = property(_getChildren, None, None, 
+		_("Returns a list of object references to the children of this object."))
+		
 	Enabled = property(_getEnabled, _setEnabled, None,
 			"Specifies whether the object (and its children) can get user input. (bool)")
 
