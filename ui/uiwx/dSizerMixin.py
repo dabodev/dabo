@@ -4,7 +4,7 @@ import dPemMixin
 
 class dSizerMixin(dabo.common.dObject):
 	def append(self, item, layout="normal", proportion=0, alignment=("top", "left"), 
-		border=0, borderFlags=("all",)):
+		border=None, borderFlags=None):
 		"""Append an object or a spacer to the sizer.
 		
 		layout: 
@@ -45,11 +45,16 @@ class dSizerMixin(dabo.common.dObject):
 		else:
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, borderFlags, layout)
+			# If there are objects in this sizer already, add the default spacer
+			if len(self.GetChildren()) > 0:
+				self.addDefaultSpacer()
+			if border is None:
+				border = self.Border
 			self.Add(item, proportion, _wxFlags, border)
 			
 
 	def insert(self, index, item, layout="normal", proportion=0, alignment=("top", "left"), 
-		border=0, borderFlags=("all",)):
+		border=None, borderFlags=None):
 		"""Insert an object or a spacer to the sizer.
 		
 		index: The index of the existing sizer item that you want to insert in 
@@ -93,7 +98,14 @@ class dSizerMixin(dabo.common.dObject):
 		else:
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, borderFlags, layout)
+			if border is None:
+				border = self.Border
+			# If there are objects in this sizer already, add the default spacer
+			addSpacer = ( len(self.GetChildren()) > 0)
 			self.Insert(index, item, proportion, _wxFlags, border)
+			if addSpacer:
+				self.addDefaultSpacer(index+1)
+
 
 	
 	def layout(self):
@@ -119,8 +131,35 @@ class dSizerMixin(dabo.common.dObject):
 		items, no error will be raised - it will simply do nothing.
 		"""
 		self.Detach(item)
+	
+	
+	def addSpacer(self, val, pos=None):
+		if self.Orientation == "Vertical":
+			spacer = (1, val)
+		elif self.Orientation == "Horizontal":
+			spacer = (val, 1)
+		else:
+			# Something's up; bail out
+			return
+		if pos:
+			self.Insert(pos, spacer)
+		else:
+			self.Add(spacer)
+	
+	
+	def insertSpacer(self, pos, val):
+		"""Added to be consistent with the sizers' add/insert
+		design. Inserts a spacer at the specified position.
+		"""
+		self.addSpacer(val, pos)
 		
 		
+	def addDefaultSpacer(self, pos=None):
+		spc = self.Spacing
+		if spc:
+			self.addSpacer(spc, pos)
+				
+	
 	def drawOutline(self, win, recurse=False):
 		""" There are some cases where being able to see the sizer
 		is helpful, such as at design time. This method can be called
@@ -215,17 +254,32 @@ class dSizerMixin(dabo.common.dObject):
 			elif flag == "middle":
 				_wxFlags = _wxFlags | wx.ALIGN_CENTER_VERTICAL
 
-		for flag in [flag.lower() for flag in borderFlags]:
-			if flag == "left":
-				_wxFlags = _wxFlags | wx.LEFT
-			elif flag == "right":
-				_wxFlags = _wxFlags | wx.RIGHT
-			elif flag == "top":
-				_wxFlags = _wxFlags | wx.TOP
-			elif flag == "bottom":
+		if borderFlags is None:
+			# Add any default borders. If no defaults set, set it to the default 'all'
+			if self.BorderBottom:
 				_wxFlags = _wxFlags | wx.BOTTOM
-			elif flag == "all":
+			if self.BorderLeft:
+				_wxFlags = _wxFlags | wx.LEFT
+			if self.BorderRight:
+				_wxFlags = _wxFlags | wx.RIGHT
+			if self.BorderTop:
+				_wxFlags = _wxFlags | wx.TOP
+			# Should we set the default?
+			if not (self.BorderBottom or self.BorderLeft 
+					or self.BorderRight or self.BorderTop):
 				_wxFlags = _wxFlags | wx.ALL
+		else:
+			for flag in [flag.lower() for flag in borderFlags]:
+				if flag == "left":
+					_wxFlags = _wxFlags | wx.LEFT
+				elif flag == "right":
+					_wxFlags = _wxFlags | wx.RIGHT
+				elif flag == "top":
+					_wxFlags = _wxFlags | wx.TOP
+				elif flag == "bottom":
+					_wxFlags = _wxFlags | wx.BOTTOM
+				elif flag == "all":
+					_wxFlags = _wxFlags | wx.ALL
 
 		if layout.lower() in ("expand", "ex", "exp", "x", "grow"):
 			_wxFlags = _wxFlags | wx.EXPAND
@@ -234,10 +288,49 @@ class dSizerMixin(dabo.common.dObject):
 
 		return _wxFlags				
 
-				
+
+	def _getBorder(self):
+		try:
+			return self._border
+		except:
+			return 0
+	def _setBorder(self, val):
+		self._border = val
+		
+	def _getBorderBottom(self):
+		try:
+			return self._borderBottom
+		except:
+			return False
+	def _setBorderBottom(self, val):
+		self._borderBottom = val
+		
+	def _getBorderLeft(self):
+		try:
+			return self._borderLeft
+		except:
+			return False
+	def _setBorderLeft(self, val):
+		self._borderLeft = val
+		
+	def _getBorderRight(self):
+		try:
+			return self._borderRight
+		except:
+			return False
+	def _setBorderRight(self, val):
+		self._borderRight = val
+		
+	def _getBorderTop(self):
+		try:
+			return self._borderTop
+		except:
+			return False
+	def _setBorderTop(self, val):
+		self._borderTop = val
+		
  	def _getOrientation(self):
 		o = self.GetOrientation()
-		
 		if o == wx.VERTICAL:
 			return "Vertical"
 		elif o == wx.HORIZONTAL:
@@ -250,16 +343,38 @@ class dSizerMixin(dabo.common.dObject):
 			self.SetOrientation(wx.VERTICAL)
 		else:
 			self.SetOrientation(wx.HORIZONTAL)
+	
+	def _getSpacing(self):
+		try:
+			return self._space
+		except:
+			# Default to zero
+			return 0
+	def _setSpacing(self, val):
+		self._space = val
 			
 	def _getVisible(self):
 		return self._visible
 	def _setVisible(self, val):
 		self._visible = val
 		self.ShowItems(val)
-			
-			
+	
+	Border = property(_getBorder, _setBorder, None,
+			"Sets the default border for the sizer.  (int)" )
+	BorderBottom = property(_getBorderBottom, _setBorderBottom, None,
+			"By default, do we add the border to the bottom side?  (bool)" )
+	BorderLeft = property(_getBorderLeft, _setBorderLeft, None,
+			"By default, do we add the border to the left side?  (bool)" )
+	BorderRight = property(_getBorderRight, _setBorderRight, None,
+			"By default, do we add the border to the right side?  (bool)" )
+	BorderTop = property(_getBorderTop, _setBorderTop, None,
+			"By default, do we add the border to the top side?  (bool)" )
+	
 	Orientation = property(_getOrientation, _setOrientation, None, 
 		"Sets the orientation of the sizer, either 'Vertical' or 'Horizontal'.")
 
+	Spacing = property(_getSpacing, _setSpacing, None, 
+			"Amount of space automatically inserted between elements.  (int)")
+			
 	Visible = property(_getVisible, _setVisible, None, 
 		"Shows/hides the sizer and its contained items  (bool)")
