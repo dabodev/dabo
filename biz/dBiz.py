@@ -2,7 +2,7 @@ import dabo.db.constants as k
 import dabo.db.dConnection as dConnection
 import dabo.db.cursor
 
-class dBizobj(object):
+class dBiz(object):
     def __init__(self, connection):
         # Save the connection reference
         self._conn = connection
@@ -39,9 +39,9 @@ class dBizobj(object):
 
 
     def first(self):
-        """ Moves the record pointer in the cursor to the first record of the result set.
-        Updates any child bizobjs to reflect the new current parent record. 
-        If the record set is already at the beginning, returns k.FILE_BOF. """
+        """ Move the record pointer in the cursor to the first record of the result set.
+        Update any child bizobjs to reflect the new current parent record. 
+        If the record set is already at the beginning, return k.FILE_BOF. """
         self._errorMsg = ""
         if not self.beforeFirst() or not self.beforePointerMove():
             return k.FILE_CANCEL
@@ -58,9 +58,9 @@ class dBizobj(object):
 
 
     def prior(self):
-        """ Moves the record pointer in the cursor back one position in the result set.
-        Updates any child bizobjs to reflect the new current parent record. 
-        If the record set is already at the beginning, returns k.FILE_BOF. """
+        """ Move the record pointer in the cursor back one position in the result set.
+        Update any child bizobjs to reflect the new current parent record. 
+        If the record set is already at the beginning, return k.FILE_BOF. """
         self._errorMsg = ""
         if not self.beforePrior() or not self.beforePointerMove():
             return k.FILE_CANCEL
@@ -77,9 +77,9 @@ class dBizobj(object):
 
 
     def next(self):
-        """ Moves the record pointer in the cursor to the next record of the result set.
-        Updates any child bizobjs to reflect the new current parent record.
-        If the recordset is already at the last record, returns k.FILE_EOF. """
+        """ Move the record pointer in the cursor to the next record of the result set.
+        Update any child bizobjs to reflect the new current parent record.
+        If the recordset is already at the last record, return k.FILE_EOF. """
         self._errorMsg = ""
         if not self.beforeNext() or not self.beforePointerMove():
             return k.FILE_CANCEL
@@ -96,9 +96,9 @@ class dBizobj(object):
 
 
     def last(self):
-        """ Moves the record pointer in the cursor to the last record of the result set.
-        Updates any child bizobjs to reflect the new current parent record.
-        If the recordset is already at the last record, returns k.FILE_EOF. """
+        """ Move the record pointer in the cursor to the last record of the result set.
+        Update any child bizobjs to reflect the new current parent record.
+        If the recordset is already at the last record, return k.FILE_EOF. """
         self._errorMsg = ""
         if not self.beforeLast() or not self.beforePointerMove():
             return k.FILE_CANCEL
@@ -114,8 +114,8 @@ class dBizobj(object):
         return ret
 
     def save(self, startTransaction=0, allRows=0, topLevel=1):
-        """ Saves any changes that have been made to the cursor.
-        If the save is successful, calls the save() of all child bizobjs. """
+        """ Save any changes that have been made to the cursor.
+        If the save is successful, call the save() of all child bizobjs. """
         self._errorMsg = ""
 
         if not self.beforeSave() or not self.validate():
@@ -174,7 +174,7 @@ class dBizobj(object):
 
 
     def cancel(self, allRows=0):
-        """ Cancels any changes to the data. Reverts back to the orginal values
+        """ Cancel any changes to the data. Reverts back to the orginal values
         that were in the data. """
         self._errorMsg = ""
 
@@ -203,7 +203,7 @@ class dBizobj(object):
 
 
     def delete(self):
-        """ Deletes the current row of data """
+        """ Delete the current row of data """
         self._errorMsg = ""
 
         if not self.beforeDelete() or self.beforePointerMove():
@@ -247,7 +247,7 @@ class dBizobj(object):
 
 
     def deleteAll(self):
-        """ Iterate through all the rows in the bizobj's cursor, deleting each one-by-one"""
+        """ Iterate through all the rows in the bizobj's cursor, deleting each one-by-one. """
         while self._cursor.rowcount > 0:
             self.first()
             ret = self.delete()
@@ -257,7 +257,7 @@ class dBizobj(object):
 
 
     def new(self):
-        """ Creates a new record, and populates it with any default values specified. """
+        """ Create a new record, and populate it with any default values specified. """
         self._errorMsg = ""
 
         if not self.beforeNew() or not self.beforePointerMove():
@@ -288,8 +288,8 @@ class dBizobj(object):
 
 
     def requery(self):
-        """ Refreshes the cursor's dataset with the current values in the database, 
-        given the current state of the filtering parameters """
+        """ Refresh the cursor's dataset with the current values in the database, 
+        given the current state of the filtering parameters. """
         self._errorMsg = ""
 
         if not self.beforeRequery():
