@@ -59,6 +59,10 @@ class dMemento(object):
 			if kk == k.CURSOR_NEWFLAG:
 				# Ignore the new record flag.
 				continue
+			if kk == k.CURSOR_TMPKEY_FIELD:
+				# Ignore the tmp PK field.
+				continue
+		
 			# OK, if this is a new record, include all the values. Otherwise, just
 			# include the changed ones.
 			if isNewRecord or self.__snapshot[kk] != vv:
