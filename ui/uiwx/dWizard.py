@@ -331,6 +331,7 @@ to play some more.
 
 		
 	app = dabo.dApp()
+	app.MainFormClass = None
 	app.setup()
 	# OK, we've defined all of our pages. Now let's define
 	# the wizard itself.
