@@ -30,27 +30,33 @@ def loadUI(uiType):
 	""" Load the given UI into the global namespace.
 	"""
 	retVal = False
-	module = None
 	
-	if getUIType() is None:
-		if uiType.lower() in ('wx', 'wxpython', 'uiwx'):
-			module = "dabo.ui.uiwx"
-		elif uiType.lower() in ('tk', 'tkinter', 'uitk'):
-			module = "dabo.ui.uitk"
-			
-		if module:
-			try:
-				exec("from %s import *" % module, globals())
-				retVal = True
-			except ImportError, e:
-				retVal = False
-				# Record the actual problem
-				#dabo.errorLog.write("Error Loading UI: %s" % e)
-				traceback.print_exc()
+	currType = getUIType()
+	mods = {"wx" : "dabo.ui.uiwx", "tk" : "dabo.ui.uitk"}
+	if uiType.lower() in ("wx", "wxpython", "uiwx"):
+		typ = "wx"
+	elif uiType.lower() in ("tk", "tkinter", "uitk"):
+		typ = "tk"
+	else:
+		raise ValueError, "Unknown UI type '%s' passed to loadUI()" % uiType
+	
+	if currType is None:
+		try:
+			exec("from %s import *" % mods[typ], globals())
+			retVal = True
+		except ImportError, e:
+			retVal = False
+			# Record the actual problem
+			#dabo.errorLog.write("Error Loading UI: %s" % e)
+			traceback.print_exc()
 				
 	else:
-		dabo.infoLog.write(_("Cannot change the uiType to '%s', because UI '%s' is already loaded."
-			% (uiType, getUIType())))
+		if currType == typ:
+			# No problem; just a redundant call
+			pass
+		else:
+			dabo.infoLog.write(_("Cannot change the uiType to '%s', because UI '%s' is already loaded."
+				% (typ, currType)))
 			
 	return retVal
 
