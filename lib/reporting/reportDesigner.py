@@ -43,7 +43,7 @@ class BandLabel(dabo.ui.dPanel):
 					dc.Clear()
 
 					self._dragImage = wx.DragImage(self._captureBitmap,
-			                                  wx.StockCursor(wx.CURSOR_HAND))
+					                               wx.StockCursor(wx.CURSOR_HAND))
 
 					self._dragImage.BeginDragBounded((self.Parent.Left, ypos), 
 					                                 self, self.Parent.Parent)
@@ -51,8 +51,6 @@ class BandLabel(dabo.ui.dPanel):
 
 				self._dragImage.Move((self.Parent.Left,ypos))
 
-		else:
-			self.SetCursor(wx.NullCursor)
 
 
 	def onLeftUp(self, evt):
@@ -130,7 +128,6 @@ class Band(dabo.ui.dPanel):
 		self._objects = []
 		self._bandLabelHeight = 18
 		self.Bands = self._rw.Bands
-		print self.Bands
 		self.BackColor = (255,255,255)
 		self.Top = 100
 		self.addObject(BandLabel, "bandLabel", FontSize=9, 
@@ -165,6 +162,41 @@ class Band(dabo.ui.dPanel):
 			def initEvents(self):
 				self.bindEvent(dEvents.Paint, self.onPaint)
 				self.bindEvent(dEvents.MouseLeftClick, self.onLeftClick)
+				self.bindEvent(dEvents.MouseMove, self.onMouseMove)
+				self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
+				self.bindEvent(dEvents.MouseLeave, self.onMouseLeave)
+
+			def onMouseLeave(self, evt):
+				import wx
+				self.SetCursor(wx.NullCursor)	
+
+			def onMouseEnter(self, evt):
+				self._setMouseCursor(evt.EventData["mousePosition"])
+
+			def onMouseMove(self, evt):
+				self._setMouseCursor(evt.EventData["mousePosition"])
+
+			def _setMouseCursor(self, pos):
+				import wx
+				if self.Selected:
+					if self._mouseOnAnchor(pos):
+						self.SetCursor(wx.StockCursor(wx.CURSOR_SIZING))
+					else:
+						self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENWSE))
+				else:
+					self.SetCursor(wx.NullCursor)					
+
+			def _mouseOnAnchor(self, pos):
+				retval = False
+				for v in self._anchors.values():
+					vv = []
+					for x in range(self._anchorThickness):
+						for y in range(self._anchorThickness):
+							vv.append((v[2]+x,v[3]+y))						
+					if pos in vv:
+						retval = True
+						break
+				return retval
 
 			def onLeftClick(self, evt):
 				if not self.Selected:
@@ -201,6 +233,9 @@ class Band(dabo.ui.dPanel):
 					           "bc": ["bottom", "center", x+(.5*width), y+height-thickness],
 					           "tr": ["top", "right", x+width-thickness, y],
 					           "br": ["bottom", "right", x+width-thickness, y+height-thickness],}
+
+					self._anchors = anchors
+					self._anchorThickness = thickness
 
 					pen = dc.GetPen()
 

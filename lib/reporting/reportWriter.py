@@ -674,7 +674,7 @@ class ReportWriter(object):
 		if self.UseTestCursor:
 			try:
 				v = self.ReportForm["testcursor"]
-			except AttributeError:
+			except KeyError:
 				v = []
 		else:
 			try:
