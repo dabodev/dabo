@@ -667,18 +667,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		self.beginTransaction()
 
-		ok = True
 		for rec in recs:
 			try:
 				self.__saverow(rec)
-			except:
+			except Exception, e:
 				# Error was raised. Exit and rollback the changes
-				ok = False
-				break
-		if ok:
-			self.commitTransaction()
-		else:
-			self.rollbackTransaction()
+				self.rollbackTransaction()
+				raise dException.QueryException, e
+
+		self.commitTransaction()
 
 
 	def __saverow(self, rec):
@@ -724,7 +721,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# Call the database backend-specific code to retrieve the
 				# most recently generated PK value.
 				newPKVal = self.getLastInsertID()
-			if newrec and self.AutoPopulatePK:
 				self.setFieldVal(self.KeyField, newPKVal)
 
 			if newrec:
@@ -1066,11 +1062,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if not rec:
 			rec = self._records[self.RowNumber]
 		aFields = self.KeyField.split(",")
+
+		if k.CURSOR_MEMENTO in rec:
+			mem = rec[k.CURSOR_MEMENTO]
+			getPkVal = lambda fld: mem.getOrigVal(fld)
+		else:
+			getPkVal = lambda fld: rec[fld]
+			
 		ret = ""
 		for fld in aFields:
 			if ret:
 				ret += " AND "
-			pkVal = rec[fld]
+			pkVal = getPkVal(fld)
 			if type(pkVal) in (types.StringType, types.UnicodeType):
 				ret += tblPrefix + fld + "='" + pkVal.encode(self.Encoding) + "' "
 			else:
