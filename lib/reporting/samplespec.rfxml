@@ -1,119 +1,107 @@
-<?xml version="1.0" encoding="UTF-8" standalone="no"?>
-
-<!-- 
-
-This is a sample report form spec that I handcoded for the purpose of
-getting the XML -> Python process working in the ReportWriter. Basically,
-we want to end up with a tree of dictionaries, except in the case of the
-object list, where we want a list of objects containing dictionaries with
-each object's properties (because the relative ordering of objects is
-important for front/back placement).
-
-Currently, ReportWriter can take as its ReportForm either of:
-	
-	+ XML
-	+ tree of Python dicts
-
-The tree of dicts is the report writer's native format. Once the Report 
-Designer is alive and producing the XML (June 2005 ?), there will probably
-be little need for any user to even know about the tree of dicts option.
-
--->
-
-
 <report>
-	<title>Dabo's Favorite Artists</title>
-
-	<testcursor iid="int" cArtist="str">
-		<record iid="1" cArtist="The Clash" />
-		<record iid="2" cArtist="Queen" />
-		<record iid="3" cArtist="Metallica" />
-		<record iid="3" cArtist="The Boomtown Rats" />
-	</testcursor>
+	<detail>
+		<objects>
+			<string>
+				<expr>self.Record['cArtist']</expr>
+				<height>12</height>
+				<name>cArtist</name>
+				<type>string</type>
+				<width>329.0</width>
+				<x>59.0</x>
+				<y>5</y>
+			</string>
+		</objects>
+		<height>24.9230769231</height>
+	</detail>
 
 	<page>
-		<size>"letter"</size>
 		<orientation>"portrait"</orientation>
+		<marginBottom>".5 in"</marginBottom>
 		<marginLeft>".5 in"</marginLeft>
 		<marginRight>".5 in"</marginRight>
 		<marginTop>".5 in"</marginTop>
-		<marginBottom>".5 in"</marginBottom>
+		<size>"letter"</size>
 	</page>
-
-	<pageHeader>
-		<height>"0.5 in"</height>
-		<objects>
-			<string>
-				<expr>self.ReportForm["title"]</expr>
-				<align>"center"</align>
-				<x>"3.75 in"</x>
-				<y>"0 in"</y>
-				<hAnchor>"center"</hAnchor>
-				<width>"5 in"</width>
-				<height>".18 in"</height>
-				<borderWidth>"0 pt"</borderWidth>
-				<fontName>"Helvetica"</fontName>
-				<fontSize>14</fontSize>
-			</string>
-		</objects>
-	</pageHeader>
-
-	<pageFooter>
-		<height>"0.75 in"</height>
-		<objects>
-			<image>
-				<expr>"../../icons/dabo_lettering_250x100.png"</expr>
-				<x>self.Bands["pageFooter"]["width"]-1</x>
-				<y>"1"</y>
-				<hAnchor>"right"</hAnchor>
-				<width>"50 pt"</width>
-				<height>"20 pt"</height>
-				<mode>"scale"</mode>
-				<borderWidth>"0 pt"</borderWidth>
-				<borderColor>(.65, .23, .42)</borderColor>
-			</image>
-		</objects>
-	</pageFooter>
 
 	<pageBackground>
 		<objects>
 			<string>
-				<expr>"test"</expr>
 				<align>"left"</align>
-				<rotation>55</rotation>
-				<x>"4.25 in"</x>
-				<y>"5.5 in"</y>
-				<width>"1 in"</width>
+				<borderColor>(.1, .8, .4)</borderColor>
+				<borderWidth>".5 pt"</borderWidth>
+				<expr>"test"</expr>
+				<fillColor>(.4, .1, .3)</fillColor>
 				<fontName>"Helvetica"</fontName>
 				<fontSize>7</fontSize>
-				<fillColor>(.4, .1, .3)</fillColor>
-				<borderWidth>".5 pt"</borderWidth>
-				<borderColor>(.1, .8, .4)</borderColor>
+				<name>test1</name>
+				<rotation>55</rotation>
+				<type>string</type>
+				<width>"1 in"</width>
+				<x>"4.25 in"</x>
+				<y>"5.5 in"</y>
 			</string>
 			<rect>
-				<x>"4.25 in"</x>
-				<y>"5 in"</y>
-				<width>"1 in"</width>
-				<height>".25 in"</height>
-				<rotation>45</rotation>
-				<strokeWidth>".25 pt"</strokeWidth>
 				<fillColor>(.5, .1, .5)</fillColor>
+				<height>".25 in"</height>
+				<name>test2</name>
+				<rotation>45</rotation>
 				<strokeColor>(.7, .2, .5)</strokeColor>
 				<strokeDashArray>(2, 5, 1, 5)</strokeDashArray>
+				<strokeWidth>".25 pt"</strokeWidth>
+				<type>rect</type>
+				<width>"1 in"</width>
+				<x>"4.25 in"</x>
+				<y>"5 in"</y>
 			</rect>
 		</objects>
 	</pageBackground>
 
-	<detail>
-		<height>".25 in"</height>
+	<pageFooter>
+		<objects>
+			<image>
+				<borderColor>(.65, .23, .42)</borderColor>
+				<borderWidth>"0 pt"</borderWidth>
+				<expr>"../../icons/dabo_lettering_250x100.png"</expr>
+				<hAnchor>"right"</hAnchor>
+				<height>"20 pt"</height>
+				<mode>"scale"</mode>
+				<name>daboIcon</name>
+				<type>image</type>
+				<width>"50 pt"</width>
+				<x>self.Bands["pageFooter"]["width"]-1</x>
+				<y>"1"</y>
+			</image>
+		</objects>
+		<height>"0.75 in"</height>
+	</pageFooter>
+
+	<pageHeader>
 		<objects>
 			<string>
-				<expr>self.Record['cArtist']</expr>
-				<width>"4 in"</width>
-				<height>10</height>
-				<x>".75 in"</x>
+				<align>"center"</align>
+				<borderWidth>"0 pt"</borderWidth>
+				<expr>self.ReportForm["title"]</expr>
+				<fontName>"Helvetica"</fontName>
+				<fontSize>14</fontSize>
+				<hAnchor>"center"</hAnchor>
+				<height>".18 in"</height>
+				<name>title</name>
+				<type>string</type>
+				<width>340.0</width>
+				<x>265.0</x>
+				<y>1.0</y>
 			</string>
 		</objects>
-	</detail>
+		<height>"0.5 in"</height>
+	</pageHeader>
+
+	<testcursor cArtist="str" iid="int">
+		<record cArtist="The Clash" iid="1" />
+		<record cArtist="Queen" iid="2" />
+		<record cArtist="Metallica" iid="3" />
+		<record cArtist="The Boomtown Rats" iid="3" />
+	</testcursor>
+
+	<title>Dabo's Favorite Artists</title>
 
 </report>

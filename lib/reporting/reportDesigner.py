@@ -125,7 +125,7 @@ class Band(dabo.ui.dPanel):
 	def afterInit(self):
 		self._rd = self.Form.editor
 		self._rw = self._rd._rw
-		self._objects = []
+		self._objects = {}
 		self._bandLabelHeight = 18
 		self.Bands = self._rw.Bands
 		self.BackColor = (255,255,255)
@@ -144,13 +144,9 @@ class Band(dabo.ui.dPanel):
 
 
 	def drawObjects(self):
-		for o in self._objects:
-			o.Destroy()
-		self._objects = []
 		if self.props.has_key("objects"):
 			for obj in self.props["objects"]:
 				o = self.getObject(obj)
-				self._objects.append(o)
 	
 	def getObject(self, obj):
 		class ObjectPanel(dabo.ui.dPanel):
@@ -165,6 +161,29 @@ class Band(dabo.ui.dPanel):
 				self.bindEvent(dEvents.MouseMove, self.onMouseMove)
 				self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
 				self.bindEvent(dEvents.MouseLeave, self.onMouseLeave)
+
+			def getProp(self, prop):
+				try:
+					val = eval(self.props[prop])
+				except KeyError:
+					val = None
+				return val
+
+			def setProp(self, prop, val, sendPropsChanged=True):
+				"""Set the specified object property to the specified value.
+		
+				If setting more than one property, self.setProps() is faster.
+				"""
+				self.props[prop] = str(val)
+				if sendPropsChanged:
+					self._rd.propsChanged()
+
+			def setProps(self, propvaldict):
+				"""Set the specified object properties to the specified values."""
+				for p,v in propvaldict.items():
+					self.setProp(p, v, False)
+				self._rd.propsChanged()
+
 
 			def onMouseLeave(self, evt):
 				import wx
@@ -267,7 +286,12 @@ class Band(dabo.ui.dPanel):
 					
 			Selected = property(_getSelected)
 
-		o = ObjectPanel(self)
+		if obj["name"] not in self._objects.keys():
+			o = ObjectPanel(self)
+			self._objects[obj["name"]] = o
+		else:
+			o = self._objects[obj["name"]]
+
 		rw = self.Parent._rw
 		z = self.Parent._zoom
 
@@ -417,18 +441,11 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.Form.bindEvent(dEvents.Resize, self._onFormResize)
 		self.bindEvent(dEvents.KeyDown, self._onKeyDown)
 
-#		for key in ("Up", "Down", "Right", "Left"):
-#			for mod in ("", "Shift+", "Ctrl+", "Ctrl+Shift+"):
-#				modkey = (mod+key).lower()
-#				func = "on" + (mod+key).replace("+", "")
-#				cmd = "self.bindKey('%s', self.%s)" % (modkey, func)
-#				print cmd
-#				exec cmd
-
 	def _onKeyDown(self, evt):
+		# certain keys, like the arrow keys, are used by the designer.
 		from dabo.ui import dKeys
 		shiftDown = evt.EventData["shiftDown"]
-		ctrlDown = evt.EventData["controlDown"]
+		ctrlDown = evt.EventData["controlDown"]	 # ? handled differently? (linux at least)
 		keyCode = evt.EventData["keyCode"]
 		keys = {dKeys.key_Up: "up",
 		        dKeys.key_Down: "down", 
@@ -436,38 +453,36 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		        dKeys.key_Left: "left"}
 
 		if keys.has_key(keyCode):
+			key = keys[keyCode]
 			if len(self._selectedObjects) > 0:
 				evt.stop()  ## don't let the arrow key scroll the window
+				size, turbo = False, False
 				if shiftDown:
-					s = "shift"
+					if key in ["up", "down"]:
+						propName = "height"
+					else:
+						propName = "width"
 				else:
-					s = ""
+					if key in ["up", "down"]:
+						propName = "y"
+					else:
+						propName = "x"
+				
+				if key in ["up", "right"]:
+					adj = 1
+				else:
+					adj = -1
+				
 				if ctrlDown:
-					c = "ctrl"
-				else:
-					c = ""
-				print "arrow key: %s %s %s" % (s, c, keys[keyCode])
-			else:
-				print "no objects selected."
-		else:
-			print "not an arrow key."
-
-	def onUp(self, evt):	print "up"
-	def onShiftUp(self, evt):	print "shiftup"
-	def onCtrlUp(self, evt): print "ctrlup"
-	def onCtrlShiftUp(self, evt):	print "ctrlshiftup"
-	def onDown(self, evt):	print "down"
-	def onShiftDown(self, evt):	print "shiftdown"
-	def onCtrlDown(self, evt): print "ctrldown"
-	def onCtrlShiftDown(self, evt):	print "ctrlshiftdown"
-	def onLeft(self, evt):	print "left"
-	def onShiftLeft(self, evt):	print "shiftleft"
-	def onCtrlLeft(self, evt): print "ctrlleft"
-	def onCtrlShiftLeft(self, evt):	print "ctrlshiftleft"
-	def onRight(self, evt):	print "right"
-	def onShiftRight(self, evt):	print "shiftright"
-	def onCtrlRight(self, evt): print "ctrlright"
-	def onCtrlShiftRight(self, evt):	print "ctrlshiftright"
+					adj = adj * 10
+				
+				for o in self._selectedObjects:
+					val = o.getProp(propName)
+					if val is None:
+						val = eval("self._rw.default_%s" % propName)
+					val = self._rw.getPt(val)
+					o.setProp(propName, val+adj)
+						
 
 	def clearReportForm(self):
 		"""Called from afterInit and closeFile to clear the report form."""
