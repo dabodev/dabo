@@ -327,7 +327,7 @@ C: Popup Calendar to Select
 		elif self.dbDPat.match(val):
 			# Date-only pattern
 			year, month, day = self.dbDPat.match(val).groups()
-			hr, mn, sec = 0
+			hr = mn = sec = 0
 			# Convert to numeric
 			year = int(year)
 			month = int(month)
