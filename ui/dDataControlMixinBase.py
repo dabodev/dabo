@@ -98,7 +98,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		"""
 		if not self.DataSource or not self.DataField:
 			return
-		if self._srcIsBizobj:
+		if self.Source and self._srcIsBizobj:
 			try:
 				self.Value = self.Source.getFieldVal(self.DataField)
 				self.Enabled = self.enabled
