@@ -14,7 +14,7 @@ class dCursorMixin(dabo.common.dObject):
 			self.sql = sql
 
 		#dCursorMixin.doDefault()
-		super(dCursorMixin, self).__init__()
+		super(dCursorMixin, self).__init__(self)
 		
 		# Just in case this is used outside of the context of a bizobj
 		if not hasattr(self, "superCursor") or self.superCursor is None:
