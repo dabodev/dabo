@@ -73,7 +73,8 @@ class dDataControlMixin(pm.dPemMixin):
 				self.Enabled = self.enabled
 			except (TypeError, dException.NoRecordsException):
 				self.Value = self.getBlankValue()
-				self.Enabled = False
+				# Do we need to disable the control?
+				#self.Enabled = False
 			self._oldVal = self.Value
 			
 
