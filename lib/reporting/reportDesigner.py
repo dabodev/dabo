@@ -79,7 +79,6 @@ class BandLabel(dabo.ui.dPanel):
 		if not self.Parent.getProp("designerLock"):
 			self._dragging = True
 			self._dragStart = evt.EventData["mousePosition"]
-			print "_dragStart", self._dragStart
 			self._captureBitmap = self.getCaptureBitmap()
 
 
@@ -126,6 +125,7 @@ class BandLabel(dabo.ui.dPanel):
 
 class Band(dabo.ui.dPanel):
 	def afterInit(self):
+		self._objects = []
 		self._bandLabelHeight = 18
 		self.BackColor = (255,255,255)
 		self.Top = 100
@@ -133,6 +133,66 @@ class Band(dabo.ui.dPanel):
 		               BackColor=(215,215,215), ForeColor=(128,128,128),
 		               Height=self._bandLabelHeight)
 
+
+	def drawObjects(self):
+		for o in self._objects:
+			o.Destroy()
+		self._objects = []
+		if self.props.has_key("objects"):
+			for obj in self.props["objects"]:
+				o = self.getObject(obj)
+				self._objects.append(o)
+	
+	def getObject(self, obj):
+		class ObjectPanel(dabo.ui.dPanel): pass
+		o = ObjectPanel(self, BackColor=(23,75,111))
+		rw = self.Parent._rw
+		z = self.Parent._zoom
+
+		if obj.has_key("x"):
+			x = rw.getPt(eval(obj["x"]))
+		else:
+			x = rw.default_x
+
+		if obj.has_key("y"):
+			y = rw.getPt(eval(obj["y"]))
+		else:
+			y = rw.default_y
+		y = ((self.Height - self._bandLabelHeight)/z) - y
+
+		if obj.has_key("width"):
+			width = rw.getPt(eval(obj["width"]))
+		else:
+			width = rw.default_width
+
+		if obj.has_key("height"):
+			height = rw.getPt(eval(obj["height"]))
+		else:
+			height = rw.default_height
+
+		if obj.has_key("hAnchor"):
+			hAnchor = eval(obj["hAnchor"])
+		else:
+			hAnchor = rw.default_hAnchor
+
+		if obj.has_key("vAnchor"):
+			vAnchor = eval(obj["vAnchor"])
+		else:
+			vAnchor = rw.default_vAnchor
+
+		if hAnchor == "right":
+			x = x - width
+		elif hAnchor == "center":
+			x = x - (width/2)
+
+		if vAnchor == "top":
+			y = y + height
+		elif vAnchor == "center":
+			y = y + (height/2)
+
+		o.Size = (z*width, z*height)
+		o.Position = (z*x, (z*y) - o.Height)
+		return o
 
 	def getProp(self, prop):
 		"""Evaluate and return the specified property value."""
@@ -435,7 +495,9 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			lr.Position = (0, band.Top)
 			rr.Position = (lr.Width + pageWidth, band.Top)
 			totPageHeight = band.Top + band.Height
-	
+
+			band.drawObjects()
+
 		u = 10
 		totPageHeight = totPageHeight + mb
 

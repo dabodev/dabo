@@ -47,10 +47,10 @@ be little need for any user to even know about the tree of dicts option.
 				<expr>self.ReportForm["title"]</expr>
 				<align>"center"</align>
 				<x>"3.75 in"</x>
-				<y>".3 in"</y>
+				<y>"0 in"</y>
 				<hAnchor>"center"</hAnchor>
-				<width>"6 in"</width>
-				<height>".25 in"</height>
+				<width>"5 in"</width>
+				<height>".18 in"</height>
 				<borderWidth>"0 pt"</borderWidth>
 				<fontName>"Helvetica"</fontName>
 				<fontSize>14</fontSize>
@@ -70,8 +70,9 @@ be little need for any user to even know about the tree of dicts option.
 		<objects>
 			<string>
 				<expr>self.Record['cArtist']</expr>
-				<width>"6 in"</width>
-				<x>"1.25 in"</x>
+				<width>"4 in"</width>
+				<height>10</height>
+				<x>".75 in"</x>
 			</string>
 		</objects>
 	</detail>
