@@ -93,7 +93,7 @@ class dCursorMixin:
 		self.autoPopulatePK = autopop
 
 
-	def execute(self, sql, params=None):
+	def execute(self, sql, params=()):
 		"""
 		The idea here is to let the super class do the actual work in retrieving the data. However, 
 		many cursor classes can only return row information as a list, not as a dictionary. This
@@ -981,7 +981,27 @@ class dCursorMixin:
 		"""
 		return self._records[self.rownumber].has_key(k.CURSOR_NEWFLAG)
 	
-	
+	def getTables(self, includeSystemTables=False):
+		""" Return a tuple of tables in the current database.
+		"""
+		return self.BackendObject.getTables(includeSystemTables)
+		
+	def getTableRecordCount(self, tableName):
+		""" Get the number of records in the backend table.
+		"""
+		return self.BackendObject.getTableRecordCount(tableName)
+		
+	def getFields(self, tableName):
+		""" Get field information about the backend table.
+		
+		Returns a tuple of 3-tuples, where the outer tuple is the list
+		of fields, and the 3-tuple's elements are:
+			0: the field name (string)
+			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
+			2: boolean specifying whether this is a pk field.
+		"""
+		return self.BackendObject.getFields(tableName)
+		
 	def getLastInsertID(self):
 		""" Return the most recently generated PK """
 		ret = None
@@ -991,7 +1011,7 @@ class dCursorMixin:
 			self.__restoreProps()
 		return ret
 
-
+	
 	def formatDateTime(self, val):
 		""" Format DateTime values for the backend """
 		ret = val

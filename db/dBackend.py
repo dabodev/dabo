@@ -8,6 +8,7 @@ class dBackend(dabo.common.dObject):
 		self._baseClass = dBackend
 		dBackend.doDefault(self)
 		self.dbModuleName = None
+		self._connection = None
 
 	def isValidModule(self):
 		""" Test the dbapi to see if it is supported on this computer. 
@@ -36,13 +37,44 @@ class dBackend(dabo.common.dObject):
 		return val
 	
 	def getLastInsertID(self, cursor):
-		""" When inserting a new record in a table that auto-generates a PK
+		""" Return the ID of the last inserted row, or None.
+		
+		When inserting a new record in a table that auto-generates a PK
 		value, different databases have their own way of retrieving that value.
 		This method should be coded in backend-specific subclasses to address
 		that database's approach.
 		"""
-		return None
+		
+		# Here is some code to fall back on if the specific subclass doesn't 
+		# override.
+		try:
+			# According to PEP-0249, it is common practice for a readonly 
+			# lastrowid attribute to be added by module authors, which will
+			# keep the last-insert id. This is by no means guaranteed, though.
+			# I've confirmed that it does work for MySQLdb.
+			return cursor.lastrowid
+		except AttributeError:
+			return None
 
+	def getTables(self, includeSystemTables=False):
+		""" Return a tuple of the tables in the current database.
+		
+		Different backends will do this differently, so override in subclasses.
+		"""
+		return tuple()
+		
+	def getTableRecordCount(self, tableName):
+		""" Return the number of records in the backend table.
+		"""
+		return -1
+	
+	def getFields(self, tableName):
+		""" Return field information from the backend table.
+		
+		See dCursorMixin.getFields() for a description of the return value.			
+		"""
+		return ()
+		
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
 		pass

@@ -15,11 +15,13 @@ class MySQL(dBackend):
 		if not port:
 			port = 3306
 
-		return dbapi.connect(host=connectInfo.Host, 
-							user=connectInfo.User,
-							passwd=connectInfo.Password,
-							db=connectInfo.DbName,
-							port=port)
+		self._connection = dbapi.connect(host=connectInfo.Host, 
+				user=connectInfo.User,
+				passwd=connectInfo.Password,
+				db=connectInfo.DbName,
+				port=port)
+				
+		return self._connection
 
 	def getDictCursor(self):
 		import MySQLdb.cursors as cursors
@@ -30,11 +32,51 @@ class MySQL(dBackend):
 		sqt = "'"		# single quote
 		return "%s%s%s" % (sqt, str(val), sqt)
 		
-	def getLastInsertID(self, cursor):
-		cursor.execute("select last_insert_id() as newid")
-		ret = cursor._records[0]["newid"]
-		return ret
+	def getTables(self, includeSystemTables=False):
+		# MySQL doesn't have system tables, in the traditional sense, as 
+		# they exist in the mysql database.
+		tempCursor = self._connection.cursor()
+		tempCursor.execute("show tables")
+		rs = tempCursor.fetchall()
+		tables = []
+		for record in rs:
+			tables.append(record[0])
+		return tuple(tables)
+		
+	def getTableRecordCount(self, tableName):
+		tempCursor = self._connection.cursor()
+		tempCursor.execute("select count(*) as ncount from %s" % tableName)
+		return tempCursor.fetchall()[0][0]
 
+	def getFields(self, tableName):
+		tempCursor = self._connection.cursor()
+		tempCursor.execute("describe %s" % tableName)
+		rs = tempCursor.fetchall()
+		
+		fields = []
+		for r in rs:
+			name = r[0]
+			ft = r[1]
+			if 'int' in ft:
+				ft = 'I'
+			elif 'char' in ft :
+				ft = 'C'
+			elif 'longtext' in ft:
+				ft = 'M'
+			elif 'decimal' in ft:
+				ft = 'N'
+			elif 'datetime' in ft:
+				ft = 'T'
+			elif 'date' in ft:
+				ft = 'D'
+			else:
+				ft = "?"
+			pk = (r[3] == 'PRI')
+			
+			fields.append((name.strip(), ft, pk))
+			
+		return tuple(fields)
+		
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
 		if self.useTransactions:
