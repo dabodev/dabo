@@ -16,6 +16,7 @@ class dConnectInfo(dabo.common.dObject):
 	def __init__(self, backendName=None, host=None, user=None, 
 					password=None, dbName=None, port=None, connInfo=None):
 		self._baseClass = dConnectInfo
+		self._backendObject = None
 		#dConnectInfo.doDefault(self)
 		super(dConnectInfo, self).__init__()
 		
@@ -58,11 +59,11 @@ class dConnectInfo(dabo.common.dObject):
 	
 	
 	def getConnection(self):
-		return self.BackendObject.getConnection(self)
+		return self._backendObject.getConnection(self)
 
 	def getDictCursorClass(self):
 		try:
-			return self.BackendObject.getDictCursorClass()
+			return self._backendObject.getDictCursorClass()
 		except TypeError:
 			return None
 		
@@ -86,6 +87,9 @@ class dConnectInfo(dabo.common.dObject):
 	def revealPW(self):
 		return self.decrypt(self.Password)
 	
+	
+	def getBackendObject(self):
+		return self._backendObject
 
 	def _getBackendName(self): 
 		try:
@@ -96,7 +100,7 @@ class dConnectInfo(dabo.common.dObject):
 			
 	def _setBackendName(self, backendName):
 		""" Set the backend type for the connection if valid. """
-		_oldObject = self.BackendObject
+		_oldObject = self._backendObject
 		
 		# As other backends are coded into the framework, we will need 
 		# to expand the if/elif list.
@@ -121,7 +125,7 @@ class dConnectInfo(dabo.common.dObject):
 			else:
 				raise ValueError, "Invalid backend name: %s." % nm
 				
-			if _oldObject != self.BackendObject:
+			if _oldObject != self._backendObject:
 				self._backendName = nm
 				
 		else:
@@ -129,13 +133,6 @@ class dConnectInfo(dabo.common.dObject):
 			self._backendObject = None
 
 			
-	def _getBackendObject(self):
-		try:
-			o = self._backendObject
-		except AttributeError:
-			o, self._backendObject = None, None
-		return o
-
 	def _getHost(self): 
 		return self._host
 
@@ -175,8 +172,6 @@ class dConnectInfo(dabo.common.dObject):
 			'The password of the user. (str)')
 	DbName = property(_getDbName, _setDbName, None,
 			'The database name to login to. (str)')
-	BackendObject = property(_getBackendObject, None, None,
-			'The object reference to the database api. (obj)')
 	Port = property(_getPort, _setPort, None, 
 			'The port to connect on (may not be applicable for all databases). (int)')
 

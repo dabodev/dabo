@@ -20,20 +20,18 @@ class dConnection(dabo.common.dObject):
 		return self._connectInfo.getDictCursorClass()
 		
 	def getCursor(self, cursorClass):
-		return self.BackendObject.getCursor(cursorClass)
+		return self.getBackendObject().getCursor(cursorClass)
 
 	def _openConnection(self):
 		""" Open a connection to the database and store it for future use. """
 		return self._connectInfo.getConnection()
 	
-	def _getBackendObject(self):
+	def getBackendObject(self):
 		""" Return a reference to the connectInfo's backend-specific
 		database object.
 		"""
-		return self._connectInfo.BackendObject
-	
-	BackendObject = property(_getBackendObject, None, None,
-			"Reference to the backend-specific object")
+		return self._connectInfo.getBackendObject()
+
 
 if __name__ == "__main__":
 	from dConnectInfo import dConnectInfo

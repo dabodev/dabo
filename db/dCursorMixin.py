@@ -93,7 +93,7 @@ class dCursorMixin(dabo.common.dObject):
 		
 	
 	def setSQL(self, sql):
-		self.sql = self.BackendObject.setSQL(sql)
+		self.sql = self._getBackendObject().setSQL(sql)
 
 
 	def getSortColumn(self):
@@ -120,7 +120,7 @@ class dCursorMixin(dabo.common.dObject):
 		
 		# Make sure all Unicode charcters are properly encoded.
 		if type(sql) == types.UnicodeType:
-			sqlEX = sql.encode(self.BackendObject.Encoding)
+			sqlEX = sql.encode(self._getBackendObject().Encoding)
 		else:
 			sqlEX = sql
 
@@ -158,7 +158,7 @@ class dCursorMixin(dabo.common.dObject):
 					for i in range(0, fldcount):
 						if type(row[i]) == str:	
 							# String; convert it to unicode
-							dic[fldNames[i]] = unicode(row[i], self.BackendObject.Encoding)
+							dic[fldNames[i]] = unicode(row[i], self._getBackendObject().Encoding)
 						else:
 							dic[fldNames[i]] = row[i]
 					tmpRows.append(dic)
@@ -171,7 +171,7 @@ class dCursorMixin(dabo.common.dObject):
 						val = row[fld]
 						if type(val) == str:	
 							# String; convert it to unicode
-							row[fld]= unicode(val, self.BackendObject.Encoding)
+							row[fld]= unicode(val, self._getBackendObject().Encoding)
 			
 			# There can be a problem with the MySQLdb adapter if
 			# the mx modules are installed on the machine, the adapter
@@ -342,9 +342,10 @@ class dCursorMixin(dabo.common.dObject):
 		descFlds = self.description
 		# Get the raw version of the table
 		sql = """select * from %s where 1=0 """ % self.Table
-		self.AuxiliaryCursor.execute( sql )
+		auxCrs = self._getAuxCursor()
+		auxCrs.execute( sql )
 		# This is the clean version of the table.
-		stdFlds = self.AuxiliaryCursor.description
+		stdFlds = auxCrs.description
 
 		# Get all the fields that are not in the table.
 		self.__nonUpdateFields = [d[0] for d in descFlds 
@@ -641,7 +642,7 @@ class dCursorMixin(dabo.common.dObject):
 				sql = "update %s set %s where %s" % (self.Table, updClause, pkWhere)
 			
 			#run the update
-			res = self.AuxiliaryCursor.execute(sql)
+			res = self._getAuxCursor().execute(sql)
 			
 			if newrec and self.AutoPopulatePK:
 				# Call the database backend-specific code to retrieve the
@@ -657,7 +658,7 @@ class dCursorMixin(dabo.common.dObject):
 				if not res:
 					# Different backends may cause res to be None
 					# even if the save is successful.
-					self.BackendObject.noResultsOnSave()
+					self._getBackendObject().noResultsOnSave()
 
 	
 	def makeUpdDiff(self, rec, isnew=False):
@@ -749,11 +750,11 @@ class dCursorMixin(dabo.common.dObject):
 		else:
 			pkWhere = self.makePkWhere()
 			sql = "delete from %s where %s" % (self.Table, pkWhere)
-			res = self.AuxiliaryCursor.execute(sql)
+			res = self._getAuxCursor().execute(sql)
 
 		if not res:
 			# Nothing was deleted
-			self.BackendObject.noResultsOnDelete()
+			self._getBackendObject().noResultsOnDelete()
 		else:
 			# Delete the record from the current dataset
 			self.removeRow(delRowNum)
@@ -774,7 +775,7 @@ class dCursorMixin(dabo.common.dObject):
 		to disk even without starting a transaction. This is the method
 		to call to accomplish this.
 		"""
-		self.BackendObject.flush(self)
+		self._getBackendObject().flush(self)
 
 
 	def setDefaults(self, vals):
@@ -836,9 +837,10 @@ class dCursorMixin(dabo.common.dObject):
 						# Nothing. So just tack it on the end.
 						tmpsql = self.sql + " where 1=0 "
 
-		self.AuxiliaryCursor.execute(tmpsql)
+		auxCrs = self._getAuxCursor()
+		auxCrs.execute(tmpsql)
 
-		dscrp = self.AuxiliaryCursor.description
+		dscrp = auxCrs.description
 		for fld in dscrp:
 			fldname = fld[0]
 
@@ -990,7 +992,7 @@ class dCursorMixin(dabo.common.dObject):
 				ret += " AND "
 			pkVal = rec[fld]
 			if type(pkVal) in (types.StringType, types.UnicodeType):
-				ret += tblPrefix + fld + "='" + pkVal.encode(self.BackendObject.Encoding) + "' "
+				ret += tblPrefix + fld + "='" + pkVal.encode(self._getBackendObject().Encoding) + "' "
 			else:
 				ret += tblPrefix + fld + "=" + str(pkVal) + " "
 		return ret
@@ -1000,7 +1002,7 @@ class dCursorMixin(dabo.common.dObject):
 		""" Create the 'set field=val' section of the Update statement. 
 		"""
 		ret = ""
-		tblPrefix = self.BackendObject.getUpdateTablePrefix(self.Table)
+		tblPrefix = self._getBackendObject().getUpdateTablePrefix(self.Table)
 		
 		for fld, val in diff.items():
 			# Skip the fields that are not to be updated.
@@ -1021,26 +1023,26 @@ class dCursorMixin(dabo.common.dObject):
 
 
 	def processFields(self, txt):
-		return self.BackendObject.processFields(txt)
+		return self._getBackendObject().processFields(txt)
 		
 	
 	def escQuote(self, val):
 		""" Escape special characters in SQL strings. """
 		ret = val
 		if type(val) in (types.StringType, types.UnicodeType):
-			ret = self.BackendObject.escQuote(val)
+			ret = self._getBackendObject().escQuote(val)
 		return ret          
 
 
 	def getTables(self, includeSystemTables=False):
 		""" Return a tuple of tables in the current database.
 		"""
-		return self.BackendObject.getTables(includeSystemTables)
+		return self._getBackendObject().getTables(includeSystemTables)
 		
 	def getTableRecordCount(self, tableName):
 		""" Get the number of records in the backend table.
 		"""
-		return self.BackendObject.getTableRecordCount(tableName)
+		return self._getBackendObject().getTableRecordCount(tableName)
 		
 	def getFields(self, tableName):
 		""" Get field information about the backend table.
@@ -1050,46 +1052,46 @@ class dCursorMixin(dabo.common.dObject):
 			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
 			2: boolean specifying whether this is a pk field.
 		"""
-		return self.BackendObject.getFields(tableName)
+		return self._getBackendObject().getFields(tableName)
 		
 	def getLastInsertID(self):
 		""" Return the most recently generated PK """
 		ret = None
-		if self.BackendObject:
-			# Should we pass 'self' or 'self.AuxiliaryCursor'?
-			ret = self.BackendObject.getLastInsertID(self)
+		if self._getBackendObject():
+			# Should we pass 'self' or 'self._getAuxCursor()'?
+			ret = self._getBackendObject().getLastInsertID(self)
 		return ret
 
 	
 	def formatDateTime(self, val):
 		""" Format DateTime values for the backend """
 		ret = val
-		if self.BackendObject:
-			ret = self.BackendObject.formatDateTime(val)
+		if self._getBackendObject():
+			ret = self._getBackendObject().formatDateTime(val)
 		return ret
 
 
 	def beginTransaction(self):
 		""" Begin a SQL transaction."""
 		ret = None
-		if self.BackendObject:
-			ret = self.BackendObject.beginTransaction(self.AuxiliaryCursor)
+		if self._getBackendObject():
+			ret = self._getBackendObject().beginTransaction(self._getAuxCursor())
 		return ret
 
 
 	def commitTransaction(self):
 		""" Commit a SQL transaction."""
 		ret = None
-		if self.BackendObject:
-			ret = self.BackendObject.commitTransaction(self.AuxiliaryCursor)
+		if self._getBackendObject():
+			ret = self._getBackendObject().commitTransaction(self._getAuxCursor())
 		return ret
 
 
 	def rollbackTransaction(self):
 		""" Roll back (revert) a SQL transaction."""
 		ret = None
-		if self.BackendObject:
-			ret = self.BackendObject.rollbackTransaction(self.AuxiliaryCursor)
+		if self._getBackendObject():
+			ret = self._getBackendObject().rollbackTransaction(self._getAuxCursor())
 		return ret
 	
 
@@ -1102,13 +1104,13 @@ class dCursorMixin(dabo.common.dObject):
 	def setFieldClause(self, clause):
 		""" Set the field clause of the sql statement.
 		"""
-		self._fieldClause = self.BackendObject.setFieldClause(clause)
+		self._fieldClause = self._getBackendObject().setFieldClause(clause)
 
 	def addField(self, exp):
 		""" Add a field to the field clause.
 		"""
-		if self.BackendObject:
-			self._fieldClause = self.BackendObject.addField(self._fieldClause, exp)
+		if self._getBackendObject():
+			self._fieldClause = self._getBackendObject().addField(self._fieldClause, exp)
 
 	def getFromClause(self):
 		""" Get the from clause of the sql statement.
@@ -1118,7 +1120,7 @@ class dCursorMixin(dabo.common.dObject):
 	def setFromClause(self, clause):
 		""" Set the from clause of the sql statement.
 		"""
-		self._fromClause = self.BackendObject.setFromClause(clause)
+		self._fromClause = self._getBackendObject().setFromClause(clause)
 
 	def addFrom(self, exp):
 		""" Add a table to the sql statement.
@@ -1126,8 +1128,8 @@ class dCursorMixin(dabo.common.dObject):
 		For joins, use setFromClause() to set the entire from clause
 		explicitly.
 		"""
-		if self.BackendObject:
-			self._fromClause = self.BackendObject.addFrom(self._fromClause, exp)
+		if self._getBackendObject():
+			self._fromClause = self._getBackendObject().addFrom(self._fromClause, exp)
 
 	def getWhereClause(self):
 		""" Get the where clause of the sql statement.
@@ -1137,17 +1139,17 @@ class dCursorMixin(dabo.common.dObject):
 	def setWhereClause(self, clause):
 		""" Set the where clause of the sql statement.
 		"""
-		self._whereClause = self.BackendObject.setWhereClause(clause)
+		self._whereClause = self._getBackendObject().setWhereClause(clause)
 
 	def addWhere(self, exp, comp="and"):
 		""" Add an expression to the where clause.
 		"""
-		if self.BackendObject:
-			self._whereClause = self.BackendObject.addWhere(self._whereClause, exp, comp)
+		if self._getBackendObject():
+			self._whereClause = self._getBackendObject().addWhere(self._whereClause, exp, comp)
 
 	def prepareWhere(self, clause):
 		""" Modifies WHERE clauses as needed for each backend. """
-		return self.BackendObject.prepareWhere(clause)
+		return self._getBackendObject().prepareWhere(clause)
 		
 	def getChildFilterClause(self):
 		""" Get the child filter part of the sql statement.
@@ -1157,7 +1159,7 @@ class dCursorMixin(dabo.common.dObject):
 	def setChildFilterClause(self, clause):
 		""" Set the child filter clause of the sql statement.
 		"""
-		self._childFilterClause = self.BackendObject.setChildFilterClause(clause)
+		self._childFilterClause = self._getBackendObject().setChildFilterClause(clause)
 
 	def getGroupByClause(self):
 		""" Get the group-by clause of the sql statement.
@@ -1167,13 +1169,13 @@ class dCursorMixin(dabo.common.dObject):
 	def setGroupByClause(self, clause):
 		""" Set the group-by clause of the sql statement.
 		"""
-		self._groupByClause = self.BackendObject.setGroupByClause(clause)
+		self._groupByClause = self._getBackendObject().setGroupByClause(clause)
 
 	def addGroupBy(self, exp):
 		""" Add an expression to the group-by clause.
 		"""
-		if self.BackendObject:
-			self._groupByClause = self.BackendObject.addGroupBy(self._groupByClause, exp)
+		if self._getBackendObject():
+			self._groupByClause = self._getBackendObject().addGroupBy(self._groupByClause, exp)
 
 	def getOrderByClause(self):
 		""" Get the order-by clause of the sql statement.
@@ -1183,13 +1185,13 @@ class dCursorMixin(dabo.common.dObject):
 	def setOrderByClause(self, clause):
 		""" Set the order-by clause of the sql statement.
 		"""
-		self._orderByClause = self.BackendObject.setOrderByClause(clause)
+		self._orderByClause = self._getBackendObject().setOrderByClause(clause)
 
 	def addOrderBy(self, exp):
 		""" Add an expression to the order-by clause.
 		"""
-		if self.BackendObject:
-			self._orderByClause = self.BackendObject.addOrderBy(self._orderByClause, exp)
+		if self._getBackendObject():
+			self._orderByClause = self._getBackendObject().addOrderBy(self._orderByClause, exp)
 
 	def getLimitClause(self):
 		""" Get the limit clause of the sql statement.
@@ -1205,8 +1207,8 @@ class dCursorMixin(dabo.common.dObject):
 		""" Return the word to use in the db-specific limit clause.
 		"""
 		ret = "limit"
-		if self.BackendObject:
-			ret = self.BackendObject.getLimitWord()
+		if self._getBackendObject():
+			ret = self._getBackendObject().getLimitWord()
 		return ret
 			
 	def getLimitPosition(self):
@@ -1216,8 +1218,8 @@ class dCursorMixin(dabo.common.dObject):
 		are sufficient.
 		"""
 		ret = "bottom"
-		if self.BackendObject:
-			ret = self.BackendObject.getLimitPosition()
+		if self._getBackendObject():
+			ret = self._getBackendObject().getLimitPosition()
 		return ret			
 			
 	def getSQL(self):
@@ -1255,7 +1257,7 @@ class dCursorMixin(dabo.common.dObject):
 		else:
 			limitClause = self.getLimitWord() + " " + str(self._defaultLimit)
 
-		return self.BackendObject.formSQL(fieldClause, fromClause, 
+		return self._getBackendObject().formSQL(fieldClause, fromClause, 
 				whereClause, groupByClause, orderByClause, limitClause)
 		
 
@@ -1272,11 +1274,24 @@ class dCursorMixin(dabo.common.dObject):
 	
 	
 	def getWordMatchFormat(self):
-		return self.BackendObject.getWordMatchFormat()
+		return self._getBackendObject().getWordMatchFormat()
 
+	def _getAuxCursor(self):
+		if self.__auxCursor is None:
+			if self._cursorFactoryClass is not None:
+				if self._cursorFactoryFunc is not None:
+					self.__auxCursor = self._cursorFactoryFunc(self._cursorFactoryClass)
+		return self.__auxCursor
 	
+	def setBackendObject(self, obj):
+		self.__backend = obj
+		self._getAuxCursor().__backend = obj
+	
+	def _getBackendObject(self):
+		return self.__backend
 
 
+	## Property getter/setter methods ##
 	def _getAutoPopulatePK(self):
 		try:
 			return self._autoPopulatePK
@@ -1286,23 +1301,6 @@ class dCursorMixin(dabo.common.dObject):
 	def _setAutoPopulatePK(self, autopop):
 		self._autoPopulatePK = bool(autopop)
 		
-	def _getAuxCursor(self):
-		if self.__auxCursor is None:
-			if self._cursorFactoryClass is not None:
-				if self._cursorFactoryFunc is not None:
-					self.__auxCursor = self._cursorFactoryFunc(self._cursorFactoryClass)
-		return self.__auxCursor
-	
-	def _setAuxCursor(self, crs):
-		self.__auxCursor = crs
-
-	def _setBackendObject(self, obj):
-		self.__backend = obj
-		self.AuxiliaryCursor.__backend = obj
-	
-	def _getBackendObject(self):
-		return self.__backend
-	
 	def _getKeyField(self):
 		try:
 			return self._keyField
@@ -1311,7 +1309,7 @@ class dCursorMixin(dabo.common.dObject):
 			
 	def _setKeyField(self, kf):
 		self._keyField = str(kf)
-		self.AuxiliaryCursor._keyField = str(kf)
+		self._getAuxCursor()._keyField = str(kf)
 
 	def _setRowNumber(self, num):
 		self.__rownumber = num
@@ -1336,7 +1334,7 @@ class dCursorMixin(dabo.common.dObject):
 			
 	def _setTable(self, table):
 		self._table = str(table)
-		self.AuxiliaryCursor._table = str(table)
+		self._getAuxCursor()._table = str(table)
 		
 	def _isAdding(self):
 		""" Return True if the current record is a new record.
@@ -1347,12 +1345,6 @@ class dCursorMixin(dabo.common.dObject):
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None,
 			_("When inserting a new record, does the backend populate the PK field?")) 
 			
-	AuxiliaryCursor = property(_getAuxCursor, _setAuxCursor, None,
-			_("Cursor instance that handles all queries that should not affect the record set."))
-	
-	BackendObject = property(_getBackendObject, _setBackendObject, None,
-			_("Reference to the object that handles backend-specific actions."))
-	
 	IsAdding = property(_isAdding, None, None,
 			_("Returns True if the current record is new and unsaved"))
 			

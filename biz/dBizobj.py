@@ -24,7 +24,7 @@ class dBizobj(dabo.common.dObject):
 		"""
 		self.initProperties()
 		self.beforeInit()
-		self.Connection = conn
+		self._conn = conn
 		
 		#dBizobj.doDefault()		
 		super(dBizobj, self).__init__()
@@ -33,9 +33,10 @@ class dBizobj(dabo.common.dObject):
 		# (should be made into a property - do we have a name/value editor for the propsheet?)
 		self.defaultValues = {}
 		
-		if self.Connection:
+		cn = self._conn
+		if cn:
 			# Base cursor class : the cursor class from the db api
-			self.dbapiCursorClass = self.Connection.getDictCursorClass()
+			self.dbapiCursorClass = cn.getDictCursorClass()
 		
 			# If there are any problems in the createCursor process, an
 			# exception will be raised in that method.
@@ -158,14 +159,15 @@ class dBizobj(dabo.common.dObject):
 		if key is None:
 			key = self.__currentCursorKey
 		
-		self.__cursors[key] = self.Connection.getCursor(cursorClass)
-		self.__cursors[key].setCursorFactory(self.Connection.getCursor, cursorClass)
+		cn = self._conn
+		self.__cursors[key] = cn.getCursor(cursorClass)
+		self.__cursors[key].setCursorFactory(cn.getCursor, cursorClass)
 
 		crs = self.__cursors[key]
 		crs.KeyField = self.KeyField
 		crs.Table = self.DataSource
 		crs.AutoPopulatePK = self.AutoPopulatePK
-		crs.BackendObject = self.Connection.BackendObject
+		crs.setBackendObject(cn.getBackendObject())
 		crs.setSQL(self.SQL)
 		if self.RequeryOnLoad:
 			crs.requery()
@@ -196,7 +198,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self.Cursor.first()
+		self._getCurrentCursor().first()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
@@ -215,7 +217,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self.Cursor.prior()
+		self._getCurrentCursor().prior()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
@@ -234,7 +236,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self.Cursor.next()
+		self._getCurrentCursor().next()
 		self.requeryAllChildren()
 		
 		self.afterPointerMove()
@@ -264,20 +266,21 @@ class dBizobj(dabo.common.dObject):
 		""" Iterates through all the records of the bizobj, and calls save()
 		for any record that has pending changes.
 		"""
+		cursor = self._getCurrentCursor()
 		useTransact = startTransaction or topLevel
 		if useTransact:
 			# Tell the cursor to issue a BEGIN TRANSACTION command
-			self.Cursor.beginTransaction()
+			cursor.beginTransaction()
 		
 		try:
 			self.scan(self._saveRowIfChanged, startTransaction=False, topLevel=False)
 		except dException.dException, e:
 			if useTransact:
-				self.Cursor.rollbackTransaction()
+				cursor.rollbackTransaction()
 			raise dException.dException, e
 		
 		if useTransact:
-			self.Cursor.commitTransaction()
+			cursor.commitTransaction()
 			
 	
 	def _saveRowIfChanged(self, startTransaction, topLevel):
@@ -296,6 +299,7 @@ class dBizobj(dabo.common.dObject):
 		If the save is successful, the save() of all child bizobjs will be
 		called as well. 
 		"""
+		cursor = self._getCurrentCursor()
 		errMsg = self.beforeSave()
 		if errMsg:
 			raise dException.dException, errMsg
@@ -310,11 +314,11 @@ class dBizobj(dabo.common.dObject):
 		useTransact = startTransaction or topLevel
 		if useTransact:
 			# Tell the cursor to issue a BEGIN TRANSACTION command
-			self.Cursor.beginTransaction()
+			cursor.beginTransaction()
 
 		# OK, this actually does the saving to the database
 		try:
-			self.Cursor.save()
+			cursor.save()
 			if self.IsAdding:
 				# Call the hook method for saving new records.
 				self.onSaveNew()
@@ -327,7 +331,7 @@ class dBizobj(dabo.common.dObject):
 
 			# Finish the transaction, and requery the children if needed.
 			if useTransact:
-				self.Cursor.commitTransaction()
+				cursor.commitTransaction()
 			if self.RequeryChildOnSave:
 				self.requeryAllChildren()
 
@@ -340,13 +344,13 @@ class dBizobj(dabo.common.dObject):
 		except dException.dException, e:
 			# Something failed; reset things.
 			if useTransact:
-				self.Cursor.rollbackTransaction()
+				cursor.rollbackTransaction()
 			# Pass the exception to the UI
 			raise dException.dException, e
 
 		# Some backends (Firebird particularly) need to be told to write 
 		# their changes even if no explicit transaction was started.
-		self.Cursor.flush()
+		cursor.flush()
 		
 		# Two hook methods: one specific to Save(), and one which is called after any change
 		# to the data (either save() or delete()).
@@ -370,7 +374,7 @@ class dBizobj(dabo.common.dObject):
 			raise dException.dException, errMsg
 
 		# Tell the cursor to cancel any changes
-		self.Cursor.cancel()
+		self._getCurrentCursor().cancel()
 		# Tell each child to cancel themselves
 		for child in self.__children:
 			child.cancelAll()
@@ -383,6 +387,7 @@ class dBizobj(dabo.common.dObject):
 	def delete(self, startTransaction=False):
 		""" Delete the current row of the data set.
 		"""
+		cursor = self._getCurrentCursor()
 		errMsg = self.beforeDelete()
 		if not errMsg:
 			errMsg = self.beforePointerMove()
@@ -390,7 +395,7 @@ class dBizobj(dabo.common.dObject):
 			raise dException.dException, errMsg
 		
 		if startTransaction:
-			self.Cursor.beginTransaction()
+			cursor.beginTransaction()
 
 		if self.KeyField is None:
 			raise dException.dException, "No key field defined for table: " + self.DataSource
@@ -401,7 +406,7 @@ class dBizobj(dabo.common.dObject):
 				if child.RowCount > 0:
 					raise dException.dException, _("Deletion prohibited - there are related child records.")
 
-		self.Cursor.delete()
+		cursor.delete()
 		if self.RowCount == 0:
 			# Hook method for handling the deletion of the last record in the cursor.
 			self.onDeleteLastRecord()
@@ -416,11 +421,11 @@ class dBizobj(dabo.common.dObject):
 				child.requery()
 				
 		if startTransaction:
-			self.Cursor.commitTransaction()
+			cursor.commitTransaction()
 			
 		# Some backends (Firebird particularly) need to be told to write 
 		# their changes even if no explicit transaction was started.
-		self.Cursor.flush()
+		cursor.flush()
 		
 		self.afterPointerMove()
 		self.afterChange()
@@ -462,7 +467,7 @@ class dBizobj(dabo.common.dObject):
 		"""
 		if rownum is None:
 			rownum = self.RowNumber
-		return self.Cursor.getRecordStatus(rownum)
+		return self._getCurrentCursor().getRecordStatus(rownum)
 
 
 	def scan(self, func, *args, **kwargs):
@@ -517,7 +522,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self.Cursor.new()
+		self._getCurrentCursor().new()
 		# Hook method for things to do after a new record is created.
 		self.onNew()
 
@@ -551,7 +556,7 @@ class dBizobj(dabo.common.dObject):
 			# sql passed; set it explicitly
 			self.SQL = sql
 		# propagate the SQL downward:
-		self.Cursor.setSQL(self.SQL)
+		self._getCurrentCursor().setSQL(self.SQL)
 
 
 	def requery(self):
@@ -580,7 +585,7 @@ class dBizobj(dabo.common.dObject):
 			currPK = None
 
 		# run the requery
-		self.Cursor.requery(params)
+		self._getCurrentCursor().requery(params)
 
 		if self.RestorePositionOnRequery:
 			self._moveToPK(currPK)
@@ -603,7 +608,7 @@ class dBizobj(dabo.common.dObject):
 				val = self.escQuote(self.Parent.getFieldVal(self.ParentLinkField))
 			else:
 				val = self.escQuote(self.getParentPK())
-			self.Cursor.setChildFilterClause(" %s.%s = %s " % (self.DataSource, 
+			self._getCurrentCursor().setChildFilterClause(" %s.%s = %s " % (self.DataSource, 
 					self.LinkField, val) )
 					
 
@@ -614,7 +619,7 @@ class dBizobj(dabo.common.dObject):
 		in a particular order. All the checking on the parameters is done
 		in the cursor. 
 		"""
-		self.Cursor.sort(col, ord, caseSensitive)
+		self._getCurrentCursor().sort(col, ord, caseSensitive)
 
 
 	def setParams(self, params):
@@ -668,7 +673,7 @@ class dBizobj(dabo.common.dObject):
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
 		"""
-		self.Cursor.moveToRowNum(rownum)
+		self._getCurrentCursor().moveToRowNum(rownum)
 		if updateChildren:
 			pk = self.getPK()
 			for child in self.__children:
@@ -681,7 +686,7 @@ class dBizobj(dabo.common.dObject):
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
 		"""
-		self.Cursor.moveToPK(pk)
+		self._getCurrentCursor().moveToPK(pk)
 		if updateChildren:
 			for child in self.__children:
 				# Let the child know the current dependent PK
@@ -703,7 +708,7 @@ class dBizobj(dabo.common.dObject):
 		If runRequery is True, and the record pointer is moved, all child bizobjs
 		will be requeried, and the afterPointerMove() hook method will fire.
 		"""
-		ret = self.Cursor.seek(val, fld, caseSensitive, near)
+		ret = self._getCurrentCursor().seek(val, fld, caseSensitive, near)
 		if ret != -1:
 			if runRequery:
 				self.requeryAllChildren()
@@ -736,7 +741,7 @@ class dBizobj(dabo.common.dObject):
 		By default, only the current record is checked. Call isAnyChanged() to
 		check all records.
 		"""
-		ret = self.Cursor.isChanged(allRows = False)
+		ret = self._getCurrentCursor().isChanged(allRows = False)
 		
 		if not ret:
 			# see if any child bizobjs have changed
@@ -777,12 +782,13 @@ class dBizobj(dabo.common.dObject):
 		
 		User subclasses should leave this alone and instead override onNewHook(). 
 		"""
-		self.Cursor.setDefaults(self.defaultValues)
+		cursor = self._getCurrentCursor()
+		cursor.setDefaults(self.defaultValues)
 		
 		if self.AutoPopulatePK:
 			# Provide a temporary PK so that any linked children can be properly
 			# identified until the record is saved and a permanent PK is obtained.
-			self.Cursor.genTempAutoPK()
+			cursor.genTempAutoPK()
 		
 		# Fill in the link to the parent record
 		if self.Parent and self.FillLinkFromParent and self.LinkField:
@@ -882,7 +888,7 @@ class dBizobj(dabo.common.dObject):
 				childBiz = self.getChildByDataSource(target)
 				if not childBiz:
 					childBizClass = bizModule.__dict__["Biz" + target.title()]
-					childBiz = childBizClass(self.Connection)
+					childBiz = childBizClass(self._conn)
 					self.addChild(childBiz)
 					addedChildren.append(childBiz)
 					childBiz.LinkField = targetField
@@ -936,7 +942,7 @@ class dBizobj(dabo.common.dObject):
 		if self.KeyField is None:
 			raise dException.dException, "No key field defined for table: " + self.DataSource
 
-		return self.Cursor.getFieldVal(self.KeyField)
+		return self._getCurrentCursor().getFieldVal(self.KeyField)
 
 
 	def getParentPK(self):
@@ -954,8 +960,9 @@ class dBizobj(dabo.common.dObject):
 	def getFieldVal(self, fld):
 		""" Return the value of the specified field in the current row. 
 		"""
-		if self.Cursor is not None:
-			return self.Cursor.getFieldVal(fld)
+		cursor = self._getCurrentCursor()
+		if cursor is not None:
+			return cursor.getFieldVal(fld)
 		else:
 			return None
 
@@ -963,9 +970,10 @@ class dBizobj(dabo.common.dObject):
 	def setFieldVal(self, fld, val):
 		""" Set the value of the specified field in the current row.
 		"""
-		if self.Cursor is not None:
+		cursor = self._getCurrentCursor()
+		if cursor is not None:
 			try:
-				self.Cursor.setFieldVal(fld, val)
+				cursor.setFieldVal(fld, val)
 				return True
 			except:
 				return False
@@ -980,7 +988,7 @@ class dBizobj(dabo.common.dObject):
 		and user code can do this as well if needed, but you'll need to keep 
 		the bizobj notified of any row changes and field value changes manually.
 		"""
-		return self.Cursor.getDataSet()
+		return self._getCurrentCursor().getDataSet()
 	
 	
 	def getDataStructure(self):
@@ -990,7 +998,7 @@ class dBizobj(dabo.common.dObject):
 			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
 			2: boolean specifying whether this is a pk field.
 		"""
-		return self.Cursor.getFields(self.DataSource)
+		return self._getCurrentCursor().getFields(self.DataSource)
 
 
 	def getParams(self):
@@ -1014,7 +1022,7 @@ class dBizobj(dabo.common.dObject):
 		
 		User code should not normally call this method.
 		"""
-		self.Cursor.setMemento()
+		self._getCurrentCursor().setMemento()
 
 
 	def getChildren(self):
@@ -1044,53 +1052,60 @@ class dBizobj(dabo.common.dObject):
 		escapes backslashes, since they have special meaning in SQL parsing. 
 		Finally, wraps the value in single quotes.
 		"""
-		return self.Cursor.escQuote(val)
+		return self._getCurrentCursor().escQuote(val)
 	
 	
 	def formatDateTime(self, val):
 		""" Wrap a date or date-time value in the format 
 		required by the backend.
 		"""
-		return self.Cursor.formatDateTime(val)
+		return self._getCurrentCursor().formatDateTime(val)
 
 
 	def getNonUpdateFields(self):
-		return self.Cursor.getNonUpdateFields()
+		return self._getCurrentCursor().getNonUpdateFields()
 		
 	def setNonUpdateFields(self, fldList=[]):
-		self.Cursor.setNonUpdateFields(fldList)
+		self._getCurrentCursor().setNonUpdateFields(fldList)
 	
 	def getWordMatchFormat(self):
-		return self.Cursor.getWordMatchFormat()
+		return self._getCurrentCursor().getWordMatchFormat()
 		
+	def _getCurrentCursor(self):
+		try:
+			return self.__cursors[self.__currentCursorKey]
+		except KeyError:
+			# There is no current cursor
+			return None
+	
 		
 	########## SQL Builder interface section ##############
 	def addField(self, exp):
-		return self.Cursor.addField(exp)
+		return self._getCurrentCursor().addField(exp)
 	def addFrom(self, exp):
-		return self.Cursor.addFrom(exp)
+		return self._getCurrentCursor().addFrom(exp)
 	def addGroupBy(self, exp):
-		return self.Cursor.addGroupBy(exp)
+		return self._getCurrentCursor().addGroupBy(exp)
 	def addOrderBy(self, exp):
-		return self.Cursor.addOrderBy(exp)
+		return self._getCurrentCursor().addOrderBy(exp)
 	def addWhere(self, exp, comp="and"):
-		return self.Cursor.addWhere(exp)
+		return self._getCurrentCursor().addWhere(exp)
 	def getSQL(self):
-		return self.Cursor.getSQL()
+		return self._getCurrentCursor().getSQL()
 	def setFieldClause(self, clause):
-		return self.Cursor.setFieldClause(clause)
+		return self._getCurrentCursor().setFieldClause(clause)
 	def setFromClause(self, clause):
-		return self.Cursor.setFromClause(clause)
+		return self._getCurrentCursor().setFromClause(clause)
 	def setGroupByClause(self, clause):
-		return self.Cursor.setGroupByClause(clause)
+		return self._getCurrentCursor().setGroupByClause(clause)
 	def setLimitClause(self, clause):
-		return self.Cursor.setLimitClause(clause)
+		return self._getCurrentCursor().setLimitClause(clause)
 	def setOrderByClause(self, clause):
-		return self.Cursor.setOrderByClause(clause)
+		return self._getCurrentCursor().setOrderByClause(clause)
 	def setWhereClause(self, clause):
-		return self.Cursor.setWhereClause(clause)
+		return self._getCurrentCursor().setWhereClause(clause)
 	def prepareWhere(self, clause):
-		return self.Cursor.prepareWhere(clause)
+		return self._getCurrentCursor().prepareWhere(clause)
 		
 
 
@@ -1243,18 +1258,11 @@ class dBizobj(dabo.common.dObject):
 	def _setRestorePositionOnRequery(self, val):
 		self._restorePositionOnRequery = bool(val)
 
-	def _getCurrentCursor(self):
-		try:
-			return self.__cursors[self.__currentCursorKey]
-		except KeyError:
-			# There is no current cursor
-			return None
-	
 	def _getRowCount(self):
-		return self.Cursor.RowCount
+		return self._getCurrentCursor().RowCount
 
 	def _getRowNumber(self):
-		return self.Cursor.RowNumber
+		return self._getCurrentCursor().RowNumber
 	def _setRowNumber(self, rownum):
 		errMsg = self.beforeSetRowNumber()
 		if not errMsg:
@@ -1267,13 +1275,8 @@ class dBizobj(dabo.common.dObject):
 		self.afterSetRowNumber()
 	
 	def _isAdding(self):
-		return self.Cursor.IsAdding
+		return self._getCurrentCursor().IsAdding
 	
-	def _getConnection(self):
-		return self._conn
-	def _setConnection(self, conn):
-		self._conn = conn
-
 	
 	
 	### -------------- Property Definitions ------------------  ##
@@ -1334,11 +1337,5 @@ class dBizobj(dabo.common.dObject):
 	NonUpdateFields = property(getNonUpdateFields, setNonUpdateFields, None,
 				_("Fields in the cursor to be ignored during updates"))
 	
-	Cursor = property(_getCurrentCursor, None, None, 
-				_("Returns the reference to the currently active cursor object. Read-only."))
-	
 	IsAdding = property(_isAdding, None, None, 
 				_("Returns True if the current record is new and unsaved."))
-
-	Connection = property(_getConnection, _setConnection, None,
-				_("Reference to the connection object used to connect to the backend database."))
