@@ -10,8 +10,6 @@ class About(dabo.ui.dDialog):
 #		self.Height = 400
 		self.AutoSize = True
 		self.Centered = True
-		self.MenuBar = None
-		self.ShowStatusBar = False
 		self.Caption = "About"
 		
 	def initEvents(self):
@@ -90,8 +88,10 @@ class About(dabo.ui.dDialog):
 		
 def main():
 	app = dabo.dApp()
-	app.MainFormClass = About
+	app.MainFormClass = None
 	app.setup()
+	app.MainForm = About(None)
+	app.MainForm.show()
 	app.start()
 
 if __name__ == '__main__':

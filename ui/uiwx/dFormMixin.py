@@ -2,6 +2,7 @@
 import wx, dabo
 import dPemMixin as pm
 import dBaseMenuBar as mnb
+import dDialog
 import dMenu, dMessageBox, dabo.icons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
@@ -140,7 +141,7 @@ class dFormMixin(pm.dPemMixin):
 		Ask dApp for the last saved setting of height, width, left, and top, 
 		and set those properties on this form.
 		"""
-		if self.Application:
+		if self.Application and self.SaveUserGeometry:
 			name = self.getAbsoluteName()
 
 			left = self.Application.getUserSetting("%s.left" % name)
@@ -167,15 +168,16 @@ class dFormMixin(pm.dPemMixin):
 					except wx.PyDeadObjectError:
 						pass
 
-			name = self.getAbsoluteName()
+			if self.SaveUserGeometry:
+				name = self.getAbsoluteName()
 
-			pos = self.Position
-			size = self.Size
+				pos = self.Position
+				size = self.Size
 
-			self.Application.setUserSetting("%s.left" % name, pos[0])
-			self.Application.setUserSetting("%s.top" % name, pos[1])
-			self.Application.setUserSetting("%s.width" % name, size[0])
-			self.Application.setUserSetting("%s.height" % name, size[1])
+				self.Application.setUserSetting("%s.left" % name, pos[0])
+				self.Application.setUserSetting("%s.top" % name, pos[1])
+				self.Application.setUserSetting("%s.width" % name, size[0])
+				self.Application.setUserSetting("%s.height" % name, size[1])
 
 
 	def setStatusText(self, *args):
@@ -271,10 +273,18 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def _getMenuBar(self):
-		return self.GetMenuBar()
+		try:
+			return self.GetMenuBar()
+		except AttributeError:
+			# dDialogs don't have menu bars
+			return None
 
 	def _setMenuBar(self, val):
-		self.SetMenuBar(val)
+		try:
+			self.SetMenuBar(val)
+		except AttributeError:
+			# dDialogs don't have menu bars
+			pass
 
 	def _getMenuBarClass(self):
 		try:
@@ -286,6 +296,18 @@ class dFormMixin(pm.dPemMixin):
 	def _setMenuBarClass(self, val):
 		self._menuBarClass = val
 		
+
+	def _getSaveUserGeometry(self):
+		try:
+			val = self._saveUserGeometry
+		except AttributeError:
+			val = self._saveUserGeometry = not isinstance(self, dDialog.dDialog)
+		return val
+	
+	def _setSaveUserGeometry(self, val):
+		self._saveUserGeometry = val
+
+
 	def _getShowCloseButton(self):
 		return self.hasWindowStyleFlag(wx.CLOSE_BOX)
 	def _setShowCloseButton(self, value):
@@ -381,6 +403,11 @@ class dFormMixin(pm.dPemMixin):
 
 	MenuBarClass = property(_getMenuBarClass, _setMenuBarClass, None,
 		_("Specifies the menu bar class to use for the form, or None."))
+
+	SaveUserGeometry = property(_getSaveUserGeometry, _setSaveUserGeometry, None,
+		_("""Specifies whether the form's position and size as set by the user
+			will get saved and restored in the next session. Default is True for
+			forms and False for dialogs."""))
 		
 	ShowCaption = property(_getShowCaption, _setShowCaption, None,
 		_("Specifies whether the caption is displayed in the title bar. (bool)."))
