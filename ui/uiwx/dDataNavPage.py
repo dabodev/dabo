@@ -383,7 +383,6 @@ class dSelectPage(DataNavPage):
 
 	def requery(self):
 		frm = self.Form
-		frm.activeControlValid()
 		bizobj = frm.getBizobj()
 		ret = False
 		if bizobj is not None:
