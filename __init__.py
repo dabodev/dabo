@@ -70,4 +70,4 @@
     ToDo: pointers to get started.
                             
 '''
-from app import App
+from app import dApp
