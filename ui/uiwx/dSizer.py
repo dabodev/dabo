@@ -41,6 +41,13 @@ class dSizer(wx.BoxSizer):
 			sizer.append(object, "expand")
 			
 		"""
+		if type(layout) == type(0):
+			# proportion was passed first
+			layout, proportion = proportion, layout
+			# in case layout wasn't specified
+			if type(layout) == type(0):
+				layout = "normal"
+		
 		if type(item) == type(tuple()):
 			# spacer
 			self.Add(item)
@@ -82,6 +89,13 @@ class dSizer(wx.BoxSizer):
 			sizer.insert(index, object, "expand")
 			
 		"""
+		if type(layout) == type(0):
+			# proportion was passed first
+			layout, proportion = proportion, layout
+			# in case layout wasn't specified
+			if type(layout) == type(0):
+				layout = "normal"
+		
 		if type(item) == type(tuple()):
 			# spacer
 			self.Insert(index, item)
@@ -109,13 +123,17 @@ class dSizer(wx.BoxSizer):
 
 		
 	def _getWxFlags(self, alignment, borderFlags, layout):
+		# If alignment is passed as a single string instead of a tuple, 
+		# convert it.
+		if type(alignment) == type(""):
+			alignment = (alignment, )
 		_wxFlags = 0
 		for flag in [flag.lower() for flag in alignment]:
 			if flag == "left":
 				_wxFlags = _wxFlags | wx.ALIGN_LEFT
 			elif flag == "right":
 				_wxFlags = _wxFlags | wx.ALIGN_RIGHT
-			elif flag == "center":
+			elif flag in ("center", "centre"):
 				_wxFlags = _wxFlags | wx.ALIGN_CENTER
 			elif flag == "top":
 				_wxFlags = _wxFlags | wx.ALIGN_TOP
