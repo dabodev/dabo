@@ -49,6 +49,22 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	
 	def __onWxKeyDown(self, evt):
 		self.raiseEvent(dEvents.KeyDown, evt)
+		
+	def _getSelected(self):
+		ret = []
+		pos = -1
+		while True:
+			indx = self.GetNextItem(pos, wx.LIST_NEXT_ALL, wx.LIST_STATE_SELECTED)
+			if indx == -1:
+				break
+			pos = indx
+			ret.append(indx)
+		return ret
+	def _setSelected(self, selList):
+		for id in selList:
+			self.propList.SetItemState(id, wx.LIST_STATE_SELECTED, 
+					wx.LIST_STATE_SELECTED)
+
 
 	def _getValue(self):
 		ret = None
@@ -62,8 +78,13 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		elif type(val) in (str, unicode):
 			self.Select(self.FindItem(-1, val))
 
+	SelectedIndices = property(_getSelected, _setSelected, None, 
+			"Returns a list of selected row indices.  (list of int)")
+			
 	Value = property(_getValue, _setValue, None,
 		"Returns current value (str)" )
+		
+		
 			
 if __name__ == "__main__":
 	import test
