@@ -26,7 +26,7 @@ from dLabel import dLabel
 from dMainMenuBar import dMainMenuBar
 from dMenuBar import dMenuBar
 from dMenu import dMenu
-from dOptionGroup import dOptionGroup
+from dRadioGroup import dRadioGroup
 from dPanel import dPanel
 from dPageFrame import dPageFrame
 from dPage import dPage
@@ -36,8 +36,8 @@ from dTreeView import dTreeView
 
 # Tell Dabo Designer what classes to put in the selection menu:
 __dClasses = [dCheckBox, dCommandButton, dEditBox, dForm,
-		dFormDataNav, dFormMain, dLabel, dOptionGroup, dPanel, 
-		dPageFrame, dPage, dSpinner, dTextBox]
+		dFormDataNav, dFormMain, dLabel, dPanel, 
+		dPageFrame, dPage, dRadioGroup, dSpinner, dTextBox]
 
 daboDesignerClasses = []
 for __classRef in __dClasses:

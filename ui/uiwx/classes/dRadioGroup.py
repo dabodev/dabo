@@ -2,12 +2,12 @@ import wx
 import dControlMixin as cm
 import dDataControlMixin as dcm
 
-class dOptionGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
+class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 	''' Allows choosing one option from a list of options.
 	'''
-	def __init__(self, parent, id=-1, label='', name="dOptionGroup", style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, label='', name="dRadioGroup", style=0, *args, **kwargs):
 
-		self._baseClass = dOptionGroup
+		self._baseClass = dRadioGroup
 
 		pre = wx.PreRadioBox()
 		self.beforeInit(pre)                  # defined in dPemMixin
@@ -32,10 +32,6 @@ class dOptionGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 		self.afterInit()                      # defined in dPemMixin
 
 
-	def afterInit(self):
-		dOptionGroup.doDefault()
-
-
 	def initEvents(self):
 		# init the common events:
 		cm.dControlMixin.initEvents(self)
@@ -50,7 +46,7 @@ class dOptionGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 
 
 	def getPropertyInfo(self, name):
-		d = dOptionGroup.doDefault(name)
+		d = dRadioGroup.doDefault(name)
 		if not d['preInitProperty']:
 			d['preInitProperty'] = name in ('MaxElements', 'Element', 'OptionList')
 		return d
@@ -115,7 +111,7 @@ class dOptionGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 	# Property definitions:
 	MaxElements = property(_getMaxElements, _setMaxElements, None,
 						'Specifies the maximum rows, if Element=="Row", or the maximum columns, '
-						'if Element=="Column". When the max is reached, the option group will grow '
+						'if Element=="Column". When the max is reached, the radio group will grow '
 						'in the opposite direction to accomodate. Read-only at runtime. (int).')
 	
 	Element = property(_getElement, _setElement, None,
@@ -133,6 +129,6 @@ class dOptionGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 
 if __name__ == "__main__":
 	import test
-	class c(dOptionGroup):
+	class c(dRadioGroup):
 		def OnSelect(self, event): print "OnSelect!"
 	test.Test().runTest(c)
