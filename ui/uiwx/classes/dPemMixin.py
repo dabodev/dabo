@@ -1,7 +1,7 @@
 ''' dPemMixin.py: Provide common PEM functionality '''
-import wx, sys
+import wx, sys, dabo.common
 
-class dPemMixin(object):
+class dPemMixin(dabo.common.DoDefaultMixin):
 	''' Provide Property/Event/Method interfaces for dForms and dControls.
 
 	Subclasses can extend the property sheet by defining their own get/set
@@ -23,26 +23,7 @@ class dPemMixin(object):
 		else:
 			return ret
 
-
-	def doDefault(cls, *args, **kwargs):
-		''' A much simpler way to call superclass methods than super().
-
-		The python super(type,ref).method(args) syntax is really convoluted,
-		so this doDefault() is a wrapper for that that constructs the super()
-		call on behalf of the caller.
-
-		Where you would use:
-			super(cls,obj).method([args]),
-		instead use:
-			cls.doDefault([args])
-		'''
-		frame = sys._getframe(1)
-		self = frame.f_locals['self']
-		methodName = frame.f_code.co_name
-		return eval('super(cls, self).%s(*args, **kwargs)' % methodName)
-	doDefault = classmethod(doDefault)
-
-
+	
 	def beforeInit(self, preCreateObject):
 		''' Called before the wx object is fully instantiated.
 
