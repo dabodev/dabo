@@ -8,7 +8,22 @@ import dabo.dException as dException
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+# Controls for the select page:
+class SelectTextBox(dTextBox.dTextBox):
+	def initProperties(self):
+		SelectTextBox.doDefault()
+		self.SaveRestoreValue = True
 
+class SelectCheckBox(dCheckBox.dCheckBox):
+	def initProperties(self):
+		SelectCheckBox.doDefault()
+		self.SaveRestoreValue = True
+
+class SelectDateTextBox(dDateTextBox.dDateTextBox):
+	def initProperties(self):
+		SelectDateTextBox.doDefault()
+		self.SaveRestoreValue = True
+		
 class OutlineBoxSizer(wx.BoxSizer):
 	def __init__(self, win, *args, **kwargs):
 		wx.BoxSizer.__init__(self, *args, **kwargs)
@@ -136,24 +151,9 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 		
 	def onChoiceMade(self, evt):
 		if self.target is not None:
-			try:
-				# If this has been cleared, clear the target field, too
-				if "-ignore-" in self.GetStringSelection():
-					valtype = type(self.target.Value)
-					if valtype == type(""):
-						self.target.Value = ""
-					if valtype == type(u""):
-						self.target.Value = u""
-					elif valtype == type(True):
-						self.target.Value = False
-					if valtype == type(0):
-						self.target.Value = 0
-					if valtype == type(0.0):
-						self.target.Value = 0.0
-				else:
-					# A comparison op was selected; let 'em enter a value
-					self.target.SetFocus()
-			except: pass
+			if "-ignore-" not in self.GetStringSelection():
+				# A comparison op was selected; let 'em enter a value
+				self.target.SetFocus()
 
 
 class sortLabel(dLabel.dLabel):
@@ -493,13 +493,13 @@ class dSelectPage(DataNavPage):
 		"""Returns the appropriate editing control for the given data type.
 		"""
 		if typ in ("char", "memo", "float", "int", "datetime"):
-			ret = dTextBox.dTextBox(parent)
-			ret.Value = ""
+			ret = SelectTextBox(parent)
 		elif typ == "bool":
-			ret = dCheckBox.dCheckBox(parent)
-			ret.Caption = ""
+			ret = SelectCheckBox(parent)
 		elif typ == "date":
-			ret = dDateTextBox.dDateTextBox(parent)
+			ret = SelectDateTextBox(parent)
+		else:
+			ret = None
 		return ret
 	
 	

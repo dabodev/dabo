@@ -199,12 +199,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if app:
 			name = self.getAbsoluteName()
 			value = app.getUserSetting("%s.Value" % name)
-
-			try:
-				self.Value = value
-			except TypeError:
-				self.Value = self.getBlankValue()		
-			self._oldVal = self.Value
+			
+			if value is not None:
+				try:
+					self.Value = value
+				except TypeError:
+					self.Value = self.getBlankValue()		
+				self._oldVal = self.Value
 			
 			
 	def getShortDataType(self, value):
