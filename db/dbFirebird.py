@@ -167,13 +167,14 @@ class Firebird(dBackend):
 		#return Firebird.doDefault(cursor)
 		super(Firebird, self).getLastInsertID(cursor)
 
-	def beginTransaction(self, cursor):
-		""" Begin a SQL transaction."""
-		cursor.execute("SET TRANSACTION")
+	# Looks like Firebird doesn't like explicit calls to begin the transaction
+# 	def beginTransaction(self, cursor):
+# 		""" Begin a SQL transaction."""
+# 		res = cursor.execute("BEGIN")
 
 	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
-		cursor.execute("COMMIT")
+		res=cursor.execute("COMMIT")
 
 	def rollbackTransaction(self, cursor):
 		""" Roll back (revert) a SQL transaction."""
@@ -200,9 +201,10 @@ class Firebird(dBackend):
 	def massageDescription(self, cursor):
 		"""Force all the field names to lower case."""
 		dd = cursor.description
-		cursor.description = tuple([(elem[0].lower(), elem[1], elem[2], 
-				elem[3], elem[4], elem[5], elem[6]) 
-				for elem in dd])
+		if dd:
+			cursor.description = tuple([(elem[0].lower(), elem[1], elem[2], 
+					elem[3], elem[4], elem[5], elem[6]) 
+					for elem in dd])
 		
 	
 

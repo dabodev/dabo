@@ -665,8 +665,20 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		else:
 			recs = (self._records[self.RowNumber],)
 
+		self.beginTransaction()
+
+		ok = True
 		for rec in recs:
-			self.__saverow(rec)
+			try:
+				self.__saverow(rec)
+			except:
+				# Error was raised. Exit and rollback the changes
+				ok = False
+				exit
+		if ok:
+			self.commitTransaction()
+		else:
+			self.rollbackTransaction()
 
 
 	def __saverow(self, rec):
