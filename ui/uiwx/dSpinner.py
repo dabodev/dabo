@@ -23,6 +23,12 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 		self.Bind(wx.EVT_SPINCTRL, self._onWxHit)
 		
 
+	def _preInitUI(self, kwargs):
+		# Force the use of arrow keys
+		kwargs["style"] = kwargs["style"] | wx.SP_ARROW_KEYS
+		return kwargs
+
+		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getMax(self):
@@ -46,25 +52,16 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 		if value:
 			self.addWindowStyleFlag(wx.SP_WRAP)
 
-	def _getSpinnerArrowKeys(self):
-		return self.hasWindowStyleFlag(wx.SP_ARROW_KEYS)
-	def _setSpinnerArrowKeys(self, value):
-		self.delWindowStyleFlag(wx.SP_ARROW_KEYS)
-		if value:
-			self.addWindowStyleFlag(wx.SP_ARROW_KEYS)
-
 	# Property definitions:
 	Min = property(_getMin, _setMin, None, 
-						'Specifies the lowest possible value for the spinner. (int)')
+		"Specifies the lowest possible value for the spinner. (int)")
 
 	Max = property(_getMax, _setMax, None, 
-						'Specifies the highest possible value for the spinner. (int)')
+		"Specifies the highest possible value for the spinner. (int)")
 
 	SpinnerWrap = property(_getSpinnerWrap, _setSpinnerWrap, None,
-						'Specifies whether the spinner value wraps at the high/low value. (bool)')
+		"Specifies whether the spinner value wraps at the high/low value. (bool)")
 
-	SpinnerArrowKeys = property(_getSpinnerArrowKeys, _setSpinnerArrowKeys, None,
-						'Specifies whether the user can use the arrow keys to increment. (bool)')
 
 if __name__ == "__main__":
 	import test

@@ -97,7 +97,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 
 
 if __name__ == "__main__":
-	import test, dTextBox
+	import test
 	class c(dBitmapButton):
 		def afterInit(self):
 			# Demonstrate that the Picture props are working.
