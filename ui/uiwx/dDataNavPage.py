@@ -22,7 +22,7 @@ class DataNavPage(dPage.dPage):
 	def afterInit(self):
 		DataNavPage.doDefault()
 		# Needed for drawing sizer outlines
-		self.drawSizerOutlines = False
+		self.redrawOutlines = self.drawSizerOutlines = False
 		self.Bind(wx.EVT_SIZE, self.onSize)
 		self.Bind(wx.EVT_IDLE, self.onIdle)
 
@@ -99,7 +99,9 @@ class DataNavPage(dPage.dPage):
  				y2 += hh+vgap
  				clr = random.choice(colors)
  				dc.SetPen(wx.Pen(clr, 1, wx.SOLID))
- 				
+ 
+ 	def onEnterPage(self): pass
+
 			
 		
 class SelectOptionsPanel(dPanel.dPanel):
@@ -151,6 +153,10 @@ class dSelectPage(DataNavPage):
 		# Holds info which will be used to create the dynamic
 		# WHERE clause based on user input
 		self.selectFields = {}
+
+
+	def onEnterPage(self):
+		dSelectPage.doDefault()
 
 
 	def createItems(self):

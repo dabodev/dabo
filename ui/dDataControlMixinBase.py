@@ -40,7 +40,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def getBlankValue(self):
 		""" Return the empty value of the control.
 		"""
-		if isinstance(self, dabo.ui.dTextBox, dabo.ui.dEditBox):
+		if isinstance(self, (dabo.ui.dTextBox, dabo.ui.dEditBox) ):
 			return ""
 		elif isinstance(self, dabo.ui.dCheckBox):
 			return False
