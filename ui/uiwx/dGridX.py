@@ -366,7 +366,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._hdr = None
 		self.fieldSpecs = {}
 		# This value is in miliseconds
-		self._searchDelay = 300
+		self._searchDelay = 600
+		# When doing an incremental search, do we stop
+		# at the nearest matching value?
+		self.searchNearest = True
+		# Do we do case-sensitive incremental searches?
+		self.searchCaseSensitive = False
 		# How many characters of strings do we display?
 		self.stringDisplayLen = 64
 		
@@ -608,7 +613,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if len(self.currSearchStr) > 0:
 			self.runIncSearch()
 		else:
-			self.incSearchTimer.Stop()
+			self.incSearchTimer.stop()
 
 
 	def onHeaderMotion(self, evt):
@@ -826,22 +831,80 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def runIncSearch(self):
 		""" Run the incremental search.
 		"""
-		gridCol = self.GetGridCursorCol()
+		gridCol = self.CurrCol
 		if gridCol < 0:
 			gridCol = 0
-		cursorCol = self.GetTable().colNames[gridCol]
+		fld = self.Columns[gridCol].Field
+		if self.RowCount <= 0:
+			# Nothing to seek within!
+			return
+		newRow = self.CurrRow
+		ds = self.getDataSet()
+		srchStr = self.currSearchStr
+		near = self.searchNearest
+		caseSensitive = self.searchCaseSensitive
+		# Copy the specified field vals and their row numbers to a list, and 
+		# add those lists to the sort list
+		sortList = []
+		for i in range(0, self.RowCount):
+			sortList.append( [ds[i][fld], i] )
 
-		row = self.Form.getBizobj(self.DataSource).seek(self.currSearchStr, cursorCol, 
-								caseSensitive=False, near=True)
+		# Determine if we are seeking string values
+		compString = type(sortList[0][0]) in (str, unicode)
+		if not compString:
+			# coerce srchStr to be the same type as the field type
+			if type(sortList[0][0]) == int:
+				try:
+					srchStr = int(srchStr)
+				except ValueError:
+					srchStr = int(0)
+			elif type(sortList[0][0]) == long:
+				try:
+					srchStr = long(srchStr)
+				except ValueError:
+					srchStr = long(0)
+			elif type(sortList[0][0]) == float:
+				try:
+					srchStr = float(srchStr)
+				except ValueError:
+					srchStr = float(0)
 
-		if row > -1:
-			self.SetGridCursor(row, gridCol)
-			self.MakeCellVisible(row, gridCol)
+		if compString and not caseSensitive:
+			# Use a case-insensitive sort.
+			sortList.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
+		else:
+			sortList.sort()
+
+		# Now iterate through the list to find the matching value. I know that 
+		# there are more efficient search algorithms, but for this purpose, we'll
+		# just use brute force
+		for fldval, row in sortList:
+			if not compString or caseSensitive:
+				match = (fldval == srchStr)
+			else:
+				# Case-insensitive string search.
+				match = (fldval.lower() == srchStr.lower())
+			if match:
+				newRow = row
+				break
+			else:
+				if near:
+					newRow = row
+				# If we are doing a near search, see if the row is less than the
+				# requested matching value. If so, update the value of 'ret'. If not,
+				# we have passed the matching value, so there's no point in 
+				# continuing the search, but we mu
+				if compString and not caseSensitive:
+					toofar = fldval.lower() > srchStr.lower()
+				else:
+					toofar = fldval > srchStr
+				if toofar:
+					break
+		self.CurrRow = newRow
 
 		# Add a '.' to the status bar to signify that the search is
 		# done, and clear the search string for next time.
-		self.Form.setStatusText("Search: %s."
-				% self.currSearchStr)
+		self.Form.setStatusText("Search: %s." % self.currSearchStr)
 		self.currSearchStr = ""
 
 
@@ -851,13 +914,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		Called by KeyDown when the user pressed an alphanumeric key. Add the 
 		key to the current search and start the timer.        
 		"""
-		self.incSearchTimer.Stop()
-
+		self.incSearchTimer.stop()
 		self.currSearchStr = "".join((self.currSearchStr, key))
 		self.Form.setStatusText("Search: %s"
 				% self.currSearchStr)
-
-		self.incSearchTimer.Start(self.SearchDelay)
+		self.incSearchTimer.start(self.SearchDelay)
 
 
 	def popupMenu(self):
@@ -1119,7 +1180,7 @@ if __name__ == '__main__':
 			g = self.grid = dGrid(self)
 			self.Sizer.append(g, 1, "x", border=40, borderFlags="all")
 			
-			self.dataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
+			g.dataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
 					{"name" : "Mike Leafe", "age" : 18, "coder" :  False} ]
 
 			col = dColumn(g)
