@@ -6,10 +6,11 @@ if __name__ == "__main__":
 import dControlMixin as cm
 
 class dGrid(wx.grid.Grid, cm.dControlMixin):
-	def __init__(self, parent, id=-1, style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, style=0, properties=None, *args, **kwargs):
 
 		self._baseClass = dGrid
-		name, _explicitName = self._processName(kwargs, "dGrid")
+		properties = self.extractKeywordProperties(kwargs, properties)
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 
 		# no 3-stage create for grids
 		#pre = wx.PreGrid()
@@ -26,6 +27,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# problem (because there is code in the Size property to also set MinSize).
 		self.Size = ((0,0))
 		
+		self.setProperties(properties)
 		self._afterInit()
 
 		

@@ -8,10 +8,12 @@ import dControlMixin as cm
 class dLabel(wx.StaticText, cm.dControlMixin):
 	""" Create a static (not data-aware) label.
 	"""
-	def __init__(self, parent, id=-1, label="", caption="", style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, label="", caption="", style=0, 
+		properties=None, *args, **kwargs):
 
 		self._baseClass = dLabel
-		name, _explicitName = self._processName(kwargs, "dLabel")
+		properties = self.extractKeywordProperties(kwargs, properties)
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 
 		pre = wx.PreStaticText()
 		self._beforeInit(pre)
@@ -24,6 +26,8 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
+		
+		self.setProperties(properties)
 		self._afterInit()
 
 

@@ -18,9 +18,11 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 	# also allow the timer to have visual representation in the designer
 	# (but we need to design a bitmap) while being invisible at runtime.
 	
-	def __init__(self, parent, *args, **kwargs):
+	def __init__(self, parent, properties=None, *args, **kwargs):
+		
 		self._baseClass = dTimer
-		name, _explicitName = self._processName(kwargs, "dTimer")
+		properties = self.extractKeywordProperties(kwargs, properties)
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 
 		self._beforeInit(None)
 		# no 2-stage creation for Timers
@@ -35,6 +37,7 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 
 		dControlMixin.dControlMixin.__init__(self, name, _explicitName=_explicitName)
 		
+		self.setProperties(properties)
 		self._afterInit()
 		
 		

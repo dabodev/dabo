@@ -12,10 +12,11 @@ from dabo.dLocalize import _
 class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 	""" Allows editing of string or unicode data of unlimited length.
 	"""
-	def __init__(self, parent, id=-1, style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, style=0, properties=None, *args, **kwargs):
 
 		self._baseClass = dEditBox
-		name, _explicitName = self._processName(kwargs, "dEditBox")
+		properties = self.extractKeywordProperties(kwargs, properties)
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 
 		style = style | wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.TE_LINEWRAP
 
@@ -26,6 +27,8 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		self.PostCreate(pre)
 		
 		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
+		
+		self.setProperties(properties)
 		self._afterInit()
 
 

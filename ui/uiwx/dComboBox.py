@@ -10,11 +10,11 @@ class dComboBox(wx.ComboBox, dcm.dDataControlMixin):
 	well as a textbox where they can enter their own value.
 	"""
 	def __init__(self, parent, id=-1, pos=wx.DefaultPosition, size=wx.DefaultSize, 
-			choices=["Dabo", "Default"], style=0, *args, **kwargs):
-
-		self._baseClass = dComboBox
+			choices=["Dabo", "Default"], style=0, properties=None, *args, **kwargs):
 		
-		name, _explicitName = self._processName(kwargs, "dComboBox")
+		self._baseClass = dComboBox
+		properties = self.extractKeywordProperties(kwargs, properties)
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 
 		pre = wx.PreComboBox()
 		self._beforeInit(pre)
@@ -24,6 +24,8 @@ class dComboBox(wx.ComboBox, dcm.dDataControlMixin):
 		self.PostCreate(pre)
 
 		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
+		
+		self.setProperties(properties)
 		self._afterInit()
 
 

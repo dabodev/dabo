@@ -2,6 +2,21 @@ class PropertyHelperMixin(object):
 	""" Helper functions for getting information on class properties.
 	"""
 
+	def extractKeywordProperties(self, kwdict, propdict):
+		""" Called from __init__: puts any property keyword arguments into
+		the property dictionary, so that __init__ can pass that dict to 
+		setProperties() when appropriate (and so the property keywords are
+		removed before sending **kwargs to the wx constructor).
+		"""
+		if propdict is None:
+			propdict = {}
+		props = self.getPropertyList()
+		for arg in kwdict.keys():
+			if arg in props:
+				propdict[arg] = kwdict[arg]
+				del kwdict[arg]
+		return propdict
+				
 	def getProperties(self, propertySequence=(), *propertyArguments):
 		""" Returns a dictionary of property name/value pairs.
 		

@@ -47,8 +47,7 @@ class dDateTextBox(dTextBox.dTextBox):
 	by Quicken, the popular personal finance program.
 	"""
 	def __init__(self, parent, id=-1, style=0, *args, **kwargs):
-		#dDateTextBox.doDefault(parent, id, name, style, *args, **kwargs)
-		name, _explicitName = self._processName(kwargs, "dDateTextBox")
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 		kwargs["name"] = name
 		kwargs["_explicitName"] = _explicitName
 		super(dDateTextBox, self).__init__(parent, id, style, *args, **kwargs)

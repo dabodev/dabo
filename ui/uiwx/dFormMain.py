@@ -26,8 +26,11 @@ else:
 class dFormMain(wxFrameClass, fm.dFormMixin):
 	""" This is the main top-level form for the application.
 	"""
-	def __init__(self):
+	def __init__(self, properties=None, *args, **kwargs):
+	
 		self._baseClass = dFormMain
+		properties = self.extractKeywordProperties(kwargs, properties)
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 
 		pre = wxPreFrameClass()
 		self._beforeInit(pre)
@@ -48,6 +51,7 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 		self.Sizer = dSizer.dSizer("vertical")
 		self.Sizer.layout()
 
+		self.setProperties(properties)
 		self._afterInit()
 		
 	def afterInit(self):

@@ -9,10 +9,12 @@ from dabo.dLocalize import _
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	""" Allows editing one line of string or unicode data.
 	"""
-	def __init__(self, parent, id=-1, password=False, style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, password=False, style=0, 
+		properties=None, *args, **kwargs):
 
 		self._baseClass = dTextBox
-		name, _explicitName = self._processName(kwargs, "dTextBox")
+		properties = self.extractKeywordProperties(kwargs, properties)
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 
 		# Handles different value types
 		self.valueType = types.StringType
@@ -28,6 +30,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
 		
+		self.setProperties(properties)
 		self._afterInit()
 
 		

@@ -32,9 +32,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
 	like next(), last(), save(), and requery().
 	"""
-	def __init__(self, parent=None, id=-1, title='', *args, **kwargs):
+	def __init__(self, parent=None, id=-1, title='', properties=None, *args, **kwargs):
+		
 		self._baseClass = dForm
-		name, _explicitName = self._processName(kwargs, "dForm")
+		properties = self.extractKeywordProperties(kwargs, properties)
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 		
 		if parent:
 			style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT
@@ -80,6 +82,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		# trying to overwrite it
 		self._holdStatusText = ""
 
+		self.setProperties(properties)
 		self._afterInit()                      # defined in dPemMixin
 
 

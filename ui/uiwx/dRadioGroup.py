@@ -11,10 +11,11 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	""" Allows choosing one option from a list of options.
 	"""
 	def __init__(self, parent, id=-1, label='', 
-		choices=['Option A', 'Option B'], style=0, *args, **kwargs):
+		choices=['Option A', 'Option B'], style=0, properties=None, *args, **kwargs):
 
 		self._baseClass = dRadioGroup
-		name, _explicitName = self._processName(kwargs, "dRadioGroup")
+		properties = self.extractKeywordProperties(kwargs, properties)
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 
 		pre = wx.PreRadioBox()
 		self._beforeInit(pre)                  # defined in dPemMixin
@@ -30,6 +31,8 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		self.PostCreate(pre)
 
 		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
+		
+		self.setProperties(properties)
 		self._afterInit()                      # defined in dPemMixin
 
 

@@ -12,14 +12,15 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 	""" Create a container for an unlimited number of pages.
 	"""
 	def __init__(self, parent, id=-1, pos=wx.DefaultPosition,
-			size=wx.DefaultSize, style=0, name='dPageFrame'):
+			size=wx.DefaultSize, style=0, properties=None, *args, **kwargs):
 
-		self._baseClass = dPageFrame
+		properties = self.extractKeywordProperties(kwargs, properties)
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 
 		pre = wx.PreNotebook()
 		self._beforeInit(pre)
 		style = style | pre.GetWindowStyle()
-		pre.Create(parent, id, pos, size, style, name)
+		pre.Create(parent, id, pos, size, style, *args, **kwargs)
 
 		self.PostCreate(pre)
 		

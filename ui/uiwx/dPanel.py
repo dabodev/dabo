@@ -13,11 +13,12 @@ class dPanel(wx.Panel, dControlMixin.dControlMixin):
 	instead, and then adding the panel to the form.
 	"""
 
-	def __init__(self, parent, id=-1, style=wx.TAB_TRAVERSAL, *args, **kwargs):
+	def __init__(self, parent, id=-1, style=wx.TAB_TRAVERSAL, 
+		properties=None, *args, **kwargs):
 
 		self._baseClass = dPanel
-
-		name, _explicitName = self._processName(kwargs, "dPanel")
+		properties = self.extractKeywordProperties(kwargs, properties)
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 		
 		pre = wx.PrePanel()
 		self._beforeInit(pre)
@@ -27,6 +28,7 @@ class dPanel(wx.Panel, dControlMixin.dControlMixin):
 		
 		dControlMixin.dControlMixin.__init__(self, name, _explicitName=_explicitName)
 
+		self.setProperties(properties)
 		self._afterInit()
 
 
