@@ -49,6 +49,7 @@ from dLine import dLine
 from dListbook import dListbook
 from dListBox import dListBox
 from dLogin import dLogin
+from dBaseMenuBar import dBaseMenuBar
 from dMainMenuBar import dMainMenuBar
 from dMenuBar import dMenuBar
 from dMenu import dMenu
