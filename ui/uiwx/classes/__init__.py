@@ -32,4 +32,3 @@ from dPage import *
 from dSpinner import dSpinner
 from dTextBox import dTextBox
 from dTreeView import dTreeView
-from dVCR import dVCR

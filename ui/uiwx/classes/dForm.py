@@ -20,7 +20,7 @@ class dForm(wxFrameClass, dFormMixin):
     dForm knows how to handle one or more dBizobjs, providing proxy methods 
     like next(), last(), save(), and requery().
     '''
-   
+
     def __init__(self, parent=None, name="dForm", resourceString=None):
         wxFrameClass.__init__(self, parent, -1, "", (-1,-1), (-1,-1), 
                             wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
@@ -51,14 +51,6 @@ class dForm(wxFrameClass, dFormMixin):
         self.SetSizer(wx.BoxSizer(wx.VERTICAL))
         self.GetSizer().Layout()
         
-        
-    def EVT_VALUEREFRESH(win, id, func):
-        win.Connect(id, -1, dEvents.EVT_VALUEREFRESH, func)
-    
-        
-    def EVT_ROWNUMCHANGED(win, id, func):
-        win.Connect(id, -1, dEvents.EVT_ROWNUMCHANGED, func)
-    
         
     def addBizobj(self, bizobj):
         ''' Add a bizobj to this form.
@@ -101,6 +93,9 @@ class dForm(wxFrameClass, dFormMixin):
         
         This happens automatically for dControls.
         '''
+        EVT_VALUEREFRESH = wx.PyEventBinder(dEvents.EVT_VALUEREFRESH, 0)
+        EVT_ROWNUMCHANGED = wx.PyEventBinder(dEvents.EVT_ROWNUMCHANGED, 0)    
+
         self.dControls[control.GetName()] = control
         if self.debug:
             print "added control %s which has the following properties:" % control.GetName()
@@ -116,7 +111,7 @@ class dForm(wxFrameClass, dFormMixin):
         except AttributeError:
             func = None
         if func:
-            dForm.EVT_VALUEREFRESH(self, self.GetId(), func)
+            self.Bind(EVT_VALUEREFRESH, func)
         
         # Set up the control to receive the notification 
         # from the form that that the row number changed,
@@ -127,7 +122,7 @@ class dForm(wxFrameClass, dFormMixin):
         except AttributeError:
             func = None
         if func:
-            dForm.EVT_ROWNUMCHANGED(self, self.GetId(), func)
+            self.Bind(EVT_ROWNUMCHANGED, func)
 
             
     def refreshControls(self):
