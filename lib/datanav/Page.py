@@ -765,7 +765,7 @@ class EditPage(Page):
 					child = rs["target"]
 					childBiz = self.Form.getBizobj(child)
 					grdLabel = self.addObject(dabo.ui.dLabel, "lblChild" + child)
-					grdLabel.Caption = child.title()
+					grdLabel.Caption = self.Form.getBizobj(child).Caption
 					grdLabel.FontSize = 14
 					grdLabel.FontBold = True
 					mainSizer.append( (10, -1) )
