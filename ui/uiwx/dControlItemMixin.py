@@ -147,7 +147,9 @@ class dControlItemMixin(dDataControlMixin):
 		for index in value:
 			if index is None:
 				continue
-			self.SetSelection(index)
+			try:
+				self.SetSelection(index)
+			except: pass
 		self._afterValueChanged()
 
 	

@@ -3,7 +3,6 @@ import os
 import wx, dabo
 import dPemMixin as pm
 import dBaseMenuBar as mnb
-import dDialog
 import dMenu, dMessageBox, dabo.icons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
@@ -316,7 +315,7 @@ class dFormMixin(pm.dPemMixin):
 		try:
 			val = self._saveUserGeometry
 		except AttributeError:
-			val = self._saveUserGeometry = not isinstance(self, dDialog.dDialog)
+			val = self._saveUserGeometry = not isinstance(self, dabo.ui.dDialog)
 		return val
 	
 	def _setSaveUserGeometry(self, val):

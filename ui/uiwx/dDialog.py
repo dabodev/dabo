@@ -1,8 +1,11 @@
 import wx
 import dabo
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
 import dFormMixin as fm
+
 
 class dDialog(wx.Dialog, fm.dFormMixin):
 	_IsContainer = True
@@ -101,11 +104,11 @@ class dOkCancelDialog(dDialog):
 		pnl.Sizer = hs
 		hs.append( (24, 1) )
 		self.btnOK = dabo.ui.dButton(pnl, Caption="OK")
-		self.btnOK.bindEvent(dEvents.Hit, self.OnOK)
+		self.btnOK.bindEvent(dEvents.Hit, self.onOK)
 		hs.append(self.btnOK, 1)
 		hs.append( (16, 1) )
 		self.btnCancel = dabo.ui.dButton(pnl, Caption="Cancel")
-		self.btnCancel.bindEvent(dEvents.Hit, self.OnCancel)
+		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
 		hs.append(self.btnCancel, 1)
 		hs.append( (24, 1) )
 		
@@ -132,9 +135,10 @@ class dOkCancelDialog(dDialog):
 		"""
 		pass
 		
-	def OnOK(self, evt):
+		
+	def onOK(self, evt):
 		self.EndModal(k.DLG_OK)
-	def OnCancel(self, evt):
+	def onCancel(self, evt):
 		self.EndModal(k.DLG_CANCEL)
 		
 		

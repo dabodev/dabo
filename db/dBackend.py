@@ -19,7 +19,7 @@ class dBackend(dabo.common.dObject):
 		""" Test the dbapi to see if it is supported on this computer. 
 		"""
 		try:
-			exec("import %s as dbapi" % self.dbModuleName)
+			dbapi = __import__(self.dbModuleName)
 			return True
 		except ImportError:
 			return False

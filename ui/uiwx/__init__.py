@@ -81,36 +81,6 @@ import dUICursors as dUICursors
 import dShell
 
 
-def getMouseObject():
-	return wx.FindWindowAtPoint(wx.GetMousePosition())
-
-
-def _getPath(cls, **kwargs):
-	ret = None
-	fd = cls(parent=None, **kwargs)
-	if fd.show() == k.DLG_OK:
-		ret = fd.Path
-	fd.release()
-	return ret
-
-def getFile(*args, **kwargs):
-	wc = "*"
-	if args:
-		arglist = []
-		for a in args:
-			arglist.append("%s files (*.%s)|*.%s" % (a,a,a))
-		wc = "|".join(arglist)
-	return _getPath(dFileDialog, wildcard=wc, **kwargs)
-
-def getSaveAs(message="Save to:", defaultPath="", defaultFile="", wildcard="*"):
-	return _getPath(dSaveDialog, message=message, defaultPath=defaultPath, 
-			defaultFile=defaultFile, wildcard=wildcard)
-
-def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
-	return _getPath(dFolderDialog, message=message, defaultPath=defaultPath, 
-			wildcard=wildcard)
-
-
 # Tell Dabo Designer what classes to put in the selection menu:
 __dClasses = [dBox, dBitmapButton, dButton, dCheckBox, dComboBox, 
 		dDateTextBox, dDropdownList, dEditBox, dForm, dGauge, dGrid, 
@@ -251,3 +221,70 @@ def getEventData(wxEvt):
 		
 		
 	return ed
+	
+	
+def getMouseObject():
+	return wx.FindWindowAtPoint(wx.GetMousePosition())
+
+
+def _getPath(cls, **kwargs):
+	ret = None
+	fd = cls(parent=None, **kwargs)
+	if fd.show() == k.DLG_OK:
+		ret = fd.Path
+	fd.release()
+	return ret
+
+def getFile(*args, **kwargs):
+	wc = _getWild(*args)
+	return _getPath(dFileDialog, wildcard=wc, **kwargs)
+
+def getSaveAs(*args, **kwargs):
+	if not kwargs.has_key("message"):
+		kwargs["message"] = "Save to:"
+	wc = _getWild(*args)
+	return _getPath(dSaveDialog, wildcard=wc, **kwargs)
+
+def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
+	return _getPath(dFolderDialog, message=message, defaultPath=defaultPath, 
+			wildcard=wildcard)
+
+def _getWild(*args):
+	ret = "*"
+	if args:
+		arglist = []
+		for a in args:
+			if a == "py":
+				fDesc = "Python Scripts (*.py)|*.py"
+			elif a == "*":
+				fDesc = "All Files (*)|*"
+			elif a == "html":
+				fDesc = "HTML Files (*.html)|*.html"
+			elif a == "xml":
+				fDesc = "XML Files (*.xml)|*.xml"
+			elif a == "fsxml":
+				fDesc = "Dabo FileSpec Files (*.fsxml)|*.fsxml"
+			elif a == "cnxml":
+				fDesc = "Dabo Connection Files (*.cnxml)|*.cnxml"
+			elif a == "txt":
+				fDesc = "Text Files (*.txt)|*.txt"
+			else:
+				fDesc = "%s files (*.%s)|*.%s" % (a,a,a)
+			arglist.append(fDesc)
+		ret = "|".join(arglist)
+	return ret
+
+
+def sortList(chc, Caption=""):
+	"""Wrapper function for the list sorting dialog. Accepts a list,
+	and returns the sorted list if the user clicks 'OK'. If they cancel
+	out, the original list is returned.
+	"""
+	ret = chc
+	sf = dabo.ui.dialogs.SortingForm(None, Choices=list(chc))
+	if Caption:
+		sf.Caption = Caption
+	if sf.show() == k.DLG_OK:
+		ret = sf.Choices
+	sf.release()
+	return ret
