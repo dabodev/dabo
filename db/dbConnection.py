@@ -11,9 +11,9 @@ class DbConnection:
         (e.g. odbc.odbc, cx_oracle.connect) plus any positional and/or
         keyword arguments required when factory is called."""
 
-        self.__cxn 	= None
-        self.__factory 	= factory
-        self.__args 	= args
+        self.__cxn = None
+        self.__factory = factory
+        self.__args	= args
         self.__keywords = keywords
 
     def __getattr__(self, name):
@@ -37,8 +37,9 @@ class DbConnection:
             cursor.execute(sql % args)
         else:
             cursor.execute(sql)
-        rs = dbRecordSet.DbRecordSet(
+        
+        recordSet = dbRecordSet.DbRecordSet(
             [list(x) for x in cursor.fetchall()],
             [x[0].lower() for x in cursor.description])
-#        print rs
-        return rs
+        
+        return recordSet
