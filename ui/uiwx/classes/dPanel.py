@@ -43,5 +43,5 @@ class dScrollPanel(wx.ScrolledWindow, dControlMixin.dControlMixin):
 		
 		dControlMixin.dControlMixin.__init__(self, name)
 		
-		#self.SetScrollbars(10, 10, -1, -1)
+		self.SetScrollbars(10, 10, -1, -1)
 		self._afterInit()                      # defined in dPemMixin
