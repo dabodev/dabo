@@ -379,6 +379,10 @@ class dCursorMixin:
                 pkWhere = self.makePkWhere(rec)
                 updClause = self.makeUpdClause(diff)
                 sql = "update %s set %s where %s" % (self.table, updClause, pkWhere)
+            
+            
+            print "** SQL:", sql
+            
 
             # Save off the props that will change on the update
             self.__saveProps()
@@ -637,7 +641,7 @@ class dCursorMixin:
         for fld, val in diff.items():
             if ret:
                 ret += ", "
-            if type(val) == types.StringType:
+            if type(val) in (types.StringType, types.UnicodeType):
                 ret += fld + " = " + self.__escQuote(val) + " "
             else:
                 ret += fld + " = " + str(val) + " "
@@ -660,12 +664,17 @@ class dCursorMixin:
 
 
     def __escQuote(self, val):
+        """
+        Escapes any single quotes that could cause SQL syntax errors. 
+        Also escapes backslashes, since they have special meaning in 
+        SQL parsing. Finally, wraps the value in single quotes.
+        """
         ret = val
         if type(val) in (types.StringType, types.UnicodeType):
             # escape and then wrap in single quotes
             sl = "\\"
             qt = "\'"
-            ret = "'" + val.replace(sl, sl+sl).replace(qt, sl+qt) + "'"
+            ret = qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
         return ret          
 
 
