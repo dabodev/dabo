@@ -386,17 +386,30 @@ class dDataNavForm(dForm.dForm):
 			tbl = self._mainTable
 			biz = self.getBizobj()
 			biz.setFieldClause("")
+			fromClause = tbl
 			for fld in self.FieldSpecs.keys():
-				fldInfo = self.FieldSpecs[fld]
-				#if int(fldInfo["editInclude"]) or int(fldInfo["listInclude"]):
-				## pkm: No! If the field is included in the fieldSpec file, it needs to
-				##      be part of the SQL fields clause, whether or not it is to be
-				##      included in in the browse or edit pages. Consider, for example,
-				##      the pk field: That needs to be included but you most likely don't
-				##      want to show it in the UI. There could be plenty of fields that
-				##      the developer wants to grab but not show the user.
-				biz.addField("%s.%s as %s" % (tbl, fld, fld) )
-			biz.setFromClause(tbl)
+				if fld[:5] == "_join":
+					# dict of joins.
+					fromClause += "\n%s" % self.FieldSpecs[fld]["expression"]
+				else:
+					# fields:
+					fldInfo = self.FieldSpecs[fld]
+					#if int(fldInfo["editInclude"]) or int(fldInfo["listInclude"]):
+					## pkm: No! If the field is included in the fieldSpec file, it needs to
+					##      be part of the SQL fields clause, whether or not it is to be
+					##      included in in the browse or edit pages. Consider, for example,
+					##      the pk field: That needs to be included but you most likely don't
+					##      want to show it in the UI. There could be plenty of fields that
+					##      the developer wants to grab but not show the user.
+					
+					# Use the expression instead of the field, if defined in fieldSpecs:
+					try:
+						expression = fldInfo["expression"]
+					except KeyError:
+						expression = "%s.%s" % (tbl, fld)
+					biz.addField("%s as %s" % (expression, fld) )
+			
+			biz.setFromClause(fromClause)
 	
 			self.childViews = []
 			for child in self.getBizobj().getChildren():
@@ -481,7 +494,7 @@ class dDataNavForm(dForm.dForm):
 		self.raiseEvent(dEvents.ItemPicked)
 
 	
-	def getEditClassForField(fieldName):
+	def getEditClassForField(self, fieldName):
 		"""Hook: User code can supply a class of control to use on the edit page."""
 		return None
 

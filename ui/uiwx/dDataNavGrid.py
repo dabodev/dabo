@@ -36,7 +36,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		
 		self.showCols = [ (fld, int(fs[fld]["listOrder"]) ) 
 				for fld in fs.keys() 
-				if fs[fld]["listInclude"] == "1"]
+				if fld[:5] != "_join" and fs[fld]["listInclude"] == "1"]
 		self.showCols.sort(lambda x, y: cmp(x[1], y[1]))
 
 # 		

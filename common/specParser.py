@@ -8,23 +8,32 @@ class specHandler(xml.sax.ContentHandler):
 		self.relaDict = {}
 		self.currTableDict = {}
 		self.currTable = ""
-		self.currFieldDict = {}
+#		self.currFieldDict = {}
 	
 	def startElement(self, name, attrs):
 		if name == "table":
 			# New table starting
 			self.currTable = attrs.getValue("name")
 			self.currTableDict = {}
-			self.currFieldDict = {}
+			#self.currFieldDict = {}
 			self.currRelaDict = {}
 
 		elif name == "field":
+			fieldDict = {}
 			for att in attrs.keys():
 				if att == "name":
 					fldName = attrs.getValue("name")
 				else:
-					self.currFieldDict[att] = attrs.getValue(att)
-			self.currTableDict[fldName] = self.currFieldDict.copy()
+					fieldDict[att] = attrs.getValue(att)
+			self.currTableDict[fldName] = fieldDict.copy()
+			
+		elif name == "join":
+			joinDict = {}
+			for att in attrs.keys():
+				if att == "order":
+					name = "_join%s" % attrs["order"]
+				joinDict[att] = attrs[att]
+			self.currTableDict[name] = joinDict.copy()
 			
 		elif name == "relation":
 			relType = attrs.getValue("relationType")
