@@ -68,7 +68,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
         
         self.afterInit()                      # defined in dPemMixin
 
-        
+        if self.debug:    
+            print "Form %s created with the following properties:" % self.Name
+            for prop in self.getPropertyList():
+                print "  %s: %s" % (prop, eval("self.%s" % prop))
+
+                        
     def addBizobj(self, bizobj):
         ''' Add a bizobj to this form.
         

@@ -85,6 +85,25 @@ class dPemMixin(object):
         return propList
     getPropertyList = classmethod(getPropertyList)
     
+    
+    # The following 3 flag functions are used in some of the property
+    # get/set functions.
+    def hasWindowStyleFlag(self, flag):
+        ''' Return whether or not the flag is set. (bool)
+        '''
+        return (self.GetWindowStyleFlag() & flag) == flag
+    
+    def addWindowStyleFlag(self, flag):
+        ''' Add the flag to the window style.
+        '''
+        self.SetWindowStyleFlag(self.GetWindowStyleFlag() | flag)
+        
+    def delWindowStyleFlag(self, flag):
+        ''' Remove the flag from the window style.
+        '''
+        self.SetWindowStyleFlag(self.GetWindowStyleFlag() & (~flag))
+    
+    
     # Scroll to the bottom to see the property definitions.
     
     # Property get/set/delete methods follow.
@@ -265,7 +284,32 @@ class dPemMixin(object):
         # is how we'd do it *if* it were allowed <g>:
         self.Reparent(newParentObject)
                 
+    def _getWindowHandle(self):
+        return self.GetHandle()
+
+    def _getBorderStyle(self):
+        if self.hasWindowStyleFlag(wx.RAISED_BORDER):
+            return 3
+        elif self.hasWindowStyleFlag(wx.SUNKEN_BORDER):
+            return 2
+        elif self.hasWindowStyleFlag(wx.SIMPLE_BORDER):
+            return 1
+        elif self.hasWindowStyleFlag(wx.NO_BORDER):
+            return 0
+        else:
+            return None
+    def _setBorderStyle(self, style):
+        style = int(style)
+        if style == 0:
+            self.addWindowStyleFlag(wx.NO_BORDER)
+        elif style == 1:
+            self.addWindowStyleFlag(wx.SIMPLE_BORDER)
+        elif style == 2:
+            self.addWindowStyleFlag(wx.SUNKEN_BORDER)
+        elif style == 3:
+            self.addWindowStyleFlag(wx.RAISED_BORDER)
         
+    
     # Property definitions follow
     Name = property(_getName, _setName, None, 
                     'The name of the object. (str)')
@@ -279,6 +323,9 @@ class dPemMixin(object):
     Parent = property(_getParent, None, None,
                     'The containing object. Read-only. (obj)')
                     
+    WindowHandle = property(_getWindowHandle, None, None,
+                    'The platform-specific handle for the window. Read-only. (long)')
+    
     Font = property(_getFont, _setFont, None,
                     'The font properties of the object. (wxFont)')
     FontInfo = property(_getFontInfo, _setFontInfo, None,
@@ -335,12 +382,17 @@ class dPemMixin(object):
     ToolTipText = property(_getToolTipText, _setToolTipText, None,
                     'Specifies the tooltip text associated with this window. (str)')
     
-    # Note: in VFP this is 'HelpContextId', while in wx we just set the text directly for
-    # a much simpler, easier to use context-help system.
     HelpContextText = property(_getHelpContextText, _setHelpContextText, None,
                     'Specifies the context-sensitive help text associated with this window. (str)')
                     
+    BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
+                    'Specifies the type of border for this window. (int). \n'
+                    '     0 : No border \n'
+                    '     1 : Simple border \n'
+                    '     2 : Sunken border \n'
+                    '     3 : Raised border')
                     
+                                        
 if __name__ == "__main__":
     o = dPemMixin()
     print o.BaseClass

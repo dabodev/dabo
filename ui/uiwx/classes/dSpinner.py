@@ -56,12 +56,34 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
         rangeHigh = self.SpinnerHighValue
         self.SetRange(rangeLow, rangeHigh)
     
+    def _getSpinnerWrap(self):
+        return self.hasWindowStyleFlag(wx.SP_WRAP)
+    def _setSpinnerWrap(self, value):
+        if value:
+            self.addWindowStyleFlag(wx.SP_WRAP)
+        else:
+            self.delWindowStyleFlag(wx.SP_WRAP)
+    
+    def _getSpinnerArrowKeys(self):
+        return self.hasWindowStyleFlag(wx.SP_ARROW_KEYS)
+    def _setSpinnerArrowKeys(self, value):
+        if value:
+            self.addWindowStyleFlag(wx.SP_ARROW_KEYS)
+        else:
+            self.delWindowStyleFlag(wx.SP_ARROW_KEYS)
+    
     # Property definitions:
     SpinnerLowValue = property(_getSpinnerLowValue, _setSpinnerLowValue, None, 
                         'Specifies the lowest possible value for the spinner.')
     
     SpinnerHighValue = property(_getSpinnerHighValue, _setSpinnerHighValue, None, 
                         'Specifies the highest possible value for the spinner.')
+
+    SpinnerWrap = property(_getSpinnerWrap, _setSpinnerWrap, None,
+                        'Specifies whether the spinner value wraps at the high/low value. (bool)')
+    
+    SpinnerArrowKeys = property(_getSpinnerArrowKeys, _setSpinnerArrowKeys, None,
+                        'Specifies whether the user can use the arrow keys to increment. (bool)')
 
 if __name__ == "__main__":
     import test

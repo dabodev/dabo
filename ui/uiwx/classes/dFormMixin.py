@@ -151,24 +151,107 @@ class dFormMixin(pm.dPemMixin):
         else:
             controllingFrame = self
         wx.EVT_MENU(controllingFrame, toolId, function)
-    
+
 
     # property get/set/del functions follow:
     def _getIcon(self):
-        return self._Icon
+        try:
+            return self._Icon
+        except AttributeError:
+            return None
     def _setIcon(self, icon):
         self.SetIcon(icon)
         self._Icon = icon       # wx doesn't provide GetIcon()
         
     def _getIconBundle(self):
-        return self._Icons
+        try:
+            return self._Icons
+        except:
+            return None
     def _setIconBundle(self, icons):
         self.SetIcons(icons)
         self._Icons = icons       # wx doesn't provide GetIcons()
         
+    def _getBorderResizable(self):
+        return self.hasWindowStyleFlag(wx.RESIZE_BORDER)
+    def _setBorderResizable(self, value):
+        if value:
+            self.addWindowStyleFlag(wx.RESIZE_BORDER)
+        else:
+            self.delWindowStyleFlag(wx.RESIZE_BORDER)
     
+    def _getShowMaxButton(self):
+        return self.hasWindowStyleFlag(wx.MAXIMIZE_BOX)
+    def _setShowMaxButton(self, value):
+        if value:
+            self.addWindowStyleFlag(wx.MAXIMIZE_BOX)
+        else:
+            self.delWindowStyleFlag(wx.MAXIMIZE_BOX)
     
+    def _getShowMinButton(self):
+        return self.hasWindowStyleFlag(wx.MINIMIZE_BOX)
+    def _setShowMinButton(self, value):
+        if value:
+            self.addWindowStyleFlag(wx.MINIMIZE_BOX)
+        else:
+            self.delWindowStyleFlag(wx.MINIMIZE_BOX)
+    
+    def _getShowCloseButton(self):
+        return self.hasWindowStyleFlag(wx.CLOSE_BOX)
+    def _setShowCloseButton(self, value):
+        if value:
+            self.addWindowStyleFlag(wx.CLOSE_BOX)
+        else:
+            self.delWindowStyleFlag(wx.CLOSE_BOX)
+    
+    def _getShowCaption(self):
+        return self.hasWindowStyleFlag(wx.CAPTION)
+    def _setShowCaption(self, value):
+        if value:
+            self.addWindowStyleFlag(wx.CAPTION)
+        else:
+            self.delWindowStyleFlag(wx.CAPTION)
+    
+    def _getShowSystemMenu(self):
+        return self.hasWindowStyleFlag(wx.SYSTEM_MENU)
+    def _setShowSystemMenu(self, value):
+        if value:
+            self.addWindowStyleFlag(wx.SYSTEM_MENU)
+        else:
+            self.delWindowStyleFlag(wx.SYSTEM_MENU)
+    
+    def _getTinyTitleBar(self):
+        return self.hasWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
+    def _setTinyTitleBar(self, value):
+        if value:
+            self.addWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
+        else:
+            self.delWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
+    
+            
     # property definitions follow:
     Icon = property(_getIcon, _setIcon, None, 'Specifies the icon for the form. (wxIcon)')
     IconBundle = property(_getIconBundle, _setIconBundle, None,
                             'Specifies the set of icons for the form. (wxIconBundle)')
+
+    BorderResizable = property(_getBorderResizable, _setBorderResizable, None,
+                    'Specifies whether the user can resize this form. (bool).')
+
+    ShowCaption = property(_getShowCaption, _setShowCaption, None,
+                    'Specifies whether the caption is displayed in the title bar. (bool).')
+
+    ShowMaxButton = property(_getShowMaxButton, _setShowMaxButton, None,
+                    'Specifies whether a maximize button is displayed in the title bar. (bool).')
+
+    ShowMinButton = property(_getShowMinButton, _setShowMinButton, None,
+                    'Specifies whether a minimize button is displayed in the title bar. (bool).')
+
+    ShowCloseButton = property(_getShowCloseButton, _setShowCloseButton, None,
+                    'Specifies whether a close button is displayed in the title bar. (bool).')
+
+    ShowSystemMenu = property(_getShowSystemMenu, _setShowSystemMenu, None,
+                    'Specifies whether a system menu is displayed in the title bar. (bool).')
+    
+    TinyTitleBar = property(_getTinyTitleBar, _setTinyTitleBar, None,
+                    'Specifies whether the title bar is small, like a tool window. (bool).')
+    

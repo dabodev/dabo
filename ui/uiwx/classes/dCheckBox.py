@@ -32,6 +32,24 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
     def OnCheckBox(self, event):
         event.Skip()
 
+    # property get/set functions
+    def _getAlignment(self):
+        if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):
+            return 2
+        else:
+            return 0
+    def _setAlignment(self, value):
+        if value == 2:
+            self.addWindowStyleFlag(wx.ALIGN_RIGHT)
+        else:
+            self.delWindowStyleFlag(wx.ALIGN_RIGHT)
+    
+        
+    # property definitions follow:
+    Alignment = property(_getAlignment, _setAlignment, None,
+                        'Specifies the alignment of the text. (int) \n'
+                        '   0 : Checkbox to left of text (default) \n'
+                        '   2 : Checkbox to right of text')
 if __name__ == "__main__":
     import test
     class c(dCheckBox):
