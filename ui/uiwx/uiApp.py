@@ -17,10 +17,16 @@ class uiApp(wx.App):
         self.dApp = dApp
         
         self.mainFrame = dFormMain(dApp)
-        self.mainFrame.Show(True)
         self.SetTopWindow(self.mainFrame)
+        self.mainFrame.Show(True)
     
     def start(self, dApp):
-        self.setup(dApp)
         self.MainLoop()
     
+    def onFileExit(self):
+        self.mainFrame.Close(True)
+
+    def onHelpAbout(self):
+        dlg = dAbout(self.mainFrame, self.dApp)
+        dlg.ShowModal()
+        dlg.Destroy()

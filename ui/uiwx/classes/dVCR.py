@@ -41,27 +41,27 @@ class dVCR(wx.Panel):
 
         but = VcrButton(self, "cmdRequery", "Requery", 
                         "requery")
-        bsMain.Add(but, 0, 0, 0)
+        bsMain.Add(but, 1, 0, 0)
         
         but = VcrButton(self, "cmdNew", "New", 
                         "new")
-        bsMain.Add(but, 0, 0, 0)
+        bsMain.Add(but, 1, 0, 0)
         
         but = VcrButton(self, "cmdDelete", "Delete", 
                         "delete")
-        bsMain.Add(but, 0, 0, 0)
+        bsMain.Add(but, 1, 0, 0)
 
         but = VcrButton(self, "cmdDeleteAll", "Delete All", 
                         "deleteAll")
-        bsMain.Add(but, 0, 0, 0)
+        bsMain.Add(but, 1, 0, 0)
         
         but = VcrButton(self, "cmdSave", "Save", 
                         "save")
-        bsMain.Add(but, 0, 0, 0)
+        bsMain.Add(but, 1, 0, 0)
         
         but = VcrButton(self, "cmdCancel", "Cancel", 
                         "cancel")
-        bsMain.Add(but, 0, 0, 0)
+        bsMain.Add(but, 1, 0, 0)
 
         self.SetSizer(bsMain)        
         self.GetSizer().Layout()

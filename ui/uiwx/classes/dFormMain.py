@@ -1,6 +1,7 @@
 ''' dFormMain.py '''
 import wx
 from dFormMixin import dFormMixin
+from dMainMenuBar import dMainMenuBar
 
 class dFormMain(wx.Frame, dFormMixin):
     def __init__(self, dApp=None):
@@ -16,7 +17,9 @@ class dFormMain(wx.Frame, dFormMixin):
         else:
             self.SetStatusText("Welcome to Dabo!")
         
-        #self.SetMenuBar(mainMenu.MainMenuBar(self))
+        self.SetMenuBar(dMainMenuBar(self))
+        self.SetSize((640,480))
+        self.SetPosition((0,0))
         
     def statusMessage(self, message=""):
         statusBar = self.GetStatusBar()

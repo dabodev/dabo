@@ -77,9 +77,19 @@ class dApp(object):
 
         # dabo is going to want to import various things from the homeDir
         sys.path.append(self.homeDir)
-    
+
+        # Init some appInfo properties:
+        self.setAppInfo("appName", "Dabo")
+        self.setAppInfo("appVersion", "0.1")
+                    
         self._initUI()
         self._initDB()
+        
+        self.actionList.setAction("FileExit", self.onFileExit)
+        self.actionList.setAction("HelpAbout", self.onHelpAbout)
+        
+        self.uiApp = self.uiModule.uiApp()
+        self.uiApp.setup(self)
 
     def start(self):
         """ 
@@ -91,7 +101,6 @@ class dApp(object):
             self.setAppInfo("appName", "Dabo")
         if not self.getAppInfo("appVersion"):
             self.setAppInfo("appVersion", "0.1")
-        self.uiApp = self.uiModule.uiApp()
         self.uiApp.start(self)
         self.finish()
     
@@ -119,7 +128,21 @@ class dApp(object):
             Set item to value in the appinfo table.
         '''
         self._appInfo[item] = value
-    
+        
+    def onHelpAbout(self, event):
+        ''' dApp.onHelpAbout() -> None
+        
+            Display the application About screen. 
+        '''
+        self.uiApp.onHelpAbout()
+        
+    def onFileExit(self, event):
+        ''' dApp.onFileExit() -> None
+        
+            Exit the application event loop.
+        '''
+        self.uiApp.onFileExit()
+            
     def getUserSetting(self, item, user="*", system="*"):
         ''' Return the value of the user settings table that 
             corresponds to the item, user, and system id 
@@ -237,6 +260,8 @@ class dApp(object):
         self.uiMenus = Collection()
         self.uiToolBars = Collection()
         self.uiResources = {}
+        
+        self.actionList = ui.dActionList()
         
         # Initialize DB collections
         self.dbConnectionDefs = {} 

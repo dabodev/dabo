@@ -12,3 +12,4 @@ from dSpinner import dSpinner
 from dCommandButton import dCommandButton
 from dForm import dForm
 from dFormMain import dFormMain
+from dAbout import dAbout
