@@ -7,17 +7,22 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
 class dFormMixin(pm.dPemMixin):
-	def __init__(self, name="dFormMixin", _explicitName=False):
-		#dFormMixin.doDefault()
-		super(dFormMixin, self).__init__()
+	def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
+		if parent:
+			style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT
+		else:
+			style = wx.DEFAULT_FRAME_STYLE
 		
-		self._setName(name, _explicitName)
+		kwargs["style"] = style
+		
+		super(dFormMixin, self).__init__(preClass, parent, properties, *args, **kwargs)
 		
 		self.debugText = ""
 		self.useOldDebugDialog = False
 		self.restoredSP = False
 		self._holdStatusText = ""
 
+	def _afterInit(self):
 		if self.Application and self.MenuBar:
 			try:
 				self.SetMenuBar(self.MenuBar(self))
@@ -28,12 +33,12 @@ class dFormMixin(pm.dPemMixin):
 
 		if not self.Icon:
 			self.Icon = wx.Icon(dabo.icons.getIconFileName('daboIcon048'), wx.BITMAP_TYPE_PNG)
+			
+		super(dFormMixin, self)._afterInit()
 	
 				
 	def _initEvents(self):
-		#dFormMixin.doDefault()
 		super(dFormMixin, self)._initEvents()
-		# Bind wx events to handlers that re-raise the Dabo events:
 		self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
 		self.Bind(wx.EVT_CLOSE, self.__onWxClose)
 		self.bindEvent(dEvents.Activate, self.__onActivate)

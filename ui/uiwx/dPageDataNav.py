@@ -84,8 +84,7 @@ class SelectOptionsSpinner(dSpinner.dSpinner):
 class dSelectPage(dPage.dPage):
 
 	def __init__(self, parent):
-		#dSelectPage.doDefault(parent, name="pageSelect")
-		super(dSelectPage, self).__init__(parent, name="pageSelect")
+		super(dSelectPage, self).__init__(parent, Name="pageSelect")
 
 	def createItems(self):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
@@ -188,7 +187,7 @@ class dSelectPage(dPage.dPage):
 								column["tableName"], column["fieldName"])
 
 					cb = SelectOptionsCheckBox(panel, id=cbId, 
-							name="chkSelectRange%s" % column["fieldName"])
+							Name="chkSelectRange%s" % column["fieldName"])
 					cb.Caption = "%s %s:" % (column["caption"], _("is in the range of"))
 					cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
@@ -210,7 +209,7 @@ class dSelectPage(dPage.dPage):
 								column["tableName"], column["fieldName"])
 
 					cb = SelectOptionsCheckBox(panel, id=cbId, 
-							name="chkSelectValue%s" % column["fieldName"])
+							Name="chkSelectValue%s" % column["fieldName"])
 					cb.Caption = "%s %s:" % (column["caption"], _("is equal to"))
 					cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
@@ -224,7 +223,7 @@ class dSelectPage(dPage.dPage):
 							column["tableName"], column["fieldName"], "%", "%")    
 
 					cb = SelectOptionsCheckBox(panel, id=cbId, 
-							name="chkSelectStringMatch%s" % column["fieldName"])
+							Name="chkSelectStringMatch%s" % column["fieldName"])
 					cb.Caption = "%s %s:" % (column["caption"], _("contains"))
 					cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
@@ -256,7 +255,7 @@ class dSelectPage(dPage.dPage):
 			cbId, user1Id, user2Id = wx.NewId(), wx.NewId(), wx.NewId()
 			where = ""
 
-			cb = SelectOptionsCheckBox(panel, id=cbId, name="chkSelectStringMatchAll")
+			cb = SelectOptionsCheckBox(panel, id=cbId, Name="chkSelectStringMatchAll")
 			cb.Caption = "%s:" % _("String Match")
 			cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
@@ -286,12 +285,12 @@ class dSelectPage(dPage.dPage):
 
 		box = dSizer.dSizer("horizontal")
 		
-		cb = SelectOptionsCheckBox(panel, name="chkSelectLimit")
+		cb = SelectOptionsCheckBox(panel, Name="chkSelectLimit")
 		cb.Caption = "Limit:"
 		cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 		box.append(cb, border=_borderSize)
 		
-		limitSpinner = SelectOptionsSpinner(panel, name="spnSelectLimit")
+		limitSpinner = SelectOptionsSpinner(panel, Name="spnSelectLimit")
 		box.append(limitSpinner, "normal", 1, border=_borderSize)
 		
 
@@ -314,7 +313,7 @@ class dBrowsePage(dPage.dPage):
 
 	def __init__(self, parent):
 		#dBrowsePage.doDefault(parent, "pageBrowse")
-		super(dBrowsePage, self).__init__(parent, "pageBrowse")
+		super(dBrowsePage, self).__init__(parent, Name="pageBrowse")
 
 	def initEvents(self):
 		#dBrowsePage.doDefault()
@@ -425,7 +424,7 @@ class dEditPage(dPage.dPage):
 
 	def __init__(self, parent):
 		#dEditPage.doDefault(parent, "pageEdit")
-		super(dEditPage, self).__init__(parent, "pageEdit")
+		super(dEditPage, self).__init__(parent, Name="pageEdit")
 
 	def initEvents(self):
 		#dEditPage.doDefault()
@@ -516,7 +515,7 @@ class dChildViewPage(dPage.dPage):
 
 	def __init__(self, parent, dataSource):
 		#dChildViewPage.doDefault(parent, "pageChildView")
-		super(dChildViewPage, self).__init__(parent, "pageChildView")
+		super(dChildViewPage, self).__init__(parent, Name="pageChildView")
 		self.dataSource = dataSource
 		self.bizobj = self.Form.getBizobj().getChildByDataSource(self.dataSource)
 	

@@ -4,8 +4,12 @@ from dabo.ui.dControlMixinBase import dControlMixinBase
 import dabo.dEvents as dEvents
 
 class dControlMixin(dControlMixinBase):
-	
 	def _onWxHit(self, evt):
+		# This is called by a good number of the controls, when the default
+		# event happens, such as a click in a command button, text being 
+		# entered in a text control, a timer reaching its interval, etc.
+		# We catch the wx event, and raise the dabo Hit event for user code
+		# to work with.
 		self.raiseEvent(dEvents.Hit, evt)
 		
 	def getCaptureBitmap(self):

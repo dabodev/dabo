@@ -14,7 +14,6 @@ all the dControls.
 """
 import wx
 import dabo.ui as ui
-
 ui.loadUI("wx")
 
 # Log all events except the really frequent ones:
@@ -56,7 +55,7 @@ class Test(object):
 	def testAll(self):
 		""" Create a dForm and populate it with example dWidgets. 
 		"""
-		frame = ui.dForm(name="formTest")
+		frame = ui.dForm(Name="formTest")
 		frame.Width, frame.Height = 640, 480
 		frame.Caption = "Test of all the dControls"
 		frame.debug = True
@@ -84,9 +83,7 @@ class Test(object):
 					ui.dToggleButton(panel)):
 					
 			bs = ui.dSizer("horizontal")
-			label = ui.dLabel(panel, name="lbl%s" % object.Name, 
-				style=wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE)
-			label.Width = labelWidth
+			label = ui.dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)
 
 			label.Caption = "%s:" % object.Name
 			bs.append(label)

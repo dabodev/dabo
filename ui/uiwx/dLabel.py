@@ -8,32 +8,14 @@ import dControlMixin as cm
 class dLabel(wx.StaticText, cm.dControlMixin):
 	""" Create a static (not data-aware) label.
 	"""
-	def __init__(self, parent, id=-1, label="", caption="", style=0, 
-		properties=None, *args, **kwargs):
-
+	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dLabel
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-
-		pre = wx.PreStaticText()
-		self._beforeInit(pre)
-		
-		if not label:
-			# Allow for alternate naming of the param
-			label = caption
-
-		pre.Create(parent, id, style=style | pre.GetWindowStyle(), label=label, *args, **kwargs)
-		self.PostCreate(pre)
-
-		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
-		
-		self.setProperties(properties)
-		self._afterInit()
+		preClass = wx.PreStaticText
+		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
-	def initEvents(self):
-		#dLabel.doDefault()
-		super(dLabel, self).initEvents()
+	def _initEvents(self):
+		super(dLabel, self)._initEvents()
 
 
 	# property get/set functions
@@ -84,4 +66,5 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dLabel)
+	testProps = {"FontBold": True, "Alignment": "Center", "ForeColor": "Red"}
+	test.Test().runTest(dLabel, Width=150, Caption="Hello", **testProps)

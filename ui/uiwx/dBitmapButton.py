@@ -11,35 +11,18 @@ from dIcons import getIconBitmap
 class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button.
 	"""
-	def __init__(self, parent, id=-1, bitmap=None, style=0, properties=None, *args, **kwargs):
-	
+	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dBitmapButton
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
+		preClass = wx.PreBitmapButton
+		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-		pre = wx.PreBitmapButton()
-		self._beforeInit(pre)
-		
-		if bitmap is None:
-			# Default to the Dabo icon
-			bitmap = getIconBitmap("daboIcon048")
-		
-		pre.Create(parent, id, bitmap, style=style|pre.GetWindowStyle(), *args, **kwargs)
-
-		self.PostCreate(pre)
-		
-		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
-		
-		self.setProperties(properties)
-		self._afterInit()
+		if self.Picture == wx.NullBitmap:
+			# Default to the dabo icon
+			self.Picture = "daboIcon048"
 
 
-	def initEvents(self):
-		# init the common events:
-		#dBitmapButton.doDefault()
-		super(dBitmapButton, self).initEvents()
-
-		# Respond to EVT_BUTTON and raise dEvents.Hit:
+	def _initEvents(self):
+		super(dBitmapButton, self)._initEvents()
 		self.Bind(wx.EVT_BUTTON, self._onWxHit)
 		
 		
@@ -86,22 +69,25 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		self.SetBitmapFocus(value)
 	
 
-
 	# Property definitions:
 	CancelButton = property(_getCancelButton, _setCancelButton, None,
-						_('Specifies whether this Bitmap button gets clicked on -Escape-. (bool)'))
+		_("Specifies whether this Bitmap button gets clicked on -Escape-."))
 						
 	DefaultButton = property(_getDefaultButton, _setDefaultButton, None, 
-						_('Specifies whether this Bitmap button gets clicked on -Enter-. (bool)'))
+		_("Specifies whether this Bitmap button gets clicked on -Enter-."))
 
 	Picture = property(_getNormalPicture, _setNormalPicture, None,
-				_("The image normally displayed on the button. This is the default if none of the other Picture properties are specified. (bitmap)") )
+		_("""Specifies the image normally displayed on the button. 
+		
+		This is the default if none of the other Picture properties are 
+		specified.
+		"""))
 
 	DownPicture = property(_getDownPicture, _setDownPicture, None,
-				_("The image displayed on the button when it is depressed. (bitmap)") )
+		_("Specifies the image displayed on the button when it is depressed."))
 
 	FocusPicture = property(_getFocusPicture, _setFocusPicture, None,
-				_("The image displayed on the button when it receives focus. (bitmap)") )
+		_("Specifies the image displayed on the button when it receives focus."))
 
 
 if __name__ == "__main__":
@@ -109,6 +95,7 @@ if __name__ == "__main__":
 	class c(dBitmapButton):
 		def afterInit(self):
 			# Demonstrate that the Picture props are working.
+			self.Picture = "daboIcon048"
 			self.DownPicture = "daboIcon064"
 			self.FocusPicture = "daboIcon016"
 			

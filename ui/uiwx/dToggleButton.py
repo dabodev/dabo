@@ -10,28 +10,14 @@ import dabo.dEvents as dEvents
 class dToggleButton(wx.ToggleButton, dcm.dDataControlMixin):
 	""" Allows the user to set an on/off condition by pressing a button.
 	"""
-	def __init__(self, parent, id=-1, style=0, properties=None, *args, **kwargs):
-
+	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dToggleButton
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
+		preClass = wx.PreToggleButton
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-		pre = wx.PreToggleButton()
-		self._beforeInit(pre)
-		pre.Create(parent, id, style=style|pre.GetWindowStyle(), *args, **kwargs)
-
-		self.PostCreate(pre)
-		
-		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
-		
-		self.setProperties(properties)
-		self._afterInit()
-
-
-	def initEvents(self):
-		#dToggleButton.doDefault()
-		super(dToggleButton, self).initEvents()
-		# Respond to EVT_TOGGLEBUTTON and raise dEvents.Button:
+	
+	def _initEvents(self):
+		super(dToggleButton, self)._initEvents()
 		self.Bind(wx.EVT_TOGGLEBUTTON, self._onWxHit)
 		
 

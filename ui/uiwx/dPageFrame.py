@@ -3,44 +3,23 @@ import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as dControlMixin
+import dControlMixin as cm
 import dPage
 import dabo.dEvents as dEvents
 
 
-class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
+class dPageFrame(wx.Notebook, cm.dControlMixin):
 	""" Create a container for an unlimited number of pages.
 	"""
-	def __init__(self, parent, id=-1, pos=wx.DefaultPosition,
-			size=wx.DefaultSize, style=0, properties=None, *args, **kwargs):
-
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-
-		pre = wx.PreNotebook()
-		self._beforeInit(pre)
-		style = style | pre.GetWindowStyle()
-		pre.Create(parent, id, pos, size, style, *args, **kwargs)
-
-		self.PostCreate(pre)
-		
-		dControlMixin.dControlMixin.__init__(self, name)
-
-		self._lastPage = None
-		self.PageCount = 3
-		
-		self._afterInit()
-		
+	def __init__(self, parent, properties=None, *args, **kwargs):
+		self._baseClass = dPageFrame
+		preClass = wx.PreNotebook
+		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 	
-	def afterInit(self):
-		#dPageFrame.doDefault()
-		super(dPageFrame, self).afterInit()
-	
-	
-	def initEvents(self):
-		#dPageFrame.doDefault()
-		super(dPageFrame, self).initEvents()
-		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._onPageChanged)
+
+	def _initEvents(self):
+		super(dPageFrame, self)._initEvents()
+		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self.__onPageChanged)
 		self.bindEvent(dEvents.Create, self.__onCreate)
 	
 		
@@ -48,20 +27,20 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 		# Make sure the PageEnter fires for the current page on 
 		# pageframe instantiation, as this doesn't happen automatically.
 		# Putting this code in afterInit() results in a segfault on Linux, btw.
-		wx.CallAfter(self._pageChanged, 0, None)
+		wx.CallAfter(self.__pageChanged, 0, None)
 		
 				
-	def _onPageChanged(self, evt):
+	def __onPageChanged(self, evt):
 		evt.Skip()
 		evt.StopPropagation()
 
 		newPageNum = evt.GetSelection()
 		oldPageNum = self._lastPage
 		
-		self._pageChanged(newPageNum, oldPageNum)
+		self.__pageChanged(newPageNum, oldPageNum)
 
 		
-	def _pageChanged(self, newPageNum, oldPageNum):		
+	def __pageChanged(self, newPageNum, oldPageNum):		
 		self._lastPage = newPageNum
 		if newPageNum >= 0 and self.PageCount > newPageNum:
 			self.GetPage(newPageNum).raiseEvent(dEvents.PageEnter)

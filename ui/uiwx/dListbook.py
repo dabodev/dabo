@@ -3,65 +3,47 @@ import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as dControlMixin
+import dControlMixin as cm
 import dPage
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-class dListbook(wx.Listbook, dControlMixin.dControlMixin):
+class dListbook(wx.Listbook, cm.dControlMixin):
 	""" Create a container for an unlimited number of pages.
 	"""
-	def __init__(self, parent, id=-1, pos=wx.DefaultPosition,
-			size=wx.DefaultSize, style=0, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, *args, **kwargs):
+		self._baseClass = dListbook
+		preClass = wx.PreListbook
+		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-		self.baseClass = dListbook
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-
-		pre = wx.PreListbook()
-		self._beforeInit(pre)
-		style = style | pre.GetWindowStyle()
-		pre.Create(parent, id, pos, size, style, *args, **kwargs)
-
-		self.PostCreate(pre)
 		
-		dControlMixin.dControlMixin.__init__(self, name, _explicitName=_explicitName)
-		
+	def _afterInit(self):
+		super(dListbook, self)._afterInit()
 		self.lastSelection = 0
 		self.PageCount = 3
-		
-		self.setProperties(properties)
-		self._afterInit()
-		
 	
-	def afterInit(self):
-		#dListbook.doDefault()
-		super(dListbook, self).afterInit()
-
-
-	def initEvents(self):
-		dListbook.doDefault()
-		self.Bind(wx.EVT_LISTBOOK_PAGE_CHANGED, self._onPageChanged)
+	
+	def _initEvents(self):
+		super(dListbook, self)._initEvents()
+		self.Bind(wx.EVT_LISTBOOK_PAGE_CHANGED, self.__onPageChanged)
 
 				
-	def _onPageChanged(self, evt):
+	def __onPageChanged(self, evt):
 		evt.Skip()
 		evt.StopPropagation()
 
 		newPageNum = evt.GetSelection()
 		oldPageNum = self._lastPage
 		
-		self._pageChanged(newPageNum, oldPageNum)
+		self.__pageChanged(newPageNum, oldPageNum)
 
 		
-	def _pageChanged(self, newPageNum, oldPageNum):		
+	def __pageChanged(self, newPageNum, oldPageNum):		
 		self._lastPage = newPageNum
 		
 		self.GetPage(newPageNum).raiseEvent(dEvents.PageEnter)
 		if oldPageNum is not None:
 			self.GetPage(oldPageNum).raiseEvent(dEvents.PageLeave)
-		
-		
 		
 	
 	# property get/set functions:
@@ -132,22 +114,26 @@ class dListbook(wx.Listbook, dControlMixin.dControlMixin):
 
 	# Property definitions:
 	PageClass = property(_getPageClass, _setPageClass, None,
-						'Specifies the class of control to use for pages by default. (classRef) \n'
-						'\n'
-						'This really only applies when using the PageCount property to set the\n'
-						'number of pages. If you instead use AddPage() you still need to send \n'
-						'an instance as usual. Class must descend from a dabo base class.')
+		"""Specifies the class of control to use for pages by default.
+		
+		This really only applies when using the PageCount property to set the
+		number of pages. If you instead use AddPage() you still need to send
+		an instance as usual. Class must descend from a dabo base class.
+		""")
 						
 	PageCount = property(_getPageCount, _setPageCount, None, 
-						'Specifies the number of pages in the pageframe. (int) \n'
-						'\n'
-						'When using this to increase the number of pages, PageClass \n'
-						'will be queried as the object to use as the page object.')
+		"""Specifies the number of pages in the listbook.
+		
+		When using this to increase the number of pages, an instance of
+		self.PageClass will be used as the page object.
+		""")
 						
 	TabPosition = property(_getTabPosition, _setTabPosition, None, 
-						'Specifies where the page tabs are located. (int) \n'
-						'    Top (default) \n'
-						'    Left \n'
-						'    Right \n'
-						'    Bottom')
-
+		"""Specifies where the page tabs are located.
+		    
+		Valid values are:
+			Top (default)
+		    Left
+		    Right
+		    Bottom
+		""")

@@ -25,6 +25,11 @@ class dPemMixinBase(dabo.common.dObject):
 		"""
 		pass
 	
+	def _initUI(self):
+		""" Abstract method: subclasses MUST override for UI-specifics.
+		"""
+		pass
+	
 	def beforeInit(self, *args, **kwargs):
 		""" Subclass hook.
 		

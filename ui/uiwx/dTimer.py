@@ -3,12 +3,12 @@ import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as dControlMixin
+import dControlMixin as cm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import dIcons
 
-class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
+class dTimer(wx.StaticBitmap, cm.dControlMixin):
 	""" Create a timer. 
 	"""
 	
@@ -19,35 +19,26 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 	# (but we need to design a bitmap) while being invisible at runtime.
 	
 	def __init__(self, parent, properties=None, *args, **kwargs):
-		
 		self._baseClass = dTimer
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
+		preClass = wx.StaticBitmap
+		kwargs["bitmap"] = dIcons.getIconBitmap("dTimer", setMask=False)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-		self._beforeInit(None)
-		# no 2-stage creation for Timers
 		
-		# Get a timer bitmap, but for now use the dabo icon:
-		bitmap = dIcons.getIconBitmap("dTimer", setMask=False)
-		wx.StaticBitmap.__init__(self, parent, bitmap=bitmap, *args, **kwargs)
-		
-		self.Hide()
+	def _afterInit(self):
 		self._timer = wx.Timer(self)
-		self._interval = 0
-
-		dControlMixin.dControlMixin.__init__(self, name, _explicitName=_explicitName)
-		
-		self.setProperties(properties)
-		self._afterInit()
-		
-		
-	def initEvents(self):
-		#dTimer.doDefault()
-		super(dTimer, self).initEvents()
-		self.Bind(wx.EVT_TIMER, self._onWxHit)
+		dTimer.doDefault()
+		self.Hide()
 	
+		
+	def _initEvents(self):
+		super(dTimer, self)._initEvents()
+		self.Bind(wx.EVT_TIMER, self._onWxHit)
+		
+		
 	def isRunning(self):
 		return self._timer.IsRunning()
+		
 		
 	def Show(self, *args, **kwargs):
 		# only let the the bitmap be shown if this is design time
@@ -56,6 +47,7 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 			#dTimer.doDefault(*args, **kwargs)
 			super(dTimer, self).Show(*args, **kwargs)
 	
+			
 	def start(self, interval=-1):
 		if interval >= 0:
 			self._interval = interval
@@ -65,9 +57,11 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 			self._timer.Stop()
 		return self._timer.IsRunning()
 	
+		
 	def stop(self):
 		self._timer.Stop()
 		return not self._timer.IsRunning()
+		
 		
 	# property get/set functions
 	def _getInterval(self):
@@ -98,7 +92,15 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 if __name__ == "__main__":
 	import test
 	
-	class c(dTimer):
+	class C(dTimer):
 		def afterInit(self):
+			C.doDefault()
 			self.Interval = 1000
-	test.Test().runTest(c)
+			self.start()
+		def initEvents(self):
+			C.doDefault()
+			self.bindEvent(dabo.dEvents.Hit, self.onHit)
+		def onHit(self, evt):
+			print "timer fired!"
+		
+	test.Test().runTest(C)

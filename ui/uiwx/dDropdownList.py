@@ -10,40 +10,21 @@ from dabo.dLocalize import _
 class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 	""" Allows presenting a choice of items for the user to choose from.
 	"""
-	def __init__(self, parent, id=-1, pos=wx.DefaultPosition, size=wx.DefaultSize, 
-			choices=["Dabo", "Default"], style=0, properties=None, *args, **kwargs):
-
+	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dDropdownList
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
+		preClass = wx.PreChoice
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-		self._choices = list(choices)
-
-		pre = wx.PreChoice()
-		self._beforeInit(pre)
-		style=style|pre.GetWindowStyle()
-		pre.Create(parent, id, pos, size, choices, *args, **kwargs)
-
-		self.PostCreate(pre)
-
-		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
-		
-		self.setProperties(properties)
-		self._afterInit()
-		
-
-	def initEvents(self):
-		#dDropdownList.doDefault()
-		super(dDropdownList, self).initEvents()
-		
-		# catch the wx event and raise the dabo event:
+	
+	def _initEvents(self):
+		super(dDropdownList, self)._initEvents()
 		self.Bind(wx.EVT_CHOICE, self._onWxHit)
 		
 		# wx.Choice doesn't seem to emit lostfocus and gotfocus events. Therefore,
 		# flush the value on every hit.
-		self.bindEvent(dEvents.Hit, self._onHit )
+		self.bindEvent(dEvents.Hit, self.__onHit )
 	
-	def _onHit(self, evt):
+	def __onHit(self, evt):
 		self.flushValue()
 		
 	
@@ -94,19 +75,18 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 	def _setKeyValue(self, val):
 		# This function takes a key value, such as 10992, finds the mapped position,
 		# and makes that position the active list selection.
-		try:
-			self.PositionValue = self.Keys[val]
-		except KeyError:
-			self.PositionValue = 0
+		self.PositionValue = self.Keys[val]
 	
 	def _getPosValue(self):
 		return self._pemObject.GetSelection()
+	
 	def _setPosValue(self, value):
 		self._pemObject.SetSelection(int(value))
 		self._afterValueChanged()
 
 	def _getStrValue(self):
 		return self._pemObject.GetStringSelection()
+	
 	def _setStrValue(self, value):
 		try:
 			self._pemObject.SetStringSelection(str(value))
@@ -147,50 +127,87 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 		
 	# Property definitions:
 	Choices = property(_getChoices, _setChoices, None,
-		"Specifies the list of choices available in the list. (list of strings)")	
+		"""Specifies the string choices to display in the list.
+		
+		List of strings. Read-write at runtime.
+		
+		The list index becomes the PositionValue, and the string becomes the
+		StringValue.
+		""")	
 
 	Keys = property(_getKeys, _setKeys, None,
-		"""Specifies a mapping between the position of an item, and another value, such as
-		a primary key in a lookup table. 
+		"""Specifies a mapping between arbitrary values and item positions.
 		
-		The Keys property is a dictionary, where each key resolves into a list index (position).
+		Dictionary. Read-write at runtime.
+		
+		The Keys property is a dictionary, where each key resolves into a 
+		list index (position). If using keys, you should update the Keys
+		property whenever you update the Choices property, to make sure they
+		are in sync.
 		""")
 		
 	KeyValue = property(_getKeyValue, _setKeyValue, None,
-		"""The key value of the selected item.
+		"""Specifies the key value of the selected item.
 		
-		The Keys property must be set up in a 1:1 fashion with the positions.
+		Type can vary. Read-write at runtime.
+		
+		Returns the key value of the selected item, or changes the current 
+		position to the position that is mapped to the specified key value.
+		An exception will be raised if the Keys property hasn't been set up
+		to accomodate.
 		""")
 		
 	PositionValue = property(_getPosValue, _setPosValue, None,
-			"Position of selected value (int)" )
+		"""Specifies the position (index) of the selected item.
+		
+		Integer. Read-write at runtime.
+		
+		Returns the current position, or sets the current position.
+		""")
 
 	StringValue = property(_getStrValue, _setStrValue, None,
-			"Text of selected value (str)" )
+		"""Specifies the text of the selected item.
+		
+		String. Read-write at runtime.
+		
+		Returns the text of the current item, or changes the current position
+		to the position with the specified text. An exception is raised if there
+		is no position with matching text.
+		""" )
 
 	Value = property(_getValue, _setValue, None,
-			"Specifies the current value, the type of which depends on the setting of ValueMode.")
+		"""Specifies which item is currently selected in the list.
+		
+		Type can vary. Read-write at runtime.
+			
+		Value refers to one of the following, depending on the setting of ValueMode:
+			+ ValueMode="Position" : the index of the selected item (integer)
+			+ ValueMode="String"   : the displayed string of the selected item (string)
+			+ ValueMode="Key"      : the key of the selected item (can vary)
+		""")
 	
 	ValueMode = property(_getValueMode, _setValueMode, None,
 		"""Specifies the information that the Value property refers to.
 		
-		'position' : Value refers to the position in the choices (the index).
-		'string'   : Value refers to the displayed string for the selection (default).
-		'key'      : Value refers to a separate key, set using the Keys property.
+		String. Read-write at runtime.
+		
+		'Position' : Value refers to the position in the choices (integer).
+		'String'   : Value refers to the displayed string for the selection (default) (string).
+		'Key'      : Value refers to a separate key, set using the Keys property (can vary).
 		""")
 
+		
 if __name__ == "__main__":
 	import test
-	
-	class T(dDropdownList):
+	class _T(dDropdownList):
 		def afterInit(self):
-			T.doDefault()
+			_T.doDefault()
 			self.BackColor = "aquamarine"
-			self.ForeColor = "wheatdd"
+			self.ForeColor = "wheat"
 			self.setup()
 		
 		def initEvents(self):
-			T.doDefault()
+			_T.doDefault()
 			self.bindEvent(dabo.dEvents.Hit, self.onHit)
 			
 		def setup(self):
@@ -213,5 +230,5 @@ if __name__ == "__main__":
 			print "PositionValue: ", self.PositionValue
 			print "StringValue: ", self.StringValue
 			print "Value: ", self.Value
-			
-	test.Test().runTest(T)
+		
+	test.Test().runTest(_T)

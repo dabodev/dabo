@@ -26,23 +26,14 @@ else:
 class dFormMain(wxFrameClass, fm.dFormMixin):
 	""" This is the main top-level form for the application.
 	"""
-	def __init__(self, properties=None, *args, **kwargs):
-	
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dFormMain
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-
-		pre = wxPreFrameClass()
-		self._beforeInit(pre)
-		pre.Create(None, -1)
-
-		self.PostCreate(pre)
-		
+		preClass = wxPreFrameClass
+		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+	
 		self.Size = (640,480)
 		self.Position = (0,0)
 
-		fm.dFormMixin.__init__(self, name="dFormMain", _explicitName=False)
-		
 		if wx.Platform != '__WXMAC__':
 			self.CreateStatusBar()
 
@@ -50,9 +41,7 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 		# you gotta set the sizer to something other than None!
 		self.Sizer = dSizer.dSizer("vertical")
 		self.Sizer.layout()
-
-		self.setProperties(properties)
-		self._afterInit()
+	
 		
 	def afterInit(self):
 		#dFormMain.doDefault()

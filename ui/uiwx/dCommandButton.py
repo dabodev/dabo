@@ -10,30 +10,14 @@ import dabo.dEvents as dEvents
 class dCommandButton(wx.Button, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button.
 	"""
-
-	def __init__(self, parent, id=-1, style=0, properties=None, *args, **kwargs):
-
+	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dCommandButton
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-
-		pre = wx.PreButton()
-		self._beforeInit(pre)
-		pre.Create(parent, id, style=style|pre.GetWindowStyle(), *args, **kwargs)
-
-		self.PostCreate(pre)
-		
-		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
-		
-		self.setProperties(properties)
-		self._afterInit()
+		preClass = wx.PreButton
+		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
-	def initEvents(self):
-		#dCommandButton.doDefault()
-		super(dCommandButton, self).initEvents()
-
-		# Respond to EVT_BUTTON and raise dEvents.Hit:
+	def _initEvents(self):
+		super(dCommandButton, self)._initEvents()
 		self.Bind(wx.EVT_BUTTON, self._onWxHit)
 		
 		
@@ -59,10 +43,10 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 
 	# Property definitions:
 	CancelButton = property(_getCancelButton, _setCancelButton, None,
-						_('Specifies whether this command button gets clicked on -Escape-. (bool)'))
+		_("Specifies whether this command button gets clicked on -Escape-."))
 						
 	DefaultButton = property(_getDefaultButton, _setDefaultButton, None, 
-						_('Specifies whether this command button gets clicked on -Enter-. (bool)'))
+		_("Specifies whether this command button gets clicked on -Enter-."))
 
 
 if __name__ == "__main__":

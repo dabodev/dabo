@@ -12,37 +12,15 @@ from dabo.dLocalize import _
 class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 	""" Allows editing of string or unicode data of unlimited length.
 	"""
-	def __init__(self, parent, id=-1, style=0, properties=None, *args, **kwargs):
-
+	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dEditBox
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-
-		style = style | wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.TE_LINEWRAP
-
-		pre = wx.PreTextCtrl()
-		self._beforeInit(pre)
-		pre.Create(parent, id, style=style|pre.GetWindowStyleFlag(), *args, **kwargs)
-
-		self.PostCreate(pre)
-		
-		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
-		
-		self.setProperties(properties)
-		self._afterInit()
+		preClass = wx.PreTextCtrl
+		kwargs["style"] = wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.TE_LINEWRAP
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
-	def afterInit(self):
-		self.SelectOnEntry = False
-		#dEditBox.doDefault()
-		super(dEditBox, self).afterInit()
-
-
-	def initEvents(self):
-		#dEditBox.doDefault()
-		super(dEditBox, self).initEvents()
-		
-		# bind the wx event to the dabo event:
+	def _initEvents(self):
+		super(dEditBox, self)._initEvents()
 		self.Bind(wx.EVT_TEXT, self._onWxHit)
 		
 
@@ -63,13 +41,13 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		self.delWindowStyleFlag(wx.TE_CENTRE)
 		self.delWindowStyleFlag(wx.TE_RIGHT)
 
-		value = str(value)
+		value = str(value).lower()
 
-		if value == 'Left':
+		if value == 'left':
 			self.addWindowStyleFlag(wx.TE_LEFT)
-		elif value == 'Center':
+		elif value == 'center':
 			self.addWindowStyleFlag(wx.TE_CENTRE)
-		elif value == 'Right':
+		elif value == 'right':
 			self.addWindowStyleFlag(wx.TE_RIGHT)
 		else:
 			raise ValueError, ("The only possible values are "
@@ -90,16 +68,18 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 	# property definitions follow:
 	Alignment = property(_getAlignment, _setAlignment, None,
-						'Specifies the alignment of the text. (int) \n'
-						'   Left (default) \n'
-						'   Center \n'
-						'   Right')
+		"""Specifies the alignment of the text.
+		
+		Left (default)
+		Center
+		Right
+		""")
 	
 	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
-						'Specifies whether or not the text can be edited. (bool)')
+		"""Specifies whether or not the text can be edited.""")
 	
 	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
-						'Specifies whether all text gets selected upon receiving focus. (bool)')
+		"""Specifies whether all text gets selected upon receiving focus.""")
 
 
 if __name__ == "__main__":

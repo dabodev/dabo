@@ -293,10 +293,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 class dDataNavGrid(dGrid.dGrid):
-#	def __init__(self, parent, bizobj, form):
-#		wx.grid.Grid.__init__(self, parent, -1)
-	def initProperties(self):
-	
+	def _afterInit(self):
+		dDataNavGrid.doDefault()
 		self.bizobj = None
 
 		ID_IncrementalSearchTimer = wx.NewId()

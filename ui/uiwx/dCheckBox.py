@@ -11,38 +11,27 @@ from dabo.dLocalize import _
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 	""" Allows visual editing of boolean values.
 	"""
-	def __init__(self, parent, id=-1, style=0, properties=None, *args, **kwargs):
-		
+	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dCheckBox
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-		
-		pre = wx.PreCheckBox()
-		self._beforeInit(pre)
-		pre.Create(parent, id, style=style|pre.GetWindowStyle(), *args, **kwargs)
-		self.PostCreate(pre)
-		
-		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
-		
-		self.setProperties(properties)
-		self._afterInit()
+		preClass = wx.PreCheckBox
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-
-	def initEvents(self):
-		#dCheckBox.doDefault()
-		super(dCheckBox, self).initEvents()
-
-		# Respond to EVT_CHECKBOX and raise dEvents.Hit:
+	
+	def _initEvents(self):
+		super(dCheckBox, self)._initEvents()
 		self.Bind(wx.EVT_CHECKBOX, self._onWxHit)
 		
 		if wx.Platform == "__WXMAC__":
-			# On Mac, checkboxes don't receive the focus, so we need to flush the value
-			# on every hit. (pkm: I'm thinking maybe we should do it this way for all platforms)
-			self.bindEvent(dEvents.Hit, self._onHit )
+			# On Mac, checkboxes don't receive the focus, so we need to flush the 
+			# value on every hit. (pkm: I'm thinking maybe we should do it this 
+			# way for all platforms, for all non-textentry data controls.)
+			self.bindEvent(dEvents.Hit, self.__onHit )
 	
-	def _onHit(self, evt):
+			
+	def __onHit(self, evt):
 		self.flushValue()
 
+		
 	# property get/set functions
 	def _getAlignment(self):
 		if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):
@@ -65,9 +54,11 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		
 	# property definitions follow:
 	Alignment = property(_getAlignment, _setAlignment, None,
-			"Specifies the alignment of the text. (int) \n"
-			"   Left  : Checkbox to left of text (default) \n"
-			"   Right : Checkbox to right of text")
+		"""Specifies the alignment of the text.
+			
+		Left  : Checkbox to left of text (default)
+		Right : Checkbox to right of text
+		""")
 
 						
 if __name__ == "__main__":

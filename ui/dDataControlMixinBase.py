@@ -10,21 +10,18 @@ from dabo.dLocalize import _
 class dDataControlMixinBase(dabo.ui.dControlMixin):
 	""" Provide common functionality for the data-aware controls.
 	"""
-	
-	def __init__(self, name=None, _explicitName=True):
-		#dDataControlMixinBase.doDefault(name)
-		super(dDataControlMixinBase, self).__init__(name, _explicitName=_explicitName)
-
+	def __init__(self, *args, **kwargs):
+		super(dDataControlMixinBase, self).__init__(*args, **kwargs)
+			
 		self._value = self.Value
 		self.enabled = True
 
 		# Initialize runtime properties
 		self.bizobj = None
-
+			
 	
-	def initEvents(self):
-		#dDataControlMixinBase.doDefault()
-		super(dDataControlMixinBase, self).initEvents()
+	def _initEvents(self):
+		super(dDataControlMixinBase, self)._initEvents()
 		
 		try:
 			self.Form.bindEvent(dEvents.ValueRefresh, self.__onValueRefresh)

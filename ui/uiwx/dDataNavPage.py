@@ -182,9 +182,8 @@ class SortLabel(dLabel.dLabel):
 		
 		
 class dSelectPage(DataNavPage):
-	def __init__(self, parent):
-		#dSelectPage.doDefault(parent, name="pageSelect")
-		super(dSelectPage, self).__init__(parent, name="pageSelect")
+	def afterInit(self):
+		super(dSelectPage, self).afterInit()
 		# Holds info which will be used to create the dynamic
 		# WHERE clause based on user input
 		self.selectFields = {}
@@ -393,9 +392,6 @@ class dSelectPage(DataNavPage):
 			# The bizobj will get the SQL from the sql builder:
 			sql = bizobj.getSQL()
 	
-			if self.debug:
-				dabo.infoLog.write("\n%s\n" % sql)
-			
 			# But it won't automatically use that sql, so we set it here:
 			bizobj.setSQL(sql)
 	
@@ -551,7 +547,7 @@ class dSelectPage(DataNavPage):
 class dBrowsePage(DataNavPage):
 	def __init__(self, parent):
 		#dBrowsePage.doDefault(parent, "pageBrowse")
-		super(dBrowsePage, self).__init__(parent, "pageBrowse")
+		super(dBrowsePage, self).__init__(parent, Name="pageBrowse")
 
 
 	def initEvents(self):
@@ -658,7 +654,7 @@ class dBrowsePage(DataNavPage):
 class dEditPage(DataNavPage):
 	def __init__(self, parent, ds=None):
 		#dEditPage.doDefault(parent, "pageEdit")
-		super(dEditPage, self).__init__(parent, "pageEdit")
+		super(dEditPage, self).__init__(parent, Name="pageEdit")
 		self.dataSource = ds
 		self.childGrids = []
 		self.childrenAdded = False

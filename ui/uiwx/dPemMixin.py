@@ -6,40 +6,135 @@ from dabo.ui.dPemMixinBase import dPemMixinBase
 import dabo.dEvents as dEvents
 import dabo.common.dColors as dColors
 
+
 class dPemMixin(dPemMixinBase):
 	""" Provides Property/Event/Method interfaces for dForms and dControls.
 
 	Subclasses can extend the property sheet by defining their own get/set
 	functions along with their own property() statements.
 	"""
+	def __init__(self, preClass=None, parent=None, properties=None, *args, **kwargs):
+		# This is the major, common constructor code for all the dabo/ui/uiwx 
+		# classes. The __init__'s of each class are just thin wrappers to this
+		# code.
+		
+		# The keyword properties can come from either, both, or none of:
+		#    + the properties dict
+		#    + the kwargs dict
+		# Get them sanitized into one dict:
+		properties = self.extractKeywordProperties(kwargs, properties)
+		
+		# If a Name isn't given, a default name will be used, and it'll 
+		# autonegotiate by adding an integer until it is a unique name.
+		# If a Name is given explicitly, a NameError will be raised if
+		# the given Name isn't unique among siblings:
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
+
+		# Lots of useful wx props are actually only settable before the
+		# object is fully constructed. The self._initProperties dict keeps
+		# track of those during the pre-init phase, to finally send the 
+		# contents of it to the wx constructor. Our property setters know
+		# if we are in pre-init or not, and instead of trying to modify 
+		# the prop will instead add the appropriate entry to the _initProperties
+		# dict. Additionally, there are certain wx properties that are required,
+		# and we include those in the _initProperties dict as well so they may
+		# be modified by our pre-init method hooks if needed:
+		self._initProperties = {}
+		if kwargs.has_key("style"):
+			# If wx style parm sent, keep it as-is
+			style = kwargs["style"]
+		else:
+			style = 0
+		if kwargs.has_key("id"):
+			# If wx id parm sent, keep it as-is
+			id_ = kwargs["id"]
+		else:
+			id_ = -1
+		self._initProperties["style"] = style
+		self._initProperties["parent"] = parent
+		self._initProperties["id"] = id_
+		
+		# There are a few controls that don't yet support 3-way inits (grid, for one).
+		# These controls will send the wx classref as the preClass argument, and we'll
+		# call __init__ on it when ready. We can tell if we are in a three-way init
+		# situation based on whether or not preClass is a function type.
+		threeWayInit = (type(preClass) == types.FunctionType)
+		
+		if threeWayInit:
+			# Instantiate the wx Pre object
+			pre = preClass()
+		else:
+			pre = None
+		
+		# This will implicitly call the following user hooks:
+		#    beforeInit()
+		#    initStyleProperties()
+		self._beforeInit(pre)
+		
+		# The user's subclass code has had a chance to tweak the style properties.
+		# Insert any of those into the arguments to send to the wx constructor:
+		properties = self._setInitProperties(**properties)
+		for prop in self._initProperties.keys():
+			kwargs[prop] = self._initProperties[prop]
+		
+		# Allow the object a chance to add any required parms, such as OptionGroup
+		# which needs a choices parm in order to instantiate.
+		kwargs = self._preInitUI(kwargs)
+		
+		# Do the init:
+		if threeWayInit:
+			pre.Create(*args, **kwargs)
+		else:
+			preClass.__init__(self, *args, **kwargs)
+		
+		if threeWayInit:
+			self.PostCreate(pre)
+		
+		self._initName(name, _explicitName=_explicitName)
+		
+		self._afterInit()
+		self.setProperties(properties)
+	
 	def __getattr__(self, att):
 		""" Try to resolve att to a child object reference.
 
 		This allows accessing children with the style:
 			self.mainPanel.txtName.Value = "test"
 		"""
-		ret = self.FindWindowByName(att)
+		try:
+			ret = self.FindWindowByName(att)
+		except:
+			ret = None
 		if ret is None:
 			raise AttributeError, "%s object has no attribute %s" % (
 				self._name, att)
 		else:
 			return ret
 
-	
+			
+	def _initName(self, name=None, _explicitName=True):
+		if name is None:
+			name = self.Name
+		
+		try:
+			self._setName(name, _userExplicit=_explicitName)
+		except AttributeError:
+			# Some toolkits (Tkinter) don't let objects change their
+			# names after instantiation.
+			pass
+
+			
 	def _beforeInit(self, pre):
 		self.acceleratorTable = []
 		self._name = '?'
 		self._pemObject = pre
 		self.initStyleProperties()
-		self._pemObject = self
 		
 		# Call the subclass hook:
 		self.beforeInit(pre)
 		
 		
-	def __init__(self, *args, **kwargs):
-		self.debug = False
-		
+	def _afterInit(self):
 		try:
 			if self.Position == (-1, -1):
 				# The object was instantiated with a default position,
@@ -61,9 +156,8 @@ class dPemMixin(dPemMixinBase):
 			wx.HelpProvider.Set(wx.SimpleHelpProvider())
 
 		self._mouseLeftDown, self._mouseRightDown = False, False
-
-	
-	def _afterInit(self):
+		
+		self._pemObject = self
 		self.initProperties()
 		self.initChildObjects()
 		self.afterInit()
@@ -76,7 +170,29 @@ class dPemMixin(dPemMixinBase):
 		self.initEvents()
 		self.raiseEvent(dEvents.Create)
 
+	def _preInitUI(self, kwargs):
+		"""Subclass hook. Some wx objects (RadioBox) need certain props forced if
+		they hadn't been set by the user either as a parm or in initStyleProperties"""
+		return kwargs
 		
+	def _getInitPropertiesList(self):
+		return ('Alignment', 'BorderStyle', 'PasswordEntry', 'Orientation', 
+			'ShowLabels', 'TabPosition')
+
+	def _setInitProperties(self, **_properties):
+		# Called before the wx object is fully instantiated. Allows for sending
+		# wx style properties to the constructor. This process will set all the 
+		# init properties in the dict, and remove them from the dict so that 
+		# when setProperties() is called after the wx object is instantiated, 
+		# the style props won't be set a second time.
+		initProps = self._getInitPropertiesList()
+		for prop in _properties.keys():
+			if prop in initProps:
+				self.setProperties({prop:_properties[prop]})
+				del(_properties[prop])
+		return _properties
+
+	
 	def _initEvents(self):
 		# Bind wx events to handlers that re-raise the Dabo events:
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
@@ -179,13 +295,12 @@ class dPemMixin(dPemMixinBase):
 		d['showInDesigner'] = not name in ('Size', 'Position', 'WindowHandle', 'TypeID')
 
 		# Some wx-specific props need to be initialized early. Let the designer know:
-		d['preInitProperty'] = name in ('Alignment', 'BorderStyle', 'PasswordEntry', 
-				'Orientation', 'ShowLabels', 'TabPosition')
+		d['preInitProperty'] = name in styleProperties
 
 		return d
 		
 	
-	def addObject(self, classRef, name=None, *args, **kwargs):
+	def addObject(self, classRef, Name=None, *args, **kwargs):
 		""" Instantiate object as a child of self.
 		
 		The classRef argument must be a Dabo UI class definition. (it must inherit 
@@ -203,10 +318,10 @@ class dPemMixin(dPemMixinBase):
 		#   addObject(self, classRef, *args, **kwargs)
 		# Which would simplify the implementation somewhat. However, we want
 		# to enforce name as the second argument to avoid breaking old code.
-		if name is None:
+		if Name is None:
 			object = classRef(self, *args, **kwargs)
 		else:
-			object = classRef(self, name=name, *args, **kwargs)
+			object = classRef(self, Name=Name, *args, **kwargs)
 		return object
 
 	
@@ -230,13 +345,13 @@ class dPemMixin(dPemMixinBase):
 		# Called by the constructors of the dObjects, to properly set the
 		# name of the object based on whether the user set it explicitly
 		# or Dabo is to provide it implicitly.
-		if "name" in kwargs.keys():
+		if "Name" in kwargs.keys():
 			if "_explicitName" in kwargs.keys():
 				_explicitName = kwargs["_explicitName"]
 				del kwargs["_explicitName"]
 			else:
 				_explicitName = True
-			name = kwargs["name"]
+			name = kwargs["Name"]
 		else:
 			_explicitName = False
 			name = defaultName
@@ -277,17 +392,26 @@ class dPemMixin(dPemMixinBase):
 	def hasWindowStyleFlag(self, flag):
 		""" Return whether or not the flag is set. (bool)
 		"""
-		return (self._pemObject.GetWindowStyleFlag() & flag) == flag
+		if self._pemObject == self:
+			return (self.GetWindowStyleFlag() & flag) == flag
+		else:
+			return (self._initProperties["style"] & flag) == flag
 
 	def addWindowStyleFlag(self, flag):
 		""" Add the flag to the window style.
 		"""
-		self._pemObject.SetWindowStyleFlag(self._pemObject.GetWindowStyleFlag() | flag)
+		if self._pemObject == self:
+			self.SetWindowStyleFlag(self.GetWindowStyleFlag() | flag)
+		else:
+			self._initProperties["style"] = self._initProperties["style"] | flag
 
 	def delWindowStyleFlag(self, flag):
 		""" Remove the flag from the window style.
 		"""
-		self._pemObject.SetWindowStyleFlag(self._pemObject.GetWindowStyleFlag() & (~flag))
+		if self._pemObject == self:
+			self.SetWindowStyleFlag(self.GetWindowStyleFlag() & (~flag))
+		else:
+			self._initProperties["style"] = self._initProperties["style"] & (~flag)
 
 	def getColorTupleFromName(self, color):
 		"""Given a color name, such as "Blue" or "Aquamarine", return a color tuple.

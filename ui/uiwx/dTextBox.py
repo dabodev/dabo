@@ -9,38 +9,14 @@ from dabo.dLocalize import _
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	""" Allows editing one line of string or unicode data.
 	"""
-	def __init__(self, parent, id=-1, password=False, style=0, 
-		properties=None, *args, **kwargs):
-
+	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dTextBox
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
+		preClass = wx.PreTextCtrl
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-		# If this is a password textbox, update the style parameter
-		if password:
-			style = style | wx.TE_PASSWORD
-
-		pre = wx.PreTextCtrl()
-		self._beforeInit(pre)
-		pre.Create(parent, id, style=style|pre.GetWindowStyleFlag(), *args, **kwargs)
-		self.PostCreate(pre)
-
-		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
-		
-		self.setProperties(properties)
-		self._afterInit()
-
-		
-	def initProperties(self):
-		#dTextBox.doDefault()
-		super(dTextBox, self).initProperties()
-		self.SelectOnEntry = True
-
-
-	def initEvents(self):
-		#dTextBox.doDefault()
-		super(dTextBox, self).initEvents()
-		# catch wx.EVT_TEXT and raise dEvents.Hit:
+	
+	def _initEvents(self):
+		super(dTextBox, self)._initEvents()
 		self.Bind(wx.EVT_TEXT, self._onWxHit)
 		
 		
@@ -115,7 +91,8 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			_value = self._value = ""
 		dataType = type(_value)
 		
-		# Get the string value as reported by wx, which is the up-to-date value of the control:
+		# Get the string value as reported by wx, which is the up-to-date 
+		# value of the control:
 		strVal = self.GetValue()
 		
 		# Convert the current string value of the control, as entered by the 
@@ -126,19 +103,18 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			if strVal == "True":
 				value = True
 			else:
-				value = False
-				
+				value = False 		
 		else:
 			# Other types can convert directly.
 			try:
 				value = dataType(strVal)
-			except ValueError:
-				# The Python object couldn't convert it. Our validator, once implemented, 
-				# won't let the user get this far. In the meantime, log the Error and just keep
-				# the old value.
-				dabo.errorLog.write("Couldn't convert literal '%s' to %s." % (strVal, dataType))
+			except (ValueError, TypeError):
+				# The Python object couldn't convert it. Our validator, once 
+				# implemented, won't let the user get this far. In the meantime, 
+				# log the Error and just keep the old value.
+				dabo.errorLog.write("Couldn't convert literal '%s' to %s." 
+					% (strVal, dataType))
 				value = self._value
-		
 		return value		
 	
 					

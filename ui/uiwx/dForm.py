@@ -32,32 +32,15 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
 	like next(), last(), save(), and requery().
 	"""
-	def __init__(self, parent=None, id=-1, title='', properties=None, *args, **kwargs):
-		
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dForm
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
+		preClass = wxPreFrameClass
 		
-		if parent:
-			style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT
-		else:
-			style = wx.DEFAULT_FRAME_STYLE
-
-		pre = wxPreFrameClass()
-		self._beforeInit(pre)                  # defined in dPemMixin
-		pre.Create(parent, id, title, style=style|pre.GetWindowStyle(), *args, **kwargs)
-
-		self.PostCreate(pre)
-		
-		fm.dFormMixin.__init__(self, name=name, _explicitName=_explicitName)
-
-		self.debug = False
 		self.bizobjs = {}
 		self._primaryBizobj = None
-
-		self.Sizer = dSizer.dSizer("vertical")
-		self.Sizer.layout()
 		
+		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+
 		if self.Application is not None:
 			self.Application.uiForms.add(self)
 		
@@ -79,9 +62,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		# trying to overwrite it
 		self._holdStatusText = ""
 
-		self.setProperties(properties)
-		self._afterInit()                      # defined in dPemMixin
-
+		
+	def _afterInit(self):
+		self.Sizer = dSizer.dSizer("vertical")
+		self.Sizer.layout()
+		dForm.doDefault()
+	
 
 	def confirmChanges(self):
 		""" If the form's checkForChanges property is true,
@@ -162,8 +148,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.bizobjs[bizobj.DataSource] = bizobj
 		if len(self.bizobjs) == 1:
 			self.setPrimaryBizobj(bizobj.DataSource)
-		if self.debug:
-			dabo.infoLog.write(_("Added bizobj with DataSource of %s") % bizobj.DataSource)
 		self.setStatusText("Bizobj '%s' %s." % (bizobj.DataSource, _("added")))
 
 
@@ -277,8 +261,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			else:
 				bizobj.save()
 				
-			if self.debug:
-				dabo.infoLog.write(_("Save successful."))
 			self.setStatusText(_("Changes to %s saved.") % (
 					self.SaveAllRows and "all records" or "current record",))
 					
@@ -310,14 +292,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				bizobj.cancelAll()
 			else:
 				bizobj.cancel()
-			if self.debug:
-				dabo.infoLog.write(_("Cancel successful."))
 			self.setStatusText(_("Changes to %s canceled.") % (
 					self.SaveAllRows and "all records" or "current record",))
 			self.refreshControls()
 		except dException.dException, e:
-			if self.debug:
-				dabo.errorLog.write(_("Cancel failed with response: %s") % str(e))
+			dabo.errorLog.write(_("Cancel failed with response: %s") % str(e))
 			### TODO: What should be done here? Raise an exception?
 			###       Prompt the user for a response?
 
@@ -360,8 +339,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.stopWatch.Pause()
 			elapsed = round(self.stopWatch.Time()/1000.0, 3)
 			
-			if self.debug:
-				dabo.infoLog.write(_("Requery successful."))
 			self.refreshControls()
 
 			# Notify listeners that the row number changed:
@@ -406,8 +383,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if dMessageBox.areYouSure(message, defaultNo=True):
 			try:
 				bizobj.delete()
-				if self.debug:
-					dabo.infoLog.write(_("Delete successful."))
 				self.setStatusText(_("Record Deleted."))
 				self.refreshControls()
 				# Notify listeners that the row number changed:
@@ -434,8 +409,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if dMessageBox.areYouSure(message, defaultNo=True):
 			try:
 				bizobj.deleteAll()
-				if self.debug:
-					dabo.infoLog.write(_("Delete All successful."))
 				self.refreshControls()
 				# Notify listeners that the row number changed:
 				self.raiseEvent(dEvents.RowNumChanged)
@@ -455,8 +428,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.activeControlValid()
 		try:
 			bizobj.new()
-			if self.debug:
-				dabo.infoLog.write(_("New successful."))
 			statusText = self.getCurrentRecordText(dataSource)
 			self.setStatusText(statusText)
 			self.refreshControls()
