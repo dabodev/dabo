@@ -356,6 +356,9 @@ class dGrid(wx.grid.Grid):
             elif keyCode in range(240) and not evt.HasModifiers():
                 self.incrementalSearchNewKeyTimer.Stop()
                 self.currentIncrementalSearch = ''.join((self.currentIncrementalSearch, chr(keyCode)))
+                self.GetParent().getDform().SetStatusText('Search: %s'
+                         % self.currentIncrementalSearch)
+
                 self.incrementalSearchNewKeyTimer.Start(self.incrementalSearchNewKeyTimerInterval)
             else:
                 pass
@@ -438,9 +441,6 @@ class dGrid(wx.grid.Grid):
         # Stop the timer, add the character to the incremental search string,
         # process the search, and restart the timer
         self.incrementalSearchTimer.Stop()
-        
-        self.GetParent().getDform().SetStatusText('Search: %s'
-                             % self.currentIncrementalSearch)
         
         gridCol = self.GetGridCursorCol()
         if gridCol < 0:
