@@ -1128,7 +1128,7 @@ class dBizobj(dabo.common.dObject):
 		except AttributeError:
 			return ""
 	def _setSQL(self, val):
-		self._SQL = str(val)
+		self._SQL = val
 			
 	def _getRequeryOnLoad(self):
 		try:
