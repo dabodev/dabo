@@ -165,12 +165,6 @@ class dGrid(wx.grid.Grid):
         self.incrementalSearchTimerInterval = 600
         self.incrementalSearchTimer = wx.Timer(self, ID_IncrementalSearchTimer)
         
-        # This timer waits to see if another key is pressed within a brief period
-        # to avoid wasted searches
-        ID_IncrementalSearchNewKeyTimer = wx.NewId()
-        self.incrementalSearchNewKeyTimerInterval = 300
-        self.incrementalSearchNewKeyTimer = wx.Timer(self, ID_IncrementalSearchNewKeyTimer)
-        
         self.sortedColumn = None
         self.sortOrder = ""
                 
@@ -181,7 +175,6 @@ class dGrid(wx.grid.Grid):
         
         wx.EVT_TIMER(self,  ID_IncrementalSearchTimer, self.OnIncrementalSearchTimer)
         wx.EVT_KEY_DOWN(self, self.OnKeyDown)
-        wx.EVT_TIMER(self,  ID_IncrementalSearchNewKeyTimer, self.OnIncrementalSearchNewKeyTimer)
         
         wx.EVT_PAINT(self, self.OnPaint)
         wx.EVT_PAINT(self.GetGridColLabelWindow(), self.OnColumnHeaderPaint)
@@ -275,23 +268,13 @@ class dGrid(wx.grid.Grid):
         ''' dGrid.OnIncrementalSearchTimer(event) -> None
         
             Occurs when the timer reaches its interval, which means
-            that the incremental search wait period is over. Any future
-            keypress will start a new incremental search instead of
-            appending to an existing one.
+            that the incremental search wait period is over (it is
+            time to run the search, if there is any in the buffer).
         '''
-        self.currentIncrementalSearch = ""
-        self.incrementalSearchTimer.Stop()
-           
-             
-    def OnIncrementalSearchNewKeyTimer(self, evt):
-        ''' dGrid.OnIncrementalSearchNewKeyTimer(event) -> None
-        
-            Occurs when the timer reaches its interval, which means
-            that no new key has been pressed in that time period. We 
-            should now carry out the search.
-        '''
-        self.incrementalSearchNewKeyTimer.Stop()
-        self.processIncrementalSearch()
+        if len(self.currentIncrementalSearch) > 0:
+            self.processIncrementalSearch()
+        else:
+            self.incrementalSearchTimer.Stop()
            
              
     def OnLeftDClick(self, evt): 
@@ -354,12 +337,7 @@ class dGrid(wx.grid.Grid):
             elif keyCode == 343:    # F2
                 self.processSort()
             elif keyCode in range(240) and not evt.HasModifiers():
-                self.incrementalSearchNewKeyTimer.Stop()
-                self.currentIncrementalSearch = ''.join((self.currentIncrementalSearch, chr(keyCode)))
-                self.GetParent().getDform().SetStatusText('Search: %s'
-                         % self.currentIncrementalSearch)
-
-                self.incrementalSearchNewKeyTimer.Start(self.incrementalSearchNewKeyTimerInterval)
+                self.addToIncrementalSearch(chr(keyCode))
             else:
                 pass
             evt.Skip()
@@ -429,19 +407,13 @@ class dGrid(wx.grid.Grid):
         self.ForceRefresh()     # Redraw the up/down sort indicator
         table.fillTable()       # Sync the grid with the bizobj
      
-        
+    
     def processIncrementalSearch(self):
         ''' dGrid.processIncrementalSearch() -> None
         
-            Called from the incrementalSearchNewKeyTimer after
-            an interval has passed since the user pressed a key, indicating
-            that we should now carry out the incremental search using 
-            the string of characters already entered.
+            Called when the incremental search timer fires... it's
+            time to run the search.
         '''
-        # Stop the timer, add the character to the incremental search string,
-        # process the search, and restart the timer
-        self.incrementalSearchTimer.Stop()
-        
         gridCol = self.GetGridCursorCol()
         if gridCol < 0:
             gridCol = 0
@@ -453,6 +425,27 @@ class dGrid(wx.grid.Grid):
         if row > -1:
             self.SetGridCursor(row, gridCol)
             self.MakeCellVisible(row, gridCol)
+        
+        # Add a '.' to the status bar to signify that the search is
+        # done, and clear the search string for next time.
+        self.GetParent().getDform().SetStatusText('Search: %s.'
+                 % self.currentIncrementalSearch)
+        self.currentIncrementalSearch = ''
+
+                        
+    def addToIncrementalSearch(self, key):
+        ''' dGrid.addToIncrementalSearch(char key) -> None
+
+            Called by KeyDown when the user pressed an alphanumeric
+            key. Add the key to the current search and start the
+            timer.        
+        '''
+        self.incrementalSearchTimer.Stop()
+        
+        self.currentIncrementalSearch = ''.join((self.currentIncrementalSearch, key))
+        self.GetParent().getDform().SetStatusText('Search: %s'
+                 % self.currentIncrementalSearch)
+
         self.incrementalSearchTimer.Start(self.incrementalSearchTimerInterval)
 
         
