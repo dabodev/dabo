@@ -164,6 +164,20 @@ def hexToDec(hx):
 	return ret
 
 
+def tupleToHex(t, includeHash=True):
+	"""Convert a color tuple into an HTML hex format."""
+	rx, gx, bx = hex(t[0]), hex(t[1]), hex(t[2])
+	# Each is in the format '0x00'.
+	r = rx[2:].upper()
+	g = gx[2:].upper()
+	b= bx[2:].upper()
+	ret = ""
+	if includeHash:
+		ret = "#"
+	ret += r + g + b
+	return ret
+
+
 def colorTupleFromHex(hx):
 	# Strip the pound sign, if any
 	hx = hx.replace("#", "")
@@ -186,3 +200,6 @@ def colorTupleFromName(color):
 		raise KeyError, "Color '%s' is not defined." % color
 
 
+def randomColor():
+	import random
+	return colorDict[random.choice(colorDict.keys())]

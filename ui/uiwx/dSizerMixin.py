@@ -179,6 +179,22 @@ class dSizerMixin(dabo.common.dObject):
 			self.addSpacer(spc, pos)
 				
 	
+	def getItem(self, szItem):
+		"""Querying sizers for their contents returns sizer items, not
+		the actual items. So given a sizer item, this method will return
+		the actual item in the sizer.
+		"""
+		ret = None
+		if szItem is not None:
+			if szItem.IsWindow():
+				ret = szItem.GetWindow()
+			elif szItem.IsSpacer():
+				ret = szItem.GetSpacer()
+			elif szItem.IsSizer():
+				ret = szItem.GetSizer()
+		return ret	
+	
+	
 	def drawOutline(self, win, recurse=False):
 		""" There are some cases where being able to see the sizer
 		is helpful, such as at design time. This method can be called

@@ -203,12 +203,11 @@ class dFormMixin(pm.dPemMixin):
 	
 	def layout(self):
 		""" Wrap the wx sizer layout call. """
+		self.Layout()
 		try:
 			# Call the Dabo version, if present
 			self.Sizer.layout()
-		except:
-			# Use the wx version.
-			self.Layout()
+		except: pass
 		
 		
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):

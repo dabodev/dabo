@@ -40,6 +40,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, style=style, *args, **kwargs)
 		ListMixin.ListCtrlAutoWidthMixin.__init__(self)
 		self._selIndex = 0
+		self._valCol = 0
 		# Dictionary for tracking images by key value
 		self.__imageList = {}	
 
@@ -220,6 +221,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 			ret.append(indx)
 		return ret
 	def _setSelected(self, selList):
+		self.unselectAll()
 		for id in selList:
 			self.SetItemState(id, wx.LIST_STATE_SELECTED, 
 					wx.LIST_STATE_SELECTED)
@@ -233,7 +235,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	def _getValue(self):
 		ret = None
 		try:
-			ret = self.GetItemText(self._selIndex)
+			ret = self.GetItem(self._selIndex, self._valCol).GetText()
 		except: pass
 		return ret
 	def _setValue(self, val):
@@ -241,6 +243,21 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 			self.Select(val)
 		elif type(val) in (str, unicode):
 			self.Select(self.FindItem(-1, val))
+	
+	def _getValues(self):
+		ret = []
+		indxs = self._getSelected()
+		for idx in indxs:
+			try:
+				ret.append(self.GetItem(idx, self._valCol).GetText())
+			except: pass
+		return ret
+	
+	def _getValCol(self):
+		return self._valCol
+	def _setValCol(self, val):
+		self._valCol = val
+		
 
 	ColumnCount = property(_getColCount, None, None, 
 			_("Number of columns in the control (read-only).  (int)") )
@@ -250,11 +267,17 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 
 	SelectedIndices = property(_getSelected, _setSelected, None, 
 			_("Returns a list of selected row indices.  (list of int)") )
-			
+	
 	Value = property(_getValue, _setValue, None,
 			_("Returns current value (str)" ) )
 		
+	Values = property(_getValues, None, None,
+			_("Returns a list containing the Value of all selected rows  (list of str)" ) )
 		
+	ValueColumn = property(_getValCol, _setValCol, None,
+			_("The column whose text is reflected in Value (default=0).  (int)") )
+			
+			
 			
 if __name__ == "__main__":
 	import test

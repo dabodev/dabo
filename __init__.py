@@ -86,6 +86,8 @@ from dApp import dApp
 from __version__ import version
 import dEvents
 
+from dBug import logPoint
+
 # dApp will change the following values upon its __init__:
 dAppRef = None
 

@@ -7,7 +7,7 @@ from dabo.dLocalize import _
 class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	_IsContainer = False
 	
-	def __init__(self, vgap=3, hgap=3, maxRows=0, maxCols=0):
+	def __init__(self, vgap=3, hgap=3, maxRows=0, maxCols=0, **kwargs):
 		wx.GridBagSizer.__init__(self, vgap=vgap, hgap=hgap)
 		
 		self._maxRows = 0
@@ -26,10 +26,15 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		# contains an item
 		self._highRow = self._highCol = -1
 
+		for k,v in kwargs.items():
+			try:
+				exec("self.%s = %s" % (k,v))
+			except: pass
+
 
 	def append(self, item, layout="normal", row=-1, col=-1, 
 			rowSpan=1, colSpan=1, alignment=("middle", "left"), 
-			border=0, borderFlags=("all",)):
+			border=0, borderFlags=("all",), flag=None):
 		""" Inserts the passed item at the specified position in the grid. If no
 		position is specified, the item is inserted at the first available open 
 		cell as specified by the Max* properties.		
@@ -41,6 +46,8 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		else:
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, borderFlags, layout)
+			if flag:
+				_wxFlags = _wxFlags | flag
 			self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan), 
 					flag=_wxFlags, border=border)
 		
@@ -220,6 +227,23 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 						break
 				emptyCol += 1
 		return ret
+
+
+	def copyGrid(self, oldGrid):
+		""" This method takes an existing GridSizer, and copies
+		the contents to the current grid. The properties of each
+		cell's item are preserved, but row/column Expand settings 
+		must be handled separately.
+		"""
+		for r in range(oldGrid._highRow+1):
+			for c in range(oldGrid._highCol+1):
+				szitm = oldGrid.FindItemAtPosition( (r,c) )
+				itm = oldGrid.getItem(szitm)
+				if itm is None:
+					continue
+				f = szitm.GetFlag()
+				oldGrid.remove(itm)
+				self.append(itm, flag=f)
 
 
 	def drawOutline(self, win):
