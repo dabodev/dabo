@@ -113,8 +113,8 @@ class dConnectInfo(dabo.common.dObject):
 				import dbGadfly
 				self._backendObject = dbGadfly.Gadfly()
 			elif nm == "sqlite":
-				import dbSqlite
-				self._backendObject = dbSqlite.Sqlite()
+				import dbSQLite
+				self._backendObject = dbSQLite.SQLite()
 			elif nm == "firebird":
 				import dbFirebird
 				self._backendObject = dbFirebird.Firebird()
