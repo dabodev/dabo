@@ -7,6 +7,7 @@ the 'data' that gets displayed in the grid.
 '''
 import wx, wx.grid
 import urllib
+import dIcons
 
 class dGridDataTable(wx.grid.PyGridTableBase):
     def __init__(self, parent):
@@ -601,10 +602,19 @@ class dGrid(wx.grid.Grid):
         '''
         popup = wx.Menu()
         id_new,id_edit,id_delete = wx.NewId(), wx.NewId(), wx.NewId()
-        popup.Append(id_new, "&New", "Add a new record")
-        popup.Append(id_edit, "&Edit", "Edit this record")
-        popup.Append(id_delete, "&Delete", "Delete record")
         
+        item = wx.MenuItem(popup, id_new, "&New", "Add a new record")
+        item.SetBitmap(dIcons.getIconBitmap("blank"))
+        popup.AppendItem(item)
+
+        item = wx.MenuItem(popup, id_edit, "&Edit", "Edit this record")
+        item.SetBitmap(dIcons.getIconBitmap("edit"))
+        popup.AppendItem(item)
+        
+        item = wx.MenuItem(popup, id_delete, "&Delete", "Delete this record")
+        item.SetBitmap(dIcons.getIconBitmap("delete"))
+        popup.AppendItem(item)
+
         wx.EVT_MENU(popup, id_new, self.newRecord)
         wx.EVT_MENU(popup, id_edit, self.editRecord)
         wx.EVT_MENU(popup, id_delete, self.deleteRecord)
