@@ -32,6 +32,11 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 		return {"editor": "list", "values": ["string", "position", "key"]}
 
 
+	def _getChoicesEditorInfo(self):
+		return {"editor" : "choice"}
+	
+		
+
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getChoices(self):

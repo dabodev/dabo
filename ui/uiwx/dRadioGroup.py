@@ -78,6 +78,10 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 			d['preInitProperty'] = name in ('MaxElements', 'Orientation', 'Choices')
 		return d
 	
+	
+	def _getChoicesEditorInfo(self):
+		return {"editor" : "choice"}
+	
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
