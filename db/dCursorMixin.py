@@ -346,7 +346,7 @@ class dCursorMixin:
         diff = mem.makeDiff(rec)
         if diff:
             for fld, val in diff.items():
-                rec[fld] = mem.getOrigVal[fld]
+                rec[fld] = mem.getOrigVal([fld])
         return k.FILE_OK
 
 
