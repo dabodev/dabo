@@ -8,13 +8,13 @@ class dPanel(wx.Panel, dControlMixin.dControlMixin):
     instead, and then adding the panel to the form.
     '''
 
-    def __init__(self, parent, name="dPanel"):
+    def __init__(self, parent, id=-1, name="dPanel", *args, **kwargs):
     
         self._baseClass = dPanel
         
         pre = wx.PrePanel()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, -1)
+        pre.Create(parent, id=id, name=name, *args, **kwargs)
         
         self.this = pre.this
         self._setOORInfo(self)

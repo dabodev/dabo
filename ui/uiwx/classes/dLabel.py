@@ -2,14 +2,13 @@ import wx
 import dControlMixin as cm
 
 class dLabel(wx.StaticText, cm.dControlMixin):
-    def __init__(self, parent, name="dLabel", label="", windowStyle=None):
+    def __init__(self, parent, id=-1, name="dLabel", style=0, *args, **kwargs):
         
         self._baseClass = dLabel
         
         pre = wx.PreStaticText()
         self.beforeInit(pre)                  # defined in dPemMixin
-        windowStyle = windowStyle | wx.ST_NO_AUTORESIZE
-        pre.Create(parent, -1, label, (-1,-1), (-1,-1), windowStyle)
+        pre.Create(parent, id, name, style=style, *args, **kwargs)
         
         self.this = pre.this
         self._setOORInfo(self)
@@ -33,6 +32,7 @@ class dLabel(wx.StaticText, cm.dControlMixin):
         else:
             return 0
     def _setAlignment(self, value):
+        # Note: Alignment must be set before object created.
         if value == 0:
             self.addWindowStyleFlag(wx.ALIGN_LEFT)
         elif value == 1:

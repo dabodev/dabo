@@ -5,14 +5,15 @@ import dDataControlMixin as dcm
 # The EditBox is just a TextBox with some additional styles.
 
 class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
-    def __init__(self, parent, name="dEditBox"):
+    def __init__(self, parent, id=-1, name="dEditBox", style=0, *args, **kwargs):
     
         self._baseClass = dEditBox
         
+        style = style | wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.TE_LINEWRAP
+        
         pre = wx.PreTextCtrl()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, -1, '', (-1,-1), (-1,-1),
-                wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.TE_LINEWRAP)
+        pre.Create(parent, id, name, style=style, *args, **kwargs)
         
         self.this = pre.this
         self._setOORInfo(self)

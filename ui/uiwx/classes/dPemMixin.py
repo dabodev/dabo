@@ -258,7 +258,7 @@ class dPemMixin(object):
         else:
             return None
     def _setToolTipText(self, value):
-        t = self.GetToolTop()
+        t = self.GetToolTip()
         if t:
             t.SetTip(value)
         else:

@@ -3,13 +3,14 @@ import dControlMixin as cm
 import dDataControlMixin as dcm
 
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
-    def __init__(self, parent, name="dTextBox"):
+    
+    def __init__(self, parent, id=-1, name="dTextBox", *args, **kwargs):
         
         self._baseClass = dTextBox
         
         pre = wx.PreTextCtrl()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, -1)
+        pre.Create(parent, id, name, *args, **kwargs)
         
         self.this = pre.this
         self._setOORInfo(self)

@@ -27,8 +27,9 @@ from dMainMenuBar import dMainMenuBar
 from dMenuBar import dMenuBar
 from dMenu import dMenu
 from dOptionGroup import dOptionGroup
+from dPanel import dPanel
 from dPageFrame import dPageFrame
-from dPage import *
+from dPage import dPage
 from dSpinner import dSpinner
 from dTextBox import dTextBox
 from dTreeView import dTreeView

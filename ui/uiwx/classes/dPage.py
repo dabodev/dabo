@@ -4,7 +4,7 @@ import wx, dPanel
 class dPage(dPanel.dPanel):
         
     def __init__(self, parent, name="dPage"):
-        dPage.doDefault(parent, name)
+        dPage.doDefault(parent, name=name)
     
     
     def afterInit(self):

@@ -2,14 +2,13 @@ import wx
 import dControlMixin as cm
 
 class dCommandButton(wx.Button, cm.dControlMixin):
-    def __init__(self, parent, name="dCommandButton", label="", 
-            pos=wx.DefaultPosition, size=wx.DefaultSize):
+    def __init__(self, parent, id=-1, name="dCommandButton", *args, **kwargs):
         
         self._baseClass = dCommandButton
         
         pre = wx.PreButton()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, -1, label, pos, size)
+        pre.Create(parent, id, name, *args, **kwargs)
         
         self.this = pre.this
         self._setOORInfo(self)

@@ -13,7 +13,7 @@ If you instead run this test.py as a script, a form will be instantiated with
 all the dControls.
 '''
 import wx
-from dabo.ui.uiwx import *
+import dabo.ui.uiwx as ui
 
 class Test(object):
     def __init__(self):
@@ -32,49 +32,49 @@ class Test(object):
     def testAll(self):
         ''' Create a dForm and populate it with example dWidgets. 
         '''
-        frame = dForm()
-        frame.SetSize((640,480))
+        frame = ui.dForm()
+        frame.Width, frame.Height = 640, 480
+        frame.Caption = "Test of all the dControls"
         frame.debug = True
         
-        frame.SetLabel("Test of all the dControls")
-        
-        panel = wx.Panel(frame, -1)
+        panel = ui.dPanel(frame)
         
         labelWidth = 150
         labelAlignment = wx.ALIGN_RIGHT
         
         vs = wx.BoxSizer(wx.VERTICAL)
 
-        for obj in ((dTextBox(panel), "txtCounty", "ccounty"), 
-                    (dTextBox(panel), "txtCity", "ccity"),
-                    (dTextBox(panel), "txtZipcode", "czip"),
-                    (dSpinner(panel), "spn1", "iid"),
-                    (dCheckBox(panel), "chk1"),
-                    (dEditBox(panel), "edt1"),
-                    (dCommandButton(panel), "cmd1")):
+        for obj in ((ui.dTextBox(panel), "txtCounty", "ccounty"), 
+                    (ui.dTextBox(panel), "txtCity", "ccity"),
+                    (ui.dTextBox(panel), "txtZipcode", "czip"),
+                    (ui.dSpinner(panel), "spn1", "iid"),
+                    (ui.dCheckBox(panel), "chk1"),
+                    (ui.dEditBox(panel), "edt1"),
+                    (ui.dCommandButton(panel), "cmd1")):
             bs = wx.BoxSizer(wx.HORIZONTAL)
-            label = dLabel(panel, windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE)
-            label.SetSize((labelWidth,-1))
+            label = ui.dLabel(panel, style=wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE)
+            label.Width = labelWidth
+            
             try:
                 lblName = obj[2]
             except IndexError:
                 lblName = "%s" % obj[1]
-            label.SetName(lblName)
-            label.SetLabel("%s:" % lblName)
+            label.Name = lblName
+            label.Caption = "%s:" % lblName
             bs.Add(label)
                             
             object = obj[0]
-            if isinstance(object, dEditBox):
+            if isinstance(object, ui.dEditBox):
                 expandFlags = wx.EXPAND
             else:
                 expandFlags = 0
 
-            object.SetName("%s" % obj[1])
+            object.Name = "%s" % obj[1]
             object.debug = True # show the events
             
             bs.Add(object, 1, expandFlags | wx.ALL, 0)
 
-            if isinstance(object, dEditBox):
+            if isinstance(object, ui.dEditBox):
                 vs.Add(bs, 1, wx.EXPAND)
             else:
                 vs.Add(bs, 0, wx.EXPAND)
@@ -88,7 +88,7 @@ class Test(object):
         
         frame.GetSizer().Add(panel, 1, wx.EXPAND)
         frame.GetSizer().Layout()
-        frame.Show(1)
+        frame.Show()
         self.app.MainLoop()
 
 if __name__ == "__main__":

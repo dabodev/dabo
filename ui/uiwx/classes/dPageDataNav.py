@@ -1,10 +1,11 @@
-import dPage, dGrid, dEditBox, dTextBox, dSpinner, dCheckBox, dLabel
-import dMessageBox, dEvents, wx
+import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox, dIcons
+import dPanel, dGrid, dCommandButton
+import wx
 
 class dSelectPage(dPage.dPage):
 
     def __init__(self, parent):
-        dSelectPage.doDefault(parent, "pageSelect")
+        dSelectPage.doDefault(parent, name="pageSelect")
                 
     def createItems(self):
         self.selectOptionsPanel = self._getSelectOptionsPanel()
@@ -75,6 +76,9 @@ class dSelectPage(dPage.dPage):
         
         return whereClause
         
+    def onRequery(self, evt):
+        self.requery()
+        evt.Skip()
         
     def requery(self):
         bizobj = self.getDform().getBizobj()
@@ -99,7 +103,7 @@ class dSelectPage(dPage.dPage):
     def _getSelectOptionsPanel(self):
         dataSource = self.getDform().getBizobj().dataSource
         columnDefs = self.getDform().getColumnDefs(dataSource)
-        panel = wx.Panel(self, -1)
+        panel = dPanel.dPanel(self)
 
         stringMatchAll = []
 
@@ -107,7 +111,8 @@ class dSelectPage(dPage.dPage):
         panel.selectOptions = []
         sizer = wx.BoxSizer(wx.VERTICAL)
         
-        label = wx.StaticText(panel, -1, "Please enter your record selection criteria:")
+        label = dLabel.dLabel(panel)
+        label.Caption = "Please enter your record selection criteria:"
         sizer.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
 
         for column in columnDefs:
@@ -125,49 +130,57 @@ class dSelectPage(dPage.dPage):
                     where =     "%s.%s BETWEEN '?(user1)' AND '?(user2)'" % (
                                 column["tableName"], column["fieldName"])
                         
-                    cb = wx.CheckBox(panel, cbId, "%s is in the range of:" % (
-                                        column["caption"],))
+                    cb = dCheckBox.dCheckBox(panel, id=cbId)
+                    cb.Caption = "%s is in the range of:" % (column["caption"],)
+                    cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
                     
-                    wx.EVT_CHECKBOX(self, cbId, self.OnSelectCheckbox)
+                    cb.Bind(wx.EVT_CHECKBOX, self.OnSelectCheckbox)
                     
-                    box.Add(cb, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+                    box.Add(cb, 0, wx.ALL, 5)
 
-                    text = wx.TextCtrl(panel, user1Id)
-                    box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+                    text = dTextBox.dTextBox(panel, id=user1Id)
+                    text.Value = ''
+                    box.Add(text, 1, wx.ALL, 5)
 
-                    label = wx.StaticText(panel, -1, "and")
-                    box.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+                    label = dLabel.dLabel(panel)
+                    label.Caption = "and"
+                    box.Add(label, 0, wx.ALL, 5)
 
-                    text = wx.TextCtrl(panel, user2Id)
-                    box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+                    text = dTextBox.dTextBox(panel, id=user2Id)
+                    text.Value = ''
+                    box.Add(text, 1, wx.ALL, 5)
                     
                 elif selectType == "value":
-                    where =     "%s.%s = '?(user1)'" % (
+                    where = "%s.%s = '?(user1)'" % (
                                 column["tableName"], column["fieldName"])
                         
-                    cb = wx.CheckBox(panel, cbId, "%s is equal to:" % (
-                                        column["caption"],))
+                    cb = dCheckBox.dCheckBox(panel, id=cbId)
+                    cb.Caption = "%s is equal to:" % (column["caption"],)
+                    cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
                     
-                    wx.EVT_CHECKBOX(self, cbId, self.OnSelectCheckbox)
+                    cb.Bind(wx.EVT_CHECKBOX, self.OnSelectCheckbox)
                     
-                    box.Add(cb, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+                    box.Add(cb, 0, wx.ALL, 5)
 
-                    text = wx.TextCtrl(panel, user1Id)
-                    box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+                    text = dTextBox.dTextBox(panel, id=user1Id)
+                    text.Value = ''
+                    box.Add(text, 1, wx.ALL, 5)
 
                 elif selectType == "stringMatch":
                     where = "%s.%s LIKE '%c?(user1)%c'" % (
                             column["tableName"], column["fieldName"], "%", "%")    
                         
-                    cb = wx.CheckBox(panel, cbId, "%s contains:" % (
-                                        column["caption"],))
+                    cb = dCheckBox.dCheckBox(panel, id=cbId)
+                    cb.Caption = "%s contains:" % (column["caption"],)
+                    cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
                     
-                    wx.EVT_CHECKBOX(self, cbId, self.OnSelectCheckbox)
+                    cb.Bind(wx.EVT_CHECKBOX, self.OnSelectCheckbox)
                     
-                    box.Add(cb, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+                    box.Add(cb, 0, wx.ALL, 5)
 
-                    text = wx.TextCtrl(panel, user1Id)
-                    box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+                    text = dTextBox.dTextBox(panel, id=user1Id)
+                    text.Value = ''
+                    box.Add(text, 1, wx.ALL, 5)
                 
                 elif selectType == "stringMatchAll":
                     stringMatchAll.append(column)
@@ -192,14 +205,16 @@ class dSelectPage(dPage.dPage):
             cbId, user1Id, user2Id = wx.NewId(), wx.NewId(), wx.NewId()
             where = ""
 
-            cb = wx.CheckBox(panel, cbId, "String Match:")
+            cb = dCheckBox.dCheckBox(panel, id=cbId)
+            cb.Caption = "String Match:"
+            cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
+            cb.Bind(wx.EVT_CHECKBOX, self.OnSelectCheckbox)
 
-            wx.EVT_CHECKBOX(self, cbId, self.OnSelectCheckbox)
+            box.Add(cb, 0, wx.ALL, 5)
 
-            box.Add(cb, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
-
-            text = wx.TextCtrl(panel, user1Id)
-            box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+            text = dTextBox.dTextBox(panel, id=user1Id)
+            text.Value = ''
+            box.Add(text, 1, wx.ALL, 5)
             
             for column in stringMatchAll:
                 if len(where) > 0:
@@ -221,36 +236,20 @@ class dSelectPage(dPage.dPage):
         sizer.Add(line, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.TOP, 5)
 
         box = wx.BoxSizer(wx.HORIZONTAL)
+        
+        requeryButton = dCommandButton.dCommandButton(panel)
+        requeryButton.Caption = "&Requery"
+        requeryButton.Default = True             # Doesn't work on Linux, but test on win/mac
+        requeryButton.Bind(wx.EVT_BUTTON, self.onRequery)
+        
+        box.Add(requeryButton, 0)
+        sizer.Add(box, 0, wx.GROW, 5)
 
         panel.SetSizer(sizer)
         panel.SetAutoLayout(True)
         sizer.Fit(panel)
         
         return panel
-
-
-        if len(stringMatchAll) > 0:        
-            labelCaption = "String Match:"
-            labelWidth = 150
-
-            bs = wx.BoxSizer(wx.HORIZONTAL)
-
-            labelAlignment = wx.ALIGN_RIGHT
-
-            label = dLabel(self, windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE)
-            label.SetSize((labelWidth,-1))
-            label.SetName("lblStringMatchAll")
-            label.SetLabel(labelCaption)
-                
-            objectRef = dTextBox(self)
-            objectRef.SetName("stringMatchAll")
-
-            bs.Add(label)
-            bs.Add(objectRef, 1, wx.ALL, 0)
-
-            self.GetSizer().Add(bs, 0, wx.EXPAND)
-
-        self.GetSizer().Layout()
 
 
 class dBrowsePage(dPage.dPage):
@@ -349,10 +348,10 @@ class dEditPage(dPage.dPage):
                 
                 bs = wx.BoxSizer(wx.HORIZONTAL)
                 
-                labelAlignment = wx.ALIGN_RIGHT
+                labelStyle = wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE
 
-                label = dLabel.dLabel(self, name="lbl%s" % fieldName, 
-                    windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE)
+                label = dLabel.dLabel(self, style=labelStyle)
+                label.Name="lbl%s" % fieldName 
                 label.Width = labelWidth
                 label.Caption = labelCaption
                 
@@ -365,7 +364,8 @@ class dEditPage(dPage.dPage):
                 else:
                     classRef = dTextBox.dTextBox
                 
-                objectRef = classRef(self, fieldName)
+                objectRef = classRef(self)
+                objectRef.Name = fieldName
                 objectRef.DataSource = dataSource
                 objectRef.DataField = fieldName
                 objectRef.enabled = fieldEnabled
