@@ -9,7 +9,8 @@ class DbType(object):
     
     def isValidModule(self):
         ''' Test the dbapi to see if it is supported on this
-            computer. 
+            computer. Currently, the only checking is to see
+            if the named module imports or not. 
         '''
         try:
             exec("import %s as dbapi" % self.dbModuleName)

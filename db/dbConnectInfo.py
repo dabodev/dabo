@@ -3,10 +3,11 @@ import dbType
 class DbConnectInfo(object):
     ''' Holder for the properties for connecting to the backend 
     
+    
         ci = ConnectInfo('MySQL')
         ci.host = 'paulmcnett.com'
-        ci.user = 'dabo'
-        ci.password = 'dabo'
+        ci.user = 'sa'
+        ci.password = ''
         
     '''
     
@@ -30,18 +31,21 @@ class DbConnectInfo(object):
         return self._dbTypeName
     
     def setDbTypeName(self, dbTypeName):
-        ''' Only set the db type name if valid,
-            and also set self._dbTypeObject to  
-            the correct type instance.
-        '''
+        # Only set the db type name if valid,
+        # and also set self._dbTypeObject to  
+        # the correct type instance.
         import dbType
         try:
             dbTypeObject = eval("dbType.%s()" % dbTypeName)
         except AttributeError:
-            return
-        if dbTypeObject.isValidModule():
+            dbTypeObject = None
+            
+        if dbTypeObject <> None and dbTypeObject.isValidModule():
             self._dbTypeName = dbTypeName
             self._dbTypeObject = dbTypeObject
+        else:
+            self._dbTypeName = None
+            self._dbTypeObject = None
     
     def getDbTypeObject(self):
         return self._dbTypeObject
@@ -78,7 +82,7 @@ class DbConnectInfo(object):
     dbTypeObject = property(getDbTypeObject)
     
 if __name__ == '__main__':
-    test = ConnectInfo()
+    test = DbConnectInfo()
     print test.dbTypeName
     test.dbTypeName = "MySQL"
     print test.dbTypeName

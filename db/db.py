@@ -1,6 +1,7 @@
 ''' db.py 
 
-    This is the file that dabo interfaces with. 
+    Main script of the dabo.db module
+    
 '''
 
 import dbConnectInfo

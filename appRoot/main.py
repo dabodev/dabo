@@ -24,7 +24,6 @@
     and it should work fine. Unless you really want to extend the app
     object, though, just stick with using the daboApp directly.
     
-    Dabo is fun to say!
 '''
 
 if __name__ == "__main__":
