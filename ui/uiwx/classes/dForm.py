@@ -300,6 +300,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		"""
 		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
+		
+		if not bizobj.getRowCount() > 0:
+			# Nothing to delete!
+			self.setStatusText(_("Nothing to delete!"))
+			return
+			
 		if not message:
 			message = _("This will delete the current record, and cannot "
 						"be canceled.\n\n Are you sure you want to do this?")
