@@ -48,7 +48,14 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 	def _getValue(self):
 		return self.GetStringSelection()
 	def _setValue(self, value):
-		self.SetStringSelection(value)
+		if type(value) == type(""):
+			try:
+				self.SetStringSelection(value)
+			except: pass		# maybe raise an error?
+		elif type(value) == type(0):
+			try:
+				self.SetSelection(value)
+			except: pass
 	
 	# Property definitions:
 	Value = property(_getValue, _setValue, None,
@@ -57,3 +64,4 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(dListBox, choices=["soccer", "basketball", "golf", "baseball"])
+
