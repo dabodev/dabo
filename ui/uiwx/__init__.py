@@ -61,6 +61,8 @@ from dSizer import dSizer
 from dBorderSizer import dBorderSizer
 from dSlider import dSlider
 from dSpinner import dSpinner
+from dSplitForm import dSplitForm
+from dSplitter import dSplitter
 from dTextBox import dTextBox
 from dTimer import dTimer
 from dToggleButton import dToggleButton

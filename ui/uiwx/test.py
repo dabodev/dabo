@@ -26,15 +26,30 @@ class Test(object):
 	def runTest(self, classRefs, *args, **kwargs):
 		if type(classRefs) not in (tuple, list):
 			classRefs = (classRefs,)
-		frame = wx.Frame(None, -1, "")
-		top=0
-		for class_ in classRefs:
-			object = class_(frame, LogEvents=logEvents, Top=top, *args, **kwargs)
-			top = top + object.Height
-		frame.SetSize((300,top))
-		frame.SetLabel("Test of %s" % object.Name)
-		object.SetFocus()
+		if issubclass(classRefs[0], wx.Frame):
+			# Can't display a frame within another frame, so create this
+			# class as the main frame
+			frame = classRefs[0](None, -1, *args, **kwargs)
+		else:
+			frame = wx.Frame(None, -1, "")
+			frame.SetSizer(ui.dSizer("Vertical"))
+			for class_ in classRefs:
+				object = class_(frame, LogEvents=logEvents, *args, **kwargs)
+				frame.GetSizer().append(object, 1, "expand")
+			
+			# This will get a good approximation of the required size
+			w,h = frame.GetSizer().GetMinSize()
+			# Some controls don't report sizing correctly, so set a minimum
+			w = max(w, 100)
+			h = max(h, 50)
+			print "SZ", w, h
+			
+			frame.SetSize( (w+10, h+30) )
+			frame.SetLabel("Test of %s" % object.Name)
+			object.SetFocus()
+		
 		frame.Show()
+		frame.Layout()
 		#object.Show()
 		self.app.MainLoop()
 
