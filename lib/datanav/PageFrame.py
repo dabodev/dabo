@@ -52,7 +52,7 @@ class PageFrame(dabo.ui.dPageFrame):
 		self.appendPage(self.BrowsePageClass(self), caption=title, imgKey="browse")
 	
 	def addEditPage(self, ds=None, title="Edit"):
-		self.appendPage(self.EditPageClass(self), caption=title, imgKey="edit")
+		self.appendPage(self.EditPageClass(self, ds=ds), caption=title, imgKey="edit")
 		# The page number will be the PageCount minus one.
 		self.dsEditPages[ds] = self.PageCount - 1
 	
