@@ -13,7 +13,7 @@ class Event(dObject):
 	"""		
 	def __init__(self, eventObject, uiEvent=None, *args, **kwargs):
 		#Event.doDefault()
-		super(Event, self).__init__(eventObject, uiEvent=None, *args, **kwargs)
+		super(Event, self).__init__()
 		
 		self.EventObject = eventObject
 		self._uiEvent = uiEvent
