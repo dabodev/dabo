@@ -25,11 +25,16 @@ def openConn():
     
 def getBiz():
     biz = bizZip(openConn())
-    print biz
     return biz
 
 if __name__ == "__main__":
     biz = getBiz()
+    print biz
+    print "Rowcount: %s" % biz.getRowCount()
     print biz.getFieldVal("czip"), biz.getFieldVal("ccounty")
-    biz.next()
+    print biz.next()
     print biz.getFieldVal("czip"), biz.getFieldVal("ccounty")
+    print biz.next()
+    print biz.getFieldVal("czip"), biz.getFieldVal("county")
+    print biz.next()
+    print biz.getFieldVal("czip"), biz.getFieldVal("county")
