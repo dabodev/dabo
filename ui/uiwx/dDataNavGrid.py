@@ -84,9 +84,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if not self.preview:
 			# Fill self.data based on bizobj records
 			dataSet = self.bizobj.getDataSet()
-			
-			print "DATA LEN", len(dataSet)
-			
 		else:
 			# Create a single empty row for the data set
 			dataRec = {}
