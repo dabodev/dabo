@@ -594,12 +594,16 @@ class dGrid(wx.grid.Grid):
 			else:
 				sortOrder = "ASC"
 
-		self.bizobj.sort(columnToSort, sortOrder)
-		self.sortedColumn = gridCol
-		self.sortOrder = sortOrder
-
-		self.ForceRefresh()     # Redraw the up/down sort indicator
-		table.fillTable()       # Sync the grid with the bizobj
+		try:
+			self.bizobj.sort(columnToSort, sortOrder)
+			self.sortedColumn = gridCol
+			self.sortOrder = sortOrder
+	
+			self.ForceRefresh()     # Redraw the up/down sort indicator
+			table.fillTable()       # Sync the grid with the bizobj
+		except dException.NoRecordsException, e:
+			# no records to sort; ignore it
+			pass
 
 
 	def processIncrementalSearch(self):
