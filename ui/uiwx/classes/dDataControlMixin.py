@@ -73,7 +73,7 @@ class dDataControlMixin:
                 # However, sometimes the value doesn't display with
                 # the -1 trick. So... for now, keep at 0...
                 self.SetInsertionPoint(0)
-                self.SetSelection(-1,-1) # select all text
+                self.SetSelection(-1,-1)          # select all text
         except:
             pass
         

@@ -35,7 +35,7 @@ class dFormDataNav(dForm):
         self.CreateToolBar()
         toolBar = self.GetToolBar()
         
-        self._appendToToolBar(toolBar, "First", dIcons.getIconBitmap("leftArrowsBeg"),
+        self._appendToToolBar(toolBar, "First", dIcons.getIconBitmap("leftArrows"),
                               self.onFirst, "Go to the first record")
             
         self._appendToToolBar(toolBar, "Prior", dIcons.getIconBitmap("leftArrow"),
@@ -47,7 +47,7 @@ class dFormDataNav(dForm):
         self._appendToToolBar(toolBar, "Next", dIcons.getIconBitmap("rightArrow"),
                               self.onNext, "Go to the next record")
             
-        self._appendToToolBar(toolBar, "Last", dIcons.getIconBitmap("rightArrowsEnd"),
+        self._appendToToolBar(toolBar, "Last", dIcons.getIconBitmap("rightArrows"),
                               self.onLast, "Go to the last record")
         
         toolBar.AddSeparator()
@@ -63,7 +63,7 @@ class dFormDataNav(dForm):
         self._appendToToolBar(toolBar, "Save", dIcons.getIconBitmap("fileSave"),
                               self.onSave, "Save changes")
     
-        self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("fileRevert"),
+        self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("revert"),
                               self.onCancel, "Cancel changes")
                               
     def getMenu(self):

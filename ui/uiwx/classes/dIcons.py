@@ -14,7 +14,10 @@ def getIconBitmap(iconName):
         a wx.NullBitmap object.
     '''
     try:
-        r = wx.BitmapFromXPMData(eval("dabo.icons.actions.%s" % iconName))
+        fileName = dabo.icons.getIconFileName(iconName)
+        r = wx.Bitmap(fileName, wx.BITMAP_TYPE_PNG)
+        print r
+        return r
     except (NameError, AttributeError):
         r = wx.NullBitmap
     return r
