@@ -55,8 +55,18 @@ class dCursorMixin:
 		# Internal counters for row number and count properties.
 		self.__rownumber = -1
 		self.__rowcount = -1
-
 		
+		# properties for the SQL Builder functions
+		self._fieldClause = ""
+		self._fromClause = ""
+		self._whereClause = ""
+		self._childFilterClause = ""
+		self._groupByClause = ""
+		self._orderByClause = ""
+		self._limitClause = ""
+		self._defaultLimit = 1000
+		self.hasSqlBuilder = True
+
 		# Just in case this is used outside of the context of a bizobj
 		if not hasattr(self, "superCursor") or self.superCursor is None:
 			myBases = self.__class__.__bases__
@@ -728,8 +738,7 @@ class dCursorMixin:
 
 
 	def __setStructure(self):
-		""" If this instance was created with the SqlBuilderMixin, we can just 
-		use that to get the no-records version of the SQL statement. Otherwise,
+		""" Try using the no-records version of the SQL statement. Otherwise,
 		we need to parse the sql property to get what we need.
 		"""
 		try:
@@ -1056,6 +1065,189 @@ class dCursorMixin:
 			ret = self.BackendObject.rollbackTransaction(self)
 			self.__restoreProps()
 		return ret
+	
+
+	###     SQL Builder methods     ########
+	def getFieldClause(self):
+		""" Get the field clause of the sql statement.
+		"""
+		return self._fieldClause
+
+	def setFieldClause(self, clause):
+		""" Set the field clause of the sql statement.
+		"""
+		self._fieldClause = clause
+
+	def addField(self, exp):
+		""" Add a field to the field clause.
+		"""
+		if self.BackendObject:
+			self._fieldClause = self.BackendObject.addField(self._fieldClause, exp)
+
+	def getFromClause(self):
+		""" Get the from clause of the sql statement.
+		"""
+		return self._fromClause
+
+	def setFromClause(self, clause):
+		""" Set the from clause of the sql statement.
+		"""
+		self._fromClause = clause
+
+	def addFrom(self, exp):
+		""" Add a table to the sql statement.
+
+		For joins, use setFromClause() to set the entire from clause
+		explicitly.
+		"""
+		if self.BackendObject:
+			self._fromClause = self.BackendObject.addFrom(self._fromClause, exp)
+
+	def getWhereClause(self):
+		""" Get the where clause of the sql statement.
+		"""
+		return self._whereClause
+
+	def setWhereClause(self, clause):
+		""" Set the where clause of the sql statement.
+		"""
+		self._whereClause = clause
+
+	def addWhere(self, exp, comp="and"):
+		""" Add an expression to the where clause.
+		"""
+		
+		print "ADD WHERE", exp
+		
+		
+		if self.BackendObject:
+			self._whereClause = self.BackendObject.addWhere(self._whereClause, exp, comp)
+
+	def getChildFilterClause(self):
+		""" Get the child filter part of the sql statement.
+		"""
+		return self._childFilterClause
+
+	def setChildFilterClause(self, clause):
+		""" Set the child filter clause of the sql statement.
+		"""
+		self._childFilterClause = clause
+
+	def getGroupByClause(self):
+		""" Get the group-by clause of the sql statement.
+		"""
+		return self._groupByClause
+
+	def setGroupByClause(self, clause):
+		""" Set the group-by clause of the sql statement.
+		"""
+		self._groupByClause = clause
+
+	def addGroupBy(self, exp):
+		""" Add an expression to the group-by clause.
+		"""
+		if self.BackendObject:
+			self._groupByClause = self.BackendObject.addGroupBy(self._groupByClause, exp)
+
+	def getOrderByClause(self):
+		""" Get the order-by clause of the sql statement.
+		"""
+		return self._orderByClause
+
+	def setOrderByClause(self, clause):
+		""" Set the order-by clause of the sql statement.
+		"""
+		self._orderByClause = clause
+
+	def addOrderBy(self, exp):
+		""" Add an expression to the order-by clause.
+		"""
+		if self.BackendObject:
+			self._orderByClause = self.BackendObject.addOrderBy(self._orderByClause, exp)
+
+	def getLimitClause(self):
+		""" Get the limit clause of the sql statement.
+		"""
+		return self._limitClause
+
+	def setLimitClause(self, clause):
+		""" Set the limit clause of the sql statement.
+		"""
+		self._limitClause = clause
+
+	def getLimitWord(self):
+		""" Return the word to use in the db-specific limit clause.
+		"""
+		ret = "limit"
+		if self.BackendObject:
+			ret = self.BackendObject.getLimitWord()
+		return ret
+			
+	def getLimitPosition(self):
+		""" Return the position to place the limit clause.
+		
+		For currently-supported dbapi's, the return values of 'top' or 'bottom'
+		are sufficient.
+		"""
+		ret = "bottom"
+		if self.BackendObject:
+			ret = self.BackendObject.getLimitPosition()
+		return ret			
+			
+	def getSQL(self):
+		""" Get the complete SQL statement from all the parts.
+		"""
+		fieldClause = self._fieldClause
+		fromClause = self._fromClause
+		whereClause = self._whereClause
+		childFilterClause = self._childFilterClause
+		groupByClause = self._groupByClause
+		orderByClause = self._orderByClause
+		limitClause = self._limitClause
+
+		if not fieldClause:
+			fieldClause = "*"
+		
+		if childFilterClause:
+			# Prepend it to the where clause
+			if whereClause:
+				childFilterClause += "\nand "
+			whereClause = childFilterClause + " " + whereClause
+
+		if fromClause: 
+			fromClause = "from " + fromClause
+		if whereClause:
+			whereClause = "where " + whereClause
+		if groupByClause:
+			groupByClause = "group by " + groupByClause
+		if orderByClause:
+			orderByClause = "order by " + orderByClause
+		if limitClause:
+			limitClause = self.getLimitWord() + " " + limitClause
+		else:
+			limitClause = self.getLimitWord() + " " + str(self._defaultLimit)
+
+		return self.BackendObject.formSQL(fieldClause, fromClause, 
+				whereClause, groupByClause, orderByClause, limitClause)
+		
+
+	def getStructureOnlySql(self):
+		holdWhere = self._whereClause
+		self.setWhereClause("1 = 0")
+		ret = self.getSQL()
+		self.setWhereClause(holdWhere)
+		return ret
+
+	def executeSQL(self, *args, **kwargs):
+	
+		print "*"*88
+		print self.createSQL()
+		print "*"*88
+		
+		self.execute(self.createSQL(), *args, **kwargs)
+	###     end - SQL Builder methods     ########
+
+	
 
 
 	def _setBackendObject(self, obj):

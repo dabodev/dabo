@@ -104,3 +104,56 @@ class dBackend(dabo.common.dObject):
 		""" Roll back (revert) a SQL transaction."""
 		pass
 		
+	def addWithSep(self, base, new, sep=", "):
+		""" Convenient method of adding to an expression that 
+		may or may not have an existing value. If there is a value, 
+		the separator is inserted between the two.
+		"""
+		if base:
+			ret = sep.join( (base, new) )
+		else:
+			ret = new
+		return ret
+		
+	def addField(self, clause, exp):
+		""" Add a field to the field clause.
+		"""
+		return self.addWithSep(clause, exp)
+
+	def addFrom(self, clause, exp):
+		""" Add a table to the sql statement.
+		"""
+		return self.addWithSep(clause, exp)
+
+	def addWhere(self, clause, exp, comp="and"):
+		""" Add an expression to the where clause.
+		"""
+		return self.addWithSep(clause, exp, sep=" %s " % comp)
+
+	def addGroupBy(self, clause, exp):
+		""" Add an expression to the group-by clause.
+		"""
+		return self.addWithSep(clause, exp)
+
+	def addOrderBy(self, clause, exp):
+		""" Add an expression to the order-by clause.
+		"""
+		return self.addWithSep(clause, exp)
+		
+	def getLimitWord(self):
+		""" Return the word to use in the db-specific limit clause.
+		Override for backends that don't use the word 'limit'
+		"""
+		return "limit"
+	
+	def formSQL(self, fieldClause, fromClause, 
+				whereClause, groupByClause, orderByClause, limitClause):
+		""" Creates the appropriate SQL for the backend, given all 
+		the required clauses. Some backends order these differently, so 
+		they should override this method with their own ordering.
+		"""
+		return "\n".join( ("SELECT ", fieldClause, fromClause, whereClause, 
+				groupByClause, orderByClause, limitClause) )
+
+
+

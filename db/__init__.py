@@ -29,5 +29,4 @@ some rows from a backend database in a script. Here's an example of that:
 from dConnection import dConnection
 from dCursorMixin import dCursorMixin
 from dMemento import dMemento
-from dSqlBuilderMixin import dSqlBuilderMixin
 from dConnectInfo import dConnectInfo

@@ -1,7 +1,6 @@
 import dabo.dConstants as k
 import dabo.db.dConnection as dConnection
 from dabo.db.dCursorMixin import dCursorMixin
-from dabo.db.dSqlBuilderMixin import dSqlBuilderMixin
 from dabo.dLocalize import _
 import dabo.dException as dException
 import dabo.common
@@ -12,7 +11,6 @@ class dBizobj(dabo.common.dObject):
 	"""
 	# Class to instantiate for the cursor object
 	dCursorMixinClass = dCursorMixin
-	dSqlBuilderMixinClass = dSqlBuilderMixin
 
 	# Versioning...
 	_version = "0.1.0"
@@ -135,8 +133,7 @@ class dBizobj(dabo.common.dObject):
 			raise dException.dException, errMsg
 			
 		cursorClass = self._getCursorClass(self.dCursorMixinClass,
-				self.dbapiCursorClass, 
-				self.dSqlBuilderMixinClass)
+				self.dbapiCursorClass)
 		
 		if key is None:
 			key = self.__currentCursorKey
@@ -157,18 +154,15 @@ class dBizobj(dabo.common.dObject):
 		self.afterCreateCursor(crs)
 
 
-	def _getCursorClass(self, main, secondary, sqlbuilder):
-		class cursorMix(main, secondary, sqlbuilder):
+	def _getCursorClass(self, main, secondary):
+		class cursorMix(main, secondary):
 			superMixin = main
 			superCursor = secondary
-			superSqlBuilder = sqlbuilder
 			def __init__(self, *args, **kwargs):
 				if hasattr(main, "__init__"):
 					apply(main.__init__,(self,) + args, kwargs)
 				if hasattr(secondary, "__init__"):
 					apply(secondary.__init__,(self,) + args, kwargs)
-				if hasattr(sqlbuilder, "__init__"):
-					apply(sqlbuilder.__init__,(self,))
 		return  cursorMix
 
 

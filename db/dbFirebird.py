@@ -2,7 +2,8 @@ import datetime
 import kinterbasdb
 from dBackend import dBackend
 from dCursorMixin import dCursorMixin
-from dSqlBuilderMixin import dSqlBuilderMixin
+import re
+
 
 class Firebird(dBackend):
 	def __init__(self):
@@ -149,3 +150,63 @@ and rdb$unique_flag = 1 """ % tableName.upper()
 	def rollbackTransaction(self, cursor):
 		""" Roll back (revert) a SQL transaction."""
 		cursor.execute("ROLLBACK")
+
+	def getLimitWord(self):
+		""" Override the default 'limit', since Firebird doesn't use that. """
+		return "first"
+
+	def formSQL(self, fieldClause, fromClause, 
+				whereClause, groupByClause, orderByClause, limitClause):
+		""" Firebird wants the limit clause before the field clause.	"""
+		return "\n".join( ("SELECT ", limitClause, fieldClause, fromClause, 
+				whereClause, groupByClause, orderByClause) )
+
+	def addField(self, clause, exp):
+		""" This will be tricky. We need to isolate the field name and then enclose it
+		in double quotes. We need to be able to handle a lot of variations, such as:
+		
+		field
+		field as alias
+		table.field
+		table.field as alias
+		func(field) 
+		func(field) as alias
+		func(table.field) 
+		func(table.field) as alias
+		
+		"""
+		fld = exp
+		# First, see if it has an alias clause. If so, save it off
+		aliasSplit = exp.split(" as ")
+		if len(aliasSplit) > 1:
+			alias = aliasSplit[1]
+			exp = aliasSplit[0]
+		else:
+			aliasSplit = exp.split(" AS ")
+			if len(aliasSplit) > 1:
+				alias = aliasSplit[1]
+				exp = aliasSplit[0]
+			else:
+				alias = ""
+		
+		# OK, now see if there is a parenthetical expression
+		funcPat = "\(([^\)]+)\)"
+		funcFind = re.findall(funcPat, exp)
+		if funcFind:
+			fld = funcFind[0]
+		
+		# At this point we should either have table.field or just field. See which.
+		fldSplit = fld.split(".")
+		if len(fldSplit) > 1:
+			fld = fldSplit[1]
+		
+		# OK, we have the field. Surround it in quotes, and stick it back into the original expression
+		fld = 
+		exp = exp.replace(fld, "\"" + fld + "\"", 1)
+		if alias:
+			exp += " " + alias
+		
+		# OK, now add the quoted field
+		return self.addWithSep(clause, exp)
+
+		
