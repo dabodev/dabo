@@ -11,6 +11,7 @@ class dFormDataNav(dForm):
         
         self._gridColumnDefs = {}
         self.setupPageFrame()
+        self.addVCR()
     
     def _appendToMenu(self, menu, caption, function):
         menuId = wx.NewId()

@@ -69,18 +69,14 @@ class dBrowsePage(dPage):
         # If RowNumChanged is received AND we are the
         # active page, select the row in the grid
         pf = self.GetParent()
+        if not self.gridExists:
+            self.createGrid()
         if self.gridExists and pf.GetPage(pf.GetSelection()) == self:
-            self.grid.fillGrid()
+            self.fillGrid()
     
     def onEnterPage(self):
         if not self.gridExists:
-            form = self.getDform()
-            bizobj = form.getBizobj()
-            if bizobj and bizobj.getRowCount() >= 0:
-                self.createGrid()
-            else:
-                dMessageBox.stop("The browse grid cannot be created as there doesn't"
-                                 " appear to be a cursor available.")
+            self.createGrid()
         if self.gridExists:
             self.fillGrid()
             
@@ -92,9 +88,8 @@ class dBrowsePage(dPage):
         self.grid.SetFocus()
         self.GetSizer().Add(self.grid, 1, wx.EXPAND)
         self.GetSizer().Layout()
-
         self.gridExists = True
-        
+
     def fillGrid(self):
         form = self.getDform()
         bizobj = form.getBizobj()
@@ -105,4 +100,15 @@ class dBrowsePage(dPage):
         # Called by the grid: user wants to edit the current row
         self.GetParent().SetSelection(2)
         
-class dEditPage(dPage): pass
+class dEditPage(dPage):
+    def onEnterPage(self):
+        self.onValueRefresh()
+
+    def onValueRefresh(self, event=None):
+        form = self.getDform()
+        bizobj = form.getBizobj()
+        if bizobj and bizobj.getRowCount() >= 0:
+            self.Enable(True)
+        else:
+            self.Enable(False)
+        

@@ -19,10 +19,10 @@ class dPageFrame(wx.Notebook, dControlMixin):
             Add the standard pages, plus the childview page(s)
             if there are any. Subclasses may override or extend.
         '''
-        self.AddPage(dPage(self), "Select")
+        self.AddPage(dSelectPage(self), "Select")
         self.AddPage(dBrowsePage(self), "Browse")
-        self.AddPage(dPage(self), "Edit")
-    
+        self.AddPage(dEditPage(self), "Edit")
+        
     def OnPageChanged(self, event):
         newPage = self.GetPage(event.GetSelection())
         oldPage = self.GetPage(self.lastSelection)    
