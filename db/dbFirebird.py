@@ -34,9 +34,6 @@ class Firebird(dBackend):
 	def getLastInsertID(self, cursor):
 		return None
 #		## TO DO 
-# 		cursor.execute("select last_insert_id() as newid")
-# 		ret = cursor._rows[0]["newid"]
-# 		return ret
 
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""

@@ -32,7 +32,7 @@ class MySQL(dBackend):
 		
 	def getLastInsertID(self, cursor):
 		cursor.execute("select last_insert_id() as newid")
-		ret = cursor._rows[0]["newid"]
+		ret = cursor._records[0]["newid"]
 		return ret
 
 	def beginTransaction(self, cursor):
