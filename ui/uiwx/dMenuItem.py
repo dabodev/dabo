@@ -38,6 +38,9 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 		return self.GetText()
 
 	def _setCaption(self, val):
+		## Win32 seems to need to clear the caption first, or funkiness
+		## can arise.
+		self.SetText("")
 		self.SetText(val)
 
 
@@ -59,6 +62,22 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 		self.SetHelp(val)
 
 
+	def _getIcon(self):
+		return self.GetBitmap()
+
+	def _setIcon(self, v):
+		if type(v) == str:
+			# Icon name was passed; get the actual bitmap
+			v = dIcons.getIconBitmap(v)
+		if v is None:
+			v = wx.NullBitmap
+		self.SetBitmap(v)
+
+		# Win32 at least needs the following line, or the caption
+		# will look really funky:
+		self.Caption = self.Caption
+
+
 	def _getParent(self):
 		try:
 			v = self._parent
@@ -76,6 +95,9 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 
 	Enabled = property(_getEnabled, _setEnabled, None,
 		_("Specifies whether the menu can be interacted with."))
+
+	Icon = property(_getIcon, _setIcon, None,
+		_("Specifies the icon for the menu item."))
 
 	Form = property(_getForm, None, None,
 		_("Specifies the containing form."))

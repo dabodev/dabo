@@ -100,16 +100,12 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		self.prependItem(item)
 		return item
 		
-	def _getItem(self, prompt, bindfunc, help, bmp, menutype):
+	def _getItem(self, prompt, bindfunc, help, icon, menutype):
 		itmtyp = self._getItemType(menutype)
-		itm = dMenuItem.dMenuItem(self, Caption=prompt, HelpText=help, kind=itmtyp)
+		itm = dMenuItem.dMenuItem(self, Caption=prompt, HelpText=help, Icon=icon, 
+		                          kind=itmtyp)
 		if bindfunc:
 			itm.bindEvent(dEvents.Hit, bindfunc)
-		if bmp:
-			if type(bmp) == str:
-				# Icon name was passed; get the actual bitmap
-				bmp = dIcons.getIconBitmap(bmp)
-			itm.SetBitmap(bmp)
 		return itm
 
 	def _getItemType(self, typ):
