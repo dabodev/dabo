@@ -86,8 +86,63 @@ class dFormMixin(pm.dPemMixin):
 	def __onDeactivate(self, evt):
 		if self.Application is not None and self.Application.ActiveForm == self:
 			self.Application._setActiveForm(None)
+	
+	
+	def __onClose(self, evt):
+		force = evt.EventData["force"]
+		if not force:
+			if not self._beforeClose(evt):
+				evt.stop()
+				return
+			# Run the cleanup code.
+			self.closing()
+		if self.Application is not None:
+			self.Application.uiForms.remove(self)
+		self.saveSizeAndPosition()
+	
 
+	def close(self, force=False):
+		""" This method will close the form. If force = False (default)
+		the beforeClose methods will be called, and these will have
+		an opportunity to conditionally block the form from closing.
+		If force=True, the form is closed without any chance of 
+		preventing it.
+		"""
+		if not force:
+			if not self._beforeClose():
+				return False
+		# Run any cleanup code
+		self.closing()
+		# Kill the form
+		self.Close(force=True)
 		
+		
+	def _beforeClose(self, evt=None):
+		""" See if there are any pending changes in the form, if the
+		form is set for checking for this. If everything's OK, call the 
+		hook method.
+		"""
+		ret = self.beforeClose(evt)
+		return ret
+		
+		
+	def beforeClose(self, evt):
+		""" Hook method. Returning False will prevent the form from 
+		closing. Gives you a chance to determine the status of the form
+		to see if changes need to be saved, etc.
+		"""
+		return True
+		
+		
+	def closing(self):
+		""" Stub method to be customized in subclasses. At this point,
+		the form is going to close. If you need to do something that might
+		prevent the form from closing, code it in the beforeClose() 
+		method instead.
+		"""
+		pass
+		
+
 	def afterSetMenuBar(self):
 		""" Subclasses can extend the menu bar here.
 		"""
@@ -131,12 +186,6 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		menu = dMenu.dMenu()
 		return menu
-
-
-	def __onClose(self, evt):
-		if self.Application is not None:
-			self.Application.uiForms.remove(self)
-		self.saveSizeAndPosition()
 
 		
 	def restoreSizeAndPosition(self):
@@ -211,6 +260,16 @@ class dFormMixin(pm.dPemMixin):
 			# Call the Dabo version, if present
 			self.Sizer.layout()
 		except: pass
+	
+	
+	def bringToFront(self):
+		"""Makes this window topmost"""
+		self.Raise()
+	
+	
+	def sendToBack(self):
+		"""Places this window behind all others."""
+		self.Lower()
 		
 		
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):

@@ -75,18 +75,30 @@ class uiApp(wx.App, dObject):
 			
 	
 	def onFileExit(self, evt):
-		if self.dApp.MainForm is not None:
-			self.dApp.MainForm.Close(True)
-		else:
-			frmCollect = self.dApp.uiForms
-			while len(frmCollect):
-				for form in frmCollect:
-					try:
-						form.saveSizeAndPosition()
-						frmCollect.remove(form)
-						form.Close(True)
-					except wx.PyDeadObjectError:
-						pass
+		"""We need to close all of the forms except the main form
+		first. Once that's done, we can close the main window.
+		"""
+		mf = self.dApp.MainForm
+		forms2close = [frm for frm in self.dApp.uiForms
+				if frm is not mf]
+		while forms2close:
+			frm = forms2close[0]
+			# This will allow forms to veto closing (i.e., user doesn't
+			# want to save pending changes). 
+			if frm.close() == False:
+				# The form stopped the closing process. The user
+				# must deal with this form (save changes, etc.) 
+				# before the app can exit.
+				frm.bringToFront()
+				return
+			else:
+				forms2close.remove(frm)
+		# If all forms closed, then we can close the main form. If they 
+		# didn't, then one of the forms stopped the close process
+		# Remove any deleted forms from the collection		
+		if mf is not None:
+			# Do we need to check if other forms are still around?
+			mf.close()
 				
 
 

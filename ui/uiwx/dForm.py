@@ -57,8 +57,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.stopWatch = wx.StopWatch()
 		self.stopWatch.Pause()
 		
-		self.bindEvent(dEvents.Close, self.__onClose)
-		
 		# Determines if the user is prompted to save changes
 		# when the form is closed.
 		self.checkForChanges = True
@@ -89,6 +87,17 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.Visible = False
 		
 
+	def _beforeClose(self, evt=None):
+		""" See if there are any pending changes in the form, if the
+		form is set for checking for this. If everything's OK, call the 
+		hook method.
+		"""
+		ret = self.confirmChanges()
+		if ret:
+			ret = super(dForm, self).beforeClose(evt)
+		return ret
+		
+		
 	def confirmChanges(self):
 		""" If the form's checkForChanges property is true,
 		see if there are any pending changes on the form's bizobjs.
@@ -131,34 +140,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		return [self.getPrimaryBizobj()]
 		
 		
-	def _beforeClose(self, evt=None):
-		""" See if there are any pending changes in the form, if the
-		form is set for checking for this. If everything's OK, call the 
-		hook method.
-		"""
-		ret = self.confirmChanges()
-		if ret:
-			ret = self.beforeClose(evt)
-		return ret
-		
-		
-	def beforeClose(self, evt):
-		""" Hook method. Returning False will prevent the form from 
-		closing. Gives you a chance to determine the status of the form
-		to see if changes need to be saved, etc.
-		"""
-		return True
-		
-		
-	def closing(self):
-		""" Stub method to be customized in subclasses. At this point,
-		the form is going to close. If you need to do something that might
-		prevent the form from closing, code it in the beforeClose() 
-		method instead.
-		"""
-		pass
-		
-
 	def addBizobj(self, bizobj):
 		""" Add a bizobj to this form.
 
@@ -651,31 +632,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				pass
 	
 	
-	def close(self, force=False):
-		""" This method will close the form. If force = False (default)
-		the beforeClose methods will be called, and these will have
-		an opportunity to conditionally block the form from closing.
-		If force=True, the form is closed without any chance of 
-		preventing it.
-		"""
-		if not force:
-			if not self._beforeClose():
-				return
-		# Run any cleanup code
-		self.closing()
-		# Kill the form
-		self.Close(force=force)
-		
-		
-	def __onClose(self, evt):
-		force = evt.EventData["force"]
-		if not force:
-			if not self._beforeClose(evt):
-				evt.stop()
-		# Run the cleanup code.
-		self.closing()
-	
-
 	# Property get/set/del functions follow.
 	def _getSaveAllRows(self):
 		try:
