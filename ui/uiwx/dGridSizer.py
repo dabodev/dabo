@@ -19,9 +19,10 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		else:
 			# Rows were passed.
 			self.MaxRows = maxrows
+		self.SetFlexibleDirection(wx.BOTH)
 
 
-	def append(self, item, layout="normal", proportion=0, row=-1, col=-1, 
+	def append(self, item, layout="normal", row=-1, col=-1, 
 			rowSpan=1, colSpan=1, alignment=("middle", "left"), 
 			border=0, borderFlags=("all",)):
 		""" Inserts the passed item at the specified position in the grid. If no
@@ -29,13 +30,6 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		cell as specified by the Max* properties.		
 		"""
 		(targetRow, targetCol) = self.determineAvailableCell(row, col)
-		
-		if type(layout) == int:
-			# proportion was passed first
-			layout, proportion = proportion, layout
-			# in case layout wasn't specified
-			if type(layout) == int:
-				layout = "normal"
 		
 		if type(item) == type(tuple()):
 			# spacer
@@ -56,6 +50,48 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	def insert(self, *args, **kwargs):
 		""" This is not supported for this type of sizer """
 		return False
+	
+	
+	def setColExpand(self, expand, colNums, proportion=0):
+		if type(colNums) in (list, tuple):
+			for col in colNums:
+				self.setColExpand(expand, col, proportion)
+		elif type(colNums) == str:
+			if colNums.lower() == "all":
+				chldrn = self.GetChildren()
+				c = {}
+				for chld in chldrn:
+					(row, col) = chld.GetPosTuple()
+					c[col] = True
+				for column in c.keys():
+					self.setColExpand(expand, column, proportion)
+		else:
+			if expand:
+				self.AddGrowableCol(colNums, proportion=proportion)
+			else:
+				self.RemoveGrowableCol(colNums)
+		self.Layout()
+		
+		
+	def setRowExpand(self, expand, rowNums, proportion=0):
+		if type(rowNums) in (list, tuple):
+			for row in rowNums:
+				self.setRowExpand(expand, row, proportion)
+		elif type(rowNums) == str:
+			if rowNums.lower() == "all":
+				chldrn = self.GetChildren()
+				r = {}
+				for chld in chldrn:
+					(row, col) = chld.GetPosTuple()
+					r[row] = True
+				for row in r.keys():
+					self.setRowExpand(expand, row, proportion)
+		else:
+			if expand:
+				self.AddGrowableRow(rowNums, proportion=proportion)
+			else:
+				self.RemoveGrowableRow(rowNums)
+		self.Layout()
 		
 	
 	def moveCell(self, fromRow, fromCol, toRow, toCol):
