@@ -34,6 +34,11 @@ class uiApp(wx.App, dObject):
 			
 		if wx.PlatformInfo[0] == "__WXGTK__":
 			string += " (%s)" % wx.PlatformInfo[3]
+			self._platform = "GTK"
+		elif wx.PlatformInfo[0] == "__WXMAC__":
+			self._platform = "Mac"
+		elif wx.PlatformInfo[0] == "__WXMSW__":
+			self._platform = "Win"
 
 		dabo.infoLog.write(string)
 			
@@ -56,7 +61,10 @@ class uiApp(wx.App, dObject):
 	def finish(self):
 		# Manually raise Deactivate, as wx doesn't do that automatically
 		self.raiseEvent(dEvents.Deactivate)
-				
+	
+	
+	def _getPlatform(self):
+		return self._platform
 		
 	def _onWxActivate(self, evt):
 		""" Raise the Dabo Activate or Deactivate appropriately.

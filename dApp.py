@@ -471,6 +471,8 @@ class dApp(dabo.common.dObject):
 		else:
 			raise RuntimeError, _("The UI cannot be reset once assigned.")
 
+	def _getPlatform(self):
+		return self.uiApp._getPlatform()
 
 	def _getActiveForm(self):
 		return self.uiApp.ActiveForm
@@ -491,7 +493,10 @@ class dApp(dabo.common.dObject):
 	MainFormClass = property(_getMainFormClass, _setMainFormClass, None,
 			_("Specifies the class to use to instantiate the main form. Defaults to "
 			"the dFormMain base class. Set to None if you don't want a main form."))
-		
+	
+	Platform = property(_getPlatform, None, None,
+			"Returns one of 'Mac', 'Win' or 'GTK', depending on where we're running  (string)")
+			
 	UI = property(_getUI, _setUI,
 			None, _("Specifies the user interface to load, or None. "
 			"Once set, it cannot be reassigned."))

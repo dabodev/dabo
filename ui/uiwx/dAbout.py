@@ -56,8 +56,11 @@ class dAbout(dDialog):
 		uiVersion = "%s on %s" % (dabo.ui.uiType["version"], dabo.ui.uiType["platform"])
 
 		# Define the style dicts for the labels
-		labelStyle = {"FontSize" : 16, "FontBold" : False}
-		valStyle = {"FontSize" : 18, "FontBold" : True, "BackColor" : "gold"}
+		fntBase = 10
+		if self.Application.Platform == "Mac":
+			fntBase += 4
+		labelStyle = {"FontSize" : fntBase, "FontBold" : False}
+		valStyle = {"FontSize" : fntBase+2, "FontBold" : True, "BackColor" : "gold"}
 		# Add a grid sizer for the rest of the info
 		gs = dGridSizer(maxCols=2, hgap=5, vgap=10)
 		gs.setColExpand(True, "all")
