@@ -768,7 +768,7 @@ class EditPage(Page):
 					grdLabel.Caption = self.Form.getBizobj(child).Caption
 					grdLabel.FontSize = 14
 					grdLabel.FontBold = True
-					mainSizer.append( (10, -1) )
+					#mainSizer.append( (10, -1) )
 					mainSizer.append(grdLabel, 0, "expand", alignment="center", 
 							border=10, borderFlags=("left", "right") )
 					grid = self.addObject(Grid.Grid, "BrowseGrid")
@@ -777,17 +777,17 @@ class EditPage(Page):
 					grid.setBizobj(childBiz)
 					self.childGrids.append(grid)
 					grid.fillGrid()
-					grid.Height = 100
+					#grid.Height = 100
 					for window in grid.GetChildren():
 						window.SetFocus()
-					mainSizer.append(grid, 2, "expand", border=10,
+					mainSizer.append(grid, 1, "expand", border=10,
 							borderFlags=("left", "right") )
 			
 		# Add top and bottom margins
 		mainSizer.insert( 0, (-1, 10), 0)
 		mainSizer.append( (-1, 20), 0)
 
-		self.GetSizer().Layout()
+		self.Sizer.layout()
 		self.itemsCreated = True
 		if firstControl is not None:
 			firstControl.SetFocus()
