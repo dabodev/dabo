@@ -130,26 +130,27 @@ class MainFrame(wx.MDIParentFrame):
         statusBar.PushStatusText(message)
         statusBar.Update()  # Refresh() doesn't work, and this is only needed sometimes.
         
-class MainApp(wx.App):
+class uiApp(wx.App):
     def OnInit(self):
         return True
 
-    def setup(self):
+    def setup(self, dApp):
         wx.InitAllImageHandlers()
         self.helpProvider = wx.help.SimpleHelpProvider()
         wx.help.HelpProvider_Set(self.helpProvider)
 
-        self.initConnection()
+        self.dApp = dApp
         
-        self.dynamicViews = self._getDynamicViews()
         self.mainFrame = MainFrame(None, -1, 
                    "%s Version %s" % (self.getAppInfo("appName"), self.getAppInfo("appVersion")),
                    self)
         self.mainFrame.Show(True)
         self.SetTopWindow(self.mainFrame)
-
-    # --- The following methods are added by Dabo:
-
+    
+    def start(self, dApp):
+        self.setup(dApp)
+        self.MainLoop()
+    
     def areYouSure(self, message="Are you sure?", defaultNo=False, style=0):
         style = style|wx.YES_NO|wx.ICON_QUESTION
         if defaultNo:
@@ -167,55 +168,6 @@ class MainApp(wx.App):
         else:
             return False
             
-        
-    def _getDynamicViews(self):
-        dynamicViews = {}
-#         rs = self.dbc.dbRecordSet("select mname as mname, "
-#                                     "mvalue as mvalue "
-#                                     "from dabosettings "
-#                                     "where mname like 'vr_%' and ldeleted = 0")
-#         
-#         for record in rs:
-#             try:
-#                 exec(record.mvalue)
-#                 dynamicViews[record.mname.rstrip()] = viewDef
-#                 dynamicViews[record.mname.rstrip()]["Id"] = wx.NewId()
-#             except:
-#                 print "error with", record
-####### old (static) way:
-        try:
-            dynviewDefs = os.listdir("./dynamicViews")
-        except:
-            dynviewDefs = []
-         
-        for file in dynviewDefs:
-            if file[-3:] == ".py" and file[0:3] == "vr_":
-                fileStem = file[:-3]
-                try:
-                    #exec("import module.%s as viewdef" % (fileStem,))
-                    #dynamicViews["%s" % fileStem] = module[fileStem].viewdef #viewdef.viewDef
-                    #dynamicViews["%s" % fileStem]["Id"] = wx.NewId()
-                    file = open("./dynamicViews/%s" % file, "r")
-                    exec(file) # creates the viewDef variable
-                    dynamicViews["%s" % fileStem] = viewDef #viewdef.viewDef
-                    dynamicViews["%s" % fileStem]["Id"] = wx.NewId()
-                     
-                except KeyError:
-                    pass	
-        
-        return dynamicViews
-
-    def getDynamicViewNameFromId(self, Id):
-        dynViewName = None
-        for dynview in self.dynamicViews:
-            try:
-                viewId = self.dynamicViews[dynview]["Id"]
-            except KeyError:
-                viewId = -1
-            if Id == viewId:
-                dynViewName = dynview
-                break
-        return dynViewName
         
     def getAppInfo(self, item, user="*", system="*"):
         ''' Return the value of the dabosettings table that corresponds to the 

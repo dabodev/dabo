@@ -5,7 +5,7 @@
 dbConnectionDefs = {}
 
 # For each Connection Definition you want, repeat the following
-# block with different keys:
+# block with different keys and values:
 dbConnectionDefs["Sample Connection"] = {"dbType": "MySQL", 
                                          "host": "example.com", 
                                          "user": "dabo", 

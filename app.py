@@ -31,6 +31,7 @@ class Collection(list):
     ''' Collection : Base class for the various collection
                      classes used in the app object.
     '''
+   
     def __init__(self):
         list.__init__(self)
         
@@ -50,7 +51,7 @@ class Collection(list):
 class App(object):
     ''' dabo.App : The containing object for the entire application.
                    Various UI's will have app objects also, which 
-                   App is a wrapper for. 
+                   dabo.App is a wrapper for. 
     '''
 
     def __init__(self):
@@ -63,10 +64,43 @@ class App(object):
         # dabo is going to want to import various things from the homeDir
         sys.path.append(self.homeDir)
     
-        self.initUI()
-        self.initDB()
+        self._initUI()
+        self._initDB()
 
-    def initDB(self):
+    def start(self):
+        ''' Start the application event loop, which involves
+            wrapping the application object for the ui library
+            being used.
+        '''
+        self.uiApp = self.uiModule.uiApp()
+        self.uiApp.start(self)
+        self.finish()
+    
+    def finish(self):
+        ''' The main event loop has exited and the application
+            is about to finish.
+        '''
+        pass
+        
+    def _initProperties(self):
+        ''' Initialize the public properties of the app object. '''
+        
+        # it is useful to know from where we came
+        self.homeDir = os.getcwd()
+        
+        self.uiType   = None    # ('wx', 'qt', 'curses', 'http', etc.)
+        self.uiModule = None
+        
+        # Initialize UI collections
+        self.uiForms = Collection()
+        self.uiMenus = Collection()
+        self.uiToolBars = Collection()
+        self.uiResources = {}
+        
+        # Initialize DB collections
+        self.dbConnectionDefs = {} 
+
+    def _initDB(self):
         ''' Set the available connection definitions for use by the app. '''
 
         dbConnectionDefs = None
@@ -77,20 +111,21 @@ class App(object):
         except:
             dbConnectionDefs = None
         
-        if dbConnectionDefs <> None and type(dbConnectionDefs) == type(dict()):
-            
-            # For each connection type, get a db() object bound:
+        if dbConnectionDefs != None and type(dbConnectionDefs) == type(dict()):
+            # For each connection type, bind a db() object
             for entry in dbConnectionDefs:
                 dbConnectionDefs[entry]["dbObject"] = db.Db()
             print "%s database connection definition(s) loaded." % len(dbConnectionDefs)
 
         else:
             print "No database connection definitions loaded (dbConnectionDefs.py)"
+        
         self.dbConnectionDefs = dbConnectionDefs 
-
+        self.dbDynamicViews = self._getDynamicViews()
                 
-    def initUI(self):
+    def _initUI(self):
         ''' Set the user-interface library for the application. '''
+        
         if self.uiType == None:
             # Future: read a config file in the homeDir
             # Present: set UI to wx
@@ -98,29 +133,47 @@ class App(object):
             
             # Now, get the appropriate ui module into self.uiModule
             uiModule = ui.getUI(uiType)
-            if uiModule <> None:
+            if uiModule != None:
                 self.uiType = uiType
                 self.uiModule = uiModule
         else:
             # Custom app code already set this: don't touch
             pass
+        
         print "User interface set to %s using module %s" % (self.uiType, self.uiModule)
+        
             
-    def start(self):
-        print "app.start"
-              
-    def _initProperties(self):
-        # it is useful to know from where we came
-        self.homeDir = os.getcwd()
+    def _getDynamicViews(self):
+        dynamicViews = {}
+        try:
+            dynviewDefs = os.listdir("%s/dynamicViews" % homeDir)
+        except:
+            dynviewDefs = []
+         
+        for file in dynviewDefs:
+            if file[-3:] == ".py" and file[0:3] == "vr_":
+                fileStem = file[:-3]
+                try:
+                    file = open("./dynamicViews/%s" % file, "r")
+                    exec(file) # creates the viewDef variable
+                    dynamicViews["%s" % fileStem] = viewDef #viewdef.viewDef
+                    dynamicViews["%s" % fileStem]["Id"] = 23
+#                    dynamicViews["%s" % fileStem]["Id"] = wx.NewId()
+                     
+                except KeyError:
+                    pass	
         
-        self.uiType   = None    # ('wx', 'qt', 'curses', 'http', etc.)
-        self.uiModule = None
+        return dynamicViews
+
+    def getDynamicViewNameFromId(self, Id):
+        dynViewName = None
+        for dynview in self.dynamicViews:
+            try:
+                viewId = self.dynamicViews[dynview]["Id"]
+            except KeyError:
+                viewId = -1
+            if Id == viewId:
+                dynViewName = dynview
+                break
+        return dynViewName
         
-        # Initialize UI collections
-        self.uiForms       = Collection()
-        self.uiMenus       = Collection()
-        self.uiToolBars    = Collection()
-        self.uiResources   = {}
-        
-        # Initialize DB collections
-        self.dbConnectionDefs = {} 
