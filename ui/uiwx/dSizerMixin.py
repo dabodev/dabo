@@ -32,14 +32,14 @@ class dSizerMixin(dabo.common.dObject):
 			sizer.append(object, "expand")
 			
 		"""
-		if type(layout) == type(0):
+		if type(layout) == int:
 			# proportion was passed first
 			layout, proportion = proportion, layout
 			# in case layout wasn't specified
-			if type(layout) == type(0):
+			if type(layout) == int:
 				layout = "normal"
 		
-		if type(item) == type(tuple()):
+		if type(item) == tuple:
 			# spacer
 			self.Add(item)
 		else:
@@ -80,14 +80,14 @@ class dSizerMixin(dabo.common.dObject):
 			sizer.insert(index, object, "expand")
 			
 		"""
-		if type(layout) == type(0):
+		if type(layout) == int:
 			# proportion was passed first
 			layout, proportion = proportion, layout
 			# in case layout wasn't specified
-			if type(layout) == type(0):
+			if type(layout) == int:
 				layout = "normal"
 		
-		if type(item) == type(tuple()):
+		if type(item) == tuple:
 			# spacer
 			self.Insert(index, item)
 		else:
@@ -158,9 +158,9 @@ class dSizerMixin(dabo.common.dObject):
 	def _getWxFlags(self, alignment, borderFlags, layout):
 		# If alignment is passed as a single string instead of a tuple, 
 		# convert it.
-		if type(alignment) == type(""):
+		if type(alignment) == str:
 			alignment = (alignment, )
-		if type(borderFlags) == type(""):
+		if type(borderFlags) == str:
 			borderFlags = (borderFlags, )
 		_wxFlags = 0
 		for flag in [flag.lower() for flag in alignment]:
@@ -189,7 +189,7 @@ class dSizerMixin(dabo.common.dObject):
 			elif flag == "all":
 				_wxFlags = _wxFlags | wx.ALL
 
-		if layout.lower() == "expand":
+		if layout.lower() in ("expand", "ex", "exp", "x", "grow"):
 			_wxFlags = _wxFlags | wx.EXPAND
 		elif layout.lower() == "fixed":
 			_wxFlags = _wxFlags | wx.FIXED_MINSIZE
