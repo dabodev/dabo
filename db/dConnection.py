@@ -16,8 +16,8 @@ class dConnection(dabo.common.dObject):
 	def getConnection(self):
 		return self._connection
 
-	def getDictCursor(self):
-		return self._connectInfo.getDictCursor()
+	def getDictCursorClass(self):
+		return self._connectInfo.getDictCursorClass()
 
 	def _openConnection(self):
 		""" Open a connection to the database and store it for future use. """

@@ -26,9 +26,9 @@ class dConnectInfo(dabo.common.dObject):
 	def getConnection(self):
 		return self.BackendObject.getConnection(self)
 
-	def getDictCursor(self):
+	def getDictCursorClass(self):
 		try:
-			return self.BackendObject.getDictCursor()
+			return self.BackendObject.getDictCursorClass()
 		except TypeError:
 			return None
 

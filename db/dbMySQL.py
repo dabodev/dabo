@@ -23,7 +23,7 @@ class MySQL(dBackend):
 				
 		return self._connection
 
-	def getDictCursor(self):
+	def getDictCursorClass(self):
 		import MySQLdb.cursors as cursors
 		return cursors.DictCursor
 

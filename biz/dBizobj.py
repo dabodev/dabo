@@ -56,7 +56,7 @@ class dBizobj(dabo.common.dObject):
 			self.dbapiCursorClass = MySQLdb.cursors.DictCursor
 		else:
 			# Base cursor class : the cursor class from the db api
-			self.dbapiCursorClass = self._conn.getDictCursor()
+			self.dbapiCursorClass = self._conn.getDictCursorClass()
 
 		# If there are any problems in the createCursor process, an
 		# exception will be raised in that method.

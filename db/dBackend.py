@@ -23,7 +23,7 @@ class dBackend(dabo.common.dObject):
 		""" override in subclasses """
 		return None        
 
-	def getDictCursor(self):
+	def getDictCursorClass(self):
 		""" override in subclasses """
 		return None
 	
