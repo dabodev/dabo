@@ -5,13 +5,14 @@ dDataNavForm subframework. It does not descend from dControlMixin at this
 time, but is self-contained. There is a dGridDataTable definition here as 
 well, that defines the 'data' that gets displayed in the grid.
 """
-import dGrid
-import wx, wx.grid
 import urllib
-import dIcons
-import dabo.dException as dException
+import wx
+import wx.grid
 import dabo
+import dabo.ui
+import dabo.dException as dException
 
+dabo.ui.loadUI("wx")
 
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
@@ -293,7 +294,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.data[row][col] = value
 
 
-class dDataNavGrid(dGrid.dGrid):
+class dDataNavGrid(dabo.ui.dGrid):
 	def _afterInit(self):
 		dDataNavGrid.doDefault()
 		self.bizobj = None

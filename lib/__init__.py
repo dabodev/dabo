@@ -6,3 +6,6 @@ import os as __os
 __os.environ["OPENFOX_LOADUI"] = "0"
 import ofFunctions
 
+# dDataNav subframework
+import dDataNav
+

@@ -1,19 +1,19 @@
-import wx, dIcons
-import dPageFrame as pgf
+import wx
+import dabo.ui
 import dDataNavPage as pag
-import dPage
 
-class dDataNavPageFrame(pgf.dPageFrame):
+dabo.ui.loadUI("wx")
+
+class dDataNavPageFrame(dabo.ui.dPageFrame):
 
 	def __init__(self, parent, Name="dDataNavPageFrame", defaultPages=False):
 		self._defaultPagesOnLoad = defaultPages
-		#dDataNavPageFrame.doDefault(parent, name=name)
 		super(dDataNavPageFrame, self).__init__(parent, Name=Name)
 		il = wx.ImageList(16, 16, initialCount=0)
-		il.Add(dIcons.getIconBitmap("checkMark"))
-		il.Add(dIcons.getIconBitmap("browse"))
-		il.Add(dIcons.getIconBitmap("edit"))
-		il.Add(dIcons.getIconBitmap("childview"))
+		il.Add(dabo.ui.dIcons.getIconBitmap("checkMark"))
+		il.Add(dabo.ui.dIcons.getIconBitmap("browse"))
+		il.Add(dabo.ui.dIcons.getIconBitmap("edit"))
+		il.Add(dabo.ui.dIcons.getIconBitmap("childview"))
 		self.AssignImageList(il)
 
 
@@ -23,7 +23,6 @@ class dDataNavPageFrame(pgf.dPageFrame):
 		self.dsEditPages = {}
 		if self.DefaultPagesOnLoad:
 			self.addDefaultPages()
-		#dDataNavPageFrame.doDefault()
 		super(dDataNavPageFrame, self).initProperties()
 		
 		

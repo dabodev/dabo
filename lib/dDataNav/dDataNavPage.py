@@ -2,15 +2,15 @@ IGNORE_STRING = "-ignore-"
 CHOICE_TRUE = "Is True"
 CHOICE_FALSE = "Is False"
 
-import wx, dabo
-import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner
-import dMessageBox, dIcons, dButton, dDropdownList
-import dPanel, dDataNavGrid, dDateTextBox, dMenu, dBox
-from dSizer import dSizer
-from dBorderSizer import dBorderSizer
+import wx
+import dabo
+import dabo.ui
 import dabo.dException as dException
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+import dDataNavGrid
+
+dabo.ui.loadUI("wx")
 
 # Controls for the select page:
 class SelectControlMixin(dabo.common.dObject):
@@ -18,17 +18,17 @@ class SelectControlMixin(dabo.common.dObject):
 		SelectControlMixin.doDefault()
 		self.SaveRestoreValue = True
 
-class SelectTextBox(SelectControlMixin, dTextBox.dTextBox): pass
-class SelectCheckBox(SelectControlMixin, dCheckBox.dCheckBox): pass
-class SelectLabel(SelectControlMixin, dLabel.dLabel):
+class SelectTextBox(SelectControlMixin, dabo.ui.dTextBox): pass
+class SelectCheckBox(SelectControlMixin, dabo.ui.dCheckBox): pass
+class SelectLabel(SelectControlMixin, dabo.ui.dLabel):
 	def afterInit(self):
 		# Basically, we don't want anything to display, but it's 
 		# easier if every selector has a matching control.
 		self.Caption = ""
-class SelectDateTextBox(SelectControlMixin, dDateTextBox.dDateTextBox): pass
-class SelectSpinner(SelectControlMixin, dSpinner.dSpinner): pass
+class SelectDateTextBox(SelectControlMixin, dabo.ui.dDateTextBox): pass
+class SelectSpinner(SelectControlMixin, dabo.ui.dSpinner): pass
 
-class SelectionOpDropdown(dDropdownList.dDropdownList):
+class SelectionOpDropdown(dabo.ui.dDropdownList):
 	def initProperties(self):
 		SelectionOpDropdown.doDefault()
 		self.SaveRestoreValue = True
@@ -64,9 +64,8 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 	Target = property(_getTarget, _setTarget, None, "Holds a reference to the edit control.")
 	
 				
-class DataNavPage(dPage.dPage):
+class DataNavPage(dabo.ui.dPage):
 	def afterInit(self):
-		#DataNavPage.doDefault()
 		super(DataNavPage, self).afterInit()
 		# Needed for drawing sizer outlines
 		self.redrawOutlines = False
@@ -164,7 +163,7 @@ class DataNavPage(dPage.dPage):
 		dc.DrawRectangle(x,y,w,h)
 
 
-class SelectOptionsPanel(dPanel.dPanel):
+class SelectOptionsPanel(dabo.ui.dPanel):
 	""" Base class for the select options panel.
 	"""
 	def initProperties(self):
@@ -173,7 +172,7 @@ class SelectOptionsPanel(dPanel.dPanel):
 		self.selectOptions = []
 		
 
-class SortLabel(dLabel.dLabel):
+class SortLabel(dabo.ui.dLabel):
 	def initEvents(self):
 		super(SortLabel, self).initEvents()
 		self.bindEvent(dEvents.MouseRightClick, self.Parent.Parent.onSortLabelRClick)
@@ -421,10 +420,10 @@ class dSelectPage(DataNavPage):
 		else:
 			dataSource = self.Form.previewDataSource
 		fs = self.Form.FieldSpecs
-		panel = dPanel.dPanel(self)
+		panel = dabo.ui.dPanel(self)
 		gsz = dabo.ui.dGridSizer(vgap=5, hgap=10)
 		gsz.MaxCols = 3
-		label = dLabel.dLabel(panel)
+		label = dabo.ui.dLabel(panel)
 		label.Caption = _("Please enter your record selection criteria:")
 		label.FontSize = label.FontSize + 2
 		label.FontBold = True
@@ -471,13 +470,13 @@ class dSelectPage(DataNavPage):
 
 				
 		# Now add the limit field
-		lbl = dLabel.dLabel(panel)
+		lbl = dabo.ui.dLabel(panel)
 		lbl.Caption = "Limit:"
 		limTxt = SelectTextBox(panel)
 		if len(limTxt.Value) == 0:
 			limTxt.Value = "1000"
 		self.selectFields["limit"] = {"ctrl" : limTxt	}
-		requeryButton = dButton.dButton(panel)
+		requeryButton = dabo.ui.dButton(panel)
 		requeryButton.Caption = "&%s" % _("Requery")
 		requeryButton.Default = True             # Doesn't work on Linux, but test on win/mac
 		requeryButton.bindEvent(dEvents.Hit, self.onRequery)
@@ -516,12 +515,10 @@ class dSelectPage(DataNavPage):
 	
 class dBrowsePage(DataNavPage):
 	def __init__(self, parent):
-		#dBrowsePage.doDefault(parent, "pageBrowse")
 		super(dBrowsePage, self).__init__(parent, Name="pageBrowse")
 		self._doneLayout = False
 
 	def initEvents(self):
-		#dBrowsePage.doDefault()
 		super(dBrowsePage, self).initEvents()
 		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
@@ -576,7 +573,7 @@ class dBrowsePage(DataNavPage):
 			grid.DataSource = self.Form.previewDataSource
 		self.GetSizer().append(grid, 2, "expand")
 		
-		preview = self.addObject(dButton.dButton, "cmdPreview")
+		preview = self.addObject(dabo.ui.dButton, "cmdPreview")
 		preview.Caption = "Print Preview"
 		preview.bindEvent(dEvents.Hit, self.onPreview)
 		self.GetSizer().append(preview, 0)		
@@ -603,7 +600,7 @@ class dBrowsePage(DataNavPage):
 		if self.itemsCreated:
 			if self.Form.preview:
 				# Just previewing 
-				dMessageBox.info(message="Not available in preview mode", 
+				dabo.ui.dMessageBox.info(message="Not available in preview mode", 
 						title = "Preview Mode")
 				return
 			import wx.html
@@ -628,7 +625,6 @@ class dBrowsePage(DataNavPage):
 			
 class dEditPage(DataNavPage):
 	def __init__(self, parent, ds=None):
-		#dEditPage.doDefault(parent, "pageEdit")
 		super(dEditPage, self).__init__(parent)		#, Name="pageEdit")
 		self.dataSource = ds
 		self.childGrids = []
@@ -644,7 +640,6 @@ class dEditPage(DataNavPage):
 		self.createItems()
 
 	def initEvents(self):
-		#dEditPage.doDefault()
 		super(dEditPage, self).initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
@@ -694,7 +689,7 @@ class dEditPage(DataNavPage):
 			cap = fldInfo["caption"]
 			fieldEnabled = (fldInfo["editReadOnly"] != "1")
 			
-			label = dLabel.dLabel(self)		#, style=labelStyle)
+			label = dabo.ui.dLabel(self)		#, style=labelStyle)
 			label.Name="lbl%s" % fieldName 
 
 			# Hook into user's code in case they want to control the object displaying
@@ -703,13 +698,13 @@ class dEditPage(DataNavPage):
 			if classRef is None:
 				# User didn't supply a class, so derive it based on field type:
 				if fieldType in ["memo",]:
-					classRef = dEditBox.dEditBox
+					classRef = dabo.ui.dEditBox
 				elif fieldType in ["bool",]:
-					classRef = dCheckBox.dCheckBox
+					classRef = dabo.ui.dCheckBox
 				elif fieldType in ["date",]:
-					classRef = dDateTextBox.dDateTextBox
+					classRef = dabo.ui.dDateTextBox
 				else:
-					classRef = dTextBox.dTextBox
+					classRef = dabo.ui.dTextBox
 
 			objectRef = classRef(self)
 			objectRef.Name = fieldName
@@ -720,7 +715,7 @@ class dEditPage(DataNavPage):
 			if fieldEnabled and firstControl is None:
 				firstControl = objectRef
 			
-			if classRef == dCheckBox.dCheckBox:
+			if classRef == dabo.ui.dCheckBox:
 				# Use the label for a spacer, but don't set the 
 				# caption because checkboxes have their own caption.
 				label.Caption = ""

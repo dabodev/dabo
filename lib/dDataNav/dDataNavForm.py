@@ -1,12 +1,14 @@
+import os
+import random
 import wx
-import dIcons
 import dabo.dEvents as dEvents
-import dForm, dDataNavPageFrame
 import dabo.ui
 from dabo.common import specParser
-import os, random
+import dDataNavPageFrame
 
-class dDataNavForm(dForm.dForm):
+dabo.ui.loadUI("wx")
+
+class dDataNavForm(dabo.ui.dForm):
 	""" This is a dForm but with the following added controls:
 		+ Navigation Menu
 		+ Navigation ToolBar
@@ -110,61 +112,72 @@ class dDataNavForm(dForm.dForm):
 		toolBar.SetToolBitmapSize((16,16))    # Needed on non-Linux platforms
 
 		if self.FormType != 'Edit':
-			self._appendToToolBar(toolBar, "First", dIcons.getIconBitmap("leftArrows"),
-								self.onFirst, "Go to the first record")
+			self._appendToToolBar(toolBar, "First",
+			                      dabo.ui.dIcons.getIconBitmap("leftArrows"),
+			                      self.onFirst, "Go to the first record")
 
-			self._appendToToolBar(toolBar, "Prior", dIcons.getIconBitmap("leftArrow"),
-								self.onPrior, "Go to the prior record")
+			self._appendToToolBar(toolBar, "Prior",
+			                      dabo.ui.dIcons.getIconBitmap("leftArrow"),
+			                      self.onPrior, "Go to the prior record")
 
-			self._appendToToolBar(toolBar, "Requery", dIcons.getIconBitmap("requery"),
-								self.onRequery, "Requery dataset")
+			self._appendToToolBar(toolBar, "Requery",
+			                      dabo.ui.dIcons.getIconBitmap("requery"),
+			                      self.onRequery, "Requery dataset")
 
-			self._appendToToolBar(toolBar, "Next", dIcons.getIconBitmap("rightArrow"),
-								self.onNext, "Go to the next record")
+			self._appendToToolBar(toolBar, "Next",
+			                      dabo.ui.dIcons.getIconBitmap("rightArrow"),
+			                      self.onNext, "Go to the next record")
 
-			self._appendToToolBar(toolBar, "Last", dIcons.getIconBitmap("rightArrows"),
-								self.onLast, "Go to the last record")
+			self._appendToToolBar(toolBar, "Last",
+			                      dabo.ui.dIcons.getIconBitmap("rightArrows"),
+			                      self.onLast, "Go to the last record")
 
 			toolBar.AddSeparator()
 
 		if self.FormType == 'Normal':
-			self._appendToToolBar(toolBar, "New", dIcons.getIconBitmap("blank"),
-								self.onNew, "Add a new record")
+			self._appendToToolBar(toolBar, "New", 
+			                      dabo.ui.dIcons.getIconBitmap("blank"),
+			                      self.onNew, "Add a new record")
 
-			self._appendToToolBar(toolBar, "Delete", dIcons.getIconBitmap("delete"),
-								self.onDelete, "Delete this record")
+			self._appendToToolBar(toolBar, "Delete", 
+			                      dabo.ui.dIcons.getIconBitmap("delete"),
+			                      self.onDelete, "Delete this record")
 
 			toolBar.AddSeparator()
 
 		if self.FormType != 'PickList':
-			self._appendToToolBar(toolBar, "Save", dIcons.getIconBitmap("save"),
-								self.onSave, "Save changes")
+			self._appendToToolBar(toolBar, "Save", 
+			                      dabo.ui.dIcons.getIconBitmap("save"),
+			                      self.onSave, "Save changes")
 
-			self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("revert"),
-								self.onCancel, "Cancel changes")
-
-
+			self._appendToToolBar(toolBar, "Cancel", 
+			                      dabo.ui.dIcons.getIconBitmap("revert"),
+			                      self.onCancel, "Cancel changes")
 
 		toolBar.AddSeparator()
-		self._appendToToolBar(toolBar, "Show SQL", dIcons.getIconBitmap("zoomOut"),
-					self.onShowSQL, "Show the last executed SQL statement")
+		self._appendToToolBar(toolBar, "Show SQL", 
+		                      dabo.ui.dIcons.getIconBitmap("zoomOut"),
+		                      self.onShowSQL, 
+		                      "Show the last executed SQL statement")
 
 
 		controllingFrame.SetToolBar(toolBar)
-		toolBar.Realize()                      # Needed on non-Linux platforms
+		toolBar.Realize()  # Needed on non-Linux platforms
 
 
 	def getMenu(self):
-		#menu = dDataNavForm.doDefault()
 		menu = super(dDataNavForm, self).getMenu()
 		
 		bindobj = self
 		if wx.Platform == "__WXMAC__":
 			bindobj = menu
 
-		menu.append("Set Selection Criteria\tAlt+1", bindobj, func=self.onSetSelectionCriteria, bmp="checkMark")
-		menu.append("Browse Records\tAlt+2", bindobj, func=self.onBrowseRecords, bmp="browse")
-		menu.append("Edit Current Record\tAlt+3", bindobj, func=self.onEditCurrentRecord, bmp="edit")
+		menu.append("Set Selection Criteria\tAlt+1", bindobj, 
+		            func=self.onSetSelectionCriteria, bmp="checkMark")
+		menu.append("Browse Records\tAlt+2", bindobj, 
+		            func=self.onBrowseRecords, bmp="browse")
+		menu.append("Edit Current Record\tAlt+3", bindobj, 
+		            func=self.onEditCurrentRecord, bmp="edit")
 		menu.appendSeparator()
 
 		if self.FormType != "Edit":
