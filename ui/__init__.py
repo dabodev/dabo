@@ -40,6 +40,9 @@
 """
 from dActionList import dActionList
 
+# EGL: Added for making single-file version
+from uiwx import *
+
 # Module factory function: generically return the 
 # proper module depending on the passed uiType.
 def getUI(uiType):
@@ -57,5 +60,5 @@ def loadUI(uiType):
 
 # TEMPORARY!!!!! Just to get the wx stuff working!
 # This will load uiwx into the global namespace dabo.ui.
-loadUI('wx')
+# loadUI('wx')
 
