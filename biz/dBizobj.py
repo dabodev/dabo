@@ -24,7 +24,7 @@ class dBizobj(dabo.common.dObject):
 		"""
 		self.initProperties()
 		self.beforeInit()
-		self._conn = conn
+		self.Connection = conn
 		
 		#dBizobj.doDefault()		
 		super(dBizobj, self).__init__()
@@ -33,9 +33,9 @@ class dBizobj(dabo.common.dObject):
 		# (should be made into a property - do we have a name/value editor for the propsheet?)
 		self.defaultValues = {}
 		
-		if self._conn:
+		if self.Connection:
 			# Base cursor class : the cursor class from the db api
-			self.dbapiCursorClass = self._conn.getDictCursorClass()
+			self.dbapiCursorClass = self.Connection.getDictCursorClass()
 		
 			# If there are any problems in the createCursor process, an
 			# exception will be raised in that method.
@@ -158,15 +158,15 @@ class dBizobj(dabo.common.dObject):
 		if key is None:
 			key = self.__currentCursorKey
 		
-		self.__cursors[key] = self._conn.getCursor(cursorClass)
-		self.__cursors[key].setCursorFactory(self._conn.getCursor, cursorClass)
+		self.__cursors[key] = self.Connection.getCursor(cursorClass)
+		self.__cursors[key].setCursorFactory(self.Connection.getCursor, cursorClass)
 
 		crs = self.__cursors[key]
 		crs.setSQL(self.SQL)
 		crs.KeyField = self.KeyField
 		crs.Table = self.DataSource
 		crs.AutoPopulatePK = self.AutoPopulatePK
-		crs.BackendObject = self._conn.BackendObject
+		crs.BackendObject = self.Connection.BackendObject
 		if self.RequeryOnLoad:
 			crs.requery()
 		self.afterCreateCursor(crs)
@@ -882,7 +882,7 @@ class dBizobj(dabo.common.dObject):
 				childBiz = self.getChildByDataSource(target)
 				if not childBiz:
 					childBizClass = bizModule.__dict__["Biz" + target.title()]
-					childBiz = childBizClass(self._conn)
+					childBiz = childBizClass(self.Connection)
 					self.addChild(childBiz)
 					addedChildren.append(childBiz)
 					childBiz.LinkField = targetField
@@ -1254,6 +1254,11 @@ class dBizobj(dabo.common.dObject):
 	
 	def _isAdding(self):
 		return self.Cursor.IsAdding
+	
+	def _getConnection(self):
+		return self._conn
+	def _setConnection(self, conn):
+		self._conn = conn
 
 	
 	
@@ -1321,3 +1326,5 @@ class dBizobj(dabo.common.dObject):
 	IsAdding = property(_isAdding, None, None, 
 				_("Returns True if the current record is new and unsaved."))
 
+	Connection = property(_getConnection, _setConnection, None,
+				_("Reference to the connection object used to connect to the backend database."))
