@@ -6,12 +6,12 @@ import dabo.dConstants as k
 
 
 
-class dWizardPage(dabo.ui.dPanel):
+class WizardPage(dabo.ui.dPanel):
 	def __init__(self, parent, properties=None, *args, **kwargs):
-		self._baseClass = dWizardPage
+		self._baseClass = WizardPage
 		self._titleCaption = self.extractKey(kwargs, "Title")
 		
-		super(dWizardPage, self).__init__(parent=parent, 
+		super(WizardPage, self).__init__(parent=parent, 
 				properties=properties, *args, **kwargs)
 		
 		self._nextPage = self._prevPage = None

@@ -3,13 +3,13 @@ dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
-from dWizardPage import dWizardPage
+from WizardPage import WizardPage
 
 
-class dWizard(dabo.ui.dForm):
+class Wizard(dabo.ui.dForm):
 	""" This is the main form for creating wizards. To use it, define
-	a series of wizard pages, based on dWizardPage. Then add these
-	classes to your subclass of dWizard. The order that you add them 
+	a series of wizard pages, based on WizardPage. Then add these
+	classes to your subclass of Wizard. The order that you add them 
 	will be the order that they appear in the wizard.
 	"""
 	
@@ -18,8 +18,13 @@ class dWizard(dabo.ui.dForm):
 		self.iconName = self.extractKey(kwargs, "image")
 		# Add the main panel
 		kwargs["panel"] = True
-		
-		super(dWizard, self).__init__(parent=parent, properties=properties, *args, **kwargs)
+		kwargs["BorderResizable"] = False
+		kwargs["ShowMaxButton"] = False
+		kwargs["ShowMinButton"] = False
+		kwargs["ShowCloseButton"] = False
+		kwargs["ShowStatusBar"] = False
+				
+		super(Wizard, self).__init__(parent=parent, properties=properties, *args, **kwargs)
 		
 		self._pages = []
 		self._currentPage = -1
@@ -30,6 +35,8 @@ class dWizard(dabo.ui.dForm):
 		# This is the message displayed to the user when a Cancel 
 		# confirmation is displayed.
 		self.confirmCancelMsg = _("Are you sure you want to exit?")
+		# We want to size the form explicitly
+		self.SaveUserGeometry = False
 		
 		self.setup()
 		if pgs:
@@ -161,6 +168,8 @@ class dWizard(dabo.ui.dForm):
 			page = self._pages[idx] 
 			if idx == self._currentPage:
 				page.Visible = True
+				# Need this to keep the pages resizing correctly.
+				page.Size = self.pagePanel.Size
 				self.pagePanel.Sizer.append(page, 1, "x")
 				self.btnBack.Enabled = (idx > 0)
 				cap = _("Next >")
@@ -235,13 +244,13 @@ class dWizard(dabo.ui.dForm):
 			_("Number of pages in this wizard  (int)") )
 			
 	CurrentPage = property(_getCurrPage, _setCurrPage, None,
-			_("Index of the current page in the wizard  (dWizardPage)") )
+			_("Index of the current page in the wizard  (WizardPage)") )
 
 
 
 if __name__ == "__main__":
 
-	class WizPageOne(dWizardPage):
+	class WizPageOne(WizardPage):
 		def createBody(self):
 			self.Title = _("This is the first page")
 			lbl = dabo.ui.dLabel(self, Caption=_(
@@ -251,7 +260,7 @@ I know that I am!!""") )
 			self.Sizer.append(lbl, alignment="center")
 			
 			
-	class WizPageTwo(dWizardPage):
+	class WizPageTwo(WizardPage):
 		def createBody(self):
 			self.Title = _("This is the second page")
 			lbl = dabo.ui.dLabel(self, Caption=_(
@@ -274,7 +283,7 @@ pages. If the checkbox below is checked, clicking
 			return ret
 
 
-	class WizPageThree(dWizardPage):
+	class WizPageThree(WizardPage):
 		def createBody(self):
 			self.Title = _("This is the third page")
 			lbl = dabo.ui.dLabel(self, Caption=_(
@@ -283,7 +292,7 @@ the box on Page Two.
 """) )
 			self.Sizer.append(lbl, alignment="center")
 
-	class WizPageFour(dWizardPage):
+	class WizPageFour(WizardPage):
 		def createBody(self):
 			self.Title = _("This is the fourth page")
 			lbl = dabo.ui.dLabel(self, Caption=_(
@@ -319,7 +328,7 @@ the box on Page Two.
 			return ret
 
 
-	class WizPageFive(dWizardPage):
+	class WizPageFive(WizardPage):
 		def createBody(self):
 			self.Title = _("This is the fifth (and last) page")
 			lbl = dabo.ui.dLabel(self, Caption=_(
@@ -335,7 +344,8 @@ to play some more.
 	app.setup()
 	# OK, we've defined all of our pages. Now let's define
 	# the wizard itself.
-	wiz = dWizard(image="daboIcon096", 
-			Pages=(WizPageOne, WizPageTwo, WizPageThree, WizPageFour, WizPageFive) )
+	wiz = Wizard(image="daboIcon096", Height=450, Width=530,
+			Pages=(WizPageOne, WizPageTwo, WizPageThree, WizPageFour,
+			WizPageFive) )
 	wiz.show()
 	app.start()
