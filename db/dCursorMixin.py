@@ -26,6 +26,8 @@ class dCursorMixin:
     sortColumn = ""
     # Order of the sorting. Should be either ASC, DESC or empty for no sort
     sortOrder = ""
+    # Is the sort case-sensitive?
+    sortCase = True
     # Holds the keys in the original, unsorted order for unsorting the dataset
     __unsortedRows = []
 
@@ -47,6 +49,18 @@ class dCursorMixin:
 
     def setKeyField(self, kf):
         self.keyField = kf
+    
+    
+    def getSortColumn(self):
+        return self.sortColumn
+    
+    
+    def getSortOrder(self):
+        return self.sortOrder
+    
+    
+    def getSortCase(self):
+        return self.sortCase
 
 
     def setAutoPopulatePK(self, autopop):
@@ -99,7 +113,7 @@ class dCursorMixin:
         return k.REQUERY_SUCCESS
         
     
-    def sort(self, col, dir=None):
+    def sort(self, col, dir=None, caseSensitive=True):
         """
         Sorts the result set on the specified column in the specified order.
         If the sort direction is not specified, we cycle among Ascending, 
@@ -107,6 +121,7 @@ class dCursorMixin:
         """
         currCol = self.sortColumn
         currOrd = self.sortOrder
+        currCase = self.sortCase
         
         # Check to make sure that we have data
         if self.rowcount < 1:
@@ -150,14 +165,15 @@ class dCursorMixin:
                     # TODO: raise the appropriate exception
                     self.addToErrorMsg(loc("Invalid Sort direction specified: ") + dir)
                     return False
-        self.__sortRows(newCol, newOrd)
+        self.__sortRows(newCol, newOrd, caseSensitive)
         # Save the current sort values
         self.sortColumn = newCol
         self.sortOrder = newOrd
+        self.sortCase = caseSensitive
         return True
     
     
-    def __sortRows(self, col, ord):
+    def __sortRows(self, col, ord, caseSensitive):
         """
         At this point, we know we have a valid column and order. We need to 
         preserve the unsorted order if we haven't done that yet; then we sort
@@ -183,7 +199,14 @@ class dCursorMixin:
         # At this point we have a list consisting of lists. Each of these member
         # lists contain the sort value in the zeroth element, and the row as
         # the first element.
-        sortList.sort()
+        # First, see if we are comparing strings
+        compString = type(sortList[0][0]) in (types.StringType, types.UnicodeType)
+        if compString and not caseSensitive:
+            # Use a case-insensitive sort.
+            sortList.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
+        else:
+            sortList.sort()
+            
         # Unless DESC was specified as the sort order, we're done sorting
         if ord == "DESC":
             sortList.reverse()
@@ -360,6 +383,7 @@ class dCursorMixin:
         newrec =  rec.has_key(k.CURSOR_NEWFLAG)
         mem = rec[k.CURSOR_MEMENTO]
         diff = mem.makeDiff(rec, newrec)
+        
         ret = k.UPDATE_OK
         if diff:
             if newrec:
@@ -380,7 +404,7 @@ class dCursorMixin:
                 pkWhere = self.makePkWhere(rec)
                 updClause = self.makeUpdClause(diff)
                 sql = "update %s set %s where %s" % (self.table, updClause, pkWhere)
-
+            
             # Save off the props that will change on the update
             self.__saveProps()
             #run the update
@@ -598,6 +622,66 @@ class dCursorMixin:
             return False
         self.rownumber = rownum
         return True
+    
+    
+    def seek(self, val, fld=None, caseSensitive=True, near=True):
+        """
+        Returns the row number of the first record that matches the passed
+        value in the designated field, or -1 if there is no match. If 'near' is False,
+        it will return the row number of the row whose value is the greatest value
+        that is less than the passed value. If 'caseSensitive' is set to False, string 
+        comparisons are done in a case-insensitive fashion.
+        """
+        ret = -1
+        if fld is None:
+            # Default to the current sort order field
+            fld = self.sortColumn
+        if self.rowcount <= 0:
+            # Nothing to seek within
+            return ret
+        # Make sure that this is a valid field
+        if not fld:
+            self.addToErrorMsg(loc("No field specified for seek()"))
+            return ret
+        if not fld or not self._rows[0].has_key(fld):
+            self.addToErrorMsg(loc("Non-existant field"))
+            return ret
+        
+        # Copy the specified field vals and their row numbers to a list, and 
+        # add those lists to the sort list
+        sortList = []
+        for i in range(0, self.rowcount):
+            sortList.append( [self._rows[i][fld], i] )
+        # Determine if we are seeking string values
+        compString = type(sortList[0][0]) in (types.StringType, types.UnicodeType)
+        if compString and not caseSensitive:
+            # Use a case-insensitive sort.
+            sortList.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
+        else:
+            sortList.sort()
+        
+        # Now iterate through the list to find the matching value. I know that 
+        # there are more efficient search algorithms, but for this purpose, we'll
+        # just use brute force
+        for fldval, row in sortList:
+            if fldval == val:
+                # Found a match!
+                ret = row
+                break
+            else:
+                if not near:
+                    ret = row
+                # If we are not doing an near search, see if the row is less than
+                # requested matching value. If so, update the value of 'ret'. If not,
+                # we have passed the matching value, so there's no point in 
+                # continuing the search
+                if compString and not caseSensitive:
+                    toofar = fldval.lower() > val.lower()
+                else:
+                    toofar = fldval > val
+                if toofar:
+                    break
+        return ret
 
 
     def checkPK(self):

@@ -82,6 +82,35 @@ class dBizobj(object):
         # contained in this list.
         self.__children = []
     
+    
+    def __getattr__(self, att):
+        """
+        Allows for directly accessing the field values of the cursor without having
+        to use self.getFieldVal(fld). If there is a field whose name is the same as 
+        a built-in attribute of this object, the built-in value will always be returned.
+        If there is no object attribute named 'att', and no field in the cursor by that
+        name, an AttributeError is raised.
+        """
+        print "\tgetting field %s" % att
+        ret = self.getFieldVal(att)
+        if ret is None:
+            raise AttributeError, " '%s' object has no attribute '%s' " % (self.__class__.__name__, att)
+        return ret
+    
+    
+    def __setattr__(self, att, val):
+        """ 
+        Allows for directly setting field values as if they were attributes of the
+        bizobj, rather than calling setFieldVal() for each field. If there is a field in
+        the cursor with the same name as a built-in attribute of this object, the
+        cursor field will be affected, not the built-in attribute.
+        """
+        isFld = False
+        if self._cursor is not None:
+            isFld = self.setFieldVal(att, val)
+        if not isFld:
+            self.__dict__[att] = val
+    
         
     def createCursor(self):        
         # Create the cursor that this bizobj will be using for data
@@ -418,13 +447,13 @@ class dBizobj(object):
         return ret
     
     
-    def sort(self, col, ord=None):
+    def sort(self, col, ord=None, caseSensitive=True):
         """ 
         Called when the data is to be sorted on a particular column
         in a particular order. All the checking on the parameters is done
         in the cursor. 
         """
-        if not self._cursor.sort(col, ord):
+        if not self._cursor.sort(col, ord, caseSensitive):
             self.addToErrorMsg(self._cursor.getErrorMsg())
             return False
         return True
@@ -494,6 +523,10 @@ class dBizobj(object):
         if not ret:
             self.addToErrorMsg(self._cursor.getErrorMsg())
         return ret
+    
+    
+    def seek(self, val, fld=None, caseSensitive=False, near=True):
+        return self._cursor.seek(val, fld, caseSensitive, near)
 
 
     def isChanged(self):
@@ -595,12 +628,19 @@ class dBizobj(object):
 
     def getFieldVal(self, fld):
         """ Returns the value of the requested field """
-        return self._cursor.getFieldVal(fld)
+        if self._cursor is not None:
+            return self._cursor.getFieldVal(fld)
+        else:
+            return None
 
 
     def setFieldVal(self, fld, val):
         """ Sets the value of the specified field """
-        return self._cursor.setFieldVal(fld, val)
+        if self._cursor is not None:
+            return self._cursor.setFieldVal(fld, val)
+        else:
+            return None
+        
 
 
     def getParams(self):

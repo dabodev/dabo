@@ -55,13 +55,13 @@ def main():
 	cbiz.setParams('B%')
 	cbiz.requery()
 	
- 	cbiz.new()
- 	vals = {'cust_id': 'FORBU', 'city': 'Hackensack', 'fax': '', 'dabo-newrec': 1, 'title': 'Wow', \
- 		'country': 'USA', 'company': 'Fearless Forbush Industries', \
- 		'maxordamt': 321.88, 'phone': '', 'contact': '', 'cust_id': 'FORBU', \
- 		'address': '212 Wilson St.', 'postalcode': '07601', 'region': ''}
- 	for kk,vv in vals.items():
- 		cbiz.setFieldVal(kk,vv)
+#  	cbiz.new()
+#  	vals = {'cust_id': 'FORBU', 'city': 'Hackensack', 'fax': '', 'dabo-newrec': 1, 'title': 'Wow', \
+#  		'country': 'USA', 'company': 'Fearless Forbush Industries', \
+#  		'maxordamt': 321.88, 'phone': '', 'contact': '', 'cust_id': 'FORBU', \
+#  		'address': '212 Wilson St.', 'postalcode': '07601', 'region': ''}
+#  	for kk,vv in vals.items():
+#  		cbiz.setFieldVal(kk,vv)
 	
 	return cbiz
 			
