@@ -123,7 +123,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		cursorClass = self._getCursorClass(self.dCursorMixinClass,
 				self.dbapiCursorClass, 
 				self.dSqlBuilderMixinClass)
-
+		
 		if self.TESTING:
 			self.__cursor = self._conn.cursor(cursorclass=cursorClass)
 		else:
@@ -792,7 +792,6 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	def beforeCancel(self): return ""
 	def beforeRequery(self): return ""
 	def beforeChildRequery(self): return ""
-	def beforeConnection(self): return ""
 	def beforeCreateCursor(self): return ""
 	########## Post-hook interface section ##############
 	def afterNew(self): pass
@@ -808,7 +807,6 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	def afterRequery(self): pass
 	def afterChildRequery(self): pass
 	def afterChange(self): pass
-	def afterConnection(self): pass
 	def afterCreateCursor(self, cursor): pass
 
 
