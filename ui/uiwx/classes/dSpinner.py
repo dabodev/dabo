@@ -3,7 +3,8 @@ import dControlMixin as cm
 import dDataControlMixin as dcm
 
 class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
-
+	''' Allows editing integer values.
+	'''
 	def __init__(self, parent, id=-1, name="dSpinner", style=0, *args, **kwargs):
 
 		self._baseClass = dSpinner

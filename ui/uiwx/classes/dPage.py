@@ -2,7 +2,8 @@
 import wx, dPanel
 
 class dPage(dPanel.dPanel):
-
+	''' Create a page to appear as a tab in a dPageFrame.
+	'''
 	def __init__(self, parent, name="dPage"):
 		dPage.doDefault(parent, name=name)
 

@@ -3,7 +3,8 @@ import dControlMixin as cm
 import dDataControlMixin as dcm
 
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
-
+	''' Allows editing one line of string or unicode data.
+	'''
 	def __init__(self, parent, id=-1, name="dTextBox", style=0, *args, **kwargs):
 
 		self._baseClass = dTextBox

@@ -35,6 +35,16 @@ from dTextBox import dTextBox
 from dTreeView import dTreeView
 
 # Tell Dabo Designer what classes to put in the selection menu:
-daboDesignerClasses = [dCheckBox, dCommandButton, dEditBox, dForm,
+__dClasses = [dCheckBox, dCommandButton, dEditBox, dForm,
 		dFormDataNav, dFormMain, dLabel, dPanel, dPageFrame,
 		dPage, dSpinner, dTextBox]
+
+daboDesignerClasses = []
+for classRef in __dClasses:
+	classDict = {}
+	classDict['class'] = classRef
+	classDict['name'] = classRef.__name__
+	classDict['topLevel'] = classRef.__name__.find('Form') >= 0
+	classDict['icon'] = None
+	classDict['doc'] = classRef.__doc__
+	daboDesignerClasses.append(classDict)
