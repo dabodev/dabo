@@ -5,7 +5,6 @@ dabo.ui.loadUI("wx")
 
 class dShell(dabo.ui.dForm):
 	def initProperties(self):
-		print "props", self
 		self.fillMenu()
 		#dShell.doDefault()
 		super(dShell, self).initProperties()
