@@ -36,6 +36,7 @@ import sys, os
 import ui
 from biz import *
 from db import *
+import dabo.common
 
 class Collection(list):
 	""" 
@@ -64,7 +65,7 @@ class Collection(list):
 			del self[index]
 
 
-class dApp(object):
+class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 	""" dabo.dApp
 
 		The containing object for the entire application.
@@ -303,3 +304,17 @@ class dApp(object):
 		print "User interface set to %s using module %s" % (self.uiType, self.uiModule)
 
 
+	def _getAutoNegotiateUniqueNames(self):
+		try:
+			return self._autoNegotiateUniqueNames
+		except AttributeError:
+			return True
+	
+	def _setAutoNegotiateUniqueNames(self, value):
+		self._autoNegotiateUniqueNames = bool(value)
+		
+		
+	AutoNegotiateUniqueNames = property(_getAutoNegotiateUniqueNames,_setAutoNegotiateUniqueNames,
+						None, 'Specifies whether setting an object\'s name to a non-unique '
+						'value results in a unique integer being appended, or whether '
+						'a NameError is raised. Default is True: negotiate the name.')

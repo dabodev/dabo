@@ -238,6 +238,13 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 	# Scroll to the bottom to see the property definitions.
 
 	# Property get/set/delete methods follow.
+	def _getDApp(self):
+		wxApp = wx.GetApp()
+		if wxApp:
+			return wxApp.dApp
+		else:
+			return None
+			
 	def _getClass(self):
 		try:
 			return self.__class__
@@ -368,12 +375,31 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		name = self._pemObject.GetName()
 		self._name = name      # keeps name available even after C++ object is gone.
 		return name
+	
 	def _setName(self, name):
 		parent = self._pemObject.GetParent()
 		if parent:
-			for window in self._pemObject.GetParent().GetChildren():
-				if window.GetName() == name and window != self:
-					raise NameError, "A unique object name is required."
+			if not self.dApp or self.dApp.AutoNegotiateUniqueNames:
+				i = 0
+				while True:
+					nameError = False
+					if i == 0:
+						candidate = name
+					else:
+						candidate = '%s%s' % (name, i)
+
+					for window in self._pemObject.GetParent().GetChildren():
+						if window.GetName() == candidate and window != self:
+							nameError = True
+							break
+					if nameError:
+						i += 1
+					else:
+						name = candidate
+						break
+			else:
+				raise NameError, "A unique object name is required."
+				
 		else:
 			# Can't do the name check for siblings, so allow it for now.
 			# This problem would only apply to top-level forms, so it really
@@ -382,7 +408,6 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 
 		self._pemObject.SetName(str(name))
 		self._name = self._pemObject.GetName()
-
 
 	def _getCaption(self):
 		return self._pemObject.GetLabel()
@@ -521,6 +546,8 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 
 
 	# Property definitions follow
+	dApp = property(_getDApp, None, None, 
+			'Object reference to the Dabo Application object. (read only).')
 	Name = property(_getName, _setName, None, 
 					'The name of the object. (str)')
 	Class = property(_getClass, None, None,

@@ -14,19 +14,7 @@ class dControlMixin(pm.dPemMixin):
 		if not name:
 			name = self.Name
 		
-		try:
-			self.Name = name		
-		except NameError:
-			# Name isn't unique: add an incrementing integer at the end and loop until
-			# a unique name is found.
-			nameNum = 1
-			while True:
-				try:				
-					self.Name = "%s%s" % (name, nameNum)
-					break
-				except NameError:
-					nameNum += 1
-
+		self.Name = name		
 		self.Caption = self.getDefaultText()
 
 		# Subclass will intercept the initEvents first, allowing

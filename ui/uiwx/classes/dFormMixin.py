@@ -7,7 +7,6 @@ import dMenu, dMessageBox, dabo.icons
 class dFormMixin(pm.dPemMixin):
 	def __init__(self, dApp):
 		dFormMixin.doDefault()
-		self.dApp = dApp
 		self.debug = False
 
 		wx.EVT_CLOSE(self, self.OnClose)
