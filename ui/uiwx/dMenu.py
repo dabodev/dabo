@@ -124,13 +124,23 @@ class dMenu(wx.Menu, pm.dPemMixin):
 			ret = dRadioItem
 		return ret
 
+	
+	def _isPopupMenu(self):
+		## TODO: Make dMenu work as a submenu, a child of dMenuBar, or as a popup.
+		return False
+
 
 	def _getCaption(self):
-		return self.GetTitle()
+		try:
+			v = self._caption
+		except:
+			v = self._caption = ""
+		return v
 
 	def _setCaption(self, val):
-		self.SetTitle(val)
-
+		self._caption = val
+		if self._isPopupMenu:
+			self.SetTitle(val)
 
 	def _getEnabled(self):
 		return self.IsEnabled()
