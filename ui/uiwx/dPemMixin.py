@@ -810,6 +810,17 @@ class dPemMixin(dPemMixinBase):
 		self.SetSizer(val)
 			
 		
+	def _getTag(self):
+		try:
+			v = self._tag
+		except AttributeError:
+			v = self._tag = None
+		return v
+		
+	def _setTag(self, val):
+		self._tag = val
+
+
 	def _getToolTipText(self):
 		t = self._pemObject.GetToolTip()
 		if t:
@@ -957,6 +968,9 @@ class dPemMixin(dPemMixinBase):
 
 	Sizer = property(_getSizer, _setSizer, None, 
 			"The sizer for the object.")
+
+	Tag = property(_getTag, _setTag, None,
+			"A property that user code can safely use for specific purposes.")
 		
 	ToolTipText = property(_getToolTipText, _setToolTipText, None,
 			"Specifies the tooltip text associated with this window. (str)")

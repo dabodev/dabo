@@ -173,9 +173,14 @@ class Form(dabo.ui.dForm):
 		menu.append("Browse Records\tAlt+2", 
 		            bindfunc=self.onBrowseRecords, bmp="browse",
 		            help="Browse the records in the current recordset.")
-		menu.append("Edit Current Record\tAlt+3", 
-		            bindfunc=self.onEditCurrentRecord, bmp="edit",
-		            help="Edit the fields of the currently selected record.")
+
+		# Add one edit menu item for every edit page (every page past the second)
+		for index in range(2, self.PageFrame.PageCount):
+			title = "%s\tAlt+%d" % (self.PageFrame.GetPage(index).Caption,
+			                        index+1)
+			menu.append(title, bindfunc=self.onEditCurrentRecord, bmp="edit",
+			            help="Edit the fields of the currently selected record.",
+			            Tag=self.PageFrame.GetPage(index).dataSource)
 		menu.appendSeparator()
 
 		if self.FormType != "Edit":
@@ -292,19 +297,21 @@ class Form(dabo.ui.dForm):
 	def onSetSelectionCriteria(self, evt):
 		""" Occurs when the user chooses to set the selection criteria.
 		"""
-		self.pageFrame.SetSelection(0)
+		self.pageFrame.SelectedPage = 0
 
 		
 	def onBrowseRecords(self, evt):
 		""" Occurs when the user chooses to browse the record set.
 		"""
-		self.pageFrame.SetSelection(1)
+		self.pageFrame.SelectedPage = 1
 
 		
 	def onEditCurrentRecord(self, evt):
 		""" Occurs when the user chooses to edits the current record.
 		"""
-		self.pageFrame.SetSelection(2)
+		# We stored the datasource in the menu item's Tag property when
+		# the menu was created.
+		self.pageFrame.editByDataSource(evt.EventObject.Tag)
 
 
 	def onShowSQL(self, evt):

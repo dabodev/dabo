@@ -83,13 +83,18 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		self.PrependSeparator()
 	
 
-	def append(self, caption, bindfunc=None, help="", bmp=None, menutype=""):
+	def append(self, caption, bindfunc=None, help="", bmp=None, menutype="", 
+	           **kwargs):
 		"""Append a dMenuItem with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
+
+		Any additional keyword arguments passed will be interpreted as properties
+		of the dMenuItem: if valid property names/values, the dMenuItem will take
+		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(caption, bindfunc, help, bmp, menutype)
+		item = self._getItem(caption, bindfunc, help, bmp, menutype, **kwargs)
 		self.appendItem(item)
 		return item
 	
@@ -98,6 +103,10 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
+
+		Any additional keyword arguments passed will be interpreted as properties
+		of the dMenuItem: if valid property names/values, the dMenuItem will take
+		them on; if not valid, an exception will be raised.
 		"""
 		item = self._getItem(caption, bindfunc, help, bmp, menutype)
 		self.insertItem(item)
@@ -108,15 +117,19 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
+
+		Any additional keyword arguments passed will be interpreted as properties
+		of the dMenuItem: if valid property names/values, the dMenuItem will take
+		them on; if not valid, an exception will be raised.
 		"""
 		item = self._getItem(caption, bindfunc, help, bmp, menutype)
 		self.prependItem(item)
 		return item
 		
-	def _getItem(self, prompt, bindfunc, help, icon, menutype):
+	def _getItem(self, prompt, bindfunc, help, icon, menutype, **kwargs):
 		itmtyp = self._getItemType(menutype)
 		itm = dMenuItem.dMenuItem(self, Caption=prompt, HelpText=help, Icon=icon, 
-		                          kind=itmtyp)
+		                          kind=itmtyp, **kwargs)
 		if bindfunc:
 			itm.bindEvent(dEvents.Hit, bindfunc)
 		return itm
