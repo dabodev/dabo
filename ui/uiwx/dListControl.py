@@ -64,7 +64,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		return ret
 	def _setSelected(self, selList):
 		for id in selList:
-			self.propList.SetItemState(id, wx.LIST_STATE_SELECTED, 
+			self.SetItemState(id, wx.LIST_STATE_SELECTED, 
 					wx.LIST_STATE_SELECTED)
 
 
