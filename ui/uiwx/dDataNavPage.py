@@ -601,6 +601,7 @@ class dBrowsePage(DataNavPage):
 				dMessageBox.info(message="Not available in preview mode", 
 						title = "Preview Mode")
 				return
+			import wx.html
 			html = self.BrowseGrid.getHTML(justStub=False)
 			win = wx.html.HtmlEasyPrinting("Dabo Quick Print", self.Form)
 			printData = win.GetPrintData()
@@ -690,21 +691,27 @@ class dEditPage(DataNavPage):
 			
 			label = dLabel.dLabel(self)		#, style=labelStyle)
 			label.Name="lbl%s" % fieldName 
-			
-			if fieldType in ["memo",]:
-				classRef = dEditBox.dEditBox
-			elif fieldType in ["bool",]:
-				classRef = dCheckBox.dCheckBox
-			elif fieldType in ["date",]:
-				classRef = dDateTextBox.dDateTextBox
-			else:
-				classRef = dTextBox.dTextBox
+
+			# Hook into user's code in case they want to control the object displaying
+			# the data:
+			classRef = self.Form.getEditClassForField(fieldName)
+			if classRef is None:
+				# User didn't supply a class, so derive it based on field type:
+				if fieldType in ["memo",]:
+					classRef = dEditBox.dEditBox
+				elif fieldType in ["bool",]:
+					classRef = dCheckBox.dCheckBox
+				elif fieldType in ["date",]:
+					classRef = dDateTextBox.dDateTextBox
+				else:
+					classRef = dTextBox.dTextBox
 
 			objectRef = classRef(self)
 			objectRef.Name = fieldName
 			objectRef.DataSource = self.dataSource
 			objectRef.DataField = fieldName
 			objectRef.enabled = fieldEnabled
+			
 			if fieldEnabled and firstControl is None:
 				firstControl = objectRef
 			
@@ -720,7 +727,7 @@ class dEditPage(DataNavPage):
 				if self.Form.getBizobj().RowCount >= 0:
 					objectRef.refresh()
 
-			gs.append(label, alignment=("middle", "right") )
+			gs.append(label, alignment=("top", "right") )
 			if fieldType in ["memo",]:
 				# Get the row that these will be added
 				currRow = gs.findFirstEmptyCell()[0]
@@ -766,7 +773,6 @@ class dEditPage(DataNavPage):
 		self.itemsCreated = True
 		if firstControl is not None:
 			firstControl.SetFocus()
-
 
 
 

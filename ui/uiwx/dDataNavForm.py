@@ -480,6 +480,11 @@ class dDataNavForm(dForm.dForm):
 		# Raise EVT_ITEMPICKED so the originating form can act
 		self.raiseEvent(dEvents.ItemPicked)
 
+	
+	def getEditClassForField(fieldName):
+		"""Hook: User code can supply a class of control to use on the edit page."""
+		return None
+
 				
 	def _getFormType(self):
 		try:

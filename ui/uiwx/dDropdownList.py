@@ -84,14 +84,20 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 	def _getKeyValue(self):
 		# invert the dict so we can get the key based on current position:
 		inverted = dict([[v,k] for k,v in self.Keys.iteritems()])
-		return inverted[self.PositionValue]
+		try:
+			return inverted[self.PositionValue]
+		except KeyError:
+			return None
 		# (note that the above method has to make a new dict every time the KeyValue
 		# is accessed... possible performance bottleneck on large lists!)
 		
 	def _setKeyValue(self, val):
 		# This function takes a key value, such as 10992, finds the mapped position,
 		# and makes that position the active list selection.
-		self.PositionValue = self.Keys[val]
+		try:
+			self.PositionValue = self.Keys[val]
+		except KeyError:
+			self.PositionValue = 0
 	
 	def _getPosValue(self):
 		return self._pemObject.GetSelection()
@@ -166,9 +172,9 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 			"Specifies the current value, the type of which depends on the setting of ValueMode.")
 	
 	ValueMode = property(_getValueMode, _setValueMode, None,
-		"""Controls the information that the Value property controls.
+		"""Specifies the information that the Value property refers to.
 		
-		'position' : Value refers to the position in the choices.
+		'position' : Value refers to the position in the choices (the index).
 		'string'   : Value refers to the displayed string for the selection (default).
 		'key'      : Value refers to a separate key, set using the Keys property.
 		""")
