@@ -19,11 +19,19 @@ class dFormDataNav(frm.dForm):
 
 	def afterSetPrimaryBizobj(self):        
 		pass
+		
+		
 	def afterSetPrimaryColumnDef(self):
+		self.childViews = []
+		for child in self.getBizobj().getChildren():
+			self.childViews.append({'dataSource': child.DataSource,
+									'caption': child.Caption,
+									'menuId': wx.NewId()})
 		self.setupPageFrame()
 		self.setupToolBar()
 		self.setupMenu()
 
+		
 	def setupToolBar(self):
 		if isinstance(self, wx.MDIChildFrame):
 			# Toolbar will be attached to top-level frame
@@ -81,11 +89,13 @@ class dFormDataNav(frm.dForm):
 		self._appendToMenu(menu, "Edit Current Record\tAlt+3", 
 						self.onEditCurrentRecord, 
 						bitmap=dIcons.getIconBitmap("edit"))
+		
 		i = 4
-		for child in self.getBizobj().getChildren():
-			self._appendToMenu(menu, "%s\tAlt+%s" % (child.Caption, i) ,
+		for child in self.childViews:
+			self._appendToMenu(menu, "View %s\tAlt+%s" % (child['caption'], i) ,
 							self.onChildView, 
-							bitmap=dIcons.getIconBitmap("childview"))
+							bitmap=dIcons.getIconBitmap("childview"),
+							menuId = child['menuId'])
 			i += 1
 			
 		menu.AppendSeparator()
@@ -179,8 +189,15 @@ class dFormDataNav(frm.dForm):
 
 
 	def onChildView(self, event):
-		print event.GetId()
-		print dir(event)
+		''' Occurs when the user chooses to edit a child view page.
+		'''
+		evtId = event.GetId()
+		page=3
+		for child in self.childViews:
+			if child['menuId'] == evtId:
+				break
+			page += 1
+		self.pageFrame.SetSelection(page)
 		
 		
 	def getColumnDefs(self, dataSource):

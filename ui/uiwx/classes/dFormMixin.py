@@ -135,8 +135,9 @@ class dFormMixin(pm.dPemMixin):
 			controllingFrame.GetStatusBar().Update()
 
 
-	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap):
-		menuId = wx.NewId()
+	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=None):
+		if not menuId:
+			menuId = wx.NewId()
 		item = wx.MenuItem(menu, menuId, caption)
 		item.SetBitmap(bitmap)
 		menu.AppendItem(item)
@@ -145,7 +146,7 @@ class dFormMixin(pm.dPemMixin):
 			controllingFrame = self.dApp.mainFrame
 		else:
 			controllingFrame = self
-		wx.EVT_MENU(controllingFrame, menuId, function)
+		controllingFrame.Bind(wx.EVT_MENU, function, item)
 
 
 	def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):
