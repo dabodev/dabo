@@ -4,26 +4,27 @@ import datetime
 class Firebird(dBackend):
 	def __init__(self):
 		dBackend.__init__(self)
-		self.dbModuleName = "Firebird"
+		self.dbModuleName = "kinterbasdb"
 
 	def getConnection(self, connectInfo):
-		import kinterbasdb as dbapi
+		import kinterbasdb
 
-		port = connectInfo.Port
-		if not port:
-			port = 3050
+		# Port doesn't seem to work, but I need to research... for now it's disabled.
+# 		port = connectInfo.Port
+# 		if not port:
+# 			port = 3050
 
-		return dbapi.connect(host=connectInfo.Host, 
-							user=connectInfo.User,
-							password=connectInfo.Password,
-							database=connectInfo.DbName,
-							port=port)
+		# kinterbasdb will barf with unicode strings:
+		host = str(connectInfo.Host)
+		user = str(connectInfo.User)
+		password = str(connectInfo.Password)
+		database = str(connectInfo.DbName)
+		
+		return kinterbasdb.connect(host=host, user=user, password=password, database=database)
 
 	def getDictCursor(self):
-		return None
-#		## TO DO 
-# 		import MySQLdb.cursors as cursors
-# 		return cursors.DictCursor
+		import kinterbasdb
+		return kinterbasdb.Cursor
 
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
