@@ -161,16 +161,16 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		# that is currently showing numeric data.
 		
 		strVal = self._getStringValue(value)
-		
+		_oldVal = self.Value
+				
 		# save the actual value for return by _getValue:
 		self._value = value
 		
 		# Update the display no matter what:
 		self.SetValue(strVal)
 		
-		# Send ValueChanged only if the value differs from the original:
-#		if (type(self.Value) != type(value) or self.Value != value):
-		self._afterValueChanged()
+		if type(_oldVal) != type(value) or _oldVal != value:
+			self._afterValueChanged()
 
 		
 	def _getStringValue(self, value):
