@@ -308,8 +308,6 @@ class dBizobj(dabo.common.dObject):
 		self._validate()
 		
 		useTransact = startTransaction or topLevel
-		# See if we are saving a newly added record, or mods to an existing record.
-		isAdding = self.Cursor.isAdding()
 		if useTransact:
 			# Tell the cursor to issue a BEGIN TRANSACTION command
 			self.Cursor.beginTransaction()
@@ -317,7 +315,7 @@ class dBizobj(dabo.common.dObject):
 		# OK, this actually does the saving to the database
 		try:
 			self.Cursor.save()
-			if isAdding:
+			if self.IsAdding:
 				# Call the hook method for saving new records.
 				self.onSaveNew()
 
@@ -1254,6 +1252,10 @@ class dBizobj(dabo.common.dObject):
 		self.afterPointerMove()
 		self.afterSetRowNumber()
 	
+	def _isAdding(self):
+		return self.Cursor.IsAdding
+
+	
 	
 	### -------------- Property Definitions ------------------  ##
 	
@@ -1315,3 +1317,7 @@ class dBizobj(dabo.common.dObject):
 	
 	Cursor = property(_getCurrentCursor, None, None, 
 				_("Returns the reference to the currently active cursor object. Read-only."))
+	
+	IsAdding = property(_isAdding, None, None, 
+				_("Returns True if the current record is new and unsaved."))
+

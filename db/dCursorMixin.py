@@ -746,6 +746,7 @@ class dCursorMixin(dabo.common.dObject):
 		lRec = list(self._records)
 		del lRec[r]
 		self._records = tuple(lRec)
+		self.RowNumber = min(self.RowNumber, self.RowCount-1)
 	
 	
 	def flush(self):
@@ -1007,11 +1008,6 @@ class dCursorMixin(dabo.common.dObject):
 		return ret          
 
 
-	def isAdding(self):
-		""" Return True if the current record is a new record.
-		"""
-		return self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG)
-	
 	def getTables(self, includeSystemTables=False):
 		""" Return a tuple of tables in the current database.
 		"""
@@ -1319,6 +1315,11 @@ class dCursorMixin(dabo.common.dObject):
 		self._table = str(table)
 		self.AuxiliaryCursor._table = str(table)
 		
+	def _isAdding(self):
+		""" Return True if the current record is a new record.
+		"""
+		return self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG)
+	
 	
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None,
 			_("When inserting a new record, does the backend populate the PK field?")) 
@@ -1329,6 +1330,9 @@ class dCursorMixin(dabo.common.dObject):
 	BackendObject = property(_getBackendObject, _setBackendObject, None,
 			_("Reference to the object that handles backend-specific actions."))
 	
+	IsAdding = property(_isAdding, None, None,
+			_("Returns True if the current record is new and unsaved"))
+			
 	KeyField = property(_getKeyField, _setKeyField, None,
 			_("Name of field that is the PK. If multiple fields make up the key, "
 			"separate the fields with commas. (str)"))
