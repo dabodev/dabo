@@ -3,7 +3,7 @@
 """
 import wx
 import dPemMixin as pm
-import dabo.dError as dError
+import dabo.dException as dException
 
 class dDataControlMixin(pm.dPemMixin):
 	""" Provide common functionality for the data-aware controls.
@@ -58,7 +58,7 @@ class dDataControlMixin(pm.dPemMixin):
 			try:
 				self.Value = self.getFieldVal()
 				self.Enabled = self.enabled
-			except (TypeError, dError.NoRecordsError):
+			except (TypeError, dException.NoRecordsException):
 				self.Value = self.getBlankValue()
 				self.Enabled = False
 

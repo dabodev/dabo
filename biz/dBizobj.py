@@ -3,7 +3,7 @@ import dabo.db.dConnection as dConnection
 from dabo.db.dCursorMixin import dCursorMixin
 from dabo.db.dSqlBuilderMixin import dSqlBuilderMixin
 from dabo.dLocalize import _
-import dabo.dError as dError
+import dabo.dException as dException
 import dabo.common
 import types
 
@@ -54,10 +54,9 @@ class dBizobj(dabo.common.DoDefaultMixin):
 			# Base cursor class : the cursor class from the db api
 			self.dbapiCursorClass = self._conn.getDictCursor()
 
-		if not self.createCursor():
-			##### TODO  #######
-			# Need to raise an exception here!
-			pass
+		# If there are any problems in the createCursor process, an
+		# exception will be raised in that method.
+		self.createCursor()
 
 		self.afterInit()
 		
@@ -84,7 +83,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		"""
 		try:
 			ret = self.getFieldVal(att)
-		except (dError.dError, dError.NoRecordsError):
+		except (dException.dException, dException.NoRecordsException):
 			ret = None
 		if ret is None:
 			raise AttributeError, " '%s' object has no attribute '%s' " % (self.__class__.__name__, att)
@@ -108,31 +107,30 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	def createCursor(self):
 		""" Create the cursor that this bizobj will be using for data.
 		
-		Returns True if the cursor was successfully created, and False otherwise.
-		
 		Subclasses should override beforeCreateCursor() and/or afterCreateCursor()
-		instead of overriding this method, if possible.
+		instead of overriding this method, if possible. Returning any non-empty value
+		from beforeCreateCursor() will prevent the rest of this method from
+		executing.
 		"""
-		if self.beforeCreateCursor():
-			cursorClass = self._getCursorClass(self.dCursorMixinClass,
-					self.dbapiCursorClass, 
-					self.dSqlBuilderMixinClass)
+		errMsg = self.beforeCreateCursor()
+		if errMsg
+			raise dException.dException, errMsg
+			
+		cursorClass = self._getCursorClass(self.dCursorMixinClass,
+				self.dbapiCursorClass, 
+				self.dSqlBuilderMixinClass)
 
-			if self.TESTING:
-				self.__cursor = self._conn.cursor(cursorclass=cursorClass)
-			else:
-				self.__cursor = self._conn.getConnection().cursor(cursorclass=cursorClass)
-			self.__cursor.setSQL(self.SQL)
-			self.__cursor.setKeyField(self.KeyField)
-			self.__cursor.setTable(self.DataSource)
-			self.__cursor.setAutoPopulatePK(self.AutoPopulatePK)
-			if self.RequeryOnLoad:
-				self.__cursor.requery()
-			self.afterCreateCursor(self.__cursor)
-
-		if not self.__cursor:
-			return False
-		return True
+		if self.TESTING:
+			self.__cursor = self._conn.cursor(cursorclass=cursorClass)
+		else:
+			self.__cursor = self._conn.getConnection().cursor(cursorclass=cursorClass)
+		self.__cursor.setSQL(self.SQL)
+		self.__cursor.setKeyField(self.KeyField)
+		self.__cursor.setTable(self.DataSource)
+		self.__cursor.setAutoPopulatePK(self.AutoPopulatePK)
+		if self.RequeryOnLoad:
+			self.__cursor.requery()
+		self.afterCreateCursor(self.__cursor)
 
 
 	def _getCursorClass(self, main, secondary, sqlbuilder):
@@ -156,15 +154,17 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		Any child bizobjs will be requeried to reflect the new parent record. If 
 		there are no records in the data set, an exception will be raised.
 		"""
-		if not self.beforeFirst() or not self.beforePointerMove():
-			return False
+		errMsg = self.beforeFirst()
+		if not errMsg:
+			errMsg = self.beforePointerMove():
+		if errMsg:
+			raise dException.dException, errMsg
 
 		self.__cursor.first()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
 		self.afterFirst()
-		return True
 
 
 	def prior(self):
@@ -173,15 +173,17 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		Any child bizobjs will be requeried to reflect the new parent record. If 
 		there are no records in the data set, an exception will be raised.
 		"""
-		if not self.beforePrior() or not self.beforePointerMove():
-			return False
+		errMsg = self.beforePrior()
+		if not errMsg:
+			errMsg = self.beforePointerMove():
+		if errMsg:
+			raise dException.dException, errMsg
 
 		self.__cursor.prior()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
 		self.afterPrior()
-		return True
 
 
 	def next(self):
@@ -190,15 +192,17 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		Any child bizobjs will be requeried to reflect the new parent record. If 
 		there are no records in the data set, an exception will be raised.
 		"""
-		if not self.beforeNext() or not self.beforePointerMove():
-			return False
+		errMsg = self.beforeNext()
+		if not errMsg:
+			errMsg = self.beforePointerMove():
+		if errMsg:
+			raise dException.dException, errMsg
 
 		self.__cursor.next()
 		self.requeryAllChildren()
 		
 		self.afterPointerMove()
 		self.afterNext
-		return True
 
 
 	def last(self):
@@ -207,29 +211,33 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		Any child bizobjs will be requeried to reflect the new parent record. If 
 		there are no records in the data set, an exception will be raised.
 		"""
-		if not self.beforeLast() or not self.beforePointerMove():
-			return False
+		errMsg = self.beforeLast()
+		if not errMsg:
+			errMsg = self.beforePointerMove():
+		if errMsg:
+			raise dException.dException, errMsg
 
 		self.__cursor.last()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
 		self.afterLast()
-		return True
 
 
 	def setRowNumber(self, rownum):
 		""" Move to an arbitrary row number in the data set.
 		"""
-		if not self.beforeSetRowNumber() or not self.beforePointerMove():
-			return False
+		errMsg = self.beforeSetRowNumber()
+		if not errMsg:
+			errMsg = self.beforePointerMove():
+		if errMsg:
+			raise dException.dException, errMsg
 			
 		self._moveToRowNum(rownum)
 		self.requeryAllChildren()
 		
 		self.afterPointerMove()
 		self.afterSetRowNumber()
-		return True
 		
 
 	def save(self, startTransaction=False, allRows=False, topLevel=True):
@@ -238,11 +246,12 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		If the save is successful, the save() of all child bizobjs will be
 		called as well. 
 		"""
-		if not self.beforeSave():
-			return False
+		errMsg = self.beforeSave()
+		if errMsg:
+			raise dException.dException, errMsg
 
 		# Validate any changes to the data. If there is data that fails
-		# validation, an error will be raised.
+		# validation, an Exception will be raised.
 		self._validate()
 
 		# See if we are saving a newly added record, or mods to an existing record.
@@ -274,25 +283,27 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 			self.setMemento()
 
-		except dError.dError, e:
+		except dException.dException, e:
 			# Something failed; reset things.
 			if startTransaction:
 				self.__cursor.rollbackTransaction()
 			# Pass the exception to the UI
-			raise dError.dError, e
+			raise dException.dException, e
 
 		# Two hook methods: one specific to Save(), and one which is called after any change
 		# to the data (either save() or delete()).
 		self.afterChange()
 		self.afterSave()
-		return True
 
 
 	def cancel(self, allRows=False):
 		""" Cancel any changes to the data set, reverting back to the original values.
 		"""
-		if not self.beforeCancel():
-			return False
+		errMsg = self.beforeCancel()
+		if not errMsg:
+			errMsg = self.beforePointerMove():
+		if errMsg:
+			raise dException.dException, errMsg
 
 		# Tell the cursor to cancel any changes
 		self.__cursor.cancel(allRows)
@@ -303,20 +314,22 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 		self.setMemento()
 		self.afterCancel()
-		return True
 
 
 	def delete(self):
 		""" Delete the current row of the data set.
 		"""
-		if not self.beforeDelete() or not self.beforePointerMove():
-			return False
+		errMsg = self.beforeDelete()
+		if not errMsg:
+			errMsg = self.beforePointerMove():
+		if errMsg:
+			raise dException.dException, errMsg
 
 		if self.deleteChildLogic == k.REFINTEG_RESTRICT:
 			# See if there are any child records
 			for child in self.__children:
 				if child.getRowCount() > 0:
-					raise dError.dError, _("Deletion prohibited - there are related child records.")
+					raise dException.dException, _("Deletion prohibited - there are related child records.")
 
 		self.__cursor.delete()
 		if self.__cursor.getRowCount() == 0:
@@ -336,7 +349,6 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		self.afterPointerMove()
 		self.afterChange()
 		self.afterDelete()
-		return True
 
 
 	def deleteAll(self):
@@ -352,8 +364,11 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		 
 		Default values are specified in the defaultValues dictionary. 
 		"""
-		if not self.beforeNew() or not self.beforePointerMove():
-			return False
+		errMsg = self.beforeNew()
+		if not errMsg:
+			errMsg = self.beforePointerMove():
+		if errMsg:
+			raise dException.dException, errMsg
 
 		self.__cursor.new()
 		# Hook method for things to do after a new record is created.
@@ -369,8 +384,6 @@ class dBizobj(dabo.common.DoDefaultMixin):
 					child.new()
 
 		self.setMemento()
-
-
 		self.afterPointerMove()
 		self.afterNew()
 
@@ -397,8 +410,9 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		Refreshes the data set with the current values in the database, 
 		given the current state of the filtering parameters.
 		"""
-		if not self.beforeRequery():
-			return False
+		errMsg = self.beforeRequery()
+		if errMsg:
+			raise dException.dException, errMsg
 
 		# Hook method for creating the param list
 		params = self.getParams()
@@ -406,7 +420,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		# Record this in case we need to restore the record position
 		try:
 			currPK = self.getPK()
-		except dError.NoRecordsError:
+		except dException.NoRecordsException:
 			currPK = None
 
 		# run the requery
@@ -419,7 +433,6 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		self.setMemento()
 
 		self.afterRequery()
-		return True
 
 
 	def sort(self, col, ord=None, caseSensitive=True):
@@ -444,14 +457,14 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	def _validate(self, allrows=True):
 		""" Internal method. User code should override validateRecord().
 		
-		Validate() is called by the Save() routine before saving any data.
+		_validate() is called by the save() routine before saving any data.
 		If any data fails validation, an exception will be raised, and the
-		Save() will not be allowed to proceed.
+		save() will not be allowed to proceed.
 
 		By default, the entire record set is validated. If you only want to 
 		validate the current record, pass False as the allrows parameter.
 		"""
-		ret = True
+		errMsg = ""
 		currRow = self.getRowNumber()
 		if allrows:
 			recrange = range(0, self.getRowCount())
@@ -459,19 +472,15 @@ class dBizobj(dabo.common.DoDefaultMixin):
 			# Just the current row
 			recrange = range(currRow, currRow+1)
 
-		try:
-			for i in recrange:
-				self._moveToRowNum(i)
-				if self.isChanged():
-					# No need to validate if the data hasn't changed
-					self.validateRecord()
-			self._moveToRowNum(currRow)
-		except dError.dError, e:
-			# First try to return to the original row, if possible
-			try:
-				self._moveToRowNum(currRow)
-			except: pass
-			raise dError.dError, e
+		for i in recrange:
+			self._moveToRowNum(i)
+			if self.isChanged():
+				# No need to validate if the data hasn't changed
+				errMsg += self.validateRecord()
+		self._moveToRowNum(currRow)
+				
+		if errMsg:
+			raise dException.BusinessRuleViolation, errMsg
 
 
 	def validateRecord(self):
@@ -479,12 +488,14 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		
 		This is the method that you should customize in your subclasses
 		to create checks on the data entered by the user to be sure that it 
-		conforms to your business rules. Your validation code should raise
-		an instance of dError.BusinessRuleViolation, and pass the explanatory 
-		text for the failure as the exception's argument. Example:
+		conforms to your business rules. Your validation code should return 
+		an error message that describes the reason why the data is not 
+		valid; this message will be propagated back up to the UI where it can
+		be displayed to the user so that they can correct the problem. 
+		Example:
 
-			if not myfield = somevalue:
-				raise dError.BusinessRuleViolation, "MyField must be equal to SomeValue"
+			if not myNonEmptyField:
+				return "MyField must not be blank"
 
 		It is assumed that we are on the correct record for testing before
 		this method is called.
@@ -621,7 +632,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		"""
 		try:
 			return self.Parent.getPK()
-		except dError.NoRecordsError:
+		except dException.NoRecordsException:
 			# The parent bizobj has no records
 			return None
 
@@ -693,23 +704,6 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		return self.__cursor.getRowNumber()
 
 
-	def addToErrorMsg(self, txt):
-		""" Add the passed text to the current error message text.
-		"""
-		if txt:
-			if self.ErrorMessage:
-				# insert a newline
-				self.ErrorMessage += "\n"
-			self.ErrorMessage += txt
-
-
-	def clearErrorMsg(self):
-		""" Clear the current error message text.
-		"""
-		self.ErrorMessage = ""
-		self.__cursor.clearErrorMsg()
-
-		
 	def getChildren(self):
 		""" Return a tuple of the child bizobjs.
 		"""
@@ -759,20 +753,20 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	########## Pre-hook interface section ##############
-	def beforeNew(self): return True
-	def beforeDelete(self): return True
-	def beforeFirst(self): return True
-	def beforePrior(self): return True
-	def beforeNext(self): return True
-	def beforeLast(self): return True
-	def beforeSetRowNumber(self): return True
-	def beforePointerMove(self): return True
-	def beforeSave(self): return True
-	def beforeCancel(self): return True
-	def beforeRequery(self): return True
-	def beforeChildRequery(self): return True
-	def beforeConnection(self): return True
-	def beforeCreateCursor(self): return True
+	def beforeNew(self): return ""
+	def beforeDelete(self): return ""
+	def beforeFirst(self): return ""
+	def beforePrior(self): return ""
+	def beforeNext(self): return ""
+	def beforeLast(self): return ""
+	def beforeSetRowNumber(self): return ""
+	def beforePointerMove(self): return ""
+	def beforeSave(self): return ""
+	def beforeCancel(self): return ""
+	def beforeRequery(self): return ""
+	def beforeChildRequery(self): return ""
+	def beforeConnection(self): return ""
+	def beforeCreateCursor(self): return ""
 	########## Post-hook interface section ##############
 	def afterNew(self): pass
 	def afterDelete(self): pass
@@ -796,8 +790,6 @@ class dBizobj(dabo.common.DoDefaultMixin):
 			return self._caption
 		except AttributeError:
 			return self.DataSource
-			
-	
 	def _setCaption(self, val):
 		self._caption = str(val)
 	
@@ -806,8 +798,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		try: 
 			return self._dataSource
 		except AttributeError:
-			return ''
-	
+			return ""
 	def _setDataSource(self, val):
 		self._dataSource = str(val)
 		
@@ -816,8 +807,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		try:
 			return self._SQL
 		except AttributeError:
-			return ''
-			
+			return ""
 	def _setSQL(self, val):
 		self._SQL = str(val)
 			
@@ -861,7 +851,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		try:
 			return self._keyField
 		except AttributeError:
-			return ''
+			return ""
 			
 	def _setKeyField(self, val):
 		self._keyField = str(val)
@@ -871,22 +861,12 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		try:
 			return self._linkField
 		except AttributeError:
-			return ''
+			return ""
 			
 	def _setLinkField(self, val):
 		self._linkField = str(val)
 		
 	
-	def _getErrorMessage(self):
-		try:
-			return self._errorMessage
-		except AttributeError:
-			return ''
-			
-	def _setErrorMessage(self, val):
-		self._errorMessage = str(val)
-		
-		
 	def _getRequeryChildOnSave(self):
 		try:
 			return self._requeryChildOnSave
@@ -938,45 +918,42 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		
 
 	Caption = property(_getCaption, _setCaption, None,
-				'The friendly title of the cursor, used in messages to the end user. (str)')
+				"The friendly title of the cursor, used in messages to the end user. (str)")
 	
 	DataSource = property(_getDataSource, _setDataSource, None,
-				'The title of the cursor. Used in resolving DataSource references. (str)')
+				"The title of the cursor. Used in resolving DataSource references. (str)")
 	
 	SQL = property(_getSQL, _setSQL, None, 
-				'SQL statement used to create the cursor\'s data. (str)')
+				"SQL statement used to create the cursor\'s data. (str)")
 	
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None, 
-				'When true, the cursor object runs its query immediately. This '
-				'is useful for parameterized queries. (bool)')
+				"When true, the cursor object runs its query immediately. This "
+				"is useful for parameterized queries. (bool)")
 	
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None, 
-				'Determines if we are using a table that auto-generates its PKs. (bool)')
+				"Determines if we are using a table that auto-generates its PKs. (bool)")
 
 	Parent = property(_getParent, _setParent, None,
-				'Reference to the parent bizobj to this one. (dBizobj)')
+				"Reference to the parent bizobj to this one. (dBizobj)")
 
 	KeyField = property(_getKeyField, _setKeyField, None,
-				'Name of field that is the PK. (str)')
+				"Name of field that is the PK. (str)")
 	
 	LinkField = property(_getLinkField, _setLinkField, None,
-				'Name of the field that is the foreign key back to the parent. (str)')
+				"Name of the field that is the foreign key back to the parent. (str)")
 	
-	ErrorMessage = property(_getErrorMessage, _setErrorMessage, None,
-				'Holds any error messages generated during a process. (str)')
-
 	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
-				'Do we requery child bizobjs after a Save()? (bool)')
+				"Do we requery child bizobjs after a Save()? (bool)")
 				
 	NewChildOnNew = property(_getNewChildOnNew, _setNewChildOnNew, None, 
-				'Should new child records be added when a new parent record is added? (bool)')
+				"Should new child records be added when a new parent record is added? (bool)")
 	
 	NewRecordOnNewParent = property(_getNewRecordOnNewParent, _setNewRecordOnNewParent, None,
-				'If this bizobj\'s parent has NewChildOnNew==True, do we create a record here? (bool)')
+				"If this bizobj\'s parent has NewChildOnNew==True, do we create a record here? (bool)")
 
 	FillLinkFromParent = property(_getFillLinkFromParent, _setFillLinkFromParent, None,
-				'In the onNew() method, do we fill in the linkField with the value returned '
-				'by calling the parent bizobj\'s GetKeyValue() method? (bool)')
+				"In the onNew() method, do we fill in the linkField with the value returned "
+				"by calling the parent bizobj\'s GetKeyValue() method? (bool)")
 				
 	RestorePositionOnRequery = property(_getRestorePositionOnRequery, _setRestorePositionOnRequery, None,
-				'After a requery, do we try to restore the record position to the same PK?')
+				"After a requery, do we try to restore the record position to the same PK?")

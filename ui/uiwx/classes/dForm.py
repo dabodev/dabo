@@ -1,6 +1,6 @@
 import wx, dEvents
 import dFormMixin as fm
-import dabo.dError as dError
+import dabo.dException as dException
 import dabo.dConstants as k
 import dMessageBox, dProgressDialog
 from dabo.dLocalize import _
@@ -160,7 +160,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.activeControlValid()
 		try:
 			response = func()
-		except dError.NoRecordsError:
+		except dException.NoRecordsException:
 			self.setStatusText(_("No records in dataset."))
 		else:
 			# Notify listeners that the row number changed:
@@ -187,7 +187,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		"""
 		try:
 			self._moveRecordPointer(self.getBizobj(dataSource).prior, dataSource)
-		except dError.BeginningOfFileError:
+		except dException.BeginningOfFileException:
 			self.setStatusText(self.getCurrentRecordText(dataSource) + " (BOF)")
 
 	def next(self, dataSource=None):
@@ -195,7 +195,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		"""
 		try:
 			self._moveRecordPointer(self.getBizobj(dataSource).next, dataSource)
-		except dError.EndOfFileError:
+		except dException.EndOfFileException:
 			self.setStatusText(self.getCurrentRecordText(dataSource) + " (EOF)")
 
 
@@ -211,7 +211,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				print "Save successful."
 			self.setStatusText(_("Changes to %s saved." % (
 					self.SaveAllRows and "all records" or "current record",)))
-		except dError.BusinessRuleViolation, e:
+		except dException.BusinessRuleViolation, e:
 			self.setStatusText(_("Save failed."))
 			dMessageBox.stop("%s:\n\n%s" % (_("Save Failed:"), _(str(e))))
 
@@ -232,7 +232,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.setStatusText(_("Changes to %s canceled." % (
 					self.SaveAllRows and "all records" or "current record",)))
 			self.refreshControls()
-		except dError.dError, e:
+		except dException.dException, e:
 			if self.debug:
 				print "Cancel failed with response: %s" % str(e)
 			### TODO: What should be done here? Raise an exception?
@@ -283,7 +283,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
 			self.GetEventHandler().ProcessEvent(evt)
 
-		except dError.dError, e:
+		except dException.dException, e:
 			if self.debug:
 				print "Requery failed with response: %s" % str(e)
 			### TODO: What should be done here? Raise an exception?
@@ -308,7 +308,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				# Notify listeners that the row number changed:
 				evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
 				self.GetEventHandler().ProcessEvent(evt)
-			except dError.dError, e:
+			except dException.dException, e:
 				if self.debug:
 					print "Delete failed with response: %s" % str(e)
 				### TODO: What should be done here? Raise an exception?
@@ -334,7 +334,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				# Notify listeners that the row number changed:
 				evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
 				self.GetEventHandler().ProcessEvent(evt)
-			except dError.dError, e:
+			except dException.dException, e:
 				if self.debug:
 					print "Delete All failed with response: %s" % str(e)
 				### TODO: What should be done here? Raise an exception?
@@ -360,7 +360,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 			self.afterNew()
 
-		except dError.dError, e:
+		except dException.dException, e:
 			dMessageBox.stop(_("Add new record failed with response:\n\n%s" % str(e)))
 
 
