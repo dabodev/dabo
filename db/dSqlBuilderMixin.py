@@ -28,7 +28,7 @@ class dSqlBuilderMixin:
 		""" Add a field to the field clause.
 		"""
 		if self._fieldClause:
-			self._fieldClause = "%s, " % self._fieldClause
+			self._fieldClause = "%s,\n\t" % self._fieldClause
 		self._fieldClause += exp
 
 
@@ -49,7 +49,7 @@ class dSqlBuilderMixin:
 		explicitly.
 		"""
 		if self._fromClause:
-			self._fromClause = "%s, " % self._fromClause
+			self._fromClause = "%s,\n\t" % self._fromClause
 		self._fromClause += exp
 
 
@@ -66,7 +66,7 @@ class dSqlBuilderMixin:
 		""" Add an expression to the where clause.
 		"""
 		if self._whereClause:
-			self._whereClause = "%s %s " % (self._whereClause, comp)
+			self._whereClause = "%s\n\t%s " % (self._whereClause, comp)
 		self._whereClause += exp
 
 
@@ -126,16 +126,16 @@ class dSqlBuilderMixin:
 
 		if not fieldClause:
 			fieldClause = "*"
-		fieldClause = 'select %s ' % fieldClause
+		fieldClause = 'select %s\n' % fieldClause
 
 		if fromClause: 
-			fromClause = ' from %s' % fromClause
+			fromClause = 'from %s\n' % fromClause
 		if whereClause:
-			whereClause = ' where %s' % whereClause
+			whereClause = 'where %s\n' % whereClause
 		if groupByClause:
-			groupByClause = ' group by %s' % groupByClause
+			groupByClause = 'group by %s\n' % groupByClause
 		if orderByClause:
-			orderByClause = ' order by %s' % orderByClause            
+			orderByClause = ' order by %s\n' % orderByClause            
 		if limitClause:
 			limitClause = ' limit %s' % limitClause
 		else:

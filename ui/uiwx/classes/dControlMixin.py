@@ -20,36 +20,14 @@ class dControlMixin(pm.dPemMixin):
 		# Subclass will intercept the initEvents first, allowing
 		# the framework user to completely override if desired.    
 		self.initEvents()
-
-		self._dForm = None
 		self.addToDform()
-
-
-	def getDform(self):
-		""" Return a reference to the containing dForm. 
-		"""
-		if self._dForm:
-			return self._dForm      # Already cached
-		else:
-			import dForm
-			obj, frm = self, None
-			while obj:
-				parent = obj.GetParent()
-				if isinstance(parent, dForm.dForm):
-					frm = parent
-					break
-				else:
-					obj = parent
-			if frm:
-				self._dForm = frm   # Cache for next time
-			return frm
 
 
 	def addToDform(self):
 		""" Ask the dForm to add this control to its registry.
 		"""
 		try:
-			self.getDform().addControl(self)
+			self.dForm.addControl(self)
 		except AttributeError:
 			# perhaps the form isn't a dForm
 			pass

@@ -391,18 +391,39 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.getBizobj(dataSource).setSQL(sql)
 
 
-	def getBizobj(self, dataSource=None):
+	def getBizobj(self, dataSource=None, parentBizobj=None):
 		""" Return the bizobj with the passed dataSource.
 
 		If no dataSource is passed, getBizobj() will return the primary bizobj.
 		"""
-		if not dataSource:
+		if not parentBizobj and not dataSource:
 			dataSource = self.getPrimaryBizobj()
-		try:
+		
+		if not parentBizobj and self.bizobjs.has_key(dataSource):
 			return self.bizobjs[dataSource]
-		except KeyError:
-			return None
 
+		# No top-level bizobj had the dataSource name, so now go through
+		# the children, and return the first one that matches.
+		if not parentBizobj:
+			# start the recursive walk:
+			for key in self.bizobjs.keys():
+				bo = self.getBizobj(dataSource, self.bizobjs[key])
+				if bo:
+					return bo
+			# If we got here, none were found:
+			return None
+		else:
+			# called by the walk block above
+			for child in parentBizobj.getChildren():
+				if child.DataSource == dataSource:
+					return child
+				else:
+					bo = self.getBizobj(dataSource, parentBizobj)
+					if bo:
+						return bo
+			# if we got here, none were found
+			return None
+			
 
 	def onFirst(self, event): self.first()
 	def onPrior(self, event): self.prior()

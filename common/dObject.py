@@ -23,7 +23,27 @@ class dObject(DoDefaultMixin, PropertyHelperMixin):
 		# dApp saves a ref to itself inside the dabo module object.
 		return dabo.dAppRef
 	
-			
+	
+	def _getDForm(self):
+		""" Return a reference to the containing dForm. 
+		"""
+		try:
+			return self._dFormCached
+		except AttributeError:
+			import dabo.ui
+			obj, frm = self, None
+			while obj:
+				parent = obj.GetParent()
+				if isinstance(parent, dabo.ui.dForm):
+					frm = parent
+					break
+				else:
+					obj = parent
+			if frm:
+				self._dFormCached = frm   # Cache for next time
+			return frm
+
+
 	def _getClass(self):
 		try:
 			return self.__class__
@@ -67,6 +87,8 @@ class dObject(DoDefaultMixin, PropertyHelperMixin):
 
 	dApp = property(_getDApp, None, None, 
  					'Object reference to the Dabo Application object. (read only).')
+	dForm = property(_getDForm, None, None,
+					'Object reference to the dForm containing the object. (read only).')
  	Name = property(_getName, _setName, None, 
  					'The name of the object. (str)')
 	Class = property(_getClass, None, None,

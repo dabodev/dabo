@@ -51,7 +51,7 @@ class dDataControlMixin(pm.dPemMixin):
 		"""
 		if not self.bizobj:
 			# Ask the form for the bizobj reference, and cache for next time
-			self.bizobj = self.getDform().getBizobj(self.DataSource)
+			self.bizobj = self.dForm.getBizobj(self.DataSource)
 		return self.bizobj.getFieldVal(self.DataField)
 
 
@@ -60,7 +60,7 @@ class dDataControlMixin(pm.dPemMixin):
 		"""
 		if not self.bizobj:
 			# Ask the form for the bizobj reference, and cache for next time
-			self.bizobj = self.getDform().getBizobj(self.DataSource)
+			self.bizobj = self.dForm.getBizobj(self.DataSource)
 		return self.bizobj.setFieldVal(self.DataField, value)
 
 
@@ -85,7 +85,7 @@ class dDataControlMixin(pm.dPemMixin):
 		self.refresh()
 		
 		try:
-			if self.SelectOnEntry and self.getDform().FindFocus() == self:
+			if self.SelectOnEntry and self.dForm.FindFocus() == self:
 				self.selectAll()
 		except AttributeError:
 			# only text controls have SelectOnEntry
@@ -147,7 +147,7 @@ class dDataControlMixin(pm.dPemMixin):
 		""" Save control's value to dApp's user settings table.
 		"""
 		try:
-			dApp = self.getDform().dApp
+			dApp = self.dForm.dApp
 		except AttributeError:
 			dApp = None
 
@@ -163,7 +163,7 @@ class dDataControlMixin(pm.dPemMixin):
 		""" Set the control's value to the value in dApp's user settings table.
 		"""
 		try:
-			dApp = self.getDform().dApp
+			dApp = self.dApp
 		except AttributeError:
 			dApp = None
 			
