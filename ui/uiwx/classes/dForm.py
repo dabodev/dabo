@@ -134,6 +134,7 @@ class dForm(wx.Frame, dFormMixin):
         
             Ask the primary bizobj to move to the first record.
         '''
+        self.activeControlValid()
         if self.bizobjs:
             biz = self.bizobjs[self.getPrimaryBizobj()]
             response = biz.first()
@@ -156,6 +157,7 @@ class dForm(wx.Frame, dFormMixin):
         
             Ask the primary bizobj to move to the last record.
         '''
+        self.activeControlValid()
         if self.bizobjs:
             biz = self.bizobjs[self.getPrimaryBizobj()]
             response = biz.last()
@@ -177,6 +179,7 @@ class dForm(wx.Frame, dFormMixin):
         
             Ask the primary bizobj to move to the previous record.
         '''
+        self.activeControlValid()
         if self.bizobjs:
             biz = self.bizobjs[self.getPrimaryBizobj()]
             response = biz.prior()
@@ -200,6 +203,7 @@ class dForm(wx.Frame, dFormMixin):
         
             Ask the primary bizobj to move to the next record.
         '''
+        self.activeControlValid()
         if self.bizobjs:
             biz = self.bizobjs[self.getPrimaryBizobj()]
             response = biz.next()
@@ -244,6 +248,7 @@ class dForm(wx.Frame, dFormMixin):
             revert back to the state of the records when they
             were last requeried or saved.
         '''
+        self.activeControlValid()
         bizobj = self.getBizobj()
         response = bizobj.cancel(allRows=self.saveAllRows)
         if response == k.FILE_OK:
@@ -270,6 +275,7 @@ class dForm(wx.Frame, dFormMixin):
             Ask the primary bizobj to requery, and if successful refresh 
             the contained controls.
         '''
+        self.activeControlValid()
         import time
         
         start = time.time()
@@ -303,6 +309,7 @@ class dForm(wx.Frame, dFormMixin):
             the recordset, and if successful refresh the contained 
             controls.
         '''
+        self.activeControlValid()
         bizobj = self.getBizobj()
         if dMessageBox.areYouSure("This will delete the current record, and cannot "
                         "be cancelled.\n\n Are you sure you want to do this?",
@@ -330,6 +337,7 @@ class dForm(wx.Frame, dFormMixin):
             the recordset, and if successful refresh the contained 
             controls.
         '''
+        self.activeControlValid()
         bizobj = self.getBizobj()
         if dMessageBox.areYouSure("This will delete all records in the recordset, and cannot "
                         "be cancelled.\n\n Are you sure you want to do this?",
@@ -356,6 +364,7 @@ class dForm(wx.Frame, dFormMixin):
             the recordset, and if successful refresh the 
             contained controls.
         '''
+        self.activeControlValid()
         bizobj = self.getBizobj()
         response = bizobj.new()
         if response == k.FILE_OK:
