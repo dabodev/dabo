@@ -1,4 +1,4 @@
-import dabo.constants as k
+import dabo.dConstants as k
 import dabo.db.dConnection as dConnection
 from dabo.db.dCursor import dCursor
 

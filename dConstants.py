@@ -1,4 +1,4 @@
-''' constants.py '''
+''' dConstants.py '''
 
 # Return values for most operations
 FILE_OK = 0
