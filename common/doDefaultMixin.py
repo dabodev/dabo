@@ -18,7 +18,15 @@ class DoDefaultMixin(object):
 		frame = sys._getframe(1)
 		self = frame.f_locals['self']
 		methodName = frame.f_code.co_name
-		return eval('super(cls, self).%s(*args, **kwargs)' % methodName)
+		try:
+			return eval('super(cls, self).%s(*args, **kwargs)' % methodName)
+		except AttributeError:
+			# The super() class didn't have the method attribute. Pass silently -
+			# at this time I believe this to be the correct behavior, because the
+			# user doesn't want to keep track of where a given method was defined
+			# and whether or not to call doDefault(), they just want to call
+			# doDefault() and have it work if it needs to work.
+			pass
 	doDefault = classmethod(doDefault)
 
 	
