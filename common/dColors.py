@@ -148,3 +148,29 @@ colorDict = {"aliceblue" : (240, 248, 255),
 		"yellow" : (255, 255, 0), 
 		"yellowgreen" : (154, 205, 50)
 		}
+
+
+def hexToDec(hx):
+	# Define a dict of char-value pairs
+	hex = {"0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, 
+			"9": 9, "A": 10, "B": 11, "C": 12, "D": 13, "E": 14, "F": 15}
+	# Reverse it, and force upper case
+	rev = hx[::-1].upper()
+	ret = 0
+	pos = 1
+	for c in rev:
+		ret += (hex[c] * pos)
+		pos = pos * 16
+	return ret
+
+
+def colorTupleFromHex(hx):
+	# Strip the pound sign, if any
+	hx = hx.replace("#", "")
+	red = hexToDec(hx[:2])
+	green = hexToDec(hx[2:4])
+	blue = hexToDec(hx[4:])
+	return (red, green, blue)
+
+
+

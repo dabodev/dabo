@@ -312,12 +312,6 @@ class dPemMixin(dPemMixinBase):
 		return {'editor': 'colour'}
 
 	def _setBackColor(self, value):
-		if type(value) in (str, unicode):
-			try:
-				value = self.getColorTupleFromName(value)
-			except KeyError:
-				dabo.errorLog.write("Error setting BackColor to '%s': color doesn't exist." % value)
-				value = self.BackColor
 		self._pemObject.SetBackgroundColour(value)
 		if self._pemObject == self:
 			# Background color changes don't seem to result in
@@ -460,12 +454,6 @@ class dPemMixin(dPemMixinBase):
 		return {'editor': 'colour'}
 
 	def _setForeColor(self, value):
-		if type(value) in (str, unicode):
-			try:
-				value = self.getColorTupleFromName(value)
-			except KeyError:
-				dabo.errorLog.write("Error setting ForeColor to '%s': color doesn't exist." % value)
-				value = self.ForeColor
 		self._pemObject.SetForegroundColour(value)
 
 	
