@@ -37,11 +37,12 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 		ls = self.lastSelection
 		cs = event.GetSelection()
 
-		### EGL: commented this out, since it was messing up the case where 
-		###  there was a pageframe inside another pageframe. Changing the 
-		###  inner pageframe was sending the page changing event to the outer
-		###  pageframe, which isn't correct.
-		#event.Skip()    # This must happen before onLeave/EnterPage below
+		### PKM: The event.Skip() must happen, or the pages won't be drawn on 
+		###      win32. I believe that the StopPropagation() will keep the event
+		###      from being received by any containing pageframes, however, which
+		###      is why event.Skip() was originally commented out.
+		event.Skip()
+		event.StopPropagation()
 
 		newPage = self.GetPage(cs)
 		oldPage = self.GetPage(ls)    
