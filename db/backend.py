@@ -1,6 +1,6 @@
-import dbConnection
+''' dabo.db.backend.py : abstractions for the various db api's '''
 
-class DbType(object):
+class Backend(object):
     ''' Abstract object: inherit from this to define new dabo db interfaces '''
     
     def __init__(self):
@@ -18,20 +18,26 @@ class DbType(object):
             return False
     
     def getConnection(self, connectInfo):
-        ''' override this in subclasses '''
+        ''' override in subclasses '''
         return None        
 
-class MySQL(DbType):
+    def getDictCursor(self):
+        ''' override in subclasses '''
+        return None
+
+class MySQL(Backend):
     def __init__(self):
-        DbType.__init__(self)
+        Backend.__init__(self)
         self.dbModuleName = "MySQLdb"
                 
     def getConnection(self, connectInfo):
         import MySQLdb as dbapi
         
-        return dbConnection.DbConnection(dbapi.connect, 
-                                        host=connectInfo.host, 
-                                        user=connectInfo.user,
-                                        passwd=connectInfo.password,
-                                        db=connectInfo.db)
-        
+        return dbapi.connect(host=connectInfo.host, 
+                             user=connectInfo.user,
+                             passwd=connectInfo.password,
+                             db=connectInfo.dbName)
+
+    def getDictCursor(self):
+        import MySQLdb.cursors as cursors
+        return cursors.DictCursor

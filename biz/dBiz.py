@@ -1,22 +1,15 @@
-import dConstants as k
-import dabo.dbType as dbType
-import dabo.dbConnection as dbConnection
-import dCursorMixin
-
-### TODO ### - Change to Gadfly
-#from MySQLdb import cursors
-
-# Somehow, get the dbType from 'above' - the app object?
-#dbModule = dbType.MySQL().dbapi
-#cursors = dbModule.cursors
-
+import dabo.db.constants as k
+import dabo.db.dConnection as dConnection
+import dabo.db.cursor
 
 class dBizobj(object):
-    def __init__(self, dbConnection):
-        self._initProperties()
+    def __init__(self, connection):
         # Save the connection reference
-        self._conn = dbConnection
-        # Now create the cursor that this bizobj will be using for data
+        self._conn = connection
+
+        self._initProperties()
+        
+        # Create the cursor that this bizobj will be using for data
         if self.beforeCreateCursor():
             crsClass = self.getCursorClass(self.cursorMixinClass, self.cursorBaseClass)
             self._cursor = conn.cursor(cursorclass=crsClass)
@@ -499,10 +492,10 @@ class dBizobj(object):
         # Reference to the cursor object 
         self._cursor = None
         # Class to instantiate for the cursor object
-        self.cursorMixinClass = dCursorMixin.dCursorMixin
+        self.cursorMixinClass = cursor.Cursor
         # Base class to instantiate for the cursor object
         ### TODO ### - change to Gadfly for default
-        self.cursorBaseClass = cursors.DictCursor
+        self.cursorBaseClass = self._conn.getDictCursor()
         # Reference to the parent bizobj to this one.
         self._parent = None
         # Collection of child bizobjs for this
