@@ -17,11 +17,8 @@ class dPemMixin(dPemMixinBase):
 		This allows accessing children with the style:
 			self.mainPanel.txtName.Value = "test"
 		"""
-		try:
-			ret = self.FindWindowByName(att)
-		except:
-			ret = None
-		if not ret:
+		ret = self.FindWindowByName(att)
+		if ret is None:
 			raise AttributeError, "%s object has no attribute %s" % (
 				self._name, att)
 		else:

@@ -26,9 +26,14 @@ class uiApp(wx.App, dObject):
 		self.SetAppName(dApp.getAppInfo("appName"))
 		self.SetClassName(dApp.getAppInfo("appName"))
 		self.SetVendorName(dApp.getAppInfo("vendorName"))
-		
-		dabo.infoLog.write("wxPython Version: %s %s (%s)" % (
-			wx.VERSION_STRING, wx.PlatformInfo[1], wx.PlatformInfo[3]))
+
+		string = "wxPython Version: %s %s" % (wx.VERSION_STRING, 
+			wx.PlatformInfo[1])
+			
+		if wx.PlatformInfo[0] == "__WXGTK__":
+			string += " (%s)" % wx.PlatformInfo[3]
+
+		dabo.infoLog.write(string)
 			
 		wx.InitAllImageHandlers()
 
