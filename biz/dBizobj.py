@@ -525,7 +525,7 @@ class dBizobj(object):
         return ret
     
     
-    def seek(self, val, fld=None, caseSensitive=False, near=True):
+    def seek(self, val, fld=None, caseSensitive=False, near=False):
         return self._cursor.seek(val, fld, caseSensitive, near)
 
 

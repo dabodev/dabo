@@ -624,10 +624,10 @@ class dCursorMixin:
         return True
     
     
-    def seek(self, val, fld=None, caseSensitive=True, near=True):
+    def seek(self, val, fld=None, caseSensitive=True, near=False):
         """
         Returns the row number of the first record that matches the passed
-        value in the designated field, or -1 if there is no match. If 'near' is False,
+        value in the designated field, or -1 if there is no match. If 'near' is True,
         it will return the row number of the row whose value is the greatest value
         that is less than the passed value. If 'caseSensitive' is set to False, string 
         comparisons are done in a case-insensitive fashion.
@@ -669,7 +669,7 @@ class dCursorMixin:
                 ret = row
                 break
             else:
-                if not near:
+                if near:
                     ret = row
                 # If we are not doing an near search, see if the row is less than
                 # requested matching value. If so, update the value of 'ret'. If not,
