@@ -2,7 +2,7 @@ import sys, os
 import dabo.ui
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
-from reportWriter import ReportWriter
+from dabo.lib.reporting.reportWriter import ReportWriter
 
 
 #------------------------------------------------------------------------------

@@ -223,7 +223,9 @@ class ReportWriter(object):
 			# clip the text to the specified width and height
 			p = c.beginPath()
 	
-			p.rect(0, 0, width, height)
+			## HACK! the -5, +5 thing is to keep the area below the font's baseline
+			## from being clipped. I've got to learn the right way to handle this.
+			p.rect(0, -5, width, height+5)
 			c.clipPath(p, stroke=stroke)
 	
 			funcs = {"center": c.drawCentredString,
@@ -355,9 +357,13 @@ class ReportWriter(object):
 		
 		
 		# Print the static bands:
-		for band in ("pageBackground", "pageHeader", "pageFooter"):
+		for band in ("pageBackground", "pageHeader", "pageFooter", "pageForeground"):
 			self.Bands[band] = {}
-			bandDict = eval("_form['%s']" % band)
+			try:
+				bandDict = eval("_form['%s']" % band)
+			except KeyError:
+				# band not defined
+				continue
 		
 			# Find out geometry of the band and fill into report["bands"][band]
 			x = ml
@@ -365,10 +371,10 @@ class ReportWriter(object):
 				y = pageHeaderOrigin[1]
 			elif band == "pageFooter":
 				y = pageFooterOrigin[1]
-			elif band == "pageBackground":
+			else:
 				x,y = 0,1
 			
-			if band == "pageBackground":
+			if band in ("pageBackground", "pageForeground"):
 				width, height = pageWidth-1, pageHeight-1
 			else:
 				width = pageWidth - ml - mr
@@ -388,11 +394,11 @@ class ReportWriter(object):
 			if bandDict.has_key("objects"):
 				for object in bandDict["objects"]:
 
-					if bandDict == _form["pageHeader"]:
+					if band == "pageHeader":
 						origin = pageHeaderOrigin
-					elif bandDict == _form["pageFooter"]:
+					elif band == "pageFooter":
 						origin = pageFooterOrigin
-					elif bandDict == _form["pageBackground"]:
+					else:
 						origin = (0,1)
 		
 					try:
@@ -681,7 +687,7 @@ class ReportWriter(object):
 			try:
 				v = self._cursor
 			except AttributeError:
-				v = self._cursor = None
+				v = self._cursor = []
 		return v
 
 	def _setCursor(self, val):
@@ -701,7 +707,7 @@ class ReportWriter(object):
 		
 	def _setOutputName(self, val):
 		s = os.path.split(val)
-		if os.path.exists(s[0]):
+		if len(s[0]) == 0 or os.path.exists(s[0]):
 			self._outputName = val
 		else:
 			raise ValueError, "Path '%s' doesn't exist." % s[0]
