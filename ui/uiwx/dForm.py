@@ -93,19 +93,22 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			# Don't bother checking
 			return True
 		bizList = self.getBizobjsToCheck()
-		changed = False
-		for biz in bizList:
-			changed = changed or biz.isAnyChanged()
-		
-		if changed:
-			response = dMessageBox.areYouSure(_("Do you wish to save your changes?"),
-					cancelButton=True)
-			if response == None:    # cancel
-				# They canceled, so don't let the form close
-				return False
-			elif response == True:  # yes
-				for biz in bizList:
-					self.save(dataSource=biz.DataSource)
+		if bizList:
+			changed = False
+			for biz in bizList:
+				if biz:
+					# Forms can return None in the list, so skip those
+					changed = changed or biz.isAnyChanged()
+			
+			if changed:
+				response = dMessageBox.areYouSure(_("Do you wish to save your changes?"),
+						cancelButton=True)
+				if response == None:    # cancel
+					# They canceled, so don't let the form close
+					return False
+				elif response == True:  # yes
+					for biz in bizList:
+						self.save(dataSource=biz.DataSource)
 		return True
 	
 	
@@ -326,7 +329,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	def requery(self, dataSource=None):
 		""" Ask the bizobj to requery.
 		"""
-		
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode

@@ -76,6 +76,14 @@ class dDataNavForm(dForm.dForm):
 		return dDataNavForm.doDefault(dataSource)
 	
 	
+	def confirmChanges(self):
+		if self.preview:
+			# Nothing to check
+			return True
+		else:
+			return dDataNavForm.doDefault()
+	
+	
 	def afterSetPrimaryBizobj(self):        
 		pass
 		
@@ -251,7 +259,11 @@ class dDataNavForm(dForm.dForm):
 			self.Sizer.append(nbSizer, "expand", 1)
 			self.pageFrame.addSelectPage()
 			self.pageFrame.addBrowsePage()
-			self.addEditPages(self.getBizobj())
+			if self.preview:
+				ds = self.previewDataSource
+			else:
+				ds = self.getBizobj().DataSource
+			self.addEditPages(ds)
 			self.pageFrame.SetSelection(currPage)
 			self.afterSetupPageFrame()
 			self.Thaw()
@@ -262,12 +274,13 @@ class dDataNavForm(dForm.dForm):
 	def beforeSetupPageFrame(self): return True
 	def afterSetupPageFrame(self): pass
 	
-	def addEditPages(self, biz):
-		ds = biz.DataSource
+	def addEditPages(self, ds):
 		title = "Edit: " + ds.title()
 		self.pageFrame.addEditPage(ds, title)
-		for child in biz.getChildren():
-			self.addEditPages(child)
+		biz = self.getBizobj(ds)
+		if biz:
+			for child in biz.getChildren():
+				self.addEditPages(child)
 
 	def onSetSelectionCriteria(self, evt):
 		""" Occurs when the user chooses to set the selection criteria.
