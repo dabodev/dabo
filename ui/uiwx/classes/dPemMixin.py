@@ -1,5 +1,5 @@
 ''' dPemMixin.py: Provide common PEM functionality '''
-import wx, sys, dabo.common
+import wx, sys, types, dabo.common
 
 class dPemMixin(dabo.common.DoDefaultMixin):
 	''' Provide Property/Event/Method interfaces for dForms and dControls.
@@ -150,8 +150,15 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 		arguments received will be passed on to the constructor of the object.
 		'''
 		object = classRef(self, name=name, *args, **kwargs)
+		return object
 
 	
+	def escapeQt(self, s):
+		sl = "\\"
+		qt = "\'"
+		return s.replace(sl, sl+sl).replace(qt, sl+qt)
+	
+
 	def reCreate(self, child=None):
 		''' Recreate self.
 		'''
@@ -164,14 +171,31 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 			classRef = child.__class__
 			name = child.Name
 			child.Destroy()
-			self.addObject(classRef, name, style=style)
+			newObj = self.addObject(classRef, name, style=style)
 			for prop in propList:
 				try:
-					exec('self.%s.%s = %s' % (name, prop, propDict[prop]))
+					sep = ""
+					val = propDict[prop]
+					if type(val) in (types.UnicodeType, types.StringType):
+						sep = "'"
+					try:
+						exp = 'self.%s.%s = %s' % (name, prop, sep+self.escapeQt(str(val))+sep)
+						exec(exp)
+					except:
+						#pass
+						print "Re-Create: could not set property:", exp
+
 				except:
 					pass
+			# Now set the props which require specific orders
+			newObj.Left = propDict["Left"]
+			newObj.Width = propDict["Width"]
+			newObj.Top = propDict["Top"]
+			newObj.Height = propDict["Height"]
+			
+			return newObj
 		else:
-			self.Parent.reCreate(self)
+			return self.Parent.reCreate(self)
 		
 					
 	# The following 3 flag functions are used in some of the property
