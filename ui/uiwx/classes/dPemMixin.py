@@ -192,6 +192,11 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 				except:
 					pass
 			
+			# Font assignment can be complicated during the iteration of properties,
+			# so assign it explicitly here at the end.
+			if propDict.has_key("Font"):
+				newObj.Font = propDict["Font"]
+
 			return newObj
 		else:
 			return self.Parent.reCreate(self)
@@ -409,8 +414,9 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 		if t:
 			t.SetTip(value)
 		else:
-			t = wx.ToolTip(str(value))
-			self._pemObject.SetToolTip(t)
+			if value:
+				t = wx.ToolTip(str(value))
+				self._pemObject.SetToolTip(t)
 
 
 	def _getHelpContextText(self):
