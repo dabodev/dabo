@@ -1,6 +1,7 @@
-import wx
+import wx, dabo
 import dControlMixin, dEvents
 from dabo.dLocalize import _
+import dIcons
 
 class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 	""" Create a timer. 
@@ -20,30 +21,34 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 		# no 2-stage creation for Timers
 		wx.StaticBitmap.__init__(self, parent, name=name, *args, **kwargs)
 		
+		# Get a timer bitmap, but for now use the dabo icon:
+		self.SetBitmap(dIcons.getIconBitmap("daboIcon016"))
 		self.Hide()
-		
 		self._timer = wx.Timer(self)
 
 		dControlMixin.dControlMixin.__init__(self, name)
 		
 		self._afterInit()
 		
+	def initEvents(self):
+		dControlMixin.dControlMixin.initEvents(self)
+		self.bindEvent(dEvents.Timer, self.onTimer, self._timer)
 		self.bindEvent(dEvents.Timer, self._onTimer)
-		self.bindEvent(dEvents.Timer, self.onTimer)
 		
-				
-	def beforeInit(self, pre): pass
-	def afterInit(self): pass
-
-	def start(self):
-		self._timer.Start()
+	def Show(self, *args, **kwargs):
+		# only let the the bitmap be shown if this is design time
+		designTime = (self.Application is None)
+		if designTime:
+			dTimer.doDefault(*args, **kwargs)
 		
-	def stop(self):
-		self._timer.Stop()
-			
-	def onTimer(self, event): pass
+	# Event callback methods (override in subclasses):
+	def onTimer(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onTimer received by %s") % self.Name)
+		event.Skip()
 	
-	def _onTimer(self, event): pass
+	def _onTimer(self, event):
+		event.Skip()
 	
 	# property get/set functions
 	def _getInterval(self):
@@ -60,26 +65,13 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 
 		
 	Interval = property(_getInterval, _setInterval, None,
-		 _("Specifies the timer interval (milliseconds) and starts the timer."))
+		 _("Specifies the timer interval (milliseconds) and starts the timer. Set to 0 "
+		 "to stop the timer."))
 	
 if __name__ == "__main__":
-	import dabo.ui
-	dabo.ui.loadUI('wx')
+	import test
 	
-	class test(dTimer):
+	class c(dTimer):
 		def afterInit(self):
-			self.count = 0
 			self.Interval = 1000
-			
-		def onTimer(self, event):
-			self.count += 1
-			print "onTimer!!", event.GetEventObject()
-			if self.count > 10:
-				self.Interval = 0
-			event.Skip()
-	
-	app = wx.PySimpleApp()
-	form = dabo.ui.dForm()
-	form.Show()
-	t = test(form)
-	app.MainLoop()
+	test.Test().runTest(c)
