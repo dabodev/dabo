@@ -21,6 +21,17 @@ class dPemMixin(dPemMixinBase):
 		# self.properties can be set in the userland beforeInit() hook.
 		self.properties = {}
 		
+		# Lots of useful wx props are actually only settable before the
+		# object is fully constructed. The self._initProperties dict keeps
+		# track of those during the pre-init phase, to finally send the 
+		# contents of it to the wx constructor. Our property setters know
+		# if we are in pre-init or not, and instead of trying to modify 
+		# the prop will instead add the appropriate entry to the _initProperties
+		# dict. Additionally, there are certain wx properties that are required,
+		# and we include those in the _initProperties dict as well so they may
+		# be modified by our pre-init method hooks if needed:
+		self._initProperties = {"style": 0}
+
 		# There are a few controls that don't yet support 3-way inits (grid, for one).
 		# These controls will send the wx classref as the preClass argument, and we'll
 		# call __init__ on it when ready. We can tell if we are in a three-way init
@@ -59,16 +70,6 @@ class dPemMixin(dPemMixinBase):
 		# the given Name isn't unique among siblings:
 		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 
-		# Lots of useful wx props are actually only settable before the
-		# object is fully constructed. The self._initProperties dict keeps
-		# track of those during the pre-init phase, to finally send the 
-		# contents of it to the wx constructor. Our property setters know
-		# if we are in pre-init or not, and instead of trying to modify 
-		# the prop will instead add the appropriate entry to the _initProperties
-		# dict. Additionally, there are certain wx properties that are required,
-		# and we include those in the _initProperties dict as well so they may
-		# be modified by our pre-init method hooks if needed:
-		self._initProperties = {}
 		if kwargs.has_key("style"):
 			# If wx style parm sent, keep it as-is
 			style = kwargs["style"]
