@@ -212,6 +212,21 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		return True
 
 
+	def setRowNumber(self, rownum):
+		""" Moves the record pointer to the requested row number in the
+		cursor's data set
+		"""
+		if not self.beforeSetRowNumber() or not self.beforePointerMove():
+			return False
+			
+		self._moveToRowNum(rownum)
+		self.requeryAllChildren()
+		
+		self.afterPointerMove()
+		self.afterSetRowNumber()
+		return True
+		
+
 	def save(self, startTransaction=False, allRows=False, topLevel=True):
 		""" 
 		Saves any changes that have been made to the cursor.
@@ -393,7 +408,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		self._cursor.requery(params)
 
 		if self.RestorePositionOnRequery:
-			self.moveToPK(currPK)
+			self._moveToPK(currPK)
 
 		self.requeryAllChildren()
 		self.setMemento()
@@ -438,15 +453,15 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 		try:
 			for i in recrange:
-				self.moveToRowNum(i)
+				self._moveToRowNum(i)
 				if self.isChanged():
 					# No need to validate if the data hasn't changed
 					self.validateRecord()
-			self.moveToRowNum(currRow)
+			self._moveToRowNum(currRow)
 		except dError.dError, e:
 			# First try to return to the original row, if possible
 			try:
-				self.moveToRowNum(currRow)
+				self._moveToRowNum(currRow)
 			except: pass
 			raise dError.dError, e
 
@@ -468,7 +483,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		pass
 
 
-	def moveToRowNum(self, rownum):
+	def _moveToRowNum(self, rownum):
 		""" For internal use only! Should never be called from a developer's code.
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
@@ -476,7 +491,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		self._cursor.moveToRowNum(rownum)
 
 
-	def moveToPK(self, pk):
+	def _moveToPK(self, pk):
 		""" For internal use only! Should never be called from a developer's code.
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
@@ -710,6 +725,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	def beforePrior(self): return True
 	def beforeNext(self): return True
 	def beforeLast(self): return True
+	def beforeSetRowNumber(self): return True
 	def beforePointerMove(self): return True
 	def beforeSave(self): return True
 	def beforeCancel(self): return True
@@ -724,6 +740,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	def afterPrior(self): pass
 	def afterNext(self): pass
 	def afterLast(self): pass
+	def afterSetRowNumber(self): pass
 	def afterPointerMove(self): pass
 	def afterSave(self): pass
 	def afterCancel(self): pass
