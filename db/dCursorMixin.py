@@ -29,6 +29,8 @@ class dCursorMixin(dabo.common.dObject):
 	__nonUpdateFields = []
 	# User-editable list of non-updated fields
 	nonUpdateFields = []
+	# Default encoding
+	__encoding = "latin-1"
 	
 	
 	def __init__(self, sql="", *args, **kwargs):
@@ -97,11 +99,17 @@ class dCursorMixin(dabo.common.dObject):
 		# Some backends, notably Firebird, require that fields be specially
 		# marked.
 		sql = self.processFields(sql)
+		
+		# Make sure all Unicode charcters are properly encoded.
+		if type(sql) == types.UnicodeType:
+			sqlEX = sql.encode(self.__encoding)
+		else:
+			sqlEX = sql
 
 		if params is None or len(params) == 0:
-			res = self.superCursor.execute(self, sql)
+			res = self.superCursor.execute(self, sqlEX)
 		else:
-			res = self.superCursor.execute(self, sql, params)
+			res = self.superCursor.execute(self, sqlEX, params)
 		
 		# Not all backends support 'fetchall' after executing a query
 		# that doesn't return records, such as an update.
@@ -128,9 +136,22 @@ class dCursorMixin(dabo.common.dObject):
 				for row in self._records:
 					dic= {}
 					for i in range(0, fldcount):
-						dic[fldNames[i]] = row[i]
+						if type(row[i]) == type(""):	
+							# String; convert it to unicode
+							dic[fldNames[i]] = unicode(row[i], self.__encoding)
+						else:
+							dic[fldNames[i]] = row[i]
 					tmpRows.append(dic)
 				self._records = tuple(tmpRows)
+
+			else:
+				# Make all string values into unicode
+				for row in self._records:
+					for fld in row.keys():
+						val = row[fld]
+						if type(val) == type(""):	
+							# String; convert it to unicode
+							row[fld]= unicode(val, self.__encoding)
 		return res
 	
 	
@@ -931,8 +952,8 @@ class dCursorMixin(dabo.common.dObject):
 			if ret:
 				ret += " AND "
 			pkVal = rec[fld]
-			if type(pkVal) == types.StringType:
-				ret += tblPrefix + fld + "='" + pkVal + "' "  
+			if type(pkVal) in (types.StringType, types.UnicodeType):
+				ret += tblPrefix + fld + "='" + pkVal.encode(self.__encoding) + "' "  
 			else:
 				ret += tblPrefix + fld + "=" + str(pkVal) + " "
 		return ret
@@ -952,7 +973,8 @@ class dCursorMixin(dabo.common.dObject):
 				ret += ", "
 			
 			if type(val) in (types.StringType, types.UnicodeType):
-				ret += tblPrefix + fld + " = " + self.escQuote(val) + " "
+				escVal = self.escQuote(val)
+				ret += tblPrefix + fld + " = " + escVal + " "
 			else:
 				if type(val) == type(datetime.date(1,1,1)):
 					ret += tblPrefix + fld + " = " + self.formatDateTime(val)

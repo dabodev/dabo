@@ -131,7 +131,9 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				strVal = "False"
 		elif typ == types.NoneType:
 			strVal = "None"
-		elif typ in ( types.FloatType, types.IntType, types.LongType, types.UnicodeType):
+		elif typ == types.UnicodeType:
+			strVal = value
+		elif typ in ( types.FloatType, types.IntType, types.LongType):
 			strVal = str(value)
 		self.SetValue(strVal)
 

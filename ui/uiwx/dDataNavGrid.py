@@ -746,17 +746,17 @@ class dDataNavGrid(dGrid.dGrid):
 		via wxHtmlEasyPrinting, for example. 
 
 		If justStub is False, it will be a standalone HTML file complete 
-		with <HTML><HEAD> etc...
+		with <html><head> etc...
 		"""
 		cols = self.GetNumberCols()
 		rows = self.GetNumberRows()
 
 		if not justStub:
-			html = ["<HTML><BODY>"]
+			html = ["<html><body>"]
 		else:
 			html = []
 
-		html.append("<TABLE BORDER=1 CELLPADDING=2 CELLSPACING=0 WIDTH=100%>")
+		html.append("""<table border="1" cellpadding="2" cellspacing="0" width="100%">""")
 
 		# get the column widths as proportional percentages:
 		gridWidth = 0
@@ -764,39 +764,29 @@ class dDataNavGrid(dGrid.dGrid):
 			gridWidth += self.GetColSize(col)
 
 		if tableHeaders:
-			html.append("<TR>")
+			html.append("<tr>")
 			for col in range(cols):
 				colSize = str(int((100 * self.GetColSize(col)) / gridWidth) - 2) + "%"
 				#colSize = self.GetColSize(col)
 				colValue = self.GetTable().colLabels[col]
-				html.append("<TD ALIGN='center' VALIGN='center' WIDTH='%s'><B>%s</B></TD>"
+				html.append("""<td align="center" valign="center" width="%s"><b>%s</b></td>"""
 								% (colSize,colValue))
-			html.append("</TR>")
+			html.append("</tr>")
 
 		for row in range(rows):
-			html.append("<TR>")
+			html.append("<tr>")
 			for col in range(cols):
 				colName = self.GetTable().colNames[col]
 				colVal = self.GetTable().data[row][col]
-				html.append("<TD ALIGN='left' VALIGN='top'><FONT SIZE=1>%s</FONT></TD>"
+				html.append("""<td align="left" valign="top"><font size="1">%s</font></td>"""
 								% colVal)
-			html.append("</TR>")
+			html.append("</tr>")
 
-		html.append("</TABLE>")
+		html.append("</table>")
 
 		if not justStub:
-			html.append("</BODY></HTML>")
-		
-		# There can be some high ASCII characters. This will handle the preview, but 
-		# we need more generic solutions.
-		ret = ""
-		for h in html:
-			try:
-				ret += h + "\n"
-			except:
-				ret += unicode(h, "latin-1") + "\n"
-		return ret
-# 		return "\n".join(html)
+			html.append("</body></html>")
+		return "\n".join(html)
 
 
 	def getColByX(self, x):
