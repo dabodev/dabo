@@ -446,7 +446,14 @@ class ReportWriter(object):
 			c.restoreState()
 		
 		
-	def write(self):			
+	def write(self, save=True):
+		"""Write the PDF file based on the ReportForm spec.
+		
+		If the save argument is True (the default), the PDF file will be
+		saved and closed after the report form has been written. If False, 
+		the PDF file will be left open so that additional pages can be added 
+		with another call, perhaps after creating a different report form.
+		"""
 		_form = self.ReportForm
 		if _form is None:
 			raise ValueError, "ReportForm must be set first."
@@ -455,10 +462,11 @@ class ReportWriter(object):
 
 		pageSize = self.getPageSize()		
 		pageWidth, pageHeight = pageSize
-		
-		# Create the reportlab canvas:
-		c = self._canvas = canvas.Canvas(_outputFile, pagesize=pageSize)
-		
+
+		c = self.Canvas
+		if not c:
+			# Create the reportlab canvas:
+			c = self._canvas = canvas.Canvas(_outputFile, pagesize=pageSize)
 		
 		# Get the page margins into variables:
 		ml = self.getPt(eval(_form["page"]["marginLeft"]))
@@ -581,7 +589,11 @@ class ReportWriter(object):
 						
 				self._recordNumber += 1
 		
-		c.save()
+		c.showPage()
+		
+		if save:
+			c.save()
+			self._canvas = None
 
 
 	def getPageSize(self):
