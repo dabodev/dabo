@@ -156,7 +156,8 @@ class dSelectPage(dPage):
                 box = wx.BoxSizer(wx.HORIZONTAL)
                 
                 if selectType == "range":
-                    where =     "%s BETWEEN '?(user1)' AND '?(user2)'" % column["fieldName"]
+                    where =     "%s.%s BETWEEN '?(user1)' AND '?(user2)'" % (
+                                column["tableName"], column["fieldName"])
                         
                     cb = wx.CheckBox(panel, cbId, "%s is in the range of:" % (
                                         column["caption"],))
@@ -174,6 +175,34 @@ class dSelectPage(dPage):
                     text = wx.TextCtrl(panel, user2Id)
                     box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
                     
+                elif selectType == "value":
+                    where =     "%s.%s = '?(user1)'" % (
+                                column["tableName"], column["fieldName"])
+                        
+                    cb = wx.CheckBox(panel, cbId, "%s is equal to:" % (
+                                        column["caption"],))
+                    
+                    wx.EVT_CHECKBOX(self, cbId, self.OnSelectCheckbox)
+                    
+                    box.Add(cb, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+                    text = wx.TextCtrl(panel, user1Id)
+                    box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+                elif selectType == "stringMatch":
+                    where = "%s.%s LIKE '%c?(user1)%c'" % (
+                            column["tableName"], column["fieldName"], "%", "%")    
+                        
+                    cb = wx.CheckBox(panel, cbId, "%s contains:" % (
+                                        column["caption"],))
+                    
+                    wx.EVT_CHECKBOX(self, cbId, self.OnSelectCheckbox)
+                    
+                    box.Add(cb, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+                    text = wx.TextCtrl(panel, user1Id)
+                    box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+                
                 elif selectType == "stringMatchAll":
                     stringMatchAll.append(column)
                     
@@ -211,7 +240,8 @@ class dSelectPage(dPage):
                     char = " OR "
                 else:
                     char = ""
-                where = ''.join((where,char,"%s LIKE '%c?(user1)%c'" % (column["fieldName"], "%", "%")))    
+                where = ''.join((where,char,"%s.%s LIKE '%c?(user1)%c'" % (
+                            column["tableName"], column["fieldName"], "%", "%")))    
 
             panel.selectOptions.append({"dataType": column["type"],
                                         "cbId": cbId,
@@ -271,8 +301,15 @@ class dBrowsePage(dPage):
             self.createGrid()
         if self.gridExists and pf.GetPage(pf.GetSelection()) == self:
             self.fillGrid()
+        
+        row = self.getDform().getBizobj().getRowNumber()
+        col = self.grid.GetGridCursorCol()
+        self.grid.SetGridCursor(row, col)
+        self.grid.MakeCellVisible(row, col)
+        
         event.Skip()
     
+        
     def onEnterPage(self):
         bizobj = self.getDform().getBizobj()
         if bizobj and bizobj.getRowCount() >= 0:

@@ -197,7 +197,7 @@ class dForm(wxFrameClass, dFormMixin):
                 print "Save successful."
             self.setStatusText("Changes to %s saved." % (
                     self.saveAllRows and "all records" or "current record",))
-        except dError.dError, e:
+        except dError.BusinessRuleViolation, e:
             self.setStatusText("Save failed.")
             dMessageBox.stop("Save failed:\n\n%s" %  str(e))
     
@@ -334,10 +334,7 @@ class dForm(wxFrameClass, dFormMixin):
             evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
             self.GetEventHandler().ProcessEvent(evt)
         except dError.dError, e:
-            if self.debug:
-                print "New failed with response: %s" % str(e)
-            ### TODO: What should be done here? Raise an exception?
-            ###       Prompt the user for a response?
+            dMessageBox.stop("Add new record failed with response:\n\n%s" % str(e))
 
     
     def getSQL(self, dataSource=None):

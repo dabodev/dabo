@@ -27,7 +27,7 @@ class dSqlBuilderMixin:
         ''' Add a field to the field clause.
         '''
         if self._fieldClause:
-            self._fieldClause = "%s,\n       " % self._fieldClause
+            self._fieldClause = "%s, " % self._fieldClause
         self._fieldClause += exp
 
     
@@ -48,7 +48,7 @@ class dSqlBuilderMixin:
         explicitly.
         '''
         if self._fromClause:
-            self._fromClause = "%s,\n    " % self._fromClause
+            self._fromClause = "%s, " % self._fromClause
         self._fromClause += exp
 
             
@@ -65,7 +65,7 @@ class dSqlBuilderMixin:
         ''' Add an expression to the where clause.
         '''
         if self._whereClause:
-            self._whereClause = "%s\n    %s " % (self._whereClause, comp)
+            self._whereClause = "%s %s " % (self._whereClause, comp)
         self._whereClause += exp
 
         
@@ -82,7 +82,7 @@ class dSqlBuilderMixin:
         ''' Add an expression to the group-by clause.
         '''
         if self._groupByClause:
-            self._groupByClause = "%s,\n    " % self._groupByClause
+            self._groupByClause = "%s, " % self._groupByClause
         self._groupByClause += exp
 
         
@@ -99,7 +99,7 @@ class dSqlBuilderMixin:
         ''' Add an expression to the order-by clause.
         '''
         if self._orderByClause:
-            self._orderByClause = "%s,\n    " % self._orderByClause
+            self._orderByClause = "%s, " % self._orderByClause
         self._orderByClause += exp
 
             
@@ -125,16 +125,16 @@ class dSqlBuilderMixin:
         
         if not fieldClause:
             fieldClause = "*"
-        fieldClause = 'select %s\n' % fieldClause
+        fieldClause = 'select %s ' % fieldClause
         
         if fromClause: 
-            fromClause = '  from %s\n' % fromClause
+            fromClause = ' from %s' % fromClause
         if whereClause:
-            whereClause = ' where %s\n' % whereClause
+            whereClause = ' where %s' % whereClause
         if groupByClause:
-            groupByClause = ' group by %s\n' % groupByClause
+            groupByClause = ' group by %s' % groupByClause
         if orderByClause:
-            orderByClause = ' order by %s\n' % orderByClause            
+            orderByClause = ' order by %s' % orderByClause            
         if limitClause:
             limitClause = ' limit %s' % limitClause
         else:

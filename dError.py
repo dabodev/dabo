@@ -20,3 +20,7 @@ class NoRecordsError(dError):
 
 class QueryError(dError):
     pass
+
+    
+class BusinessRuleViolation(dError):
+    pass

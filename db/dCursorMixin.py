@@ -74,7 +74,6 @@ class dCursorMixin:
         many cursor classes can only return row information as a list, not as a dictionary. This
         method will detect that, and convert the results to a dictionary.
         """
-
         res = self.superCursor.execute(self, sql, params)
 
         if self._rows:
@@ -443,22 +442,19 @@ class dCursorMixin:
     def new(self):
         ''' Add a new record to the data set.
         '''
-        try:
-            if not self._blank:
-                self.__setStructure()
-            # Copy the _blank dict to the _rows, and adjust everything accordingly
-            tmprows = list(self._rows)
-            tmprows.append(self._blank)
-            self._rows = tuple(tmprows)
-            # Adjust the rowcount and position
-            self.rowcount = len(self._rows)
-            self.rownumber = self.rowcount - 1
-            # Add the 'new record' flag to the last record (the one we just added)
-            self._rows[self.rownumber][k.CURSOR_NEWFLAG] = True
-            # Add the memento
-            self.addMemento(self.rownumber)
-        except:
-            raise dError, loc("Unable to add new record")
+        if not self._blank:
+            self.__setStructure()
+        # Copy the _blank dict to the _rows, and adjust everything accordingly
+        tmprows = list(self._rows)
+        tmprows.append(self._blank)
+        self._rows = tuple(tmprows)
+        # Adjust the rowcount and position
+        self.rowcount = len(self._rows)
+        self.rownumber = self.rowcount - 1
+        # Add the 'new record' flag to the last record (the one we just added)
+        self._rows[self.rownumber][k.CURSOR_NEWFLAG] = True
+        # Add the memento
+        self.addMemento(self.rownumber)
 
 
     def cancel(self, allrows=False):
@@ -588,7 +584,7 @@ class dCursorMixin:
                     tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
                 else:               
                     # Nothing. So just tack it on the end.
-                    tmpsql = sql + " where 1=0 "
+                    tmpsql = self.sql + " where 1=0 "
 
         # We need to save and restore the cursor properties, since this query will wipe 'em out.
         self.__saveProps()
