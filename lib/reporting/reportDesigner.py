@@ -536,7 +536,20 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.clearReportForm()
 
 		self.Form.bindEvent(dEvents.Resize, self._onFormResize)
+		self.bindEvent(dEvents.KeyDown, self._onKeyDown)
 		self.bindEvent(dEvents.KeyUp, self._onKeyUp)
+
+	def _onKeyDown(self, evt):
+		# eat the arrow keys which will otherwise scroll the window.
+		from dabo.ui import dKeys
+		keyCode = evt.EventData["keyCode"]
+		arrows = {dKeys.key_Up: "up",
+		          dKeys.key_Down: "down", 
+		          dKeys.key_Right: "right",
+		          dKeys.key_Left: "left"}
+		if arrows.has_key(keyCode):
+			evt.stop()
+
 
 	def _onKeyUp(self, evt):
 		# Note: using onKeyUp because it appears something is eating KeyDown on 
