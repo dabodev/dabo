@@ -14,6 +14,7 @@ class dControlMixin:
         provide common functionality. '''
     
     def __init__(self):
+        self.debug = False
         # Default label and (if control can handle a text value), value
         self.SetLabel(self.getDefaultText())
         # Subclass will intercept the initEvents first, allowing
@@ -104,13 +105,13 @@ class dControlMixin:
             control over to the user's subclassed widgets. We'll need 
             this short-circuiting approach when it comes time to add in 
             the database controlsource functionality. This also provides 
-            a sane, generic, event handling approach for the Dabo framework. '''
+            a sane, generic, event handling approach for the Dabo framework. 
+        '''
     
         object = event.GetEventObject()
         eventName = self._getEventNameFromIdentifier(event.GetEventType())
 
-        debug = False
-        if debug == True:
+        if self.debug:
             print "Event Fired:", object.GetName(), eventName
     
         if type(eventName) == type(list()):

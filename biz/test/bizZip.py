@@ -35,6 +35,6 @@ if __name__ == "__main__":
     print biz.next()
     print biz.getFieldVal("czip"), biz.getFieldVal("ccounty")
     print biz.next()
-    print biz.getFieldVal("czip"), biz.getFieldVal("county")
+    print biz.getFieldVal("czip"), biz.getFieldVal("ccounty")
     print biz.next()
-    print biz.getFieldVal("czip"), biz.getFieldVal("county")
+    print biz.getFieldVal("czip"), biz.getFieldVal("ccounty")
