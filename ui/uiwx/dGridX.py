@@ -5,6 +5,7 @@ dabo.lib.datanav subframework. It does not descend from dControlMixin at this
 time, but is self-contained. There is a dGridDataTable definition here as 
 well, that defines the 'data' that gets displayed in the grid.
 """
+import datetime
 import wx
 import wx.grid
 import dabo
@@ -72,6 +73,22 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					"ColumnOrder"))
 			if pos is not None:
 				colDefs.Order = pos
+			# If the data types are actual types and not strings, convert
+			# them to common strings.
+			if type(col.DataType) == type:
+				typeDict = {
+						str : "string", 
+						unicode : "unicode", 
+						int : "integer",
+						float : "float", 
+						long : "long", 
+						datetime.date : "date", 
+						datetime.datetime : "datetime", 
+						datetime.time : "time" }
+				try:
+					col.DataType = typeDict[col.DataType]
+				except: pass
+				
 		# Make sure that all cols have an Order set
 		for num in range(len(colDefs)):
 			col = colDefs[num]
@@ -94,21 +111,25 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	
 	
 	def convertType(self, typ):
-		"""Convert common names and abbreviations for data types
-		into the constants needed by the wx.grid.
+		"""Convert common types, names and abbreviations for 
+		data types into the constants needed by the wx.grid.
 		"""
 		# Default
 		ret = wx.grid.GRID_VALUE_STRING
-		lowtyp = typ.lower()
-		if lowtyp in ("bool", "boolean", "logical", "l"):
+		if type(typ) == str:
+			lowtyp = typ.lower()
+		else:
+			lowtyp = typ
+		if lowtyp in (bool, "bool", "boolean", "logical", "l"):
 			ret = wx.grid.GRID_VALUE_BOOL
-		if lowtyp in ("int", "integer", "bigint", "i"):
+		if lowtyp in (int, long, "int", "integer", "bigint", "i", "long"):
 			ret = wx.grid.GRID_VALUE_NUMBER
-		elif lowtyp in ("char", "varchar", "text", "c", "s"):
+		elif lowtyp in (str, unicode, "char", "varchar", "text", "c", "s"):
 			ret = wx.grid.GRID_VALUE_STRING
-		elif lowtyp in ("float", "f"):
+		elif lowtyp in (float, "float", "f"):
 			ret = wx.grid.GRID_VALUE_FLOAT
-		elif lowtyp in ("date", "datetime", "time", "d", "t"):
+		elif lowtyp in (datetime.date, datetime.datetime, datetime.time, 
+				"date", "datetime", "time", "d", "t"):
 			ret = wx.grid.GRID_VALUE_STRING
 		return ret
 		
@@ -329,9 +350,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dGrid
 		preClass = wx.grid.Grid
+		
+		# Grab the DataSet parameter if passed
+		self._passedDataSet = self.extractKey(kwargs, "DataSet")
+		self.dataSet = []
+		
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		# List of column specs
 		self.Columns = []
+		
 		
 	def _afterInit(self):
 		super(dGrid, self)._afterInit()
@@ -355,6 +382,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		self.sortedColumn = None
 		self.sortOrder = ""
+		self.caseSensitiveSorting = False
 
 		self.SetRowLabelSize(0)        # turn off row labels
 		self.EnableEditing(False)      # this isn't a spreadsheet
@@ -378,6 +406,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.bindEvent(dEvents.GridRightClick, self.onGridRightClick)
 
 		self.initHeader()
+		
+		# If a data set was passed to the constructor, create the grid
+		self.buildFromDataSet(self._passedDataSet)
 
 
 	def initHeader(self):
@@ -424,15 +455,70 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			try:
 				currFocus.SetFocus()
 			except: pass
+	
+	
+	def buildFromDataSet(self, ds, keyCaption=None):
+		"""This method will create a grid for a given data set.
+		A 'data set' is a sequence of dicts, each containing field/
+		value pairs. The columns will be taken from ds[0].keys(),
+		with each column header being set to the key name, unless
+		the optional keyCaption parameter is passed. This parameter
+		is a 1:1 dict containing the data set keys as its keys,
+		and the desired caption as the corresponding value.
+		"""
+		if not ds:
+			return
+		origColNum = self.ColumnCount
+		self.Columns = []
+		self.dataSet = ds
+		firstRec = ds[0]
+		colKeys = firstRec.keys()
+		# Add the columns
+		for colKey in colKeys:
+			# Use the keyCaption values, if possible
+			try:
+				cap = keyCaption[colKey]
+			except:
+				cap = colKey
+			col = dColumn(self)
+			col.Caption = cap
+			col.Field = colKey
+			col.DataType = type(firstRec[colKey])
+			# Use a default width
+			col.Width = -1
+			self.Columns.append(col)
+
+		# Update the number of columns
+		colChange = self.ColumnCount - origColNum 
+		if colChange != 0:
+			msg = ""
+			if colChange < 0:
+				msg = wx.grid.GridTableMessage(self._Table,
+						wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
+						origColNum-1, abs(colChange))
+			else:
+				msg = wx.grid.GridTableMessage(self._Table,
+						wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
+						colChange)
+			if msg:
+				self.BeginBatch()
+				self.ProcessTableMessage(msg)
+				self.EndBatch()
+		# Populate the grid
+		self.fillGrid(True)
 
 
 	def getDataSet(self):
-		"""Customize to your needs. Default is to simply ask the form."""
-		try:
-			ret = self.Form.getDataSet()
-		except:
-			ret = []
+		"""Customize to your needs. Default is to use an internal property,
+		and if that is empty, simply ask the form."""
+		ret = self.dataSet
+		if not ret:
+			try:
+				ret = self.Form.getDataSet()
+			except:
+				ret = []
 		return ret
+		
 		
 	def _onGridColSize(self, evt):
 		"Occurs when the user resizes the width of the column."
@@ -489,7 +575,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					rect[3])
 			totColSize += colSize
 
-			if col == self.sortedColumn:
+
+			if self.Columns[col].Field == self.sortedColumn:
 				font.SetWeight(wx.BOLD)
 				# draw a triangle, pointed up or down, at the top left 
 				# of the column. TODO: Perhaps replace with prettier icons
@@ -689,32 +776,51 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		Toggle between ascending and descending. If the grid column index isn't 
 		passed, the currently active grid column will be sorted.
 		"""
-		table = self.GetTable()
-
 		if gridCol == None:
-			gridCol = self.GetGridCursorCol()
-
-		# Bizobj needs the name of the field
-		columnToSort = table.colNames[gridCol]
+			gridCol = self.CurrCol
+		
+		if isinstance(gridCol, dColumn):
+			columnToSort = gridCol
+			sortCol = self.Columns.index(gridCol)
+		else:
+			sortCol = gridCol
+			columnToSort = self.Columns[gridCol].Field
 
 		sortOrder="ASC"
-		if gridCol == self.sortedColumn:
+		if columnToSort == self.sortedColumn:
 			sortOrder = self.sortOrder
 			if sortOrder == "ASC":
 				sortOrder = "DESC"
 			else:
 				sortOrder = "ASC"
+		self.sortOrder = sortOrder
+		self.sortedColumn = columnToSort
+		
+		# Create the list to hold the rows for sorting
+		caseSensitive = self.caseSensitiveSorting
+		sortList = []
+		for row in self.dataSet:
+			sortList.append([row[columnToSort], row])
+		# At this point we have a list consisting of lists. Each of these member
+		# lists contain the sort value in the zeroth element, and the row as
+		# the first element.
+		# First, see if we are comparing strings
+		sortingStrings = type(sortList[0][0]) in (str,unicode)
+		if sortingStrings and not caseSensitive:
+			# Use a case-insensitive sort.
+			sortList.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
+		else:
+			sortList.sort()
 
-		try:
-			self.Form.getBizobj(self.DataSource).sort(columnToSort, sortOrder)
-			self.sortedColumn = gridCol
-			self.sortOrder = sortOrder
-	
-			self.ForceRefresh()     # Redraw the up/down sort indicator
-			table.fillTable(True)       # Sync the grid with the bizobj
-		except dException.NoRecordsException, e:
-			# no records to sort; ignore it
-			pass
+		# Unless DESC was specified as the sort order, we're done sorting
+		if sortOrder == "DESC":
+			sortList.reverse()
+		# Extract the rows into a new list, then set the dataSet to the new list
+		newRows = []
+		for elem in sortList:
+			newRows.append(elem[1])
+		self.dataSet = newRows
+		self.fillGrid()
 
 
 	def runIncSearch(self):
