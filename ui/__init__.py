@@ -43,10 +43,13 @@ def loadUI(uiType):
 			try:
 				exec("from %s import *" % module, globals())
 				retVal = True
-			except ImportError:
+			except ImportError, e:
 				if debug:
 					traceback.print_exc()
 				retVal = False
+				# Record the actual problem
+				dabo.errorLog.write("UI ERROR: %s" % e)
+				
 	else:
 		dabo.infoLog.write(_("Cannot change the uiType to '%s', because UI '%s' is already loaded."
 			% (uiType, getUIType())))
