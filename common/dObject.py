@@ -25,7 +25,11 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 				# Parent not necessarily defined
 				parent = None
 			if parent:
-				names.append(parent.Name)
+				try:
+					name = parent.Name
+				except AttributeError:
+					name = "?"
+				names.append(name)
 				object = parent
 			else:
 				break

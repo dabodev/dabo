@@ -1,5 +1,9 @@
-import wx
-import dabo.ui.dControlMixin as cm
+import wx, dabo, dabo.ui
+
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
+
+import dControlMixin as cm
 
 class dGauge(wx.Gauge, cm.dControlMixin):
 	""" Allows the creation of progress bars.

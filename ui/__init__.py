@@ -11,7 +11,7 @@ would issue:
 	dabo.ui.loadUI('wx')
 	
 """
-import os
+import os, traceback
 import dabo
 from dActionList import dActionList
 from dabo.dLocalize import _
@@ -31,6 +31,7 @@ def loadUI(uiType):
 	"""
 	retVal = False
 	module = None
+	debug = True
 	
 	if getUIType() is None:
 		if uiType.lower() in ('wx', 'wxpython', 'uiwx'):
@@ -43,6 +44,8 @@ def loadUI(uiType):
 				exec("from %s import *" % module, globals())
 				retVal = True
 			except ImportError:
+				if debug:
+					traceback.print_exc()
 				retVal = False
 	else:
 		dabo.infoLog.write(_("Cannot change the uiType to '%s', because UI '%s' is already loaded."

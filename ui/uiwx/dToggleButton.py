@@ -1,6 +1,9 @@
-import wx, warnings
-import dabo
-import dabo.ui.dDataControlMixin as dcm
+import wx, warnings, dabo, dabo.ui
+
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
+
+import dDataControlMixin as dcm
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 

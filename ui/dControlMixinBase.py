@@ -5,19 +5,25 @@ import dabo.ui
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
-class dControlMixin(dabo.ui.dPemMixin):
+class dControlMixinBase(dabo.ui.dPemMixin):
 	""" Provide common functionality for all controls.
 	"""
 	def __init__(self, name=None):
 		if not name:
 			name = self.Name
-		self.Name = name		
+		
+		try:
+			self.Name = name
+		except AttributeError:
+			# Some toolkits (Tkinter) don't let objects change their
+			# names after instantiation.
+			pass
 
-		dControlMixin.doDefault()
+		dControlMixinBase.doDefault()
 
 
 	def initEvents(self):
-		dControlMixin.doDefault()
+		dControlMixinBase.doDefault()
 		# convenience-bind the widget's specialized event(s):
 		self.bindEvent(dEvents.Hit, self.onHit)
 

@@ -1,4 +1,3 @@
-""" dPage.py """
 import wx, dPanel, dTimer
 import dabo.dEvents as dEvents
 

@@ -11,10 +11,13 @@ uiType = {'shortName': 'wx', 'moduleName': 'uiwx', 'longName': 'wxPython'}
 #app = wx.PySimpleApp()
 
 # Import dPemMixin first, and then manually put into dabo.ui module. This is
-# because dControlMixin, which is in dabo.ui, descends from dPemMixin, which 
-# is in dabo.ui.uiwx.
+# because dControlMixinBase, which is in dabo.ui, descends from dPemMixin, which 
+# is in dabo.ui.uiwx. Must also do the same with dControlMixin, as dDataControlMixinBase
+# descends from it.
 from dPemMixin import dPemMixin
 dabo.ui.dPemMixin = dPemMixin
+from dControlMixin import dControlMixin
+dabo.ui.dControlMixin = dControlMixin
 
 # Import into public namespace:
 from dAbout import dAbout

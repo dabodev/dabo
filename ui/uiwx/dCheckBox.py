@@ -1,8 +1,13 @@
-import wx, dabo
-import dabo.ui.dDataControlMixin as dcm
+import wx, dabo, dabo.ui
+
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
+
+import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
+	
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 	""" Allows visual editing of boolean values.
 	"""

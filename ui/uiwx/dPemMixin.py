@@ -662,7 +662,7 @@ class dPemMixin(dPemMixinBase):
 	Visible = property(_getVisible, _setVisible, None,
 					'Specifies whether the object is visible at runtime. (bool)')                    
 
-
+					
 	BackColor = property(_getBackColor, _setBackColor, None,
 					'Specifies the background color of the object. (tuple)')
 

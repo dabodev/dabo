@@ -1,5 +1,9 @@
-import wx
-import dabo.ui.dControlMixin as cm
+import wx, dabo, dabo.ui
+
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
+
+import dControlMixin as cm
 
 class dLabel(wx.StaticText, cm.dControlMixin):
 	""" Create a static (not data-aware) label.

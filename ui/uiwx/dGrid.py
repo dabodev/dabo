@@ -1,5 +1,9 @@
-import wx, wx.grid
-import dabo.ui.dControlMixin as cm
+import wx, wx.grid, dabo, dabo.ui
+
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
+
+import dControlMixin as cm
 
 class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def __init__(self, parent, id=-1, name='dGrid', style=0, *args, **kwargs):

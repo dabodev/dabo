@@ -1,5 +1,10 @@
-import warnings, wx, dabo
-import dabo.ui.dControlMixin as cm
+import warnings
+import wx, dabo, dabo.ui
+
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
+
+import dControlMixin as cm
 import dPemMixin as pm
 from dabo.dLocalize import _
 from dIcons import getIconBitmap

@@ -2,16 +2,15 @@
 	data-aware dControls.
 """
 import dabo, dabo.ui
-import dControlMixin
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.dLocalize import _
 
-class dDataControlMixin(dControlMixin.dControlMixin):
+class dDataControlMixinBase(dabo.ui.dControlMixin):
 	""" Provide common functionality for the data-aware controls.
 	"""
 	def __init__(self, name=None):
-		dDataControlMixin.doDefault(name)
+		dDataControlMixinBase.doDefault(name)
 
 		self._oldVal = self.Value
 		self.enabled = True
@@ -20,16 +19,20 @@ class dDataControlMixin(dControlMixin.dControlMixin):
 		self.bizobj = None
 
 	def initEvents(self):
-		dDataControlMixin.doDefault()
-		self.Form.bindEvent(dEvents.ValueRefresh, self.onValueRefresh)
+		dDataControlMixinBase.doDefault()
+		try:
+			self.Form.bindEvent(dEvents.ValueRefresh, self.onValueRefresh)
+		except AttributeError:
+			# Perhaps we aren't a child of a dForm
+			pass
 		
 	def onCreate(self, event):
-		dDataControlMixin.doDefault(event)
+		dDataControlMixinBase.doDefault(event)
 		if self.SaveRestoreValue:
 			self.restoreValue()
 	
 	def onDestroy(self, event):
-		dDataControlMixin.doDefault(event)
+		dDataControlMixinBase.doDefault(event)
 		if self.SaveRestoreValue:
 			self.saveValue()
 	
@@ -111,7 +114,7 @@ class dDataControlMixin(dControlMixin.dControlMixin):
 	def onGotFocus(self, event):
 		""" Occurs when the control receives the keyboard focus.
 		"""
-		dDataControlMixin.doDefault(event)
+		dDataControlMixinBase.doDefault(event)
 		self._oldVal = self.Value
 
 		try:
@@ -125,7 +128,7 @@ class dDataControlMixin(dControlMixin.dControlMixin):
 	def onLostFocus(self, event):
 		""" Occurs when the control loses the keyboard focus.
 		"""
-		dDataControlMixin.doDefault(event)
+		dDataControlMixinBase.doDefault(event)
 		self.flushValue()
 		
 		try:
@@ -223,12 +226,6 @@ class dDataControlMixin(dControlMixin.dControlMixin):
 	def _setSaveRestoreValue(self, value):
 		self._SaveRestoreValue = bool(value)
 	
-	def _getValue(self):
-		return self.GetValue()
-		
-	def _setValue(self, value):
-		self.SetValue(value)
-
 	# Property definitions:
 	DataSource = property(_getDataSource, _setDataSource, None,
 						'Specifies the dataset to use as the source of data. (str)')
@@ -238,5 +235,3 @@ class dDataControlMixin(dControlMixin.dControlMixin):
 						'Specifies whether the Value of the control gets saved when destroyed and '
 						'restored when created. Use when the control isn\'t bound to a dataSource '
 						'and you want to persist the value, as in an options dialog. (bool)')
-	Value = property(_getValue, _setValue, None,
-						'Specifies the current state of the control (the value of the field). (varies)')
