@@ -19,7 +19,8 @@ class dTextBox(wx.TextCtrl, dDataControlMixin, dControlMixin):
         wx.EVT_TEXT(self, self.GetId(), self.OnText)
 
     # Event callback method(s) (override in subclasses):
-    def OnText(self, event): pass
+    def OnText(self, event):
+        event.Skip()
     
 
 if __name__ == "__main__":

@@ -55,6 +55,8 @@ class dDataControlMixin:
 
     
     def OnSetFocus(self, event):
+        print "OnSetFocus received by %s" % self.GetName()
+
         self.dForm.controlWithFocus = self
         try:
             self._oldVal = self.GetValue()
@@ -88,6 +90,8 @@ class dDataControlMixin:
     
         
     def OnKillFocus(self, event):
+        print "OnKillFocus received by %s" % self.GetName()
+        event.Skip()
         try:
             if self.selectOnEntry == True:
                 self.SetSelection(0,0) # selects no text in text box

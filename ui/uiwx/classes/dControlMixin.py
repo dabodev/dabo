@@ -55,14 +55,20 @@ class dControlMixin:
 
     
     # Common event callbacks (override in subclasses):
-    def OnSetFocus(self, event): event.Skip()
+    def OnSetFocus(self, event):
+        print "OnSetFocus received by %s" % self.GetName()
+        event.Skip()
         
-    def OnKillFocus(self, event):event.Skip()
+    def OnKillFocus(self, event):
+        print "OnKillWindow received by %s" % self.GetName()
+        event.Skip()
             
     def OnEnterWindow(self, event):
+        print "OnEnterWindow received by %s" % self.GetName()
         event.Skip()
         
     def OnLeaveWindow(self, event):
+        print "OnLeaveWindow received by %s" % self.GetName()
         event.Skip()
 
     def setDefaultFont(self):

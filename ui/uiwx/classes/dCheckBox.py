@@ -19,7 +19,8 @@ class dCheckBox(wx.CheckBox, dDataControlMixin, dControlMixin):
         wx.EVT_CHECKBOX(self, self.GetId(), self.OnCheckBox)
 
     # Event callback methods (override in subclasses):
-    def OnCheckBox(self, event): pass
+    def OnCheckBox(self, event):
+        event.Skip()
 
 if __name__ == "__main__":
     import test

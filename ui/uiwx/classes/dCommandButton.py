@@ -16,7 +16,8 @@ class dCommandButton(wx.Button, dControlMixin):
         wx.EVT_BUTTON(self, self.GetId(), self.OnButton)
         
     # Event callback methods (override in subclasses):
-    def OnButton(self, event): pass
+    def OnButton(self, event):
+        event.Skip()
 
               
                

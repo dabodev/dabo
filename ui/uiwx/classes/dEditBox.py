@@ -22,7 +22,8 @@ class dEditBox(wx.TextCtrl, dDataControlMixin, dControlMixin):
         wx.EVT_TEXT(self, self.GetId(), self.OnText)
 
     # Event callback methods (override in subclasses):
-    def OnText(self, event): pass
+    def OnText(self, event):
+        event.Skip()
 
 if __name__ == "__main__":
     import test
