@@ -3,6 +3,11 @@ import dabo.ui
 from uiApp import uiApp
 
 uiType = {'shortName': 'wx', 'moduleName': 'uiwx', 'longName': 'wxPython'}
+uiType['version'] = wx.VERSION_STRING
+_platform = wx.PlatformInfo[1]
+if wx.PlatformInfo[0] == "__WXGTK__":
+	_platform += " (%s)" % wx.PlatformInfo[3]
+uiType['platform'] = _platform
 
 # The wx app object must be created before working with anything graphically.
 # As we don't want to require people to use dApp, and as dApp is the one that

@@ -4,15 +4,12 @@ import dabo
 import dForm
 
 class dAbout(dForm.dForm):
-	def initStyleProperties(self):
-		self.BorderStyle = None
-		dAbout.doDefault()
-		
 	def initProperties(self):
 		dAbout.doDefault()
 		self.BackColor = "White"
 		self.MenuBar = None
 		self.ShowStatusBar = False
+		self.Caption = "About"
 		
 	def initEvents(self):
 		# Destroy the window when clicked or deactivated:
@@ -26,7 +23,6 @@ class dAbout(dForm.dForm):
 		dAbout.doDefault()
 		self.CenterOnScreen()
 		self.SetFocus()
-
 
 	def restoreSizeAndPosition(self):
 		pass
@@ -60,14 +56,23 @@ class dAbout(dForm.dForm):
 
 	def getLabelText(self):
 		app = self.Application
-		py_version = sys.version.split()[0]
+		pyVersion = "%s on %s" % (sys.version.split()[0], sys.platform)
 		if app:
-			dabo_version = app.getAppInfo("appVersion")
-			dabo_appName = app.getAppInfo("appName")
+			appVersion = app.getAppInfo("appVersion")
+			appName = app.getAppInfo("appName")
 		else:
-			dabo_version = "?"
-			dabo_appName = "Dabo"
-		lbl = "%s %s" % (dabo_appName, dabo_version)
+			appVersion = "?"
+			appName = "Dabo"
+		daboVersion = dabo.version["version"]
+		uiName = dabo.ui.uiType["longName"]
+		uiVersion = "%s on %s" % (dabo.ui.uiType["version"], dabo.ui.uiType["platform"])
+		lbl = """%s %s
+		
+\tDabo %s
+\tPython %s
+\t%s %s"""
+
+		lbl = lbl % (appName, appVersion, daboVersion, pyVersion, uiName, uiVersion)
 		return lbl
 		
 def main():
