@@ -192,6 +192,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			response = func()
 		except dException.NoRecordsException:
 			self.setStatusText(_("No records in dataset."))
+		except dException.dException, e:
+			self.notifyUser(str(e))
 		else:
 			# Notify listeners that the row number changed:
 			self.raiseEvent(dEvents.RowNumChanged)
@@ -268,7 +270,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			
 		except dException.BusinessRuleViolation, e:
 			self.setStatusText(_("Save failed."))
-			dMessageBox.stop("%s:\n\n%s" % (_("Save Failed:"), _(str(e))))
+			msg = "%s:\n\n%s" % (_("Save Failed:"), _( str(e) ))
+			self.notifyUser(msg, severe=True)
 			return False
 
 			
@@ -294,7 +297,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.refreshControls()
 		except dException.dException, e:
 			dabo.errorLog.write(_("Cancel failed with response: %s") % str(e))
-			dMessageBox.info(message=str(e), title=_("Cancel Not Allowed"))
+			self.notifyUser(str(e), title=_("Cancel Not Allowed") )
 
 
 	def onRequery(self, evt):
@@ -351,11 +354,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 					elapsed == 1 and "." or "s."))
 
 		except dException.MissingPKException, e:
-			dabo.ui.dMessageBox.stop(str(e), "Requery Failed")
+			self.notifyUser(str(e), title=_("Requery Failed"), severe=True)
 
 		except dException.dException, e:
 			dabo.errorLog.write(_("Requery failed with response: %s") % str(e))
-			dMessageBox.stop(message=str(e), title=_("Requery Not Allowed"))
+			self.notifyUser(str(e), title=_("Requery Not Allowed"), severe=True)
 		return ret
 
 	def delete(self, dataSource=None, message=None):
@@ -384,7 +387,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				self.raiseEvent(dEvents.RowNumChanged)
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
-				dMessageBox.stop(message=str(e), title=_("Deletion Not Allowed"))
+				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
 
 
 	def deleteAll(self, dataSource=None, message=None):
@@ -408,7 +411,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				self.raiseEvent(dEvents.RowNumChanged)
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete All failed with response: %s") % str(e))
-				dMessageBox.stop(message=str(e), title=_("Deletion Not Allowed"))
+				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
 
 
 	def new(self, dataSource=None):
@@ -430,7 +433,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.afterNew()
 
 		except dException.dException, e:
-			dMessageBox.stop(_("Add new record failed with response:\n\n%s" % str(e)))
+			self.notifyUser(_("Add new record failed with response:\n\n%s" % str(e)), 
+					severe=True)
 
 
 	def afterNew(self):
@@ -451,6 +455,17 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		""" Set the SQL for the bizobj.
 		"""
 		self.getBizobj(dataSource).setSQL(sql)
+		
+	
+	def notifyUser(self, msg, title="Notice", severe=False):
+		""" Displays an alert messagebox for the user. You can customize
+		this in your own classes if you prefer a different display.
+		"""
+		if severe:
+			func = dMessageBox.stop
+		else:
+			func = dMessageBox.info
+		func(message=msg, title=title)
 
 
 	def getBizobj(self, dataSource=None, parentBizobj=None):
