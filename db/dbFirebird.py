@@ -210,10 +210,10 @@ class Firebird(dBackend):
 		cursor.execute(sql)
 		if cursor.RowCount:
 			gen = cursor.getFieldVal("genname").strip()
-			sql = """select GEN_ID(%s, 1) as nextVal 
+			sql = """select GEN_ID(%s, 1) as nextval 
 					from rdb$database""" % gen
 			cursor.execute(sql)
-			ret = cursor.getFieldVal("nextVal")
+			ret = cursor.getFieldVal("nextval")
 		return ret
 	
 
