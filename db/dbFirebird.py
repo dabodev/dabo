@@ -32,7 +32,20 @@ class Firebird(dBackend):
 	def getDictCursorClass(self):
 		return kinterbasdb.Cursor
 	
+	def noResultsOnSave(self):
+		""" Firebird does not return the number of records updated, so
+		we just have to ignore this, since we can't tell a failed save apart 
+		from a successful one.
+		"""
+		return
 	
+	def noResultsOnDelete(self):
+		""" Firebird does not return the number of records deleted, so
+		we just have to ignore this, since we can't tell a failed delete apart 
+		from a successful one.
+		"""
+		return
+
 	def processFields(self, str):
 		""" Firebird requires that all field names be surrounded 
 		by double quotes.
@@ -144,6 +157,12 @@ and rdb$unique_flag = 1 """ % tableName.upper()
 			fields.append((name.strip(), ft, pk))
 			
 		return tuple(fields)
+	
+	def flush(self, cursor):
+		""" Firebird requires an explicit commit in order to have changes
+		to the database written to disk.
+		"""
+		cursor.execute("COMMIT")
 	
 	def getLastInsertID(self, cursor):
 		# This doesn't work - it'll return None. TODO: figure out what to do.

@@ -326,6 +326,10 @@ class dBizobj(dabo.common.dObject):
 			# Pass the exception to the UI
 			raise dException.dException, e
 
+		# Some backends (Firebird particularly) need to be told to write 
+		# their changes even if no explicit transaction was started.
+		self.Cursor.flush()
+		
 		# Two hook methods: one specific to Save(), and one which is called after any change
 		# to the data (either save() or delete()).
 		self.afterChange()
@@ -358,7 +362,7 @@ class dBizobj(dabo.common.dObject):
 		self.afterCancel()
 
 
-	def delete(self):
+	def delete(self, startTransaction=False):
 		""" Delete the current row of the data set.
 		"""
 		errMsg = self.beforeDelete()
@@ -366,6 +370,9 @@ class dBizobj(dabo.common.dObject):
 			errMsg = self.beforePointerMove()
 		if errMsg:
 			raise dException.dException, errMsg
+		
+		if startTransaction:
+			self.Cursor.beginTransaction()
 
 		if self.KeyField is None:
 			raise dException.dException, "No key field defined for table: " + self.DataSource
@@ -385,10 +392,18 @@ class dBizobj(dabo.common.dObject):
 		# populate them with data for the current record in this bizobj.
 		for child in self.__children:
 			if self.deleteChildLogic == k.REFINTEG_CASCADE:
-				child.deleteAll()
+				child.deleteAll(startTransaction=False)
 			else:
 				child.cancelAll()
 				child.requery()
+				
+		if startTransaction:
+			self.Cursor.commitTransaction()
+			
+		# Some backends (Firebird particularly) need to be told to write 
+		# their changes even if no explicit transaction was started.
+		self.Cursor.flush()
+		
 		self.afterPointerMove()
 		self.afterChange()
 		self.afterDelete()

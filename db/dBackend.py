@@ -40,7 +40,22 @@ class dBackend(dabo.common.dObject):
 		"""
 		return val
 	
-	
+	def noResultsOnSave(self):
+		""" Most backends will return a non-zero number if there are updates.
+		Some do not, so this will have to be customized in those cases.
+		"""
+		raise dException.dException, _("No records updated")
+
+	def noResultsOnDelete(self):
+		""" Most backends will return a non-zero number if there are deletions.
+		Some do not, so this will have to be customized in those cases.
+		"""
+		raise dException.dException, _("No records deleted")
+		
+	def flush(self, cursor):
+		""" Only used in some backends """
+		return
+
 	def processFields(self, str):
 		""" Default is to return the string unchanged. Override
 		in cases where the str needs processing.

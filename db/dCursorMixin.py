@@ -102,7 +102,13 @@ class dCursorMixin(dabo.common.dObject):
 			res = self.superCursor.execute(self, sql)
 		else:
 			res = self.superCursor.execute(self, sql, params)
-		self._records = self.fetchall()
+		
+		# Not all backends support 'fetchall' after executing a query
+		# that doesn't return records, such as an update.
+		try:
+			self._records = self.fetchall()
+		except:
+			pass
 		
 		if self.RowCount > 0:
 			self.RowNumber = max(self.RowNumber, 0, (self.RowCount-1) )
@@ -570,12 +576,12 @@ class dCursorMixin(dabo.common.dObject):
 				pkWhere = self.makePkWhere(rec)
 				updClause = self.makeUpdClause(diff)
 				sql = "update %s set %s where %s" % (self.Table, updClause, pkWhere)
-
+			
 			# Save off the props that will change on the update
 			self.__saveProps()
 			#run the update
 			res = self.execute(sql)
-
+			
 			if newrec and self.AutoPopulatePK:
 				# Call the database backend-specific code to retrieve the
 				# most recently generated PK value.
@@ -591,7 +597,9 @@ class dCursorMixin(dabo.common.dObject):
 				del rec[k.CURSOR_NEWFLAG]
 			else:
 				if not res:
-					raise dException.dException, _("No records updated")
+					# Different backends may cause res to be None
+					# even if the save is successful.
+					self.BackendObject.noResultsOnSave()
 
 	
 	def makeUpdDiff(self, rec, isnew=False):
@@ -696,7 +704,15 @@ class dCursorMixin(dabo.common.dObject):
 			self.__restoreProps()
 		else:
 			# Nothing was deleted
-			raise dException.dException, _("No records deleted")
+			self.BackendObject.noResultsOnDelete()
+	
+	
+	def flush(self):
+		""" Some backends need to be prompted to flush changes
+		to disk even without starting a transaction. This is the method
+		to call to accomplish this.
+		"""
+		self.BackendObject.flush(self)
 
 
 	def setDefaults(self, vals):
@@ -906,6 +922,7 @@ class dCursorMixin(dabo.common.dObject):
 
 		Optionally pass in a record object, otherwise use the current record.
 		"""
+		tblPrefix = self.Table + "."
 		if not rec:
 			rec = self._records[self.RowNumber]
 		aFields = self.KeyField.split(",")
@@ -915,9 +932,9 @@ class dCursorMixin(dabo.common.dObject):
 				ret += " AND "
 			pkVal = rec[fld]
 			if type(pkVal) == types.StringType:
-				ret += fld + "='" + pkVal + "' "  
+				ret += tblPrefix + fld + "='" + pkVal + "' "  
 			else:
-				ret += fld + "=" + str(pkVal) + " "
+				ret += tblPrefix + fld + "=" + str(pkVal) + " "
 		return ret
 
 
@@ -925,6 +942,8 @@ class dCursorMixin(dabo.common.dObject):
 		""" Create the 'set field=val' section of the Update statement. 
 		"""
 		ret = ""
+		tblPrefix = self.Table + "."
+		
 		for fld, val in diff.items():
 			# Skip the fields that are not to be updated.
 			if fld in self.getNonUpdateFields():
@@ -933,12 +952,12 @@ class dCursorMixin(dabo.common.dObject):
 				ret += ", "
 			
 			if type(val) in (types.StringType, types.UnicodeType):
-				ret += fld + " = " + self.escQuote(val) + " "
+				ret += tblPrefix + fld + " = " + self.escQuote(val) + " "
 			else:
 				if type(val) == type(datetime.date(1,1,1)):
-					ret += fld + " = " + self.formatDateTime(val)
+					ret += tblPrefix + fld + " = " + self.formatDateTime(val)
 				else:
-					ret += fld + " = " + str(val) + " "
+					ret += tblPrefix + fld + " = " + str(val) + " "
 		return ret
 
 
