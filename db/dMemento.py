@@ -1,6 +1,6 @@
 import dabo.dConstants as k
 
-class Memento(object):
+class dMemento(object):
     def __init__(self, vals=None):
         if vals is None:
             self.setMemento({})

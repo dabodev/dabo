@@ -12,8 +12,8 @@ class bizZip(dBizobj):
     defaultValues = {"ccity":"Penfield", "cStateProv":"NY", "czip":"14526"}
 
 def getConnInfo():
-    from dabo.db.connectInfo import ConnectInfo
-    ci = ConnectInfo('MySQL')
+    from dabo.db.dConnectInfo import dConnectInfo
+    ci = dConnectInfo('MySQL')
     ci.host = 'leafe.com'
     ci.dbName = "webtest"
     ci.user = 'test'
