@@ -1,4 +1,5 @@
 import xml.sax
+from StringIO import StringIO
 
 class specHandler(xml.sax.ContentHandler):
 	def __init__(self):
@@ -49,6 +50,8 @@ class specHandler(xml.sax.ContentHandler):
 	
 
 def importFieldSpecs(file=None, tbl=None):
+	if type(file) == str:
+		file = StringIO(file)
 	if file is None:
 		return None
 	sh = specHandler()
@@ -65,6 +68,8 @@ def importFieldSpecs(file=None, tbl=None):
 def importRelationSpecs(file=None):
 	if file is None:
 		return None
+	if type(file) == str:
+		file = StringIO(file)
 	sh = specHandler()
 	xml.sax.parse(file, sh)
 	ret = sh.getRelationDict()

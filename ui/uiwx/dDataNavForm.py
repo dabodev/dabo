@@ -351,21 +351,10 @@ class dDataNavForm(dForm.dForm):
 		specParser class. Since that class requires a file, this method will
 		create a temp file if raw XML is passed.
 		"""
-		# See if we were passed a file reference, or raw XML.
-		raw = not os.path.exists(xml)
-		if raw:
-			fname = "tmp" + str(random.randint(100000,1000000)) + ".fsxml"
-			open(fname, "w").write(xml)
-		else:
-			# A file reference was passed
-			fname = xml
-		
 		if specType.lower() == "relation":
-			ret = specParser.importRelationSpecs(fname)
+			ret = specParser.importRelationSpecs(xml)
 		else:
-			ret = specParser.importFieldSpecs(fname)
-		if raw:
-			os.remove(fname)
+			ret = specParser.importFieldSpecs(xml)
 		return ret
 		
 		
