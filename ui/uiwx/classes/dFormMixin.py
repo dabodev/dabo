@@ -73,7 +73,6 @@ class dFormMixin(pm.dPemMixin):
         Ask dApp for the last saved setting of height, width, left, and top, 
         and set those properties on this form.
         '''
-        dMessageBox.stop("restore: %s, %s" % (self.GetName(), self.dApp))
         if self.dApp:
             name = self.GetName()
             
