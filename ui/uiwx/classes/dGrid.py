@@ -21,16 +21,24 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def initTable(self):
-		self.relativeColumns = []
-		self.colLabels = []
-		self.colNames = []
-		self.dataTypes = []
-		self.imageBaseThumbnails = []
-		self.imageLists = {}
-		self.data = []
+ 		self.relativeColumns = []
+ 		self.colLabels = []
+ 		self.colNames = []
+ 		self.dataTypes = []
+ 		self.imageBaseThumbnails = []
+ 		self.imageLists = {}
+ 		self.data = []
 
+		# First massage the non-show columns out:
+		cd = self.grid.columnDefs
+		for col in range(len(cd)-1,0,-1):
+			if not cd[col]['showGrid']:
+				del cd[col]
+		self.grid.columnDefs = cd
+		
 		# Put column order in relative column order, if relative column order
-		# exists in dApp.getUserSettings(). 
+		# exists in dApp.getUserSettings().
+		self.relativeColumns = [] 
 		for column in range(len(self.grid.columnDefs)):
 			if self.grid.columnDefs[column]['showGrid']:
 				order = self.grid.form.dApp.getUserSetting("%s.%s.%s.%s" % (
@@ -38,11 +46,15 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 							self.grid.GetName(),
 							"Column%s" % column,
 							"ColumnOrder"))
-				if order == None:
-					order = column
+			else:
+				order = None
 				
-				self.relativeColumns.append(order)
+			if order == None:
+				order = column
 
+			self.relativeColumns.append(order)
+
+		
 		for relativeColumn in self.relativeColumns:
 			column = self.grid.columnDefs[relativeColumn]
 			if column['showGrid']:
@@ -50,7 +62,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				self.colNames.append(column["fieldName"])
 				self.dataTypes.append(self.getWxGridType(column["type"]))
 				
-	
+		
 	def fillTable(self):
 		""" Fill the grid's data table to match the bizobj.
 		"""
@@ -107,32 +119,36 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 		# Column widths come from dApp user settings, or get sensible
 		# defaults based on field type.
-		for index in range(len(self.relativeColumns)):
-			colName = "Column%s" % self.relativeColumns[index]
-			gridCol = index
-			fieldType = self.grid.columnDefs[self.relativeColumns[index]]['type']
+		index = 0
+		for relativeColumn in self.relativeColumns:
+			column = self.grid.columnDefs[relativeColumn]
+			if column['showGrid']:
+				colName = "Column%s" % relativeColumn
+				gridCol = index
+				fieldType = column['type']
 
-			width = self.grid.form.dApp.getUserSetting("%s.%s.%s.%s" % (
-						self.grid.form.GetName(), 
-						self.grid.GetName(),
-						colName,
-						"Width"))
+				width = self.grid.form.dApp.getUserSetting("%s.%s.%s.%s" % (
+							self.grid.form.GetName(), 
+							self.grid.GetName(),
+							colName,
+							"Width"))
 
-			if width == None:
-				minWidth = 10 * len(self.colLabels[index])   ## Fudge!
-				if fieldType == "I":
-					width = 50
-				elif fieldType == "N":
-					width = 75
-				elif fieldType == "L":
-					width = 75
-				else:
-					width = 200
+				if width == None:
+					minWidth = 10 * len(self.colLabels[index])   ## Fudge!
+					if fieldType == "I":
+						width = 50
+					elif fieldType == "N":
+						width = 75
+					elif fieldType == "L":
+						width = 75
+					else:
+						width = 200
 
-				if width < minWidth:
-					width = minWidth
+					if width < minWidth:
+						width = minWidth
 
-			self.grid.SetColSize(gridCol, width)
+				self.grid.SetColSize(gridCol, width)
+				index += 1
 		self.grid.EndBatch()
 
 
@@ -177,20 +193,25 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def MoveColumn(self, col, to):
 		""" Move the column to a new position.
 		"""
-		old = self.relativeColumns[col]
-		del self.relativeColumns[col]
+	
+ 		old = self.relativeColumns[col]
+ 		del self.relativeColumns[col]
 
 		if to > col:
 			self.relativeColumns.insert(to-1,old)
 		else:
 			self.relativeColumns.insert(to,old)
 
-		for index in range(len(self.relativeColumns)):
-			self.grid.form.dApp.setUserSetting("%s.%s.%s.%s" % (
-					self.grid.form.GetName(),
-					self.grid.GetName(),
-					"Column%s" % self.relativeColumns[index],
-					"ColumnOrder"), "I", "%s" % (index))
+		index = 0
+		for relativeColumn in self.relativeColumns:
+			column = self.grid.columnDefs[relativeColumn]
+			if column['showGrid']:
+				self.grid.form.dApp.setUserSetting("%s.%s.%s.%s" % (
+						self.grid.form.GetName(),
+						self.grid.GetName(),
+						"Column%s" % index,
+						"ColumnOrder"), "I", "%s" % (relativeColumn))
+			index += 1
 
 		self.initTable()
 		self.fillTable()
@@ -719,16 +740,7 @@ class dGrid(wx.grid.Grid):
 	def getColByX(self, x):
 		""" Given the x-coordinate, return the column number.
 		"""
-		totColSize = 0
-		for col in range(self.GetNumberCols()):
-			colSize = self.GetColSize(col)
-			totColSize += colSize
-			if x <= totColSize:
-				break
-
-		if x > totColSize:
-			return self.GetNumberCols() + 1
-		elif x < 0:
-			return -1
-		else:
-			return col
+		col = self.XToCol(x + (self.GetViewStart()[0]*self.GetScrollPixelsPerUnit()[0]))
+		if col == wx.NOT_FOUND:
+			col = -1
+		return col
