@@ -25,8 +25,7 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 
 
 	def initEvents(self):
-		#dCheckBox.doDefault()
-		self.super()
+		dCheckBox.doDefault()
 
 		# Respond to EVT_CHECKBOX and raise dEvents.Hit:
 		self.Bind(wx.EVT_CHECKBOX, self._onWxHit)

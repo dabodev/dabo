@@ -76,8 +76,7 @@ class dApp(dabo.common.dObject):
 	def __init__(self):
 		self._uiAlreadySet = False
 		dabo.dAppRef = self
-		#dApp.doDefault()
-		self.super()
+		dApp.doDefault()
 		self._initProperties()
 		
 ### PKM: commented this out as I don't understand the need for it		

@@ -107,23 +107,3 @@ class autosuper (object):
     super = property(fget=_getSuper,
                      doc=_getSuper.__doc__.strip())
 
-
-if __name__=="__main__":
-	class A(autosuper):
-		def fun1(self):
-			print "A"
-			self.super()   ## TypeError
-
-	class B(A):
-		def fun1(self):
-			print "B"
-			self.super()
-
-	class C(B): pass    ## recursion
-
-	# class C(B):
-	#	def fun1(self):
-	#		print "C"
-	#		self.super()
-	t = C()
-	t.fun1()
