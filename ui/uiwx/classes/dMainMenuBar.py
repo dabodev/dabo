@@ -86,13 +86,13 @@ class FileOpenMenu(wx.Menu):
 class FileMenu(wx.Menu):
     def __init__(self, mainFrame):
         wx.Menu.__init__(self)
-        Id = 23
-        self.AppendMenu(Id, "&Open\tCtrl+O", FileOpenMenu(mainFrame))
-
-        Id = wx.NewId()
-        self.Append(Id, "&New Record\tCtrl+N", "Add a new record in the current window.")
-        #wx.EVT_MENU(mainFrame, Id,  mainFrame.OnNewRecord)
-        
+#         Id = 23
+#         self.AppendMenu(Id, "&Open\tCtrl+O", FileOpenMenu(mainFrame))
+# 
+#         Id = wx.NewId()
+#         self.Append(Id, "&New Record\tCtrl+N", "Add a new record in the current window.")
+#         #wx.EVT_MENU(mainFrame, Id,  mainFrame.OnNewRecord)
+#         
         Id = wx.NewId()
         self.Append(Id, "E&xit", "Exit")
         wx.EVT_MENU(mainFrame, Id,  mainFrame.dApp.actionList.getAction("FileExit")["func"])
@@ -120,3 +120,20 @@ class dMainMenuBar(wx.MenuBar):
         self.Append(FileMenu(mainFrame), "&File")
         self.Append(EditMenu(mainFrame), "&Edit")
         self.Append(HelpMenu(mainFrame), "&Help")
+        
+        self._activeFormMenuExists = False
+    
+    def replaceActiveFormMenu(self, form):
+        menu = form.getMenu()
+        menuCaption = form.menuLabel
+        if self._activeFormMenuExists:
+            self.Replace(self.GetMenuCount()-2, menu, menuCaption)               
+        else:
+            self.Insert(self.GetMenuCount()-1, menu, menuCaption)
+        self._activeFormMenuExists = True
+
+    def removeActiveFormMenu(self):
+        print self.GetMenuCount()
+        menu = self.Remove(self.GetMenuCount()-2)
+        menu.Destroy()
+        self._activeFormMenuExists = False

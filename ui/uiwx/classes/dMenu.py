@@ -1,3 +1,5 @@
 ''' dMenu.py '''
+import wx
 
-def dMenu():pass
+class dMenu(wx.Menu):
+    pass

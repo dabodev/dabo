@@ -90,6 +90,7 @@ class dApp(object):
         
         self.uiApp = self.uiModule.uiApp()
         self.uiApp.setup(self)
+        self.mainFrame = self.uiApp.mainFrame
 
     def start(self):
         """ 

@@ -15,6 +15,7 @@ class dFormMain(wx.Frame, dFormMixin):
             self.SetLabel("%s Version %s" % (self.dApp.getAppInfo("appName"),
                                              self.dApp.getAppInfo("appVersion")))
         else:
+            self.SetLabel("Dabo")
             self.SetStatusText("Welcome to Dabo!")
         
         self.SetMenuBar(dMainMenuBar(self))
@@ -29,6 +30,8 @@ class dFormMain(wx.Frame, dFormMixin):
             pass
         statusBar.PushStatusText(message)
         statusBar.Update()  # Refresh() doesn't work, and this is only needed sometimes.
+    
+ 
         
 if __name__ == "__main__":
     import test

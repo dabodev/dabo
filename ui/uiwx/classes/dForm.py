@@ -20,12 +20,11 @@ class dForm(wx.Dialog, dFormMixin):
                           wx.RESIZE_BORDER)
         self.SetName(name)
         self.SetLabel(name)
-        
-        try:
+
+        if parent:        
             dApp = parent.dApp
-        except:
+        else:
             dApp = None
-        
         dFormMixin.__init__(self, dApp)
         
         self.debug = False
@@ -38,12 +37,19 @@ class dForm(wx.Dialog, dFormMixin):
         self.dControls = {}
         
         self._setupResources(resourceString)
-    
+        
     
     def EVT_VALUEREFRESH(win, id, func):
         win.Connect(id, -1, dEvents.EVT_VALUEREFRESH, func)
-            
     
+    def getMenu(self):
+        menu = dFormMixin.getMenu(self)
+        if self.primaryBizobj:
+            menuId = wx.NewId()
+            menu.Append(menuId, "Requery")
+            wx.EVT_MENU(self.dApp.mainFrame, menuId, self.onRequery)
+        return menu
+        
     def addBizobj(self, bizobj):
         ''' dForm.addBizobj(bizobj) -> None
         
@@ -184,7 +190,12 @@ class dForm(wx.Dialog, dFormMixin):
                 print bizobj.getErrorMsg()
             ### TODO: What should be done here? Raise an exception?
             ###       Prompt the user for a response?
-            
+    
+    def onRequery(self, event):
+        self.requery()
+        self.Raise()
+        event.Skip()
+                
     def requery(self):
         ''' dForm.requery() -> None
         
@@ -289,6 +300,7 @@ class dForm(wx.Dialog, dFormMixin):
         # As we haven't even defined our resource file
         # format yet, this is just a stub.
         pass
+    
         
 if __name__ == "__main__":
     import test
