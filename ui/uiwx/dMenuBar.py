@@ -31,7 +31,8 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 		##      to be identical to EVT_MENU_HIGHLIGHT. Therefore, as of this writing
 		##      we are exposing two menu events: dEvents.Hit and dEvents.Highlight.
 		menu = evt.GetMenu()
-		menu.raiseEvent(dEvents.MenuHighlight)
+		if menu:
+			menu.raiseEvent(dEvents.MenuHighlight)
 		evt.Skip()
 
 

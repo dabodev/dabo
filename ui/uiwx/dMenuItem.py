@@ -37,7 +37,6 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 
 	def __onWxHit(self, evt):
 		self.raiseEvent(dEvents.Hit)
-		evt.Skip()
 
 
 	def _getCaption(self):
