@@ -6,7 +6,6 @@ There is a dGridDataTable definition here as well, that defines
 the 'data' that gets displayed in the grid.
 '''
 import wx, wx.grid
-import wx.lib.gridmovers as gridmovers
 import urllib
 
 class dGridDataTable(wx.grid.PyGridTableBase):
@@ -252,10 +251,6 @@ class dGrid(wx.grid.Grid):
         self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.OnRightClick)
         self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.OnColSize)
         
-        # Enable Column moving   NO! it disables left-click column sorting
-        #gridmovers.GridColMover(self)
-        #self.Bind(gridmovers.EVT_GRID_COL_MOVE, self.OnColMove)
-
         self.initHeader()
         
     
