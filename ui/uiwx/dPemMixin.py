@@ -259,161 +259,6 @@ class dPemMixin(dPemMixinBase):
 
 	# Property get/set/delete methods follow.
 
-	def _getFont(self):
-		return self._pemObject.GetFont()
-	
-	def _getFontEditorInfo(self):
-		return {'editor': 'font'}
-	
-	def _setFont(self, font):
-		self._pemObject.SetFont(font)
-
-		
-	def _getFontInfo(self):
-		return self._pemObject.GetFont().GetNativeFontInfoDesc()
-
-	def _getFontBold(self):
-		return self._pemObject.GetFont().GetWeight() == wx.BOLD
-	def _setFontBold(self, fontBold):
-		font = self._pemObject.GetFont()
-		if fontBold:
-			font.SetWeight(wx.BOLD)
-		else:
-			font.SetWeight(wx.LIGHT)    # wx.NORMAL doesn't seem to work...
-		self._pemObject.SetFont(font)
-
-	def _getFontItalic(self):
-		return self._pemObject.Font.GetStyle() == wx.ITALIC
-	def _setFontItalic(self, fontItalic):
-		font = self._pemObject.Font
-		if fontItalic:
-			font.SetStyle(wx.ITALIC)
-		else:
-			font.SetStyle(wx.NORMAL)
-		self._pemObject.Font = font
-
-	def _getFontFace(self):
-		return self._pemObject.Font.GetFaceName()
-
-	def _getFontSize(self):
-		return self._pemObject.Font.GetPointSize()
-	def _setFontSize(self, fontSize):
-		font = self._pemObject.Font
-		font.SetPointSize(int(fontSize))
-		self._pemObject.Font = font
-
-	def _getFontUnderline(self):
-		return self._pemObject.Font.GetUnderlined()
-	def _setFontUnderline(self, val):
-		# underlining doesn't seem to be working...
-		font = self._pemObject.Font
-		font.SetUnderlined(bool(val))
-		self._pemObject.Font = font
-
-
-	def _getTop(self):
-		return self._pemObject.GetPosition()[1]
-	def _setTop(self, top):
-		self.SetPosition((self._pemObject.Left, int(top)))
-
-	def _getLeft(self):
-		return self._pemObject.GetPosition()[0]
-	def _setLeft(self, left):
-		self._pemObject.SetPosition((int(left), self._pemObject.Top))
-
-	def _getPosition(self):
-		return self._pemObject.GetPosition()
-
-	def _setPosition(self, position):
-		self._pemObject.SetPosition(position)
-
-	
-	def _getWidth(self):
-		return self._pemObject.GetSize()[0]
-
-	def _getWidthEditorInfo(self):
-		return {'editor': 'integer', 'min': 0, 'max': 8192}
-
-	def _setWidth(self, width):
-		self._pemObject.SetSize((int(width), self._pemObject.GetSize()[1]))
-		if not isinstance(self, wx.Frame):
-			self._pemObject.SetMinSize(self._pemObject.GetSize())
-
-
-	def _getHeight(self):
-		return self._pemObject.GetSize()[1]
-
-	def _getHeightEditorInfo(self):
-		return {'editor': 'integer', 'min': 0, 'max': 8192}
-
-	def _setHeight(self, height):
-		self._pemObject.SetSize((self._pemObject.GetSize()[0], int(height)))
-		if not isinstance(self, wx.Frame):
-			self._pemObject.SetMinSize(self._pemObject.GetSize())
-
-
-	def _getSize(self): 
-		return self._pemObject.GetSize()
-
-	def _setSize(self, size):
-		self._pemObject.SetSize(size)
-		if not isinstance(self, wx.Frame):
-			self._pemObject.SetMinSize(size)
-
-	def _getName(self):
-		name = self._pemObject.GetName()
-		self._name = name      # keeps name available even after C++ object is gone.
-		return name
-	
-	def _setName(self, name):
-		parent = self._pemObject.GetParent()
-		if parent:
-			if not self.Application or self.Application.AutoNegotiateUniqueNames:
-				i = 0
-				while True:
-					nameError = False
-					if i == 0:
-						candidate = name
-					else:
-						candidate = '%s%s' % (name, i)
-
-					for window in self._pemObject.GetParent().GetChildren():
-						if window.GetName() == candidate and window != self:
-							nameError = True
-							break
-					if nameError:
-						i += 1
-					else:
-						name = candidate
-						break
-			else:
-				raise NameError, "A unique object name is required."
-				
-		else:
-			# Can't do the name check for siblings, so allow it for now.
-			# This problem would only apply to top-level forms, so it really
-			# wouldn't matter anyway in a practical sense.
-			pass					
-
-		self._pemObject.SetName(str(name))
-		self._name = self._pemObject.GetName()
-
-	def _getCaption(self):
-		return self._pemObject.GetLabel()
-	def _setCaption(self, caption):
-		self._pemObject.SetLabel(str(caption))
-
-		# Frames have a Title separate from Label, but I can't think
-		# of a reason why that would be necessary... can you? 
-		self._pemObject.SetTitle(str(caption))
-
-
-	def _getEnabled(self):
-		return self._pemObject.IsEnabled()
-	def _setEnabled(self, value):
-		self._pemObject.Enable(value)
-
-
 	def _getBackColor(self):
 		return self._pemObject.GetBackgroundColour()
 
@@ -427,63 +272,6 @@ class dPemMixin(dPemMixinBase):
 			# an automatic refresh.
 			self.Refresh()
 
-
-	def _getForeColor(self):
-		return self._pemObject.GetForegroundColour()
-
-	def _getForeColorEditorInfo(self):
-		return {'editor': 'colour'}
-
-	def _setForeColor(self, value):
-		self._pemObject.SetForegroundColour(value)
-
-	
-	def _getMousePointer(self):
-		return self._pemObject.GetCursor()
-	def _setMousePointer(self, value):
-		self._pemObject.SetCursor(value)
-
-
-	def _getToolTipText(self):
-		t = self._pemObject.GetToolTip()
-		if t:
-			return t.GetTip()
-		else:
-			return ''
-
-	def _getToolTipTextEditorInfo(self):
-		return {'editor': 'string', 'len': 8192}
-
-	def _setToolTipText(self, value):
-		t = self._pemObject.GetToolTip()
-		if t:
-			t.SetTip(value)
-		else:
-			if value:
-				t = wx.ToolTip(str(value))
-				self._pemObject.SetToolTip(t)
-
-
-	def _getHelpContextText(self):
-		return self._pemObject.GetHelpText()
-	def _setHelpContextText(self, value):
-		self._pemObject.SetHelpText(str(value))
-
-
-	def _getVisible(self):
-		return self._pemObject.IsShown()
-	def _setVisible(self, value):
-		self._pemObject.Show(bool(value))
-
-	def _getParent(self):
-		return self._pemObject.GetParent()
-	def _setParent(self, newParentObject):
-		# Note that this isn't allowed in the property definition, however this
-		# is how we'd do it *if* it were allowed <g>:
-		self._pemObject.Reparent(newParentObject)
-
-	def _getWindowHandle(self):
-		return self._pemObject.GetHandle()
 
 	def _getBorderStyle(self):
 		if self.hasWindowStyleFlag(wx.RAISED_BORDER):
@@ -532,79 +320,336 @@ class dPemMixin(dPemMixinBase):
 		else:
 			raise ValueError, ("The only possible values are 'None', "
 							"'Simple', 'Sunken', and 'Raised.'")
+	
+	
+	def _getCaption(self):
+		return self._pemObject.GetLabel()
+	
+	def _setCaption(self, caption):
+		self._pemObject.SetLabel(str(caption))
+
+		# Frames have a Title separate from Label, but I can't think
+		# of a reason why that would be necessary... can you? 
+		self._pemObject.SetTitle(str(caption))
+
+
+	def _getEnabled(self):
+		return self._pemObject.IsEnabled()
+	
+	def _setEnabled(self, value):
+		self._pemObject.Enable(value)
+
+
+	def _getFont(self):
+		return self._pemObject.GetFont()
+	
+	def _getFontEditorInfo(self):
+		return {'editor': 'font'}
+	
+	def _setFont(self, font):
+		self._pemObject.SetFont(font)
+
+	
+	def _getFontBold(self):
+		return self._pemObject.GetFont().GetWeight() == wx.BOLD
+	
+	def _setFontBold(self, fontBold):
+		font = self._pemObject.GetFont()
+		if fontBold:
+			font.SetWeight(wx.BOLD)
+		else:
+			font.SetWeight(wx.LIGHT)    # wx.NORMAL doesn't seem to work...
+		self._pemObject.SetFont(font)
+
+		
+	def _getFontInfo(self):
+		return self._pemObject.GetFont().GetNativeFontInfoDesc()
+
+		
+	def _getFontItalic(self):
+		return self._pemObject.Font.GetStyle() == wx.ITALIC
+	
+	def _setFontItalic(self, fontItalic):
+		font = self._pemObject.Font
+		if fontItalic:
+			font.SetStyle(wx.ITALIC)
+		else:
+			font.SetStyle(wx.NORMAL)
+		self._pemObject.Font = font
+
+	
+	def _getFontFace(self):
+		return self._pemObject.Font.GetFaceName()
+
+	
+	def _getFontSize(self):
+		return self._pemObject.Font.GetPointSize()
+	
+	def _setFontSize(self, fontSize):
+		font = self._pemObject.Font
+		font.SetPointSize(int(fontSize))
+		self._pemObject.Font = font
+
+	
+	def _getFontUnderline(self):
+		return self._pemObject.Font.GetUnderlined()
+	
+	def _setFontUnderline(self, val):
+		# underlining doesn't seem to be working...
+		font = self._pemObject.Font
+		font.SetUnderlined(bool(val))
+		self._pemObject.Font = font
+
+
+	def _getForeColor(self):
+		return self._pemObject.GetForegroundColour()
+
+	def _getForeColorEditorInfo(self):
+		return {'editor': 'colour'}
+
+	def _setForeColor(self, value):
+		self._pemObject.SetForegroundColour(value)
+
+	
+	def _getHeight(self):
+		return self._pemObject.GetSize()[1]
+
+	def _getHeightEditorInfo(self):
+		return {'editor': 'integer', 'min': 0, 'max': 8192}
+
+	def _setHeight(self, height):
+		self._pemObject.SetSize((self._pemObject.GetSize()[0], int(height)))
+		if not isinstance(self, wx.Frame):
+			self._pemObject.SetMinSize(self._pemObject.GetSize())
+
+
+	def _getHelpContextText(self):
+		return self._pemObject.GetHelpText()
+	
+	def _setHelpContextText(self, value):
+		self._pemObject.SetHelpText(str(value))
+
+
+	def _getLeft(self):
+		return self._pemObject.GetPosition()[0]
+	
+	def _setLeft(self, left):
+		self._pemObject.SetPosition((int(left), self._pemObject.Top))
+
+		
+	def _getMousePointer(self):
+		return self._pemObject.GetCursor()
+	
+	def _setMousePointer(self, value):
+		self._pemObject.SetCursor(value)
+
+
+	def _getName(self):
+		name = self._pemObject.GetName()
+		self._name = name      # keeps name available even after C++ object is gone.
+		return name
+	
+	def _setName(self, name):
+		parent = self._pemObject.GetParent()
+		if parent:
+			if not self.Application or self.Application.AutoNegotiateUniqueNames:
+				i = 0
+				while True:
+					nameError = False
+					if i == 0:
+						candidate = name
+					else:
+						candidate = '%s%s' % (name, i)
+
+					for window in self._pemObject.GetParent().GetChildren():
+						if window.GetName() == candidate and window != self:
+							nameError = True
+							break
+					if nameError:
+						i += 1
+					else:
+						name = candidate
+						break
+			else:
+				raise NameError, "A unique object name is required."
+				
+		else:
+			# Can't do the name check for siblings, so allow it for now.
+			# This problem would only apply to top-level forms, so it really
+			# wouldn't matter anyway in a practical sense.
+			pass					
+
+		self._pemObject.SetName(str(name))
+		self._name = self._pemObject.GetName()
+
+	
+	def _getParent(self):
+		return self._pemObject.GetParent()
+	
+	def _setParent(self, newParentObject):
+		# Note that this isn't allowed in the property definition, however this
+		# is how we'd do it *if* it were allowed <g>:
+		self._pemObject.Reparent(newParentObject)
+
+		
+	def _getPosition(self):
+		return self._pemObject.GetPosition()
+
+	def _setPosition(self, position):
+		self._pemObject.SetPosition(position)
+
+	
+	def _getSize(self): 
+		return self._pemObject.GetSize()
+
+	def _setSize(self, size):
+		self._pemObject.SetSize(size)
+		if not isinstance(self, wx.Frame):
+			self._pemObject.SetMinSize(size)
+
+	
+	def _getSizer(self):
+		return self.GetSizer()
+		
+	def _setSizer(self, val):
+		self.SetSizer(val)
+			
+		
+	def _getToolTipText(self):
+		t = self._pemObject.GetToolTip()
+		if t:
+			return t.GetTip()
+		else:
+			return ''
+
+	def _getToolTipTextEditorInfo(self):
+		return {'editor': 'string', 'len': 8192}
+
+	def _setToolTipText(self, value):
+		t = self._pemObject.GetToolTip()
+		if t:
+			t.SetTip(value)
+		else:
+			if value:
+				t = wx.ToolTip(str(value))
+				self._pemObject.SetToolTip(t)
+
+
+	def _getTop(self):
+		return self._pemObject.GetPosition()[1]
+	
+	def _setTop(self, top):
+		self.SetPosition((self._pemObject.Left, int(top)))
+
+	
+	def _getVisible(self):
+		return self._pemObject.IsShown()
+	
+	def _setVisible(self, value):
+		self._pemObject.Show(bool(value))
+
+		
+	def _getWidth(self):
+		return self._pemObject.GetSize()[0]
+
+	def _getWidthEditorInfo(self):
+		return {'editor': 'integer', 'min': 0, 'max': 8192}
+
+	def _setWidth(self, width):
+		self._pemObject.SetSize((int(width), self._pemObject.GetSize()[1]))
+		if not isinstance(self, wx.Frame):
+			self._pemObject.SetMinSize(self._pemObject.GetSize())
+
+
+	def _getWindowHandle(self):
+		return self._pemObject.GetHandle()
+
 
 
 	# Property definitions follow
-	WindowHandle = property(_getWindowHandle, None, None,
-					'The platform-specific handle for the window. Read-only. (long)')
+	BackColor = property(_getBackColor, _setBackColor, None,
+		'Specifies the background color of the object. (tuple)')
+
+	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
+		'Specifies the type of border for this window. (int). \n'
+		'     None \n'
+		'     Simple \n'
+		'     Sunken \n'
+		'     Raised')
+	
+	Caption = property(_getCaption, _setCaption, None, 
+		'The caption of the object. (str)')
+	
+	Enabled = property(_getEnabled, _setEnabled, None,
+		'Specifies whether the object (and its children) can get user input. (bool)')
 
 	Font = property(_getFont, _setFont, None,
-					'The font properties of the object. (obj)')
-	FontInfo = property(_getFontInfo, None, None,
-					'Specifies the platform-native font info string. Read-only. (str)')
+		'The font properties of the object. (obj)')
+	
 	FontBold = property(_getFontBold, _setFontBold, None,
-					'Specifies if the font is bold-faced. (bool)')
-	FontItalic = property(_getFontItalic, _setFontItalic, None,
-					'Specifies whether font is italicized. (bool)')
+		'Specifies if the font is bold-faced. (bool)')
+	
 	FontFace = property(_getFontFace, None, None,
-					'Specifies the font face. (str)')
+		'Specifies the font face. (str)')
+	
+	FontInfo = property(_getFontInfo, None, None,
+		'Specifies the platform-native font info string. Read-only. (str)')
+	
+	FontItalic = property(_getFontItalic, _setFontItalic, None,
+		'Specifies whether font is italicized. (bool)')
+	
 	FontSize = property(_getFontSize, _setFontSize, None,
-					'Specifies the point size of the font. (int)')
+		'Specifies the point size of the font. (int)')
+	
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
-					'Specifies whether text is underlined. (bool)')
+		'Specifies whether text is underlined. (bool)')
+
+	ForeColor = property(_getForeColor, _setForeColor, None,
+		'Specifies the foreground color of the object. (tuple)')
+
+	Height = property(_getHeight, _setHeight, None,
+		'The height of the object. (int)')
+	
+	HelpContextText = property(_getHelpContextText, _setHelpContextText, None,
+		'Specifies the context-sensitive help text associated with this window. (str)')
+	
+	Left = property(_getLeft, _setLeft, None,
+		'The left position of the object. (int)')
+	
+	MousePointer = property(_getMousePointer, _setMousePointer, None,
+		'Specifies the shape of the mouse pointer when it enters this window. (obj)')
+	
+ 	Name = property(_getName, _setName, None, 
+		'The name of the object. (str)')
+	
+	Parent = property(_getParent, _setParent, None,	
+		'The containing object. (obj)')
+
+	Position = property(_getPosition, _setPosition, None, 
+		'The (x,y) position of the object. (tuple)')
+
+	Size = property(_getSize, _setSize, None,
+		'The size of the object. (tuple)')
+
+	Sizer = property(_getSizer, _setSizer, None, 
+		'The sizer for the object.')
+		
+	ToolTipText = property(_getToolTipText, _setToolTipText, None,
+		'Specifies the tooltip text associated with this window. (str)')
 
 	Top = property(_getTop, _setTop, None, 
-					'The top position of the object. (int)')
-	Left = property(_getLeft, _setLeft, None,
-					'The left position of the object. (int)')
-	Position = property(_getPosition, _setPosition, None, 
-					'The (x,y) position of the object. (tuple)')
+		'The top position of the object. (int)')
+	
+	Visible = property(_getVisible, _setVisible, None,
+		'Specifies whether the object is visible at runtime. (bool)')                    
 
 	Width = property(_getWidth, _setWidth, None,
 					'The width of the object. (int)')
-	Height = property(_getHeight, _setHeight, None,
-					'The height of the object. (int)')
-	Size = property(_getSize, _setSize, None,
-					'The size of the object. (tuple)')
-
-
-	Caption = property(_getCaption, _setCaption, None, 
-					'The caption of the object. (str)')
-
-	Enabled = property(_getEnabled, _setEnabled, None,
-					'Specifies whether the object (and its children) can get user input. (bool)')
-
-	Visible = property(_getVisible, _setVisible, None,
-					'Specifies whether the object is visible at runtime. (bool)')                    
-
-					
-	BackColor = property(_getBackColor, _setBackColor, None,
-					'Specifies the background color of the object. (tuple)')
-
-	ForeColor = property(_getForeColor, _setForeColor, None,
-					'Specifies the foreground color of the object. (tuple)')
-
-	MousePointer = property(_getMousePointer, _setMousePointer, None,
-					'Specifies the shape of the mouse pointer when it enters this window. (obj)')
 	
- 	Name = property(_getName, _setName, None, 
- 					'The name of the object. (str)')
-	
-	Parent = property(_getParent, _setParent, None,	
-					'The containing object. (obj)')
+	WindowHandle = property(_getWindowHandle, None, None,
+					'The platform-specific handle for the window. Read-only. (long)')
 
-	ToolTipText = property(_getToolTipText, _setToolTipText, None,
-					'Specifies the tooltip text associated with this window. (str)')
 
-	HelpContextText = property(_getHelpContextText, _setHelpContextText, None,
-					'Specifies the context-sensitive help text associated with this window. (str)')
-
-	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
-					'Specifies the type of border for this window. (int). \n'
-					'     None \n'
-					'     Simple \n'
-					'     Sunken \n'
-					'     Raised')
 
 
 if __name__ == "__main__":

@@ -11,6 +11,7 @@ class dFormMixin(pm.dPemMixin):
 		dFormMixin.doDefault()
 		
 		self.debugText = ""
+		self.useOldDebugDialog = False
 		self.restoredSP = False
 
 		if self.Application:
@@ -63,19 +64,24 @@ class dFormMixin(pm.dPemMixin):
 
 	def onDebugDlg(self, evt):
 		# Handy hook for getting info.
-		dlg = wx.TextEntryDialog(self, "Command to Execute", "Debug", self.debugText)
-		if dlg.ShowModal() == wx.ID_OK:
-			self.debugText = dlg.GetValue()
-			try:
-				# Handy shortcuts for common references
-				try: bo = self.getBizobj()
-				except: pass
-				exec(self.debugText)
-			except StandardError, e: 
-				dabo.infoLog.write(_("Could not execute: %s") % self.debugText)
-				dabo.errorLog.write(e)
-				
-		dlg.Destroy()	
+		if self.useOldDebugDialog:
+			dlg = wx.TextEntryDialog(self, "Command to Execute", "Debug", self.debugText)
+			if dlg.ShowModal() == wx.ID_OK:
+				self.debugText = dlg.GetValue()
+				try:
+					# Handy shortcuts for common references
+					try: bo = self.getBizobj()
+					except: pass
+					exec(self.debugText)
+				except StandardError, e: 
+					dabo.infoLog.write(_("Could not execute: %s") % self.debugText)
+					dabo.errorLog.write(e)
+
+			dlg.Destroy()	
+			
+		else:
+			dlg = dabo.ui.dShell.dShell(self)
+			dlg.Show()
 
 
 	def getMenu(self):
