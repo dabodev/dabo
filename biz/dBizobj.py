@@ -1124,10 +1124,10 @@ class dBizobj(dabo.common.dObject):
 	### -------------- Property Definitions ------------------  ##
 	
 	RowNumber = property(_getRowNumber, _setRowNumber, None, 
-			"The current position of the record pointer in the result set. (int)"
+			"The current position of the record pointer in the result set. (int)")
 
 	RowCount = property(_getRowCount, None, None, 
-			"The number of records in the cursor's data set. It will be -1 if the cursor hasn't run any successful queries yet. (int)"
+			"The number of records in the cursor's data set. It will be -1 if the cursor hasn't run any successful queries yet. (int)")
 
 	Caption = property(_getCaption, _setCaption, None,
 				"The friendly title of the cursor, used in messages to the end user. (str)")
