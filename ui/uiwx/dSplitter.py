@@ -195,8 +195,27 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 	
 	def _getPanel1(self):
 		return self.__p1
+	def _setPanel1(self, pnl):
+		splt = self.IsSplit()
+		if splt:
+			self.unsplit(self.__p1)
+		if self.__p1:
+			self.__p1.Destroy()
+		self.__p1 = pnl
+		if splt:
+			self.split()
+
 	def _getPanel2(self):
 		return self.__p2
+	def _setPanel2(self, pnl):
+		splt = self.IsSplit()
+		if splt:
+			self.unsplit(self.__p2)
+		if self.__p2:
+			self.__p2.Destroy()
+		self.__p2 = pnl
+		if splt:
+			self.split()
 	
 	def _getSashPosition(self):
 		if self.IsSplit():
@@ -211,9 +230,9 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 			"Controls the minimum width/height of the panels.  (int)")
 	Orientation = property(_getOrientation, _setOrientation, None,
 			"Determines if the window splits Horizontally or Vertically.  (string)")
-	Panel1 = property(_getPanel1, None, None,
+	Panel1 = property(_getPanel1, _setPanel1, None,
 			"Returns the Top/Left panel.  (SplitterPanel)" )
-	Panel2 = property(_getPanel2, None, None,
+	Panel2 = property(_getPanel2, _setPanel2, None,
 			"Returns the Bottom/Right panel.  (SplitterPanel)" )
 	SashPosition = property(_getSashPosition, _setSashPosition, None,
 			"Position of the sash when the window is split.  (int)")
