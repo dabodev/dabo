@@ -1,7 +1,7 @@
 """ dPage.py """
 import wx, dPanel
 
-class dPage(dPanel.dPanel):
+class dPage(dPanel.dScrollPanel):
 	""" Create a page to appear as a tab in a dPageFrame.
 	"""
 	def __init__(self, parent, name="dPage"):
@@ -37,7 +37,9 @@ class dPage(dPanel.dPanel):
 		if not self.itemsCreated:
 			self.createItems()
 			self.itemsCreated = True
-
+		self.GetSizer().Layout()
+		self.SetSize((-1,-1))		# Needed on Linux to get the sizer to layout.
+		
 
 	def onLeavePage(self):
 		""" Occurs when this page will no longer be the active page.

@@ -306,29 +306,36 @@ class dBrowsePage(dPage.dPage):
 
 
 	def onRowNumChanged(self, event):
-		# If RowNumChanged is received AND we are the
-		# active page, select the row in the grid
-		pf = self.GetParent()
-		if not self.itemsCreated:
-			self.createItems()
-		if self.itemsCreated and pf.GetPage(pf.GetSelection()) == self:
-			self.fillGrid()
-
-		row = self.getDform().getBizobj().getRowNumber()
-		col = self.grid.GetGridCursorCol()
-		self.grid.SetGridCursor(row, col)
-		self.grid.MakeCellVisible(row, col)
-
+		# If RowNumChanged is received AND we are the active page, select
+		# the row in the grid.
+		
+		# If we aren't the active page, strange things can happen if we
+		# don't explicitly SetFocus back to the active page. 
+		activePage = self.GetParent().GetPage(self.GetParent().GetSelection())
+		if activePage == self:
+			self.updateGrid()
+		else:
+			activePage.SetFocus()
 		event.Skip()
 
 
-	def onEnterPage(self):
+	def updateGrid(self):
 		bizobj = self.getDform().getBizobj()
 		if bizobj and bizobj.getRowCount() >= 0:
 			if not self.itemsCreated:
 				self.createItems()
-		if self.itemsCreated:
-			self.fillGrid()
+			if self.itemsCreated:
+				self.fillGrid()
+
+			row = self.getDform().getBizobj().getRowNumber()
+			col = self.grid.GetGridCursorCol()
+			self.grid.SetGridCursor(row, col)
+			self.grid.MakeCellVisible(row, col)
+
+		
+	def onEnterPage(self):
+		self.updateGrid()
+		dBrowsePage.doDefault()
 
 
 	def createItems(self):
@@ -344,7 +351,6 @@ class dBrowsePage(dPage.dPage):
 		self.cmdPreview.Bind(wx.EVT_BUTTON, self.onPreview)
 		self.GetSizer().Add(self.cmdPreview, 0, 0)
 		
-		self.GetSizer().Layout()
 		self.itemsCreated = True
 
 
@@ -399,8 +405,8 @@ class dEditPage(dPage.dPage):
 
 
 	def onEnterPage(self):
-		dEditPage.doDefault()
 		self.onValueRefresh()
+		dEditPage.doDefault()
 
 
 	def onValueRefresh(self, event=None):
@@ -490,6 +496,7 @@ class dChildViewPage(dPage.dPage):
 				self.createItems()
 		if self.itemsCreated:
 			self.fillGrid()
+		dChildViewPage.doDefault()
 	
 	
 	def onRowNumChanged(self, event):
