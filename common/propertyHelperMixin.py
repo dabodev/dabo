@@ -127,6 +127,15 @@ class PropertyHelperMixin(object):
 		""" Returns the list of properties for this object (class or instance).
 		"""
 		## pkm: check out revision 927 if you have problems.
+		try:
+			propList = classOrInstance.__propList
+		except:
+			propList = None
+
+		if type(propList) == list:
+			## A prior call has already generated the propList
+			return propList
+
 		propList = []
 		for c in classOrInstance.__mro__:
 			for item in dir(c):
@@ -134,6 +143,7 @@ class PropertyHelperMixin(object):
 					if type(c.__dict__[item]) == property:
 						if propList.count(item) == 0:
 							propList.append(item)
+		classOrInstance.__propList = propList
 		return propList
 	getPropertyList = classmethod(getPropertyList)
 
