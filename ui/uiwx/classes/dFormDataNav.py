@@ -114,7 +114,7 @@ class dFormDataNav(dForm):
                           bitmap=dIcons.getIconBitmap("blank"))
         self._appendToMenu(menu, "Delete Current Record", 
                           self.onDelete, 
-                          bitmap=dIcons.getIconBitmap("remove"))
+                          bitmap=dIcons.getIconBitmap("delete"))
         return menu
         
         

@@ -72,6 +72,7 @@ class dProgressDialog(wx.Dialog):
         wx.Dialog.__init__(self,parent,-1,caption,style=0)
 
         self.Centre(wx.BOTH)
+        self.SetSize((300,100))
         
         self.status = wx.StaticText(self,-1,'',pos=(0,100))
 

@@ -10,7 +10,9 @@ class dMessageBox(wx.MessageDialog):
     def __init__(self, message, title, style):
         mainForm = wx.GetApp().GetTopWindow()
         wx.MessageDialog.__init__(self, mainForm, message, title, style)
-
+        
+        # This causes a segfault: bug reported to wxPython-dev
+        #self.Centre(wx.BOTH)
 
 def areYouSure(message="Are you sure?", defaultNo=False, cancelButton=False):
     style = wx.YES_NO|wx.ICON_QUESTION
@@ -39,6 +41,6 @@ def stop(message="Stop"):
     
 if __name__ == "__main__":
     app = wx.PySimpleApp()
-    print dAreYouSure("Are you happy?")
-    print dAreYouSure("Are you sure?", cancelButton=True)
-    print dAreYouSure("So you aren't sad?", defaultNo=True)
+    print areYouSure("Are you happy?")
+    print areYouSure("Are you sure?", cancelButton=True)
+    print areYouSure("So you aren't sad?", defaultNo=True)

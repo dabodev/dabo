@@ -223,10 +223,10 @@ class dGrid(wx.grid.Grid):
             dc.SetTextForeground(wx.BLACK)
             colSize = self.GetColSize(col)
             rect = (totColSize,0,colSize,32)
-            dc.DrawRectangle(rect[0] - (col<>0 and 1 or 0), 
-                             rect[1], 
-                             rect[2] + (col<>0 and 1 or 0), 
-                             rect[3])
+            dc.DrawRectangle((rect[0] - (col<>0 and 1 or 0), 
+                             rect[1]), 
+                             (rect[2] + (col<>0 and 1 or 0), 
+                             rect[3]))
             totColSize += colSize
             
             if col == self.sortedColumn:
@@ -325,8 +325,7 @@ class dGrid(wx.grid.Grid):
             elif char and char.isalnum() and not evt.HasModifiers():
                 self.addToIncrementalSearch(char)
             else:
-                pass
-            evt.Skip()
+                evt.Skip()
 
             
     def newRecord(self, event=None):

@@ -250,7 +250,7 @@ class dBizobj(object):
             # validation, an error will be raised.
             self.validate()
         except dError, e:
-            return dError, e
+            raise dError, e
             
         # See if we are saving a newly added record, or mods to an existing record.
         isAdding = self._cursor.isAdding()

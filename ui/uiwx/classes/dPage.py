@@ -105,20 +105,22 @@ class dBrowsePage(dPage):
         event.Skip()
     
     def onEnterPage(self):
-        if not self.gridExists:
-            self.createGrid()
-        if self.gridExists:
-            self.fillGrid()
+        bizobj = self.getDform().getBizobj()
+        if bizobj and bizobj.getRowCount() >= 0:
+            if not self.gridExists:
+                self.createGrid()
+            if self.gridExists:
+                self.fillGrid()
             
     def createGrid(self):
         form = self.getDform()
         bizobj = form.getBizobj()
         self.grid = dGrid(self, bizobj, form)
         self.grid.AutoSizeColumns(True)
-        self.grid.SetFocus()
         self.GetSizer().Add(self.grid, 1, wx.EXPAND)
         self.GetSizer().Layout()
         self.gridExists = True
+        self.grid.SetFocus()
 
     def fillGrid(self):
         form = self.getDform()
