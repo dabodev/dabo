@@ -147,7 +147,7 @@ class dBizobj(dabo.common.dObject):
 		crs.setSQL(self.SQL)
 		crs.KeyField = self.KeyField
 		crs.Table = self.DataSource
-		crs.setAutoPopulatePK(self.AutoPopulatePK)
+		crs.AutoPopulatePK = self.AutoPopulatePK
 		crs.BackendObject = self._conn.BackendObject
 		if self.RequeryOnLoad:
 			crs.requery()

@@ -8,9 +8,6 @@ import dabo.dException as dException
 import dabo.common
 
 class dCursorMixin(dabo.common.dObject):
-	# When inserting a new record, do we let the backend database populate
-	# the PK field? 
-	autoPopulatePK = True
 	# SQL expression used to populate the cursor
 	sql = ""
 	# Holds the dict used for adding new blank records
@@ -89,10 +86,6 @@ class dCursorMixin(dabo.common.dObject):
 
 	def getSortCase(self):
 		return self.sortCase
-
-
-	def setAutoPopulatePK(self, autopop):
-		self.autoPopulatePK = autopop
 
 
 	def execute(self, sql, params=()):
@@ -548,7 +541,7 @@ class dCursorMixin(dabo.common.dObject):
 				vals = ""
 				
 				for kk, vv in diff.items():
-					if self.autoPopulatePK and (kk == self.KeyField):
+					if self.AutoPopulatePK and (kk == self.KeyField):
 						# we don't want to include the PK in the insert
 						continue
 					if kk in self.getNonUpdateFields():
@@ -579,14 +572,14 @@ class dCursorMixin(dabo.common.dObject):
 			#run the update
 			res = self.execute(sql)
 
-			if newrec and self.autoPopulatePK:
+			if newrec and self.AutoPopulatePK:
 				# Call the database backend-specific code to retrieve the
 				# most recently generated PK value.
 				newPKVal = self.getLastInsertID()
 			# restore the orginal values
 			self.__restoreProps()
 
-			if newrec and self.autoPopulatePK:
+			if newrec and self.AutoPopulatePK:
 				self.setFieldVal(self.KeyField, newPKVal)
 
 			if newrec:
@@ -1236,6 +1229,15 @@ class dCursorMixin(dabo.common.dObject):
 	
 
 
+	def _getAutoPopulatePK(self):
+		try:
+			return self._autoPopulatePK
+		except AttributeError:
+			return True
+			
+	def _setAutoPopulatePK(self, autopop):
+		self._autoPopulatePK = bool(autopop)
+
 	def _setBackendObject(self, obj):
 		self.__backend = obj
 	
@@ -1274,7 +1276,10 @@ class dCursorMixin(dabo.common.dObject):
 			
 	def _setTable(self, table):
 		self._table = str(table)
-		
+
+	
+	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None,
+			_("When inserting a new record, does the backend populate the PK field?")) 		
 	
 	BackendObject = property(_getBackendObject, _setBackendObject, None,
 			_("Reference to the object that handles backend-specific actions."))
