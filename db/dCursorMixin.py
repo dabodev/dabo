@@ -14,7 +14,7 @@ class dCursorMixin(dabo.common.dObject):
 			self.sql = sql
 
 		#dCursorMixin.doDefault()
-		super(dCursorMixin, self).__init__(self)
+		super(dCursorMixin, self).__init__()
 		
 		# Just in case this is used outside of the context of a bizobj
 		if not hasattr(self, "superCursor") or self.superCursor is None:
@@ -730,6 +730,18 @@ class dCursorMixin(dabo.common.dObject):
 		if not res:
 			# Nothing was deleted
 			self.BackendObject.noResultsOnDelete()
+		else:
+			# Delete the record from the current dataset
+			self.removeRow(delRowNum)
+	
+	
+	def removeRow(self, r):
+		""" Since record sets are tuples and thus immutable, we
+		need to do this little dance to remove a row.
+		"""
+		lRec = list(self._records)
+		del lRec[r]
+		self._records = tuple(lRec)
 	
 	
 	def flush(self):
