@@ -2,7 +2,7 @@ import dabo.dConstants as k
 import dabo.db.dConnection as dConnection
 from dabo.db.dCursorMixin import dCursorMixin
 from dabo.db.dSqlBuilderMixin import dSqlBuilderMixin
-from dabo.dLocalize import loc
+from dabo.dLocalize import _
 from dabo.dError import dError
 import types
 
@@ -336,7 +336,7 @@ class dBizobj(object):
             # See if there are any child records
             for child in self.__children:
                 if child.getRowCount() > 0:
-                    raise dError, loc("Deletion prohibited - there are related child records.")
+                    raise dError, _("Deletion prohibited - there are related child records.")
 
         try:
             self._cursor.delete()

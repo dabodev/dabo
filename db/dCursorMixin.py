@@ -1,6 +1,6 @@
 import dabo.dConstants as k
 from dabo.db.dMemento import dMemento
-from dabo.dLocalize import loc
+from dabo.dLocalize import _
 from dabo.dError import *
 import types
 
@@ -122,12 +122,12 @@ class dCursorMixin:
         
         # Check to make sure that we have data
         if self.rowcount < 1:
-            self.addToErrorMsg(loc("No rows to sort."))
+            self.addToErrorMsg(_("No rows to sort."))
             return False
         
         # Make sure that the specified column is a column in the result set
         if not self._rows[0].has_key(col):
-            self.addToErrorMsg(loc("Invalid column specified for sort: ") + col)
+            self.addToErrorMsg(_("Invalid column specified for sort: ") + col)
             return False
         
         newCol  = col
@@ -147,7 +147,7 @@ class dCursorMixin:
                     newOrd = dir.upper()
                 else:
                     # TODO: raise the appropriate exception
-                    self.addToErrorMsg(loc("Invalid Sort direction specified: ") + dir)
+                    self.addToErrorMsg(_("Invalid Sort direction specified: ") + dir)
                     return False
         
         else:
@@ -160,7 +160,7 @@ class dCursorMixin:
                     newOrd = dir.upper()
                 else:
                     # TODO: raise the appropriate exception
-                    self.addToErrorMsg(loc("Invalid Sort direction specified: ") + dir)
+                    self.addToErrorMsg(_("Invalid Sort direction specified: ") + dir)
                     return False
         self.__sortRows(newCol, newOrd, caseSensitive)
         # Save the current sort values
@@ -261,16 +261,16 @@ class dCursorMixin:
         '''
         ret = None
         if self.rowcount <= 0:
-            self.addToErrorMsg(loc("No records in the data set"))
+            self.addToErrorMsg(_("No records in the data set"))
         else:
             rec = self._rows[self.rownumber]
             if rec.has_key(fld):
                 ret = rec[fld]
             else:
                 self.addToErrorMsg("%s '%s' %s" % (
-                            loc("Field"),
+                            _("Field"),
                             fld,
-                            loc("does not exist in the data set")))
+                            _("does not exist in the data set")))
         return ret
 
 
@@ -279,7 +279,7 @@ class dCursorMixin:
         '''
         ret = False
         if self.rowcount <= 0:
-            self.addToErrorMsg(loc("No records in the data set"))
+            self.addToErrorMsg(_("No records in the data set"))
         else:
             rec = self._rows[self.rownumber]
             if rec.has_key(fld):
@@ -287,9 +287,9 @@ class dCursorMixin:
                 ret = True
             else:
                 self.addToErrorMsg("%s '%s' %s" % (
-                            loc("Field"),
+                            _("Field"),
                             fld,
-                            loc("does not exist in the data set")))
+                            _("does not exist in the data set")))
         return ret
     
     
@@ -327,7 +327,7 @@ class dCursorMixin:
         if self.rowcount > 0:
             self.rownumber = 0
         else:
-            raise NoRecordsError, loc("No records in data set")
+            raise NoRecordsError, _("No records in data set")
 
 
     def prior(self):
@@ -338,9 +338,9 @@ class dCursorMixin:
             if self.rownumber > 0:
                 self.rownumber -= 1
             else:
-                raise BeginningOfFileError, loc("Already at the beginning of the data set.")
+                raise BeginningOfFileError, _("Already at the beginning of the data set.")
         else:
-            raise NoRecordsError, loc("No records in data set")
+            raise NoRecordsError, _("No records in data set")
 
 
     def next(self):
@@ -351,9 +351,9 @@ class dCursorMixin:
             if self.rownumber < (self.rowcount-1):
                 self.rownumber += 1
             else:
-                raise EndOfFileError, loc("Already at the end of the data set.")
+                raise EndOfFileError, _("Already at the end of the data set.")
         else:
-            raise NoRecordsError, loc("No records in data set")
+            raise NoRecordsError, _("No records in data set")
 
 
     def last(self):
@@ -363,7 +363,7 @@ class dCursorMixin:
         if self.rowcount > 0:
             self.rownumber = self.rowcount-1
         else:
-            raise NoRecordsError, loc("No records in data set")
+            raise NoRecordsError, _("No records in data set")
 
 
     def save(self, allrows=False):
@@ -373,7 +373,7 @@ class dCursorMixin:
 
         # Make sure that there is data to save
         if self.rowcount <= 0:
-            raise dError, loc("No data to save")
+            raise dError, _("No data to save")
 
         # Make sure that there is a PK
         try:
@@ -439,7 +439,7 @@ class dCursorMixin:
                 del rec[k.CURSOR_NEWFLAG]
             else:
                 if not res:
-                    raise dError, loc("No records updated")
+                    raise dError, _("No records updated")
 
 
     def new(self):
@@ -466,7 +466,7 @@ class dCursorMixin:
         self.__errorMsg = ""
         # Make sure that there is data to save
         if not self.rowcount > 0:
-            raise dError, loc("No data to cancel")
+            raise dError, _("No data to cancel")
 
         if allrows:
             recs = self._rows
@@ -536,7 +536,7 @@ class dCursorMixin:
             self.__restoreProps()
         else:
             # Nothing was deleted
-            raise dError, loc("No records deleted")
+            raise dError, _("No records deleted")
 
 
     def setDefaults(self, vals):
@@ -639,7 +639,7 @@ class dCursorMixin:
         and an exception is raised.
         '''
         if (rownum >= self.rowcount) or (rownum < 0):
-            raise dError, loc("Invalid row specified.")
+            raise dError, _("Invalid row specified.")
         self.rownumber = rownum
     
     
@@ -661,10 +661,10 @@ class dCursorMixin:
             return ret
         # Make sure that this is a valid field
         if not fld:
-            self.addToErrorMsg(loc("No field specified for seek()"))
+            self.addToErrorMsg(_("No field specified for seek()"))
             return ret
         if not fld or not self._rows[0].has_key(fld):
-            self.addToErrorMsg(loc("Non-existent field"))
+            self.addToErrorMsg(_("Non-existent field"))
             return ret
         
         # Copy the specified field vals and their row numbers to a list, and 
@@ -736,7 +736,7 @@ class dCursorMixin:
         '''
         # First, make sure that there is *something* in the field
         if not self.keyField:
-            raise dError, loc("checkPK failed; no primary key specified")
+            raise dError, _("checkPK failed; no primary key specified")
 
         aFields = self.keyField.split(",")
         # Make sure that there is a field with that name in the data set
@@ -744,7 +744,7 @@ class dCursorMixin:
             for fld in aFields:
                 self._rows[0][fld]
         except:
-            raise dError, loc("Primary key field does not exist in the data set: ") + fld
+            raise dError, _("Primary key field does not exist in the data set: ") + fld
 
 
     def makePkWhere(self, rec=None):

@@ -43,6 +43,8 @@ class dForm(wxFrameClass, dFormMixin):
         self._primaryBizobj = None
         
         self.SaveAllRows = True    # Default should come from app
+        # Do we ask about unsaved changes when requerying?
+        self.ask2Save = True
         
         self.dControls = {}
         self.controlWithFocus = None
@@ -242,7 +244,7 @@ class dForm(wxFrameClass, dFormMixin):
         self.activeControlValid()
         bizobj = self.getBizobj(dataSource)
         
-        if bizobj.isChanged(allRows=True):
+        if bizobj.isChanged(allRows=True) and self.ask2Save:
             response = dMessageBox.areYouSure(_("Do you wish to save your changes?"),
                                               cancelButton=True)
             
