@@ -133,7 +133,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				self.Value = self.getBlankValue()
 				# Do we need to disable the control?
 				#self.Enabled = False
-			self._oldVal = self.Value
+		self._oldVal = self.Value
 			
 
 	def select(self, position, length):

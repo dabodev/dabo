@@ -40,7 +40,7 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 		self.FontItalic = (IGNORE_STRING in self.StringValue)
 		if self.target is not None:
 			self.target.FontItalic = self.FontItalic
-			if IGNORE_STRING not in self.GetStringSelection():
+			if IGNORE_STRING not in self.StringValue:
 				# A comparison op was selected; let 'em enter a value
 				self.target.SetFocus()
 			
@@ -446,8 +446,10 @@ class dSelectPage(DataNavPage):
 			
 			opt = self.getSelectorOptions(fldInfo["type"], fldInfo["wordSearch"])
 			opList = SelectionOpDropdown(panel, choices=opt)
-			if not opList.GetStringSelection():
-				opList.SetSelection(0)
+			if not opList.StringValue:
+				opList.StringValue = opList.GetString(0)
+			# Need this 'refresh' to update the internal _oldVal setting
+			opList.refresh()
 			opList.setTarget(ctrl)
 			opList.FontItalic = (IGNORE_STRING in opList.StringValue)
 			
