@@ -286,7 +286,8 @@ class dCursorMixin:
 				raise dException.dException, "%s '%s' %s" % (
 							_("Field"),
 							fld,
-							_("does not exist in the data set")))
+							_("does not exist in the data set")
+							)
 
 
 	def getDataSet(self):
