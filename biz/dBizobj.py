@@ -58,10 +58,11 @@ class dBizobj(object):
     _version = "0.1.0"
     
     # Hack so that I can test until the app can return cursorsClasses, etc.
-    TESTING = True
+    TESTING = False
 
 
-    def __init__(self, conn):
+    def __init__(self, conn, testHack=False):
+        self.TESTING = testHack
         # Save the connection reference
         self._conn = conn
         if self.TESTING:
