@@ -33,17 +33,23 @@ class dConnectInfo(dabo.common.dObject):
 			return None
 
 	def _getBackendName(self): 
-		return self._backendName
+		try:
+			return self._backendName
+		except AttributeError:
+			return None
 
+			
 	def _setBackendName(self, backendName):
-		""" Set the backend type for the connection. Only sets the 
-		backend name if valid. As other backends are coded into the
-		framework, we will need to expand this if/elif list.
+		""" Set the backend type for the connection if valid. 
 		"""
+		
+		# As other backends are coded into the framework, we will need 
+		# to expand the if/elif list.
+		
 		if backendName is not None:
-			_backendName = backendName
 			# Evaluate each type of backend
 			nm = backendName.lower()
+			self._backendName = nm
 			if nm == "mysql":
 				import dbMySQL
 				self._backendObject = dbMySQL.MySQL()
@@ -59,7 +65,11 @@ class dConnectInfo(dabo.common.dObject):
 			else:
 				self._backendName = None
 				self._backendObject = None
+		else:
+			self._backendName = None
+			self._backendObject = None
 
+			
 	def _getBackendObject(self):
 		return self._backendObject
 

@@ -15,8 +15,8 @@ class Firebird(dBackend):
 
 		return dbapi.connect(host=connectInfo.Host, 
 							user=connectInfo.User,
-							passwd=connectInfo.Password,
-							db=connectInfo.DbName,
+							password=connectInfo.Password,
+							database=connectInfo.DbName,
 							port=port)
 
 	def getDictCursor(self):
