@@ -287,6 +287,10 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 			self.setMemento()
 
+		except dException.NoRecordsException, e:
+			# Nothing to roll back; just throw it back for the form to display
+			raise dException.NoRecordsException, e
+			
 		except dException.dException, e:
 			# Something failed; reset things.
 			if startTransaction:

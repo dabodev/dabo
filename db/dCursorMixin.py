@@ -274,6 +274,10 @@ class dCursorMixin:
 			rec = self._rows[self.rownumber]
 			if rec.has_key(fld):
 				if type(rec[fld]) != type(val):
+					if ( type(val) in (types.UnicodeType, types.StringType) 
+							and type(rec[fld]) is types.StringType ):
+						val = str(val)
+				if type(rec[fld]) != type(val):
 					print "!!! Data Type Mismatch:", type(rec[fld]), type(val)
 					
 					if type(rec[fld]) == type(int()) and type(val) == type(bool()):

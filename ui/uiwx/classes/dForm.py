@@ -207,6 +207,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				print "Save successful."
 			self.setStatusText(_("Changes to %s saved." % (
 					self.SaveAllRows and "all records" or "current record",)))
+					
+		except dException.NoRecordsException, e:
+			# No records were saved. No big deal; just let 'em know.
+			self.setStatusText(_("Nothing to save!"))
+			return True
+			
 		except dException.BusinessRuleViolation, e:
 			self.setStatusText(_("Save failed."))
 			dMessageBox.stop("%s:\n\n%s" % (_("Save Failed:"), _(str(e))))
