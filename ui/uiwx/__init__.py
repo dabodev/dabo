@@ -101,8 +101,11 @@ def getEventData(wxEvt):
 		ed["unicodeKey"] = wxEvt.GetUnicodeKey()
 		ed["hasModifiers"] = wxEvt.HasModifiers()
 		try:
-			ed["keyChar"] = chr(wxEvt.GetRawKeyCode())
-		except ValueError:
+			if wx.Platform == "__WXMAC__":
+				ed["keyChar"] = chr(wxEvt.GetKeyCode())
+			else:	
+				ed["keyChar"] = chr(wxEvt.GetRawKeyCode())
+		except (ValueError, OverflowError):
 			ed["keyChar"] = None
 
 	return ed
