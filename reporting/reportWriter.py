@@ -2,7 +2,8 @@
 ##  begun 2/14/2005 by pkm
 ##  This is just a first pass, with ugly procedural code. When you run it by
 ##  "python reportWriter.py", it'll read the samplespec.py file and create a
-##  test.pdf file.
+##  test.pdf file. Eventually, you'll evoke an instance of the dReportWriter
+##  class, and feed it properties like OutputFilePath, Cursor, and ReportForm.
 
 ##  Almost all values from the spec file are evaluated at runtime, allowing
 ##  simple yet flexible redirection (a given prop can be gotten at runtime
@@ -70,16 +71,16 @@ print "Page Size:", pageSize
 ## end Page Size setting (refactor to a separate function)
 
 
-# Create the report canvas:
+# Create the report canvas and add it to the report dict:
 c = canvas.Canvas("test.pdf", pagesize=pageSize)
+report["canvas"] = c
 
 
-# Set the page margins:
+# Get the page margins into variables:
 ml = getPt(eval(form.Page["marginLeft"]))
 mt = getPt(eval(form.Page["marginTop"]))
 mr = getPt(eval(form.Page["marginRight"]))
 mb = getPt(eval(form.Page["marginBottom"]))
-
 
 # Page header/footer origins are needed in various places:
 pageHeaderOrigin = (ml, pageHeight - mt 
@@ -100,18 +101,19 @@ def printBandOutline(band, x, y, width, height):
 		c.drawString(x, y, band)
 		c.restoreState()
 
+
 def draw(object, x, y):
 	c.saveState()
 
 	try: 
 		width = getPt(eval(object["width"]))
 	except (KeyError, TypeError, ValueError): 
-		width = 25
+		width = 55
 
 	try: 
 		height = getPt(eval(object["height"]))
 	except (KeyError, TypeError, ValueError): 
-		height = 25
+		height = 10
 
 	try: 
 		rotation = eval(object["rotation"])
@@ -242,9 +244,47 @@ def draw(object, x, y):
 		func(0,0,eval(object["expr"]))
 
 	elif object["type"] == "image":
-		try: mask = eval(object["mask"])
-		except: mask = None
-		c.drawImage(eval(object["expr"]), x, y, width, height, mask)
+		c.translate(x, y)
+		c.rotate(rotation)
+		try: 
+			borderWidth = getPt(eval(object["borderWidth"]))
+		except KeyError: 
+			borderWidth = 0
+
+		try: 
+			borderColor = eval(object["borderColor"])
+		except KeyError: 
+			borderColor = (0, 0, 0)
+
+		c.setLineWidth(borderWidth)
+		c.setStrokeColor(borderColor)
+
+		if borderWidth > 0:
+			stroke = 1
+		else:
+			stroke = 0
+
+		try: 
+			mask = eval(object["mask"])
+		except: 
+			mask = None
+
+		try:
+			mode = eval(object["mode"])
+		except:
+			mode = "scale"
+
+		# clip around the outside of the image:
+		p = c.beginPath()
+		p.rect(-1, -1, width+2, height+2)
+		c.clipPath(p, stroke=stroke)
+
+		if mode == "clip":
+			# Need to set w,h to None for the drawImage, which will draw it in its
+			# "natural" state 1:1 pixel:point, which could flow out of the object's
+			# width/height, resulting in clipping.
+			width, height = None, None
+		c.drawImage(eval(object["expr"]), 0, 0, width, height, mask)
 	c.restoreState()
 
 
@@ -298,10 +338,17 @@ recno = 0
 for record in data:
 	for band in ("Detail",):
 		bandDict = eval("form.%s" % band)
+		report["bands"][band] = {}
+
 		x = ml
 		y = y - getPt(eval(bandDict["height"]))
 		width = pageWidth - ml - mr
 		height = getPt(eval(bandDict["height"]))
+
+		report["bands"][band]["x"] = x
+		report["bands"][band]["y"] = y
+		report["bands"][band]["width"] = width
+		report["bands"][band]["height"] = height
 
 		if showBands:
 			printBandOutline("%s (record %s)" % (band, recno), x, y, width, height)
