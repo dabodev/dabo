@@ -28,6 +28,12 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 		kwargs["style"] = kwargs["style"] | wx.SP_ARROW_KEYS
 		return kwargs
 
+	
+	def _getInitPropertiesList(self):
+		additional = ["SpinnerWrap",]
+		original = list(super(dSpinner, self)._getInitPropertiesList())
+		return tuple(original + additional)
+		
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -65,4 +71,4 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dSpinner)
+	test.Test().runTest(dSpinner, Max=12, Min=5, SpinnerWrap=True)
