@@ -289,6 +289,12 @@ class BandLabel(dabo.ui.dPanel):
 			self.Form.Refresh()
 
 	def onLeftDown(self, evt):
+		if self.Application.Platform == "Mac":
+			# Mac needs the following line, or LeftUp will never fire. TODO:
+			# figure out how to abstract this into dPemMixin (if possible).
+			# I posted a message to wxPython-mac regarding this - not sure if
+			# it is a bug or a "by design" platform inconsistency.
+			evt.stop()
 		if not self.Parent.getProp("designerLock"):
 			self._dragging = True
 			self._dragStart = evt.EventData["mousePosition"]
