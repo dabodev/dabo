@@ -1,5 +1,6 @@
 import dabo.dConstants as k
 from dabo.db.dMemento import dMemento
+from dabo.dLocalize import loc
 import types
 
 class dCursorMixin:
@@ -109,12 +110,12 @@ class dCursorMixin:
         
         # Check to make sure that we have data
         if self.rowcount < 1:
-            self.addToErrorMsg("No rows to sort.")
+            self.addToErrorMsg(loc("No rows to sort."))
             return False
         
         # Make sure that the specified column is a column in the result set
         if not self._rows[0].has_key(col):
-            self.addToErrorMsg("Invalid column specified for sort: " + col)
+            self.addToErrorMsg(loc("Invalid column specified for sort: ") + col)
             return False
         
         newCol  = col
@@ -134,7 +135,7 @@ class dCursorMixin:
                     newOrd = dir.upper()
                 else:
                     # TODO: raise the appropriate exception
-                    self.addToErrorMsg("Invalid Sort direction specified: " + dir)
+                    self.addToErrorMsg(loc("Invalid Sort direction specified: ") + dir)
                     return False
         
         else:
@@ -147,7 +148,7 @@ class dCursorMixin:
                     newOrd = dir.upper()
                 else:
                     # TODO: raise the appropriate exception
-                    self.addToErrorMsg("Invalid Sort direction specified: " + dir)
+                    self.addToErrorMsg(loc("Invalid Sort direction specified: ") + dir)
                     return False
         self.__sortRows(newCol, newOrd)
         # Save the current sort values
@@ -231,13 +232,13 @@ class dCursorMixin:
         """ Returns the value of the requested field """
         ret = None
         if self.rowcount <= 0:
-            self.addToErrorMsg("No records in the data set")
+            self.addToErrorMsg(loc("No records in the data set"))
         else:
             rec = self._rows[self.rownumber]
             if rec.has_key(fld):
                 ret = rec[fld]
             else:
-                self.addToErrorMsg("Field '" + fld + "' does not exist in the data set")
+                self.addToErrorMsg(loc("Field '") + fld + loc("' does not exist in the data set"))
         return ret
 
 
@@ -245,14 +246,14 @@ class dCursorMixin:
         """ Sets the value of the specified field """
         ret = False
         if self.rowcount <= 0:
-            self.addToErrorMsg("No records in the data set")
+            self.addToErrorMsg(loc("No records in the data set"))
         else:
             rec = self._rows[self.rownumber]
             if rec.has_key(fld):
                 rec[fld] = val
                 ret = True
             else:
-                self.addToErrorMsg("Field '" + fld + "' does not exist in the data set")
+                self.addToErrorMsg(loc("Field '") + fld + loc("' does not exist in the data set"))
         return ret
 
 
@@ -278,7 +279,7 @@ class dCursorMixin:
             self.rownumber = 0
         else:
             ret = k.FILE_NORECORDS
-            self.addToErrorMsg("No records in data set")
+            self.addToErrorMsg(loc("No records in data set"))
         return ret
 
 
@@ -291,10 +292,10 @@ class dCursorMixin:
                 self.rownumber -= 1
             else:
                 ret = k.FILE_BOF
-                self.addToErrorMsg("Already at the beginning of the data set.")
+                self.addToErrorMsg(loc("Already at the beginning of the data set."))
         else:
             ret = k.FILE_NORECORDS
-            self.addToErrorMsg("No records in data set")
+            self.addToErrorMsg(loc("No records in data set"))
         return ret
 
 
@@ -307,10 +308,10 @@ class dCursorMixin:
                 self.rownumber += 1
             else:
                 ret = k.FILE_EOF
-                self.addToErrorMsg("Already at the end of the data set.")
+                self.addToErrorMsg(loc("Already at the end of the data set."))
         else:
             ret = k.FILE_NORECORDS
-            self.addToErrorMsg("No records in data set")
+            self.addToErrorMsg(loc("No records in data set"))
         return ret
 
 
@@ -322,7 +323,7 @@ class dCursorMixin:
             self.rownumber = self.rowcount-1
         else:
             ret = k.FILE_NORECORDS
-            self.addToErrorMsg("No records in data set")
+            self.addToErrorMsg(loc("No records in data set"))
         return ret
 
 
@@ -333,12 +334,12 @@ class dCursorMixin:
 
         # Make sure that there is data to save
         if self.rowcount <= 0:
-            self.addToErrorMsg("No data to save")
+            self.addToErrorMsg(loc("No data to save"))
             return k.FILE_CANCEL
 
         # Make sure that there is a PK
         if not self.checkPK():
-            self.addToErrorMsg("No primary key")
+            self.addToErrorMsg(loc("No primary key"))
             return k.FILE_CANCEL
 
         if allrows:
@@ -350,7 +351,7 @@ class dCursorMixin:
             updret = self.__saverow(rec)
             if updret != k.UPDATE_OK:
                 ret = k.FILE_CANCEL
-                self.addToErrorMsg("Save row failed: %s." % updret)
+                self.addToErrorMsg(loc("Save row failed: %s.") % updret)
                 break
         return ret
 
@@ -379,10 +380,6 @@ class dCursorMixin:
                 pkWhere = self.makePkWhere(rec)
                 updClause = self.makeUpdClause(diff)
                 sql = "update %s set %s where %s" % (self.table, updClause, pkWhere)
-            
-            
-            print "** SQL:", sql
-            
 
             # Save off the props that will change on the update
             self.__saveProps()
@@ -436,7 +433,7 @@ class dCursorMixin:
         ret = k.FILE_OK
         # Make sure that there is data to save
         if not self.rowcount >= 0:
-            self.addToErrorMsg("No data to cancel")
+            self.addToErrorMsg(loc("No data to cancel"))
             return k.FILE_CANCEL
 
         if allrows:
@@ -591,6 +588,18 @@ class dCursorMixin:
                 break
 
 
+    def moveToRowNum(self, rownum):
+        """ 
+        Moves the pointer to the specified row number. If that row does not 
+        exist, the pointer remains where it is, and False is returned.
+        """
+        if (rownum >= self.rowcount) or (rownum < 0):
+            self.addToErrorMsg(loc("Invalid row specified."))
+            return False
+        self.rownumber = rownum
+        return True
+
+
     def checkPK(self):
         """ 
         Check to see that the field(s) specified in the keyField prop exist
@@ -598,7 +607,7 @@ class dCursorMixin:
         """
         # First, make sure that there is *something* in the field
         if not self.keyField:
-            self.addToErrorMsg("Cannot save; no primary key specified")
+            self.addToErrorMsg(loc("Cannot save; no primary key specified"))
             return False
 
         aFields = self.keyField.split(",")
@@ -608,7 +617,7 @@ class dCursorMixin:
             for fld in aFields:
                 self._rows[0][fld]
         except:
-            self.addToErrorMsg("Primary key field '" + fld + "' does not exist in the data set")
+            self.addToErrorMsg(loc("Primary key field '") + fld + loc("' does not exist in the data set"))
             ret = False
         return ret
 
@@ -691,6 +700,10 @@ class dCursorMixin:
 
     def getErrorMsg(self):
         return self.__errorMsg
+    
+    
+    def clearErrorMsg(self):
+        self.__errorMsg = ""
 
 
     def isAdding(self):

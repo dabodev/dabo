@@ -1,6 +1,7 @@
 import dabo.dConstants as k
 import dabo.db.dConnection as dConnection
 from dabo.db.dCursorMixin import dCursorMixin
+from dabo.dLocalize import loc
 import types
 
 class dBizobj(object):
@@ -124,7 +125,7 @@ class dBizobj(object):
         parent record. If the record set is already at the beginning, 
         return k.FILE_BOF. 
         """
-        self._errorMsg = ""
+        self.clearErrorMsg()
         if not self.beforeFirst() or not self.beforePointerMove():
             return k.FILE_CANCEL
         ret = self._cursor.first()
@@ -145,7 +146,7 @@ class dBizobj(object):
         parent record. If the record set is already at the beginning, 
         return k.FILE_BOF. 
         """
-        self._errorMsg = ""
+        self.clearErrorMsg()
         if not self.beforePrior() or not self.beforePointerMove():
             return k.FILE_CANCEL
         ret = self._cursor.prior()
@@ -165,7 +166,7 @@ class dBizobj(object):
         Updates any child bizobjs to reflect the new current parent record.
         If the recordset is already at the last record, returns k.FILE_EOF. 
         """
-        self._errorMsg = ""
+        self.clearErrorMsg()
         if not self.beforeNext() or not self.beforePointerMove():
             return k.FILE_CANCEL
         ret = self._cursor.next()
@@ -185,7 +186,7 @@ class dBizobj(object):
         Updates any child bizobjs to reflect the new current parent record.
         If the recordset is already at the last record, returns k.FILE_EOF. 
         """
-        self._errorMsg = ""
+        self.clearErrorMsg()
         if not self.beforeLast() or not self.beforePointerMove():
             return k.FILE_CANCEL
         ret = self._cursor.last()
@@ -203,7 +204,7 @@ class dBizobj(object):
         Saves any changes that have been made to the cursor.
         If the save is successful, calls the save() of all child bizobjs. 
         """
-        self._errorMsg = ""
+        self.clearErrorMsg()
 
         if not self.beforeSave() or not self.validate():
             return k.FILE_CANCEL
@@ -265,7 +266,7 @@ class dBizobj(object):
         Cancels any changes to the data. Reverts back to the orginal values
         that were in the data. 
         """
-        self._errorMsg = ""
+        self.clearErrorMsg()
 
         if not self.beforeCancel():
             return k.FILE_CANCEL
@@ -293,7 +294,7 @@ class dBizobj(object):
 
     def delete(self):
         """ Deletes the current row of data """
-        self._errorMsg = ""
+        self.clearErrorMsg()
 
         if not self.beforeDelete() or not self.beforePointerMove():
             return k.FILE_CANCEL
@@ -302,7 +303,7 @@ class dBizobj(object):
             # See if there are any child records
             for child in self.__children:
                 if child.getRowCount() > 0:
-                    self.addToErrorMsg("Deletion prohibited - there are related child records.")
+                    self.addToErrorMsg(loc("Deletion prohibited - there are related child records."))
                     return k.FILE_CANCEL                    
 
         ret = self._cursor.delete()
@@ -349,7 +350,7 @@ class dBizobj(object):
         Creates a new record, and populates it with any default 
         values specified. 
         """
-        self._errorMsg = ""
+        self.clearErrorMsg()
 
         if not self.beforeNew() or not self.beforePointerMove():
             return k.FILE_CANCEL
@@ -389,7 +390,7 @@ class dBizobj(object):
         Refreshes the cursor's dataset with the current values in the database, 
         given the current state of the filtering parameters 
         """
-        self._errorMsg = ""
+        self.clearErrorMsg()
 
         if not self.beforeRequery():
             return k.FILE_CANCEL
@@ -405,7 +406,7 @@ class dBizobj(object):
 
         if ret == k.REQUERY_SUCCESS:
             if self.savePosOnRequery:
-                self._cursor.moveToPK(currPK)
+                self.moveToPK(currPK)
 
             ret = self.requeryAllChildren()
 
@@ -439,17 +440,60 @@ class dBizobj(object):
         self._params = params
 
 
-    def validate(self):
+    def validate(self, allrows=True):
         """ 
+        Validate() is called by the Save() routine before saving any data.
+        If this returns a false value, the save will be disallowed. You must 
+        return a True value for data saving to proceed. 
+        
+        By default, the entire record set is validated. If you only want to 
+        validate the current record, pass False as the allrows parameter.
+        """
+        ret = True
+        currRow = self.getRowNumber()
+        if allrows:
+            recrange = range(0, self.getRowCount())
+        else:
+            # Just the current row
+            recrange = range(currRow, currRow+1)
+        
+        for i in recrange:
+            if self.moveToRowNum(i):
+                ret = self.validateRecord()
+            else:
+                # TODO: raise an exception!
+                ret = False
+            if not ret: break
+        # Return where we began
+        self.moveToRowNum(currRow)
+        return ret
+    
+    
+    
+    def validateRecord(self):
+        """
         This is the method that you should customize in your subclasses
         to create checks on the data entered by the user to be sure that it 
         conforms to your business rules. 
 
-        It is called by the Save() routine before saving any data. If this returns
-        a false value, the save will be disallowed. You must return a True value 
-        for data saving to proceed. 
+        It is assumed that we are on the correct record for testing before
+        this method is called.
         """
         return True
+    
+    
+    def moveToRowNum(self, rownum):
+        ret = self._cursor.moveToRowNum(rownum)
+        if not ret:
+            self.addToErrorMsg(self._cursor.getErrorMsg())
+        return ret
+
+
+    def moveToPK(self, pk):
+        ret = self._cursor.moveToPK(pk)
+        if not ret:
+            self.addToErrorMsg(self._cursor.getErrorMsg())
+        return ret
 
 
     def isChanged(self):
@@ -601,6 +645,11 @@ class dBizobj(object):
 
     def getErrorMsg(self):
         return self._errorMsg
+    
+    
+    def clearErrorMsg(self):
+        self._errorMsg = ""
+        self._cursor.clearErrorMsg()
 
 
     ########## Pre-hook interface section ##############
