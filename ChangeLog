@@ -1,5 +1,55 @@
 See the Subversion log for all the details.
 
+Dabo-0.3 (2005-01-10):
+
+New UI controls added:
+    dFileDialog.py
+    dListBox.py
+    dListControl.py
+    dSplitForm.py
+    dSplitter.py
+
+GridSizer added. Method calls to all sizers greatly simplified.
+
+Menus simplified, removing wx-specific calls.
+
+My favorite UI debugging tool: getMouseObject()
+
+Framework classes now consistently use the standard initialization 
+methods: initProperties, initEvents, etc.
+
+Child requeries and transaction support added to bizobj
+
+Bizobjs now support the relationSpecs.rsxml format for adding child 
+relations.
+
+Support for fulltext-type searches by word added.
+
+Auxiliary (one-shot) cursors added to main cursors for better support 
+of different backends.
+
+Improved unicode support in cursors.
+
+Added support for PostgreSQL. Added template to ease creation of new 
+backend support scripts.
+
+appWizard: added support for parent/child/grandchild/... relationships; 
+improved FieldSpecEditor.
+
+appWizard/dDataNav* classes:
+    changed all wx.Sizers to dSizers
+    added "-ignore-" to visually indicate search criteria that will not be used
+    added save/restore of values on search page.
+    added 'Matches Words' option for fulltext searches
+    fixed bugs with searches for boolean values
+
+Controls:
+    Now auto-name themselves. Unique name enforcement added.
+    Added _IsContainer attribute to distinguish controls that can add other controls to themselves.
+    Added support for setting colors by name instead of RGB tuple.
+    Fixed resizing bug that would not allow a resized object to be made smaller.
+
+
 Dabo-0.2 (2004-09-20):
 
 Continued improving FireBird database support, improved MySQL support. Added
