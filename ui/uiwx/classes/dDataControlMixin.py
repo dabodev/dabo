@@ -61,7 +61,8 @@ class dDataControlMixin(pm.dPemMixin):
 			except (TypeError, dException.NoRecordsException):
 				self.Value = self.getBlankValue()
 				self.Enabled = False
-
+			self._curVal = self.Value
+			
 
 	def onValueRefresh(self, event): 
 		""" Occurs when the field value has potentially changed.
@@ -124,10 +125,8 @@ class dDataControlMixin(pm.dPemMixin):
 		"""
 		curVal = self.Value
 		if curVal != self._oldVal and self.DataSource and self.DataField:
-			response = self.setFieldVal(curVal)
+			self.setFieldVal(curVal)
 			self._oldVal = curVal
-			if not response:
-				raise ValueError, "bizobj.setFieldVal() failed."
 
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
