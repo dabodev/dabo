@@ -49,7 +49,7 @@ class ObjectPanel(dabo.ui.dPanel):
 		"""
 		self.Props[prop] = str(val)
 		if sendPropsChanged:
-			#self._rd.propsChanged(self)
+			self._rd.propsChanged(redraw=False)
 			self.draw()
 			self.Refresh()
 
@@ -807,10 +807,11 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.drawReportForm()
 
 
-	def propsChanged(self):
+	def propsChanged(self, redraw=True):
 		"""Called by subobjects to notify the report designer that a prop has changed."""
 		self.setCaption()
-		self.drawReportForm()
+		if redraw:
+			self.drawReportForm()
 		
 	def _onFormResize(self, evt):
 		self.drawReportForm()
