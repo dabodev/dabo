@@ -224,6 +224,7 @@ class dCursorMixin:
 
         # Make sure that there is a PK
         if not self.checkPK():
+            self.addToErrorMsg("No primary key")
             return k.FILE_CANCEL
 
         if allrows:
@@ -235,6 +236,7 @@ class dCursorMixin:
             updret = self.__saverow(rec)
             if updret != k.UPDATE_OK:
                 ret = k.FILE_CANCEL
+                self.addToErrorMsg("Save row failed: %s." % updret)
                 break
         return ret
 
@@ -260,23 +262,23 @@ class dCursorMixin:
                 sql = "insert into %s (%s) values (%s) " % (self.table, flds, vals)
 
             else:
-                pkWhere = self.makePkWhere()
+                pkWhere = self.makePkWhere(rec)
                 updClause = self.makeUpdClause(diff)
                 sql = "update %s set %s where %s" % (self.table, updClause, pkWhere)
-
+                print sql
             # Save off the props that will change on the update
             self.__saveProps()
             #run the update
             res = self.execute(sql)
             
-            if self.autoPopulatePK:
+            if newrec and self.autoPopulatePK:
                 ### TODO: MySQLdb-specific! Need to make more generic
                 self.execute("select last_insert_id() as newid")
                 newPKVal = self._rows[0]["newid"]
             # restore the orginal values
             self.__restoreProps()
             
-            if self.autoPopulatePK:
+            if newrec and self.autoPopulatePK:
                 self.setFieldVal(self.keyField, newPKVal)
             
             if newrec:
@@ -489,14 +491,21 @@ class dCursorMixin:
         return ret
 
 
-    def makePkWhere(self):
-        """ Creates the WHERE clause used for updates """
+    def makePkWhere(self, rec=None):
+        """ dCursorMixin.makePkWhere(rec) --> whereClause
+        
+        Create the WHERE clause used for updates. Optionally
+        pass in a record object, otherwise just use the 
+        current rownumber.
+        """
+        if not rec:
+            rec = self._rows[self.rownumber]
         aFields = self.keyField.split(",")
         ret = ""
         for fld in aFields:
             if ret:
                 ret += " AND "
-            pkVal = self._rows[self.rownumber][fld]
+            pkVal = rec[fld]
             if type(pkVal) == types.StringType:
                 ret += fld + "='" + pkVal + "' "  
             else:

@@ -1,4 +1,5 @@
 import wx, dEvents, dControlMixin, dDataControlMixin
+import dabo.dConstants as k
 
 class dForm(wx.Frame):
     def __init__(self, frame=None, resourceString=None):
@@ -103,18 +104,22 @@ class dForm(wx.Frame):
     def save(self):
         ''' bizobj interface: save(self, startTransaction=0, allRows=0, topLevel=1) '''
         bizobj = self.getBizobj()
-        if bizobj.save(allRows=self.saveAllRows):
+        response = bizobj.save(allRows=self.saveAllRows)
+        if response == k.FILE_OK:
             print "Save successful."
         else:
-            print "Save failed: %s " % bizobj.getErrorMsg()
+            print "Save failed with response: %s" % response
+            print bizobj.getErrorMsg()
     
     def cancel(self):
         bizobj = self.getBizobj()
-        if bizobj.cancel(allRows=self.saveAllRows):
+        response = bizobj.cancel(allRows=self.saveAllRows)
+        if response == k.FILE_OK:
             print "Cancel successful."
             self.refreshControls()
         else:
-            print "Cancel failed: %s" % bizobj.getErrorMsg()
+            print "Cancel failed with response: %s" % response
+            print bizobj.getErrorMsg()
             
     def getBizobj(self, dataSource=None):
         if not dataSource:
