@@ -331,7 +331,7 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 	def _getBackColor(self):
 		return self._pemObject.GetBackgroundColour()
 
-	def _getForeColorEditorInfo(self):
+	def _getBackColorEditorInfo(self):
 		return {'editor': 'colour'}
 
 	def _setBackColor(self, value):
