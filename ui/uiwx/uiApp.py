@@ -122,6 +122,22 @@ class uiApp(wx.App, dObject):
 		dabo.infoLog.write("Stub: uiApp.onEditPreferences()")
 
 
+	def onEditUndo(self, evt):
+		win = wx.GetActiveWindow().FindFocus()
+		try:
+			win.Undo()
+		except AttributeError:
+			dabo.errorLog.write("No apparent way to undo.")
+
+
+	def onEditRedo(self, evt):
+		win = wx.GetActiveWindow().FindFocus()
+		try:
+			win.Redo()
+		except AttributeError:
+			dabo.errorLog.write("No apparent way to redo.")
+
+
 	def onEditFind(self, evt):
 		""" Display a Find dialog. 
 		"""

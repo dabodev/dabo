@@ -111,6 +111,8 @@ class dApp(dabo.common.dObject):
 		self.actionList.setAction("EditPaste", self.uiApp.onEditPaste)
 		self.actionList.setAction("EditFind", self.uiApp.onEditFind)
 		self.actionList.setAction("EditFindAgain", self.uiApp.onEditFindAgain)
+		self.actionList.setAction("EditUndo", self.uiApp.onEditUndo)
+		self.actionList.setAction("EditRedo", self.uiApp.onEditRedo)
 
 		self.uiApp.setup(self)
 

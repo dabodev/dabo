@@ -34,6 +34,18 @@ class EditMenu(m.dMenu):
 	def __init__(self, mainForm):
 		EditMenu.doDefault(mainForm)
 
+		item = wx.MenuItem(self, -1, "Undo\tCtrl+Z", "Undo last action")
+		item.SetBitmap(dIcons.getIconBitmap("undo"))
+		self.AppendItem(item)
+		mainForm.Bind(wx.EVT_MENU, self.actionList.getAction("EditUndo")["func"], item)
+
+		item = wx.MenuItem(self, -1, "Redo\tCtrl+R", "Redo last action")
+		item.SetBitmap(dIcons.getIconBitmap("redo"))
+		self.AppendItem(item)
+		mainForm.Bind(wx.EVT_MENU, self.actionList.getAction("EditRedo")["func"], item)
+
+		self.AppendSeparator()
+
 		item = wx.MenuItem(self, -1, "Cut\tCtrl+X", "Cut selected text")
 		item.SetBitmap(dIcons.getIconBitmap("cut"))
 		self.AppendItem(item)
