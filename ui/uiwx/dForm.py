@@ -48,10 +48,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-		if self.mainPanel:
-			# Can't do this in the _afterInit, as properties haven't been
-			# applied at that point.
-			self.mainPanel.BackColor = self.BackColor
+# 		if self.mainPanel:
+# 			# Can't do this in the _afterInit, as properties haven't been
+# 			# applied at that point.
+# 			self.mainPanel.BackColor = self.BackColor
 		# Use this for timing queries and other long-
 		# running events
 		self.stopWatch = wx.StopWatch()
