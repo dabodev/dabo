@@ -127,9 +127,9 @@ class dPemMixin(dPemMixinBase):
 		#	    self.mainPanel.txtName.Value = "test"
 
 		ret = None
-		if self.Children is not None:
-			# Only objects that can contain other objects can use this method.
-			for child in self.Children:
+		children = self._getChildren()
+		if children is not None:
+			for child in children:
 				if child.Name == att:
 					ret = child
 					break
@@ -580,11 +580,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _getChildren(self):
 		if hasattr(self, "GetChildren"):
-			children = []
-			for child in self.GetChildren():
-				if isinstance(child, dabo.common.dObject):
-					children.append(child)
-			return children
+			return self.GetChildren()
 		else:
 			return None
 		
