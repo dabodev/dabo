@@ -638,7 +638,7 @@ class Grid(dabo.ui.dGrid):
 	def newRecord(self, evt=None):
 		""" Request that a new row be added.
 		"""
-		self.Parent.newRecord()
+		self.Parent.newRecord(self.bizobj.DataSource)
 
 
 	def editRecord(self, evt=None):
@@ -650,7 +650,7 @@ class Grid(dabo.ui.dGrid):
 	def deleteRecord(self, evt=None):
 		""" Request that the current row be deleted.
 		"""
-		self.Parent.deleteRecord()
+		self.Parent.deleteRecord(self.bizobj.DataSource)
 		self.SetFocus()  ## required or assertion happens on Gtk
 
 

@@ -80,12 +80,29 @@ class Page(dabo.ui.dPage):
 		self.bindEvent(dEvents.Paint, self.onResize)
 		self.bindEvent(dEvents.Idle, self.onIdle)
 
-	def editRecord(self, ds=None):
-		""" Called by a browse grid when the user wants 
-		to edit the current row. 
+	def newRecord(self, ds=None):
+		""" Called by a browse grid when the user wants to edit the current row. 
 		"""
 		if ds is None:
-			# Old code; default to the first editing page
+			self.Form.new()
+			self.editRecord()
+		else:
+			self.Parent.newByDataSource(ds)
+	
+		
+	def deleteRecord(self, ds=None):
+		""" Called by a browse grid when the user wants to edit the current row. 
+		"""
+		if ds is None:
+			self.Form.delete()
+		else:
+			self.Parent.deleteByDataSource(ds)
+
+
+	def editRecord(self, ds=None):
+		""" Called by a browse grid when the user wants to edit the current row. 
+		"""
+		if ds is None:
 			self.Parent.SetSelection(2)
 		else:
 			self.Parent.editByDataSource(ds)
@@ -597,15 +614,6 @@ class BrowsePage(Page):
 			window.SetFocus()
 
 
-	def newRecord(self):
-		self.Form.new()
-		self.editRecord()
-	
-		
-	def deleteRecord(self):
-		self.Form.delete()
-
-	
 	def onPreview(self, evt):
 		if self.itemsCreated:
 			if self.Form.preview:

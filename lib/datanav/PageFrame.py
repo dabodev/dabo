@@ -58,6 +58,13 @@ class PageFrame(dabo.ui.dPageFrame):
 	
 	def editByDataSource(self, ds):
 		self.SelectedPage = self.dsEditPages[ds]
+
+	def newByDataSource(self, ds):
+		self.Form.new(ds)
+		self.SelectedPage = self.dsEditPages[ds]
+
+	def deleteByDataSource(self, ds):
+		self.Form.delete(ds)
 		
 	def _getSelectPageClass(self):
 		try:

@@ -219,6 +219,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			response = func()
 		except dException.NoRecordsException:
 			self.setStatusText(_("No records in dataset."))
+		except dException.BeginningOfFileException:
+			self.setStatusText(self.getCurrentRecordText(dataSource) + " (BOF)")
+		except dException.EndOfFileException:
+			self.setStatusText(self.getCurrentRecordText(dataSource) + " (EOF)")
 		except dException.dException, e:
 			self.notifyUser(str(e))
 		else:
@@ -267,10 +271,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if err:
 			self.notifyUser(err)
 			return
-		try:
-			self._moveRecordPointer(bizobj.prior, dataSource)
-		except dException.BeginningOfFileException:
-			self.setStatusText(self.getCurrentRecordText(dataSource) + " (BOF)")
+		self._moveRecordPointer(bizobj.prior, dataSource)
 		self.afterPrior()
 		
 	def next(self, dataSource=None):
@@ -284,10 +285,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if err:
 			self.notifyUser(err)
 			return
-		try:
-			self._moveRecordPointer(bizobj.next, dataSource)
-		except dException.EndOfFileException:
-			self.setStatusText(self.getCurrentRecordText(dataSource) + " (EOF)")
+		self._moveRecordPointer(bizobj.next, dataSource)
 		self.afterNext()
 		
 
@@ -430,6 +428,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if bizobj is None:
 			# Running in preview or some other non-live mode
 			return
+
+		ds = bizobj.DataSource
+
 		self.activeControlValid()
 		
 		if not bizobj.RowCount > 0:
@@ -441,9 +442,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if err:
 			self.notifyUser(err)
 			return
-		if not message:
-			message = _("This will delete the current record, and cannot "
-						"be canceled.\n\n Are you sure you want to do this?")
+		if message is None:
+			message = _("This will delete the current record from %s, and cannot "
+			            "be canceled.\n\n Are you sure you want to do this?") % ds
 		if dMessageBox.areYouSure(message, defaultNo=True):
 			try:
 				bizobj.delete()
