@@ -283,6 +283,14 @@ class dCursorMixin:
 		else:
 			rec = self._rows[self.rownumber]
 			if rec.has_key(fld):
+				if type(rec[fld]) != type(val):
+					print "!!! Data Type Mismatch:", type(rec[fld]), type(val)
+					
+					if type(rec[fld]) == type(int()) and type(val) == type(bool()):
+						# convert bool to int (original field val was int, but UI
+						# changed to int. 
+						val = int(val)
+						
 				rec[fld] = val
 				ret = True
 			else:
