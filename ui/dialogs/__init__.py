@@ -1,2 +1,2 @@
-from about import About
-from login import Login
+#from about import About
+#from login import Login

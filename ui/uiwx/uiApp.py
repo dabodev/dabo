@@ -300,7 +300,8 @@ class uiApp(wx.App, dObject):
 	def getLoginInfo(self, message=None):
 		""" Display the login form, and return the user/password as entered by the user.
 		"""
-		ld = ui.dialogs.Login(self.dApp.MainForm)
+		import dabo.ui.dialogs.login as login
+		ld = login.Login(self.dApp.MainForm)
 		ld.setMessage(message)
 		ld.show()
 		user, password = ld.user, ld.password

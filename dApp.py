@@ -377,7 +377,8 @@ class dApp(dabo.common.dObject):
 	############################	
 
 	def onHelpAbout(self, evt):
-		dlg = dabo.ui.dialogs.About(self.MainForm)
+		import dabo.ui.dialogs.about as about
+		dlg = about.About(self.MainForm)
 		dlg.show()
 	
 	def _getHomeDirectory(self):
