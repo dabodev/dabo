@@ -6,10 +6,9 @@ from dButton import dButton
 
 
 class dCommandButton(dButton):
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, *args, **kwargs):
 		warnings.warn("dCommandButton is deprecated. Use dButton instead.")
-		super(dCommandButton, self).__init__(parent=parent, 
-				properties=properties, *args, **kwargs)
+		super(dCommandButton, self).__init__(*args, **kwargs)
 
 
 
