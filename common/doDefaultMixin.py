@@ -1,5 +1,9 @@
+_inspect = False
+
 import sys
-import inspect
+
+if _inspect:
+	import inspect
 
 
 class DoDefaultMixin(object):
@@ -16,18 +20,45 @@ class DoDefaultMixin(object):
 	"""
 
 	def doDefault(cls, *args, **kwargs):
-		frame = sys._getframe(1)
-		self = frame.f_locals['self']
-		methodName = frame.f_code.co_name
+		"""Call the superclass's method code, if any.
 
+		Arguments are sent along to the super method, and the return value from 
+		that super method is returned to the caller.
+
+		Example:
+			class A(dabo.ui.dForm):
+				def afterInit(self):
+					print "hi"
+					return A.doDefault()
+
+		Note that doDefault() must be called on the class, and not the self reference. 
+
+		Also, due to the implementation, the calling class must use the 'self'
+		convention - don't use 'this' or some other identifier for the class instance.
+		"""
+
+		if _inspect and "self.doDefault(" in inspect.stack()[1][4][0]:
+			## I can't find a way, besides using the inspect.stack() call, to find
+			## out if the caller is calling this on self (incorrect). I'm leaving
+			## this code in because it works, but we can't run with it because it
+			## is way too slow.
+			raise TypeError("doDefault() must be called on the class, not on self.")
+		
+		frame = sys._getframe(1)
+		self = frame.f_locals["self"]
+		methodName = frame.f_code.co_name
+		
 		# If the super() class doesn't have the method attribute, we'll pass silently
 		# because that is what the user will expect: they probably defined the method
 		# but out of habit used the doDefault() call anyway.		
 		method = cls.__getattribute__(cls, methodName)
 		
 		# Assert that the method object is actually a method
-		if method is not None and (inspect.ismethod(method) or inspect.isfunction(method)):
-			return eval('super(cls, self).%s(*args, **kwargs)' % methodName)
+		if not _inspect or (
+			method is not None and (
+			inspect.ismethod(method) or inspect.isfunction(method))):
+	
+			return eval("super(cls, self).%s(*args, **kwargs)" % methodName)
 	
 	doDefault = classmethod(doDefault)
 
