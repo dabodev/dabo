@@ -86,9 +86,9 @@ class Page(dabo.ui.dPage):
 		"""
 		if ds is None:
 			# Old code; default to the first editing page
-			self.GetParent().SetSelection(2)
+			self.Parent.SetSelection(2)
 		else:
-			self.GetParent().editByDataSource(ds)
+			self.Parent.editByDataSource(ds)
 
 		
 	def onResize(self, evt):
