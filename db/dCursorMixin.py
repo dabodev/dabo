@@ -159,6 +159,10 @@ class dCursorMixin(dabo.common.dObject):
 		self.lastSQL = self.sql
 		self.lastParams = params
 		
+		if not self.sql:
+			# Don't run an empty SQL statement!
+			self.sql = self.getSQL()
+		
 		self.execute(self.sql, params)
 		# Add mementos to each row of the result set
 		self.addMemento(-1)
@@ -1249,6 +1253,8 @@ class dCursorMixin(dabo.common.dObject):
 
 		if fromClause: 
 			fromClause = "from " + fromClause
+		else:
+			fromClause = "from " + self.Table
 		if whereClause:
 			whereClause = "where " + whereClause
 		if groupByClause:
