@@ -33,8 +33,8 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 
 
 	def append(self, item, layout="normal", row=-1, col=-1, 
-			rowSpan=1, colSpan=1, alignment=("middle", "left"), 
-			border=0, borderFlags=("all",), flag=None):
+			rowSpan=1, colSpan=1, alignment=None,halign="left", 
+			valign="middle", border=0, borderFlags=("all",), flag=None):
 		""" Inserts the passed item at the specified position in the grid. If no
 		position is specified, the item is inserted at the first available open 
 		cell as specified by the Max* properties.		
@@ -45,7 +45,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			self.Add(item, (targetRow, targetCol) )
 		else:
 			# item is the window to add to the sizer
-			_wxFlags = self._getWxFlags(alignment, borderFlags, layout)
+			_wxFlags = self._getWxFlags(alignment, halign, valign, borderFlags, layout)
 			if flag:
 				_wxFlags = _wxFlags | flag
 			self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan), 
