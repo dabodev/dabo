@@ -31,7 +31,6 @@ class DataNavPage(dPage.dPage):
 		self.redrawOutlines = self.drawSizerOutlines
 		evt.Skip()
 		
-	
 	def onIdle(self, evt):
 		if self.redrawOutlines:
 			self.redrawOutlines = False
@@ -100,9 +99,6 @@ class DataNavPage(dPage.dPage):
  				clr = random.choice(colors)
  				dc.SetPen(wx.Pen(clr, 1, wx.SOLID))
  
- 	def onEnterPage(self): pass
-
-			
 		
 class SelectOptionsPanel(dPanel.dPanel):
 	""" Base class for the select options panel.
@@ -153,10 +149,6 @@ class dSelectPage(DataNavPage):
 		# Holds info which will be used to create the dynamic
 		# WHERE clause based on user input
 		self.selectFields = {}
-
-
-	def onEnterPage(self):
-		dSelectPage.doDefault()
 
 
 	def createItems(self):
@@ -382,6 +374,11 @@ class dBrowsePage(DataNavPage):
 		dBrowsePage.doDefault(parent, "pageBrowse")
 
 
+	def initEvents(self):
+		dBrowsePage.doDefault()
+		self.Form.bindEvent(dEvents.RowNumChanged, self.onRowNumChanged)
+		
+
 	def onRowNumChanged(self, event):
 		# If RowNumChanged is received AND we are the active page, select
 		# the row in the grid.
@@ -393,7 +390,6 @@ class dBrowsePage(DataNavPage):
 			self.updateGrid()
 		else:
 			activePage.SetFocus()
-		event.Skip()
 
 
 	def updateGrid(self):
@@ -423,15 +419,14 @@ class dBrowsePage(DataNavPage):
 				self.BrowseGrid.MakeCellVisible(row, col)
 
 		
-	def onEnterPage(self):
+	def onPageEnter(self, evt):
 		self.updateGrid()
-		dBrowsePage.doDefault()
+		dBrowsePage.doDefault(evt)
 
 
 	def createItems(self):
 		bizobj = self.Form.getBizobj()
 		grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid")
-		
 		grid.fieldSpecs = self.Form.FieldSpecs
 		if not self.Form.preview:
 			grid.DataSource = bizobj.DataSource
@@ -499,9 +494,9 @@ class dEditPage(DataNavPage):
 		dEditPage.doDefault(parent, "pageEdit")
 
 
-	def onEnterPage(self):
+	def onPageEnter(self, evt):
 		self.onValueRefresh()
-		dEditPage.doDefault()
+		dEditPage.doDefault(evt)
 
 
 	def onValueRefresh(self, event=None):
@@ -598,13 +593,13 @@ class dChildViewPage(DataNavPage):
 		self.bizobj = self.Form.getBizobj().getChildByDataSource(self.dataSource)
 		self.pickListRef = None
 	
-	def onEnterPage(self):
+	def onPageEnter(self, evt):
 		if self.bizobj and self.bizobj.RowCount >= 0:
 			if not self.itemsCreated:
 				self.createItems()
 		if self.itemsCreated:
 			self.fillGrid()
-		dChildViewPage.doDefault()
+		dChildViewPage.doDefault(evt)
 	
 	
 	def onLeavePage(self):
@@ -612,12 +607,11 @@ class dChildViewPage(DataNavPage):
 			self.pickListRef.Close()
 	
 			
-	def onRowNumChanged(self, event):
+	def onRowNumChanged(self, evt):
 		# If RowNumChanged (in the parent bizobj) is received AND we are the
 		# active page, the child bizobj has already been requeried
 		# but the grid needs to be filled to reflect that.
-		self.onEnterPage()
-		event.Skip()
+		self.onPageEnter(None)
 
 
 	def createItems(self):

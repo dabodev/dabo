@@ -40,7 +40,7 @@ class dDataNavPageFrame(pgf.dPageFrame):
 				for child in bizobj.getChildren():
 					self.AddPage(self.ChildPageClass(self, child.DataSource), child.Caption, imageId=3)
 
-		self.GetPage(0).onEnterPage()
+		self.GetPage(0).onPageEnter(None)
 
 		
 	def _getSelectPageClass(self):

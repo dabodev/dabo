@@ -105,7 +105,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			# update the form
 			self.grid.Form.rowNumber = 0
 			self.grid.Form.rowCount = 100
-	
+			
 		for record in dataSet:
 			recordDict = []
 			for col in self.showCols:
@@ -124,7 +124,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				recordDict.append(recordVal)
 			self.data.append(recordDict)
 
-		self.grid.BeginBatch()
+		grdView = self.GetView()
+		grdView.BeginBatch()
 		# The data table is now current, but the grid needs to be
 		# notified.
 		if len(self.data) > rows:
@@ -133,7 +134,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			msg = wx.grid.GridTableMessage(self,         # The table
 				wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,  # what we did to it
 				num)                                     # how many
-
+			
 		elif rows > len(self.data):
 			# tell the grid we've deleted row(s)
 			num = rows - len(self.data) 
@@ -144,7 +145,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		else:
 			msg = None
 		if msg:        
-			self.GetView().ProcessTableMessage(msg)
+			grdView.ProcessTableMessage(msg)
 
 		# Column widths come from dApp user settings, or get sensible
 		# defaults based on field type.
@@ -180,7 +181,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 			self.grid.SetColSize(gridCol, width)
 			index += 1
-		self.grid.EndBatch()
+		grdView.EndBatch()
 
 
 	def getWxGridType(self, xBaseType):
