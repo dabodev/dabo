@@ -1,0 +1,2293 @@
+Dabo-0.1:
+
+------------------------------------------------------------------------
+r259 | paul | 2004-05-07 20:06:34 -0700 (Fri, 07 May 2004) | 4 lines
+
+I messed up earlier, intending to move the app name/version stuff to be 
+more accessible, I instead moved it to a point too late in instantiation
+for the main form to notice.
+
+------------------------------------------------------------------------
+r258 | paul | 2004-05-07 16:43:43 -0700 (Fri, 07 May 2004) | 2 lines
+
+Put the dabo icon on the forms by default.
+
+------------------------------------------------------------------------
+r257 | paul | 2004-05-07 16:22:53 -0700 (Fri, 07 May 2004) | 5 lines
+
+Make column definition items tuples instead of lists, so that they are
+immutable. dGrid can alter its copy of the columndef for its own use,
+and when it was a list it was altering the shared copy. Making it 
+immutable forces a pass-by-value instead of pass-by-reference.
+
+------------------------------------------------------------------------
+r256 | paul | 2004-05-07 16:09:25 -0700 (Fri, 07 May 2004) | 3 lines
+
+Change the order of the setting of the appInfo properties, to allow 
+user code to set these properties in dApp.setup().
+
+------------------------------------------------------------------------
+r255 | paul | 2004-05-07 15:42:42 -0700 (Fri, 07 May 2004) | 3 lines
+
+Fix some long-standing, really funky problems with repositioning and resizing
+grid columns. It should be way more stable now.
+
+------------------------------------------------------------------------
+r254 | paul | 2004-05-07 15:31:46 -0700 (Fri, 07 May 2004) | 2 lines
+
+This fixes the __setattr__ problem.
+
+------------------------------------------------------------------------
+r253 | ed | 2004-05-07 12:35:35 -0700 (Fri, 07 May 2004) | 5 lines
+
+Corrected a bunch of dumb typos.
+
+Note: I have to run out now, but next on the list is to update the demos,
+etc., to import dException instead of dError.
+
+------------------------------------------------------------------------
+r252 | ed | 2004-05-07 12:31:14 -0700 (Fri, 07 May 2004) | 2 lines
+
+Removed extra parenthesis
+
+------------------------------------------------------------------------
+r251 | ed | 2004-05-07 12:09:31 -0700 (Fri, 07 May 2004) | 8 lines
+
+Changed all of the references to dError to dException to emphasize the
+deliberate nature of these exceptions. Removed all the 'errorMsg'-related
+code in the bizobj and cursor classes, as these now raise exception rather
+than returning False.
+
+Modified the beforeXX() methods so that returning any non-empty string
+raises an exception with that string as the error message of the exception.
+
+------------------------------------------------------------------------
+r250 | paul | 2004-05-07 11:25:07 -0700 (Fri, 07 May 2004) | 5 lines
+
+Change dApp.homeDir from the location where Python was started to the location
+where the startup script lives. This allows shortcuts to appRecipes/main.py to
+find the dbConnectionDefs.py, for example.
+
+
+------------------------------------------------------------------------
+r249 | paul | 2004-05-06 20:07:20 -0700 (Thu, 06 May 2004) | 2 lines
+
+Some mods to ANNOUNCE
+
+------------------------------------------------------------------------
+r248 | paul | 2004-05-06 14:22:53 -0700 (Thu, 06 May 2004) | 6 lines
+
+Fix to the MySQL int/bool problem. This still isn't the correct 
+solution I don't think, but at least it happens where it should:
+at the cursor level, and only when there is a type mismatch 
+between the old val and the new val.
+
+
+------------------------------------------------------------------------
+r247 | ed | 2004-05-06 11:18:51 -0700 (Thu, 06 May 2004) | 3 lines
+
+I've edited the original ANNOUNCE, adding some stuff and switching other
+stuff around.
+
+------------------------------------------------------------------------
+r246 | paul | 2004-05-05 21:46:02 -0700 (Wed, 05 May 2004) | 4 lines
+
+Fix bug in flushValue code: self shouldn't have been prepended
+to curVal.
+
+
+------------------------------------------------------------------------
+r245 | paul | 2004-05-05 16:05:58 -0700 (Wed, 05 May 2004) | 6 lines
+
+Modify the property names of dConnectInfo to match the conventions
+elsewhere in Dabo of capitalized property names.
+
+Add a dMessageBox.info() message box.
+
+
+------------------------------------------------------------------------
+r244 | paul | 2004-05-04 10:49:55 -0700 (Tue, 04 May 2004) | 15 lines
+
+Fix dGrid's checkboxes to reflect the true value, instead of just being
+checked no matter what.
+
+The strict name checking won't work for parentless windows, such as a 
+top-level frame. For now, turn off strict checking for parentless windows,
+allowing possible duplicate names.
+
+Fix the test.py script to use unique object names.
+
+Call activeControlValid() when the user leaves a page. This allows, for
+example, the values in dGrid to reflect the new value without the user
+having to leave the control first.
+
+
+
+------------------------------------------------------------------------
+r243 | paul | 2004-05-04 09:43:28 -0700 (Tue, 04 May 2004) | 9 lines
+
+Add code in dGrid to display boolean values in a checkbox. Fix bug
+in dGrid which would cause an IndexError when assigning default column
+widths.
+
+Fix dPageDataNav.EditPage to put the caption in the checkbox instead
+of in the label.
+
+
+
+------------------------------------------------------------------------
+r242 | ed | 2004-05-04 08:59:58 -0700 (Tue, 04 May 2004) | 6 lines
+
+When a the flushValue() method was being called to flush changes to a
+control before a Save was run, the _oldVal property was not being updated.
+Subsequent calls to the control's flushValue() method would fail if the new
+value was equal to the original _oldVal. While this would not be common in
+text fields, it is very common in boolean fields.
+
+------------------------------------------------------------------------
+r241 | paul | 2004-05-04 06:56:35 -0700 (Tue, 04 May 2004) | 10 lines
+
+Add convenience function dBizobj.getChildByDataSource().
+
+Since dPageFrame sets a default number of pages now in __init__, 
+fix dPageFrameDataNav to set this back to zero, so that when 
+pages get added later they are the only pages.
+
+Fix dPageDataNav to not expect to get the child bizobj references
+directly from dForm, since dForm doesn't manage child bizobjs.
+
+
+------------------------------------------------------------------------
+r240 | paul | 2004-05-03 19:21:20 -0700 (Mon, 03 May 2004) | 14 lines
+
+Add PageClass and PageCount properties to dPageFrame, for specifying
+the number of pages (new pages will be based on PageClass, allowing
+the user to override with their own base class). User still has the
+option to use AddPage() directly.
+
+Reworked the setting of the default number of pages... does that work
+for you, knowing that we aren't encouraging passing values to the
+constructors? The only drawback to setting a positive number of pages
+is that user code will have to first set to zero if they want to add
+their own subclassed pages.
+
+Add TabPosition to the list of properties that require recreation.
+
+
+------------------------------------------------------------------------
+r239 | paul | 2004-05-03 17:36:32 -0700 (Mon, 03 May 2004) | 25 lines
+
+Handle NoRecordsError in dBizobj.getParentPk().
+
+Childviews in dFormDataNav use dGrid in the childview pages just like in
+the main browse page. Add logic so that when new/edit/delete is selected
+in the popup menu, it gets directed to the proper place.
+
+Raise NameError if user code tries to set a dObject's Name property to 
+a sibling's name. If this happens inside the init phase of the control, the
+error won't propagate up but the object will get assigned a new name 
+instead.
+
+Make control's init's call private methods _beforeInit() and _afterInit()
+instead of the user-code beforeInit() and afterInit() hooks. This is to 
+offer a level of guarantee that the basic stuff happens even if the user
+forgets to doDefault(). _beforeInit() and _afterInit() now call the user-
+code hook methods.
+
+Add initChildObjects() hook, which is where daboDesigner should put its
+addObject() code. Called from dPemMixin._afterInit().
+
+Fix dSlider's docstring.
+
+
+
+
+------------------------------------------------------------------------
+r238 | ed | 2004-05-02 13:01:04 -0700 (Sun, 02 May 2004) | 3 lines
+
+Added the new TypeID property to the list of props that are hidden in the
+designer.
+
+------------------------------------------------------------------------
+r237 | ed | 2004-05-01 03:36:15 -0700 (Sat, 01 May 2004) | 2 lines
+
+Er, ah... you might need this file... ;-)
+
+------------------------------------------------------------------------
+r236 | ed | 2004-04-30 20:31:57 -0700 (Fri, 30 Apr 2004) | 3 lines
+
+Added dSlider control.
+
+
+------------------------------------------------------------------------
+r235 | paul | 2004-04-30 11:45:42 -0700 (Fri, 30 Apr 2004) | 2 lines
+
+More info in INSTALL.
+
+------------------------------------------------------------------------
+r234 | paul | 2004-04-30 10:11:55 -0700 (Fri, 30 Apr 2004) | 3 lines
+
+When I made the bizobj changes, I inadvertantly set the default value of
+RestorePositionOnRequery to False instead of True.
+
+------------------------------------------------------------------------
+r233 | paul | 2004-04-30 09:30:26 -0700 (Fri, 30 Apr 2004) | 9 lines
+
+Dabo Announcement Version 0.1, dated 5/1/2004. Please read and augment. I'll send this
+to:
+
+ProFox/ProLinux/ProPython
+San Jose VFP SIG
+wxPython-users
+python-users
+
+
+------------------------------------------------------------------------
+r232 | paul | 2004-04-29 16:23:33 -0700 (Thu, 29 Apr 2004) | 6 lines
+
+Change docstring style from ''' to """, dabo-wide. 
+
+Make some of the bizobj changes as discussed, but didn't do the RI stuff
+as I'm unclear on what, if anything, we've decided to do.
+
+
+------------------------------------------------------------------------
+r231 | paul | 2004-04-29 11:23:57 -0700 (Thu, 29 Apr 2004) | 3 lines
+
+Add the new dabo icon in various sizes. They will likely get
+modified but at least they are there as placeholders.
+
+------------------------------------------------------------------------
+r230 | paul | 2004-04-29 08:05:34 -0700 (Thu, 29 Apr 2004) | 8 lines
+
+When I moved dError into its own namespace in dCursorMixin last week, I
+neglected to specify the namespace in some places where errors are raised.
+Fix that.
+
+Fix dGrid to call setRowNumber() instead of the now-nonexistent moveToRowNum().
+
+Fix a couple bugs in dPageDataNav.
+
+------------------------------------------------------------------------
+r229 | ed | 2004-04-29 07:13:19 -0700 (Thu, 29 Apr 2004) | 8 lines
+
+Changed the names of the moveTo* methods to _moveTo* to indicate that they
+should not be called directly from outside the bizobj,
+
+Added the setRowNumber() method, which allows navigation to a particular row
+in the result set, with a resultant requeryAllChildren() call. It also has
+the standard before- and after- hooks.
+
+
+------------------------------------------------------------------------
+r228 | ed | 2004-04-29 04:48:48 -0700 (Thu, 29 Apr 2004) | 4 lines
+
+Didn't realize that the SetRange() method of the Gauge control did not
+require re-creation, so I removed that property name from the
+preInitProperties.
+
+------------------------------------------------------------------------
+r227 | ed | 2004-04-29 04:42:53 -0700 (Thu, 29 Apr 2004) | 3 lines
+
+Accidentally restored the wrong line when merging my changes in with the
+ones you made yesterday.
+
+------------------------------------------------------------------------
+r226 | ed | 2004-04-29 04:35:00 -0700 (Thu, 29 Apr 2004) | 26 lines
+
+Removed the calls to requeryAllChildren() and afterPointerMove() from the
+bizobj. Added those calls as an option to the seek() method.
+
+The first two methods are "for internal use only", and should never be called from
+an app. They exist so that the bizobj can move the pointer to where it needs
+to be without triggering a slew of additional effects. 
+
+moveToPK() is only used in a requery() to try to restore the record pointer
+to the PK of the record it was on before the cursror was requeried. It is
+followed by a call to requeryAllChildren() and afterPointerMove() in that
+method; calling it again from this one is just inefficient..
+
+moveToRowNum() is called by the validate() method so that a bizobj can check
+all of its records. You don't want it requerying its children, as they will
+need to be validated separately, and will be called in turn.
+
+In VFP Codebook, these methods are protected. For record pointer movement
+from within an app, the public methods first(), next(), etc., should be used
+to move the record pointer.
+
+Since seek() is intended to be called both internally and from developer's
+code, I've added a parameter 'runRequery' which defaults to False. If this
+value is passed as True, requeryAllChildren() and afterPointerMove() will be
+called if the cursor moves the pointer.
+
+
+------------------------------------------------------------------------
+r225 | paul | 2004-04-28 23:38:17 -0700 (Wed, 28 Apr 2004) | 4 lines
+
+Make dGauge not data-aware, and fix range and value to work correctly.
+BackColor and ForeColor don't seem to work, neither does BorderStyle.
+
+
+------------------------------------------------------------------------
+r224 | paul | 2004-04-28 23:18:00 -0700 (Wed, 28 Apr 2004) | 2 lines
+
+Child view pages now show data browse grid.
+
+------------------------------------------------------------------------
+r223 | paul | 2004-04-28 16:22:00 -0700 (Wed, 28 Apr 2004) | 2 lines
+
+Further work on child views for the dFormDataNav thing.
+
+------------------------------------------------------------------------
+r222 | ed | 2004-04-28 13:36:41 -0700 (Wed, 28 Apr 2004) | 5 lines
+
+Added the Gauge control. It's generally working (although there are some
+funky background changes when being reCreated), but I haven't been able to
+get the ability to change the Range of the control at design time. Guess I
+need to grok the whole preInit stuff better.
+
+------------------------------------------------------------------------
+r221 | paul | 2004-04-28 13:11:48 -0700 (Wed, 28 Apr 2004) | 50 lines
+
+Refactor the API of dBizobj, making most of the 'properties' into actual
+Python properties complete with getters, setters, and docstrings. Here is
+a list of the new bizobj properties:
+
+	Caption (new: friendly name for communicating with the user)
+	DataSource (was dataSource)
+	SQL (was sql)
+	RequeryOnLoad (was noDataOnLoad)
+	AutoPopulatePK (was autoPopulatePK)
+	Parent (was _parent)
+	KeyField (was keyField)
+	LinkField (was linkField)
+	ErrorMessage (was _errorMsg, and I think this one can go because of the exception-refactor)
+	RequeryChildOnSave (was requeryChildOnSave)
+	NewChildOnNew (was newChildOnNew)
+	NewRecordOnNewParent (was newRecordOnNewParent)
+	FillLinkFromParent (was fillLinkFromParent)
+	RestorePositionOnRequery (was savePosOnRequery)
+
+Obviously, I've FUBAR'd the original API so all the demos that use bizobj's 
+will have to be changed, which I'll do after lunch.
+
+Refactor getPropertyList() and getPropertyInfo() out of dPemMixin and into the
+new dabo.common.PropertyHelperMixin, since these functions can be useful at a
+lower level than our wx interface. Make dPemMixin and dBizobj inherit from
+PropertyHelperMixin, which means that dBizobj can now theoretically be represented
+on the designer and have its properties edited there.
+
+Add beforeInit() hook to dBizobj, which allows the user code an opportunity to 
+modify properties such as RequeryOnLoad before they take effect.
+
+dBizobj.__setattr__ had old-style class code that was causing my new property API
+to fail silently, and it drove me crazy for an entire hour at least. :)  Changing
+to the new-style super() call for non-cursor field attributes fixed the problem.
+Lesson learned: __getattr__ will be called only after the attribute was not found, 
+while __setattr__ gets called before Python looks for the attribute at all. Sounds 
+like a subtle difference on paper but the implications are huge!
+
+Add method getChildren() to dBizobj, which returns a tuple of object references
+to the children. 
+
+Add icon childview.png, which represents a child bizobj in the runtime dFormDataNav.
+
+In dFormDataNav, delay instantiation of the pageframe until the primary column def
+has been assigned, which allows the childviews to appear in the nav menu and in the
+page frame.
+
+The UI for the child view stuff isn't working yet, but it is a little closer. I started
+out this morning working on that and got sidetracked with the bizobj changes.
+
+------------------------------------------------------------------------
+r220 | paul | 2004-04-28 08:42:09 -0700 (Wed, 28 Apr 2004) | 10 lines
+
+Make changes to BackColor do an implicit self.Refresh(), as it appears to 
+be necessary with most controls, although it appears that dEditBox needs to
+actually be recreated...
+
+The borderstyle thing isn't working right, as different controls have different
+default borders. For instance, dEditBox with no border style flags set has a
+simple border, while dPanel does not. Add a 'Default' setting to let the value
+get set back to that control's default (no border flags set).
+
+
+------------------------------------------------------------------------
+r219 | paul | 2004-04-28 08:10:24 -0700 (Wed, 28 Apr 2004) | 4 lines
+
+Fix bug in dCheckbox where setting alignment back to Left would raise
+a ValueError.
+
+
+------------------------------------------------------------------------
+r218 | ed | 2004-04-28 04:23:43 -0700 (Wed, 28 Apr 2004) | 3 lines
+
+Refactored out the prop/val saving and prop/val restoring sections of
+reCreate so that they could be called from other places.
+
+------------------------------------------------------------------------
+r217 | paul | 2004-04-27 17:21:34 -0700 (Tue, 27 Apr 2004) | 25 lines
+
+Import dError into separate namespace, instead of into global namespace,
+in dBizobj and dCursorMixin.
+
+Make dBizobj inherit from DoDefaultMixin. Add an afterInit() hook in 
+dBizobj so that subclasses don't need to know what to send to __init__().
+
+In dBizobj, there were lots of structures like:
+		try:
+			self._cursor.first()
+			self.requeryAllChildren()
+		except dError, e:
+			# Pass the error back to the UI
+			raise dError, e
+			return False
+		
+Since nothing else is being done except re-raising the error, I simplified
+these by taking out the try block completely. The error will propagate back
+to the UI by default anyway.
+
+Fix bug in dBizobj: moveToRowNum() and moveToPK() were not requerying the
+child bizobjs nor calling the afterPointerMove() hook.
+
+Put a couple try blocks in dGrid and dDataControlMixin.
+
+
+------------------------------------------------------------------------
+r216 | paul | 2004-04-27 13:00:11 -0700 (Tue, 27 Apr 2004) | 3 lines
+
+Text of GPL to COPYING. Addition of LICENSE.TXT which specifies copyright
+and license.
+
+------------------------------------------------------------------------
+r215 | ed | 2004-04-26 17:58:00 -0700 (Mon, 26 Apr 2004) | 3 lines
+
+Changed the setSQL() method so that passing no argument results in the same
+thing as calling biz.setSQL(biz.getSQL()).
+
+------------------------------------------------------------------------
+r214 | ed | 2004-04-26 15:45:11 -0700 (Mon, 26 Apr 2004) | 2 lines
+
+Cleaned up the copying of ToolTipText.
+
+------------------------------------------------------------------------
+r213 | ed | 2004-04-26 13:35:27 -0700 (Mon, 26 Apr 2004) | 4 lines
+
+Added a list of properties to ignore. These are properties that are either
+calculated props, such as 'Right', or properties that cannot be set, such as
+'BaseClass'.
+
+------------------------------------------------------------------------
+r212 | ed | 2004-04-26 12:17:36 -0700 (Mon, 26 Apr 2004) | 10 lines
+
+Modified the reCreate() method to better assign properties. There are still
+some artifacts to work out that mostly involve property assignment order;
+for example, the method was restoring the Left, Right, and Width properties
+in such a way that controls were being moved every time they were
+re-created. I added some extra code to handle this, but there are some
+similar problems with fonts that need to be addressed.
+
+I left in a line that prints out all failed property assignments, so that we
+remember to handle these exceptions.
+
+------------------------------------------------------------------------
+r211 | paul | 2004-04-24 17:06:40 -0700 (Sat, 24 Apr 2004) | 2 lines
+
+Fix inconsistency in dRadioGroup.
+
+------------------------------------------------------------------------
+r210 | paul | 2004-04-23 16:19:27 -0700 (Fri, 23 Apr 2004) | 4 lines
+
+Experimenting with a print preview of the browse records - push the
+preview button when on the browse page. Ugly but at least it's a 
+start.
+
+------------------------------------------------------------------------
+r209 | paul | 2004-04-23 15:51:36 -0700 (Fri, 23 Apr 2004) | 2 lines
+
+Change name of dOptionGroup to dRadioGroup.
+
+------------------------------------------------------------------------
+r208 | paul | 2004-04-23 15:33:55 -0700 (Fri, 23 Apr 2004) | 10 lines
+
+Fix some bugs in dOptionGroup.
+
+Experimental: I'm actually scared at how easy this was to implement, but I added
+a reCreate() function to dPemMixin, so now any object can reinstantiate itself
+by calling self.reCreate(). The intent is really for the daboDesigner to be able 
+to reinstantiate an object at will, such as when a property changes that won't
+take effect at runtime, such as Alignment, BorderStyle, PasswordEntry, and all the
+useful properties of dOptionGroup.
+
+
+------------------------------------------------------------------------
+r207 | paul | 2004-04-23 13:38:39 -0700 (Fri, 23 Apr 2004) | 2 lines
+
+Fix typos causing TypeError on instantiation.
+
+------------------------------------------------------------------------
+r206 | paul | 2004-04-23 12:50:36 -0700 (Fri, 23 Apr 2004) | 13 lines
+
+Add dOptionGroup, based on wx.RadioBox. 
+
+Modify icon for dLabel. Still not happy with it, but it is better 
+than the last one.
+
+Simplify all constructors of the dControls with new PostCreate()
+feature of wxPython.
+
+Remove the echoing of the icon file name from dIcons, which Ed noticed
+while running daboDesigner.
+
+
+
+------------------------------------------------------------------------
+r205 | paul | 2004-04-23 08:54:16 -0700 (Fri, 23 Apr 2004) | 2 lines
+
+Make FontFace read-only.
+
+------------------------------------------------------------------------
+r204 | ed | 2004-04-23 05:43:10 -0700 (Fri, 23 Apr 2004) | 3 lines
+
+Corrected copy/paste bug: _getBackColorEditorInfo was not present; instead,
+_getForeColorEditorInfo was listed twice.
+
+------------------------------------------------------------------------
+r203 | ed | 2004-04-23 05:35:17 -0700 (Fri, 23 Apr 2004) | 4 lines
+
+Changed the spelling of the editor for colors to 'colour', to be consistent
+with the rest of wxPython. It's odd having to remember when to write which
+spelling, so 'colour' it is.
+
+------------------------------------------------------------------------
+r202 | paul | 2004-04-22 18:42:04 -0700 (Thu, 22 Apr 2004) | 2 lines
+
+Add other control icons, and make a better dEditBox icon.
+
+------------------------------------------------------------------------
+r201 | paul | 2004-04-22 18:01:11 -0700 (Thu, 22 Apr 2004) | 4 lines
+
+Add icon dEditBox.png, which will display in the daboDesigner if you make
+the changes I'm about to commit.
+
+
+------------------------------------------------------------------------
+r200 | paul | 2004-04-22 18:00:22 -0700 (Thu, 22 Apr 2004) | 6 lines
+
+Make the daboDesignerClass dict have a prompt key as well that can include
+a hotkey value.
+
+Fix dIcons.getIconBitmap() to really return null bitmaps when the file
+doesn't exist.
+
+------------------------------------------------------------------------
+r199 | paul | 2004-04-22 15:26:07 -0700 (Thu, 22 Apr 2004) | 2 lines
+
+Add the font editor info to the Font property.
+
+------------------------------------------------------------------------
+r198 | paul | 2004-04-22 14:54:54 -0700 (Thu, 22 Apr 2004) | 5 lines
+
+Move property SelectOnEntry from dDataControlMixin to dTextBox and
+dEditBox as it only applies to text controls. I should probably make
+a dTextControlMixin to avoid the code duplication - another day.
+
+
+------------------------------------------------------------------------
+r197 | ed | 2004-04-22 13:53:28 -0700 (Thu, 22 Apr 2004) | 2 lines
+
+Corrected indentation in the docstring for the class.
+
+------------------------------------------------------------------------
+r196 | paul | 2004-04-22 12:29:23 -0700 (Thu, 22 Apr 2004) | 5 lines
+
+Extract doDefault() from dPemMixin and put in new dabo.common submodule,
+and make dPemMixin inherit from dabo.ui.common.DoDefaultMixin. This was 
+because doDefault() has broader use than just inside the UI part of dabo.
+
+
+------------------------------------------------------------------------
+r195 | paul | 2004-04-22 10:53:13 -0700 (Thu, 22 Apr 2004) | 5 lines
+
+Reimplemented addObject() to take a classRef directly instead of className and
+moduleName strings. This is better because it leaves it up to the subclass to 
+make sure the proper module is imported, which is where that belongs.
+
+
+------------------------------------------------------------------------
+r194 | paul | 2004-04-22 10:27:06 -0700 (Thu, 22 Apr 2004) | 4 lines
+
+Keep the details of building daboDesignerClasses from polluting
+the module's namespace.
+
+
+------------------------------------------------------------------------
+r193 | paul | 2004-04-22 10:22:04 -0700 (Thu, 22 Apr 2004) | 11 lines
+
+Update dabo.ui.daboDesignerClasses to be a list of dictionaries, with
+keys on 'name', 'class', 'topLevel', 'icon', and 'doc'. The
+topLevel key can be used to determine if the object can be added
+to another control, or if it must be the top level object. The icon 
+key will have a picture of the control suitable for displaying in a 
+menu or toolbar control-picker. The doc key provides some help text.
+
+After adding the doc key above, I finally got around to writing short
+docstrings for the various dControls.
+
+
+------------------------------------------------------------------------
+r192 | paul | 2004-04-22 06:59:43 -0700 (Thu, 22 Apr 2004) | 6 lines
+
+Add daboDesignerClasses list to dabo.ui module, which is a list of class references
+to the valid dabo classes to show in the designer.
+
+Our users can do the same thing with their modules, to control what of their custom
+classes show in the designer.
+
+------------------------------------------------------------------------
+r191 | paul | 2004-04-21 19:26:19 -0700 (Wed, 21 Apr 2004) | 5 lines
+
+Add the promised addObject() method to dPemMixin, allowing code like:
+	self.addObject("dTextBox", "dabo.ui", "txtLastName")
+	self.txtLastName.FontBold = True
+
+
+------------------------------------------------------------------------
+r190 | paul | 2004-04-21 17:29:14 -0700 (Wed, 21 Apr 2004) | 6 lines
+
+Tabs!
+
+Or, a review of the entire source base of Dabo. <g>
+
+Also, removed the appRoot directory.
+
+------------------------------------------------------------------------
+r189 | paul | 2004-04-21 16:23:33 -0700 (Wed, 21 Apr 2004) | 23 lines
+
+Increase robustness of property setters by coercing proper data types
+and raising exceptions with improper values.
+
+Fix a few places where my strategy for setting/deleting window style
+flags wasn't up to snuff.
+
+Add 'showInDesigner' key to the getPropertyInfo dict. This tells the 
+designer whether to show the property at all. Set WindowHandle, Size,
+and Position to not show in the designer.
+
+Add 'preInitProperty' key to the getPropertyInfo dict. This tells the
+designer where to put this property setting in the class's source code.
+Some properties need to be set before the object is fully constructed,
+while most need to be set after the object is fully constructed. Set 
+the few properties I know about that need to be defined early.
+
+Add some editorInfo overrides to some properties, where the defaults 
+wouldn't be adequate. For instance, the default for integers is -65536
+to 65536, which is completely inappropriate for properties like Width
+and Height, which can't go below 0.
+
+
+
+------------------------------------------------------------------------
+r188 | paul | 2004-04-21 14:16:36 -0700 (Wed, 21 Apr 2004) | 22 lines
+
+Separate out the property initialization, based on whether the property
+needs to be passed as a style parameter to the constructor (property will
+be read-only at runtime), or whether the property must be set after the
+object is fully instantiated (property will be read/write at runtime 
+unless specified differently in the property assignment).
+
+Add getPropertyInfo() to dPemMixin, which returns a dict of useful information
+on the passed property name, including the data type, the editor to use, and 
+the docstring. This is to make the designer much more generic: it can just
+query the object for most of the information it needs.
+
+Part of the logic of the above involves checking for the editor to use by
+calling a special method which is named similarly to the given property.
+If that method doesn't exist, a default value for editor info is returned, 
+based on data type, which is how I've left it for most of the properties.
+The only properties I've specifically defined editors for so far are the ones 
+that have a set number of choices to be presented in a list, such as 'Alignment'.
+
+Add property 'AutoResize' to dLabel.
+
+
+
+------------------------------------------------------------------------
+r187 | paul | 2004-04-20 17:44:14 -0700 (Tue, 20 Apr 2004) | 17 lines
+
+Change some of my " to ' <g>.  Localize some strings.
+
+Change multi-state properties, such as Alignment, to have string
+identifiers instead of integer identifiers.
+
+Give dForm the wx interface, just like I did for the dControls earlier.
+Remove setupResources() from dForm as I don't think that is the interface
+we'll use (I don't think we'll use resources at all).
+
+Fix some properties to work correctly. This was after testing with 
+dTextBox in daboDesigner. I need to figure out how to deal with the 
+styles that have to be passed to the constructor, not altered after the
+object has already been created (Alignment, for example). I'm thinking
+that we'll have to get a copy of the object's properties, destroy it, 
+and then recreate it. 
+
+
+------------------------------------------------------------------------
+r186 | paul | 2004-04-19 22:46:27 -0700 (Mon, 19 Apr 2004) | 16 lines
+
+Fix some import statements. Fix bug in property 'ToolTipText'. Fix ui test
+script to use the new property interface.
+
+Rework the dControl's constructors to pretty much conform to wx's constructor
+format. There are some exceptions, and I haven't done the dForm's yet. To be
+completely safe, anything beyond parent and id should use named arguments even
+though theoretically positional arguments should work.
+
+Add a requery button to the select page of dFormDataNav, and try to set it as
+the default button (click on <Enter>) but at least on Linux that isn't working
+as advertised. Rework the select page to use dControls instead of wx controls
+directly and use the property interface.
+
+
+
+
+------------------------------------------------------------------------
+r185 | paul | 2004-04-19 16:25:37 -0700 (Mon, 19 Apr 2004) | 16 lines
+
+Simplify icon names. Add a couple new icons.
+
+Add new actions to edit menu: cut/copy/paste/find. Surprisingly, I
+had to implement cut/copy/paste myself using the clipboard object,
+even though cut/copy/paste is one thing that is pretty much universal
+among the various platforms.
+
+Decorate various menu items with appropriate icons. Make dMenu inherit
+from dPemMixin. 
+
+Add property 'WindowState' to the forms, which provides one interface to
+get/set whether the form is minimized, normal, maximized, or full screen.
+
+
+
+
+------------------------------------------------------------------------
+r184 | paul | 2004-04-17 14:00:44 -0700 (Sat, 17 Apr 2004) | 55 lines
+
+Make dLabel not auto-resize to the length of the text. Fix a couple minor
+bugs.
+
+Add the following properties, most of which are saved in the WindowStyleFlags
+and so otherwise would be kind of difficult to use:
+
+dCheckBox:
+    .Alignment (left, right)
+    
+dEditBox:
+    .Alignment (left, center, right)
+    .ReadOnly
+    
+dLabel:
+    .Alignment (left, center, right)
+    
+dPageFrame:
+    .TabPosition (top, left, right, bottom)
+
+dSpinner:
+    .SpinnerWrap (does the value wrap from low to high, and vice-versa)
+    .SpinnerArrowKeys (can the user spin up/down with the keyboard)
+    
+dTextBox:
+    .Alignment (left, center, right)
+    .ReadOnly (like Enabled=False but allows text selection)
+    .PasswordEntry (if True, echoes asterisks instead of Value)
+
+All forms:
+    .BorderResizable
+    .ShowMaxButton
+    .ShowMinButton
+    .ShowCloseButton
+    .ShowCaption
+    .ShowSystemMenu
+    .TinyTitleBar
+    
+All controls and forms:
+    .BorderStyle (none, simple, raised, sunken)
+    .WindowHandle (platform-specific Hwnd)
+
+Note that in most cases I haven't tested any property interactions yet, but 
+in theory they should all work. Some of these won't work on live objects, so
+in the future when integrating with the designer we'll probably have to recreate
+the object after some of these properties change. My feeling is that most testing
+of the properties can wait until the designer is instantiating these controls, at
+which point we'll have a convenient interactive testing environment.
+
+Note also that I chose to skip over some possibilities, such as making a 3-state
+checkbox control and some other styles that only work on this or that platform.
+We can revisit these in the future and choose to put them in, but my feeling is
+that if it doesn't apply to all platforms, it shouldn't apply to any platform.
+Keeping Dabo at the lowest common functionality will reduce surprises and headaches
+for our users later, when they try to port their app from Windows to Mac.
+
+------------------------------------------------------------------------
+r183 | paul | 2004-04-16 15:50:29 -0700 (Fri, 16 Apr 2004) | 11 lines
+
+Change name of property 'ParentClass' to 'SuperClass'.
+
+Add flat Font* properties, including FontInfo which is a text-string
+representation of the current font.
+
+Add properties 'Right' and 'Bottom' just because I guess...         
+
+Fix a bug that was returning the object's position instead of the 
+object's size.
+
+
+------------------------------------------------------------------------
+r182 | paul | 2004-04-16 11:49:55 -0700 (Fri, 16 Apr 2004) | 9 lines
+
+Add property 'Class' to dPemMixin, and give meaningful values to properties
+'Class', 'ParentClass', and 'BaseClass'. self.Class will return a classref
+to the class the object is based on. self.ParentClass will return a classref
+to the parent class, or None if the parent class is higher up than self.BaseClass.
+self.BaseClass will return a classref to the base dControl of the class, NOT 
+the base class of whatever UI is in use (wx.EventHandler in wxPython).
+
+
+
+------------------------------------------------------------------------
+r181 | paul | 2004-04-15 11:52:29 -0700 (Thu, 15 Apr 2004) | 15 lines
+
+Fix Linux segmentation fault and Windows Fatal Error c0000005 that
+was happening on destruction of the main frame. This appears to be
+a problem way down in the bowels of wx that I exposed with yesterday's
+addition of the dPemMixin.__getattr__() code, which was doing a
+self.GetName() to be able to display the name of the object in the
+raised AttributeError exception. I think the base C++ object is 
+already destroyed which resulted in GetName() segfaulting. My workaround
+saves self.GetName() to _name at opportune times, and __getattr__ uses
+the value of _name for the AttributeError.
+
+Add class dPanel, and make dPage inherit from that instead of from
+wx.Panel.
+
+
+
+------------------------------------------------------------------------
+r180 | paul | 2004-04-14 17:45:07 -0700 (Wed, 14 Apr 2004) | 16 lines
+
+Add a classmethod doDefault() to dPemMixin, which allows superclass
+methods to be called using the VFP-like syntax of:
+    
+    retval = class.doDefault([args])
+
+For instance:
+    
+    class MyTextBox(dTextBox):
+        def afterInit(self):
+            print "afterInit"
+            MyTextBox.doDefault()
+
+This can replace the super(class,self).methodName([args]) syntax, which
+I think is much friendlier.
+
+
+------------------------------------------------------------------------
+r179 | paul | 2004-04-14 13:12:25 -0700 (Wed, 14 Apr 2004) | 18 lines
+
+Split the __init__ phase into 2-stage, for future accomodation of loading
+properties from resource files, and to accomodate setting certain extra
+styles that cannot otherwise be set. Add beforeInit() and afterInit() 
+hooks to dPemMixin which is an ancestor of all the dControls and dForms, 
+and provide docstrings to encourage users to put their code in these methods
+instead of in __init__() directly.
+
+Add a __getattr__() in dPemMixin which will try to resolve attributes to
+child windows, allowing references like 'self.myPanel.myTextBox.Value', for
+example.
+
+Remove dControlMixin.setDefaultFont(), as this was cruft from the previous
+Dabo which doesn't appear to be necessary anymore.
+
+Add properties 'SpinnerHighValue' and 'SpinnerLowValue' to dSpinner.
+
+
+
+------------------------------------------------------------------------
+r178 | paul | 2004-04-14 08:14:36 -0700 (Wed, 14 Apr 2004) | 9 lines
+
+Simplify dForm.activeControlValid() and dDataControlMixin.SetFocus() by 
+determining which control has the focus using wx's Window.FindFocus() 
+method instead of saving this information manually.
+
+Add property Default to dCommandButton, which specifies if this command
+button will raise a EVT_BUTTON when the <Enter> key is pressed and not
+handled elsewhere on the form.
+
+
+------------------------------------------------------------------------
+r177 | paul | 2004-04-13 17:35:31 -0700 (Tue, 13 Apr 2004) | 1 line
+
+Fixes to make Dabo behave better on Mac, including not showing the main frame
+------------------------------------------------------------------------
+r176 | paul | 2004-04-13 16:37:57 -0700 (Tue, 13 Apr 2004) | 1 line
+
+Fix for Mac to make the about menu appear in the app menu
+------------------------------------------------------------------------
+r175 | paul | 2004-04-13 14:27:39 -0700 (Tue, 13 Apr 2004) | 1 line
+
+Oops, I left in a debug line with my last commit.
+------------------------------------------------------------------------
+r174 | paul | 2004-04-13 14:26:19 -0700 (Tue, 13 Apr 2004) | 1 line
+
+Minor fixes for Windows. One remaining problem is that Windows dForm's don't fire an implicit Activate event when first instantiated, so my logic for restoring size and position isn't working. I think this will fix itself when I move to three-stage creation, which is on my list for the ability to integrate resource files.
+------------------------------------------------------------------------
+r173 | paul | 2004-04-13 12:28:50 -0700 (Tue, 13 Apr 2004) | 8 lines
+
+Brainstorm of our eventual announcement of Dabo. We need to review 
+and modify and make clear anything that is opaque, and once we are
+happy with it we can decide when to announce. We can decide if we
+want to announce before we have a workable install, or if we should
+wait until all that is documented, but I thought I'd get started on
+the ultimate announcement now rather than later.
+
+
+------------------------------------------------------------------------
+r172 | paul | 2004-04-12 18:43:15 -0700 (Mon, 12 Apr 2004) | 24 lines
+
+General skim/review of everything in dabo/ui/uiwx/classes. This led to
+some rearranging of things:
+
+In general, I fixed the import statements to import into private namespaces
+instead of into the module-global namespace. 'Namespaces are good', I think,
+is the quote on the back of our PyCon 2004 shirts. :)  Seriously, this is 
+much safer as we don't risk separate modules stepping on each other's names.
+
+The way I had it, dPageFrame and dPage were not base-class-like, in that
+they both tied in intimately with dFormDataNav. I made new dPageFrame and
+dPage base classes, with just basic behavior that would apply to all
+subclasses, not just the data nav form. I then subclassed dPageFrame
+to create dPageFrameDataNav, and I subclassed dPage to create dSelectPage,
+dBrowsePage, and dEditPage. 
+
+I fixed some naming issues inside some of the page classes.
+
+There was still some old-Dabo cruft in dMainMenuBar, which I removed.
+
+Switched to the new-style super(class, instance).method() style of 
+running the parent-class behavior wherever possible.
+
+Added a commandbutton to the test.py script.
+
+------------------------------------------------------------------------
+r171 | paul | 2004-04-09 10:51:04 -0700 (Fri, 09 Apr 2004) | 7 lines
+
+Make dform.ask2Save into a real property, and renamed it to AskToSave (sorry,
+I hate the 2 meaning 'to'. Always bugged me.)
+
+Make dform._set* coerce the values into boolean, so that if someone says:
+self.AskToSave=1, it will save True instead of 1.
+
+
+------------------------------------------------------------------------
+r170 | ed | 2004-04-09 05:18:35 -0700 (Fri, 09 Apr 2004) | 6 lines
+
+Changed all loc() calls to _() in the bizobj and data classes.
+
+Wrapped the "Do you want to save?" request in dForm with a boolean property
+to allow suppression of the call.
+
+
+------------------------------------------------------------------------
+r169 | paul | 2004-04-08 22:19:32 -0700 (Thu, 08 Apr 2004) | 2 lines
+
+Wrapped some strings in dForm to dLocalize.
+
+------------------------------------------------------------------------
+r168 | paul | 2004-04-08 22:04:01 -0700 (Thu, 08 Apr 2004) | 15 lines
+
+There is an inconsistency in dBizobj.isChanged() versus dCursorMixin.isChanged().
+dBizobj's docstring states that it is going to just check the current record, while
+dCursorMixin's docstring states it will check all records, which is what it does.
+
+I didn't change the docstrings, but I did add an allRows argument to both of these
+functions, along with logic in dCursorMixin to act appropriately based on the 
+parameter. I made the default value of these arguments match the docstrings, so
+allRows=False in dBizobj, and allRow=True in dCursorMixin.
+
+Changed the name of dLocalize.loc() to dLocalize._() to match the il8n conventions,
+but loc() still works as well. Changed dForm's loc() calls to _() calls.
+
+Added a 'save changes' prompt to dForm.requery() when there are unsaved changes,
+allowing Yes/No/Cancel choices.
+
+------------------------------------------------------------------------
+r167 | paul | 2004-04-07 22:25:11 -0700 (Wed, 07 Apr 2004) | 1 line
+
+win32 compatibility
+------------------------------------------------------------------------
+r166 | paul | 2004-04-07 19:43:52 -0700 (Wed, 07 Apr 2004) | 1 line
+
+Fixes for win32 compatibility.
+------------------------------------------------------------------------
+r165 | paul | 2004-04-07 18:06:30 -0700 (Wed, 07 Apr 2004) | 2 lines
+
+I was testing on wxPython2.5/Win and found a couple minor problems.
+
+------------------------------------------------------------------------
+r164 | paul | 2004-04-07 11:18:24 -0700 (Wed, 07 Apr 2004) | 7 lines
+
+Use new Bind() syntax for dForm's custom events.
+
+Also, remove dVCR from __init__ in the classes directory, which I 
+swear I removed before. I just wiped my Dabo and did a new checkout,
+at which point I got a 'no module dVCR' error. Weird.
+
+
+------------------------------------------------------------------------
+r163 | paul | 2004-04-06 17:42:40 -0700 (Tue, 06 Apr 2004) | 11 lines
+
+Add class method getPropertyList() to dPemMixin, which provides a convenient
+way to get a listing of the defined properties, either on a classref or on
+an instance. Add some extra print statements inside dForm.addControl() to
+show this in use.
+
+Fix some problems with the property accessors for some properties, specifically
+initialize the values to None if not previously initialized.
+
+Implement Value property for data-aware controls.
+
+
+------------------------------------------------------------------------
+r162 | paul | 2004-04-06 15:36:22 -0700 (Tue, 06 Apr 2004) | 17 lines
+
+Set more property definitions in controls and forms, matching up wx 
+get/set functions to VFP property naming styles. One good side
+effect is that you can now always refer to self.Parent to get the 
+containing object. As soon as only dControls are in use everywhere,
+we'll be able to say 'self.Parent.Parent...'. Next, I'll probably add a 
+self.Form property which would be analagous to VFP's ThisForm.
+
+Make messagebox's center themselves on top of the active form, not on 
+top of the top level form.
+
+Make the main menu bar appear on all forms, which is more Linux-like. This
+should have no effect on Windows where there is just one main menu bar on the
+parent MDI form but I have yet to test that.
+
+
+
+
+------------------------------------------------------------------------
+r161 | paul | 2004-04-06 11:35:34 -0700 (Tue, 06 Apr 2004) | 2 lines
+
+Forgot to follow through converting SelectOnEntry to a property.
+
+------------------------------------------------------------------------
+r160 | paul | 2004-04-06 11:24:48 -0700 (Tue, 06 Apr 2004) | 35 lines
+
+Remove extraneous getSQL() from the bizobj, now that getSQL() is a 
+passthrough to the cursor's sqlbuilder.
+
+I found another example in dCursorMixin where we catch all exceptions
+and then raise dError. This isn't right, as we want the actual exception
+to propagate up to the global error handler, not to hide it.
+
+Remove sqlBuilder from dFormDataNav, as it is now exposed in the bizobj.
+Set up the requery function in the select page to interact correctly.
+
+Remove all the old stuff from my prior incarnation of Dabo, as it is all
+pretty much reimplemented now on a much stronger platform.
+
+Introduction of dPemMixin, which provides a way to define properties of
+dControls and map them to wx behavior. For instance, you can now set the
+size of a text box by calling:
+    textBox.Left = 12
+    textBox.Top = 20
+Not only will this make it easier to provide other UI interfaces (qt, etc.)
+while still keeping the property names consistent, but it should also make
+it easier to define subclasses of the dControls, once we have the resource
+format all worked out. Also, VFP'ers will feel right at home using familiar
+property names instead of having to remember wx's function syntax every time.
+
+Make dControlMixin and dDataControlMixin inherit from dPemMixin.
+
+Make dDataControlMixin define a few extra properties, as these are items
+that our users are highly likely to want to interact with (DataSource,
+DataField, and SelectOnEntry).
+
+With this commit, even more of Dabo is dependent on wxPython 2.5, as I've
+used Python new-style classes in the mixins and wxPython 2.4 will fail
+when trying to use new-style mixins.
+
+
+------------------------------------------------------------------------
+r159 | ed | 2004-04-06 10:04:25 -0700 (Tue, 06 Apr 2004) | 3 lines
+
+Simplified the cursor's __setStructure method by using the SqlBuilderMixin
+method if available. Added getStructure() method to the builder mixin class.
+
+------------------------------------------------------------------------
+r158 | ed | 2004-04-06 09:54:36 -0700 (Tue, 06 Apr 2004) | 6 lines
+
+Added the SqlBuilderMixin to the cursors created by the bizobj, so that all
+dabo cursors will support building SQL statements interactively. Also added
+a series of pass-through methods so that forms can now be written to build
+SQL statements interactively through the bizobj.
+
+
+------------------------------------------------------------------------
+r157 | paul | 2004-04-05 23:21:15 -0700 (Mon, 05 Apr 2004) | 2 lines
+
+Make the edit page active after a new record is added, as a user convenience.
+
+------------------------------------------------------------------------
+r156 | paul | 2004-04-05 23:10:35 -0700 (Mon, 05 Apr 2004) | 4 lines
+
+Set focus to the select options panel after creating it for convenience.
+
+Make incremental search in grid accept spaces as valid search characters.
+
+------------------------------------------------------------------------
+r155 | paul | 2004-04-05 22:55:57 -0700 (Mon, 05 Apr 2004) | 25 lines
+
+Add dError.BusinessRuleViolation exception.
+
+Ran into issue with adding a new record in recipes, and it turns out to
+be because I coded dSqlBuilderMixin to format the sql nicely with newlines
+but this regex in dCursorMixin.__setStructure():
+        pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:where\s(.*))+)\s*", re.I | re.M)
+doesn't account for the newlines, so it doesn't find the where clause. Rather 
+than figure out that regex, it was easier just to take the newlines out of 
+dSqlBuilderMixin for now.
+
+In dCursorMixin.new(), we were catching all exceptions and then raising
+dError, which inappropriately hides unexpected exceptions. Better just to
+take the try block out and let the unexpected exceptions propagate up. Until
+I did this, I wasn't seeing the cause of my problem (first, it was that 
+global name 'sql' isn't defined in __setStructure, and then it was a MySQL
+exception having to do with bad SQL because the second where clause: 'where
+1=0' was tagged onto the end.
+
+Add 'value' and 'stringMatch' selectTypes to the select page auto generation
+of controls.
+
+Fix problem in dGrid that I introduced recently where after the row number in
+the bizobj changes the grid's currently highlighted row wasn't changing.
+
+
+------------------------------------------------------------------------
+r154 | paul | 2004-04-05 21:40:28 -0700 (Mon, 05 Apr 2004) | 11 lines
+
+Fix a stupid error made in dGrid last commit, which resulted in phantom rows
+in the grid when the next dataset is empty and the previous dataset had
+rows. Upon testing, it was apparent there was absolutely no reason for my
+previous change so the fix was easy. :)
+
+Set focus to the grid on browse page activate (the code is strange but it is
+the only way I could find to get it to work).
+
+Make requery more convenient by selecting the browse page after a requery when
+the active page is the select page.
+
+------------------------------------------------------------------------
+r153 | paul | 2004-04-05 19:08:12 -0700 (Mon, 05 Apr 2004) | 25 lines
+
+Add NoRecordsError and QueryError, and raise those exceptions from dCursorMixin
+instead of the generic dError. Rework dForm to import dError into a separate
+namespace instead of into the global namespace. I think this should be done
+for dCursorMixin as well. Rework dForm to act appropriately upon these specific
+exceptions.
+
+Fix some minor things in dGrid - problems would occur if there weren't any 
+records in the dataset.
+
+Make the select page make select option fields based on the columnDefs dict
+in dFormDataNav. This is the same source of columns for grids and fields to
+display in the edit page. Re-route dFormDataNav's requery() function to call
+the select page's requery(), which sets the where clause of the SQL and then
+ultimately calls dForm.requery(). Currently, this SQL gets manipulated in 
+dFormDataNav's sqlBuilder, but I think ultimately this sqlBuilder needs to 
+be mixed-in to either dBizobj or to dCursor - somewhere 'lower down' than
+the UI. 
+
+Update dDataControlMixin to recognize that there isn't a current record, as
+when there are no records in the dataset, and to disable itself and set its
+value to blank. Conversely, when it recognizes that there is current data
+it will enable itself.
+
+
+
+------------------------------------------------------------------------
+r152 | paul | 2004-04-04 23:28:18 -0700 (Sun, 04 Apr 2004) | 9 lines
+
+Better handle column resizing and moving in dGrid.
+
+Make dForm handle BOF and EOF exceptions that could be raised
+if the user tries to navigate out of bounds. 
+
+Make "Record x/y" appear in the status bar when using the grid
+to navigate, as well as when using the toolbar/menu to navigate.
+
+
+------------------------------------------------------------------------
+r151 | paul | 2004-04-04 22:32:44 -0700 (Sun, 04 Apr 2004) | 2 lines
+
+Pretty-up the context menu in dGrid with icons for new, edit, and delete.
+
+------------------------------------------------------------------------
+r150 | paul | 2004-04-04 22:21:34 -0700 (Sun, 04 Apr 2004) | 2 lines
+
+Make grid row height persist.
+
+------------------------------------------------------------------------
+r149 | paul | 2004-04-04 21:46:23 -0700 (Sun, 04 Apr 2004) | 4 lines
+
+Ever since converting to 2.5, the icons in the toolbar, nav menu, and pageframe
+pages were not automatically masking to the background color. I finally figured
+out how to fix that.
+
+------------------------------------------------------------------------
+r148 | paul | 2004-04-02 22:14:29 -0800 (Fri, 02 Apr 2004) | 3 lines
+
+Clean up remnants of previous attempts at getting column moving
+working.
+
+------------------------------------------------------------------------
+r147 | paul | 2004-04-02 22:09:54 -0800 (Fri, 02 Apr 2004) | 6 lines
+
+Grid column order can be changed at runtime by dragging a column
+to a different position, although there isn't currently any (working)
+visual feedback that the move is taking place. Grid column order
+and column width settings now persist.
+
+
+------------------------------------------------------------------------
+r146 | ed | 2004-04-02 17:20:47 -0800 (Fri, 02 Apr 2004) | 1 line
+
+Changed the method in cancel() used to determine if a given row is to be canceled or not.
+------------------------------------------------------------------------
+r145 | ed | 2004-04-02 12:19:09 -0800 (Fri, 02 Apr 2004) | 1 line
+
+Attempt to correct an error when canceling a bizobj with no rows in the dataset
+------------------------------------------------------------------------
+r144 | paul | 2004-04-01 15:57:44 -0800 (Thu, 01 Apr 2004) | 3 lines
+
+Bugfixes and making Dabo work pretty much with both 2.4 and
+2.5. I'd recommend updating to this version asap.
+
+------------------------------------------------------------------------
+r143 | paul | 2004-03-31 13:41:40 -0800 (Wed, 31 Mar 2004) | 29 lines
+
+Started implementing the select page.
+
+While working on that, I discovered that in 2.5 the 
+setfocus/killfocus code wasn't running in the controls
+on the edit page, and remembered that Ed mentioned 
+something like that the other day. The common factor
+must be GTK2 versus GTK1, and it came down to adding
+event.Skip() in the form's SetFocus code - I had just
+added SetFocus/KillFocus code in the form on my airplane
+ride. 
+
+Tested this in wx2.4/GTK1 as well as in wx2.5/GTK2.
+
+It sure is hairy how my changes may work fine on 
+my computer yet break something on another computer. I
+guess that is what we get for developing multi-platform
+using the native toolkits on each platform.
+
+By the way, event binding will be much simpler in 2.5,
+as they've introduced the form:
+
+   self.Bind(wx.EVT_SET_FOCUS, self.OnSetFocus)
+
+to bind events to methods, which feels a lot like VFP's
+BINDEVENT() does it not?
+
+
+
+
+------------------------------------------------------------------------
+r142 | paul | 2004-03-31 08:54:44 -0800 (Wed, 31 Mar 2004) | 2 lines
+
+Bugfix: global name 'ret' is not defined.
+
+------------------------------------------------------------------------
+r141 | paul | 2004-03-31 08:46:11 -0800 (Wed, 31 Mar 2004) | 14 lines
+
+Combined Ted's delete icon with the 'new' icon to get a delete
+icon that seems to fit in.
+
+Removed the help provider from the app object because we 
+aren't using it (yet) and it got moved to the main wx module
+in wxPython 2.5. At some point we'll move to 2.5 and reenable
+it.
+
+In 2.5, image lists must contain images of exactly the same size,
+something that wasn't enforced in 2.4. Resized a few images to
+conform. Also, by default image lists start with one image in the
+list, not zero. This caused a segfault in 2.5.
+
+
+------------------------------------------------------------------------
+r140 | ed | 2004-03-30 13:05:35 -0800 (Tue, 30 Mar 2004) | 1 line
+
+removed the tabs and replaced with those horrible spaces
+------------------------------------------------------------------------
+r139 | paul | 2004-03-30 12:23:16 -0800 (Tue, 30 Mar 2004) | 2 lines
+
+Property settings for newly added file.
+
+------------------------------------------------------------------------
+r138 | ed | 2004-03-30 12:13:22 -0800 (Tue, 30 Mar 2004) | 1 line
+
+Added dError, which holds the dabo custom Exception class(es)
+------------------------------------------------------------------------
+r137 | ed | 2004-03-30 10:39:24 -0800 (Tue, 30 Mar 2004) | 1 line
+
+Updated to use exceptions rather than return constants
+------------------------------------------------------------------------
+r136 | paul | 2004-03-29 09:52:03 -0800 (Mon, 29 Mar 2004) | 2 lines
+
+Oops, I introduced a subtle bug in my last commit.
+
+------------------------------------------------------------------------
+r135 | paul | 2004-03-29 09:35:29 -0800 (Mon, 29 Mar 2004) | 7 lines
+
+Minor bugfixes:
+
+Fix minor dForm bug after wrapping some strings in the dLocalize function. Make
+dProgressDialog not closable. Remove print statement from dBizobj. Make dGrid's
+keydown function only run the incremental search for alphanumeric characters.
+
+
+------------------------------------------------------------------------
+r134 | paul | 2004-03-27 17:48:54 -0800 (Sat, 27 Mar 2004) | 11 lines
+
+A ton of refactoring and rewriting of docstrings and such. I was on
+the airplane during most of this, with the person in front of me 
+reclined and the people next to me snoring, so I was kind of cramped
+and my wrists and legs are still in pain, so I didn't take notes on
+what I did, but the demo still seems to run so I'm committing this now
+before too much more happens.
+
+Commit to dabodemo follows. 
+
+Dabo rules.
+
+------------------------------------------------------------------------
+r133 | paul | 2004-03-23 19:41:36 -0800 (Tue, 23 Mar 2004) | 19 lines
+
+Remove dVCR as it has been replaced by dToolBar.
+
+Set up dFormDataNav.columnDefs architecture for setting up automatic
+properties of data columns, to flow to browse grid, select page, and
+edit page.
+
+Add architecture to save/restore window sizes and positions.
+
+Make dForms register and unregister themselves with the dApp uiForms
+collection.
+
+Provide missing docstrings.
+
+Refactor some parts of dFormMixin, dForm, and dFormDataNav.
+
+Make edit page pull its default configuration from the dForm's columnDefs.
+
+Make bizobj validation only validate changed rows.
+
+------------------------------------------------------------------------
+r132 | paul | 2004-03-22 21:29:15 -0800 (Mon, 22 Mar 2004) | 1 line
+
+Fix for win32 after my last commit: send status bar text to the correct form (the dFormMain).
+------------------------------------------------------------------------
+r131 | paul | 2004-03-22 21:13:19 -0800 (Mon, 22 Mar 2004) | 3 lines
+
+Make nav menu and toolbar attach to the dFormMain and not the dForm
+when there is a MDI Parent/Child relationship.
+
+------------------------------------------------------------------------
+r130 | paul | 2004-03-22 16:43:08 -0800 (Mon, 22 Mar 2004) | 11 lines
+
+Fix the unit tests in ui/uiwx/classes/test.py by separating
+them from Dabo (for the tests, make the objects instantiate 
+inside a normal wx.Frame instead of inside a dForm/dFormMain
+hierarchy). Remove the bizobj test as that does not belong
+at this context (ui only).
+
+If an oddity is discovered with a dControl in the future,
+one troubleshooting tack will be to try out the dControl's
+unit test to determine if the problem still exists when
+detached from the rest of the Dabo framework.
+
+------------------------------------------------------------------------
+r129 | paul | 2004-03-22 13:28:15 -0800 (Mon, 22 Mar 2004) | 1 line
+
+Fix some problems on Win32. The dForm menu bar is still overwriting the main menu bar though.
+------------------------------------------------------------------------
+r128 | paul | 2004-03-22 11:12:07 -0800 (Mon, 22 Mar 2004) | 3 lines
+
+Fix errors in prior commit. Define dForm and dFormMain to
+be MDI child/parent on Windows, but regular frames elsewhere.
+
+------------------------------------------------------------------------
+r127 | paul | 2004-03-22 11:00:55 -0800 (Mon, 22 Mar 2004) | 2 lines
+
+Set some properties to uiApp.
+
+------------------------------------------------------------------------
+r126 | paul | 2004-03-22 10:46:15 -0800 (Mon, 22 Mar 2004) | 4 lines
+
+Attempt to change the Mac application menu caption from "Python"
+to dApp.getAppInfo("appName"), IOW "Dabo" or whatever the custom
+application name is set to by the developer.
+
+------------------------------------------------------------------------
+r125 | paul | 2004-03-22 10:29:51 -0800 (Mon, 22 Mar 2004) | 3 lines
+
+Tell OSX where the About and Preferences menu items are,
+so that they can be enabled in the Application menu.
+
+------------------------------------------------------------------------
+r124 | paul | 2004-03-22 08:52:55 -0800 (Mon, 22 Mar 2004) | 1 line
+
+Fix dPageFrame's OnPageChanged() event handler to work correctly on Win32. This change may also fix a strange issue on OSX. I'm committing this from Win32 and will test on Linux/Mac shortly.
+------------------------------------------------------------------------
+r123 | paul | 2004-03-21 10:51:51 -0800 (Sun, 21 Mar 2004) | 3 lines
+
+A few tweaks in hopes that the toolbar instantiates on 
+Mac and Win32 now.
+
+------------------------------------------------------------------------
+r122 | paul | 2004-03-21 00:47:32 -0800 (Sun, 21 Mar 2004) | 4 lines
+
+Got "no image handler for type 50 found", and determined that
+it was because I had the file names incorrect. I don't know
+why I'm not seeing these errors on Linux...
+
+------------------------------------------------------------------------
+r121 | paul | 2004-03-21 00:43:13 -0800 (Sun, 21 Mar 2004) | 4 lines
+
+Tried my last commit on Mac and got error "no bitmap handler for
+type 15 found", but the png's displayed fine anyway. Trying another
+version that doesn't explicitly tell wx which image handler to use.
+
+------------------------------------------------------------------------
+r120 | paul | 2004-03-21 00:37:46 -0800 (Sun, 21 Mar 2004) | 4 lines
+
+Convert all the XPM images that were embedded into one
+actions.py file into separate .PNG files, since they 
+were not loading correctly on OSX and Win32.
+
+------------------------------------------------------------------------
+r119 | paul | 2004-03-20 22:44:10 -0800 (Sat, 20 Mar 2004) | 2 lines
+
+Add debug info to the events, at least for the time being.
+
+------------------------------------------------------------------------
+r118 | paul | 2004-03-20 22:27:21 -0800 (Sat, 20 Mar 2004) | 8 lines
+
+Removed my old onEvent() from dControlMixin which didn't work 
+correctly on Mac/Win32 anyway and didn't really solve anything.
+The event identifiers are not constant across platforms, which
+I didn't realize when originally developing this.
+
+I haven't tested this removal yet on Win32/OSX yet but I have 
+a feeling it will resolve some of the issues we've seen there.
+
+------------------------------------------------------------------------
+r117 | paul | 2004-03-20 18:07:01 -0800 (Sat, 20 Mar 2004) | 6 lines
+
+Further refined the incremental search. The second timer turned out to
+be unnecessary to achieving the desired result. Also added a '.' to 
+the status text upon the search timer firing, as further feedback
+to the user.
+
+
+------------------------------------------------------------------------
+r116 | ed | 2004-03-20 15:37:50 -0800 (Sat, 20 Mar 2004) | 1 line
+
+Incremental search now updates status bar when a key is pressed.
+------------------------------------------------------------------------
+r115 | ed | 2004-03-20 12:26:23 -0800 (Sat, 20 Mar 2004) | 1 line
+
+Forgot to change the docstring for processIncrementalSearch()
+------------------------------------------------------------------------
+r114 | ed | 2004-03-20 12:10:26 -0800 (Sat, 20 Mar 2004) | 1 line
+
+Refined incremental searches so that multiple keypresses within a short time only do a single search.
+------------------------------------------------------------------------
+r113 | ed | 2004-03-20 08:39:54 -0800 (Sat, 20 Mar 2004) | 3 lines
+
+Exposed a new method on the bizobj named 'getDataSet()'. It will return the complete current dataset of its cursor.
+
+Modified the grid class to use this to grab all the data at once, and then populate itself from that. Replaces a ton of inter-object calls with a single call.
+------------------------------------------------------------------------
+r112 | ed | 2004-03-20 04:33:27 -0800 (Sat, 20 Mar 2004) | 1 line
+
+refactored out the flushing of control values from the OnKillFocus event code. Just wanted to see if this would work without setting focus to every control on the form first.
+------------------------------------------------------------------------
+r111 | paul | 2004-03-19 20:40:04 -0800 (Fri, 19 Mar 2004) | 4 lines
+
+Fix the bug where the current field value would be lost
+upon navigation with a liberal sprinkling of activeControlValid()
+in dForm.
+
+------------------------------------------------------------------------
+r110 | paul | 2004-03-19 17:47:39 -0800 (Fri, 19 Mar 2004) | 3 lines
+
+Fix About window so it at least shows.
+
+
+------------------------------------------------------------------------
+r109 | ed | 2004-03-19 17:44:32 -0800 (Fri, 19 Mar 2004) | 1 line
+
+corrected the functions called by the vcr toolbar
+------------------------------------------------------------------------
+r108 | paul | 2004-03-19 15:31:29 -0800 (Fri, 19 Mar 2004) | 11 lines
+
+Decorate with icons the navigation menu and the select/browse/edit
+pageframe tabs of dFormDataNav. Fix the first/last icons to line
+up vertically with the prior/next icons. Found a better 'cancel'
+icon.
+
+Okay... enough fluff. Next up: populate the Select page of the
+dFormDataNav pageframe with controls that let the user specify
+the selection criteria, and download/test/hack Dabo on OSX, 
+Windows, and Linux until it runs the same on each platform.
+
+
+------------------------------------------------------------------------
+r107 | paul | 2004-03-19 13:59:10 -0800 (Fri, 19 Mar 2004) | 9 lines
+
+Add global icon module, which is a repository of icons
+in Python-xpm format for use in menus, toolbars, etc.
+globally in Dabo. Add a wrapper for wxPython ui to 
+return a wxBitmap rendition of a given icon.
+
+Add datanav toolbar to dFormDataNav and remove the
+dVCR.
+
+
+------------------------------------------------------------------------
+r106 | paul | 2004-03-18 14:14:02 -0800 (Thu, 18 Mar 2004) | 5 lines
+
+Rework the way vcr, pageframe, and nav menu are
+instantiated in dFormDataNav: make them instantiate
+only when the primary bizobj is set and not before.
+
+
+------------------------------------------------------------------------
+r105 | paul | 2004-03-18 11:10:38 -0800 (Thu, 18 Mar 2004) | 6 lines
+
+dGrid: General cleanup of code and comments.
+       Write docstrings for most functions.
+       Change to the wx namespace.
+
+Minor changes in the datanav pages.
+
+------------------------------------------------------------------------
+r104 | paul | 2004-03-17 21:44:09 -0800 (Wed, 17 Mar 2004) | 9 lines
+
+Add new features to dGrid. Separate out the pageframe/
+data navigation stuff from dForm into new subclass
+named 'dFormDataNav'. Column definitions for the grid
+are now maintained at the dFormDataNav level, which
+maintains a dictionary of column definitions keyed
+on dataSource.
+
+The data browse grid is working pretty sanely now.
+
+------------------------------------------------------------------------
+r103 | ed | 2004-03-17 16:12:23 -0800 (Wed, 17 Mar 2004) | 1 line
+
+Corrected the effect of passing near=True in the seek() method
+------------------------------------------------------------------------
+r102 | paul | 2004-03-17 13:27:08 -0800 (Wed, 17 Mar 2004) | 9 lines
+
+Work on dGrid mostly. Sort and seek are implemented,
+however seek returns -1 until there is an exact 
+match apparently. Run the SimpleBizobj test and 
+type '0'. You'll see -1 getting returned even though
+there are several zipcodes that start with '0'. It
+is only when you get a full zipcode correctly typed
+that a match will be found.
+
+
+------------------------------------------------------------------------
+r101 | ed | 2004-03-17 09:39:49 -0800 (Wed, 17 Mar 2004) | 4 lines
+
+Added 'seek' functionality to the bizobj and cursor classes. Behavior is patterned on the VFP SEEK() command.
+
+Modified dBizobj's __getattr__ and setattr__ so that you can now refer to field values as if they were attributes of the bizobj, and setting these attributes will automatically update the cursor. This will allow a great deal of simplification and readability in bizobj code, since the code will no longer need to be cluttered with 'getFieldVal()' and 'setFieldVal()' calls throughout.
+
+------------------------------------------------------------------------
+r100 | paul | 2004-03-16 17:55:03 -0800 (Tue, 16 Mar 2004) | 10 lines
+
+Work on dGrid. Check out the SimpleFormWithBizobj sample now,
+by doing a requery and going to the browse page.
+
+Grid and cursor's record numbers are not sync'd up yet, but
+at least dGrid instantiates without errors now.
+
+Also, for testing purposes the column definition of the 
+grid is hardcoded in dGrid.
+
+
+------------------------------------------------------------------------
+r99 | paul | 2004-03-16 16:22:44 -0800 (Tue, 16 Mar 2004) | 19 lines
+
+Begin work on dGrid: not working at this point.
+
+Add dMessageBox.stop() for displaying messages
+that communicate 'cannot continue' responses
+to the user.
+
+Add a stop() message to dForm.save() when the 
+bizobj communicates that the save can't happen,
+perhaps because of a biz rule violation.
+
+Add dForm.activeControlValid() which has the
+effect of updating the bizobj with the control's
+current value if necessary, say before a 'save'
+operation. Otherwise, if the user changed a 
+field value and clicked 'save' without first
+setting focus to a different control, their 
+changes to that field would not be included 
+in the commit.
+
+------------------------------------------------------------------------
+r98 | paul | 2004-03-16 12:12:17 -0800 (Tue, 16 Mar 2004) | 2 lines
+
+I forgot to follow my own conventions.
+
+------------------------------------------------------------------------
+r97 | paul | 2004-03-16 12:09:44 -0800 (Tue, 16 Mar 2004) | 14 lines
+
+Work on menus. Add a 'navigation' menu to 
+dForm and keyboard shortcuts to actions
+such as 'save', 'next', 'prior'. Add 
+keyboard shortcuts for navigating the pages
+in the pageframe as well. Alt+1 activates
+the first page, etc.
+
+The SimpleFormWithBizobj is more interesting
+now.
+
+Next up: data browsing/picking grid and 
+data navigation toolbar.
+
+
+------------------------------------------------------------------------
+r96 | paul | 2004-03-15 22:24:36 -0800 (Mon, 15 Mar 2004) | 4 lines
+
+Start Pageframe/Page implementation, and add default
+Select/Browse/Edit pages to dForm (can be overridden).
+
+
+------------------------------------------------------------------------
+r95 | paul | 2004-03-15 15:23:18 -0800 (Mon, 15 Mar 2004) | 6 lines
+
+Set eol-style to native for new file.
+
+Good call putting in the localization stub
+now.
+
+
+------------------------------------------------------------------------
+r94 | ed | 2004-03-15 15:11:28 -0800 (Mon, 15 Mar 2004) | 14 lines
+
+Added dLocalize script to base of trunk. This is the wrapper that will
+enable localization of all displayed strings in the framework. Simply add
+the declaration 'from dabo.dLocalize import loc' to the top of your file,
+and then wrap all displayed strings as follows:
+   orig: self.addToErrorMsg("No Records Found")
+   new:  self.addToerrorMsg(loc("No Records Found"))
+ 
+Right now, loc() simply returns the original string. But at some point in
+the future, we will need to design a localization procedure for our
+non-English users.
+ 
+Also: refined the validate() method of the bizobj so that it can process
+the entire record set, or just the current record.
+
+------------------------------------------------------------------------
+r93 | paul | 2004-03-15 11:07:49 -0800 (Mon, 15 Mar 2004) | 7 lines
+
+Working on getting a main menu working, and each dForm
+adding its own actions to the menubar. None of this is
+close to finished, but I wanted to get it committed
+before I start my real work week. The dabodemos still
+run so most likely I didn't break anything.
+
+
+------------------------------------------------------------------------
+r92 | ed | 2004-03-14 05:11:41 -0800 (Sun, 14 Mar 2004) | 1 line
+
+Added setSQL() method for changing the sql statement executed by the bizobj's cursor.
+------------------------------------------------------------------------
+r91 | ed | 2004-03-13 12:13:28 -0800 (Sat, 13 Mar 2004) | 1 line
+
+Fixed bug in update code that would fail to properly quote Unicode string values
+------------------------------------------------------------------------
+r90 | paul | 2004-03-13 11:07:22 -0800 (Sat, 13 Mar 2004) | 8 lines
+
+Added a simple main menu to the main form, and implemented
+FileExit and HelpAbout with a simple (ugly) about screen.
+
+Work on dApp and uiApp integration. App object and mainform
+load without errors by executing:
+  dabo/trunk/appRoot/main.py
+
+
+------------------------------------------------------------------------
+r89 | paul | 2004-03-13 09:32:37 -0800 (Sat, 13 Mar 2004) | 4 lines
+
+Add dActionList object, which is a prelude to getting
+a simple menu framework implemented.
+
+
+------------------------------------------------------------------------
+r88 | ed | 2004-03-13 08:13:39 -0800 (Sat, 13 Mar 2004) | 1 line
+
+Corrected bugs that prevented canceling after navigating back to a changed record. Also added a getSnapshot method to the Memento class to help debugging.
+------------------------------------------------------------------------
+r87 | ed | 2004-03-13 06:52:32 -0800 (Sat, 13 Mar 2004) | 1 line
+
+Changed default for the TESTING property to False
+------------------------------------------------------------------------
+r86 | paul | 2004-03-12 20:50:40 -0800 (Fri, 12 Mar 2004) | 2 lines
+
+eol-style to native
+
+------------------------------------------------------------------------
+r85 | ed | 2004-03-12 18:35:13 -0800 (Fri, 12 Mar 2004) | 1 line
+
+same stuff, but this time without tabs and with those annoying little spaces.
+------------------------------------------------------------------------
+r84 | ed | 2004-03-12 18:32:45 -0800 (Fri, 12 Mar 2004) | 1 line
+
+Added sort() method to the bizobj and cursor classes. Added my testing programs along with some temporary connection-creation files so that I can test things until the app can return all the connection objects, etc., that the framework will provide.
+------------------------------------------------------------------------
+r83 | paul | 2004-03-12 16:20:19 -0800 (Fri, 12 Mar 2004) | 9 lines
+
+Basically, this commit represents hacks to get the dApp
+working at a basic level. It knows how to select the 
+proper UI, and it knows how to load in data definitions
+from the dbConnectionDefs file. To see a demo of this:
+
+  cd trunk/appRoot
+  python main.py
+
+
+------------------------------------------------------------------------
+r82 | paul | 2004-03-12 15:03:02 -0800 (Fri, 12 Mar 2004) | 4 lines
+
+Add dMessageBox.py, and move AreYouSure function
+out of uiApp.py into the new module.
+
+
+------------------------------------------------------------------------
+r81 | paul | 2004-03-12 13:47:37 -0800 (Fri, 12 Mar 2004) | 12 lines
+
+Change dForm to inherit from wx.Dialog instead
+of wx.Frame, which is I believe the correct thing
+to do since 1) tab traversal works and 2) the 
+dForm becomes a true child of the main frame
+and there is only one entry in the taskbar. 
+Before, every dForm that got instantiated would
+appear as a separate 'app' in the taskbar.
+
+Integrated a basic dFormMain which inherits from
+wx.Frame.
+
+
+------------------------------------------------------------------------
+r80 | paul | 2004-03-12 12:04:14 -0800 (Fri, 12 Mar 2004) | 4 lines
+
+Forgot to change dCheckBox __init__() to conform
+to my new style.
+
+
+------------------------------------------------------------------------
+r79 | paul | 2004-03-12 11:16:39 -0800 (Fri, 12 Mar 2004) | 4 lines
+
+Improve the subclassing of dControls, and getting
+the name properly registered with the dForm.
+
+
+------------------------------------------------------------------------
+r78 | ed | 2004-03-12 04:22:34 -0800 (Fri, 12 Mar 2004) | 1 line
+
+changed default for _params in dBizobj to None. Undid the change in dCursorMixin for 'fixing' bad param/sql combinations.
+------------------------------------------------------------------------
+r77 | paul | 2004-03-11 23:27:30 -0800 (Thu, 11 Mar 2004) | 5 lines
+
+Implement dFormMain, although it is incomplete and untested.
+Make a dFormMixin for both dForm and dFormMain to inherit,
+and start working on dApp/dForm integration. Add dCheckBox
+to the test form.
+
+------------------------------------------------------------------------
+r76 | paul | 2004-03-11 22:40:42 -0800 (Thu, 11 Mar 2004) | 12 lines
+
+Fix requery(): when passed a param value of (), a
+MySQL exception was raised complaining "Not enough
+arguments in format string". I don't know if this
+is the right fix, but it does make requery() work.
+
+This I only noticed after implementing dForm.requery()
+as dBizobj.requery() sends _params to _cursor.requery
+and by default _params is (). In the bizobj init, the
+bizobj.requery() is bypassed completely, just calling
+_cursor.requery() directly with no parameters.
+
+
+------------------------------------------------------------------------
+r75 | paul | 2004-03-11 19:51:38 -0800 (Thu, 11 Mar 2004) | 14 lines
+
+Add stubs for the unimplemented controls so the tests
+still run.
+
+Add EVT_CHECKBOX to dControlMixin event handling
+framework.
+
+Fix dabo/ui/uiwx/__init__.py: doesn't need to 
+import dEvents because that gets imported by 
+the controls that need it. Actually, I don't 
+think we should import anything there but I'm 
+not sure so we'll leave that discussion for 
+another day... 
+
+
+------------------------------------------------------------------------
+r74 | ed | 2004-03-11 17:40:38 -0800 (Thu, 11 Mar 2004) | 1 line
+
+Fixed stupid error in the call to the Memento's getOrigVal
+------------------------------------------------------------------------
+r73 | ed | 2004-03-11 17:35:57 -0800 (Thu, 11 Mar 2004) | 1 line
+
+Tried to get the __init.py__ imports working well enough to import dabo, but I am still getting errors. Most of which are due to the incomplete controls in ui/uiwx/classes. I created dCheckBox.py in the hope of being able to make that run, but there are too many unsatisfied dependencies remaining.
+------------------------------------------------------------------------
+r72 | paul | 2004-03-11 17:31:27 -0800 (Thu, 11 Mar 2004) | 11 lines
+
+Implement requery, new, delete, and deleteAll in
+dForm, but not really tested at this point.
+
+Improve the docstrings of dForm.
+
+Move the save and cancel buttons from dCommandButton.py
+and into dVCR.py where they really belong.
+
+Update the test.py to reflect the new changes.
+
+
+------------------------------------------------------------------------
+r71 | ed | 2004-03-11 17:00:04 -0800 (Thu, 11 Mar 2004) | 1 line
+
+Added importing of dForm
+------------------------------------------------------------------------
+r70 | ed | 2004-03-11 13:24:29 -0800 (Thu, 11 Mar 2004) | 1 line
+
+Added dMemento.getOrigVal() method to access snapshot values. Changed the snapshot property to __snapshot to prevent direct access to the property.
+------------------------------------------------------------------------
+r69 | paul | 2004-03-11 12:43:24 -0800 (Thu, 11 Mar 2004) | 18 lines
+
+Fix some little buggers in dCursorMixin.cancel():
+  + wasn't iterating through all rows (was missing row 0)
+
+  + cancel() was defining a recs list, but then iterating
+    through all recs anyway. What I did still isn't correct
+    as it still iterates through all records but then
+    filters out the ones that don't exist in recs. There
+    is a mismatch in that delete() expects an index and
+    not a rec instance, and I wanted to leave that detail
+    to Ed to work out.
+
+  + __cancelRow() was just changing the value of the field
+    back to the value of the field, and not to the value of
+    the memento. This still isn't correct as dCursorMixin
+    shouldn't be directly accessing dMemento._snapshot but
+    at least it works now.
+
+
+------------------------------------------------------------------------
+r68 | paul | 2004-03-11 11:22:27 -0800 (Thu, 11 Mar 2004) | 5 lines
+
+Fix bug in dCursorMixin.save() where the pk value
+would be incorrect if changes were made in a different
+record than the current rownumber.
+
+
+------------------------------------------------------------------------
+r67 | paul | 2004-03-11 09:42:41 -0800 (Thu, 11 Mar 2004) | 8 lines
+
+BugFix: typo in dBizobj after rev. 66.
+
+Add save/cancel buttons to the ui test,
+which connect to save/cancel on dForm,
+which connect to dBizobj.save/cancel.
+Untested at this point however.
+
+
+------------------------------------------------------------------------
+r66 | ed | 2004-03-11 05:33:47 -0800 (Thu, 11 Mar 2004) | 2 lines
+
+Incorporated all my recent changes into the new tree structure. Detabbed the files to make Paul happy. Both the bizobj and cursor 
+classes are now working, with all their interfaces tested. 
+------------------------------------------------------------------------
+r65 | paul | 2004-03-10 15:29:37 -0800 (Wed, 10 Mar 2004) | 8 lines
+
+Change dForm.bizobjs from list to dict.
+Change dForm.primaryBizobj from index to key.
+
+Move getFieldVal() and setFieldVal() from
+dForm to dDataControlMixin, and have dControls
+maintain a reference to their bizobj.
+
+
+------------------------------------------------------------------------
+r64 | paul | 2004-03-10 14:25:07 -0800 (Wed, 10 Mar 2004) | 7 lines
+
+Split dControlMixin into dControlMixin and
+dDataControlMixin for better control over
+what gets inherited based on whether the 
+dControl is data-aware or not.
+
+
+
+------------------------------------------------------------------------
+r63 | paul | 2004-03-10 11:14:19 -0800 (Wed, 10 Mar 2004) | 20 lines
+
+Make dForm know how to get the fieldVal from the
+bizobj and return it to the control. Make dControl
+know how to ask the form for the value and refresh
+itself.
+
+Update testAll in ui/uiwx/classes/test to add a 
+bizobj (the bizZip) to the test form. Now when
+testAll is run, textbox values are updated when
+the vcr is used for navigation.
+
+Next up is probably to implement save and cancel
+functionality at the dForm level. Also, the dControls
+are notifying the dForm when the user changed the
+value, but the dForm isn't notifying the bizobj
+yet.
+
+I keep starting other work and then coming back to
+Dabo. Not very good on the pocketbook... :)
+
+
+------------------------------------------------------------------------
+r62 | paul | 2004-03-10 08:44:31 -0800 (Wed, 10 Mar 2004) | 13 lines
+
+Add dVCR for navigation, which calls dForm.prior(),
+.next(), .last(), and .first().
+
+Make dControls register themselves with dForm,
+and dForm set up event callbacks between dForm 
+and dControl.
+
+Add dVCR to the test.
+
+Fix dForm so it is no longer inheriting from
+dControlMixin.
+
+
+------------------------------------------------------------------------
+r61 | paul | 2004-03-09 23:13:22 -0800 (Tue, 09 Mar 2004) | 3 lines
+
+Work on dEvents, communication between a dForm
+and its contained dControls.
+
+------------------------------------------------------------------------
+r60 | paul | 2004-03-09 21:23:10 -0800 (Tue, 09 Mar 2004) | 4 lines
+
+Make dForm receive the onFieldChange notification from 
+the dControls.
+
+
+------------------------------------------------------------------------
+r59 | paul | 2004-03-09 19:18:52 -0800 (Tue, 09 Mar 2004) | 5 lines
+
+Fix minor typos in bizZip.py test.
+Add to the classes/test.py to show example
+widgets all on the same dForm, and to monitor
+the events as they get caught.
+
+------------------------------------------------------------------------
+r58 | paul | 2004-03-09 13:45:00 -0800 (Tue, 09 Mar 2004) | 7 lines
+
+Copy old class files and rename to new 'd' style. 
+Fix unit tests so that each file can be executed
+as a script. For instance, the following should
+bring up a dForm with a contained dSpinner:
+  python dSpinner
+
+
+------------------------------------------------------------------------
+r57 | paul | 2004-03-09 12:23:09 -0800 (Tue, 09 Mar 2004) | 3 lines
+
+Begin rearranging uiwx directory. Copy existing code
+to old/ for convenience.
+
+------------------------------------------------------------------------
+r56 | paul | 2004-03-09 11:09:05 -0800 (Tue, 09 Mar 2004) | 2 lines
+
+Add standard top-level files, mostly empty.
+
+------------------------------------------------------------------------
+r55 | paul | 2004-03-09 08:35:23 -0800 (Tue, 09 Mar 2004) | 2 lines
+
+Minor improvement to test script.
+
+------------------------------------------------------------------------
+r54 | paul | 2004-03-09 07:37:57 -0800 (Tue, 09 Mar 2004) | 6 lines
+
+Move branches/paulRefactor to trunk.
+
+Ed, you may want to copy your working tree and
+do a new checkout, in case you have local changes
+since your last commit.
+
+------------------------------------------------------------------------
+r52 | paul | 2004-03-09 07:32:35 -0800 (Tue, 09 Mar 2004) | 11 lines
+
+Rework minor parts of Ed's files (mostly
+just the import lines) to fit in with the
+new directory structure. Delete the temp
+_p files that constituted my changes. 
+
+The next step will be to remove the current 
+trunk and replace with the branch, and from
+then on all work will be in the trunk instead
+of in the branch.
+
+
+------------------------------------------------------------------------
+r51 | paul | 2004-03-09 06:55:30 -0800 (Tue, 09 Mar 2004) | 5 lines
+
+Copy Ed's files from trunk/classes into the
+correct directories in my branch. Next, I'll
+review and merge in my changes from the _p 
+files manually.
+
+------------------------------------------------------------------------
+r50 | paul | 2004-03-09 06:49:36 -0800 (Tue, 09 Mar 2004) | 4 lines
+
+Copy my work to temp files and remove orig,
+in anticipation of copying Ed's files into
+my branch.
+
+------------------------------------------------------------------------
+r49 | paul | 2004-03-09 06:40:21 -0800 (Tue, 09 Mar 2004) | 4 lines
+
+About to copy Ed's files into my branch to merge in
+with my original changes, but found and fixed a couple
+naming problems in the biz test script.
+
+------------------------------------------------------------------------
+r48 | paul | 2004-03-08 23:27:51 -0800 (Mon, 08 Mar 2004) | 3 lines
+
+Rename (again) files back to the 'd' prefix style in the 
+db directory, in anticipation for merging with Ed's work.
+
+------------------------------------------------------------------------
+r45 | paul | 2004-03-08 14:37:32 -0800 (Mon, 08 Mar 2004) | 5 lines
+
+I had the MySQL port wrong, and it must be an integer.
+Also, took out a try block so that the exception 
+propagates. 
+
+
+------------------------------------------------------------------------
+r44 | paul | 2004-03-08 14:23:27 -0800 (Mon, 08 Mar 2004) | 4 lines
+
+Add gadfly backend classes - not tested, stumbled on lack of 
+a dictcursor class. 
+
+
+------------------------------------------------------------------------
+r43 | paul | 2004-03-08 12:46:20 -0800 (Mon, 08 Mar 2004) | 2 lines
+
+Fix residual naming problems; tesk okay with biz/test/bizZip.py
+
+------------------------------------------------------------------------
+r42 | paul | 2004-03-08 12:19:28 -0800 (Mon, 08 Mar 2004) | 2 lines
+
+Put the 'mixin' names back in.
+
+------------------------------------------------------------------------
+r41 | paul | 2004-03-08 12:12:36 -0800 (Mon, 08 Mar 2004) | 2 lines
+
+Rename dBiz back to dBizobj
+
+------------------------------------------------------------------------
+r40 | paul | 2004-03-08 12:08:16 -0800 (Mon, 08 Mar 2004) | 2 lines
+
+Change 'constants.py' to 'dConstants.py'
+
+------------------------------------------------------------------------
+r39 | paul | 2004-03-08 12:02:34 -0800 (Mon, 08 Mar 2004) | 2 lines
+
+Move constants.py to root dir.
+
+------------------------------------------------------------------------
+r38 | paul | 2004-03-08 07:28:36 -0800 (Mon, 08 Mar 2004) | 2 lines
+
+Fix docstrings
+
+------------------------------------------------------------------------
+r37 | paul | 2004-03-07 23:42:35 -0800 (Sun, 07 Mar 2004) | 3 lines
+
+Ed's bizobj, cursor, connection classes are now integrated with 
+my backend and connectInfo classes.
+
+------------------------------------------------------------------------
+r36 | paul | 2004-03-07 20:51:36 -0800 (Sun, 07 Mar 2004) | 2 lines
+
+Editing docstrings mostly
+
+------------------------------------------------------------------------
+r35 | paul | 2004-03-07 17:48:00 -0800 (Sun, 07 Mar 2004) | 2 lines
+
+Abstracting the bizobj/db integration, but got interrupted again...
+
+------------------------------------------------------------------------
+r34 | paul | 2004-03-07 08:54:31 -0800 (Sun, 07 Mar 2004) | 2 lines
+
+Better file names
+
+------------------------------------------------------------------------
+r33 | paul | 2004-03-07 08:49:48 -0800 (Sun, 07 Mar 2004) | 2 lines
+
+Save dbConnectInfo
+
+------------------------------------------------------------------------
+r32 | paul | 2004-03-06 18:37:40 -0800 (Sat, 06 Mar 2004) | 2 lines
+
+Got interrupted halfway... working in db integrating Ed's stuff with mine.
+
+------------------------------------------------------------------------
+r31 | paul | 2004-03-06 18:00:16 -0800 (Sat, 06 Mar 2004) | 2 lines
+
+Reorg file names and locations
+
+------------------------------------------------------------------------
+r30 | paul | 2004-03-06 17:50:38 -0800 (Sat, 06 Mar 2004) | 2 lines
+
+bizobj
+
+------------------------------------------------------------------------
+r29 | paul | 2004-03-06 17:06:23 -0800 (Sat, 06 Mar 2004) | 2 lines
+
+bizobj prelim
+
+------------------------------------------------------------------------
+r28 | paul | 2004-03-06 16:08:59 -0800 (Sat, 06 Mar 2004) | 2 lines
+
+dApp object, uiApp object work
+
+------------------------------------------------------------------------
+r23 | paul | 2004-03-04 07:34:32 -0800 (Thu, 04 Mar 2004) | 2 lines
+
+Docstrings 
+
+------------------------------------------------------------------------
+r20 | paul | 2004-03-03 22:34:24 -0800 (Wed, 03 Mar 2004) | 2 lines
+
+setup of dbConnectionDefs in app startup
+
+------------------------------------------------------------------------
+r19 | paul | 2004-03-03 21:16:01 -0800 (Wed, 03 Mar 2004) | 2 lines
+
+app object
+
+------------------------------------------------------------------------
+r18 | paul | 2004-03-03 18:22:57 -0800 (Wed, 03 Mar 2004) | 2 lines
+
+rename ui dirs
+
+------------------------------------------------------------------------
+r17 | paul | 2004-03-03 18:21:34 -0800 (Wed, 03 Mar 2004) | 2 lines
+
+Moving ui dirs
+
+------------------------------------------------------------------------
+r16 | paul | 2004-03-03 15:01:02 -0800 (Wed, 03 Mar 2004) | 2 lines
+
+Working on dApp object
+
+------------------------------------------------------------------------
+r15 | paul | 2004-03-03 08:17:23 -0800 (Wed, 03 Mar 2004) | 2 lines
+
+Refactor continued.
+
+------------------------------------------------------------------------
+r14 | paul | 2004-03-02 23:54:17 -0800 (Tue, 02 Mar 2004) | 2 lines
+
+continue
+
+------------------------------------------------------------------------
+r13 | paul | 2004-03-02 23:48:48 -0800 (Tue, 02 Mar 2004) | 2 lines
+
+Renamed ui libraries as they conflicted with Python libs
+
+------------------------------------------------------------------------
+r12 | paul | 2004-03-02 23:47:06 -0800 (Tue, 02 Mar 2004) | 2 lines
+
+continue
+
+------------------------------------------------------------------------
+r11 | paul | 2004-03-02 21:18:24 -0800 (Tue, 02 Mar 2004) | 2 lines
+
+Continue...
+
+------------------------------------------------------------------------
+r10 | paul | 2004-03-02 20:55:14 -0800 (Tue, 02 Mar 2004) | 2 lines
+
+Correction
+
+------------------------------------------------------------------------
+r9 | paul | 2004-03-02 20:47:46 -0800 (Tue, 02 Mar 2004) | 2 lines
+
+Continue refactoring.
+
+------------------------------------------------------------------------
+r8 | paul | 2004-03-02 20:37:45 -0800 (Tue, 02 Mar 2004) | 2 lines
+
+Add needed new directories
+
+------------------------------------------------------------------------
+r7 | paul | 2004-03-02 20:33:22 -0800 (Tue, 02 Mar 2004) | 2 lines
+
+Fix dir name spelling error.
+
+------------------------------------------------------------------------
+r6 | paul | 2004-03-02 20:32:06 -0800 (Tue, 02 Mar 2004) | 2 lines
+
+Branch dabo for purpose of refactoring/reorginizing names of things.
+
+------------------------------------------------------------------------
+r5 | paul | 2004-02-29 17:55:52 -0800 (Sun, 29 Feb 2004) | 1 line
+
+
+------------------------------------------------------------------------
+r4 | paul | 2004-02-29 17:17:40 -0800 (Sun, 29 Feb 2004) | 1 line
+
+Set eol-style to native on all subdirs
+------------------------------------------------------------------------
+r3 | paul | 2004-02-29 17:14:41 -0800 (Sun, 29 Feb 2004) | 1 line
+
+Set eol-style to native
+------------------------------------------------------------------------
+r2 | paul | 2004-02-29 15:33:26 -0800 (Sun, 29 Feb 2004) | 1 line
+
+Initial copy of dabo from CVS to SVN
+------------------------------------------------------------------------
+r1 | paul | 2004-02-29 10:09:29 -0800 (Sun, 29 Feb 2004) | 1 line
+
+Added branches, tags, and trunk dirs
+------------------------------------------------------------------------

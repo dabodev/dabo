@@ -25,3 +25,7 @@ So I can then copy or symlink the dabo root directory there to make it importabl
 will likely need administrative privileges to do this on your system, unless you happen
 to be running Windows.
 
+If you would rather put dabo somewhere else, you can put a text file called dabo.pth inside
+your Python site-packages directory. The contents of this file must specify the parent
+directory where Dabo can be found. For instance, if you put Dabo in c:\programs\myprogs\dabo,
+you'll need your dabo.pth to say 'c:\programs\myprogs'.
