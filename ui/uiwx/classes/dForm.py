@@ -1,7 +1,7 @@
 import wx, dEvents, dControlMixin, dDataControlMixin
 from dFormMixin import dFormMixin
 import dabo.dError as dError
-from dabo.dLocalize import loc
+from dabo.dLocalize import _
 import dabo.dConstants as k
 import dMessageBox, dProgressDialog
 
@@ -148,7 +148,7 @@ class dForm(wxFrameClass, dFormMixin):
         try:
             response = func()
         except dError.NoRecordsError:
-            self.setStatusText(loc("No records in dataset."))
+            self.setStatusText(_("No records in dataset."))
         else:
             # Notify listeners that the row number changed:
             evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
@@ -242,6 +242,15 @@ class dForm(wxFrameClass, dFormMixin):
         self.activeControlValid()
         bizobj = self.getBizobj(dataSource)
         
+        if bizobj.isChanged(allRows=True):
+            response = dMessageBox.areYouSure(_("Do you wish to save your changes?"),
+                                              cancelButton=True)
+            
+            if response == None:    # cancel
+                return
+            elif response == True:  # yes
+                self.save(dataSource=dataSource)
+            
         self.setStatusText("Please wait... requerying dataset...")
         start = time.time()
         
@@ -274,7 +283,7 @@ class dForm(wxFrameClass, dFormMixin):
         self.activeControlValid()
         bizobj = self.getBizobj(dataSource)
         if not message:
-            message = loc("This will delete the current record, and cannot "
+            message = _("This will delete the current record, and cannot "
                           "be canceled.\n\n Are you sure you want to do this?")
         if dMessageBox.areYouSure(message, defaultNo=True):
             try:
@@ -300,7 +309,7 @@ class dForm(wxFrameClass, dFormMixin):
         bizobj = self.getBizobj(dataSource)
         
         if not message:
-            message = loc("This will delete all records in the recordset, and cannot "
+            message = _("This will delete all records in the recordset, and cannot "
                           "be canceled.\n\n Are you sure you want to do this?")
                        
         if dMessageBox.areYouSure(message, defaultNo=True):
@@ -394,7 +403,7 @@ class dForm(wxFrameClass, dFormMixin):
             rowNumber = bizobj.getRowNumber()+1
         else:
             rowNumber = 0
-        return loc("Record " ) + ("%s/%s" % (rowNumber, rowCount))
+        return _("Record " ) + ("%s/%s" % (rowNumber, rowCount))
     
         
     def activeControlValid(self):

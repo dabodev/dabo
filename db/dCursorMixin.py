@@ -221,16 +221,22 @@ class dCursorMixin:
                 break
 
 
-    def isChanged(self):
+    def isChanged(self, allRows=True):
         '''
         Scan all the records and compare them with their mementos. 
         
         Returns True if any differ, False otherwise.
         '''
         ret = False
+        
         if self.rowcount > 0:
-            for i in range(0, self.rowcount):
-                rec = self._rows[i]
+            if allRows:
+                recs = self._rows
+            else:
+                recs = (self._rows[self.rownumber],)
+
+            for i in range(len(recs)):
+                rec = recs[i]
                 if self.isRowChanged(rec):
                     ret = True
                     break

@@ -533,12 +533,12 @@ class dBizobj(object):
         return self._cursor.seek(val, fld, caseSensitive, near)
 
 
-    def isChanged(self):
+    def isChanged(self, allRows=False):
         """ 
         Returns whether or not the data for the current record in the cursor has changed, or
         if the data in any child bizobjs has changed. 
         """
-        ret = self._cursor.isChanged()
+        ret = self._cursor.isChanged(allRows)
 
         if not ret:
             # see if any child bizobjs have changed
