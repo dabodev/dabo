@@ -46,7 +46,8 @@ class dForm(wxFrameClass, dFormMixin):
         
         self._setupResources(resourceString)
 
-        self.CreateStatusBar()
+        if not isinstance(self, wx.MDIChildFrame):
+            self.CreateStatusBar()
         
         self.SetSizer(wx.BoxSizer(wx.VERTICAL))
         self.GetSizer().Layout()

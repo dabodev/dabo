@@ -37,7 +37,7 @@ class dFormMain(wxFrameClass, dFormMixin):
         except:
             pass
         statusBar.PushStatusText(message)
-        statusBar.Update()  # Refresh() doesn't work, and this is only needed sometimes.
+        statusBar.Update()    # Refresh() doesn't work, and this is only needed sometimes.
     
  
         

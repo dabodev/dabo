@@ -13,10 +13,10 @@ class dFormDataNav(dForm):
         self._gridColumnDefs = {}
     
     def afterSetPrimaryBizobj(self):        
-        self.setupPageFrame()
         #self.addVCR()
-        self.setupMenu()
         self.setupToolBar()
+        self.setupMenu()
+        self.setupPageFrame()
                 
     def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap):
         menuId = wx.NewId()
@@ -24,16 +24,28 @@ class dFormDataNav(dForm):
         item.SetBitmap(bitmap)
         menu.AppendItem(item)
         
-        wx.EVT_MENU(self, menuId, function)
+        if isinstance(self, wx.MDIChildFrame):
+            controllingFrame = self.dApp.mainFrame
+        else:
+            controllingFrame = self
+        wx.EVT_MENU(controllingFrame, menuId, function)
 
     def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):
         toolId = wx.NewId()
         toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
-        wx.EVT_MENU(self, toolId, function)
+        
+        if isinstance(self, wx.MDIChildFrame):
+            controllingFrame = self.dApp.mainFrame
+        else:
+            controllingFrame = self
+        wx.EVT_MENU(controllingFrame, toolId, function)
     
     def setupToolBar(self):
-        self.CreateToolBar()
-        toolBar = self.GetToolBar()
+        if isinstance(self, wx.MDIChildFrame):
+            controllingFrame = self.dApp.mainFrame
+        else:
+            controllingFrame = self
+        toolBar = wx.ToolBar(controllingFrame, -1)
         toolBar.SetToolBitmapSize((16,16))    # Needed on non-Linux platforms
         
         self._appendToToolBar(toolBar, "First", dIcons.getIconBitmap("leftArrows"),
@@ -67,8 +79,8 @@ class dFormDataNav(dForm):
         self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("revert"),
                               self.onCancel, "Cancel changes")
         
-        toolBar.Realize()    # Needed on non-Linux platforms
-
+        controllingFrame.SetToolBar(toolBar)
+        toolBar.Realize()                      # Needed on non-Linux platforms
                 
     def getMenu(self):
         menu = dForm.getMenu(self)
@@ -117,10 +129,25 @@ class dFormDataNav(dForm):
 
         return menu
         
+        
     def setupMenu(self):
-        mb = wx.MenuBar()
-        mb.Append(self.getMenu(), "&Navigation")
-        self.SetMenuBar(mb)
+        if isinstance(self, wx.MDIChildFrame):
+            # This dForm uses the top level frame's menubar
+            mb = self.dApp.mainFrame.GetMenuBar()
+            menuIndex = mb.FindMenu("&Navigation")
+            if menuIndex >= 0:
+                mb.Remove(menuIndex)
+        else:
+            # This dForm uses its own menubar
+            mb = wx.MenuBar()
+        menuIndex = mb.GetMenuCount()-1
+        if menuIndex < 0:
+            menuIndex = 0
+        mb.Insert(menuIndex, self.getMenu(), "&Navigation")
+        
+        if not isinstance(self, wx.MDIChildFrame):
+            self.SetMenuBar(mb)
+            
                 
     def setupPageFrame(self):
         ''' dFormDataNav.setupPageFrame() -> 
