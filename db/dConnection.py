@@ -1,4 +1,5 @@
 import dabo.common
+from dConnectInfo import dConnectInfo
 from dCursorMixin import dCursorMixin
 
 class dConnection(dabo.common.dObject):
@@ -10,7 +11,13 @@ class dConnection(dabo.common.dObject):
 		# object connection collection most likely)
 		self.Parent = parent
 
-		self._connectInfo = connectInfo
+		if isinstance(connectInfo, dConnectInfo):
+			self._connectInfo = connectInfo
+		else:
+			# If they passed a cnxml file, or a dict containing 
+			# valid connection info, this will work fine. Otherwise,
+			# an error will be raised in the dConnectInfo class.
+			self._connectInfo = dConnectInfo(connInfo=connectInfo)
 		self._connection = self._openConnection()
 		
 		
@@ -23,10 +30,12 @@ class dConnection(dabo.common.dObject):
 	def getCursor(self, cursorClass):
 		return self.getBackendObject().getCursor(cursorClass)
 	
-	def getDaboCursor(self, cursorClass):
+	def getDaboCursor(self, cursorClass=None):
 		""" Accepts a backend-specific cursor class, mixes in the Dabo
 		dCursorMixin class, and returns the result.
 		"""
+		if cursorClass is None:
+			cursorClass = self.getDictCursorClass()
 		class DaboCursor(dCursorMixin, cursorClass):
 			superMixin = dCursorMixin
 			superCursor = cursorClass
@@ -36,7 +45,10 @@ class dConnection(dabo.common.dObject):
 				if hasattr(cursorClass, "__init__"):
 					apply(cursorClass.__init__,(self,) + args, kwargs)
 		
-		return self.getBackendObject().getCursor(DaboCursor)
+		bo = self.getBackendObject()
+		crs = bo.getCursor(DaboCursor)
+		crs.setBackendObject(bo)
+		return crs
 
 
 	def _openConnection(self):

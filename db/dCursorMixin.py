@@ -340,6 +340,9 @@ class dCursorMixin(dabo.common.dObject):
 		
 		
 	def __setNonUpdateFields(self):
+		if not self.Table:
+			# No table specified, so no update checking is possible
+			return
 		# This is the current description of the cursor.
 		if not self.description:
 			# A query hasn't been run yet; so we need to get one
@@ -1281,7 +1284,7 @@ class dCursorMixin(dabo.common.dObject):
 		return ret
 
 	def executeSQL(self, *args, **kwargs):
-		self.execute(self.createSQL(), *args, **kwargs)
+		self.execute(self.getSQL(), *args, **kwargs)
 	###     end - SQL Builder methods     ########
 	
 	
