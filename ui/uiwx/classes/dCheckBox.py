@@ -16,7 +16,7 @@ class dCheckBox(wx.CheckBox, dDataControlMixin, dControlMixin):
         dDataControlMixin.initEvents(self)
         
         # init the widget's specialized event(s):
-        wx.EVT_CHECKBOX(self, self.GetId(), self.onEvent)
+        wx.EVT_CHECKBOX(self, self.GetId(), self.OnCheckBox)
 
     # Event callback methods (override in subclasses):
     def OnCheckBox(self, event): pass

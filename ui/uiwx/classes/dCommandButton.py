@@ -13,7 +13,7 @@ class dCommandButton(wx.Button, dControlMixin):
         dControlMixin.initEvents(self)
         
         # init the widget's specialized event(s):
-        wx.EVT_BUTTON(self, self.GetId(), self.onEvent)
+        wx.EVT_BUTTON(self, self.GetId(), self.OnButton)
         
     # Event callback methods (override in subclasses):
     def OnButton(self, event): pass

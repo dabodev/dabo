@@ -16,8 +16,8 @@ class dSpinner(wx.SpinCtrl, dDataControlMixin, dControlMixin):
         dDataControlMixin.initEvents(self)
         
         # init the widget's specialized event(s):
-        wx.EVT_SPINCTRL(self, self.GetId(), self.onEvent)
-        wx.EVT_TEXT(self, self.GetId(), self.onEvent)
+        wx.EVT_SPINCTRL(self, self.GetId(), self.OnSpin)
+        wx.EVT_TEXT(self, self.GetId(), self.OnText)
 
     # Event callback method(s) (override in subclasses):
     def OnSpin(self, event): pass

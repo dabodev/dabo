@@ -16,7 +16,7 @@ class dTextBox(wx.TextCtrl, dDataControlMixin, dControlMixin):
         dDataControlMixin.initEvents(self)
         
         # init the widget's specialized event(s):
-        wx.EVT_TEXT(self, self.GetId(), self.onEvent)
+        wx.EVT_TEXT(self, self.GetId(), self.OnText)
 
     # Event callback method(s) (override in subclasses):
     def OnText(self, event): pass
