@@ -129,9 +129,10 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 			else:
 				userName = ""
 				
-			mf.Caption = "%s Version %s %s" % (self.getAppInfo("appName"),
-											self.getAppInfo("appVersion"),
-											userName)
+			### EGL: removed this auto-captioning. Let the frames handle
+			###   their own captioning.
+			#mf.Caption = "%s Version %s %s" % (self.getAppInfo("appName"),
+					#self.getAppInfo("appVersion"), userName)
 		
 			self.uiApp.start(self)
 		self.finish()
