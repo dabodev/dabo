@@ -10,16 +10,41 @@ class BandLabel(dabo.ui.dPanel):
 		self._dragging = False
 		self._dragStart = (0,0)
 
+
 	def initEvents(self):
 		self.bindEvent(dEvents.Paint, self.onPaint)
 		self.bindEvent(dEvents.MouseLeftDown, self.onLeftDown)
 		self.bindEvent(dEvents.MouseLeftUp, self.onLeftUp)
 		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onDoubleClick)
 		self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
+		self.bindEvent(dEvents.MouseMove, self.onMouseMove)
+
+
+	def onMouseMove(self, evt):
+		import wx  ## need to abstract DC and mouse cursors!!
+		if self._dragging:
+			self.SetCursor(wx.StockCursor(wx.CURSOR_CROSS))
+			pos = evt.EventData["mousePosition"]
+			if pos[1] != self._dragStart[1]:
+				# pos is absolute mouse position.
+				memDC = wx.MemoryDC()
+				memDC.SelectObject(self._captureBitmap)
+
+				dc = wx.WindowDC(self.Form)
+
+				dc.Blit(self.Parent.Left, self.Parent.Top + self.Top + pos[1],
+				        self._captureBitmap.GetWidth(), self._captureBitmap.GetHeight(),
+				        memDC, -1, 0, wx.COPY, False)
+
+		else:
+			self.SetCursor(wx.NullCursor)
 
 
 	def onLeftUp(self, evt):
-		if self._dragging:
+		dragging = self._dragging
+		self._dragging = False
+		self.Form.Refresh()
+		if dragging:
 			pos = evt.EventData["mousePosition"]
 			yoffset = pos[1] - self._dragStart[1]
 			if yoffset != 0:
@@ -28,20 +53,13 @@ class BandLabel(dabo.ui.dPanel):
 				newHeight = oldHeight + yoffset
 				if newHeight < 0: newHeight = 0
 				self.Parent.setProp("height", newHeight)
-		self._dragging = False
 	
 
 	def onLeftDown(self, evt):
-		try:
-			movable = not self.Parent.getProp("designerLock")
-		except KeyError:
-			movable = True
-
-		if movable:
+		if not self.Parent.getProp("designerLock"):
 			self._dragging = True
 			self._dragStart = evt.EventData["mousePosition"]
-		else:
-			self._dragging = False
+			self._captureBitmap = self.getCaptureBitmap()
 
 
 	def onMouseEnter(self, evt):
@@ -52,8 +70,10 @@ class BandLabel(dabo.ui.dPanel):
 		else:
 			self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENS))
 
+
 	def onDoubleClick(self, evt):
 		self.Parent.propertyDialog()
+
 
 	def onPaint(self, evt):
 		import wx		## (need to abstract DC drawing)
@@ -69,6 +89,7 @@ class BandLabel(dabo.ui.dPanel):
 		rect[0] = rect[0]+5
 		rect[1] = rect[1]+1
 		dc.DrawLabel(self.Caption, rect, wx.ALIGN_LEFT)
+
 
 	def _getCaption(self):
 		try:

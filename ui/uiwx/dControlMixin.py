@@ -22,7 +22,7 @@ class dControlMixin(dControlMixinBase):
 		bmp = wx.EmptyBitmap(rect.width, rect.height)
 		memdc = wx.MemoryDC()
 		memdc.SelectObject(bmp)
-		dc = wx.WindowDC(self)
+		dc = wx.WindowDC(self.Parent)
 		memdc.Blit(0,0, rect.width, rect.height, dc, rect.x, rect.y)
 		memdc.SelectObject(wx.NullBitmap)
 		return bmp
