@@ -72,7 +72,7 @@ class dDataControlMixin(pm.dPemMixin):
         if self.debug:
             print "onValueRefresh received by %s" % (self.GetName(),)
         self.refresh()
-        if self.SelectOnEntry and self.getDform().controlWithFocus == self:
+        if self.SelectOnEntry and self.getDform().FindFocus() == self:
             self.selectAll()
         event.Skip()
 
@@ -90,11 +90,6 @@ class dDataControlMixin(pm.dPemMixin):
         if self.debug:
             print "OnSetFocus received by %s" % self.GetName()
         
-        try:
-            self.getDform().controlWithFocus = self
-        except AttributeError:   # perhaps the containing frame isn't a dForm
-            pass
-            
         self._oldVal = self.Value
         
         if self.SelectOnEntry:

@@ -46,7 +46,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
         self.AskToSave = True      # Display 'save changes?' prompt?
         
         self.dControls = {}
-        self.controlWithFocus = None
         
         self._setupResources(resourceString)
 
@@ -414,12 +413,13 @@ class dForm(wxFrameClass, fm.dFormMixin):
         KillFocus code. This function effectively commands that update to
         happen before it would have otherwise occurred.
         '''
-        try:
-            controlWithFocus = self.controlWithFocus
-        except AttributeError:
-            controlWithFocus = None
+        controlWithFocus = self.FindFocus()
         if controlWithFocus:
-            controlWithFocus.flushValue()
+            try:
+                controlWithFocus.flushValue()
+            except AttributeError:
+                # controlWithFocus may not be data-aware
+                pass
         
                             
     def _setupResources(self, resourceString):

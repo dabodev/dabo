@@ -164,6 +164,7 @@ class dFormMixin(pm.dPemMixin):
     def _setIconBundle(self, icons):
         self.SetIcons(icons)
         self._Icons = icons       # wx doesn't provide GetIcons()
+        
     
     
     # property definitions follow:
