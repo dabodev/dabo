@@ -4,8 +4,8 @@ import datetime
 class MySQL(dBackend):
 	def __init__(self):
 		dBackend.__init__(self)
-		### TODO: what is the name of the adapter module?
-		self.dbModuleName = "PostgreSQLdb"
+		#self.dbModuleName = "pgdb"
+		self.dbModuleName = "psycopg"
 		self.useTransactions = True
 
 	def getConnection(self, connectInfo):
@@ -14,8 +14,7 @@ class MySQL(dBackend):
 
 		port = connectInfo.Port
 		if not port:
-			### TODO: what port does PostgreSQL use?
-			#port = 3306
+			port = 5432
 				
 		### TODO: Is this the correct syntax for creating the connection?
 		self._connection = dbapi.connect(host=connectInfo.Host, 
