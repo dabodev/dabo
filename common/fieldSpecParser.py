@@ -6,6 +6,7 @@ class FieldSpecHandler(xml.sax.ContentHandler):
 		self.currTableDict = {}
 		self.currTable = ""
 		self.currFieldDict = {}
+		self.currRelaDict = {}
 	
 	def startElement(self, name, attrs):
 		if name == "table":
@@ -13,6 +14,8 @@ class FieldSpecHandler(xml.sax.ContentHandler):
 			self.currTable = attrs.getValue("name")
 			self.currTableDict = {}
 			self.currFieldDict = {}
+			self.currRelaDict = {}
+
 		elif name == "field":
 			for att in attrs.keys():
 				if att == "name":
@@ -20,6 +23,15 @@ class FieldSpecHandler(xml.sax.ContentHandler):
 				else:
 					self.currFieldDict[att] = attrs.getValue(att)
 			self.currTableDict[fldName] = self.currFieldDict.copy()
+
+		elif name == "relation":
+			target = attrs.getValue("target")
+			relaName = "RELATION::" + target
+			self.currRelaDict["target"] = target
+			self.currRelaDict["parentField"] = attrs.getValue("parentField")
+			self.currRelaDict["childField"] = attrs.getValue("childField")
+			self.currTableDict[relaName] = self.currRelaDict.copy()
+			
 			
 	
 	def endElement(self, name):
