@@ -78,10 +78,12 @@ class Firebird(dBackend):
 			tables.append(record[0].strip())
 		return tuple(tables)
 		
+		
 	def getTableRecordCount(self, tableName):
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("select count(*) as ncount from %s where 1=1" % tableName)
 		return tempCursor.fetchall()[0][0]
+
 
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
@@ -151,22 +153,16 @@ class Firebird(dBackend):
 			pk = (name.lower() == pkField.lower() )
 			
 			fields.append((name.strip().lower(), ft, pk))
-			
 		return tuple(fields)
-	
-# 	def flush(self, cursor):
-# 		""" Firebird requires an explicit commit in order to have changes
-# 		to the database written to disk.
-# 		"""
-# 		cursor.connection.commit()
-	
-	def getLastInsertID(self, cursor):
-		# This doesn't work - it'll return None. TODO: figure out what to do.
-		# pkm: perhaps this change fixes it?
-		#return self.doDefault(cursor)
-		#return Firebird.doDefault(cursor)
-		super(Firebird, self).getLastInsertID(cursor)
 
+	
+	def flush(self, cursor):
+		""" Firebird requires an explicit commit in order to have changes
+		to the database written to disk.
+		"""
+		cursor.connection.commit()
+
+	
 	def getLimitWord(self):
 		""" Override the default 'limit', since Firebird doesn't use that. """
 		return "first"
@@ -177,14 +173,17 @@ class Firebird(dBackend):
 		return "\n".join( ("SELECT ", limitClause, fieldClause, fromClause, 
 				whereClause, groupByClause, orderByClause) )
 
+
 	def addField(self, clause, exp):
 		quoted = self.dblQuoteField(exp)
 		return self.addWithSep(clause, quoted)
+
 	
 	def addWhere(self, clause, exp, comp="and"):
 		quoted = self.dblQuoteField(exp)
 		return self.addWithSep(clause, quoted, sep=" %s " % comp)
-	
+
+
 	def massageDescription(self, cursor):
 		"""Force all the field names to lower case."""
 		dd = cursor.description
@@ -192,7 +191,30 @@ class Firebird(dBackend):
 			cursor.description = tuple([(elem[0].lower(), elem[1], elem[2], 
 					elem[3], elem[4], elem[5], elem[6]) 
 					for elem in dd])
-		
+	
+
+	def pregenPK(self, cursor):
+		"""Determines the generator for which a 'before-insert' trigger
+		is associated with the cursor's table. If one is found, get its 
+		next value and return it. If not, return None.
+		"""
+		ret = None
+		sql = """select rdb$depended_on_name as genname
+				from rdb$dependencies
+				where rdb$dependent_type = 2
+				and rdb$depended_on_type = 14
+				and rdb$dependent_name =
+				(select rdb$trigger_name from rdb$triggers
+				where rdb$relation_name = '%s'
+				and rdb$trigger_type = 1 )""" % cursor.Table.upper()
+    	cursor.execute(sql)
+    	if cursor.RowCount:
+    		gen = cursor.getFieldVal("genname").strip()
+    		sql = """select GEN_ID(%s, 1) as nextVal 
+    				from rdb$database""" % gen
+    		cursor.execute(sql)
+    		ret = cursor.getFieldVal("nextVal")
+    	return ret
 	
 
 	def setSQL(self, sql):

@@ -714,14 +714,25 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				updClause = self.makeUpdClause(diff)
 				sql = "update %s set %s where %s" % (self.Table, updClause, pkWhere)
 			
+			newPKVal = None
+			if newrec and self.AutoPopulatePK:
+				# Some backends do not provide a means to retrieve 
+				# auto-generated PKs; for those, we need to create the 
+				# PK before inserting the record so that we can pass it on
+				# to any linked child records.
+				newPKVal = self.pregenPK()
+				if newPKVal:
+					self.setFieldVal(self.KeyField, newPKVal)
+				
 			#run the update
 			res = self._getAuxCursor().execute(sql)
 			
-			if newrec and self.AutoPopulatePK:
+			if newrec and self.AutoPopulatePK and (newPKVal is None):
 				# Call the database backend-specific code to retrieve the
 				# most recently generated PK value.
 				newPKVal = self.getLastInsertID()
-				self.setFieldVal(self.KeyField, newPKVal)
+				if newPKVal:
+					self.setFieldVal(self.KeyField, newPKVal)
 
 			if newrec:
 				# Need to remove the new flag
@@ -734,6 +745,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			rec[k.CURSOR_MEMENTO].setMemento(rec)
 
 	
+	def pregenPK(self):
+		"""Various backend databases require that you manually 
+		generate new PKs if you need to refer to their values afterward.
+		This method will call the backend to generate and 
+		retrieve a new PK if the backend supports this. We use the 
+		auxiliary cursor so as not to alter the current data.
+		"""
+		return self._getBackendObject().pregenPK(self._getAuxCursor())
+		
+		
 	def makeUpdDiff(self, rec, isnew=False):
 		mem = rec[k.CURSOR_MEMENTO]
 		ret = mem.makeDiff(rec, isnew)

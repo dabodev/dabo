@@ -235,6 +235,14 @@ class dBackend(dabo.common.dObject):
 		nothing to the description.
 		"""
 		return
+	
+	
+	def pregenPK(self, cursor):
+		"""In the case where the database requires that PKs be generated 
+		before an insert, this method provides a backend-specific 
+		means of accomplishing this. By default, we return None.
+		"""
+		return None
 		
 		
 	###########################################	
@@ -258,13 +266,13 @@ class dBackend(dabo.common.dObject):
 		return clause
 	###########################################	
 
-	def setEncoding(self, enc):
+	def _setEncoding(self, enc):
 		""" Set backend encoding. Must be overridden in the subclass
 		to notify database about proper charset conversion.
 		"""
 		self._encoding = enc
-	def getEncoding(self):
+	def _getEncoding(self):
 		""" Get backend encoding."""
 		return self._encoding
 
-	Encoding = property(getEncoding, setEncoding, None, "Backend encoding")
+	Encoding = property(_getEncoding, _setEncoding, None, "Backend encoding")
