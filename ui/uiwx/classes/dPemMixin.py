@@ -24,14 +24,14 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 			return ret
 
 	
-	def _beforeInit(self, preCreateObject):
+	def _beforeInit(self, pre):
 		self._name = '?'
-		self._pemObject = preCreateObject
+		self._pemObject = pre
 		self.initStyleProperties()
 		self._pemObject = self
 		
 		# Call the subclass hook:
-		self.beforeInit(preCreateObject)
+		self.beforeInit(pre)
 		
 		
 	def beforeInit(self, preCreateObject):

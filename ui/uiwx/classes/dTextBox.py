@@ -19,9 +19,9 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 		self._afterInit()                      # defined in dPemMixin
 
 
-	def afterInit(self):
-		self.SelectOnEntry = True
+	def initProperties(self):
 		dTextBox.doDefault()
+		self.SelectOnEntry = True
 
 
 	def initEvents(self):

@@ -20,12 +20,6 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 		self._afterInit()                      # defined in dPemMixin
 
 
-	def afterInit(self):
-		self.SpinnerLowValue = -64000
-		self.SpinnerHighValue = 64000
-		dSpinner.doDefault()
-
-
 	def initEvents(self):
 		# init the common events:
 		cm.dControlMixin.initEvents(self)
@@ -45,18 +39,18 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
-	def _getSpinnerHighValue(self):
-		return self.GetMax()
-	def _setSpinnerHighValue(self, value):
-		rangeLow = self.SpinnerLowValue
+	def _getMax(self):
+		return self._pemObject.GetMax()
+	def _setMax(self, value):
+		rangeLow = self._pemObject.GetMin()
 		rangeHigh = int(value)
-		self.SetRange(rangeLow, rangeHigh)
+		self._pemObject.SetRange(rangeLow, rangeHigh)
 
-	def _getSpinnerLowValue(self):
+	def _getMin(self):
 		return self.GetMin()
-	def _setSpinnerLowValue(self, value):
+	def _setMin(self, value):
 		rangeLow = int(value)
-		rangeHigh = self.SpinnerHighValue
+		rangeHigh = self.Max
 		self.SetRange(rangeLow, rangeHigh)
 
 	def _getSpinnerWrap(self):
@@ -74,10 +68,10 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 			self.addWindowStyleFlag(wx.SP_ARROW_KEYS)
 
 	# Property definitions:
-	SpinnerLowValue = property(_getSpinnerLowValue, _setSpinnerLowValue, None, 
+	Min = property(_getMin, _setMin, None, 
 						'Specifies the lowest possible value for the spinner. (int)')
 
-	SpinnerHighValue = property(_getSpinnerHighValue, _setSpinnerHighValue, None, 
+	Max = property(_getMax, _setMax, None, 
 						'Specifies the highest possible value for the spinner. (int)')
 
 	SpinnerWrap = property(_getSpinnerWrap, _setSpinnerWrap, None,

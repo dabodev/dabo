@@ -15,18 +15,22 @@ class SelectOptionsPanel(dPanel.dPanel):
 	def initEnabled(self):
 		for optionRow in self.selectOptions:
 			self.setEnabled(self.FindWindowById(optionRow['cbId']))
+		self.setEnabled(self.chkSelectLimit)
 
 	def setEnabled(self, cb):
 		# Get reference(s) to the associated input control(s)
-		user1, user2 = None, None
-		for optionRow in self.selectOptionsPanel.selectOptions:
-			if cb and optionRow['cbId'] == cb.GetId():
-				user1Id = optionRow['user1Id']
-				user2Id = optionRow['user2Id']
-				user1 = self.FindWindowById(user1Id)
-				user2 = self.FindWindowById(user2Id)
-				dataType = optionRow['dataType']
-				break            
+		if cb.Name == 'chkSelectLimit':
+			user1, user2 = self.spnSelectLimit, None
+		else:
+			user1, user2 = None, None
+			for optionRow in self.selectOptionsPanel.selectOptions:
+				if cb and optionRow['cbId'] == cb.GetId():
+					user1Id = optionRow['user1Id']
+					user2Id = optionRow['user2Id']
+					user1 = self.FindWindowById(user1Id)
+					user2 = self.FindWindowById(user2Id)
+					dataType = optionRow['dataType']
+					break            
 
 		# enable/disable the associated input control(s) based
 		# on the value of cb. Set Focus to the first control if
@@ -64,7 +68,16 @@ class SelectOptionsTextBox(dTextBox.dTextBox):
 	def initProperties(self):
 		self.SaveRestoreValue = True
 		
+
+class SelectOptionsSpinner(dSpinner.dSpinner):
+	""" Base class for the dSpinner used in the select page.
+	"""
+	def initProperties(self):
+		self.SaveRestoreValue = True
+		self.Min = 0
+		self.Max = 5000
 		
+				
 class dSelectPage(dPage.dPage):
 
 	def __init__(self, parent):
@@ -111,12 +124,18 @@ class dSelectPage(dPage.dPage):
 		bizobj = self.getDform().getBizobj()
 		where = self.getWhere()
 		bizobj.setWhereClause(where)
-
+		
+		if self.selectOptionsPanel.chkSelectLimit.Value == True:
+			limit = "%s" % self.selectOptionsPanel.spnSelectLimit.Value
+		else:
+			limit = None
+		bizobj.setLimitClause(limit)
+		
 		# The bizobj will get the SQL from the sql builder:
 		sql = bizobj.getSQL()
 
-		print '\n\nsql:\n%s\n\n' % sql
-
+		print '\n%s\n' % sql
+		
 		# But it won't automatically use that sql, so we set it here:
 		bizobj.setSQL(sql)
 
@@ -253,6 +272,15 @@ class dSelectPage(dPage.dPage):
 		sizer.Add(line, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.TOP, 5)
 
 		box = wx.BoxSizer(wx.HORIZONTAL)
+		
+		cb = SelectOptionsCheckBox(panel, name='chkSelectLimit')
+		cb.Caption = 'Limit:'
+		cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
+		box.Add(cb, 0, wx.ALL, 5)
+		
+		limitSpinner = SelectOptionsSpinner(panel, name='spnSelectLimit')
+		box.Add(limitSpinner, 1, wx.ALL, 5)
+		
 
 		requeryButton = dCommandButton.dCommandButton(panel)
 		requeryButton.Caption = '&%s' % _('Requery')

@@ -74,7 +74,7 @@ class dDataControlMixin(pm.dPemMixin):
 			except (TypeError, dException.NoRecordsException):
 				self.Value = self.getBlankValue()
 				self.Enabled = False
-			self._curVal = self.Value
+			self._oldVal = self.Value
 			
 
 	def onValueRefresh(self, event): 
@@ -187,6 +187,7 @@ class dDataControlMixin(pm.dPemMixin):
 		elif type(value) in [type(bool()), ]:
 			return "L"
 		else:
+			print "getShortDataType:", self, value
 			return "?"
 			
 
