@@ -175,9 +175,10 @@ if __name__ == "__main__":
 			hsz = dabo.ui.dSizer("H")
 			hsz.Spacing = 10
 			self.ddScale = dabo.ui.dDropdownList(self, 
-					Choices=["Proportional", "Stretch", "Clip"])
+					Choices=["Proportional", "Stretch", "Clip"],
+					DataSource = "self.Form.img",
+					DataField = "ScaleMode")
 			self.ddScale.PositionValue = 0
-			self.ddScale.bindEvent(dEvents.Hit, self.onScaleChange)
 			btn = dabo.ui.dButton(self, Caption="Load Image")
 			btn.bindEvent(dEvents.Hit, self.onLoadImage)
 			btnOK = dabo.ui.dButton(self, Caption="Done")
@@ -214,13 +215,12 @@ if __name__ == "__main__":
 				self.img.Height = (self.imgPanel.Height * val)
 			
 			
-		def onScaleChange(self, evt):
-			self.img.ScaleMode = evt.EventObject.Value
-			
 		def onLoadImage(self, evt): 
-			f = dabo.ui.getFile()
+			f = dabo.ui.getFile("jpg", "png", "gif", "bmp", "*")
 			if f:
 				self.img.Picture = f
+			# Prevent occasional double-events on Windows
+			evt.stop()
 		
 		def onResize(self, evt):
 			self.needUpdate = True
