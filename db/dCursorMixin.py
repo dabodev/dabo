@@ -423,8 +423,11 @@ class dCursorMixin(dabo.common.dObject):
 			if rec.has_key(fld):
 				if type(rec[fld]) != type(val):
 					if ( type(val) in (types.UnicodeType, types.StringType) 
-							and type(rec[fld]) is types.StringType ):
-						val = str(val)
+							and type(rec[fld]) in (types.UnicodeType, types.StringType) ):
+						if type(rec[fld]) == types.StringType:
+							val = str(val)
+						else:
+							val = unicode(val)
 					elif type(rec[fld]) == type(int()) and type(val) == type(bool()):
 						# convert bool to int (original field val was int, but UI
 						# changed to int. 
