@@ -62,8 +62,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.bizobjs = {}
 		self._primaryBizobj = None
 
-		self.dControls = {}
-
 		if not isinstance(self, wx.MDIChildFrame):
 			self.CreateStatusBar()
 
@@ -110,36 +108,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		""" Subclass hook.
 		"""
 		pass
-
-
-	def addControl(self, control):
-		""" Add a control to this form.
-
-		This happens automatically for dControls.
-		"""
-		self.dControls[control.Name] = control
-
-		# Set up the control to receive the notification 
-		# from the form that it's time to refresh its value,
-		# but only if the control is set up to receive these
-		# notifications (if it has a onValueRefresh Method).
-		try:
-			func = control.onValueRefresh
-		except AttributeError:
-			func = None
-		if func:
-			self.bindEvent(dEvents.ValueRefresh, func)
-
-		# Set up the control to receive the notification 
-		# from the form that that the row number changed,
-		# but only if the control is set up to receive these
-		# notifications (if it has a onRowNumChanged Method).
-		try:
-			func = control.onRowNumChanged
-		except AttributeError:
-			func = None
-		if func:
-			self.bindEvent(dEvents.RowNumChanged, func)
 
 
 	def refreshControls(self):

@@ -307,7 +307,10 @@ class dBrowsePage(dPage.dPage):
 	def __init__(self, parent):
 		dBrowsePage.doDefault(parent, "pageBrowse")
 
-
+	def initEvents(self):
+		dBrowsePage.doDefault()
+		self.Form.bindEvent(dEvents.RowNumChanged, self.onRowNumChanged)
+		
 	def onRowNumChanged(self, event):
 		# If RowNumChanged is received AND we are the active page, select
 		# the row in the grid.
@@ -503,6 +506,10 @@ class dChildViewPage(dPage.dPage):
 		dChildViewPage.doDefault(parent, "pageChildView")
 		self.dataSource = dataSource
 		self.bizobj = self.Form.getBizobj().getChildByDataSource(self.dataSource)
+	
+	def initEvents(self):
+		dChildViewPage.doDefault()
+		self.Form.bindEvent(dEvents.RowNumChanged, self.onRowNumChanged)
 	
 	def onPageEnter(self, event):
 		dChildViewPage.doDefault(event)

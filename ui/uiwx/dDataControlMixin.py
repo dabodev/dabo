@@ -22,6 +22,7 @@ class dDataControlMixin(dControlMixin.dControlMixin):
 
 	def initEvents(self):
 		dDataControlMixin.doDefault()
+		self.Form.bindEvent(dEvents.ValueRefresh, self.onValueRefresh)
 		
 	def onCreate(self, event):
 		dDataControlMixin.doDefault(event)
