@@ -39,6 +39,8 @@ class dBizobj(dabo.common.dObject):
 		# Used by the LinkField property
 		self._linkField = ""
 		self._parentLinkField = ""
+		# Used the the addChildByRelationDict() method to eliminate infinite loops
+		self.__relationDictSet = False
 
 		dBizobj.doDefault()		
 		##########################################
@@ -820,6 +822,45 @@ class dBizobj(dabo.common.dObject):
 		if child not in self.__children:
 			self.__children.append(child)
 			child.Parent = self
+	
+	
+	def addChildByRelationDict(self, dict, bizModule):
+		""" Accepts a dictionary containing relationship information
+		If any of the entries pertain to this bizobj, it will check to make 
+		sure that the child bizobj is already added, or add it and set the 
+		relationship if it isn't. It then passes the dict on to the child to
+		allow the child to set up its relationships.
+		"""
+		if self.__relationDictSet:
+			# already done this...
+			return
+		self.__relationDictSet = True
+		myRelations = [ dict[k] for k in dict.keys() 
+				if dict[k]['parent'].lower() == self.DataSource.lower() ]
+		if not myRelations:
+			return
+		
+		for relation in myRelations:
+			# Each 'relation' is a dict with the following structure:
+			# 'child': child table
+			# 'childField': field in child table linked to parent
+			# 'parent': parent table
+			# 'parentField': field in parent table linked to child
+			child = relation["child"]
+			childField = relation["childField"]
+			parent = relation["parent"]
+			parentField = relation["parentField"]
+			
+			childBiz = self.getChildByDataSource(child)
+			if not childBiz:
+				childBizClass = bizModule.__dict__["Biz" + child.title()]
+				childBiz = childBizClass(self._conn)
+				self.addChild(childBiz)
+				childBiz.LinkField = childField
+				if parentField != self.KeyField:
+					childBiz.ParentLinkField = parentField
+			# Now pass this on to the child
+			childBiz.addChildByRelationDict(dict, bizModule)
 
 	
 	def requeryAllChildren(self):

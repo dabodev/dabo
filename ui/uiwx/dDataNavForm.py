@@ -2,7 +2,7 @@ import wx
 import dIcons
 import dabo.dEvents as dEvents
 import dForm, dDataNavPageFrame
-from dabo.common import fieldSpecParser
+from dabo.common import specParser
 
 class dDataNavForm(dForm.dForm):
 	""" This is a dForm but with the following added controls:
@@ -341,15 +341,7 @@ class dDataNavForm(dForm.dForm):
 		this table.
 		"""
 		# First, get the field spec data into a dictionary.
-		rawSpecs = fieldSpecParser.importFieldSpecs(xmlFile, tbl)
-		relaKeys = [k for k in rawSpecs.keys() if k.find("::") > 0]
-		self.RelationSpecs = {}
-		self.FieldSpecs = rawSpecs.copy()
-		for rk in relaKeys:
-			relaInfo = rawSpecs[rk]
-			relaTarget = relaInfo["target"]
-			self.RelationSpecs[relaTarget] = relaInfo
-			del self.FieldSpecs[rk]
+		self.FieldSpecs = specParser.importFieldSpecs(xmlFile, tbl)
 		
 		if not self.preview:
 			# Set up the SQL Builder in the bizobj:
@@ -372,27 +364,14 @@ class dDataNavForm(dForm.dForm):
 			self.setupMenu()
 	
 	
-	def setChildSpecs(self, bizModule):
+	def setChildSpecs(self, xmlFile, bizModule):
 		""" Creates any child bizobjs used by the form, and establishes
 		the relations with the parent bizobj
 		"""
+		self.RelationSpecs = specParser.importRelationSpecs(xmlFile)
 		primaryBizobj = self.getPrimaryBizobj()
-		primaryPkField = primaryBizobj.KeyField
-		for childRelKey in self.RelationSpecs.keys():
-			childRel = self.RelationSpecs[childRelKey]
-			target = childRel["target"]
-			parentField = childRel["parentField"]
-			childField = childRel["childField"]
-			# Bizobjs follow the naming convention of 'Biz[Datasource]'
-			# and are stored in the module passed to this method.
-			bizClass = bizModule.__dict__["Biz" + target.title()]
-			biz = bizClass(self.connection)
-			self.addBizobj(biz)
-			primaryBizobj.addChild(biz)
-			
-			biz.LinkField = childField
-			if parentField != primaryPkField:
-				biz.ParentLinkField = parentField
+		# This will make sure all relations and sub-relations are set.
+		primaryBizobj.addChildByRelationDict(self.RelationSpecs, bizModule)
 
 	
 	def setColumnDefs(self, dataSource, columnDefs):

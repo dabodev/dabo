@@ -449,7 +449,6 @@ class dBrowsePage(DataNavPage):
 
 
 	def fillGrid(self):
-		bizobj = self.Form.getBizobj()
 		self.BrowseGrid.fillGrid()
 		self.Layout()
 		for window in self.BrowseGrid.GetChildren():
@@ -584,6 +583,10 @@ class dEditPage(DataNavPage):
 			else:
 				mainSizer.Add(bs, 0, wx.EXPAND)
 
+		# If there is a child table, add it
+		# TODO!
+		# print "child", self.Form.RelationSpecs
+		
 		# Add top and bottom margins
 		mainSizer.Insert( 0, (-1, 20), 0)
 		mainSizer.Add( (-1, 30), 0)

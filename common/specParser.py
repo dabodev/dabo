@@ -1,12 +1,12 @@
 import xml.sax
 
-class FieldSpecHandler(xml.sax.ContentHandler):
+class specHandler(xml.sax.ContentHandler):
 	def __init__(self):
 		self.appDict = {}
+		self.relaDict = {}
 		self.currTableDict = {}
 		self.currTable = ""
 		self.currFieldDict = {}
-		self.currRelaDict = {}
 	
 	def startElement(self, name, attrs):
 		if name == "table":
@@ -23,15 +23,14 @@ class FieldSpecHandler(xml.sax.ContentHandler):
 				else:
 					self.currFieldDict[att] = attrs.getValue(att)
 			self.currTableDict[fldName] = self.currFieldDict.copy()
-
-		elif name == "relation":
-			target = attrs.getValue("target")
-			relaName = "RELATION::" + target
-			self.currRelaDict["target"] = target
-			self.currRelaDict["parentField"] = attrs.getValue("parentField")
-			self.currRelaDict["childField"] = attrs.getValue("childField")
-			self.currTableDict[relaName] = self.currRelaDict.copy()
 			
+		elif name == "relation":
+			nm = attrs.getValue("name")
+			self.relaDict[nm] = {}
+			self.relaDict[nm]["parent"] = nm.split(":")[0].strip()
+			self.relaDict[nm]["child"] = attrs.getValue("child")
+			self.relaDict[nm]["parentField"] = attrs.getValue("parentField")
+			self.relaDict[nm]["childField"] = attrs.getValue("childField")
 			
 	
 	def endElement(self, name):
@@ -42,16 +41,29 @@ class FieldSpecHandler(xml.sax.ContentHandler):
 	def getFieldDict(self):
 		return self.appDict
 	
+	def getRelationDict(self):
+		return self.relaDict
+	
 
 def importFieldSpecs(file=None, tbl=None):
 	if file is None:
 		return None
-	fsh = FieldSpecHandler()
-	xml.sax.parse(file, fsh)
-	ret = fsh.getFieldDict()
+	sh = specHandler()
+	xml.sax.parse(file, sh)
+	ret = sh.getFieldDict()
 	
 	# Limit it to a specific table if requested
 	if tbl is not None:
 		ret = ret[tbl]
+	
+	return ret
+	
+
+def importRelationSpecs(file=None):
+	if file is None:
+		return None
+	sh = specHandler()
+	xml.sax.parse(file, sh)
+	ret = sh.getRelationDict()
 	
 	return ret
