@@ -264,7 +264,7 @@ class Form(dabo.ui.dForm):
 		if self.beforeSetupPageFrame():
 			self.lockScreen()
 			self.pageFrame = PageFrame.PageFrame(self)
-			self.Sizer.append(nbSizer, "expand", 1)
+			self.Sizer.append(self.pageFrame, "expand", 1)
 			self.pageFrame.addSelectPage()
 			self.pageFrame.addBrowsePage()
 			if self.preview:
