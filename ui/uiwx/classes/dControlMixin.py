@@ -44,7 +44,8 @@ class dControlMixin:
         wx.EVT_LEAVE_WINDOW(self, self.onEvent) 
         wx.EVT_SET_FOCUS(self, self.onEvent)
         wx.EVT_KILL_FOCUS(self, self.onEvent)
-    
+
+
     # Common event callbacks (override in subclasses):
     
     def OnSetFocus(self, event):
@@ -97,7 +98,7 @@ class dControlMixin:
         if self.GetClassName() == "wxStaticText":
             font.SetPointSize(10)
         self.SetFont(font)
-        
+   
     def onEvent(self, event):
         ''' onEvent(event), called by the event handlers in the individual
             widgets. This allows the Dabo framework to be guaranteed the

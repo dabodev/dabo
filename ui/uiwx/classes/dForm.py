@@ -11,6 +11,14 @@ class dForm(wx.Frame, dControlMixin):
         # init the common events:
         dControlMixin.initEvents(self)
 
+    def onFieldChanged(self, event):
+        ''' A control is saying that its value has changed, so action is needed 
+            to notify the bizobj.
+        '''
+        control = self.FindWindowById(event.GetId())
+        print "Event onFieldChanged received by %s. Control is %s with new value of %s" % (self.GetName(), 
+                           control.GetName(), control.GetValue())
+
 if __name__ == "__main__":
     import test
     test.Test().runTest(dForm)

@@ -66,7 +66,9 @@ class Test(object):
                 vs.Add(bs, 1, wx.EXPAND)
             else:
                 vs.Add(bs, 0, wx.EXPAND)
-            dControlMixin.EVT_FIELDCHANGED(object, object.GetId(), self.OnFieldChanged)
+            
+            # Set up the frame to receive the notification that the field value changed
+            dControlMixin.EVT_FIELDCHANGED(object, object.GetId(), frame.onFieldChanged)
         
         panel.SetSizer(vs)        
         panel.GetSizer().Layout()
