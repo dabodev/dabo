@@ -345,4 +345,6 @@ def browse(dataSource):
 	browseForm.Sizer.append(grd, 1, "x")
 	browseForm.layout()
 	browseForm.show()
-		
+	# This will allow you to optionally manage the grid and form
+	return browseForm, grd
+

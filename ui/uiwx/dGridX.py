@@ -7,7 +7,8 @@ import datetime
 import wx
 import wx.grid
 import dabo
-# dabo.ui.loadUI("wx")
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.dLocalize import _, n_
@@ -435,6 +436,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		header.Bind(wx.EVT_LEFT_DOWN, self.onHeaderLeftDown)
 		header.Bind(wx.EVT_LEFT_DCLICK, self.onHeaderLeftDClick)
 		header.Bind(wx.EVT_LEFT_UP, self.onHeaderLeftUp)
+		header.Bind(wx.EVT_RIGHT_UP, self.onHeaderRightUp)
 		header.Bind(wx.EVT_MOTION, self.onHeaderMotion)
 		header.Bind(wx.EVT_PAINT, self.onHeaderPaint)
 
@@ -568,7 +570,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.dataSet = tuple(self.dataSet)
 		self.fillGrid(True)
 		self._ignoreColUpdates = False
-		self.Form.unlockScreen()
+		self.Form.unlockScreen()		
 
 
 	def getDataSet(self):
@@ -810,18 +812,30 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def onHeaderLeftDown(self, evt):
 		""" Occurs when the left mouse button goes down in the grid header.
+		NOTE: evt is a wxPython event, not a Dabo event.
 		"""
 		pass
 
 
 	def onHeaderLeftDClick(self, evt):
 		""" Occurs when the left mouse button is double-clicked in the grid header.
+		NOTE: evt is a wxPython event, not a Dabo event.
+		By default, this is interpreted as a request to auto-size the column.
 		"""
 		pass
 
 
+	def onHeaderRightUp(self, evt):
+		""" Occurs when the right mouse button goes up in the grid header.
+		NOTE: evt is a wxPython event, not a Dabo event.
+		"""
+		self.autoSizeCol( self.getColByX(evt.GetX()))
+
+	
 	def onLeftDClick(self, evt): 
-		"Occurs when the user double-clicks a cell in the grid."
+		"""Occurs when the user double-clicks a cell in the grid.
+		NOTE: evt is a wxPython event, not a Dabo event.
+		"""
 		pass
 
 
@@ -829,8 +843,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		""" Occurs when the user right-clicks a cell in the grid. 
 		By default, this is interpreted as a request to display the popup 
 		menu, as defined in self.popupMenu().
+		NOTE: evt is a wxPython event, not a Dabo event.
 		"""
-
 		# Select the cell that was right-clicked upon
 		self.CurrRow = evt.GetRow()
 		self.CurrCol = evt.GetCol()
@@ -844,8 +858,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def OnGridLabelLeftClick(self, evt):
 		""" Occurs when the user left-clicks a grid column label. 
-
 		By default, this is interpreted as a request to sort the column.
+		NOTE: evt is a wxPython event, not a Dabo event.
 		"""
 		self.processSort(evt.GetCol())
 	
