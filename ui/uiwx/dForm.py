@@ -505,6 +505,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		
 		if not parentBizobj and self.bizobjs.has_key(dataSource):
 			return self.bizobjs[dataSource]
+			
+		if dataSource.lower() == "form":
+			# The form isn't using bizobjs, but locally-bound data
+			# controls
+			return self
 
 		# No top-level bizobj had the dataSource name, so now go through
 		# the children, and return the first one that matches.
