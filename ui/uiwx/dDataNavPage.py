@@ -285,11 +285,13 @@ class dSelectPage(DataNavPage):
 	def setWhere(self, biz):
 		biz.setWhereClause("")
 		flds = self.selectFields.keys()
+		whr = ""
 		for fld in flds:
 			if fld == "limit":
 				# Handled elsewhere
 				continue
 			
+			expression = self.selectFields[fld]["expression"]
 			opVal = self.selectFields[fld]["op"].Value
 			opStr = opVal
 			if not IGNORE_STRING in opVal:
@@ -312,12 +314,10 @@ class dSelectPage(DataNavPage):
 						useStdFormat = False
 						whrMatches = []
 						for word in matchVal.split():
-							mtch = {"field":fld, "value":word}
+							mtch = {"field":expression, "value":word}
 							whrMatches.append( biz.getWordMatchFormat() % mtch )
-						if len(whrMatches) > 1:
+						if len(whrMatches) > 0:
 							whr = " and ".join(whrMatches)
-						else:
-							whr = whrMatches[0]						
 					else:
 						# "Begins With" or "Contains"
 						opStr = "LIKE"
@@ -366,9 +366,9 @@ class dSelectPage(DataNavPage):
 				
 				# We have the pieces of the clause; assemble them together
 				if useStdFormat:
-					expression = self.selectFields[fld]["expression"]
 					whr = "%s %s %s" % (expression, opStr, matchStr)
-				biz.addWhere(whr)
+				if len(whr) > 0:
+					biz.addWhere(whr)
 		return
 
 	
