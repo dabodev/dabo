@@ -14,101 +14,98 @@ supplies the following:
 		+ Record: the dictionary of the current record in the data cursor.
 """
 
-# If TestCursor is provided by the spec, the report writer will use it 
-# as the Cursor if dReportWriter.UseTestCursor==True. This allows for easy 
+# If report["testcursor"] is provided by the spec, the report writer will use 
+# it as the Cursor if ReportWriter.UseTestCursor==True. This allows for easy 
 # previewing in the designer without having to set up/tear down actual data 
 # when all you want is to see how the report will look.
-TestCursor = [{"cArtist": "The Clash", "iid": 1},
-              {"cArtist": "Queen", "iid": 2},
-              {"cArtist": "Ben Harper and the Innocent Criminals", "iid":3}]
 
-Page = {"size": ''' "letter" ''',
-        "orientation": ''' "portrait" ''',
-        "marginLeft": ''' ".5 in" ''',
-        "marginRight": ''' ".5 in" ''',
-        "marginTop": ''' ".5 in" ''',
-        "marginBottom": ''' ".5 in" ''',
+report = {}
+report["title"] = "Dabo's Favorite Artists"
+
+report["testcursor"] = [{"cArtist": "The Clash", "iid": 1},
+                        {"cArtist": "Queen", "iid": 2},
+                        {"cArtist": "Ben Harper and the Innocent Criminals", "iid":3}]
+
+
+report["page"] = {"size": ''' "letter" ''',
+                  "orientation": ''' "portrait" ''',
+                  "marginLeft": ''' ".5 in" ''',
+                  "marginRight": ''' ".5 in" ''',
+                  "marginTop": ''' ".5 in" ''',
+                  "marginBottom": ''' ".5 in" ''',
 }
 
-
-PageBackground = {"objects": [{"type": "string",
-                           "expr": ''' "test" ''',
-                           "align": ''' "left" ''',
-                           "rotation": ''' 55 ''',
-                           "x": ''' "4.25 in" ''',
-                           "y": ''' "5.5 in" ''',
-                           "width": ''' "1 in" ''',
-                           "fontName": ''' "Helvetica" ''',
-                           "fontSize": ''' 7 ''',
-                           "fillColor": ''' (.4, .1, .3) ''',
-                           "borderWidth": ''' ".5 pt" ''',
-                           "borderColor": ''' (.1,.8,.4) ''',
-                          },
-                          {"type": "rect",
-                           "x": ''' "4.25 in" ''',
-                           "y": ''' "5 in" ''',
-                           "width": ''' "1 in" ''',
-                           "height": ''' ".25 in" ''',
-                           "rotation": ''' 45 ''',
-                           "strokeWidth": ''' ".25 pt" ''',
-                           "fillColor": ''' (.5,1,.5) ''',
-                           "strokeColor": ''' (.7,.2,.5) ''',
-                           "strokeDashArray": ''' (2,5,1,5) '''}
+report["pageBackground"] = {"objects": [{"type": "string",
+                                         "expr": ''' "test" ''',
+                                         "align": ''' "left" ''',
+                                         "rotation": ''' 55 ''',
+                                         "x": ''' "4.25 in" ''',
+                                         "y": ''' "5.5 in" ''',
+                                         "width": ''' "1 in" ''',
+                                         "fontName": ''' "Helvetica" ''',
+                                         "fontSize": ''' 7 ''',
+                                         "fillColor": ''' (.4, .1, .3) ''',
+                                         "borderWidth": ''' ".5 pt" ''',
+                                         "borderColor": ''' (.1,.8,.4) ''',
+                                        },
+                                        {"type": "rect",
+                                         "x": ''' "4.25 in" ''',
+                                         "y": ''' "5 in" ''',
+                                         "width": ''' "1 in" ''',
+                                         "height": ''' ".25 in" ''',
+                                         "rotation": ''' 45 ''',
+                                         "strokeWidth": ''' ".25 pt" ''',
+                                         "fillColor": ''' (.5,1,.5) ''',
+                                         "strokeColor": ''' (.7,.2,.5) ''',
+                                         "strokeDashArray": ''' (2,5,1,5) '''}
 ]}
 
 
-PageHeader = {"height": ''' "0.5 in" ''',
-              "objects": [{"type": "string",
-                           "expr": ''' "Dabo's Favorite Artists" ''',
-                           "align": ''' "center" ''',
-                           "x": ''' "3.75 in" ''',
-                           "hAnchor": ''' "center" ''',
-                           "y": ''' ".3 in" ''',
-                           "width": ''' "6 in" ''',
-                           "height": ''' ".25 in" ''',
-                           "borderWidth": ''' "0 pt" ''',
-                           "fontName": ''' "Helvetica" ''',
-                           "fontSize": ''' 14 ''',
-                          }]
-}
-
-PageFooter = {"height": ''' "1.25 in" ''',
-              "objects": [{"type": "image",
-                           "expr": ''' "../icons/dabo_lettering_250x100.png" ''',
-                           "x": ''' self.Bands["PageFooter"]["width"]-1 ''',
-                           "y": ''' "1" ''',
-                           "rotation": ''' 0 ''',
-                           "hAnchor": ''' "right" ''',
-                           "width": ''' "50 pt" ''',
-                           "height": ''' "20 pt" ''',
-                           "mask": ''' None ''',
-                           "mode": ''' "scale" ''',
-                           "borderWidth": ''' "0 pt" ''',
-                           "borderColor": ''' (.65,.23,.42) ''',
-                          }]
+report["pageHeader"] = {"height": ''' "0.5 in" ''',
+                        "objects": [{"type": "string",
+                                     "expr": ''' self.ReportForm["title"] ''',
+                                     "align": ''' "center" ''',
+                                     "x": ''' "3.75 in" ''',
+                                     "hAnchor": ''' "center" ''',
+                                     "y": ''' ".3 in" ''',
+                                     "width": ''' "6 in" ''',
+                                     "height": ''' ".25 in" ''',
+                                     "borderWidth": ''' "0 pt" ''',
+                                     "fontName": ''' "Helvetica" ''',
+                                     "fontSize": ''' 14 ''',
+                                    }]
 }
 
 
-Detail = {"height": ''' ".25 in" ''',
-          "objects": [{"type": "string",
-                       "expr": ''' self.Record['cArtist'] ''',
-                       "align": ''' "left" ''',
-                       "fontFace": ''' "Helvetica" ''',
-                       "fontSize": ''' 12 ''',
-                       "borderWidth": ''' ".25 pt" ''',
-                       "x": ''' "1 in" ''',
-                       "y": ''' "0 pt" ''',
-                       "width": ''' "1.4 in" ''',
-                       "height": ''' "0.25 in" '''
-                       }]
+report["pageFooter"] = {"height": ''' "1.25 in" ''',
+                        "objects": [{"type": "image",
+                                     "expr": ''' "../icons/dabo_lettering_250x100.png" ''',
+                                     "x": ''' self.Bands["pageFooter"]["width"]-1 ''',
+                                     "y": ''' "1" ''',
+                                     "rotation": ''' 0 ''',
+                                     "hAnchor": ''' "right" ''',
+                                     "width": ''' "50 pt" ''',
+                                     "height": ''' "20 pt" ''',
+                                     "mask": ''' None ''',
+                                     "mode": ''' "scale" ''',
+                                     "borderWidth": ''' "0 pt" ''',
+                                     "borderColor": ''' (.65,.23,.42) ''',
+                                    }]
 }
 
-Group1Header = {"height": ''' ".5 in" ''',
-                "objects": []}
 
-Group1Footer = {"height": ''' "0 in" ''',
-                "objects": []}
+report["detail"] = {"height": ''' ".25 in" ''',
+                    "objects": [{"type": "string",
+                                 "expr": ''' self.Record['cArtist'] ''',
+                                 "align": ''' "left" ''',
+                                 "fontFace": ''' "Helvetica" ''',
+                                 "fontSize": ''' 12 ''',
+                                 "borderWidth": ''' ".25 pt" ''',
+                                 "x": ''' "1 in" ''',
+                                 "y": ''' "0 pt" ''',
+                                 "width": ''' "1.4 in" ''',
+                                 "height": ''' "0.25 in" '''
+                                }]
+}
 
-Groups = [{"name": "Group1",
-           "expr": ''' record['cartist'] ''',}
-         ]
+

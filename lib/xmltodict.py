@@ -1,0 +1,73 @@
+""" xmltodict(): convert xml into tree of Python dicts.
+
+This was copied and modified from John Bair's recipe at aspn.activestate.com:
+	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/149368
+"""
+import os
+import string
+from xml.parsers import expat
+
+
+class Xml2Obj:
+	'XML to Object'
+	def __init__(self):
+		self.root = None
+		self.nodeStack = []
+        
+	def StartElement(self,name,attributes):
+		'SAX start element even handler'
+		element = {"name": name.encode()}
+		if len(attributes) > 0:
+			element["attributes"] = attributes
+        
+		# Push element onto the stack and make it a child of parent
+		if len(self.nodeStack) > 0:
+			parent = self.nodeStack[-1]
+			if not parent.has_key("children"):
+				parent["children"] = []
+			parent["children"].append(element)
+		else:
+			self.root = element
+		self.nodeStack.append(element)
+        
+	def EndElement(self,name):
+		'SAX end element event handler'
+		self.nodeStack = self.nodeStack[:-1]
+
+	def CharacterData(self,data):
+		'SAX character data event handler'
+		if string.strip(data):
+			data = data.encode()
+			element = self.nodeStack[-1]
+			if not element.has_key("cdata"):
+				element["cdata"] = ''
+			element["cdata"] += data
+
+	def Parse(self, xml):
+		# Create a SAX parser
+		Parser = expat.ParserCreate()
+
+		# SAX event handlers
+		Parser.StartElementHandler = self.StartElement
+		Parser.EndElementHandler = self.EndElement
+		Parser.CharacterDataHandler = self.CharacterData
+
+		# Parse the XML File
+		ParserStatus = Parser.Parse(xml, 1)
+        
+		return self.root
+
+	def ParseFromFile(self, filename):
+		return self.Parse(open(filename,'r').read())
+
+
+def xmltodict(xml):
+	"""Given an xml string or file, return a Python dictionary."""
+	parser = Xml2Obj()
+	if "\n" not in xml and os.path.exists(xml):
+		# argument was a file
+		return parser.ParseFromFile(xml)
+	else:
+		# argument must have been raw xml:
+		return parser.Parse(xml)
+

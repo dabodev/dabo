@@ -1,8 +1,9 @@
-import os
+import sys, os
 import reportlab.pdfgen.canvas as canvas
 import reportlab.graphics.shapes as shapesimport reportlab.lib.pagesizes as pagesizes
 import reportlab.lib.units as units
 #import reportlab.lib.colors as colors
+from dabo.lib.xmltodict import xmltodict
 
 
 class ReportWriter(object):
@@ -65,6 +66,7 @@ class ReportWriter(object):
 	default_fontColor = (0, 0, 0)      
 	default_imageMask = None               # Transparency mask for images
 	default_scaleMode = "scale"            # "clip" or "scale" for images.
+	default_bandHeight = 0
 
 
 	def draw(self, object, origin):
@@ -190,12 +192,18 @@ class ReportWriter(object):
 				align = self.default_align
 
 			funcs = {"center": c.drawCentredString,
-				  "right": c.drawRightString,
-				  "left": c.drawString}
+			         "right": c.drawRightString,
+			         "left": c.drawString}
 			func = funcs[align]
-			if eval(object["align"]) == "center":
+
+			try:
+				align = eval(object["align"])
+			except KeyError:
+				align = self.default_align
+
+			if align == "center":
 				posx = (width / 2)
-			elif eval(object["align"]) == "right":
+			elif align == "right":
 				posx = width
 			else:
 				posx = 0
@@ -314,7 +322,7 @@ class ReportWriter(object):
 		## Set the Page Size:
 		# get the string pageSize value from the spec file:
 		try:
-			pageSize = eval(_form.Page["size"])
+			pageSize = eval(_form["page"]["size"])
 		except KeyError:
 			pageSize = self.default_pageSize
 		# reportlab expects the pageSize to be upper case:
@@ -323,7 +331,7 @@ class ReportWriter(object):
 		pageSize = eval("pagesizes.%s" % pageSize)
 		# run it through the portrait/landscape filter:
 		try:
-			orientation = eval(_form.Page["orientation"])
+			orientation = eval(_form["page"]["orientation"])
 		except KeyError:
 			orientation = self.default_pageOrientation
 		func = eval("pagesizes.%s" % orientation)
@@ -338,38 +346,39 @@ class ReportWriter(object):
 		
 		
 		# Get the page margins into variables:
-		ml = self.getPt(eval(_form.Page["marginLeft"]))
-		mt = self.getPt(eval(_form.Page["marginTop"]))
-		mr = self.getPt(eval(_form.Page["marginRight"]))
-		mb = self.getPt(eval(_form.Page["marginBottom"]))
+		ml = self.getPt(eval(_form["page"]["marginLeft"]))
+		mt = self.getPt(eval(_form["page"]["marginTop"]))
+		mr = self.getPt(eval(_form["page"]["marginRight"]))
+		mb = self.getPt(eval(_form["page"]["marginBottom"]))
 		
 		# Page header/footer origins are needed in various places:
 		pageHeaderOrigin = (ml, pageHeight - mt 
-		                    - self.getPt(eval(_form.PageHeader["height"])))
+		                    - self.getPt(eval(_form["pageHeader"]["height"])))
 		pageFooterOrigin = (ml, mb)
 		
 		
-		
-		
 		# Print the static bands:
-		for band in ("PageBackground", "PageHeader", "PageFooter"):
+		for band in ("pageBackground", "pageHeader", "pageFooter"):
 			self.Bands[band] = {}
-			bandDict = eval("_form.%s" % band)
+			bandDict = eval("_form['%s']" % band)
 		
 			# Find out geometry of the band and fill into report["bands"][band]
 			x = ml
-			if band == "PageHeader":
+			if band == "pageHeader":
 				y = pageHeaderOrigin[1]
-			elif band == "PageFooter":
+			elif band == "pageFooter":
 				y = pageFooterOrigin[1]
-			elif band == "PageBackground":
+			elif band == "pageBackground":
 				x,y = 0,1
 			
-			if band == "PageBackground":
+			if band == "pageBackground":
 				width, height = pageWidth-1, pageHeight-1
 			else:
 				width = pageWidth - ml - mr
-				height = self.getPt(eval(bandDict["height"]))
+				try:
+					height = self.getPt(eval(bandDict["height"]))
+				except KeyError:
+					height = self.default_bandHeight
 		
 			self.Bands[band]["x"] = x
 			self.Bands[band]["y"] = y
@@ -379,35 +388,41 @@ class ReportWriter(object):
 			if self.ShowBandOutlines:
 				self.printBandOutline(band, x, y, width, height)
 		
-			for object in bandDict["objects"]:
+			if bandDict.has_key("objects"):
+				for object in bandDict["objects"]:
+
+					if bandDict == _form["pageHeader"]:
+						origin = pageHeaderOrigin
+					elif bandDict == _form["pageFooter"]:
+						origin = pageFooterOrigin
+					elif bandDict == _form["pageBackground"]:
+						origin = (0,1)
 		
-				if bandDict == _form.PageHeader:
-					origin = pageHeaderOrigin
-				elif bandDict == _form.PageFooter:
-					origin = pageFooterOrigin
-				elif bandDict == _form.PageBackground:
-					origin = (0,1)
+					x = self.getPt(eval(object["x"])) + origin[0]
+					y = origin[1] + self.getPt(eval(object["y"]))
 		
-				x = self.getPt(eval(object["x"])) + origin[0]
-				y = origin[1] + self.getPt(eval(object["y"]))
-		
-				self.draw(object, (x, y))
+					self.draw(object, (x, y))
 		
 		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
 		y = pageHeaderOrigin[1]
-		groups = _form.Groups
+#		groups = _form.Groups
 		
 		self._recordNumber = 0
+
 		for record in self.Cursor:
 			self.Record = record
-			for band in ("Detail",):
-				bandDict = eval("_form.%s" % band)
+			for band in ("detail",):
+				bandDict = eval("_form['%s']" % band)
 				self.Bands[band] = {}
-		
+
+				try:		
+					height = self.getPt(eval(bandDict["height"]))
+				except KeyError:
+					height = self.getPt(self.default_bandHeight)
+
 				x = ml
-				y = y - self.getPt(eval(bandDict["height"]))
+				y = y - height
 				width = pageWidth - ml - mr
-				height = self.getPt(eval(bandDict["height"]))
 		
 				self.Bands[band]["x"] = x
 				self.Bands[band]["y"] = y
@@ -417,22 +432,80 @@ class ReportWriter(object):
 				if self.ShowBandOutlines:
 					self.printBandOutline("%s (record %s)" % (band, self.RecordNumber), 
 					                                     x, y, width, height)
-				for object in bandDict["objects"]:
-					x = ml + self.getPt(eval(object["x"]))
-					y1 = y + self.getPt(eval(object["y"]))
-					self.draw(object, (x, y1))
+
+				if bandDict.has_key("objects"):
+					for object in bandDict["objects"]:
+						try:
+							x = self.getPt(eval(object["x"]))
+						except KeyError:
+							x = 0
+
+						try:
+							y1 = self.getPt(eval(object["y"]))
+						except KeyError:
+							y1 = 0
+
+						x = ml + x
+						y1 = y + y1
+						self.draw(object, (x, y1))
 						
 				self._recordNumber += 1
 		
 		c.save()
 
 
-
-	def _setFormFromXML():
+	def _setFormFromXML(self):
 		## Called from _setReportFormFile() and _setReportFormXML().
-		## Interprets the xml in ReportFormXML into a Python module, and sets
-		## ReportForm to that module.
-		pass
+		## Interprets the xml in ReportFormXML into a Python dict, and sets
+		## self.ReportForm to that dict.
+
+		# Get the xml into a generic tree of dicts:
+		root = xmltodict(self.ReportFormXML)
+
+		# Now look for expected keys and values, and fill up the report dict
+		report = {}
+		
+		if root["name"] == "report":
+			for mainElement in root["children"]:
+
+				# This will get "title" and any other user-defined elements:
+				if mainElement.has_key("cdata"):
+					report[mainElement["name"]] = mainElement["cdata"]
+				else:
+					report[mainElement["name"]] = {}
+
+				# Special processing for the optional testcursor:
+				if mainElement["name"] == "testcursor":
+					fieldspecs = {}
+					for fname, ftype in mainElement["attributes"].items():
+						fieldspecs[fname] = eval(ftype)
+					tc = report["testcursor"] = []
+					for record in mainElement["children"]:
+						r = {}
+						for field, val in record["attributes"].items():
+							val = fieldspecs[field](val)
+							r[field] = val
+						tc.append(r)
+					continue
+
+				# Top children (pageFooter, pageHeader, etc.):
+				if mainElement.has_key("children"):
+					c = report[mainElement["name"]]
+					for topchild in mainElement["children"]:
+						if topchild.has_key("cdata"):
+							c[topchild["name"]] = topchild["cdata"]
+						elif topchild["name"] == "objects":
+							## special processing for objects (list of dicts):
+							c[topchild["name"]] = []
+							for objectdef in topchild["children"]:
+								ob = {"type": objectdef["name"]}
+								for prop in objectdef["children"]:
+									ob[prop["name"]] = prop["cdata"]
+								c[topchild["name"]].append(ob)
+		else:
+			print "not valid report xml"
+
+		self._reportForm = report
 
 
 	def _getBands(self):
@@ -460,7 +533,7 @@ class ReportWriter(object):
 	def _getCursor(self):
 		if self.UseTestCursor:
 			try:
-				v = self.ReportForm.TestCursor
+				v = self.ReportForm["testcursor"]
 			except AttributeError:
 				v = []
 		else:
@@ -540,7 +613,7 @@ class ReportWriter(object):
 		self._reportFormFile = None
 		
 	ReportForm = property(_getReportForm, _setReportForm, None,
-		"""Specifies the python report form as a Python module.""")
+		"""Specifies the python report form data dictionary.""")
 	
 
 	def _getReportFormFile(self):
@@ -554,12 +627,12 @@ class ReportWriter(object):
 		if os.path.exists(val):
 			ext = os.path.splitext(val)[1] 
 			if ext == ".py":
-				# The file is a python module, import it:
+				# The file is a python module, import it and get the report dict:
 				s = os.path.split(val)
 				sys.path.append(s[0])
-				exec("import %s as form" % s[1])
+				exec("import %s as form" % s[1].split(".")[0])
 				sys.path.pop()
-				self._reportForm = form
+				self._reportForm = form.report
 				self._reportFormXML = None
 					
 			elif ext == ".rfxml":
@@ -626,10 +699,11 @@ class ReportWriter(object):
 			
 if __name__ == "__main__":
 	rw = ReportWriter()
-	import samplespec
-	rw.ReportForm = samplespec
-	rw.OutputName = "./test.pdf"
-	#rw.Cursor = [{"cArtist": "Cornershop"}]
 	rw.ShowBandOutlines = True
 	rw.UseTestCursor = True
+	rw.ReportFormFile = "./samplespec.rfxml"
+	rw.OutputName = "./testXmlFormat.pdf"
+	rw.write()
+	rw.ReportFormFile = "./samplespec.py"
+	rw.OutputName = "./testPythonFormat.pdf"
 	rw.write()
