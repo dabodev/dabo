@@ -6,9 +6,14 @@ import dDataControlMixin as dcm
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 	""" Allows editing one line of string or unicode data.
 	"""
-	def __init__(self, parent, id=-1, name="dTextBox", style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, name="dTextBox", password=False, 
+				style=0, *args, **kwargs):
 
 		self._baseClass = dTextBox
+		
+		# If this is a password textbox, update the style parameter
+		if password:
+			style = style | wx.TE_PASSWORD
 
 		pre = wx.PreTextCtrl()
 		self._beforeInit(pre)                  # defined in dPemMixin
