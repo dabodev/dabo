@@ -26,11 +26,6 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 
 		self.PostCreate(pre)
 
-		# Determines if 'Value' is determined by position in 
-		# the group, or the associated caption for the
-		# selected button
-		self._useStringValue = True
-
 		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
 		
 		self.setProperties(properties)
@@ -62,12 +57,42 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 		return _choices
 		
 	def _setChoices(self, choices):
+		oldVal = self.Value
 		self.Clear()
-		self.AppendItems(choices)
-# 		for index in range(len(choices)):
-# 			self.SetString(index, choices[index])
-		self._choices = choices
+		self._choices = list(choices)
+		self.AppendItems(self._choices)
+		
+		# Try to get back to the same row:
+		try:
+			self.Value = oldVal
+		except ValueError:
+			self.PositionValue = 0
+
+	def _getKeys(self):
+		try:
+			keys = self._keys
+		except AttributeError:
+			keys = self._keys = {}
+		return keys
+		
+	def _setKeys(self, val):
+		if type(val) == dict:
+			self._keys = val
+		else:
+			raise TypeError, "Keys must be a dictionary."
 			
+	def _getKeyValue(self):
+		# invert the dict so we can get the key based on current position:
+		inverted = dict([[v,k] for k,v in self.Keys.iteritems()])
+		return inverted[self.PositionValue]
+		# (note that the above method has to make a new dict every time the KeyValue
+		# is accessed... possible performance bottleneck on large lists!)
+		
+	def _setKeyValue(self, val):
+		# This function takes a key value, such as 10992, finds the mapped position,
+		# and makes that position the active list selection.
+		self.PositionValue = self.Keys[val]
+	
 	def _getPosValue(self):
 		return self._pemObject.GetSelection()
 	def _setPosValue(self, value):
@@ -85,40 +110,100 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 		self._afterValueChanged()
 
 	def _getValue(self):
-		if self._useStringValue:
-			ret = self._getStrValue()
+		if self.ValueMode == "position":
+			ret = self.PositionValue
+		elif self.ValueMode == "key":
+			ret = self.KeyValue
 		else:
-			ret = self._getPosValue()
+			ret = self.StringValue
 		return ret
+		
 	def _setValue(self, value):
-		if self._useStringValue:
-			self._setStrValue(value)
+		if self.ValueMode == "position":
+			self.PositionValue = value
+		elif self.ValueMode == "key":
+			self.KeyValue = value
 		else:
-			self._setPosValue(value)
-	
-	def _getUseStringValue(self):
-		return self._useStringValue
-	def _setUseStringValue(self, value):
-		self._useStringValue = value
+			self.StringValue = value
 
+	def _getValueMode(self):
+		try:
+			vm = self._valueMode
+		except AttributeError:	
+			vm = self._valueMode = "string"
+		return vm
+		
+	def _setValueMode(self, val):
+		val = str(val).lower()
+		if val in ("position", "string", "key"):
+			self._valueMode = val
+			
 		
 	# Property definitions:
 	Choices = property(_getChoices, _setChoices, None,
 		"Specifies the list of choices available in the list. (list of strings)")	
 
-	Value = property(_getValue, _setValue, None,
-			"Specifies the current state of the control (the value of the field). (varies)")
-	
+	Keys = property(_getKeys, _setKeys, None,
+		"""Specifies a mapping between the position of an item, and another value, such as
+		a primary key in a lookup table. 
+		
+		The Keys property is a dictionary, where each key resolves into a list index (position).
+		""")
+		
+	KeyValue = property(_getKeyValue, _setKeyValue, None,
+		"""The key value of the selected item.
+		
+		The Keys property must be set up in a 1:1 fashion with the positions.
+		""")
+		
 	PositionValue = property(_getPosValue, _setPosValue, None,
 			"Position of selected value (int)" )
 
 	StringValue = property(_getStrValue, _setStrValue, None,
 			"Text of selected value (str)" )
 
-	UseStringValue = property(_getUseStringValue, _setUseStringValue, None,
-			"Controls whether the Value of the control is the text/caption of "
-			"the selection, or the position. (bool)")
+	Value = property(_getValue, _setValue, None,
+			"Specifies the current value, the type of which depends on the setting of ValueMode.")
+	
+	ValueMode = property(_getValueMode, _setValueMode, None,
+		"""Controls the information that the Value property controls.
+		
+		'position' : Value refers to the position in the choices.
+		'string'   : Value refers to the displayed string for the selection (default).
+		'key'      : Value refers to a separate key, set using the Keys property.
+		""")
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dDropdownList)
+	
+	class T(dDropdownList):
+		def afterInit(self):
+			T.doDefault()
+			self.setup()
+		
+		def initEvents(self):
+			T.doDefault()
+			self.bindEvent(dabo.dEvents.Hit, self.onHit)
+			
+		def setup(self):
+			print "Simulating a database:"
+			developers = ({"lname": "McNett", "fname": "Paul", "iid": 42},
+				{"lname": "Leafe", "fname": "Ed", "iid": 23})
+			
+			choices = []
+			keys = {}
+			for developer in developers:
+				choices.append("%s %s" % (developer['fname'], developer['lname']))
+				keys[developer["iid"]] = len(choices) - 1
+			
+			self.Choices = choices
+			self.Keys = keys
+			self.ValueMode = 'key'
+			
+		def onHit(self, evt):
+			print "KeyValue: ", self.KeyValue
+			print "PositionValue: ", self.PositionValue
+			print "StringValue: ", self.StringValue
+			print "Value: ", self.Value
+			
+	test.Test().runTest(T)
