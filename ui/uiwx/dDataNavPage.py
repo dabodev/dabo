@@ -295,8 +295,6 @@ class dSelectPage(DataNavPage):
 							whr = " and ".join(whrMatches)
 						else:
 							whr = whrMatches[0]						
-						
-						print "WHR", whr
 					else:
 						# "Begins With" or "Contains"
 						opStr = "LIKE"
@@ -306,9 +304,12 @@ class dSelectPage(DataNavPage):
 							matchStr = biz.escQuote("%" + matchVal + "%")
 							
 				elif fldType in ("date", "datetime"):
-					dtTuple = ctrl.getDateTuple()
-					dt = "%s-%s-%s" % (dtTuple[0], padl(dtTuple[1], 2, "0"), 
-							padl(dtTuple[2], 2, "0") )
+					if issubclass(ctrl, dabo.ui.dDateTextBox):
+						dtTuple = ctrl.getDateTuple()
+						dt = "%s-%s-%s" % (dtTuple[0], padl(dtTuple[1], 2, "0"), 
+								padl(dtTuple[2], 2, "0") )
+					else:
+						dt = matchVal
 					matchStr = biz.formatDateTime(dt)
 					if opVal == "Equals":
 						opStr = "="
