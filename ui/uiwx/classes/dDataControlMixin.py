@@ -93,15 +93,20 @@ class dDataControlMixin:
                 self.SetSelection(0,0) # selects no text in text box
         except:
             pass
+        
+        self.flushValue()
+        event.Skip()
+    
+    
+    def flushValue(self):
         try:
             curVal = self.GetValue()
         except AttributeError:
             curVal = None
             
-        if curVal <> self._oldVal:
+        if curVal != self._oldVal:
             # Update the bizobj
             if self.dataSource and self.dataField:
                 response = self.setFieldVal(curVal)
                 if not response:
                     print "bizobj.setFieldVal failed."
-        event.Skip()

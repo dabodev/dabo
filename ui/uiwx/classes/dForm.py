@@ -421,9 +421,7 @@ class dForm(wx.Frame, dFormMixin):
         except AttributeError:
             controlWithFocus = None
         if controlWithFocus:
-            for control in self.dControls:
-                self.dControls[control].SetFocus()
-            controlWithFocus.SetFocus()
+            controlWithFocus.flushValue()
                         
     def _setupResources(self, resourceString):
         ''' dForm._setupResources(resourceString) -> None
