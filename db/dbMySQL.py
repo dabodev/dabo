@@ -64,21 +64,25 @@ class MySQL(dBackend):
 		for r in rs:
 			name = r[0]
 			ft = r[1]
-			if 'int' in ft:
-				ft = 'I'
-			elif 'char' in ft :
-				ft = 'C'
-			elif 'longtext' in ft:
-				ft = 'M'
-			elif 'decimal' in ft:
-				ft = 'N'
-			elif 'datetime' in ft:
-				ft = 'T'
-			elif 'date' in ft:
-				ft = 'D'
+			if ft.split()[0] == "tinyint(1)":
+				ft = "B"
+			elif "int" in ft:
+				ft = "I"
+			elif "char" in ft :
+				ft = "C"
+			elif "longtext" in ft:
+				ft = "M"
+			elif "decimal" in ft:
+				ft = "N"
+			elif "datetime" in ft:
+				ft = "T"
+			elif "date" in ft:
+				ft = "D"
+			elif "enum" in ft:
+				ft = "C"
 			else:
 				ft = "?"
-			pk = (r[3] == 'PRI')
+			pk = (r[3] == "PRI")
 			
 			fields.append((name.strip(), ft, pk))
 			

@@ -397,24 +397,22 @@ class dCursorMixin(dabo.common.dObject):
 					if ( type(val) in (types.UnicodeType, types.StringType) 
 							and type(rec[fld]) is types.StringType ):
 						val = str(val)
+					elif type(rec[fld]) == type(int()) and type(val) == type(bool()):
+						# convert bool to int (original field val was int, but UI
+						# changed to int. 
+						val = int(val)
 				if type(rec[fld]) != type(val):
 					# This can happen with a new record, since we just stuff the
 					# fields full of empty strings.
 					if not self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG):
-						dabo.errorLog.write("!!! Data Type Mismatch:", type(rec[fld]), type(val))
+						msg = "!!! Data Type Mismatch: field=" + fld + ". Expecting:" + str(type(rec[fld])) + "; got:" + str(type(val))
+						dabo.errorLog.write(msg)
 					
-					if type(rec[fld]) == type(int()) and type(val) == type(bool()):
-						# convert bool to int (original field val was int, but UI
-						# changed to int. 
-						val = int(val)
-						
 				rec[fld] = val
+
 			else:
-				raise dException.dException, "%s '%s' %s" % (
-							_("Field"),
-							fld,
-							_("does not exist in the data set")
-							)
+				raise dException.dException, "%s '%s' %s" % ( _("Field"),
+							fld, _("does not exist in the data set") 	)
 
 
 	def getRecordStatus(self, rownum=None):
