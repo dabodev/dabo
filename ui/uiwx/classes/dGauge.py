@@ -1,47 +1,43 @@
 import wx
 import dControlMixin as cm
-import dDataControlMixin as dcm
 
-class dGauge(wx.Gauge, dcm.dDataControlMixin, cm.dControlMixin):
+class dGauge(wx.Gauge, cm.dControlMixin):
 	""" Allows editing integer values.
 	"""
 	def __init__(self, parent, id=-1, name="dGauge", style=0, *args, **kwargs):
 
 		self._baseClass = dGauge
-		self._range = 100
 
 		pre = wx.PreGauge()
 		self.beforeInit(pre)                  # defined in dPemMixin
 		
-		print self._range
-		
-		pre.Create(parent, id, self._range, style=style|pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id, 100, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)
-		dcm.dDataControlMixin.__init__(self)
 		self.afterInit()                      # defined in dPemMixin
 
 
 	def initEvents(self):
 		# init the common events:
 		cm.dControlMixin.initEvents(self)
-		dcm.dDataControlMixin.initEvents(self)
 
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getRange(self):
-		return self._range
+		return self.GetRange()
+			
 	def _setRange(self, value):
-		self._range = value
+		self.SetRange(value)
 		
 	def _getOrientation(self):
 		if self.IsVertical():
 			return "Vertical"
 		else:
 			return "Horizontal"
+			
 	def _setOrientation(self, value):
 		self.delWindowStyleFlag(wx.GA_HORIZONTAL)
 		self.delWindowStyleFlag(wx.GA_VERTICAL)
@@ -54,11 +50,18 @@ class dGauge(wx.Gauge, dcm.dDataControlMixin, cm.dControlMixin):
 		return {"editor": "list", "values": ["Horizontal", "Vertical"]}
 
 
+	def _getValue(self):
+		return self.GetValue()
+	def _setValue(self, value):
+		self.SetValue(int(value))
+		
 	# Property definitions:
 	Orientation = property(_getOrientation, _setOrientation, None, 
-			"Specifies the gauge is displayed as Horizontal or Vertical")
+			"Specifies whether the gauge is displayed as Horizontal or Vertical.")
 	Range = property(_getRange, _setRange, None, 
-			"Maximum value for the gauge")
+			"Specifies the maximum value for the gauge.")
+	Value = property(_getValue, _setValue, None, 
+			"Specifies the state of the gauge, relative to max value.")
 
 
 if __name__ == "__main__":
