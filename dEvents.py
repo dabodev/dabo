@@ -129,21 +129,27 @@ class Event(dObject):
 		"Dictionary of data name/value pairs associated with the event.")
 		
 
-class MouseEvent(Event):
-	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.dPemMixin)
-	appliesToClass = classmethod(appliesToClass)
-	
-class KeyEvent(Event):
-	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.dPemMixin)
-	appliesToClass = classmethod(appliesToClass)
-	
 class DataEvent(Event):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.biz.dBizobj)
 	appliesToClass = classmethod(appliesToClass)
 			
+class KeyEvent(Event):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
+	
+class MenuEvent(Event):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, (dabo.ui.dMenu, dabo.ui.dMenuItem,
+		                                dabo.ui.dMenuBar))
+	appliesToClass = classmethod(appliesToClass)
+	
+class MouseEvent(Event):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
+	
 class SashEvent(Event):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dSplitter)
@@ -226,6 +232,26 @@ class KeyUp(KeyEvent):
 	pass
 
 	
+class LostFocus(Event):
+	"""Occurs when the control loses the focus."""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
+
+
+class MenuClose(MenuEvent):
+	"""Occurs when the menu is closed."""
+	pass
+
+class MenuHighlight(MenuEvent):
+	"""Occurs when a menu item is highlighted."""
+	pass
+
+class MenuOpen(MenuEvent):
+	"""Occurs when the menu is about to be opened."""
+	pass
+
+
 class LostFocus(Event):
 	"""Occurs when the control loses the focus."""
 	def appliesToClass(eventClass, objectClass):

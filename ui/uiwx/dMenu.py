@@ -25,6 +25,24 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
+	def _initEvents(self):
+		## see self._setId(), which is where this needs to take place
+		pass
+
+
+	def __onWxMenuOpen(self, evt):
+		self.raiseEvent(dEvents.MenuOpen)
+		evt.Skip()
+
+	def __onWxMenuClose(self, evt):
+		self.raiseEvent(dEvents.MenuClose)
+		evt.Skip()
+
+	def __onWxMenuHighlight(self, evt):
+		self.raiseEvent(dEvents.MenuHighlight)
+		evt.Skip()
+
+
 	def appendItem(self, item):
 		"""Insert a dMenuItem at the bottom of the menu."""
 		self.AppendItem(item)
@@ -43,17 +61,20 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 	def appendMenu(self, menu):
 		"""Insert a dMenu at the bottom of the menu."""
-		self.AppendMenu(-1, menu.Caption, menu, help=menu.HelpText)
+		wxMenuItem = self.AppendMenu(-1, menu.Caption, menu, help=menu.HelpText)
+		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
 
 	def insertMenu(self, pos, menu):
 		"""Insert a dMenu before the specified position in the menu."""
-		self.InsertMenu(-1, pos, menu.Caption, menu, help=menu.HelpText)
+		wxMenuItem = self.InsertMenu(-1, pos, menu.Caption, menu, help=menu.HelpText)
+		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
-
+		
 	def prependMenu(self, menu):
 		"""Insert a dMenu at the top of the menu."""
-		self.PrependMenu(-1, menu.Caption, menu, help=menu.HelpText)
+		wxMenuItem = self.PrependMenu(-1, menu.Caption, menu, help=menu.HelpText)
+		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
 
 
@@ -121,6 +142,25 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		return ret
 
 	
+	def _setId(self, id_):
+		"""wxMenu's don't have id's of their own - they only get set when the 
+		menu gets added as a submenu - and then it becomes a wxMenuItem with a
+		special submenu flag. This hook, called from append|insert|prependMenu(),
+		allows the menu event bindings to take place.
+		"""
+		## MenuOpen and MenuClose don't appear to be working on Linux. Need
+		## to test on Mac and Win.
+		if self.Application is not None:
+			# Set up a mechanism to catch menu events
+			# and re-raise Dabo events. If Application
+			# is None, however, this won't work because of wx limitations.
+			self.Application.uiApp.Bind(wx.EVT_MENU_OPEN, 
+			                            self.__onWxMenuOpen, id=id_)
+			self.Application.uiApp.Bind(wx.EVT_MENU_CLOSE, 
+			                            self.__onWxMenuClose, id=id_)
+			self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT,
+			                            self.__onWxMenuHighlight, id=id_)
+		
 	def _isPopupMenu(self):
 		## TODO: Make dMenu work as a submenu, a child of dMenuBar, or as a popup.
 		return False

@@ -18,7 +18,7 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 
 	def _initEvents(self):
 		## wx.MenuItems don't have a Bind() of their own, so this serves to 
-		## override the base behavior in dPemMixin._initEvents() which gs
+		## override the base behavior in dPemMixin._initEvents() which has
 		## a bunch of wx Events that don't exist for menu items (IOW, don't
 		## call doDefault!).
 
@@ -27,11 +27,17 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 			# and re-raise Dabo dEvents.Hit events. If Application
 			# is None, however, this won't work because of wx limitations.
 			self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, self)
+			self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT, 
+			                            self.__onWxMenuHighlight, self)
 
+
+	def __onWxMenuHighlight(self, evt):
+		self.raiseEvent(dEvents.MenuHighlight)
+		evt.Skip()
 
 	def __onWxHit(self, evt):
-		# This raises a dabo event that user code can bind to.
 		self.raiseEvent(dEvents.Hit)
+		evt.Skip()
 
 
 	def _getCaption(self):
