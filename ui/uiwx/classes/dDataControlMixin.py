@@ -2,18 +2,21 @@
     data-aware dControls.
 '''
 import wx
+from dPemMixin import dPemMixin
 
-class dDataControlMixin:
+class dDataControlMixin(dPemMixin):
     ''' Provide common functionality for the data-aware controls.
     '''
     def __init__(self):
         self._oldVal = None
     
         self.enabled = True
-        self.selectOnEntry = False
         
-        self.dataSource = None
-        self.dataField = None
+        # Initialize runtime properties
+        self.SelectOnEntry = False
+        self.DataSource = None
+        self.DataField = None
+        
         self.bizobj = None
         
         
@@ -37,8 +40,8 @@ class dDataControlMixin:
         '''
         if not self.bizobj:
             # Ask the form for the bizobj reference, and cache for next time
-            self.bizobj = self.getDform().getBizobj(self.dataSource)
-        return self.bizobj.getFieldVal(self.dataField)
+            self.bizobj = self.getDform().getBizobj(self.DataSource)
+        return self.bizobj.getFieldVal(self.DataField)
     
         
     def setFieldVal(self, value):
@@ -46,14 +49,14 @@ class dDataControlMixin:
         '''
         if not self.bizobj:
             # Ask the form for the bizobj reference, and cache for next time
-            self.bizobj = self.getDform().getBizobj(self.dataSource)
-        return self.bizobj.setFieldVal(self.dataField, value)
+            self.bizobj = self.getDform().getBizobj(self.DataSource)
+        return self.bizobj.setFieldVal(self.DataField, value)
         
         
     def refresh(self):
         ''' Update control's value to match the current value from the bizobj.
         '''
-        if self.dataSource and self.dataField:
+        if self.DataSource and self.DataField:
             try:
                 self.SetValue(self.getFieldVal())
                 self.Enable(self.enabled)
@@ -116,7 +119,34 @@ class dDataControlMixin:
         '''
         curVal = self.GetValue()
             
-        if curVal != self._oldVal and self.dataSource and self.dataField:
+        if curVal != self._oldVal and self.DataSource and self.DataField:
             response = self.setFieldVal(curVal)
             if not response:
                 raise ValueError, "bizobj.setFieldVal() failed."
+
+    
+    # Property get/set/del methods follow. Scroll to bottom to see the property
+    # definitions themselves.
+    def _getSelectOnEntry(self):
+        return self._SelectOnEntry()
+    def _setSelectOnEntry(self, value):
+        self._SelectOnEntry = value
+        
+    def _getDataSource(self):
+        return self._DataSource
+    def _setDataSource(self, value):
+        self._DataSource = value
+        
+    def _getDataField(self):
+        return self._DataField
+    def _setDataField(self, value):
+        self._DataField = value            
+
+    
+    # Property definitions:
+    SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
+                        'Specifies whether all text gets selected upon receiving focus.')
+    DataSource = property(_getDataSource, _setDataSource, None,
+                        'Specifies the dataset to use as the source of data.')
+    DataField = property(_getDataField, _setDataField, None,
+                        'Specifies the data field of the dataset to use as the source of data.')

@@ -10,7 +10,7 @@ class dEditBox(wx.TextCtrl, dDataControlMixin, dControlMixin):
                 wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.TE_LINEWRAP)
         dControlMixin.__init__(self, name)
         dDataControlMixin.__init__(self)
-
+ 
         self.selectOnEntry = False
             
     def initEvents(self):

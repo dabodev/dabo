@@ -1,14 +1,16 @@
 ''' dControlMixin.py: Provide behavior common to all dControls '''
 
 import wx
+from dPemMixin import dPemMixin
 
-class dControlMixin:
+class dControlMixin(dPemMixin):
     ''' Provide common functionality for all controls.
     '''
     def __init__(self, name):
         self.debug = False
-        self.SetName(name)
-        self.SetLabel(self.getDefaultText())
+        
+        self.Name = name
+        self.Caption = self.getDefaultText()
         
         # Subclass will intercept the initEvents first, allowing
         # the framework user to completely override if desired.    

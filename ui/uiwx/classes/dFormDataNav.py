@@ -1,7 +1,6 @@
 from dForm import dForm
 from dPageFrame import dPageFrame
 from dPage import *
-from dabo.db.dSqlBuilderMixin import dSqlBuilderMixin
 import dIcons
 
 class dFormDataNav(dForm):
@@ -14,10 +13,9 @@ class dFormDataNav(dForm):
             + Edit   : Edit the current record in the result set.
     '''
     def __init__(self, parent=None, name="dFormDataNav", resourceString=None):
-        dForm.__init__(self, parent, name, resourceString)
+        super(dFormDataNav, self).__init__(parent, name, resourceString)
         
         self._columnDefs = {}
-        self.sqlBuilder = dSqlBuilderMixin()
     
     def afterSetPrimaryBizobj(self):        
         self.setupToolBar()
@@ -295,15 +293,6 @@ class dFormDataNav(dForm):
         '''
         self.pageFrame.GetPage(0).requery()
         
-        
-    def requery(self):
-        ''' Override the dForm behavior by setting the SQL based on the sqlBuilder.
-        
-        This requery() is called from the select page's requery() method.
-        '''
-        self.setSQL(self.sqlBuilder.getSQL())
-        dForm.requery(self)
-
     
     def afterNew(self):
         ''' dForm will call this after a new record has been successfully added.

@@ -100,10 +100,7 @@ class dCursorMixin:
     def requery(self, params=None):
         self.lastSQL = self.sql
         self.lastParams = params
-        try:
-            self.execute(self.sql, params)
-        except:
-            raise dError, loc("Error executing the query")
+        self.execute(self.sql, params)
         # Add mementos to each row of the result set
         self.addMemento(-1)
         # Clear the unsorted list, and then apply the current sort

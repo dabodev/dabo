@@ -120,11 +120,20 @@ class dSelectPage(dPage):
         
         
     def requery(self):
-        sqlBuilder = self.getDform().sqlBuilder
+        bizobj = self.getDform().getBizobj()
         where = self.getWhere()
-        sqlBuilder.setWhereClause(where)
-        print "\n\nsql:\n%s\n\n" % sqlBuilder.getSQL()   
+        bizobj.setWhereClause(where)
+        
+        # The bizobj will get the SQL from the sql builder:
+        sql = bizobj.getSQL()
+        
+        print "\n\nsql:\n%s\n\n" % sql
+        
+        # But it won't automatically use that sql, so we set it here:
+        bizobj.setSQL(sql)
+        
         self.getDform().requery()
+        
         if self.GetParent().GetSelection() == 0:
             # If the select page is active, now make the browse page active
             self.GetParent().SetSelection(1)
@@ -374,10 +383,10 @@ class dEditPage(dPage):
                 
                 labelAlignment = wx.ALIGN_RIGHT
 
-                label = dLabel(self, windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE)
-                label.SetSize((labelWidth,-1))
-                label.SetName("lbl%s" % fieldName)
-                label.SetLabel(labelCaption)
+                label = dLabel(self, name="lbl%s" % fieldName, 
+                    windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE)
+                label.Width = labelWidth
+                label.Caption = labelCaption
                 
                 if fieldType in ["M",]:
                     classRef = dEditBox
@@ -389,8 +398,8 @@ class dEditPage(dPage):
                     classRef = dTextBox
                 
                 objectRef = classRef(self, fieldName)
-                objectRef.dataSource = dataSource
-                objectRef.dataField = fieldName
+                objectRef.DataSource = dataSource
+                objectRef.DataField = fieldName
                 objectRef.enabled = fieldEnabled
                 if self.getDform().getBizobj().getRowCount() >= 0:
                     objectRef.refresh()

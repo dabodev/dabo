@@ -408,11 +408,6 @@ class dBizobj(object):
         return True
     
         
-    def getSQL(self):
-        ''' Return the current SQL expression.'''
-        return self.sql
-        
-        
     def setSQL(self, sql):
         """ Allows you to change the sql executed by the cursor """
         self.sql = sql
@@ -430,10 +425,10 @@ class dBizobj(object):
         try:
             # Hook method for creating the param list
             params = self.getParams()
-    
+
             # Record this in case we need to restore the record position
             currPK = self.getPK()
-    
+
             # run the requery
             self._cursor.requery(params)
 
