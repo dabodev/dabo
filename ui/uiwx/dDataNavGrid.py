@@ -148,43 +148,46 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if msg:        
 			grdView.ProcessTableMessage(msg)
 
-		# Column widths come from dApp user settings, or get sensible
+		# Column widths come from dApp user settings, the fieldSpecs, or get sensible
 		# defaults based on field type.
 		index = 0
 		for col in self.showCols:
 			nm = col[0]
 			column = self.grid.fieldSpecs[nm]
-			colName = "Column%s" % index
+			colName = "Column_%s" % nm
 			gridCol = index
 			fieldType = column["type"]
 
+			# 1) Try to get the column width from the saved user settings:
 			width = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
 					self.grid.Form.Name, 
 					self.grid.Name,
 					colName,
 					"Width"))
 
-			if width == None:
-				# Do we use the settings in the fieldSpecs?
-				useFieldSpecWidths = True
-				
-				if useFieldSpecWidths:
+			# 2) Try to get the column width from the fieldspecs:
+			if width is None:
+				try:
 					width = int(column["listColWidth"])
+				except:
+					width = None
+			
+			# 3) Get sensible default width if the above two methods failed:
+			if width is None:
+				# old way
+				minWidth = 10 * len(self.colLabels[index])   ## Fudge!
+				
+				if fieldType == "I":
+					width = 50
+				elif fieldType == "N":
+					width = 75
+				elif fieldType == "L":
+					width = 75
 				else:
-					# old way
-					minWidth = 10 * len(self.colLabels[index])   ## Fudge!
-					
-					if fieldType == "I":
-						width = 50
-					elif fieldType == "N":
-						width = 75
-					elif fieldType == "L":
-						width = 75
-					else:
-						width = 200
-	
-					if width < minWidth:
-						width = minWidth
+					width = 200
+
+				if width < minWidth:
+					width = minWidth
 
 			self.grid.SetColSize(gridCol, width)
 			index += 1
@@ -375,10 +378,11 @@ class dDataNavGrid(dGrid.dGrid):
 	def OnColSize(self, evt):
 		""" Occurs when the user resizes the width of the column.
 		"""
-		
 		col = evt.GetRowOrCol()
+		nm = self.GetTable().showCols[col][0]
+		column = self.fieldSpecs[nm]
+		colName = "Column_%s" % nm
 		width = self.GetColSize(col)
-		colName = "Column%s" % col
 		
 		self.Application.setUserSetting("%s.%s.%s.%s" % (
 						self.Form.Name, 
