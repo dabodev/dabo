@@ -7,8 +7,8 @@ class dPageFrame(wx.Notebook, dControlMixin):
     def __init__(self, parent, name="dPageFrame"):
         wx.Notebook.__init__(self, parent, -1)
         dControlMixin.__init__(self, name)
-        self.addDefaultPages()        
         self.lastSelection = 0
+        self.addDefaultPages()        
 
     def initEvents(self):
         dControlMixin.initEvents(self)
@@ -31,13 +31,17 @@ class dPageFrame(wx.Notebook, dControlMixin):
         self.AddPage(dEditPage(self), "Edit", imageId=2)
         
     def OnPageChanged(self, event):
-        event.Skip()
-        newPage = self.GetPage(event.GetSelection())
-        oldPage = self.GetPage(self.lastSelection)    
+        ls = self.lastSelection
+        cs = event.GetSelection()
+
+        event.Skip()    # This must happen before onLeave/EnterPage below
+
+        newPage = self.GetPage(cs)
+        oldPage = self.GetPage(ls)    
         
         oldPage.onLeavePage()
         newPage.onEnterPage()
         
-        self.lastSelection = self.GetSelection()
+        self.lastSelection = cs
 
 

@@ -6,7 +6,6 @@ class dFormMixin:
     def __init__(self, dApp):
         self.dApp = dApp
         self.restoreSizeAndPosition()
-        self.menuLabel = self.GetLabel()
         
         wx.EVT_CLOSE(self, self.OnClose)
         wx.EVT_SET_FOCUS(self, self.OnSetFocus)

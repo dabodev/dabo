@@ -6,6 +6,9 @@ from dabo.biz import *
 from dabo.ui.uiwx.classes import *
 
 class uiApp(wx.App):
+    def __init__(self, *args):
+        wx.App.__init__(self, 0, args)
+        
     def OnInit(self):
         return True
 

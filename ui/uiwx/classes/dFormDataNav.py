@@ -118,24 +118,10 @@ class dFormDataNav(dForm):
         return menu
         
     def setupMenu(self):
-        self.SetMenuBar(wx.MenuBar())
-        self.GetMenuBar().Append(self.getMenu(), "&Navigation")
-        wx.EVT_MENU_OPEN(self, self.onOpenMenu)
-        
-    def onOpenMenu(self, event):
-        menu = event.GetEventObject()
-        if self.bizobjs[self.getPrimaryBizobj()].getRowCount() < 0:
-            # disable all menu items except for Requery. (I'd like
-            # to get some sort of "skip for" functionality build into 
-            # our menus, but that will wait.).
-            for item in menu.GetMenuItems():
-                if item.GetText() != "Requery":
-                    item.Enable(False)
-        else:
-            # Enable all menu items
-            for item in menu.GetMenuItems():
-                item.Enable(True)            
-
+        mb = wx.MenuBar()
+        mb.Append(self.getMenu(), "&Navigation")
+        self.SetMenuBar(mb)
+                
     def setupPageFrame(self):
         ''' dFormDataNav.setupPageFrame() -> 
         
