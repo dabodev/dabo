@@ -30,11 +30,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
  		self.data = []
 
 		# First massage the non-show columns out:
-		cd = self.grid.columnDefs
+		cd = list(self.grid.columnDefs)
 		for col in range(len(cd)-1,0,-1):
 			if not cd[col]['showGrid']:
 				del cd[col]
-		self.grid.columnDefs = cd
+		self.grid.columnDefs = tuple(cd)
 		
 		# Put column order in relative column order, if relative column order
 		# exists in dApp.getUserSettings().

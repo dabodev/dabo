@@ -300,7 +300,7 @@ class dFormDataNav(frm.dForm):
 					# column is string: add to stringMatchAll:
 					column['selectTypes'].append('stringMatchAll')
 
-		self._columnDefs[dataSource] = columnDefs
+		self._columnDefs[dataSource] = tuple(columnDefs)
 		if dataSource == self.getBizobj().DataSource:
 			self.afterSetPrimaryColumnDef()
 

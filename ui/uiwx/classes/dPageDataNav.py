@@ -291,6 +291,7 @@ class dBrowsePage(dPage.dPage):
 		self.grid = dGrid.dGrid(self, bizobj, form)
 		self.grid.SetName('BrowseGrid')
 		self.GetSizer().Add(self.grid, 1, wx.EXPAND)
+		self.grid.columnDefs = form.getColumnDefs(bizobj.DataSource)
 		
 		self.addObject(dCommandButton.dCommandButton, 'cmdPreview')
 		self.cmdPreview.Caption = "Preview"
@@ -304,7 +305,6 @@ class dBrowsePage(dPage.dPage):
 	def fillGrid(self):
 		form = self.getDform()
 		bizobj = form.getBizobj()
-		self.grid.columnDefs = form.getColumnDefs(bizobj.DataSource)
 		self.grid.fillGrid()
 		self.GetSizer().Layout()
 		for window in self.grid.GetChildren():
