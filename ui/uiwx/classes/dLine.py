@@ -1,7 +1,7 @@
 import wx
 import dControlMixin as cm
 
-class dLine(wx.StaticText, cm.dControlMixin):
+class dLine(wx.StaticLine, cm.dControlMixin):
 	""" Create a static (not data-aware) line.
 	"""
 	def __init__(self, parent, id=-1, name='dLine', style=0, *args, **kwargs):
