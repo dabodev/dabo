@@ -2,7 +2,7 @@ import wx, dEvents, dControlMixin, dDataControlMixin
 from dFormMixin import dFormMixin
 import dabo.dConstants as k
 
-class dForm(wx.Frame, dFormMixin):
+class dForm(wx.Dialog, dFormMixin):
     ''' dabo.ui.uiwx.dForm() --> dForm
     
         Create a dForm object, which can contain other
@@ -15,7 +15,9 @@ class dForm(wx.Frame, dFormMixin):
     '''
     
     def __init__(self, parent=None, name="dForm", resourceString=None):
-        wx.Frame.__init__(self, parent, -1, "")
+        wx.Dialog.__init__(self, parent, -1, "", (-1,-1), (-1,-1),
+                          wx.DEFAULT_FRAME_STYLE|wx.MAXIMIZE_BOX|
+                          wx.RESIZE_BORDER)
         self.SetName(name)
         self.SetLabel(name)
         

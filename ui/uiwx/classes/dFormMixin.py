@@ -16,10 +16,10 @@ class dFormMixin:
         if self.dApp:
             name = self.GetName()
             
-            left = self.app.getAppInfo("%s.left" % name)
-            top = self.app.getAppInfo("%s.top" % name)
-            width = self.app.getAppInfo("%s.width" % name)
-            height = self.app.getAppInfo("%s.height" % name)
+            left = self.dApp.getAppInfo("%s.left" % name)
+            top = self.dApp.getAppInfo("%s.top" % name)
+            width = self.dApp.getAppInfo("%s.width" % name)
+            height = self.dApp.getAppInfo("%s.height" % name)
 
             if (type(left), type(top)) == (type(int()), type(int())):
                 self.SetPosition((left,top))
@@ -33,8 +33,8 @@ class dFormMixin:
             pos = self.GetPosition()
             size = self.GetSize()
             
-            self.app.setAppInfo("%s.left" % name, "I", pos[0])
-            self.app.setAppInfo("%s.top" % name, "I", pos[1])
-            self.app.setAppInfo("%s.width" % name, "I", size[0])
-            self.app.setAppInfo("%s.height" % name, "I", size[1])
+            self.dApp.setAppInfo("%s.left" % name, "I", pos[0])
+            self.dApp.setAppInfo("%s.top" % name, "I", pos[1])
+            self.dApp.setAppInfo("%s.width" % name, "I", size[0])
+            self.dApp.setAppInfo("%s.height" % name, "I", size[1])
         

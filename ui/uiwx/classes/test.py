@@ -38,12 +38,17 @@ class Test(object):
         self.app = wx.PySimpleApp()
 
     def runTest(self, classRef):
-        frame = dForm()
+        mainFrame = dFormMain()
+        #mainFrame.Maximize()
+        frame = dForm(mainFrame)
         frame.SetSize((300,1))
         object = classRef(frame)
         print "Running test for %s" % (object.GetName())
         object.SetFocus()
-        frame.Show(1)
+        mainFrame.Show()
+        frame.Show()
+        object.Show()
+        mainFrame.SetSize((640,480))
         self.app.MainLoop()
     
     def testAll(self, withBiz=False):
@@ -74,8 +79,8 @@ class Test(object):
                     (dCheckBox(panel), "chk1"),
                     (dEditBox(panel), "edt1")):
             bs = wx.BoxSizer(wx.HORIZONTAL)
-            label = dLabel(panel, windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE,
-                                    size = (labelWidth, -1))
+            label = dLabel(panel, windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE)
+            label.SetSize((labelWidth,-1))
             try:
                 lblName = obj[2]
             except IndexError:

@@ -17,7 +17,7 @@ class VcrButton(dCommandButton):
 class dVCR(wx.Panel):
     def __init__(self, parent):
         wx.Panel.__init__(self, parent, -1)
-                
+        
         bsNav = wx.BoxSizer(wx.HORIZONTAL)
         
         but = VcrButton(self, "cmdFirst", "<<", 
