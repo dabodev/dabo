@@ -52,6 +52,11 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	
 	
 	def setColExpand(self, expand, colNums, proportion=0):
+		""" Sets the 'growable' status of one or more columns. """
+		# If the colNums argument was passed first, switch it with the 
+		# expand argument
+		if type(expand) in (int, str):
+			expand, colNums = colNums, expand
 		if type(colNums) in (list, tuple):
 			for col in colNums:
 				self.setColExpand(expand, col, proportion)
@@ -68,11 +73,19 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			if expand:
 				self.AddGrowableCol(colNums, proportion=proportion)
 			else:
-				self.RemoveGrowableCol(colNums)
+				# If the col isn't growable, it will throw an error
+				try:
+					self.RemoveGrowableCol(colNums)
+				except: pass
 		self.Layout()
 		
 		
 	def setRowExpand(self, expand, rowNums, proportion=0):
+		""" Sets the 'growable' status of one or more rows. """
+		# If the colNums argument was passed first, switch it with the 
+		# expand argument
+		if type(expand) in (int, str):
+			expand, rowNums = rowNums, expand
 		if type(rowNums) in (list, tuple):
 			for row in rowNums:
 				self.setRowExpand(expand, row, proportion)
@@ -89,7 +102,10 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			if expand:
 				self.AddGrowableRow(rowNums, proportion=proportion)
 			else:
-				self.RemoveGrowableRow(rowNums)
+				# If the row isn't growable, it will throw an error
+				try:
+					self.RemoveGrowableRow(rowNums)
+				except: pass
 		self.Layout()
 		
 	
