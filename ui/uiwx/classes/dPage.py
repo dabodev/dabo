@@ -58,4 +58,34 @@ class dPage(dPanel.dScrollPanel):
 		to act upon.
 		"""
 		event.Skip()
+	
+	
+	def _getPagePosition(self):
+		""" Returns the position of this page within its parent.
+		"""
+		parent = self.Parent
+		cnt = parent.GetPageCount()
+		ret = -1
+		for i in range(cnt):
+			if parent.GetPage(i) == self:
+				ret = i
+				break
+		return ret
+	
+
+	def _getCaption(self):
+		# Need to determine which page we are
+		ret = ""
+		pos = self._getPagePosition()
+		if pos > -1:
+			ret = self.Parent.GetPageText(pos)
+		return ret
+	
+	def _setCaption(self, val):
+		pos = self._getPagePosition()
+		if pos > -1:
+			self.Parent.SetPageText(pos, val)
+	
+	Caption = property(_getCaption, _setCaption, None, 
+			"The text identifying this particular page")
 
