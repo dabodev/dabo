@@ -151,13 +151,34 @@ class uiApp(wx.App, dObject):
 				data = wx.FindReplaceData(wx.FR_DOWN)
 				self.findReplaceData = data
 			dlg = wx.FindReplaceDialog(win, data, "Find")
+			
+			# Map enter key to find button:
+			anId = wx.NewId()
+			dlg.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, wx.WXK_RETURN, anId),]))
+			dlg.Bind(wx.EVT_MENU, self.onEnterInFindDialog, id=anId)
 
 			dlg.Bind(wx.EVT_FIND, self.OnFind)
 			dlg.Bind(wx.EVT_FIND_NEXT, self.OnFind)
 			dlg.Bind(wx.EVT_CLOSE, self.OnFindClose)
 
 			dlg.Show()
-
+#- 			self.findDialog = dlg
+			
+	
+	def onEnterInFindDialog(self, evt):
+		## I don't know what to do from here: how do I simulate the user
+		## clicking "find"...
+#- 		pass
+#- 		findButton = None
+#- 		dlg = self.findDialog
+#- #- 		print dir(dlg)
+#- 		for child in dlg.GetChildren():
+#- 			if child.GetName() == "button" and child.GetLabel() == "Find":
+#- 				findButton = child
+#- 				break
+#- 		if findButton is not None:
+#- 			findButton.Command(wx.CommandEvent(wx.wxEVT_COMMAND_BUTTON_CLICKED))			
+					
 
 	def onEditFindAgain(self, evt):
 		"""Repeat the last search.
@@ -169,6 +190,7 @@ class uiApp(wx.App, dObject):
 			self.onEditFind(None)
 			return
 			
+
 	def OnFindClose(self, evt):
 		""" User clicked the close button, so hide the dialog.
 		"""
@@ -182,8 +204,10 @@ class uiApp(wx.App, dObject):
 		Run the search on the current control, if it is a text-based control.
 		Select the found text in the control.
 		"""
-		flags = evt.GetFlags()
-		findString = evt.GetFindString()
+#- 		flags = evt.GetFlags()
+#- 		findString = evt.GetFindString()
+		flags = self.findReplaceData.GetFlags()
+		findString = self.findReplaceData.GetFindString()
 		downwardSearch = (flags & wx.FR_DOWN) == wx.FR_DOWN
 		wholeWord = (flags & wx.FR_WHOLEWORD) == wx.FR_WHOLEWORD
 		matchCase = (flags & wx.FR_MATCHCASE) == wx.FR_MATCHCASE
