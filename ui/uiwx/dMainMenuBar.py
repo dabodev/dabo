@@ -56,7 +56,7 @@ class EditMenu(m.dMenu):
 		self.AppendItem(item)
 		mainForm.Bind(wx.EVT_MENU, self.actionList.getAction("EditFind")["func"], item)
 
-		item = wx.MenuItem(self, -1, "Find Again\tF3", "Repeat the last search")
+		item = wx.MenuItem(self, -1, "Find Again\tCtrl+G", "Repeat the last search")
 		self.AppendItem(item)
 		mainForm.Bind(wx.EVT_MENU, self.actionList.getAction("EditFindAgain")["func"], item)
 		
@@ -67,6 +67,12 @@ class EditMenu(m.dMenu):
 		self.AppendItem(item)
 		wx.App_SetMacPreferencesMenuItemId(item.GetId())   # Put the prefs item in the App Menu on Mac
 		mainForm.Bind(wx.EVT_MENU, self.actionList.getAction("EditPreferences")["func"], item)
+
+
+class ViewMenu(m.dMenu):
+	def __init__(self, mainForm):
+		ViewMenu.doDefault(mainForm)
+
 
 
 class HelpMenu(m.dMenu):
@@ -85,6 +91,7 @@ class dMainMenuBar(mb.dMenuBar):
 		super(dMainMenuBar, self).__init__()
 		self.Append(FileMenu(mainForm), "&File")
 		self.Append(EditMenu(mainForm), "&Edit")
+		self.Append(ViewMenu(mainForm), "&View")
 		self.Append(HelpMenu(mainForm), "&Help")
 		wx.App_SetMacHelpMenuTitleName("&Help")
 

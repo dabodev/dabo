@@ -94,14 +94,14 @@ def getEventData(wxEvt):
 		ed["shiftDown"] = wxEvt.ShiftDown()
 
 	if isinstance(wxEvt, wx.KeyEvent):
-		ed["keyCode"] = wxEvt.GetKeyCode()
+		ed["keyCode"] = wxEvt.GetRawKeyCode()
 		ed["rawKeyCode"] = wxEvt.GetRawKeyCode()
 		ed["rawKeyFlags"] = wxEvt.GetRawKeyFlags()
 		ed["unicodeChar"] = wxEvt.GetUniChar()
 		ed["unicodeKey"] = wxEvt.GetUnicodeKey()
 		ed["hasModifiers"] = wxEvt.HasModifiers()
 		try:
-			ed["keyChar"] = chr(wxEvt.KeyCode())
+			ed["keyChar"] = chr(wxEvt.GetRawKeyCode())
 		except ValueError:
 			ed["keyChar"] = None
 
