@@ -68,6 +68,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if self.Application is not None:
 			self.Application.uiForms.add(self)
 		
+		# Use this for timing queries and other long-
+		# running events
+		self.stopWatch = wx.StopWatch()
+		self.stopWatch.Pause()
+		
 		self.bindEvent(dEvents.Close, self.__onClose)
 		self.bindEvent(dEvents.Activate, self.__onActivate)
 		self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
@@ -75,6 +80,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		# Determines if the user is prompted to save changes
 		# when the form is closed.
 		self.checkForChanges = True
+		
+		# Used to override some cases where the status
+		# text should be displayed despite other processes
+		# trying to overwrite it
+		self._holdStatusText = ""
 
 		self._afterInit()                      # defined in dPemMixin
 
@@ -348,20 +358,16 @@ class dForm(wxFrameClass, fm.dFormMixin):
 					return
 
 		self.setStatusText(_("Please wait... requerying dataset..."))
-		start = time.time()
-
+		
 		try:
+			self.stopWatch.Start()
 			response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
 #			response = bizobj.requery()
+			self.stopWatch.Pause()
+			elapsed = round(self.stopWatch.Time()/1000.0, 3)
 			
-			stop = round(time.time() - start, 3)
 			if self.debug:
 				dabo.infoLog.write(_("Requery successful."))
-			self.setStatusText(_("%s record%sselected in %s second%s") % (
-					bizobj.RowCount, 
-					bizobj.RowCount == 1 and " " or "s ",
-					stop,
-					stop == 1 and "." or "s."))
 			self.refreshControls()
 
 			# Notify listeners that the row number changed:
@@ -370,6 +376,13 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			# We made it through without errors
 			ret = True
 		
+			self._holdStatusText = (
+					_("%s record%sselected in %s second%s") % (
+					bizobj.RowCount, 
+					bizobj.RowCount == 1 and " " or "s ",
+					elapsed,
+					elapsed == 1 and "." or "s."))
+
 		except dException.MissingPKException, e:
 			dabo.ui.dMessageBox.stop(str(e), "Requery Failed")
 

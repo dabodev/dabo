@@ -1,7 +1,9 @@
 import wx, dabo
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner
 import dMessageBox, dIcons, dCommandButton, dDropdownList
-import dPanel, dDataNavGrid, dDateTextBox
+import dPanel, dDataNavGrid, dDateTextBox, dMenu, dBox
+from dSizer import dSizer
+from dBorderSizer import dBorderSizer
 import dabo.dException as dException
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -154,6 +156,14 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 			except: pass
 
 
+class sortLabel(dLabel.dLabel):
+	def initEvents(self):
+		super(sortLabel, self).initEvents()
+		self.bindEvent(dEvents.MouseRightClick, self.Parent.Parent.onSortLabelRClick)
+		# Add a property for the related field
+		self.relatedDataField = ""
+		
+		
 class dSelectPage(DataNavPage):
 	def __init__(self, parent):
 		#dSelectPage.doDefault(parent, name="pageSelect")
@@ -161,8 +171,76 @@ class dSelectPage(DataNavPage):
 		# Holds info which will be used to create the dynamic
 		# WHERE clause based on user input
 		self.selectFields = {}
+		self.sortFields = {}
+		self.sortIndex = 0
 
 
+	def onSortLabelRClick(self, evt):
+		self.sortDS = evt.EventObject.relatedDataField
+		self.sortCap = evt.EventObject.Caption
+		self.sortObj = evt.GetEventObject()
+		mn = dMenu.dMenu()
+		if self.sortFields.has_key(self.sortDS):
+#- 			id = wx.NewId()
+#- 			mn.Append(id, "Do not sort on " + self.sortCap)
+#- 			self.Bind(wx.EVT_MENU, self.handleSortRemove, id=id)
+			item = wx.MenuItem(mn, -1, "Remove sort on " + self.sortCap)
+			mn.AppendItem(item)
+			self.Bind(wx.EVT_MENU, self.handleSortRemove, item)
+
+		item = wx.MenuItem(mn, -1, "Sort Ascending")
+		mn.AppendItem(item)
+		self.Bind(wx.EVT_MENU, self.handleSortAsc, item)
+		item = wx.MenuItem(mn, -1, "Sort Descending")
+		mn.AppendItem(item)
+		self.Bind(wx.EVT_MENU, self.handleSortDesc, item)
+
+#- 		id = wx.NewId()
+#- 		mn.Append(id, ")
+#- 		self.Bind(wx.EVT_MENU, self.handleSortAsc, id=id)
+#- 		id = wx.NewId()
+#- 		mn.Append(id, "Sort Descending")
+#- 		self.Bind(wx.EVT_MENU, self.handleSortDesc, id=id)
+		
+		#self.PopupMenu(mn, self.sortObj.GetPosition())
+		print self.sortObj.GetPosition()
+		print evt.GetPosition()
+		print self.ScreenToClient(self.sortObj.GetPosition())
+		print self.ClientToScreen(evt.GetPosition())
+		
+		
+		self.PopupMenu(mn, self.ClientToScreen(evt.GetPosition()) )
+		mn.Destroy()
+
+	def handleSortRemove(self, evt): 
+		self.handleSort(evt.GetId(), "remove")
+	def handleSortAsc(self, evt): 
+		self.handleSort(evt.GetId(), "asc")
+	def handleSortDesc(self, evt):
+		self.handleSort(evt.GetId(), "desc")
+	def handleSort(self, id, action):
+		if action == "remove":
+			try:
+				del self.sortFields[self.sortDS]
+			except:
+				pass
+		else:
+			if self.sortFields.has_key(self.sortDS):
+				self.sortFields[self.sortDS] = (self.sortFields[self.sortDS][0], 
+						action, self.sortCap)
+			else:
+				self.sortFields[self.sortDS] = (self.sortIndex, action, self.sortCap)
+				self.sortIndex += 1
+		self.sortCap = self.sortDS = ""
+		displayList = [(self.sortFields[k][0], 
+				self.sortFields[k][2] + " " + self.sortFields[k][1].upper())
+				for k in self.sortFields.keys()]
+		displayList.sort()
+		display = [ k[1] for k in displayList ]
+		dabo.ui.dMessageBox.info("\n".join(display))
+		
+		
+		
 	def createItems(self):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
 		self.GetSizer().Add(self.selectOptionsPanel, 0, wx.GROW|wx.ALL, 20)
@@ -171,6 +249,22 @@ class dSelectPage(DataNavPage):
 		super(dSelectPage, self).createItems()
 
 	
+	def setOrderBy(self, biz):
+		flds = self.selectFields.keys()
+		clause = ""
+		for fld in flds:
+			break
+			if fld == "limit":
+				# Not used
+				continue
+			orderVal = self.selectFields[fld]["order"].Value
+			if orderVal:
+				if clause:
+					clause += ", "
+				clause += fld + " " + orderVal
+		biz.setOrderByClause(clause)
+		
+
 	def setWhere(self, biz):
 		biz.setWhereClause("")
 		flds = self.selectFields.keys()
@@ -266,6 +360,7 @@ class dSelectPage(DataNavPage):
 		ret = False
 		if bizobj is not None:
 			self.setWhere(bizobj)
+			self.setOrderBy(bizobj)
 			self.setLimit(bizobj)
 			
 			# The bizobj will get the SQL from the sql builder:
@@ -329,8 +424,13 @@ class dSelectPage(DataNavPage):
 		label = dLabel.dLabel(panel)
 		label.Caption = _("Please enter your record selection criteria:")
 		label.FontSize = label.FontSize + 2
+		label.FontBold = True
 		gsz.Add(label, (0,0), (1,3), wx.ALIGN_CENTER | wx.ALL, 5)
-
+		
+#		ln = dabo.ui.dLine(panel)
+#		ln.Height = 5
+#		gsz.Add(ln, (1,0), (1,3), wx.ALIGN_CENTER | wx.ALL | wx.EXPAND, 5)
+		
 		# Get all the fields that should be included into a list. Order them
 		# into the order specified in the specs.
 		fldList = []
@@ -343,18 +443,19 @@ class dSelectPage(DataNavPage):
 			gridRow += 1
 			fld = fldOrd[0]
 			fldInfo = fs[fld]
-			lbl = dLabel.dLabel(panel)
+			lbl = sortLabel(panel)
 			lbl.Caption = fldInfo["caption"]
+			lbl.relatedDataField = fld
 			ctrl = self.getSearchCtrl(fldInfo["type"], panel)
 			
 			opt = self.getSelectorOptions(fldInfo["type"], fldInfo["wordSearch"])
 			opList = SelectionOpDropdown(panel, choices=opt)
 			opList.SetSelection(0)
 			opList.setTarget(ctrl)
-			
 			gsz.Add(lbl, (gridRow, 0), flag=wx.RIGHT )
 			gsz.Add(opList, (gridRow, 1), flag=wx.CENTRE )
 			gsz.Add(ctrl, (gridRow, 2), flag=wx.EXPAND )
+			
 			# Store the info for later use when constructing the query
 			self.selectFields[fld] = {
 					"ctrl" : ctrl,
@@ -375,7 +476,7 @@ class dSelectPage(DataNavPage):
 		gsz.Add(lbl, (gridRow, 0), flag=wx.RIGHT )
 		gsz.Add(limTxt, (gridRow, 1), flag=wx.EXPAND )
 		gridRow += 1
-		gsz.Add(requeryButton, (gridRow, 2), flag=wx.RIGHT )
+		gsz.Add(requeryButton, (gridRow, 1), flag=wx.RIGHT )
 		
 		# Make the last column growable
 		gsz.AddGrowableCol(2)
@@ -399,9 +500,8 @@ class dSelectPage(DataNavPage):
 		elif typ == "date":
 			ret = dDateTextBox.dDateTextBox(parent)
 		return ret
-
-
-		
+	
+	
 class dBrowsePage(DataNavPage):
 	def __init__(self, parent):
 		#dBrowsePage.doDefault(parent, "pageBrowse")

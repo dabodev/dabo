@@ -14,6 +14,7 @@ class dFormMixin(pm.dPemMixin):
 		self.debugText = ""
 		self.useOldDebugDialog = False
 		self.restoredSP = False
+		self._holdStatusText = ""
 
 		if self.Application:
 			try:
@@ -162,8 +163,13 @@ class dFormMixin(pm.dPemMixin):
 		else:
 			controllingFrame = self
 		if controllingFrame.GetStatusBar():
-			controllingFrame.SetStatusText(*args)
+			if self._holdStatusText:
+				controllingFrame.SetStatusText(self._holdStatusText)
+				self._holdStatusText = ""
+			else:
+				controllingFrame.SetStatusText(*args)
 			controllingFrame.GetStatusBar().Update()
+		
 
 		
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
