@@ -154,8 +154,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def fillTable(self, force=False):
 		""" Fill the grid's data table to match the data set."""
 		rows = self.GetNumberRows()
-		oldRow = self.grid.CurrCol    # current row per the grid
-		oldCol = self.grid.CurrCol  # current column per the grid
+		oldRow = self.grid.CurrentColumn  # current row per the grid
+		oldCol = self.grid.CurrentColumn  # current column per the grid
 		if not oldCol:
 			oldCol = 0
 		# Get the data from the parent grid.
@@ -357,7 +357,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def _afterInit(self):
 		super(dGrid, self)._afterInit()
 		self.bizobj = None
-		self._hdr = None
+		self._header = None
 		self.fieldSpecs = {}
 		# This value is in miliseconds
 		self._searchDelay = 600
@@ -375,7 +375,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# actions.
 		self.SameSizeRows = True
 		# Internal tracker for row height
-		self._rowHt = self.GetDefaultRowSize()
+		self._rowHeight = self.GetDefaultRowSize()
 		# Columns notify the grid when their properties change
 		# Sometimes the grid itself initiated the change, and doesn't
 		# need to be notified.
@@ -461,8 +461,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 		if force:
 # 			row = self.bizobj.RowNumber
-			row = max(0, self.CurrRow)
-			col = max(0, self.CurrCol)
+			row = max(0, self.CurrentRow)
+			col = max(0, self.CurrentColumn)
 			# Needed on Linux to get the grid to have the focus:
 			for window in self.Children:
 				window.SetFocus()
@@ -637,7 +637,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _onGridSelectCell(self, evt):
 		""" Occurs when the grid's cell focus has changed."""
-		oldRow = self.CurrRow
+		oldRow = self.CurrentRow
 		newRow = evt.EventData["row"]
 		
 		if oldRow != newRow:
@@ -863,8 +863,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		NOTE: evt is a wxPython event, not a Dabo event.
 		"""
 		# Select the cell that was right-clicked upon
-		self.CurrRow = evt.GetRow()
-		self.CurrCol = evt.GetCol()
+		self.CurrentRow = evt.GetRow()
+		self.CurrentColumn = evt.GetCol()
 
 		# Make the popup menu appear in the location that was clicked
 		self.mousePosition = evt.GetPosition()
@@ -949,7 +949,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		passed, the currently active grid column will be sorted.
 		"""
 		if gridCol == None:
-			gridCol = self.CurrCol
+			gridCol = self.CurrentColumn
 		
 		if isinstance(gridCol, dColumn):
 			columnToSort = gridCol
@@ -997,20 +997,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			for elem in sortList:
 				newRows.append(elem[1])
 			self.dataSet = newRows
-		self.fillGrid()
+		self.fillGrid(True)
 
 
 	def runIncSearch(self):
 		""" Run the incremental search.
 		"""
-		gridCol = self.CurrCol
+		gridCol = self.CurrentColumn
 		if gridCol < 0:
 			gridCol = 0
 		fld = self.Columns[gridCol].Field
 		if self.RowCount <= 0:
 			# Nothing to seek within!
 			return
-		newRow = self.CurrRow
+		newRow = self.CurrentRow
 		ds = self.getDataSet()
 		srchStr = self.currSearchStr
 		near = self.searchNearest
@@ -1072,7 +1072,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					toofar = fldval > srchStr
 				if toofar:
 					break
-		self.CurrRow = newRow
+		self.CurrentRow = newRow
 
 		# Add a '.' to the status bar to signify that the search is
 		# done, and clear the search string for next time.
@@ -1176,16 +1176,16 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return "\n".join(html)
 
 
-	def getRowHeight(self, row):
-		return self.GetRowSize(row)
-			
+#- pkm: these don't appear to be used
+#-	def getRowHeight(self, row):
+#-		return self.GetRowSize(row)
 	
-	def setRowHeight(self, row, ht):
-		if self.SameSizeRows:
-			self.SetDefaultRowSize(ht, True)
-			self.ForceRefresh()
-		else:
-			self.SetRowSize(row, ht)
+#-	def setRowHeight(self, row, ht):
+#-		if self.SameSizeRows:
+#-			self.SetDefaultRowSize(ht, True)
+#-			self.ForceRefresh()
+#-		else:
+#-			self.SetRowSize(row, ht)
 			
 	
 	def getColByX(self, x):
@@ -1270,136 +1270,185 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.ProcessTableMessage(msg)
 		self.fillGrid(True)
 
-	def _getEd(self):
+
+	def _getEditable(self):
 		return self._editable
-	def _setEd(self, val):
-		self._editable = val
-		self.EnableEditing(val)
 
-	def _getNumCols(self):
+	def _setEditable(self, val):
+		if self._constructed():
+			self._editable = val
+			self.EnableEditing(val)
+		else:
+			self._properties["Editable"] = val
+
+
+	def _getColumnCount(self):
 		return len(self.Columns)
-	def _setNumCols(self, val):
-		msg = None
-		if val > -1:
-			colChange = val - self.ColumnCount 
-			self.BeginBatch()
-			if colChange == 0:
-				# No change
-				return
-			elif colChange < 0:
-				msg = wx.grid.GridTableMessage(self._Table,
-						wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
-						val, abs(colChange))
-				self.Columns = self.Columns[:val]
-			else:
-				msg = wx.grid.GridTableMessage(self._Table,
-						wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
-						colChange)
-				for cc in range(colChange):
-					self.addColumn(inBatch=True)
-			if msg:
-				self.ProcessTableMessage(msg)
-			self.EndBatch()
-			self.fillGrid(True)
-			
-	def _getHdr(self):
-		if not self._hdr:
-			self._hdr = self.GetGridColLabelWindow()
-		return self._hdr
 
-	def _getNumRows(self):
+	def _setColumnCount(self, val):
+		if self._constructed():
+			msg = None
+			if val > -1:
+				colChange = val - self.ColumnCount 
+				self.BeginBatch()
+				if colChange == 0:
+					# No change
+					return
+				elif colChange < 0:
+					msg = wx.grid.GridTableMessage(self._Table,
+							wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
+							val, abs(colChange))
+					self.Columns = self.Columns[:val]
+				else:
+					msg = wx.grid.GridTableMessage(self._Table,
+							wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
+							colChange)
+					for cc in range(colChange):
+						self.addColumn(inBatch=True)
+				if msg:
+					self.ProcessTableMessage(msg)
+				self.EndBatch()
+				self.fillGrid(True)
+		else:
+			self._properties["ColumnCount"] = val
+
+
+	def _getHeader(self):
+		if not self._header:
+			self._header = self.GetGridColLabelWindow()
+		return self._header
+
+
+	def _getRowCount(self):
 		return self._Table.GetNumberRows()
 	
-	def _getColNum(self):
+
+	def _getCurrentColumn(self):
 		return self.GetGridCursorCol()
-	def _setColNum(self, val):
-		if val > -1:
-			val = min(val, self.ColumnCount)
-			rn = self.CurrRow
-			self.SetGridCursor(rn, val)
-			self.MakeCellVisible(rn, val)
-		
-	def _getCurrFld(self):
-		return self.Columns[self.GetGridCursorCol()].Field
-	def _setCurrFld(self, val):
-		for ii in range(len(self.Columns)):
-			if self.Columns[ii].Field == val:
-				self.CurrCol = ii
-				break
-		
-	def _getRowNum(self):
-		return self.GetGridCursorRow()
-	def _setRowNum(self, val):
-		if val > -1:
-			val = min(val, self.RowCount)
-			cn = self.CurrCol
-			self.SetGridCursor(val, cn)
-			self.MakeCellVisible(val, cn)
 
-	def _getRHt(self):
-		return self._rowHt
-	def _setRHt(self, val):
-		if val != self._rowHt:
-			self._rowHt = val
-			self.SetDefaultRowSize(val, True)
-			self.ForceRefresh()
-			# Persist the new size
-			self.Application.setUserSetting("%s.%s.%s" % (
-					self.Form.Name, self.Name, "RowSize"), val)
-
-	def _getRowLabels(self):
-		return self._showRowLabels
-	def _setRowLabels(self, val):
-		self._showRowLabels = val
-		if val:
-			self.SetRowLabelSize(self._rowLabelWidth)
+	def _setCurrentColumn(self, val):
+		if self._constructed():
+			if val > -1:
+				val = min(val, self.ColumnCount)
+				rn = self.CurrentRow
+				self.SetGridCursor(rn, val)
+				self.MakeCellVisible(rn, val)
 		else:
-			self.SetRowLabelSize(0)
+			self._properties["CurrentColumn"] = val
+		
+
+	def _getCurrentField(self):
+		return self.Columns[self.GetGridCursorCol()].Field
+
+	def _setCurrentField(self, val):
+		if self._constructed():
+			for ii in range(len(self.Columns)):
+				if self.Columns[ii].Field == val:
+					self.CurrentColumn = ii
+					break
+		else:	
+			self._properties["CurrentField"] = val
+
+
+	def _getCurrentRow(self):
+		return self.GetGridCursorRow()
+
+	def _setCurrentRow(self, val):
+		if self._constructed():
+			if val > -1:
+				val = min(val, self.RowCount)	
+				cn = self.CurrentColumn
+				self.SetGridCursor(val, cn)
+				self.MakeCellVisible(val, cn)
+		else:
+			self._properties["CurrentRow"] = val		
+
+
+	def _getRowHeight(self):
+		return self._rowHeight
+
+	def _setRowHeight(self, val):
+		if self._constructed():
+			if val != self._rowHeight:
+				self._rowHeight = val
+				self.SetDefaultRowSize(val, True)
+				self.ForceRefresh()
+				# Persist the new size
+				self.Application.setUserSetting("%s.%s.%s" % (
+						self.Form.Name, self.Name, "RowSize"), val)
+		else:
+				self._properties["RowHeight"] = val
+
+
+	def _getShowRowLabels(self):
+		return self._showRowLabels
+
+	def _setShowRowLabels(self, val):
+		if self._constructed():
+			self._showRowLabels = val
+			if val:
+				self.SetRowLabelSize(self._rowLabelWidth)
+			else:
+				self.SetRowLabelSize(0)
+		else:
+			self._properties["ShowRowLabels"] = val
+
 
 	def _getRowLabelWidth(self):
 		return self._rowLabelWidth
-	def _setRowLabelWidth(self, val):
-		self._rowLabelWidth = val
-		if self._showRowLabels:
-			self.SetRowLabelSize(self._rowLabelWidth)
 
-	def _getSrchDel(self):
+	def _setRowLabelWidth(self, val):
+		if self._constructed():
+			self._rowLabelWidth = val
+			if self._showRowLabels:
+				self.SetRowLabelSize(self._rowLabelWidth)
+		else:
+			self._properties["RowLabelWidth"] = val
+
+
+	def _getSearchDelay(self):
 		return self._searchDelay
-	def _setSrchDel(self, val):
+
+	def _setSearchDelay(self, val):
 		self._searchDelay = val
 		
-	def _getTbl(self):
+
+	def _getTable(self):
 		tbl = self.GetTable()
 		if not tbl:
 			tbl = dGridDataTable(self)
 			self.SetTable(tbl, True)
 		return tbl	
-	def _setTbl(self, tbl):
-		self.SetTable(tbl, True)
+
+	def _setTable(self, tbl):
+		if self._constructed():
+			self.SetTable(tbl, True)
+		else:
+			self._properties["Table"] = value
 
 
-	ColumnCount = property(_getNumCols, _setNumCols, None, 
+	ColumnCount = property(_getColumnCount, _setColumnCount, None, 
 			_("Number of columns in the grid.  (int)") )
 	
-	CurrCol = property(_getColNum, _setColNum, None,
+	CurrentColumn = property(_getCurrentColumn, _setCurrentColumn, None,
 			_("Currently selected column  (int)") )
 			
-	CurrField = property(_getCurrFld, _setCurrFld, None,
+	CurrentField = property(_getCurrentField, _setCurrentField, None,
 			_("Field for the currently selected column  (str)") )
 			
-	CurrRow = property(_getRowNum, _setRowNum, None,
+	CurrentRow = property(_getCurrentRow, _setCurrentRow, None,
 			_("Currently selected row  (int)") )
 			
-	Editable = property(_getEd, _setEd, None,
+	Editable = property(_getEditable, _setEditable, None,
 			_("Can the contents of the grid be edited?  (bool)") )
 			
-	Header = property(_getHdr, None, None,
+	Header = property(_getHeader, None, None,
 			_("Reference to the grid header window.  (header object?)") )
 			
-	RowCount = property(_getNumRows, None, None, 
+	RowCount = property(_getRowCount, None, None, 
 			_("Number of rows in the grid.  (int)") )
 
-	RowHeight = property(_getRHt, _setRHt, None,
+	RowHeight = property(_getRowHeight, _setRowHeight, None,
 			_("Row Height for all rows of the grid  (int)"))
 
 	RowLabelWidth = property(_getRowLabelWidth, _setRowLabelWidth, None,
@@ -1407,14 +1456,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			he rows. This only changes
 			the grid if ShowRowLabels is True.  (int)"""))
 
-	SearchDelay = property(_getSrchDel, _setSrchDel, None,
+	SearchDelay = property(_getSearchDelay, _setSearchDelay, None,
 			_("""Delay in miliseconds between keystrokes before the 
 			incremental search clears  (int)""") )
 			
-	ShowRowLabels = property(_getRowLabels, _setRowLabels, None,
+	ShowRowLabels = property(_getShowRowLabels, _setShowRowLabels, None,
 			_("Are row labels shown?  (bool)") )
 
-	_Table = property(_getTbl, _setTbl, None,
+	_Table = property(_getTable, _setTable, None,
 			_("Reference to the internal table class  (dGridDataTable)") )
 
 
