@@ -124,11 +124,13 @@ class dCursorMixin(dabo.common.dObject):
 		else:
 			sqlEX = sql
 
-		if params is None or len(params) == 0:
-			res = self.superCursor.execute(self, sqlEX)
-		else:
-			res = self.superCursor.execute(self, sqlEX, params)
-		
+		try:
+			if params is None or len(params) == 0:
+				res = self.superCursor.execute(self, sqlEX)
+			else:
+				res = self.superCursor.execute(self, sqlEX, params)
+		except Exception, e:
+			raise dException.dException, e
 		# Not all backends support 'fetchall' after executing a query
 		# that doesn't return records, such as an update.
 		try:

@@ -271,10 +271,10 @@ class dBizobj(dabo.common.dObject):
 		
 		try:
 			self.scan(self._saveRowIfChanged, startTransaction=False, topLevel=False)
-		except dException, e:
-			if startTransaction:
+		except dException.dException, e:
+			if useTransact:
 				self.Cursor.rollbackTransaction()
-			raise dException, e
+			raise dException.dException, e
 		
 		if useTransact:
 			self.Cursor.commitTransaction()
@@ -339,7 +339,7 @@ class dBizobj(dabo.common.dObject):
 			
 		except dException.dException, e:
 			# Something failed; reset things.
-			if startTransaction:
+			if useTransact:
 				self.Cursor.rollbackTransaction()
 			# Pass the exception to the UI
 			raise dException.dException, e
@@ -489,10 +489,10 @@ class dBizobj(dabo.common.dObject):
 				func(*args, **kwargs)
 				if self.exitScan:
 					break
-		except dException, e:
+		except dException.dException, e:
 			if self.__scanRestorePosition:
 				self.RowNumber = currRow
-			raise dException, e
+			raise dException.dException, e
 
 		if self.__scanRestorePosition:
 			try:	
