@@ -24,10 +24,16 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			return self._dataSource
 		except AttributeError:
 			return None
-			
 	def _setDataSource(self, value):
 		self._dataSource = str(value)
+	
+	def _getHdr(self):
+		return self.GetGridColLabelWindow()
 		
 		
 	DataSource = property(_getDataSource, _setDataSource, None, 
-					'The name of the data source for the grid.')
+			"The name of the data source for the grid.")
+
+	Header = property(_getHdr, None, None,
+			"Reference to the row of column labels across the top of the grid  (window)")
+			
