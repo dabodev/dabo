@@ -1,6 +1,8 @@
 import dabo.dConstants as k
 
 class dMemento(object):
+    __snapshot = {}
+    
     def __init__(self, vals=None):
         if vals is None:
             self.setMemento({})
@@ -28,6 +30,11 @@ class dMemento(object):
         if self.__snapshot.has_key(fld):
             ret = self.__snapshot[fld]
         return ret
+        
+        
+    def getSnapshot(self):
+        """ Just for debugging! """
+        return self.__snapshot
         
     
     def makeDiff(self, newvals, isNewRecord=False):

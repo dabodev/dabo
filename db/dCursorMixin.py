@@ -1,5 +1,5 @@
 import dabo.dConstants as k
-from dMemento import dMemento
+from dabo.db.dMemento import dMemento
 import types
 
 class dCursorMixin:
@@ -208,14 +208,16 @@ class dCursorMixin:
         if self.rowcount > 0:
             for i in range(0, self.rowcount):
                 rec = self._rows[i]
-                mem = rec[k.CURSOR_MEMENTO]
-                newrec = rec.has_key(k.CURSOR_NEWFLAG)
-                diff = {}
-                if not newrec:
-                    diff = mem.makeDiff(rec)
-                if newrec or diff:
+                if self.isRowChanged(rec):
                     ret = True
                     break
+        return ret
+    
+    
+    def isRowChanged(self, rec):
+        mem = rec[k.CURSOR_MEMENTO]
+        newrec = rec.has_key(k.CURSOR_NEWFLAG)
+        ret = newrec or mem.isChanged(rec)
         return ret
     
     
@@ -428,7 +430,6 @@ class dCursorMixin:
         """ Reverts any changes back to the original values """
         self.__errorMsg = ""
         ret = k.FILE_OK
-
         # Make sure that there is data to save
         if not self.rowcount >= 0:
             self.addToErrorMsg("No data to cancel")
@@ -442,6 +443,10 @@ class dCursorMixin:
         for i in range(self.rowcount-1, -1, -1):
             rec = self._rows[i]
             if rec in recs:
+                if not self.isRowChanged(rec):
+                    # Nothing to cancel
+                    continue
+                    
                 newrec =  rec.has_key(k.CURSOR_NEWFLAG)
                 if newrec:
                     # Discard the record, and adjust the props
@@ -458,23 +463,23 @@ class dCursorMixin:
         diff = mem.makeDiff(rec)
         if diff:
             for fld, val in diff.items():
-                rec[fld] = mem.getOrigVal([fld])
+                rec[fld] = mem.getOrigVal(fld)
         return k.FILE_OK
 
 
-    def delete(self, rownum=None):
+    def delete(self, delRowNum=None):
         ret = k.FILE_OK
 
-        if rownum is None:
+        if delRowNum is None:
             # assume that it is the current row that is to be deleted
-            rownum = self.rownumber
+            delRowNum = self.rownumber
 
-        rec = self._rows[rownum]
+        rec = self._rows[delRowNum]
         newrec =  rec.has_key(k.CURSOR_NEWFLAG)
         self.__saveProps(saverows=False)
         if newrec:
             tmprows = list(self._rows)
-            del tmprows[rownum]
+            del tmprows[delRowNum]
             self._rows = tuple(tmprows)
             res = True
         else:
@@ -485,7 +490,7 @@ class dCursorMixin:
         if res:
             # First, delete the row from the held properties
             tmprows = list(self.holdrows)
-            del tmprows[rownum]
+            del tmprows[delRowNum]
             self.holdrows = tuple(tmprows)
             # Now restore the properties
             self.__restoreProps()

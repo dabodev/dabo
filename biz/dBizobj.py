@@ -131,7 +131,6 @@ class dBizobj(object):
 
         if ret == k.FILE_OK:
             self.requeryAllChildren()
-            self.setMemento()
         else:
             self.addToErrorMsg(self._cursor.getErrorMsg())
         self.afterPointerMove(ret)
@@ -153,7 +152,6 @@ class dBizobj(object):
 
         if ret == k.FILE_OK:
             self.requeryAllChildren()
-            self.setMemento()
         else:
             self.addToErrorMsg(self._cursor.getErrorMsg())
         self.afterPointerMove(ret)
@@ -174,7 +172,6 @@ class dBizobj(object):
 
         if ret == k.FILE_OK:
             self.requeryAllChildren()
-            self.setMemento()
         else:
             self.addToErrorMsg(self._cursor.getErrorMsg())
         self.afterPointerMove(ret)
@@ -195,7 +192,6 @@ class dBizobj(object):
 
         if ret == k.FILE_OK:
             self.requeryAllChildren()
-            self.setMemento()
         else:
             self.addToErrorMsg(self._cursor.getErrorMsg())
         self.afterPointerMove(ret)
@@ -325,7 +321,6 @@ class dBizobj(object):
                     child.cancel(allRows=True)
                     child.requery()
 
-            self.setMemento()
         else:
             self.addToErrorMsg(self._cursor.getErrorMsg())
 
