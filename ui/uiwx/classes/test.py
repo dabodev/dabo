@@ -3,67 +3,41 @@
     A simple reusable unit testing framework, used by the 
     base class files when run as scripts instead of imported
     as modules. 
+    
+    If you execute, say:
+        python dTextBox.py
+        
+    The dTextBox.py's main section will instantiate class Test
+    and do a simple unit test of dTextBox.
+    
+    If you instead run this test.py as a script, a form will be
+    instantiated with all the dControls.
 '''
     
 import wx
 from dabo.ui.uiwx import *
-from dabo.biz import *
-from dabo.db import *
-
-class bizZip(dBizobj):
-    dataSource = "zipcodes"
-    keyField = "iid"
-    sql = "select * from zipcodes where ccity like 'hol%' "
-    defaultValues = {"ccity":"Penfield", "cStateProv":"NY", "czip":"14526"}
-
-def getConnInfo():
-    from dabo.db.dConnectInfo import dConnectInfo
-    ci = dConnectInfo('MySQL')
-    ci.host = 'leafe.com'
-    ci.dbName = "webtest"
-    ci.user = 'test'
-    ci.password = 'test3'
-    return ci
-
-def openConn():
-    return dConnection(getConnInfo())
-    
-def getBiz():
-    biz = bizZip(openConn())
-    return biz
 
 class Test(object):
-
     def __init__(self):
         self.app = wx.PySimpleApp()
 
     def runTest(self, classRef):
-        mainFrame = dFormMain()
-        #mainFrame.Maximize()
-        frame = dForm(mainFrame)
+        frame = wx.Frame(None, -1, "")
         frame.SetSize((300,1))
         object = classRef(frame)
-        print "Running test for %s" % (object.GetName())
+        frame.SetLabel("Test of %s" % object.GetName())
         object.SetFocus()
-        mainFrame.Show()
         frame.Show()
         object.Show()
-        mainFrame.SetSize((640,480))
         self.app.MainLoop()
     
-    def testAll(self, withBiz=False):
+    def testAll(self):
         ''' Create a dForm and populate it with example dWidgets. '''
         frame = dForm()
         frame.SetSize((640,480))
         frame.debug = True
         
-        if withBiz:
-            biz = getBiz()
-            frame.addBizobj(biz)
-            appendCaption = "with bizobj/data test to leafe.com"
-        else:
-            appendCaption = ""
-        frame.SetLabel("A test of all the dControls %s" % appendCaption)
+        frame.SetLabel("Test of all the dControls")
         
         panel = wx.Panel(frame, -1)
         
@@ -98,11 +72,6 @@ class Test(object):
             object.SetName("%s" % obj[1])
             object.debug = True # show the events
             
-            if withBiz:
-                object.dataSource = biz.dataSource
-                if len(obj) > 2:
-                    object.dataField = obj[2]
-
             bs.Add(object, 1, expandFlags | wx.ALL, 0)
 
             if isinstance(object, dEditBox):
@@ -112,20 +81,17 @@ class Test(object):
 
         bs = wx.BoxSizer(wx.HORIZONTAL)
         
-        if withBiz:
-            vcr = dVCR(panel)
-            bs.Add(vcr, 1, wx.ALL, 0)
-        
         vs.Add(bs, 0, wx.EXPAND)
                     
         panel.SetSizer(vs)        
         panel.GetSizer().Layout()
-
-        frame.refreshControls()
+        
+        frame.GetSizer().Add(panel, 1, wx.EXPAND)
+        frame.GetSizer().Layout()
         frame.Show(1)
         self.app.MainLoop()
 
 if __name__ == "__main__":
     t = Test()
-    t.testAll(withBiz=True) 
+    t.testAll() 
     

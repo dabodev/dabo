@@ -57,7 +57,11 @@ class dDataControlMixin:
     def OnSetFocus(self, event):
         print "OnSetFocus received by %s" % self.GetName()
 
-        self.dForm.controlWithFocus = self
+        try:
+            self.dForm.controlWithFocus = self
+        except AttributeError:   # perhaps our containing frame isn't a dForm
+            pass
+            
         try:
             self._oldVal = self.GetValue()
         except AttributeError:   # labels, for example...
