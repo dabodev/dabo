@@ -143,6 +143,87 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 if __name__ == "__main__":
 	import test
 	
-	class Img(dImage): pass
+	class ImgForm(dabo.ui.dForm):
+		def afterInit(self):
+			# Create a panel with horiz. and vert.  sliders
+			self.imgPanel = dabo.ui.dPanel(self)
+			self.VSlider = dabo.ui.dSlider(self, Orientation="V", Min=1, Max=100)
+			self.HSlider = dabo.ui.dSlider(self, Orientation="H", Min=1, Max=100)
+			self.VSlider.Value = 0
+			self.HSlider.Value = 100
+			self.VSlider.bindEvent(dEvents.Hit, self.onSlider)
+			self.HSlider.bindEvent(dEvents.Hit, self.onSlider)
 			
-	test.Test().runTest(Img)
+			psz = self.imgPanel.Sizer = dabo.ui.dSizer("V")
+			hsz = dabo.ui.dSizer("H")
+			hsz.append(self.imgPanel, 1, "x")
+			hsz.appendSpacer(10)
+			hsz.append(self.VSlider, 0, "x")
+			self.Sizer.Border = 25
+			self.Sizer.BorderLeft = self.Sizer.BorderRight = 25
+			self.Sizer.appendSpacer(25)
+			self.Sizer.append(hsz, 1, "x")
+			self.Sizer.appendSpacer(10)
+			self.Sizer.append(self.HSlider, 0, "x")
+			self.Sizer.appendSpacer(10)
+
+			hsz = dabo.ui.dSizer("H")
+			hsz.Spacing = 10
+			self.ddScale = dabo.ui.dDropdownList(self, 
+					Choices=["Proportional", "Stretch", "Clip"])
+			self.ddScale.bindEvent(dEvents.Hit, self.onScaleChange)
+			btn = dabo.ui.dButton(self, Caption="Load Image")
+			btn.bindEvent(dEvents.Hit, self.onLoadImage)
+			btnOK = dabo.ui.dButton(self, Caption="OK")
+			btnOK.bindEvent(dEvents.Hit, self.close)
+			hsz.append(self.ddScale, 1, "x")
+			hsz.append(btn, 0, "x")
+			hsz.append(btnOK, 0, "x")
+			self.Sizer.append(hsz, 0, "x")
+			self.Sizer.appendSpacer(25)
+			
+			# Create the image control
+			self.img = dImage(self.imgPanel)
+			
+			# Make sure that resizing the form updates the image
+			self.bindEvent(dEvents.Resize, self.onResize)
+			# Since lots of resize events fire when the window is
+			# dragged, only do the updates on Idle
+			self.bindEvent(dEvents.Idle, self.onIdle)
+			# Set the idle update flage
+			self.needUpdate = False
+
+
+		def onSlider(self, evt):
+			val = evt.EventObject.Value * 0.01
+			dir = evt.EventObject.Orientation[0].lower()
+			if dir == "h":
+				# Change the width of the image
+				self.img.Width = (self.imgPanel.Width * val)
+			else:
+				# Since the vertical slider has its hi/low ends backwards,
+				# adjust the value
+				val = 1.01 - val
+				self.img.Height = (self.imgPanel.Height * val)
+			
+			
+		def onScaleChange(self, evt):
+			self.img.ScaleMode = evt.EventObject.Value
+			
+		def onLoadImage(self, evt): 
+			f = dabo.ui.getFile()
+			if f:
+				self.img.Picture = f
+		
+		def onResize(self, evt):
+			self.needUpdate = True
+		
+		def onIdle(self, evt):
+			if self.needUpdate:
+				self.needUpdate = False
+				wd = self.HSlider.Value * 0.01 * self.imgPanel.Width
+				ht = (101 - self.VSlider.Value) * 0.01 * self.imgPanel.Height
+				self.img.Size = (wd, ht)
+			
+
+	test.Test().runTest(ImgForm)
