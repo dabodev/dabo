@@ -89,7 +89,7 @@ class dPemMixinBase(dabo.common.dObject):
 		return super(dPemMixinBase, self).getPropertyInfo(name)
 		
 	
-	def addObject(self, classRef, name, *args, **kwargs):
+	def addObject(self, classRef, name=None, *args, **kwargs):
 		""" Create an instance of classRef, and make it a child of self.
 		
 		Abstract method: subclasses MUST override for UI-specifics.

@@ -6,7 +6,7 @@ from dabo.ui.dPemMixinBase import dPemMixinBase
 import dabo.dEvents as dEvents
 
 class dPemMixin(dPemMixinBase):
-	""" Provide Property/Event/Method interfaces for dForms and dControls.
+	""" Provides Property/Event/Method interfaces for dForms and dControls.
 
 	Subclasses can extend the property sheet by defining their own get/set
 	functions along with their own property() statements.
@@ -184,15 +184,28 @@ class dPemMixin(dPemMixinBase):
 		return d
 		
 	
-	def addObject(self, classRef, name, *args, **kwargs):
+	def addObject(self, classRef, name=None, *args, **kwargs):
 		""" Instantiate object as a child of self.
 		
-		The class reference must be a Dabo object (must inherit dPemMixin).
+		The classRef argument must be a Dabo UI class definition. (it must inherit 
+		dPemMixin).
 		
-		The name parameter will be used on the resulting instance, and additional 
-		arguments received will be passed on to the constructor of the object.
+		If the name argument, if passed, will be sent along to the object's 
+		constructor, which will attempt to set its Name accordingly. If the name
+		argument is not passed (or None), the object will get a default Name as 
+		defined in the object's class definition.
+
+		Additional positional and/or keyword arguments will be sent along to the
+		object's constructor.
 		"""
-		object = classRef(self, name=name, *args, **kwargs)
+		# Note that we could have just given addObject() a signature of:
+		#   addObject(self, classRef, *args, **kwargs)
+		# Which would simplify the implementation somewhat. However, we want
+		# to enforce name as the second argument to avoid breaking old code.
+		if name is None:
+			object = classRef(self, *args, **kwargs)
+		else:
+			object = classRef(self, name=name, *args, **kwargs)
 		return object
 
 	
