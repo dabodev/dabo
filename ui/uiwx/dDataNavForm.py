@@ -19,6 +19,7 @@ class dDataNavForm(dForm.dForm):
 		# Determines if we are actually running the form, or just 
 		# previewing it
 		self._fieldSpecs = {}
+		self._relaSpecs = {}
 		self._childBehavior = {}
 		self._requeried = False
 		# Used for turning sizer outline drawing on pages
@@ -340,12 +341,22 @@ class dDataNavForm(dForm.dForm):
 		this table.
 		"""
 		# First, get the field spec data into a dictionary.
-		self.FieldSpecs = fieldSpecParser.importFieldSpecs(xmlFile, tbl)
+		rawSpecs = fieldSpecParser.importFieldSpecs(xmlFile, tbl)
+		relaKeys = [k for k in rawSpecs.keys() if k.find("::") > 0]
+		self.RelaSpecs = {}
+		self.FieldSpecs = rawSpecs.copy()
+		for rk in relaKeys:
+			self.RelaSpecs[rk] = rawSpecs[rk]
+			del self.FieldSpecs[rk]
+		
 		if not self.preview:
 			# Set up the SQL Builder in the bizobj:
 			biz = self.getBizobj()
 			biz.setFieldClause("")
 			for fld in self.FieldSpecs.keys():
+				if len(fld.split("::")) > 1:
+					# This is a relation, not a field definition
+					continue
 				fldInfo = self.FieldSpecs[fld]
 				if int(fldInfo["editInclude"]) or int(fldInfo["listInclude"]):
 					biz.addField("%s.%s as %s" % (tbl, fld, fld) )
@@ -461,15 +472,18 @@ class dDataNavForm(dForm.dForm):
 			return self._requeryOnLoad
 		except AttributeError:
 			return False
-
 	def _setRequeryOnLoad(self, value):
 		self._requeryOnLoad = bool(value)
 
 	def _getFieldSpecs(self):
 		return self._fieldSpecs
-	
 	def _setFieldSpecs(self, val):
 		self._fieldSpecs = val
+		
+	def _getRelaSpecs(self):
+		return self._relaSpecs
+	def _setRelaSpecs(self, val):
+		self._relaSpecs = val
 		
 	def _setDrawSizerOutlines(self, val):
 		self._drawSizerOutlines = val
@@ -478,8 +492,6 @@ class dDataNavForm(dForm.dForm):
 			pg = self.pageFrame.GetPage(i)
 			if hasattr(pg, "drawSizerOutlines"):
 				pg.drawSizerOutlines = val
-		
-		
 	def _getDrawSizerOutlines(self):
 		return self._drawSizerOutlines		
 	
@@ -498,6 +510,9 @@ class dDataNavForm(dForm.dForm):
 	
 	FieldSpecs = property(_getFieldSpecs, _setFieldSpecs, None, 
 			"Reference to the dictionary containing field behavior specs")
+
+	RelaSpecs = property(_getRelaSpecs, _setRelaSpecs, None, 
+			"Reference to the dictionary containing table relation specs")
 
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
 			"Controls whether outlines are drawn indicating the current state of the sizers on the form.")
