@@ -1,5 +1,6 @@
 import xml.sax
 from StringIO import StringIO
+import os.path
 
 class specHandler(xml.sax.ContentHandler):
 	def __init__(self):
@@ -50,10 +51,9 @@ class specHandler(xml.sax.ContentHandler):
 	
 
 def importFieldSpecs(file=None, tbl=None):
-	if type(file) == str:
-		file = StringIO(file)
 	if file is None:
 		return None
+	file = fileRef(file)
 	sh = specHandler()
 	xml.sax.parse(file, sh)
 	ret = sh.getFieldDict()
@@ -61,17 +61,28 @@ def importFieldSpecs(file=None, tbl=None):
 	# Limit it to a specific table if requested
 	if tbl is not None:
 		ret = ret[tbl]
-	
 	return ret
 	
 
 def importRelationSpecs(file=None):
 	if file is None:
 		return None
-	if type(file) == str:
-		file = StringIO(file)
+	file = fileRef(file)
 	sh = specHandler()
 	xml.sax.parse(file, sh)
 	ret = sh.getRelationDict()
-	
 	return ret
+
+
+def fileRef(ref=""):
+	"""  Handles the passing of file names, file objects, or raw
+	XML to the parser. Returns a file-like object, or None.
+	"""
+	ret = None
+	if type(ref) == str:
+		if os.path.exists(ref):
+			ret = file(ref)
+		else:
+			ret = StringIO(ref)
+	return ret
+	
