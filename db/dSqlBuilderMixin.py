@@ -11,6 +11,7 @@ class dSqlBuilderMixin:
         self._orderByClause = ""
         self._limitClause = ""
         self._defaultLimit = 1000
+        self.hasSqlBuilder = True
 
     
     def getFieldClause(self):
@@ -142,7 +143,14 @@ class dSqlBuilderMixin:
             
         return "%s%s%s%s%s%s" % (fieldClause, fromClause, whereClause, 
                                  groupByClause, orderByClause, limitClause)
-               
+    
+    
+    def getStructureOnlySql(self):
+        holdWhere = self._whereClause
+        self.setWhereClause("1 = 0")
+        ret = self.getSQL()
+        self.setWhereClause(holdWhere)
+        return ret
 
     def executeSQL(self, *args, **kwargs):
         self.execute(self.createSQL(), *args, **kwargs)

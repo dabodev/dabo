@@ -568,23 +568,30 @@ class dCursorMixin:
 
 
     def __setStructure(self):
-        import re
-        pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:where\s(.*))+)\s*", re.I | re.M)
-        if pat.search(self.sql):
-            # There is a WHERE clause. Add the NODATA clause
-            tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
-        else:
-            # no WHERE clause. See if it has GROUP BY or ORDER BY clauses
-            pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:group\s*by\s(.*))+)\s*", re.I | re.M)
+        """ If this instance was created with the SqlBuilderMixin, we can just 
+        use that to get the no-records version of the SQL statement. Otherwise,
+        we need to parse the sql property to get what we need.
+        """
+        try:
+            tmpsql = self.getStructureOnlySql()
+        except AttributeError:
+            import re
+            pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:where\s(.*))+)\s*", re.I | re.M)
             if pat.search(self.sql):
+                # There is a WHERE clause. Add the NODATA clause
                 tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
-            else:               
-                pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:order\s*by\s(.*))+)\s*", re.I | re.M)
+            else:
+                # no WHERE clause. See if it has GROUP BY or ORDER BY clauses
+                pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:group\s*by\s(.*))+)\s*", re.I | re.M)
                 if pat.search(self.sql):
                     tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
                 else:               
-                    # Nothing. So just tack it on the end.
-                    tmpsql = self.sql + " where 1=0 "
+                    pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:order\s*by\s(.*))+)\s*", re.I | re.M)
+                    if pat.search(self.sql):
+                        tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
+                    else:               
+                        # Nothing. So just tack it on the end.
+                        tmpsql = self.sql + " where 1=0 "
 
         # We need to save and restore the cursor properties, since this query will wipe 'em out.
         self.__saveProps()
