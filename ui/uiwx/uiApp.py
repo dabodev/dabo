@@ -1,8 +1,10 @@
 ''' daboApp.py: The application object and the main frame object. '''
 
-import dynamicViewWidgets as dynview
-import sys, os, wx, wx.help, mainMenu
-import dabo.db
+#import dynamicViewWidgets as dynview
+import sys, os, wx, wx.help
+from dabo.db import *
+from dabo.biz import *
+from dabo.ui.uiwx import *
 
 class uiApp(wx.App):
     def OnInit(self):
@@ -15,9 +17,7 @@ class uiApp(wx.App):
 
         self.dApp = dApp
         
-        self.mainFrame = MainFrame(None, -1, 
-                   "%s Version %s" % (self.getAppInfo("appName"), self.getAppInfo("appVersion")),
-                   self)
+        self.mainFrame = dFormMainMainFrame(dApp)
         self.mainFrame.Show(True)
         self.SetTopWindow(self.mainFrame)
     
@@ -25,24 +25,6 @@ class uiApp(wx.App):
         self.setup(dApp)
         self.MainLoop()
     
-    def areYouSure(self, message="Are you sure?", defaultNo=False, style=0):
-        style = style|wx.YES_NO|wx.ICON_QUESTION
-        if defaultNo:
-            style = style|wx.NO_DEFAULT
-            
-        dlg = wx.MessageDialog(self.GetTopWindow(), 
-                                message, 
-                                self.getAppInfo("appName"),
-                                style)    
-        retval = dlg.ShowModal()
-        dlg.Destroy()
-        
-        if retval in (wx.ID_YES, wx.ID_OK):
-            return True
-        else:
-            return False
-            
-        
     def getAppInfo(self, item, user="*", system="*"):
         ''' Return the value of the dabosettings table that corresponds to the 
             item, user, and system id passed. Based on the ctype field in the 
