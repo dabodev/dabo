@@ -2,6 +2,10 @@ import re
 import wx
 import wx.calendar
 import dabo
+
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
+
 from dabo.dLocalize import _
 import dTextBox, dPanel, dCommandButton
 import dabo.dEvents as dEvents
