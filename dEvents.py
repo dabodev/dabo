@@ -134,6 +134,11 @@ class DataEvent(Event):
 		return issubclass(objectClass, dabo.biz.dBizobj)
 	appliesToClass = classmethod(appliesToClass)
 			
+class GridEvent(Event):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dGrid)
+	appliesToClass = classmethod(appliesToClass)
+	
 class KeyEvent(Event):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dPemMixin)
@@ -350,6 +355,23 @@ class TreeItemCollapse(TreeEvent):
 class TreeItemExpand(TreeEvent):
 	""" Occurs when a collapsed item in a tree expands."""
 	pass
+
+class GridRowSize(GridEvent):
+	"""Occurs when the grid's rows are resized."""
+	pass
+
+class GridSelectCell(GridEvent):
+	"""Occurs when the a new cell is selected in the grid."""
+	pass
+
+class GridRightClick(GridEvent):
+	"""Occurs when the user right-clicks on the grid."""
+	pass
+
+class GridColSize(GridEvent):
+	"""Occurs when the grid's columns are resized."""
+	pass
+
 
 	
 class ValueChanged(Event):

@@ -188,13 +188,15 @@ def getEventData(wxEvt):
 			except:
 				pass
 		
-	if isinstance(wxEvt, wx.KeyEvent) or isinstance(wxEvt, wx.MouseEvent):
+	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent) ):
 		ed["mousePosition"] = wxEvt.GetPositionTuple()
 		ed["altDown"] = wxEvt.AltDown()
 		ed["commandDown"] = wxEvt.CmdDown()
 		ed["controlDown"] = wxEvt.ControlDown()
 		ed["metaDown"] = wxEvt.MetaDown()
 		ed["shiftDown"] = wxEvt.ShiftDown()
+		if isinstance(wxEvt, wx.MouseEvent):
+			ed["mouseDown"] = wxEvt.Dragging()
 
 	if isinstance(wxEvt, wx.KeyEvent):
 		ed["keyCode"] = wxEvt.KeyCode()
