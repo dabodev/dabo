@@ -338,16 +338,14 @@ class dPemMixin(dPemMixinBase):
 		# Call the Dabo-native raiseEvent(), passing along the wx.CallAfter
 		# function, so that the Dabo events can be processed at next idle.
 		
-		#- PKM 11/4/2004: It turns out that, due to a name mismatch, uiCallAfterFunc
-		#- wasn't being used. I discovered the problem and fixed it, but then nothing
-		#- seemed to be working "right" in Dabo anymore - some events happening twice,
-		#- some happening too late. I want to come back and research this more, but for
-		#- now I'll just document here that for wx, we aren't using a callafter function
-		#- but just processing our Dabo events inside the current callstack.
-
-#		super(dPemMixin, self).raiseEvent(eventClass, nativeEvent,
-#			uiCallAfterFunc=wx.CallAfter, *args, **kwargs)
-		super(dPemMixin, self).raiseEvent(eventClass, nativeEvent, *args, **kwargs)
+		if eventClass is dabo.dEvents.Destroy:
+			# Call immediately in this callstack so the object isn't completely
+			# gone by the time the callback is called.
+			super(dPemMixin, self).raiseEvent(eventClass, nativeEvent, *args, **kwargs)
+		else:
+			# Call with wx.CallAfter in the next Idle.
+			super(dPemMixin, self).raiseEvent(eventClass, nativeEvent,
+				uiCallAfterFunc=wx.CallAfter, *args, **kwargs)
 	
 			
 	def _processName(self, kwargs, defaultName):
