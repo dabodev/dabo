@@ -280,6 +280,9 @@ class dBizobj(dabo.common.dObject):
 		errMsg = self.beforeSave()
 		if errMsg:
 			raise dException.dException, errMsg
+		
+		if self.KeyField is None:
+			raise dException.dException, "No key field defined for table: " + self.DataSource
 
 		# Validate any changes to the data. If there is data that fails
 		# validation, an Exception will be raised.
@@ -363,6 +366,9 @@ class dBizobj(dabo.common.dObject):
 			errMsg = self.beforePointerMove()
 		if errMsg:
 			raise dException.dException, errMsg
+
+		if self.KeyField is None:
+			raise dException.dException, "No key field defined for table: " + self.DataSource
 
 		if self.deleteChildLogic == k.REFINTEG_RESTRICT:
 			# See if there are any child records
@@ -553,7 +559,7 @@ class dBizobj(dabo.common.dObject):
 		current PK value. This will add 
 		"""
 		if self.DataSource and self.LinkField:
-			val = self.__escQuote(self.getParentPK())
+			val = self.__fldTypeote(self.getParentPK())
 			self.Cursor.setChildFilterClause(" %s.%s = %s " % (self.DataSource, 
 					self.LinkField, val) )
 					
@@ -810,7 +816,8 @@ class dBizobj(dabo.common.dObject):
 		for child in self.__children:
 			# Let the child know the current dependent PK
 			child.setCurrentParent(pk)
-			ret = child.requery()
+			if not child.isChanged():
+				child.requery()
 
 		self.afterChildRequery()
 
@@ -818,6 +825,9 @@ class dBizobj(dabo.common.dObject):
 	def getPK(self):
 		""" Return the value of the PK field.
 		"""
+		if self.KeyField is None:
+			raise dException.dException, "No key field defined for table: " + self.DataSource
+
 		return self.Cursor.getFieldVal(self.KeyField)
 
 
@@ -909,7 +919,7 @@ class dBizobj(dabo.common.dObject):
 		return ret
 
 
-	def __escQuote(self, val):
+	def escQuote(self, val):
 		""" Escape special characters in SQL strings.
 
 		Escapes any single quotes that could cause SQL syntax errors. Also 
@@ -917,6 +927,13 @@ class dBizobj(dabo.common.dObject):
 		Finally, wraps the value in single quotes.
 		"""
 		return self.Cursor.escQuote(val)
+	
+	
+	def formatDateTime(self, val):
+		""" Wrap a date or date-time value in the format 
+		required by the backend.
+		"""
+		return self.Cursor.formatDateTime(val)
 
 
 	def getNonUpdateFields(self):
@@ -1057,7 +1074,7 @@ class dBizobj(dabo.common.dObject):
 			return ""
 			
 	def _setKeyField(self, val):
-		self._keyField = str(val)
+		self._keyField = val
 	
 	
 	def _getLinkField(self):
