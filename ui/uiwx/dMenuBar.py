@@ -2,6 +2,7 @@
 import wx
 import dabo
 import dPemMixin as pm
+import dMenu
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
@@ -58,19 +59,19 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 
 	def append(self, caption):
 		"""Appends a dMenu to the end of the dMenuBar."""
-		menu = _getMenu(caption)
+		menu = self._getMenu(caption)
 		self.appendMenu(menu)
 		return menu
 
 	def insert(self, pos, caption):
 		"""Inserts a dMenu at the specified position in the dMenuBar."""
-		menu = _getMenu(caption)
+		menu = self._getMenu(caption)
 		self.insertMenu(pos, menu)
 		return menu
 
 	def prepend(self, caption):
 		"""Prepends a dMenu to the beginning of the dMenuBar."""
-		menu = _getMenu(caption)
+		menu = self._getMenu(caption)
 		self.prependMenu(menu)
 		return menu
 

@@ -294,8 +294,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.refreshControls()
 		except dException.dException, e:
 			dabo.errorLog.write(_("Cancel failed with response: %s") % str(e))
-			### TODO: What should be done here? Raise an exception?
-			###       Prompt the user for a response?
+			dMessageBox.info(message=str(e), title=_("Cancel Not Allowed"))
 
 
 	def onRequery(self, evt):
@@ -356,8 +355,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 		except dException.dException, e:
 			dabo.errorLog.write(_("Requery failed with response: %s") % str(e))
-			### TODO: What should be done here? Raise an exception?
-			###       Prompt the user for a response?
+			dMessageBox.stop(message=str(e), title=_("Requery Not Allowed"))
 		return ret
 
 	def delete(self, dataSource=None, message=None):
@@ -386,8 +384,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				self.raiseEvent(dEvents.RowNumChanged)
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
-				### TODO: What should be done here? Raise an exception?
-				###       Prompt the user for a response?
+				dMessageBox.stop(message=str(e), title=_("Deletion Not Allowed"))
 
 
 	def deleteAll(self, dataSource=None, message=None):
@@ -411,8 +408,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				self.raiseEvent(dEvents.RowNumChanged)
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete All failed with response: %s") % str(e))
-				### TODO: What should be done here? Raise an exception?
-				###       Prompt the user for a response?
+				dMessageBox.stop(message=str(e), title=_("Deletion Not Allowed"))
 
 
 	def new(self, dataSource=None):

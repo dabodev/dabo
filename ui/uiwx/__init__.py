@@ -101,6 +101,15 @@ for __classRef in __dClasses:
 	__classDict["doc"] = __classRef.__doc__
 	daboDesignerClasses.append(__classDict)
 
+daboDesignerControls = []
+for __classRef in __dControlClasses:
+	__classDict = {}
+	__classDict["class"] = __classRef
+	__classDict["name"] = __classRef.__name__
+	__classDict["prompt"] = "%s&%s" % (__classRef.__name__[0], __classRef.__name__[1:])
+	__classDict["doc"] = __classRef.__doc__
+	daboDesignerControls.append(__classDict)
+
 propsToShowInDesigner = ("Alignment", "AskToSave", "AutoResize", 
 		"AutoSize", "BackColor", "BaseClass", "BorderResizable", "BorderStyle", 
 		"Bottom", "CancelButton", "Caption", "Centered", "Choices", "Class", 
