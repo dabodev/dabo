@@ -30,6 +30,7 @@ class dBizobj(dabo.common.dObject):
 		self.__params = None		# tuple of params to be merged with the sql in the cursor
 		self.__children = []		# Collection of child bizobjs
 		self._baseClass = dBizobj
+		self.__tmpPK = -1		# temp PK value for new records.
 
 		dBizobj.doDefault()		
 		##########################################
@@ -603,6 +604,11 @@ class dBizobj(dabo.common.dObject):
 		"""
 		self.__cursor.setDefaults(self.defaultValues)
 		
+		if self.AutoPopulatePK:
+			# Provide a temporary PK so that any linked children can be properly
+			# identified until the record is saved and a permanent PK is obtained.
+			self.setFieldVal(self.KeyField, self.genTempPKVal() )
+		
 		# Fill in the link to the parent record
 		if self.Parent and self.FillLinkFromParent and self.LinkField:
 			self.setFieldVal(self.LinkField, self.getParentPK() )
@@ -622,7 +628,6 @@ class dBizobj(dabo.common.dObject):
 		"""
 		if self.LinkField:
 			self.setFieldVal(self.LinkField, val)
-	
 	
 	
 	def addChild(self, child):
@@ -765,6 +770,20 @@ class dBizobj(dabo.common.dObject):
 				ret = child
 				break
 		return ret
+	
+	
+	def genTempPKVal(self):
+		""" Return the next available temp PK value. 
+		"""
+		pkType = type(self.getFieldVal(self.KeyField))
+		tmp = self.__tmpPK
+		# Decrement the temp PK value
+		self.__tmpPK -= 1
+		if pkType == types.StringType:
+			tmp = str(tmp)
+		elif pkType == types.UnicodeType:
+			tmp = unicode(tmp)
+		return tmp
 	
 	
 	def getNonUpdateFields(self):

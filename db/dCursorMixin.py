@@ -506,7 +506,7 @@ class dCursorMixin:
 			self.__setStructure()
 		# Copy the _blank dict to the _rows, and adjust everything accordingly
 		tmprows = list(self._rows)
-		tmprows.append(self._blank)
+		tmprows.append(self._blank.copy())
 		self._rows = tuple(tmprows)
 		# Adjust the rowcount and position
 		self.rowcount = len(self._rows)
