@@ -8,6 +8,11 @@ from MySQLdb import cursors
 class dBizobj:
 	# Title of the cursor. Used in resolving DataSource references
 	dataSource = ""
+	# SQL statement used to create the cursor's data
+	sql = ""
+	# When true, the cursor object does not run its query immediately. This
+	# is useful for parameterized queries
+	noDataOnLoad = 0
 	# Reference to the cursor object 
 	_cursor = None
 	# Class to instantiate for the cursor object
@@ -61,6 +66,11 @@ class dBizobj:
 		if self.beforeCreateCursor():
 			crsClass = self.getCursorClass(self.cursorMixinClass, self.cursorBaseClass)
 			self._cursor = conn.cursor(cursorclass=crsClass)
+			self._cursor.setSQL(self.sql)
+			self._cursor.setKeyField(self.keyField)
+			self._cursor.setTable(self.dataSource)
+			if not self.noDataOnLoad:
+				self._cursor.requery()
 			self.afterCreateCursor()
 			
 		if not self._cursor:
@@ -175,7 +185,7 @@ class dBizobj:
 				return ret
 		
 		# OK, this actually does the saving to the database
-		ret = self._cursor.save(allrows)
+		ret = self._cursor.save(allRows)
 		
 		if ret == k.FILE_OK:
 			if isAdding:
@@ -359,6 +369,17 @@ class dBizobj:
 		
 		self.afterRequery(ret)
 		return ret
+	
+	
+	def validate(self):
+		""" This is the method that you should customize in your subclasses
+		to create checks on the data entered by the user to be sure that it 
+		conforms to your business rules. 
+		
+		It is called by the Save() routine before saving any data. If this returns
+		a false value, the save will be disallowed. You must return a True value 
+		for data saving to proceed. """
+		return 1
 		
 		
 	def isChanged(self):
@@ -443,6 +464,11 @@ class dBizobj:
 	def getFieldVal(self, fld):
 		""" Returns the value of the requested field """
 		return self._cursor.getFieldVal(fld)
+		
+		
+	def setFieldVal(self, fld, val):
+		""" Sets the value of the specified field """
+		return self._cursor.setFieldVal(fld, val)
 		
 		
 	def getParams(self):
