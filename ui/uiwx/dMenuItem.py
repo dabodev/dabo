@@ -18,7 +18,7 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 
 	def _initEvents(self):
 		## wx.MenuItems don't have a Bind() of their own, so this serves to 
-		## override the base behavior in dPemMixin._initEvents() which Binds
+		## override the base behavior in dPemMixin._initEvents() which gs
 		## a bunch of wx Events that don't exist for menu items (IOW, don't
 		## call doDefault!).
 
@@ -26,7 +26,7 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 			# Set up a mechanism to catch menu selected events
 			# and re-raise Dabo dEvents.Hit events. If Application
 			# is None, however, this won't work because of wx limitations.
-			self.Application.Bind(wx.EVT_MENU, self.__onWxHit, self)
+			self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, self)
 
 
 	def __onWxHit(self, evt):

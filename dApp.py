@@ -88,11 +88,6 @@ class dApp(dabo.common.dObject):
 		# initially. The default behavior is for it to be shown, as usual.
 		self.showMainFormOnStart = True
 		
-### PKM: commented this out as I don't understand the need for it		
-# 		# Params may need to be sent to the main frame. These two 
-# 		# props allow that
-# 		self.mainFrameParamList = []
-# 		self.mainFrameKeyParamList = {}
 
 	def setup(self):
 		""" Set up the app - call this before start()."""
@@ -372,8 +367,6 @@ class dApp(dabo.common.dObject):
 	########################
 	# This next section simply passes menu events to the UI
 	# layer to be handled there.
-	def Bind(self, macro, func, itm):
-		self.uiApp.Bind(macro, func, itm)
 	def onCmdWin(self, evt):
 		self.uiApp.onCmdWin(evt)
 	def onFileExit(self, evt):
