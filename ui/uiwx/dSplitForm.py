@@ -7,19 +7,16 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dSplitForm(dForm.dForm):
-	def __init__(self, parent=None, *args, **kwargs):
-		super(dSplitForm, self).__init__(parent, *args, **kwargs)
-
-		self._baseClass = dSplitForm
-		
+	def _afterInit(self):
+		super(dSplitForm, self)._afterInit()
 		win = dSplitter.dSplitter(self)
 		self.Sizer.append(win, 1, "expand")
 		win.Show(True)
 		# Store the references
 		self.splitter = win
-		
 		self.Layout()
-	
+
+			
 	def unsplit(self):
 		self.splitter.unsplit()
 	

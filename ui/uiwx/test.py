@@ -28,7 +28,7 @@ class Test(object):
 		if issubclass(classRefs[0], wx.Frame):
 			# Can't display a frame within another frame, so create this
 			# class as the main frame
-			frame = classRefs[0](None, -1, *args, **kwargs)
+			frame = classRefs[0](None, *args, **kwargs)
 		else:
 			frame = wx.Frame(None, -1, "")
 			frame.SetSizer(ui.dSizer("Vertical"))

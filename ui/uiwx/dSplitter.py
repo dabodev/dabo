@@ -8,26 +8,19 @@ import dControlMixin as cm
 
 class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 	""" Don't know if we need this class, since the form will handle all the
-	spllitter events, but just in case...
+	splitter events, but just in case...
 	"""
-	def __init__(self, parent, id=-1, style=wx.SP_3D | wx.SP_PERMIT_UNSPLIT, 
+	def __init__(self, parent, style=wx.SP_3D | wx.SP_PERMIT_UNSPLIT, 
 			properties=None, *args, **kwargs):
-		
+			
 		self._baseClass = dSplitter
-		properties = self.extractKeywordProperties(kwargs, properties)
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-
-		pre = wx.PreSplitterWindow()
-		self._beforeInit(pre)
+		preClass = wx.PreSplitterWindow
+		cm.dControlMixin.__init__(self, preClass, parent, properties, 
+				style=style, *args, **kwargs)
+	
 		
-		pre.Create(parent, id, style=style | pre.GetWindowStyle(), *args, **kwargs)
-		self.PostCreate(pre)
-
-		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
-		
-		self.setProperties(properties)
-		self._afterInit()
-		
+	def _afterInit(self):
+		super(dSplitter, self)._afterInit()
 		# Create the panes
 		p1 = dabo.ui.dPanel(self)
 		p1.BackColor = "red"
