@@ -51,14 +51,6 @@ class dDataNavForm(dForm.dForm):
 			self.Bind(wx.EVT_MENU, self.Close, id=anId)
 
 			
-	def __onActivate(self, evt):
-		#dDataNavForm.doDefault(evt)
-		super(dDataNavForm, self).__onActivate(evt)
-		if self.RequeryOnLoad and not self._requeried:
-			self._requeried = True
-			self.pageFrame.GetPage(0).requery()
-		
-	
 	def save(self, dataSource=None):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
@@ -413,7 +405,7 @@ class dDataNavForm(dForm.dForm):
 		if not self.preview:
 			self.setupMenu()
 		self.afterCreation()
-	
+		
 	
 	def setPrimaryBizobjToDefault(self, ds):
 		""" This method is called when we leave an editing page. The

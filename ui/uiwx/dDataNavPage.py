@@ -263,6 +263,8 @@ class dSelectPage(DataNavPage):
 		self.selectOptionsPanel.SetFocus()
 		#dSelectPage.doDefault()
 		super(dSelectPage, self).createItems()
+		if self.Form.RequeryOnLoad:
+			self.requery()
 
 	
 	def setOrderBy(self, biz):
