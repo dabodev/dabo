@@ -56,4 +56,5 @@ class dMainMenuBar(mb.dMenuBar):
         self.Append(FileMenu(mainFrame), "&File")
         self.Append(EditMenu(mainFrame), "&Edit")
         self.Append(HelpMenu(mainFrame), "&Help")
-            
+        wx.App_SetMacHelpMenuTitleName("&Help")
+           
