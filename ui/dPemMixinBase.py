@@ -10,11 +10,6 @@ class dPemMixinBase(dabo.common.dObject):
 	functions along with their own property() statements.
 	"""
 	
-	def __getattr__(self, att):
-		""" Abstract method: subclasses MUST override for UI-specifics.
-		"""
-		pass
-	
 	def _beforeInit(self):
 		""" Abstract method: subclasses MUST override for UI-specifics.
 		"""
@@ -115,7 +110,6 @@ class dPemMixinBase(dabo.common.dObject):
 	def _initName(self, name=None, _explicitName=True):
 		if name is None:
 			name = self.Name
-		
 		try:
 			self._setName(name, _userExplicit=_explicitName)
 		except AttributeError:

@@ -114,32 +114,13 @@ class dPemMixin(dPemMixinBase):
 		
 		if threeWayInit:
 			self.PostCreate(pre)
-		
+
 		self._initName(name, _explicitName=_explicitName)
-		
+
 		self._afterInit()
 		self.setProperties(properties)
 
-	
-	def __getattr__(self, att):
-		# Try to resolve att to a child object reference, which will allow
-		# accessing children with the style:
-		#	    self.mainPanel.txtName.Value = "test"
-
-		ret = None
-		children = self._getChildren()
-		if children is not None:
-			for child in children:
-				if child.Name == att:
-					ret = child
-					break
-		if ret is None:
-			raise AttributeError, "%s object has no attribute %s" % (
-				self._name, att)
-		else:
-			return ret
-
-			
+		
 	def _beforeInit(self, pre):
 		self._acceleratorTable = {}
 		self._name = "?"
@@ -725,8 +706,9 @@ class dPemMixin(dPemMixinBase):
 		return name
 	
 	def _setName(self, name, _userExplicit=True):
+		currentName = self._getName()
 		parent = self._pemObject.GetParent()
-		if parent:
+		if parent is not None:
 			if not _userExplicit:
 				# Dabo is setting the name implicitly, in which case we want to mangle
 				# the name if necessary to make it unique (we don't want a NameError).
@@ -760,14 +742,26 @@ class dPemMixin(dPemMixinBase):
 			# wouldn't matter anyway in a practical sense.
 			name = name
 
+		name = str(name)
 		try:
-			self._pemObject.SetName(str(name))
+			self._pemObject.SetName(name)
 		except AttributeError:
 			# Some objects that inherit from dPemMixin do not implement SetName().
 			pass
-		self._name = self._pemObject.GetName()
+		self._name = name
+		try: 
+			del self.Parent.__dict__[currentName]
+		except (AttributeError, KeyError):
+			# Parent could be None, or currentName wasn't bound yet (init)
+			pass
 
+		try:
+			self.Parent.__dict__[name] = self
+		except AttributeError:
+			# Parent could be None
+			pass
 	
+
 	def _setNameBase(self, val):
 		self._setName(val, False)
 		
