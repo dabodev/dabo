@@ -194,7 +194,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 		if self.Application:
 			name = self.getAbsoluteName()
-			self.Application.setUserSetting("%s.Value" % name, self.getShortDataType(value), value)
+			self.Application.setUserSetting("%s.Value" % name, value)
 		
 			
 	def restoreValue(self):

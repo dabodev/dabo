@@ -33,6 +33,7 @@
 		-- clean up and exit gracefully
 """
 import sys, os, warnings
+import ConfigParser
 import dabo, dabo.ui, dabo.db
 import dabo.common, dSecurityManager
 from dLocalize import _
@@ -168,6 +169,38 @@ class dApp(dabo.common.dObject):
 		self._appInfo[item] = value
 
 
+	def getUserSettingKeys(self, spec):
+		"""Return a list of all keys underneath <spec>.
+		
+		For example, if spec is "appWizard.dbDefaults", and there are
+		userSettings entries for:
+			appWizard.dbDefaults.pkm.Host
+			appWizard.dbDefaults.pkm.User
+			appWizard.dbDefaults.egl.Host
+			
+		The return value would be ["pkm", "egl"]
+		"""
+		configFileName = '%s/.userSettings.ini' % self.HomeDirectory
+
+		cp = ConfigParser.ConfigParser()
+		cp.read(configFileName)
+
+		spec = spec.lower()
+		
+		try:
+			items = cp.items("UserSettings")
+		except ConfigParser.NoSectionError:
+			items = []
+		
+		ret = []	
+		for item in items:
+			wholekey = item[0].lower()
+			if wholekey[:len(spec)] == spec:
+				key = wholekey[len(spec):].split(".")[0]
+				if ret.count(key) == 0:
+					ret.append(key)
+		return ret
+		
 	def getUserSetting(self, item, user="*", system="*"):
 		""" Return the value of the user settings table that 
 			corresponds to the item, user, and system id 
@@ -186,8 +219,6 @@ class dApp(dabo.common.dObject):
 						day,hour,minute,second,?,?,?)'
 
 		"""
-		import ConfigParser
-
 		configFileName = '%s/.userSettings.ini' % self.HomeDirectory
 
 		cp = ConfigParser.ConfigParser()
@@ -213,26 +244,28 @@ class dApp(dabo.common.dObject):
 		return value
 
 
-	def setUserSetting(self, item, valueType, value, user="*", system="*"):
-		""" Set the value of the user settings table that corresponds to the
-			item, user, and systemid passed. If it doesn't exist in the table,
-			add it. See self.getUserSetting() for the type codes. 
+	def setUserSetting(self, item, value):
+		"""Persist a value to the user settings file.
 		"""
 		# For now, save this info in a plain ini file. Eventually, I'd like
 		# to see this get saved in a persistent dabosettings db table.
-		import ConfigParser
-
 		configFileName = '%s/.userSettings.ini' % self.HomeDirectory
 
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
 
-		# convert value to string type for saving to db:
-		value = str(value)
-
+		if type(value) in (str, unicode):
+			valueType = "C"
+		elif type(value) == bool:
+			valueType = "L"
+		elif type(value) in (float,):
+			valueType = "N"
+		elif type(value) in (int, long):
+			valueType = "I"
+			
 		if not cp.has_section("UserSettings"):
 			cp.add_section("UserSettings")
-		cp.set("UserSettings", item, value)
+		cp.set("UserSettings", item, str(value))
 
 		if not cp.has_section("UserSettingsValueTypes"):
 			cp.add_section("UserSettingsValueTypes")

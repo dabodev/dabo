@@ -148,10 +148,10 @@ class dFormMixin(pm.dPemMixin):
 			pos = self.Position
 			size = self.Size
 
-			self.Application.setUserSetting("%s.left" % name, "I", pos[0])
-			self.Application.setUserSetting("%s.top" % name, "I", pos[1])
-			self.Application.setUserSetting("%s.width" % name, "I", size[0])
-			self.Application.setUserSetting("%s.height" % name, "I", size[1])
+			self.Application.setUserSetting("%s.left" % name, pos[0])
+			self.Application.setUserSetting("%s.top" % name, pos[1])
+			self.Application.setUserSetting("%s.width" % name, size[0])
+			self.Application.setUserSetting("%s.height" % name, size[1])
 
 
 	def setStatusText(self, *args):

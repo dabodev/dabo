@@ -213,7 +213,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 						self.grid.Form.Name,
 						self.grid.Name,
 						"Column%s" % index,
-						"ColumnOrder"), "I", "%s" % (relativeColumn))
+						"ColumnOrder"), relativeColumn)
 			index += 1
 
 		self.initTable()
@@ -318,7 +318,7 @@ class dGridDataNav(dGrid.dGrid):
 						self.Form.Name, 
 						self.Name,
 						"Column%s" % self.GetTable().relativeColumns[col],
-						"Width"), "I", width)
+						"Width"), width)
 
 		evt.Skip()
 
@@ -707,7 +707,7 @@ class dGridDataNav(dGrid.dGrid):
 		self.Application.setUserSetting("%s.%s.%s" % (
 						self.Form.Name, 
 						self.Name,
-						"RowSize"), "I", size)
+						"RowSize"), size)
 
 		self.SetDefaultRowSize(size, True)
 		self.ForceRefresh()
