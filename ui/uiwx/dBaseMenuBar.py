@@ -24,6 +24,12 @@ class FileMenu(dMenu):
 		self.append("Command Window\tCtrl+D", bindfunc=app.onCmdWin, 
 				help="Open up a command window for debugging" )
 		
+		prmpt = "Close Windo&w\tCtrl+W"
+		self.append(prmpt, bindfunc=app.onWinClose,
+				help="Close the current window" )
+
+		self.appendSeparator()
+
 		prmpt = "E&xit\tAlt+F4"
 		if wx.Platform == '__WXMAC__':
 			prmpt = "&Quit\tCtrl+Q"
