@@ -1,6 +1,6 @@
 import wx, warnings
 import dabo
-import dDataControlMixin as dcm
+import dabo.ui.dDataControlMixin as dcm
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 

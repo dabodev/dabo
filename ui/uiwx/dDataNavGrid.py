@@ -10,8 +10,6 @@ import wx, wx.grid
 import urllib
 import dIcons
 import dabo.dException as dException
-import dControlMixin
-import dDataControlMixin
 
 
 class dGridDataTable(wx.grid.PyGridTableBase):

@@ -1,5 +1,5 @@
 import wx
-import dControlMixin as cm
+import dabo.ui.dControlMixin as cm
 
 class dLine(wx.StaticLine, cm.dControlMixin):
 	""" Create a static (not data-aware) line.

@@ -1,11 +1,11 @@
 """ dControlMixin.py: Provide behavior common to all dControls """
 
 import dabo
-import dPemMixin as pm
+import dabo.ui
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
-class dControlMixin(pm.dPemMixin):
+class dControlMixin(dabo.ui.dPemMixin):
 	""" Provide common functionality for all controls.
 	"""
 	def __init__(self, name=None):

@@ -1,6 +1,6 @@
 import wx
 import dabo
-import dDataControlMixin as dcm
+import dabo.ui.dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 

@@ -1,5 +1,5 @@
 import wx, dabo
-import dControlMixin
+import dabo.ui.dControlMixin as dControlMixin
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import dIcons

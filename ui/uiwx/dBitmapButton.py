@@ -1,5 +1,6 @@
 import warnings, wx, dabo
-import dControlMixin as cm
+import dabo.ui.dControlMixin as cm
+import dPemMixin as pm
 from dabo.dLocalize import _
 from dIcons import getIconBitmap
 import dabo.dEvents as dEvents

@@ -1,9 +1,14 @@
+import dabo.ui
 from uiApp import uiApp
 
 uiType = {'shortName': 'tk', 'moduleName': 'uitk', 'longName': 'Tkinter'}
 
 
-# Copied from the uiwx package. Uncomment classes as they get implemented.
+# Import dPemMixin first, and then manually put into dabo.ui module. This is
+# because dControlMixin, which is in dabo.ui, descends from dPemMixin, which 
+# is in dabo.ui.uitk.
+from dPemMixin import dPemMixin
+dabo.ui.dPemMixin = dPemMixin
 
 # Import into public namespace:
 #from dAbout import dAbout

@@ -1,5 +1,6 @@
 import wx, dabo
-import dControlMixin, dPage
+import dabo.ui.dControlMixin as dControlMixin
+import dPage
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 

@@ -1,5 +1,6 @@
 import wx
-import dControlMixin, dPage
+import dabo.ui.dControlMixin as dControlMixin
+import dPage
 import dabo.dEvents as dEvents
 
 

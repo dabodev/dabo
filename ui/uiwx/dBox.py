@@ -1,5 +1,5 @@
 import wx
-import dControlMixin as cm
+import dabo.ui.dControlMixin as cm
 
 class dBox(wx.StaticBox, cm.dControlMixin):
 	""" Create a static (not data-aware) box.

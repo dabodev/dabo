@@ -1,4 +1,5 @@
-import wx, dControlMixin
+import wx
+import dabo.ui.dControlMixin as dControlMixin
 
 class dPanel(wx.Panel, dControlMixin.dControlMixin):
 	""" This is a basic container for controls.
