@@ -100,15 +100,15 @@ class DataNavPage(dPage.dPage):
 			hgap = sz.GetHGap()
 			y2 = y
 			rhts = sz.GetRowHeights()
- 			for hh in rhts:
- 				x2 = x
- 				for ww in sz.GetColWidths():
- 					dc.DrawRectangle(x2, y2, ww, hh)
- 					x2 += ww+hgap
- 				y2 += hh+vgap
- 				clr = random.choice(colors)
- 				dc.SetPen(wx.Pen(clr, 1, wx.SOLID))
- 
+			for hh in rhts:
+				x2 = x
+				for ww in sz.GetColWidths():
+					dc.DrawRectangle(x2, y2, ww, hh)
+					x2 += ww+hgap
+				y2 += hh+vgap
+				clr = random.choice(colors)
+				dc.SetPen(wx.Pen(clr, 1, wx.SOLID))
+
 
 class SelectOptionsPanel(dPanel.dPanel):
 	""" Base class for the select options panel.
@@ -185,11 +185,24 @@ class dSelectPage(DataNavPage):
 				ctrl = self.selectFields[fld]["ctrl"]
 				matchVal = ctrl.Value
 				matchStr = str(matchVal)
+				useStdFormat = True
 				
 				if fldType in ("char", "memo"):
 					if opVal == "Equals":
 						opStr = "="
 						matchStr = biz.escQuote(matchVal)
+					elif opVal == "Matches Words":
+						useStdFormat = False
+						whrMatches = []
+						for word in matchVal.split():
+							mtch = {"field":fld, "value":word}
+							whrMatches.append( biz.getWordMatchFormat() % mtch )
+						if len(whrMatches) > 1:
+							whr = " and ".join(whrMatches)
+						else:
+							whr = whrMatches[0]						
+						
+						print "WHR", whr
 					else:
 						# "Begins With" or "Contains"
 						opStr = "LIKE"
@@ -233,7 +246,8 @@ class dSelectPage(DataNavPage):
 						opStr = "False"
 				
 				# We have the pieces of the clause; assemble them together
-				whr = "%s.%s %s %s" % (biz.DataSource, fld, opStr, matchStr)
+				if useStdFormat:
+					whr = "%s.%s %s %s" % (biz.DataSource, fld, opStr, matchStr)
 				biz.addWhere(whr)
 		return
 
@@ -271,14 +285,18 @@ class dSelectPage(DataNavPage):
 				self.GetParent().SetSelection(1)
 	
 	
-	def getSelectorOptions(self, typ):
-		if typ == "char":
-			chc = ("Equals", 
-					"Begins With",
-					"Contains")
-		elif typ == "memo":
-			chc = ("Begins With",
-					"Contains")
+	def getSelectorOptions(self, typ, ws):
+		if typ in ("char", "memo"):
+			if typ == "char":
+				chcList = ["Equals", 
+						"Begins With",
+						"Contains"]
+			elif typ == "memo":
+				chcList = ["Begins With",
+						"Contains"]
+			if ws != "0":
+				chcList.append("Matches Words")
+			chc = tuple(chcList)
 		elif typ in ("date", "datetime"):
 			chc = ("Equals",
 					"On or Before",
@@ -329,7 +347,7 @@ class dSelectPage(DataNavPage):
 			lbl.Caption = fldInfo["caption"]
 			ctrl = self.getSearchCtrl(fldInfo["type"], panel)
 			
-			opt = self.getSelectorOptions(fldInfo["type"])
+			opt = self.getSelectorOptions(fldInfo["type"], fldInfo["wordSearch"])
 			opList = SelectionOpDropdown(panel, choices=opt)
 			opList.SetSelection(0)
 			opList.setTarget(ctrl)
@@ -612,8 +630,8 @@ class dEditPage(DataNavPage):
 			# If there is a child table, add it
 			for rkey in relationSpecs.keys():
 				rs = relationSpecs[rkey]
-				if rs["parent"].lower() == self.dataSource.lower():
-					child = rs["child"]
+				if rs["source"].lower() == self.dataSource.lower():
+					child = rs["target"]
 					childBiz = self.Form.getBizobj(child)
 					grdLabel = self.addObject(dabo.ui.dLabel, "lblChild" + child)
 					grdLabel.Caption = child.title()

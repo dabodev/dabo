@@ -24,15 +24,16 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def initTable(self):
- 		self.relativeColumns = []
- 		self.colLabels = []
- 		self.colNames = []
- 		self.dataTypes = []
- 		self.imageBaseThumbnails = []
- 		self.imageLists = {}
- 		self.data = []
+		self.relativeColumns = []
+		self.colLabels = []
+		self.colNames = []
+		self.dataTypes = []
+		self.imageBaseThumbnails = []
+		self.imageLists = {}
+		self.data = []
 
 		fs = self.grid.fieldSpecs
+		
 		self.showCols = [ (fld, int(fs[fld]["listOrder"]) ) 
 				for fld in fs.keys() 
 				if fs[fld]["listInclude"] == "1"]
@@ -204,11 +205,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			return wx.grid.GRID_VALUE_STRING
 		else:
 			return wx.grid.GRID_VALUE_STRING
-    
-    
+
 	def GetTypeName(self, row, col):
 		return self.dataTypes[col]
-    
+
 	# Called to determine how the data can be fetched and stored by the
 	# editor and renderer.  This allows you to enforce some type-safety
 	# in the grid.
@@ -226,9 +226,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def MoveColumn(self, col, to):
 		""" Move the column to a new position.
 		"""
-	
- 		old = self.showCols[col]
- 		del self.showCols[col]
+		
+		old = self.showCols[col]
+		del self.showCols[col]
 
 		if to > col:
 			self.showCols.insert(to-1,old)
@@ -371,11 +371,11 @@ class dDataNavGrid(dGrid.dGrid):
 		"""
 		col = evt.GetRowOrCol()
 		width = self.GetColSize(col)
-
+		
 		self.Application.setUserSetting("%s.%s.%s.%s" % (
 						self.Form.Name, 
 						self.Name,
-						"Column%s" % self.GetTable().showCols[col],
+						"Column%s" % self.GetTable().showCols[col][1],
 						"Width"), "I", width)
 		evt.Skip()
 
