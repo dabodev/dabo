@@ -48,6 +48,10 @@ class ReportWriter(object):
 	## defaults). Subclass to change defaults to your needs.
 	default_pageSize = "letter"            # you may want 'a4' outside of the US
 	default_pageOrientation = "portrait"   # the other option is "landscape"
+	default_marginLeft = 36
+	default_marginRight = 36
+	default_marginTop = 36
+	default_marginBottom = 36
 	default_width = 55
 	default_height = 18
 	default_x = 0
@@ -477,6 +481,42 @@ class ReportWriter(object):
 		func = eval("pagesizes.%s" % orientation)
 		return func(pageSize)
 
+	
+	def _getEmptyForm(self):
+		"""Returns a report form with the minimal number of elements.
+
+		Defaults will be filled in. Used by the report designer.
+		"""
+		title = ""
+
+		page = {}
+		page["size"] = '"%s"' % self.default_pageSize
+		page["orientation"] = '"%s"' % self.default_pageOrientation
+		page["marginLeft"] = '"%s"' % self.default_marginLeft
+		page["marginRight"] = '"%s"' % self.default_marginRight
+		page["marginTop"] = '"%s"' % self.default_marginTop
+		page["marginBottom"] = '"%s"' % self.default_marginBottom
+
+		pageHeader = {"height": '"%s"' % self.default_bandHeight}
+		
+		detail = {"height": '"%s"' % self.default_bandHeight}
+		pageFooter = {"height": '"%s"' % self.default_bandHeight}
+		pageBackground = {}
+		pageForeground = {}
+
+		return {"title": title, "page": page, "pageHeader": pageHeader,
+		        "detail": detail, "pageFooter": pageFooter, 
+		        "pageBackground": pageBackground, "pageForeground": pageForeground}
+
+
+	def _isModified(self):
+		"""Returns True if the report form definition has been modified.
+
+		Used by the report designer.
+		"""
+		return not (self.ReportForm is None 
+		            or self.ReportForm == self._reportFormMemento)
+
 
 	def _getXMLFromForm(self, form):
 		"""Returns a valid rfxml string from a report form dict."""
@@ -701,6 +741,10 @@ class ReportWriter(object):
 		
 	def _setReportForm(self, val):
 		self._reportForm = val
+		if val is None:
+			self._reportFormMemento = None
+		else:
+			self._reportFormMemento = val.copy()
 		self._reportFormXML = None
 		self._reportFormFile = None
 		
@@ -716,6 +760,13 @@ class ReportWriter(object):
 		return v
 		
 	def _setReportFormFile(self, val):
+		if val is None:
+			self._reportFormFile = None
+			self._reportFormMemento = None
+			self._reportFormXML = None
+			self._reportForm = None
+			return
+
 		if os.path.exists(val):
 			ext = os.path.splitext(val)[1] 
 			if ext == ".py":
@@ -725,12 +776,14 @@ class ReportWriter(object):
 				exec("import %s as form" % s[1].split(".")[0])
 				sys.path.pop()
 				self._reportForm = form.report
+				self._reportFormMemento = self._reportForm.copy()
 				self._reportFormXML = None
 					
 			elif ext == ".rfxml":
 				# The file is a report form xml file. Open it and set ReportFormXML:
 				self._reportFormXML = open(val, "r").read()
 				self._reportForm = self._getFormFromXML(self._reportFormXML)
+				self._reportFormMemento = self._reportForm.copy()
 			else:
 				raise ValueError, "Invalid file type."
 			self._reportFormFile = val
@@ -752,6 +805,7 @@ class ReportWriter(object):
 		self._reportFormXML = val
 		self._reportFormFile = None
 		self._reportForm = self._getFormFromXML(self._reportFormXML)
+		self._reportFormMemento = self._reportForm.copy()
 		
 	ReportFormXML = property(_getReportFormXML, _setReportFormXML, None,
 		"""Specifies the report format xml.""")
