@@ -8,14 +8,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		# no 3-stage create for grids
 		#pre = wx.PreGrid()
-		self._beforeInit(None)                  # defined in dPemMixin
+		self._beforeInit(None)
 
 		wx.grid.Grid.__init__(self, parent, id, name=name, style=style, *args, **kwargs)
 		#pre.Create(parent, id, name, style=style | pre.GetWindowStyle(), *args, **kwargs)
 		#self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)
-		self._afterInit()                      # defined in dPemMixin
+		
+		# The grid's default MinSize is pretty big, resulting in weird sizer issues
+		# starting with wxPython 2.5.2.3. Setting size to 0 here resolves the
+		# problem (because there is code in the Size property to also set MinSize).
+		self.Size = ((0,0))
+		
+		self._afterInit()
 
 		
 	def _getDataSource(self):
