@@ -31,7 +31,7 @@ class dPageFrameDataNav(pgf.dPageFrame):
 
 		bizobj = self.Parent.getBizobj()
 		for child in bizobj.getChildren():
-			self.AddPage(pag.dChildViewPage(self), child.Caption, imageId=3)
+			self.AddPage(pag.dChildViewPage(self, child.DataSource), child.Caption, imageId=3)
 			
 		self.GetPage(0).onEnterPage()
 

@@ -149,7 +149,8 @@ class dFormDataNav(frm.dForm):
 
 			### The intent is for the Navigation menu to be positioned before
 			### the Help menu, but it isn't working. No matter what I set for
-			### menuIndex, the nav menu always appears at the end.
+			### menuIndex, the nav menu always appears at the end on Linux, but
+			### appears correctly on Mac and Win.
 			mb.Insert(menuIndex, self.getMenu(), "&Navigation")
 
 
@@ -183,7 +184,7 @@ class dFormDataNav(frm.dForm):
 
 		
 	def onEditCurrentRecord(self, event):
-		''' Occurs when the user chooses to edit the current record.
+		''' Occurs when the user chooses to edits the current record.
 		'''
 		self.pageFrame.SetSelection(2)
 

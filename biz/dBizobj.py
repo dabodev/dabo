@@ -564,11 +564,12 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	def getPK(self):
 		""" Returns the value of the PK field """
 		return self._cursor.getFieldVal(self.KeyField)
-
+	
 
 	def getParentPK(self):
 		""" Returns the value of the parent bizobjs' PK. """
-		return self._parent.getPK()
+		print self.Parent, self.Parent.KeyField
+		return self.Parent.getPK()
 
 
 	def getFieldVal(self, fld):
