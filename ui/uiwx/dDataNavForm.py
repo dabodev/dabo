@@ -207,7 +207,9 @@ class dDataNavForm(dForm.dForm):
 		subclasses and overriding self.beforeSetupPageFrame(), 
 		self.setupPageFrame, and/or self.afterSetupPageFrame().
 		"""
+		currPage = 0
 		try:
+			currPage = self.pageFrame.GetSelection()
 			self.pageFrame.Destroy()
 			chld = self.GetSizer().GetChildren()
 			for c in chld:
@@ -222,34 +224,35 @@ class dDataNavForm(dForm.dForm):
 			nbSizer = wx.NotebookSizer(self.pageFrame)
 			self.GetSizer().Add(nbSizer, 1, wx.EXPAND)
 			self.GetSizer().Layout()
+			self.pageFrame.SetSelection(currPage)
 			self.afterSetupPageFrame()
 			self.Thaw()
 			
 	def beforeSetupPageFrame(self): return True
 	def afterSetupPageFrame(self): pass
 
-	def onSetSelectionCriteria(self, evt):
+	def onSetSelectionCriteria(self, event):
 		""" Occurs when the user chooses to set the selection criteria.
 		"""
 		self.pageFrame.SetSelection(0)
 
 		
-	def onBrowseRecords(self, evt):
+	def onBrowseRecords(self, event):
 		""" Occurs when the user chooses to browse the record set.
 		"""
 		self.pageFrame.SetSelection(1)
 
 		
-	def onEditCurrentRecord(self, evt):
+	def onEditCurrentRecord(self, event):
 		""" Occurs when the user chooses to edits the current record.
 		"""
 		self.pageFrame.SetSelection(2)
 
 
-	def onChildView(self, evt):
+	def onChildView(self, event):
 		""" Occurs when the user chooses to edit a child view page.
 		"""
-		evtId = evt.GetId()
+		evtId = event.GetId()
 		page=3
 		for child in self.childViews:
 			if child['menuId'] == evtId:
@@ -409,7 +412,7 @@ class dDataNavForm(dForm.dForm):
 		self._childBehavior[dataSource] = cb
 	
 	
-	def onGotFocus(self, evt):
+	def onGotFocus(self, event):
 		""" Occurs when the form receives the focus.
 
 		For dDataNavForm, the toolbar and menu need to be set up.
@@ -417,9 +420,10 @@ class dDataNavForm(dForm.dForm):
 		if isinstance(self, wx.MDIChildFrame):
 			self.setupToolBar()
 			self.setupMenu()
+		event.Skip()
 
 
-	def onRequery(self, evt):
+	def onRequery(self, event):
 		""" Override the dForm behavior by running the requery through the select page.
 		"""
 		self.pageFrame.GetPage(0).requery()
