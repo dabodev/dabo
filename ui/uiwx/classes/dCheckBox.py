@@ -44,9 +44,10 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
 
     def _setAlignment(self, value):
         self.delWindowStyleFlag(wx.ALIGN_RIGHT)
-        if value == 'Right':
+        if str(value) == 'Right':
             self.addWindowStyleFlag(wx.ALIGN_RIGHT)
-    
+        else:
+            raise ValueError, "The only possible values are 'Left' and 'Right'."
         
     # property definitions follow:
     Alignment = property(_getAlignment, _setAlignment, None,

@@ -123,8 +123,12 @@ class dPemMixin(object):
         if type(propRef) == property:
             d = {}
             d['name'] = name
-            
-            d['showInDesigner'] = True
+
+            # Hide some props in the designer:
+            d['showInDesigner'] = not name in ('Size', 'Position', 'WindowHandle')
+
+            # Some props need to be initialized early. Let the designer know:
+            d['preInitProperty'] = name in ('Alignment', 'BorderStyle', 'PasswordEntry')
             
             if propRef.fget:
                 d['showValueInDesigner'] = True
@@ -228,14 +232,14 @@ class dPemMixin(object):
         return self._pemObject.Font.GetFaceName()
     def _setFontFace(self, fontFace):
         font = self._pemObject.Font
-        font.SetFaceName(fontFace)
+        font.SetFaceName(unicode(fontFace))
         self._pemObject.Font = font
 
     def _getFontSize(self):
         return self._pemObject.Font.GetPointSize()
     def _setFontSize(self, fontSize):
         font = self._pemObject.Font
-        font.SetPointSize(fontSize)
+        font.SetPointSize(int(fontSize))
         self._pemObject.Font = font
 
     def _getFontUnderline(self):
@@ -243,48 +247,60 @@ class dPemMixin(object):
     def _setFontUnderline(self, val):
         # underlining doesn't seem to be working...
         font = self._pemObject.Font
-        font.SetUnderlined(val)
+        font.SetUnderlined(bool(val))
         self._pemObject.Font = font
 
 
     def _getTop(self):
         return self._pemObject.GetPosition()[1]
     def _setTop(self, top):
-        self.SetPosition((self._pemObject.Left, top))
+        self.SetPosition((self._pemObject.Left, int(top)))
 
     def _getLeft(self):
         return self._pemObject.GetPosition()[0]
     def _setLeft(self, left):
-        self._pemObject.SetPosition((left, self._pemObject.Top))
+        self._pemObject.SetPosition((int(left), self._pemObject.Top))
 
     def _getPosition(self):
         return self._pemObject.GetPosition()
+    
     def _setPosition(self, position):
         self._pemObject.SetPosition(position)
 
     def _getBottom(self):
         return self._pemObject.Top + self._pemObject.Height
     def _setBottom(self, bottom):
-        self._pemObject.Top = bottom - self._pemObject.Height
+        self._pemObject.Top = int(bottom) - self._pemObject.Height
 
     def _getRight(self):
         return self._pemObject.Left + self._pemObject.Width
     def _setRight(self, right):
-        self._pemObject.Left = right - self._pemObject.Width
+        self._pemObject.Left = int(right) - self._pemObject.Width
 
 
     def _getWidth(self):
         return self._pemObject.GetSize()[0]
+    
+    def _getWidthEditorInfo(self):
+        return {'editor': 'integer', 'min': 0, 'max': 8192}
+    
     def _setWidth(self, width):
-        self.SetSize((width, self._pemObject.Height))
+        self.SetSize((int(width), self._pemObject.Height))
 
+        
     def _getHeight(self):
         return self._pemObject.GetSize()[1]
+    
+    def _getHeightEditorInfo(self):
+        return {'editor': 'integer', 'min': 0, 'max': 8192}
+    
     def _setHeight(self, height):
-        self.SetSize((self._pemObject.Width, height))
+        self.SetSize((self._pemObject.Width, int(height)))
 
+        
     def _getSize(self): 
         return self._pemObject.GetSize()
+    
     def _setSize(self, size):
         self._pemObject.SetSize(size)
 
@@ -295,17 +311,17 @@ class dPemMixin(object):
         return name
     def _setName(self, name):
         self._name = name      # keeps name available even after C++ object is gone.
-        self._pemObject.SetName(name)
+        self._pemObject.SetName(str(name))
 
 
     def _getCaption(self):
         return self._pemObject.GetLabel()
     def _setCaption(self, caption):
-        self._pemObject.SetLabel(caption)
+        self._pemObject.SetLabel(str(caption))
         
         # Frames have a Title separate from Label, but I can't think
         # of a reason why that would be necessary... can you? 
-        self._pemObject.SetTitle(caption)
+        self._pemObject.SetTitle(str(caption))
 
         
     def _getEnabled(self):
@@ -316,13 +332,22 @@ class dPemMixin(object):
 
     def _getBackColor(self):
         return self._pemObject.GetBackgroundColour()
+    
+    def _getForeColorEditorInfo(self):
+        return {'editor': 'color'}
+    
     def _setBackColor(self, value):
         self._pemObject.SetBackgroundColour(value)
 
+    
     def _getForeColor(self):
         return self._pemObject.GetForegroundColour()
+    
+    def _getForeColorEditorInfo(self):
+        return {'editor': 'color'}
+        
     def _setForeColor(self, value):
-        self._pemObject.GetForegroundColour(value)
+        self._pemObject.SetForegroundColour(value)
 
 
     def _getMousePointer(self):
@@ -337,25 +362,29 @@ class dPemMixin(object):
             return t.GetTip()
         else:
             return ''
+            
+    def _getToolTipTextEditorInfo(self):
+        return {'editor': 'string', 'len': 8192}
+        
     def _setToolTipText(self, value):
         t = self._pemObject.GetToolTip()
         if t:
             t.SetTip(value)
         else:
-            t = wx.ToolTip(value)
+            t = wx.ToolTip(str(value))
             self._pemObject.SetToolTip(t)
 
 
     def _getHelpContextText(self):
         return self._pemObject.GetHelpText()
     def _setHelpContextText(self, value):
-        self._pemObject.SetHelpText(value)
+        self._pemObject.SetHelpText(str(value))
 
 
     def _getVisible(self):
         return self._pemObject.IsShown()
     def _setVisible(self, value):
-        self._pemObject.Show(value)
+        self._pemObject.Show(bool(value))
 
     def _getParent(self):
         return self._pemObject.GetParent()
@@ -386,6 +415,8 @@ class dPemMixin(object):
         self.delWindowStyleFlag(wx.SUNKEN_BORDER)
         self.delWindowStyleFlag(wx.RAISED_BORDER)
 
+        style = str(style)
+        
         if style == 'None':
             self.addWindowStyleFlag(wx.NO_BORDER)
         elif style == 'Simple':
@@ -394,6 +425,9 @@ class dPemMixin(object):
             self.addWindowStyleFlag(wx.SUNKEN_BORDER)
         elif style == 'Raised':
             self.addWindowStyleFlag(wx.RAISED_BORDER)
+        else:
+            raise ValueError, ("The only possible values are 'None', "
+                            "'Simple', 'Sunken', and 'Raised.'")
 
 
     # Property definitions follow

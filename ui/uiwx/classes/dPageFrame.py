@@ -58,12 +58,12 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
         return {'editor': 'list', 'values': ['Top', 'Left', 'Right', 'Bottom']}
     
     def _setTabPosition(self, value):
-        # First remove any existing flags:
+        value = str(value)
+        
         self.delWindowStyleFlag(wx.NB_BOTTOM)
         self.delWindowStyleFlag(wx.NB_RIGHT)
         self.delWindowStyleFlag(wx.NB_LEFT)
         
-        # And then set the appropriate flag:
         if value == 'Top':
             pass
         elif value == 'Left':
@@ -72,6 +72,9 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
             self.addWindowStyleFlag(wx.NB_RIGHT)
         elif value == 'Bottom':
             self.addWindowStyleFlag(wx.NB_BOTTOM)
+        else:
+            raise ValueError, ("The only possible values are "
+                        "'Top', 'Left', 'Right', and 'Bottom'")
     
     # Property definitions:
     TabPosition = property(_getTabPosition, _setTabPosition, None, 

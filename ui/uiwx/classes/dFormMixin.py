@@ -181,58 +181,51 @@ class dFormMixin(pm.dPemMixin):
     def _getBorderResizable(self):
         return self.hasWindowStyleFlag(wx.RESIZE_BORDER)
     def _setBorderResizable(self, value):
+        self.delWindowStyleFlag(wx.RESIZE_BORDER)
         if value:
             self.addWindowStyleFlag(wx.RESIZE_BORDER)
-        else:
-            self.delWindowStyleFlag(wx.RESIZE_BORDER)
     
     def _getShowMaxButton(self):
         return self.hasWindowStyleFlag(wx.MAXIMIZE_BOX)
     def _setShowMaxButton(self, value):
+        self.delWindowStyleFlag(wx.MAXIMIZE_BOX)
         if value:
             self.addWindowStyleFlag(wx.MAXIMIZE_BOX)
-        else:
-            self.delWindowStyleFlag(wx.MAXIMIZE_BOX)
     
     def _getShowMinButton(self):
         return self.hasWindowStyleFlag(wx.MINIMIZE_BOX)
     def _setShowMinButton(self, value):
+        self.delWindowStyleFlag(wx.MINIMIZE_BOX)
         if value:
             self.addWindowStyleFlag(wx.MINIMIZE_BOX)
-        else:
-            self.delWindowStyleFlag(wx.MINIMIZE_BOX)
     
     def _getShowCloseButton(self):
         return self.hasWindowStyleFlag(wx.CLOSE_BOX)
     def _setShowCloseButton(self, value):
+        self.delWindowStyleFlag(wx.CLOSE_BOX)
         if value:
             self.addWindowStyleFlag(wx.CLOSE_BOX)
-        else:
-            self.delWindowStyleFlag(wx.CLOSE_BOX)
     
     def _getShowCaption(self):
         return self.hasWindowStyleFlag(wx.CAPTION)
     def _setShowCaption(self, value):
+        self.delWindowStyleFlag(wx.CAPTION)
         if value:
             self.addWindowStyleFlag(wx.CAPTION)
-        else:
-            self.delWindowStyleFlag(wx.CAPTION)
     
     def _getShowSystemMenu(self):
         return self.hasWindowStyleFlag(wx.SYSTEM_MENU)
     def _setShowSystemMenu(self, value):
+        self.delWindowStyleFlag(wx.SYSTEM_MENU)
         if value:
             self.addWindowStyleFlag(wx.SYSTEM_MENU)
-        else:
-            self.delWindowStyleFlag(wx.SYSTEM_MENU)
     
     def _getTinyTitleBar(self):
         return self.hasWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
     def _setTinyTitleBar(self, value):
+        self.delWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
         if value:
             self.addWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
-        else:
-            self.delWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
     
     def _getWindowState(self):
         try:
@@ -252,6 +245,7 @@ class dFormMixin(pm.dPemMixin):
         return {'editor': 'list', 'values': ['Normal', 'Minimized', 'Maximized', 'FullScreen']}
     
     def _setWindowState(self, value):
+        value = str(value)
         if value == 'Normal':
             if self.IsFullScreen():
                 self.ShowFullScreen(False)
@@ -268,6 +262,9 @@ class dFormMixin(pm.dPemMixin):
             self.Maximize()
         elif value == 'FullScreen':
             self.ShowFullScreen()
+        else:
+            raise ValueError, ("The only possible values are "
+                            "'Normal', 'Minimized', 'Maximized', and 'FullScreen'")
             
     # property definitions follow:
     Icon = property(_getIcon, _setIcon, None, 'Specifies the icon for the form. (wxIcon)')

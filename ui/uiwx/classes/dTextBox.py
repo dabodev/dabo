@@ -71,7 +71,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
     def _getReadOnly(self):
         return not self._pemObject.IsEditable()
     def _setReadOnly(self, value):
-        self._pemObject.SetEditable(not value)
+        self._pemObject.SetEditable(not bool(value))
 
     def _getPasswordEntry(self):
         return self.hasWindowStyleFlag(wx.TE_PASSWORD)

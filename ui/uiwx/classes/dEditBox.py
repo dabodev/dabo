@@ -58,12 +58,17 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
         self.delWindowStyleFlag(wx.TE_CENTRE)
         self.delWindowStyleFlag(wx.TE_RIGHT)
         
+        value = str(value)
+        
         if value == 'Left':
             self.addWindowStyleFlag(wx.TE_LEFT)
         elif value == 'Center':
             self.addWindowStyleFlag(wx.TE_CENTRE)
         elif value == 'Right':
             self.addWindowStyleFlag(wx.TE_RIGHT)
+        else:
+            raise ValueError, ("The only possible values are "
+                            "'Left', 'Center', and 'Right'.")
     
     def _getReadOnly(self):
         return not self._pemObject.IsEditable()

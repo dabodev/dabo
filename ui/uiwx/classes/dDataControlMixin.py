@@ -128,7 +128,7 @@ class dDataControlMixin(pm.dPemMixin):
         except AttributeError:
             return False
     def _setSelectOnEntry(self, value):
-        self._SelectOnEntry = value
+        self._SelectOnEntry = bool(value)
         
     def _getDataSource(self):
         try:
@@ -136,7 +136,7 @@ class dDataControlMixin(pm.dPemMixin):
         except AttributeError:
             return ''
     def _setDataSource(self, value):
-        self._DataSource = value
+        self._DataSource = str(value)
         
     def _getDataField(self):
         try:
@@ -144,7 +144,7 @@ class dDataControlMixin(pm.dPemMixin):
         except AttributeError:
             return ''
     def _setDataField(self, value):
-        self._DataField = value            
+        self._DataField = str(value)
 
     def _getValue(self):
         return self.GetValue()
@@ -159,4 +159,4 @@ class dDataControlMixin(pm.dPemMixin):
     DataField = property(_getDataField, _setDataField, None,
                          'Specifies the data field of the dataset to use as the source of data. (str)')
     Value = property(_getValue, _setValue, None,
-                        'Specifies the current state of the control (the value of the field).')
+                        'Specifies the current state of the control (the value of the field). (varies)')

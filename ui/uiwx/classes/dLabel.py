@@ -48,12 +48,18 @@ class dLabel(wx.StaticText, cm.dControlMixin):
         self.delWindowStyleFlag(wx.ALIGN_LEFT)
         self.delWindowStyleFlag(wx.ALIGN_CENTRE)
         self.delWindowStyleFlag(wx.ALIGN_RIGHT)
+        
+        value = str(value)
+        
         if value == 'Left':
             self.addWindowStyleFlag(wx.ALIGN_LEFT)
         elif value == 'Center':
             self.addWindowStyleFlag(wx.ALIGN_CENTRE)
         elif value == 'Right':
             self.addWindowStyleFlag(wx.ALIGN_RIGHT)
+        else:
+            raise ValueError, ("The only possible values are "
+                            "'Left', 'Center', and 'Right'.")
     
     # property definitions follow:
     AutoResize = property(_getAutoResize, _setAutoResize, None,

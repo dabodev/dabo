@@ -59,25 +59,23 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
     def _getSpinnerWrap(self):
         return self.hasWindowStyleFlag(wx.SP_WRAP)
     def _setSpinnerWrap(self, value):
+        self.delWindowStyleFlag(wx.SP_WRAP)
         if value:
             self.addWindowStyleFlag(wx.SP_WRAP)
-        else:
-            self.delWindowStyleFlag(wx.SP_WRAP)
     
     def _getSpinnerArrowKeys(self):
         return self.hasWindowStyleFlag(wx.SP_ARROW_KEYS)
     def _setSpinnerArrowKeys(self, value):
+        self.delWindowStyleFlag(wx.SP_ARROW_KEYS)
         if value:
             self.addWindowStyleFlag(wx.SP_ARROW_KEYS)
-        else:
-            self.delWindowStyleFlag(wx.SP_ARROW_KEYS)
     
     # Property definitions:
     SpinnerLowValue = property(_getSpinnerLowValue, _setSpinnerLowValue, None, 
-                        'Specifies the lowest possible value for the spinner.')
+                        'Specifies the lowest possible value for the spinner. (int)')
     
     SpinnerHighValue = property(_getSpinnerHighValue, _setSpinnerHighValue, None, 
-                        'Specifies the highest possible value for the spinner.')
+                        'Specifies the highest possible value for the spinner. (int)')
 
     SpinnerWrap = property(_getSpinnerWrap, _setSpinnerWrap, None,
                         'Specifies whether the spinner value wraps at the high/low value. (bool)')
