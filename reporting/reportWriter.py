@@ -18,46 +18,85 @@ import reportlab.lib.units as units
 import samplespec as form
 
 
+def getPt(val):
+	"""Given a string or a number, convert the value into a numeric pt value.
+
+	Strings can have the unit appended, like "3.5 in", "2 cm", "3 pica", "10 mm".
+
+	> print getPt("1 in")
+	72
+	> print getPt("1")
+	1
+	> print getPt(1)
+	1
+	"""
+	if type(val) in (int, long, float):
+		# return as-is as the pt value.
+		return val
+	else:
+		# try to run it through reportlab's units.toLength() function:
+		return units.toLength(val)
+
+
 #data = sys.argv[2]
 data = [{"cArtist": "The Clash", "iid": 1},
         {"cArtist": "Queen", "iid": 2},
         {"cArtist": "Ben Harper and the Innocent Criminals", "iid":3}]
 
+# The report dict contains information about the running report:
+report = {}
+report["bands"] = {}
+
+
 # Draw a dotted rectangle around each band:
 showBands = True
 
-
+## Set the Page Size:
+# get the string pageSize value from the spec file:
 pageSize = eval(form.Page["size"])
-if pageSize == "letter":
-	pageSize = pagesizes.letter
-elif pageSize == "a4":
-	pageSize = pagesizes.a4
-
-
-c = canvas.Canvas("test.pdf", pagesize=pageSize)
+# reportlab expects the pageSize to be upper case:
+pageSize = pageSize.upper()
+# convert to the reportlab pageSize value (tuple(width,height)):
+pageSize = eval("pagesizes.%s" % pageSize)
+# run it through the portrait/landscape filter:
+try:
+	orientation = eval(form.Page["orientation"])
+except KeyError:
+	orientation = "portrait"
+func = eval("pagesizes.%s" % orientation)
+pageSize = func(pageSize)
 pageWidth, pageHeight = pageSize
+print "Page Size:", pageSize
+## end Page Size setting (refactor to a separate function)
 
-print "pageWidth, pageHeight:", pageWidth, pageHeight
+
+# Create the report canvas:
+c = canvas.Canvas("test.pdf", pagesize=pageSize)
 
 
-ml = units.toLength(eval(form.Page["margin"]["left"]))
-mt = units.toLength(eval(form.Page["margin"]["top"]))
-mr = units.toLength(eval(form.Page["margin"]["right"]))
-mb = units.toLength(eval(form.Page["margin"]["bottom"]))
+# Set the page margins:
+ml = getPt(eval(form.Page["marginLeft"]))
+mt = getPt(eval(form.Page["marginTop"]))
+mr = getPt(eval(form.Page["marginRight"]))
+mb = getPt(eval(form.Page["marginBottom"]))
 
+
+# Page header/footer origins are needed in various places:
 pageHeaderOrigin = (ml, pageHeight - mt 
-                    - units.toLength(eval(form.PageHeader["height"])))
+                    - getPt(eval(form.PageHeader["height"])))
 pageFooterOrigin = (ml, mb)
+
 
 def printBandOutline(band, x, y, width, height):
 		## draw a dotted rectangle around the entire band, and type a small faded 
 		## caption at the origin of the band.
 		c.saveState()
 		c.setLineWidth(0.1)
-		c.setStrokeColorRGB(0.2,0.5,0.3)
-		c.setDash(1,2)
-		c.rect(x,y,width,height)
+		c.setStrokeColorRGB(0.8, 0.5, 0.7)
+		c.setDash(1, 2)
+		c.rect(x, y, width, height)
 		c.setFont("Helvetica", 8)
+		c.setFillColor((0.6, 0.8, 0.7))
 		c.drawString(x, y, band)
 		c.restoreState()
 
@@ -65,12 +104,12 @@ def draw(object, x, y):
 	c.saveState()
 
 	try: 
-		width = units.toLength(eval(object["width"]))
+		width = getPt(eval(object["width"]))
 	except (KeyError, TypeError, ValueError): 
 		width = 25
 
 	try: 
-		height = units.toLength(eval(object["height"]))
+		height = getPt(eval(object["height"]))
 	except (KeyError, TypeError, ValueError): 
 		height = 25
 
@@ -78,6 +117,26 @@ def draw(object, x, y):
 		rotation = eval(object["rotation"])
 	except KeyError:
 		rotation = 0
+
+	try:
+		hAnchor = eval(object["hAnchor"])
+	except:
+		hAnchor = "left"
+
+	try:
+		vAnchor = eval(object["vAnchor"])
+	except:
+		vAnchor = "bottom"
+
+	if hAnchor == "right":
+		x = x - width
+	elif hAnchor == "center":
+		x = x - (width / 2)
+	
+	if vAnchor == "top":
+		y = y - height
+	elif vAnchor == "center":
+		y = y - (height / 2)
 
 	if object["type"] == "rect":
 		d = shapes.Drawing(width, height)
@@ -99,7 +158,7 @@ def draw(object, x, y):
 		##
 
 		try:
-			props["strokeWidth"] = units.toLength(eval(object["strokeWidth"]))
+			props["strokeWidth"] = getPt(eval(object["strokeWidth"]))
 		except KeyError: 
 			props["strokeWidth"] = 1
 
@@ -127,7 +186,7 @@ def draw(object, x, y):
 		c.translate(x, y)
 		c.rotate(rotation)
 		try: 
-			borderWidth = units.toLength(eval(object["borderWidth"]))
+			borderWidth = getPt(eval(object["borderWidth"]))
 		except KeyError: 
 			borderWidth = 0
 
@@ -191,23 +250,30 @@ def draw(object, x, y):
 
 # Print the static bands (Page Header/Footer, Watermark):
 for band in ("PageBackground", "PageHeader", "PageFooter"):
+	report["bands"][band] = {}
 	bandDict = eval("form.%s" % band)
 
-	if showBands:
-		x = ml
-		if band == "PageHeader":
-			y = pageHeaderOrigin[1]
-		elif band == "PageFooter":
-			y = pageFooterOrigin[1]
-		elif band == "PageBackground":
-			x,y = 0,1
+	# Find out geometry of the band and fill into report["bands"][band]
+	x = ml
+	if band == "PageHeader":
+		y = pageHeaderOrigin[1]
+	elif band == "PageFooter":
+		y = pageFooterOrigin[1]
+	elif band == "PageBackground":
+		x,y = 0,1
 	
-		if band == "PageBackground":
-			width, height = pageWidth-1, pageHeight-1
-		else:
-			width = pageWidth - ml - mr
-			height = units.toLength(eval(bandDict["height"]))
+	if band == "PageBackground":
+		width, height = pageWidth-1, pageHeight-1
+	else:
+		width = pageWidth - ml - mr
+		height = getPt(eval(bandDict["height"]))
 
+	report["bands"][band]["x"] = x
+	report["bands"][band]["y"] = y
+	report["bands"][band]["width"] = width
+	report["bands"][band]["height"] = height
+
+	if showBands:
 		printBandOutline(band, x, y, width, height)
 
 	for object in bandDict["objects"]:
@@ -219,8 +285,8 @@ for band in ("PageBackground", "PageHeader", "PageFooter"):
 		elif bandDict == form.PageBackground:
 			origin = (0,1)
 
-		x = units.toLength(eval(object["x"])) + origin[0]
-		y = origin[1] + units.toLength(eval(object["y"]))
+		x = getPt(eval(object["x"])) + origin[0]
+		y = origin[1] + getPt(eval(object["y"]))
 
 		draw(object, x, y)
 
@@ -233,15 +299,15 @@ for record in data:
 	for band in ("Detail",):
 		bandDict = eval("form.%s" % band)
 		x = ml
-		y = y - units.toLength(eval(bandDict["height"]))
+		y = y - getPt(eval(bandDict["height"]))
 		width = pageWidth - ml - mr
-		height = units.toLength(eval(bandDict["height"]))
+		height = getPt(eval(bandDict["height"]))
 
 		if showBands:
 			printBandOutline("%s (record %s)" % (band, recno), x, y, width, height)
 		for object in bandDict["objects"]:
-			x = ml + units.toLength(eval(object["x"]))
-			y1 = y + units.toLength(eval(object["y"]))
+			x = ml + getPt(eval(object["x"]))
+			y1 = y + getPt(eval(object["y"]))
 			draw(object, x, y1)
 				
 		recno += 1

@@ -8,12 +8,12 @@ as text boxes, rectangles, and lines.
 Most values are expressions to be evaluated at runtime (ie they are dynamic).
 """
 
-Page = {"size": ''' "letter" ''',
-        "orientation": ''' "portrait" ''',
-        "margin": {"left": ''' ".5 in" ''',
-                   "right": ''' ".5 in" ''',
-                   "top": ''' ".5 in" ''',
-                   "bottom": ''' ".5 in" '''},
+Page = {"size": ''' "legal" ''',
+        "orientation": ''' "landscape" ''',
+        "marginLeft": ''' ".5 in" ''',
+        "marginRight": ''' ".5 in" ''',
+        "marginTop": ''' ".5 in" ''',
+        "marginBottom": ''' ".5 in" ''',
 }
 
 
@@ -60,8 +60,9 @@ PageHeader = {"height": ''' "0.5 in" ''',
 PageFooter = {"height": ''' "1.25 in" ''',
               "objects": [{"type": "image",
                            "expr": ''' "../icons/dabo_lettering_100x40.png" ''',
-                           "x": ''' "6.75 in" ''',
-                           "y": ''' "1 pt" ''',
+                           "x": ''' report["bands"]["PageFooter"]["width"]-1 ''',
+                           "y": ''' "1" ''',
+                           "hAnchor": ''' "right" ''',
                            "width": ''' "50 pt" ''',
                            "height": ''' "20 pt" ''',
                            "mask": ''' None ''',
