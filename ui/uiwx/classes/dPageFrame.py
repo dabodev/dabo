@@ -18,13 +18,13 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 		
 		dControlMixin.dControlMixin.__init__(self, name)
 		
+		self.lastSelection = 0
 		self.PageCount = 3
 		
 		self._afterInit()                      # defined in dPemMixin
 		
 	
 	def afterInit(self):
-		self.lastSelection = 0
 		dPageFrame.doDefault()
 
 
@@ -34,7 +34,6 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 
 
 	def OnPageChanged(self, event):
-		ls = self.lastSelection
 		cs = event.GetSelection()
 
 		event.Skip()    # This must happen before onLeave/EnterPage below
