@@ -45,7 +45,7 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 		# Make sure the PageEnter fires for the current page on 
 		# pageframe instantiation, as this doesn't happen automatically.
 		# Putting this code in afterInit() results in a segfault on Linux, btw.
-		self._pageChanged(self.GetSelection(), None)
+		wx.CallAfter(self._pageChanged, 0, None)
 		
 				
 	def _onPageChanged(self, evt):
@@ -60,8 +60,7 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 		
 	def _pageChanged(self, newPageNum, oldPageNum):		
 		self._lastPage = newPageNum
-		
-		if newPageNum >= 0:
+		if newPageNum >= 0 and self.PageCount > newPageNum:
 			self.GetPage(newPageNum).raiseEvent(dEvents.PageEnter)
 		if oldPageNum is not None:
 			if oldPageNum >=0:
