@@ -1116,10 +1116,6 @@ class dCursorMixin:
 	def addWhere(self, exp, comp="and"):
 		""" Add an expression to the where clause.
 		"""
-		
-		print "ADD WHERE", exp
-		
-		
 		if self.BackendObject:
 			self._whereClause = self.BackendObject.addWhere(self._whereClause, exp, comp)
 
@@ -1239,11 +1235,6 @@ class dCursorMixin:
 		return ret
 
 	def executeSQL(self, *args, **kwargs):
-	
-		print "*"*88
-		print self.createSQL()
-		print "*"*88
-		
 		self.execute(self.createSQL(), *args, **kwargs)
 	###     end - SQL Builder methods     ########
 
