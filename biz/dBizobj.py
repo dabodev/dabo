@@ -27,7 +27,7 @@ class dBizobj(dabo.common.dObject):
 		self.__cursors = {}		# Collection of cursor objects. MUST be defined first.
 		self.__currentCursorKey = None
 		self._conn = conn
-		self.__params = None		# tuple of params to be merged with the sql in the cursor
+		self.__params = ()		# tuple of params to be merged with the sql in the cursor
 		self.__children = []		# Collection of child bizobjs
 		self._baseClass = dBizobj
 		self.__areThereAnyChanges = False	# Used by the isChanged() method.

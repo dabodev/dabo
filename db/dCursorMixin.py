@@ -99,7 +99,10 @@ class dCursorMixin:
 		many cursor classes can only return row information as a list, not as a dictionary. This
 		method will detect that, and convert the results to a dictionary.
 		"""
-		res = self.superCursor.execute(self, sql, params)
+		if params is None or len(params) == 0:
+			res = self.superCursor.execute(self, sql)
+		else:
+			res = self.superCursor.execute(self, sql, params)
 		self._records = self.fetchall()
 
 		if self._records:

@@ -77,6 +77,9 @@ class dBackend(dabo.common.dObject):
 		
 		See dCursorMixin.getFields() for a description of the return value.			
 		"""
+		# It is too bad, but dbapi2.0's cursor().description doesn't cut it.
+		# It will give the field names, but the type info and pk info isn't
+		# adequate generically yet.
 		return ()
 		
 	def beginTransaction(self, cursor):

@@ -1,5 +1,8 @@
-from dBackend import dBackend
 import datetime
+import kinterbasdb
+from dBackend import dBackend
+from dCursorMixin import dCursorMixin
+from dSqlBuilderMixin import dSqlBuilderMixin
 
 class Firebird(dBackend):
 	def __init__(self):
@@ -7,8 +10,6 @@ class Firebird(dBackend):
 		self.dbModuleName = "kinterbasdb"
 
 	def getConnection(self, connectInfo):
-		import kinterbasdb
-
 		# Port doesn't seem to work, but I need to research... for now it's disabled.
 # 		port = connectInfo.Port
 # 		if not port:
@@ -26,11 +27,23 @@ class Firebird(dBackend):
 		return self._connection
 		
 	def getDictCursorClass(self):
-		import kinterbasdb
 		return kinterbasdb.Cursor
 
+	
 	def getCursor(self, cursorClass):
-		return self._connection.cursor()
+		dbCursorClass = self.getDictCursorClass()
+		connection = self._connection
+		backendObject = self
+		class dCursor(dCursorMixin, dbCursorClass, dSqlBuilderMixin):
+			def __init__(self):
+				dCursorMixin.__init__(self)
+				dbCursorClass.__init__(self, connection)
+				dSqlBuilderMixin.__init__(self)
+				self.superCursor = dbCursorClass
+				self.BackendObject = backendObject
+
+		return dCursor()
+		
 
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """

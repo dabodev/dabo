@@ -29,13 +29,17 @@ Ed writes:
 import time
 from threading import *
 import wx
-import time
+import dMessageBox
 
 ID_CANCEL = wx.NewId()
 EVT_RESULT_ID = wx.NewId()
+EVT_EXCEPTION_ID = wx.NewId()
 
 def EVT_RESULT(win, func):
 	win.Connect(-1, -1, EVT_RESULT_ID, func)
+
+def EVT_EXCEPTION(win, func):
+	win.Connect(-1, -1, EVT_EXCEPTION_ID, func)
 
 class ResultEvent(wx.PyEvent):
 	""" Simple event to carry arbitrary result data.
@@ -44,6 +48,15 @@ class ResultEvent(wx.PyEvent):
 	def __init__(self, response):
 		wx.PyEvent.__init__(self)
 		self.SetEventType(EVT_RESULT_ID)
+		self.response = response
+
+class ExceptionEvent(wx.PyEvent):
+	""" Simple event to carry arbitrary result data.
+	"""
+
+	def __init__(self, response):
+		wx.PyEvent.__init__(self)
+		self.SetEventType(EVT_EXCEPTION_ID)
 		self.response = response
 
 # Thread class that executes processing
@@ -62,9 +75,12 @@ class WorkerThread(Thread):
 		self._func = func
 
 	def run(self):
-		response = self._func()
-		# Done, send notify:
-		wx.PostEvent(self._notify_window,ResultEvent(response))
+		try:
+			response = self._func()
+			# Done, send notify:
+			wx.PostEvent(self._notify_window,ResultEvent(response))
+		except Exception, e:
+			wx.PostEvent(self._notify_window,ExceptionEvent(e))
 
 # GUI Frame class that spins off the worker thread
 class dProgressDialog(wx.Dialog):
@@ -80,6 +96,7 @@ class dProgressDialog(wx.Dialog):
 
 		# Set up event handler for any worker thread results
 		EVT_RESULT(self, self.OnResult)
+		EVT_EXCEPTION(self, self.OnException)
 
 		# And indicate we don't have a worker thread yet
 		self.worker = None
@@ -97,6 +114,10 @@ class dProgressDialog(wx.Dialog):
 		self.response = event.response
 		self.Hide()
 
+	def OnException(self, event):
+		dMessageBox.stop("Error encountered:\n\n%s" % str(event.response))
+		self.Hide()
+	
 	def OnClose(self, event):
 		# Don't let the window close.
 		pass
