@@ -141,10 +141,10 @@ class dSizerMixin(dabo.common.dObject):
 		else:
 			# Something's up; bail out
 			return
-		if pos:
-			self.Insert(pos, spacer, proportion=proportion)
-		else:
+		if pos is None:
 			self.Add(spacer, proportion=proportion)
+		else:
+			self.Insert(pos, spacer, proportion=proportion)
 	
 	
 	def appendSpacer(self, val, proportion=0):
@@ -157,6 +157,13 @@ class dSizerMixin(dabo.common.dObject):
 		design. Inserts a spacer at the specified position.
 		"""
 		self.addSpacer(val, pos, proportion)
+		
+		
+	def prependSpacer(self, val, proportion=0):
+		"""Added to be consistent with the sizers' add/insert
+		design. Inserts a spacer in the first position.
+		"""
+		self.addSpacer(val, 0, proportion=proportion)
 		
 		
 	def addDefaultSpacer(self, pos=None):
