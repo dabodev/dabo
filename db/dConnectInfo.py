@@ -77,7 +77,7 @@ class dConnectInfo(dabo.common.dObject):
 
 	def decrypt(self, val):
 		if self.Application:
-			return self.Application.encrypt(val)
+			return self.Application.decrypt(val)
 		else:
 			cryp = dabo.common.SimpleCrypt()
 			return cryp.decrypt(val)
