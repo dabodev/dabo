@@ -90,7 +90,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def getPrimaryBizobj(self):
-		return self._primaryBizobj
+		bo = None
+		if self.bizobjs.has_key(self._primaryBizobj):
+			bo = self.bizobjs[self._primaryBizobj]
+		return bo
 
 
 	def setPrimaryBizobj(self, dataSource):
@@ -405,7 +408,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		If no dataSource is passed, getBizobj() will return the primary bizobj.
 		"""
 		if not parentBizobj and not dataSource:
-			dataSource = self.getPrimaryBizobj()
+			return self.getPrimaryBizobj()
 		
 		if not parentBizobj and self.bizobjs.has_key(dataSource):
 			return self.bizobjs[dataSource]

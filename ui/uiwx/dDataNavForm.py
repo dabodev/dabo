@@ -346,7 +346,9 @@ class dDataNavForm(dForm.dForm):
 		self.RelationSpecs = {}
 		self.FieldSpecs = rawSpecs.copy()
 		for rk in relaKeys:
-			self.RelationSpecs[rk] = rawSpecs[rk]
+			relaInfo = rawSpecs[rk]
+			relaTarget = relaInfo["target"]
+			self.RelationSpecs[relaTarget] = relaInfo
 			del self.FieldSpecs[rk]
 		
 		if not self.preview:
@@ -369,6 +371,29 @@ class dDataNavForm(dForm.dForm):
 		if not self.preview:
 			self.setupMenu()
 	
+	
+	def setChildSpecs(self, bizModule):
+		""" Creates any child bizobjs used by the form, and establishes
+		the relations with the parent bizobj
+		"""
+		primaryBizobj = self.getPrimaryBizobj()
+		primaryPkField = primaryBizobj.KeyField
+		for childRelKey in self.RelationSpecs.keys():
+			childRel = self.RelationSpecs[childRelKey]
+			target = childRel["target"]
+			parentField = childRel["parentField"]
+			childField = childRel["childField"]
+			# Bizobjs follow the naming convention of 'Biz[Datasource]'
+			# and are stored in the module passed to this method.
+			bizClass = bizModule.__dict__["Biz" + target.title()]
+			biz = bizClass(self.connection)
+			self.addBizobj(biz)
+			primaryBizobj.addChild(biz)
+			
+			biz.LinkField = childField
+			if parentField != primaryPkField:
+				biz.ParentLinkField = parentField
+
 	
 	def setColumnDefs(self, dataSource, columnDefs):
 		""" Set the grid column definitions for the given data source.
