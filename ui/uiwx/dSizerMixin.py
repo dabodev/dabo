@@ -113,7 +113,15 @@ class dSizerMixin(dabo.common.dObject):
 		self.insert(0, *args, **kwargs)			
 	
 	
-	def drawOutline(self, win):
+	def remove(self, item):
+		"""This will remove the item from the sizer. It will not cause
+		the item to be destroyed. If the item is not one of this sizer's
+		items, no error will be raised - it will simply do nothing.
+		"""
+		self.Detach(item)
+		
+		
+	def drawOutline(self, win, recurse=False):
 		""" There are some cases where being able to see the sizer
 		is helpful, such as at design time. This method can be called
 		to see the outline; it needs to be called whenever the containing
@@ -134,6 +142,17 @@ class dSizerMixin(dabo.common.dObject):
 		dc.SetLogicalFunction(wx.COPY)
 		# Draw the outline
 		dc.DrawRectangle( x+off, y+off, w-(2*off), h-(2*off) )
+		
+		if recurse:
+			for ch in self.GetChildren():
+				if ch.IsSizer():
+					ch.GetSizer().drawOutline(win, recurse)
+				elif ch.IsWindow():
+					try:
+						w = ch.GetWindow()
+						w.Sizer.drawOutline(w, True)
+					except: pass
+			
 
 		
 	def _getWxFlags(self, alignment, borderFlags, layout):
@@ -194,6 +213,15 @@ class dSizerMixin(dabo.common.dObject):
 		else:
 			self.SetOrientation(wx.HORIZONTAL)
 			
+	def _getVisible(self):
+		return self._visible
+	def _setVisible(self, val):
+		self._visible = val
+		self.ShowItems(val)
+			
+			
 	Orientation = property(_getOrientation, _setOrientation, None, 
 		"Sets the orientation of the sizer, either 'Vertical' or 'Horizontal'.")
 
+	Visible = property(_getVisible, _setVisible, None, 
+		"Shows/hides the sizer and its contained items  (bool)")
