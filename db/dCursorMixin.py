@@ -34,7 +34,9 @@ class dCursorMixin:
 	__nonUpdateFields = []
 	# User-editable list of non-updated fields
 	nonUpdateFields = []
-	
+	# Counter for the saved property stack. Prevents multiple calls
+	# to __saveProps from overwriting each other.
+	__propSaveStack = 0
 
 
 	def __init__(self, sql="", *args, **kwargs):
@@ -45,6 +47,11 @@ class dCursorMixin:
 		self.__nonUpdateFields = []
 		self.nonUpdateFields = []
 		self.__tmpPK = -1		# temp PK value for new records.
+		# Initialize the saved props stack.
+		self.holdrows = []
+		self.holdcount = []
+		self.holdpos = []
+		self.holddesc = []
 
 
 	def setSQL(self, sql):
@@ -265,9 +272,7 @@ class dCursorMixin:
 	
 
 	def isChanged(self, allRows=True):
-		"""
-		Scan all the records and compare them with their mementos. 
-
+		""" 	Scan all the records and compare them with their mementos. 
 		Returns True if any differ, False otherwise.
 		"""
 		ret = False
@@ -519,9 +524,10 @@ class dCursorMixin:
 					# Append the field and its value.
 					flds += ", " + kk
 					
+					# add value to expression
 					if type(vv) == type(datetime.date(1,1,1)):
-						# dates need quotes around them (### MySQL specific warning)
-						vals += ", " + '"%s"' % vv
+						# Some databases have specific rules for formatting date values.
+						vals += ", " + self.formatDateTime(vv)
 					else:
 						vals += ", " + str(self.__escQuote(vv))
 				# Trim leading comma-space from the strings
@@ -540,9 +546,9 @@ class dCursorMixin:
 			res = self.execute(sql)
 
 			if newrec and self.autoPopulatePK:
-				### TODO: MySQLdb-specific! Need to make more generic
-				self.execute("select last_insert_id() as newid")
-				newPKVal = self._rows[0]["newid"]
+				# Call the database backend-specific code to retrieve the
+				# most recently generated PK value.
+				newPKVal = self.getLastInsertID()
 			# restore the orginal values
 			self.__restoreProps()
 
@@ -627,9 +633,8 @@ class dCursorMixin:
 
 
 	def delete(self, delRowNum=None):
-		""" Delete the specified row.
-
-		If no row specified, delete the currently active row.
+		""" Delete the specified row. If no row specified, 
+		delete the currently active row.
 		"""
 		if not hasattr(self, "rownumber"):
 			# No query has been run yet
@@ -677,9 +682,8 @@ class dCursorMixin:
 
 
 	def addMemento(self, rownum=-1):
-		""" Add a memento to the specified row.
-
-		If the rownum is -1, a memento will be added to all rows. 
+		""" Add a memento to the specified row. If the rownum is -1, 
+		a memento will be added to all rows. 
 		"""
 		if rownum == -1:
 			# Make sure that there are rows to process
@@ -902,36 +906,45 @@ class dCursorMixin:
 				ret += fld + " = " + self.__escQuote(val) + " "
 			else:
 				if type(val) == type(datetime.date(1,1,1)):
-					# Warning: MySQL specific date conversion to string.
-					ret += fld + " = '%s' " % str(val) 
+					ret += fld + " = " + self.formatDateTime(val)
 				else:
 					ret += fld + " = " + str(val) + " "
 		return ret
 
 
 	def __saveProps(self, saverows=True):
+		""" Push the current state of the cursor onto the stack """
 		if hasattr(self, "_rows"):
-			self.holdrows = self._rows
-			self.holdcount = self.rowcount
-			self.holdpos = self.rownumber
-			self.holddesc = self.description
+			self.holdrows.append(self._rows)
+			self.holdcount.append(self.rowcount)
+			self.holdpos.append(self.rownumber)
+			self.holddesc.append(self.description)
 		else:
 			# Cursor hasn't been populated yet
-			self.holdrows = None
-			self.holdcount = self.rowcount
-			self.holdpos = 0
-			self.holddesc = ()
+			self.holdrows.append(None)
+			self.holdcount.append(self.rowcount)
+			self.holdpos.append(0)
+			self.holddesc.append( () )
 
 
 	def __restoreProps(self, restoreRows=True):
+		""" Restore the cursor to the state of the top of the 
+		stack, and then pop those values off of the stack.
+		"""
+		stackPos = len(self.holdrows) -1
 		if restoreRows:
-			self._rows = self.holdrows
+			self._rows = self.holdrows[stackPos]
 		if self._rows:
 			self.rowcount = len(self._rows)
 		else:
-			self.rowcount = self.holdcount
-		self.rownumber = min(self.holdpos, self.rowcount-1)
-		self.description = self.holddesc
+			self.rowcount = self.holdcount[stackPos]
+		self.rownumber = min(self.holdpos[stackPos], self.rowcount-1)
+		self.description = self.holddesc[stackPos]
+		# Pop the top values off of the stack
+		del self.holdrows[stackPos]
+		del self.holdcount[stackPos]
+		del self.holdpos[stackPos]
+		del self.holddesc[stackPos]		
 
 
 	def __escQuote(self, val):

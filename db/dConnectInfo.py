@@ -1,4 +1,4 @@
-import dBackend, dabo.common
+import dabo.common
 
 class dConnectInfo(dabo.common.dObject):
 	""" Holder for the properties for connecting to the backend.
@@ -13,7 +13,6 @@ class dConnectInfo(dabo.common.dObject):
 	"""
 	def __init__(self, backendName=None, host=None, user=None, 
 					password=None, dbName=None, port=None):
-
 		self._baseClass = dConnectInfo
 		dConnectInfo.doDefault(self)
 		self.BackendName = backendName
@@ -38,17 +37,22 @@ class dConnectInfo(dabo.common.dObject):
 		return self._backendName
 
 	def _setBackendName(self, backendName):
-		""" Set the backend type for the connection.
-
-		Only sets the backend name if valid.
+		""" Set the backend type for the connection. Only sets the 
+		backend name if valid. As other backends are coded into the
+		framework, we will need to expand this if/elif list.
 		"""
-		try:
-			backendObject = eval("dBackend.%s()" % backendName)
-			self._backendName = backendName
-			self._backendObject = backendObject
-		except:
-			self._backendName = None
-			self._backendObject = None
+		if backendName is not None:
+			_backendName = backendName
+			# Evaluate each type of backend
+			if backendName.lower() == "mysql":
+				import dbMySQL
+				self._backendObject = dbMySQL.MySQL()
+			elif backendName.lower() == "gadfly":
+				import dbGadfly
+				self._backendObject = dbGadfly.Gadfly()
+			else:
+				self._backendName = None
+				self._backendObject = None
 
 	def _getBackendObject(self):
 		return self._backendObject
@@ -102,6 +106,6 @@ if __name__ == '__main__':
 	print test.backendName
 	test.backendName = "MySQL"
 	print test.backendName
-	test.backendName = "mssql"
-	print test.backendName
+# 	test.backendName = "mssql"
+# 	print test.backendName
 
