@@ -4,58 +4,58 @@ import dDataControlMixin as dcm
 
 
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
-    def __init__(self, parent, id=-1, name='dCheckBox', style=0, *args, **kwargs):
-        
-        self._baseClass = dCheckBox
-        
-        pre = wx.PreCheckBox()
-        self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, id, name, style=style|pre.GetWindowStyle(), *args, **kwargs)
-        
-        self.this = pre.this
-        self._setOORInfo(self)
-        
-        cm.dControlMixin.__init__(self, name)
-        dcm.dDataControlMixin.__init__(self)
-        self.afterInit()                      # defined in dPemMixin
+	def __init__(self, parent, id=-1, name='dCheckBox', style=0, *args, **kwargs):
 
-            
-    def initEvents(self):
-        # init the common events:
-        cm.dControlMixin.initEvents(self)
-        dcm.dDataControlMixin.initEvents(self)
-        
-        # init the widget's specialized event(s):
-        wx.EVT_CHECKBOX(self, self.GetId(), self.OnCheckBox)
+		self._baseClass = dCheckBox
 
-    # Event callback methods (override in subclasses):
-    def OnCheckBox(self, event):
-        event.Skip()
+		pre = wx.PreCheckBox()
+		self.beforeInit(pre)                  # defined in dPemMixin
+		pre.Create(parent, id, name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
-    # property get/set functions
-    def _getAlignment(self):
-        if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):
-            return 'Right'
-        else:
-            return 'Left'
-            
-    def _getAlignmentEditorInfo(self):
-        return {'editor': 'list', 'values': ['Left', 'Right']}
+		self.this = pre.this
+		self._setOORInfo(self)
 
-    def _setAlignment(self, value):
-        self.delWindowStyleFlag(wx.ALIGN_RIGHT)
-        if str(value) == 'Right':
-            self.addWindowStyleFlag(wx.ALIGN_RIGHT)
-        else:
-            raise ValueError, "The only possible values are 'Left' and 'Right'."
-        
-    # property definitions follow:
-    Alignment = property(_getAlignment, _setAlignment, None,
-                        'Specifies the alignment of the text. (int) \n'
-                        '   Left  : Checkbox to left of text (default) \n'
-                        '   Right : Checkbox to right of text')
+		cm.dControlMixin.__init__(self, name)
+		dcm.dDataControlMixin.__init__(self)
+		self.afterInit()                      # defined in dPemMixin
+
+
+	def initEvents(self):
+		# init the common events:
+		cm.dControlMixin.initEvents(self)
+		dcm.dDataControlMixin.initEvents(self)
+
+		# init the widget's specialized event(s):
+		wx.EVT_CHECKBOX(self, self.GetId(), self.OnCheckBox)
+
+	# Event callback methods (override in subclasses):
+	def OnCheckBox(self, event):
+		event.Skip()
+
+	# property get/set functions
+	def _getAlignment(self):
+		if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):
+			return 'Right'
+		else:
+			return 'Left'
+
+	def _getAlignmentEditorInfo(self):
+		return {'editor': 'list', 'values': ['Left', 'Right']}
+
+	def _setAlignment(self, value):
+		self.delWindowStyleFlag(wx.ALIGN_RIGHT)
+		if str(value) == 'Right':
+			self.addWindowStyleFlag(wx.ALIGN_RIGHT)
+		else:
+			raise ValueError, "The only possible values are 'Left' and 'Right'."
+
+	# property definitions follow:
+	Alignment = property(_getAlignment, _setAlignment, None,
+						'Specifies the alignment of the text. (int) \n'
+						'   Left  : Checkbox to left of text (default) \n'
+						'   Right : Checkbox to right of text')
 if __name__ == "__main__":
-    import test
-    class c(dCheckBox):
-        def OnCheckBox(self, event): print "OnCheckBox!" 
-    test.Test().runTest(c)
+	import test
+	class c(dCheckBox):
+		def OnCheckBox(self, event): print "OnCheckBox!" 
+	test.Test().runTest(c)

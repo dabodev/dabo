@@ -1,26 +1,26 @@
 
 class dError(StandardError):
-    """
-    Base class in the framework for passing exceptions.
-    """
-    pass
+	"""
+	Base class in the framework for passing exceptions.
+	"""
+	pass
 
-    
+
 class BeginningOfFileError(dError):
-    pass
-    
+	pass
+
 
 class EndOfFileError(dError):
-    pass
-    
-    
+	pass
+
+
 class NoRecordsError(dError):
-    pass
-    
+	pass
+
 
 class QueryError(dError):
-    pass
+	pass
 
-    
+
 class BusinessRuleViolation(dError):
-    pass
+	pass

@@ -2,4 +2,4 @@
 import wx
 
 class dMenuBar(wx.MenuBar):
-    pass
+	pass

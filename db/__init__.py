@@ -7,20 +7,20 @@ dabo.biz.dBiz is the entity that will interact with this dabo.db stuff, but you
 can also work with dabo.db directly if you want. Perhaps you just want to read 
 some rows from a backend database in a script. Here's an example of that:
 
-    from connectInfo import ConnectInfo
-    from dConnection import dConnection
+	from connectInfo import ConnectInfo
+	from dConnection import dConnection
 
-    ci = ConnectInfo('MySQL')
-    ci.host = 'paulmcnett.com'
-    ci.dbName = "house"
-    ci.user = 'dabo'
-    ci.password = 'dabo'
+	ci = ConnectInfo('MySQL')
+	ci.host = 'paulmcnett.com'
+	ci.dbName = "house"
+	ci.user = 'dabo'
+	ci.password = 'dabo'
 
-    conn = dConnection(ci).getConnection()
-    cursor = conn.cursor()
-    print cursor.execute("select * from addressbook order by iid limit 10")
-    for row in cursor.fetchall():
-      print row[0], row[1]
+	conn = dConnection(ci).getConnection()
+	cursor = conn.cursor()
+	print cursor.execute("select * from addressbook order by iid limit 10")
+	for row in cursor.fetchall():
+		print row[0], row[1]
 
 '''
 
