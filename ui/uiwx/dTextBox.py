@@ -1,9 +1,10 @@
 import wx, dabo, dabo.ui
+import types
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dDataControlMixin as dcm
+import dabo.ui.dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
@@ -32,6 +33,8 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	def initProperties(self):
 		dTextBox.doDefault()
 		self.SelectOnEntry = True
+		# Handles different value types
+		self.valueType = "string"
 
 
 	def initEvents(self):
@@ -91,21 +94,70 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	def _setSelectOnEntry(self, value):
 		self._SelectOnEntry = bool(value)
 
+	def _getValue(self):
+		try:
+			typ = self.valueType
+			retVal = self.GetValue()
+			if typ == types.BooleanType:
+				if value == "True":
+					retVal = True
+				else:
+					retVal = False
+			elif typ== types.NoneType:
+				retVal = None
+			elif typ == types.FloatType:
+				retVal = float(retVal)
+			elif typ == types.IntType:
+				retVal = int(retVal)
+			elif typ == types.LongType:
+				retVal = long(retVal)
+			elif typ == types.UnicodeType:
+				retVal = unicode(retVal)
+				
+		except StandardError, e:
+			retVal = "ERROR"
+			dabo.errorLog.write("getval:", e)
+			
+		return retVal
+		
+	def _setValue(self, value):
+		typ = type(value)
+		self.valueType = typ
+		strVal = value
+		
+		print "val/typ", value, typ
+		
+		# Must convert all to string for display
+		if typ == types.BooleanType:
+			if value:
+				strVal = "True"
+			else:
+				strVal = "False"
+		elif typ == types.NoneType:
+			strVal = "None"
+		elif typ in ( types.FloatType, types.IntType, types.LongType, types.UnicodeType):
+			strVal = str(value)
+		self.SetValue(strVal)
+
 		
 	# Property definitions:
+	Value = property(_getValue, _setValue, None,
+			"Specifies the current state of the control (the value of the field). (varies)")
+
 	Alignment = property(_getAlignment, _setAlignment, None,
-						'Specifies the alignment of the text. (str) \n'
-						'   Left (default) \n'
-						'   Center \n'
-						'   Right')
+			"Specifies the alignment of the text. (str) \n"
+			"   Left (default) \n"
+			"   Center \n"
+			"   Right")
+
 	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
-						'Specifies whether or not the text can be edited. (bool)')
+			"Specifies whether or not the text can be edited. (bool)")
 
 	PasswordEntry = property(_getPasswordEntry, _setPasswordEntry, None,
-						'Specifies whether plain-text or asterisks are echoed. (bool)')
+			"Specifies whether plain-text or asterisks are echoed. (bool)")
 	
 	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
-						'Specifies whether all text gets selected upon receiving focus. (bool)')
+			"Specifies whether all text gets selected upon receiving focus. (bool)")
 
 
 if __name__ == "__main__":
