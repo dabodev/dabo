@@ -9,6 +9,7 @@ class BandLabel(dabo.ui.dPanel):
 	def afterInit(self):
 		self._dragging = False
 		self._dragStart = (0,0)
+		self._dragImage = None
 
 
 	def initEvents(self):
@@ -25,16 +26,25 @@ class BandLabel(dabo.ui.dPanel):
 		if self._dragging:
 			self.SetCursor(wx.StockCursor(wx.CURSOR_CROSS))
 			pos = evt.EventData["mousePosition"]
+
 			if pos[1] != self._dragStart[1]:
-				# pos is absolute mouse position.
-				memDC = wx.MemoryDC()
-				memDC.SelectObject(self._captureBitmap)
+				ypos = (self.Parent.Top + self.Top + pos[1] 
+				     - self._dragStart[1]    ## (correct for ypos in the band)
+				     + 2)                    ## fudge factor
 
-				dc = wx.WindowDC(self.Form)
+				if ypos < self.Parent.Top:
+					# Don't show the band dragging above the topmost valid position:
+					ypos = self.Parent.Top
 
-				dc.Blit(self.Parent.Left, self.Parent.Top + self.Top + pos[1],
-				        self._captureBitmap.GetWidth(), self._captureBitmap.GetHeight(),
-				        memDC, -1, 0, wx.COPY, False)
+				if self._dragImage is None:
+					self._dragImage = wx.DragImage(self._captureBitmap,
+			                                  wx.StockCursor(wx.CURSOR_HAND))
+
+					self._dragImage.BeginDragBounded((self.Parent.Left, ypos), 
+					                                 self, self.Parent.Parent)
+					self._dragImage.Show()
+
+				self._dragImage.Move((self.Parent.Left,ypos))
 
 		else:
 			self.SetCursor(wx.NullCursor)
@@ -43,8 +53,10 @@ class BandLabel(dabo.ui.dPanel):
 	def onLeftUp(self, evt):
 		dragging = self._dragging
 		self._dragging = False
-		self.Form.Refresh()
 		if dragging:
+			if self._dragImage is not None:
+				self._dragImage.EndDrag()
+			self._dragImage = None
 			pos = evt.EventData["mousePosition"]
 			yoffset = pos[1] - self._dragStart[1]
 			if yoffset != 0:
@@ -53,7 +65,7 @@ class BandLabel(dabo.ui.dPanel):
 				newHeight = oldHeight + yoffset
 				if newHeight < 0: newHeight = 0
 				self.Parent.setProp("height", newHeight)
-	
+			self.Form.Refresh()
 
 	def onLeftDown(self, evt):
 		if not self.Parent.getProp("designerLock"):
