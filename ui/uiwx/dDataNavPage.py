@@ -1,4 +1,7 @@
 IGNORE_STRING		=		"-ignore-"
+CHOICE_TRUE			=		"Is True"
+CHOICE_FALSE			=		"Is False"
+
 import wx, dabo
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner
 import dMessageBox, dIcons, dCommandButton, dDropdownList
@@ -17,6 +20,11 @@ class SelectControlMixin(dabo.common.dObject):
 
 class SelectTextBox(SelectControlMixin, dTextBox.dTextBox): pass
 class SelectCheckBox(SelectControlMixin, dCheckBox.dCheckBox): pass
+class SelectLabel(SelectControlMixin, dLabel.dLabel):
+	def afterInit(self):
+		# Basically, we don't want anything to display, but it's 
+		# easier if every selector has a matching control.
+		self.Caption = ""
 class SelectDateTextBox(SelectControlMixin, dDateTextBox.dDateTextBox): pass
 class SelectSpinner(SelectControlMixin, dSpinner.dSpinner): pass
 
@@ -286,7 +294,12 @@ class dSelectPage(DataNavPage):
 			if not IGNORE_STRING in opVal:
 				fldType = self.selectFields[fld]["type"]
 				ctrl = self.selectFields[fld]["ctrl"]
-				matchVal = ctrl.Value
+				if fldType == "bool":
+					# boolean fields won't have a control; opVal will
+					# be either 'Is True' or 'Is False'
+					matchVal = (opVal == CHOICE_TRUE)
+				else:
+					matchVal = ctrl.Value
 				matchStr = str(matchVal)
 				useStdFormat = True
 				
@@ -345,9 +358,10 @@ class dSelectPage(DataNavPage):
 						
 				elif fldType == "bool":
 					opStr = "="
-					matchStr = "True"
-					if opVal == "Is False":
-						opStr = "False"
+					if opVal == CHOICE_TRUE:
+						matchStr = "True"
+					else:
+						matchStr = "False"
 				
 				# We have the pieces of the clause; assemble them together
 				if useStdFormat:
@@ -415,8 +429,8 @@ class dSelectPage(DataNavPage):
 					"Less than",
 					"Less than/Equal to")
 		elif typ == "bool":
-			chc = ("Is True",
-					"Is False")
+			chc = (CHOICE_TRUE,
+					CHOICE_FALSE)
 		else:
 			dabo.errorLog.write("Type '%s' not recognized." % typ)
 			chc = ()
@@ -516,7 +530,8 @@ class dSelectPage(DataNavPage):
 		if typ in ("char", "memo", "float", "int", "decimal", "datetime"):
 			ret = SelectTextBox(parent)
 		elif typ == "bool":
-			ret = SelectCheckBox(parent)
+			#ret = SelectCheckBox(parent)
+			ret = SelectLabel(parent)
 		elif typ == "date":
 			ret = SelectDateTextBox(parent)
 		else:
