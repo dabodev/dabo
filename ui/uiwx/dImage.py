@@ -182,10 +182,10 @@ if __name__ == "__main__":
 			btn.bindEvent(dEvents.Hit, self.onLoadImage)
 			btnOK = dabo.ui.dButton(self, Caption="Done")
 			btnOK.bindEvent(dEvents.Hit, self.close)
-			hsz.append(self.ddScale, 1, "x")
+			hsz.append(self.ddScale, 0, "x")
 			hsz.append(btn, 0, "x")
 			hsz.append(btnOK, 0, "x")
-			self.Sizer.append(hsz, 0, "x")
+			self.Sizer.append(hsz, 0, alignment="right")
 			self.Sizer.appendSpacer(25)
 			
 			# Create the image control

@@ -1,4 +1,5 @@
 """ dFormMixin.py """
+import os
 import wx, dabo
 import dPemMixin as pm
 import dBaseMenuBar as mnb
@@ -247,8 +248,14 @@ class dFormMixin(pm.dPemMixin):
 		except AttributeError:
 			return None
 	def _setIcon(self, icon):
-		self.SetIcon(icon)
 		self._Icon = icon       # wx doesn't provide GetIcon()
+		if not isinstance(icon, wx.Icon):
+			if os.path.exists(icon):
+				# It's a file path
+				bmp = wx.Bitmap(icon)
+				icon = wx.EmptyIcon()
+				icon.CopyFromBitmap(bmp)
+		self.SetIcon(icon)
 
 	def _getIconBundle(self):
 		try:
