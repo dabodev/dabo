@@ -1,7 +1,8 @@
 """ dFormMixin.py """
 import wx, dabo
 import dPemMixin as pm
-import dMainMenuBar as mnb
+import dBaseMenuBar as mnb
+# import dMainMenuBar as mnb
 import dMenu, dMessageBox, dabo.icons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
@@ -24,8 +25,13 @@ class dFormMixin(pm.dPemMixin):
 
 	def _afterInit(self):
 		if self.Application and self.MenuBar:
+			## Debugging: if you want to see menu errors, uncomment the next
+			## line and commment out the try block. Otherwise, problems with
+			## menu creation will be masked.
+# 			self.SetMenuBar(self.MenuBar(self))
 			try:
 				self.SetMenuBar(self.MenuBar(self))
+				
 				self.afterSetMenuBar()
 			except AttributeError:
 				# perhaps we are a dDialog
@@ -62,8 +68,9 @@ class dFormMixin(pm.dPemMixin):
 		# in __init__ because we may not have our name yet.
 		if not self.restoredSP:
 			self.restoreSizeAndPosition()
-		if self.GetStatusBar() is None and not isinstance(self, wx.MDIChildFrame) and self.ShowStatusBar:
-			self.CreateStatusBar()
+		if hasattr(self, "GetStatusBar"):
+			if self.GetStatusBar() is None and not isinstance(self, wx.MDIChildFrame) and self.ShowStatusBar:
+				self.CreateStatusBar()
 
 		
 		
@@ -72,7 +79,11 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		pass
 
+	def onCmdWin(self, evt):
+		dlg = dabo.ui.dShell.dShell(self)
+		dlg.Show()
 
+		
 	def onDebugDlg(self, evt):
 		# Handy hook for getting info.
 		if self.useOldDebugDialog:
@@ -91,8 +102,7 @@ class dFormMixin(pm.dPemMixin):
 			dlg.Destroy()	
 			
 		else:
-			dlg = dabo.ui.dShell.dShell(self)
-			dlg.Show()
+			self.onCmdWin(evt)
 
 
 	def getMenu(self):
@@ -255,7 +265,8 @@ class dFormMixin(pm.dPemMixin):
 		try:
 			mb = self._menuBar
 		except AttributeError:
-			mb = self._menuBar = mnb.dMainMenuBar
+# 			mb = self._menuBar = mnb.dMainMenuBar
+			mb = self._menuBar = mnb.dBaseMenuBar
 		return mb
 
 	def _setMenuBar(self, val):
