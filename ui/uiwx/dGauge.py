@@ -24,7 +24,8 @@ class dGauge(wx.Gauge, cm.dControlMixin):
 
 
 	def initEvents(self):
-		dGauge.doDefault()
+		#dGauge.doDefault()
+		super(dGauge, self).initEvents()
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.

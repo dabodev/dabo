@@ -17,7 +17,8 @@ class dDataNavForm(dForm.dForm):
 	"""
 
 	def beforeInit(self, preObject):
-		dDataNavForm.doDefault(preObject)
+		#dDataNavForm.doDefault(preObject)
+		super(dDataNavForm, self).beforeInit(preObject)
 		# Determines if we are actually running the form, or just 
 		# previewing it
 		self._fieldSpecs = {}
@@ -35,14 +36,16 @@ class dDataNavForm(dForm.dForm):
 	def __init__(self, parent=None, previewMode=False, tbl=""):
 		self.preview = previewMode
 		self.previewDataSource = tbl
-		dDataNavForm.doDefault(parent)
+		#dDataNavForm.doDefault(parent)
+		super(dDataNavForm, self).__init__(parent)
 		# We will need to set these separated if in Preview mode.
 		self.rowNumber = 0
 		self.rowCount = 0
 		
 
 	def _afterInit(self):
-		dDataNavForm.doDefault()
+		#dDataNavForm.doDefault()
+		super(dDataNavForm, self)._afterInit()
 		if self.FormType == 'PickList':
 			# Map escape key to close the form
 			anId = wx.NewId()
@@ -51,7 +54,8 @@ class dDataNavForm(dForm.dForm):
 
 			
 	def __onActivate(self, evt):
-		dDataNavForm.doDefault(evt)
+		#dDataNavForm.doDefault(evt)
+		super(dDataNavForm, self).__onActivate(evt)
 		if self.RequeryOnLoad and not self._requeried:
 			self._requeried = True
 			self.pageFrame.GetPage(0).requery()
@@ -61,21 +65,24 @@ class dDataNavForm(dForm.dForm):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
 				dataSource = self._mainTable
-		return dDataNavForm.doDefault(dataSource)
+		#return dDataNavForm.doDefault(dataSource)
+		return super(dDataNavForm, self).save(dataSource)
 	
 	
 	def cancel(self, dataSource=None):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
 				dataSource = self._mainTable
-		return dDataNavForm.doDefault(dataSource)
+		#return dDataNavForm.doDefault(dataSource)
+		return super(dDataNavForm, self).cancel(dataSource)
 	
 	
 	def requery(self, dataSource=None):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
 				dataSource = self._mainTable
-		return dDataNavForm.doDefault(dataSource)
+		#return dDataNavForm.doDefault(dataSource)
+		return super(dDataNavForm, self).requery(dataSource)
 	
 	
 	def confirmChanges(self):
@@ -83,7 +90,8 @@ class dDataNavForm(dForm.dForm):
 			# Nothing to check
 			return True
 		else:
-			return dDataNavForm.doDefault()
+			#return dDataNavForm.doDefault()
+			return super(dDataNavForm, self).confirmChanges()
 	
 	
 	def afterSetPrimaryBizobj(self):        
@@ -157,7 +165,8 @@ class dDataNavForm(dForm.dForm):
 
 
 	def getMenu(self):
-		menu = dDataNavForm.doDefault()
+		#menu = dDataNavForm.doDefault()
+		menu = super(dDataNavForm, self).getMenu()
 		
 		self._appendToMenu(menu, "Set Selection Criteria\tAlt+1", 
 						self.onSetSelectionCriteria, 

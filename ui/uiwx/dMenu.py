@@ -7,4 +7,5 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		if mainForm:
 			self.mainForm = mainForm
 			self.actionList = mainForm.Application.actionList
-		dMenu.doDefault()
+		#dMenu.doDefault()
+		super(dMenu, self).__init__()

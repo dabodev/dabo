@@ -8,11 +8,13 @@ import dabo.dEvents as dEvents
 class dPageFrameDataNav(pgf.dPageFrame):
 
 	def __init__(self, parent, name='dPageFrameDataNav'):
-		dPageFrameDataNav.doDefault(parent, name=name)
+		#dPageFrameDataNav.doDefault(parent, name=name)
+		super(dPageFrameDataNav, self).__init__(parent, name=name)
 
 	
 	def afterInit(self):
-		dPageFrameDataNav.doDefault()
+		#dPageFrameDataNav.doDefault()
+		super(dPageFrameDataNav, self).afterInit()
 		self.PageCount = 0
 		if self.DefaultPagesOnLoad:
 			self.addDefaultPages()

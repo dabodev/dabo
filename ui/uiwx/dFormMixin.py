@@ -8,7 +8,8 @@ import dabo.dEvents as dEvents
 
 class dFormMixin(pm.dPemMixin):
 	def __init__(self):
-		dFormMixin.doDefault()
+		#dFormMixin.doDefault()
+		super(dFormMixin, self).__init__()
 		
 		self.debugText = ""
 		self.useOldDebugDialog = False
@@ -27,7 +28,8 @@ class dFormMixin(pm.dPemMixin):
 		
 				
 	def _initEvents(self):
-		dFormMixin.doDefault()
+		#dFormMixin.doDefault()
+		super(dFormMixin, self)._initEvents()
 		# Bind wx events to handlers that re-raise the Dabo events:
 		self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
 		self.Bind(wx.EVT_CLOSE, self.__onWxClose)

@@ -25,7 +25,8 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 
 
 	def initEvents(self):
-		dCheckBox.doDefault()
+		#dCheckBox.doDefault()
+		super(dCheckBox, self).initEvents()
 
 		# Respond to EVT_CHECKBOX and raise dEvents.Hit:
 		self.Bind(wx.EVT_CHECKBOX, self._onWxHit)
@@ -56,10 +57,12 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 			raise ValueError, "The only possible values are 'Left' and 'Right'."
 
 	def _getValue(self):
-		return dCheckBox.doDefault()
+		#return dCheckBox.doDefault()
+		return super(dCheckBox, self)._getValue()
 		
 	def _setValue(self, value):
-		dCheckBox.doDefault(value)
+		#dCheckBox.doDefault(value)
+		super(dCheckBox, self)._setValue(value)
 
 		
 	# property definitions follow:

@@ -14,14 +14,16 @@ class dFormDataNav(dForm.dForm):
 	"""
 
 	def beforeInit(self, preObject):
-		dFormDataNav.doDefault(preObject)
+		#dFormDataNav.doDefault(preObject)
+		super(dFormDataNav, self).beforeInit(preObject)
 		self._columnDefs = {}
 		self._childBehavior = {}
 		self._requeried = False
 
 
 	def afterInit(self):
-		dFormDataNav.doDefault()
+		#dFormDataNav.doDefault()
+		super(dFormDataNav, self).afterInit()
 		if self.FormType == 'PickList':
 			# Map escape key to close the form
 			anId = wx.NewId()
@@ -93,7 +95,8 @@ class dFormDataNav(dForm.dForm):
 
 
 	def getMenu(self):
-		menu = dFormDataNav.doDefault()
+		#menu = dFormDataNav.doDefault()
+		menu = super(dFormDataNav, self).getMenu()
 
 		self._appendToMenu(menu, "Set Selection Criteria\tAlt+1", 
 						self.onSetSelectionCriteria, 

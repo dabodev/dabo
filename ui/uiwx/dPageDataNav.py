@@ -54,7 +54,8 @@ class SelectOptionsCheckBox(dCheckBox.dCheckBox):
 	""" Base class for the checkboxes used in the select page.
 	"""
 	def initEvents(self):
-		SelectOptionsCheckBox.doDefault()
+		#SelectOptionsCheckBox.doDefault()
+		super(SelectOptionsCheckBox, self).initEvents()
 		self.bindEvent(dEvents.Hit, self.onHit)
 			
 	def initProperties(self):
@@ -83,8 +84,8 @@ class SelectOptionsSpinner(dSpinner.dSpinner):
 class dSelectPage(dPage.dPage):
 
 	def __init__(self, parent):
-		dSelectPage.doDefault(parent, name="pageSelect")
-		
+		#dSelectPage.doDefault(parent, name="pageSelect")
+		super(dSelectPage, self).__init__(parent, name="pageSelect")
 
 	def createItems(self):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
@@ -92,7 +93,8 @@ class dSelectPage(dPage.dPage):
 		self.Sizer.append(self.selectOptionsPanel, "expand")
 		self.selectOptionsPanel.SetFocus()
 		
-		dSelectPage.doDefault()
+		#dSelectPage.doDefault()
+		super(dSelectPage, self).createItems()
 
 		if self.Form.RequeryOnLoad and not self.Form._requeried:
 			self.Form._requeried = True
@@ -311,10 +313,12 @@ class dSelectPage(dPage.dPage):
 class dBrowsePage(dPage.dPage):
 
 	def __init__(self, parent):
-		dBrowsePage.doDefault(parent, "pageBrowse")
+		#dBrowsePage.doDefault(parent, "pageBrowse")
+		super(dBrowsePage, self).__init__(parent, "pageBrowse")
 
 	def initEvents(self):
-		dBrowsePage.doDefault()
+		#dBrowsePage.doDefault()
+		super(dBrowsePage, self).initEvents()
 		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		
@@ -420,10 +424,12 @@ class dBrowsePage(dPage.dPage):
 class dEditPage(dPage.dPage):
 
 	def __init__(self, parent):
-		dEditPage.doDefault(parent, "pageEdit")
+		#dEditPage.doDefault(parent, "pageEdit")
+		super(dEditPage, self).__init__(parent, "pageEdit")
 
 	def initEvents(self):
-		dEditPage.doDefault()
+		#dEditPage.doDefault()
+		super(dEditPage, self).initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.ValueRefresh, self.__onValueRefresh)
 
@@ -509,12 +515,14 @@ class dEditPage(dPage.dPage):
 class dChildViewPage(dPage.dPage):
 
 	def __init__(self, parent, dataSource):
-		dChildViewPage.doDefault(parent, "pageChildView")
+		#dChildViewPage.doDefault(parent, "pageChildView")
+		super(dChildViewPage, self).__init__(parent, "pageChildView")
 		self.dataSource = dataSource
 		self.bizobj = self.Form.getBizobj().getChildByDataSource(self.dataSource)
 	
 	def initEvents(self):
-		dChildViewPage.doDefault()
+		#dChildViewPage.doDefault()
+		super(dChildViewPage, self).initEvents()
 		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
@@ -609,10 +617,12 @@ class dChildViewPage(dPage.dPage):
 					if cls:
 						class PickList(cls):
 							def initProperties(self):
-								PickList.doDefault()
+								#PickList.doDefault()
+								super(PickList, self).initProperties()
 								self.FormType = "PickList"
 							def afterInit(self):
-								PickList.doDefault()
+								#PickList.doDefault()
+								super(PickList, self).afterInit()
 								self.Caption = "Picklist: %s" % self.Caption
 									
 						self.picklist = PickList(self.Application.MainForm)

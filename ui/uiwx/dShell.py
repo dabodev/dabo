@@ -5,7 +5,8 @@ dabo.ui.loadUI("wx")
 
 class dShell(dabo.ui.dForm):
 	def initProperties(self):
-		dShell.doDefault()
+		#dShell.doDefault()
+		super(dShell, self).initProperties()
  		self.shell = wx.py.shell.Shell(self)
 		
 		# Make 'self' refer to the calling form, or this form if no calling form.

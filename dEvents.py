@@ -12,7 +12,8 @@ class Event(dObject):
 	using self.bindEvent() and self.raiseEvent() in your objects.
 	"""		
 	def __init__(self, eventObject, uiEvent=None, *args, **kwargs):
-		Event.doDefault()
+		#Event.doDefault()
+		super(Event, self).__init__(eventObject, uiEvent=None, *args, **kwargs)
 		
 		self.EventObject = eventObject
 		self._uiEvent = uiEvent

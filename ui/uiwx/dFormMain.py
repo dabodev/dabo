@@ -52,7 +52,8 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 		self._afterInit()
 		
 	def afterInit(self):
-		dFormMain.doDefault()
+		#dFormMain.doDefault()
+		super(dFormMain, self).afterInit()
 		self.Caption = "Dabo"
 		self.setStatusText("Welcome to Dabo!")
 		

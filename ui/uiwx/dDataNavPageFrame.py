@@ -7,7 +7,8 @@ class dDataNavPageFrame(pgf.dPageFrame):
 
 	def __init__(self, parent, name="dDataNavPageFrame", defaultPages=False):
 		self._defaultPagesOnLoad = defaultPages
-		dDataNavPageFrame.doDefault(parent, name=name)
+		#dDataNavPageFrame.doDefault(parent, name=name)
+		super(dDataNavPageFrame, self).__init__(parent, name=name)
 		il = wx.ImageList(16, 16, initialCount=0)
 		il.Add(dIcons.getIconBitmap("checkMark"))
 		il.Add(dIcons.getIconBitmap("browse"))
@@ -22,7 +23,8 @@ class dDataNavPageFrame(pgf.dPageFrame):
 		self.dsEditPages = {}
 		if self.DefaultPagesOnLoad:
 			self.addDefaultPages()
-		dDataNavPageFrame.doDefault()
+		#dDataNavPageFrame.doDefault()
+		super(dDataNavPageFrame, self).initProperties()
 		
 		
 	def addDefaultPages(self):

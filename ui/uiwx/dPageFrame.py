@@ -32,11 +32,13 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 		
 	
 	def afterInit(self):
-		dPageFrame.doDefault()
+		#dPageFrame.doDefault()
+		super(dPageFrame, self).afterInit()
 	
 	
 	def initEvents(self):
-		dPageFrame.doDefault()
+		#dPageFrame.doDefault()
+		super(dPageFrame, self).initEvents()
 		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._onPageChanged)
 		self.bindEvent(dEvents.Create, self.__onCreate)
 	

@@ -33,7 +33,8 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 
 	def initEvents(self):
 		# init the common events:
-		dBitmapButton.doDefault()
+		#dBitmapButton.doDefault()
+		super(dBitmapButton, self).initEvents()
 
 		# Respond to EVT_BUTTON and raise dEvents.Hit:
 		self.Bind(wx.EVT_BUTTON, self._onWxHit)

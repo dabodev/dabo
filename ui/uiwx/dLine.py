@@ -23,7 +23,8 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 
 
 	def initEvents(self):
-		dLine.doDefault()
+		#dLine.doDefault()
+		super(dLine, self).initEvents()
 		
 		
 	# property get/set functions

@@ -25,7 +25,8 @@ class dToggleButton(wx.ToggleButton, dcm.dDataControlMixin):
 
 
 	def initEvents(self):
-		dToggleButton.doDefault()
+		#dToggleButton.doDefault()
+		super(dToggleButton, self).initEvents()
 		# Respond to EVT_TOGGLEBUTTON and raise dEvents.Button:
 		self.Bind(wx.EVT_TOGGLEBUTTON, self._onWxHit)
 		

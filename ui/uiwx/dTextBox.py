@@ -32,12 +32,14 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 		
 	def initProperties(self):
-		dTextBox.doDefault()
+		#dTextBox.doDefault()
+		super(dTextBox, self).initProperties()
 		self.SelectOnEntry = True
 
 
 	def initEvents(self):
-		dTextBox.doDefault()
+		#dTextBox.doDefault()
+		super(dTextBox, self).initEvents()
 		# catch wx.EVT_TEXT and raise dEvents.Hit:
 		self.Bind(wx.EVT_TEXT, self._onWxHit)
 		

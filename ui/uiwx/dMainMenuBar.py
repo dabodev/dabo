@@ -18,7 +18,8 @@ import dIcons
 
 class FileMenu(m.dMenu):
 	def __init__(self, mainForm):
-		FileMenu.doDefault(mainForm)
+		#FileMenu.doDefault(mainForm)
+		super(FileMenu, self).__init__(mainForm)
 
 		item = wx.MenuItem(self, -1, "Debug Info\tCtrl+D", "Hook for printing out debug info" ) 
 		self.AppendItem(item)
@@ -32,7 +33,8 @@ class FileMenu(m.dMenu):
 
 class EditMenu(m.dMenu):
 	def __init__(self, mainForm):
-		EditMenu.doDefault(mainForm)
+		#EditMenu.doDefault(mainForm)
+		super(EditMenu, self).__init__(mainForm)
 
 		item = wx.MenuItem(self, -1, "Undo\tCtrl+Z", "Undo last action")
 		item.SetBitmap(dIcons.getIconBitmap("undo"))
@@ -83,13 +85,15 @@ class EditMenu(m.dMenu):
 
 class ViewMenu(m.dMenu):
 	def __init__(self, mainForm):
-		ViewMenu.doDefault(mainForm)
+		#ViewMenu.doDefault(mainForm)
+		super(ViewMenu, self).__init__(mainForm)
 
 
 
 class HelpMenu(m.dMenu):
 	def __init__(self, mainForm):
-		HelpMenu.doDefault(mainForm)
+		#HelpMenu.doDefault(mainForm)
+		super(HelpMenu, self).__init__(mainForm)
 
 		item = wx.MenuItem(self, -1, "&About", "About this application")
 		item.SetBitmap(dIcons.getIconBitmap("apply"))

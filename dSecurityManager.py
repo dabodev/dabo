@@ -6,7 +6,8 @@ class dSecurityManager(dabo.common.dObject):
 	
 	def __init__(self, *args, **kwargs):
 		self.beforeInit()
-		dSecurityManager.doDefault(*args, **kwargs)
+		#dSecurityManager.doDefault(*args, **kwargs)
+		super(dSecurityManager, self).__init__(*args, **kwargs)
 		self.initProperties()
 		self.afterInit()
 		

@@ -37,15 +37,16 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 		self._afterInit()
 		
 	def initEvents(self):
-		dTimer.doDefault()
+		#dTimer.doDefault()
+		super(dTimer, self).initEvents()
 		self.Bind(wx.EVT_TIMER, self._onWxHit)
 		
 	def Show(self, *args, **kwargs):
 		# only let the the bitmap be shown if this is design time
 		designTime = (self.Application is None)
 		if designTime:
-			dTimer.doDefault(*args, **kwargs)
-		
+			#dTimer.doDefault(*args, **kwargs)
+			super(dTimer, self).Show(*args, **kwargs)
 		
 	# property get/set functions
 	def _getInterval(self):

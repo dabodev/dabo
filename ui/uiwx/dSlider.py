@@ -28,7 +28,8 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 
 
 	def initEvents(self):
-		dSlider.doDefault()
+		#dSlider.doDefault()
+		super(dSlider, self).initEvents()
 		self.Bind(wx.EVT_SCROLL, self._onWxHit)
 
 				

@@ -19,7 +19,8 @@ class OutlineBoxSizer(wx.BoxSizer):
 
 class DataNavPage(dPage.dPage):
 	def afterInit(self):
-		DataNavPage.doDefault()
+		#DataNavPage.doDefault()
+		super(DataNavPage, self).afterInit()
 		# Needed for drawing sizer outlines
 		self.redrawOutlines = self.drawSizerOutlines = False
 		self.bindEvent(dEvents.Resize, self.onResize)
@@ -120,7 +121,8 @@ class SelectOptionsPanel(dPanel.dPanel):
 
 class SelectionOpDropdown(dDropdownList.dDropdownList):
 	def __init__(self, *args, **kwargs):
-		SelectionOpDropdown.doDefault(*args, **kwargs)
+		#SelectionOpDropdown.doDefault(*args, **kwargs)
+		super(SelectionOpDropdown, self).__init__(*args, **kwargs)
 		self.target = None
 		self.bindEvent(dEvents.Hit, self.onChoiceMade)
 	
@@ -154,7 +156,8 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 
 class dSelectPage(DataNavPage):
 	def __init__(self, parent):
-		dSelectPage.doDefault(parent, name="pageSelect")
+		#dSelectPage.doDefault(parent, name="pageSelect")
+		super(dSelectPage, self).__init__(parent, name="pageSelect")
 		# Holds info which will be used to create the dynamic
 		# WHERE clause based on user input
 		self.selectFields = {}
@@ -164,7 +167,8 @@ class dSelectPage(DataNavPage):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
 		self.GetSizer().Add(self.selectOptionsPanel, 0, wx.GROW|wx.ALL, 20)
 		self.selectOptionsPanel.SetFocus()
-		dSelectPage.doDefault()
+		#dSelectPage.doDefault()
+		super(dSelectPage, self).createItems()
 
 	
 	def setWhere(self, biz):
@@ -382,11 +386,13 @@ class dSelectPage(DataNavPage):
 		
 class dBrowsePage(DataNavPage):
 	def __init__(self, parent):
-		dBrowsePage.doDefault(parent, "pageBrowse")
+		#dBrowsePage.doDefault(parent, "pageBrowse")
+		super(dBrowsePage, self).__init__(parent, "pageBrowse")
 
 
 	def initEvents(self):
-		dBrowsePage.doDefault()
+		#dBrowsePage.doDefault()
+		super(dBrowsePage, self).initEvents()
 		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		
@@ -487,7 +493,8 @@ class dBrowsePage(DataNavPage):
 			
 class dEditPage(DataNavPage):
 	def __init__(self, parent, ds=None):
-		dEditPage.doDefault(parent, "pageEdit")
+		#dEditPage.doDefault(parent, "pageEdit")
+		super(dEditPage, self).__init__(parent, "pageEdit")
 		self.dataSource = ds
 		self.childGrids = []
 		self.childrenAdded = False
@@ -502,7 +509,8 @@ class dEditPage(DataNavPage):
 		self.createItems()
 
 	def initEvents(self):
-		dEditPage.doDefault()
+		#dEditPage.doDefault()
+		super(dEditPage, self).initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
 		self.bindEvent(dEvents.ValueRefresh, self.__onValueRefresh)

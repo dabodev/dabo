@@ -25,7 +25,8 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 
 
 	def initEvents(self):
-		dSpinner.doDefault()
+		#dSpinner.doDefault()
+		super(dSpinner, self).initEvents()
 		# Catch the wx events and raise the dabo events:
 		self.Bind(wx.EVT_SPINCTRL, self._onWxHit)
 		

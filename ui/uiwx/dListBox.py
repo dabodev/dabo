@@ -37,7 +37,8 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 
 
 	def initEvents(self):
-		dListBox.doDefault()
+		#dListBox.doDefault()
+		super(dListBox, self).initEvents()
 		
 		# catch the wx event and raise the dabo event:
 		self.Bind(wx.EVT_LISTBOX, self._onWxHit)

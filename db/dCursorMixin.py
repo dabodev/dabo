@@ -37,7 +37,8 @@ class dCursorMixin(dabo.common.dObject):
 		if sql:
 			self.sql = sql
 			
-		dCursorMixin.doDefault()
+		#dCursorMixin.doDefault()
+		super(dCursorMixin, self).__init__()
 		
 		self._blank = {}
 		self.__unsortedRows = []

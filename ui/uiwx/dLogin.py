@@ -43,7 +43,8 @@ class dLogin(dDialog):
 		self.BorderResizable = True
 		
 	def initProperties(self):
-		dLogin.doDefault()
+		#dLogin.doDefault()
+		super(dLogin, self).initProperties()
 		if self.Application:
 			appName = self.Application.getAppInfo("appName")
 		else:
@@ -80,7 +81,8 @@ class dLogin(dDialog):
 			
 		
 	def afterInit(self):
-		dLogin.doDefault()
+		#dLogin.doDefault()
+		super(dLogin, self).afterInit()
 		mainSizer = self.Sizer
 		
 		mainSizer.append((0,5))

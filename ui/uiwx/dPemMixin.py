@@ -171,7 +171,8 @@ class dPemMixin(dPemMixinBase):
 		
 		
 	def getPropertyInfo(self, name):
-		d = dPemMixin.doDefault(name)   # the property helper does most of the work
+		#d = dPemMixin.doDefault(name)   # the property helper does most of the work
+		d = super(dPemMixin, self).getPropertyInfo(name)
 		
 		# Hide some wx-specific props in the designer:
 		d['showInDesigner'] = not name in ('Size', 'Position', 'WindowHandle', 'TypeID')
@@ -198,8 +199,10 @@ class dPemMixin(dPemMixinBase):
 	def raiseEvent(self, eventClass, nativeEvent=None, *args, **kwargs):
 		# Call the Dabo-native raiseEvent(), passing along the wx.CallAfter
 		# function, so that the Dabo events can be processed at next idle.
-		dPemMixin.doDefault(eventClass, nativeEvent, callAfterFunc=wx.CallAfter, 
-			*args, **kwargs)
+		#dPemMixin.doDefault(eventClass, nativeEvent, callAfterFunc=wx.CallAfter, 
+		#	*args, **kwargs)
+		super(dPemMixin, self).raiseEvent(eventClass, nativeEvent,
+			callAfterFunc=wx.CallAfter, *args, **kwargs)
 	
 			
 	def reCreate(self, child=None):

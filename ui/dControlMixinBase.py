@@ -19,6 +19,7 @@ class dControlMixinBase(dabo.ui.dPemMixin):
 			# names after instantiation.
 			pass
 
-		dControlMixinBase.doDefault()
+		#dControlMixinBase.doDefault()
+		super(dControlMixinBase, self).__init__()
 
 

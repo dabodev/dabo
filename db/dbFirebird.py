@@ -168,7 +168,8 @@ and rdb$unique_flag = 1 """ % tableName.upper()
 		# This doesn't work - it'll return None. TODO: figure out what to do.
 		# pkm: perhaps this change fixes it?
 		#return self.doDefault(cursor)
-		return Firebird.doDefault(cursor)
+		#return Firebird.doDefault(cursor)
+		super(Firebird, self).getLastInsertID(cursor)
 
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""

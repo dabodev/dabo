@@ -26,7 +26,8 @@ class dComboBox(wx.ComboBox, dcm.dDataControlMixin):
 
 
 	def initEvents(self):
-		dComboBox.doDefault()
+		#dComboBox.doDefault()
+		super(dComboBox, self).initEvents()
 		
 		# catch the wx events and raise the dabo event:
 		self.bindEvent(wx.EVT_COMBOBOX, self._onWxHit)

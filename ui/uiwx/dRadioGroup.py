@@ -33,12 +33,14 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 
 
 	def initEvents(self):
-		dRadioGroup.doDefault()
+		#dRadioGroup.doDefault()
+		super(dRadioGroup, self).initEvents()
 		self.Bind(wx.EVT_RADIOBOX, self._onWxHit)
 		
 		
 	def getPropertyInfo(self, name):
-		d = dRadioGroup.doDefault(name)
+		#d = dRadioGroup.doDefault(name)
+		d = super(dRadioGroup, self).getPropertyinfo(name)
 		if not d['preInitProperty']:
 			d['preInitProperty'] = name in ('MaxElements', 'Element', 'OptionList')
 		return d

@@ -28,7 +28,8 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 
 
 	def initEvents(self):
-		dCommandButton.doDefault()
+		#dCommandButton.doDefault()
+		super(dCommandButton, self).initEvents()
 
 		# Respond to EVT_BUTTON and raise dEvents.Hit:
 		self.Bind(wx.EVT_BUTTON, self._onWxHit)

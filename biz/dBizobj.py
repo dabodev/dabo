@@ -42,7 +42,9 @@ class dBizobj(dabo.common.dObject):
 		# Used the the addChildByRelationDict() method to eliminate infinite loops
 		self.__relationDictSet = False
 
-		dBizobj.doDefault()		
+		#dBizobj.doDefault()		
+		super(dBizobj, self).__init__()
+
 		##########################################
 		### referential integrity stuff ####
 		##########################################

@@ -30,11 +30,13 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 	def afterInit(self):
 		self.SelectOnEntry = False
-		dEditBox.doDefault()
+		#dEditBox.doDefault()
+		super(dEditBox, self).afterInit()
 
 
 	def initEvents(self):
-		dEditBox.doDefault()
+		#dEditBox.doDefault()
+		super(dEditBox, self).initEvents()
 		
 		# bind the wx event to the dabo event:
 		self.Bind(wx.EVT_TEXT, self._onWxHit)

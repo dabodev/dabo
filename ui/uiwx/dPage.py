@@ -6,16 +6,19 @@ class dPage(dPanel.dScrollPanel):
 	""" Create a page to appear as a tab in a dPageFrame.
 	"""
 	def __init__(self, parent, name="dPage"):
-		dPage.doDefault(parent, name=name)
+		#dPage.doDefault(parent, name=name)
+		super(dPage, self).__init__(parent, name=name)
 
 
 	def afterInit(self):
 		self.initSizer()
 		self.itemsCreated = False
-		dPage.doDefault()
+		#dPage.doDefault()
+		super(dPage, self).afterInit()
 		
 	def initEvents(self):
-		dPage.doDefault()
+		#dPage.doDefault()
+		super(dPage, self).afterInit()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
 

@@ -27,7 +27,8 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 
 
 	def initEvents(self):
-		dDropdownList.doDefault()
+		#dDropdownList.doDefault()
+		super(dDropdownList, self).initEvents()
 		
 		# catch the wx event and raise the dabo event:
 		self.Bind(wx.EVT_CHOICE, self._onWxHit)

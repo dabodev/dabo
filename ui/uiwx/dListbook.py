@@ -32,7 +32,8 @@ class dListbook(wx.Listbook, dControlMixin.dControlMixin):
 		
 	
 	def afterInit(self):
-		dListbook.doDefault()
+		#dListbook.doDefault()
+		super(dListbook, self).afterInit()
 
 
 	def initEvents(self):

@@ -16,7 +16,8 @@ class CalPanel(dPanel.dPanel):
 		else:
 			self.date = dt
 		self.ctrl = ctrl
-		CalPanel.doDefault(parent, pos=pos)
+		#CalPanel.doDefault(parent, pos=pos)
+		super(CalPanel, self).__init__(parent, pos=pos)
 	
 	def afterInit(self):
 		""" Create the calendar control, and resize this panel 
@@ -46,7 +47,8 @@ class dDateTextBox(dTextBox.dTextBox):
 	by Quicken, the popular personal finance program.
 	"""
 	def __init__(self, parent, id=-1, name="dDateTextBox", style=0, *args, **kwargs):
-		dDateTextBox.doDefault(parent, id, name, style, *args, **kwargs)
+		#dDateTextBox.doDefault(parent, id, name, style, *args, **kwargs)
+		super(dDateTextBox, self).__init__(parent, id, name, style, *args, **kwargs)
 
 	def beforeInit(self, pre):
 		self.date = wx.DateTime_Now()
@@ -109,7 +111,8 @@ C: Popup Calendar to Select
 """
 	
 	def initEvents(self):
-		dDateTextBox.doDefault()
+		#dDateTextBox.doDefault()
+		super(dDateTextBox, self).initEvents()
 		self.bindEvent(dabo.dEvents.MouseRightDown, self.__onRightClick)
 		if self.useWxEvents:
 			self.Bind(wx.EVT_CHAR, self.__onChar)
@@ -411,7 +414,8 @@ C: Popup Calendar to Select
 	def setFieldVal(self, val):
 		""" We need to convert this back to standard database format """
 		fmt = "%Y-%m-%d"
-		return dDateTextBox.doDefault(self.date.Format(fmt) )
+		#return dDateTextBox.doDefault(self.date.Format(fmt) )
+		return super(dDateTextBox, self).setFieldVal(self.date.Format(fmt))
 	
 	
 	def strFromDate(self):
@@ -442,7 +446,8 @@ C: Popup Calendar to Select
 				self.date = parsedDate
 			else:
 				self.dateOK = False
-		dDateTextBox.doDefault(self.strFromDate() )
+		#dDateTextBox.doDefault(self.strFromDate() )
+		super(dDateTextBox, self)._setValue(self.strFromDate())
 		
 	def _getValue(self):
 		return self.GetValue()

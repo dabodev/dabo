@@ -23,7 +23,8 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 
 
 	def initEvents(self):
-		dLabel.doDefault()
+		#dLabel.doDefault()
+		super(dLabel, self).initEvents()
 
 
 	# property get/set functions
