@@ -100,23 +100,27 @@ def getEventData(wxEvt):
 
 	if isinstance(wxEvt, wx.KeyEvent) or isinstance(wxEvt, wx.MouseEvent) or \
 			isinstance(wxEvt, wx.CommandEvent):
-		d = dir(wxEvt)
-		try:
-			upPems = [p for p in d if p[0].isupper()]
-			for pem in upPems:
-				if pem in ("Skip", "Clone", "Destroy", "Button", "ButtonIsDown", 
-						"GetLogicalPosition", "ResumePropagation", "SetEventObject", 
-						"SetEventType", "SetId", "SetExtraLong", "SetInt", "SetString", 
-						"SetTimestamp", "StopPropagation"):
-					continue
-				try:
-					pemName = pem[0].lower() + pem[1:]
-					ed[pemName] = eval("wxEvt.%s()" % pem)
-				except:
-					pass
-		except:
-			pass
-	
+		
+		if dabo.allNativeEventInfo:
+			# Cycle through all the attributes of the wx events, and evaluate them
+			# for insertion into the dEvent.EventData dict.
+			d = dir(wxEvt)
+			try:
+				upPems = [p for p in d if p[0].isupper()]
+				for pem in upPems:
+					if pem in ("Skip", "Clone", "Destroy", "Button", "ButtonIsDown", 
+							"GetLogicalPosition", "ResumePropagation", "SetEventObject", 
+							"SetEventType", "SetId", "SetExtraLong", "SetInt", "SetString", 
+							"SetTimestamp", "StopPropagation"):
+						continue
+					try:
+						pemName = pem[0].lower() + pem[1:]
+						ed[pemName] = eval("wxEvt.%s()" % pem)
+					except:
+						pass
+			except:
+				pass
+		
 	if isinstance(wxEvt, wx.KeyEvent) or isinstance(wxEvt, wx.MouseEvent):
 		ed["mousePosition"] = wxEvt.GetPositionTuple()
 		ed["altDown"] = wxEvt.AltDown()

@@ -12,18 +12,24 @@ class Event(dObject):
 	using self.bindEvent() and self.raiseEvent() in your objects.
 	"""		
 	def __init__(self, eventObject, uiEvent=None, *args, **kwargs):
-		#Event.doDefault()
-		super(Event, self).__init__()
+		# Event objects get instantiated with every single event, so try
+		# to keep code to a minimum here.
 		
-		self.EventObject = eventObject
+		# There isn't any superclass init code, so don't run it
+		#super(Event, self).__init__()
+		
+		self._eventObject = eventObject
 		self._uiEvent = uiEvent
 		self._args = args
 		self._kwargs = kwargs
+		self._continue = True
 		
 		self._baseClass = Event
 		
 		self._insertEventData()
-		self._logEvent()
+		
+		if dabo.eventLogging:
+			self._logEvent()
 		
 
 	def stop(self):
@@ -37,31 +43,25 @@ class Event(dObject):
 	def _insertEventData(self):
 		""" Place ui-specific stuff into the ui-agnostic EventData dictionary.
 		"""
-		self._extraLogInfo = ""
-		self.EventData = {}		
-		ne = self._uiEvent
+		eventData = {}		
+		nativeEvent = self._uiEvent
+		kwargs = self._kwargs
 		
-		self.EventData["timestamp"] = time.localtime()
+		eventData["timestamp"] = time.localtime()
 
 		# Add any keyword args passed:
-		for key in self._kwargs.keys():
-			self.EventData[key] = self._kwargs[key]
+		for key in kwargs.keys():
+			eventData[key] = kwargs[key]
 
 		# Add native event data:
-		if ne is not None:
+		if nativeEvent is not None:
 			# Each UI lib should implement getEventData()
-			uiEventData = dabo.ui.getEventData(ne)
+			uiEventData = dabo.ui.getEventData(nativeEvent)
 			
 			for key in uiEventData.keys():
-				self.EventData[key] = uiEventData[key]
+				eventData[key] = uiEventData[key]
 				
-			if isinstance(self, KeyEvent):
-				self._extraLogInfo = "KeyCode: %s  KeyChar: %s" % (self.EventData["keyCode"], 
-					self.EventData["keyChar"])
-
-			if isinstance(self, MouseEvent):
-				self._extraLogInfo = "X:%s Y:%s" % (self.EventData["mousePosition"][0], 
-					self.EventData["mousePosition"][1])
+		self._eventData = eventData				
 				
 			
 	def _logEvent(self):
@@ -70,7 +70,7 @@ class Event(dObject):
 		eventName = self.__class__.__name__
 		
 		try:
-			logEvents = self._eventObject.LogEvents
+			logEvents = self._eventObject._getLogEvents()
 		except AttributeError:
 			logEvents = []
 		noLogEvents = []
@@ -84,19 +84,14 @@ class Event(dObject):
 			for logEventName in logEvents:
 				if logEventName.lower() == "all" or logEventName == eventName:
 					dabo.infoLog.write("dEvent Fired: %s.%s %s" % (self._eventObject.getAbsoluteName(), 
-						self.__class__.__name__,
-						self._extraLogInfo))
+						self.__class__.__name__,))
 					break
 
 	def __getattr__(self, att):
 		return getattr(self._uiEvent, att)
 
 	def _getContinue(self):
-		try:
-			v = self._continue
-		except AttributeError:
-			v = True
-		return v
+		return self._continue
 		
 	def _setContinue(self, val):
 		self._continue = bool(val)

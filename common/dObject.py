@@ -62,6 +62,9 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 
 
 	def _getLogEvents(self):
+		# This is expensive, as it is semi-recursive upwards in the containership 
+		# until some parent object finally reports a LogEvents property. In normal 
+		# use, this will be the Application object.
 		try:
 			le = self._logEvents
 		except AttributeError:

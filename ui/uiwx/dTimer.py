@@ -94,11 +94,9 @@ if __name__ == "__main__":
 	
 	class C(dTimer):
 		def afterInit(self):
-			C.doDefault()
 			self.Interval = 1000
 			self.start()
 		def initEvents(self):
-			C.doDefault()
 			self.bindEvent(dabo.dEvents.Hit, self.onHit)
 		def onHit(self, evt):
 			print "timer fired!"
