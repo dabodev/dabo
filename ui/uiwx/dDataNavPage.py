@@ -1,6 +1,6 @@
-IGNORE_STRING		=		"-ignore-"
-CHOICE_TRUE			=		"Is True"
-CHOICE_FALSE			=		"Is False"
+IGNORE_STRING = "-ignore-"
+CHOICE_TRUE = "Is True"
+CHOICE_FALSE = "Is False"
 
 import wx, dabo
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner
@@ -457,9 +457,8 @@ class dSelectPage(DataNavPage):
 		# into the order specified in the specs.
 		fldList = []
 		for fld in fs.keys():
-			if fld[:5] != "_join":
-				if int(fs[fld]["searchInclude"]):
-					fldList.append( (fld, int(fs[fld]["searchOrder"])) )
+			if int(fs[fld]["searchInclude"]):
+				fldList.append( (fld, int(fs[fld]["searchOrder"])) )
 		fldList.sort(lambda x, y: cmp(x[1], y[1]))
 		
 		for fldOrd in fldList:
@@ -706,7 +705,7 @@ class dEditPage(DataNavPage):
 		relationSpecs = self.Form.RelationSpecs
 		showEdit = [ (fld, int(fs[fld]["editOrder"])) 
 				for fld in fs
-				if (fld[:5] != "_join" and fs[fld]["editInclude"] == "1")]
+				if (fs[fld]["editInclude"] == "1")]
 		showEdit.sort(lambda x, y: cmp(x[1], y[1]))
 		mainSizer = self.GetSizer()
 		firstControl = None

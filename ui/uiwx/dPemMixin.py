@@ -660,6 +660,10 @@ class dPemMixin(dPemMixinBase):
 		self._name = self._pemObject.GetName()
 
 	
+	def _setNameBase(self, val):
+		self._setName(val, False)
+		
+		
 	def _getParent(self):
 		return self._pemObject.GetParent()
 	
@@ -797,8 +801,28 @@ class dPemMixin(dPemMixinBase):
 		'Specifies the shape of the mouse pointer when it enters this window. (obj)')
 	
  	Name = property(_getName, _setName, None, 
-		'The name of the object. (str)')
+		"""Specifies the name of the object, which must be unique among siblings.
+		
+		If the specified name isn't unique, an exception will be raised. See also
+		NameBase, which let's you set a base name and Dabo will automatically append
+		integers to make it unique.
+		""")
 	
+	NameBase = property(None, _setNameBase, None,
+		"""Specifies the base name of the object.
+		
+		The base name specified will become the object's Name, unless another sibling
+		already has that name, in which case Dabo will find the next unique name by
+		adding integers to the end of the base name. For example, if your code says:
+		
+			self.NameBase = "txtAddress" 
+			
+		and there is already a sibling object with that name, your object will end up
+		with Name = "txtAddress1".
+		
+		This property is write-only at runtime.
+		""")
+		
 	Parent = property(_getParent, _setParent, None,	
 		'The containing object. (obj)')
 
