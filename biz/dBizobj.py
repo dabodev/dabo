@@ -913,13 +913,7 @@ class dBizobj(dabo.common.dObject):
 		escapes backslashes, since they have special meaning in SQL parsing. 
 		Finally, wraps the value in single quotes.
 		"""
-		ret = val
-		if type(val) in (types.StringType, types.UnicodeType):
-			# escape and then wrap in single quotes
-			sl = "\\"
-			qt = "\'"
-			ret = qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
-		return ret          
+		return self.Cursor.escQuote(val)
 
 
 	def getNonUpdateFields(self):
