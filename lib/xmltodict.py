@@ -79,11 +79,13 @@ def dicttoxml(d, level=0):
 	on "attributes", "cdata", "name", and "children".
 	"""
 	att = ""
+	s = ""
+
 	if d.has_key("attributes"):
 		for a, v in d["attributes"].items():
 			att += ' %s="%s"' % (a, v)
 
-	s = "%s<%s%s" % ("\t" * level, d["name"], att)
+	s += "%s<%s%s" % ("\t" * level, d["name"], att)
 
 	if not d.has_key("cdata") and not d.has_key("children"):
 		s += " />\n"
@@ -99,5 +101,8 @@ def dicttoxml(d, level=0):
 			s += "%s" % "\t" * level
 		
 		s += "</%s>\n" % d["name"]
+
+		if level == 1:
+			s += "\n"
 
 	return s

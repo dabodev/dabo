@@ -478,13 +478,81 @@ class ReportWriter(object):
 		return func(pageSize)
 
 
-	def _setFormFromXML(self):
-		## Called from _setReportFormFile() and _setReportFormXML().
-		## Interprets the xml in ReportFormXML into a Python dict, and sets
-		## self.ReportForm to that dict.
+	def _getXMLFromForm(self, form):
+		"""Returns a valid rfxml string from a report form dict."""
+		# We need to first convert the report form dict into the dict format
+		# as expected by the generic dicttoxml() function. This is a tree of
+		# dicts with keys on 'cdata', 'children', 'name', and 'attributes'.
+
+		d = {"name": "report", "children": []}
+		elements = form.keys()
+		elements.sort()
+		for element in elements:
+			child = {"name": element, "children": []}
+			if type(form[element]) in (str, unicode):
+				child["cdata"] = form[element]
+			else:
+				if element == "testcursor":
+					row = form["testcursor"][0]
+					atts = {}
+					fields = row.keys()
+					fields.sort()
+					for field in fields:
+						if type(row[field]) in (str, unicode):
+							t = "str"
+						elif type(row[field]) in (float, ):
+							t = "float"
+						elif type(row[field]) in (int, long):
+							t = "int"
+						elif type(row[field]) in (bool,):
+							t = "bool"
+						atts[field] = t
+					child["attributes"] = atts
+					
+					cursor = []
+					for row in form["testcursor"]:
+						fields = row.keys()
+						fields.sort()
+						attr = {}
+						for field in fields:
+							attr[field] = row[field]
+						cursor.append({"name": "record", "attributes": attr})
+
+					child["children"] = cursor
+				else:
+					keys = form[element].keys()
+					for key in keys:
+						if type(form[element][key]) in (str, unicode):
+							child["children"].append({"name": key, 
+							                          "cdata": form[element][key]})
+						elif key == "objects":
+							objects = []
+							for index in range(len(form[element][key])):
+								formobj = form[element][key][index]
+								obj = {"name": formobj["type"], "children": []}
+
+								props = formobj.keys()
+								props.sort()
+								for prop in props:
+									obj["children"].append({"name": prop, 
+									                        "cdata": formobj[prop]})
+								objects.append(obj)
+							child["children"].append({"name": "objects",
+							                          "children": objects})	
+					
+			
+
+			d["children"].append(child)
+		
+		# Now that the dict is in the correct format, get the xml:
+		return dicttoxml(d)
+
+
+	def _getFormFromXML(self, xml):
+		"""Returns the report form dict given xml in rfxml format."""
 
 		# Get the xml into a generic tree of dicts:
-		root = xmltodict(self.ReportFormXML)
+		root = xmltodict(xml)
 
 		# Now look for expected keys and values, and fill up the report dict
 		report = {}
@@ -527,9 +595,9 @@ class ReportWriter(object):
 									ob[prop["name"]] = prop["cdata"]
 								c[topchild["name"]].append(ob)
 		else:
-			print "not valid report xml"
+			print "This isn't a valid rfxml string."
 
-		self._reportForm = report
+		return report
 
 
 	def _getBands(self):
@@ -662,7 +730,7 @@ class ReportWriter(object):
 			elif ext == ".rfxml":
 				# The file is a report form xml file. Open it and set ReportFormXML:
 				self._reportFormXML = open(val, "r").read()
-				self._setFormFromXML()
+				self._reportForm = self._getFormFromXML(self._reportFormXML)
 			else:
 				raise ValueError, "Invalid file type."
 			self._reportFormFile = val
@@ -683,7 +751,7 @@ class ReportWriter(object):
 	def _setReportFormXML(self, val):
 		self._reportFormXML = val
 		self._reportFormFile = None
-		self._setFormFromXML()
+		self._reportForm = self._getFormFromXML(self._reportFormXML)
 		
 	ReportFormXML = property(_getReportFormXML, _setReportFormXML, None,
 		"""Specifies the report format xml.""")
@@ -726,10 +794,11 @@ if __name__ == "__main__":
 	rw.ShowBandOutlines = True
 	rw.UseTestCursor = True
 
-	for reportForm in ("./samplespec.rfxml", "./samplespec.py"):
+#	for reportForm in ("./samplespec.rfxml", "./samplespec.py"):
+for reportForm in("./samplespec.py", "./samplespec.rfxml",):
 		output = "./test-%s.pdf" % os.path.splitext(reportForm)[1][1:]
 		print "Creating %s from report form %s..." % (output, reportForm)
 		rw.ReportFormFile = reportForm
 		rw.OutputName = output
 		rw.write()
-		
+
