@@ -18,9 +18,12 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 		self._keys = []
 		self._invertedKeys = []
 		self._valueMode = "string"
+		self.isMultiSelect = False
 
 		preClass = wx.PreListBox
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		# This may have been set when created.
+		self.isMultiSelect = self.hasWindowStyleFlag(wx.LB_EXTENDED)
 
 			
 	def _initEvents(self):
@@ -31,13 +34,10 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 	def clearSelections(self):
 		for elem in self.GetSelections():
 			self.SetSelection(elem, False)
-	
 
-	# Property get/set/del methods follow. Scroll to bottom to see the property
-	# definitions themselves.
+	
 	def _getMultipleSelect(self):
 		return self.hasWindowStyleFlag(wx.LB_EXTENDED)
-
 	def _setMultipleSelect(self, val):
 		if bool(val):
 			self.delWindowStyleFlag(wx.LB_SINGLE)
@@ -45,18 +45,10 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 		else:
 			self.delWindowStyleFlag(wx.LB_EXTENDED)
 			self.addWindowStyleFlag(wx.LB_SINGLE)
-			
 
 	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
-		"""Specifies whether more that one item can be selected at once.
-		-> Boolean. Read-write at runtime.
-		If MultipleSelect is False, the Value properties will return a 
-		singular value representing the currently selected item, or None. 
-		If MultipleSelect is True, the Value properties will return	a tuple
-		representing the selected item(s), or the empty tuple if no items
-		are selected.
-		""")
-		
+			_("Can multiple items be selected at once?  (bool)") )
+
 
 
 if __name__ == "__main__":
@@ -66,7 +58,7 @@ if __name__ == "__main__":
 			T.doDefault()
 			self.ForeColor = "aquamarine"
 			self.setup()
-		
+
 		def initEvents(self):
 			T.doDefault()
 			self.bindEvent(dabo.dEvents.Hit, self.onHit)
@@ -81,12 +73,10 @@ if __name__ == "__main__":
 			for developer in developers:
 				choices.append("%s %s" % (developer['fname'], developer['lname']))
 				keys[developer["iid"]] = len(choices) - 1
-			
 			self.MultipleSelect = True
 			self.Choices = choices
 			self.Keys = keys
 			self.ValueMode = 'Key'
-
 			self.Value = 23
 			#self.Value = None
 			#self.Value = ("Ed Leafe", "Paul McNett")
