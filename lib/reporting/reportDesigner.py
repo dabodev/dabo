@@ -84,6 +84,7 @@ class Band(dabo.ui.dPanel):
 class ReportDesigner(dabo.ui.dScrollPanel):
 	def afterInit(self):
 		self._zoom = self._normalZoom = 1.3
+		self._rulers = []
 		self._bands = []
 		self._rw = ReportWriter()
 		self._rw.ReportFormFile = "samplespec.rfxml"
@@ -104,6 +105,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		rw = self._rw
 		rf = self._rw.ReportForm
 		z = self._zoom
+
 		pageWidth = rw.getPageSize()[0] * z
 		ml = rw.getPt(eval(rf["page"]["marginLeft"])) * z
 		mr = rw.getPt(eval(rf["page"]["marginRight"])) * z
@@ -111,26 +113,62 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		mb = rw.getPt(eval(rf["page"]["marginBottom"])) * z
 		bandWidth = pageWidth - ml - mr
 
+		self.clearRulers()
+
+		tr = self.getRuler("h", pageWidth)
+		tr.Position = (0,0)
+
 		for index in range(len(self._bands)):
 			band = self._bands[index]
 			band.Width = bandWidth
-			band.Left = ml
 			b = band.bandLabel
 			b.Width = band.Width
 		
-			band.Height = z * (band._rw.getPt(eval(band.props["height"])) + b.Height)
+			bandCanvasHeight = z * (band._rw.getPt(eval(band.props["height"])))
+			band.Height = bandCanvasHeight + b.Height
 			b.Top = band.Height - b.Height
 
 			if index == 0:
-				band.Top = mt
+				band.Top = mt + tr.Height
 			else:
 				band.Top = self._bands[index-1].Top + self._bands[index-1].Height
+
+			lr = self.getRuler("v", bandCanvasHeight)
+			rr = self.getRuler("v", bandCanvasHeight)
+			band.Left = ml + lr.Width
+			lr.Position = (0, band.Top)
+			rr.Position = (lr.Width + pageWidth, band.Top)
 			totPageHeight = band.Top + band.Height
 	
 		u = 10
-		totPageHeight = totPageHeight + mt + mb
-		self.SetScrollbars(u,u,pageWidth/u,totPageHeight/u)
+		totPageHeight = totPageHeight + mb
 
+		br = self.getRuler("h", pageWidth)
+		br.Position = (0, totPageHeight)
+		totPageHeight += br.Height
+
+		self.SetScrollbars(u,u,(pageWidth + lr.Width + rr.Width)/u,totPageHeight/u)
+
+	def clearRulers(self):
+		for r in self._rulers:
+			r.Destroy()
+		self._rulers = []
+
+	def getRuler(self, orientation, length):
+		thickness = 10
+		class Ruler(dabo.ui.dPanel):
+			def afterInit(self):
+				self.BackColor = (192,128,192)
+				if orientation[0].lower() == "v":
+					w = thickness
+					h = length
+				else:
+					w = length
+					h = thickness
+				self.Size = (w,h)
+		r = Ruler(self)
+		self._rulers.append(r)
+		return r
 
 class ReportDesignerForm(dabo.ui.dForm):
 	def afterInit(self):
