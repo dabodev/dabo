@@ -1,4 +1,6 @@
 import dabo.common
+import random
+from dabo.dLocalize import _
 
 class dConnectInfo(dabo.common.dObject):
 	""" Holder for the properties for connecting to the backend.
@@ -31,6 +33,28 @@ class dConnectInfo(dabo.common.dObject):
 			return self.BackendObject.getDictCursorClass()
 		except TypeError:
 			return None
+	
+	
+	def encrypt(self, val):
+		tc = TinyCrypt(self.generateKey(val))
+		return tc.encrypt(val)
+		
+
+	def generateKey(self, s):
+		chars = []
+		for i in range(len(s)):
+			chars.append(chr(65 + random.randrange(26)))
+		return "".join(chars)
+	
+
+	def decrypt(self, val):
+		tc = TinyCrypt("".join([val[i] for i in range(0, len(val), 3)]))
+		return tc.decrypt("".join([val[i+1:i+3] for i in range(0, len(val), 3)]))
+	
+	
+	def revealPW(self):
+		return self.decrypt(self.Password)
+	
 
 	def _getBackendName(self): 
 		try:
@@ -117,11 +141,50 @@ class dConnectInfo(dabo.common.dObject):
 	Port = property(_getPort, _setPort, None, 
 			'The port to connect on (may not be applicable for all databases). (int)')
 
+
+class TinyCrypt:
+	""" Simple class that handles basic encryption/decryption for 
+	this script.
+	
+	Thanks to Raymond Hettinger for this code, originally found on
+	http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/266586
+	"""
+	def __init__(self, aKey):
+		self.__key = aKey
+		self.rng = random.Random(aKey)
+		self.rand = self.rng.randrange
+
+	def encrypt(self, aString):
+		crypted = [chr(ord(elem)^self.rand(256)) for elem in aString]
+		hex = self.strToHex("".join(crypted))
+		ret = "".join([self.__key[i/2]  + hex[i:i+2] for i in range(0, len(hex), 2)])
+		return ret
+		
+	def decrypt(self, aString):
+		aString = self.hexToStr(aString)
+		decrypted = [chr(ord(elem)^self.rand(256)) for elem in aString]
+		return "".join(decrypted)
+		
+	def strToHex(self, aString):
+		hexlist = ["%02X" % ord(x) for x in aString]
+		return ''.join(hexlist)
+	
+	def hexToStr(self, aString):
+		# Break the string into 2-character chunks
+		try:
+			chunks = [chr(int(aString[i] + aString[i+1], 16)) 
+					for i in range(0, len(aString), 2)]
+		except:
+			raise ValueError, _("Incorrectly-encrypted password")
+		return "".join(chunks)
+		
+	
+		
 if __name__ == '__main__':
 	test = dConnectInfo()
 	print test.backendName
 	test.backendName = "MySQL"
 	print test.backendName
-# 	test.backendName = "mssql"
-# 	print test.backendName
+#	test.backendName = "mssql"
+#	print test.backendName
 

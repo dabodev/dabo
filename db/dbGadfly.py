@@ -35,7 +35,7 @@ class GadflyClient(dBackend):
 
 		return dbapi.gfclient(connectInfo.user, 
 							port, 
-							connectInfo.password,
+							connectInfo.revealPW(),
 							connectInfo.host)
 
 							

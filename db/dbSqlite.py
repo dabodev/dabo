@@ -13,7 +13,7 @@ class Sqlite(dBackend):
 # 
 # 		return dbapi.connect(host=connectInfo.Host, 
 # 							user=connectInfo.User,
-# 							passwd=connectInfo.Password,
+# 							passwd=connectInfo.revealPW(),
 # 							db=connectInfo.DbName)
 
 	def getDictCursorClass(self):

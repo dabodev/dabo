@@ -21,7 +21,7 @@ class dBackend(dabo.common.dObject):
 
 	def getConnection(self, connectInfo):
 		""" override in subclasses """
-		return None        
+		return None
 
 	def getDictCursorClass(self):
 		""" override in subclasses """

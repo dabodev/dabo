@@ -14,13 +14,13 @@ class MySQL(dBackend):
 		port = connectInfo.Port
 		if not port:
 			port = 3306
-
+				
 		self._connection = dbapi.connect(host=connectInfo.Host, 
-				user=connectInfo.User,
-				passwd=connectInfo.Password,
+				user = connectInfo.User,
+				passwd = connectInfo.revealPW(),
 				db=connectInfo.DbName,
 				port=port)
-				
+
 		return self._connection
 
 	def getDictCursorClass(self):

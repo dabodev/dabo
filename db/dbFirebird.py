@@ -18,7 +18,7 @@ class Firebird(dBackend):
 		# kinterbasdb will barf with unicode strings:
 		host = str(connectInfo.Host)
 		user = str(connectInfo.User)
-		password = str(connectInfo.Password)
+		password = str(connectInfo.revealPW())
 		database = str(connectInfo.DbName)
 		
 		self._connection = kinterbasdb.connect(host=host, user=user, password=password,
