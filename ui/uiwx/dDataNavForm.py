@@ -19,7 +19,7 @@ class dDataNavForm(dForm.dForm):
 		# Determines if we are actually running the form, or just 
 		# previewing it
 		self._fieldSpecs = {}
-		self._relaSpecs = {}
+		self._relationSpecs = {}
 		self._childBehavior = {}
 		self._requeried = False
 		# Used for turning sizer outline drawing on pages
@@ -343,10 +343,10 @@ class dDataNavForm(dForm.dForm):
 		# First, get the field spec data into a dictionary.
 		rawSpecs = fieldSpecParser.importFieldSpecs(xmlFile, tbl)
 		relaKeys = [k for k in rawSpecs.keys() if k.find("::") > 0]
-		self.RelaSpecs = {}
+		self.RelationSpecs = {}
 		self.FieldSpecs = rawSpecs.copy()
 		for rk in relaKeys:
-			self.RelaSpecs[rk] = rawSpecs[rk]
+			self.RelationSpecs[rk] = rawSpecs[rk]
 			del self.FieldSpecs[rk]
 		
 		if not self.preview:
@@ -354,9 +354,6 @@ class dDataNavForm(dForm.dForm):
 			biz = self.getBizobj()
 			biz.setFieldClause("")
 			for fld in self.FieldSpecs.keys():
-				if len(fld.split("::")) > 1:
-					# This is a relation, not a field definition
-					continue
 				fldInfo = self.FieldSpecs[fld]
 				if int(fldInfo["editInclude"]) or int(fldInfo["listInclude"]):
 					biz.addField("%s.%s as %s" % (tbl, fld, fld) )
@@ -480,10 +477,10 @@ class dDataNavForm(dForm.dForm):
 	def _setFieldSpecs(self, val):
 		self._fieldSpecs = val
 		
-	def _getRelaSpecs(self):
-		return self._relaSpecs
-	def _setRelaSpecs(self, val):
-		self._relaSpecs = val
+	def _getRelationSpecs(self):
+		return self._relationSpecs
+	def _setRelationSpecs(self, val):
+		self._relationSpecs = val
 		
 	def _setDrawSizerOutlines(self, val):
 		self._drawSizerOutlines = val
@@ -511,7 +508,7 @@ class dDataNavForm(dForm.dForm):
 	FieldSpecs = property(_getFieldSpecs, _setFieldSpecs, None, 
 			"Reference to the dictionary containing field behavior specs")
 
-	RelaSpecs = property(_getRelaSpecs, _setRelaSpecs, None, 
+	RelationSpecs = property(_getRelationSpecs, _setRelationSpecs, None, 
 			"Reference to the dictionary containing table relation specs")
 
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
