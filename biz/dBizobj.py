@@ -408,8 +408,13 @@ class dBizobj(object):
 		return True
 
 
-	def setSQL(self, sql):
-		""" Allows you to change the sql executed by the cursor """
+	def setSQL(self, sql=None):
+		""" Allows you to change the sql executed by the cursor. If no
+		sql is passed, it is assumed that the user wants to set the SQL 
+		to the current value returned by getSQL()
+		"""
+		if sql is None:
+			sql = self.getSQL()
 		self.sql = sql
 		self._cursor.setSQL(sql)
 
