@@ -115,6 +115,7 @@ class dApp(object):
         The main event loop has exited and the application
             is about to finish.
         """
+        print "Application finished."
         pass
         
     def getAppInfo(self, item):

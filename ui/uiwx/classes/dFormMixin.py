@@ -6,6 +6,7 @@ import dMenu, dMessageBox
 
 class dFormMixin(pm.dPemMixin):
     def __init__(self, dApp):
+        dFormMixin.doDefault()
         self.dApp = dApp
         
         wx.EVT_CLOSE(self, self.OnClose)

@@ -40,6 +40,7 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
         
         self.afterInit()                      # defined in dPemMixin
         
+        
 if __name__ == "__main__":
     import test
     test.Test().runTest(dFormMain)

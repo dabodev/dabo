@@ -1,24 +1,18 @@
 ''' dPage.py '''
-import wx, dControlMixin
+import wx, dPanel
 
-class dPage(wx.Panel, dControlMixin.dControlMixin):
+class dPage(dPanel.dPanel):
         
     def __init__(self, parent, name="dPage"):
-        pre = wx.PrePanel()
-        self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, 0)
+        dPage.doDefault(parent, name)
+    
         
-        self.this = pre.this
-        self._setOORInfo(self)
-        
-        dControlMixin.dControlMixin.__init__(self, name)
-        
+    def afterInit(self):
         self.initSizer()
         self.itemsCreated = False
+        dPage.doDefault()
         
-        self.afterInit()                      # defined in dPemMixin
         
-    
     def initSizer(self):
         ''' Set up the default vertical box sizer for the page.
         '''

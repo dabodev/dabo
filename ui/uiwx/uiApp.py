@@ -27,17 +27,16 @@ class uiApp(wx.App):
         self.mainFrame = dFormMain(dApp)
         self.SetTopWindow(self.mainFrame)
 
-        self.mainFrame.Show(True)
+        self.mainFrame.Show()
         if wx.Platform == '__WXMAC__':
             self.mainFrame.SetSize((1,1))
-            self.mainFrame.SetTitle(dApp.getAppInfo("appName"))    
     
     def start(self, dApp):
         self.MainLoop()
     
     def onFileExit(self):
         self.mainFrame.Close(True)
-
+        
     def onEditPreferences(self):
         print "Stub: uiApp.onEditPreferences()"
         

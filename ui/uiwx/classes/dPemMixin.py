@@ -18,9 +18,11 @@ class dPemMixin(object):
         except TypeError:
             ret = None
         if not ret:
+            name = self._name
             raise AttributeError, "%s object has no attribute %s" % (
-                self.GetName(), att)
-        return ret
+                name, att)
+        else:
+            return ret
 
     
     def doDefault(cls, *args, **kwargs):
@@ -48,6 +50,7 @@ class dPemMixin(object):
         Allows things like extra style flags to be set or XRC resources to
         be loaded. Subclasses can override this as necessary.
         '''
+        self._name = "?"
         pass
         
     
@@ -78,16 +81,12 @@ class dPemMixin(object):
             return self._baseClass
         except AttributeError:
             return None
-    def _setBaseClass(self, baseClass):
-        self._baseClass = baseClass
         
     def _getParentClass(self):
         try:
             return self._parentClass
         except AttributeError:
             return None
-    def _setParentClass(self, parentClass):
-        self._parentClass = parentClass
     
         
     def _getFont(self):
@@ -129,8 +128,11 @@ class dPemMixin(object):
 
 
     def _getName(self):
-        return self.GetName()
+        name = self.GetName()
+        self._name = name      # keeps name available even after C++ object is gone.
+        return name
     def _setName(self, name):
+        self._name = name      # keeps name available even after C++ object is gone.
         self.SetName(name)
 
 
