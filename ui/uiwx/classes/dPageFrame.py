@@ -31,6 +31,7 @@ class dPageFrame(wx.Notebook, dControlMixin):
         self.AddPage(dEditPage(self), "Edit", imageId=2)
         
     def OnPageChanged(self, event):
+        event.Skip()
         newPage = self.GetPage(event.GetSelection())
         oldPage = self.GetPage(self.lastSelection)    
         
@@ -39,5 +40,4 @@ class dPageFrame(wx.Notebook, dControlMixin):
         
         self.lastSelection = self.GetSelection()
 
-        event.Skip()
 
