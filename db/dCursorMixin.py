@@ -318,6 +318,12 @@ class dCursorMixin(dabo.common.dObject):
 		
 	def __setNonUpdateFields(self):
 		# This is the current description of the cursor.
+		if not self.description:
+			# A query hasn't been run yet; so we need to get one
+			holdWhere = self._whereClause
+			self.addWhere("1 = 0")
+			self.execute(self.getSQL())
+			self._whereClause = holdWhere
 		descFlds = self.description
 		# Get the raw version of the table
 		sql = """select * from %s where 1=0 """ % self.Table
