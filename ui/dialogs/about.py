@@ -95,7 +95,6 @@ class About(dabo.ui.dDialog):
 
 
 	def onClear(self, evt):
-		print "onclear"
 		self.Close()
 	
 	def onClose(self, evt=None):
