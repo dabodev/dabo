@@ -290,10 +290,9 @@ class dBizobj(dabo.common.dObject):
 		# Validate any changes to the data. If there is data that fails
 		# validation, an Exception will be raised.
 		self._validate()
-
+		
 		# See if we are saving a newly added record, or mods to an existing record.
 		isAdding = self.Cursor.isAdding()
-
 		if startTransaction:
 			# Tell the cursor to issue a BEGIN TRANSACTION command
 			self.Cursor.beginTransaction()
@@ -688,10 +687,11 @@ class dBizobj(dabo.common.dObject):
 	def isChanged(self):
 		""" Return True if data has changed in this bizobj and any children.
 		
-		By default, only the current record is checked. Set allRows to True to
+		By default, only the current record is checked. Call isAnyChanged() to
 		check all records.
 		"""
-		ret = self.Cursor.isChanged()
+		ret = self.Cursor.isChanged(allRows = False)
+		
 		if not ret:
 			# see if any child bizobjs have changed
 			for child in self.__children:
