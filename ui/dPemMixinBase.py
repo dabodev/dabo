@@ -97,53 +97,74 @@ class dPemMixinBase(dabo.common.dObject):
 		pass
 		
 
-	def getPropValDict(self, obj=None):
-		""" Return a dictionary of property name/value pairs.
-		"""
-		if obj is None:
-			obj = self
-		propValDict = {}
-		propList = obj.getPropertyList()
-		for prop in propList:
-			if prop == "Form":
-				# This property is not used.
-				continue
-			propValDict[prop] = eval("obj.%s" % prop)
-		return propValDict
-	
-	
-	def applyPropValDict(self, obj=None, pvDict={}):
-		""" Apply the passed dictionary of prop/val pairs to the passed object.
-		"""
-		if obj is None:
-			obj=self
-		ignoreProps = ["Application", "BaseClass", "Bottom", "Class", "Font", 
-				"FontFace", "FontInfo", "Form", "MousePointer", "Parent", 
-				"Right", "SuperClass", "WindowHandle"]
-		propList = obj.getPropertyList()
-		name = obj.Name
-		for prop in propList:
-			if prop in ignoreProps:
-				continue
-			try:
-				sep = ""	# Empty String
-				val = pvDict[prop]
-				if type(val) in (types.UnicodeType, types.StringType):
-					sep = "'"	# Single Quote
-				try:
-					exp = "obj.%s = %s" % (prop, sep+self.escapeQt(str(val))+sep)
-					exec(exp)
-				except:
-					#pass
-					dabo.errorLog.write(_("Could not set property: %s"), exp)
-			except:
-				pass
-		# Font assignment can be complicated during the iteration of properties,
-		# so assign it explicitly here at the end.
-		if pvDict.has_key("Font"):
-			obj.Font = pvDict["Font"]
+	def getProperties(self, propertySequence=(), *propertyArguments):
+		""" Returns a dictionary of property name/value pairs.
+		
+		If a sequence of properties is passed, just those property values
+		will be returned. Otherwise, all property values will be returned.
+		The sequence of properties can be a list, tuple, or plain string
+		positional arguments. For instance, all of the following are
+		equivilent:
 			
+			print self.getProperties("Caption", "FontInfo", "Form")
+			print self.getProperties(["Caption", "FontInfo", "Form"])
+			t = ("Caption", "FontInfo", "Form")
+			print self.getProperties(t)
+			print self.getProperties(*t)
+		"""
+		propDict = {}
+		
+		def _fillPropDict(_propSequence):
+			for property in _propSequence:
+				getter = eval("self.__class__.%s.fget" % property)
+				if getter is not None:
+					propDict[property] = getter(self)
+				else:
+					# not sure what to do here
+					dabo.infoLog.write("Property '%s' is not readable." % property)
+		if type(propertySequence) in (list, tuple):
+			_fillPropDict(propertySequence)
+		else:
+			if type(propertySequence) in (str, unicode):
+				propertyArguments = list(propertyArguments)
+				propertyArguments.append(propertySequence)
+				propertyArguments = tuple(propertyArguments)
+		_fillPropDict(propertyArguments)
+		if len(propertyArguments) == 0 and len(propertySequence) == 0:
+			# User didn't send a list of properties, so return all properties:
+			_fillPropDict(self.getPropertyList())
+		return propDict
+
 	
+	def setProperties(self, propDict={}, **propKw):
+		""" Sets a group of properties on the object all at once.
+			
+		You have the following options for sending the properties:
+			1) Property/Value pair dictionary
+			2) Keyword arguments
+			3) Both
+	
+		The following examples all do the same thing:
+		self.setProperties(FontBold=True, ForeColor="Red")
+		self.setProperties({"FontBold": True, "ForeColor": "Red")
+		self.setProperties({"FontBold": True}, ForeColor="Red")
+		"""
+		def _setProps(_propDict):
+			for property in _propDict.keys():
+				setter = eval("self.__class__.%s.fset" % property)
+				if setter is not None:
+					setter(self, _propDict[property])
+				else:
+					# not sure what to do here
+					dabo.infoLog.write("Property '%s' is read-only." % property)
+					
+		# Set the props specified in the passed propDict dictionary:
+		_setProps(propDict)
+	
+		# Set the props specified in the keyword arguments:
+		_setProps(propKw)
+
+			
 	def reCreate(self, child=None):
 		""" Abstract method: subclasses MUST override for UI-specifics.
 		"""

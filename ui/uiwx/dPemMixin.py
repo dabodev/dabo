@@ -245,14 +245,14 @@ class dPemMixin(dPemMixinBase):
 	def reCreate(self, child=None):
 		""" Recreate self.
 		"""
-		if child:
-			propValDict = self.getPropValDict(child)
+		if child is not None:
+			propValDict = child.getProperties()
 			style = child.GetWindowStyle()
 			classRef = child.__class__
 			name = child.Name
 			child.Destroy()
 			newObj = self.addObject(classRef, name, style=style)
-			self.applyPropValDict(newObj, propValDict)
+			newObj.setProperties(propValDict)
 			return newObj
 		else:
 			return self.Parent.reCreate(self)
@@ -262,12 +262,12 @@ class dPemMixin(dPemMixinBase):
 		""" Create another object just like the passed object. It assumes that the 
 		calling object will be the container of the newly created object.
 		"""
-		propValDict = self.getPropValDict(obj)
+		propValDict = obj.getProperties()
 		if name is None:
 			name = obj.Name + "1"
 		newObj = self.addObject(obj.__class__, 
 				name, style=obj.GetWindowStyle() )
-		self.applyPropValDict(newObj, propValDict)
+		newObj.setProperties(propValDict)
 		return newObj
 		
 
