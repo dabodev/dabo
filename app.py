@@ -49,19 +49,26 @@ class Collection(list):
                 
 class App(object):
     ''' dabo.App : The containing object for the entire application.
-                    Various UI's will have app objects also, which 
-                    dApp is a wrapper for. '''
+                   Various UI's will have app objects also, which 
+                   App is a wrapper for. 
+    '''
+
     def __init__(self):
         object.__init__(self)
         self._initProperties()
         
     def setup(self):
+        ''' Set up the app - call this before start().'''
+
         # dabo is going to want to import various things from the homeDir
         sys.path.append(self.homeDir)
+    
         self.initUI()
         self.initDB()
 
     def initDB(self):
+        ''' Set the available connection definitions for use by the app. '''
+
         dbConnectionDefs = None
         try:
             globals_ = {}
@@ -83,6 +90,7 @@ class App(object):
 
                 
     def initUI(self):
+        ''' Set the user-interface library for the application. '''
         if self.uiType == None:
             # Future: read a config file in the homeDir
             # Present: set UI to wx
