@@ -1,4 +1,4 @@
-''' daboApp.py: The application object and the main frame object. '''
+""" daboApp.py: The application object and the main frame object. """
 
 import sys, os, wx
 from dabo.db import *
@@ -94,8 +94,8 @@ class uiApp(wx.App):
 
 
 	def onEditFind(self, event):
-		''' Display a Find dialog. 
-		'''
+		""" Display a Find dialog. 
+		"""
 		win = wx.GetActiveWindow().FindFocus()
 		if win:
 			self.findWindow = win           # Save reference for use by self.OnFind()
@@ -115,18 +115,18 @@ class uiApp(wx.App):
 
 
 	def OnFindClose(self, event):
-		''' User clicked the close button, so hide the dialog.
-		'''
+		""" User clicked the close button, so hide the dialog.
+		"""
 		event.GetEventObject().Hide()
 		event.Skip()
 
 
 	def OnFind(self, event):
-		''' User clicked the 'find' button in the find dialog.
+		""" User clicked the 'find' button in the find dialog.
 
 		Run the search on the current control, if it is a text-based control.
 		Select the found text in the control.
-		'''
+		"""
 		win = self.findWindow
 		if win:
 			try: 

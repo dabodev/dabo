@@ -1,10 +1,10 @@
 class PropertyHelperMixin(object):
-	''' Helper functions for getting information on class properties.
-	'''
+	""" Helper functions for getting information on class properties.
+	"""
 
 	def getPropertyList(classOrInstance):
-		''' Return the list of properties for this object (class or instance).
-		'''
+		""" Return the list of properties for this object (class or instance).
+		"""
 		propList = []
 		for item in dir(classOrInstance):
 			if type(eval('classOrInstance.%s' % item)) == property:
@@ -14,8 +14,8 @@ class PropertyHelperMixin(object):
 
 
 	def getPropertyInfo(self, name):
-		''' Return a dict of information about the passed property name.
-		'''
+		""" Return a dict of information about the passed property name.
+		"""
 		propRef = eval('self.__class__.%s' % name)
 		propVal = eval('self.%s' % name)
 

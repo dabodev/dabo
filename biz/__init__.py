@@ -1,4 +1,4 @@
-''' dabo.biz : Dabo BizObj's
+""" dabo.biz : Dabo BizObj's
 
 Ed Leafe writes:
 
@@ -17,6 +17,6 @@ Ed Leafe writes:
 
 So, dabo.biz sits in between dabo.db and dabo.ui
 
-'''
+"""
 from dBizobj import dBizobj
 

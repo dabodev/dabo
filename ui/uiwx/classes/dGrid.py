@@ -1,10 +1,10 @@
-''' dGrid.py
+""" dGrid.py
 
 This is a grid designed to browse records of a bizobj. It does
 not descend from dControlMixin at this time, but is self-contained.
 There is a dGridDataTable definition here as well, that defines
 the 'data' that gets displayed in the grid.
-'''
+"""
 import wx, wx.grid
 import urllib
 import dIcons
@@ -51,8 +51,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def fillTable(self):
-		''' Fill the grid's data table to match the bizobj.
-		'''
+		""" Fill the grid's data table to match the bizobj.
+		"""
 		rows = self.GetNumberRows()
 		oldRow = self.bizobj.getRowNumber()    # current row per the bizobj
 		oldCol = self.grid.GetGridCursorCol()  # current column per the grid
@@ -131,11 +131,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def getWxGridType(self, xBaseType):
-		''' Get the wx data type, given a 1-char xBase type.
+		""" Get the wx data type, given a 1-char xBase type.
 
 		This is used by the grid data table to determine the editors to use 
 		for the various columns.
-		'''
+		"""
 		if xBaseType == "L":
 			return wx.grid.GRID_VALUE_BOOL
 		if xBaseType == "I":
@@ -153,8 +153,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def MoveColumn(self, col, to):
-		''' Move the column to a new position.
-		'''
+		""" Move the column to a new position.
+		"""
 		old = self.relativeColumns[col]
 		del self.relativeColumns[col]
 
@@ -255,8 +255,8 @@ class dGrid(wx.grid.Grid):
 
 
 	def initHeader(self):
-		''' Initialize behavior for the grid header region.
-		'''
+		""" Initialize behavior for the grid header region.
+		"""
 		header = self.GetGridColLabelWindow()
 
 		header.Bind(wx.EVT_LEFT_DOWN, self.OnHeaderLeftDown)
@@ -266,8 +266,8 @@ class dGrid(wx.grid.Grid):
 
 
 	def fillGrid(self):
-		''' Refresh the grid to match the data in the bizobj.
-		'''
+		""" Refresh the grid to match the data in the bizobj.
+		"""
 
 		# Get the default row size from dApp's user settings
 		s = self.form.dApp.getUserSetting("%s.%s.%s" % (
@@ -283,8 +283,8 @@ class dGrid(wx.grid.Grid):
 
 
 	def OnColSize(self, event):
-		''' Occurs when the user resizes the width of the column.
-		'''
+		""" Occurs when the user resizes the width of the column.
+		"""
 		col = event.GetRowOrCol()
 		width = self.GetColSize(col)
 
@@ -298,8 +298,8 @@ class dGrid(wx.grid.Grid):
 
 
 	def OnGridSelectCell(self, event):
-		''' Occurs when the grid's cell focus has changed.
-		'''
+		""" Occurs when the grid's cell focus has changed.
+		"""
 		oldRow = self.GetGridCursorRow()
 		newRow = event.GetRow()
 		
@@ -313,8 +313,8 @@ class dGrid(wx.grid.Grid):
 
 
 	def OnColumnHeaderPaint(self, evt):
-		''' Occurs when it is time to paint the grid column headers.
-		'''
+		""" Occurs when it is time to paint the grid column headers.
+		"""
 		w = self.GetGridColLabelWindow()
 		dc = wx.PaintDC(w)
 		clientRect = w.GetClientRect()
@@ -363,10 +363,10 @@ class dGrid(wx.grid.Grid):
 
 
 	def OnIncrementalSearchTimer(self, evt):
-		''' Occurs when the incremental search timer reaches its interval. 
+		""" Occurs when the incremental search timer reaches its interval. 
 
 		It is time to run the search, if there is any search in the buffer.
-		'''
+		"""
 		if len(self.currentIncrementalSearch) > 0:
 			self.processIncrementalSearch()
 		else:
@@ -374,8 +374,8 @@ class dGrid(wx.grid.Grid):
 
 
 	def OnHeaderMotion(self, evt):
-		''' Occurs when the mouse moves in the grid header.
-		'''
+		""" Occurs when the mouse moves in the grid header.
+		"""
 		headerIsDragging = self.headerDragging
 		headerIsSizing = self.headerSizing
 		dragging = evt.Dragging()
@@ -415,13 +415,13 @@ class dGrid(wx.grid.Grid):
 
 
 	def OnHeaderLeftUp(self, evt):
-		''' Occurs when the left mouse button goes up in the grid header.
+		""" Occurs when the left mouse button goes up in the grid header.
 
 		Basically, this comes down to two possibilities: the end of a drag
 		operation, or a single-click operation. If we were dragging, then
 		it is possible a column needs to change position. If we were clicking,
 		then it is a sort operation.
-		'''
+		"""
 		x,y = evt.GetX(), evt.GetY()
 		if self.headerDragging:
 			# A drag action is ending
@@ -449,25 +449,25 @@ class dGrid(wx.grid.Grid):
 
 
 	def OnHeaderLeftDown(self, evt):
-		''' Occurs when the left mouse button goes down in the grid header.
-		'''
+		""" Occurs when the left mouse button goes down in the grid header.
+		"""
 		pass
 
 
 	def OnLeftDClick(self, evt): 
-		''' Occurs when the user double-clicks a cell in the grid. 
+		""" Occurs when the user double-clicks a cell in the grid. 
 
 		By default, this is interpreted as a request to edit the record.
-		'''
+		"""
 		self.editRecord()
 
 
 	def OnRightClick(self, evt):
-		''' Occurs when the user right-clicks a cell in the grid. 
+		""" Occurs when the user right-clicks a cell in the grid. 
 
 		By default, this is interpreted as a request to display the popup 
 		menu, as defined in self.popupMenu().
-		'''
+		"""
 
 		# Select the cell that was right-clicked upon
 		self.SetGridCursor(evt.GetRow(), evt.GetCol())
@@ -481,15 +481,15 @@ class dGrid(wx.grid.Grid):
 
 
 	def OnGridLabelLeftClick(self, evt):
-		''' Occurs when the user left-clicks a grid column label. 
+		""" Occurs when the user left-clicks a grid column label. 
 
 		By default, this is interpreted as a request to sort the column.
-		'''
+		"""
 		self.processSort(evt.GetCol())
 
 
 	def OnKeyDown(self, evt): 
-		''' Occurs when the user presses a key inside the grid. 
+		""" Occurs when the user presses a key inside the grid. 
 
 		Default actions depend on the key being pressed:
 
@@ -497,7 +497,7 @@ class dGrid(wx.grid.Grid):
 						Del:  delete the record
 						F2:  sort the current column
 				AlphaNumeric:  incremental search
-		'''
+		"""
 		keyCode = evt.GetKeyCode()
 		try:
 			char = chr(keyCode)
@@ -518,8 +518,8 @@ class dGrid(wx.grid.Grid):
 
 
 	def newRecord(self, event=None):
-		''' Request that a new row be added.
-		'''
+		""" Request that a new row be added.
+		"""
 		try:
 			self.GetParent().getDform().new()
 			self.GetParent().editRecord()
@@ -528,8 +528,8 @@ class dGrid(wx.grid.Grid):
 
 
 	def editRecord(self, event=None):
-		''' Request that the current row be edited.
-		'''
+		""" Request that the current row be edited.
+		"""
 		try:
 			self.GetParent().editRecord()
 		except AttributeError:
@@ -537,8 +537,8 @@ class dGrid(wx.grid.Grid):
 
 
 	def deleteRecord(self, event=None):
-		''' Request that the current row be deleted.
-		'''
+		""" Request that the current row be deleted.
+		"""
 		try:
 			self.GetParent().getDform().delete()
 		except AttributeError:
@@ -546,11 +546,11 @@ class dGrid(wx.grid.Grid):
 
 
 	def processSort(self, gridCol=None):
-		''' Sort the grid column.
+		""" Sort the grid column.
 
 		Toggle between ascending and descending. If the grid column index isn't 
 		passed, the currently active grid column will be sorted.
-		'''
+		"""
 		table = self.GetTable()
 
 		if gridCol == None:
@@ -576,8 +576,8 @@ class dGrid(wx.grid.Grid):
 
 
 	def processIncrementalSearch(self):
-		''' Run the incremental search.
-		'''
+		""" Run the incremental search.
+		"""
 		gridCol = self.GetGridCursorCol()
 		if gridCol < 0:
 			gridCol = 0
@@ -598,11 +598,11 @@ class dGrid(wx.grid.Grid):
 
 
 	def addToIncrementalSearch(self, key):
-		''' Add a character to the current incremental search.
+		""" Add a character to the current incremental search.
 
 		Called by KeyDown when the user pressed an alphanumeric key. Add the 
 		key to the current search and start the timer.        
-		'''
+		"""
 		self.incrementalSearchTimer.Stop()
 
 		self.currentIncrementalSearch = ''.join((self.currentIncrementalSearch, key))
@@ -613,10 +613,10 @@ class dGrid(wx.grid.Grid):
 
 
 	def popupMenu(self):
-		''' Display a popup menu of relevant choices. 
+		""" Display a popup menu of relevant choices. 
 
 		By default, the choices are 'New', 'Edit', and 'Delete'.
-		'''
+		"""
 		popup = wx.Menu()
 		id_new,id_edit,id_delete = wx.NewId(), wx.NewId(), wx.NewId()
 
@@ -641,11 +641,11 @@ class dGrid(wx.grid.Grid):
 
 
 	def OnGridRowSize(self, evt):
-		''' Occurs when the user sizes the height of the row. 
+		""" Occurs when the user sizes the height of the row. 
 
 		Dabo overrides the wxPython default and applies that size change to all
 		rows, not just the row the user sized.
-		'''
+		"""
 		row = evt.GetRowOrCol()
 		size = self.GetRowSize(row)
 
@@ -661,14 +661,14 @@ class dGrid(wx.grid.Grid):
 
 
 	def getHTML(self, justStub=True, tableHeaders=True):
-		''' Get HTML suitable for printing out the data in this grid.
+		""" Get HTML suitable for printing out the data in this grid.
 
 		This can be used by client code to get a quick and dirty report
 		via wxHtmlEasyPrinting, for example. 
 
 		If justStub is False, it will be a standalone HTML file complete 
 		with <HTML><HEAD> etc...
-		'''
+		"""
 		cols = self.GetNumberCols()
 		rows = self.GetNumberRows()
 
@@ -711,8 +711,8 @@ class dGrid(wx.grid.Grid):
 
 
 	def getColByX(self, x):
-		''' Given the x-coordinate, return the column number.
-		'''
+		""" Given the x-coordinate, return the column number.
+		"""
 		totColSize = 0
 		for col in range(self.GetNumberCols()):
 			colSize = self.GetColSize(col)

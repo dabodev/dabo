@@ -2,8 +2,8 @@ import wx
 import dControlMixin as cm
 
 class dCommandButton(wx.Button, cm.dControlMixin):
-	''' Allows the user to cause an action to occur by pushing a button.
-	'''
+	""" Allows the user to cause an action to occur by pushing a button.
+	"""
 	def __init__(self, parent, id=-1, name="dCommandButton", style=0, *args, **kwargs):
 
 		self._baseClass = dCommandButton

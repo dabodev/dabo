@@ -3,14 +3,14 @@ import dPageFrameDataNav as pgf
 import dIcons, wx
 
 class dFormDataNav(frm.dForm):
-	''' This is a dForm but with the following added controls:
+	""" This is a dForm but with the following added controls:
 		+ Navigation Menu
 		+ Navigation ToolBar
 		+ PageFrame with 3 pages by default:
 			+ Select : Enter sql-select criteria.
 			+ Browse : Browse the result set and pick an item to edit.
 			+ Edit   : Edit the current record in the result set.
-	'''
+	"""
 
 	def beforeInit(self, preObject):
 		dFormDataNav.doDefault(preObject)
@@ -134,11 +134,11 @@ class dFormDataNav(frm.dForm):
 
 
 	def setupMenu(self):
-		''' Set up the navigation menu for this frame.
+		""" Set up the navigation menu for this frame.
 
 		Called whenever the primary bizobj is set or whenever this
 		frame receives the focus.
-		'''
+		"""
 		mb = self.GetMenuBar()
 
 		menuIndex = mb.FindMenu("&Navigation")
@@ -155,13 +155,13 @@ class dFormDataNav(frm.dForm):
 
 
 	def setupPageFrame(self):
-		''' Set up the select/browse/edit/n pageframe.
+		""" Set up the select/browse/edit/n pageframe.
 
 		Default behavior is to set up a 3-page pageframe with 'Select', 
 		'Browse', and 'Edit' pages. User may override and/or extend in 
 		subclasses and overriding self.beforeSetupPageFrame(), 
 		self.setupPageFrame, and/or self.afterSetupPageFrame().
-		'''
+		"""
 		if self.beforeSetupPageFrame():
 			self.pageFrame = pgf.dPageFrameDataNav(self)
 			nbSizer = wx.NotebookSizer(self.pageFrame)
@@ -172,26 +172,26 @@ class dFormDataNav(frm.dForm):
 	def afterSetupPageFrame(self): pass
 
 	def onSetSelectionCriteria(self, event):
-		''' Occurs when the user chooses to set the selection criteria.
-		'''
+		""" Occurs when the user chooses to set the selection criteria.
+		"""
 		self.pageFrame.SetSelection(0)
 
 		
 	def onBrowseRecords(self, event):
-		''' Occurs when the user chooses to browse the record set.
-		'''
+		""" Occurs when the user chooses to browse the record set.
+		"""
 		self.pageFrame.SetSelection(1)
 
 		
 	def onEditCurrentRecord(self, event):
-		''' Occurs when the user chooses to edits the current record.
-		'''
+		""" Occurs when the user chooses to edits the current record.
+		"""
 		self.pageFrame.SetSelection(2)
 
 
 	def onChildView(self, event):
-		''' Occurs when the user chooses to edit a child view page.
-		'''
+		""" Occurs when the user chooses to edit a child view page.
+		"""
 		evtId = event.GetId()
 		page=3
 		for child in self.childViews:
@@ -202,7 +202,7 @@ class dFormDataNav(frm.dForm):
 		
 		
 	def getColumnDefs(self, dataSource):
-		''' Get the column definitions for the given data source.
+		""" Get the column definitions for the given data source.
 
 		The column definitions provide information to the data navigation
 		form to smartly construct the SQL statement, the browse grid, and 
@@ -263,7 +263,7 @@ class dFormDataNav(frm.dForm):
 												field on the select page.
 
 		Use dformDataNav.setColumnDefs() to set the definitions.
-		'''
+		"""
 		try:
 			columnDefs = self._columnDefs[dataSource]
 		except KeyError:
@@ -272,10 +272,10 @@ class dFormDataNav(frm.dForm):
 
 
 	def setColumnDefs(self, dataSource, columnDefs):
-		''' Set the grid column definitions for the given data source.
+		""" Set the grid column definitions for the given data source.
 
 		See getGridColumnDefs for more explanation.
-		''' 
+		""" 
 
 		# Make sure unspecified items get default values or if 
 		# the item is required don't set the columndefs.
@@ -306,10 +306,10 @@ class dFormDataNav(frm.dForm):
 
 
 	def OnSetFocus(self, event):
-		''' Occurs when the form receives the focus.
+		""" Occurs when the form receives the focus.
 
 		For dFormDataNav, the toolbar and menu need to be set up.
-		'''
+		"""
 		if isinstance(self, wx.MDIChildFrame):
 			self.setupToolBar()
 			self.setupMenu()
@@ -317,14 +317,14 @@ class dFormDataNav(frm.dForm):
 
 
 	def onRequery(self, event):
-		''' Override the dForm behavior by running the requery through the select page.
-		'''
+		""" Override the dForm behavior by running the requery through the select page.
+		"""
 		self.pageFrame.GetPage(0).requery()
 
 
 	def afterNew(self):
-		''' dForm will call this after a new record has been successfully added.
+		""" dForm will call this after a new record has been successfully added.
 
 		Make the edit page active, as a convenience to the user.
-		'''
+		"""
 		self.pageFrame.SetSelection(2)

@@ -1,4 +1,4 @@
-''' test.py
+""" test.py
 
 A simple reusable unit testing framework, used by the base class files when run
 as scripts instead of imported as modules. 
@@ -11,7 +11,7 @@ test of dTextBox.
 
 If you instead run this test.py as a script, a form will be instantiated with 
 all the dControls.
-'''
+"""
 import wx
 import dabo.ui.uiwx as ui
 
@@ -30,8 +30,8 @@ class Test(object):
 		self.app.MainLoop()
 
 	def testAll(self):
-		''' Create a dForm and populate it with example dWidgets. 
-		'''
+		""" Create a dForm and populate it with example dWidgets. 
+		"""
 		frame = ui.dForm()
 		frame.Width, frame.Height = 640, 480
 		frame.Caption = "Test of all the dControls"

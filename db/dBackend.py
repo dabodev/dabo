@@ -1,15 +1,15 @@
-''' dabo.db.backend.py : abstractions for the various db api's '''
+""" dabo.db.backend.py : abstractions for the various db api's """
 
 class dBackend(object):
-	''' Abstract object: inherit from this to define new dabo db interfaces.
-	'''
+	""" Abstract object: inherit from this to define new dabo db interfaces.
+	"""
 	def __init__(self):
 		object.__init__(self)
 		self.dbModuleName = None
 
 	def isValidModule(self):
-		''' Test the dbapi to see if it is supported on this computer. 
-		'''
+		""" Test the dbapi to see if it is supported on this computer. 
+		"""
 		try:
 			exec("import %s as dbapi" % self.dbModuleName)
 			return True
@@ -17,11 +17,11 @@ class dBackend(object):
 			return False
 
 	def getConnection(self, connectInfo):
-		''' override in subclasses '''
+		""" override in subclasses """
 		return None        
 
 	def getDictCursor(self):
-		''' override in subclasses '''
+		""" override in subclasses """
 		return None
 
 
@@ -49,10 +49,10 @@ class MySQL(dBackend):
 
 
 class Gadfly(dBackend):
-	''' Single-use version of Gadfly: specify a directory and 
+	""" Single-use version of Gadfly: specify a directory and 
 		database. The directory should probably be on the local
 		computer.
-	'''
+	"""
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "gadfly"
@@ -63,9 +63,9 @@ class Gadfly(dBackend):
 
 
 class GadflyClient(dBackend):
-	''' Network client version of Gadfly: connect to a Gadfly server.
+	""" Network client version of Gadfly: connect to a Gadfly server.
 		This is suitable for multiple users.
-	'''
+	"""
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "gfclient"

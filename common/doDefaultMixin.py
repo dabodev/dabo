@@ -2,7 +2,7 @@ import sys
 
 
 class DoDefaultMixin(object):
-	''' An alternative way to call superclass method code.
+	""" An alternative way to call superclass method code.
 	
 	Mix this class in to your classes, and you can now use the following
 	form to call superclass methods:
@@ -12,7 +12,7 @@ class DoDefaultMixin(object):
 	instead of the usual:
 	
 		retval = super(cls, self).<methodName>([args])
-	'''
+	"""
 
 	def doDefault(cls, *args, **kwargs):
 		frame = sys._getframe(1)

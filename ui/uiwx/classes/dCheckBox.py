@@ -4,8 +4,8 @@ import dDataControlMixin as dcm
 
 
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
-	''' Allows visual editing of boolean values.
-	'''
+	""" Allows visual editing of boolean values.
+	"""
 	def __init__(self, parent, id=-1, name='dCheckBox', style=0, *args, **kwargs):
 
 		self._baseClass = dCheckBox

@@ -1,4 +1,4 @@
-''' dFormMain.py '''
+""" dFormMain.py """
 import wx
 import dFormMixin as fm
 
@@ -13,8 +13,8 @@ else:
 	wxPreFrameClass = wx.PreFrame
 
 class dFormMain(wxFrameClass, fm.dFormMixin):
-	''' This is the main top-level form for the application.
-	'''
+	""" This is the main top-level form for the application.
+	"""
 	def __init__(self, dApp=None):
 
 		self._baseClass = dFormMain

@@ -1,4 +1,4 @@
-''' dMenu.py '''
+""" dMenu.py """
 import wx
 import dPemMixin as pm
 

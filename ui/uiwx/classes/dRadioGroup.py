@@ -3,8 +3,8 @@ import dControlMixin as cm
 import dDataControlMixin as dcm
 
 class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
-	''' Allows choosing one option from a list of options.
-	'''
+	""" Allows choosing one option from a list of options.
+	"""
 	def __init__(self, parent, id=-1, label='', name="dRadioGroup", style=0, *args, **kwargs):
 
 		self._baseClass = dRadioGroup

@@ -1,4 +1,4 @@
-''' dabo.db is the lowest tier, db access. 
+""" dabo.db is the lowest tier, db access. 
 
 This is where the communication to and from the backend database happens, and
 cursors get generated to be manipulated by the bizobj's in dabo.biz.
@@ -22,7 +22,7 @@ some rows from a backend database in a script. Here's an example of that:
 	for row in cursor.fetchall():
 		print row[0], row[1]
 
-'''
+"""
 
 # TODO: Currently, the logic for building a dictcursor mixin is inside
 #       dabo.biz.dBiz. I think this logic should be here in dabo.db.

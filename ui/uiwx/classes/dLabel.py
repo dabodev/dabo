@@ -2,8 +2,8 @@ import wx
 import dControlMixin as cm
 
 class dLabel(wx.StaticText, cm.dControlMixin):
-	''' Create a static (not data-aware) label.
-	'''
+	""" Create a static (not data-aware) label.
+	"""
 	def __init__(self, parent, id=-1, name='dLabel', style=0, *args, **kwargs):
 
 		self._baseClass = dLabel

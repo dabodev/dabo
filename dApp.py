@@ -127,10 +127,10 @@ class dApp(object):
 
 
 	def getAppInfo(self, item):
-		''' dApp.getAppInfo(self, item) -> value
+		""" dApp.getAppInfo(self, item) -> value
 
 			Look up the item, and return the value.
-		'''
+		"""
 		try:
 			retVal = self._appInfo[item]
 		except KeyError:
@@ -139,15 +139,15 @@ class dApp(object):
 
 
 	def setAppInfo(self, item, value):
-		''' dApp.getAppInfo(self, item, value) -> None
+		""" dApp.getAppInfo(self, item, value) -> None
 
 			Set item to value in the appinfo table.
-		'''
+		"""
 		self._appInfo[item] = value
 
 
 	def getUserSetting(self, item, user="*", system="*"):
-		''' Return the value of the user settings table that 
+		""" Return the value of the user settings table that 
 			corresponds to the item, user, and system id 
 			passed. Based on the ctype field in the table, 
 			convert the return value into the appropriate
@@ -163,7 +163,7 @@ class dApp(object):
 						9-tuple of integers '(year,month,
 						day,hour,minute,second,?,?,?)'
 
-		'''
+		"""
 		import ConfigParser
 
 		configFileName = '%s/.userSettings.ini' % self.homeDir
@@ -192,10 +192,10 @@ class dApp(object):
 
 
 	def setUserSetting(self, item, valueType, value, user="*", system="*"):
-		''' Set the value of the user settings table that corresponds to the
+		""" Set the value of the user settings table that corresponds to the
 			item, user, and systemid passed. If it doesn't exist in the table,
 			add it. See self.getUserSetting() for the type codes. 
-		'''
+		"""
 		# For now, save this info in a plain ini file. Eventually, I'd like
 		# to see this get saved in a persistent dabosettings db table.
 		import ConfigParser

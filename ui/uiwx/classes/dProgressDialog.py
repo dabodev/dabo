@@ -1,4 +1,4 @@
-''' dProgressDialog
+""" dProgressDialog
 
 (Barely started - don't use)
 
@@ -25,7 +25,7 @@ Ed writes:
 > eliminate problems caused by runaway queries, but will at
 > least allow the UI to remain responsive, reducing the chance
 > that the user will three-finger it.
-'''
+"""
 import time
 from threading import *
 import wx
@@ -38,8 +38,8 @@ def EVT_RESULT(win, func):
 	win.Connect(-1, -1, EVT_RESULT_ID, func)
 
 class ResultEvent(wx.PyEvent):
-	''' Simple event to carry arbitrary result data.
-	'''
+	""" Simple event to carry arbitrary result data.
+	"""
 
 	def __init__(self, response):
 		wx.PyEvent.__init__(self)

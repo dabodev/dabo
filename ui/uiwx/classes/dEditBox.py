@@ -5,8 +5,8 @@ import dDataControlMixin as dcm
 # The EditBox is just a TextBox with some additional styles.
 
 class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
-	''' Allows editing of string or unicode data of unlimited length.
-	'''
+	""" Allows editing of string or unicode data of unlimited length.
+	"""
 	def __init__(self, parent, id=-1, name="dEditBox", style=0, *args, **kwargs):
 
 		self._baseClass = dEditBox

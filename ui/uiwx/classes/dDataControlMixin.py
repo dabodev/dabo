@@ -1,13 +1,13 @@
-''' dDataControlMixin.py: Provide behavior common to all 
+""" dDataControlMixin.py: Provide behavior common to all 
 	data-aware dControls.
-'''
+"""
 import wx
 import dPemMixin as pm
 import dabo.dError as dError
 
 class dDataControlMixin(pm.dPemMixin):
-	''' Provide common functionality for the data-aware controls.
-	'''
+	""" Provide common functionality for the data-aware controls.
+	"""
 	def __init__(self):
 		pm.dPemMixin.__init__(self)
 
@@ -23,8 +23,8 @@ class dDataControlMixin(pm.dPemMixin):
 
 
 	def getBlankValue(self):
-		''' Return the empty value of the control.
-		'''
+		""" Return the empty value of the control.
+		"""
 		if isinstance(self, wx.TextCtrl):
 			return ""
 		elif isinstance(self, wx.CheckBox):
@@ -34,8 +34,8 @@ class dDataControlMixin(pm.dPemMixin):
 
 
 	def getFieldVal(self):
-		''' Ask the bizobj what the current value of the field is. 
-		'''
+		""" Ask the bizobj what the current value of the field is. 
+		"""
 		if not self.bizobj:
 			# Ask the form for the bizobj reference, and cache for next time
 			self.bizobj = self.getDform().getBizobj(self.DataSource)
@@ -43,8 +43,8 @@ class dDataControlMixin(pm.dPemMixin):
 
 
 	def setFieldVal(self, value):
-		''' Ask the bizobj to update the field value. 
-		'''
+		""" Ask the bizobj to update the field value. 
+		"""
 		if not self.bizobj:
 			# Ask the form for the bizobj reference, and cache for next time
 			self.bizobj = self.getDform().getBizobj(self.DataSource)
@@ -52,8 +52,8 @@ class dDataControlMixin(pm.dPemMixin):
 
 
 	def refresh(self):
-		''' Update control's value to match the current value from the bizobj.
-		'''
+		""" Update control's value to match the current value from the bizobj.
+		"""
 		if self.DataSource and self.DataField:
 			try:
 				self.Value = self.getFieldVal()
@@ -64,8 +64,8 @@ class dDataControlMixin(pm.dPemMixin):
 
 
 	def onValueRefresh(self, event): 
-		''' Occurs when the field value has potentially changed.
-		'''
+		""" Occurs when the field value has potentially changed.
+		"""
 		if self.debug:
 			print "onValueRefresh received by %s" % (self.GetName(),)
 		self.refresh()
@@ -80,15 +80,15 @@ class dDataControlMixin(pm.dPemMixin):
 
 
 	def selectAll(self):
-		''' Select all text in the control.
-		'''
+		""" Select all text in the control.
+		"""
 		self.SetInsertionPoint(1)   # Best of all worlds (really)
 		self.SetSelection(-1,-1)    # select all text
 
 
 	def OnSetFocus(self, event):
-		''' Occurs when the control receives the keyboard focus.
-		'''
+		""" Occurs when the control receives the keyboard focus.
+		"""
 		if self.debug:
 			print "OnSetFocus received by %s" % self.GetName()
 
@@ -104,8 +104,8 @@ class dDataControlMixin(pm.dPemMixin):
 
 
 	def OnKillFocus(self, event):
-		''' Occurs when the control loses the keyboard focus.
-		'''
+		""" Occurs when the control loses the keyboard focus.
+		"""
 		if self.debug:
 			print "OnKillFocus received by %s" % self.GetName()
 
@@ -120,8 +120,8 @@ class dDataControlMixin(pm.dPemMixin):
 
 
 	def flushValue(self):
-		''' Save any changes to the underlying bizobj field.
-		'''
+		""" Save any changes to the underlying bizobj field.
+		"""
 		curVal = self.Value
 
 		if curVal != self._oldVal and self.DataSource and self.DataField:

@@ -1,4 +1,4 @@
-''' dActionList.py
+""" dActionList.py
 
 	Define an action list, which holds a list of actions,
 	keyed by name, and maps those to function objects and
@@ -10,7 +10,7 @@
 	dApp sets up an app-wide action list which the user can
 	augment, or the user can set up and maintain their own
 	independent action lists.
-'''
+"""
 
 class dActionList(object):
 
@@ -19,10 +19,10 @@ class dActionList(object):
 		self._actions = {}
 
 	def getAction(self, name):
-		''' dActionList.getAction(name) -> action
+		""" dActionList.getAction(name) -> action
 
 			Return the action dictionary of the action list.
-		'''
+		"""
 		try:
 			action = self._actions[name]
 		except KeyError:
@@ -30,12 +30,12 @@ class dActionList(object):
 		return action
 
 	def setAction(self, name, func):
-		''' dActionList.setAction(name, func) -> None
+		""" dActionList.setAction(name, func) -> None
 
 			Set up an action dictionary mapping name to 
 			function object, and place that action dict
 			into the action list for later recall.
-		'''
+		"""
 		action = {}
 		action["func"] = func
 		action["icon"] = None
@@ -44,11 +44,11 @@ class dActionList(object):
 		self._actions[name] = action
 
 	def doAction(self, name):
-		''' dActionList.doAction(name) -> None
+		""" dActionList.doAction(name) -> None
 
 			Find the requested action in the action list,
 			and run the function associated with it.
-		'''
+		"""
 		apply(self._actions[name]["func"])
 
 

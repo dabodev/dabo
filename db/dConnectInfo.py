@@ -1,7 +1,7 @@
 import dBackend
 
 class dConnectInfo(object):
-	''' Holder for the properties for connecting to the backend.
+	""" Holder for the properties for connecting to the backend.
 
 	Each backend may have different names for properties, but this object
 	tries to abstract that.
@@ -10,7 +10,7 @@ class dConnectInfo(object):
 		ci.host = 'domain.com'
 		ci.user = 'dabo'
 		ci.password = 'dabo'
-	'''
+	"""
 	def __init__(self, backendName=None, host=None, user=None, 
 					password=None, dbName=None, port=None):
 
@@ -34,10 +34,10 @@ class dConnectInfo(object):
 		return self._backendName
 
 	def setBackendName(self, backendName):
-		''' Set the backend type for the connection.
+		""" Set the backend type for the connection.
 
 		Only sets the backend name if valid.
-		'''
+		"""
 		try:
 			backendObject = eval("dBackend.%s()" % backendName)
 			self._backendName = backendName

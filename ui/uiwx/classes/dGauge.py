@@ -2,7 +2,7 @@ import wx
 import dControlMixin as cm
 
 class dGauge(wx.Gauge, cm.dControlMixin):
-	""" Allows editing integer values.
+	""" Allows the creation of progress bars.
 	"""
 	def __init__(self, parent, id=-1, name="dGauge", style=0, *args, **kwargs):
 

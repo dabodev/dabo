@@ -1,4 +1,4 @@
-''' dFormMixin.py '''
+""" dFormMixin.py """
 import wx
 import dPemMixin as pm
 import dMainMenuBar as mnb
@@ -43,13 +43,13 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def afterSetMenuBar(self):
-		''' Subclasses can extend the menu bar here.
-		'''
+		""" Subclasses can extend the menu bar here.
+		"""
 		pass
 
 
 	def getMenu(self):
-		''' Get the navigation menu for this form.
+		""" Get the navigation menu for this form.
 
 		Every form maintains an internal menu of actions appropriate to itself.
 		For instance, a dForm with a primary bizobj will maintain a menu with 
@@ -57,7 +57,7 @@ class dFormMixin(pm.dPemMixin):
 
 		This function sets up the internal menu, which can optionally be 
 		inserted into the mainForm's menu bar during SetFocus.
-		'''
+		"""
 		menu = dMenu.dMenu()
 		return menu
 
@@ -78,11 +78,11 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def restoreSizeAndPosition(self):
-		''' Restore the saved window geometry for this form.
+		""" Restore the saved window geometry for this form.
 
 		Ask dApp for the last saved setting of height, width, left, and top, 
 		and set those properties on this form.
-		'''
+		"""
 		if self.dApp:
 			name = self.GetName()
 
@@ -98,8 +98,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def saveSizeAndPosition(self):
-		''' Save the current size and position of this form.
-		'''
+		""" Save the current size and position of this form.
+		"""
 		if self.dApp:
 			if self == wx.GetApp().GetTopWindow():
 				for form in self.dApp.uiForms:
@@ -120,12 +120,12 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def setStatusText(self, *args):
-		''' Set the text of the status bar.
+		""" Set the text of the status bar.
 
 		Call this instead of SetStatusText() and dabo will decide whether to 
 		send the text to the main frame or this frame. This matters with MDI
 		versus non-MDI forms.
-		'''
+		"""
 		if isinstance(self, wx.MDIChildFrame):
 			controllingFrame = self.dApp.mainFrame
 		else:

@@ -14,10 +14,10 @@ class dPageFrameDataNav(pgf.dPageFrame):
 
 
 	def addDefaultPages(self):
-		''' Add the standard pages to the pageframe.
+		""" Add the standard pages to the pageframe.
 
 		Subclasses may override or extend.
-		'''
+		"""
 		il = wx.ImageList(16, 16, initialCount=0)
 		il.Add(dIcons.getIconBitmap('checkMark'))
 		il.Add(dIcons.getIconBitmap('browse'))

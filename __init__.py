@@ -1,4 +1,4 @@
-''' Dabo: A Framework for developing data-driven business applications
+""" Dabo: A Framework for developing data-driven business applications
 
 Dabo is for developing multi-platform database business applications -
 you know, applications that need to connect to a database server (MySQL,
@@ -69,7 +69,7 @@ Run a wizard. Hand-edit the data definition files.
 
 ToDo: pointers to get started.
 
-'''
+"""
 from dApp import dApp
 from dLocalize import loc
 

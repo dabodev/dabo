@@ -8,18 +8,12 @@ import dabo.common
 import types
 
 class dBizobj(dabo.common.DoDefaultMixin):
-	# Holds the tuple of params to be merged with the sql in the cursor
-	_params = None
-	# Reference to the cursor object 
-	_cursor = None
+	""" The middle tier, where the business logic resides.
+	"""
+	
 	# Class to instantiate for the cursor object
 	dCursorMixinClass = dCursorMixin
 	dSqlBuilderMixinClass = dSqlBuilderMixin
-	# Collection of child bizobjs for this
-	__children = []
-	# Dictionary holding any default values to apply when a new record is created
-	defaultValues = {}      
-
 
 	##########################################
 	### referential integrity stuff ####
@@ -39,10 +33,21 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	TESTING = False
 
 
-	def __init__(self, conn, testHack=False):
-		self.beforeInit()
+	def __init__(self, conn, testHack=TESTING):
+		""" User code should override beforeInit() and/or afterInit() instead.
+		"""
+		self.__cursor = None		# Reference to the cursor object. MUST be defined first.
 		self._conn = conn
-		if self.TESTING:
+		self.__params = None		# tuple of params to be merged with the sql in the cursor
+		self.__children = []		# Collection of child bizobjs
+		
+		self.beforeInit()
+		
+		# Dictionary holding any default values to apply when a new record is created
+		# (should be made into a property - do we have a name/value editor for the propsheet?)
+		self.defaultValues = {}      
+
+		if testHack:
 			import MySQLdb
 			self.dbapiCursorClass = MySQLdb.cursors.DictCursor
 		else:
@@ -54,21 +59,18 @@ class dBizobj(dabo.common.DoDefaultMixin):
 			# Need to raise an exception here!
 			pass
 
-		# Need to set this so that different instances don't mix up the references
-		# contained in this list.
-		self.__children = []
 		self.afterInit()
 		
 		
 	def beforeInit(self):
-		''' Hook for subclasses.
-		'''
+		""" Hook for subclasses.
+		"""
 		pass
 	
 	
 	def afterInit(self):
-		''' Hook for subclasses.
-		'''
+		""" Hook for subclasses.
+		"""
 		pass
 		
 
@@ -97,37 +99,43 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		cursor field will be affected, not the built-in attribute.
 		"""
 		isFld = False
-		if self._cursor is not None:
+		if att != '_dBizobj__cursor' and self.__cursor is not None:
 			isFld = self.setFieldVal(att, val)
 		if not isFld:
 			super(dBizobj, self).__setattr__(att, val)
 
 
-	def createCursor(self):        
-		# Create the cursor that this bizobj will be using for data
+	def createCursor(self):
+		""" Create the cursor that this bizobj will be using for data.
+		
+		Returns True if the cursor was successfully created, and False otherwise.
+		
+		Subclasses should override beforeCreateCursor() and/or afterCreateCursor()
+		instead of overriding this method, if possible.
+		"""
 		if self.beforeCreateCursor():
-			cursorClass = self.getCursorClass(self.dCursorMixinClass,
+			cursorClass = self._getCursorClass(self.dCursorMixinClass,
 					self.dbapiCursorClass, 
 					self.dSqlBuilderMixinClass)
 
 			if self.TESTING:
-				self._cursor = self._conn.cursor(cursorclass=cursorClass)
+				self.__cursor = self._conn.cursor(cursorclass=cursorClass)
 			else:
-				self._cursor = self._conn.getConnection().cursor(cursorclass=cursorClass)
-			self._cursor.setSQL(self.SQL)
-			self._cursor.setKeyField(self.KeyField)
-			self._cursor.setTable(self.DataSource)
-			self._cursor.setAutoPopulatePK(self.AutoPopulatePK)
+				self.__cursor = self._conn.getConnection().cursor(cursorclass=cursorClass)
+			self.__cursor.setSQL(self.SQL)
+			self.__cursor.setKeyField(self.KeyField)
+			self.__cursor.setTable(self.DataSource)
+			self.__cursor.setAutoPopulatePK(self.AutoPopulatePK)
 			if self.RequeryOnLoad:
-				self._cursor.requery()
-			self.afterCreateCursor(self._cursor)
+				self.__cursor.requery()
+			self.afterCreateCursor(self.__cursor)
 
-		if not self._cursor:
+		if not self.__cursor:
 			return False
 		return True
 
 
-	def getCursorClass(self, main, secondary, sqlbuilder):
+	def _getCursorClass(self, main, secondary, sqlbuilder):
 		class cursorMix(main, secondary, sqlbuilder):
 			superMixin = main
 			superCursor = secondary
@@ -143,16 +151,15 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def first(self):
-		""" 
-		Move the record pointer in the cursor to the first record of the 
-		result set. Update any child bizobjs to reflect the new current 
-		parent record. If there are no records in the data set, an exception
-		will be raised.
+		""" Move to the first record of the data set.
+		
+		Any child bizobjs will be requeried to reflect the new parent record. If 
+		there are no records in the data set, an exception will be raised.
 		"""
 		if not self.beforeFirst() or not self.beforePointerMove():
 			return False
 
-		self._cursor.first()
+		self.__cursor.first()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
@@ -161,16 +168,15 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def prior(self):
-		""" 
-		Move the record pointer in the cursor back one position in the 
-		result set. Update any child bizobjs to reflect the new current 
-		parent record. If there are no records in the data set, an exception
-		will be raised. 
+		""" Move to the prior record of the data set.
+		
+		Any child bizobjs will be requeried to reflect the new parent record. If 
+		there are no records in the data set, an exception will be raised.
 		"""
 		if not self.beforePrior() or not self.beforePointerMove():
 			return False
 
-		self._cursor.prior()
+		self.__cursor.prior()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
@@ -179,15 +185,15 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def next(self):
-		""" 
-		Moves the record pointer in the cursor to the next record of the result set.
-		Updates any child bizobjs to reflect the new current parent record.
-		If there are no records in the data set, an exception will be raised. 
+		""" Move to the next record of the data set.
+		
+		Any child bizobjs will be requeried to reflect the new parent record. If 
+		there are no records in the data set, an exception will be raised.
 		"""
 		if not self.beforeNext() or not self.beforePointerMove():
 			return False
 
-		self._cursor.next()
+		self.__cursor.next()
 		self.requeryAllChildren()
 		
 		self.afterPointerMove()
@@ -196,15 +202,15 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def last(self):
-		""" 
-		Moves the record pointer in the cursor to the last record of the result set.
-		Updates any child bizobjs to reflect the new current parent record.
-		If there are no records in the data set, an exception will be raised. 
+		""" Move to the last record of the data set.
+		
+		Any child bizobjs will be requeried to reflect the new parent record. If 
+		there are no records in the data set, an exception will be raised.
 		"""
 		if not self.beforeLast() or not self.beforePointerMove():
 			return False
 
-		self._cursor.last()
+		self.__cursor.last()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
@@ -213,8 +219,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def setRowNumber(self, rownum):
-		""" Moves the record pointer to the requested row number in the
-		cursor's data set
+		""" Move to an arbitrary row number in the data set.
 		"""
 		if not self.beforeSetRowNumber() or not self.beforePointerMove():
 			return False
@@ -228,27 +233,28 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		
 
 	def save(self, startTransaction=False, allRows=False, topLevel=True):
-		""" 
-		Saves any changes that have been made to the cursor.
-		If the save is successful, calls the save() of all child bizobjs. 
+		""" Save any changes that have been made in the data set.
+		
+		If the save is successful, the save() of all child bizobjs will be
+		called as well. 
 		"""
 		if not self.beforeSave():
 			return False
 
 		# Validate any changes to the data. If there is data that fails
 		# validation, an error will be raised.
-		self.validate()
+		self._validate()
 
 		# See if we are saving a newly added record, or mods to an existing record.
-		isAdding = self._cursor.isAdding()
+		isAdding = self.__cursor.isAdding()
 
 		if startTransaction:
 			# Tell the cursor to issue a BEGIN TRANSACTION command
-			self._cursor.beginTransaction()
+			self.__cursor.beginTransaction()
 
 		# OK, this actually does the saving to the database
 		try:
-			self._cursor.save(allRows)
+			self.__cursor.save(allRows)
 			if isAdding:
 				# Call the hook method for saving new records.
 				self.onSaveNew()
@@ -262,7 +268,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 			# Finish the transaction, and requery the children if needed.
 			if startTransaction:
-				self._cursor.commitTransaction()
+				self.__cursor.commitTransaction()
 			if topLevel and self.RequeryChildOnSave:
 				self.requeryAllChildren()
 
@@ -271,7 +277,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		except dError.dError, e:
 			# Something failed; reset things.
 			if startTransaction:
-				self._cursor.rollbackTransaction()
+				self.__cursor.rollbackTransaction()
 			# Pass the exception to the UI
 			raise dError.dError, e
 
@@ -283,15 +289,13 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def cancel(self, allRows=False):
-		""" 
-		Cancels any changes to the data. Reverts back to the orginal values
-		that were in the data. 
+		""" Cancel any changes to the data set, reverting back to the original values.
 		"""
 		if not self.beforeCancel():
 			return False
 
 		# Tell the cursor to cancel any changes
-		self._cursor.cancel(allRows)
+		self.__cursor.cancel(allRows)
 		# Tell each child to cancel themselves
 		for child in self.__children:
 			child.cancel(allRows)
@@ -303,7 +307,8 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def delete(self):
-		""" Deletes the current row of data """
+		""" Delete the current row of the data set.
+		"""
 		if not self.beforeDelete() or not self.beforePointerMove():
 			return False
 
@@ -313,8 +318,8 @@ class dBizobj(dabo.common.DoDefaultMixin):
 				if child.getRowCount() > 0:
 					raise dError.dError, _("Deletion prohibited - there are related child records.")
 
-		self._cursor.delete()
-		if self._cursor.getRowCount() == 0:
+		self.__cursor.delete()
+		if self.__cursor.getRowCount() == 0:
 			# Hook method for handling the deletion of the last record in the cursor.
 			self.onDeleteLastRecord()
 		# Now cycle through any child bizobjs and fire their cancel() methods. This will
@@ -335,24 +340,22 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def deleteAll(self):
-		""" 
-		Iterate through all the rows in the bizobj's cursor, deleting 
-		each one-by-one
+		""" Delete all rows in the data set.
 		"""
-		while self._cursor.getRowCount() > 0:
+		while self.__cursor.getRowCount() > 0:
 			self.first()
 			ret = self.delete()
 
 
 	def new(self):
-		""" 
-		Creates a new record, and populates it with any default 
-		values specified. 
+		""" Create a new record and populate it with default values.
+		 
+		Default values are specified in the defaultValues dictionary. 
 		"""
 		if not self.beforeNew() or not self.beforePointerMove():
 			return False
 
-		self._cursor.new()
+		self.__cursor.new()
 		# Hook method for things to do after a new record is created.
 		self.onNew()
 
@@ -373,9 +376,10 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def setSQL(self, sql=None):
-		""" Allows you to change the sql executed by the cursor. If no
-		sql is passed, it is assumed that the user wants to set the SQL 
-		to the current value returned by getSQL()
+		""" Set the SQL query that will be executed upon requery().
+		
+		This allows you to manually override the sql executed by the cursor. If no
+		sql is passed, the SQL will get set to the value returned by getSQL().
 		"""
 		if sql is None:
 			# sql not passed; get it from the sql mixin:
@@ -384,13 +388,14 @@ class dBizobj(dabo.common.DoDefaultMixin):
 			# sql passed; set it explicitly
 			self.SQL = sql
 		# propagate the SQL downward:
-		self._cursor.setSQL(self.SQL)
+		self.__cursor.setSQL(self.SQL)
 
 
 	def requery(self):
-		""" 
-		Refreshes the cursor's dataset with the current values in the database, 
-		given the current state of the filtering parameters 
+		""" Requery the data set.
+		
+		Refreshes the data set with the current values in the database, 
+		given the current state of the filtering parameters.
 		"""
 		if not self.beforeRequery():
 			return False
@@ -405,7 +410,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 			currPK = None
 
 		# run the requery
-		self._cursor.requery(params)
+		self.__cursor.requery(params)
 
 		if self.RestorePositionOnRequery:
 			self._moveToPK(currPK)
@@ -418,24 +423,27 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def sort(self, col, ord=None, caseSensitive=True):
-		""" 
+		""" Sort the rows based on values in a specified column.
+		
 		Called when the data is to be sorted on a particular column
 		in a particular order. All the checking on the parameters is done
 		in the cursor. 
 		"""
-		self._cursor.sort(col, ord, caseSensitive)
+		self.__cursor.sort(col, ord, caseSensitive)
 
 
 	def setParams(self, params):
-		""" 
+		""" Set the query parameters for the cursor.
+		
 		Accepts a tuple that will be merged with the sql statement using the
 		cursor's standard method for merging.
 		"""
-		self._params = params
+		self.__params = params
 
 
-	def validate(self, allrows=True):
-		""" 
+	def _validate(self, allrows=True):
+		""" Internal method. User code should override validateRecord().
+		
 		Validate() is called by the Save() routine before saving any data.
 		If any data fails validation, an exception will be raised, and the
 		Save() will not be allowed to proceed.
@@ -467,15 +475,16 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def validateRecord(self):
-		"""
+		""" Hook for subclass business rule validation code.
+		
 		This is the method that you should customize in your subclasses
 		to create checks on the data entered by the user to be sure that it 
 		conforms to your business rules. Your validation code should raise
-		an instance of dError, and pass the explanatory text for the failure
-		as the exception's argument. Example:
+		an instance of dError.BusinessRuleViolation, and pass the explanatory 
+		text for the failure as the exception's argument. Example:
 
 			if not myfield = somevalue:
-				raise dError, "MyField must be equal to SomeValue"
+				raise dError.BusinessRuleViolation, "MyField must be equal to SomeValue"
 
 		It is assumed that we are on the correct record for testing before
 		this method is called.
@@ -488,7 +497,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
 		"""
-		self._cursor.moveToRowNum(rownum)
+		self.__cursor.moveToRowNum(rownum)
 
 
 	def _moveToPK(self, pk):
@@ -496,21 +505,25 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
 		"""
-		self._cursor.moveToPK(pk)
+		self.__cursor.moveToPK(pk)
 
 
 	def seek(self, val, fld=None, caseSensitive=False, 
 			near=False, runRequery=False):
-		""" Used for searching of the bizobj's cursor for a particular value in a 
+		""" Search for a value in a field, and move the record pointer to the match.
+		
+		Used for searching of the bizobj's cursor for a particular value in a 
 		particular field. Can be optionally case-sensitive.
+		
 		If 'near' is True, and no exact match is found in the cursor, the cursor's
 		record pointer will be placed at the record whose value in that field
 		is closest to the desired value without being greater than the requested 
 		value.
+		
 		If runRequery is True, and the record pointer is moved, all child bizobjs
 		will be requeried, and the afterPointerMove() hook method will fire.
 		"""
-		ret = self._cursor.seek(val, fld, caseSensitive, near)
+		ret = self.__cursor.seek(val, fld, caseSensitive, near)
 		if ret != -1:
 			if runRequery:
 				self.requeryAllChildren()
@@ -519,11 +532,12 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def isChanged(self, allRows=False):
-		""" 
-		Returns whether or not the data for the current record in the cursor has changed, or
-		if the data in any child bizobjs has changed. 
+		""" Return True if data has changed in this bizobj and any children.
+		
+		By default, only the current record is checked. Set allRows to True to
+		check all records.
 		"""
-		ret = self._cursor.isChanged(allRows)
+		ret = self.__cursor.isChanged(allRows)
 
 		if not ret:
 			# see if any child bizobjs have changed
@@ -535,54 +549,53 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def onDeleteLastRecord(self):
-		""" 
-		Hook method called when the last record of the cursor 
-		has been deleted 
+		""" Hook called when the last record has been deleted from the data set.
 		"""
 		pass
 
 
 	def onSaveNew(self):
-		""" Hook method called after successfully saving a new record """
+		""" Hook method called after successfully saving a new record.
+		"""
 		pass
 
 
 	def onNew(self):
-		""" Populates the record with any default values """
-		self._cursor.setDefaults(self.defaultValues)
+		""" Populate the record with any default values.
+		
+		User subclasses should leave this alone and instead override onNewHook(). 
+		"""
+		self.__cursor.setDefaults(self.defaultValues)
 
 		# Call the custom hook method
 		self.onNewHook()
 
 
 	def onNewHook(self):
-		""" 
-		Hook method called after the default values have been 
-		set in onNew(). 
+		""" Hook method called after the default values have been set in onNew(). 
 		"""
 		pass
 
 
 	def addChild(self, child):
-		""" 
+		""" Add the passed child bizobj to this bizobj.
+		
 		During the creation of the form, child bizobjs are added by the parent.
 		This stores the child reference here, and sets the reference to the 
 		parent in the child. 
 		"""
 		if child not in self.__children:
 			self.__children.append(child)
-			child.setParent(self)
-
-
-	def setParent(self, parent):
-		""" Stores a reference to this object's parent bizobj. """
-		self._parent = parent
+			child.Parent = self
 
 
 	def requeryAllChildren(self):
-		""" 
+		""" Requery each child bizobj's data set.
+		
 		Called to assure that all child bizobjs have had their data sets 
-		refreshed to match the current status. 
+		refreshed to match the current master row. This will normally happen
+		automatically when appropriate, but user code may call this as well
+		if needed.
 		"""
 		if len(self.__children) == 0:
 			return True
@@ -596,94 +609,106 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def getPK(self):
-		""" Returns the value of the PK field """
-		return self._cursor.getFieldVal(self.KeyField)
+		""" Return the value of the PK field.
+		"""
+		return self.__cursor.getFieldVal(self.KeyField)
 
 
 	def getParentPK(self):
-		""" Returns the value of the parent bizobjs' PK. """
+		""" Return the value of the parent bizobjs' PK field. 
+		
+		Alternatively, user code can just call self.Parent.getPK().
+		"""
 		return self.Parent.getPK()
 
 
 	def getFieldVal(self, fld):
-		""" Returns the value of the requested field """
-		if self._cursor is not None:
-			return self._cursor.getFieldVal(fld)
+		""" Return the value of the specified field in the current row. 
+		"""
+		if self.__cursor is not None:
+			return self.__cursor.getFieldVal(fld)
 		else:
 			return None
 
 
 	def setFieldVal(self, fld, val):
-		""" Sets the value of the specified field """
-		if self._cursor is not None:
-			return self._cursor.setFieldVal(fld, val)
+		""" Set the value of the specified field in the current row.
+		"""
+		if self.__cursor is not None:
+			return self.__cursor.setFieldVal(fld, val)
 		else:
 			return None
 
 
 	def getDataSet(self):
+		""" Return the full data set from the cursor. 
+		
+		Used by UI objects such as the grid for efficient reading of the data,
+		and user code can do this as well if needed, but you'll need to keep 
+		the bizobj notified of any row changes and field value changes manually.
 		"""
-		Returns the full data set from the cursor. Used by UI objects such as
-		the grid for efficient loading of the data.
-		"""
-		return self._cursor.getDataSet()
-
+		return self.__cursor.getDataSet()
 
 
 	def getParams(self):
-		""" 
+		""" Return the parameters to send to the cursor's execute method.
+		
 		This is the place to define the parameters to be used to modify
 		the SQL statement used to produce the record set. If the cursor for
 		this bizobj does not need parameters, leave this as is. Otherwise, 
-		use this method to create a tuple to be passed to the cursor, where 
+		override this method to return a tuple to be passed to the cursor, where 
 		it will be used to modify the query using standard printf syntax. 
 		"""
-		return self._params
+		return self.__params
 
 
 	def setMemento(self):
-		""" 
+		""" Take a snapshot of the data in the cursor.
+		
 		Tell the cursor to take a snapshot of the current state of the 
 		data. This snapshot will be used to determine what, if anything, has 
 		changed later on. 
+		
+		User code should not normally call this method.
 		"""
-		self._cursor.setMemento()
+		self.__cursor.setMemento()
 
 
 	def getRowCount(self):
-		""" dBizobj.getRowCount() -> int
-
-			Return the number of records in the cursor's data set. This 
-			will be -1 if the cursor hasn't run any successful queries
-			yet.
+		""" Return the number of records in the cursor's data set. 
+		
+		The row count will be -1 if the cursor hasn't run any successful 
+		queries	yet.
 		"""
-		return self._cursor.getRowCount()
+		return self.__cursor.getRowCount()
 
 
 	def getRowNumber(self):
-		""" Returns the current row number of records in the cursor's data set."""
-		return self._cursor.getRowNumber()
+		""" Return the current row number of the data set.
+		"""
+		return self.__cursor.getRowNumber()
 
 
 	def addToErrorMsg(self, txt):
-		""" 
-		Adds the passed text to the current error message text, 
-		inserting a newline if needed 
+		""" Add the passed text to the current error message text.
 		"""
 		if txt:
 			if self.ErrorMessage:
+				# insert a newline
 				self.ErrorMessage += "\n"
 			self.ErrorMessage += txt
 
 
 	def clearErrorMsg(self):
+		""" Clear the current error message text.
+		"""
 		self.ErrorMessage = ""
-		self._cursor.clearErrorMsg()
+		self.__cursor.clearErrorMsg()
 
 		
 	def getChildren(self):
-		''' Return a tuple of the child bizobjs.
-		'''
+		""" Return a tuple of the child bizobjs.
+		"""
 		ret = []
 		for child in self.__children:
 			ret.append(child)
@@ -692,29 +717,29 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		
 	########## SQL Builder interface section ##############
 	def addField(self, exp):
-		return self._cursor.addField(exp)
+		return self.__cursor.addField(exp)
 	def addFrom(self, exp):
-		return self._cursor.addFrom(exp)
+		return self.__cursor.addFrom(exp)
 	def addGroupBy(self, exp):
-		return self._cursor.addGroupBy(exp)
+		return self.__cursor.addGroupBy(exp)
 	def addOrderBy(self, exp):
-		return self._cursor.addOrderBy(exp)
+		return self.__cursor.addOrderBy(exp)
 	def addWhere(self, exp, comp="and"):
-		return self._cursor.addWhere(exp)
+		return self.__cursor.addWhere(exp)
 	def getSQL(self):
-		return self._cursor.getSQL()
+		return self.__cursor.getSQL()
 	def setFieldClause(self, clause):
-		return self._cursor.setFieldClause(clause)
+		return self.__cursor.setFieldClause(clause)
 	def setFromClause(self, clause):
-		return self._cursor.setFromClause(clause)
+		return self.__cursor.setFromClause(clause)
 	def setGroupByClause(self, clause):
-		return self._cursor.setGroupByClause(clause)
+		return self.__cursor.setGroupByClause(clause)
 	def setLimitClause(self, clause):
-		return self._cursor.setLimitClause(clause)
+		return self.__cursor.setLimitClause(clause)
 	def setOrderByClause(self, clause):
-		return self._cursor.setOrderByClause(clause)
+		return self.__cursor.setOrderByClause(clause)
 	def setWhereClause(self, clause):
-		return self._cursor.setWhereClause(clause)
+		return self.__cursor.setWhereClause(clause)
 
 
 

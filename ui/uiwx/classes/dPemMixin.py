@@ -1,18 +1,18 @@
-''' dPemMixin.py: Provide common PEM functionality '''
+""" dPemMixin.py: Provide common PEM functionality """
 import wx, sys, types, dabo.common
 
 class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
-	''' Provide Property/Event/Method interfaces for dForms and dControls.
+	""" Provide Property/Event/Method interfaces for dForms and dControls.
 
 	Subclasses can extend the property sheet by defining their own get/set
 	functions along with their own property() statements.
-	'''
+	"""
 	def __getattr__(self, att):
-		''' Try to resolve att to a child object reference.
+		""" Try to resolve att to a child object reference.
 
 		This allows accessing children with the style:
 			self.mainPanel.txtName.Value = "test"
-		'''
+		"""
 		try:
 			ret = self.FindWindowByName(att)
 		except TypeError:
@@ -25,11 +25,11 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 
 	
 	def beforeInit(self, preCreateObject):
-		''' Called before the wx object is fully instantiated.
+		""" Called before the wx object is fully instantiated.
 
 		Allows things like extra style flags to be set or XRC resources to
 		be loaded. Subclasses can override this as necessary.
-		'''
+		"""
 		self._name = '?'
 		self._pemObject = preCreateObject
 		self.initStyleProperties()
@@ -56,31 +56,31 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 
 
 	def afterInit(self):
-		''' Called after the wx object's __init__ has run fully.
+		""" Called after the wx object's __init__ has run fully.
 
 		Subclasses should place their __init__ code here in this hook,
 		instead of overriding __init__ directly.
-		'''
+		"""
 		self.initProperties()
 
 
 	def initProperties(self):
-		''' Hook for subclasses.
+		""" Hook for subclasses.
 
 		Dabo Designer will set properties here, such as:
 			self.Name = "MyTextBox"
 			self.BackColor = (192,192,192)
-		'''
+		"""
 		pass
 
 
 	def initStyleProperties(self):
-		''' Hook for subclasses.
+		""" Hook for subclasses.
 
 		Dabo Designer will set style properties here, such as:
 			self.BorderStyle = "Sunken"
 			self.Alignment = "Center"
-		'''
+		"""
 		pass
 
 		
@@ -98,13 +98,13 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		
 	
 	def addObject(self, classRef, name, *args, **kwargs):
-		''' Instantiate object as a child of self.
+		""" Instantiate object as a child of self.
 		
 		The class reference must be a Dabo object (must inherit dPemMixin).
 		
 		The name parameter will be used on the resulting instance, and additional 
 		arguments received will be passed on to the constructor of the object.
-		'''
+		"""
 		object = classRef(self, name=name, *args, **kwargs)
 		return object
 
@@ -151,8 +151,8 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 			
 	
 	def reCreate(self, child=None):
-		''' Recreate self.
-		'''
+		""" Recreate self.
+		"""
 		if child:
 			propValDict = self.getPropValDict(child)
 			style = child.GetWindowStyle()
@@ -182,18 +182,18 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 	# The following 3 flag functions are used in some of the property
 	# get/set functions.
 	def hasWindowStyleFlag(self, flag):
-		''' Return whether or not the flag is set. (bool)
-		'''
+		""" Return whether or not the flag is set. (bool)
+		"""
 		return (self._pemObject.GetWindowStyleFlag() & flag) == flag
 
 	def addWindowStyleFlag(self, flag):
-		''' Add the flag to the window style.
-		'''
+		""" Add the flag to the window style.
+		"""
 		self._pemObject.SetWindowStyleFlag(self._pemObject.GetWindowStyleFlag() | flag)
 
 	def delWindowStyleFlag(self, flag):
-		''' Remove the flag from the window style.
-		'''
+		""" Remove the flag from the window style.
+		"""
 		self._pemObject.SetWindowStyleFlag(self._pemObject.GetWindowStyleFlag() & (~flag))
 
 

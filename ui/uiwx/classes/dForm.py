@@ -17,11 +17,11 @@ else:
 
 
 class dForm(wxFrameClass, fm.dFormMixin):
-	''' Create a dForm object, which is a bizobj-aware form.
+	""" Create a dForm object, which is a bizobj-aware form.
 
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
 	like next(), last(), save(), and requery().
-	'''
+	"""
 
 	def __init__(self, parent=None, id=-1, title='', name='dForm', *args, **kwargs):
 
@@ -63,11 +63,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def addBizobj(self, bizobj):
-		''' Add a bizobj to this form.
+		""" Add a bizobj to this form.
 
 		Make the bizobj the form's primary bizobj if it is the first bizobj to 
 		be added.
-		'''
+		"""
 		self.bizobjs[bizobj.DataSource] = bizobj
 		if len(self.bizobjs) == 1:
 			self.setPrimaryBizobj(bizobj.DataSource)
@@ -93,16 +93,16 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def afterSetPrimaryBizobj(self):
-		''' Subclass hook.
-		'''
+		""" Subclass hook.
+		"""
 		pass
 
 
 	def addControl(self, control):
-		''' Add a control to this form.
+		""" Add a control to this form.
 
 		This happens automatically for dControls.
-		'''
+		"""
 		EVT_VALUEREFRESH = wx.PyEventBinder(dEvents.EVT_VALUEREFRESH, 0)
 		EVT_ROWNUMCHANGED = wx.PyEventBinder(dEvents.EVT_ROWNUMCHANGED, 0)    
 
@@ -136,20 +136,20 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def refreshControls(self):
-		''' Refresh the value of all contained dControls.
+		""" Refresh the value of all contained dControls.
 
 		Raises EVT_VALUEREFRESH which will be caught by all dControls, who will
 		in turn refresh themselves with the current value of the field in the
 		bizobj. 
-		'''
+		"""
 		evt = dEvents.dEvent(dEvents.EVT_VALUEREFRESH, self.GetId())
 		self.GetEventHandler().ProcessEvent(evt)
 		self.setStatusText(self.getCurrentRecordText())
 
 
 	def _moveRecordPointer(self, func, dataSource=None):
-		''' Move the record pointer using the specified function.
-		'''
+		""" Move the record pointer using the specified function.
+		"""
 		self.activeControlValid()
 		try:
 			response = func()
@@ -164,28 +164,28 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def first(self, dataSource=None):
-		''' Ask the bizobj to move to the first record.
-		'''
+		""" Ask the bizobj to move to the first record.
+		"""
 		self._moveRecordPointer(self.getBizobj(dataSource).first, dataSource)
 
 
 	def last(self, dataSource=None):
-		''' Ask the bizobj to move to the last record.
-		'''
+		""" Ask the bizobj to move to the last record.
+		"""
 		self._moveRecordPointer(self.getBizobj(dataSource).last, dataSource)
 
 
 	def prior(self, dataSource=None):
-		''' Ask the bizobj to move to the previous record.
-		'''
+		""" Ask the bizobj to move to the previous record.
+		"""
 		try:
 			self._moveRecordPointer(self.getBizobj(dataSource).prior, dataSource)
 		except dError.BeginningOfFileError:
 			self.setStatusText(self.getCurrentRecordText(dataSource) + " (BOF)")
 
 	def next(self, dataSource=None):
-		''' Ask the bizobj to move to the next record.
-		'''
+		""" Ask the bizobj to move to the next record.
+		"""
 		try:
 			self._moveRecordPointer(self.getBizobj(dataSource).next, dataSource)
 		except dError.EndOfFileError:
@@ -193,8 +193,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def save(self, dataSource=None):
-		''' Ask the bizobj to commit its changes to the backend.
-		'''
+		""" Ask the bizobj to commit its changes to the backend.
+		"""
 		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
 
@@ -210,11 +210,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def cancel(self, dataSource=None):
-		''' Ask the bizobj to cancel its changes.
+		""" Ask the bizobj to cancel its changes.
 
 		This will revert back to the state of the records when they were last
 		requeried or saved.
-		'''
+		"""
 		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
 
@@ -233,16 +233,16 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def onRequery(self, event):
-		''' Occurs when an EVT_MENU event is received by this form.
-		'''
+		""" Occurs when an EVT_MENU event is received by this form.
+		"""
 		self.requery()
 		self.Raise()
 		event.Skip()
 
 
 	def requery(self, dataSource=None):
-		''' Ask the bizobj to requery.
-		'''
+		""" Ask the bizobj to requery.
+		"""
 		import time
 
 		self.activeControlValid()
@@ -284,8 +284,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def delete(self, dataSource=None, message=None):
-		''' Ask the bizobj to delete the current record.
-		'''
+		""" Ask the bizobj to delete the current record.
+		"""
 		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
 		if not message:
@@ -309,8 +309,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def deleteAll(self, dataSource=None, message=None):
-		''' Ask the primary bizobj to delete all records from the recordset.
-		'''
+		""" Ask the primary bizobj to delete all records from the recordset.
+		"""
 		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
 
@@ -335,8 +335,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def new(self, dataSource=None):
-		''' Ask the bizobj to add a new record to the recordset.
-		'''
+		""" Ask the bizobj to add a new record to the recordset.
+		"""
 		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
 		try:
@@ -358,30 +358,30 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def afterNew(self):
-		''' Called after a new record is successfully added to the dataset.
+		""" Called after a new record is successfully added to the dataset.
 
 		Override in subclasses for desired behavior.
-		'''
+		"""
 		pass
 
 
 	def getSQL(self, dataSource=None):
-		''' Get the current SQL from the bizobj.
-		'''
+		""" Get the current SQL from the bizobj.
+		"""
 		return self.getBizobj(dataSource).getSQL()
 
 
 	def setSQL(self, sql, dataSource=None):
-		''' Set the SQL for the bizobj.
-		'''
+		""" Set the SQL for the bizobj.
+		"""
 		self.getBizobj(dataSource).setSQL(sql)
 
 
 	def getBizobj(self, dataSource=None):
-		''' Return the bizobj with the passed dataSource.
+		""" Return the bizobj with the passed dataSource.
 
 		If no dataSource is passed, getBizobj() will return the primary bizobj.
-		'''
+		"""
 		if not dataSource:
 			dataSource = self.getPrimaryBizobj()
 		try:
@@ -401,8 +401,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def getCurrentRecordText(self, dataSource=None):
-		''' Get the text to describe which record is current.
-		'''
+		""" Get the text to describe which record is current.
+		"""
 		bizobj = self.getBizobj(dataSource)
 		rowCount = bizobj.getRowCount()
 		if rowCount > 0:
@@ -413,12 +413,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def activeControlValid(self):
-		''' Force the control-with-focus to fire its KillFocus code.
+		""" Force the control-with-focus to fire its KillFocus code.
 
 		The bizobj will only get its field updated during the control's 
 		KillFocus code. This function effectively commands that update to
 		happen before it would have otherwise occurred.
-		'''
+		"""
 		controlWithFocus = self.FindFocus()
 		if controlWithFocus:
 			try:

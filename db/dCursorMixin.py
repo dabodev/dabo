@@ -111,11 +111,11 @@ class dCursorMixin:
 
 
 	def sort(self, col, dir=None, caseSensitive=True):
-		''' Sort the result set on the specified column in the specified order.
+		""" Sort the result set on the specified column in the specified order.
 
 		If the sort direction is not specified, sort() cycles among Ascending, 
 		Descending and no sort order.
-		'''
+		"""
 		currCol = self.sortColumn
 		currOrd = self.sortOrder
 		currCase = self.sortCase
@@ -171,12 +171,12 @@ class dCursorMixin:
 
 
 	def __sortRows(self, col, ord, caseSensitive):
-		''' Sort the rows of the cursor.
+		""" Sort the rows of the cursor.
 
 		At this point, we know we have a valid column and order. We need to 
 		preserve the unsorted order if we haven't done that yet; then we sort
 		the data according to the request.
-		'''
+		"""
 		if not self.__unsortedRows:
 			# Record the PK values
 			for row in self._rows:
@@ -222,11 +222,11 @@ class dCursorMixin:
 
 
 	def isChanged(self, allRows=True):
-		'''
+		"""
 		Scan all the records and compare them with their mementos. 
 
 		Returns True if any differ, False otherwise.
-		'''
+		"""
 		ret = False
 
 		if self.rowcount > 0:
@@ -257,8 +257,8 @@ class dCursorMixin:
 
 
 	def getFieldVal(self, fld):
-		''' Return the value of the specified field.
-		'''
+		""" Return the value of the specified field.
+		"""
 		ret = None
 		if self.rowcount <= 0:
 			raise dError.NoRecordsError, _("No records in the data set.")
@@ -275,8 +275,8 @@ class dCursorMixin:
 
 
 	def setFieldVal(self, fld, val):
-		''' Set the value of the specified field. 
-		'''
+		""" Set the value of the specified field. 
+		"""
 		ret = False
 		if self.rowcount <= 0:
 			self.addToErrorMsg(_("No records in the data set"))
@@ -294,8 +294,8 @@ class dCursorMixin:
 
 
 	def getDataSet(self):
-		''' Get the entire data set encapsulated in a tuple.
-		'''
+		""" Get the entire data set encapsulated in a tuple.
+		"""
 		try:
 			return self._rows
 		except AttributeError:
@@ -303,8 +303,8 @@ class dCursorMixin:
 
 
 	def getRowCount(self):
-		''' Get the row count of the current data set.
-		'''
+		""" Get the row count of the current data set.
+		"""
 		try:
 			return self.rowcount
 		except AttributeError:
@@ -312,8 +312,8 @@ class dCursorMixin:
 
 
 	def getRowNumber(self):
-		''' Get the active row number of the data set.
-		'''
+		""" Get the active row number of the data set.
+		"""
 		try:
 			return self.rownumber
 		except AttributeError:
@@ -321,8 +321,8 @@ class dCursorMixin:
 
 
 	def first(self):
-		''' Move the record pointer to the first record of the data set. 
-		'''
+		""" Move the record pointer to the first record of the data set. 
+		"""
 		self.__errorMsg = ""
 		if self.rowcount > 0:
 			self.rownumber = 0
@@ -331,8 +331,8 @@ class dCursorMixin:
 
 
 	def prior(self):
-		''' Move the record pointer back one position in the recordset.
-		'''
+		""" Move the record pointer back one position in the recordset.
+		"""
 		self.__errorMsg = ""
 		if self.rowcount > 0:
 			if self.rownumber > 0:
@@ -344,8 +344,8 @@ class dCursorMixin:
 
 
 	def next(self):
-		''' Move the record pointer forward one position in the recordset.
-		'''
+		""" Move the record pointer forward one position in the recordset.
+		"""
 		self.__errorMsg = ""
 		if self.rowcount > 0:
 			if self.rownumber < (self.rowcount-1):
@@ -357,8 +357,8 @@ class dCursorMixin:
 
 
 	def last(self):
-		''' Move the record pointer to the last record in the recordset.
-		'''
+		""" Move the record pointer to the last record in the recordset.
+		"""
 		self.__errorMsg = ""
 		if self.rowcount > 0:
 			self.rownumber = self.rowcount-1
@@ -367,8 +367,8 @@ class dCursorMixin:
 
 
 	def save(self, allrows=False):
-		''' Save any changes to the data back to the data store.
-		'''
+		""" Save any changes to the data back to the data store.
+		"""
 		self.__errorMsg = ""
 
 		# Make sure that there is data to save
@@ -443,8 +443,8 @@ class dCursorMixin:
 
 
 	def new(self):
-		''' Add a new record to the data set.
-		'''
+		""" Add a new record to the data set.
+		"""
 		if not self._blank:
 			self.__setStructure()
 		# Copy the _blank dict to the _rows, and adjust everything accordingly
@@ -461,8 +461,8 @@ class dCursorMixin:
 
 
 	def cancel(self, allrows=False):
-		''' Revert any changes to the data set back to the original values.
-		'''
+		""" Revert any changes to the data set back to the original values.
+		"""
 		self.__errorMsg = ""
 		# Make sure that there is data to save
 		if not self.rowcount > 0:
@@ -506,10 +506,10 @@ class dCursorMixin:
 
 
 	def delete(self, delRowNum=None):
-		''' Delete the specified row.
+		""" Delete the specified row.
 
 		If no row specified, delete the currently active row.
-		'''
+		"""
 		if delRowNum is None:
 			# assume that it is the current row that is to be deleted
 			delRowNum = self.rownumber
@@ -540,12 +540,12 @@ class dCursorMixin:
 
 
 	def setDefaults(self, vals):
-		''' Set the default field values for newly added records.
+		""" Set the default field values for newly added records.
 
 		The 'vals' parameter is a dictionary of fields and their default values.
 		The memento must be updated afterwards, since these should not count
 		as changes to the original values. 
-		'''
+		"""
 		row = self._rows[self.rownumber]
 		for kk, vv in vals.items():
 			row[kk] = vv
@@ -553,10 +553,10 @@ class dCursorMixin:
 
 
 	def addMemento(self, rownum=-1):
-		''' Add a memento to the specified row.
+		""" Add a memento to the specified row.
 
 		If the rownum is -1, a memento will be added to all rows. 
-		'''
+		"""
 		if rownum == -1:
 			# Make sure that there are rows to process
 			if self.rowcount < 1:
@@ -620,10 +620,10 @@ class dCursorMixin:
 
 
 	def moveToPK(self, pk):
-		''' Find the record with the passed primary key, and make it active.
+		""" Find the record with the passed primary key, and make it active.
 
 		If the record is not found, the position is set to the first record. 
-		'''
+		"""
 		self.rownumber = 0
 		for i in range(0, len(self._rows)):
 			rec = self._rows[i]
@@ -633,25 +633,25 @@ class dCursorMixin:
 
 
 	def moveToRowNum(self, rownum):
-		''' Move the record pointer to the specified row number.
+		""" Move the record pointer to the specified row number.
 
 		If the specified row does not exist, the pointer remains where it is, 
 		and an exception is raised.
-		'''
+		"""
 		if (rownum >= self.rowcount) or (rownum < 0):
 			raise dError.dError, _("Invalid row specified.")
 		self.rownumber = rownum
 
 
 	def seek(self, val, fld=None, caseSensitive=True, near=False):
-		''' Find the first row where the field value matches the passed value.
+		""" Find the first row where the field value matches the passed value.
 
 		Returns the row number of the first record that matches the passed
 		value in the designated field, or -1 if there is no match. If 'near' is
 		True, a match will happen on the row whose value is the greatest value
 		that is less than the passed value. If 'caseSensitive' is set to False,
 		string comparisons are done in a case-insensitive fashion.
-		'''
+		"""
 		ret = -1
 		if fld is None:
 			# Default to the current sort order field
@@ -732,8 +732,8 @@ class dCursorMixin:
 
 
 	def checkPK(self):
-		''' Verify that the field(s) specified in the keyField prop exist.
-		'''
+		""" Verify that the field(s) specified in the keyField prop exist.
+		"""
 		# First, make sure that there is *something* in the field
 		if not self.keyField:
 			raise dError.dError, _("checkPK failed; no primary key specified")
@@ -748,10 +748,10 @@ class dCursorMixin:
 
 
 	def makePkWhere(self, rec=None):
-		''' Create the WHERE clause used for updates, based on the pk field. 
+		""" Create the WHERE clause used for updates, based on the pk field. 
 
 		Optionally pass in a record object, otherwise use the current record.
-		'''
+		"""
 		if not rec:
 			rec = self._rows[self.rownumber]
 		aFields = self.keyField.split(",")
@@ -768,8 +768,8 @@ class dCursorMixin:
 
 
 	def makeUpdClause(self, diff):
-		''' Create the 'set field=val' section of the Update statement. 
-		'''
+		""" Create the 'set field=val' section of the Update statement. 
+		"""
 		ret = ""
 		for fld, val in diff.items():
 			if ret:
@@ -797,12 +797,12 @@ class dCursorMixin:
 
 
 	def __escQuote(self, val):
-		''' Escape special characters in SQL strings.
+		""" Escape special characters in SQL strings.
 
 		Escapes any single quotes that could cause SQL syntax errors. Also 
 		escapes backslashes, since they have special meaning in SQL parsing. 
 		Finally, wraps the value in single quotes.
-		'''
+		"""
 		ret = val
 		if type(val) in (types.StringType, types.UnicodeType):
 			# escape and then wrap in single quotes
@@ -813,10 +813,10 @@ class dCursorMixin:
 
 
 	def addToErrorMsg(self, txt):
-		''' Add to the current error message text.
+		""" Add to the current error message text.
 
 		Also adds a newline if needed.
-		'''
+		"""
 		if txt:
 			if self.__errorMsg:
 				self.__errorMsg += "\n"
@@ -832,30 +832,30 @@ class dCursorMixin:
 
 
 	def isAdding(self):
-		''' Return True if the current record is a new record.
-		'''
+		""" Return True if the current record is a new record.
+		"""
 		return self._rows[self.rownumber].has_key(k.CURSOR_NEWFLAG)
 
 
 	def beginTransaction(self):
-		''' Begin a SQL transaction.
+		""" Begin a SQL transaction.
 
 		Override in subclasses.
-		'''
+		"""
 		return True
 
 
 	def commitTransaction(self):
-		''' Commit a SQL transaction.
+		""" Commit a SQL transaction.
 
 		Override in subclasses.
-		'''
+		"""
 		return True
 
 
 	def rollbackTransaction(self):
-		''' Roll back (revert) a SQL transaction.
+		""" Roll back (revert) a SQL transaction.
 
 		Override in subclasses.
-		'''
+		"""
 		return True

@@ -1,4 +1,4 @@
-''' dabo.icons '''
+""" dabo.icons """
 
 def getIcon(iconName):
 	return open("%s/%s.png" % (__path__[0], iconName), 'rb').read()

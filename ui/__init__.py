@@ -1,4 +1,4 @@
-''' dabo.ui : This is Dabo's user interface layer which is the topmost layer.
+""" dabo.ui : This is Dabo's user interface layer which is the topmost layer.
 			The UI will instantiate forms which contain bizobj's (dabo.biz)
 			and the bizobj's will in turn communicate with the underlying
 			db, abstracted with dabo.db.
@@ -37,7 +37,7 @@
 				dToolBar
 				dStatusBar
 
-'''
+"""
 from dActionList import dActionList
 
 # Module factory function: generically return the 
