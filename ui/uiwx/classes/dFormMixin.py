@@ -1,8 +1,10 @@
 ''' dFormMixin.py '''
 import wx
 from dMenu import *
+from dPemMixin import dPemMixin
+from dMainMenuBar import dMainMenuBar
 
-class dFormMixin:
+class dFormMixin(dPemMixin):
     def __init__(self, dApp):
         self.dApp = dApp
         
@@ -11,10 +13,12 @@ class dFormMixin:
         wx.EVT_KILL_FOCUS(self, self.OnKillFocus)
         wx.EVT_ACTIVATE(self, self.OnActivate)
         
-        if self.GetParent() == wx.GetApp().GetTopWindow():
+        if self.Parent == wx.GetApp().GetTopWindow():
             self.dApp.uiForms.add(self)
         
         self.restoredSP = False  
+        self.SetMenuBar(dMainMenuBar(self))
+        self.afterSetMenuBar()
 
         
     def OnActivate(self, event): 
@@ -24,7 +28,13 @@ class dFormMixin:
             self.restoreSizeAndPosition()
             self.restoredSP = True
     
-            
+    
+    def afterSetMenuBar(self):
+        ''' Subclasses can extend the menu bar here.
+        '''
+        pass
+        
+                    
     def getMenu(self):
         ''' Get the navigation menu for this form.
         
@@ -128,3 +138,21 @@ class dFormMixin:
             controllingFrame = self
         wx.EVT_MENU(controllingFrame, toolId, function)
     
+
+    # property get/set/del functions follow:
+    def _getIcon(self):
+        return self._Icon
+    def _setIcon(self, icon):
+        self.SetIcon(icon)
+        self._Icon = icon       # wx doesn't provide GetIcon()
+        
+    def _getIconBundle(self):
+        return self._Icons
+    def _setIconBundle(self, icons):
+        self.SetIcons(icons)
+        self._Icons = icons       # wx doesn't provide GetIcons()
+    
+    # property definitions follow:
+    Icon = property(_getIcon, _setIcon, None, 'Specifies the icon for the form. (wxIcon)')
+    IconBundle = property(_getIconBundle, _setIconBundle, None,
+                            'Specifies the set of icons for the form. (wxIconBundle)')

@@ -24,9 +24,9 @@ class dForm(wxFrameClass, dFormMixin):
     def __init__(self, parent=None, name="dForm", resourceString=None):
         wxFrameClass.__init__(self, parent, -1, "", (-1,-1), (-1,-1), 
                             wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
-        self.SetName(name)
-        self.SetLabel(name)
-
+        self.Name = name
+        self.Caption = name
+        
         if parent:        
             dApp = parent.dApp
         else:
@@ -38,7 +38,7 @@ class dForm(wxFrameClass, dFormMixin):
         self.bizobjs = {}
         self._primaryBizobj = None
         
-        self.saveAllRows = True    # Default should come from app
+        self.SaveAllRows = True    # Default should come from app
         
         self.dControls = {}
         self.controlWithFocus = None
@@ -192,11 +192,11 @@ class dForm(wxFrameClass, dFormMixin):
         bizobj = self.getBizobj(dataSource)
         
         try:
-            bizobj.save(allRows=self.saveAllRows)
+            bizobj.save(allRows=self.SaveAllRows)
             if self.debug:
                 print "Save successful."
             self.setStatusText("Changes to %s saved." % (
-                    self.saveAllRows and "all records" or "current record",))
+                    self.SaveAllRows and "all records" or "current record",))
         except dError.BusinessRuleViolation, e:
             self.setStatusText("Save failed.")
             dMessageBox.stop("Save failed:\n\n%s" %  str(e))
@@ -212,11 +212,11 @@ class dForm(wxFrameClass, dFormMixin):
         bizobj = self.getBizobj(dataSource)
         
         try:
-            bizobj.cancel(allRows=self.saveAllRows)
+            bizobj.cancel(allRows=self.SaveAllRows)
             if self.debug:
                 print "Cancel successful."
             self.setStatusText("Changes to %s canceled." % (
-                    self.saveAllRows and "all records" or "current record",))
+                    self.SaveAllRows and "all records" or "current record",))
             self.refreshControls()
         except dError.dError, e:
             if self.debug:
@@ -420,6 +420,18 @@ class dForm(wxFrameClass, dFormMixin):
         pass
     
         
+    # Property get/set/del functions follow.
+    def _getSaveAllRows(self):
+        return self._SaveAllRows
+    def _setSaveAllRows(self, value):
+        self._SaveAllRows = value
+        
+        
+    # Property definitions:
+    SaveAllRows = property(_getSaveAllRows, _setSaveAllRows, None, 
+                    'Specifies whether dataset is row- or table-buffered. (bool)')
+                    
+                    
 if __name__ == "__main__":
     import test
     test.Test().runTest(dForm)

@@ -1,6 +1,7 @@
 from dForm import dForm
 from dPageFrame import dPageFrame
 from dPage import *
+from dMainMenuBar import *
 import dIcons
 
 class dFormDataNav(dForm):
@@ -130,10 +131,14 @@ class dFormDataNav(dForm):
                 mb.Remove(menuIndex)
         else:
             # Attach the menu to this frame
-            mb = wx.MenuBar()
+            mb = self.GetMenuBar()
         menuIndex = mb.GetMenuCount()-1
         if menuIndex < 0:
             menuIndex = 0
+            
+        ### The intent is for the Navigation menu to be positioned before
+        ### the Help menu, but it isn't working. No matter what I set for
+        ### menuIndex, the nav menu always appears at the end.
         mb.Insert(menuIndex, self.getMenu(), "&Navigation")
         
         if not isinstance(self, wx.MDIChildFrame):

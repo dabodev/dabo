@@ -19,7 +19,6 @@ class dFormMain(wxFrameClass, dFormMixin):
         self.SetPosition((0,0))
         dFormMixin.__init__(self, dApp)
         self.CreateStatusBar()
-        self.SetMenuBar(dMainMenuBar(self))
       
         if self.dApp:
             self.SetStatusText("Welcome to %s" % self.dApp.getAppInfo("appName"))

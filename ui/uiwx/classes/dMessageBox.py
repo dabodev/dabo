@@ -9,12 +9,17 @@ import wx
 class dMessageBox(wx.MessageDialog):
     def __init__(self, message, title, style):
         mainForm = wx.GetApp().GetTopWindow()
-        wx.MessageDialog.__init__(self, mainForm, message, title, style)
+        if mainForm:
+            activeForm = mainForm.FindFocus()
+            if activeForm:
+                form = activeForm
+            else:
+                form = mainForm
+        else:
+            form = mainForm
+            
+        wx.MessageDialog.__init__(self, form, message, title, style)
         
-        # All of these cause a segfault: bug reported to wxPython-dev
-        #self.Centre(wx.BOTH)
-        #self.CenterOnScreen()
-        #self.CenterOnParent()
 
 def areYouSure(message="Are you sure?", defaultNo=False, cancelButton=False):
     style = wx.YES_NO|wx.ICON_QUESTION
