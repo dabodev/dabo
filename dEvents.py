@@ -155,6 +155,11 @@ class SashEvent(Event):
 		return issubclass(objectClass, dabo.ui.dSplitter)
 	appliesToClass = classmethod(appliesToClass)
 
+class TreeEvent(Event):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dTreeView)
+	appliesToClass = classmethod(appliesToClass)
+
 	
 class Activate(Event):
 	"""Occurs when the form or application becomes active."""
@@ -331,6 +336,19 @@ class RowNumChanged(DataEvent):
 	
 class SashDoubleClick(SashEvent):
 	"""Occurs when a user double-clicks on the sash of a splitter window."""
+	pass
+
+
+class TreeSelection(TreeEvent):
+	""" Occurs when the selected item in a tree control changes."""
+	pass
+
+class TreeItemCollapse(TreeEvent):
+	""" Occurs when an expanded item in a tree collapses."""
+	pass
+
+class TreeItemExpand(TreeEvent):
+	""" Occurs when a collapsed item in a tree expands."""
 	pass
 
 	

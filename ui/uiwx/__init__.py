@@ -164,7 +164,7 @@ def discontinueEvent(evt):
 def getEventData(wxEvt):
 	ed = {}
 
-	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, 
+	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, wx.TreeEvent,
 			wx.CommandEvent, wx.CloseEvent) ):
 		
 		if dabo.allNativeEventInfo:
@@ -212,5 +212,11 @@ def getEventData(wxEvt):
 
 	if isinstance(wxEvt, wx.CloseEvent):
 		ed["force"] = not wxEvt.CanVeto()
+		
+	if isinstance(wxEvt, wx.TreeEvent):
+		tree = wxEvt.GetEventObject()
+		ed["selectedNode"] = tree.Selection
+		ed["selectedCaption"] = tree.Selection.Caption
+		
 		
 	return ed

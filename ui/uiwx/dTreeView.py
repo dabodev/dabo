@@ -157,15 +157,31 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		# Dictionary for tracking images by key value
 		self.__imageList = {}	
 		
+		self.bindEvent(dEvents.Hit, self.onHit)
+		self.bindEvent(dEvents.TreeSelection, self.onSelection)
+		self.bindEvent(dEvents.TreeItemCollapse, self.onItemCollapse)
+		self.bindEvent(dEvents.TreeItemExpand, self.onItemExpand)
+
+
+		
 		
 		### Only for testing!
-		self.Size = (300,400)
+# 		self.Size = (300,400)
 # 		self.addDummyData()
 # 		self.expandAll()
 # 		self.addImage("edit")
 # 		self.addImage("browse")
 # 		self.addImage("checkMark")
-		
+
+	
+	
+	def _initEvents(self):
+		super(dTreeView, self)._initEvents()
+		self.Bind(wx.EVT_LEFT_UP, self._onWxHit)
+		self.Bind(wx.EVT_TREE_SEL_CHANGED, self._onTreeSel)
+		self.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self._onTreeItemCollapse)
+		self.Bind(wx.EVT_TREE_ITEM_EXPANDED, self._onTreeItemExpand)
+
 	
 	def setRootNode(self, txt):
 		id = self.AddRoot(txt)
@@ -356,9 +372,22 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		os.path.walk(dirPath, sortNode, None)
 
 
+	# Event-handling code
+	def _onTreeSel(self, evt):
+		self.raiseEvent(dEvents.TreeSelection, evt)
+	def _onTreeItemCollapse(self, evt):
+		self.raiseEvent(dEvents.TreeItemCollapse, evt)
+	def _onTreeItemExpand(self, evt):
+		self.raiseEvent(dEvents.TreeItemExpand, evt)
+	def onSelection(self, evt): pass
+	def onHit(self, evt): pass
+	def onItemCollapse(self, evt): pass
+	def onItemExpand(self, evt): pass
+
 
 	def addDummyData(self):
 		""" For testing purposes! """
+		self.DeleteAllItems()
 		r = self.setRootNode("This is the root")
 		c1 = r.appendChild("First Child")
 		c2 = r.appendChild("Second Child")
@@ -395,6 +424,12 @@ if __name__ == "__main__":
 	class TestTree(dTreeView):
 		def afterInit(self): 
 			self.addDummyData()
-		
+			
+		def onSelection(self, evt):
+			print "Selected node caption:", evt.EventData["selectedCaption"]
+		def onItemCollapse(self, evt):
+			print "Collapsed node caption:", evt.EventData["selectedCaption"]
+		def onItemExpand(self, evt):
+			print "Expanded node caption:", evt.EventData["selectedCaption"]
 		
 	test.Test().runTest(TestTree)
