@@ -160,7 +160,8 @@ class dPemMixinBase(dabo.common.dObject):
 					parent = obj.Parent
 				except AttributeError:
 					break
-				if isinstance(parent, (dabo.ui.dForm, dabo.ui.dDialog) ):
+				if isinstance(parent, (dabo.ui.dForm, dabo.ui.dFormMain, 
+				                       dabo.ui.dDialog) ):
 					frm = parent
 					break
 				else:
