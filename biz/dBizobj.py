@@ -10,11 +10,15 @@ class dBizobj(object):
     sql = ""
     # When true, the cursor object does not run its query immediately. This
     # is useful for parameterized queries
-    noDataOnLoad = 0
+    noDataOnLoad = False
+    # Determines if we are using a table that auto-generates its PKs.
+    autoPopulatePK = True
     # Holds the params to be merged with the sql in the cursor
     _params = ()
     # Reference to the cursor object 
     _cursor = None
+    # Class to instantiate for the cursor object
+    dcursorMixinClass = dCursorMixin
     # Reference to the parent bizobj to this one.
     _parent = None
     # Collection of child bizobjs for this
@@ -26,18 +30,18 @@ class dBizobj(object):
     # Holds any error messages generated during a process
     _errorMsg = ""
     # Dictionary holding any default values to apply when a new record is created
-    defaultValues = {}		
+    defaultValues = {}      
     # Do we requery child bizobjs after a Save()?
-    requeryChildOnSave = 1
+    requeryChildOnSave = True
     # Should new child records be added when a new parent record is added?
-    newChildOnNew = 0
-    # If this bizobj's parent has newChildOnNew =1, do we create a record here?
-    newRecordOnNewParent = 0
+    newChildOnNew = False
+    # If this bizobj's parent has newChildOnNew =True, do we create a record here?
+    newRecordOnNewParent = False
     # In the onNew() method, do we fill in the linkField with the value returned by calling the parent
     # bizobj's GetKeyValue() method?
-    fillLinkFromParent = 0
+    fillLinkFromParent = False
     # After a requery, do we try to restore the record position to the same PK?
-    savePosOnRequery = 1
+    savePosOnRequery = True
 
     ##########################################
     ### referential integrity stuff ####
@@ -46,22 +50,24 @@ class dBizobj(object):
     ### IGNORE - don't worry about the presence of child records
     ### RESTRICT - don't allow action if there are child records
     ### CASCADE - changes to the parent are cascaded to the children
-    deleteChildLogic = k.REFINTEG_CASCADE		# child records will be deleted
-    updateChildLogic = k.REFINTEG_IGNORE	# parent keys can be changed w/o affecting children
-    insertChildLogic = k.REFINTEG_IGNORE		# child records can be inserted even if no parent record exists.
+    deleteChildLogic = k.REFINTEG_CASCADE       # child records will be deleted
+    updateChildLogic = k.REFINTEG_IGNORE    # parent keys can be changed w/o affecting children
+    insertChildLogic = k.REFINTEG_IGNORE        # child records can be inserted even if no parent record exists.
     ##########################################
     # Versioning...
     _version = "0.1.0"
 
 
-    def __init__(self, dConnection):
+    def __init__(self, conn):
         # Save the connection reference
-        self._conn = dConnection
-        # Mixin class 1 : the dabo cursor class
-        self.dCursorMixinClass = dCursorMixin
-        # Mixin class 2 : the cursor class from the db api
+        self._conn = conn
+        # Base cursor class : the cursor class from the db api
         self.dbapiCursorClass = self._conn.getDictCursor()
-        self.createCursor()
+        if not self.createCursor():
+            ##### TODO  #######
+            # Need to raise an exception here!
+            pass
+
         # Need to set this so that different instances don't mix up the references
         # contained in this list.
         self.__children = []
@@ -75,14 +81,14 @@ class dBizobj(object):
             self._cursor.setSQL(self.sql)
             self._cursor.setKeyField(self.keyField)
             self._cursor.setTable(self.dataSource)
+            self._cursor.setAutoPopulatePK(self.autoPopulatePK)
             if not self.noDataOnLoad:
                 self._cursor.requery()
-            self.afterCreateCursor()
+            self.afterCreateCursor(self._cursor)
 
         if not self._cursor:
-            ##### TODO  #######
-            # Need to raise an exception here!
-            pass
+            return False
+        return True
 
                     
     def getCursorClass(self, main, secondary):
@@ -99,10 +105,11 @@ class dBizobj(object):
 
 
     def first(self):
-        """ Move the record pointer in the cursor to the first record of the 
-            result set. Update any child bizobjs to reflect the new current 
-            parent record. If the record set is already at the beginning, 
-            return k.FILE_BOF. 
+        """ 
+        Move the record pointer in the cursor to the first record of the 
+        result set. Update any child bizobjs to reflect the new current 
+        parent record. If the record set is already at the beginning, 
+        return k.FILE_BOF. 
         """
         self._errorMsg = ""
         if not self.beforeFirst() or not self.beforePointerMove():
@@ -120,10 +127,11 @@ class dBizobj(object):
 
 
     def prior(self):
-        """ Move the record pointer in the cursor back one position in the 
-            result set. Update any child bizobjs to reflect the new current 
-            parent record. If the record set is already at the beginning, 
-            return k.FILE_BOF. 
+        """ 
+        Move the record pointer in the cursor back one position in the 
+        result set. Update any child bizobjs to reflect the new current 
+        parent record. If the record set is already at the beginning, 
+        return k.FILE_BOF. 
         """
         self._errorMsg = ""
         if not self.beforePrior() or not self.beforePointerMove():
@@ -141,9 +149,11 @@ class dBizobj(object):
 
 
     def next(self):
-        """ Moves the record pointer in the cursor to the next record of the result set.
+        """ 
+        Moves the record pointer in the cursor to the next record of the result set.
         Updates any child bizobjs to reflect the new current parent record.
-        If the recordset is already at the last record, returns k.FILE_EOF. """
+        If the recordset is already at the last record, returns k.FILE_EOF. 
+        """
         self._errorMsg = ""
         if not self.beforeNext() or not self.beforePointerMove():
             return k.FILE_CANCEL
@@ -160,9 +170,11 @@ class dBizobj(object):
 
 
     def last(self):
-        """ Moves the record pointer in the cursor to the last record of the result set.
+        """ 
+        Moves the record pointer in the cursor to the last record of the result set.
         Updates any child bizobjs to reflect the new current parent record.
-        If the recordset is already at the last record, returns k.FILE_EOF. """
+        If the recordset is already at the last record, returns k.FILE_EOF. 
+        """
         self._errorMsg = ""
         if not self.beforeLast() or not self.beforePointerMove():
             return k.FILE_CANCEL
@@ -177,9 +189,11 @@ class dBizobj(object):
         self.afterLast(ret)
         return ret
 
-    def save(self, startTransaction=0, allRows=0, topLevel=1):
-        """ Saves any changes that have been made to the cursor.
-        If the save is successful, calls the save() of all child bizobjs. """
+    def save(self, startTransaction=False, allRows=False, topLevel=True):
+        """ 
+        Saves any changes that have been made to the cursor.
+        If the save is successful, calls the save() of all child bizobjs. 
+        """
         self._errorMsg = ""
 
         if not self.beforeSave() or not self.validate():
@@ -208,7 +222,7 @@ class dBizobj(object):
                 if child.isChanged():
                     # No need to start another transaction. And since this is a child bizobj, 
                     # we need to save all rows that have changed.
-                    ret = child.save(startTransaction=1, allRows=1, topLevel=0)
+                    ret = child.save(startTransaction=True, allRows=True, topLevel=False)
 
                     if not ret == k.FILE_OK:
                         self.addToErrorMsg(child.getErrorMsg())
@@ -237,9 +251,11 @@ class dBizobj(object):
         return ret
 
 
-    def cancel(self, allRows=0):
-        """ Cancels any changes to the data. Reverts back to the orginal values
-        that were in the data. """
+    def cancel(self, allRows=False):
+        """ 
+        Cancels any changes to the data. Reverts back to the orginal values
+        that were in the data. 
+        """
         self._errorMsg = ""
 
         if not self.beforeCancel():
@@ -278,7 +294,7 @@ class dBizobj(object):
             for child in self.__children:
                 if child.getRowCount() > 0:
                     self.addToErrorMsg("Deletion prohibited - there are related child records.")
-                    return k.FILE_CANCEL					
+                    return k.FILE_CANCEL                    
 
         ret = self._cursor.delete()
 
@@ -293,7 +309,7 @@ class dBizobj(object):
                 if self.deleteChildLogic == k.REFINTEG_CASCADE:
                     child.deleteAll()
                 else:
-                    child.cancel(allRows=1)
+                    child.cancel(allRows=True)
                     child.requery()
 
             self.setMemento()
@@ -307,7 +323,11 @@ class dBizobj(object):
 
 
     def deleteAll(self):
-        """ Iterate through all the rows in the bizobj's cursor, deleting each one-by-one"""
+        """ 
+        Iterate through all the rows in the bizobj's cursor, deleting 
+        each one-by-one
+        """
+        ret = k.FILE_OK
         while self._cursor.getRowCount() > 0:
             self.first()
             ret = self.delete()
@@ -317,7 +337,10 @@ class dBizobj(object):
 
 
     def new(self):
-        """ Creates a new record, and populates it with any default values specified. """
+        """ 
+        Creates a new record, and populates it with any default 
+        values specified. 
+        """
         self._errorMsg = ""
 
         if not self.beforeNew() or not self.beforePointerMove():
@@ -348,8 +371,10 @@ class dBizobj(object):
 
 
     def requery(self):
-        """ Refreshes the cursor's dataset with the current values in the database, 
-        given the current state of the filtering parameters """
+        """ 
+        Refreshes the cursor's dataset with the current values in the database, 
+        given the current state of the filtering parameters 
+        """
         self._errorMsg = ""
 
         if not self.beforeRequery():
@@ -379,27 +404,33 @@ class dBizobj(object):
 
 
     def setParams(self, params):
-        """ accepts a tuple that will be merged with the sql statement using the '%'
-        string format function. """
-# 		if params != types.TupleType:
-# 			params = tuple(params)
+        """ 
+        Accepts a tuple that will be merged with the sql statement using the
+        cursor's standard method for merging.
+        """
+#       if params != types.TupleType:
+#           params = tuple(params)
         self._params = params
 
 
     def validate(self):
-        """ This is the method that you should customize in your subclasses
+        """ 
+        This is the method that you should customize in your subclasses
         to create checks on the data entered by the user to be sure that it 
         conforms to your business rules. 
 
         It is called by the Save() routine before saving any data. If this returns
         a false value, the save will be disallowed. You must return a True value 
-        for data saving to proceed. """
-        return 1
+        for data saving to proceed. 
+        """
+        return True
 
 
     def isChanged(self):
-        """ Returns whether or not the data for the current record in the cursor has changed, or
-        if the data in any child bizobjs has changed. """
+        """ 
+        Returns whether or not the data for the current record in the cursor has changed, or
+        if the data in any child bizobjs has changed. 
+        """
         ret = self._cursor.isChanged()
 
         if not ret:
@@ -411,10 +442,18 @@ class dBizobj(object):
 
 
     def onDeleteLastRecord(self):
-        """ Hook method called when the last record of the cursor has been deleted """
+        """ 
+        Hook method called when the last record of the cursor 
+        has been deleted 
+        """
         pass
 
 
+    def onSaveNew(self):
+        """ Hook method called after successfully saving a new record """
+        pass
+    
+    
     def onNew(self):
         """ Populates the record with any default values """
         self._cursor.setDefaults(self.defaultValues)
@@ -424,13 +463,19 @@ class dBizobj(object):
 
 
     def onNewHook(self):
-        """ Hook method called after the default values have been set in onNew(). """
+        """ 
+        Hook method called after the default values have been 
+        set in onNew(). 
+        """
         pass
 
 
     def addChild(self, child):
-        """ During the creation of the form, child bizobjs are added by the parent.
-        This stores the child reference here, and sets the reference to the parent in the child. """
+        """ 
+        During the creation of the form, child bizobjs are added by the parent.
+        This stores the child reference here, and sets the reference to the 
+        parent in the child. 
+        """
         if child not in self.__children:
             self.__children.append(child)
             child.setParent(self)
@@ -442,8 +487,10 @@ class dBizobj(object):
 
 
     def requeryAllChildren(self):
-        """ Called to assure that all child bizobjs have had their data sets refreshed to 
-        match the current status. """
+        """ 
+        Called to assure that all child bizobjs have had their data sets 
+        refreshed to match the current status. 
+        """
         if len(self.__children) == 0:
             return k.REQUERY_SUCCESS
         if self.beforeChildRequery():
@@ -487,18 +534,22 @@ class dBizobj(object):
 
 
     def getParams(self):
-        """ This is the place to define the parameters to be used to modify
+        """ 
+        This is the place to define the parameters to be used to modify
         the SQL statement used to produce the record set. If the cursor for
         this bizobj does not need parameters, leave this as is. Otherwise, 
         use this method to create a tuple to be passed to the cursor, where 
-        it will be used to modify the query using standard printf syntax. """
+        it will be used to modify the query using standard printf syntax. 
+        """
         return self._params
 
 
     def setMemento(self):
-        """ Tell the cursor to take a snapshot of the current state of the 
+        """ 
+        Tell the cursor to take a snapshot of the current state of the 
         data. This snapshot will be used to determine what, if anything, has 
-        changed later on. """
+        changed later on. 
+        """
         self._cursor.setMemento()
 
 
@@ -507,9 +558,16 @@ class dBizobj(object):
         return self._cursor.getRowCount()
 
 
+    def getRowNumber(self):
+        """ Returns the current row number of records in the cursor's data set."""
+        return self._cursor.getRowNumber()
+    
+    
     def addToErrorMsg(self, txt):
-        """ Adds the passed text to the current error message text, 
-        inserting a newline if needed """
+        """ 
+        Adds the passed text to the current error message text, 
+        inserting a newline if needed 
+        """
         if txt:
             if self._errorMsg:
                 self._errorMsg += "\n"
@@ -520,19 +578,19 @@ class dBizobj(object):
 
 
     ########## Pre-hook interface section ##############
-    def beforeNew(self): return 1
-    def beforeDelete(self): return 1
-    def beforeFirst(self): return 1
-    def beforePrior(self): return 1
-    def beforeNext(self): return 1
-    def beforeLast(self): return 1
-    def beforePointerMove(self): return 1
-    def beforeSave(self): return 1
-    def beforeCancel(self): return 1
-    def beforeRequery(self): return 1
-    def beforeChildRequery(self): return 1
-    def beforeConnection(self): return 1
-    def beforeCreateCursor(self): return 1
+    def beforeNew(self): return True
+    def beforeDelete(self): return True
+    def beforeFirst(self): return True
+    def beforePrior(self): return True
+    def beforeNext(self): return True
+    def beforeLast(self): return True
+    def beforePointerMove(self): return True
+    def beforeSave(self): return True
+    def beforeCancel(self): return True
+    def beforeRequery(self): return True
+    def beforeChildRequery(self): return True
+    def beforeConnection(self): return True
+    def beforeCreateCursor(self): return True
     ########## Post-hook interface section ##############
     def afterNew(self, retStatus): pass
     def afterDelete(self, retStatus): pass
@@ -547,5 +605,5 @@ class dBizobj(object):
     def afterChildRequery(self, retStatus): pass
     def afterChange(self, retStatus): pass
     def afterConnection(self): pass
-    def afterCreateCursor(self): pass
+    def afterCreateCursor(self, cursor): pass
 

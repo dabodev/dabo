@@ -52,7 +52,7 @@ class dSqlBuilderMixin:
     def setOrderBy(self, ord):
         self.sqlorderby = ord
 
-    def addOrderBy(self, ord, desc=0):
+    def addOrderBy(self, ord, desc=False):
         if self.sqlorderby:
             self.sqlorderby = ",".join((self.sqlorderby, ord))
         else:

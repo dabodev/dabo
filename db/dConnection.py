@@ -22,11 +22,11 @@ class dConnection(object):
 
 if __name__ == "__main__":
     from dConnectInfo import dConnectInfo
-    ci = dConnectInfo('MySQL')
-    ci.host = 'paulmcnett.com'
+    ci = dConnectInfo("MySQL")
+    ci.host = "paulmcnett.com"
     ci.dbName = "house"
-    ci.user = 'dabo'
-    ci.password = 'dabo'
+    ci.user = "dabo"
+    ci.password = "dabo"
 
     conn = dConnection(ci).getConnection()
     cursor = conn.cursor()

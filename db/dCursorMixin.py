@@ -8,10 +8,13 @@ class dCursorMixin:
     keyField = ""
     # Name of the table in the database that this cursor is getting data from
     table = ""
+    # When inserting a new record, do we let the backend database populate
+    # the PK field? 
+    autoPopulatePK = True
     # SQL expression used to populate the cursor
     sql = ""
     # Holds the text of any error messages generated
-    _errorMsg = ""
+    __errorMsg = ""
     # Holds the dict used for adding new blank records
     _blank = {}
     # Last executed sql statement
@@ -23,6 +26,7 @@ class dCursorMixin:
     def __init__(self, sql="", *args, **kwargs):
         if sql:
             self.sql = sql
+        _blank = {}
 
 
     def setSQL(self, sql):
@@ -37,6 +41,10 @@ class dCursorMixin:
         self.keyField = kf
 
 
+    def setAutoPopulatePK(self, autopop):
+        self.autoPopulatePK = autopop
+    
+    
     def execute(self, sql, params=None):
         """
         The idea here is to let the super class do the actual work in retrieving the data. However, 
@@ -44,7 +52,7 @@ class dCursorMixin:
         method will detect that, and convert the results to a dictionary.
         """
 
-        self.superCursor.execute(self, sql, params)
+        res = self.superCursor.execute(self, sql, params)
 
         if self._rows:
             if type(self._rows[0]) == types.TupleType:
@@ -60,10 +68,11 @@ class dCursorMixin:
                 # the _rows property with that list of dictionaries
                 for row in self._rows:
                     dic= {}
-                    for i in range(0, fldcount-1):
+                    for i in range(0, fldcount):
                         dic[fldNames[i]] = row[i]
                     tmpRows.append(dic)
                 self._rows = tuple(tmpRows)
+        return res
 
 
     def requery(self, params=None):
@@ -78,6 +87,26 @@ class dCursorMixin:
         return k.REQUERY_SUCCESS
 
 
+    def isChanged(self):
+        """
+        Scans all the records, and compares them with their mementos. If any
+        differ, the method exits and returns True. Otherwise, it returns False.
+        """
+        ret = False
+        if self.rowcount > 0:
+            for i in range(0, self.rowcount-1):
+                rec = self._rows[i]
+                mem = rec[k.CURSOR_MEMENTO]
+                newrec = rec.has_key(k.CURSOR_NEWFLAG)
+                diff = {}
+                if not newrec:
+                    diff = mem.makeDiff(rec)
+                if newrec or diff:
+                    ret = True
+                    break
+        return ret
+    
+    
     def setMemento(self):
         if self.rowcount > 0:
             if (self.rownumber >= 0) and (self.rownumber < self.rowcount):
@@ -100,14 +129,14 @@ class dCursorMixin:
 
     def setFieldVal(self, fld, val):
         """ Sets the value of the specified field """
-        ret = 0
+        ret = False
         if self.rowcount <= 0:
             self.addToErrorMsg("No records in the data set")
         else:
             rec = self._rows[self.rownumber]
             if rec.has_key(fld):
                 rec[fld] = val
-                ret = 1
+                ret = True
             else:
                 self.addToErrorMsg("Field '" + fld + "' does not exist in the data set")
         return ret
@@ -120,9 +149,16 @@ class dCursorMixin:
         return ret
 
 
+    def getRowNumber(self):
+        ret = -1
+        if hasattr(self, "rownumber"):
+            ret = self.rownumber
+        return ret
+        
+    
     def first(self):
         """ Moves the record pointer to the first record of the recordset. """
-        self._errorMsg = ""
+        self.__errorMsg = ""
         ret = k.FILE_OK
         if self.rowcount > 0:
             self.rownumber = 0
@@ -134,7 +170,7 @@ class dCursorMixin:
 
     def prior(self):
         """ Moves the record pointer back one position in the recordset. """
-        self._errorMsg = ""
+        self.__errorMsg = ""
         ret = k.FILE_OK
         if self.rowcount > 0:
             if self.rownumber > 0:
@@ -150,7 +186,7 @@ class dCursorMixin:
 
     def next(self):
         """ Moves the record pointer forward one position in the recordset. """
-        self._errorMsg = ""
+        self.__errorMsg = ""
         ret = k.FILE_OK
         if self.rowcount > 0:
             if self.rownumber < (self.rowcount-1):
@@ -166,7 +202,7 @@ class dCursorMixin:
 
     def last(self):
         """ Moves the record pointer to the last record in the recordset. """
-        self._errorMsg = ""
+        self.__errorMsg = ""
         ret = k.FILE_OK
         if self.rowcount > 0:
             self.rownumber = self.rowcount-1
@@ -176,8 +212,9 @@ class dCursorMixin:
         return ret
 
 
-    def save(self, allrows=0):
-        self._errorMsg = ""
+    def save(self, allrows=False):
+        """ Saves any changes to the data back to the data store """
+        self.__errorMsg = ""
         ret = k.FILE_OK
 
         # Make sure that there is data to save
@@ -195,14 +232,14 @@ class dCursorMixin:
             recs = (self._rows[self.rownumber],)
 
         for rec in recs:
-            updret = self.saverow(rec)
+            updret = self.__saverow(rec)
             if updret != k.UPDATE_OK:
-                ret = FILE_CANCEL
+                ret = k.FILE_CANCEL
                 break
         return ret
 
 
-    def saverow(self, rec):
+    def __saverow(self, rec):
         newrec =  rec.has_key(k.CURSOR_NEWFLAG)
         mem = rec[k.CURSOR_MEMENTO]
         diff = mem.makeDiff(rec, newrec)
@@ -211,9 +248,15 @@ class dCursorMixin:
             if newrec:
                 flds = ""
                 vals = ""
-                for kk, vv in diff:
+                for kk, vv in diff.items():
+                    if self.autoPopulatePK and (kk == self.keyField):
+                        # we don't want to include the PK in the insert
+                        continue
                     flds += ", " + kk
-                    vals += ", " + self.escapeQt(vv)
+                    vals += ", " + str(self.__escQuote(vv))
+                # Trim leading comma-space from the strings
+                flds = flds[2:]
+                vals = vals[2:]
                 sql = "insert into %s (%s) values (%s) " % (self.table, flds, vals)
 
             else:
@@ -222,17 +265,26 @@ class dCursorMixin:
                 sql = "update %s set %s where %s" % (self.table, updClause, pkWhere)
 
             # Save off the props that will change on the update
-            self.saveProps()
+            self.__saveProps()
             #run the update
             res = self.execute(sql)
+            
+            if self.autoPopulatePK:
+                ### TODO: MySQLdb-specific! Need to make more generic
+                self.execute("select last_insert_id() as newid")
+                newPKVal = self._rows[0]["newid"]
             # restore the orginal values
-            self.restoreProps()
-            if not res:
-                ret = k.UPDATE_NORECORDS
+            self.__restoreProps()
+            
+            if self.autoPopulatePK:
+                self.setFieldVal(self.keyField, newPKVal)
+            
+            if newrec:
+                # Need to remove the new flag
+                del rec[k.CURSOR_NEWFLAG]
             else:
-                if newrec:
-                    # Need to remove the new flag
-                    del rec[k.CURSOR_NEWFLAG]
+                if not res:
+                    ret = k.UPDATE_NORECORDS
         return ret
 
 
@@ -241,7 +293,7 @@ class dCursorMixin:
         ret = k.FILE_OK
         try:
             if not self._blank:
-                self.setStructure()
+                self.__setStructure()
             # Copy the _blank dict to the _rows, and adjust everything accordingly
             tmprows = list(self._rows)
             tmprows.append(self._blank)
@@ -250,7 +302,7 @@ class dCursorMixin:
             self.rowcount = len(self._rows)
             self.rownumber = self.rowcount - 1
             # Add the 'new record' flag to the last record (the one we just added)
-            self._rows[self.rownumber][k.CURSOR_NEWFLAG] = 1
+            self._rows[self.rownumber][k.CURSOR_NEWFLAG] = True
             # Add the memento
             self.addMemento(self.rownumber)
         except:
@@ -258,9 +310,9 @@ class dCursorMixin:
         return ret
 
 
-    def cancel(self, allrows=0):
+    def cancel(self, allrows=False):
         """ Reverts any changes back to the original values """
-        self._errorMsg = ""
+        self.__errorMsg = ""
         ret = k.FILE_OK
 
         # Make sure that there is data to save
@@ -280,13 +332,13 @@ class dCursorMixin:
                 # Discard the record, and adjust the props
                 ret = self.delete(i)
             else:
-                ret = self.cancelRow(rec)
+                ret = self.__cancelRow(rec)
             if ret != k.FILE_OK:
                 break
         return ret
 
 
-    def cancelRow(self, rec):
+    def __cancelRow(self, rec):
         mem = rec[k.CURSOR_MEMENTO]
         diff = mem.makeDiff(rec)
         if diff:
@@ -304,12 +356,12 @@ class dCursorMixin:
 
         rec = self._rows[rownum]
         newrec =  rec.has_key(k.CURSOR_NEWFLAG)
-        self.saveProps(saverows=0)
+        self.__saveProps(saverows=False)
         if newrec:
             tmprows = list(self._rows)
             del tmprows[rownum]
             self._rows = tuple(tmprows)
-            res = 1
+            res = True
         else:
             pkWhere = self.makePkWhere()
             sql = "delete from %s where %s" % (self.table, pkWhere)
@@ -321,7 +373,7 @@ class dCursorMixin:
             del tmprows[rownum]
             self.holdrows = tuple(tmprows)
             # Now restore the properties
-            self.restoreProps()
+            self.__restoreProps()
         else:
             # Nothing was deleted
             ret = FILE_CANCEL
@@ -329,20 +381,27 @@ class dCursorMixin:
 
 
     def setDefaults(self, vals):
-        """ Called after a new record is added so that default values can be set.
+        """ 
+        Called after a new record is added so that default values can be set.
         The 'vals' parameter is a dictionary of fields and their default values.
         The memento must be updated afterwards, since these should not count
-        as changes to the original values. """
-        row = self._rows[rownumber]
+        as changes to the original values. 
+        """
+        row = self._rows[self.rownumber]
         for kk, vv in vals:
             row[kk] = vv
         row[k.CURSOR_MEMENTO].setMemento(row)
 
 
     def addMemento(self, rownum=-1):
-        """ Adds a memento to the specified row. If the rownum is -1, it will
-        add a memento to all rows """
+        """ 
+        Adds a memento to the specified row. If the rownum is -1, it will
+        add a memento to all rows 
+        """
         if rownum == -1:
+            # Make sure that there are rows to process
+            if self.rowcount < 1:
+                return
             for i in range(0, self.rowcount-1):
                 self.addMemento(i)
         row = self._rows[rownum]
@@ -352,7 +411,7 @@ class dCursorMixin:
         row[k.CURSOR_MEMENTO].setMemento(row)
 
 
-    def setStructure(self):
+    def __setStructure(self):
         import re
         pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:where\s(.*))+)\s*", re.I | re.M)
         if pat.search(self.sql):
@@ -363,37 +422,43 @@ class dCursorMixin:
             pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:group\s*by\s(.*))+)\s*", re.I | re.M)
             if pat.search(self.sql):
                 tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
-            else:				
+            else:               
                 pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:order\s*by\s(.*))+)\s*", re.I | re.M)
                 if pat.search(self.sql):
                     tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
-                else:				
+                else:               
                     # Nothing. So just tack it on the end.
                     tmpsql = sql + " where 1=0 "
 
         # We need to save and restore the cursor properties, since this query will wipe 'em out.
-        self.saveProps()
+        self.__saveProps()
         self.execute(tmpsql)
-        self.restoreProps()
+        self.__restoreProps()
 
         dscrp = self.description
         for fld in dscrp:
             fldname = fld[0]
-            if fld[1] == self.STRING:
-                _blank[fld] = ""
-            else:
-                if fld[5]:
-                    # Float
-                    exec("_blank[fld] = 0." + fld[5]*"0")
-                else:
-                    # Int
-                    _blank[fld] = 0
+            
+            ### For now, just initialize the fields to empty strings,
+            ###    and let the updates take care of the type.
+            self._blank[fldname] = ""
+#           if fld[1] == self.STRING:
+#               self._blank[fldname] = ""
+#           else:
+#               if fld[5]:
+#                   # Float
+#                   exec("self._blank[fldname] = 0." + fld[5]*"0")
+#               else:
+#                   # Int
+#                   self._blank[fldname] = 0
 
 
     def moveToPK(self, pk):
-        """ Find the record in the result set (if any) whose value in the keyField
+        """ 
+        Find the record in the result set (if any) whose value in the keyField
         field matches the passed value. If found, set the current position to that 
-        record. If not found, set the position to the first record. """
+        record. If not found, set the position to the first record. 
+        """
         self.rownumber = 0
         for i in range(0, len(self._rows)):
             rec = self._rows[i]
@@ -403,22 +468,24 @@ class dCursorMixin:
 
 
     def checkPK(self):
-        """ Check to see that the field(s) specified in the keyField prop exist
-        in the recordset. """
+        """ 
+        Check to see that the field(s) specified in the keyField prop exist
+        in the recordset. 
+        """
         # First, make sure that there is *something* in the field
         if not self.keyField:
             self.addToErrorMsg("Cannot save; no primary key specified")
-            return 0
+            return False
 
         aFields = self.keyField.split(",")
         # Make sure that there is a field with that name in the data set
-        ret = 1
+        ret = True
         try:
             for fld in aFields:
                 self._rows[0][fld]
         except:
             self.addToErrorMsg("Primary key field '" + fld + "' does not exist in the data set")
-            ret = 0
+            ret = False
         return ret
 
 
@@ -437,25 +504,26 @@ class dCursorMixin:
         return ret
 
     def makeUpdClause(self, diff):
+        """ Creates the 'set field=val' section of an Update statement """
         ret = ""
         for fld, val in diff.items():
             if ret:
                 ret += ", "
             if type(val) == types.StringType:
-                ret += fld + " = " + self.escapeQt(val) + " "
+                ret += fld + " = " + self.__escQuote(val) + " "
             else:
                 ret += fld + " = " + str(val) + " "
         return ret
 
 
-    def saveProps(self, saverows=1):
+    def __saveProps(self, saverows=True):
         self.holdrows = self._rows
         self.holdcount = self.rowcount
         self.holdpos = self.rownumber
         self.holddesc = self.description
 
 
-    def restoreProps(self, restoreRows=1):
+    def __restoreProps(self, restoreRows=True):
         if restoreRows:
             self._rows = self.holdrows
         self.rowcount = len(self._rows)
@@ -463,27 +531,29 @@ class dCursorMixin:
         self.description = self.holddesc
 
 
-    def escapeQt(self, val):
+    def __escQuote(self, val):
         ret = val
         if type(val) in (types.StringType, types.UnicodeType):
             # escape and then wrap in single quotes
             sl = "\\"
             qt = "\'"
             ret = "'" + val.replace(sl, sl+sl).replace(qt, sl+qt) + "'"
-        return ret			
+        return ret          
 
 
     def addToErrorMsg(self, txt):
-        """ Adds the passed text to the current error message text, 
-        inserting a newline if needed """
+        """ 
+        Adds the passed text to the current error message text, 
+        inserting a newline if needed 
+        """
         if txt:
-            if self._errorMsg:
-                self._errorMsg += "\n"
-            self._errorMsg += txt
+            if self.__errorMsg:
+                self.__errorMsg += "\n"
+            self.__errorMsg += txt
 
 
     def getErrorMsg(self):
-        return self._errorMsg
+        return self.__errorMsg
 
 
     def isAdding(self):

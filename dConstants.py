@@ -1,4 +1,4 @@
-''' dConstants.py '''
+""" dConstants.py """
 
 # Return values for most operations
 FILE_OK = 0
@@ -9,7 +9,7 @@ FILE_EOF = -4
 
 # Return values for updates to the database
 UPDATE_OK = 0
-UPDATE_NOROWS = -1
+UPDATE_NORECORDS = -2
 
 # Return values from Requery
 REQUERY_SUCCESS = 0
