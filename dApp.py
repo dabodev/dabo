@@ -81,6 +81,8 @@ class dApp(dabo.common.dObject):
 		super(dApp, self).__init__()
 		self._initProperties()
 		
+		print "app init", dabo.dAppRef
+		
 ### PKM: commented this out as I don't understand the need for it		
 # 		# Params may need to be sent to the main frame. These two 
 # 		# props allow that
@@ -361,7 +363,36 @@ class dApp(dabo.common.dObject):
 			dabo.infoLog.write(_("User interface already set to '%s', so dApp didn't "
 				" touch it." % (self.UI,)))
 
-
+	
+	########################
+	# This next section simply passes menu events to the UI
+	# layer to be handled there.
+	def Bind(self, macro, func, itm):
+		self.uiApp.Bind(macro, func, itm)
+	def onCmdWin(self, evt):
+		self.uiApp.onCmdWin(evt)
+	def onFileExit(self, evt):
+		self.uiApp.onFileExit(evt)
+	def onEditUndo(self, evt):
+		self.uiApp.onEditUndo(evt)
+	def onEditRedo(self, evt):
+		self.uiApp.onEditRedo(evt)
+	def onEditCut(self, evt):
+		self.uiApp.onEditCut(evt)
+	def onEditCopy(self, evt):
+		self.uiApp.onEditCopy(evt)
+	def onEditPaste(self, evt):
+		self.uiApp.onEditPaste(evt)
+	def onEditFind(self, evt):
+		self.uiApp.onEditFind(evt)
+	def onEditFindAgain(self, evt):
+		self.uiApp.onEditFindAgain(evt)
+	def onEditPreferences(self, evt):
+		self.uiApp.onEditPreferences(evt)
+	def onHelpAbout(self, evt):
+		self.uiApp.onHelpAbout(evt)
+	############################	
+	
 	def _getHomeDirectory(self):
 		try:
 			hd = self._homeDirectory
