@@ -129,7 +129,7 @@ class dBackend(dabo.common.dObject):
 		""" Roll back (revert) a SQL transaction."""
 		pass
 		
-	def addWithSep(self, base, new, sep=", "):
+	def addWithSep(self, base, new, sep=",\n\t"):
 		""" Convenient method of adding to an expression that 
 		may or may not have an existing value. If there is a value, 
 		the separator is inserted between the two.
@@ -177,8 +177,14 @@ class dBackend(dabo.common.dObject):
 		the required clauses. Some backends order these differently, so 
 		they should override this method with their own ordering.
 		"""
-		return "\n".join( ("SELECT ", fieldClause, fromClause, whereClause, 
-				groupByClause, orderByClause, limitClause) )
+		sql = "select "
+		for clause in (fieldClause, fromClause, whereClause, groupByClause,
+			orderByClause, limitClause):
+			
+			if len(clause) > 0:
+				sql += "%s\n" % clause
+				
+		return sql
 
 	def prepareWhere(self, clause):
 		""" Normally, just return the original. Can be overridden as needed

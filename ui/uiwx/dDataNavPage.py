@@ -290,7 +290,6 @@ class dSelectPage(DataNavPage):
 				# Handled elsewhere
 				continue
 			
-			expression = self.selectFields[fld]["expression"]
 			opVal = self.selectFields[fld]["op"].Value
 			opStr = opVal
 			if not IGNORE_STRING in opVal:
@@ -313,7 +312,7 @@ class dSelectPage(DataNavPage):
 						useStdFormat = False
 						whrMatches = []
 						for word in matchVal.split():
-							mtch = {"field":expression, "value":word}
+							mtch = {"field":fld, "value":word}
 							whrMatches.append( biz.getWordMatchFormat() % mtch )
 						if len(whrMatches) > 0:
 							whr = " and ".join(whrMatches)
@@ -365,7 +364,7 @@ class dSelectPage(DataNavPage):
 				
 				# We have the pieces of the clause; assemble them together
 				if useStdFormat:
-					whr = "%s %s %s" % (expression, opStr, matchStr)
+					whr = "%s %s %s" % (fld, opStr, matchStr)
 				if len(whr) > 0:
 					biz.addWhere(whr)
 		return
@@ -482,13 +481,7 @@ class dSelectPage(DataNavPage):
 				gsz.append(ctrl, "expand")
 				
 				# Store the info for later use when constructing the query
-				try:
-					expression = fldInfo["expression"]
-				except:
-					expression = fld
-					
 				self.selectFields[fld] = {
-						"expression": expression,
 						"ctrl" : ctrl,
 						"op" : opList,
 						"type": fldInfo["type"]
