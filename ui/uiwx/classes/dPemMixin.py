@@ -161,13 +161,17 @@ class dPemMixin(dabo.common.dObject):
 		propValDict = {}
 		propList = obj.getPropertyList()
 		for prop in propList:
+			if prop == "Form":
+				# This property is not used.
+				continue
 			propValDict[prop] = eval("obj.%s" % prop)
 		return propValDict
 	
 	
 	def applyPropValDict(self, obj, pvDict):
-		ignoreProps = ["BaseClass", "Bottom", "Class", "Font", "FontFace", "FontInfo", 
-				"MousePointer", "Parent", "Right", "SuperClass", "WindowHandle"]
+		ignoreProps = ["Application", "BaseClass", "Bottom", "Class", "Font", 
+				"FontFace", "FontInfo", "Form", "MousePointer", "Parent", 
+				"Right", "SuperClass", "WindowHandle"]
 		propList = obj.getPropertyList()
 		name = obj.Name
 		for prop in propList:
