@@ -26,7 +26,7 @@ class BandLabel(dabo.ui.dPanel):
 				# dragging the band is changing the height of the band.
 				oldHeight = self.Parent._rw.getPt(self.Parent.getProp("height"))
 				newHeight = oldHeight + yoffset
-				if yoffset < 0: newHeight = 0
+				if newHeight < 0: newHeight = 0
 				self.Parent.setProp("height", newHeight)
 		self._dragging = False
 	
