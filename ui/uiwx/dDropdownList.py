@@ -67,18 +67,16 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 	def _setKeys(self, val):
 		if type(val) == dict:
 			self._keys = val
+			self._invertedKeys = dict([[v,k] for k,v in val.iteritems()])
 		else:
 			raise TypeError, "Keys must be a dictionary."
 			
 	def _getKeyValue(self):
-		# invert the dict so we can get the key based on current position:
-		inverted = dict([[v,k] for k,v in self.Keys.iteritems()])
+		# Return the current key value based on the current position value
 		try:
-			return inverted[self.PositionValue]
+			return self._invertedKeys[self.PositionValue]
 		except KeyError:
 			return None
-		# (note that the above method has to make a new dict every time the KeyValue
-		# is accessed... possible performance bottleneck on large lists!)
 		
 	def _setKeyValue(self, val):
 		# This function takes a key value, such as 10992, finds the mapped position,

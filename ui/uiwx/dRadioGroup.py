@@ -108,14 +108,14 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	def _setKeys(self, val):
 		if type(val) == dict:
 			self._keys = val
+			self._invertedKeys = dict([[v,k] for k,v in val.iteritems()])
 		else:
 			raise TypeError, "Keys must be a dictionary."
 			
 	def _getKeyValue(self):
-		# invert the dict so we can get the key based on current position:
-		inverted = dict([[v,k] for k,v in self.Keys.iteritems()])
+		# Return the current key value based on the current position value
 		try:
-			return inverted[self.PositionValue]
+			return self._invertedKeys[self.PositionValue]
 		except KeyError:
 			return None
 		
@@ -342,6 +342,6 @@ if __name__ == "__main__":
 			print "PositionValue: ", self.PositionValue
 			print "StringValue: ", self.StringValue
 			print "Value: ", self.Value
-			self.enableItem(42, False)
+			self.enable(42, False)
 		
 	test.Test().runTest(_T)
