@@ -69,11 +69,18 @@ class dConnectInfo(dabo.common.dObject):
 		
 
 	def encrypt(self, val):
-		return self.Application.encrypt(val)
-		
+		if self.Application:
+			return self.Application.encrypt(val)
+		else:
+			cryp = dabo.common.SimpleCrypt()
+			return cryp.encrypt(val)
 
 	def decrypt(self, val):
-		return self.Application.decrypt(val)
+		if self.Application:
+			return self.Application.encrypt(val)
+		else:
+			cryp = dabo.common.SimpleCrypt()
+			return cryp.decrypt(val)
 	
 	
 	def revealPW(self):
