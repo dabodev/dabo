@@ -71,7 +71,17 @@ class dDateControl(dPanel.dPanel, dDataControlMixin.dDataControlMixin):
 		self.SetSizer(sz)
 		
 	def GetValue(self):
-		return datetime.date(self.spnYear.Value, self.spnMonth.Value, self.spnDay.Value)
+		y,m,d = self.spnYear.Value, self.spnMonth.Value, self.spnDay.Value
+		if y < 1 or y > 9999:
+			y = 1
+		if m < 1 or m > 12:
+			m = 1
+		if d < 1 or d > 31:
+			d = 1
+		try:
+			return datetime.date(y,m,d)
+		except ValueError:
+			return datetime.date(1,1,1)
 
 	def SetValue(self, value):
 		if type(value) == type(datetime.date(1,1,1)):
