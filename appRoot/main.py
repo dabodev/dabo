@@ -27,7 +27,7 @@
 '''
 
 if __name__ == "__main__":
-    import dabo.daboApp as daboApp # dabo must be in PYTHONPATH (hint:site-packages)
-    app = daboApp.MainApp()
+    import dabo
+    app = dabo.App()
     app.setup()
-    app.MainLoop()
+    app.start()
