@@ -50,8 +50,11 @@ class dPemMixin(object):
         be loaded. Subclasses can override this as necessary.
         '''
         self._name = '?'
+        self._pemObject = preCreateObject
+        self.initStyleProperties()
+        self._pemObject = self
 
-
+                        
     def __init__(self, *args, **kwargs):
         if self.Position == (-1, -1):
             # The object was instantiated with a default position,
@@ -77,9 +80,29 @@ class dPemMixin(object):
         Subclasses should place their __init__ code here in this hook,
         instead of overriding __init__ directly.
         '''
+        self.initProperties()
+
+            
+    def initProperties(self):
+        ''' Hook for subclasses.
+        
+        Dabo Designer will set properties here, such as:
+            self.Name = "MyTextBox"
+            self.BackColor = (192,192,192)
+        '''
         pass
-
-
+        
+        
+    def initStyleProperties(self):
+        ''' Hook for subclasses.
+        
+        Dabo Designer will set style properties here, such as:
+            self.BorderStyle = "Sunken"
+            self.Alignment = "Center"
+        '''
+        pass
+    
+    
     def getPropertyList(classOrInstance):
         ''' Return the list of properties for this object (class or instance).
         '''
@@ -91,22 +114,63 @@ class dPemMixin(object):
     getPropertyList = classmethod(getPropertyList)
 
 
+    def getPropertyInfo(self, name):
+        ''' Return a dict of information about the passed property name.
+        '''
+        propRef = eval('self.__class__.%s' % name)
+        propVal = eval('self.%s' % name)
+        
+        if type(propRef) == property:
+            d = {}
+            d['name'] = name
+            
+            d['showInDesigner'] = True
+            
+            if propRef.fget:
+                d['showValueInDesigner'] = True
+            else:
+                d['showValueInDesigner'] = False
+            
+            if propRef.fset:
+                d['editValueInDesigner'] = True
+            else:
+                d['editValueInDesigner'] = False
+
+            d['doc'] = propRef.__doc__
+                        
+            dataType = type(propVal)
+            d['type'] = dataType
+            
+            try:
+                d['editorInfo'] = eval('self._get%sEditorInfo()' % name)
+            except:
+                # There isn't an explicit editor setup, so let's derive it:
+                if dataType in (type(str()), type(unicode())):
+                    d['editorInfo'] = {'editor': 'string', 'len': 256}
+                elif dataType == type(bool()):
+                    d['editorInfo'] = {'editor': 'boolean'}
+                elif dataType in (type(int()), type(long())):
+                    d['editorInfo'] = {'editor': 'integer', 'min': -65535, 'max': 65536}
+            return d
+        else:
+            raise AttributeError, "%s is not a property." % name
+        
     # The following 3 flag functions are used in some of the property
     # get/set functions.
     def hasWindowStyleFlag(self, flag):
         ''' Return whether or not the flag is set. (bool)
         '''
-        return (self.GetWindowStyleFlag() & flag) == flag
+        return (self._pemObject.GetWindowStyleFlag() & flag) == flag
 
     def addWindowStyleFlag(self, flag):
         ''' Add the flag to the window style.
         '''
-        self.SetWindowStyleFlag(self.GetWindowStyleFlag() | flag)
+        self._pemObject.SetWindowStyleFlag(self._pemObject.GetWindowStyleFlag() | flag)
 
     def delWindowStyleFlag(self, flag):
         ''' Remove the flag from the window style.
         '''
-        self.SetWindowStyleFlag(self.GetWindowStyleFlag() & (~flag))
+        self._pemObject.SetWindowStyleFlag(self._pemObject.GetWindowStyleFlag() & (~flag))
 
 
     # Scroll to the bottom to see the property definitions.
@@ -133,175 +197,175 @@ class dPemMixin(object):
 
 
     def _getFont(self):
-        return self.GetFont()
+        return self._pemObject.GetFont()
     def _setFont(self, font):
-        self.SetFont(font)
+        self._pemObject.SetFont(font)
 
     def _getFontInfo(self):
-        return self.Font.GetNativeFontInfoDesc()
+        return self._pemObject.GetFont().GetNativeFontInfoDesc()
 
     def _getFontBold(self):
-        return self.Font.GetWeight() == wx.BOLD
+        return self._pemObject.GetFont().GetWeight() == wx.BOLD
     def _setFontBold(self, fontBold):
-        font = self.Font
+        font = self._pemObject.GetFont()
         if fontBold:
             font.SetWeight(wx.BOLD)
         else:
             font.SetWeight(wx.LIGHT)    # wx.NORMAL doesn't seem to work...
-        self.Font = font
+        self._pemObject.SetFont(font)
 
     def _getFontItalic(self):
-        return self.Font.GetStyle() == wx.ITALIC
+        return self._pemObject.Font.GetStyle() == wx.ITALIC
     def _setFontItalic(self, fontItalic):
-        font = self.Font
+        font = self._pemObject.Font
         if fontItalic:
             font.SetStyle(wx.ITALIC)
         else:
             font.SetStyle(wx.NORMAL)
-        self.Font = font
+        self._pemObject.Font = font
 
     def _getFontFace(self):
-        return self.Font.GetFaceName()
+        return self._pemObject.Font.GetFaceName()
     def _setFontFace(self, fontFace):
-        font = self.Font
+        font = self._pemObject.Font
         font.SetFaceName(fontFace)
-        self.Font = font
+        self._pemObject.Font = font
 
     def _getFontSize(self):
-        return self.Font.GetPointSize()
+        return self._pemObject.Font.GetPointSize()
     def _setFontSize(self, fontSize):
-        font = self.Font
+        font = self._pemObject.Font
         font.SetPointSize(fontSize)
-        self.Font = font
+        self._pemObject.Font = font
 
     def _getFontUnderline(self):
-        return self.Font.GetUnderlined()
+        return self._pemObject.Font.GetUnderlined()
     def _setFontUnderline(self, val):
         # underlining doesn't seem to be working...
-        font = self.Font
+        font = self._pemObject.Font
         font.SetUnderlined(val)
-        self.Font = font
+        self._pemObject.Font = font
 
 
     def _getTop(self):
-        return self.GetPosition()[1]
+        return self._pemObject.GetPosition()[1]
     def _setTop(self, top):
-        self.SetPosition((self.Left, top))
+        self.SetPosition((self._pemObject.Left, top))
 
     def _getLeft(self):
-        return self.GetPosition()[0]
+        return self._pemObject.GetPosition()[0]
     def _setLeft(self, left):
-        self.SetPosition((left, self.Top))
+        self._pemObject.SetPosition((left, self._pemObject.Top))
 
     def _getPosition(self):
-        return self.GetPosition()
+        return self._pemObject.GetPosition()
     def _setPosition(self, position):
-        self.SetPosition(position)
+        self._pemObject.SetPosition(position)
 
     def _getBottom(self):
-        return self.Top + self.Height
+        return self._pemObject.Top + self._pemObject.Height
     def _setBottom(self, bottom):
-        self.Top = bottom - self.Height
+        self._pemObject.Top = bottom - self._pemObject.Height
 
     def _getRight(self):
-        return self.Left + self.Width
+        return self._pemObject.Left + self._pemObject.Width
     def _setRight(self, right):
-        self.Left = right - self.Width
+        self._pemObject.Left = right - self._pemObject.Width
 
 
     def _getWidth(self):
-        return self.GetSize()[0]
+        return self._pemObject.GetSize()[0]
     def _setWidth(self, width):
-        self.SetSize((width, self.Height))
+        self.SetSize((width, self._pemObject.Height))
 
     def _getHeight(self):
-        return self.GetSize()[1]
+        return self._pemObject.GetSize()[1]
     def _setHeight(self, height):
-        self.SetSize((self.Width, height))
+        self.SetSize((self._pemObject.Width, height))
 
     def _getSize(self): 
-        return self.GetSize()
+        return self._pemObject.GetSize()
     def _setSize(self, size):
-        self.SetSize(size)
+        self._pemObject.SetSize(size)
 
 
     def _getName(self):
-        name = self.GetName()
+        name = self._pemObject.GetName()
         self._name = name      # keeps name available even after C++ object is gone.
         return name
     def _setName(self, name):
         self._name = name      # keeps name available even after C++ object is gone.
-        self.SetName(name)
+        self._pemObject.SetName(name)
 
 
     def _getCaption(self):
-        return self.GetLabel()
+        return self._pemObject.GetLabel()
     def _setCaption(self, caption):
-        self.SetLabel(caption)
+        self._pemObject.SetLabel(caption)
         
         # Frames have a Title separate from Label, but I can't think
         # of a reason why that would be necessary... can you? 
-        self.SetTitle(caption)
+        self._pemObject.SetTitle(caption)
 
         
     def _getEnabled(self):
-        return self.IsEnabled()
+        return self._pemObject.IsEnabled()
     def _setEnabled(self, value):
-        self.Enable(value)
+        self._pemObject.Enable(value)
 
 
     def _getBackColor(self):
-        return self.GetBackgroundColour()
+        return self._pemObject.GetBackgroundColour()
     def _setBackColor(self, value):
-        self.SetBackgroundColour(value)
+        self._pemObject.SetBackgroundColour(value)
 
     def _getForeColor(self):
-        return self.GetForegroundColour()
+        return self._pemObject.GetForegroundColour()
     def _setForeColor(self, value):
-        self.GetForegroundColour(value)
+        self._pemObject.GetForegroundColour(value)
 
 
     def _getMousePointer(self):
-        return self.GetCursor()
+        return self._pemObject.GetCursor()
     def _setMousePointer(self, value):
-        self.SetCursor(value)
+        self._pemObject.SetCursor(value)
 
 
     def _getToolTipText(self):
-        t = self.GetToolTip()
+        t = self._pemObject.GetToolTip()
         if t:
             return t.GetTip()
         else:
             return ''
     def _setToolTipText(self, value):
-        t = self.GetToolTip()
+        t = self._pemObject.GetToolTip()
         if t:
             t.SetTip(value)
         else:
             t = wx.ToolTip(value)
-            self.SetToolTip(t)
+            self._pemObject.SetToolTip(t)
 
 
     def _getHelpContextText(self):
-        return self.GetHelpText()
+        return self._pemObject.GetHelpText()
     def _setHelpContextText(self, value):
-        self.SetHelpText(value)
+        self._pemObject.SetHelpText(value)
 
 
     def _getVisible(self):
-        return self.IsShown()
+        return self._pemObject.IsShown()
     def _setVisible(self, value):
-        self.Show(value)
+        self._pemObject.Show(value)
 
     def _getParent(self):
-        return self.GetParent()
+        return self._pemObject.GetParent()
     def _setParent(self, newParentObject):
         # Note that this isn't allowed in the property definition, however this
         # is how we'd do it *if* it were allowed <g>:
-        self.Reparent(newParentObject)
+        self._pemObject.Reparent(newParentObject)
 
     def _getWindowHandle(self):
-        return self.GetHandle()
+        return self._pemObject.GetHandle()
 
     def _getBorderStyle(self):
         if self.hasWindowStyleFlag(wx.RAISED_BORDER):
@@ -312,7 +376,16 @@ class dPemMixin(object):
             return 'Simple'
         else:
             return 'None'
+    
+    def _getBorderStyleEditorInfo(self):
+        return {'editor': 'list', 'values': ['None', 'Simple', 'Sunken', 'Raised']}
+    
     def _setBorderStyle(self, style):
+        self.delWindowStyleFlag(wx.NO_BORDER)
+        self.delWindowStyleFlag(wx.SIMPLE_BORDER)
+        self.delWindowStyleFlag(wx.SUNKEN_BORDER)
+        self.delWindowStyleFlag(wx.RAISED_BORDER)
+
         if style == 'None':
             self.addWindowStyleFlag(wx.NO_BORDER)
         elif style == 'Simple':

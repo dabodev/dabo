@@ -4,13 +4,13 @@ import dDataControlMixin as dcm
 
 class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
     
-    def __init__(self, parent, id=-1, name="dSpinner", *args, **kwargs):
+    def __init__(self, parent, id=-1, name="dSpinner", style=0, *args, **kwargs):
     
         self._baseClass = dSpinner
         
         pre = wx.PreSpinCtrl()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, id, name, *args, **kwargs)
+        pre.Create(parent, id, name, style=style|pre.GetWindowStyle(), *args, **kwargs)
         
         self.this = pre.this
         self._setOORInfo(self)

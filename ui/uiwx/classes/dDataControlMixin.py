@@ -17,7 +17,7 @@ class dDataControlMixin(pm.dPemMixin):
         self.SelectOnEntry = False
         self.bizobj = None
         
-        
+                
     def initEvents(self):
         pass
 

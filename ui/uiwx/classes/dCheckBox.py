@@ -4,13 +4,13 @@ import dDataControlMixin as dcm
 
 
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
-    def __init__(self, parent, id=-1, name='dCheckBox', *args, **kwargs):
+    def __init__(self, parent, id=-1, name='dCheckBox', style=0, *args, **kwargs):
         
         self._baseClass = dCheckBox
         
         pre = wx.PreCheckBox()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, id, name, *args, **kwargs)
+        pre.Create(parent, id, name, style=style|pre.GetWindowStyle(), *args, **kwargs)
         
         self.this = pre.this
         self._setOORInfo(self)
@@ -38,6 +38,10 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
             return 'Right'
         else:
             return 'Left'
+            
+    def _getAlignmentEditorInfo(self):
+        return {'editor': 'list', 'values': ['Left', 'Right']}
+
     def _setAlignment(self, value):
         self.delWindowStyleFlag(wx.ALIGN_RIGHT)
         if value == 'Right':

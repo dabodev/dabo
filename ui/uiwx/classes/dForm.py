@@ -34,13 +34,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
         
         pre = wxPreFrameClass()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, id, title, name=name, style=style, *args, **kwargs)
+        pre.Create(parent, id, title, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
         
         self.this = pre.this
         self._setOORInfo(self)
         
-        self.Name = name
-        self.Caption = name
+        self.Name, self.Caption = name, name
         
         if parent:        
             dApp = parent.dApp
@@ -52,9 +51,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
         
         self.bizobjs = {}
         self._primaryBizobj = None
-        
-        self.SaveAllRows = True    # Default should come from app
-        self.AskToSave = True      # Display 'save changes?' prompt?
         
         self.dControls = {}
         
@@ -435,12 +431,18 @@ class dForm(wxFrameClass, fm.dFormMixin):
                             
     # Property get/set/del functions follow.
     def _getSaveAllRows(self):
-        return self._SaveAllRows
+        try:
+            return self._SaveAllRows
+        except AttributeError:
+            return True
     def _setSaveAllRows(self, value):
         self._SaveAllRows = bool(value)
         
     def _getAskToSave(self):
-        return self._AskToSave
+        try:
+            return self._AskToSave
+        except AttributeError:
+            return True
     def _setAskToSave(self, value):
         self._AskToSave = bool(value)
         

@@ -13,7 +13,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
         
         pre = wx.PreTextCtrl()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, id, name, style=style, *args, **kwargs)
+        pre.Create(parent, id, name, style=style|pre.GetWindowStyleFlag(), *args, **kwargs)
         
         self.this = pre.this
         self._setOORInfo(self)
@@ -49,6 +49,10 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
             return 'Center'
         else:
             return 'Left'
+            
+    def _getAlignmentEditorInfo(self):
+        return {'editor': 'list', 'values': ['Left', 'Center', 'Right']}
+    
     def _setAlignment(self, value):
         self.delWindowStyleFlag(wx.TE_LEFT)
         self.delWindowStyleFlag(wx.TE_CENTRE)
@@ -62,9 +66,9 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
             self.addWindowStyleFlag(wx.TE_RIGHT)
     
     def _getReadOnly(self):
-        return not self.IsEditable()
+        return not self._pemObject.IsEditable()
     def _setReadOnly(self, value):
-        self.SetEditable(not value)
+        self._pemObject.SetEditable(not value)
         
     # property definitions follow:
     Alignment = property(_getAlignment, _setAlignment, None,

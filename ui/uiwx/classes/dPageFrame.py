@@ -2,13 +2,15 @@ import wx, dControlMixin
 
 class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
     
-    def __init__(self, parent, name='dPageFrame'):
+    def __init__(self, parent, id=-1, pos=wx.DefaultPosition,
+            size=wx.DefaultSize, style=0, name='dPageFrame'):
         
         self._baseClass = dPageFrame
         
         pre = wx.PreNotebook()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, -1)
+        style = style | pre.GetWindowStyle()
+        pre.Create(parent, id, pos, size, style, name)
         
         self.this = pre.this
         self._setOORInfo(self)
@@ -51,6 +53,9 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
             return 'Left'
         else:
             return 'Top'
+    
+    def _getTabPositionEditorInfo(self):
+        return {'editor': 'list', 'values': ['Top', 'Left', 'Right', 'Bottom']}
     
     def _setTabPosition(self, value):
         # First remove any existing flags:

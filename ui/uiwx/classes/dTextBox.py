@@ -4,13 +4,13 @@ import dDataControlMixin as dcm
 
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
-    def __init__(self, parent, id=-1, name="dTextBox", *args, **kwargs):
-
+    def __init__(self, parent, id=-1, name="dTextBox", style=0, *args, **kwargs):
+        
         self._baseClass = dTextBox
 
         pre = wx.PreTextCtrl()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, id, name, *args, **kwargs)
+        pre.Create(parent, id, name, style=style|pre.GetWindowStyleFlag(), *args, **kwargs)
 
         self.this = pre.this
         self._setOORInfo(self)
@@ -47,10 +47,17 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
             return "Center"
         else:
             return "Left"
+            
+    def _getAlignmentEditorInfo(self):
+        return {'editor': 'list', 'values': ['Left', 'Center', 'Right']}
+    
     def _setAlignment(self, value):
+        # Note: alignment doesn't seem to work, at least on GTK2
         self.delWindowStyleFlag(wx.TE_LEFT)
         self.delWindowStyleFlag(wx.TE_CENTRE)
         self.delWindowStyleFlag(wx.TE_RIGHT)
+        
+        value = str(value)
         
         if value == 'Left':
             self.addWindowStyleFlag(wx.TE_LEFT)
@@ -58,12 +65,13 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
             self.addWindowStyleFlag(wx.TE_CENTRE)
         elif value == 'Right':
             self.addWindowStyleFlag(wx.TE_RIGHT)
-        self.Refresh()
+        else:
+            raise ValueError, "The only possible values are 'Left', 'Center', and 'Right'"
 
     def _getReadOnly(self):
-        return not self.IsEditable()
+        return not self._pemObject.IsEditable()
     def _setReadOnly(self, value):
-        self.SetEditable(not value)
+        self._pemObject.SetEditable(not value)
 
     def _getPasswordEntry(self):
         return self.hasWindowStyleFlag(wx.TE_PASSWORD)
@@ -76,7 +84,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
     # Property definitions:
     Alignment = property(_getAlignment, _setAlignment, None,
-                        'Specifies the alignment of the text. (int) \n'
+                        'Specifies the alignment of the text. (str) \n'
                         '   Left (default) \n'
                         '   Center \n'
                         '   Right')

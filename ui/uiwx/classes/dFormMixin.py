@@ -247,6 +247,10 @@ class dFormMixin(pm.dPemMixin):
         except AttributeError:
             # These only work on Windows, I fear
             return 'Normal'
+    
+    def _getWindowStateEditorInfo(self):
+        return {'editor': 'list', 'values': ['Normal', 'Minimized', 'Maximized', 'FullScreen']}
+    
     def _setWindowState(self, value):
         if value == 'Normal':
             if self.IsFullScreen():

@@ -21,7 +21,7 @@ class dControlMixin(pm.dPemMixin):
         self._dForm = None
         self.addToDform()
 
-            
+    
     def getDform(self):
         ''' Return a reference to the containing dForm. 
         '''

@@ -8,7 +8,8 @@ class dLabel(wx.StaticText, cm.dControlMixin):
         
         pre = wx.PreStaticText()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, id, name, style=style, *args, **kwargs)
+        
+        pre.Create(parent, id, name, style=style | pre.GetWindowStyle(), *args, **kwargs)
         
         self.this = pre.this
         self._setOORInfo(self)
@@ -24,6 +25,13 @@ class dLabel(wx.StaticText, cm.dControlMixin):
         # init the widget's specialized event(s):
 
     # property get/set functions
+    def _getAutoResize(self):
+        return not self.hasWindowStyleFlag(wx.ST_NO_AUTORESIZE)
+    def _setAutoResize(self, value):
+        self.delWindowStyleFlag(wx.ST_NO_AUTORESIZE)
+        if not value:
+            self.addWindowStyleFlag(wx.ST_NO_AUTORESIZE)
+        
     def _getAlignment(self):
         if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):
             return 'Right'
@@ -31,8 +39,15 @@ class dLabel(wx.StaticText, cm.dControlMixin):
             return 'Center'
         else:
             return 'Left'
+    
+    def _getAlignmentEditorInfo(self):
+        return {'editor': 'list', 'values': ['Left', 'Center', 'Right']}
+    
     def _setAlignment(self, value):
         # Note: Alignment must be set before object created.
+        self.delWindowStyleFlag(wx.ALIGN_LEFT)
+        self.delWindowStyleFlag(wx.ALIGN_CENTRE)
+        self.delWindowStyleFlag(wx.ALIGN_RIGHT)
         if value == 'Left':
             self.addWindowStyleFlag(wx.ALIGN_LEFT)
         elif value == 'Center':
@@ -41,8 +56,10 @@ class dLabel(wx.StaticText, cm.dControlMixin):
             self.addWindowStyleFlag(wx.ALIGN_RIGHT)
     
     # property definitions follow:
+    AutoResize = property(_getAutoResize, _setAutoResize, None,
+        'Specifies whether the length of the caption determines the size of the label. (bool)')
     Alignment = property(_getAlignment, _setAlignment, None,
-                        'Specifies the alignment of the text. (int) \n'
+                        'Specifies the alignment of the text. (str) \n'
                         '   Left (default) \n'
                         '   Center \n'
                         '   Right')
