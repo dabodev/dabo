@@ -6,6 +6,7 @@ import dabo
 import dPemMixin as pm
 import dEvents
 import dabo.dException as dException
+from dabo.dLocalize import _
 
 class dDataControlMixin(pm.dPemMixin):
 	""" Provide common functionality for the data-aware controls.
@@ -62,7 +63,16 @@ class dDataControlMixin(pm.dPemMixin):
 		if not self.bizobj:
 			# Ask the form for the bizobj reference, and cache for next time
 			self.bizobj = self.Form.getBizobj(self.DataSource)
-		return self.bizobj.setFieldVal(self.DataField, value)
+		try:
+			return self.bizobj.setFieldVal(self.DataField, value)
+		except AttributeError:
+			# Eventually, we'll want our global error handler be the one to write
+			# to the errorLog, at which point we should reraise the exception as 
+			# commented below. However, raising the exception here without a global
+			# handler results in some ugly GTK messages and a segfault, so for now
+			# let's just log the problem and let the app continue on.
+			#raise AttributeError, "There is no bizobj for datasource '%s'" % self.DataSource
+			dabo.errorLog.write("There is no bizobj for datasource '%s'" % self.DataSource)
 
 
 	def refresh(self):

@@ -331,8 +331,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
 				self.GetEventHandler().ProcessEvent(evt)
 			except dException.dException, e:
-				if self.debug:
-					dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
+				dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
 				### TODO: What should be done here? Raise an exception?
 				###       Prompt the user for a response?
 
@@ -357,8 +356,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
 				self.GetEventHandler().ProcessEvent(evt)
 			except dException.dException, e:
-				if self.debug:
-					dabo.errorLog.write(_("Delete All failed with response: %s") % str(e))
+				dabo.errorLog.write(_("Delete All failed with response: %s") % str(e))
 				### TODO: What should be done here? Raise an exception?
 				###       Prompt the user for a response?
 

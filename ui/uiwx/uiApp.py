@@ -1,8 +1,6 @@
-""" daboApp.py: The application object and the main frame object. """
-
 import sys, os, wx
 import dabo
-from dabo.ui.uiwx.classes import *
+import dabo.ui as ui
 
 class uiApp(wx.App):
 	def __init__(self, *args):
@@ -26,7 +24,7 @@ class uiApp(wx.App):
 		self.dApp = dApp
 
 		if dApp.mainFrameClass is None:
-			self.mainFrame = dFormMain()
+			self.mainFrame = ui.dFormMain()
 		else:
 			self.mainFrame = dApp.mainFrameClass()
 		self.SetTopWindow(self.mainFrame)
@@ -164,14 +162,14 @@ class uiApp(wx.App):
 
 
 	def onHelpAbout(self, event):
-		dlg = dAbout(self.mainFrame, self.dApp)
+		dlg = ui.dAbout(self.mainFrame, self.dApp)
 		dlg.Show()
 
 		
 	def getLoginInfo(self, message=None):
 		""" Display the login form, and return the user/password as entered by the user.
 		"""
-		dlg = dLogin(None)
+		dlg = ui.dLogin(None)
 		if message:
 			dlg.setMessage(message)
 		dlg.ShowModal()
