@@ -1,5 +1,5 @@
 """ dPage.py """
-import wx, dPanel
+import wx, dPanel, dEvents, dTimer
 
 class dPage(dPanel.dScrollPanel):
 	""" Create a page to appear as a tab in a dPageFrame.
@@ -12,7 +12,11 @@ class dPage(dPanel.dScrollPanel):
 		self.initSizer()
 		self.itemsCreated = False
 		dPage.doDefault()
-
+		
+	def initEvents(self):
+		dPage.doDefault()
+		self.bindEvent(dEvents.PageEnter, self.onPageEnter)
+		self.bindEvent(dEvents.PageLeave, self.onPageLeave)
 
 	def initSizer(self):
 		""" Set up the default vertical box sizer for the page.
@@ -29,7 +33,7 @@ class dPage(dPanel.dScrollPanel):
 		pass
 
 
-	def onEnterPage(self):
+	def onPageEnter(self, event):
 		""" Occurs when this page becomes the active page.
 
 		Subclasses may override or extend.
@@ -37,19 +41,20 @@ class dPage(dPanel.dScrollPanel):
 		if not self.itemsCreated:
 			self.createItems()
 			self.itemsCreated = True
-		self.GetSizer().Layout()
-		self.Size = (-1,-1)		# Needed on Linux to get the sizer to layout.
-		
+			self.GetSizer().Layout()
+			
+			# Needed on Linux to get the sizer to layout:
+			self.Size = (-1,-1)
 
-	def onLeavePage(self):
+						
+	def onPageLeave(self, event):
 		""" Occurs when this page will no longer be the active page.
 
 		Subclasses may override.
 		"""
 		if hasattr(self, "Form"):
 			self.Form.activeControlValid()
-		pass
-
+			
 
 	def onValueRefresh(self, event):
 		""" Occurs when the dForm asks dControls to refresh themselves.
@@ -57,7 +62,7 @@ class dPage(dPanel.dScrollPanel):
 		While dPage isn't a data-aware control, this may be useful information
 		to act upon.
 		"""
-		event.Skip()
+		pass
 	
 	
 	def _getPagePosition(self):

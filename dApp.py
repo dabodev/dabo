@@ -58,8 +58,11 @@ class Collection(list):
 		Collection.remove(objRef)
 			Delete the object reference from the collection.
 		"""
-		index = self.index(objRef)
-		if index >= 0:
+		try:
+			index = self.index(objRef)
+		except ValueError:
+			index = None
+		if index is not None:
 			del self[index]
 
 
@@ -75,9 +78,6 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		dabo.dAppRef = self
 		dApp.doDefault()
 		self._initProperties()
-		# If this is a class reference, this class will be used as the 
-		# main frame of the app instead of the default.
-		self.mainFrameClass = None
 
 		
 	def setup(self):
@@ -107,8 +107,11 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		self.actionList.setAction("EditFind", self.uiApp.onEditFind)
 
 		self.uiApp.setup(self)
-		self.mainFrame = self.uiApp.mainFrame
 
+		# temporary: keep the demos working with the old mainFrame variable:
+		self.mainFrame = self.MainFrame
+		self.mainFrameClass = self.MainFrameClass
+					
 
 	def start(self):
 		""" 
@@ -119,20 +122,12 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		if (not self.SecurityManager or not self.SecurityManager.RequireAppLogin
 			or self.SecurityManager.login()):
 			
-			mf = self.mainFrame
-			mf.setStatusText("Welcome to %s" % self.getAppInfo("appName"))
-			
 			userName = self.getUserCaption()
 			if userName:
 				userName = " (%s)" % userName
 			else:
 				userName = ""
 				
-			### EGL: removed this auto-captioning. Let the frames handle
-			###   their own captioning.
-			#mf.Caption = "%s Version %s %s" % (self.getAppInfo("appName"),
-					#self.getAppInfo("appVersion"), userName)
-		
 			self.uiApp.start(self)
 		self.finish()
 
@@ -340,6 +335,30 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		self._autoNegotiateUniqueNames = bool(value)
 		
 	
+	def _getMainFrame(self):
+		try:
+			#return self._mainFrame
+			return self.mainFrame  # temporary: until demos updated
+		except AttributeError:
+			return None
+			
+	def _setMainFrame(self, val):
+		#self._mainFrame = val
+		self.mainFrame = val  # temporary: until demos updated
+		
+		
+	def _getMainFrameClass(self):
+		try:
+			#return self._mainFrameClass
+			return self.mainFrameClass  # temporary: until demos updated
+		except AttributeError:
+			return dabo.ui.dFormMain
+			
+	def _setMainFrameClass(self, val):
+		#self._mainFrameClass = val
+		self.mainFrameClass = val  # temporary: until demos updated
+		
+		
 	def _getSecurityManager(self):
 		try:
 			return self._securityManager
@@ -379,6 +398,14 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 						"value results in a unique integer being appended, or whether "
 						"a NameError is raised. Default is True: negotiate the name."))
 
+	MainFrame = property(_getMainFrame, _setMainFrame, None,
+		_("The object reference to the main frame of the application, or None. This gets "
+		"set automatically during application setup, based on the MainFrameClass."))
+		
+	MainFrameClass = property(_getMainFrameClass, _setMainFrameClass, None,
+		_("Specifies the class to use to instantiate the main frame (form). Defaults to "
+		"the dFormMain base class. Set to None if you don't want a main frame."))
+		
 	UI = property(_getUI, _setUI,
 						None, _("Specifies the user interface to load, or None. "
 						"Once set, it cannot be reassigned."))

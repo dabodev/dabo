@@ -69,6 +69,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 		self.SetSizer(wx.BoxSizer(wx.VERTICAL))
 		self.GetSizer().Layout()
+		
+		if self.Application is not None:
+			self.Application.uiForms.add(self)
 
 		self._afterInit()                      # defined in dPemMixin
 

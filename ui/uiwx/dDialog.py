@@ -5,7 +5,7 @@ class dDialog(wx.Dialog, dFormMixin.dFormMixin):
 		self._baseClass = dDialog
 
 		pre = wx.PreDialog()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 		pre.Create(parent, id, title, name=name, style=pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)

@@ -1,12 +1,11 @@
 import wx, dabo
-import dControlMixin as cm
 import dDataControlMixin as dcm
 import dEvents
 from dabo.dLocalize import _
 
 # The EditBox is just a TextBox with some additional styles.
 
-class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
+class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 	""" Allows editing of string or unicode data of unlimited length.
 	"""
 	def __init__(self, parent, id=-1, name="dEditBox", style=0, *args, **kwargs):
@@ -16,14 +15,13 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 		style = style | wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.TE_LINEWRAP
 
 		pre = wx.PreTextCtrl()
-		self._beforeInit(pre)                  # defined in dPemMixin
-		pre.Create(parent, id, name, style=style|pre.GetWindowStyleFlag(), *args, **kwargs)
+		self._beforeInit(pre)
+		pre.Create(parent, id, name=name, style=style|pre.GetWindowStyleFlag(), *args, **kwargs)
 
 		self.PostCreate(pre)
 		
-		cm.dControlMixin.__init__(self, name)
-		dcm.dDataControlMixin.__init__(self)
-		self._afterInit()                      # defined in dPemMixin
+		dcm.dDataControlMixin.__init__(self, name)
+		self._afterInit()
 
 
 	def afterInit(self):
@@ -32,24 +30,11 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
 
 	def initEvents(self):
-		# init the common events:
-		cm.dControlMixin.initEvents(self)
-		dcm.dDataControlMixin.initEvents(self)
-
-		# init the widget's specialized event(s):
-		self.bindEvent(dEvents.Text, self.onText)
-		self.bindEvent(dEvents.Text, self._onText)	
-
-	# Event callback methods (override in subclasses):
-	def onText(self, event):
-		if self.debug:
-			dabo.infoLog.write(_("onText received by %s") % self.Name)
-		event.Skip()
-
-	# Private callbacks (do not override):
-	def _onText(self, event):
-		self.raiseEvent(dEvents.ValueChanged)
-		event.Skip()
+		dEditBox.doDefault()
+		
+		# bind the wx event to the dabo event:
+		self.bindEvent(wx.EVT_TEXT, self._onWxHit)
+		
 
 	# property get/set functions
 	def _getAlignment(self):

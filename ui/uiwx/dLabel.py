@@ -9,20 +9,18 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 		self._baseClass = dLabel
 
 		pre = wx.PreStaticText()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 
-		pre.Create(parent, id, name, style=style | pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id, name=name, style=style | pre.GetWindowStyle(), *args, **kwargs)
 		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)
-		self._afterInit()                      # defined in dPemMixin
+		self._afterInit()
 
 
 	def initEvents(self):
-		# init the common events:
-		cm.dControlMixin.initEvents(self)
+		dLabel.doDefault()
 
-		# init the widget's specialized event(s):
 
 	# property get/set functions
 	def _getAutoResize(self):

@@ -11,34 +11,21 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 		self._baseClass = dCommandButton
 
 		pre = wx.PreButton()
-		self._beforeInit(pre)                  # defined in dPemMixin
-		pre.Create(parent, id, name, style=style|pre.GetWindowStyle(), *args, **kwargs)
+		self._beforeInit(pre)
+		pre.Create(parent, id, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 		
 		cm.dControlMixin.__init__(self, name)
-		self._afterInit()                      # defined in dPemMixin
+		self._afterInit()
 
 
 	def initEvents(self):
-		# init the common events:
-		cm.dControlMixin.initEvents(self)
+		dCommandButton.doDefault()
 
-		# Respond to EVT_BUTTON and raise dEvents.Button:
-		self.bindEvent(wx.EVT_BUTTON, self._onWxButton)
+		# Respond to EVT_BUTTON and raise dEvents.Hit:
+		self.bindEvent(wx.EVT_BUTTON, self._onWxHit)
 		
-		# init the widget's specialized event(s):
-		self.bindEvent(dEvents.Button, self.onButton)
-
-	# Event callback methods (override in subclasses):
-	def onButton(self, event):
-		if self.debug:
-			dabo.infoLog.write(_("onButton received by %s") % self.Name)
-		event.Skip()
-
-	def _onWxButton(self, event):
-		self.raiseEvent(dEvents.Button)
-		event.Skip()
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -57,7 +44,7 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 			if wx.Platform == '__WXGTK__':
 				warnings.warn(Warning, "DefaultButton doesn't seem to work on GTK.")
 		else:
-			self._pemObject.SetDefaultItem(None)
+			self._pemObject.Parent.SetDefaultItem(None)
 
 
 	# Property definitions:
@@ -69,5 +56,16 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 
 
 if __name__ == "__main__":
-	import dEvents, test
-	test.Test().runTest(dCommandButton)
+	import test
+	class c(dCommandButton):
+		def afterInit(self):
+			self.debug = True
+			self.bindEvent(dEvents.Button, self.onAnotherButton)
+			
+		def onAnotherButton(self, event):
+			print "onAnotherButton"
+			#event.stop()
+			
+			
+			
+	test.Test().runTest(c)

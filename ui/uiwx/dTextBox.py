@@ -1,11 +1,10 @@
 import wx
 import dabo
-import dControlMixin as cm
 import dDataControlMixin as dcm
 import dEvents
 from dabo.dLocalize import _
 
-class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
+class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	""" Allows editing one line of string or unicode data.
 	"""
 	def __init__(self, parent, id=-1, name="dTextBox", password=False, 
@@ -18,14 +17,13 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 			style = style | wx.TE_PASSWORD
 
 		pre = wx.PreTextCtrl()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 		pre.Create(parent, id, name=name, style=style|pre.GetWindowStyleFlag(), *args, **kwargs)
 		self.PostCreate(pre)
 
-		cm.dControlMixin.__init__(self, name)
-		dcm.dDataControlMixin.__init__(self)
+		dcm.dDataControlMixin.__init__(self, name)
 		
-		self._afterInit()                      # defined in dPemMixin
+		self._afterInit()
 
 		
 	def initProperties(self):
@@ -34,26 +32,11 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
 
 	def initEvents(self):
-		# init the common events:
-		cm.dControlMixin.initEvents(self)
-		dcm.dDataControlMixin.initEvents(self)
-
-		# init the widget's specialized event(s):
-		self.bindEvent(dEvents.Text, self._onText)
-		self.bindEvent(dEvents.Text, self.onText)
-
-
-	# Event callback method(s) (override in subclasses):
-	def onText(self, event):
-		if self.debug:
-			dabo.infoLog.write(_("onText received by %s") % self.Name)
-		event.Skip()
-
-	# Private Event callback method(s) (do not override):
-	def _onText(self, event):
-		self.raiseEvent(dEvents.ValueChanged)
-		event.Skip()
-
+		dTextBox.doDefault()
+		# catch wx.EVT_TEXT and raise dEvents.Hit:
+		self.bindEvent(wx.EVT_TEXT, self._onWxHit)
+		
+		
 	# property get/set functions
 	def _getAlignment(self):
 		if self.hasWindowStyleFlag(wx.TE_RIGHT):

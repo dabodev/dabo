@@ -10,48 +10,55 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 		self._baseClass = dPageFrame
 
 		pre = wx.PreNotebook()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 		style = style | pre.GetWindowStyle()
 		pre.Create(parent, id, pos, size, style, name)
 
 		self.PostCreate(pre)
 		
 		dControlMixin.dControlMixin.__init__(self, name)
-		
-		self.lastSelection = 0
+
+		self._lastPage = None
 		self.PageCount = 3
 		
-		self._afterInit()                      # defined in dPemMixin
+		self._afterInit()
 		
 	
 	def afterInit(self):
 		dPageFrame.doDefault()
+		
 
-
+	def onCreate(self, event):
+		# Make sure the PageEnter fires for the current page on 
+		# pageframe instantiation, as this doesn't happen automatically.
+		# Putting this code in afterInit() results in a segfault on Linux, btw.
+		dPageFrame.doDefault(event)
+		self._pageChanged(self.GetSelection(), None)
+		
+		
 	def initEvents(self):
-		dControlMixin.dControlMixin.initEvents(self)
-		self.bindEvent(dEvents.PageChanged, self.onPageChanged)
+		dPageFrame.doDefault()
+		self.bindEvent(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._onPageChanged)
 
-
-	def onPageChanged(self, event):
-		ls = self.lastSelection
-		cs = event.GetSelection()
-
-		### PKM: The event.Skip() must happen, or the pages won't be drawn on 
-		###      win32. I believe that the StopPropagation() will keep the event
-		###      from being received by any containing pageframes, however, which
-		###      is why event.Skip() was originally commented out.
+				
+	def _onPageChanged(self, event):
 		event.Skip()
 		event.StopPropagation()
 
-		newPage = self.GetPage(cs)
-		oldPage = self.GetPage(ls)    
+		newPageNum = event.GetSelection()
+		oldPageNum = self._lastPage
+		
+		self._pageChanged(newPageNum, oldPageNum)
 
-		oldPage.onLeavePage()
-		newPage.onEnterPage()
-
-		self.lastSelection = cs
-
+		
+	def _pageChanged(self, newPageNum, oldPageNum):		
+		self._lastPage = newPageNum
+		
+		self.GetPage(newPageNum).raiseEvent(dEvents.PageEnter)
+		if oldPageNum is not None:
+			self.GetPage(oldPageNum).raiseEvent(dEvents.PageLeave)
+		
+		
 	# property get/set functions:
 	def _getPageClass(self):
 		try:

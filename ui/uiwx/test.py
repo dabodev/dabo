@@ -21,9 +21,10 @@ class Test(object):
 
 	def runTest(self, classRef):
 		frame = wx.Frame(None, -1, "")
-		frame.SetSize((300,1))
+		frame.SetSize((300,52))
 		object = classRef(frame)
 		object.debug = True
+		object.LogEvents = ["All"]
 		frame.SetLabel("Test of %s" % object.Name)
 		object.SetFocus()
 		frame.Show()
@@ -33,52 +34,49 @@ class Test(object):
 	def testAll(self):
 		""" Create a dForm and populate it with example dWidgets. 
 		"""
-		frame = ui.dForm()
+		frame = ui.dForm(name="formTest")
 		frame.Width, frame.Height = 640, 480
 		frame.Caption = "Test of all the dControls"
 		frame.debug = True
+		frame.LogEvents = ["All"]
 
-		panel = ui.dPanel(frame)
+		panel = frame.addObject(ui.dPanel, "panelTest")
+		panel.LogEvents = ["All"]
 
 		labelWidth = 150
-		labelAlignment = wx.ALIGN_RIGHT
 
 		vs = wx.BoxSizer(wx.VERTICAL)
 
-		for obj in ((ui.dBitmapButton(panel), "dBitmapButton"),
-					(ui.dBox(panel), "dBox"),
-					(ui.dCheckBox(panel), "dCheckBox"),
-					(ui.dCommandButton(panel), "dCommandButton"),
-					(ui.dDateTextBox(panel), "dDateTextBox"),
-					(ui.dDropdownList(panel), "dDropdownList"),
-					(ui.dEditBox(panel), "dEditBox"),
-					(ui.dGauge(panel), "dGauge"),
-					(ui.dGrid(panel), "dGrid"),
-					(ui.dLabel(panel), "dLabel"),
-					(ui.dLine(panel), "dLine"),
-					(ui.dListbook(panel), "dListbook"),
-					(ui.dRadioGroup(panel), "dRadioGroup"),
-					(ui.dSlider(panel), "dSlider"),
-					(ui.dSpinner(panel), "dSpinner"),
-					(ui.dTextBox(panel), "dTextBox"), 
-					(ui.dToggleButton(panel), "dToggleButton")):
+		for object in (ui.dBitmapButton(panel),
+					ui.dBox(panel),
+					ui.dCheckBox(panel),
+					ui.dCommandButton(panel),
+					ui.dDateTextBox(panel),
+					ui.dDropdownList(panel),
+					ui.dEditBox(panel),
+					ui.dGauge(panel),
+					ui.dLine(panel),
+					ui.dRadioGroup(panel),
+					ui.dSlider(panel),
+					ui.dSpinner(panel),
+					ui.dTextBox(panel),
+					ui.dToggleButton(panel)):
 					
 			bs = wx.BoxSizer(wx.HORIZONTAL)
-			label = ui.dLabel(panel, style=wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE)
+			label = ui.dLabel(panel, name="lbl%s" % object.Name, 
+				style=wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE)
 			label.Width = labelWidth
 
-			label.Name = "lbl%s" % obj[1]
-			label.Caption = "%s:" % obj[1]
+			label.Caption = "%s:" % object.Name
 			bs.Add(label)
 
-			object = obj[0]
 			if isinstance(object, ui.dEditBox):
 				expandFlags = wx.EXPAND
 			else:
 				expandFlags = 0
 
-			object.Name = "%s" % obj[1]
-			object.debug = True # show the events
+			object.debug = True
+			object.LogEvents = ["All"]
 
 			bs.Add(object, 1, expandFlags | wx.ALL, 0)
 

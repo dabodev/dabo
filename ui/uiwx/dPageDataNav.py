@@ -13,11 +13,6 @@ class SelectOptionsPanel(dPanel.dPanel):
 		# selectOptions is a list of dictionaries
 		self.selectOptions = []
 		
-	def initEnabled(self):
-		for optionRow in self.selectOptions:
-			self.setEnabled(self.FindWindowById(optionRow["cbId"]))
-		self.setEnabled(self.chkSelectLimit)
-
 	def setEnabled(self, cb):
 		# Get reference(s) to the associated input control(s)
 		if cb.Name == "chkSelectLimit":
@@ -52,13 +47,17 @@ class SelectOptionsPanel(dPanel.dPanel):
 class SelectOptionsCheckBox(dCheckBox.dCheckBox):
 	""" Base class for the checkboxes used in the select page.
 	"""
-	def afterInit(self):
-		self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
-
+	def initEvents(self):
+		SelectOptionsCheckBox.doDefault()
+			
 	def initProperties(self):
 		self.SaveRestoreValue = True
 	
-	def onValueChanged(self, evt):
+	def onCreate(self, evt):
+		SelectOptionsCheckBox.doDefault(evt)
+		self.Parent.setEnabled(self)
+		
+	def onHit(self, evt):
 		self.Parent.setEnabled(self)
 		
 
@@ -86,12 +85,16 @@ class dSelectPage(dPage.dPage):
 
 	def createItems(self):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
-		self.selectOptionsPanel.initEnabled()
 		self.GetSizer().Add(self.selectOptionsPanel, 0, wx.GROW|wx.ALL, 5)
 		self.selectOptionsPanel.SetFocus()
+		
 		dSelectPage.doDefault()
+		
+		if self.Form.RequeryOnLoad and not self.Form._requeried:
+			self.Form._requeried = True
+			self.requery()
+			
 
-	
 	def getWhere(self, biz):
 		# for each checked selection item, get the where clause:
 		user1, user2 = None, None
@@ -143,14 +146,14 @@ class dSelectPage(dPage.dPage):
 
 		if self.GetParent().GetSelection() == 0:
 			# If the select page is active, now make the browse page active
-			self.GetParent().SetSelection(1)
+			self.Parent.SetSelection(1)
 
 
 	def _getSelectOptionsPanel(self):
 		dataSource = self.Form.getBizobj().DataSource
 		columnDefs = self.Form.getColumnDefs(dataSource)
 		panel = SelectOptionsPanel(self)
-		
+				
 		stringMatchAll = []
 
 		sizer = wx.BoxSizer(wx.VERTICAL)
@@ -285,7 +288,7 @@ class dSelectPage(dPage.dPage):
 		requeryButton = dCommandButton.dCommandButton(panel)
 		requeryButton.Caption = "&%s" % _("Requery")
 		requeryButton.Default = True             # Doesn't work on Linux, but test on win/mac
-		requeryButton.bindEvent(dEvents.Button, self.onRequery)
+		requeryButton.bindEvent(dEvents.Hit, self.onRequery)
 
 		box.Add(requeryButton, 0)
 		sizer.Add(box, 0, wx.GROW, 5)
@@ -309,40 +312,39 @@ class dBrowsePage(dPage.dPage):
 		
 		# If we aren't the active page, strange things can happen if we
 		# don't explicitly SetFocus back to the active page. 
-		activePage = self.GetParent().GetPage(self.GetParent().GetSelection())
+		activePage = self.Parent.GetPage(self.Parent.GetSelection())
 		if activePage == self:
 			self.updateGrid()
 		else:
 			activePage.SetFocus()
-		event.Skip()
 
 
 	def updateGrid(self):
 		bizobj = self.Form.getBizobj()
-		justCreated = False
-		if bizobj and bizobj.RowCount >= 0:
-			if not self.itemsCreated:
-				self.createItems()
-				justCreated = True
-			if self.itemsCreated:
-				self.fillGrid()
+		if bizobj and bizobj.RowCount >= 0 and self.itemsCreated:
+			self.fillGrid()
 
 			row = self.Form.getBizobj().RowNumber
 			col = self.BrowseGrid.GetGridCursorCol()
 			
 			if col < 0:
 				col = 0
-			self.BrowseGrid.SetGridCursor(row, col)
 			
-			if not justCreated and not self.BrowseGrid.IsVisible(row, col):
+			# Needed on win and mac:
+			self.BrowseGrid.GetGridWindow().SetFocus()
+			
+			if not self.BrowseGrid.IsVisible(row, col):
+				# Linux needs the following call twice:
 				self.BrowseGrid.MakeCellVisible(row, col)
-
+				self.BrowseGrid.MakeCellVisible(row, col)
+			self.BrowseGrid.SetGridCursor(row, col)
 		
-	def onEnterPage(self):
+		
+	def onPageEnter(self, event):
+		dBrowsePage.doDefault(event)
 		self.updateGrid()
-		dBrowsePage.doDefault()
-
-
+		
+		
 	def createItems(self):
 		bizobj = self.Form.getBizobj()
 		grid = self.addObject(dGridDataNav.dGridDataNav, "BrowseGrid")
@@ -352,7 +354,7 @@ class dBrowsePage(dPage.dPage):
 		
 		preview = self.addObject(dCommandButton.dCommandButton, "cmdPreview")
 		preview.Caption = "Preview"
-		preview.bindEvent(dEvents.Button, self.onPreview)
+		preview.bindEvent(dEvents.Hit, self.onPreview)
 		self.GetSizer().Add(preview, 0, 0)
 		
 		self.itemsCreated = True
@@ -362,8 +364,8 @@ class dBrowsePage(dPage.dPage):
 		bizobj = self.Form.getBizobj()
 		self.BrowseGrid.fillGrid()
 		self.GetSizer().Layout()
-		for window in self.BrowseGrid.GetChildren():
-			window.SetFocus()
+#		for window in self.BrowseGrid.GetChildren():
+#			window.SetFocus()
 
 
 	def newRecord(self):
@@ -377,12 +379,12 @@ class dBrowsePage(dPage.dPage):
 	
 	def editRecord(self):
 		# Called by the grid: user wants to edit the current row
-		self.GetParent().SetSelection(2)
+		self.Parent.SetSelection(2)
 
 		
 	def onPreview(self, event):
 		if self.itemsCreated:
-			html = self.grid.getHTML(justStub=False)
+			html = self.BrowseGrid.getHTML(justStub=False)
 			win = wx.html.HtmlEasyPrinting("Dabo Quick Print", self.Form)
 			printData = win.GetPrintData()
 			setupData = win.GetPageSetupData()
@@ -407,20 +409,21 @@ class dEditPage(dPage.dPage):
 		dEditPage.doDefault(parent, "pageEdit")
 
 
-	def onEnterPage(self):
-		self.onValueRefresh()
-		dEditPage.doDefault()
+	def onPageEnter(self, event):
+		self.raiseEvent(dEvents.ValueRefresh)
+		dEditPage.doDefault(event)
 
 
 	def onValueRefresh(self, event=None):
-		form = self.Form
-		bizobj = form.getBizobj()
-		if bizobj and bizobj.RowCount >= 0:
-			self.Enable(True)
-		else:
-			self.Enable(False)
-		if event:
-			event.Skip()
+		if self.Parent.GetPage(self.Parent.GetSelection()) == self:
+			form = self.Form
+			bizobj = form.getBizobj()
+			if bizobj and bizobj.RowCount >= 0:
+				self.Enable(True)
+			else:
+				self.Enable(False)
+			if event:
+				event.Skip()
 
 
 	def createItems(self):
@@ -495,28 +498,21 @@ class dChildViewPage(dPage.dPage):
 		dChildViewPage.doDefault(parent, "pageChildView")
 		self.dataSource = dataSource
 		self.bizobj = self.Form.getBizobj().getChildByDataSource(self.dataSource)
-		self.pickListRef = None
 	
-	def onEnterPage(self):
+	def onPageEnter(self, event):
+		dChildViewPage.doDefault(event)
 		if self.bizobj and self.bizobj.RowCount >= 0:
 			if not self.itemsCreated:
 				self.createItems()
 		if self.itemsCreated:
 			self.fillGrid()
-		dChildViewPage.doDefault()
 	
-	
-	def onLeavePage(self):
-		if self.pickListRef:
-			self.pickListRef.Close()
-	
-			
 	def onRowNumChanged(self, event):
 		# If RowNumChanged (in the parent bizobj) is received AND we are the
 		# active page, the child bizobj has already been requeried
 		# but the grid needs to be filled to reflect that.
-		self.onEnterPage()
-		event.Skip()
+		if self.Parent.GetPage(self.Parent.GetSelection()) == self:
+			self.raiseEvent(dEvents.PageEnter)
 
 
 	def createItems(self):
@@ -524,7 +520,7 @@ class dChildViewPage(dPage.dPage):
 		if cb["EnableNew"]:
 			nb = self.addObject(dCommandButton.dCommandButton, "cmdNew")
 			nb.Caption = "Add new child record"
-			nb.bindEvent(dEvents.Button, self.newRecord)
+			nb.bindEvent(dEvents.Hit, self.newRecord)
 			self.GetSizer().Add(nb, 0, wx.EXPAND)
 		grid = self.addObject(dGridDataNav.dGridDataNav, "ChildViewGrid")
 		grid.DataSource = self.dataSource
@@ -542,7 +538,8 @@ class dChildViewPage(dPage.dPage):
 	
 			
 	def newItemPicked(self, evt):
-		pickBizobj = evt.GetEventObject().getBizobj()
+		picklist = evt.EventObject
+		pickBizobj = picklist.getBizobj()
 		pickedPK = pickBizobj.getPK()
 		cb = self.Form.getChildBehavior(self.dataSource)
 		try:
@@ -565,6 +562,15 @@ class dChildViewPage(dPage.dPage):
 			self.bizobj.setFieldVal(field, pickBizobj.getFieldVal(derivedFields[field]))
 		self.fillGrid()		
 
+	def onPageLeave(self, event):
+		try:
+			pl = self.picklist
+		except:
+			pl = None
+		if pl is not None:
+			self.picklist = None
+			pl.Destroy()
+		
 			
 	def newRecord(self, evt=None):
 		cb = self.Form.getChildBehavior(self.dataSource)
@@ -582,22 +588,19 @@ class dChildViewPage(dPage.dPage):
 						cls = None
 						
 					if cls:
-						ref = self.pickListRef
-						if not ref:
-							class PickList(cls):
-								def initProperties(self):
-									PickList.doDefault()
-									self.FormType = "PickList"
-								def afterInit(self):
-									PickList.doDefault()
-									self.Caption = "Picklist: %s" % self.Caption
+						class PickList(cls):
+							def initProperties(self):
+								PickList.doDefault()
+								self.FormType = "PickList"
+							def afterInit(self):
+								PickList.doDefault()
+								self.Caption = "Picklist: %s" % self.Caption
 									
-							ref = PickList(self.Form)
-							self.pickListRef = ref
+						self.picklist = PickList(self.Application.mainFrame)
+						self.picklist.bindEvent(dEvents.ItemPicked, self.newItemPicked)
+						self.picklist.Show()
+						self.picklist.Raise()
 						
-							ref.bindEvent(dEvents.ItemPicked, self.newItemPicked)
-							ref.Show()
-						ref.Raise()
 					else:
 						raise dException.dException, "No picklist class defined."
 					
@@ -607,7 +610,7 @@ class dChildViewPage(dPage.dPage):
 		else:
 			dMessageBox.stop("Adding new records isn't allowed.")
 			
-		
+			
 	def deleteRecord(self):
 		""" Ask the bizobj to delete the current record.
 		"""

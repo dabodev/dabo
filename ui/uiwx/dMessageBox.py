@@ -19,10 +19,10 @@ class dMessageBox(wx.MessageDialog):
 			form = mainForm
 
 		wx.MessageDialog.__init__(self, form, message, title, style)
-
+		
 
 def areYouSure(message="Are you sure?", title="Dabo",
-			defaultNo=False, cancelButton=False):
+			defaultNo=False, cancelButton=True):
 	style = wx.YES_NO|wx.ICON_QUESTION
 	if cancelButton:
 		style = style|wx.CANCEL
@@ -32,7 +32,7 @@ def areYouSure(message="Are you sure?", title="Dabo",
 	dlg = dMessageBox(message, title, style)
 
 	retval = dlg.ShowModal()
-	#dlg.Destroy()
+	dlg.Destroy()
 
 	if retval in (wx.ID_YES, wx.ID_OK):
 		return True
@@ -46,6 +46,7 @@ def stop(message="Stop", title="Dabo"):
 	style = wx.OK|wx.ICON_HAND
 	dlg = dMessageBox(message, title, style)
 	retval = dlg.ShowModal()
+	dlg.Destroy()
 	return None
 
 
@@ -53,6 +54,7 @@ def info(message="Information", title="Dabo"):
 	style = wx.OK|wx.ICON_INFORMATION
 	dlg = dMessageBox(message, title, style)
 	retval = dlg.ShowModal()
+	dlg.Destroy()
 	return None
 
 	

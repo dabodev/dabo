@@ -119,8 +119,8 @@ class dLogin(dDialog):
 		mainSizer.Add((0,5))
 		mainSizer.Layout()
 
-		self.cmdAccept.bindEvent(dEvents.Button, self.onAccept)
-		self.cmdCancel.bindEvent(dEvents.Button, self.onCancel)
+		self.cmdAccept.bindEvent(dEvents.Hit, self.onAccept)
+		self.cmdCancel.bindEvent(dEvents.Hit, self.onCancel)
 		
 		# Map escape key to cancelbutton:
 		anId = wx.NewId()
@@ -137,14 +137,13 @@ class dLogin(dDialog):
 		self.lblMessage.Caption = message
 		self.GetSizer().Layout()
 				
-		
 	def onCancel(self, evt):
 		self.user, self.password = None, None
-		self.Close()
+		self.Hide()
 		
 	def onAccept(self, evt):
 		self.user, self.password = self.txtUserName.Value, self.txtPassword.Value
-		self.Close()
+		self.Hide()
 		
 		
 if __name__ == '__main__':

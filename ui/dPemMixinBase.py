@@ -52,8 +52,17 @@ class dPemMixinBase(dabo.common.dObject):
 			self.BackColor = (192,192,192)
 		"""
 		pass
+
 		
+	def initEvents(self):
+		""" Hook for subclasses.
 		
+		User code can do custom event binding here, such as:
+			self.bindEvent(dEvents.GotFocus, self.customGotFocusHandler)
+		"""
+		pass
+		
+			
 	def initStyleProperties(self):
 		""" Hook for subclasses.
 

@@ -1,10 +1,9 @@
 import wx, dabo
-import dControlMixin as cm
 import dDataControlMixin as dcm
 import dEvents
 from dabo.dLocalize import _
 
-class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
+class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	""" Allows choosing one option from a list of options.
 	"""
 	def __init__(self, parent, id=-1, label='', name="dRadioGroup", style=0, *args, **kwargs):
@@ -29,31 +28,15 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 
 		self.PostCreate(pre)
 
-		cm.dControlMixin.__init__(self, name)
-		dcm.dDataControlMixin.__init__(self)
+		dcm.dDataControlMixin.__init__(self, name)
 		self._afterInit()                      # defined in dPemMixin
 
 
 	def initEvents(self):
-		# init the common events:
-		cm.dControlMixin.initEvents(self)
-		dcm.dDataControlMixin.initEvents(self)
-
-		# init the widget's specialized event(s):
-		self.bindEvent(dEvents.RadioBox, self.onRadioBox)
-		self.bindEvent(dEvents.RadioBox, self._onRadioBox)
-
-	# Event callback method(s) (override in subclasses):
-	def onRadioBox(self, event):
-		if self.debug:
-			dabo.infoLog.write("onRadioBox received by %s" % self.Name)
-		event.Skip()
-
-	# Private Event callback method(s) (do not override):
-	def _onRadioBox(self, event):
-		self.raiseEvent(dEvents.ValueChanged)
-		event.Skip()
-
+		dRadioGroup.doDefault()
+		self.bindEvent(wx.EVT_RADIOBOX, self._onWxHit)
+		
+		
 	def getPropertyInfo(self, name):
 		d = dRadioGroup.doDefault(name)
 		if not d['preInitProperty']:

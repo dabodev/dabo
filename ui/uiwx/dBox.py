@@ -9,13 +9,13 @@ class dBox(wx.StaticBox, cm.dControlMixin):
 		self._baseClass = dBox
 		
 		pre = wx.PreStaticBox()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 		
 		pre.Create(parent, id, label, pos, size, name=name, style=style | pre.GetWindowStyle(), *args, **kwargs)
 		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)
-		self._afterInit()                      # defined in dPemMixin
+		self._afterInit()
 
 
 	def initEvents(self):

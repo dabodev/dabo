@@ -13,14 +13,14 @@ class dPanel(wx.Panel, dControlMixin.dControlMixin):
 		self._baseClass = dPanel
 
 		pre = wx.PrePanel()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 		pre.Create(parent, id=id, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 		
 		dControlMixin.dControlMixin.__init__(self, name)
 
-		self._afterInit()                      # defined in dPemMixin
+		self._afterInit()
 
 
 class dScrollPanel(wx.ScrolledWindow, dControlMixin.dControlMixin):
@@ -36,7 +36,7 @@ class dScrollPanel(wx.ScrolledWindow, dControlMixin.dControlMixin):
 		self._baseClass = dScrollPanel
 
 		pre = wx.PreScrolledWindow()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 		pre.Create(parent, id=id, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
@@ -44,4 +44,4 @@ class dScrollPanel(wx.ScrolledWindow, dControlMixin.dControlMixin):
 		dControlMixin.dControlMixin.__init__(self, name)
 		
 		self.SetScrollbars(10, 10, -1, -1)
-		self._afterInit()                      # defined in dPemMixin
+		self._afterInit()

@@ -1,47 +1,31 @@
 import wx, dabo
-import dControlMixin as cm
 import dDataControlMixin as dcm
 import dEvents
 from dabo.dLocalize import _
 
-class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
+class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 	""" Allows visual editing of boolean values.
 	"""
 	def __init__(self, parent, id=-1, name='dCheckBox', style=0, *args, **kwargs):
-
+		
 		self._baseClass = dCheckBox
 
 		pre = wx.PreCheckBox()
-		self._beforeInit(pre)                  # defined in dPemMixin
-		pre.Create(parent, id, name, style=style|pre.GetWindowStyle(), *args, **kwargs)
+		self._beforeInit(pre)
+		pre.Create(parent, id, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 		self.PostCreate(pre)
 		
-		cm.dControlMixin.__init__(self, name)
-		dcm.dDataControlMixin.__init__(self)
-		self._afterInit()                      # defined in dPemMixin
+		dcm.dDataControlMixin.__init__(self, name)
+		self._afterInit()
 
 
 	def initEvents(self):
-		# init the common events:
-		cm.dControlMixin.initEvents(self)
-		dcm.dDataControlMixin.initEvents(self)
+		dCheckBox.doDefault()
 
-		# init the widget's specialized event(s):
-		self.bindEvent(dEvents.CheckBox, self._onCheckBox)
-		self.bindEvent(dEvents.CheckBox, self.onCheckBox)
-
-	
-	# Event callback methods (override in subclasses):
-	def onCheckBox(self, event):
-		if self.debug:
-			dabo.infoLog.write(_("onCheckBox received by %s") % self.Name)
-		event.Skip()
+		# Respond to EVT_CHECKBOX and raise dEvents.Hit:
+		self.bindEvent(wx.EVT_CHECKBOX, self._onWxHit)
 		
-	# Private callback methods (do not override):
-	def _onCheckBox(self, event):
-		self.raiseEvent(dEvents.ValueChanged)
-		event.Skip()
-		
+				
 	# property get/set functions
 	def _getAlignment(self):
 		if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):

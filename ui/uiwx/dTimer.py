@@ -19,10 +19,11 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 
 		self._beforeInit(None)
 		# no 2-stage creation for Timers
-		wx.StaticBitmap.__init__(self, parent, name=name, *args, **kwargs)
 		
 		# Get a timer bitmap, but for now use the dabo icon:
-		self.SetBitmap(dIcons.getIconBitmap("daboIcon016"))
+		bitmap = dIcons.getIconBitmap("daboIcon016")
+		wx.StaticBitmap.__init__(self, parent, name=name, bitmap=bitmap, *args, **kwargs)
+		
 		self.Hide()
 		self._timer = wx.Timer(self)
 
@@ -31,9 +32,8 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 		self._afterInit()
 		
 	def initEvents(self):
-		dControlMixin.dControlMixin.initEvents(self)
-		self.bindEvent(dEvents.Timer, self.onTimer)
-		self.bindEvent(dEvents.Timer, self._onTimer)
+		dTimer.doDefault()
+		self.bindEvent(wx.EVT_TIMER, self._onWxHit)
 		
 	def Show(self, *args, **kwargs):
 		# only let the the bitmap be shown if this is design time
@@ -41,15 +41,7 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 		if designTime:
 			dTimer.doDefault(*args, **kwargs)
 		
-	# Event callback methods (override in subclasses):
-	def onTimer(self, event):
-		if self.debug:
-			dabo.infoLog.write(_("onTimer received by %s") % self.Name)
-		event.Skip()
-	
-	def _onTimer(self, event):
-		event.Skip()
-	
+		
 	# property get/set functions
 	def _getInterval(self):
 		if self._timer.IsRunning():

@@ -1,10 +1,9 @@
 import wx, dabo
-import dControlMixin as cm
 import dDataControlMixin as dcm
 import dEvents
 from dabo.dLocalize import _
 
-class dDropdownList(wx.Choice, dcm.dDataControlMixin, cm.dControlMixin):
+class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 	""" Allows presenting a choice of items for the user to choose from.
 	"""
 	def __init__(self, parent, id=-1, pos=wx.DefaultPosition, size=wx.DefaultSize, 
@@ -13,37 +12,22 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin, cm.dControlMixin):
 		self._baseClass = dDropdownList
 
 		pre = wx.PreChoice()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 		style=style|pre.GetWindowStyle()
-		pre.Create(parent, id, pos, size, choices, *args, **kwargs)
+		pre.Create(parent, id, pos, size, choices, name=name, *args, **kwargs)
 
 		self.PostCreate(pre)
 
-		cm.dControlMixin.__init__(self, name)
-		dcm.dDataControlMixin.__init__(self)
-		self._afterInit()                      # defined in dPemMixin
+		dcm.dDataControlMixin.__init__(self, name)
+		self._afterInit()
 
 
 	def initEvents(self):
-		# init the common events:
-		cm.dControlMixin.initEvents(self)
-		dcm.dDataControlMixin.initEvents(self)
-
-		# init the widget's specialized event(s):
-		self.bindEvent(dEvents.Choice, self._onChoice)
-		self.bindEvent(dEvents.Choice, self.onChoice)
-
-	# Event callback method(s) (override in subclasses):
-	def onChoice(self, event):
-		if self.debug:
-			dabo.infoLog.write(_("onChoice received by %s") % self.Name)
-		event.Skip()
-			
-	# Private callback methods (do not override):
-	def _onChoice(self, event):
-		self.raiseEvent(dEvents.ValueChanged)
-		event.Skip()
-
+		dDropdownList.doDefault()
+		
+		# catch the wx event and raise the dabo event:
+		self.bindEvent(wx.EVT_CHOICE, self._onWxHit)
+		
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -52,7 +36,6 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin, cm.dControlMixin):
 		
 	def _setValue(self, value):
 		self.SetStringSelection(value)
-		self.raiseEvent(dEvents.ValueChanged)
 
 	# Property definitions:
 	Value = property(_getValue, _setValue, None,

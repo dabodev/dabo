@@ -28,14 +28,6 @@ class dFormDataNav(dForm.dForm):
 			self.Bind(wx.EVT_MENU, self.Close, id=anId)
 
 							
-	def onActivate(self, evt):
-		if self.RequeryOnLoad and not self._requeried:
-			self._requeried = True
-			self.pageFrame.GetPage(0).requery()
-		evt.Skip()
-		dFormDataNav.doDefault(evt)
-			
-		
 	def afterSetPrimaryBizobj(self):        
 		pass
 		
@@ -54,7 +46,7 @@ class dFormDataNav(dForm.dForm):
 	def setupToolBar(self):
 		if isinstance(self, wx.MDIChildFrame):
 			# Toolbar will be attached to top-level frame
-			controllingFrame = self.Application.mainFrame
+			controllingFrame = self.Application.MainFrame
 		else:
 			# Toolbar will be attached to this frame
 			controllingFrame = self
@@ -196,6 +188,7 @@ class dFormDataNav(dForm.dForm):
 			self.pageFrame = dPageFrameDataNav.dPageFrameDataNav(self)
 			nbSizer = wx.NotebookSizer(self.pageFrame)
 			self.GetSizer().Add(nbSizer, 1, wx.EXPAND)
+		
 			self.afterSetupPageFrame()
 
 			
@@ -355,16 +348,15 @@ class dFormDataNav(dForm.dForm):
 		self._childBehavior[dataSource] = cb
 	
 	
-	def onGotFocus(self, event):
-		""" Occurs when the form receives the focus.
-
-		For dFormDataNav, the toolbar and menu need to be set up.
-		"""
-		if isinstance(self, wx.MDIChildFrame):
-			self.setupToolBar()
-			self.setupMenu()
-		event.Skip()
-
+# 	def onGotFocus(self, event):
+# 		""" Occurs when the form receives the focus.
+# 
+# 		For dFormDataNav, the toolbar and menu need to be set up.
+# 		"""
+# 		if isinstance(self, wx.MDIChildFrame):
+# 			self.setupToolBar()
+# 			self.setupMenu()
+# 		dFormDataNav.doDefault(event)
 
 	def onRequery(self, event):
 		""" Override the dForm behavior by running the requery through the select page.
@@ -425,5 +417,8 @@ class dFormDataNav(dForm.dForm):
 						'		is modal, returning the pk of the picked record.\n'
 						'	Edit: modal version of normal, with no Select/Browse pages.\n'
 						'		User code sends the pk of the record to edit.')
+	
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
 						'Specifies whether an automatic requery happens when the form is loaded.')
+
+						

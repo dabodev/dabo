@@ -267,8 +267,8 @@ class dGridDataNav(dGrid.dGrid):
 		self.headerDragTo = 0
 		self.headerSizing = False
 
-		self.incrementalSearchTimer.bindEvent(dEvents.Timer, self.onIncrementalSearchTimer)
-		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
+		self.incrementalSearchTimer.bindEvent(dEvents.Hit, self.onIncrementalSearchTimer)
+		self.Bind(wx.EVT_KEY_DOWN, self.onKeyDown)
 
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.OnLeftDClick)
 		self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.OnGridRowSize)
@@ -526,8 +526,14 @@ class dGridDataNav(dGrid.dGrid):
 			F2:  sort the current column
 			AlphaNumeric:  incremental search
 		"""
-		
-		keyCode = evt.GetKeyCode()
+		if hasattr(evt, "EventData"):
+			# This is a dEvent, not the wx event. In this case, we need to
+			# respond to the wx event so we can skip appropriately, and we
+			# need to just ignore the dEvent.
+			return
+
+		keyCode = evt.KeyCode()
+				
 		try:
 			char = chr(keyCode)
 		except ValueError:       # keycode not in ascii range
@@ -546,11 +552,12 @@ class dGridDataNav(dGrid.dGrid):
 				self.processSort()
 			elif keyCode == 27 and self.Form.FormType == "PickList":  # Esc
 				self.Form.Close()
-			elif char and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
+			elif (char and (char.isalnum() or char.isspace()) 
+			and not evt.HasModifiers()):
 				self.addToIncrementalSearch(char)
 			else:
 				evt.Skip()
-
+				
 
 	def newRecord(self, event=None):
 		""" Request that a new row be added.

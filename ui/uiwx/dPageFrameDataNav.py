@@ -1,18 +1,18 @@
 import wx, dIcons
 import dPageFrame as pgf
 import dPageDataNav as pag
-import dPage
+import dPage, dEvents
 
 class dPageFrameDataNav(pgf.dPageFrame):
 
 	def __init__(self, parent, name='dPageFrameDataNav'):
 		dPageFrameDataNav.doDefault(parent, name=name)
 
-	def initProperties(self):
+	def afterInit(self):
+		dPageFrameDataNav.doDefault()
 		self.PageCount = 0
 		if self.DefaultPagesOnLoad:
 			self.addDefaultPages()
-		dPageFrameDataNav.doDefault()
 		
 		
 	def addDefaultPages(self):
@@ -39,9 +39,7 @@ class dPageFrameDataNav(pgf.dPageFrame):
 			for child in bizobj.getChildren():
 				self.AddPage(self.ChildPageClass(self, child.DataSource), child.Caption, imageId=3)
 
-		self.GetPage(0).onEnterPage()
-
-		
+				
 	def _getSelectPageClass(self):
 		try:
 			return self._selectPageClass

@@ -13,7 +13,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		self._baseClass = dBitmapButton
 
 		pre = wx.PreBitmapButton()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 		
 		if bitmap is None:
 			# Default to the Dabo icon
@@ -24,28 +24,16 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		self.PostCreate(pre)
 		
 		cm.dControlMixin.__init__(self, name)
-		self._afterInit()                      # defined in dPemMixin
+		self._afterInit()
 
 
 	def initEvents(self):
 		# init the common events:
-		cm.dControlMixin.initEvents(self)
+		dBitmapButton.doDefault()
 
-		# Respond to EVT_BUTTON and raise dEvents.Button:
-		self.bindEvent(wx.EVT_BUTTON, self._onWxButton)
+		# Respond to EVT_BUTTON and raise dEvents.Hit:
+		self.bindEvent(wx.EVT_BUTTON, self._onWxHit)
 		
-		# init the widget's specialized event(s):
-		self.bindEvent(dEvents.Button, self.onButton)
-
-	# Event callback methods (override in subclasses):
-	def onButton(self, event):
-		if self.debug:
-			dabo.infoLog.write(_("onButton received by %s") % self.Name)
-		event.Skip()
-
-	def _onWxButton(self, event):
-		self.raiseEvent(dEvents.Button)
-		event.Skip()
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.

@@ -32,9 +32,9 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 
 		self.PostCreate(pre)
 		
-		self.SetName("dFormMain")
-		self.SetSize((640,480))
-		self.SetPosition((0,0))
+		self.Name = "dFormMain"
+		self.Size = (640,480)
+		self.Position = (0,0)
 
 		fm.dFormMixin.__init__(self)
 

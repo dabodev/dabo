@@ -9,20 +9,18 @@ class dGauge(wx.Gauge, cm.dControlMixin):
 		self._baseClass = dGauge
 
 		pre = wx.PreGauge()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 		
-		pre.Create(parent, id, 100, style=style|pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id, 100, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)
-		self._afterInit()                      # defined in dPemMixin
+		self._afterInit()
 
 
 	def initEvents(self):
-		# init the common events:
-		cm.dControlMixin.initEvents(self)
-
+		dGauge.doDefault()
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.

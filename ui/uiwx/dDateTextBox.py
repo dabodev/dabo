@@ -42,7 +42,9 @@ class dDateTextBox(dTextBox.dTextBox):
 	to the date value they need. The keystrokes are the same as those used
 	by Quicken, the popular personal finance program.
 	"""
-	
+	def __init__(self, parent, id=-1, name="dDateTextBox", style=0, *args, **kwargs):
+		dDateTextBox.doDefault(parent, id, name, style, *args, **kwargs)
+
 	def beforeInit(self, pre):
 		self.date = wx.DateTime_Now()
 		self.formats = {
@@ -79,14 +81,15 @@ class dDateTextBox(dTextBox.dTextBox):
 			self.calButton.Right = self.Right
 			self.calButton.Caption = "V"
 			self.calButton.Show(True)
-			self.Parent.bindEvent(dEvents.Button, self.onDblClick, self.calButton)
+			self.calButton.bindEvent(dEvents.Hit, self.onDblClick)
 #			self.Parent.Bind(wx.EVT_BUTTON, self.onDblClick, id=self.calButton.GetId() )
 # 			calSizer = wx.BoxSizer(wx.HORIZONTAL)
 # 			calSizer.Add(self, 1, wx.EXPAND)
 # 			calSizer.Add(self.calButton)
 			
-
-		self.bindEvent(dEvents.MouseRightDown, self.onRightClick)
+		# The first form is needed to avoid a GTK unicode menu from appearing:
+		self.bindEvent(wx.EVT_RIGHT_DOWN, self.onRightClick)
+		#self.bindEvent(dEvents.MouseRightDown, self.onRightClick)
 		self.bindEvent(dEvents.KeyChar, self.onChar)
 		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onDblClick)
 		# Tooltip help
@@ -148,11 +151,12 @@ C: Popup Calendar to Select
 		""" If a shortcut key was pressed, process that. Otherwise, eat 
 		inappropriate characters.
 		"""
-		keycode = evt.KeyCode()
+		keycode = evt.EventData["keyCode"]
 		if keycode < 0 or keycode > 255:
 			# Let it be handled higher up
-			evt.Skip()
 			return
+		evt.stop()
+		
 		key = chr(keycode).lower()
 		shortcutKeys = "tq+-mhyrc[]"
 		dateEntryKeys = "0123456789/-"

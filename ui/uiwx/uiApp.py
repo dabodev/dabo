@@ -19,23 +19,26 @@ class uiApp(wx.App):
 		self.SetClassName(dApp.getAppInfo("appName"))
 		self.SetVendorName(dApp.getAppInfo("vendorName"))
 		
+		dabo.infoLog.write("wxPython Version: %s %s (%s)" % (
+			wx.VERSION_STRING, wx.PlatformInfo[1], wx.PlatformInfo[3]))
+			
 		wx.InitAllImageHandlers()
 
 		self.dApp = dApp
-
-		if dApp.mainFrameClass is None:
-			self.mainFrame = ui.dFormMain()
-		else:
-			self.mainFrame = dApp.mainFrameClass()
-		self.SetTopWindow(self.mainFrame)
+		
+		if dApp.MainFrameClass is not None:
+			self.dApp.MainFrame = dApp.MainFrameClass()
+			self.SetTopWindow(self.dApp.MainFrame)
+			self.dApp.MainFrame.Show()
 
 
 	def start(self, dApp):
-		self.mainFrame.Show()
 		self.MainLoop()
 
+				
 	def onFileExit(self, event):
-		self.mainFrame.Close(True)
+		if self.dApp.MainFrame is not None:
+			self.dApp.MainFrame.Close(True)
 
 
 	def onEditCut(self, event):
@@ -162,17 +165,21 @@ class uiApp(wx.App):
 
 
 	def onHelpAbout(self, event):
-		dlg = ui.dAbout(self.mainFrame, self.dApp)
+		dlg = ui.dAbout(self.dApp.MainFrame, self.dApp)
 		dlg.Show()
 
 		
 	def getLoginInfo(self, message=None):
 		""" Display the login form, and return the user/password as entered by the user.
 		"""
-		dlg = ui.dLogin(None)
+		try:
+			ld = self.loginDialog
+		except AttributeError:
+			ld = ui.dLogin(self.dApp.MainFrame)
 		if message:
-			dlg.setMessage(message)
-		dlg.ShowModal()
-		user, password = dlg.user, dlg.password
-		dlg.Destroy()
+			ld.setMessage(message)
+		ld.CenterOnParent()
+		ld.ShowModal()
+		user, password = ld.user, ld.password
+		self.loginDialog = ld
 		return user, password

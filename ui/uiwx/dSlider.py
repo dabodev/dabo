@@ -1,10 +1,9 @@
 import wx, dabo
-import dControlMixin as cm
 import dDataControlMixin as dcm
 import dEvents
 from dabo.dLocalize import _
 
-class dSlider(wx.Slider, dcm.dDataControlMixin, cm.dControlMixin):
+class dSlider(wx.Slider, dcm.dDataControlMixin):
 	""" Allows editing integer values with a slider control.
 	
 	Slider does not allow entering a value with the keyboard.
@@ -14,32 +13,21 @@ class dSlider(wx.Slider, dcm.dDataControlMixin, cm.dControlMixin):
 		self._baseClass = dSlider
 
 		pre = wx.PreSlider()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 		
-		pre.Create(parent, id, 50, 0, 100, style=style|pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id, 50, 0, 100, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 
-		cm.dControlMixin.__init__(self, name)
-		self._afterInit()                      # defined in dPemMixin
+		dcm.dDataControlMixin.__init__(self, name)
+		self._afterInit()
 
 
 	def initEvents(self):
-		# init the common events:
-		cm.dControlMixin.initEvents(self)
-		self.bindEvent(dEvents.Scroll, self.onScroll)
-		self.bindEvent(dEvents.Scroll, self._onScroll)
-		
-		
-	def onScroll(self, evt):
-		if self.debug:
-			dabo.infoLog.write("onScroll received by %s" % self.Name)
-		evt.Skip()
-		
-	def _onScroll(self, evt):
-		self.raiseEvent(dEvents.ValueChanged)
-		evt.Skip()
+		dSlider.doDefault()
+		self.bindEvent(wx.EVT_SCROLL, self._onWxHit)
 
+				
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getMin(self):

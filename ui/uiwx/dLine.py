@@ -9,21 +9,19 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 		self._baseClass = dLine
 
 		pre = wx.PreStaticLine()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 
 		pre.Create(parent, id, name=name, style=style | pre.GetWindowStyle(), *args, **kwargs)
 		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)
-		self._afterInit()                      # defined in dPemMixin
+		self._afterInit()
 
 
 	def initEvents(self):
-		# init the common events:
-		cm.dControlMixin.initEvents(self)
-
-		# init the widget's specialized event(s):
-
+		dLine.doDefault()
+		
+		
 	# property get/set functions
 	def _getOrientation(self):
 		if self.hasWindowStyleFlag(wx.LI_VERTICAL):

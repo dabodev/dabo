@@ -11,7 +11,7 @@ class dListbook(wx.Listbook, dControlMixin.dControlMixin):
 		self._baseClass = dListbook
 
 		pre = wx.PreListbook()
-		self._beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)
 		style = style | pre.GetWindowStyle()
 		pre.Create(parent, id, pos, size, style, name)
 
@@ -22,7 +22,7 @@ class dListbook(wx.Listbook, dControlMixin.dControlMixin):
 		self.lastSelection = 0
 		self.PageCount = 3
 		
-		self._afterInit()                      # defined in dPemMixin
+		self._afterInit()
 		
 	
 	def afterInit(self):
@@ -30,29 +30,30 @@ class dListbook(wx.Listbook, dControlMixin.dControlMixin):
 
 
 	def initEvents(self):
-		dControlMixin.dControlMixin.initEvents(self)
-		self.bindEvent(dEvents.ListbookPageChanged, self.onPageChanged)
-		self.bindEvent(dEvents.ListbookPageChanged, self._onPageChanged)
+		dListbook.doDefault()
+		self.bindEvent(wx.EVT_LISTBOOK_PAGE_CHANGED, self._onPageChanged)
 
-	def onPageChanged(self, event):
-		if self.debug:
-			dabo.infoLog.write(_("onPageChanged received by %s") % self.Name)
-		event.Skip()
-		
+				
 	def _onPageChanged(self, event):
-		ls = self.lastSelection
-		cs = event.GetSelection()
-		event.Skip()    # This must happen before onLeave/EnterPage below
+		event.Skip()
+		event.StopPropagation()
 
-		newPage = self.GetPage(cs)
-		oldPage = self.GetPage(ls)    
+		newPageNum = event.GetSelection()
+		oldPageNum = self._lastPage
+		
+		self._pageChanged(newPageNum, oldPageNum)
 
-		oldPage.onLeavePage()
-		newPage.onEnterPage()
-
-		self.lastSelection = cs
+		
+	def _pageChanged(self, newPageNum, oldPageNum):		
+		self._lastPage = newPageNum
+		
+		self.GetPage(newPageNum).raiseEvent(dEvents.PageEnter)
+		if oldPageNum is not None:
+			self.GetPage(oldPageNum).raiseEvent(dEvents.PageLeave)
 		
 		
+		
+	
 	# property get/set functions:
 	def _getPageClass(self):
 		try:

@@ -9,15 +9,8 @@ import dEvents
 class dFormMixin(pm.dPemMixin):
 	def __init__(self):
 		dFormMixin.doDefault()
-		self.debug = False
 		
 		self.debugText = ""
-
-		self.initEvents()
-		
-		if self.Parent == wx.GetApp().GetTopWindow():
-			self.Application.uiForms.add(self)
-
 		self.restoredSP = False
 
 		if self.Application:
@@ -33,22 +26,29 @@ class dFormMixin(pm.dPemMixin):
 		
 				
 	def initEvents(self):
-		# Bind complex wx events to handlers that re-raise the Dabo events:
+		dFormMixin.doDefault()
+		# Bind wx events to handlers that re-raise the Dabo events:
 		self.bindEvent(wx.EVT_ACTIVATE, self._onWxActivate)
+		self.bindEvent(wx.EVT_CLOSE, self._onWxClose)
 			
 		# Convenience binding of common events:
 		self.bindEvent(dEvents.Close, self.onClose)
 		self.bindEvent(dEvents.Activate, self.onActivate)
 		self.bindEvent(dEvents.Deactivate, self.onDeactivate)
 			
+	
+	def _onWxClose(self, event):
+		self.raiseEvent(dEvents.Close, event)
+		event.Skip()
 		
 	def _onWxActivate(self, event):
 		""" Raise the Dabo Activate or Deactivate appropriately.
 		"""
 		if bool(event.GetActive()):
-			self.raiseEvent(dEvents.Activate)
+			self.raiseEvent(dEvents.Activate, event)
 		else:
-			self.raiseEvent(dEvents.Deactivate)
+			self.raiseEvent(dEvents.Deactivate, event)
+		event.Skip()
 			
 			
 	def onActivate(self, event): 
@@ -57,11 +57,9 @@ class dFormMixin(pm.dPemMixin):
 		if not self.restoredSP:
 			self.restoredSP = True
 			self.restoreSizeAndPosition()
-		event.Skip()
 		
 	def onDeactivate(self, event):
 		pass
-
 		
 	def afterSetMenuBar(self):
 		""" Subclasses can extend the menu bar here.
@@ -101,12 +99,11 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def onClose(self, event):
-		if self.Parent == wx.GetApp().GetTopWindow():
+		if self.Application is not None:
 			self.Application.uiForms.remove(self)
 		self.saveSizeAndPosition()
-		event.Skip()
 
-
+		
 	def restoreSizeAndPosition(self):
 		""" Restore the saved window geometry for this form.
 
@@ -122,16 +119,16 @@ class dFormMixin(pm.dPemMixin):
 			height = self.Application.getUserSetting("%s.height" % name)
 
 			if (type(left), type(top)) == (type(int()), type(int())):
-				self.SetPosition((left,top))
+				self.Position = (left,top)
 			if (type(width), type(height)) == (type(int()), type(int())):
-				self.SetSize((width,height))
+				self.Size = (width,height)
 
 
 	def saveSizeAndPosition(self):
 		""" Save the current size and position of this form.
 		"""
 		if self.Application:
-			if self == wx.GetApp().GetTopWindow():
+			if self == self.Application.MainFrame:
 				for form in self.Application.uiForms:
 					try:
 						form.saveSizeAndPosition()
@@ -140,8 +137,8 @@ class dFormMixin(pm.dPemMixin):
 
 			name = self.getAbsoluteName()
 
-			pos = self.GetPosition()
-			size = self.GetSize()
+			pos = self.Position
+			size = self.Size
 
 			self.Application.setUserSetting("%s.left" % name, "I", pos[0])
 			self.Application.setUserSetting("%s.top" % name, "I", pos[1])
@@ -157,7 +154,7 @@ class dFormMixin(pm.dPemMixin):
 		versus non-MDI forms.
 		"""
 		if isinstance(self, wx.MDIChildFrame):
-			controllingFrame = self.Application.mainFrame
+			controllingFrame = self.Application.MainFrame
 		else:
 			controllingFrame = self
 		if controllingFrame.GetStatusBar():
@@ -171,7 +168,7 @@ class dFormMixin(pm.dPemMixin):
 		menu.AppendItem(item)
 
 		if isinstance(self, wx.MDIChildFrame):
-			controllingFrame = self.Application.mainFrame
+			controllingFrame = self.Application.MainFrame
 		else:
 			controllingFrame = self
 			
@@ -190,7 +187,7 @@ class dFormMixin(pm.dPemMixin):
 		toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
 
 		if isinstance(self, wx.MDIChildFrame):
-			controllingFrame = self.Application.mainFrame
+			controllingFrame = self.Application.MainFrame
 		else:
 			controllingFrame = self
 		wx.EVT_MENU(controllingFrame, toolId, function)

@@ -3,16 +3,16 @@
 """
 import wx
 import dabo
-import dPemMixin as pm
+import dControlMixin
 import dEvents
 import dabo.dException as dException
 from dabo.dLocalize import _
 
-class dDataControlMixin(pm.dPemMixin):
+class dDataControlMixin(dControlMixin.dControlMixin):
 	""" Provide common functionality for the data-aware controls.
 	"""
-	def __init__(self):
-		pm.dPemMixin.__init__(self)
+	def __init__(self, name=None):
+		dDataControlMixin.doDefault(name)
 
 		self._oldVal = self.Value
 		self.enabled = True
@@ -20,24 +20,18 @@ class dDataControlMixin(pm.dPemMixin):
 		# Initialize runtime properties
 		self.bizobj = None
 
-
 	def initEvents(self):
-		pass
-		
+		dDataControlMixin.doDefault()
 		
 	def onCreate(self, event):
-		if self.debug:
-			dabo.infoLog.write(_("onCreate received by %s") % self.Name)
+		dDataControlMixin.doDefault(event)
 		if self.SaveRestoreValue:
 			self.restoreValue()
-		event.Skip()
 	
 	def onDestroy(self, event):
-		if self.debug:
-			dabo.infoLog.write(_("onDestroy received by %s") % self.Name)
+		dDataControlMixin.doDefault(event)
 		if self.SaveRestoreValue:
 			self.saveValue()
-		event.Skip()
 	
 
 	def getBlankValue(self):
@@ -95,8 +89,6 @@ class dDataControlMixin(pm.dPemMixin):
 	def onValueRefresh(self, event): 
 		""" Occurs when the field value has potentially changed.
 		"""
-		if self.debug:
-			dabo.infoLog.write(_("onValueRefresh received by %s") % (self.GetName(),))
 		self.refresh()
 		
 		try:
@@ -105,7 +97,6 @@ class dDataControlMixin(pm.dPemMixin):
 		except AttributeError:
 			# only text controls have SelectOnEntry
 			pass 
-		event.Skip()
 
 
 	def selectAll(self):
@@ -118,9 +109,7 @@ class dDataControlMixin(pm.dPemMixin):
 	def onGotFocus(self, event):
 		""" Occurs when the control receives the keyboard focus.
 		"""
-		if self.debug:
-			dabo.infoLog.write(_("onGotFocus received by %s") % self.Name)
-
+		dDataControlMixin.doDefault(event)
 		self._oldVal = self.Value
 
 		try:
@@ -129,15 +118,12 @@ class dDataControlMixin(pm.dPemMixin):
 		except AttributeError:
 			# only text controls have SelectOnEntry
 			pass
-		event.Skip()
 
 
 	def onLostFocus(self, event):
 		""" Occurs when the control loses the keyboard focus.
 		"""
-		if self.debug:
-			dabo.infoLog.write(_("onLostFocus received by %s") % self.Name)
-
+		dDataControlMixin.doDefault(event)
 		self.flushValue()
 		
 		try:
@@ -146,9 +132,8 @@ class dDataControlMixin(pm.dPemMixin):
 		except AttributeError:
 			# only text controls have SelectOnEntry
 			pass
-		event.Skip()
-			
 
+			
 	def flushValue(self):
 		""" Save any changes to the underlying bizobj field.
 		"""
@@ -241,7 +226,6 @@ class dDataControlMixin(pm.dPemMixin):
 		
 	def _setValue(self, value):
 		self.SetValue(value)
-		self.raiseEvent(dEvents.ValueChanged)
 
 	# Property definitions:
 	DataSource = property(_getDataSource, _setDataSource, None,
