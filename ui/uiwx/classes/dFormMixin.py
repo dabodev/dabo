@@ -63,3 +63,14 @@ class dFormMixin:
             self.dApp.setUserSetting("%s.width" % name, "I", size[0])
             self.dApp.setUserSetting("%s.height" % name, "I", size[1])
         
+    def setStatusText(self, *args):
+        ''' dFormMixin.setStatusText(*args)
+
+            Call this instead of SetStatusText() and dabo will decide
+            whether to send the text to the main frame or this frame.
+        '''
+        if isinstance(self, wx.MDIChildFrame):
+            controllingFrame = self.dApp.mainFrame
+        else:
+            controllingFrame = self
+        controllingFrame.SetStatusText(*args)

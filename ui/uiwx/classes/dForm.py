@@ -70,7 +70,7 @@ class dForm(wxFrameClass, dFormMixin):
             self.setPrimaryBizobj(bizobj.dataSource)
         if self.debug:
             print "added bizobj with dataSource of %s" % bizobj.dataSource
-        self.SetStatusText("Bizobj '%s' added." % bizobj.dataSource)
+        self.setStatusText("Bizobj '%s' added." % bizobj.dataSource)
         
     def getPrimaryBizobj(self):
         return self._primaryBizobj
@@ -150,7 +150,7 @@ class dForm(wxFrameClass, dFormMixin):
             if self.debug:
                 print response
             if response == k.FILE_OK:
-                self.SetStatusText(self.getCurrentRecordText())
+                self.setStatusText(self.getCurrentRecordText())
                 
                 # Notify listeners that the row number changed:
                 evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
@@ -173,7 +173,7 @@ class dForm(wxFrameClass, dFormMixin):
             if self.debug: 
                 print response
             if response == k.FILE_OK:
-                self.SetStatusText(self.getCurrentRecordText())
+                self.setStatusText(self.getCurrentRecordText())
                 
                 # Notify listeners that the row number changed:
                 evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
@@ -197,7 +197,7 @@ class dForm(wxFrameClass, dFormMixin):
             statusText = self.getCurrentRecordText()
             if response == k.FILE_BOF:
                 statusText += " (BOF)"
-            self.SetStatusText(statusText)
+            self.setStatusText(statusText)
                 
             # Notify listeners that the row number changed:
             evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
@@ -221,7 +221,7 @@ class dForm(wxFrameClass, dFormMixin):
             statusText = self.getCurrentRecordText()
             if response == k.FILE_EOF:
                 statusText += " (EOF)"
-            self.SetStatusText(statusText)
+            self.setStatusText(statusText)
                 
             # Notify listeners that the row number changed:
             evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
@@ -244,10 +244,10 @@ class dForm(wxFrameClass, dFormMixin):
         if response == k.FILE_OK:
             if self.debug:
                 print "Save successful."
-            self.SetStatusText("Changes to %s saved." % (
+            self.setStatusText("Changes to %s saved." % (
                     self.saveAllRows and "all records" or "current record",))
         else:
-            self.SetStatusText("Save failed.")
+            self.setStatusText("Save failed.")
             dMessageBox.stop("Save failed:\n\n%s" % bizobj.getErrorMsg())
     
     def cancel(self):
@@ -263,7 +263,7 @@ class dForm(wxFrameClass, dFormMixin):
         if response == k.FILE_OK:
             if self.debug:
                 print "Cancel successful."
-            self.SetStatusText("Changes to %s cancelled." % (
+            self.setStatusText("Changes to %s cancelled." % (
                     self.saveAllRows and "all records" or "current record",))
             self.refreshControls()
         else:
@@ -294,7 +294,7 @@ class dForm(wxFrameClass, dFormMixin):
         if response == k.FILE_OK:
             if self.debug:
                 print "Requery successful."
-            self.SetStatusText("%s record%sselected in %s second%s" % (
+            self.setStatusText("%s record%sselected in %s second%s" % (
                     self.getBizobj().getRowCount(), 
                     self.getBizobj().getRowCount() == 1 and " " or "s ",
                     stop,
@@ -327,7 +327,7 @@ class dForm(wxFrameClass, dFormMixin):
             if response == k.FILE_OK:
                 if self.debug:
                     print "Delete successful."
-                self.SetStatusText("Record Deleted.")
+                self.setStatusText("Record Deleted.")
                 self.refreshControls()
                 # Notify listeners that the row number changed:
                 evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
@@ -380,7 +380,7 @@ class dForm(wxFrameClass, dFormMixin):
             if self.debug:
                 print "New successful."
             statusText = self.getCurrentRecordText()
-            self.SetStatusText(statusText)
+            self.setStatusText(statusText)
             self.refreshControls()
             # Notify listeners that the row number changed:
             evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
