@@ -37,7 +37,7 @@ class dPage(dPanel.dScrollPanel):
 		if not self.itemsCreated:
 			self.createItems()
 			self.itemsCreated = True
-			self.Sizer.Layout()
+			self.Sizer.layout()
 			
 			# Needed on Linux to get the sizer to layout:
 			self.Size = (-1,-1)
