@@ -16,13 +16,11 @@ class MySQL(dBackend):
 		if not port:
 			port = 5432
 				
-		### TODO: Is this the correct syntax for creating the connection?
 		self._connection = dbapi.connect(host=connectInfo.Host, 
+				dbname=connectInfo.DbName,
 				user = connectInfo.User,
-				passwd = connectInfo.revealPW(),
-				db=connectInfo.DbName,
+				password = connectInfo.revealPW(),
 				port=port)
-
 		return self._connection
 
 	def getDictCursorClass(self):
@@ -50,14 +48,14 @@ class MySQL(dBackend):
 		# MySQL doesn't have system tables, in the traditional sense, as 
 		# they exist in the mysql database.
 		tempCursor = self._connection.cursor()
-		### TODO: Verify that this is the correct syntax
-		tempCursor.execute("show tables")
+		tempCursor.execute("select tablename from pg_tables where schemaname = 'public'")
 		rs = tempCursor.fetchall()
 		tables = []
 		for record in rs:
 			tables.append(record[0])
 		return tuple(tables)
 		
+
 	def getTableRecordCount(self, tableName):
 		tempCursor = self._connection.cursor()
 		### TODO: Verify syntax
