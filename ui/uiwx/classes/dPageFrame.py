@@ -34,6 +34,7 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 
 
 	def OnPageChanged(self, event):
+		ls = self.lastSelection
 		cs = event.GetSelection()
 
 		event.Skip()    # This must happen before onLeave/EnterPage below
