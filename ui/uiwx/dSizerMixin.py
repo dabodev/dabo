@@ -5,34 +5,32 @@ from dabo.dLocalize import _
 
 
 class dSizerMixin(dabo.common.dObject):
-	def append(self, item, layout="normal", proportion=0, alignment=("top", "left"), 
-		border=None, borderFlags=None):
-		"""Append an object or a spacer to the sizer.
-		
+	"""Provides the interface for interacting with Sizers in Dabo.
+	Many of the methods for adding objects to sizers take the 
+	following parameters:
 		layout: 
 			"expand": The object will expand to fill in the extra space
+				(may also use "ex" or simply "x" to mean the same thing)
 			"fixed": The object will not be resized
 			"normal": The sizer will determine how to lay out the object. (default)
-			
 		proportion: The relative space this object should get in relation to the 
 			other objects. Default has all objects getting 0, equal share.
-			
 		alignment: The horizontal and vertical alignment of the object in the sizer.
 			This is a tuple: set it like ("left", "top") or ("center", "middle").
-			
 		border: The width of the border. Default is 0, no border.
-		
 		borderFlags: A tuple containing the locations to draw the border, such as
 			("all") or ("top", "left", "bottom"). Default is ("all").
-			
+		index: The index of the existing sizer item before which you want
+			the object inserted.
 		For the most common usage of adding an object to the sizer, just do:
-			
 			sizer.append(object)
-			
-			or
-			
-			sizer.append(object, "expand")
-			
+				or
+			sizer.append(object, "x")
+	"""
+	def append(self, item, layout="normal", proportion=0, alignment=("top", "left"), 
+			border=None, borderFlags=None):
+		"""Adds the passed object to the end of the list of items controlled
+		by the sizer.
 		"""
 		if type(layout) == int:
 			# proportion was passed first
@@ -56,36 +54,9 @@ class dSizerMixin(dabo.common.dObject):
 			
 
 	def insert(self, index, item, layout="normal", proportion=0, alignment=("top", "left"), 
-		border=None, borderFlags=None):
-		"""Insert an object or a spacer to the sizer.
-		
-		index: The index of the existing sizer item that you want to insert in 
-			front of.
-			
-		layout: 
-			"expand": The object will expand to fill in the extra space
-			"fixed": The object will not be resized
-			"normal": The sizer will determine how to lay out the object. (default)
-			
-		proportion: The relative space this object should get in relation to the 
-			other objects. Default has all objects getting 0, equal share.
-			
-		alignment: The horizontal and vertical alignment of the object in the sizer.
-			This is a tuple: set it like ("left", "top") or ("center", "middle").
-			
-		border: The width of the border. Default is 0, no border.
-		
-		borderFlags: A tuple containing the locations to draw the border, such as
-			("all") or ("top", "left", "bottom"). Default is ("all").
-			
-		For the most common usage of inserting an object to the sizer, just do:
-			
-			sizer.insert(index, object)
-			
-			or
-			
-			sizer.insert(index, object, "expand")
-			
+			border=None, borderFlags=None):
+		"""Inserts an object into the list of items controlled by the sizer at 
+		the specified position.
 		"""
 		if type(layout) == int:
 			# proportion was passed first
@@ -111,7 +82,6 @@ class dSizerMixin(dabo.common.dObject):
 	
 	def layout(self):
 		"""Layout the items in the sizer.
-		
 		This is handled automatically when the sizer is resized, but you'll have
 		to call it manually after you are done adding items to the sizer.
 		"""
@@ -126,10 +96,7 @@ class dSizerMixin(dabo.common.dObject):
 	
 	
 	def prepend(self, *args, **kwargs):
-		"""Insert the item at the beginning of the sizer layout.
-		
-		See append() for the parameters to use.
-		"""
+		"""Insert the item at the beginning of the sizer layout."""
 		self.insert(0, *args, **kwargs)			
 	
 	
