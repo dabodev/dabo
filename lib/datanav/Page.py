@@ -285,6 +285,7 @@ class SelectPage(Page):
 
 	def setWhere(self, biz):
 		biz.setWhereClause("")
+		tbl = biz.DataSource
 		flds = self.selectFields.keys()
 		whr = ""
 		for fld in flds:
@@ -366,7 +367,7 @@ class SelectPage(Page):
 				
 				# We have the pieces of the clause; assemble them together
 				if useStdFormat:
-					whr = "%s %s %s" % (fld, opStr, matchStr)
+					whr = "%s.%s %s %s" % (tbl, fld, opStr, matchStr)
 				if len(whr) > 0:
 					biz.addWhere(whr)
 		return

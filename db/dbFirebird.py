@@ -50,7 +50,7 @@ class Firebird(dBackend):
 		""" Firebird requires that all field names be surrounded 
 		by double quotes.
 		"""
-		return self.dblQuoteField(str)
+		return self.dblQuoteField(txt)
 
 
 	def escQuote(self, val):
