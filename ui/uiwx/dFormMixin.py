@@ -76,11 +76,11 @@ class dFormMixin(pm.dPemMixin):
 				self.CreateStatusBar()
 
 		if self.Application is not None:
-			self.Application.ActiveForm = self
+			self.Application._setActiveForm(self)
 	
 	def __onDeactivate(self, evt):
 		if self.Application is not None and self.Application.ActiveForm == self:
-			self.Application.ActiveForm = None
+			self.Application._setActiveForm(None)
 
 		
 	def afterSetMenuBar(self):
@@ -226,6 +226,10 @@ class dFormMixin(pm.dPemMixin):
 
 
 	# property get/set/del functions follow:
+
+	def _getActiveControl(self):
+		return self.FindFocus()
+
 	def _getIcon(self):
 		try:
 			return self._Icon
@@ -361,43 +365,49 @@ class dFormMixin(pm.dPemMixin):
 							"'Normal', 'Minimized', 'Maximized', and 'FullScreen'")
 
 	# property definitions follow:
-	Icon = property(_getIcon, _setIcon, None, 'Specifies the icon for the form. (wxIcon)')
+	ActiveControl = property(_getActiveControl, None, None, 
+		_("Contains a reference to the active control on the form, or None."))
+
+	Icon = property(_getIcon, _setIcon, None, 
+		_("Specifies the icon for the form. (wxIcon)"))
+
 	IconBundle = property(_getIconBundle, _setIconBundle, None,
-							'Specifies the set of icons for the form. (wxIconBundle)')
+		_("Specifies the set of icons for the form. (wxIconBundle)"))
 
 	BorderResizable = property(_getBorderResizable, _setBorderResizable, None,
-					'Specifies whether the user can resize this form. (bool).')
+		_("Specifies whether the user can resize this form. (bool)."))
 
 	MenuBar = property(_getMenuBar, _setMenuBar, None,
 		_("Specifies the menu bar instance for the form."))
 
 	MenuBarClass = property(_getMenuBarClass, _setMenuBarClass, None,
-		"Specifies the menu bar class to use for the form, or None.")
+		_("Specifies the menu bar class to use for the form, or None."))
 		
 	ShowCaption = property(_getShowCaption, _setShowCaption, None,
-					'Specifies whether the caption is displayed in the title bar. (bool).')
+		_("Specifies whether the caption is displayed in the title bar. (bool)."))
 
 	ShowMaxButton = property(_getShowMaxButton, _setShowMaxButton, None,
-					'Specifies whether a maximize button is displayed in the title bar. (bool).')
+		_("Specifies whether a maximize button is displayed in the title bar. (bool)."))
 
 	ShowMinButton = property(_getShowMinButton, _setShowMinButton, None,
-					'Specifies whether a minimize button is displayed in the title bar. (bool).')
+		_("Specifies whether a minimize button is displayed in the title bar. (bool)."))
 
 	ShowCloseButton = property(_getShowCloseButton, _setShowCloseButton, None,
-					'Specifies whether a close button is displayed in the title bar. (bool).')
+		_("Specifies whether a close button is displayed in the title bar. (bool)."))
 
 	ShowStatusBar = property(_getShowStatusBar, _setShowStatusBar, None,
-		"Specifies whether the status bar gets automatically created.")
+		_("Specifies whether the status bar gets automatically created."))
 
 	ShowSystemMenu = property(_getShowSystemMenu, _setShowSystemMenu, None,
-					'Specifies whether a system menu is displayed in the title bar. (bool).')
+		_("Specifies whether a system menu is displayed in the title bar. (bool)."))
 
 	TinyTitleBar = property(_getTinyTitleBar, _setTinyTitleBar, None,
-					'Specifies whether the title bar is small, like a tool window. (bool).')
+		_("Specifies whether the title bar is small, like a tool window. (bool)."))
 
 	WindowState = property(_getWindowState, _setWindowState, None,
-					'Specifies the current state of the form. (int)\n'
-					'    Normal \n'
-					'    Minimized \n'
-					'    Maximized \n'
-					'    FullScreen')
+		_("""Specifies the current state of the form. (int)
+			
+				Normal
+				Minimized
+				Maximized
+				FullScreen"""))

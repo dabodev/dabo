@@ -11,8 +11,6 @@ class uiApp(wx.App, dObject):
 		wx.App.__init__(self, 0, args)
 		dObject.__init__(self)
 		self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
-		# track the active form
-		self.__activeForm = None
 		
 		self.Name = "uiApp"
 		
@@ -101,7 +99,7 @@ class uiApp(wx.App, dObject):
 		# while others do not. Try these methods first, but fall back
 		# to interacting with wx.TheClipboard if necessary.
 		if self.ActiveForm:
-			win = self.ActiveForm.FindFocus()
+			win = self.ActiveForm.ActiveControl
 			try:
 				if cut:
 					win.Cut()
@@ -128,7 +126,7 @@ class uiApp(wx.App, dObject):
 
 	def onEditPaste(self, evt):
 		if self.ActiveForm:
-			win = self.ActiveForm.FindFocus()
+			win = self.ActiveForm.ActiveControl
 			try:
 				win.Paste()
 			except AttributeError:
@@ -154,7 +152,7 @@ class uiApp(wx.App, dObject):
 
 	def onEditUndo(self, evt):
 		if self.ActiveForm:
-			win = self.ActiveForm.FindFocus()
+			win = self.ActiveForm.ActiveControl
 			try:
 				win.Undo()
 			except AttributeError:
@@ -163,7 +161,7 @@ class uiApp(wx.App, dObject):
 
 	def onEditRedo(self, evt):
 		if self.ActiveForm:
-			win = self.ActiveForm.FindFocus()
+			win = self.ActiveForm.ActiveControl
 			try:
 				win.Redo()
 			except AttributeError:
@@ -174,7 +172,7 @@ class uiApp(wx.App, dObject):
 		""" Display a Find dialog. 
 		"""
 		if self.ActiveForm:
-			win = self.ActiveForm.FindFocus()
+			win = self.ActiveForm.ActiveControl
 			if win:
 				self.findWindow = win           # Save reference for use by self.OnFind()
 	
@@ -329,10 +327,14 @@ class uiApp(wx.App, dObject):
 	
 
 	def _getActiveForm(self):
-		return self.__activeForm
+		try:
+			v = self._activeForm
+		except AttributeError:
+			v = self._activeForm = None
+		return v
 	def _setActiveForm(self, frm):
-		self.__activeForm = frm
+		self._activeForm = frm
 	
-	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
+	ActiveForm = property(_getActiveForm, None, None, 
 			"Returns the form that currently has focus, or None.  (dForm)" )
 

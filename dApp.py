@@ -477,10 +477,10 @@ class dApp(dabo.common.dObject):
 	def _getActiveForm(self):
 		return self.uiApp.ActiveForm
 	def _setActiveForm(self, frm):
-		self.uiApp.ActiveForm = frm
+		self.uiApp._setActiveForm(frm)
 
 	
-	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
+	ActiveForm = property(_getActiveForm, None, None, 
 			"Returns the form that currently has focus, or None.  (dForm)" )
 	
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
