@@ -1,6 +1,6 @@
 import wx, dabo
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox, dIcons, dCommandButton
-import dPanel, dGridDataNav, dCommandButton, dMessageBox, dEvents, dDateControl
+import dPanel, dGridDataNav, dCommandButton, dMessageBox, dEvents, dDateTextBox
 import dabo.dException as dException
 from dabo.dLocalize import _
 
@@ -452,7 +452,7 @@ class dEditPage(dPage.dPage):
 				elif fieldType in ["L",]:
 					classRef = dCheckBox.dCheckBox
 				elif fieldType in ["D",]:
-					classRef = dDateControl.dDateControl
+					classRef = dDateTextBox.dDateTextBox
 				else:
 					classRef = dTextBox.dTextBox
 

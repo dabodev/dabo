@@ -75,19 +75,35 @@ R : Last Day of yeaR
 	
 	
 	def onChar(self, evt):
-		""" Process all keystrokes to see if they typed a shortcut key"""
+		""" If a shortcut key was pressed, process that. Otherwise, eat 
+		inappropriate characters.
+		"""
 		keycode = evt.KeyCode()
-		if keycode> -1 and keycode < 256:
-			self.adjustDate( chr(keycode).lower(), evt )
+		if keycode < 0 or keycode > 255:
+			# Let it be handled higher up
+			evt.Skip()
+			return
+		key = chr(keycode).lower()
+		shortcutKeys = "t q + - m h y r [ ]".split()
+		dateEntryKeys = "0 1 2 3 4 5 6 7 8 9 / -".split()
+		
+		if key in shortcutKeys:
+			self.adjustDate(key)
+		elif key in dateEntryKeys:
+			# key can be used for date entry: allow
+			evt.Skip()
+		elif keycode in range(32, 129):
+			# key is in ascii range, but isn't one of the above
+			# allowed key sets. Disallow.
+			pass
 		else:
-			# Not a key we need to process
+			# Pass the key up the chain to process - perhaps a Tab, Enter, or Backspace...
 			evt.Skip()
 
 
-	def adjustDate(self, key, evt):
+	def adjustDate(self, key):
 		""" Modifies the current date value if the key is one of the 
-		shortcut keys. Otherwise, just passes the event for regular
-		textbox processing.
+		shortcut keys.
 		"""
 		# Save the original value for comparison
 		orig = self.date.GetJDN()
@@ -136,8 +152,8 @@ R : Last Day of yeaR
  			# Forward one month
  			self.monthInterval(1)
 		else:
-			# Some key other than a shortcut key
-			evt.Skip()
+			# This shouldn't happen, because onChar would have filtered it out.
+			dabo.infoLog.write("Warning in dDateTextBox.adjustDate: %s key sent." % key)
 			return
 		
 		if not self.dateOK:
@@ -151,7 +167,7 @@ R : Last Day of yeaR
 					self.dayInterval(1)
 				else:
 					self.dayInterval(-1)
-				self.adjustDate(key, evt)
+				self.adjustDate(key)
 	
 	
 	def dayInterval(self, days):

@@ -1,5 +1,5 @@
 import wx, datetime
-import dSpinner, dPanel, dDataControlMixin
+import dabo, dSpinner, dPanel, dDataControlMixin
 
 class BaseSpinner(dSpinner.dSpinner):
 	def initProperties(self):
@@ -50,11 +50,13 @@ class DaySpinner(BaseSpinner):
 			
 		
 class dDateControl(dPanel.dPanel, dDataControlMixin.dDataControlMixin):
+	""" Use dDateTextBox instead.
+	"""
 
 	def __init__(self, *args, **kwargs):
 		dPanel.dPanel.__init__(self, *args, **kwargs)
 		dDataControlMixin.dDataControlMixin.__init__(self)
-		
+		dabo.infoLog.write("Deprecation Warning: dDateControl shouldn't be used: use dDateTextBox instead.")
 		
 	def initProperties(self):
 		self.addObject(MonthSpinner, 'spnMonth')
