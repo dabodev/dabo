@@ -1,0 +1,13 @@
+import wx, dPemMixin
+
+class dDialog(wx.Dialog, dPemMixin.dPemMixin):
+	def __init__(self, parent=None, id=-1, title='', name='dDialog', *args, **kwargs):
+		self._baseClass = dDialog
+
+		pre = wx.PreDialog()
+		self._beforeInit(pre)                  # defined in dPemMixin
+		pre.Create(parent, id, title, name=name, style=pre.GetWindowStyle(), *args, **kwargs)
+
+		self.PostCreate(pre)
+		self.SetSizer(wx.BoxSizer(wx.VERTICAL))
+		self._afterInit()

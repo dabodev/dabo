@@ -16,6 +16,7 @@ from dComboBox import dComboBox
 from dCommandButton import dCommandButton
 from dControlMixin import dControlMixin
 from dDataControlMixin import dDataControlMixin
+from dDialog import dDialog
 from dEditBox import dEditBox
 from dForm import dForm
 from dFormDataNav import dFormDataNav
@@ -24,6 +25,7 @@ from dFormMixin import dFormMixin
 from dGauge import dGauge
 from dGridDataNav import dGridDataNav
 from dLabel import dLabel
+from dLogin import dLogin
 from dMainMenuBar import dMainMenuBar
 from dMenuBar import dMenuBar
 from dMenu import dMenu

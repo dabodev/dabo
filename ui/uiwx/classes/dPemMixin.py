@@ -25,6 +25,7 @@ class dPemMixin(dabo.common.dObject):
 
 	
 	def _beforeInit(self, pre):
+		self.acceleratorTable = []
 		self._name = '?'
 		self._pemObject = pre
 		self.initStyleProperties()
@@ -44,6 +45,7 @@ class dPemMixin(dabo.common.dObject):
 		
 
 	def __init__(self, *args, **kwargs):
+		
 		if self.Position == (-1, -1):
 			# The object was instantiated with a default position,
 			# which ended up being (-1,-1). Change this to (0,0). 
@@ -66,6 +68,8 @@ class dPemMixin(dabo.common.dObject):
 		self.initProperties()
 		self.initChildObjects()
 		self.afterInit()
+		
+		self.SetAcceleratorTable(wx.AcceleratorTable(self.acceleratorTable))
 		
 
 	def afterInit(self):

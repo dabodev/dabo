@@ -1,5 +1,6 @@
-import wx
+import wx, warnings
 import dControlMixin as cm
+from dabo.dLocalize import _
 
 class dCommandButton(wx.Button, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button.
@@ -32,18 +33,30 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
-	def _getDefault(self):
+	def _getCancelButton(self):
+		# need to implement
+		return False
+
+	def _setCancelButton(self, value):
+		warnings.warn(Warning, "CancelButton isn't implemented yet.")	
+	
+	def _getDefaultButton(self):
 		return self._pemObject.Parent.GetDefaultItem() == self
-	def _setDefault(self, value):
+	def _setDefaultButton(self, value):
 		if value:
 			self._pemObject.Parent.SetDefaultItem(self)
+			if wx.Platform == '__WXGTK__':
+				warnings.warn(Warning, "DefaultButton doesn't seem to work on GTK.")
 		else:
 			self._pemObject.SetDefaultItem(None)
 
 
 	# Property definitions:
-	Default = property(_getDefault, _setDefault, None, 
-						'Specifies whether this command button gets clicked on <Enter>. (bool)')
+	CancelButton = property(_getCancelButton, _setCancelButton, None,
+						_('Specifies whether this command button gets clicked on -Escape-. (bool)'))
+						
+	DefaultButton = property(_getDefaultButton, _setDefaultButton, None, 
+						_('Specifies whether this command button gets clicked on -Enter-. (bool)'))
 
 
 if __name__ == "__main__":

@@ -32,11 +32,12 @@
 
 		-- clean up and exit gracefully
 """
-import sys, os
+import sys, os, warnings
 import ui
 from biz import *
 from db import *
-import dabo.common
+import dabo.common, dSecurityManager
+from dLocalize import _
 
 class Collection(list):
 	""" 
@@ -113,7 +114,10 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 			wrapping the application object for the ui library
 			being used.
 		"""
-		self.uiApp.start(self)
+		if (not self.SecurityManager or not self.SecurityManager.RequireAppLogin
+			or self.SecurityManager.login()):
+		
+			self.uiApp.start(self)
 		self.finish()
 
 
@@ -122,7 +126,7 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		The main event loop has exited and the application
 			is about to finish.
 		"""
-		print "Application finished."
+		print _("Application finished.")
 		pass
 
 
@@ -278,11 +282,11 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 															dbName=dbName,
 															port=port)
 
-			print "%s database connection definition(s) loaded." % (
+			print _("%s database connection definition(s) loaded.") % (
 												len(self.dbConnectionDefs))
 
 		else:
-			print "No database connection definitions loaded (dbConnectionDefs.py)"
+			print _("No database connection definitions loaded (dbConnectionDefs.py)")
 
 
 	def _initUI(self):
@@ -302,7 +306,7 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 			# Custom app code already set this: don't touch
 			pass
 
-		print "User interface set to %s using module %s" % (self.uiType, self.uiModule)
+		print _("User interface set to %s using module %s") % (self.uiType, self.uiModule)
 
 
 	def _getAutoNegotiateUniqueNames(self):
@@ -314,8 +318,31 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 	def _setAutoNegotiateUniqueNames(self, value):
 		self._autoNegotiateUniqueNames = bool(value)
 		
-		
+	
+	def _getSecurityManager(self):
+		try:
+			return self._securityManager
+		except AttributeError:
+			return None
+			
+	def _setSecurityManager(self, value):
+		if isinstance(value, dSecurityManager.dSecurityManager):
+			if self.SecurityManager:
+				warnings.warn(Warning, _('SecurityManager previously set'))
+			self._securityManager = value
+		else:
+			raise TypeError, _('SecurityManager must descend from dSecurityManager.')
+			
+			
 	AutoNegotiateUniqueNames = property(_getAutoNegotiateUniqueNames,_setAutoNegotiateUniqueNames,
-						None, 'Specifies whether setting an object\'s name to a non-unique '
+						None, _('Specifies whether setting an object\'s name to a non-unique '
 						'value results in a unique integer being appended, or whether '
-						'a NameError is raised. Default is True: negotiate the name.')
+						'a NameError is raised. Default is True: negotiate the name.'))
+
+	SecurityManager = property(_getSecurityManager, _setSecurityManager,
+						None, _('Specifies the Security Manager, if any. You '
+						'must subclass dSecurityManager, overriding the appropriate hooks '
+						'and properties, and then set dApp.SecurityManager to an instance '
+						'of your subclass. There is no security manager by default - you '
+						'explicitly set this to use Dabo security.'))
+	

@@ -173,3 +173,13 @@ class uiApp(wx.App):
 	def onHelpAbout(self, event):
 		dlg = dAbout(self.mainFrame, self.dApp)
 		dlg.Show()
+
+		
+	def getLoginInfo(self):
+		""" Display the login form, and return the user/password as entered by the user.
+		"""
+		dlg = dLogin(None)
+		dlg.ShowModal()
+		user, password = dlg.user, dlg.password
+		dlg.Destroy()
+		return user, password

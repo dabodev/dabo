@@ -24,7 +24,7 @@ class dFormDataNav(frm.dForm):
 		if self.FormType == 'PickList':
 			# Map escape key to close the form
 			anId = wx.NewId()
-			self.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, wx.WXK_ESCAPE, anId),]))
+			self.acceleratorTable.append((wx.ACCEL_NORMAL, wx.WXK_ESCAPE, anId))
 			self.Bind(wx.EVT_MENU, self.Close, id=anId)
 
 							
