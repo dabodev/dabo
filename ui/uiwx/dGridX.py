@@ -587,16 +587,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""
 		pass
 
+
 	def _onGridColSize(self, evt):
 		"Occurs when the user resizes the width of the column."
-		col = evt.EventData["rowOrCol"]
-		fld = self._Table.colDefs[col].Field
-
-		colName = "Column_%s" % fld
-		width = self.GetColSize(col)
-		
-		self.Application.setUserSetting("%s.%s.%s.%s" % (
-				self.Form.Name, self.Name, colName, "Width"), width)
+		colNum = evt.EventData["rowOrCol"]
+		col = self.Columns[colNum]
+		colName = "Column_%s" % col.Field
+		width = self.GetColSize(colNum)
+		col.Width = width
 		self.onGridColSize(evt)
 	
 	def onGridColSize(self, evt): pass
