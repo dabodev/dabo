@@ -264,18 +264,19 @@ class dBizobj(dabo.common.dObject):
 		""" Iterates through all the records of the bizobj, and calls save()
 		for any record that has pending changes.
 		"""
-		if startTransaction:
+		useTransact = startTransaction or topLevel
+		if useTransact:
 			# Tell the cursor to issue a BEGIN TRANSACTION command
 			self.Cursor.beginTransaction()
 		
 		try:
-			self.scan(self._saveRowIfChanged, startTransaction, topLevel)
+			self.scan(self._saveRowIfChanged, startTransaction=False, topLevel=False)
 		except dException, e:
 			if startTransaction:
 				self.Cursor.rollbackTransaction()
 			raise dException, e
 		
-		if startTransaction:
+		if useTransact:
 			self.Cursor.commitTransaction()
 			
 	
@@ -306,9 +307,10 @@ class dBizobj(dabo.common.dObject):
 		# validation, an Exception will be raised.
 		self._validate()
 		
+		useTransact = startTransaction or topLevel
 		# See if we are saving a newly added record, or mods to an existing record.
 		isAdding = self.Cursor.isAdding()
-		if startTransaction:
+		if useTransact:
 			# Tell the cursor to issue a BEGIN TRANSACTION command
 			self.Cursor.beginTransaction()
 
@@ -326,9 +328,9 @@ class dBizobj(dabo.common.dObject):
 				child.saveAll(startTransaction=False, topLevel=False)
 
 			# Finish the transaction, and requery the children if needed.
-			if startTransaction:
+			if useTransact:
 				self.Cursor.commitTransaction()
-			if topLevel and self.RequeryChildOnSave:
+			if self.RequeryChildOnSave:
 				self.requeryAllChildren()
 
 			self.setMemento()
