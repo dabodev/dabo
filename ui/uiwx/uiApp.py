@@ -74,6 +74,12 @@ class uiApp(wx.App, dObject):
 		evt.Skip()
 			
 	
+	def onWinClose(self, evt):
+		"""Close the topmost window, if any."""
+		if self.ActiveForm:
+			self.ActiveForm.close()
+
+
 	def onFileExit(self, evt):
 		"""The MainForm contains the logic in its close methods to 
 		cycle through all the forms and determine if they can all be
