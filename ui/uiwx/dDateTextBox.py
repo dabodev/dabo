@@ -1,14 +1,11 @@
 import re
 import wx
 import wx.calendar
-import dabo
-
+import dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-
 from dabo.dLocalize import _
 import dTextBox, dPanel, dCommandButton
-import dabo.dEvents as dEvents
 
 
 
@@ -77,6 +74,8 @@ class dDateTextBox(dTextBox.dTextBox):
 		# Do we display a button on the right side for activating the calendar?
 		### TODO: still needs a lot of work to display properly.
 		self.showCalButton = False
+		# Temporary, while the new dEvents model is finished
+		self.useWxEvents = True
 	
 	
 	def afterInit(self):
@@ -87,7 +86,7 @@ class dDateTextBox(dTextBox.dTextBox):
 			self.calButton.Right = self.Right
 			self.calButton.Caption = "V"
 			self.calButton.Show(True)
-			self.calButton.bindEvent(dEvents.Hit, self.onDblClick)
+			self.calButton.bindEvent(dabo.dEvents.Hit, self.onDblClick)
 #			self.Parent.Bind(wx.EVT_BUTTON, self.onDblClick, id=self.calButton.GetId() )
 # 			calSizer = wx.BoxSizer(wx.HORIZONTAL)
 # 			calSizer.Add(self, 1, wx.EXPAND)
@@ -95,9 +94,12 @@ class dDateTextBox(dTextBox.dTextBox):
 			
 		# The first form is needed to avoid a GTK unicode menu from appearing:
 		self.Bind(wx.EVT_RIGHT_DOWN, self.onRightClick)
-		#self.bindEvent(dEvents.MouseRightDown, self.onRightClick)
-		self.bindEvent(dEvents.KeyChar, self.onChar)
-		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onDblClick)
+		#self.bindEvent(dabo.dEvents.MouseRightDown, self.onRightClick)
+		if self.useWxEvents:
+			self.Bind(wx.EVT_CHAR, self.onChar)
+		else:
+	 		self.bindEvent(dabo.dEvents.KeyChar, self.onChar)
+		self.bindEvent(dabo.dEvents.MouseLeftDoubleClick, self.onDblClick)
 		# Tooltip help
 		self.ToolTipText = """Available Keys:
 =============
@@ -157,14 +159,19 @@ C: Popup Calendar to Select
 		""" If a shortcut key was pressed, process that. Otherwise, eat 
 		inappropriate characters.
 		"""
-		keycode = evt.EventData["keyCode"]
+		if self.useWxEvents:
+			keycode = evt.GetKeyCode()
+		else:
+			keycode = evt.EventData["keyCode"]
 		if keycode < 0 or keycode > 255:
 			# Let it be handled higher up
 			return
-		evt.stop()
+		
+		# Tried adding this, but it doesn't do anything.
+		#evt.StopPropagation()
 		
 		key = chr(keycode).lower()
-		shortcutKeys = "tq+-mhyrc[]"
+		shortcutKeys = "t+-mhyrc[]"
 		dateEntryKeys = "0123456789/-"
 		
 		if key in shortcutKeys:
@@ -173,15 +180,16 @@ C: Popup Calendar to Select
 			# of this field to see if it is a full date or if the user is typing in
 			# a value.
 			adjust = True
-			if key in self.getCurrentFormat():
-				if self.strToDate(self.GetValue(), testing=True) is None:
-					adjust = False
-					evt.Skip()
-				else:
-					# They've just finished typing a new date, or are just
-					# positioned on the field. Either way, update the stored 
-					# date to make sure they are in sync.
-					self.Value = self.GetValue()
+			val = self.GetValue()
+			
+			if val and self.strToDate(val, testing=True) is None:
+				adjust = False
+				evt.Skip()
+			else:
+				# They've just finished typing a new date, or are just
+				# positioned on the field. Either way, update the stored 
+				# date to make sure they are in sync.
+				self.Value = val
 			if adjust:
 				self.adjustDate(key)
 	

@@ -1,6 +1,5 @@
 import warnings
 import wx, dabo, dabo.ui
-
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
@@ -8,7 +7,6 @@ import dControlMixin as cm
 import dPemMixin as pm
 from dabo.dLocalize import _
 from dIcons import getIconBitmap
-import dabo.dEvents as dEvents
 
 class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button.

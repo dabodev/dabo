@@ -1,11 +1,9 @@
 import wx, dabo, dabo.ui
 import types
-
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dDataControlMixin as dcm
-import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
@@ -15,6 +13,9 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				style=0, *args, **kwargs):
 
 		self._baseClass = dTextBox
+
+		# Handles different value types
+		self.valueType = types.StringType
 		
 		# If this is a password textbox, update the style parameter
 		if password:
@@ -33,8 +34,6 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	def initProperties(self):
 		dTextBox.doDefault()
 		self.SelectOnEntry = True
-		# Handles different value types
-		self.valueType = "string"
 
 
 	def initEvents(self):
@@ -124,9 +123,6 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		typ = type(value)
 		self.valueType = typ
 		strVal = value
-		
-		print "val/typ", value, typ
-		
 		# Must convert all to string for display
 		if typ == types.BooleanType:
 			if value:

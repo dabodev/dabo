@@ -3,7 +3,6 @@ import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner
 import dMessageBox, dIcons, dCommandButton, dDropdownList
 import dPanel, dDataNavGrid, dDateTextBox
 import dabo.dException as dException
-import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 
@@ -376,7 +375,7 @@ class dBrowsePage(DataNavPage):
 
 	def initEvents(self):
 		dBrowsePage.doDefault()
-		self.Form.bindEvent(dEvents.RowNumChanged, self.onRowNumChanged)
+		self.Form.bindEvent(dabo.dEvents.RowNumChanged, self.onRowNumChanged)
 		
 
 	def onRowNumChanged(self, evt):
@@ -397,17 +396,17 @@ class dBrowsePage(DataNavPage):
 		justCreated = False
 		row = col = 0
 		
+		if not self.itemsCreated:
+			self.createItems()
+			justCreated = True
 		if self.Form.preview:
-			if not self.itemsCreated:
-				self.createItems()
-				justCreated = True
 			if self.itemsCreated:
 				self.fillGrid()
 		else:
 			if bizobj and bizobj.RowCount >= 0:
-				if not self.itemsCreated:
-					self.createItems()
-					justCreated = True
+# 				if not self.itemsCreated:
+# 					self.createItems()
+# 					justCreated = True
 				if self.itemsCreated:
 					self.fillGrid()
 
@@ -698,7 +697,7 @@ class dChildViewPage(DataNavPage):
 							ref = PickList(self.Form)
 							self.pickListRef = ref
 						
-							self.bindEvent(dEvents.ItemPicked, self.newItemPicked)
+							self.bindEvent(dabo.dEvents.ItemPicked, self.newItemPicked)
 							ref.Show()
 						ref.Raise()
 					else:
