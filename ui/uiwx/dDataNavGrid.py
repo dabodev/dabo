@@ -154,31 +154,37 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		for col in self.showCols:
 			nm = col[0]
 			column = self.grid.fieldSpecs[nm]
-			colName = "Column%s" % nm
+			colName = "Column%s" % index
 			gridCol = index
 			fieldType = column["type"]
 
 			width = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
 					self.grid.Form.Name, 
-					self.grid.GetName(),
+					self.grid.Name,
 					colName,
 					"Width"))
 
 			if width == None:
 				# Do we use the settings in the fieldSpecs?
+				useFieldSpecWidths = True
 				
-				minWidth = 10 * len(self.colLabels[index])   ## Fudge!
-				if fieldType == "I":
-					width = 50
-				elif fieldType == "N":
-					width = 75
-				elif fieldType == "L":
-					width = 75
+				if useFieldSpecWidths:
+					width = int(column["listColWidth"])
 				else:
-					width = 200
-
-				if width < minWidth:
-					width = minWidth
+					# old way
+					minWidth = 10 * len(self.colLabels[index])   ## Fudge!
+					
+					if fieldType == "I":
+						width = 50
+					elif fieldType == "N":
+						width = 75
+					elif fieldType == "L":
+						width = 75
+					else:
+						width = 200
+	
+					if width < minWidth:
+						width = minWidth
 
 			self.grid.SetColSize(gridCol, width)
 			index += 1
@@ -369,13 +375,15 @@ class dDataNavGrid(dGrid.dGrid):
 	def OnColSize(self, evt):
 		""" Occurs when the user resizes the width of the column.
 		"""
+		
 		col = evt.GetRowOrCol()
 		width = self.GetColSize(col)
+		colName = "Column%s" % col
 		
 		self.Application.setUserSetting("%s.%s.%s.%s" % (
 						self.Form.Name, 
 						self.Name,
-						"Column%s" % self.GetTable().showCols[col][1],
+						colName,
 						"Width"), "I", width)
 		evt.Skip()
 
