@@ -151,7 +151,29 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 		'''
 		object = classRef(self, name=name, *args, **kwargs)
 
-				
+	
+	def reCreate(self, child=None):
+		''' Recreate self.
+		'''
+		if child:
+			propDict = {}
+			propList = child.getPropertyList()
+			for prop in propList:
+				propDict[prop] = eval('child.%s' % prop)
+			style = child.GetWindowStyle()
+			classRef = child.__class__
+			name = child.Name
+			child.Destroy()
+			self.addObject(classRef, name, style=style)
+			for prop in propList:
+				try:
+					exec('self.%s.%s = %s' % (name, prop, propDict[prop]))
+				except:
+					pass
+		else:
+			self.Parent.reCreate(self)
+		
+					
 	# The following 3 flag functions are used in some of the property
 	# get/set functions.
 	def hasWindowStyleFlag(self, flag):

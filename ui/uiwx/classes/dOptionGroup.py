@@ -21,7 +21,7 @@ class dOptionGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 			maxElements = pre._maxElements
 		except AttributeError:
 			maxElements = 1
-		
+
 		pre.Create(parent, id, label=label, choices=choices, majorDimension=maxElements,
 				name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
@@ -64,14 +64,14 @@ class dOptionGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 			return 3
 	def _setMaxElements(self, val):
 		self._pemObject._maxElements = int(val)
-
+		
 	def _getElement(self):
-		if self._pemObject.hasWindowStyleFlag(wx.RA_SPECIFY_ROWS):
+		if self.hasWindowStyleFlag(wx.RA_SPECIFY_ROWS):
 			return "Rows"
-		elif self._pemObject.hasWindowStyleFlag(wx.RA_SPECIFY_COLS):
+		elif self.hasWindowStyleFlag(wx.RA_SPECIFY_COLS):
 			return "Columns"
 		else:
-			self._pemObject.addWindowStyleFlag(wx.RA_SPECIFY_ROWS)
+			self.addWindowStyleFlag(wx.RA_SPECIFY_ROWS)
 			return "Rows"
 			
 	def _getElementEditorInfo(self):
@@ -79,15 +79,17 @@ class dOptionGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 		
 	def _setElement(self, val):
 		val = str(val)
-		self._pemObject.delWindowStyleFlag(wx.RA_SPECIFY_ROWS)
-		self._pemObject.delWindowStyleFlag(wx.RA_SPECIFY_COLS)
+		self.delWindowStyleFlag(wx.RA_SPECIFY_ROWS)
+		self.delWindowStyleFlag(wx.RA_SPECIFY_COLS)
 		
-		if val == "Rows":
-			self._pemObject.addWindowStyleFlag(wx.RA_SPECIFY_ROWS)
-		elif val == "Columns":
-			self._pemObject.addWindowStyleFlag(wx.RA_SPECIFY_COLS)
+		if val == "Row":
+			self.addWindowStyleFlag(wx.RA_SPECIFY_ROWS)
+		elif val == "Column":
+			self.addWindowStyleFlag(wx.RA_SPECIFY_COLS)
+		elif val == "None":
+			pass
 		else:
-			raise ValueError, "The only possible settings are 'Rows' and 'Columns'."
+			raise ValueError, "The only possible settings are 'None', 'Row', and 'Column'."
 			
 	def _getOptionList(self):
 		l = []
@@ -113,11 +115,12 @@ class dOptionGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 	# Property definitions:
 	MaxElements = property(_getMaxElements, _setMaxElements, None,
 						'Specifies the maximum rows, if Element=="Row", or the maximum columns, '
-						'if Element=="Col". When the max is reached, the option group will grow '
+						'if Element=="Column". When the max is reached, the option group will grow '
 						'in the opposite direction to accomodate. Read-only at runtime. (int).')
 	
 	Element = property(_getElement, _setElement, None,
 						'Specifies the direction that MaxElements is limited to. Read-only at runtime.\n'
+						'	"None"\n'
 						'	"Row"\n'
 						'	"Column"')
 	
