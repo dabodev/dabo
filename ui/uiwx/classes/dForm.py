@@ -43,8 +43,7 @@ class dForm(wxFrameClass, dFormMixin):
         self._primaryBizobj = None
         
         self.SaveAllRows = True    # Default should come from app
-        # Do we ask about unsaved changes when requerying?
-        self.ask2Save = True
+        self.AskToSave = True      # Display 'save changes?' prompt?
         
         self.dControls = {}
         self.controlWithFocus = None
@@ -244,7 +243,7 @@ class dForm(wxFrameClass, dFormMixin):
         self.activeControlValid()
         bizobj = self.getBizobj(dataSource)
         
-        if bizobj.isChanged(allRows=True) and self.ask2Save:
+        if bizobj.isChanged(allRows=True) and self.AskToSave:
             response = dMessageBox.areYouSure(_("Do you wish to save your changes?"),
                                               cancelButton=True)
             
@@ -436,13 +435,19 @@ class dForm(wxFrameClass, dFormMixin):
     def _getSaveAllRows(self):
         return self._SaveAllRows
     def _setSaveAllRows(self, value):
-        self._SaveAllRows = value
+        self._SaveAllRows = bool(value)
         
+    def _getAskToSave(self):
+        return self._AskToSave
+    def _setAskToSave(self, value):
+        self._AskToSave = bool(value)
         
     # Property definitions:
     SaveAllRows = property(_getSaveAllRows, _setSaveAllRows, None, 
                     'Specifies whether dataset is row- or table-buffered. (bool)')
                     
+    AskToSave = property(_getAskToSave, _setAskToSave, None, 
+                    'Specifies whether a save prompt appears before the data is requeried. (bool)')
 
                     
 if __name__ == "__main__":
