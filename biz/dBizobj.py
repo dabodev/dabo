@@ -113,7 +113,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		executing.
 		"""
 		errMsg = self.beforeCreateCursor()
-		if errMsg
+		if errMsg:
 			raise dException.dException, errMsg
 			
 		cursorClass = self._getCursorClass(self.dCursorMixinClass,
@@ -156,7 +156,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		"""
 		errMsg = self.beforeFirst()
 		if not errMsg:
-			errMsg = self.beforePointerMove():
+			errMsg = self.beforePointerMove()
 		if errMsg:
 			raise dException.dException, errMsg
 
@@ -175,7 +175,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		"""
 		errMsg = self.beforePrior()
 		if not errMsg:
-			errMsg = self.beforePointerMove():
+			errMsg = self.beforePointerMove()
 		if errMsg:
 			raise dException.dException, errMsg
 
@@ -194,7 +194,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		"""
 		errMsg = self.beforeNext()
 		if not errMsg:
-			errMsg = self.beforePointerMove():
+			errMsg = self.beforePointerMove()
 		if errMsg:
 			raise dException.dException, errMsg
 
@@ -213,7 +213,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		"""
 		errMsg = self.beforeLast()
 		if not errMsg:
-			errMsg = self.beforePointerMove():
+			errMsg = self.beforePointerMove()
 		if errMsg:
 			raise dException.dException, errMsg
 
@@ -229,7 +229,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		"""
 		errMsg = self.beforeSetRowNumber()
 		if not errMsg:
-			errMsg = self.beforePointerMove():
+			errMsg = self.beforePointerMove()
 		if errMsg:
 			raise dException.dException, errMsg
 			
@@ -301,7 +301,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		"""
 		errMsg = self.beforeCancel()
 		if not errMsg:
-			errMsg = self.beforePointerMove():
+			errMsg = self.beforePointerMove()
 		if errMsg:
 			raise dException.dException, errMsg
 
@@ -321,7 +321,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		"""
 		errMsg = self.beforeDelete()
 		if not errMsg:
-			errMsg = self.beforePointerMove():
+			errMsg = self.beforePointerMove()
 		if errMsg:
 			raise dException.dException, errMsg
 
@@ -366,7 +366,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		"""
 		errMsg = self.beforeNew()
 		if not errMsg:
-			errMsg = self.beforePointerMove():
+			errMsg = self.beforePointerMove()
 		if errMsg:
 			raise dException.dException, errMsg
 
