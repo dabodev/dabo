@@ -2,7 +2,7 @@
 
 import dynamicViewWidgets as dynview
 import sys, os, wx, wx.help, mainMenu
-import db
+import dabo.db
 
 class MainFrame(wx.MDIParentFrame):
     def __init__(self, parent, ID, title, app):

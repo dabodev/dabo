@@ -50,20 +50,6 @@ import wxDabo as uiModule
 #import curses as uiModule
 #import qt as uiModule
 
-# Now, whatever the uiType, it's module is in uiModule. Import the dWidgets
+# Now, whatever the uiType, it's module is in uiModule. Import the app object
 # into the dabo.ui namespace
 dApp = uiModule.dApp()
-from uiModule import dForm
-from uiModule import dPageFrame
-from uiModule import dPage
-from uiModule import dGrid
-from uiModule import dColumn
-from uiModule import dTextBox
-from uiModule import dEditBox
-from uiModule import dSpinner
-from uiModule import dOptionGroup
-from uiModule import dCheckBox
-from uiModule import dCommandButton
-from uiModule import dMenu
-from uiModule import dToolBar
-from uiModule import dStatusBar
