@@ -14,6 +14,30 @@ from dCommandButton import dCommandButton
 from dSpinner import dSpinner
 from dEditBox import dEditBox
 from dVCR import dVCR
+from dabo.biz import dBizobj
+from dabo.db.dConnection import dConnection
+
+class bizZip(dBizobj):
+    dataSource = "zipcodes"
+    keyField = "iid"
+    sql = "select * from zipcodes where ccity like 'san f%' "
+    defaultValues = {"ccity":"Penfield", "cStateProv":"NY", "czip":"14526"}
+
+def getConnInfo():
+    from dabo.db.dConnectInfo import dConnectInfo
+    ci = dConnectInfo('MySQL')
+    ci.host = 'leafe.com'
+    ci.dbName = "webtest"
+    ci.user = 'test'
+    ci.password = 'test3'
+    return ci
+
+def openConn():
+    return dConnection(getConnInfo())
+    
+def getBiz():
+    biz = bizZip(openConn())
+    return biz
 
 class Test(object):
 
@@ -36,6 +60,10 @@ class Test(object):
         frame.SetSize((640,480))
         frame.debug = True
         frame.SetLabel("A test of all the dControls")
+        
+        biz = getBiz()
+        frame.addBizobj(biz)
+        
         panel = wx.Panel(frame, -1)
         
         labelWidth = 150
@@ -43,8 +71,9 @@ class Test(object):
         
         vs = wx.BoxSizer(wx.VERTICAL)
 
-        for obj in ((dTextBox(panel), "txt1"), 
-                    (dTextBox(panel), "txt2"),
+        for obj in ((dTextBox(panel), "txtCounty", "ccounty"), 
+                    (dTextBox(panel), "txtCity", "ccity"),
+                    (dTextBox(panel), "txtZipcode", "czip"),
                     (dEditBox(panel), "edt1"),
                     (dEditBox(panel), "edt2"),
                     (dSpinner(panel), "spn1"),
@@ -64,6 +93,13 @@ class Test(object):
 
             object.SetName("%s" % obj[1])
             object.debug = True # shows the events
+            
+            object.dataSource = biz.dataSource
+            if len(obj) > 2:
+                # set the dataField:
+                object.dataField = obj[2]
+                object.refresh()
+                
             bs.Add(object, 1, expandFlags | wx.ALL, 0)
 
             if isinstance(object, dEditBox):

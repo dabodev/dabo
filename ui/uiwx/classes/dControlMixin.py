@@ -26,6 +26,15 @@ class dControlMixin:
         self.dForm = self.getDform()
         self.addToDform()
     
+    def refresh(self):
+        ''' Ask the dForm for the current value of the field.'''
+        
+        if self.dataSource and self.dataField:
+            val = self.dForm.getFieldVal(self.dataSource, self.dataField)
+            self.SetValue(val)
+        else:
+            print "... no connected dataSource or dataField"
+        
     def getDform(self):
         ''' Crawl up the containership tree to find the dForm, if any. '''
         obj = self
@@ -144,10 +153,8 @@ class dControlMixin:
         event.Skip()
     
     def onValueRefresh(self, event): 
-        ''' Ask the dForm for the current value of the field.'''
-        form = self.FindWindowById(event.GetId())
-        
         print "onValueRefresh received by %s" % (self.GetName(),)
+        self.refresh()
         event.Skip()
     
     def _getEventNameFromIdentifier(self, Id):

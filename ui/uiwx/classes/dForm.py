@@ -1,25 +1,48 @@
 import wx, dEvents, dControlMixin
 
 class dForm(wx.Frame):
-    def __init__(self, frame=None):
+    def __init__(self, frame=None, resourceString=None):
         wx.Frame.__init__(self, frame, -1, "")
         self.SetName("dForm")
         self.SetLabel("dForm")
         self.debug = False
-        self._bizobjs = []
-        self._primaryBizobj = None
-        self._dControls = []
-    
+        
+        self.bizobjs = []
+        self.primaryBizobj = 0
+        self.bizobjNames = {}
+        
+        self.dControls = []
+        self._resourceString = resourceString
+        
+        self.setupResources()
+            
+    def setupResources(self):
+        ''' Read from the resource file for this dForm,
+            instantiating the contained controls and
+            nonvisible objects, and setting properties
+            of this dForm.
+            
+            As we haven't even defined our resource file
+            format yet, this is just a stub.
+        '''
+        rs = self._resourceString
+        
     def EVT_VALUEREFRESH(win, id, func):
         win.Connect(id, -1, dEvents.EVT_VALUEREFRESH, func)
     
+    def addBizobj(self, bizobj):
+        ''' Add the passed dBizobj reference to this form. '''
+        self.bizobjs.append(bizobj)
+        self.bizobjNames[bizobj.dataSource] = len(self.bizobjs) - 1
+        print "added bizobj with dataSource of %s" % bizobj.dataSource
+        
     def addControl(self, control):
         ''' Add the passed dControl reference to this form.
         
             This happens pretty much behind the scenes, from
             dControlMixin.__init__().
         '''
-        self._dControls.append(control)
+        self.dControls.append(control)
         print "added control %s" % control.GetName()
         
         # Set up the frame to receive the notification that 
@@ -55,21 +78,47 @@ class dForm(wx.Frame):
         self.GetEventHandler().ProcessEvent(evt)
 
     def first(self):
-        print "in dForm.first(): pretending that success returned from bizobj:"
+        if self.bizobjs:
+            biz = self.bizobjs[self.primaryBizobj]
+            response = biz.first()
+            print response
+        else:
+            print "in dForm.first(): No bizobjs defined."
         self.refreshControls()
     
     def last(self):
-        print "in dForm.last(): pretending that success returned from bizobj:"
+        if self.bizobjs:
+            biz = self.bizobjs[self.primaryBizobj]
+            response = biz.last()
+            print response
+        else:
+            print "in dForm.first(): No bizobjs defined."
         self.refreshControls()
         
     def prior(self):
-        print "in dForm.prior(): pretending that success returned from bizobj:"
+        if self.bizobjs:
+            biz = self.bizobjs[self.primaryBizobj]
+            response = biz.prior()
+            print response
+        else:
+            print "in dForm.first(): No bizobjs defined."
         self.refreshControls()
         
     def next(self):
-        print "in dForm.next(): pretending that success returned from bizobj:"
+        if self.bizobjs:
+            biz = self.bizobjs[self.primaryBizobj]
+            response = biz.next()
+            print response
+        else:
+            print "in dForm.first(): No bizobjs defined."
         self.refreshControls()
     
+    def getFieldVal(self, dataSource, fieldSource):
+        #print "bizobjs", self.bizobjs
+        #print "bizobjNames", self.bizobjNames
+        bizobj = self.bizobjs[self.bizobjNames[dataSource]]
+        return bizobj.getFieldVal(fieldSource)
+        
 if __name__ == "__main__":
     import test
     test.Test().runTest(dForm)
