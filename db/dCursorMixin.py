@@ -1,4 +1,4 @@
-import types, datetime, inspect
+import types, datetime, inspect, sys, re
 
 import dabo
 import dabo.dConstants as k
@@ -6,7 +6,6 @@ from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
 import dabo.dException as dException
 import dabo.common
-import sys
 
 class dCursorMixin(dabo.common.dObject):
 	def __init__(self, sql="", *args, **kwargs):
@@ -329,7 +328,53 @@ class dCursorMixin(dabo.common.dObject):
 					break
 		else:
 			self.RowNumber = 0
+	
+	
+	def cursorToXML(self):
+		""" Returns an XML string containing the information necessary to 
+		re-create this cursor.
+		"""
+		base = """<?xml version="1.0"?>
+<dabocursor xmlns="http://www.dabodev.com"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.dabodev.com dabocursor.xsd"
+xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
+	<cursor autopopulate="%s" keyfield="%s" table="%s">
+%s
+	</cursor>
+</dabocursor>"""
 
+		rowTemplate = """		<row>
+%s
+		</row>
+"""
+		
+		colTemplate = """			<column name="%s" type="%s">%s</column>"""
+
+		rowXML = ""
+		for rec in self._records:
+			recInfo = [ colTemplate % (k, self.getType(v), self.escape(v)) 
+					for k,v in rec.items() 
+					if k != "dabo-memento"]
+			rowXML += rowTemplate % "\n".join(recInfo)
+		return base % (self.AutoPopulatePK, self.KeyField, self.Table, rowXML)
+
+	
+	def getType(self, val):
+		try:
+			ret = re.search("type '([^']+)'", str(type(val))).groups()[0]
+		except:
+			ret = "-unknown-"
+		return ret
+	
+	
+	def escape(self, val):
+		""" Provides the proper escaping of values in XML output """
+		ret = val
+		if type(val) in (str, unicode):
+			if ("\n" in val) or ("<" in val) or ("&" in val):
+				ret = "<![CDATA[%s]]>" % val
+		return ret
 
 	def setNonUpdateFields(self, fldList=[]):
 		self.nonUpdateFields = fldList
