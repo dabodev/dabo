@@ -5,7 +5,7 @@ from dabo.dLocalize import _
 from dabo.ui.dPemMixinBase import dPemMixinBase
 import dabo.dEvents as dEvents
 import dabo.common.dColors as dColors
-
+import dKeys
 
 class dPemMixin(dPemMixinBase):
 	""" Provides Property/Event/Method interfaces for dForms and dControls.
@@ -142,7 +142,7 @@ class dPemMixin(dPemMixinBase):
 
 			
 	def _beforeInit(self, pre):
-		self.acceleratorTable = []
+		self._acceleratorTable = []
 		self._name = "?"
 		self._pemObject = pre
 		self.initStyleProperties()
@@ -175,7 +175,7 @@ class dPemMixin(dPemMixinBase):
 		self.afterInit()
 		
 		try:
-			self.SetAcceleratorTable(wx.AcceleratorTable(self.acceleratorTable))
+			self.SetAcceleratorTable(wx.AcceleratorTable(self._acceleratorTable))
 		except:
 			pass
 		self._initEvents()
@@ -298,10 +298,45 @@ class dPemMixin(dPemMixinBase):
 	
 	def __onWxResize(self, evt):
 		self.raiseEvent(dEvents.Resize, evt)
+
+
+	def bindKey(self, keyCombo, callback):
+		"""Bind a key sequence such as "ctrl+c" to a callback function.
+
+		See dKeys.keyStrings for the valid string key codes.
+		See dKeys.modifierStrings for the valid modifier codes.
+
+		Examples:
+			# When user presses <esc>, cancel the form:
+			self.bindKey("esc", self.Close)
+
+			# When user presses <ctrl><w>, close the form:
+			self.bindKey("ctrl+w", self.Close)
+		"""
+		keys = keyCombo.split("+")
+
+		# The modifier keys, if any, comprise all but the last key in keys
+		mods = keys[:-1]
+		key = keys[-1]
+
+		# Convert the string mods and key into the correct parms for wx:
+		flags = dKeys.mod_Normal
+		for mod in mods:
+			flags = flags | dKeys.modifierStrings[mod]
+
+		try:
+			keyCode = dKeys.keyStrings[key]
+		except KeyError:
+			# It isn't a special key. Get the code from the ascii table:
+			keyCode = ord(key)
+
+		# Now, set up the accelerator table:
+		anId = wx.NewId()
+		self._acceleratorTable.append((flags, keyCode, anId))
+		self.Bind(wx.EVT_MENU, callback, id=anId)
 		
-		
+
 	def getPropertyInfo(self, name):
-		#d = dPemMixin.doDefault(name)   # the property helper does most of the work
 		d = super(dPemMixin, self).getPropertyInfo(name)
 
 		# List of all props we ever want to show in the Designer

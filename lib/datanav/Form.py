@@ -48,9 +48,7 @@ class Form(dabo.ui.dForm):
 		super(Form, self)._afterInit()
 		if self.FormType == 'PickList':
 			# Map escape key to close the form
-			anId = wx.NewId()
-			self.acceleratorTable.append((wx.ACCEL_NORMAL, wx.WXK_ESCAPE, anId))
-			self.Bind(wx.EVT_MENU, self.Close, id=anId)
+			self.bindKey("esc", self.Close)
 
 			
 	def save(self, dataSource=None):

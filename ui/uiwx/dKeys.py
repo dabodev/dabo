@@ -1,5 +1,6 @@
 import wx
 
+key_Alt = wx.WXK_ALT
 key_Back = wx.WXK_BACK
 key_Tab = wx.WXK_TAB
 key_Return = wx.WXK_RETURN
@@ -116,4 +117,61 @@ arrowKeys = {
 		"down" : key_Down,
 		"left" : key_Left,
 		"right" : key_Right }
-		
+
+modifierStrings = {
+	"alt": mod_Alt,
+	"shift": mod_Shift,
+	"ctrl": mod_Ctrl,
+}
+
+## pkm: I didn't include all the keycodes below - I want to see what is
+##      actually necessary to add. Do we really need separate codes for
+##      the '*' on the numpad versus the '*' on the keyboard, for instance.
+##      Has anyone ever seen a keyboard in real life with a F24 key?
+keyStrings = {
+	"alt": key_Alt,
+	"bksp": key_Back,
+	"backspace": key_Back,
+	"tab": key_Tab,
+	"enter": key_Return,
+	"return": key_Return,
+	"esc": key_Escape,
+	"escape": key_Escape,
+	"space": key_Space,
+	"delete": key_Delete,
+	"start": key_Start,
+	"clear": key_Clear,
+	"shift": key_Shift,
+	"ctrl": key_Control,
+	"control": key_Control,
+	"menu": key_Menu,
+	"pause": key_Pause,
+	"capslock": key_Capital,
+	"pgup": key_Pageup,
+	"pageup": key_Pageup,
+	"pgdn": key_Pagedown,
+	"pagedown": key_Pagedown,
+	"end": key_End,
+	"home": key_Home,
+	"left": key_Left,
+	"up": key_Up,
+	"right": key_Right,
+	"down": key_Down,
+	"print": key_Print,
+	"ins": key_Insert,
+	"insert": key_Insert,
+	"f1": key_F1,
+	"f2": key_F2,
+	"f3": key_F3,
+	"f4": key_F4,
+	"f5": key_F5,
+	"f6": key_F6,
+	"f7": key_F7,
+	"f8": key_F8,
+	"f9": key_F9,
+	"f10": key_F10,
+	"f11": key_F11,
+	"f12": key_F12,
+	"numlock": key_Numlock,
+	"scroll": key_Scroll,
+}

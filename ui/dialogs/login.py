@@ -127,14 +127,10 @@ class Login(dabo.ui.dDialog):
 		self.cmdCancel.bindEvent(dEvents.Hit, self.onCancel)
 		
 		# Map escape key to cancelbutton:
-		anId = wx.NewId()
-		self.acceleratorTable.append((dKeys.mod_Normal, dKeys.key_Escape, anId))
-		self.Bind(wx.EVT_MENU, self.onCancel, id=anId)
+		self.bindKey("esc", self.onCancel)
 
 		# Map enter key to accept button:
-		anId = wx.NewId()
-		self.acceleratorTable.append((dKeys.mod_Normal, dKeys.key_Return, anId))
-		self.Bind(wx.EVT_MENU, self.onAccept, id=anId)
+		self.bindKey("enter", self.onAccept)
 
 		
 	def setMessage(self, message):
