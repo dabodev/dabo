@@ -174,7 +174,7 @@ class dPemMixin(dPemMixinBase):
 	
 	def __onWxResize(self, evt):
 		self.raiseEvent(dEvents.Resize, evt)
-				
+		
 		
 	def getPropertyInfo(self, name):
 		d = dPemMixin.doDefault(name)   # the property helper does most of the work
@@ -336,7 +336,8 @@ class dPemMixin(dPemMixinBase):
 
 	def _setWidth(self, width):
 		self._pemObject.SetSize((int(width), self._pemObject.GetSize()[1]))
-		self._pemObject.SetMinSize(self._pemObject.GetSize())
+		if not isinstance(self, wx.Frame):
+			self._pemObject.SetMinSize(self._pemObject.GetSize())
 
 
 	def _getHeight(self):
@@ -347,7 +348,8 @@ class dPemMixin(dPemMixinBase):
 
 	def _setHeight(self, height):
 		self._pemObject.SetSize((self._pemObject.GetSize()[0], int(height)))
-		self._pemObject.SetMinSize(self._pemObject.GetSize())
+		if not isinstance(self, wx.Frame):
+			self._pemObject.SetMinSize(self._pemObject.GetSize())
 
 
 	def _getSize(self): 
@@ -355,7 +357,8 @@ class dPemMixin(dPemMixinBase):
 
 	def _setSize(self, size):
 		self._pemObject.SetSize(size)
-		self._pemObject.SetMinSize(size)
+		if not isinstance(self, wx.Frame):
+			self._pemObject.SetMinSize(size)
 
 	def _getName(self):
 		name = self._pemObject.GetName()
