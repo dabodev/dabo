@@ -103,3 +103,13 @@ class dControlMixin(pm.dPemMixin):
 		if self.debug:
 			dabo.infoLog.write(_("onMouseLeftDoubleClick received by %s") % self.Name)
 		event.Skip()
+
+	def onKeyChar(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onKeyChar received by %s. Key: %s") % (self.Name, chr(event.KeyCode())))
+		event.Skip()
+		
+	def onKeyDown(self, event):
+		if self.debug:
+			dabo.infoLog.write(_("onKeyDown received by %s. KeyCode: %s") % (self.Name, event.KeyCode()))
+		event.Skip()

@@ -1,7 +1,13 @@
+import wx
 from uiApp import uiApp
 
 uiType = {'shortName': 'wx', 'moduleName': 'uiwx', 'longName': 'wxPython'}
 
+# The wx app object must be created before working with anything graphically.
+# As we don't want to require people to use dApp, and as dApp is the one that
+# creates wx.App (via uiApp), let's create an initial app object just to get
+# it loaded and make wx happy. It'll get replaced when dApp instantiates.
+#app = wx.PySimpleApp()
 
 # Import into public namespace:
 from dAbout import dAbout

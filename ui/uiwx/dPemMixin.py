@@ -94,6 +94,8 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.bindEvent(dEvents.MouseRightClick, self.onMouseRightClick)
 		self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
 		self.bindEvent(dEvents.MouseLeave, self.onMouseLeave)
+		self.bindEvent(dEvents.KeyChar, self.onKeyChar)
+		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
 	
 	
 	def _onWxMouseLeftDown(self, event):
@@ -172,6 +174,20 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		
 	def onMouseRightClick(self, event):
 		""" Occurs when a mouse right-click happens on the control or form.
+		
+		Override in subclasses.
+		"""
+		event.Skip()
+		
+	def onKeyChar(self, event):
+		""" Occurs when a character is entered on the control.
+		
+		Override in subclasses.
+		"""
+		event.Skip()
+		
+	def onKeyDown(self, event):
+		""" Occurs when a key is pressed on the control.
 		
 		Override in subclasses.
 		"""

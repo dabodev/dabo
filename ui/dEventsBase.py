@@ -4,7 +4,7 @@ from dabo.dLocalize import _
 # individual ui libraries.
 events = (
 	("Activate", _("Occurs when the form becomes active.")),
-	("Button", _("Occurs when the command button is pushed.")),
+	("Button", _("Occurs when the button is pushed.")),
 	("CheckBox", _("Occurs when the checkbox state is toggled.")),
 	("Choice", _("Occurs when an item is picked from a list box.")),
 	("Close", _("Occurs when the user closes the form.")),
@@ -33,7 +33,6 @@ events = (
 	("Scroll", _("Occurs when the slider scrollbar is moved.")),
 	("Spinner", _("Occurs when the spinner is incremented.")),
 	("Text", _("Occurs when text is entered into a text box or spinner.")),
-	("ToggleButton", _("Occurs when the toggle button is pushed.")),
 	("Timer", _("Occurs when the timer reaches its interval")),
 	("ValueRefresh", _("Occurs when the form wants the controls to refresh their values.")),
 	("ValueChanged", _("Occurs when a control's value has changed.")),
