@@ -406,6 +406,51 @@ class dPemMixin(dPemMixinBase):
 				uiCallAfterFunc=wx.CallAfter, *args, **kwargs)
 	
 	
+	def _getControllingSizerItem(self):
+		"""Returns the sizer item (or None if not in a sizer) that controls
+		the sizing of this control. It is useful for getting information
+		about how the item is being sized, and for changing those 
+		settings.
+		"""
+		pos = self.getPositionInSizer()
+		if pos is None:
+			# Nothing to do here...
+			return None
+		sz = self.GetContainingSizer()
+		return sz.GetChildren()[pos]
+	
+	
+	def _getSizerInfo(self, prop):
+		"""Returns True or False based on whether the property
+		passed is contained in the sizer item's flags.
+		"""
+		prop = prop.lower().strip()
+		flag = self._getControllingSizerItem().GetFlag()
+		propDict = {"left" : wx.ALIGN_LEFT, 
+			"right" : wx.ALIGN_RIGHT,
+			"center" : wx.ALIGN_CENTER, 
+			"centre" : wx.ALIGN_CENTER,
+			"top" : wx.ALIGN_TOP, 
+			"bottom" : wx.ALIGN_BOTTOM, 
+			"middle" : wx.ALIGN_CENTER_VERTICAL,
+			"borderbottom" : wx.BOTTOM,
+			"borderleft" : wx.LEFT,
+			"borderright" : wx.RIGHT, 
+			"bordertop" : wx.TOP, 
+			"borderall" : wx.ALL, 
+			"expand" : wx.EXPAND,
+			"grow" : wx.EXPAND,
+			"fixed" : wx.FIXED_MINSIZE }
+		ret = None
+		if prop in propDict:
+			val = propDict[prop]
+			if flag & val:
+				ret = True
+			else:
+				ret = False
+		return ret
+		
+		
 	def getPositionInSizer(self):
 		""" Returns the current position of this control in its containing
 		sizer. This is useful for when a control needs to be re-created in

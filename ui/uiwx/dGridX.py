@@ -158,10 +158,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		oldCol = self.grid.CurrCol  # current column per the grid
 		if not oldCol:
 			oldCol = 0
-
 		# Get the data from the parent grid.
 		dataSet = self.grid.getDataSet()
-		
 		if not force:
 			if self.__currData == dataSet:
 				# Nothing's changed; no need to re-fill the table
@@ -214,7 +212,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			msg = None
 		if msg:        
 			self.grid.ProcessTableMessage(msg)
-
 		# Column widths come from dApp user settings, the fieldSpecs, or get sensible
 		# defaults based on field type.
 		idx = 0
@@ -351,10 +348,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Grab the DataSet parameter if passed
 		self._passedDataSet = self.extractKey(kwargs, "DataSet")
 		self.dataSet = []
-		
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		# List of column specs
 		self.Columns = []
+		
+		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
 		
 	def _afterInit(self):
@@ -383,6 +380,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Sometimes the grid itself initiated the change, and doesn't
 		# need to be notified.
 		self._ignoreColUpdates = False
+		# When calculating auto-size widths, we don't want to use
+		# the normal means of getting data sets.
+		self.inAutoSizeCalc = False
 
 		self.currSearchStr = ""
 		self.incSearchTimer = dabo.ui.dTimer(self)
@@ -391,6 +391,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.sortedColumn = None
 		self.sortOrder = ""
 		self.caseSensitiveSorting = False
+		# If there is a custom sort method, set this to True
+		self.customSort = False
 
 		# By default, row labels are not shown. They can be displayed
 		# if desired by setting ShowRowLabels = True, and their size
@@ -407,6 +409,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.headerSizing = False
 
 		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
+		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
 		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onLeftDClick)
 		
 		self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.__onWxGridRowSize)
@@ -475,7 +478,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			except: pass
 	
 	
-	def buildFromDataSet(self, ds, keyCaption=None):
+	def buildFromDataSet(self, ds, keyCaption=None, 
+			columnsToSkip=[], colOrder={}, autoSizeCols=True):
 		"""This method will create a grid for a given data set.
 		A 'data set' is a sequence of dicts, each containing field/
 		value pairs. The columns will be taken from ds[0].keys(),
@@ -483,10 +487,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		the optional keyCaption parameter is passed. This parameter
 		is a 1:1 dict containing the data set keys as its keys,
 		and the desired caption as the corresponding value.
+		If the columnsToSkip parameter is set, any column in the 
+		data with a key in that list will not be added to the grid.
+		The columns will be in the order returned by ds.keys(), unless
+		the optional colOrder parameter is passed. Like the keyCaption
+		property, this is a 1:1 dict containing key:order.
 		"""
 		if not ds:
 			return
-		self.Form.lockScreen()
+#		self.Form.lockScreen()
 		origColNum = self.ColumnCount
 		self.Columns = []
 		self.dataSet = ds
@@ -494,7 +503,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Dabo cursors add some columns to the data set. These
 		# artifacts need to be removed. They all begin with 'dabo-'.
 		colKeys = [key for key in firstRec.keys()
-				if key[:5] != "dabo-"]
+				if (key[:5] != "dabo-") and (key not in columnsToSkip)]
 		# Update the number of columns
 		colChange = len(colKeys) - origColNum 
 		if colChange != 0:
@@ -523,14 +532,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			col.Caption = cap
 			col.Field = colKey
 			col.DataType = type(firstRec[colKey])
+			# See if any order was specified
+			if colOrder.has_key(colKey):
+				col.Order = colOrder[colKey]
 			# Use a default width
 			col.Width = -1
 			self.Columns.append(col)
 		# Populate the grid
 		self.fillGrid(True)
-		self.autoSizeCol("all")
+		if autoSizeCols:
+			self.autoSizeCol("all")
 		self._ignoreColUpdates = False
-		self.Form.unlockScreen()
+#		self.Form.unlockScreen()
 
 
 	def autoSizeCol(self, colNum):
@@ -539,10 +552,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		all columns will be auto-sized.
 		"""	
 		# lock the screen
-		self.Form.lockScreen()
+#		self.Form.lockScreen()
 		# Changing the columns' Width prop will send an update
 		# message back to this grid. We want to ignore that
 		self._ignoreColUpdates = True
+		# We also don't want the Table's call to grid.getDataSet()
+		# to wipe out our temporary changes.
+		self.inAutoSizeCalc = True
 		# We need to account for header caption width, too. Add
 		# a row to the data set containing the header captions, and 
 		# then remove the row afterwards.
@@ -568,9 +584,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			pass
 		self.dataSet.remove(capRow)
 		self.dataSet = tuple(self.dataSet)
-		self.fillGrid(True)
+		self.fillGrid(False)
+		self.inAutoSizeCalc = False
 		self._ignoreColUpdates = False
-		self.Form.unlockScreen()		
+#		self.Form.unlockScreen()		
 
 
 	def getDataSet(self):
@@ -906,17 +923,23 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		if keyCode == dKeys.keyStrings["enter"]:           # Enter
 			self.onEnterKeyAction()
+			evt.stop()
 		else:
 			if keyCode == dKeys.keyStrings["delete"]:      # Del
 				self.onDeleteKeyAction()
+				evt.stop()
 			elif keyCode == dKeys.keyStrings["escape"]:
 				self.onEscapeAction()
+				evt.stop()
 			elif char and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
 				self.addToSearchStr(char)
 				# For some reason, without this the key happens twice
 				evt.stop()
 			else:
-				self.processKeyPress(char)
+				if self.processKeyPress(keyCode):
+					# Key was handled
+					evt.stop()
+				
 
 
 	def processSort(self, gridCol=None):
@@ -945,30 +968,35 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.sortOrder = sortOrder
 		self.sortedColumn = columnToSort
 		
-		# Create the list to hold the rows for sorting
-		caseSensitive = self.caseSensitiveSorting
-		sortList = []
-		for row in self.dataSet:
-			sortList.append([row[columnToSort], row])
-		# At this point we have a list consisting of lists. Each of these member
-		# lists contain the sort value in the zeroth element, and the row as
-		# the first element.
-		# First, see if we are comparing strings
-		sortingStrings = type(sortList[0][0]) in (str,unicode)
-		if sortingStrings and not caseSensitive:
-			# Use a case-insensitive sort.
-			sortList.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
+		if self.customSort:
+			# Grids tied to bizobj cursors may want to use their own
+			# sorting.
+			self.sort()
 		else:
-			sortList.sort()
-
-		# Unless DESC was specified as the sort order, we're done sorting
-		if sortOrder == "DESC":
-			sortList.reverse()
-		# Extract the rows into a new list, then set the dataSet to the new list
-		newRows = []
-		for elem in sortList:
-			newRows.append(elem[1])
-		self.dataSet = newRows
+			# Create the list to hold the rows for sorting
+			caseSensitive = self.caseSensitiveSorting
+			sortList = []
+			for row in self.dataSet:
+				sortList.append([row[columnToSort], row])
+			# At this point we have a list consisting of lists. Each of these member
+			# lists contain the sort value in the zeroth element, and the row as
+			# the first element.
+			# First, see if we are comparing strings
+			sortingStrings = type(sortList[0][0]) in (str,unicode)
+			if sortingStrings and not caseSensitive:
+				# Use a case-insensitive sort.
+				sortList.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
+			else:
+				sortList.sort()
+	
+			# Unless DESC was specified as the sort order, we're done sorting
+			if sortOrder == "DESC":
+				sortList.reverse()
+			# Extract the rows into a new list, then set the dataSet to the new list
+			newRows = []
+			for elem in sortList:
+				newRows.append(elem[1])
+			self.dataSet = newRows
 		self.fillGrid()
 
 
@@ -1185,6 +1213,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.raiseEvent(dEvents.GridRightClick, evt)
 		evt.Skip()
 
+	def __onWxMouseLeftDoubleClick(self, evt):
+		self.raiseEvent(dEvents.MouseLeftDoubleClick, evt)
+		evt.Skip()
+
 	def __onWxCellChange(self, evt):
 		self.raiseEvent(dEvents.GridCellEdited, evt)
 		evt.Skip()
@@ -1287,6 +1319,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.SetGridCursor(rn, val)
 			self.MakeCellVisible(rn, val)
 		
+	def _getCurrFld(self):
+		return self.Columns[self.GetGridCursorCol()].Field
+	def _setCurrFld(self, val):
+		for ii in range(len(self.Columns)):
+			if self.Columns[ii].Field == val:
+				self.CurrCol = ii
+				break
+		
 	def _getRowNum(self):
 		return self.GetGridCursorRow()
 	def _setRowNum(self, val):
@@ -1343,6 +1383,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	
 	CurrCol = property(_getColNum, _setColNum, None,
 			_("Currently selected column  (int)") )
+			
+	CurrField = property(_getCurrFld, _setCurrFld, None,
+			_("Field for the currently selected column  (str)") )
 			
 	CurrRow = property(_getRowNum, _setRowNum, None,
 			_("Currently selected row  (int)") )

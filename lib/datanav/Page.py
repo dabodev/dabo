@@ -558,7 +558,7 @@ class BrowsePage(Page):
 		
 		# If we aren't the active page, strange things can happen if we
 		# don't explicitly SetFocus back to the active page. 
-		activePage = self.Parent.GetPage(self.Parent.GetSelection())
+		activePage = self.Parent.SelectedPage
 		if activePage == self:
 			self.updateGrid()
 		else:
@@ -567,18 +567,16 @@ class BrowsePage(Page):
 
 	def updateGrid(self):
 		bizobj = self.Form.getBizobj()
-		justCreated = False
-		
 		if not self.itemsCreated:
 			self.createItems()
-			justCreated = True
 		if self.Form.preview:
 			if self.itemsCreated:
-				self.fillGrid(True)
+				self.fillGrid(False)
 		else:
 			if bizobj and bizobj.RowCount >= 0:
 				if self.itemsCreated:
-					self.fillGrid(True)
+					self.fillGrid(False)
+		self.BrowseGrid.CurrRow = bizobj.RowNumber
 
 		
 	def __onPageEnter(self, evt):
@@ -592,28 +590,25 @@ class BrowsePage(Page):
 
 	def createItems(self):
 		bizobj = self.Form.getBizobj()
-		grid = self.addObject(Grid.Grid, "BrowseGrid")
-		grid.fieldSpecs = self.Form.FieldSpecs
+		grid = Grid.Grid(self, Name="BrowseGrid")
+		grid.FieldSpecs = self.Form.FieldSpecs
 		if not self.Form.preview:
 			grid.setBizobj(bizobj)
 			grid.DataSource = bizobj.DataSource
 		else:
 			grid.DataSource = self.Form.previewDataSource
-		self.GetSizer().append(grid, 2, "expand")
-		
+		self.Sizer.append(grid, 2, "expand")
 		preview = self.addObject(dabo.ui.dButton, "cmdPreview")
 		preview.Caption = _("Print Preview")
 		preview.bindEvent(dEvents.Hit, self.onPreview)
-		self.GetSizer().append(preview, 0)		
+		self.Sizer.append(preview, 0)		
 		self.itemsCreated = True
 	
 
 	def fillGrid(self, redraw=False):
-		self.BrowseGrid.fillGrid(redraw)
-		self.Layout()
-		for window in self.BrowseGrid.GetChildren():
-			window.SetFocus()
-
+		self.BrowseGrid.populate()
+		self.layout()
+		
 
 	def onPreview(self, evt):
 		if self.itemsCreated:

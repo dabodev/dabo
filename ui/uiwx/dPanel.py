@@ -49,6 +49,10 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 	def layout(self):
 		""" Wrap the wx version of the call, if possible. """
 		self.Layout()
+		for child in self.Children:
+			try:
+				child.layout()
+			except: pass
 		try:
 			# Call the Dabo version, if present
 			self.Sizer.layout()

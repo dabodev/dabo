@@ -262,7 +262,7 @@ class Form(dabo.ui.dForm):
 		except: pass
 		
 		if self.beforeSetupPageFrame():
-			self.lockScreen()
+#			self.lockScreen()
 			self.pageFrame = PageFrame.PageFrame(self)
 			self.Sizer.append(self.pageFrame, "expand", 1)
 			self.pageFrame.addSelectPage()
@@ -274,7 +274,7 @@ class Form(dabo.ui.dForm):
 			self.addEditPages(ds)
 			self.pageFrame.SetSelection(currPage)
 			self.afterSetupPageFrame()
-			self.unlockScreen()
+#			self.unlockScreen()
 			self.Sizer.layout()
 			self.refresh()
 

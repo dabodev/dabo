@@ -15,8 +15,13 @@ class dSizerMixin(dabo.common.dObject):
 			"normal": The sizer will determine how to lay out the object. (default)
 		proportion: The relative space this object should get in relation to the 
 			other objects. Default has all objects getting 0, equal share.
+		halign, valign: Allows you to specify Horizontal and Vertical alignment
+			independently. Alternately, you can specify both with a tuple passed
+			to the 'alignment' parameter.
 		alignment: The horizontal and vertical alignment of the object in the sizer.
-			This is a tuple: set it like ("left", "top") or ("center", "middle").
+			This is a tuple: set it like ("left", "top") or ("center", "middle"). In most
+			cases, though, passing the separate halign and valign parameters
+			is preferable.
 		border: The width of the border. Default is 0, no border.
 		borderFlags: A tuple containing the locations to draw the border, such as
 			("all") or ("top", "left", "bottom"). Default is ("all").
@@ -27,8 +32,8 @@ class dSizerMixin(dabo.common.dObject):
 				or
 			sizer.append(object, "x")
 	"""
-	def append(self, item, layout="normal", proportion=0, alignment=("top", "left"), 
-			border=None, borderFlags=None):
+	def append(self, item, layout="normal", proportion=0, alignment=None,
+			halign="left", valign="top", border=None, borderFlags=None):
 		"""Adds the passed object to the end of the list of items controlled
 		by the sizer.
 		"""
@@ -44,7 +49,7 @@ class dSizerMixin(dabo.common.dObject):
 			self.Add(item, proportion)
 		else:
 			# item is the window to add to the sizer
-			_wxFlags = self._getWxFlags(alignment, borderFlags, layout)
+			_wxFlags = self._getWxFlags(alignment, halign, valign, borderFlags, layout)
 			# If there are objects in this sizer already, add the default spacer
 			if len(self.GetChildren()) > 0:
 				self.addDefaultSpacer()
@@ -53,8 +58,8 @@ class dSizerMixin(dabo.common.dObject):
 			self.Add(item, proportion, _wxFlags, border)
 			
 
-	def insert(self, index, item, layout="normal", proportion=0, alignment=("top", "left"), 
-			border=None, borderFlags=None):
+	def insert(self, index, item, layout="normal", proportion=0, alignment=None,
+			halign="left", valign="top", border=None, borderFlags=None):
 		"""Inserts an object into the list of items controlled by the sizer at 
 		the specified position.
 		"""
@@ -70,7 +75,7 @@ class dSizerMixin(dabo.common.dObject):
 			self.Insert(index, item, proportion)
 		else:
 			# item is the window to add to the sizer
-			_wxFlags = self._getWxFlags(alignment, borderFlags, layout)
+			_wxFlags = self._getWxFlags(alignment, halign, valign, borderFlags, layout)
 			if border is None:
 				border = self.Border
 			# If there are objects in this sizer already, add the default spacer
@@ -235,15 +240,24 @@ class dSizerMixin(dabo.common.dObject):
 		return ret
 		
 		
-	def _getWxFlags(self, alignment, borderFlags, layout):
-		# If alignment is passed as a single string instead of a tuple, 
-		# convert it.
-		if type(alignment) == str:
-			alignment = (alignment, )
-		if type(borderFlags) == str:
-			borderFlags = (borderFlags, )
+	def _getWxFlags(self, alignment, halign, valign, borderFlags, layout):
+		"""This converts Dabo values for sizer control into wx-specific constants."""
+		# Begin with the constant for no flag values.
 		_wxFlags = 0
-		for flag in [flag.lower() for flag in alignment]:
+
+		if alignment is not None:
+			# User passed an individual alignment tuple. Use that instead of
+			# the separate halign and valign values.
+			# If alignment is passed as a single string instead of a tuple, 
+			# convert it.
+			if type(alignment) == str:
+				alignFlags = (alignment, )
+			else:
+				alignFlags = alignment
+		else:
+			# Use the halign and valign values
+			alignFlags = (halign, valign)
+		for flag in [flag.lower() for flag in alignFlags]:
 			if flag == "left":
 				_wxFlags = _wxFlags | wx.ALIGN_LEFT
 			elif flag == "right":
@@ -257,6 +271,8 @@ class dSizerMixin(dabo.common.dObject):
 			elif flag == "middle":
 				_wxFlags = _wxFlags | wx.ALIGN_CENTER_VERTICAL
 
+		if type(borderFlags) == str:
+			borderFlags = (borderFlags, )
 		if borderFlags is None:
 			# Add any default borders. If no defaults set, set it to the default 'all'
 			if self.BorderBottom:
@@ -351,6 +367,9 @@ class dSizerMixin(dabo.common.dObject):
 				if itm.IsWindow() ]
 		return ret
 	
+	def _getHt(self):
+		return self.GetSize()[0]
+		
  	def _getOrientation(self):
 		o = self.GetOrientation()
 		if o == wx.VERTICAL:
@@ -381,6 +400,10 @@ class dSizerMixin(dabo.common.dObject):
 		self._visible = val
 		self.ShowItems(val)
 	
+	def _getWd(self):
+		return self.GetSize()[1]		
+		
+	
 	Border = property(_getBorder, _setBorder, None,
 			_("Sets the default border for the sizer.  (int)" ) )
 	BorderAll = property(_getBorderAll, _setBorderAll, None,
@@ -400,6 +423,9 @@ class dSizerMixin(dabo.common.dObject):
 	ChildWindows = property(_getChildWindows, None, None, 
 			_("List of all the windows that are directly managed by this sizer  (list of controls" ) )
 	
+	Height = property(_getHt, None, None,
+			_("Height of the sizer  (int)") )
+			
 	Orientation = property(_getOrientation, _setOrientation, None, 
 			_("Sets the orientation of the sizer, either 'Vertical' or 'Horizontal'." ) )
 
@@ -408,3 +434,7 @@ class dSizerMixin(dabo.common.dObject):
 			
 	Visible = property(_getVisible, _setVisible, None, 
 			_("Shows/hides the sizer and its contained items  (bool)" ) )
+
+	Width = property(_getWd, None, None,
+			_("Width of this sizer  (int)") )
+
