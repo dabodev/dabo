@@ -125,7 +125,7 @@ class dDataControlMixin(pm.dPemMixin):
 		curVal = self.Value
 		if curVal != self._oldVal and self.DataSource and self.DataField:
 			response = self.setFieldVal(curVal)
-			self._oldVal = self.curVal
+			self._oldVal = curVal
 			if not response:
 				raise ValueError, "bizobj.setFieldVal() failed."
 
