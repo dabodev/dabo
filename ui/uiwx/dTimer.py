@@ -26,7 +26,7 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 		# no 2-stage creation for Timers
 		
 		# Get a timer bitmap, but for now use the dabo icon:
-		bitmap = dIcons.getIconBitmap("daboIcon016")
+		bitmap = dIcons.getIconBitmap("dTimer", setMask=False)
 		wx.StaticBitmap.__init__(self, parent, name=name, bitmap=bitmap, *args, **kwargs)
 		
 		self.Hide()
