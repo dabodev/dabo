@@ -148,9 +148,17 @@ class dFormMixin(pm.dPemMixin):
 			controllingFrame = self.dApp.mainFrame
 		else:
 			controllingFrame = self
-		controllingFrame.Bind(wx.EVT_MENU, function, item)
+			
+		if wx.Platform == '__WXMAC__':
+			# Trial and error reveals that this works on Mac, while calling
+			# controllingFrame.Bind does not. I've posted an inquiry about 
+			# this to wxPython-mac@wxwidgets.org, but in the meantime we have
+			# this platform-specific code to tide us over.
+			menu.Bind(wx.EVT_MENU, function, item)
+		else:
+			controllingFrame.Bind(wx.EVT_MENU, function, item)
 
-
+			
 	def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):
 		toolId = wx.NewId()
 		toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
