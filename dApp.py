@@ -89,7 +89,7 @@ class dApp(dabo.common.dObject):
 		self.showMainFormOnStart = True
 		
 
-	def setup(self):
+	def setup(self, initUI=True):
 		""" Set up the app - call this before start()."""
 
 		# dabo is going to want to import various things from the Home Directory
@@ -104,10 +104,14 @@ class dApp(dabo.common.dObject):
 			self.setAppInfo("vendorName", "Dabo")
 
 		self._initDB()
-		self._initUI()
+		
+		if initUI:
+			self._initUI()
 
-		self.uiApp = dabo.ui.uiApp()
-		self.uiApp.setup(self)
+			self.uiApp = dabo.ui.uiApp()
+			self.uiApp.setup(self)
+		else:
+			self.uiApp = None
 
 
 	def start(self):
@@ -300,8 +304,9 @@ class dApp(dabo.common.dObject):
 		"""
 		connDefs = {}
 		parser = dabo.common.connParser
-		if os.path.exists("default.cnxml"):
-			connDefs = parser.importConnections("default.cnxml")
+		homeDir = self.HomeDirectory
+		if os.path.exists("%sdefault.cnxml" % homeDir):
+			connDefs = parser.importConnections("%sdefault.cnxml" % homeDir)
 		if not connDefs:
 			# Try importing all .cnxml files
 			cnFiles = glob.glob("*.cnxml")
