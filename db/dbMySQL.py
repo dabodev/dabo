@@ -59,6 +59,14 @@ class MySQL(dBackend):
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("describe %s" % tableName)
 		rs = tempCursor.fetchall()
+		fldDesc = tempCursor.description
+		# The field name is the first element of the tuple. Find the
+		# first entry with the field name 'Key'; that will be the 
+		# position for the PK flag
+		for i in range(len(fldDesc)):
+			if fldDesc[i][0] == 'Key':
+				pkPos = i
+				break
 		
 		fields = []
 		for r in rs:
@@ -82,12 +90,6 @@ class MySQL(dBackend):
 				ft = "C"
 			else:
 				ft = "?"
-			# Depending on the version of MySQL, the length
-			# of the returned list and the position of the
-			# PK field can change. If the list has 6 elements, the
-			# PK indicator is element #3, but if it has 7, it's in
-			# element 4
-			pkPos = 3 + ( len(r) - 6 )
 			pk = (r[pkPos] == "PRI")
 			
 			fields.append((name.strip(), ft, pk))
