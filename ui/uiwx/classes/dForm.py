@@ -1,5 +1,7 @@
 import wx, dEvents, dControlMixin, dDataControlMixin
 from dFormMixin import dFormMixin
+from dPageFrame import dPageFrame
+from dPage import *
 import dabo.dConstants as k
 
 class dForm(wx.Dialog, dFormMixin):
@@ -15,9 +17,8 @@ class dForm(wx.Dialog, dFormMixin):
     '''
     
     def __init__(self, parent=None, name="dForm", resourceString=None):
-        wx.Dialog.__init__(self, parent, -1, "", (-1,-1), (-1,-1),
-                          wx.DEFAULT_FRAME_STYLE|wx.MAXIMIZE_BOX|
-                          wx.RESIZE_BORDER)
+        wx.Dialog.__init__(self, parent, -1, "", (-1,-1), (-1,-1), 
+                            wx.DEFAULT_FRAME_STYLE)
         self.SetName(name)
         self.SetLabel(name)
 
@@ -37,8 +38,13 @@ class dForm(wx.Dialog, dFormMixin):
         self.dControls = {}
         
         self._setupResources(resourceString)
+
+        self.setupPageFrame()
+        self.SetSizer(wx.BoxSizer(wx.VERTICAL))
+        nbSizer = wx.NotebookSizer(self.pageFrame)
+        self.GetSizer().Add(nbSizer, 1, wx.EXPAND)
+        self.GetSizer().Layout()
         
-    
     def EVT_VALUEREFRESH(win, id, func):
         win.Connect(id, -1, dEvents.EVT_VALUEREFRESH, func)
     
@@ -288,7 +294,36 @@ class dForm(wx.Dialog, dFormMixin):
         except KeyError:
             return None
             
+    def setupPageFrame(self):
+        ''' dForm.setupPageFrame() -> 
+        
+            Default behavior is to set up a 3-page pageframe
+            with 'Select', 'Browse', and 'Edit' pages.
+            User may override and/or extend in subclasses
+            and overriding self.beforeSetupPageFrame(), 
+            self.setupPageFrame, and/or self.afterSetupPageFrame().
+        '''
+        if self.beforeSetupPageFrame():
+            self.pageFrame = dPageFrame(self)
+            self.afterSetupPageFrame()
+        
+    def beforeSetupPageFrame(self): return True
+    def afterSetupPageFrame(self): pass
     
+    def addVCR(self):
+        ''' dForm.addVCR() -> None
+        
+            Add a VCR data nav control to the form -- temporary
+            until we get dToolbar working.
+        '''
+        bs = wx.BoxSizer(wx.HORIZONTAL)
+        import dVCR
+
+        vcr = dVCR.dVCR(self)
+        bs.Add(vcr, 1, wx.ALL, 0)
+        self.GetSizer().Add(bs, 0, wx.EXPAND)
+        self.GetSizer().Layout()
+
     def _setupResources(self, resourceString):
         ''' dForm._setupResources(resourceString) -> None
         

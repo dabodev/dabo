@@ -8,8 +8,9 @@ class dFormMain(wx.Frame, dFormMixin):
         wx.Frame.__init__(self, None, -1, "dFormMain")
         self.SetName("dFormMain")
         dFormMixin.__init__(self, dApp)
-        
         self.CreateStatusBar()
+        self.SetMenuBar(dMainMenuBar(self))
+      
         if self.dApp:
             self.SetStatusText("Welcome to %s" % self.dApp.getAppInfo("appName"))
             self.SetLabel("%s Version %s" % (self.dApp.getAppInfo("appName"),
@@ -18,7 +19,6 @@ class dFormMain(wx.Frame, dFormMixin):
             self.SetLabel("Dabo")
             self.SetStatusText("Welcome to Dabo!")
         
-        self.SetMenuBar(dMainMenuBar(self))
         self.SetSize((640,480))
         self.SetPosition((0,0))
         
