@@ -46,6 +46,8 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
 		self.delWindowStyleFlag(wx.ALIGN_RIGHT)
 		if str(value) == 'Right':
 			self.addWindowStyleFlag(wx.ALIGN_RIGHT)
+		elif str(value) == 'Left':
+			pass
 		else:
 			raise ValueError, "The only possible values are 'Left' and 'Right'."
 
