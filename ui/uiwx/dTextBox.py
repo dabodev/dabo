@@ -304,7 +304,7 @@ if __name__ == "__main__":
 		def onValueChanged(self, evt):
 			print "%s.onValueChanged:" % self.Name, self.Value, type(self.Value)
 		
-			
+
 	class IntText(TestBase):
 		def afterInit(self):
 			self.Value = 23
@@ -328,5 +328,18 @@ if __name__ == "__main__":
 	class DateTimeText(TestBase):
 		def afterInit(self):
 			self.Value = datetime.datetime.now()
-						
-	test.Test().runTest((IntText, FloatText, StrText, BoolText, DateText, DateTimeText))
+	
+	testParms = [IntText, FloatText, StrText, BoolText, DateText, DateTimeText]			
+	
+	try:
+		import mx
+		class MxDateTimeText(TestBase):
+			def afterInit(self):
+				self.Value = mx.DateTime.now()
+				
+		testParms.append(MxDateTimeText)
+	except:
+		# skip it: mx may not be available
+		pass
+		
+	test.Test().runTest(testParms)

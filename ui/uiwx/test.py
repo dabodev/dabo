@@ -45,7 +45,10 @@ class Test(object):
 			print "SZ", w, h
 			
 			frame.SetSize( (w+10, h+30) )
-			frame.SetLabel("Test of %s" % object.Name)
+			if len(classRefs) > 1:
+				frame.SetLabel("Test of multiple objects")
+			else:
+				frame.SetLabel("Test of %s" % object.BaseClass.__name__)
 			object.SetFocus()
 		
 		frame.Show()
