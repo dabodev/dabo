@@ -80,6 +80,14 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 		dForm.doDefault()
 	
+	
+	def show(self):
+		self.Visible = True
+		
+		
+	def hide(self):
+		self.Visible = False
+		
 
 	def confirmChanges(self):
 		""" If the form's checkForChanges property is true,
