@@ -5,13 +5,10 @@ from dDataControlMixin import dDataControlMixin
 # The EditBox is just a TextBox with some additional styles.
 
 class dEditBox(wx.TextCtrl, dDataControlMixin, dControlMixin):
-    def __init__(self, frame, widgetId=-1):
-        if widgetId < 0:
-            widgetId = wx.NewId()
-        wx.TextCtrl.__init__(self, frame, widgetId, '', (-1,-1), (-1,-1), 
+    def __init__(self, parent, name="dEditBox"):
+        wx.TextCtrl.__init__(self, parent, -1, '', (-1,-1), (-1,-1), 
                 wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.TE_LINEWRAP)
-        self.SetName("dEditBox")
-        dControlMixin.__init__(self)
+        dControlMixin.__init__(self, name)
         dDataControlMixin.__init__(self)
 
         self.selectOnEntry = False

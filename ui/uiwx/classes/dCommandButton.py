@@ -2,14 +2,11 @@ import wx
 from dControlMixin import dControlMixin
 
 class dCommandButton(wx.Button, dControlMixin):
-    def __init__(self, frame, widgetId=-1, caption=""):
-        if widgetId < 0:
-            widgetId = wx.NewId()
-        wx.Button.__init__(self, frame, widgetId, caption)
-        self.SetName("dCommandButton")
+    def __init__(self, parent, name="dCommandButton", label=""):
+        wx.Button.__init__(self, parent, -1, label)
+        self.SetName(name)
         self.SetSize((80,-1))
-        dControlMixin.__init__(self)
-        self.frame = frame
+        dControlMixin.__init__(self, name)
         
     def initEvents(self):
         # init the common events:

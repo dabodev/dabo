@@ -3,12 +3,9 @@ from dControlMixin import dControlMixin
 from dDataControlMixin import dDataControlMixin
 
 class dTextBox(wx.TextCtrl, dDataControlMixin, dControlMixin):
-    def __init__(self, parent, widgetId=-1):
-        if widgetId < 0:
-            widgetId = wx.NewId()
-        wx.TextCtrl.__init__(self, parent, widgetId)
-        self.SetName("dTextBox")
-        dControlMixin.__init__(self)
+    def __init__(self, parent, name="dTextBox"):
+        wx.TextCtrl.__init__(self, parent, -1)
+        dControlMixin.__init__(self, name)
         dDataControlMixin.__init__(self)
 
         self.selectOnEntry = True

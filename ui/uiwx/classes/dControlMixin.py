@@ -6,10 +6,12 @@ class dControlMixin:
     ''' mixin class: inherited by the dabo widgets to
         provide common functionality. '''
     
-    def __init__(self):
+    def __init__(self, name):
         self.debug = False
+        self.SetName(name)
         # Default label and (if control can handle a text value), value
         self.SetLabel(self.getDefaultText())
+        
         # Subclass will intercept the initEvents first, allowing
         # the framework user to completely override if desired.    
         self.initEvents()

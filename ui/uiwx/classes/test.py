@@ -6,17 +6,9 @@
 '''
     
 import wx
-from dForm import dForm
-from dLabel import dLabel
-from dTextBox import dTextBox
-from dControlMixin import dControlMixin
-from dCommandButton import *
-from dSpinner import dSpinner
-from dEditBox import dEditBox
-from dVCR import dVCR
-from dCheckBox import dCheckBox
-from dabo.biz import dBizobj
-from dabo.db.dConnection import dConnection
+from dabo.ui.uiwx import *
+from dabo.biz import *
+from dabo.db import *
 
 class bizZip(dBizobj):
     dataSource = "zipcodes"
@@ -54,15 +46,19 @@ class Test(object):
         frame.Show(1)
         self.app.MainLoop()
     
-    def testAll(self):
+    def testAll(self, withBiz=False):
         ''' Create a dForm and populate it with example dWidgets. '''
         frame = dForm()
         frame.SetSize((640,480))
         frame.debug = True
-        frame.SetLabel("A test of all the dControls")
         
-        biz = getBiz()
-        frame.addBizobj(biz)
+        if withBiz:
+            biz = getBiz()
+            frame.addBizobj(biz)
+            appendCaption = "with bizobj/data test to leafe.com"
+        else:
+            appendCaption = ""
+        frame.SetLabel("A test of all the dControls %s" % appendCaption)
         
         panel = wx.Panel(frame, -1)
         
@@ -97,10 +93,11 @@ class Test(object):
             object.SetName("%s" % obj[1])
             object.debug = True # show the events
             
-            object.dataSource = biz.dataSource
-            if len(obj) > 2:
-                object.dataField = obj[2]
-                
+            if withBiz:
+                object.dataSource = biz.dataSource
+                if len(obj) > 2:
+                    object.dataField = obj[2]
+
             bs.Add(object, 1, expandFlags | wx.ALL, 0)
 
             if isinstance(object, dEditBox):
@@ -109,8 +106,10 @@ class Test(object):
                 vs.Add(bs, 0, wx.EXPAND)
 
         bs = wx.BoxSizer(wx.HORIZONTAL)
-        vcr = dVCR(panel)
-        bs.Add(vcr, 1, wx.ALL, 0)
+        
+        if withBiz:
+            vcr = dVCR(panel)
+            bs.Add(vcr, 1, wx.ALL, 0)
         
         vs.Add(bs, 0, wx.EXPAND)
                     
@@ -123,5 +122,5 @@ class Test(object):
 
 if __name__ == "__main__":
     t = Test()
-    t.testAll() 
+    t.testAll(withBiz=True) 
     

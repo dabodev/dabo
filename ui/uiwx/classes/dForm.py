@@ -33,7 +33,7 @@ class dForm(wx.Frame, dFormMixin):
         
         self.saveAllRows = True    # Default should come from app
         
-        self.dControls = []
+        self.dControls = {}
         
         self._setupResources(resourceString)
     
@@ -62,7 +62,7 @@ class dForm(wx.Frame, dFormMixin):
             Normally this happens automatically, when the control
             is instantiated with the dForm as the parent.
         '''
-        self.dControls.append(control)
+        self.dControls[control.GetName()] = control
         if self.debug:
             print "added control %s" % control.GetName()
         

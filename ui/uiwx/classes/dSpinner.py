@@ -3,11 +3,9 @@ from dControlMixin import dControlMixin
 from dDataControlMixin import dDataControlMixin
 
 class dSpinner(wx.SpinCtrl, dDataControlMixin, dControlMixin):
-    def __init__(self, parent):
-        widgetId = wx.NewId()
-        wx.SpinCtrl.__init__(self, parent, widgetId)
-        self.SetName("dSpinner")
-        dControlMixin.__init__(self)
+    def __init__(self, parent, name="dSpinner"):
+        wx.SpinCtrl.__init__(self, parent, -1)
+        dControlMixin.__init__(self, name)
         dDataControlMixin.__init__(self)
         
         self.SetRange(-64000, 64000)

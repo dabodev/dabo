@@ -2,13 +2,9 @@ import wx
 from dControlMixin import dControlMixin
 
 class dLabel(wx.StaticText, dControlMixin):
-    def __init__(self, parent, widgetId=-1, caption="", 
-                pos = (-1,-1), size = (-1,-1), windowStyle=wx.ST_NO_AUTORESIZE):
-        if widgetId < 0:
-            widgetId = wx.NewId()
-        wx.StaticText.__init__(self, parent, widgetId, caption, pos, size, windowStyle)
-        self.SetName("dLabel")
-        dControlMixin.__init__(self)
+    def __init__(self, parent, name="dLabel", label="", windowStyle=None):
+        wx.StaticText.__init__(self, parent, -1, label, (-1,-1), (-1,-1), windowStyle)
+        dControlMixin.__init__(self, name)
     
         self.setDefaultFont()
         
