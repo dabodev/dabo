@@ -182,7 +182,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 		# It is too late to get Value directly:		
 		value = self._oldVal	
-		
+
 		if app:
 			name = self.getAbsoluteName()
 			app.setUserSetting("%s.Value" % name, self.getShortDataType(value), value)
@@ -199,7 +199,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if app:
 			name = self.getAbsoluteName()
 			value = app.getUserSetting("%s.Value" % name)
-			
+
 			if value is not None:
 				try:
 					self.Value = value

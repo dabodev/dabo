@@ -9,21 +9,38 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 # Controls for the select page:
-class SelectTextBox(dTextBox.dTextBox):
+class SelectControlMixin(dabo.common.dObject):
 	def initProperties(self):
-		SelectTextBox.doDefault()
+		SelectControlMixin.doDefault()
 		self.SaveRestoreValue = True
 
-class SelectCheckBox(dCheckBox.dCheckBox):
-	def initProperties(self):
-		SelectCheckBox.doDefault()
-		self.SaveRestoreValue = True
+class SelectTextBox(SelectControlMixin, dTextBox.dTextBox): pass
+class SelectCheckBox(SelectControlMixin, dCheckBox.dCheckBox): pass
+class SelectDateTextBox(SelectControlMixin, dDateTextBox.dDateTextBox): pass
+class SelectSpinner(SelectControlMixin, dSpinner.dSpinner): pass
 
-class SelectDateTextBox(dDateTextBox.dDateTextBox):
+class SelectionOpDropdown(dDropdownList.dDropdownList):
 	def initProperties(self):
-		SelectDateTextBox.doDefault()
+		SelectionOpDropdown.doDefault()
 		self.SaveRestoreValue = True
+		self.target = None
 		
+	def initEvents(self):
+		SelectionOpDropdown.doDefault()
+		self.bindEvent(dEvents.Hit, self.onChoiceMade)
+		
+	def setTarget(self, tgt):
+		""" Sets the reference to the object that will receive focus
+		after a choice is made with this control.
+		"""
+		self.target = tgt
+		
+	def onChoiceMade(self, evt):
+		if self.target is not None:
+			if "-ignore-" not in self.Value:
+				# A comparison op was selected; let 'em enter a value
+				self.target.SetFocus()
+				
 class OutlineBoxSizer(wx.BoxSizer):
 	def __init__(self, win, *args, **kwargs):
 		wx.BoxSizer.__init__(self, *args, **kwargs)
@@ -135,26 +152,6 @@ class SelectOptionsPanel(dPanel.dPanel):
 		# selectOptions is a list of dictionaries
 		self.selectOptions = []
 		
-
-class SelectionOpDropdown(dDropdownList.dDropdownList):
-	def __init__(self, *args, **kwargs):
-		#SelectionOpDropdown.doDefault(*args, **kwargs)
-		super(SelectionOpDropdown, self).__init__(*args, **kwargs)
-		self.target = None
-		self.bindEvent(dEvents.Hit, self.onChoiceMade)
-	
-	def setTarget(self, tgt):
-		""" Sets the reference to the object that will receive focus
-		after a choice is made with this control.
-		"""
-		self.target = tgt
-		
-	def onChoiceMade(self, evt):
-		if self.target is not None:
-			if "-ignore-" not in self.GetStringSelection():
-				# A comparison op was selected; let 'em enter a value
-				self.target.SetFocus()
-
 
 class sortLabel(dLabel.dLabel):
 	def initEvents(self):
@@ -409,7 +406,7 @@ class dSelectPage(DataNavPage):
 			chc = ("Is True",
 					"Is False")
 		# Add the blank choice
-		chc = ("  -ignore-  ",) + chc
+		chc = ("-ignore-",) + chc
 		return chc
 
 
@@ -451,7 +448,6 @@ class dSelectPage(DataNavPage):
 			
 			opt = self.getSelectorOptions(fldInfo["type"], fldInfo["wordSearch"])
 			opList = SelectionOpDropdown(panel, choices=opt)
-			opList.SetSelection(0)
 			opList.setTarget(ctrl)
 			gsz.Add(lbl, (gridRow, 0), flag=wx.RIGHT )
 			gsz.Add(opList, (gridRow, 1), flag=wx.CENTRE )
@@ -466,8 +462,9 @@ class dSelectPage(DataNavPage):
 		# Now add the limit field
 		lbl = dLabel.dLabel(panel)
 		lbl.Caption = "Limit:"
-		limTxt = dTextBox.dTextBox(panel)
-		limTxt.Value = "1000"
+		limTxt = SelectTextBox(panel)
+		if len(limTxt.Value) == 0:
+			limTxt.Value = "1000"
 		self.selectFields["limit"] = {"ctrl" : limTxt	}
 		requeryButton = dCommandButton.dCommandButton(panel)
 		requeryButton.Caption = "&%s" % _("Requery")

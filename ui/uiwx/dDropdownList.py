@@ -15,6 +15,8 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 
 		self._baseClass = dDropdownList
 
+		self._choices = list(choices)
+
 		pre = wx.PreChoice()
 		self._beforeInit(pre)
 		style=style|pre.GetWindowStyle()
@@ -24,7 +26,7 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 
 		dcm.dDataControlMixin.__init__(self, name)
 		self._afterInit()
-
+		
 
 	def initEvents(self):
 		#dDropdownList.doDefault()
@@ -33,18 +35,44 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 		# catch the wx event and raise the dabo event:
 		self.Bind(wx.EVT_CHOICE, self._onWxHit)
 		
-
+	def _onWxHit(self, evt):
+		super(dDropdownList, self)._onWxHit(evt)
+		self._oldVal = self.Value
+		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
+	def _getChoices(self):
+		try:
+			_choices = self._choices
+		except AttributeError:
+			_choices = self._choices = []
+		return _choices
+		
+	def _setChoices(self, choices):
+#- 		if len(choices) != len(self.Choices):
+#- 			raise ValueError, "Cannot change the length of the choices list."
+		for index in range(len(choices)):
+			self.SetString(index, choices[index])
+		self._choices = choices
+			
 	def _getValue(self):
-		return self.GetStringSelection()
+		s = self.GetStringSelection()
+		return s
 		
 	def _setValue(self, value):
-		self.SetStringSelection(value)
-
+		try:
+			self.SetStringSelection(value)
+		except:
+			raise ValueError, "Value must be present in the choices. (%s:%s)" % (
+				value, self.Choices)
+		self._oldVal = self.GetStringSelection()
+		
 	# Property definitions:
+	Choices = property(_getChoices, _setChoices, None,
+		"Specifies the list of choices available in the list. The number of choices "
+		"cannot be changed at runtime, but the value of the choice can be changed.")	
 	Value = property(_getValue, _setValue, None,
-			"Specifies the current state of the control (the value of the field). (varies)")
+		"Specifies the current state of the control (the value of the field). (varies)")
 
 if __name__ == "__main__":
 	import test
