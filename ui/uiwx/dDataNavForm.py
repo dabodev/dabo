@@ -226,14 +226,25 @@ class dDataNavForm(dForm.dForm):
 			self.pageFrame = dDataNavPageFrame.dDataNavPageFrame(self)
 			nbSizer = wx.NotebookSizer(self.pageFrame)
 			self.Sizer.append(nbSizer, "expand", 1)
+			self.pageFrame.addSelectPage()
+			self.pageFrame.addBrowsePage()
+			self.addEditPages(self.getBizobj())
 			self.pageFrame.SetSelection(currPage)
 			self.afterSetupPageFrame()
 			self.Thaw()
 			self.Sizer.layout()
 			self.Refresh()
+
 			
 	def beforeSetupPageFrame(self): return True
 	def afterSetupPageFrame(self): pass
+	
+	def addEditPages(self, biz):
+		ds = biz.DataSource
+		title = "Edit: " + ds.title()
+		self.pageFrame.addEditPage(ds, title)
+		for child in biz.getChildren():
+			self.addEditPages(child)
 
 	def onSetSelectionCriteria(self, evt):
 		""" Occurs when the user chooses to set the selection criteria.
@@ -253,88 +264,6 @@ class dDataNavForm(dForm.dForm):
 		self.pageFrame.SetSelection(2)
 
 
-	def onChildView(self, evt):
-		""" Occurs when the user chooses to edit a child view page.
-		"""
-		evtId = evt.GetId()
-		page=3
-		for child in self.childViews:
-			if child['menuId'] == evtId:
-				break
-			page += 1
-		self.pageFrame.SetSelection(page)
-		
-		
-	def getColumnDefs(self, dataSource):
-		""" Get the column definitions for the given data source.
-
-		The column definitions provide information to the data navigation
-		form to smartly construct the SQL statement, the browse grid, and 
-		the edit form.
-
-		Return the column definitions for the given dataSource,
-		or an empty list if not found. Each item in the list represents
-		a column, with the following keys defining column behavior:
-
-			'tableName'   : The table name that contains the field.
-							(string) (required)
-
-			'fieldName'   : The field name in the bizobj.
-							(string) (required)
-
-			'caption'     : The column header caption - used in the browse 
-							grid and as a default label for the items in 
-							the edit page. 
-							(string) (default: 'name')
-
-			'type'        : The data type in xBase notation (C,I,N,D,T) 
-							(char) (Required)
-
-			'showGrid'    : Show column in the browse grid?
-							(boolean) (default: True)
-
-			'showEdit'    : Show field in the edit page?
-							(boolean) (default: True)
-
-			'editEdit'    : Allow editing of the field in the edit page?
-							(boolean) (default: True)
-
-			'selectTypes' : List of types of select queries that can be run
-							for the field. If supplied, the field will have
-							input field(s) automatically set up in the 
-							pageframe's select page, so the user can enter
-							the criteria. If not supplied, the user will not
-							automatically be able to enter selection criteria.
-							(list) (default: fields with 'C' will get an entry
-							for selectType of 'stringMatchAll')
-
-							The currently-supported selectTypes are:
-
-								+ range: allow user to specify a high and a
-										low value.
-
-								+ value: user sets an explicit value.
-
-								+ stringMatch: user enters a string, and the field
-											is searched for occurances of that
-											string (SQL LIKE with '%' appended
-											and prepended).
-
-								+ stringMatchAll: Like stringMatch but instead of
-												the data field getting its own
-												input field, all data fields with
-												stringMatchAll share one input
-												field on the select page.
-
-		Use dDataNavForm.setColumnDefs() to set the definitions.
-		"""
-		try:
-			columnDefs = self._columnDefs[dataSource]
-		except KeyError:
-			columnDefs = []
-		return columnDefs
-
-
 	def setFieldSpecs(self, xmlFile, tbl):
 		""" Reads in the field spec file and creates the appropriate
 		controls in the form. Also initializes the SQL Builder for
@@ -343,10 +272,18 @@ class dDataNavForm(dForm.dForm):
 		# First, get the field spec data into a dictionary.
 		self._allFieldSpecs = specParser.importFieldSpecs(xmlFile)
 		self._mainTable = tbl
-#		self.FieldSpecs = self._allFieldSpecs[tbl]
 		
+		
+	def creation(self):
+		""" Called after all the specs for the form have been set, and
+		after any other settings that need to be made have been made.
+		"""
+		errMsg = self.beforeCreation()
+		if errMsg:
+			raise dException.dException, errMsg
 		if not self.preview:
 			# Set up the SQL Builder in the bizobj:
+			tbl = self._mainTable
 			biz = self.getBizobj()
 			biz.setFieldClause("")
 			for fld in self.FieldSpecs.keys():
@@ -364,6 +301,22 @@ class dDataNavForm(dForm.dForm):
 		self.setupToolBar()
 		if not self.preview:
 			self.setupMenu()
+		self.afterCreation()
+		
+	
+	def beforeCreation(self):
+		""" Hook method available to customize form creation settings
+		before anything on the form, its toolbar, or its menu is created.
+		Returning any string from this method will prevent form creation
+		from happening, and raise an error.
+		"""
+		pass
+		
+	def afterCreation(self):
+		""" Hook method available to customize the form after all its
+		components have been created.
+		"""
+		pass
 	
 	
 	def getFieldSpecsForTable(self, tbl):
@@ -387,59 +340,6 @@ class dDataNavForm(dForm.dForm):
 		primaryBizobj.addChildByRelationDict(self.RelationSpecs, bizModule)
 
 	
-	def setColumnDefs(self, dataSource, columnDefs):
-		""" Set the grid column definitions for the given data source.
-
-		See getGridColumnDefs for more explanation.
-		""" 
-
-		# Make sure unspecified items get default values or if 
-		# the item is required don't set the columndefs.
-		for column in columnDefs:
-			if not column.has_key('tableName'):
-				raise KeyError, "Column definition must include a table name."
-			if not column.has_key('fieldName'):
-				raise KeyError, "Column definition must include a field name."
-			if not column.has_key('caption'):
-				column['caption'] = column['name']
-			if not column.has_key('type'):
-				raise KeyError, "Column definition must include a data type."
-			if not column.has_key('showGrid'):
-				column['showGrid'] = True
-			if not column.has_key('showEdit'):
-				column['showEdit'] = True
-			if not column.has_key('editEdit'):
-				column['editEdit'] = True
-			if not column.has_key('selectTypes'):
-				column['selectTypes'] = []
-				if column['type'] in ('C', 'M'):
-					# column is string: add to stringMatchAll:
-					column['selectTypes'].append('stringMatchAll')
-
-		self._columnDefs[dataSource] = tuple(columnDefs)
-		if dataSource == self.getBizobj().DataSource:
-			self.afterSetPrimaryColumnDef()
-
-
-	def getChildBehavior(self, dataSource):
-		try:
-			cb = self._childBehavior[dataSource]
-		except KeyError:
-			self.setChildBehavior(dataSource, {})
-			cb = self._childBehavior[dataSource]
-		return cb
-	
-	
-	def setChildBehavior(self, dataSource, cb):
-		if not cb.has_key('EnableDelete'):
-			cb['EnableDelete'] = False
-		if not cb.has_key('EnableEdit'):
-			cb['EnableEdit'] = False
-		if not cb.has_key('EnableNew'):
-			cb['EnableNew'] = False
-		self._childBehavior[dataSource] = cb
-	
-	
 	def onRequery(self, evt):
 		""" Override the dForm behavior by running the requery through the select page.
 		"""
@@ -448,7 +348,6 @@ class dDataNavForm(dForm.dForm):
 
 	def afterNew(self):
 		""" dForm will call this after a new record has been successfully added.
-
 		Make the edit page active, as a convenience to the user.
 		"""
 		self.pageFrame.SetSelection(2)
@@ -491,10 +390,8 @@ class dDataNavForm(dForm.dForm):
 
 	def _getFieldSpecs(self):
 		return self._allFieldSpecs[self._mainTable]
-#		return self._fieldSpecs
 	def _setFieldSpecs(self, val):
 		self._allFieldSpecs[self._mainTable] = val
-# 		self._fieldSpecs = val
 		
 	def _getRelationSpecs(self):
 		return self._relationSpecs

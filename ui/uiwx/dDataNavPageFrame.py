@@ -5,12 +5,21 @@ import dPage
 
 class dDataNavPageFrame(pgf.dPageFrame):
 
-	def __init__(self, parent, name="dDataNavPageFrame"):
+	def __init__(self, parent, name="dDataNavPageFrame", defaultPages=False):
+		self._defaultPagesOnLoad = defaultPages
 		dDataNavPageFrame.doDefault(parent, name=name)
+		il = wx.ImageList(16, 16, initialCount=0)
+		il.Add(dIcons.getIconBitmap("checkMark"))
+		il.Add(dIcons.getIconBitmap("browse"))
+		il.Add(dIcons.getIconBitmap("edit"))
+		il.Add(dIcons.getIconBitmap("childview"))
+		self.AssignImageList(il)
+
 
 	def initProperties(self):
 		self.PageCount = 0
 		if self.DefaultPagesOnLoad:
+			print "Adding default pages!"
 			self.addDefaultPages()
 		dDataNavPageFrame.doDefault()
 		
@@ -20,25 +29,27 @@ class dDataNavPageFrame(pgf.dPageFrame):
 
 		Subclasses may override or extend.
 		"""
-		il = wx.ImageList(16, 16, initialCount=0)
-		il.Add(dIcons.getIconBitmap("checkMark"))
-		il.Add(dIcons.getIconBitmap("browse"))
-		il.Add(dIcons.getIconBitmap("edit"))
-		il.Add(dIcons.getIconBitmap("childview"))
-
-		self.AssignImageList(il)
-		
 		if self.Form.FormType != "Edit":
-			self.AddPage(self.SelectPageClass(self), "Select", imageId=0)
-			self.AddPage(self.BrowsePageClass(self), "Browse", imageId=1)
+			self.addSelectPage()
+			self.addBrowsePage()
 		
 		if self.Form.FormType != "PickList":
-			self.AddPage(self.EditPageClass(self), "Edit", imageId=2)
+			self.addEditPage()
 
 			if not self.Parent.preview:
 				bizobj = self.Parent.getBizobj()
 				for child in bizobj.getChildren():
 					self.AddPage(self.ChildPageClass(self, child.DataSource), child.Caption, imageId=3)
+
+
+	def addSelectPage(self, title="Select"):
+		self.AddPage(self.SelectPageClass(self), title, imageId=0)
+	
+	def addBrowsePage(self, title="Browse"):
+		self.AddPage(self.BrowsePageClass(self), title, imageId=1)
+	
+	def addEditPage(self, ds=None, title="Edit"):
+		self.AddPage(self.EditPageClass(self, ds), title, imageId=2)
 
 		
 	def _getSelectPageClass(self):

@@ -481,6 +481,7 @@ class dEditPage(DataNavPage):
 		dEditPage.doDefault(parent, "pageEdit")
 		self.dataSource = ds
 		self.childGrids = []
+		self.childrenAdded = False
 		if ds is None:
 			self.fieldSpecs = self.Form.FieldSpecs
 			if not self.Form.preview:
@@ -578,43 +579,35 @@ class dEditPage(DataNavPage):
 			else:
 				mainSizer.Add(bs, 0, wx.EXPAND)
 
-		# If there is a child table, add it
-		for rkey in relationSpecs.keys():
-			rs = relationSpecs[rkey]
-			if rs["parent"].lower() == self.dataSource.lower():
-				child = rs["child"]
-				childBiz = self.Form.getBizobj(child)
-				grdLabel = self.addObject(dabo.ui.dLabel, "lblChild" + child)
-				grdLabel.Caption = child.title()
-				grdLabel.FontSize = 14
-				grdLabel.FontBold = True
-				mainSizer.Add( (10, -1), 0)
-				mainSizer.Add(grdLabel, 0, wx.EXPAND | wx.ALIGN_CENTRE)
-				grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid")
-				grid.fieldSpecs = self.Form.getFieldSpecsForTable(child)
-				grid.DataSource = child
-				grid.setBizobj(childBiz)
-				self.childGrids.append(grid)
-				mainSizer.Add(grid, 1, wx.EXPAND| wx.LEFT | wx.RIGHT, 10)
-
-				print "filling grid:", grid.bizobj
-				
-				grid.fillGrid()
-				for window in grid.GetChildren():
-					window.SetFocus()
-				
-				# Add an editing page for this child
-				pgf = self.Parent
-				pgClass = self.__class__
-				pgf.AddPage(pgClass(pgf, ds=child), "Edit: " + child.title())
-		
-		if self.childGrids:
-			# There are child editing pages; update the caption of this page.
-			self.Caption = "Edit: " + self.dataSource.title()
-		
+		if not self.childrenAdded:
+			self.childrenAdded = True
+			# If there is a child table, add it
+			for rkey in relationSpecs.keys():
+				rs = relationSpecs[rkey]
+				if rs["parent"].lower() == self.dataSource.lower():
+					child = rs["child"]
+					childBiz = self.Form.getBizobj(child)
+					grdLabel = self.addObject(dabo.ui.dLabel, "lblChild" + child)
+					grdLabel.Caption = child.title()
+					grdLabel.FontSize = 14
+					grdLabel.FontBold = True
+					mainSizer.Add( (10, -1), 0)
+					mainSizer.Add(grdLabel, 0, 
+							wx.EXPAND | wx.ALIGN_CENTRE | wx.LEFT | wx.RIGHT, 10)
+					grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid")
+					grid.fieldSpecs = self.Form.getFieldSpecsForTable(child)
+					grid.DataSource = child
+					grid.setBizobj(childBiz)
+					self.childGrids.append(grid)
+					grid.fillGrid()
+					for window in grid.GetChildren():
+						window.SetFocus()
+					mainSizer.Add(grid, 2, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
+#					mainSizer.SetItemMinSize(grid, -1, 300)
+			
 		# Add top and bottom margins
-		mainSizer.Insert( 0, (-1, 20), 0)
-		mainSizer.Add( (-1, 30), 0)
+		mainSizer.Insert( 0, (-1, 10), 0)
+		mainSizer.Add( (-1, 20), 0)
 
 		self.GetSizer().Layout()
 		self.itemsCreated = True
