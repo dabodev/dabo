@@ -56,11 +56,11 @@ class Test(object):
 			label.Width = labelWidth
 
 			try:
-				lblName = obj[2]
+				label.Name = obj[2]
+				label.Caption = "%s:" % obj[2]
 			except IndexError:
-				lblName = "%s" % obj[1]
-			label.Name = lblName
-			label.Caption = "%s:" % lblName
+				label.Name = "lbl%s" % obj[1]
+				label.Caption = "%s:" % obj[1]
 			bs.Add(label)
 
 			object = obj[0]
@@ -70,6 +70,7 @@ class Test(object):
 				expandFlags = 0
 
 			object.Name = "%s" % obj[1]
+				
 			object.debug = True # show the events
 
 			bs.Add(object, 1, expandFlags | wx.ALL, 0)

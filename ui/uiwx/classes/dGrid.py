@@ -159,6 +159,20 @@ class dGridDataTable(wx.grid.PyGridTableBase):
     
 	def GetTypeName(self, row, col):
 		return self.dataTypes[col]
+    
+	# Called to determine how the data can be fetched and stored by the
+	# editor and renderer.  This allows you to enforce some type-safety
+	# in the grid.
+	def CanGetValueAs(self, row, col, typeName):
+		colType = self.dataTypes[col].split(':')[0]
+		if typeName == colType:
+			return True
+		else:
+			return False
+			
+	def CanSetValueAs(self, row, col, typeName):
+		return self.CanGetValueAs(row, col, typeName)
+
 
 	def MoveColumn(self, col, to):
 		""" Move the column to a new position.
@@ -206,25 +220,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			return True
 
 	def GetValue(self, row, col):
-		try:
-			return self.data[row][col]
-		except IndexError:
-			return ''
+		return self.data[row][col]
 
 	def SetValue(self, row, col, value):
-		try:
-			self.data[row][col] = value
-		except IndexError:
-			# add a new row
-			self.data.append([''] * self.GetNumberCols())
-			self.SetValue(row, col, value)
-
-			# tell the grid we've added a row
-			msg = wx.grid.GridTableMessage(self,           # The table
-				wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,  # what we did to it
-				1)                                       # how many
-
-			self.GetView().ProcessTableMessage(msg)
+		self.data[row][col] = value
 
 
 class dGrid(wx.grid.Grid):

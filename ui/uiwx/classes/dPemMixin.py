@@ -353,9 +353,16 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		self._name = name      # keeps name available even after C++ object is gone.
 		return name
 	def _setName(self, name):
-		for window in self._pemObject.GetParent().GetChildren():
-			if window.GetName() == name and window != self:
-				raise NameError, "A unique object name is required."
+		parent = self._pemObject.GetParent()
+		if parent:
+			for window in self._pemObject.GetParent().GetChildren():
+				if window.GetName() == name and window != self:
+					raise NameError, "A unique object name is required."
+		else:
+			# Can't do the name check for siblings, so allow it for now.
+			# This problem would only apply to top-level forms, so it really
+			# wouldn't matter anyway in a practical sense.
+			pass					
 
 		self._pemObject.SetName(str(name))
 		self._name = self._pemObject.GetName()

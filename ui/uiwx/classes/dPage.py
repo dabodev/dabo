@@ -44,6 +44,7 @@ class dPage(dPanel.dPanel):
 
 		Subclasses may override.
 		"""
+		self.getDform().activeControlValid()
 		pass
 
 
