@@ -296,7 +296,7 @@ class dPemMixin(dPemMixinBase):
 		d['showInDesigner'] = not name in ('Size', 'Position', 'WindowHandle', 'TypeID')
 
 		# Some wx-specific props need to be initialized early. Let the designer know:
-		d['preInitProperty'] = name in styleProperties
+		d['preInitProperty'] = name in self._initProperties.values()
 
 		return d
 		
