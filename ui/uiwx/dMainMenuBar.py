@@ -12,11 +12,11 @@ app developer, so certain behavior can be overridden and/or
 extended.
 """
 import wx, os
-import dMenu as m
-import dMenuBar as mb
+from dMenu import dMenu
+from dMenuBar import dMenuBar
 import dIcons
 
-class FileMenu(m.dMenu):
+class FileMenu(dMenu):
 	def __init__(self, mainForm):
 		#FileMenu.doDefault(mainForm)
 		super(FileMenu, self).__init__(mainForm)
@@ -31,7 +31,7 @@ class FileMenu(m.dMenu):
 		mainForm.Bind(wx.EVT_MENU, self.actionList.getAction("FileExit")["func"], item)
 
 
-class EditMenu(m.dMenu):
+class EditMenu(dMenu):
 	def __init__(self, mainForm):
 		#EditMenu.doDefault(mainForm)
 		super(EditMenu, self).__init__(mainForm)
@@ -83,14 +83,15 @@ class EditMenu(m.dMenu):
 		mainForm.Bind(wx.EVT_MENU, self.actionList.getAction("EditPreferences")["func"], item)
 
 
-class ViewMenu(m.dMenu):
+class ViewMenu(dMenu):
 	def __init__(self, mainForm):
 		#ViewMenu.doDefault(mainForm)
 		super(ViewMenu, self).__init__(mainForm)
+		super(ViewMenu, self).__init__()
 
 
 
-class HelpMenu(m.dMenu):
+class HelpMenu(dMenu):
 	def __init__(self, mainForm):
 		#HelpMenu.doDefault(mainForm)
 		super(HelpMenu, self).__init__(mainForm)
@@ -102,7 +103,7 @@ class HelpMenu(m.dMenu):
 		mainForm.Bind(wx.EVT_MENU, self.actionList.getAction("HelpAbout")["func"], item)
 
 
-class dMainMenuBar(mb.dMenuBar):
+class dMainMenuBar(dMenuBar):
 	def __init__(self, mainForm):
 		super(dMainMenuBar, self).__init__()
 		self.Append(FileMenu(mainForm), "&File")

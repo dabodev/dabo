@@ -10,6 +10,8 @@ from dabo.dLocalize import _
 class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 	""" Allows presenting a choice of items for the user to choose from.
 	"""
+	_IsContainer = False
+	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dDropdownList
 		preClass = wx.PreChoice

@@ -10,6 +10,8 @@ class dComboBox(wx.ComboBox, dcm.dDataControlMixin):
 	
 	The user can choose an item in the dropdown, or enter freeform text.
 	"""
+	_IsContainer = False
+	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dComboBox
 		preClass = wx.PreComboBox

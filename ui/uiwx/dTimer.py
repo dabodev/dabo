@@ -11,6 +11,7 @@ import dIcons
 class dTimer(wx.StaticBitmap, cm.dControlMixin):
 	""" Create a timer. 
 	"""
+	_IsContainer = False
 	
 	# Note: this class is implemented as a static bitmap which serves as
 	# a proxy to the underlying timer object. This was to allow the timer

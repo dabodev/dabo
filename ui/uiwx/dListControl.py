@@ -20,6 +20,8 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	general Dabo set of controls, we will need to streamline the adding
 	of items, sorting, etc. - all the things that this control can do.
 	"""
+	_IsContainer = False
+	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dListControl
 		

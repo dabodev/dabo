@@ -4,6 +4,8 @@ import dPemMixin
 import dSizerMixin
 
 class dBorderSizer(wx.StaticBoxSizer, dSizerMixin.dSizerMixin):
+	_IsContainer = False
+	
 	def __init__(self, box, orientation="h"):
 		# Make sure that they got the params in the right order
 		if type(box) == type(""):

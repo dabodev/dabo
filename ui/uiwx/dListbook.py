@@ -11,6 +11,8 @@ from dabo.dLocalize import _
 class dListbook(wx.Listbook, cm.dControlMixin):
 	""" Create a container for an unlimited number of pages.
 	"""
+	_IsContainer = True
+	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dListbook
 		preClass = wx.PreListbook

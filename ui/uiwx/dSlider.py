@@ -12,6 +12,8 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 	
 	Slider does not allow entering a value with the keyboard.
 	"""
+	_IsContainer = False
+	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dSlider
 		preClass = wx.PreSlider

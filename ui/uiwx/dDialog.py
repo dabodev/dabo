@@ -2,6 +2,8 @@ import wx
 import dSizer, dFormMixin
 
 class dDialog(wx.Dialog, dFormMixin.dFormMixin):
+	_IsContainer = True
+	
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dDialog
 		preClass = wx.PreDialog

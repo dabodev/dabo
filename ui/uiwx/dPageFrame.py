@@ -11,6 +11,8 @@ import dabo.dEvents as dEvents
 class dPageFrame(wx.Notebook, cm.dControlMixin):
 	""" Create a container for an unlimited number of pages.
 	"""
+	_IsContainer = True
+	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dPageFrame
 		preClass = wx.PreNotebook

@@ -5,6 +5,7 @@ import dabo.dEvents as dEvents
 class dPage(dPanel.dScrollPanel):
 	""" Create a page to appear as a tab in a dPageFrame.
 	"""
+	_IsContainer = True
 	
 	def _afterInit(self):
 		self.initSizer()

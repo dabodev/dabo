@@ -6,6 +6,8 @@ if __name__ == "__main__":
 import dControlMixin as cm
 
 class dGrid(wx.grid.Grid, cm.dControlMixin):
+	_IsContainer = False
+	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dGrid
 		preClass = wx.grid.Grid

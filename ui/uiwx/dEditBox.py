@@ -12,6 +12,8 @@ from dabo.dLocalize import _
 class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 	""" Allows editing of string or unicode data of unlimited length.
 	"""
+	_IsContainer = False
+	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dEditBox
 		preClass = wx.PreTextCtrl

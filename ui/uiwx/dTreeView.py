@@ -1,3 +1,6 @@
 """ dTreeView.py """
 
-class dTreeView: pass
+class dTreeView:
+	_IsContainer = True
+	
+

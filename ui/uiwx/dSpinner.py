@@ -10,6 +10,8 @@ from dabo.dLocalize import _
 class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 	""" Allows editing integer values.
 	"""
+	_IsContainer = False
+	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dSpinner
 		preClass = wx.PreSpinCtrl

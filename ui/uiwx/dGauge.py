@@ -8,6 +8,8 @@ import dControlMixin as cm
 class dGauge(wx.Gauge, cm.dControlMixin):
 	""" Allows the creation of progress bars.
 	"""
+	_IsContainer = False
+	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dGauge
 		preClass = wx.PreGauge

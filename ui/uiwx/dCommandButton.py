@@ -10,6 +10,8 @@ import dabo.dEvents as dEvents
 class dCommandButton(wx.Button, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button.
 	"""
+	_IsContainer = False
+	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dCommandButton
 		preClass = wx.PreButton
