@@ -83,12 +83,14 @@ class Band(dabo.ui.dPanel):
 
 class ReportDesigner(dabo.ui.dScrollPanel):
 	def afterInit(self):
+		self._zoom = self._normalZoom = 1.3
 		self._bands = []
 		self._rw = ReportWriter()
 		self._rw.ReportFormFile = "samplespec.rfxml"
 		self.ReportForm = self._rw.ReportForm
+		self.BackColor = (192,192,192)
 
-		for band in ("pageHeader", "pageFooter"):
+		for band in ("pageHeader", "detail", "pageFooter"):
 			b = Band(self, Caption=band)
 			b.props = self.ReportForm[band]
 			b._rw = self._rw
@@ -98,27 +100,37 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 
 	def _onFormResize(self, evt):
-		print 'resize'
-#		print self._rw.getPageSize()
-#		self.Width = self._rw.getPageSize()[0]
-		bandWidth = self._rw.getPageSize()[0]
+		"""Resize and position the bands accordingly."""
+		rw = self._rw
+		rf = self._rw.ReportForm
+		z = self._zoom
+		pageWidth = rw.getPageSize()[0] * z
+		ml = rw.getPt(eval(rf["page"]["marginLeft"])) * z
+		mr = rw.getPt(eval(rf["page"]["marginRight"])) * z
+		mt = rw.getPt(eval(rf["page"]["marginTop"])) * z
+		mb = rw.getPt(eval(rf["page"]["marginBottom"])) * z
+		bandWidth = pageWidth - ml - mr
+
 		for index in range(len(self._bands)):
 			band = self._bands[index]
 			band.Width = bandWidth
+			band.Left = ml
 			b = band.bandLabel
 			b.Width = band.Width
 		
-			band.Height = band._rw.getPt(eval(band.props["height"])) + b.Height
+			band.Height = z * (band._rw.getPt(eval(band.props["height"])) + b.Height)
 			b.Top = band.Height - b.Height
 
 			if index == 0:
-				band.Top = 0
+				band.Top = mt
 			else:
 				band.Top = self._bands[index-1].Top + self._bands[index-1].Height
-			totBandHeight = band.Top + band.Height
+			totPageHeight = band.Top + band.Height
 	
 		u = 10
-		self.SetScrollbars(u,u,bandWidth/u,totBandHeight/u)
+		totPageHeight = totPageHeight + mt + mb
+		self.SetScrollbars(u,u,pageWidth/u,totPageHeight/u)
+
 
 class ReportDesignerForm(dabo.ui.dForm):
 	def afterInit(self):
@@ -126,6 +138,41 @@ class ReportDesignerForm(dabo.ui.dForm):
 		self.addObject(ReportDesigner, Name="reportDesigner")
 
 		self.Caption = "Dabo Report Designer: %s" % self.reportDesigner._rw.ReportFormFile
+		self.fillMenu()
+
+	def getCurrentEditor(self):
+		return self.reportDesigner
+
+	def onViewZoomIn(self, evt):
+		ed = self.getCurrentEditor()
+		ed._zoom = ed._zoom + .1
+		ed._onFormResize(None)
+
+	def onViewZoomNormal(self, evt):
+		ed = self.getCurrentEditor()
+		ed._zoom = ed._normalZoom
+		ed._onFormResize(None)
+
+	def onViewZoomOut(self, evt):
+		ed = self.getCurrentEditor()
+		ed._zoom = ed._zoom - .1
+		ed._onFormResize(None)
+
+	def fillMenu(self):
+		mb = self.MenuBar
+		viewMenu = mb.getMenu("View")
+		dIcons = dabo.ui.dIcons
+				
+		viewMenu.appendSeparator()
+
+		viewMenu.append("Zoom &In\tCtrl++", bindfunc=self.onViewZoomIn, 
+		                bmp="zoomIn", help="Zoom In")
+
+		viewMenu.append("&Normal Zoom\tCtrl+/", bindfunc=self.onViewZoomNormal, 
+		                bmp="zoomNormal", help="Normal Zoom")
+
+		viewMenu.append("Zoom &Out\tCtrl+-", bindfunc=self.onViewZoomOut, 
+		                bmp="zoomOut", help="Zoom Out")
 
 if __name__ == "__main__":
 	app = dabo.dApp()
