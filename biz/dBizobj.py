@@ -640,6 +640,14 @@ class dBizobj(object):
             return self._cursor.setFieldVal(fld, val)
         else:
             return None
+    
+    
+    def getDataSet(self):
+        """
+        Returns the full data set from the cursor. Used by UI objects such as
+        the grid for efficient loading of the data.
+        """
+        return self._cursor.getDataSet()
         
 
 

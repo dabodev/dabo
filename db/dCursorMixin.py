@@ -278,6 +278,14 @@ class dCursorMixin:
             else:
                 self.addToErrorMsg(loc("Field '") + fld + loc("' does not exist in the data set"))
         return ret
+    
+    
+    def getDataSet(self):
+        """ Return the entire data set """
+        if  hasattr(self, "_rows"):
+            return self._rows
+        else:
+            return ()   ## Empty tuple
 
 
     def getRowCount(self):

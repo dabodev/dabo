@@ -46,20 +46,17 @@ class dGridDataTable(wx.grid.PyGridTableBase):
         self.data = []
         
         # Fill self.data based on bizobj records
-        for record in range(self.bizobj.getRowCount()):
+        dataSet = self.bizobj.getDataSet()
+        for record in dataSet:
             recordDict = []
-            self.bizobj.moveToRowNum(record)
             for column in self.grid.columnDefs:
-                recordVal = eval("self.bizobj.%s" % column["name"])
+                recordVal = record[column["name"]]
                 if column["type"] == "M":
                     # Show only the first 64 chars of the long text:
                     recordVal = str(recordVal)[:64]
                 recordDict.append(recordVal)
 
             self.data.append(recordDict)
-        
-        # bizobj's current row was moved above; reset    
-        self.bizobj.moveToRowNum(oldRow)
         
         # The data table is now current, but the grid needs to be
         # notified.
