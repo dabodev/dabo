@@ -269,7 +269,7 @@ class dBizobj(dabo.common.dObject):
 			self.Cursor.beginTransaction()
 		
 		try:
-			self.scan(self._saveRowIfChanged)
+			self.scan(self._saveRowIfChanged, startTransaction, topLevel)
 		except dException, e:
 			if startTransaction:
 				self.Cursor.rollbackTransaction()
@@ -279,14 +279,14 @@ class dBizobj(dabo.common.dObject):
 			self.Cursor.commitTransaction()
 			
 	
-	def _saveRowIfChanged(self):
+	def _saveRowIfChanged(self, startTransaction, topLevel):
 		""" Meant to be called as part of a scan loop. That means that we can
 		assume that the current record is the one we want to act on. Also, we
 		can pass False for the two parameters, since they will have already been
 		accounted for in the calling method.
 		"""
 		if self.isChanged():
-			self.save(startTransaction=False, topLevel=False)
+			self.save(startTransaction, topLevel)
 			
 
 	def save(self, startTransaction=False, topLevel=True):
