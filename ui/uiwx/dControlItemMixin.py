@@ -20,6 +20,18 @@ class dControlItemMixin(dDataControlMixin):
 		chc.append(txt)
 		chc += self._choices[pos:]
 		self.Choices = chc
+	
+	
+	def removeItem(self, pos):
+		""" Removes the item at the specified position. """
+		del self._choices[pos]
+		self.Delete(pos)
+
+
+	def removeAll(self):
+		""" Removes all entries from the control. """
+		self._choices = []
+		self.Clear()
 		
 	
 	def clearSelections(self):

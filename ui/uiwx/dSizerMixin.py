@@ -316,6 +316,15 @@ class dSizerMixin(dabo.common.dObject):
 	def _setBorder(self, val):
 		self._border = val
 		
+	def _getBorderAll(self):
+		try:
+			return (self._borderBottom and self._borderTop
+					and self._borderLeft and self._borderRight )
+		except:
+			return False
+	def _setBorderAll(self, val):
+		self._borderBottom = self._borderTop = self._borderLeft = self._borderRight = val
+		
 	def _getBorderBottom(self):
 		try:
 			return self._borderBottom
@@ -380,6 +389,8 @@ class dSizerMixin(dabo.common.dObject):
 	
 	Border = property(_getBorder, _setBorder, None,
 			"Sets the default border for the sizer.  (int)" )
+	BorderAll = property(_getBorderAll, _setBorderAll, None,
+			"By default, do we add the border to all sides?  (bool)" )
 	BorderBottom = property(_getBorderBottom, _setBorderBottom, None,
 			"By default, do we add the border to the bottom side?  (bool)" )
 	BorderLeft = property(_getBorderLeft, _setBorderLeft, None,
