@@ -19,7 +19,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		"""
 		try:
 			ret = self.FindWindowByName(att)
-		except TypeError:
+		except:
 			ret = None
 		if not ret:
 			raise AttributeError, "%s object has no attribute %s" % (
@@ -40,18 +40,20 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		
 		
 	def __init__(self, *args, **kwargs):
-		
-		if self.Position == (-1, -1):
-			# The object was instantiated with a default position,
-			# which ended up being (-1,-1). Change this to (0,0). 
-			# This is completely moot when sizers are employed.
-			self.Position = (0, 0)
+		try:
+			if self.Position == (-1, -1):
+				# The object was instantiated with a default position,
+				# which ended up being (-1,-1). Change this to (0,0). 
+				# This is completely moot when sizers are employed.
+				self.Position = (0, 0)
 
-		if self.Size == (-1, -1):
-			# The object was instantiated with a default position,
-			# which ended up being (-1,-1). Change this to (0,0). 
-			# This is completely moot when sizers are employed.
-			self.Size = (0, 0)
+			if self.Size == (-1, -1):
+				# The object was instantiated with a default position,
+				# which ended up being (-1,-1). Change this to (0,0). 
+				# This is completely moot when sizers are employed.
+				self.Size = (0, 0)
+		except:
+			pass
 
 		if not wx.HelpProvider.Get():
 			# The app hasn't set a help provider, and one is needed
@@ -66,7 +68,10 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._initEvents()
 		self.afterInit()
 		
-		self.SetAcceleratorTable(wx.AcceleratorTable(self.acceleratorTable))
+		try:
+			self.SetAcceleratorTable(wx.AcceleratorTable(self.acceleratorTable))
+		except:
+			pass
 		
 
 	def _initEvents(self):

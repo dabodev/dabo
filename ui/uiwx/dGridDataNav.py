@@ -10,7 +10,7 @@ import wx, wx.grid
 import urllib
 import dIcons
 import dabo.dException as dException
-import dEvents
+import dEvents, dTimer
 
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
@@ -250,15 +250,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 class dGridDataNav(dGrid.dGrid):
-#	def __init__(self, parent, bizobj, form):
-#		wx.grid.Grid.__init__(self, parent, -1)
 	def initProperties(self):
 
-		ID_IncrementalSearchTimer = wx.NewId()
 		self.currentIncrementalSearch = ""
 		self.incrementalSearchTimerInterval = 300     # This needs to be user-tweakable
-		self.incrementalSearchTimer = wx.Timer(self, ID_IncrementalSearchTimer)
-
+		self.incrementalSearchTimer = dTimer.dTimer(self)
+		
 		self.sortedColumn = None
 		self.sortOrder = ""
 
@@ -270,7 +267,7 @@ class dGridDataNav(dGrid.dGrid):
 		self.headerDragTo = 0
 		self.headerSizing = False
 
-		self.bindEvent(dEvents.Timer, self.onIncrementalSearchTimer, self.incrementalSearchTimer)
+		self.incrementalSearchTimer.bindEvent(dEvents.Timer, self.onIncrementalSearchTimer)
 		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
 
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.OnLeftDClick)
@@ -398,7 +395,7 @@ class dGridDataNav(dGrid.dGrid):
 		if len(self.currentIncrementalSearch) > 0:
 			self.processIncrementalSearch()
 		else:
-			self.incrementalSearchTimer.Stop()
+			self.incrementalSearchTimer.Interval = 0
 
 
 	def OnHeaderMotion(self, evt):
@@ -641,13 +638,13 @@ class dGridDataNav(dGrid.dGrid):
 		Called by KeyDown when the user pressed an alphanumeric key. Add the 
 		key to the current search and start the timer.        
 		"""
-		self.incrementalSearchTimer.Stop()
+		self.incrementalSearchTimer.Interval = 0
 
 		self.currentIncrementalSearch = ''.join((self.currentIncrementalSearch, key))
 		self.Form.setStatusText('Search: %s'
 				% self.currentIncrementalSearch)
 
-		self.incrementalSearchTimer.Start(self.incrementalSearchTimerInterval)
+		self.incrementalSearchTimer.Interval = self.incrementalSearchTimerInterval
 
 
 	def popupMenu(self):

@@ -36,6 +36,7 @@ from dPage import dPage
 from dSlider import dSlider
 from dSpinner import dSpinner
 from dTextBox import dTextBox
+from dTimer import dTimer
 from dToggleButton import dToggleButton
 from dTreeView import dTreeView
 

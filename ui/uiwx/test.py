@@ -24,7 +24,7 @@ class Test(object):
 		frame.SetSize((300,1))
 		object = classRef(frame)
 		object.debug = True
-		frame.SetLabel("Test of %s" % object.GetName())
+		frame.SetLabel("Test of %s" % object.Name)
 		object.SetFocus()
 		frame.Show()
 		object.Show()
