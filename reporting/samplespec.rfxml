@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+
+<!-- 
+
+This is a sample report form spec that I handcoded for the purpose of
+getting the XML -> Python process working in the ReportWriter. Basically,
+we want to end up with a tree of dictionaries, except in the case of the
+object list, where we want a list of objects containing dictionaries with
+each object's properties (because the relative ordering of objects is
+important for front/back placement).
+
+Currently, the samplespec.py creates separate dictionaries, not a tree of
+dictionaries as specified above. What I plan to do is get the XML parser
+working to create the dictionary tree, and then code the ReportWriter to
+understand the tree. Then I'll rewrite samplespec.py with the new format
+and test that. What we'll end up with is a ReportWriter that can take as
+its ReportForm any of:
+	
+	+ XML
+	+ python module in samplespec.py format
+	+ tree of dicts
+
+Once the Report Designer is alive and producing the XML (June 2005 ?), 
+the other two modes will mostly only be used for testing purposes I'd 
+imagine.
+
+None of this is working yet, this spec is just to get me going.
+
+-->
+
+
+<report>
+	<title>"Dabo's Favorite Artists"</title>
+
+	<testcursor iid="int" cArtist="str">
+		<record iid="1" cArtist="The Clash" />
+		<record iid="2" cArtist="Queen" />
+		<record iid="3" cArtist="Metallica" />
+	</testcursor>
+
+	<page>
+		<size>"letter"</size>
+		<orientation>"portrait"</orientation>
+		<marginLeft>".5 in"</marginLeft>
+		<marginRight>".5 in"</marginRight>
+		<marginTop>".5 in"</marginTop>
+		<marginBottom>".5 in"</marginBottom>
+	</page>
+
+	<bands>
+		<pageHeader>
+			<height>"0.5 in"</height>
+			<objects>
+				<object>
+					<type>string</type>
+					<expr>self.ReportTitle</expr>
+					<align>"center"</align>
+					<x>"3.75 in"</x>
+					<y>".3 in"</y>
+					<hAnchor>"center"</hAnchor>
+					<width>"6 in"</width>
+					<height>".25 in"</height>
+					<borderWidth>"0 pt"</borderWidth>
+					<fontName>"Helvetica"</fontName>
+					<fontSize>14</fontSize>
+				</object>
+			</objects>
+		</pageHeader>
+
+		<pageFooter>
+		</pageFooter>
+
+		<pageBackground>
+		</pageBackground>
+
+		<detail>
+		</detail>
+
+	</bands>				
+</report>
