@@ -1,0 +1,82 @@
+<Date of Announcement>
+Announcing Dabo <Version>, a framework for 3-tier desktop applications.
+
+Dabo is a Python module, allowing for easy construction of 3-tier desktop
+applications. The 3 tiers are:
+
+    + The database, which can be any database with available dbapi modules.
+      Currently, Dabo only supports MySQL, but we intend to support very
+      soon:
+      
+        + MySQL (already supported)
+        + PostgreSQL
+        + PySQLite
+        + Microsoft SQL Server and MSDE
+        + Oracle
+        
+      This module abstracts the details of getting a database connection and
+      acquiring a recordset. SQL can be built piece-by-piece, allowing for
+      easy dynamic where clauses, for example.
+      
+      
+    + The business object, which abstracts the interaction with the database
+      tier and enforces business rules as set by your application code. Users
+      of the Codebook Framework for Visual Foxpro will feel right at home with
+      Dabo's bizobj class, as it uses the exact same API in most cases.
+      
+      
+    + The user interface, which can be any of several GUI's available for use
+      with Python. Currently, Dabo only supports wxPython, but we have left 
+      open the possibility of supporting:
+      
+        + wxPython (already supported)
+        + tkInter
+        + PyQt
+        + curses (text-UI could be useful for servers)
+        
+      
+      Dabo provides a host of useful UI base classes, including bizobj-aware
+      forms, data-aware controls (textbox, editbox, spinner, checkbox, etc.),
+      message boxes, and a data-browsing grid with incremental search built-in.
+      
+
+The database layer can be used independently from the rest of Dabo, as can the 
+UI layer provided you don't require any data-awareness. But the real strength 
+comes with using Dabo as your entire framework, complete with the dApp application
+object. 
+
+Dabo is dual-licensed. You may download it and use it for free under the GPL,
+which would allow you to distribute it for free with your GPL projects, or you 
+may purchase licenses for distribution with commercial or proprietary applications.
+There is no warranty provided with Dabo, it is provided 'as-is'.
+
+Dabo runs on Unix, Linux, Macintosh OSX, and Windows (all flavors).
+
+The primary means of support is provided through the dabo-users mailing list, 
+to which you may subscribe by visiting:
+
+<dabo-users subscribe instructions>
+
+
+Dabo may be downloaded from the following link:
+
+<dabo-download link>
+
+
+To participate in the development of Dabo, you'll need to install the Subversion
+source control system, available at http://subversion.tigris.org. The repository
+can then be downloaded by issuing the following command:
+
+svn checkout svn://paulmcnett.com/dabo/trunk dabo
+
+In addition to the main dabo project, there are three other sub-projects in various
+states of development:
+
+svn checkout svn://paulmcnett.com/dabodemo/trunk dabodemo
+svn checkout svn://paulmcnett.com/dabodesigner/trunk dabodesigner
+svn checkout svn://paulmcnett.com/dabodoc/trunk dabodoc
+
+You'll also want to subscribe to the dabo-dev mailing list by visiting:
+
+<dabo-dev subscribe instructions>
+
