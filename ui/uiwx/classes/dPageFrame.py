@@ -37,7 +37,11 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 		ls = self.lastSelection
 		cs = event.GetSelection()
 
-		event.Skip()    # This must happen before onLeave/EnterPage below
+		### EGL: commented this out, since it was messing up the case where 
+		###  there was a pageframe inside another pageframe. Changing the 
+		###  inner pageframe was sending the page changing event to the outer
+		###  pageframe, which isn't correct.
+		#event.Skip()    # This must happen before onLeave/EnterPage below
 
 		newPage = self.GetPage(cs)
 		oldPage = self.GetPage(ls)    
