@@ -72,7 +72,12 @@ class dFormMixin(pm.dPemMixin):
 	def __onActivate(self, evt): 
 		# Restore the saved size and position, which can't happen 
 		# in __init__ because we may not have our name yet.
-		if not self.restoredSP:
+		try:
+			restSP = self.restoredSP
+		except:
+			print "not DEFINED"
+			restSP = False
+		if not restSP:
 			self.restoreSizeAndPosition()
 		if hasattr(self, "GetStatusBar"):
 			if self.GetStatusBar() is None and not isinstance(self, wx.MDIChildFrame) and self.ShowStatusBar:
@@ -175,6 +180,19 @@ class dFormMixin(pm.dPemMixin):
 		self.Refresh()
 		
 		
+	def refreshControls(self):
+		""" Refresh the value of all contained dControls.
+
+		Raises EVT_VALUEREFRESH which will be caught by all dControls, who will
+		in turn refresh themselves with the current value of the field in the
+		bizobj. 
+		"""
+		self.raiseEvent(dEvents.ValueRefresh)
+		try:
+			self.setStatusText(self.getCurrentRecordText())
+		except: pass
+
+
 	def onDebugDlg(self, evt):
 		# Handy hook for getting info.
 		if self.useOldDebugDialog:
