@@ -36,9 +36,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.beforeInit(pre)                  # defined in dPemMixin
 		pre.Create(parent, id, title, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
-		self.this = pre.this
-		self._setOORInfo(self)
-
+		self.PostCreate(pre)
+		
 		self.Name, self.Caption = name, name
 
 		if parent:        

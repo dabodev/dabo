@@ -13,8 +13,7 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 
 		pre.Create(parent, id, name, style=style | pre.GetWindowStyle(), *args, **kwargs)
 
-		self.this = pre.this
-		self._setOORInfo(self)
+		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)
 		self.afterInit()                      # defined in dPemMixin

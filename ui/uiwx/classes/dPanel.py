@@ -16,9 +16,8 @@ class dPanel(wx.Panel, dControlMixin.dControlMixin):
 		self.beforeInit(pre)                  # defined in dPemMixin
 		pre.Create(parent, id=id, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
-		self.this = pre.this
-		self._setOORInfo(self)
-
+		self.PostCreate(pre)
+		
 		dControlMixin.dControlMixin.__init__(self, name)
 
 		self.afterInit()                      # defined in dPemMixin

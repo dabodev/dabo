@@ -13,7 +13,6 @@ def getIconBitmap(iconName):
 	return a wx.Bitmap object. If not found, return a wx.NullBitmap object.
 	'''
 	fileName = dabo.icons.getIconFileName(iconName)
-	print "fileName", fileName
 	if os.path.exists(fileName):
 		if wx.GetApp():
 			r = wx.Image(fileName, wx.BITMAP_TYPE_PNG)

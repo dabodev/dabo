@@ -23,9 +23,8 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 		self.beforeInit(pre)                  # defined in dPemMixin
 		pre.Create(None, -1, "dFormMain")
 
-		self.this = pre.this
-		self._setOORInfo(self)
-
+		self.PostCreate(pre)
+		
 		self.SetName("dFormMain")
 		self.SetSize((640,480))
 		self.SetPosition((0,0))

@@ -13,9 +13,8 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 		style = style | pre.GetWindowStyle()
 		pre.Create(parent, id, pos, size, style, name)
 
-		self.this = pre.this
-		self._setOORInfo(self)
-
+		self.PostCreate(pre)
+		
 		dControlMixin.dControlMixin.__init__(self, name)
 		self.afterInit()                      # defined in dPemMixin
 
