@@ -72,11 +72,83 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if self.Application is not None:
 			self.Application.uiForms.add(self)
 		
+		self.bindEvent(dEvents.Close, self.__onClose)
 		self.bindEvent(dEvents.Activate, self.__onActivate)
 		self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
+		
+		# Determines if the user is prompted to save changes
+		# when the form is closed.
+		self.checkForChanges = True
 
 		self._afterInit()                      # defined in dPemMixin
 
+
+	def confirmChanges(self):
+		""" If the form's checkForChanges property is true,
+		see if there are any pending changes on the form's bizobjs.
+		If so, ask the user if they want to save/discard/cancel.
+		
+		Subclasses may have their own bizobj management schemes,
+		so we can't rely on simply calling getPrimaryBizobj() here.
+		Instead, we'll call a special method that will return a list
+		of bizobjs to act upon.
+		"""
+		if not self.checkForChanges:
+			# Don't bother checking
+			return True
+		bizList = self.getBizobjsToCheck()
+		changed = False
+		for biz in bizList:
+			changed = changed or biz.isAnyChanged()
+		
+		if changed:
+			response = dMessageBox.areYouSure(_("Do you wish to save your changes?"),
+					cancelButton=True)
+			if response == None:    # cancel
+				# They canceled, so don't let the form close
+				return False
+			elif response == True:  # yes
+				for biz in bizList:
+					self.save(dataSource=biz.DataSource)
+		return True
+	
+	
+	def getBizobjsToCheck(self):
+		""" Default behavior is to simply check the primary bizobj.
+		However, there may be cases in subclasses where a different
+		bizobj may be checked, or even several. In those cases, override
+		this method and return a list of the required bizobjs.
+		"""
+		return [self.getPrimaryBizobj()]
+		
+		
+	def _beforeClose(self, evt):
+		""" See if there are any pending changes in the form, if the
+		form is set for checking for this. If everything's OK, call the 
+		hook method.
+		"""
+		ret = self.confirmChanges()
+		if ret:
+			ret = self.beforeClose(evt)
+		return ret
+		
+		
+	def beforeClose(self, evt):
+		""" Hook method. Returning False will prevent the form from 
+		closing. Gives you a chance to determine the status of the form
+		to see if changes need to be saved, etc.
+		"""
+		return True
+		
+		
+	def close(self):
+		""" Stub method to be customized in subclasses. At this point,
+		the form is going to close. If you need to do something that might
+		prevent the form from closing, code it in the beforeClose() 
+		method instead.
+		"""
+		pass
+		
 
 	def addBizobj(self, bizobj):
 		""" Add a bizobj to this form.
@@ -494,6 +566,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if self.Application.ActiveForm == self:
 			self.Application.ActiveForm = None
 
+	def __onClose(self, evt):
+		if self._beforeClose(evt):
+			self.close()
+		else:
+			evt.stop()
+	
 
 	# Property get/set/del functions follow.
 	def _getSaveAllRows(self):

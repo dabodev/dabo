@@ -327,6 +327,13 @@ class dDataNavForm(dForm.dForm):
 				self.setPrimaryBizobj(self._mainTable)
 		
 	
+	def getBizobjsToCheck(self):
+		""" The primary bizobj may be for one of the child pages.
+		Therefore, we should return the main bizobj here
+		"""
+		return [self.getBizobj(dataSource=self._mainTable)]
+		
+	
 	def beforeCreation(self):
 		""" Hook method available to customize form creation settings
 		before anything on the form, its toolbar, or its menu is created.
