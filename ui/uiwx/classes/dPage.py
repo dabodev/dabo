@@ -51,7 +51,42 @@ class dPage(wx.Panel, dControlMixin):
         event.Skip()
     
 
-class dSelectPage(dPage): pass
+class dSelectPage(dPage):
+    
+    def fillItems(self):
+        dataSource = self.getDform().getBizobj().dataSource
+        columnDefs = self.getDform().getColumnDefs(dataSource)
+
+        stringMatchAll = []
+        
+        for column in columnDefs:
+            for selectType in column["selectTypes"]:
+                if selectType == "stringMatchAll":
+                    stringMatchAll.append(column)
+
+        if len(stringMatchAll) > 0:        
+            labelCaption = "String Match:"
+            labelWidth = 150
+
+            bs = wx.BoxSizer(wx.HORIZONTAL)
+
+            labelAlignment = wx.ALIGN_RIGHT
+
+            label = dLabel(self, windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE)
+            label.SetSize((labelWidth,-1))
+            label.SetName("lblStringMatchAll")
+            label.SetLabel(labelCaption)
+                
+            objectRef = dTextBox(self)
+            objectRef.SetName("stringMatchAll")
+
+            bs.Add(label)
+            bs.Add(objectRef, 1, wx.ALL, 0)
+
+            self.GetSizer().Add(bs, 0, wx.EXPAND)
+
+        self.GetSizer().Layout()
+
 
 class dBrowsePage(dPage):
     def __init__(self, parent):
@@ -67,6 +102,7 @@ class dBrowsePage(dPage):
             self.createGrid()
         if self.gridExists and pf.GetPage(pf.GetSelection()) == self:
             self.fillGrid()
+        event.Skip()
     
     def onEnterPage(self):
         if not self.gridExists:
@@ -107,6 +143,8 @@ class dEditPage(dPage):
             self.Enable(True)
         else:
             self.Enable(False)
+        if event:
+            event.Skip()
         
     def fillItems(self):
         dataSource = self.getDform().getBizobj().dataSource
@@ -140,8 +178,7 @@ class dEditPage(dPage):
                 else:
                     classRef = dTextBox
                 
-                objectRef = classRef(self)
-                objectRef.SetName(fieldName)
+                objectRef = classRef(self, fieldName)
                 objectRef.dataSource = dataSource
                 objectRef.dataField = fieldName
                 objectRef.Enable(fieldEnabled)

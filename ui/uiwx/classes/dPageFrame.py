@@ -31,7 +31,9 @@ class dPageFrame(wx.Notebook, dControlMixin):
         self.AddPage(dBrowsePage(self), "Browse", imageId=1)
         self.AddPage(dEditPage(self), "Edit", imageId=2)
         
+        self.GetPage(0).onEnterPage()
         
+                
     def OnPageChanged(self, event):
         ls = self.lastSelection
         cs = event.GetSelection()

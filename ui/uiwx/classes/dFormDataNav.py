@@ -22,6 +22,8 @@ class dFormDataNav(dForm):
     def afterSetPrimaryBizobj(self):        
         self.setupToolBar()
         self.setupMenu()
+        
+    def afterSetPrimaryColumnDef(self):
         self.setupPageFrame()
                 
     def setupToolBar(self):
@@ -273,6 +275,8 @@ class dFormDataNav(dForm):
                     column['selectTypes'].append('stringMatchAll')
         
         self._columnDefs[dataSource] = columnDefs
+        if dataSource == self.getBizobj().dataSource:
+            self.afterSetPrimaryColumnDef()
         
         
     def OnSetFocus(self, event):
@@ -283,6 +287,7 @@ class dFormDataNav(dForm):
         if isinstance(self, wx.MDIChildFrame):
             self.setupToolBar()
             self.setupMenu()
+        event.Skip()
 
             
     def requery(self):
