@@ -185,6 +185,8 @@ if __name__ == "__main__":
 	class T(dDropdownList):
 		def afterInit(self):
 			T.doDefault()
+			self.BackColor = "aquamarine"
+			self.ForeColor = "wheatdd"
 			self.setup()
 		
 		def initEvents(self):

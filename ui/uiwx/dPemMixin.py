@@ -289,13 +289,17 @@ class dPemMixin(dPemMixinBase):
 		"""
 		self._pemObject.SetWindowStyleFlag(self._pemObject.GetWindowStyleFlag() & (~flag))
 
-	def colorTupleFromName(self, color):
-		color = color.lower().strip()
+	def getColorTupleFromName(self, color):
+		"""Given a color name, such as "Blue" or "Aquamarine", return a color tuple.
+		
+		This is used internally in the ForeColor and BackColor property setters. The
+		color name is not case-sensitive. If the color name doesn't exist, an exception
+		is raised.
+		"""
 		try:
-			ret = dColors.colorDict[color]
-		except:
-			ret = (0,0,0)
-		return ret
+			return dColors.colorDict[color.lower().strip()]
+		except KeyError:
+			raise KeyError, "Color '%s' is not defined." % color
 
 	# Scroll to the bottom to see the property definitions.
 
@@ -308,8 +312,12 @@ class dPemMixin(dPemMixinBase):
 		return {'editor': 'colour'}
 
 	def _setBackColor(self, value):
-		if type(value) == str:
-			value = self.colorTupleFromName(value)
+		if type(value) in (str, unicode):
+			try:
+				value = self.getColorTupleFromName(value)
+			except KeyError:
+				dabo.errorLog.write("Error setting BackColor to '%s': color doesn't exist." % value)
+				value = self.BackColor
 		self._pemObject.SetBackgroundColour(value)
 		if self._pemObject == self:
 			# Background color changes don't seem to result in
@@ -452,8 +460,12 @@ class dPemMixin(dPemMixinBase):
 		return {'editor': 'colour'}
 
 	def _setForeColor(self, value):
-		if type(value) == str:
-			value = self.colorTupleFromName(value)
+		if type(value) in (str, unicode):
+			try:
+				value = self.getColorTupleFromName(value)
+			except KeyError:
+				dabo.errorLog.write("Error setting ForeColor to '%s': color doesn't exist." % value)
+				value = self.ForeColor
 		self._pemObject.SetForegroundColour(value)
 
 	
