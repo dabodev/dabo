@@ -72,9 +72,11 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		dabo.App is a wrapper for. 
 	"""
 	def __init__(self):
-		object.__init__(self)
+		dabo.dAppRef = self
+		dApp.doDefault()
 		self._initProperties()
 
+		
 	def setup(self):
 		""" Set up the app - call this before start()."""
 

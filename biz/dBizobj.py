@@ -7,7 +7,7 @@ import dabo.dException as dException
 import dabo.common
 import types
 
-class dBizobj(dabo.common.DoDefaultMixin):
+class dBizobj(dabo.common.dObject):
 	""" The middle tier, where the business logic resides.
 	"""
 	
@@ -29,7 +29,9 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		self._conn = conn
 		self.__params = None		# tuple of params to be merged with the sql in the cursor
 		self.__children = []		# Collection of child bizobjs
-		
+		self._baseClass = dBizobj
+
+		dBizobj.doDefault()		
 		##########################################
 		### referential integrity stuff ####
 		##########################################

@@ -1,7 +1,7 @@
 """ dPemMixin.py: Provide common PEM functionality """
 import wx, sys, types, dabo.common
 
-class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
+class dPemMixin(dabo.common.dObject):
 	""" Provide Property/Event/Method interfaces for dForms and dControls.
 
 	Subclasses can extend the property sheet by defining their own get/set
@@ -238,36 +238,6 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 	# Scroll to the bottom to see the property definitions.
 
 	# Property get/set/delete methods follow.
-	def _getDApp(self):
-		wxApp = wx.GetApp()
-		if wxApp:
-			try:
-				dApp = wxApp.dApp
-			except AttributeError:
-				dApp = None
-			return dApp
-		else:
-			return None
-			
-	def _getClass(self):
-		try:
-			return self.__class__
-		except AttributeError:
-			return None
-
-	def _getBaseClass(self):
-		try:
-			return self._baseClass
-		except AttributeError:
-			return None
-
-	def _getSuperClass(self):
-		if self.BaseClass == self.Class:
-			# Any higher up goes into the wx classes:
-			return None
-		else:
-			return self.__class__.__base__
-
 
 	def _getFont(self):
 		return self._pemObject.GetFont()
@@ -550,20 +520,6 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 
 
 	# Property definitions follow
-	dApp = property(_getDApp, None, None, 
-			'Object reference to the Dabo Application object. (read only).')
-	Name = property(_getName, _setName, None, 
-					'The name of the object. (str)')
-	Class = property(_getClass, None, None,
-					'The class the object is based on. Read-only. (class)')
-	BaseClass = property(_getBaseClass, None, None, 
-					'The base class of the object. Read-only. (class)')
-	SuperClass = property(_getSuperClass, None, None, 
-					'The parent class of the object. Read-only. (class)')
-
-	Parent = property(_getParent, None, None,
-					'The containing object. Read-only. (obj)')
-
 	WindowHandle = property(_getWindowHandle, None, None,
 					'The platform-specific handle for the window. Read-only. (long)')
 
@@ -619,6 +575,12 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
 					'Specifies the shape of the mouse pointer when it enters this window. (obj)')
+	
+ 	Name = property(_getName, _setName, None, 
+ 					'The name of the object. (str)')
+	
+	Parent = property(_getParent, _setParent, None,	
+					'The containing object. (obj)')
 
 	ToolTipText = property(_getToolTipText, _setToolTipText, None,
 					'Specifies the tooltip text associated with this window. (str)')

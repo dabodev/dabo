@@ -1,16 +1,19 @@
-# Unneeded.
+import dabo.common
 
-class dConnection(object):
+class dConnection(dabo.common.dObject):
 	""" Hold a connection to a backend database. 
 	"""
 	def __init__(self, connectInfo, parent=None):
+		self._baseClass = dConnection
 		# Store a reference to the parent object (bizobj maybe; app 
 		# object connection collection most likely)
-		self.parent = parent
+		self.Parent = parent
 
 		self._connectInfo = connectInfo
 		self._connection = self._openConnection()
 
+		
+		
 	def getConnection(self):
 		return self._connection
 

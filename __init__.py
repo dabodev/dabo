@@ -73,4 +73,7 @@ ToDo: pointers to get started.
 from dApp import dApp
 from dLocalize import loc
 
-import common
+import dabo.common
+
+# dApp will change the following value upon its __init__:
+dAppRef = None

@@ -1,6 +1,6 @@
-import dBackend
+import dBackend, dabo.common
 
-class dConnectInfo(object):
+class dConnectInfo(dabo.common.dObject):
 	""" Holder for the properties for connecting to the backend.
 
 	Each backend may have different names for properties, but this object
@@ -14,26 +14,30 @@ class dConnectInfo(object):
 	def __init__(self, backendName=None, host=None, user=None, 
 					password=None, dbName=None, port=None):
 
-		self.setBackendName(backendName)
-		self.setHost(host)
-		self.setUser(user)
-		self.setPassword(password)
-		self.setDbName(dbName)
-		self.setPort(port)
+		self._baseClass = dConnectInfo
+		dConnectInfo.doDefault(self)
+		self.BackendName = backendName
+		self.Host = host
+		self.User = user
+		self.Password = password
+		self.DbName = dbName
+		self.Port = port
 
+		
+		
 	def getConnection(self):
-		return self._backendObject.getConnection(self)
+		return self.BackendObject.getConnection(self)
 
 	def getDictCursor(self):
 		try:
-			return self._backendObject.getDictCursor()
+			return self.BackendObject.getDictCursor()
 		except TypeError:
 			return None
 
-	def getBackendName(self): 
+	def _getBackendName(self): 
 		return self._backendName
 
-	def setBackendName(self, backendName):
+	def _setBackendName(self, backendName):
 		""" Set the backend type for the connection.
 
 		Only sets the backend name if valid.
@@ -46,46 +50,52 @@ class dConnectInfo(object):
 			self._backendName = None
 			self._backendObject = None
 
-	def getBackendObject(self):
+	def _getBackendObject(self):
 		return self._backendObject
 
-	def getHost(self): 
+	def _getHost(self): 
 		return self._host
 
-	def setHost(self, host): 
+	def _setHost(self, host): 
 		self._host = host
 
-	def getUser(self): 
+	def _getUser(self): 
 		return self._user
 
-	def setUser(self, user): 
+	def _setUser(self, user): 
 		self._user = user
 
-	def getPassword(self): 
+	def _getPassword(self): 
 		return self._password
 
-	def setPassword(self, password): 
+	def _setPassword(self, password): 
 		self._password = password
 
-	def getDbName(self): 
+	def _getDbName(self): 
 		return self._dbName
 
-	def setDbName(self, dbName): 
+	def _setDbName(self, dbName): 
 		self._dbName = dbName
 
-	def getPort(self): 
+	def _getPort(self): 
 		return self._port
 
-	def setPort(self, port): 
+	def _setPort(self, port): 
 		self._port = port
 
-	BackendName = property(getBackendName, setBackendName)
-	Host = property(getHost, setHost)
-	User = property(getUser, setUser)
-	Password = property(getPassword, setPassword)
-	DbName = property(getDbName, setDbName)
-	BackendObject = property(getBackendObject)
-	Port = property(getPort, setPort)
+	BackendName = property(_getBackendName, _setBackendName)
+	Host = property(_getHost, _setHost, None, 
+			'The host name or ip address. (str)')
+	User = property(_getUser, _setUser, None,
+			'The user name. (str)')
+	Password = property(_getPassword, _setPassword, None,
+			'The password of the user. (str)')
+	DbName = property(_getDbName, _setDbName, None,
+			'The database name to login to. (str)')
+	BackendObject = property(_getBackendObject, None, None,
+			'The object reference to the database api. (obj)')
+	Port = property(_getPort, _setPort, None, 
+			'The port to connect on (may not be applicable for all databases). (int)')
 
 if __name__ == '__main__':
 	test = dConnectInfo()

@@ -1,11 +1,12 @@
 """ dabo.db.backend.py : abstractions for the various db api's """
+import dabo.common
 
-
-class dBackend(object):
+class dBackend(dabo.common.dObject):
 	""" Abstract object: inherit from this to define new dabo db interfaces.
 	"""
 	def __init__(self):
-		object.__init__(self)
+		self._baseClass = dBackend
+		dBackend.doDefault(self)
 		self.dbModuleName = None
 
 	def isValidModule(self):
