@@ -11,15 +11,14 @@ class ConnectInfo(object):
     '''
     
     def __init__(self, backendName=None, host=None, user=None, 
-                    password=None, dbName=None):
-        
-        self._initProperties()
+                    password=None, dbName=None, port=None):
         
         self.setBackendName(backendName)
         self.setHost(host)
         self.setUser(user)
         self.setPassword(password)
         self.setDbName(dbName)
+        self.setPort(port)
 
     def getConnection(self):
         try:
@@ -76,21 +75,19 @@ class ConnectInfo(object):
     def setDbName(self, dbName): 
         self._dbName = dbName
    
-    def _initProperties(self):
-     
-        self._backendObject = None
-        self._backendName = None
-        self._host = None
-        self._user = None
-        self._password = None
-        self._dbName = None
-
+    def getPort(self): 
+        return self._port
+    
+    def setPort(self, port): 
+        self._port = port
+    
     backendName = property(getBackendName, setBackendName)
     host = property(getHost, setHost)
     user = property(getUser, setUser)
     password = property(getPassword, setPassword)
     dbName = property(getDbName, setDbName)
     backendObject = property(getBackendObject)
+    port = property(getPort, setPort)
     
 if __name__ == '__main__':
     test = ConnectInfo()

@@ -25,6 +25,7 @@ class Backend(object):
         ''' override in subclasses '''
         return None
 
+        
 class MySQL(Backend):
     def __init__(self):
         Backend.__init__(self)
@@ -33,11 +34,52 @@ class MySQL(Backend):
     def getConnection(self, connectInfo):
         import MySQLdb as dbapi
         
+        port = connectInfo.port
+        if not port:
+            port = "3690"
+             
         return dbapi.connect(host=connectInfo.host, 
                              user=connectInfo.user,
                              passwd=connectInfo.password,
-                             db=connectInfo.dbName)
+                             db=connectInfo.dbName,
+                             port=port)
 
     def getDictCursor(self):
         import MySQLdb.cursors as cursors
         return cursors.DictCursor
+
+        
+class Gadfly(Backend):
+    ''' Single-use version of Gadfly: specify a directory and 
+        database. The directory should probably be on the local
+        computer.
+    '''
+    def __init__(self):
+        Backend.__init__(self)
+        self.dbModuleName = "gadfly"
+        
+    def getConnection(self, connectInfo):
+        import gadfly as dbapi
+        return dbapi.gadfly(connectInfo.dbName, connectInfo.host)
+        
+        
+class GadflyClient(Backend):
+    ''' Network client version of Gadfly: connect to a Gadfly server.
+        This is suitable for multiple users.
+    '''
+    def __init__(self):
+        Backend.__init__(self)
+        self.dbModuleName = "gfclient"
+    
+    def getConnection(self, connectInfo):
+        import gadfly.client as dbapi
+        
+        port = connectInfo.port
+        if not port:
+            port = "2222"
+            
+        return dbapi.gfclient(connectInfo.user, 
+                              port, 
+                              connectInfo.password,
+                              connectInfo.host)
+                              
