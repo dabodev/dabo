@@ -99,7 +99,10 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		"""
 		isFld = False
 		if att != '_dBizobj__cursor' and self.__cursor is not None:
-			isFld = self.setFieldVal(att, val)
+			try:
+				isFld = self.setFieldVal(att, val)
+			except:
+				isFld = None
 		if not isFld:
 			super(dBizobj, self).__setattr__(att, val)
 
