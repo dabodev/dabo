@@ -428,11 +428,12 @@ class dGrid(wx.grid.Grid):
      
         
     def processIncrementalSearch(self):
-        ''' dGrid.processIncrementalSearch(char) -> None
+        ''' dGrid.processIncrementalSearch() -> None
         
-            Add the passed char to the incremental search string if it
-            exists, and run the search. Called by dGrid.OnKeyDown() when
-            an alphanumeric character is entered.
+            Called from the incrementalSearchNewKeyTimer after
+            an interval has passed since the user pressed a key, indicating
+            that we should now carry out the incremental search using 
+            the string of characters already entered.
         '''
         # Stop the timer, add the character to the incremental search string,
         # process the search, and restart the timer
