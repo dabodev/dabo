@@ -2,7 +2,7 @@ import wx, dabo
 from dLabel import dLabel
 from dTextBox import dTextBox
 from dDialog import dDialog
-from dCommandButton import dCommandButton
+from dButton import dButton
 from dSizer import dSizer
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
@@ -64,8 +64,8 @@ class dLogin(dDialog):
 		self.lblPassword.Caption = "Password:"
 		self.txtPassword.Value = ""
 		
-		self.addObject(dCommandButton, 'cmdAccept')
-		self.addObject(dCommandButton, 'cmdCancel')
+		self.addObject(dButton, 'cmdAccept')
+		self.addObject(dButton, 'cmdCancel')
 		self.cmdAccept.Caption = "Accept"
 		self.cmdAccept.Default = True
 		self.cmdCancel.Caption = "Cancel"

@@ -7,7 +7,7 @@ from dLabel import dLabel
 from dSizer import dSizer
 from dGridSizer import dGridSizer
 from dPanel import dPanel
-from dCommandButton import dCommandButton
+from dButton import dButton
 
 
 class dAbout(dDialog):
@@ -73,7 +73,7 @@ class dAbout(dDialog):
 
 		sz.append(gs, 1, "x", alignment="right")
 		sz.BorderBottom = True
-		btn = dCommandButton(pnlBack, Caption="OK")
+		btn = dButton(pnlBack, Caption="OK")
 		btn.bindEvent(dEvents.Hit, self.onClear)
 		sz.append(btn, 0, alignment="center")
 		
