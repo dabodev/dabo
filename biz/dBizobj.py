@@ -805,12 +805,16 @@ class dBizobj(dabo.common.dObject):
 
 
 	def setParentFK(self, val=None):
-		""" Accepts and set the foreign key value linking to the parent table.
+		""" Accepts and sets the foreign key value linking to the 
+		parent table for all records.
 		"""
 		if self.LinkField:
 			if val is None:
 				val = self.getParentPK()
-			self.setFieldVal(self.LinkField, val)
+			self.scan(self._setParentFK, val)
+	
+	def _setParentFK(self, val):
+		self.setFieldVal(self.LinkField, val)
 	
 	
 	def setCurrentParent(self, val=None):
