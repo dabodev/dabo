@@ -264,7 +264,6 @@ class Form(dabo.ui.dForm):
 		if self.beforeSetupPageFrame():
 			self.lockScreen()
 			self.pageFrame = PageFrame.PageFrame(self)
-			nbSizer = wx.NotebookSizer(self.pageFrame)
 			self.Sizer.append(nbSizer, "expand", 1)
 			self.pageFrame.addSelectPage()
 			self.pageFrame.addBrowsePage()
