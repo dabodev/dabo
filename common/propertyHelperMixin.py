@@ -16,6 +16,16 @@ class PropertyHelperMixin(object):
 			t = ("Caption", "FontInfo", "Form")
 			print self.getProperties(t)
 			print self.getProperties(*t)
+			
+		An exception will be raised if any passed property names don't 
+		exist, aren't actual properties, or are not readable (do not have
+		getter functions).
+		
+		However, if an exception is raised from the property getter function,
+		the exception will get caught and used as the property value in the 
+		returned property dictionary. This allows the property list to be 
+		returned even if some properties can't be evaluated correctly by the 
+		object yet.
 		"""
 		propDict = {}
 		
@@ -25,22 +35,30 @@ class PropertyHelperMixin(object):
 				if type(propRef) == property:
 					getter = propRef.fget
 					if getter is not None:
-						propDict[prop] = getter(self)
+						try:
+							propDict[prop] = getter(self)
+						except Exception, e:
+							propDict[prop] = e
 					else:
 						raise ValueError, "Property '%s' is not readable." % prop
 				else:
 					raise AttributeError, "'%s' is not a property." % prop
+					
 		if type(propertySequence) in (list, tuple):
 			_fillPropDict(propertySequence)
 		else:
 			if type(propertySequence) in (str, unicode):
+				# propertySequence is actually a string property name:
+				# append to the propertyArguments tuple.
 				propertyArguments = list(propertyArguments)
 				propertyArguments.append(propertySequence)
 				propertyArguments = tuple(propertyArguments)
 		_fillPropDict(propertyArguments)
+		
 		if len(propertyArguments) == 0 and len(propertySequence) == 0:
 			# User didn't send a list of properties, so return all properties:
 			_fillPropDict(self.getPropertyList())
+			
 		return propDict
 
 	
@@ -65,7 +83,6 @@ class PropertyHelperMixin(object):
 					if setter is not None:
 						setter(self, _propDict[prop])
 					else:
-						# not sure what to do here
 						raise ValueError, "Property '%s' is read-only." % prop
 				else:
 					raise AttributeError, "'%s' is not a property." % prop
