@@ -451,7 +451,15 @@ class dBizobj(dabo.common.dObject):
 			raise dException, e
 
 		if restorePosition:
-			self.RowNumber = currRow
+			try:	
+				self.RowNumber = currRow
+			except:
+				# Perhaps the row was deleted; at any rate, leave the pointer
+				# at the end of the data set
+				row = self.RowCount  - 1
+				if row >= 0:
+					self.RowNumber = row
+				
 
 
 	def new(self):
