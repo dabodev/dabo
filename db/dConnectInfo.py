@@ -1,6 +1,6 @@
-import backend
+import dBackend
 
-class ConnectInfo(object):
+class dConnectInfo(object):
     ''' Holder for the properties for connecting to the backend 
     
         ci = ConnectInfo('MySQL')
@@ -38,12 +38,12 @@ class ConnectInfo(object):
             the correct backend instance.
         '''
         try:
-            backendObject = eval("backend.%s()" % backendName)
-        except AttributeError:
-            return
-        if backendObject.isValidModule():
+            backendObject = eval("dBackend.%s()" % backendName)
             self._backendName = backendName
             self._backendObject = backendObject
+        except:
+            self._backendName = None
+            self._backendObject = None
     
     def getBackendObject(self):
         return self._backendObject
@@ -87,7 +87,7 @@ class ConnectInfo(object):
     port = property(getPort, setPort)
     
 if __name__ == '__main__':
-    test = ConnectInfo()
+    test = dConnectInfo()
     print test.backendName
     test.backendName = "MySQL"
     print test.backendName

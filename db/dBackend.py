@@ -1,6 +1,6 @@
 ''' dabo.db.backend.py : abstractions for the various db api's '''
 
-class Backend(object):
+class dBackend(object):
     ''' Abstract object: inherit from this to define new dabo db interfaces '''
     
     def __init__(self):
@@ -26,9 +26,9 @@ class Backend(object):
         return None
 
         
-class MySQL(Backend):
+class MySQL(dBackend):
     def __init__(self):
-        Backend.__init__(self)
+        dBackend.__init__(self)
         self.dbModuleName = "MySQLdb"
                 
     def getConnection(self, connectInfo):
@@ -49,13 +49,13 @@ class MySQL(Backend):
         return cursors.DictCursor
 
         
-class Gadfly(Backend):
+class Gadfly(dBackend):
     ''' Single-use version of Gadfly: specify a directory and 
         database. The directory should probably be on the local
         computer.
     '''
     def __init__(self):
-        Backend.__init__(self)
+        dBackend.__init__(self)
         self.dbModuleName = "gadfly"
         
     def getConnection(self, connectInfo):
@@ -63,12 +63,12 @@ class Gadfly(Backend):
         return dbapi.gadfly(connectInfo.dbName, connectInfo.host)
         
         
-class GadflyClient(Backend):
+class GadflyClient(dBackend):
     ''' Network client version of Gadfly: connect to a Gadfly server.
         This is suitable for multiple users.
     '''
     def __init__(self):
-        Backend.__init__(self)
+        dBackend.__init__(self)
         self.dbModuleName = "gfclient"
     
     def getConnection(self, connectInfo):

@@ -1,6 +1,6 @@
 import dabo.dConstants as k
 
-class SqlBuilderMixin:
+class dSqlBuilderMixin:
     """ 
     The following properties are used to create SQL statements
     in a programmatic fashion

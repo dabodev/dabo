@@ -21,8 +21,8 @@ class dConnection(object):
         return self._connectInfo.getConnection()
 
 if __name__ == "__main__":
-    from connectInfo import ConnectInfo
-    ci = ConnectInfo('MySQL')
+    from dConnectInfo import dConnectInfo
+    ci = dConnectInfo('MySQL')
     ci.host = 'paulmcnett.com'
     ci.dbName = "house"
     ci.user = 'dabo'

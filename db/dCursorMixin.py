@@ -1,5 +1,5 @@
 import dabo.dConstants as k
-from memento import Memento
+from dMemento import dMemento
 import types
 
 class dCursorMixin:
@@ -267,7 +267,7 @@ class dCursorMixin:
                 self.addMemento(i)
         row = self._rows[rownum]
         if not row.has_key(k.CURSOR_MEMENTO):
-            row[k.CURSOR_MEMENTO] = Memento()
+            row[k.CURSOR_MEMENTO] = dMemento()
         # Take the snapshot of the current values
         row[k.CURSOR_MEMENTO].setMemento(row)
 
