@@ -2,6 +2,7 @@ import wx
 import dIcons
 import dabo.dEvents as dEvents
 import dForm, dDataNavPageFrame
+import dabo.ui
 from dabo.common import specParser
 import os, random
 
@@ -309,7 +310,7 @@ class dDataNavForm(dForm.dForm):
 
 
 	def onShowSQL(self, evt):
-		sql = self.Bizobj.getSQL()
+		sql = self.getPrimaryBizobj().getSQL()
 		if sql is None:
 			sql = "-Nothing executed yet-"
 		mb = dabo.ui.dMessageBox.info(sql, "Last SQL")
