@@ -17,8 +17,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self.enabled = True
 
 		# Initialize runtime properties
-		self.bizobj = None
-			
+		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
+		
 	
 	def _initEvents(self):
 		super(dDataControlMixinBase, self)._initEvents()
@@ -93,46 +93,32 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return None
 
 
-	def getFieldVal(self):
-		""" Ask the bizobj what the current value of the field is. 
-		"""
-		if not self.bizobj:
-			# Ask the form for the bizobj reference, and cache for next time
-			self.bizobj = self.Form.getBizobj(self.DataSource)
-		return self.bizobj.getFieldVal(self.DataField)
-
-
-	def setFieldVal(self, value):
-		""" Ask the bizobj to update the field value. 
-		"""
-		if not self.bizobj:
-			# Ask the form for the bizobj reference, and cache for next time
-			self.bizobj = self.Form.getBizobj(self.DataSource)
-		try:
-			return self.bizobj.setFieldVal(self.DataField, value)
-		except AttributeError:
-			# Eventually, we'll want our global error handler be the one to write
-			# to the errorLog, at which point we should reraise the exception as 
-			# commented below. However, raising the exception here without a global
-			# handler results in some ugly GTK messages and a segfault, so for now
-			# let's just log the problem and let the app continue on.
-			#raise AttributeError, "There is no bizobj for datasource '%s'" % self.DataSource
-			dabo.errorLog.write("There is no bizobj for datasource '%s'" % self.DataSource)
-
-
 	def refresh(self):
-		""" Update control's value to match the current value from the bizobj.
+		""" Update control's value to match the current value from the source.
 		"""
-		if self.DataSource and self.DataField:
+		if not self.DataSource or not self.DataField:
+			return
+		if self._srcIsBizobj:
 			try:
-				self.Value = self.getFieldVal()
+				self.Value = self.Source.getFieldVal(self.DataField)
 				self.Enabled = self.enabled
 			except (TypeError, dException.NoRecordsException):
 				self.Value = self.getBlankValue()
 				# Do we need to disable the control?
 				#self.Enabled = False
+		else:
+			if self._srcIsInstanceMethod is None:
+				self._srcIsInstanceMethod = eval("type(self.Source.%s)" % self.DataField) == type(self.refresh)
+			if self._srcIsInstanceMethod:
+				expr = "self.Source.%s()" % self.DataField
+			else:
+				expr = "self.Source.%s" % self.DataField
+			try:
+				self.Value = eval(expr)
+			except:
+				dabo.errorLog.write("Could not evaluate value for %s" % expr)
 			
-
+			
 	def select(self, position, length):
 		""" Select all text from <position> for <length> or end of string.
 		
@@ -158,7 +144,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	
 	
 	def flushValue(self):
-		""" Save any changes to the underlying bizobj field.
+		""" Save any changes to the underlying source field.
 		"""
 		curVal = self.Value
 		
@@ -169,7 +155,29 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		
 		if curVal != oldVal:
 			if self.DataSource and self.DataField:
-				self.setFieldVal(curVal)
+				src = self.Source
+				if self._srcIsBizobj:
+					try:
+						return src.setFieldVal(self.DataField, curVal)
+					except AttributeError:
+						# Eventually, we'll want our global error handler be the one to write
+						# to the errorLog, at which point we should reraise the exception as 
+						# commented below. However, raising the exception here without a global
+						# handler results in some ugly GTK messages and a segfault, so for now
+						# let's just log the problem and let the app continue on.
+						#raise AttributeError, "No source object found for datasource '%s'" % self.DataSource
+						dabo.errorLog.write("No source object found for datasource '%s'" % self.DataSource)
+				else:	
+					# If the binding is to a method, do not try to assign to that method.
+					if self._srcIsInstanceMethod is None:
+						self._srcIsInstanceMethod = eval("type(src.%s)" % self.DataField) == type(self.flushValue)
+					if self._srcIsInstanceMethod:
+						return
+					try:
+						exec("src.%s = curVal" % self.DataField)
+					except:
+						dabo.errorLog.write("Could not bind to '%s.%s'" % (self.DataSource, self.DataField) )
+
 			self._afterValueChanged()
 		
 		# In most controls, self._oldVal is set upon GotFocus. Some controls
@@ -270,18 +278,46 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return False
 	def _setSaveRestoreValue(self, value):
 		self._SaveRestoreValue = bool(value)
+		
+	def _getSrc(self):
+		if self.__src is None:
+			ds = self._DataSource
+			if ds:
+				# Source can be a bizobj, which we get from the form, or
+				# another object.
+				if ds.lower() == "form":
+					# We're bound to the form itself
+					self.__src = self.Form
+					self._srcIsBizobj = False
+				elif ds[:5] == "self.":
+					# it's a locally resolvable reference.
+					try: 
+						self.__src = eval(ds)
+						self._srcIsBizobj = False
+					except: pass
+				else:
+					# It's a bizobj reference; get it from the Form.
+					self.__src = self.Form.getBizobj(ds)
+					self._srcIsBizobj = True
+		return self.__src
+
 	
 	# Property definitions:
 	DataSource = property(_getDataSource, _setDataSource, None,
-						'Specifies the dataset to use as the source of data. (str)')
+			_("Specifies the dataset to use as the source of data.  (str)") )
 	
 	DataField = property(_getDataField, _setDataField, None,
-						'Specifies the data field of the dataset to use as the source of data. (str)')
+			_("""Specifies the data field of the dataset to use as the source 
+			of data. (str)""") )
 	
 	SaveRestoreValue = property(_getSaveRestoreValue, _setSaveRestoreValue, None, 
-						'Specifies whether the Value of the control gets saved when destroyed and '
-						'restored when created. Use when the control isn\'t bound to a dataSource '
-						'and you want to persist the value, as in an options dialog. (bool)')
+			_("""Specifies whether the Value of the control gets saved when 
+			destroyed and restored when created. Use when the control isn't 
+			bound to a dataSource and you want to persist the value, as in 
+			an options dialog.  (bool)""") )
 	
+	Source = property(_getSrc, None, None,
+			_("Reference to the object to which this control's Value is bound  (object)") )
+			
 	Value = property(None, None, None,
-		'Specifies the current state of the control (the value of the field). (varies)')
+		_("Specifies the current state of the control (the value of the field). (varies)") )
