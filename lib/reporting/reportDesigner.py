@@ -12,7 +12,7 @@ class Band(dabo.ui.dPanel):
 		self._bandLabelHeight = 27
 		self.BackColor = (255,255,255)
 		self.Top = 100
-		self.addObject(BandLabel, "bandLabel", FontSize=7, Height=self._bandLabelHeight)
+		self.addObject(BandLabel, "bandLabel", FontSize=10, Height=self._bandLabelHeight)
 
 		self.bandLabel.bindEvent(dEvents.Hit, self._onBandLabelHit)
 

@@ -794,8 +794,7 @@ if __name__ == "__main__":
 	rw.ShowBandOutlines = True
 	rw.UseTestCursor = True
 
-#	for reportForm in ("./samplespec.rfxml", "./samplespec.py"):
-for reportForm in("./samplespec.py", "./samplespec.rfxml",):
+	for reportForm in ("./samplespec.rfxml", "./samplespec.py"):
 		output = "./test-%s.pdf" % os.path.splitext(reportForm)[1][1:]
 		print "Creating %s from report form %s..." % (output, reportForm)
 		rw.ReportFormFile = reportForm
