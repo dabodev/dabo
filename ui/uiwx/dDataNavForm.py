@@ -207,12 +207,23 @@ class dDataNavForm(dForm.dForm):
 		subclasses and overriding self.beforeSetupPageFrame(), 
 		self.setupPageFrame, and/or self.afterSetupPageFrame().
 		"""
+		try:
+			self.pageFrame.Destroy()
+			chld = self.GetSizer().GetChildren()
+			for c in chld:
+				if c.IsSizer():
+					if isinstance(c.GetSizer(), wx.NotebookSizer):
+						self.GetSizer().Detach(c.GetSizer())
+		except: pass
+			
 		if self.beforeSetupPageFrame():
+			self.Freeze()
 			self.pageFrame = dDataNavPageFrame.dDataNavPageFrame(self)
 			nbSizer = wx.NotebookSizer(self.pageFrame)
 			self.GetSizer().Add(nbSizer, 1, wx.EXPAND)
+			self.GetSizer().Layout()
 			self.afterSetupPageFrame()
-
+			self.Thaw()
 			
 	def beforeSetupPageFrame(self): return True
 	def afterSetupPageFrame(self): pass
