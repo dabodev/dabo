@@ -27,7 +27,7 @@ else:
 class bgImgPanel(dPanel.dPanel):
 	def __init__(self, parent):
 		bgImgPanel.doDefault(parent)
-		self.bitmap = dIcons.getIconBitmap("daboIcon128")
+		self.bitmap = dIcons.getIconBitmap("dabo_lettering_250x100")
 		self.needRedraw = False
 		self.szTimer = wx.StopWatch()
 		self.bindEvent(dabo.dEvents.Paint, self.onPaint)
@@ -66,20 +66,8 @@ class bgImgPanel(dPanel.dPanel):
 		## pkm: the scaling is ugly and is what was causing the slow
 		## response: instead, let's center the bitmap.
 		dc.Clear()
-		dc.DrawBitmap(self.bitmap, (wd/2) - 64, (ht/2) -64)
+		dc.DrawBitmap(self.bitmap, 10, (ht - 110))
 		sw.Pause()
-		#print "Resize took", (sw.Time() / 1000.0), "seconds"
-
-# 	def Draw(self, dc):
-# 		sw = wx.StopWatch()
-# 		sw.Start()
-# 		mdc = wx.MemoryDC()
-# 		mdc.SelectObject(self.bitmap)
-# 		w, h = self.bitmap.GetWidth(), self.bitmap.GetHeight()
-# 		dc.SetUserScale( (self.Width / w), (self.Height / h) )
-# 		dc.Blit(0, 0, w, h, mdc, 0, 0)
-# 		sw.Pause()
-# 		print "Resize took", (sw.Time() / 1000.0), "seconds"
 
 
 class dFormMain(wxFrameClass, fm.dFormMixin):
