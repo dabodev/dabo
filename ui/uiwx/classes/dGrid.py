@@ -310,6 +310,10 @@ class dGrid(wx.grid.Grid):
                 AlphaNumeric:  incremental search
         '''
         keyCode = evt.GetKeyCode()
+        try:
+            char = chr(keyCode)
+        except ValueError:       # keycode not in ascii range
+            char = None
         
         if keyCode == 13:           # Enter
             self.editRecord()
@@ -318,10 +322,8 @@ class dGrid(wx.grid.Grid):
                 self.deleteRecord()
             elif keyCode == 343:    # F2
                 self.processSort()
-            elif keyCode in range(128) and not evt.HasModifiers():
-                char = chr(keyCode)
-                if char.isalnum():
-                    self.addToIncrementalSearch(char)
+            elif char and char.isalnum() and not evt.HasModifiers():
+                self.addToIncrementalSearch(char)
             else:
                 pass
             evt.Skip()
