@@ -1,10 +1,10 @@
 import constants as k
-from memento import memento
+from memento import Memento
 import types
 
-class cursor(object):
+class dCursor:
     def __init__(self, sql="", *args, **kwargs):
-    	self._initproperties()
+    	self._initProperties()
         self.sql = sql
 
     def setSQL(self, sql):
@@ -59,8 +59,12 @@ class cursor(object):
                 self.addToErrorMsg("Field '" + fld + "' does not exist in the data set")
         return ret
 
+    def moveToPK(self, pkVal):
+        ''' Move the record pointer to the row with the passed pk value. '''
+        pass
+        
     def first(self):
-        """ Moves the record pointer to the first record of the recordset. """
+        """ Move the record pointer to the first record of the recordset. """
         self._errorMsg = ""
         ret = k.FILE_OK
         if self.rowcount > 0:
@@ -71,7 +75,7 @@ class cursor(object):
         return ret
 
     def prior(self):
-        """ Moves the record pointer back one position in the recordset. """
+        """ Move the record pointer back one position in the recordset. """
         self._errorMsg = ""
         ret = k.FILE_OK
         if self.rowcount > 0:
@@ -263,7 +267,7 @@ class cursor(object):
                 self.addMemento(i)
         row = self._rows[rownum]
         if not row.has_key(k.CURSOR_MEMENTO):
-            row[k.CURSOR_MEMENTO] = dMemento()
+            row[k.CURSOR_MEMENTO] = Memento()
         # Take the snapshot of the current values
         row[k.CURSOR_MEMENTO].setMemento(row)
 

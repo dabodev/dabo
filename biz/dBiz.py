@@ -1,18 +1,69 @@
 import dabo.db.constants as k
 import dabo.db.dConnection as dConnection
-import dabo.db.cursor
+from dabo.db.dCursor import dCursor
 
 class dBiz(object):
-    def __init__(self, connection):
-        # Save the connection reference
-        self._conn = connection
+    # Title of the cursor. Used in resolving DataSource references
+    dataSource = ""
+    # SQL statement used to create the cursor's data
+    sql = ""
+    # When true, the cursor object does not run its query immediately. This
+    # is useful for parameterized queries
+    noDataOnLoad = 0
+    # Reference to the cursor object 
+    _cursor = None
+    # Reference to the parent bizobj to this one.
+    _parent = None
+    # Collection of child bizobjs for this
+    _children = []
+    # Name of field that is the PK 
+    keyField = ""
+    # Name of field that is the FK back to the parent
+    linkField = ""
+    # Holds any error messages generated during a process
+    _errorMsg = ""
+    # Dictionary holding any default values to apply when a new record is created
+    defaultValues = {}		
+    # Do we requery child bizobjs after a Save()?
+    requeryChildOnSave = 1
+    # Should new child records be added when a new parent record is added?
+    newChildOnNew = 0
+    # If this bizobj's parent has newChildOnNew =1, do we create a record here?
+    newRecordOnNewParent = 0
+    # In the onNew() method, do we fill in the linkField with the value returned by calling the parent
+    # bizobj's GetKeyValue() method?
+    fillLinkFromParent = 0
+    # After a requery, do we try to restore the record position to the same PK?
+    savePosOnRequery = 1
 
-        self._initProperties()
+    ##########################################
+    ### referential integrity stuff ####
+    ##########################################
+    ### Possible values for each type (not all are relevant for each action):
+    ### IGNORE - don't worry about the presence of child records
+    ### RESTRICT - don't allow action if there are child records
+    ### CASCADE - changes to the parent are cascaded to the children
+    deleteChildLogic = k.REFINTEG_CASCADE		# child records will be deleted
+    updateChildLogic = k.REFINTEG_IGNORE	# parent keys can be changed w/o affecting children
+    insertChildLogic = k.REFINTEG_IGNORE		# child records can be inserted even if no parent record exists.
+    ##########################################
+    # Versioning...
+    _version = "0.1.0"
+
+    def __init__(self, dConnection):
+        # Save the connection reference
+        self._conn = dConnection
+        # Mixin class 1 : the dabo cursor class
+        self.dCursorClass = dCursor
+        # Mixin class 2 : the cursor class from the db api
+        self.dbapiCursorClass = self._conn.getDictCursor()
+        self.createCursor()
         
+    def createCursor(self):        
         # Create the cursor that this bizobj will be using for data
         if self.beforeCreateCursor():
-            crsClass = self.getCursorClass(self.cursorMixinClass, self.cursorBaseClass)
-            self._cursor = conn.cursor(cursorclass=crsClass)
+            cursorMixinClass = self.getCursorMixinClass(self.dCursorClass, self.dbapiCursorClass)
+            self._cursor = self._conn.getConnection().cursor(cursorclass=cursorMixinClass)
             self._cursor.setSQL(self.sql)
             self._cursor.setKeyField(self.keyField)
             self._cursor.setTable(self.dataSource)
@@ -25,8 +76,7 @@ class dBiz(object):
             # Need to raise an exception here!
             pass
 
-
-    def getCursorClass(self, main, secondary):
+    def getCursorMixinClass(self, main, secondary):
         class result(main, secondary):
             def __init__(self, *args, **kwargs):
                 if hasattr(main, "__init__"):
@@ -35,8 +85,6 @@ class dBiz(object):
                 if hasattr(secondary, "__init__"):
                     apply(secondary.__init__,(self,) + args, kwargs)
         return  result
-
-
 
     def first(self):
         """ Move the record pointer in the cursor to the first record of the result set.
@@ -55,7 +103,6 @@ class dBiz(object):
         self.afterPointerMove(ret)
         self.afterFirst(ret)
         return ret
-
 
     def prior(self):
         """ Move the record pointer in the cursor back one position in the result set.
@@ -292,6 +339,9 @@ class dBiz(object):
         given the current state of the filtering parameters. """
         self._errorMsg = ""
 
+        if not self._cursor:
+            self.createCursor()
+            
         if not self.beforeRequery():
             return k.FILE_CANCEL
 
@@ -480,58 +530,4 @@ class dBiz(object):
     def afterChange(self, retStatus): pass
     def afterConnection(self): pass
     def afterCreateCursor(self): pass
-
-    def _initProperties(self):
-        # Title of the cursor. Used in resolving DataSource references
-        self.dataSource = ""
-        # SQL statement used to create the cursor's data
-        self.sql = ""
-        # When true, the cursor object does not run its query immediately. This
-        # is useful for parameterized queries
-        self.noDataOnLoad = 0
-        # Reference to the cursor object 
-        self._cursor = None
-        # Class to instantiate for the cursor object
-        self.cursorMixinClass = cursor.Cursor
-        # Base class to instantiate for the cursor object
-        ### TODO ### - change to Gadfly for default
-        self.cursorBaseClass = self._conn.getDictCursor()
-        # Reference to the parent bizobj to this one.
-        self._parent = None
-        # Collection of child bizobjs for this
-        self._children = []
-        # Name of field that is the PK 
-        self.keyField = ""
-        # Name of field that is the FK back to the parent
-        self.linkField = ""
-        # Holds any error messages generated during a process
-        self._errorMsg = ""
-        # Dictionary holding any default values to apply when a new record is created
-        self.defaultValues = {}		
-        # Do we requery child bizobjs after a Save()?
-        self.requeryChildOnSave = 1
-        # Should new child records be added when a new parent record is added?
-        self.newChildOnNew = 0
-        # If this bizobj's parent has newChildOnNew =1, do we create a record here?
-        self.newRecordOnNewParent = 0
-        # In the onNew() method, do we fill in the linkField with the value returned by calling the parent
-        # bizobj's GetKeyValue() method?
-        self. fillLinkFromParent = 0
-        # After a requery, do we try to restore the record position to the same PK?
-        self.savePosOnRequery = 1
-
-        ##########################################
-        ### referential integrity stuff ####
-        ##########################################
-        ### Possible values for each type (not all are relevant for each action):
-        ### IGNORE - don't worry about the presence of child records
-        ### RESTRICT - don't allow action if there are child records
-        ### CASCADE - changes to the parent are cascaded to the children
-        self.deleteChildLogic = k.REFINTEG_CASCADE		# child records will be deleted
-        self.updateChildLogic = k.REFINTEG_IGNORE	# parent keys can be changed w/o affecting children
-        self.insertChildLogic = k.REFINTEG_IGNORE		# child records can be inserted even if no parent record exists.
-        ##########################################
-        # Versioning...
-        self._version = "0.1.0"
-
 

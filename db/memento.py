@@ -1,6 +1,6 @@
 import constants as k
 
-class memento(object):
+class Memento(object):
     def __init__(self, vals=None):
         if vals is None:
             self.setMemento({})

@@ -13,6 +13,9 @@ class dConnection(object):
     def getConnection(self):
         return self._connection
 
+    def getDictCursor(self):
+        return self._connectInfo.getDictCursor()
+
     def _openConnection(self):
         ''' Open a connection to the database and store it for future use. '''
         return self._connectInfo.getConnection()

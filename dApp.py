@@ -48,8 +48,8 @@ class Collection(list):
         del self[index]
 
                 
-class App(object):
-    ''' dabo.App : The containing object for the entire application.
+class dApp(object):
+    ''' dabo.dApp : The containing object for the entire application.
                    Various UI's will have app objects also, which 
                    dabo.App is a wrapper for. 
     '''
