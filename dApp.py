@@ -87,6 +87,7 @@ class dApp(dabo.common.dObject):
 		# egl: added the option of keeping the main form hidden
 		# initially. The default behavior is for it to be shown, as usual.
 		self.showMainFormOnStart = True
+		self._wasSetup = False
 		
 
 	def setup(self, initUI=True):
@@ -112,6 +113,8 @@ class dApp(dabo.common.dObject):
 			self.uiApp.setup(self)
 		else:
 			self.uiApp = None
+		# Flip the flag
+		self._wasSetup = True
 
 
 	def start(self):
@@ -120,6 +123,11 @@ class dApp(dabo.common.dObject):
 			wrapping the application object for the ui library
 			being used.
 		"""
+		if not self._wasSetup:
+			# Convenience; if you don't need to customize setup(), just
+			# call start()
+			self.setup()
+			
 		if (not self.SecurityManager or not self.SecurityManager.RequireAppLogin
 			or self.SecurityManager.login()):
 			
