@@ -1,4 +1,4 @@
-from dabo.lib.reporting.reportWriter import ReportWriter
+from dabo.lib.reporting_old.reportWriter import ReportWriter
 from dabo.common.dObject import dObject
 
 class dReportWriter(dObject, ReportWriter): pass
@@ -7,7 +7,7 @@ if __name__ == "__main__":
 	## run a test:
 	rw = dReportWriter()
 	rw.Name = "dReportWriter1"
-	rw.OutputName = "./dReportWriter-test.pdf"
+	rw.OutputFile = "./dReportWriter-test.pdf"
 	print rw.Name, rw.Application
 
 	xml = """
