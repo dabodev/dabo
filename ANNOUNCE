@@ -1,13 +1,29 @@
-May 11, 2004
-Announcing Dabo 0.1
+June 13, 2004
+Announcing Dabo 0.1a
 
+See the ChangeLog for details of the changes between version 0.1 and 0.1a. In a nutshell, version 0.1a has:
+
+	+ preliminary support for Firebird database backend
+	+ tons of bugfixes
+	+ better parent/child support in bizobj's 
+	+ all Dabo objects have object-reference properties Form and Application
+	+ improved dGridDataNav control
+	+ improved Windows and Mac support
+	+ introduction of dDataControl, for editing date values
+	+ introduction of dSecurityManager to manage user logins
+	+ better handling of derived fields in cursors
+	+ introduction of dScrollPanel, a panel with scrollbars
+	+ lots of refactoring in the UI and bizobj layers
+	+ improved demos
+	+ improved designer
+	
 Dabo is a Python module that provides a true 3-tier desktop application framework. It separates the three main parts of a desktop app: database access, user interface and business logic. You would typically use Dabo to develop graphical, data-aware desktop applications.
 
 Both the database layer and the UI layer can be used independently from the rest of Dabo. In fact, we have endeavored to make the Dabo classes much simpler to work with than the underlying UI systems they are based on. But the real strength comes with using Dabo as your entire framework, complete with the dApp application object.
 
 Dabo, since it is written in Python, runs on Unix, Linux, Mac OS X, and Windows (all flavors).
 
-Dabo is very early in its development, so the choices for database and UI are limited at the moment. Currently, the only supported database backend is MySQL, and the only supported user interface library is wxPython. However, the system was designed from the beginning to be able to support any database or UI; all it will take is some time and effort. In the near future, all popular databases will be supported, including PostgreSQL, Oracle, Berkeley DB and MS-SQL. There is also no reason that other that other UI libraries, such as PyQt, TkInter, Curses, PyObjC, and even HTTP can work with Dabo.
+Dabo is very early in its development, so the choices for database and UI are limited at the moment. Currently, the only supported database backends are MySQL and Firebird/Interbase, and the only supported user interface library is wxPython. However, the system was designed from the beginning to be able to support any database or UI; all it will take is some time and effort. In the near future, all popular databases will be supported, including PostgreSQL, Oracle, Berkeley DB and MS-SQL. There is also no reason that other that other UI libraries, such as PyQt, TkInter, Curses, PyObjC, and even HTTP can work with Dabo.
 
 One of the key factors in the evolution of Dabo will be the contribution of the community. If you have a database or UI library you'd like supported, we'd love to add your contributions to the product! The key to any Open Source project is the involvement and development of a community, and Dabo is no different. 
 

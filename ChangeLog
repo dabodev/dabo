@@ -1,4 +1,796 @@
-Dabo-0.1:
+Dabo 0.1.1 (2004-06-13):
+
+------------------------------------------------------------------------
+r330 | ed | 2004-06-13 05:44:35 -0700 (Sun, 13 Jun 2004) | 6 lines
+
+Re-wrote the __setNonUpdateFields() method to be backend-agnostic. Also
+reduced the number of separate queries that were being run: previously, a
+query was run for each field in the cursor; now just one query is run, and
+the results are determined from that. Got to polish my list comprehension
+skills in the process <g>.
+
+------------------------------------------------------------------------
+r329 | ed | 2004-06-12 14:41:02 -0700 (Sat, 12 Jun 2004) | 11 lines
+
+Removed the direct access of the cursor's native rowcount and rownumber
+properties, and replaced it with protected attributes __rownumber and
+__rowcount. Made the properties RowNumber and RowCount to get and set these 
+properties.
+Also updated the SQL builder code to simplify the creation of the SQL
+statement.
+NOTE: the code recently added to use the cursor's description to determine
+non-updatable fields contains MySQL-specific code. Will have to test this
+with Firebird to make sure that the 'description' is correctly returned, and
+that the limit clause is correctly rendered.
+
+------------------------------------------------------------------------
+r328 | ed | 2004-06-12 13:07:14 -0700 (Sat, 12 Jun 2004) | 3 lines
+
+Refactored getCursor() up to the base dBackend class, since the change Paul
+just made for dbFirebird.py also works fine for dbMySQL.
+
+------------------------------------------------------------------------
+r327 | paul | 2004-06-12 12:47:41 -0700 (Sat, 12 Jun 2004) | 4 lines
+
+Fix dbFirebird.getCursor() to not hardcode the class mix, as it wasn't necessary.
+All I needed to do was to pass the connection instance to the cursor constructor.
+
+
+------------------------------------------------------------------------
+r326 | paul | 2004-06-12 12:37:12 -0700 (Sat, 12 Jun 2004) | 9 lines
+
+Modify dSqlBuilderMixin to return the correct limit clause based 
+on the backend in use. Firebird uses 'select first 1000...' while
+MySQL uses 'select ... limit 1000'.
+
+Add rownumber class variable to dCursorMixin which provides a
+temporary solution to the AttributeError when dbFirebird is the
+backend.
+
+
+------------------------------------------------------------------------
+r325 | paul | 2004-06-12 11:27:04 -0700 (Sat, 12 Jun 2004) | 18 lines
+
+Change default __params value to the empty tuple in dBizobj. Since different
+backends expect different types for the params arg, modify dCursorMixin.execute
+to not send the params arg at all if it is None or otherwise empty. Tested with
+MySQL and Firebird: Ok.
+
+Modified dbFirebird's getCursor() to do the required mixing-in and to return
+a full Dabo cursor instance. dbFirebird now gets past all the initial errors
+in my wiz-generated test app. Next up: there is MySQL-specific code in my
+dPageDataNav code - dbFirebird is currently choking on the LIMIT clause.
+
+Modified dProgressDialog to properly react to exceptions that happen in the
+passed function. It used to be that if an exception happened in the requery()
+code, the dProgressDialog wouldn't handle it and therefore the worker thread
+would never return control back to the main thread. Now, control is returned
+and the main thread tries to show useful information about the exception. It
+is a start at least.
+
+
+------------------------------------------------------------------------
+r324 | ed | 2004-06-11 18:02:38 -0700 (Fri, 11 Jun 2004) | 5 lines
+
+Abstracted the actual creation of the cursor into the specific backend
+objects. They will be passed the class of cursor to create; if they have an
+interface for specifying a cursor class, as MySQLdb does, it can be used; if
+not, it can be ignored.
+
+------------------------------------------------------------------------
+r323 | ed | 2004-06-11 17:44:56 -0700 (Fri, 11 Jun 2004) | 7 lines
+
+Forgot to update these two files.
+
+For some reason, the log message for the last commit was lost. Here it is:
+Changed the method 'getCursor()' to 'getCursorClass()', since its purpose is 
+to return the class, not the actual cursor
+
+
+------------------------------------------------------------------------
+r322 | ed | 2004-06-11 17:43:02 -0700 (Fri, 11 Jun 2004) | 1 line
+
+
+------------------------------------------------------------------------
+r321 | ed | 2004-06-11 17:41:49 -0700 (Fri, 11 Jun 2004) | 4 lines
+
+Added explicit import of the uiwx module. This is necessary for the
+single-file installer I'm working with, as it can't resolve the import files
+when they are not explicitly specified.
+
+------------------------------------------------------------------------
+r320 | paul | 2004-06-11 16:15:07 -0700 (Fri, 11 Jun 2004) | 21 lines
+
+Interim commit. Firebird is closer to working.
+
+Add a connection reference to the dBackend object.
+
+Update getLastInsertID() code to take advantage of a feature commonly added
+to the various dbapi's that automatically saves the last insert id for us.
+MySQL has this feature; Firebird does not.
+
+Add some convenience functions to dBackend (with thin wrappers in dCursorMixin):
+	+ getTables(): list of tables in the database
+	+ getTableRecordCount(): count of records in the table
+	+ getFields(): list of field names and field data types for the table
+
+	Note that the field data types are expresses in fox-like 'I', 'N', etc.
+	format. This is because there aren't a sufficient number of Python types
+	to express all the possible database types (memo versus string, etc.)
+
+Firebird barfs with execute(sql, params=None), but both MySQL and Firebird can
+handle params=() so I made that generic change.
+
+
+------------------------------------------------------------------------
+r319 | ed | 2004-06-11 15:01:52 -0700 (Fri, 11 Jun 2004) | 8 lines
+
+Added code for the cursorMixin to set its own superCursor reference if one
+isn't supplied. This will help in cases where this mixin class is used
+independently of the bizobj, which normally supplies that reference. Also
+wrapped references to the BackendObject property so that errors will not be
+thrown if this hasn't been set. If a developer wants to use this mixin
+outside of the framework, they will have to be responsible for setting this
+reference if they need to use any database-specific features.
+
+------------------------------------------------------------------------
+r318 | ed | 2004-06-11 07:36:00 -0700 (Fri, 11 Jun 2004) | 5 lines
+
+Abstracted out the direct use of the cursor's _rows property, as this was a
+MySQLdb-specific implementation. The new property is named '_records', and
+is created by calling 'fetchall()' after the query is executed.
+
+
+------------------------------------------------------------------------
+r317 | paul | 2004-06-10 16:52:35 -0700 (Thu, 10 Jun 2004) | 4 lines
+
+This commit makes Firebird cursors possible, but I'm not sure how the dictcursor
+stuff will resolve. I've verified that a connection is successful, but haven't
+verified that results can be obtained from the cursor yet.
+
+------------------------------------------------------------------------
+r316 | paul | 2004-06-09 16:07:44 -0700 (Wed, 09 Jun 2004) | 1 line
+
+Attempting to reproduce Julian's tracebacks on Win32 but failed. I did note other oddities however, so for now I've disabled MDI Windows which makes the Windows version run just like the Linux version.
+------------------------------------------------------------------------
+r315 | paul | 2004-06-09 15:44:14 -0700 (Wed, 09 Jun 2004) | 6 lines
+
+Fix some bugs in dConnectInfo that kept the wizMaintenanceApp from setting a 
+valid dbConnectionDef.py file.
+
+Begin tweaking the Firebird classdef.
+
+
+------------------------------------------------------------------------
+r314 | ed | 2004-06-09 08:16:23 -0700 (Wed, 09 Jun 2004) | 4 lines
+
+Added a rudimentary debugging dialog to the menu. Not quite a Command
+Window, but it at least allows for a little bit of interactive debugging.
+Eventually should be wrapped with a check for developer vs. user status.
+
+------------------------------------------------------------------------
+r313 | ed | 2004-06-09 08:13:08 -0700 (Wed, 09 Jun 2004) | 2 lines
+
+Corrected reference that was throwing an error when working in the Designer.
+
+------------------------------------------------------------------------
+r312 | ed | 2004-06-09 08:11:47 -0700 (Wed, 09 Jun 2004) | 2 lines
+
+Corrected problems integrating cursors with backend classes.
+
+------------------------------------------------------------------------
+r311 | ed | 2004-06-09 08:11:30 -0700 (Wed, 09 Jun 2004) | 2 lines
+
+Corrected problems integrating cursors with backend classes.
+
+------------------------------------------------------------------------
+r310 | ed | 2004-06-09 04:24:12 -0700 (Wed, 09 Jun 2004) | 3 lines
+
+Added stub files for Firebird and Sqlite. These are not tested at all, and
+will need to be completed with backend-specific code in order to work.
+
+------------------------------------------------------------------------
+r309 | ed | 2004-06-07 14:11:10 -0700 (Mon, 07 Jun 2004) | 2 lines
+
+Added code to ignore the temp PK field when creating diffs.
+
+------------------------------------------------------------------------
+r308 | ed | 2004-06-07 13:23:08 -0700 (Mon, 07 Jun 2004) | 3 lines
+
+Separated the processes of a) setting the FK link in a child and b) letting
+the child know the current state of its parent.
+
+------------------------------------------------------------------------
+r307 | paul | 2004-06-07 13:11:11 -0700 (Mon, 07 Jun 2004) | 4 lines
+
+Remove svn:executable flags from some of the newly-added scripts. I 
+think that this flag is getting added automagically for some reason.
+
+
+------------------------------------------------------------------------
+r306 | ed | 2004-06-07 12:58:35 -0700 (Mon, 07 Jun 2004) | 2 lines
+
+Removed old code from my first pass at creating a saveProps stack.
+
+------------------------------------------------------------------------
+r305 | ed | 2004-06-07 12:55:32 -0700 (Mon, 07 Jun 2004) | 9 lines
+
+Refactored the db classes to abstract out the backend-specific code into
+separate classes. There is now nothing MySQL-specific in the code (except,
+of course, the dbMySQL.py script!). Adding support for additional backends
+now will require adding a script for that backend's specific needs, and also
+an additional 'elif' statement in dConnectInfo.py. I changed to an if/elif
+structure instead of the eval() syntax because the this no longer requires
+that the database code be in the dBackend.py file, and the code no longer
+relies on naming conventions to work.
+
+------------------------------------------------------------------------
+r304 | ed | 2004-06-04 05:53:29 -0700 (Fri, 04 Jun 2004) | 3 lines
+
+Added some defensive code to properly handle the new Form and Application
+properties when working from the Designer.
+
+------------------------------------------------------------------------
+r303 | ed | 2004-05-28 05:09:59 -0700 (Fri, 28 May 2004) | 4 lines
+
+Corrected potential problem in scan() when it tries to restore its position
+to a row which no longer exists. In this case, it will set the row number to
+the last row in the data set.
+
+------------------------------------------------------------------------
+r302 | paul | 2004-05-27 18:59:04 -0700 (Thu, 27 May 2004) | 10 lines
+
+Calling setChildLinkFilter() in requery() is too late, as the SQL 
+has already been set with setSQL(), so for now I moved that from 
+requery() to setSQL() although I'm not sure if that is correct, but
+it does work.
+
+Fix typo in dCursorMixin.
+
+See my next commit to appRecipes as well.
+
+
+------------------------------------------------------------------------
+r301 | ed | 2004-05-27 14:12:19 -0700 (Thu, 27 May 2004) | 2 lines
+
+Corrected two typos in the prop defitions.
+
+------------------------------------------------------------------------
+r300 | ed | 2004-05-27 14:11:40 -0700 (Thu, 27 May 2004) | 2 lines
+
+Removed old syntax for RowNumber, RowCount and the allrows parameters
+
+------------------------------------------------------------------------
+r299 | ed | 2004-05-27 11:13:34 -0700 (Thu, 27 May 2004) | 45 lines
+
+dBizobj: 
+- changed a single cursor reference to a list of cursors, keyed on parent
+key. For independent cursors, this key is simply None.
+- modified all methods to support this new cursor design.
+- created read-only property 'Cursor' which will return the current cursor.
+- removed getRowNumber(), setRowNumber() and getRowCount() methods. Replaced
+them with the properties RowNumber and RowCount.
+- removed temp PK generation and management. Moved that logic to the cursor
+class.
+- there is now isChanged(), which only tests the current row, and
+isAnyChanged(), which tests the entire recordset.
+- save(), cancel(), etc., no longer accept an 'allrows' parameter. Instead,
+there are new saveAll(), cancelAll(), etc. methods to be called.
+- added scan() function which takes a function that will be called once for
+each record in the current recordset.
+- added setChildLinkFilter() method, which tells the child bizobjs which
+cursor to use as their current cursor when the parent record changes.
+- added getChangedRecordNumbers(), which will return a list containing the
+record numbers of all records for which isChanged() returns True. Since the
+change might be in a related child record, a record number may appear in the
+list even though none of its fields have changed.
+- added getRecordStatus(), which accepts a record number as a parameter
+(default=current record). Will return a dictionary containing an element for
+each modified field. The field name will be the element key, and the element
+value will be a tuple whose zeroth element is the original value, and whose
+first element is its current value.
+
+dCursorMixin:
+- temp PK support is now handled here instead of the bizobj.
+- getPK() will return the temp PK for a new, unsaved record
+- implemented getRecordStatus() - see bizobj notes above.
+- fixed bug introduced into the SQL update statements wwhen datetime support was
+added.
+
+dSqlBuilderMixin:
+- added childFilterClause, to handle auto-filtering of child record sets by
+the parent FK.
+
+dForm:
+- removed references to 'allrows' in save(), cancel(), etc., and replaced
+them with the appropriate methods (saveAll(), etc.)
+
+dConstants:
+- added constant for the temp PK field name
+
+------------------------------------------------------------------------
+r298 | paul | 2004-05-27 10:39:10 -0700 (Thu, 27 May 2004) | 3 lines
+
+Fix problem with setting the grid cursor column, where the 
+current cursor column is -1.
+
+------------------------------------------------------------------------
+r297 | paul | 2004-05-25 12:51:17 -0700 (Tue, 25 May 2004) | 3 lines
+
+Workaround to minor problem where the grid will scroll one column to the 
+right and one row down when first instantiated.
+
+------------------------------------------------------------------------
+r296 | paul | 2004-05-24 18:16:38 -0700 (Mon, 24 May 2004) | 1 line
+
+Fixes for Mac.
+------------------------------------------------------------------------
+r295 | paul | 2004-05-24 17:44:27 -0700 (Mon, 24 May 2004) | 7 lines
+
+Rename properties dApp and dForm to Application and Form, respectively.
+Move the definition of Form out of dObject and into dPemMixin, as 
+dObject was too low a location (outside of UI).
+
+
+
+
+------------------------------------------------------------------------
+r294 | paul | 2004-05-24 12:40:29 -0700 (Mon, 24 May 2004) | 22 lines
+
+Add newlines and tabs to the output SQL in SQLBuilderMixin, as it makes
+it easier on the eyes for SQL debugging purposes.
+
+Add property dForm to all Dabo objects. Analagous to THISFORM in VFP, it
+will always contain a reference to the form. 
+
+Add dGrid, a generic grid based on dControlMixin so it is a dObject. It 
+implements its own DataSource property as it doesn't inherit from 
+dDataControlMixin. Make dGridDataNav inherit from this new dGrid. Over
+time, I may move some behavior from dGridDataNav into dGrid if it seems
+like the behavior would apply to general dGrids.
+
+Make dForm.getBizobj() descend into the child bizobj hierarchy to find
+the referenced dataSource. Previously, only top-level bizobjs as registered
+with dForm.addBizobj() were searched.
+
+Add properties SelectPageClass, BrowsePageClass, EditPageClass, and
+ChildPageClass to dPageFrameDataNav, which allows for easy user-overriding
+of the pages in the dFormDataNav framework. Add property DefaultPagesOnLoad,
+which turns on/off the default select/browse/edit/child pages.
+
+
+------------------------------------------------------------------------
+r293 | paul | 2004-05-21 13:25:43 -0700 (Fri, 21 May 2004) | 11 lines
+
+Introduce dDateControl, a composite control for editing date values. It is
+very crude, but it did work in my test - it kept in sync with the bizobj.
+
+Modify update and insert code in dCursorMixin to properly format dates for 
+saving to MySQL - it wasn't putting quotes around the values. Put in 
+comments regarding MySQL-specific code.
+
+Tested working with dates in the UI and saving to MySQL, and it seemed to 
+work just fine.
+
+
+------------------------------------------------------------------------
+r292 | paul | 2004-05-20 14:44:18 -0700 (Thu, 20 May 2004) | 7 lines
+
+Remove minor cruft from dFormMixin. Make it load the smaller 048 Dabo icon
+by default.
+
+Add an icon to the login form by converting dLogin.Icon to a bitmap.
+
+
+
+------------------------------------------------------------------------
+r291 | paul | 2004-05-19 17:47:07 -0700 (Wed, 19 May 2004) | 16 lines
+
+Add a place for messages to be added to the login form, and set up
+dSecurityManager to pass on informative messages during the login 
+process.
+
+Add logged-in user name to the caption of the main form. Display 
+the application name in the caption of the login form.
+
+Move the ordering of app instantiation steps around somewhat so that
+the login form displays before the main form. Now, you only get to 
+see the main form after a successful login.
+
+Base dDialog on dFormMixin, which lets it harness some useful form 
+properties.
+
+
+
+------------------------------------------------------------------------
+r290 | ed | 2004-05-19 16:37:21 -0700 (Wed, 19 May 2004) | 11 lines
+
+Corrected really stupid bug in the cursor mixin where the _blank dictionary
+was being added to the result set, instead of a copy of it. This meant that
+changing the new record changed the 'blank' template, and subsequent new
+records were just adding new references to the same dictionary.
+
+Added support for temp PKs for new records. Child records will get those
+temp PKs as their linked FKs. Work still needs to be done when saving a new
+parent record to ensure that its new PK is propagated down to its new
+children.
+
+
+------------------------------------------------------------------------
+r289 | ed | 2004-05-19 13:02:56 -0700 (Wed, 19 May 2004) | 6 lines
+
+Modified the bizobj to handle 'backfilling' the FK links in child records
+added to a newly-created parent record. 
+
+This has only been tested marginally, so Paul, please let me know how it
+works with the changes you are making to the recipes demo.
+
+------------------------------------------------------------------------
+r288 | paul | 2004-05-19 11:55:43 -0700 (Wed, 19 May 2004) | 18 lines
+
+Introduce dSecurityManager, which handles validating a user login and caching
+group membership information. Introduce property SecurityManager to dApp 
+object, allowing users to subclass dSecurityManager to do what they need it 
+to do, and then attach an instance of their subclass to dApp. 
+
+Make dApp check with the SecurityManager if available, before starting the
+main application event loop.
+
+Introduce new UI class dDialog, which is a very simple frame usually meant
+to be shown modally and to return a value. Introduce new UI class dLogin, 
+which is a basic login form.
+
+Wrap some property docstrings in _(). 
+
+Start experimenting with Accelerator Tables, which can be used to workaround
+the lack of Cancel and Default properties in command buttons.
+
+
+------------------------------------------------------------------------
+r287 | paul | 2004-05-18 18:01:26 -0700 (Tue, 18 May 2004) | 13 lines
+
+Create common ancestor object for all dabo objects, and christen it
+'dObject'. Not all Dabo objects inherit from this yet, and perhaps not
+all ever will - there is little reason for dCursorMixin to inherit from
+it, for example. The intent was for there to be some commonality in the
+public interface for all Dabo objects.
+
+Move some of the more common stuff out of ui/uiwx/classes/dPemMixin and
+into the new common/dObject.
+
+Add docstrings to the properties in dabo.db.dConnectInfo.
+
+
+
+------------------------------------------------------------------------
+r286 | paul | 2004-05-18 13:55:40 -0700 (Tue, 18 May 2004) | 42 lines
+
+Rename dGrid to dGridDataNav, as it is really not meant as a general
+grid control but rather to fit in with the dFormDataNav subframework.
+It assumes that it is a member of a dPageDataNav, for instance. At 
+some point, we'll want to define a basic dGrid which dGridDataNav will
+inherit, but the grid is one of the most complex UI controls so it'll
+have to wait for now.
+
+Add new property, FormType, to dFormDataNav. There is 'Normal', which 
+is a normal form with Select/Browse/Edit/n childview pages; 'PickList' 
+which doesn't display the edit/childview pages and is intended to be
+used to pick a record from a lookup; and 'Edit' which isn't implemented
+yet but will only display the edit page(s) for the record with the 
+given pk value.
+
+Add new event, EVT_ITEMPICKED, for use by dFormDataNav when instantiated
+as a picklist.
+
+Make dGrid behave differently in several places, depending on whether 
+its form is a picklist or a normal nav form.
+
+Make the picklist form close upon a keypress of Escape. Make the toolbar/
+navigation menu display only the appropriate items depending on FormType.
+
+Define a childBehavior dict in dFormDataNav, which lets subclasses 
+define certain things about how the childview page(s) will behave. Note
+that this isn't how I want it to stay, this was just to get up and
+running. Eventually, users will be able to easily subclass all of the
+separate components of dFormDataNav, not merely the form itself, and
+there will be appropriate hooks where they can put their code.
+
+Update the childview page to add and delete child records. Editing child
+records isn't implemented yet. Note that until the non-unique pk problem
+is fixed as discussed this morning, weird things can happen when adding
+child records, especially more than one of them, and it will fail if you
+try to add child records to a newly-added parent record. 
+
+--
+
+(I also just tweaked my svn-repository commit-notify email script, to 
+hopefully not give the diff of deleted files. So, if it worked, there
+should not be a diff for the deleted dGrid.py.)
+
+------------------------------------------------------------------------
+r285 | ed | 2004-05-17 09:45:13 -0700 (Mon, 17 May 2004) | 4 lines
+
+Removed the beforeConnection() and afterConnection() methods, as they are
+not implemented anywhere in the code. Use beforeCreateCursor() and
+afterCreateCursor() instead.
+
+------------------------------------------------------------------------
+r284 | ed | 2004-05-17 06:58:50 -0700 (Mon, 17 May 2004) | 3 lines
+
+Changed the way the testing sql expression is generated in the
+__setNonUpdateFields() method.
+
+------------------------------------------------------------------------
+r283 | ed | 2004-05-17 05:18:49 -0700 (Mon, 17 May 2004) | 2 lines
+
+Stupid typo!
+
+------------------------------------------------------------------------
+r282 | ed | 2004-05-17 05:10:39 -0700 (Mon, 17 May 2004) | 2 lines
+
+Implemented the FillLinkFromParent logic for child bizobjs.
+
+------------------------------------------------------------------------
+r281 | ed | 2004-05-16 18:27:26 -0700 (Sun, 16 May 2004) | 17 lines
+
+Modified the cursor to handle calculated and derived fields that are not to
+be included in updates to the backend database. The cursor mixin class has a
+user-editable list property called 'nonUpdateFields', and there is a private
+list property named '__nonUpdateFields' that is set by the cursor mixin
+after each requery. For most cases, the built-in behavior should suffice to
+prevent illegal update statements resulting from trying to update a derived
+field. The user-configurable property is there to allow the user to specify
+additonal fields to be ignored during an update.
+
+The list of user-defined non-updatable fields is set by the bizobj's
+'NonUpdateFields' property. Accessing the NonUpdateFields property will
+return the concatenated list of the public and private non-update lists.
+
+Also fixed a bunch of edge conditions dealing with the fact that until a
+query is run, the cursor doesn't have many of the attributes that were
+expected, such as _rows, rownumber, etc.
+
+------------------------------------------------------------------------
+r280 | ed | 2004-05-16 18:13:19 -0700 (Sun, 16 May 2004) | 3 lines
+
+Changed delete() to first check if there is a record in the current
+recordset to be deleted.
+
+------------------------------------------------------------------------
+r279 | paul | 2004-05-16 13:04:27 -0700 (Sun, 16 May 2004) | 1 line
+
+Oops... here is my last commit but with the scrollbars working.
+------------------------------------------------------------------------
+r278 | paul | 2004-05-16 12:11:18 -0700 (Sun, 16 May 2004) | 12 lines
+
+Introduce new dScrollPanel control, which is a dPanel but with scrollbars.
+This control needs to be worked on some more, to add properties for specifying
+scrollbar behavior and increments. As it stands, it does a pretty good job of
+automatically setting itself up.
+
+Make dPage inherit from dScrollPanel instead of dPanel, so that scrollbars
+are available on dPage's by default.
+
+Refactor some of the browse page in dFormDataNav, fixing a problem that would
+occur when the rownum changed when the browse page wasn't the active page.
+
+
+------------------------------------------------------------------------
+r277 | paul | 2004-05-16 10:33:08 -0700 (Sun, 16 May 2004) | 4 lines
+
+BugFix: After one of my last commits, SimpleFormWithControls and DaboDesigner
+failed to start, because they don't use the dApp application object.
+
+
+------------------------------------------------------------------------
+r276 | paul | 2004-05-15 23:27:34 -0700 (Sat, 15 May 2004) | 16 lines
+
+Fix dGrid's newRecord(), editRecord(), and deleteRecord() functions to
+not eat exceptions.
+
+Fix bug introduced with my last commit that kept the form size/position
+from being restored because I overrode OnActivate() without running
+doDefault().
+
+Change the saving of form size/position to use the absolute name rather
+than just the plain name.
+
+Implement deleting child records in dFormDataNav. Attempted to begin 
+implementation of adding new child records, but ran into a problem with
+dCursorMixin and/or dBizobj that I posted a separate message regarding.
+
+
+
+------------------------------------------------------------------------
+r275 | paul | 2004-05-15 16:46:18 -0700 (Sat, 15 May 2004) | 30 lines
+
+Add property dApp to dPemMixin, a reference to the dApp application object
+when dApp is present or None. This gives convenient access to dApp from
+all controls that inherit from dPemMixin (almost all Dabo controls and
+forms).
+
+Make dApp inherit from PropertyHelperMixin and DoDefaultMixin to conform
+to most of the rest of the Dabo objects.
+
+Add property AutoNegotiateUniqueNames to dApp, default True. When true,
+if an object tries to name itself identical to a sibling, a unique name
+will be found by appending an integer at the end. When false, a NameError
+will be raised which was the previous behavior. 
+
+The auto-negotiation of names is definitely implicit, and could potentially 
+cause confusion when debugging problems. Consider:
+
+	self.addObject(dabo.ui.dCheckBox, 'myCheckbox')
+	self.addObject(dabo.ui.dCheckBox, 'myCheckbox')
+
+No errors would have been raised, and two checkboxes got created, but 
+the second checkbox got a name that differs from the name specified by the
+programmer ('myCheckbox1' instead of 'myCheckbox').
+
+I think the convenience outweighs the concerns about implicitness, but 
+would be willing to change the default to False instead of True, which may
+be better as the programmer would have to explicity tell dApp to act
+implicitly, and presumably understand the consequences by doing so. 
+
+
+
+------------------------------------------------------------------------
+r274 | paul | 2004-05-15 14:53:28 -0700 (Sat, 15 May 2004) | 5 lines
+
+Add property RequeryOnLoad to dFormDataNav, default False. Add code in
+dFormDataNav to check the value of the propery and run the requery if
+appropriate.
+
+
+------------------------------------------------------------------------
+r273 | paul | 2004-05-14 20:59:12 -0700 (Fri, 14 May 2004) | 11 lines
+
+Move setting dTextBox.SelectOnEntry from afterInit() to initProperties(),
+where the user still has a chance to override.
+
+Change name of properties SpinnerLowValue and SpinnerHighValue to Min
+and Max, respectively. Remove the setting of default min/max values.
+
+Add spinner for setting the limit to the select page of dFormDataNav.
+
+ 
+
+
+------------------------------------------------------------------------
+r272 | ed | 2004-05-14 05:05:51 -0700 (Fri, 14 May 2004) | 4 lines
+
+Cleaned up problem when a save() was called and no changes were needed. Also
+removed a problem in the cursor where a conflict between Unicode and String
+types was causing errors to be thrown.
+
+------------------------------------------------------------------------
+r271 | ed | 2004-05-14 04:55:26 -0700 (Fri, 14 May 2004) | 26 lines
+
+Removed the calls to requeryAllChildren() and afterPointerMove() from the
+bizobj. Added those calls as an option to the seek() method.
+
+The first two methods are "for internal use only", and should never be called from
+an app. They exist so that the bizobj can move the pointer to where it needs
+to be without triggering a slew of additional effects. 
+
+moveToPK() is only used in a requery() to try to restore the record pointer
+to the PK of the record it was on before the cursror was requeried. It is
+followed by a call to requeryAllChildren() and afterPointerMove() in that
+method; calling it again from this one is just inefficient..
+
+moveToRowNum() is called by the validate() method so that a bizobj can check
+all of its records. You don't want it requerying its children, as they will
+need to be validated separately, and will be called in turn.
+
+In VFP Codebook, these methods are protected. For record pointer movement
+from within an app, the public methods first(), next(), etc., should be used
+to move the record pointer.
+
+Since seek() is intended to be called both internally and from developer's
+code, I've added a parameter 'runRequery' which defaults to False. If this
+value is passed as True, requeryAllChildren() and afterPointerMove() will be
+called if the cursor moves the pointer.
+
+
+------------------------------------------------------------------------
+r270 | paul | 2004-05-13 22:17:15 -0700 (Thu, 13 May 2004) | 34 lines
+
+Bugfix: refactor old pre-dException code in dBizobj.requeryAllChildren().
+
+Tried to change default of dBizobj.RequeryOnLoad() to False instead 
+of True, but look at that it was already set to False. I guess I 
+slipped this in before and forgot. I'll fix the demos.
+	
+Recently, when we started forcing unique sibling names, I made the
+constructor append the id of the control to make the name unique if
+needed. I've improved this somewhat by making it an auto-incrementing
+integer instead (txt1, txt2, txt3, etc.).
+
+Add event handlers OnCreateWindow and OnDestroyWindow, and bind them 
+to EVT_WINDOW_CREATE and EVT_WINDOW_DESTROY for all controls.
+
+Add new dEvent, EVT_VALUECHANGED, and raise this event whenever a
+control's value changes, whether programatically or interactively.
+
+Add new function getAbsoluteName() to dPemMixin, which returns self's
+fully-qualified name, such as 'dFormRecipes.dPageFrame.Page1.txtName'.
+
+Remove the property list for the form being output to the shell, which
+was causing problems on Windows and isn't necessary anyway.
+
+Refactor some of the Select page in dFormDataNav, and make the select
+checkboxes and textboxes persist their values to the user settings 
+table. Now the select page will remember what you last searched on
+and present it to you for convenience.
+
+Actually, that persisting of values that I use in the select page is
+now available for all data controls, by setting the new property
+SaveRestoreValue.
+ 
+
+
+------------------------------------------------------------------------
+r269 | ed | 2004-05-13 14:38:44 -0700 (Thu, 13 May 2004) | 3 lines
+
+Trapped the NoRecordsException when clicking on headers of grids with no
+records.
+
+------------------------------------------------------------------------
+r268 | paul | 2004-05-12 17:21:03 -0700 (Wed, 12 May 2004) | 8 lines
+
+Bug fix: when the record changed and a control was active, dForm would
+inappropriately raise an exception because it was checking for a non-
+existent return value.
+
+Set internal _curVal when the control refreshes, to avoid unnecessary 
+calls to the bizobj during flushValue() and possibly other places.
+
+
+------------------------------------------------------------------------
+r267 | paul | 2004-05-12 17:08:40 -0700 (Wed, 12 May 2004) | 1 line
+
+Fix lame bug introduced with that last commit.
+------------------------------------------------------------------------
+r266 | paul | 2004-05-12 17:04:00 -0700 (Wed, 12 May 2004) | 2 lines
+
+Work around AttributeError on Mac.
+
+------------------------------------------------------------------------
+r265 | paul | 2004-05-12 16:59:35 -0700 (Wed, 12 May 2004) | 2 lines
+
+Workaround so that the navigation menu in dFormDataNav works on Mac.
+
+------------------------------------------------------------------------
+r264 | paul | 2004-05-11 20:22:58 -0700 (Tue, 11 May 2004) | 18 lines
+
+The user can use bizobj.validateRecord() in a couple ways: 
+	1) return errorMessageText, and dBizobj will raise the exception
+	2) raise the exception itself.
+In case #2, None is returned, resulting in an exception in dBizobj.
+This code fixes that.
+
+If a user were to requery, and then answer yes to save changes, but 
+the save failed, the requery would happen anyway, wiping out all 
+their changes. This code fixes that.
+
+There are still some funky problems though. Do this:
+	1) add a new record and save
+	2) add a new record and make the bizrule fail.
+Note that the bizrule error text is listed twice, and that the browse
+screen has reverted the original successfully-saved record back to the
+value it had when it was new.
+
+
+------------------------------------------------------------------------
+r263 | paul | 2004-05-11 12:52:02 -0700 (Tue, 11 May 2004) | 2 lines
+
+Update changelog for 0.1 with the property list change.
+
+------------------------------------------------------------------------
+
+
+
+Dabo-0.1 (2004-05-10):
 
 ------------------------------------------------------------------------
 r262 | paul | 2004-05-11 12:49:07 -0700 (Tue, 11 May 2004) | 2 lines
