@@ -1,6 +1,21 @@
 Dabo-0.1:
 
 ------------------------------------------------------------------------
+r262 | paul | 2004-05-11 12:49:07 -0700 (Tue, 11 May 2004) | 2 lines
+
+Fix the debug output to now show the property values upon dForm.addControl().
+
+------------------------------------------------------------------------
+r261 | paul | 2004-05-10 12:54:38 -0700 (Mon, 10 May 2004) | 2 lines
+
+Tag version 0.1
+
+------------------------------------------------------------------------
+r260 | paul | 2004-05-10 12:53:57 -0700 (Mon, 10 May 2004) | 2 lines
+
+Prep for Dabo-0.1 release.
+
+------------------------------------------------------------------------
 r259 | paul | 2004-05-07 20:06:34 -0700 (Fri, 07 May 2004) | 4 lines
 
 I messed up earlier, intending to move the app name/version stuff to be 
