@@ -9,7 +9,7 @@ import dabo.dEvents as dEvents
 class dMenuBar(wx.MenuBar, pm.dPemMixin):
 	"""Creates a menu bar, which can contain dMenus.
 	"""
-	_IsContainer = False
+	_IsContainer = True
 
 
 	def __init__(self, properties=None, *args, **kwargs):
@@ -84,6 +84,14 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 		"""Returns a reference to the menu with the specified caption.
 		"""
 		return self.GetMenu(self.FindMenu(caption))
+
+
+	def GetChildren(self):
+		# wx doesn't provide GetChildren() for menubars or menus, but dPemMixin
+		# calls it in _getChildren(). The Dabo developer wants the submenus of
+		# the menubar, but is using the consistent Children property to do it.
+		children = [self.GetMenu(index) for index in range(self.GetMenuCount())]
+		return children
 
 
 	def _getForm(self):

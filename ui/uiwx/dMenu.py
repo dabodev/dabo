@@ -16,7 +16,7 @@ dRadioItem = wx.ITEM_RADIO
 class dMenu(wx.Menu, pm.dPemMixin):
 	"""Creates a menu, which can contain submenus, menu items, and separators.
 	"""
-	_IsContainer = False
+	_IsContainer = True
 
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dMenu
@@ -151,6 +151,18 @@ class dMenu(wx.Menu, pm.dPemMixin):
 	def _isPopupMenu(self):
 		## TODO: Make dMenu work as a submenu, a child of dMenuBar, or as a popup.
 		return False
+
+
+	def GetChildren(self):
+		# wx doesn't provide GetChildren() for menubars or menus, but dPemMixin
+		# calls it in _getChildren(). The Dabo developer wants the submenus and
+		# items in this menu, but is using the consistent Children property to 
+		# do it.
+		## pkm: GetMenuItems() only returns the C++ part of the menu item, not
+		##      the dabo mixed-in portion. I'll have to look into this, but until
+		##      I have a fix, dMenu.Children will always return an empty list.
+		children = self.GetMenuItems()
+		return children
 
 
 	def _getCaption(self):

@@ -13,7 +13,8 @@ class dPemMixin(dPemMixinBase):
 	Subclasses can extend the property sheet by defining their own get/set
 	functions along with their own property() statements.
 	"""
-	def __init__(self, preClass=None, parent=None, properties=None, *args, **kwargs):
+	def __init__(self, preClass=None, parent=None, properties=None, 
+	             *args, **kwargs):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
@@ -32,10 +33,11 @@ class dPemMixin(dPemMixinBase):
 		# be modified by our pre-init method hooks if needed:
 		self._initProperties = {"style": 0}
 
-		# There are a few controls that don't yet support 3-way inits (grid, for one).
-		# These controls will send the wx classref as the preClass argument, and we'll
-		# call __init__ on it when ready. We can tell if we are in a three-way init
-		# situation based on whether or not preClass is a function type.
+		# There are a few controls that don't yet support 3-way inits (grid, for 
+		# one). These controls will send the wx classref as the preClass argument, 
+		# and we'll call __init__ on it when ready. We can tell if we are in a 
+		# three-way init situation based on whether or not preClass is a function 
+		# type.
 		threeWayInit = (type(preClass) == types.FunctionType)
 		
 		if threeWayInit:
@@ -49,9 +51,9 @@ class dPemMixin(dPemMixinBase):
 		#    initStyleProperties()
 		self._beforeInit(pre)
 		
-		# Now that user code has had an opportunity to set the properties, we can see
-		# if there are properties sent to the constructor which will augment or override
-		# and properties set in beforeInit()
+		# Now that user code has had an opportunity to set the properties, we can 
+		# see if there are properties sent to the constructor which will augment 
+		# or override the properties set in beforeInit().
 		
 		# The keyword properties can come from either, both, or none of:
 		#    + self.properties (set by user code in self.beforeInit())
@@ -118,20 +120,20 @@ class dPemMixin(dPemMixinBase):
 		
 		self._afterInit()
 		self.setProperties(properties)
+
 	
 	def __getattr__(self, att):
-		""" Try to resolve att to a child object reference.
+		# Try to resolve att to a child object reference, which will allow
+		# accessing children with the style:
+		#	    self.mainPanel.txtName.Value = "test"
 
-		This allows accessing children with the style:
-			self.mainPanel.txtName.Value = "test"
-		"""
 		ret = None
 		if self._IsContainer:
 			# Only objects that can contain other objects can use this method.
-			try:
-				ret = self.FindWindowByName(att)
-			except:
-				pass
+			for child in self.Children:
+				if child.Name == att:
+					ret = child
+					break
 		if ret is None:
 			raise AttributeError, "%s object has no attribute %s" % (
 				self._name, att)
@@ -508,11 +510,14 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _getChildren(self):
-		children = []
-		for child in self.GetChildren():
-			if isinstance(child, dabo.common.dObject):
-				children.append(child)
-		return children
+		if self._IsContainer:
+			children = []
+			for child in self.GetChildren():
+				if isinstance(child, dabo.common.dObject):
+					children.append(child)
+			return children
+		else:
+			return None
 		
 		
 	def _getEnabled(self):
@@ -802,7 +807,9 @@ class dPemMixin(dPemMixinBase):
 			"The caption of the object. (str)")
 
 	Children = property(_getChildren, None, None, 
-		_("Returns a list of object references to the children of this object."))
+		_("""Returns a list of object references to the children of this object.
+
+		Only applies to containers. Children will be None for non-containers."""))
 		
 	Enabled = property(_getEnabled, _setEnabled, None,
 			"Specifies whether the object (and its children) can get user input. (bool)")

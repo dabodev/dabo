@@ -102,7 +102,7 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 		_("Specifies the text of the menu item."))
 
 	Enabled = property(_getEnabled, _setEnabled, None,
-		_("Specifies whether the menu can be interacted with."))
+		_("Specifies whether the menu item can be interacted with."))
 
 	Icon = property(_getIcon, _setIcon, None,
 		_("Specifies the icon for the menu item."))
