@@ -15,9 +15,6 @@ class dDataControlMixin(pm.dPemMixin):
         
         # Initialize runtime properties
         self.SelectOnEntry = False
-        self.DataSource = None
-        self.DataField = None
-        
         self.bizobj = None
         
         
@@ -137,7 +134,7 @@ class dDataControlMixin(pm.dPemMixin):
         try:
             return self._DataSource
         except AttributeError:
-            return None
+            return ''
     def _setDataSource(self, value):
         self._DataSource = value
         
@@ -145,7 +142,7 @@ class dDataControlMixin(pm.dPemMixin):
         try:
             return self._DataField
         except AttributeError:
-            return None
+            return ''
     def _setDataField(self, value):
         self._DataField = value            
 

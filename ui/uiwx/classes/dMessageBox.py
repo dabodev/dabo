@@ -21,14 +21,14 @@ class dMessageBox(wx.MessageDialog):
         wx.MessageDialog.__init__(self, form, message, title, style)
         
 
-def areYouSure(message="Are you sure?", defaultNo=False, cancelButton=False):
+def areYouSure(message='Are you sure?', defaultNo=False, cancelButton=False):
     style = wx.YES_NO|wx.ICON_QUESTION
     if cancelButton:
         style = style|wx.CANCEL
     if defaultNo:
         style = style|wx.NO_DEFAULT
 
-    dlg = dMessageBox(message, "Dabo", style)
+    dlg = dMessageBox(message, 'Dabo', style)
         
     retval = dlg.ShowModal()
     #dlg.Destroy()
@@ -41,15 +41,15 @@ def areYouSure(message="Are you sure?", defaultNo=False, cancelButton=False):
         return None
 
         
-def stop(message="Stop"):
+def stop(message='Stop'):
     style = wx.OK|wx.ICON_HAND
-    dlg = dMessageBox(message, "Dabo", style)
+    dlg = dMessageBox(message, 'Dabo', style)
     retval = dlg.ShowModal()
     return None
     
     
-if __name__ == "__main__":
+if __name__ == '__main__':
     app = wx.PySimpleApp()
-    print areYouSure("Are you happy?")
-    print areYouSure("Are you sure?", cancelButton=True)
-    print areYouSure("So you aren't sad?", defaultNo=True)
+    print areYouSure('Are you happy?')
+    print areYouSure('Are you sure?', cancelButton=True)
+    print areYouSure('So you aren\'t sad?', defaultNo=True)

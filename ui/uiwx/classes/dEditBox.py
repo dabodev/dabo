@@ -44,17 +44,21 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
     # property get/set functions
     def _getAlignment(self):
         if self.hasWindowStyleFlag(wx.TE_RIGHT):
-            return 2
+            return 'Right'
         elif self.hasWindowStyleFlag(wx.TE_CENTRE):
-            return 1
+            return 'Center'
         else:
-            return 0
+            return 'Left'
     def _setAlignment(self, value):
-        if value == 0:
+        self.delWindowStyleFlag(wx.TE_LEFT)
+        self.delWindowStyleFlag(wx.TE_CENTRE)
+        self.delWindowStyleFlag(wx.TE_RIGHT)
+        
+        if value == 'Left':
             self.addWindowStyleFlag(wx.TE_LEFT)
-        elif value == 1:
+        elif value == 'Center':
             self.addWindowStyleFlag(wx.TE_CENTRE)
-        elif value == 2:
+        elif value == 'Right':
             self.addWindowStyleFlag(wx.TE_RIGHT)
     
     def _getReadOnly(self):
@@ -65,9 +69,9 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
     # property definitions follow:
     Alignment = property(_getAlignment, _setAlignment, None,
                         'Specifies the alignment of the text. (int) \n'
-                        '   0 : Left (default) \n'
-                        '   1 : Center \n'
-                        '   2 : Right')
+                        '   Left (default) \n'
+                        '   Center \n'
+                        '   Right')
     ReadOnly = property(_getReadOnly, _setReadOnly, None, 
                         'Specifies whether or not the text can be edited. (bool)')
     

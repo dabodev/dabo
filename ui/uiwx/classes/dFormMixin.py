@@ -237,18 +237,18 @@ class dFormMixin(pm.dPemMixin):
     def _getWindowState(self):
         try:
             if self.IsFullScreen():
-                return 3
+                return 'FullScreen'
             elif self.IsMaximized():
-                return 2
+                return 'Maximized'
             elif self.IsMinimized():
-                return 1
+                return 'Minimized'
             else:
-                return 0
+                return 'Normal'
         except AttributeError:
             # These only work on Windows, I fear
-            return 0
+            return 'Normal'
     def _setWindowState(self, value):
-        if value == 0:
+        if value == 'Normal':
             if self.IsFullScreen():
                 self.ShowFullScreen(False)
             elif self.IsMaximized():
@@ -258,11 +258,11 @@ class dFormMixin(pm.dPemMixin):
             else:
                 # window already normal, but just in case:
                 self.Maximize(False)
-        elif value == 1:
+        elif value == 'Minimized':
             self.Iconize()
-        elif value == 2:
+        elif value == 'Maximized':
             self.Maximize()
-        elif value == 3:
+        elif value == 'FullScreen':
             self.ShowFullScreen()
             
     # property definitions follow:
@@ -293,7 +293,7 @@ class dFormMixin(pm.dPemMixin):
     
     WindowState = property(_getWindowState, _setWindowState, None,
                     'Specifies the current state of the form. (int)\n'
-                    '    0 : Normal \n'
-                    '    1 : Minimized \n'
-                    '    2 : Maximized \n'
-                    '    3 : Full Screen')
+                    '    Normal \n'
+                    '    Minimized \n'
+                    '    Maximized \n'
+                    '    FullScreen')

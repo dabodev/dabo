@@ -4,7 +4,7 @@ import dDataControlMixin as dcm
 
 
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
-    def __init__(self, parent, id=-1, name="dCheckBox", *args, **kwargs):
+    def __init__(self, parent, id=-1, name='dCheckBox', *args, **kwargs):
         
         self._baseClass = dCheckBox
         
@@ -35,21 +35,20 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
     # property get/set functions
     def _getAlignment(self):
         if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):
-            return 2
+            return 'Right'
         else:
-            return 0
+            return 'Left'
     def _setAlignment(self, value):
-        if value == 2:
+        self.delWindowStyleFlag(wx.ALIGN_RIGHT)
+        if value == 'Right':
             self.addWindowStyleFlag(wx.ALIGN_RIGHT)
-        else:
-            self.delWindowStyleFlag(wx.ALIGN_RIGHT)
     
         
     # property definitions follow:
     Alignment = property(_getAlignment, _setAlignment, None,
                         'Specifies the alignment of the text. (int) \n'
-                        '   0 : Checkbox to left of text (default) \n'
-                        '   2 : Checkbox to right of text')
+                        '   Left  : Checkbox to left of text (default) \n'
+                        '   Right : Checkbox to right of text')
 if __name__ == "__main__":
     import test
     class c(dCheckBox):

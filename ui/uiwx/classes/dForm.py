@@ -23,7 +23,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
     like next(), last(), save(), and requery().
     '''
 
-    def __init__(self, parent=None, name="dForm", resourceString=None):
+    def __init__(self, parent=None, id=-1, title='', name='dForm', *args, **kwargs):
         
         self._baseClass = dForm
         
@@ -34,7 +34,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
         
         pre = wxPreFrameClass()
         self.beforeInit(pre)                  # defined in dPemMixin
-        pre.Create(parent, -1, '', style=style)
+        pre.Create(parent, id, title, name=name, style=style, *args, **kwargs)
         
         self.this = pre.this
         self._setOORInfo(self)
@@ -58,8 +58,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
         
         self.dControls = {}
         
-        self._setupResources(resourceString)
-
         if not isinstance(self, wx.MDIChildFrame):
             self.CreateStatusBar()
         
@@ -435,15 +433,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
                 pass
         
                             
-    def _setupResources(self, resourceString):
-        ''' Set up the objects of this form based on the resource string.
-        '''
-        
-        # As we haven't even defined our resource file
-        # format yet, this is just a stub.
-        pass
-    
-        
     # Property get/set/del functions follow.
     def _getSaveAllRows(self):
         return self._SaveAllRows

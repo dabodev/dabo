@@ -2,7 +2,7 @@ import wx, dControlMixin
 
 class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
     
-    def __init__(self, parent, name="dPageFrame"):
+    def __init__(self, parent, name='dPageFrame'):
         
         self._baseClass = dPageFrame
         
@@ -44,30 +44,35 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
     # property get/set functions:
     def _getTabPosition(self):
         if self.hasWindowStyleFlag(wx.NB_BOTTOM):
-            return 3
+            return 'Bottom'
         elif self.hasWindowStyleFlag(wx.NB_RIGHT):
-            return 2
+            return 'Right'
         elif self.hasWindowStyleFlag(wx.NB_LEFT):
-            return 1
+            return 'Left'
         else:
-            return 0
+            return 'Top'
+    
     def _setTabPosition(self, value):
-        if value == 0:
-            self.delWindowStyleFlag(wx.NB_BOTTOM)
-            self.delWindowStyleFlag(wx.NB_RIGHT)
-            self.delWindowStyleFlag(wx.NB_LEFT)
-        elif value == 1:
+        # First remove any existing flags:
+        self.delWindowStyleFlag(wx.NB_BOTTOM)
+        self.delWindowStyleFlag(wx.NB_RIGHT)
+        self.delWindowStyleFlag(wx.NB_LEFT)
+        
+        # And then set the appropriate flag:
+        if value == 'Top':
+            pass
+        elif value == 'Left':
             self.addWindowStyleFlag(wx.NB_LEFT)
-        elif value == 2:
+        elif value == 'Right':
             self.addWindowStyleFlag(wx.NB_RIGHT)
-        elif value == 3:
+        elif value == 'Bottom':
             self.addWindowStyleFlag(wx.NB_BOTTOM)
     
     # Property definitions:
     TabPosition = property(_getTabPosition, _setTabPosition, None, 
                         'Specifies where the page tabs are located. (int) \n'
-                        '    0: Top (default) \n'
-                        '    1: Left \n'
-                        '    2: Right \n'
-                        '    3: Bottom')
+                        '    Top (default) \n'
+                        '    Left \n'
+                        '    Right \n'
+                        '    Bottom')
     
