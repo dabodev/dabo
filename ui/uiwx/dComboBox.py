@@ -16,8 +16,13 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dComboBox
-		preClass = wx.PreComboBox
+		self._choices = []
+		self._keys = []
+		self._invertedKeys = []
+		self._valueMode = "string"
 		self._userVal = False
+
+		preClass = wx.PreComboBox
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 

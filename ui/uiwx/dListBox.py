@@ -14,6 +14,11 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dListBox
+		self._choices = []
+		self._keys = []
+		self._invertedKeys = []
+		self._valueMode = "string"
+
 		preClass = wx.PreListBox
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
