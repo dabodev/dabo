@@ -429,7 +429,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				if child.DataSource == dataSource:
 					return child
 				else:
-					bo = self.getBizobj(dataSource, parentBizobj)
+					bo = self.getBizobj(dataSource, child)
 					if bo:
 						return bo
 			# if we got here, none were found
