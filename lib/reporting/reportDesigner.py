@@ -415,8 +415,60 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.clearReportForm()
 
 		self.Form.bindEvent(dEvents.Resize, self._onFormResize)
+		self.bindEvent(dEvents.KeyDown, self._onKeyDown)
 
-	
+#		for key in ("Up", "Down", "Right", "Left"):
+#			for mod in ("", "Shift+", "Ctrl+", "Ctrl+Shift+"):
+#				modkey = (mod+key).lower()
+#				func = "on" + (mod+key).replace("+", "")
+#				cmd = "self.bindKey('%s', self.%s)" % (modkey, func)
+#				print cmd
+#				exec cmd
+
+	def _onKeyDown(self, evt):
+		from dabo.ui import dKeys
+		shiftDown = evt.EventData["shiftDown"]
+		ctrlDown = evt.EventData["controlDown"]
+		keyCode = evt.EventData["keyCode"]
+		keys = {dKeys.key_Up: "up",
+		        dKeys.key_Down: "down", 
+		        dKeys.key_Right: "right",
+		        dKeys.key_Left: "left"}
+
+		if keys.has_key(keyCode):
+			if len(self._selectedObjects) > 0:
+				evt.stop()  ## don't let the arrow key scroll the window
+				if shiftDown:
+					s = "shift"
+				else:
+					s = ""
+				if ctrlDown:
+					c = "ctrl"
+				else:
+					c = ""
+				print "arrow key: %s %s %s" % (s, c, keys[keyCode])
+			else:
+				print "no objects selected."
+		else:
+			print "not an arrow key."
+
+	def onUp(self, evt):	print "up"
+	def onShiftUp(self, evt):	print "shiftup"
+	def onCtrlUp(self, evt): print "ctrlup"
+	def onCtrlShiftUp(self, evt):	print "ctrlshiftup"
+	def onDown(self, evt):	print "down"
+	def onShiftDown(self, evt):	print "shiftdown"
+	def onCtrlDown(self, evt): print "ctrldown"
+	def onCtrlShiftDown(self, evt):	print "ctrlshiftdown"
+	def onLeft(self, evt):	print "left"
+	def onShiftLeft(self, evt):	print "shiftleft"
+	def onCtrlLeft(self, evt): print "ctrlleft"
+	def onCtrlShiftLeft(self, evt):	print "ctrlshiftleft"
+	def onRight(self, evt):	print "right"
+	def onShiftRight(self, evt):	print "shiftright"
+	def onCtrlRight(self, evt): print "ctrlright"
+	def onCtrlShiftRight(self, evt):	print "ctrlshiftright"
+
 	def clearReportForm(self):
 		"""Called from afterInit and closeFile to clear the report form."""
 		for o in self._rulers.values():
