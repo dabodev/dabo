@@ -4,34 +4,75 @@ import dabo
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
 
-class dDialog(wx.Dialog):
+class dDialog(wx.Dialog, dabo.ui.dPemMixin):
 	_IsContainer = True
 	
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dDialog
-		self.BaseClass = dDialog
-		super(dDialog,self).__init__(parent=parent, style=wx.DEFAULT_DIALOG_STYLE)
-		self.Centre()
 		self._modal = True
-		self.Sizer = dabo.ui.dSizer("vertical")
+		self._centered = True
+		self._fit = True
+
+		try:
+			style = style | wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
+		except:
+			style = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
+
+		preClass = wx.PreDialog
+		dabo.ui.dPemMixin.__init__(self, preClass, parent, properties=properties, 
+				style=style, *args, **kwargs)
+
+		
+	def _afterInit(self):
+		super(dDialog, self)._afterInit()
+		self.Sizer = dabo.ui.dSizer("V")
+		# Hook method, so that we add the buttons last
+		self._addControls()
+
 	
 	def show(self):
-		if self._modal:
+		if self.AutoSize:
+			self.Fit()
+		if self.Centered:
+			self.Centre()
+		if self.Modal:
 			return self.ShowModal()
 		else:
 			return self.Show(True)
+
+	def _addControls(self):
+		"""Any controls that need to be added to the dialog 
+		can be added in this method in framework classes, or
+		in addControls() in instances.
+		"""
+		self.addControls()
 	
+	def addControls(self): pass
+	
+
+	def _getAutoSize(self):
+		return self._fit
+	def _setAutoSize(self, val):
+		self._fit = val
 	def _getCaption(self):
 		return self.GetTitle()
 	def _setCaption(self, val):
 		self.SetTitle(val)
+	def _getCentered(self):
+		return self._centered
+	def _setCentered(self, val):
+		self._centered = val
 	def _getModal(self):
 		return self._modal
 	def _setModal(self, val):
 		self._modal = val
 	
+	AutoSize = property(_getAutoSize, _setAutoSize, None,
+			"When True, the dialog resizes to fit the added controls.  (bool)")
 	Caption = property(_getCaption, _setCaption, None,
 			"The text that appears in the dialog's title bar  (str)" )
+	Centered = property(_getCentered, _setCentered, None,
+			"Determines if the dialog is displayed centered on the screen.  (bool)")
 	Modal = property(_getModal, _setModal, None,
 			"Determines if the dialog is shown modal (default) or modeless.  (bool)")
 
@@ -40,28 +81,42 @@ class dDialog(wx.Dialog):
 class dOkCancelDialog(dDialog):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dOkCancelDialog
-		self.BaseClass = dOkCancelDialog
-		super(dOkCancelDialog, self).__init__(parent=parent, properties=properties)
-		
-		# Hook method, so that we add the buttons last
-		self.addControls()
-		
-		hs = dabo.ui.dSizer("H")
-		self.btnOK = dabo.ui.dCommandButton(self, Caption="OK")
-		hs.append(self.btnOK, 0, "expand")
-		self.btnOK.bindEvent(dEvents.Hit, self.OnOK)
-		hs.append( (16, 1) )
+		super(dOkCancelDialog, self).__init__(parent=parent, properties=properties, *args, **kwargs)
 
-		self.btnCancel = dabo.ui.dCommandButton(self, Caption="Cancel")
+
+	def _addControls(self):
+		# We want every subclass to be able to add their controls
+		# before we add the OK/Cancel buttons.
+		super(dOkCancelDialog, self)._addControls()
+
+		pnl = dabo.ui.dPanel(self)
+		hs = dabo.ui.dSizer("H")
+		pnl.Sizer = hs
+		hs.append( (24, 1) )
+		self.btnOK = dabo.ui.dCommandButton(pnl, Caption="OK")
+		self.btnOK.bindEvent(dEvents.Hit, self.OnOK)
+		hs.append(self.btnOK, 1)
+		hs.append( (16, 1) )
+		self.btnCancel = dabo.ui.dCommandButton(pnl, Caption="Cancel")
 		self.btnCancel.bindEvent(dEvents.Hit, self.OnCancel)
-		hs.append(self.btnCancel, 0, "expand")
+		hs.append(self.btnCancel, 1)
+		hs.append( (24, 1) )
 		
-		self.Sizer.append(hs, 0, "expand", alignment=("bottom", "middle"), border=10)
+		pnl.Layout()
+		pnl.Fit()
+		# Add a little breathing room
+		pnl.Width += 4
+		pnl.Height += 4
+		pnl.Layout()
+		
+		# Add a 10-pixel spacer between the added controls and 
+		# the OK/Cancel button panel
+		self.Sizer.append( (1, 10) )		
+		self.Sizer.append(pnl, 0, alignment=("bottom", "right") )#, border=20)
+		self.Sizer.append( (1, 20) )		
 		
 		self.Layout()
-		w, h = self.GetSize()
-		self.Sizer.SetDimension(0, 0, w, h)
-		self.Layout()
+		
 	
 	def addControls(self):
 		"""Use this method to add controls to the dialog. The OK/Cancel

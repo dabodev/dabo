@@ -145,11 +145,11 @@ class dPemMixin(dPemMixinBase):
 				# This is completely moot when sizers are employed.
 				self.Position = (0, 0)
 
-			if self.Size == (-1, -1):
-				# The object was instantiated with a default position,
-				# which ended up being (-1,-1). Change this to (0,0). 
-				# This is completely moot when sizers are employed.
-				self.Size = (0, 0)
+# 			if self.Size == (-1, -1):
+# 				# The object was instantiated with a default position,
+# 				# which ended up being (-1,-1). Change this to (0,0). 
+# 				# This is completely moot when sizers are employed.
+# 				self.Size = (0, 0)
 		except:
 			pass
 

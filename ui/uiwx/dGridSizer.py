@@ -223,7 +223,9 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	MaxDimension = property(_getMaxDimension, _setMaxDimension, None,
 			_("When adding elements to the sizer, this property determines "
 			" if we use rows or columns as the limiting value. (char: 'r' or 'c'(default) )") )
-			
+	
+	Orientation = property(_getMaxDimension, _setMaxDimension, None, 
+		"Alias for the MaxDimensions property.")
 	
 		
 if __name__ == "__main__":

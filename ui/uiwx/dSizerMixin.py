@@ -152,8 +152,46 @@ class dSizerMixin(dabo.common.dObject):
 						w = ch.GetWindow()
 						w.Sizer.drawOutline(w, True)
 					except: pass
-			
+	
+	
+	def listMembers(self, recurse=False, lvl=0):
+		"""Debugging method. This will list all the members of this sizer,
+		and if recurse is True, drill down into all contained sizers.
+		"""
+		ret = ""
+		indnt = "\t" * lvl
+		for chl in self.GetChildren():
+			ret += "SZITEM: %s\t%s\t%s\t%s\t%s\t%s\t%s\n" % (
+					chl.GetBorder(), 
+					chl.GetFlag(), 
+					chl.GetMinSize(), 
+					chl.GetPosition(), 
+					chl.GetProportion(), 
+					chl.GetRatio(), 
+					chl.GetSize() )
 
+			if chl.IsSizer():
+				itm = chl.GetSizer()
+				ret += "%s%s (%s)\n" % (indnt, itm.__class__, itm.Orientation)
+				if recurse:
+					try:
+						ret += itm.listMembers(recurse=recurse, lvl=lvl+1)
+					except:
+						# not a Dabo sizer
+						pass
+			elif chl.IsWindow():
+				itm = chl.GetWindow()
+				try:
+					ret += "%s%s (%s) - Pos:%s,%s - Size:%s,%s\n" % (indnt, 
+							itm.Name, itm.__class__, itm.Left, itm.Top, itm.Width, itm.Height)
+				except:
+					# Not a Dabo instance
+					ret += "%s%s\n" % (indnt, itm.__class__)
+			elif chl.IsSpacer():
+				itm = chl.GetSpacer()
+				ret += "%sSpacer: W=%s, H=%s\n" % (indnt, itm.GetWidth(), itm.GetHeight())
+		return ret
+		
 		
 	def _getWxFlags(self, alignment, borderFlags, layout):
 		# If alignment is passed as a single string instead of a tuple, 
