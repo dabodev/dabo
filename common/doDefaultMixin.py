@@ -1,4 +1,5 @@
 import sys
+import inspect
 
 
 class DoDefaultMixin(object):
@@ -18,15 +19,16 @@ class DoDefaultMixin(object):
 		frame = sys._getframe(1)
 		self = frame.f_locals['self']
 		methodName = frame.f_code.co_name
-		try:
+
+		# If the super() class doesn't have the method attribute, we'll pass silently
+		# because that is what the user will expect: they probably defined the method
+		# but out of habit used the doDefault() call anyway.		
+		method = cls.__getattribute__(cls, methodName)
+		
+		# Assert that the method object is actually a method
+		if method is not None and (inspect.ismethod(method) or inspect.isfunction(method)):
 			return eval('super(cls, self).%s(*args, **kwargs)' % methodName)
-		except AttributeError:
-			# The super() class didn't have the method attribute. Pass silently -
-			# at this time I believe this to be the correct behavior, because the
-			# user doesn't want to keep track of where a given method was defined
-			# and whether or not to call doDefault(), they just want to call
-			# doDefault() and have it work if it needs to work.
-			pass
+	
 	doDefault = classmethod(doDefault)
 
 	
