@@ -74,8 +74,11 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 		self.SetBitmap(v)
 
 		# Win32 at least needs the following line, or the caption
-		# will look really funky:
-		self.Caption = self.Caption
+		# will look really funky, but Linux can't have this line or
+		# the underlined hotkeys will get messed up. I don't know about
+		# Mac so I'll leave that alone for now:
+		if self.Application.Platform in ("Win",):
+			self.Caption = self.Caption
 
 
 	def _getParent(self):
