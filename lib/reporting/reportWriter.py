@@ -587,6 +587,14 @@ class ReportWriter(object):
 		# Now that the dict is in the correct format, get the xml:
 		return dicttoxml(d)
 
+	def _setMemento(self):
+		import copy
+		r = self._reportForm
+		if r is None:
+			m = None
+		else:
+			m = copy.deepcopy(r)
+		self._reportFormMemento = m
 
 	def _getFormFromXML(self, xml):
 		"""Returns the report form dict given xml in rfxml format."""
@@ -741,10 +749,7 @@ class ReportWriter(object):
 		
 	def _setReportForm(self, val):
 		self._reportForm = val
-		if val is None:
-			self._reportFormMemento = None
-		else:
-			self._reportFormMemento = val.copy()
+		self._setMemento()
 		self._reportFormXML = None
 		self._reportFormFile = None
 		
@@ -762,9 +767,9 @@ class ReportWriter(object):
 	def _setReportFormFile(self, val):
 		if val is None:
 			self._reportFormFile = None
-			self._reportFormMemento = None
 			self._reportFormXML = None
 			self._reportForm = None
+			self._setMemento()
 			return
 
 		if os.path.exists(val):
@@ -776,14 +781,14 @@ class ReportWriter(object):
 				exec("import %s as form" % s[1].split(".")[0])
 				sys.path.pop()
 				self._reportForm = form.report
-				self._reportFormMemento = self._reportForm.copy()
+				self._setMemento()
 				self._reportFormXML = None
 					
 			elif ext == ".rfxml":
 				# The file is a report form xml file. Open it and set ReportFormXML:
 				self._reportFormXML = open(val, "r").read()
 				self._reportForm = self._getFormFromXML(self._reportFormXML)
-				self._reportFormMemento = self._reportForm.copy()
+				self._setMemento()
 			else:
 				raise ValueError, "Invalid file type."
 			self._reportFormFile = val
@@ -805,7 +810,7 @@ class ReportWriter(object):
 		self._reportFormXML = val
 		self._reportFormFile = None
 		self._reportForm = self._getFormFromXML(self._reportFormXML)
-		self._reportFormMemento = self._reportForm.copy()
+		self._setMemento()
 		
 	ReportFormXML = property(_getReportFormXML, _setReportFormXML, None,
 		"""Specifies the report format xml.""")

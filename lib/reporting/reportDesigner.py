@@ -66,6 +66,13 @@ class Band(dabo.ui.dPanel):
 		               BackColor=(128,128,128), Height=self._bandLabelHeight)
 
 
+	def setProps(self, propvaldict):
+		"""Set the specified object properties to the specified values."""
+		for p,v in propvaldict.items():
+			self.props[p] = v
+		self.Parent.propsChanged()
+
+
 	def propertyDialog(self):
 		band = self
 		class PropertyDialog(dabo.ui.dDialog):
@@ -118,12 +125,8 @@ class Band(dabo.ui.dPanel):
 		dlg.show()
 
 		if dlg.Accepted:
-			self.props["height"] = dlg.txtHeight.Value
-			self.props["designerLock"] = str(dlg.chkLock.Value)
-			self.reposition()
-
-	def reposition(self):
-		self.Parent._onFormResize(None)
+			self.setProps({"height": dlg.txtHeight.Value,
+			               "designerLock": str(dlg.chkLock.Value)})
 
 	def _getCaption(self):
 		return self.bandLabel.Caption
@@ -159,14 +162,13 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 	def promptToSave(self):
 		"""Decides whether user should be prompted to save, and whether to save."""
-		ret = True
+		result = True
 		if self._rw._isModified():
-			result = dabo.ui.dMessageBox.areyousure("Save changes?")
+			result = dabo.ui.dMessageBox.areYouSure("Save changes to file %s?" 
+			                                        % self._fileName)
 			if result:
 				self.saveFile()
-			else:
-				ret = False
-		return ret
+		return result
 
 
 	def promptForFileName(self, prompt="Select a file"):
@@ -223,36 +225,55 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 	def saveFile(self, fileSpec=None):
 		if fileSpec == None:
 			fileSpec = self._rw.ReportFormFile
+			if fileSpec is None:
+				fileSpec = self.promptForSaveAs()
+				if fileSpec is None:
+					return False
+				else:
+					self._fileName = fileSpec
+		else:
+			self._fileName = fileSpec
 		xml = self._rw._getXMLFromForm(self._rw.ReportForm)
 		file = open(fileSpec, "w")
 		file.write(xml)
 		file.close()
+		self._rw._setMemento()
+		self.setCaption()
 
 
 	def closeFile(self):
 		result = self.promptToSave()
-		if result:
+
+		if result is not None:
 			self._rw.ReportFormFile = None
 			self.clearReportForm()
-			return True
-		else:
-			return False
+		return result
 
+
+	def setCaption(self):
+		"""Sets the form's caption based on file name, whether modified, etc."""
+		if self._rw._isModified():
+			modstr = "* "
+		else:
+			modstr = ""
+		self.Form.Caption = "%s%s: %s" % (modstr,
+		                                  self.Form._captionBase,
+			                                self._fileName)
 
 	def newFile(self):
 		if self.closeFile():
 			self._rw.ReportForm = self._rw._getEmptyForm()
 			self.initReportForm()
-			self.Form.Caption = "%s: %s" % (self.Form._captionBase,
-			                                "< New >")
+			self._fileName = "< New >"
+			self.setCaption()
 
 	def openFile(self, fileSpec):
 		if os.path.exists(fileSpec):
 			if self.closeFile():
 				self._rw.ReportFormFile = fileSpec
 				self.initReportForm()
-				self.Form.Caption = "%s: %s" % (self.Form._captionBase,
-				                                self._rw.ReportFormFile)
+				self._fileName = fileSpec
+				self.setCaption()
 		else:
 			raise ValueError, "File %s does not exist." % fileSpec
 
@@ -270,6 +291,11 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.drawReportForm()
 
 
+	def propsChanged(self):
+		"""Called by subobjects to notify the report designer that a prop has changed."""
+		self.setCaption()
+		self.drawReportForm()
+		
 	def _onFormResize(self, evt):
 		self.drawReportForm()
 
@@ -352,10 +378,16 @@ class ReportDesignerForm(dabo.ui.dForm):
 		self.Sizer = None
 		self.addObject(ReportDesigner, Name="editor")
 		self.fillMenu()
+		self.bindEvent(dEvents.Close, self.onClose)
 
 	def getCurrentEditor(self):
 		return self.editor
 
+	def onClose(self, evt):
+		result = self.editor.closeFile()
+		if result is None:
+			evt.stop()
+		
 	def onFileNew(self, evt):
 		o = self.editor
 		if o._rw.ReportFormFile is None and not o._rw._isModified():
@@ -389,7 +421,9 @@ class ReportDesignerForm(dabo.ui.dForm):
 		self.editor.saveFile()
 		
 	def onFileClose(self, evt):
-		self.Close()
+		result = self.editor.closeFile()
+		if result is not None:
+			self.Close()
 		
 	def onFileSaveAs(self, evt):
 		fname = self.editor.promptForSaveAs()
@@ -452,10 +486,10 @@ if __name__ == "__main__":
 	if len(sys.argv) > 1:
 		for fileSpec in sys.argv[1:]:
 			form = ReportDesignerForm(None)
-			form.editor.openFile("./samplespec.rfxml")
+			form.editor.openFile("%s" % fileSpec)
 			form.Show()
 	else:
 		form = ReportDesignerForm(None)
-#		form.editor.newFile()
+		form.editor.newFile()
 		form.Show()
 	app.start()
