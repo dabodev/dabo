@@ -63,15 +63,14 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 		
 	def _getElement(self):
 		if self.hasWindowStyleFlag(wx.RA_SPECIFY_ROWS):
-			return "Rows"
+			return "Row"
 		elif self.hasWindowStyleFlag(wx.RA_SPECIFY_COLS):
-			return "Columns"
+			return "Column"
 		else:
-			self.addWindowStyleFlag(wx.RA_SPECIFY_ROWS)
-			return "Rows"
+			return "None"
 			
 	def _getElementEditorInfo(self):
-		return {'editor': 'list', 'values': ['Rows', 'Columns']}
+		return {'editor': 'list', 'values': ['None', 'Row', 'Column']}
 		
 	def _setElement(self, val):
 		val = str(val)
