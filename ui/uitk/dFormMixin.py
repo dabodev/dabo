@@ -1,41 +1,29 @@
 """ dFormMixin.py """
 import dPemMixin as pm
-import dFormMain
-#import dMainMenuBar as mnb
+#import dBaseMenuBar as mnb
 #import dMenu, dMessageBox, dabo.icons
+from dabo.dLocalize import _
+import dabo.dEvents as dEvents
 
 class dFormMixin(pm.dPemMixin):
-	def __init__(self):
-		dFormMixin.doDefault()
-		self.debug = False
+	def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
+#		if parent:
+#			style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT
+#		else:
+#			style = wx.DEFAULT_FRAME_STYLE
+		
+#		kwargs["style"] = style
+		
+		super(dFormMixin, self).__init__(preClass, parent, properties, *args, **kwargs)
 		
 		self.debugText = ""
-
-		# Need to convert to Tk:
-		#wx.EVT_CLOSE(self, self.OnClose)
-		#wx.EVT_SET_FOCUS(self, self.OnSetFocus)
-		#wx.EVT_KILL_FOCUS(self, self.OnKillFocus)
-		#wx.EVT_ACTIVATE(self, self.OnActivate)
-		
-
-		if not isinstance(self, dFormMain.dFormMain):
-			self.Application.uiForms.add(self)
-
+		self.useOldDebugDialog = False
 		self.restoredSP = False
-
+		self._holdStatusText = ""
+		if self.Application is not None:
+			self.Application.uiForms.add(self)
 		
-		if self.Application:
-			pass
-# 			try:
-# 				self.SetMenuBar(mnb.dMainMenuBar(self))
-# 				self.afterSetMenuBar()
-# 			except AttributeError:
-# 				# perhaps we are a dDialog
-# 				pass
 
-#		if not self.Icon:
-#			self.Icon = wx.Icon(dabo.icons.getIconFileName('daboIcon048'), wx.BITMAP_TYPE_PNG)
-			
 
 # 	def OnActivate(self, event): 
 # 		if bool(event.GetActive()) == True and self.restoredSP == False:

@@ -28,15 +28,15 @@ class uiApp(dabo.common.dObject):
 	def finish(self):
 		self.raiseEvent(dEvents.Deactivate)
 		
-	def onFileExit(self, event):
+	def onFileExit(self, evt):
 		self.MainForm.Close(True)
 
 
-	def onEditCut(self, event):
-		self.onEditCopy(event, cut=True)
+	def onEditCut(self, evt):
+		self.onEditCopy(evt, cut=True)
 
 
-	def onEditCopy(self, event, cut=False):
+	def onEditCopy(self, evt, cut=False):
 		pass
 # 		win = wx.GetActiveWindow().FindFocus()
 # 		try:
@@ -56,7 +56,7 @@ class uiApp(dabo.common.dObject):
 # 				win.Remove(win.GetSelection()[0], win.GetSelection()[1])
 
 
-	def onEditPaste(self, event):
+	def onEditPaste(self, evt):
 		pass
 # 		win = wx.GetActiveWindow().FindFocus()
 # 		try:
@@ -75,11 +75,11 @@ class uiApp(dabo.common.dObject):
 		
 
 
-	def onEditPreferences(self, event):
+	def onEditPreferences(self, evt):
 		dabo.infoLog.write("Stub: uiApp.onEditPreferences()")
 
 
-	def onEditFind(self, event):
+	def onEditFind(self, evt):
 		""" Display a Find dialog. 
 		"""
 		pass
@@ -100,6 +100,15 @@ class uiApp(dabo.common.dObject):
 # 
 # 			dlg.Show()
 
+
+	def onEditFindAgain(self, evt):
+		pass
+
+	def onEditUndo(self, evt):
+		pass
+
+	def onEditRedo(self, evt):
+		pass
 
 	def OnFindClose(self, event):
 		""" User clicked the close button, so hide the dialog.

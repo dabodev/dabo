@@ -139,18 +139,6 @@ class dPemMixin(dPemMixinBase):
 			return ret
 
 			
-	def _initName(self, name=None, _explicitName=True):
-		if name is None:
-			name = self.Name
-		
-		try:
-			self._setName(name, _userExplicit=_explicitName)
-		except AttributeError:
-			# Some toolkits (Tkinter) don't let objects change their
-			# names after instantiation.
-			pass
-
-			
 	def _beforeInit(self, pre):
 		self.acceleratorTable = []
 		self._name = "?"
@@ -370,23 +358,6 @@ class dPemMixin(dPemMixinBase):
 				uiCallAfterFunc=wx.CallAfter, *args, **kwargs)
 	
 			
-	def _processName(self, kwargs, defaultName):
-		# Called by the constructors of the dObjects, to properly set the
-		# name of the object based on whether the user set it explicitly
-		# or Dabo is to provide it implicitly.
-		if "Name" in kwargs.keys():
-			if "_explicitName" in kwargs.keys():
-				_explicitName = kwargs["_explicitName"]
-				del kwargs["_explicitName"]
-			else:
-				_explicitName = True
-			name = kwargs["Name"]
-		else:
-			_explicitName = False
-			name = defaultName
-		return name, _explicitName
-		
-
 	def reCreate(self, child=None):
 		""" Recreate self.
 		"""

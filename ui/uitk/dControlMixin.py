@@ -3,6 +3,6 @@ import dabo.dEvents as dEvents
 
 class dControlMixin(dControlMixinBase):
 	
-	def _onTkHit(self, event):
-		self.raiseEvent(dEvents.Hit, event)
+	def _onTkHit(self, evt):
+		self.raiseEvent(dEvents.Hit, evt)
 		

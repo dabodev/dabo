@@ -11,6 +11,45 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	Subclasses can extend the property sheet by defining their own get/set
 	functions along with their own property() statements.
 	"""
+	def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
+		# This is the major, common constructor code for all the dabo/ui/uitk 
+		# classes. The __init__'s of each class are just thin wrappers to this
+		# code.
+
+		# self.properties can be set in the userland beforeInit() hook.
+		self.properties = {}
+		
+		# This will implicitly call the following user hooks:
+		#    beforeInit()
+		#    initStyleProperties()
+		self._beforeInit()
+		
+		# The keyword properties can come from either, both, or none of:
+		#    + self.properties (set by user code in self.beforeInit())
+		#    + the properties dict
+		#    + the kwargs dict
+		# Get them sanitized into one dict:
+		if properties is not None:
+			# Override the class values
+			for k,v in properties.items():
+				self.properties[k] = v
+		properties = self.extractKeywordProperties(kwargs, self.properties)
+		
+		# If a Name isn't given, a default name will be used, and it'll 
+		# autonegotiate by adding an integer until it is a unique name.
+		# If a Name is given explicitly, a NameError will be raised if
+		# the given Name isn't unique among siblings:
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
+
+		# Do the init:
+		preClass.__init__(self, *args, **kwargs)
+		
+		self._initName(name, _explicitName=_explicitName)
+		
+		self._afterInit()
+		self.setProperties(properties)
+	
+
 	def __getattr__(self, att):
 		""" Try to resolve att to a child object reference.
 
@@ -330,9 +369,15 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _getName(self):
 		name = self.winfo_name()
-		self._name = name      # keeps name available even after C++ object is gone.
+		self._name = name
 		return name
 	
+	def _setName(self, val, _userExplicit=False):
+		# Can't set tk name after initialized. However, we should try to implement
+		# our own Dabo name which we can refer to and set/reset as we please.
+		self._initProperties["name"] = val			
+		# Also, see ui/uiwx/dPemMixin._setName(), where we enforce a unique name
+		# among siblings. That code should be refactored into dPemMixinBase...
 
 	def _getCaption(self):
 		# For forms: wm_title(), for controls: configure("text")
@@ -533,7 +578,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
 					'Specifies the shape of the mouse pointer when it enters this window. (obj)')
 	
- 	Name = property(_getName, None, None, 
+ 	Name = property(_getName, _setName, None, 
  					'The name of the object. (str)')
 	
 	Parent = property(_getParent, _setParent, None,	
