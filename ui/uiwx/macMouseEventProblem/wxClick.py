@@ -1,26 +1,24 @@
 import wx
 
-class TestFrame(wx.Frame):
-	def __init__(self, parent, id):
-		super(TestFrame, self).__init__(parent=parent, id=id)
-		self.SetTitle("WX")
-		self.SetSizer(wx.BoxSizer(wx.VERTICAL))
-		self.SetSize((300, 400))
-		self.Bind(wx.EVT_LEFT_DOWN, self.onMDown)
-		self.Bind(wx.EVT_LEFT_UP, self.onMUp)
-	
-	
-	def onMDown(self, evt):
-		print "LEFT DOWN"
-	
-	def onMUp(self, evt):
-		print "LEFT UP"
-	
+MakeMacFail = True
 
+def onDown(evt):
+	print "MouseDown"
+	if MakeMacFail:
+		print "EVT_LEFT_UP will not be received on Mac, because of the"
+		print "evt.Skip() in the EVT_LEFT_DOWN event handler."
+		evt.Skip()
+	else:
+		print "EVT_LEFT_UP will be received on Mac, because"
+		print "evt.Skip() was *not* called in the EVT_LEFT_DOWN event handler."
 
-if __name__ == '__main__':
-	app = wx.PySimpleApp()
-	frm = TestFrame(None, -1)
-	but = wx.Button(frm, -1, "t")
-	frm.Show(1)
-	app.MainLoop()
+def onUp(evt):
+	print "MouseUp"
+
+app = wx.PySimpleApp()
+frm = wx.Frame(None, -1, "Left-click on the panel")
+pan = wx.Panel(frm)
+pan.Bind(wx.EVT_LEFT_DOWN, onDown)
+pan.Bind(wx.EVT_LEFT_UP, onUp)
+frm.Show(1)
+app.MainLoop()
