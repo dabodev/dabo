@@ -1,4 +1,4 @@
-import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox, dIcons
+import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox, dIcons, dCommandButton
 import dPanel, dGrid, dCommandButton
 import wx
 from dabo.dLocalize import _
@@ -291,6 +291,12 @@ class dBrowsePage(dPage.dPage):
 		self.grid = dGrid.dGrid(self, bizobj, form)
 		self.grid.SetName('BrowseGrid')
 		self.GetSizer().Add(self.grid, 1, wx.EXPAND)
+		
+		self.addObject(dCommandButton.dCommandButton, 'cmdPreview')
+		self.cmdPreview.Caption = "Preview"
+		self.cmdPreview.Bind(wx.EVT_BUTTON, self.onPreview)
+		self.GetSizer().Add(self.cmdPreview, 0, 0)
+		
 		self.GetSizer().Layout()
 		self.itemsCreated = True
 
@@ -309,8 +315,28 @@ class dBrowsePage(dPage.dPage):
 		# Called by the grid: user wants to edit the current row
 		self.GetParent().SetSelection(2)
 
+		
+	def onPreview(self, event):
+		if self.itemsCreated:
+			html = self.grid.getHTML(justStub=False)
+			win = wx.html.HtmlEasyPrinting("Dabo Quick Print", self.getDform())
+			printData = win.GetPrintData()
+			setupData = win.GetPageSetupData()
+			#printData.SetPaperId(wx.PAPER_LETTER)
+			setupData.SetPaperId(wx.PAPER_LETTER)
+			if self.grid.GetNumberCols() > 20:
+				printData.SetOrientation(wx.LANDSCAPE)
+			else:
+				printData.SetOrientation(wx.PORTRAIT)
+			#setupData.SetMarginTopLeft((17,7))
+			#s#etupData.SetMarginBottomRight((17,5))
+	#       # setupData.SetOrientation(wx.LANDSCAPE)
+			win.SetHeader("<B>%s</B>" % (self.getDform().Caption,))
+			win.SetFooter("<CENTER>Page @PAGENUM@ of @PAGESCNT@</CENTER>")
+			#win.PageSetup()
+			win.PreviewText(html)
 
-
+			
 class dEditPage(dPage.dPage):
 
 	def __init__(self, parent):

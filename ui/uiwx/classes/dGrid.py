@@ -671,7 +671,7 @@ class dGrid(wx.grid.Grid):
 		else:
 			html = []
 
-		html.append("<TABLE BORDER=1 CELLPADDING=2 CELLSPACING=0>")
+		html.append("<TABLE BORDER=1 CELLPADDING=2 CELLSPACING=0 WIDTH=100%>")
 
 		# get the column widths as proportional percentages:
 		gridWidth = 0
@@ -683,7 +683,7 @@ class dGrid(wx.grid.Grid):
 			for col in range(cols):
 				colSize = str(int((100 * self.GetColSize(col)) / gridWidth) - 2) + "%"
 				#colSize = self.GetColSize(col)
-				colValue = str(self.GetColLabelValue(col))
+				colValue = self.GetTable().colLabels[col]
 				html.append("<TD ALIGN='center' VALIGN='center' WIDTH='%s'><B>%s</B></TD>"
 								% (colSize,colValue))
 			html.append("</TR>")
@@ -692,7 +692,7 @@ class dGrid(wx.grid.Grid):
 			html.append("<TR>")
 			for col in range(cols):
 				colName = self.GetTable().colNames[col]
-				colVal = eval("self.wicket.viewCursor[row].%s" % colName)
+				colVal = self.GetTable().data[row][col]
 				html.append("<TD ALIGN='left' VALIGN='top'><FONT SIZE=1>%s</FONT></TD>"
 								% colVal)
 			html.append("</TR>")
