@@ -49,6 +49,7 @@ from dLabel import dLabel
 from dLine import dLine
 from dListbook import dListbook
 from dListBox import dListBox
+from dListControl import dListControl
 from dBaseMenuBar import dBaseMenuBar
 from dMenuBar import dMenuBar
 from dMenu import dMenu
@@ -77,16 +78,16 @@ import dShell
 # Tell Dabo Designer what classes to put in the selection menu:
 __dClasses = [dBox, dBitmapButton, dButton, dCheckBox, dComboBox, 
 		dDateTextBox, dDropdownList, dEditBox, dForm, dGauge, dGrid, 
-		dLabel, dLine, dListbook, dListBox, dRadioGroup, dPanel, 
-		dScrollPanel, dPageFrame, dPage, dSlider, dSpinner, dSplitForm, 
-		dSplitter, dTextBox, dTimer, dToggleButton, dTreeView]
+		dLabel, dLine, dListbook, dListBox, dListControl, dRadioGroup,
+		dPanel, dScrollPanel, dPageFrame, dPage, dSlider, dSpinner,  
+		dSplitForm, dSplitter, dTextBox, dTimer, dToggleButton, dTreeView]
 
 # These are the classes that can be added to any container class in 
 # the Designer.
 __dControlClasses = [dBox, dBitmapButton, dButton, dCheckBox, 
 		dComboBox, dDateTextBox, dDropdownList, dEditBox, dGauge, 
-		dGrid, dLabel, dLine, dListbook, dListBox, dRadioGroup, dPanel, 
-		dScrollPanel, dPageFrame, dPage, dSlider, dSpinner, dSplitter, 
+		dGrid, dLabel, dLine, dListbook, dListBox, dListControl, dRadioGroup, 
+		dPanel, dScrollPanel, dPageFrame, dPage, dSlider, dSpinner, dSplitter, 
 		dTextBox, dTimer, dToggleButton, dTreeView]
 
 daboDesignerClasses = []

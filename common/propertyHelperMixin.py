@@ -16,6 +16,20 @@ class PropertyHelperMixin(object):
 				propdict[arg] = kwdict[arg]
 				del kwdict[arg]
 		return propdict
+	
+	
+	def extractKey(self, kwdict, key):
+		""" If the supplied key is present in the kwdict, the associated
+		value is returned, and that key's element is deleted from the
+		dict. If the key doesn't exist, None is returned.
+		"""
+		try:
+			ret = kwdict[key]
+			del kwdict[key]
+			return ret
+		except KeyError:
+			return None
+			
 				
 	def getProperties(self, propertySequence=(), *propertyArguments):
 		""" Returns a dictionary of property name/value pairs.

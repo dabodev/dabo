@@ -14,7 +14,7 @@ class dPemMixin(dPemMixinBase):
 	functions along with their own property() statements.
 	"""
 	def __init__(self, preClass=None, parent=None, properties=None, 
-	             *args, **kwargs):
+				*args, **kwargs):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
@@ -408,6 +408,35 @@ class dPemMixin(dPemMixinBase):
 			super(dPemMixin, self).raiseEvent(eventClass, nativeEvent,
 				uiCallAfterFunc=wx.CallAfter, *args, **kwargs)
 	
+	
+	def getPositionInSizer(self):
+		""" Returns the current position of this control in its containing
+		sizer. This is useful for when a control needs to be re-created in
+		place.
+		If the containing sizer is a box sizer, the integer position will
+		be returned. If it is a grid sizer, a row,col tuple will be returned.
+		If the object is not contained in a sizer, None will be returned."""
+		sz = self.GetContainingSizer()
+		if not sz:
+			return None
+		if isinstance(sz, wx.BoxSizer):
+			chil = sz.GetChildren()
+			for pos in range(len(chil)):
+				# Yeah, normally we'd just iterate over the children, but
+				# we want the position, so...
+				szitem = chil[pos]
+				if szitem.IsWindow():
+					if szitem.GetWindow() == self:
+						return pos
+			# If we reached here, something's wrong!
+			dabo.errorLog.write(_("Containing sizer did not match item %s") % self.Name)
+			return None
+		elif isinstance(sz, wx.GridBagSizer):
+			# Need to find out how to do this...
+			return None
+		else:
+			return None
+			
 			
 	def reCreate(self, child=None):
 		""" Recreate self.

@@ -25,10 +25,17 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dListControl
 		
+		# The default is single selection. It will allow multiple selections 
+		# if MultiSelect is passed as an init param.
+		selType = wx.LC_SINGLE_SEL
+		isMultiSel = self.extractKey(kwargs, "MultiSelect")
+		if isMultiSel:
+			selType = 0
+		
 		try:
-			style = style | wx.LC_REPORT | wx.LC_SINGLE_SEL
+			style = style | wx.LC_REPORT | selType
 		except:
-			style = wx.LC_REPORT | wx.LC_SINGLE_SEL
+			style = wx.LC_REPORT | selType
 		preClass = wx.PreListCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, style=style, *args, **kwargs)
 		ListMixin.ListCtrlAutoWidthMixin.__init__(self)
@@ -41,6 +48,73 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		self.Bind(wx.EVT_LIST_KEY_DOWN, self.__onWxKeyDown)
 		self.bindEvent(dEvents.Hit, self.onHit)
 	
+	
+	def addColumn(self, caption):
+		""" Add a column with the selected caption. """
+		self.InsertColumn(self.GetColumnCount(), caption)
+	
+	
+	def insertColumn(self, pos, caption):
+		""" Inserts a column at the specified position
+		with the selected caption. """
+		self.InsertColumn(pos, caption)
+	
+	
+	def setColumns(self, colList):
+		""" Accepts a list/tuple of column headings, removes any
+		existing columns, and creates new columns, one for each 
+		element in the list"""
+		self.DeleteAllColumns()
+		for col in colList:
+			self.addColumn(col)
+			
+	
+	def select(self, row):
+		self.SetItemState(row, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
+
+
+	def unselect(self, row):
+		self.SetItemState(row, 0, wx.LIST_STATE_SELECTED)
+
+	
+	def setColumnWidth(self, col, wd):
+		self.SetColumnWidth(col, wd)
+	
+	
+	def append(self, tx, col=0, row=None):
+		""" Appends a row with the associated text in the specified column.
+		If the value for tx is a list/tuple, the values will be set in the columns
+		starting with the passed value. If either case results in an attempt to
+		add to a non-existent column, it will be ignored.
+		"""
+		insert = False
+		if row is None:
+			row = self.RowCount
+			insert = True
+		if type(tx) in (list, tuple):
+			if insert:
+				self.InsertStringItem(row, "")
+			currCol = col
+			for itm in tx:
+				self.append(itm, currCol, row)
+				currCol += 1
+		else:
+			if col < self.ColumnCount:
+				if insert:
+					self.InsertStringItem(row, "")
+				self.SetStringItem(row, col, tx)
+			else:
+				# should we raise an error? Add the column automatically?
+				pass
+	
+	
+	def insert(self, tx, row=0, col=0):
+		""" Inserts the item at the specified row, or at the beginning if no
+		row is specified. Item is inserted at the specified column, as in self.append()
+		"""
+		self.InsertStringItem(row, "")
+		self.append(tx, col, row)
+
 	
 	def __onSelection(self, evt):
 		self._selIndex = evt.GetIndex()
@@ -67,7 +141,12 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 			self.SetItemState(id, wx.LIST_STATE_SELECTED, 
 					wx.LIST_STATE_SELECTED)
 
-
+	def _getColCount(self):
+		return self.GetColumnCount()
+		
+	def _getRowCount(self):
+		return self.GetItemCount()
+		
 	def _getValue(self):
 		ret = None
 		try:
@@ -80,11 +159,17 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		elif type(val) in (str, unicode):
 			self.Select(self.FindItem(-1, val))
 
+	ColumnCount = property(_getColCount, None, None, 
+			_("Number of columns in the control (read-only).  (int)") )
+
+	RowCount = property(_getRowCount, None, None, 
+			_("Number of rows in the control (read-only).  (int)") )
+
 	SelectedIndices = property(_getSelected, _setSelected, None, 
-			"Returns a list of selected row indices.  (list of int)")
+			_("Returns a list of selected row indices.  (list of int)") )
 			
 	Value = property(_getValue, _setValue, None,
-		"Returns current value (str)" )
+			_("Returns current value (str)" ) )
 		
 		
 			
@@ -93,26 +178,13 @@ if __name__ == "__main__":
 	
 	class TestListControl(dListControl):
 		def afterInit(self):
-			self.InsertColumn(0, "Main Column")
-			self.InsertColumn(1, "Another Column")
-			row = 0
-			self.InsertStringItem(row, "First Line")
-			self.SetStringItem(row, 1, "111")
-			row += 1
-			self.InsertStringItem(row, "Second Line")
-			self.SetStringItem(row, 1, "222")
-			row += 1
-			self.InsertStringItem(row, "Third Line")
-			self.SetStringItem(row, 1, "333")
-			row += 1
-			self.InsertStringItem(row, "Fourth Line")
-			self.SetStringItem(row, 1, "444")
-			row += 1
-			self.InsertStringItem(row, "Fifth Line")
-			self.SetStringItem(row, 1, "5.55")
-			row += 1
-			self.SetColumnWidth(0, 150)
-			self.SetColumnWidth(1, wx.LIST_AUTOSIZE)
+			self.setColumns( ("Main Column", "Another Column") )
+			self.setColumnWidth(0, 150)
+#			self.setColumnWidth(1, wx.LIST_AUTOSIZE)
+			self.append( ("Second Line", "222") )
+			self.append( ("Third Line", "333") )
+			self.append( ("Fourth Line", "444") )
+			self.insert( ("First Line", "111") )
 		
 		def onHit(self, evt):
 			print "HIT!", self.Value
