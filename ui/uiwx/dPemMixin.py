@@ -338,7 +338,10 @@ class dPemMixin(dPemMixinBase):
 		# Call the Dabo-native raiseEvent(), passing along the wx.CallAfter
 		# function, so that the Dabo events can be processed at next idle.
 		
-		if eventClass is dabo.dEvents.Destroy:
+		##- 2004/01/07: Problems with segfaults and illegal instructions in some cases
+		##-             with the wx.CallAfter. Revert back for now to calling in the
+		##-             callstack.
+		if True or eventClass is dabo.dEvents.Destroy:
 			# Call immediately in this callstack so the object isn't completely
 			# gone by the time the callback is called.
 			super(dPemMixin, self).raiseEvent(eventClass, nativeEvent, *args, **kwargs)
