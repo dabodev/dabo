@@ -48,13 +48,18 @@ class ObjectPanel(dabo.ui.dPanel):
 		"""
 		self.Props[prop] = str(val)
 		if sendPropsChanged:
-			self._rd.propsChanged()
+			#self._rd.propsChanged(self)
+			self.draw()
+			self.Refresh()
 
 	def setProps(self, propvaldict):
 		"""Set the specified object properties to the specified values."""
 		for p,v in propvaldict.items():
 			self.setProp(p, v, False)
-		self._rd.propsChanged()
+		self.draw()
+
+	def draw(self):
+		self.Parent.drawObject(self.Props)
 
 	def onDoubleClick(self, evt):
 		self.Parent._rd.propertyDialog(self)
@@ -369,9 +374,9 @@ class Band(dabo.ui.dPanel):
 		self.availableProps = [{"name": "height", 
 		                        "defaultValue": self._rw.default_bandHeight,
 		                        "caption": "Band Height"},
-			                     {"name": "designerLock", 
-				                    "defaultValue": "False",
-				                    "caption": "Designer Lock"}]
+		                       {"name": "designerLock", 
+		                        "defaultValue": "False",
+		                        "caption": "Designer Lock"}]
 
 
 	def initEvents(self):
@@ -386,8 +391,12 @@ class Band(dabo.ui.dPanel):
 	def drawObjects(self):
 		if self.props.has_key("objects"):
 			for obj in self.props["objects"]:
-				o = self.getObject(obj)
+				self.drawObject(obj)
+
+	def drawObject(self, obj):
+		self.getObject(obj)
 	
+
 	def getObject(self, obj):
 		if not obj.has_key("name"):
 			# The report designer needs to identify objects uniquely, and saves the
@@ -521,9 +530,11 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.clearReportForm()
 
 		self.Form.bindEvent(dEvents.Resize, self._onFormResize)
-		self.bindEvent(dEvents.KeyDown, self._onKeyDown)
+		self.bindEvent(dEvents.KeyUp, self._onKeyUp)
 
-	def _onKeyDown(self, evt):
+	def _onKeyUp(self, evt):
+		# Note: using onKeyUp because it appears something is eating KeyDown on 
+		# Windows, perhaps the scrollPanel scrollbars.
 		# certain keys, like the arrow keys, are used by the designer.
 		from dabo.ui import dKeys
 		shiftDown = evt.EventData["shiftDown"]
@@ -843,6 +854,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		totPageHeight += br.Height
 
 		self.SetScrollbars(u,u,(pageWidth + lr.Width + rr.Width)/u,totPageHeight/u)
+		self.SetFocus()
 
 
 	def getRuler(self, orientation):
