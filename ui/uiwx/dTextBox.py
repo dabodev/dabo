@@ -116,7 +116,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				
 		except StandardError, e:
 			retVal = "ERROR"
-			dabo.errorLog.write("getval:", e)
+			dabo.errorLog.write("getval: %s" % e)
 			
 		return retVal
 		
