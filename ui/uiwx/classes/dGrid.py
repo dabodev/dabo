@@ -305,7 +305,7 @@ class dGrid(wx.grid.Grid):
 		
 		if oldRow != newRow:
 			try:
-				self.bizobj.moveToRowNum(newRow)
+				self.bizobj.setRowNumber(newRow)
 			except dError.dError:
 				pass
 		self.form.refreshControls()

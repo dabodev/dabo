@@ -412,6 +412,7 @@ class dEditPage(dPage.dPage):
 					self.GetSizer().Add(bs, 0, wx.EXPAND)
 
 		self.GetSizer().Layout()
+		self.itemsCreated = True
 
 
 class dChildViewPage(dPage.dPage):
@@ -428,6 +429,14 @@ class dChildViewPage(dPage.dPage):
 				self.createItems()
 		if self.itemsCreated:
 			self.fillGrid()
+	
+	
+	def onRowNumChanged(self, event):
+		# If RowNumChanged (in the parent bizobj) is received AND we are the
+		# active page, the child bizobj has already been requeried
+		# but the grid needs to be filled to reflect that.
+		self.onEnterPage()
+		event.Skip()
 
 
 	def createItems(self):
