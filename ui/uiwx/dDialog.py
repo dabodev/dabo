@@ -2,12 +2,14 @@ import wx
 import dSizer, dFormMixin
 
 class dDialog(wx.Dialog, dFormMixin.dFormMixin):
-	def __init__(self, parent=None, id=-1, title='', name='dDialog', *args, **kwargs):
+	def __init__(self, parent=None, id=-1, title='', name="dDialog", 
+				style=0, *args, **kwargs):
 		self._baseClass = dDialog
 
 		pre = wx.PreDialog()
 		self._beforeInit(pre)
-		pre.Create(parent, id, title, name=name, style=pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id, title, name=name, 
+				style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 		self.Sizer = dSizer.dSizer("vertical")
