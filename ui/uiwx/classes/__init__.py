@@ -6,6 +6,8 @@ framework, both visual and non-visual, for the wx ui.
 
 # Import into public namespace:
 from dAbout import dAbout
+from dBox import dBox
+from dBitmapButton import dBitmapButton
 from dCheckBox import dCheckBox
 from dComboBox import dComboBox
 from dCommandButton import dCommandButton
@@ -21,6 +23,7 @@ from dFormMain import dFormMain
 from dGauge import dGauge
 from dGridDataNav import dGridDataNav
 from dLabel import dLabel
+from dLine import dLine
 from dListbook import dListbook
 from dLogin import dLogin
 from dMainMenuBar import dMainMenuBar
@@ -34,13 +37,15 @@ from dPage import dPage
 from dSlider import dSlider
 from dSpinner import dSpinner
 from dTextBox import dTextBox
+from dToggleButton import dToggleButton
 from dTreeView import dTreeView
 
+
 # Tell Dabo Designer what classes to put in the selection menu:
-__dClasses = [dCheckBox, dCommandButton, dDateControl, dDateTextBox,
-		dDropdownList, dEditBox, dForm, dFormDataNav, dFormMain, 
-		dGauge, dLabel, dListbook, dPanel, dPageFrame, dPage, 
-		dRadioGroup, dScrollPanel, dSlider, dSpinner, dTextBox]
+__dClasses = [dBox, dBitmapButton, dCheckBox, dCommandButton, dDateControl, 
+		dDateTextBox, dDropdownList, dEditBox, dForm, dFormDataNav, dFormMain, 
+		dGauge, dLabel, dLine, dListbook, dPanel, dPageFrame, dPage, 
+		dRadioGroup, dScrollPanel, dSlider, dSpinner, dTextBox, dToggleButton]
 
 daboDesignerClasses = []
 for __classRef in __dClasses:

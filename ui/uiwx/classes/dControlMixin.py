@@ -17,7 +17,7 @@ class dControlMixin(pm.dPemMixin):
 			name = self.Name
 		
 		self.Name = name		
-		self.Caption = self.getDefaultText()
+		#self.Caption = self.getDefaultText()
 
 		# Subclass will intercept the initEvents first, allowing
 		# the framework user to completely override if desired.    
