@@ -123,7 +123,7 @@ class EventMixin(object):
 			return self._eventBindings
 			
 	def _setEventBindings(self, val):
-		if type(val) == type(list):
+		if type(val) == list:
 			self._eventBindings = val
 		else:
 			raise ValueError, "EventBindings must be a list."
