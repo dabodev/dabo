@@ -364,7 +364,7 @@ class dDataNavForm(dForm.dForm):
 			self.setupMenu()
 	
 	
-	def setChildSpecs(self, xmlFile, bizModule):
+	def setRelationSpecs(self, xmlFile, bizModule):
 		""" Creates any child bizobjs used by the form, and establishes
 		the relations with the parent bizobj
 		"""
