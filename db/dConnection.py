@@ -1,4 +1,5 @@
 import dabo.common
+from dCursorMixin import dCursorMixin
 
 class dConnection(dabo.common.dObject):
 	""" Hold a connection to a backend database. 
@@ -21,6 +22,22 @@ class dConnection(dabo.common.dObject):
 		
 	def getCursor(self, cursorClass):
 		return self.getBackendObject().getCursor(cursorClass)
+	
+	def getDaboCursor(self, cursorClass):
+		""" Accepts a backend-specific cursor class, mixes in the Dabo
+		dCursorMixin class, and returns the result.
+		"""
+		class DaboCursor(dCursorMixin, cursorClass):
+			superMixin = dCursorMixin
+			superCursor = cursorClass
+			def __init__(self, *args, **kwargs):
+				if hasattr(dCursorMixin, "__init__"):
+					apply(dCursorMixin.__init__,(self,) + args, kwargs)
+				if hasattr(cursorClass, "__init__"):
+					apply(cursorClass.__init__,(self,) + args, kwargs)
+		
+		return self.getBackendObject().getCursor(DaboCursor)
+
 
 	def _openConnection(self):
 		""" Open a connection to the database and store it for future use. """
