@@ -83,6 +83,7 @@ errorLog.Caption = "Dabo Error Log"
 errorLog.LogObject = sys.stderr
 
 from dApp import dApp
+from __version__ import version
 import dEvents
 
 # dApp will change the following values upon its __init__:

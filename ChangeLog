@@ -1,3 +1,25 @@
+See the Subversion log for all the details.
+
+Dabo-0.2 (2004-09-20):
+
+Continued improving FireBird database support, improved MySQL support. Added
+preliminary SQLite support.
+
+Save passwords encrypted.
+
+Added logger objects to send program output to, instead of directly to stdout.
+
+Began abstraction of Tkinter at purely an experimental level.
+
+Added some new controls, such as a better date control and a combo box. 
+
+Brought in some Foxpro string functions from the openfox project.
+
+New event model, greatly simplifying the binding of events, the raising of events,
+and the subclassing of events to define new events.
+
+Added preliminary unicode support to the cursor level. 
+	
 
 Dabo-0.1.1 (2004-06-13):
 

@@ -94,7 +94,7 @@ class dApp(dabo.common.dObject):
 		if not self.getAppInfo("appName"):
 			self.setAppInfo("appName", "Dabo")
 		if not self.getAppInfo("appVersion"):
-			self.setAppInfo("appVersion", "0.1")
+			self.setAppInfo("appVersion", dabo.version["version"])
 		if not self.getAppInfo("vendorName"):
 			self.setAppInfo("vendorName", "Dabo")
 
