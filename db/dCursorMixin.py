@@ -402,9 +402,20 @@ class dCursorMixin(dabo.common.dObject):
 						# changed to int. 
 						val = int(val)
 				if type(rec[fld]) != type(val):
-					# This can happen with a new record, since we just stuff the
-					# fields full of empty strings.
-					if not self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG):
+					ignore = False
+					# Date and DateTime types are handled as character, even if the 
+					# native field type is not. Ignore these
+					dtStrings = ("<type 'DateTime'>", "<type 'Date'>")
+					if str(type(rec[fld])) in dtStrings:
+						if type(val) in (type(""), type(u"")):
+							ignore = True
+					
+					else:
+						# This can also happen with a new record, since we just stuff the
+						# fields full of empty strings.
+						ignore = self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG)
+					
+					if not ignore:
 						msg = "!!! Data Type Mismatch: field=" + fld + ". Expecting:" + str(type(rec[fld])) + "; got:" + str(type(val))
 						dabo.errorLog.write(msg)
 					
