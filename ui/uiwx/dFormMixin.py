@@ -22,13 +22,6 @@ class dFormMixin(pm.dPemMixin):
 		
 		super(dFormMixin, self).__init__(preClass, parent, properties, *args, **kwargs)
 		
-		self.debugText = ""
-		self.useOldDebugDialog = False
-		self.restoredSP = False
-		self._holdStatusText = ""
-		if self.Application is not None:
-			self.Application.uiForms.add(self)
-		
 
 	def _afterInit(self):
 		if self.Application and self.MenuBarClass:
@@ -41,7 +34,14 @@ class dFormMixin(pm.dPemMixin):
 
 		if not self.Icon:
 			self.Icon = wx.Icon(dabo.icons.getIconFileName('daboIcon048'), wx.BITMAP_TYPE_PNG)
-			
+
+		self.debugText = ""
+		self.useOldDebugDialog = False
+		self.restoredSP = False
+		self._holdStatusText = ""
+		if self.Application is not None:
+			self.Application.uiForms.add(self)
+		
 		super(dFormMixin, self)._afterInit()
 	
 				
@@ -75,7 +75,6 @@ class dFormMixin(pm.dPemMixin):
 		try:
 			restSP = self.restoredSP
 		except:
-			print "not DEFINED"
 			restSP = False
 		if not restSP:
 			self.restoreSizeAndPosition()
