@@ -12,13 +12,13 @@ from dabo.dLocalize import _
 
 class dListControl(wx.ListCtrl, dcm.dDataControlMixin, 
 					ListMixin.ListCtrlAutoWidthMixin):
-	""" Mostly copied from the wxDemo. The mixin allows the 
-	rightmost column to expand as the control is resized.
+	""" The List Control is ideal for visually dealing with data sets
+	where each 'row' is a unit, where it doesn't make sense to deal
+	with individual elements inside of the row. If you need to be
+	able work with individual elements, you should use a grid.
 	
-	This class as it stands is pretty incomplete, but it works well enough
-	for the property sheet in the designer. Before including it in the
-	general Dabo set of controls, we will need to streamline the adding
-	of items, sorting, etc. - all the things that this control can do.
+	The mixin allows the rightmost column to expand as the 
+	control is resized. There is no way to turn that off as of now.	
 	"""
 	_IsContainer = False
 	
@@ -76,6 +76,16 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	def unselect(self, row):
 		self.SetItemState(row, 0, wx.LIST_STATE_SELECTED)
 
+
+	def selectAll(self):
+		for row in range(self.RowCount):
+			self.select(row)
+			
+
+	def unselectAll(self):
+		for row in range(self.RowCount):
+			self.unselect(row)
+			
 	
 	def setColumnWidth(self, col, wd):
 		self.SetColumnWidth(col, wd)
@@ -108,13 +118,46 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 				pass
 	
 	
+	def appendRows(self, seq, col=0):
+		""" Accepts a list/tuple of data. Each element in the sequence
+		will be another row in the control. If the data is plain text, it
+		will be added in the specified column. If the data is also a 
+		list/tuple, it will be appended into columns beginning with the
+		specified column.
+		"""
+		for itm in seq:
+			self.append(itm, col=col)
+			
+	
 	def insert(self, tx, row=0, col=0):
 		""" Inserts the item at the specified row, or at the beginning if no
 		row is specified. Item is inserted at the specified column, as in self.append()
 		"""
 		self.InsertStringItem(row, "")
 		self.append(tx, col, row)
+	
+	
+	def insertRows(self, seq, row=0, col=0):
+		""" Accepts a list/tuple of data. Each element in the sequence
+		will be another row in the control. If the data is plain text, it
+		will be inserted in the specified column at the specified row. 
+		If the data is also a list/tuple, it will be inserted into columns 
+		beginning with the specified column.
+		"""
+		for itm in seq:
+			self.insert(itm, row=row, col=col)
+		
 
+
+	def removeRow(self, row):
+		if row < self.RowCount:
+			self.DeleteItem(row)
+	
+	
+	def clear(self):
+		""" Remove all the rows in the control. """
+		self.DeleteAllItems()
+		
 	
 	def __onSelection(self, evt):
 		self._selIndex = evt.GetIndex()
