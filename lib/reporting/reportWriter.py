@@ -294,7 +294,6 @@ class ReportWriter(object):
 				columns = 1
 
 			columnWidth = width/columns
-			print columnWidth
 
 			## Set canvas props based on our props:
 			c.translate(x, y)
@@ -320,7 +319,6 @@ class ReportWriter(object):
 				except:
 					s = styles_[self.default_style]
 				e = object["expr"]
-				print e
 				s = copy.deepcopy(s)
 
 				if object.has_key("fontSize"):

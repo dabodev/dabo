@@ -57,7 +57,7 @@ class PageFrame(dabo.ui.dPageFrame):
 		self.dsEditPages[ds] = self.PageCount - 1
 	
 	def editByDataSource(self, ds):
-		self.Selection = self.dsEditPages[ds]
+		self.SelectedPage = self.dsEditPages[ds]
 		
 	def _getSelectPageClass(self):
 		try:
