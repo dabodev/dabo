@@ -285,7 +285,10 @@ class Form(dabo.ui.dForm):
 	
 	def addEditPages(self, ds):
 		biz = self.getBizobj(ds)
-		title = "Edit " + biz.Caption
+		if biz:
+			title = "Edit " + biz.Caption
+		else:
+			title = "Edit"
 		self.pageFrame.addEditPage(ds, title)
 		if biz:
 			for child in biz.getChildren():
