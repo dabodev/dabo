@@ -1,4 +1,4 @@
-import sys, os
+import sys, os, copy
 import dabo, dabo.ui
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
@@ -17,6 +17,7 @@ class ObjectPanel(dabo.ui.dPanel):
 		self._rd = self.Form.editor
 		self._rw = self._rd._rw
 		self._props = {}
+		self._anchors = {}
 
 	def initEvents(self):
 		self.bindEvent(dEvents.Paint, self.onPaint)
@@ -101,14 +102,17 @@ class ObjectPanel(dabo.ui.dPanel):
 			if evt.EventData["shiftDown"] or evt.EventData["controlDown"]:
 				self._rd._selectedObjects.append(self)
 			else:
+				oldSelectedObjects = copy.copy(self._rd._selectedObjects)
 				self._rd._selectedObjects = [self,]
+				for obj in oldSelectedObjects:
+					obj.Refresh()
 		else:
 			if evt.EventData["shiftDown"] or evt.EventData["controlDown"]:
 				for idx in range(len(self._rd._selectedObjects)):
 					if self._rd._selectedObjects[idx] == self:
 						del self._rd._selectedObjects[idx]
 						break
-		self._rd.Refresh()
+		self.Refresh()
 
 	def onPaint(self, evt):
 		import wx		## (need to abstract DC drawing)
@@ -384,8 +388,10 @@ class Band(dabo.ui.dPanel):
 
 
 	def onLeftClick(self, evt):
+		oldSelectedObjects = copy.copy(self._rd._selectedObjects)
 		self._rd._selectedObjects = []
-		self._rd.Refresh()
+		for obj in oldSelectedObjects:
+			obj.Refresh()
 
 
 	def drawObjects(self):
