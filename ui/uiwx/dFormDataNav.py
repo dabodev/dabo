@@ -13,9 +13,8 @@ class dFormDataNav(dForm.dForm):
 			+ Edit   : Edit the current record in the result set.
 	"""
 
-	def beforeInit(self, preObject):
-		#dFormDataNav.doDefault(preObject)
-		super(dFormDataNav, self).beforeInit(preObject)
+	def beforeInit(self):
+		super(dFormDataNav, self).beforeInit()
 		self._columnDefs = {}
 		self._childBehavior = {}
 		self._requeried = False

@@ -15,8 +15,8 @@ class dDataNavForm(dForm.dForm):
 			+ Browse : Browse the result set and pick an item to edit.
 			+ Edit   : Edit the current record in the result set.
 	"""
-	def beforeInit(self, preObject):
-		super(dDataNavForm, self).beforeInit(preObject)
+	def beforeInit(self):
+		super(dDataNavForm, self).beforeInit()
 		# Determines if we are actually running the form, or just 
 		# previewing it
 		self._fieldSpecs = {}

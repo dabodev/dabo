@@ -131,7 +131,7 @@ class dPemMixin(dPemMixinBase):
 		self.initStyleProperties()
 		
 		# Call the subclass hook:
-		self.beforeInit(pre)
+		self.beforeInit()
 		
 		
 	def _afterInit(self):
@@ -170,6 +170,7 @@ class dPemMixin(dPemMixinBase):
 		self.initEvents()
 		self.raiseEvent(dEvents.Create)
 
+		
 	def _preInitUI(self, kwargs):
 		"""Subclass hook. Some wx objects (RadioBox) need certain props forced if
 		they hadn't been set by the user either as a parm or in initStyleProperties"""

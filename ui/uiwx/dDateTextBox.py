@@ -46,7 +46,7 @@ class dDateTextBox(dTextBox.dTextBox):
 	to the date value they need. The keystrokes are the same as those used
 	by Quicken, the popular personal finance program.
 	"""
-	def beforeInit(self, pre):
+	def beforeInit(self):
 		self.date = wx.DateTime_Now()
 		self.formats = {
 				wx.NewId(): {"prompt": "American (MM/DD/YYYY)", 

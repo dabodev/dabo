@@ -301,7 +301,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 if __name__ == "__main__":
 	import test
 	class _T(dRadioGroup):
-		def beforeInit(self, pre):
+		def beforeInit(self):
 			self.Orientation = "None"
 			self.setup()
 
