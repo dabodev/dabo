@@ -25,17 +25,20 @@ class dGridDataTable(wxPyGridTableBase):
         self.dataTypes = []
         self.imageBaseThumbnails = []
         self.imageLists = {}
+        self.data = []
         
         self.grid.SetDefaultRowSize(20)  # (make user-editable)
 
         for column in self.grid.columnDefs:
-            if column["showGrid"] == True:
-                self.colLabels.append(column["caption"])
-                self.colNames.append(column["name"])
-                self.dataTypes.append(self.wxGridType(column["type"]))
+            self.colLabels.append(column["caption"])
+            self.colNames.append(column["name"])
+            self.dataTypes.append(self.wxGridType(column["type"]))
 
     def fillTable(self):
         rows = self.GetNumberRows()
+        currentColumn = self.grid.GetGridCursorCol()
+        if not currentColumn:
+            currentColumn = 0
         self.Clear()
         self.data = []
         oldRowNum = self.bizobj.getRowNumber()
@@ -43,12 +46,11 @@ class dGridDataTable(wxPyGridTableBase):
             recordDict = []
             self.bizobj.moveToRowNum(record)
             for column in self.grid.columnDefs:
-                if column["showGrid"] == True:
-                    recordVal = eval("self.bizobj.%s" % column["name"])
-                    if column["type"] == "M":
-                        # Show only the first 64 chars of the long text:
-                        recordVal = str(recordVal)[:64]
-                    recordDict.append(recordVal)
+                recordVal = eval("self.bizobj.%s" % column["name"])
+                if column["type"] == "M":
+                    # Show only the first 64 chars of the long text:
+                    recordVal = str(recordVal)[:64]
+                recordDict.append(recordVal)
 
             self.data.append(recordDict)
             
@@ -74,8 +76,8 @@ class dGridDataTable(wxPyGridTableBase):
                 
             self.GetView().ProcessTableMessage(msg)
         
-        self.grid.SetGridCursor(oldRowNum, 0)
-        self.grid.MakeCellVisible(oldRowNum-1, 0)
+        self.grid.SetGridCursor(oldRowNum, currentColumn)
+        self.grid.MakeCellVisible(oldRowNum-1, currentColumn)
                 
     def wxGridType(self,xBaseType):
         if xBaseType == "I":
@@ -180,10 +182,13 @@ class dGridDataTable(wxPyGridTableBase):
 
         
 class dGrid(wxGrid):
-    def __init__(self, parent, bizobj, form, name="dGrid"):
+    def __init__(self, parent, bizobj, form, name="dGrid",
+                 columnDefs=[]):
         wxGrid.__init__(self, parent, -1)
         self.bizobj = bizobj
         self.form = form
+        self.columnDefs = columnDefs
+        
         ID_IncrementalSearchTimer = wx.NewId()
     
         self.currentIncrementalSearch = ""
@@ -192,15 +197,12 @@ class dGrid(wxGrid):
         
         self.sortedColumn = None
         self.sortOrder = ""
-        
-        
+                
         self.SetRowLabelSize(0)
         self.SetMargins(0,0)
         self.AutoSizeColumns(True)
         self.EnableEditing(False)
         
-        self.fillGrid()
-
         EVT_TIMER(self,  ID_IncrementalSearchTimer, self.OnIncrementalSearchTimer)
         EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
         EVT_KEY_DOWN(self, self.OnKeyDown)
@@ -215,11 +217,10 @@ class dGrid(wxGrid):
         EVT_PAINT(columnLabelWindow, self.OnColumnHeaderPaint)
 
         EVT_GRID_ROW_SIZE(self, self.OnGridRowSize)
-    
+        
     def fillGrid(self):
-        self.columnDefs = [{"name": "czip", "caption": "zipcode", "showGrid": True, "type": "C"},]
-        table = dGridDataTable(self)
-        self.SetTable(table, True)
+        if not self.GetTable():
+            self.SetTable(dGridDataTable(self), True)
         self.GetTable().fillTable()
     
     def OnGridSelectCell(self, event):
@@ -307,6 +308,18 @@ class dGrid(wxGrid):
                 #print keyCode
             evt.Skip()
 
+    def editRecord(self):
+        try:
+            self.GetParent().editRecord()
+        except AttributeError:
+            pass
+            
+    def deleteRecord(self):
+        try:
+            self.GetParent().getDform().delete()
+        except AttributeError:
+            pass
+    
     def processSort(self, gridCol=None):
         table = self.GetTable()
         
@@ -352,7 +365,7 @@ class dGrid(wxGrid):
             self.MakeCellVisible(row, gridCol)
         self.incrementalSearchTimer.Start(self.incrementalSearchTimerInterval)
 
-    def popupMenu(self): pass
+    def popupMenu(self): pass   # subset of the Navigation menu???
                   
     def OnGridRowSize(self, evt):
         self.SetDefaultRowSize(self.GetRowSize(evt.GetRowOrCol()), True)

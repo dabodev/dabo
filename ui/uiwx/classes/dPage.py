@@ -70,35 +70,39 @@ class dBrowsePage(dPage):
         # active page, select the row in the grid
         pf = self.GetParent()
         if self.gridExists and pf.GetPage(pf.GetSelection()) == self:
-            newRowNum = self.getDform().getBizobj().getRowNumber()
-            col = self.grid.GetGridCursorCol()
-            self.grid.SetGridCursor(newRowNum, col)
-            if not self.grid.IsVisible(newRowNum, col):
-                self.grid.MakeCellVisible(newRowNum, col)
-
+            self.grid.fillGrid()
+    
     def onEnterPage(self):
-        # For now, completely destroy the exising grid, if
-        # any, and create it again. This seems to perform
-        # very well anyway, but it is admittedly a complete
-        # waste to have to do this every time the page is
-        # activated... 
+        if not self.gridExists:
+            form = self.getDform()
+            bizobj = form.getBizobj()
+            if bizobj and bizobj.getRowCount() >= 0:
+                self.createGrid()
+            else:
+                dMessageBox.stop("The browse grid cannot be created as there doesn't"
+                                 " appear to be a cursor available.")
         if self.gridExists:
-            self.GetSizer().RemoveWindow(self.grid)
-            self.grid.Destroy()
-
+            self.fillGrid()
+            
+    def createGrid(self):
         form = self.getDform()
         bizobj = form.getBizobj()
-        if bizobj and bizobj.getRowCount() >= 0:
-            self.grid = dGrid(self, bizobj, form)
-            self.grid.AutoSizeColumns(True)
-            self.grid.SetFocus()
-            self.GetSizer().Add(self.grid, 1, wx.EXPAND)
-            self.GetSizer().Layout()
+        self.grid = dGrid(self, bizobj, form)
+        self.grid.AutoSizeColumns(True)
+        self.grid.SetFocus()
+        self.GetSizer().Add(self.grid, 1, wx.EXPAND)
+        self.GetSizer().Layout()
 
-            self.gridExists = True
-        else:
-            dMessageBox.stop("The browse grid cannot be displayed as there doesn't"
-                             " appear to be a cursor available.")
-            
-                
+        self.gridExists = True
+        
+    def fillGrid(self):
+        form = self.getDform()
+        bizobj = form.getBizobj()
+        self.grid.columnDefs = form.getGridColumnDefs(bizobj.dataSource)
+        self.grid.fillGrid()
+        
+    def editRecord(self):
+        # Called by the grid: user wants to edit the current row
+        self.GetParent().SetSelection(2)
+        
 class dEditPage(dPage): pass

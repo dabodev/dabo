@@ -1,7 +1,5 @@
 import wx, dEvents, dControlMixin, dDataControlMixin
 from dFormMixin import dFormMixin
-from dPageFrame import dPageFrame
-from dPage import *
 import dabo.dConstants as k
 import dMessageBox
 
@@ -43,7 +41,6 @@ class dForm(wx.Frame, dFormMixin):
         self.CreateStatusBar()
         
         self.SetSizer(wx.BoxSizer(wx.VERTICAL))
-        self.setupPageFrame()
         self.GetSizer().Layout()
         
     def EVT_VALUEREFRESH(win, id, func):
@@ -52,65 +49,6 @@ class dForm(wx.Frame, dFormMixin):
     def EVT_ROWNUMCHANGED(win, id, func):
         win.Connect(id, -1, dEvents.EVT_ROWNUMCHANGED, func)
     
-    def _appendToMenu(self, menu, caption, function):
-        menuId = wx.NewId()
-        menu.Append(menuId, caption)
-        wx.EVT_MENU(self, menuId, function)
-        
-    def getMenu(self):
-        menu = dFormMixin.getMenu(self)
-        
-        self._appendToMenu(menu, "Set Selection Criteria\tAlt+1", 
-                          self.onSetSelectionCriteria)
-        self._appendToMenu(menu, "Browse Records\tAlt+2", 
-                          self.onBrowseRecords)
-        self._appendToMenu(menu, "Edit Current Record\tAlt+3", 
-                          self.onEditCurrentRecord)
-        menu.AppendSeparator()
-        
-        self._appendToMenu(menu, "Requery\tCtrl+R", 
-                          self.onRequery)
-        self._appendToMenu(menu, "Save Changes\tCtrl+S", 
-                          self.onSave)
-        self._appendToMenu(menu, "Cancel Changes", 
-                          self.onCancel)
-        menu.AppendSeparator()
-        
-        self._appendToMenu(menu, "Select First Record", 
-                          self.onFirst)
-        self._appendToMenu(menu, "Select Prior Record\tCtrl+,", 
-                          self.onPrior)
-        self._appendToMenu(menu, "Select Next Record\tCtrl+.", 
-                          self.onNext)
-        self._appendToMenu(menu, "Select Last Record", 
-                          self.onLast)
-        menu.AppendSeparator()
-        self._appendToMenu(menu, "New Record\tCtrl+N", 
-                self.onNew)
-        self._appendToMenu(menu, "Delete Current Record", 
-                self.onDelete)
-
-        return menu
-        
-    def setupMenu(self):
-        self.SetMenuBar(wx.MenuBar())
-        self.GetMenuBar().Append(self.getMenu(), "&Navigation")
-        wx.EVT_MENU_OPEN(self, self.onOpenMenu)
-        
-    def onOpenMenu(self, event):
-        menu = event.GetEventObject()
-        if self.bizobjs[self.getPrimaryBizobj()].getRowCount() < 0:
-            # disable all menu items except for Requery. (I'd like
-            # to get some sort of "skip for" functionality build into 
-            # our menus, but that will wait.).
-            for item in menu.GetMenuItems():
-                if item.GetText() != "Requery":
-                    item.Enable(False)
-        else:
-            # Enable all menu items
-            for item in menu.GetMenuItems():
-                item.Enable(True)            
-
     def addBizobj(self, bizobj):
         ''' dForm.addBizobj(bizobj) -> None
         
@@ -339,6 +277,10 @@ class dForm(wx.Frame, dFormMixin):
                     stop,
                     stop == 1 and "." or "s."))
             self.refreshControls()
+            
+            # Notify listeners that the row number changed:
+            evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
+            self.GetEventHandler().ProcessEvent(evt)
         else:
             if self.debug:
                 print "Requery failed with response: %s" % response
@@ -363,6 +305,9 @@ class dForm(wx.Frame, dFormMixin):
                     print "Delete successful."
                 self.SetStatusText("Record Deleted.")
                 self.refreshControls()
+                # Notify listeners that the row number changed:
+                evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
+                self.GetEventHandler().ProcessEvent(evt)
             else:
                 if self.debug:
                     print "Delete failed with response: %s" % response
@@ -386,6 +331,9 @@ class dForm(wx.Frame, dFormMixin):
                 if self.debug:
                     print "Delete All successful."
                 self.refreshControls()
+                # Notify listeners that the row number changed:
+                evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
+                self.GetEventHandler().ProcessEvent(evt)
             else:
                 if self.debug:
                     print "Delete All failed with response: %s" % response
@@ -408,6 +356,9 @@ class dForm(wx.Frame, dFormMixin):
             statusText = self.getCurrentRecordText()
             self.SetStatusText(statusText)
             self.refreshControls()
+            # Notify listeners that the row number changed:
+            evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
+            self.GetEventHandler().ProcessEvent(evt)
         else:
             if self.debug:
                 print "New failed with response: %s" % response
@@ -428,33 +379,6 @@ class dForm(wx.Frame, dFormMixin):
         except KeyError:
             return None
             
-    def setupPageFrame(self):
-        ''' dForm.setupPageFrame() -> 
-        
-            Default behavior is to set up a 3-page pageframe
-            with 'Select', 'Browse', and 'Edit' pages.
-            User may override and/or extend in subclasses
-            and overriding self.beforeSetupPageFrame(), 
-            self.setupPageFrame, and/or self.afterSetupPageFrame().
-        '''
-        if self.beforeSetupPageFrame():
-            self.pageFrame = dPageFrame(self)
-            nbSizer = wx.NotebookSizer(self.pageFrame)
-            self.GetSizer().Add(nbSizer, 1, wx.EXPAND)
-            self.afterSetupPageFrame()
-        
-    def beforeSetupPageFrame(self): return True
-    def afterSetupPageFrame(self): pass
-
-    def onSetSelectionCriteria(self, event):
-        self.pageFrame.SetSelection(0)
-        
-    def onBrowseRecords(self, event):
-        self.pageFrame.SetSelection(1)
-        
-    def onEditCurrentRecord(self, event):
-        self.pageFrame.SetSelection(2)
-            
     def onFirst(self, event): self.first()
     def onPrior(self, event): self.prior()
     def onNext(self, event): self.next()
@@ -464,20 +388,6 @@ class dForm(wx.Frame, dFormMixin):
     def onNew(self, event): self.new()
     def onDelete(self, event): self.delete()
         
-    def addVCR(self):
-        ''' dForm.addVCR() -> None
-        
-            Add a VCR data nav control to the form -- temporary
-            until we get dToolbar working.
-        '''
-        bs = wx.BoxSizer(wx.HORIZONTAL)
-        import dVCR
-
-        vcr = dVCR.dVCR(self)
-        bs.Add(vcr, 1, wx.ALL, 0)
-        self.GetSizer().Add(bs, 0, wx.EXPAND)
-        self.GetSizer().Layout()
-
     def getCurrentRecordText(self):
         return "Record %s/%s" % (self.getBizobj().getRowNumber()+1,
                                     self.getBizobj().getRowCount())
