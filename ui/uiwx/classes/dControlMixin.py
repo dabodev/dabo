@@ -15,7 +15,7 @@ class dControlMixin(pm.dPemMixin):
 			name = self.Name
 		
 		try:
-			self.Name = name
+			self.Name = name		
 		except NameError:
 			# Name isn't unique: add an incrementing integer at the end and loop until
 			# a unique name is found.

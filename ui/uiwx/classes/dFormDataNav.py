@@ -15,8 +15,16 @@ class dFormDataNav(frm.dForm):
 	def beforeInit(self, preObject):
 		dFormDataNav.doDefault(preObject)
 		self._columnDefs = {}
+		self._requeried = False
 
-
+		
+	def OnActivate(self, evt):
+		if self.RequeryOnLoad and not self._requeried:
+			self._requeried = True
+			self.pageFrame.GetPage(0).requery()
+		evt.Skip()
+			
+		
 	def afterSetPrimaryBizobj(self):        
 		pass
 		
@@ -30,7 +38,7 @@ class dFormDataNav(frm.dForm):
 		self.setupPageFrame()
 		self.setupToolBar()
 		self.setupMenu()
-
+		
 		
 	def setupToolBar(self):
 		if isinstance(self, wx.MDIChildFrame):
@@ -168,6 +176,7 @@ class dFormDataNav(frm.dForm):
 			self.GetSizer().Add(nbSizer, 1, wx.EXPAND)
 			self.afterSetupPageFrame()
 
+			
 	def beforeSetupPageFrame(self): return True
 	def afterSetupPageFrame(self): pass
 
@@ -328,3 +337,18 @@ class dFormDataNav(frm.dForm):
 		Make the edit page active, as a convenience to the user.
 		"""
 		self.pageFrame.SetSelection(2)
+
+		
+	def _getRequeryOnLoad(self):
+		try:
+			return self._requeryOnLoad
+		except AttributeError:
+			return False
+
+	def _setRequeryOnLoad(self, value):
+		self._requeryOnLoad = bool(value)
+
+
+	# Property definitions:
+	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
+						'Specifies whether an automatic requery happens when the form is loaded.')

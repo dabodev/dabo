@@ -82,6 +82,7 @@ class dSelectPage(dPage.dPage):
 
 	def __init__(self, parent):
 		dSelectPage.doDefault(parent, name='pageSelect')
+		
 
 	def createItems(self):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
@@ -90,7 +91,7 @@ class dSelectPage(dPage.dPage):
 		self.selectOptionsPanel.SetFocus()
 		dSelectPage.doDefault()
 
-
+	
 	def getWhere(self):
 		# for each checked selection item, get the where clause:
 		user1, user2 = None, None
