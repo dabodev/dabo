@@ -229,7 +229,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		bizobj = self.getBizobj(dataSource)
 
 		try:
-			bizobj.cancel(allRows=self.SaveAllRows)
+			if self.SaveAllRows:
+				bizobj.cancelAll()
+			else:
+				bizobj.cancel()
 			if self.debug:
 				print "Cancel successful."
 			self.setStatusText(_("Changes to %s canceled." % (
@@ -278,8 +281,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			if self.debug:
 				print "Requery successful."
 			self.setStatusText(_("%s record%sselected in %s second%s" % (
-					bizobj.getRowCount(), 
-					bizobj.getRowCount() == 1 and " " or "s ",
+					bizobj.RowCount, 
+					bizobj.RowCount == 1 and " " or "s ",
 					stop,
 					stop == 1 and "." or "s.")))
 			self.refreshControls()
@@ -301,7 +304,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
 		
-		if not bizobj.getRowCount() > 0:
+		if not bizobj.RowCount > 0:
 			# Nothing to delete!
 			self.setStatusText(_("Nothing to delete!"))
 			return
@@ -443,9 +446,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		""" Get the text to describe which record is current.
 		"""
 		bizobj = self.getBizobj(dataSource)
-		rowCount = bizobj.getRowCount()
+		rowCount = bizobj.RowCount
 		if rowCount > 0:
-			rowNumber = bizobj.getRowNumber()+1
+			rowNumber = bizobj.RowNumber+1
 		else:
 			rowNumber = 0
 		return _("Record " ) + ("%s/%s" % (rowNumber, rowCount))

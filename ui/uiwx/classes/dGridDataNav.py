@@ -68,7 +68,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		""" Fill the grid's data table to match the bizobj.
 		"""
 		rows = self.GetNumberRows()
-		oldRow = self.bizobj.getRowNumber()    # current row per the bizobj
+		oldRow = self.bizobj.RowNumber    # current row per the bizobj
 		oldCol = self.grid.GetGridCursorCol()  # current column per the grid
 		if not oldCol:
 			oldCol = 0
@@ -332,7 +332,7 @@ class dGridDataNav(dGrid.dGrid):
 		
 		if oldRow != newRow:
 			try:
-				self.Form.getBizobj(self.DataSource).setRowNumber(newRow)
+				self.Form.getBizobj(self.DataSource).RowNumber = newRow
 			except dException.dException:
 				pass
 		self.Form.refreshControls()

@@ -322,14 +322,14 @@ class dBrowsePage(dPage.dPage):
 	def updateGrid(self):
 		bizobj = self.Form.getBizobj()
 		justCreated = False
-		if bizobj and bizobj.getRowCount() >= 0:
+		if bizobj and bizobj.RowCount >= 0:
 			if not self.itemsCreated:
 				self.createItems()
 				justCreated = True
 			if self.itemsCreated:
 				self.fillGrid()
 
-			row = self.Form.getBizobj().getRowNumber()
+			row = self.Form.getBizobj().RowNumber
 			col = self.BrowseGrid.GetGridCursorCol()
 			
 			if col < 0:
@@ -417,7 +417,7 @@ class dEditPage(dPage.dPage):
 	def onValueRefresh(self, event=None):
 		form = self.Form
 		bizobj = form.getBizobj()
-		if bizobj and bizobj.getRowCount() >= 0:
+		if bizobj and bizobj.RowCount >= 0:
 			self.Enable(True)
 		else:
 			self.Enable(False)
@@ -471,7 +471,7 @@ class dEditPage(dPage.dPage):
 				else:
 					label.Caption = '%s:' % column['caption']
 
-				if self.Form.getBizobj().getRowCount() >= 0:
+				if self.Form.getBizobj().RowCount >= 0:
 					objectRef.refresh()
 
 				if fieldType in ['M',]:
@@ -500,7 +500,7 @@ class dChildViewPage(dPage.dPage):
 		self.pickListRef = None
 	
 	def onEnterPage(self):
-		if self.bizobj and self.bizobj.getRowCount() >= 0:
+		if self.bizobj and self.bizobj.RowCount >= 0:
 			if not self.itemsCreated:
 				self.createItems()
 		if self.itemsCreated:
