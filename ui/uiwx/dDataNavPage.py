@@ -252,7 +252,7 @@ class dSelectPage(DataNavPage):
 		
 	def createItems(self):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
-		self.GetSizer().append(self.selectOptionsPanel, "expand", 0, border=20)
+		self.GetSizer().append(self.selectOptionsPanel, "expand", 1, border=20)
 		self.selectOptionsPanel.SetFocus()
 		#dSelectPage.doDefault()
 		super(dSelectPage, self).createItems()
@@ -486,16 +486,16 @@ class dSelectPage(DataNavPage):
 		
 		gsz.append(lbl, alignment="right")
 		gsz.append(limTxt)
-		currRow = gsz.findFirstEmptyCell()[0]
-		gsz.append(requeryButton, row=currRow+1, col=1, alignment="right")
+		btnRow = gsz.findFirstEmptyCell()[0] + 1
+		gsz.append(requeryButton, "expand", row=btnRow, col=1, 
+				alignment="right")
 		
 		# Make the last column growable
 		gsz.setColExpand(True, 2)
-#		panel.SetSizerAndFit(gsz)
+		panel.SetSizerAndFit(gsz)
 		
 		vsz = dabo.ui.dSizer("v")
 		vsz.append(gsz, 1, "expand")
-		panel.SetSizerAndFit(vsz)
 
 		return panel
 
