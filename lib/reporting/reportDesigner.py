@@ -125,6 +125,7 @@ class BandLabel(dabo.ui.dPanel):
 
 class Band(dabo.ui.dPanel):
 	def afterInit(self):
+		self._rd = self.Form.editor
 		self._objects = []
 		self._bandLabelHeight = 18
 		self.BackColor = (255,255,255)
@@ -132,6 +133,14 @@ class Band(dabo.ui.dPanel):
 		self.addObject(BandLabel, "bandLabel", FontSize=9, 
 		               BackColor=(215,215,215), ForeColor=(128,128,128),
 		               Height=self._bandLabelHeight)
+
+	def initEvents(self):
+		self.bindEvent(dEvents.MouseLeftClick, self.onLeftClick)
+
+
+	def onLeftClick(self, evt):
+		self._rd._selectedObjects = []
+		self._rd.Refresh()
 
 
 	def drawObjects(self):
@@ -144,8 +153,83 @@ class Band(dabo.ui.dPanel):
 				self._objects.append(o)
 	
 	def getObject(self, obj):
-		class ObjectPanel(dabo.ui.dPanel): pass
-		o = ObjectPanel(self, BackColor=(23,75,111))
+		class ObjectPanel(dabo.ui.dPanel):
+			def afterInit(self):
+				self._rd = self.Form.editor
+				self._rw = self._rd._rw
+				self.props = obj
+
+			def initEvents(self):
+				self.bindEvent(dEvents.Paint, self.onPaint)
+				self.bindEvent(dEvents.MouseLeftClick, self.onLeftClick)
+
+			def onLeftClick(self, evt):
+				if not self.Selected:
+					self._rd._selectedObjects = [self,]
+					self._rd.Refresh()
+
+			def onPaint(self, evt):
+				import wx		## (need to abstract DC drawing)
+				dc = wx.PaintDC(self)
+				rect = self.GetClientRect()
+				dc.SetBrush(wx.Brush(self.BackColor, wx.SOLID))
+				if self.Selected:
+					# border around selected control with sizer boxes:
+					dc.DrawRectangle(rect[0]+1,rect[1]+1,rect[2]-2,rect[3]-2)
+					dc.SetBrush(wx.Brush(self.ForeColor, wx.SOLID))
+
+					x,y = (rect[0], rect[1])
+					width, height = (rect[2], rect[3])
+					thickness = 3
+
+					if self.props.has_key("hAnchor"):
+						hAnchor = eval(self.props["hAnchor"])
+					else:
+						hAnchor = self._rw.default_hAnchor
+
+					if self.props.has_key("vAnchor"):
+						vAnchor = eval(self.props["vAnchor"])
+					else:
+						vAnchor = self._rw.default_vAnchor
+
+					anchors = {"tl": ["top", "left", x, y],
+					           "bl": ["bottom", "left", x, y + height - thickness],
+					           "tc": ["top", "center", x+(.5*width), y],
+					           "bc": ["bottom", "center", x+(.5*width), y+height-thickness],
+					           "tr": ["top", "right", x+width-thickness, y],
+					           "br": ["bottom", "right", x+width-thickness, y+height-thickness],}
+
+					pen = dc.GetPen()
+
+					for k,v in anchors.items():
+						if hAnchor == v[1] and vAnchor == v[0]:
+							dc.SetBrush(wx.Brush((192,0,192), wx.SOLID))
+							dc.SetPen(wx.Pen((192,0,192)))
+						else:
+							dc.SetBrush(wx.Brush(self.ForeColor, wx.SOLID))
+							dc.SetPen(pen)
+						dc.DrawRectangle(v[2], v[3], thickness, thickness)
+				else:
+					# border around unselected control
+					dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
+
+			def _getSelected(self):
+				return self in self._rd._selectedObjects
+			
+			def _setSelected(self, val):
+				if val:
+					self._rd._selectedObjects.append(self)
+				else:
+					for idx in range(len(self._rd._selectedObjects)):
+						if self._rd._selectedObjects[idx] == self:
+							del self._rd._selectedObjects[idx]
+							break
+				self.Refresh
+					
+					
+			Selected = property(_getSelected)
+
+		o = ObjectPanel(self)
 		rw = self.Parent._rw
 		z = self.Parent._zoom
 
@@ -287,6 +371,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 	def afterInit(self):
 		self._bands = []
 		self._rulers = {}
+		self._selectedObjects = []
 		self._zoom = self._normalZoom = 1.3
 		self.BackColor = (192,192,192)
 		self.clearReportForm()
