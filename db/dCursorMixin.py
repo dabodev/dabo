@@ -427,9 +427,11 @@ class dCursorMixin(dabo.common.dObject):
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set.")
 		rec = self._records[self.RowNumber]
-		if rec.has_key(k.CURSOR_NEWFLAG):
+		if rec.has_key(k.CURSOR_NEWFLAG) and self.AutoPopulatePK:
 			# New, unsaved record
 			return rec[k.CURSOR_TMPKEY_FIELD]
+		else:
+			return rec[self.KeyField]
 
 
 	def getFieldVal(self, fld):
@@ -515,8 +517,6 @@ class dCursorMixin(dabo.common.dObject):
 		for kk, vv in diff:
 			ret[kk] = (mem.getOrigVal(kk), vv)
 		return ret
-			
-		return self.Cursor.getRecordStatus(rownum)
 
 
 	def getDataSet(self):
@@ -743,14 +743,18 @@ class dCursorMixin(dabo.common.dObject):
 		rec = self._records[delRowNum]
 		newrec =  rec.has_key(k.CURSOR_NEWFLAG)
 		if newrec:
-			tmprows = list(self._records)
-			del tmprows[delRowNum]
-			self._records = tuple(tmprows)
 			res = True
 		else:
 			pkWhere = self.makePkWhere()
-			sql = "delete from %s where %s" % (self.Table, pkWhere)
-			res = self._getAuxCursor().execute(sql)
+			# some backends(PostgreSQL) don't return information about number of deleted rows
+			# try to fetch it before
+			sql = "select count(*) as cnt from %s where %s" % (self.Table, pkWhere)
+			self._getAuxCursor().execute(sql)
+			res = self._getAuxCursor().getFieldVal('cnt')
+			if res:
+				sql = "delete from %s where %s" % (self.Table, pkWhere)
+				self._getAuxCursor().execute(sql)
+
 
 		if not res:
 			# Nothing was deleted

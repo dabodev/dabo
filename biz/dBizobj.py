@@ -255,7 +255,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self.Cursor.last()
+		self._getCurrentCursor().last()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
