@@ -56,6 +56,10 @@ class EditMenu(m.dMenu):
 		self.AppendItem(item)
 		mainForm.Bind(wx.EVT_MENU, self.actionList.getAction("EditFind")["func"], item)
 
+		item = wx.MenuItem(self, -1, "Find Again\tF3", "Repeat the last search")
+		self.AppendItem(item)
+		mainForm.Bind(wx.EVT_MENU, self.actionList.getAction("EditFindAgain")["func"], item)
+		
 		self.AppendSeparator()
 
 		item = wx.MenuItem(self, -1, "Preferences", "Set user preferences")

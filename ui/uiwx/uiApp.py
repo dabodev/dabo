@@ -143,6 +143,16 @@ class uiApp(wx.App, dObject):
 			dlg.Show()
 
 
+	def onEditFindAgain(self, evt):
+		"""Repeat the last search.
+		"""
+		try:
+			fd = self.findReplaceData
+			self.OnFind(fd)
+		except AttributeError:
+			self.onEditFind(None)
+			return
+			
 	def OnFindClose(self, evt):
 		""" User clicked the close button, so hide the dialog.
 		"""

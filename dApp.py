@@ -110,6 +110,7 @@ class dApp(dabo.common.dObject):
 		self.actionList.setAction("EditCopy", self.uiApp.onEditCopy)
 		self.actionList.setAction("EditPaste", self.uiApp.onEditPaste)
 		self.actionList.setAction("EditFind", self.uiApp.onEditFind)
+		self.actionList.setAction("EditFindAgain", self.uiApp.onEditFindAgain)
 
 		self.uiApp.setup(self)
 
