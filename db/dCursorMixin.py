@@ -1,7 +1,7 @@
 import dabo.dConstants as k
 from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
-from dabo.dError import *
+import dabo.dError as dError
 import types
 
 class dCursorMixin:
@@ -261,16 +261,16 @@ class dCursorMixin:
 		'''
 		ret = None
 		if self.rowcount <= 0:
-			self.addToErrorMsg(_("No records in the data set"))
+			raise dError.NoRecordsError, _("No records in the data set.")
 		else:
 			rec = self._rows[self.rownumber]
 			if rec.has_key(fld):
 				ret = rec[fld]
 			else:
-				self.addToErrorMsg("%s '%s' %s" % (
+				raise dError.dError, "%s '%s' %s" % (
 							_("Field"),
 							fld,
-							_("does not exist in the data set")))
+							_("does not exist in the data set"))
 		return ret
 
 
@@ -373,12 +373,12 @@ class dCursorMixin:
 
 		# Make sure that there is data to save
 		if self.rowcount <= 0:
-			raise dError, _("No data to save")
+			raise dError.dError, _("No data to save")
 
 		# Make sure that there is a PK
 		try:
 			self.checkPK()
-		except dError, e:           
+		except dError.dError, e:           
 			raise dError, e
 
 		if allrows:
@@ -389,9 +389,9 @@ class dCursorMixin:
 		try:
 			for rec in recs:
 				self.__saverow(rec)
-		except dError, e:
+		except dError.dError, e:
 			# Pass it back to the calling program
-			raise dError, e
+			raise dError.dError, e
 
 
 	def __saverow(self, rec):
@@ -439,7 +439,7 @@ class dCursorMixin:
 				del rec[k.CURSOR_NEWFLAG]
 			else:
 				if not res:
-					raise dError, _("No records updated")
+					raise dError.dError, _("No records updated")
 
 
 	def new(self):
@@ -466,7 +466,7 @@ class dCursorMixin:
 		self.__errorMsg = ""
 		# Make sure that there is data to save
 		if not self.rowcount > 0:
-			raise dError, _("No data to cancel")
+			raise dError.dError, _("No data to cancel")
 
 		if allrows:
 			recs = self._rows
@@ -493,8 +493,8 @@ class dCursorMixin:
 						self.delete(i)
 					else:
 						self.__cancelRow(rec)
-				except dError, e:
-					raise dError, e
+				except dError.dError, e:
+					raise dError.dError, e
 
 
 	def __cancelRow(self, rec):
@@ -536,7 +536,7 @@ class dCursorMixin:
 			self.__restoreProps()
 		else:
 			# Nothing was deleted
-			raise dError, _("No records deleted")
+			raise dError.dError, _("No records deleted")
 
 
 	def setDefaults(self, vals):
@@ -639,7 +639,7 @@ class dCursorMixin:
 		and an exception is raised.
 		'''
 		if (rownum >= self.rowcount) or (rownum < 0):
-			raise dError, _("Invalid row specified.")
+			raise dError.dError, _("Invalid row specified.")
 		self.rownumber = rownum
 
 
@@ -736,7 +736,7 @@ class dCursorMixin:
 		'''
 		# First, make sure that there is *something* in the field
 		if not self.keyField:
-			raise dError, _("checkPK failed; no primary key specified")
+			raise dError.dError, _("checkPK failed; no primary key specified")
 
 		aFields = self.keyField.split(",")
 		# Make sure that there is a field with that name in the data set
@@ -744,7 +744,7 @@ class dCursorMixin:
 			for fld in aFields:
 				self._rows[0][fld]
 		except:
-			raise dError, _("Primary key field does not exist in the data set: ") + fld
+			raise dError.dError, _("Primary key field does not exist in the data set: ") + fld
 
 
 	def makePkWhere(self, rec=None):

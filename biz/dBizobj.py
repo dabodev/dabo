@@ -3,10 +3,11 @@ import dabo.db.dConnection as dConnection
 from dabo.db.dCursorMixin import dCursorMixin
 from dabo.db.dSqlBuilderMixin import dSqlBuilderMixin
 from dabo.dLocalize import _
-from dabo.dError import dError
+import dabo.dError as dError
+import dabo.common
 import types
 
-class dBizobj(object):
+class dBizobj(dabo.common.DoDefaultMixin):
 	# Title of the cursor. Used in resolving DataSource references
 	dataSource = ""
 	# SQL statement used to create the cursor's data
@@ -84,6 +85,12 @@ class dBizobj(object):
 		# Need to set this so that different instances don't mix up the references
 		# contained in this list.
 		self.__children = []
+		self.afterInit()
+		
+		
+	def afterInit(self):
+		''' Hook for subclasses.
+		'''
 
 
 	def __getattr__(self, att):
@@ -163,13 +170,8 @@ class dBizobj(object):
 		if not self.beforeFirst() or not self.beforePointerMove():
 			return False
 
-		try:
-			self._cursor.first()
-			self.requeryAllChildren()
-		except dError, e:
-			# Pass the error back to the UI
-			raise dError, e
-			return False
+		self._cursor.first()
+		self.requeryAllChildren()
 
 		self.afterPointerMove()
 		self.afterFirst()
@@ -186,13 +188,8 @@ class dBizobj(object):
 		if not self.beforePrior() or not self.beforePointerMove():
 			return False
 
-		try:
-			self._cursor.prior()
-			self.requeryAllChildren()
-		except dError, e:
-			# Pass the error back to the UI
-			raise dError, e
-			return False
+		self._cursor.prior()
+		self.requeryAllChildren()
 
 		self.afterPointerMove()
 		self.afterPrior()
@@ -208,14 +205,9 @@ class dBizobj(object):
 		if not self.beforeNext() or not self.beforePointerMove():
 			return False
 
-		try:
-			self._cursor.next()
-			self.requeryAllChildren()
-		except dError, e:
-			# Pass the error back to the UI
-			raise dError, e
-			return False
-
+		self._cursor.next()
+		self.requeryAllChildren()
+		
 		self.afterPointerMove()
 		self.afterNext
 		return True
@@ -230,13 +222,8 @@ class dBizobj(object):
 		if not self.beforeLast() or not self.beforePointerMove():
 			return False
 
-		try:
-			self._cursor.last()
-			self.requeryAllChildren()
-		except dError, e:
-			# Pass the error back to the UI
-			raise dError, e
-			return False
+		self._cursor.last()
+		self.requeryAllChildren()
 
 		self.afterPointerMove()
 		self.afterLast()
@@ -251,22 +238,16 @@ class dBizobj(object):
 		if not self.beforeSave():
 			return False
 
-		try:
-			# Validate any changes to the data. If there is data that fails
-			# validation, an error will be raised.
-			self.validate()
-		except dError, e:
-			raise dError, e
+		# Validate any changes to the data. If there is data that fails
+		# validation, an error will be raised.
+		self.validate()
 
 		# See if we are saving a newly added record, or mods to an existing record.
 		isAdding = self._cursor.isAdding()
 
 		if startTransaction:
 			# Tell the cursor to issue a BEGIN TRANSACTION command
-			try:
-				self._cursor.beginTransaction()
-			except dError, e:
-				raise dError, e
+			self._cursor.beginTransaction()
 
 		# OK, this actually does the saving to the database
 		try:
@@ -290,12 +271,12 @@ class dBizobj(object):
 
 			self.setMemento()
 
-		except dError, e:
+		except dError.dError, e:
 			# Something failed; reset things.
 			if startTransaction:
 				self._cursor.rollbackTransaction()
 			# Pass the exception to the UI
-			raise dError, e
+			raise dError.dError, e
 
 		# Two hook methods: one specific to Save(), and one which is called after any change
 		# to the data (either save() or delete()).
@@ -313,14 +294,11 @@ class dBizobj(object):
 			return False
 
 		# Tell the cursor to cancel any changes
-		try:
-			self._cursor.cancel(allRows)
-			# Tell each child to cancel themselves
-			for child in self.__children:
-				child.cancel(allRows)
-				child.requery()
-		except dError, d:
-			raise dError, d
+		self._cursor.cancel(allRows)
+		# Tell each child to cancel themselves
+		for child in self.__children:
+			child.cancel(allRows)
+			child.requery()
 
 		self.setMemento()
 		self.afterCancel()
@@ -336,25 +314,22 @@ class dBizobj(object):
 			# See if there are any child records
 			for child in self.__children:
 				if child.getRowCount() > 0:
-					raise dError, _("Deletion prohibited - there are related child records.")
+					raise dError.dError, _("Deletion prohibited - there are related child records.")
 
-		try:
-			self._cursor.delete()
-			if self._cursor.getRowCount() == 0:
-				# Hook method for handling the deletion of the last record in the cursor.
-				self.onDeleteLastRecord()
-			# Now cycle through any child bizobjs and fire their cancel() methods. This will
-			# ensure that any changed data they may have is reverted. They are then requeried to
-			# populate them with data for the current record in this bizobj.
-			for child in self.__children:
-				if self.deleteChildLogic == k.REFINTEG_CASCADE:
-					child.deleteAll()
-				else:
-					child.cancel(allRows=True)
-					child.requery()
+		self._cursor.delete()
+		if self._cursor.getRowCount() == 0:
+			# Hook method for handling the deletion of the last record in the cursor.
+			self.onDeleteLastRecord()
+		# Now cycle through any child bizobjs and fire their cancel() methods. This will
+		# ensure that any changed data they may have is reverted. They are then requeried to
+		# populate them with data for the current record in this bizobj.
+		for child in self.__children:
+			if self.deleteChildLogic == k.REFINTEG_CASCADE:
+				child.deleteAll()
+			else:
+				child.cancel(allRows=True)
+				child.requery()
 
-		except dError, e:
-			raise dError, e
 
 		self.afterPointerMove()
 		self.afterChange()
@@ -367,13 +342,9 @@ class dBizobj(object):
 		Iterate through all the rows in the bizobj's cursor, deleting 
 		each one-by-one
 		"""
-		try:
-			while self._cursor.getRowCount() > 0:
-				self.first()
-				ret = self.delete()
-		except dError, e:
-			raise dError, e
-		return True
+		while self._cursor.getRowCount() > 0:
+			self.first()
+			ret = self.delete()
 
 
 	def new(self):
@@ -384,28 +355,24 @@ class dBizobj(object):
 		if not self.beforeNew() or not self.beforePointerMove():
 			return False
 
-		try:
-			self._cursor.new()
-			# Hook method for things to do after a new record is created.
-			self.onNew()
+		self._cursor.new()
+		# Hook method for things to do after a new record is created.
+		self.onNew()
 
-			# Update all child bizobjs
-			self.requeryAllChildren()
+		# Update all child bizobjs
+		self.requeryAllChildren()
 
-			if self.newChildOnNew:
-				# Add records to all children set to have records created on a new parent record.
-				for child in self.__children:
-					if child.newRecordOnNewParent:
-						child.new()
+		if self.newChildOnNew:
+			# Add records to all children set to have records created on a new parent record.
+			for child in self.__children:
+				if child.newRecordOnNewParent:
+					child.new()
 
-			self.setMemento()
+		self.setMemento()
 
-		except dError, e:
-			raise dError, e
 
 		self.afterPointerMove()
 		self.afterNew()
-		return True
 
 
 	def setSQL(self, sql=None):
@@ -427,24 +394,23 @@ class dBizobj(object):
 		if not self.beforeRequery():
 			return False
 
+		# Hook method for creating the param list
+		params = self.getParams()
+
+		# Record this in case we need to restore the record position
 		try:
-			# Hook method for creating the param list
-			params = self.getParams()
-
-			# Record this in case we need to restore the record position
 			currPK = self.getPK()
+		except dError.NoRecordsError:
+			currPK = None
 
-			# run the requery
-			self._cursor.requery(params)
+		# run the requery
+		self._cursor.requery(params)
 
-			if self.savePosOnRequery:
-				self.moveToPK(currPK)
+		if self.savePosOnRequery:
+			self.moveToPK(currPK)
 
-			self.requeryAllChildren()
-			self.setMemento()
-
-		except dError, e:
-			raise dError, e
+		self.requeryAllChildren()
+		self.setMemento()
 
 		self.afterRequery()
 		return True
@@ -456,11 +422,7 @@ class dBizobj(object):
 		in a particular order. All the checking on the parameters is done
 		in the cursor. 
 		"""
-		try:
-			self._cursor.sort(col, ord, caseSensitive)
-		except dError, e:
-			raise dError, e
-		return True
+		self._cursor.sort(col, ord, caseSensitive)
 
 
 	def setParams(self, params):
@@ -495,12 +457,12 @@ class dBizobj(object):
 					# No need to validate if the data hasn't changed
 					self.validateRecord()
 			self.moveToRowNum(currRow)
-		except dError, e:
+		except dError.dError, e:
 			# First try to return to the original row, if possible
 			try:
 				self.moveToRowNum(currRow)
 			except: pass
-			raise dError, e
+			raise dError.dError, e
 
 
 	def validateRecord(self):
@@ -521,17 +483,15 @@ class dBizobj(object):
 
 
 	def moveToRowNum(self, rownum):
-		try:
-			self._cursor.moveToRowNum(rownum)
-		except dError, e:
-			raise dError, e
+		self._cursor.moveToRowNum(rownum)
+		self.requeryAllChildren()
+		self.afterPointerMove()
 
 
 	def moveToPK(self, pk):
-		try:
-			self._cursor.moveToPK(pk)
-		except dError, e:
-			raise dError, e
+		self._cursor.moveToPK(pk)
+		self.requeryAllChildren()
+		self.afterPointerMove()
 
 
 	def seek(self, val, fld=None, caseSensitive=False, near=False):
@@ -609,15 +569,10 @@ class dBizobj(object):
 		if not self.beforeChildRequery():
 			return False
 
-		try:
-			for child in self.__children:
-				ret = child.requery()
-		except dError, e:
-			# Something prevented the child requerying 
-			raise dError, e
+		for child in self.__children:
+			ret = child.requery()
 
 		self.afterChildRequery()
-		return True
 
 
 	def getPK(self):
@@ -627,10 +582,7 @@ class dBizobj(object):
 
 	def getParentPK(self):
 		""" Returns the value of the parent bizobjs' PK. """
-		if self._parent is not None:
-			return self._parent.getPK()
-		else:
-			return None
+		return self._parent.getPK()
 
 
 	def getFieldVal(self, fld):

@@ -8,6 +8,7 @@ the 'data' that gets displayed in the grid.
 import wx, wx.grid
 import urllib
 import dIcons
+import dabo.dError as dError
 
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
@@ -301,7 +302,12 @@ class dGrid(wx.grid.Grid):
 		'''
 		oldRow = self.GetGridCursorRow()
 		newRow = event.GetRow()
-		self.bizobj.moveToRowNum(newRow)
+		
+		if oldRow != newRow:
+			try:
+				self.bizobj.moveToRowNum(newRow)
+			except dError.dError:
+				pass
 		self.form.refreshControls()
 		event.Skip()
 
