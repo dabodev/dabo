@@ -15,22 +15,22 @@ class SelectOptionsPanel(dPanel.dPanel):
 		
 	def initEnabled(self):
 		for optionRow in self.selectOptions:
-			self.setEnabled(self.FindWindowById(optionRow['cbId']))
+			self.setEnabled(self.FindWindowById(optionRow["cbId"]))
 		self.setEnabled(self.chkSelectLimit)
 
 	def setEnabled(self, cb):
 		# Get reference(s) to the associated input control(s)
-		if cb.Name == 'chkSelectLimit':
+		if cb.Name == "chkSelectLimit":
 			user1, user2 = self.spnSelectLimit, None
 		else:
 			user1, user2 = None, None
 			for optionRow in self.selectOptionsPanel.selectOptions:
-				if cb and optionRow['cbId'] == cb.GetId():
-					user1Id = optionRow['user1Id']
-					user2Id = optionRow['user2Id']
+				if cb and optionRow["cbId"] == cb.GetId():
+					user1Id = optionRow["user1Id"]
+					user2Id = optionRow["user2Id"]
 					user1 = self.FindWindowById(user1Id)
 					user2 = self.FindWindowById(user2Id)
-					dataType = optionRow['dataType']
+					dataType = optionRow["dataType"]
 					break            
 
 		# enable/disable the associated input control(s) based
@@ -82,7 +82,7 @@ class SelectOptionsSpinner(dSpinner.dSpinner):
 class dSelectPage(dPage.dPage):
 
 	def __init__(self, parent):
-		dSelectPage.doDefault(parent, name='pageSelect')
+		dSelectPage.doDefault(parent, name="pageSelect")
 		
 
 	def createItems(self):
@@ -93,38 +93,37 @@ class dSelectPage(dPage.dPage):
 		dSelectPage.doDefault()
 
 	
-	def getWhere(self):
+	def getWhere(self, biz):
 		# for each checked selection item, get the where clause:
 		user1, user2 = None, None
 		whereClause = ""
 
 		for optionRow in self.selectOptionsPanel.selectOptions:
-			cb = self.FindWindowById(optionRow['cbId'])
+			cb = self.FindWindowById(optionRow["cbId"])
 			if cb.IsChecked():
-				user1Val = self.FindWindowById(optionRow['user1Id']).GetValue()
+				user1Val = self.FindWindowById(optionRow["user1Id"]).GetValue()
 				try:
-					user2Val = self.FindWindowById(optionRow['user2Id']).GetValue()
+					user2Val = self.FindWindowById(optionRow["user2Id"]).GetValue()
 				except AttributeError:
 					user2Val = None
 
-				whereStub = optionRow['where']
-				whereStub = whereStub.replace('?(user1)', user1Val)
-				if user2Val <> None:
-					whereStub = whereStub.replace('?(user2)', user2Val)
+				whereStub = biz.prepareWhere(optionRow["where"])
+				whereStub = whereStub.replace("?(user1)", user1Val)
+				if user2Val is not None:
+					whereStub = whereStub.replace("?(user2)", user2Val)
 
 				if len(whereClause) > 0:
-					whereClause = ''.join((whereClause, '\n     AND '))
-				whereClause = ''.join((whereClause, '(', whereStub, ')'))
-
+					whereClause = "".join((whereClause, "\n     AND "))
+				whereClause = "".join((whereClause, "(", whereStub, ")"))
 		return whereClause
-
+	
 	def onRequery(self, evt):
 		self.requery()
 		evt.Skip()
 
 	def requery(self):
 		bizobj = self.Form.getBizobj()
-		where = self.getWhere()
+		where = self.getWhere(bizobj)
 		bizobj.setWhereClause(where)
 		
 		if self.selectOptionsPanel.chkSelectLimit.Value == True:
@@ -136,7 +135,7 @@ class dSelectPage(dPage.dPage):
 		# The bizobj will get the SQL from the sql builder:
 		sql = bizobj.getSQL()
 
-		print '\n%s\n' % sql
+		print "\n%s\n" % sql
 		
 		# But it won't automatically use that sql, so we set it here:
 		bizobj.setSQL(sql)
@@ -158,27 +157,27 @@ class dSelectPage(dPage.dPage):
 		sizer = wx.BoxSizer(wx.VERTICAL)
 
 		label = dLabel.dLabel(panel)
-		label.Caption = _('Please enter your record selection criteria:')
+		label.Caption = _("Please enter your record selection criteria:")
 		sizer.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
 
 		for column in columnDefs:
 
-			for selectType in column['selectTypes']:
+			for selectType in column["selectTypes"]:
 				where = None
-				# Id's for the UI input elements:
+				# Ids for the UI input elements:
 				cbId = wx.NewId()
 				user1Id = wx.NewId()
 				user2Id = wx.NewId()
 
 				box = wx.BoxSizer(wx.HORIZONTAL)
 
-				if selectType == 'range':
+				if selectType == "range":
 					where =     "%s.%s BETWEEN '?(user1)' AND '?(user2)'" % (
-								column['tableName'], column['fieldName'])
+								column["tableName"], column["fieldName"])
 
 					cb = SelectOptionsCheckBox(panel, id=cbId, 
-							name='chkSelectRange%s' % column['fieldName'])
-					cb.Caption = '%s %s:' % (column['caption'], _('is in the range of'))
+							name="chkSelectRange%s" % column["fieldName"])
+					cb.Caption = "%s %s:" % (column["caption"], _("is in the range of"))
 					cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
 
@@ -188,19 +187,19 @@ class dSelectPage(dPage.dPage):
 					box.Add(text, 1, wx.ALL, 5)
 
 					label = dLabel.dLabel(panel)
-					label.Caption = 'and'
+					label.Caption = "and"
 					box.Add(label, 0, wx.ALL, 5)
 
 					text = SelectOptionsTextBox(panel, id=user2Id)
 					box.Add(text, 1, wx.ALL, 5)
 
-				elif selectType == 'value':
+				elif selectType == "value":
 					where = "%s.%s = '?(user1)'" % (
 								column["tableName"], column["fieldName"])
 
 					cb = SelectOptionsCheckBox(panel, id=cbId, 
-							name='chkSelectValue%s' % column['fieldName'])
-					cb.Caption = '%s %s:' % (column['caption'], _('is equal to'))
+							name="chkSelectValue%s" % column["fieldName"])
+					cb.Caption = "%s %s:" % (column["caption"], _("is equal to"))
 					cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
 					box.Add(cb, 0, wx.ALL, 5)
@@ -208,13 +207,13 @@ class dSelectPage(dPage.dPage):
 					text = SelectOptionsTextBox(panel, id=user1Id)
 					box.Add(text, 1, wx.ALL, 5)
 
-				elif selectType == 'stringMatch':
+				elif selectType == "stringMatch":
 					where = "%s.%s LIKE '%c?(user1)%c'" % (
-							column['tableName'], column['fieldName'], "%", "%")    
+							column["tableName"], column["fieldName"], "%", "%")    
 
 					cb = SelectOptionsCheckBox(panel, id=cbId, 
-							name='chkSelectStringMatch%s' % column['fieldName'])
-					cb.Caption = '%s %s:' % (column['caption'], _('contains'))
+							name="chkSelectStringMatch%s" % column["fieldName"])
+					cb.Caption = "%s %s:" % (column["caption"], _("contains"))
 					cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
 					box.Add(cb, 0, wx.ALL, 5)
@@ -222,7 +221,7 @@ class dSelectPage(dPage.dPage):
 					text = SelectOptionsTextBox(panel, id=user1Id)
 					box.Add(text, 1, wx.ALL, 5)
 
-				elif selectType == 'stringMatchAll':
+				elif selectType == "stringMatchAll":
 					stringMatchAll.append(column)
 
 				else:
@@ -230,23 +229,23 @@ class dSelectPage(dPage.dPage):
 
 
 				if where != None:
-					panel.selectOptions.append({'dataType': column['type'],
-												'cbId': cbId,
-												'user1Id': user1Id,
-												'user2Id': user2Id})    
+					panel.selectOptions.append({"dataType": column["type"],
+												"cbId": cbId,
+												"user1Id": user1Id,
+												"user2Id": user2Id})    
 
 					sizer.AddSizer(box, 0, wx.GROW|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 5)
-					panel.selectOptions[len(panel.selectOptions) - 1]['where'] = where
+					panel.selectOptions[len(panel.selectOptions) - 1]["where"] = where
 
 		# Any fielddef encountered in the above block with type of 'stringMatchAll'
 		# got appended to the stringMatchAll list. Take this list, and define
 		# one selectOptions control that will operate on all these fields.
 		if len(stringMatchAll) > 0:
 			cbId, user1Id, user2Id = wx.NewId(), wx.NewId(), wx.NewId()
-			where = ''
+			where = ""
 
-			cb = SelectOptionsCheckBox(panel, id=cbId, name='chkSelectStringMatchAll')
-			cb.Caption = '%s:' % _('String Match')
+			cb = SelectOptionsCheckBox(panel, id=cbId, name="chkSelectStringMatchAll")
+			cb.Caption = "%s:" % _("String Match")
 			cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
 			box.Add(cb, 0, wx.ALL, 5)
@@ -256,36 +255,36 @@ class dSelectPage(dPage.dPage):
 
 			for column in stringMatchAll:
 				if len(where) > 0:
-					char = ' OR '
+					char = " OR "
 				else:
-					char = ''
-				where = ''.join((where,char,"%s.%s LIKE '%c?(user1)%c'" % (
-							column['tableName'], column['fieldName'], '%', '%')))    
+					char = ""
+				where = "".join((where,char,"%s.%s LIKE '%c?(user1)%c'" % (
+							column["tableName"], column["fieldName"], "%", "%")))    
 
-			panel.selectOptions.append({'dataType': column['type'],
-										'cbId': cbId,
-										'user1Id': user1Id,
-										'user2Id': user2Id})    
+			panel.selectOptions.append({"dataType": column["type"],
+										"cbId": cbId,
+										"user1Id": user1Id,
+										"user2Id": user2Id})    
 
 			sizer.AddSizer(box, 0, wx.GROW|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 5)
-			panel.selectOptions[len(panel.selectOptions) - 1]['where'] = where
+			panel.selectOptions[len(panel.selectOptions) - 1]["where"] = where
 
 		line = wx.StaticLine(panel, -1, size=(20,-1), style=wx.LI_HORIZONTAL)
 		sizer.Add(line, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.TOP, 5)
 
 		box = wx.BoxSizer(wx.HORIZONTAL)
 		
-		cb = SelectOptionsCheckBox(panel, name='chkSelectLimit')
-		cb.Caption = 'Limit:'
+		cb = SelectOptionsCheckBox(panel, name="chkSelectLimit")
+		cb.Caption = "Limit:"
 		cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 		box.Add(cb, 0, wx.ALL, 5)
 		
-		limitSpinner = SelectOptionsSpinner(panel, name='spnSelectLimit')
+		limitSpinner = SelectOptionsSpinner(panel, name="spnSelectLimit")
 		box.Add(limitSpinner, 1, wx.ALL, 5)
 		
 
 		requeryButton = dCommandButton.dCommandButton(panel)
-		requeryButton.Caption = '&%s' % _('Requery')
+		requeryButton.Caption = "&%s" % _("Requery")
 		requeryButton.Default = True             # Doesn't work on Linux, but test on win/mac
 		requeryButton.Bind(wx.EVT_BUTTON, self.onRequery)
 
@@ -302,7 +301,7 @@ class dSelectPage(dPage.dPage):
 class dBrowsePage(dPage.dPage):
 
 	def __init__(self, parent):
-		dBrowsePage.doDefault(parent, 'pageBrowse')
+		dBrowsePage.doDefault(parent, "pageBrowse")
 
 
 	def onRowNumChanged(self, event):
@@ -347,12 +346,12 @@ class dBrowsePage(dPage.dPage):
 
 	def createItems(self):
 		bizobj = self.Form.getBizobj()
-		grid = self.addObject(dGridDataNav.dGridDataNav, 'BrowseGrid')
+		grid = self.addObject(dGridDataNav.dGridDataNav, "BrowseGrid")
 		grid.DataSource = bizobj.DataSource
 		self.GetSizer().Add(grid, 1, wx.EXPAND)
 		grid.columnDefs = self.Form.getColumnDefs(bizobj.DataSource)
 		
-		preview = self.addObject(dCommandButton.dCommandButton, 'cmdPreview')
+		preview = self.addObject(dCommandButton.dCommandButton, "cmdPreview")
 		preview.Caption = "Preview"
 		preview.Bind(wx.EVT_BUTTON, self.onPreview)
 		self.GetSizer().Add(preview, 0, 0)
@@ -406,7 +405,7 @@ class dBrowsePage(dPage.dPage):
 class dEditPage(dPage.dPage):
 
 	def __init__(self, parent):
-		dEditPage.doDefault(parent, 'pageEdit')
+		dEditPage.doDefault(parent, "pageEdit")
 
 
 	def onEnterPage(self):
@@ -431,10 +430,10 @@ class dEditPage(dPage.dPage):
 
 		for column in columnDefs:
 
-			if column['showEdit'] == True:
-				fieldName = column['fieldName']
-				fieldType = column['type']
-				fieldEnabled = column['editEdit']
+			if column["showEdit"] == True:
+				fieldName = column["fieldName"]
+				fieldType = column["type"]
+				fieldEnabled = column["editEdit"]
 
 				bs = wx.BoxSizer(wx.HORIZONTAL)
 				
@@ -443,16 +442,16 @@ class dEditPage(dPage.dPage):
 				labelStyle = wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE
 
 				label = dLabel.dLabel(self, style=labelStyle)
-				label.Name='lbl%s' % fieldName 
+				label.Name="lbl%s" % fieldName 
 				label.Width = labelWidth
 				
-				if fieldType in ['M',]:
+				if fieldType in ["M",]:
 					classRef = dEditBox.dEditBox
-				elif fieldType in ['I',]:
+				elif fieldType in ["I",]:
 					classRef = dSpinner.dSpinner
-				elif fieldType in ['L',]:
+				elif fieldType in ["L",]:
 					classRef = dCheckBox.dCheckBox
-				elif fieldType in ['D',]:
+				elif fieldType in ["D",]:
 					classRef = dDateControl.dDateControl
 				else:
 					classRef = dTextBox.dTextBox
@@ -466,22 +465,22 @@ class dEditPage(dPage.dPage):
 				if classRef == dCheckBox.dCheckBox:
 					# Use the label for a spacer, but don't set the 
 					# caption because checkboxes have their own caption.
-					label.Caption = ''
-					objectRef.Caption = column['caption']
+					label.Caption = ""
+					objectRef.Caption = column["caption"]
 				else:
-					label.Caption = '%s:' % column['caption']
+					label.Caption = "%s:" % column["caption"]
 
 				if self.Form.getBizobj().RowCount >= 0:
 					objectRef.refresh()
 
-				if fieldType in ['M',]:
+				if fieldType in ["M",]:
 					expandFlags = wx.EXPAND
 				else:
 					expandFlags = 0
 				bs.Add(label)
 				bs.Add(objectRef, 1, expandFlags|wx.ALL, 0)
 
-				if fieldType in ['M',]:
+				if fieldType in ["M",]:
 					self.GetSizer().Add(bs, 1, wx.EXPAND)
 				else:
 					self.GetSizer().Add(bs, 0, wx.EXPAND)
@@ -494,7 +493,7 @@ class dEditPage(dPage.dPage):
 class dChildViewPage(dPage.dPage):
 
 	def __init__(self, parent, dataSource):
-		dChildViewPage.doDefault(parent, 'pageChildView')
+		dChildViewPage.doDefault(parent, "pageChildView")
 		self.dataSource = dataSource
 		self.bizobj = self.Form.getBizobj().getChildByDataSource(self.dataSource)
 		self.pickListRef = None
@@ -523,12 +522,12 @@ class dChildViewPage(dPage.dPage):
 
 	def createItems(self):
 		cb = self.Form.getChildBehavior(self.dataSource)
-		if cb['EnableNew']:
-			nb = self.addObject(dCommandButton.dCommandButton, 'cmdNew')
+		if cb["EnableNew"]:
+			nb = self.addObject(dCommandButton.dCommandButton, "cmdNew")
 			nb.Caption = "Add new child record"
 			nb.Bind(wx.EVT_BUTTON, self.newRecord)
 			self.GetSizer().Add(nb, 0, wx.EXPAND)
-		grid = self.addObject(dGridDataNav.dGridDataNav, 'ChildViewGrid')
+		grid = self.addObject(dGridDataNav.dGridDataNav, "ChildViewGrid")
 		grid.DataSource = self.dataSource
 		self.GetSizer().Add(grid, 1, wx.EXPAND)
 		
@@ -548,9 +547,9 @@ class dChildViewPage(dPage.dPage):
 		pickedPK = pickBizobj.getPK()
 		cb = self.Form.getChildBehavior(self.dataSource)
 		try:
-			fkField = cb['FK']
+			fkField = cb["FK"]
 		except KeyError:
-			raise KeyError, 'ChildBehavior dictionary does not contain needed FK value.'
+			raise KeyError, "ChildBehavior dictionary does not contain needed FK value."
 				
 		try:
 			self.bizobj.new()
@@ -559,7 +558,7 @@ class dChildViewPage(dPage.dPage):
 			dMessagebox.stop("Cannot add the new record:\n%s" % str(e))
 		
 		try:
-			derivedFields = cb['DerivedFields']
+			derivedFields = cb["DerivedFields"]
 		except KeyError:
 			derivedFields = {}
 			
@@ -570,16 +569,16 @@ class dChildViewPage(dPage.dPage):
 			
 	def newRecord(self, evt=None):
 		cb = self.Form.getChildBehavior(self.dataSource)
-		if cb['EnableNew']:
+		if cb["EnableNew"]:
 			try:
-				newBehavior = cb['NewBehavior']
+				newBehavior = cb["NewBehavior"]
 			except KeyError:
 				newBehavior = None
 				
 			if newBehavior:
-				if newBehavior == 'PickList':
+				if newBehavior == "PickList":
 					try:
-						cls = cb['PickListClass']
+						cls = cb["PickListClass"]
 					except KeyError:
 						cls = None
 						
@@ -615,7 +614,7 @@ class dChildViewPage(dPage.dPage):
 		""" Ask the bizobj to delete the current record.
 		"""
 		cb = self.Form.getChildBehavior(self.dataSource)
-		if cb['EnableDelete']:
+		if cb["EnableDelete"]:
 			message = _("This will delete the highlighted child record, and cannot "
 							"be canceled.\n\n Are you sure you want to do this?")
 			if dMessageBox.areYouSure(message, defaultNo=True):
@@ -631,7 +630,7 @@ class dChildViewPage(dPage.dPage):
 			
 	def editRecord(self):
 		cb = self.Form.getChildBehavior(self.dataSource)
-		if cb['EnableEdit']:
+		if cb["EnableEdit"]:
 			dMessageBox.stop("Editing childview records isn't supported yet.")
 		else:
 			dMessageBox.stop("Editing records isn't allowed.")

@@ -36,7 +36,8 @@ class dCursorMixin:
 	__nonUpdateFields = []
 	# User-editable list of non-updated fields
 	nonUpdateFields = []
-
+	
+	
 	def __init__(self, sql="", *args, **kwargs):
 		if sql:
 			self.sql = sql
@@ -1119,6 +1120,10 @@ class dCursorMixin:
 		if self.BackendObject:
 			self._whereClause = self.BackendObject.addWhere(self._whereClause, exp, comp)
 
+	def prepareWhere(self, clause):
+		""" Modifies WHERE clauses as needed for each backend. """
+		return self.BackendObject.prepareWhere(clause)
+		
 	def getChildFilterClause(self):
 		""" Get the child filter part of the sql statement.
 		"""

@@ -9,6 +9,9 @@ class Firebird(dBackend):
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "kinterbasdb"
+		
+		self.funcPat = re.compile("\(([^\)]+)\)")
+		self.prepWherePat = re.compile("([A-Za-z0-9-_]+)\.([A-Za-z0-9-_]+)")
 
 	def getConnection(self, connectInfo):
 		# Port doesn't seem to work, but I need to research... for now it's disabled.
@@ -161,7 +164,7 @@ and rdb$unique_flag = 1 """ % tableName.upper()
 		return "\n".join( ("SELECT ", limitClause, fieldClause, fromClause, 
 				whereClause, groupByClause, orderByClause) )
 
-	def addField(self, clause, exp):
+	def dblQuoteField(self, exp):
 		""" This will be tricky. We need to isolate the field name and then enclose it
 		in double quotes. We need to be able to handle a lot of variations, such as:
 		
@@ -179,34 +182,40 @@ and rdb$unique_flag = 1 """ % tableName.upper()
 		# First, see if it has an alias clause. If so, save it off
 		aliasSplit = exp.split(" as ")
 		if len(aliasSplit) > 1:
-			alias = aliasSplit[1]
+			alias = " as " + aliasSplit[1]
 			exp = aliasSplit[0]
 		else:
 			aliasSplit = exp.split(" AS ")
 			if len(aliasSplit) > 1:
-				alias = aliasSplit[1]
+				alias = " AS " + aliasSplit[1]
 				exp = aliasSplit[0]
 			else:
 				alias = ""
-		
+
 		# OK, now see if there is a parenthetical expression
-		funcPat = "\(([^\)]+)\)"
-		funcFind = re.findall(funcPat, exp)
+		funcFind = self.funcPat.findall(exp)
 		if funcFind:
 			fld = funcFind[0]
-		
+
 		# At this point we should either have table.field or just field. See which.
 		fldSplit = fld.split(".")
 		if len(fldSplit) > 1:
 			fld = fldSplit[1]
-		
+
 		# OK, we have the field. Surround it in quotes, and stick it back into the original expression
-		fld = 
 		exp = exp.replace(fld, "\"" + fld + "\"", 1)
 		if alias:
 			exp += " " + alias
-		
-		# OK, now add the quoted field
-		return self.addWithSep(clause, exp)
+		return exp
 
+	def addField(self, clause, exp):
+		quoted = self.dblQuoteField(exp)
+		return self.addWithSep(clause, quoted)
+	
+	def addWhere(self, clause, exp, comp="and"):
+		quoted = self.dblQuoteField(exp)
+		return self.addWithSep(clause, quoted, sep=" %s " % comp)
+		
+	def prepareWhere(self, clause):
+		return self.prepWherePat.sub("\g<1>.\"\g<2>\"", clause)
 		

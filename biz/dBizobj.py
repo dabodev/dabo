@@ -20,7 +20,7 @@ class dBizobj(dabo.common.dObject):
 
 	# Hack so that I can test until the app can return cursorsClasses, etc.
 	TESTING = False
-
+	
 
 	def __init__(self, conn, testHack=TESTING):
 		""" User code should override beforeInit() and/or afterInit() instead.
@@ -948,6 +948,10 @@ class dBizobj(dabo.common.dObject):
 		return self.Cursor.setOrderByClause(clause)
 	def setWhereClause(self, clause):
 		return self.Cursor.setWhereClause(clause)
+	def prepareWhere(self, clause):
+		return self.Cursor.prepareWhere(clause)
+		
+
 
 
 

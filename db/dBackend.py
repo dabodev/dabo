@@ -155,5 +155,10 @@ class dBackend(dabo.common.dObject):
 		return "\n".join( ("SELECT ", fieldClause, fromClause, whereClause, 
 				groupByClause, orderByClause, limitClause) )
 
-
+	def prepareWhere(self, clause):
+		""" Normally, just return the original. Can be overridden as needed
+		for specific backends.
+		"""
+		return clause
+		
 
