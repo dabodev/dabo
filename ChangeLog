@@ -1,5 +1,23 @@
 See the Subversion log for all the details.
 
+Dabo-0.3.1 (2005-02-16) (Revision 802):
+
+Separated creation of dCursor from dBizobj.
+Added option to automatically create a dPanel in dForm.
+Further Daboized dListControl.
+Fixed display of a few of our icons on Mac.
+Added bindKey() method, which binds a keycombo like "Ctrl+D" to a function.
+Daboized dMenu, dMenuItem, and dMenuBar.
+Minimal Tkinter (dCheckbox) working again (testing only).
+Added ActiveControl property to dForm.
+Various dSizer improvements were made.
+We moved various things to better places in the source tree.
+Connection info now saved in XML format.
+Localization framework added. Courtesy Vladimir Sekissov.
+Added Children property, which contains a list of a container's children.
+dCommandButton is now known as dButton.
+
+
 Dabo-0.3 (2005-01-10):
 
 New UI controls added:
