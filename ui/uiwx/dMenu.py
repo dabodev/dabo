@@ -139,7 +139,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 	def _setCaption(self, val):
 		self._caption = val
-		if self._isPopupMenu:
+		if self._isPopupMenu():
 			self.SetTitle(val)
 
 	def _getEnabled(self):
