@@ -22,7 +22,8 @@ class dAbout(dForm.dForm):
 	def afterInit(self):
 		dAbout.doDefault()
 		self.CenterOnScreen()
-		self.draw()  # doesn't happen on Mac otherwise
+		dc = wx.ClientDC(self)
+		self.draw(dc)  # doesn't happen on Mac otherwise
 
 	def restoreSizeAndPosition(self):
 		pass
