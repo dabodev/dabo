@@ -1,34 +1,34 @@
-import wx
-import wx.wizard as wiz
 import dabo
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
 
 dabo.ui.loadUI("wx")
-import dControlMixin as cm
 
 
-class dWizardPage(wiz.PyWizardPage, cm.dControlMixin):
+class dWizardPage(dabo.ui.dPanel):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dWizardPage
-		preClass = wiz.PrePyWizardPage
 		self._titleCaption = self.extractKey(kwargs, "Title")
 		
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-
+		super(dWizardPage, self).__init__(parent=parent, 
+				properties=properties, *args, **kwargs)
+		
 		self._nextPage = self._prevPage = None
 		self._title = None
 		self._titleFontFace = self.FontFace
 		self._titleFontSize = 18
 		self.setup()
-	
+		self.Layout()
+		
 	
 	def setup(self):
 		self.makeSizer()
-		self._title = dabo.ui.dLabel(self, Caption=self.Title, FontSize=self.TitleFontSize,
-				FontFace=self.TitleFontFace)
-		self.Sizer.prepend(self._title, 0, "x", alignment="center")
+		if self.Title is None:
+			self.Title = ""
+		self._title = dabo.ui.dLabel(self, Caption=self.Title, FontSize=self.TitleSize,
+				FontFace=self.TitleFace)
+		self.Sizer.prepend(self._title, 0, alignment=("center", "middle") )
 				
 	
 	def makeSizer(self):
@@ -37,24 +37,48 @@ class dWizardPage(wiz.PyWizardPage, cm.dControlMixin):
 		"""
 		self.Sizer = dabo.ui.dSizer("v")
 
+
 	def onLeavePage(self, direction):
+		""" This method is called before the wizard changes pages.
+		Returning False will prevent the page from changing. Use
+		it to make sure that the user has completed all the required
+		actions before proceeding to the next step of the wizard.
+		The direction passed to this method will either be 'forward'
+		or 'back'.
+		"""
 		return True
 		
+		
 	def onEnterPage(self, direction):
-		return True
+		""" This method will be called just as the page is about to 
+		be made visible. You cannot prevent this from happening, 
+		as you can with onLeavePage(), but you can use this event
+		to do whatever preliminary work that page needs before it
+		is displayed. The 'direction' parameter is the same as for
+		onLeavePage().
+		"""
+		pass
+	
+	
+	def nextPage(self):
+		""" This method can be overridden in subclasses to provide
+		conditional navigation through the wizard. By default, it returns
+		the integer 1, meaning move one page forward in the wizards page
+		collection. If you wish to skip the next page in order, you can simply
+		return 2, and the wizard will jump forward to the second page in 
+		its page collection after the current one.
+		"""
+		return 1
+	
+	
+	def prevPage(self):
+		""" Like nextPage, you can override this method to conditionally
+		navigate through the wizard pages. Default = -1
+		"""
+		return -1
 		
 
 	# Property definitions.
-	def _getNext(self):
-		return self._nextPage
-	def _setNext(self, pg):
-		self._nextPage = pg
-
-	def _getPrev(self):
-		return self._prevPage
-	def _setPrev(self, pg):
-		self._prevPage = pg
-
 	def _getTitle(self):
 		return self._titleCaption
 	def _setTitle(self, val):
@@ -77,16 +101,16 @@ class dWizardPage(wiz.PyWizardPage, cm.dControlMixin):
 			self._title.FontSize = val
 
 
-	NextPage = property(_getNext, _setNext, None,
+	NextPage = property(nextPage, None, None,
 			_("Reference to the next page in the wizard  (dWizardPage)") )
 
-	PrevPage = property(_getPrev, _setPrev, None,
+	PrevPage = property(prevPage, None, None,
 			_("Reference to the previous page in the wizard  (dWizardPage)") )
 
 	Title = property(_getTitle, _setTitle, None,
 			_("Displays a title at the top of the page.  (string)") )
 
-	TitleFontFace = property(_getTitleFace, _setTitleFace, None,
+	TitleFace = property(_getTitleFace, _setTitleFace, None,
 			_("Name of the font face used for the Title.  (string)") )
 
 	TitleSize = property(_getTitleSize, _setTitleSize, None,

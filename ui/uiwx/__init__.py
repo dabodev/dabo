@@ -26,6 +26,7 @@ dabo.ui.dControlMixin = dControlMixin
 
 # Import into public namespace:
 from dBox import dBox
+from dBitmap import dBitmap
 from dBitmapButton import dBitmapButton
 from dButton import dButton
 from dCheckBox import dCheckBox
@@ -70,6 +71,7 @@ from dTimer import dTimer
 from dToggleButton import dToggleButton
 from dTreeView import dTreeView
 import dUICursors as dUICursors
+from dWizard import dWizard
 from dWizardPage import dWizardPage
 
 from getMouseObject import getMouseObject

@@ -91,10 +91,6 @@ class dPemMixin(dPemMixinBase):
 		elif isinstance(self, (dabo.ui.dMenu, dabo.ui.dMenuBar)):
 			# Hack: wx.Menu has no style, parent, or id arg.
 			del self._initProperties["style"]
-		elif isinstance(self, (dabo.ui.dWizardPage, )):
-			# wizard pages have no id or style, just parent.
-			del self._initProperties["style"]
-			self._initProperties["parent"] = parent
 		else:
 			self._initProperties["style"] = style
 			self._initProperties["parent"] = parent
