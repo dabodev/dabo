@@ -1,8 +1,9 @@
 import wx, dabo
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner
 import dMessageBox, dIcons, dCommandButton, dDropdownList
-import dPanel, dDataNavGrid, dEvents, dDateTextBox
+import dPanel, dDataNavGrid, dDateTextBox
 import dabo.dException as dException
+import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 

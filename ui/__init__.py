@@ -75,3 +75,14 @@ if __defaultUI:
 	
 else:
 	dabo.infoLog.write(_("No default UI set. (DABO_DEFAULT_UI)"))
+
+	
+	
+def getEventData(uiEvent):
+	""" Given a UI-specific event object, return a UI-agnostic name/value dictionary.
+	
+	This function must be overridden in each ui library's __init__.py to function
+	correctly.
+	"""
+	return {}
+	

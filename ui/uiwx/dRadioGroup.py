@@ -1,6 +1,6 @@
 import wx, dabo
 import dDataControlMixin as dcm
-import dEvents
+import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
@@ -34,7 +34,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 
 	def initEvents(self):
 		dRadioGroup.doDefault()
-		self.bindEvent(wx.EVT_RADIOBOX, self._onWxHit)
+		self.Bind(wx.EVT_RADIOBOX, self._onWxHit)
 		
 		
 	def getPropertyInfo(self, name):

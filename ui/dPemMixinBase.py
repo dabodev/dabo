@@ -82,12 +82,6 @@ class dPemMixinBase(dabo.common.dObject):
 		pass
 		
 
-	def getAbsoluteName(self):
-		""" Abstract method: subclasses MUST override for UI-specifics.
-		"""
-		pass
-		
-		
 	def getPropertyInfo(self, name):
 		""" Abstract method: subclasses MUST override for UI-specifics.
 		"""
@@ -102,30 +96,6 @@ class dPemMixinBase(dabo.common.dObject):
 		pass
 		
 
-	def bindEvent(self, event, function, eventObject=None):
-		""" Bind a Dabo event raised by eventObject (or self) to the given function.
-		
-		Abstract method: subclasses MUST override for UI-specifics.
-		"""
-		pass
-		
-	
-	def unBindEvent(self, event, function, eventObject=None):
-		""" Unbind a previously bound event/function.
-		
-		Abstract method: subclasses MUST override for UI-specifics.
-		"""
-		pass
-		
-		
-	def raiseEvent(self, event):
-		""" Raise the specified event.
-		
-		Abstract method: subclasses MUST override for UI-specifics.
-		"""
-		pass
-		
-			
 	def getPropValDict(self, obj=None):
 		""" Return a dictionary of property name/value pairs.
 		"""
@@ -221,11 +191,12 @@ class dPemMixinBase(dabo.common.dObject):
 
 
 	# Property definitions follow
+	Bottom = property(_getBottom, _setBottom, None,
+					'The position of the bottom part of the object. (int)')
+	
 	Form = property(_getForm, None, None,
 					'Object reference to the dForm containing the object. (read only).')
 	
-	Bottom = property(_getBottom, _setBottom, None,
-					'The position of the bottom part of the object. (int)')
 	Right = property(_getRight, _setRight, None,
 					'The position of the right part of the object. (int)')
 

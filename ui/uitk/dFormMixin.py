@@ -37,9 +37,6 @@ class dFormMixin(pm.dPemMixin):
 #			self.Icon = wx.Icon(dabo.icons.getIconFileName('daboIcon048'), wx.BITMAP_TYPE_PNG)
 			
 
-	def _onTkActivate(self, event):
-		print "ontkactivate", event
-			
 # 	def OnActivate(self, event): 
 # 		if bool(event.GetActive()) == True and self.restoredSP == False:
 # 			# Restore the saved size and position, which can't happen 

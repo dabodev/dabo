@@ -4,7 +4,7 @@ from dTextBox import dTextBox
 from dDialog import dDialog
 from dCommandButton import dCommandButton
 from dabo.dLocalize import _
-import dEvents
+import dabo.dEvents as dEvents
 
 class lbl(dLabel):
 	def initStyleProperties(self):

@@ -1,6 +1,6 @@
 import wx, dabo
 import dDataControlMixin as dcm
-import dEvents
+import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
@@ -23,7 +23,7 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		dCheckBox.doDefault()
 
 		# Respond to EVT_CHECKBOX and raise dEvents.Hit:
-		self.bindEvent(wx.EVT_CHECKBOX, self._onWxHit)
+		self.Bind(wx.EVT_CHECKBOX, self._onWxHit)
 		
 				
 	# property get/set functions

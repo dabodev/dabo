@@ -1,5 +1,6 @@
 import wx
-import dIcons, dEvents
+import dIcons
+import dabo.dEvents as dEvents
 import dForm, dDataNavPageFrame
 from dabo.common import fieldSpecParser
 

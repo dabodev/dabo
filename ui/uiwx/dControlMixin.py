@@ -3,7 +3,7 @@
 import dabo
 import dPemMixin as pm
 from dabo.dLocalize import _
-import dEvents
+import dabo.dEvents as dEvents
 
 class dControlMixin(pm.dPemMixin):
 	""" Provide common functionality for all controls.
@@ -25,7 +25,6 @@ class dControlMixin(pm.dPemMixin):
 	def _onWxHit(self, event):
 		self.raiseEvent(dEvents.Hit, event)
 		event.Skip()
-		#event.StopPropagation()
 		
 	def onHit(self, event):
 		""" Occurs when the control's default action has taken place, such as

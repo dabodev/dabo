@@ -1,6 +1,6 @@
 import wx, dabo
 import dDataControlMixin as dcm
-import dEvents
+import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dSlider(wx.Slider, dcm.dDataControlMixin):
@@ -25,7 +25,7 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 
 	def initEvents(self):
 		dSlider.doDefault()
-		self.bindEvent(wx.EVT_SCROLL, self._onWxHit)
+		self.Bind(wx.EVT_SCROLL, self._onWxHit)
 
 				
 	# Property get/set/del methods follow. Scroll to bottom to see the property

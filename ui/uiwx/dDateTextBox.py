@@ -3,7 +3,9 @@ import wx
 import wx.calendar
 import dabo
 from dabo.dLocalize import _
-import dTextBox, dPanel, dCommandButton, dEvents
+import dTextBox, dPanel, dCommandButton
+import dabo.dEvents as dEvents
+
 
 
 class CalPanel(dPanel.dPanel):
@@ -88,7 +90,7 @@ class dDateTextBox(dTextBox.dTextBox):
 # 			calSizer.Add(self.calButton)
 			
 		# The first form is needed to avoid a GTK unicode menu from appearing:
-		self.bindEvent(wx.EVT_RIGHT_DOWN, self.onRightClick)
+		self.Bind(wx.EVT_RIGHT_DOWN, self.onRightClick)
 		#self.bindEvent(dEvents.MouseRightDown, self.onRightClick)
 		self.bindEvent(dEvents.KeyChar, self.onChar)
 		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onDblClick)

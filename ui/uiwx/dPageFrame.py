@@ -1,5 +1,7 @@
 import wx
-import dControlMixin, dPage, dEvents
+import dControlMixin, dPage
+import dabo.dEvents as dEvents
+
 
 class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 	""" Create a container for an unlimited number of pages.
@@ -38,7 +40,7 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 		
 	def initEvents(self):
 		dPageFrame.doDefault()
-		self.bindEvent(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._onPageChanged)
+		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._onPageChanged)
 
 				
 	def _onPageChanged(self, event):

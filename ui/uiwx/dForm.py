@@ -1,5 +1,5 @@
 import wx, dabo
-import dEvents
+import dabo.dEvents as dEvents
 import dFormMixin as fm
 import dabo.dException as dException
 import dabo.dConstants as k

@@ -1,5 +1,6 @@
 import wx, dabo
-import dControlMixin, dEvents
+import dControlMixin
+import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import dIcons
 
@@ -33,7 +34,7 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 		
 	def initEvents(self):
 		dTimer.doDefault()
-		self.bindEvent(wx.EVT_TIMER, self._onWxHit)
+		self.Bind(wx.EVT_TIMER, self._onWxHit)
 		
 	def Show(self, *args, **kwargs):
 		# only let the the bitmap be shown if this is design time

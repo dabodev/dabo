@@ -1,7 +1,9 @@
 import wx, dIcons
 import dPageFrame as pgf
 import dPageDataNav as pag
-import dPage, dEvents
+import dPage
+import dabo.dEvents as dEvents
+
 
 class dPageFrameDataNav(pgf.dPageFrame):
 

@@ -3,7 +3,7 @@ import sys, types
 import dabo, dabo.common
 from dabo.dLocalize import _
 import dabo.ui.dPemMixinBase
-import dEvents
+import dabo.dEvents as dEvents
 
 
 class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
@@ -42,12 +42,6 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.beforeInit()
 
 	
-	def __init__(self):
-		#self._logEvents = ["All"]
-		#self._logEvents = ["GotFocus", "LostFocus"]
-		self._logEvents = []
-		
-		
 	def _afterInit(self):
 		self.debug = False
 		
@@ -58,18 +52,25 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._initEvents()
 		self.initEvents()
 
+		self.raiseEvent(dEvents.Create)
+			
 	def _initEvents(self):
 		# Bind tk events to handlers that re-raise the Dabo events:
 		
-		# Call _onTkCreate() now, or the tk event may be missed.
-		self._onTkCreate()
-		self.bindEvent(dEvents.GotFocus, self._onTkGotFocus)
-		self.bindEvent(dEvents.LostFocus, self._onTkLostFocus)
+		self.bind("<Destroy>", self._onTkDestroy)
+		self.bind("<FocusIn>", self._onTkGotFocus)
+		self.bind("<FocusOut>", self._onTkLostFocus)
 
+		# Activate and Deactivate don't mean what we expect in Tk...
+		#self.bind(dEvents.Activate, self._onTkActivate)
+		#self.bind(dEvents.Deactivate, self._onTkDeactivate)
+		
+		self.bind("<Enter>", self._onTkMouseEnter)
+		self.bind("<Leave>", self._onTkMouseLeave)
+		
 			
-	def _onTkCreate(self, event=None):
-		pass
-		#self.raiseEvent(dEvents.Create, event)
+	def _onTkDestroy(self, event):
+		self.raiseEvent(dEvents.Destroy, event)
 		
 	def _onTkGotFocus(self, event):
 		self.raiseEvent(dEvents.GotFocus, event)
@@ -77,58 +78,25 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _onTkLostFocus(self, event):
 		self.raiseEvent(dEvents.LostFocus, event)
 
-			
-	def bindEvent(self, event, function, eventSource=None):
-		""" Bind a Dabo event raised by eventSource (or self) to the given function.
-		
-		The eventSource argument may be either an object reference or an integer id,
-		but in any case is only required when you want the source of the event to
-		be something other than self.
-		"""
-		if eventSource is None:
-			eventSource = self
-		eventSource.bind(event, function)
-		
-	
-	def unBindEvent(self, event, eventSource=None):
-		""" Unbind a previously bound event/function.
-		
-		Abstract method: subclasses MUST override for UI-specifics.
-		"""
-		self.Unbind(event, eventSource)
+	def _onTkActivate(self, event):
+		self.raiseEvent(dEvents.Activate, event)
 
-			
-	def raiseEvent(self, event, tkEvt=None):
-		""" Raise the specified event.
-		
-		Abstract method: subclasses MUST override for UI-specifics.
-		"""
-		eventClass = dEvents.dEvent
-		evt = eventClass(event, self, tkEvt)
-		
-		# Don't know how to generate a custom-derived event, so
-		# raise the Tk event again.
-		self.event_generate(event)
+	def _onTkDeactivate(self, event):
+		self.raiseEvent(dEvents.Deactivate, event)
+
+	def _onTkMouseEnter(self, event):
+		self.raiseEvent(dEvents.MouseEnter, event)
+
+	def _onTkMouseLeave(self, event):
+		self.raiseEvent(dEvents.MouseLeave, event)
+
 	
+	def raiseEvent(self, eventClass, nativeEvent=None, *args, **kwargs):
+		# Call the Dabo-native raiseEvent(), passing along the Tkinter after_idle
+		# function, so that the Dabo events can be processed at next idle.
+		dPemMixin.doDefault(eventClass, nativeEvent, callAfterFunc=self.after_idle, 
+			*args, **kwargs)
 	
-	def getAbsoluteName(self):
-		""" Get self's fully-qualified name, such as 'dFormRecipes.dPageFrame.Page1.txtName'
-		"""
-		names = [self.Name, ]
-		object = self
-		while True:
-			try:
-				parent = object.nametowidget(object.winfo_parent())
-			except:
-				parent = None
-			if parent:
-				names.append(parent.winfo_name())
-				object = parent
-			else:
-				break
-		names.reverse()
-		return '.'.join(names)
-		
 		
 	def getPropertyInfo(self, name):
 		d = dPemMixin.doDefault(name)   # the property helper does most of the work

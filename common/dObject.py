@@ -1,8 +1,10 @@
 import dabo
-from doDefaultMixin import DoDefaultMixin
-from propertyHelperMixin import PropertyHelperMixin
-
-class dObject(DoDefaultMixin, PropertyHelperMixin):
+from dabo.common import PropertyHelperMixin
+from dabo.common import DoDefaultMixin
+from dabo.common import EventMixin
+from dabo.dLocalize import _
+				
+class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 	""" The basic ancestor of all dabo objects.
 	"""
 	
@@ -10,6 +12,25 @@ class dObject(DoDefaultMixin, PropertyHelperMixin):
 		sl = "\\"
 		qt = "\'"
 		return s.replace(sl, sl+sl).replace(qt, sl+qt)
+
+	def getAbsoluteName(self):
+		""" Return the fully qualified name of the object.
+		"""
+		names = [self.Name, ]
+		object = self
+		while True:
+			try:
+				parent = object.Parent
+			except AttributeError:
+				# Parent not necessarily defined
+				parent = None
+			if parent:
+				names.append(parent.Name)
+				object = parent
+			else:
+				break
+		names.reverse()
+		return '.'.join(names)
 
 	def _getBaseClass(self):
 		# Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:
@@ -36,6 +57,32 @@ class dObject(DoDefaultMixin, PropertyHelperMixin):
 			return None
 
 
+	def _getLogEvents(self):
+		try:
+			le = self._logEvents
+		except AttributeError:
+			# Try to get the value from the parent object, or the Application if
+			# no Parent.
+			if self.Parent is not None:
+				parent = self.Parent
+			else:
+				if self == self.Application:
+					parent = None
+				else:
+					parent = self.Application
+				
+			try:
+				le = parent.LogEvents
+			except AttributeError:
+				le = []
+				
+		return le
+		
+			
+	def _setLogEvents(self, val):
+		self._logEvents = list(val)
+
+		
 	def _getName(self):
 		try:
 			return self._name
@@ -72,21 +119,27 @@ class dObject(DoDefaultMixin, PropertyHelperMixin):
 
 	Application = property(_getApplication, None, None, 
  					'Object reference to the Dabo Application object. (read only).')
- 	Name = property(_getName, _setName, None, 
- 					'The name of the object. (str)')
+	
+	BaseClass = property(_getBaseClass, None, None, 
+ 					'The base class of the object. Read-only. (class)')
+	
 	Class = property(_getClass, None, None,
 					'The class the object is based on. Read-only. (class)')
- 	BaseClass = property(_getBaseClass, None, None, 
- 					'The base class of the object. Read-only. (class)')
+ 	
+	LogEvents = property(_getLogEvents, _setLogEvents, None, 
+					'Specifies which events to log. (list of strings)')
+					
+	Name = property(_getName, _setName, None, 
+ 					'The name of the object. (str)')
+	
 	Parent = property(_getParent, _setParent, None,	
 					'The containing object. (obj)')
- 	SuperClass = property(_getSuperClass, None, None, 
+ 	
+	SuperClass = property(_getSuperClass, None, None, 
  					'The parent class of the object. Read-only. (class)')
 
 if __name__ == "__main__":
-	d = D()
-	print d.dApp
+	d = dObject()
+	print d.Application
 	app = dabo.dApp()
-	print d.dApp
-	
-	print dir(d)
+	print d.Application

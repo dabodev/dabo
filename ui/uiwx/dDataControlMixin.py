@@ -4,7 +4,7 @@
 import wx
 import dabo
 import dControlMixin
-import dEvents
+import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.dLocalize import _
 

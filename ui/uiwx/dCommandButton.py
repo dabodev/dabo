@@ -1,7 +1,7 @@
 import wx, warnings, dabo
 import dControlMixin as cm
 from dabo.dLocalize import _
-import dEvents
+import dabo.dEvents as dEvents
 
 class dCommandButton(wx.Button, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button.
@@ -24,7 +24,7 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 		dCommandButton.doDefault()
 
 		# Respond to EVT_BUTTON and raise dEvents.Hit:
-		self.bindEvent(wx.EVT_BUTTON, self._onWxHit)
+		self.Bind(wx.EVT_BUTTON, self._onWxHit)
 		
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property

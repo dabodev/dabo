@@ -49,3 +49,9 @@ from dFormMain import dFormMain
 #	__classDict['topLevel'] = __classRef.__name__.find('Form') >= 0
 #	__classDict['doc'] = __classRef.__doc__
 #	daboDesignerClasses.append(__classDict)
+
+
+def getEventData(uiEvent):
+	ed = {}
+	ed["mousePosition"] = (uiEvent.x, uiEvent.y)
+	return ed

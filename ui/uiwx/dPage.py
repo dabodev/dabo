@@ -1,5 +1,7 @@
 """ dPage.py """
-import wx, dPanel, dEvents, dTimer
+import wx, dPanel, dTimer
+import dabo.dEvents as dEvents
+
 
 class dPage(dPanel.dScrollPanel):
 	""" Create a page to appear as a tab in a dPageFrame.

@@ -2,23 +2,31 @@ import sys, os
 import Tkinter
 import dabo
 import dabo.ui as ui
+import dabo.dEvents as dEvents
+import dabo.common
 
 # First step is to figure out how to wrap a tk application object if there is one.
 # When that is done, copy/paste/modify from uiwx/uiApp.py.
 
 # It doesn't look like Tkinter has an application object, just a mainloop() method.
-class uiApp(object):
+class uiApp(dabo.common.dObject):
 	
+	def __init__(self):
+		uiApp.doDefault()
+		self.Name = "uiApp"
+		
 	def setup(self, dApp):
 		self.dApp = dApp
 
 		if dApp.MainFrameClass is not None:
 			dApp.MainFrame = dApp.MainFrameClass()
 
-
 	def start(self, dApp):
+		self.raiseEvent(dEvents.Activate)
 		Tkinter.mainloop()
 
+	def finish(self):
+		self.raiseEvent(dEvents.Deactivate)
 		
 	def onFileExit(self, event):
 		self.MainFrame.Close(True)

@@ -1,9 +1,9 @@
 import wx, dabo
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox, dIcons, dCommandButton
-import dPanel, dGridDataNav, dCommandButton, dMessageBox, dEvents, dDateTextBox
+import dPanel, dGridDataNav, dCommandButton, dMessageBox, dDateTextBox
 import dabo.dException as dException
 from dabo.dLocalize import _
-
+import dabo.dEvents as dEvents
 
 class SelectOptionsPanel(dPanel.dPanel):
 	""" Base class for the select options panel.
@@ -12,7 +12,12 @@ class SelectOptionsPanel(dPanel.dPanel):
 		self.Name = "selectOptionsPanel"
 		# selectOptions is a list of dictionaries
 		self.selectOptions = []
-		
+
+	def initEnabled(self):		
+		for optionRow in self.selectOptionsPanel.selectOptions:
+			self.selectOptionsPanel.setEnabled(self.FindWindowById(optionRow["cbId"]))
+		self.selectOptionsPanel.setEnabled(self.chkSelectLimit)
+			
 	def setEnabled(self, cb):
 		# Get reference(s) to the associated input control(s)
 		if cb.Name == "chkSelectLimit":
@@ -53,10 +58,6 @@ class SelectOptionsCheckBox(dCheckBox.dCheckBox):
 	def initProperties(self):
 		self.SaveRestoreValue = True
 	
-	def onCreate(self, evt):
-		SelectOptionsCheckBox.doDefault(evt)
-		self.Parent.setEnabled(self)
-		
 	def onHit(self, evt):
 		self.Parent.setEnabled(self)
 		
@@ -85,6 +86,7 @@ class dSelectPage(dPage.dPage):
 
 	def createItems(self):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
+		self.selectOptionsPanel.initEnabled()
 		self.GetSizer().Add(self.selectOptionsPanel, 0, wx.GROW|wx.ALL, 5)
 		self.selectOptionsPanel.SetFocus()
 		
@@ -330,11 +332,16 @@ class dBrowsePage(dPage.dPage):
 			if col < 0:
 				col = 0
 			
-			# Needed on win and mac:
+			# Needed on Linux to get the grid to have the focus:
+			for window in self.BrowseGrid.GetChildren():
+				window.SetFocus()
+			
+			# Needed on win and mac to get the grid to have the focus:
 			self.BrowseGrid.GetGridWindow().SetFocus()
 			
 			if not self.BrowseGrid.IsVisible(row, col):
-				# Linux needs the following call twice:
+				# Linux needs the following call twice, or the desired visible
+				# cell may only halfway appear:
 				self.BrowseGrid.MakeCellVisible(row, col)
 				self.BrowseGrid.MakeCellVisible(row, col)
 			self.BrowseGrid.SetGridCursor(row, col)
@@ -364,8 +371,6 @@ class dBrowsePage(dPage.dPage):
 		bizobj = self.Form.getBizobj()
 		self.BrowseGrid.fillGrid()
 		self.GetSizer().Layout()
-#		for window in self.BrowseGrid.GetChildren():
-#			window.SetFocus()
 
 
 	def newRecord(self):
@@ -422,8 +427,8 @@ class dEditPage(dPage.dPage):
 				self.Enable(True)
 			else:
 				self.Enable(False)
-			if event:
-				event.Skip()
+# 			if event:
+# 				event.Skip()
 
 
 	def createItems(self):

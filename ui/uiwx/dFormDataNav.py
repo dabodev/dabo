@@ -1,6 +1,7 @@
 import wx
-import dIcons, dEvents
+import dIcons
 import dForm, dPageFrameDataNav
+import dabo.dEvents as dEvents
 
 class dFormDataNav(dForm.dForm):
 	""" This is a dForm but with the following added controls:

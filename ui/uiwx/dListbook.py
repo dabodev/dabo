@@ -1,5 +1,6 @@
 import wx, dabo
-import dControlMixin, dPage, dEvents
+import dControlMixin, dPage
+import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dListbook(wx.Listbook, dControlMixin.dControlMixin):
@@ -31,7 +32,7 @@ class dListbook(wx.Listbook, dControlMixin.dControlMixin):
 
 	def initEvents(self):
 		dListbook.doDefault()
-		self.bindEvent(wx.EVT_LISTBOOK_PAGE_CHANGED, self._onPageChanged)
+		self.Bind(wx.EVT_LISTBOOK_PAGE_CHANGED, self._onPageChanged)
 
 				
 	def _onPageChanged(self, event):

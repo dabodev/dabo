@@ -1,6 +1,6 @@
 import wx, dabo
 import dDataControlMixin as dcm
-import dEvents
+import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 # The EditBox is just a TextBox with some additional styles.
@@ -33,7 +33,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		dEditBox.doDefault()
 		
 		# bind the wx event to the dabo event:
-		self.bindEvent(wx.EVT_TEXT, self._onWxHit)
+		self.Bind(wx.EVT_TEXT, self._onWxHit)
 		
 
 	# property get/set functions

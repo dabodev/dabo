@@ -1,7 +1,7 @@
 import wx
 import dabo
 import dDataControlMixin as dcm
-import dEvents
+import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
@@ -34,7 +34,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	def initEvents(self):
 		dTextBox.doDefault()
 		# catch wx.EVT_TEXT and raise dEvents.Hit:
-		self.bindEvent(wx.EVT_TEXT, self._onWxHit)
+		self.Bind(wx.EVT_TEXT, self._onWxHit)
 		
 		
 	# property get/set functions

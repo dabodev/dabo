@@ -1,42 +1,22 @@
 import sys, os, wx
 import dabo
 import dabo.ui as ui
-import dEvents
+import dabo.dEvents as dEvents
+from dabo.common.dObject import dObject
 
-class uiApp(wx.App):
+class uiApp(wx.App, dObject):
 	def __init__(self, *args):
 		wx.App.__init__(self, 0, args)
+		dObject.__init__(self)
 		self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
-		#self.LogEvents = ["All"]
 		
-
+		self.Name = "uiApp"
+		
+		
 	def OnInit(self):
 		return True
 
 
-	def getAbsoluteName(self):
-		# Overridden: expected in dPemMixin-derived classes, but this
-		# class isn't dPemMixin-derived. Needed for dEvents logEvent.
-		return "uiApp"
-		
-		
-	def raiseEvent(self, event, wxEvt=None):
-		""" Raise the specified event.
-		
-		Abstract method: subclasses MUST override for UI-specifics.
-		"""
-		# Note: copied from dPemMixin. Should be abstracted out I guess.
-		if event in (dEvents.Hit,):
-			eventClass = dEvents.dCommandEvent
-		else:
-			eventClass = dEvents.dEvent
-		evt = eventClass(event.evtType[0], self, wxEvt)
-		
-		# Not sure which of these is really preferred.
-		#wx.PostEvent(self, evt)
-		self.AddPendingEvent(evt)
-	
-	
 	def setup(self, dApp):
 		# wx has properties for appName and vendorName, so Dabo should update
 		# these. Among other possible uses, I know that on Win32 wx will use
@@ -226,3 +206,5 @@ class uiApp(wx.App):
 		user, password = ld.user, ld.password
 		self.loginDialog = ld
 		return user, password
+
+	

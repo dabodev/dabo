@@ -4,7 +4,7 @@ import dPemMixin as pm
 import dMainMenuBar as mnb
 import dMenu, dMessageBox, dabo.icons
 from dabo.dLocalize import _
-import dEvents
+import dabo.dEvents as dEvents
 
 class dFormMixin(pm.dPemMixin):
 	def __init__(self):
@@ -28,8 +28,8 @@ class dFormMixin(pm.dPemMixin):
 	def initEvents(self):
 		dFormMixin.doDefault()
 		# Bind wx events to handlers that re-raise the Dabo events:
-		self.bindEvent(wx.EVT_ACTIVATE, self._onWxActivate)
-		self.bindEvent(wx.EVT_CLOSE, self._onWxClose)
+		self.Bind(wx.EVT_ACTIVATE, self._onWxActivate)
+		self.Bind(wx.EVT_CLOSE, self._onWxClose)
 			
 		# Convenience binding of common events:
 		self.bindEvent(dEvents.Close, self.onClose)

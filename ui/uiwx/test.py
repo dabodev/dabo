@@ -13,7 +13,9 @@ If you instead run this test.py as a script, a form will be instantiated with
 all the dControls.
 """
 import wx
-import dabo.ui.uiwx as ui
+import dabo.ui as ui
+
+ui.loadUI("wx")
 
 class Test(object):
 	def __init__(self):

@@ -2,7 +2,7 @@ import wx, warnings
 import dabo
 import dDataControlMixin as dcm
 from dabo.dLocalize import _
-import dEvents
+import dabo.dEvents as dEvents
 
 class dToggleButton(wx.ToggleButton, dcm.dDataControlMixin):
 	""" Allows the user to set an on/off condition by pressing a button.
@@ -24,7 +24,7 @@ class dToggleButton(wx.ToggleButton, dcm.dDataControlMixin):
 	def initEvents(self):
 		dToggleButton.doDefault()
 		# Respond to EVT_TOGGLEBUTTON and raise dEvents.Button:
-		self.bindEvent(wx.EVT_TOGGLEBUTTON, self._onWxHit)
+		self.Bind(wx.EVT_TOGGLEBUTTON, self._onWxHit)
 		
 
 	# Event callback methods (override in subclasses):

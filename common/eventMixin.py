@@ -1,0 +1,121 @@
+import traceback
+from dabo.dLocalize import _
+
+class EventMixin(object):
+	""" Mix-in class making objects know how to bind and raise Dabo events.
+
+	All Dabo objects inherit this functionality.	
+	"""
+	def bindEvent(self, eventClass, function):
+		""" Bind a dEvent to a callback function.
+		"""
+		self.EventBindings.append((eventClass, function))
+		
+		
+	def raiseEvent(self, eventClass, uiEvent=None, uiCallAfterFunc=None, *args, **kwargs):
+		""" Send the event to all registered listeners.
+		
+		If uiEvent is sent, dEvents.Event will be able to parse it for useful
+		information to send along to the callback. If uiCallAfterFunc is sent, the
+		callbacks will be wrapped in that function so that the UI-lib can process
+		our Dabo events at next idle instead of immediately in this event cycle.
+		
+		Additional arguments, if any, are sent along to the constructor
+		of the event. While this feature exists so that UI-lib event handlers
+		can pass along information (such as the keystroke information in a
+		key event), user code may pass along additional arguments as well, which
+		will exist in the event.EventData dictionary property.
+		
+		User code need not worry too much about all these extra arguments, as in 
+		most cases they'll be completely unnecessary. Just call raiseEvent() with
+		the event class (dEvents.Hit, for example) as the only parameter.
+		"""
+		
+		# Instantiate the event, no matter if there aren't any bindings: the event
+		# did happen, after all, and perhaps we want to log that fact.
+		event = eventClass(self, uiEvent, *args, **kwargs)
+		
+		# Now iterate the bindings, and execute the callbacks:
+		for binding in self.EventBindings:
+			bindingClass, bindingFunction = binding[0], binding[1]
+			if bindingClass == eventClass:
+				if uiCallAfterFunc:
+					# Use the native-UI's way to have the callback processed during
+					# the next event idle cycle.
+					uiCallAfterFunc(bindingFunction, event)
+				else:
+					# Wrap the call so that if an exception is raised in one
+					# handler, the rest of the handlers still get a whack at 
+					# the event. This matches the behavior as if we were using
+					# the real event loop in the ui lib. This is only necessary
+					# because we aren't using a uiCallAfterFunc().
+					try:
+						bindingFunction(event)
+					except:
+						traceback.print_exc()
+	
+		
+	def unBindEvent(self, eventClass=None, function=None):
+		""" Remove a previously registered event binding.
+		
+		Removes all registrations that exist for the given binding for this
+		object. If event is None, all bindings for the passed function are 
+		removed. If function is None, all bindings for the passed event are 
+		removed. If both event and function are None, all event bindings are 
+		removed.
+		"""
+		if eventClass is None and function is None:
+			# Short-circuit: blank the entire list of EventBindings
+			self.EventBindings = []
+		else:			
+			# Iterate through EventBindings and remove the appropriate ones
+			for index in range(len(self.EventBindings), 0, -1):
+				binding = self.EventBindings.pop()
+				bindingClass, bindingFunction = binding[0], binding[1]
+				
+				if (eventClass is None or bindingEvent == eventClass) and (
+					function is None or bindingFunction == function):
+						# Matched: already popped off, do nothing
+						pass
+				else:
+					# Not matched: put it back
+					self.EventBindings.append(binding)
+
+		
+	def _getEventBindings(self):
+		try:
+			return self._eventBindings
+		except AttributeError:
+			self._eventBindings = []
+			return self._eventBindings
+			
+	def _setEventBindings(self, val):
+		if type(val) == type(list):
+			self._eventBindings = val
+		else:
+			raise ValueError, "EventBindings must be a list."
+		
+	EventBindings = property(_getEventBindings, _setEventBindings, None, 
+		_("The list of event bindings ([Event, callback]) for this object."))		
+	
+
+if __name__ == "__main__":
+
+	def testFunc(event):
+		print "testFunc", event
+		
+	class TestEvent(object):
+		def __init__(self, eventObject):
+			print "evtObject:", eventObject
+		
+	o = EventMixin()
+	print "EventBindings:", o.EventBindings
+	
+	o.bindEvent(TestEvent, testFunc)
+	print "EventBindings:", o.EventBindings
+
+	o.raiseEvent(TestEvent)
+	
+	o.unBindEvent(TestEvent)
+	print "EventBindings:", o.EventBindings
+		

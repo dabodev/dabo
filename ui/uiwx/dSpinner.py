@@ -1,6 +1,6 @@
 import wx, dabo
 import dDataControlMixin as dcm
-import dEvents
+import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
@@ -23,8 +23,7 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 	def initEvents(self):
 		dSpinner.doDefault()
 		# Catch the wx events and raise the dabo events:
-		self.bindEvent(wx.EVT_SPINCTRL, self._onWxHit)
-#		self.bindEvent(wx.EVT_TEXT, self._onWxHit)  # - will fire EVT_SPINCTRL when lost focus.
+		self.Bind(wx.EVT_SPINCTRL, self._onWxHit)
 		
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property

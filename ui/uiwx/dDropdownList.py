@@ -1,6 +1,6 @@
 import wx, dabo
 import dDataControlMixin as dcm
-import dEvents
+import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dDropdownList(wx.Choice, dcm.dDataControlMixin):
@@ -26,7 +26,7 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 		dDropdownList.doDefault()
 		
 		# catch the wx event and raise the dabo event:
-		self.bindEvent(wx.EVT_CHOICE, self._onWxHit)
+		self.Bind(wx.EVT_CHOICE, self._onWxHit)
 		
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property

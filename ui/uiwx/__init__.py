@@ -62,3 +62,25 @@ for __classRef in __dClasses:
 	__classDict['topLevel'] = __classRef.__name__.find('Form') >= 0
 	__classDict['doc'] = __classRef.__doc__
 	daboDesignerClasses.append(__classDict)
+
+
+def getEventData(wxEvt):
+	ed = {}
+	
+	if isinstance(wxEvt, wx.KeyEvent) or isinstance(wxEvt, wx.MouseEvent):
+		ed["mousePosition"] = wxEvt.GetPositionTuple()
+		ed["altDown"] = wxEvt.AltDown()
+		ed["commandDown"] = wxEvt.CmdDown()
+		ed["controlDown"] = wxEvt.ControlDown()
+		ed["metaDown"] = wxEvt.MetaDown()
+		ed["shiftDown"] = wxEvt.ShiftDown()
+
+	if isinstance(wxEvt, wx.KeyEvent):
+		ed["keyCode"] = wxEvt.GetKeyCode()
+		ed["rawKeyCode"] = wxEvt.GetRawKeyCode()
+		ed["rawKeyFlags"] = wxEvt.GetRawKeyFlags()
+		ed["unicodeChar"] = wxEvt.GetUniChar()
+		ed["unicodeKey"] = wxEvt.GetUnicodeKey()
+		ed["hasModifiers"] = wxEvt.HasModifiers()
+
+	return ed

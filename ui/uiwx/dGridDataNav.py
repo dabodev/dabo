@@ -9,8 +9,9 @@ import dGrid
 import wx, wx.grid
 import urllib
 import dIcons
+import dabo.dEvents as dEvents
 import dabo.dException as dException
-import dEvents, dTimer
+import dTimer
 
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):

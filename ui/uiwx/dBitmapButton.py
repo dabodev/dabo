@@ -2,7 +2,7 @@ import warnings, wx, dabo
 import dControlMixin as cm
 from dabo.dLocalize import _
 from dIcons import getIconBitmap
-import dEvents
+import dabo.dEvents as dEvents
 
 class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button.
@@ -32,7 +32,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		dBitmapButton.doDefault()
 
 		# Respond to EVT_BUTTON and raise dEvents.Hit:
-		self.bindEvent(wx.EVT_BUTTON, self._onWxHit)
+		self.Bind(wx.EVT_BUTTON, self._onWxHit)
 		
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property

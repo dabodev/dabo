@@ -2,10 +2,10 @@
 import wx, sys, types
 import dabo, dabo.common
 from dabo.dLocalize import _
-import dabo.ui.dPemMixinBase
-import dEvents
+from dabo.ui.dPemMixinBase import dPemMixinBase
+import dabo.dEvents as dEvents
 
-class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
+class dPemMixin(dPemMixinBase):
 	""" Provide Property/Event/Method interfaces for dForms and dControls.
 
 	Subclasses can extend the property sheet by defining their own get/set
@@ -40,10 +40,6 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		
 		
 	def __init__(self, *args, **kwargs):
-		#self._logEvents = ["All"]
-		#self._logEvents = ["GotFocus", "LostFocus"]
-		self._logEvents = []
-		
 		self.debug = False
 		
 		try:
@@ -81,29 +77,29 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		
 		self._initEvents()
 		self.initEvents()
+		
+		self.raiseEvent(dEvents.Create)
 
+		
 	def _initEvents(self):
 		# Bind wx events to handlers that re-raise the Dabo events:
 		
-		# Call _onWxCreate() now, or the wx event may be missed.
-		#self.bindEvent(wx.EVT_WINDOW_CREATE, self._onWxCreate)
-		self._onWxCreate()
-		self.bindEvent(wx.EVT_WINDOW_DESTROY, self._onWxDestroy)
+		self.Bind(wx.EVT_WINDOW_DESTROY, self._onWxDestroy)
 		
-		self.bindEvent(wx.EVT_SET_FOCUS, self._onWxGotFocus)
-		self.bindEvent(wx.EVT_KILL_FOCUS, self._onWxLostFocus)
+		self.Bind(wx.EVT_SET_FOCUS, self._onWxGotFocus)
+		self.Bind(wx.EVT_KILL_FOCUS, self._onWxLostFocus)
 			
-		self.bindEvent(wx.EVT_LEFT_DOWN, self._onWxMouseLeftDown)
-		self.bindEvent(wx.EVT_LEFT_UP, self._onWxMouseLeftUp)
-		self.bindEvent(wx.EVT_RIGHT_DOWN, self._onWxMouseRightDown)
-		self.bindEvent(wx.EVT_RIGHT_UP, self._onWxMouseRightUp)
-		self.bindEvent(wx.EVT_ENTER_WINDOW, self._onWxMouseEnter)
-		self.bindEvent(wx.EVT_LEAVE_WINDOW, self._onWxMouseLeave)
-		self.bindEvent(wx.EVT_LEFT_DCLICK, self._onWxMouseLeftDoubleClick)
+		self.Bind(wx.EVT_LEFT_DOWN, self._onWxMouseLeftDown)
+		self.Bind(wx.EVT_LEFT_UP, self._onWxMouseLeftUp)
+		self.Bind(wx.EVT_RIGHT_DOWN, self._onWxMouseRightDown)
+		self.Bind(wx.EVT_RIGHT_UP, self._onWxMouseRightUp)
+		self.Bind(wx.EVT_ENTER_WINDOW, self._onWxMouseEnter)
+		self.Bind(wx.EVT_LEAVE_WINDOW, self._onWxMouseLeave)
+		self.Bind(wx.EVT_LEFT_DCLICK, self._onWxMouseLeftDoubleClick)
 		
-		self.bindEvent(wx.EVT_CHAR, self._onWxKeyChar)
-		self.bindEvent(wx.EVT_KEY_DOWN, self._onWxKeyDown)
-		self.bindEvent(wx.EVT_KEY_UP, self._onWxKeyUp)
+		self.Bind(wx.EVT_CHAR, self._onWxKeyChar)
+		self.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
+		self.Bind(wx.EVT_KEY_UP, self._onWxKeyUp)
 		
 		# Convenience binding of common events:
 		self.bindEvent(dEvents.Create, self.onCreate)
@@ -118,25 +114,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.bindEvent(dEvents.KeyChar, self.onKeyChar)
 		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
 	
-	
-	def _onWxCreate(self, event=None):
-		# Multiple EVT_WINDOW_CREATE events can be received for whatever reason. I 
-		# mostly have seen this with forms. Anyway, since we only want to raise one
-		# dEvents.Create, keep a flag and only raise it if it has not already
-		# been raised.
-		try:
-			cc = self._createEventSent
-		except AttributeError:
-			self._createEventSent = False
-		
-		if not self._createEventSent:
-			self.raiseEvent(dEvents.Create, event)
-			self._createEventSent = True
-		
-		if event is not None:
-			event.StopPropagation() # otherwise it'll go all the way up the hierarchy
-			event.Skip()
-		
+			
 	def _onWxDestroy(self, event):
 		# By the time the dEvent is raised, the object will already be gone,
 		# and the callback will never be executed. Because of this, we call
@@ -145,22 +123,25 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		# to any other callback, unfortunately.
 		event.StopPropagation()
 		event.Skip()
-		evt = dEvents.dEvent(dEvents.Destroy.evtType[0], self, event)
+		#evt = dEvents.dEvent(dEvents.Destroy.evtType[0], self, event)
+		evt = dEvents.Destroy(self, event)
 		self.onDestroy(evt)
 		
 	def _onWxGotFocus(self, event):
 		### Got/LostFocus have weird problems when raising the event. Call
 		### the default callback directly until I figure this out.
-		#self.raiseEvent(dEvents.GotFocus, event)
+		self.raiseEvent(dEvents.GotFocus, event)
 		event.Skip()
-		evt = dEvents.dEvent(dEvents.GotFocus.evtType[0], self, event)
-		self.onGotFocus(evt)
+		#evt = dEvents.dEvent(dEvents.GotFocus.evtType[0], self, event)
+		#evt = dEvents.GotFocus(self, event)
+		#self.onGotFocus(evt)
 		
 	def _onWxLostFocus(self, event):
-		#self.raiseEvent(dEvents.LostFocus, event)
+		self.raiseEvent(dEvents.LostFocus, event)
 		event.Skip()
-		evt = dEvents.dEvent(dEvents.LostFocus.evtType[0], self, event)
-		self.onLostFocus(evt)
+		#evt = dEvents.dEvent(dEvents.LostFocus.evtType[0], self, event)
+		#evt = dEvents.LostFocus(self, event)
+		#self.onLostFocus(evt)
 		
 	def _onWxMouseLeftDown(self, event):
 		self.raiseEvent(dEvents.MouseLeftDown, event)
@@ -283,22 +264,6 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		"""
 		pass
 				
-	def getAbsoluteName(self):
-		""" Get self's fully-qualified name, such as 'dFormRecipes.dPageFrame.Page1.txtName'
-		"""
-		names = [self.Name, ]
-		object = self
-		while True:
-			parent = object.GetParent()
-			if parent:
-				names.append(parent.GetName())
-				object = parent
-			else:
-				break
-		names.reverse()
-		return '.'.join(names)
-		
-		
 	def getPropertyInfo(self, name):
 		d = dPemMixin.doDefault(name)   # the property helper does most of the work
 		
@@ -324,43 +289,13 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		return object
 
 	
-	def bindEvent(self, event, function, eventSource=None):
-		""" Bind a Dabo event raised by eventSource (or self) to the given function.
-		
-		The eventSource argument may be either an object reference or an integer id,
-		but in any case is only required when you want the source of the event to
-		be something other than self.
-		"""
- 		if type(eventSource) == type(int()):
- 			self.Bind(event, function, id=eventSource)
- 		else:
- 			self.Bind(event, function, eventSource)
-		
+	def raiseEvent(self, eventClass, nativeEvent=None, *args, **kwargs):
+		# Call the Dabo-native raiseEvent(), passing along the wx.CallAfter
+		# function, so that the Dabo events can be processed at next idle.
+		dPemMixin.doDefault(eventClass, nativeEvent, callAfterFunc=wx.CallAfter, 
+			*args, **kwargs)
 	
-	def unBindEvent(self, event, eventSource=None):
-		""" Unbind a previously bound event/function.
-		
-		Abstract method: subclasses MUST override for UI-specifics.
-		"""
-		self.Unbind(event, eventSource)
-		
-		
-	def raiseEvent(self, event, wxEvt=None):
-		""" Raise the specified event.
-		
-		Abstract method: subclasses MUST override for UI-specifics.
-		"""
-		if event in (dEvents.Hit,):
-			eventClass = dEvents.dCommandEvent
-		else:
-			eventClass = dEvents.dEvent
-		evt = eventClass(event.evtType[0], self, wxEvt)
-		
-		# Not sure which of these is really preferred.
-		#wx.PostEvent(self, evt)
-		self.AddPendingEvent(evt)
-
-					
+			
 	def reCreate(self, child=None):
 		""" Recreate self.
 		"""
@@ -588,13 +523,6 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._pemObject.SetForegroundColour(value)
 
 	
-	def _getLogEvents(self):
-		return self._logEvents
-			
-	def _setLogEvents(self, val):
-		self._logEvents = list(val)
-
-		
 	def _getMousePointer(self):
 		return self._pemObject.GetCursor()
 	def _setMousePointer(self, value):
@@ -741,9 +669,6 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	ForeColor = property(_getForeColor, _setForeColor, None,
 					'Specifies the foreground color of the object. (tuple)')
 
-	LogEvents = property(_getLogEvents, _setLogEvents, None, 
-					'Specifies which events to log. (list of strings)')
-					
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
 					'Specifies the shape of the mouse pointer when it enters this window. (obj)')
 	

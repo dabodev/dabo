@@ -66,7 +66,7 @@ class Collection(list):
 			del self[index]
 
 
-class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
+class dApp(dabo.common.dObject):
 	""" dabo.dApp
 
 		The containing object for the entire application.
