@@ -731,6 +731,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					# Different backends may cause res to be None
 					# even if the save is successful.
 					self._getBackendObject().noResultsOnSave()
+			rec[k.CURSOR_MEMENTO].setMemento(rec)
 
 	
 	def makeUpdDiff(self, rec, isnew=False):
