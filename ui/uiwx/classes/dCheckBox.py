@@ -8,7 +8,6 @@ class dCheckBox(wx.CheckBox, dDataControlMixin, dControlMixin):
         dControlMixin.__init__(self, name)
         dDataControlMixin.__init__(self)
 
-        self.selectOnEntry = False
             
     def initEvents(self):
         # init the common events:

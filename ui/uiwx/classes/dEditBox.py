@@ -11,7 +11,7 @@ class dEditBox(wx.TextCtrl, dDataControlMixin, dControlMixin):
         dControlMixin.__init__(self, name)
         dDataControlMixin.__init__(self)
  
-        self.selectOnEntry = False
+        self.SelectOnEntry = False
             
     def initEvents(self):
         # init the common events:

@@ -71,7 +71,7 @@ class dDataControlMixin(dPemMixin):
         if self.debug:
             print "onValueRefresh received by %s" % (self.GetName(),)
         self.refresh()
-        if self.selectOnEntry and self.getDform().controlWithFocus == self:
+        if self.SelectOnEntry and self.getDform().controlWithFocus == self:
             self.selectAll()
         event.Skip()
 
@@ -96,7 +96,7 @@ class dDataControlMixin(dPemMixin):
             
         self._oldVal = self.GetValue()
         
-        if self.selectOnEntry:
+        if self.SelectOnEntry:
             self.selectAll()
         event.Skip()
     
@@ -128,7 +128,7 @@ class dDataControlMixin(dPemMixin):
     # Property get/set/del methods follow. Scroll to bottom to see the property
     # definitions themselves.
     def _getSelectOnEntry(self):
-        return self._SelectOnEntry()
+        return self._SelectOnEntry
     def _setSelectOnEntry(self, value):
         self._SelectOnEntry = value
         
