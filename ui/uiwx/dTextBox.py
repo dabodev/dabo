@@ -118,7 +118,15 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				dabo.errorLog.write("Couldn't convert literal '%s' to %s."
 					% (strVal, dataType))
 				value = self._value
-					
+				
+		elif str(dataType) == "<type 'DateTime'>":
+			# mx DateTime type. MySQLdb will use this if mx is installed.
+			try:
+				import mx
+				value = mx.DateTime.DateTimeFrom(str(strVal))
+			except ImportError:
+				value = self._value
+		
 		else:
 			# Other types can convert directly.
 			try:

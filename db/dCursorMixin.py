@@ -158,7 +158,7 @@ class dCursorMixin(dabo.common.dObject):
 				for row in self._records:
 					dic= {}
 					for i in range(0, fldcount):
-						if type(row[i]) == type(""):	
+						if type(row[i]) == str:	
 							# String; convert it to unicode
 							dic[fldNames[i]] = unicode(row[i], self.__encoding)
 						else:
@@ -171,9 +171,26 @@ class dCursorMixin(dabo.common.dObject):
 				for row in self._records:
 					for fld in row.keys():
 						val = row[fld]
-						if type(val) == type(""):	
+						if type(val) == str:	
 							# String; convert it to unicode
 							row[fld]= unicode(val, self.__encoding)
+			
+			# There can be a problem with the MySQLdb adapter if
+			# the mx modules are installed on the machine, the adapter
+			# will use that type instead of the native datetime.
+			try:
+				import mx
+				mxdt = mx.DateTime.DateTimeType
+				for row in self._records:
+					for fld in row.keys():
+						val = row[fld]
+						if type(val) == mxdt:
+							# Convert to normal datetime
+							row[fld]= datetime.datetime(val.year, val.month, val.day, 
+									val.hour, val.minute, int(val.second) )
+			except ImportError:
+				# mx not installed; no problem
+				pass
 		return res
 	
 	
@@ -610,7 +627,7 @@ class dCursorMixin(dabo.common.dObject):
 					flds += ", " + kk
 					
 					# add value to expression
-					if type(vv) == type(datetime.date(1,1,1)):
+					if type(vv) in ( datetime.date, datetime.datetime ):
 						# Some databases have specific rules for formatting date values.
 						vals += ", " + self.formatDateTime(vv)
 					else:
@@ -995,7 +1012,7 @@ class dCursorMixin(dabo.common.dObject):
 				escVal = self.escQuote(val)
 				ret += tblPrefix + fld + " = " + escVal + " "
 			else:
-				if type(val) == type(datetime.date(1,1,1)):
+				if type(val) in ( datetime.date, datetime.datetime ):
 					ret += tblPrefix + fld + " = " + self.formatDateTime(val)
 				else:
 					ret += tblPrefix + fld + " = " + str(val) + " "
