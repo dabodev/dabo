@@ -166,7 +166,8 @@ def getEventData(wxEvt):
 	ed = {}
 
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, wx.TreeEvent,
-			wx.CommandEvent, wx.CloseEvent) ):
+			wx.CommandEvent, wx.CloseEvent, wx.grid.GridEvent,
+			wx.grid.GridSizeEvent) ):
 		
 		if dabo.allNativeEventInfo:
 			# Cycle through all the attributes of the wx events, and evaluate them
@@ -220,8 +221,32 @@ def getEventData(wxEvt):
 		tree = wxEvt.GetEventObject()
 		ed["selectedNode"] = tree.Selection
 		ed["selectedCaption"] = tree.Selection.Caption
-		
-		
+	
+	if isinstance(wxEvt, wx.grid.GridEvent):
+		ed["row"] = wxEvt.GetRow()
+		ed["col"] = wxEvt.GetCol()
+		ed["position"] = wxEvt.GetPosition()
+		ed["altDown"] = wxEvt.AltDown()
+		ed["controlDown"] = wxEvt.ControlDown()
+		ed["metaDown"] = wxEvt.MetaDown()
+		ed["shiftDown"] = wxEvt.ShiftDown()
+		try:
+			# Don't think this is implemented yet
+			ed["commandDown"] = wxEvt.CmdDown()
+		except: pass
+	
+	if isinstance(wxEvt, wx.grid.GridSizeEvent):
+		ed["rowOrCol"] = wxEvt.GetRowOrCol()
+		ed["position"] = wxEvt.GetPosition()
+		ed["altDown"] = wxEvt.AltDown()
+		ed["controlDown"] = wxEvt.ControlDown()
+		ed["metaDown"] = wxEvt.MetaDown()
+		ed["shiftDown"] = wxEvt.ShiftDown()
+		try:
+			# Don't think this is implemented yet
+			ed["commandDown"] = wxEvt.CmdDown()
+		except: pass
+	
 	return ed
 	
 	

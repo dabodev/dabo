@@ -26,7 +26,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 # 		self.preview = self.grid.Form.preview
 		self.bizobj = None		#self.grid.Form.getBizobj(parent.DataSource) 
 		# Holds a copy of the current data to prevent unnecessary re-drawing
-		self.__currData = ()
+		self.__currData = []
 
 		self.initTable()
 
@@ -50,6 +50,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		# setting by the user, override it.
 		idx = 0
 		colFlds = []
+		# Make a copy
+		colDefs = list(colDefs)
+		# See if the defs have changed. If so, clear the data to force
+		# a re-draw of the table.
+		if colDefs != self.colDefs:
+			self.__currData = []
 		for col in colDefs:
 			nm = col.Field
 			while not nm:
@@ -74,17 +80,39 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		
 		colDefs.sort(self.orderSort)
 		self.colDefs = colDefs
-		self.setColumnLabels()
+		self.setColumnInfo()
 		
 	
 	def orderSort(self, col1, col2):
 		return cmp(col1.Order, col2.Order)
 		
 		
-	def setColumnLabels(self):
-		self.colLabels = [col.Caption for col in self.colDefs]			
-		
+	def setColumnInfo(self):
+		self.colLabels = [col.Caption for col in self.colDefs]
+		self.dataTypes = [self.convertType(col.DataType) 
+				for col in self.colDefs]
 	
+	
+	def convertType(self, typ):
+		"""Convert common names and abbreviations for data types
+		into the constants needed by the wx.grid.
+		"""
+		# Default
+		ret = wx.grid.GRID_VALUE_STRING
+		lowtyp = typ.lower()
+		if lowtyp in ("bool", "boolean", "logical", "l"):
+			ret = wx.grid.GRID_VALUE_BOOL
+		if lowtyp in ("int", "integer", "bigint", "i"):
+			ret = wx.grid.GRID_VALUE_NUMBER
+		elif lowtyp in ("char", "varchar", "text", "c", "s"):
+			ret = wx.grid.GRID_VALUE_STRING
+		elif lowtyp in ("float", "f"):
+			ret = wx.grid.GRID_VALUE_FLOAT
+		elif lowtyp in ("date", "datetime", "time", "d", "t"):
+			ret = wx.grid.GRID_VALUE_STRING
+		return ret
+		
+		
 	def fillTable(self):
 		""" Fill the grid's data table to match the data set."""
 		rows = self.GetNumberRows()
@@ -104,12 +132,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		
 		self.Clear()
 		self.data = []
-		
 		for record in dataSet:
 			recordDict = []
 			for col in self.colDefs:
-				nm = col.Field
-				recordVal = record[nm]
+				fld = col.Field
+				recordVal = record[fld]
 				if col.DataType.lower() in ("string", "unicode", "str", "char", "text", "varchar"):
 					# Limit to first 'n' chars...
 					recordVal = str(recordVal)[:self.grid.stringDisplayLen]
@@ -147,8 +174,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		# defaults based on field type.
 		idx = 0
 		for col in self.colDefs:
-			nm = col.Field
-			colName = "Column_%s" % nm
+			fld = col.Field
+			colName = "Column_%s" % fld
 			gridCol = idx
 			fieldType = col.DataType.lower()
 
@@ -181,28 +208,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			self.grid.SetColSize(gridCol, width)
 			idx += 1
 		self.grid.EndBatch()
-
-
-	def getWxGridType(self, xBaseType):
-		""" Get the wx data type, given a 1-char xBase type.
-
-		This is used by the grid data table to determine the editors to use 
-		for the various columns.
-		"""
-		if xBaseType == "bool":
-			return wx.grid.GRID_VALUE_BOOL
-		if xBaseType == "int":
-			return wx.grid.GRID_VALUE_NUMBER
-		elif xBaseType == "char":
-			return wx.grid.GRID_VALUE_STRING
-		elif xBaseType == "float":
-			return wx.grid.GRID_VALUE_FLOAT
-		elif xBaseType == "text":
-			return wx.grid.GRID_VALUE_STRING
-		elif xBaseType == "date":
-			return wx.grid.GRID_VALUE_STRING
-		else:
-			return wx.grid.GRID_VALUE_STRING
 
 
 	def GetTypeName(self, row, col):
@@ -249,7 +254,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		# If a column was previously sorted, update its new position in the grid
 		if oldSort is not None:
 			self.grid.sortedColumn = self.colDefs.index(oldSort)
-		self.setColumnLabels()
+		self.setColumnInfo()
 		self.fillTable()
 
 
@@ -408,19 +413,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			except: pass
 
 
-	def setBizobj(self, biz):
-		self.bizobj = biz
-	
-	def setFieldSpecs(self, fs):
-		self.fieldSpecs = fs
-	
+	def getDataSet(self):
+		"""Customize to your needs. Default is to simply ask the form."""
+		try:
+			ret = self.Form.getDataSet()
+		except:
+			ret = []
+		return ret
+		
 	def _onGridColSize(self, evt):
 		"Occurs when the user resizes the width of the column."
-		col = evt.GetRowOrCol()
-		nm = self._Table.showCols[col][0]
+		col = evt.EventData["rowOrCol"]
+		fld = self._Table.colDefs[col].Field
 
-		column = self.fieldSpecs[nm]
-		colName = "Column_%s" % nm
+		colName = "Column_%s" % fld
 		width = self.GetColSize(col)
 		
 		self.Application.setUserSetting("%s.%s.%s.%s" % (
@@ -433,7 +439,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def _onGridSelectCell(self, evt):
 		""" Occurs when the grid's cell focus has changed."""
 		oldRow = self.CurrRow
-		newRow = evt.GetRow()
+		newRow = evt.EventData["row"]
 		
 		if oldRow != newRow:
 			if self.bizobj:
@@ -459,15 +465,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# We are totally overriding wx's drawing of the column headers,
 		# so we are responsible for drawing the rectangle, the column
 		# header text, and the sort indicators.
-		for col in range(self.ColCount):
+		for col in range(self.ColumnCount):
 			dc.SetBrush(wx.Brush("WHEAT", wx.TRANSPARENT))
 			dc.SetTextForeground(wx.BLACK)
 			colSize = self.GetColSize(col)
 			rect = (totColSize, 0, colSize, 32)
 			dc.DrawRectangle(rect[0] - (col != 0 and 1 or 0), 
-							rect[1], 
-							rect[2] + (col != 0 and 1 or 0), 
-							rect[3])
+					rect[1], 
+					rect[2] + (col != 0 and 1 or 0), 
+					rect[3])
 			totColSize += colSize
 
 			if col == self.sortedColumn:
@@ -664,31 +670,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.processKeyPress(char)
 
 
-	def newRecord(self, evt=None):
-		""" Request that a new row be added.
-		"""
-		self.Parent.newRecord()
-
-
-	def editRecord(self, evt=None):
-		""" Request that the current row be edited.
-		"""
-		self.Parent.editRecord(self.bizobj.DataSource)
-
-
-	def deleteRecord(self, evt=None):
-		""" Request that the current row be deleted.
-		"""
-		self.Parent.deleteRecord()
-		self.SetFocus()  ## required or assertion happens on Gtk
-
-
-	def pickRecord(self, evt=None):
-		""" The form is a picklist, and the user picked a record.
-		"""
-		self.Form.pickRecord()
-		
-		
 	def processSort(self, gridCol=None):
 		""" Sort the grid column.
 
@@ -765,18 +746,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		By default, the choices are 'New', 'Edit', and 'Delete'.
 		"""
 		popup = dabo.ui.dMenu()
-
-		if self.Form.FormType == "PickList":
-			popup.append("&Pick", bindfunc=self.pickRecord, bmp="edit",
-					help="Pick this record")
-		else:
-			popup.append("&New", bindfunc=self.newRecord, bmp="blank",
-					help="Add a new record")
-			popup.append("&Edit", bindfunc=self.editRecord, bmp="edit",
-					help="Edit this record")
-			popup.append("&Delete", bindfunc=self.deleteRecord, bmp="delete",
-					help="Delete this record")
-
+		popup.append("Dabo Grid")
+		popup.append("Default Popup")
 		self.PopupMenu(popup, self.mousePosition)
 		popup.release()
 
@@ -863,24 +834,21 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def __onWxGridRowSize(self, evt):
-		print "ROWSIZE", dir(evt)
-		self.raiseEvent(dEvents.GridRowSize)
-		evt.Skip()
-
-	def __onWxGridSelectCell(self, evt):
-		print "SELECT CELL", dir(evt)
-		self.raiseEvent(dEvents.GridSelectCell)
-		evt.Skip()
-
-	def __onWxRightClick(self, evt):
-		print "GRDRTCLK", dir(evt)
-		self.raiseEvent(dEvents.GridRightClick)
+		self.raiseEvent(dEvents.GridRowSize, evt)
 		evt.Skip()
 
 	def __onWxColSize(self, evt):
-		print "COLSIZE", dir(evt)
-		self.raiseEvent(dEvents.GridColSize)
+		self.raiseEvent(dEvents.GridColSize, evt)
 		evt.Skip()
+		
+	def __onWxGridSelectCell(self, evt):
+		self.raiseEvent(dEvents.GridSelectCell, evt)
+		evt.Skip()
+
+	def __onWxRightClick(self, evt):
+		self.raiseEvent(dEvents.GridRightClick, evt)
+		evt.Skip()
+
 
 	def maxColOrder(self):
 		""" Return the highest value of Order for all columns."""
@@ -897,8 +865,34 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if col is None:
 			col = dColumn(self)
 		if col.Order == -1:
-			col.Order = self.maxColOrder() + 1
+			col.Order = self.maxColOrder() + 10
 		self.Columns.append(col)
+		msg = wx.grid.GridTableMessage(self._Table,
+				wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
+				1)
+		self.ProcessTableMessage(msg)
+		self.fillGrid()
+
+
+	def removeColumn(self, col=None):
+		""" Removes a column to the grid. If no column is passed, 
+		the last column is removed.
+		"""
+		colNum = None
+		if col is None:
+			colNum = self.ColumnCount - 1
+		elif type(col) != int:
+			# They probably passed a specific column instance
+			colNum = self.Columns.index(col)
+			if colNum == -1:
+				# No such column
+				# raise an error?
+				return
+		del self.Columns[colNum]
+		msg = wx.grid.GridTableMessage(self._Table,
+				wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
+				colNum, 1)
+		self.ProcessTableMessage(msg)
 		self.fillGrid()
 
 
@@ -906,15 +900,25 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 # 		return self._Table.GetNumberCols()
 		return len(self.Columns)
 	def _setNumCols(self, val):
+		msg = None
 		if val > -1:
-			if val == self.ColCount:
+			colChange = val - self.ColumnCount 
+			if colChange == 0:
 				# No change
 				return
-			elif val < self.ColCount:
+			elif colChange < 0:
+				msg = wx.grid.GridTableMessage(self._Table,
+						wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
+						val, abs(colChange))
 				self.Columns = self.Columns[:val]
 			else:
-				for cc in range(self.ColCount - val):
+				msg = wx.grid.GridTableMessage(self._Table,
+						wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
+						colChange)
+				for cc in range(colChange):
 					self.addColumn()
+		if msg:
+			self.ProcessTableMessage(msg)
 	
 	def _getNumRows(self):
 		return self._Table.GetNumberRows()
@@ -923,7 +927,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return self.GetGridCursorCol()
 	def _setColNum(self, val):
 		if val > -1:
-			val = min(val, self.ColCount)
+			val = min(val, self.ColumnCount)
 			rn = self.CurrRow
 			self.SetGridCursor(rn, val)
 			self.MakeCellVisible(rn, val)
@@ -983,7 +987,41 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	
 
-if __name__ == "__main__":
-	import test
-	
-	test.Test().runTest(dGrid)
+if __name__ == '__main__':
+
+	class TestForm(dabo.ui.dForm):
+		def afterInit(self):
+			self.BackColor = "green"
+			g = self.grid = dGrid(self)
+			self.Sizer.append(g, 1, "x", border=40, borderFlags="all")
+			
+			self.dataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
+					{"name" : "Mike Leafe", "age" : 18, "coder" :  False} ]
+
+			col = dColumn(g)
+			col.Name = "Person"
+			col.Order = 10
+			col.Field = "name"
+			col.DataType = "string"
+			col.Width = 300
+			col.Caption = "Customer Name"
+			g.addColumn(col)
+		
+			col = dColumn(g)
+			col.Name = "Age"
+			col.Order = 30
+			col.Field = "age"
+			col.DataType = "integer"
+			col.Width = 40
+			col.Caption = "Age"
+			g.addColumn(col)
+		
+		
+		def getDataSet(self):
+			return self.dataSet
+			
+			
+	app = dabo.dApp()
+	app.MainFormClass = TestForm
+	app.setup()
+	app.start()
