@@ -4,10 +4,7 @@ import dabo, dabo.ui
 dabo.ui.loadUI("wx")
 
 class dShell(dabo.ui.dForm):
-	def initProperties(self):
-		self.fillMenu()
-		#dShell.doDefault()
-		super(dShell, self).initProperties()
+	def afterInit(self):
 		self.shell = wx.py.shell.Shell(self)
 		
 		# Make 'self' refer to the calling form, or this form if no calling form.
@@ -23,6 +20,7 @@ class dShell(dabo.ui.dForm):
 		self.Sizer = dabo.ui.dSizer()
 		self.Sizer.append(self.shell, "expand", 1)
 		
+		self.fillMenu()
 		self.shell.SetFocus()
 
 
@@ -49,8 +47,11 @@ class dShell(dabo.ui.dForm):
 	
 
 
-if __name__ == "__main__":
+def main():
 	app = dabo.dApp()
 	app.MainFormClass = dShell
 	app.setup()
 	app.start()
+
+if __name__ == "__main__":
+	main()
