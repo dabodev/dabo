@@ -376,6 +376,12 @@ class dBizobj(object):
         self.afterPointerMove(ret)
         self.afterNew(ret)
         return ret
+    
+    
+    def setSQL(self, sql):
+        """ Allows you to change the sql executed by the cursor """
+        self.sql = sql
+        self._cursor.setSQL(sql)
 
 
     def requery(self):
