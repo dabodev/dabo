@@ -913,6 +913,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.onEscapeAction()
 			elif char and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
 				self.addToSearchStr(char)
+				# For some reason, without this the key happens twice
+				evt.stop()
 			else:
 				self.processKeyPress(char)
 
