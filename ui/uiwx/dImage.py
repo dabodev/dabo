@@ -145,11 +145,16 @@ if __name__ == "__main__":
 	
 	class ImgForm(dabo.ui.dForm):
 		def afterInit(self):
+			# Sliders work differently on OS X
+			self.onMac = (wx.PlatformInfo[0] == "__WXMAC__")
 			# Create a panel with horiz. and vert.  sliders
 			self.imgPanel = dabo.ui.dPanel(self)
 			self.VSlider = dabo.ui.dSlider(self, Orientation="V", Min=1, Max=100)
 			self.HSlider = dabo.ui.dSlider(self, Orientation="H", Min=1, Max=100)
-			self.VSlider.Value = 0
+			if self.onMac:
+				self.VSlider.Value = 0
+			else:
+				self.VSlider.Value = 100
 			self.HSlider.Value = 100
 			self.VSlider.bindEvent(dEvents.Hit, self.onSlider)
 			self.HSlider.bindEvent(dEvents.Hit, self.onSlider)
@@ -171,10 +176,11 @@ if __name__ == "__main__":
 			hsz.Spacing = 10
 			self.ddScale = dabo.ui.dDropdownList(self, 
 					Choices=["Proportional", "Stretch", "Clip"])
+			self.ddScale.PositionValue = 0
 			self.ddScale.bindEvent(dEvents.Hit, self.onScaleChange)
 			btn = dabo.ui.dButton(self, Caption="Load Image")
 			btn.bindEvent(dEvents.Hit, self.onLoadImage)
-			btnOK = dabo.ui.dButton(self, Caption="OK")
+			btnOK = dabo.ui.dButton(self, Caption="Done")
 			btnOK.bindEvent(dEvents.Hit, self.close)
 			hsz.append(self.ddScale, 1, "x")
 			hsz.append(btn, 0, "x")
@@ -195,15 +201,16 @@ if __name__ == "__main__":
 
 
 		def onSlider(self, evt):
+			# Vertical sliders have their low value on the bottom on OSX;
+			# on MSW and GTK, the low value is at the top
 			val = evt.EventObject.Value * 0.01
 			dir = evt.EventObject.Orientation[0].lower()
 			if dir == "h":
 				# Change the width of the image
 				self.img.Width = (self.imgPanel.Width * val)
 			else:
-				# Since the vertical slider has its hi/low ends backwards,
-				# adjust the value
-				val = 1.01 - val
+				if self.onMac:
+					val = 1.01 - val
 				self.img.Height = (self.imgPanel.Height * val)
 			
 			
@@ -222,8 +229,12 @@ if __name__ == "__main__":
 			if self.needUpdate:
 				self.needUpdate = False
 				wd = self.HSlider.Value * 0.01 * self.imgPanel.Width
-				ht = (101 - self.VSlider.Value) * 0.01 * self.imgPanel.Height
+				if self.onMac:
+					ht = (101 - self.VSlider.Value) * 0.01 * self.imgPanel.Height
+				else:
+					ht = self.VSlider.Value * 0.01 * self.imgPanel.Height
 				self.img.Size = (wd, ht)
-			
+				
+				
 
 	test.Test().runTest(ImgForm)
