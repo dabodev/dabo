@@ -3,7 +3,15 @@ from dFormMixin import dFormMixin
 import dabo.dConstants as k
 import dMessageBox
 
-class dForm(wx.Frame, dFormMixin):
+# Different platforms expect different frame types. Notably,
+# most users on Windows expect and prefer the MDI parent/child
+# type frames.
+if wx.Platform == '__WXMSW__':      # Microsoft Windows
+    wxFrameClass = wx.MDIChildFrame
+else:
+    wxFrameClass = wx.Frame
+    
+class dForm(wxFrameClass, dFormMixin):
     ''' dabo.ui.uiwx.dForm() --> dForm
     
         Create a dForm object, which can contain other
@@ -16,7 +24,7 @@ class dForm(wx.Frame, dFormMixin):
     '''
     
     def __init__(self, parent=None, name="dForm", resourceString=None):
-        wx.Frame.__init__(self, parent, -1, "", (-1,-1), (-1,-1), 
+        wxFrameClass.__init__(self, parent, -1, "", (-1,-1), (-1,-1), 
                             wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
         self.SetName(name)
         self.SetLabel(name)

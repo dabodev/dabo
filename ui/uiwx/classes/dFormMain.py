@@ -3,9 +3,17 @@ import wx
 from dFormMixin import dFormMixin
 from dMainMenuBar import dMainMenuBar
 
-class dFormMain(wx.Frame, dFormMixin):
+# Different platforms expect different frame types. Notably,
+# most users on Windows expect and prefer the MDI parent/child
+# type frames.
+if wx.Platform == '__WXMSW__':      # Microsoft Windows
+    wxFrameClass = wx.MDIParentFrame
+else:
+    wxFrameClass = wx.Frame
+
+class dFormMain(wxFrameClass, dFormMixin):
     def __init__(self, dApp=None):
-        wx.Frame.__init__(self, None, -1, "dFormMain")
+        wxFrameClass.__init__(self, None, -1, "dFormMain")
         self.SetName("dFormMain")
         dFormMixin.__init__(self, dApp)
         self.CreateStatusBar()
