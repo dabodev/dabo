@@ -1,16 +1,11 @@
 import sys
 import dabo
+if dabo.ui.getUIType() is None:
+	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
-from dForm import dForm
-from dDialog import dDialog
-from dLabel import dLabel
-from dSizer import dSizer
-from dGridSizer import dGridSizer
-from dPanel import dPanel
-from dButton import dButton
 
 
-class dAbout(dDialog):
+class About(dabo.ui.dDialog):
 	def initProperties(self):
 #		self.Height = 400
 		self.AutoSize = True
@@ -25,13 +20,14 @@ class dAbout(dDialog):
 		self.bindEvent(dEvents.Close, self.onClose)
 
 	def addControls(self):
-		pnlBack = dPanel(self, BackColor="Peru")
+		pnlBack = dabo.ui.dPanel(self, BackColor="Peru")
  		self.Sizer.append(pnlBack, 1, "x")
-		pnlBack.Sizer = sz = dSizer("v")
-		pnlHead = dPanel(pnlBack, BackColor="PeachPuff")
-		pnlHead.Sizer = ps = dSizer("h")
+		pnlBack.Sizer = sz = dabo.ui.dSizer("v")
+		pnlHead = dabo.ui.dPanel(pnlBack, BackColor="PeachPuff")
+		pnlHead.Sizer = ps = dabo.ui.dSizer("h")
 		ps.Border = 32
-		lblHead = dLabel(pnlHead, Caption="Dabo", FontSize=36, FontBold=True)
+		lblHead = dabo.ui.dLabel(pnlHead, Caption="Dabo", FontSize=36, 
+		                         FontBold=True)
 		ps.appendSpacer(5, 1)
 		ps.append(lblHead, 3, "x", alignment=("center", "middle"))
 		ps.appendSpacer(5, 1)
@@ -53,7 +49,8 @@ class dAbout(dDialog):
 			appName = "Dabo"
 		daboVersion = dabo.version["version"]
 		uiName = dabo.ui.uiType["longName"]
-		uiVersion = "%s on %s" % (dabo.ui.uiType["version"], dabo.ui.uiType["platform"])
+		uiVersion = "%s on %s" % (dabo.ui.uiType["version"], 
+		                          dabo.ui.uiType["platform"])
 
 		# Define the style dicts for the labels
 		fntBase = 10
@@ -62,18 +59,21 @@ class dAbout(dDialog):
 		labelStyle = {"FontSize" : fntBase, "FontBold" : False}
 		valStyle = {"FontSize" : fntBase+2, "FontBold" : True, "BackColor" : "gold"}
 		# Add a grid sizer for the rest of the info
-		gs = dGridSizer(maxCols=2, hgap=5, vgap=10)
+		gs = dabo.ui.dGridSizer(maxCols=2, hgap=5, vgap=10)
 		gs.setColExpand(True, "all")
-		gs.append(dLabel(pnlBack, Caption="Dabo Version:", properties=labelStyle), alignment="right")
-		gs.append(dLabel(pnlBack, Caption=daboVersion, properties=valStyle))
-		gs.append(dLabel(pnlBack, Caption="UI Version:", properties=labelStyle), alignment="right")
-		gs.append(dLabel(pnlBack, Caption=uiVersion, properties=valStyle))
-		gs.append(dLabel(pnlBack, Caption="Python Version:", properties=labelStyle), alignment="right")
-		gs.append(dLabel(pnlBack, Caption=pyVersion, properties=valStyle))
+		gs.append(dabo.ui.dLabel(pnlBack, Caption="Dabo Version:", 
+		                         properties=labelStyle), alignment="right")
+		gs.append(dabo.ui.dLabel(pnlBack, Caption=daboVersion, properties=valStyle))
+		gs.append(dabo.ui.dLabel(pnlBack, Caption="UI Version:", 
+		                         properties=labelStyle), alignment="right")
+		gs.append(dabo.ui.dLabel(pnlBack, Caption=uiVersion, properties=valStyle))
+		gs.append(dabo.ui.dLabel(pnlBack, Caption="Python Version:", 
+		                         properties=labelStyle), alignment="right")
+		gs.append(dabo.ui.dLabel(pnlBack, Caption=pyVersion, properties=valStyle))
 
 		sz.append(gs, 1, "x", alignment="right")
 		sz.BorderBottom = True
-		btn = dButton(pnlBack, Caption="OK")
+		btn = dabo.ui.dButton(pnlBack, Caption="OK")
 		btn.bindEvent(dEvents.Hit, self.onClear)
 		sz.append(btn, 0, alignment="center")
 		
@@ -90,7 +90,7 @@ class dAbout(dDialog):
 		
 def main():
 	app = dabo.dApp()
-	app.MainFormClass = dAbout
+	app.MainFormClass = About
 	app.setup()
 	app.start()
 

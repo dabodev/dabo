@@ -296,11 +296,6 @@ class uiApp(wx.App, dObject):
 					dabo.infoLog.write("Not found")
 
 
-	def onHelpAbout(self, evt):
-		dlg = ui.dAbout(self.dApp.MainForm)
-		dlg.show()
-
-		
 	def getLoginInfo(self, message=None):
 		""" Display the login form, and return the user/password as entered by the user.
 		"""

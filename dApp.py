@@ -39,6 +39,7 @@
 import sys, os, warnings, glob
 import ConfigParser
 import dabo, dabo.ui, dabo.db
+import dabo.ui.dialogs
 import dabo.common, dSecurityManager
 from dLocalize import _
 
@@ -107,18 +108,6 @@ class dApp(dabo.common.dObject):
 		self._initUI()
 
 		self.uiApp = dabo.ui.uiApp()
-
-		self.actionList.setAction("FileExit", self.uiApp.onFileExit)
-		self.actionList.setAction("HelpAbout", self.uiApp.onHelpAbout)
-		self.actionList.setAction("EditPreferences", self.uiApp.onEditPreferences)
-		self.actionList.setAction("EditCut", self.uiApp.onEditCut)
-		self.actionList.setAction("EditCopy", self.uiApp.onEditCopy)
-		self.actionList.setAction("EditPaste", self.uiApp.onEditPaste)
-		self.actionList.setAction("EditFind", self.uiApp.onEditFind)
-		self.actionList.setAction("EditFindAgain", self.uiApp.onEditFindAgain)
-		self.actionList.setAction("EditUndo", self.uiApp.onEditUndo)
-		self.actionList.setAction("EditRedo", self.uiApp.onEditRedo)
-
 		self.uiApp.setup(self)
 
 
@@ -299,8 +288,6 @@ class dApp(dabo.common.dObject):
 		self.uiToolBars = Collection()
 		self.uiResources = {}
 
-		self.actionList = dabo.ui.dActionList()
-
 		# Initialize DB collections
 		self.dbConnectionDefs = {} 
 
@@ -387,9 +374,11 @@ class dApp(dabo.common.dObject):
 		self.uiApp.onEditFindAgain(evt)
 	def onEditPreferences(self, evt):
 		self.uiApp.onEditPreferences(evt)
-	def onHelpAbout(self, evt):
-		self.uiApp.onHelpAbout(evt)
 	############################	
+
+	def onHelpAbout(self, evt):
+		dlg = dabo.ui.dialogs.About(self.MainForm)
+		dlg.show()
 	
 	def _getHomeDirectory(self):
 		try:

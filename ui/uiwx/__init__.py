@@ -25,7 +25,6 @@ from dControlMixin import dControlMixin
 dabo.ui.dControlMixin = dControlMixin
 
 # Import into public namespace:
-from dAbout import dAbout
 from dBox import dBox
 from dBitmapButton import dBitmapButton
 from dButton import dButton

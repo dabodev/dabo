@@ -13,7 +13,6 @@ would issue:
 """
 import os, traceback
 import dabo
-from dActionList import dActionList
 from dabo.dLocalize import _
 
 
