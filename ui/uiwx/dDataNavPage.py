@@ -440,12 +440,14 @@ class dSelectPage(DataNavPage):
 			fld = fldOrd[0]
 			fldInfo = fs[fld]
 			lbl = sortLabel(panel)
-			lbl.Caption = fldInfo["caption"]
+			lbl.Caption = "%s:" % fldInfo["caption"]
 			lbl.relatedDataField = fld
-			ctrl = self.getSearchCtrl(fldInfo["type"], panel)
 			
 			opt = self.getSelectorOptions(fldInfo["type"], fldInfo["wordSearch"])
 			opList = SelectionOpDropdown(panel, choices=opt)
+			
+			ctrl = self.getSearchCtrl(fldInfo["type"], panel)
+
 			if not opList.StringValue:
 				opList.StringValue = opList.GetString(0)
 			# Need this 'refresh' to update the internal _oldVal setting
