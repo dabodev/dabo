@@ -1,4 +1,4 @@
-import wx, dPanel, dTimer
+import dPanel, dSizer
 import dabo.dEvents as dEvents
 
 
@@ -22,8 +22,7 @@ class dPage(dPanel.dScrollPanel):
 	def initSizer(self):
 		""" Set up the default vertical box sizer for the page.
 		"""
-		self.SetSizer(wx.BoxSizer(wx.VERTICAL))
-
+		self.Sizer = dSizer.dSizer("vertical")
 
 	def createItems(self):
 		""" Create the controls in the page.
@@ -38,7 +37,7 @@ class dPage(dPanel.dScrollPanel):
 		if not self.itemsCreated:
 			self.createItems()
 			self.itemsCreated = True
-			self.GetSizer().Layout()
+			self.Sizer.Layout()
 			
 			# Needed on Linux to get the sizer to layout:
 			self.Size = (-1,-1)

@@ -1,5 +1,6 @@
 import wx, dabo
-import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox, dIcons, dCommandButton
+import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox
+import dIcons, dCommandButton, dSizer
 import dPanel, dGridDataNav, dCommandButton, dMessageBox, dDateTextBox
 import dabo.dException as dException
 from dabo.dLocalize import _
@@ -88,7 +89,7 @@ class dSelectPage(dPage.dPage):
 	def createItems(self):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
 		self.selectOptionsPanel.initEnabled()
-		self.GetSizer().Add(self.selectOptionsPanel, 0, wx.GROW|wx.ALL, 5)
+		self.Sizer.add(self.selectOptionsPanel, "expand")
 		self.selectOptionsPanel.SetFocus()
 		
 		dSelectPage.doDefault()
@@ -159,12 +160,14 @@ class dSelectPage(dPage.dPage):
 				
 		stringMatchAll = []
 
-		sizer = wx.BoxSizer(wx.VERTICAL)
+		sizer = dSizer.dSizer("vertical")
 
 		label = dLabel.dLabel(panel)
 		label.Caption = _("Please enter your record selection criteria:")
-		sizer.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+		sizer.add(label, "normal", 1, alignment=("center", "middle"), border=5)
 
+		_borderSize = 3
+		
 		for column in columnDefs:
 
 			for selectType in column["selectTypes"]:
@@ -174,7 +177,7 @@ class dSelectPage(dPage.dPage):
 				user1Id = wx.NewId()
 				user2Id = wx.NewId()
 
-				box = wx.BoxSizer(wx.HORIZONTAL)
+				box = dSizer.dSizer("horizontal")
 
 				if selectType == "range":
 					where =     "%s.%s BETWEEN '?(user1)' AND '?(user2)'" % (
@@ -186,17 +189,17 @@ class dSelectPage(dPage.dPage):
 					cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
 
-					box.Add(cb, 0, wx.ALL, 5)
+					box.add(cb, border=_borderSize)
 
 					text = SelectOptionsTextBox(panel, id=user1Id)
-					box.Add(text, 1, wx.ALL, 5)
+					box.add(text, "normal", 1, border=_borderSize)
 
 					label = dLabel.dLabel(panel)
 					label.Caption = "and"
-					box.Add(label, 0, wx.ALL, 5)
+					box.add(label, border=_borderSize)
 
 					text = SelectOptionsTextBox(panel, id=user2Id)
-					box.Add(text, 1, wx.ALL, 5)
+					box.add(text, "normal", 1, border=_borderSize)
 
 				elif selectType == "value":
 					where = "%s.%s = '?(user1)'" % (
@@ -207,10 +210,10 @@ class dSelectPage(dPage.dPage):
 					cb.Caption = "%s %s:" % (column["caption"], _("is equal to"))
 					cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
-					box.Add(cb, 0, wx.ALL, 5)
+					box.add(cb, border=_borderSize)
 
 					text = SelectOptionsTextBox(panel, id=user1Id)
-					box.Add(text, 1, wx.ALL, 5)
+					box.add(text, "normal", 1, border=_borderSize)
 
 				elif selectType == "stringMatch":
 					where = "%s.%s LIKE '%c?(user1)%c'" % (
@@ -221,10 +224,10 @@ class dSelectPage(dPage.dPage):
 					cb.Caption = "%s %s:" % (column["caption"], _("contains"))
 					cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
-					box.Add(cb, 0, wx.ALL, 5)
+					box.add(cb, border=_borderSize)
 
 					text = SelectOptionsTextBox(panel, id=user1Id)
-					box.Add(text, 1, wx.ALL, 5)
+					box.add(text, "normal", 1, border=_borderSize)
 
 				elif selectType == "stringMatchAll":
 					stringMatchAll.append(column)
@@ -239,7 +242,7 @@ class dSelectPage(dPage.dPage):
 												"user1Id": user1Id,
 												"user2Id": user2Id})    
 
-					sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 5)
+					sizer.add(box, "expand", border=_borderSize)
 					panel.selectOptions[len(panel.selectOptions) - 1]["where"] = where
 
 		# Any fielddef encountered in the above block with type of 'stringMatchAll'
@@ -253,10 +256,10 @@ class dSelectPage(dPage.dPage):
 			cb.Caption = "%s:" % _("String Match")
 			cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
-			box.Add(cb, 0, wx.ALL, 5)
+			box.add(cb, border=_borderSize)
 
 			text = SelectOptionsTextBox(panel, id=user1Id)
-			box.Add(text, 1, wx.ALL, 5)
+			box.add(text, "normal", 1, border=_borderSize)
 
 			for column in stringMatchAll:
 				if len(where) > 0:
@@ -271,21 +274,21 @@ class dSelectPage(dPage.dPage):
 										"user1Id": user1Id,
 										"user2Id": user2Id})    
 
-			sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 5)
+			sizer.add(box, "expand", border=_borderSize)
 			panel.selectOptions[len(panel.selectOptions) - 1]["where"] = where
 
 		line = wx.StaticLine(panel, -1, size=(20,-1), style=wx.LI_HORIZONTAL)
-		sizer.Add(line, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.TOP, 5)
+		sizer.add(line, "expand", border=_borderSize)
 
-		box = wx.BoxSizer(wx.HORIZONTAL)
+		box = dSizer.dSizer("horizontal")
 		
 		cb = SelectOptionsCheckBox(panel, name="chkSelectLimit")
 		cb.Caption = "Limit:"
 		cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
-		box.Add(cb, 0, wx.ALL, 5)
+		box.add(cb, border=_borderSize)
 		
 		limitSpinner = SelectOptionsSpinner(panel, name="spnSelectLimit")
-		box.Add(limitSpinner, 1, wx.ALL, 5)
+		box.add(limitSpinner, "normal", 1, border=_borderSize)
 		
 
 		requeryButton = dCommandButton.dCommandButton(panel)
@@ -293,8 +296,8 @@ class dSelectPage(dPage.dPage):
 		requeryButton.Default = True             # Doesn't work on Linux, but test on win/mac
 		requeryButton.bindEvent(dEvents.Hit, self.onRequery)
 
-		box.Add(requeryButton, 0)
-		sizer.Add(box, 0, wx.GROW, 5)
+		box.add(requeryButton, border=_borderSize)
+		sizer.add(box, "expand")
 
 		panel.SetSizer(sizer)
 		panel.SetAutoLayout(True)
@@ -360,13 +363,13 @@ class dBrowsePage(dPage.dPage):
 		bizobj = self.Form.getBizobj()
 		grid = self.addObject(dGridDataNav.dGridDataNav, "BrowseGrid")
 		grid.DataSource = bizobj.DataSource
-		self.GetSizer().Add(grid, 1, wx.EXPAND)
+		self.Sizer.add(grid, "expand", 1)
 		grid.columnDefs = self.Form.getColumnDefs(bizobj.DataSource)
 		
 		preview = self.addObject(dCommandButton.dCommandButton, "cmdPreview")
 		preview.Caption = "Preview"
 		preview.bindEvent(dEvents.Hit, self.onPreview)
-		self.GetSizer().Add(preview, 0, 0)
+		self.Sizer.add(preview)
 		
 		self.itemsCreated = True
 
@@ -374,7 +377,7 @@ class dBrowsePage(dPage.dPage):
 	def fillGrid(self):
 		bizobj = self.Form.getBizobj()
 		self.BrowseGrid.fillGrid()
-		self.GetSizer().Layout()
+		self.Sizer.Layout()
 
 
 	def newRecord(self):
@@ -446,7 +449,7 @@ class dEditPage(dPage.dPage):
 				fieldType = column["type"]
 				fieldEnabled = column["editEdit"]
 
-				bs = wx.BoxSizer(wx.HORIZONTAL)
+				bs = dSizer.dSizer("horizontal")
 				
 				labelWidth = 150
 
@@ -485,18 +488,18 @@ class dEditPage(dPage.dPage):
 					objectRef.refresh()
 
 				if fieldType in ["M",]:
-					expandFlags = wx.EXPAND
+					layout = "expand"
 				else:
-					expandFlags = 0
-				bs.Add(label)
-				bs.Add(objectRef, 1, expandFlags|wx.ALL, 0)
+					layout = "normal"
+				bs.add(label)
+				bs.add(objectRef, layout, 1)
 
 				if fieldType in ["M",]:
-					self.GetSizer().Add(bs, 1, wx.EXPAND)
+					self.Sizer.add(bs, "expand", 1)
 				else:
-					self.GetSizer().Add(bs, 0, wx.EXPAND)
+					self.Sizer.add(bs, "expand")
 
-		self.GetSizer().Layout()
+		self.Sizer.Layout()
 		self.itemsCreated = True
 		self.SetFocus()
 
@@ -535,10 +538,10 @@ class dChildViewPage(dPage.dPage):
 			nb = self.addObject(dCommandButton.dCommandButton, "cmdNew")
 			nb.Caption = "Add new child record"
 			nb.bindEvent(dEvents.Hit, self.newRecord)
-			self.GetSizer().Add(nb, 0, wx.EXPAND)
+			self.Sizer.add(nb, "expand")
 		grid = self.addObject(dGridDataNav.dGridDataNav, "ChildViewGrid")
 		grid.DataSource = self.dataSource
-		self.GetSizer().Add(grid, 1, wx.EXPAND)
+		self.Sizer.add(grid, "expand", 1)
 		
 		self.itemsCreated = True
 
@@ -546,7 +549,7 @@ class dChildViewPage(dPage.dPage):
 	def fillGrid(self):
 		self.ChildViewGrid.columnDefs = self.Form.getColumnDefs(self.dataSource)
 		self.ChildViewGrid.fillGrid()
-		self.GetSizer().Layout()
+		self.Sizer.Layout()
 		for window in self.ChildViewGrid.GetChildren():
 			window.SetFocus()
 	

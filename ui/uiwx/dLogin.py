@@ -3,6 +3,7 @@ from dLabel import dLabel
 from dTextBox import dTextBox
 from dDialog import dDialog
 from dCommandButton import dCommandButton
+from dSizer import dSizer
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
@@ -80,43 +81,43 @@ class dLogin(dDialog):
 		
 	def afterInit(self):
 		dLogin.doDefault()
-		mainSizer = self.GetSizer()		
+		mainSizer = self.Sizer
 		
-		mainSizer.Add((0,5))
+		mainSizer.add((0,5))
 		
-		bs1 = wx.BoxSizer(wx.HORIZONTAL)
-		bs1.Add(self.bm)
+		bs1 = dSizer("horizontal")
+		bs1.add(self.bm)
 
-		bs1.Add((23,0))
+		bs1.add((23,0))
 		
-		vs = wx.BoxSizer(wx.VERTICAL)			
-		bs = wx.BoxSizer(wx.HORIZONTAL)
+		vs = dSizer("vertical")
+		bs = dSizer("horizontal")
 		
-		bs.Add(self.lblUserName)
-		bs.Add(self.txtUserName, 1)
-		bs.Add((5,0))
-		vs.Add(bs, 1, wx.EXPAND)
+		bs.add(self.lblUserName)
+		bs.add(self.txtUserName, proportion=1)
+		bs.add((5,0))
+		vs.add(bs, "expand", 1)
 		
-		bs = wx.BoxSizer(wx.HORIZONTAL)
-		bs.Add(self.lblPassword)
-		bs.Add(self.txtPassword, 1)
-		bs.Add((5,0))
-		vs.Add(bs, 1, wx.EXPAND)
+		bs = dSizer("horizontal")
+		bs.add(self.lblPassword)
+		bs.add(self.txtPassword, proportion=1)
+		bs.add((5,0))
+		vs.add(bs, "expand", 1)
 		
-		bs1.Add(vs, 1)
-		mainSizer.Add(bs1, 1, wx.EXPAND)
+		bs1.add(vs, proportion=1)
+		mainSizer.add(bs1, "expand", 1)
 		
-		mainSizer.Add((0,15))
+		mainSizer.add((0,15))
 		
-		mainSizer.Add(self.lblMessage, 1, wx.EXPAND)
+		mainSizer.add(self.lblMessage, "expand", 1)
 		
-		bs = wx.BoxSizer(wx.HORIZONTAL)
-		bs.Add(self.cmdAccept, 0, wx.ALIGN_BOTTOM)
-		bs.Add((3,0))	
-		bs.Add(self.cmdCancel, 0, wx.ALIGN_BOTTOM)
-		bs.Add((5,0))
-		mainSizer.Add(bs, 1, wx.ALIGN_RIGHT)
-		mainSizer.Add((0,5))
+		bs = dSizer("horizontal")
+		bs.add(self.cmdAccept, alignment=("bottom",))
+		bs.add((3,0))	
+		bs.add(self.cmdCancel, alignment=("bottom",))
+		bs.add((5,0))
+		mainSizer.add(bs, proportion=1, alignment=("right",))
+		mainSizer.add((0,5))
 		mainSizer.Layout()
 
 		self.cmdAccept.bindEvent(dEvents.Hit, self.onAccept)
@@ -135,7 +136,7 @@ class dLogin(dDialog):
 		
 	def setMessage(self, message):
 		self.lblMessage.Caption = message
-		self.GetSizer().Layout()
+		self.Sizer.Layout()
 				
 	def onCancel(self, evt):
 		self.user, self.password = None, None

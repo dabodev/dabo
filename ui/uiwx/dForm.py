@@ -4,6 +4,7 @@ import dFormMixin as fm
 import dabo.dException as dException
 import dabo.dConstants as k
 import dMessageBox, dProgressDialog
+import dSizer
 from dabo.dLocalize import _
 
 # Different platforms expect different frame types. Notably,
@@ -65,8 +66,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if not isinstance(self, wx.MDIChildFrame):
 			self.CreateStatusBar()
 
-		self.SetSizer(wx.BoxSizer(wx.VERTICAL))
-		self.GetSizer().Layout()
+		self.Sizer = dSizer.dSizer("vertical")
+		self.Sizer.Layout()
 		
 		if self.Application is not None:
 			self.Application.uiForms.add(self)

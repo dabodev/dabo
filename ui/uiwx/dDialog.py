@@ -1,4 +1,5 @@
-import wx, dFormMixin
+import wx
+import dSizer, dFormMixin
 
 class dDialog(wx.Dialog, dFormMixin.dFormMixin):
 	def __init__(self, parent=None, id=-1, title='', name='dDialog', *args, **kwargs):
@@ -9,7 +10,7 @@ class dDialog(wx.Dialog, dFormMixin.dFormMixin):
 		pre.Create(parent, id, title, name=name, style=pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
-		self.SetSizer(wx.BoxSizer(wx.VERTICAL))
+		self.Sizer = dSizer.dSizer("vertical")
 		
 		dFormMixin.dFormMixin.__init__(self)
 		self._afterInit()
