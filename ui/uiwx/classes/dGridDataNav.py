@@ -348,7 +348,7 @@ class dGridDataNav(dGrid.dGrid):
 		font = dc.GetFont()
 
 		# Thanks Roger Binns for the correction to totColSize
-		totColSize = -self.GetViewStart()[0]*self.GetScrollPixelsPerUnit()[0]
+		totColSize = -self.GetViewStart()[0] * self.GetScrollPixelsPerUnit()[0]
 
 		# We are totally overriding wx's drawing of the column headers,
 		# so we are responsible for drawing the rectangle, the column
@@ -357,11 +357,11 @@ class dGridDataNav(dGrid.dGrid):
 			dc.SetBrush(wx.Brush("WHEAT", wx.TRANSPARENT))
 			dc.SetTextForeground(wx.BLACK)
 			colSize = self.GetColSize(col)
-			rect = (totColSize,0,colSize,32)
-			dc.DrawRectangle((rect[0] - (col<>0 and 1 or 0), 
-							rect[1]), 
-							(rect[2] + (col<>0 and 1 or 0), 
-							rect[3]))
+			rect = (totColSize, 0, colSize, 32)
+			dc.DrawRectangle(rect[0] - (col != 0 and 1 or 0), 
+							rect[1], 
+							rect[2] + (col != 0 and 1 or 0), 
+							rect[3])
 			totColSize += colSize
 
 			if col == self.sortedColumn:

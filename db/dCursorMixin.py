@@ -1,5 +1,6 @@
 import inspect
 
+import dabo
 import dabo.dConstants as k
 from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
@@ -413,7 +414,7 @@ class dCursorMixin:
 					# This can happen with a new record, since we just stuff the
 					# fields full of empty strings.
 					if not self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG):
-						print "!!! Data Type Mismatch:", type(rec[fld]), type(val)
+						dabo.errorLog.write("!!! Data Type Mismatch:", type(rec[fld]), type(val))
 					
 					if type(rec[fld]) == type(int()) and type(val) == type(bool()):
 						# convert bool to int (original field val was int, but UI

@@ -1,0 +1,1 @@
+uiType = {'shortName': 'tk', 'moduleName': 'uitk', 'longName': 'Tkinter'}

@@ -5,14 +5,14 @@ from dCommandButton import dCommandButton
 from dabo.dLocalize import _
 import wx, dabo
 
+
 class lbl(dLabel):
 	def initStyleProperties(self):
 		self.Alignment = "Right"
 		self.AutoResize = False
-	
-	def initProperties(self):
-		self.Width = 90
 
+	def initProperties(self):	
+		self.Width = 100
 				
 class lblMessage(dLabel):
 	def initStyleProperties(self):
@@ -28,9 +28,8 @@ class lblMessage(dLabel):
 
 				
 class txt(dTextBox):
-	def initProperties(self):
-		self.Width = 175
-		
+	pass
+			
 class txtPass(txt):
 	def initStyleProperties(self):
 		self.PasswordEntry = True
@@ -40,6 +39,7 @@ class dLogin(dDialog):
 	def initStyleProperties(self):
 		self.ShowCloseButton = True
 		self.ShowCaption = False
+		self.BorderResizable = True
 		
 	def initProperties(self):
 		dLogin.doDefault()
@@ -80,45 +80,45 @@ class dLogin(dDialog):
 		
 	def afterInit(self):
 		dLogin.doDefault()
-		sz = self.GetSizer()		
+		mainSizer = self.GetSizer()		
+		
+		mainSizer.Add((0,5))
 		
 		bs1 = wx.BoxSizer(wx.HORIZONTAL)
 		bs1.Add(self.bm)
 
+		bs1.Add((23,0))
+		
 		vs = wx.BoxSizer(wx.VERTICAL)			
-		vs.AddSpacer((0,15))
 		bs = wx.BoxSizer(wx.HORIZONTAL)
+		
 		bs.Add(self.lblUserName)
-		bs.Add(self.txtUserName)
-		vs.Add(bs)
+		bs.Add(self.txtUserName, 1)
+		bs.Add((5,0))
+		vs.Add(bs, 1, wx.EXPAND)
 		
 		bs = wx.BoxSizer(wx.HORIZONTAL)
 		bs.Add(self.lblPassword)
-		bs.Add(self.txtPassword)
-		vs.Add(bs)
+		bs.Add(self.txtPassword, 1)
+		bs.Add((5,0))
+		vs.Add(bs, 1, wx.EXPAND)
 		
-		bs1.Add(vs)
-		sz.Add(bs1)
+		bs1.Add(vs, 1)
+		mainSizer.Add(bs1, 1, wx.EXPAND)
 		
-		sz.AddSpacer((0,15))
+		mainSizer.Add((0,15))
 		
-		sz.Add(self.lblMessage, 1, wx.EXPAND)
-		
-		sz.AddSpacer((0,10))
+		mainSizer.Add(self.lblMessage, 1, wx.EXPAND)
 		
 		bs = wx.BoxSizer(wx.HORIZONTAL)
-		bs.Add(self.cmdAccept)
-		bs.AddSpacer((3,0))
-		bs.Add(self.cmdCancel)
-		bs.AddSpacer((15,0))
-		sz.Add(bs, 1, wx.ALIGN_RIGHT)
-		sz.Layout()
+		bs.Add(self.cmdAccept, 0, wx.ALIGN_BOTTOM)
+		bs.Add((3,0))	
+		bs.Add(self.cmdCancel, 0, wx.ALIGN_BOTTOM)
+		bs.Add((5,0))
+		mainSizer.Add(bs, 1, wx.ALIGN_RIGHT)
+		mainSizer.Add((0,5))
+		mainSizer.Layout()
 
-		# Size the form to accomodate the size of the controls:
-		self.Width = self.txtUserName.Width + self.lblUserName.Width + self.bm.GetSize()[0] + 30
-		self.Height = self.txtUserName.Height + self.txtPassword.Height \
-					+ self.cmdAccept.Height + 75
-		
 		self.cmdAccept.Bind(wx.EVT_BUTTON, self.OnAccept)
 		self.cmdCancel.Bind(wx.EVT_BUTTON, self.OnCancel)
 		

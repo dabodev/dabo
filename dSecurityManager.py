@@ -1,4 +1,5 @@
-import dabo.common, time
+import time
+import dabo.common
 from dLocalize import _
 
 class dSecurityManager(dabo.common.dObject):

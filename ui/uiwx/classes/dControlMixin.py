@@ -1,7 +1,9 @@
 """ dControlMixin.py: Provide behavior common to all dControls """
 
 import wx
+import dabo
 import dPemMixin as pm
+from dabo.dLocalize import _
 
 class dControlMixin(pm.dPemMixin):
 	""" Provide common functionality for all controls.
@@ -69,7 +71,7 @@ class dControlMixin(pm.dPemMixin):
 		""" Occurs when the control receives the keyboard focus.
 		"""
 		if self.debug:
-			print "OnSetFocus received by %s" % self.GetName()
+			dabo.infoLog.write(_("OnSetFocus received by %s") % self.GetName())
 		event.Skip()
 
 
@@ -77,7 +79,7 @@ class dControlMixin(pm.dPemMixin):
 		""" Occurs when the control loses the keyboard focus.
 		"""
 		if self.debug:
-			print "OnKillWindow received by %s" % self.GetName()
+			dabo.infoLog.write(_("OnKillWindow received by %s") % self.GetName())
 		event.Skip()
 
 
@@ -85,7 +87,7 @@ class dControlMixin(pm.dPemMixin):
 		""" Occurs when the mouse pointer enters the bounds of the control.
 		"""
 		if self.debug:
-			print "OnEnterWindow received by %s" % self.GetName()
+			dabo.infoLog.write(_("OnEnterWindow received by %s") % self.GetName())
 		event.Skip()
 
 
@@ -93,7 +95,7 @@ class dControlMixin(pm.dPemMixin):
 		""" Occurs when the mouse pointer exits the bounds of the control.
 		"""
 		if self.debug:
-			print "OnLeaveWindow received by %s" % self.GetName()
+			dabo.infoLog.write(_("OnLeaveWindow received by %s") % self.GetName())
 		event.Skip()
 
 

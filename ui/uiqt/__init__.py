@@ -1,0 +1,1 @@
+uiType = {'shortName': 'qt', 'moduleName': 'uiqt', 'longName': 'PyQt'}

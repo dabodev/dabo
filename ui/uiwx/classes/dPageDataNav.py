@@ -1,7 +1,7 @@
+import wx, dabo
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox, dIcons, dCommandButton
 import dPanel, dGridDataNav, dCommandButton, dMessageBox, dEvents, dDateControl
 import dabo.dException as dException
-import wx
 from dabo.dLocalize import _
 
 
@@ -135,7 +135,7 @@ class dSelectPage(dPage.dPage):
 		# The bizobj will get the SQL from the sql builder:
 		sql = bizobj.getSQL()
 
-		print "\n%s\n" % sql
+		dabo.infoLog.write("\n%s\n" % sql)
 		
 		# But it won't automatically use that sql, so we set it here:
 		bizobj.setSQL(sql)
@@ -234,7 +234,7 @@ class dSelectPage(dPage.dPage):
 												"user1Id": user1Id,
 												"user2Id": user2Id})    
 
-					sizer.AddSizer(box, 0, wx.GROW|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 5)
+					sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 5)
 					panel.selectOptions[len(panel.selectOptions) - 1]["where"] = where
 
 		# Any fielddef encountered in the above block with type of 'stringMatchAll'
@@ -266,7 +266,7 @@ class dSelectPage(dPage.dPage):
 										"user1Id": user1Id,
 										"user2Id": user2Id})    
 
-			sizer.AddSizer(box, 0, wx.GROW|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 5)
+			sizer.Add(box, 0, wx.GROW|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 5)
 			panel.selectOptions[len(panel.selectOptions) - 1]["where"] = where
 
 		line = wx.StaticLine(panel, -1, size=(20,-1), style=wx.LI_HORIZONTAL)

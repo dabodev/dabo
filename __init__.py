@@ -70,10 +70,20 @@ Run a wizard. Hand-edit the data definition files.
 ToDo: pointers to get started.
 
 """
-from dApp import dApp
-from dLocalize import loc
 
+# Instantiate the logger object, which will send messages to user-overridable
+# locations. Do this before any other imports.
+import sys
 import dabo.common
+infoLog = dabo.common.Log()
+infoLog.Caption = "Dabo Info Log"
+infoLog.LogObject = sys.stdout
+errorLog = dabo.common.Log()
+errorLog.Caption = "Dabo Error Log"
+errorLog.LogObject = sys.stderr
 
-# dApp will change the following value upon its __init__:
+from dApp import dApp
+
+# dApp will change the following values upon its __init__:
 dAppRef = None
+

@@ -1,64 +1,75 @@
-""" dabo.ui : This is Dabo's user interface layer which is the topmost layer.
-			The UI will instantiate forms which contain bizobj's (dabo.biz)
-			and the bizobj's will in turn communicate with the underlying
-			db, abstracted with dabo.db.
+""" This is Dabo's user interface layer which is the topmost layer.
 
-			We've left it open for the possibility of using differing ui
-			libraries, although wxPython is what we are starting with and
-			may end up using exclusively.
+There are submodules for all supported UI libraries. As of this writing,
+the only supported UI library is wxPython (uiwx).
 
-			Qt is also a slick ui, and as dabo catches on someone may wish
-			to figure out how to implement a PyQt ui.
+To use a given submodule at runtime, you need to call loadUI() with the 
+ui module you want as a parameter. For instance, to load wxPython, you
+would issue:
 
-			Curses, if someone is interested in doing it, would provide a
-			text-only ui which could actually be very useful for industrial
-			or server type applications - something that requires a ui but
-			doesn't require it to look slick and possibly requires that 
-			a GUI windowing system not be installed.
-
-			Anyway, for now, all the ui development is in dabo.ui.uiwx.
-
-			Each ui method uses common names for widgets, even though the
-			actual implementation of them will vary wildly. The ui widget
-			names I propose are:
-
-				dForm
-				dPageFrame
-				dPage
-				dGrid
-				dColumn
-				dTextBox
-				dEditBox
-				dSpinner
-				dOptionGroup
-				dCheckBox
-				dCommandButton
-				dMenu
-				dToolBar
-				dStatusBar
-
+	import dabo.ui
+	dabo.ui.loadUI('wx')
+	
 """
+import os
+import dabo
 from dActionList import dActionList
+from dabo.dLocalize import _
 
-# EGL: Added for making single-file version
-from uiwx import *
 
-# Module factory function: generically return the 
-# proper module depending on the passed uiType.
-def getUI(uiType):
-	prefix = 'ui'
+def getUIType():
+	""" Return the identifier of the currently loaded UI, or None.
+	"""
 	try:
-		exec("import %s%s as uiModule" % (prefix, uiType))
-		return uiModule
-
-	except ImportError:
+		return uiType['shortName']
+	except (AttributeError, NameError, KeyError):
 		return None
-
+		
+		
 def loadUI(uiType):
-	prefix = 'ui'
-	exec("from %s%s import *" % (prefix, uiType), globals())
+	""" Load the given UI into the global namespace.
+	"""
+	retVal = False
+	module = None
+	
+	if getUIType() is None:
+		if uiType in ('wx', 'wxPython', 'uiwx'):
+			module = "dabo.ui.uiwx"
+			
+		if module:
+			try:
+				exec("from %s import *" % module, globals())
+				retVal = True
+			except ImportError:
+				retVal = False
+	else:
+		dabo.infoLog.write(_("Cannot change the uiType to '%s', because UI '%s' is already loaded."
+			% (uiType, getUIType())))
+			
+	return retVal
 
-# TEMPORARY!!!!! Just to get the wx stuff working!
-# This will load uiwx into the global namespace dabo.ui.
-# loadUI('wx')
+	
+# Automatically load a default UI if the environmental variable exists.
+# If the DABO_DEFAULT_UI exists, that ui will be loaded into the dabo.ui
+# global namespace. This is really only meant as a convenience for the 
+# dabo developers when rolling single-file distributions - we don't want
+# everyone setting this environment variable. To specify the UI for your
+# app, you should instead set the UserInterface property of the dApp 
+# object.
+try:
+	__defaultUI = os.environ['DABO_DEFAULT_UI']
+except KeyError:
+	__defaultUI = None
 
+if __defaultUI:
+	dabo.infoLog.write(_("Automatically loading default ui '%s'..." % __defaultUI))
+	# For now, don't do the tempting option:
+	#loadUI(defaultUI)
+	# ...unless it will work with single-file installers. I think that
+	# for single-file installers, it needs to see the import statement.
+	# Therefore, do it explicitly:
+	if __defaultUI in ('wx', 'wxPython', 'uiwx'):
+		from uiwx import *
+	
+else:
+	dabo.infoLog.write(_("No default UI set. (DABO_DEFAULT_UI)"))

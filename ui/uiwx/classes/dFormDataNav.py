@@ -1,8 +1,8 @@
-import dForm as frm
-import dPageFrameDataNav as pgf
-import dIcons, wx, dEvents
+import wx
+import dIcons, dEvents
+import dForm, dPageFrameDataNav
 
-class dFormDataNav(frm.dForm):
+class dFormDataNav(dForm.dForm):
 	""" This is a dForm but with the following added controls:
 		+ Navigation Menu
 		+ Navigation ToolBar
@@ -193,7 +193,7 @@ class dFormDataNav(frm.dForm):
 		self.setupPageFrame, and/or self.afterSetupPageFrame().
 		"""
 		if self.beforeSetupPageFrame():
-			self.pageFrame = pgf.dPageFrameDataNav(self)
+			self.pageFrame = dPageFrameDataNav.dPageFrameDataNav(self)
 			nbSizer = wx.NotebookSizer(self.pageFrame)
 			self.GetSizer().Add(nbSizer, 1, wx.EXPAND)
 			self.afterSetupPageFrame()

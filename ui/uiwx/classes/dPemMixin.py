@@ -1,5 +1,7 @@
 """ dPemMixin.py: Provide common PEM functionality """
-import wx, sys, types, dabo.common
+import wx, sys, types
+import dabo, dabo.common
+from dabo.dLocalize import _
 
 class dPemMixin(dabo.common.dObject):
 	""" Provide Property/Event/Method interfaces for dForms and dControls.
@@ -187,7 +189,7 @@ class dPemMixin(dabo.common.dObject):
 					exec(exp)
 				except:
 					#pass
-					print "Could not set property:", exp
+					dabo.errorLog.write(_("Could not set property: %s"), exp)
 			except:
 				pass
 		# Font assignment can be complicated during the iteration of properties,
@@ -353,7 +355,8 @@ class dPemMixin(dabo.common.dObject):
 		return {'editor': 'integer', 'min': 0, 'max': 8192}
 
 	def _setWidth(self, width):
-		self.SetSize((int(width), self._pemObject.Height))
+		self._pemObject.SetSize((int(width), self._pemObject.GetSize()[1]))
+		self._pemObject.SetMinSize(self._pemObject.GetSize())
 
 
 	def _getHeight(self):
@@ -363,7 +366,8 @@ class dPemMixin(dabo.common.dObject):
 		return {'editor': 'integer', 'min': 0, 'max': 8192}
 
 	def _setHeight(self, height):
-		self.SetSize((self._pemObject.Width, int(height)))
+		self._pemObject.SetSize((self._pemObject.GetSize()[0], int(height)))
+		self._pemObject.SetMinSize(self._pemObject.GetSize())
 
 
 	def _getSize(self): 
@@ -371,7 +375,7 @@ class dPemMixin(dabo.common.dObject):
 
 	def _setSize(self, size):
 		self._pemObject.SetSize(size)
-
+		self._pemObject.SetMinSize(size)
 
 	def _getName(self):
 		name = self._pemObject.GetName()

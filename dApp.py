@@ -33,9 +33,7 @@
 		-- clean up and exit gracefully
 """
 import sys, os, warnings
-import ui
-from biz import *
-from db import *
+import dabo, dabo.ui, dabo.db
 import dabo.common, dSecurityManager
 from dLocalize import _
 
@@ -73,6 +71,7 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		dabo.App is a wrapper for. 
 	"""
 	def __init__(self):
+		self._uiAlreadySet = False
 		dabo.dAppRef = self
 		dApp.doDefault()
 		self._initProperties()
@@ -94,10 +93,10 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		if not self.getAppInfo("vendorName"):
 			self.setAppInfo("vendorName", "Dabo")
 
-		self._initUI()
 		self._initDB()
+		self._initUI()
 
-		self.uiApp = self.uiModule.uiApp()
+		self.uiApp = dabo.ui.uiApp()
 
 		self.actionList.setAction("FileExit", self.uiApp.onFileExit)
 		self.actionList.setAction("HelpAbout", self.uiApp.onHelpAbout)
@@ -143,7 +142,7 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		The main event loop has exited and the application
 			is about to finish.
 		"""
-		print _("Application finished.")
+		dabo.infoLog.write(_("Application finished."))
 		pass
 
 
@@ -258,7 +257,7 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		self.homeDir = sys.path[0]
 
 		self.uiType   = None    # ('wx', 'qt', 'curses', 'http', etc.)
-		self.uiModule = None
+		#self.uiModule = None
 
 		# Initialize UI collections
 		self.uiForms = Collection()
@@ -266,7 +265,7 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		self.uiToolBars = Collection()
 		self.uiResources = {}
 
-		self.actionList = ui.dActionList()
+		self.actionList = dabo.ui.dActionList()
 
 		# Initialize DB collections
 		self.dbConnectionDefs = {} 
@@ -278,17 +277,9 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 
 		dbConnectionDefs = None
 		try:
-### EGL: changed this to a direct call rather than an execfile, as there
-###   are problems with execfiles locating the proper paths in single-
-###   file distributions.
-#			globals_ = {}
-#			execfile("%s/dbConnectionDefs.py" % (self.homeDir,), globals_)
-#			dbConnectionDefs = globals_["dbConnectionDefs"]
-			
 			import dbConnectionDefs
 			dbConnectionDefs = dbConnectionDefs.getDefs()
-			
-		except:
+		except (ImportError, NameError, AttributeError):
 			dbConnectionDefs = None
 
 		if dbConnectionDefs and type(dbConnectionDefs) == type(dict()):
@@ -309,38 +300,34 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 				try:             port     = dbConnectionDefs[entry]['port']
 				except KeyError: port     = None
 
-				self.dbConnectionDefs[entry] = dConnectInfo(backendName=dbType,
+				self.dbConnectionDefs[entry] = dabo.db.dConnectInfo(backendName=dbType,
 						host=host, 
 						user=user,
 						password=password,
 						dbName=dbName,
 						port=port)
 
-			print _("%s database connection definition(s) loaded.") % (
-												len(self.dbConnectionDefs))
+			dabo.infoLog.write(_("%s database connection definition(s) loaded.") % (
+												len(self.dbConnectionDefs)))
 
 		else:
-			print _("No database connection definitions loaded (dbConnectionDefs.py)")
+			dabo.infoLog.write(_("No database connection definitions loaded (dbConnectionDefs.py)"))
 
 
 	def _initUI(self):
-		""" Set the user-interface library for the application. """
-
-		if self.uiType == None:
-			# Future: read a config file in the homeDir
-			# Present: set UI to wx
-			uiType = "wx"
-
-			# Now, get the appropriate ui module into self.uiModule
-			uiModule = ui.getUI(uiType)
-			if uiModule != None:
-				self.uiType = uiType
-				self.uiModule = uiModule
+		""" Set the user-interface library for the application. 
+		
+		Ignored if the UI was already explicitly set by user code.
+		"""
+		if self.UI is None and not self._uiAlreadySet:
+			# For now, default to wx, but it should be enhanced to read an
+			# application config file. Actually, that may not be necessary, as the
+			# user's main.py can just set the UI directly now: dApp.UI = "qt".
+			self.UI = "wx"
 		else:
-			# Custom app code already set this: don't touch
-			pass
-
-		print _("User interface set to %s using module %s") % (self.uiType, self.uiModule)
+			# Custom app code or the dabo.ui module already set this: don't touch
+			dabo.infoLog.write(_("User interface already set to '%s', so dApp didn't "
+				" touch it." % (self.UI,)))
 
 
 	def _getAutoNegotiateUniqueNames(self):
@@ -368,15 +355,37 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 			raise TypeError, _('SecurityManager must descend from dSecurityManager.')
 			
 			
-	AutoNegotiateUniqueNames = property(_getAutoNegotiateUniqueNames,_setAutoNegotiateUniqueNames,
-						None, _('Specifies whether setting an object\'s name to a non-unique '
-						'value results in a unique integer being appended, or whether '
-						'a NameError is raised. Default is True: negotiate the name.'))
-
-	SecurityManager = property(_getSecurityManager, _setSecurityManager,
-						None, _('Specifies the Security Manager, if any. You '
-						'must subclass dSecurityManager, overriding the appropriate hooks '
-						'and properties, and then set dApp.SecurityManager to an instance '
-						'of your subclass. There is no security manager by default - you '
-						'explicitly set this to use Dabo security.'))
+	def _getUI(self):
+		try:
+			return dabo.ui.getUIType()
+		except AttributeError:
+			return None
+			
+	def _setUI(self, uiType):
+		# Load the appropriate ui module. dabo.ui will now contain
+		# the classes of that library, wx for instance.
+		if self.UI is None:
+			if dabo.ui.loadUI(uiType):
+				self._uiAlreadySet = True
+				dabo.infoLog.write(_("User interface set to '%s' by dApp.") % (uiType,))
+			else:
+				dabo.infoLog.write(_("Tried to set UI to '%s', but it failed." % (uiType,)))
+		else:
+			raise RuntimeError, _("The UI cannot be reset once assigned.")
 	
+	
+	AutoNegotiateUniqueNames = property(_getAutoNegotiateUniqueNames,_setAutoNegotiateUniqueNames,
+						None, _("Specifies whether setting an object\'s name to a non-unique "
+						"value results in a unique integer being appended, or whether "
+						"a NameError is raised. Default is True: negotiate the name."))
+
+	UI = property(_getUI, _setUI,
+						None, _("Specifies the user interface to load, or None. "
+						"Once set, it cannot be reassigned."))
+	
+	SecurityManager = property(_getSecurityManager, _setSecurityManager,
+						None, _("Specifies the Security Manager, if any. You "
+						"must subclass dSecurityManager, overriding the appropriate hooks "
+						"and properties, and then set dApp.SecurityManager to an instance "
+						"of your subclass. There is no security manager by default - you "
+						"explicitly set this to use Dabo security."))

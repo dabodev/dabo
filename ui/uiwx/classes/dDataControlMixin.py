@@ -2,6 +2,7 @@
 	data-aware dControls.
 """
 import wx
+import dabo
 import dPemMixin as pm
 import dEvents
 import dabo.dException as dException
@@ -82,7 +83,7 @@ class dDataControlMixin(pm.dPemMixin):
 		""" Occurs when the field value has potentially changed.
 		"""
 		if self.debug:
-			print "onValueRefresh received by %s" % (self.GetName(),)
+			dabo.infoLog.write(_("onValueRefresh received by %s") % (self.GetName(),))
 		self.refresh()
 		
 		try:
@@ -105,7 +106,7 @@ class dDataControlMixin(pm.dPemMixin):
 		""" Occurs when the control receives the keyboard focus.
 		"""
 		if self.debug:
-			print "OnSetFocus received by %s" % self.GetName()
+			dabo.infoLog.write(_("OnSetFocus received by %s") % self.GetName())
 
 		self._oldVal = self.Value
 
@@ -122,7 +123,7 @@ class dDataControlMixin(pm.dPemMixin):
 		""" Occurs when the control loses the keyboard focus.
 		"""
 		if self.debug:
-			print "OnKillFocus received by %s" % self.GetName()
+			dabo.infoLog.write(_("OnKillFocus received by %s") % self.GetName())
 
 		self.flushValue()
 		
@@ -189,7 +190,7 @@ class dDataControlMixin(pm.dPemMixin):
 		elif type(value) in [type(bool()), ]:
 			return "L"
 		else:
-			print "getShortDataType:", self, value
+			dabo.infoLog.write(_("getShortDataType - unknown type:"), self, value)
 			return "?"
 			
 

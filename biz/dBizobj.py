@@ -1,5 +1,5 @@
+import dabo
 import dabo.dConstants as k
-import dabo.db.dConnection as dConnection
 from dabo.db.dCursorMixin import dCursorMixin
 from dabo.dLocalize import _
 import dabo.dException as dException
@@ -1031,11 +1031,10 @@ class dBizobj(dabo.common.dObject):
 			return None
 			
 	def _setParent(self, val):
-# 		print "in _setParent, reminder to check to make sure the parent descends from dBizobj."
-# 		print "val:", val
-# 		print "self:", self
-		
-		self._parent = val
+		if isinstance(val, dBizobj):
+			self._parent = val
+		else:
+			raise TypeError, "Parent must descend from dBizobj"
 			
 		
 	def _getAutoPopulatePK(self):

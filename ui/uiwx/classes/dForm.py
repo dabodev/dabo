@@ -1,4 +1,5 @@
-import wx, dEvents
+import wx, dabo
+import dEvents
 import dFormMixin as fm
 import dabo.dException as dException
 import dabo.dConstants as k
@@ -82,7 +83,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if len(self.bizobjs) == 1:
 			self.setPrimaryBizobj(bizobj.DataSource)
 		if self.debug:
-			print "added bizobj with DataSource of %s" % bizobj.DataSource
+			dabo.infoLog.write(_("Added bizobj with DataSource of %s") % bizobj.DataSource)
 		self.setStatusText("Bizobj '%s' %s." % (bizobj.DataSource, _("added")))
 
 
@@ -99,7 +100,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self._primaryBizobj = dataSource
 			self.afterSetPrimaryBizobj()
 		else:
-			print "bizobj for data source %s does not exist." % dataSource
+			dabo.infoLog.write(_("bizobj for data source %s does not exist.") % dataSource)
 
 
 	def afterSetPrimaryBizobj(self):
@@ -211,9 +212,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				bizobj.save()
 				
 			if self.debug:
-				print "Save successful."
-			self.setStatusText(_("Changes to %s saved." % (
-					self.SaveAllRows and "all records" or "current record",)))
+				dabo.infoLog.write(_("Save successful."))
+			self.setStatusText(_("Changes to %s saved.") % (
+					self.SaveAllRows and "all records" or "current record",))
 					
 		except dException.NoRecordsException, e:
 			# No records were saved. No big deal; just let 'em know.
@@ -241,13 +242,13 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			else:
 				bizobj.cancel()
 			if self.debug:
-				print "Cancel successful."
-			self.setStatusText(_("Changes to %s canceled." % (
-					self.SaveAllRows and "all records" or "current record",)))
+				dabo.infoLog.write(_("Cancel successful."))
+			self.setStatusText(_("Changes to %s canceled.") % (
+					self.SaveAllRows and "all records" or "current record",))
 			self.refreshControls()
 		except dException.dException, e:
 			if self.debug:
-				print "Cancel failed with response: %s" % str(e)
+				dabo.errorLog.write(_("Cancel failed with response: %s") % str(e))
 			### TODO: What should be done here? Raise an exception?
 			###       Prompt the user for a response?
 
@@ -286,12 +287,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
 			stop = round(time.time() - start, 3)
 			if self.debug:
-				print "Requery successful."
-			self.setStatusText(_("%s record%sselected in %s second%s" % (
+				dabo.infoLog.write(_("Requery successful."))
+			self.setStatusText(_("%s record%sselected in %s second%s") % (
 					bizobj.RowCount, 
 					bizobj.RowCount == 1 and " " or "s ",
 					stop,
-					stop == 1 and "." or "s.")))
+					stop == 1 and "." or "s."))
 			self.refreshControls()
 
 			# Notify listeners that the row number changed:
@@ -300,7 +301,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 		except dException.dException, e:
 			if self.debug:
-				print "Requery failed with response: %s" % str(e)
+				dabo.errorLog.write(_("Requery failed with response: %s") % str(e))
 			### TODO: What should be done here? Raise an exception?
 			###       Prompt the user for a response?
 
@@ -323,7 +324,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			try:
 				bizobj.delete()
 				if self.debug:
-					print "Delete successful."
+					dabo.infoLog.write(_("Delete successful."))
 				self.setStatusText(_("Record Deleted."))
 				self.refreshControls()
 				# Notify listeners that the row number changed:
@@ -331,7 +332,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				self.GetEventHandler().ProcessEvent(evt)
 			except dException.dException, e:
 				if self.debug:
-					print "Delete failed with response: %s" % str(e)
+					dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
 				### TODO: What should be done here? Raise an exception?
 				###       Prompt the user for a response?
 
@@ -350,14 +351,14 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			try:
 				bizobj.deleteAll()
 				if self.debug:
-					print "Delete All successful."
+					dabo.infoLog.write(_("Delete All successful."))
 				self.refreshControls()
 				# Notify listeners that the row number changed:
 				evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
 				self.GetEventHandler().ProcessEvent(evt)
 			except dException.dException, e:
 				if self.debug:
-					print "Delete All failed with response: %s" % str(e)
+					dabo.errorLog.write(_("Delete All failed with response: %s") % str(e))
 				### TODO: What should be done here? Raise an exception?
 				###       Prompt the user for a response?
 
@@ -370,7 +371,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		try:
 			bizobj.new()
 			if self.debug:
-				print "New successful."
+				dabo.infoLog.write(_("New successful."))
 			statusText = self.getCurrentRecordText(dataSource)
 			self.setStatusText(statusText)
 			self.refreshControls()

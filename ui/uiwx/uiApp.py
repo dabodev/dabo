@@ -1,8 +1,7 @@
 """ daboApp.py: The application object and the main frame object. """
 
 import sys, os, wx
-from dabo.db import *
-from dabo.biz import *
+import dabo
 from dabo.ui.uiwx.classes import *
 
 class uiApp(wx.App):
@@ -62,8 +61,6 @@ class uiApp(wx.App):
 
 			if cut:
 				win.Remove(win.GetSelection()[0], win.GetSelection()[1])
-		else:
-			print "no selected text"
 
 
 	def onEditPaste(self, event):
@@ -81,15 +78,11 @@ class uiApp(wx.App):
 			cb.Close() 
 			if success: 
 				win.Replace(selection[0], selection[1], data.GetText())
-			else: 
-				print "No text in the clipboard."
-
-		else:
-			print "Control isn't text-based."
+		
 
 
 	def onEditPreferences(self, event):
-		print "Stub: uiApp.onEditPreferences()"
+		dabo.infoLog.write("Stub: uiApp.onEditPreferences()")
 
 
 	def onEditFind(self, event):
@@ -133,7 +126,7 @@ class uiApp(wx.App):
 			except AttributeError:
 				value = None
 			if type(value) not in (type(str()), type(unicode())):
-				print "Active control isn't text-based."
+				dabo.errorLog.write("Active control isn't text-based.")
 				return
 
 			flags = event.GetFlags()
@@ -167,7 +160,7 @@ class uiApp(wx.App):
 					win.SetSelection(currentPos-result, currentPos-result-len(findString))
 				win.ShowPosition(win.GetSelection()[1])
 			else:
-				print "not found"
+				dabo.infoLog.write("Not found")
 
 
 	def onHelpAbout(self, event):

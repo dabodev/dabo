@@ -29,7 +29,9 @@ Ed writes:
 import time
 from threading import *
 import wx
+import dabo
 import dMessageBox
+from dabo.dLocalize import _
 
 ID_CANCEL = wx.NewId()
 EVT_RESULT_ID = wx.NewId()
@@ -108,7 +110,7 @@ class dProgressDialog(wx.Dialog):
 		if func:
 			self.worker = WorkerThread(self, func)
 		else:
-			print "configure caller to send func parameter"
+			dabo.errorLog.write(_("Configure caller to send func parameter"))
 
 	def OnResult(self, event):
 		self.response = event.response
