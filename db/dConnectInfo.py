@@ -87,6 +87,9 @@ class dConnectInfo(dabo.common.dObject):
 			elif nm == "firebird":
 				import dbFirebird
 				self._backendObject = dbFirebird.Firebird()
+			elif nm == "postgres":
+				import dbPostgreSQL
+				self._backendObject = dbPostgreSQL.Postgres()
 			else:
 				raise ValueError, "Invalid backend name: %s." % nm
 				
