@@ -17,12 +17,41 @@ class dPemMixin(dPemMixinBase):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
+
+		# self.properties can be set in the userland beforeInit() hook.
+		self.properties = {}
+		
+		# There are a few controls that don't yet support 3-way inits (grid, for one).
+		# These controls will send the wx classref as the preClass argument, and we'll
+		# call __init__ on it when ready. We can tell if we are in a three-way init
+		# situation based on whether or not preClass is a function type.
+		threeWayInit = (type(preClass) == types.FunctionType)
+		
+		if threeWayInit:
+			# Instantiate the wx Pre object
+			pre = preClass()
+		else:
+			pre = None
+		
+		# This will implicitly call the following user hooks:
+		#    beforeInit()
+		#    initStyleProperties()
+		self._beforeInit(pre)
+		
+		# Now that user code has had an opportunity to set the properties, we can see
+		# if there are properties sent to the constructor which will augment or override
+		# and properties set in beforeInit()
 		
 		# The keyword properties can come from either, both, or none of:
+		#    + self.properties (set by user code in self.beforeInit())
 		#    + the properties dict
 		#    + the kwargs dict
 		# Get them sanitized into one dict:
-		properties = self.extractKeywordProperties(kwargs, properties)
+		if properties is not None:
+			# Override the class values
+			for k,v in properties.items():
+				self.properties[k] = v
+		properties = self.extractKeywordProperties(kwargs, self.properties)
 		
 		# If a Name isn't given, a default name will be used, and it'll 
 		# autonegotiate by adding an integer until it is a unique name.
@@ -54,22 +83,6 @@ class dPemMixin(dPemMixinBase):
 		self._initProperties["parent"] = parent
 		self._initProperties["id"] = id_
 		
-		# There are a few controls that don't yet support 3-way inits (grid, for one).
-		# These controls will send the wx classref as the preClass argument, and we'll
-		# call __init__ on it when ready. We can tell if we are in a three-way init
-		# situation based on whether or not preClass is a function type.
-		threeWayInit = (type(preClass) == types.FunctionType)
-		
-		if threeWayInit:
-			# Instantiate the wx Pre object
-			pre = preClass()
-		else:
-			pre = None
-		
-		# This will implicitly call the following user hooks:
-		#    beforeInit()
-		#    initStyleProperties()
-		self._beforeInit(pre)
 		
 		# The user's subclass code has had a chance to tweak the style properties.
 		# Insert any of those into the arguments to send to the wx constructor:
