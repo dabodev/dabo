@@ -16,8 +16,9 @@ class dMemento:
 		""" Returns a boolean value, depending on whether or not 
 		the passed dictionary of values is identical to the current snapshot."""
 		return (self._snapshot != newvals)
+		
 
-	def makeDiff(self, newvals, newrec):
+	def makeDiff(self, newvals, isNewRecord=0):
 		""" The idea here is to create a dictionary containing just the values 
 		that have changed in the newvals dict., as compared to the snapshot. 
 		Since the purpose of the memento is to compare different states of a
@@ -33,6 +34,6 @@ class dMemento:
 				continue
 			# OK, if this is a new record, include all the values. Otherwise, just
 			# include the changed ones.
-			if newrec or self._snapshot[kk] != vv:
+			if isNewRecord or self._snapshot[kk] != vv:
 				ret[kk] = vv
 		return ret

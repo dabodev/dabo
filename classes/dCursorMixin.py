@@ -14,6 +14,10 @@ class dCursorMixin:
 	_errorMsg = ""
 	# Holds the dict used for adding new blank records
 	_blank = {}
+	# Last executed sql statement
+	lastSQL = ""
+	# Last executed sql params
+	lastParams = None
 	
 	
 	def __init__(self, sql="", *args, **kwargs):
@@ -33,13 +37,40 @@ class dCursorMixin:
 		self.keyField = kf
 	
 	
+	def execute(self, sql, params=None):
+		"""
+		The idea here is to let the super class do the actual work in retrieving the data. However, 
+		many cursor classes can only return row information as a list, not as a dictionary. This
+		method will detect that, and convert the results to a dictionary.
+		"""
+		
+		self.superCursor.execute(self, sql, params)
+		
+		if self._rows:
+			if type(self._rows[0]) == types.TupleType:
+				# Need to convert each row to a Dict
+				tmpRows = []
+				# First, get the description property and extract the field names from that
+				fldNames = []
+				for fld in self.description:
+					fldNames.append(fld[0])
+				fldcount = len(fldNames)
+				# Now go through each row, and convert it to a dictionary. We will then
+				# add that dictionary to the tmpRows list. When all is done, we will replace 
+				# the _rows property with that list of dictionaries
+				for row in self._rows:
+					dic= {}
+					for i in range(0, fldcount-1):
+						dic[fldNames[i]] = row[i]
+					tmpRows.append(dic)
+				self._rows = tuple(tmpRows)
+	
+	
 	def requery(self, params=None):
-		if params is None:
-			sql = self.sql
-		else:
-			sql = self.sql % params
+		self.lastSQL = self.sql
+		self.lastParams = params
 		try:
-			self.execute(sql)
+			self.execute(self.sql, params)
 		except:
 			return k.REQUERY_ERROR
 		# Add mementos to each row of the result set
@@ -48,13 +79,15 @@ class dCursorMixin:
 	
 	
 	def setMemento(self):
-		self.addMemento(self.rownumber)
+		if self.rowcount > 0:
+			if (self.rownumber >= 0) and (self.rownumber < self.rowcount):
+				self.addMemento(self.rownumber)
 		
 	
 	def getFieldVal(self, fld):
 		""" Returns the value of the requested field """
 		ret = None
-		if self.rowcount == 0:
+		if self.rowcount <= 0:
 			self.addToErrorMsg("No records in the data set")
 		else:
 			rec = self._rows[self.rownumber]
@@ -68,7 +101,7 @@ class dCursorMixin:
 	def setFieldVal(self, fld, val):
 		""" Sets the value of the specified field """
 		ret = 0
-		if self.rowcount == 0:
+		if self.rowcount <= 0:
 			self.addToErrorMsg("No records in the data set")
 		else:
 			rec = self._rows[self.rownumber]
@@ -77,6 +110,13 @@ class dCursorMixin:
 				ret = 1
 			else:
 				self.addToErrorMsg("Field '" + fld + "' does not exist in the data set")
+		return ret
+	
+	
+	def getRowCount(self):
+		ret = -1
+		if hasattr(self, "rowcount"):
+			ret = self.rowcount
 		return ret
 		
 	
@@ -129,11 +169,7 @@ class dCursorMixin:
 		self._errorMsg = ""
 		ret = k.FILE_OK
 		if self.rowcount > 0:
-			if self.rownumber < (self.rowcount-1):
-				self.rownumber = self.rowcount-1
-			else:
-				ret = k.FILE_EOF
-				self.addToErrorMsg("Already at the end of the data set.")
+			self.rownumber = self.rowcount-1
 		else:
 			ret = k.FILE_NORECORDS
 			self.addToErrorMsg("No records in data set")
@@ -145,7 +181,7 @@ class dCursorMixin:
 		ret = k.FILE_OK
 		
 		# Make sure that there is data to save
-		if self.rowcount == 0:
+		if self.rowcount <= 0:
 			self.addToErrorMsg("No data to save")
 			return k.FILE_CANCEL
 		
@@ -228,7 +264,7 @@ class dCursorMixin:
 		ret = k.FILE_OK
 		
 		# Make sure that there is data to save
-		if not self.rowcount > 0:
+		if not self.rowcount >= 0:
 			self.addToErrorMsg("No data to cancel")
 			return k.FILE_CANCEL
 		
@@ -237,21 +273,35 @@ class dCursorMixin:
 		else:
 			recs = (self._rows[self.rownumber],)
 		
-		for i in range(self.rowcount, 0, -1):
+		for i in range(self.rowcount-1, 0, -1):
 			rec = self._rows[i]
 			newrec =  rec.has_key(k.CURSOR_NEWFLAG)
 			if newrec:
 				# Discard the record, and adjust the props
 				ret = self.delete(i)
 			else:
-				ret = cancelrow(i)
+				ret = self.cancelRow(rec)
 			if ret != k.FILE_OK:
 				break
 		return ret
+					
+				
+	def cancelRow(self, rec):
+		mem = rec[k.CURSOR_MEMENTO]
+		diff = mem.makeDiff(rec)
+		if diff:
+			for fld, val in diff.items():
+				rec[fld] = val
+		return k.FILE_OK
 	
 	
-	def delete(self, rownum):
+	def delete(self, rownum=None):
 		ret = k.FILE_OK
+		
+		if rownum is None:
+			# assume that it is the current row that is to be deleted
+			rownum = self.rownumber
+		
 		rec = self._rows[rownum]
 		newrec =  rec.has_key(k.CURSOR_NEWFLAG)
 		self.saveProps(saverows=0)
@@ -265,15 +315,17 @@ class dCursorMixin:
 			sql = "delete from %s where %s" % (self.table, pkWhere)
 			res = self.execute(sql)
 		
-		self.restoreProps(restoreRows=0)
-		if not res:
+		if res:
+			# First, delete the row from the held properties
+			tmprows = list(self.holdrows)
+			del tmprows[rownum]
+			self.holdrows = tuple(tmprows)
+			# Now restore the properties
+			self.restoreProps()
+		else:
 			# Nothing was deleted
 			ret = FILE_CANCEL
 		return ret
-					
-				
-	def cancelrow(self, rec):
-		mem = rec[k.CURSOR_MEMENTO]
 	
 	
 	def setDefaults(self, vals):
@@ -302,24 +354,28 @@ class dCursorMixin:
 
 	def setStructure(self):
 		import re
-		pat = re.compile("\s*select\s*.*\s*from\s*.*\s*((?:where\s(.*))+)\s*", re.I | re.M)
+		pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:where\s(.*))+)\s*", re.I | re.M)
 		if pat.search(self.sql):
 			# There is a WHERE clause. Add the NODATA clause
-			tmpsql = pat.sub(" where 1=0 ", self.sql)
+			tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
 		else:
 			# no WHERE clause. See if it has GROUP BY or ORDER BY clauses
-			pat = re.compile("\s*select\s*.*\s*from\s*.*\s*((?:group\s*by\s(.*))+)\s*", re.I | re.M)
+			pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:group\s*by\s(.*))+)\s*", re.I | re.M)
 			if pat.search(self.sql):
-				tmpsql = pat.sub(" where 1=0 ", self.sql)
+				tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
 			else:				
-				pat = re.compile("\s*select\s*.*\s*from\s*.*\s*((?:order\s*by\s(.*))+)\s*", re.I | re.M)
+				pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:order\s*by\s(.*))+)\s*", re.I | re.M)
 				if pat.search(self.sql):
-					tmpsql = pat.sub(" where 1=0 ", self.sql)
+					tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
 				else:				
 					# Nothing. So just tack it on the end.
 					tmpsql = sql + " where 1=0 "
 		
+		# We need to save and restore the cursor properties, since this query will wipe 'em out.
+		self.saveProps()
 		self.execute(tmpsql)
+		self.restoreProps()
+		
 		dscrp = self.description
 		for fld in dscrp:
 			fldname = fld[0]
@@ -332,7 +388,19 @@ class dCursorMixin:
 				else:
 					# Int
 					_blank[fld] = 0
-		
+	
+	
+	def moveToPK(self, pk):
+		""" Find the record in the result set (if any) whose value in the keyField
+		field matches the passed value. If found, set the current position to that 
+		record. If not found, set the position to the first record. """
+		self.rownumber = 0
+		for i in range(0, len(self._rows)):
+			rec = self._rows[i]
+			if rec[self.keyField] == pk:
+				self.rownumber = i
+				break
+
 		
 	def checkPK(self):
 		""" Check to see that the field(s) specified in the keyField prop exist
@@ -381,18 +449,18 @@ class dCursorMixin:
 
 
 	def saveProps(self, saverows=1):
-		self.tmprows = self._rows
-		self.tmpcount = self.rowcount
-		self.tmppos = self.rownumber
-		self.tmpdesc = self.description
+		self.holdrows = self._rows
+		self.holdcount = self.rowcount
+		self.holdpos = self.rownumber
+		self.holddesc = self.description
 		
 
-	def restoreProps(self, restorerows=1):
-		if restorerows:
-			self._rows = self.tmprows
+	def restoreProps(self, restoreRows=1):
+		if restoreRows:
+			self._rows = self.holdrows
 		self.rowcount = len(self._rows)
-		self.rownumber = min(self.tmppos, self.rowcount-1)
-		self.description = self.tmpdesc
+		self.rownumber = min(self.holdpos, self.rowcount-1)
+		self.description = self.holddesc
 	
 	
 	def escapeQt(self, val):

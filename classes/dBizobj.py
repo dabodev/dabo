@@ -1,6 +1,8 @@
 from dConstants import dConstants as k
 import dConnection
 import dCursorMixin
+import types
+
 
 ### TODO ### - Change to Gadfly
 from MySQLdb import cursors
@@ -13,17 +15,20 @@ class dBizobj:
 	# When true, the cursor object does not run its query immediately. This
 	# is useful for parameterized queries
 	noDataOnLoad = 0
+	# Holds the params to be merged with the sql in the cursor
+	_params = ()
 	# Reference to the cursor object 
 	_cursor = None
 	# Class to instantiate for the cursor object
 	cursorMixinClass = dCursorMixin.dCursorMixin
 	# Base class to instantiate for the cursor object
 	### TODO ### - change to Gadfly for default
-	cursorBaseClass = cursors.DictCursor
+	#cursorBaseClass = cursors.DictCursor
+	cursorBaseClass = cursors.Cursor
 	# Reference to the parent bizobj to this one.
 	_parent = None
 	# Collection of child bizobjs for this
-	_children = []
+	__children = []
 	# Name of field that is the PK 
 	keyField = ""
 	# Name of field that is the FK back to the parent
@@ -77,17 +82,23 @@ class dBizobj:
 			##### TODO  #######
 			# Need to raise an exception here!
 			pass
+		
+		# Need to set this so that different instances don't mix up the references
+		# contained in this list.
+		self.__children = []
 	
 	
 	def getCursorClass(self, main, secondary):
-		class result(main, secondary):
+		class cursorMix(main, secondary):
+			superMixin = main
+			superCursor = secondary
 			def __init__(self, *args, **kwargs):
 				if hasattr(main, "__init__"):
 					apply(main.__init__,(self,) + args, kwargs)
 					#main.__init__(self)
 				if hasattr(secondary, "__init__"):
 					apply(secondary.__init__,(self,) + args, kwargs)
-		return  result
+		return  cursorMix
 	
 
 		
@@ -193,7 +204,7 @@ class dBizobj:
 				self.onSaveNew()
 		
 			# Iterate through the child bizobjs, telling them to save themselves.
-			for child in self._children:
+			for child in self.__children:
 				if child.isChanged():
 					# No need to start another transaction. And since this is a child bizobj, 
 					# we need to save all rows that have changed.
@@ -239,7 +250,7 @@ class dBizobj:
 		
 		if ret == k.FILE_OK:
 			# Tell each child to cancel themselves
-			for child in self._children:
+			for child in self.__children:
 				ret = child.cancel(allRows)
 				if not ret == k.FILE_OK:
 					self.addToErrorMsg(child.getErrorMsg())
@@ -259,30 +270,26 @@ class dBizobj:
 		""" Deletes the current row of data """
 		self._errorMsg = ""
 		
-		if not self.beforeDelete() or self.beforePointerMove():
+		if not self.beforeDelete() or not self.beforePointerMove():
 			return k.FILE_CANCEL
 		
 		if self.deleteChildLogic == k.REFINTEG_RESTRICT:
 			# See if there are any child records
-			for child in self._children:
+			for child in self.__children:
 				if child.getRowCount() > 0:
 					self.addToErrorMsg("Deletion prohibited - there are related child records.")
 					return k.FILE_CANCEL					
 		
 		ret = self._cursor.delete()
-### TODO - add this logic to the cursor's Delete
-# 		* If adding a new record, just revert it.
-# 		IF IsAdding(This.cAlias)
-# 			lnRetVal = This.oBehavior.Cancel()
 
 		if ret == k.FILE_OK:
-			if self._cursor.rowcount == 0:
+			if self._cursor.getRowCount() == 0:
 				# Hook method for handling the deletion of the last record in the cursor.
 				self.onDeleteLastRecord()
 			# Now cycle through any child bizobjs and fire their cancel() methods. This will
 			# ensure that any changed data they may have is reverted. They are then requeried to
 			# populate them with data for the current record in this bizobj.
-			for child in self._children:
+			for child in self.__children:
 				if self.deleteChildLogic == k.REFINTEG_CASCADE:
 					child.deleteAll()
 				else:
@@ -301,7 +308,7 @@ class dBizobj:
 	
 	def deleteAll(self):
 		""" Iterate through all the rows in the bizobj's cursor, deleting each one-by-one"""
-		while self._cursor.rowcount > 0:
+		while self._cursor.getRowCount() > 0:
 			self.first()
 			ret = self.delete()
 			if ret != k.FILE_OK:
@@ -327,7 +334,7 @@ class dBizobj:
 			
 			if self.newChildOnNew:
 				# Add records to all children set to have records created on a new parent record.
-				for child in self._children:
+				for child in self.__children:
 					if child.newRecordOnNewParent:
 						child.new()
 			
@@ -371,6 +378,14 @@ class dBizobj:
 		return ret
 	
 	
+	def setParams(self, params):
+		""" accepts a tuple that will be merged with the sql statement using the '%'
+		string format function. """
+# 		if params != types.TupleType:
+# 			params = tuple(params)
+		self._params = params
+	
+	
 	def validate(self):
 		""" This is the method that you should customize in your subclasses
 		to create checks on the data entered by the user to be sure that it 
@@ -389,7 +404,7 @@ class dBizobj:
 		
 		if not ret:
 			# see if any child bizobjs have changed
-			for child in self._children:
+			for child in self.__children:
 				ret = ret and child.isChanged()
 		
 		return ret
@@ -402,7 +417,7 @@ class dBizobj:
 	
 	def onNew(self):
 		""" Populates the record with any default values """
-		self._cursor.setDefaultVals(self.defaultValues())
+		self._cursor.setDefaults(self.defaultValues)
 		
 		# Call the custom hook method
 		self.onNewHook()
@@ -416,8 +431,8 @@ class dBizobj:
 	def addChild(self, child):
 		""" During the creation of the form, child bizobjs are added by the parent.
 		This stores the child reference here, and sets the reference to the parent in the child. """
-		if child not in self._children:
-			self._children.append(child)
+		if child not in self.__children:
+			self.__children.append(child)
 			child.setParent(self)
 	
 	
@@ -429,11 +444,11 @@ class dBizobj:
 	def requeryAllChildren(self):
 		""" Called to assure that all child bizobjs have had their data sets refreshed to 
 		match the current status. """
-		if len(self._children) == 0:
+		if len(self.__children) == 0:
 			return k.REQUERY_SUCCESS
 		if self.beforeChildRequery():
 			ret = k.REQUERY_SUCCESS
-			for child in self._children:
+			for child in self.__children:
 				ret = child.requery()
 				if not ret == k.REQUERY_SUCCESS:
 					break
@@ -444,7 +459,7 @@ class dBizobj:
 		if ret != k.REQUERY_SUCCESS:
 			self.addToErrorMsg(self._cursor.getErrorMsg())
 			
-		self.afterRequeryAllChildren()
+		self.afterChildRequery(ret)
 		return ret
 	
 	
@@ -477,7 +492,7 @@ class dBizobj:
 		this bizobj does not need parameters, leave this as is. Otherwise, 
 		use this method to create a tuple to be passed to the cursor, where 
 		it will be used to modify the query using standard printf syntax. """
-		return None
+		return self._params
 	
 	
 	def setMemento(self):
