@@ -24,44 +24,72 @@
 
         -- starts the main app event loop.
 '''
+import sys, os
+import ui
 
-class dApp(object):
-    ''' dabo.dApp : The containing object for the entire application.
+class Collection(list):
+    ''' Collection : Base class for the various collection
+                     classes used in the app object.
+    '''
+    def __init__(self):
+        list.__init__(self)
+        
+    def add(self, objRef):
+        ''' Collection.add(objRef)
+            Add the object reference to the collection.
+        '''
+        self.append(objRef)
+    
+    def remove(self, index):
+        ''' Collection.remove(objRef)
+            Delete the object reference from the collection.
+        '''
+        del self[index]
+
+                
+class App(object):
+    ''' dabo.App : The containing object for the entire application.
                     Various UI's will have app objects also, which 
                     dApp is a wrapper for. '''
-                    
     def __init__(self):
         object.__init__(self)
-
         self._initProperties()
         
     def setup(self):
-        print "app.setup"
+        # dabo is going to want to import various things from the homeDir
+        sys.path.append(self.homeDir)
+        self.setUI()
+        print "User interface set to %s using module %s" % (self.uiType, self.uiModule)
     
+    def setUI(self):
+        if self.uiType == None:
+            # Future: read a config file in the homeDir
+            # Present: set UI to wx
+            uiType = "wx"
+            
+            # Now, get the appropriate ui module into self.uiModule
+            uiModule = ui.getUI(uiType)
+            if uiModule <> None:
+                self.uiType = uiType
+                self.uiModule = uiModule
+        else:
+            # Custom app code already set this: don't touch
+            pass
+            
     def start(self):
         print "app.start"
-    
-    def addForm(self, formRef):
-        ''' dApp.addForm(formRef)
-            Add the form to dApp's uiForms collection, which is a
-            list of dictionaries.'''
-        self.uiForms.append(formRef)
-    
-    def delForm(self, index):
-        ''' dApp.delForm(index)
-            Delete the form, if found, from the uiForms collection.'''
-        try:
-            del self.uiForms[index]
-        except:
-            pass
               
     def _initProperties(self):
-        self.uiType = None # ('wx', 'qt', 'curses', 'http', etc.)
+        # it is useful to know from where we came
+        self.homeDir = os.getcwd()
+        
+        self.uiType   = None    # ('wx', 'qt', 'curses', 'http', etc.)
+        self.uiModule = None
         
         # Initialize UI collections
-        self.uiForms       = []
-        self.uiMenus       = []
-        self.uiToolBars    = []
+        self.uiForms       = Collection()
+        self.uiMenus       = Collection()
+        self.uiToolBars    = Collection()
         self.uiResources   = {}
         
         # Initialize DB collections

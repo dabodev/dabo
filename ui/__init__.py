@@ -16,7 +16,7 @@
               doesn't require it to look slick and possibly requires that 
               a GUI windowing system not be installed.
 
-              Anyway, for now, all the ui development is in dabo.ui.wx.
+              Anyway, for now, all the ui development is in dabo.ui.uiwx.
 
               Each ui method uses common names for widgets, even though the
               actual implementation of them will vary wildly. The ui widget
@@ -39,17 +39,13 @@
                              
 '''
 
-# When the ui module is imported, I want to check for the existence of 
-# a global variable, 'uiType', that specifies which ui is going to be
-# used. This global will have been set already, presumably. At the moment,
-# I have no idea where this will get set (main.py of the client application?)
-# and I don't know how to set a global variable. For now, bring the ui.wx
-# module into the global namespace of the ui module, but in the future we'll
-# want to make this dynamic.
-import wxDabo as uiModule
-#import curses as uiModule
-#import qt as uiModule
-
-# Now, whatever the uiType, it's module is in uiModule. Import the app object
-# into the dabo.ui namespace
-dApp = uiModule.dApp()
+# Module factory function: returns the proper module depending
+# on the passed uiType:
+def getUI(uiType):
+    prefix = 'ui'
+    try:
+        exec("import %s%s as uiModule" % (prefix, uiType))
+        return uiModule
+        
+    except ImportError:
+        return None
