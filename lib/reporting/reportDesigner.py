@@ -63,11 +63,14 @@ class BandLabel(dabo.ui.dPanel):
 				self._dragImage.EndDrag()
 			self._dragImage = None
 			pos = evt.EventData["mousePosition"]
-			yoffset = pos[1] - self._dragStart[1]
+			starty = self._dragStart[1]
+			currenty = pos[1]
+			yoffset = currenty - starty
 			if yoffset != 0:
+				z = self.Parent.Parent._zoom
 				# dragging the band is changing the height of the band.
 				oldHeight = self.Parent._rw.getPt(self.Parent.getProp("height"))
-				newHeight = oldHeight + yoffset
+				newHeight = oldHeight + (yoffset/z)
 				if newHeight < 0: newHeight = 0
 				self.Parent.setProp("height", newHeight)
 			self.Form.Refresh()
@@ -76,6 +79,7 @@ class BandLabel(dabo.ui.dPanel):
 		if not self.Parent.getProp("designerLock"):
 			self._dragging = True
 			self._dragStart = evt.EventData["mousePosition"]
+			print "_dragStart", self._dragStart
 			self._captureBitmap = self.getCaptureBitmap()
 
 
