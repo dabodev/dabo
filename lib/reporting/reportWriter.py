@@ -1,4 +1,12 @@
 import sys, os, copy
+
+try:
+	import reportlab
+	import PIL
+except ImportError:
+	import dabo
+	dabo.errorLog.write("PIL and reportlab are required to run the Dabo Report Writer.")
+	
 import reportlab.pdfgen.canvas as canvas
 import reportlab.graphics.shapes as shapes
 import reportlab.lib.pagesizes as pagesizes
