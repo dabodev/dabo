@@ -1264,7 +1264,12 @@ class dCursorMixin(dabo.common.dObject):
 
 	def _setBackendObject(self, obj):
 		self.__backend = obj
-		self.AuxiliaryCursor.__backend = obj
+		try:
+			self.AuxiliaryCursor.__backend = obj
+		except AttributeError:
+			## pkm: I don't know what to do here. There isn't an Auxiliary Cursor, which
+			## may not be a big deal. 
+			pass
 	
 	def _getBackendObject(self):
 		return self.__backend
