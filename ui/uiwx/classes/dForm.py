@@ -1,5 +1,6 @@
 import wx, dEvents, dControlMixin, dDataControlMixin
 from dFormMixin import dFormMixin
+from dabo.dError import dError
 from dabo.dLocalize import loc
 import dabo.dConstants as k
 import dMessageBox, dProgressDialog
@@ -181,15 +182,16 @@ class dForm(wxFrameClass, dFormMixin):
         '''
         self.activeControlValid()
         bizobj = self.getBizobj(dataSource)
-        response = bizobj.save(allRows=self.saveAllRows)
-        if response == k.FILE_OK:
+        
+        try:
+            bizobj.save(allRows=self.saveAllRows)
             if self.debug:
                 print "Save successful."
             self.setStatusText("Changes to %s saved." % (
                     self.saveAllRows and "all records" or "current record",))
-        else:
+        except dError, e:
             self.setStatusText("Save failed.")
-            dMessageBox.stop("Save failed:\n\n%s" % bizobj.getErrorMsg())
+            dMessageBox.stop("Save failed:\n\n%s" %  str(e))
     
             
     def cancel(self, dataSource=None):
@@ -200,17 +202,17 @@ class dForm(wxFrameClass, dFormMixin):
         '''
         self.activeControlValid()
         bizobj = self.getBizobj(dataSource)
-        response = bizobj.cancel(allRows=self.saveAllRows)
-        if response == k.FILE_OK:
+        
+        try:
+            bizobj.cancel(allRows=self.saveAllRows)
             if self.debug:
                 print "Cancel successful."
-            self.setStatusText("Changes to %s cancelled." % (
+            self.setStatusText("Changes to %s canceled." % (
                     self.saveAllRows and "all records" or "current record",))
             self.refreshControls()
-        else:
+        except dError, e:
             if self.debug:
-                print "Cancel failed with response: %s" % response
-                print bizobj.getErrorMsg()
+                print "Cancel failed with response: %s" % str(e)
             ### TODO: What should be done here? Raise an exception?
             ###       Prompt the user for a response?
     
@@ -233,10 +235,10 @@ class dForm(wxFrameClass, dFormMixin):
         
         self.setStatusText("Please wait... requerying dataset...")
         start = time.time()
-        response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
-        stop = round(time.time() - start, 3)
         
-        if response == k.FILE_OK:
+        try:
+            response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
+            stop = round(time.time() - start, 3)
             if self.debug:
                 print "Requery successful."
             self.setStatusText("%s record%sselected in %s second%s" % (
@@ -249,10 +251,10 @@ class dForm(wxFrameClass, dFormMixin):
             # Notify listeners that the row number changed:
             evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
             self.GetEventHandler().ProcessEvent(evt)
-        else:
+
+        except dError, e:
             if self.debug:
-                print "Requery failed with response: %s" % response
-                print bizobj.getErrorMsg()
+                print "Requery failed with response: %s" % str(e)
             ### TODO: What should be done here? Raise an exception?
             ###       Prompt the user for a response?
 
@@ -264,10 +266,10 @@ class dForm(wxFrameClass, dFormMixin):
         bizobj = self.getBizobj(dataSource)
         if not message:
             message = loc("This will delete the current record, and cannot "
-                          "be cancelled.\n\n Are you sure you want to do this?")
+                          "be canceled.\n\n Are you sure you want to do this?")
         if dMessageBox.areYouSure(message, defaultNo=True):
-            response = bizobj.delete()
-            if response == k.FILE_OK:
+            try:
+                bizobj.delete()
                 if self.debug:
                     print "Delete successful."
                 self.setStatusText("Record Deleted.")
@@ -275,10 +277,9 @@ class dForm(wxFrameClass, dFormMixin):
                 # Notify listeners that the row number changed:
                 evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
                 self.GetEventHandler().ProcessEvent(evt)
-            else:
+            except dError, e:
                 if self.debug:
-                    print "Delete failed with response: %s" % response
-                    print bizobj.getErrorMsg()
+                    print "Delete failed with response: %s" % str(e)
                 ### TODO: What should be done here? Raise an exception?
                 ###       Prompt the user for a response?
         
@@ -291,21 +292,20 @@ class dForm(wxFrameClass, dFormMixin):
         
         if not message:
             message = loc("This will delete all records in the recordset, and cannot "
-                          "be cancelled.\n\n Are you sure you want to do this?")
+                          "be canceled.\n\n Are you sure you want to do this?")
                        
         if dMessageBox.areYouSure(message, defaultNo=True):
-            response = bizobj.deleteAll()
-            if response == k.FILE_OK:
+            try:
+                bizobj.deleteAll()
                 if self.debug:
                     print "Delete All successful."
                 self.refreshControls()
                 # Notify listeners that the row number changed:
                 evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
                 self.GetEventHandler().ProcessEvent(evt)
-            else:
+            except dError, e:
                 if self.debug:
-                    print "Delete All failed with response: %s" % response
-                    print bizobj.getErrorMsg()
+                    print "Delete All failed with response: %s" % str(e)
                 ### TODO: What should be done here? Raise an exception?
                 ###       Prompt the user for a response?
     
@@ -315,8 +315,8 @@ class dForm(wxFrameClass, dFormMixin):
         '''
         self.activeControlValid()
         bizobj = self.getBizobj(dataSource)
-        response = bizobj.new()
-        if response == k.FILE_OK:
+        try:
+            bizobj.new()
             if self.debug:
                 print "New successful."
             statusText = self.getCurrentRecordText(dataSource)
@@ -325,10 +325,9 @@ class dForm(wxFrameClass, dFormMixin):
             # Notify listeners that the row number changed:
             evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
             self.GetEventHandler().ProcessEvent(evt)
-        else:
+        except dError, e:
             if self.debug:
-                print "New failed with response: %s" % response
-                print bizobj.getErrorMsg()
+                print "New failed with response: %s" % str(e)
             ### TODO: What should be done here? Raise an exception?
             ###       Prompt the user for a response?
 
@@ -375,14 +374,14 @@ class dForm(wxFrameClass, dFormMixin):
         rowNumber = bizobj.getRowNumber()+1
         rowCount = bizobj.getRowCount()
         if rowNumber == rowCount:
-            postText = ' (EOF)'
+            postText = loc(" (EOF)")
         elif rowNumber == 1:
-            postText = ' (BOF)'
+            postText = loc(" (BOF)")
         elif (rowNumber < 1 or rowNumber > rowCount):
-            postText = ' (???)'
+            postText = loc(" (???)")
         else:
-            postText = ''
-        return "Record %s/%s%s" % (rowNumber, rowCount, postText)
+            postText = ""
+        return loc("Record " ) + ("%s/%s%s" % (rowNumber, rowCount, postText))
     
         
     def activeControlValid(self):

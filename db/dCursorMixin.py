@@ -1,6 +1,7 @@
 import dabo.dConstants as k
 from dabo.db.dMemento import dMemento
 from dabo.dLocalize import loc
+from dabo.dError import dError
 import types
 
 class dCursorMixin:
@@ -103,14 +104,14 @@ class dCursorMixin:
         try:
             self.execute(self.sql, params)
         except:
-            return k.REQUERY_ERROR
+            raise dError, loc("Error executing the query")
         # Add mementos to each row of the result set
         self.addMemento(-1)
         # Clear the unsorted list, and then apply the current sort
         self.__unsortedRows = []
         if self.sortColumn:
             self.sort(self.sortColumn, self.sortOrder)
-        return k.REQUERY_SUCCESS
+        return True
         
     
     def sort(self, col, dir=None, caseSensitive=True):
@@ -321,46 +322,36 @@ class dCursorMixin:
         ''' Move the record pointer to the first record of the data set. 
         '''
         self.__errorMsg = ""
-        ret = k.FILE_OK
         if self.rowcount > 0:
             self.rownumber = 0
         else:
-            ret = k.FILE_NORECORDS
-            self.addToErrorMsg(loc("No records in data set"))
-        return ret
+            raise dError, loc("No records in data set")
 
 
     def prior(self):
         ''' Move the record pointer back one position in the recordset.
         '''
         self.__errorMsg = ""
-        ret = k.FILE_OK
         if self.rowcount > 0:
             if self.rownumber > 0:
                 self.rownumber -= 1
             else:
-                ret = k.FILE_BOF
-                self.addToErrorMsg(loc("Already at the beginning of the data set."))
+                raise dError, loc("Already at the beginning of the data set.")
         else:
-            ret = k.FILE_NORECORDS
-            self.addToErrorMsg(loc("No records in data set"))
-        return ret
+            raise dError, loc("No records in data set")
 
 
     def next(self):
         ''' Move the record pointer forward one position in the recordset.
         '''
         self.__errorMsg = ""
-        ret = k.FILE_OK
         if self.rowcount > 0:
             if self.rownumber < (self.rowcount-1):
                 self.rownumber += 1
             else:
-                ret = k.FILE_EOF
-                self.addToErrorMsg(loc("Already at the end of the data set."))
+                raise dError, loc("Already at the end of the data set.")
         else:
-            ret = k.FILE_NORECORDS
-            self.addToErrorMsg(loc("No records in data set"))
+            raise dError, loc("No records in data set")
         return ret
 
 
@@ -368,43 +359,38 @@ class dCursorMixin:
         ''' Move the record pointer to the last record in the recordset.
         '''
         self.__errorMsg = ""
-        ret = k.FILE_OK
         if self.rowcount > 0:
             self.rownumber = self.rowcount-1
         else:
-            ret = k.FILE_NORECORDS
-            self.addToErrorMsg(loc("No records in data set"))
-        return ret
+            raise dError, loc("No records in data set")
 
 
     def save(self, allrows=False):
         ''' Save any changes to the data back to the data store.
         '''
         self.__errorMsg = ""
-        ret = k.FILE_OK
 
         # Make sure that there is data to save
         if self.rowcount <= 0:
-            self.addToErrorMsg(loc("No data to save"))
-            return k.FILE_CANCEL
+            raise dError, loc("No data to save")
 
         # Make sure that there is a PK
-        if not self.checkPK():
-            self.addToErrorMsg(loc("No primary key"))
-            return k.FILE_CANCEL
+        try:
+            self.checkPK()
+        except dError, e:           
+            raise dError, e
 
         if allrows:
             recs = self._rows
         else:
             recs = (self._rows[self.rownumber],)
 
-        for rec in recs:
-            updret = self.__saverow(rec)
-            if updret != k.UPDATE_OK:
-                ret = k.FILE_CANCEL
-                self.addToErrorMsg(loc("Save row failed: %s.") % updret)
-                break
-        return ret
+        try:
+            for rec in recs:
+                self.__saverow(rec)
+        except dError, e:
+            # Pass it back to the calling program
+            raise dError, e
 
 
     def __saverow(self, rec):
@@ -412,7 +398,6 @@ class dCursorMixin:
         mem = rec[k.CURSOR_MEMENTO]
         diff = mem.makeDiff(rec, newrec)
         
-        ret = k.UPDATE_OK
         if diff:
             if newrec:
                 flds = ""
@@ -453,14 +438,12 @@ class dCursorMixin:
                 del rec[k.CURSOR_NEWFLAG]
             else:
                 if not res:
-                    ret = k.UPDATE_NORECORDS
-        return ret
+                    raise dError, loc("No records updated")
 
 
     def new(self):
         ''' Add a new record to the data set.
         '''
-        ret = k.FILE_OK
         try:
             if not self._blank:
                 self.__setStructure()
@@ -476,19 +459,16 @@ class dCursorMixin:
             # Add the memento
             self.addMemento(self.rownumber)
         except:
-            ret = k.FILE_CANCEL
-        return ret
+            raise dError, loc("Unable to add new record")
 
 
     def cancel(self, allrows=False):
         ''' Revert any changes to the data set back to the original values.
         '''
         self.__errorMsg = ""
-        ret = k.FILE_OK
         # Make sure that there is data to save
         if not self.rowcount >= 0:
-            self.addToErrorMsg(loc("No data to cancel"))
-            return k.FILE_CANCEL
+            raise dError, loc("No data to cancel")
 
         if allrows:
             recs = self._rows
@@ -503,14 +483,14 @@ class dCursorMixin:
                     continue
                     
                 newrec =  rec.has_key(k.CURSOR_NEWFLAG)
-                if newrec:
-                    # Discard the record, and adjust the props
-                    ret = self.delete(i)
-                else:
-                    ret = self.__cancelRow(rec)
-                if ret != k.FILE_OK:
-                    break
-        return ret
+                try:
+                    if newrec:
+                        # Discard the record, and adjust the props
+                        self.delete(i)
+                    else:
+                        self.__cancelRow(rec)
+                except dError, e:
+                    raise dError, e
 
 
     def __cancelRow(self, rec):
@@ -519,7 +499,6 @@ class dCursorMixin:
         if diff:
             for fld, val in diff.items():
                 rec[fld] = mem.getOrigVal(fld)
-        return k.FILE_OK
 
 
     def delete(self, delRowNum=None):
@@ -527,8 +506,6 @@ class dCursorMixin:
         
         If no row specified, delete the currently active row.
         '''
-        ret = k.FILE_OK
-
         if delRowNum is None:
             # assume that it is the current row that is to be deleted
             delRowNum = self.rownumber
@@ -555,8 +532,7 @@ class dCursorMixin:
             self.__restoreProps()
         else:
             # Nothing was deleted
-            ret = FILE_CANCEL
-        return ret
+            raise dError, loc("No records deleted")
 
 
     def setDefaults(self, vals):
@@ -649,13 +625,11 @@ class dCursorMixin:
         ''' Move the record pointer to the specified row number.
         
         If the specified row does not exist, the pointer remains where it is, 
-        and False is returned.
+        and an exception is raised.
         '''
         if (rownum >= self.rowcount) or (rownum < 0):
-            self.addToErrorMsg(loc("Invalid row specified."))
-            return False
+            raise dError, loc("Invalid row specified.")
         self.rownumber = rownum
-        return True
     
     
     def seek(self, val, fld=None, caseSensitive=True, near=False):
@@ -679,7 +653,7 @@ class dCursorMixin:
             self.addToErrorMsg(loc("No field specified for seek()"))
             return ret
         if not fld or not self._rows[0].has_key(fld):
-            self.addToErrorMsg(loc("Non-existant field"))
+            self.addToErrorMsg(loc("Non-existent field"))
             return ret
         
         # Copy the specified field vals and their row numbers to a list, and 
@@ -751,19 +725,15 @@ class dCursorMixin:
         '''
         # First, make sure that there is *something* in the field
         if not self.keyField:
-            self.addToErrorMsg(loc("checkPK failed; no primary key specified"))
-            return False
+            raise dError, loc("checkPK failed; no primary key specified")
 
         aFields = self.keyField.split(",")
         # Make sure that there is a field with that name in the data set
-        ret = True
         try:
             for fld in aFields:
                 self._rows[0][fld]
         except:
-            self.addToErrorMsg(loc("Primary key field '") + fld + loc("' does not exist in the data set"))
-            ret = False
-        return ret
+            raise dError, loc("Primary key field does not exist in the data set: ") + fld
 
 
     def makePkWhere(self, rec=None):
@@ -861,7 +831,7 @@ class dCursorMixin:
         
         Override in subclasses.
         '''
-        return k.FILE_OK
+        return True
 
 
     def commitTransaction(self):
@@ -869,7 +839,7 @@ class dCursorMixin:
         
         Override in subclasses.
         '''
-        return k.FILE_OK
+        return True
 
 
     def rollbackTransaction(self):
@@ -877,4 +847,4 @@ class dCursorMixin:
         
         Override in subclasses.
         '''
-        return k.FILE_OK
+        return True

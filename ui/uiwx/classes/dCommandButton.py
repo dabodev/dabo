@@ -2,8 +2,9 @@ import wx
 from dControlMixin import dControlMixin
 
 class dCommandButton(wx.Button, dControlMixin):
-    def __init__(self, parent, name="dCommandButton", label=""):
-        wx.Button.__init__(self, parent, -1, label)
+    def __init__(self, parent, name="dCommandButton", label="", 
+            pos=wx.DefaultPosition, size=wx.DefaultSize):
+        wx.Button.__init__(self, parent, -1, label, pos, size)
         self.SetName(name)
         self.SetSize((80,-1))
         dControlMixin.__init__(self, name)
