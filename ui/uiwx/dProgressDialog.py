@@ -91,7 +91,7 @@ class dProgressTimer(wx.Timer):
 		self.parent = parent
 		self.dlg = None
 		wx.Timer.__init__(self)
-		self.Start(1000 * wait, True)
+#		self.Start(1000 * wait, True)
 		func()
 		self.Stop()
 		if self.dlg is not None:

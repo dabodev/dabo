@@ -93,12 +93,13 @@ class dSelectPage(dPage.dPage):
 		self.selectOptionsPanel.SetFocus()
 		
 		dSelectPage.doDefault()
-		
+
 		if self.Form.RequeryOnLoad and not self.Form._requeried:
 			self.Form._requeried = True
-			self.requery()
-			
+			self.Parent.SetSelection(1)  # must happen or focus is fubared
+			wx.CallAfter(self.requery)
 
+						
 	def getWhere(self, biz):
 		# for each checked selection item, get the where clause:
 		user1, user2 = None, None
@@ -151,6 +152,7 @@ class dSelectPage(dPage.dPage):
 		if self.GetParent().GetSelection() == 0:
 			# If the select page is active, now make the browse page active
 			self.Parent.SetSelection(1)
+			
 
 
 	def _getSelectOptionsPanel(self):
