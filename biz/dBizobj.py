@@ -469,19 +469,38 @@ class dBizobj(dabo.common.DoDefaultMixin):
 
 
 	def moveToRowNum(self, rownum):
+		""" For internal use only! Should never be called from a developer's code.
+		It exists so that a bizobj can move through the records in its cursor
+		*without* firing additional code.
+		"""
 		self._cursor.moveToRowNum(rownum)
-		self.requeryAllChildren()
-		self.afterPointerMove()
 
 
 	def moveToPK(self, pk):
+		""" For internal use only! Should never be called from a developer's code.
+		It exists so that a bizobj can move through the records in its cursor
+		*without* firing additional code.
+		"""
 		self._cursor.moveToPK(pk)
-		self.requeryAllChildren()
-		self.afterPointerMove()
 
 
-	def seek(self, val, fld=None, caseSensitive=False, near=False):
-		return self._cursor.seek(val, fld, caseSensitive, near)
+	def seek(self, val, fld=None, caseSensitive=False, 
+			near=False, runRequery=False):
+		""" Used for searching of the bizobj's cursor for a particular value in a 
+		particular field. Can be optionally case-sensitive.
+		If 'near' is True, and no exact match is found in the cursor, the cursor's
+		record pointer will be placed at the record whose value in that field
+		is closest to the desired value without being greater than the requested 
+		value.
+		If runRequery is True, and the record pointer is moved, all child bizobjs
+		will be requeried, and the afterPointerMove() hook method will fire.
+		"""
+		ret = self._cursor.seek(val, fld, caseSensitive, near)
+		if ret != -1:
+			if runRequery:
+				self.requeryAllChildren()
+				self.afterPointerMove()
+		return ret
 
 
 	def isChanged(self, allRows=False):
@@ -564,12 +583,11 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	def getPK(self):
 		""" Returns the value of the PK field """
 		return self._cursor.getFieldVal(self.KeyField)
-	
+
 
 	def getParentPK(self):
 		""" Returns the value of the parent bizobjs' PK. """
-		print self.Parent, self.Parent.KeyField
-		return self.Parent.getPK()
+		return self._parent.getPK()
 
 
 	def getFieldVal(self, fld):
