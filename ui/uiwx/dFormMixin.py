@@ -41,6 +41,8 @@ class dFormMixin(pm.dPemMixin):
 		self._holdStatusText = ""
 		if self.Application is not None:
 			self.Application.uiForms.add(self)
+		# Flag to skip updates when they aren't needed
+		self._isClosed = False
 		
 		super(dFormMixin, self)._afterInit()
 	
@@ -100,6 +102,11 @@ class dFormMixin(pm.dPemMixin):
 				return
 			# Run the cleanup code.
 			self.closing()
+		
+		# On the Mac, this next line prevents Bus Errors when closing a form.
+		self.Visible = False		
+		self._isClosed = True
+		self.SetFocus()
 		if self.Application is not None:
 			self.Application.uiForms.remove(self)
 		self.saveSizeAndPosition()
