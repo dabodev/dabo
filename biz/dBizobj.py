@@ -30,6 +30,7 @@ class dBizobj(dabo.common.dObject):
 		self.__params = None		# tuple of params to be merged with the sql in the cursor
 		self.__children = []		# Collection of child bizobjs
 		self._baseClass = dBizobj
+		self.__areThereAnyChanges = False	# Used by the isChanged() method.
 
 		dBizobj.doDefault()		
 		##########################################
@@ -140,6 +141,7 @@ class dBizobj(dabo.common.dObject):
 		crs.setKeyField(self.KeyField)
 		crs.setTable(self.DataSource)
 		crs.setAutoPopulatePK(self.AutoPopulatePK)
+		crs.BackendObject = self._conn.BackendObject
 		if self.RequeryOnLoad:
 			crs.requery()
 		self.afterCreateCursor(crs)
@@ -658,9 +660,9 @@ class dBizobj(dabo.common.dObject):
 		""" Returns True if any record in the current record set has been 
 		changed.
 		"""
-		self.areThereAnyChanges = False
+		self.__areThereAnyChanges = False
 		self.scan(self._checkForChanges)
-		return self.areThereAnyChanges
+		return self.__areThereAnyChanges
 	
 	
 	def _checkForChanges(self):
@@ -669,7 +671,7 @@ class dBizobj(dabo.common.dObject):
 		exit flag, since we only need to know if anything has changed.
 		"""
 		if self.isChanged():
-			self.areThereAnyChanges = True
+			self.__areThereAnyChanges = True
 			self.exitScan = True
 
 
@@ -680,11 +682,10 @@ class dBizobj(dabo.common.dObject):
 		check all records.
 		"""
 		ret = self.Cursor.isChanged()
-
 		if not ret:
 			# see if any child bizobjs have changed
 			for child in self.__children:
-				ret = ret and child.isAnyChanged()
+				ret = child.isAnyChanged()
 				if ret:
 					break
 		return ret
