@@ -590,7 +590,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		
 		# Fill in the link to the parent record
 		if self.Parent and self.FillLinkFromParent and self.LinkField:
-			self.setFieldVal(self.LinkField, self.getParentPK)
+			self.setFieldVal(self.LinkField, self.getParentPK() )
 
 		# Call the custom hook method
 		self.onNewHook()
