@@ -77,8 +77,6 @@ class dCursorMixin:
 
     def requery(self, params=None):
         self.lastSQL = self.sql
-        if type(params) == type(tuple()) and len(params) == 0:
-            params = None
         self.lastParams = params
         try:
             self.execute(self.sql, params)
@@ -96,7 +94,7 @@ class dCursorMixin:
         """
         ret = False
         if self.rowcount > 0:
-            for i in range(0, self.rowcount-1):
+            for i in range(0, self.rowcount):
                 rec = self._rows[i]
                 mem = rec[k.CURSOR_MEMENTO]
                 newrec = rec.has_key(k.CURSOR_NEWFLAG)
@@ -393,7 +391,7 @@ class dCursorMixin:
         as changes to the original values. 
         """
         row = self._rows[self.rownumber]
-        for kk, vv in vals:
+        for kk, vv in vals.items():
             row[kk] = vv
         row[k.CURSOR_MEMENTO].setMemento(row)
 
@@ -407,7 +405,7 @@ class dCursorMixin:
             # Make sure that there are rows to process
             if self.rowcount < 1:
                 return
-            for i in range(0, self.rowcount-1):
+            for i in range(0, self.rowcount):
                 self.addMemento(i)
         row = self._rows[rownum]
         if not row.has_key(k.CURSOR_MEMENTO):

@@ -13,8 +13,8 @@ class dBizobj(object):
     noDataOnLoad = False
     # Determines if we are using a table that auto-generates its PKs.
     autoPopulatePK = True
-    # Holds the params to be merged with the sql in the cursor
-    _params = ()
+    # Holds the tuple of params to be merged with the sql in the cursor
+    _params = None
     # Reference to the cursor object 
     _cursor = None
     # Class to instantiate for the cursor object
