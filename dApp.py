@@ -76,6 +76,9 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		dabo.dAppRef = self
 		dApp.doDefault()
 		self._initProperties()
+		# If this is a class reference, this class will be used as the 
+		# main frame of the app instead of the default.
+		self.mainFrameClass = None
 
 		
 	def setup(self):
