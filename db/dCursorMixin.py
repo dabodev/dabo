@@ -34,9 +34,6 @@ class dCursorMixin:
 	__nonUpdateFields = []
 	# User-editable list of non-updated fields
 	nonUpdateFields = []
-	# Counter for the saved property stack. Prevents multiple calls
-	# to __saveProps from overwriting each other.
-	__propSaveStack = 0
 
 
 	def __init__(self, sql="", *args, **kwargs):
