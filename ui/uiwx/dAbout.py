@@ -22,7 +22,7 @@ class dAbout(dForm.dForm):
 	def afterInit(self):
 		dAbout.doDefault()
 		self.CenterOnScreen()
-		self.SetFocus()
+		self.draw()  # doesn't happen on Mac otherwise
 
 	def restoreSizeAndPosition(self):
 		pass
