@@ -32,7 +32,9 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 		
 	def onValueChanged(self, evt):
 		# italicize if we are ignoring the field:
-		self.FontItalic = self.Target.FontItalic = (IGNORE_STRING in self.StringValue)
+		self.FontItalic = (IGNORE_STRING in self.StringValue)
+		if self.Target:
+			self.Target.FontItalic = self.FontItalic
 		
 	def onChoiceMade(self, evt):
 		if IGNORE_STRING not in self.StringValue:
@@ -48,7 +50,8 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 			
 	def _setTarget(self, tgt):
 		self._target = tgt
-		self.Target.FontItalic = self.FontItalic
+		if self.Target:
+			self.Target.FontItalic = self.FontItalic
 		
 	Target = property(_getTarget, _setTarget, None, "Holds a reference to the edit control.")
 	

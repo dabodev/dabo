@@ -187,30 +187,23 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def saveValue(self):
 		""" Save control's value to dApp's user settings table.
 		"""
-		try:
-			app = self.Application
-		except AttributeError:
-			app = None
 
-		# It is too late to get Value directly:		
+		# It is too late to get Value directly (since we are being called from Destroy, and wx
+		# has already released the C++ part of the object).
 		value = self._value	
 
-		if app:
+		if self.Application:
 			name = self.getAbsoluteName()
-			app.setUserSetting("%s.Value" % name, self.getShortDataType(value), value)
+			self.Application.setUserSetting("%s.Value" % name, self.getShortDataType(value), value)
 		
 			
 	def restoreValue(self):
 		""" Set the control's value to the value in dApp's user settings table.
 		"""
-		try:
-			app = self.Application
-		except AttributeError:
-			app = None
 			
-		if app:
+		if self.Application:
 			name = self.getAbsoluteName()
-			value = app.getUserSetting("%s.Value" % name)
+			value = self.Application.getUserSetting("%s.Value" % name)
 
 			if value is not None:
 				try:
