@@ -709,7 +709,7 @@ class dEditPage(DataNavPage):
 	def createItems(self):
 		fs = self.fieldSpecs
 		relationSpecs = self.Form.RelationSpecs
-		showEdit = [ (fld, fs[fld]["editOrder"]) 
+		showEdit = [ (fld, int(fs[fld]["editOrder"])) 
 				for fld in fs
 				if (fld[:5] != "_join" and fs[fld]["editInclude"] == "1")]
 		showEdit.sort(lambda x, y: cmp(x[1], y[1]))
