@@ -11,7 +11,7 @@ from dabo.dLocalize import _
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 	""" Allows visual editing of boolean values.
 	"""
-	def __init__(self, parent, id=-1, name='dCheckBox', style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, name="dCheckBox", style=0, *args, **kwargs):
 		
 		self._baseClass = dCheckBox
 
@@ -30,31 +30,52 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		# Respond to EVT_CHECKBOX and raise dEvents.Hit:
 		self.Bind(wx.EVT_CHECKBOX, self._onWxHit)
 		
-				
+		if wx.Platform == "__WXMAC__":
+			self.bindEvent(dEvents.Hit, self._onHit )
+	
+	def _onHit(self, evt):
+		self.flushValue()
+
 	# property get/set functions
 	def _getAlignment(self):
 		if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):
-			return 'Right'
+			return "Right"
 		else:
-			return 'Left'
+			return "Left"
 
 	def _getAlignmentEditorInfo(self):
-		return {'editor': 'list', 'values': ['Left', 'Right']}
+		return {"editor": "list", "values": ["Left", "Right"]}
 
 	def _setAlignment(self, value):
 		self.delWindowStyleFlag(wx.ALIGN_RIGHT)
-		if str(value) == 'Right':
+		if str(value) == "Right":
 			self.addWindowStyleFlag(wx.ALIGN_RIGHT)
-		elif str(value) == 'Left':
+		elif str(value) == "Left":
 			pass
 		else:
 			raise ValueError, "The only possible values are 'Left' and 'Right'."
 
+	def _getValue(self):
+		return dCheckBox.doDefault()
+		
+	def _setValue(self, value):
+		dCheckBox.doDefault(value)
+# 		curVal = value
+# 		if curVal != self._oldVal and self.DataSource and self.DataField:
+# 			self.setFieldVal(curVal)
+# 		self.SetValue(value)
+# 		self._oldVal = curVal
+
+		
 	# property definitions follow:
 	Alignment = property(_getAlignment, _setAlignment, None,
-						'Specifies the alignment of the text. (int) \n'
-						'   Left  : Checkbox to left of text (default) \n'
-						'   Right : Checkbox to right of text')
+			"Specifies the alignment of the text. (int) \n"
+			"   Left  : Checkbox to left of text (default) \n"
+			"   Right : Checkbox to right of text")
+
+	Value = property(_getValue, _setValue, None,
+			"Specifies the current state of the control (the value of the field). (varies)")
+						
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(dCheckBox)
