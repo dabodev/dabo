@@ -230,7 +230,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				else:
 					width = 200
 				width = max(width, minWidth)
-
+			
 			self.grid.SetColSize(gridCol, width)
 			idx += 1
 		self.grid.EndBatch()
@@ -1004,6 +1004,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return "\n".join(html)
 
 
+	def getRowHeight(self, row):
+		return self.GetRowSize(row)
+			
+	
+	def setRowHeight(self, row, ht):
+		if self.SameSizeRows:
+			self.SetDefaultRowSize(ht, True)
+			self.ForceRefresh()
+		else:
+			self.SetRowSize(row, ht)
+			
+	
 	def getColByX(self, x):
 		""" Given the x-coordinate, return the column number.
 		"""

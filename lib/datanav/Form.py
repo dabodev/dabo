@@ -221,7 +221,7 @@ class Form(dabo.ui.dForm):
 
 	def onShowSizerLines(self, evt):
 		self.drawSizerOutlines = evt.EventObject.IsChecked()
-		self.Refresh()
+		self.refresh()
 
 
 	def setupMenu(self):
@@ -265,7 +265,7 @@ class Form(dabo.ui.dForm):
 		except: pass
 		
 		if self.beforeSetupPageFrame():
-			self.Freeze()
+			self.lockScreen()
 			self.pageFrame = PageFrame.PageFrame(self)
 			nbSizer = wx.NotebookSizer(self.pageFrame)
 			self.Sizer.append(nbSizer, "expand", 1)
@@ -278,9 +278,9 @@ class Form(dabo.ui.dForm):
 			self.addEditPages(ds)
 			self.pageFrame.SetSelection(currPage)
 			self.afterSetupPageFrame()
-			self.Thaw()
+			self.unlockScreen()
 			self.Sizer.layout()
-			self.Refresh()
+			self.refresh()
 
 			
 	def beforeSetupPageFrame(self): return True
