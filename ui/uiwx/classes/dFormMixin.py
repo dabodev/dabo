@@ -28,7 +28,10 @@ class dFormMixin(pm.dPemMixin):
             # Restore the saved size and position, which can't happen 
             # in __init__ because we may not have our name yet.
             self.restoredSP = True
-            self.restoreSizeAndPosition()
+            if wx.GetApp().GetTopWindow() == self and wx.Platform == '__WXMAC__':
+                self.SetSize((1,1))
+            else:
+                self.restoreSizeAndPosition()
         event.Skip()
     
     
@@ -120,8 +123,9 @@ class dFormMixin(pm.dPemMixin):
             controllingFrame = self.dApp.mainFrame
         else:
             controllingFrame = self
-        controllingFrame.SetStatusText(*args)
-        controllingFrame.GetStatusBar().Update()
+        if controllingFrame.GetStatusBar():
+            controllingFrame.SetStatusText(*args)
+            controllingFrame.GetStatusBar().Update()
 
         
     def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap):

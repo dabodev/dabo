@@ -80,7 +80,7 @@ cellpadding="0" border="1">
         ir = html.GetInternalRepresentation()
         html.SetSize( (ir.GetWidth()+25, ir.GetHeight()+25) )
         self.SetClientSize(html.GetSize())
-        self.CentreOnParent(wx.BOTH)
+        self.Center(wx.BOTH|wx.CENTER_ON_SCREEN)
 
 #---------------------------------------------------------------------------
 
