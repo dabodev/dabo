@@ -33,3 +33,8 @@ from dPage import dPage
 from dSpinner import dSpinner
 from dTextBox import dTextBox
 from dTreeView import dTreeView
+
+# Tell Dabo Designer what classes to put in the selection menu:
+daboDesignerClasses = [dCheckBox, dCommandButton, dEditBox, dForm,
+		dFormDataNav, dFormMain, dLabel, dPanel, dPageFrame,
+		dPage, dSpinner, dTextBox]
