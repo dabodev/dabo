@@ -26,9 +26,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
         self.data = []
         
         for column in self.grid.columnDefs:
-            self.colLabels.append(column["caption"])
-            self.colNames.append(column["name"])
-            self.dataTypes.append(self.getWxGridType(column["type"]))
+            if column['showGrid']:
+                self.colLabels.append(column["caption"])
+                self.colNames.append(column["name"])
+                self.dataTypes.append(self.getWxGridType(column["type"]))
 
     def fillTable(self):
         ''' dGridDataTable.fillTable() -> None
@@ -50,11 +51,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
         for record in dataSet:
             recordDict = []
             for column in self.grid.columnDefs:
-                recordVal = record[column["name"]]
-                if column["type"] == "M":
-                    # Show only the first 64 chars of the long text:
-                    recordVal = str(recordVal)[:64]
-                recordDict.append(recordVal)
+                if column['showGrid']:
+                    recordVal = record[column["name"]]
+                    if column["type"] == "M":
+                        # Show only the first 64 chars of the long text:
+                        recordVal = str(recordVal)[:64]
+                    recordDict.append(recordVal)
 
             self.data.append(recordDict)
         
@@ -93,6 +95,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
             grid data table to determine the editors to use for the
             various columns.
         '''
+        if xBaseType == "L":
+            return wx.grid.GRID_VALUE_BOOL
         if xBaseType == "I":
             return wx.grid.GRID_VALUE_NUMBER
         elif xBaseType == "C":
@@ -162,7 +166,7 @@ class dGrid(wx.grid.Grid):
         
         ID_IncrementalSearchTimer = wx.NewId()
         self.currentIncrementalSearch = ""
-        self.incrementalSearchTimerInterval = 400     # This needs to be user-tweakable
+        self.incrementalSearchTimerInterval = 300     # This needs to be user-tweakable
         self.incrementalSearchTimer = wx.Timer(self, ID_IncrementalSearchTimer)
         
         self.sortedColumn = None
@@ -170,7 +174,6 @@ class dGrid(wx.grid.Grid):
                 
         self.SetRowLabelSize(0)
         self.SetMargins(0,0)
-        self.AutoSizeColumns(True)      # If grid seems slow, this could be the problem.
         self.EnableEditing(False)
         
         wx.EVT_TIMER(self,  ID_IncrementalSearchTimer, self.OnIncrementalSearchTimer)
@@ -194,6 +197,8 @@ class dGrid(wx.grid.Grid):
         if not self.GetTable():
             self.SetTable(dGridDataTable(self), True)
         self.GetTable().fillTable()
+        self.AutoSizeColumns(True)      # If grid seems slow, this could be the problem.
+
     
     def OnGridSelectCell(self, event):
         ''' dGrid.OnGridSelectCell(event) -> None

@@ -1,3 +1,4 @@
+# Unneeded.
 
 class dConnection(object):
     ''' Hold a connection to a backend database. '''

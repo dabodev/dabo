@@ -672,17 +672,17 @@ class dCursorMixin:
         # there are more efficient search algorithms, but for this purpose, we'll
         # just use brute force
         for fldval, row in sortList:
-            if fldval == val:
+            if fldval.lower() == val.lower():
                 # Found a match!
                 ret = row
                 break
             else:
                 if near:
                     ret = row
-                # If we are not doing an near search, see if the row is less than
+                # If we are doing a near search, see if the row is less than the
                 # requested matching value. If so, update the value of 'ret'. If not,
                 # we have passed the matching value, so there's no point in 
-                # continuing the search
+                # continuing the search, but we mu
                 if compString and not caseSensitive:
                     toofar = fldval.lower() > val.lower()
                 else:

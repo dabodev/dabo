@@ -53,12 +53,15 @@ class Collection(list):
         """
         self.append(objRef)
     
-    def remove(self, index):
+    def remove(self, objRef):
         """ 
         Collection.remove(objRef)
             Delete the object reference from the collection.
         """
-        del self[index]
+        index = self.index(objRef)
+        
+        if index >= 0:
+            del self[index]
 
                 
 class dApp(object):
@@ -171,90 +174,64 @@ class dApp(object):
                          day,hour,minute,second,?,?,?)'
 
 	    '''
-        return None
-        # Old code that wrote the setting to a backend db,
-        # which isn't appropriate in framework level code
-        # where we aren't even guaranteed that a db exists.
-#         sql = (' select cvaluetype as cvaluetype, '
-#                '        mvalue as mvalue '
-#                '   from dabosettings '
-#                '  where mname = "%s" '
-#                '    and cuserid = "%s" '
-#                '    and csystemid = "%s" '
-#                '    and ldeleted=0' % ( item, user, system))
-#  
-#         try:
-#             rs = self.dbc.dbRecordSet(sql)
-#             try:
-#                 type = rs[0].cvaluetype
-#                 val = rs[0].mvalue
-#             except IndexError:
-#                 type = None
-#                 val = None
-# 
-#             if type in ('C', 'M'):
-#                 return str(val)
-#             elif type in ('I',):
-#                 return int(val)
-#             elif type in ('N',):
-#                 return float(val)
-#             elif type in ('D','T'):
-#                 timeTuple = eval(val)
-#                 if type(timeTuple) == type(tuple()):
-#                     return val
-#                 else:
-#                     return None
-#             else:
-#                 return None
-#         except:
-#             return None
-            
+        import ConfigParser
+        
+        print "get", item
+        
+        configFileName = '%s/.userSettings.ini' % self.homeDir
+
+        cp = ConfigParser.ConfigParser()
+        cp.read(configFileName)
+
+        try:
+            valueType = cp.get("UserSettingsValueTypes", item)
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+            valueType = "C"
+        
+        try:
+            if valueType == "I":
+                value = cp.getint("UserSettings", item)
+            elif valueType == "N":
+                value = cp.getfloat("UserSettings", item)
+            elif valueType == "L":
+                value = cp.getboolean("UserSettings", item)
+            else:
+                value = cp.get("UserSettings", item)
+        except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
+            value = None
+        
+        return value
+        
+                    
     def setUserSetting(self, item, valueType, value, user="*", system="*"):
         ''' Set the value of the user settings table that corresponds to the
             item, user, and systemid passed. If it doesn't exist in the table,
             add it. See self.getUserSetting() for the type codes. 
         '''
-        import time
+        print "set", item, valueType, value
+        # For now, save this info in a plain ini file. Eventually, I'd like
+        # to see this get saved in a persistent dabosettings db table.
+        import ConfigParser
+        
+        configFileName = '%s/.userSettings.ini' % self.homeDir
 
+        cp = ConfigParser.ConfigParser()
+        cp.read(configFileName)
+        
         # convert value to string type for saving to db:
         value = str(value)
         
-        pass
-        # Old code that wrote the setting to a backend db,
-        # which isn't appropriate in framework level code
-        # where we aren't even guaranteed that a db exists.
-            
-#         # determine if the entry already exists in the dabosettings table:
-#         sql = (' select count(*) as ncount from dabosettings '
-#                '  where mname = "%s" '
-#                '    and cuserid = "%s" '
-#                '    and csystemid = "%s" '
-#                '    and ldeleted = 0 ' % ( item, user, system))
-# 
-#         try:
-#             rs = self.dbc.dbRecordSet(sql)
-#             if rs[0].ncount > 0:
-#                 # update the existing record
-#                 sql = (' update dabosettings '
-#                     '    set cvaluetype = "%s", '
-#                     '        mvalue = "%s" '
-#                     '  where mname = "%s" '
-#                     '    and cuserid = "%s" '
-#                     '    and csystemid = "%s" '
-#                     '    and ldeleted = 0 ' % (valueType,value,item,user,system))     
-#             else:
-#                 # insert a new record
-#                 sql = (' insert into dabosettings (cvaluetype, '
-#                     '                           mvalue, '
-#                     '                           mname, '
-#                     '                           cuserid, '
-#                     '                           csystemid) '
-#                     '   values ("%s","%s","%s","%s","%s") '
-#                             % (valueType,value,item,user,system))     
-# 
-#             self.dbc.dbCommand(sql)
-#         except:
-#             pass
+        if not cp.has_section("UserSettings"):
+            cp.add_section("UserSettings")
+        cp.set("UserSettings", item, value)
+        
+        if not cp.has_section("UserSettingsValueTypes"):
+            cp.add_section("UserSettingsValueTypes")
+        cp.set("UserSettingsValueTypes", item, valueType)
+        
+        configFile = open(configFileName, 'w')
+        cp.write(configFile)
+        configFile.close()
     
     def _initProperties(self):
         """ Initialize the public properties of the app object. """
@@ -341,37 +318,3 @@ class dApp(object):
         print "User interface set to %s using module %s" % (self.uiType, self.uiModule)
         
             
-    def _getDynamicViews(self):
-        dynamicViews = {}
-        try:
-            dynviewDefs = os.listdir("%s/dynamicViews" % homeDir)
-        except:
-            dynviewDefs = []
-         
-        for file in dynviewDefs:
-            if file[-3:] == ".py" and file[0:3] == "vr_":
-                fileStem = file[:-3]
-                try:
-                    file = open("./dynamicViews/%s" % file, "r")
-                    exec(file) # creates the viewDef variable
-                    dynamicViews["%s" % fileStem] = viewDef #viewdef.viewDef
-                    dynamicViews["%s" % fileStem]["Id"] = 23
-#                    dynamicViews["%s" % fileStem]["Id"] = wx.NewId()
-                     
-                except KeyError:
-                    pass	
-        
-        return dynamicViews
-
-    def getDynamicViewNameFromId(self, Id):
-        dynViewName = None
-        for dynview in self.dynamicViews:
-            try:
-                viewId = self.dynamicViews[dynview]["Id"]
-            except KeyError:
-                viewId = -1
-            if Id == viewId:
-                dynViewName = dynview
-                break
-        return dynViewName
-        

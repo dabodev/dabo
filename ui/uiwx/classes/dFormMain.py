@@ -15,6 +15,8 @@ class dFormMain(wxFrameClass, dFormMixin):
     def __init__(self, dApp=None):
         wxFrameClass.__init__(self, None, -1, "dFormMain")
         self.SetName("dFormMain")
+        self.SetSize((640,480))
+        self.SetPosition((0,0))
         dFormMixin.__init__(self, dApp)
         self.CreateStatusBar()
         self.SetMenuBar(dMainMenuBar(self))
@@ -27,8 +29,6 @@ class dFormMain(wxFrameClass, dFormMixin):
             self.SetLabel("Dabo")
             self.SetStatusText("Welcome to Dabo!")
         
-        self.SetSize((640,480))
-        self.SetPosition((0,0))
         
     def statusMessage(self, message=""):
         statusBar = self.GetStatusBar()

@@ -488,7 +488,9 @@ class dBizobj(object):
         
         for i in recrange:
             if self.moveToRowNum(i):
-                ret = self.validateRecord()
+                if self.isChanged():
+                    # No need to validate if the data hasn't changed
+                    ret = self.validateRecord()
             else:
                 # TODO: raise an exception!
                 ret = False

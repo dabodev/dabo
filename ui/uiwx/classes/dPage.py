@@ -2,6 +2,11 @@
 import wx
 from dGrid import dGrid
 from dControlMixin import dControlMixin
+from dEditBox import dEditBox
+from dTextBox import dTextBox
+from dSpinner import dSpinner
+from dCheckBox import dCheckBox
+from dLabel import dLabel
 import dMessageBox, dEvents
 
 class dPage(wx.Panel, dControlMixin):
@@ -11,7 +16,7 @@ class dPage(wx.Panel, dControlMixin):
         dControlMixin.__init__(self, name)
 
         self.initSizer()
-        self.fillItems()
+        self.itemsFilled = False
         
     def initSizer(self):
         ''' dPage.initSizer() -> None
@@ -25,8 +30,8 @@ class dPage(wx.Panel, dControlMixin):
     def fillItems(self):
         ''' dPage.fillItems() -> None
         
-            Called during page init. This is where to add your
-            controls to the page.
+            Called when it is time to add items to the page (when the
+            page first becomes active).
         '''
         pass
         
@@ -36,7 +41,9 @@ class dPage(wx.Panel, dControlMixin):
             This method gets called when this page becomes the 
             active page.
         '''
-        pass
+        if not self.itemsFilled:
+            self.fillItems()
+            self.itemsFilled = True
         
     def onLeavePage(self):
         ''' dPage.onLeavePage() -> None
@@ -93,7 +100,7 @@ class dBrowsePage(dPage):
     def fillGrid(self):
         form = self.getDform()
         bizobj = form.getBizobj()
-        self.grid.columnDefs = form.getGridColumnDefs(bizobj.dataSource)
+        self.grid.columnDefs = form.getColumnDefs(bizobj.dataSource)
         self.grid.fillGrid()
         
     def editRecord(self):
@@ -103,6 +110,7 @@ class dBrowsePage(dPage):
 class dEditPage(dPage):
     def onEnterPage(self):
         self.onValueRefresh()
+        dPage.onEnterPage(self)
 
     def onValueRefresh(self, event=None):
         form = self.getDform()
@@ -112,3 +120,60 @@ class dEditPage(dPage):
         else:
             self.Enable(False)
         
+    def fillItems(self):
+        try:
+            dataSource = self.getDform().getBizobj().dataSource
+        except (NameError, AttributeError):
+            return
+            
+        columnDefs = self.getDform().getColumnDefs(dataSource)
+            
+        for column in columnDefs:
+            
+            if column["showEdit"] == True:
+                fieldName = column["name"]
+                labelCaption = "%s:" % column["caption"]
+                fieldType = column["type"]
+                fieldEnabled = column["editEdit"]
+                
+                labelWidth = 150
+                
+                bs = wx.BoxSizer(wx.HORIZONTAL)
+                
+                labelAlignment = wx.ALIGN_RIGHT
+
+                label = dLabel(self, windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE)
+                label.SetSize((labelWidth,-1))
+                label.SetName("lbl%s" % fieldName)
+                label.SetLabel(labelCaption)
+                
+                if fieldType in ["M",]:
+                    classRef = dEditBox
+                elif fieldType in ["I",]:
+                    classRef = dSpinner
+                elif fieldType in ["L",]:
+                    classRef = dCheckBox
+                else:
+                    classRef = dTextBox
+                
+                objectRef = classRef(self)
+                objectRef.Enable(fieldEnabled)
+                objectRef.dataSource = dataSource
+                objectRef.dataField = fieldName
+
+                if fieldType in ["M",]:
+                    expandFlags = wx.EXPAND
+                else:
+                    expandFlags = 0
+                bs.Add(label)
+                bs.Add(objectRef, 1, expandFlags|wx.ALL, 0)
+                        
+                objectRef.SetName(fieldName)
+                
+                if fieldType in ["M",]:
+                    self.GetSizer().Add(bs, 1, wx.EXPAND)
+                else:
+                    self.GetSizer().Add(bs, 0, wx.EXPAND)
+                
+        self.GetSizer().Layout()
+

@@ -1,5 +1,13 @@
 ''' dFormDataNav.py
 
+    This is a dForm but with the following added controls:
+        + Navigation Menu
+        + Navigation ToolBar
+        + PageFrame with 3 pages by default:
+            + Select : Enter sql-select criteria.
+            + Browse : Browse the result set and pick an item to edit.
+            + Edit   : Edit the current record in the result set.
+
 '''
 from dForm import dForm
 from dPageFrame import dPageFrame
@@ -10,40 +18,19 @@ class dFormDataNav(dForm):
     def __init__(self, parent=None, name="dFormDataNav", resourceString=None):
         dForm.__init__(self, parent, name, resourceString)
         
-        self._gridColumnDefs = {}
+        self._columnDefs = {}
     
     def afterSetPrimaryBizobj(self):        
-        #self.addVCR()
         self.setupToolBar()
         self.setupMenu()
         self.setupPageFrame()
                 
-    def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap):
-        menuId = wx.NewId()
-        item = wx.MenuItem(menu, menuId, caption)
-        item.SetBitmap(bitmap)
-        menu.AppendItem(item)
-        
-        if isinstance(self, wx.MDIChildFrame):
-            controllingFrame = self.dApp.mainFrame
-        else:
-            controllingFrame = self
-        wx.EVT_MENU(controllingFrame, menuId, function)
-
-    def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):
-        toolId = wx.NewId()
-        toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
-        
-        if isinstance(self, wx.MDIChildFrame):
-            controllingFrame = self.dApp.mainFrame
-        else:
-            controllingFrame = self
-        wx.EVT_MENU(controllingFrame, toolId, function)
-    
     def setupToolBar(self):
         if isinstance(self, wx.MDIChildFrame):
+            # Toolbar will be attached to top-level frame
             controllingFrame = self.dApp.mainFrame
         else:
+            # Toolbar will be attached to this frame
             controllingFrame = self
         toolBar = wx.ToolBar(controllingFrame, -1)
         toolBar.SetToolBitmapSize((16,16))    # Needed on non-Linux platforms
@@ -82,6 +69,7 @@ class dFormDataNav(dForm):
         controllingFrame.SetToolBar(toolBar)
         toolBar.Realize()                      # Needed on non-Linux platforms
                 
+        
     def getMenu(self):
         menu = dForm.getMenu(self)
         
@@ -126,19 +114,24 @@ class dFormDataNav(dForm):
         self._appendToMenu(menu, "Delete Current Record", 
                           self.onDelete, 
                           bitmap=dIcons.getIconBitmap("remove"))
-
         return menu
         
         
     def setupMenu(self):
+        ''' dFormDataNav.setupMenu() -> None
+        
+            Called whenever the primary bizobj is set or whenever this
+            frame receives the focus. Sets up the navigation menu for
+            this frame.
+        '''
         if isinstance(self, wx.MDIChildFrame):
-            # This dForm uses the top level frame's menubar
+            # Attach the menu to the main frame
             mb = self.dApp.mainFrame.GetMenuBar()
             menuIndex = mb.FindMenu("&Navigation")
             if menuIndex >= 0:
                 mb.Remove(menuIndex)
         else:
-            # This dForm uses its own menubar
+            # Attach the menu to this frame
             mb = wx.MenuBar()
         menuIndex = mb.GetMenuCount()-1
         if menuIndex < 0:
@@ -176,45 +169,102 @@ class dFormDataNav(dForm):
     def onEditCurrentRecord(self, event):
         self.pageFrame.SetSelection(2)
             
-    def addVCR(self):
-        ''' dForm.addVCR() -> None
+    def getColumnDefs(self, dataSource):
+        ''' dFormDataNav.getColumnDefs(string dataSource) -> list of dictionaries
         
-            Add a VCR data nav control to the form -- temporary
-            until we get dToolbar working.
-        '''
-        bs = wx.BoxSizer(wx.HORIZONTAL)
-        import dVCR
-
-        vcr = dVCR.dVCR(self)
-        bs.Add(vcr, 1, wx.ALL, 0)
-        self.GetSizer().Add(bs, 0, wx.EXPAND)
-        self.GetSizer().Layout()
-
-    def getGridColumnDefs(self, dataSource):
-        ''' dForm.getGridColumnDefs(dataSource) -> List of Dictionaries
-        
-            Return the grid column definitions for the given dataSource,
-            or the empty List if not found. Each dictionary in the list
-            represents a column in the grid, and needs to have the 
-            following keys at a minimum:
+            Return the column definitions for the given dataSource,
+            or an empty list if not found. Each item in the list represents
+            a column, with the following keys defining column behavior:
             
-                'name'    : The field name in the bizobj
-                'caption' : The column header caption
-                'type'    : The data type in FoxPro notation (C,I,N,D,T)
-            
-            Use setGridColumnDefs to set the definitions.
+                'name'        : The field name in the bizobj.
+                                (string) (required)
+                                
+                'caption'     : The column header caption - used in the browse 
+                                grid and as a default label for the items in 
+                                the edit page. 
+                                (string) (default: 'name')
+                                
+                'type'        : The data type in FoxPro notation (C,I,N,D,T) 
+                                (char) (Required)
+                              
+                'showGrid'    : Show column in the browse grid?
+                                (boolean) (default: True)
+                                
+                'showEdit'    : Show field in the edit page?
+                                (boolean) (default: True)
+                                
+                'editEdit'    : Allow editing of the field in the edit page?
+                                (boolean) (default: True)
+                                
+                'selectTypes' : List of types of select queries that can be run
+                                for the field. If supplied, the field will have
+                                input field(s) automatically set up in the 
+                                pageframe's select page, so the user can enter
+                                the criteria. If not supplied, the user will not
+                                automatically be able to enter selection criteria.
+                                (list) (default: fields with 'C' will get an entry
+                                for selectType of 'stringMatchAll')
+                                
+                                The currently-supported selectTypes are:
+                                
+                                    + range: allow user to specify a high and a
+                                             low value.
+                                             
+                                    + value: user sets an explicit value.
+                                    
+                                    + stringMatch: user enters a string, and the field
+                                                   is searched for occurances of that
+                                                   string (SQL LIKE with '%' appended
+                                                   and prepended).
+                                                   
+                                    + stringMatchAll: Like stringMatch but instead of
+                                                      the data field getting its own
+                                                      input field, all data fields with
+                                                      stringMatchAll share one input
+                                                      field on the select page.
+                                                      
+            Use dformDataNav.setColumnDefs() to set the definitions.
         '''
         try:
-            columnDefs = self._gridColumnDefs[dataSource]
+            columnDefs = self._columnDefs[dataSource]
         except KeyError:
             columnDefs = []
         return columnDefs
-        
-    def setGridColumnDefs(self, dataSource, columnDefs):
-        ''' dForm.setGridColumnDefs(string, list) -> None
+
+                
+    def setColumnDefs(self, dataSource, columnDefs):
+        ''' dForm.setColumnDefs(string, list) -> None
         
             Set the grid column definitions for the given dataSource.
             See getGridColumnDefs for more explanation.
         ''' 
-        self._gridColumnDefs[dataSource] = columnDefs
         
+        # Make sure unspecified items get default values or if 
+        # the item is required don't set the columndefs.
+        for column in columnDefs:
+            if not column.has_key('name'):
+                print "ColumnDef must include a name."
+                return False
+            if not column.has_key('caption'):
+                column['caption'] = column['name']
+            if not column.has_key('type'):
+                print "ColumnDef must include a data type."
+                return False
+            if not column.has_key('showGrid'):
+                column['showGrid'] = True
+            if not column.has_key('showEdit'):
+                column['showEdit'] = True
+            if not column.has_key('editEdit'):
+                column['editEdit'] = True
+            if not column.has_key('selectTypes'):
+                column['selectTypes'] = []
+                if column['type'] in ('C', 'M'):
+                    # column is string: add to stringMatchAll:
+                    column['selectTypes'].append('stringMatchAll')
+        
+        self._columnDefs[dataSource] = columnDefs
+        
+    def OnSetFocus(self, event):
+        if isinstance(self, wx.MDIChildFrame):
+            self.setupToolBar()
+            self.setupMenu()
