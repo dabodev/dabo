@@ -6,7 +6,8 @@ class dBackend(dabo.common.dObject):
 	"""
 	def __init__(self):
 		self._baseClass = dBackend
-		dBackend.doDefault(self)
+		#dBackend.doDefault(self)
+		self.super()
 		self.dbModuleName = None
 		self._connection = None
 

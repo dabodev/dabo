@@ -12,7 +12,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	"""
 	
 	def __init__(self, name=None):
-		dDataControlMixinBase.doDefault(name)
+		#dDataControlMixinBase.doDefault(name)
+		#self.super(name)
+		dabo.ui.dControlMixin.__init__(self, name)
 
 		self._oldVal = self.Value
 		self.enabled = True
@@ -23,6 +25,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	
 	def initEvents(self):
 		dDataControlMixinBase.doDefault()
+		#self.super()
 		
 		try:
 			self.Form.bindEvent(dEvents.ValueRefresh, self.__onValueRefresh)

@@ -16,7 +16,8 @@ class dConnectInfo(dabo.common.dObject):
 	def __init__(self, backendName=None, host=None, user=None, 
 					password=None, dbName=None, port=None):
 		self._baseClass = dConnectInfo
-		dConnectInfo.doDefault(self)
+		#dConnectInfo.doDefault(self)
+		self.super()
 		self.BackendName = backendName
 		self.Host = host
 		self.User = user

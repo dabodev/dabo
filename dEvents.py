@@ -12,7 +12,10 @@ class Event(dObject):
 	using self.bindEvent() and self.raiseEvent() in your objects.
 	"""		
 	def __init__(self, eventObject, uiEvent=None, *args, **kwargs):
-		Event.doDefault()
+		### This super() case fails:
+		#Event.doDefault()
+		#self.super()
+		dObject.__init__(self)
 		
 		self.EventObject = eventObject
 		self._uiEvent = uiEvent

@@ -564,10 +564,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				pass
 	
 	def __onActivate(self, evt):
-		self.Application.ActiveForm = self
+		if self.Application is not None:
+			self.Application.ActiveForm = self
 	
 	def __onDeactivate(self, evt):
-		if self.Application.ActiveForm == self:
+		if self.Application is not None and self.Application.ActiveForm == self:
 			self.Application.ActiveForm = None
 
 	def __onClose(self, evt):

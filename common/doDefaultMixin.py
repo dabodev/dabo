@@ -1,9 +1,12 @@
 import sys
 import inspect
+import dabo
 
 
 class DoDefaultMixin(object):
-	""" An alternative way to call superclass method code.
+	""" DEPRECATED: use self.super() instead
+	
+	An alternative way to call superclass method code.
 	
 	Mix this class in to your classes, and you can now use the following
 	form to call superclass methods:
@@ -15,7 +18,43 @@ class DoDefaultMixin(object):
 		retval = super(cls, self).<methodName>([args])
 	"""
 
+	def super(self,  *args, **kwargs):
+		print "__"
+		#print inspect.stack()[-1]
+		#if len(inspect.stack()) < 20:
+		#	for st in inspect.stack():
+		#		print st
+		#else:
+		#	return
+			
+		frame = sys._getframe().f_back
+		code = frame.f_code
+		name = code.co_name
+
+		foundSelf = False
+		for c in type(self).__mro__:
+			#print c
+			if c is type(self):
+				print "1"
+				foundSelf = True
+				continue
+			try:
+				m = getattr(c, name)
+			except AttributeError:
+				continue
+
+			if m.func_code is code:
+				print self, c, name
+				s = super(c, self)
+				return eval("super(c, self).%s(*args, **kwargs)" % name)
+				
+				break
+				
+				#return _super(super(c, self), name)
+
+
 	def doDefault(cls, *args, **kwargs):
+#		dabo.infoLog.write("Warning: doDefault is deprecated. Use self.super() instead.")
 		frame = sys._getframe(1)
 		self = frame.f_locals['self']
 		methodName = frame.f_code.co_name

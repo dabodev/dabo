@@ -32,12 +32,14 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 		
 	def initProperties(self):
-		dTextBox.doDefault()
+		#dTextBox.doDefault()
+		self.super()
 		self.SelectOnEntry = True
 
 
 	def initEvents(self):
-		dTextBox.doDefault()
+		#dTextBox.doDefault()
+		self.super()
 		# catch wx.EVT_TEXT and raise dEvents.Hit:
 		self.Bind(wx.EVT_TEXT, self._onWxHit)
 		
@@ -160,4 +162,13 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dTextBox)
+
+	class x(dTextBox):
+		def afterInit(self):
+			print "x", super(x, self)
+			self.super()
+
+	class y(x):
+		pass
+
+	test.Test().runTest(y)
