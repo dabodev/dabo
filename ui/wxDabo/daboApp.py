@@ -135,12 +135,6 @@ class MainApp(wx.App):
         return True
 
     def setup(self):
-        # dabo is going to want to import various things from the custom
-        # app's current working directory:
-        sys.path.append(os.getcwd())
-        #import dynamicViews.vr_test
-        print os.getcwd()
-         
         wx.InitAllImageHandlers()
         self.helpProvider = wx.help.SimpleHelpProvider()
         wx.help.HelpProvider_Set(self.helpProvider)
