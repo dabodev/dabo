@@ -246,7 +246,7 @@ class dCursorMixin:
 		for fldDesc in dscrp:
 			fld = fldDesc[0]
 			try:
-				sql = """select %s from %s limit 1""" % (fld, self._fromClause)
+				sql = """select %s from %s limit 1""" % (fld, self.table)
 				self.execute( sql )
 				# Get the description for this single field
 				dsc = self.description[0]
