@@ -1244,7 +1244,11 @@ class dBizobj(dabo.common.dObject):
 		self._restorePositionOnRequery = bool(val)
 
 	def _getCurrentCursor(self):
-		return self.__cursors[self.__currentCursorKey]
+		try:
+			return self.__cursors[self.__currentCursorKey]
+		except KeyError:
+			# There is no current cursor
+			return None
 	
 	def _getRowCount(self):
 		return self.Cursor.RowCount

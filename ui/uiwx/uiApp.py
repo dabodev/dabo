@@ -49,8 +49,8 @@ class uiApp(wx.App, dObject):
 		if dApp.MainFormClass is not None:
 			self.dApp.MainForm = dApp.MainFormClass()
 			self.SetTopWindow(self.dApp.MainForm)
-			self.dApp.MainForm.Show()
-
+			self.dApp.MainForm.Show(dApp.showMainFormOnStart)
+			
 
 	def start(self, dApp):
 		# Manually raise Activate, as wx doesn't do that automatically

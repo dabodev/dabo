@@ -80,6 +80,9 @@ class dApp(dabo.common.dObject):
 		#dApp.doDefault()
 		super(dApp, self).__init__()
 		self._initProperties()
+		# egl: added the option of keeping the main form hidden
+		# initially. The default behavior is for it to be shown, as usual.
+		self.showMainFormOnStart = True
 		
 ### PKM: commented this out as I don't understand the need for it		
 # 		# Params may need to be sent to the main frame. These two 
