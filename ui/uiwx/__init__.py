@@ -41,12 +41,10 @@ from dEditBox import dEditBox
 from dFileDialog import dFileDialog
 from dFileDialog import dSaveDialog
 from dForm import dForm
-from dFormDataNav import dFormDataNav
 from dFormMain import dFormMain
 from dGauge import dGauge
 from dGrid import dGrid
 from dGridSizer import dGridSizer
-from dGridDataNav import dGridDataNav
 import dIcons
 import dKeys
 from dLabel import dLabel
