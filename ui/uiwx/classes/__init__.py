@@ -9,7 +9,10 @@ from dAbout import dAbout
 from dCheckBox import dCheckBox
 from dComboBox import dComboBox
 from dCommandButton import dCommandButton
+from dDataNavForm import dDataNavForm
 from dDateControl import dDateControl
+from dDateTextBox import dDateTextBox
+from dDropdownList import dDropdownList
 from dDialog import dDialog
 from dEditBox import dEditBox
 from dForm import dForm
@@ -34,10 +37,10 @@ from dTextBox import dTextBox
 from dTreeView import dTreeView
 
 # Tell Dabo Designer what classes to put in the selection menu:
-__dClasses = [dCheckBox, dCommandButton, dDateControl, dEditBox, dForm,
-		dFormDataNav, dFormMain, dGauge, dLabel, dListbook, dPanel, 
-		dPageFrame, dPage, dRadioGroup, dScrollPanel, dSlider, 
-		dSpinner, dTextBox]
+__dClasses = [dCheckBox, dCommandButton, dDateControl, dDateTextBox,
+		dDropdownList, dEditBox, dForm, dFormDataNav, dFormMain, 
+		dGauge, dLabel, dListbook, dPanel, dPageFrame, dPage, 
+		dRadioGroup, dScrollPanel, dSlider, dSpinner, dTextBox]
 
 daboDesignerClasses = []
 for __classRef in __dClasses:

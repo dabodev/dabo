@@ -1,7 +1,7 @@
 import wx, dabo
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner
 import dMessageBox, dIcons, dCommandButton, dDropdownList
-import dPanel, dDataNavGrid, dEvents, dDateControl
+import dPanel, dDataNavGrid, dEvents, dDateTextBox
 import dabo.dException as dException
 from dabo.dLocalize import _
 
@@ -285,7 +285,7 @@ class dSelectPage(dPage.dPage):
 			ret = dCheckBox.dCheckBox(parent)
 			ret.Caption = ""
 		elif typ == "date":
-			ret = dDateControl.dDateControl(parent)
+			ret = dDateTextBox.dDateTextBox(parent)
 		return ret
 
 
@@ -424,6 +424,7 @@ class dEditPage(dPage.dPage):
 				for fld in fieldSpecs
 				if fieldSpecs[fld]["editInclude"] == "1"]
 		showEdit.sort(lambda x, y: cmp(x[1], y[1]))
+		mainSizer = self.GetSizer()
 		
 		for fld in showEdit:
 			fieldName = fld[0]
@@ -444,7 +445,7 @@ class dEditPage(dPage.dPage):
 			elif fieldType in ["bool",]:
 				classRef = dCheckBox.dCheckBox
 			elif fieldType in ["date",]:
-				classRef = dDateControl.dDateControl
+				classRef = dDateTextBox.dDateTextBox
 			else:
 				classRef = dTextBox.dTextBox
 
@@ -469,12 +470,18 @@ class dEditPage(dPage.dPage):
 				expandFlags = wx.EXPAND
 			else:
 				expandFlags = 0
-			bs.Add(label)
-			bs.Add(objectRef, 1, expandFlags|wx.ALL, 0)
+			bs.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, 2)
+			bs.Add(objectRef, 1, expandFlags|wx.ALL, 2)
+			bs.Add( (25, -1), 0)
+			
 			if fieldType in ["memo",]:
-				self.GetSizer().Add(bs, 1, wx.EXPAND)
+				mainSizer.Add(bs, 1, wx.EXPAND)
 			else:
-				self.GetSizer().Add(bs, 0, wx.EXPAND)
+				mainSizer.Add(bs, 0, wx.EXPAND)
+
+		# Add top and bottom margins
+		mainSizer.Insert( 0, (-1, 20), 0)
+		mainSizer.Add( (-1, 30), 0)
 
 		self.GetSizer().Layout()
 		self.itemsCreated = True

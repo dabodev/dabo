@@ -149,9 +149,12 @@ class dDataControlMixin(pm.dPemMixin):
 	def flushValue(self):
 		""" Save any changes to the underlying bizobj field.
 		"""
+		
 		curVal = self.Value
 		if curVal != self._oldVal and self.DataSource and self.DataField:
 			self.setFieldVal(curVal)
+		else:
+			self.Value = curVal
 		self._oldVal = curVal
 
 

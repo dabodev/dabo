@@ -2,6 +2,7 @@ import wx
 import dabo
 from dabo.dLocalize import _
 import dTextBox
+import re
 
 
 class dDateTextBox(dTextBox.dTextBox):
@@ -23,6 +24,8 @@ class dDateTextBox(dTextBox.dTextBox):
 					"format" : "%Y-%m-%d"} }
 		# Default format; can be changed in setup code or in RightClick
 		self.dateFormat = "American"
+		# Pattern for recognizing dates from databases
+		self.dbPat = re.compile("(\d{4})[-/.](\d{2})[-/.](\d{2}) (\d{2}):(\d{2}):([\d\.]+)")
 		# Two-digit year value that is the cutoff in interpreting 
 		# dates as being either 19xx or 20xx.
 		self.rollover = 50
@@ -159,6 +162,10 @@ R : Last Day of yeaR
 	def monthInterval(self, months):
 		self.date.AddDS(wx.DateSpan.Months(months))
 		self.Value = self.date
+	
+
+	def getDateTuple():
+		return (self.date.GetYear(), self.date.GetMonth(), self.date.GetDay() )
 
 	
 	def strToDate(self, val):
@@ -170,33 +177,64 @@ R : Last Day of yeaR
 		val = str(val)
 		ret = None
 		
-		try:
-			sep = [c for c in val if not c.isdigit()][0]
-			dtPieces = [int(p) for p in val.split(sep)]
-			if self.dateFormat == "American":
-				month = dtPieces[0]
-				day = dtPieces[1]
-				year = dtPieces[2]
-			elif self.dateFormat == "YMD":
-				year = dtPieces[0]
-				month = dtPieces[1]
-				day = dtPieces[2]
-			# Adjust the rollover for 2-digit years
-			if year < 100:
-				if year > self.rollover:
-					year += 1900
-				else:
-					year += 2000
-		except:
-			return ret
-
+		# See if it matches any standard pattern. Values retrieved
+		# from databases will always be in their own format
+		if self.dbPat.match(val):
+			year, month, day, hr, mn, sec = self.dbPat.match(val).groups()
+			# Convert to numeric
+			year = int(year)
+			month = int(month)
+			day = int(day)
+			hr = int(hr)
+			mn = int(mn)
+			sec = int(round(float(sec), 0) )
+		else:
+			# See if there is a time component
+			try:
+				(dt, tm) = val.split()
+				(hr, mn, sec) = tm.split(":")
+				hr = int(hr)
+				mn = int(mn)
+				sec = int(round(float(sec), 0) )
+			except:
+				dt = val
+				(hr, mn, sec) = (0, 0, 0)
+			
+			try:
+				sep = [c for c in dt if not c.isdigit()][0]
+				dtPieces = [int(p) for p in dt.split(sep)]
+				if self.dateFormat == "American":
+					month = dtPieces[0]
+					day = dtPieces[1]
+					year = dtPieces[2]
+				elif self.dateFormat == "YMD":
+					year = dtPieces[0]
+					month = dtPieces[1]
+					day = dtPieces[2]
+				# Adjust the rollover for 2-digit years
+				if year < 100:
+					if year > self.rollover:
+						year += 1900
+					else:
+						year += 2000
+			except:
+				return ret
 		# Remember, months are zero-based here
 		try:
 			ret = wx.DateTimeFromDMY(day, month-1, year)
+			ret.SetHour(hr)
+			ret.SetMinute(mn)
+			ret.SetSecond(sec)
 		except:
 			dabo.errorLog.write(_("Invalid date specified. Y,M,D = %s, %s, %s" % (year, month, day) ))
 			ret = None
 		return ret
+	
+	
+	def setFieldVal(self, val):
+		""" We need to convert this back to standard database format """
+		fmt = "%Y-%m-%d"
+		return dDateTextBox.doDefault(self.date.Format(fmt) )
 		
 	
 	def _setValue(self, val):

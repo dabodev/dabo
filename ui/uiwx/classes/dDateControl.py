@@ -4,18 +4,20 @@ import dSpinner, dPanel, dDataControlMixin
 class BaseSpinner(dSpinner.dSpinner):
 	def initProperties(self):
 		self.SelectOnEntry = True
+		
+		self.Bind(wx.EVT_SPINCTRL, self.Parent.onSpin)
 	
-	def refresh(self):
-		""" Update control's value to match the current value from the bizobj.
-		"""
-		if self.Parent.DataSource and self.Parent.DataField:
-			try:
-				self.Parent.Value = self.Parent.getFieldVal()
-				self.Parent.Enabled = self.Parent.enabled
-			except (TypeError, dException.NoRecordsException):
-				self.Parent.Value = self.Parent.getBlankValue()
-				self.Parent.Enabled = False
-			self.Parent._oldVal = self.Parent.Value
+# 	def refresh(self):
+# 		""" Update control's value to match the current value from the bizobj.
+# 		"""
+# 		if self.Parent.DataSource and self.Parent.DataField:
+# 			try:
+# 				self.Parent.Value = self.Parent.getFieldVal()
+# 				self.Parent.Enabled = self.Parent.enabled
+# 			except (TypeError, dException.NoRecordsException):
+# 				self.Parent.Value = self.Parent.getBlankValue()
+# 				self.Parent.Enabled = False
+# 			self.Parent._oldVal = self.Parent.Value
 	
 	def flushValue(self):
 		""" Save any changes to the underlying bizobj field.
@@ -69,7 +71,15 @@ class dDateControl(dPanel.dPanel, dDataControlMixin.dDataControlMixin):
 		bs.Add(self.spnYear)
 		sz.Add(bs, 1, wx.EXPAND)
 		self.SetSizer(sz)
-		
+	
+	
+	def onSpin(self, evt):
+		""" This is called whenever one of the contained spinners is updated.
+		"""
+# 		self.Value = self.GetValue()
+		self.raiseValueChanged()
+		evt.Skip()
+	
 	def GetValue(self):
 		y,m,d = self.spnYear.Value, self.spnMonth.Value, self.spnDay.Value
 		if y < 1 or y > 9999:
@@ -84,12 +94,18 @@ class dDateControl(dPanel.dPanel, dDataControlMixin.dDataControlMixin):
 			return datetime.date(1,1,1)
 
 	def SetValue(self, value):
-		if type(value) == type(datetime.date(1,1,1)):
-			self.spnYear.Value = value.year
-			self.spnMonth.Value = value.month
-			self.spnDay.Value = value.day
-		else:
+		valTuple = (value.year, value.month, value.day)
+		try:
+			self.spnYear.Value, self.spnMonth.Value, self.spnDay.Value = valTuple
+		except:
 			self.spnYear.Value, self.spnMonth.Value, self.spnDay.Value = 1,1,1
+	
+	def getDateTuple(self):
+		""" Returns a tuple containing the current value in 
+		(YYYY, MM, DD) format.
+		"""
+		return (self.spnYear.Value, self.spnMonth.Value, self.spnDay.Value)
+
 		
 if __name__ == '__main__':
 	import test
