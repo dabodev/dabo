@@ -28,6 +28,6 @@
 
 if __name__ == "__main__":
     import dabo
-    app = dabo.App()
+    app = dabo.dApp()
     app.setup()
     app.start()

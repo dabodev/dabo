@@ -3,6 +3,3 @@
               generated to be manipulated by the bizobj's in dabo.biz
 '''
 
-# When someone does a 'import dabo.db', what they really want is the
-# stuff inside db.py in the dabo.db module
-from db import Db
