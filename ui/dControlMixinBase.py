@@ -27,10 +27,6 @@ class dControlMixinBase(dabo.ui.dPemMixin):
 		# convenience-bind the widget's specialized event(s):
 		self.bindEvent(dEvents.Hit, self.onHit)
 
-	def _onWxHit(self, event):
-		self.raiseEvent(dEvents.Hit, event)
-		event.Skip()
-		
 	def onHit(self, event):
 		""" Occurs when the control's default action has taken place, such as
 		a click on a CommandButton, a character entered in a TextBox, an item

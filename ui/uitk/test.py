@@ -13,19 +13,23 @@ If you instead run this test.py as a script, a form will be instantiated with
 all the dControls.
 """
 import Tkinter
+import dabo
 import dabo.ui as ui
 
 ui.loadUI("tk")
 
 class Test(object):
 	def __init__(self):
-		self.app = ui.uiApp()
+		self.app = dabo.dApp()
+		self.app.LogEvents = ["All"]
 
 	def runTest(self, classRef):
-		frame = Tkinter.Frame(None)
+		self.app.setup()
+		frame = self.app.MainFrame
 		object = classRef(frame)
+		print object.Value
 		object.debug = True
-		object.LogEvents = ["All"]
+#		object.pack()
 #		frame.SetLabel("Test of %s" % object.Name)
 #		object.SetFocus()
 #		frame.Show()

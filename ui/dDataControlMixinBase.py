@@ -229,9 +229,14 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	# Property definitions:
 	DataSource = property(_getDataSource, _setDataSource, None,
 						'Specifies the dataset to use as the source of data. (str)')
+	
 	DataField = property(_getDataField, _setDataField, None,
 						'Specifies the data field of the dataset to use as the source of data. (str)')
+	
 	SaveRestoreValue = property(_getSaveRestoreValue, _setSaveRestoreValue, None, 
 						'Specifies whether the Value of the control gets saved when destroyed and '
 						'restored when created. Use when the control isn\'t bound to a dataSource '
 						'and you want to persist the value, as in an options dialog. (bool)')
+	
+	Value = property(None, None, None,
+		'Specifies the current state of the control (the value of the field). (varies)')

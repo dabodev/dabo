@@ -1,10 +1,12 @@
 import Tkinter, dabo, dabo.ui
+
 if __name__ == "__main__":
 	print dabo.ui.loadUI("tk")
 
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+
 
 class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 	""" Allows visual editing of boolean values.
@@ -14,19 +16,43 @@ class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 		self._baseClass = dCheckBox
 
 		self._beforeInit()
-		Tkinter.Checkbutton.__init__(self, master, cnf, *args, **kwargs)
-		
+		Tkinter.Checkbutton.__init__(self, master, cnf, name=name, *args, **kwargs)
+
 		dcm.dDataControlMixin.__init__(self, name)
 		self._afterInit()
 
+		self.pack()
 
 	def initEvents(self):
 		dCheckBox.doDefault()
 
-		# Respond to EVT_CHECKBOX and raise dEvents.Hit:
-		#self.Bind(wx.EVT_CHECKBOX, self._onWxHit)
+		self.bindEvent(dEvents.MouseLeftClick, self._onTkHit)
+		self.bindEvent(dEvents.KeyChar, self._onKeyChar)
 		
+	def _onKeyChar(self, event):
+		if event.EventData["keyCode"] == 32:
+			self._onTkHit(event)		
 				
+	def _getValue(self):
+		try:
+			v = self._value
+		except AttributeError:
+			v, self._value = False, False
+			self.deselect()
+		return v
+		
+	def _setValue(self, value):
+		self._value = bool(value)
+		if self._value:
+			self.select()
+		else:
+			self.deselect()
+
+		
+	Value = property(_getValue, _setValue, None,
+		'Specifies the current state of the control (the value of the field). (varies)')
+	
+	
 	# property get/set functions
 # 	def _getAlignment(self):
 # 		if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):
@@ -51,6 +77,8 @@ class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 # 						'Specifies the alignment of the text. (int) \n'
 # 						'   Left  : Checkbox to left of text (default) \n'
 # 						'   Right : Checkbox to right of text')
+
+		
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(dCheckBox)

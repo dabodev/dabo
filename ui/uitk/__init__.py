@@ -6,9 +6,11 @@ uiType = {'shortName': 'tk', 'moduleName': 'uitk', 'longName': 'Tkinter'}
 
 # Import dPemMixin first, and then manually put into dabo.ui module. This is
 # because dControlMixin, which is in dabo.ui, descends from dPemMixin, which 
-# is in dabo.ui.uitk.
+# is in dabo.ui.uitk. Must also do this for dControlMixin.
 from dPemMixin import dPemMixin
 dabo.ui.dPemMixin = dPemMixin
+from dControlMixin import dControlMixin
+dabo.ui.dControlMixin = dControlMixin
 
 # Import into public namespace:
 #from dAbout import dAbout
@@ -77,8 +79,8 @@ def getEventData(uiEvent):
 	
 	#ed["commandDown"] = wxEvt.CmdDown()
 	#ed["metaDown"] = wxEvt.MetaDown()
-	ed["keyCode"] = uiEvent.keycode
-	ed["rawKeyCode"] = uiEvent.keysym_num
+	ed["keyCode"] = uiEvent.keysym_num
+	ed["rawKeyCode"] = uiEvent.keycode
 	#ed["rawKeyFlags"] = uiEvent.keysym_num
 	#ed["unicodeChar"] = wxEvt.GetUniChar()
 	#ed["unicodeKey"] = wxEvt.GetUnicodeKey()
