@@ -23,4 +23,4 @@ REFINTEG_CASCADE = 3
 # Constants specific to cursors
 CURSOR_MEMENTO = "dabo-memento"
 CURSOR_NEWFLAG = "dabo-newrec"
-
+CURSOR_TMPKEY_FIELD = "dabo-tmpKeyField"

@@ -44,6 +44,7 @@ class dCursorMixin:
 		self.__unsortedRows = []
 		self.__nonUpdateFields = []
 		self.nonUpdateFields = []
+		self.__tmpPK = -1		# temp PK value for new records.
 
 
 	def setSQL(self, sql):
@@ -106,6 +107,7 @@ class dCursorMixin:
 	def requery(self, params=None):
 		self.lastSQL = self.sql
 		self.lastParams = params
+		
 		self.execute(self.sql, params)
 		# Add mementos to each row of the result set
 		self.addMemento(-1)
@@ -295,6 +297,42 @@ class dCursorMixin:
 		if self.rowcount > 0:
 			if (self.rownumber >= 0) and (self.rownumber < self.rowcount):
 				self.addMemento(self.rownumber)
+	
+	
+	def genTempAutoPK(self):
+		""" Create a temporary PK for a new record. Set the key field to this
+		value, and also create a temp field to hold it so that when saving the
+		new record, child records that are linked to this one can be updated
+		with the actual PK value.
+		"""
+		rec = self._rows[self.rownumber]
+		tmpPK = self._genTmpPKVal()
+		rec[self.keyField] = tmpPK
+		rec[k.CURSOR_TMPKEY_FIELD] = tmpPK
+		
+	
+	
+	def _genTempPKVal(self):
+		""" Return the next available temp PK value. It will be a string, and 
+		postfixed with '-dabotmp' to avoid potential conflicts with actual PKs
+		"""
+		tmp = self.__tmpPK
+		# Decrement the temp PK value
+		self.__tmpPK -= 1
+		return str(tmp) + "-dabotmp"
+	
+	
+	def getPK(self):
+		""" Returns the value of the PK field in the current record. If that record
+		is new an unsaved record, return the temp PK value
+		"""
+		ret = None
+		if self.rowcount <= 0:
+			raise dException.NoRecordsException, _("No records in the data set.")
+		rec = self._rows[self.rownumber]
+		if rec.has_key(k.CURSOR_NEWFLAG):
+			# New, unsaved record
+			return rec[k.CURSOR_TMPKEY_FIELD]
 
 
 	def getFieldVal(self, fld):
@@ -303,15 +341,15 @@ class dCursorMixin:
 		ret = None
 		if self.rowcount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set.")
+
+		rec = self._rows[self.rownumber]
+		if rec.has_key(fld):
+			ret = rec[fld]
 		else:
-			rec = self._rows[self.rownumber]
-			if rec.has_key(fld):
-				ret = rec[fld]
-			else:
-				raise dException.dException, "%s '%s' %s" % (
-							_("Field"),
-							fld,
-							_("does not exist in the data set"))
+			raise dException.dException, "%s '%s' %s" % (
+						_("Field"),
+						fld,
+						_("does not exist in the data set"))
 		return ret
 
 
@@ -345,6 +383,31 @@ class dCursorMixin:
 							fld,
 							_("does not exist in the data set")
 							)
+
+
+	def getRecordStatus(self, rownum=None):
+		""" Returns a dictionary containing an element for each changed 
+		field in the specified record (or the current record if none is specified).
+		The field name is the key for each element; the value is a 2-element
+		tuple, with the first element being the original value, and the second 
+		being the current value.
+		"""
+		if rownum is None:
+			rownum = self.rownumber
+		try:
+			row = self._rows[rownumber]
+			mem = row[k.CURSOR_MEMENTO]
+		except:
+			# Either there isn't any such row number, or it doesn't have a 
+			# memento. Either way, return an empty dict
+			return {}
+		diff = mem.makeDiff(row, isNewRecord=row.has_key(k.CURSOR_NEWFLAG))
+		ret = {}
+		for kk, vv in diff:
+			ret[kk] = (mem.getOrigVal(kk), vv)
+		return ret
+			
+		return self.Cursor.getRecordStatus(rownum)
 
 
 	def getDataSet(self):
@@ -834,13 +897,15 @@ class dCursorMixin:
 				continue
 			if ret:
 				ret += ", "
+			
 			if type(val) in (types.StringType, types.UnicodeType):
 				ret += fld + " = " + self.__escQuote(val) + " "
-			if type(val) == type(datetime.date(1,1,1)):
-				# Warning: MySQL specific date conversion to string.
-				ret += fld + " = '%s' " % str(val) 
 			else:
-				ret += fld + " = " + str(val) + " "
+				if type(val) == type(datetime.date(1,1,1)):
+					# Warning: MySQL specific date conversion to string.
+					ret += fld + " = '%s' " % str(val) 
+				else:
+					ret += fld + " = " + str(val) + " "
 		return ret
 
 

@@ -7,6 +7,7 @@ class dSqlBuilderMixin:
 		self._fieldClause = ""
 		self._fromClause = ""
 		self._whereClause = ""
+		self._childFilterClause = ""
 		self._groupByClause = ""
 		self._orderByClause = ""
 		self._limitClause = ""
@@ -28,7 +29,7 @@ class dSqlBuilderMixin:
 		""" Add a field to the field clause.
 		"""
 		if self._fieldClause:
-			self._fieldClause = "%s,\n\t" % self._fieldClause
+			self._fieldClause = "%s, " % self._fieldClause
 		self._fieldClause += exp
 
 
@@ -49,13 +50,14 @@ class dSqlBuilderMixin:
 		explicitly.
 		"""
 		if self._fromClause:
-			self._fromClause = "%s,\n\t" % self._fromClause
+			self._fromClause = "%s, " % self._fromClause
 		self._fromClause += exp
 
 
 	def getWhereClause(self):
 		""" Get the where clause of the sql statement.
 		"""
+		return self._whereClause
 
 	def setWhereClause(self, clause):
 		""" Set the where clause of the sql statement.
@@ -66,13 +68,25 @@ class dSqlBuilderMixin:
 		""" Add an expression to the where clause.
 		"""
 		if self._whereClause:
-			self._whereClause = "%s\n\t%s " % (self._whereClause, comp)
+			self._whereClause = "%s %s " % (self._whereClause, comp)
 		self._whereClause += exp
+
+
+	def getChildFilterClause(self):
+		""" Get the child filter part of the sql statement.
+		"""
+		return self._childFilterClause
+
+	def setChildFilterClause(self, clause):
+		""" Set the child filter clause of the sql statement.
+		"""
+		self._childFilterClause = clause
 
 
 	def getGroupByClause(self):
 		""" Get the group-by clause of the sql statement.
 		"""
+		return self._groupByClause
 
 	def setGroupByClause(self, clause):
 		""" Set the group-by clause of the sql statement.
@@ -90,6 +104,7 @@ class dSqlBuilderMixin:
 	def getOrderByClause(self):
 		""" Get the order-by clause of the sql statement.
 		"""
+		return self._orderByClause
 
 	def setOrderByClause(self, clause):
 		""" Set the order-by clause of the sql statement.
@@ -107,6 +122,7 @@ class dSqlBuilderMixin:
 	def getLimitClause(self):
 		""" Get the limit clause of the sql statement.
 		"""
+		return self._limitClause
 
 	def setLimitClause(self, clause):
 		""" Set the limit clause of the sql statement.
@@ -120,26 +136,33 @@ class dSqlBuilderMixin:
 		fieldClause = self._fieldClause
 		fromClause = self._fromClause
 		whereClause = self._whereClause
+		childFilterClause = self._childFilterClause
 		groupByClause = self._groupByClause
 		orderByClause = self._orderByClause
 		limitClause = self._limitClause
 
 		if not fieldClause:
 			fieldClause = "*"
-		fieldClause = 'select %s\n' % fieldClause
+		fieldClause = "select %s\n" % fieldClause
+		
+		if childFilterClause:
+			# Prepend it to the where clause
+			if whereClause:
+				childFilterClause += "\nand "
+			whereClause = childFilterClause + " " + whereClause
 
 		if fromClause: 
-			fromClause = 'from %s\n' % fromClause
+			fromClause = "from %s\n" % fromClause
 		if whereClause:
-			whereClause = 'where %s\n' % whereClause
+			whereClause = "where %s\n" % whereClause
 		if groupByClause:
-			groupByClause = 'group by %s\n' % groupByClause
+			groupByClause = "group by %s\n" % groupByClause
 		if orderByClause:
-			orderByClause = ' order by %s\n' % orderByClause            
+			orderByClause = "order by %s\n" % orderByClause            
 		if limitClause:
-			limitClause = ' limit %s' % limitClause
+			limitClause = "limit %s" % limitClause
 		else:
-			limitClause = ' limit %s' % self._defaultLimit
+			limitClause = "limit %s\n" % self._defaultLimit
 
 		return "%s%s%s%s%s%s" % (fieldClause, fromClause, whereClause, 
 								groupByClause, orderByClause, limitClause)

@@ -198,7 +198,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		bizobj = self.getBizobj(dataSource)
 
 		try:
-			bizobj.save(allRows=self.SaveAllRows)
+			if self.SaveAllRows:
+				bizobj.saveAll()
+			else:
+				bizobj.save()
+				
 			if self.debug:
 				print "Save successful."
 			self.setStatusText(_("Changes to %s saved." % (
@@ -254,7 +258,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
 
-		if bizobj.isChanged(allRows=True) and self.AskToSave:
+		if bizobj.isAnyChanged() and self.AskToSave:
 			response = dMessageBox.areYouSure(_("Do you wish to save your changes?"),
 											cancelButton=True)
 

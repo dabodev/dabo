@@ -10,7 +10,6 @@ import types
 class dBizobj(dabo.common.dObject):
 	""" The middle tier, where the business logic resides.
 	"""
-	
 	# Class to instantiate for the cursor object
 	dCursorMixinClass = dCursorMixin
 	dSqlBuilderMixinClass = dSqlBuilderMixin
@@ -25,12 +24,12 @@ class dBizobj(dabo.common.dObject):
 	def __init__(self, conn, testHack=TESTING):
 		""" User code should override beforeInit() and/or afterInit() instead.
 		"""
-		self.__cursor = None		# Reference to the cursor object. MUST be defined first.
+		self.__cursors = {}		# Collection of cursor objects. MUST be defined first.
+		self.__currentCursorKey = None
 		self._conn = conn
 		self.__params = None		# tuple of params to be merged with the sql in the cursor
 		self.__children = []		# Collection of child bizobjs
 		self._baseClass = dBizobj
-		self.__tmpPK = -1		# temp PK value for new records.
 
 		dBizobj.doDefault()		
 		##########################################
@@ -102,7 +101,7 @@ class dBizobj(dabo.common.dObject):
 		cursor field will be affected, not the built-in attribute.
 		"""
 		isFld = False
-		if att != '_dBizobj__cursor' and self.__cursor is not None:
+		if att != '_dBizobj__cursors' and self.__cursors is not {}:
 			try:
 				isFld = self.setFieldVal(att, val)
 			except:
@@ -111,8 +110,10 @@ class dBizobj(dabo.common.dObject):
 			super(dBizobj, self).__setattr__(att, val)
 
 
-	def createCursor(self):
-		""" Create the cursor that this bizobj will be using for data.
+	def createCursor(self, key=None):
+		""" Create the cursor that this bizobj will be using for data, and store it
+		in the dictionary for cursors, with the passed value of 'key' as its dict key. 
+		For independent bizobjs, that key will be None.
 		
 		Subclasses should override beforeCreateCursor() and/or afterCreateCursor()
 		instead of overriding this method, if possible. Returning any non-empty value
@@ -127,17 +128,21 @@ class dBizobj(dabo.common.dObject):
 				self.dbapiCursorClass, 
 				self.dSqlBuilderMixinClass)
 		
+		if key is None:
+			key = self.__currentCursorKey
+		
 		if self.TESTING:
-			self.__cursor = self._conn.cursor(cursorclass=cursorClass)
+			self.__cursors[key] = self._conn.cursor(cursorclass=cursorClass)
 		else:
-			self.__cursor = self._conn.getConnection().cursor(cursorclass=cursorClass)
-		self.__cursor.setSQL(self.SQL)
-		self.__cursor.setKeyField(self.KeyField)
-		self.__cursor.setTable(self.DataSource)
-		self.__cursor.setAutoPopulatePK(self.AutoPopulatePK)
+			self.__cursors[key] = self._conn.getConnection().cursor(cursorclass=cursorClass)
+		crs = self.__cursors[key]
+		crs.setSQL(self.SQL)
+		crs.setKeyField(self.KeyField)
+		crs.setTable(self.DataSource)
+		crs.setAutoPopulatePK(self.AutoPopulatePK)
 		if self.RequeryOnLoad:
-			self.__cursor.requery()
-		self.afterCreateCursor(self.__cursor)
+			crs.requery()
+		self.afterCreateCursor(crs)
 
 
 	def _getCursorClass(self, main, secondary, sqlbuilder):
@@ -167,7 +172,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self.__cursor.first()
+		self.Cursor.first()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
@@ -186,7 +191,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self.__cursor.prior()
+		self.Cursor.prior()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
@@ -205,7 +210,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self.__cursor.next()
+		self.Cursor.next()
 		self.requeryAllChildren()
 		
 		self.afterPointerMove()
@@ -224,30 +229,43 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self.__cursor.last()
+		self.Cursor.last()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
 		self.afterLast()
 
 
-	def setRowNumber(self, rownum):
-		""" Move to an arbitrary row number in the data set.
+	def saveAll(self, startTransaction=False, topLevel=True):
+		""" Iterates through all the records of the bizobj, and calls save()
+		for any record that has pending changes.
 		"""
-		errMsg = self.beforeSetRowNumber()
-		if not errMsg:
-			errMsg = self.beforePointerMove()
-		if errMsg:
-			raise dException.dException, errMsg
+		if startTransaction:
+			# Tell the cursor to issue a BEGIN TRANSACTION command
+			self.Cursor.beginTransaction()
+		
+		try:
+			self.scan(self._saveRowIfChanged)
+		except dException, e:
+			if startTransaction:
+				self.Cursor.rollbackTransaction()
+			raise dException, e
+		
+		if startTransaction:
+			self.Cursor.commitTransaction()
 			
-		self._moveToRowNum(rownum)
-		self.requeryAllChildren()
-		
-		self.afterPointerMove()
-		self.afterSetRowNumber()
-		
+	
+	def _saveRowIfChanged(self):
+		""" Meant to be called as part of a scan loop. That means that we can
+		assume that the current record is the one we want to act on. Also, we
+		can pass False for the two parameters, since they will have already been
+		accounted for in the calling method.
+		"""
+		if self.isChanged():
+			self.save(startTransaction=False, topLevel=False)
+			
 
-	def save(self, startTransaction=False, allRows=False, topLevel=True):
+	def save(self, startTransaction=False, topLevel=True):
 		""" Save any changes that have been made in the data set.
 		
 		If the save is successful, the save() of all child bizobjs will be
@@ -262,29 +280,28 @@ class dBizobj(dabo.common.dObject):
 		self._validate()
 
 		# See if we are saving a newly added record, or mods to an existing record.
-		isAdding = self.__cursor.isAdding()
+		isAdding = self.Cursor.isAdding()
 
 		if startTransaction:
 			# Tell the cursor to issue a BEGIN TRANSACTION command
-			self.__cursor.beginTransaction()
+			self.Cursor.beginTransaction()
 
 		# OK, this actually does the saving to the database
 		try:
-			self.__cursor.save(allRows)
+			self.Cursor.save()
 			if isAdding:
 				# Call the hook method for saving new records.
 				self.onSaveNew()
 
 			# Iterate through the child bizobjs, telling them to save themselves.
 			for child in self.__children:
-				if child.isChanged():
-					# No need to start another transaction. And since this is a child bizobj, 
-					# we need to save all rows that have changed.
-					child.save(startTransaction=True, allRows=True, topLevel=False)
+				# No need to start another transaction. And since this is a child bizobj, 
+				# we need to save all rows that have changed.
+				child.saveAll(startTransaction=False, topLevel=False)
 
 			# Finish the transaction, and requery the children if needed.
 			if startTransaction:
-				self.__cursor.commitTransaction()
+				self.Cursor.commitTransaction()
 			if topLevel and self.RequeryChildOnSave:
 				self.requeryAllChildren()
 
@@ -297,7 +314,7 @@ class dBizobj(dabo.common.dObject):
 		except dException.dException, e:
 			# Something failed; reset things.
 			if startTransaction:
-				self.__cursor.rollbackTransaction()
+				self.Cursor.rollbackTransaction()
 			# Pass the exception to the UI
 			raise dException.dException, e
 
@@ -307,8 +324,14 @@ class dBizobj(dabo.common.dObject):
 		self.afterSave()
 
 
-	def cancel(self, allRows=False):
-		""" Cancel any changes to the data set, reverting back to the original values.
+	def cancelAll(self):
+		""" Iterates through all the records, canceling each in turn. """
+		self.scan(self.cancel)
+		
+		
+	def cancel(self):
+		""" Cancel any changes to the current record, reverting the fields
+		back to their original values.
 		"""
 		errMsg = self.beforeCancel()
 		if not errMsg:
@@ -317,10 +340,10 @@ class dBizobj(dabo.common.dObject):
 			raise dException.dException, errMsg
 
 		# Tell the cursor to cancel any changes
-		self.__cursor.cancel(allRows)
+		self.Cursor.cancel()
 		# Tell each child to cancel themselves
 		for child in self.__children:
-			child.cancel(allRows)
+			child.cancelAll()
 			child.requery()
 
 		self.setMemento()
@@ -339,11 +362,11 @@ class dBizobj(dabo.common.dObject):
 		if self.deleteChildLogic == k.REFINTEG_RESTRICT:
 			# See if there are any child records
 			for child in self.__children:
-				if child.getRowCount() > 0:
+				if child.RowCount > 0:
 					raise dException.dException, _("Deletion prohibited - there are related child records.")
 
-		self.__cursor.delete()
-		if self.__cursor.getRowCount() == 0:
+		self.Cursor.delete()
+		if self.RowCount == 0:
 			# Hook method for handling the deletion of the last record in the cursor.
 			self.onDeleteLastRecord()
 		# Now cycle through any child bizobjs and fire their cancel() methods. This will
@@ -353,10 +376,8 @@ class dBizobj(dabo.common.dObject):
 			if self.deleteChildLogic == k.REFINTEG_CASCADE:
 				child.deleteAll()
 			else:
-				child.cancel(allRows=True)
+				child.cancelAll()
 				child.requery()
-
-
 		self.afterPointerMove()
 		self.afterChange()
 		self.afterDelete()
@@ -365,9 +386,72 @@ class dBizobj(dabo.common.dObject):
 	def deleteAll(self):
 		""" Delete all rows in the data set.
 		"""
-		while self.__cursor.getRowCount() > 0:
+		while self.RowCount > 0:
 			self.first()
 			ret = self.delete()
+	
+	
+	def getChangedRecordNumbers(self):
+		""" Returns a list of record numbers for which isChanged()
+		returns True. The changes may therefore not be in the record 
+		itself, but in a dependent child record.
+		"""
+		self.__changedRecordNumbers = []
+		self.scan(self._listChangedRecordNumbers)
+		return self.__changedRecordNumbers
+	
+	
+	def _listChangedRecordNumbers(self):
+		""" Called from a scan loop. If the current record is changed, 
+		append the RowNumber to the list.
+		"""
+		if self.isChanged():
+			self.__changedRecordNumbers.append(self.RowNumber)
+	
+	
+	def getRecordStatus(self, rownum=None):
+		""" Returns a dictionary containing an element for each changed 
+		field in the specified record (or the current record if none is specified).
+		The field name is the key for each element; the value is a 2-element
+		tuple, with the first element being the original value, and the second 
+		being the current value.
+		"""
+		if rownum is None:
+			rownum = self.RowNumber
+		return self.Cursor.getRecordStatus(rownum)
+
+
+	def scan(self, func, restorePosition=True, reverse=False):
+		""" Iterates over all the records in the Cursor, and applies the passed
+		function to each. If 'restorePosition' is True, the position of the current
+		record in the recordset is restored after the iteration. If 'reverse' is true, 
+		the records are processed in reverse order.
+		"""
+		if self.RowCount <= 0:
+			# Nothing to scan!
+			return
+			
+		# Flag that the function can set to prematurely exit the scan
+		self.exitScan = False
+		if restorePosition:
+			currRow = self.RowNumber
+		try:
+			if reverse:
+				recRange = range(self.RowCount-1, -1, -1)
+			else:
+				recRange = range(self.RowCount)
+			for i in recRange:
+				self._moveToRowNum(i)
+				func()
+				if self.exitScan:
+					break
+		except dException, e:
+			if restorePosition:
+				self.RowNumber = currRow
+			raise dException, e
+
+		if restorePosition:
+			self.RowNumber = currRow
 
 
 	def new(self):
@@ -381,7 +465,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self.__cursor.new()
+		self.Cursor.new()
 		# Hook method for things to do after a new record is created.
 		self.onNew()
 
@@ -412,7 +496,7 @@ class dBizobj(dabo.common.dObject):
 			# sql passed; set it explicitly
 			self.SQL = sql
 		# propagate the SQL downward:
-		self.__cursor.setSQL(self.SQL)
+		self.Cursor.setSQL(self.SQL)
 
 
 	def requery(self):
@@ -427,6 +511,9 @@ class dBizobj(dabo.common.dObject):
 
 		# Hook method for creating the param list
 		params = self.getParams()
+		
+		# Set the appropriate child filter on the link field
+		self.setChildLinkFilter()
 
 		# Record this in case we need to restore the record position
 		try:
@@ -435,15 +522,24 @@ class dBizobj(dabo.common.dObject):
 			currPK = None
 
 		# run the requery
-		self.__cursor.requery(params)
+		self.Cursor.requery(params)
 
 		if self.RestorePositionOnRequery:
 			self._moveToPK(currPK)
-
+				
 		self.requeryAllChildren()
 		self.setMemento()
-
 		self.afterRequery()
+	
+	
+	def setChildLinkFilter(self):
+		""" If this is a child bizobj, its record set is dependent on its parent's 
+		current PK value. This will add 
+		"""
+		if self.DataSource and self.LinkField:
+			val = self.__escQuote(self.getParentPK())
+			self.Cursor.setChildFilterClause(" %s.%s = %s " % (self.DataSource, 
+					self.LinkField, val) )
 
 
 	def sort(self, col, ord=None, caseSensitive=True):
@@ -453,7 +549,7 @@ class dBizobj(dabo.common.dObject):
 		in a particular order. All the checking on the parameters is done
 		in the cursor. 
 		"""
-		self.__cursor.sort(col, ord, caseSensitive)
+		self.Cursor.sort(col, ord, caseSensitive)
 
 
 	def setParams(self, params):
@@ -465,33 +561,19 @@ class dBizobj(dabo.common.dObject):
 		self.__params = params
 
 
-	def _validate(self, allrows=True):
+	def _validate(self):
 		""" Internal method. User code should override validateRecord().
 		
 		_validate() is called by the save() routine before saving any data.
 		If any data fails validation, an exception will be raised, and the
 		save() will not be allowed to proceed.
-
-		By default, the entire record set is validated. If you only want to 
-		validate the current record, pass False as the allrows parameter.
 		"""
 		errMsg = ""
-		currRow = self.getRowNumber()
-		if allrows:
-			recrange = range(0, self.getRowCount())
-		else:
-			# Just the current row
-			recrange = range(currRow, currRow+1)
-
-		for i in recrange:
-			self._moveToRowNum(i)
-			if self.isChanged():
-				# No need to validate if the data hasn't changed
-				message = self.validateRecord()
-				if message:
-					errMsg += self.validateRecord()
-		self._moveToRowNum(currRow)
-				
+		if self.isChanged():
+			# No need to validate if the data hasn't changed
+			message = self.validateRecord()
+			if message:
+				errMsg += self.validateRecord()
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
 
@@ -516,20 +598,29 @@ class dBizobj(dabo.common.dObject):
 		pass
 
 
-	def _moveToRowNum(self, rownum):
+	def _moveToRowNum(self, rownum, updateChildren=True):
 		""" For internal use only! Should never be called from a developer's code.
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
 		"""
-		self.__cursor.moveToRowNum(rownum)
+		self.Cursor.moveToRowNum(rownum)
+		if updateChildren:
+			pk = self.getPK()
+			for child in self.__children:
+				# Let the child know the current dependent PK
+				child.setParentFK(pk)
 
 
-	def _moveToPK(self, pk):
+	def _moveToPK(self, pk, updateChildren=True):
 		""" For internal use only! Should never be called from a developer's code.
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
 		"""
-		self.__cursor.moveToPK(pk)
+		self.Cursor.moveToPK(pk)
+		if updateChildren:
+			for child in self.__children:
+				# Let the child know the current dependent PK
+				child.setParentFK(pk)
 
 
 	def seek(self, val, fld=None, caseSensitive=False, 
@@ -547,26 +638,45 @@ class dBizobj(dabo.common.dObject):
 		If runRequery is True, and the record pointer is moved, all child bizobjs
 		will be requeried, and the afterPointerMove() hook method will fire.
 		"""
-		ret = self.__cursor.seek(val, fld, caseSensitive, near)
+		ret = self.Cursor.seek(val, fld, caseSensitive, near)
 		if ret != -1:
 			if runRequery:
 				self.requeryAllChildren()
 				self.afterPointerMove()
 		return ret
+	
+	
+	def isAnyChanged(self):
+		""" Returns True if any record in the current record set has been 
+		changed.
+		"""
+		self.areThereAnyChanges = False
+		self.scan(self._checkForChanges)
+		return self.areThereAnyChanges
+	
+	
+	def _checkForChanges(self):
+		""" Designed to be called from the scan iteration over the records
+		for this bizobj. Once one changed record is found, set the scan's 
+		exit flag, since we only need to know if anything has changed.
+		"""
+		if self.isChanged():
+			self.areThereAnyChanges = True
+			self.exitScan = True
 
 
-	def isChanged(self, allRows=False):
+	def isChanged(self):
 		""" Return True if data has changed in this bizobj and any children.
 		
 		By default, only the current record is checked. Set allRows to True to
 		check all records.
 		"""
-		ret = self.__cursor.isChanged(allRows)
+		ret = self.Cursor.isChanged()
 
 		if not ret:
 			# see if any child bizobjs have changed
 			for child in self.__children:
-				ret = ret and child.isChanged()
+				ret = ret and child.isAnyChanged()
 				if ret:
 					break
 		return ret
@@ -602,16 +712,16 @@ class dBizobj(dabo.common.dObject):
 		
 		User subclasses should leave this alone and instead override onNewHook(). 
 		"""
-		self.__cursor.setDefaults(self.defaultValues)
+		self.Cursor.setDefaults(self.defaultValues)
 		
 		if self.AutoPopulatePK:
 			# Provide a temporary PK so that any linked children can be properly
 			# identified until the record is saved and a permanent PK is obtained.
-			self.setFieldVal(self.KeyField, self.genTempPKVal() )
+			self.Cursor.genTempAutoPK()
 		
 		# Fill in the link to the parent record
 		if self.Parent and self.FillLinkFromParent and self.LinkField:
-			self.setFieldVal(self.LinkField, self.getParentPK() )
+			self.setParentFK()
 
 		# Call the custom hook method
 		self.onNewHook()
@@ -623,11 +733,25 @@ class dBizobj(dabo.common.dObject):
 		pass
 
 
-	def setParentFK(self, val):
+	def setParentFK(self, val=None):
 		""" Accepts and set the foreign key value linking to the parent table.
 		"""
 		if self.LinkField:
+			if val is None:
+				val = self.getParentPK()
 			self.setFieldVal(self.LinkField, val)
+			# Update the key value for the cursor
+			self.__currentCursorKey = val
+			# Make sure there is a cursor object for this key.
+			self.setCurrentCursor()
+	
+	
+	def setCurrentCursor(self):
+		""" Sees if there is a cursor in the cursors dict with a key that matches
+		the current parent key. If not, creates one.
+		"""
+		if not self.__cursors.has_key(self.__currentCursorKey):
+			self.createCursor()
 	
 	
 	def addChild(self, child):
@@ -657,7 +781,10 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
+		pk = self.getPK()
 		for child in self.__children:
+			# Let the child know the current dependent PK
+			child.setParentFK(pk)
 			ret = child.requery()
 
 		self.afterChildRequery()
@@ -666,7 +793,7 @@ class dBizobj(dabo.common.dObject):
 	def getPK(self):
 		""" Return the value of the PK field.
 		"""
-		return self.__cursor.getFieldVal(self.KeyField)
+		return self.Cursor.getFieldVal(self.KeyField)
 
 
 	def getParentPK(self):
@@ -684,8 +811,8 @@ class dBizobj(dabo.common.dObject):
 	def getFieldVal(self, fld):
 		""" Return the value of the specified field in the current row. 
 		"""
-		if self.__cursor is not None:
-			return self.__cursor.getFieldVal(fld)
+		if self.Cursor is not None:
+			return self.Cursor.getFieldVal(fld)
 		else:
 			return None
 
@@ -693,9 +820,9 @@ class dBizobj(dabo.common.dObject):
 	def setFieldVal(self, fld, val):
 		""" Set the value of the specified field in the current row.
 		"""
-		if self.__cursor is not None:
+		if self.Cursor is not None:
 			try:
-				self.__cursor.setFieldVal(fld, val)
+				self.Cursor.setFieldVal(fld, val)
 				return True
 			except:
 				return False
@@ -710,7 +837,7 @@ class dBizobj(dabo.common.dObject):
 		and user code can do this as well if needed, but you'll need to keep 
 		the bizobj notified of any row changes and field value changes manually.
 		"""
-		return self.__cursor.getDataSet()
+		return self.Cursor.getDataSet()
 
 
 	def getParams(self):
@@ -734,22 +861,7 @@ class dBizobj(dabo.common.dObject):
 		
 		User code should not normally call this method.
 		"""
-		self.__cursor.setMemento()
-
-
-	def getRowCount(self):
-		""" Return the number of records in the cursor's data set. 
-		
-		The row count will be -1 if the cursor hasn't run any successful 
-		queries	yet.
-		"""
-		return self.__cursor.getRowCount()
-
-
-	def getRowNumber(self):
-		""" Return the current row number of the data set.
-		"""
-		return self.__cursor.getRowNumber()
+		self.Cursor.setMemento()
 
 
 	def getChildren(self):
@@ -770,54 +882,56 @@ class dBizobj(dabo.common.dObject):
 				ret = child
 				break
 		return ret
-	
-	
-	def genTempPKVal(self):
-		""" Return the next available temp PK value. 
+
+
+	def __escQuote(self, val):
+		""" Escape special characters in SQL strings.
+
+		Escapes any single quotes that could cause SQL syntax errors. Also 
+		escapes backslashes, since they have special meaning in SQL parsing. 
+		Finally, wraps the value in single quotes.
 		"""
-		pkType = type(self.getFieldVal(self.KeyField))
-		tmp = self.__tmpPK
-		# Decrement the temp PK value
-		self.__tmpPK -= 1
-		if pkType == types.StringType:
-			tmp = str(tmp)
-		elif pkType == types.UnicodeType:
-			tmp = unicode(tmp)
-		return tmp
-	
-	
+		ret = val
+		if type(val) in (types.StringType, types.UnicodeType):
+			# escape and then wrap in single quotes
+			sl = "\\"
+			qt = "\'"
+			ret = qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
+		return ret          
+
+
 	def getNonUpdateFields(self):
-		return self.__cursor.getNonUpdateFields()
+		return self.Cursor.getNonUpdateFields()
 		
 	def setNonUpdateFields(self, fldList=[]):
-		self.__cursor.setNonUpdateFields(fldList)
+		self.Cursor.setNonUpdateFields(fldList)
 		
 		
 	########## SQL Builder interface section ##############
 	def addField(self, exp):
-		return self.__cursor.addField(exp)
+		return self.Cursor.addField(exp)
 	def addFrom(self, exp):
-		return self.__cursor.addFrom(exp)
+		return self.Cursor.addFrom(exp)
 	def addGroupBy(self, exp):
-		return self.__cursor.addGroupBy(exp)
+		return self.Cursor.addGroupBy(exp)
 	def addOrderBy(self, exp):
-		return self.__cursor.addOrderBy(exp)
+		return self.Cursor.addOrderBy(exp)
 	def addWhere(self, exp, comp="and"):
-		return self.__cursor.addWhere(exp)
+		return self.Cursor.addWhere(exp)
 	def getSQL(self):
-		return self.__cursor.getSQL()
+		return self.Cursor.getSQL()
 	def setFieldClause(self, clause):
-		return self.__cursor.setFieldClause(clause)
+		return self.Cursor.setFieldClause(clause)
 	def setFromClause(self, clause):
-		return self.__cursor.setFromClause(clause)
+		return self.Cursor.setFromClause(clause)
 	def setGroupByClause(self, clause):
-		return self.__cursor.setGroupByClause(clause)
+		return self.Cursor.setGroupByClause(clause)
 	def setLimitClause(self, clause):
-		return self.__cursor.setLimitClause(clause)
+		return self.Cursor.setLimitClause(clause)
 	def setOrderByClause(self, clause):
-		return self.__cursor.setOrderByClause(clause)
+		return self.Cursor.setOrderByClause(clause)
 	def setWhereClause(self, clause):
-		return self.__cursor.setWhereClause(clause)
+		return self.Cursor.setWhereClause(clause)
 
 
 
@@ -982,7 +1096,38 @@ class dBizobj(dabo.common.dObject):
 			
 	def _setRestorePositionOnRequery(self, val):
 		self._restorePositionOnRequery = bool(val)
-		
+	
+	
+	def _getCurrentCursor(self):
+		return self.__cursors[self.__currentCursorKey]
+	
+	
+	def _getRowCount(self):
+		return self.Cursor.getRowCount()
+
+
+	def _getRowNumber(self):
+		return self.Cursor.getRowNumber()
+
+	def _setRowNumber(self, rownum):
+		errMsg = self.beforeSetRowNumber()
+		if not errMsg:
+			errMsg = self.beforePointerMove()
+		if errMsg:
+			raise dException.dException, errMsg
+		self._moveToRowNum(rownum)
+		self.requeryAllChildren()
+		self.afterPointerMove()
+		self.afterSetRowNumber()
+	
+	
+	### -------------- Property Definitions ------------------  ##
+	
+	RowNumber = property(_getRowNumber, _setRowNumber, None, 
+			"The current position of the record pointer in the result set. (int)"
+
+	RowCount = property(_getRowCount, None, None, 
+			"The number of records in the cursor's data set. It will be -1 if the cursor hasn't run any successful queries yet. (int)"
 
 	Caption = property(_getCaption, _setCaption, None,
 				"The friendly title of the cursor, used in messages to the end user. (str)")
@@ -1027,3 +1172,6 @@ class dBizobj(dabo.common.dObject):
 				
 	NonUpdateFields = property(getNonUpdateFields, setNonUpdateFields, None,
 				"Fields in the cursor to be ignored during updates")
+	
+	Cursor = property(_getCurrentCursor, None, None, 
+				"Returns the reference to the currently active cursor object. Read-only.")
