@@ -1,6 +1,6 @@
 ''' dControlMixin.py: Provide behavior common to all controls '''
 
-import wx, dEvents
+import wx, dEvents, dForm
 
 class dControlMixin:
     ''' mixin class: inherited by the dabo widgets to
@@ -22,7 +22,27 @@ class dControlMixin:
         
         self.dataSource = None
         self.dataField = None
+        
+        self.dForm = self.getDform()
+        self.addToDform()
     
+    def getDform(self):
+        ''' Crawl up the containership tree to find the dForm, if any. '''
+        obj = self
+        frm = None
+        while obj:
+            parent = obj.GetParent()
+            if isinstance(parent, dForm.dForm):
+                frm = parent
+                break
+            else:
+                obj = parent
+        return frm
+    
+    def addToDform(self):
+        if self.dForm:
+            self.dForm.addControl(self)
+                
     def EVT_FIELDCHANGED(win, id, func):
         win.Connect(id, -1, dEvents.EVT_FIELDCHANGED, func)
 

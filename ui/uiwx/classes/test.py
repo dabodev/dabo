@@ -13,6 +13,7 @@ from dControlMixin import dControlMixin
 from dCommandButton import dCommandButton
 from dSpinner import dSpinner
 from dEditBox import dEditBox
+from dVCR import dVCR
 
 class Test(object):
 
@@ -69,19 +70,12 @@ class Test(object):
                 vs.Add(bs, 1, wx.EXPAND)
             else:
                 vs.Add(bs, 0, wx.EXPAND)
-            
-            # Set up the frame to receive the notification that 
-            # the field value changed, and the object to receive
-            # the notification from the form that it's time to 
-            # refresh its value. This should be moved to
-            # dForm, to execute the moment a dControl gets registered
-            # with the dForm.
-            dControlMixin.EVT_FIELDCHANGED(object, object.GetId(), frame.onFieldChanged)
-            dForm.EVT_VALUEREFRESH(frame, frame.GetId(), object.onValueRefresh)
-        
+
+        vcr = dVCR(panel)
+        vs.Add(vcr, 0, wx.EXPAND)
+                    
         panel.SetSizer(vs)        
         panel.GetSizer().Layout()
-
 
         frame.Show(1)
         self.app.MainLoop()
