@@ -78,6 +78,10 @@ class dApp(dabo.common.dObject):
 		dabo.dAppRef = self
 		dApp.doDefault()
 		self._initProperties()
+		# Params may need to be sent to the main frame. These two 
+		# props allow that
+		self.mainFrameParamList = []
+		self.mainFrameKeyParamList = {}
 
 		
 	def setup(self):
@@ -250,7 +254,15 @@ class dApp(dabo.common.dObject):
 		""" Initialize the public properties of the app object. """
 
 		# it is useful to know from where we came
-		self.homeDir = sys.path[0]
+		# Note: sometimes the runtime distros will alter the path so
+		# that the first entry is not a valid directory. Go throught the path
+		# and use the first valid directory.
+		###self.homeDir = sys.path[0]
+		for pth in sys.path:
+			if os.path.exists(os.path.join(pth, ".")):
+				self.homeDir = pth
+				break
+		
 
 		self.uiType   = None    # ('wx', 'qt', 'curses', 'http', etc.)
 		#self.uiModule = None
