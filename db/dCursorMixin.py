@@ -125,7 +125,7 @@ class dCursorMixin(dabo.common.dObject):
 			sqlEX = sql.encode(self.Encoding)
 		else:
 			sqlEX = sql
-
+		
 		try:
 			if params is None or len(params) == 0:
 				res = self.superCursor.execute(self, sqlEX)
@@ -454,6 +454,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
+	def isNewUnsaved(self):
+		"""Return True if the current record is new and not yet saved.
+		Return False otherwise.
+		"""
+		return self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG)
+		
+		
 	def setMemento(self):
 		if self.RowCount > 0:
 			if (self.RowNumber >= 0) and (self.RowNumber < self.RowCount):
@@ -761,8 +768,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		for fld in self.getNonUpdateFields():
 			if ret.has_key(fld):
 				del ret[fld]
-		return ret
-		
+		return ret		
 		
 
 	def new(self):

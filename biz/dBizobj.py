@@ -590,16 +590,23 @@ class dBizobj(dabo.common.dObject):
 	
 	def setChildLinkFilter(self):
 		""" If this is a child bizobj, its record set is dependent on its parent's 
-		current PK value. This will add 
+		current PK value. This will add the appropriate WHERE clause to
+		filter the child records. If the parent is a new, unsaved record, 
+		there cannot be any child records saved yet, so an empty query
+		is built.
 		"""
 		if self.DataSource and self.LinkField:
-			if self.ParentLinkField:
-				# The link to the parent is something other than the PK
-				val = self.escQuote(self.Parent.getFieldVal(self.ParentLinkField))
+			if self.Parent.isNewUnsaved():
+				# Parent is new and not yet saved, so we cannot have child records yet.
+				filtExpr = " 1 = 0 "
 			else:
-				val = self.escQuote(self.getParentPK())
-			self._getCurrentCursor().setChildFilterClause(" %s.%s = %s " % (self.DataSource, 
-					self.LinkField, val) )
+				if self.ParentLinkField:
+					# The link to the parent is something other than the PK
+					val = self.escQuote(self.Parent.getFieldVal(self.ParentLinkField))
+				else:
+					val = self.escQuote(self.getParentPK())
+				filtExpr = " %s.%s = %s " % (self.DataSource, self.LinkField, val)
+			self._getCurrentCursor().setChildFilterClause(filtExpr)
 					
 
 	def sort(self, col, ord=None, caseSensitive=True):
@@ -742,6 +749,13 @@ class dBizobj(dabo.common.dObject):
 		return ret
 
 
+	def isNewUnsaved(self):
+		"""If the current record is a new, unsaved record, this returns True.
+		Otherwise, False is returned.
+		"""
+		return self._getCurrentCursor().isNewUnsaved()
+		
+		
 	def onDeleteLastRecord(self):
 		""" Hook called when the last record has been deleted from the data set.
 		"""
