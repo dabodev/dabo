@@ -88,12 +88,12 @@ class dFormDataNav(dForm):
                           bitmap=dIcons.getIconBitmap("fileSave"))
         self._appendToMenu(menu, "Cancel Changes", 
                           self.onCancel, 
-                          bitmap=dIcons.getIconBitmap("fileRevert"))
+                          bitmap=dIcons.getIconBitmap("revert"))
         menu.AppendSeparator()
         
         self._appendToMenu(menu, "Select First Record", 
                           self.onFirst, 
-                          bitmap=dIcons.getIconBitmap("leftArrowBeg"))
+                          bitmap=dIcons.getIconBitmap("leftArrows"))
         self._appendToMenu(menu, "Select Prior Record\tCtrl+,", 
                           self.onPrior, 
                           bitmap=dIcons.getIconBitmap("leftArrow"))
@@ -102,7 +102,7 @@ class dFormDataNav(dForm):
                           bitmap=dIcons.getIconBitmap("rightArrow"))
         self._appendToMenu(menu, "Select Last Record", 
                           self.onLast, 
-                          bitmap=dIcons.getIconBitmap("rightArrowEnd"))
+                          bitmap=dIcons.getIconBitmap("rightArrows"))
         menu.AppendSeparator()
         self._appendToMenu(menu, "New Record\tCtrl+N", 
                           self.onNew, 
