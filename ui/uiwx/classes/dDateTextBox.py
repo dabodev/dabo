@@ -56,6 +56,12 @@ R : Last Day of yeaR
 """
 	
 	
+	def OnKillFocus(self, evt):
+		dDateTextBox.doDefault(evt)
+		# Refresh the displayed value
+		self.Value = self.GetValue()
+		
+	
 	def onRightClick(self, evt):
 		""" Display a context menu for selecting the desired date format """
 		men = wx.Menu()
@@ -84,11 +90,27 @@ R : Last Day of yeaR
 			evt.Skip()
 			return
 		key = chr(keycode).lower()
-		shortcutKeys = [ch for ch in "tq+-mhyr[]"]
-		dateEntryKeys = [ch for ch in "0123456789/-"]
+		shortcutKeys = "tq+-mhyr[]"
+		dateEntryKeys = "0123456789/-"
 		
 		if key in shortcutKeys:
-			self.adjustDate(key)
+			# There is a conflict if the key, such as '-', is used in both the 
+			# date formatting and as a shortcut. So let's check the text
+			# of this field to see if it is a full date or if the user is typing in
+			# a value.
+			adjust = True
+			if key in self.getCurrentFormat():
+				if self.strToDate(self.GetValue(), testing=True) is None:
+					adjust = False
+					evt.Skip()
+				else:
+					# They've just finished typing a new date, or are just
+					# positioned on the field. Either way, update the stored 
+					# date to make sure they are in sync.
+					self.Value = self.GetValue()
+			if adjust:
+				self.adjustDate(key)
+	
 		elif key in dateEntryKeys:
 			# key can be used for date entry: allow
 			evt.Skip()
@@ -184,7 +206,7 @@ R : Last Day of yeaR
 		return (self.date.GetYear(), self.date.GetMonth(), self.date.GetDay() )
 
 	
-	def strToDate(self, val):
+	def strToDate(self, val, testing=False):
 		""" This routine parses the text representing a date, using the 
 		current format. It adjusts for years given with two digits, using 
 		the rollover value to determine the century. It then returns a
@@ -215,18 +237,48 @@ R : Last Day of yeaR
 			except:
 				dt = val
 				(hr, mn, sec) = (0, 0, 0)
-			
+
 			try:
 				sep = [c for c in dt if not c.isdigit()][0]
 				dtPieces = [int(p) for p in dt.split(sep)]
+			except:
+				# There is no separator
+				sep = ""
+				dtPieces = []
+				
+			try:
 				if self.dateFormat == "American":
-					month = dtPieces[0]
-					day = dtPieces[1]
-					year = dtPieces[2]
+					if  not dtPieces:
+						# There was no separator. If the string is in the format
+						# 'MMDDYYYY' or even 'MMDDYY', break it up manually
+						if len(dt) == 8:
+							month = int(dt[:2])
+							day = int(dt[2:4])
+							year = int(dt[4:])
+						elif len(dt) == 6:
+							month = int(dt[:2])
+							day = int(dt[2:4])
+							year = int(dt[4:])
+					else:
+						month = dtPieces[0]
+						day = dtPieces[1]
+						year = dtPieces[2]
 				elif self.dateFormat == "YMD":
-					year = dtPieces[0]
-					month = dtPieces[1]
-					day = dtPieces[2]
+					if  not dtPieces:
+						# There was no separator. If the string is in the format
+						# 'YYYYMMDD' or even 'YYMMDD', break it up manually
+						if len(dt) == 8:
+							year = int(dt[:4])
+							month = int(dt[4:6])
+							day = int(dt[6:])
+						elif len(dt) == 6:
+							year = int(dt[:2])
+							month = int(dt[2:4])
+							day = int(dt[4:])
+					else:
+						year = dtPieces[0]
+						month = dtPieces[1]
+						day = dtPieces[2]
 				# Adjust the rollover for 2-digit years
 				if year < 100:
 					if year > self.rollover:
@@ -242,7 +294,10 @@ R : Last Day of yeaR
 			ret.SetMinute(mn)
 			ret.SetSecond(sec)
 		except:
-			dabo.errorLog.write(_("Invalid date specified. Y,M,D = %s, %s, %s" % (year, month, day) ))
+			if not testing:
+				# Don't fill up the logs with error messages from tests that 
+				# are expected to fail.
+				dabo.errorLog.write(_("Invalid date specified. Y,M,D = %s, %s, %s" % (year, month, day) ))
 			ret = None
 		return ret
 	
@@ -251,7 +306,20 @@ R : Last Day of yeaR
 		""" We need to convert this back to standard database format """
 		fmt = "%Y-%m-%d"
 		return dDateTextBox.doDefault(self.date.Format(fmt) )
-		
+	
+	
+	def strFromDate(self):
+		""" Returns the string representation of the date object
+		given the current format.
+		"""
+		return self.date.Format(self.getCurrentFormat())
+	
+	
+	def getCurrentFormat(self):
+		fmt = [ f["format"]
+				for f in self.formats.values() 
+				if f["setting"] == self.dateFormat][0]
+		return fmt		
 	
 	def _setValue(self, val):
 		""" We need to override this method, since the actual value
@@ -268,12 +336,11 @@ R : Last Day of yeaR
 				self.date = parsedDate
 			else:
 				self.dateOK = False
-		fmt = [ f["format"]
-				for f in self.formats.values() 
-				if f["setting"] == self.dateFormat][0]
-		dDateTextBox.doDefault(self.date.Format(fmt) )
+		dDateTextBox.doDefault(self.strFromDate() )
+		
 	def _getValue(self):
 		return self.GetValue()
+		
 	Value = property(_getValue, _setValue, None,
 			"Specifies the current state of the control (the value of the field). (varies)" )
 	
