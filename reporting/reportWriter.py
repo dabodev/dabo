@@ -73,13 +73,21 @@ class ReportWriter(object):
 		"""Draw the given object on the Canvas.
 
 		The object is a dictionary containing properties, and	origin is the (x,y)
-		tuple where the object's (x,y) properties should be relative to.
+		tuple where the object will be drawn. 
 		"""
+		## (Can't get x,y directly from object because it may have been modified 
+		## by the calling program to adjust for	band position, and draw() 
+		## doesn't know about bands.)
+
 		c = self.Canvas
 		x,y = origin
 
+		## We'll be tweaking with the canvas settings below, so we need to save
+		## the state first so we can restore when done. Do not do any short-circuit
+		## returns between c.saveState() and c.restoreState()!
 		c.saveState()
-	
+
+		## These properties can apply to all objects:
 		try: 
 			width = self.getPt(eval(object["width"]))
 		except (KeyError, TypeError, ValueError): 
@@ -115,6 +123,8 @@ class ReportWriter(object):
 		elif vAnchor == "center":
 			y = y - (height / 2)
 	
+		
+		## Do specific things based on object type:
 		if object["type"] == "rect":
 			d = shapes.Drawing(width, height)
 			d.rotate(rotation)
@@ -160,8 +170,7 @@ class ReportWriter(object):
 			d.drawOn(c, x, y)
 	
 		elif object["type"] == "string":
-			c.translate(x, y)
-			c.rotate(rotation)
+			## Set the props for strings:
 			try: 
 				borderWidth = self.getPt(eval(object["borderWidth"]))
 			except KeyError: 
@@ -172,42 +181,11 @@ class ReportWriter(object):
 			except KeyError: 
 				borderColor = self.default_borderColor
 	
-			c.setLineWidth(borderWidth)
-			c.setStrokeColor(borderColor)
-	
-			if borderWidth > 0:
-				stroke = 1
-			else:
-				stroke = 0
-	
-			# clip the text to the specified width and height
-			p = c.beginPath()
-	
-			p.rect(0, 0, width, height)
-			c.clipPath(p, stroke=stroke)
-	
 			try:
 				align = eval(object["align"])
 			except KeyError:
 				align = self.default_align
 
-			funcs = {"center": c.drawCentredString,
-			         "right": c.drawRightString,
-			         "left": c.drawString}
-			func = funcs[align]
-
-			try:
-				align = eval(object["align"])
-			except KeyError:
-				align = self.default_align
-
-			if align == "center":
-				posx = (width / 2)
-			elif align == "right":
-				posx = width
-			else:
-				posx = 0
-	
 			try:
 				fontName = eval(object["fontName"])
 			except KeyError:
@@ -222,16 +200,43 @@ class ReportWriter(object):
 				fontColor = eval(object["fontColor"])
 			except KeyError:
 				fontColor = self.default_fontColor
-	
+
+			## Set canvas props based on our props:
+			c.translate(x, y)
+			c.rotate(rotation)
+			c.setLineWidth(borderWidth)
+			c.setStrokeColor(borderColor)
 			c.setFillColor(fontColor)
 			c.setFont(fontName, fontSize)
 	
+			if borderWidth > 0:
+				stroke = 1
+			else:
+				stroke = 0
+	
+			# clip the text to the specified width and height
+			p = c.beginPath()
+	
+			p.rect(0, 0, width, height)
+			c.clipPath(p, stroke=stroke)
+	
+			funcs = {"center": c.drawCentredString,
+			         "right": c.drawRightString,
+			         "left": c.drawString}
+			func = funcs[align]
+
+			if align == "center":
+				posx = (width / 2)
+			elif align == "right":
+				posx = width
+			else:
+				posx = 0
+	
+			# draw the string using the function that matches the alignment:
 			s = eval(object["expr"])
-			func(posx,0,s)
+			func(posx, 0, s)
 	
 		elif object["type"] == "image":
-			c.translate(x, y)
-			c.rotate(rotation)
 			try: 
 				borderWidth = self.getPt(eval(object["borderWidth"]))
 			except KeyError: 
@@ -242,14 +247,6 @@ class ReportWriter(object):
 			except KeyError: 
 				borderColor = self.default_borderColor
 	
-			c.setLineWidth(borderWidth)
-			c.setStrokeColor(borderColor)
-	
-			if borderWidth > 0:
-				stroke = 1
-			else:
-				stroke = 0
-	
 			try: 
 				mask = eval(object["imageMask"])
 			except: 
@@ -259,6 +256,16 @@ class ReportWriter(object):
 				mode = eval(object["scaleMode"])
 			except:
 				mode = self.default_scaleMode
+
+			c.translate(x, y)
+			c.rotate(rotation)
+			c.setLineWidth(borderWidth)
+			c.setStrokeColor(borderColor)
+	
+			if borderWidth > 0:
+				stroke = 1
+			else:
+				stroke = 0
 	
 			# clip around the outside of the image:
 			p = c.beginPath()
@@ -271,6 +278,10 @@ class ReportWriter(object):
 				# width/height, resulting in clipping.
 				width, height = None, None
 			c.drawImage(eval(object["expr"]), 0, 0, width, height, mask)
+
+		## All done, restore the canvas state to how we found it (important because
+		## rotating, scaling, etc. are cumulative, not absolute and we don't want
+		## to start with a canvas in an unknown state.)
 		c.restoreState()
 
 
@@ -337,7 +348,6 @@ class ReportWriter(object):
 		func = eval("pagesizes.%s" % orientation)
 		pageSize = func(pageSize)
 		pageWidth, pageHeight = pageSize
-		print "Page Size:", pageSize
 		## end Page Size setting (refactor to a separate function)
 		
 		
@@ -431,7 +441,7 @@ class ReportWriter(object):
 		
 				if self.ShowBandOutlines:
 					self.printBandOutline("%s (record %s)" % (band, self.RecordNumber), 
-					                                     x, y, width, height)
+					                                          x, y, width, height)
 
 				if bandDict.has_key("objects"):
 					for object in bandDict["objects"]:
@@ -566,7 +576,7 @@ class ReportWriter(object):
 			raise ValueError, "Path '%s' doesn't exist." % s[0]
 
 	OutputName = property(_getOutputName, _setOutputName, None,
-		"""Specifies the output file name, which will get written to in PDF format.""")
+		"""Specifies the output PDF file name.""")
 
 
 	def _getRecord(self):
@@ -701,9 +711,10 @@ if __name__ == "__main__":
 	rw = ReportWriter()
 	rw.ShowBandOutlines = True
 	rw.UseTestCursor = True
-	rw.ReportFormFile = "./samplespec.rfxml"
-	rw.OutputName = "./testXmlFormat.pdf"
-	rw.write()
-	rw.ReportFormFile = "./samplespec.py"
-	rw.OutputName = "./testPythonFormat.pdf"
-	rw.write()
+
+	for reportForm in ("./samplespec.rfxml", "./samplespec.py"):
+		output = "./test-%s.pdf" % os.path.splitext(reportForm)[1][1:]
+		print "Creating %s from report form %s..." % (output, reportForm)
+		rw.ReportFormFile = reportForm
+		rw.OutputName = output
+		rw.write()
