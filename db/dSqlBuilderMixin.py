@@ -132,9 +132,9 @@ class dSqlBuilderMixin:
 		""" Return the word to use in the db-specific limit clause.
 		"""
 		dbMod = self.BackendObject.dbModuleName
-		if dbMod == 'kinterbasdb':	# Firebird (warning: *NOT* Interbase though)
+		if dbMod == "kinterbasdb":	# Firebird (warning: *NOT* Interbase though)
 			return "first"
-		elif dbMod == 'MySQLdb':	# MySQL
+		elif dbMod == "MySQLdb":	# MySQL
 			return "limit"
 		else:
 			return "limit"
@@ -146,12 +146,12 @@ class dSqlBuilderMixin:
 		are sufficient.
 		"""
 		dbMod = self.BackendObject.dbModuleName
-		if dbMod == 'kinterbasdb':
-			return 'top'
-		elif dbMod == 'MySQLdb':
-			return 'bottom'
+		if dbMod == "kinterbasdb":
+			return "top"
+		elif dbMod == "MySQLdb":
+			return "bottom"
 		else:
-			return 'bottom'
+			return "bottom"
 			
 			
 	def getSQL(self):
@@ -188,12 +188,12 @@ class dSqlBuilderMixin:
 		else:
 			limitClause = "%s %s\n" % (self.getLimitWord(), self._defaultLimit)
 
-		if self.getLimitPosition() == 'top':
-			return "select %s%s%s%s%s%s" % (limitClause, fieldClause, fromClause, whereClause, 
-									groupByClause, orderByClause)
-		else:
-			return "select %s%s%s%s%s%s" % (fieldClause, fromClause, whereClause, 
-									groupByClause, orderByClause, limitClause)
+		clauses = (fieldClause, fromClause, whereClause, groupByClause, 
+				orderByClause, limitClause)
+		if self.getLimitPosition() == "top":
+			clauses = (limitClause, fieldClause, fromClause, whereClause, 
+				groupByClause, orderByClause)
+		return "select %s%s%s%s%s%s" % clauses
 		
 
 	def getStructureOnlySql(self):

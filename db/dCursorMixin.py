@@ -36,7 +36,6 @@ class dCursorMixin:
 	__nonUpdateFields = []
 	# User-editable list of non-updated fields
 	nonUpdateFields = []
-	rownumber = -1
 
 	def __init__(self, sql="", *args, **kwargs):
 		if sql:
@@ -53,6 +52,10 @@ class dCursorMixin:
 		self.holddesc = []
 		# Reference to the object with backend-specific behaviors
 		self.__backend = None
+		# Internal counters for row number and count properties.
+		self.__rownumber = -1
+		self.__rowcount = -1
+
 		
 		# Just in case this is used outside of the context of a bizobj
 		if not hasattr(self, "superCursor") or self.superCursor is None:
@@ -104,6 +107,9 @@ class dCursorMixin:
 		else:
 			res = self.superCursor.execute(self, sql, params)
 		self._records = self.fetchall()
+		self.RowCount = len(self._records)
+		if self.RowCount > 0:
+			self.RowNumber = max(self.RowNumber, 0, (self.RowCount-1) )
 
 		if self._records:
 			if type(self._records[0]) == types.TupleType:
@@ -160,7 +166,7 @@ class dCursorMixin:
 		currCase = self.sortCase
 
 		# Check to make sure that we have data
-		if self.rowcount < 1:
+		if self.RowCount < 1:
 			raise dException.NoRecordsException, _("No rows to sort.")
 
 		# Make sure that the specified column is a column in the result set
@@ -215,8 +221,8 @@ class dCursorMixin:
 				self.__unsortedRows.append(row[self.keyField])
 
 		# First, preserve the PK of the current row so that we can reset
-		# the rownumber property to point to the same row in the new order.
-		currRowKey = self._records[self.rownumber][self.keyField]
+		# the RowNumber property to point to the same row in the new order.
+		currRowKey = self._records[self.RowNumber][self.keyField]
 		# Create the list to hold the rows for sorting
 		sortList = []
 		if not ord:
@@ -246,10 +252,10 @@ class dCursorMixin:
 			newRows.append(elem[1])
 		self._records = tuple(newRows)
 
-		# restore the rownumber
-		for i in range(0, self.rowcount):
+		# restore the RowNumber
+		for i in range(0, self.RowCount):
 			if self._records[i][self.keyField] == currRowKey:
-				self.rownumber = i
+				self.RowNumber = i
 				break
 
 
@@ -264,12 +270,13 @@ class dCursorMixin:
 	def __setNonUpdateFields(self):
 		# Set the __nonUpdateFields prop
 		self.__nonUpdateFields = []
-		
-		dscrp = self.description
 		self.__saveProps()
+
+		dscrp = self.description
 		for fldDesc in dscrp:
 			fld = fldDesc[0]
 			try:
+				## TODO: MySQL-specific code ##
 				sql = """select %s from %s limit 1""" % (fld, self.table)
 				self.execute( sql )
 				# Get the description for this single field
@@ -282,7 +289,6 @@ class dCursorMixin:
 					self.__nonUpdateFields.append(fld)
 			except:
 				self.__nonUpdateFields.append(fld)
-	
 		self.__restoreProps()
 	
 
@@ -292,11 +298,11 @@ class dCursorMixin:
 		"""
 		ret = False
 
-		if self.rowcount > 0:
+		if self.RowCount > 0:
 			if allRows:
 				recs = self._records
 			else:
-				recs = (self._records[self.rownumber],)
+				recs = (self._records[self.RowNumber],)
 
 			for i in range(len(recs)):
 				rec = recs[i]
@@ -307,16 +313,18 @@ class dCursorMixin:
 
 
 	def isRowChanged(self, rec):
-		mem = rec[k.CURSOR_MEMENTO]
-		newrec = rec.has_key(k.CURSOR_NEWFLAG)
-		ret = newrec or mem.isChanged(rec)
+		ret = False
+		if rec.has_key(k.CURSOR_MEMENTO):
+			mem = rec[k.CURSOR_MEMENTO]
+			newrec = rec.has_key(k.CURSOR_NEWFLAG)
+			ret = newrec or mem.isChanged(rec)
 		return ret
 
 
 	def setMemento(self):
-		if self.rowcount > 0:
-			if (self.rownumber >= 0) and (self.rownumber < self.rowcount):
-				self.addMemento(self.rownumber)
+		if self.RowCount > 0:
+			if (self.RowNumber >= 0) and (self.RowNumber < self.RowCount):
+				self.addMemento(self.RowNumber)
 	
 	
 	def genTempAutoPK(self):
@@ -325,7 +333,7 @@ class dCursorMixin:
 		new record, child records that are linked to this one can be updated
 		with the actual PK value.
 		"""
-		rec = self._records[self.rownumber]
+		rec = self._records[self.RowNumber]
 		tmpPK = self._genTempPKVal()
 		rec[self.keyField] = tmpPK
 		rec[k.CURSOR_TMPKEY_FIELD] = tmpPK
@@ -347,9 +355,9 @@ class dCursorMixin:
 		is new an unsaved record, return the temp PK value
 		"""
 		ret = None
-		if self.rowcount <= 0:
+		if self.RowCount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set.")
-		rec = self._records[self.rownumber]
+		rec = self._records[self.RowNumber]
 		if rec.has_key(k.CURSOR_NEWFLAG):
 			# New, unsaved record
 			return rec[k.CURSOR_TMPKEY_FIELD]
@@ -359,10 +367,10 @@ class dCursorMixin:
 		""" Return the value of the specified field.
 		"""
 		ret = None
-		if self.rowcount <= 0:
+		if self.RowCount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set.")
 
-		rec = self._records[self.rownumber]
+		rec = self._records[self.RowNumber]
 		if rec.has_key(fld):
 			ret = rec[fld]
 		else:
@@ -376,10 +384,10 @@ class dCursorMixin:
 	def setFieldVal(self, fld, val):
 		""" Set the value of the specified field. 
 		"""
-		if self.rowcount <= 0:
+		if self.RowCount <= 0:
 			raise dException.dException, _("No records in the data set")
 		else:
-			rec = self._records[self.rownumber]
+			rec = self._records[self.RowNumber]
 			if rec.has_key(fld):
 				if type(rec[fld]) != type(val):
 					if ( type(val) in (types.UnicodeType, types.StringType) 
@@ -388,7 +396,7 @@ class dCursorMixin:
 				if type(rec[fld]) != type(val):
 					# This can happen with a new record, since we just stuff the
 					# fields full of empty strings.
-					if not self._records[self.rownumber].has_key(k.CURSOR_NEWFLAG):
+					if not self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG):
 						print "!!! Data Type Mismatch:", type(rec[fld]), type(val)
 					
 					if type(rec[fld]) == type(int()) and type(val) == type(bool()):
@@ -413,9 +421,9 @@ class dCursorMixin:
 		being the current value.
 		"""
 		if rownum is None:
-			rownum = self.rownumber
+			rownum = self.RowNumber
 		try:
-			row = self._records[rownumber]
+			row = self._records[RowNumber]
 			mem = row[k.CURSOR_MEMENTO]
 		except:
 			# Either there isn't any such row number, or it doesn't have a 
@@ -443,7 +451,7 @@ class dCursorMixin:
 		""" Get the row count of the current data set.
 		"""
 		try:
-			return self.rowcount
+			return self.RowCount
 		except AttributeError:
 			return -1
 
@@ -452,7 +460,7 @@ class dCursorMixin:
 		""" Get the active row number of the data set.
 		"""
 		try:
-			return self.rownumber
+			return self.RowNumber
 		except AttributeError:
 			return -1
 
@@ -460,8 +468,8 @@ class dCursorMixin:
 	def first(self):
 		""" Move the record pointer to the first record of the data set. 
 		"""
-		if self.rowcount > 0:
-			self.rownumber = 0
+		if self.RowCount > 0:
+			self.RowNumber = 0
 		else:
 			raise dException.NoRecordsException, _("No records in data set")
 
@@ -469,9 +477,9 @@ class dCursorMixin:
 	def prior(self):
 		""" Move the record pointer back one position in the recordset.
 		"""
-		if self.rowcount > 0:
-			if self.rownumber > 0:
-				self.rownumber -= 1
+		if self.RowCount > 0:
+			if self.RowNumber > 0:
+				self.RowNumber -= 1
 			else:
 				raise dException.BeginningOfFileException, _("Already at the beginning of the data set.")
 		else:
@@ -481,9 +489,9 @@ class dCursorMixin:
 	def next(self):
 		""" Move the record pointer forward one position in the recordset.
 		"""
-		if self.rowcount > 0:
-			if self.rownumber < (self.rowcount-1):
-				self.rownumber += 1
+		if self.RowCount > 0:
+			if self.RowNumber < (self.RowCount-1):
+				self.RowNumber += 1
 			else:
 				raise dException.EndOfFileException, _("Already at the end of the data set.")
 		else:
@@ -493,8 +501,8 @@ class dCursorMixin:
 	def last(self):
 		""" Move the record pointer to the last record in the recordset.
 		"""
-		if self.rowcount > 0:
-			self.rownumber = self.rowcount-1
+		if self.RowCount > 0:
+			self.RowNumber = self.RowCount-1
 		else:
 			raise dException.NoRecordsException, _("No records in data set")
 
@@ -503,7 +511,7 @@ class dCursorMixin:
 		""" Save any changes to the data back to the data store.
 		"""
 		# Make sure that there is data to save
-		if self.rowcount <= 0:
+		if self.RowCount <= 0:
 			raise dException.dException, _("No data to save")
 
 		# Make sure that there is a PK
@@ -512,7 +520,7 @@ class dCursorMixin:
 		if allrows:
 			recs = self._records
 		else:
-			recs = (self._records[self.rownumber],)
+			recs = (self._records[self.RowNumber],)
 
 		for rec in recs:
 			self.__saverow(rec)
@@ -597,33 +605,33 @@ class dCursorMixin:
 		tmprows = list(self._records)
 		tmprows.append(self._blank.copy())
 		self._records = tuple(tmprows)
-		# Adjust the rowcount and position
-		self.rowcount = len(self._records)
-		self.rownumber = self.rowcount - 1
+		# Adjust the RowCount and position
+		self.RowCount = len(self._records)
+		self.RowNumber = self.RowCount - 1
 		# Add the 'new record' flag to the last record (the one we just added)
-		self._records[self.rownumber][k.CURSOR_NEWFLAG] = True
+		self._records[self.RowNumber][k.CURSOR_NEWFLAG] = True
 		# Add the memento
-		self.addMemento(self.rownumber)
+		self.addMemento(self.RowNumber)
 
 
 	def cancel(self, allrows=False):
 		""" Revert any changes to the data set back to the original values.
 		"""
 		# Make sure that there is data to save
-		if not self.rowcount > 0:
+		if not self.RowCount > 0:
 			raise dException.dException, _("No data to cancel")
 
 		if allrows:
 			recs = self._records
 		else:
-			recs = (self._records[self.rownumber],)
+			recs = (self._records[self.RowNumber],)
 
 		# Create a list of PKs for each 'eligible' row to cancel
 		cancelPKs = []
 		for rec in recs:
 			cancelPKs.append(rec[self.keyField])
 
-		for i in range(self.rowcount-1, -1, -1):
+		for i in range(self.RowCount-1, -1, -1):
 			rec = self._records[i]
 
 			if rec[self.keyField] in cancelPKs:
@@ -651,12 +659,12 @@ class dCursorMixin:
 		""" Delete the specified row. If no row specified, 
 		delete the currently active row.
 		"""
-		if not hasattr(self, "rownumber"):
+		if self.RowNumber < 0:
 			# No query has been run yet
 			raise dException.NoRecordsException, _("No record to delete")
 		if delRowNum is None:
 			# assume that it is the current row that is to be deleted
-			delRowNum = self.rownumber
+			delRowNum = self.RowNumber
 
 		rec = self._records[delRowNum]
 		newrec =  rec.has_key(k.CURSOR_NEWFLAG)
@@ -691,7 +699,7 @@ class dCursorMixin:
 		The memento must be updated afterwards, since these should not count
 		as changes to the original values. 
 		"""
-		row = self._records[self.rownumber]
+		row = self._records[self.RowNumber]
 		for kk, vv in vals.items():
 			row[kk] = vv
 		row[k.CURSOR_MEMENTO].setMemento(row)
@@ -703,9 +711,9 @@ class dCursorMixin:
 		"""
 		if rownum == -1:
 			# Make sure that there are rows to process
-			if self.rowcount < 1:
+			if self.RowCount < 1:
 				return
-			for i in range(0, self.rowcount):
+			for i in range(0, self.RowCount):
 				self.addMemento(i)
 		row = self._records[rownum]
 		if not row.has_key(k.CURSOR_MEMENTO):
@@ -766,11 +774,11 @@ class dCursorMixin:
 
 		If the record is not found, the position is set to the first record. 
 		"""
-		self.rownumber = 0
+		self.RowNumber = 0
 		for i in range(0, len(self._records)):
 			rec = self._records[i]
 			if rec[self.keyField] == pk:
-				self.rownumber = i
+				self.RowNumber = i
 				break
 
 
@@ -780,9 +788,9 @@ class dCursorMixin:
 		If the specified row does not exist, the pointer remains where it is, 
 		and an exception is raised.
 		"""
-		if (rownum >= self.rowcount) or (rownum < 0):
+		if (rownum >= self.RowCount) or (rownum < 0):
 			raise dException.dException, _("Invalid row specified.")
-		self.rownumber = rownum
+		self.RowNumber = rownum
 
 
 	def seek(self, val, fld=None, caseSensitive=True, near=False):
@@ -798,7 +806,7 @@ class dCursorMixin:
 		if fld is None:
 			# Default to the current sort order field
 			fld = self.sortColumn
-		if self.rowcount <= 0:
+		if self.RowCount <= 0:
 			# Nothing to seek within
 			return ret
 		# Make sure that this is a valid field
@@ -810,7 +818,7 @@ class dCursorMixin:
 		# Copy the specified field vals and their row numbers to a list, and 
 		# add those lists to the sort list
 		sortList = []
-		for i in range(0, self.rowcount):
+		for i in range(0, self.RowCount):
 			sortList.append( [self._records[i][fld], i] )
 
 		# Determine if we are seeking string values
@@ -893,7 +901,7 @@ class dCursorMixin:
 		Optionally pass in a record object, otherwise use the current record.
 		"""
 		if not rec:
-			rec = self._records[self.rownumber]
+			rec = self._records[self.RowNumber]
 		aFields = self.keyField.split(",")
 		ret = ""
 		for fld in aFields:
@@ -932,13 +940,13 @@ class dCursorMixin:
 		""" Push the current state of the cursor onto the stack """
 		if hasattr(self, "_records"):
 			self.holdrows.append(self._records)
-			self.holdcount.append(self.rowcount)
-			self.holdpos.append(self.rownumber)
+			self.holdcount.append(self.RowCount)
+			self.holdpos.append(self.RowNumber)
 			self.holddesc.append(self.description)
 		else:
 			# Cursor hasn't been populated yet
 			self.holdrows.append(None)
-			self.holdcount.append(self.rowcount)
+			self.holdcount.append(self.RowCount)
 			self.holdpos.append(0)
 			self.holddesc.append( () )
 
@@ -951,10 +959,10 @@ class dCursorMixin:
 		if restoreRows:
 			self._records = self.holdrows[stackPos]
 		if self._records:
-			self.rowcount = len(self._records)
+			self.RowCount = len(self._records)
 		else:
-			self.rowcount = self.holdcount[stackPos]
-		self.rownumber = min(self.holdpos[stackPos], self.rowcount-1)
+			self.RowCount = self.holdcount[stackPos]
+		self.RowNumber = min(self.holdpos[stackPos], self.RowCount-1)
 		self.description = self.holddesc[stackPos]
 		# Pop the top values off of the stack
 		del self.holdrows[stackPos]
@@ -982,7 +990,7 @@ class dCursorMixin:
 	def isAdding(self):
 		""" Return True if the current record is a new record.
 		"""
-		return self._records[self.rownumber].has_key(k.CURSOR_NEWFLAG)
+		return self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG)
 	
 	def getTables(self, includeSystemTables=False):
 		""" Return a tuple of tables in the current database.
@@ -1059,5 +1067,24 @@ class dCursorMixin:
 	def _getBackendObject(self):
 		return self.__backend
 	
+	def _setRowNumber(self, num):
+		self.__rownumber = num
+	
+	def _getRowNumber(self):
+		return self.__rownumber
+	
+	def _setRowCount(self, num):
+		self.__rowcount = num
+	
+	def _getRowCount(self):
+		return self.__rowcount
+	
 	BackendObject = property(_getBackendObject, _setBackendObject, None,
-			"Reference to the object that handles backend-specific actions.""")
+			"Reference to the object that handles backend-specific actions.")
+	
+	RowNumber = property(_getRowNumber, _setRowNumber, None,
+			"Current row in the recordset.")
+	
+	RowCount = property(_getRowCount, _setRowCount, None,
+			"Current number of rows in the recordset.")
+	
