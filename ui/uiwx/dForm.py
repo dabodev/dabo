@@ -188,6 +188,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		""" Move the record pointer using the specified function.
 		"""
 		self.activeControlValid()
+		err = self.beforePointerMove()
+		if err:
+			self.notifyUser(err)
+			return
 		try:
 			response = func()
 		except dException.NoRecordsException:
@@ -198,6 +202,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			# Notify listeners that the row number changed:
 			self.raiseEvent(dEvents.RowNumChanged)
 			self.refreshControls()
+		self.afterPointerMove()
 
 
 	def first(self, dataSource=None):
@@ -207,8 +212,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if bizobj is None:
 			# Running in preview or some other non-live mode
 			return
+		err = self.beforeFirst()
+		if err:
+			self.notifyUser(err)
+			return
 		self._moveRecordPointer(bizobj.first, dataSource)
-
+		self.afterFirst()
 
 	def last(self, dataSource=None):
 		""" Ask the bizobj to move to the last record.
@@ -217,8 +226,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if bizobj is None:
 			# Running in preview or some other non-live mode
 			return
+		err = self.beforeLast()
+		if err:
+			self.notifyUser(err)
+			return
 		self._moveRecordPointer(bizobj.last, dataSource)
-
+		self.afterLast()
 
 	def prior(self, dataSource=None):
 		""" Ask the bizobj to move to the previous record.
@@ -227,11 +240,16 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if bizobj is None:
 			# Running in preview or some other non-live mode
 			return
+		err = self.beforePrior()
+		if err:
+			self.notifyUser(err)
+			return
 		try:
 			self._moveRecordPointer(bizobj.prior, dataSource)
 		except dException.BeginningOfFileException:
 			self.setStatusText(self.getCurrentRecordText(dataSource) + " (BOF)")
-
+		self.afterPrior()
+		
 	def next(self, dataSource=None):
 		""" Ask the bizobj to move to the next record.
 		"""
@@ -239,11 +257,16 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if bizobj is None:
 			# Running in preview or some other non-live mode
 			return
+		err = self.beforeNext()
+		if err:
+			self.notifyUser(err)
+			return
 		try:
 			self._moveRecordPointer(bizobj.next, dataSource)
 		except dException.EndOfFileException:
 			self.setStatusText(self.getCurrentRecordText(dataSource) + " (EOF)")
-
+		self.afterNext()
+		
 
 	def save(self, dataSource=None):
 		""" Ask the bizobj to commit its changes to the backend.
@@ -254,6 +277,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			return
 		self.activeControlValid()
 
+		err = self.beforeSave()
+		if err:
+			self.notifyUser(err)
+			return
 		try:
 			if self.SaveAllRows:
 				bizobj.saveAll()
@@ -273,7 +300,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			msg = "%s:\n\n%s" % (_("Save Failed:"), _( str(e) ))
 			self.notifyUser(msg, severe=True)
 			return False
-
+		self.afterSave()
+		
 			
 	def cancel(self, dataSource=None):
 		""" Ask the bizobj to cancel its changes.
@@ -287,6 +315,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			return
 		self.activeControlValid()
 
+		err = self.beforeCancel()
+		if err:
+			self.notifyUser(err)
+			return
 		try:
 			if self.SaveAllRows:
 				bizobj.cancelAll()
@@ -298,6 +330,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		except dException.dException, e:
 			dabo.errorLog.write(_("Cancel failed with response: %s") % str(e))
 			self.notifyUser(str(e), title=_("Cancel Not Allowed") )
+		self.afterCancel()
 
 
 	def onRequery(self, evt):
@@ -318,6 +351,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			return
 		self.activeControlValid()
 
+		err = self.beforeRequery()
+		if err:
+			self.notifyUser(err)
+			return
 		if bizobj.isAnyChanged() and self.AskToSave:
 			response = dMessageBox.areYouSure(_("Do you wish to save your changes?"),
 								cancelButton=True)
@@ -359,7 +396,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		except dException.dException, e:
 			dabo.errorLog.write(_("Requery failed with response: %s") % str(e))
 			self.notifyUser(str(e), title=_("Requery Not Allowed"), severe=True)
+		self.afterRequery()
 		return ret
+		
 
 	def delete(self, dataSource=None, message=None):
 		""" Ask the bizobj to delete the current record.
@@ -375,6 +414,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.setStatusText(_("Nothing to delete!"))
 			return
 			
+		err = self.beforeDelete()
+		if err:
+			self.notifyUser(err)
+			return
 		if not message:
 			message = _("This will delete the current record, and cannot "
 						"be canceled.\n\n Are you sure you want to do this?")
@@ -388,7 +431,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
-
+		self.afterDelete()
+		
 
 	def deleteAll(self, dataSource=None, message=None):
 		""" Ask the primary bizobj to delete all records from the recordset.
@@ -399,6 +443,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			return
 		self.activeControlValid()
 
+		err = self.beforeDeleteAll()
+		if err:
+			self.notifyUser(err)
+			return
 		if not message:
 			message = _("This will delete all records in the recordset, and cannot "
 						"be canceled.\n\n Are you sure you want to do this?")
@@ -412,7 +460,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete All failed with response: %s") % str(e))
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
-
+		self.afterDeleteAll()
+		
 
 	def new(self, dataSource=None):
 		""" Ask the bizobj to add a new record to the recordset.
@@ -422,6 +471,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			# Running in preview or some other non-live mode
 			return
 		self.activeControlValid()
+		
+		err = self.beforeNew()
+		if err:
+			self.notifyUser(err)
+			return		
 		try:
 			bizobj.new()
 			statusText = self.getCurrentRecordText(dataSource)
@@ -430,19 +484,14 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 			# Notify listeners that the row number changed:
 			self.raiseEvent(dEvents.RowNumChanged)
-			self.afterNew()
 
 		except dException.dException, e:
 			self.notifyUser(_("Add new record failed with response:\n\n%s" % str(e)), 
 					severe=True)
+		self.afterNew()
+		
 
-
-	def afterNew(self):
-		""" Called after a new record is successfully added to the dataset.
-
-		Override in subclasses for desired behavior.
-		"""
-		pass
+	def afterNew(self): pass
 
 
 	def getSQL(self, dataSource=None):
@@ -516,6 +565,29 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	def onNew(self, evt): self.new()
 	def onDelete(self, evt): self.delete()
 
+	# Define all of the hook methods
+	def beforeFirst(self): pass
+	def beforeLast(self): pass
+	def beforePrior(self): pass
+	def beforeNext(self): pass
+	def beforeSave(self): pass
+	def beforeCancel(self): pass
+	def beforeRequery(self): pass
+	def beforeDelete(self): pass
+	def beforeDeleteAll(self): pass
+	def beforeNew(self): pass
+	def beforePointerMove(self): pass
+	def afterFirst(self): pass
+	def afterLast(self): pass
+	def afterPrior(self): pass
+	def afterNext(self): pass
+	def afterSave(self): pass
+	def afterCancel(self): pass
+	def afterRequery(self): pass
+	def afterDelete(self): pass
+	def afterDeleteAll(self): pass
+	def afterNew(self): pass
+	def afterPointerMove(self): pass
 
 	def getCurrentRecordText(self, dataSource=None):
 		""" Get the text to describe which record is current.
