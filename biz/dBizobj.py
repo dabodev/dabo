@@ -45,8 +45,12 @@ class dBizobj(dabo.common.dObject):
 	
 	
 	def _beforeInit(self):
-		self.__cursors = {}		# Collection of cursor objects. MUST be defined first.
+		# Collection of cursor objects. MUST be defined first.
+		self.__cursors = {}
+		# PK of the currently-selected cursor
 		self.__currentCursorKey = None
+		# Cursor to manage SQL Builder info.
+		self._sqlMgrCursor = None
 		self._conn = None
 		self.__params = ()		# tuple of params to be merged with the sql in the cursor
 		self.__children = []		# Collection of child bizobjs
@@ -158,6 +162,7 @@ class dBizobj(dabo.common.dObject):
 		crs.Table = self.DataSource
 		crs.AutoPopulatePK = self.AutoPopulatePK
 		crs.setBackendObject(cn.getBackendObject())
+		crs.sqlManager = self.SqlManager
 		crs.setSQL(self.SQL)
 		if self.RequeryOnLoad:
 			crs.requery()
@@ -1169,18 +1174,6 @@ class dBizobj(dabo.common.dObject):
 		cursor = self._getCurrentCursor()
 		if cursor is not None:
 			cursor.Table = val
-		
-	def _getSQL(self):
-		try:
-			return self._SQL
-		except AttributeError:
-			return ""
-	def _setSQL(self, val):
-		self._SQL = val
-		cursor = self._getCurrentCursor()
-		if cursor is not None:
-			cursor.setSQL(val)
-		
 			
 	def _getRequeryOnLoad(self):
 		try:
@@ -1269,6 +1262,9 @@ class dBizobj(dabo.common.dObject):
 	def _setFillLinkFromParent(self, val):
 		self._fillLinkFromParent = bool(val)
 		
+	def _isAdding(self):
+		return self._getCurrentCursor().IsAdding
+	
 	def _getRestorePositionOnRequery(self):
 		try:
 			return self._restorePositionOnRequery
@@ -1293,69 +1289,92 @@ class dBizobj(dabo.common.dObject):
 		self.afterPointerMove()
 		self.afterSetRowNumber()
 	
-	def _isAdding(self):
-		return self._getCurrentCursor().IsAdding
-	
-	
+	def _getSQL(self):
+		try:
+			return self._SQL
+		except AttributeError:
+			return ""
+	def _setSQL(self, val):
+		self._SQL = val
+		cursor = self._getCurrentCursor()
+		if cursor is not None:
+			cursor.setSQL(val)
+
+	def _getSqlMgr(self):
+		if self._sqlMgrCursor is None:
+			cursorClass = self._getCursorClass(self.dCursorMixinClass,
+					self.dbapiCursorClass)
+			cn = self._conn
+			crs = self._sqlMgrCursor = cn.getCursor(cursorClass)
+			crs.setCursorFactory(cn.getCursor, cursorClass)
+			crs.KeyField = self.KeyField
+			crs.Table = self.DataSource
+			crs.AutoPopulatePK = self.AutoPopulatePK
+			crs.setBackendObject(cn.getBackendObject())
+		return self._sqlMgrCursor
+
+
 	
 	### -------------- Property Definitions ------------------  ##
 	
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None, 
-				_("Determines if we are using a table that auto-generates its PKs. (bool)"))
+			_("Determines if we are using a table that auto-generates its PKs. (bool)"))
 
 	Caption = property(_getCaption, _setCaption, None,
-				_("The friendly title of the cursor, used in messages to the end user. (str)"))
+			_("The friendly title of the cursor, used in messages to the end user. (str)"))
 	
 	DataSource = property(_getDataSource, _setDataSource, None,
-				_("The title of the cursor. Used in resolving DataSource references. (str)"))
+			_("The title of the cursor. Used in resolving DataSource references. (str)"))
 	
 	FillLinkFromParent = property(_getFillLinkFromParent, _setFillLinkFromParent, None,
-				_("In the onNew() method, do we fill in the linkField with the value returned "
-				"by calling the parent bizobj\'s GetKeyValue() method? (bool)"))
+			_("""In the onNew() method, do we fill in the linkField with the value returned 
+			by calling the parent bizobj\'s GetKeyValue() method? (bool)"""))
 				
 	IsAdding = property(_isAdding, None, None, 
-				_("Returns True if the current record is new and unsaved."))
+			_("Returns True if the current record is new and unsaved."))
 
 	KeyField = property(_getKeyField, _setKeyField, None,
-				_("Name of field that is the PK. If multiple fields make up the key, "
-				"separate the fields with commas. (str)"))
+			_("""Name of field that is the PK. If multiple fields make up the key, 
+			separate the fields with commas. (str)"""))
 	
 	LinkField = property(_getLinkField, _setLinkField, None,
-				_("Name of the field that is the foreign key back to the parent. (str)"))
+			_("Name of the field that is the foreign key back to the parent. (str)"))
 	
 	NewChildOnNew = property(_getNewChildOnNew, _setNewChildOnNew, None, 
-				_("Should new child records be added when a new parent record is added? (bool)"))
+			_("Should new child records be added when a new parent record is added? (bool)"))
 	
 	NewRecordOnNewParent = property(_getNewRecordOnNewParent, _setNewRecordOnNewParent, None,
-				_("If this bizobj\'s parent has NewChildOnNew==True, do we create a record here? (bool)"))
+			_("If this bizobj\'s parent has NewChildOnNew==True, do we create a record here? (bool)"))
 
 	NonUpdateFields = property(getNonUpdateFields, setNonUpdateFields, None,
-				_("Fields in the cursor to be ignored during updates"))
+			_("Fields in the cursor to be ignored during updates"))
 	
 	Parent = property(_getParent, _setParent, None,
-				_("Reference to the parent bizobj to this one. (dBizobj)"))
+			_("Reference to the parent bizobj to this one. (dBizobj)"))
 
 	ParentLinkField = property(_getParentLinkField, _setParentLinkField, None,
-				_("Name of the field in the parent table that is used to determine child "
-				"records. If empty, it is assumed that the parent's PK is used (str)"))
+			_("""Name of the field in the parent table that is used to determine child 
+			records. If empty, it is assumed that the parent's PK is used  (str)"""))
 	
 	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
-				_("Do we requery child bizobjs after a Save()? (bool)"))
+			_("Do we requery child bizobjs after a Save()? (bool)"))
 				
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None, 
-				_("When true, the cursor object runs its query immediately. This "
-				"is useful for lookup tables or fixed-size (small) tables. (bool)"))
+			_("""When true, the cursor object runs its query immediately. This 
+			is useful for lookup tables or fixed-size (small) tables. (bool)"""))
 	
 	RestorePositionOnRequery = property(_getRestorePositionOnRequery, _setRestorePositionOnRequery, None,
-				_("After a requery, do we try to restore the record position to the same PK?"))
+			_("After a requery, do we try to restore the record position to the same PK?"))
 				
 	RowCount = property(_getRowCount, None, None, 
-			_("The number of records in the cursor's data set. It will be -1 if the "
-			"cursor hasn't run any successful queries yet. (int)"))
+			_("""The number of records in the cursor's data set. It will be -1 if the
+			cursor hasn't run any successful queries yet. (int)"""))
 
 	RowNumber = property(_getRowNumber, _setRowNumber, None, 
 			_("The current position of the record pointer in the result set. (int)"))
 
 	SQL = property(_getSQL, _setSQL, None, 
-				_("SQL statement used to create the cursor\'s data. (str)"))
+			_("SQL statement used to create the cursor\'s data. (str)"))
 	
+	SqlManager = property(_getSqlMgr, None, None,
+			_("Reference to the cursor that handles SQL Builder information (cursor)") )

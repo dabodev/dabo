@@ -55,6 +55,10 @@ class dCursorMixin(dabo.common.dObject):
 		self.nonUpdateFields = []
 		# Flag that is set when the user explicitly sets the Key Field
 		self._keyFieldSet = False
+		# Cursor that manages this cursor's SQL. Default to self; 
+		# in some cases, such as a single bizobj managing several cursors, 
+		# it will be a separate object.
+		self.sqlManager = self
 
 		self._blank = {}
 		self.__unsortedRows = []
@@ -458,7 +462,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Return True if the current record is new and not yet saved.
 		Return False otherwise.
 		"""
-		return self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG)
+		try:
+			ret = self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG)
+		except:
+			ret = False
+		return ret
 		
 		
 	def setMemento(self):
@@ -1210,28 +1218,29 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def getFieldClause(self):
 		""" Get the field clause of the sql statement.
 		"""
-		return self._fieldClause
+		return self.sqlManager._fieldClause
 
 	def setFieldClause(self, clause):
 		""" Set the field clause of the sql statement.
 		"""
-		self._fieldClause = self._getBackendObject().setFieldClause(clause)
+		self.sqlManager._fieldClause = self.sqlManager._getBackendObject().setFieldClause(clause)
 
 	def addField(self, exp):
 		""" Add a field to the field clause.
 		"""
-		if self._getBackendObject():
-			self._fieldClause = self._getBackendObject().addField(self._fieldClause, exp)
+		if self.sqlManager._getBackendObject():
+			self.sqlManager._fieldClause = self.sqlManager._getBackendObject().addField(self.sqlManager._fieldClause, exp)
+		return self.sqlManager._fieldClause
 
 	def getFromClause(self):
 		""" Get the from clause of the sql statement.
 		"""
-		return self._fromClause
+		return self.sqlManager._fromClause
 
 	def setFromClause(self, clause):
 		""" Set the from clause of the sql statement.
 		"""
-		self._fromClause = self._getBackendObject().setFromClause(clause)
+		self.sqlManager._fromClause = self.sqlManager._getBackendObject().setFromClause(clause)
 
 	def addFrom(self, exp):
 		""" Add a table to the sql statement.
@@ -1239,87 +1248,92 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		For joins, use setFromClause() to set the entire from clause
 		explicitly.
 		"""
-		if self._getBackendObject():
-			self._fromClause = self._getBackendObject().addFrom(self._fromClause, exp)
+		if self.sqlManager._getBackendObject():
+			self.sqlManager._fromClause = self.sqlManager._getBackendObject().addFrom(self.sqlManager._fromClause, exp)
+		return self.sqlManager._fromClause
+
 
 	def getWhereClause(self):
 		""" Get the where clause of the sql statement.
 		"""
-		return self._whereClause
+		return self.sqlManager._whereClause
 
 	def setWhereClause(self, clause):
 		""" Set the where clause of the sql statement.
 		"""
-		self._whereClause = self._getBackendObject().setWhereClause(clause)
+		self.sqlManager._whereClause = self.sqlManager._getBackendObject().setWhereClause(clause)
 
 	def addWhere(self, exp, comp="and"):
 		""" Add an expression to the where clause.
 		"""
-		if self._getBackendObject():
-			self._whereClause = self._getBackendObject().addWhere(self._whereClause, exp, comp)
+		if self.sqlManager._getBackendObject():
+			self.sqlManager._whereClause = self.sqlManager._getBackendObject().addWhere(self.sqlManager._whereClause, exp, comp)
+		return self.sqlManager._whereClause
 
 	def prepareWhere(self, clause):
 		""" Modifies WHERE clauses as needed for each backend. """
-		return self._getBackendObject().prepareWhere(clause)
+		return self.sqlManager._getBackendObject().prepareWhere(clause)
 		
 	def getChildFilterClause(self):
 		""" Get the child filter part of the sql statement.
 		"""
-		return self._childFilterClause
+		return self.sqlManager._childFilterClause
 
 	def setChildFilterClause(self, clause):
 		""" Set the child filter clause of the sql statement.
 		"""
-		self._childFilterClause = self._getBackendObject().setChildFilterClause(clause)
+		self.sqlManager._childFilterClause = self.sqlManager._getBackendObject().setChildFilterClause(clause)
 
 	def getGroupByClause(self):
 		""" Get the group-by clause of the sql statement.
 		"""
-		return self._groupByClause
+		return self.sqlManager._groupByClause
 
 	def setGroupByClause(self, clause):
 		""" Set the group-by clause of the sql statement.
 		"""
-		self._groupByClause = self._getBackendObject().setGroupByClause(clause)
+		self.sqlManager._groupByClause = self.sqlManager._getBackendObject().setGroupByClause(clause)
 
 	def addGroupBy(self, exp):
 		""" Add an expression to the group-by clause.
 		"""
-		if self._getBackendObject():
-			self._groupByClause = self._getBackendObject().addGroupBy(self._groupByClause, exp)
+		if self.sqlManager._getBackendObject():
+			self.sqlManager._groupByClause = self.sqlManager._getBackendObject().addGroupBy(self.sqlManager._groupByClause, exp)
+		return self.sqlManager._groupByClause
 
 	def getOrderByClause(self):
 		""" Get the order-by clause of the sql statement.
 		"""
-		return self._orderByClause
+		return self.sqlManager._orderByClause
 
 	def setOrderByClause(self, clause):
 		""" Set the order-by clause of the sql statement.
 		"""
-		self._orderByClause = self._getBackendObject().setOrderByClause(clause)
+		self.sqlManager._orderByClause = self.sqlManager._getBackendObject().setOrderByClause(clause)
 
 	def addOrderBy(self, exp):
 		""" Add an expression to the order-by clause.
 		"""
-		if self._getBackendObject():
-			self._orderByClause = self._getBackendObject().addOrderBy(self._orderByClause, exp)
+		if self.sqlManager._getBackendObject():
+			self.sqlManager._orderByClause = self.sqlManager._getBackendObject().addOrderBy(self.sqlManager._orderByClause, exp)
+		return self.sqlManager._orderByClause
 
 	def getLimitClause(self):
 		""" Get the limit clause of the sql statement.
 		"""
-		return self._limitClause
+		return self.sqlManager._limitClause
 
 	def setLimitClause(self, clause):
 		""" Set the limit clause of the sql statement.
 		"""
-		self._limitClause = clause
+		self.sqlManager._limitClause = clause
 
 	def getLimitWord(self):
 		""" Return the word to use in the db-specific limit clause.
 		"""
 		ret = "limit"
-		if self._getBackendObject():
-			ret = self._getBackendObject().getLimitWord()
+		if self.sqlManager._getBackendObject():
+			ret = self.sqlManager._getBackendObject().getLimitWord()
 		return ret
 			
 	def getLimitPosition(self):
@@ -1329,20 +1343,20 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		are sufficient.
 		"""
 		ret = "bottom"
-		if self._getBackendObject():
-			ret = self._getBackendObject().getLimitPosition()
+		if self.sqlManager._getBackendObject():
+			ret = self.sqlManager._getBackendObject().getLimitPosition()
 		return ret			
 			
 	def getSQL(self):
 		""" Get the complete SQL statement from all the parts.
 		"""
-		fieldClause = self._fieldClause
-		fromClause = self._fromClause
-		whereClause = self._whereClause
-		childFilterClause = self._childFilterClause
-		groupByClause = self._groupByClause
-		orderByClause = self._orderByClause
-		limitClause = self._limitClause
+		fieldClause = self.sqlManager._fieldClause
+		fromClause = self.sqlManager._fromClause
+		whereClause = self.sqlManager._whereClause
+		childFilterClause = self.sqlManager._childFilterClause
+		groupByClause = self.sqlManager._groupByClause
+		orderByClause = self.sqlManager._orderByClause
+		limitClause = self.sqlManager._limitClause
 
 		if not fieldClause:
 			fieldClause = "*"
@@ -1356,7 +1370,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if fromClause: 
 			fromClause = "from " + fromClause
 		else:
-			fromClause = "from " + self.Table
+			fromClause = "from " + self.sqlManager.Table
 		if whereClause:
 			whereClause = "where " + whereClause
 		if groupByClause:
@@ -1364,28 +1378,28 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if orderByClause:
 			orderByClause = "order by " + orderByClause
 		if limitClause:
-			limitClause = "%s %s" % (self.getLimitWord(), limitClause)
+			limitClause = "%s %s" % (self.sqlManager.getLimitWord(), limitClause)
 		else:
-			limitClause = "%s %s" % (self.getLimitWord(), self._defaultLimit)
+			limitClause = "%s %s" % (self.sqlManager.getLimitWord(), self.sqlManager._defaultLimit)
 
-		return self._getBackendObject().formSQL(fieldClause, fromClause, 
+		return self.sqlManager._getBackendObject().formSQL(fieldClause, fromClause, 
 				whereClause, groupByClause, orderByClause, limitClause)
 		
 
 	def getStructureOnlySql(self):
-		holdWhere = self._whereClause
-		self.setWhereClause("1 = 0")
-		ret = self.getSQL()
-		self.setWhereClause(holdWhere)
+		holdWhere = self.sqlManager._whereClause
+		self.sqlManager.setWhereClause("1 = 0")
+		ret = self.sqlManager.getSQL()
+		self.sqlManager.setWhereClause(holdWhere)
 		return ret
 
 	def executeSQL(self, *args, **kwargs):
-		self.execute(self.getSQL(), *args, **kwargs)
+		self.sqlManager.execute(self.sqlManager.getSQL(), *args, **kwargs)
 	###     end - SQL Builder methods     ########
 	
 	
 	def getWordMatchFormat(self):
-		return self._getBackendObject().getWordMatchFormat()
+		return self.sqlManager._getBackendObject().getWordMatchFormat()
 
 	def _getAuxCursor(self):
 		if self.__auxCursor is None:
