@@ -31,6 +31,9 @@ class dBizobj(dabo.common.dObject):
 		self.__children = []		# Collection of child bizobjs
 		self._baseClass = dBizobj
 		self.__areThereAnyChanges = False	# Used by the isChanged() method.
+		# Next two are used by the scan() method.
+		self.__scanRestorePosition = True	
+		self.__scanReverse = False
 
 		dBizobj.doDefault()		
 		##########################################
@@ -424,10 +427,10 @@ class dBizobj(dabo.common.dObject):
 		return self.Cursor.getRecordStatus(rownum)
 
 
-	def scan(self, func, restorePosition=True, reverse=False):
+	def scan(self, func, *args, **kwargs):
 		""" Iterates over all the records in the Cursor, and applies the passed
-		function to each. If 'restorePosition' is True, the position of the current
-		record in the recordset is restored after the iteration. If 'reverse' is true, 
+		function to each. If 'self.__scanRestorePosition' is True, the position of the current
+		record in the recordset is restored after the iteration. If 'self.__scanReverse' is true, 
 		the records are processed in reverse order.
 		"""
 		if self.RowCount <= 0:
@@ -436,24 +439,24 @@ class dBizobj(dabo.common.dObject):
 			
 		# Flag that the function can set to prematurely exit the scan
 		self.exitScan = False
-		if restorePosition:
+		if self.__scanRestorePosition:
 			currRow = self.RowNumber
 		try:
-			if reverse:
+			if self.__scanReverse:
 				recRange = range(self.RowCount-1, -1, -1)
 			else:
 				recRange = range(self.RowCount)
 			for i in recRange:
 				self._moveToRowNum(i)
-				func()
+				func(*args, **kwargs)
 				if self.exitScan:
 					break
 		except dException, e:
-			if restorePosition:
+			if self.__scanRestorePosition:
 				self.RowNumber = currRow
 			raise dException, e
 
-		if restorePosition:
+		if self.__scanRestorePosition:
 			try:	
 				self.RowNumber = currRow
 			except:
