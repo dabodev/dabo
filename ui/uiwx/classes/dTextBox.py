@@ -12,7 +12,6 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 		pre = wx.PreTextCtrl()
 		self.beforeInit(pre)                  # defined in dPemMixin
 		pre.Create(parent, id, name, style=style|pre.GetWindowStyleFlag(), *args, **kwargs)
-
 		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)

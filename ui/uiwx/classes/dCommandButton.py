@@ -12,7 +12,7 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 		self.beforeInit(pre)                  # defined in dPemMixin
 		pre.Create(parent, id, name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
-		pre.PostCreate(pre)
+		self.PostCreate(pre)
 		
 		cm.dControlMixin.__init__(self, name)
 		self.afterInit()                      # defined in dPemMixin

@@ -13,8 +13,7 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
 		pre = wx.PreCheckBox()
 		self.beforeInit(pre)                  # defined in dPemMixin
 		pre.Create(parent, id, name, style=style|pre.GetWindowStyle(), *args, **kwargs)
-
-		pre.PostCreate(pre)
+		self.PostCreate(pre)
 		
 		cm.dControlMixin.__init__(self, name)
 		dcm.dDataControlMixin.__init__(self)

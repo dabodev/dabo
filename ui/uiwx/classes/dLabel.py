@@ -12,7 +12,6 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 		self.beforeInit(pre)                  # defined in dPemMixin
 
 		pre.Create(parent, id, name, style=style | pre.GetWindowStyle(), *args, **kwargs)
-
 		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)
