@@ -587,6 +587,10 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		User subclasses should leave this alone and instead override onNewHook(). 
 		"""
 		self.__cursor.setDefaults(self.defaultValues)
+		
+		# Fill in the link to the parent record
+		if self.Parent and self.FillLinkFromParent and self.LinkField:
+			self.setFieldVal(self.LinkField, self.getParentPK)
 
 		# Call the custom hook method
 		self.onNewHook()
