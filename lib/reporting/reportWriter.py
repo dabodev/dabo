@@ -408,8 +408,19 @@ class ReportWriter(object):
 					elif bandDict == _form["pageBackground"]:
 						origin = (0,1)
 		
-					x = self.getPt(eval(object["x"])) + origin[0]
-					y = origin[1] + self.getPt(eval(object["y"]))
+					try:
+						x = self.getPt(eval(object["x"]))
+					except KeyError:
+						x = self.default_x
+
+					try:
+						y = self.getPt(eval(object["y"]))
+					except KeyError:
+						y = self.default_y
+
+					# make x,y relative to the origin point of the band we are in:
+					x = x + origin[0]
+					y = y + origin[1]
 		
 					self.draw(object, (x, y))
 		
@@ -448,12 +459,12 @@ class ReportWriter(object):
 						try:
 							x = self.getPt(eval(object["x"]))
 						except KeyError:
-							x = 0
+							x = self.default_x
 
 						try:
 							y1 = self.getPt(eval(object["y"]))
 						except KeyError:
-							y1 = 0
+							y1 = self.default_y
 
 						x = ml + x
 						y1 = y + y1
