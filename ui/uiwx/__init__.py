@@ -40,6 +40,7 @@ from dDialog import dDialog
 from dDialog import dOkCancelDialog
 from dEditBox import dEditBox
 from dFileDialog import dFileDialog
+from dFileDialog import dFolderDialog
 from dFileDialog import dSaveDialog
 from dForm import dForm
 from dFormMain import dFormMain

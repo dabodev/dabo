@@ -2,40 +2,36 @@ import wx
 import dabo.dConstants as k
 
 
-class dFileDialog(wx.FileDialog):
-	_IsContainer = False
-	
-	def __init__(self, parent=None, message="Choose a file", defaultDir="", 
-			defaultFile="", wildcard="*.*", style=wx.OPEN):
-		self._baseClass = dFileDialog
-		super(dFileDialog, self).__init__(parent=parent, message=message, 
-				defaultDir=defaultDir, defaultFile=defaultFile, 
-				wildcard=wildcard, style=style)
+class OsDialogMixin:
+	def __init__(self):
 		self._dir = self._fname = self._msg = self._path = self._wildcard = ""
 
-	
 	def show(self):
+		self._dir = self._fname = self._path = ""
+		ret = k.DLG_CANCEL
 		res = self.ShowModal()
 		if res ==  wx.ID_OK:
 			ret = k.DLG_OK
-			self._dir = self.GetDirectory()
-			self._fname = self.GetFilename()
 			self._path = self.GetPath()
-		else:	
-			self._dir = self._fname = self._path = ""
-			ret = k.DLG_CANCEL
+			if self._exposeFiles:
+				self._dir = self.GetDirectory()
+				self._fname = self.GetFilename()
 		return ret
-		
+	
+	def release(self):
+		self.Destroy()
 
 	def _getDir(self):
 		return self._dir
 	def _setDir(self, dir):
-		self.SetDirectory(dir)
+		if self._exposeFiles:
+			self.SetDirectory(dir)
 	
 	def _getFileName(self):
 		return self._fname
 	def _setFileName(self, fn):
-		self.SetFilename(fn)
+		if self._exposeFiles:
+			self.SetFilename(fn)
 	
 	def _getMessage(self):
 		return self._msg
@@ -50,7 +46,8 @@ class dFileDialog(wx.FileDialog):
 	def _getWildcard(self):
 		return self._wildcard
 	def _setWildcard(self, txt):
-		self.SetWildcard(txt)
+		if self._exposeFiles:
+			self.SetWildcard(txt)
 	
 	Directory = property(_getDir, _setDir, None, 
 			"The directory of the selected file.  (str)")
@@ -68,6 +65,32 @@ class dFileDialog(wx.FileDialog):
 			"The wildcard that will limit the files displayed in the dialog.  (str)")
 
 
+
+class dFileDialog(wx.FileDialog, OsDialogMixin):
+	_IsContainer = False
+	_exposeFiles = True
+	
+	def __init__(self, parent=None, message="Choose a file", defaultDir="", 
+			defaultFile="", wildcard="*.*", style=wx.OPEN):
+		self._baseClass = dFileDialog
+		super(dFileDialog, self).__init__(parent=parent, message=message, 
+				defaultDir=defaultDir, defaultFile=defaultFile, 
+				wildcard=wildcard, style=style)
+#		self._dir = self._fname = self._msg = self._path = self._wildcard = ""
+
+	
+class dFolderDialog(wx.DirDialog, OsDialogMixin):
+	_IsContainer = False
+	_exposeFiles = False
+	
+	def __init__(self, parent=None, message="Choose a folder", defaultDir="", 
+			defaultPath="", wildcard="*.*"):
+		self._baseClass = dFolderDialog
+		super(dFolderDialog, self).__init__(parent=parent, message=message, 
+				defaultPath=defaultPath, style=wx.DD_NEW_DIR_BUTTON)
+#		self._dir = self._fname = self._msg = self._path = self._wildcard = ""
+
+
 class dSaveDialog(dFileDialog):
 	def __init__(self, parent=None, message="Save to:", defaultDir="", 
 			defaultFile="", wildcard="*.*", style=wx.SAVE):
@@ -75,4 +98,5 @@ class dSaveDialog(dFileDialog):
 		super(dSaveDialog, self).__init__(parent=parent, message=message, 
 				defaultDir=defaultDir, defaultFile=defaultFile, 
 				wildcard=wildcard, style=style)
-		self._dir = self._fname = self._msg = self._path = self._wildcard = ""
+#		self._dir = self._fname = self._msg = self._path = self._wildcard = ""
+
