@@ -37,27 +37,30 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.showCols = [ (fld, int(fs[fld]["listOrder"]) ) 
 				for fld in fs.keys() 
 				if fld[:5] != "_join" and fs[fld]["listInclude"] == "1"]
+
+		# Column order will already be in the field specs. If there is a custom
+		# setting by the user, override it.
+		for col in self.showCols:
+			nm = col[0]
+			column = fs[nm]
+			colName = "Column_%s" % nm
+			pos = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
+					self.grid.Form.Name, 
+					self.grid.Name,
+					colName,
+					"ColumnOrder"))
+			if pos is not None:
+				self.showCols[self.showCols.index(col)] = (col[0], pos)
+
 		self.showCols.sort(lambda x, y: cmp(x[1], y[1]))
-
-# 		
-# 		# Put column order in relative column order, if relative column order
-# 		# exists in dApp.getUserSettings().
-# 		self.relativeColumns = []
-# 		for column in range(len(self.grid.columnDefs)):
-# 			if self.grid.columnDefs[column]['showGrid']:
-# 				order = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
-# 							self.grid.Form.Name, 
-# 							self.grid.Name,
-# 							"Column%s" % column,
-# 							"ColumnOrder"))
-# 			else:
-# 				order = None
-# 				
-# 			if order == None:
-# 				order = column
-# 
-# 			self.relativeColumns.append(order)
-
+		self.setColumnLabels()
+	
+	
+	def setColumnLabels(self):
+		self.colLabels = []
+		self.colNames = []
+		self.dataTypes = []
+		fs = self.grid.fieldSpecs
 		for col in self.showCols:
 			fldInfo = fs[col[0]]
 			self.colLabels.append(fldInfo["caption"])
@@ -76,7 +79,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		oldCol = self.grid.GetGridCursorCol()  # current column per the grid
 		if not oldCol:
 			oldCol = 0
-
 		self.Clear()
 		self.data = []
 
@@ -124,7 +126,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 						recordVal = bool(recordVal)
 				recordDict.append(recordVal)
 			self.data.append(recordDict)
-
 		grdView = self.GetView()
 		grdView.BeginBatch()
 		# The data table is now current, but the grid needs to be
@@ -235,6 +236,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def MoveColumn(self, col, to):
 		""" Move the column to a new position.
 		"""
+		oldSort = None
+		if self.grid.sortedColumn is not None:
+			oldSort = self.showCols[self.grid.sortedColumn]
 		
 		old = self.showCols[col]
 		del self.showCols[col]
@@ -243,19 +247,18 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			self.showCols.insert(to-1,old)
 		else:
 			self.showCols.insert(to,old)
-
-		index = 0
 		for col in self.showCols:
-			column = self.grid.columnDefs[col]
-			if column['showGrid']:
-				self.grid.Application.setUserSetting("%s.%s.%s.%s" % (
-						self.grid.Form.Name,
-						self.grid.Name,
-						"Column%s" % index,
-						"ColumnOrder"), col)
-			index += 1
-
-		self.initTable()
+			colOrder = self.showCols.index(col)
+			self.grid.Application.setUserSetting("%s.%s.%s.%s" % (
+					self.grid.Form.Name,
+					self.grid.Name,
+					"Column_%s" % col[0],
+					"ColumnOrder"), (colOrder * 10) )
+		
+		# If a column was previously sorted, update its new position in the grid
+		if oldSort is not None:
+			self.grid.sortedColumn = self.showCols.index(oldSort)
+		self.setColumnLabels()
 		self.fillTable()
 
 
@@ -385,10 +388,10 @@ class dDataNavGrid(dGrid.dGrid):
 		width = self.GetColSize(col)
 		
 		self.Application.setUserSetting("%s.%s.%s.%s" % (
-						self.Form.Name, 
-						self.Name,
-						colName,
-						"Width"), width)
+				self.Form.Name, 
+				self.Name,
+				colName,
+				"Width"), width)
 		evt.Skip()
 
 
@@ -768,9 +771,9 @@ class dDataNavGrid(dGrid.dGrid):
 
 		# Persist the new size
 		self.Application.setUserSetting("%s.%s.%s" % (
-						self.Form.Name, 
-						self.Name,
-						"RowSize"), size)
+				self.Form.Name, 
+				self.Name,
+				"RowSize"), size)
 
 		self.SetDefaultRowSize(size, True)
 		self.ForceRefresh()
