@@ -327,16 +327,17 @@ class dCursorMixin:
         else:
             recs = (self._rows[self.rownumber],)
 
-        for i in range(self.rowcount-1, 0, -1):
+        for i in range(self.rowcount-1, -1, -1):
             rec = self._rows[i]
-            newrec =  rec.has_key(k.CURSOR_NEWFLAG)
-            if newrec:
-                # Discard the record, and adjust the props
-                ret = self.delete(i)
-            else:
-                ret = self.__cancelRow(rec)
-            if ret != k.FILE_OK:
-                break
+            if rec in recs:
+                newrec =  rec.has_key(k.CURSOR_NEWFLAG)
+                if newrec:
+                    # Discard the record, and adjust the props
+                    ret = self.delete(i)
+                else:
+                    ret = self.__cancelRow(rec)
+                if ret != k.FILE_OK:
+                    break
         return ret
 
 
@@ -345,7 +346,7 @@ class dCursorMixin:
         diff = mem.makeDiff(rec)
         if diff:
             for fld, val in diff.items():
-                rec[fld] = val
+                rec[fld] = mem._snapshot[fld]
         return k.FILE_OK
 
 
