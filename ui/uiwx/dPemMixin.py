@@ -535,7 +535,15 @@ class dPemMixin(dPemMixinBase):
 			font.SetWeight(wx.LIGHT)    # wx.NORMAL doesn't seem to work...
 		self._pemObject.SetFont(font)
 
-		
+	def _getFontDescription(self):
+		f = self._pemObject.GetFont()
+		ret = f.GetFaceName() + " " + str(f.GetPointSize())
+		if f.GetWeight() == wx.BOLD:
+			ret += " B"
+		if f.GetStyle() == wx.ITALIC:
+			ret += " I"
+		return ret
+	
 	def _getFontInfo(self):
 		return self._pemObject.GetFont().GetNativeFontInfoDesc()
 
@@ -773,6 +781,9 @@ class dPemMixin(dPemMixinBase):
 	
 	FontBold = property(_getFontBold, _setFontBold, None,
 		'Specifies if the font is bold-faced. (bool)')
+	
+	FontDescription = property(_getFontDescription, None, None, 
+		"Human-readable description of the current font settings. (str)")
 	
 	FontFace = property(_getFontFace, None, None,
 		'Specifies the font face. (str)')
