@@ -5,7 +5,7 @@ import dFormMixin as fm
 class dFormMain(Tkinter.Tk, fm.dFormMixin):
 	""" This is the main top-level form for the application.
 	"""
-	def __init__(self):
+	def __init__(self, name="."):
 
 		self._baseClass = dFormMain
 

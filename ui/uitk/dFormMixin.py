@@ -16,6 +16,7 @@ class dFormMixin(pm.dPemMixin):
 		#wx.EVT_SET_FOCUS(self, self.OnSetFocus)
 		#wx.EVT_KILL_FOCUS(self, self.OnKillFocus)
 		#wx.EVT_ACTIVATE(self, self.OnActivate)
+		
 
 		if not isinstance(self, dFormMain.dFormMain):
 			self.Application.uiForms.add(self)
@@ -35,7 +36,10 @@ class dFormMixin(pm.dPemMixin):
 #		if not self.Icon:
 #			self.Icon = wx.Icon(dabo.icons.getIconFileName('daboIcon048'), wx.BITMAP_TYPE_PNG)
 			
-	
+
+	def _onTkActivate(self, event):
+		print "ontkactivate", event
+			
 # 	def OnActivate(self, event): 
 # 		if bool(event.GetActive()) == True and self.restoredSP == False:
 # 			# Restore the saved size and position, which can't happen 
@@ -143,7 +147,7 @@ class dFormMixin(pm.dPemMixin):
 # 		versus non-MDI forms.
 # 		"""
 # 		if isinstance(self, wx.MDIChildFrame):
-# 			controllingFrame = self.Application.mainFrame
+# 			controllingFrame = self.Application.MainFrame
 # 		else:
 # 			controllingFrame = self
 # 		if controllingFrame.GetStatusBar():
@@ -157,7 +161,7 @@ class dFormMixin(pm.dPemMixin):
 # 		menu.AppendItem(item)
 # 
 # 		if isinstance(self, wx.MDIChildFrame):
-# 			controllingFrame = self.Application.mainFrame
+# 			controllingFrame = self.Application.MainFrame
 # 		else:
 # 			controllingFrame = self
 # 			
@@ -176,7 +180,7 @@ class dFormMixin(pm.dPemMixin):
 # 		toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
 # 
 # 		if isinstance(self, wx.MDIChildFrame):
-# 			controllingFrame = self.Application.mainFrame
+# 			controllingFrame = self.Application.MainFrame
 # 		else:
 # 			controllingFrame = self
 # 		wx.EVT_MENU(controllingFrame, toolId, function)

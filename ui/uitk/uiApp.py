@@ -12,20 +12,16 @@ class uiApp(object):
 	def setup(self, dApp):
 		self.dApp = dApp
 
-		if dApp.mainFrameClass is None:
-			self.mainFrame = ui.dFormMain()
-		else:
-			self.mainFrame = dApp.mainFrameClass()
-#		self.SetTopWindow(self.mainFrame)
+		if dApp.MainFrameClass is not None:
+			dApp.MainFrame = dApp.MainFrameClass()
 
 
 	def start(self, dApp):
 		Tkinter.mainloop()
-		#self.mainFrame.show()
-		#self.MainLoop()
 
+		
 	def onFileExit(self, event):
-		self.mainFrame.Close(True)
+		self.MainFrame.Close(True)
 
 
 	def onEditCut(self, event):
@@ -156,7 +152,7 @@ class uiApp(object):
 
 
 	def onHelpAbout(self, event):
-		dlg = ui.dAbout(self.mainFrame, self.dApp)
+		dlg = ui.dAbout(self.MainFrame, self.dApp)
 		dlg.Show()
 
 		

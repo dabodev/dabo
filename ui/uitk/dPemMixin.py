@@ -3,6 +3,8 @@ import sys, types
 import dabo, dabo.common
 from dabo.dLocalize import _
 import dabo.ui.dPemMixinBase
+import dEvents
+
 
 class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	""" Provide Property/Event/Method interfaces for dForms and dControls.
@@ -38,23 +40,89 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		
 		# Call the subclass hook:
 		self.beforeInit()
+
+	
+	def __init__(self):
+		#self._logEvents = ["All"]
+		#self._logEvents = ["GotFocus", "LostFocus"]
+		self._logEvents = []
 		
 		
 	def _afterInit(self):
+		self.debug = False
+		
 		self.initProperties()
 		self.initChildObjects()
 		self.afterInit()
 		
+		self._initEvents()
+		self.initEvents()
 
+	def _initEvents(self):
+		# Bind tk events to handlers that re-raise the Dabo events:
+		
+		# Call _onTkCreate() now, or the tk event may be missed.
+		self._onTkCreate()
+		self.bindEvent(dEvents.GotFocus, self._onTkGotFocus)
+		self.bindEvent(dEvents.LostFocus, self._onTkLostFocus)
+
+			
+	def _onTkCreate(self, event=None):
+		pass
+		#self.raiseEvent(dEvents.Create, event)
+		
+	def _onTkGotFocus(self, event):
+		self.raiseEvent(dEvents.GotFocus, event)
+		
+	def _onTkLostFocus(self, event):
+		self.raiseEvent(dEvents.LostFocus, event)
+
+			
+	def bindEvent(self, event, function, eventSource=None):
+		""" Bind a Dabo event raised by eventSource (or self) to the given function.
+		
+		The eventSource argument may be either an object reference or an integer id,
+		but in any case is only required when you want the source of the event to
+		be something other than self.
+		"""
+		if eventSource is None:
+			eventSource = self
+		eventSource.bind(event, function)
+		
+	
+	def unBindEvent(self, event, eventSource=None):
+		""" Unbind a previously bound event/function.
+		
+		Abstract method: subclasses MUST override for UI-specifics.
+		"""
+		self.Unbind(event, eventSource)
+
+			
+	def raiseEvent(self, event, tkEvt=None):
+		""" Raise the specified event.
+		
+		Abstract method: subclasses MUST override for UI-specifics.
+		"""
+		eventClass = dEvents.dEvent
+		evt = eventClass(event, self, tkEvt)
+		
+		# Don't know how to generate a custom-derived event, so
+		# raise the Tk event again.
+		self.event_generate(event)
+	
+	
 	def getAbsoluteName(self):
 		""" Get self's fully-qualified name, such as 'dFormRecipes.dPageFrame.Page1.txtName'
 		"""
 		names = [self.Name, ]
 		object = self
 		while True:
-			parent = object.nametowidget(object.winfo_parent())
+			try:
+				parent = object.nametowidget(object.winfo_parent())
+			except:
+				parent = None
 			if parent:
-				names.append(parent.winfo_name)
+				names.append(parent.winfo_name())
 				object = parent
 			else:
 				break
@@ -245,39 +313,6 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._name = name      # keeps name available even after C++ object is gone.
 		return name
 	
-	def _setName(self, name):
-		parent = self.Parent
-		if parent:
-			if not self.Application or self.Application.AutoNegotiateUniqueNames:
-				i = 0
-				while True:
-					nameError = False
-					if i == 0:
-						candidate = name
-					else:
-						candidate = '%s%s' % (name, i)
-
-					for window in parent.winfo_children():
-						if window.Name == candidate and window != self:
-							nameError = True
-							break
-					if nameError:
-						i += 1
-					else:
-						name = candidate
-						break
-			else:
-				raise NameError, "A unique object name is required."
-				
-		else:
-			# Can't do the name check for siblings, so allow it for now.
-			# This problem would only apply to top-level forms, so it really
-			# wouldn't matter anyway in a practical sense.
-			pass					
-
-		# The following results in an exception. How to change the name???
-		self.winfo_name(str(name))
-		self._name = self.winfo_name()
 
 	def _getCaption(self):
 		return self.wm_title()
@@ -470,7 +505,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
 					'Specifies the shape of the mouse pointer when it enters this window. (obj)')
 	
- 	Name = property(_getName, _setName, None, 
+ 	Name = property(_getName, None, None, 
  					'The name of the object. (str)')
 	
 	Parent = property(_getParent, _setParent, None,	
