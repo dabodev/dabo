@@ -72,6 +72,7 @@ class ReportWriter(object):
 	default_imageMask = None               # Transparency mask for images
 	default_scaleMode = "scale"            # "clip" or "scale" for images.
 	default_bandHeight = 0
+	default_expr = "< New >"
 
 
 	def draw(self, object, origin):

@@ -6,6 +6,214 @@ from reportWriter import ReportWriter
 
 
 #------------------------------------------------------------------------------
+#  ObjectPanel Class
+# 
+#  All of the various types of report objects like strings, images, rectangles,
+#  etc. are ObjectPanels. ObjectPanels get instantiated from the Band's 
+#  getObject() method.
+
+class ObjectPanel(dabo.ui.dPanel):
+	def afterInit(self):
+		self._rd = self.Form.editor
+		self._rw = self._rd._rw
+		self._props = {}
+
+	def initEvents(self):
+		self.bindEvent(dEvents.Paint, self.onPaint)
+		self.bindEvent(dEvents.MouseLeftClick, self.onLeftClick)
+		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onDoubleClick)
+		self.bindEvent(dEvents.MouseMove, self.onMouseMove)
+		self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
+		self.bindEvent(dEvents.MouseLeave, self.onMouseLeave)
+
+	def getProp(self, prop, evaluate=True):
+		try:
+			val = self.Props[prop]
+		except KeyError:
+			val = None
+
+		if evaluate and val is not None and prop not in ("type",):
+			try:
+				vale = eval(val)
+			except:
+				vale = "?: %s" % str(val)
+		else:
+			vale = val
+		return vale
+
+	def setProp(self, prop, val, sendPropsChanged=True):
+		"""Set the specified object property to the specified value.
+
+		If setting more than one property, self.setProps() is faster.
+		"""
+		self.Props[prop] = str(val)
+		if sendPropsChanged:
+			self._rd.propsChanged()
+
+	def setProps(self, propvaldict):
+		"""Set the specified object properties to the specified values."""
+		for p,v in propvaldict.items():
+			self.setProp(p, v, False)
+		self._rd.propsChanged()
+
+	def onDoubleClick(self, evt):
+		self.Parent._rd.propertyDialog(self)
+
+	def onMouseLeave(self, evt):
+		import wx
+		self.SetCursor(wx.NullCursor)	
+
+	def onMouseEnter(self, evt):
+		self._setMouseCursor(evt.EventData["mousePosition"])
+
+	def onMouseMove(self, evt):
+		self._setMouseCursor(evt.EventData["mousePosition"])
+
+	def _setMouseCursor(self, pos):
+		import wx
+		if self.Selected:
+			if self._mouseOnAnchor(pos):
+				self.SetCursor(wx.StockCursor(wx.CURSOR_SIZING))
+			else:
+				self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENWSE))
+		else:
+			self.SetCursor(wx.NullCursor)					
+
+	def _mouseOnAnchor(self, pos):
+		retval = False
+		for v in self._anchors.values():
+			vv = []
+			for x in range(self._anchorThickness):
+				for y in range(self._anchorThickness):
+					vv.append((v[2]+x,v[3]+y))						
+			if pos in vv:
+				retval = True
+				break
+		return retval
+
+	def onLeftClick(self, evt):
+		if not self.Selected:
+			if evt.EventData["shiftDown"] or evt.EventData["controlDown"]:
+				self._rd._selectedObjects.append(self)
+			else:
+				self._rd._selectedObjects = [self,]
+		else:
+			if evt.EventData["shiftDown"] or evt.EventData["controlDown"]:
+				for idx in range(len(self._rd._selectedObjects)):
+					if self._rd._selectedObjects[idx] == self:
+						del self._rd._selectedObjects[idx]
+						break
+		self._rd.Refresh()
+
+	def onPaint(self, evt):
+		import wx		## (need to abstract DC drawing)
+		dc = wx.PaintDC(self)
+		rect = self.GetClientRect()
+		dc.SetBrush(wx.Brush(self.BackColor, wx.SOLID))
+		if self.Selected:
+			# border around selected control with sizer boxes:
+			dc.DrawRectangle(rect[0]+1,rect[1]+1,rect[2]-2,rect[3]-2)
+			dc.SetBrush(wx.Brush(self.ForeColor, wx.SOLID))
+
+			x,y = (rect[0], rect[1])
+			width, height = (rect[2], rect[3])
+			thickness = 3
+
+			if self.Props.has_key("hAnchor"):
+				hAnchor = eval(self.Props["hAnchor"])
+			else:
+				hAnchor = self._rw.default_hAnchor
+
+			if self.Props.has_key("vAnchor"):
+				vAnchor = eval(self.Props["vAnchor"])
+			else:
+				vAnchor = self._rw.default_vAnchor
+
+			anchors = {"tl": ["top", "left", x, y],
+				    "bl": ["bottom", "left", x, y + height - thickness],
+				    "tc": ["top", "center", x+(.5*width), y],
+				    "bc": ["bottom", "center", x+(.5*width), y+height-thickness],
+				    "tr": ["top", "right", x+width-thickness, y],
+				    "br": ["bottom", "right", x+width-thickness, y+height-thickness],}
+
+			self._anchors = anchors
+			self._anchorThickness = thickness
+
+			pen = dc.GetPen()
+
+			for k,v in anchors.items():
+				if hAnchor == v[1] and vAnchor == v[0]:
+					dc.SetBrush(wx.Brush((192,0,192), wx.SOLID))
+					dc.SetPen(wx.Pen((192,0,192)))
+				else:
+					dc.SetBrush(wx.Brush(self.ForeColor, wx.SOLID))
+					dc.SetPen(pen)
+				dc.DrawRectangle(v[2], v[3], thickness, thickness)
+		else:
+			# border around unselected control
+			dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
+
+		if self.getProp("type") == "string":
+			expr = self.getProp("expr", evaluate=False)
+			if expr is None:
+				expr = "<< missing expression >>"
+
+			alignments = {"left": wx.ALIGN_LEFT,
+					"center": wx.ALIGN_CENTER,
+					"right": wx.ALIGN_RIGHT,}
+
+			alignment = self.getProp("align")
+			if alignment is None:
+				alignment = self._rw.default_align
+			dc.DrawLabel(expr, (rect[0]+2, rect[1], rect[2]-4, rect[3]),
+				      alignments[alignment])
+
+	def _getSelected(self):
+		return self in self._rd._selectedObjects
+	
+	def _setSelected(self, val):
+		if val:
+			self._rd._selectedObjects.append(self)
+		else:
+			for idx in range(len(self._rd._selectedObjects)):
+				if self._rd._selectedObjects[idx] == self:
+					del self._rd._selectedObjects[idx]
+					break
+		self.Refresh
+			
+	def _getProps(self):
+		return self._props
+
+	def _setProps(self, val):
+		self._props = val
+		self.availableProps = [{"name": "x", "caption": "x", 
+		                        "defaultValue": self._rw.default_x},
+		                       {"name": "y", "caption": "y",
+		                        "defaultValue": self._rw.default_y},
+		                       {"name": "width", "caption": "Width",
+		                        "defaultValue": self._rw.default_width},
+		                       {"name": "height", "caption": "Height",
+		                        "defaultValue": self._rw.default_height},
+		                       {"name": "hAnchor", "caption": "Horizontal Anchor",
+		                        "defaultValue": '"%s"' % self._rw.default_hAnchor},
+		                       {"name": "vAnchor", "caption": "Vertical Anchor",
+		                        "defaultValue": '"%s"' % self._rw.default_vAnchor},
+		                       {"name": "rotation", "caption": "Rotation",
+		                        "defaultValue": self._rw.default_rotation},]
+
+		if val["type"] == "string":
+			self.availableProps.insert(0, {"name": "expr", "caption": "Expression",
+			                               "defaultValue": self._rw.default_expr})
+
+	Props = property(_getProps, _setProps)
+	Selected = property(_getSelected)
+
+#  End of ObjectPanel Class
+#
+#------------------------------------------------------------------------------
+
+
+#------------------------------------------------------------------------------
 #  BandLabel Class
 # 
 #  These are the bands like pageHeader, pageFooter, and detail that
@@ -97,7 +305,7 @@ class BandLabel(dabo.ui.dPanel):
 
 
 	def onDoubleClick(self, evt):
-		self.Parent.propertyDialog()
+		self.Parent._rd.propertyDialog(self.Parent)
 
 
 	def onPaint(self, evt):
@@ -152,6 +360,14 @@ class Band(dabo.ui.dPanel):
 		               BackColor=(215,215,215), ForeColor=(128,128,128),
 		               Height=self._bandLabelHeight)
 
+		self.availableProps = [{"name": "height", 
+		                        "defaultValue": self._rw.default_bandHeight,
+		                        "caption": "Band Height"},
+			                     {"name": "designerLock", 
+				                    "defaultValue": "False",
+				                    "caption": "Designer Lock"}]
+
+
 	def initEvents(self):
 		self.bindEvent(dEvents.MouseLeftClick, self.onLeftClick)
 
@@ -167,178 +383,10 @@ class Band(dabo.ui.dPanel):
 				o = self.getObject(obj)
 	
 	def getObject(self, obj):
-		class ObjectPanel(dabo.ui.dPanel):
-			def afterInit(self):
-				self._rd = self.Form.editor
-				self._rw = self._rd._rw
-				self.props = obj
-
-			def initEvents(self):
-				self.bindEvent(dEvents.Paint, self.onPaint)
-				self.bindEvent(dEvents.MouseLeftClick, self.onLeftClick)
-				self.bindEvent(dEvents.MouseMove, self.onMouseMove)
-				self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
-				self.bindEvent(dEvents.MouseLeave, self.onMouseLeave)
-
-			def getProp(self, prop, evaluate=True):
-				try:
-					val = self.props[prop]
-				except KeyError:
-					val = None
-
-				if evaluate and val is not None and prop not in ("type",):
-					try:
-						vale = eval(val)
-					except:
-						vale = "?: %s" % str(val)
-				else:
-					vale = val
-				return vale
-
-			def setProp(self, prop, val, sendPropsChanged=True):
-				"""Set the specified object property to the specified value.
-		
-				If setting more than one property, self.setProps() is faster.
-				"""
-				self.props[prop] = str(val)
-				if sendPropsChanged:
-					self._rd.propsChanged()
-
-			def setProps(self, propvaldict):
-				"""Set the specified object properties to the specified values."""
-				for p,v in propvaldict.items():
-					self.setProp(p, v, False)
-				self._rd.propsChanged()
-
-
-			def onMouseLeave(self, evt):
-				import wx
-				self.SetCursor(wx.NullCursor)	
-
-			def onMouseEnter(self, evt):
-				self._setMouseCursor(evt.EventData["mousePosition"])
-
-			def onMouseMove(self, evt):
-				self._setMouseCursor(evt.EventData["mousePosition"])
-
-			def _setMouseCursor(self, pos):
-				import wx
-				if self.Selected:
-					if self._mouseOnAnchor(pos):
-						self.SetCursor(wx.StockCursor(wx.CURSOR_SIZING))
-					else:
-						self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENWSE))
-				else:
-					self.SetCursor(wx.NullCursor)					
-
-			def _mouseOnAnchor(self, pos):
-				retval = False
-				for v in self._anchors.values():
-					vv = []
-					for x in range(self._anchorThickness):
-						for y in range(self._anchorThickness):
-							vv.append((v[2]+x,v[3]+y))						
-					if pos in vv:
-						retval = True
-						break
-				return retval
-
-			def onLeftClick(self, evt):
-				if not self.Selected:
-					if evt.EventData["shiftDown"] or evt.EventData["controlDown"]:
-						self._rd._selectedObjects.append(self)
-					else:
-						self._rd._selectedObjects = [self,]
-				else:
-					if evt.EventData["shiftDown"] or evt.EventData["controlDown"]:
-						for idx in range(len(self._rd._selectedObjects)):
-							if self._rd._selectedObjects[idx] == self:
-								del self._rd._selectedObjects[idx]
-								break
-				self._rd.Refresh()
-
-			def onPaint(self, evt):
-				import wx		## (need to abstract DC drawing)
-				dc = wx.PaintDC(self)
-				rect = self.GetClientRect()
-				dc.SetBrush(wx.Brush(self.BackColor, wx.SOLID))
-				if self.Selected:
-					# border around selected control with sizer boxes:
-					dc.DrawRectangle(rect[0]+1,rect[1]+1,rect[2]-2,rect[3]-2)
-					dc.SetBrush(wx.Brush(self.ForeColor, wx.SOLID))
-
-					x,y = (rect[0], rect[1])
-					width, height = (rect[2], rect[3])
-					thickness = 3
-
-					if self.props.has_key("hAnchor"):
-						hAnchor = eval(self.props["hAnchor"])
-					else:
-						hAnchor = self._rw.default_hAnchor
-
-					if self.props.has_key("vAnchor"):
-						vAnchor = eval(self.props["vAnchor"])
-					else:
-						vAnchor = self._rw.default_vAnchor
-
-					anchors = {"tl": ["top", "left", x, y],
-					           "bl": ["bottom", "left", x, y + height - thickness],
-					           "tc": ["top", "center", x+(.5*width), y],
-					           "bc": ["bottom", "center", x+(.5*width), y+height-thickness],
-					           "tr": ["top", "right", x+width-thickness, y],
-					           "br": ["bottom", "right", x+width-thickness, y+height-thickness],}
-
-					self._anchors = anchors
-					self._anchorThickness = thickness
-
-					pen = dc.GetPen()
-
-					for k,v in anchors.items():
-						if hAnchor == v[1] and vAnchor == v[0]:
-							dc.SetBrush(wx.Brush((192,0,192), wx.SOLID))
-							dc.SetPen(wx.Pen((192,0,192)))
-						else:
-							dc.SetBrush(wx.Brush(self.ForeColor, wx.SOLID))
-							dc.SetPen(pen)
-						dc.DrawRectangle(v[2], v[3], thickness, thickness)
-				else:
-					# border around unselected control
-					dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
-
-				if self.getProp("type") == "string":
-					expr = self.getProp("expr", evaluate=False)
-					if expr is None:
-						expr = "<< missing expression >>"
-
-					alignments = {"left": wx.ALIGN_LEFT,
-					              "center": wx.ALIGN_CENTER,
-					              "right": wx.ALIGN_RIGHT,}
-
-					alignment = self.getProp("align")
-					if alignment is None:
-						alignment = self._rw.default_align
-					dc.DrawLabel(expr, (rect[0]+2, rect[1], rect[2]-4, rect[3]),
-					             alignments[alignment])
-
-			def _getSelected(self):
-				return self in self._rd._selectedObjects
-			
-			def _setSelected(self, val):
-				if val:
-					self._rd._selectedObjects.append(self)
-				else:
-					for idx in range(len(self._rd._selectedObjects)):
-						if self._rd._selectedObjects[idx] == self:
-							del self._rd._selectedObjects[idx]
-							break
-				self.Refresh
-					
-					
-			Selected = property(_getSelected)
-
 		if obj["name"] not in self._objects.keys():
 			o = ObjectPanel(self)
 			self._objects[obj["name"]] = o
+			o.Props = obj
 		else:
 			o = self._objects[obj["name"]]
 
@@ -390,13 +438,20 @@ class Band(dabo.ui.dPanel):
 		o.Position = (z*x, (z*y) - o.Height)
 		return o
 
-	def getProp(self, prop):
-		"""Evaluate and return the specified property value."""
+	def getProp(self, prop, evaluate=True):
 		try:
-			val = eval(self.props[prop])
+			val = self.props[prop]
 		except KeyError:
 			val = None
-		return val
+
+		if evaluate and val is not None and prop not in ("type",):
+			try:
+				vale = eval(val)
+			except:
+				vale = "?: %s" % str(val)
+		else:
+			vale = val
+		return vale
 
 
 	def setProp(self, prop, val, sendPropsChanged=True):
@@ -414,61 +469,6 @@ class Band(dabo.ui.dPanel):
 			self.setProp(p, v, False)
 		self.Parent.propsChanged()
 
-
-	def propertyDialog(self):
-		band = self
-		class PropertyDialog(dabo.ui.dDialog):
-			def afterInit(self):
-				self.Accepted = False
-
-			def addControls(self):
-				try:
-					lock = eval(band.props["designerLock"])
-				except KeyError:
-					lock = False
-
-				self.addObject(dabo.ui.dLabel, Name="lblHeight", Caption="Band Height:",
-				               Alignment="Right", Width=125)
-				self.addObject(dabo.ui.dTextBox, Name="txtHeight", Width=200, 
-				               Value=band.props["height"])
-				self.addObject(dabo.ui.dCheckBox, Name="chkLock", Caption="Lock", Value=lock)
-			
-				h = dabo.ui.dSizer("h")
-				h.append(self.lblHeight, "fixed", alignment=("middle", "right"))
-				h.append(self.txtHeight, alignment=("middle", "right"), border=5)
-				h.append(self.chkLock, alignment=("middle", "right"), border=5)
-				self.Sizer.append(h, border=5)
-
-				self.addObject(dabo.ui.dButton, Name="cmdAccept", Caption="&Accept",
-				               DefaultButton=True)
-				self.addObject(dabo.ui.dButton, Name="cmdCancel", Caption="&Cancel",
-				               CancelButton=True)
-
-				self.cmdAccept.bindEvent(dEvents.Hit, self.onAccept)
-				self.cmdCancel.bindEvent(dEvents.Hit, self.onCancel)
-				self.bindKey("enter", self.onAccept)
-
-				h = dabo.ui.dSizer("h")
-				h.append(self.cmdAccept, border=5)
-				h.append(self.cmdCancel, border=5)
-				self.Sizer.append(h, border=5, alignment="right")
-
-			def onAccept(self, evt):
-				self.Accepted = True
-				self.Visible = False
-
-			def onCancel(self, evt):
-				self.Accepted = False
-				self.Visible = False
-
-
-		dlg = PropertyDialog(self.Form, 
-		                     Caption="%s Properties" % self.bandLabel.Caption)
-		dlg.show()
-
-		if dlg.Accepted:
-			self.setProps({"height": dlg.txtHeight.Value,
-			               "designerLock": str(dlg.chkLock.Value)})
 
 	def _getCaption(self):
 		return self.bandLabel.Caption
@@ -558,6 +558,65 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self._bands = []
 		self._rw = ReportWriter()
 		self.ReportForm = None
+
+
+	def propertyDialog(self, obj=None):
+		"""Display the property dialog for the passed object."""
+		if obj is None:
+			obj = self
+		rw = self._rw
+
+		class PropertyDialog(dabo.ui.dDialog):
+			def addControls(self):
+				for prop in obj.availableProps:
+					propVal = obj.getProp(prop["name"], evaluate=False)
+					if propVal is None:
+						propVal = str(prop["defaultValue"])
+
+					lbl = self.addObject(dabo.ui.dLabel, Name="lbl%s" % prop["name"], 
+					                     Caption="%s:" % prop["caption"],
+					                     Alignment="Right", Width=125)
+					txt = self.addObject(dabo.ui.dTextBox, Name="txt%s" % prop["name"], 
+					                     Width=300, Value=propVal)
+			
+					h = dabo.ui.dSizer("h")
+					h.append(lbl, "fixed", alignment=("middle", "right"))
+					h.append(txt, alignment=("middle", "right"), border=1)
+					self.Sizer.append(h, border=1)
+
+				self.addObject(dabo.ui.dButton, Name="cmdAccept", Caption="&Accept",
+				               DefaultButton=True)
+				self.addObject(dabo.ui.dButton, Name="cmdCancel", Caption="&Cancel",
+				               CancelButton=True)
+
+				self.cmdAccept.bindEvent(dEvents.Hit, self.onAccept)
+				self.cmdCancel.bindEvent(dEvents.Hit, self.onCancel)
+				self.bindKey("enter", self.onAccept)
+
+				h = dabo.ui.dSizer("h")
+				h.append(self.cmdAccept, border=5)
+				h.append(self.cmdCancel, border=5)
+				self.Sizer.append(h, border=5, alignment="right")
+
+			def onAccept(self, evt):
+				props = {}
+				for prop in obj.availableProps:
+					o = eval("self.txt%s" % prop["name"])
+					props[prop["name"]] = o.Value
+				obj.setProps(props)
+				self.Visible = False
+
+			def onCancel(self, evt):
+				self.Visible = False
+
+
+		caption = obj.Caption
+		if len(caption.strip()) == 0:
+			caption = obj.Props["name"]
+
+		dlg = PropertyDialog(self.Form, 
+		                     Caption="%s Properties" % caption)
+		dlg.show()
 
 
 	def promptToSave(self):
