@@ -215,7 +215,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		elif type(value) in [type(bool()), ]:
 			return "L"
 		else:
-			dabo.infoLog.write(_("getShortDataType - unknown type:"), self, value)
+			dabo.infoLog.write(_("getShortDataType - unknown type: %s") % (value,))
 			return "?"
 			
 	
