@@ -178,17 +178,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		pass
 
 
-	def refreshControls(self):
-		""" Refresh the value of all contained dControls.
-
-		Raises EVT_VALUEREFRESH which will be caught by all dControls, who will
-		in turn refresh themselves with the current value of the field in the
-		bizobj. 
-		"""
-		self.raiseEvent(dEvents.ValueRefresh)
-		self.setStatusText(self.getCurrentRecordText())
-
-
 	def _moveRecordPointer(self, func, dataSource=None):
 		""" Move the record pointer using the specified function.
 		"""

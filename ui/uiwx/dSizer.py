@@ -18,6 +18,9 @@ class dSizer(wx.BoxSizer, dSizerMixin.dSizerMixin):
 			try:
 				exec("self.%s = %s" % (k,v))
 			except: pass
+		self.afterInit()
+
+	def afterInit(self): pass	
 		
 if __name__ == "__main__":
 	s = dSizer()
