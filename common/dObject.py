@@ -7,7 +7,8 @@ from dabo.dLocalize import _
 class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 	""" The basic ancestor of all dabo objects.
 	"""
-	
+	_IsContainer = False
+
 	def escapeQt(self, s):
 		sl = "\\"
 		qt = "\'"

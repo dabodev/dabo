@@ -3,6 +3,8 @@ from StringIO import StringIO
 import os.path
 
 class specHandler(xml.sax.ContentHandler):
+	_IsContainer = False
+	
 	def __init__(self):
 		self.appDict = {}
 		self.relaDict = {}

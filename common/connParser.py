@@ -3,6 +3,8 @@ from StringIO import StringIO
 import os.path
 
 class connHandler(xml.sax.ContentHandler):
+	_IsContainer = False
+	
 	def __init__(self):
 		self.connDict = {}
 		self.blankConn = {"dbtype" : "",

@@ -3,8 +3,8 @@ class dException(StandardError):
 	"""
 	Base class in the framework for passing exceptions.
 	"""
-	pass
-
+	_IsContainer = False
+	
 
 class BeginningOfFileException(dException):
 	pass
