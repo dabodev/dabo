@@ -1,5 +1,6 @@
 from dBackend import dBackend
 import datetime
+import psycopg
 
 class MySQL(dBackend):
 	def __init__(self):
@@ -9,8 +10,7 @@ class MySQL(dBackend):
 		self.useTransactions = True
 
 	def getConnection(self, connectInfo):
-		### TODO: what connector should we use?
-		#import MySQLdb as dbapi
+		import psycopg as dbapi
 
 		port = connectInfo.Port
 		if not port:
@@ -24,10 +24,9 @@ class MySQL(dBackend):
 		return self._connection
 
 	def getDictCursorClass(self):
-		### TODO: If PostgreSQL doesn't offer specific Dict cursors, 
-		###   return a plain one, and Dabo will convert it.
-		#import MySQLdb.cursors as cursors
-		#return cursors.DictCursor
+		# Note: this still needs to be tested! Right now we're
+		# just guessing the name of the class in the module.
+		return psycopg.Cursor
 
 	def escQuote(self, val):
 		### TODO: This method needs to escape any 'dangerous' characters,
