@@ -18,9 +18,9 @@ class dFormMixin(pm.dPemMixin):
 		self.restoredSP = False
 		self._holdStatusText = ""
 
-		if self.Application:
+		if self.Application and self.MenuBar:
 			try:
-				self.SetMenuBar(mnb.dMainMenuBar(self))
+				self.SetMenuBar(self.MenuBar(self))
 				self.afterSetMenuBar()
 			except AttributeError:
 				# perhaps we are a dDialog
@@ -55,10 +55,11 @@ class dFormMixin(pm.dPemMixin):
 	def __onActivate(self, evt): 
 		# Restore the saved size and position, which can't happen 
 		# in __init__ because we may not have our name yet.
-		evt.Skip()
-		
 		if not self.restoredSP:
 			self.restoreSizeAndPosition()
+		if self.GetStatusBar() is None and not isinstance(self, wx.MDIChildFrame) and self.ShowStatusBar:
+			self.CreateStatusBar()
+
 		
 		
 	def afterSetMenuBar(self):
@@ -245,6 +246,17 @@ class dFormMixin(pm.dPemMixin):
 		if value:
 			self.addWindowStyleFlag(wx.MINIMIZE_BOX)
 
+	def _getMenuBar(self):
+		try:
+			mb = self._menuBar
+		except AttributeError:
+			mb = self._menuBar = mnb.dMainMenuBar
+		return mb
+
+	def _setMenuBar(self, val):
+		self._menuBar = val
+		self.SetMenuBar(val)
+		
 	def _getShowCloseButton(self):
 		return self.hasWindowStyleFlag(wx.CLOSE_BOX)
 	def _setShowCloseButton(self, value):
@@ -259,6 +271,16 @@ class dFormMixin(pm.dPemMixin):
 		if value:
 			self.addWindowStyleFlag(wx.CAPTION)
 
+	def _getShowStatusBar(self):
+		try:
+			ssb = self._showStatusBar
+		except AttributeError:
+			ssb = self._showStatusBar = True
+		return ssb
+		
+	def _setShowStatusBar(self, val):
+		self._showStatusBar = bool(val)
+		
 	def _getShowSystemMenu(self):
 		return self.hasWindowStyleFlag(wx.SYSTEM_MENU)
 	def _setShowSystemMenu(self, value):
@@ -320,6 +342,9 @@ class dFormMixin(pm.dPemMixin):
 	BorderResizable = property(_getBorderResizable, _setBorderResizable, None,
 					'Specifies whether the user can resize this form. (bool).')
 
+	MenuBar = property(_getMenuBar, _setMenuBar, None,
+		"Specifies the menu bar class to use for the form, or None.")
+		
 	ShowCaption = property(_getShowCaption, _setShowCaption, None,
 					'Specifies whether the caption is displayed in the title bar. (bool).')
 
@@ -331,6 +356,9 @@ class dFormMixin(pm.dPemMixin):
 
 	ShowCloseButton = property(_getShowCloseButton, _setShowCloseButton, None,
 					'Specifies whether a close button is displayed in the title bar. (bool).')
+
+	ShowStatusBar = property(_getShowStatusBar, _setShowStatusBar, None,
+		"Specifies whether the status bar gets automatically created.")
 
 	ShowSystemMenu = property(_getShowSystemMenu, _setShowSystemMenu, None,
 					'Specifies whether a system menu is displayed in the title bar. (bool).')

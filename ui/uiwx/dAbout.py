@@ -1,69 +1,65 @@
-''' dAbout.py
-
-About screen.
-'''
 import sys
-
 import wx
-import wx.html
-import wx.lib.wxpTag
+import dabo
+import dForm
 
-class dAbout(wx.Dialog):
-	text = '''
-<html>
-<body bgcolor="#AC76DE">
-<center><table bgcolor="#458154" width="100%%" cellspacing="0"
-cellpadding="0" border="1">
-<tr>
-	<td align="center">
-	<h1>%s</h1>
-	</td>
-</tr>
-</table>
+class dAbout(dForm.dForm):
+	def initStyleProperties(self):
+		self.BorderStyle = None
+		dAbout.doDefault()
+		
+	def initProperties(self):
+		dAbout.doDefault()
+		self.BackColor = "White"
+		self.MenuBar = None
+		self.ShowStatusBar = False
+		
+	def initEvents(self):
+		# Destroy the window when clicked or deactivated:
+		self.bindEvent(dabo.dEvents.MouseLeftDown, self.onClear)
+		self.bindEvent(dabo.dEvents.MouseRightDown, self.onClear)
+		self.bindEvent(dabo.dEvents.Deactivate, self.onClear)
+
+		self.bindEvent(dabo.dEvents.Paint, self.__onPaint)
+		
+	def afterInit(self):
+		dAbout.doDefault()
+		self.CenterOnScreen()
+		self.SetFocus()
 
 
-<P>&nbsp;</P>
+	def restoreSizeAndPosition(self):
+		pass
+		
+	def onClear(self, evt):
+		self.Destroy()
 
-</center>
+	def __onPaint(self, evt):
+		dc = wx.PaintDC(self)
+		self.draw(dc)
 
-<TABLE BORDER=0>
-<TR>
-	<TD ALIGN="RIGHT">
-	<font size=-1>%s Version:</font>
-	</TD>
-	<TD ALIGN="LEFT"><B>%s</B></TD>
-</TR>
-<TR>
-	<TD ALIGN="RIGHT">
-	<font size=-1>wxPython Version:</FONT>
-	</TD>
-	<TD ALIGN="LEFT"><B>%s</B></TD>
-</TR>
-<TR>
-	<TD ALIGN="RIGHT">
-	<font size=-1>Python Version:</FONT>
-	</TD>
-	<TD ALIGN="LEFT"><B>%s</B></TD>
-</TR>
-<TR>
-	<TD ALIGN="RIGHT">
-	<font size=-1>Platform:</FONT>
-	</TD>
-	<TD ALIGN="LEFT"><B>%s</B></TD>
-</TR>
-</TABLE>
+	def draw(self, dc):
+		# Dabo icon
+		bitmap = dabo.ui.dIcons.getIconBitmap("dabo_lettering_100x40")
+		
+		# The width of the whitespace between the outer rectangle and where content begins
+		border = 7
+		
+		dcWidth, dcHeight = dc.GetSize()
+		bmWidth, bmHeight = bitmap.GetSize()
 
-<p align="right"><wxp module="wx" class="Button">
-	<param name="label" value="Okay">
-	<param name="id"    value="ID_OK">
-</wxp></p>
+		# Outer rectangle
+		dc.DrawRectangle(0, 0, dcWidth, dcHeight)
+		
+		# Dabo bitmap
+		dc.DrawBitmap(bitmap, dcWidth-bmWidth-border, dcHeight-bmHeight-border)
 
-</body>
-</html>
-'''
-	def __init__(self, parent, app=None):
-		wx.Dialog.__init__(self, parent, -1, '')
-		html = wx.html.HtmlWindow(self, -1, size=(420, -1))
+		# Text area:
+		lblText = self.getLabelText()
+		dc.DrawLabel(lblText, (border, border, dcWidth-(2*border), dcHeight-(2*border)))
+
+	def getLabelText(self):
+		app = self.Application
 		py_version = sys.version.split()[0]
 		if app:
 			dabo_version = app.getAppInfo("appVersion")
@@ -71,25 +67,16 @@ cellpadding="0" border="1">
 		else:
 			dabo_version = "?"
 			dabo_appName = "Dabo"
-		self.SetLabel("About %s" % dabo_appName)
-		html.SetPage(self.text % (dabo_appName, dabo_appName,
-			dabo_version, wx.VERSION_STRING, 
-			py_version, sys.platform))
-		btn = html.FindWindowById(wx.ID_OK)
-		btn.SetDefault()
-		ir = html.GetInternalRepresentation()
-		html.SetSize( (ir.GetWidth()+25, ir.GetHeight()+25) )
-		self.SetClientSize(html.GetSize())
-		self.Center(wx.BOTH|wx.CENTER_ON_SCREEN)
-
-#---------------------------------------------------------------------------
-
-
+		lbl = "%s %s" % (dabo_appName, dabo_version)
+		return lbl
+		
+def main():
+	app = dabo.dApp()
+	app.MainFormClass = dAbout
+	app.setup()
+	app.start()
 
 if __name__ == '__main__':
-	app = wx.PySimpleApp()
-	dlg = dAbout(None)
-	dlg.ShowModal()
-	dlg.Destroy()
-	app.MainLoop()
+	main()
+
 

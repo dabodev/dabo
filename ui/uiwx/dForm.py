@@ -55,9 +55,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.bizobjs = {}
 		self._primaryBizobj = None
 
-		if not isinstance(self, wx.MDIChildFrame):
-			self.CreateStatusBar()
-
 		self.Sizer = dSizer.dSizer("vertical")
 		self.Sizer.layout()
 		
@@ -617,7 +614,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	AskToSave = property(_getAskToSave, _setAskToSave, None, 
 			"Specifies whether a save prompt appears before the data is requeried. (bool)")
 
-
+		
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(dForm)

@@ -38,6 +38,7 @@ from dGauge import dGauge
 from dGrid import dGrid
 from dGridSizer import dGridSizer
 from dGridDataNav import dGridDataNav
+import dIcons
 from dLabel import dLabel
 from dLine import dLine
 from dListbook import dListbook
@@ -61,7 +62,6 @@ from dToggleButton import dToggleButton
 from dTreeView import dTreeView
 
 from getMouseObject import getMouseObject
-
 import dShell
 
 
