@@ -1,7 +1,8 @@
 import wx, dEvents, dControlMixin, dDataControlMixin
+from dFormMixin import dFormMixin
 import dabo.dConstants as k
 
-class dForm(wx.Frame):
+class dForm(wx.Frame, dFormMixin):
     ''' dabo.ui.uiwx.dForm() --> dForm
     
         Create a dForm object, which can contain other
@@ -13,10 +14,18 @@ class dForm(wx.Frame):
         bizobj.
     '''
     
-    def __init__(self, parent=None, resourceString=None):
+    def __init__(self, parent=None, name="dForm", resourceString=None):
         wx.Frame.__init__(self, parent, -1, "")
-        self.SetName("dForm")
-        self.SetLabel("dForm")
+        self.SetName(name)
+        self.SetLabel(name)
+        
+        try:
+            dApp = parent.dApp
+        except:
+            dApp = None
+        
+        dFormMixin.__init__(self, dApp)
+        
         self.debug = False
         
         self.bizobjs = {}

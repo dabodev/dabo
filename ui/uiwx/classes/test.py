@@ -14,6 +14,7 @@ from dCommandButton import *
 from dSpinner import dSpinner
 from dEditBox import dEditBox
 from dVCR import dVCR
+from dCheckBox import dCheckBox
 from dabo.biz import dBizobj
 from dabo.db.dConnection import dConnection
 
@@ -74,6 +75,7 @@ class Test(object):
                     (dTextBox(panel), "txtCity", "ccity"),
                     (dTextBox(panel), "txtZipcode", "czip"),
                     (dSpinner(panel), "spn1", "iid"),
+                    (dCheckBox(panel), "chk1"),
                     (dEditBox(panel), "edt1")):
             bs = wx.BoxSizer(wx.HORIZONTAL)
             label = dLabel(panel, windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE,
