@@ -330,7 +330,7 @@ class SelectPage(Page):
 				elif fldType in ("date", "datetime"):
 					if isinstance(ctrl, dabo.ui.dDateTextBox):
 						dtTuple = ctrl.getDateTuple()
-						dt = "%s-%s-%s" % (dtTuple[0], padl(dtTuple[1], 2, "0"), 
+						dt = "%s-%s-%s" % (dtTuple[0], padl(dtTuple[1]+1, 2, "0"), 
 								padl(dtTuple[2], 2, "0") )
 					else:
 						dt = matchVal
