@@ -16,6 +16,9 @@ class dBizobj(dabo.common.dObject):
 
 	# Versioning...
 	_version = "0.1.0"
+	
+	# Need to set this here
+	useFieldProps = False
 
 	# Hack so that I can test until the app can return cursorsClasses, etc.
 	TESTING = False
@@ -34,6 +37,7 @@ class dBizobj(dabo.common.dObject):
 		# Next two are used by the scan() method.
 		self.__scanRestorePosition = True	
 		self.__scanReverse = False
+		self.useFieldProps = True		# Do we look to getFieldVal for values?
 
 		dBizobj.doDefault()		
 		##########################################
@@ -52,18 +56,19 @@ class dBizobj(dabo.common.dObject):
 		
 		# Dictionary holding any default values to apply when a new record is created
 		# (should be made into a property - do we have a name/value editor for the propsheet?)
-		self.defaultValues = {}      
-
-		if testHack:
-			import MySQLdb
-			self.dbapiCursorClass = MySQLdb.cursors.DictCursor
-		else:
-			# Base cursor class : the cursor class from the db api
-			self.dbapiCursorClass = self._conn.getDictCursorClass()
-
-		# If there are any problems in the createCursor process, an
-		# exception will be raised in that method.
-		self.createCursor()
+		self.defaultValues = {}
+		
+		if self._conn:
+			if testHack:
+				import MySQLdb
+				self.dbapiCursorClass = MySQLdb.cursors.DictCursor
+			else:
+				# Base cursor class : the cursor class from the db api
+				self.dbapiCursorClass = self._conn.getDictCursorClass()
+		
+			# If there are any problems in the createCursor process, an
+			# exception will be raised in that method.
+			self.createCursor()
 
 		self.afterInit()
 		
@@ -88,13 +93,14 @@ class dBizobj(dabo.common.dObject):
 		If there is no object attribute named 'att', and no field in the cursor by that
 		name, an AttributeError is raised.
 		"""
-		try:
-			ret = self.getFieldVal(att)
-		except (dException.dException, dException.NoRecordsException):
-			ret = None
-		if ret is None:
-			raise AttributeError, " '%s' object has no attribute '%s' " % (self.__class__.__name__, att)
-		return ret
+		if self.useFieldProps:
+			try:
+				ret = self.getFieldVal(att)
+			except (dException.dException, dException.NoRecordsException):
+				ret = None
+			if ret is None:
+				raise AttributeError, " '%s' object has no attribute '%s' " % (self.__class__.__name__, att)
+			return ret
 
 
 	def __setattr__(self, att, val):
