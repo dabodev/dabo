@@ -19,6 +19,11 @@ class dMemento(object):
     def isChanged(self, newvals):
         ''' Return True if the snapshot does not match the passed dictionary.
         '''
+        
+#         if self.__snapshot != newvals:
+#           print "orig:", self.__snapshot
+#           print "new:", newvals
+            
         return (self.__snapshot != newvals)
 
 

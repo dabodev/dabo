@@ -466,7 +466,7 @@ class dCursorMixin:
         '''
         self.__errorMsg = ""
         # Make sure that there is data to save
-        if not self.rowcount >= 0:
+        if not self.rowcount > 0:
             raise dError, loc("No data to cancel")
 
         if allrows:
