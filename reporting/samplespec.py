@@ -4,75 +4,91 @@ A starting example of a python-based report spec file. Dictionaries are used
 to specify elements such as the page or the report, bands such as 
 PageHeader, PageFooter, GroupHeader, GroupFooter, and Detail, and objects such
 as text boxes, rectangles, and lines.
+
+Most values are expressions to be evaluated at runtime (ie they are dynamic).
 """
 
-Page = {"unit": "inch",
-        "size": "letter",
-        "orientation": "portrait",
-        "margin": {"left": .5,
-                   "right": .5,
-                   "top": .5,
-                   "bottom": .5},
+Page = {"size": ''' "letter" ''',
+        "orientation": ''' "portrait" ''',
+        "margin": {"left": ''' ".5 in" ''',
+                   "right": ''' ".5 in" ''',
+                   "top": ''' ".5 in" ''',
+                   "bottom": ''' ".5 in" '''},
 }
 
 
 PageBackground = {"objects": [{"type": "string",
-                           "expression": '''"Test"''',
-                           "alignment": "center",
-                           "rotation": 30,
-                           "x": 4.25,
-                           "y": 5.5,
-                           "fontFace": "Helvetica",
-                           "fontSize": 12,
-                          }]}
+                           "expr": ''' "Test" ''',
+                           "align": ''' "left" ''',
+                           "rotation": ''' 55 ''',
+                           "x": ''' "4.25 in" ''',
+                           "y": ''' "5.5 in" ''',
+                           "width": ''' "1 in" ''',
+                           "fontName": ''' "Helvetica" ''',
+                           "fontSize": ''' 20 ''',
+                           "fillColor": ''' (.4, .1, .3) ''',
+                           "borderWidth": ''' ".5 pt" ''',
+                           "borderColor": ''' (.1,.8,.4) ''',
+                          },
+                          {"type": "rect",
+                           "x": ''' "4.25 in" ''',
+                           "y": ''' "5 in" ''',
+                           "width": ''' "1 in" ''',
+                           "height": ''' ".25 in" ''',
+                           "rotation": ''' 45 ''',
+                           "strokeWidth": ''' ".25 pt" ''',
+                           "fillColor": ''' (.5,1,.5) ''',
+                           "strokeColor": ''' (.7,.2,.5) ''',
+                           "strokeDashArray": ''' (2,5,1,5) '''}
+]}
 
 
-PageHeader = {"height": 0.5,
+PageHeader = {"height": ''' "0.5 in" ''',
               "objects": [{"type": "string",
-                           "expression": '''"Dabo's Favorite Artists"''',
-                           "alignment": "center",
-                           "x": 3.75,
-                           "y": 0.3,
-                           "width": 6,
-                           "height": .25,
-                           "borderWidth": 0,
-                           "fontFace": "Helvetica",
-                           "fontSize": 14,
+                           "expr": ''' "Dabo's Favorite Artists" ''',
+                           "align": ''' "center" ''',
+                           "x": ''' "3.75 in" ''',
+                           "y": ''' "0.3 in" ''',
+                           "width": ''' "6 in" ''',
+                           "height": ''' ".25 in" ''',
+                           "borderWidth": ''' "0 pt" ''',
+                           "fontFace": ''' "Helvetica" ''',
+                           "fontSize": ''' 14 ''',
                           }]
 }
 
-PageFooter = {"height": 1.25,
+PageFooter = {"height": ''' "1.25 in" ''',
               "objects": [{"type": "image",
-                           "expression": '''"../icons/dabo_lettering_100x40.png"''',
-                           "x": 6.1,
-                           "y": .01,
-                           "width": None,
-                           "height": None,
-                           "mask": None,
+                           "expr": ''' "../icons/dabo_lettering_100x40.png" ''',
+                           "x": ''' "6.75 in" ''',
+                           "y": ''' "1 pt" ''',
+                           "width": ''' "50 pt" ''',
+                           "height": ''' "20 pt" ''',
+                           "mask": ''' None ''',
                           }]
 }
 
 
-Detail = {"height": .25,
+Detail = {"height": ''' ".25 in" ''',
           "objects": [{"type": "string",
-                       "expression": "record['cArtist']",
-                       "alignment": "left",
-                       "fontFace": "Helvetica",
-                       "fontSize": 12,
-                       "borderWidth": .25,
-                       "x": 1,
-                       "y": .01,
-                       "width": 1.4,
-                       "height": 0.25
+                       "expr": ''' record['cArtist'] ''',
+                       "align": ''' "left" ''',
+                       "fontFace": ''' "Helvetica" ''',
+                       "fontSize": ''' 12 ''',
+                       "borderWidth": ''' ".25 pt" ''',
+                       "x": ''' "1 in" ''',
+                       "y": ''' "0 pt" ''',
+                       "width": ''' "1.4 in" ''',
+                       "height": ''' "0.25 in" '''
                        }]
 }
 
-Group1Header = {"height": .5,
+Group1Header = {"height": ''' ".5 in" ''',
                 "objects": []}
 
-Group1Footer = {"height": 0,
+Group1Footer = {"height": ''' "0 in" ''',
                 "objects": []}
 
 Groups = [{"name": "Group1",
-           "expression": "record['cartist']",}
+           "expr": ''' "record['cartist']" ''',}
          ]
