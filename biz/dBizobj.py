@@ -15,17 +15,6 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	dCursorMixinClass = dCursorMixin
 	dSqlBuilderMixinClass = dSqlBuilderMixin
 
-	##########################################
-	### referential integrity stuff ####
-	##########################################
-	### Possible values for each type (not all are relevant for each action):
-	### IGNORE - don't worry about the presence of child records
-	### RESTRICT - don't allow action if there are child records
-	### CASCADE - changes to the parent are cascaded to the children
-	deleteChildLogic = k.REFINTEG_CASCADE       # child records will be deleted
-	updateChildLogic = k.REFINTEG_IGNORE    # parent keys can be changed w/o affecting children
-	insertChildLogic = k.REFINTEG_IGNORE        # child records can be inserted even if no parent record exists.
-	##########################################
 	# Versioning...
 	_version = "0.1.0"
 
@@ -40,6 +29,18 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		self._conn = conn
 		self.__params = None		# tuple of params to be merged with the sql in the cursor
 		self.__children = []		# Collection of child bizobjs
+		
+		##########################################
+		### referential integrity stuff ####
+		##########################################
+		### Possible values for each type (not all are relevant for each action):
+		### IGNORE - don't worry about the presence of child records
+		### RESTRICT - don't allow action if there are child records
+		### CASCADE - changes to the parent are cascaded to the children
+		self.deleteChildLogic = k.REFINTEG_CASCADE       # child records will be deleted
+		self.updateChildLogic = k.REFINTEG_IGNORE    # parent keys can be changed w/o affecting children
+		self.insertChildLogic = k.REFINTEG_IGNORE        # child records can be inserted even if no parent record exists.
+		##########################################
 		
 		self.beforeInit()
 		
@@ -657,7 +658,11 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		""" Set the value of the specified field in the current row.
 		"""
 		if self.__cursor is not None:
-			return self.__cursor.setFieldVal(fld, val)
+			try:
+				self.__cursor.setFieldVal(fld, val)
+				return True
+			except:
+				return False
 		else:
 			return None
 
