@@ -1,11 +1,10 @@
-
 import wx
 import dabo
-#dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
+import dPemMixin as pm
 
-class dDialog(wx.Dialog, dabo.ui.dPemMixin):
+class dDialog(wx.Dialog, pm.dPemMixin):
 	_IsContainer = True
 	
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
@@ -14,13 +13,14 @@ class dDialog(wx.Dialog, dabo.ui.dPemMixin):
 		self._centered = True
 		self._fit = True
 
+		defaultStyle = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
 		try:
-			kwargs["style"] = kwargs["style"] | wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
-		except:
-			kwargs["style"] = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
+			kwargs["style"] = kwargs["style"] | defaultStyle
+		except KeyError:
+			kwargs["style"] = defaultStyle
 
 		preClass = wx.PreDialog
-		dabo.ui.dPemMixin.__init__(self, preClass, parent, properties=properties, 
+		pm.dPemMixin.__init__(self, preClass, parent, properties=properties, 
 				*args, **kwargs)
 
 	def _initEvents(self):
@@ -30,8 +30,8 @@ class dDialog(wx.Dialog, dabo.ui.dPemMixin):
 		self.bindEvent(dEvents.Close, self.__onClose)
 		
 	def _afterInit(self):
-		super(dDialog, self)._afterInit()
 		self.Sizer = dabo.ui.dSizer("V")
+		super(dDialog, self)._afterInit()
 		# Hook method, so that we add the buttons last
 		self._addControls()
 
