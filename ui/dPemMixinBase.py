@@ -1,5 +1,6 @@
 """ dPemMixin.py: Provide common PEM functionality """
 import dabo, dabo.common
+import types
 from dabo.dLocalize import _
 
 class dPemMixinBase(dabo.common.dObject):
