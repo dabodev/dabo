@@ -69,41 +69,54 @@ class uiApp(wx.App, dObject):
 
 
 	def onEditCopy(self, evt, cut=False):
+		# Some controls (stc...) have Cut(), Copy(), Paste() methods,
+		# while others do not. Try these methods first, but fall back
+		# to interacting with wx.TheClipboard if necessary.
 		win = wx.GetActiveWindow().FindFocus()
 		try:
-			selectedText = win.GetStringSelection()
-		except AttributeError:
-			selectedText = None
-
-		if selectedText:
-			data = wx.TextDataObject()
-			data.SetText(selectedText)
-			cb = wx.TheClipboard
-			cb.Open()
-			cb.SetData(data)
-			cb.Close()
-
 			if cut:
-				win.Remove(win.GetSelection()[0], win.GetSelection()[1])
+				win.Cut()
+			else:
+				win.Copy()
+				
+		except AttributeError:
+			try:
+				selectedText = win.GetStringSelection()
+			except AttributeError:
+				selectedText = None
+
+			if selectedText:
+				data = wx.TextDataObject()
+				data.SetText(selectedText)
+				cb = wx.TheClipboard
+				cb.Open()
+				cb.SetData(data)
+				cb.Close()
+
+				if cut:
+					win.Remove(win.GetSelection()[0], win.GetSelection()[1])
 
 
 	def onEditPaste(self, evt):
 		win = wx.GetActiveWindow().FindFocus()
 		try:
-			selection = win.GetSelection()
+			win.Paste()
 		except AttributeError:
-			selection = None
-
-		if selection != None:
-			data = wx.TextDataObject()
-			cb = wx.TheClipboard
-			cb.Open()
-			success = cb.GetData(data)
-			cb.Close() 
-			if success: 
-				win.Replace(selection[0], selection[1], data.GetText())
 		
+			try:
+				selection = win.GetSelection()
+			except AttributeError:
+				selection = None
 
+			if selection != None:
+				data = wx.TextDataObject()
+				cb = wx.TheClipboard
+				cb.Open()
+				success = cb.GetData(data)
+				cb.Close() 
+				if success: 
+					win.Replace(selection[0], selection[1], data.GetText())
+		
 
 	def onEditPreferences(self, evt):
 		dabo.infoLog.write("Stub: uiApp.onEditPreferences()")
@@ -143,48 +156,63 @@ class uiApp(wx.App, dObject):
 		Run the search on the current control, if it is a text-based control.
 		Select the found text in the control.
 		"""
+		flags = evt.GetFlags()
+		findString = evt.GetFindString()
+		downwardSearch = (flags & wx.FR_DOWN) == wx.FR_DOWN
+		wholeWord = (flags & wx.FR_WHOLEWORD) == wx.FR_WHOLEWORD
+		matchCase = (flags & wx.FR_MATCHCASE) == wx.FR_MATCHCASE
+		
 		win = self.findWindow
+		
 		if win:
-			try: 
-				value = win.GetValue()
-			except AttributeError:
-				value = None
-			if type(value) not in (type(str()), type(unicode())):
-				dabo.errorLog.write("Active control isn't text-based.")
-				return
-
-			flags = evt.GetFlags()
-			findString = evt.GetFindString()
-			downwardSearch = (flags & wx.FR_DOWN) == wx.FR_DOWN
-			wholeWord = (flags & wx.FR_WHOLEWORD) == wx.FR_WHOLEWORD
-			matchCase = (flags & wx.FR_MATCHCASE) == wx.FR_MATCHCASE
-
-			currentPos = win.GetInsertionPoint()
-
-			if downwardSearch:
-				value = win.GetValue()[currentPos:]
-			else:
-				value = win.GetValue()[0:currentPos]
-				value = list(value)
-				value.reverse()
-				value = ''.join(value)
-				findString = list(findString)
-				findString.reverse()
-				findString = ''.join(findString)
-
-			if not matchCase:
-				value = value.lower()
-				findString = findString.lower()
-
-			result = value.find(findString)
-			if result >= 0:
+			try:
+				# SCT:
+				start = win.GetCurrentPos()
+				flags = 0
 				if downwardSearch:
-					win.SetSelection(currentPos+result, currentPos+result+len(findString))
+					finish = win.GetTextLength()
 				else:
-					win.SetSelection(currentPos-result, currentPos-result-len(findString))
-				win.ShowPosition(win.GetSelection()[1])
-			else:
-				dabo.infoLog.write("Not found")
+					finish = 0
+				pos = win.FindText(start, finish, findString, flags)
+				if pos > -1:
+					win.SetSelection(pos, pos+len(findString))
+				
+			except AttributeError:		
+				try: 
+					value = win.GetValue()
+				except AttributeError:
+					value = None
+				if type(value) not in (type(str()), type(unicode())):
+					dabo.errorLog.write("Active control isn't text-based.")
+					return
+
+
+				currentPos = win.GetInsertionPoint()
+
+				if downwardSearch:
+					value = win.GetValue()[currentPos:]
+				else:
+					value = win.GetValue()[0:currentPos]
+					value = list(value)
+					value.reverse()
+					value = ''.join(value)
+					findString = list(findString)
+					findString.reverse()
+					findString = ''.join(findString)
+
+				if not matchCase:
+					value = value.lower()
+					findString = findString.lower()
+
+				result = value.find(findString)
+				if result >= 0:
+					if downwardSearch:
+						win.SetSelection(currentPos+result, currentPos+result+len(findString))
+					else:
+						win.SetSelection(currentPos-result, currentPos-result-len(findString))
+					win.ShowPosition(win.GetSelection()[1])
+				else:
+					dabo.infoLog.write("Not found")
 
 
 	def onHelpAbout(self, evt):
