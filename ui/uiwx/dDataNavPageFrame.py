@@ -49,8 +49,7 @@ class dDataNavPageFrame(pgf.dPageFrame):
 		self.AddPage(self.BrowsePageClass(self), title, imageId=1)
 	
 	def addEditPage(self, ds=None, title="Edit"):
-		self.AddPage(self.EditPageClass(self, ds), title, imageId=2)
-
+		x = self.AddPage(self.EditPageClass(self, ds), title, imageId=2)
 		
 	def _getSelectPageClass(self):
 		try:

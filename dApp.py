@@ -417,31 +417,40 @@ class dApp(dabo.common.dObject):
 				dabo.infoLog.write(_("Tried to set UI to '%s', but it failed." % (uiType,)))
 		else:
 			raise RuntimeError, _("The UI cannot be reset once assigned.")
+
+
+	def _getActiveForm(self):
+		return self.uiApp.ActiveForm
+	def _setActiveForm(self, frm):
+		self.uiApp.ActiveForm = frm
+
 	
+	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
+			"Returns the form that currently has focus, or None.  (dForm)" )
 	
 	AutoNegotiateUniqueNames = property(_getAutoNegotiateUniqueNames,_setAutoNegotiateUniqueNames,
-						None, _("Specifies whether setting an object\'s name to a non-unique "
-						"value results in a unique integer being appended, or whether "
-						"a NameError is raised. Default is True: negotiate the name."))
+			None, _("Specifies whether setting an object\'s name to a non-unique "
+			"value results in a unique integer being appended, or whether "
+			"a NameError is raised. Default is True: negotiate the name."))
 
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
-		_("Specifies the home-base directory for the application's program files."))
+			_("Specifies the home-base directory for the application's program files."))
 		
 	MainForm = property(_getMainForm, _setMainForm, None,
-		_("The object reference to the main form of the application, or None. This gets "
-		"set automatically during application setup, based on the MainFormClass."))
+			_("The object reference to the main form of the application, or None. This gets "
+			"set automatically during application setup, based on the MainFormClass."))
 		
 	MainFormClass = property(_getMainFormClass, _setMainFormClass, None,
-		_("Specifies the class to use to instantiate the main form. Defaults to "
-		"the dFormMain base class. Set to None if you don't want a main form."))
+			_("Specifies the class to use to instantiate the main form. Defaults to "
+			"the dFormMain base class. Set to None if you don't want a main form."))
 		
 	UI = property(_getUI, _setUI,
-						None, _("Specifies the user interface to load, or None. "
-						"Once set, it cannot be reassigned."))
+			None, _("Specifies the user interface to load, or None. "
+			"Once set, it cannot be reassigned."))
 	
 	SecurityManager = property(_getSecurityManager, _setSecurityManager,
-						None, _("Specifies the Security Manager, if any. You "
-						"must subclass dSecurityManager, overriding the appropriate hooks "
-						"and properties, and then set dApp.SecurityManager to an instance "
-						"of your subclass. There is no security manager by default - you "
-						"explicitly set this to use Dabo security."))
+			None, _("Specifies the Security Manager, if any. You "
+			"must subclass dSecurityManager, overriding the appropriate hooks "
+			"and properties, and then set dApp.SecurityManager to an instance "
+			"of your subclass. There is no security manager by default - you "
+			"explicitly set this to use Dabo security."))

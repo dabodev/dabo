@@ -74,16 +74,13 @@ class dPemMixin(dPemMixinBase):
 			self.SetAcceleratorTable(wx.AcceleratorTable(self.acceleratorTable))
 		except:
 			pass
-		
 		self._initEvents()
 		self.initEvents()
-		
 		self.raiseEvent(dEvents.Create)
 
 		
 	def _initEvents(self):
 		# Bind wx events to handlers that re-raise the Dabo events:
-		
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
 		
 		self.Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)

@@ -35,7 +35,7 @@ class dDataNavForm(dForm.dForm):
 		self.rowCount = 0
 		
 
-	def afterInit(self):
+	def _afterInit(self):
 		dDataNavForm.doDefault()
 		if self.FormType == 'PickList':
 			# Map escape key to close the form
@@ -44,15 +44,19 @@ class dDataNavForm(dForm.dForm):
 			self.Bind(wx.EVT_MENU, self.Close, id=anId)
 
 			
-	def initEvents(self):
+	def _initEvents(self):
 		dDataNavForm.doDefault()
 		self.bindEvent(dEvents.Activate, self.__onActivate)
+		self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
 		
 							
 	def __onActivate(self, evt):
+		evt.Skip()
+		dDataNavForm.doDefault(evt)
 		if self.RequeryOnLoad and not self._requeried:
 			self._requeried = True
 			self.pageFrame.GetPage(0).requery()
+		
 		
 	def afterSetPrimaryBizobj(self):        
 		pass
@@ -119,7 +123,7 @@ class dDataNavForm(dForm.dForm):
 
 	def getMenu(self):
 		menu = dDataNavForm.doDefault()
-
+		
 		self._appendToMenu(menu, "Set Selection Criteria\tAlt+1", 
 						self.onSetSelectionCriteria, 
 						bitmap=dIcons.getIconBitmap("checkMark"))
@@ -129,15 +133,16 @@ class dDataNavForm(dForm.dForm):
 		self._appendToMenu(menu, "Edit Current Record\tAlt+3", 
 						self.onEditCurrentRecord, 
 						bitmap=dIcons.getIconBitmap("edit"))
-		
-		if self.FormType != 'PickList':
-			i = 4
-			for child in self.childViews:
-				self._appendToMenu(menu, "View %s\tAlt+%s" % (child['caption'], i) ,
-								self.onChildView, 
-								bitmap=dIcons.getIconBitmap("childview"),
-								menuId = child['menuId'])
-				i += 1
+
+# 		if self.FormType != 'PickList':
+# 			print "PICKLIST"
+# 			i = 4
+# 			for child in self.childViews:
+# 				self._appendToMenu(menu, "View %s\tAlt+%s" % (child['caption'], i) ,
+# 								self.onChildView, 
+# 								bitmap=dIcons.getIconBitmap("childview"),
+# 								menuId = child['menuId'])
+# 				i += 1
 			
 		menu.AppendSeparator()
 
@@ -188,8 +193,8 @@ class dDataNavForm(dForm.dForm):
 		frame receives the focus.
 		"""
 		mb = self.GetMenuBar()
-
 		menuIndex = mb.FindMenu("&Navigation")
+		
 		if menuIndex < 0:
 			menuIndex = mb.GetMenuCount()-1
 			if menuIndex < 0:
@@ -302,6 +307,24 @@ class dDataNavForm(dForm.dForm):
 		if not self.preview:
 			self.setupMenu()
 		self.afterCreation()
+	
+	
+	def setPrimaryBizobjToDefault(self, ds):
+		""" This method is called when we leave an editing page. The
+		intent is that if we move to another editing page, it will set the
+		form's primary bizobj to the appropriate one for that page, 
+		so we don't need to do anything. But if they switch to the 
+		browse or select page, we want to set the primary bizobj back
+		to the one for the form's main table.
+		"""
+		biz = self.getBizobj()
+		bizDS = biz.DataSource
+		if bizDS == ds:
+			# We didn't switch to another editing page, so reset it back
+			# to the main bizobj
+			if ds != self._mainTable:
+				# Don't reset if it it's already the main bizobj
+				self.setPrimaryBizobj(self._mainTable)
 		
 	
 	def beforeCreation(self):
@@ -337,7 +360,11 @@ class dDataNavForm(dForm.dForm):
 		self.RelationSpecs = specParser.importRelationSpecs(xmlFile)
 		primaryBizobj = self.getPrimaryBizobj()
 		# This will make sure all relations and sub-relations are set.
-		primaryBizobj.addChildByRelationDict(self.RelationSpecs, bizModule)
+		newBizobjs = primaryBizobj.addChildByRelationDict(self.RelationSpecs, 
+				bizModule)
+		# If we added any bizobjs, add them to the form's collection, too
+		for biz in newBizobjs:
+			self.addBizobj(biz)
 
 	
 	def onRequery(self, evt):

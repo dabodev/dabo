@@ -26,12 +26,11 @@ class dFormMixin(pm.dPemMixin):
 			self.Icon = wx.Icon(dabo.icons.getIconFileName('daboIcon048'), wx.BITMAP_TYPE_PNG)
 		
 				
-	def initEvents(self):
+	def _initEvents(self):
 		dFormMixin.doDefault()
 		# Bind wx events to handlers that re-raise the Dabo events:
 		self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
 		self.Bind(wx.EVT_CLOSE, self.__onWxClose)
-		
 		self.bindEvent(dEvents.Activate, self.__onActivate)
 		self.bindEvent(dEvents.Close, self.__onClose)
 	
@@ -51,6 +50,8 @@ class dFormMixin(pm.dPemMixin):
 	def __onActivate(self, evt): 
 		# Restore the saved size and position, which can't happen 
 		# in __init__ because we may not have our name yet.
+		evt.Skip()
+		
 		if not self.restoredSP:
 			self.restoreSizeAndPosition()
 		

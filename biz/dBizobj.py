@@ -414,12 +414,12 @@ class dBizobj(dabo.common.dObject):
 		self.afterDelete()
 
 
-	def deleteAll(self):
+	def deleteAll(self, startTransaction=False):
 		""" Delete all rows in the data set.
 		"""
 		while self.RowCount > 0:
 			self.first()
-			ret = self.delete()
+			ret = self.delete(startTransaction)
 	
 	
 	def getChangedRecordNumbers(self):
@@ -830,15 +830,19 @@ class dBizobj(dabo.common.dObject):
 		sure that the child bizobj is already added, or add it and set the 
 		relationship if it isn't. It then passes the dict on to the child to
 		allow the child to set up its relationships.
+		
+		Returns a list containing all added child bizobjs. The list will
+		be empty if none were added.
 		"""
+		addedChildren = []
 		if self.__relationDictSet:
 			# already done this...
-			return
+			return addedChildren
 		self.__relationDictSet = True
 		myRelations = [ dict[k] for k in dict.keys() 
 				if dict[k]['parent'].lower() == self.DataSource.lower() ]
 		if not myRelations:
-			return
+			return addedChildren
 		
 		for relation in myRelations:
 			# Each 'relation' is a dict with the following structure:
@@ -856,12 +860,15 @@ class dBizobj(dabo.common.dObject):
 				childBizClass = bizModule.__dict__["Biz" + child.title()]
 				childBiz = childBizClass(self._conn)
 				self.addChild(childBiz)
+				addedChildren.append(childBiz)
 				childBiz.LinkField = childField
 				if parentField != self.KeyField:
 					childBiz.ParentLinkField = parentField
 			# Now pass this on to the child
-			childBiz.addChildByRelationDict(dict, bizModule)
-
+			addedGrandChildren = childBiz.addChildByRelationDict(dict, bizModule)
+			for gc in addedGrandChildren:
+				addedChildren.append(gc)
+		return addedChildren
 	
 	def requeryAllChildren(self):
 		""" Requery each child bizobj's data set.

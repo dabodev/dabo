@@ -9,6 +9,8 @@ class uiApp(wx.App, dObject):
 		wx.App.__init__(self, 0, args)
 		dObject.__init__(self)
 		self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
+		# track the active form
+		self.__activeForm = None
 		
 		self.Name = "uiApp"
 		
@@ -72,50 +74,52 @@ class uiApp(wx.App, dObject):
 		# Some controls (stc...) have Cut(), Copy(), Paste() methods,
 		# while others do not. Try these methods first, but fall back
 		# to interacting with wx.TheClipboard if necessary.
-		win = wx.GetActiveWindow().FindFocus()
-		try:
-			if cut:
-				win.Cut()
-			else:
-				win.Copy()
-				
-		except AttributeError:
+		if self.ActiveForm:
+			win = self.ActiveForm.FindFocus()
 			try:
-				selectedText = win.GetStringSelection()
-			except AttributeError:
-				selectedText = None
-
-			if selectedText:
-				data = wx.TextDataObject()
-				data.SetText(selectedText)
-				cb = wx.TheClipboard
-				cb.Open()
-				cb.SetData(data)
-				cb.Close()
-
 				if cut:
-					win.Remove(win.GetSelection()[0], win.GetSelection()[1])
+					win.Cut()
+				else:
+					win.Copy()
+					
+			except AttributeError:
+				try:
+					selectedText = win.GetStringSelection()
+				except AttributeError:
+					selectedText = None
+	
+				if selectedText:
+					data = wx.TextDataObject()
+					data.SetText(selectedText)
+					cb = wx.TheClipboard
+					cb.Open()
+					cb.SetData(data)
+					cb.Close()
+	
+					if cut:
+						win.Remove(win.GetSelection()[0], win.GetSelection()[1])
 
 
 	def onEditPaste(self, evt):
-		win = wx.GetActiveWindow().FindFocus()
-		try:
-			win.Paste()
-		except AttributeError:
-		
+		if self.ActiveForm:
+			win = self.ActiveForm.FindFocus()
 			try:
-				selection = win.GetSelection()
+				win.Paste()
 			except AttributeError:
-				selection = None
-
-			if selection != None:
-				data = wx.TextDataObject()
-				cb = wx.TheClipboard
-				cb.Open()
-				success = cb.GetData(data)
-				cb.Close() 
-				if success: 
-					win.Replace(selection[0], selection[1], data.GetText())
+			
+				try:
+					selection = win.GetSelection()
+				except AttributeError:
+					selection = None
+	
+				if selection != None:
+					data = wx.TextDataObject()
+					cb = wx.TheClipboard
+					cb.Open()
+					success = cb.GetData(data)
+					cb.Close() 
+					if success: 
+						win.Replace(selection[0], selection[1], data.GetText())
 		
 
 	def onEditPreferences(self, evt):
@@ -123,46 +127,49 @@ class uiApp(wx.App, dObject):
 
 
 	def onEditUndo(self, evt):
-		win = wx.GetActiveWindow().FindFocus()
-		try:
-			win.Undo()
-		except AttributeError:
-			dabo.errorLog.write("No apparent way to undo.")
-
+		if self.ActiveForm:
+			win = self.ActiveForm.FindFocus()
+			try:
+				win.Undo()
+			except AttributeError:
+				dabo.errorLog.write("No apparent way to undo.")
+	
 
 	def onEditRedo(self, evt):
-		win = wx.GetActiveWindow().FindFocus()
-		try:
-			win.Redo()
-		except AttributeError:
-			dabo.errorLog.write("No apparent way to redo.")
+		if self.ActiveForm:
+			win = self.ActiveForm.FindFocus()
+			try:
+				win.Redo()
+			except AttributeError:
+				dabo.errorLog.write("No apparent way to redo.")
 
 
 	def onEditFind(self, evt):
 		""" Display a Find dialog. 
 		"""
-		win = wx.GetActiveWindow().FindFocus()
-		if win:
-			self.findWindow = win           # Save reference for use by self.OnFind()
-
-			try:
-				data = self.findReplaceData
-			except AttributeError:
-				data = wx.FindReplaceData(wx.FR_DOWN)
-				self.findReplaceData = data
-			dlg = wx.FindReplaceDialog(win, data, "Find")
-			
-			# Map enter key to find button:
-			anId = wx.NewId()
-			dlg.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, wx.WXK_RETURN, anId),]))
-			dlg.Bind(wx.EVT_MENU, self.onEnterInFindDialog, id=anId)
-
-			dlg.Bind(wx.EVT_FIND, self.OnFind)
-			dlg.Bind(wx.EVT_FIND_NEXT, self.OnFind)
-			dlg.Bind(wx.EVT_CLOSE, self.OnFindClose)
-
-			dlg.Show()
-#- 			self.findDialog = dlg
+		if self.ActiveForm:
+			win = self.ActiveForm.FindFocus()
+			if win:
+				self.findWindow = win           # Save reference for use by self.OnFind()
+	
+				try:
+					data = self.findReplaceData
+				except AttributeError:
+					data = wx.FindReplaceData(wx.FR_DOWN)
+					self.findReplaceData = data
+				dlg = wx.FindReplaceDialog(win, data, "Find")
+				
+				# Map enter key to find button:
+				anId = wx.NewId()
+				dlg.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, wx.WXK_RETURN, anId),]))
+				dlg.Bind(wx.EVT_MENU, self.onEnterInFindDialog, id=anId)
+	
+				dlg.Bind(wx.EVT_FIND, self.OnFind)
+				dlg.Bind(wx.EVT_FIND_NEXT, self.OnFind)
+				dlg.Bind(wx.EVT_CLOSE, self.OnFindClose)
+	
+				dlg.Show()
+	#- 			self.findDialog = dlg
 			
 	
 	def onEnterInFindDialog(self, evt):
@@ -285,4 +292,11 @@ class uiApp(wx.App, dObject):
 		self.loginDialog = ld
 		return user, password
 
+	def _getActiveForm(self):
+		return self.__activeForm
+	def _setActiveForm(self, frm):
+		self.__activeForm = frm
 	
+	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
+			"Returns the form that currently has focus, or None.  (dForm)" )
+

@@ -71,6 +71,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		
 		if self.Application is not None:
 			self.Application.uiForms.add(self)
+		
+		self.bindEvent(dEvents.Activate, self.__onActivate)
+		self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
 
 		self._afterInit()                      # defined in dPemMixin
 
@@ -482,6 +485,14 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			except AttributeError:
 				# controlWithFocus may not be data-aware
 				pass
+	
+	def __onActivate(self, evt):
+		self.Application.ActiveForm = self
+		evt.Skip()
+	
+	def __onDeactivate(self, evt):
+		if self.Application.ActiveForm == self:
+			self.Application.ActiveForm = None
 
 
 	# Property get/set/del functions follow.

@@ -329,7 +329,8 @@ class dDataNavGrid(dGrid.dGrid):
 	def fillGrid(self, redraw=False):
 		""" Refresh the grid to match the data in the bizobj.
 		"""
-
+		# Save the focus, if any
+		currFocus = self.FindFocus()
 		# Get the default row size from dApp's user settings
 		s = self.Application.getUserSetting("%s.%s.%s" % (
 				self.Form.Name, 
@@ -356,6 +357,10 @@ class dDataNavGrid(dGrid.dGrid):
 				self.MakeCellVisible(row, col)
 				self.MakeCellVisible(row, col)
 			self.SetGridCursor(row, col)
+		if currFocus is not None:
+			try:
+				currFocus.SetFocus()
+			except: pass
 
 
 	def setBizobj(self, biz):
