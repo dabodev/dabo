@@ -1,24 +1,23 @@
-''' dFormDataNav.py
+from dForm import dForm
+from dPageFrame import dPageFrame
+from dPage import *
+from dabo.db.dSqlBuilderMixin import dSqlBuilderMixin
+import dIcons
 
-    This is a dForm but with the following added controls:
+class dFormDataNav(dForm):
+    ''' This is a dForm but with the following added controls:
         + Navigation Menu
         + Navigation ToolBar
         + PageFrame with 3 pages by default:
             + Select : Enter sql-select criteria.
             + Browse : Browse the result set and pick an item to edit.
             + Edit   : Edit the current record in the result set.
-
-'''
-from dForm import dForm
-from dPageFrame import dPageFrame
-from dPage import *
-import dIcons
-
-class dFormDataNav(dForm):
+    '''
     def __init__(self, parent=None, name="dFormDataNav", resourceString=None):
         dForm.__init__(self, parent, name, resourceString)
         
         self._columnDefs = {}
+        self.sqlBuilder = dSqlBuilderMixin()
     
     def afterSetPrimaryBizobj(self):        
         self.setupToolBar()
@@ -118,11 +117,10 @@ class dFormDataNav(dForm):
         
         
     def setupMenu(self):
-        ''' dFormDataNav.setupMenu() -> None
+        ''' Set up the navigation menu for this frame.
         
-            Called whenever the primary bizobj is set or whenever this
-            frame receives the focus. Sets up the navigation menu for
-            this frame.
+        Called whenever the primary bizobj is set or whenever this
+        frame receives the focus.
         '''
         if isinstance(self, wx.MDIChildFrame):
             # Attach the menu to the main frame
@@ -143,13 +141,12 @@ class dFormDataNav(dForm):
             
                 
     def setupPageFrame(self):
-        ''' dFormDataNav.setupPageFrame() -> 
+        ''' Set up the select/browse/edit/n pageframe.
         
-            Default behavior is to set up a 3-page pageframe
-            with 'Select', 'Browse', and 'Edit' pages.
-            User may override and/or extend in subclasses
-            and overriding self.beforeSetupPageFrame(), 
-            self.setupPageFrame, and/or self.afterSetupPageFrame().
+        Default behavior is to set up a 3-page pageframe with 'Select', 
+        'Browse', and 'Edit' pages. User may override and/or extend in 
+        subclasses and overriding self.beforeSetupPageFrame(), 
+        self.setupPageFrame, and/or self.afterSetupPageFrame().
         '''
         if self.beforeSetupPageFrame():
             self.pageFrame = dPageFrame(self)
@@ -161,69 +158,83 @@ class dFormDataNav(dForm):
     def afterSetupPageFrame(self): pass
 
     def onSetSelectionCriteria(self, event):
+        ''' Occurs when the user chooses to set the selection criteria.
+        '''
         self.pageFrame.SetSelection(0)
         
     def onBrowseRecords(self, event):
+        ''' Occurs when the user chooses to browse the record set.
+        '''
         self.pageFrame.SetSelection(1)
         
     def onEditCurrentRecord(self, event):
+        ''' Occurs when the user chooses to edit the current record.
+        '''
         self.pageFrame.SetSelection(2)
             
+    
     def getColumnDefs(self, dataSource):
-        ''' dFormDataNav.getColumnDefs(string dataSource) -> list of dictionaries
+        ''' Get the column definitions for the given data source.
         
-            Return the column definitions for the given dataSource,
-            or an empty list if not found. Each item in the list represents
-            a column, with the following keys defining column behavior:
+        The column definitions provide information to the data navigation
+        form to smartly construct the SQL statement, the browse grid, and 
+        the edit form.
+        
+        Return the column definitions for the given dataSource,
+        or an empty list if not found. Each item in the list represents
+        a column, with the following keys defining column behavior:
             
-                'name'        : The field name in the bizobj.
-                                (string) (required)
+            'tableName'   : The table name that contains the field.
+                            (string) (required)
+                            
+            'fieldName'   : The field name in the bizobj.
+                            (string) (required)
                                 
-                'caption'     : The column header caption - used in the browse 
-                                grid and as a default label for the items in 
-                                the edit page. 
-                                (string) (default: 'name')
+            'caption'     : The column header caption - used in the browse 
+                            grid and as a default label for the items in 
+                            the edit page. 
+                            (string) (default: 'name')
                                 
-                'type'        : The data type in FoxPro notation (C,I,N,D,T) 
-                                (char) (Required)
+            'type'        : The data type in xBase notation (C,I,N,D,T) 
+                            (char) (Required)
                               
-                'showGrid'    : Show column in the browse grid?
-                                (boolean) (default: True)
+            'showGrid'    : Show column in the browse grid?
+                            (boolean) (default: True)
                                 
-                'showEdit'    : Show field in the edit page?
-                                (boolean) (default: True)
+            'showEdit'    : Show field in the edit page?
+                            (boolean) (default: True)
                                 
-                'editEdit'    : Allow editing of the field in the edit page?
-                                (boolean) (default: True)
+            'editEdit'    : Allow editing of the field in the edit page?
+                            (boolean) (default: True)
                                 
-                'selectTypes' : List of types of select queries that can be run
-                                for the field. If supplied, the field will have
-                                input field(s) automatically set up in the 
-                                pageframe's select page, so the user can enter
-                                the criteria. If not supplied, the user will not
-                                automatically be able to enter selection criteria.
-                                (list) (default: fields with 'C' will get an entry
-                                for selectType of 'stringMatchAll')
+            'selectTypes' : List of types of select queries that can be run
+                            for the field. If supplied, the field will have
+                            input field(s) automatically set up in the 
+                            pageframe's select page, so the user can enter
+                            the criteria. If not supplied, the user will not
+                            automatically be able to enter selection criteria.
+                            (list) (default: fields with 'C' will get an entry
+                            for selectType of 'stringMatchAll')
                                 
-                                The currently-supported selectTypes are:
+                            The currently-supported selectTypes are:
                                 
-                                    + range: allow user to specify a high and a
-                                             low value.
+                                + range: allow user to specify a high and a
+                                         low value.
                                              
-                                    + value: user sets an explicit value.
+                                + value: user sets an explicit value.
                                     
-                                    + stringMatch: user enters a string, and the field
-                                                   is searched for occurances of that
-                                                   string (SQL LIKE with '%' appended
-                                                   and prepended).
+                                + stringMatch: user enters a string, and the field
+                                               is searched for occurances of that
+                                               string (SQL LIKE with '%' appended
+                                               and prepended).
                                                    
-                                    + stringMatchAll: Like stringMatch but instead of
-                                                      the data field getting its own
-                                                      input field, all data fields with
-                                                      stringMatchAll share one input
-                                                      field on the select page.
+                                + stringMatchAll: Like stringMatch but instead of
+                                                  the data field getting its own
+                                                  input field, all data fields with
+                                                  stringMatchAll share one input
+                                                  field on the select page.
                                                       
-            Use dformDataNav.setColumnDefs() to set the definitions.
+        Use dformDataNav.setColumnDefs() to set the definitions.
         '''
         try:
             columnDefs = self._columnDefs[dataSource]
@@ -233,23 +244,22 @@ class dFormDataNav(dForm):
 
                 
     def setColumnDefs(self, dataSource, columnDefs):
-        ''' dForm.setColumnDefs(string, list) -> None
+        ''' Set the grid column definitions for the given data source.
         
-            Set the grid column definitions for the given dataSource.
-            See getGridColumnDefs for more explanation.
+        See getGridColumnDefs for more explanation.
         ''' 
         
         # Make sure unspecified items get default values or if 
         # the item is required don't set the columndefs.
         for column in columnDefs:
-            if not column.has_key('name'):
-                print "ColumnDef must include a name."
-                return False
+            if not column.has_key('tableName'):
+                raise KeyError, "Column definition must include a table name."
+            if not column.has_key('fieldName'):
+                raise KeyError, "Column definition must include a field name."
             if not column.has_key('caption'):
                 column['caption'] = column['name']
             if not column.has_key('type'):
-                print "ColumnDef must include a data type."
-                return False
+                raise KeyError, "Column definition must include a data type."
             if not column.has_key('showGrid'):
                 column['showGrid'] = True
             if not column.has_key('showEdit'):
@@ -264,7 +274,17 @@ class dFormDataNav(dForm):
         
         self._columnDefs[dataSource] = columnDefs
         
+        
     def OnSetFocus(self, event):
+        ''' Occurs when the form receives the focus.
+        
+        For dFormDataNav, the toolbar and menu need to be set up.
+        '''
         if isinstance(self, wx.MDIChildFrame):
             self.setupToolBar()
             self.setupMenu()
+
+            
+    def requery(self):
+        self.setSQL(self.sqlBuilder.getSQL())
+        dForm.requery(self)

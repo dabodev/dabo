@@ -1,14 +1,12 @@
 ''' dAbout.py
 
-    About screen.
-
+About screen.
 '''
 import sys
 
 import wx
 import wx.html
 import wx.lib.wxpTag
-#from dForm import dForm
 
 class dAbout(wx.Dialog):
     text = '''

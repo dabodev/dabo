@@ -17,19 +17,18 @@ class dMemento(object):
         
 
     def isChanged(self, newvals):
-        """ 
-        Returns a boolean value, depending on whether or not 
-        the passed dictionary of values is identical to the current snapshot.
-        """
+        ''' Return True if the snapshot does not match the passed dictionary.
+        '''
         return (self.__snapshot != newvals)
 
 
     def getOrigVal(self, fld):
-        """ Given a field name, returns the values saved in the snapshot """
-        ret = None
-        if self.__snapshot.has_key(fld):
-            ret = self.__snapshot[fld]
-        return ret
+        ''' Get the original value of the passed field name.
+        '''
+        try:
+            return self.__snapshot[fld]
+        except KeyError:
+            return None
         
         
     def getSnapshot(self):
@@ -38,13 +37,15 @@ class dMemento(object):
         
     
     def makeDiff(self, newvals, isNewRecord=False):
-        """ 
-        The idea here is to create a dictionary containing just the values 
-        that have changed in the newvals dict., as compared to the snapshot. 
+        ''' Get the changed values compared with the snapshot.
+         
+        Create a dictionary containing just the values that have changed in the
+        newvals dict., as compared to the snapshot.
+         
         Since the purpose of the memento is to compare different states of a
         data record, it is assumed that the keys are always going to be the same
         in both. 
-        """
+        '''
         ret = {}
         for kk, vv in newvals.items():
             if kk == k.CURSOR_MEMENTO:

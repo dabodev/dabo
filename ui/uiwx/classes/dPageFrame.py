@@ -10,15 +10,16 @@ class dPageFrame(wx.Notebook, dControlMixin):
         self.lastSelection = 0
         self.addDefaultPages()        
 
+        
     def initEvents(self):
         dControlMixin.initEvents(self)
         wx.EVT_NOTEBOOK_PAGE_CHANGED(self, self.GetId(), self.OnPageChanged)
 
+        
     def addDefaultPages(self):
-        ''' dPageFrame.addDefaultPages() -> None
-         
-            Add the standard pages, plus the childview page(s)
-            if there are any. Subclasses may override or extend.
+        ''' Add the standard pages to the pageframe.
+        
+        Subclasses may override or extend.
         '''
         il = wx.ImageList(16,16)
         il.Add(dIcons.getIconBitmap("checkMark"))
@@ -29,6 +30,7 @@ class dPageFrame(wx.Notebook, dControlMixin):
         self.AddPage(dSelectPage(self), "Select", imageId=0)
         self.AddPage(dBrowsePage(self), "Browse", imageId=1)
         self.AddPage(dEditPage(self), "Edit", imageId=2)
+        
         
     def OnPageChanged(self, event):
         ls = self.lastSelection
@@ -43,5 +45,3 @@ class dPageFrame(wx.Notebook, dControlMixin):
         newPage.onEnterPage()
         
         self.lastSelection = cs
-
-

@@ -19,47 +19,34 @@ class dPage(wx.Panel, dControlMixin):
         self.itemsFilled = False
         
     def initSizer(self):
-        ''' dPage.initSizer() -> None
-        
-            Sets up the default sizer for the page, which is
-            a vertical box sizer. Override if you want something
-            different.
+        ''' Set up the default vertical box sizer for the page.
         '''
         self.SetSizer(wx.BoxSizer(wx.VERTICAL))
         
     def fillItems(self):
-        ''' dPage.fillItems() -> None
+        ''' Fill the controls in the page.
         
-            Called when it is time to add items to the page (when the
-            page first becomes active).
+        Called when the page is entered.
         '''
         pass
         
     def onEnterPage(self):
-        ''' dPage.onEnterPage() -> None
-        
-            This method gets called when this page becomes the 
-            active page.
+        ''' Occurs when this page becomes the active page.
         '''
         if not self.itemsFilled:
             self.fillItems()
             self.itemsFilled = True
         
     def onLeavePage(self):
-        ''' dPage.onLeavePage() -> None
-            
-            This method gets called when this page was the active
-            page but another page will become the active page.
+        ''' Occurs when this page will no longer be the active page.
         '''
         pass
         
     def onValueRefresh(self, event):
-        ''' dPage.onValueRefresh(event) -> None
+        ''' Occurs when the dForm asks dControls to refresh themselves.
         
-            This method gets called when an event is received from
-            dForm that controls need to refresh their values. While
-            dPage isn't a data-aware control, this may be useful
-            information to act on.
+        While dPage isn't a data-aware control, this may be useful information
+        to act upon.
         '''
         event.Skip()
     
@@ -106,11 +93,12 @@ class dBrowsePage(dPage):
     def editRecord(self):
         # Called by the grid: user wants to edit the current row
         self.GetParent().SetSelection(2)
-        
+
+                
 class dEditPage(dPage):
     def onEnterPage(self):
-        self.onValueRefresh()
         dPage.onEnterPage(self)
+        self.onValueRefresh()
 
     def onValueRefresh(self, event=None):
         form = self.getDform()
@@ -121,17 +109,13 @@ class dEditPage(dPage):
             self.Enable(False)
         
     def fillItems(self):
-        try:
-            dataSource = self.getDform().getBizobj().dataSource
-        except (NameError, AttributeError):
-            return
-            
+        dataSource = self.getDform().getBizobj().dataSource
         columnDefs = self.getDform().getColumnDefs(dataSource)
             
         for column in columnDefs:
             
             if column["showEdit"] == True:
-                fieldName = column["name"]
+                fieldName = column["fieldName"]
                 labelCaption = "%s:" % column["caption"]
                 fieldType = column["type"]
                 fieldEnabled = column["editEdit"]
@@ -157,9 +141,12 @@ class dEditPage(dPage):
                     classRef = dTextBox
                 
                 objectRef = classRef(self)
-                objectRef.Enable(fieldEnabled)
+                objectRef.SetName(fieldName)
                 objectRef.dataSource = dataSource
                 objectRef.dataField = fieldName
+                objectRef.Enable(fieldEnabled)
+                if self.getDform().getBizobj().getRowCount() >= 0:
+                    objectRef.refresh()
 
                 if fieldType in ["M",]:
                     expandFlags = wx.EXPAND
@@ -168,8 +155,6 @@ class dEditPage(dPage):
                 bs.Add(label)
                 bs.Add(objectRef, 1, expandFlags|wx.ALL, 0)
                         
-                objectRef.SetName(fieldName)
-                
                 if fieldType in ["M",]:
                     self.GetSizer().Add(bs, 1, wx.EXPAND)
                 else:

@@ -1,11 +1,11 @@
-''' dabo.db : The lowest tier, db access. This is where the communication
-              to and from the backend database happens, and cursors get
-              generated to be manipulated by the bizobj's in dabo.biz.
+''' dabo.db is the lowest tier, db access. 
 
-              dabo.biz.dBiz is the entity that will interact with this
-              dabo.db stuff, but you can also work with dabo.db directly
-              if you want. Perhaps you just want to read some rows from
-              a backend database in a script. Here's an example of that:
+This is where the communication to and from the backend database happens, and
+cursors get generated to be manipulated by the bizobj's in dabo.biz.
+
+dabo.biz.dBiz is the entity that will interact with this dabo.db stuff, but you
+can also work with dabo.db directly if you want. Perhaps you just want to read 
+some rows from a backend database in a script. Here's an example of that:
 
     from connectInfo import ConnectInfo
     from dConnection import dConnection

@@ -1,8 +1,8 @@
 # Unneeded.
 
 class dConnection(object):
-    ''' Hold a connection to a backend database. '''
-    
+    ''' Hold a connection to a backend database. 
+    '''
     def __init__(self, connectInfo, parent=None):
         # Store a reference to the parent object (bizobj maybe; app 
         # object connection collection most likely)

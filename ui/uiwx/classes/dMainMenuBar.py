@@ -1,15 +1,15 @@
 """ dMainMenuBar.py
 
-    This module contains the class definitions and logic to build
-    the main menu for all platforms. There are special needs for
-    complying with Apple's Human Interface Guidelines, for instance.
-    Also, some submenus, such as File|Open, get built dynamically
-    based on menu definition files in your custom app directory
-    hierarchy. The code here handles all that for you. 
+This module contains the class definitions and logic to build
+the main menu for all platforms. There are special needs for
+complying with Apple's Human Interface Guidelines, for instance.
+Also, some submenus, such as File|Open, get built dynamically
+based on menu definition files in your custom app directory
+hierarchy. The code here handles all that for you. 
     
-    ToDo: make these classes easily subclassable by the custom
-    app developer, so certain behavior can be overridden and/or
-    extended.
+ToDo: make these classes easily subclassable by the custom
+app developer, so certain behavior can be overridden and/or
+extended.
 """
 import wx, os
 from dMenu import dMenu

@@ -1,15 +1,16 @@
 import dBackend
 
 class dConnectInfo(object):
-    ''' Holder for the properties for connecting to the backend 
+    ''' Holder for the properties for connecting to the backend.
+    
+    Each backend may have different names for properties, but this object
+    tries to abstract that.
     
         ci = ConnectInfo('MySQL')
         ci.host = 'domain.com'
         ci.user = 'dabo'
         ci.password = 'dabo'
-        
     '''
-    
     def __init__(self, backendName=None, host=None, user=None, 
                     password=None, dbName=None, port=None):
         
@@ -33,9 +34,9 @@ class dConnectInfo(object):
         return self._backendName
     
     def setBackendName(self, backendName):
-        ''' Only set the backend name if valid,
-            and also set self._backendObject to  
-            the correct backend instance.
+        ''' Set the backend type for the connection.
+        
+        Only sets the backend name if valid.
         '''
         try:
             backendObject = eval("dBackend.%s()" % backendName)

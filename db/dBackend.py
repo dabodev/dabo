@@ -1,15 +1,14 @@
 ''' dabo.db.backend.py : abstractions for the various db api's '''
 
 class dBackend(object):
-    ''' Abstract object: inherit from this to define new dabo db interfaces '''
-    
+    ''' Abstract object: inherit from this to define new dabo db interfaces.
+    '''
     def __init__(self):
         object.__init__(self)
         self.dbModuleName = None
     
     def isValidModule(self):
-        ''' Test the dbapi to see if it is supported on this
-            computer. 
+        ''' Test the dbapi to see if it is supported on this computer. 
         '''
         try:
             exec("import %s as dbapi" % self.dbModuleName)

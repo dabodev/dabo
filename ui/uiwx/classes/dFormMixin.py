@@ -26,17 +26,14 @@ class dFormMixin:
     
             
     def getMenu(self):
-        ''' dFormMixin.getMenu() -> dMenu instance
+        ''' Get the navigation menu for this form.
         
-            Every form maintains an internal menu of
-            actions appropriate to itself. For instance,
-            a dForm with a primary bizobj will maintain
-            a menu with 'requery', 'save', 'next', etc.
-            choices. 
+        Every form maintains an internal menu of actions appropriate to itself.
+        For instance, a dForm with a primary bizobj will maintain a menu with 
+        'requery', 'save', 'next', etc. choices. 
             
-            This function sets up the internal menu, which
-            can optionally be inserted into the mainForm's
-            menu bar during SetFocus.
+        This function sets up the internal menu, which can optionally be 
+        inserted into the mainForm's menu bar during SetFocus.
         '''
         menu = dMenu()
         return menu
@@ -55,10 +52,10 @@ class dFormMixin:
     
         
     def restoreSizeAndPosition(self):
-        ''' dFormMixin.restoreSizeAndPosition() -> None
+        ''' Restore the saved window geometry for this form.
         
-            Ask dApp for the last saved setting of height, width,
-            left, and top, and apply them to this form.
+        Ask dApp for the last saved setting of height, width, left, and top, 
+        and set those properties on this form.
         '''
         if self.dApp:
             name = self.GetName()
@@ -74,10 +71,7 @@ class dFormMixin:
                 self.SetSize((width,height))
         
     def saveSizeAndPosition(self):
-        ''' dFormMixin.saveSizeAndPosition() -> None
-        
-            Ask dApp to save the current size and position of
-            this form.
+        ''' Save the current size and position of this form.
         '''
         if self.dApp:
             if self == wx.GetApp().GetTopWindow():
@@ -98,16 +92,18 @@ class dFormMixin:
             self.dApp.setUserSetting("%s.height" % name, "I", size[1])
         
     def setStatusText(self, *args):
-        ''' dFormMixin.setStatusText(*args)
+        ''' Set the text of the status bar.
 
-            Call this instead of SetStatusText() and dabo will decide
-            whether to send the text to the main frame or this frame.
+        Call this instead of SetStatusText() and dabo will decide whether to 
+        send the text to the main frame or this frame. This matters with MDI
+        versus non-MDI forms.
         '''
         if isinstance(self, wx.MDIChildFrame):
             controllingFrame = self.dApp.mainFrame
         else:
             controllingFrame = self
         controllingFrame.SetStatusText(*args)
+        controllingFrame.GetStatusBar().Update()
 
         
     def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap):

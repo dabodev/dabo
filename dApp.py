@@ -176,8 +176,6 @@ class dApp(object):
 	    '''
         import ConfigParser
         
-        print "get", item
-        
         configFileName = '%s/.userSettings.ini' % self.homeDir
 
         cp = ConfigParser.ConfigParser()
@@ -208,7 +206,6 @@ class dApp(object):
             item, user, and systemid passed. If it doesn't exist in the table,
             add it. See self.getUserSetting() for the type codes. 
         '''
-        print "set", item, valueType, value
         # For now, save this info in a plain ini file. Eventually, I'd like
         # to see this get saved in a persistent dabosettings db table.
         import ConfigParser

@@ -407,7 +407,13 @@ class dBizobj(object):
         self.afterNew(ret)
         return ret
     
-    
+        
+    def getSQL(self):
+        ''' Get the current SQL.
+        '''
+        return self.sql
+        
+        
     def setSQL(self, sql):
         """ Allows you to change the sql executed by the cursor """
         self.sql = sql

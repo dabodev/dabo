@@ -1,8 +1,7 @@
 ''' Dabo Base Classes for wx
 
-    This is a subpackage of Dabo, and contains
-    all the base classes of the framework, both
-    visual and non-visual, for the wx ui.
+This is a subpackage of Dabo, and contains all the base classes of the 
+framework, both visual and non-visual, for the wx ui.
 '''
 
 # Import into private namespace:

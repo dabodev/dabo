@@ -1,93 +1,149 @@
 import dabo.dConstants as k
 
 class dSqlBuilderMixin:
-    """ 
-    The following properties are used to create SQL statements
-    in a programmatic fashion
-    """
+    ''' Create SQL statements in a programmatic fashion.
+    '''
+    def __init__(self):
+        self._fieldClause = ""
+        self._fromClause = ""
+        self._whereClause = ""
+        self._groupByClause = ""
+        self._orderByClause = ""
+        self._limitClause = ""
+        self._defaultLimit = 1000
 
-    sqlfields = ""
-    sqlfrom = ""
-    sqlwhere = ""
-    sqlgroupby = ""
-    sqlorderby = ""
-    sqllimit = ""
-    defaultLimit = 1000
+    
+    def getFieldClause(self):
+        ''' Get the field clause of the sql statement.
+        '''
+        return self._fieldClause
+        
+    def setFieldClause(self, clause):
+        ''' Set the field clause of the sql statement.
+        '''
+        self._fieldClause = clause
 
-    def setFieldList(self, fldlist):
-        self.sqlfields = fldlist
+    def addField(self, exp):
+        ''' Add a field to the field clause.
+        '''
+        if self._fieldClause:
+            self._fieldClause = "%s,\n       " % self._fieldClause
+        self._fieldClause += exp
 
-    def addField(self, fld):
-        if self.sqlfields:
-            self.sqlfields = ",".join((self.sqlfields, fld))
+    
+    def getFromClause(self):
+        ''' Get the from clause of the sql statement.
+        '''
+        return self._fromClause
+                
+    def setFromClause(self, clause):
+        ''' Set the from clause of the sql statement.
+        '''
+        self._fromClause = clause
+
+    def addFrom(self, exp):
+        ''' Add a table to the sql statement.
+        
+        For joins, use setFromClause() to set the entire from clause
+        explicitly.
+        '''
+        if self._fromClause:
+            self._fromClause = "%s,\n    " % self._fromClause
+        self._fromClause += exp
+
+            
+    def getWhereClause(self):
+        ''' Get the where clause of the sql statement.
+        '''
+        
+    def setWhereClause(self, clause):
+        ''' Set the where clause of the sql statement.
+        '''
+        self._whereClause = clause
+
+    def addWhere(self, exp, comp="and"):
+        ''' Add an expression to the where clause.
+        '''
+        if self._whereClause:
+            self._whereClause = "%s\n    %s " % (self._whereClause, comp)
+        self._whereClause += exp
+
+        
+    def getGroupByClause(self):
+        ''' Get the group-by clause of the sql statement.
+        '''
+        
+    def setGroupByClause(self, clause):
+        ''' Set the group-by clause of the sql statement.
+        '''
+        self._groupByClause = clause
+
+    def addGroupBy(self, exp):
+        ''' Add an expression to the group-by clause.
+        '''
+        if self._groupByClause:
+            self._groupByClause = "%s,\n    " % self._groupByClause
+        self._groupByClause += exp
+
+        
+    def getOrderByClause(self):
+        ''' Get the order-by clause of the sql statement.
+        '''
+        
+    def setOrderByClause(self, clause):
+        ''' Set the order-by clause of the sql statement.
+        '''
+        self._orderByClause = clause
+    
+    def addOrderBy(self, exp):
+        ''' Add an expression to the order-by clause.
+        '''
+        if self._orderByClause:
+            self._orderByClause = "%s,\n    " % self._orderByClause
+        self._orderByClause += exp
+
+            
+    def getLimitClause(self):
+        ''' Get the limit clause of the sql statement.
+        '''
+        
+    def setLimitClause(self, clause):
+        ''' Set the limit clause of the sql statement.
+        '''
+        self._limitClause = clause
+    
+    
+    def getSQL(self):
+        ''' Get the complete SQL statement from all the parts.
+        '''
+        fieldClause = self._fieldClause
+        fromClause = self._fromClause
+        whereClause = self._whereClause
+        groupByClause = self._groupByClause
+        orderByClause = self._orderByClause
+        limitClause = self._limitClause
+        
+        if not fieldClause:
+            fieldClause = "*"
+        fieldClause = 'select %s\n' % fieldClause
+        
+        if fromClause: 
+            fromClause = '  from %s\n' % fromClause
+        if whereClause:
+            whereClause = ' where %s\n' % whereClause
+        if groupByClause:
+            groupByClause = ' group by %s\n' % groupByClause
+        if orderByClause:
+            orderByClause = ' order by %s\n' % orderByClause            
+        if limitClause:
+            limitClause = ' limit %s' % limitClause
         else:
-            self.sqlfields = fld
+            limitClause = ' limit %s' % self._defaultLimit
+            
+        return "%s%s%s%s%s%s" % (fieldClause, fromClause, whereClause, 
+                                 groupByClause, orderByClause, limitClause)
+               
 
-    def setFrom(self, fromspec):
-        self.sqlfrom = fromspec
-
-    def addFrom(self, fromspec):
-        if self.sqlfrom:
-            self.sqlfrom = ",".join((self.sqlfrom, fromspec))
-        else:
-            self.sqlfrom = fromspec
-
-    def setWhere(self, clause):
-        self.sqlwhere = clause
-
-    def addWhere(self, clause, andor="and"):
-        if self.sqlwhere:
-            self.sqlwhere += " " + andor + " " 
-        self.sqlwhere += clause
-
-    def setGroupBy(self, grp):
-        self.groupby = grp
-
-    def addGroupBy(self, grp):
-        if self.sqlgroupby:
-            self.sqlgroupby = ",".join((self.sqlgroupby, grp))
-        else:
-            self.sqlgroupby = grp
-
-    def setOrderBy(self, ord):
-        self.sqlorderby = ord
-
-    def addOrderBy(self, ord, desc=False):
-        if self.sqlorderby:
-            self.sqlorderby = ",".join((self.sqlorderby, ord))
-        else:
-            self.sqlorderby = ord
-        if desc:
-            self.sqlorderby += " DESC "
-
-    def setLimit(self, limit):
-        self.sqllimit = limit
-
-    def createSQL(self):
-        ret = ""
-        if not self.sqlfrom: return ret
-
-        if self.sqlfields:
-            ret = "select " + self.sqlfields
-        else:
-            # Default to all fields
-            ret = "select *"
-
-        ret += " from " + self.sqlfrom
-
-        if self.sqlwhere:
-            ret += " where " + self.sqlwhere
-        if self.sqlgroupby:
-            ret += " group by " + self.sqlgroupby
-        if self.sqlorderby:
-            ret += " order by " + self.sqlorderby
-        if self.sqllimit:
-            ret += " limit " + str(self.sqllimit)
-        else:
-            ret += " limit " + str(self.defaultLimit)
-
-        return ret
-
-    def executeSQL(self, args=None):
-        self.execute(self.createSQL(), args)
+    def executeSQL(self, *args, **kwargs):
+        self.execute(self.createSQL(), *args, **kwargs)
 
