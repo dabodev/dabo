@@ -1,3 +1,4 @@
+IGNORE_STRING		=		"-ignore-"
 import wx, dabo
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner
 import dMessageBox, dIcons, dCommandButton, dDropdownList
@@ -37,7 +38,7 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 		
 	def onChoiceMade(self, evt):
 		if self.target is not None:
-			if "-ignore-" not in self.Value:
+			if IGNORE_STRING not in self.GetStringSelection():
 				# A comparison op was selected; let 'em enter a value
 				self.target.SetFocus()
 				
@@ -271,7 +272,7 @@ class dSelectPage(DataNavPage):
 				continue
 			opVal = self.selectFields[fld]["op"].Value
 			opStr = opVal
-			if not "-ignore-" in opVal:
+			if not IGNORE_STRING in opVal:
 				fldType = self.selectFields[fld]["type"]
 				ctrl = self.selectFields[fld]["ctrl"]
 				matchVal = ctrl.Value
@@ -406,7 +407,7 @@ class dSelectPage(DataNavPage):
 			chc = ("Is True",
 					"Is False")
 		# Add the blank choice
-		chc = ("-ignore-",) + chc
+		chc = (IGNORE_STRING,) + chc
 		return chc
 
 
@@ -448,6 +449,8 @@ class dSelectPage(DataNavPage):
 			
 			opt = self.getSelectorOptions(fldInfo["type"], fldInfo["wordSearch"])
 			opList = SelectionOpDropdown(panel, choices=opt)
+			if not opList.GetStringSelection():
+				opList.SetSelection(0)
 			opList.setTarget(ctrl)
 			gsz.Add(lbl, (gridRow, 0), flag=wx.RIGHT )
 			gsz.Add(opList, (gridRow, 1), flag=wx.CENTRE )
