@@ -738,6 +738,13 @@ class dBizobj(dabo.common.DoDefaultMixin):
 				ret = child
 				break
 		return ret
+	
+	
+	def getNonUpdateFields(self):
+		return self.__cursor.getNonUpdateFields()
+		
+	def setNonUpdateFields(self, fldList=[]):
+		self.__cursor.setNonUpdateFields(fldList)
 		
 		
 	########## SQL Builder interface section ##############
@@ -846,9 +853,9 @@ class dBizobj(dabo.common.DoDefaultMixin):
 			return None
 			
 	def _setParent(self, val):
-		print "in _setParent, reminder to check to make sure the parent descends from dBizobj."
-		print "val:", val
-		print "self:", self
+# 		print "in _setParent, reminder to check to make sure the parent descends from dBizobj."
+# 		print "val:", val
+# 		print "self:", self
 		
 		self._parent = val
 			
@@ -973,3 +980,6 @@ class dBizobj(dabo.common.DoDefaultMixin):
 				
 	RestorePositionOnRequery = property(_getRestorePositionOnRequery, _setRestorePositionOnRequery, None,
 				"After a requery, do we try to restore the record position to the same PK?")
+				
+	NonUpdateFields = property(getNonUpdateFields, setNonUpdateFields, None,
+				"Fields in the cursor to be ignored during updates")

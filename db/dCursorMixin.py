@@ -29,13 +29,21 @@ class dCursorMixin:
 	sortCase = True
 	# Holds the keys in the original, unsorted order for unsorting the dataset
 	__unsortedRows = []
+	# Holds the name of fields to be skipped when updating the backend, such
+	# as calculated or derived fields, or fields that are otherwise not to be updated.
+	__nonUpdateFields = []
+	# User-editable list of non-updated fields
+	nonUpdateFields = []
+	
 
 
 	def __init__(self, sql="", *args, **kwargs):
 		if sql:
 			self.sql = sql
-		_blank = {}
-		__unsortedRows = []
+		self._blank = {}
+		self.__unsortedRows = []
+		self.__nonUpdateFields = []
+		self.nonUpdateFields = []
 
 
 	def setSQL(self, sql):
@@ -93,18 +101,27 @@ class dCursorMixin:
 					tmpRows.append(dic)
 				self._rows = tuple(tmpRows)
 		return res
-
-
+	
+	
 	def requery(self, params=None):
 		self.lastSQL = self.sql
 		self.lastParams = params
 		self.execute(self.sql, params)
 		# Add mementos to each row of the result set
 		self.addMemento(-1)
+
+		# Check for any derived fields that should not be included in 
+		# any updates.
+		self.__setNonUpdateFields()
+
 		# Clear the unsorted list, and then apply the current sort
 		self.__unsortedRows = []
 		if self.sortColumn:
-			self.sort(self.sortColumn, self.sortOrder)
+			try:
+				self.sort(self.sortColumn, self.sortOrder)
+			except dException.NoRecordsException, e:
+				# No big deal
+				pass
 		return True
 
 
@@ -212,6 +229,39 @@ class dCursorMixin:
 				break
 
 
+	def setNonUpdateFields(self, fldList=[]):
+		self.nonUpdateFields = fldList
+	
+	
+	def getNonUpdateFields(self):
+		return self.nonUpdateFields + self.__nonUpdateFields
+		
+		
+	def __setNonUpdateFields(self):
+		# Set the __nonUpdateFields prop
+		self.__nonUpdateFields = []
+		
+		dscrp = self.description
+		self.__saveProps()
+		for fldDesc in dscrp:
+			fld = fldDesc[0]
+			try:
+				sql = """select %s from %s limit 1""" % (fld, self._fromClause)
+				self.execute( sql )
+				# Get the description for this single field
+				dsc = self.description[0]
+				# All members except for the second (display value) should 
+				# match. If not, add 'em to the nonUpdateFields list
+				if not ( (fldDesc[1] == dsc[1]) 
+						and (fldDesc[3] == dsc[3]) and (fldDesc[4] == dsc[4]) 
+						and (fldDesc[5] == dsc[5]) and (fldDesc[6] == dsc[6]) ):
+					self.__nonUpdateFields.append(fld)
+			except:
+				self.__nonUpdateFields.append(fld)
+	
+		self.__restoreProps()
+	
+
 	def isChanged(self, allRows=True):
 		"""
 		Scan all the records and compare them with their mementos. 
@@ -278,7 +328,10 @@ class dCursorMixin:
 							and type(rec[fld]) is types.StringType ):
 						val = str(val)
 				if type(rec[fld]) != type(val):
-					print "!!! Data Type Mismatch:", type(rec[fld]), type(val)
+					# This can happen with a new record, since we just stuff the
+					# fields full of empty strings.
+					if not self._rows[self.rownumber].has_key(k.CURSOR_NEWFLAG):
+						print "!!! Data Type Mismatch:", type(rec[fld]), type(val)
 					
 					if type(rec[fld]) == type(int()) and type(val) == type(bool()):
 						# convert bool to int (original field val was int, but UI
@@ -385,16 +438,22 @@ class dCursorMixin:
 	def __saverow(self, rec):
 		newrec =  rec.has_key(k.CURSOR_NEWFLAG)
 		mem = rec[k.CURSOR_MEMENTO]
-		diff = mem.makeDiff(rec, newrec)
+		diff = self.makeUpdDiff(rec, newrec)
 
 		if diff:
 			if newrec:
 				flds = ""
 				vals = ""
+				
 				for kk, vv in diff.items():
 					if self.autoPopulatePK and (kk == self.keyField):
 						# we don't want to include the PK in the insert
 						continue
+					if kk in self.getNonUpdateFields():
+						# Skip it.
+						continue
+						
+					# Append the field and its value.
 					flds += ", " + kk
 					vals += ", " + str(self.__escQuote(vv))
 				# Trim leading comma-space from the strings
@@ -429,6 +488,16 @@ class dCursorMixin:
 				if not res:
 					raise dException.dException, _("No records updated")
 
+	
+	def makeUpdDiff(self, rec, isnew=False):
+		mem = rec[k.CURSOR_MEMENTO]
+		ret = mem.makeDiff(rec, isnew)
+		for fld in self.getNonUpdateFields():
+			if ret.has_key(fld):
+				del ret[fld]
+		return ret
+		
+		
 
 	def new(self):
 		""" Add a new record to the data set.
@@ -494,6 +563,9 @@ class dCursorMixin:
 
 		If no row specified, delete the currently active row.
 		"""
+		if not hasattr(self, "rownumber"):
+			# No query has been run yet
+			raise dException.NoRecordsException, _("No record to delete")
 		if delRowNum is None:
 			# assume that it is the current row that is to be deleted
 			delRowNum = self.rownumber
@@ -580,10 +652,15 @@ class dCursorMixin:
 						# Nothing. So just tack it on the end.
 						tmpsql = self.sql + " where 1=0 "
 
-		# We need to save and restore the cursor properties, since this query will wipe 'em out.
-		self.__saveProps()
-		self.execute(tmpsql)
-		self.__restoreProps()
+		# If we already have row information, we need to save
+		# and restore the cursor properties, since this query will wipe 'em out.
+		if hasattr(self, "_rows"):
+			self.__saveProps()
+			self.execute(tmpsql)
+			self.__restoreProps()
+		else:
+			# Just run the blank query
+			self.execute(tmpsql)
 
 		dscrp = self.description
 		for fld in dscrp:
@@ -592,6 +669,8 @@ class dCursorMixin:
 			### For now, just initialize the fields to empty strings,
 			###    and let the updates take care of the type.
 			self._blank[fldname] = ""
+		# Mark the calculated and derived fields.
+		self.__setNonUpdateFields()
 
 
 	def moveToPK(self, pk):
@@ -745,6 +824,9 @@ class dCursorMixin:
 		"""
 		ret = ""
 		for fld, val in diff.items():
+			# Skip the fields that are not to be updated.
+			if fld in self.getNonUpdateFields():
+				continue
 			if ret:
 				ret += ", "
 			if type(val) in (types.StringType, types.UnicodeType):
@@ -755,16 +837,26 @@ class dCursorMixin:
 
 
 	def __saveProps(self, saverows=True):
-		self.holdrows = self._rows
-		self.holdcount = self.rowcount
-		self.holdpos = self.rownumber
-		self.holddesc = self.description
+		if hasattr(self, "_rows"):
+			self.holdrows = self._rows
+			self.holdcount = self.rowcount
+			self.holdpos = self.rownumber
+			self.holddesc = self.description
+		else:
+			# Cursor hasn't been populated yet
+			self.holdrows = None
+			self.holdcount = self.rowcount
+			self.holdpos = 0
+			self.holddesc = ()
 
 
 	def __restoreProps(self, restoreRows=True):
 		if restoreRows:
 			self._rows = self.holdrows
-		self.rowcount = len(self._rows)
+		if self._rows:
+			self.rowcount = len(self._rows)
+		else:
+			self.rowcount = self.holdcount
 		self.rownumber = min(self.holdpos, self.rowcount-1)
 		self.description = self.holddesc
 
