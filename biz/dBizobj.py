@@ -479,7 +479,9 @@ class dBizobj(dabo.common.DoDefaultMixin):
 			self._moveToRowNum(i)
 			if self.isChanged():
 				# No need to validate if the data hasn't changed
-				errMsg += self.validateRecord()
+				message = self.validateRecord()
+				if message:
+					errMsg += self.validateRecord()
 		self._moveToRowNum(currRow)
 				
 		if errMsg:

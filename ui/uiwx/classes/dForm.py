@@ -210,8 +210,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		except dException.BusinessRuleViolation, e:
 			self.setStatusText(_("Save failed."))
 			dMessageBox.stop("%s:\n\n%s" % (_("Save Failed:"), _(str(e))))
+			return False
 
-
+			
 	def cancel(self, dataSource=None):
 		""" Ask the bizobj to cancel its changes.
 
@@ -258,7 +259,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			if response == None:    # cancel
 				return
 			elif response == True:  # yes
-				self.save(dataSource=dataSource)
+				if not self.save(dataSource=dataSource):
+					# The save failed, so don't continue with the requery
+					return
 
 		self.setStatusText(_("Please wait... requerying dataset..."))
 		start = time.time()
