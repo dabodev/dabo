@@ -3,12 +3,11 @@ import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as cm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import dIcons
 
-class dTimer(wx.StaticBitmap, cm.dControlMixin):
+class dTimer(dabo.ui.dBitmap):
 	""" Create a timer. 
 	"""
 	_IsContainer = False
@@ -20,16 +19,15 @@ class dTimer(wx.StaticBitmap, cm.dControlMixin):
 	# (but we need to design a bitmap) while being invisible at runtime.
 	
 	def __init__(self, parent, properties=None, *args, **kwargs):
+		super(dTimer, self).__init__(parent=parent, properties=properties, *args, **kwargs)
 		self._baseClass = dTimer
-		preClass = wx.StaticBitmap
-		kwargs["bitmap"] = dIcons.getIconBitmap("dTimer", setMask=False)
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 		
 	def _afterInit(self):
+		self.Bitmap = "dTimer"
 		self._timer = wx.Timer(self)
-		dTimer.doDefault()
-		self.Hide()
+		super(dTimer, self)._afterInit()
+		self.Visible = False
 	
 		
 	def _initEvents(self):

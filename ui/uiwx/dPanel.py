@@ -21,6 +21,16 @@ class dPanel(wx.Panel, cm.dControlMixin):
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
+	def layout(self):
+		""" Wrap the wx version of the call, if possible. """
+		try:
+			# Call the Dabo version, if present
+			self.Sizer.layout()
+		except:
+			# Use the wx version.
+			self.Layout()
+		
+
 class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 	""" This is a basic container for controls that allows scrolling.
 

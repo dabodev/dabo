@@ -199,7 +199,16 @@ class dFormMixin(pm.dPemMixin):
 				controllingFrame.SetStatusText(*args)
 			controllingFrame.GetStatusBar().Update()
 		
-
+	
+	def layout(self):
+		""" Wrap the wx sizer layout call. """
+		try:
+			# Call the Dabo version, if present
+			self.Sizer.layout()
+		except:
+			# Use the wx version.
+			self.Layout()
+		
 		
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
 		if isinstance(self, wx.MDIChildFrame):

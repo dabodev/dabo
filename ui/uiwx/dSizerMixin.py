@@ -115,6 +115,13 @@ class dSizerMixin(dabo.common.dObject):
 		to call it manually after you are done adding items to the sizer.
 		"""
 		self.Layout()
+		# Sizers only propagate down other sizers.  This will
+		# cause all child panels to also re-calculate their layouts.
+		for child in self.GetChildren():
+			if child.IsWindow():
+				try:
+					child.GetWindow().layout()
+				except: pass
 	
 	
 	def prepend(self, *args, **kwargs):
