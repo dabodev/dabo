@@ -7,7 +7,9 @@ class dGridDataTable(wxPyGridTableBase):
     def __init__(self, parent):
         wxPyGridTableBase.__init__(self)
         
-        self.bizobj = parent.bizobj 
+        # Ed??? the grid needs to know column definitions, records,
+        # and field values to generate its rows and columns
+        self.cursor = parent.bizobj._cursor 
         self.grid = parent
         
         self.initTable()
@@ -22,7 +24,7 @@ class dGridDataTable(wxPyGridTableBase):
         
         self.grid.SetDefaultRowSize(20)  # (make user-editable)
 
-        for column in self.bizobj.columnDefs:
+        for column in self.grid.columnDefs:
             if column["showGrid"] == True:
                 self.colLabels.append(column["caption"])
                 self.colNames.append(column["name"])
@@ -35,11 +37,13 @@ class dGridDataTable(wxPyGridTableBase):
             rows = None
         self.Clear()
         self.data = []
-        for record in self.wicket.viewCursor:
+        for record in self.cursor:
+            #print record
             recordDict = []
-            for column in self.wicket.dynamicViews[self.wicket.viewName]["fields"]:
-                if self.wicket.forceShowAllColumns == True or column["showGrid"] == True:
-                    recordVal = eval("record.%s" % column["name"])
+            for column in self.grid.columnDefs:
+                if column["showGrid"] == True:
+                    #recordVal = eval("record.%s" % column["name"])
+                    recordVal = record["%s" % column["name"]]
                     if column["type"] == "M":
                         # Show only the first 64 chars of the long text:
                         recordVal = str(recordVal)[:64]
@@ -70,16 +74,6 @@ class dGridDataTable(wxPyGridTableBase):
             self.GetView().ProcessTableMessage(msg)
         
                 
-    def updateColAttr(self):
-        for column in range(len(self.imageBaseThumbnails)):
-            if self.imageBaseThumbnails[column] <> None:
-                attr = wxGridCellAttr()
-                renderer = MegaImageRenderer(self)
-                attr.SetReadOnly(True)
-                attr.SetRenderer(renderer)
-                self.gridRef.SetColAttr(column, attr)
-                
-            
     def wxGridType(self,xBaseType):
         if xBaseType == "I":
             return wxGRID_VALUE_NUMBER
@@ -146,7 +140,7 @@ class dGridDataTable(wxPyGridTableBase):
     # Called when the grid needs to display labels
     def GetColLabelValue(self, col):
         #print dir(self)
-        if self.gridRef.sortedColumn == col:
+        if self.grid.sortedColumn == col:
             if self.gridRef.sortedColumnDescending == True:
                 # I'd love to figure out how to include graphical
                 # arrows in the grid columns!
@@ -178,20 +172,20 @@ class dGridDataTable(wxPyGridTableBase):
         return self.CanGetValueAs(row, col, typeName)
 
         
-class DynamicViewGrid(wxGrid):
-    def __init__(self, parent, wicket):
+class dGrid(wxGrid):
+    def __init__(self, parent, bizobj):
         wxGrid.__init__(self, parent, -1)
 
         ID_IncrementalSearchTimer = wx.NewId()
-
+    
         self.currentIncrementalSearch = ""
         self.incrementalSearchTimerInterval = 500
         self.incrementalSearchTimer = wx.Timer(self, ID_IncrementalSearchTimer)
         
         self.sortedColumn = None
         self.sortedColumnDescending = False
-                
-        self.wicket = wicket
+        
+        self.bizobj = bizobj
         
         self.fillGrid()
 
@@ -214,9 +208,9 @@ class DynamicViewGrid(wxGrid):
         EVT_GRID_ROW_SIZE(self, self.OnGridRowSize)
 
     def fillGrid(self):
-        table = DynamicViewGridDataTable(self)
+        self.columnDefs = [{"name": "czip", "caption": "zipcode", "showGrid": True, "type": "C"},]
+        table = dGridDataTable(self)
         self.SetTable(table, True)
-        table.updateColAttr()
             
     def OnPaint(self, evt): 
         evt.Skip()
@@ -321,59 +315,25 @@ class DynamicViewGrid(wxGrid):
         self.incrementalSearchTimer.Stop()
         self.currentIncrementalSearch = ''.join((self.currentIncrementalSearch, char))
         
-        wx.GetApp().GetTopWindow().statusMessage(''.join(('Search: ', self.currentIncrementalSearch)))
+        self.parent.SetStatusMessage(''.join(('Search: ', self.currentIncrementalSearch)))
         
         table = self.GetTable()
         gridCol = self.GetGridCursorCol()
         cursorCol = table.colNames[self.GetGridCursorCol()]
         
-        row = self.wicket.viewCursor.seek(cursorCol, self.currentIncrementalSearch)
+        #row = self.cursor.seek(cursorCol, self.currentIncrementalSearch)
+        row = -1
         if row > -1:
             self.SetGridCursor(row, gridCol)
             self.MakeCellVisible(row, gridCol)
         self.incrementalSearchTimer.Start(self.incrementalSearchTimerInterval)
 
-         
-    def popupMenu(self): 
-        #mainFrame = self.GetGrandParent().GetParent()
-        popup = wxMenu()
-        popup.Append(1912, "&New", "Add a new record")
-        popup.Append(1913, "&Edit", "Edit this record")
-        popup.Append(1914, "&Delete", "Delete record")
-        
-        EVT_MENU(popup, 1912, self.OnPopupNew)
-        EVT_MENU(popup, 1913, self.OnPopupEdit)
-        EVT_MENU(popup, 1914, self.OnPopupDelete)
-        
-        #mainFrame.PopupMenu(popup, self.mousePosition)
-        self.PopupMenu(popup, self.mousePosition)
-        popup.Destroy()
+    def popupMenu(self): pass
                   
-    def OnPopupEdit(self, evt):
-        self.editRecord()
-        evt.Skip()
-
-    def OnPopupDelete(self, evt):
-        self.deleteRecord()
-        evt.Skip()
-        
-    def OnPopupNew(self, evt):
-        self.newRecord()
-        evt.Skip()
-    
     def OnGridRowSize(self, evt):
         self.SetDefaultRowSize(self.GetRowSize(evt.GetRowOrCol()), True)
         evt.Skip()
                         
-    def editRecord(self):
-        self.wicket.editRecord()
-        
-    def newRecord(self):
-        self.wicket.newRecord()
-        
-    def deleteRecord(self):
-        self.wicket.deleteRecord()
-        
     def getHTML(self, justStub=True, tableHeaders=True):
         ''' Get HTML suitable for printing out the data in 
             this grid via wxHtmlEasyPrinting. 
