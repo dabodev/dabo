@@ -3,6 +3,7 @@ import dIcons
 import dabo.dEvents as dEvents
 import dForm, dDataNavPageFrame
 from dabo.common import specParser
+import os, random
 
 class dDataNavForm(dForm.dForm):
 	""" This is a dForm but with the following added controls:
@@ -251,7 +252,7 @@ class dDataNavForm(dForm.dForm):
 					if isinstance(c.GetSizer(), wx.NotebookSizer):
 						self.GetSizer().Detach(c.GetSizer())
 		except: pass
-			
+		
 		if self.beforeSetupPageFrame():
 			self.Freeze()
 			self.pageFrame = dDataNavPageFrame.dDataNavPageFrame(self)
@@ -280,7 +281,7 @@ class dDataNavForm(dForm.dForm):
 		biz = self.getBizobj(ds)
 		if biz:
 			for child in biz.getChildren():
-				self.addEditPages(child)
+				self.addEditPages(child.DataSource)
 
 	def onSetSelectionCriteria(self, evt):
 		""" Occurs when the user chooses to set the selection criteria.
@@ -300,19 +301,56 @@ class dDataNavForm(dForm.dForm):
 		self.pageFrame.SetSelection(2)
 
 
-	def setFieldSpecs(self, xmlFile, tbl):
+	def setFieldSpecs(self, xml, tbl):
 		""" Reads in the field spec file and creates the appropriate
-		controls in the form. Also initializes the SQL Builder for
-		this table.
+		controls in the form. 
 		"""
-		# First, get the field spec data into a dictionary.
-		self._allFieldSpecs = specParser.importFieldSpecs(xmlFile)
+		self._allFieldSpecs = self.parseXML(xml, "Field")
 		self._mainTable = tbl
+
+
+	def setRelationSpecs(self, xml, bizModule):
+		""" Creates any child bizobjs used by the form, and establishes
+		the relations with the parent bizobj
+		"""
+		self.RelationSpecs = self.parseXML(xml, "Relation")
+		primaryBizobj = self.getPrimaryBizobj()
+		# This will make sure all relations and sub-relations are set.
+		newBizobjs = primaryBizobj.addChildByRelationDict(self.RelationSpecs, 
+				bizModule)
+		# If we added any bizobjs, add them to the form's collection, too
+		for biz in newBizobjs:
+			self.addBizobj(biz)
+
+	
+	def parseXML(self, xml, specType):
+		""" Accepts either a file or raw XML, and handles talking with the 
+		specParser class. Since that class requires a file, this method will
+		create a temp file if raw XML is passed.
+		"""
+		# See if we were passed a file reference, or raw XML.
+		raw = not os.path.exists(xml)
+		if raw:
+			fname = "tmp" + str(random.randint(100000,1000000)) + ".fsxml"
+			open(fname, "w").write(xml)
+		else:
+			# A file reference was passed
+			fname = xml
+		
+		if specType.lower() == "relation":
+			ret = specParser.importRelationSpecs(fname)
+		else:
+			ret = specParser.importFieldSpecs(fname)
+		if raw:
+			os.remove(fname)
+		return ret
 		
 		
 	def creation(self):
 		""" Called after all the specs for the form have been set, and
 		after any other settings that need to be made have been made.
+		It initializes the SQL Builder, and creates the menu, toolbar  and
+		pageframe for the form.
 		"""
 		errMsg = self.beforeCreation()
 		if errMsg:
@@ -390,20 +428,6 @@ class dDataNavForm(dForm.dForm):
 		except: pass
 		return ret
 		
-	
-	def setRelationSpecs(self, xmlFile, bizModule):
-		""" Creates any child bizobjs used by the form, and establishes
-		the relations with the parent bizobj
-		"""
-		self.RelationSpecs = specParser.importRelationSpecs(xmlFile)
-		primaryBizobj = self.getPrimaryBizobj()
-		# This will make sure all relations and sub-relations are set.
-		newBizobjs = primaryBizobj.addChildByRelationDict(self.RelationSpecs, 
-				bizModule)
-		# If we added any bizobjs, add them to the form's collection, too
-		for biz in newBizobjs:
-			self.addBizobj(biz)
-
 	
 	def onRequery(self, evt):
 		""" Override the dForm behavior by running the requery through the select page.
