@@ -11,9 +11,9 @@ from reportlab.pdfgen.canvas import Canvasimport reportlab.lib.pagesizes as pag
 import samplespec as form
 
 #data = sys.argv[2]
-data = [{"artist": "The Clash", "iid": 1},
-        {"artist": "Queen", "iid": 2},
-        {"artist": "Ben Harper and the Innocent Criminals", "iid":3}]
+data = [{"cArtist": "The Clash", "iid": 1},
+        {"cArtist": "Queen", "iid": 2},
+        {"cArtist": "Ben Harper and the Innocent Criminals", "iid":3}]
 
 # Draw a dotted rectangle around each band:
 showBands = True
@@ -65,6 +65,35 @@ def	printBandOutline(band, x, y, width, height):
 		c.drawString(ml, y, band)
 		c.restoreState()
 
+def draw(object, x, y):
+	c.saveState()
+	if object["type"] == "rectangle":
+		geo = object["geometry"]
+		c.setLineWidth(object["lineWidth"])
+		width = (u*geo["width"])
+		height = (u*geo["height"])
+		c.rect(x,y,width,height)
+	elif object["type"] == "string":
+		funcs = {"center": c.drawCentredString,
+		         "right": c.drawRightString,
+		         "left": c.drawString}
+		func = funcs[object["alignment"]]
+		fontFace = object["fontFace"]
+		fontSize = object["fontSize"]
+		c.setFont(fontFace, fontSize)
+		func(x,y,eval(object["expression"]))
+	elif object["type"] == "image":
+		geo = object["geometry"]
+		width = geo["width"]
+		height = geo["height"]
+		mask = geo["mask"]
+		if width is not None:
+			width = u*width
+		if height is not None:
+			height = u*height
+		c.drawImage(eval(object["expression"]), x, y, width, height, mask)
+	c.restoreState()
+
 
 # Print the static bands (Page Header/Footer):
 for band in ("PageHeader", "PageFooter"):
@@ -81,29 +110,23 @@ for band in ("PageHeader", "PageFooter"):
 		printBandOutline(band, x, y, width, height)
 
 	for object in bandDict["objects"]:
-		c.setLineWidth(object["lineWidth"])
-		geo = object["geometry"]
-	
-		x = u*geo["x"] + ml
-		width = (u*geo["width"])
-
 		if bandDict == form.PageFooter:
 			origin = pageFooterOrigin[1]
 		elif bandDict == form.PageHeader:
 			origin = pageHeaderOrigin[1]
 
-		print "band, origin:", band, origin
-
+		geo = object["geometry"]
+		x = u*geo["x"] + ml
 		y = origin + (u*geo["y"])
-		height = (u*geo["height"])
 
-		print "x,y,width,height:", x, y, width, height
-		c.rect(x,y,width,height)		
+		draw(object, x, y)
 
 # Print the dynamic bands (Detail, GroupHeader, GroupFooter):
 y = pageHeaderOrigin[1]
+groups = form.Groups
+
+recno = 0
 for record in data:
-#	for band in ("GroupHeader", "GroupFooter", "Detail"):
 	for band in ("Detail",):
 		bandDict = eval("form.%s" % band)
 		x = ml
@@ -112,7 +135,14 @@ for record in data:
 		height = bandDict["height"] * u
 
 		if showBands:
-			printBandOutline(band, x, y, width, height)
-		
+			printBandOutline("%s (record %s)" % (band, recno), x, y, width, height)
+
+		for object in bandDict["objects"]:
+			x = ml + (u*object["geometry"]["x"])
+			y1 = y + (u*object["geometry"]["y"])
+			draw(object, x, y1)
+				
+		recno += 1
+
 c.save()
 

@@ -17,36 +17,46 @@ Page = {"unit": "inch",
 
 
 PageHeader = {"height": 0.5,
-              "objects": [{"name": "TestRectangle",
-                           "type": "rectangle",
-                           "lineWidth": 0.25,
-                           "geometry": {"x": 1.5,
-                                        "y": .5,
-                                        "width": .1,
-                                        "height": .1},
+              "objects": [{"type": "string",
+                           "expression": '''"Dabo's Favorite Artists"''',
+                           "alignment": "center",
+                           "geometry": {"x": 3.75,
+                                        "y": 0.3,},
+                           "fontFace": "Helvetica",
+                           "fontSize": 14,
                           }]
 }
 
 PageFooter = {"height": 1.25,
-              "objects": [{"name": "TestRectangle1",
-                           "type": "rectangle",
-                           "lineWidth": 0.25,
-                           "geometry": {"x": 4.5,
-                                        "y": .25,
-                                        "width": 1,
-                                        "height": .4},
+              "objects": [{"type": "image",
+                           "expression": '''"../icons/dabo_lettering_100x40.png"''',
+                           "geometry": {"x": 6.1,
+                                        "y": .01,
+                                        "width": None,
+                                        "height": None,
+                                        "mask": None},
                           }]
 }
 
 
-Detail = {"height": .75,
-              "objects": [{"name": "TestRectangle1",
-                           "type": "rectangle",
-                           "lineWidth": 0.25,
-                           "geometry": {"x": 4.5,
-                                        "y": .25,
-                                        "width": 5,
-                                        "height": .3},
+Detail = {"height": .25,
+          "objects": [{"type": "string",
+                       "expression": "record['cArtist']",
+                       "alignment": "left",
+                       "fontFace": "Helvetica",
+                       "fontSize": 12,
+                       "lineWidth": 0.25,
+                       "geometry": {"x": 1,
+                                    "y": .01},
                           }]
 }
 
+Group1Header = {"height": .5,
+                "objects": []}
+
+Group1Footer = {"height": 0,
+                "objects": []}
+
+Groups = [{"name": "Group1",
+           "expression": "record['cartist']",}
+         ]
