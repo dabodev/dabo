@@ -32,11 +32,16 @@ class BandLabel(dabo.ui.dPanel):
 				     - self._dragStart[1]    ## (correct for ypos in the band)
 				     + 2)                    ## fudge factor
 
+
 				if ypos < self.Parent.Top:
 					# Don't show the band dragging above the topmost valid position:
 					ypos = self.Parent.Top
 
 				if self._dragImage is None:
+					# Erase the band label, and instantiate the dragImage rendition of it.
+					dc = wx.WindowDC(self)
+					dc.Clear()
+
 					self._dragImage = wx.DragImage(self._captureBitmap,
 			                                  wx.StockCursor(wx.CURSOR_HAND))
 
@@ -91,11 +96,10 @@ class BandLabel(dabo.ui.dPanel):
 		import wx		## (need to abstract DC drawing)
 		dc = wx.PaintDC(self)
 		rect = self.GetClientRect()
-		font = dc.GetFont()
-		font.SetPointSize(8)
+		font = self.Font
 
-		dc.SetTextForeground(wx.BLACK)
-		dc.SetBrush(wx.Brush("WHEAT", wx.SOLID))
+		dc.SetTextForeground(self.ForeColor)
+		dc.SetBrush(wx.Brush(self.BackColor, wx.SOLID))
 		dc.SetFont(font)
 		dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
 		rect[0] = rect[0]+5
@@ -121,8 +125,9 @@ class Band(dabo.ui.dPanel):
 		self._bandLabelHeight = 18
 		self.BackColor = (255,255,255)
 		self.Top = 100
-		self.addObject(BandLabel, "bandLabel", FontSize=10, 
-		               BackColor=(128,128,128), Height=self._bandLabelHeight)
+		self.addObject(BandLabel, "bandLabel", FontSize=9, 
+		               BackColor=(215,215,215), ForeColor=(128,128,128),
+		               Height=self._bandLabelHeight)
 
 
 	def getProp(self, prop):
@@ -217,7 +222,7 @@ class Band(dabo.ui.dPanel):
 class ReportDesigner(dabo.ui.dScrollPanel):
 	def afterInit(self):
 		self._bands = []
-		self._rulers = []
+		self._rulers = {}
 		self._zoom = self._normalZoom = 1.3
 		self.BackColor = (192,192,192)
 		self.clearReportForm()
@@ -227,9 +232,9 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 	
 	def clearReportForm(self):
 		"""Called from afterInit and closeFile to clear the report form."""
-		for o in self._rulers:
+		for o in self._rulers.values():
 			o.Destroy()
-		self._rulers = []
+		self._rulers = {}
 		for o in self._bands:
 			o.Destroy()
 		self._bands = []
@@ -359,7 +364,13 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		"""Called from openFile and newFile when time to set up the Report Form."""
 		self.ReportForm = self._rw.ReportForm
 
+		self._rulers = {}
+		self._rulers["top"] = self.getRuler("h")
+		self._rulers["bottom"] = self.getRuler("h")
+
 		for band in ("pageHeader", "detail", "pageFooter"):
+			self._rulers["%s-left" % band] = self.getRuler("v")
+			self._rulers["%s-right" % band] = self.getRuler("v")
 			b = Band(self, Caption=band)
 			b.props = self.ReportForm[band]
 			b._rw = self._rw
@@ -392,9 +403,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		mb = rw.getPt(eval(rf["page"]["marginBottom"])) * z
 		bandWidth = pageWidth - ml - mr
 
-		self.clearRulers()
-
-		tr = self.getRuler("h", pageWidth)
+		tr = self._rulers["top"]
+		tr.Length = pageWidth
 
 		for index in range(len(self._bands)):
 			band = self._bands[index]
@@ -411,9 +421,13 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			else:
 				band.Top = self._bands[index-1].Top + self._bands[index-1].Height
 
-			lr = self.getRuler("v", bandCanvasHeight)
-			rr = self.getRuler("v", bandCanvasHeight)
-			band.Left = ml + lr.Width
+			lr = self._rulers["%s-left" % band.Caption]
+			lr.Length = bandCanvasHeight
+			
+			rr = self._rulers["%s-right" % band.Caption]
+			rr.Length = bandCanvasHeight
+
+			band.Left = ml + lr.Thickness
 			lr.Position = (0, band.Top)
 			rr.Position = (lr.Width + pageWidth, band.Top)
 			totPageHeight = band.Top + band.Height
@@ -421,33 +435,56 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		u = 10
 		totPageHeight = totPageHeight + mb
 
-		br = self.getRuler("h", pageWidth)
+		br = self._rulers["bottom"]
+		br.Length = pageWidth
+
 		tr.Position = (lr.Width,0)
 		br.Position = (lr.Width, totPageHeight)
 		totPageHeight += br.Height
 
 		self.SetScrollbars(u,u,(pageWidth + lr.Width + rr.Width)/u,totPageHeight/u)
 
-	def clearRulers(self):
-		for r in self._rulers:
-			r.Destroy()
-		self._rulers = []
 
-	def getRuler(self, orientation, length):
-		thickness = 10
+	def getRuler(self, orientation):
+		defaultThickness = 10
+		defaultLength = 1
+
 		class Ruler(dabo.ui.dPanel):
 			def afterInit(self):
 				self.BackColor = (192,128,192)
-				if orientation[0].lower() == "v":
-					w = thickness
-					h = length
+				self._orientation = orientation[0].lower()
+
+			def _getThickness(self):
+				if self._orientation == "v":
+					val = self.Width
 				else:
-					w = length
-					h = thickness
-				self.Size = (w,h)
-		r = Ruler(self)
-		self._rulers.append(r)
-		return r
+					val = self.Height
+				return val
+
+			def _setThickness(self, val):
+				if self._orientation == "v":
+					self.Width = val
+				else:
+					self.Height = val
+				
+			def _getLength(self):
+				if self._orientation == "v":
+					val = self.Height
+				else:
+					val = self.Width
+				return val
+
+			def _setLength(self, val):
+				if self._orientation == "v":
+					self.Height = val
+				else:
+					self.Width = val
+			
+			Length = property(_getLength, _setLength)
+			Thickness = property(_getThickness, _setThickness)
+
+		return Ruler(self, Length=defaultLength, Thickness=defaultThickness)
+
 
 class ReportDesignerForm(dabo.ui.dForm):
 	def afterInit(self):
