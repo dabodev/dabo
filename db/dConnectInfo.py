@@ -119,7 +119,7 @@ class dConnectInfo(dabo.common.dObject):
 			elif nm == "firebird":
 				import dbFirebird
 				self._backendObject = dbFirebird.Firebird()
-			elif nm == "postgres":
+			elif nm == "postgresql":
 				import dbPostgreSQL
 				self._backendObject = dbPostgreSQL.Postgres()
 			else:
