@@ -26,6 +26,13 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		self.Bind(wx.EVT_TEXT, self._onWxHit)
 		
 
+	def selectAll(self):
+		"""Each subclass must define their own selectAll method. This will 
+		be called if SelectOnEntry is True when the control gets focus.
+		"""
+		self.SetSelection(-1, -1)
+		
+		
 	# property get/set functions
 	def _getAlignment(self):
 		if self.hasWindowStyleFlag(wx.TE_RIGHT):

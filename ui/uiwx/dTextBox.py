@@ -30,6 +30,13 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		# Now that the dabo Value is set properly, the default behavior that flushes 
 		# the value to the bizobj can be called:
 		super(dTextBox, self).flushValue()
+	
+	
+	def selectAll(self):
+		"""Each subclass must define their own selectAll method. This will 
+		be called if SelectOnEntry is True when the control gets focus.
+		"""
+		self.SetSelection(-1, -1)
 		
 		
 	# property get/set functions

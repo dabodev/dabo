@@ -5,7 +5,6 @@ dabo.lib.datanav subframework. It does not descend from dControlMixin at this
 time, but is self-contained. There is a dGridDataTable definition here as 
 well, that defines the 'data' that gets displayed in the grid.
 """
-import urllib
 import wx
 import wx.grid
 import dabo

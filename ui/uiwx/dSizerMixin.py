@@ -1,6 +1,8 @@
 import wx
 import dabo
 import dPemMixin
+from dabo.dLocalize import _
+
 
 class dSizerMixin(dabo.common.dObject):
 	def append(self, item, layout="normal", proportion=0, alignment=("top", "left"), 
@@ -105,7 +107,6 @@ class dSizerMixin(dabo.common.dObject):
 			self.Insert(index, item, proportion, _wxFlags, border)
 			if addSpacer:
 				self.addDefaultSpacer(index+1)
-
 
 	
 	def layout(self):
@@ -372,7 +373,17 @@ class dSizerMixin(dabo.common.dObject):
 			return False
 	def _setBorderTop(self, val):
 		self._borderTop = val
-		
+	
+	def _getChildren(self):
+		return self.GetChildren()
+	
+	def _getChildWindows(self):
+		itms = self.GetChildren()
+		ret = [itm.GetWindow()
+				for itm in itms
+				if itm.IsWindow() ]
+		return ret
+	
  	def _getOrientation(self):
 		o = self.GetOrientation()
 		if o == wx.VERTICAL:
@@ -404,23 +415,29 @@ class dSizerMixin(dabo.common.dObject):
 		self.ShowItems(val)
 	
 	Border = property(_getBorder, _setBorder, None,
-			"Sets the default border for the sizer.  (int)" )
+			_("Sets the default border for the sizer.  (int)" ) )
 	BorderAll = property(_getBorderAll, _setBorderAll, None,
-			"By default, do we add the border to all sides?  (bool)" )
+			_("By default, do we add the border to all sides?  (bool)" ) )
 	BorderBottom = property(_getBorderBottom, _setBorderBottom, None,
-			"By default, do we add the border to the bottom side?  (bool)" )
+			_("By default, do we add the border to the bottom side?  (bool)" ) )
 	BorderLeft = property(_getBorderLeft, _setBorderLeft, None,
-			"By default, do we add the border to the left side?  (bool)" )
+			_("By default, do we add the border to the left side?  (bool)" ) )
 	BorderRight = property(_getBorderRight, _setBorderRight, None,
-			"By default, do we add the border to the right side?  (bool)" )
+			_("By default, do we add the border to the right side?  (bool)" ) )
 	BorderTop = property(_getBorderTop, _setBorderTop, None,
-			"By default, do we add the border to the top side?  (bool)" )
+			_("By default, do we add the border to the top side?  (bool)" ) )
+
+	Children = property(_getChildren, None, None, 
+			_("List of all the sizer items managed by this sizer  (list of sizerItems" ) )
+	
+	ChildWindows = property(_getChildWindows, None, None, 
+			_("List of all the windows that are directly managed by this sizer  (list of controls" ) )
 	
 	Orientation = property(_getOrientation, _setOrientation, None, 
-		"Sets the orientation of the sizer, either 'Vertical' or 'Horizontal'.")
+			_("Sets the orientation of the sizer, either 'Vertical' or 'Horizontal'." ) )
 
 	Spacing = property(_getSpacing, _setSpacing, None, 
-			"Amount of space automatically inserted between elements.  (int)")
+			_("Amount of space automatically inserted between elements.  (int)" ) )
 			
 	Visible = property(_getVisible, _setVisible, None, 
-		"Shows/hides the sizer and its contained items  (bool)")
+			_("Shows/hides the sizer and its contained items  (bool)" ) )
