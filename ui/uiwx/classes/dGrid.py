@@ -235,13 +235,13 @@ class dGrid(wx.grid.Grid):
         self.sortedColumn = None
         self.sortOrder = ""
                 
-        self.SetRowLabelSize(0)
-        self.EnableEditing(False)
+        self.SetRowLabelSize(0)        # turn off row labels
+        self.EnableEditing(False)      # this isn't a spreadsheet
         
         self.headerDragging = False    # flag used by mouse motion event handler
         self.headerDragFrom = 0
         self.headerDragTo = 0
-        
+
         self.Bind(wx.EVT_TIMER, self.OnIncrementalSearchTimer, self.incrementalSearchTimer)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
         
@@ -268,17 +268,26 @@ class dGrid(wx.grid.Grid):
     def fillGrid(self):
         ''' Refresh the grid to match the data in the bizobj.
         '''
+        
+        # Get the default row size from dApp's user settings
+        s = self.form.dApp.getUserSetting("%s.%s.%s" % (
+                        self.form.GetName(), 
+                        self.GetName(),
+                        "RowSize"))
+        if s:
+            self.SetDefaultRowSize(s)
+        
         if not self.GetTable():
             self.SetTable(dGridDataTable(self), True)
         self.GetTable().fillTable()
-        #self.AutoSizeColumns(True)      # If grid seems slow, this could be the problem.
 
         
     def OnColSize(self, event):
+        ''' Occurs when the user resizes the width of the column.
+        '''
         col = event.GetRowOrCol()
         width = self.GetColSize(col)
     
-        
         self.form.dApp.setUserSetting("%s.%s.%s.%s" % (
                         self.form.GetName(), 
                         self.GetName(),
@@ -610,7 +619,17 @@ class dGrid(wx.grid.Grid):
         Dabo overrides the wxPython default and applies that size change to all
         rows, not just the row the user sized.
         '''
-        self.SetDefaultRowSize(self.GetRowSize(evt.GetRowOrCol()), True)
+        row = evt.GetRowOrCol()
+        size = self.GetRowSize(row)
+        
+        # Persist the new size
+        self.form.dApp.setUserSetting("%s.%s.%s" % (
+                        self.form.GetName(), 
+                        self.GetName(),
+                        "RowSize"), "I", size)
+        
+        self.SetDefaultRowSize(size, True)
+        self.ForceRefresh()
         evt.Skip()
                         
         
