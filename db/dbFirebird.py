@@ -91,9 +91,9 @@ class Firebird(dBackend):
 		# Get the PK
 		sql = """ select inseg.rdb$field_name
 		from rdb$indices idxs join rdb$index_segments inseg
-		    on idxs.rdb$index_name = inseg.rdb$index_name
-		    where idxs.rdb$relation_name = '%s'
-    and idxs.rdb$unique_flag = 1 """ % tableName.upper()
+			on idxs.rdb$index_name = inseg.rdb$index_name
+			where idxs.rdb$relation_name = '%s'
+	and idxs.rdb$unique_flag = 1 """ % tableName.upper()
 		tempCursor.execute(sql)
 		rs = tempCursor.fetchone()
 		try:
@@ -207,14 +207,14 @@ class Firebird(dBackend):
 				(select rdb$trigger_name from rdb$triggers
 				where rdb$relation_name = '%s'
 				and rdb$trigger_type = 1 )""" % cursor.Table.upper()
-    	cursor.execute(sql)
-    	if cursor.RowCount:
-    		gen = cursor.getFieldVal("genname").strip()
-    		sql = """select GEN_ID(%s, 1) as nextVal 
-    				from rdb$database""" % gen
-    		cursor.execute(sql)
-    		ret = cursor.getFieldVal("nextVal")
-    	return ret
+		cursor.execute(sql)
+		if cursor.RowCount:
+			gen = cursor.getFieldVal("genname").strip()
+			sql = """select GEN_ID(%s, 1) as nextVal 
+					from rdb$database""" % gen
+			cursor.execute(sql)
+			ret = cursor.getFieldVal("nextVal")
+		return ret
 	
 
 	def setSQL(self, sql):
