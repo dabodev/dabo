@@ -30,13 +30,9 @@ class dFormMixin:
     
     def OnClose(self, event):
         self.saveSizeAndPosition()
-        if self.dApp and self.GetParent():
-            self.dApp.mainFrame.GetMenuBar().removeActiveFormMenu()    
         event.Skip()
 
     def OnSetFocus(self, event):
-        if self.dApp and self.GetParent():
-            self.dApp.mainFrame.GetMenuBar().replaceActiveFormMenu(self)
         event.Skip()
 
     def OnKillFocus(self, event):

@@ -12,10 +12,12 @@
     extended.
 """
 import wx, os
+from dMenu import dMenu
+from dMenuBar import dMenuBar
 
-class FileOpenMenu(wx.Menu):
+class FileOpenMenu(dMenu):
     def __init__(self, mainFrame):
-        wx.Menu.__init__(self)
+        dMenu.__init__(self)
         self.mainFrame = mainFrame
         menu = self._getFileOpenMenu()
         self._fillMenu(menu, self) # recurse the items
@@ -98,42 +100,26 @@ class FileMenu(wx.Menu):
         wx.EVT_MENU(mainFrame, Id,  mainFrame.dApp.actionList.getAction("FileExit")["func"])
 
 
-class EditMenu(wx.Menu):
+class EditMenu(dMenu):
     def __init__(self, mainFrame):
-        wx.Menu.__init__(self)
+        dMenu.__init__(self)
         
         Id = wx.NewId()
         self.Append(Id, "&Copy", "Copy selected text")
         
         
-class HelpMenu(wx.Menu):
+class HelpMenu(dMenu):
     def __init__(self, mainFrame):
-        wx.Menu.__init__(self)
+        dMenu.__init__(self)
         
         Id = wx.NewId()
         self.Append(Id, "&About", "About")
         wx.EVT_MENU(mainFrame, Id, mainFrame.dApp.actionList.getAction("HelpAbout")["func"])
 
-class dMainMenuBar(wx.MenuBar):
+class dMainMenuBar(dMenuBar):
     def __init__(self, mainFrame):
-        wx.MenuBar.__init__(self)
+        dMenuBar.__init__(self)
         self.Append(FileMenu(mainFrame), "&File")
         self.Append(EditMenu(mainFrame), "&Edit")
         self.Append(HelpMenu(mainFrame), "&Help")
-        
-        self._activeFormMenuExists = False
-    
-    def replaceActiveFormMenu(self, form):
-        menu = form.getMenu()
-        menuCaption = form.menuLabel
-        if self._activeFormMenuExists:
-            self.Replace(self.GetMenuCount()-2, menu, menuCaption)               
-        else:
-            self.Insert(self.GetMenuCount()-1, menu, menuCaption)
-        self._activeFormMenuExists = True
-
-    def removeActiveFormMenu(self):
-        print self.GetMenuCount()
-        menu = self.Remove(self.GetMenuCount()-2)
-        menu.Destroy()
-        self._activeFormMenuExists = False
+            

@@ -3,8 +3,9 @@ from dFormMixin import dFormMixin
 from dPageFrame import dPageFrame
 from dPage import *
 import dabo.dConstants as k
+from dMessageBox import *
 
-class dForm(wx.Dialog, dFormMixin):
+class dForm(wx.Frame, dFormMixin):
     ''' dabo.ui.uiwx.dForm() --> dForm
     
         Create a dForm object, which can contain other
@@ -17,8 +18,8 @@ class dForm(wx.Dialog, dFormMixin):
     '''
     
     def __init__(self, parent=None, name="dForm", resourceString=None):
-        wx.Dialog.__init__(self, parent, -1, "", (-1,-1), (-1,-1), 
-                            wx.DEFAULT_FRAME_STYLE)
+        wx.Frame.__init__(self, parent, -1, "", (-1,-1), (-1,-1), 
+                            wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT)
         self.SetName(name)
         self.SetLabel(name)
 
@@ -31,7 +32,7 @@ class dForm(wx.Dialog, dFormMixin):
         self.debug = False
         
         self.bizobjs = {}
-        self.primaryBizobj = None
+        self._primaryBizobj = None
         
         self.saveAllRows = True    # Default should come from app
         
@@ -39,23 +40,74 @@ class dForm(wx.Dialog, dFormMixin):
         
         self._setupResources(resourceString)
 
-        self.setupPageFrame()
+        self.CreateStatusBar()
+        
         self.SetSizer(wx.BoxSizer(wx.VERTICAL))
-        nbSizer = wx.NotebookSizer(self.pageFrame)
-        self.GetSizer().Add(nbSizer, 1, wx.EXPAND)
+        self.setupPageFrame()
         self.GetSizer().Layout()
         
     def EVT_VALUEREFRESH(win, id, func):
         win.Connect(id, -1, dEvents.EVT_VALUEREFRESH, func)
     
+    def _appendToMenu(self, menu, caption, function):
+        menuId = wx.NewId()
+        menu.Append(menuId, caption)
+        wx.EVT_MENU(self, menuId, function)
+        
     def getMenu(self):
         menu = dFormMixin.getMenu(self)
-        if self.primaryBizobj:
-            menuId = wx.NewId()
-            menu.Append(menuId, "Requery")
-            wx.EVT_MENU(self.dApp.mainFrame, menuId, self.onRequery)
+        
+        self._appendToMenu(menu, "Set Selection Criteria\tAlt+1", 
+                          self.onSetSelectionCriteria)
+        self._appendToMenu(menu, "Browse Records\tAlt+2", 
+                          self.onBrowseRecords)
+        self._appendToMenu(menu, "Edit Current Record\tAlt+3", 
+                          self.onEditCurrentRecord)
+        menu.AppendSeparator()
+        
+        self._appendToMenu(menu, "Requery\tCtrl+R", 
+                          self.onRequery)
+        self._appendToMenu(menu, "Save Changes\tCtrl+S", 
+                          self.onSave)
+        self._appendToMenu(menu, "Cancel Changes", 
+                          self.onCancel)
+        menu.AppendSeparator()
+        
+        self._appendToMenu(menu, "Select First Record", 
+                          self.onFirst)
+        self._appendToMenu(menu, "Select Prior Record\tCtrl+,", 
+                          self.onPrior)
+        self._appendToMenu(menu, "Select Next Record\tCtrl+.", 
+                          self.onNext)
+        self._appendToMenu(menu, "Select Last Record", 
+                          self.onLast)
+        menu.AppendSeparator()
+        self._appendToMenu(menu, "New Record\tCtrl+N", 
+                self.onNew)
+        self._appendToMenu(menu, "Delete Current Record", 
+                self.onDelete)
+
         return menu
         
+    def setupMenu(self):
+        self.SetMenuBar(wx.MenuBar())
+        self.GetMenuBar().Append(self.getMenu(), "&Navigation")
+        wx.EVT_MENU_OPEN(self, self.onOpenMenu)
+        
+    def onOpenMenu(self, event):
+        menu = event.GetEventObject()
+        if self.bizobjs[self.getPrimaryBizobj()].getRowCount() < 0:
+            # disable all menu items except for Requery. (I'd like
+            # to get some sort of "skip for" functionality build into 
+            # our menus, but that will wait.).
+            for item in menu.GetMenuItems():
+                if item.GetText() != "Requery":
+                    item.Enable(False)
+        else:
+            # Enable all menu items
+            for item in menu.GetMenuItems():
+                item.Enable(True)            
+
     def addBizobj(self, bizobj):
         ''' dForm.addBizobj(bizobj) -> None
         
@@ -65,10 +117,25 @@ class dForm(wx.Dialog, dFormMixin):
         '''
         self.bizobjs[bizobj.dataSource] = bizobj
         if len(self.bizobjs) == 1:
-            self.primaryBizobj = bizobj.dataSource
+            self.setPrimaryBizobj(bizobj.dataSource)
         if self.debug:
             print "added bizobj with dataSource of %s" % bizobj.dataSource
+        self.SetStatusText("Bizobj '%s' added." % bizobj.dataSource)
         
+    def getPrimaryBizobj(self):
+        return self._primaryBizobj
+    
+    def setPrimaryBizobj(self, dataSource):
+        try:
+            bo = self.bizobjs[dataSource]
+        except KeyError:
+            bo = None
+        if bo:
+            self._primaryBizobj = dataSource
+            self.setupMenu()
+        else:
+            print "bizobj for data source %s does not exist." % dataSource
+            
     def addControl(self, control):
         ''' dForm.addControl(control) -> None
         
@@ -104,10 +171,12 @@ class dForm(wx.Dialog, dFormMixin):
             Ask the primary bizobj to move to the first record.
         '''
         if self.bizobjs:
-            biz = self.bizobjs[self.primaryBizobj]
+            biz = self.bizobjs[self.getPrimaryBizobj()]
             response = biz.first()
             if self.debug:
                 print response
+            if response == k.FILE_OK:
+                self.SetStatusText(self.getCurrentRecordText())
         else:
             if self.debug:
                 print "in dForm.first(): No bizobjs defined."
@@ -119,10 +188,12 @@ class dForm(wx.Dialog, dFormMixin):
             Ask the primary bizobj to move to the last record.
         '''
         if self.bizobjs:
-            biz = self.bizobjs[self.primaryBizobj]
+            biz = self.bizobjs[self.getPrimaryBizobj()]
             response = biz.last()
             if self.debug: 
                 print response
+            if response == k.FILE_OK:
+                self.SetStatusText(self.getCurrentRecordText())
         else:
             if self.debug:
                 print "in dForm.first(): No bizobjs defined."
@@ -134,10 +205,14 @@ class dForm(wx.Dialog, dFormMixin):
             Ask the primary bizobj to move to the previous record.
         '''
         if self.bizobjs:
-            biz = self.bizobjs[self.primaryBizobj]
+            biz = self.bizobjs[self.getPrimaryBizobj()]
             response = biz.prior()
             if self.debug:
                 print response
+            statusText = self.getCurrentRecordText()
+            if response == k.FILE_BOF:
+                statusText += " (BOF)"
+            self.SetStatusText(statusText)
         else:
             if self.debug:
                 print "in dForm.first(): No bizobjs defined."
@@ -149,10 +224,14 @@ class dForm(wx.Dialog, dFormMixin):
             Ask the primary bizobj to move to the next record.
         '''
         if self.bizobjs:
-            biz = self.bizobjs[self.primaryBizobj]
+            biz = self.bizobjs[self.getPrimaryBizobj()]
             response = biz.next()
             if self.debug:
                 print response
+            statusText = self.getCurrentRecordText()
+            if response == k.FILE_EOF:
+                statusText += " (EOF)"
+            self.SetStatusText(statusText)
         else:
             if self.debug:
                 print "in dForm.first(): No bizobjs defined."
@@ -170,6 +249,8 @@ class dForm(wx.Dialog, dFormMixin):
         if response == k.FILE_OK:
             if self.debug:
                 print "Save successful."
+            self.SetStatusText("Changes to %s saved." % (
+                    self.saveAllRows and "all records" or "current record",))
         else:
             if self.debug:
                 print "Save failed with response: %s" % response
@@ -189,6 +270,8 @@ class dForm(wx.Dialog, dFormMixin):
         if response == k.FILE_OK:
             if self.debug:
                 print "Cancel successful."
+            self.SetStatusText("Changes to %s cancelled." % (
+                    self.saveAllRows and "all records" or "current record",))
             self.refreshControls()
         else:
             if self.debug:
@@ -208,11 +291,20 @@ class dForm(wx.Dialog, dFormMixin):
             Ask the primary bizobj to requery, and if successful refresh 
             the contained controls.
         '''
-        bizobj = self.getBizobj()
-        response = bizobj.requery()
+        import time
+        
+        start = time.time()
+        response = self.getBizobj().requery()
+        stop = round(time.time() - start, 3)
+        
         if response == k.FILE_OK:
             if self.debug:
                 print "Requery successful."
+            self.SetStatusText("%s record%sselected in %s second%s" % (
+                    self.getBizobj().getRowCount(), 
+                    self.getBizobj().getRowCount() == 1 and " " or "s ",
+                    stop,
+                    stop == 1 and "." or "s."))
             self.refreshControls()
         else:
             if self.debug:
@@ -229,17 +321,21 @@ class dForm(wx.Dialog, dFormMixin):
             controls.
         '''
         bizobj = self.getBizobj()
-        response = bizobj.delete()
-        if response == k.FILE_OK:
-            if self.debug:
-                print "Delete successful."
-            self.refreshControls()
-        else:
-            if self.debug:
-                print "Delete failed with response: %s" % response
-                print bizobj.getErrorMsg()
-            ### TODO: What should be done here? Raise an exception?
-            ###       Prompt the user for a response?
+        if dAreYouSure("This will delete the current record, and cannot "
+                        "be cancelled.\n\n Are you sure you want to do this?",
+                        defaultNo=True):
+            response = bizobj.delete()
+            if response == k.FILE_OK:
+                if self.debug:
+                    print "Delete successful."
+                self.SetStatusText("Record Deleted.")
+                self.refreshControls()
+            else:
+                if self.debug:
+                    print "Delete failed with response: %s" % response
+                    print bizobj.getErrorMsg()
+                ### TODO: What should be done here? Raise an exception?
+                ###       Prompt the user for a response?
         
     def deleteAll(self):
         ''' dForm.deleteAll() -> None
@@ -249,17 +345,20 @@ class dForm(wx.Dialog, dFormMixin):
             controls.
         '''
         bizobj = self.getBizobj()
-        response = bizobj.deleteAll()
-        if response == k.FILE_OK:
-            if self.debug:
-                print "Delete All successful."
-            self.refreshControls()
-        else:
-            if self.debug:
-                print "Delete All failed with response: %s" % response
-                print bizobj.getErrorMsg()
-            ### TODO: What should be done here? Raise an exception?
-            ###       Prompt the user for a response?
+        if dAreYouSure("This will delete all records in the recordset, and cannot "
+                        "be cancelled.\n\n Are you sure you want to do this?",
+                        defaultNo=True):
+            response = bizobj.deleteAll()
+            if response == k.FILE_OK:
+                if self.debug:
+                    print "Delete All successful."
+                self.refreshControls()
+            else:
+                if self.debug:
+                    print "Delete All failed with response: %s" % response
+                    print bizobj.getErrorMsg()
+                ### TODO: What should be done here? Raise an exception?
+                ###       Prompt the user for a response?
     
     def new(self):
         ''' dForm.new() -> None
@@ -273,6 +372,8 @@ class dForm(wx.Dialog, dFormMixin):
         if response == k.FILE_OK:
             if self.debug:
                 print "New successful."
+            statusText = self.getCurrentRecordText()
+            self.SetStatusText(statusText)
             self.refreshControls()
         else:
             if self.debug:
@@ -288,7 +389,7 @@ class dForm(wx.Dialog, dFormMixin):
             no dataSource passed return the primary bizobj.
         '''
         if not dataSource:
-            dataSource = self.primaryBizobj
+            dataSource = self.getPrimaryBizobj()
         try:
             return self.bizobjs[dataSource]
         except KeyError:
@@ -305,11 +406,31 @@ class dForm(wx.Dialog, dFormMixin):
         '''
         if self.beforeSetupPageFrame():
             self.pageFrame = dPageFrame(self)
+            nbSizer = wx.NotebookSizer(self.pageFrame)
+            self.GetSizer().Add(nbSizer, 1, wx.EXPAND)
             self.afterSetupPageFrame()
         
     def beforeSetupPageFrame(self): return True
     def afterSetupPageFrame(self): pass
-    
+
+    def onSetSelectionCriteria(self, event):
+        self.pageFrame.SetSelection(0)
+        
+    def onBrowseRecords(self, event):
+        self.pageFrame.SetSelection(1)
+        
+    def onEditCurrentRecord(self, event):
+        self.pageFrame.SetSelection(2)
+            
+    def onFirst(self, event): self.first()
+    def onPrior(self, event): self.prior()
+    def onNext(self, event): self.next()
+    def onLast(self, event): self.last()
+    def onSave(self, event): self.save()
+    def onCancel(self, event): self.cancel()
+    def onNew(self, event): self.new()
+    def onDelete(self, event): self.delete()
+        
     def addVCR(self):
         ''' dForm.addVCR() -> None
         
@@ -324,6 +445,9 @@ class dForm(wx.Dialog, dFormMixin):
         self.GetSizer().Add(bs, 0, wx.EXPAND)
         self.GetSizer().Layout()
 
+    def getCurrentRecordText(self):
+        return "Record %s/%s" % (self.getBizobj().getRowNumber()+1,
+                                    self.getBizobj().getRowCount())
     def _setupResources(self, resourceString):
         ''' dForm._setupResources(resourceString) -> None
         
