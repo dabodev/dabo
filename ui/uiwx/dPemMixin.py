@@ -625,9 +625,11 @@ class dPemMixin(dPemMixinBase):
 		return {"editor": "integer", "min": 0, "max": 8192}
 
 	def _setHeight(self, height):
-		self._pemObject.SetSize((self._pemObject.GetSize()[0], int(height)))
-		if not isinstance(self, wx.Frame):
-			self._pemObject.SetMinSize(self._pemObject.GetSize())
+		newSize = self._pemObject.GetSize()[0], int(height)
+		if isinstance(self, (wx.Frame, wx.Dialog) ):
+			self._pemObject.SetSize(newSize)
+		else:
+			self._pemObject.SetBestFittingSize(newSize)
 
 
 	def _getHelpContextText(self):
@@ -721,9 +723,10 @@ class dPemMixin(dPemMixinBase):
 		return self._pemObject.GetSize()
 
 	def _setSize(self, size):
-		self._pemObject.SetSize(size)
-		if not isinstance(self, wx.Frame):
-			self._pemObject.SetMinSize(size)
+		if isinstance(self, (wx.Frame, wx.Dialog) ):
+			self._pemObject.SetSize(size)
+		else:
+			self._pemObject.SetBestFittingSize(size)
 
 	
 	def _getSizer(self):
@@ -774,10 +777,11 @@ class dPemMixin(dPemMixinBase):
 		return {"editor": "integer", "min": 0, "max": 8192}
 
 	def _setWidth(self, width):
-		self._pemObject.SetSize((int(width), self._pemObject.GetSize()[1]))
-		if not isinstance(self, wx.Frame):
-			self._pemObject.SetMinSize(self._pemObject.GetSize())
-
+		newSize = int(width), self._pemObject.GetSize()[1]
+		if isinstance(self, (wx.Frame, wx.Dialog) ):
+			self._pemObject.SetSize(newSize)
+		else:
+			self._pemObject.SetBestFittingSize(newSize)
 
 	def _getWindowHandle(self):
 		return self._pemObject.GetHandle()
