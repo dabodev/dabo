@@ -181,7 +181,11 @@ C: Popup Calendar to Select
 		if self.useWxEvents:
 			keycode = evt.GetKeyCode()
 		else:
-			keycode = evt.EventData["keyCode"]
+			try:
+				keycode = evt.EventData["keyCode"]
+			except:
+				# spurious key event; ignore
+				return
 		if keycode < 0 or keycode > 255:
 			# Let it be handled higher up
 			return
