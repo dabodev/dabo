@@ -51,7 +51,6 @@ class dDataNavForm(dForm.dForm):
 		
 							
 	def __onActivate(self, evt):
-		evt.Skip()
 		dDataNavForm.doDefault(evt)
 		if self.RequeryOnLoad and not self._requeried:
 			self._requeried = True

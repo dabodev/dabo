@@ -560,7 +560,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	
 	def __onActivate(self, evt):
 		self.Application.ActiveForm = self
-		evt.Skip()
 	
 	def __onDeactivate(self, evt):
 		if self.Application.ActiveForm == self:
