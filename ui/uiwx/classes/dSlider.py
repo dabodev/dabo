@@ -3,21 +3,23 @@ import dControlMixin as cm
 import dDataControlMixin as dcm
 
 class dSlider(wx.Slider, dcm.dDataControlMixin, cm.dControlMixin):
-	""" Allows the creation of progress bars.
+	""" Allows editing integer values with a slider control.
+	
+	Slider does not allow entering a value with the keyboard.
 	"""
 	def __init__(self, parent, id=-1, name="dSlider", style=0, *args, **kwargs):
 
 		self._baseClass = dSlider
 
 		pre = wx.PreSlider()
-		self.beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)                  # defined in dPemMixin
 		
 		pre.Create(parent, id, 50, 0, 100, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)
-		self.afterInit()                      # defined in dPemMixin
+		self._afterInit()                      # defined in dPemMixin
 
 
 	def initEvents(self):

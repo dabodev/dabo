@@ -619,7 +619,11 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		
 		Alternatively, user code can just call self.Parent.getPK().
 		"""
-		return self.Parent.getPK()
+		try:
+			return self.Parent.getPK()
+		except dError.NoRecordsError:
+			# The parent bizobj has no records
+			return None
 
 
 	def getFieldVal(self, fld):

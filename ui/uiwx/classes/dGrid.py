@@ -521,8 +521,7 @@ class dGrid(wx.grid.Grid):
 		""" Request that a new row be added.
 		"""
 		try:
-			self.GetParent().getDform().new()
-			self.GetParent().editRecord()
+			self.GetParent().newRecord()
 		except AttributeError:
 			pass
 
@@ -540,7 +539,7 @@ class dGrid(wx.grid.Grid):
 		""" Request that the current row be deleted.
 		"""
 		try:
-			self.GetParent().getDform().delete()
+			self.GetParent().deleteRecord()
 		except AttributeError:
 			pass
 

@@ -24,17 +24,24 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 			return ret
 
 	
+	def _beforeInit(self, preCreateObject):
+		self._name = '?'
+		self._pemObject = preCreateObject
+		self.initStyleProperties()
+		self._pemObject = self
+		
+		# Call the subclass hook:
+		self.beforeInit(preCreateObject)
+		
+		
 	def beforeInit(self, preCreateObject):
 		""" Called before the wx object is fully instantiated.
 
 		Allows things like extra style flags to be set or XRC resources to
 		be loaded. Subclasses can override this as necessary.
 		"""
-		self._name = '?'
-		self._pemObject = preCreateObject
-		self.initStyleProperties()
-		self._pemObject = self
-
+		pass
+		
 
 	def __init__(self, *args, **kwargs):
 		if self.Position == (-1, -1):
@@ -55,14 +62,20 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 			wx.HelpProvider.Set(wx.SimpleHelpProvider())
 
 
+	def _afterInit(self):
+		self.initProperties()
+		self.initChildObjects()
+		self.afterInit()
+		
+
 	def afterInit(self):
 		""" Called after the wx object's __init__ has run fully.
 
 		Subclasses should place their __init__ code here in this hook,
 		instead of overriding __init__ directly.
 		"""
-		self.initProperties()
-
+		pass
+		
 
 	def initProperties(self):
 		""" Hook for subclasses.
@@ -72,8 +85,8 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 			self.BackColor = (192,192,192)
 		"""
 		pass
-
-
+		
+		
 	def initStyleProperties(self):
 		""" Hook for subclasses.
 
@@ -84,6 +97,15 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		pass
 
 		
+	def initChildObjects(self):
+		""" Hook for subclasses.
+		
+		Dabo Designer will set its addObject code here, such as:
+			self.addObject(dTextBox, 'txtLastName')
+		"""
+		pass
+		
+
 	def getPropertyInfo(self, name):
 		d = dPemMixin.doDefault(name)   # the property helper does most of the work
 		
@@ -331,8 +353,12 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		self._name = name      # keeps name available even after C++ object is gone.
 		return name
 	def _setName(self, name):
-		self._name = name      # keeps name available even after C++ object is gone.
+		for window in self._pemObject.GetParent().GetChildren():
+			if window.GetName() == name and window != self:
+				raise NameError, "A unique object name is required."
+
 		self._pemObject.SetName(str(name))
+		self._name = self._pemObject.GetName()
 
 
 	def _getCaption(self):

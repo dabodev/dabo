@@ -11,21 +11,20 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 		self._baseClass = dPageFrame
 
 		pre = wx.PreNotebook()
-		self.beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)                  # defined in dPemMixin
 		style = style | pre.GetWindowStyle()
 		pre.Create(parent, id, pos, size, style, name)
 
 		self.PostCreate(pre)
 		
 		dControlMixin.dControlMixin.__init__(self, name)
-		self.afterInit()                      # defined in dPemMixin
+		self._afterInit()                      # defined in dPemMixin
 		
 		if pages:
 			for i in range(0, pages):
 				self.AddPage(dPage.dPage(self), "Page " + str(i+1) )
-		
-
-
+	
+	
 	def afterInit(self):
 		self.lastSelection = 0
 		dPageFrame.doDefault()

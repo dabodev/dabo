@@ -10,8 +10,16 @@ class dControlMixin(pm.dPemMixin):
 		pm.dPemMixin.__init__(self)
 
 		self.debug = False
+		
 		if name:
-			self.Name = name
+			try:
+				self.Name = name
+			except NameError:
+				# Name isn't unique: punt for now: likely, user code will change the
+				# name anyway. Or if not, user code likely doesn't care about the name.
+				name = "%s_%s" % (name, self.GetId())
+				self.Name = name
+
 		self.Caption = self.getDefaultText()
 
 		# Subclass will intercept the initEvents first, allowing

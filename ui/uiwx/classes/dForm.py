@@ -33,12 +33,19 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			style = wx.DEFAULT_FRAME_STYLE
 
 		pre = wxPreFrameClass()
-		self.beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)                  # defined in dPemMixin
 		pre.Create(parent, id, title, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 		
-		self.Name, self.Caption = name, name
+		try:		
+			self.Name, self.Caption = name, name
+		except NameError:
+			# Name isn't unique: punt for now: likely, user code will change the
+			# name anyway.
+			name = "%s_%s" % (name, self.GetId())
+			self.Name, self.Caption = name, name
+			
 
 		if parent:        
 			dApp = parent.dApp
@@ -59,7 +66,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.SetSizer(wx.BoxSizer(wx.VERTICAL))
 		self.GetSizer().Layout()
 
-		self.afterInit()                      # defined in dPemMixin
+		self._afterInit()                      # defined in dPemMixin
 
 
 	def addBizobj(self, bizobj):

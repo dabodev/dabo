@@ -9,14 +9,14 @@ class dGauge(wx.Gauge, cm.dControlMixin):
 		self._baseClass = dGauge
 
 		pre = wx.PreGauge()
-		self.beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)                  # defined in dPemMixin
 		
 		pre.Create(parent, id, 100, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)
-		self.afterInit()                      # defined in dPemMixin
+		self._afterInit()                      # defined in dPemMixin
 
 
 	def initEvents(self):

@@ -9,13 +9,13 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 		self._baseClass = dCommandButton
 
 		pre = wx.PreButton()
-		self.beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)                  # defined in dPemMixin
 		pre.Create(parent, id, name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 		
 		cm.dControlMixin.__init__(self, name)
-		self.afterInit()                      # defined in dPemMixin
+		self._afterInit()                      # defined in dPemMixin
 
 
 	def initEvents(self):

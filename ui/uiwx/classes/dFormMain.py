@@ -20,7 +20,7 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 		self._baseClass = dFormMain
 
 		pre = wxPreFrameClass()
-		self.beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)                  # defined in dPemMixin
 		pre.Create(None, -1, "dFormMain")
 
 		self.PostCreate(pre)
@@ -42,7 +42,7 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 			self.SetLabel("Dabo")
 			self.setStatusText("Welcome to Dabo!")
 
-		self.afterInit()                      # defined in dPemMixin
+		self._afterInit()                      # defined in dPemMixin
 
 
 if __name__ == "__main__":

@@ -13,11 +13,11 @@ class dPanel(wx.Panel, dControlMixin.dControlMixin):
 		self._baseClass = dPanel
 
 		pre = wx.PrePanel()
-		self.beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)                  # defined in dPemMixin
 		pre.Create(parent, id=id, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 		
 		dControlMixin.dControlMixin.__init__(self, name)
 
-		self.afterInit()                      # defined in dPemMixin
+		self._afterInit()                      # defined in dPemMixin

@@ -10,7 +10,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 		self._baseClass = dRadioGroup
 
 		pre = wx.PreRadioBox()
-		self.beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)                  # defined in dPemMixin
 		
 		try:
 			choices = pre._optionList
@@ -29,7 +29,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 
 		cm.dControlMixin.__init__(self, name)
 		dcm.dDataControlMixin.__init__(self)
-		self.afterInit()                      # defined in dPemMixin
+		self._afterInit()                      # defined in dPemMixin
 
 
 	def initEvents(self):

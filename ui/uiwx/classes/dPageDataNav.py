@@ -1,5 +1,5 @@
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox, dIcons, dCommandButton
-import dPanel, dGrid, dCommandButton
+import dPanel, dGrid, dCommandButton, dMessageBox
 import wx
 from dabo.dLocalize import _
 
@@ -311,6 +311,15 @@ class dBrowsePage(dPage.dPage):
 			window.SetFocus()
 
 
+	def newRecord(self):
+		self.getDform().new()
+		self.editRecord()
+	
+		
+	def deleteRecord(self):
+		self.GetParent().getDform().delete()
+
+	
 	def editRecord(self):
 		# Called by the grid: user wants to edit the current row
 		self.GetParent().SetSelection(2)
@@ -457,3 +466,15 @@ class dChildViewPage(dPage.dPage):
 		self.GetSizer().Layout()
 		for window in self.grid.GetChildren():
 			window.SetFocus()
+	
+			
+	def newRecord(self):
+		dMessageBox.stop("Adding new childview records isn't supported yet.")
+		
+		
+	def deleteRecord(self):
+		dMessageBox.stop("Deleting childview records isn't supported yet.")
+
+	
+	def editRecord(self):
+		dMessageBox.stop("Editing childview records isn't supported yet.")

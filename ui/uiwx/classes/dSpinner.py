@@ -10,14 +10,14 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 		self._baseClass = dSpinner
 
 		pre = wx.PreSpinCtrl()
-		self.beforeInit(pre)                  # defined in dPemMixin
+		self._beforeInit(pre)                  # defined in dPemMixin
 		pre.Create(parent, id, name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 
 		cm.dControlMixin.__init__(self, name)
 		dcm.dDataControlMixin.__init__(self)
-		self.afterInit()                      # defined in dPemMixin
+		self._afterInit()                      # defined in dPemMixin
 
 
 	def afterInit(self):
