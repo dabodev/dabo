@@ -286,7 +286,12 @@ class dCursorMixin(dabo.common.dObject):
 
 		# First, preserve the PK of the current row so that we can reset
 		# the RowNumber property to point to the same row in the new order.
-		currRowKey = self._records[self.RowNumber][self.KeyField]
+		try:
+			currRowKey = self._records[self.RowNumber][self.KeyField]
+		except IndexError:
+			# Row no longer exists, such as after a Requery that returns
+			# fewer rows.
+			currRowKey = None
 		# Create the list to hold the rows for sorting
 		sortList = []
 		if not ord:
@@ -317,10 +322,13 @@ class dCursorMixin(dabo.common.dObject):
 		self._records = tuple(newRows)
 
 		# restore the RowNumber
-		for i in range(0, self.RowCount):
-			if self._records[i][self.KeyField] == currRowKey:
-				self.RowNumber = i
-				break
+		if currRowKey:
+			for i in range(0, self.RowCount):
+				if self._records[i][self.KeyField] == currRowKey:
+					self.RowNumber = i
+					break
+		else:
+			self.RowNumber = 0
 
 
 	def setNonUpdateFields(self, fldList=[]):
