@@ -1,6 +1,8 @@
 import time
 import dabo
 from dabo.common import dObject
+import dabo.ui as ui
+import dabo.biz.dBizobj as dBizobj
 
 class Event(dObject):
 	""" Base class for Dabo events.
@@ -31,7 +33,16 @@ class Event(dObject):
 		if dabo.eventLogging:
 			self._logEvent()
 		
-
+	
+	def appliesToClass(eventClass, objectClass):
+		""" Returns True if this event can be raised by the passed class.
+		
+		Stub: subclass events need to override with appropriate logic.
+		"""
+		return False
+	appliesToClass = classmethod(appliesToClass)
+			
+		
 	def stop(self):
 		"""Stop the event from being handled by other handlers.
 		
@@ -118,40 +129,65 @@ class Event(dObject):
 		"Dictionary of data name/value pairs associated with the event.")
 		
 
-		
 class MouseEvent(Event):
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
 	
 class KeyEvent(Event):
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
 	
 class DataEvent(Event):
-	pass
-	
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.biz.dBizobj)
+	appliesToClass = classmethod(appliesToClass)
+			
+class SashEvent(Event):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dSplitter)
+	appliesToClass = classmethod(appliesToClass)
 
+	
 class Activate(Event):
 	"""Occurs when the form or application becomes active."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, (dabo.dApp, dabo.ui.dForm, dabo.ui.dFormMain, dabo.ui.dDialog))
+	appliesToClass = classmethod(appliesToClass)
 	
 class Close(Event):
 	"""Occurs when the user closes the form."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, (dabo.ui.dForm, dabo.ui.dFormMain, dabo.ui.dDialog))
+	appliesToClass = classmethod(appliesToClass)
 	
 class Create(Event):
 	"""Occurs after the control or form is created."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
 	
 class Deactivate(Event):
 	"""Occurs when another form becomes active."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, (dabo.dApp, dabo.ui.dForm, dabo.ui.dFormMain, dabo.ui.dDialog))
+	appliesToClass = classmethod(appliesToClass)
 	
 class Destroy(Event):
 	"""Occurs when the control or form is destroyed."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
 	
 class Hit(Event):
 	"""Occurs with the control's default event (button click, listbox pick, checkbox, etc.)"""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, (ui.dBitmapButton, ui.dButton, ui.dCheckBox,
+			ui.dDropdownList, ui.dEditBox, ui.dListBox,
+			ui.dRadioGroup, ui.dSlider, ui.dSpinner, ui.dTextBox,
+			ui.dTimer, ui.dToggleButton))
+	appliesToClass = classmethod(appliesToClass)
 	
 class Idle(Event):
 	"""Occurs when the event loop has no active events to process.
@@ -160,15 +196,21 @@ class Idle(Event):
 	will only run when the application is otherwise not busy doing other (more 
 	important) things.
 	"""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
 	
 class ItemPicked(Event):
 	"""Occurs when an item was picked from a picklist."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, (dabo.ui.dDataNavForm, dabo.ui.dFormDataNav))
+	appliesToClass = classmethod(appliesToClass)
 	
 class GotFocus(Event):
 	"""Occurs when the control gets the focus."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
 
 	
 class KeyChar(KeyEvent):
@@ -186,11 +228,15 @@ class KeyUp(KeyEvent):
 	
 class LostFocus(Event):
 	"""Occurs when the control loses the focus."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
 
 class Move(Event):
 	"""Occurs when the control's position changes."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
 	
 		
 class MouseEnter(MouseEvent):
@@ -232,38 +278,52 @@ class MouseRightUp(MouseEvent):
 	"""Occurs when the mouse's right button is released on the control."""
 	pass
 
-class SashDoubleClick(MouseEvent):
-	"""Occurs when a user double-clicks on the sash of a splitter window."""
-	pass
-
-
+	
 class Paint(Event):
 	"""Occurs when it is time to paint the control."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
 	
 class PageEnter(Event):
 	"""Occurs when the page becomes the active page."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPage)
+	appliesToClass = classmethod(appliesToClass)
 	
 class PageLeave(Event):
 	"""Occurs when a different page becomes active."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPage)
+	appliesToClass = classmethod(appliesToClass)
 
 
 class Resize(Event):
 	"""Occurs when the control or form is resized."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
 	
 		
 class RowNumChanged(DataEvent):
 	"""Occurs when the cursor's row number has changed."""
 	pass
 
+	
+class SashDoubleClick(SashEvent):
+	"""Occurs when a user double-clicks on the sash of a splitter window."""
+	pass
+
+	
 class ValueChanged(Event):
 	"""Occurs when the control's value has changed, whether programmatically or interactively."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dDataControlMixin.dDataControlMixin)
+	appliesToClass = classmethod(appliesToClass)
 	
 class ValueRefresh(Event):
 	"""Occurs when the form wants the controls to refresh their values."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dForm)
+	appliesToClass = classmethod(appliesToClass)
 

@@ -9,11 +9,6 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 	"""
 	_IsContainer = False
 
-	def escapeQt(self, s):
-		sl = "\\"
-		qt = "\'"
-		return s.replace(sl, sl+sl).replace(qt, sl+qt)
-
 	def getAbsoluteName(self):
 		""" Return the fully qualified name of the object.
 		"""
@@ -37,6 +32,20 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 		names.reverse()
 		return '.'.join(names)
 
+		
+	def getValidEvents(self):
+		"""Returns a list of valid Dabo events for this object.
+		"""
+		import dabo.dEvents as e  # imported here to avoid circular import 
+		validEvents = []
+		events = [e.__dict__[evt] for evt in dir(e)]
+		for evt in events:
+			if type(evt) == type and issubclass(evt, e.Event):
+				if evt.appliesToClass(self.__class__):
+					validEvents.append(evt)
+		return validEvents
+		
+		
 	def _getBaseClass(self):
 		# Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:
 		# 	class dBackend(object)
