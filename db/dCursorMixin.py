@@ -306,7 +306,7 @@ class dCursorMixin:
 		with the actual PK value.
 		"""
 		rec = self._rows[self.rownumber]
-		tmpPK = self._genTmpPKVal()
+		tmpPK = self._genTempPKVal()
 		rec[self.keyField] = tmpPK
 		rec[k.CURSOR_TMPKEY_FIELD] = tmpPK
 		

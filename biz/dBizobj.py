@@ -491,6 +491,9 @@ class dBizobj(dabo.common.dObject):
 		"""
 		if sql is None:
 			# sql not passed; get it from the sql mixin:
+			# Set the appropriate child filter on the link field
+			self.setChildLinkFilter()
+
 			self.SQL = self.getSQL()
 		else:
 			# sql passed; set it explicitly
@@ -512,9 +515,6 @@ class dBizobj(dabo.common.dObject):
 		# Hook method for creating the param list
 		params = self.getParams()
 		
-		# Set the appropriate child filter on the link field
-		self.setChildLinkFilter()
-
 		# Record this in case we need to restore the record position
 		try:
 			currPK = self.getPK()
@@ -540,7 +540,7 @@ class dBizobj(dabo.common.dObject):
 			val = self.__escQuote(self.getParentPK())
 			self.Cursor.setChildFilterClause(" %s.%s = %s " % (self.DataSource, 
 					self.LinkField, val) )
-
+					
 
 	def sort(self, col, ord=None, caseSensitive=True):
 		""" Sort the rows based on values in a specified column.

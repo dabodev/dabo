@@ -32,7 +32,6 @@ class dSqlBuilderMixin:
 			self._fieldClause = "%s, " % self._fieldClause
 		self._fieldClause += exp
 
-
 	def getFromClause(self):
 		""" Get the from clause of the sql statement.
 		"""
