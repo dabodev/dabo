@@ -13,21 +13,41 @@ class dBizobj(dabo.common.dObject):
 	dCursorMixinClass = dCursorMixin
 
 	# Versioning...
-	_version = "0.1.0"
+	_version = "0.2.0"
 	
 	# Need to set this here
 	useFieldProps = False
 
-	# Hack so that I can test until the app can return cursorsClasses, etc.
-	TESTING = False
-	
 
-	def __init__(self, conn, testHack=TESTING):
+	def __init__(self, conn):
 		""" User code should override beforeInit() and/or afterInit() instead.
 		"""
+		self.initProperties()
+		self.beforeInit()
+		self._conn = conn
+		
+		#dBizobj.doDefault()		
+		super(dBizobj, self).__init__()
+
+		# Dictionary holding any default values to apply when a new record is created
+		# (should be made into a property - do we have a name/value editor for the propsheet?)
+		self.defaultValues = {}
+		
+		if self._conn:
+			# Base cursor class : the cursor class from the db api
+			self.dbapiCursorClass = self._conn.getDictCursorClass()
+		
+			# If there are any problems in the createCursor process, an
+			# exception will be raised in that method.
+			self.createCursor()
+
+		self.afterInit()
+	
+	
+	def initProperties(self):
 		self.__cursors = {}		# Collection of cursor objects. MUST be defined first.
 		self.__currentCursorKey = None
-		self._conn = conn
+		self._conn = None
 		self.__params = ()		# tuple of params to be merged with the sql in the cursor
 		self.__children = []		# Collection of child bizobjs
 		self._baseClass = dBizobj
@@ -41,10 +61,22 @@ class dBizobj(dabo.common.dObject):
 		self._parentLinkField = ""
 		# Used the the addChildByRelationDict() method to eliminate infinite loops
 		self.__relationDictSet = False
-
-		#dBizobj.doDefault()		
-		super(dBizobj, self).__init__()
-
+		# Do we try to same on the same record during a requery?
+		self._restorePositionOnRequery = True
+		
+		# Various attributes used for Properties
+		self._caption = ""
+		self._dataSource = ""
+		self._SQL = ""
+		self._requeryOnLoad = False
+		self._parent  = None
+		self._autoPopulatePK = True
+		self._keyField = ""
+		self._requeryChildOnSave = False
+		self._newRecordOnNewParent = False
+		self._newChildOnNew = False
+		self._fillLinkFromParent = False
+		
 		##########################################
 		### referential integrity stuff ####
 		##########################################
@@ -57,25 +89,6 @@ class dBizobj(dabo.common.dObject):
 		self.insertChildLogic = k.REFINTEG_IGNORE        # child records can be inserted even if no parent record exists.
 		##########################################
 		
-		self.beforeInit()
-		
-		# Dictionary holding any default values to apply when a new record is created
-		# (should be made into a property - do we have a name/value editor for the propsheet?)
-		self.defaultValues = {}
-		
-		if self._conn:
-			if testHack:
-				import MySQLdb
-				self.dbapiCursorClass = MySQLdb.cursors.DictCursor
-			else:
-				# Base cursor class : the cursor class from the db api
-				self.dbapiCursorClass = self._conn.getDictCursorClass()
-		
-			# If there are any problems in the createCursor process, an
-			# exception will be raised in that method.
-			self.createCursor()
-
-		self.afterInit()
 		
 		
 	def beforeInit(self):
@@ -145,10 +158,8 @@ class dBizobj(dabo.common.dObject):
 		if key is None:
 			key = self.__currentCursorKey
 		
-		if self.TESTING:
-			self.__cursors[key] = self._conn.cursor(cursorclass=cursorClass)
-		else:
-			self.__cursors[key] = self._conn.getCursor(cursorClass)
+		self.__cursors[key] = self._conn.getCursor(cursorClass)
+		self.__cursors[key].setCursorFactory(self._conn.getCursor, cursorClass)
 
 		crs = self.__cursors[key]
 		crs.setSQL(self.SQL)
