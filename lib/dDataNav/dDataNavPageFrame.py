@@ -1,14 +1,14 @@
 import wx
 import dabo.ui
-import dDataNavPage as pag
+import Page as pag
 
 dabo.ui.loadUI("wx")
 
-class dDataNavPageFrame(dabo.ui.dPageFrame):
+class PageFrame(dabo.ui.dPageFrame):
 
-	def __init__(self, parent, Name="dDataNavPageFrame", defaultPages=False):
+	def __init__(self, parent, Name="PageFrame", defaultPages=False):
 		self._defaultPagesOnLoad = defaultPages
-		super(dDataNavPageFrame, self).__init__(parent, Name=Name)
+		super(PageFrame, self).__init__(parent, Name=Name)
 		il = wx.ImageList(16, 16, initialCount=0)
 		il.Add(dabo.ui.dIcons.getIconBitmap("checkMark"))
 		il.Add(dabo.ui.dIcons.getIconBitmap("browse"))
@@ -23,7 +23,7 @@ class dDataNavPageFrame(dabo.ui.dPageFrame):
 		self.dsEditPages = {}
 		if self.DefaultPagesOnLoad:
 			self.addDefaultPages()
-		super(dDataNavPageFrame, self).initProperties()
+		super(PageFrame, self).initProperties()
 		
 		
 	def addDefaultPages(self):
@@ -62,7 +62,7 @@ class dDataNavPageFrame(dabo.ui.dPageFrame):
 		try:
 			return self._selectPageClass
 		except AttributeError:
-			return pag.dSelectPage
+			return pag.SelectPage
 		
 	def _setSelectPageClass(self, value):
 		if issubclass(value, dPage.dPage):
@@ -75,7 +75,7 @@ class dDataNavPageFrame(dabo.ui.dPageFrame):
 		try:
 			return self._browsePageClass
 		except AttributeError:
-			return pag.dBrowsePage
+			return pag.BrowsePage
 		
 	def _setBrowsePageClass(self, value):
 		if issubclass(value, dPage.dPage):
@@ -88,7 +88,7 @@ class dDataNavPageFrame(dabo.ui.dPageFrame):
 		try:
 			return self._editPageClass
 		except AttributeError:
-			return pag.dEditPage
+			return pag.EditPage
 		
 	def _setEditPageClass(self, value):
 		if issubclass(value, dPage.dPage):

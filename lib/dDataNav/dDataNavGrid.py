@@ -1,7 +1,7 @@
-""" ddDataNavGridGrid.py
+""" Grid.py
 
 This is a grid designed to browse records of a bizobj. It is part of the 
-dDataNavForm subframework. It does not descend from dControlMixin at this 
+dabo.lib.datanav subframework. It does not descend from dControlMixin at this 
 time, but is self-contained. There is a dGridDataTable definition here as 
 well, that defines the 'data' that gets displayed in the grid.
 """
@@ -294,9 +294,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.data[row][col] = value
 
 
-class dDataNavGrid(dabo.ui.dGrid):
+class Grid(dabo.ui.dGrid):
 	def _afterInit(self):
-		dDataNavGrid.doDefault()
+		Grid.doDefault()
 		self.bizobj = None
 
 		ID_IncrementalSearchTimer = wx.NewId()

@@ -4,11 +4,11 @@ import wx
 import dabo.dEvents as dEvents
 import dabo.ui
 from dabo.common import specParser
-import dDataNavPageFrame
+import PageFrame
 
 dabo.ui.loadUI("wx")
 
-class dDataNavForm(dabo.ui.dForm):
+class Form(dabo.ui.dForm):
 	""" This is a dForm but with the following added controls:
 		+ Navigation Menu
 		+ Navigation ToolBar
@@ -18,7 +18,7 @@ class dDataNavForm(dabo.ui.dForm):
 			+ Edit   : Edit the current record in the result set.
 	"""
 	def beforeInit(self):
-		super(dDataNavForm, self).beforeInit()
+		super(Form, self).beforeInit()
 		# Determines if we are actually running the form, or just 
 		# previewing it
 		self._fieldSpecs = {}
@@ -36,16 +36,16 @@ class dDataNavForm(dabo.ui.dForm):
 	def __init__(self, parent=None, previewMode=False, tbl=""):
 		self.preview = previewMode
 		self.previewDataSource = tbl
-		#dDataNavForm.doDefault(parent)
-		super(dDataNavForm, self).__init__(parent)
+		#Form.doDefault(parent)
+		super(Form, self).__init__(parent)
 		# We will need to set these separated if in Preview mode.
 		self.rowNumber = 0
 		self.rowCount = 0
 		
 
 	def _afterInit(self):
-		#dDataNavForm.doDefault()
-		super(dDataNavForm, self)._afterInit()
+		#Form.doDefault()
+		super(Form, self)._afterInit()
 		if self.FormType == 'PickList':
 			# Map escape key to close the form
 			anId = wx.NewId()
@@ -57,24 +57,24 @@ class dDataNavForm(dabo.ui.dForm):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
 				dataSource = self._mainTable
-		#return dDataNavForm.doDefault(dataSource)
-		return super(dDataNavForm, self).save(dataSource)
+		#return Form.doDefault(dataSource)
+		return super(Form, self).save(dataSource)
 	
 	
 	def cancel(self, dataSource=None):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
 				dataSource = self._mainTable
-		#return dDataNavForm.doDefault(dataSource)
-		return super(dDataNavForm, self).cancel(dataSource)
+		#return Form.doDefault(dataSource)
+		return super(Form, self).cancel(dataSource)
 	
 	
 	def requery(self, dataSource=None):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
 				dataSource = self._mainTable
-		#return dDataNavForm.doDefault(dataSource)
-		return super(dDataNavForm, self).requery(dataSource)
+		#return Form.doDefault(dataSource)
+		return super(Form, self).requery(dataSource)
 	
 	
 	def confirmChanges(self):
@@ -82,8 +82,8 @@ class dDataNavForm(dabo.ui.dForm):
 			# Nothing to check
 			return True
 		else:
-			#return dDataNavForm.doDefault()
-			return super(dDataNavForm, self).confirmChanges()
+			#return Form.doDefault()
+			return super(Form, self).confirmChanges()
 	
 	
 	def afterSetPrimaryBizobj(self):        
@@ -166,7 +166,7 @@ class dDataNavForm(dabo.ui.dForm):
 
 
 	def getMenu(self):
-		menu = super(dDataNavForm, self).getMenu()
+		menu = super(Form, self).getMenu()
 		menu.Caption = "&Navigation"
 
 		menu.append("Set Selection Criteria\tAlt+1", 
@@ -263,7 +263,7 @@ class dDataNavForm(dabo.ui.dForm):
 		
 		if self.beforeSetupPageFrame():
 			self.Freeze()
-			self.pageFrame = dDataNavPageFrame.dDataNavPageFrame(self)
+			self.pageFrame = PageFrame.PageFrame(self)
 			nbSizer = wx.NotebookSizer(self.pageFrame)
 			self.Sizer.append(nbSizer, "expand", 1)
 			self.pageFrame.addSelectPage()

@@ -7,10 +7,17 @@ import dabo
 import dabo.ui
 import dabo.dException as dException
 import dabo.dEvents as dEvents
-from dabo.dLocalize import _
-import dDataNavGrid
+from dabo.dLocalize import _, n_
 
 dabo.ui.loadUI("wx")
+
+from dabo.ui import dPanel
+import Grid
+
+IGNORE_STRING, CHOICE_TRUE, CHOICE_FALSE = (n_("-ignore-"),
+					    n_("Is True"),
+					    n_("Is False")
+					    )
 
 # Controls for the select page:
 class SelectControlMixin(dabo.common.dObject):
@@ -64,9 +71,9 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 	Target = property(_getTarget, _setTarget, None, "Holds a reference to the edit control.")
 	
 				
-class DataNavPage(dabo.ui.dPage):
+class Page(dabo.ui.dPage):
 	def afterInit(self):
-		super(DataNavPage, self).afterInit()
+		super(Page, self).afterInit()
 		# Needed for drawing sizer outlines
 		self.redrawOutlines = False
 		self.bindEvent(dEvents.Resize, self.onResize)
@@ -163,7 +170,7 @@ class DataNavPage(dabo.ui.dPage):
 		dc.DrawRectangle(x,y,w,h)
 
 
-class SelectOptionsPanel(dabo.ui.dPanel):
+class SelectOptionsPanel(dPanel):
 	""" Base class for the select options panel.
 	"""
 	def initProperties(self):
@@ -180,9 +187,9 @@ class SortLabel(dabo.ui.dLabel):
 		self.relatedDataField = ""
 		
 		
-class dSelectPage(DataNavPage):
+class SelectPage(Page):
 	def afterInit(self):
-		super(dSelectPage, self).afterInit()
+		super(SelectPage, self).afterInit()
 		# Holds info which will be used to create the dynamic
 		# WHERE clause based on user input
 		self.selectFields = {}
@@ -237,8 +244,8 @@ class dSelectPage(DataNavPage):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
 		self.GetSizer().append(self.selectOptionsPanel, "expand", 1, border=20)
 		self.selectOptionsPanel.SetFocus()
-		#dSelectPage.doDefault()
-		super(dSelectPage, self).createItems()
+		#SelectPage.doDefault()
+		super(SelectPage, self).createItems()
 		if self.Form.RequeryOnLoad:
 			self.requery()
 
@@ -383,30 +390,33 @@ class dSelectPage(DataNavPage):
 	def getSelectorOptions(self, typ, ws):
 		if typ in ("char", "memo"):
 			if typ == "char":
-				chcList = ["Equals", 
-						"Begins With",
-						"Contains"]
+				chcList = [n_("Equals"), 
+					   n_("Begins With"),
+					   n_("Contains")
+					   ]
 			elif typ == "memo":
-				chcList = ["Begins With",
-						"Contains"]
+				chcList = [n_("Begins With"),
+					   n_("Contains")
+					   ]
 			if ws != "0":
-				chcList.append("Matches Words")
+				chcList.append(n_("Matches Words"))
 			chc = tuple(chcList)
 		elif typ in ("date", "datetime"):
-			chc = ("Equals",
-					"On or Before",
-					"On or After",
-					"Before",
-					"After")
+			chc = (n_("Equals"),
+			       n_("On or Before"),
+			       n_("On or After"),
+			       n_("Before"),
+			       n_("After")
+			       )
 		elif typ in ("int", "float", "decimal"):
-			chc = ("Equals", 
-					"Greater than",
-					"Greater than/Equal to",
-					"Less than",
-					"Less than/Equal to")
+			chc = (n_("Equals"), 
+			       n_("Greater than"),
+			       n_("Greater than/Equal to"),
+			       n_("Less than"),
+			       n_("Less than/Equal to")
+			       )
 		elif typ == "bool":
-			chc = (CHOICE_TRUE,
-					CHOICE_FALSE)
+			chc = (CHOICE_TRUE, CHOICE_FALSE)
 		else:
 			dabo.errorLog.write("Type '%s' not recognized." % typ)
 			chc = ()
@@ -421,7 +431,7 @@ class dSelectPage(DataNavPage):
 		else:
 			dataSource = self.Form.previewDataSource
 		fs = self.Form.FieldSpecs
-		panel = dabo.ui.dPanel(self)
+		panel = dPanel(self)
 		gsz = dabo.ui.dGridSizer(vgap=5, hgap=10)
 		gsz.MaxCols = 3
 		label = dabo.ui.dLabel(panel)
@@ -472,7 +482,7 @@ class dSelectPage(DataNavPage):
 				
 		# Now add the limit field
 		lbl = dabo.ui.dLabel(panel)
-		lbl.Caption = "Limit:"
+		lbl.Caption = "&%s:" % _("Limit")
 		limTxt = SelectTextBox(panel)
 		if len(limTxt.Value) == 0:
 			limTxt.Value = "1000"
@@ -514,13 +524,13 @@ class dSelectPage(DataNavPage):
 		return ret
 	
 	
-class dBrowsePage(DataNavPage):
+class BrowsePage(Page):
 	def __init__(self, parent):
-		super(dBrowsePage, self).__init__(parent, Name="pageBrowse")
+		super(BrowsePage, self).__init__(parent, Name="pageBrowse")
 		self._doneLayout = False
 
 	def initEvents(self):
-		super(dBrowsePage, self).initEvents()
+		super(BrowsePage, self).initEvents()
 		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		
@@ -565,7 +575,7 @@ class dBrowsePage(DataNavPage):
 
 	def createItems(self):
 		bizobj = self.Form.getBizobj()
-		grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid")
+		grid = self.addObject(Grid.Grid, "BrowseGrid")
 		grid.fieldSpecs = self.Form.FieldSpecs
 		if not self.Form.preview:
 			grid.setBizobj(bizobj)
@@ -575,7 +585,7 @@ class dBrowsePage(DataNavPage):
 		self.GetSizer().append(grid, 2, "expand")
 		
 		preview = self.addObject(dabo.ui.dButton, "cmdPreview")
-		preview.Caption = "Print Preview"
+		preview.Caption = _("Print Preview")
 		preview.bindEvent(dEvents.Hit, self.onPreview)
 		self.GetSizer().append(preview, 0)		
 		self.itemsCreated = True
@@ -624,9 +634,9 @@ class dBrowsePage(DataNavPage):
 			win.PreviewText(html)
 
 			
-class dEditPage(DataNavPage):
+class EditPage(Page):
 	def __init__(self, parent, ds=None):
-		super(dEditPage, self).__init__(parent)		#, Name="pageEdit")
+		super(EditPage, self).__init__(parent)		#, Name="pageEdit")
 		self.dataSource = ds
 		self.childGrids = []
 		self.childrenAdded = False
@@ -641,7 +651,7 @@ class dEditPage(DataNavPage):
 		self.createItems()
 
 	def initEvents(self):
-		super(dEditPage, self).initEvents()
+		super(EditPage, self).initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
 		self.bindEvent(dEvents.ValueRefresh, self.__onValueRefresh)
@@ -754,7 +764,7 @@ class dEditPage(DataNavPage):
 					mainSizer.append( (10, -1) )
 					mainSizer.append(grdLabel, 0, "expand", alignment="center", 
 							border=10, borderFlags=("left", "right") )
-					grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid")
+					grid = self.addObject(Grid.Grid, "BrowseGrid")
 					grid.fieldSpecs = self.Form.getFieldSpecsForTable(child)
 					grid.DataSource = child
 					grid.setBizobj(childBiz)
