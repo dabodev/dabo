@@ -1,18 +1,13 @@
-import inspect
+import types, datetime, inspect
 
 import dabo
 import dabo.dConstants as k
 from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
 import dabo.dException as dException
-import types, datetime
+import dabo.common
 
-class dCursorMixin:
-	# Name of the primary key field for this cursor. If the PK is a composite
-	# (i.e., more than one field) include both separated by a comma
-	keyField = ""
-	# Name of the table in the database that this cursor is getting data from
-	table = ""
+class dCursorMixin(dabo.common.dObject):
 	# When inserting a new record, do we let the backend database populate
 	# the PK field? 
 	autoPopulatePK = True
@@ -42,6 +37,9 @@ class dCursorMixin:
 	def __init__(self, sql="", *args, **kwargs):
 		if sql:
 			self.sql = sql
+			
+		dCursorMixin.doDefault()
+		
 		self._blank = {}
 		self.__unsortedRows = []
 		self.__nonUpdateFields = []
@@ -54,8 +52,6 @@ class dCursorMixin:
 		self.holddesc = []
 		# Reference to the object with backend-specific behaviors
 		self.__backend = None
-		# Internal counters for row number and count properties.
-		self.__rownumber = -1
 		
 		# properties for the SQL Builder functions
 		self._fieldClause = ""
@@ -81,14 +77,6 @@ class dCursorMixin:
 
 	def setSQL(self, sql):
 		self.sql = sql
-
-
-	def setTable(self, table):
-		self.table = table
-
-
-	def setKeyField(self, kf):
-		self.keyField = kf
 
 
 	def getSortColumn(self):
@@ -229,17 +217,17 @@ class dCursorMixin:
 		if not self.__unsortedRows:
 			# Record the PK values
 			for row in self._records:
-				self.__unsortedRows.append(row[self.keyField])
+				self.__unsortedRows.append(row[self.KeyField])
 
 		# First, preserve the PK of the current row so that we can reset
 		# the RowNumber property to point to the same row in the new order.
-		currRowKey = self._records[self.RowNumber][self.keyField]
+		currRowKey = self._records[self.RowNumber][self.KeyField]
 		# Create the list to hold the rows for sorting
 		sortList = []
 		if not ord:
 			# Restore the rows to their unsorted order
 			for row in self._records:
-				sortList.append([self.__unsortedRows.index(row[self.keyField]), row])
+				sortList.append([self.__unsortedRows.index(row[self.KeyField]), row])
 		else:
 			for row in self._records:
 				sortList.append([row[col], row])
@@ -265,7 +253,7 @@ class dCursorMixin:
 
 		# restore the RowNumber
 		for i in range(0, self.RowCount):
-			if self._records[i][self.keyField] == currRowKey:
+			if self._records[i][self.KeyField] == currRowKey:
 				self.RowNumber = i
 				break
 
@@ -285,7 +273,7 @@ class dCursorMixin:
 		# This is the current description of the cursor.
 		descFlds = self.description
 		# Get the raw version of the table
-		sql = """select * from %s where 1=0 """ % self.table
+		sql = """select * from %s where 1=0 """ % self.Table
 		self.execute( sql )
 		# This is the clean version of the table.
 		stdFlds = self.description
@@ -351,7 +339,7 @@ class dCursorMixin:
 		"""
 		rec = self._records[self.RowNumber]
 		tmpPK = self._genTempPKVal()
-		rec[self.keyField] = tmpPK
+		rec[self.KeyField] = tmpPK
 		rec[k.CURSOR_TMPKEY_FIELD] = tmpPK
 		
 	
@@ -465,17 +453,18 @@ class dCursorMixin:
 
 	def getRowCount(self):
 		""" Get the row count of the current data set.
+		
+		Redundant: Just get this from the property RowCount.
 		"""
 		return self.RowCount
 
 
 	def getRowNumber(self):
 		""" Get the active row number of the data set.
+		
+		Redundant: Just get this from the property RowNumber.
 		"""
-		try:
-			return self.RowNumber
-		except AttributeError:
-			return -1
+		return self.RowNumber
 
 
 	def first(self):
@@ -550,7 +539,7 @@ class dCursorMixin:
 				vals = ""
 				
 				for kk, vv in diff.items():
-					if self.autoPopulatePK and (kk == self.keyField):
+					if self.autoPopulatePK and (kk == self.KeyField):
 						# we don't want to include the PK in the insert
 						continue
 					if kk in self.getNonUpdateFields():
@@ -569,12 +558,12 @@ class dCursorMixin:
 				# Trim leading comma-space from the strings
 				flds = flds[2:]
 				vals = vals[2:]
-				sql = "insert into %s (%s) values (%s) " % (self.table, flds, vals)
+				sql = "insert into %s (%s) values (%s) " % (self.Table, flds, vals)
 
 			else:
 				pkWhere = self.makePkWhere(rec)
 				updClause = self.makeUpdClause(diff)
-				sql = "update %s set %s where %s" % (self.table, updClause, pkWhere)
+				sql = "update %s set %s where %s" % (self.Table, updClause, pkWhere)
 
 			# Save off the props that will change on the update
 			self.__saveProps()
@@ -589,7 +578,7 @@ class dCursorMixin:
 			self.__restoreProps()
 
 			if newrec and self.autoPopulatePK:
-				self.setFieldVal(self.keyField, newPKVal)
+				self.setFieldVal(self.KeyField, newPKVal)
 
 			if newrec:
 				# Need to remove the new flag
@@ -641,12 +630,12 @@ class dCursorMixin:
 		# Create a list of PKs for each 'eligible' row to cancel
 		cancelPKs = []
 		for rec in recs:
-			cancelPKs.append(rec[self.keyField])
+			cancelPKs.append(rec[self.KeyField])
 
 		for i in range(self.RowCount-1, -1, -1):
 			rec = self._records[i]
 
-			if rec[self.keyField] in cancelPKs:
+			if rec[self.KeyField] in cancelPKs:
 				if not self.isRowChanged(rec):
 					# Nothing to cancel
 					continue
@@ -688,7 +677,7 @@ class dCursorMixin:
 			res = True
 		else:
 			pkWhere = self.makePkWhere()
-			sql = "delete from %s where %s" % (self.table, pkWhere)
+			sql = "delete from %s where %s" % (self.Table, pkWhere)
 			res = self.execute(sql)
 
 		if res:
@@ -788,7 +777,7 @@ class dCursorMixin:
 		self.RowNumber = 0
 		for i in range(0, len(self._records)):
 			rec = self._records[i]
-			if rec[self.keyField] == pk:
+			if rec[self.KeyField] == pk:
 				self.RowNumber = i
 				break
 
@@ -891,13 +880,13 @@ class dCursorMixin:
 
 
 	def checkPK(self):
-		""" Verify that the field(s) specified in the keyField prop exist.
+		""" Verify that the field(s) specified in the KeyField prop exist.
 		"""
 		# First, make sure that there is *something* in the field
-		if not self.keyField:
+		if not self.KeyField:
 			raise dException.dException, _("checkPK failed; no primary key specified")
 
-		aFields = self.keyField.split(",")
+		aFields = self.KeyField.split(",")
 		# Make sure that there is a field with that name in the data set
 		try:
 			for fld in aFields:
@@ -913,7 +902,7 @@ class dCursorMixin:
 		"""
 		if not rec:
 			rec = self._records[self.RowNumber]
-		aFields = self.keyField.split(",")
+		aFields = self.KeyField.split(",")
 		ret = ""
 		for fld in aFields:
 			if ret:
@@ -1244,24 +1233,53 @@ class dCursorMixin:
 	def _getBackendObject(self):
 		return self.__backend
 	
+	def _getKeyField(self):
+		try:
+			return self._keyField
+		except AttributeError:
+			return ""
+			
+	def _setKeyField(self, kf):
+		self._keyField = str(kf)
+
 	def _setRowNumber(self, num):
 		self.__rownumber = num
 	
 	def _getRowNumber(self):
-		return self.__rownumber
+		try:
+			return self.__rownumber
+		except AttributeError:
+			return -1
 	
 	def _getRowCount(self):
 		try:
 			return len(self._records)
 		except AttributeError:
 			return -1
+
+	def _getTable(self):
+		try:
+			return self._table
+		except AttributeError:
+			return ""
+			
+	def _setTable(self, table):
+		self._table = str(table)
+		
 	
 	BackendObject = property(_getBackendObject, _setBackendObject, None,
-			"Reference to the object that handles backend-specific actions.")
+			_("Reference to the object that handles backend-specific actions."))
+	
+	KeyField = property(_getKeyField, _setKeyField, None,
+			_("Name of field that is the PK. If multiple fields make up the key, "
+			"separate the fields with commas. (str)"))
 	
 	RowNumber = property(_getRowNumber, _setRowNumber, None,
-			"Current row in the recordset.")
+			_("Current row in the recordset."))
 	
 	RowCount = property(_getRowCount, None, None,
-			"Current number of rows in the recordset. Read-only.")
-	
+			_("Current number of rows in the recordset. Read-only."))
+
+	Table = property(_getTable, _setTable, None,
+			_("The name of the table in the database that this cursor is updating."))
+			
