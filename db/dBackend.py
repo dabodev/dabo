@@ -122,15 +122,27 @@ class dBackend(dabo.common.dObject):
 		
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
-		pass
+		try:
+			cursor.connection.begin()
+		except:
+			# Should we raise an error?
+			pass
 		
 	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
-		pass
+		try:
+			cursor.connection.commit()
+		except:
+			# Should we raise an error?
+			pass
 		
 	def rollbackTransaction(self, cursor):
 		""" Roll back (revert) a SQL transaction."""
-		pass
+		try:
+			cursor.connection.rollback()
+		except:
+			# Should we raise an error?
+			pass
 		
 	def addWithSep(self, base, new, sep=",\n\t"):
 		""" Convenient method of adding to an expression that 

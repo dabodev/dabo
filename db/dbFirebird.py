@@ -154,11 +154,11 @@ class Firebird(dBackend):
 			
 		return tuple(fields)
 	
-	def flush(self, cursor):
-		""" Firebird requires an explicit commit in order to have changes
-		to the database written to disk.
-		"""
-		cursor.execute("COMMIT")
+# 	def flush(self, cursor):
+# 		""" Firebird requires an explicit commit in order to have changes
+# 		to the database written to disk.
+# 		"""
+# 		cursor.connection.commit()
 	
 	def getLastInsertID(self, cursor):
 		# This doesn't work - it'll return None. TODO: figure out what to do.
@@ -166,19 +166,6 @@ class Firebird(dBackend):
 		#return self.doDefault(cursor)
 		#return Firebird.doDefault(cursor)
 		super(Firebird, self).getLastInsertID(cursor)
-
-	# Looks like Firebird doesn't like explicit calls to begin the transaction
-# 	def beginTransaction(self, cursor):
-# 		""" Begin a SQL transaction."""
-# 		res = cursor.execute("BEGIN")
-
-	def commitTransaction(self, cursor):
-		""" Commit a SQL transaction."""
-		res=cursor.execute("COMMIT")
-
-	def rollbackTransaction(self, cursor):
-		""" Roll back (revert) a SQL transaction."""
-		cursor.execute("ROLLBACK")
 
 	def getLimitWord(self):
 		""" Override the default 'limit', since Firebird doesn't use that. """
