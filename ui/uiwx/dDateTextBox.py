@@ -5,7 +5,7 @@ import dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
-import dTextBox, dPanel, dCommandButton
+import dTextBox, dPanel, dButton
 
 
 
@@ -80,7 +80,7 @@ class dDateTextBox(dTextBox.dTextBox):
 	def afterInit(self):
 		if self.showCalButton:
 			# Create a button that will display the calendar
-			self.calButton = dCommandButton.dCommandButton(self.Parent)
+			self.calButton = dButton.dButton(self.Parent)
 			self.calButton.Size = (self.Height, self.Height)
 			self.calButton.Right = self.Right
 			self.calButton.Caption = "V"

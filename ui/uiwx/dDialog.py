@@ -118,11 +118,11 @@ class dOkCancelDialog(dDialog):
 		hs = dabo.ui.dSizer("H")
 		pnl.Sizer = hs
 		hs.append( (24, 1) )
-		self.btnOK = dabo.ui.dCommandButton(pnl, Caption="OK")
+		self.btnOK = dabo.ui.dButton(pnl, Caption="OK")
 		self.btnOK.bindEvent(dEvents.Hit, self.OnOK)
 		hs.append(self.btnOK, 1)
 		hs.append( (16, 1) )
-		self.btnCancel = dabo.ui.dCommandButton(pnl, Caption="Cancel")
+		self.btnCancel = dabo.ui.dButton(pnl, Caption="Cancel")
 		self.btnCancel.bindEvent(dEvents.Hit, self.OnCancel)
 		hs.append(self.btnCancel, 1)
 		hs.append( (24, 1) )

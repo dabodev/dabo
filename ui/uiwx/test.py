@@ -80,7 +80,7 @@ class Test(object):
 		for object in (ui.dBitmapButton(panel),
 					ui.dBox(panel),
 					ui.dCheckBox(panel),
-					ui.dCommandButton(panel),
+					ui.dButton(panel),
 					ui.dDateTextBox(panel),
 					ui.dDropdownList(panel),
 					ui.dEditBox(panel),
