@@ -14,7 +14,11 @@ class dCursorMixin(dabo.common.dObject):
 			self.sql = sql
 
 		#dCursorMixin.doDefault()
-		super(dCursorMixin, self).__init__()
+		#super(dCursorMixin, self).__init__()
+		## pkm: Neither of the above are correct. We need to explicitly
+		##      call dObject's __init__, otherwise the cursor object with
+		##      which we are mixed-in will take the __init__.
+		dabo.common.dObject.__init__(self)
 		
 		# Just in case this is used outside of the context of a bizobj
 		if not hasattr(self, "superCursor") or self.superCursor is None:
