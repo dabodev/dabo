@@ -48,6 +48,9 @@ from dForm import dForm
 from dFormMain import dFormMain
 from dGauge import dGauge
 from dGrid import dGrid
+
+from dGridX import dGrid as dGridX
+
 from dGridSizer import dGridSizer
 import dIcons
 from dImage import dImage
@@ -315,3 +318,31 @@ def sortList(chc, Caption=""):
 		ret = sf.Choices
 	sf.release()
 	return ret
+
+
+def browse(dataSource):
+	"""Given a data source, a form with a grid containing the data
+	is created and displayed. If the source is a Dabo cursor object, 
+	its getDataSet() method will be called to extract the data.
+	"""
+	if type(dataSource) not in (list, tuple):
+		# See if it has a getDataSet() method available
+		if hasattr(dataSource, "getDataSet"):
+			dataSet = dataSource.getDataSet()
+			try:
+				cap = "Browse: %s" % dataSource.Table
+			except:
+				cap = "Browse"
+		else:
+			raise TypeError, "Incorrect data source passed to browse()"
+	else:
+		dataSet = dataSource
+		cap = "Browse"
+	
+	browseForm = dabo.ui.dForm(None, Caption=cap)
+	grd = dGridX(browseForm)
+	grd.buildFromDataSet(dataSet)
+	browseForm.Sizer.append(grd, 1, "x")
+	browseForm.layout()
+	browseForm.show()
+		

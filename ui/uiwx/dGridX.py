@@ -1,15 +1,13 @@
 """ Grid.py
 
-This is a grid designed to browse records of a bizobj. It is part of the 
-dabo.lib.datanav subframework. It does not descend from dControlMixin at this 
-time, but is self-contained. There is a dGridDataTable definition here as 
-well, that defines the 'data' that gets displayed in the grid.
+This is the base Dabo dGrid, usually used for showing a set of records
+in a dataset, and optionally allowing the fields to be edited.
 """
 import datetime
 import wx
 import wx.grid
 import dabo
-dabo.ui.loadUI("wx")
+# dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.dLocalize import _, n_
@@ -41,7 +39,22 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.imageBaseThumbnails = []
 		self.imageLists = {}
 		self.data = []
-	
+		# Cell renderer and editor classes
+		self.defaultRenderers = {
+			"str" : wx.grid.GridCellStringRenderer, 
+			"bool" : wx.grid.GridCellBoolRenderer, 
+			"int" : wx.grid.GridCellNumberRenderer, 
+			"long" : wx.grid.GridCellNumberRenderer, 
+			"float" : wx.grid.GridCellFloatRenderer, 
+			"list" : wx.grid.GridCellStringRenderer  }
+		self.defaultEditors = {
+			"str" : wx.grid.GridCellTextEditor, 
+			"bool" : wx.grid.GridCellBoolEditor, 
+			"int" : wx.grid.GridCellNumberEditor, 
+			"long" : wx.grid.GridCellNumberEditor, 
+			"float" : wx.grid.GridCellFloatEditor, 
+			"list" : wx.grid.GridCellChoiceEditor  }
+
 	
 	def setColumns(self, colDefs):
 		"""This method receives a list of column definitions, and creates
@@ -53,9 +66,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		colFlds = []
 #		# Make a copy
 #		colDefs = list(colDefs)
-		# See if the defs have changed. If so, clear the data to force
-		# a re-draw of the table.
-		if colDefs != self.colDefs:
+		# See if the defs have changed. If not, update any column info,
+		# and return. If so, clear the data to force a re-draw of the table.
+		if colDefs == self.colDefs:
+			self.setColumnInfo()
+			return
+		else:
 			self.__currData = []
 		for col in colDefs:
 			nm = col.Field
@@ -95,7 +111,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			col = colDefs[num]
 			if col.Order < 0:
 				col.Order = num
-		
 		colDefs.sort(self.orderSort)
 		self.colDefs = colDefs
 		self.setColumnInfo()
@@ -161,6 +176,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				fld = col.Field
 				if record.has_key(fld):
 					recordVal = record[fld]
+					if type(recordVal) == unicode:
+						recordVal = recordVal.encode("latin-1")
 					if col.DataType.lower() in ("string", "unicode", "str", "char", "text", "varchar"):
 						# Limit to first 'n' chars...
 						recordVal = str(recordVal)[:self.grid.stringDisplayLen]
@@ -234,58 +251,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			self.grid.SetColSize(gridCol, width)
 			idx += 1
 		self.grid.EndBatch()
-
-
-	def GetTypeName(self, row, col):
-		try:
-			ret = self.dataTypes[col]
-		except:
-			ret = wx.grid.GRID_VALUE_STRING
-		return ret
-
-
-	# Called to determine how the data can be fetched and stored by the
-	# editor and renderer.  This allows you to enforce some type-safety
-	# in the grid.
-	def CanGetValueAs(self, row, col, typeName):
-		colType = self.dataTypes[col].split(":")[0]
-		if typeName == colType:
-			return True
-		else:
-			return False
-			
-			
-	def CanSetValueAs(self, row, col, typeName):
-		return self.CanGetValueAs(row, col, typeName)
-
-
-	def MoveColumn(self, col, to):
-		""" Move the column to a new position."""
-		oldSort = None
-		if self.grid.sortedColumn is not None:
-			oldSort = self.colDefs[self.grid.sortedColumn]
-		
-		oldColDef = self.colDefs[col]
-		del self.colDefs[col]
-
-		if to > col:
-			self.colDefs.insert(to-1, oldColDef)
-		else:
-			self.colDefs.insert(to, oldColDef)
-			
-		for col in self.colDefs:
-			colOrder = self.colDefs.index(col)
-			self.grid.Application.setUserSetting("%s.%s.%s.%s" % (
-					self.grid.Form.Name,
-					self.grid.Name,
-					"Column_%s" % col.Field,
-					"ColumnOrder"), (colOrder * 10) )
-		
-		# If a column was previously sorted, update its new position in the grid
-		if oldSort is not None:
-			self.grid.sortedColumn = self.colDefs.index(oldSort)
-		self.setColumnInfo()
-		self.fillTable(True)
 
 
 	# The following methods are required by the grid, to find out certain
@@ -413,6 +378,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.SameSizeRows = True
 		# Internal tracker for row height
 		self._rowHt = self.GetDefaultRowSize()
+		# Columns notify the grid when their properties change
+		# Sometimes the grid itself initiated the change, and doesn't
+		# need to be notified.
+		self._ignoreColUpdates = False
 
 		self.currSearchStr = ""
 		self.incSearchTimer = dabo.ui.dTimer(self)
@@ -515,28 +484,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""
 		if not ds:
 			return
+		self.Form.lockScreen()
 		origColNum = self.ColumnCount
 		self.Columns = []
 		self.dataSet = ds
 		firstRec = ds[0]
-		colKeys = firstRec.keys()
-		# Add the columns
-		for colKey in colKeys:
-			# Use the keyCaption values, if possible
-			try:
-				cap = keyCaption[colKey]
-			except:
-				cap = colKey
-			col = dColumn(self)
-			col.Caption = cap
-			col.Field = colKey
-			col.DataType = type(firstRec[colKey])
-			# Use a default width
-			col.Width = -1
-			self.Columns.append(col)
-
+		# Dabo cursors add some columns to the data set. These
+		# artifacts need to be removed. They all begin with 'dabo-'.
+		colKeys = [key for key in firstRec.keys()
+				if key[:5] != "dabo-"]
 		# Update the number of columns
-		colChange = self.ColumnCount - origColNum 
+		colChange = len(colKeys) - origColNum 
 		if colChange != 0:
 			msg = ""
 			if colChange < 0:
@@ -551,8 +509,66 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.BeginBatch()
 				self.ProcessTableMessage(msg)
 				self.EndBatch()
+		# Add the columns
+		self._ignoreColUpdates = True
+		for colKey in colKeys:
+			# Use the keyCaption values, if possible
+			try:
+				cap = keyCaption[colKey]
+			except:
+				cap = colKey
+			col = dColumn(self)
+			col.Caption = cap
+			col.Field = colKey
+			col.DataType = type(firstRec[colKey])
+			# Use a default width
+			col.Width = -1
+			self.Columns.append(col)
 		# Populate the grid
 		self.fillGrid(True)
+		self.autoSizeCol("all")
+		self._ignoreColUpdates = False
+		self.Form.unlockScreen()
+
+
+	def autoSizeCol(self, colNum):
+		"""This sets the requested column to the minimum width 
+		necessary to display its data. You can pass 'all' instead, and
+		all columns will be auto-sized.
+		"""	
+		# lock the screen
+		self.Form.lockScreen()
+		# Changing the columns' Width prop will send an update
+		# message back to this grid. We want to ignore that
+		self._ignoreColUpdates = True
+		# We need to account for header caption width, too. Add
+		# a row to the data set containing the header captions, and 
+		# then remove the row afterwards.
+		capRow = {}
+		for col in self.Columns:
+			capRow[col.Field] = col.Caption
+		lst = list(self.dataSet)
+		lst.append(capRow)
+		self.dataSet = lst
+		self.fillGrid(True)
+		try:
+			# Having a problem with Unicode in the native
+			# AutoSize() function.
+			if type(colNum) == str:
+				#They passed "all"
+				self.AutoSizeColumns(setAsMin=False)
+				for ii in range(len(self.Columns)):
+					self.Columns[ii].Width = self.GetColSize(ii)
+			elif type(colNum) in (int, long):
+				self.AutoSizeColumn(colNum, setAsMin=False)
+				self.Columns[colNum].Width = self.GetColSize(colNum)
+		except:
+			pass
+		self.dataSet.remove(capRow)
+		self.dataSet = tuple(self.dataSet)
+		self.fillGrid(True)
+		self._ignoreColUpdates = False
+		self.Form.unlockScreen()
 
 
 	def getDataSet(self):
@@ -626,6 +642,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.Application.setUserSetting("%s.%s.%s.%s" % (
 					self.Form.Name, self.Name, "Column_%s" % col.Field,
 					"ColumnOrder"), (col.Order * 10) )
+		if self._ignoreColUpdates:
+			# The column is being updated after a grid change, so
+			# no need to update the grid again.
+			return
 		# Update the grid
 		self.fillGrid(True)
 		
@@ -682,6 +702,26 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			dc.SetFont(font)
 			dc.DrawLabel("%s" % self.GetTable().colLabels[col],
 					rect, wx.ALIGN_CENTER | wx.ALIGN_TOP)
+
+
+	def MoveColumn(self, colNum, toNum):
+		""" Move the column to a new position."""
+		self._ignoreColUpdates = True
+		oldCol = self.Columns[colNum]
+		self.Columns.remove(oldCol)
+		if toNum > colNum:
+			self.Columns.insert(toNum-1, oldCol)
+		else:
+			self.Columns.insert(toNum, oldCol)
+		for col in self.Columns:
+			col.Order = self.Columns.index(col) * 10
+			self.Application.setUserSetting("%s.%s.%s.%s" % (
+					self.Form.Name,
+					self.Name,
+					"Column_%s" % col.Field,
+					"ColumnOrder"), col.Order )
+		self.fillGrid(True)
+		self._ignoreColUpdates = False
 
 
 	def onSearchTimer(self, evt):
@@ -754,7 +794,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			if begCol != curCol:
 				if curCol > begCol:
 					curCol += 1
-				self._Table.MoveColumn(begCol, curCol)
+				self.MoveColumn(begCol, curCol)
 		elif self.headerSizing:
 			pass
 		else:

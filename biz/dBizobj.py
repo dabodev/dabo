@@ -394,9 +394,6 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 		
-		if startTransaction:
-			cursor.beginTransaction()
-
 		if self.KeyField is None:
 			raise dException.dException, "No key field defined for table: " + self.DataSource
 
@@ -405,6 +402,9 @@ class dBizobj(dabo.common.dObject):
 			for child in self.__children:
 				if child.RowCount > 0:
 					raise dException.dException, _("Deletion prohibited - there are related child records.")
+
+		if startTransaction:
+			cursor.beginTransaction()
 
 		cursor.delete()
 		if self.RowCount == 0:
