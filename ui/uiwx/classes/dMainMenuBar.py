@@ -88,15 +88,7 @@ class FileOpenMenu(dMenu):
 class FileMenu(wx.Menu):
     def __init__(self, mainFrame):
         wx.Menu.__init__(self)
-#         Id = 23
-#         self.AppendMenu(Id, "&Open\tCtrl+O", FileOpenMenu(mainFrame))
-# 
-#         Id = wx.NewId()
-#         self.Append(Id, "&New Record\tCtrl+N", "Add a new record in the current window.")
-#         #wx.EVT_MENU(mainFrame, Id,  mainFrame.OnNewRecord)
-#         
         
-        'App_SetMacHelpMenuTitleName', 'App_SetMacPreferencesMenuItemId', 'App_SetMacSupportPCMenuShortcuts'
         Id = wx.NewId()
         self.Append(Id, "E&xit", "Exit")
         wx.App_SetMacExitMenuItemId(Id)   # Put the Exit item in the App Menu on Mac

@@ -13,6 +13,15 @@ class uiApp(wx.App):
         wx.InitAllImageHandlers()
         self.helpProvider = wx.help.SimpleHelpProvider()
         wx.help.HelpProvider_Set(self.helpProvider)
+        
+        # I *think* this may be how to set the application name as displayed
+        # as the caption of Mac's application menu. Currently, it displays as
+        # "Python" and I can't find any mention of how to change this caption,
+        # but I found this function by hunting and pecking. Unfortunately, I
+        # don't currently have a Mac to test this on but I wanted to get this
+        # in here just in case. If it only changes the caption of the help 
+        # menu, that would be wrong and this should be removed.
+        wx.App_SetMacHelpMenuTitleName(dApp.getAppInfo("appName"))
 
         self.dApp = dApp
         
