@@ -35,7 +35,9 @@ from dDataNavForm import dDataNavForm
 from dDateTextBox import dDateTextBox
 from dDropdownList import dDropdownList
 from dDialog import dDialog
+from dDialog import dOkCancelDialog
 from dEditBox import dEditBox
+from dFileDialog import dFileDialog
 from dForm import dForm
 from dFormDataNav import dFormDataNav
 from dFormMain import dFormMain

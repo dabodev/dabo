@@ -21,7 +21,12 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 	def _initEvents(self):
 		super(dListBox, self)._initEvents()
 		self.Bind(wx.EVT_LISTBOX, self._onWxHit)
-		
+	
+	
+	def clearSelections(self):
+		for elem in self.GetSelections():
+			self.SetSelection(elem, False)
+	
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -38,11 +43,12 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 		self._choices = list(choices)
 		self.AppendItems(self._choices)
 		
-		# Try to get back to the same row:
-		try:
-			self.Value = oldVal
-		except ValueError:
-			self.PositionValue = 0
+		if oldVal is not None:
+			# Try to get back to the same row:
+			try:
+				self.Value = oldVal
+			except ValueError:
+				self.PositionValue = 0
 
 	def _getKeys(self):
 		try:
@@ -93,7 +99,7 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 			value = (value,)
 		
 		# Clear all current selections:
-		self.SetSelection(-1)
+		self.clearSelections()
 		
 		# Select items that match indices in value:
 		for key in value:
@@ -131,7 +137,7 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 			value = (value,)
 		
 		# Clear all current selections:
-		self.SetSelection(-1)
+		self.clearSelections()
 		
 		# Select items that match indices in value:
 		for index in value:
@@ -167,7 +173,7 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 			value = (value,)
 		
 		# Clear all current selections:
-		self.SetSelection(-1)
+		self.clearSelections()
 		
 		# Select items that match the string tuple:
 		for string in value:

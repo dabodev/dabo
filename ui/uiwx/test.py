@@ -25,10 +25,12 @@ class Test(object):
 	def runTest(self, classRefs, *args, **kwargs):
 		if type(classRefs) not in (tuple, list):
 			classRefs = (classRefs,)
-		if issubclass(classRefs[0], wx.Frame):
+		isDialog = False
+		if issubclass(classRefs[0], (wx.Frame, wx.Dialog)):
 			# Can't display a frame within another frame, so create this
 			# class as the main frame
 			frame = classRefs[0](None, *args, **kwargs)
+			isDialog = (issubclass(classRefs[0], wx.Dialog))
 		else:
 			frame = wx.Frame(None, -1, "")
 			frame.SetSizer(ui.dSizer("Vertical"))
@@ -42,7 +44,6 @@ class Test(object):
 			# Some controls don't report sizing correctly, so set a minimum
 			w = max(w, 100)
 			h = max(h, 50)
-			print "SZ", w, h
 			
 			frame.SetSize( (w+10, h+30) )
 			if len(classRefs) > 1:
@@ -51,10 +52,15 @@ class Test(object):
 				frame.SetLabel("Test of %s" % object.BaseClass.__name__)
 			object.SetFocus()
 		
-		frame.Show()
-		frame.Layout()
-		#object.Show()
-		self.app.MainLoop()
+		if isDialog:
+			ret = frame.ShowModal()
+			print ret
+			frame.Destroy()
+		else:
+			frame.Show()
+			frame.Layout()
+			self.app.MainLoop()
+		
 
 	def testAll(self):
 		""" Create a dForm and populate it with example dWidgets. 

@@ -24,3 +24,6 @@ REFINTEG_CASCADE = 3
 CURSOR_MEMENTO = "dabo-memento"
 CURSOR_NEWFLAG = "dabo-newrec"
 CURSOR_TMPKEY_FIELD = "dabo-tmpKeyField"
+
+DLG_OK = 0
+DLG_CANCEL = -1
