@@ -20,7 +20,7 @@ from dabo.db.dConnection import dConnection
 class bizZip(dBizobj):
     dataSource = "zipcodes"
     keyField = "iid"
-    sql = "select * from zipcodes where ccity like 'san f%' "
+    sql = "select * from zipcodes where ccity like 'hol%' "
     defaultValues = {"ccity":"Penfield", "cStateProv":"NY", "czip":"14526"}
 
 def getConnInfo():
@@ -74,15 +74,17 @@ class Test(object):
         for obj in ((dTextBox(panel), "txtCounty", "ccounty"), 
                     (dTextBox(panel), "txtCity", "ccity"),
                     (dTextBox(panel), "txtZipcode", "czip"),
-                    (dEditBox(panel), "edt1"),
-                    (dEditBox(panel), "edt2"),
                     (dSpinner(panel), "spn1", "iid"),
-                    (dCommandButton(panel), "cmd1")):
+                    (dEditBox(panel), "edt1")):
             bs = wx.BoxSizer(wx.HORIZONTAL)
             label = dLabel(panel, windowStyle = labelAlignment|wx.ST_NO_AUTORESIZE,
                                     size = (labelWidth, -1))
-            label.SetName("lbl%s" % obj[1])
-            label.SetLabel("%s:" % obj[1])
+            try:
+                lblName = obj[2]
+            except IndexError:
+                lblName = "%s" % obj[1]
+            label.SetName(lblName)
+            label.SetLabel("%s:" % lblName)
             bs.Add(label)
                             
             object = obj[0]
@@ -92,13 +94,11 @@ class Test(object):
                 expandFlags = 0
 
             object.SetName("%s" % obj[1])
-            object.debug = True # shows the events
+            object.debug = True # show the events
             
             object.dataSource = biz.dataSource
             if len(obj) > 2:
-                # set the dataField:
                 object.dataField = obj[2]
-                object.refresh()
                 
             bs.Add(object, 1, expandFlags | wx.ALL, 0)
 
@@ -111,22 +111,14 @@ class Test(object):
         vcr = dVCR(panel)
         bs.Add(vcr, 1, wx.ALL, 0)
         
-        button = dCommandButtonSave(panel)
-        bs.Add(button, 1, wx.ALL, 0)
-        
-        button = dCommandButtonCancel(panel)
-        bs.Add(button, 1, wx.ALL, 0)
-
         vs.Add(bs, 0, wx.EXPAND)
                     
         panel.SetSizer(vs)        
         panel.GetSizer().Layout()
 
+        frame.refreshControls()
         frame.Show(1)
         self.app.MainLoop()
-
-    def OnFieldChanged(self, evt):
-        print "onFieldChanged"
 
 if __name__ == "__main__":
     t = Test()

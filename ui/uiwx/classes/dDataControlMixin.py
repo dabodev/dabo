@@ -41,7 +41,10 @@ class dDataControlMixin:
     def refresh(self):
         ''' Update control value to match the current value from the bizobj. '''
         if self.dataSource and self.dataField:
-            self.SetValue(self.getFieldVal())
+            try:
+                self.SetValue(self.getFieldVal())
+            except TypeError:
+                print "type error"
         
 
     def onValueRefresh(self, event): 

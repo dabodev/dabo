@@ -7,6 +7,7 @@ class dCommandButton(wx.Button, dControlMixin):
             widgetId = wx.NewId()
         wx.Button.__init__(self, frame, widgetId, caption)
         self.SetName("dCommandButton")
+        self.SetSize((80,-1))
         dControlMixin.__init__(self)
         self.frame = frame
         
@@ -20,26 +21,7 @@ class dCommandButton(wx.Button, dControlMixin):
     # Event callback methods (override in subclasses):
     def OnButton(self, event): pass
 
-class dCommandButtonSave(dCommandButton):
-    def __init__(self, parent):
-        dCommandButton.__init__(self, parent)
-        self.SetName("dCommandButtonSave")
-        self.SetLabel("Save")
-        
-    def OnButton(self, event):
-        if self.dForm:
-            self.dForm.save()
-
-class dCommandButtonCancel(dCommandButton):
-    def __init__(self, parent):
-        dCommandButton.__init__(self, parent)
-        self.SetName("dCommandButtonCancel")
-        self.SetLabel("Cancel")
-        
-    def OnButton(self, event):
-        if self.dForm:
-            self.dForm.cancel()
-               
+              
                
 if __name__ == "__main__":
     import test
