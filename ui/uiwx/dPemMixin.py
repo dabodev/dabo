@@ -601,17 +601,17 @@ class dPemMixin(dPemMixinBase):
 	def _getBackColor(self):
 		return self.GetBackgroundColour()
 
-	def _setBackColor(self, value):
+	def _setBackColor(self, val):
 		if self._constructed():
-			if type(value) in (str, unicode):
+			if type(val) in (str, unicode):
 				try:
-					value = dColors.colorTupleFromName(value)
+					val = dColors.colorTupleFromName(val)
 				except: pass
-			self.SetBackgroundColour(value)
+			self.SetBackgroundColour(val)
 			# Background color changes don't result in an automatic refresh.
 			self.Refresh()
 		else:
-			self._properties["BackColor"] = value
+			self._properties["BackColor"] = val
 
 	def _getBackColorEditorInfo(self):
 		return {"editor": "colour"}
@@ -619,26 +619,26 @@ class dPemMixin(dPemMixinBase):
 	def _getBorderColor(self):
 		return self._borderColor
 
-	def _setBorderColor(self, value):
+	def _setBorderColor(self, val):
 		if self._constructed():
-			if type(value) in (str, unicode):
+			if type(val) in (str, unicode):
 				try:
-					value = dColors.colorTupleFromName(value)
+					val = dColors.colorTupleFromName(val)
 				except: pass
-			self._borderColor = value
+			self._borderColor = val
 			self._needRedraw = True
 		else:
-			self._properties["BorderColor"] = value
+			self._properties["BorderColor"] = val
 
 	def _getBorderWidth(self):
 		return self._borderWidth
 
-	def _setBorderWidth(self, value):
+	def _setBorderWidth(self, val):
 		if self._constructed():
-			self._borderWidth = value
+			self._borderWidth = val
 			self._needRedraw = True
 		else:
-			self._properties["BorderWidth"] = value
+			self._properties["BorderWidth"] = val
 
 	def _getBorderStyle(self):
 		if self.hasWindowStyleFlag(wx.RAISED_BORDER):
@@ -717,9 +717,9 @@ class dPemMixin(dPemMixinBase):
 	def _getEnabled(self):
 		return self.IsEnabled()
 	
-	def _setEnabled(self, value):
+	def _setEnabled(self, val):
 		if self._constructed():
-			self.Enable(value)
+			self.Enable(val)
 		else:
 			self._properties["Enabled"] = False
 
@@ -823,7 +823,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setForeColor(self, val):
 		if self._constructed():
-			if type(value) in (str, unicode):
+			if type(val) in (str, unicode):
 				try:
 					val = dColors.colorTupleFromName(val)
 				except: pass
