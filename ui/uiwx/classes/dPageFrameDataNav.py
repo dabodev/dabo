@@ -26,14 +26,18 @@ class dPageFrameDataNav(pgf.dPageFrame):
 		il.Add(dIcons.getIconBitmap('childview'))
 
 		self.AssignImageList(il)
-		self.AddPage(pag.dSelectPage(self), 'Select', imageId=0)
-		self.AddPage(pag.dBrowsePage(self), 'Browse', imageId=1)
-		self.AddPage(pag.dEditPage(self), 'Edit', imageId=2)
+		
+		if self.getDform().FormType != 'Edit':
+			self.AddPage(pag.dSelectPage(self), 'Select', imageId=0)
+			self.AddPage(pag.dBrowsePage(self), 'Browse', imageId=1)
+		
+		if self.getDform().FormType != 'PickList':
+			self.AddPage(pag.dEditPage(self), 'Edit', imageId=2)
 
-		bizobj = self.Parent.getBizobj()
-		for child in bizobj.getChildren():
-			self.AddPage(pag.dChildViewPage(self, child.DataSource), child.Caption, imageId=3)
-			
+			bizobj = self.Parent.getBizobj()
+			for child in bizobj.getChildren():
+				self.AddPage(pag.dChildViewPage(self, child.DataSource), child.Caption, imageId=3)
+
 		self.GetPage(0).onEnterPage()
 
 

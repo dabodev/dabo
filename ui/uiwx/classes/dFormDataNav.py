@@ -1,6 +1,6 @@
 import dForm as frm
 import dPageFrameDataNav as pgf
-import dIcons, wx
+import dIcons, wx, dEvents
 
 class dFormDataNav(frm.dForm):
 	""" This is a dForm but with the following added controls:
@@ -15,9 +15,19 @@ class dFormDataNav(frm.dForm):
 	def beforeInit(self, preObject):
 		dFormDataNav.doDefault(preObject)
 		self._columnDefs = {}
+		self._childBehavior = {}
 		self._requeried = False
 
-		
+
+	def afterInit(self):
+		dFormDataNav.doDefault()
+		if self.FormType == 'PickList':
+			# Map escape key to close the form
+			anId = wx.NewId()
+			self.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, wx.WXK_ESCAPE, anId),]))
+			self.Bind(wx.EVT_MENU, self.Close, id=anId)
+
+							
 	def OnActivate(self, evt):
 		if self.RequeryOnLoad and not self._requeried:
 			self._requeried = True
@@ -51,36 +61,39 @@ class dFormDataNav(frm.dForm):
 		toolBar = wx.ToolBar(controllingFrame, -1)
 		toolBar.SetToolBitmapSize((16,16))    # Needed on non-Linux platforms
 
-		self._appendToToolBar(toolBar, "First", dIcons.getIconBitmap("leftArrows"),
-							self.onFirst, "Go to the first record")
+		if self.FormType != 'Edit':
+			self._appendToToolBar(toolBar, "First", dIcons.getIconBitmap("leftArrows"),
+								self.onFirst, "Go to the first record")
 
-		self._appendToToolBar(toolBar, "Prior", dIcons.getIconBitmap("leftArrow"),
-							self.onPrior, "Go to the prior record")
+			self._appendToToolBar(toolBar, "Prior", dIcons.getIconBitmap("leftArrow"),
+								self.onPrior, "Go to the prior record")
 
-		self._appendToToolBar(toolBar, "Requery", dIcons.getIconBitmap("requery"),
-							self.onRequery, "Requery dataset")
+			self._appendToToolBar(toolBar, "Requery", dIcons.getIconBitmap("requery"),
+								self.onRequery, "Requery dataset")
 
-		self._appendToToolBar(toolBar, "Next", dIcons.getIconBitmap("rightArrow"),
-							self.onNext, "Go to the next record")
+			self._appendToToolBar(toolBar, "Next", dIcons.getIconBitmap("rightArrow"),
+								self.onNext, "Go to the next record")
 
-		self._appendToToolBar(toolBar, "Last", dIcons.getIconBitmap("rightArrows"),
-							self.onLast, "Go to the last record")
+			self._appendToToolBar(toolBar, "Last", dIcons.getIconBitmap("rightArrows"),
+								self.onLast, "Go to the last record")
 
-		toolBar.AddSeparator()
+			toolBar.AddSeparator()
 
-		self._appendToToolBar(toolBar, "New", dIcons.getIconBitmap("blank"),
-							self.onNew, "Add a new record")
+		if self.FormType == 'Normal':
+			self._appendToToolBar(toolBar, "New", dIcons.getIconBitmap("blank"),
+								self.onNew, "Add a new record")
 
-		self._appendToToolBar(toolBar, "Delete", dIcons.getIconBitmap("delete"),
-							self.onDelete, "Delete this record")
+			self._appendToToolBar(toolBar, "Delete", dIcons.getIconBitmap("delete"),
+								self.onDelete, "Delete this record")
 
-		toolBar.AddSeparator()
+			toolBar.AddSeparator()
 
-		self._appendToToolBar(toolBar, "Save", dIcons.getIconBitmap("save"),
-							self.onSave, "Save changes")
+		if self.FormType != 'PickList':
+			self._appendToToolBar(toolBar, "Save", dIcons.getIconBitmap("save"),
+								self.onSave, "Save changes")
 
-		self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("revert"),
-							self.onCancel, "Cancel changes")
+			self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("revert"),
+								self.onCancel, "Cancel changes")
 
 		controllingFrame.SetToolBar(toolBar)
 		toolBar.Realize()                      # Needed on non-Linux platforms
@@ -99,46 +112,54 @@ class dFormDataNav(frm.dForm):
 						self.onEditCurrentRecord, 
 						bitmap=dIcons.getIconBitmap("edit"))
 		
-		i = 4
-		for child in self.childViews:
-			self._appendToMenu(menu, "View %s\tAlt+%s" % (child['caption'], i) ,
-							self.onChildView, 
-							bitmap=dIcons.getIconBitmap("childview"),
-							menuId = child['menuId'])
-			i += 1
+		if self.FormType != 'PickList':
+			i = 4
+			for child in self.childViews:
+				self._appendToMenu(menu, "View %s\tAlt+%s" % (child['caption'], i) ,
+								self.onChildView, 
+								bitmap=dIcons.getIconBitmap("childview"),
+								menuId = child['menuId'])
+				i += 1
 			
 		menu.AppendSeparator()
 
-		self._appendToMenu(menu, "Requery\tCtrl+R", 
-						self.onRequery, 
-						bitmap=dIcons.getIconBitmap("requery"))
-		self._appendToMenu(menu, "Save Changes\tCtrl+S", 
-						self.onSave, 
-						bitmap=dIcons.getIconBitmap("save"))
-		self._appendToMenu(menu, "Cancel Changes", 
-						self.onCancel, 
-						bitmap=dIcons.getIconBitmap("revert"))
+		if self.FormType != 'Edit':
+			self._appendToMenu(menu, "Requery\tCtrl+R", 
+							self.onRequery, 
+							bitmap=dIcons.getIconBitmap("requery"))
+		
+		if self.FormType != 'PickList':
+			self._appendToMenu(menu, "Save Changes\tCtrl+S", 
+							self.onSave, 
+							bitmap=dIcons.getIconBitmap("save"))
+			self._appendToMenu(menu, "Cancel Changes", 
+							self.onCancel, 
+							bitmap=dIcons.getIconBitmap("revert"))
 		menu.AppendSeparator()
 
-		self._appendToMenu(menu, "Select First Record", 
-						self.onFirst, 
-						bitmap=dIcons.getIconBitmap("leftArrows"))
-		self._appendToMenu(menu, "Select Prior Record\tCtrl+,", 
-						self.onPrior, 
-						bitmap=dIcons.getIconBitmap("leftArrow"))
-		self._appendToMenu(menu, "Select Next Record\tCtrl+.", 
-						self.onNext, 
-						bitmap=dIcons.getIconBitmap("rightArrow"))
-		self._appendToMenu(menu, "Select Last Record", 
-						self.onLast, 
-						bitmap=dIcons.getIconBitmap("rightArrows"))
+		
+		if self.FormType != 'Edit':
+			self._appendToMenu(menu, "Select First Record", 
+							self.onFirst, 
+							bitmap=dIcons.getIconBitmap("leftArrows"))
+			self._appendToMenu(menu, "Select Prior Record\tCtrl+,", 
+							self.onPrior, 
+							bitmap=dIcons.getIconBitmap("leftArrow"))
+			self._appendToMenu(menu, "Select Next Record\tCtrl+.", 
+							self.onNext, 
+							bitmap=dIcons.getIconBitmap("rightArrow"))
+			self._appendToMenu(menu, "Select Last Record", 
+							self.onLast, 
+							bitmap=dIcons.getIconBitmap("rightArrows"))
 		menu.AppendSeparator()
-		self._appendToMenu(menu, "New Record\tCtrl+N", 
-						self.onNew, 
-						bitmap=dIcons.getIconBitmap("blank"))
-		self._appendToMenu(menu, "Delete Current Record", 
-						self.onDelete, 
-						bitmap=dIcons.getIconBitmap("delete"))
+		
+		if self.FormType == 'Normal':
+			self._appendToMenu(menu, "New Record\tCtrl+N", 
+							self.onNew, 
+							bitmap=dIcons.getIconBitmap("blank"))
+			self._appendToMenu(menu, "Delete Current Record", 
+							self.onDelete, 
+							bitmap=dIcons.getIconBitmap("delete"))
 		return menu
 
 
@@ -315,6 +336,25 @@ class dFormDataNav(frm.dForm):
 			self.afterSetPrimaryColumnDef()
 
 
+	def getChildBehavior(self, dataSource):
+		try:
+			cb = self._childBehavior[dataSource]
+		except KeyError:
+			self.setChildBehavior(dataSource, {})
+			cb = self._childBehavior[dataSource]
+		return cb
+	
+	
+	def setChildBehavior(self, dataSource, cb):
+		if not cb.has_key('EnableDelete'):
+			cb['EnableDelete'] = False
+		if not cb.has_key('EnableEdit'):
+			cb['EnableEdit'] = False
+		if not cb.has_key('EnableNew'):
+			cb['EnableNew'] = False
+		self._childBehavior[dataSource] = cb
+	
+	
 	def OnSetFocus(self, event):
 		""" Occurs when the form receives the focus.
 
@@ -340,6 +380,35 @@ class dFormDataNav(frm.dForm):
 		self.pageFrame.SetSelection(2)
 
 		
+	def pickRecord(self):
+		""" This form is a picklist, and the user chose a record in the grid.
+		"""
+		# Raise EVT_ITEMPICKED so the originating form can act
+		evt = dEvents.dEvent(dEvents.EVT_ITEMPICKED, self.GetId())
+		evt.SetEventObject(self)
+		self.GetEventHandler().ProcessEvent(evt)
+
+				
+	def _getFormType(self):
+		try:
+			return self._formType
+		except AttributeError:
+			return "Normal"
+	
+	def _getFormTypeEditorInfo(self):
+		return {'editor': 'list', 'values': ['Normal', 'PickList', 'Edit']}
+			
+	def _setFormType(self, value):
+		value = value.lower()
+		if value == "normal":
+			self._formType = "Normal"
+		elif value == "picklist":
+			self._formType = "PickList"
+		elif value == "edit":
+			self._formType = "Edit"
+		else:
+			raise ValueError, "Form type must be 'Normal', 'PickList', or 'Edit'."
+			
 	def _getRequeryOnLoad(self):
 		try:
 			return self._requeryOnLoad
@@ -351,5 +420,12 @@ class dFormDataNav(frm.dForm):
 
 
 	# Property definitions:
+	FormType = property(_getFormType, _setFormType, None,
+						'Specifies the type of form this is:\n'
+						'	Normal: a normal dataNav form.\n'
+						'	PickList: only select/browse pages shown, and the form\n'
+						'		is modal, returning the pk of the picked record.\n'
+						'	Edit: modal version of normal, with no Select/Browse pages.\n'
+						'		User code sends the pk of the record to edit.')
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
 						'Specifies whether an automatic requery happens when the form is loaded.')

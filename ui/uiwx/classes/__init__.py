@@ -22,7 +22,7 @@ from dFormDataNav import dFormDataNav
 from dFormMain import dFormMain
 from dFormMixin import dFormMixin
 from dGauge import dGauge
-from dGrid import dGrid
+from dGridDataNav import dGridDataNav
 from dLabel import dLabel
 from dMainMenuBar import dMainMenuBar
 from dMenuBar import dMenuBar

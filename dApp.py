@@ -60,7 +60,6 @@ class Collection(list):
 			Delete the object reference from the collection.
 		"""
 		index = self.index(objRef)
-
 		if index >= 0:
 			del self[index]
 

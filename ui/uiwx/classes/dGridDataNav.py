@@ -1,9 +1,9 @@
-""" dGrid.py
+""" dGridDataNav.py
 
-This is a grid designed to browse records of a bizobj. It does
-not descend from dControlMixin at this time, but is self-contained.
-There is a dGridDataTable definition here as well, that defines
-the 'data' that gets displayed in the grid.
+This is a grid designed to browse records of a bizobj. It is part of the 
+dFormDataNav subframework. It does not descend from dControlMixin at this 
+time, but is self-contained. There is a dGridDataTable definition here as 
+well, that defines the 'data' that gets displayed in the grid.
 """
 import wx, wx.grid
 import urllib
@@ -247,7 +247,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.data[row][col] = value
 
 
-class dGrid(wx.grid.Grid):
+class dGridDataNav(wx.grid.Grid):
 	def __init__(self, parent, bizobj, form):
 		wx.grid.Grid.__init__(self, parent, -1)
 
@@ -487,7 +487,10 @@ class dGrid(wx.grid.Grid):
 
 		By default, this is interpreted as a request to edit the record.
 		"""
-		self.editRecord()
+		if self.form.FormType == 'PickList':
+			self.pickRecord()
+		else:
+			self.editRecord()
 
 
 	def OnRightClick(self, evt):
@@ -533,12 +536,18 @@ class dGrid(wx.grid.Grid):
 			char = None
 
 		if keyCode == 13:           # Enter
-			self.editRecord()
+			if self.form.FormType == "PickList":
+				self.pickRecord()
+			else:
+				self.editRecord()
 		else:
 			if keyCode == 127:      # Del
-				self.deleteRecord()
+				if self.form.FormType != "PickList":
+					self.deleteRecord()
 			elif keyCode == 343:    # F2
 				self.processSort()
+			elif keyCode == 27 and self.form.FormType == "PickList":  # Esc
+				self.form.Close()
 			elif char and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
 				self.addToIncrementalSearch(char)
 			else:
@@ -563,6 +572,12 @@ class dGrid(wx.grid.Grid):
 		self.GetParent().deleteRecord()
 
 
+	def pickRecord(self, event=None):
+		""" The form is a picklist, and the user picked a record.
+		"""
+		self.form.pickRecord()
+		
+		
 	def processSort(self, gridCol=None):
 		""" Sort the grid column.
 
@@ -640,23 +655,33 @@ class dGrid(wx.grid.Grid):
 		By default, the choices are 'New', 'Edit', and 'Delete'.
 		"""
 		popup = wx.Menu()
-		id_new,id_edit,id_delete = wx.NewId(), wx.NewId(), wx.NewId()
 
-		item = wx.MenuItem(popup, id_new, "&New", "Add a new record")
-		item.SetBitmap(dIcons.getIconBitmap("blank"))
-		popup.AppendItem(item)
+		if self.form.FormType == 'PickList':
+			id_pick = wx.NewId()
+			item = wx.MenuItem(popup, id_pick, "&Pick", "Pick this record")
+			item.SetBitmap(dIcons.getIconBitmap("edit"))
+			popup.AppendItem(item)
 
-		item = wx.MenuItem(popup, id_edit, "&Edit", "Edit this record")
-		item.SetBitmap(dIcons.getIconBitmap("edit"))
-		popup.AppendItem(item)
+			wx.EVT_MENU(popup, id_pick, self.pickRecord)
+			
+		else:
+			id_new,id_edit,id_delete = wx.NewId(), wx.NewId(), wx.NewId()
+			
+			item = wx.MenuItem(popup, id_new, "&New", "Add a new record")
+			item.SetBitmap(dIcons.getIconBitmap("blank"))
+			popup.AppendItem(item)
 
-		item = wx.MenuItem(popup, id_delete, "&Delete", "Delete this record")
-		item.SetBitmap(dIcons.getIconBitmap("delete"))
-		popup.AppendItem(item)
+			item = wx.MenuItem(popup, id_edit, "&Edit", "Edit this record")
+			item.SetBitmap(dIcons.getIconBitmap("edit"))
+			popup.AppendItem(item)
 
-		wx.EVT_MENU(popup, id_new, self.newRecord)
-		wx.EVT_MENU(popup, id_edit, self.editRecord)
-		wx.EVT_MENU(popup, id_delete, self.deleteRecord)
+			item = wx.MenuItem(popup, id_delete, "&Delete", "Delete this record")
+			item.SetBitmap(dIcons.getIconBitmap("delete"))
+			popup.AppendItem(item)
+
+			wx.EVT_MENU(popup, id_new, self.newRecord)
+			wx.EVT_MENU(popup, id_edit, self.editRecord)
+			wx.EVT_MENU(popup, id_delete, self.deleteRecord)
 
 		self.PopupMenu(popup, self.mousePosition)
 		popup.Destroy()

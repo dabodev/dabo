@@ -37,7 +37,6 @@ class uiApp(wx.App):
 	def start(self, dApp):
 		self.MainLoop()
 
-
 	def onFileExit(self, event):
 		self.mainFrame.Close(True)
 

@@ -35,10 +35,8 @@ class dFormMixin(pm.dPemMixin):
 				self.SetSize((1,1))
 			else:
 				self.restoreSizeAndPosition()
-
 		event.Skip()
-
-
+		
 	def afterSetMenuBar(self):
 		""" Subclasses can extend the menu bar here.
 		"""
@@ -64,7 +62,6 @@ class dFormMixin(pm.dPemMixin):
 			self.dApp.uiForms.remove(self)
 		self.saveSizeAndPosition()
 		event.Skip()
-
 
 	def OnSetFocus(self, event):
 		event.Skip()

@@ -5,6 +5,9 @@ EVT_ROWNUMCHANGED = wx.NewEventType()
 EVT_VALUEREFRESH = wx.NewEventType()
 EVT_VALUECHANGED = wx.NewEventType()
 
+# event identifiers for the dFormDataNav subframework:
+EVT_ITEMPICKED = wx.NewEventType()
+
 # Base class for dabo events:
 class dEvent(wx.PyCommandEvent):
 	def __init__(self, evtType, id):

@@ -1,5 +1,5 @@
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox, dIcons, dCommandButton
-import dPanel, dGrid, dCommandButton, dMessageBox, dEvents
+import dPanel, dGridDataNav, dCommandButton, dMessageBox, dEvents
 import dabo.dException as dException
 import wx
 from dabo.dLocalize import _
@@ -341,7 +341,7 @@ class dBrowsePage(dPage.dPage):
 	def createItems(self):
 		form = self.getDform()
 		bizobj = form.getBizobj()
-		self.grid = dGrid.dGrid(self, bizobj, form)
+		self.grid = dGridDataNav.dGridDataNav(self, bizobj, form)
 		self.grid.SetName('BrowseGrid')
 		self.GetSizer().Add(self.grid, 1, wx.EXPAND)
 		self.grid.columnDefs = form.getColumnDefs(bizobj.DataSource)
@@ -489,6 +489,7 @@ class dChildViewPage(dPage.dPage):
 		dChildViewPage.doDefault(parent, 'pageChildView')
 		self.dataSource = dataSource
 		self.bizobj = self.getDform().getBizobj().getChildByDataSource(self.dataSource)
+		self.pickListRef = None
 	
 	def onEnterPage(self):
 		if self.bizobj and self.bizobj.getRowCount() >= 0:
@@ -499,6 +500,11 @@ class dChildViewPage(dPage.dPage):
 		dChildViewPage.doDefault()
 	
 	
+	def onLeavePage(self):
+		if self.pickListRef:
+			self.pickListRef.Close()
+	
+			
 	def onRowNumChanged(self, event):
 		# If RowNumChanged (in the parent bizobj) is received AND we are the
 		# active page, the child bizobj has already been requeried
@@ -509,7 +515,13 @@ class dChildViewPage(dPage.dPage):
 
 	def createItems(self):
 		form = self.getDform()
-		self.grid = dGrid.dGrid(self, self.bizobj, form)
+		cb = self.getDform().getChildBehavior(self.dataSource)
+		if cb['EnableNew']:
+			nb = dCommandButton.dCommandButton(self)
+			nb.Caption = "Add new child record"
+			nb.Bind(wx.EVT_BUTTON, self.newRecord)
+			self.GetSizer().Add(nb, 0, wx.EXPAND)
+		self.grid = dGridDataNav.dGridDataNav(self, self.bizobj, form)
 		self.grid.SetName('ChildViewGrid')
 		self.GetSizer().Add(self.grid, 1, wx.EXPAND)
 		
@@ -525,23 +537,97 @@ class dChildViewPage(dPage.dPage):
 			window.SetFocus()
 	
 			
-	def newRecord(self):
-		dMessageBox.stop("Adding new childview records isn't supported yet.")
-		#self.bizobj.new()
+	def newItemPicked(self, evt):
+		pickBizobj = evt.GetEventObject().getBizobj()
+		pickedPK = pickBizobj.getPK()
+		cb = self.getDform().getChildBehavior(self.dataSource)
+		try:
+			fkField = cb['FK']
+		except KeyError:
+			raise KeyError, 'ChildBehavior dictionary does not contain needed FK value.'
+				
+		try:
+			self.bizobj.new()
+			self.bizobj.setFieldVal(fkField, pickedPK)
+		except dException.dException, e:
+			dMessagebox.stop("Cannot add the new record:\n%s" % str(e))
 		
+		try:
+			derivedFields = cb['DerivedFields']
+		except KeyError:
+			derivedFields = {}
+			
+		for field in derivedFields.keys():
+			self.bizobj.setFieldVal(field, pickBizobj.getFieldVal(derivedFields[field]))
+		self.fillGrid()		
+
+			
+	def newRecord(self, evt=None):
+		cb = self.getDform().getChildBehavior(self.dataSource)
+		if cb['EnableNew']:
+			try:
+				newBehavior = cb['NewBehavior']
+			except KeyError:
+				newBehavior = None
+				
+			if newBehavior:
+				if newBehavior == 'PickList':
+					try:
+						cls = cb['PickListClass']
+					except KeyError:
+						cls = None
+						
+					if cls:
+						ref = self.pickListRef
+						if not ref:
+							class PickList(cls):
+								def initProperties(self):
+									PickList.doDefault()
+									self.FormType = "PickList"
+								def afterInit(self):
+									PickList.doDefault()
+									self.Caption = "Picklist: %s" % self.Caption
+									
+							ref = PickList(self.getDform())
+							self.pickListRef = ref
+						
+							EVT_ITEMPICKED = wx.PyEventBinder(dEvents.EVT_ITEMPICKED, 0)    
+							ref.Bind(EVT_ITEMPICKED, self.newItemPicked)
+							ref.Show()
+						ref.Raise()
+					else:
+						raise dException.dException, "No picklist class defined."
+					
+			else:
+				raise dException.dException, "No new behavior is defined."
+				
+		else:
+			dMessageBox.stop("Adding new records isn't allowed.")
+			
 		
 	def deleteRecord(self):
 		""" Ask the bizobj to delete the current record.
 		"""
-		message = _("This will delete the highlighted child record, and cannot "
-						"be canceled.\n\n Are you sure you want to do this?")
-		if dMessageBox.areYouSure(message, defaultNo=True):
-			try:
-				self.bizobj.delete()
-				self.getDform().setStatusText(_("Child record deleted."))
-			except dException.dException, e:
-				dMessageBox.stop("Delete failed with response:\n%s" % str(e))
-			self.fillGrid()
+		cb = self.getDform().getChildBehavior(self.dataSource)
+		if cb['EnableDelete']:
+			message = _("This will delete the highlighted child record, and cannot "
+							"be canceled.\n\n Are you sure you want to do this?")
+			if dMessageBox.areYouSure(message, defaultNo=True):
+				try:
+					self.bizobj.delete()
+					self.getDform().setStatusText(_("Child record deleted."))
+				except dException.dException, e:
+					dMessageBox.stop("Delete failed with response:\n%s" % str(e))
+				self.fillGrid()
+		else:
+			dMessageBox.stop("Deleting records isn't allowed.")
 	
+			
 	def editRecord(self):
-		dMessageBox.stop("Editing childview records isn't supported yet.")
+		cb = self.getDform().getChildBehavior(self.dataSource)
+		if cb['EnableEdit']:
+			dMessageBox.stop("Editing childview records isn't supported yet.")
+		else:
+			dMessageBox.stop("Editing records isn't allowed.")
+
+		
