@@ -41,7 +41,7 @@ from dTreeView import dTreeView
 
 
 # Tell Dabo Designer what classes to put in the selection menu:
-__dClasses = [dBox, dBitmapButton, dCheckBox, dCommandButton, dDateControl, 
+__dClasses = [dBox, dBitmapButton, dCheckBox, dCommandButton, 
 		dDateTextBox, dDropdownList, dEditBox, dForm, dFormDataNav, dFormMain, 
 		dGauge, dLabel, dLine, dListbook, dPanel, dPageFrame, dPage, 
 		dRadioGroup, dScrollPanel, dSlider, dSpinner, dTextBox, dToggleButton]
