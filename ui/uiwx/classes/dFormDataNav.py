@@ -61,10 +61,10 @@ class dFormDataNav(dForm):
         toolBar.AddSeparator()
             
         self._appendToToolBar(toolBar, "Save", dIcons.getIconBitmap("fileSave"),
-                              self.onRequery, "Save changes")
+                              self.onSave, "Save changes")
     
         self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("fileRevert"),
-                              self.onRequery, "Cancel changes")
+                              self.onCancel, "Cancel changes")
                               
     def getMenu(self):
         menu = dForm.getMenu(self)

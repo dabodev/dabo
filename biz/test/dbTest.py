@@ -14,7 +14,8 @@ class bizZip(dBizobj):
 class bizCust(dBizobj):
 	dataSource = "customer"
 	keyField = "iid"
-	sql = "select iid, city, company from customer where company like %s "
+	#sql = "select iid, city, company from customer where company like %s "
+	sql = "select * from customer where company like %s "
 	noDataOnLoad = True
 	deleteChildLogic = k.REFINTEG_CASCADE
 	autoPopulatePK = True
