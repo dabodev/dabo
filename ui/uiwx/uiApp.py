@@ -1,6 +1,6 @@
 ''' daboApp.py: The application object and the main frame object. '''
 
-import sys, os, wx, wx.help
+import sys, os, wx
 from dabo.db import *
 from dabo.biz import *
 from dabo.ui.uiwx.classes import *
@@ -14,8 +14,6 @@ class uiApp(wx.App):
 
     def setup(self, dApp):
         wx.InitAllImageHandlers()
-        self.helpProvider = wx.help.SimpleHelpProvider()
-        wx.help.HelpProvider_Set(self.helpProvider)
         
         # wx has properties for appName and vendorName, so Dabo should update
         # these. Among other possible uses, I know that on Win32 wx will use

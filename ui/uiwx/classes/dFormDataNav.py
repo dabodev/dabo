@@ -54,7 +54,7 @@ class dFormDataNav(dForm):
         self._appendToToolBar(toolBar, "New", dIcons.getIconBitmap("blank"),
                               self.onNew, "Add a new record")
             
-        self._appendToToolBar(toolBar, "Delete", dIcons.getIconBitmap("remove"),
+        self._appendToToolBar(toolBar, "Delete", dIcons.getIconBitmap("delete"),
                               self.onDelete, "Delete this record")
         
         toolBar.AddSeparator()
@@ -288,3 +288,5 @@ class dFormDataNav(dForm):
     def requery(self):
         self.setSQL(self.sqlBuilder.getSQL())
         dForm.requery(self)
+
+        
