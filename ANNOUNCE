@@ -1,8 +1,8 @@
 <Date of Announcement>
-Announcing Dabo <Version>, a framework for 3-tier desktop applications.
+Announcing Dabo <Version>.
 
 Dabo is a Python module, allowing for easy construction of 3-tier desktop
-applications. The 3 tiers are:
+applications for distribution on Mac, Windows, and Linux. The 3 tiers are:
 
     + The database, which can be any database with available dbapi modules.
       Currently, Dabo only supports MySQL, but we intend to support very
@@ -32,7 +32,7 @@ applications. The 3 tiers are:
         + wxPython (already supported)
         + tkInter
         + PyQt
-        + curses (text-UI could be useful for servers)
+        + curses (text-UI could be useful for simple applications)
         
       
       Dabo provides a host of useful UI base classes, including bizobj-aware
