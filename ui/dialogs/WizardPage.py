@@ -28,6 +28,8 @@ class WizardPage(dabo.ui.dPanel):
 			self.Title = ""
 		self._title = dabo.ui.dLabel(self, Caption=self.Title, FontSize=self.TitleSize,
 				FontFace=self.TitleFace)
+		ln = dabo.ui.dLine(self)
+		self.Sizer.prepend(ln, "x")
 		self.Sizer.prependSpacer(16)
 		self.Sizer.prepend(self._title, alignment="center")
 		self._createBody()

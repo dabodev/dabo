@@ -28,6 +28,7 @@ class Wizard(dabo.ui.dForm):
 		
 		self._pages = []
 		self._currentPage = -1
+		self._blankPage = None
 		
 		# Changing this attribute determines if we confirm when
 		# the user clicks 'Cancel'
@@ -64,8 +65,6 @@ class Wizard(dabo.ui.dForm):
 		# This is the panel that will contain the various pages
 		pp = self.pagePanel = dabo.ui.dPanel(mp)
 		ppsz = pp.Sizer = dabo.ui.dSizer("v") 
-
-		pp.BackColor = "goldenrod"
 		
 		hsz.append(pp, 1, "x")
 		mpsz.append(hsz, 1, "x")
@@ -143,6 +142,7 @@ class Wizard(dabo.ui.dForm):
 			for p in pg:
 				self.append(p)
 		else:
+			print "APPEND", pg
 			page = pg(self.pagePanel)
 			page.Size = self.pagePanel.Size
 			self._pages.append(page)
@@ -185,7 +185,11 @@ class Wizard(dabo.ui.dForm):
 	
 	
 	def showBlankPage(self):
-		self.blankPage.Visible = True
+		if self._blankPage is None:
+			self._blankPage = WizardPage(self)
+			self._blankPage.Title = _("This Space For Rent")
+		self._blankPage.Visible = True
+		self.Sizer.append(self._blankPage, 1, "x")
 		self.btnBack.Enabled = self.btnNext.Enabled = False
 		self.layout()
 	
