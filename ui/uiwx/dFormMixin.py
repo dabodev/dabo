@@ -9,7 +9,11 @@ import dabo.dEvents as dEvents
 
 class dFormMixin(pm.dPemMixin):
 	def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
-		if parent:
+		if False and parent:
+			## pkm 3/10/05: I like it better now without the float on parent option
+			##              and think it is a better default to stick with the wx
+			##              default frame style. You can still override the style
+			##              by passing it to the constructor.
 			style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT
 		else:
 			style = wx.DEFAULT_FRAME_STYLE

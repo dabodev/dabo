@@ -752,9 +752,9 @@ class EditPage(Page):
 				gs.setRowExpand(True, currRow)
 			gs.append(objectRef, "expand")
 			gs.append( (25, 1) )
-		
 		gs.setColExpand(True, 1)
-		mainSizer.append(gs, "expand", 1, border=20)
+
+		childGridCount = 0
 
 		if not self.childrenAdded:
 			self.childrenAdded = True
@@ -762,6 +762,7 @@ class EditPage(Page):
 			for rkey in relationSpecs.keys():
 				rs = relationSpecs[rkey]
 				if rs["source"].lower() == self.dataSource.lower():
+					childGridCount += 1
 					child = rs["target"]
 					childBiz = self.Form.getBizobj(child)
 					grdLabel = self.addObject(dabo.ui.dLabel, "lblChild" + child)
@@ -782,7 +783,19 @@ class EditPage(Page):
 						window.SetFocus()
 					mainSizer.append(grid, 1, "expand", border=10,
 							borderFlags=("left", "right") )
-			
+		
+		if childGridCount == 0:
+			# Let the edit fields expand normally.
+			gsProportion = 1
+		else:
+			# Each of the child grids got proportions of 1 in the above block,
+			# so they'll size equally. Because the presence of even one child grid
+			# is going to likely push the grid off the bottom, requiring a scroll,
+			# minimize that as much as possible by not allowing the non-grid controls 
+			# to expand.
+			gsProportion = 0
+		mainSizer.insert(0, gs, "expand", gsProportion, border=20)
+
 		# Add top and bottom margins
 		mainSizer.insert( 0, (-1, 10), 0)
 		mainSizer.append( (-1, 20), 0)
