@@ -195,9 +195,14 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 
 	def _getFont(self):
 		return self._pemObject.GetFont()
+	
+	def _getFontEditorInfo(self):
+		return {'editor': 'font'}
+	
 	def _setFont(self, font):
 		self._pemObject.SetFont(font)
 
+		
 	def _getFontInfo(self):
 		return self._pemObject.GetFont().GetNativeFontInfoDesc()
 
