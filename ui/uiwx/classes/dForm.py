@@ -173,28 +173,44 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	def first(self, dataSource=None):
 		""" Ask the bizobj to move to the first record.
 		"""
-		self._moveRecordPointer(self.getBizobj(dataSource).first, dataSource)
+		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
+		self._moveRecordPointer(bizobj.first, dataSource)
 
 
 	def last(self, dataSource=None):
 		""" Ask the bizobj to move to the last record.
 		"""
-		self._moveRecordPointer(self.getBizobj(dataSource).last, dataSource)
+		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
+		self._moveRecordPointer(bizobj.last, dataSource)
 
 
 	def prior(self, dataSource=None):
 		""" Ask the bizobj to move to the previous record.
 		"""
+		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
 		try:
-			self._moveRecordPointer(self.getBizobj(dataSource).prior, dataSource)
+			self._moveRecordPointer(bizobj.prior, dataSource)
 		except dException.BeginningOfFileException:
 			self.setStatusText(self.getCurrentRecordText(dataSource) + " (BOF)")
 
 	def next(self, dataSource=None):
 		""" Ask the bizobj to move to the next record.
 		"""
+		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
 		try:
-			self._moveRecordPointer(self.getBizobj(dataSource).next, dataSource)
+			self._moveRecordPointer(bizobj.next, dataSource)
 		except dException.EndOfFileException:
 			self.setStatusText(self.getCurrentRecordText(dataSource) + " (EOF)")
 
@@ -202,8 +218,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	def save(self, dataSource=None):
 		""" Ask the bizobj to commit its changes to the backend.
 		"""
-		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
+		self.activeControlValid()
 
 		try:
 			if self.SaveAllRows:
@@ -233,8 +252,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		This will revert back to the state of the records when they were last
 		requeried or saved.
 		"""
-		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
+		self.activeControlValid()
 
 		try:
 			if self.SaveAllRows:
@@ -265,9 +287,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		""" Ask the bizobj to requery.
 		"""
 		import time
-
-		self.activeControlValid()
+		
 		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
+		self.activeControlValid()
 
 		if bizobj.isAnyChanged() and self.AskToSave:
 			response = dMessageBox.areYouSure(_("Do you wish to save your changes?"),
@@ -309,8 +334,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	def delete(self, dataSource=None, message=None):
 		""" Ask the bizobj to delete the current record.
 		"""
-		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
+		self.activeControlValid()
 		
 		if not bizobj.RowCount > 0:
 			# Nothing to delete!
@@ -339,8 +367,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	def deleteAll(self, dataSource=None, message=None):
 		""" Ask the primary bizobj to delete all records from the recordset.
 		"""
-		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
+		self.activeControlValid()
 
 		if not message:
 			message = _("This will delete all records in the recordset, and cannot "
@@ -364,8 +395,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	def new(self, dataSource=None):
 		""" Ask the bizobj to add a new record to the recordset.
 		"""
-		self.activeControlValid()
 		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
+		self.activeControlValid()
 		try:
 			bizobj.new()
 			if self.debug:
@@ -452,11 +486,21 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		""" Get the text to describe which record is current.
 		"""
 		bizobj = self.getBizobj(dataSource)
-		rowCount = bizobj.RowCount
-		if rowCount > 0:
-			rowNumber = bizobj.RowNumber+1
+		if bizobj is None:
+			try:
+				# Some situations, such as form preview mode, will
+				# store these directly, since they lack bizobjs
+				rowCount = self.rowCount
+				rowNumber = self.rowNumber
+			except:
+				rowCount = 1
+				rowNumber = 0
 		else:
-			rowNumber = 0
+			rowCount = bizobj.RowCount
+			if rowCount > 0:
+				rowNumber = bizobj.RowNumber+1
+			else:
+				rowNumber = 0
 		return _("Record " ) + ("%s/%s" % (rowNumber, rowCount))
 
 

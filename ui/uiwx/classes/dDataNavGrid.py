@@ -10,13 +10,17 @@ import wx, wx.grid
 import urllib
 import dIcons
 import dabo.dException as dException
+import dControlMixin
+import dDataControlMixin
+
 
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
 		wx.grid.PyGridTableBase.__init__(self)
 
-		self.bizobj = parent.Form.getBizobj(parent.DataSource) 
 		self.grid = parent
+		self.preview = self.grid.Form.preview
+		self.bizobj = self.grid.Form.getBizobj(parent.DataSource) 
 
 		self.initTable()
 
@@ -66,7 +70,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		""" Fill the grid's data table to match the bizobj.
 		"""
 		rows = self.GetNumberRows()
-		oldRow = self.bizobj.RowNumber    # current row per the bizobj
+		if self.preview:
+			oldRow = 0
+		else:
+			oldRow = self.bizobj.RowNumber    # current row per the bizobj
 		oldCol = self.grid.GetGridCursorCol()  # current column per the grid
 		if not oldCol:
 			oldCol = 0
@@ -74,9 +81,33 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.Clear()
 		self.data = []
 
-		# Fill self.data based on bizobj records
-		dataSet = self.bizobj.getDataSet()
-
+		if not self.preview:
+			# Fill self.data based on bizobj records
+			dataSet = self.bizobj.getDataSet()
+		else:
+			# Create a single empty row for the data set
+			dataRec = {}
+			for fld in self.grid.fieldSpecs.keys():
+				fldInfo = self.grid.fieldSpecs[fld]
+				if bool(int(fldInfo["listInclude"])):
+					typ = fldInfo["type"]
+					if typ == "int":
+						val = 0
+					elif typ == "float":
+						val = 0.0
+					elif typ[:4] == "date":
+						val = "2000-12-21"
+					else:
+						val = "test data"
+					dataRec[fld] = val
+			# Add 100 rows
+			dataSet = []
+			for i in range(100):
+				dataSet.append(dataRec)
+			# update the form
+			self.grid.Form.rowNumber = 0
+			self.grid.Form.rowCount = 100
+	
 		for record in dataSet:
 			recordDict = []
 			for col in self.showCols:
@@ -95,28 +126,28 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				recordDict.append(recordVal)
 
 			self.data.append(recordDict)
-
-		self.grid.BeginBatch()
-		# The data table is now current, but the grid needs to be
-		# notified.
-		if len(self.data) > rows:
-			# tell the grid we've added row(s)
-			num = len(self.data) - rows
-			msg = wx.grid.GridTableMessage(self,         # The table
-				wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,  # what we did to it
-				num)                                     # how many
-
-		elif rows > len(self.data):
-			# tell the grid we've deleted row(s)
-			num = rows - len(self.data) 
-			msg = wx.grid.GridTableMessage(self,        # The table
-				wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,  # what we did to it
-				0,                                      # position
-				num)                                    # how many
-		else:
-			msg = None
-		if msg:        
-			self.GetView().ProcessTableMessage(msg)
+	
+			self.grid.BeginBatch()
+			# The data table is now current, but the grid needs to be
+			# notified.
+			if len(self.data) > rows:
+				# tell the grid we've added row(s)
+				num = len(self.data) - rows
+				msg = wx.grid.GridTableMessage(self,         # The table
+					wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,  # what we did to it
+					num)                                     # how many
+	
+			elif rows > len(self.data):
+				# tell the grid we've deleted row(s)
+				num = rows - len(self.data) 
+				msg = wx.grid.GridTableMessage(self,        # The table
+					wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,  # what we did to it
+					0,                                      # position
+					num)                                    # how many
+			else:
+				msg = None
+			if msg:        
+				self.GetView().ProcessTableMessage(msg)
 
 
 		# Column widths come from dApp user settings, or get sensible
@@ -307,7 +338,6 @@ class dDataNavGrid(dGrid.dGrid):
 				"RowSize"))
 		if s:
 			self.SetDefaultRowSize(s)
-
 		if not self.GetTable():
 			self.SetTable(dGridDataTable(self), True)
 		self.GetTable().fillTable()
@@ -339,6 +369,9 @@ class dDataNavGrid(dGrid.dGrid):
 				self.Form.getBizobj(self.DataSource).RowNumber = newRow
 			except dException.dException:
 				pass
+			except AttributeError: 
+				if hasattr(self.Form, "rowNumber"):
+					self.Form.rowNumber = newRow
 		self.Form.refreshControls()
 		event.Skip()
 

@@ -35,9 +35,10 @@ class dDataNavPageFrame(pgf.dPageFrame):
 		if self.Form.FormType != "PickList":
 			self.AddPage(self.EditPageClass(self), "Edit", imageId=2)
 
-			bizobj = self.Parent.getBizobj()
-			for child in bizobj.getChildren():
-				self.AddPage(self.ChildPageClass(self, child.DataSource), child.Caption, imageId=3)
+			if not self.Parent.preview:
+				bizobj = self.Parent.getBizobj()
+				for child in bizobj.getChildren():
+					self.AddPage(self.ChildPageClass(self, child.DataSource), child.Caption, imageId=3)
 
 		self.GetPage(0).onEnterPage()
 

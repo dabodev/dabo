@@ -15,10 +15,21 @@ class dDataNavForm(dForm.dForm):
 
 	def beforeInit(self, preObject):
 		dDataNavForm.doDefault(preObject)
+		# Determines if we are actually running the form, or just 
+		# previewing it
 		self._fieldSpecs = {}
 		self._childBehavior = {}
 		self._requeried = False
-
+	
+	
+	def __init__(self, parent, previewMode=False, tbl=""):
+		self.preview = previewMode
+		self.previewDataSource = tbl
+		dDataNavForm.doDefault(parent)
+		# We will need to set these separated if in Preview mode.
+		self.rowNumber = 0
+		self.rowCount = 0
+		
 
 	def afterInit(self):
 		dDataNavForm.doDefault()
@@ -310,24 +321,27 @@ class dDataNavForm(dForm.dForm):
 		"""
 		# First, get the field spec data into a dictionary.
 		self.FieldSpecs = fieldSpecParser.importFieldSpecs(xmlFile, tbl)
-		# Set up the SQL Builder in the bizobj:
-		biz = self.getBizobj()
-		biz.setFieldClause("")
-		for fld in self.FieldSpecs.keys():
-			fldInfo = self.FieldSpecs[fld]
-			if int(fldInfo["editInclude"]) or int(fldInfo["listInclude"]):
-				biz.addField("%s.%s as %s" % (tbl, fld, fld) )
-		biz.setFromClause(tbl)
-
-		self.childViews = []
-		for child in self.getBizobj().getChildren():
-			self.childViews.append({"dataSource": child.DataSource,
-					"caption": child.Caption,
-					"menuId": wx.NewId()})
+		if not self.preview:
+			# Set up the SQL Builder in the bizobj:
+			biz = self.getBizobj()
+			biz.setFieldClause("")
+			for fld in self.FieldSpecs.keys():
+				fldInfo = self.FieldSpecs[fld]
+				if int(fldInfo["editInclude"]) or int(fldInfo["listInclude"]):
+					biz.addField("%s.%s as %s" % (tbl, fld, fld) )
+			biz.setFromClause(tbl)
+	
+			self.childViews = []
+			for child in self.getBizobj().getChildren():
+				self.childViews.append({"dataSource": child.DataSource,
+						"caption": child.Caption,
+						"menuId": wx.NewId()})
 		self.setupPageFrame()
 		self.setupToolBar()
-		self.setupMenu()
-		
+		if not self.preview:
+			self.setupMenu()
+	
+	
 	def setColumnDefs(self, dataSource, columnDefs):
 		""" Set the grid column definitions for the given data source.
 

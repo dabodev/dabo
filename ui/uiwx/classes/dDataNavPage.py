@@ -14,41 +14,6 @@ class SelectOptionsPanel(dPanel.dPanel):
 		# selectOptions is a list of dictionaries
 		self.selectOptions = []
 		
-	def initEnabled(self):
-		for optionRow in self.selectOptions:
-			self.setEnabled(self.FindWindowById(optionRow["cbId"]))
-		self.setEnabled(self.chkSelectLimit)
-
-	def setEnabled(self, cb):
-		# Get reference(s) to the associated input control(s)
-		if cb.Name == "chkSelectLimit":
-			user1, user2 = self.spnSelectLimit, None
-		else:
-			user1, user2 = None, None
-			for optionRow in self.selectOptionsPanel.selectOptions:
-				if cb and optionRow["cbId"] == cb.GetId():
-					user1Id = optionRow["user1Id"]
-					user2Id = optionRow["user2Id"]
-					user1 = self.FindWindowById(user1Id)
-					user2 = self.FindWindowById(user2Id)
-					dataType = optionRow["dataType"]
-					break            
-
-		# enable/disable the associated input control(s) based
-		# on the value of cb. Set Focus to the first control if
-		# the checkbox is enabled.
-		try:
-			user1.Enable(cb.Value)
-			if cb.Value:
-				user1.SetFocus()
-		except AttributeError: 
-			pass
-
-		try:
-			user2.Enable(cb.Value)
-		except AttributeError: 
-			pass
-
 
 class SelectionOpDropdown(dDropdownList.dDropdownList):
 	def __init__(self, *args, **kwargs):
@@ -177,18 +142,20 @@ class dSelectPage(dPage.dPage):
 
 	def requery(self):
 		bizobj = self.Form.getBizobj()
-		self.setWhere(bizobj)
-		self.setLimit(bizobj)
-		
-		# The bizobj will get the SQL from the sql builder:
-		sql = bizobj.getSQL()
-
-		dabo.infoLog.write("\n%s\n" % sql)
-		
-		# But it won't automatically use that sql, so we set it here:
-		bizobj.setSQL(sql)
-
-		self.Form.requery()
+		if bizobj is not None:
+			self.setWhere(bizobj)
+			self.setLimit(bizobj)
+			
+			# The bizobj will get the SQL from the sql builder:
+			sql = bizobj.getSQL()
+	
+			if self.debug:
+				dabo.infoLog.write("\n%s\n" % sql)
+			
+			# But it won't automatically use that sql, so we set it here:
+			bizobj.setSQL(sql)
+	
+			self.Form.requery()
 
 		if self.GetParent().GetSelection() == 0:
 			# If the select page is active, now make the browse page active
@@ -224,7 +191,10 @@ class dSelectPage(dPage.dPage):
 
 
 	def _getSelectOptionsPanel(self):
-		dataSource = self.Form.getBizobj().DataSource
+		if not self.Form.preview:
+			dataSource = self.Form.getBizobj().DataSource
+		else:
+			dataSource = self.Form.previewDataSource
 		fs = self.Form.FieldSpecs
 		panel = dPanel.dPanel(self)
 		gsz = wx.GridBagSizer(vgap=5, hgap=10)
@@ -306,7 +276,6 @@ class dSelectPage(dPage.dPage):
 
 		
 class dBrowsePage(dPage.dPage):
-
 	def __init__(self, parent):
 		dBrowsePage.doDefault(parent, "pageBrowse")
 
@@ -328,18 +297,24 @@ class dBrowsePage(dPage.dPage):
 	def updateGrid(self):
 		bizobj = self.Form.getBizobj()
 		justCreated = False
-		if bizobj and bizobj.RowCount >= 0:
+		if self.Form.preview:
 			if not self.itemsCreated:
 				self.createItems()
 				justCreated = True
 			if self.itemsCreated:
 				self.fillGrid()
+		else:
+			if bizobj and bizobj.RowCount >= 0:
+				if not self.itemsCreated:
+					self.createItems()
+					justCreated = True
+				if self.itemsCreated:
+					self.fillGrid()
 
 			row = self.Form.getBizobj().RowNumber
 			col = self.BrowseGrid.GetGridCursorCol()
 			
-			if col < 0:
-				col = 0
+			col = max(0, col)
 			self.BrowseGrid.SetGridCursor(row, col)
 			
 			if not justCreated and not self.BrowseGrid.IsVisible(row, col):
@@ -354,12 +329,15 @@ class dBrowsePage(dPage.dPage):
 	def createItems(self):
 		bizobj = self.Form.getBizobj()
 		grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid")
-		grid.DataSource = bizobj.DataSource
-		self.GetSizer().Add(grid, 1, wx.EXPAND)
-		grid.fieldSpecs = self.Form.FieldSpecs
 		
+		grid.fieldSpecs = self.Form.FieldSpecs
+		if not self.Form.preview:
+			grid.DataSource = bizobj.DataSource
+		else:
+			grid.DataSource = self.Form.previewDataSource
+		self.GetSizer().Add(grid, 1, wx.EXPAND)
 		preview = self.addObject(dCommandButton.dCommandButton, "cmdPreview")
-		preview.Caption = "Preview"
+		preview.Caption = "Print Preview"
 		preview.Bind(wx.EVT_BUTTON, self.onPreview)
 		self.GetSizer().Add(preview, 0, 0)
 		
@@ -390,6 +368,11 @@ class dBrowsePage(dPage.dPage):
 		
 	def onPreview(self, event):
 		if self.itemsCreated:
+			if self.Form.preview:
+				# Just previewing 
+				dMessageBox.info(message="Not available in preview mode", 
+						title = "Preview Mode")
+				return
 			html = self.grid.getHTML(justStub=False)
 			win = wx.html.HtmlEasyPrinting("Dabo Quick Print", self.Form)
 			printData = win.GetPrintData()
@@ -410,7 +393,6 @@ class dBrowsePage(dPage.dPage):
 
 			
 class dEditPage(dPage.dPage):
-
 	def __init__(self, parent):
 		dEditPage.doDefault(parent, "pageEdit")
 
@@ -432,7 +414,10 @@ class dEditPage(dPage.dPage):
 
 
 	def createItems(self):
-		dataSource = self.Form.getBizobj().DataSource
+		if not self.Form.preview:
+			dataSource = self.Form.getBizobj().DataSource
+		else:
+			dataSource = ""
 		fieldSpecs = self.Form.FieldSpecs
 		
 		showEdit = [ (fld, fieldSpecs[fld]["editOrder"]) 
@@ -478,8 +463,9 @@ class dEditPage(dPage.dPage):
 			else:
 				label.Caption = "%s:" % cap
 
-			if self.Form.getBizobj().RowCount >= 0:
-				objectRef.refresh()
+			if not self.Form.preview:
+				if self.Form.getBizobj().RowCount >= 0:
+					objectRef.refresh()
 
 			if fieldType in ["memo",]:
 				expandFlags = wx.EXPAND
@@ -504,7 +490,6 @@ class dEditPage(dPage.dPage):
 
 
 class dChildViewPage(dPage.dPage):
-
 	def __init__(self, parent, dataSource):
 		dChildViewPage.doDefault(parent, "pageChildView")
 		self.dataSource = dataSource

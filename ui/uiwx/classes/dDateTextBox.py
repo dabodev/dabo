@@ -1,9 +1,40 @@
 import wx
+import  wx.calendar
 import dabo
 from dabo.dLocalize import _
-import dTextBox
+import dTextBox, dPanel, dCommandButton
 import re
 
+
+class CalPanel(dPanel.dPanel):
+	def __init__(self, parent, pos=(-1,-1), dt=wx.DateTime_Now(), ctrl=None ):
+		if dt is None:
+			self.date = wx.DateTime_Now()
+		else:
+			self.date = dt
+		self.ctrl = ctrl
+		CalPanel.doDefault(parent, pos=pos)
+	
+	def afterInit(self):
+		""" Create the calendar control, and resize this panel 
+		to the calendar's size
+		"""
+		self.cal = wx.calendar.CalendarCtrl(self, -1, self.date, pos = (5,5), 
+				style = wx.calendar.CAL_SUNDAY_FIRST
+				| wx.calendar.CAL_SEQUENTIAL_MONTH_SELECTION
+				)
+		self.Bind(wx.calendar.EVT_CALENDAR, self.onCal, id=self.cal.GetId())
+		wd, ht = self.cal.GetSize()
+		self.Size = (wd+10, ht+10)
+		self.BackColor = (192, 192, 0)
+		self.cal.Show(True)
+		
+	def onCal(self, evt):
+		if self.ctrl is not None:
+			self.ctrl.Value = evt.GetDate()
+		self.cal.Destroy()
+		self.Show(False)
+		
 
 class dDateTextBox(dTextBox.dTextBox):
 	""" This is a specialized textbox class designed to work with date values.
@@ -13,8 +44,7 @@ class dDateTextBox(dTextBox.dTextBox):
 	"""
 	
 	def beforeInit(self, pre):
-		self.date = wx.DateTime()
-		self.date.SetToCurrent()
+		self.date = wx.DateTime_Now()
 		self.formats = {
 				wx.NewId(): {"prompt": "American (MM/DD/YYYY)", 
 					"setting" : "American", 
@@ -36,11 +66,28 @@ class dDateTextBox(dTextBox.dTextBox):
 		# the month, so do we interpret this to mean continue to the end
 		# of the following month, or do we do nothing?
 		self.continueAtBoundary = True
-
+		# Do we display a button on the right side for activating the calendar?
+		### TODO: still needs a lot of work to display properly.
+		self.showCalButton = False
+	
 	
 	def afterInit(self):
+		if self.showCalButton:
+			# Create a button that will display the calendar
+			self.calButton = dCommandButton.dCommandButton(self.Parent)
+			self.calButton.Size = (self.Height, self.Height)
+			self.calButton.Right = self.Right
+			self.calButton.Caption = "V"
+			self.calButton.Show(True)
+			self.Parent.Bind(wx.EVT_BUTTON, self.onDblClick, id=self.calButton.GetId() )
+# 			calSizer = wx.BoxSizer(wx.HORIZONTAL)
+# 			calSizer.Add(self, 1, wx.EXPAND)
+# 			calSizer.Add(self.calButton)
+			
+
 		self.Bind(wx.EVT_RIGHT_DOWN, self.onRightClick)
 		self.Bind(wx.EVT_CHAR, self.onChar)
+		self.Bind(wx.EVT_LEFT_DCLICK, self.onDblClick)
 		# Tooltip help
 		self.ToolTipText = """Available Keys:
 =============
@@ -57,9 +104,20 @@ R : Last Day of yeaR
 	
 	
 	def OnKillFocus(self, evt):
+		""" Since the actual value is the date object, we need to refresh
+		the displayed text with the properly formatted character date.
+		"""
 		dDateTextBox.doDefault(evt)
 		# Refresh the displayed value
 		self.Value = self.GetValue()
+	
+	
+	def onDblClick(self, evt):
+		""" Display a calendar to allow users to select dates.
+		"""
+		self.calPanel = CalPanel(self.Parent, pos = (self.Left, self.Bottom), 
+				dt = self.strToDate(self.Value), ctrl=self )
+		self.calPanel.Show(True)
 		
 	
 	def onRightClick(self, evt):
