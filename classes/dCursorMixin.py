@@ -19,15 +19,65 @@ class dCursorMixin:
 	def __init__(self, sql="", *args, **kwargs):
 		if sql:
 			self.sql = sql
-		# Check for proper values
-		if not self.table or not self.sql or not self.keyField:
-			self.addToErrorMsg("Critical properties have not been set:")
-			if not self.table:
-				self.addToErrorMsg("\t'table' ")
-			if not self.sql:
-				self.addToErrorMsg("\t'sql' ")
-			if not self.keyField:
-				self.addToErrorMsg("\t'keyField' ")
+
+
+	def setSQL(self, sql):
+		self.sql = sql
+		
+		
+	def setTable(self, table):
+		self.table = table
+		
+	
+	def setKeyField(self, kf):
+		self.keyField = kf
+	
+	
+	def requery(self, params=None):
+		if params is None:
+			sql = self.sql
+		else:
+			sql = self.sql % params
+		try:
+			self.execute(sql)
+		except:
+			return k.REQUERY_ERROR
+		# Add mementos to each row of the result set
+		self.addMemento(-1)
+		return k.REQUERY_SUCCESS
+	
+	
+	def setMemento(self):
+		self.addMemento(self.rownumber)
+		
+	
+	def getFieldVal(self, fld):
+		""" Returns the value of the requested field """
+		ret = None
+		if self.rowcount == 0:
+			self.addToErrorMsg("No records in the data set")
+		else:
+			rec = self._rows[self.rownumber]
+			if rec.has_key(fld):
+				ret = rec[fld]
+			else:
+				self.addToErrorMsg("Field '" + fld + "' does not exist in the data set")
+		return ret
+		
+	
+	def setFieldVal(self, fld, val):
+		""" Sets the value of the specified field """
+		ret = 0
+		if self.rowcount == 0:
+			self.addToErrorMsg("No records in the data set")
+		else:
+			rec = self._rows[self.rownumber]
+			if rec.has_key(fld):
+				rec[fld] = val
+				ret = 1
+			else:
+				self.addToErrorMsg("Field '" + fld + "' does not exist in the data set")
+		return ret
 		
 	
 	def first(self):
@@ -109,7 +159,7 @@ class dCursorMixin:
 			recs = (self._rows[self.rownumber],)
 		
 		for rec in recs:
-			updret = saverow(rec)
+			updret = self.saverow(rec)
 			if updret != k.UPDATE_OK:
 				ret = FILE_CANCEL
 				break
@@ -320,7 +370,7 @@ class dCursorMixin:
 
 	def makeUpdClause(self, diff):
 		ret = ""
-		for fld, val in diff:
+		for fld, val in diff.items():
 			if ret:
 				ret += ", "
 			if type(val) == types.StringType:
@@ -331,18 +381,18 @@ class dCursorMixin:
 
 
 	def saveProps(self, saverows=1):
-		self.tmprows = self._rows.copy()
+		self.tmprows = self._rows
 		self.tmpcount = self.rowcount
 		self.tmppos = self.rownumber
-		self.tmpdesc = self.description.copy()
+		self.tmpdesc = self.description
 		
 
 	def restoreProps(self, restorerows=1):
 		if restorerows:
-			self._rows = self.tmprows.copy()
+			self._rows = self.tmprows
 		self.rowcount = len(self._rows)
 		self.rownumber = min(self.tmppos, self.rowcount-1)
-		self.description = self.tmpdesc.copy()
+		self.description = self.tmpdesc
 	
 	
 	def escapeQt(self, val):
@@ -370,7 +420,7 @@ class dCursorMixin:
 		
 	def isAdding(self):
 		""" Returns true if the current record has the new rec flag """
-		return self._rows[self.rownumber].has_attr(k.CURSOR_NEWFLAG)
+		return self._rows[self.rownumber].has_key(k.CURSOR_NEWFLAG)
 	
 	
 	def beginTransaction(self):

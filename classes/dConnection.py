@@ -13,15 +13,15 @@ class dConnection:
 		# Reference to the database connection
 		if not parent:
 			# Should raise an error. For now, just bail
-			return 0
+			return
 		# Store a reference to the bizobj that created this
 		self.parent = parent
 		self._dbType = dbType
 		self._openConnection()
 	
 	
-	def __del__(self):
-		self._conn.close()
+# 	def __del__(self):
+# 		self._conn.close()
 	
 	def getConnection(self):
 		return self._conn

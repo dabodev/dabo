@@ -22,5 +22,4 @@ class dConstants:
 	# Constants specific to cursors
 	CURSOR_MEMENTO = "dabo-memento"
 	CURSOR_NEWFLAG = "dabo-newrec"
-
 	
