@@ -116,6 +116,19 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		"""
 		if (not self.SecurityManager or not self.SecurityManager.RequireAppLogin
 			or self.SecurityManager.login()):
+			
+			mf = self.mainFrame
+			mf.setStatusText("Welcome to %s" % self.getAppInfo("appName"))
+			
+			userName = self.getUserCaption()
+			if userName:
+				userName = " (%s)" % userName
+			else:
+				userName = ""
+				
+			mf.Caption = "%s Version %s %s" % (self.getAppInfo("appName"),
+											self.getAppInfo("appVersion"),
+											userName)
 		
 			self.uiApp.start(self)
 		self.finish()
@@ -223,6 +236,16 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		configFile = open(configFileName, 'w')
 		cp.write(configFile)
 		configFile.close()
+		
+		
+	def getUserCaption(self):
+		""" Return the full name of the currently logged-on user.
+		"""
+		if self.SecurityManager:
+			return self.SecurityManager.UserCaption
+		else:
+			return None
+			
 
 	def _initProperties(self):
 		""" Initialize the public properties of the app object. """

@@ -1,6 +1,6 @@
-import wx, dPemMixin
+import wx, dFormMixin
 
-class dDialog(wx.Dialog, dPemMixin.dPemMixin):
+class dDialog(wx.Dialog, dFormMixin.dFormMixin):
 	def __init__(self, parent=None, id=-1, title='', name='dDialog', *args, **kwargs):
 		self._baseClass = dDialog
 

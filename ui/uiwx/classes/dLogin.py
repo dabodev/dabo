@@ -2,6 +2,7 @@ from dLabel import dLabel
 from dTextBox import dTextBox
 from dDialog import dDialog
 from dCommandButton import dCommandButton
+from dabo.dLocalize import _
 import wx
 
 class lbl(dLabel):
@@ -11,10 +12,24 @@ class lbl(dLabel):
 	
 	def initProperties(self):
 		self.Width = 100
+
+				
+class lblMessage(dLabel):
+	def initStyleProperties(self):
+		self.Alignment = "Center"
+		self.AutoResize = False
 		
+	def initProperties(self):
+		self.FontBold = True
+		self.FontItalic = True
+		self.ForeColor = wx.BLUE
+		self.FontSize = 10
+		self.Caption = _("Please enter your login information.")
+
+				
 class txt(dTextBox):
 	def initProperties(self):
-		self.Width = 175
+		self.Width = 250
 		
 class txtPass(txt):
 	def initStyleProperties(self):
@@ -23,11 +38,19 @@ class txtPass(txt):
 		
 class dLogin(dDialog):
 	def initStyleProperties(self):
-		dLogin.doDefault()
+		self.ShowCloseButton = True
+		self.ShowCaption = False
 		
 	def initProperties(self):
 		dLogin.doDefault()
-		self.Caption = "Login"
+		if self.dApp:
+			appName = self.dApp.getAppInfo("appName")
+		else:
+			appName = ''
+		if len(appName) > 0:
+			self.Caption = "Login to %s" % appName
+		else:
+			self.Caption = "Please Login"
 		
 		self.addObject(lbl, 'lblUserName')
 		self.addObject(txt, 'txtUserName')
@@ -46,7 +69,11 @@ class dLogin(dDialog):
 		self.cmdCancel.Caption = "Cancel"
 		self.cmdCancel.Cancel = True
 
+		self.addObject(lblMessage, 'lblMessage')
+
+		self.user, self.password = None, None
 		
+				
 	def afterInit(self):
 		dLogin.doDefault()
 		sz = self.GetSizer()		
@@ -63,6 +90,10 @@ class dLogin(dDialog):
 		
 		sz.AddSpacer((0,15))
 		
+		sz.Add(self.lblMessage, 1, wx.EXPAND)
+		
+		sz.AddSpacer((0,10))
+		
 		bs = wx.BoxSizer(wx.HORIZONTAL)
 		bs.Add(self.cmdAccept)
 		bs.AddSpacer((3,0))
@@ -73,7 +104,8 @@ class dLogin(dDialog):
 
 		# Size the form to accomodate the size of the controls:
 		self.Width = self.txtUserName.Width + self.lblUserName.Width + 30
-		self.Height = self.txtUserName.Height + self.lblUserName.Height + 75
+		self.Height = self.txtUserName.Height + self.txtPassword.Height \
+					+ self.cmdAccept.Height + 75
 		
 		self.cmdAccept.Bind(wx.EVT_BUTTON, self.OnAccept)
 		self.cmdCancel.Bind(wx.EVT_BUTTON, self.OnCancel)
@@ -87,7 +119,12 @@ class dLogin(dDialog):
 		anId = wx.NewId()
 		self.acceleratorTable.append((wx.ACCEL_NORMAL, wx.WXK_RETURN, anId))
 		self.Bind(wx.EVT_MENU, self.OnAccept, id=anId)
+
 		
+	def setMessage(self, message):
+		self.lblMessage.Caption = message
+		self.GetSizer().Layout()
+				
 		
 	def OnCancel(self, evt):
 		self.user, self.password = None, None

@@ -34,15 +34,12 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 		if wx.Platform != '__WXMAC__':
 			self.CreateStatusBar()
 
-		if self.dApp:
-			self.setStatusText("Welcome to %s" % self.dApp.getAppInfo("appName"))
-			self.SetLabel("%s Version %s" % (self.dApp.getAppInfo("appName"),
-											self.dApp.getAppInfo("appVersion")))
-		else:
-			self.SetLabel("Dabo")
-			self.setStatusText("Welcome to Dabo!")
-
 		self._afterInit()                      # defined in dPemMixin
+
+		
+	def afterInit(self):
+		self.Caption = "Dabo"
+		self.setStatusText("Welcome to Dabo!")
 
 
 if __name__ == "__main__":

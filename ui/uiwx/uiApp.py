@@ -29,12 +29,11 @@ class uiApp(wx.App):
 		self.mainFrame = dFormMain(dApp)
 		self.SetTopWindow(self.mainFrame)
 
+
+	def start(self, dApp):
 		self.mainFrame.Show()
 		if wx.Platform == '__WXMAC__':
 			self.mainFrame.SetSize((1,1))
-
-
-	def start(self, dApp):
 		self.MainLoop()
 
 	def onFileExit(self, event):
@@ -175,10 +174,12 @@ class uiApp(wx.App):
 		dlg.Show()
 
 		
-	def getLoginInfo(self):
+	def getLoginInfo(self, message=None):
 		""" Display the login form, and return the user/password as entered by the user.
 		"""
 		dlg = dLogin(None)
+		if message:
+			dlg.setMessage(message)
 		dlg.ShowModal()
 		user, password = dlg.user, dlg.password
 		dlg.Destroy()
