@@ -127,6 +127,8 @@ class dSizer(wx.BoxSizer):
 		# convert it.
 		if type(alignment) == type(""):
 			alignment = (alignment, )
+		if type(borderFlags) == type(""):
+			borderFlags = (borderFlags, )
 		_wxFlags = 0
 		for flag in [flag.lower() for flag in alignment]:
 			if flag == "left":
