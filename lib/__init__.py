@@ -6,5 +6,3 @@ import os as __os
 __os.environ["OPENFOX_LOADUI"] = "0"
 import ofFunctions
 
-# Improved autosuper by Tim Delaney
-import autosuper
