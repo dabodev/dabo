@@ -4,7 +4,7 @@ CHOICE_FALSE = "Is False"
 
 import wx, dabo
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner
-import dMessageBox, dIcons, dCommandButton, dDropdownList
+import dMessageBox, dIcons, dButton, dDropdownList
 import dPanel, dDataNavGrid, dDateTextBox, dMenu, dBox
 from dSizer import dSizer
 from dBorderSizer import dBorderSizer
@@ -477,7 +477,7 @@ class dSelectPage(DataNavPage):
 		if len(limTxt.Value) == 0:
 			limTxt.Value = "1000"
 		self.selectFields["limit"] = {"ctrl" : limTxt	}
-		requeryButton = dCommandButton.dCommandButton(panel)
+		requeryButton = dButton.dButton(panel)
 		requeryButton.Caption = "&%s" % _("Requery")
 		requeryButton.Default = True             # Doesn't work on Linux, but test on win/mac
 		requeryButton.bindEvent(dEvents.Hit, self.onRequery)
@@ -518,7 +518,7 @@ class dBrowsePage(DataNavPage):
 	def __init__(self, parent):
 		#dBrowsePage.doDefault(parent, "pageBrowse")
 		super(dBrowsePage, self).__init__(parent, Name="pageBrowse")
-
+		self._doneLayout = False
 
 	def initEvents(self):
 		#dBrowsePage.doDefault()
@@ -558,6 +558,11 @@ class dBrowsePage(DataNavPage):
 		
 	def __onPageEnter(self, evt):
 		self.updateGrid()
+		if not self._doneLayout:
+			self._doneLayout = True
+			self.Form.Height += 1
+			self.Layout()
+			self.Form.Height -= 1
 
 
 	def createItems(self):
@@ -571,12 +576,12 @@ class dBrowsePage(DataNavPage):
 			grid.DataSource = self.Form.previewDataSource
 		self.GetSizer().append(grid, 2, "expand")
 		
-		preview = self.addObject(dCommandButton.dCommandButton, "cmdPreview")
+		preview = self.addObject(dButton.dButton, "cmdPreview")
 		preview.Caption = "Print Preview"
 		preview.bindEvent(dEvents.Hit, self.onPreview)
 		self.GetSizer().append(preview, 0)		
 		self.itemsCreated = True
-
+	
 
 	def fillGrid(self, redraw=False):
 		self.BrowseGrid.fillGrid(redraw)

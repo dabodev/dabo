@@ -80,11 +80,12 @@ import dShell
 
 
 # Tell Dabo Designer what classes to put in the selection menu:
-__dClasses = [dBox, dButton, dCheckBox, dComboBox, dDateTextBox, 
-		dDropdownList, dDialog, dOkCancelDialog, dEditBox, dFileDialog, 
-		dForm, dFormMain, dGauge, dGrid, dLabel, dLine, dListbook, 
-		dListBox, dLogin, dRadioGroup, dPanel, dScrollPanel, dPageFrame, 
-		dPage, dSlider, dSpinner, dSplitForm, dSplitter, dTextBox, dTimer, 
+__dClasses = [dBox, dBitmapButton, dCheckBox, dComboBox, 
+		dCommandButton, dDateTextBox, dDropdownList, dDialog, 
+		dOkCancelDialog, dEditBox, dFileDialog, dForm, dFormMain, 
+		dGauge, dGrid, dLabel, dLine, dListbook, dListBox, dLogin, 
+		dRadioGroup, dPanel, dScrollPanel, dPageFrame, dPage, 
+		dSlider, dSpinner, dSplitForm, dSplitter, dTextBox, dTimer, 
 		dToggleButton, dTreeView]
 
 daboDesignerClasses = []
