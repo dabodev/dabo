@@ -39,6 +39,14 @@ class dBackend(dabo.common.dObject):
 		the default is to return the original value.
 		"""
 		return val
+	
+	
+	def processFields(self, str):
+		""" Default is to return the string unchanged. Override
+		in cases where the str needs processing.
+		"""
+		return str
+
 
 	def escQuote(self, val):
 		""" Escape special characters in SQL strings.

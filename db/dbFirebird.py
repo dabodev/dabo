@@ -9,9 +9,8 @@ class Firebird(dBackend):
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "kinterbasdb"
-		
-		self.funcPat = re.compile("\(([^\)]+)\)")
-		self.prepWherePat = re.compile("([A-Za-z0-9-_]+)\.([A-Za-z0-9-_]+)")
+		self.fieldPat = re.compile("([A-Za-z_][A-Za-z0-9-_]+)\.([A-Za-z_][A-Za-z0-9-_]+)")
+
 
 	def getConnection(self, connectInfo):
 		# Port doesn't seem to work, but I need to research... for now it's disabled.
@@ -32,6 +31,14 @@ class Firebird(dBackend):
 		
 	def getDictCursorClass(self):
 		return kinterbasdb.Cursor
+	
+	
+	def processFields(self, str):
+		""" Firebird requires that all field names be surrounded 
+		by double quotes.
+		"""
+		return self.dblQuoteField(str)
+
 
 	def escQuote(self, val):
 		# escape backslashes and single quotes, and
@@ -164,50 +171,6 @@ and rdb$unique_flag = 1 """ % tableName.upper()
 		return "\n".join( ("SELECT ", limitClause, fieldClause, fromClause, 
 				whereClause, groupByClause, orderByClause) )
 
-	def dblQuoteField(self, exp):
-		""" This will be tricky. We need to isolate the field name and then enclose it
-		in double quotes. We need to be able to handle a lot of variations, such as:
-		
-		field
-		field as alias
-		table.field
-		table.field as alias
-		func(field) 
-		func(field) as alias
-		func(table.field) 
-		func(table.field) as alias
-		
-		"""
-		fld = exp
-		# First, see if it has an alias clause. If so, save it off
-		aliasSplit = exp.split(" as ")
-		if len(aliasSplit) > 1:
-			alias = " as " + aliasSplit[1]
-			exp = aliasSplit[0]
-		else:
-			aliasSplit = exp.split(" AS ")
-			if len(aliasSplit) > 1:
-				alias = " AS " + aliasSplit[1]
-				exp = aliasSplit[0]
-			else:
-				alias = ""
-
-		# OK, now see if there is a parenthetical expression
-		funcFind = self.funcPat.findall(exp)
-		if funcFind:
-			fld = funcFind[0]
-
-		# At this point we should either have table.field or just field. See which.
-		fldSplit = fld.split(".")
-		if len(fldSplit) > 1:
-			fld = fldSplit[1]
-
-		# OK, we have the field. Surround it in quotes, and stick it back into the original expression
-		exp = exp.replace(fld, "\"" + fld + "\"", 1)
-		if alias:
-			exp += " " + alias
-		return exp
-
 	def addField(self, clause, exp):
 		quoted = self.dblQuoteField(exp)
 		return self.addWithSep(clause, quoted)
@@ -216,6 +179,9 @@ and rdb$unique_flag = 1 """ % tableName.upper()
 		quoted = self.dblQuoteField(exp)
 		return self.addWithSep(clause, quoted, sep=" %s " % comp)
 		
-	def prepareWhere(self, clause):
-		return self.prepWherePat.sub("\g<1>.\"\g<2>\"", clause)
+	def dblQuoteField(self, str):
+		""" Takes a string and returns the same string with
+		all occurrences of xx.yy replaced with xx."yy"
+		"""
+		return self.fieldPat.sub("\g<1>.\"\g<2>\"", str)
 		

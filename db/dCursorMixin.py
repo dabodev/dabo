@@ -94,6 +94,10 @@ class dCursorMixin(dabo.common.dObject):
 		many cursor classes can only return row information as a list, not as a dictionary. This
 		method will detect that, and convert the results to a dictionary.
 		"""
+		# Some backends, notably Firebird, require that fields be specially
+		# marked.
+		sql = self.processFields(sql)
+
 		if params is None or len(params) == 0:
 			res = self.superCursor.execute(self, sql)
 		else:
@@ -969,6 +973,10 @@ class dCursorMixin(dabo.common.dObject):
 		del self.holddesc[stackPos]		
 
 
+	def processFields(self, str):
+		return self.BackendObject.processFields(str)
+		
+	
 	def escQuote(self, val):
 		""" Escape special characters in SQL strings. """
 		ret = val

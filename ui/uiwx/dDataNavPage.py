@@ -218,7 +218,7 @@ class dSelectPage(DataNavPage):
 						opStr = "False"
 				
 				# We have the pieces of the clause; assemble them together
-				whr = "%s %s %s" % (fld, opStr, matchStr)
+				whr = "%s.%s %s %s" % (biz.DataSource, fld, opStr, matchStr)
 				biz.addWhere(whr)
 		return
 
