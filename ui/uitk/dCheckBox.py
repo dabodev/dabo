@@ -1,7 +1,7 @@
 import Tkinter, dabo, dabo.ui
 
 if __name__ == "__main__":
-	print dabo.ui.loadUI("tk")
+	dabo.ui.loadUI("tk")
 
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
@@ -27,10 +27,11 @@ class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 		dCheckBox.doDefault()
 
 		self.bindEvent(dEvents.MouseLeftClick, self._onTkHit)
-		self.bindEvent(dEvents.KeyChar, self._onKeyChar)
+		self.bindEvent(dEvents.KeyDown, self._onKeyDown)
 		
-	def _onKeyChar(self, event):
-		if event.EventData["keyCode"] == 32:
+	def _onKeyDown(self, event):
+		char = event.EventData["keyChar"]
+		if char is not None and ord(char) in (10,13,32):
 			self._onTkHit(event)		
 				
 	def _getValue(self):
@@ -80,5 +81,18 @@ class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 
 		
 if __name__ == "__main__":
+	class C(dCheckBox):
+		def initEvents(self):
+			C.doDefault()
+			self.bindEvent(dEvents.Hit, self.onHit)
+			self.bindEvent(dEvents.Hit, self.onHit2)
+			
+		def onHit(self, evt):
+			print "hit!"
+			#evt.stop()
+		
+		def onHit2(self, evt):
+			print "hit2"
+			
 	import test
-	test.Test().runTest(dCheckBox)
+	test.Test().runTest(C)

@@ -62,10 +62,15 @@ class EventMixin(object):
 		if uiEvent is not None:
 			# Let the UI lib know whether to do the default event behavior
 			if event.Continue:
-				dabo.ui.continueEvent(uiEvent)
+				r = dabo.ui.continueEvent(uiEvent)
 			else:
-				dabo.ui.discontinueEvent(uiEvent)
-				
+				r = dabo.ui.discontinueEvent(uiEvent)
+		else:
+			r = None
+			
+		return r
+			
+			
 	def unBindEvent(self, eventClass=None, function=None):
 		""" Remove a previously registered event binding.
 		

@@ -58,6 +58,17 @@ from dFormMain import dFormMain
 #	daboDesignerClasses.append(__classDict)
 
 
+def continueEvent(evt):
+	# Tkinter determines whether to let an event continue propagation based on whether
+	# the string "break" is returned from the event handler or not.
+	return None
+	
+def discontinueEvent(evt):
+	# Tkinter determines whether to let an event continue propagation based on whether
+	# the string "break" is returned from the event handler or not.
+	return "break"
+	
+
 def getEventData(uiEvent):
 	ed = {}
 	ed["mousePosition"] = (uiEvent.x, uiEvent.y)
@@ -81,6 +92,10 @@ def getEventData(uiEvent):
 	#ed["metaDown"] = wxEvt.MetaDown()
 	ed["keyCode"] = uiEvent.keysym_num
 	ed["rawKeyCode"] = uiEvent.keycode
+	if len(uiEvent.char) == 0:
+		ed["keyChar"] = None
+	else:
+		ed["keyChar"] = uiEvent.char
 	#ed["rawKeyFlags"] = uiEvent.keysym_num
 	#ed["unicodeChar"] = wxEvt.GetUniChar()
 	#ed["unicodeKey"] = wxEvt.GetUnicodeKey()

@@ -27,7 +27,7 @@ class Test(object):
 		self.app.setup()
 		frame = self.app.MainFrame
 		object = classRef(frame)
-		print object.Value
+#		print object.Value
 		object.debug = True
 #		object.pack()
 #		frame.SetLabel("Test of %s" % object.Name)

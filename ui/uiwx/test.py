@@ -17,6 +17,9 @@ import dabo.ui as ui
 
 ui.loadUI("wx")
 
+# Log all events except the really frequent ones:
+logEvents = ["All", "Idle", "MouseMove"]
+
 class Test(object):
 	def __init__(self):
 		self.app = wx.PySimpleApp()
@@ -26,7 +29,7 @@ class Test(object):
 		frame.SetSize((300,52))
 		object = classRef(frame)
 		object.debug = True
-		object.LogEvents = ["All"]
+		object.LogEvents = logEvents
 		frame.SetLabel("Test of %s" % object.Name)
 		object.SetFocus()
 		frame.Show()
@@ -40,10 +43,9 @@ class Test(object):
 		frame.Width, frame.Height = 640, 480
 		frame.Caption = "Test of all the dControls"
 		frame.debug = True
-		frame.LogEvents = ["All"]
+		frame.LogEvents = logEvents
 
 		panel = frame.addObject(ui.dPanel, "panelTest")
-		panel.LogEvents = ["All"]
 
 		labelWidth = 150
 
@@ -78,7 +80,6 @@ class Test(object):
 				expandFlags = 0
 
 			object.debug = True
-			object.LogEvents = ["All"]
 
 			bs.Add(object, 1, expandFlags | wx.ALL, 0)
 
