@@ -1,6 +1,6 @@
 ''' dabo.ui.uiwx '''
 
-#from uiApp import *
+from uiApp import uiApp
 from classes.dCheckBox import dCheckBox
 from classes.dMenu import dMenu
 from classes.dComboBox import dComboBox

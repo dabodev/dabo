@@ -11,6 +11,8 @@ class dFormMain(wx.Frame, dFormMixin):
         self.CreateStatusBar()
         if self.dApp:
             self.SetStatusText("Welcome to %s" % self.dApp.getAppInfo("appName"))
+            self.SetLabel("%s Version %s" % (self.dApp.getAppInfo("appName"),
+                                             self.dApp.getAppInfo("appVersion")))
         else:
             self.SetStatusText("Welcome to Dabo!")
         

@@ -33,7 +33,9 @@
         -- clean up and exit gracefully
 """
 import sys, os
-import db, ui
+import ui
+from biz import *
+from db import *
 
 class Collection(list):
     """ 
@@ -60,12 +62,12 @@ class Collection(list):
 
                 
 class dApp(object):
-    """ 
-    dabo.dApp : The containing object for the entire application.
-                   Various UI's will have app objects also, which 
-                   dabo.App is a wrapper for. 
+    """ dabo.dApp
+     
+        The containing object for the entire application.
+        Various UI's will have app objects also, which 
+        dabo.App is a wrapper for. 
     """
-
     def __init__(self):
         object.__init__(self)
         self._initProperties()
@@ -85,6 +87,10 @@ class dApp(object):
             wrapping the application object for the ui library
             being used.
         """
+        if not self.getAppInfo("appName"):
+            self.setAppInfo("appName", "Dabo")
+        if not self.getAppInfo("appVersion"):
+            self.setAppInfo("appVersion", "0.1")
         self.uiApp = self.uiModule.uiApp()
         self.uiApp.start(self)
         self.finish()
@@ -96,6 +102,127 @@ class dApp(object):
         """
         pass
         
+    def getAppInfo(self, item):
+        ''' dApp.getAppInfo(self, item) -> value
+        
+            Look up the item, and return the value.
+        '''
+        try:
+            retVal = self._appInfo[item]
+        except KeyError:
+            retVal = None
+        return retVal
+        
+    def setAppInfo(self, item, value):
+        ''' dApp.getAppInfo(self, item, value) -> None
+        
+            Set item to value in the appinfo table.
+        '''
+        self._appInfo[item] = value
+    
+    def getUserSetting(self, item, user="*", system="*"):
+        ''' Return the value of the user settings table that 
+            corresponds to the item, user, and system id 
+            passed. Based on the ctype field in the table, 
+            convert the return value into the appropriate
+            type first.
+
+            Types:    I: Int
+                      N: Float
+                      C: String
+                      M: String
+                      D: Date, saved as a string 3-tuple 
+                         of integers '(year,month,day)'
+                      T: DateTime, saved as a string 
+                         9-tuple of integers '(year,month,
+                         day,hour,minute,second,?,?,?)'
+
+	    '''
+        return None
+        # Old code that wrote the setting to a backend db,
+        # which isn't appropriate in framework level code
+        # where we aren't even guaranteed that a db exists.
+#         sql = (' select cvaluetype as cvaluetype, '
+#                '        mvalue as mvalue '
+#                '   from dabosettings '
+#                '  where mname = "%s" '
+#                '    and cuserid = "%s" '
+#                '    and csystemid = "%s" '
+#                '    and ldeleted=0' % ( item, user, system))
+#  
+#         try:
+#             rs = self.dbc.dbRecordSet(sql)
+#             try:
+#                 type = rs[0].cvaluetype
+#                 val = rs[0].mvalue
+#             except IndexError:
+#                 type = None
+#                 val = None
+# 
+#             if type in ('C', 'M'):
+#                 return str(val)
+#             elif type in ('I',):
+#                 return int(val)
+#             elif type in ('N',):
+#                 return float(val)
+#             elif type in ('D','T'):
+#                 timeTuple = eval(val)
+#                 if type(timeTuple) == type(tuple()):
+#                     return val
+#                 else:
+#                     return None
+#             else:
+#                 return None
+#         except:
+#             return None
+            
+    def setUserSetting(self, item, valueType, value, user="*", system="*"):
+        ''' Set the value of the user settings table that corresponds to the
+            item, user, and systemid passed. If it doesn't exist in the table,
+            add it. See self.getUserSetting() for the type codes. 
+        '''
+        import time
+
+        # convert value to string type for saving to db:
+        value = str(value)
+        
+        pass
+        # Old code that wrote the setting to a backend db,
+        # which isn't appropriate in framework level code
+        # where we aren't even guaranteed that a db exists.
+            
+#         # determine if the entry already exists in the dabosettings table:
+#         sql = (' select count(*) as ncount from dabosettings '
+#                '  where mname = "%s" '
+#                '    and cuserid = "%s" '
+#                '    and csystemid = "%s" '
+#                '    and ldeleted = 0 ' % ( item, user, system))
+# 
+#         try:
+#             rs = self.dbc.dbRecordSet(sql)
+#             if rs[0].ncount > 0:
+#                 # update the existing record
+#                 sql = (' update dabosettings '
+#                     '    set cvaluetype = "%s", '
+#                     '        mvalue = "%s" '
+#                     '  where mname = "%s" '
+#                     '    and cuserid = "%s" '
+#                     '    and csystemid = "%s" '
+#                     '    and ldeleted = 0 ' % (valueType,value,item,user,system))     
+#             else:
+#                 # insert a new record
+#                 sql = (' insert into dabosettings (cvaluetype, '
+#                     '                           mvalue, '
+#                     '                           mname, '
+#                     '                           cuserid, '
+#                     '                           csystemid) '
+#                     '   values ("%s","%s","%s","%s","%s") '
+#                             % (valueType,value,item,user,system))     
+# 
+#             self.dbc.dbCommand(sql)
+#         except:
+#             pass
+    
     def _initProperties(self):
         """ Initialize the public properties of the app object. """
         
@@ -113,6 +240,8 @@ class dApp(object):
         
         # Initialize DB collections
         self.dbConnectionDefs = {} 
+        
+        self._appInfo = {}
 
     def _initDB(self):
         """ Set the available connection definitions for use by the app. """
@@ -125,17 +254,37 @@ class dApp(object):
         except:
             dbConnectionDefs = None
         
-        if dbConnectionDefs != None and type(dbConnectionDefs) == type(dict()):
-            # For each connection type, bind a db() object
+        if dbConnectionDefs and type(dbConnectionDefs) == type(dict()):
+            # For each connection definition, add an entry to 
+            # self.dbConnectionDefs that contains a key on the 
+            # name, and a value of a dConnectInfo object.
             for entry in dbConnectionDefs:
-                dbConnectionDefs[entry]["dbObject"] = db.Db()
-            print "%s database connection definition(s) loaded." % len(dbConnectionDefs)
+                try:             dbType   = dbConnectionDefs[entry]['dbType']
+                except KeyError: dbType   = None
+                try:             host     = dbConnectionDefs[entry]['host']
+                except KeyError: host     = None
+                try:             user     = dbConnectionDefs[entry]['user']
+                except KeyError: user     = None
+                try:             password = dbConnectionDefs[entry]['password']
+                except KeyError: password = None
+                try:             dbName   = dbConnectionDefs[entry]['dbName']
+                except KeyError: dbName   = None
+                try:             port     = dbConnectionDefs[entry]['port']
+                except KeyError: port     = None
+                    
+                self.dbConnectionDefs[entry] = dConnectInfo(backendName=dbType,
+                                                            host=host, 
+                                                            user=user,
+                                                            password=password,
+                                                            dbName=dbName,
+                                                            port=port)
+
+            print "%s database connection definition(s) loaded." % (
+                                                len(self.dbConnectionDefs))
 
         else:
             print "No database connection definitions loaded (dbConnectionDefs.py)"
         
-        self.dbConnectionDefs = dbConnectionDefs 
-        self.dbDynamicViews = self._getDynamicViews()
                 
     def _initUI(self):
         """ Set the user-interface library for the application. """
