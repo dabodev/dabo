@@ -69,12 +69,12 @@ class WorkerThread(Thread):
 # GUI Frame class that spins off the worker thread
 class dProgressDialog(wx.Dialog):
     def __init__(self, parent, caption="Progress Dialog", func=None, wait=0):
-        wx.Dialog.__init__(self,parent,-1,caption,style=0)
+        wx.Dialog.__init__(self,parent,-1,caption)
 
         self.Centre(wx.BOTH)
         self.SetSize((300,100))
         
-        self.status = wx.StaticText(self,-1,'',pos=(0,100))
+        self.status = wx.StaticText(self,-1,'Please Wait...',pos=(0,100))
 
         wx.EVT_CLOSE(self, self.OnClose)
         
@@ -89,7 +89,6 @@ class dProgressDialog(wx.Dialog):
         
     def start(self, func):
         if func:
-            self.status.SetLabel('Please Wait...')
             self.worker = WorkerThread(self, func)
         else:
             print "configure caller to send func parameter"

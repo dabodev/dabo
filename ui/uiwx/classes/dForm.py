@@ -26,7 +26,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
             style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT
         else:
             style = wx.DEFAULT_FRAME_STYLE
-        wxFrameClass.__init__(self, parent, -1, "", (-1,-1), (-1,-1), style)
+        wxFrameClass.__init__(self, parent, -1, "", style=style)
 
         self.Name = name
         self.Caption = name

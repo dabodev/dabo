@@ -2,7 +2,7 @@
 import wx
 import dPemMixin as pm
 import dMainMenuBar as mnb
-import dMenu
+import dMenu, dMessageBox
 
 class dFormMixin(pm.dPemMixin):
     def __init__(self, dApp):
@@ -16,7 +16,7 @@ class dFormMixin(pm.dPemMixin):
         if self.Parent == wx.GetApp().GetTopWindow():
             self.dApp.uiForms.add(self)
         
-        self.restoredSP = False  
+        self.restoredSP = False
         
         if self.dApp:
             self.SetMenuBar(mnb.dMainMenuBar(self))
@@ -24,11 +24,11 @@ class dFormMixin(pm.dPemMixin):
 
         
     def OnActivate(self, event): 
-        if event.GetActive() == 1 and self.restoredSP == False:
+        if bool(event.GetActive()) == True and self.restoredSP == False:
             # Restore the saved size and position, which can't happen 
             # in __init__ because we may not have our name yet.
-            self.restoreSizeAndPosition()
             self.restoredSP = True
+            self.restoreSizeAndPosition()
         event.Skip()
     
     
@@ -73,6 +73,7 @@ class dFormMixin(pm.dPemMixin):
         Ask dApp for the last saved setting of height, width, left, and top, 
         and set those properties on this form.
         '''
+        dMessageBox.stop("restore: %s, %s" % (self.GetName(), self.dApp))
         if self.dApp:
             name = self.GetName()
             
