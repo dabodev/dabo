@@ -396,7 +396,7 @@ class dGridDataNav(dGrid.dGrid):
 		if len(self.currentIncrementalSearch) > 0:
 			self.processIncrementalSearch()
 		else:
-			self.incrementalSearchTimer.Stop()
+			self.incrementalSearchTimer.stop()
 
 
 	def OnHeaderMotion(self, evt):
@@ -646,14 +646,14 @@ class dGridDataNav(dGrid.dGrid):
 		Called by KeyDown when the user pressed an alphanumeric key. Add the 
 		key to the current search and start the timer.        
 		"""
-		self.incrementalSearchTimer.Stop()
+		self.incrementalSearchTimer.stop()
 
 		self.currentIncrementalSearch = ''.join((self.currentIncrementalSearch, key))
 		self.Form.setStatusText('Search: %s'
 				% self.currentIncrementalSearch)
 
 		self.incrementalSearchTimer.Interval = self.incrementalSearchTimerInterval
-		self.incrementalSearchTimer.Start()
+		self.incrementalSearchTimer.start()
 
 
 	def popupMenu(self):

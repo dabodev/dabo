@@ -19,7 +19,6 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 	# (but we need to design a bitmap) while being invisible at runtime.
 	
 	def __init__(self, parent, name='dTimer', *args, **kwargs):
-
 		self._baseClass = dTimer
 		self._beforeInit(None)
 		# no 2-stage creation for Timers
@@ -36,10 +35,14 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 		
 		self._afterInit()
 		
+		
 	def initEvents(self):
 		#dTimer.doDefault()
 		super(dTimer, self).initEvents()
 		self.Bind(wx.EVT_TIMER, self._onWxHit)
+	
+	def isRunning(self):
+		return self._timer.IsRunning()
 		
 	def Show(self, *args, **kwargs):
 		# only let the the bitmap be shown if this is design time
@@ -48,15 +51,7 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 			#dTimer.doDefault(*args, **kwargs)
 			super(dTimer, self).Show(*args, **kwargs)
 	
-	def Enable(self):
-		if self.Interval > 0:
-			self._timer.Start(self.Interval)
-		return self._timer.IsRunning()
-	
-	def Disable(self):
-		self._timer.Stop()
-		
-	def Start(self, interval=-1):
+	def start(self, interval=-1):
 		if interval >= 0:
 			self._interval = interval
 		if self._interval > 0:
@@ -65,8 +60,9 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 			self._timer.Stop()
 		return self._timer.IsRunning()
 	
-	def Stop(self):
+	def stop(self):
 		self._timer.Stop()
+		return not self._timer.IsRunning()
 		
 	# property get/set functions
 	def _getInterval(self):
@@ -92,6 +88,7 @@ class dTimer(wx.StaticBitmap, dControlMixin.dControlMixin):
 			_("Alternative means of starting/stopping the timer, or determining "
 			"its status. If Enabled is set to True and the timer has a positive value "
 			"for its Interval, the timer will be started."))
+	
 	
 if __name__ == "__main__":
 	import test
