@@ -3,7 +3,7 @@ from dTextBox import dTextBox
 from dDialog import dDialog
 from dCommandButton import dCommandButton
 from dabo.dLocalize import _
-import wx
+import wx, dabo
 
 class lbl(dLabel):
 	def initStyleProperties(self):
@@ -11,7 +11,7 @@ class lbl(dLabel):
 		self.AutoResize = False
 	
 	def initProperties(self):
-		self.Width = 100
+		self.Width = 90
 
 				
 class lblMessage(dLabel):
@@ -29,7 +29,7 @@ class lblMessage(dLabel):
 				
 class txt(dTextBox):
 	def initProperties(self):
-		self.Width = 250
+		self.Width = 175
 		
 class txtPass(txt):
 	def initStyleProperties(self):
@@ -73,20 +73,32 @@ class dLogin(dDialog):
 
 		self.user, self.password = None, None
 		
-				
+		bm = wx.Bitmap('')
+		bm.CopyFromIcon(self.Icon)
+		self.bm = wx.StaticBitmap(self, -1, bm)	
+			
+		
 	def afterInit(self):
 		dLogin.doDefault()
 		sz = self.GetSizer()		
-		sz.AddSpacer((0,15))
+		
+		bs1 = wx.BoxSizer(wx.HORIZONTAL)
+		bs1.Add(self.bm)
+
+		vs = wx.BoxSizer(wx.VERTICAL)			
+		vs.AddSpacer((0,15))
 		bs = wx.BoxSizer(wx.HORIZONTAL)
 		bs.Add(self.lblUserName)
 		bs.Add(self.txtUserName)
-		sz.Add(bs)
+		vs.Add(bs)
 		
 		bs = wx.BoxSizer(wx.HORIZONTAL)
 		bs.Add(self.lblPassword)
 		bs.Add(self.txtPassword)
-		sz.Add(bs)
+		vs.Add(bs)
+		
+		bs1.Add(vs)
+		sz.Add(bs1)
 		
 		sz.AddSpacer((0,15))
 		
@@ -103,7 +115,7 @@ class dLogin(dDialog):
 		sz.Layout()
 
 		# Size the form to accomodate the size of the controls:
-		self.Width = self.txtUserName.Width + self.lblUserName.Width + 30
+		self.Width = self.txtUserName.Width + self.lblUserName.Width + self.bm.GetSize()[0] + 30
 		self.Height = self.txtUserName.Height + self.txtPassword.Height \
 					+ self.cmdAccept.Height + 75
 		

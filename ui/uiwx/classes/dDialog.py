@@ -10,4 +10,6 @@ class dDialog(wx.Dialog, dFormMixin.dFormMixin):
 
 		self.PostCreate(pre)
 		self.SetSizer(wx.BoxSizer(wx.VERTICAL))
+		
+		dFormMixin.dFormMixin.__init__(self)
 		self._afterInit()

@@ -29,7 +29,7 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 		self.SetSize((640,480))
 		self.SetPosition((0,0))
 
-		fm.dFormMixin.__init__(self, dApp)
+		fm.dFormMixin.__init__(self)
 
 		if wx.Platform != '__WXMAC__':
 			self.CreateStatusBar()

@@ -47,11 +47,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.Name, self.Caption = name, name
 			
 
-		if parent:        
-			dApp = parent.dApp
-		else:
-			dApp = None
-		fm.dFormMixin.__init__(self, dApp)
+		fm.dFormMixin.__init__(self)
 
 		self.debug = False
 
