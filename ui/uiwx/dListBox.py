@@ -34,6 +34,11 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 
 		self.PostCreate(pre)
 
+		# Determines if 'Value' is determined by position in 
+		# the group, or the associated caption for the
+		# selected button
+		self._useStringValue = True
+	
 		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
 		
 		self.setProperties(properties)
@@ -50,21 +55,48 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
+	def _getPosValue(self):
+		return self._pemObject.GetSelection()
+	def _setPosValue(self, value):
+		self._pemObject.SetSelection(int(value))
+	
+	def _getStrValue(self):
+		return self._pemObject.GetStringSelection()
+	def _setStrValue(self, value):
+		self._pemObject.SetStringSelection(str(value))
+
 	def _getValue(self):
-		return self.GetStringSelection()
+		if self._useStringValue:
+			ret = self._getStrValue()
+		else:
+			ret = self._getPosValue()
+		return ret
 	def _setValue(self, value):
-		if type(value) == type(""):
-			try:
-				self.SetStringSelection(value)
-			except: pass		# maybe raise an error?
-		elif type(value) == type(0):
-			try:
-				self.SetSelection(value)
-			except: pass
+		if self._useStringValue:
+			self._setStrValue(value)
+		else:
+			self._setPosValue(value)
+	
+	def _getUseStringValue(self):
+		return self._useStringValue
+	def _setUseStringValue(self, value):
+		self._useStringValue = value
+
 	
 	# Property definitions:
 	Value = property(_getValue, _setValue, None,
 			"Specifies the current state of the control (the value of the field). (varies)")
+	
+	PositionValue = property(_getPosValue, _setPosValue, None,
+			"Position of selected value (int)" )
+
+	StringValue = property(_getStrValue, _setStrValue, None,
+			"Text of selected value (str)" )
+
+	UseStringValue = property(_getUseStringValue, _setUseStringValue, None,
+			"Controls whether the Value of the control is the text/caption of "
+			"the selection, or the position. (bool)")
+
 
 if __name__ == "__main__":
 	import test

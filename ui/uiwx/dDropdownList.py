@@ -26,6 +26,11 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 
 		self.PostCreate(pre)
 
+		# Determines if 'Value' is determined by position in 
+		# the group, or the associated caption for the
+		# selected button
+		self._useStringValue = True
+
 		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
 		
 		self.setProperties(properties)
@@ -53,30 +58,60 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 		return _choices
 		
 	def _setChoices(self, choices):
-#- 		if len(choices) != len(self.Choices):
-#- 			raise ValueError, "Cannot change the length of the choices list."
-		for index in range(len(choices)):
-			self.SetString(index, choices[index])
+		self.Clear()
+		self.AppendItems(choices)
+# 		for index in range(len(choices)):
+# 			self.SetString(index, choices[index])
 		self._choices = choices
 			
-	def _getValue(self):
-		s = self.GetStringSelection()
-		return s
-		
-	def _setValue(self, value):
+	def _getPosValue(self):
+		return self._pemObject.GetSelection()
+	def _setPosValue(self, value):
+		self._pemObject.SetSelection(int(value))
+	
+	def _getStrValue(self):
+		return self._pemObject.GetStringSelection()
+	def _setStrValue(self, value):
 		try:
-			self.SetStringSelection(value)
+			self._pemObject.SetStringSelection(str(value))
 		except:
 			raise ValueError, "Value must be present in the choices. (%s:%s)" % (
 				value, self.Choices)
-		self._oldVal = self.GetStringSelection()
+
+	def _getValue(self):
+		if self._useStringValue:
+			ret = self._getStrValue()
+		else:
+			ret = self._getPosValue()
+		return ret
+	def _setValue(self, value):
+		if self._useStringValue:
+			self._setStrValue(value)
+		else:
+			self._setPosValue(value)
+	
+	def _getUseStringValue(self):
+		return self._useStringValue
+	def _setUseStringValue(self, value):
+		self._useStringValue = value
+
 		
 	# Property definitions:
 	Choices = property(_getChoices, _setChoices, None,
-		"Specifies the list of choices available in the list. The number of choices "
-		"cannot be changed at runtime, but the value of the choice can be changed.")	
+		"Specifies the list of choices available in the list. (list of strings)")	
+
 	Value = property(_getValue, _setValue, None,
-		"Specifies the current state of the control (the value of the field). (varies)")
+			"Specifies the current state of the control (the value of the field). (varies)")
+	
+	PositionValue = property(_getPosValue, _setPosValue, None,
+			"Position of selected value (int)" )
+
+	StringValue = property(_getStrValue, _setStrValue, None,
+			"Text of selected value (str)" )
+
+	UseStringValue = property(_getUseStringValue, _setUseStringValue, None,
+			"Controls whether the Value of the control is the text/caption of "
+			"the selection, or the position. (bool)")
 
 if __name__ == "__main__":
 	import test
