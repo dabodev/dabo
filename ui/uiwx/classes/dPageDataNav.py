@@ -376,21 +376,19 @@ class dEditPage(dPage.dPage):
 
 			if column['showEdit'] == True:
 				fieldName = column['fieldName']
-				labelCaption = '%s:' % column['caption']
 				fieldType = column['type']
 				fieldEnabled = column['editEdit']
 
-				labelWidth = 150
-
 				bs = wx.BoxSizer(wx.HORIZONTAL)
+				
+				labelWidth = 150
 
 				labelStyle = wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE
 
 				label = dLabel.dLabel(self, style=labelStyle)
 				label.Name='lbl%s' % fieldName 
 				label.Width = labelWidth
-				label.Caption = labelCaption
-
+				
 				if fieldType in ['M',]:
 					classRef = dEditBox.dEditBox
 				elif fieldType in ['I',]:
@@ -405,6 +403,15 @@ class dEditPage(dPage.dPage):
 				objectRef.DataSource = dataSource
 				objectRef.DataField = fieldName
 				objectRef.enabled = fieldEnabled
+				
+				if classRef == dCheckBox.dCheckBox:
+					# Use the label for a spacer, but don't set the 
+					# caption because checkboxes have their own caption.
+					label.Caption = ''
+					objectRef.Caption = column['caption']
+				else:
+					label.Caption = '%s:' % column['caption']
+
 				if self.getDform().getBizobj().getRowCount() >= 0:
 					objectRef.refresh()
 

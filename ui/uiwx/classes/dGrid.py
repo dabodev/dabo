@@ -40,6 +40,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 							"ColumnOrder"))
 				if order == None:
 					order = column
+				
 				self.relativeColumns.append(order)
 
 		for relativeColumn in self.relativeColumns:
@@ -48,8 +49,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				self.colLabels.append(column["caption"])
 				self.colNames.append(column["fieldName"])
 				self.dataTypes.append(self.getWxGridType(column["type"]))
-
-
+				
+	
 	def fillTable(self):
 		""" Fill the grid's data table to match the bizobj.
 		"""
@@ -74,6 +75,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					if column["type"] == "M":
 						# Show only the first 64 chars of the long text:
 						recordVal = str(recordVal)[:64]
+					elif column["type"] == "L":
+						# coerce to bool (could have been 0/1)
+						recordVal = bool(recordVal)
 					recordDict.append(recordVal)
 
 			self.data.append(recordDict)
@@ -115,10 +119,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 						"Width"))
 
 			if width == None:
-				minWidth = 10 * len(self.colLabels[self.relativeColumns[index]])   ## Fudge!
+				minWidth = 10 * len(self.colLabels[index])   ## Fudge!
 				if fieldType == "I":
 					width = 50
 				elif fieldType == "N":
+					width = 75
+				elif fieldType == "L":
 					width = 75
 				else:
 					width = 200
@@ -150,7 +156,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			return wx.grid.GRID_VALUE_STRING
 		else:
 			return wx.grid.GRID_VALUE_STRING
-
+    
+	def GetTypeName(self, row, col):
+		return self.dataTypes[col]
 
 	def MoveColumn(self, col, to):
 		""" Move the column to a new position.
