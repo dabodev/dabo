@@ -40,9 +40,6 @@
 '''
 from dActionList import dActionList
 
-# TEMPORARY!!!!! Just to get the wx stuff working!
-from uiwx import *
-
 # Module factory function: generically return the 
 # proper module depending on the passed uiType.
 def getUI(uiType):
@@ -53,3 +50,12 @@ def getUI(uiType):
         
     except ImportError:
         return None
+
+def loadUI(uiType):
+    prefix = 'ui'
+    exec("from %s%s import *" % (prefix, uiType), globals())
+        
+# TEMPORARY!!!!! Just to get the wx stuff working!
+# This will load uiwx into the global namespace dabo.ui.
+loadUI('wx')
+

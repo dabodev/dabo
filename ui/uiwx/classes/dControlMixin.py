@@ -1,6 +1,6 @@
 ''' dControlMixin.py: Provide behavior common to all dControls '''
 
-import wx, dEvents, dForm
+import wx, dEvents
 
 class dControlMixin:
     ''' mixin class: inherited by the dabo widgets to
@@ -24,6 +24,7 @@ class dControlMixin:
     
     def getDform(self):
         ''' Crawl up the containership tree to find the dForm, if any. '''
+        import dForm
         obj = self
         frm = None
         while obj:

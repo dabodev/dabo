@@ -1,3 +1,10 @@
+''' dGrid.py
+
+    This is a grid designed to browse records of a bizobj. It does
+    not descend from dControlMixin at this time, but is self-contained.
+    There is a dGridDataTable definition here as well, that defines
+    the 'data' that gets displayed in the grid.
+'''
 from wxPython.wx import *
 from wxPython.grid import *
 import wx
@@ -7,13 +14,10 @@ class dGridDataTable(wxPyGridTableBase):
     def __init__(self, parent):
         wxPyGridTableBase.__init__(self)
         
-        # Ed??? the grid needs to know column definitions, records,
-        # and field values to generate its rows and columns
-        self.cursor = parent.bizobj._cursor 
+        self.bizobj = parent.bizobj 
         self.grid = parent
         
         self.initTable()
-        self.fillTable()
          
     def initTable(self):
         self.colLabels = []
@@ -31,29 +35,26 @@ class dGridDataTable(wxPyGridTableBase):
                 self.dataTypes.append(self.wxGridType(column["type"]))
 
     def fillTable(self):
-        try:
-            rows = len(self.data)
-        except AttributeError:
-            rows = None
+        rows = self.GetNumberRows()
         self.Clear()
         self.data = []
-        for record in self.cursor:
-            #print record
+        oldRowNum = self.bizobj.getRowNumber()
+        for record in range(self.bizobj.getRowCount()):
             recordDict = []
+            self.bizobj.moveToRowNum(record)
             for column in self.grid.columnDefs:
                 if column["showGrid"] == True:
-                    #recordVal = eval("record.%s" % column["name"])
-                    recordVal = record["%s" % column["name"]]
+                    recordVal = eval("self.bizobj.%s" % column["name"])
                     if column["type"] == "M":
                         # Show only the first 64 chars of the long text:
                         recordVal = str(recordVal)[:64]
                     recordDict.append(recordVal)
 
             self.data.append(recordDict)
-        
-        
-        if rows <> None and len(self.data) <> rows:
             
+        self.bizobj.moveToRowNum(oldRowNum)
+        
+        if len(self.data) <> rows:
             if len(self.data) > rows:
                 num = len(self.data) - rows
                 #print "add %s rows" % num
@@ -73,6 +74,8 @@ class dGridDataTable(wxPyGridTableBase):
                 
             self.GetView().ProcessTableMessage(msg)
         
+        self.grid.SetGridCursor(oldRowNum, 0)
+        self.grid.MakeCellVisible(oldRowNum-1, 0)
                 
     def wxGridType(self,xBaseType):
         if xBaseType == "I":
@@ -92,7 +95,11 @@ class dGridDataTable(wxPyGridTableBase):
     # required methods for the wxPyGridTableBase interface
 
     def GetNumberRows(self):
-        return len(self.data)
+        try:
+            num = len(self.data)
+        except:
+            num = 0
+        return num
             
     def GetNumberCols(self):
         return len(self.colLabels)
@@ -173,9 +180,10 @@ class dGridDataTable(wxPyGridTableBase):
 
         
 class dGrid(wxGrid):
-    def __init__(self, parent, bizobj):
+    def __init__(self, parent, bizobj, form, name="dGrid"):
         wxGrid.__init__(self, parent, -1)
-
+        self.bizobj = bizobj
+        self.form = form
         ID_IncrementalSearchTimer = wx.NewId()
     
         self.currentIncrementalSearch = ""
@@ -183,16 +191,15 @@ class dGrid(wxGrid):
         self.incrementalSearchTimer = wx.Timer(self, ID_IncrementalSearchTimer)
         
         self.sortedColumn = None
-        self.sortedColumnDescending = False
+        self.sortOrder = ""
         
-        self.bizobj = bizobj
         
-        self.fillGrid()
-
         self.SetRowLabelSize(0)
         self.SetMargins(0,0)
         self.AutoSizeColumns(True)
         self.EnableEditing(False)
+        
+        self.fillGrid()
 
         EVT_TIMER(self,  ID_IncrementalSearchTimer, self.OnIncrementalSearchTimer)
         EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
@@ -200,21 +207,31 @@ class dGrid(wxGrid):
         EVT_GRID_CELL_RIGHT_CLICK(self, self.OnRightClick)
         EVT_GRID_LABEL_LEFT_CLICK(self, self.OnGridLabelLeftClick)
 
+        EVT_GRID_SELECT_CELL(self, self.OnGridSelectCell)
+        
         EVT_PAINT(self, self.OnPaint)
 
         columnLabelWindow = self.GetGridColLabelWindow()
         EVT_PAINT(columnLabelWindow, self.OnColumnHeaderPaint)
 
         EVT_GRID_ROW_SIZE(self, self.OnGridRowSize)
-
+    
     def fillGrid(self):
         self.columnDefs = [{"name": "czip", "caption": "zipcode", "showGrid": True, "type": "C"},]
         table = dGridDataTable(self)
         self.SetTable(table, True)
-            
+        self.GetTable().fillTable()
+    
+    def OnGridSelectCell(self, event):
+        oldRow = self.GetGridCursorRow()
+        newRow = event.GetRow()
+        self.bizobj.moveToRowNum(newRow)
+        self.form.refreshControls()
+        event.Skip()
+        
     def OnPaint(self, evt): 
         evt.Skip()
-        
+
     def OnColumnHeaderPaint(self, evt):
         #evt.Skip()
         w = self.GetGridColLabelWindow()
@@ -239,10 +256,12 @@ class dGrid(wxGrid):
                 top = rect[1] + 3
                 
                 dc.SetBrush(wxBrush("WHEAT", wxSOLID))
-                if self.sortedColumnDescending:
+                if self.sortOrder == "DESC":
                     dc.DrawPolygon([(left,top), (left+6,top), (left+3,top+4)])
-                else:
+                elif self.sortOrder == "ASC":
                     dc.DrawPolygon([(left+3,top), (left+6, top+4), (left, top+4)])
+                else:
+                    pass    
             else:
                 font.SetWeight(wxNORMAL)
 
@@ -296,33 +315,38 @@ class dGrid(wxGrid):
         
         columnToSort = table.colNames[gridCol]
 
-        descending = False
+        sortOrder="ASC"
         if gridCol == self.sortedColumn:
-            if self.sortedColumnDescending == False:
-                descending = True
+            sortOrder = self.sortOrder
+            if sortOrder == "ASC":
+                sortOrder = "DESC"
+            else:
+                sortOrder = "ASC"
         
-        self.wicket.viewCursor.sort(columnToSort, descending)
+        self.bizobj.sort(columnToSort, sortOrder)
         self.sortedColumn = gridCol
-        self.sortedColumnDescending = descending
+        self.sortOrder = sortOrder
         
+        self.ForceRefresh()
         table.fillTable()
-        self.Refresh()
-        
-
+     
     def processIncrementalSearch(self, char):
         # Stop the timer, add the character to the incremental search string,
         # process the search, and restart the timer
         self.incrementalSearchTimer.Stop()
         self.currentIncrementalSearch = ''.join((self.currentIncrementalSearch, char))
         
-        self.parent.SetStatusMessage(''.join(('Search: ', self.currentIncrementalSearch)))
+        self.GetParent().getDform().SetStatusText(''.join(('Search: ', self.currentIncrementalSearch)))
         
         table = self.GetTable()
         gridCol = self.GetGridCursorCol()
-        cursorCol = table.colNames[self.GetGridCursorCol()]
+        if gridCol < 0:
+            gridCol = 0
+        cursorCol = table.colNames[gridCol]
         
-        #row = self.cursor.seek(cursorCol, self.currentIncrementalSearch)
-        row = -1
+        row = self.bizobj.seek(self.currentIncrementalSearch, cursorCol, 
+                                caseSensitive=False, near=True)
+        print self.currentIncrementalSearch, cursorCol, row, gridCol
         if row > -1:
             self.SetGridCursor(row, gridCol)
             self.MakeCellVisible(row, gridCol)

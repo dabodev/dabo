@@ -49,6 +49,9 @@ class dForm(wx.Frame, dFormMixin):
     def EVT_VALUEREFRESH(win, id, func):
         win.Connect(id, -1, dEvents.EVT_VALUEREFRESH, func)
     
+    def EVT_ROWNUMCHANGED(win, id, func):
+        win.Connect(id, -1, dEvents.EVT_ROWNUMCHANGED, func)
+    
     def _appendToMenu(self, menu, caption, function):
         menuId = wx.NewId()
         menu.Append(menuId, caption)
@@ -149,11 +152,26 @@ class dForm(wx.Frame, dFormMixin):
         
         # Set up the control to receive the notification 
         # from the form that it's time to refresh its value,
-        # but only if the control is data-aware.
-        if isinstance(control, dDataControlMixin.dDataControlMixin):
-            dForm.EVT_VALUEREFRESH(self, self.GetId(), control.onValueRefresh)
+        # but only if the control is set up to receive these
+        # notifications (if it has a onValueRefresh Method).
+        try:
+            func = control.onValueRefresh
+        except AttributeError:
+            func = None
+        if func:
+            dForm.EVT_VALUEREFRESH(self, self.GetId(), func)
         
-    
+        # Set up the control to receive the notification 
+        # from the form that that the row number changed,
+        # but only if the control is set up to receive these
+        # notifications (if it has a onRowNumChanged Method).
+        try:
+            func = control.onRowNumChanged
+        except AttributeError:
+            func = None
+        if func:
+            dForm.EVT_ROWNUMCHANGED(self, self.GetId(), func)
+
     def refreshControls(self):
         ''' dForm.refreshControls() -> None
         
@@ -177,6 +195,11 @@ class dForm(wx.Frame, dFormMixin):
                 print response
             if response == k.FILE_OK:
                 self.SetStatusText(self.getCurrentRecordText())
+                
+                # Notify listeners that the row number changed:
+                evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
+                self.GetEventHandler().ProcessEvent(evt)
+
         else:
             if self.debug:
                 print "in dForm.first(): No bizobjs defined."
@@ -194,6 +217,10 @@ class dForm(wx.Frame, dFormMixin):
                 print response
             if response == k.FILE_OK:
                 self.SetStatusText(self.getCurrentRecordText())
+                
+                # Notify listeners that the row number changed:
+                evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
+                self.GetEventHandler().ProcessEvent(evt)
         else:
             if self.debug:
                 print "in dForm.first(): No bizobjs defined."
@@ -213,6 +240,10 @@ class dForm(wx.Frame, dFormMixin):
             if response == k.FILE_BOF:
                 statusText += " (BOF)"
             self.SetStatusText(statusText)
+                
+            # Notify listeners that the row number changed:
+            evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
+            self.GetEventHandler().ProcessEvent(evt)
         else:
             if self.debug:
                 print "in dForm.first(): No bizobjs defined."
@@ -232,6 +263,10 @@ class dForm(wx.Frame, dFormMixin):
             if response == k.FILE_EOF:
                 statusText += " (EOF)"
             self.SetStatusText(statusText)
+                
+            # Notify listeners that the row number changed:
+            evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
+            self.GetEventHandler().ProcessEvent(evt)
         else:
             if self.debug:
                 print "in dForm.first(): No bizobjs defined."
