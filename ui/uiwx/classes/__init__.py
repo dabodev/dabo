@@ -44,7 +44,7 @@ for __classRef in __dClasses:
 	__classDict = {}
 	__classDict['class'] = __classRef
 	__classDict['name'] = __classRef.__name__
+	__classDict['prompt'] = "%s&%s" % (__classRef.__name__[0], __classRef.__name__[1:])
 	__classDict['topLevel'] = __classRef.__name__.find('Form') >= 0
-	__classDict['icon'] = None
 	__classDict['doc'] = __classRef.__doc__
 	daboDesignerClasses.append(__classDict)
