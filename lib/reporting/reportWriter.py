@@ -49,7 +49,7 @@ class ReportWriter(object):
 	This is, IMO, the right way to go anyway, offering the most control and 
 	flexibility yet still keeping it really simple. Just have the calling program
 	get the data denormalized into one cursor, and then call ReportWriter 
-	feeding it the Cursor, Report Form, and OutputName.
+	feeding it the Cursor, Report Form, and OutputFile.
 
 	More documentation will come.
 	"""
@@ -451,15 +451,13 @@ class ReportWriter(object):
 		if _form is None:
 			raise ValueError, "ReportForm must be set first."
 
-		_outputName = self.OutputName
-#		if _outputName is None:
-#			raise ValueError, "OutputName must be set first."
+		_outputFile = self.OutputFile
 
 		pageSize = self.getPageSize()		
 		pageWidth, pageHeight = pageSize
 		
 		# Create the reportlab canvas:
-		c = self._canvas = canvas.Canvas(_outputName, pagesize=pageSize)
+		c = self._canvas = canvas.Canvas(_outputFile, pagesize=pageSize)
 		
 		
 		# Get the page margins into variables:
@@ -845,22 +843,25 @@ class ReportWriter(object):
 		"""Specifies the data cursor that the report runs against.""")
 
 
-	def _getOutputName(self):
+	def _getOutputFile(self):
 		try:
-			v = self._outputName
+			v = self._outputFile
 		except AttributeError:
-			v = self._outputName = None
+			v = self._outputFile = None
 		return v
 		
-	def _setOutputName(self, val):
-		s = os.path.split(val)
-		if len(s[0]) == 0 or os.path.exists(s[0]):
-			self._outputName = val
+	def _setOutputFile(self, val):
+		if type(val) == file:
+			self._outputFile = val
 		else:
-			raise ValueError, "Path '%s' doesn't exist." % s[0]
+			s = os.path.split(val)
+			if len(s[0]) == 0 or os.path.exists(s[0]):
+				self._outputFile = val
+			else:
+				raise ValueError, "Path '%s' doesn't exist." % s[0]
 
-	OutputName = property(_getOutputName, _setOutputName, None,
-		"""Specifies the output PDF file name.""")
+	OutputFile = property(_getOutputFile, _setOutputFile, None,
+		"""Specifies the output PDF file (name or file object).""")
 
 
 	def _getRecord(self):
@@ -1009,10 +1010,21 @@ if __name__ == "__main__":
 
 	if len(sys.argv) > 1:
 		for reportForm in sys.argv[1:]:
-			output = "./%s.pdf" % os.path.splitext(reportForm)[0]
-			print "Creating %s from report form %s..." % (output, reportForm)
-			rw.ReportFormFile = reportForm
-			rw.OutputName = output
-			rw.write()
+			if reportForm == "tempfile":
+				import tempfile
+				print "Creating tempfile.pdf from samplespec.rfxml"
+				rw.ReportFormFile = "samplespec.rfxml"
+				rw.OutputFile = tempfile.TemporaryFile()
+				rw.write()
+				f = open("tempfile.pdf", "wb")
+				rw.OutputFile.seek(0)
+				f.write(rw.OutputFile.read())
+				f.close()
+			else:
+				output = "./%s.pdf" % os.path.splitext(reportForm)[0]
+				print "Creating %s from report form %s..." % (output, reportForm)
+				rw.ReportFormFile = reportForm
+				rw.OutputFile = output
+				rw.write()
 	else:
 		print "Usage: reportWriter <specFile> [<specFile>...]"
