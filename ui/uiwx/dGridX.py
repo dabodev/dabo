@@ -113,7 +113,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		return ret
 		
 		
-	def fillTable(self):
+	def fillTable(self, force=False):
 		""" Fill the grid's data table to match the data set."""
 		rows = self.GetNumberRows()
 		oldRow = self.grid.CurrCol    # current row per the grid
@@ -124,9 +124,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		# Get the data from the parent grid.
 		dataSet = self.grid.getDataSet()
 		
-		if self.__currData == dataSet:
-			# Nothing's changed; no need to re-fill the table
-			return
+		if not force:
+			if self.__currData == dataSet:
+				# Nothing's changed; no need to re-fill the table
+				return
 		else:
 			self.__currData = dataSet
 		
@@ -136,16 +137,20 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			recordDict = []
 			for col in self.colDefs:
 				fld = col.Field
-				recordVal = record[fld]
-				if col.DataType.lower() in ("string", "unicode", "str", "char", "text", "varchar"):
-					# Limit to first 'n' chars...
-					recordVal = str(recordVal)[:self.grid.stringDisplayLen]
-				elif col.DataType.lower() == "bool":
-					# coerce to bool (could have been 0/1)
-					if type(recordVal) in (unicode, str):
-						recordVal = bool(int(recordVal))
-					else:
-						recordVal = bool(recordVal)
+				if record.has_key(fld):
+					recordVal = record[fld]
+					if col.DataType.lower() in ("string", "unicode", "str", "char", "text", "varchar"):
+						# Limit to first 'n' chars...
+						recordVal = str(recordVal)[:self.grid.stringDisplayLen]
+					elif col.DataType.lower() == "bool":
+						# coerce to bool (could have been 0/1)
+						if type(recordVal) in (unicode, str):
+							recordVal = bool(int(recordVal))
+						else:
+							recordVal = bool(recordVal)
+				else:
+					# If there is no such value, don't display anything
+					recordVal = ""
 				recordDict.append(recordVal)
 			self.data.append(recordDict)
 		self.grid.BeginBatch()
@@ -211,7 +216,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def GetTypeName(self, row, col):
-		return self.dataTypes[col]
+		try:
+			ret = self.dataTypes[col]
+		except:
+			ret = wx.grid.GRID_VALUE_STRING
+		return ret
 
 
 	# Called to determine how the data can be fetched and stored by the
@@ -255,7 +264,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if oldSort is not None:
 			self.grid.sortedColumn = self.colDefs.index(oldSort)
 		self.setColumnInfo()
-		self.fillTable()
+		self.fillTable(True)
 
 
 	# The following methods are required by the grid, to find out certain
@@ -282,7 +291,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			return True
 
 	def GetValue(self, row, col):
-		return self.data[row][col]
+		try:
+			ret = self.data[row][col]
+		except:
+			ret = ""
+		return ret
 
 	def SetValue(self, row, col, value):
 		self.data[row][col] = value
@@ -379,7 +392,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		header.Bind(wx.EVT_PAINT, self.onHeaderPaint)
 
 
-	def fillGrid(self, redraw=False):
+	def fillGrid(self, force=False):
 		""" Refresh the grid to match the data in the data set."""
 		# Save the focus, if any
 		currFocus = self.FindFocus()
@@ -392,11 +405,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 # 		tbl.bizobj = self.bizobj
 		
 		tbl.setColumns(self.Columns)
-		tbl.fillTable()
+		tbl.fillTable(force)
 		
-		if redraw:
+		if force:
 # 			row = self.bizobj.RowNumber
-			row = row
+			row = max(0, self.CurrRow)
 			col = max(0, self.CurrCol)
 			# Needed on Linux to get the grid to have the focus:
 			for window in self.Children:
@@ -698,7 +711,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.sortOrder = sortOrder
 	
 			self.ForceRefresh()     # Redraw the up/down sort indicator
-			table.fillTable()       # Sync the grid with the bizobj
+			table.fillTable(True)       # Sync the grid with the bizobj
 		except dException.NoRecordsException, e:
 			# no records to sort; ignore it
 			pass
@@ -858,7 +871,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return ret
 		
 		
-	def addColumn(self, col=None):
+	def addColumn(self, col=None, inBatch=False):
 		""" Adds a column to the grid. If no column is passed, a 
 		blank column is added, which can be customized later.
 		"""
@@ -867,11 +880,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if col.Order == -1:
 			col.Order = self.maxColOrder() + 10
 		self.Columns.append(col)
-		msg = wx.grid.GridTableMessage(self._Table,
-				wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
-				1)
-		self.ProcessTableMessage(msg)
-		self.fillGrid()
+		if not inBatch:
+			msg = wx.grid.GridTableMessage(self._Table,
+					wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
+					1)
+			self.ProcessTableMessage(msg)
+			self.fillGrid(True)
 
 
 	def removeColumn(self, col=None):
@@ -881,7 +895,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		colNum = None
 		if col is None:
 			colNum = self.ColumnCount - 1
-		elif type(col) != int:
+		elif type(col) == int:
+			colNum = col
+		else:
 			# They probably passed a specific column instance
 			colNum = self.Columns.index(col)
 			if colNum == -1:
@@ -893,16 +909,16 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
 				colNum, 1)
 		self.ProcessTableMessage(msg)
-		self.fillGrid()
+		self.fillGrid(True)
 
 
 	def _getNumCols(self):
-# 		return self._Table.GetNumberCols()
 		return len(self.Columns)
 	def _setNumCols(self, val):
 		msg = None
 		if val > -1:
 			colChange = val - self.ColumnCount 
+			self.BeginBatch()
 			if colChange == 0:
 				# No change
 				return
@@ -916,10 +932,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 						wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
 						colChange)
 				for cc in range(colChange):
-					self.addColumn()
-		if msg:
-			self.ProcessTableMessage(msg)
-	
+					self.addColumn(inBatch=True)
+			if msg:
+				self.ProcessTableMessage(msg)
+			self.EndBatch()
+			self.fillGrid(True)
+			
 	def _getNumRows(self):
 		return self._Table.GetNumberRows()
 	
