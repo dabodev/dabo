@@ -81,6 +81,7 @@ class dApp(object):
         # Init some appInfo properties:
         self.setAppInfo("appName", "Dabo")
         self.setAppInfo("appVersion", "0.1")
+        self.setAppInfo("vendorName", "")
                     
         self._initUI()
         self._initDB()

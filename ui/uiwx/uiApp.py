@@ -14,6 +14,12 @@ class uiApp(wx.App):
         self.helpProvider = wx.help.SimpleHelpProvider()
         wx.help.HelpProvider_Set(self.helpProvider)
         
+        # wx has properties for appName and vendorName, so Dabo should update
+        # these. Among other possible uses, I know that on Win32 wx will use
+        # these for determining the registry key structure.
+        wx.SetAppName(dApp.getAppInfo("appName"))
+        wx.SetVendorName(dApp.getAppInfo("vendorName")
+        
         # I *think* this may be how to set the application name as displayed
         # as the caption of Mac's application menu. Currently, it displays as
         # "Python" and I can't find any mention of how to change this caption,
