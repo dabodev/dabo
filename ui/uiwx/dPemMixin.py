@@ -199,10 +199,17 @@ class dPemMixin(dPemMixinBase):
 	def raiseEvent(self, eventClass, nativeEvent=None, *args, **kwargs):
 		# Call the Dabo-native raiseEvent(), passing along the wx.CallAfter
 		# function, so that the Dabo events can be processed at next idle.
-		#dPemMixin.doDefault(eventClass, nativeEvent, callAfterFunc=wx.CallAfter, 
-		#	*args, **kwargs)
-		super(dPemMixin, self).raiseEvent(eventClass, nativeEvent,
-			callAfterFunc=wx.CallAfter, *args, **kwargs)
+		
+		#- PKM 11/4/2004: It turns out that, due to a name mismatch, uiCallAfterFunc
+		#- wasn't being used. I discovered the problem and fixed it, but then nothing
+		#- seemed to be working "right" in Dabo anymore - some events happening twice,
+		#- some happening too late. I want to come back and research this more, but for
+		#- now I'll just document here that for wx, we aren't using a callafter function
+		#- but just processing our Dabo events inside the current callstack.
+
+#		super(dPemMixin, self).raiseEvent(eventClass, nativeEvent,
+#			uiCallAfterFunc=wx.CallAfter, *args, **kwargs)
+		super(dPemMixin, self).raiseEvent(eventClass, nativeEvent, *args, **kwargs)
 	
 			
 	def reCreate(self, child=None):
