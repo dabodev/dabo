@@ -321,16 +321,20 @@ class dBrowsePage(dPage.dPage):
 
 	def updateGrid(self):
 		bizobj = self.Form.getBizobj()
+		justCreated = False
 		if bizobj and bizobj.getRowCount() >= 0:
 			if not self.itemsCreated:
 				self.createItems()
+				justCreated = True
 			if self.itemsCreated:
 				self.fillGrid()
 
 			row = self.Form.getBizobj().getRowNumber()
 			col = self.BrowseGrid.GetGridCursorCol()
 			self.BrowseGrid.SetGridCursor(row, col)
-			self.BrowseGrid.MakeCellVisible(row, col)
+			
+			if not justCreated and not self.BrowseGrid.IsVisible(row, col):
+				self.BrowseGrid.MakeCellVisible(row, col)
 
 		
 	def onEnterPage(self):
