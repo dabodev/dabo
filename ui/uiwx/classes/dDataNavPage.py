@@ -6,6 +6,101 @@ import dabo.dException as dException
 from dabo.dLocalize import _
 
 
+class OutlineBoxSizer(wx.BoxSizer):
+	def __init__(self, win, *args, **kwargs):
+		wx.BoxSizer.__init__(self, *args, **kwargs)
+		self.win = win
+# 		win.Bind(wx.EVT_SIZE, self.onSize)
+	
+	def onSize(self, evt):
+		evt.Skip()
+		self.win.drawOutline(self.GetPosition(), self.GetSize() )
+		
+
+class DataNavPage(dPage.dPage):
+	def afterInit(self):
+		DataNavPage.doDefault()
+		# Needed for drawing sizer outlines
+		self.drawSizerOutlines = False
+		self.Bind(wx.EVT_SIZE, self.onSize)
+		self.Bind(wx.EVT_IDLE, self.onIdle)
+
+
+	def onSize(self, evt):
+		self.redrawOutlines = self.drawSizerOutlines
+		evt.Skip()
+		
+	
+	def onIdle(self, evt):
+		if self.redrawOutlines:
+			self.redrawOutlines = False
+			self.drawOutline(self, self.GetSizer(), 0)
+	
+	def onPaint(self, evt):
+		self.drawOutline(self, self.GetSizer(), 0)
+		
+	def drawOutline(self, win, sz, level):
+		if sz is None:
+			return
+		x, y = sz.GetPosition()
+		w, h = sz.GetSize()
+		off = 1
+		
+		if isinstance(sz, wx.NotebookSizer):
+			nb = sz.GetNotebook()
+			for i in range(nb.GetPageCount()):
+				pg = nb.GetPage(i)
+				self.drawOutline(pg, pg.GetSizer(), level+1)
+		else:
+			chil = sz.GetChildren()
+			for c in chil:
+				if c.IsSizer():
+					self.drawOutline(win, c.GetSizer(), level+1)
+# 				elif c.IsSpacer():
+# 					self.drawOutline(win, c.GetSpacer(), level+1)
+				else:
+					# Window
+					subwin = c.GetWindow()
+					if subwin is not None:
+						self.drawOutline(subwin, subwin.GetSizer(), level+1) 
+
+		# Initialize the draw client
+		dc = wx.ClientDC(win)
+		if isinstance(sz, wx.NotebookSizer):
+			dc.SetPen(wx.Pen("green", 1, wx.SOLID))
+		elif isinstance(sz, wx.BoxSizer):
+			if sz.GetOrientation() == wx.HORIZONTAL:
+				dc.SetPen(wx.Pen("red", 1, wx.SHORT_DASH))
+			else:
+				dc.SetPen(wx.Pen("blue", 1, wx.SHORT_DASH))
+		else:
+			dc.SetPen(wx.Pen("cyan", 1, wx.TRANSPARENT))
+		dc.SetBrush(wx.TRANSPARENT_BRUSH)
+		dc.SetLogicalFunction(wx.COPY)
+		# Draw the outline
+		dc.DrawRectangle( x+off, y+off, w-(2*off), h-(2*off) )
+		# If this is a GridBag Sizer, draw the cells
+		if isinstance(sz, wx.GridBagSizer):
+			import random
+			rows = sz.GetRows()
+			cols = sz.GetCols()
+			colors = ["red","blue","green", "cyan"]
+			dc.SetPen(wx.Pen("blue", 1, wx.SOLID))
+			vgap = sz.GetVGap()
+			hgap = sz.GetHGap()
+			y2 = y
+			rhts = sz.GetRowHeights()
+ 			for hh in rhts:
+ 				x2 = x
+ 				for ww in sz.GetColWidths():
+ 					dc.DrawRectangle(x2, y2, ww, hh)
+ 					x2 += ww+hgap
+ 				y2 += hh+vgap
+ 				clr = random.choice(colors)
+ 				dc.SetPen(wx.Pen(clr, 1, wx.SOLID))
+ 				
+			
+		
 class SelectOptionsPanel(dPanel.dPanel):
 	""" Base class for the select options panel.
 	"""
@@ -49,13 +144,13 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 			except: pass
 
 
-class dSelectPage(dPage.dPage):
+class dSelectPage(DataNavPage):
 	def __init__(self, parent):
 		dSelectPage.doDefault(parent, name="pageSelect")
 		# Holds info which will be used to create the dynamic
 		# WHERE clause based on user input
 		self.selectFields = {}
-		
+
 
 	def createItems(self):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
@@ -275,7 +370,7 @@ class dSelectPage(dPage.dPage):
 
 
 		
-class dBrowsePage(dPage.dPage):
+class dBrowsePage(DataNavPage):
 	def __init__(self, parent):
 		dBrowsePage.doDefault(parent, "pageBrowse")
 
@@ -392,7 +487,7 @@ class dBrowsePage(dPage.dPage):
 			win.PreviewText(html)
 
 			
-class dEditPage(dPage.dPage):
+class dEditPage(DataNavPage):
 	def __init__(self, parent):
 		dEditPage.doDefault(parent, "pageEdit")
 
@@ -411,8 +506,8 @@ class dEditPage(dPage.dPage):
 			self.Enable(False)
 		if event:
 			event.Skip()
-
-
+	
+	
 	def createItems(self):
 		if not self.Form.preview:
 			dataSource = self.Form.getBizobj().DataSource
@@ -489,7 +584,7 @@ class dEditPage(dPage.dPage):
 		self.SetFocus()
 
 
-class dChildViewPage(dPage.dPage):
+class dChildViewPage(DataNavPage):
 	def __init__(self, parent, dataSource):
 		dChildViewPage.doDefault(parent, "pageChildView")
 		self.dataSource = dataSource

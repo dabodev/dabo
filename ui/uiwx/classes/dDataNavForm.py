@@ -20,6 +20,8 @@ class dDataNavForm(dForm.dForm):
 		self._fieldSpecs = {}
 		self._childBehavior = {}
 		self._requeried = False
+		# Used for turning sizer outline drawing on pages
+		self._drawSizerOutlines = False
 	
 	
 	def __init__(self, parent, previewMode=False, tbl=""):
@@ -463,18 +465,34 @@ class dDataNavForm(dForm.dForm):
 	
 	def _setFieldSpecs(self, val):
 		self._fieldSpecs = val
+		
+	def _setDrawSizerOutlines(self, val):
+		self._drawSizerOutlines = val
+		# Need to update the pages
+		for i in range(self.pageFrame.PageCount):
+			pg = self.pageFrame.GetPage(i)
+			if hasattr(pg, "drawSizerOutlines"):
+				pg.drawSizerOutlines = val
+		
+		
+	def _getDrawSizerOutlines(self):
+		return self._drawSizerOutlines		
 	
 
 	# Property definitions:
 	FormType = property(_getFormType, _setFormType, None,
-						"Specifies the type of form this is:\n"
-						"	Normal: a normal dataNav form.\n"
-						"	PickList: only select/browse pages shown, and the form\n"
-						"		is modal, returning the pk of the picked record.\n"
-						"	Edit: modal version of normal, with no Select/Browse pages.\n"
-						"		User code sends the pk of the record to edit.")
+				"Specifies the type of form this is:\n"
+				"	Normal: a normal dataNav form.\n"
+				"	PickList: only select/browse pages shown, and the form\n"
+				"		is modal, returning the pk of the picked record.\n"
+				"	Edit: modal version of normal, with no Select/Browse pages.\n"
+				"		User code sends the pk of the record to edit.")
+
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
-						"Specifies whether an automatic requery happens when the form is loaded.")
+				"Specifies whether an automatic requery happens when the form is loaded.")
 	
 	FieldSpecs = property(_getFieldSpecs, _setFieldSpecs, None, 
 			"Reference to the dictionary containing field behavior specs")
+
+	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
+			"Controls whether outlines are drawn indicating the current state of the sizers on the form.")
