@@ -408,7 +408,7 @@ class dSelectPage(DataNavPage):
 					"On or After",
 					"Before",
 					"After")
-		elif typ in ("int", "float"):
+		elif typ in ("int", "float", "decimal"):
 			chc = ("Equals", 
 					"Greater than",
 					"Greater than/Equal to",
@@ -417,6 +417,9 @@ class dSelectPage(DataNavPage):
 		elif typ == "bool":
 			chc = ("Is True",
 					"Is False")
+		else:
+			dabo.errorLog.write("Type '%s' not recognized." % typ)
+			chc = ()
 		# Add the blank choice
 		chc = (IGNORE_STRING,) + chc
 		return chc
@@ -457,21 +460,27 @@ class dSelectPage(DataNavPage):
 			opList = SelectionOpDropdown(panel, choices=opt)
 			
 			ctrl = self.getSearchCtrl(fldInfo["type"], panel)
+			if ctrl is not None:
+				if not opList.StringValue:
+					opList.StringValue = opList.GetString(0)
+				opList.Target = ctrl
+				
+				gsz.append(lbl, alignment="right")
+				gsz.append(opList, alignment="left")
+				gsz.append(ctrl, "expand")
+				
+				# Store the info for later use when constructing the query
+				self.selectFields[fld] = {
+						"ctrl" : ctrl,
+						"op" : opList,
+						"type": fldInfo["type"]
+						}
+			else:
+				dabo.errorLog.write("No control found for type '%s'." % fldInfo["type"])
+				lbl.Destroy()
+				opList.Destroy()
 
-			if not opList.StringValue:
-				opList.StringValue = opList.GetString(0)
-			opList.Target = ctrl
-			
-			gsz.append(lbl, alignment="right")
-			gsz.append(opList, alignment="left")
-			gsz.append(ctrl, "expand")
-			
-			# Store the info for later use when constructing the query
-			self.selectFields[fld] = {
-					"ctrl" : ctrl,
-					"op" : opList,
-					"type": fldInfo["type"]
-					}
+				
 		# Now add the limit field
 		lbl = dLabel.dLabel(panel)
 		lbl.Caption = "Limit:"
@@ -504,7 +513,7 @@ class dSelectPage(DataNavPage):
 	def getSearchCtrl(self, typ, parent):
 		"""Returns the appropriate editing control for the given data type.
 		"""
-		if typ in ("char", "memo", "float", "int", "datetime"):
+		if typ in ("char", "memo", "float", "int", "decimal", "datetime"):
 			ret = SelectTextBox(parent)
 		elif typ == "bool":
 			ret = SelectCheckBox(parent)

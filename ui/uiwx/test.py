@@ -19,21 +19,23 @@ ui.loadUI("wx")
 
 # Log all events except the really frequent ones:
 logEvents = ["All", "Idle", "MouseMove"]
-
 class Test(object):
 	def __init__(self):
 		self.app = wx.PySimpleApp()
 
-	def runTest(self, classRef, *args, **kwargs):
+	def runTest(self, classRefs, *args, **kwargs):
+		if type(classRefs) not in (tuple, list):
+			classRefs = (classRefs,)
 		frame = wx.Frame(None, -1, "")
-		frame.SetSize((300,52))
-		object = classRef(frame, *args, **kwargs)
-		object.debug = True
-		object.LogEvents = logEvents
+		top=0
+		for class_ in classRefs:
+			object = class_(frame, LogEvents=logEvents, Top=top, *args, **kwargs)
+			top = top + object.Height
+		frame.SetSize((300,top))
 		frame.SetLabel("Test of %s" % object.Name)
 		object.SetFocus()
 		frame.Show()
-		object.Show()
+		#object.Show()
 		self.app.MainLoop()
 
 	def testAll(self):

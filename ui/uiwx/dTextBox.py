@@ -16,9 +16,6 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		properties = self.extractKeywordProperties(kwargs, properties)
 		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 
-		# Handles different value types
-		self.valueType = types.StringType
-		
 		# If this is a password textbox, update the style parameter
 		if password:
 			style = style | wx.TE_PASSWORD
@@ -45,6 +42,51 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		super(dTextBox, self).initEvents()
 		# catch wx.EVT_TEXT and raise dEvents.Hit:
 		self.Bind(wx.EVT_TEXT, self._onWxHit)
+		
+		
+	def flushValue(self):
+		# Overridden: need to set Value to the converted value before running 
+		# the default behavior.
+		dataType = type(self.Value)
+		
+		# Need the string value from the textbox (not the raw Value): get 
+		# from wx directly:
+		strVal = self.GetValue()
+		
+		# Convert the current string value of the control, as entered by the 
+		# user, into the proper data type.
+		if dataType == bool:
+			# Bools can't convert from string representations, because a zero-
+			# length denotes False, and anything else denotes True.
+			if strVal == "True":
+				value = True
+			else:
+				value = False
+				
+		else:
+			# Other types can convert directly.
+			try:
+				value = dataType(strVal)
+			except ValueError:
+				# The Python object couldn't convert it. Our validator, once implemented, 
+				# won't let the user get this far. In the meantime, log the Error and just keep
+				# the old value.
+				dabo.errorLog.write("Couldn't convert literal '%s' to %s." % (strVal, dataType))
+				value = self.Value
+			
+		# Only update self.Value if it differs:
+		if value != self.Value:
+			# Update the private variable directly to avoid emitting ValueChanged twice:
+			# once in the Value setter, and once when we run the superclass code below.
+			self._value = value
+		
+		# Call the wx SetValue() directly to reset the string value displayed to the user.
+		# This resets the value to the string representation as Python shows it.
+		self.SetValue(self._getStringValue(value))
+			
+		# Now that the dabo Value is set properly, the default behavior that flushes 
+		# the value to the bizobj can be called:
+		super(dTextBox, self).flushValue()
 		
 		
 	# property get/set functions
@@ -98,49 +140,51 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	def _setSelectOnEntry(self, value):
 		self._SelectOnEntry = bool(value)
 
-	def _getValue(self):
-		try:
-			typ = self.valueType
-			retVal = super(dTextBox, self)._getValue()
-			if typ == types.BooleanType:
-				if value == "True":
-					retVal = True
-				else:
-					retVal = False
-			elif typ== types.NoneType:
-				retVal = None
-			elif typ == types.FloatType:
-				retVal = float(retVal)
-			elif typ == types.IntType:
-				retVal = int(retVal)
-			elif typ == types.LongType:
-				retVal = long(retVal)
-			elif typ == types.UnicodeType:
-				retVal = unicode(retVal)
-				
-		except StandardError, e:
-			retVal = "ERROR"
-			dabo.errorLog.write("getval: %s" % e)
-			
-		return retVal
 		
+	def _getValue(self):
+		# Override the base behavior. Just return self._value
+		# which has been updated by self._setValue() and self.flushValue()
+		try:
+			ret = self._value
+		except AttributeError:
+			# The default value is an empty string
+			ret = self._value = ""
+		return ret
+			
+					
 	def _setValue(self, value):
-		typ = type(value)
-		self.valueType = typ
-		strVal = value
-		# Must convert all to string for display
-		if typ == types.BooleanType:
-			if value:
-				strVal = "True"
-			else:
-				strVal = "False"
-		elif typ == types.NoneType:
-			strVal = "None"
-		elif typ in (types.StringType, types.UnicodeType):
+		# Must convert all to string for sending to wx, but our internal 
+		# _value will always retain the correct type.
+		
+		# Todo: set up validators based on the type of data we are editing,
+		# so the user can't, for example, enter a letter "p" in a textbox
+		# that is currently showing numeric data.
+		
+		strVal = self._getStringValue(value)
+		
+		# save the actual value for return by _getValue:
+		self._value = value
+		
+		# Update the display no matter what:
+		self.SetValue(strVal)
+		
+		# Send ValueChanged only if the value differs from the original:
+#		if (type(self.Value) != type(value) or self.Value != value):
+		self._afterValueChanged()
+
+		
+	def _getStringValue(self, value):
+		"""Given a value of any data type, return a string rendition.
+		
+		Used internally by _setValue and flushValue.
+		"""
+		if type(value) in (str, unicode):
+			# keep it unicode instead of converting to str
 			strVal = value
 		else:
+			# convert all other data types to string:
 			strVal = str(value)
-		super(dTextBox, self)._setValue(strVal)
+		return strVal
 
 		
 	# Property definitions:
@@ -165,4 +209,39 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dTextBox)
+
+	# This test sets up several textboxes, each editing different data types.	
+	class TestBase(dTextBox):
+		def initProperties(self):
+			TestBase.doDefault()
+			self.LogEvents = ["ValueChanged",]
+			
+		def initEvents(self):
+			TestBase.doDefault()
+			self.bindEvent(dabo.dEvents.ValueChanged, self.onValueChanged)
+			
+		def onValueChanged(self, evt):
+			print "%s.onValueChanged:" % self.Name, self.Value, type(self.Value)
+		
+			
+	class IntText(TestBase):
+		def afterInit(self):
+			IntText.doDefault()
+			self.Value = 23
+		
+	class FloatText(TestBase):
+		def afterInit(self):
+			FloatText.doDefault()
+			self.Value = 23.5
+	
+	class BoolText(TestBase):
+		def afterInit(self):
+			BoolText.doDefault()
+			self.Value = False
+	
+	class StrText(TestBase):
+		def afterInit(self):
+			StrText.doDefault()
+			self.Value = "Lunchtime"
+			
+	test.Test().runTest((IntText, FloatText, StrText, BoolText))
