@@ -1,4 +1,4 @@
-import wx, dabo
+import wx, wx.html, dabo
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox
 import dIcons, dCommandButton, dSizer
 import dPanel, dGridDataNav, dCommandButton, dMessageBox, dDateTextBox

@@ -23,7 +23,6 @@ from dPemMixin import dPemMixin
 dabo.ui.dPemMixin = dPemMixin
 from dControlMixin import dControlMixin
 dabo.ui.dControlMixin = dControlMixin
-from dKeys import *
 
 # Import into public namespace:
 from dAbout import dAbout
@@ -49,6 +48,7 @@ from dGrid import dGrid
 from dGridSizer import dGridSizer
 from dGridDataNav import dGridDataNav
 import dIcons
+import dKeys
 from dLabel import dLabel
 from dLine import dLine
 from dListbook import dListbook
