@@ -156,7 +156,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				
 		# save the actual value for return by _getValue:
 		self._value = value
-		
+
 		# Update the display no matter what:
 		self.SetValue(strVal)
 		

@@ -615,18 +615,18 @@ class dPemMixin(dPemMixinBase):
 
 	
 	def _getFontBold(self):
-		return self._pemObject.GetFont().GetWeight() == wx.BOLD
+		return self.Font.GetWeight() == wx.BOLD
 	
 	def _setFontBold(self, fontBold):
-		font = self._pemObject.GetFont()
+		font = self.Font
 		if fontBold:
 			font.SetWeight(wx.BOLD)
 		else:
 			font.SetWeight(wx.LIGHT)    # wx.NORMAL doesn't seem to work...
-		self._pemObject.SetFont(font)
+		self.Font = font
 
 	def _getFontDescription(self):
-		f = self._pemObject.GetFont()
+		f = self.Font
 		ret = f.GetFaceName() + " " + str(f.GetPointSize())
 		if f.GetWeight() == wx.BOLD:
 			ret += " B"
@@ -635,46 +635,46 @@ class dPemMixin(dPemMixinBase):
 		return ret
 	
 	def _getFontInfo(self):
-		return self._pemObject.GetFont().GetNativeFontInfoDesc()
+		return self.Font.GetNativeFontInfoDesc()
 
 		
 	def _getFontItalic(self):
-		return self._pemObject.Font.GetStyle() == wx.ITALIC
+		return self.Font.GetStyle() == wx.ITALIC
 	
 	def _setFontItalic(self, fontItalic):
-		font = self._pemObject.Font
+		font = self.Font
 		if fontItalic:
 			font.SetStyle(wx.ITALIC)
 		else:
 			font.SetStyle(wx.NORMAL)
-		self._pemObject.Font = font
+		self.Font = font
 
 	
 	def _getFontFace(self):
-		return self._pemObject.Font.GetFaceName()
+		return self.Font.GetFaceName()
+
 	def _setFontFace(self, val):
-		f = self._pemObject.Font
+		f = self.Font
 		f.SetFaceName(val)
-		self._pemObject.Font = f
+		self.Font = f
 
 	
 	def _getFontSize(self):
-		return self._pemObject.Font.GetPointSize()
+		return self.Font.GetPointSize()
 	
 	def _setFontSize(self, fontSize):
-		font = self._pemObject.Font
+		font = self.Font
 		font.SetPointSize(int(fontSize))
-		self._pemObject.Font = font
-
+		self.Font = font
 	
 	def _getFontUnderline(self):
-		return self._pemObject.Font.GetUnderlined()
+		return self.Font.GetUnderlined()
 	
 	def _setFontUnderline(self, val):
 		# underlining doesn't seem to be working...
-		font = self._pemObject.Font
+		font = self.Font
 		font.SetUnderlined(bool(val))
-		self._pemObject.Font = font
+		self.Font = font
 
 
 	def _getForeColor(self):

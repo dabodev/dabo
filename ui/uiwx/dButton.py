@@ -81,4 +81,4 @@ class dButton(wx.Button, cm.dControlMixin):
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dButton)
+	test.Test().runTest(dButton, Caption="hey", FontSize=8)

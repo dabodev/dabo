@@ -329,27 +329,8 @@ class ReportWriter(object):
 		if _outputName is None:
 			raise ValueError, "OutputName must be set first."
 
-		
-		## Set the Page Size:
-		# get the string pageSize value from the spec file:
-		try:
-			pageSize = eval(_form["page"]["size"])
-		except KeyError:
-			pageSize = self.default_pageSize
-		# reportlab expects the pageSize to be upper case:
-		pageSize = pageSize.upper()
-		# convert to the reportlab pageSize value (tuple(width,height)):
-		pageSize = eval("pagesizes.%s" % pageSize)
-		# run it through the portrait/landscape filter:
-		try:
-			orientation = eval(_form["page"]["orientation"])
-		except KeyError:
-			orientation = self.default_pageOrientation
-		func = eval("pagesizes.%s" % orientation)
-		pageSize = func(pageSize)
+		pageSize = self.getPageSize()		
 		pageWidth, pageHeight = pageSize
-		## end Page Size setting (refactor to a separate function)
-		
 		
 		# Create the reportlab canvas:
 		c = self._canvas = canvas.Canvas(_outputName, pagesize=pageSize)
@@ -473,6 +454,27 @@ class ReportWriter(object):
 				self._recordNumber += 1
 		
 		c.save()
+
+
+	def getPageSize(self):
+		## Set the Page Size:
+		# get the string pageSize value from the spec file:
+		_form = self.ReportForm
+		try:
+			pageSize = eval(_form["page"]["size"])
+		except KeyError:
+			pageSize = self.default_pageSize
+		# reportlab expects the pageSize to be upper case:
+		pageSize = pageSize.upper()
+		# convert to the reportlab pageSize value (tuple(width,height)):
+		pageSize = eval("pagesizes.%s" % pageSize)
+		# run it through the portrait/landscape filter:
+		try:
+			orientation = eval(_form["page"]["orientation"])
+		except KeyError:
+			orientation = self.default_pageOrientation
+		func = eval("pagesizes.%s" % orientation)
+		return func(pageSize)
 
 
 	def _setFormFromXML(self):
