@@ -289,8 +289,18 @@ class dFormDataNav(dForm):
             self.setupMenu()
         event.Skip()
 
-            
+        
+    def onRequery(self, event):
+        ''' Override the dForm behavior by running the requery through the select page.
+        '''
+        self.pageFrame.GetPage(0).requery()
+        
+        
     def requery(self):
+        ''' Override the dForm behavior by setting the SQL based on the sqlBuilder.
+        
+        This requery() is called from the select page's requery() method.
+        '''
         self.setSQL(self.sqlBuilder.getSQL())
         dForm.requery(self)
 

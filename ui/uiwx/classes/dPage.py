@@ -52,17 +52,184 @@ class dPage(wx.Panel, dControlMixin):
     
 
 class dSelectPage(dPage):
-    
     def fillItems(self):
+        self.selectOptionsPanel = self._getSelectOptionsPanel()
+        self._initEnabled()
+        self.GetSizer().Add(self.selectOptionsPanel, 0, wx.GROW|wx.ALL, 5)
+        #self.requery()
+
+    def OnSelectCheckbox(self, event):
+        self._setEnabled(event.GetEventObject())
+    
+    def _initEnabled(self):
+        for optionRow in self.selectOptionsPanel.selectOptions:
+            self._setEnabled(self.FindWindowById(optionRow["cbId"]))
+            
+    def _setEnabled(self,cb):
+        # Get reference(s) to the associated input control(s)
+        user1, user2 = None, None
+        for optionRow in self.selectOptionsPanel.selectOptions:
+            if cb and optionRow["cbId"] == cb.GetId():
+                user1Id = optionRow["user1Id"]
+                user2Id = optionRow["user2Id"]
+                user1 = self.FindWindowById(user1Id)
+                user2 = self.FindWindowById(user2Id)
+                dataType = optionRow["dataType"]
+                break            
+                
+        # enable/disable the associated input control(s) based
+        # on the value of cb. Set Focus to the first control if
+        # the checkbox is enabled.
+        try:
+            user1.Enable(cb.IsChecked())
+            if cb.IsChecked():
+               user1.SetFocus()
+        except AttributeError: 
+            pass
+         
+        try:
+            user2.Enable(cb.IsChecked())
+        except AttributeError: 
+            pass
+       
+    
+    def getWhere(self):
+        # for each checked selection item, get the where clause:
+        user1, user2 = None, None
+        whereClause = ""
+        
+        for optionRow in self.selectOptionsPanel.selectOptions:
+            cb = self.FindWindowById(optionRow["cbId"])
+            if cb.IsChecked():
+                user1Val = self.FindWindowById(optionRow["user1Id"]).GetValue()
+                try:
+                    user2Val = self.FindWindowById(optionRow["user2Id"]).GetValue()
+                except AttributeError:
+                    user2Val = None
+                
+                whereStub = optionRow["where"]
+                whereStub = whereStub.replace("?(user1)", user1Val)
+                if user2Val <> None:
+                    whereStub = whereStub.replace("?(user2)", user2Val)
+                
+                if len(whereClause) > 0:
+                    whereClause = ''.join((whereClause, "\n     AND "))
+                whereClause = ''.join((whereClause, "(", whereStub, ")"))
+        
+        return whereClause
+        
+        
+    def requery(self):
+        sqlBuilder = self.getDform().sqlBuilder
+        where = self.getWhere()
+        print "where:" + where            
+        sqlBuilder.setWhereClause(where)
+        print "sql:" + sqlBuilder.getSQL()  
+        self.getDform().requery()
+    
+        
+    def _getSelectOptionsPanel(self):
         dataSource = self.getDform().getBizobj().dataSource
         columnDefs = self.getDform().getColumnDefs(dataSource)
+        panel = wx.Panel(self, -1)
 
         stringMatchAll = []
+
+        # panel.selectOptions is a list of dictionaries
+        panel.selectOptions = []
+        sizer = wx.BoxSizer(wx.VERTICAL)
         
+        label = wx.StaticText(panel, -1, "Please enter your record selection criteria:")
+        sizer.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+
         for column in columnDefs:
+            
             for selectType in column["selectTypes"]:
-                if selectType == "stringMatchAll":
+                where = None
+                # Id's for the UI input elements:
+                cbId = wx.NewId()
+                user1Id = wx.NewId()
+                user2Id = wx.NewId()
+
+                box = wx.BoxSizer(wx.HORIZONTAL)
+                
+                if selectType == "range":
+                    where =     "%s BETWEEN '?(user1)' AND '?(user2)'" % column["fieldName"]
+                        
+                    cb = wx.CheckBox(panel, cbId, "%s is in the range of:" % (
+                                        column["caption"],))
+                    
+                    wx.EVT_CHECKBOX(self, cbId, self.OnSelectCheckbox)
+                    
+                    box.Add(cb, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+                    text = wx.TextCtrl(panel, user1Id)
+                    box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+                    label = wx.StaticText(panel, -1, "and")
+                    box.Add(label, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+                    text = wx.TextCtrl(panel, user2Id)
+                    box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+                    
+                elif selectType == "stringMatchAll":
                     stringMatchAll.append(column)
+                    
+                else:
+                    where = None
+
+                                                        
+                if where != None:
+                    panel.selectOptions.append({"dataType": column["type"],
+                                                "cbId": cbId,
+                                                "user1Id": user1Id,
+                                                "user2Id": user2Id})    
+
+                    sizer.AddSizer(box, 0, wx.GROW|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 5)
+                    panel.selectOptions[len(panel.selectOptions) - 1]["where"] = where
+
+        # Any fielddef encountered in the above block with type of 'stringMatchAll'
+        # got appended to the stringMatchAll list. Take this list, and define
+        # one selectOptions control that will operate on all these fields.
+        if len(stringMatchAll) > 0:
+            cbId, user1Id, user2Id = wx.NewId(), wx.NewId(), wx.NewId()
+            where = ""
+
+            cb = wx.CheckBox(panel, cbId, "String Match:")
+
+            wx.EVT_CHECKBOX(self, cbId, self.OnSelectCheckbox)
+
+            box.Add(cb, 0, wx.ALIGN_CENTRE|wx.ALL, 5)
+
+            text = wx.TextCtrl(panel, user1Id)
+            box.Add(text, 1, wx.ALIGN_CENTRE|wx.ALL, 5)
+            
+            for column in stringMatchAll:
+                if len(where) > 0:
+                    char = " OR "
+                else:
+                    char = ""
+                where = ''.join((where,char,"%s LIKE '%c?(user1)%c'" % (column["fieldName"], "%", "%")))    
+
+            panel.selectOptions.append({"dataType": column["type"],
+                                        "cbId": cbId,
+                                        "user1Id": user1Id,
+                                        "user2Id": user2Id})    
+
+            sizer.AddSizer(box, 0, wx.GROW|wx.ALIGN_CENTRE_VERTICAL|wx.ALL, 5)
+            panel.selectOptions[len(panel.selectOptions) - 1]["where"] = where
+
+        line = wx.StaticLine(panel, -1, size=(20,-1), style=wx.LI_HORIZONTAL)
+        sizer.Add(line, 0, wx.GROW|wx.ALIGN_CENTER_VERTICAL|wx.RIGHT|wx.TOP, 5)
+
+        box = wx.BoxSizer(wx.HORIZONTAL)
+
+        panel.SetSizer(sizer)
+        panel.SetAutoLayout(True)
+        sizer.Fit(panel)
+        
+        return panel
+
 
         if len(stringMatchAll) > 0:        
             labelCaption = "String Match:"
@@ -117,7 +284,6 @@ class dBrowsePage(dPage):
         bizobj = form.getBizobj()
         self.grid = dGrid(self, bizobj, form)
         self.grid.SetName("BrowseGrid")
-        #self.grid.AutoSizeColumns(True)
         self.GetSizer().Add(self.grid, 1, wx.EXPAND)
         self.GetSizer().Layout()
         self.gridExists = True
@@ -184,7 +350,7 @@ class dEditPage(dPage):
                 objectRef = classRef(self, fieldName)
                 objectRef.dataSource = dataSource
                 objectRef.dataField = fieldName
-                objectRef.Enable(fieldEnabled)
+                objectRef.enabled = fieldEnabled
                 if self.getDform().getBizobj().getRowCount() >= 0:
                     objectRef.refresh()
 

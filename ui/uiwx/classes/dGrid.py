@@ -63,6 +63,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
         
         # Fill self.data based on bizobj records
         dataSet = self.bizobj.getDataSet()
+        if len(dataSet) == 0:
+            return
+            
         for record in dataSet:
             recordDict = []
             for relativeColumn in self.relativeColumns:
@@ -98,11 +101,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
         if msg:        
             self.GetView().ProcessTableMessage(msg)
         
-        # Something is still wrong with the MakeCellVisible call:
-        # the -1 was trial and error to get the best results.
-        self.grid.SetGridCursor(oldRow, oldCol)
-        self.grid.MakeCellVisible(oldRow-1, oldCol)
-        
+       
         # Column widths come from dApp user settings, or get sensible
         # defaults based on field type.
         for index in range(len(self.relativeColumns)):

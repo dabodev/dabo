@@ -325,7 +325,7 @@ class dCursorMixin:
         if self.rowcount > 0:
             self.rownumber = 0
         else:
-            raise dError, loc("No records in data set")
+            raise NoRecordsError, loc("No records in data set")
 
 
     def prior(self):
@@ -338,7 +338,7 @@ class dCursorMixin:
             else:
                 raise BeginningOfFileError, loc("Already at the beginning of the data set.")
         else:
-            raise dError, loc("No records in data set")
+            raise NoRecordsError, loc("No records in data set")
 
 
     def next(self):
@@ -351,7 +351,7 @@ class dCursorMixin:
             else:
                 raise EndOfFileError, loc("Already at the end of the data set.")
         else:
-            raise dError, loc("No records in data set")
+            raise NoRecordsError, loc("No records in data set")
 
 
     def last(self):
@@ -361,7 +361,7 @@ class dCursorMixin:
         if self.rowcount > 0:
             self.rownumber = self.rowcount-1
         else:
-            raise dError, loc("No records in data set")
+            raise NoRecordsError, loc("No records in data set")
 
 
     def save(self, allrows=False):

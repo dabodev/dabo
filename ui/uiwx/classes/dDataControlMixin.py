@@ -1,6 +1,7 @@
 ''' dDataControlMixin.py: Provide behavior common to all 
     data-aware dControls.
 '''
+import wx
 
 class dDataControlMixin:
     ''' Provide common functionality for the data-aware controls.
@@ -8,6 +9,7 @@ class dDataControlMixin:
     def __init__(self):
         self._oldVal = None
     
+        self.enabled = True
         self.selectOnEntry = False
         
         self.dataSource = None
@@ -18,7 +20,18 @@ class dDataControlMixin:
     def initEvents(self):
         pass
 
-        
+
+    def getBlankValue(self):
+        ''' Return the empty value of the control.
+        '''
+        if isinstance(self, wx.TextCtrl):
+            return ""
+        elif isinstance(self, wx.CheckBox):
+            return False
+        elif isinstance(self, wx.SpinCtrl):
+            return 0
+            
+            
     def getFieldVal(self):
         ''' Ask the bizobj what the current value of the field is. 
         '''
@@ -41,9 +54,14 @@ class dDataControlMixin:
         ''' Update control's value to match the current value from the bizobj.
         '''
         if self.dataSource and self.dataField:
-            self.SetValue(self.getFieldVal())
-        
+            try:
+                self.SetValue(self.getFieldVal())
+                self.Enable(self.enabled)
+            except TypeError:
+                self.SetValue(self.getBlankValue())
+                self.Enable(False)
 
+                            
     def onValueRefresh(self, event): 
         ''' Occurs when the field value has potentially changed.
         '''

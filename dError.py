@@ -14,3 +14,9 @@ class EndOfFileError(dError):
     pass
     
     
+class NoRecordsError(dError):
+    pass
+    
+
+class QueryError(dError):
+    pass
