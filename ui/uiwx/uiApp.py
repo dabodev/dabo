@@ -71,6 +71,17 @@ class uiApp(wx.App, dObject):
 	def onFileExit(self, evt):
 		if self.dApp.MainForm is not None:
 			self.dApp.MainForm.Close(True)
+		else:
+			frmCollect = self.dApp.uiForms
+			while len(frmCollect):
+				for form in frmCollect:
+					try:
+						form.saveSizeAndPosition()
+						frmCollect.remove(form)
+						form.Close(True)
+					except wx.PyDeadObjectError:
+						pass
+				
 
 
 	def onEditCut(self, evt):
@@ -298,6 +309,17 @@ class uiApp(wx.App, dObject):
 		user, password = ld.user, ld.password
 		self.loginDialog = ld
 		return user, password
+	
+	
+	def onCmdWin(self, evt):
+		"""Display a command window for debugging."""
+		try:
+			self.ActiveForm.onCmdWin(evt)
+		except:
+			# Either no form active, or it's not a proper Dabo form
+			pass
+	
+
 
 	def _getActiveForm(self):
 		return self.__activeForm
