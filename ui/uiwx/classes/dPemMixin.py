@@ -241,7 +241,11 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 	def _getDApp(self):
 		wxApp = wx.GetApp()
 		if wxApp:
-			return wxApp.dApp
+			try:
+				dApp = wxApp.dApp
+			except AttributeError:
+				dApp = None
+			return dApp
 		else:
 			return None
 			
