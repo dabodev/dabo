@@ -11,9 +11,12 @@ form = wx.Frame(None, -1)
 pf = wx.Notebook(form)
 
 il = wx.ImageList(16, 16, initialCount=0)
-il.Add(getIconBitmap("checkMark.png"))
-il.Add(getIconBitmap("browse.png"))
-il.Add(getIconBitmap("edit.png"))
+
+for image in ("checkMark.png", "browse.png", "edit.png"):
+	print "Adding image '%s'..." % image
+	bmp = getIconBitmap(image)
+	print "bmp ok?:", bmp.Ok()
+	print il.Add(bmp)
 pf.AssignImageList(il)
 
 
