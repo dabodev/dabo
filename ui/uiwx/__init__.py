@@ -49,6 +49,7 @@ from dPanel import dPanel
 from dPanel import dScrollPanel
 from dPageFrame import dPageFrame
 from dPage import dPage
+from dSizer import dSizer
 from dSlider import dSlider
 from dSpinner import dSpinner
 from dTextBox import dTextBox

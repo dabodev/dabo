@@ -49,7 +49,7 @@ class Test(object):
 
 		labelWidth = 150
 
-		vs = wx.BoxSizer(wx.VERTICAL)
+		vs = ui.dSizer("vertical")
 
 		for object in (ui.dBitmapButton(panel),
 					ui.dBox(panel),
@@ -66,37 +66,36 @@ class Test(object):
 					ui.dTextBox(panel),
 					ui.dToggleButton(panel)):
 					
-			bs = wx.BoxSizer(wx.HORIZONTAL)
+			bs = ui.dSizer("horizontal")
 			label = ui.dLabel(panel, name="lbl%s" % object.Name, 
 				style=wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE)
 			label.Width = labelWidth
 
 			label.Caption = "%s:" % object.Name
-			bs.Add(label)
+			bs.add(label)
 
 			if isinstance(object, ui.dEditBox):
-				expandFlags = wx.EXPAND
+				layout = "expand"
 			else:
-				expandFlags = 0
+				layout = "normal"
 
 			object.debug = True
 
-			bs.Add(object, 1, expandFlags | wx.ALL, 0)
+			bs.add(object, layout, 1)
 
 			if isinstance(object, ui.dEditBox):
-				vs.Add(bs, 1, wx.EXPAND)
+				vs.add(bs, "expand", 1)
 			else:
-				vs.Add(bs, 0, wx.EXPAND)
+				vs.add(bs, "expand")
 
-		bs = wx.BoxSizer(wx.HORIZONTAL)
+		bs = ui.dSizer("horizontal")
 
-		vs.Add(bs, 0, wx.EXPAND)
+		vs.add(bs, "expand")
 
-		panel.SetSizer(vs)        
-		panel.GetSizer().Layout()
+		panel.SetSizer(vs)
 
-		frame.GetSizer().Add(panel, 1, wx.EXPAND)
-		frame.GetSizer().Layout()
+		frame.SetSizer(ui.dSizer("vertical"))
+		frame.GetSizer().add(panel, "expand")
 		frame.Show()
 		self.app.MainLoop()
 
