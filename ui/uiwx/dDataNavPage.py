@@ -108,7 +108,7 @@ class DataNavPage(dPage.dPage):
  				clr = random.choice(colors)
  				dc.SetPen(wx.Pen(clr, 1, wx.SOLID))
  
-		
+
 class SelectOptionsPanel(dPanel.dPanel):
 	""" Base class for the select options panel.
 	"""
@@ -245,6 +245,7 @@ class dSelectPage(DataNavPage):
 
 	def requery(self):
 		bizobj = self.Form.getBizobj()
+		ret = False
 		if bizobj is not None:
 			self.setWhere(bizobj)
 			self.setLimit(bizobj)
@@ -258,11 +259,12 @@ class dSelectPage(DataNavPage):
 			# But it won't automatically use that sql, so we set it here:
 			bizobj.setSQL(sql)
 	
-			self.Form.requery()
+			ret = self.Form.requery()
 
-		if self.GetParent().GetSelection() == 0:
-			# If the select page is active, now make the browse page active
-			self.GetParent().SetSelection(1)
+		if ret:
+			if self.GetParent().GetSelection() == 0:
+				# If the select page is active, now make the browse page active
+				self.GetParent().SetSelection(1)
 	
 	
 	def getSelectorOptions(self, typ):
@@ -366,7 +368,7 @@ class dSelectPage(DataNavPage):
 	def getSearchCtrl(self, typ, parent):
 		"""Returns the appropriate editing control for the given data type.
 		"""
-		if typ in ("char", "memo", "float", "int"):
+		if typ in ("char", "memo", "float", "int", "datetime"):
 			ret = dTextBox.dTextBox(parent)
 			ret.Value = ""
 		elif typ == "bool":

@@ -329,6 +329,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	def requery(self, dataSource=None):
 		""" Ask the bizobj to requery.
 		"""
+		ret = False
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -337,7 +338,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 		if bizobj.isAnyChanged() and self.AskToSave:
 			response = dMessageBox.areYouSure(_("Do you wish to save your changes?"),
-											cancelButton=True)
+								cancelButton=True)
 
 			if response == None:    # cancel
 				return
@@ -351,6 +352,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 		try:
 			response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
+#			response = bizobj.requery()
+			
 			stop = round(time.time() - start, 3)
 			if self.debug:
 				dabo.infoLog.write(_("Requery successful."))
@@ -363,13 +366,18 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 			# Notify listeners that the row number changed:
 			self.raiseEvent(dEvents.RowNumChanged)
+			
+			# We made it through without errors
+			ret = True
+		
+		except dException.MissingPKException, e:
+			dabo.ui.dMessageBox.stop(str(e), "Requery Failed")
 
 		except dException.dException, e:
-			if self.debug:
-				dabo.errorLog.write(_("Requery failed with response: %s") % str(e))
+			dabo.errorLog.write(_("Requery failed with response: %s") % str(e))
 			### TODO: What should be done here? Raise an exception?
 			###       Prompt the user for a response?
-
+		return ret
 
 	def delete(self, dataSource=None, message=None):
 		""" Ask the bizobj to delete the current record.

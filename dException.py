@@ -24,3 +24,7 @@ class QueryException(dException):
 
 class BusinessRuleViolation(dException):
 	pass
+
+
+class MissingPKException(dException):
+	pass

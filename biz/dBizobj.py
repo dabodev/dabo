@@ -550,6 +550,9 @@ class dBizobj(dabo.common.dObject):
 		errMsg = self.beforeRequery()
 		if errMsg:
 			raise dException.dException, errMsg
+		if self.KeyField is None:
+			errMsg = "No Primary Key defined in the Bizobj for " + self.DataSource
+			raise dException.MissingPKException, errMsg
 		
 		# If this is a dependent (child) bizobj, this will enforce the relation
 		self.setChildLinkFilter()

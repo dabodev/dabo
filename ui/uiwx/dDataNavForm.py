@@ -144,6 +144,13 @@ class dDataNavForm(dForm.dForm):
 			self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("revert"),
 								self.onCancel, "Cancel changes")
 
+
+
+		toolBar.AddSeparator()
+		self._appendToToolBar(toolBar, "Show SQL", dIcons.getIconBitmap("zoomOut"),
+					self.onShowSQL, "Show the last executed SQL statement")
+
+
 		controllingFrame.SetToolBar(toolBar)
 		toolBar.Realize()                      # Needed on non-Linux platforms
 
@@ -300,6 +307,12 @@ class dDataNavForm(dForm.dForm):
 		"""
 		self.pageFrame.SetSelection(2)
 
+
+	def onShowSQL(self, evt):
+		sql = self.Bizobj.getSQL()
+		if sql is None:
+			sql = "-Nothing executed yet-"
+		mb = dabo.ui.dMessageBox.info(sql, "Last SQL")
 
 	def setFieldSpecs(self, xml, tbl):
 		""" Reads in the field spec file and creates the appropriate
