@@ -48,7 +48,7 @@ class bgImgPanel(dPanel.dPanel):
 	
 	def onIdle(self, evt):
 		if self.needRedraw:
-			if self.szTimer.Time() < 1000:
+			if self.szTimer.Time() < 100:
 				return
 			dc = wx.ClientDC(self)
 			self.draw(dc)
@@ -65,7 +65,7 @@ class bgImgPanel(dPanel.dPanel):
 		#dc.SetUserScale( (wd/ 128.0), (ht / 128.0) )
 		## pkm: the scaling is ugly and is what was causing the slow
 		## response: instead, let's center the bitmap.
-		
+		dc.Clear()
 		dc.DrawBitmap(self.bitmap, (wd/2) - 64, (ht/2) -64)
 		sw.Pause()
 		#print "Resize took", (sw.Time() / 1000.0), "seconds"
