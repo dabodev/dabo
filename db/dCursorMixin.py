@@ -2,7 +2,7 @@ import dabo.dConstants as k
 from memento import Memento
 import types
 
-class dCursor:
+class dCursorMixin:
     def __init__(self, sql="", *args, **kwargs):
     	self._initProperties()
         self.sql = sql

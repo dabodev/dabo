@@ -54,7 +54,7 @@ class dBizObj(object):
         # Save the connection reference
         self._conn = dConnection
         # Mixin class 1 : the dabo cursor class
-        self.dCursorClass = dCursor
+        self.dCursorMixinClass = dCursor
         # Mixin class 2 : the cursor class from the db api
         self.dbapiCursorClass = self._conn.getDictCursor()
         self.createCursor()
@@ -62,8 +62,8 @@ class dBizObj(object):
     def createCursor(self):        
         # Create the cursor that this bizobj will be using for data
         if self.beforeCreateCursor():
-            cursorMixinClass = self.getCursorMixinClass(self.dCursorClass, self.dbapiCursorClass)
-            self._cursor = self._conn.getConnection().cursor(cursorclass=cursorMixinClass)
+            cursorClass = self.getCursorClass(self.dCursorMixinClass, self.dbapiCursorClass)
+            self._cursor = self._conn.getConnection().cursor(cursorclass=cursorClass)
             self._cursor.setSQL(self.sql)
             self._cursor.setKeyField(self.keyField)
             self._cursor.setTable(self.dataSource)
@@ -76,7 +76,7 @@ class dBizObj(object):
             # Need to raise an exception here!
             pass
 
-    def getCursorMixinClass(self, main, secondary):
+    def getCursorClass(self, main, secondary):
         class result(main, secondary):
             def __init__(self, *args, **kwargs):
                 if hasattr(main, "__init__"):
