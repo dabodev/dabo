@@ -1,6 +1,6 @@
 import wx, dEvents, dControlMixin, dDataControlMixin
 from dFormMixin import dFormMixin
-from dabo.dError import dError
+from dabo.dError import *
 from dabo.dLocalize import loc
 import dabo.dConstants as k
 import dMessageBox, dProgressDialog
@@ -137,6 +137,7 @@ class dForm(wxFrameClass, dFormMixin):
         '''
         evt = dEvents.dEvent(dEvents.EVT_VALUEREFRESH, self.GetId())
         self.GetEventHandler().ProcessEvent(evt)
+        self.setStatusText(self.getCurrentRecordText())
 
 
     def _moveRecordPointer(self, func, dataSource=None):
@@ -168,13 +169,19 @@ class dForm(wxFrameClass, dFormMixin):
     def prior(self, dataSource=None):
         ''' Ask the bizobj to move to the previous record.
         '''
-        self._moveRecordPointer(self.getBizobj(dataSource).prior, dataSource)
+        try:
+            self._moveRecordPointer(self.getBizobj(dataSource).prior, dataSource)
+        except BeginningOfFileError:
+            self.setStatusText(self.getCurrentRecordText(dataSource) + " (BOF)")
         
         
     def next(self, dataSource=None):
         ''' Ask the bizobj to move to the next record.
         '''
-        self._moveRecordPointer(self.getBizobj(dataSource).next, dataSource)
+        try:
+            self._moveRecordPointer(self.getBizobj(dataSource).next, dataSource)
+        except EndOfFileError:
+            self.setStatusText(self.getCurrentRecordText(dataSource) + " (EOF)")
     
         
     def save(self, dataSource=None):
@@ -373,15 +380,7 @@ class dForm(wxFrameClass, dFormMixin):
         bizobj = self.getBizobj(dataSource)
         rowNumber = bizobj.getRowNumber()+1
         rowCount = bizobj.getRowCount()
-        if rowNumber == rowCount:
-            postText = loc(" (EOF)")
-        elif rowNumber == 1:
-            postText = loc(" (BOF)")
-        elif (rowNumber < 1 or rowNumber > rowCount):
-            postText = loc(" (???)")
-        else:
-            postText = ""
-        return loc("Record " ) + ("%s/%s%s" % (rowNumber, rowCount, postText))
+        return loc("Record " ) + ("%s/%s" % (rowNumber, rowCount))
     
         
     def activeControlValid(self):

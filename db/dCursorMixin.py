@@ -1,7 +1,7 @@
 import dabo.dConstants as k
 from dabo.db.dMemento import dMemento
 from dabo.dLocalize import loc
-from dabo.dError import dError
+from dabo.dError import *
 import types
 
 class dCursorMixin:
@@ -336,7 +336,7 @@ class dCursorMixin:
             if self.rownumber > 0:
                 self.rownumber -= 1
             else:
-                raise dError, loc("Already at the beginning of the data set.")
+                raise BeginningOfFileError, loc("Already at the beginning of the data set.")
         else:
             raise dError, loc("No records in data set")
 
@@ -349,7 +349,7 @@ class dCursorMixin:
             if self.rownumber < (self.rowcount-1):
                 self.rownumber += 1
             else:
-                raise dError, loc("Already at the end of the data set.")
+                raise EndOfFileError, loc("Already at the end of the data set.")
         else:
             raise dError, loc("No records in data set")
 

@@ -242,6 +242,7 @@ class dGrid(wx.grid.Grid):
         self.headerDragging = False    # flag used by mouse motion event handler
         self.headerDragFrom = 0
         self.headerDragTo = 0
+        self.headerSizing = False
 
         self.Bind(wx.EVT_TIMER, self.OnIncrementalSearchTimer, self.incrementalSearchTimer)
         self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
@@ -373,32 +374,41 @@ class dGrid(wx.grid.Grid):
         ''' Occurs when the mouse moves in the grid header.
         '''
         headerIsDragging = self.headerDragging
+        headerIsSizing = self.headerSizing
         dragging = evt.Dragging()
         header = self.GetGridColLabelWindow()
         
         if dragging:
             x,y = evt.GetX(), evt.GetY()
-            if not headerIsDragging:
-                # A drag action is beginning
-                self.headerDragging = True
-                self.headerDragFrom = (x,y)
-
-            else:
-                # already dragging.
-                begCol = self.getColByX(self.headerDragFrom[0])
-                curCol = self.getColByX(x)
-
-                # The visual indicators (changing the mouse cursor) isn't currently
-                # working. It would work without the evt.Skip() below, but that is 
-                # needed for when the column is resized.
-                if begCol == curCol:
-                    # Give visual indication that a move is initiated
-                    header.SetCursor(wx.StockCursor(wx.CURSOR_SIZEWE))
-                else:
-                    # Give visual indication that this is an acceptable drop target
-                    header.SetCursor(wx.StockCursor(wx.CURSOR_BULLSEYE))
                 
-        evt.Skip()
+            if not headerIsSizing and (
+                self.getColByX(x) == self.getColByX(x-2) == self.getColByX(x+2)):
+                if not headerIsDragging:
+                    # A header reposition is beginning
+                    self.headerDragging = True
+                    self.headerDragFrom = (x,y)
+
+                else:
+                    # already dragging.
+                    begCol = self.getColByX(self.headerDragFrom[0])
+                    curCol = self.getColByX(x)
+
+                    # The visual indicators (changing the mouse cursor) isn't currently
+                    # working. It would work without the evt.Skip() below, but that is 
+                    # needed for when the column is resized.
+                    if begCol == curCol:
+                        # Give visual indication that a move is initiated
+                        header.SetCursor(wx.StockCursor(wx.CURSOR_SIZEWE))
+                    else:
+                        # Give visual indication that this is an acceptable drop target
+                        header.SetCursor(wx.StockCursor(wx.CURSOR_BULLSEYE))
+            else:
+                # A size action is happening
+                self.headerSizing = True
+                evt.Skip()
+        
+        else:
+            evt.Skip()
             
             
     def OnHeaderLeftUp(self, evt):
@@ -412,7 +422,6 @@ class dGrid(wx.grid.Grid):
         x,y = evt.GetX(), evt.GetY()
         if self.headerDragging:
             # A drag action is ending
-            self.headerDragging = False
             self.headerDragTo = (x,y)
             
             begCol = self.getColByX(self.headerDragFrom[0])
@@ -422,12 +431,17 @@ class dGrid(wx.grid.Grid):
                 if curCol > begCol:
                     curCol += 1
                 self.GetTable().MoveColumn(begCol, curCol)
+        elif self.headerSizing:
+            pass
         else:
             # we weren't dragging, and the mouse was just released.
             # Find out the column we are in based on the x-coord, and
             # do a processSort() on that column.
             col = self.getColByX(x)
             self.processSort(col)
+        
+        self.headerDragging = False
+        self.headerSizing = False
         evt.Skip()
         
             
@@ -703,4 +717,9 @@ class dGrid(wx.grid.Grid):
             if x <= totColSize:
                 break
 
-        return col
+        if x > totColSize:
+            return self.GetNumberCols() + 1
+        elif x < 0:
+            return -1
+        else:
+            return col
