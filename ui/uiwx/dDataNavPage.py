@@ -241,7 +241,7 @@ class dSelectPage(DataNavPage):
 		
 	def createItems(self):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
-		self.GetSizer().Add(self.selectOptionsPanel, 0, wx.GROW|wx.ALL, 20)
+		self.GetSizer().append(self.selectOptionsPanel, "expand", 0, border=20)
 		self.selectOptionsPanel.SetFocus()
 		#dSelectPage.doDefault()
 		super(dSelectPage, self).createItems()
@@ -418,13 +418,14 @@ class dSelectPage(DataNavPage):
 			dataSource = self.Form.previewDataSource
 		fs = self.Form.FieldSpecs
 		panel = dPanel.dPanel(self)
-		gsz = wx.GridBagSizer(vgap=5, hgap=10)
+		gsz = dabo.ui.dGridSizer(vgap=5, hgap=10)
+		gsz.MaxCols = 3
 
 		label = dLabel.dLabel(panel)
 		label.Caption = _("Please enter your record selection criteria:")
 		label.FontSize = label.FontSize + 2
 		label.FontBold = True
-		gsz.Add(label, (0,0), (1,3), wx.ALIGN_CENTER | wx.ALL, 5)
+		gsz.append(label, colSpan=3, alignment="center")
 		
 #		ln = dabo.ui.dLine(panel)
 #		ln.Height = 5
@@ -452,9 +453,10 @@ class dSelectPage(DataNavPage):
 			if not opList.GetStringSelection():
 				opList.SetSelection(0)
 			opList.setTarget(ctrl)
-			gsz.Add(lbl, (gridRow, 0), flag=wx.RIGHT )
-			gsz.Add(opList, (gridRow, 1), flag=wx.CENTRE )
-			gsz.Add(ctrl, (gridRow, 2), flag=wx.EXPAND )
+			
+			gsz.append(lbl, alignment="right")
+			gsz.append(opList, alignment="left")
+			gsz.append(ctrl, "expand")
 			
 			# Store the info for later use when constructing the query
 			self.selectFields[fld] = {
@@ -472,15 +474,15 @@ class dSelectPage(DataNavPage):
 		requeryButton = dCommandButton.dCommandButton(panel)
 		requeryButton.Caption = "&%s" % _("Requery")
 		requeryButton.Default = True             # Doesn't work on Linux, but test on win/mac
-		requeryButton.Bind(wx.EVT_BUTTON, self.onRequery)
-		gridRow += 1
-		gsz.Add(lbl, (gridRow, 0), flag=wx.RIGHT )
-		gsz.Add(limTxt, (gridRow, 1), flag=wx.EXPAND )
-		gridRow += 1
-		gsz.Add(requeryButton, (gridRow, 1), flag=wx.RIGHT )
+		requeryButton.bindEvent(dEvents.Hit, self.onRequery)
+		
+		gsz.append(lbl, alignment="right")
+		gsz.append(limTxt)
+		currRow = gsz.findFirstEmptyCell()[0]
+		gsz.append(requeryButton, row=currRow+1, col=1, alignment="right")
 		
 		# Make the last column growable
-		gsz.AddGrowableCol(2)
+		gsz.setColExpand(True, 2)
 		panel.SetSizerAndFit(gsz)
 #		panel.SetAutoLayout(True)
 #		gsz.Fit(panel)
@@ -558,13 +560,12 @@ class dBrowsePage(DataNavPage):
 			grid.DataSource = bizobj.DataSource
 		else:
 			grid.DataSource = self.Form.previewDataSource
-		self.GetSizer().Add(grid, 2, wx.EXPAND)
+		self.GetSizer().append(grid, 2, "expand")
 		
 		preview = self.addObject(dCommandButton.dCommandButton, "cmdPreview")
 		preview.Caption = "Print Preview"
-		preview.Bind(wx.EVT_BUTTON, self.onPreview)
-		self.GetSizer().Add(preview, 0, 0)
-		
+		preview.bindEvent(dEvents.Hit, self.onPreview)
+		self.GetSizer().append(preview, 0)		
 		self.itemsCreated = True
 
 
@@ -669,6 +670,7 @@ class dEditPage(DataNavPage):
 		showEdit.sort(lambda x, y: cmp(x[1], y[1]))
 		mainSizer = self.GetSizer()
 		firstControl = None
+		gs = dabo.ui.dGridSizer(vgap=5, maxCols=3)
 		
 		for fld in showEdit:
 			fieldName = fld[0]
@@ -676,13 +678,9 @@ class dEditPage(DataNavPage):
 			fieldType = fldInfo["type"]
 			cap = fldInfo["caption"]
 			fieldEnabled = (fldInfo["editReadOnly"] != "1")
-
-			bs = wx.BoxSizer(wx.HORIZONTAL)
-			labelWidth = 150
-			labelStyle = wx.ALIGN_RIGHT | wx.ST_NO_AUTORESIZE
-			label = dLabel.dLabel(self, style=labelStyle)
+			
+			label = dLabel.dLabel(self)		#, style=labelStyle)
 			label.Name="lbl%s" % fieldName 
-			label.Width = labelWidth
 			
 			if fieldType in ["memo",]:
 				classRef = dEditBox.dEditBox
@@ -713,18 +711,16 @@ class dEditPage(DataNavPage):
 				if self.Form.getBizobj().RowCount >= 0:
 					objectRef.refresh()
 
+			gs.append(label, alignment=("middle", "right") )
 			if fieldType in ["memo",]:
-				expandFlags = wx.EXPAND
-			else:
-				expandFlags = 0
-			bs.Add(label, 0, wx.ALIGN_CENTER_VERTICAL, 2)
-			bs.Add(objectRef, 1, expandFlags|wx.ALL, 2)
-			bs.Add( (25, -1), 0)
-			
-			if fieldType in ["memo",]:
-				mainSizer.Add(bs, 1, wx.EXPAND)
-			else:
-				mainSizer.Add(bs, 0, wx.EXPAND)
+				# Get the row that these will be added
+				currRow = gs.findFirstEmptyCell()[0]
+				gs.setRowExpand(True, currRow)
+			gs.append(objectRef, "expand")
+			gs.append( (25, 1) )
+		
+		gs.setColExpand(True, 1)
+		mainSizer.append(gs, "expand", 1, border=20)
 
 		if not self.childrenAdded:
 			self.childrenAdded = True
@@ -738,9 +734,9 @@ class dEditPage(DataNavPage):
 					grdLabel.Caption = child.title()
 					grdLabel.FontSize = 14
 					grdLabel.FontBold = True
-					mainSizer.Add( (10, -1), 0)
-					mainSizer.Add(grdLabel, 0, 
-							wx.EXPAND | wx.ALIGN_CENTRE | wx.LEFT | wx.RIGHT, 10)
+					mainSizer.append( (10, -1) )
+					mainSizer.append(grdLabel, 0, "expand", alignment="center", 
+							border=10, borderFlags=("left", "right") )
 					grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid")
 					grid.fieldSpecs = self.Form.getFieldSpecsForTable(child)
 					grid.DataSource = child
@@ -750,12 +746,12 @@ class dEditPage(DataNavPage):
 					grid.Height = 100
 					for window in grid.GetChildren():
 						window.SetFocus()
-					mainSizer.Add(grid, 2, wx.EXPAND | wx.LEFT | wx.RIGHT, 10)
-#					mainSizer.SetItemMinSize(grid, -1, 300)
+					mainSizer.append(grid, 2, "expand", border=10,
+							borderFlags=("left", "right") )
 			
 		# Add top and bottom margins
-		mainSizer.Insert( 0, (-1, 10), 0)
-		mainSizer.Add( (-1, 20), 0)
+		mainSizer.insert( 0, (-1, 10), 0)
+		mainSizer.append( (-1, 20), 0)
 
 		self.GetSizer().Layout()
 		self.itemsCreated = True

@@ -5,20 +5,20 @@ import dSizerMixin
 from dabo.dLocalize import _
 
 class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
-	def __init__(self, vgap=3, hgap=3, maxrows=0, maxcols=0):
+	def __init__(self, vgap=3, hgap=3, maxRows=0, maxCols=0):
 		wx.GridBagSizer.__init__(self, vgap=vgap, hgap=hgap)
 		
 		self._maxRows = 0
 		self._maxCols = 0
 		self._maxDimension = "c"
-		if not maxrows and not maxcols:
+		if not maxRows and not maxCols:
 			# No max settings were passed, so default to 2 columns
 			self.MaxCols = 2
-		elif maxcols:
-			self.MaxCols = maxcols
+		elif maxCols:
+			self.MaxCols = maxCols
 		else:
 			# Rows were passed.
-			self.MaxRows = maxrows
+			self.MaxRows = maxRows
 		self.SetFlexibleDirection(wx.BOTH)
 
 
@@ -30,7 +30,6 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		cell as specified by the Max* properties.		
 		"""
 		(targetRow, targetCol) = self.determineAvailableCell(row, col)
-		
 		if type(item) == type(tuple()):
 			# spacer
 			self.Add(item, (targetRow, targetCol) )
