@@ -94,7 +94,7 @@ def getEventData(wxEvt):
 		ed["shiftDown"] = wxEvt.ShiftDown()
 
 	if isinstance(wxEvt, wx.KeyEvent):
-		ed["keyCode"] = wxEvt.GetRawKeyCode()
+		ed["keyCode"] = wxEvt.KeyCode()
 		ed["rawKeyCode"] = wxEvt.GetRawKeyCode()
 		ed["rawKeyFlags"] = wxEvt.GetRawKeyFlags()
 		ed["unicodeChar"] = wxEvt.GetUniChar()
