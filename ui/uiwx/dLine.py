@@ -22,13 +22,15 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 		
 	# property get/set functions
 	def _getOrientation(self):
-		if self.hasWindowStyleFlag(wx.LI_VERTICAL):
+# 		if self.hasWindowStyleFlag(wx.LI_VERTICAL):
+		if self.Height >= self.Width:
 			return "Vertical"
 		else:
 			return "Horizontal"
 
 	def _getOrientationEditorInfo(self):
-		return {'editor': 'list', 'values': ['Horizontal', 'Vertical']}
+		return {"editor": "list", "values": ["Horizontal", "Vertical"], 
+				"editValueInDesigner":False}
 
 	def _setOrientation(self, value):
 		# Note: Orientation must be set before object created.
@@ -47,9 +49,12 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 
 	# property definitions follow:
 	Orientation = property(_getOrientation, _setOrientation, None,
-						'Specifies the Orientation of the line. (str) \n'
-						'   Horizontal (default) \n'
-						'   Vertical')
+						"Specifies the Orientation of the line. (str) \n"
+						"   Horizontal (default) \n"
+						"   Vertical"
+						"This is determined by the Width and Height properties. "
+						"If the Width is greater than the Height, it will be Horizontal. "
+						"Otherwise, it will be Vertical.")
 
 if __name__ == "__main__":
 	import test
