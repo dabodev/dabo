@@ -36,7 +36,7 @@ class dCursorMixin:
 	__nonUpdateFields = []
 	# User-editable list of non-updated fields
 	nonUpdateFields = []
-
+	rownumber = -1
 
 	def __init__(self, sql="", *args, **kwargs):
 		if sql:
