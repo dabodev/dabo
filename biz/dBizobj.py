@@ -626,9 +626,9 @@ class dBizobj(object):
     def getRowCount(self):
         """ dBizobj.getRowCount() -> int
         
-        Return the number of records in the cursor's data set. This 
-        will be -1 if the cursor hasn't run any successful queries
-        yet.
+            Return the number of records in the cursor's data set. This 
+            will be -1 if the cursor hasn't run any successful queries
+            yet.
         """
         return self._cursor.getRowCount()
 
