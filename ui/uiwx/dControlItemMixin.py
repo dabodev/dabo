@@ -84,27 +84,34 @@ class dControlItemMixin(dDataControlMixin):
 		if type(val) == dict:
 			self._keys = val
 			self._invertedKeys = dict([[v,k] for k,v in val.iteritems()])
+		elif type(val) in (list, tuple):
+			self._keys = val
+			self._invertedKeys = None
 		else:
-			raise TypeError, _("Keys must be a dictionary.")
+			raise TypeError, _("Keys must be a dictionary or list/tuple.")
 			
 	def _getKeyValue(self):
 		selections = self.PositionValue
 		values = []
-		
 		if not self.isMultiSelect:
 			if selections is None:
 				return None
 			else:
 				selections = (selections,)
-		
 		for selection in selections:
 			if selection < 0:
 				# This is returned by the control to indicate no selection
 				continue
-			try:
-				values.append(self._invertedKeys[selection])
-			except KeyError:
-				values.append(None)
+			if type(self.Keys) in (list, tuple):
+				try:
+					values.append(self.Keys[selection])
+				except IndexError:
+					values.append(None)
+			else:
+				try:
+					values.append(self._invertedKeys[selection])
+				except KeyError:
+					values.append(None)
 		
 		if not self.isMultiSelect:
 			if len(values) > 0:
@@ -252,6 +259,9 @@ class dControlItemMixin(dDataControlMixin):
 		list index (position). If using keys, you should update the Keys
 		property whenever you update the Choices property, to make sure they
 		are in sync.
+		-> Optionally, Keys can be a list/tuple that is a 1:1 mapping of the 
+		Choices property. So if your 3rd Choices entry is selected, KeyValue
+		will return the 3rd entry in the Keys property.		
 		""") )
 		
 	KeyValue = property(_getKeyValue, _setKeyValue, None,
