@@ -730,18 +730,18 @@ class dDataNavGrid(dabo.ui.dGrid):
 		popup = dabo.ui.dMenu()
 
 		if self.Form.FormType == 'PickList':
-			popup.append("&Pick", self, func=self.pickRecord, bmp="edit",
+			popup.append("&Pick", bindfunc=self.pickRecord, bmp="edit",
 					help="Pick this record")
 			
 		else:
 			
-			popup.append("&New", self, func=self.newRecord, bmp="blank",
+			popup.append("&New", bindfunc=self.newRecord, bmp="blank",
 					help="Add a new record")
 
-			popup.append("&Edit", self, func=self.editRecord, bmp="edit",
+			popup.append("&Edit", bindfunc=self.editRecord, bmp="edit",
 					help="Edit this record")
 
-			popup.append("&Delete", self, func=self.deleteRecord, bmp="delete",
+			popup.append("&Delete", bindfunc=self.deleteRecord, bmp="delete",
 					help="Delete this record")
 
 		self.PopupMenu(popup, self.mousePosition)

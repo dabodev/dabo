@@ -186,7 +186,7 @@ class Hit(Event):
 		return issubclass(objectClass, (ui.dBitmapButton, ui.dButton, ui.dCheckBox,
 			ui.dDropdownList, ui.dEditBox, ui.dListBox,
 			ui.dRadioGroup, ui.dSlider, ui.dSpinner, ui.dTextBox,
-			ui.dTimer, ui.dToggleButton))
+			ui.dTimer, ui.dToggleButton, ui.dMenu))
 	appliesToClass = classmethod(appliesToClass)
 	
 class Idle(Event):
@@ -231,6 +231,7 @@ class LostFocus(Event):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dPemMixin)
 	appliesToClass = classmethod(appliesToClass)
+
 
 class Move(Event):
 	"""Occurs when the control's position changes."""

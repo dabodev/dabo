@@ -52,9 +52,9 @@ from dListbook import dListbook
 from dListBox import dListBox
 from dLogin import dLogin
 from dBaseMenuBar import dBaseMenuBar
-from dMainMenuBar import dMainMenuBar
 from dMenuBar import dMenuBar
 from dMenu import dMenu
+from dMenuItem import *
 from dRadioGroup import dRadioGroup
 from dPanel import dPanel
 from dPanel import dScrollPanel

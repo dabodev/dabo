@@ -80,9 +80,19 @@ class dPemMixin(dPemMixinBase):
 			id_ = kwargs["id"]
 		else:
 			id_ = -1
-		self._initProperties["style"] = style
-		self._initProperties["parent"] = parent
-		self._initProperties["id"] = id_
+
+		if isinstance(self, dabo.ui.dMenuItem):
+			# Hack: wx.MenuItem doesn't take a style arg,
+			# and the parent arg is parentMenu
+			del self._initProperties["style"]
+			self._initProperties["parentMenu"] = parent
+		elif isinstance(self, (dabo.ui.dMenu, dabo.ui.dMenuBar)):
+			# Hack: wx.Menu has no style, parent, or id arg.
+			del self._initProperties["style"]
+		else:
+			self._initProperties["style"] = style
+			self._initProperties["parent"] = parent
+			self._initProperties["id"] = id_
 		
 		
 		# The user's subclass code has had a chance to tweak the style properties.

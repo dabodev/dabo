@@ -323,11 +323,10 @@ class uiApp(wx.App, dObject):
 		"""Display a command window for debugging."""
 		try:
 			self.ActiveForm.onCmdWin(evt)
-		except:
+		except AttributeError:
 			# Either no form active, or it's not a proper Dabo form
 			pass
 	
-
 
 	def _getActiveForm(self):
 		return self.__activeForm

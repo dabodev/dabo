@@ -167,47 +167,57 @@ class dDataNavForm(dabo.ui.dForm):
 
 	def getMenu(self):
 		menu = super(dDataNavForm, self).getMenu()
-		
-		bindobj = self
-		if wx.Platform == "__WXMAC__":
-			bindobj = menu
+		menu.Caption = "&Navigation"
 
-		menu.append("Set Selection Criteria\tAlt+1", bindobj, 
-		            func=self.onSetSelectionCriteria, bmp="checkMark")
-		menu.append("Browse Records\tAlt+2", bindobj, 
-		            func=self.onBrowseRecords, bmp="browse")
-		menu.append("Edit Current Record\tAlt+3", bindobj, 
-		            func=self.onEditCurrentRecord, bmp="edit")
+		menu.append("Set Selection Criteria\tAlt+1", 
+		            bindfunc=self.onSetSelectionCriteria, bmp="checkMark",
+		            help="Set the selection criteria for the recordset.")
+		menu.append("Browse Records\tAlt+2", 
+		            bindfunc=self.onBrowseRecords, bmp="browse",
+		            help="Browse the records in the current recordset.")
+		menu.append("Edit Current Record\tAlt+3", 
+		            bindfunc=self.onEditCurrentRecord, bmp="edit",
+		            help="Edit the fields of the currently selected record.")
 		menu.appendSeparator()
 
 		if self.FormType != "Edit":
-			menu.append("Requery\tCtrl+R", bindobj, func=self.onRequery, bmp="requery")		
+			menu.append("Requery\tCtrl+R", bindfunc=self.onRequery, bmp="requery",
+			            help="Get a new recordset from the backend.")		
 		if self.FormType != "PickList":
-			menu.append("Save Changes\tCtrl+S", bindobj, func=self.onSave, bmp="save")	
-			menu.append("Cancel Changes", bindobj, func=self.onCancel, bmp="revert")
+			menu.append("Save Changes\tCtrl+S", bindfunc=self.onSave, bmp="save",
+			            help="Save any changes made to the records.")	
+			menu.append("Cancel Changes", bindfunc=self.onCancel, bmp="revert",
+			            help="Cancel any changes made to the records.")
 			menu.appendSeparator()
 
 		
 		if self.FormType != "Edit":
-			menu.append("Select First Record", bindobj, func=self.onFirst, bmp="leftArrows")	
-			menu.append("Select Prior Record\tCtrl+,", bindobj, func=self.onPrior, bmp="leftArrow")	
-			menu.append("Select Next Record\tCtrl+.", bindobj, func=self.onNext, bmp="rightArrow")
-			menu.append("New Record\tCtrl+N", bindobj, func=self.onNew, bmp="blank")
+			menu.append("Select First Record", bindfunc=self.onFirst, 
+			            bmp="leftArrows", help="Go to the first record in the set.")	
+			menu.append("Select Prior Record\tCtrl+,", bindfunc=self.onPrior, 
+			            bmp="leftArrow", help="Go to the prior record in the set.")	
+			menu.append("Select Next Record\tCtrl+.", bindfunc=self.onNext, 
+			            bmp="rightArrow", help="Go to the next record in the set.")
+			menu.append("Select Last Record", bindfunc=self.onLast, 
+			            bmp="rightArrows", help="Go to the last record in the set.")
 			menu.appendSeparator()
 		
 		if self.FormType == "Normal":
-			menu.append("New Record\tCtrl+N", bindobj, func=self.onNew, bmp="blank")
-			menu.append("Delete Current Record", bindobj, func=self.onDelete, bmp="delete")
+			menu.append("New Record\tCtrl+N", bindfunc=self.onNew, bmp="blank",
+			            help="Add a new record to the dataset.")
+			menu.append("Delete Current Record", bindfunc=self.onDelete, bmp="delete",
+			            help="Delete the current record from the dataset.")
 			menu.appendSeparator()
 
-		menu.append("Show/Hide Sizer Lines\tCtrl+L", bindobj, 
-				func=self.onShowSizerLines, menutype="check")
+		menu.append("Show/Hide Sizer Lines\tCtrl+L",  
+		            bindfunc=self.onShowSizerLines, menutype="check",
+		            help="Cool debug feature, check it out!")
 
 		return menu
 
 
 	def onShowSizerLines(self, evt):
-		self.drawSizerOutlines = evt.IsChecked()
+		self.drawSizerOutlines = evt.EventObject.IsChecked()
 		self.Refresh()
 
 
@@ -229,7 +239,7 @@ class dDataNavForm(dabo.ui.dForm):
 			### the Help menu, but it isn't working. No matter what I set for
 			### menuIndex, the nav menu always appears at the end on Linux, but
 			### appears correctly on Mac and Win.
-			mb.insert(menuIndex, self.getMenu(), "&Navigation")
+			mb.insertMenu(menuIndex, self.getMenu())
 
 
 	def setupPageFrame(self):

@@ -2,7 +2,6 @@
 import wx, dabo
 import dPemMixin as pm
 import dBaseMenuBar as mnb
-# import dMainMenuBar as mnb
 import dMenu, dMessageBox, dabo.icons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
@@ -22,15 +21,18 @@ class dFormMixin(pm.dPemMixin):
 		self.useOldDebugDialog = False
 		self.restoredSP = False
 		self._holdStatusText = ""
+		if self.Application is not None:
+			self.Application.uiForms.add(self)
+		
 
 	def _afterInit(self):
-		if self.Application and self.MenuBar:
+		if self.Application and self.MenuBarClass:
 			## Debugging: if you want to see menu errors, uncomment the next
 			## line and commment out the try block. Otherwise, problems with
 			## menu creation will be masked.
-# 			self.SetMenuBar(self.MenuBar(self))
+ 			self.MenuBar = self.MenuBarClass()
 			try:
-				self.SetMenuBar(self.MenuBar(self))
+#				self.SetMenuBar(self.MenuBarClass())
 				
 				self.afterSetMenuBar()
 			except AttributeError:
@@ -48,6 +50,7 @@ class dFormMixin(pm.dPemMixin):
 		self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
 		self.Bind(wx.EVT_CLOSE, self.__onWxClose)
 		self.bindEvent(dEvents.Activate, self.__onActivate)
+		self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
 		self.bindEvent(dEvents.Close, self.__onClose)
 	
 		
@@ -72,7 +75,13 @@ class dFormMixin(pm.dPemMixin):
 			if self.GetStatusBar() is None and not isinstance(self, wx.MDIChildFrame) and self.ShowStatusBar:
 				self.CreateStatusBar()
 
-		
+		if self.Application is not None:
+			self.Application.ActiveForm = self
+	
+	def __onDeactivate(self, evt):
+		if self.Application is not None and self.Application.ActiveForm == self:
+			self.Application.ActiveForm = None
+
 		
 	def afterSetMenuBar(self):
 		""" Subclasses can extend the menu bar here.
@@ -256,17 +265,23 @@ class dFormMixin(pm.dPemMixin):
 		if value:
 			self.addWindowStyleFlag(wx.MINIMIZE_BOX)
 
+
 	def _getMenuBar(self):
-		try:
-			mb = self._menuBar
-		except AttributeError:
-# 			mb = self._menuBar = mnb.dMainMenuBar
-			mb = self._menuBar = mnb.dBaseMenuBar
-		return mb
+		return self.GetMenuBar()
 
 	def _setMenuBar(self, val):
-		self._menuBar = val
 		self.SetMenuBar(val)
+		val.Form = self
+
+	def _getMenuBarClass(self):
+		try:
+			mb = self._menuBarClass
+		except AttributeError:
+			mb = self._menuBarClass = mnb.dBaseMenuBar
+		return mb
+
+	def _setMenuBarClass(self, val):
+		self._menuBarClass = val
 		
 	def _getShowCloseButton(self):
 		return self.hasWindowStyleFlag(wx.CLOSE_BOX)
@@ -354,6 +369,9 @@ class dFormMixin(pm.dPemMixin):
 					'Specifies whether the user can resize this form. (bool).')
 
 	MenuBar = property(_getMenuBar, _setMenuBar, None,
+		_("Specifies the menu bar instance for the form."))
+
+	MenuBarClass = property(_getMenuBarClass, _setMenuBarClass, None,
 		"Specifies the menu bar class to use for the form, or None.")
 		
 	ShowCaption = property(_getShowCaption, _setShowCaption, None,

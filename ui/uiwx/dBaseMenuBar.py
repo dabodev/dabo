@@ -16,53 +16,55 @@ import dabo
 
 
 class FileMenu(dMenu):
-	def __init__(self):
-		super(FileMenu, self).__init__()
-		app = dabo.dAppRef
+	def _afterInit(self):
+		super(FileMenu, self)._afterInit()
+		app = self.Application
+		self.Caption = "&File"
 
-		self.append("Command Window\tCtrl+D", app, func=app.onCmdWin, 
+		self.append("Command Window\tCtrl+D", bindfunc=app.onCmdWin, 
 				help="Open up a command window for debugging" )
 		
 		prmpt = "E&xit\tAlt+F4"
 		if wx.Platform == '__WXMAC__':
 			prmpt = "&Quit\tCtrl+Q"
-		self.append(prmpt, app, func=app.onFileExit, bmp="close",
+		self.append(prmpt, bindfunc=app.onFileExit, bmp="close",
 				help="Exit the application" )
 
 
 class EditMenu(dMenu):
-	def __init__(self):
-		super(EditMenu, self).__init__()
-		app = dabo.dAppRef
+	def _afterInit(self):
+		super(EditMenu, self)._afterInit()
+		app = self.Application
+		self.Caption = "&Edit"
 
-		self.append("Undo\tCtrl+Z", app, func=app.onEditUndo, bmp="undo",
+		self.append("Undo\tCtrl+Z", bindfunc=app.onEditUndo, bmp="undo",
 				help="Undo last action" )
 
-		self.append("Redo\tCtrl+R", app, func=app.onEditRedo, bmp="redo",
-				help="" )
+		self.append("Redo\tCtrl+R", bindfunc=app.onEditRedo, bmp="redo",
+				help="Undo last undo" )
 
 		self.appendSeparator()
 
-		self.append("Cut\tCtrl+X", app, func=app.onEditCut, bmp="cut",
+		self.append("Cut\tCtrl+X", bindfunc=app.onEditCut, bmp="cut",
 				help="Cut selected text" )
 
-		self.append("&Copy\tCtrl+C", app, func=app.onEditCopy, bmp="copy",
+		self.append("&Copy\tCtrl+C", bindfunc=app.onEditCopy, bmp="copy",
 				help="Copy selected text" )
 
-		self.append("&Paste\tCtrl+V", app, func=app.onEditPaste, bmp="paste",
+		self.append("&Paste\tCtrl+V", bindfunc=app.onEditPaste, bmp="paste",
 				help="Paste text from clipboard" )
 
 		self.appendSeparator()
 
-		self.append("&Find\tCtrl+F", app, func=app.onEditFind, bmp="find",
+		self.append("&Find\tCtrl+F", bindfunc=app.onEditFind, bmp="find",
 				help="Find text in the active window" )
 
-		self.append("Find Again\tCtrl+G", app, func=app.onEditFindAgain, bmp="",
+		self.append("Find Again\tCtrl+G", bindfunc=app.onEditFindAgain, bmp="",
 				help="Repeat the last search" )
 
 		self.appendSeparator()
 
-		itm = self.append("Preferences", app, func=app.onEditPreferences, bmp="configure",
+		itm = self.append("Preferences", bindfunc=app.onEditPreferences, bmp="configure",
 				help="Set user preferences" )
 		# Put the prefs item in the App Menu on Mac
 		wx.App_SetMacPreferencesMenuItemId(itm.GetId())
@@ -70,27 +72,28 @@ class EditMenu(dMenu):
 
 
 class ViewMenu(dMenu):
-	def __init__(self):
-		super(ViewMenu, self).__init__()
-
+	def _afterInit(self):
+		super(ViewMenu, self)._afterInit()
+		self.Caption = "&View"
 
 class HelpMenu(dMenu):
-	def __init__(self):
-		super(HelpMenu, self).__init__()
-		app = dabo.dAppRef
+	def _afterInit(self):
+		super(HelpMenu, self)._afterInit()
+		app = self.Application
+		self.Caption = "&Help"
 
-		itm = self.append("&About", app, func=app.onHelpAbout, bmp="apply",
+		itm = self.append("&About", bindfunc=app.onHelpAbout, bmp="apply",
 				help="About this application" )
 		# Put the about menu in the App Menu on Mac
 		wx.App_SetMacAboutMenuItemId(itm.GetId())
+		wx.App_SetMacHelpMenuTitleName(self.Caption)
 
 
 class dBaseMenuBar(dMenuBar):
-	def __init__(self, mainForm):
+	def __init__(self):
 		super(dBaseMenuBar, self).__init__()
-		self.Append(FileMenu(), "&File")
-		self.Append(EditMenu(), "&Edit")
-		self.Append(ViewMenu(), "&View")
-		self.Append(HelpMenu(), "&Help")
-		wx.App_SetMacHelpMenuTitleName("&Help")
+		self.appendMenu(FileMenu(self))
+		self.appendMenu(EditMenu(self))
+		self.appendMenu(ViewMenu(self))
+		self.appendMenu(HelpMenu(self))
 

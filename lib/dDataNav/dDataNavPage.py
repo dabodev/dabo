@@ -196,10 +196,11 @@ class dSelectPage(DataNavPage):
 		self.sortObj = evt.GetEventObject()
 		mn = dMenu.dMenu()
 		if self.sortFields.has_key(self.sortDS):
-			mn.append("Remove sort on " + self.sortCap, self, func=self.handleSortRemove)
+			mn.append("Remove sort on " + self.sortCap, 
+			          bindfunc=self.handleSortRemove)
 
-		mn.append("Sort Ascending", self, func=self.handleSortAsc)
-		mn.append("Sort Descending", self, func=self.handleSortDesc)
+		mn.append("Sort Ascending", bindfunc=self.handleSortAsc)
+		mn.append("Sort Descending", bindfunc=self.handleSortDesc)
 		self.PopupMenu(mn, self.ClientToScreen(evt.GetPosition()) )
 		mn.Destroy()
 

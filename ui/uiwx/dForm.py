@@ -43,17 +43,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-		if self.Application is not None:
-			self.Application.uiForms.add(self)
-		
 		# Use this for timing queries and other long-
 		# running events
 		self.stopWatch = wx.StopWatch()
 		self.stopWatch.Pause()
 		
 		self.bindEvent(dEvents.Close, self.__onClose)
-		self.bindEvent(dEvents.Activate, self.__onActivate)
-		self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
 		
 		# Determines if the user is prompted to save changes
 		# when the form is closed.
@@ -548,14 +543,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				# controlWithFocus may not be data-aware
 				pass
 	
-	def __onActivate(self, evt):
-		if self.Application is not None:
-			self.Application.ActiveForm = self
-	
-	def __onDeactivate(self, evt):
-		if self.Application is not None and self.Application.ActiveForm == self:
-			self.Application.ActiveForm = None
-
 	def __onClose(self, evt):
 		if self._beforeClose(evt):
 			self.close()
