@@ -3,6 +3,7 @@ import wx
 import dPemMixin as pm
 import dMainMenuBar as mnb
 import dMenu, dMessageBox, dabo.icons
+from dabo.dLocalize import _
 
 class dFormMixin(pm.dPemMixin):
 	def __init__(self):

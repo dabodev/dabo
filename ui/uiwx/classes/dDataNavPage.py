@@ -65,7 +65,22 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 	def onChoiceMade(self, evt):
 		if self.target is not None:
 			try:
-				self.target.SetFocus()
+				# If this has been cleared, clear the target field, too
+				if not self.GetStringSelection():
+					valtype = type(self.target.Value)
+					if valtype == type(""):
+						self.target.Value = ""
+					if valtype == type(u""):
+						self.target.Value = u""
+					elif valtype == type(True):
+						self.target.Value = False
+					if valtype == type(0):
+						self.target.Value = 0
+					if valtype == type(0.0):
+						self.target.Value = 0.0
+				else:
+					# A comparison op was selected; let 'em enter a value
+					self.target.SetFocus()
 			except: pass
 
 

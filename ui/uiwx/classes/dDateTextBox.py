@@ -84,8 +84,8 @@ R : Last Day of yeaR
 			evt.Skip()
 			return
 		key = chr(keycode).lower()
-		shortcutKeys = "t q + - m h y r [ ]".split()
-		dateEntryKeys = "0 1 2 3 4 5 6 7 8 9 / -".split()
+		shortcutKeys = [ch for ch in "tq+-mhyr[]"]
+		dateEntryKeys = [ch for ch in "0123456789/-"]
 		
 		if key in shortcutKeys:
 			self.adjustDate(key)
@@ -180,7 +180,7 @@ R : Last Day of yeaR
 		self.Value = self.date
 	
 
-	def getDateTuple():
+	def getDateTuple(self):
 		return (self.date.GetYear(), self.date.GetMonth(), self.date.GetDay() )
 
 	
