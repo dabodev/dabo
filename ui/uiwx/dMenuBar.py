@@ -9,10 +9,15 @@ class dMenuBar(wx.MenuBar):
 		self._parent = frm
 		self._menus = {}
 
+	def prepend(self, menu, prompt):
+		return self.addOne(self.Prepend, menu, prompt)
 	def append(self, menu, prompt):
-		self.Append(menu, prompt)
+		return self.addOne(self.Append, menu, prompt)
+	def addOne(self, addFunc, menu, prompt):
+		itm = addFunc(menu, prompt)
 		self._menus[prompt] = menu
-	
+		return itm
+		
 	def insert(self, pos, menu, prompt):
 		self.Insert(pos, menu, prompt)
 		self._menus[prompt] = menu

@@ -1,6 +1,7 @@
 """ dMenu.py """
 import wx
 import dPemMixin as pm
+import dIcons
 
 # wx constants for styles
 dNormalItem = wx.ITEM_NORMAL
@@ -18,17 +19,35 @@ class dMenu(wx.Menu, pm.dPemMixin):
 			self.actionList = None
 		super(dMenu, self).__init__()
 
+	def prependSeparator(self):
+		self.PrependSeparator()
+	
 	def appendSeparator(self):
 		self.AppendSeparator()
 	
 	def appendMenu(self, prompt, menu, help=""):
 		self.AppendMenu(-1, prompt, menu, helpStr=help)
 		
-	def append(self, prompt, func=None, hlp="", menutype=""):
+	def prepend(self, prompt, bindobj=None, func=None, 
+			help="", bmp=None, menutype=""):
+		return self.addOne(self.Prepend, prompt, bindobj, func, help, bmp, menutype)
+		
+	def append(self, prompt, bindobj=None, func=None, 
+			help="", bmp=None, menutype=""):
+		return self.addOne(self.Append, prompt, bindobj, func, help, bmp, menutype)
+	
+	def addOne(self, addFunc, prompt, bindobj, func, help, bmp, menutype):
 		itmtyp = self.getItemType(menutype)
-		self.Append(-1, prompt, help=hlp, kind=itmtyp)
-		if func:
-			self.Bind(wx.EVT_MENU, func)
+		itm = addFunc(-1, prompt, help=help, kind=itmtyp)
+		if bindobj and func:
+			bindobj.Bind(wx.EVT_MENU, func, itm)
+		if bmp:
+			if type(bmp) == str:
+				# Icon name was passed; get the actual bitmap
+				bmp = dIcons.getIconBitmap(bmp)
+			itm.SetBitmap(bmp)
+		return itm
+			
 	
 	def insert(self, pos, prompt, help="", type=""):
 		itmtyp = self.getItemType(typ)
