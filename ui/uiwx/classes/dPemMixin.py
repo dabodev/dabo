@@ -106,6 +106,22 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		pass
 		
 
+	def getAbsoluteName(self):
+		""" Get self's fully-qualified name, such as 'dFormRecipes.dPageFrame.Page1.txtName'
+		"""
+		names = [self.Name, ]
+		object = self
+		while True:
+			parent = object.GetParent()
+			if parent:
+				names.append(parent.GetName())
+				object = parent
+			else:
+				break
+		names.reverse()
+		return '.'.join(names)
+		
+		
 	def getPropertyInfo(self, name):
 		d = dPemMixin.doDefault(name)   # the property helper does most of the work
 		

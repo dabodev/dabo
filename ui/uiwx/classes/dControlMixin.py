@@ -11,14 +11,21 @@ class dControlMixin(pm.dPemMixin):
 
 		self.debug = False
 		
-		if name:
-			try:
-				self.Name = name
-			except NameError:
-				# Name isn't unique: punt for now: likely, user code will change the
-				# name anyway. Or if not, user code likely doesn't care about the name.
-				name = "%s_%s" % (name, self.GetId())
-				self.Name = name
+		if not name:
+			name = self.Name
+		
+		try:
+			self.Name = name
+		except NameError:
+			# Name isn't unique: add an incrementing integer at the end and loop until
+			# a unique name is found.
+			nameNum = 1
+			while True:
+				try:				
+					self.Name = "%s%s" % (name, nameNum)
+					break
+				except NameError:
+					nameNum += 1
 
 		self.Caption = self.getDefaultText()
 
@@ -69,12 +76,29 @@ class dControlMixin(pm.dPemMixin):
 	def initEvents(self):
 		""" Initialize common event callbacks.
 		"""
-		wx.EVT_ENTER_WINDOW(self, self.OnEnterWindow) 
-		wx.EVT_LEAVE_WINDOW(self, self.OnLeaveWindow) 
-		wx.EVT_SET_FOCUS(self, self.OnSetFocus)
-		wx.EVT_KILL_FOCUS(self, self.OnKillFocus)
+		self.Bind(wx.EVT_WINDOW_CREATE, self.OnCreateWindow)
+		self.Bind(wx.EVT_WINDOW_DESTROY, self.OnDestroyWindow)
+		self.Bind(wx.EVT_ENTER_WINDOW, self.OnEnterWindow) 
+		self.Bind(wx.EVT_LEAVE_WINDOW, self.OnLeaveWindow) 
+		self.Bind(wx.EVT_SET_FOCUS, self.OnSetFocus)
+		self.Bind(wx.EVT_KILL_FOCUS, self.OnKillFocus)
 
 
+	def OnCreateWindow(self, event):
+		""" Occurs after the init phase is complete.
+		"""
+		pass
+		
+	
+	def OnDestroyWindow(self, event):
+		""" Occurs during the destroy phase.
+		
+		It is possible that not all attributes of the object will still
+		be available on all platforms.
+		"""
+		pass
+		
+		
 	def OnSetFocus(self, event):
 		""" Occurs when the control receives the keyboard focus.
 		"""

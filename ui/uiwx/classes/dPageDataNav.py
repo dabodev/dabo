@@ -1,30 +1,22 @@
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox, dIcons, dCommandButton
-import dPanel, dGrid, dCommandButton, dMessageBox
+import dPanel, dGrid, dCommandButton, dMessageBox, dEvents
 import wx
 from dabo.dLocalize import _
 
-class dSelectPage(dPage.dPage):
 
-	def __init__(self, parent):
-		dSelectPage.doDefault(parent, name='pageSelect')
+class SelectOptionsPanel(dPanel.dPanel):
+	""" Base class for the select options panel.
+	"""
+	def initProperties(self):
+		self.Name = "selectOptionsPanel"
+		# selectOptions is a list of dictionaries
+		self.selectOptions = []
+		
+	def initEnabled(self):
+		for optionRow in self.selectOptions:
+			self.setEnabled(self.FindWindowById(optionRow['cbId']))
 
-	def createItems(self):
-		self.selectOptionsPanel = self._getSelectOptionsPanel()
-		self._initEnabled()
-		self.GetSizer().Add(self.selectOptionsPanel, 0, wx.GROW|wx.ALL, 5)
-		self.selectOptionsPanel.SetFocus()
-
-
-	def OnSelectCheckbox(self, event):
-		self._setEnabled(event.GetEventObject())
-
-
-	def _initEnabled(self):
-		for optionRow in self.selectOptionsPanel.selectOptions:
-			self._setEnabled(self.FindWindowById(optionRow['cbId']))
-
-
-	def _setEnabled(self,cb):
+	def setEnabled(self, cb):
 		# Get reference(s) to the associated input control(s)
 		user1, user2 = None, None
 		for optionRow in self.selectOptionsPanel.selectOptions:
@@ -40,16 +32,50 @@ class dSelectPage(dPage.dPage):
 		# on the value of cb. Set Focus to the first control if
 		# the checkbox is enabled.
 		try:
-			user1.Enable(cb.IsChecked())
-			if cb.IsChecked():
+			user1.Enable(cb.Value)
+			if cb.Value:
 				user1.SetFocus()
 		except AttributeError: 
 			pass
 
 		try:
-			user2.Enable(cb.IsChecked())
+			user2.Enable(cb.Value)
 		except AttributeError: 
 			pass
+
+		
+class SelectOptionsCheckBox(dCheckBox.dCheckBox):
+	""" Base class for the checkboxes used in the select page.
+	"""
+	def afterInit(self):
+		EVT_VALUECHANGED = wx.PyEventBinder(dEvents.EVT_VALUECHANGED, 0)
+		self.Bind(EVT_VALUECHANGED, self.OnValueChanged)
+
+	def initProperties(self):
+		self.SaveRestoreValue = True
+	
+	def OnValueChanged(self, evt):
+		self.Parent.setEnabled(self)
+		
+
+class SelectOptionsTextBox(dTextBox.dTextBox):
+	""" Base class for the textboxes used in the select page.
+	"""
+	def initProperties(self):
+		self.SaveRestoreValue = True
+		
+		
+class dSelectPage(dPage.dPage):
+
+	def __init__(self, parent):
+		dSelectPage.doDefault(parent, name='pageSelect')
+
+	def createItems(self):
+		self.selectOptionsPanel = self._getSelectOptionsPanel()
+		self.selectOptionsPanel.initEnabled()
+		self.GetSizer().Add(self.selectOptionsPanel, 0, wx.GROW|wx.ALL, 5)
+		self.selectOptionsPanel.SetFocus()
+		dSelectPage.doDefault()
 
 
 	def getWhere(self):
@@ -104,12 +130,10 @@ class dSelectPage(dPage.dPage):
 	def _getSelectOptionsPanel(self):
 		dataSource = self.getDform().getBizobj().DataSource
 		columnDefs = self.getDform().getColumnDefs(dataSource)
-		panel = dPanel.dPanel(self)
-
+		panel = SelectOptionsPanel(self)
+		
 		stringMatchAll = []
 
-		# panel.selectOptions is a list of dictionaries
-		panel.selectOptions = []
 		sizer = wx.BoxSizer(wx.VERTICAL)
 
 		label = dLabel.dLabel(panel)
@@ -131,56 +155,50 @@ class dSelectPage(dPage.dPage):
 					where =     "%s.%s BETWEEN '?(user1)' AND '?(user2)'" % (
 								column['tableName'], column['fieldName'])
 
-					cb = dCheckBox.dCheckBox(panel, id=cbId)
+					cb = SelectOptionsCheckBox(panel, id=cbId, 
+							name='chkSelectRange%s' % column['fieldName'])
 					cb.Caption = '%s %s:' % (column['caption'], _('is in the range of'))
 					cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
-					cb.Bind(wx.EVT_CHECKBOX, self.OnSelectCheckbox)
 
 					box.Add(cb, 0, wx.ALL, 5)
 
-					text = dTextBox.dTextBox(panel, id=user1Id)
-					text.Value = ''
+					text = SelectOptionsTextBox(panel, id=user1Id)
 					box.Add(text, 1, wx.ALL, 5)
 
 					label = dLabel.dLabel(panel)
 					label.Caption = 'and'
 					box.Add(label, 0, wx.ALL, 5)
 
-					text = dTextBox.dTextBox(panel, id=user2Id)
-					text.Value = ''
+					text = SelectOptionsTextBox(panel, id=user2Id)
 					box.Add(text, 1, wx.ALL, 5)
 
 				elif selectType == 'value':
 					where = "%s.%s = '?(user1)'" % (
 								column["tableName"], column["fieldName"])
 
-					cb = dCheckBox.dCheckBox(panel, id=cbId)
+					cb = SelectOptionsCheckBox(panel, id=cbId, 
+							name='chkSelectValue%s' % column['fieldName'])
 					cb.Caption = '%s %s:' % (column['caption'], _('is equal to'))
 					cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
-					cb.Bind(wx.EVT_CHECKBOX, self.OnSelectCheckbox)
-
 					box.Add(cb, 0, wx.ALL, 5)
 
-					text = dTextBox.dTextBox(panel, id=user1Id)
-					text.Value = ''
+					text = SelectOptionsTextBox(panel, id=user1Id)
 					box.Add(text, 1, wx.ALL, 5)
 
 				elif selectType == 'stringMatch':
 					where = "%s.%s LIKE '%c?(user1)%c'" % (
 							column['tableName'], column['fieldName'], "%", "%")    
 
-					cb = dCheckBox.dCheckBox(panel, id=cbId)
+					cb = SelectOptionsCheckBox(panel, id=cbId, 
+							name='chkSelectStringMatch%s' % column['fieldName'])
 					cb.Caption = '%s %s:' % (column['caption'], _('contains'))
 					cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
 
-					cb.Bind(wx.EVT_CHECKBOX, self.OnSelectCheckbox)
-
 					box.Add(cb, 0, wx.ALL, 5)
 
-					text = dTextBox.dTextBox(panel, id=user1Id)
-					text.Value = ''
+					text = SelectOptionsTextBox(panel, id=user1Id)
 					box.Add(text, 1, wx.ALL, 5)
 
 				elif selectType == 'stringMatchAll':
@@ -206,15 +224,13 @@ class dSelectPage(dPage.dPage):
 			cbId, user1Id, user2Id = wx.NewId(), wx.NewId(), wx.NewId()
 			where = ''
 
-			cb = dCheckBox.dCheckBox(panel, id=cbId)
+			cb = SelectOptionsCheckBox(panel, id=cbId, name='chkSelectStringMatchAll')
 			cb.Caption = '%s:' % _('String Match')
 			cb.Width = cb.GetTextExtent(cb.Caption)[0] + 23
-			cb.Bind(wx.EVT_CHECKBOX, self.OnSelectCheckbox)
 
 			box.Add(cb, 0, wx.ALL, 5)
 
-			text = dTextBox.dTextBox(panel, id=user1Id)
-			text.Value = ''
+			text = SelectOptionsTextBox(panel, id=user1Id)
 			box.Add(text, 1, wx.ALL, 5)
 
 			for column in stringMatchAll:
@@ -437,7 +453,6 @@ class dChildViewPage(dPage.dPage):
 		dChildViewPage.doDefault(parent, 'pageChildView')
 		self.dataSource = dataSource
 		self.bizobj = self.getDform().getBizobj().getChildByDataSource(self.dataSource)
-		
 	
 	def onEnterPage(self):
 		if self.bizobj and self.bizobj.getRowCount() >= 0:

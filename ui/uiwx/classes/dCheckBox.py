@@ -28,10 +28,13 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
 		# init the widget's specialized event(s):
 		wx.EVT_CHECKBOX(self, self.GetId(), self.OnCheckBox)
 
+		
 	# Event callback methods (override in subclasses):
 	def OnCheckBox(self, event):
+		self.raiseValueChanged()
 		event.Skip()
 
+		
 	# property get/set functions
 	def _getAlignment(self):
 		if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):

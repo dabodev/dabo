@@ -35,6 +35,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
 	# Event callback method(s) (override in subclasses):
 	def OnText(self, event):
+		self.raiseValueChanged()
 		event.Skip()
 
 

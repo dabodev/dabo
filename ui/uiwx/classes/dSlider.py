@@ -26,6 +26,13 @@ class dSlider(wx.Slider, dcm.dDataControlMixin, cm.dControlMixin):
 		# init the common events:
 		cm.dControlMixin.initEvents(self)
 
+		self.Bind(wx.EVT_SCROLL, self.OnScroll)
+		
+		
+	def OnScroll(self, evt):
+		evt.Skip()
+		self.raiseValueChanged()
+		
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.

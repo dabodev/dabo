@@ -36,8 +36,11 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 		wx.EVT_TEXT(self, self.GetId(), self.OnText)
 
 	# Event callback method(s) (override in subclasses):
-	def OnSpin(self, event): pass
-	def OnText(self, event): pass
+	def OnSpin(self, event):
+		self.raiseValueChanged()
+		
+	def OnText(self, event):
+		self.raiseValueChanged()
 
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property

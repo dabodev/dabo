@@ -615,8 +615,10 @@ class dBizobj(dabo.common.DoDefaultMixin):
 		"""
 		if len(self.__children) == 0:
 			return True
-		if not self.beforeChildRequery():
-			return False
+		
+		errMsg = self.beforeChildRequery()
+		if errMsg:
+			raise dException.dException, errMsg
 
 		for child in self.__children:
 			ret = child.requery()
@@ -933,7 +935,7 @@ class dBizobj(dabo.common.DoDefaultMixin):
 	
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None, 
 				"When true, the cursor object runs its query immediately. This "
-				"is useful for parameterized queries. (bool)")
+				"is useful for lookup tables or fixed-size (small) tables. (bool)")
 	
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None, 
 				"Determines if we are using a table that auto-generates its PKs. (bool)")

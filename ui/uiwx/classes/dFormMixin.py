@@ -37,10 +37,6 @@ class dFormMixin(pm.dPemMixin):
 			else:
 				self.restoreSizeAndPosition()
 
-			if self.debug:    
-				print "Form %s has the following properties:" % self.Name
-				for prop in self.getPropertyList():
-					print "  %s: %s" % (prop, eval("self.%s" % prop))
 		event.Skip()
 
 
@@ -137,9 +133,7 @@ class dFormMixin(pm.dPemMixin):
 			controllingFrame.GetStatusBar().Update()
 
 
-	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=None):
-		if not menuId:
-			menuId = wx.NewId()
+	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
 		item = wx.MenuItem(menu, menuId, caption)
 		item.SetBitmap(bitmap)
 		menu.AppendItem(item)

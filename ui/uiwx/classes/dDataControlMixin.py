@@ -3,6 +3,7 @@
 """
 import wx
 import dPemMixin as pm
+import dEvents
 import dabo.dException as dException
 
 class dDataControlMixin(pm.dPemMixin):
@@ -11,7 +12,7 @@ class dDataControlMixin(pm.dPemMixin):
 	def __init__(self):
 		pm.dPemMixin.__init__(self)
 
-		self._oldVal = None
+		self._oldVal = self.Value
 		self.enabled = True
 
 		# Initialize runtime properties
@@ -20,7 +21,19 @@ class dDataControlMixin(pm.dPemMixin):
 
 	def initEvents(self):
 		pass
-
+		
+		
+	def OnCreateWindow(self, event):
+		if self.SaveRestoreValue:
+			self.restoreValue()
+		event.Skip()
+		
+	
+	def OnDestroyWindow(self, event):
+		if self.SaveRestoreValue:
+			self.saveValue()
+		event.Skip()
+	
 
 	def getBlankValue(self):
 		""" Return the empty value of the control.
@@ -126,9 +139,64 @@ class dDataControlMixin(pm.dPemMixin):
 		curVal = self.Value
 		if curVal != self._oldVal and self.DataSource and self.DataField:
 			self.setFieldVal(curVal)
-			self._oldVal = curVal
+		self._oldVal = curVal
 
 
+	def saveValue(self):
+		""" Save control's value to dApp's user settings table.
+		"""
+		try:
+			dApp = self.getDform().dApp
+		except AttributeError:
+			dApp = None
+
+		# It is too late to get Value directly:		
+		value = self._oldVal	
+		
+		if dApp:
+			name = self.getAbsoluteName()
+			dApp.setUserSetting("%s.Value" % name, self.getShortDataType(value), value)
+		
+			
+	def restoreValue(self):
+		""" Set the control's value to the value in dApp's user settings table.
+		"""
+		try:
+			dApp = self.getDform().dApp
+		except AttributeError:
+			dApp = None
+			
+		if dApp:
+			name = self.getAbsoluteName()
+			value = dApp.getUserSetting("%s.Value" % name)
+
+			try:
+				self.Value = value
+			except TypeError:
+				self.Value = self.getBlankValue()		
+			self._oldVal = self.Value
+			
+			
+	def getShortDataType(self, value):
+		if type(value) in [type(int()), type(long())]:
+			return "I"
+		elif type(value) in [type(str()), type(unicode())]:
+			return "C"
+		elif type(value) in [type(float()), ]:
+			return "N"
+		elif type(value) in [type(bool()), ]:
+			return "L"
+		else:
+			return "?"
+			
+
+	def raiseValueChanged(self):
+		""" Raise EVT_VALUECHANGED event to notify any listeners.
+		"""
+		evt = dEvents.dEvent(dEvents.EVT_VALUECHANGED, self.GetId())
+		self.GetEventHandler().ProcessEvent(evt)
+	
+	
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getDataSource(self):
@@ -147,15 +215,28 @@ class dDataControlMixin(pm.dPemMixin):
 	def _setDataField(self, value):
 		self._DataField = str(value)
 
+	def _getSaveRestoreValue(self):
+		try:
+			return self._SaveRestoreValue
+		except AttributeError:
+			return False
+	def _setSaveRestoreValue(self, value):
+		self._SaveRestoreValue = bool(value)
+	
 	def _getValue(self):
 		return self.GetValue()
 	def _setValue(self, value):
 		self.SetValue(value)
+		self.raiseValueChanged()
 
 	# Property definitions:
 	DataSource = property(_getDataSource, _setDataSource, None,
 						'Specifies the dataset to use as the source of data. (str)')
 	DataField = property(_getDataField, _setDataField, None,
 						'Specifies the data field of the dataset to use as the source of data. (str)')
+	SaveRestoreValue = property(_getSaveRestoreValue, _setSaveRestoreValue, None, 
+						'Specifies whether the Value of the control gets saved when destroyed and '
+						'restored when created. Use when the control isn\'t bound to a dataSource '
+						'and you want to persist the value, as in an options dialog. (bool)')
 	Value = property(_getValue, _setValue, None,
 						'Specifies the current state of the control (the value of the field). (varies)')

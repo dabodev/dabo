@@ -42,6 +42,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin, cm.dControlMixin):
 
 	# Event callback method(s) (override in subclasses):
 	def OnSelect(self, event):
+		self.raiseValueChanged()
 		event.Skip()
 
 

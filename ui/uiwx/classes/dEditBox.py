@@ -39,6 +39,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
 	# Event callback methods (override in subclasses):
 	def OnText(self, event):
+		self.raiseValueChanged()
 		event.Skip()
 
 
