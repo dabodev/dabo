@@ -118,7 +118,7 @@ class dCursorMixin:
 				# First, get the description property and extract the field names from that
 				fldNames = []
 				for fld in self.description:
-					fldNames.append(fld[0])
+					fldNames.append(fld[0].lower())
 				fldcount = len(fldNames)
 				# Now go through each row, and convert it to a dictionary. We will then
 				# add that dictionary to the tmpRows list. When all is done, we will replace 

@@ -274,9 +274,16 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 
 		dbConnectionDefs = None
 		try:
-			globals_ = {}
-			execfile("%s/dbConnectionDefs.py" % (self.homeDir,), globals_)
-			dbConnectionDefs = globals_["dbConnectionDefs"]
+### EGL: changed this to a direct call rather than an execfile, as there
+###   are problems with execfiles locating the proper paths in single-
+###   file distributions.
+#			globals_ = {}
+#			execfile("%s/dbConnectionDefs.py" % (self.homeDir,), globals_)
+#			dbConnectionDefs = globals_["dbConnectionDefs"]
+			
+			import dbConnectionDefs
+			dbConnectionDefs = dbConnectionDefs.getDefs()
+			
 		except:
 			dbConnectionDefs = None
 
@@ -299,11 +306,11 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 				except KeyError: port     = None
 
 				self.dbConnectionDefs[entry] = dConnectInfo(backendName=dbType,
-															host=host, 
-															user=user,
-															password=password,
-															dbName=dbName,
-															port=port)
+						host=host, 
+						user=user,
+						password=password,
+						dbName=dbName,
+						port=port)
 
 			print _("%s database connection definition(s) loaded.") % (
 												len(self.dbConnectionDefs))

@@ -63,7 +63,20 @@ class Firebird(dBackend):
 
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
-
+		
+		# Get the PK
+		sql = """ select first 1 rdb$index_name
+from rdb$indices
+where rdb$relation_name = '%s'
+and rdb$unique_flag = 1 """ % tableName.upper()
+		tempCursor.execute(sql)
+		rs = tempCursor.fetchone()
+		try:
+			pkField = rs[0].strip()
+		except:
+			pkField = None
+		
+		# Now get the field info
 		sql = """  SELECT b.RDB$FIELD_NAME, d.RDB$TYPE_NAME,
  c.RDB$FIELD_LENGTH, c.RDB$FIELD_SCALE, b.RDB$FIELD_ID
  FROM RDB$RELATIONS a
@@ -85,8 +98,8 @@ class Firebird(dBackend):
 		# This isn't fully implemented yet. We need to determine which field is the PK.
 		fields = []
 		for r in rs:
-			name = r[0]
-			
+			name = r[0].strip()
+
 			ftype = r[1].strip().lower()
 			if ftype == "text":
 				ft = "C"
@@ -114,8 +127,8 @@ class Firebird(dBackend):
 			else:
 				# BLOB
 				ft = "?"
-
-			pk = False
+			
+			pk = (name.lower() == pkField.lower() )
 			
 			fields.append((name.strip(), ft, pk))
 			
