@@ -2,7 +2,7 @@ import dabo.dConstants as k
 from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
 import dabo.dException as dException
-import types
+import types, datetime
 
 class dCursorMixin:
 	# Name of the primary key field for this cursor. If the PK is a composite
@@ -455,7 +455,12 @@ class dCursorMixin:
 						
 					# Append the field and its value.
 					flds += ", " + kk
-					vals += ", " + str(self.__escQuote(vv))
+					
+					if type(vv) == type(datetime.date(1,1,1)):
+						# dates need quotes around them (### MySQL specific warning)
+						vals += ", " + '"%s"' % vv
+					else:
+						vals += ", " + str(self.__escQuote(vv))
 				# Trim leading comma-space from the strings
 				flds = flds[2:]
 				vals = vals[2:]
@@ -831,6 +836,9 @@ class dCursorMixin:
 				ret += ", "
 			if type(val) in (types.StringType, types.UnicodeType):
 				ret += fld + " = " + self.__escQuote(val) + " "
+			if type(val) == type(datetime.date(1,1,1)):
+				# Warning: MySQL specific date conversion to string.
+				ret += fld + " = '%s' " % str(val) 
 			else:
 				ret += fld + " = " + str(val) + " "
 		return ret

@@ -1,5 +1,5 @@
 import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner, dMessageBox, dIcons, dCommandButton
-import dPanel, dGridDataNav, dCommandButton, dMessageBox, dEvents
+import dPanel, dGridDataNav, dCommandButton, dMessageBox, dEvents, dDateControl
 import dabo.dException as dException
 import wx
 from dabo.dLocalize import _
@@ -447,6 +447,8 @@ class dEditPage(dPage.dPage):
 					classRef = dSpinner.dSpinner
 				elif fieldType in ['L',]:
 					classRef = dCheckBox.dCheckBox
+				elif fieldType in ['D',]:
+					classRef = dDateControl.dDateControl
 				else:
 					classRef = dTextBox.dTextBox
 

@@ -123,15 +123,16 @@ class dDataControlMixin(pm.dPemMixin):
 		if self.debug:
 			print "OnKillFocus received by %s" % self.GetName()
 
+		self.flushValue()
+		
 		try:
 			if self.SelectOnEntry:
 				self.SetSelection(0,0)     # select no text in text box
 		except AttributeError:
 			# only text controls have SelectOnEntry
 			pass
-		self.flushValue()          
 		event.Skip()
-
+			
 
 	def flushValue(self):
 		""" Save any changes to the underlying bizobj field.
@@ -226,6 +227,7 @@ class dDataControlMixin(pm.dPemMixin):
 	
 	def _getValue(self):
 		return self.GetValue()
+		
 	def _setValue(self, value):
 		self.SetValue(value)
 		self.raiseValueChanged()

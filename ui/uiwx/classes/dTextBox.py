@@ -2,6 +2,7 @@ import wx
 import dControlMixin as cm
 import dDataControlMixin as dcm
 
+
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 	""" Allows editing one line of string or unicode data.
 	"""
@@ -16,9 +17,10 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
 		cm.dControlMixin.__init__(self, name)
 		dcm.dDataControlMixin.__init__(self)
+		
 		self._afterInit()                      # defined in dPemMixin
 
-
+		
 	def initProperties(self):
 		dTextBox.doDefault()
 		self.SelectOnEntry = True
@@ -90,7 +92,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 	def _setSelectOnEntry(self, value):
 		self._SelectOnEntry = bool(value)
 
-
+		
 	# Property definitions:
 	Alignment = property(_getAlignment, _setAlignment, None,
 						'Specifies the alignment of the text. (str) \n'

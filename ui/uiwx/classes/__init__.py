@@ -15,6 +15,7 @@ from dCheckBox import dCheckBox
 from dComboBox import dComboBox
 from dCommandButton import dCommandButton
 from dControlMixin import dControlMixin
+from dDateControl import dDateControl
 from dDataControlMixin import dDataControlMixin
 from dDialog import dDialog
 from dEditBox import dEditBox
@@ -40,7 +41,7 @@ from dTextBox import dTextBox
 from dTreeView import dTreeView
 
 # Tell Dabo Designer what classes to put in the selection menu:
-__dClasses = [dCheckBox, dCommandButton, dEditBox, dForm,
+__dClasses = [dCheckBox, dCommandButton, dDateControl, dEditBox, dForm,
 		dFormDataNav, dFormMain, dGauge, dLabel, dPanel, 
 		dPageFrame, dPage, dRadioGroup, dScrollPanel, dSlider, 
 		dSpinner, dTextBox]
