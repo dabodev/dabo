@@ -1,4 +1,4 @@
-import constants as k
+import dabo.constants as k
 
 class Memento(object):
     def __init__(self, vals=None):

@@ -1,4 +1,4 @@
-from dConstants import dConstants as k
+import dabo.constants as k
 
 class SqlBuilder:
     """ 
