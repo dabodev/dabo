@@ -25,6 +25,17 @@ class DataNavPage(dPage.dPage):
 		self.bindEvent(dEvents.Resize, self.onResize)
 		self.bindEvent(dEvents.Idle, self.onIdle)
 
+	def editRecord(self, ds=None):
+		""" Called by a browse grid when the user wants 
+		to edit the current row. 
+		"""
+		if ds is None:
+			# Old code; default to the first editing page
+			self.GetParent().SetSelection(2)
+		else:
+			self.GetParent().editByDataSource(ds)
+
+		
 	def onResize(self, evt):
 		self.redrawOutlines = self.drawSizerOutlines
 		
@@ -445,11 +456,6 @@ class dBrowsePage(DataNavPage):
 		self.Form.delete()
 
 	
-	def editRecord(self):
-		# Called by the grid: user wants to edit the current row
-		self.GetParent().SetSelection(2)
-
-		
 	def onPreview(self, evt):
 		if self.itemsCreated:
 			if self.Form.preview:

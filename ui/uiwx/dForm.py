@@ -6,6 +6,7 @@ import dabo.dConstants as k
 import dMessageBox, dProgressDialog
 import dSizer
 from dabo.dLocalize import _
+import time
 
 # Different platforms expect different frame types. Notably,
 # most users on Windows expect and prefer the MDI parent/child
@@ -31,11 +32,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
 	like next(), last(), save(), and requery().
 	"""
-
 	def __init__(self, parent=None, id=-1, title='', name='dForm', *args, **kwargs):
-
 		self._baseClass = dForm
-
 		if parent:
 			style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT
 		else:
@@ -55,11 +53,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			name = "%s_%s" % (name, self.GetId())
 			self.Name, self.Caption = name, name
 			
-
 		fm.dFormMixin.__init__(self)
 
 		self.debug = False
-
 		self.bizobjs = {}
 		self._primaryBizobj = None
 
@@ -296,6 +292,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		This will revert back to the state of the records when they were last
 		requeried or saved.
 		"""
+		
+		print "CANCEL:", dataSource
+		
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -330,7 +329,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	def requery(self, dataSource=None):
 		""" Ask the bizobj to requery.
 		"""
-		import time
 		
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
@@ -591,10 +589,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 	# Property definitions:
 	SaveAllRows = property(_getSaveAllRows, _setSaveAllRows, None, 
-					'Specifies whether dataset is row- or table-buffered. (bool)')
+			"Specifies whether dataset is row- or table-buffered. (bool)")
 
 	AskToSave = property(_getAskToSave, _setAskToSave, None, 
-					'Specifies whether a save prompt appears before the data is requeried. (bool)')
+			"Specifies whether a save prompt appears before the data is requeried. (bool)")
 
 
 if __name__ == "__main__":

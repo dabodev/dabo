@@ -621,7 +621,7 @@ class dDataNavGrid(dGrid.dGrid):
 	def editRecord(self, evt=None):
 		""" Request that the current row be edited.
 		"""
-		self.GetParent().editRecord()
+		self.GetParent().editRecord(self.bizobj.DataSource)
 
 
 	def deleteRecord(self, evt=None):

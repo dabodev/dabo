@@ -18,8 +18,9 @@ class dDataNavPageFrame(pgf.dPageFrame):
 
 	def initProperties(self):
 		self.PageCount = 0
+		# Dict to track the edit page for each data source
+		self.dsEditPages = {}
 		if self.DefaultPagesOnLoad:
-			print "Adding default pages!"
 			self.addDefaultPages()
 		dDataNavPageFrame.doDefault()
 		
@@ -49,7 +50,12 @@ class dDataNavPageFrame(pgf.dPageFrame):
 		self.AddPage(self.BrowsePageClass(self), title, imageId=1)
 	
 	def addEditPage(self, ds=None, title="Edit"):
-		x = self.AddPage(self.EditPageClass(self, ds), title, imageId=2)
+		self.AddPage(self.EditPageClass(self, ds), title, imageId=2)
+		# The page number will be the PageCount minus one.
+		self.dsEditPages[ds] = self.PageCount - 1
+	
+	def editByDataSource(self, ds):
+		self.SetSelection(self.dsEditPages[ds])
 		
 	def _getSelectPageClass(self):
 		try:

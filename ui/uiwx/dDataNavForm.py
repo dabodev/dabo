@@ -22,6 +22,10 @@ class dDataNavForm(dForm.dForm):
 		self._relationSpecs = {}
 		self._childBehavior = {}
 		self._requeried = False
+		# When Save/Cancel/Requery are called, do we check the 
+		# current primary bizobj, or do we use the main bizobj for
+		# the form? Default is to only affect the current bizobj
+		self.saveCancelRequeryAll = False
 		# Used for turning sizer outline drawing on pages
 		self._drawSizerOutlines = False
 	
@@ -44,19 +48,34 @@ class dDataNavForm(dForm.dForm):
 			self.Bind(wx.EVT_MENU, self.Close, id=anId)
 
 			
-	def _initEvents(self):
-		dDataNavForm.doDefault()
-		self.bindEvent(dEvents.Activate, self.__onActivate)
-		self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
-		
-							
 	def __onActivate(self, evt):
 		dDataNavForm.doDefault(evt)
 		if self.RequeryOnLoad and not self._requeried:
 			self._requeried = True
 			self.pageFrame.GetPage(0).requery()
 		
-		
+	
+	def save(self, dataSource=None):
+		if dataSource is None:
+			if self.saveCancelRequeryAll:
+				dataSource = self._mainTable
+		return dDataNavForm.doDefault(dataSource)
+	
+	
+	def cancel(self, dataSource=None):
+		if dataSource is None:
+			if self.saveCancelRequeryAll:
+				dataSource = self._mainTable
+		return dDataNavForm.doDefault(dataSource)
+	
+	
+	def requery(self, dataSource=None):
+		if dataSource is None:
+			if self.saveCancelRequeryAll:
+				dataSource = self._mainTable
+		return dDataNavForm.doDefault(dataSource)
+	
+	
 	def afterSetPrimaryBizobj(self):        
 		pass
 		
