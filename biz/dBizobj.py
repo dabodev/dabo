@@ -844,41 +844,43 @@ class dBizobj(dabo.common.dObject):
 			# already done this...
 			return addedChildren
 		self.__relationDictSet = True
+		
 		myRelations = [ dict[k] for k in dict.keys() 
-				if dict[k]['parent'].lower() == self.DataSource.lower() ]
+				if dict[k]["source"].lower() == self.DataSource.lower() ]
 		if not myRelations:
 			return addedChildren
 		
 		for relation in myRelations:
-			# Each 'relation' is a dict with the following structure:
-			# 'child': child table
-			# 'childField': field in child table linked to parent
-			# 'parent': parent table
-			# 'parentField': field in parent table linked to child
-			child = relation["child"]
-			childField = relation["childField"]
-			parent = relation["parent"]
-			parentField = relation["parentField"]
-			
-			if self.getAncestorByDataSource(child):
-				# The 'child' already exists as an ancestor of this bizobj. This can
-				# happen in many-to-many relationships. We don't want to add it,
-				# as this creates infinite loops.
-				continue
+			if relation["relationType"] == "1M":
+				# Each 'relation' is a dict with the following structure:
+				# 'target': child table
+				# 'targetField': field in child table linked to parent
+				# 'source': parent table
+				# 'sourceField': field in parent table linked to child
+				target = relation["target"]
+				targetField = relation["targetField"]
+				source = relation["source"]
+				sourceField = relation["sourceField"]
 				
-			childBiz = self.getChildByDataSource(child)
-			if not childBiz:
-				childBizClass = bizModule.__dict__["Biz" + child.title()]
-				childBiz = childBizClass(self._conn)
-				self.addChild(childBiz)
-				addedChildren.append(childBiz)
-				childBiz.LinkField = childField
-				if parentField != self.KeyField:
-					childBiz.ParentLinkField = parentField
-			# Now pass this on to the child
-			addedGrandChildren = childBiz.addChildByRelationDict(dict, bizModule)
-			for gc in addedGrandChildren:
-				addedChildren.append(gc)
+				if self.getAncestorByDataSource(target):
+					# The 'child' already exists as an ancestor of this bizobj. This can
+					# happen in many-to-many relationships. We don't want to add it,
+					# as this creates infinite loops.
+					continue
+					
+				childBiz = self.getChildByDataSource(target)
+				if not childBiz:
+					childBizClass = bizModule.__dict__["Biz" + target.title()]
+					childBiz = childBizClass(self._conn)
+					self.addChild(childBiz)
+					addedChildren.append(childBiz)
+					childBiz.LinkField = targetField
+					if sourceField != self.KeyField:
+						childBiz.ParentLinkField = sourceField
+				# Now pass this on to the child
+				addedGrandChildren = childBiz.addChildByRelationDict(dict, bizModule)
+				for gc in addedGrandChildren:
+					addedChildren.append(gc)
 		return addedChildren
 	
 	
@@ -1036,6 +1038,9 @@ class dBizobj(dabo.common.dObject):
 		
 	def setNonUpdateFields(self, fldList=[]):
 		self.Cursor.setNonUpdateFields(fldList)
+	
+	def getWordMatchFormat(self):
+		return self.Cursor.getWordMatchFormat()
 		
 		
 	########## SQL Builder interface section ##############
