@@ -100,6 +100,7 @@ M : First Day of Month
 H : Last Day of montH
 Y : First Day of Year
 R : Last Day of yeaR
+C: Popup Calendar to Select
 """
 	
 	
@@ -115,9 +116,13 @@ R : Last Day of yeaR
 	def onDblClick(self, evt):
 		""" Display a calendar to allow users to select dates.
 		"""
+		self.showCalendar()
+		
+	def showCalendar(self):
 		self.calPanel = CalPanel(self.Parent, pos = (self.Left, self.Bottom), 
 				dt = self.strToDate(self.Value), ctrl=self )
 		self.calPanel.Show(True)
+		self.calPanel.SetFocus()
 		
 	
 	def onRightClick(self, evt):
@@ -148,7 +153,7 @@ R : Last Day of yeaR
 			evt.Skip()
 			return
 		key = chr(keycode).lower()
-		shortcutKeys = "tq+-mhyr[]"
+		shortcutKeys = "tq+-mhyrc[]"
 		dateEntryKeys = "0123456789/-"
 		
 		if key in shortcutKeys:
@@ -191,6 +196,8 @@ R : Last Day of yeaR
 		forward = True
 		# Flag to indicate errors in date processing
 		self.dateOK = True
+		# Flag to indicate if we consider boundary conditions
+		checkBoundary = True
 		
 		if key == "t":
 			# Today
@@ -231,6 +238,10 @@ R : Last Day of yeaR
  		elif key == "]":
  			# Forward one month
  			self.monthInterval(1)
+ 		elif key == "c":
+ 			# Show the calendar
+ 			self.showCalendar()
+ 			checkBoundary = False
 		else:
 			# This shouldn't happen, because onChar would have filtered it out.
 			dabo.infoLog.write("Warning in dDateTextBox.adjustDate: %s key sent." % key)
@@ -238,7 +249,7 @@ R : Last Day of yeaR
 		
 		if not self.dateOK:
 			return
-		if self.continueAtBoundary:
+		if checkBoundary and self.continueAtBoundary:
 			if self.date.GetJDN() == orig:
 				# Date hasn't changed; means we're at the boundary
 				# (first or last of the chosen interval). Move 1 day in
