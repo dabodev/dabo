@@ -120,7 +120,10 @@ class dPemMixinBase(dabo.common.dObject):
 			import dabo.ui
 			obj, frm = self, None
 			while obj:
-				parent = obj.Parent
+				try:
+					parent = obj.Parent
+				except AttributeError:
+					break
 				if isinstance(parent, dabo.ui.dForm):
 					frm = parent
 					break

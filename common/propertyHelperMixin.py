@@ -124,7 +124,7 @@ class PropertyHelperMixin(object):
 		""" Returns a dictionary of information about the passed property name.
 		"""
 		propRef = eval("self.__class__.%s" % name)
-		propVal = eval("self.%s" % name)
+		propVal = propRef.fget(self)
 
 		if type(propRef) == property:
 			d = {}
