@@ -1,20 +1,20 @@
 from dConstants import dConstants as k
 import dConnection
-import dCursor
+import dCursorMixin
 
 ### TODO ### - Change to Gadfly
-import MySQLdb
+from MySQLdb import cursors
 
-class bizobj:
+class dBizobj:
 	# Title of the cursor. Used in resolving DataSource references
-	_title = ""
+	dataSource = ""
 	# Reference to the cursor object 
 	_cursor = None
 	# Class to instantiate for the cursor object
 	cursorMixinClass = dCursorMixin.dCursorMixin
 	# Base class to instantiate for the cursor object
 	### TODO ### - change to Gadfly for default
-	cursorBaseClass = MySQLdb.cursors.DictCursor
+	cursorBaseClass = cursors.DictCursor
 	# Reference to the parent bizobj to this one.
 	_parent = None
 	# Collection of child bizobjs for this
@@ -51,7 +51,7 @@ class bizobj:
 	insertChildLogic = k.REFINTEG_IGNORE		# child records can be inserted even if no parent record exists.
 	##########################################
 	# Versioning...
-	_version = 0.1.0
+	_version = "0.1.0"
 	
 	
 	def __init__(self, conn):
@@ -60,16 +60,16 @@ class bizobj:
 		# Now create the cursor that this bizobj will be using for data
 		if self.beforeCreateCursor():
 			crsClass = self.getCursorClass(self.cursorMixinClass, self.cursorBaseClass)
-			self._cursor() = conn.cursor(cursorclass=crsClass)
-			self.afterCreateCursor():
-		
+			self._cursor = conn.cursor(cursorclass=crsClass)
+			self.afterCreateCursor()
+			
 		if not self._cursor:
 			##### TODO  #######
 			# Need to raise an exception here!
-			return 0
+			pass
 	
 	
-	def getCursorClass(main, secondary):
+	def getCursorClass(self, main, secondary):
 		class result(main, secondary):
 			def __init__(self, *args, **kwargs):
 				if hasattr(main, "__init__"):
@@ -77,7 +77,6 @@ class bizobj:
 					#main.__init__(self)
 				if hasattr(secondary, "__init__"):
 					apply(secondary.__init__,(self,) + args, kwargs)
-				self.id=self.GetId()
 		return  result
 	
 
@@ -95,7 +94,7 @@ class bizobj:
 			self.requeryAllChildren()
 			self.setMemento()
 		else:
-			self.addToErrorMsg(_cursor.getErrorMsg())
+			self.addToErrorMsg(self._cursor.getErrorMsg())
 		self.afterPointerMove(ret)
 		self.afterFirst(ret)
 		return ret
@@ -114,7 +113,7 @@ class bizobj:
 			self.requeryAllChildren()
 			self.setMemento()
 		else:
-			self.addToErrorMsg(_cursor.getErrorMsg())
+			self.addToErrorMsg(self._cursor.getErrorMsg())
 		self.afterPointerMove(ret)
 		self.afterPrior(ret)
 		return ret
@@ -133,7 +132,7 @@ class bizobj:
 			self.requeryAllChildren()
 			self.setMemento()
 		else:
-			self.addToErrorMsg(_cursor.getErrorMsg())
+			self.addToErrorMsg(self._cursor.getErrorMsg())
 		self.afterPointerMove(ret)
 		self.afterNext(ret)
 		return ret
@@ -152,7 +151,7 @@ class bizobj:
 			self.requeryAllChildren()
 			self.setMemento()
 		else:
-			self.addToErrorMsg(_cursor.getErrorMsg())
+			self.addToErrorMsg(self._cursor.getErrorMsg())
 		self.afterPointerMove(ret)
 		self.afterLast(ret)
 		return ret
@@ -172,7 +171,7 @@ class bizobj:
 			# Tell the cursor to issue a BEGIN TRANSACTION command
 			ret = self._cursor.beginTransaction()
 			if not ret == k.FILE_OK:
-				self.addToErrorMsg(_cursor.getErrorMsg())
+				self.addToErrorMsg(self._cursor.getErrorMsg())
 				return ret
 		
 		# OK, this actually does the saving to the database
@@ -207,7 +206,7 @@ class bizobj:
 			# Something failed; reset things.
 			if startTransaction:
 				self._cursor.rollbackTransaction()
-			self.addToErrorMsg(_cursor.getErrorMsg())
+			self.addToErrorMsg(self._cursor.getErrorMsg())
 
 		# Two hook methods: one specific to Save(), and one which is called after any change
 		# to the data (either save() or delete()).
@@ -240,12 +239,13 @@ class bizobj:
 		if ret == k.FILE_OK:
 			self.setMemento()
 		else:
-			self.addToErrorMsg(_cursor.getErrorMsg())
+			self.addToErrorMsg(self._cursor.getErrorMsg())
 		
 		self.afterCancel(ret)
+		return ret
 
 
-	def delete(self)
+	def delete(self):
 		""" Deletes the current row of data """
 		self._errorMsg = ""
 		
@@ -265,14 +265,14 @@ class bizobj:
 # 		IF IsAdding(This.cAlias)
 # 			lnRetVal = This.oBehavior.Cancel()
 
-		if ret = k.FILE_OK:
+		if ret == k.FILE_OK:
 			if self._cursor.rowcount == 0:
 				# Hook method for handling the deletion of the last record in the cursor.
 				self.onDeleteLastRecord()
 			# Now cycle through any child bizobjs and fire their cancel() methods. This will
 			# ensure that any changed data they may have is reverted. They are then requeried to
 			# populate them with data for the current record in this bizobj.
-			for child in self._children
+			for child in self._children:
 				if self.deleteChildLogic == k.REFINTEG_CASCADE:
 					child.deleteAll()
 				else:
@@ -281,7 +281,7 @@ class bizobj:
 			
 			self.setMemento()
 		else:
-			self.addToErrorMsg(_cursor.getErrorMsg())
+			self.addToErrorMsg(self._cursor.getErrorMsg())
 
 		self.afterPointerMove(ret)
 		self.afterChange(ret)
@@ -323,7 +323,7 @@ class bizobj:
 			
 			self.setMemento()
 		else:
-			self.addToErrorMsg(_cursor.getErrorMsg())
+			self.addToErrorMsg(self._cursor.getErrorMsg())
 		
 		self.afterPointerMove(ret)
 		self.afterNew(ret)
@@ -355,7 +355,7 @@ class bizobj:
 		
 			self.setMemento()
 		else:
-			self.addToErrorMsg(_cursor.getErrorMsg())
+			self.addToErrorMsg(self._cursor.getErrorMsg())
 		
 		self.afterRequery(ret)
 		return ret
@@ -373,11 +373,6 @@ class bizobj:
 		
 		return ret
 	
-	
-	def getTitle(self):
-		""" Eponymous """
-		return self._title
-		
 	
 	def onDeleteLastRecord(self):
 		""" Hook method called when the last record of the cursor has been deleted """
@@ -426,7 +421,7 @@ class bizobj:
 			ret = k.REQUERY_ERROR
 		
 		if ret != k.REQUERY_SUCCESS:
-			self.addToErrorMsg(_cursor.getErrorMsg())
+			self.addToErrorMsg(self._cursor.getErrorMsg())
 			
 		self.afterRequeryAllChildren()
 		return ret
@@ -484,19 +479,19 @@ class bizobj:
 
 		
 	########## Pre-hook interface section ##############
-	def beforeNew(self): pass
-	def beforeDelete(self): pass
-	def beforeFirst(self): pass
-	def beforePrior(self): pass
-	def beforeNext(self): pass
-	def beforeLast(self): pass
-	def beforePointerMove(self): pass
-	def beforeSave(self): pass
-	def beforeCancel(self): pass
-	def beforeRequery(self): pass
-	def beforeChildRequery(self): pass
-	def beforeConnection(self): pass
-	def beforeCreateCursor(self): pass
+	def beforeNew(self): return 1
+	def beforeDelete(self): return 1
+	def beforeFirst(self): return 1
+	def beforePrior(self): return 1
+	def beforeNext(self): return 1
+	def beforeLast(self): return 1
+	def beforePointerMove(self): return 1
+	def beforeSave(self): return 1
+	def beforeCancel(self): return 1
+	def beforeRequery(self): return 1
+	def beforeChildRequery(self): return 1
+	def beforeConnection(self): return 1
+	def beforeCreateCursor(self): return 1
 	########## Post-hook interface section ##############
 	def afterNew(self, retStatus): pass
 	def afterDelete(self, retStatus): pass

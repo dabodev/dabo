@@ -17,12 +17,7 @@ class dConnection:
 		# Store a reference to the bizobj that created this
 		self.parent = parent
 		self._dbType = dbType
-		if conn is None:
-			self._conn = self._openConnection()
-		else:
-			self._conn = conn
-		
-		return (self.conn is not None)
+		self._openConnection()
 	
 	
 	def __del__(self):
@@ -36,10 +31,11 @@ class dConnection:
 		""" Open a connection to the database, and store it for future use. """
 		# For testing only! Should be made more generic for all db types
 		from connstring import getConnVals
-		connstring = """MySQLdb.connect(host="%s", user="%s", passwd="%s", db="%s")""" % getConnVals() 
+		import MySQLdb
+		connstring = """self._conn = MySQLdb.connect(host="%s", user="%s", passwd="%s", db="%s")""" % getConnVals() 
 		
 		try:
-			conn = eval(connstring)
+			exec(connstring)
 		except:
-			conn = None
-		return conn
+			self._conn = None
+	

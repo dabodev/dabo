@@ -28,7 +28,6 @@ class dCursorMixin:
 				self.addToErrorMsg("\t'sql' ")
 			if not self.keyField:
 				self.addToErrorMsg("\t'keyField' ")
-			return 0
 		
 	
 	def first(self):
@@ -110,12 +109,47 @@ class dCursorMixin:
 			recs = (self._rows[self.rownumber],)
 		
 		for rec in recs:
-			ret = saverec(rec)
-			if ret != k.FILE_OK:
+			updret = saverow(rec)
+			if updret != k.UPDATE_OK:
+				ret = FILE_CANCEL
 				break
 		return ret
 	
 	
+	def saverow(self, rec):
+		newrec =  rec.has_key(k.CURSOR_NEWFLAG)
+		mem = rec[k.CURSOR_MEMENTO]
+		diff = mem.makeDiff(rec, newrec)
+		ret = k.UPDATE_OK
+		if diff:
+			if newrec:
+				flds = ""
+				vals = ""
+				for kk, vv in diff:
+					flds += ", " + kk
+					vals += ", " + self.escapeQt(vv)
+				sql = "insert into %s (%s) values (%s) " % (self.table, flds, vals)
+				
+			else:
+				pkWhere = self.makePkWhere()
+				updClause = self.makeUpdClause(diff)
+				sql = "update %s set %s where %s" % (self.table, updClause, pkWhere)
+			
+			# Save off the props that will change on the update
+			self.saveProps()
+			#run the update
+			res = self.execute(sql)
+			# restore the orginal values
+			self.restoreProps()
+			if not res:
+				ret = k.UPDATE_NORECORDS
+			else:
+				if newrec:
+					# Need to remove the new flag
+					del rec[k.CURSOR_NEWFLAG]
+		return ret
+
+
 	def new(self):
 		""" Adds a new record to the data set """
 		ret = k.FILE_OK
@@ -136,6 +170,60 @@ class dCursorMixin:
 		except:
 			ret = k.FILE_CANCEL
 		return ret
+	
+	
+	def cancel(self, allrows=0):
+		""" Reverts any changes back to the original values """
+		self._errorMsg = ""
+		ret = k.FILE_OK
+		
+		# Make sure that there is data to save
+		if not self.rowcount > 0:
+			self.addToErrorMsg("No data to cancel")
+			return k.FILE_CANCEL
+		
+		if allrows:
+			recs = self._rows
+		else:
+			recs = (self._rows[self.rownumber],)
+		
+		for i in range(self.rowcount, 0, -1):
+			rec = self._rows[i]
+			newrec =  rec.has_key(k.CURSOR_NEWFLAG)
+			if newrec:
+				# Discard the record, and adjust the props
+				ret = self.delete(i)
+			else:
+				ret = cancelrow(i)
+			if ret != k.FILE_OK:
+				break
+		return ret
+	
+	
+	def delete(self, rownum):
+		ret = k.FILE_OK
+		rec = self._rows[rownum]
+		newrec =  rec.has_key(k.CURSOR_NEWFLAG)
+		self.saveProps(saverows=0)
+		if newrec:
+			tmprows = list(self._rows)
+			del tmprows[rownum]
+			self._rows = tuple(tmprows)
+			res = 1
+		else:
+			pkWhere = self.makePkWhere()
+			sql = "delete from %s where %s" % (self.table, pkWhere)
+			res = self.execute(sql)
+		
+		self.restoreProps(restoreRows=0)
+		if not res:
+			# Nothing was deleted
+			ret = FILE_CANCEL
+		return ret
+					
+				
+	def cancelrow(self, rec):
+		mem = rec[k.CURSOR_MEMENTO]
 	
 	
 	def setDefaults(self, vals):
@@ -174,7 +262,7 @@ class dCursorMixin:
 			if pat.search(self.sql):
 				tmpsql = pat.sub(" where 1=0 ", self.sql)
 			else:				
-			pat = re.compile("\s*select\s*.*\s*from\s*.*\s*((?:order\s*by\s(.*))+)\s*", re.I | re.M)
+				pat = re.compile("\s*select\s*.*\s*from\s*.*\s*((?:order\s*by\s(.*))+)\s*", re.I | re.M)
 				if pat.search(self.sql):
 					tmpsql = pat.sub(" where 1=0 ", self.sql)
 				else:				
@@ -185,7 +273,7 @@ class dCursorMixin:
 		dscrp = self.description
 		for fld in dscrp:
 			fldname = fld[0]
-			if fld[1] == self.STRING
+			if fld[1] == self.STRING:
 				_blank[fld] = ""
 			else:
 				if fld[5]:
@@ -213,20 +301,8 @@ class dCursorMixin:
 		except:
 			self.addToErrorMsg("Primary key field '" + fld + "' does not exist in the data set")
 			ret = 0
-			break
 		return ret
 		
-		
-	
-	def saverec(self, rec):
-		mem = rec["dMemento"]
-		diff = mem.makeDiff(rec)
-		if diff:
-			pkWhere = self.makePkWhere()
-			updClause = self.makeUpdClause(diff)
-			sql = "update %s set %s where %s" % (self.table, updClause, pkWhere)
-
-
 
 	def makePkWhere(self):
 		""" Creates the WHERE clause used for updates """
@@ -248,12 +324,68 @@ class dCursorMixin:
 			if ret:
 				ret += ", "
 			if type(val) == types.StringType:
-				ret += fld + " = '" + val + "' "
+				ret += fld + " = " + self.escapeQt(val) + " "
 			else:
 				ret += fld + " = " + str(val) + " "
 		return ret
 
 
+	def saveProps(self, saverows=1):
+		self.tmprows = self._rows.copy()
+		self.tmpcount = self.rowcount
+		self.tmppos = self.rownumber
+		self.tmpdesc = self.description.copy()
+		
+
+	def restoreProps(self, restorerows=1):
+		if restorerows:
+			self._rows = self.tmprows.copy()
+		self.rowcount = len(self._rows)
+		self.rownumber = min(self.tmppos, self.rowcount-1)
+		self.description = self.tmpdesc.copy()
+	
+	
+	def escapeQt(self, val):
+		ret = val
+		if type(val) in (types.StringType, types.UnicodeType):
+			# escape and then wrap in single quotes
+			sl = "\\"
+			qt = "\'"
+			ret = "'" + val.replace(sl, sl+sl).replace(qt, sl+qt) + "'"
+		return ret			
+
+
+	def addToErrorMsg(self, txt):
+		""" Adds the passed text to the current error message text, 
+		inserting a newline if needed """
+		if txt:
+			if self._errorMsg:
+				self._errorMsg += "\n"
+			self._errorMsg += txt
+
+
+	def getErrorMsg(self):
+		return self._errorMsg
+
+		
+	def isAdding(self):
+		""" Returns true if the current record has the new rec flag """
+		return self._rows[self.rownumber].has_attr(k.CURSOR_NEWFLAG)
+	
+	
+	def beginTransaction(self):
+		""" Implement specific calls in subclasses """
+		return k.FILE_OK
+	
+	
+	def commitTransaction(self):
+		""" Implement specific calls in subclasses """
+		return k.FILE_OK
+	
+	
+	def rollbackTransaction(self):
+		""" Implement specific calls in subclasses """
+		return k.FILE_OK
 
 
 
