@@ -2,20 +2,20 @@
 import Tkinter
 import dFormMixin as fm
 
-class dFormMain(Tkinter.Frame, fm.dFormMixin):
+class dFormMain(Tkinter.Tk, fm.dFormMixin):
 	""" This is the main top-level form for the application.
 	"""
 	def __init__(self):
 
 		self._baseClass = dFormMain
 
-#		self._beforeInit(pre)                  # defined in dPemMixin
-#		self._tkObject = Tkinter.Frame()
-		Tkinter.Frame.__init__(self)
+		self._beforeInit()
+		Tkinter.Tk.__init__(self)
 		fm.dFormMixin.__init__(self)
-#		self._afterInit()                      # defined in dPemMixin
+		self._afterInit()
 		
 	def afterInit(self):
+		print "ai"
 		self.Caption = "Dabo"
 		self.setStatusText("Welcome to Dabo!")
 

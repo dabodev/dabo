@@ -39,17 +39,15 @@ class dPemMixin(dabo.common.dObject):
 			return ret
 
 	
-	def _beforeInit(self, pre):
+	def _beforeInit(self):
 		self._name = '?'
-		self._pemObject = pre
 		self.initStyleProperties()
-		self._pemObject = self
 		
 		# Call the subclass hook:
-		self.beforeInit(pre)
+		self.beforeInit()
 		
 		
-	def beforeInit(self, preCreateObject):
+	def beforeInit(self):
 		""" Called before the object is fully instantiated.
 		"""
 		pass
@@ -233,112 +231,112 @@ class dPemMixin(dabo.common.dObject):
 
 
 	def _getFont(self):
-		return self._pemObject.GetFont()
+		return self.GetFont()
 	
 	def _getFontEditorInfo(self):
 		return {'editor': 'font'}
 	
 	def _setFont(self, font):
-		self._pemObject.SetFont(font)
+		self.SetFont(font)
 
 		
 	def _getFontInfo(self):
-		return self._pemObject.GetFont().GetNativeFontInfoDesc()
+		return self.GetFont().GetNativeFontInfoDesc()
 
 	def _getFontBold(self):
-		return self._pemObject.GetFont().GetWeight() == wx.BOLD
+		return self.GetFont().GetWeight() == wx.BOLD
 	def _setFontBold(self, fontBold):
-		font = self._pemObject.GetFont()
+		font = self.GetFont()
 		if fontBold:
 			font.SetWeight(wx.BOLD)
 		else:
 			font.SetWeight(wx.LIGHT)    # wx.NORMAL doesn't seem to work...
-		self._pemObject.SetFont(font)
+		self.SetFont(font)
 
 	def _getFontItalic(self):
-		return self._pemObject.Font.GetStyle() == wx.ITALIC
+		return self.Font.GetStyle() == wx.ITALIC
 	def _setFontItalic(self, fontItalic):
-		font = self._pemObject.Font
+		font = self.Font
 		if fontItalic:
 			font.SetStyle(wx.ITALIC)
 		else:
 			font.SetStyle(wx.NORMAL)
-		self._pemObject.Font = font
+		self.Font = font
 
 	def _getFontFace(self):
-		return self._pemObject.Font.GetFaceName()
+		return self.Font.GetFaceName()
 
 	def _getFontSize(self):
-		return self._pemObject.Font.GetPointSize()
+		return self.Font.GetPointSize()
 	def _setFontSize(self, fontSize):
-		font = self._pemObject.Font
+		font = self.Font
 		font.SetPointSize(int(fontSize))
-		self._pemObject.Font = font
+		self.Font = font
 
 	def _getFontUnderline(self):
-		return self._pemObject.Font.GetUnderlined()
+		return self.Font.GetUnderlined()
 	def _setFontUnderline(self, val):
 		# underlining doesn't seem to be working...
-		font = self._pemObject.Font
+		font = self.Font
 		font.SetUnderlined(bool(val))
-		self._pemObject.Font = font
+		self.Font = font
 
 
 	def _getTop(self):
-		return self._pemObject.GetPosition()[1]
+		return self.GetPosition()[1]
 	def _setTop(self, top):
-		self.SetPosition((self._pemObject.Left, int(top)))
+		self.SetPosition((self.Left, int(top)))
 
 	def _getLeft(self):
-		return self._pemObject.GetPosition()[0]
+		return self.GetPosition()[0]
 	def _setLeft(self, left):
-		self._pemObject.SetPosition((int(left), self._pemObject.Top))
+		self.SetPosition((int(left), self.Top))
 
 	def _getPosition(self):
-		return self._pemObject.GetPosition()
+		return self.GetPosition()
 
 	def _setPosition(self, position):
-		self._pemObject.SetPosition(position)
+		self.SetPosition(position)
 
 	def _getBottom(self):
-		return self._pemObject.Top + self._pemObject.Height
+		return self.Top + self.Height
 	def _setBottom(self, bottom):
-		self._pemObject.Top = int(bottom) - self._pemObject.Height
+		self.Top = int(bottom) - self.Height
 
 	def _getRight(self):
-		return self._pemObject.Left + self._pemObject.Width
+		return self.Left + self.Width
 	def _setRight(self, right):
-		self._pemObject.Left = int(right) - self._pemObject.Width
+		self.Left = int(right) - self.Width
 
 
 	def _getWidth(self):
-		return self._pemObject.GetSize()[0]
+		return self.GetSize()[0]
 
 	def _getWidthEditorInfo(self):
 		return {'editor': 'integer', 'min': 0, 'max': 8192}
 
 	def _setWidth(self, width):
-		self._pemObject.SetSize((int(width), self._pemObject.GetSize()[1]))
-		self._pemObject.SetMinSize(self._pemObject.GetSize())
+		self.SetSize((int(width), self.GetSize()[1]))
+		self.SetMinSize(self.SetSize())
 
 
 	def _getHeight(self):
-		return self._pemObject.GetSize()[1]
+		return self.GetSize()[1]
 
 	def _getHeightEditorInfo(self):
 		return {'editor': 'integer', 'min': 0, 'max': 8192}
 
 	def _setHeight(self, height):
-		self._pemObject.SetSize((self._pemObject.GetSize()[0], int(height)))
-		self._pemObject.SetMinSize(self._pemObject.GetSize())
+		self.SetSize((self.GetSize()[0], int(height)))
+		self.SetMinSize(self.GetSize())
 
 
 	def _getSize(self): 
-		return self._pemObject.GetSize()
+		return self.GetSize()
 
 	def _setSize(self, size):
-		self._pemObject.SetSize(size)
-		self._pemObject.SetMinSize(size)
+		self.SetSize(size)
+		self.SetMinSize(size)
 
 	def _getName(self):
 		name = self.winfo_name()
@@ -346,7 +344,7 @@ class dPemMixin(dabo.common.dObject):
 		return name
 	
 	def _setName(self, name):
-		parent = self._pemObject.GetParent()
+		parent = self.GetParent()
 		if parent:
 			if not self.Application or self.Application.AutoNegotiateUniqueNames:
 				i = 0
@@ -357,7 +355,7 @@ class dPemMixin(dabo.common.dObject):
 					else:
 						candidate = '%s%s' % (name, i)
 
-					for window in self._pemObject.GetParent().GetChildren():
+					for window in self.GetParent().GetChildren():
 						if window.GetName() == candidate and window != self:
 							nameError = True
 							break
@@ -375,57 +373,52 @@ class dPemMixin(dabo.common.dObject):
 			# wouldn't matter anyway in a practical sense.
 			pass					
 
-		self._pemObject.SetName(str(name))
-		self._name = self._pemObject.GetName()
+		self.SetName(str(name))
+		self._name = self.GetName()
 
 	def _getCaption(self):
-		return self._pemObject.GetLabel()
+		return self.wm_title()
 	def _setCaption(self, caption):
-		self._pemObject.SetLabel(str(caption))
-
-		# Frames have a Title separate from Label, but I can't think
-		# of a reason why that would be necessary... can you? 
-		self._pemObject.SetTitle(str(caption))
-
+		self.wm_title(str(caption))
 
 	def _getEnabled(self):
-		return self._pemObject.IsEnabled()
+		return self.IsEnabled()
 	def _setEnabled(self, value):
-		self._pemObject.Enable(value)
+		self.Enable(value)
 
 
 	def _getBackColor(self):
-		return self._pemObject.GetBackgroundColour()
+		return self.GetBackgroundColour()
 
 	def _getBackColorEditorInfo(self):
 		return {'editor': 'colour'}
 
 	def _setBackColor(self, value):
-		self._pemObject.SetBackgroundColour(value)
-		if self._pemObject == self:
+		self.SetBackgroundColour(value)
+		if self == self:
 			# Background color changes don't seem to result in
 			# an automatic refresh.
 			self.Refresh()
 
 
 	def _getForeColor(self):
-		return self._pemObject.GetForegroundColour()
+		return self.GetForegroundColour()
 
 	def _getForeColorEditorInfo(self):
 		return {'editor': 'colour'}
 
 	def _setForeColor(self, value):
-		self._pemObject.SetForegroundColour(value)
+		self.SetForegroundColour(value)
 
 
 	def _getMousePointer(self):
-		return self._pemObject.GetCursor()
+		return self.GetCursor()
 	def _setMousePointer(self, value):
-		self._pemObject.SetCursor(value)
+		self.SetCursor(value)
 
 
 	def _getToolTipText(self):
-		t = self._pemObject.GetToolTip()
+		t = self.GetToolTip()
 		if t:
 			return t.GetTip()
 		else:
@@ -435,25 +428,25 @@ class dPemMixin(dabo.common.dObject):
 		return {'editor': 'string', 'len': 8192}
 
 	def _setToolTipText(self, value):
-		t = self._pemObject.GetToolTip()
+		t = self.GetToolTip()
 		if t:
 			t.SetTip(value)
 		else:
 			if value:
 				t = wx.ToolTip(str(value))
-				self._pemObject.SetToolTip(t)
+				self.SetToolTip(t)
 
 
 	def _getHelpContextText(self):
-		return self._pemObject.GetHelpText()
+		return self.GetHelpText()
 	def _setHelpContextText(self, value):
-		self._pemObject.SetHelpText(str(value))
+		self.SetHelpText(str(value))
 
 
 	def _getVisible(self):
-		return self._pemObject.IsShown()
+		return self.IsShown()
 	def _setVisible(self, value):
-		self._pemObject.Show(bool(value))
+		self.Show(bool(value))
 
 	def _getParent(self):
 		parent = self.nametowidget(self.winfo_parent())
@@ -466,7 +459,7 @@ class dPemMixin(dabo.common.dObject):
 		return None
 
 	def _getWindowHandle(self):
-		return self._pemObject.GetHandle()
+		return self.GetHandle()
 
 	def _getBorderStyle(self):
 		if self.hasWindowStyleFlag(wx.RAISED_BORDER):
