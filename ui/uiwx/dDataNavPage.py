@@ -305,7 +305,7 @@ class dSelectPage(DataNavPage):
 					matchVal = ctrl.Value
 				matchStr = str(matchVal)
 				useStdFormat = True
-				
+
 				if fldType in ("char", "memo"):
 					if opVal == "Equals":
 						opStr = "="
@@ -382,7 +382,9 @@ class dSelectPage(DataNavPage):
 		
 
 	def requery(self):
-		bizobj = self.Form.getBizobj()
+		frm = self.Form
+		frm.activeControlValid()
+		bizobj = frm.getBizobj()
 		ret = False
 		if bizobj is not None:
 			self.setWhere(bizobj)
@@ -398,7 +400,7 @@ class dSelectPage(DataNavPage):
 			# But it won't automatically use that sql, so we set it here:
 			bizobj.setSQL(sql)
 	
-			ret = self.Form.requery()
+			ret = frm.requery()
 
 		if ret:
 			if self.GetParent().GetSelection() == 0:
