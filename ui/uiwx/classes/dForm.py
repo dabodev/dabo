@@ -24,6 +24,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
     '''
 
     def __init__(self, parent=None, name="dForm", resourceString=None):
+        
+        self._baseClass = dForm
+        
         if parent:
             style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT
         else:

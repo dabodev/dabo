@@ -3,6 +3,9 @@ import dControlMixin as cm
 
 class dLabel(wx.StaticText, cm.dControlMixin):
     def __init__(self, parent, name="dLabel", label="", windowStyle=None):
+        
+        self._baseClass = dLabel
+        
         pre = wx.PreStaticText()
         self.beforeInit(pre)                  # defined in dPemMixin
         pre.Create(parent, -1, label, (-1,-1), (-1,-1), windowStyle)

@@ -6,6 +6,9 @@ import dDataControlMixin as dcm
 
 class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
     def __init__(self, parent, name="dEditBox"):
+    
+        self._baseClass = dEditBox
+        
         pre = wx.PreTextCtrl()
         self.beforeInit(pre)                  # defined in dPemMixin
         pre.Create(parent, -1, '', (-1,-1), (-1,-1),

@@ -9,6 +9,9 @@ class dPanel(wx.Panel, dControlMixin.dControlMixin):
     '''
 
     def __init__(self, parent, name="dPanel"):
+    
+        self._baseClass = dPanel
+        
         pre = wx.PrePanel()
         self.beforeInit(pre)                  # defined in dPemMixin
         pre.Create(parent, 0)

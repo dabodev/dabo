@@ -6,7 +6,7 @@ class dPage(dPanel.dPanel):
     def __init__(self, parent, name="dPage"):
         dPage.doDefault(parent, name)
     
-        
+    
     def afterInit(self):
         self.initSizer()
         self.itemsCreated = False

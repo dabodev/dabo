@@ -5,6 +5,9 @@ import dDataControlMixin as dcm
 
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
     def __init__(self, parent, name="dCheckBox", label=""):
+        
+        self._baseClass = dCheckBox
+        
         pre = wx.PreCheckBox()
         self.beforeInit(pre)                  # defined in dPemMixin
         pre.Create(parent, -1, label)

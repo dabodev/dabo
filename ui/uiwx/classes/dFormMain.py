@@ -14,6 +14,9 @@ else:
 
 class dFormMain(wxFrameClass, fm.dFormMixin):
     def __init__(self, dApp=None):
+    
+        self._baseClass = dFormMain
+        
         pre = wxPreFrameClass()
         self.beforeInit(pre)                  # defined in dPemMixin
         pre.Create(None, -1, "dFormMain")
@@ -40,7 +43,7 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
         
         self.afterInit()                      # defined in dPemMixin
         
-        
+    
 if __name__ == "__main__":
     import test
     test.Test().runTest(dFormMain)

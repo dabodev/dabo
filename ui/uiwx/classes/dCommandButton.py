@@ -5,6 +5,8 @@ class dCommandButton(wx.Button, cm.dControlMixin):
     def __init__(self, parent, name="dCommandButton", label="", 
             pos=wx.DefaultPosition, size=wx.DefaultSize):
         
+        self._baseClass = dCommandButton
+        
         pre = wx.PreButton()
         self.beforeInit(pre)                  # defined in dPemMixin
         pre.Create(parent, -1, label, pos, size)
@@ -14,8 +16,8 @@ class dCommandButton(wx.Button, cm.dControlMixin):
         
         cm.dControlMixin.__init__(self, name)
         self.afterInit()                      # defined in dPemMixin
-        
-        
+    
+    
     def initEvents(self):
         # init the common events:
         cm.dControlMixin.initEvents(self)

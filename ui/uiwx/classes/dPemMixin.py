@@ -51,8 +51,7 @@ class dPemMixin(object):
         be loaded. Subclasses can override this as necessary.
         '''
         self._name = "?"
-        pass
-        
+    
     
     def afterInit(self):
         ''' Called after the wx object's __init__ has run fully.
@@ -76,6 +75,12 @@ class dPemMixin(object):
     # Scroll to the bottom to see the property definitions.
     
     # Property get/set/delete methods follow.
+    def _getClass(self):
+        try:
+            return self.__class__
+        except AttributeError:
+            return None
+            
     def _getBaseClass(self):
         try:
             return self._baseClass
@@ -83,10 +88,11 @@ class dPemMixin(object):
             return None
         
     def _getParentClass(self):
-        try:
-            return self._parentClass
-        except AttributeError:
+        if self.BaseClass == self.Class:
+            # Any higher up goes into the wx classes:
             return None
+        else:
+            return self.__class__.__base__
     
         
     def _getFont(self):
@@ -204,10 +210,12 @@ class dPemMixin(object):
     # Property definitions follow
     Name = property(_getName, _setName, None, 
                     'The name of the object. (str)')
+    Class = property(_getClass, None, None,
+                    'The class the object is based on. Read-only. (class)')
     BaseClass = property(_getBaseClass, None, None, 
-                    'The base class of the object. Read-only. (str)')
+                    'The base class of the object. Read-only. (class)')
     ParentClass = property(_getParentClass, None, None, 
-                    'The parent class of the object. Read-only. (str)')
+                    'The parent class of the object. Read-only. (class)')
     
     Parent = property(_getParent, None, None,
                     'The containing object. Read-only. (obj)')

@@ -3,6 +3,9 @@ import wx, dControlMixin
 class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
     
     def __init__(self, parent, name="dPageFrame"):
+        
+        self._baseClass = dPageFrame
+        
         pre = wx.PreNotebook()
         self.beforeInit(pre)                  # defined in dPemMixin
         pre.Create(parent, -1)

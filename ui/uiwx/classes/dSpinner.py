@@ -5,6 +5,9 @@ import dDataControlMixin as dcm
 class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
     
     def __init__(self, parent, name="dSpinner"):
+    
+        self._baseClass = dSpinner
+        
         pre = wx.PreSpinCtrl()
         self.beforeInit(pre)                  # defined in dPemMixin
         pre.Create(parent, -1)
