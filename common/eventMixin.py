@@ -13,7 +13,8 @@ class EventMixin(object):
 		self.EventBindings.append((eventClass, function))
 		
 		
-	def raiseEvent(self, eventClass, uiEvent=None, uiCallAfterFunc=None, *args, **kwargs):
+	def raiseEvent(self, eventClass, uiEvent=None, 
+	               uiCallAfterFunc=None, *args, **kwargs):
 		""" Send the event to all registered listeners.
 		
 		If uiEvent is sent, dEvents.Event will be able to parse it for useful
@@ -34,6 +35,21 @@ class EventMixin(object):
 		
 		# Instantiate the event, no matter if there aren't any bindings: the event
 		# did happen, after all, and perhaps we want to log that fact.
+
+		# self.__raisedEvents keeps track of a possible problem identified by 
+		# Vladimir. It is debug code that isn't intended to stick around.
+		try: self.__raisedEvents
+		except AttributeError:
+			self.__raisedEvents = []
+			
+		eventSig = (eventClass, args, kwargs)
+		if eventSig in self.__raisedEvents:
+			dabo.errorLog.write("End-around call of event %s" % str(eventSig))
+			#traceback.print_stack()
+			return None
+		else:
+			self.__raisedEvents.append(eventSig)
+			
 		event = eventClass(self, uiEvent, *args, **kwargs)
 		
 		# Now iterate the bindings, and execute the callbacks:
@@ -58,7 +74,8 @@ class EventMixin(object):
 				# The event handler set the Continue flag to False, specifying that
 				# no more event handlers should process the event.
 				break
-
+		self.__raisedEvents.pop()
+		
 		if uiEvent is not None:
 			# Let the UI lib know whether to do the default event behavior
 			if event.Continue:

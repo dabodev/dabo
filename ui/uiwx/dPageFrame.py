@@ -47,11 +47,12 @@ class dPageFrame(wx.Notebook, cm.dControlMixin):
 		
 	def __pageChanged(self, newPageNum, oldPageNum):		
 		self._lastPage = newPageNum
-		if newPageNum >= 0 and self.PageCount > newPageNum:
-			self.GetPage(newPageNum).raiseEvent(dEvents.PageEnter)
 		if oldPageNum is not None:
 			if oldPageNum >=0:
 				self.GetPage(oldPageNum).raiseEvent(dEvents.PageLeave)
+
+		if newPageNum >= 0 and self.PageCount > newPageNum:
+			self.GetPage(newPageNum).raiseEvent(dEvents.PageEnter)
 		
 		
 	# property get/set functions:
