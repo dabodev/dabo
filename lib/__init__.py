@@ -1,7 +1,10 @@
 """ External libraries that can be loaded into Daboized applications.
 """
-import os
+import os as __os
 
 # OpenFox functions: (FoxPro syntax)
-os.environ["OPENFOX_LOADUI"] = "0"
+__os.environ["OPENFOX_LOADUI"] = "0"
 import ofFunctions
+
+# Improved autosuper by Tim Delaney
+import autosuper

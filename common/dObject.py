@@ -3,8 +3,9 @@ from dabo.common import PropertyHelperMixin
 from dabo.common import DoDefaultMixin
 from dabo.common import EventMixin
 from dabo.dLocalize import _
-				
-class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
+from dabo.lib import autosuper
+	
+class dObject(DoDefaultMixin, autosuper.autosuper, PropertyHelperMixin, EventMixin):
 	""" The basic ancestor of all dabo objects.
 	"""
 	
