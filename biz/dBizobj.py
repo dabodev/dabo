@@ -855,6 +855,12 @@ class dBizobj(dabo.common.dObject):
 			parent = relation["parent"]
 			parentField = relation["parentField"]
 			
+			if self.getAncestorByDataSource(child):
+				# The 'child' already exists as an ancestor of this bizobj. This can
+				# happen in many-to-many relationships. We don't want to add it,
+				# as this creates infinite loops.
+				continue
+				
 			childBiz = self.getChildByDataSource(child)
 			if not childBiz:
 				childBizClass = bizModule.__dict__["Biz" + child.title()]
@@ -869,6 +875,17 @@ class dBizobj(dabo.common.dObject):
 			for gc in addedGrandChildren:
 				addedChildren.append(gc)
 		return addedChildren
+	
+	
+	def getAncestorByDataSource(self, ds):
+		ret = None
+		if self.Parent:
+			if self.Parent.DataSource == ds:
+				ret = self.Parent
+			else:
+				ret = self.Parent.getAncestorByDataSource(ds)
+		return ret
+	
 	
 	def requeryAllChildren(self):
 		""" Requery each child bizobj's data set.

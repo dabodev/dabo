@@ -60,11 +60,6 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		
 	def _setValue(self, value):
 		dCheckBox.doDefault(value)
-# 		curVal = value
-# 		if curVal != self._oldVal and self.DataSource and self.DataField:
-# 			self.setFieldVal(curVal)
-# 		self.SetValue(value)
-# 		self._oldVal = curVal
 
 		
 	# property definitions follow:

@@ -134,7 +134,7 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 		if self.target is not None:
 			try:
 				# If this has been cleared, clear the target field, too
-				if not self.GetStringSelection():
+				if "-ignore-" in self.GetStringSelection():
 					valtype = type(self.target.Value)
 					if valtype == type(""):
 						self.target.Value = ""
@@ -176,7 +176,7 @@ class dSelectPage(DataNavPage):
 				continue
 			opVal = self.selectFields[fld]["op"].Value
 			opStr = opVal
-			if opVal:
+			if not "-ignore-" in opVal:
 				fldType = self.selectFields[fld]["type"]
 				ctrl = self.selectFields[fld]["ctrl"]
 				matchVal = ctrl.Value
@@ -289,7 +289,7 @@ class dSelectPage(DataNavPage):
 			chc = ("Is True",
 					"Is False")
 		# Add the blank choice
-		chc = ("",) + chc
+		chc = ("  -ignore-  ",) + chc
 		return chc
 
 
@@ -325,6 +325,7 @@ class dSelectPage(DataNavPage):
 			
 			opt = self.getSelectorOptions(fldInfo["type"])
 			opList = SelectionOpDropdown(panel, choices=opt)
+			opList.SetSelection(0)
 			opList.setTarget(ctrl)
 			
 			gsz.Add(lbl, (gridRow, 0), flag=wx.RIGHT )
