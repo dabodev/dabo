@@ -36,6 +36,10 @@ class dComboBox(wx.ComboBox, dcm.dDataControlMixin):
 		evt.Skip()
 		self.raiseEvent(dabo.dEvents.Hit, evt)
 	
+
+	def _getValueModeEditorInfo(self):
+		return {"editor": "list", "values": ["string", "position", "key"]}
+
 	
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.

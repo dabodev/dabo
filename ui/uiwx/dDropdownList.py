@@ -29,6 +29,9 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 	def __onHit(self, evt):
 		self.flushValue()
 		
+	def _getValueModeEditorInfo(self):
+		return {"editor": "list", "values": ["string", "position", "key"]}
+
 	
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.

@@ -154,7 +154,9 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		else:
 			raise ValueError, "The only possible settings are 'None', 'Row', and 'Column'."
 			
-			
+	def _getValueModeEditorInfo(self):
+		return {"editor": "list", "values": ["string", "position", "key"]}
+
 	def _getOrientationEditorInfo(self):
 		return {'editor': 'list', 'values': ['None', 'Row', 'Column']}
 		
