@@ -39,7 +39,7 @@
 				<y>"5.5 in"</y>
 			</string>
 			<rect>
-				<fillColor>(.5, .1, .5)</fillColor>
+				<fillColor>(.87, .72, .53)</fillColor>
 				<height>".25 in"</height>
 				<name>test2</name>
 				<rotation>45</rotation>
