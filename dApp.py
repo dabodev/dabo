@@ -5,10 +5,14 @@
 	and lives through the life of the application.
 
 		-- set up an empty data connections object which holds 
-		-- connectInfo objects connected to pretty names. Entries
-		-- can be added programatically, but upon initialiazation
-		-- it will look for a file called 'dbConnectionDefs.py' which
-		-- contains connection definitions.
+		-- connectInfo objects connected to pretty names. If there 
+		-- is a file named 'default.cnxml' present, it will import the
+		-- connection definitions contained in that. If no file of that
+		-- name exists, it will import any .cnxml file it finds. If there
+		-- are no such files, it will then revert to the old behavior
+		-- of importing a file in the current directory called 
+		-- 'dbConnectionDefs.py', which contains connection
+		-- definitions in python code format instead of XML.
 
 		-- Set up a DB Connection manager, that is basically a dictionary
 		-- of dConnection objects. This allows connections to be shared
@@ -32,7 +36,7 @@
 
 		-- clean up and exit gracefully
 """
-import sys, os, warnings
+import sys, os, warnings, glob
 import ConfigParser
 import dabo, dabo.ui, dabo.db
 import dabo.common, dSecurityManager
@@ -183,7 +187,7 @@ class dApp(dabo.common.dObject):
 			
 		The return value would be ["pkm", "egl"]
 		"""
-		configFileName = '%s/.userSettings.ini' % self.HomeDirectory
+		configFileName = "%s/.userSettings.ini" % self.HomeDirectory
 
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
@@ -222,7 +226,7 @@ class dApp(dabo.common.dObject):
 						day,hour,minute,second,?,?,?)'
 
 		"""
-		configFileName = '%s/.userSettings.ini' % self.HomeDirectory
+		configFileName = "%s/.userSettings.ini" % self.HomeDirectory
 
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
@@ -252,7 +256,7 @@ class dApp(dabo.common.dObject):
 		"""
 		# For now, save this info in a plain ini file. Eventually, I'd like
 		# to see this get saved in a persistent dabosettings db table.
-		configFileName = '%s/.userSettings.ini' % self.HomeDirectory
+		configFileName = "%s/.userSettings.ini" % self.HomeDirectory
 
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
@@ -274,7 +278,7 @@ class dApp(dabo.common.dObject):
 			cp.add_section("UserSettingsValueTypes")
 		cp.set("UserSettingsValueTypes", item, valueType)
 
-		configFile = open(configFileName, 'w')
+		configFile = open(configFileName, "w")
 		cp.write(configFile)
 		configFile.close()
 		
@@ -291,7 +295,7 @@ class dApp(dabo.common.dObject):
 	def _initProperties(self):
 		""" Initialize the public properties of the app object. """
 
-		self.uiType   = None    # ('wx', 'qt', 'curses', 'http', etc.)
+		self.uiType   = None    # ("wx", "qt", "curses", "http", etc.)
 		#self.uiModule = None
 
 		# Initialize UI collections
@@ -308,39 +312,39 @@ class dApp(dabo.common.dObject):
 		self._appInfo = {}
 
 	def _initDB(self):
-		""" Set the available connection definitions for use by the app. """
-
-		dbConnectionDefs = None
-		try:
-			import dbConnectionDefs
-			dbConnectionDefs = dbConnectionDefs.getDefs()
-		except (ImportError, NameError, AttributeError):
-			dbConnectionDefs = None
-
-		if dbConnectionDefs and type(dbConnectionDefs) == type(dict()):
+		"""Set the available connection definitions for use by the app. 
+		First look for a file named 'default.cnxml'; if none exists, 
+		read in all .cnxml files. If no such XML definition files exist,
+		check for a python code definition file named 'dbConnectionDefs'.
+		"""
+		connDefs = {}
+		parser = dabo.common.connParser
+		if os.path.exists("default.cnxml"):
+			connDefs = parser.importConnections("default.cnxml")
+		if not connDefs:
+			# Try importing all .cnxml files
+			cnFiles = glob.glob("*.cnxml")
+			for cn in cnFiles:
+				cnDefs = parser.importConnections(cn)
+				connDefs.update(cnDefs)
+		if not connDefs:
+			# No XML definitions present. Try looking for python code
+			# definitions instead.
+			try:
+				import dbConnectionDefs
+				connDefs = dbConnectionDefs.getDefs()
+			except:
+				pass
+		
+		if connDefs:
 			# For each connection definition, add an entry to 
 			# self.dbConnectionDefs that contains a key on the 
 			# name, and a value of a dConnectInfo object.
-			for entry in dbConnectionDefs:
-				try:             dbType   = dbConnectionDefs[entry]['dbType']
-				except KeyError: dbType   = None
-				try:             host     = dbConnectionDefs[entry]['host']
-				except KeyError: host     = None
-				try:             user     = dbConnectionDefs[entry]['user']
-				except KeyError: user     = None
-				try:             password = dbConnectionDefs[entry]['password']
-				except KeyError: password = None
-				try:             dbName   = dbConnectionDefs[entry]['dbName']
-				except KeyError: dbName   = None
-				try:             port     = dbConnectionDefs[entry]['port']
-				except KeyError: port     = None
-
-				self.dbConnectionDefs[entry] = dabo.db.dConnectInfo(backendName=dbType,
-						host=host, 
-						user=user,
-						password=password,
-						dbName=dbName,
-						port=port)
+			for k in connDefs.keys():
+				entry = connDefs[k]
+				ci = dabo.db.dConnectInfo()
+				ci.setConnInfo(entry)
+				self.dbConnectionDefs[k] = ci
 
 			dabo.infoLog.write(_("%s database connection definition(s) loaded.") % (
 												len(self.dbConnectionDefs)))
@@ -450,10 +454,10 @@ class dApp(dabo.common.dObject):
 	def _setSecurityManager(self, value):
 		if isinstance(value, dSecurityManager.dSecurityManager):
 			if self.SecurityManager:
-				warnings.warn(Warning, _('SecurityManager previously set'))
+				warnings.warn(Warning, _("SecurityManager previously set"))
 			self._securityManager = value
 		else:
-			raise TypeError, _('SecurityManager must descend from dSecurityManager.')
+			raise TypeError, _("SecurityManager must descend from dSecurityManager.")
 			
 			
 	def _getUI(self):
