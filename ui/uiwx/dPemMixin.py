@@ -48,7 +48,6 @@ class dPemMixin(dPemMixinBase):
 		
 		# This will implicitly call the following user hooks:
 		#    beforeInit()
-		#    initStyleProperties()
 		self._beforeInit(pre)
 		
 		# Now that user code has had an opportunity to set the properties, we can 
@@ -128,7 +127,6 @@ class dPemMixin(dPemMixinBase):
 		self._acceleratorTable = {}
 		self._name = "?"
 		self._pemObject = pre
-		self.initStyleProperties()
 		
 		# Call the subclass hook:
 		self.beforeInit()
@@ -164,7 +162,7 @@ class dPemMixin(dPemMixinBase):
 		
 	def _preInitUI(self, kwargs):
 		"""Subclass hook. Some wx objects (RadioBox) need certain props forced if
-		they hadn't been set by the user either as a parm or in initStyleProperties"""
+		they hadn't been set by the user either as a parm or in beforeInit()"""
 		return kwargs
 		
 	def _getInitPropertiesList(self):

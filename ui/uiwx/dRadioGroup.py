@@ -59,8 +59,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	def _preInitUI(self, kwargs):
 		if not kwargs.has_key("choices"):
 			# init will fail if Choices wasn't set up by now, either by sending it 
-			# as an arg to the constructor or by setting it in initStyleProperties()
-			# or beforeInit().
+			# as an arg to the constructor or by setting it in beforeInit().
 			self._choices = kwargs["choices"] = ["1", "2", "3"]
 		if not kwargs.has_key("majorDimension"):
 			self._maxElements = kwargs["majorDimension"] = 1

@@ -9,7 +9,7 @@ import dabo.dEvents as dEvents
 dKeys = dabo.ui.dKeys
 
 class lbl(dabo.ui.dLabel):
-	def initStyleProperties(self):
+	def beforeInit(self):
 		self.Alignment = "Right"
 		self.AutoResize = False
 
@@ -17,7 +17,7 @@ class lbl(dabo.ui.dLabel):
 		self.Width = 100
 				
 class lblMessage(dabo.ui.dLabel):
-	def initStyleProperties(self):
+	def beforeInit(self):
 		self.Alignment = "Center"
 		self.AutoResize = False
 		
@@ -33,12 +33,12 @@ class txt(dabo.ui.dTextBox):
 	pass
 			
 class txtPass(txt):
-	def initStyleProperties(self):
+	def beforeInit(self):
 		self.PasswordEntry = True
 		
 		
 class Login(dabo.ui.dDialog):
-	def initStyleProperties(self):
+	def beforeInit(self):
 		self.ShowCloseButton = True
 		self.ShowCaption = False
 		self.BorderResizable = True

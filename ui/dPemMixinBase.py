@@ -64,16 +64,6 @@ class dPemMixinBase(dabo.common.dObject):
 		pass
 		
 			
-	def initStyleProperties(self):
-		""" Hook for subclasses.
-
-		User code can set style properties here, such as:
-			self.BorderStyle = "Sunken"
-			self.Alignment = "Center"
-		"""
-		pass
-
-		
 	def initChildObjects(self):
 		""" Hook for subclasses.
 		
