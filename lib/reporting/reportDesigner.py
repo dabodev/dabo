@@ -5,6 +5,13 @@ import dabo.dEvents as dEvents
 from reportWriter import ReportWriter
 
 
+#------------------------------------------------------------------------------
+#  BandLabel Class
+# 
+#  These are the bands like pageHeader, pageFooter, and detail that
+#  the user can drag up and down to make the band smaller or larger,
+#  respectively.
+
 class BandLabel(dabo.ui.dPanel):
 	def afterInit(self):
 		self._dragging = False
@@ -120,6 +127,17 @@ class BandLabel(dabo.ui.dPanel):
 
 	Caption = property(_getCaption, _setCaption)
 
+#  End BandLabel Class
+#
+#------------------------------------------------------------------------------
+
+
+#------------------------------------------------------------------------------
+#
+#  Band Class
+#
+#  Bands contain any number of objects, which can receive the focus and be
+#  acted upon. Bands also manage their own BandLabels.
 
 class Band(dabo.ui.dPanel):
 	def afterInit(self):
@@ -162,12 +180,20 @@ class Band(dabo.ui.dPanel):
 				self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
 				self.bindEvent(dEvents.MouseLeave, self.onMouseLeave)
 
-			def getProp(self, prop):
+			def getProp(self, prop, evaluate=True):
 				try:
-					val = eval(self.props[prop])
+					val = self.props[prop]
 				except KeyError:
 					val = None
-				return val
+
+				if evaluate and val is not None and prop not in ("type",):
+					try:
+						vale = eval(val)
+					except:
+						vale = "?: %s" % str(val)
+				else:
+					vale = val
+				return vale
 
 			def setProp(self, prop, val, sendPropsChanged=True):
 				"""Set the specified object property to the specified value.
@@ -219,8 +245,17 @@ class Band(dabo.ui.dPanel):
 
 			def onLeftClick(self, evt):
 				if not self.Selected:
-					self._rd._selectedObjects = [self,]
-					self._rd.Refresh()
+					if evt.EventData["shiftDown"] or evt.EventData["controlDown"]:
+						self._rd._selectedObjects.append(self)
+					else:
+						self._rd._selectedObjects = [self,]
+				else:
+					if evt.EventData["shiftDown"] or evt.EventData["controlDown"]:
+						for idx in range(len(self._rd._selectedObjects)):
+							if self._rd._selectedObjects[idx] == self:
+								del self._rd._selectedObjects[idx]
+								break
+				self._rd.Refresh()
 
 			def onPaint(self, evt):
 				import wx		## (need to abstract DC drawing)
@@ -269,6 +304,21 @@ class Band(dabo.ui.dPanel):
 				else:
 					# border around unselected control
 					dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
+
+				if self.getProp("type") == "string":
+					expr = self.getProp("expr", evaluate=False)
+					if expr is None:
+						expr = "<< missing expression >>"
+
+					alignments = {"left": wx.ALIGN_LEFT,
+					              "center": wx.ALIGN_CENTER,
+					              "right": wx.ALIGN_RIGHT,}
+
+					alignment = self.getProp("align")
+					if alignment is None:
+						alignment = self._rw.default_align
+					dc.DrawLabel(expr, (rect[0]+2, rect[1], rect[2]-4, rect[3]),
+					             alignments[alignment])
 
 			def _getSelected(self):
 				return self in self._rd._selectedObjects
@@ -428,7 +478,21 @@ class Band(dabo.ui.dPanel):
 
 	Caption = property(_getCaption, _setCaption)
 
+#  End Band Class
+#
+#------------------------------------------------------------------------------
 
+
+#------------------------------------------------------------------------------
+#
+#  ReportDesigner Class
+#
+#  This is the main report designer panel that contains the bands and
+#  handles setting properties on report objects. While a given object is
+#  considered to be owned by a particular band, the report designer still
+#  controls the placement of the object because, among other things, a given
+#  object can cross bands (a rectangle extending from the group header to the
+#  group footer, for instance) or move from one band to another.
 class ReportDesigner(dabo.ui.dScrollPanel):
 	def afterInit(self):
 		self._bands = []
@@ -743,6 +807,17 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 		return Ruler(self, Length=defaultLength, Thickness=defaultThickness)
 
+#  End of ReportDesigner Class
+# 
+#------------------------------------------------------------------------------
+
+
+#------------------------------------------------------------------------------
+#
+#  ReportDesignerForm Class
+#
+#  This class provides the containing form, status bar, and menu for the
+#  ReportDesigner.
 
 class ReportDesignerForm(dabo.ui.dForm):
 	def afterInit(self):
@@ -850,6 +925,11 @@ class ReportDesignerForm(dabo.ui.dForm):
 
 		viewMenu.append("Zoom &Out\tCtrl+-", bindfunc=self.onViewZoomOut, 
 		                bmp="zoomOut", help="Zoom Out")
+
+#  End of ReportDesignerForm Class
+#
+#------------------------------------------------------------------------------
+
 
 if __name__ == "__main__":
 	app = dabo.dApp()

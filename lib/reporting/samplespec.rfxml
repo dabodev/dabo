@@ -3,10 +3,10 @@
 		<objects>
 			<string>
 				<expr>self.Record['cArtist']</expr>
-				<height>12</height>
+				<height>15</height>
 				<name>cArtist</name>
 				<type>string</type>
-				<width>329.0</width>
+				<width>328.0</width>
 				<x>59.0</x>
 				<y>5</y>
 			</string>
@@ -84,12 +84,12 @@
 				<fontName>"Helvetica"</fontName>
 				<fontSize>14</fontSize>
 				<hAnchor>"center"</hAnchor>
-				<height>".18 in"</height>
+				<height>15.96</height>
 				<name>title</name>
 				<type>string</type>
-				<width>340.0</width>
+				<width>384.0</width>
 				<x>265.0</x>
-				<y>1.0</y>
+				<y>0.0</y>
 			</string>
 		</objects>
 		<height>"0.5 in"</height>
