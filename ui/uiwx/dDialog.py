@@ -2,9 +2,9 @@ import wx
 import dabo
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
-import dPemMixin as pm
+import dFormMixin as fm
 
-class dDialog(wx.Dialog, pm.dPemMixin):
+class dDialog(wx.Dialog, fm.dFormMixin):
 	_IsContainer = True
 	
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
@@ -20,40 +20,17 @@ class dDialog(wx.Dialog, pm.dPemMixin):
 			kwargs["style"] = defaultStyle
 
 		preClass = wx.PreDialog
-		pm.dPemMixin.__init__(self, preClass, parent, properties=properties, 
+		fm.dFormMixin.__init__(self, preClass, parent, properties=properties, 
 				*args, **kwargs)
 
-	def _initEvents(self):
-		self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
-		self.Bind(wx.EVT_CLOSE, self.__onWxClose)
-		self.bindEvent(dEvents.Activate, self.__onActivate)
-		self.bindEvent(dEvents.Close, self.__onClose)
-		
+
 	def _afterInit(self):
+		self.MenuBarClass = None
 		self.Sizer = dabo.ui.dSizer("V")
 		super(dDialog, self)._afterInit()
 		# Hook method, so that we add the buttons last
 		self._addControls()
 
-	def __onWxClose(self, evt):
-		self.raiseEvent(dEvents.Close, evt)
-		
-	def __onWxActivate(self, evt):
-		""" Raise the Dabo Activate or Deactivate appropriately.
-		"""
-		if bool(evt.GetActive()):
-			self.raiseEvent(dEvents.Activate, evt)
-		else:
-			self.raiseEvent(dEvents.Deactivate, evt)
-			
-	def __onActivate(self, evt): 
-		if hasattr(self, "GetStatusBar"):
-			if self.GetStatusBar() is None and self.ShowStatusBar:
-				self.CreateStatusBar()
-
-	def __onClose(self, evt):
-		if self.Application is not None:
-			self.Application.uiForms.remove(self)
 		
 	def show(self):
 		if self.AutoSize:

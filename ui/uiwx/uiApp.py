@@ -1,6 +1,7 @@
 import sys, os, wx
 import dabo
 import dabo.ui as ui
+import dabo.ui.dialogs
 import dabo.dEvents as dEvents
 from dabo.common.dObject import dObject
 
@@ -299,16 +300,10 @@ class uiApp(wx.App, dObject):
 	def getLoginInfo(self, message=None):
 		""" Display the login form, and return the user/password as entered by the user.
 		"""
-		try:
-			ld = self.loginDialog
-		except AttributeError:
-			ld = ui.dLogin(self.dApp.MainForm)
-		if message:
-			ld.setMessage(message)
-		ld.CenterOnParent()
-		ld.ShowModal()
+		ld = ui.dialogs.Login(self.dApp.MainForm)
+		ld.setMessage(message)
+		ld.show()
 		user, password = ld.user, ld.password
-		self.loginDialog = ld
 		return user, password
 	
 	

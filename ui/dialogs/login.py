@@ -1,13 +1,14 @@
-import wx, dabo
-from dLabel import dLabel
-from dTextBox import dTextBox
-from dDialog import dDialog
-from dButton import dButton
-from dSizer import dSizer
+import wx
+import dabo, dabo.ui
+
+if dabo.ui.getUIType() is None:
+	dabo.ui.loadUI("wx")
+
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
-class lbl(dLabel):
+
+class lbl(dabo.ui.dLabel):
 	def initStyleProperties(self):
 		self.Alignment = "Right"
 		self.AutoResize = False
@@ -15,7 +16,7 @@ class lbl(dLabel):
 	def initProperties(self):	
 		self.Width = 100
 				
-class lblMessage(dLabel):
+class lblMessage(dabo.ui.dLabel):
 	def initStyleProperties(self):
 		self.Alignment = "Center"
 		self.AutoResize = False
@@ -28,7 +29,7 @@ class lblMessage(dLabel):
 		self.Caption = _("Please enter your login information.")
 
 				
-class txt(dTextBox):
+class txt(dabo.ui.dTextBox):
 	pass
 			
 class txtPass(txt):
@@ -36,15 +37,14 @@ class txtPass(txt):
 		self.PasswordEntry = True
 		
 		
-class dLogin(dDialog):
+class Login(dabo.ui.dDialog):
 	def initStyleProperties(self):
 		self.ShowCloseButton = True
 		self.ShowCaption = False
 		self.BorderResizable = True
 		
 	def initProperties(self):
-		#dLogin.doDefault()
-		super(dLogin, self).initProperties()
+		super(Login, self).initProperties()
 		if self.Application:
 			appName = self.Application.getAppInfo("appName")
 		else:
@@ -54,6 +54,8 @@ class dLogin(dDialog):
 		else:
 			self.Caption = "Please Login"
 		
+		self.AutoSize = False
+
 		self.addObject(lbl, 'lblUserName')
 		self.addObject(txt, 'txtUserName')
 		self.lblUserName.Caption = "User:"
@@ -64,8 +66,8 @@ class dLogin(dDialog):
 		self.lblPassword.Caption = "Password:"
 		self.txtPassword.Value = ""
 		
-		self.addObject(dButton, 'cmdAccept')
-		self.addObject(dButton, 'cmdCancel')
+		self.addObject(dabo.ui.dButton, 'cmdAccept')
+		self.addObject(dabo.ui.dButton, 'cmdCancel')
 		self.cmdAccept.Caption = "Accept"
 		self.cmdAccept.Default = True
 		self.cmdCancel.Caption = "Cancel"
@@ -81,26 +83,25 @@ class dLogin(dDialog):
 			
 		
 	def afterInit(self):
-		#dLogin.doDefault()
-		super(dLogin, self).afterInit()
+		super(Login, self).afterInit()
 		mainSizer = self.Sizer
 		
 		mainSizer.append((0,5))
 		
-		bs1 = dSizer("horizontal")
+		bs1 = dabo.ui.dSizer("horizontal")
 		bs1.append(self.bm)
 
 		bs1.append((23,0))
 		
-		vs = dSizer("vertical")
-		bs = dSizer("horizontal")
+		vs = dabo.ui.dSizer("vertical")
+		bs = dabo.ui.dSizer("horizontal")
 		
 		bs.append(self.lblUserName)
 		bs.append(self.txtUserName, proportion=1)
 		bs.append((5,0))
 		vs.append(bs, "expand", 1)
 		
-		bs = dSizer("horizontal")
+		bs = dabo.ui.dSizer("horizontal")
 		bs.append(self.lblPassword)
 		bs.append(self.txtPassword, proportion=1)
 		bs.append((5,0))
@@ -113,7 +114,7 @@ class dLogin(dDialog):
 		
 		mainSizer.append(self.lblMessage, "expand", 1)
 		
-		bs = dSizer("horizontal")
+		bs = dabo.ui.dSizer("horizontal")
 		bs.append(self.cmdAccept, alignment=("bottom",))
 		bs.append((3,0))	
 		bs.append(self.cmdCancel, alignment=("bottom",))
@@ -151,6 +152,6 @@ class dLogin(dDialog):
 		
 if __name__ == '__main__':
 	app = wx.PySimpleApp()
-	form = dLogin(None)
-	form.ShowModal()
+	form = Login(None)
+	form.show()
 	print form.user, form.password
