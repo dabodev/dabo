@@ -45,7 +45,8 @@ class dTimer(dabo.ui.dBitmap):
 		if designTime:
 			#dTimer.doDefault(*args, **kwargs)
 			super(dTimer, self).Show(*args, **kwargs)
-	
+		else:
+			self.Bitmap = None
 			
 	def start(self, interval=-1):
 		if interval >= 0:
