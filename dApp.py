@@ -41,6 +41,8 @@ import ConfigParser
 import dabo, dabo.ui, dabo.db
 import dabo.common, dSecurityManager
 from dLocalize import _
+from dabo.common.SimpleCrypt import SimpleCrypt
+
 
 class Collection(list):
 	""" 
@@ -88,6 +90,7 @@ class dApp(dabo.common.dObject):
 		# initially. The default behavior is for it to be shown, as usual.
 		self.showMainFormOnStart = True
 		self._wasSetup = False
+		self._cryptoProvider = None
 		
 
 	def setup(self, initUI=True):
@@ -286,6 +289,14 @@ class dApp(dabo.common.dObject):
 		else:
 			return None
 			
+
+	# These two methods pass encryption/decryption requests
+	# to the Crypto object
+	def encrypt(self, val):
+		return self.Crypto.encrypt(val)
+	def decrypt(self, val):
+		return self.Crypto.decrypt(val)
+
 
 	def _initProperties(self):
 		""" Initialize the public properties of the app object. """
@@ -488,32 +499,47 @@ class dApp(dabo.common.dObject):
 			self.uiApp._setActiveForm(frm)
 		else:
 			dabo.errorLog.write("Can't set ActiveForm: no uiApp.")
+	
+	
+	def _getCrypto(self):
+		if self._cryptoProvider is None:
+			# Use the default crypto
+			self._cryptoProvider = SimpleCrypt()
+		return self._cryptoProvider
+	def _setCrypto(self, val):
+		self._cryptoProvider = val
 
 	
 	ActiveForm = property(_getActiveForm, None, None, 
-			"Returns the form that currently has focus, or None.  (dForm)" )
+			_("Returns the form that currently has focus, or None.  (dForm)" ) )
+	
+	Crypto = property(_getCrypto, _setCrypto, None, 
+			_("Reference to the object that provides cryptographic services.  (varies)" ) )
 	
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
 			_("Specifies the home-base directory for the application's program files."))
 		
 	MainForm = property(_getMainForm, _setMainForm, None,
-			_("The object reference to the main form of the application, or None. This gets "
-			"set automatically during application setup, based on the MainFormClass."))
+			_("""The object reference to the main form of the application, or None. 
+			This gets set automatically during application setup, based on the 
+			MainFormClass."""))
 		
 	MainFormClass = property(_getMainFormClass, _setMainFormClass, None,
-			_("Specifies the class to use to instantiate the main form. Defaults to "
-			"the dFormMain base class. Set to None if you don't want a main form."))
+			_("""Specifies the class to use to instantiate the main form. Defaults to 
+			the dFormMain base class. Set to None if you don't want a main form."""))
 	
 	Platform = property(_getPlatform, None, None,
-			"Returns one of 'Mac', 'Win' or 'GTK', depending on where we're running  (string)")
+			_("""Returns one of 'Mac', 'Win' or 'GTK', depending on where we're 
+			running  (string)""") )
 			
-	UI = property(_getUI, _setUI,
-			None, _("Specifies the user interface to load, or None. "
-			"Once set, it cannot be reassigned."))
+	UI = property(_getUI, _setUI, None, 
+			_("""Specifies the user interface to load, or None. Once set, 
+			it cannot be reassigned.  (str)""") )
 	
-	SecurityManager = property(_getSecurityManager, _setSecurityManager,
-			None, _("Specifies the Security Manager, if any. You "
-			"must subclass dSecurityManager, overriding the appropriate hooks "
-			"and properties, and then set dApp.SecurityManager to an instance "
-			"of your subclass. There is no security manager by default - you "
-			"explicitly set this to use Dabo security."))
+	SecurityManager = property(_getSecurityManager, _setSecurityManager, None, 
+			_("""Specifies the Security Manager, if any. You must subclass 
+			dSecurityManager, overriding the appropriate hooks and properties, 
+			and then set dApp.SecurityManager to an instance of your subclass. 
+			There is no security manager by default - you explicitly set this 
+			to use Dabo security.""") )
+
