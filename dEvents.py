@@ -41,7 +41,12 @@ class Event(dObject):
 		ne = self._uiEvent
 		
 		self.EventData["timestamp"] = time.localtime()
-		
+
+		# Add any keyword args passed:
+		for key in self._kwargs.keys():
+			self.EventData[key] = self._kwargs[key]
+
+		# Add native event data:
 		if ne is not None:
 			# Each UI lib should implement getEventData()
 			uiEventData = dabo.ui.getEventData(ne)
@@ -231,7 +236,7 @@ class MouseRightUp(MouseEvent):
 	"""Occurs when the mouse's right button is released on the control."""
 	pass
 
-	
+
 class Paint(Event):
 	"""Occurs when it is time to paint the control."""
 	pass
