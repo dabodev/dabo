@@ -3,7 +3,7 @@ from dFormMixin import dFormMixin
 from dPageFrame import dPageFrame
 from dPage import *
 import dabo.dConstants as k
-from dMessageBox import *
+import dMessageBox
 
 class dForm(wx.Frame, dFormMixin):
     ''' dabo.ui.uiwx.dForm() --> dForm
@@ -244,6 +244,7 @@ class dForm(wx.Frame, dFormMixin):
             Ask the primary bizobj to commit its changes to the 
             backend.
         '''
+        self.activeControlValid()
         bizobj = self.getBizobj()
         response = bizobj.save(allRows=self.saveAllRows)
         if response == k.FILE_OK:
@@ -252,11 +253,8 @@ class dForm(wx.Frame, dFormMixin):
             self.SetStatusText("Changes to %s saved." % (
                     self.saveAllRows and "all records" or "current record",))
         else:
-            if self.debug:
-                print "Save failed with response: %s" % response
-                print bizobj.getErrorMsg()
-            ### TODO: What should be done here? Raise an exception?
-            ###       Prompt the user for a response?
+            self.SetStatusText("Save failed.")
+            dMessageBox.stop("Save failed:\n\n%s" % bizobj.getErrorMsg())
     
     def cancel(self):
         ''' dForm.save() -> None
@@ -321,7 +319,7 @@ class dForm(wx.Frame, dFormMixin):
             controls.
         '''
         bizobj = self.getBizobj()
-        if dAreYouSure("This will delete the current record, and cannot "
+        if dMessageBox.areYouSure("This will delete the current record, and cannot "
                         "be cancelled.\n\n Are you sure you want to do this?",
                         defaultNo=True):
             response = bizobj.delete()
@@ -345,7 +343,7 @@ class dForm(wx.Frame, dFormMixin):
             controls.
         '''
         bizobj = self.getBizobj()
-        if dAreYouSure("This will delete all records in the recordset, and cannot "
+        if dMessageBox.areYouSure("This will delete all records in the recordset, and cannot "
                         "be cancelled.\n\n Are you sure you want to do this?",
                         defaultNo=True):
             response = bizobj.deleteAll()
@@ -448,6 +446,23 @@ class dForm(wx.Frame, dFormMixin):
     def getCurrentRecordText(self):
         return "Record %s/%s" % (self.getBizobj().getRowNumber()+1,
                                     self.getBizobj().getRowCount())
+    
+    def activeControlValid(self):
+        ''' dForm.activeControlValid() -> None
+        
+            Find the control with the focus, and force it to 
+            fire its KillFocus code so the bizobj has the 
+            correct value to play with.
+        '''
+        try:
+            controlWithFocus = self.controlWithFocus
+        except AttributeError:
+            controlWithFocus = None
+        if controlWithFocus:
+            for control in self.dControls:
+                self.dControls[control].SetFocus()
+            controlWithFocus.SetFocus()
+                        
     def _setupResources(self, resourceString):
         ''' dForm._setupResources(resourceString) -> None
         

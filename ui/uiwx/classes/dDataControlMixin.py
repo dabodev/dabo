@@ -55,6 +55,7 @@ class dDataControlMixin:
 
     
     def OnSetFocus(self, event):
+        self.dForm.controlWithFocus = self
         try:
             self._oldVal = self.GetValue()
         except AttributeError:   # labels, for example...

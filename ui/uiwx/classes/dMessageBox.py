@@ -12,7 +12,7 @@ class dMessageBox(wx.MessageDialog):
         wx.MessageDialog.__init__(self, mainForm, message, title, style)
 
 
-def dAreYouSure(message="Are you sure?", defaultNo=False, cancelButton=False):
+def areYouSure(message="Are you sure?", defaultNo=False, cancelButton=False):
     style = wx.YES_NO|wx.ICON_QUESTION
     if cancelButton:
         style = style|wx.CANCEL
@@ -31,6 +31,12 @@ def dAreYouSure(message="Are you sure?", defaultNo=False, cancelButton=False):
     else:
         return None
 
+def stop(message="Stop"):
+    style = wx.OK|wx.ICON_HAND
+    dlg = dMessageBox(message, "Dabo", style)
+    retval = dlg.ShowModal()
+    return None
+    
 if __name__ == "__main__":
     app = wx.PySimpleApp()
     print dAreYouSure("Are you happy?")
