@@ -403,6 +403,10 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 
 	def _setBackColor(self, value):
 		self._pemObject.SetBackgroundColour(value)
+		if self._pemObject == self:
+			# Background color changes don't seem to result in
+			# an automatic refresh.
+			self.Refresh()
 
 
 	def _getForeColor(self):
@@ -469,17 +473,26 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 			return 'Sunken'
 		elif self.hasWindowStyleFlag(wx.SIMPLE_BORDER):
 			return 'Simple'
-		else:
+		elif self.hasWindowStyleFlag(wx.DOUBLE_BORDER):
+			return 'Double'
+		elif self.hasWindowStyleFlag(wx.STATIC_BORDER):
+			return 'Static'
+		elif self.hasWindowStyleFlag(wx.NO_BORDER):
 			return 'None'
+		else:
+			return 'Default'
 
 	def _getBorderStyleEditorInfo(self):
-		return {'editor': 'list', 'values': ['None', 'Simple', 'Sunken', 'Raised']}
+		return {'editor': 'list', 'values': ['Default', 'None', 'Simple', 'Sunken', 
+						'Raised', 'Double', 'Static']}
 
 	def _setBorderStyle(self, style):
 		self.delWindowStyleFlag(wx.NO_BORDER)
 		self.delWindowStyleFlag(wx.SIMPLE_BORDER)
 		self.delWindowStyleFlag(wx.SUNKEN_BORDER)
 		self.delWindowStyleFlag(wx.RAISED_BORDER)
+		self.delWindowStyleFlag(wx.DOUBLE_BORDER)
+		self.delWindowStyleFlag(wx.STATIC_BORDER)
 
 		style = str(style)
 
@@ -491,6 +504,12 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 			self.addWindowStyleFlag(wx.SUNKEN_BORDER)
 		elif style == 'Raised':
 			self.addWindowStyleFlag(wx.RAISED_BORDER)
+		elif style == 'Double':
+			self.addWindowStyleFlag(wx.DOUBLE_BORDER)
+		elif style == 'Static':
+			self.addWindowStyleFlag(wx.STATIC_BORDER)
+		elif style == 'Default':
+			pass
 		else:
 			raise ValueError, ("The only possible values are 'None', "
 							"'Simple', 'Sunken', and 'Raised.'")
