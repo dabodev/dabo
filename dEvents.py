@@ -232,6 +232,10 @@ class MouseRightUp(MouseEvent):
 	"""Occurs when the mouse's right button is released on the control."""
 	pass
 
+class SashDoubleClick(MouseEvent):
+	"""Occurs when a user double-clicks on the sash of a splitter window."""
+	pass
+
 
 class Paint(Event):
 	"""Occurs when it is time to paint the control."""
