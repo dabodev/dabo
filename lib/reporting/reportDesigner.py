@@ -136,6 +136,8 @@ class Band(dabo.ui.dPanel):
 
 class ReportDesigner(dabo.ui.dScrollPanel):
 	def afterInit(self):
+		self._bands = []
+		self._rulers = []
 		self._zoom = self._normalZoom = 1.3
 		self.BackColor = (192,192,192)
 		self.clearReportForm()
@@ -145,7 +147,11 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 	
 	def clearReportForm(self):
 		"""Called from afterInit and closeFile to clear the report form."""
+		for o in self._rulers:
+			o.Destroy()
 		self._rulers = []
+		for o in self._bands:
+			o.Destroy()
 		self._bands = []
 		self._rw = ReportWriter()
 		self.ReportForm = None
@@ -163,9 +169,62 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		return ret
 
 
-	def saveFile(self):
-		xml = self._rw._getXMLFromForm()
-		file = open(self._rw.ReportFormFile, "w")
+	def promptForFileName(self, prompt="Select a file"):
+		"""Prompt the user for a file name."""
+		import wx   ## need to abstract getFile()
+		try:
+			dir_ = self._curdir
+		except:
+			dir_ = ""
+	
+		dlg = wx.FileDialog(self, 
+			message = prompt,
+			defaultDir = dir_, 
+			wildcard="Dabo Report Forms (*.rfxml)|*.rfxml|All Files (*)|*")
+
+		if dlg.ShowModal() == wx.ID_OK:
+			fname = dlg.GetPath()
+		else:
+			fname = None
+		dlg.Destroy()
+		return fname
+
+
+	def promptForSaveAs(self):
+		"""Prompt user for the filename to save the file as.
+		
+		If the file exists, confirm with the user that they really want to
+		overwrite.
+		"""
+		while True:
+			fname = self.promptForFileName(prompt="Save As")
+			if fname is None:
+				break
+			if os.path.exists(fname):
+				r = dabo.ui.dMessageBox.areYouSure("File '%s' already exists. "
+					"Do you want to overwrite it?" % fname, defaultNo=True)
+					
+				if r == None:
+					# user canceled.
+					fname = None
+					break
+				elif r == False:
+					# let user pick another file
+					pass
+				else:
+					# User chose to overwrite fname
+					break
+			else:
+				break
+		
+		return fname
+
+
+	def saveFile(self, fileSpec=None):
+		if fileSpec == None:
+			fileSpec = self._rw.ReportFormFile
+		xml = self._rw._getXMLFromForm(self._rw.ReportForm)
+		file = open(fileSpec, "w")
 		file.write(xml)
 		file.close()
 
@@ -174,6 +233,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		result = self.promptToSave()
 		if result:
 			self._rw.ReportFormFile = None
+			self.clearReportForm()
 			return True
 		else:
 			return False
@@ -207,8 +267,13 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			b._rw = self._rw
 			self._bands.append(b)
 
+		self.drawReportForm()
+
 
 	def _onFormResize(self, evt):
+		self.drawReportForm()
+
+	def drawReportForm(self):
 		"""Resize and position the bands accordingly."""
 		rw = self._rw
 		rf = self._rw.ReportForm
@@ -308,13 +373,13 @@ class ReportDesignerForm(dabo.ui.dForm):
 		o = self.editor
 		fileName = o.promptForFileName("Open")
 		if fileName is not None:
-			if o._fileName == o._newFileName and not o.GetModify():
+			if o._rw.ReportFormFile is None and not o._rw._isModified():
 				# open in this editor
 				o = self
 			else:
 				# open in a new editor
-				o = EditorForm(self.Parent)
-				o.restoreSizeAndPosition()
+				o = ReportDesignerForm(self.Parent)
+				o.Size = self.Size
 				o.Position = self.Position + (20,20)
 			o.editor.newFile()
 			o.Show()
