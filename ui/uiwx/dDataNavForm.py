@@ -341,7 +341,9 @@ class dDataNavForm(dForm.dForm):
 		this table.
 		"""
 		# First, get the field spec data into a dictionary.
-		self.FieldSpecs = specParser.importFieldSpecs(xmlFile, tbl)
+		self._allFieldSpecs = specParser.importFieldSpecs(xmlFile)
+		self._mainTable = tbl
+#		self.FieldSpecs = self._allFieldSpecs[tbl]
 		
 		if not self.preview:
 			# Set up the SQL Builder in the bizobj:
@@ -363,6 +365,17 @@ class dDataNavForm(dForm.dForm):
 		if not self.preview:
 			self.setupMenu()
 	
+	
+	def getFieldSpecsForTable(self, tbl):
+		""" Returns the field specs for the given table. If there is no entry
+		for the requested table, it returns None.
+		"""
+		ret = None
+		try:
+			ret = self._allFieldSpecs[tbl]
+		except: pass
+		return ret
+		
 	
 	def setRelationSpecs(self, xmlFile, bizModule):
 		""" Creates any child bizobjs used by the form, and establishes
@@ -477,9 +490,11 @@ class dDataNavForm(dForm.dForm):
 		self._requeryOnLoad = bool(value)
 
 	def _getFieldSpecs(self):
-		return self._fieldSpecs
+		return self._allFieldSpecs[self._mainTable]
+#		return self._fieldSpecs
 	def _setFieldSpecs(self, val):
-		self._fieldSpecs = val
+		self._allFieldSpecs[self._mainTable] = val
+# 		self._fieldSpecs = val
 		
 	def _getRelationSpecs(self):
 		return self._relationSpecs

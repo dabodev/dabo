@@ -18,7 +18,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 		self.grid = parent
 		self.preview = self.grid.Form.preview
-		self.bizobj = self.grid.Form.getBizobj(parent.DataSource) 
+		self.bizobj = None		#self.grid.Form.getBizobj(parent.DataSource) 
 
 		self.initTable()
 
@@ -284,6 +284,8 @@ class dDataNavGrid(dGrid.dGrid):
 #	def __init__(self, parent, bizobj, form):
 #		wx.grid.Grid.__init__(self, parent, -1)
 	def initProperties(self):
+	
+		self.bizobj = None
 
 		ID_IncrementalSearchTimer = wx.NewId()
 		self.currentIncrementalSearch = ""
@@ -324,7 +326,7 @@ class dDataNavGrid(dGrid.dGrid):
 		header.Bind(wx.EVT_PAINT, self.OnColumnHeaderPaint)
 
 
-	def fillGrid(self):
+	def fillGrid(self, redraw=False):
 		""" Refresh the grid to match the data in the bizobj.
 		"""
 
@@ -335,11 +337,30 @@ class dDataNavGrid(dGrid.dGrid):
 				"RowSize"))
 		if s:
 			self.SetDefaultRowSize(s)
-		if not self.GetTable():
-			self.SetTable(dGridDataTable(self), True)
-		self.GetTable().fillTable()
+		tbl = self.GetTable()
+		if not tbl:
+			tbl = dGridDataTable(self)
+			self.SetTable(tbl, True)
+		tbl.bizobj = self.bizobj
+		tbl.fillTable()
+		
+		if redraw:
+			row = self.bizobj.RowNumber
+			col = max(0, self.GetGridCursorCol())
+			# Needed on Linux to get the grid to have the focus:
+			for window in self.GetChildren():
+				window.SetFocus()
+			# Needed on win and mac to get the grid to have the focus:
+			self.GetGridWindow().SetFocus()
+			if  not self.IsVisible(row, col):
+				self.MakeCellVisible(row, col)
+				self.MakeCellVisible(row, col)
+			self.SetGridCursor(row, col)
 
 
+	def setBizobj(self, biz):
+		self.bizobj = biz
+	
 	def OnColSize(self, evt):
 		""" Occurs when the user resizes the width of the column.
 		"""

@@ -393,38 +393,17 @@ class dBrowsePage(DataNavPage):
 	def updateGrid(self):
 		bizobj = self.Form.getBizobj()
 		justCreated = False
-		row = col = 0
 		
 		if not self.itemsCreated:
 			self.createItems()
 			justCreated = True
 		if self.Form.preview:
 			if self.itemsCreated:
-				self.fillGrid()
+				self.fillGrid(True)
 		else:
 			if bizobj and bizobj.RowCount >= 0:
-# 				if not self.itemsCreated:
-# 					self.createItems()
-# 					justCreated = True
 				if self.itemsCreated:
-					self.fillGrid()
-
-			row = self.Form.getBizobj().RowNumber
-			col = self.BrowseGrid.GetGridCursorCol()
-			
-		col = max(0, col)
-		
-		# Needed on Linux to get the grid to have the focus:
-		for window in self.BrowseGrid.GetChildren():
-			window.SetFocus()
-		
-		# Needed on win and mac to get the grid to have the focus:
-		self.BrowseGrid.GetGridWindow().SetFocus()
-		
-		if  not self.BrowseGrid.IsVisible(row, col):
-			self.BrowseGrid.MakeCellVisible(row, col)
-			self.BrowseGrid.MakeCellVisible(row, col)
-		self.BrowseGrid.SetGridCursor(row, col)
+					self.fillGrid(True)
 
 		
 	def __onPageEnter(self, evt):
@@ -436,10 +415,12 @@ class dBrowsePage(DataNavPage):
 		grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid")
 		grid.fieldSpecs = self.Form.FieldSpecs
 		if not self.Form.preview:
+			grid.setBizobj(bizobj)
 			grid.DataSource = bizobj.DataSource
 		else:
 			grid.DataSource = self.Form.previewDataSource
-		self.GetSizer().Add(grid, 1, wx.EXPAND)
+		self.GetSizer().Add(grid, 2, wx.EXPAND)
+		
 		preview = self.addObject(dCommandButton.dCommandButton, "cmdPreview")
 		preview.Caption = "Print Preview"
 		preview.Bind(wx.EVT_BUTTON, self.onPreview)
@@ -448,8 +429,8 @@ class dBrowsePage(DataNavPage):
 		self.itemsCreated = True
 
 
-	def fillGrid(self):
-		self.BrowseGrid.fillGrid()
+	def fillGrid(self, redraw=False):
+		self.BrowseGrid.fillGrid(redraw)
 		self.Layout()
 		for window in self.BrowseGrid.GetChildren():
 			window.SetFocus()
@@ -496,42 +477,56 @@ class dBrowsePage(DataNavPage):
 
 			
 class dEditPage(DataNavPage):
-	def __init__(self, parent):
+	def __init__(self, parent, ds=None):
 		dEditPage.doDefault(parent, "pageEdit")
+		self.dataSource = ds
+		self.childGrids = []
+		if ds is None:
+			self.fieldSpecs = self.Form.FieldSpecs
+			if not self.Form.preview:
+				self.dataSource = self.Form.getBizobj().DataSource
+			else:
+				self.dataSource = ""
+		else:
+			self.fieldSpecs = self.Form.getFieldSpecsForTable(ds)
 
 	def initEvents(self):
 		dEditPage.doDefault()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.ValueRefresh, self.__onValueRefresh)
+		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		
+	def __onRowNumChanged(self, evt):
+		for cg in self.childGrids:
+			cg.fillGrid(True)
+
 	def __onPageEnter(self, evt):
 		self.__onValueRefresh()
+		# The current row may have changed. Make sure that the
+		# values are current
+		self.__onRowNumChanged(None)
 
 	def __onValueRefresh(self, evt=None):
 		form = self.Form
-		bizobj = form.getBizobj()
+		bizobj = form.getBizobj(self.dataSource)
 		if bizobj and bizobj.RowCount >= 0:
 			self.Enable(True)
 		else:
 			self.Enable(False)
-	
+
 	
 	def createItems(self):
-		if not self.Form.preview:
-			dataSource = self.Form.getBizobj().DataSource
-		else:
-			dataSource = ""
-		fieldSpecs = self.Form.FieldSpecs
-		
-		showEdit = [ (fld, fieldSpecs[fld]["editOrder"]) 
-				for fld in fieldSpecs
-				if fieldSpecs[fld]["editInclude"] == "1"]
+		fs = self.fieldSpecs
+		relationSpecs = self.Form.RelationSpecs
+		showEdit = [ (fld, fs[fld]["editOrder"]) 
+				for fld in fs
+				if fs[fld]["editInclude"] == "1"]
 		showEdit.sort(lambda x, y: cmp(x[1], y[1]))
 		mainSizer = self.GetSizer()
 		
 		for fld in showEdit:
 			fieldName = fld[0]
-			fldInfo = fieldSpecs[fieldName]
+			fldInfo = fs[fieldName]
 			fieldType = fldInfo["type"]
 			cap = fldInfo["caption"]
 			fieldEnabled = (fldInfo["editReadOnly"] != "1")
@@ -554,7 +549,7 @@ class dEditPage(DataNavPage):
 
 			objectRef = classRef(self)
 			objectRef.Name = fieldName
-			objectRef.DataSource = dataSource
+			objectRef.DataSource = self.dataSource
 			objectRef.DataField = fieldName
 			objectRef.enabled = fieldEnabled
 			
@@ -584,8 +579,38 @@ class dEditPage(DataNavPage):
 				mainSizer.Add(bs, 0, wx.EXPAND)
 
 		# If there is a child table, add it
-		# TODO!
-		# print "child", self.Form.RelationSpecs
+		for rkey in relationSpecs.keys():
+			rs = relationSpecs[rkey]
+			if rs["parent"].lower() == self.dataSource.lower():
+				child = rs["child"]
+				childBiz = self.Form.getBizobj(child)
+				grdLabel = self.addObject(dabo.ui.dLabel, "lblChild" + child)
+				grdLabel.Caption = child.title()
+				grdLabel.FontSize = 14
+				grdLabel.FontBold = True
+				mainSizer.Add( (10, -1), 0)
+				mainSizer.Add(grdLabel, 0, wx.EXPAND | wx.ALIGN_CENTRE)
+				grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid")
+				grid.fieldSpecs = self.Form.getFieldSpecsForTable(child)
+				grid.DataSource = child
+				grid.setBizobj(childBiz)
+				self.childGrids.append(grid)
+				mainSizer.Add(grid, 1, wx.EXPAND| wx.LEFT | wx.RIGHT, 10)
+
+				print "filling grid:", grid.bizobj
+				
+				grid.fillGrid()
+				for window in grid.GetChildren():
+					window.SetFocus()
+				
+				# Add an editing page for this child
+				pgf = self.Parent
+				pgClass = self.__class__
+				pgf.AddPage(pgClass(pgf, ds=child), "Edit: " + child.title())
+		
+		if self.childGrids:
+			# There are child editing pages; update the caption of this page.
+			self.Caption = "Edit: " + self.dataSource.title()
 		
 		# Add top and bottom margins
 		mainSizer.Insert( 0, (-1, 20), 0)
