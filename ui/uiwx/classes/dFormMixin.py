@@ -32,16 +32,15 @@ class dFormMixin(pm.dPemMixin):
 		if not self.Icon:
 			self.Icon = wx.Icon(dabo.icons.getIconFileName('daboIcon048'), wx.BITMAP_TYPE_PNG)
 			
+	
 	def OnActivate(self, event): 
 		if bool(event.GetActive()) == True and self.restoredSP == False:
 			# Restore the saved size and position, which can't happen 
 			# in __init__ because we may not have our name yet.
 			self.restoredSP = True
-			if wx.GetApp().GetTopWindow() == self and wx.Platform == '__WXMAC__':
-				self.SetSize((1,1))
-			else:
-				self.restoreSizeAndPosition()
+			self.restoreSizeAndPosition()
 		event.Skip()
+
 		
 	def afterSetMenuBar(self):
 		""" Subclasses can extend the menu bar here.

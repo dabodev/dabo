@@ -35,8 +35,6 @@ class uiApp(wx.App):
 
 	def start(self, dApp):
 		self.mainFrame.Show()
-		if wx.Platform == '__WXMAC__':
-			self.mainFrame.SetSize((1,1))
 		self.MainLoop()
 
 	def onFileExit(self, event):
