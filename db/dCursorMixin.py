@@ -781,16 +781,20 @@ class dCursorMixin(dabo.common.dObject):
 
 
 	def setDefaults(self, vals):
-		""" Set the default field values for newly added records.
+		"""Set the default field values for newly added records.
 
 		The 'vals' parameter is a dictionary of fields and their default values.
-		The memento must be updated afterwards, since these should not count
-		as changes to the original values. 
 		"""
+		# The memento must be updated afterwards, since these should not count
+		# as changes to the original values. 
 		row = self._records[self.RowNumber]
 		for kk, vv in vals.items():
-			row[kk] = vv
-		row[k.CURSOR_MEMENTO].setMemento(row)
+			if row.has_key(kk):
+				row[kk] = vv
+			else:
+				# We probably shouldn't add an erroneous field name to the row
+				raise ValueError, "Can't set default value for nonexistent field '%s'." % kk
+ 		row[k.CURSOR_MEMENTO].setMemento(row)
 
 
 	def addMemento(self, rownum=-1):
