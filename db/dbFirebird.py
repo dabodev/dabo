@@ -31,18 +31,7 @@ class Firebird(dBackend):
 
 	
 	def getCursor(self, cursorClass):
-		dbCursorClass = self.getDictCursorClass()
-		connection = self._connection
-		backendObject = self
-		class dCursor(dCursorMixin, dbCursorClass, dSqlBuilderMixin):
-			def __init__(self):
-				dCursorMixin.__init__(self)
-				dbCursorClass.__init__(self, connection)
-				dSqlBuilderMixin.__init__(self)
-				self.superCursor = dbCursorClass
-				self.BackendObject = backendObject
-
-		return dCursor()
+		return cursorClass(self._connection)
 		
 
 	def formatDateTime(self, val):
