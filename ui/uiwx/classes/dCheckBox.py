@@ -3,12 +3,9 @@ from dControlMixin import dControlMixin
 from dDataControlMixin import dDataControlMixin
 
 class dCheckBox(wx.CheckBox, dDataControlMixin, dControlMixin):
-    def __init__(self, frame, widgetId=-1):
-        if widgetId < 0:
-            widgetId = wx.NewId()
-        wx.CheckBox.__init__(self, frame, widgetId, '', (-1,-1), (-1,-1))
-        self.SetName("dCheckBox")
-        dControlMixin.__init__(self)
+    def __init__(self, parent, name="dCheckBox", label=""):
+        wx.CheckBox.__init__(self, parent, -1, label)
+        dControlMixin.__init__(self, name)
         dDataControlMixin.__init__(self)
 
         self.selectOnEntry = False
