@@ -49,26 +49,26 @@ class uiApp(wx.App, dObject):
 		self.raiseEvent(dEvents.Deactivate)
 				
 		
-	def _onWxActivate(self, event):
+	def _onWxActivate(self, evt):
 		""" Raise the Dabo Activate or Deactivate appropriately.
 		"""
-		if bool(event.GetActive()):
-			self.raiseEvent(dEvents.Activate, event)
+		if bool(evt.GetActive()):
+			self.raiseEvent(dEvents.Activate, evt)
 		else:
-			self.raiseEvent(dEvents.Deactivate, event)
-		event.Skip()
+			self.raiseEvent(dEvents.Deactivate, evt)
+		evt.Skip()
 			
 	
-	def onFileExit(self, event):
+	def onFileExit(self, evt):
 		if self.dApp.MainFrame is not None:
 			self.dApp.MainFrame.Close(True)
 
 
-	def onEditCut(self, event):
-		self.onEditCopy(event, cut=True)
+	def onEditCut(self, evt):
+		self.onEditCopy(evt, cut=True)
 
 
-	def onEditCopy(self, event, cut=False):
+	def onEditCopy(self, evt, cut=False):
 		win = wx.GetActiveWindow().FindFocus()
 		try:
 			selectedText = win.GetStringSelection()
@@ -87,7 +87,7 @@ class uiApp(wx.App, dObject):
 				win.Remove(win.GetSelection()[0], win.GetSelection()[1])
 
 
-	def onEditPaste(self, event):
+	def onEditPaste(self, evt):
 		win = wx.GetActiveWindow().FindFocus()
 		try:
 			selection = win.GetSelection()
@@ -105,11 +105,11 @@ class uiApp(wx.App, dObject):
 		
 
 
-	def onEditPreferences(self, event):
+	def onEditPreferences(self, evt):
 		dabo.infoLog.write("Stub: uiApp.onEditPreferences()")
 
 
-	def onEditFind(self, event):
+	def onEditFind(self, evt):
 		""" Display a Find dialog. 
 		"""
 		win = wx.GetActiveWindow().FindFocus()
@@ -130,14 +130,14 @@ class uiApp(wx.App, dObject):
 			dlg.Show()
 
 
-	def OnFindClose(self, event):
+	def OnFindClose(self, evt):
 		""" User clicked the close button, so hide the dialog.
 		"""
-		event.GetEventObject().Hide()
-		event.Skip()
+		evt.GetEventObject().Hide()
+		evt.Skip()
 
 
-	def OnFind(self, event):
+	def OnFind(self, evt):
 		""" User clicked the 'find' button in the find dialog.
 
 		Run the search on the current control, if it is a text-based control.
@@ -153,8 +153,8 @@ class uiApp(wx.App, dObject):
 				dabo.errorLog.write("Active control isn't text-based.")
 				return
 
-			flags = event.GetFlags()
-			findString = event.GetFindString()
+			flags = evt.GetFlags()
+			findString = evt.GetFindString()
 			downwardSearch = (flags & wx.FR_DOWN) == wx.FR_DOWN
 			wholeWord = (flags & wx.FR_WHOLEWORD) == wx.FR_WHOLEWORD
 			matchCase = (flags & wx.FR_MATCHCASE) == wx.FR_MATCHCASE
@@ -187,7 +187,7 @@ class uiApp(wx.App, dObject):
 				dabo.infoLog.write("Not found")
 
 
-	def onHelpAbout(self, event):
+	def onHelpAbout(self, evt):
 		dlg = ui.dAbout(self.dApp.MainFrame, self.dApp)
 		dlg.Show()
 

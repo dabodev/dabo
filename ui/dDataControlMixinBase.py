@@ -6,9 +6,11 @@ import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.dLocalize import _
 
+
 class dDataControlMixinBase(dabo.ui.dControlMixin):
 	""" Provide common functionality for the data-aware controls.
 	"""
+	
 	def __init__(self, name=None):
 		dDataControlMixinBase.doDefault(name)
 
@@ -18,24 +20,64 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		# Initialize runtime properties
 		self.bizobj = None
 
+	
 	def initEvents(self):
 		dDataControlMixinBase.doDefault()
+		
 		try:
 			self.Form.bindEvent(dEvents.ValueRefresh, self.onValueRefresh)
 		except AttributeError:
 			# Perhaps we aren't a child of a dForm
 			pass
 		
-	def onCreate(self, event):
-		dDataControlMixinBase.doDefault(event)
+	
+	def onCreate(self, evt):
+		dDataControlMixinBase.doDefault(evt)
 		if self.SaveRestoreValue:
 			self.restoreValue()
 	
-	def onDestroy(self, event):
-		dDataControlMixinBase.doDefault(event)
+	
+	def onDestroy(self, evt):
+		dDataControlMixinBase.doDefault(evt)
 		if self.SaveRestoreValue:
 			self.saveValue()
 	
+	
+	def onGotFocus(self, evt):
+		dDataControlMixinBase.doDefault(evt)
+		self._oldVal = self.Value
+
+		try:
+			if self.SelectOnEntry:
+				self.selectAll()
+		except AttributeError:
+			# only text controls have SelectOnEntry
+			pass
+
+	
+	def onLostFocus(self, evt):
+		dDataControlMixinBase.doDefault(evt)
+		self.flushValue()
+		
+		try:
+			if self.SelectOnEntry:
+				self.selectNone()
+		except AttributeError:
+			# only text controls have SelectOnEntry
+			pass
+
+			
+	def onValueRefresh(self, evt): 
+		self.refresh()
+		
+		try:
+			if self.SelectOnEntry and self.Form.FindFocus() == self:
+				self.selectAll()
+		except AttributeError:
+			# only text controls have SelectOnEntry
+			pass 
+
+
 
 	def getBlankValue(self):
 		""" Return the empty value of the control.
@@ -91,54 +133,30 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			self._oldVal = self.Value
 			
 
-	def onValueRefresh(self, event): 
-		""" Occurs when the field value has potentially changed.
-		"""
-		self.refresh()
+	def select(self, position, length):
+		""" Select all text from <position> for <length> or end of string.
 		
-		try:
-			if self.SelectOnEntry and self.Form.FindFocus() == self:
-				self.selectAll()
-		except AttributeError:
-			# only text controls have SelectOnEntry
-			pass 
-
-
+		UI lib must override.
+		"""
+		pass
+	
+	
 	def selectAll(self):
 		""" Select all text in the control.
-		"""
-		self.SetInsertionPoint(1)   # Best of all worlds (really)
-		self.SetSelection(-1,-1)    # select all text
-
-
-	def onGotFocus(self, event):
-		""" Occurs when the control receives the keyboard focus.
-		"""
-		dDataControlMixinBase.doDefault(event)
-		self._oldVal = self.Value
-
-		try:
-			if self.SelectOnEntry:
-				self.selectAll()
-		except AttributeError:
-			# only text controls have SelectOnEntry
-			pass
-
-
-	def onLostFocus(self, event):
-		""" Occurs when the control loses the keyboard focus.
-		"""
-		dDataControlMixinBase.doDefault(event)
-		self.flushValue()
 		
-		try:
-			if self.SelectOnEntry:
-				self.SetSelection(0,0)     # select no text in text box
-		except AttributeError:
-			# only text controls have SelectOnEntry
-			pass
-
-			
+		UI lib must override.
+		"""
+		pass
+	
+	
+	def selectNone(self):
+		""" Select no text in the control.
+		
+		UI lib must override.
+		"""
+		pass
+	
+	
 	def flushValue(self):
 		""" Save any changes to the underlying bizobj field.
 		"""

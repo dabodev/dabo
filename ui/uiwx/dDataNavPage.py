@@ -379,13 +379,13 @@ class dBrowsePage(DataNavPage):
 		self.Form.bindEvent(dEvents.RowNumChanged, self.onRowNumChanged)
 		
 
-	def onRowNumChanged(self, event):
+	def onRowNumChanged(self, evt):
 		# If RowNumChanged is received AND we are the active page, select
 		# the row in the grid.
 		
 		# If we aren't the active page, strange things can happen if we
 		# don't explicitly SetFocus back to the active page. 
-		activePage = self.GetParent().GetPage(self.GetParent().GetSelection())
+		activePage = self.Parent.GetPage(self.Parent.GetSelection())
 		if activePage == self:
 			self.updateGrid()
 		else:
@@ -473,7 +473,7 @@ class dBrowsePage(DataNavPage):
 		self.GetParent().SetSelection(2)
 
 		
-	def onPreview(self, event):
+	def onPreview(self, evt):
 		if self.itemsCreated:
 			if self.Form.preview:
 				# Just previewing 
@@ -509,15 +509,13 @@ class dEditPage(DataNavPage):
 		dEditPage.doDefault(evt)
 
 
-	def onValueRefresh(self, event=None):
+	def onValueRefresh(self, evt=None):
 		form = self.Form
 		bizobj = form.getBizobj()
 		if bizobj and bizobj.RowCount >= 0:
 			self.Enable(True)
 		else:
 			self.Enable(False)
-		if event:
-			event.Skip()
 	
 	
 	def createItems(self):
@@ -623,7 +621,7 @@ class dChildViewPage(DataNavPage):
 		# but the grid needs to be filled to reflect that.
 		self.onPageEnter(None)
 
-
+		
 	def createItems(self):
 		cb = self.Form.getChildBehavior(self.dataSource)
 		if cb["EnableNew"]:

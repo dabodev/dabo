@@ -311,7 +311,7 @@ class dBrowsePage(dPage.dPage):
 		dBrowsePage.doDefault()
 		self.Form.bindEvent(dEvents.RowNumChanged, self.onRowNumChanged)
 		
-	def onRowNumChanged(self, event):
+	def onRowNumChanged(self, evt):
 		# If RowNumChanged is received AND we are the active page, select
 		# the row in the grid.
 		
@@ -350,8 +350,8 @@ class dBrowsePage(dPage.dPage):
 			self.BrowseGrid.SetGridCursor(row, col)
 		
 		
-	def onPageEnter(self, event):
-		dBrowsePage.doDefault(event)
+	def onPageEnter(self, evt):
+		dBrowsePage.doDefault(evt)
 		self.updateGrid()
 		
 		
@@ -390,7 +390,7 @@ class dBrowsePage(dPage.dPage):
 		self.Parent.SetSelection(2)
 
 		
-	def onPreview(self, event):
+	def onPreview(self, evt):
 		if self.itemsCreated:
 			html = self.BrowseGrid.getHTML(justStub=False)
 			win = wx.html.HtmlEasyPrinting("Dabo Quick Print", self.Form)
@@ -417,12 +417,12 @@ class dEditPage(dPage.dPage):
 		dEditPage.doDefault(parent, "pageEdit")
 
 
-	def onPageEnter(self, event):
+	def onPageEnter(self, evt):
 		self.raiseEvent(dEvents.ValueRefresh)
-		dEditPage.doDefault(event)
+		dEditPage.doDefault(evt)
 
 
-	def onValueRefresh(self, event=None):
+	def onValueRefresh(self, evt=None):
 		if self.Parent.GetPage(self.Parent.GetSelection()) == self:
 			form = self.Form
 			bizobj = form.getBizobj()
@@ -430,8 +430,6 @@ class dEditPage(dPage.dPage):
 				self.Enable(True)
 			else:
 				self.Enable(False)
-# 			if event:
-# 				event.Skip()
 
 
 	def createItems(self):
@@ -511,15 +509,15 @@ class dChildViewPage(dPage.dPage):
 		dChildViewPage.doDefault()
 		self.Form.bindEvent(dEvents.RowNumChanged, self.onRowNumChanged)
 	
-	def onPageEnter(self, event):
-		dChildViewPage.doDefault(event)
+	def onPageEnter(self, evt):
+		dChildViewPage.doDefault(evt)
 		if self.bizobj and self.bizobj.RowCount >= 0:
 			if not self.itemsCreated:
 				self.createItems()
 		if self.itemsCreated:
 			self.fillGrid()
 	
-	def onRowNumChanged(self, event):
+	def onRowNumChanged(self, evt):
 		# If RowNumChanged (in the parent bizobj) is received AND we are the
 		# active page, the child bizobj has already been requeried
 		# but the grid needs to be filled to reflect that.
@@ -574,7 +572,7 @@ class dChildViewPage(dPage.dPage):
 			self.bizobj.setFieldVal(field, pickBizobj.getFieldVal(derivedFields[field]))
 		self.fillGrid()		
 
-	def onPageLeave(self, event):
+	def onPageLeave(self, evt):
 		try:
 			pl = self.picklist
 		except:

@@ -3,7 +3,7 @@ import dabo.dEvents as dEvents
 
 class dControlMixin(dControlMixinBase):
 	
-	def _onWxHit(self, event):
-		self.raiseEvent(dEvents.Hit, event)
-		event.Skip()
+	def _onWxHit(self, evt):
+		self.raiseEvent(dEvents.Hit, evt)
+		evt.Skip()
 		

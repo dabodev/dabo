@@ -340,10 +340,10 @@ class dDataNavGrid(dGrid.dGrid):
 		self.GetTable().fillTable()
 
 
-	def OnColSize(self, event):
+	def OnColSize(self, evt):
 		""" Occurs when the user resizes the width of the column.
 		"""
-		col = event.GetRowOrCol()
+		col = evt.GetRowOrCol()
 		width = self.GetColSize(col)
 
 		self.Application.setUserSetting("%s.%s.%s.%s" % (
@@ -351,15 +351,14 @@ class dDataNavGrid(dGrid.dGrid):
 						self.Name,
 						"Column%s" % self.GetTable().showCols[col],
 						"Width"), "I", width)
+		evt.Skip()
 
-		event.Skip()
 
-
-	def OnGridSelectCell(self, event):
+	def OnGridSelectCell(self, evt):
 		""" Occurs when the grid's cell focus has changed.
 		"""
 		oldRow = self.GetGridCursorRow()
-		newRow = event.GetRow()
+		newRow = evt.GetRow()
 		
 		if oldRow != newRow:
 			try:
@@ -370,7 +369,7 @@ class dDataNavGrid(dGrid.dGrid):
 				if hasattr(self.Form, "rowNumber"):
 					self.Form.rowNumber = newRow
 		self.Form.refreshControls()
-		event.Skip()
+		evt.Skip()
 
 
 	def OnColumnHeaderPaint(self, evt):
@@ -587,25 +586,25 @@ class dDataNavGrid(dGrid.dGrid):
 				evt.Skip()
 
 
-	def newRecord(self, event=None):
+	def newRecord(self, evt=None):
 		""" Request that a new row be added.
 		"""
 		self.GetParent().newRecord()
 
 
-	def editRecord(self, event=None):
+	def editRecord(self, evt=None):
 		""" Request that the current row be edited.
 		"""
 		self.GetParent().editRecord()
 
 
-	def deleteRecord(self, event=None):
+	def deleteRecord(self, evt=None):
 		""" Request that the current row be deleted.
 		"""
 		self.GetParent().deleteRecord()
 
 
-	def pickRecord(self, event=None):
+	def pickRecord(self, evt=None):
 		""" The form is a picklist, and the user picked a record.
 		"""
 		self.Form.pickRecord()

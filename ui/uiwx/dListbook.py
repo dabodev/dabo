@@ -40,11 +40,11 @@ class dListbook(wx.Listbook, dControlMixin.dControlMixin):
 		self.Bind(wx.EVT_LISTBOOK_PAGE_CHANGED, self._onPageChanged)
 
 				
-	def _onPageChanged(self, event):
-		event.Skip()
-		event.StopPropagation()
+	def _onPageChanged(self, evt):
+		evt.Skip()
+		evt.StopPropagation()
 
-		newPageNum = event.GetSelection()
+		newPageNum = evt.GetSelection()
 		oldPageNum = self._lastPage
 		
 		self._pageChanged(newPageNum, oldPageNum)

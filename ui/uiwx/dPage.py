@@ -34,7 +34,7 @@ class dPage(dPanel.dScrollPanel):
 		pass
 
 
-	def onPageEnter(self, event):
+	def onPageEnter(self, evt):
 		""" Occurs when this page becomes the active page.
 
 		Subclasses may override or extend.
@@ -48,7 +48,7 @@ class dPage(dPanel.dScrollPanel):
 			self.Size = (-1,-1)
 
 						
-	def onPageLeave(self, event):
+	def onPageLeave(self, evt):
 		""" Occurs when this page will no longer be the active page.
 
 		Subclasses may override.
@@ -57,7 +57,7 @@ class dPage(dPanel.dScrollPanel):
 			self.Form.activeControlValid()
 			
 
-	def onValueRefresh(self, event):
+	def onValueRefresh(self, evt):
 		""" Occurs when the dForm asks dControls to refresh themselves.
 
 		While dPage isn't a data-aware control, this may be useful information

@@ -228,28 +228,28 @@ class dDataNavForm(dForm.dForm):
 	def beforeSetupPageFrame(self): return True
 	def afterSetupPageFrame(self): pass
 
-	def onSetSelectionCriteria(self, event):
+	def onSetSelectionCriteria(self, evt):
 		""" Occurs when the user chooses to set the selection criteria.
 		"""
 		self.pageFrame.SetSelection(0)
 
 		
-	def onBrowseRecords(self, event):
+	def onBrowseRecords(self, evt):
 		""" Occurs when the user chooses to browse the record set.
 		"""
 		self.pageFrame.SetSelection(1)
 
 		
-	def onEditCurrentRecord(self, event):
+	def onEditCurrentRecord(self, evt):
 		""" Occurs when the user chooses to edits the current record.
 		"""
 		self.pageFrame.SetSelection(2)
 
 
-	def onChildView(self, event):
+	def onChildView(self, evt):
 		""" Occurs when the user chooses to edit a child view page.
 		"""
-		evtId = event.GetId()
+		evtId = evt.GetId()
 		page=3
 		for child in self.childViews:
 			if child['menuId'] == evtId:
@@ -409,7 +409,7 @@ class dDataNavForm(dForm.dForm):
 		self._childBehavior[dataSource] = cb
 	
 	
-	def onGotFocus(self, event):
+	def onGotFocus(self, evt):
 		""" Occurs when the form receives the focus.
 
 		For dDataNavForm, the toolbar and menu need to be set up.
@@ -417,10 +417,9 @@ class dDataNavForm(dForm.dForm):
 		if isinstance(self, wx.MDIChildFrame):
 			self.setupToolBar()
 			self.setupMenu()
-		event.Skip()
 
 
-	def onRequery(self, event):
+	def onRequery(self, evt):
 		""" Override the dForm behavior by running the requery through the select page.
 		"""
 		self.pageFrame.GetPage(0).requery()

@@ -31,7 +31,7 @@ class dToggleButton(wx.ToggleButton, dcm.dDataControlMixin):
 		
 
 	# Event callback methods (override in subclasses):
-	def onHit(self, event):
+	def onHit(self, evt):
 		if self.debug:
 			if self.Value:
 				state = "down"

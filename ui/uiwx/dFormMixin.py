@@ -37,28 +37,28 @@ class dFormMixin(pm.dPemMixin):
 		self.bindEvent(dEvents.Deactivate, self.onDeactivate)
 			
 	
-	def _onWxClose(self, event):
-		self.raiseEvent(dEvents.Close, event)
-		event.Skip()
+	def _onWxClose(self, evt):
+		self.raiseEvent(dEvents.Close, evt)
+		evt.Skip()
 		
-	def _onWxActivate(self, event):
+	def _onWxActivate(self, evt):
 		""" Raise the Dabo Activate or Deactivate appropriately.
 		"""
-		if bool(event.GetActive()):
-			self.raiseEvent(dEvents.Activate, event)
+		if bool(evt.GetActive()):
+			self.raiseEvent(dEvents.Activate, evt)
 		else:
-			self.raiseEvent(dEvents.Deactivate, event)
-		event.Skip()
+			self.raiseEvent(dEvents.Deactivate, evt)
+		evt.Skip()
 			
 			
-	def onActivate(self, event): 
+	def onActivate(self, evt): 
 		# Restore the saved size and position, which can't happen 
 		# in __init__ because we may not have our name yet.
 		if not self.restoredSP:
 			self.restoredSP = True
 			self.restoreSizeAndPosition()
 		
-	def onDeactivate(self, event):
+	def onDeactivate(self, evt):
 		pass
 		
 	def afterSetMenuBar(self):
@@ -98,7 +98,7 @@ class dFormMixin(pm.dPemMixin):
 		return menu
 
 
-	def onClose(self, event):
+	def onClose(self, evt):
 		if self.Application is not None:
 			self.Application.uiForms.remove(self)
 		self.saveSizeAndPosition()

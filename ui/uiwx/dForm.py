@@ -240,12 +240,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			###       Prompt the user for a response?
 
 
-	def onRequery(self, event):
+	def onRequery(self, evt):
 		""" Occurs when an EVT_MENU event is received by this form.
 		"""
 		self.requery()
 		self.Raise()
-		event.Skip()
+		evt.Skip()
 
 
 	def requery(self, dataSource=None):
@@ -432,14 +432,14 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			return None
 			
 
-	def onFirst(self, event): self.first()
-	def onPrior(self, event): self.prior()
-	def onNext(self, event): self.next()
-	def onLast(self, event): self.last()
-	def onSave(self, event): self.save()
-	def onCancel(self, event): self.cancel()
-	def onNew(self, event): self.new()
-	def onDelete(self, event): self.delete()
+	def onFirst(self, evt): self.first()
+	def onPrior(self, evt): self.prior()
+	def onNext(self, evt): self.next()
+	def onLast(self, evt): self.last()
+	def onSave(self, evt): self.save()
+	def onCancel(self, evt): self.cancel()
+	def onNew(self, evt): self.new()
+	def onDelete(self, evt): self.delete()
 
 
 	def getCurrentRecordText(self, dataSource=None):

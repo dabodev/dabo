@@ -115,149 +115,140 @@ class dPemMixin(dPemMixinBase):
 		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
 	
 			
-	def _onWxDestroy(self, event):
+	def _onWxDestroy(self, evt):
 		# By the time the dEvent is raised, the object will already be gone,
 		# and the callback will never be executed. Because of this, we call
 		# the onDestroy() callback directly instead of re-raising the event. 
 		# This means that user code will be unable to bind dEvents.Destroy 
 		# to any other callback, unfortunately.
-		event.StopPropagation()
-		event.Skip()
-		#evt = dEvents.dEvent(dEvents.Destroy.evtType[0], self, event)
-		evt = dEvents.Destroy(self, event)
-		self.onDestroy(evt)
+		evt.StopPropagation()
+		evt.Skip()
+		dEvt = dEvents.Destroy(self, evt)
+		self.onDestroy(dEvt)
 		
-	def _onWxGotFocus(self, event):
-		### Got/LostFocus have weird problems when raising the event. Call
-		### the default callback directly until I figure this out.
-		self.raiseEvent(dEvents.GotFocus, event)
-		event.Skip()
-		#evt = dEvents.dEvent(dEvents.GotFocus.evtType[0], self, event)
-		#evt = dEvents.GotFocus(self, event)
-		#self.onGotFocus(evt)
+	def _onWxGotFocus(self, evt):
+		self.raiseEvent(dEvents.GotFocus, evt)
+		evt.Skip()
 		
-	def _onWxLostFocus(self, event):
-		self.raiseEvent(dEvents.LostFocus, event)
-		event.Skip()
-		#evt = dEvents.dEvent(dEvents.LostFocus.evtType[0], self, event)
-		#evt = dEvents.LostFocus(self, event)
-		#self.onLostFocus(evt)
+	def _onWxLostFocus(self, evt):
+		self.raiseEvent(dEvents.LostFocus, evt)
+		evt.Skip()
 		
-	def _onWxMouseLeftDown(self, event):
-		self.raiseEvent(dEvents.MouseLeftDown, event)
+	def _onWxMouseLeftDown(self, evt):
+		self.raiseEvent(dEvents.MouseLeftDown, evt)
 		self._mouseLeftDown = True
-		event.Skip()
+		evt.Skip()
 		
-	def _onWxMouseLeftUp(self, event):
-		self.raiseEvent(dEvents.MouseLeftUp, event)
+	def _onWxMouseLeftUp(self, evt):
+		self.raiseEvent(dEvents.MouseLeftUp, evt)
 		if self._mouseLeftDown:
 			# mouse went down and up in this control: send a click:
-			self.raiseEvent(dEvents.MouseLeftClick, event)
+			self.raiseEvent(dEvents.MouseLeftClick, evt)
 			self._mouseLeftDown = False
-		event.Skip()
+		evt.Skip()
 		
-	def _onWxMouseRightDown(self, event):
+	def _onWxMouseRightDown(self, evt):
 		self._mouseRightDown = True
-		self.raiseEvent(dEvents.MouseRightDown, event)
-		event.Skip()
+		self.raiseEvent(dEvents.MouseRightDown, evt)
+		evt.Skip()
 		
-	def _onWxMouseRightUp(self, event):
-		self.raiseEvent(dEvents.MouseRightUp, event)
+	def _onWxMouseRightUp(self, evt):
+		self.raiseEvent(dEvents.MouseRightUp, evt)
 		if self._mouseRightDown:
 			# mouse went down and up in this control: send a click:
-			self.raiseEvent(dEvents.MouseRightClick, event)
+			self.raiseEvent(dEvents.MouseRightClick, evt)
 			self._mouseRightDown = False
-		event.Skip()
+		evt.Skip()
 	
-	def _onWxMouseEnter(self, event):
-		self.raiseEvent(dEvents.MouseEnter, event)
-		event.Skip()
+	def _onWxMouseEnter(self, evt):
+		self.raiseEvent(dEvents.MouseEnter, evt)
+		evt.Skip()
 		
-	def _onWxMouseLeave(self, event):
+	def _onWxMouseLeave(self, evt):
 		self._mouseLeftDown, self._mouseRightDown = False, False
-		self.raiseEvent(dEvents.MouseLeave, event)
-		event.Skip()
+		self.raiseEvent(dEvents.MouseLeave, evt)
+		evt.Skip()
 		
-	def _onWxMouseLeftDoubleClick(self, event):
-		self.raiseEvent(dEvents.MouseLeftDoubleClick, event)
-		event.Skip()
+	def _onWxMouseLeftDoubleClick(self, evt):
+		self.raiseEvent(dEvents.MouseLeftDoubleClick, evt)
+		evt.Skip()
 
-	def _onWxKeyChar(self, event):
-		self.raiseEvent(dEvents.KeyChar, event)
-		event.Skip()
+	def _onWxKeyChar(self, evt):
+		self.raiseEvent(dEvents.KeyChar, evt)
+		evt.Skip()
 		
-	def _onWxKeyUp(self, event):
-		self.raiseEvent(dEvents.KeyUp, event)
-		event.Skip()
+	def _onWxKeyUp(self, evt):
+		self.raiseEvent(dEvents.KeyUp, evt)
+		evt.Skip()
 		
-	def _onWxKeyDown(self, event):
-		self.raiseEvent(dEvents.KeyDown, event)
-		event.Skip()
+	def _onWxKeyDown(self, evt):
+		self.raiseEvent(dEvents.KeyDown, evt)
+		evt.Skip()
 				
 		
-	def onCreate(self, event):
+	def onCreate(self, evt):
 		""" Occurs when the control is created.
 		"""
 		pass
 		
-	def onDestroy(self, event):
+	def onDestroy(self, evt):
 		""" Occurs when the control is destroyed.
 		"""
 		pass
 					
-	def onGotFocus(self, event):
+	def onGotFocus(self, evt):
 		""" Occurs when the control or form gets the focus.
 		
 		Override in subclasses.
 		"""
 		pass
 	
-	def onLostFocus(self, event):
+	def onLostFocus(self, evt):
 		""" Occurs when the control or form loses the focus.
 		
 		Override in subclasses.
 		"""
 		pass
 		
-	def onMouseEnter(self, event):
+	def onMouseEnter(self, evt):
 		""" Occurs when the mouse pointer enters the control or form.
 		"""
 		pass
 		
-	def onMouseLeave(self, event):
+	def onMouseLeave(self, evt):
 		""" Occurs when the mouse pointer leaves the control or form.
 		"""
 		pass
 
-	def onMouseLeftClick(self, event):
+	def onMouseLeftClick(self, evt):
 		""" Occurs when a mouse left-click happens on the control or form.
 		
 		Override in subclasses.
 		"""
 		pass
 		
-	def onMouseLeftDoubleClick(self, event):
+	def onMouseLeftDoubleClick(self, evt):
 		""" Occurs when a mouse left-double-click happens on the control or form.
 		
 		Override in subclasses.
 		"""
 		pass
 		
-	def onMouseRightClick(self, event):
+	def onMouseRightClick(self, evt):
 		""" Occurs when a mouse right-click happens on the control or form.
 		
 		Override in subclasses.
 		"""
 		pass
 		
-	def onKeyChar(self, event):
+	def onKeyChar(self, evt):
 		""" Occurs when a character is entered on the control.
 		
 		Override in subclasses.
 		"""
 		pass
 		
-	def onKeyDown(self, event):
+	def onKeyDown(self, evt):
 		""" Occurs when a key is pressed on the control.
 		
 		Override in subclasses.

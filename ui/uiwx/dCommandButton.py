@@ -66,9 +66,8 @@ if __name__ == "__main__":
 			self.debug = True
 			self.bindEvent(dEvents.Button, self.onAnotherButton)
 			
-		def onAnotherButton(self, event):
+		def onAnotherButton(self, evt):
 			print "onAnotherButton"
-			#event.stop()
 			
 			
 			
