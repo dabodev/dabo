@@ -92,7 +92,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		return _choices
 		
 	def _setChoices(self, choices):
-		if self._pemObject == self:
+		if self._constructed():
 			raise ValueError, "Cannot change RadioGroup choices at runtime."
 		else:
 			self._choices = self._initProperties["choices"] = choices
@@ -119,9 +119,12 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 			return None
 		
 	def _setKeyValue(self, val):
-		# This function takes a key value, such as 10992, finds the mapped position,
-		# and makes that position the active button.
-		self.PositionValue = self.Keys[val]
+		if self._constructed():
+			# This function takes a key value, such as 10992, finds the mapped position,
+			# and makes that position the active button.
+			self.PositionValue = self.Keys[val]
+		else:
+			self._properties["KeyValue"] = val
 	
 	def _getMaxElements(self):
 		try:
@@ -131,7 +134,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		return _maxElements
 		
 	def _setMaxElements(self, val):
-		if self._pemObject == self:
+		if self._constructed():
 			raise ValueError, "Cannot change RadioGroup MaxElements at runtime."
 		else:
 			self._maxElements = self._initProperties["majorDimension"] = int(val)
@@ -163,23 +166,28 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	def _getOrientationEditorInfo(self):
 		return {'editor': 'list', 'values': ['None', 'Row', 'Column']}
 		
-	def _getPosValue(self):
-		return self._pemObject.GetSelection()
+	def _getPositionValue(self):
+		return self.GetSelection()
 	
-	def _setPosValue(self, value):
-		self._pemObject.SetSelection(int(value))
-		self._afterValueChanged()
+	def _setPositionValue(self, value):
+		if self._constructed():
+			self.SetSelection(int(value))
+			self._afterValueChanged()
+		self._properties["PositionValue"] = value
 
-	def _getStrValue(self):
-		return self._pemObject.GetStringSelection()
+	def _getStringValue(self):
+		return self.GetStringSelection()
 	
-	def _setStrValue(self, value):
-		try:
-			self._pemObject.SetStringSelection(str(value))
-		except:
-			raise ValueError, "Value must be present in the choices. (%s:%s)" % (
-				value, self.Choices)
-		self._afterValueChanged()
+	def _setStringValue(self, value):
+		if self._constructed():
+			try:
+				self.SetStringSelection(str(value))
+			except:
+				raise ValueError, "Value must be present in the choices. (%s:%s)" % (
+					value, self.Choices)
+			self._afterValueChanged()
+		else:
+			self._properties["StringValue"] = value
 	
 	def _getValue(self):
 		if self.ValueMode == "position":
@@ -265,7 +273,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		to start growing the RadioGroup in two dimensions.
 		""")
 
-	PositionValue = property(_getPosValue, _setPosValue, None,
+	PositionValue = property(_getPositionValue, _setPositionValue, None,
 		"""Specifies the position (index) of the selected button.
 		
 		Integer. Read-write at runtime.
@@ -273,7 +281,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		Returns the current position, or sets the current position.
 		""")
 
-	StringValue = property(_getStrValue, _setStrValue, None,
+	StringValue = property(_getStringValue, _setStringValue, None,
 		"""Specifies the text of the selected button.
 		
 		String. Read-write at runtime.

@@ -186,15 +186,21 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		return v
 
 	def _setCaption(self, val):
-		self._caption = val
-		if self._isPopupMenu():
-			self.SetTitle(val)
+		if self._constructed():
+			self._caption = val
+			if self._isPopupMenu():
+				self.SetTitle(val)
+		else:
+			self._properties["Caption"] = val
 
 	def _getEnabled(self):
 		return self.IsEnabled()
 
 	def _setEnabled(self, val):
-		self.Enable(bool(val))
+		if self._constructed():
+			self.Enable(bool(val))
+		else:
+			self._properties["Enabled"] = val
 
 
 	def _getForm(self):

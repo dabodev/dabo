@@ -22,12 +22,6 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		self.Bind(wx.EVT_TEXT, self._onWxHit)
 		
 		
-	def _getInitPropertiesList(self):
-		additional = ["PasswordEntry",]
-		original = list(super(dTextBox, self)._getInitPropertiesList())
-		return tuple(original + additional)
-
-
 	def flushValue(self):
 		# Call the wx SetValue() directly to reset the string value displayed to the user.
 		# This resets the value to the string representation as Python shows it.
@@ -74,19 +68,23 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		else:
 			raise ValueError, "The only possible values are 'Left', 'Center', and 'Right'"
 
+
 	def _getReadOnly(self):
-		return not self._pemObject.IsEditable()
+		return not self.IsEditable()
 	def _setReadOnly(self, value):
-		self._pemObject.SetEditable(not bool(value))
+		if self._constructed():
+			self.SetEditable(not bool(value))
+		else:
+			self._properties["ReadOnly"] = value
+
 
 	def _getPasswordEntry(self):
 		return self.hasWindowStyleFlag(wx.TE_PASSWORD)
+
 	def _setPasswordEntry(self, value):
 		self.delWindowStyleFlag(wx.TE_PASSWORD)
 		if value:
 			self.addWindowStyleFlag(wx.TE_PASSWORD)
-		# Note: control needs to be recreated for this flag change
-		#       to take effect.
 	
 	def _getSelectOnEntry(self):
 		try:
@@ -157,24 +155,27 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	
 					
 	def _setValue(self, value):
-		# Must convert all to string for sending to wx, but our internal 
-		# _value will always retain the correct type.
+		if self._constructed():
+			# Must convert all to string for sending to wx, but our internal 
+			# _value will always retain the correct type.
 		
-		# Todo: set up validators based on the type of data we are editing,
-		# so the user can't, for example, enter a letter "p" in a textbox
-		# that is currently showing numeric data.
+			# Todo: set up validators based on the type of data we are editing,
+			# so the user can't, for example, enter a letter "p" in a textbox
+			# that is currently showing numeric data.
 		
-		strVal = self._getStringValue(value)
-		_oldVal = self.Value
+			strVal = self._getStringValue(value)
+			_oldVal = self.Value
 				
-		# save the actual value for return by _getValue:
-		self._value = value
+			# save the actual value for return by _getValue:
+			self._value = value
 
-		# Update the display no matter what:
-		self.SetValue(strVal)
+			# Update the display no matter what:
+			self.SetValue(strVal)
 		
-		if type(_oldVal) != type(value) or _oldVal != value:
-			self._afterValueChanged()
+			if type(_oldVal) != type(value) or _oldVal != value:
+				self._afterValueChanged()
+		else:
+			self._properties["Value"] = value
 
 		
 	def _getStringValue(self, value):

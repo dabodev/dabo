@@ -22,11 +22,10 @@ class dBizobj(dabo.common.dObject):
 	def __init__(self, conn):
 		""" User code should override beforeInit() and/or afterInit() instead.
 		"""
-		self.initProperties()
-		self.beforeInit()
+		self._beforeInit()
 		self._conn = conn
-		
-		#dBizobj.doDefault()		
+		self._initProperties()
+			
 		super(dBizobj, self).__init__()
 
 		# Dictionary holding any default values to apply when a new record is created
@@ -42,10 +41,10 @@ class dBizobj(dabo.common.dObject):
 			# exception will be raised in that method.
 			self.createCursor()
 
-		self.afterInit()
+		self._afterInit()
 	
 	
-	def initProperties(self):
+	def _beforeInit(self):
 		self.__cursors = {}		# Collection of cursor objects. MUST be defined first.
 		self.__currentCursorKey = None
 		self._conn = None
@@ -85,24 +84,15 @@ class dBizobj(dabo.common.dObject):
 		### IGNORE - don't worry about the presence of child records
 		### RESTRICT - don't allow action if there are child records
 		### CASCADE - changes to the parent are cascaded to the children
-		self.deleteChildLogic = k.REFINTEG_CASCADE       # child records will be deleted
-		self.updateChildLogic = k.REFINTEG_IGNORE    # parent keys can be changed w/o affecting children
-		self.insertChildLogic = k.REFINTEG_IGNORE        # child records can be inserted even if no parent record exists.
+		self.deleteChildLogic = k.REFINTEG_CASCADE  # child records will be deleted
+		self.updateChildLogic = k.REFINTEG_IGNORE   # parent keys can be changed w/o
+		                                            # affecting children
+		self.insertChildLogic = k.REFINTEG_IGNORE   # child records can be inserted 
+		                                            # even if no parent record exists.
 		##########################################
 		
-		
-		
-	def beforeInit(self):
-		""" Hook for subclasses.
-		"""
-		pass
-	
-	
-	def afterInit(self):
-		""" Hook for subclasses.
-		"""
-		pass
-		
+		self.beforeInit()
+
 
 	def __getattr__(self, att):
 		"""

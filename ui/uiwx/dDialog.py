@@ -67,7 +67,10 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 	def _getCaption(self):
 		return self.GetTitle()
 	def _setCaption(self, val):
-		self.SetTitle(val)
+		if self._constructed():
+			self.SetTitle(val)
+		else:
+			self._properties["Caption"] = val
 	def _getCentered(self):
 		return self._centered
 	def _setCentered(self, val):

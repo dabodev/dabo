@@ -73,7 +73,7 @@ class dPageFrame(wx.Notebook, cm.dControlMixin):
 		self.__imageList[key] = idx
 	
 	
-	def setPageImg(self, pg, imgKey):
+	def setPageImage(self, pg, imgKey):
 		""" Sets the specified page's image to the image corresponding
 		to the specified key. May also optionally pass the index of the 
 		image in the ImageList rather than the key.
@@ -87,7 +87,7 @@ class dPageFrame(wx.Notebook, cm.dControlMixin):
 			self.SetPageImage(pgIdx, imgIdx)
 
 	
-	def getPageImg(self, pg):
+	def getPageImage(self, pg):
 		""" Returns the index of the specified page's image in the 
 		current image list, or -1 if no image is set for the page.
 		"""
@@ -137,47 +137,53 @@ class dPageFrame(wx.Notebook, cm.dControlMixin):
 		return ret
 		
 	
-	
-	
 	# property get/set functions:
 	def _getPageClass(self):
 		try:
-			return self._pemObject._pageClass
+			return self._pageClass
 		except AttributeError:
 			return dPage.dPage
 			
 	def _setPageClass(self, value):
 		if issubclass(value, dControlMixin.dControlMixin):
-			self.pemObject._pageClass = value
+			self._pageClass = value
 		else:
 			raise TypeError, "PageClass must descend from a Dabo base class."
 			
 			
 	def _getPageCount(self):
-		return int(self._pemObject.GetPageCount())
+		return int(self.GetPageCount())
 		
 	def _setPageCount(self, value):
-		value = int(value)
-		pageCount = self._pemObject.GetPageCount()
-		pageClass = self.PageClass
+		if self._constructed():
+			value = int(value)
+			pageCount = self.GetPageCount()
+			pageClass = self.PageClass
 		
-		if value < 0:
-			raise ValueError, "Cannot set PageCount to less than zero."
+			if value < 0:
+				raise ValueError, "Cannot set PageCount to less than zero."
 		
-		if value > pageCount:
-			for i in range(pageCount, value):
-				self._pemObject.AddPage(pageClass(self), "Page %s" % (i+1,))
-		elif value < pageCount:
-			for i in range(pageCount, value, -1):
-				self._pemObject.DeletePage(i-1)
-				self._pemObject.Refresh()
+			if value > pageCount:
+				for i in range(pageCount, value):
+					self._pemObject.AddPage(pageClass(self), "Page %s" % (i+1,))
+			elif value < pageCount:
+				for i in range(pageCount, value, -1):
+					self.DeletePage(i-1)
+					self.Refresh()
+		else:
+			self._properties["PageCount"] = value
 	
-	def _getSelPage(self):
+	def _getSelectedPage(self):
 		return self.GetPage(self.GetSelection())
-	def _setSelPage(self, pg):
-		idx = self._getPageIndex(pg)
-		self.SetSelection(idx)
+
+	def _setSelectedPage(self, pg):
+		if self._constructed():
+			idx = self._getPageIndex(pg)
+			self.SetSelection(idx)
+		else:
+			self._properties["SelectedPage"] = pg
 		
+
 	def _getTabPosition(self):
 		if self.hasWindowStyleFlag(wx.NB_BOTTOM):
 			return "Bottom"
@@ -210,6 +216,7 @@ class dPageFrame(wx.Notebook, cm.dControlMixin):
 			raise ValueError, ("The only possible values are "
 						"'Top', 'Left', 'Right', and 'Bottom'")
 
+
 	# Property definitions:
 	PageClass = property(_getPageClass, _setPageClass, None,
 			_("""Specifies the class of control to use for pages by default. (classRef) 
@@ -222,7 +229,7 @@ class dPageFrame(wx.Notebook, cm.dControlMixin):
 			When using this to increase the number of pages, PageClass 
 			will be queried as the object to use as the page object.""") )
 	
-	SelectedPage = property(_getSelPage, _setSelPage, None,
+	SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
 			_("References the current frontmost page.  (dPage)") )
 						
 	TabPosition = property(_getTabPosition, _setTabPosition, None, 

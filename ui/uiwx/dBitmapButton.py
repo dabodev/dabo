@@ -33,46 +33,69 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	def _getCancelButton(self):
 		# need to implement
 		return False
+
 	def _setCancelButton(self, value):
 		warnings.warn("CancelButton isn't implemented yet.", Warning)	
 	
+
 	def _getDefaultButton(self):
-		return self._pemObject.GetParent().GetDefaultItem() == self._pemObject
-	def _setDefaultButton(self, value):
-		if value:
-			self._pemObject.GetParent().SetDefaultItem(self._pemObject)
-			if wx.Platform == '__WXGTK__':
-				warnings.warn("DefaultButton doesn't seem to work on GTK.", Warning)
+		if self.Parent is not None:
+			return self.Parent.GetDefaultItem() == self
 		else:
-			if self._pemObject.GetParent().GetDefaultItem() == self._pemObject:
-				# Only change the default item to None if it wasn't self: if another object
-				# is the default item, setting self.DefaultButton = False shouldn't also set
-				# that other object's DefaultButton to False.
-				self.SetDefaultItem(None)
+			return False
+
+	def _setDefaultButton(self, value):
+		if self._constructed():
+			if value:
+				if self.Parent is not None:
+					self.Parent.SetDefaultItem(self._pemObject)
+			else:
+				if self._pemObject.GetParent().GetDefaultItem() == self._pemObject:
+					# Only change the default item to None if it wasn't self: if another object
+					# is the default item, setting self.DefaultButton = False shouldn't also set
+					# that other object's DefaultButton to False.
+					self.SetDefaultItem(None)
+		else:
+			self._properties["DefaultButton"] = value
+
 
 	def _getNormalPicture(self):
 		return self.GetBitmapLabel()
+
 	def _setNormalPicture(self, value):
-		if type(value) == type(""):
-			# Convert to bitmap
-			value = getIconBitmap(value)
-		self.SetBitmapLabel(value)
+		if self._constructed():
+			if type(value) == type(""):
+				# Convert to bitmap
+				value = getIconBitmap(value)
+			self.SetBitmapLabel(value)
+		else:
+			self._properties["NormalPicture"] = value
+
 	
 	def _getDownPicture(self):
 		return self.GetBitmapSelected()
+
 	def _setDownPicture(self, value):
-		if type(value) == type(""):
-			# Convert to bitmap
-			value = getIconBitmap(value)
-		self.SetBitmapSelected(value)
+		if self._constructed():
+			if type(value) == type(""):
+				# Convert to bitmap
+				value = getIconBitmap(value)
+			self.SetBitmapSelected(value)
+		else:
+			self._properties["DownPicture"] = value
+
 	
 	def _getFocusPicture(self):
 		return self.GetBitmapFocus()
+
 	def _setFocusPicture(self, value):
-		if type(value) == type(""):
-			# Convert to bitmap
-			value = getIconBitmap(value)
-		self.SetBitmapFocus(value)
+		if self._constructed():
+			if type(value) == type(""):
+				# Convert to bitmap
+				value = getIconBitmap(value)
+			self.SetBitmapFocus(value)
+		else:
+			self._properties["FocusPicture"] = value
 	
 
 	# Property definitions:

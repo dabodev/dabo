@@ -36,12 +36,10 @@ class Form(dabo.ui.dForm):
 	def __init__(self, parent=None, previewMode=False, tbl=""):
 		self.preview = previewMode
 		self.previewDataSource = tbl
-		#Form.doDefault(parent)
 		super(Form, self).__init__(parent)
 		# We will need to set these separated if in Preview mode.
 		self.rowNumber = 0
 		self.rowCount = 0
-		
 
 	def _afterInit(self):
 		#Form.doDefault()
@@ -49,7 +47,6 @@ class Form(dabo.ui.dForm):
 		if self.FormType == 'PickList':
 			# Map escape key to close the form
 			self.bindKey("esc", self.Close)
-
 			
 	def save(self, dataSource=None):
 		if dataSource is None:

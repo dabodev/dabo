@@ -9,8 +9,63 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 	"""
 	_IsContainer = False
 
+	def beforeInit(self, *args, **kwargs):
+		""" Subclass hook.
+		
+		Called before the object is fully instantiated.
+		"""
+		pass
+		
+
+	def afterInit(self):
+		""" Subclass hook.
+		
+		Called after the object's __init__ has run fully.
+
+		Subclasses should place their __init__ code here in this hook,
+		instead of overriding __init__ directly, to avoid conflicting
+		with base Dabo behavior.
+		"""
+		pass
+		
+
+	def initProperties(self):
+		""" Hook for subclasses.
+
+		User code can set properties here, such as:
+			self.Name = "MyTextBox"
+			self.BackColor = (192,192,192)
+		"""
+		pass
+
+		
+	def initEvents(self):
+		""" Hook for subclasses.
+		
+		User code can do custom event binding here, such as:
+			self.bindEvent(dEvents.GotFocus, self.customGotFocusHandler)
+		"""
+		pass
+		
+			
+	def _beforeInit(self):
+		"""Framework subclass hook.
+		"""
+		self.beforeInit()
+
+	def _initProperties(self):
+		"""Framework subclass hook.
+		"""
+		self.initProperties()
+
+	def _afterInit(self):
+		"""Framework subclass hook.
+		"""
+		self.afterInit()
+
+
 	def getAbsoluteName(self):
-		""" Return the fully qualified name of the object.
+		"""Return the fully qualified name of the object.
 		"""
 		names = [self.Name, ]
 		object = self

@@ -210,7 +210,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	def __onWxKeyDown(self, evt):
 		self.raiseEvent(dEvents.KeyDown, evt)
 		
-	def _getSelected(self):
+	def _getSelectedIndices(self):
 		ret = []
 		pos = -1
 		while True:
@@ -220,11 +220,14 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 			pos = indx
 			ret.append(indx)
 		return ret
-	def _setSelected(self, selList):
-		self.unselectAll()
-		for id in selList:
-			self.SetItemState(id, wx.LIST_STATE_SELECTED, 
-					wx.LIST_STATE_SELECTED)
+	def _setSelectedIndices(self, selList):
+		if self._constructed():
+			self.unselectAll()
+			for id in selList:
+				self.SetItemState(id, wx.LIST_STATE_SELECTED, 
+						wx.LIST_STATE_SELECTED)
+		else:
+			self._properties["SelectedIndices"] = selList
 
 	def _getColCount(self):
 		return self.GetColumnCount()
@@ -239,11 +242,14 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		except: pass
 		return ret
 	def _setValue(self, val):
-		if type(val) == int:
-			self.Select(val)
-		elif type(val) in (str, unicode):
-			self.Select(self.FindItem(-1, val))
-	
+		if self._constructed():
+			if type(val) == int:
+				self.Select(val)
+			elif type(val) in (str, unicode):
+				self.Select(self.FindItem(-1, val))
+		else:
+			self._properties["Value"] = val
+
 	def _getValues(self):
 		ret = []
 		indxs = self._getSelected()
@@ -265,7 +271,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	RowCount = property(_getRowCount, None, None, 
 			_("Number of rows in the control (read-only).  (int)") )
 
-	SelectedIndices = property(_getSelected, _setSelected, None, 
+	SelectedIndices = property(_getSelectedIndices, _setSelectedIndices, None, 
 			_("Returns a list of selected row indices.  (list of int)") )
 	
 	Value = property(_getValue, _setValue, None,

@@ -369,14 +369,17 @@ class Band(dabo.ui.dPanel):
 	Bands contain any number of objects, which can receive the focus and be
 	acted upon. Bands also manage their own BandLabels.
 	"""
+	def initProperties(self):
+		self.BackColor = (255,255,255)
+		self.Top = 100
+
 	def afterInit(self):
 		self._rd = self.Form.editor
 		self._rw = self._rd._rw
-		self._objects = {}
-		self._bandLabelHeight = 18
 		self.Bands = self._rw.Bands
-		self.BackColor = (255,255,255)
-		self.Top = 100
+		self._objects = {}
+
+		self._bandLabelHeight = 18
 		self.addObject(BandLabel, "bandLabel", FontSize=9, 
 		               BackColor=(215,215,215), ForeColor=(128,128,128),
 		               Height=self._bandLabelHeight)
@@ -891,7 +894,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		defaultLength = 1
 
 		class Ruler(dabo.ui.dPanel):
-			def afterInit(self):
+			def initProperties(self):
 				self.BackColor = (192,128,192)
 				self._orientation = orientation[0].lower()
 
@@ -938,11 +941,15 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 class ReportDesignerForm(dabo.ui.dForm):
 	"""Main form, status bar, and menu for the report designer.
 	"""
-	def afterInit(self):
+	def initProperties(self):
 		self._captionBase = self.Caption = "Dabo Report Designer"
 		self.Sizer = None
+		
+	def afterInit(self):
 		self.addObject(ReportDesigner, Name="editor")
 		self.fillMenu()
+
+	def initEvents(self):
 		self.bindEvent(dEvents.Close, self.onClose)
 
 	def getCurrentEditor(self):

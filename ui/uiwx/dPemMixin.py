@@ -19,19 +19,18 @@ class dPemMixin(dPemMixinBase):
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
 
-		# self.properties can be set in the userland beforeInit() hook.
-		self.properties = {}
+		self._properties = {}
 		
 		# Lots of useful wx props are actually only settable before the
-		# object is fully constructed. The self._initProperties dict keeps
+		# object is fully constructed. The self._preInitProperties dict keeps
 		# track of those during the pre-init phase, to finally send the 
 		# contents of it to the wx constructor. Our property setters know
 		# if we are in pre-init or not, and instead of trying to modify 
-		# the prop will instead add the appropriate entry to the _initProperties
+		# the prop will instead add the appropriate entry to the _preInitProperties
 		# dict. Additionally, there are certain wx properties that are required,
-		# and we include those in the _initProperties dict as well so they may
+		# and we include those in the _preInitProperties dict as well so they may
 		# be modified by our pre-init method hooks if needed:
-		self._initProperties = {"style": 0}
+		self._preInitProperties = {"style": 0}
 
 		# There are a few controls that don't yet support 3-way inits (grid, for 
 		# one). These controls will send the wx classref as the preClass argument, 
@@ -45,32 +44,26 @@ class dPemMixin(dPemMixinBase):
 			pre = preClass()
 		else:
 			pre = None
-		
+
 		# This will implicitly call the following user hooks:
 		#    beforeInit()
 		self._beforeInit(pre)
+		self._initProperties()
 		
 		# Now that user code has had an opportunity to set the properties, we can 
 		# see if there are properties sent to the constructor which will augment 
 		# or override the properties set in beforeInit().
 		
 		# The keyword properties can come from either, both, or none of:
-		#    + self.properties (set by user code in self.beforeInit())
 		#    + the properties dict
 		#    + the kwargs dict
 		# Get them sanitized into one dict:
 		if properties is not None:
 			# Override the class values
 			for k,v in properties.items():
-				self.properties[k] = v
-		properties = self.extractKeywordProperties(kwargs, self.properties)
+				self._properties[k] = v
+		properties = self.extractKeywordProperties(kwargs, self._properties)
 		
-		# If a Name isn't given, a default name will be used, and it'll 
-		# autonegotiate by adding an integer until it is a unique name.
-		# If a Name is given explicitly, a NameError will be raised if
-		# the given Name isn't unique among siblings:
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-
 		if kwargs.has_key("style"):
 			# If wx style parm sent, keep it as-is
 			style = kwargs["style"]
@@ -85,24 +78,24 @@ class dPemMixin(dPemMixinBase):
 		if isinstance(self, dabo.ui.dMenuItem):
 			# Hack: wx.MenuItem doesn't take a style arg,
 			# and the parent arg is parentMenu
-			del self._initProperties["style"]
-			self._initProperties["parentMenu"] = parent
+			del self._preInitProperties["style"]
+			self._preInitProperties["parentMenu"] = parent
 		elif isinstance(self, (dabo.ui.dMenu, dabo.ui.dMenuBar)):
 			# Hack: wx.Menu has no style, parent, or id arg.
-			del self._initProperties["style"]
+			del self._preInitProperties["style"]
 		else:
-			if self._initProperties.has_key("style"):
-				self._initProperties["style"] = self._initProperties["style"] | style
+			if self._preInitProperties.has_key("style"):
+				self._preInitProperties["style"] = self._preInitProperties["style"] | style
 			else:
-				self._initProperties["style"] = style
-			self._initProperties["parent"] = parent
-			self._initProperties["id"] = id_
+				self._preInitProperties["style"] = style
+			self._preInitProperties["parent"] = parent
+			self._preInitProperties["id"] = id_
 		
 		# The user's subclass code has had a chance to tweak the style properties.
 		# Insert any of those into the arguments to send to the wx constructor:
 		properties = self._setInitProperties(**properties)
-		for prop in self._initProperties.keys():
-			kwargs[prop] = self._initProperties[prop]
+		for prop in self._preInitProperties.keys():
+			kwargs[prop] = self._preInitProperties[prop]
 		
 		# Allow the object a chance to add any required parms, such as OptionGroup
 		# which needs a choices parm in order to instantiate.
@@ -117,46 +110,61 @@ class dPemMixin(dPemMixinBase):
 		if threeWayInit:
 			self.PostCreate(pre)
 
+		self._pemObject = self
+
+		# If a Name isn't given, a default name will be used, and it'll 
+		# autonegotiate by adding an integer until it is a unique name.
+		# If a Name is given explicitly, a NameError will be raised if
+		# the given Name isn't unique among siblings:
+		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 		self._initName(name, _explicitName=_explicitName)
 
+		self._initEvents()
 		self._afterInit()
 		self.setProperties(properties)
+
+
+	def _constructed(self):
+		"""Returns True if the ui object has been fully created yet, False otherwise."""
+		try:
+			return self == self._pemObject
+		except Exception, e:
+			print e
+			return False
 
 		
 	def _beforeInit(self, pre):
 		self._acceleratorTable = {}
 		self._name = "?"
 		self._pemObject = pre
-		
-		# Call the subclass hook:
 		self.beforeInit()
 		
-		
+	
 	def _afterInit(self):
-		try:
-			if self.Position == (-1, -1):
-				# The object was instantiated with a default position,
-				# which ended up being (-1,-1). Change this to (0,0). 
-				# This is completely moot when sizers are employed.
-				self.Position = (0, 0)
+		if False:
+			## I don't think we need this code anymore, but if it turns out we do,
+			## we have to not let it run if we are a dMenu*, because it'll cause
+			## a segfault.
+			try:
+				if self.Position == (-1, -1):
+					# The object was instantiated with a default position,
+					# which ended up being (-1,-1). Change this to (0,0). 
+					# This is completely moot when sizers are employed.
+					self.Position = (0, 0)
 
-		except:
-			pass
-
+			except:
+				pass
+	
 		if not wx.HelpProvider.Get():
 			# The app hasn't set a help provider, and one is needed
 			# to be able to save/restore help text.
 			wx.HelpProvider.Set(wx.SimpleHelpProvider())
 
 		self._mouseLeftDown, self._mouseRightDown = False, False
-		
-		self._pemObject = self
-		self.initProperties()
-		self.initChildObjects()
+
 		self.afterInit()
-		
-		self._initEvents()
-		self.initEvents()
+
+		# Raise the Create event, in case someone wants to bind to that...		
 		self.raiseEvent(dEvents.Create)
 
 		
@@ -209,6 +217,8 @@ class dPemMixin(dPemMixinBase):
 		self.Bind(wx.EVT_PAINT, self.__onWxPaint)
 		self.Bind(wx.EVT_SIZE, self.__onWxResize)
 		
+		self.initEvents()
+
 	
 	def __onWxDestroy(self, evt):
 		self.raiseEvent(dEvents.Destroy, evt)
@@ -344,7 +354,7 @@ class dPemMixin(dPemMixinBase):
 		d["showInDesigner"] = name in dabo.ui.propsToShowInDesigner
 
 		# Some wx-specific props need to be initialized early. Let the designer know:
-		d["preInitProperty"] = name in self._initProperties.values()
+		d["preInitProperty"] = name in self._preInitProperties.values()
 		
 		# Finally, override the default editable state. The base behavior
 		# is to make any prop with a setter method editable, but some simply
@@ -464,42 +474,45 @@ class dPemMixin(dPemMixinBase):
 	def hasWindowStyleFlag(self, flag):
 		""" Return whether or not the flag is set. (bool)
 		"""
-		if self._pemObject == self:
+		if self._constructed():
 			return (self.GetWindowStyleFlag() & flag) == flag
 		else:
-			return (self._initProperties["style"] & flag) == flag
+			return (self._preInitProperties["style"] & flag) == flag
 
 	def addWindowStyleFlag(self, flag):
 		""" Add the flag to the window style.
 		"""
-		if self._pemObject == self:
+		if self._constructed():
 			self.SetWindowStyleFlag(self.GetWindowStyleFlag() | flag)
 		else:
-			self._initProperties["style"] = self._initProperties["style"] | flag
+			self._preInitProperties["style"] = self._preInitProperties["style"] | flag
 
 	def delWindowStyleFlag(self, flag):
 		""" Remove the flag from the window style.
 		"""
-		if self._pemObject == self:
+		if self._constructed():
 			self.SetWindowStyleFlag(self.GetWindowStyleFlag() & (~flag))
 		else:
-			self._initProperties["style"] = self._initProperties["style"] & (~flag)
+			self._preInitProperties["style"] = self._preInitProperties["style"] & (~flag)
+
 
 	def _getBackColor(self):
-		return self._pemObject.GetBackgroundColour()
+		return self.GetBackgroundColour()
 
 	def _getBackColorEditorInfo(self):
 		return {"editor": "colour"}
 
 	def _setBackColor(self, value):
-		if type(value) == str:
-			try:
-				value = dColors.colorTupleFromName(value)
-			except: pass
-		self._pemObject.SetBackgroundColour(value)
-		if self._pemObject == self:
+		if self._constructed():
+			if type(value) == str:
+				try:
+					value = dColors.colorTupleFromName(value)
+				except: pass
+			self.SetBackgroundColour(value)
 			# Background color changes don't result in an automatic refresh.
 			self.Refresh()
+		else:
+			self._properties["BackColor"] = value
 
 
 	def _getBorderStyle(self):
@@ -552,18 +565,21 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def _getCaption(self):
-		return self._pemObject.GetLabel()
+		return self.GetLabel()
 	
-	def _setCaption(self, caption):
-		## 2/23/2005: there is a bug in wxGTK that resets the font when the 
-		##            caption changes. So this is a workaround:
-		font = self.Font
-		self._pemObject.SetLabel(str(caption))
-		self.Font = font
+	def _setCaption(self, val):
+		if self._constructed():
+			## 2/23/2005: there is a bug in wxGTK that resets the font when the 
+			##            caption changes. So this is a workaround:
+			font = self.Font
+			self.SetLabel(val)
+			self.Font = font
 
-		# Frames have a Title separate from Label, but I can't think
-		# of a reason why that would be necessary... can you? 
-		self._pemObject.SetTitle(str(caption))
+			# Frames have a Title separate from Label, but I can't think
+			# of a reason why that would be necessary... can you? 
+			self.SetTitle(val)
+		else:
+			self._properties["Caption"] = val
 
 
 	def _getChildren(self):
@@ -574,32 +590,41 @@ class dPemMixin(dPemMixinBase):
 		
 		
 	def _getEnabled(self):
-		return self._pemObject.IsEnabled()
+		return self.IsEnabled()
 	
 	def _setEnabled(self, value):
-		self._pemObject.Enable(value)
+		if self._constructed():
+			self.Enable(value)
+		else:
+			self._properties["Enabled"] = False
 
 
 	def _getFont(self):
-		return self._pemObject.GetFont()
+		return self.GetFont()
 	
 	def _getFontEditorInfo(self):
 		return {"editor": "font"}
 	
-	def _setFont(self, font):
-		self._pemObject.SetFont(font)
+	def _setFont(self, val):
+		if self._constructed():
+			self.SetFont(val)
+		else:
+			self._properties["Font"] = val
 
 	
 	def _getFontBold(self):
 		return self.Font.GetWeight() == wx.BOLD
 	
-	def _setFontBold(self, fontBold):
-		font = self.Font
-		if fontBold:
-			font.SetWeight(wx.BOLD)
+	def _setFontBold(self, val):
+		if self._constructed():
+			font = self.Font
+			if val:
+				font.SetWeight(wx.BOLD)
+			else:
+				font.SetWeight(wx.LIGHT)    # wx.NORMAL doesn't seem to work...
+			self.Font = font
 		else:
-			font.SetWeight(wx.LIGHT)    # wx.NORMAL doesn't seem to work...
-		self.Font = font
+			self._properties["FontBold"] = val
 
 	def _getFontDescription(self):
 		f = self.Font
@@ -617,156 +642,187 @@ class dPemMixin(dPemMixinBase):
 	def _getFontItalic(self):
 		return self.Font.GetStyle() == wx.ITALIC
 	
-	def _setFontItalic(self, fontItalic):
-		font = self.Font
-		if fontItalic:
-			font.SetStyle(wx.ITALIC)
+	def _setFontItalic(self, val):
+		if self._constructed():
+			font = self.Font
+			if val:
+				font.SetStyle(wx.ITALIC)
+			else:
+				font.SetStyle(wx.NORMAL)
+			self.Font = font
 		else:
-			font.SetStyle(wx.NORMAL)
-		self.Font = font
+			self._properties["FontItalic"] = val
 
 	
 	def _getFontFace(self):
 		return self.Font.GetFaceName()
 
 	def _setFontFace(self, val):
-		f = self.Font
-		f.SetFaceName(val)
-		self.Font = f
+		if self._constructed():
+			f = self.Font
+			f.SetFaceName(val)
+			self.Font = f
+		else:
+			self._properties["FontFace"] = val
 
 	
 	def _getFontSize(self):
 		return self.Font.GetPointSize()
 	
-	def _setFontSize(self, fontSize):
-		font = self.Font
-		font.SetPointSize(int(fontSize))
-		self.Font = font
+	def _setFontSize(self, val):
+		if self._constructed():
+			font = self.Font
+			font.SetPointSize(int(val))
+			self.Font = font
+		else:
+			self._properties["FontSize"] = val
 	
 	def _getFontUnderline(self):
 		return self.Font.GetUnderlined()
 	
 	def _setFontUnderline(self, val):
-		# underlining doesn't seem to be working...
-		font = self.Font
-		font.SetUnderlined(bool(val))
-		self.Font = font
+		if self._constructed():
+			# underlining doesn't seem to be working...
+			font = self.Font
+			font.SetUnderlined(bool(val))
+			self.Font = font
+		else:
+			self._properties["FontUnderline"] = val
 
 
 	def _getForeColor(self):
-		return self._pemObject.GetForegroundColour()
+		return self.GetForegroundColour()
 
 	def _getForeColorEditorInfo(self):
 		return {"editor": "colour"}
 
-	def _setForeColor(self, value):
-		if type(value) == str:
-			try:
-				value = dColors.colorTupleFromName(value)
-			except: pass
-		self._pemObject.SetForegroundColour(value)
+	def _setForeColor(self, val):
+		if self._constructed():
+			if type(val) == str:
+				try:
+					val = dColors.colorTupleFromName(val)
+				except: pass
+			self.SetForegroundColour(val)
+		else:
+			self._properties["ForeColor"] = val
 
 	
 	def _getHeight(self):
-		return self._pemObject.GetSize()[1]
+		return self.GetSize()[1]
 
 	def _getHeightEditorInfo(self):
 		return {"editor": "integer", "min": 0, "max": 8192}
 
-	def _setHeight(self, height):
-		newSize = self._pemObject.GetSize()[0], int(height)
-		if isinstance(self, (wx.Frame, wx.Dialog) ):
-			self._pemObject.SetSize(newSize)
+	def _setHeight(self, val):
+		if self._constructed():
+			newSize = self.GetSize()[0], int(val)
+			if isinstance(self, (wx.Frame, wx.Dialog) ):
+				self.SetSize(newSize)
+			else:
+				self.SetBestFittingSize(newSize)
 		else:
-			self._pemObject.SetBestFittingSize(newSize)
+			self._properties["Height"] = val
 
 
 	def _getHelpContextText(self):
-		return self._pemObject.GetHelpText()
+		return self.GetHelpText()
 	
-	def _setHelpContextText(self, value):
-		self._pemObject.SetHelpText(str(value))
+	def _setHelpContextText(self, val):
+		if self._constructed():
+			self.SetHelpText(val)
+		else:
+			self._properties["HelpContextText"] = val
 
 
 	def _getLeft(self):
-		return self._pemObject.GetPosition()[0]
+		return self.GetPosition()[0]
 	
-	def _setLeft(self, left):
-		self._pemObject.SetPosition((int(left), self._pemObject.Top))
+	def _setLeft(self, val):
+		if self._constructed():
+			self.SetPosition((int(val), self.Top))
+		else:
+			self._properties["Left"] = val
 
 		
 	def _getMousePointer(self):
-		return self._pemObject.GetCursor()
+		return self.GetCursor()
 	
-	def _setMousePointer(self, value):
-		self._pemObject.SetCursor(value)
+	def _setMousePointer(self, val):
+		if self._constructed():
+			self.SetCursor(val)
+		else:
+			self._properties["MousePointer"] = val
 
 
 	def _getName(self):
 		try:
-			name = self._pemObject.GetName()
+			name = self.GetName()
 		except AttributeError:
-			# Some objects that inherit from dPemMixin (dMenu*) don't have GetNam()
+			# Some objects that inherit from dPemMixin (dMenu*) don't have GetName()
 			# or SetName() methods.
 			name = self._name
 		self._name = name      # keeps name available even after C++ object is gone.
 		return name
 	
 	def _setName(self, name, _userExplicit=True):
-		currentName = self._getName()
-		parent = self._pemObject.GetParent()
-		if parent is not None:
-			if not _userExplicit:
-				# Dabo is setting the name implicitly, in which case we want to mangle
-				# the name if necessary to make it unique (we don't want a NameError).
-				i = 0
-				while True:
-					nameError = False
-					if i == 0:
-						candidate = name
-					else:
-						candidate = "%s%s" % (name, i)
-
-					for window in parent.GetChildren():
-						if window.GetName() == candidate and window != self:
-							nameError = True
+		if self._constructed():
+			currentName = self._getName()
+			parent = self.Parent
+			if parent is not None:
+				if not _userExplicit:
+					# Dabo is setting the name implicitly, in which case we want to mangle
+					# the name if necessary to make it unique (we don't want a NameError).
+					i = 0
+					while True:
+						nameError = False
+						if i == 0:
+							candidate = name
+						else:
+							candidate = "%s%s" % (name, i)
+	
+						for window in parent.GetChildren():
+							if window.GetName() == candidate and window != self:
+								nameError = True
+								break
+						if nameError:
+							i += 1
+						else:
+							name = candidate
 							break
-					if nameError:
-						i += 1
-					else:
-						name = candidate
-						break
+				else:
+					# the user is explicitly setting the Name. If another object already
+					# has the name, we must raise an exception immediately.
+					for window in parent.GetChildren():
+						if str(window.GetName()) == str(name) and window != self:
+							raise NameError, "Name '%s' is already in use." % name
+					
 			else:
-				# the user is explicitly setting the Name. If another object already
-				# has the name, we must raise an exception immediately.
-				for window in parent.GetChildren():
-					if str(window.GetName()) == str(name) and window != self:
-						raise NameError, "Name '%s' is already in use." % name
-				
+				# Can't do the name check for siblings, so allow it for now.
+				# This problem would only apply to top-level forms, so it really
+				# wouldn't matter anyway in a practical sense.
+				name = name
+	
+			name = str(name)
+			try:
+				self.SetName(name)
+			except AttributeError:
+				# Some objects that inherit from dPemMixin do not implement SetName().
+				pass
+			self._name = name
+			try: 
+				del self.Parent.__dict__[currentName]
+			except (AttributeError, KeyError):
+				# Parent could be None, or currentName wasn't bound yet (init)
+				pass
+	
+			try:
+				self.Parent.__dict__[name] = self
+			except AttributeError:
+				# Parent could be None
+				pass
+
 		else:
-			# Can't do the name check for siblings, so allow it for now.
-			# This problem would only apply to top-level forms, so it really
-			# wouldn't matter anyway in a practical sense.
-			name = name
-
-		name = str(name)
-		try:
-			self._pemObject.SetName(name)
-		except AttributeError:
-			# Some objects that inherit from dPemMixin do not implement SetName().
-			pass
-		self._name = name
-		try: 
-			del self.Parent.__dict__[currentName]
-		except (AttributeError, KeyError):
-			# Parent could be None, or currentName wasn't bound yet (init)
-			pass
-
-		try:
-			self.Parent.__dict__[name] = self
-		except AttributeError:
-			# Parent could be None
-			pass
+			self._properties["Name"] = name
 	
 
 	def _setNameBase(self, val):
@@ -774,36 +830,45 @@ class dPemMixin(dPemMixinBase):
 		
 		
 	def _getParent(self):
-		return self._pemObject.GetParent()
+		return self.GetParent()
 	
-	def _setParent(self, newParentObject):
-		# Note that this isn't allowed in the property definition, however this
-		# is how we'd do it *if* it were allowed <g>:
-		self._pemObject.Reparent(newParentObject)
+	def _setParent(self, val):
+		if self._constructed():
+			self.Reparent(val)
+		else:
+			self._properties["Parent"] = val
 
 		
 	def _getPosition(self):
-		return self._pemObject.GetPosition()
+		return self.GetPosition()
 
-	def _setPosition(self, position):
-		self._pemObject.SetPosition(position)
+	def _setPosition(self, val):
+		if self._constructed():
+			self.SetPosition(val)
+		else:
+			self._properties["Position"] = val
 
 	
 	def _getSize(self): 
-		return self._pemObject.GetSize()
+		return self.GetSize()
 
-	def _setSize(self, size):
-		if isinstance(self, (wx.Frame, wx.Dialog) ):
-			self._pemObject.SetSize(size)
+	def _setSize(self, val):
+		if self._constructed():
+			if isinstance(self, (wx.Frame, wx.Dialog) ):
+				self.SetSize(val)
+			else:
+				self.SetBestFittingSize(val)
 		else:
-			self._pemObject.SetBestFittingSize(size)
-
+			self._properties["Size"] = val
 	
 	def _getSizer(self):
 		return self.GetSizer()
 		
 	def _setSizer(self, val):
-		self.SetSizer(val)
+		if self._constructed():
+			self.SetSizer(val)
+		else:
+			self._properties["Sizer"] = val
 			
 		
 	def _getTag(self):
@@ -818,7 +883,7 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _getToolTipText(self):
-		t = self._pemObject.GetToolTip()
+		t = self.GetToolTip()
 		if t:
 			return t.GetTip()
 		else:
@@ -827,45 +892,56 @@ class dPemMixin(dPemMixinBase):
 	def _getToolTipTextEditorInfo(self):
 		return {"editor": "string", "len": 8192}
 
-	def _setToolTipText(self, value):
-		t = self._pemObject.GetToolTip()
-		if t:
-			t.SetTip(value)
+	def _setToolTipText(self, val):
+		if self._constructed():
+			t = self.GetToolTip()
+			if t:
+				t.SetTip(val)
+			else:
+				if val:
+					t = wx.ToolTip(val)
+					self.SetToolTip(t)
 		else:
-			if value:
-				t = wx.ToolTip(str(value))
-				self._pemObject.SetToolTip(t)
-
+			self._properties["ToolTipText"] = val
 
 	def _getTop(self):
-		return self._pemObject.GetPosition()[1]
+		return self.GetPosition()[1]
 	
-	def _setTop(self, top):
-		self.SetPosition((self._pemObject.Left, int(top)))
+	def _setTop(self, val):
+		if self._constructed():
+			self.SetPosition((self.Left, int(val)))
+		else:
+			self._properties["Top"] = val
 
 	
 	def _getVisible(self):
-		return self._pemObject.IsShown()
+		return self.IsShown()
 	
-	def _setVisible(self, value):
-		self._pemObject.Show(bool(value))
+	def _setVisible(self, val):
+		if self._constructed():
+			self.Show(bool(val))
+		else:
+			self._properties["Visible"] = val
 
 		
 	def _getWidth(self):
-		return self._pemObject.GetSize()[0]
+		return self.GetSize()[0]
 
 	def _getWidthEditorInfo(self):
 		return {"editor": "integer", "min": 0, "max": 8192}
 
-	def _setWidth(self, width):
-		newSize = int(width), self._pemObject.GetSize()[1]
-		if isinstance(self, (wx.Frame, wx.Dialog) ):
-			self._pemObject.SetSize(newSize)
+	def _setWidth(self, val):
+		if self._constructed():
+			newSize = int(val), self.GetSize()[1]
+			if isinstance(self, (wx.Frame, wx.Dialog) ):
+				self.SetSize(newSize)
+			else:
+				self.SetBestFittingSize(newSize)
 		else:
-			self._pemObject.SetBestFittingSize(newSize)
+			self._properties["Width"] = val
 
 	def _getWindowHandle(self):
-		return self._pemObject.GetHandle()
+		return self.GetHandle()
 
 
 

@@ -51,37 +51,40 @@ class dListbook(wx.Listbook, cm.dControlMixin):
 	# property get/set functions:
 	def _getPageClass(self):
 		try:
-			return self._pemObject._pageClass
+			return self._pageClass
 		except AttributeError:
 			return dPage.dPage
 			
 	def _setPageClass(self, value):
 		if issubclass(value, dControlMixin.dControlMixin):
-			self.pemObject._pageClass = value
+			self._pageClass = value
 		else:
 			raise TypeError, 'PageClass must descend from a Dabo base class.'
 			
 			
 	def _getPageCount(self):
-		return int(self._pemObject.GetPageCount())
+		return int(self.GetPageCount())
 		
 	def _setPageCount(self, value):
-		value = int(value)
-		pageCount = self._pemObject.GetPageCount()
-		pageClass = self.PageClass
+		if self._constructed():
+			value = int(value)
+			pageCount = self.GetPageCount()
+			pageClass = self.PageClass
 		
-		if value < 0:
-			raise ValueError, "Cannot set PageCount to less than zero."
+			if value < 0:
+				raise ValueError, "Cannot set PageCount to less than zero."
 		
-		if value > pageCount:
-			for i in range(pageCount, value):
-				self._pemObject.AddPage(pageClass(self), "Page %s" % (i+1,))
-		elif value < pageCount:
-			for i in range(pageCount, value, -1):
-				self._pemObject.DeletePage(i-1)
-				self._pemObject.Refresh()
+			if value > pageCount:
+				for i in range(pageCount, value):
+					self.AddPage(pageClass(self), "Page %s" % (i+1,))
+			elif value < pageCount:
+				for i in range(pageCount, value, -1):
+					self.DeletePage(i-1)
+					self.Refresh()
+		else:
+			self._properties["PageCount"] = value	
 		
-		
+
 	def _getTabPosition(self):
 		if self.hasWindowStyleFlag(wx.LB_BOTTOM):
 			return 'Bottom'

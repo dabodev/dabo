@@ -62,29 +62,33 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 		return super(dLabel, self)._getFontBold()
 	def _setFontBold(self, val):
 		super(dLabel, self)._setFontBold(val)
-		# This will force an auto-resize
-		self.SetLabel(self.GetLabel())
+		if self._constructed():
+			# This will force an auto-resize
+			self.SetLabel(self.GetLabel())
 		
 	def _getFontFace(self):
 		return super(dLabel, self)._getFontFace()
 	def _setFontFace(self, val):
 		super(dLabel, self)._setFontFace(val)
-		# This will force an auto-resize
-		self.SetLabel(self.GetLabel())
+		if self._constructed():
+			# This will force an auto-resize
+			self.SetLabel(self.GetLabel())
 		
 	def _getFontItalic(self):
 		return super(dLabel, self)._getFontItalic()
 	def _setFontItalic(self, val):
 		super(dLabel, self)._setFontItalic(val)
-		# This will force an auto-resize
-		self.SetLabel(self.GetLabel())
+		if self._constructed():
+			# This will force an auto-resize
+			self.SetLabel(self.GetLabel())
 		
 	def _getFontSize(self):
 		return super(dLabel, self)._getFontSize()
 	def _setFontSize(self, val):
 		super(dLabel, self)._setFontSize(val)
-		# This will force an auto-resize
-		self.SetLabel(self.GetLabel())
+		if self._constructed():
+			# This will force an auto-resize
+			self.SetLabel(self.GetLabel())
 		
 
 	# property definitions follow:

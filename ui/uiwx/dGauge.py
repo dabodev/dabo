@@ -26,7 +26,10 @@ class dGauge(wx.Gauge, cm.dControlMixin):
 		return self.GetRange()
 			
 	def _setRange(self, value):
-		self.SetRange(value)
+		if self._constructed():
+			self.SetRange(value)
+		else:
+			self._properties["Range"] = value
 		
 		
 	def _getOrientation(self):
@@ -50,7 +53,10 @@ class dGauge(wx.Gauge, cm.dControlMixin):
 		return self.GetValue()
 		
 	def _setValue(self, value):
-		self.SetValue(value)
+		if self._constructed():
+			self.SetValue(value)
+		else:
+			self._properties["Value"] = value
 		
 	# Property definitions:
 	Orientation = property(_getOrientation, _setOrientation, None, 

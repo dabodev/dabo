@@ -48,15 +48,18 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 	# definitions themselves.
 	def _getUserValue(self):
 		if self._userVal:
-			return self._pemObject.GetValue()
+			return self.GetValue()
 		else:
-			return self._pemObject.GetStringSelection()
+			return self.GetStringSelection()
 				
 	def _setUserValue(self, value):
-		self.SetValue(value)
-		# don't call _afterValueChanged(), because value tracks the item in the list,
-		# not the displayed value. User code can query UserValue and then decide to
-		# add it to the list, if appropriate.
+		if self._constructed():
+			self.SetValue(value)
+			# don't call _afterValueChanged(), because value tracks the item in the list,
+			# not the displayed value. User code can query UserValue and then decide to
+			# add it to the list, if appropriate.
+		else:
+			self._properties["UserValue"] = value
 	
 	UserValue = property(_getUserValue, _setUserValue, None,
 		"""Specifies the text displayed in the textbox portion of the ComboBox.

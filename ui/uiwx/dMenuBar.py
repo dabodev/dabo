@@ -98,9 +98,12 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 		return self.GetFrame()
 
 	def _setForm(self, val):
-		if val != self.GetFrame():
-			self.Detach()
-			self.Attach(val)
+		if self._constructed():
+			if val != self.GetFrame():
+				self.Detach()
+				self.Attach(val)
+		else:
+			self._properties["Form"] = val
 
 	Form = property(_getForm, _setForm, None,
 		_("Specifies the form that we are a member of."))

@@ -58,21 +58,26 @@ class dControlItemMixin(dDataControlMixin):
 		return _choices
 		
 	def _setChoices(self, choices):
-		vm = self.ValueMode
-		oldVal = self.Value
-		self.Clear()
-		self._choices = list(choices)
-		self.AppendItems(self._choices)
-		if oldVal is not None:
-			# Try to get back to the same row:
-			try:
-				self.Value = oldVal
-			except ValueError:
-				self.PositionValue = 0
+		if self._constructed():
+			vm = self.ValueMode
+			oldVal = self.Value
+			self.Clear()
+			self._choices = list(choices)
+			self.AppendItems(self._choices)
+			if oldVal is not None:
+				# Try to get back to the same row:
+				try:
+					self.Value = oldVal
+				except ValueError:
+					self.PositionValue = 0
+		else:
+			self._properties["Choices"] = choices
+
 
 	def _getCount(self):
 		return self.GetCount()
 	
+
 	def _getKeys(self):
 		try:
 			keys = self._keys
@@ -90,6 +95,7 @@ class dControlItemMixin(dDataControlMixin):
 		else:
 			raise TypeError, _("Keys must be a dictionary or list/tuple.")
 			
+
 	def _getKeyValue(self):
 		selections = self.PositionValue
 		values = []
@@ -122,48 +128,55 @@ class dControlItemMixin(dDataControlMixin):
 			return tuple(values)
 		
 	def _setKeyValue(self, value):
-		# This function takes a key value or values, such as 10992 or
-		# (10992, 92991), finds the mapped position or positions, and 
-		# and selects that position or positions.
+		if self._constructed():
+			# This function takes a key value or values, such as 10992 or
+			# (10992, 92991), finds the mapped position or positions, and 
+			# and selects that position or positions.
 	
-		# convert singular to tuple:
-		if type(value) not in (list, tuple):
-			value = (value,)
+			# convert singular to tuple:
+			if type(value) not in (list, tuple):
+				value = (value,)
 		
-		# Clear all current selections:
-		self.clearSelections()
+			# Clear all current selections:
+			self.clearSelections()
 		
-		# Select items that match indices in value:
-		for key in value:
-			if key is None:
-				continue
-			self.SetSelection(self.Keys[key])
-		self._afterValueChanged()
-
-
-	def _getPosValue(self):
-		if not self.isMultiSelect:
-			return self._pemObject.GetSelection()
+			# Select items that match indices in value:
+			for key in value:
+				if key is None:
+					continue
+				self.SetSelection(self.Keys[key])
+			self._afterValueChanged()
 		else:
-			selections = self._pemObject.GetSelections()
+			self._properties["KeyValue"] = value
+
+
+	def _getPositionValue(self):
+		if not self.isMultiSelect:
+			return self.GetSelection()
+		else:
+			selections = self.GetSelections()
 			return tuple(selections)
-	def _setPosValue(self, value):
-		# convert singular to tuple:
-		if type(value) not in (list, tuple):
-			value = (value,)
-		# Clear all current selections:
-		self.clearSelections()
-		# Select items that match indices in value:
-		for index in value:
-			if index is None:
-				continue
-			try:
-				self.SetSelection(index)
-			except: pass
-		self._afterValueChanged()
+
+	def _setPositionValue(self, value):
+		if self._constructed():
+			# convert singular to tuple:
+			if type(value) not in (list, tuple):
+				value = (value,)
+			# Clear all current selections:
+			self.clearSelections()
+			# Select items that match indices in value:
+			for index in value:
+				if index is None:
+					continue
+				try:
+					self.SetSelection(index)
+				except: pass
+			self._afterValueChanged()
+		else:
+			self._properties["PositionValue"] = value
 
 	
-	def _getStrValue(self):
+	def _getStringValue(self):
 		selections = self.PositionValue
 		if not self.isMultiSelect:
 			if selections is None:
@@ -188,25 +201,28 @@ class dControlItemMixin(dDataControlMixin):
 		else:
 			return tuple(strings)
 	
-	def _setStrValue(self, value):
-		# convert singular to tuple:
-		if type(value) not in (list, tuple):
-			value = (value,)
-		# Clear all current selections:
-		self.clearSelections()
-		# Select items that match the string tuple:
-		for string in value:
-			if string is None:
-				continue
-			if type(string) in (str, unicode):
-				index = self.FindString(string)
-				if index < 0:
-					raise ValueError, _("String must be present in the choices.")
+	def _setStringValue(self, value):
+		if self._constructed():
+			# convert singular to tuple:
+			if type(value) not in (list, tuple):
+				value = (value,)
+			# Clear all current selections:
+			self.clearSelections()
+			# Select items that match the string tuple:
+			for string in value:
+				if string is None:
+					continue
+				if type(string) in (str, unicode):
+					index = self.FindString(string)
+					if index < 0:
+						raise ValueError, _("String must be present in the choices.")
+					else:
+						self.SetSelection(index)
 				else:
-					self.SetSelection(index)
-			else:
-				raise TypeError, _("Unicode or string required.")
-		self._afterValueChanged()
+					raise TypeError, _("Unicode or string required.")
+			self._afterValueChanged()
+		else:
+			self._properties["StringValue"] = value
 
 		
 	def _getValue(self):
@@ -272,13 +288,13 @@ class dControlItemMixin(dDataControlMixin):
 		raised if the Keys property hasn't been set up to accomodate.
 		""") )
 		
-	PositionValue = property(_getPosValue, _setPosValue, None,
+	PositionValue = property(_getPositionValue, _setPositionValue, None,
 		_("""Specifies the position (index) of the selected item(s).
 		-> Integer or tuple of integers. Read-write at runtime.
 		Returns the current position(s), or sets the current position(s).
 		""") )
 
-	StringValue = property(_getStrValue, _setStrValue, None,
+	StringValue = property(_getStringValue, _setStringValue, None,
 		_("""Specifies the text of the selected item.
 		-> String or tuple of strings. Read-write at runtime.
 		Returns the text of the selected item(s), or selects the item(s) 

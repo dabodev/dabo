@@ -96,10 +96,9 @@ class HelpMenu(dMenu):
 
 
 class dBaseMenuBar(dMenuBar):
-	def __init__(self):
-		super(dBaseMenuBar, self).__init__()
+	def _afterInit(self):
+		super(dBaseMenuBar, self)._afterInit()
 		self.appendMenu(FileMenu(self))
 		self.appendMenu(EditMenu(self))
 		self.appendMenu(ViewMenu(self))
 		self.appendMenu(HelpMenu(self))
-

@@ -74,11 +74,13 @@ class dTimer(dabo.ui.dBitmap):
 		return self._timer.IsRunning()
 		
 	def _setEnabled(self, val):
-		if val:
-			self.Enable()
+		if self._constructed():
+			if val:
+				self.Enable()
+			else:
+				self.Disable()
 		else:
-			self.Disable()
-
+			self._properties["Enabled"] = val
 		
 	Interval = property(_getInterval, _setInterval, None,
 		 _("Specifies the timer interval (milliseconds)."))

@@ -10,69 +10,11 @@ class dPemMixinBase(dabo.common.dObject):
 	functions along with their own property() statements.
 	"""
 	
-	def _beforeInit(self):
-		""" Abstract method: subclasses MUST override for UI-specifics.
-		"""
-		pass
-		
-	def _afterInit(self):
-		""" Abstract method: subclasses MUST override for UI-specifics.
-		"""
-		pass
-	
 	def _initUI(self):
 		""" Abstract method: subclasses MUST override for UI-specifics.
 		"""
 		pass
 	
-	def beforeInit(self, *args, **kwargs):
-		""" Subclass hook.
-		
-		Called before the object is fully instantiated.
-		"""
-		pass
-		
-
-	def afterInit(self):
-		""" Subclass hook.
-		
-		Called after the object's __init__ has run fully.
-
-		Subclasses should place their __init__ code here in this hook,
-		instead of overriding __init__ directly, to avoid conflicting
-		with base Dabo behavior.
-		"""
-		pass
-		
-
-	def initProperties(self):
-		""" Hook for subclasses.
-
-		User code can set properties here, such as:
-			self.Name = "MyTextBox"
-			self.BackColor = (192,192,192)
-		"""
-		pass
-
-		
-	def initEvents(self):
-		""" Hook for subclasses.
-		
-		User code can do custom event binding here, such as:
-			self.bindEvent(dEvents.GotFocus, self.customGotFocusHandler)
-		"""
-		pass
-		
-			
-	def initChildObjects(self):
-		""" Hook for subclasses.
-		
-		Dabo Designer will set its addObject code here, such as:
-			self.addObject(dTextBox, 'txtLastName')
-		"""
-		pass
-		
-
 	def getPropertyInfo(self, name):
 		""" Abstract method: subclasses MUST override for UI-specifics.
 		"""

@@ -62,11 +62,17 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 			raise ValueError, ("The only possible values are "
 							"'Left', 'Center', and 'Right'.")
 
+
 	def _getReadOnly(self):
-		return not self._pemObject.IsEditable()
+		return not self.IsEditable()
+
 	def _setReadOnly(self, value):
-		self._pemObject.SetEditable(not value)
+		if self._constructed():
+			self.SetEditable(not value)
+		else:
+			self._properties["ReadOnly"] = value
 	
+
 	def _getSelectOnEntry(self):
 		try:
 			return self._SelectOnEntry

@@ -13,7 +13,7 @@ class dPage(dPanel.dScrollPanel):
 		self.itemsCreated = False
 		super(dPage, self)._afterInit()
 		
-	def initEvents(self):
+	def _initEvents(self):
 		super(dPage, self)._initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
@@ -68,21 +68,27 @@ class dPage(dPanel.dScrollPanel):
 			ret = self.Parent.GetPageText(pos)
 		return ret
 	def _setCaption(self, val):
-		pos = self._getPagePosition()
-		if pos > -1:
-			self.Parent.SetPageText(pos, val)
+		if self._constructed():
+			pos = self._getPagePosition()
+			if pos > -1:
+				self.Parent.SetPageText(pos, val)
+		else:
+			self._properties["Caption"] = val
 			
 	
-	def _getImg(self):
+	def _getImage(self):
 		return self.Parent.getPageImg(self)
-	def _setImg(self, imgKey):
-		self.Parent.setPageImg(self, imgKey)
+	def _setImage(self, imgKey):
+		if self._constructed():
+			self.Parent.setPageImage(self, imgKey)
+		else:
+			self._properties["Image"] = imgKey
 		
 	
 	Caption = property(_getCaption, _setCaption, None, 
 			_("The text identifying this particular page.  (str)") )
 
-	Image = property(_getImg, _setImg, None, 
+	Image = property(_getImage, _setImage, None, 
 			_("""Sets the image that is displayed on the page tab. This is
 			determined by the key value passed, which must refer to an 
 			image already added to the parent pageframe.

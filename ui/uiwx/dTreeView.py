@@ -162,19 +162,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		self.bindEvent(dEvents.TreeItemCollapse, self.onItemCollapse)
 		self.bindEvent(dEvents.TreeItemExpand, self.onItemExpand)
 
-
 		
-		
-		### Only for testing!
-# 		self.Size = (300,400)
-# 		self.addDummyData()
-# 		self.expandAll()
-# 		self.addImage("edit")
-# 		self.addImage("browse")
-# 		self.addImage("checkMark")
-
-	
-	
 	def _initEvents(self):
 		super(dTreeView, self)._initEvents()
 		self.Bind(wx.EVT_LEFT_UP, self._onWxHit)
@@ -398,7 +386,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		c221 = c22.appendChild("Great-Grandkid #1")
 		
 	
-	def _getSel(self):
+	def _getSelection(self):
 		if self.__multiSelect:
 			ids = self.GetSelections()
 			ret = [ n for n in self.nodes
@@ -408,11 +396,14 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			ret = [ n for n in self.nodes
 					if n.id == id][0]
 		return ret
-	def _setSel(self, node):
-		self.SelectItem(node.id)
+	def _setSelection(self, node):
+		if self._constructed():
+			self.SelectItem(node.id)
+		else:
+			self._properties["Selection"] = node
 	
 	
-	Selection = property(_getSel, _setSel, None,
+	Selection = property(_getSelection, _setSelection, None,
 			_("""If this is not a MultiSelect tree, it returns the currently 
 			selected node. If this is defined as MultiSelect, it will return
 			a list of selected nodes.  (dNode or list of dNodes)""") )
@@ -424,7 +415,12 @@ if __name__ == "__main__":
 	class TestTree(dTreeView):
 		def afterInit(self): 
 			self.addDummyData()
-			
+# 		self.Size = (300,400)
+# 		self.expandAll()
+# 		self.addImage("edit")
+# 		self.addImage("browse")
+# 		self.addImage("checkMark")
+
 		def onSelection(self, evt):
 			print "Selected node caption:", evt.EventData["selectedCaption"]
 		def onItemCollapse(self, evt):

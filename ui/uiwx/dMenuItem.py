@@ -43,17 +43,23 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 		return self.GetText()
 
 	def _setCaption(self, val):
-		## Win32 seems to need to clear the caption first, or funkiness
-		## can arise.
-		self.SetText("")
-		self.SetText(val)
+		if self._constructed():
+			## Win32 seems to need to clear the caption first, or funkiness
+			## can arise.
+			self.SetText("")
+			self.SetText(val)
+		else:
+			self._properties["Caption"] = val
 
 
 	def _getEnabled(self):
 		return self.IsEnabled()
 
 	def _setEnabled(self, val):
-		self.Enable(bool(val))
+		if self._constructed():
+			self.Enable(bool(val))
+		else:
+			self._properties["Enabled"] = val
 
 
 	def _getForm(self):
@@ -64,26 +70,32 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 		return self.GetHelp()
 
 	def _setHelpText(self, val):
-		self.SetHelp(val)
+		if self._constructed():
+			self.SetHelp(val)
+		else:
+			self._properties["HelpText"] = val
 
 
 	def _getIcon(self):
 		return self.GetBitmap()
 
 	def _setIcon(self, v):
-		if type(v) == str:
-			# Icon name was passed; get the actual bitmap
-			v = dIcons.getIconBitmap(v)
-		if v is None:
-			v = wx.NullBitmap
-		self.SetBitmap(v)
+		if self._constructed():
+			if type(v) == str:
+				# Icon name was passed; get the actual bitmap
+				v = dIcons.getIconBitmap(v)
+			if v is None:
+				v = wx.NullBitmap
+			self.SetBitmap(v)
 
-		# Win32 at least needs the following line, or the caption
-		# will look really funky, but Linux can't have this line or
-		# the underlined hotkeys will get messed up. I don't know about
-		# Mac so I'll leave that alone for now:
-		if self.Application.Platform in ("Win",):
-			self.Caption = self.Caption
+			# Win32 at least needs the following line, or the caption
+			# will look really funky, but Linux can't have this line or
+			# the underlined hotkeys will get messed up. I don't know about
+			# Mac so I'll leave that alone for now:
+			if self.Application.Platform in ("Win",):
+				self.Caption = self.Caption
+		else:
+			self._properties["Icon"] = v
 
 
 	def _getParent(self):

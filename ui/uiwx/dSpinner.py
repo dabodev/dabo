@@ -38,25 +38,31 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getMax(self):
-		return self._pemObject.GetMax()
+		return self.GetMax()
+
 	def _setMax(self, value):
-		rangeLow = self._pemObject.GetMin()
+		rangeLow = self.GetMin()
 		rangeHigh = int(value)
-		self._pemObject.SetRange(rangeLow, rangeHigh)
+		self.SetRange(rangeLow, rangeHigh)
+
 
 	def _getMin(self):
 		return self.GetMin()
+
 	def _setMin(self, value):
 		rangeLow = int(value)
 		rangeHigh = self.Max
 		self.SetRange(rangeLow, rangeHigh)
 
+
 	def _getSpinnerWrap(self):
 		return self.hasWindowStyleFlag(wx.SP_WRAP)
+
 	def _setSpinnerWrap(self, value):
 		self.delWindowStyleFlag(wx.SP_WRAP)
 		if value:
 			self.addWindowStyleFlag(wx.SP_WRAP)
+
 
 	# Property definitions:
 	Min = property(_getMin, _setMin, None, 

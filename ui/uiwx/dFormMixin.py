@@ -32,13 +32,8 @@ class dFormMixin(pm.dPemMixin):
 
 	def _afterInit(self):
 		if self.Application and self.MenuBarClass:
-			## Debugging: if you want to see menu errors, uncomment the next
-			## line and commment out the try block. Otherwise, problems with
-			## menu creation will be masked.
- 			self.MenuBar = self.MenuBarClass()
 			try:
-#				self.SetMenuBar(self.MenuBarClass())
-				
+	 			self.MenuBar = self.MenuBarClass()
 				self.afterSetMenuBar()
 			except AttributeError:
 				# perhaps we are a dDialog
@@ -335,24 +330,28 @@ class dFormMixin(pm.dPemMixin):
 			return self._Icon
 		except AttributeError:
 			return None
-	def _setIcon(self, icon):
-		self._Icon = icon       # wx doesn't provide GetIcon()
-		if not isinstance(icon, wx.Icon):
-			if os.path.exists(icon):
-				# It's a file path
-				bmp = wx.Bitmap(icon)
-				icon = wx.EmptyIcon()
-				icon.CopyFromBitmap(bmp)
-		self.SetIcon(icon)
+	def _setIcon(self, val):
+		if self._constructed():
+			self._Icon = val       # wx doesn't provide GetIcon()
+			if not isinstance(val, wx.Icon):
+				if os.path.exists(val):
+					# It's a file path
+					bmp = wx.Bitmap(val)
+					val = wx.EmptyIcon()
+					val.CopyFromBitmap(bmp)
+			self.SetIcon(val)
 
 	def _getIconBundle(self):
 		try:
 			return self._Icons
 		except:
 			return None
-	def _setIconBundle(self, icons):
-		self.SetIcons(icons)
-		self._Icons = icons       # wx doesn't provide GetIcons()
+	def _setIconBundle(self, val):
+		if self._constructed():
+			self.SetIcons(val)
+			self._Icons = val       # wx doesn't provide GetIcons()
+		else:
+			self._properties["Icons"] = val
 
 	def _getBorderResizable(self):
 		return self.hasWindowStyleFlag(wx.RESIZE_BORDER)
@@ -384,11 +383,14 @@ class dFormMixin(pm.dPemMixin):
 			return None
 
 	def _setMenuBar(self, val):
-		try:
-			self.SetMenuBar(val)
-		except AttributeError:
-			# dDialogs don't have menu bars
-			pass
+		if self._constructed():
+			try:
+				self.SetMenuBar(val)
+			except AttributeError:
+				# dDialogs don't have menu bars
+				pass
+		else:
+			self._properties["MenuBar"] = val
 
 	def _getMenuBarClass(self):
 		try:
@@ -468,26 +470,30 @@ class dFormMixin(pm.dPemMixin):
 		return {'editor': 'list', 'values': ['Normal', 'Minimized', 'Maximized', 'FullScreen']}
 
 	def _setWindowState(self, value):
-		value = str(value)
-		if value == 'Normal':
-			if self.IsFullScreen():
-				self.ShowFullScreen(False)
-			elif self.IsMaximized():
-				self.Maximize(False)
-			elif self.IsIconized:
-				self.Iconize(False)
+		if self._constructed():
+			value = str(value)
+			if value == 'Normal':
+				if self.IsFullScreen():
+					self.ShowFullScreen(False)
+				elif self.IsMaximized():
+					self.Maximize(False)
+				elif self.IsIconized:
+					self.Iconize(False)
+				else:
+					# window already normal, but just in case:
+					self.Maximize(False)
+			elif value == 'Minimized':
+				self.Iconize()
+			elif value == 'Maximized':
+				self.Maximize()
+			elif value == 'FullScreen':
+				self.ShowFullScreen()
 			else:
-				# window already normal, but just in case:
-				self.Maximize(False)
-		elif value == 'Minimized':
-			self.Iconize()
-		elif value == 'Maximized':
-			self.Maximize()
-		elif value == 'FullScreen':
-			self.ShowFullScreen()
+				raise ValueError, ("The only possible values are "
+								"'Normal', 'Minimized', 'Maximized', and 'FullScreen'")
 		else:
-			raise ValueError, ("The only possible values are "
-							"'Normal', 'Minimized', 'Maximized', and 'FullScreen'")
+			self._properties["WindowState"] = value
+
 
 	# property definitions follow:
 	ActiveControl = property(_getActiveControl, None, None, 

@@ -9,42 +9,34 @@ import dabo.dEvents as dEvents
 dKeys = dabo.ui.dKeys
 
 class lbl(dabo.ui.dLabel):
-	def beforeInit(self):
+	def initProperties(self):	
 		self.Alignment = "Right"
 		self.AutoResize = False
-
-	def initProperties(self):	
 		self.Width = 100
 				
 class lblMessage(dabo.ui.dLabel):
-	def beforeInit(self):
+	def initProperties(self):
 		self.Alignment = "Center"
 		self.AutoResize = False
-		
-	def initProperties(self):
+		self.Caption = _("Please enter your login information.")
 		self.FontBold = True
 		self.FontItalic = True
 		self.ForeColor = "Blue"
 		self.FontSize = 10
-		self.Caption = _("Please enter your login information.")
 
 				
 class txt(dabo.ui.dTextBox):
 	pass
 			
 class txtPass(txt):
-	def beforeInit(self):
+	def initProperties(self):
 		self.PasswordEntry = True
 		
 		
 class Login(dabo.ui.dDialog):
-	def beforeInit(self):
-		self.ShowCloseButton = True
-		self.ShowCaption = False
-		self.BorderResizable = True
-		
 	def initProperties(self):
-		super(Login, self).initProperties()
+		self.AutoSize = False
+		self.BorderResizable = True
 		if self.Application:
 			appName = self.Application.getAppInfo("appName")
 		else:
@@ -53,14 +45,18 @@ class Login(dabo.ui.dDialog):
 			self.Caption = "Login to %s" % appName
 		else:
 			self.Caption = "Please Login"
+		self.ShowCaption = False
+		self.ShowCloseButton = True
 		
-		self.AutoSize = False
 
+	def afterInit(self):
+		super(Login, self).afterInit()
+		
 		self.addObject(lbl, 'lblUserName')
 		self.addObject(txt, 'txtUserName')
 		self.lblUserName.Caption = "User:"
 		self.txtUserName.Value = ""
-		
+
 		self.addObject(lbl, 'lblPassword')
 		self.addObject(txtPass, 'txtPassword')
 		self.lblPassword.Caption = "Password:"
@@ -80,12 +76,8 @@ class Login(dabo.ui.dDialog):
 		bm = wx.EmptyBitmap(0,0)
 		bm.CopyFromIcon(self.Icon)
 		self.bm = wx.StaticBitmap(self, -1, bm)	
-			
 		
-	def afterInit(self):
-		super(Login, self).afterInit()
 		mainSizer = self.Sizer
-		
 		mainSizer.append((0,5))
 		
 		bs1 = dabo.ui.dSizer("horizontal")
