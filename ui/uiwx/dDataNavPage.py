@@ -629,7 +629,7 @@ class dBrowsePage(DataNavPage):
 class dEditPage(DataNavPage):
 	def __init__(self, parent, ds=None):
 		#dEditPage.doDefault(parent, "pageEdit")
-		super(dEditPage, self).__init__(parent, Name="pageEdit")
+		super(dEditPage, self).__init__(parent)		#, Name="pageEdit")
 		self.dataSource = ds
 		self.childGrids = []
 		self.childrenAdded = False
@@ -758,7 +758,7 @@ class dEditPage(DataNavPage):
 					mainSizer.append( (10, -1) )
 					mainSizer.append(grdLabel, 0, "expand", alignment="center", 
 							border=10, borderFlags=("left", "right") )
-					grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid", _explicitName=False)
+					grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid")
 					grid.fieldSpecs = self.Form.getFieldSpecsForTable(child)
 					grid.DataSource = child
 					grid.setBizobj(childBiz)
