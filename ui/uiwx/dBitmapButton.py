@@ -17,7 +17,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		
 		if bitmap is None:
 			# Default to the Dabo icon
-			bitmap = getIconBitmap("daboIcon016")
+			bitmap = getIconBitmap("daboIcon048")
 		
 		pre.Create(parent, id, bitmap, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
@@ -77,4 +77,9 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dBitmapButton)
+	class c(dBitmapButton):
+		def onButton(self, event): 
+			print "Bitmap Button!"
+			evt.Skip()
+
+	test.Test().runTest(c)

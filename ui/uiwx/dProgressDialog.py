@@ -84,51 +84,41 @@ class WorkerThread(Thread):
 		except Exception, e:
 			wx.PostEvent(self._notify_window,ExceptionEvent(e))
 
+
+# Timer that controls display of the dialog
+class dProgressTimer(wx.Timer):
+	def __init__(self, parent, func, wait=1):
+		self.parent = parent
+		self.dlg = None
+		wx.Timer.__init__(self)
+		self.Start(1000 * wait, True)
+		func()
+		self.Stop()
+		if self.dlg is not None:
+			self.dlg.Destroy()
+	
+
+	def Notify(self):
+		self.dlg = dProgressDialog(self.parent, caption="Running...")
+		self.dlg.Show(True)
+		
+
 # GUI Frame class that spins off the worker thread
 class dProgressDialog(wx.Dialog):
-	def __init__(self, parent, caption="Progress Dialog", func=None, wait=0):
+	def __init__(self, parent, caption="Progress Dialog"):
 		wx.Dialog.__init__(self,parent,-1,caption)
-
 		self.Centre(wx.BOTH)
 		self.SetSize((300,100))
-
 		self.status = wx.StaticText(self,-1,'Please Wait...',pos=(0,100))
 
-		wx.EVT_CLOSE(self, self.OnClose)
-
-		# Set up event handler for any worker thread results
-		EVT_RESULT(self, self.OnResult)
-		EVT_EXCEPTION(self, self.OnException)
-
-		# And indicate we don't have a worker thread yet
-		self.worker = None
-		self.response = None
-
-		self.start(func)
-
-	def start(self, func):
-		if func:
-			self.worker = WorkerThread(self, func)
-		else:
-			dabo.errorLog.write(_("Configure caller to send func parameter"))
-
-	def OnResult(self, event):
-		self.response = event.response
-		self.Hide()
-
-	def OnException(self, event):
-		dMessageBox.stop("Error encountered:\n\n%s" % str(event.response))
-		self.Hide()
-	
-	def OnClose(self, event):
-		# Don't let the window close.
-		pass
 
 def displayAfterWait(parentWindow, seconds, func):
 	# Start <func>, but if it hasn't finished in <seconds>, display a
 	# 'please wait' dialog box.
-	window = dProgressDialog(parentWindow, "Please Wait...", func, seconds)
-	window.ShowModal()
-	response = window.response
-	window.Destroy()
-	return response
+	
+	tm = dProgressTimer(parentWindow, func, seconds)
+# 	window = dProgressDialog(parentWindow, "Please Wait...", func, seconds)
+# 	window.ShowModal()
+# 	response = window.response
+# 	window.Destroy()
+# 	return response

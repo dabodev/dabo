@@ -84,6 +84,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if not self.preview:
 			# Fill self.data based on bizobj records
 			dataSet = self.bizobj.getDataSet()
+			
+			print "DATA LEN", len(dataSet)
+			
 		else:
 			# Create a single empty row for the data set
 			dataRec = {}
@@ -124,31 +127,29 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					else:
 						recordVal = bool(recordVal)
 				recordDict.append(recordVal)
-
 			self.data.append(recordDict)
-	
-			self.grid.BeginBatch()
-			# The data table is now current, but the grid needs to be
-			# notified.
-			if len(self.data) > rows:
-				# tell the grid we've added row(s)
-				num = len(self.data) - rows
-				msg = wx.grid.GridTableMessage(self,         # The table
-					wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,  # what we did to it
-					num)                                     # how many
-	
-			elif rows > len(self.data):
-				# tell the grid we've deleted row(s)
-				num = rows - len(self.data) 
-				msg = wx.grid.GridTableMessage(self,        # The table
-					wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,  # what we did to it
-					0,                                      # position
-					num)                                    # how many
-			else:
-				msg = None
-			if msg:        
-				self.GetView().ProcessTableMessage(msg)
 
+		self.grid.BeginBatch()
+		# The data table is now current, but the grid needs to be
+		# notified.
+		if len(self.data) > rows:
+			# tell the grid we've added row(s)
+			num = len(self.data) - rows
+			msg = wx.grid.GridTableMessage(self,         # The table
+				wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,  # what we did to it
+				num)                                     # how many
+
+		elif rows > len(self.data):
+			# tell the grid we've deleted row(s)
+			num = rows - len(self.data) 
+			msg = wx.grid.GridTableMessage(self,        # The table
+				wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,  # what we did to it
+				0,                                      # position
+				num)                                    # how many
+		else:
+			msg = None
+		if msg:        
+			self.GetView().ProcessTableMessage(msg)
 
 		# Column widths come from dApp user settings, or get sensible
 		# defaults based on field type.

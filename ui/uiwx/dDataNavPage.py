@@ -188,8 +188,8 @@ class dSelectPage(DataNavPage):
 							
 				elif fldType in ("date", "datetime"):
 					dtTuple = ctrl.getDateTuple()
-					dt = "%s-%s-%s" % (dtTuple[0], self.padl(dtTuple[1], 2, "0"), 
-							self.padl(dtTuple[2], 2, "0") )
+					dt = "%s-%s-%s" % (dtTuple[0], padl(dtTuple[1], 2, "0"), 
+							padl(dtTuple[2], 2, "0") )
 					matchStr = biz.formatDateTime(dt)
 					if opVal == "Equals":
 						opStr = "="
@@ -468,7 +468,7 @@ class dBrowsePage(DataNavPage):
 				dMessageBox.info(message="Not available in preview mode", 
 						title = "Preview Mode")
 				return
-			html = self.grid.getHTML(justStub=False)
+			html = self.BrowseGrid.getHTML(justStub=False)
 			win = wx.html.HtmlEasyPrinting("Dabo Quick Print", self.Form)
 			printData = win.GetPrintData()
 			setupData = win.GetPageSetupData()
@@ -727,4 +727,10 @@ class dChildViewPage(DataNavPage):
 		else:
 			dMessageBox.stop("Editing records isn't allowed.")
 
+
+# For convenience		
+def padl(string, length, fill=" "):
+	string = str(string)[:length]
+	return (fill * (length-len(string)) ) + string
 		
+
