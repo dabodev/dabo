@@ -77,47 +77,55 @@ class Postgres(dBackend):
 		#jfcs 11/01/04 works great from psql (but does not work with the psycopg
 		#module) and only with postgres 7.4.x and later.  Too bad, the statement
 		#does everything in one shot.
+		#jfcs 11/02/04 below now works just fine
+		#comment it if your working with 7.3.x
+		# make sure you uncomment the other code out
 		
-		#tempCursor.execute("SELECT c.column_name AS fieldname, c.data_type AS fieldtype, \
-		#i.indisprimary AS is_pkey \
-		#FROM information_schema.columns c \
-		#LEFT JOIN information_schema.key_column_usage cu \
-		#ON (c.table_name=cu.table_name AND c.column_name=cu.column_name) \
-		#LEFT JOIN pg_class cl ON(cl.relname=cu.table_name) \
-		#LEFT JOIN pg_index i ON(cl.oid= i.indrelid) WHERE c.table_name= %s" % tablename)
+		tempCursor.execute("select c.column_name as fielname, c.data_type as fieldtyp, \
+		i.indisprimary AS is_pkey \
+		FROM information_schema.columns c \
+		LEFT JOIN information_schema.key_column_usage cu \
+		ON (c.table_name=cu.table_name AND c.column_name=cu.column_name) \
+		LEFT JOIN pg_class cl ON(cl.relname=cu.table_name) \
+		LEFT JOIN pg_index i ON(cl.oid= i.indrelid) WHERE c.table_name= '%s'" % tableName)
+		rs=tempCursor.fetchall()
+		
 		
 		# jfcs 11/01/04 Below sucks but works with 7.3.x and 7.4.x (don't know anything
 		# about 8.0.x) 
 		# Ok get the 'field name', 'field type'
-		tempCursor.execute("Select c.oid,a.attname, t.typname \
-		from pg_class c inner join pg_attribute a \
-		on a.attrelid = c.oid inner join pg_type t on a.atttypid = t.oid \
-		where c.relname = '%s' and a.attnum > 0 " % tableName)
-		rs = tempCursor.fetchall()
-		myoid=rs[0][0]
-		# get the PK 
-		tempCursor.execute("SELECT c2.relname, i.indisprimary, i.indisunique, pg_catalog.pg_get_indexdef(i.indexrelid) \
-		FROM pg_catalog.pg_class c, pg_catalog.pg_class c2, pg_catalog.pg_index i \
-		WHERE c.oid = %s AND c.oid = i.indrelid AND i.indexrelid = c2.oid \
-		AND i.indisprimary =TRUE \
-		ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname" % myoid)	
-		rs2=tempCursor.fetchall()
-		if rs2==[]:
-			thePKFieldName=False
-		else:
-			thestr=rs2[0][3]
-			thePKFieldName=thestr[thestr.find('(')+1:thestr.find(')')]
+		#tempCursor.execute("Select c.oid,a.attname, t.typname \
+		#from pg_class c inner join pg_attribute a \
+		#on a.attrelid = c.oid inner join pg_type t on a.atttypid = t.oid \
+		#where c.relname = '%s' and a.attnum > 0 " % tableName)
+		#rs = tempCursor.fetchall()
+		#myoid=rs[0][0]
+		## get the PK 
+		#tempCursor.execute("SELECT c2.relname, i.indisprimary, i.indisunique, pg_catalog.pg_get_indexdef(i.indexrelid) \
+		#FROM pg_catalog.pg_class c, pg_catalog.pg_class c2, pg_catalog.pg_index i \
+		#WHERE c.oid = %s AND c.oid = i.indrelid AND i.indexrelid = c2.oid \
+		#AND i.indisprimary =TRUE \
+		#ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname" % myoid)	
+		#rs2=tempCursor.fetchall()
+		#if rs2==[]:
+			#thePKFieldName=False
+		#else:
+			#thestr=rs2[0][3]
+			#thePKFieldName=thestr[thestr.find('(')+1:thestr.find(')')]
 		
 		fields = []
 		### TODO: Verify the field type names returned.
 		for r in rs:
-			name = r[1]
-			if name == thePKFieldName:
-				pk = True
-			else:
-			        pk = False
-				
-			fldType = r[2]
+			#uncomment below for postgres 7.3.x
+			#name = r[1]
+			#fldType =r[2]
+			#if name == thePKFieldName:
+				#pk = True
+			#else:
+			        #pk = False
+			name = r[0]
+			fldType = r[1]
+			pk=r[2]
 			if 'int' in fldType:
 				fldType = 'I'
 			elif 'char' in fldType :
@@ -142,8 +150,9 @@ class Postgres(dBackend):
 
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
-		#- jfcs 11/01/04 not sure of this. Normally Postgres is in the 
-		#- transaction mode always????
+		# jfcs 11/01/04 not sure of this
+		# Normally Postgres is in the 
+		# transaction mode always????
 		if self.useTransactions:
 			cursor.execute("BEGIN")
 
