@@ -321,7 +321,7 @@ class dBizobj(dabo.common.dObject):
 			cursor.save()
 			if self.IsAdding:
 				# Call the hook method for saving new records.
-				self.onSaveNew()
+				self._onSaveNew()
 
 			# Iterate through the child bizobjs, telling them to save themselves.
 			for child in self.__children:
@@ -524,7 +524,7 @@ class dBizobj(dabo.common.dObject):
 
 		self._getCurrentCursor().new()
 		# Hook method for things to do after a new record is created.
-		self.onNew()
+		self._onNew()
 
 		# Update all child bizobjs
 		self.requeryAllChildren()
@@ -758,7 +758,7 @@ class dBizobj(dabo.common.dObject):
 		pass
 
 
-	def onSaveNew(self):
+	def _onSaveNew(self):
 		""" Called after successfully saving a new record.
 		"""
 		# If this is a new parent record with a new auto-generated PK, pass it on
@@ -768,19 +768,19 @@ class dBizobj(dabo.common.dObject):
 			for child in self.__children:
 				child.setParentFK(pk)
 		# Call the custom hook method
-		self.onSaveNewHook()
+		self.onSaveNew()
 
 
-	def onSaveNewHook(self):
+	def onSaveNew(self):
 		""" Hook method called after successfully saving a new record.
 		"""
 		pass
 
 
-	def onNew(self):
+	def _onNew(self):
 		""" Populate the record with any default values.
 		
-		User subclasses should leave this alone and instead override onNewHook(). 
+		User subclasses should leave this alone and instead override onNew(). 
 		"""
 		cursor = self._getCurrentCursor()
 		cursor.setDefaults(self.defaultValues)
@@ -795,10 +795,10 @@ class dBizobj(dabo.common.dObject):
 			self.setParentFK()
 
 		# Call the custom hook method
-		self.onNewHook()
+		self.onNew()
 
 
-	def onNewHook(self):
+	def onNew(self):
 		""" Hook method called after the default values have been set in onNew(). 
 		"""
 		pass
