@@ -74,6 +74,12 @@ for __classRef in __dClasses:
 	daboDesignerClasses.append(__classDict)
 
 
+def continueEvent(evt):
+	evt.Skip()
+	
+def discontinueEvent(evt):
+	evt.Skip(False)
+	
 def getEventData(wxEvt):
 	ed = {}
 	
@@ -92,5 +98,9 @@ def getEventData(wxEvt):
 		ed["unicodeChar"] = wxEvt.GetUniChar()
 		ed["unicodeKey"] = wxEvt.GetUnicodeKey()
 		ed["hasModifiers"] = wxEvt.HasModifiers()
+		try:
+			ed["keyChar"] = chr(wxEvt.KeyCode())
+		except ValueError:
+			ed["keyChar"] = None
 
 	return ed

@@ -75,7 +75,7 @@ class dDateTextBox(dTextBox.dTextBox):
 		### TODO: still needs a lot of work to display properly.
 		self.showCalButton = False
 		# Temporary, while the new dEvents model is finished
-		self.useWxEvents = True
+		self.useWxEvents = False
 	
 	
 	def afterInit(self):
@@ -92,9 +92,7 @@ class dDateTextBox(dTextBox.dTextBox):
 # 			calSizer.Add(self, 1, wx.EXPAND)
 # 			calSizer.Add(self.calButton)
 			
-		# The first form is needed to avoid a GTK unicode menu from appearing:
-		self.Bind(wx.EVT_RIGHT_DOWN, self.onRightClick)
-		#self.bindEvent(dabo.dEvents.MouseRightDown, self.onRightClick)
+		self.bindEvent(dabo.dEvents.MouseRightDown, self.onRightClick)
 		if self.useWxEvents:
 			self.Bind(wx.EVT_CHAR, self.onChar)
 		else:
@@ -144,7 +142,8 @@ C: Popup Calendar to Select
 			itm = wx.MenuItem(men, id, format["prompt"])
 			men.AppendItem(itm)
 			self.Parent.Bind(wx.EVT_MENU, self.onRClickMenu, itm)
-		self.Parent.PopupMenu(men, evt.GetPosition() )
+		self.Parent.PopupMenu(men, evt.EventData["mousePosition"])
+		evt.Continue = False  # otherwise, a GTK unicode menu will appear
 		
 		
 	def onRClickMenu(self, evt):
@@ -184,25 +183,31 @@ C: Popup Calendar to Select
 			
 			if val and self.strToDate(val, testing=True) is None:
 				adjust = False
-				evt.Skip()
+				if self.useWxEvents:
+					evt.Skip()
 			else:
 				# They've just finished typing a new date, or are just
 				# positioned on the field. Either way, update the stored 
 				# date to make sure they are in sync.
 				self.Value = val
+				if not self.useWxEvents:
+					evt.Continue = False
 			if adjust:
 				self.adjustDate(key)
 	
 		elif key in dateEntryKeys:
 			# key can be used for date entry: allow
-			evt.Skip()
+			if self.useWxEvents:
+				evt.Skip()
 		elif keycode in range(32, 129):
 			# key is in ascii range, but isn't one of the above
 			# allowed key sets. Disallow.
-			pass
+			if not self.useWxEvents:
+				evt.Continue = False
 		else:
 			# Pass the key up the chain to process - perhaps a Tab, Enter, or Backspace...
-			evt.Skip()
+			if self.useWxEvents:
+				evt.Skip()
 
 
 	def adjustDate(self, key):

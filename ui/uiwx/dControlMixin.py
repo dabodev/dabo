@@ -5,5 +5,4 @@ class dControlMixin(dControlMixinBase):
 	
 	def _onWxHit(self, evt):
 		self.raiseEvent(dEvents.Hit, evt)
-		evt.Skip()
 		

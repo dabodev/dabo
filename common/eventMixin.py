@@ -1,4 +1,5 @@
 import traceback
+import dabo
 from dabo.dLocalize import _
 
 class EventMixin(object):
@@ -53,8 +54,18 @@ class EventMixin(object):
 						bindingFunction(event)
 					except:
 						traceback.print_exc()
-	
-		
+			if not event.Continue:
+				# The event handler set the Continue flag to False, specifying that
+				# no more event handlers should process the event.
+				break
+
+		if uiEvent is not None:
+			# Let the UI lib know whether to do the default event behavior
+			if event.Continue:
+				dabo.ui.continueEvent(uiEvent)
+			else:
+				dabo.ui.discontinueEvent(uiEvent)
+				
 	def unBindEvent(self, eventClass=None, function=None):
 		""" Remove a previously registered event binding.
 		

@@ -39,7 +39,6 @@ class dFormMixin(pm.dPemMixin):
 	
 	def _onWxClose(self, evt):
 		self.raiseEvent(dEvents.Close, evt)
-		evt.Skip()
 		
 	def _onWxActivate(self, evt):
 		""" Raise the Dabo Activate or Deactivate appropriately.
@@ -48,7 +47,6 @@ class dFormMixin(pm.dPemMixin):
 			self.raiseEvent(dEvents.Activate, evt)
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
-		evt.Skip()
 			
 			
 	def onActivate(self, evt): 

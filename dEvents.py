@@ -42,8 +42,8 @@ class Event(dObject):
 				self.EventData[key] = uiEventData[key]
 				
 			if isinstance(self, KeyEvent):
-				self._extraLogInfo = "KeyCode: %s RawKeyCode: %s" % (self.EventData["keyCode"], 
-					self.EventData["rawKeyCode"])
+				self._extraLogInfo = "KeyCode: %s  KeyChar: %s" % (self.EventData["keyCode"], 
+					self.EventData["keyChar"])
 
 			if isinstance(self, MouseEvent):
 				self._extraLogInfo = "X:%s Y:%s" % (self.EventData["mousePosition"][0], 
@@ -68,6 +68,16 @@ class Event(dObject):
 	def __getattr__(self, att):
 		return getattr(self._uiEvent, att)
 
+	def _getContinue(self):
+		try:
+			v = self._continue
+		except AttributeError:
+			v = True
+		return v
+		
+	def _setContinue(self, val):
+		self._continue = bool(val)
+		
 	def _getEventObject(self):
 		return self._eventObject
 		
@@ -80,6 +90,9 @@ class Event(dObject):
 	def _setEventData(self, dict):
 		self._eventData = dict
 	
+	Continue = property(_getContinue, _setContinue, None,
+		"Specifies whether the event is allowed to continue on to the next handler.")
+		
 	EventObject = property(_getEventObject, _setEventObject, None, 
 		"References the object that emitted the event.")
 		
@@ -164,6 +177,9 @@ class MouseLeftClick(MouseEvent):
 class MouseLeftDoubleClick(MouseEvent):
 	"""Occurs when the mouse's left button is double-clicked on the control."""
 	pass
+	
+class MouseMove(MouseEvent):
+	"""Occurs when the mouse moves in the control."""
 	
 class MouseRightClick(MouseEvent):
 	"""Occurs when the mouse mouse's right button is depressed and released on the control."""

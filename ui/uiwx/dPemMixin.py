@@ -96,6 +96,7 @@ class dPemMixin(dPemMixinBase):
 		self.Bind(wx.EVT_ENTER_WINDOW, self._onWxMouseEnter)
 		self.Bind(wx.EVT_LEAVE_WINDOW, self._onWxMouseLeave)
 		self.Bind(wx.EVT_LEFT_DCLICK, self._onWxMouseLeftDoubleClick)
+		self.Bind(wx.EVT_MOTION, self._onWxMouseMove)
 		
 		self.Bind(wx.EVT_CHAR, self._onWxKeyChar)
 		self.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
@@ -128,16 +129,32 @@ class dPemMixin(dPemMixinBase):
 		
 	def _onWxGotFocus(self, evt):
 		self.raiseEvent(dEvents.GotFocus, evt)
-		evt.Skip()
 		
+	def _onWxKeyChar(self, evt):
+		self.raiseEvent(dEvents.KeyChar, evt)
+		
+	def _onWxKeyUp(self, evt):
+		self.raiseEvent(dEvents.KeyUp, evt)
+		
+	def _onWxKeyDown(self, evt):
+		self.raiseEvent(dEvents.KeyDown, evt)
+	
 	def _onWxLostFocus(self, evt):
 		self.raiseEvent(dEvents.LostFocus, evt)
-		evt.Skip()
+	
+	def _onWxMouseEnter(self, evt):
+		self.raiseEvent(dEvents.MouseEnter, evt)
 		
+	def _onWxMouseLeave(self, evt):
+		self._mouseLeftDown, self._mouseRightDown = False, False
+		self.raiseEvent(dEvents.MouseLeave, evt)
+		
+	def _onWxMouseLeftDoubleClick(self, evt):
+		self.raiseEvent(dEvents.MouseLeftDoubleClick, evt)
+
 	def _onWxMouseLeftDown(self, evt):
 		self.raiseEvent(dEvents.MouseLeftDown, evt)
 		self._mouseLeftDown = True
-		evt.Skip()
 		
 	def _onWxMouseLeftUp(self, evt):
 		self.raiseEvent(dEvents.MouseLeftUp, evt)
@@ -145,12 +162,13 @@ class dPemMixin(dPemMixinBase):
 			# mouse went down and up in this control: send a click:
 			self.raiseEvent(dEvents.MouseLeftClick, evt)
 			self._mouseLeftDown = False
-		evt.Skip()
+		
+	def _onWxMouseMove(self, evt):
+		self.raiseEvent(dEvents.MouseMove, evt)
 		
 	def _onWxMouseRightDown(self, evt):
 		self._mouseRightDown = True
 		self.raiseEvent(dEvents.MouseRightDown, evt)
-		evt.Skip()
 		
 	def _onWxMouseRightUp(self, evt):
 		self.raiseEvent(dEvents.MouseRightUp, evt)
@@ -158,32 +176,7 @@ class dPemMixin(dPemMixinBase):
 			# mouse went down and up in this control: send a click:
 			self.raiseEvent(dEvents.MouseRightClick, evt)
 			self._mouseRightDown = False
-		evt.Skip()
 	
-	def _onWxMouseEnter(self, evt):
-		self.raiseEvent(dEvents.MouseEnter, evt)
-		evt.Skip()
-		
-	def _onWxMouseLeave(self, evt):
-		self._mouseLeftDown, self._mouseRightDown = False, False
-		self.raiseEvent(dEvents.MouseLeave, evt)
-		evt.Skip()
-		
-	def _onWxMouseLeftDoubleClick(self, evt):
-		self.raiseEvent(dEvents.MouseLeftDoubleClick, evt)
-		evt.Skip()
-
-	def _onWxKeyChar(self, evt):
-		self.raiseEvent(dEvents.KeyChar, evt)
-		evt.Skip()
-		
-	def _onWxKeyUp(self, evt):
-		self.raiseEvent(dEvents.KeyUp, evt)
-		evt.Skip()
-		
-	def _onWxKeyDown(self, evt):
-		self.raiseEvent(dEvents.KeyDown, evt)
-		evt.Skip()
 				
 		
 	def onCreate(self, evt):
