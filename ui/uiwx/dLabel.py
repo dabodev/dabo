@@ -1,4 +1,5 @@
 import wx, dabo, dabo.ui
+from dabo.dLocalize import _
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -30,14 +31,14 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 
 	def _getAlignment(self):
 		if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):
-			return 'Right'
+			return "Right"
 		elif self.hasWindowStyleFlag(wx.ALIGN_CENTRE):
-			return 'Center'
+			return "Center"
 		else:
-			return 'Left'
+			return "Left"
 
 	def _getAlignmentEditorInfo(self):
-		return {'editor': 'list', 'values': ['Left', 'Center', 'Right']}
+		return {"editor": "list", "values": ["Left", "Center", "Right"]}
 
 	def _setAlignment(self, value):
 		# Note: Alignment must be set before object created.
@@ -47,26 +48,67 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 
 		value = str(value)
 
-		if value == 'Left':
+		if value == "Left":
 			self.addWindowStyleFlag(wx.ALIGN_LEFT)
-		elif value == 'Center':
+		elif value == "Center":
 			self.addWindowStyleFlag(wx.ALIGN_CENTRE)
-		elif value == 'Right':
+		elif value == "Right":
 			self.addWindowStyleFlag(wx.ALIGN_RIGHT)
 		else:
 			raise ValueError, ("The only possible values are "
 							"'Left', 'Center', and 'Right'.")
+	
+	def _getFontBold(self):
+		return super(dLabel, self)._getFontBold()
+	def _setFontBold(self, val):
+		super(dLabel, self)._setFontBold(val)
+		# This will force an auto-resize
+		self.SetLabel(self.GetLabel())
+		
+	def _getFontFace(self):
+		return super(dLabel, self)._getFontFace()
+	def _setFontFace(self, val):
+		super(dLabel, self)._setFontFace(val)
+		# This will force an auto-resize
+		self.SetLabel(self.GetLabel())
+		
+	def _getFontItalic(self):
+		return super(dLabel, self)._getFontItalic()
+	def _setFontItalic(self, val):
+		super(dLabel, self)._setFontItalic(val)
+		# This will force an auto-resize
+		self.SetLabel(self.GetLabel())
+		
+	def _getFontSize(self):
+		return super(dLabel, self)._getFontSize()
+	def _setFontSize(self, val):
+		super(dLabel, self)._setFontSize(val)
+		# This will force an auto-resize
+		self.SetLabel(self.GetLabel())
+		
 
 	# property definitions follow:
-	AutoResize = property(_getAutoResize, _setAutoResize, None,
-		'Specifies whether the length of the caption determines the size of the label. (bool)')
 	Alignment = property(_getAlignment, _setAlignment, None,
-						'Specifies the alignment of the text. (str) \n'
-						'   Left (default) \n'
-						'   Center \n'
-						'   Right')
+			_("""Specifies the alignment of the text. (str)
+	   Left (default)
+	   Center
+	   Right""") )
+	AutoResize = property(_getAutoResize, _setAutoResize, None,
+			_("Specifies whether the length of the caption determines "
+			"the size of the label. (bool)") )
+	
+	FontBold = property(_getFontBold, _setFontBold, None,
+			_("Sets the Bold of the Font (int)") )
+	FontFace = property(_getFontFace, _setFontFace, None,
+			_("Sets the face of the Font (int)") )
+	FontItalic = property(_getFontItalic, _setFontItalic, None,
+			_("Sets the Italic of the Font (int)") )
+	FontSize = property(_getFontSize, _setFontSize, None,
+			_("Sets the size of the Font (int)") )
+
 
 if __name__ == "__main__":
 	import test
 	testProps = {"FontBold": True, "Alignment": "Center", "ForeColor": "Red"}
-	test.Test().runTest(dLabel, Width=150, Caption="Hello", **testProps)
+	test.Test().runTest(dLabel, Width=150, Caption="Hello", 
+			properties=testProps)
