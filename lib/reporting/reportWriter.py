@@ -331,8 +331,8 @@ class ReportWriter(object):
 			raise ValueError, "ReportForm must be set first."
 
 		_outputName = self.OutputName
-		if _outputName is None:
-			raise ValueError, "OutputName must be set first."
+#		if _outputName is None:
+#			raise ValueError, "OutputName must be set first."
 
 		pageSize = self.getPageSize()		
 		pageWidth, pageHeight = pageSize

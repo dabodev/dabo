@@ -60,9 +60,48 @@ be little need for any user to even know about the tree of dicts option.
 
 	<pageFooter>
 		<height>"0.75 in"</height>
+		<objects>
+			<image>
+				<expr>"../../icons/dabo_lettering_250x100.png"</expr>
+				<x>self.Bands["pageFooter"]["width"]-1</x>
+				<y>"1"</y>
+				<hAnchor>"right"</hAnchor>
+				<width>"50 pt"</width>
+				<height>"20 pt"</height>
+				<mode>"scale"</mode>
+				<borderWidth>"0 pt"</borderWidth>
+				<borderColor>(.65, .23, .42)</borderColor>
+			</image>
+		</objects>
 	</pageFooter>
 
 	<pageBackground>
+		<objects>
+			<string>
+				<expr>"test"</expr>
+				<align>"left"</align>
+				<rotation>55</rotation>
+				<x>"4.25 in"</x>
+				<y>"5.5 in"</y>
+				<width>"1 in"</width>
+				<fontName>"Helvetica"</fontName>
+				<fontSize>7</fontSize>
+				<fillColor>(.4, .1, .3)</fillColor>
+				<borderWidth>".5 pt"</borderWidth>
+				<borderColor>(.1, .8, .4)</borderColor>
+			</string>
+			<rect>
+				<x>"4.25 in"</x>
+				<y>"5 in"</y>
+				<width>"1 in"</width>
+				<height>".25 in"</height>
+				<rotation>45</rotation>
+				<strokeWidth>".25 pt"</strokeWidth>
+				<fillColor>(.5, .1, .5)</fillColor>
+				<strokeColor>(.7, .2, .5)</strokeColor>
+				<strokeDashArray>(2, 5, 1, 5)</strokeDashArray>
+			</rect>
+		</objects>
 	</pageBackground>
 
 	<detail>

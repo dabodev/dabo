@@ -126,8 +126,11 @@ class BandLabel(dabo.ui.dPanel):
 class Band(dabo.ui.dPanel):
 	def afterInit(self):
 		self._rd = self.Form.editor
+		self._rw = self._rd._rw
 		self._objects = []
 		self._bandLabelHeight = 18
+		self.Bands = self._rw.Bands
+		print self.Bands
 		self.BackColor = (255,255,255)
 		self.Top = 100
 		self.addObject(BandLabel, "bandLabel", FontSize=9, 
@@ -512,6 +515,8 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 	def initReportForm(self):
 		"""Called from openFile and newFile when time to set up the Report Form."""
 		self.ReportForm = self._rw.ReportForm
+		self._rw.UseTestCursor = True
+		self._rw.write()
 
 		self._rulers = {}
 		self._rulers["top"] = self.getRuler("h")
