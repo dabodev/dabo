@@ -228,10 +228,6 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 
 	def _getFontFace(self):
 		return self._pemObject.Font.GetFaceName()
-	def _setFontFace(self, fontFace):
-		font = self._pemObject.Font
-		font.SetFaceName(unicode(fontFace))
-		self._pemObject.Font = font
 
 	def _getFontSize(self):
 		return self._pemObject.Font.GetPointSize()
@@ -452,7 +448,7 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 					'Specifies if the font is bold-faced. (bool)')
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
 					'Specifies whether font is italicized. (bool)')
-	FontFace = property(_getFontFace, _setFontFace, None,
+	FontFace = property(_getFontFace, None, None,
 					'Specifies the font face. (str)')
 	FontSize = property(_getFontSize, _setFontSize, None,
 					'Specifies the point size of the font. (int)')
