@@ -1,16 +1,42 @@
 import sys, os, wx
 import dabo
 import dabo.ui as ui
+import dEvents
 
 class uiApp(wx.App):
 	def __init__(self, *args):
 		wx.App.__init__(self, 0, args)
-
+		self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
+		#self.LogEvents = ["All"]
+		
 
 	def OnInit(self):
 		return True
 
 
+	def getAbsoluteName(self):
+		# Overridden: expected in dPemMixin-derived classes, but this
+		# class isn't dPemMixin-derived. Needed for dEvents logEvent.
+		return "uiApp"
+		
+		
+	def raiseEvent(self, event, wxEvt=None):
+		""" Raise the specified event.
+		
+		Abstract method: subclasses MUST override for UI-specifics.
+		"""
+		# Note: copied from dPemMixin. Should be abstracted out I guess.
+		if event in (dEvents.Hit,):
+			eventClass = dEvents.dCommandEvent
+		else:
+			eventClass = dEvents.dEvent
+		evt = eventClass(event.evtType[0], self, wxEvt)
+		
+		# Not sure which of these is really preferred.
+		#wx.PostEvent(self, evt)
+		self.AddPendingEvent(evt)
+	
+	
 	def setup(self, dApp):
 		# wx has properties for appName and vendorName, so Dabo should update
 		# these. Among other possible uses, I know that on Win32 wx will use
@@ -33,9 +59,26 @@ class uiApp(wx.App):
 
 
 	def start(self, dApp):
+		# Manually raise Activate, as wx doesn't do that automatically
+		self.raiseEvent(dEvents.Activate)
 		self.MainLoop()
 
+	
+	def finish(self):
+		# Manually raise Deactivate, as wx doesn't do that automatically
+		self.raiseEvent(dEvents.Deactivate)
 				
+		
+	def _onWxActivate(self, event):
+		""" Raise the Dabo Activate or Deactivate appropriately.
+		"""
+		if bool(event.GetActive()):
+			self.raiseEvent(dEvents.Activate, event)
+		else:
+			self.raiseEvent(dEvents.Deactivate, event)
+		event.Skip()
+			
+	
 	def onFileExit(self, event):
 		if self.dApp.MainFrame is not None:
 			self.dApp.MainFrame.Close(True)

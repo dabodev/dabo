@@ -3,7 +3,7 @@ from dabo.dLocalize import _
 # These are the dabo-recognized events, that must get handled by the 
 # individual ui libraries.
 events = (
-	("Activate", _("Occurs when the form becomes active.")),
+	("Activate", _("Occurs when the form or application becomes active.")),
 	("Close", _("Occurs when the user closes the form.")),
 	("Create", _("Occurs when the control or form is created.")),
 	("Deactivate", _("Occurs when another form becomes active.")),

@@ -137,6 +137,7 @@ class dApp(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 		The main event loop has exited and the application
 			is about to finish.
 		"""
+		self.uiApp.finish()
 		dabo.infoLog.write(_("Application finished."))
 		pass
 
