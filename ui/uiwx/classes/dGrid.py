@@ -6,6 +6,7 @@ There is a dGridDataTable definition here as well, that defines
 the 'data' that gets displayed in the grid.
 '''
 import wx, wx.grid
+import wx.lib.gridmovers as gridmovers
 import urllib
 
 class dGridDataTable(wx.grid.PyGridTableBase):
@@ -17,7 +18,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
         
         self.initTable()
          
+        
     def initTable(self):
+        self.relativeColumns = []
         self.colLabels = []
         self.colNames = []
         self.dataTypes = []
@@ -25,12 +28,27 @@ class dGridDataTable(wx.grid.PyGridTableBase):
         self.imageLists = {}
         self.data = []
         
-        for column in self.grid.columnDefs:
+        # Put column order in relative column order, if relative column order
+        # exists in dApp.getUserSettings(). 
+        for column in range(len(self.grid.columnDefs)):
+            if self.grid.columnDefs[column]['showGrid']:
+                order = self.grid.form.dApp.getUserSetting("%s.%s.%s.%s" % (
+                            self.grid.form.GetName(), 
+                            self.grid.GetName(),
+                            "Column%s" % column,
+                            "ColumnOrder"))
+                if order == None:
+                    order = column
+                self.relativeColumns.append(order)
+        
+        for relativeColumn in self.relativeColumns:
+            column = self.grid.columnDefs[relativeColumn]
             if column['showGrid']:
                 self.colLabels.append(column["caption"])
                 self.colNames.append(column["fieldName"])
                 self.dataTypes.append(self.getWxGridType(column["type"]))
 
+                
     def fillTable(self):
         ''' Fill the grid's data table to match the bizobj.
         '''
@@ -47,7 +65,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
         dataSet = self.bizobj.getDataSet()
         for record in dataSet:
             recordDict = []
-            for column in self.grid.columnDefs:
+            for relativeColumn in self.relativeColumns:
+                column = self.grid.columnDefs[relativeColumn]
                 if column['showGrid']:
                     recordVal = record[column["fieldName"]]
                     if column["type"] == "M":
@@ -57,6 +76,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
             self.data.append(recordDict)
         
+        self.grid.BeginBatch()
         # The data table is now current, but the grid needs to be
         # notified.
         if len(self.data) > rows:
@@ -82,7 +102,35 @@ class dGridDataTable(wx.grid.PyGridTableBase):
         # the -1 was trial and error to get the best results.
         self.grid.SetGridCursor(oldRow, oldCol)
         self.grid.MakeCellVisible(oldRow-1, oldCol)
-                
+        
+        # Column widths come from dApp user settings, or get sensible
+        # defaults based on field type.
+        for index in range(len(self.relativeColumns)):
+            colName = "Column%s" % self.relativeColumns[index]
+            gridCol = index
+            fieldType = self.grid.columnDefs[self.relativeColumns[index]]['type']
+            
+            width = self.grid.form.dApp.getUserSetting("%s.%s.%s.%s" % (
+                        self.grid.form.GetName(), 
+                        self.grid.GetName(),
+                        colName,
+                        "Width"))
+
+            if width == None:
+                minWidth = 10 * len(self.colLabels[self.relativeColumns[index]])   ## Fudge!
+                if fieldType == "I":
+                    width = 50
+                elif fieldType == "N":
+                    width = 75
+                else:
+                    width = 200
+            
+                if width < minWidth:
+                    width = minWidth
+                    
+            self.grid.SetColSize(gridCol, width)
+        self.grid.EndBatch()
+        
         
     def getWxGridType(self, xBaseType):
         ''' Get the wx data type, given a 1-char xBase type.
@@ -105,7 +153,29 @@ class dGridDataTable(wx.grid.PyGridTableBase):
         else:
             return wx.grid.GRID_VALUE_STRING
 
+    
+    def MoveColumn(self, col, to):
+        ''' Move the column to a new position.
+        '''
+        old = self.relativeColumns[col]
+        del self.relativeColumns[col]
+
+        if to > col:
+            self.relativeColumns.insert(to-1,old)
+        else:
+            self.relativeColumns.insert(to,old)
+
+        for index in range(len(self.relativeColumns)):
+            self.grid.form.dApp.setUserSetting("%s.%s.%s.%s" % (
+                    self.grid.form.GetName(),
+                    self.grid.GetName(),
+                    "Column%s" % self.relativeColumns[index],
+                    "ColumnOrder"), "I", "%s" % (index))
+
+        self.initTable()
+        self.fillTable()
             
+    
     # The following methods are required by the grid, to find out certain
     # important details about the underlying table.                
     def GetNumberRows(self):
@@ -121,12 +191,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
         except:
             num = 0
         return num
+        
 
     def IsEmptyCell(self, row, col):
         try:
             return not self.data[row][col]
         except IndexError:
-            return true
+            return True
 
     def GetValue(self, row, col):
         try:
@@ -151,13 +222,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
         
 class dGrid(wx.grid.Grid):
-    def __init__(self, parent, bizobj, form, name="dGrid",
-                 columnDefs=[]):
+    def __init__(self, parent, bizobj, form):
         wx.grid.Grid.__init__(self, parent, -1)
         
         self.bizobj = bizobj
         self.form = form
-        self.columnDefs = columnDefs
         
         ID_IncrementalSearchTimer = wx.NewId()
         self.currentIncrementalSearch = ""
@@ -168,30 +237,62 @@ class dGrid(wx.grid.Grid):
         self.sortOrder = ""
                 
         self.SetRowLabelSize(0)
-        self.SetMargins(0,0)
         self.EnableEditing(False)
         
-        wx.EVT_TIMER(self,  ID_IncrementalSearchTimer, self.OnIncrementalSearchTimer)
-        wx.EVT_KEY_DOWN(self, self.OnKeyDown)
+        self.headerDragging = False    # flag used by mouse motion event handler
+        self.headerDragFrom = 0
+        self.headerDragTo = 0
         
-        wx.EVT_PAINT(self, self.OnPaint)
-        wx.EVT_PAINT(self.GetGridColLabelWindow(), self.OnColumnHeaderPaint)
+        self.Bind(wx.EVT_TIMER, self.OnIncrementalSearchTimer, self.incrementalSearchTimer)
+        self.Bind(wx.EVT_KEY_DOWN, self.OnKeyDown)
+        
+        self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.OnLeftDClick)
+        self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.OnGridRowSize)
+        self.Bind(wx.grid.EVT_GRID_SELECT_CELL, self.OnGridSelectCell)
+        self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.OnRightClick)
+        self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.OnColSize)
+        
+        # Enable Column moving   NO! it disables left-click column sorting
+        #gridmovers.GridColMover(self)
+        #self.Bind(gridmovers.EVT_GRID_COL_MOVE, self.OnColMove)
 
-        wx.grid.EVT_GRID_CELL_LEFT_DCLICK(self, self.OnLeftDClick)
-        wx.grid.EVT_GRID_ROW_SIZE(self, self.OnGridRowSize)
-        wx.grid.EVT_GRID_SELECT_CELL(self, self.OnGridSelectCell)
-        wx.grid.EVT_GRID_CELL_RIGHT_CLICK(self, self.OnRightClick)
-        wx.grid.EVT_GRID_LABEL_LEFT_CLICK(self, self.OnGridLabelLeftClick)
+        self.initHeader()
         
+    
+    def initHeader(self):
+        ''' Initialize behavior for the grid header region.
+        '''
+        header = self.GetGridColLabelWindow()
+        
+        header.Bind(wx.EVT_LEFT_DOWN, self.OnHeaderLeftDown)
+        header.Bind(wx.EVT_LEFT_UP, self.OnHeaderLeftUp)
+        header.Bind(wx.EVT_MOTION, self.OnHeaderMotion)
+        header.Bind(wx.EVT_PAINT, self.OnColumnHeaderPaint)
+
+    
     def fillGrid(self):
         ''' Refresh the grid to match the data in the bizobj.
         '''
         if not self.GetTable():
             self.SetTable(dGridDataTable(self), True)
         self.GetTable().fillTable()
-        self.AutoSizeColumns(True)      # If grid seems slow, this could be the problem.
+        #self.AutoSizeColumns(True)      # If grid seems slow, this could be the problem.
 
+        
+    def OnColSize(self, event):
+        col = event.GetRowOrCol()
+        width = self.GetColSize(col)
     
+        
+        self.form.dApp.setUserSetting("%s.%s.%s.%s" % (
+                        self.form.GetName(), 
+                        self.GetName(),
+                        "Column%s" % self.GetTable().relativeColumns[col],
+                        "Width"), "I", width)
+        
+        event.Skip()
+        
+        
     def OnGridSelectCell(self, event):
         ''' Occurs when the grid's cell focus has changed.
         '''
@@ -201,9 +302,7 @@ class dGrid(wx.grid.Grid):
         self.form.refreshControls()
         event.Skip()
         
-    def OnPaint(self, evt): 
-        evt.Skip()
-
+    
     def OnColumnHeaderPaint(self, evt):
         ''' Occurs when it is time to paint the grid column headers.
         '''
@@ -263,8 +362,76 @@ class dGrid(wx.grid.Grid):
             self.processIncrementalSearch()
         else:
             self.incrementalSearchTimer.Stop()
-           
-             
+
+            
+    def OnHeaderMotion(self, evt):
+        ''' Occurs when the mouse moves in the grid header.
+        '''
+        headerIsDragging = self.headerDragging
+        dragging = evt.Dragging()
+        header = self.GetGridColLabelWindow()
+        
+        if dragging:
+            x,y = evt.GetX(), evt.GetY()
+            if not headerIsDragging:
+                # A drag action is beginning
+                self.headerDragging = True
+                self.headerDragFrom = (x,y)
+
+            else:
+                # already dragging.
+                begCol = self.getColByX(self.headerDragFrom[0])
+                curCol = self.getColByX(x)
+
+                # The visual indicators (changing the mouse cursor) isn't currently
+                # working. It would work without the evt.Skip() below, but that is 
+                # needed for when the column is resized.
+                if begCol == curCol:
+                    # Give visual indication that a move is initiated
+                    header.SetCursor(wx.StockCursor(wx.CURSOR_SIZEWE))
+                else:
+                    # Give visual indication that this is an acceptable drop target
+                    header.SetCursor(wx.StockCursor(wx.CURSOR_BULLSEYE))
+                
+        evt.Skip()
+            
+            
+    def OnHeaderLeftUp(self, evt):
+        ''' Occurs when the left mouse button goes up in the grid header.
+        
+        Basically, this comes down to two possibilities: the end of a drag
+        operation, or a single-click operation. If we were dragging, then
+        it is possible a column needs to change position. If we were clicking,
+        then it is a sort operation.
+        '''
+        x,y = evt.GetX(), evt.GetY()
+        if self.headerDragging:
+            # A drag action is ending
+            self.headerDragging = False
+            self.headerDragTo = (x,y)
+            
+            begCol = self.getColByX(self.headerDragFrom[0])
+            curCol = self.getColByX(x)
+            
+            if begCol != curCol:
+                if curCol > begCol:
+                    curCol += 1
+                self.GetTable().MoveColumn(begCol, curCol)
+        else:
+            # we weren't dragging, and the mouse was just released.
+            # Find out the column we are in based on the x-coord, and
+            # do a processSort() on that column.
+            col = self.getColByX(x)
+            self.processSort(col)
+        evt.Skip()
+        
+            
+    def OnHeaderLeftDown(self, evt):
+        ''' Occurs when the left mouse button goes down in the grid header.
+        '''
+        pass
+        
+        
     def OnLeftDClick(self, evt): 
         ''' Occurs when the user double-clicks a cell in the grid. 
         
@@ -290,7 +457,7 @@ class dGrid(wx.grid.Grid):
         self.popupMenu()
         evt.Skip()
     
-        
+                            
     def OnGridLabelLeftClick(self, evt):
         ''' Occurs when the user left-clicks a grid column label. 
         
@@ -500,4 +667,16 @@ class dGrid(wx.grid.Grid):
         if not justStub:
             html.append("</BODY></HTML>")
         return "\n".join(html)
-        
+
+                
+    def getColByX(self, x):
+        ''' Given the x-coordinate, return the column number.
+        '''
+        totColSize = 0
+        for col in range(self.GetNumberCols()):
+            colSize = self.GetColSize(col)
+            totColSize += colSize
+            if x <= totColSize:
+                break
+
+        return col

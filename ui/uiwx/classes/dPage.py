@@ -116,7 +116,8 @@ class dBrowsePage(dPage):
         form = self.getDform()
         bizobj = form.getBizobj()
         self.grid = dGrid(self, bizobj, form)
-        self.grid.AutoSizeColumns(True)
+        self.grid.SetName("BrowseGrid")
+        #self.grid.AutoSizeColumns(True)
         self.GetSizer().Add(self.grid, 1, wx.EXPAND)
         self.GetSizer().Layout()
         self.gridExists = True
