@@ -86,18 +86,12 @@ class dDateTextBox(dTextBox.dTextBox):
 			self.calButton.Right = self.Right
 			self.calButton.Caption = "V"
 			self.calButton.Show(True)
-			self.calButton.bindEvent(dabo.dEvents.Hit, self.onDblClick)
-#			self.Parent.Bind(wx.EVT_BUTTON, self.onDblClick, id=self.calButton.GetId() )
 # 			calSizer = wx.BoxSizer(wx.HORIZONTAL)
 # 			calSizer.Add(self, 1, wx.EXPAND)
 # 			calSizer.Add(self.calButton)
+			self.calButton.bindEvent(dabo.dEvents.Hit, self.onDblClick)
+#			self.Parent.Bind(wx.EVT_BUTTON, self.onDblClick, id=self.calButton.GetId() )
 			
-		self.bindEvent(dabo.dEvents.MouseRightDown, self.onRightClick)
-		if self.useWxEvents:
-			self.Bind(wx.EVT_CHAR, self.onChar)
-		else:
-	 		self.bindEvent(dabo.dEvents.KeyChar, self.onChar)
-		self.bindEvent(dabo.dEvents.MouseLeftDoubleClick, self.onDblClick)
 		# Tooltip help
 		self.ToolTipText = """Available Keys:
 =============
@@ -113,17 +107,26 @@ R : Last Day of yeaR
 C: Popup Calendar to Select
 """
 	
+	def initEvents(self):
+		dDateTextBox.doDefault()
+		self.bindEvent(dabo.dEvents.MouseRightDown, self.__onRightClick)
+		if self.useWxEvents:
+			self.Bind(wx.EVT_CHAR, self.__onChar)
+		else:
+	 		self.bindEvent(dabo.dEvents.KeyChar, self.__onChar)
+		self.bindEvent(dabo.dEvents.MouseLeftDoubleClick, self.__onDblClick)
+		self.bindEvent(dabo.dEvents.LostFocus, self.__onLostFocus)
 	
-	def onLostFocus(self, evt):
+		
+	def __onLostFocus(self, evt):
 		""" Since the actual value is the date object, we need to refresh
 		the displayed text with the properly formatted character date.
 		"""
-		dDateTextBox.doDefault(evt)
 		# Refresh the displayed value
 		self.Value = self.GetValue()
 	
 	
-	def onDblClick(self, evt):
+	def __onDblClick(self, evt):
 		""" Display a calendar to allow users to select dates.
 		"""
 		self.showCalendar()
@@ -135,7 +138,7 @@ C: Popup Calendar to Select
 		self.calPanel.SetFocus()
 		
 	
-	def onRightClick(self, evt):
+	def __onRightClick(self, evt):
 		""" Display a context menu for selecting the desired date format """
 		men = wx.Menu()
 		for id, format in self.formats.items():
@@ -154,7 +157,7 @@ C: Popup Calendar to Select
 		except: pass
 	
 	
-	def onChar(self, evt):
+	def __onChar(self, evt):
 		""" If a shortcut key was pressed, process that. Otherwise, eat 
 		inappropriate characters.
 		"""

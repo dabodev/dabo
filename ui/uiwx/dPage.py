@@ -16,8 +16,8 @@ class dPage(dPanel.dScrollPanel):
 		
 	def initEvents(self):
 		dPage.doDefault()
-		self.bindEvent(dEvents.PageEnter, self.onPageEnter)
-		self.bindEvent(dEvents.PageLeave, self.onPageLeave)
+		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
+		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
 
 	def initSizer(self):
 		""" Set up the default vertical box sizer for the page.
@@ -34,11 +34,7 @@ class dPage(dPanel.dScrollPanel):
 		pass
 
 
-	def onPageEnter(self, evt):
-		""" Occurs when this page becomes the active page.
-
-		Subclasses may override or extend.
-		"""
+	def __onPageEnter(self, evt):
 		if not self.itemsCreated:
 			self.createItems()
 			self.itemsCreated = True
@@ -48,24 +44,11 @@ class dPage(dPanel.dScrollPanel):
 			self.Size = (-1,-1)
 
 						
-	def onPageLeave(self, evt):
-		""" Occurs when this page will no longer be the active page.
-
-		Subclasses may override.
-		"""
+	def __onPageLeave(self, evt):
 		if hasattr(self, "Form"):
 			self.Form.activeControlValid()
 			
 
-	def onValueRefresh(self, evt):
-		""" Occurs when the dForm asks dControls to refresh themselves.
-
-		While dPage isn't a data-aware control, this may be useful information
-		to act upon.
-		"""
-		pass
-	
-	
 	def _getPagePosition(self):
 		""" Returns the position of this page within its parent.
 		"""

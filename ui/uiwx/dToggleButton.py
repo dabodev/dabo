@@ -30,20 +30,21 @@ class dToggleButton(wx.ToggleButton, dcm.dDataControlMixin):
 		self.Bind(wx.EVT_TOGGLEBUTTON, self._onWxHit)
 		
 
-	# Event callback methods (override in subclasses):
-	def onHit(self, evt):
-		if self.debug:
+
+if __name__ == "__main__":
+	import test
+	
+	class T(dToggleButton):
+		def initEvents(self):
+			T.doDefault()
+			self.debug = True
+			self.bindEvent(dEvents.Hit, self.onHit)
+			
+		def onHit(self, evt):
 			if self.Value:
 				state = "down"
 			else:
 				state = "up"
 			dabo.infoLog.write(_("%s: onHit() called. State: %s") % (self.Name, state))
-
-		
-	# Property get/set/del methods follow. Scroll to bottom to see the property
-	# definitions themselves.
-
-
-if __name__ == "__main__":
-	import test
-	test.Test().runTest(dToggleButton)
+	
+	test.Test().runTest(T)

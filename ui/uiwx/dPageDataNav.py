@@ -54,6 +54,7 @@ class SelectOptionsCheckBox(dCheckBox.dCheckBox):
 	"""
 	def initEvents(self):
 		SelectOptionsCheckBox.doDefault()
+		self.bindEvent(dEvents.Hit, self.onHit)
 			
 	def initProperties(self):
 		self.SaveRestoreValue = True
@@ -309,9 +310,10 @@ class dBrowsePage(dPage.dPage):
 
 	def initEvents(self):
 		dBrowsePage.doDefault()
-		self.Form.bindEvent(dEvents.RowNumChanged, self.onRowNumChanged)
+		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
+		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		
-	def onRowNumChanged(self, evt):
+	def __onRowNumChanged(self, evt):
 		# If RowNumChanged is received AND we are the active page, select
 		# the row in the grid.
 		
@@ -350,8 +352,7 @@ class dBrowsePage(dPage.dPage):
 			self.BrowseGrid.SetGridCursor(row, col)
 		
 		
-	def onPageEnter(self, evt):
-		dBrowsePage.doDefault(evt)
+	def __onPageEnter(self, evt):
 		self.updateGrid()
 		
 		
@@ -416,13 +417,15 @@ class dEditPage(dPage.dPage):
 	def __init__(self, parent):
 		dEditPage.doDefault(parent, "pageEdit")
 
+	def initEvents(self):
+		dEditPage.doDefault()
+		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
+		self.bindEvent(dEvents.ValueRefresh, self.__onValueRefresh)
 
-	def onPageEnter(self, evt):
+	def __onPageEnter(self, evt):
 		self.raiseEvent(dEvents.ValueRefresh)
-		dEditPage.doDefault(evt)
 
-
-	def onValueRefresh(self, evt=None):
+	def __onValueRefresh(self, evt=None):
 		if self.Parent.GetPage(self.Parent.GetSelection()) == self:
 			form = self.Form
 			bizobj = form.getBizobj()
@@ -507,17 +510,18 @@ class dChildViewPage(dPage.dPage):
 	
 	def initEvents(self):
 		dChildViewPage.doDefault()
-		self.Form.bindEvent(dEvents.RowNumChanged, self.onRowNumChanged)
+		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
+		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
+		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
 	
-	def onPageEnter(self, evt):
-		dChildViewPage.doDefault(evt)
+	def __onPageEnter(self, evt):
 		if self.bizobj and self.bizobj.RowCount >= 0:
 			if not self.itemsCreated:
 				self.createItems()
 		if self.itemsCreated:
 			self.fillGrid()
 	
-	def onRowNumChanged(self, evt):
+	def __onRowNumChanged(self, evt):
 		# If RowNumChanged (in the parent bizobj) is received AND we are the
 		# active page, the child bizobj has already been requeried
 		# but the grid needs to be filled to reflect that.
@@ -572,7 +576,7 @@ class dChildViewPage(dPage.dPage):
 			self.bizobj.setFieldVal(field, pickBizobj.getFieldVal(derivedFields[field]))
 		self.fillGrid()		
 
-	def onPageLeave(self, evt):
+	def __onPageLeave(self, evt):
 		try:
 			pl = self.picklist
 		except:

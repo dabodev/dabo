@@ -135,6 +135,15 @@ class Hit(Event):
 	"""Occurs with the control's default event (button click, listbox pick, checkbox, etc.)"""
 	pass
 	
+class Idle(Event):
+	"""Occurs when the event loop has no active events to process.
+	
+	This is a good place to put redraw or other such UI-intensive code, so that it 
+	will only run when the application is otherwise not busy doing other (more 
+	important) things.
+	"""
+	pass
+	
 class ItemPicked(Event):
 	"""Occurs when an item was picked from a picklist."""
 	pass
@@ -210,7 +219,12 @@ class PageLeave(Event):
 	"""Occurs when a different page becomes active."""
 	pass
 
+
+class Resize(Event):
+	"""Occurs when the control or form is resized."""
+	pass
 	
+		
 class RowNumChanged(DataEvent):
 	"""Occurs when the cursor's row number has changed."""
 	pass

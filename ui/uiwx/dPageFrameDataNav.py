@@ -10,6 +10,7 @@ class dPageFrameDataNav(pgf.dPageFrame):
 	def __init__(self, parent, name='dPageFrameDataNav'):
 		dPageFrameDataNav.doDefault(parent, name=name)
 
+	
 	def afterInit(self):
 		dPageFrameDataNav.doDefault()
 		self.PageCount = 0

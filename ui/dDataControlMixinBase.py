@@ -25,26 +25,28 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		dDataControlMixinBase.doDefault()
 		
 		try:
-			self.Form.bindEvent(dEvents.ValueRefresh, self.onValueRefresh)
+			self.Form.bindEvent(dEvents.ValueRefresh, self.__onValueRefresh)
 		except AttributeError:
 			# Perhaps we aren't a child of a dForm
 			pass
 		
+		self.bindEvent(dEvents.Create, self.__onCreate)
+		self.bindEvent(dEvents.Destroy, self.__onDestroy)
+		self.bindEvent(dEvents.GotFocus, self.__onGotFocus)
+		self.bindEvent(dEvents.LostFocus, self.__onLostFocus)
 	
-	def onCreate(self, evt):
-		dDataControlMixinBase.doDefault(evt)
+		
+	def __onCreate(self, evt):
 		if self.SaveRestoreValue:
 			self.restoreValue()
 	
 	
-	def onDestroy(self, evt):
-		dDataControlMixinBase.doDefault(evt)
+	def __onDestroy(self, evt):
 		if self.SaveRestoreValue:
 			self.saveValue()
 	
 	
-	def onGotFocus(self, evt):
-		dDataControlMixinBase.doDefault(evt)
+	def __onGotFocus(self, evt):
 		self._oldVal = self.Value
 
 		try:
@@ -55,8 +57,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			pass
 
 	
-	def onLostFocus(self, evt):
-		dDataControlMixinBase.doDefault(evt)
+	def __onLostFocus(self, evt):
 		self.flushValue()
 		
 		try:
@@ -67,7 +68,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			pass
 
 			
-	def onValueRefresh(self, evt): 
+	def __onValueRefresh(self, evt): 
 		self.refresh()
 		
 		try:

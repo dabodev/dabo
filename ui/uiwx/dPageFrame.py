@@ -33,20 +33,20 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 	
 	def afterInit(self):
 		dPageFrame.doDefault()
-		
-
-	def onCreate(self, evt):
-		# Make sure the PageEnter fires for the current page on 
-		# pageframe instantiation, as this doesn't happen automatically.
-		# Putting this code in afterInit() results in a segfault on Linux, btw.
-		dPageFrame.doDefault(evt)
-		self._pageChanged(self.GetSelection(), None)
-		
-		
+	
+	
 	def initEvents(self):
 		dPageFrame.doDefault()
 		self.Bind(wx.EVT_NOTEBOOK_PAGE_CHANGED, self._onPageChanged)
-
+		self.bindEvent(dEvents.Create, self.__onCreate)
+	
+		
+	def __onCreate(self, evt):
+		# Make sure the PageEnter fires for the current page on 
+		# pageframe instantiation, as this doesn't happen automatically.
+		# Putting this code in afterInit() results in a segfault on Linux, btw.
+		self._pageChanged(self.GetSelection(), None)
+		
 				
 	def _onPageChanged(self, evt):
 		evt.Skip()

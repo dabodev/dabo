@@ -349,16 +349,6 @@ class dFormDataNav(dForm.dForm):
 		self._childBehavior[dataSource] = cb
 	
 	
-# 	def onGotFocus(self, evt):
-# 		""" Occurs when the form receives the focus.
-# 
-# 		For dFormDataNav, the toolbar and menu need to be set up.
-# 		"""
-# 		if isinstance(self, wx.MDIChildFrame):
-# 			self.setupToolBar()
-# 			self.setupMenu()
-# 		dFormDataNav.doDefault(evt)
-
 	def onRequery(self, evt):
 		""" Override the dForm behavior by running the requery through the select page.
 		"""

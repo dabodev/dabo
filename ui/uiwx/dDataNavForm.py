@@ -42,14 +42,16 @@ class dDataNavForm(dForm.dForm):
 			self.acceleratorTable.append((wx.ACCEL_NORMAL, wx.WXK_ESCAPE, anId))
 			self.Bind(wx.EVT_MENU, self.Close, id=anId)
 
+			
+	def initEvents(self):
+		dDataNavForm.doDefault()
+		self.bindEvent(dEvents.Activate, self.__onActivate)
+		
 							
-	def onActivate(self, evt):
+	def __onActivate(self, evt):
 		if self.RequeryOnLoad and not self._requeried:
 			self._requeried = True
 			self.pageFrame.GetPage(0).requery()
-		evt.Skip()
-		dDataNavForm.doDefault(evt)
-			
 		
 	def afterSetPrimaryBizobj(self):        
 		pass
@@ -412,17 +414,6 @@ class dDataNavForm(dForm.dForm):
 		self._childBehavior[dataSource] = cb
 	
 	
-	def onGotFocus(self, evt):
-		""" Occurs when the form receives the focus.
-
-		For dDataNavForm, the toolbar and menu need to be set up.
-		"""
-		if isinstance(self, wx.MDIChildFrame):
-			self.setupToolBar()
-			self.setupMenu()
-		evt.Skip()
-
-
 	def onRequery(self, evt):
 		""" Override the dForm behavior by running the requery through the select page.
 		"""

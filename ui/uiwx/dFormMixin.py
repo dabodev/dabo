@@ -30,13 +30,11 @@ class dFormMixin(pm.dPemMixin):
 		# Bind wx events to handlers that re-raise the Dabo events:
 		self.Bind(wx.EVT_ACTIVATE, self._onWxActivate)
 		self.Bind(wx.EVT_CLOSE, self._onWxClose)
-			
-		# Convenience binding of common events:
-		self.bindEvent(dEvents.Close, self.onClose)
-		self.bindEvent(dEvents.Activate, self.onActivate)
-		self.bindEvent(dEvents.Deactivate, self.onDeactivate)
-			
+		
+		self.bindEvent(dEvents.Activate, self.__onActivate)
+		self.bindEvent(dEvents.Close, self.__onClose)
 	
+		
 	def _onWxClose(self, evt):
 		self.raiseEvent(dEvents.Close, evt)
 		
@@ -49,15 +47,13 @@ class dFormMixin(pm.dPemMixin):
 			self.raiseEvent(dEvents.Deactivate, evt)
 			
 			
-	def onActivate(self, evt): 
+	def __onActivate(self, evt): 
 		# Restore the saved size and position, which can't happen 
 		# in __init__ because we may not have our name yet.
 		if not self.restoredSP:
 			self.restoredSP = True
 			self.restoreSizeAndPosition()
 		
-	def onDeactivate(self, evt):
-		pass
 		
 	def afterSetMenuBar(self):
 		""" Subclasses can extend the menu bar here.
@@ -96,7 +92,7 @@ class dFormMixin(pm.dPemMixin):
 		return menu
 
 
-	def onClose(self, evt):
+	def __onClose(self, evt):
 		if self.Application is not None:
 			self.Application.uiForms.remove(self)
 		self.saveSizeAndPosition()

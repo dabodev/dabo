@@ -3,6 +3,7 @@ import dPage, dTextBox, dLabel, dEditBox, dCheckBox, dSpinner
 import dMessageBox, dIcons, dCommandButton, dDropdownList
 import dPanel, dDataNavGrid, dDateTextBox
 import dabo.dException as dException
+import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 
@@ -10,10 +11,9 @@ class OutlineBoxSizer(wx.BoxSizer):
 	def __init__(self, win, *args, **kwargs):
 		wx.BoxSizer.__init__(self, *args, **kwargs)
 		self.win = win
-# 		win.Bind(wx.EVT_SIZE, self.onSize)
+# 		win.bindEvent(dEvents.Resize, self.onResize)
 	
-	def onSize(self, evt):
-		evt.Skip()
+	def onResize(self, evt):
 		self.win.drawOutline(self.GetPosition(), self.GetSize() )
 		
 
@@ -22,21 +22,20 @@ class DataNavPage(dPage.dPage):
 		DataNavPage.doDefault()
 		# Needed for drawing sizer outlines
 		self.redrawOutlines = self.drawSizerOutlines = False
-		self.Bind(wx.EVT_SIZE, self.onSize)
-		self.Bind(wx.EVT_IDLE, self.onIdle)
+		self.bindEvent(dEvents.Resize, self.onResize)
+		self.bindEvent(dEvents.Idle, self.onIdle)
 
-
-	def onSize(self, evt):
+	def onResize(self, evt):
 		self.redrawOutlines = self.drawSizerOutlines
-		evt.Skip()
 		
 	def onIdle(self, evt):
 		if self.redrawOutlines:
 			self.redrawOutlines = False
 			self.drawOutline(self, self.GetSizer(), 0)
-	
-	def onPaint(self, evt):
-		self.drawOutline(self, self.GetSizer(), 0)
+
+### pkm: this must be old code...	
+#	def onPaint(self, evt):
+#		self.drawOutline(self, self.GetSizer(), 0)
 		
 	def drawOutline(self, win, sz, level):
 		if sz is None:
@@ -112,7 +111,7 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 	def __init__(self, *args, **kwargs):
 		SelectionOpDropdown.doDefault(*args, **kwargs)
 		self.target = None
-		self.Bind(wx.EVT_CHOICE, self.onChoiceMade)
+		self.bindEvent(dEvents.Hit, self.onChoiceMade)
 	
 	def setTarget(self, tgt):
 		""" Sets the reference to the object that will receive focus
@@ -353,8 +352,7 @@ class dSelectPage(DataNavPage):
 
 	
 	def getSearchCtrl(self, typ, parent):
-		""" Returns the appropriate editing control for the 
-		given data type.
+		"""Returns the appropriate editing control for the given data type.
 		"""
 		if typ in ("char", "memo", "float", "int"):
 			ret = dTextBox.dTextBox(parent)
@@ -375,10 +373,11 @@ class dBrowsePage(DataNavPage):
 
 	def initEvents(self):
 		dBrowsePage.doDefault()
-		self.Form.bindEvent(dabo.dEvents.RowNumChanged, self.onRowNumChanged)
+		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
+		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		
 
-	def onRowNumChanged(self, evt):
+	def __onRowNumChanged(self, evt):
 		# If RowNumChanged is received AND we are the active page, select
 		# the row in the grid.
 		
@@ -428,9 +427,8 @@ class dBrowsePage(DataNavPage):
 		self.BrowseGrid.SetGridCursor(row, col)
 
 		
-	def onPageEnter(self, evt):
+	def __onPageEnter(self, evt):
 		self.updateGrid()
-		dBrowsePage.doDefault(evt)
 
 
 	def createItems(self):
@@ -502,13 +500,15 @@ class dEditPage(DataNavPage):
 	def __init__(self, parent):
 		dEditPage.doDefault(parent, "pageEdit")
 
+	def initEvents(self):
+		dEditPage.doDefault()
+		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
+		self.bindEvent(dEvents.ValueRefresh, self.__onValueRefresh)
+		
+	def __onPageEnter(self, evt):
+		self.__onValueRefresh()
 
-	def onPageEnter(self, evt):
-		self.onValueRefresh()
-		dEditPage.doDefault(evt)
-
-
-	def onValueRefresh(self, evt=None):
+	def __onValueRefresh(self, evt=None):
 		form = self.Form
 		bizobj = form.getBizobj()
 		if bizobj and bizobj.RowCount >= 0:
@@ -600,25 +600,29 @@ class dChildViewPage(DataNavPage):
 		self.bizobj = self.Form.getBizobj().getChildByDataSource(self.dataSource)
 		self.pickListRef = None
 	
-	def onPageEnter(self, evt):
+	def initEvents(self):
+		dChildViewPage.doDefault()
+		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
+		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
+		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
+		
+	def __onPageEnter(self, evt):
 		if self.bizobj and self.bizobj.RowCount >= 0:
 			if not self.itemsCreated:
 				self.createItems()
 		if self.itemsCreated:
 			self.fillGrid()
-		dChildViewPage.doDefault(evt)
 	
-	
-	def onLeavePage(self):
+	def __onPageLeave(self):
 		if self.pickListRef:
 			self.pickListRef.Close()
 	
 			
-	def onRowNumChanged(self, evt):
+	def __onRowNumChanged(self, evt):
 		# If RowNumChanged (in the parent bizobj) is received AND we are the
 		# active page, the child bizobj has already been requeried
 		# but the grid needs to be filled to reflect that.
-		self.onPageEnter(None)
+		self.__onPageEnter(None)
 
 		
 	def createItems(self):

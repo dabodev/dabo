@@ -87,8 +87,13 @@ class dPemMixin(dPemMixinBase):
 		self.Bind(wx.EVT_WINDOW_DESTROY, self._onWxDestroy)
 		
 		self.Bind(wx.EVT_SET_FOCUS, self._onWxGotFocus)
+		self.Bind(wx.EVT_IDLE, self._onWxIdle)
 		self.Bind(wx.EVT_KILL_FOCUS, self._onWxLostFocus)
 			
+		self.Bind(wx.EVT_CHAR, self._onWxKeyChar)
+		self.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
+		self.Bind(wx.EVT_KEY_UP, self._onWxKeyUp)
+		
 		self.Bind(wx.EVT_LEFT_DOWN, self._onWxMouseLeftDown)
 		self.Bind(wx.EVT_LEFT_UP, self._onWxMouseLeftUp)
 		self.Bind(wx.EVT_RIGHT_DOWN, self._onWxMouseRightDown)
@@ -98,34 +103,14 @@ class dPemMixin(dPemMixinBase):
 		self.Bind(wx.EVT_LEFT_DCLICK, self._onWxMouseLeftDoubleClick)
 		self.Bind(wx.EVT_MOTION, self._onWxMouseMove)
 		
-		self.Bind(wx.EVT_CHAR, self._onWxKeyChar)
-		self.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
-		self.Bind(wx.EVT_KEY_UP, self._onWxKeyUp)
+		self.Bind(wx.EVT_SIZE, self._onWxResize)
 		
-		# Convenience binding of common events:
-		self.bindEvent(dEvents.Create, self.onCreate)
-		self.bindEvent(dEvents.Destroy, self.onDestroy)
-		self.bindEvent(dEvents.GotFocus, self.onGotFocus)
-		self.bindEvent(dEvents.LostFocus, self.onLostFocus)
-		self.bindEvent(dEvents.MouseLeftClick, self.onMouseLeftClick)
-		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onMouseLeftDoubleClick)
-		self.bindEvent(dEvents.MouseRightClick, self.onMouseRightClick)
-		self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
-		self.bindEvent(dEvents.MouseLeave, self.onMouseLeave)
-		self.bindEvent(dEvents.KeyChar, self.onKeyChar)
-		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
-	
-			
+		
 	def _onWxDestroy(self, evt):
-		# By the time the dEvent is raised, the object will already be gone,
-		# and the callback will never be executed. Because of this, we call
-		# the onDestroy() callback directly instead of re-raising the event. 
-		# This means that user code will be unable to bind dEvents.Destroy 
-		# to any other callback, unfortunately.
-		evt.StopPropagation()
-		evt.Skip()
-		dEvt = dEvents.Destroy(self, evt)
-		self.onDestroy(dEvt)
+		self.raiseEvent(dEvents.Destroy, evt)
+		
+	def _onWxIdle(self, evt):
+		self.raiseEvent(dEvents.Idle, evt)
 		
 	def _onWxGotFocus(self, evt):
 		self.raiseEvent(dEvents.GotFocus, evt)
@@ -177,77 +162,10 @@ class dPemMixin(dPemMixinBase):
 			self.raiseEvent(dEvents.MouseRightClick, evt)
 			self._mouseRightDown = False
 	
+	def _onWxResize(self, evt):
+		self.raiseEvent(dEvents.Resize, evt)
 				
 		
-	def onCreate(self, evt):
-		""" Occurs when the control is created.
-		"""
-		pass
-		
-	def onDestroy(self, evt):
-		""" Occurs when the control is destroyed.
-		"""
-		pass
-					
-	def onGotFocus(self, evt):
-		""" Occurs when the control or form gets the focus.
-		
-		Override in subclasses.
-		"""
-		pass
-	
-	def onLostFocus(self, evt):
-		""" Occurs when the control or form loses the focus.
-		
-		Override in subclasses.
-		"""
-		pass
-		
-	def onMouseEnter(self, evt):
-		""" Occurs when the mouse pointer enters the control or form.
-		"""
-		pass
-		
-	def onMouseLeave(self, evt):
-		""" Occurs when the mouse pointer leaves the control or form.
-		"""
-		pass
-
-	def onMouseLeftClick(self, evt):
-		""" Occurs when a mouse left-click happens on the control or form.
-		
-		Override in subclasses.
-		"""
-		pass
-		
-	def onMouseLeftDoubleClick(self, evt):
-		""" Occurs when a mouse left-double-click happens on the control or form.
-		
-		Override in subclasses.
-		"""
-		pass
-		
-	def onMouseRightClick(self, evt):
-		""" Occurs when a mouse right-click happens on the control or form.
-		
-		Override in subclasses.
-		"""
-		pass
-		
-	def onKeyChar(self, evt):
-		""" Occurs when a character is entered on the control.
-		
-		Override in subclasses.
-		"""
-		pass
-		
-	def onKeyDown(self, evt):
-		""" Occurs when a key is pressed on the control.
-		
-		Override in subclasses.
-		"""
-		pass
-				
 	def getPropertyInfo(self, name):
 		d = dPemMixin.doDefault(name)   # the property helper does most of the work
 		

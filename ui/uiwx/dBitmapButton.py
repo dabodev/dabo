@@ -108,8 +108,4 @@ if __name__ == "__main__":
 			self.DownPicture = "daboIcon064"
 			self.FocusPicture = "daboIcon016"
 			
-		def onButton(self, evt): 
-			print "Bitmap Button!"
-			evt.Skip()
-
 	test.Test().runTest(c)

@@ -61,14 +61,4 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 
 if __name__ == "__main__":
 	import test
-	class c(dCommandButton):
-		def afterInit(self):
-			self.debug = True
-			self.bindEvent(dEvents.Button, self.onAnotherButton)
-			
-		def onAnotherButton(self, evt):
-			print "onAnotherButton"
-			
-			
-			
-	test.Test().runTest(c)
+	test.Test().runTest(dCommandButton)
