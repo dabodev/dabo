@@ -1,6 +1,6 @@
 from dConstants import dConstants as k
 
-class dSqlBuilderMixin:
+class SqlBuilder:
     """ 
     The following properties are used to create SQL statements
     in a programmatic fashion

@@ -33,7 +33,7 @@ class dCursor:
         self.addMemento(self.rownumber)
 
     def getFieldVal(self, fld):
-        """ Returns the value of the requested field """
+        """ Return the value of the requested field. """
         ret = None
         if self.rowcount == 0:
             self.addToErrorMsg("No records in the data set")
@@ -46,7 +46,7 @@ class dCursor:
         return ret
 
     def setFieldVal(self, fld, val):
-        """ Sets the value of the specified field """
+        """ Set the value of the specified field. """
         ret = 0
         if self.rowcount == 0:
             self.addToErrorMsg("No records in the data set")
@@ -90,7 +90,7 @@ class dCursor:
         return ret
 
     def next(self):
-        """ Moves the record pointer forward one position in the recordset. """
+        """ Move the record pointer forward one position in the recordset. """
         self._errorMsg = ""
         ret = k.FILE_OK
         if self.rowcount > 0:
@@ -105,7 +105,7 @@ class dCursor:
         return ret
 
     def last(self):
-        """ Moves the record pointer to the last record in the recordset. """
+        """ Move the record pointer to the last record in the recordset. """
         self._errorMsg = ""
         ret = k.FILE_OK
         if self.rowcount > 0:
@@ -178,7 +178,7 @@ class dCursor:
         return ret
 
     def new(self):
-        """ Adds a new record to the data set """
+        """ Add a new record to the data set """
         ret = k.FILE_OK
         try:
             if not self._blank:
@@ -199,7 +199,7 @@ class dCursor:
         return ret
 
     def cancel(self, allrows=0):
-        """ Reverts any changes back to the original values """
+        """ Revert any changes back to the original values. """
         self._errorMsg = ""
         ret = k.FILE_OK
 
@@ -260,8 +260,8 @@ class dCursor:
         row[k.CURSOR_MEMENTO].setMemento(row)
 
     def addMemento(self, rownum=-1):
-        """ Adds a memento to the specified row. If the rownum is -1, it will
-        add a memento to all rows """
+        """ Add a memento to the specified row. If the rownum is -1, it will
+        add a memento to all rows. """
         if rownum == -1:
             for i in range(0, self.rowcount-1):
                 self.addMemento(i)
@@ -324,7 +324,7 @@ class dCursor:
         return ret
 
     def makePkWhere(self):
-        """ Creates the WHERE clause used for updates """
+        """ Create the WHERE clause used for updates. """
         aFields = self.keyField.split(",")
         ret = ""
         for fld in aFields:
@@ -371,8 +371,8 @@ class dCursor:
         return ret			
 
     def addToErrorMsg(self, txt):
-        """ Adds the passed text to the current error message text, 
-        inserting a newline if needed """
+        """ Add the passed text to the current error message text, 
+        inserting a newline if needed. """
         if txt:
             if self._errorMsg:
                 self._errorMsg += "\n"
@@ -382,7 +382,7 @@ class dCursor:
         return self._errorMsg
 
     def isAdding(self):
-        """ Returns true if the current record has the new rec flag """
+        """ Return true if the current record has the new rec flag. """
         return self._rows[self.rownumber].has_key(k.CURSOR_NEWFLAG)
 
     def beginTransaction(self):

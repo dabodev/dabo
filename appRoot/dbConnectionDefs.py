@@ -1,7 +1,7 @@
 # You can define any number of DB Connection definitions here.
 # They will all be set up in dabo's app object for global availability
 
-# Set up an empty dictionary
+# Set up the empty dictionary
 dbConnectionDefs = {}
 
 # For each Connection Definition you want, repeat the following
@@ -11,4 +11,5 @@ dbConnectionDefs["Sample Connection"] = {"dbType": "MySQL",
                                          "user": "dabo", 
                                          "password": "dabo",
                                          "db": "sample"}
+
 

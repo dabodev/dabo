@@ -13,8 +13,8 @@ class Memento(object):
         self._snapshot = vals.copy()
 
     def isChanged(self, newvals):
-        """ Returns a boolean value, depending on whether or not 
-        the passed dictionary of values is identical to the current snapshot."""
+        """ Return a boolean value, depending on whether or not 
+        the passed dictionary of values is identical to the current snapshot. """
         return (self._snapshot != newvals)
 
     def makeDiff(self, newvals, newrec):

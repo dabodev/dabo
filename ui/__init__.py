@@ -39,8 +39,8 @@
                              
 '''
 
-# Module factory function: returns the proper module depending
-# on the passed uiType:
+# Module factory function: generically return the 
+# proper module depending on the passed uiType.
 def getUI(uiType):
     prefix = 'ui'
     try:
