@@ -40,7 +40,6 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	def _getCancelButton(self):
 		# need to implement
 		return False
-
 	def _setCancelButton(self, value):
 		warnings.warn(Warning, "CancelButton isn't implemented yet.")	
 	
@@ -54,6 +53,31 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		else:
 			self._pemObject.SetDefaultItem(None)
 
+	def _getNormalPicture(self):
+		return self.GetBitmapLabel()
+	def _setNormalPicture(self, value):
+		if type(value) == type(""):
+			# Convert to bitmap
+			value = getIconBitmap(value)
+		self.SetBitmapLabel(value)
+	
+	def _getDownPicture(self):
+		return self.GetBitmapSelected()
+	def _setDownPicture(self, value):
+		if type(value) == type(""):
+			# Convert to bitmap
+			value = getIconBitmap(value)
+		self.SetBitmapSelected(value)
+	
+	def _getFocusPicture(self):
+		return self.GetBitmapFocus()
+	def _setFocusPicture(self, value):
+		if type(value) == type(""):
+			# Convert to bitmap
+			value = getIconBitmap(value)
+		self.SetBitmapFocus(value)
+	
+
 
 	# Property definitions:
 	CancelButton = property(_getCancelButton, _setCancelButton, None,
@@ -62,11 +86,25 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	DefaultButton = property(_getDefaultButton, _setDefaultButton, None, 
 						_('Specifies whether this Bitmap button gets clicked on -Enter-. (bool)'))
 
+	Picture = property(_getNormalPicture, _setNormalPicture, None,
+				_("The image normally displayed on the button. This is the default if none of the other Picture properties are specified. (bitmap)") )
+
+	DownPicture = property(_getDownPicture, _setDownPicture, None,
+				_("The image displayed on the button when it is depressed. (bitmap)") )
+
+	FocusPicture = property(_getFocusPicture, _setFocusPicture, None,
+				_("The image displayed on the button when it receives focus. (bitmap)") )
+
 
 if __name__ == "__main__":
 	import test
 	class c(dBitmapButton):
-		def onButton(self, event): 
+		def afterInit(self):
+			# Demonstrate that the Picture props are working.
+			self.DownPicture = "daboIcon064"
+			self.FocusPicture = "daboIcon016"
+			
+		def onButton(self, evt): 
 			print "Bitmap Button!"
 			evt.Skip()
 
