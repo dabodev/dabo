@@ -13,10 +13,9 @@ class Firebird(dBackend):
 
 
 	def getConnection(self, connectInfo):
-		# Port doesn't seem to work, but I need to research... for now it's disabled.
-# 		port = connectInfo.Port
-# 		if not port:
-# 			port = 3050
+		port = connectInfo.Port
+		if not port:
+			port = 3050
 
 		# kinterbasdb will barf with unicode strings:
 		host = str(connectInfo.Host)
@@ -26,7 +25,6 @@ class Firebird(dBackend):
 		
 		self._connection = kinterbasdb.connect(host=host, user=user, password=password,
 				database=database)
-		
 		return self._connection
 		
 	def getDictCursorClass(self):
@@ -89,10 +87,11 @@ class Firebird(dBackend):
 		tempCursor = self._connection.cursor()
 		
 		# Get the PK
-		sql = """ select first 1 rdb$index_name
-from rdb$indices
-where rdb$relation_name = '%s'
-and rdb$unique_flag = 1 """ % tableName.upper()
+		sql = """ select inseg.rdb$field_name
+		from rdb$indices idxs join rdb$index_segments inseg
+		    on idxs.rdb$index_name = inseg.rdb$index_name
+		    where idxs.rdb$relation_name = '%s'
+    and idxs.rdb$unique_flag = 1 """ % tableName.upper()
 		tempCursor.execute(sql)
 		rs = tempCursor.fetchone()
 		try:
@@ -114,12 +113,9 @@ and rdb$unique_flag = 1 """ % tableName.upper()
  AND d.RDB$FIELD_NAME = 'RDB$FIELD_TYPE'
  AND a.RDB$RELATION_NAME = '%s'
  ORDER BY b.RDB$FIELD_ID """ % tableName.upper()
-# ORDER BY a.RDB$RELATION_NAME, b.RDB$FIELD_ID """ % tableName.upper()
  
 		tempCursor.execute(sql)
 		rs = tempCursor.fetchall()
-		
-		# This isn't fully implemented yet. We need to determine which field is the PK.
 		fields = []
 		for r in rs:
 			name = r[0].strip()
@@ -154,7 +150,7 @@ and rdb$unique_flag = 1 """ % tableName.upper()
 			
 			pk = (name.lower() == pkField.lower() )
 			
-			fields.append((name.strip(), ft, pk))
+			fields.append((name.strip().lower(), ft, pk))
 			
 		return tuple(fields)
 	
@@ -227,7 +223,13 @@ and rdb$unique_flag = 1 """ % tableName.upper()
 		
 	def dblQuoteField(self, txt):
 		""" Takes a string and returns the same string with
-		all occurrences of xx.yy replaced with xx."yy"
+		all occurrences of xx.yy replaced with xx."YY".
+		In other words, wrap the field name in double-quotes,
+		and change it to upper case.
 		"""
-		return self.fieldPat.sub("\g<1>.\"\g<2>\"", txt)
+		def qtField(mtch):
+			tbl = mtch.groups()[0]
+			fld = mtch.groups()[1].upper()
+			return "%s.\"%s\"" % (tbl, fld)
+		return self.fieldPat.sub(qtField, txt)
 		
