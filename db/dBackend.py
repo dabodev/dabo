@@ -1,4 +1,5 @@
 """ dabo.db.backend.py : abstractions for the various db api's """
+import dabo.dException as dException
 import dabo.common
 
 class dBackend(dabo.common.dObject):
