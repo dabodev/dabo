@@ -49,10 +49,10 @@ class dDateTextBox(dTextBox.dTextBox):
 	def beforeInit(self):
 		self.date = wx.DateTime_Now()
 		self.formats = {
-				wx.NewId(): {"prompt": "American (MM/DD/YYYY)", 
+				"American": {"prompt": "American (MM/DD/YYYY)", 
 					"setting" : "American", 
 					"format" : "%m/%d/%Y"},
-				wx.NewId(): {"prompt": "YMD (YYYY-MM-DD)", 
+				"YMD": {"prompt": "YMD (YYYY-MM-DD)", 
 					"setting": "YMD", 
 					"format" : "%Y-%m-%d"} }
 		# Default format; can be changed in setup code or in RightClick
@@ -151,19 +151,25 @@ C: Popup Calendar to Select
 	
 	def __onRightClick(self, evt):
 		""" Display a context menu for selecting the desired date format """
-		men = wx.Menu()
-		for id, format in self.formats.items():
-			itm = wx.MenuItem(men, id, format["prompt"])
-			men.AppendItem(itm)
-			self.Parent.Bind(wx.EVT_MENU, self.onRClickMenu, itm)
-		self.Parent.PopupMenu(men, evt.EventData["mousePosition"])
+		menu = dabo.ui.dMenu()
+		bindobj = self
+		if wx.Platform == "__WXMAC__":
+			bindobj = menu
+		for nm, format in self.formats.items():
+			itm = menu.append(format["prompt"], bindobj, func=self.onRClickMenu)
+			format["id"] = itm.GetId()
+		self.Parent.PopupMenu(menu, evt.EventData["mousePosition"])
 		evt.Continue = False  # otherwise, a GTK unicode menu will appear
 		
 		
 	def onRClickMenu(self, evt):
 		""" Set the date format to the selected value."""
 		try:
-			self.dateFormat = self.formats[evt.GetId()]["setting"]
+			# See which format has the matching ID
+			id = evt.GetId()
+			for fmt in self.formats.values():
+				if fmt["id"] == id:
+					self.dateFormat = fmt["setting"]
 			self._setValue(self.date)
 		except: pass
 	

@@ -197,34 +197,10 @@ class dSelectPage(DataNavPage):
 		self.sortObj = evt.GetEventObject()
 		mn = dMenu.dMenu()
 		if self.sortFields.has_key(self.sortDS):
-#- 			id = wx.NewId()
-#- 			mn.Append(id, "Do not sort on " + self.sortCap)
-#- 			self.Bind(wx.EVT_MENU, self.handleSortRemove, id=id)
-			item = wx.MenuItem(mn, -1, "Remove sort on " + self.sortCap)
-			mn.AppendItem(item)
-			self.Bind(wx.EVT_MENU, self.handleSortRemove, item)
+			mn.append("Remove sort on " + self.sortCap, self, func=self.handleSortRemove)
 
-		item = wx.MenuItem(mn, -1, "Sort Ascending")
-		mn.AppendItem(item)
-		self.Bind(wx.EVT_MENU, self.handleSortAsc, item)
-		item = wx.MenuItem(mn, -1, "Sort Descending")
-		mn.AppendItem(item)
-		self.Bind(wx.EVT_MENU, self.handleSortDesc, item)
-
-#- 		id = wx.NewId()
-#- 		mn.Append(id, ")
-#- 		self.Bind(wx.EVT_MENU, self.handleSortAsc, id=id)
-#- 		id = wx.NewId()
-#- 		mn.Append(id, "Sort Descending")
-#- 		self.Bind(wx.EVT_MENU, self.handleSortDesc, id=id)
-		
-		#self.PopupMenu(mn, self.sortObj.GetPosition())
-		print self.sortObj.GetPosition()
-		print evt.GetPosition()
-		print self.ScreenToClient(self.sortObj.GetPosition())
-		print self.ClientToScreen(evt.GetPosition())
-		
-		
+		mn.append("Sort Ascending", self, func=self.handleSortAsc)
+		mn.append("Sort Descending", self, func=self.handleSortDesc)
 		self.PopupMenu(mn, self.ClientToScreen(evt.GetPosition()) )
 		mn.Destroy()
 

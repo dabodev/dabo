@@ -158,73 +158,37 @@ class dDataNavForm(dForm.dForm):
 		#menu = dDataNavForm.doDefault()
 		menu = super(dDataNavForm, self).getMenu()
 		
-		self._appendToMenu(menu, "Set Selection Criteria\tAlt+1", 
-						self.onSetSelectionCriteria, 
-						bitmap=dIcons.getIconBitmap("checkMark"))
-		self._appendToMenu(menu, "Browse Records\tAlt+2", 
-						self.onBrowseRecords, 
-						bitmap=dIcons.getIconBitmap("browse"))
-		self._appendToMenu(menu, "Edit Current Record\tAlt+3", 
-						self.onEditCurrentRecord, 
-						bitmap=dIcons.getIconBitmap("edit"))
+		bindobj = self
+		if wx.Platform == "__WXMAC__":
+			bindobj = menu
 
-# 		if self.FormType != 'PickList':
-# 			print "PICKLIST"
-# 			i = 4
-# 			for child in self.childViews:
-# 				self._appendToMenu(menu, "View %s\tAlt+%s" % (child['caption'], i) ,
-# 								self.onChildView, 
-# 								bitmap=dIcons.getIconBitmap("childview"),
-# 								menuId = child['menuId'])
-# 				i += 1
-			
-		menu.AppendSeparator()
+		menu.append("Set Selection Criteria\tAlt+1", bindobj, func=self.onSetSelectionCriteria, bmp="checkMark")
+		menu.append("Browse Records\tAlt+2", bindobj, func=self.onBrowseRecords, bmp="browse")
+		menu.append("Edit Current Record\tAlt+3", bindobj, func=self.onEditCurrentRecord, bmp="edit")
+		menu.appendSeparator()
 
-		if self.FormType != 'Edit':
-			self._appendToMenu(menu, "Requery\tCtrl+R", 
-							self.onRequery, 
-							bitmap=dIcons.getIconBitmap("requery"))
-		
-		if self.FormType != 'PickList':
-			self._appendToMenu(menu, "Save Changes\tCtrl+S", 
-							self.onSave, 
-							bitmap=dIcons.getIconBitmap("save"))
-			self._appendToMenu(menu, "Cancel Changes", 
-							self.onCancel, 
-							bitmap=dIcons.getIconBitmap("revert"))
-		menu.AppendSeparator()
+		if self.FormType != "Edit":
+			menu.append("Requery\tCtrl+R", bindobj, func=self.onRequery, bmp="requery")		
+		if self.FormType != "PickList":
+			menu.append("Save Changes\tCtrl+S", bindobj, func=self.onSave, bmp="save")	
+			menu.append("Cancel Changes", bindobj, func=self.onCancel, bmp="revert")
+			menu.appendSeparator()
 
 		
-		if self.FormType != 'Edit':
-			self._appendToMenu(menu, "Select First Record", 
-							self.onFirst, 
-							bitmap=dIcons.getIconBitmap("leftArrows"))
-			self._appendToMenu(menu, "Select Prior Record\tCtrl+,", 
-							self.onPrior, 
-							bitmap=dIcons.getIconBitmap("leftArrow"))
-			self._appendToMenu(menu, "Select Next Record\tCtrl+.", 
-							self.onNext, 
-							bitmap=dIcons.getIconBitmap("rightArrow"))
-			self._appendToMenu(menu, "Select Last Record", 
-							self.onLast, 
-							bitmap=dIcons.getIconBitmap("rightArrows"))
-		menu.AppendSeparator()
+		if self.FormType != "Edit":
+			menu.append("Select First Record", bindobj, func=self.onFirst, bmp="leftArrows")	
+			menu.append("Select Prior Record\tCtrl+,", bindobj, func=self.onPrior, bmp="leftArrow")	
+			menu.append("Select Next Record\tCtrl+.", bindobj, func=self.onNext, bmp="rightArrow")
+			menu.append("New Record\tCtrl+N", bindobj, func=self.onNew, bmp="blank")
+			menu.appendSeparator()
 		
-		if self.FormType == 'Normal':
-			self._appendToMenu(menu, "New Record\tCtrl+N", 
-							self.onNew, 
-							bitmap=dIcons.getIconBitmap("blank"))
-			self._appendToMenu(menu, "Delete Current Record", 
-							self.onDelete, 
-							bitmap=dIcons.getIconBitmap("delete"))
+		if self.FormType == "Normal":
+			menu.append("New Record\tCtrl+N", bindobj, func=self.onNew, bmp="blank")
+			menu.append("Delete Current Record", bindobj, func=self.onDelete, bmp="delete")
+			menu.appendSeparator()
 
-		menu.AppendSeparator()
-		id = wx.NewId()
-		menu.AppendCheckItem(id, "Show/Hide Sizer Lines\tCtrl+L")
-		if wx.Platform == '__WXMAC__':
-			menu.Bind(wx.EVT_MENU, self.onShowSizerLines, id=id)
-		else:
-			self.Bind(wx.EVT_MENU, self.onShowSizerLines, id=id)
+		menu.append("Show/Hide Sizer Lines\tCtrl+L", bindobj, 
+				func=self.onShowSizerLines, menutype="check")
 
 		return menu
 
@@ -252,7 +216,7 @@ class dDataNavForm(dForm.dForm):
 			### the Help menu, but it isn't working. No matter what I set for
 			### menuIndex, the nav menu always appears at the end on Linux, but
 			### appears correctly on Mac and Win.
-			mb.Insert(menuIndex, self.getMenu(), "&Navigation")
+			mb.insert(menuIndex, self.getMenu(), "&Navigation")
 
 
 	def setupPageFrame(self):

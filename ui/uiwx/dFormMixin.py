@@ -191,23 +191,18 @@ class dFormMixin(pm.dPemMixin):
 
 		
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
-		item = wx.MenuItem(menu, menuId, caption)
-		item.SetBitmap(bitmap)
-		menu.AppendItem(item)
-
 		if isinstance(self, wx.MDIChildFrame):
-			controllingFrame = self.Application.MainForm
+			bindObj = self.Application.MainForm
 		else:
-			controllingFrame = self
-			
-		if wx.Platform == '__WXMAC__':
-			# Trial and error reveals that this works on Mac, while calling
-			# controllingFrame.Bind does not. I've posted an inquiry about 
-			# this to wxPython-mac@wxwidgets.org, but in the meantime we have
-			# this platform-specific code to tide us over.
-			menu.Bind(wx.EVT_MENU, function, item)
-		else:
-			controllingFrame.Bind(wx.EVT_MENU, function, item)
+			if wx.Platform == '__WXMAC__':
+				# Trial and error reveals that this works on Mac, while calling
+				# controllingFrame.Bind does not. I've posted an inquiry about 
+				# this to wxPython-mac@wxwidgets.org, but in the meantime we have
+				# this platform-specific code to tide us over.
+				bindObj = menu
+			else:
+				bindObj = self
+		menu.append(caption, bindObj, func=function, bmp=bitmap)
 
 			
 	def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):

@@ -10,6 +10,7 @@ import wx, wx.grid
 import urllib
 import dIcons
 import dabo.dException as dException
+import dabo
 
 
 class dGridDataTable(wx.grid.PyGridTableBase):
@@ -725,34 +726,22 @@ class dDataNavGrid(dGrid.dGrid):
 
 		By default, the choices are 'New', 'Edit', and 'Delete'.
 		"""
-		popup = wx.Menu()
+		popup = dabo.ui.dMenu()
 
 		if self.Form.FormType == 'PickList':
-			id_pick = wx.NewId()
-			item = wx.MenuItem(popup, id_pick, "&Pick", "Pick this record")
-			item.SetBitmap(dIcons.getIconBitmap("edit"))
-			popup.AppendItem(item)
-
-			wx.EVT_MENU(popup, id_pick, self.pickRecord)
+			popup.append("&Pick", self, func=self.pickRecord, bmp="edit",
+					help="Pick this record")
 			
 		else:
-			id_new,id_edit,id_delete = wx.NewId(), wx.NewId(), wx.NewId()
 			
-			item = wx.MenuItem(popup, id_new, "&New", "Add a new record")
-			item.SetBitmap(dIcons.getIconBitmap("blank"))
-			popup.AppendItem(item)
+			popup.append("&New", self, func=self.newRecord, bmp="blank",
+					help="Add a new record")
 
-			item = wx.MenuItem(popup, id_edit, "&Edit", "Edit this record")
-			item.SetBitmap(dIcons.getIconBitmap("edit"))
-			popup.AppendItem(item)
+			popup.append("&Edit", self, func=self.editRecord, bmp="edit",
+					help="Edit this record")
 
-			item = wx.MenuItem(popup, id_delete, "&Delete", "Delete this record")
-			item.SetBitmap(dIcons.getIconBitmap("delete"))
-			popup.AppendItem(item)
-
-			wx.EVT_MENU(popup, id_new, self.newRecord)
-			wx.EVT_MENU(popup, id_edit, self.editRecord)
-			wx.EVT_MENU(popup, id_delete, self.deleteRecord)
+			popup.append("&Delete", self, func=self.deleteRecord, bmp="delete",
+					help="Delete this record")
 
 		self.PopupMenu(popup, self.mousePosition)
 		popup.Destroy()
