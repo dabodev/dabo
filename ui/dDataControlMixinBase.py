@@ -259,7 +259,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		try:
 			return self._DataSource
 		except AttributeError:
-			return ''
+			return ""
 	def _setDataSource(self, value):
 		self._DataSource = str(value)
 
@@ -267,7 +267,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		try:
 			return self._DataField
 		except AttributeError:
-			return ''
+			return ""
 	def _setDataField(self, value):
 		self._DataField = str(value)
 
@@ -281,7 +281,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		
 	def _getSrc(self):
 		if self.__src is None:
-			ds = self._DataSource
+			ds = self.DataSource
 			if ds:
 				# Source can be a bizobj, which we get from the form, or
 				# another object.

@@ -96,8 +96,11 @@ class dControlItemMixin(dDataControlMixin):
 				return None
 			else:
 				selections = (selections,)
-
+		
 		for selection in selections:
+			if selection < 0:
+				# This is returned by the control to indicate no selection
+				continue
 			try:
 				values.append(self._invertedKeys[selection])
 			except KeyError:
