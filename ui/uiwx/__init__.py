@@ -283,23 +283,31 @@ def _getWild(*args):
 	ret = "*"
 	if args:
 		arglist = []
+		tmplt = "%s Files (*.%s)|*.%s"
+		fileDict = {"html" : "HTML", 
+			"xml" : "XML",
+			"txt" : "Text",
+			"jpg" : "JPEG",
+			"gif" : "GIF",
+			"png" : "PNG",
+			"ico" : "Icon", 
+			"bmp" : "Bitmap" }
+			
 		for a in args:
+			descrp = ext = ""
 			if a == "py":
 				fDesc = "Python Scripts (*.py)|*.py"
 			elif a == "*":
 				fDesc = "All Files (*)|*"
-			elif a == "html":
-				fDesc = "HTML Files (*.html)|*.html"
-			elif a == "xml":
-				fDesc = "XML Files (*.xml)|*.xml"
 			elif a == "fsxml":
 				fDesc = "Dabo FileSpec Files (*.fsxml)|*.fsxml"
 			elif a == "cnxml":
 				fDesc = "Dabo Connection Files (*.cnxml)|*.cnxml"
-			elif a == "txt":
-				fDesc = "Text Files (*.txt)|*.txt"
 			else:
-				fDesc = "%s files (*.%s)|*.%s" % (a,a,a)
+				if a in fileDict:
+					fDesc = tmplt % (fileDict[a], a, a)
+				else:
+					fDesc = "%s files (*.%s)|*.%s" % (a.upper(), a, a)
 			arglist.append(fDesc)
 		ret = "|".join(arglist)
 	return ret
