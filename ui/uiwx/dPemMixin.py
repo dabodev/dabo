@@ -236,8 +236,15 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	
 	def bindEvent(self, event, function, eventSource=None):
 		""" Bind a Dabo event raised by eventSource (or self) to the given function.
+		
+		The eventSource argument may be either an object reference or an integer id,
+		but in any case is only required when you want the source of the event to
+		be something other than self.
 		"""
-		self.Bind(event, function, eventSource)
+		if type(eventSource) == type(int()):
+			self.Bind(event, function, id=eventSource)
+		else:
+			self.Bind(event, function, eventSource)
 		
 	
 	def unBindEvent(self, event, eventSource=None):
