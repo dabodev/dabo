@@ -67,7 +67,7 @@ class dForm(wxFrameClass, dFormMixin):
             self.setPrimaryBizobj(bizobj.dataSource)
         if self.debug:
             print "added bizobj with dataSource of %s" % bizobj.dataSource
-        self.setStatusText("Bizobj '%s' added." % bizobj.dataSource)
+        self.setStatusText("Bizobj '%s' %s." % (bizobj.dataSource, _("added")))
         
         
     def getPrimaryBizobj(self):
@@ -196,11 +196,11 @@ class dForm(wxFrameClass, dFormMixin):
             bizobj.save(allRows=self.SaveAllRows)
             if self.debug:
                 print "Save successful."
-            self.setStatusText("Changes to %s saved." % (
-                    self.SaveAllRows and "all records" or "current record",))
+            self.setStatusText(_("Changes to %s saved." % (
+                    self.SaveAllRows and "all records" or "current record",)))
         except dError.BusinessRuleViolation, e:
-            self.setStatusText("Save failed.")
-            dMessageBox.stop("Save failed:\n\n%s" %  str(e))
+            self.setStatusText(_("Save failed."))
+            dMessageBox.stop("%s:\n\n%s" % (_("Save Failed:"), _(str(e))))
     
             
     def cancel(self, dataSource=None):
@@ -216,8 +216,8 @@ class dForm(wxFrameClass, dFormMixin):
             bizobj.cancel(allRows=self.SaveAllRows)
             if self.debug:
                 print "Cancel successful."
-            self.setStatusText("Changes to %s canceled." % (
-                    self.SaveAllRows and "all records" or "current record",))
+            self.setStatusText(_("Changes to %s canceled." % (
+                    self.SaveAllRows and "all records" or "current record",)))
             self.refreshControls()
         except dError.dError, e:
             if self.debug:
@@ -251,7 +251,7 @@ class dForm(wxFrameClass, dFormMixin):
             elif response == True:  # yes
                 self.save(dataSource=dataSource)
             
-        self.setStatusText("Please wait... requerying dataset...")
+        self.setStatusText(_("Please wait... requerying dataset..."))
         start = time.time()
         
         try:
@@ -259,11 +259,11 @@ class dForm(wxFrameClass, dFormMixin):
             stop = round(time.time() - start, 3)
             if self.debug:
                 print "Requery successful."
-            self.setStatusText("%s record%sselected in %s second%s" % (
+            self.setStatusText(_("%s record%sselected in %s second%s" % (
                     bizobj.getRowCount(), 
                     bizobj.getRowCount() == 1 and " " or "s ",
                     stop,
-                    stop == 1 and "." or "s."))
+                    stop == 1 and "." or "s.")))
             self.refreshControls()
             
             # Notify listeners that the row number changed:
@@ -290,7 +290,7 @@ class dForm(wxFrameClass, dFormMixin):
                 bizobj.delete()
                 if self.debug:
                     print "Delete successful."
-                self.setStatusText("Record Deleted.")
+                self.setStatusText(_("Record Deleted."))
                 self.refreshControls()
                 # Notify listeners that the row number changed:
                 evt = dEvents.dEvent(dEvents.EVT_ROWNUMCHANGED, self.GetId())
@@ -348,7 +348,7 @@ class dForm(wxFrameClass, dFormMixin):
             self.afterNew()
             
         except dError.dError, e:
-            dMessageBox.stop("Add new record failed with response:\n\n%s" % str(e))
+            dMessageBox.stop(_("Add new record failed with response:\n\n%s" % str(e)))
 
     
     def afterNew(self):
