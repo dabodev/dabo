@@ -206,7 +206,7 @@ class uiApp(wx.App, dObject):
 	def OnFindClose(self, evt):
 		""" User clicked the close button, so hide the dialog.
 		"""
-		evt.GetEventObject().Hide()
+		evt.GetEventObject().Destroy()
 		evt.Skip()
 
 
