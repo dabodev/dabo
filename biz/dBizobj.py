@@ -540,7 +540,10 @@ class dBizobj(dabo.common.dObject):
 		if self.RestorePositionOnRequery:
 			self._moveToPK(currPK)
 				
-		self.requeryAllChildren()
+		try:
+			self.requeryAllChildren()
+		except dException.NoRecordsException:
+			pass
 		self.setMemento()
 		self.afterRequery()
 	
