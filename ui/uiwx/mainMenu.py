@@ -41,7 +41,7 @@ class FileOpenMenu(wx.Menu):
             # If this is a dynamicView-generated frame we are about to
             # open, the id has already been defined in the dynViewDef.
             # If not, just get a new id.
-            dynviews = wx.GetApp().dynamicViews
+            dynviews = wx.GetApp().dApp.dbDynamicViews
             try:
                 Id = dynviews[menuDict["viewDef"]]["Id"]
                 #print "Dyn view Id found"

@@ -1,5 +1,4 @@
 ''' Dabo: A Framework for developing data-driven business applications
-        by Paul McNett (p@ulmcnett.com)
 
     Dabo is for developing multi-platform database business applications -
     you know, applications that need to connect to a database server (MySQL,
@@ -22,28 +21,18 @@
         Database Application Business Objects
         Database Application Builder O (Just think, it could have been ActiveO... <g>)
         Object oriented Business Application Development (but OBAD sounds so bad)
-        
-    Dabo has a few parts. First, there is this package, the Dabo framework. Your
-    applications will be based on the classes and modules herein. There are several
-    Dabo packages available:
-        
-        Dabo:       This package, the base framework. Other packages require this
-                    to be installed, but Dabo doesn't care whether the other packages
-                    are installed.
-        
-        DaboWiz:    Wizards for common tasks, such as setting up directories for a
-                    new project based on Dabo, and for setting up dynamic view
-                    definitions, dynamic menu items, etc. The wizards take the 
-                    drudgery out of setting up your data definitions: they pretty
-                    much do it for you!
-                    
-        DaboDemo:   A demonstration application that you can run on your machine
-                    to get a feel for Dabo's capabilities. You can then take a
-                    look at the DaboDemo's source code, which is mostly made up
-                    of data definition scripts instead of actual source code, to
-                    see what makes it tick. You can experiment with a change here
-                    or there, learning how to use Dabo in a hands-on way.
+
+    Dabo has three main submodules, representing the three tiers common
+    in modern database application design:
     
+        dabo.db  : database
+        dabo.biz : business objects
+        dabo.ui  : user interface
+    
+    dabo.db and dabo.biz are completely ui-free, while dabo.ui (currently)
+    requires wxPython. We have allowed for possible future support for other
+    ui libraries, such as PyQt, tk, and curses.
+        
     The Dabo framework will have to be distributed to your client's machine(s),
     along with your project-specific data definitions and (if applicable), your
     subclasses of the Dabo classes and additional Python scripts, if any. There 
@@ -56,7 +45,11 @@
         
         + wxPython 2.4.2.4 or higher, which has a dependency on:
             + wxWindows 2.4.2.4 or higher
-        
+           (only necessary for apps with a ui: because of the modular
+            nature of Dabo's design, it is possible to use just the
+            db layer, or the db layer in conjunction with the biz
+            layer, with no ui at all.)
+            
         + Windows 98SE or higher
         + Macintosh OSX 10.2 or higher
         + Linux 2.4 with X11 running
@@ -77,3 +70,4 @@
     ToDo: pointers to get started.
                             
 '''
+from dApp import dApp

@@ -24,11 +24,10 @@
     and it should work fine. Unless you really want to extend the app
     object, though, just stick with using the daboApp directly.
     
-    Dabo is fun to say!
 '''
 
 if __name__ == "__main__":
-    import dabo.daboApp as daboApp # dabo must be in PYTHONPATH (hint:site-packages)
-    app = daboApp.MainApp()
+    import dabo
+    app = dabo.dApp()
     app.setup()
-    app.MainLoop()
+    app.start()
