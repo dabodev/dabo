@@ -69,7 +69,7 @@ class Event(dObject):
 			logEvents = []
 		noLogEvents = []
 		
-		if logEvents[0].lower() == "all":
+		if len(logEvents) > 0 and logEvents[0].lower() == "all":
 			# If there are any events listed explicitly, those must not be
 			# logged.
 			noLogEvents = logEvents[1:]
@@ -187,7 +187,11 @@ class LostFocus(Event):
 	"""Occurs when the control loses the focus."""
 	pass
 
+class Move(Event):
+	"""Occurs when the control's position changes."""
+	pass
 	
+		
 class MouseEnter(MouseEvent):
 	"""Occurs when the mouse pointer enters the form or control."""
 	pass

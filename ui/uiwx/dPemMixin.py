@@ -93,7 +93,9 @@ class dPemMixin(dPemMixinBase):
 		self.Bind(wx.EVT_CHAR, self.__onWxKeyChar)
 		self.Bind(wx.EVT_KEY_DOWN, self.__onWxKeyDown)
 		self.Bind(wx.EVT_KEY_UP, self.__onWxKeyUp)
-		
+
+		self.Bind(wx.EVT_MOVE, self.__onWxMove)
+				
 		self.Bind(wx.EVT_LEFT_DOWN, self.__onWxMouseLeftDown)
 		self.Bind(wx.EVT_LEFT_UP, self.__onWxMouseLeftUp)
 		self.Bind(wx.EVT_RIGHT_DOWN, self.__onWxMouseRightDown)
@@ -127,6 +129,9 @@ class dPemMixin(dPemMixinBase):
 	
 	def __onWxLostFocus(self, evt):
 		self.raiseEvent(dEvents.LostFocus, evt)
+	
+	def __onWxMove(self, evt):
+		self.raiseEvent(dEvents.Move, evt)
 	
 	def __onWxMouseEnter(self, evt):
 		self.raiseEvent(dEvents.MouseEnter, evt)
