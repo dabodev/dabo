@@ -1,70 +1,57 @@
 May 1, 2004
 Announcing Dabo 0.1
 
-Dabo is a Python module, allowing for easy construction of 3-tier desktop
-applications for distribution on Mac, Windows, and Linux. The design allows
-easy separation of the database from the business logic from the user-
-interface. It should appeal to Windows developers, specifically Visual FoxPro
-and Visual Basic developers, as both principal authors come from a Windows
-database appdev background.
+Dabo is a Python module that provides a true 3-tier desktop application framework. It separates the three main parts of a desktop app: database access, user interface and business logic. 
 
-The database layer can be used independently from the rest of Dabo, as can the 
-UI layer provided you don't require any data-awareness. But the real strength 
-comes with using Dabo as your entire framework, complete with the dApp application
-object. 
+Both the database layer and the UI layer can be used independently from the rest of Dabo. In fact, many have found the Dabo UI classes much simpler to work with than the underlying UI systems they are based on. But the real strength comes with using Dabo as your entire framework, complete with the dApp application object.
 
-Dabo is dual-licensed. You may download it and use it for free under the GPL,
-which would allow you to distribute it for free with your GPL projects, or you 
-may purchase licenses for distribution with commercial or proprietary applications.
-We are also considering offering a FOSS Exception, which would keep your non-
-GPL'd Free and Open Source projects from getting infected with Dabo's GPL 
-license.
+Dabo, since it is written in Python, runs on Unix, Linux, Mac OS X, and Windows (all flavors).
 
-There is no warranty provided with Dabo, it is provided 'as-is'. Dabo is currently
-in a pre-alpha state of development. There is currently no official documentation,
-other than the source code.
+Since Dabo is very early in its development, the choices for database and UI are limited at the moment. Currently, the only supported database backend is MySQL, and the only supported user interface library is wxPython. But the system was designed from the beginning to be able to support any database or UI; all it will take is some time and effort. But in the near future, all dbapi databases will be supported, including PostgreSQL, Oracle, Berkeley DB and MS-SQL. There is also no reason that other that other UI libraries, such as PyQt, TkInter, Curses, PyObjC, and even HTTP can work with Dabo.
 
-Dabo runs on Unix, Linux, Macintosh OSX, and Windows (all flavors).
+One of the key factors in the evolution of Dabo will be the contribution of the community. If you have a database or UI library you'd like supported, we'd love to add your contributions to the product! The key to any Open Source project is the involvement and development of a community, and Dabo is no different. 
 
-Currently, the only supported database backend is MySQL, but in the near future
-all dbapi databases will be supported, including PostGreSQL, Oracle, and MS-SQL.
+Dabo is dual-licensed. You may download it and use it for free under the GPL, which would allow you to distribute it for free with your GPL projects, or you may purchase licenses for distribution with commercial or proprietary applications. We are also considering offering a FOSS (Free and Open Source Software) Exception, which would keep your non-GPL'd projects from falling under the GPL by using Dabo.
 
-Currently, the only supported user-interface library is wxPython, but in the 
-distant future we may support others, including PyQt, TkInter, Curses, and
-HTTP.
+There is no warranty provided with Dabo, it is provided 'as-is'. Dabo is currently in a pre-alpha state of development. There is currently no official documentation, other than the source code, and the bits on the website.
 
-The primary means of support is provided through the dabo-users mailing list, 
-to which you may subscribe by visiting:
+The primary means of support is provided through the dabo-users mailing list, to which you may subscribe by visiting:
 
-http://leafe.com/mailman/listinfo/dabo-users. 
+http://leafe.com/mailman/listinfo/dabo-users.
 
 
 Dabo may be downloaded from the following link:
 
-http://dabo.leafe.com/download
+http://leafe.com/dls/dabo
 
 
-We invite you to participate in the development of Dabo. The source code is available 
-from our Subversion repository, so you'll need to install the Subversion client from 
-http://subversion.tigris.org. The repository can then be downloaded by issuing the 
-following command:
+We invite you to participate in the development of Dabo. The source code is available from our Subversion repository, so you'll need to install the Subversion client from http://subversion.tigris.org. The repository can then be downloaded by issuing the following command:
 
 svn checkout svn://paulmcnett.com/dabo/trunk dabo
 
-In addition to the main dabo project, there are three other Dabo-related projects in 
-various states of development:
+In addition to the main dabo project, there are three other Dabo-related projects in various states of development:
 
 svn checkout svn://paulmcnett.com/dabodemo/trunk dabodemo
 svn checkout svn://paulmcnett.com/dabodesigner/trunk dabodesigner
 svn checkout svn://paulmcnett.com/dabodoc/trunk dabodoc
 
+The 'dabodemo' project seeks to develop one or more example applications that can be used by developers learning Dabo as a guideline and/or starting point for understanding how to go about creating an application using Dabo. A frequent problem with any new development tool is right after you get it installed and say "OK, now what?". The dabodemo project's goal is to help fix that problem.
+
+The 'dabodesigner' project is an attempt to create a visual form design tool, analogous to the design surfaces in Visual Studio, or the Form/Class designer in Visual FoxPro. While it is *very* early in development and still needs a lot of work, it has a lot of functionality in it already, and can create a usable form. You cannot re-edit that form in the designer, though (at least not yet!). There is also a 'wizard' for creating basic database table maintenance applications. Depending on user interest, this project may grow to include other similar tools to make the visual side of app development easier.
+
+The 'dabodoc' project is designed to be a repository for documentation. Like most projects that are the work of a small group, the developers have been too busy developing to properly document things. This is our acknowledgement of that fact, and a place for those of you who want to contribute to Dabo by writing documentation to add it.
+
 You'll also want to subscribe to the dabo-dev mailing list by visiting:
 
-http://leafe.com/mailman/listinfo/dabo-dev. All development conversations are had
-there, and commit notifications are sent there. You may submit patches to that 
-address as a text attachment in svn diff format.
+http://leafe.com/mailman/listinfo/dabo-dev
+
+All development conversations are had there, and commit notifications are sent there. You may submit patches to that address as a text attachment in svn diff format.
 
 
 Please visit our website at:
 
-http://dabo.leafe.com
+http://dabodev.com
+
+and contribute to the Dabo Wiki at:
+
+http://dabodev.com/wiki
