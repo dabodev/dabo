@@ -275,7 +275,6 @@ class dFormMixin(pm.dPemMixin):
 
 	def _setMenuBar(self, val):
 		self.SetMenuBar(val)
-		val.Form = self
 
 	def _getMenuBarClass(self):
 		try:

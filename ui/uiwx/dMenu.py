@@ -30,14 +30,6 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		pass
 
 
-	def __onWxMenuOpen(self, evt):
-		self.raiseEvent(dEvents.MenuOpen)
-		evt.Skip()
-
-	def __onWxMenuClose(self, evt):
-		self.raiseEvent(dEvents.MenuClose)
-		evt.Skip()
-
 	def __onWxMenuHighlight(self, evt):
 		self.raiseEvent(dEvents.MenuHighlight)
 		evt.Skip()
@@ -141,7 +133,6 @@ class dMenu(wx.Menu, pm.dPemMixin):
 			ret = dRadioItem
 		return ret
 
-	
 	def _setId(self, id_):
 		"""wxMenu's don't have id's of their own - they only get set when the 
 		menu gets added as a submenu - and then it becomes a wxMenuItem with a
@@ -154,10 +145,6 @@ class dMenu(wx.Menu, pm.dPemMixin):
 			# Set up a mechanism to catch menu events
 			# and re-raise Dabo events. If Application
 			# is None, however, this won't work because of wx limitations.
-			self.Application.uiApp.Bind(wx.EVT_MENU_OPEN, 
-			                            self.__onWxMenuOpen, id=id_)
-			self.Application.uiApp.Bind(wx.EVT_MENU_CLOSE, 
-			                            self.__onWxMenuClose, id=id_)
 			self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT,
 			                            self.__onWxMenuHighlight, id=id_)
 		

@@ -3,6 +3,7 @@ import wx
 import dabo
 import dPemMixin as pm
 from dabo.dLocalize import _
+import dabo.dEvents as dEvents
 
 class dMenuBar(wx.MenuBar, pm.dPemMixin):
 	"""Creates a menu bar, which can contain dMenus.
@@ -15,21 +16,44 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 		preClass = wx.MenuBar
 		pm.dPemMixin.__init__(self, preClass, None, properties, *args, **kwargs)
 
+	def _initEvents(self):
+		self.Application.uiApp.Bind(wx.EVT_MENU_OPEN,
+		                            self.__onWxMenuOpen, self.Form)
+
+	def __onWxMenuOpen(self, evt):
+		## pkm: EVT_OPEN only applies to the top-level menus: those in the menubar.
+		##      It seemed to me best to eliminate dEvents.MenuOpen and just call
+		##      dEvents.MenuHighlight instead. EVT_MENU_HIGHLIGHT never gets called
+		##      on top-level menus, so the two are mutually exclusive and kind of
+		##      mean the same thing. Let's keep it simple. BTW, I've never seen
+		##      a EVT_MENU_CLOSE being called, and EVT_MENU_HIGHLIGHT_ALL appears
+		##      to be identical to EVT_MENU_HIGHLIGHT. Therefore, as of this writing
+		##      we are exposing two menu events: dEvents.Hit and dEvents.Highlight.
+		menu = evt.GetMenu()
+		menu.raiseEvent(dEvents.MenuHighlight)
+		evt.Skip()
+
 
 	def appendMenu(self, menu):
 		"""Insert a dMenu at the end of the dMenuBar."""
-		self.Append(menu, menu.Caption)
-		menu.Parent = self
+		ret = self.Append(menu, menu.Caption)
+		if ret:
+			menu.Parent = self
+		return ret
 
 	def insertMenu(self, pos, menu):
 		"""Insert a dMenu in the dMenuBar at the specified position."""
-		self.Insert(pos, menu, menu.Caption)
-		menu.Parent = self
+		ret = self.Insert(pos, menu, menu.Caption)
+		if ret:
+			menu.Parent = self
+		return ret
 
 	def prependMenu(self, menu):
 		"""Insert a dMenu at the beginning of the dMenuBar."""
-		self.PrependMenu(menu, menu.Caption)
-		menu.Parent = self
+		ret = self.PrependMenu(menu, menu.Caption)
+		if ret:
+			menu.Parent = self
+		return ret
 
 
 	def append(self, caption):
@@ -61,15 +85,12 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 
 
 	def _getForm(self):
-		try:
-			val = self._form
-		except AttributeError:
-			val = self._form = None
-		return val
+		return self.GetFrame()
 
 	def _setForm(self, val):
-			self._form = val
-
+		if val != self.GetFrame():
+			self.Detach()
+			self.Attach(val)
 
 	Form = property(_getForm, _setForm, None,
 		_("Specifies the form that we are a member of."))
