@@ -36,6 +36,9 @@ class dBizobj(dabo.common.dObject):
 		self.__scanRestorePosition = True	
 		self.__scanReverse = False
 		self.useFieldProps = True		# Do we look to getFieldVal for values?
+		# Used by the LinkField property
+		self._linkField = ""
+		self._parentLinkField = ""
 
 		dBizobj.doDefault()		
 		##########################################
@@ -545,6 +548,9 @@ class dBizobj(dabo.common.dObject):
 		errMsg = self.beforeRequery()
 		if errMsg:
 			raise dException.dException, errMsg
+		
+		# If this is a dependent (child) bizobj, this will enforce the relation
+		self.setChildLinkFilter()
 
 		# Hook method for creating the param list
 		params = self.getParams()
@@ -574,7 +580,11 @@ class dBizobj(dabo.common.dObject):
 		current PK value. This will add 
 		"""
 		if self.DataSource and self.LinkField:
-			val = self.escQuote(self.getParentPK())
+			if self.ParentLinkField:
+				# The link to the parent is something other than the PK
+				val = self.escQuote(self.Parent.getFieldVal(self.ParentLinkField))
+			else:
+				val = self.escQuote(self.getParentPK())
 			self.Cursor.setChildFilterClause(" %s.%s = %s " % (self.DataSource, 
 					self.LinkField, val) )
 					
@@ -811,7 +821,7 @@ class dBizobj(dabo.common.dObject):
 			self.__children.append(child)
 			child.Parent = self
 
-
+	
 	def requeryAllChildren(self):
 		""" Requery each child bizobj's data set.
 		
@@ -1029,7 +1039,6 @@ class dBizobj(dabo.common.dObject):
 	def _setCaption(self, val):
 		self._caption = str(val)
 	
-	
 	def _getDataSource(self):
 		try: 
 			return self._dataSource
@@ -1037,7 +1046,6 @@ class dBizobj(dabo.common.dObject):
 			return ""
 	def _setDataSource(self, val):
 		self._dataSource = str(val)
-		
 		
 	def _getSQL(self):
 		try:
@@ -1047,122 +1055,106 @@ class dBizobj(dabo.common.dObject):
 	def _setSQL(self, val):
 		self._SQL = str(val)
 			
-
 	def _getRequeryOnLoad(self):
 		try:
 			ret = self._requeryOnLoad
 		except AttributeError:
 			ret = False
 		return ret
-			
 	def _setRequeryOnLoad(self, val):
 		self._requeryOnLoad = bool(val)
-		
 		
 	def _getParent(self):
 		try:
 			return self._parent
 		except AttributeError:
 			return None
-			
 	def _setParent(self, val):
 		if isinstance(val, dBizobj):
 			self._parent = val
 		else:
 			raise TypeError, "Parent must descend from dBizobj"
 			
-		
 	def _getAutoPopulatePK(self):
 		try:
 			return self._autoPopulatePK
 		except AttributeError:
 			return True
-			
 	def _setAutoPopulatePK(self, val):
 		self._autoPopulatePK = bool(val)
-	
 	
 	def _getKeyField(self):
 		try:
 			return self._keyField
 		except AttributeError:
 			return ""
-			
 	def _setKeyField(self, val):
 		self._keyField = val
-	
 	
 	def _getLinkField(self):
 		try:
 			return self._linkField
 		except AttributeError:
 			return ""
-			
 	def _setLinkField(self, val):
 		self._linkField = str(val)
 		
-	
+	def _getParentLinkField(self):
+		try:
+			return self._parentLinkField
+		except AttributeError:
+			return ""
+	def _setParentLinkField(self, val):
+		self._parentLinkField = str(val)
+		
 	def _getRequeryChildOnSave(self):
 		try:
 			return self._requeryChildOnSave
 		except AttributeError:
 			return False
-			
 	def _setRequeryChildOnSave(self, val):
 		self._requeryChildOnSave = bool(val)
 		
-			
 	def _getNewRecordOnNewParent(self):
 		try:
 			return self._newRecordOnNewParent
 		except AttributeError:
 			return False
-			
 	def _setNewRecordOnNewParent(self, val):
 		self._newRecordOnNewParent = bool(val)
 		
-	
 	def _getNewChildOnNew(self):
 		try:
 			return self._newChildOnNew
 		except AttributeError:
 			return False
-			
 	def _setNewChildOnNew(self, val):
 		self._newChildOnNew = bool(val)
-
 					
 	def _getFillLinkFromParent(self):
 		try:
 			return self._fillLinkFromParent
 		except AttributeError:
 			return False
-			
 	def _setFillLinkFromParent(self, val):
 		self._fillLinkFromParent = bool(val)
 		
-			
 	def _getRestorePositionOnRequery(self):
 		try:
 			return self._restorePositionOnRequery
 		except AttributeError:
 			return True
-			
 	def _setRestorePositionOnRequery(self, val):
 		self._restorePositionOnRequery = bool(val)
-	
-	
+
 	def _getCurrentCursor(self):
 		return self.__cursors[self.__currentCursorKey]
-	
 	
 	def _getRowCount(self):
 		return self.Cursor.RowCount
 
-
 	def _getRowNumber(self):
 		return self.Cursor.RowNumber
-
 	def _setRowNumber(self, rownum):
 		errMsg = self.beforeSetRowNumber()
 		if not errMsg:
@@ -1209,6 +1201,10 @@ class dBizobj(dabo.common.dObject):
 	
 	LinkField = property(_getLinkField, _setLinkField, None,
 				_("Name of the field that is the foreign key back to the parent. (str)"))
+	
+	ParentLinkField = property(_getParentLinkField, _setParentLinkField, None,
+				_("Name of the field in the parent table that is used to determine child "
+				"records. If empty, it is assumed that the parent's PK is used (str)"))
 	
 	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
 				_("Do we requery child bizobjs after a Save()? (bool)"))
