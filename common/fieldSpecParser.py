@@ -31,11 +31,15 @@ class FieldSpecHandler(xml.sax.ContentHandler):
 		return self.appDict
 	
 
-def importFieldSpecs(file=None):
+def importFieldSpecs(file=None, tbl=None):
 	if file is None:
 		return None
 	fsh = FieldSpecHandler()
 	xml.sax.parse(file, fsh)
+	ret = fsh.getFieldDict()
 	
-	return fsh.getFieldDict()
-
+	# Limit it to a specific table if requested
+	if tbl is not None:
+		ret = ret[tbl]
+	
+	return ret

@@ -68,6 +68,22 @@ class dObject(DoDefaultMixin, PropertyHelperMixin):
 			return None
 		else:
 			return self.__class__.__base__
+	
+	
+	# Utility functions
+	def padr(self, s, ln, fill=" "):
+		s = str(s)[:ln]
+		return s + (fill * (ln-len(s)) )
+	def padl(self, s, ln, fill=" "):
+		s = str(s)[:ln]
+		return (fill * (ln-len(s)) ) + s
+	def padc(self, s, ln, fill=" "):
+		s = str(s)[:ln]
+		# If the difference is odd, the extra character goes on the right
+		diff = len(s)-ln
+		dl = int( diff / 2)
+		dr = diff - dl
+		return (fill * dl) + s[:ln] + (fill * dr)
 
 
 	Application = property(_getApplication, None, None, 
