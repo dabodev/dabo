@@ -616,7 +616,7 @@ class dBizobj(dabo.common.dObject):
 			pk = self.getPK()
 			for child in self.__children:
 				# Let the child know the current dependent PK
-				child.setParentFK(pk)
+				child.setCurrentParent(pk)
 
 
 	def _moveToPK(self, pk, updateChildren=True):
@@ -628,7 +628,7 @@ class dBizobj(dabo.common.dObject):
 		if updateChildren:
 			for child in self.__children:
 				# Let the child know the current dependent PK
-				child.setParentFK(pk)
+				child.setCurrentParent(pk)
 
 
 	def seek(self, val, fld=None, caseSensitive=False, 
@@ -748,6 +748,15 @@ class dBizobj(dabo.common.dObject):
 			if val is None:
 				val = self.getParentPK()
 			self.setFieldVal(self.LinkField, val)
+	
+	
+	def setCurrentParent(self, val=None):
+		""" Lets dependent child bizobjs know the current value of their parent
+		record.
+		"""
+		if self.LinkField:
+			if val is None:
+				val = self.getParentPK()
 			# Update the key value for the cursor
 			self.__currentCursorKey = val
 			# Make sure there is a cursor object for this key.
@@ -792,7 +801,7 @@ class dBizobj(dabo.common.dObject):
 		pk = self.getPK()
 		for child in self.__children:
 			# Let the child know the current dependent PK
-			child.setParentFK(pk)
+			child.setCurrentParent(pk)
 			ret = child.requery()
 
 		self.afterChildRequery()
