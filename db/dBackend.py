@@ -28,8 +28,8 @@ class dBackend(dabo.common.dObject):
 		return None
 	
 	def getCursor(self, cursorClass):
-		""" override in subclasses """
-		return None
+		""" override in subclasses if necessary """
+		return cursorClass(self._connection)
 	
 	def formatDateTime(self, val):
 		""" Properly format a datetime value to be included in an Update

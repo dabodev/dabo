@@ -27,9 +27,6 @@ class MySQL(dBackend):
 		import MySQLdb.cursors as cursors
 		return cursors.DictCursor
 	
-	def getCursor(self, cursorClass):
-		return self._connection.cursor(cursorclass=cursorClass)
-
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote

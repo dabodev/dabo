@@ -29,11 +29,6 @@ class Firebird(dBackend):
 	def getDictCursorClass(self):
 		return kinterbasdb.Cursor
 
-	
-	def getCursor(self, cursorClass):
-		return cursorClass(self._connection)
-		
-
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
