@@ -56,10 +56,13 @@ class dFormMixin(pm.dPemMixin):
 			self.debugText = dlg.GetValue()
 			try:
 				# Handy shortcuts for common references
-				bo = self.getBizobj()
+				try: bo = self.getBizobj()
+				except: pass
 				exec(self.debugText)
-			except: 
+			except StandardError, e: 
 				dabo.infoLog.write(_("Could not execute: %s") % self.debugText)
+				dabo.errorLog.write(e)
+				
 		dlg.Destroy()	
 
 
