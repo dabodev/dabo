@@ -4,6 +4,7 @@ import datetime
 class MySQL(dBackend):
 	def __init__(self):
 		dBackend.__init__(self)
+		### TODO: what is the name of the adapter module?
 		self.dbModuleName = "PostgreSQLdb"
 		self.useTransactions = True
 
