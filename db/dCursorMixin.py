@@ -268,28 +268,33 @@ class dCursorMixin:
 		
 		
 	def __setNonUpdateFields(self):
-		# Set the __nonUpdateFields prop
-		self.__nonUpdateFields = []
+		# First, save off the current state.
 		self.__saveProps()
 
-		dscrp = self.description
-		for fldDesc in dscrp:
-			fld = fldDesc[0]
-			try:
-				## TODO: MySQL-specific code ##
-				sql = """select %s from %s limit 1""" % (fld, self.table)
-				self.execute( sql )
-				# Get the description for this single field
-				dsc = self.description[0]
-				# All members except for the second (display value) should 
-				# match. If not, add 'em to the nonUpdateFields list
-				if not ( (fldDesc[1] == dsc[1]) 
-						and (fldDesc[3] == dsc[3]) and (fldDesc[4] == dsc[4]) 
-						and (fldDesc[5] == dsc[5]) and (fldDesc[6] == dsc[6]) ):
-					self.__nonUpdateFields.append(fld)
-			except:
-				self.__nonUpdateFields.append(fld)
+		# This is the current description of the cursor.
+		descFlds = self.description
+		# Get the raw version of the table
+		sql = """select * from %s where 1=0 """ % self.table
+		self.execute( sql )
+		# This is the clean version of the table.
+		stdFlds = self.description
+
+		# Restore the original state of the cursor; we have everything
+		# we need to determine the non-update fields.
 		self.__restoreProps()
+
+		# Get all the fields that are not in the table.
+		self.__nonUpdateFields = [d[0] for d in descFlds 
+				if d[0] not in [s[0] for s in stdFlds] ]
+		# Extract the remaining fields (no need to test any already excluded
+		remFlds = [ d for d in descFlds if d[0] not in self.__nonUpdateFields ]
+		
+		# Now add any for which the members (except the display value, 
+		# which is in position 2) do not match
+		self.__nonUpdateFields += [ b[0] for b in remFlds 
+				for s in [z for z in stdFlds if z[0] == b[0] ]
+				if (b[1] != s[1]) or (b[3] != s[3]) or (b[4] != s[4]) 
+				or (b[5] != s[5]) or (b[6] != s[6]) ]
 	
 
 	def isChanged(self, allRows=True):
