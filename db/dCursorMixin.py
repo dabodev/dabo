@@ -8,48 +8,66 @@ import dabo.dException as dException
 import dabo.common
 
 class dCursorMixin(dabo.common.dObject):
-	# SQL expression used to populate the cursor
-	sql = ""
-	# Holds the dict used for adding new blank records
-	_blank = {}
-	# Last executed sql statement
-	lastSQL = ""
-	# Last executed sql params
-	lastParams = None
-	# Column on which the result set is sorted
-	sortColumn = ""
-	# Order of the sorting. Should be either ASC, DESC or empty for no sort
-	sortOrder = ""
-	# Is the sort case-sensitive?
-	sortCase = True
-	# Holds the keys in the original, unsorted order for unsorting the dataset
-	__unsortedRows = []
-	# Holds the name of fields to be skipped when updating the backend, such
-	# as calculated or derived fields, or fields that are otherwise not to be updated.
-	__nonUpdateFields = []
-	# User-editable list of non-updated fields
-	nonUpdateFields = []
-	# Default encoding
-	__encoding = "latin-1"
-	
-	
 	def __init__(self, sql="", *args, **kwargs):
+		self.initProperties()
 		if sql:
 			self.sql = sql
-			
+
 		#dCursorMixin.doDefault()
 		super(dCursorMixin, self).__init__()
 		
+		# Just in case this is used outside of the context of a bizobj
+		if not hasattr(self, "superCursor") or self.superCursor is None:
+			myBases = self.__class__.__bases__
+			for base in myBases:
+				# Find the first base class that doesn't have the 'autoPopulatePK'
+				# attribute. Designate that class as the superCursor class.
+				if hasattr(base, "fetchall"):
+					self.superCursor = base
+					break
+
+
+	def initProperties(self):
+		# SQL expression used to populate the cursor
+		self.sql = ""
+		# Holds the dict used for adding new blank records
+		self._blank = {}
+		# Last executed sql statement
+		self.lastSQL = ""
+		# Last executed sql params
+		self.lastParams = None
+		# Column on which the result set is sorted
+		self.sortColumn = ""
+		# Order of the sorting. Should be either ASC, DESC or empty for no sort
+		self.sortOrder = ""
+		# Is the sort case-sensitive?
+		self.sortCase = True
+		# Holds the keys in the original, unsorted order for unsorting the dataset
+		self.__unsortedRows = []
+		# Holds the name of fields to be skipped when updating the backend, such
+		# as calculated or derived fields, or fields that are otherwise not to be updated.
+		self.__nonUpdateFields = []
+		# User-editable list of non-updated fields
+		self.nonUpdateFields = []
+		# Default encoding
+		self.__encoding = "latin-1"
+
 		self._blank = {}
 		self.__unsortedRows = []
 		self.__nonUpdateFields = []
 		self.nonUpdateFields = []
 		self.__tmpPK = -1		# temp PK value for new records.
-		# Initialize the saved props stack.
-		self.holdrows = []
-		self.holdcount = []
-		self.holdpos = []
-		self.holddesc = []
+		
+		# Holds reference to auxiliary cursor that handles queries that
+		# are not supposed to affect the record set.
+		self.__auxCursor = None
+
+# Initialize the saved props stack.
+# self.holdrows = []
+# self.holdcount = []
+# self.holdpos = []
+# self.holddesc = []
+
 		# Reference to the object with backend-specific behaviors
 		self.__backend = None
 		
@@ -63,18 +81,17 @@ class dCursorMixin(dabo.common.dObject):
 		self._limitClause = ""
 		self._defaultLimit = 1000
 		self.hasSqlBuilder = True
-
-		# Just in case this is used outside of the context of a bizobj
-		if not hasattr(self, "superCursor") or self.superCursor is None:
-			myBases = self.__class__.__bases__
-			for base in myBases:
-				# Find the first base class that doesn't have the 'autoPopulatePK'
-				# attribute. Designate that class as the superCursor class.
-				if hasattr(base, "fetchall"):
-					self.superCursor = base
-					break
+		
+		# props for building the auxiliary cursor
+		self._cursorFactoryFunc = None
+		self._cursorFactoryClass = None
 
 
+	def setCursorFactory(self, func, cls):
+		self._cursorFactoryFunc = func
+		self._cursorFactoryClass = cls
+		
+	
 	def setSQL(self, sql):
 		self.sql = sql
 
@@ -296,20 +313,13 @@ class dCursorMixin(dabo.common.dObject):
 		
 		
 	def __setNonUpdateFields(self):
-		# First, save off the current state.
-		self.__saveProps()
-
 		# This is the current description of the cursor.
 		descFlds = self.description
 		# Get the raw version of the table
 		sql = """select * from %s where 1=0 """ % self.Table
-		self.execute( sql )
+		self.AuxiliaryCursor.execute( sql )
 		# This is the clean version of the table.
-		stdFlds = self.description
-
-		# Restore the original state of the cursor; we have everything
-		# we need to determine the non-update fields.
-		self.__restoreProps()
+		stdFlds = self.AuxiliaryCursor.description
 
 		# Get all the fields that are not in the table.
 		self.__nonUpdateFields = [d[0] for d in descFlds 
@@ -606,17 +616,13 @@ class dCursorMixin(dabo.common.dObject):
 				updClause = self.makeUpdClause(diff)
 				sql = "update %s set %s where %s" % (self.Table, updClause, pkWhere)
 			
-			# Save off the props that will change on the update
-			self.__saveProps()
 			#run the update
-			res = self.execute(sql)
+			res = self.AuxiliaryCursor.execute(sql)
 			
 			if newrec and self.AutoPopulatePK:
 				# Call the database backend-specific code to retrieve the
 				# most recently generated PK value.
 				newPKVal = self.getLastInsertID()
-			# restore the orginal values
-			self.__restoreProps()
 
 			if newrec and self.AutoPopulatePK:
 				self.setFieldVal(self.KeyField, newPKVal)
@@ -712,7 +718,6 @@ class dCursorMixin(dabo.common.dObject):
 
 		rec = self._records[delRowNum]
 		newrec =  rec.has_key(k.CURSOR_NEWFLAG)
-		self.__saveProps(saverows=False)
 		if newrec:
 			tmprows = list(self._records)
 			del tmprows[delRowNum]
@@ -721,17 +726,9 @@ class dCursorMixin(dabo.common.dObject):
 		else:
 			pkWhere = self.makePkWhere()
 			sql = "delete from %s where %s" % (self.Table, pkWhere)
-			res = self.execute(sql)
+			res = self.AuxiliaryCursor.execute(sql)
 
-		if res:
-			# First, delete the row from the held properties
-			topOfStack = len(self.holdrows) - 1
-			tmprows = list(self.holdrows[topOfStack])
-			del tmprows[delRowNum]
-			self.holdrows[topOfStack] = tuple(tmprows)
-			# Now restore the properties
-			self.__restoreProps()
-		else:
+		if not res:
 			# Nothing was deleted
 			self.BackendObject.noResultsOnDelete()
 	
@@ -799,17 +796,9 @@ class dCursorMixin(dabo.common.dObject):
 						# Nothing. So just tack it on the end.
 						tmpsql = self.sql + " where 1=0 "
 
-		# If we already have row information, we need to save
-		# and restore the cursor properties, since this query will wipe 'em out.
-		if hasattr(self, "_records"):
-			self.__saveProps()
-			self.execute(tmpsql)
-			self.__restoreProps()
-		else:
-			# Just run the blank query
-			self.execute(tmpsql)
+		self.AuxiliaryCursor.execute(tmpsql)
 
-		dscrp = self.description
+		dscrp = self.AuxiliaryCursor.description
 		for fld in dscrp:
 			fldname = fld[0]
 
@@ -991,37 +980,6 @@ class dCursorMixin(dabo.common.dObject):
 		return ret
 
 
-	def __saveProps(self, saverows=True):
-		""" Push the current state of the cursor onto the stack """
-		if hasattr(self, "_records"):
-			self.holdrows.append(self._records)
-			self.holdcount.append(self.RowCount)
-			self.holdpos.append(self.RowNumber)
-			self.holddesc.append(self.description)
-		else:
-			# Cursor hasn't been populated yet
-			self.holdrows.append(None)
-			self.holdcount.append(self.RowCount)
-			self.holdpos.append(0)
-			self.holddesc.append( () )
-
-
-	def __restoreProps(self, restoreRows=True):
-		""" Restore the cursor to the state of the top of the 
-		stack, and then pop those values off of the stack.
-		"""
-		stackPos = len(self.holdrows) -1
-		if restoreRows:
-			self._records = self.holdrows[stackPos]
-		self.RowNumber = min(self.holdpos[stackPos], self.RowCount-1)
-		self.description = self.holddesc[stackPos]
-		# Pop the top values off of the stack
-		del self.holdrows[stackPos]
-		del self.holdcount[stackPos]
-		del self.holdpos[stackPos]
-		del self.holddesc[stackPos]		
-
-
 	def processFields(self, str):
 		return self.BackendObject.processFields(str)
 		
@@ -1064,9 +1022,8 @@ class dCursorMixin(dabo.common.dObject):
 		""" Return the most recently generated PK """
 		ret = None
 		if self.BackendObject:
-			self.__saveProps()
+			# Should we pass 'self' or 'self.AuxiliaryCursor'?
 			ret = self.BackendObject.getLastInsertID(self)
-			self.__restoreProps()
 		return ret
 
 	
@@ -1082,9 +1039,7 @@ class dCursorMixin(dabo.common.dObject):
 		""" Begin a SQL transaction."""
 		ret = None
 		if self.BackendObject:
-			self.__saveProps()
-			ret = self.BackendObject.beginTransaction(self)
-			self.__restoreProps()
+			ret = self.BackendObject.beginTransaction(self.AuxiliaryCursor)
 		return ret
 
 
@@ -1092,9 +1047,7 @@ class dCursorMixin(dabo.common.dObject):
 		""" Commit a SQL transaction."""
 		ret = None
 		if self.BackendObject:
-			self.__saveProps()
-			ret = self.BackendObject.commitTransaction(self)
-			self.__restoreProps()
+			ret = self.BackendObject.commitTransaction(self.AuxiliaryCursor)
 		return ret
 
 
@@ -1102,9 +1055,7 @@ class dCursorMixin(dabo.common.dObject):
 		""" Roll back (revert) a SQL transaction."""
 		ret = None
 		if self.BackendObject:
-			self.__saveProps()
-			ret = self.BackendObject.rollbackTransaction(self)
-			self.__restoreProps()
+			ret = self.BackendObject.rollbackTransaction(self.AuxiliaryCursor)
 		return ret
 	
 
@@ -1300,9 +1251,20 @@ class dCursorMixin(dabo.common.dObject):
 			
 	def _setAutoPopulatePK(self, autopop):
 		self._autoPopulatePK = bool(autopop)
+		
+	def _getAuxCursor(self):
+		if self.__auxCursor is None:
+			if self._cursorFactoryClass is not None:
+				if self._cursorFactoryFunc is not None:
+					self.__auxCursor = self._cursorFactoryFunc(self._cursorFactoryClass)
+		return self.__auxCursor
+	
+	def _setAuxCursor(self, crs):
+		self.__auxCursor = crs
 
 	def _setBackendObject(self, obj):
 		self.__backend = obj
+		self.AuxiliaryCursor.__backend = obj
 	
 	def _getBackendObject(self):
 		return self.__backend
@@ -1315,6 +1277,7 @@ class dCursorMixin(dabo.common.dObject):
 			
 	def _setKeyField(self, kf):
 		self._keyField = str(kf)
+		self.AuxiliaryCursor._keyField = str(kf)
 
 	def _setRowNumber(self, num):
 		self.__rownumber = num
@@ -1339,10 +1302,14 @@ class dCursorMixin(dabo.common.dObject):
 			
 	def _setTable(self, table):
 		self._table = str(table)
-
+		self.AuxiliaryCursor._table = str(table)
+		
 	
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None,
-			_("When inserting a new record, does the backend populate the PK field?")) 		
+			_("When inserting a new record, does the backend populate the PK field?")) 
+			
+	AuxiliaryCursor = property(_getAuxCursor, _setAuxCursor, None,
+			_("Cursor instance that handles all queries that should not affect the record set."))
 	
 	BackendObject = property(_getBackendObject, _setBackendObject, None,
 			_("Reference to the object that handles backend-specific actions."))
