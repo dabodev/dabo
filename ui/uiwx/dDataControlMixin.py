@@ -1,8 +1,7 @@
 """ dDataControlMixin.py: Provide behavior common to all 
 	data-aware dControls.
 """
-import wx
-import dabo
+import dabo, dabo.ui
 import dControlMixin
 import dabo.dEvents as dEvents
 import dabo.dException as dException
@@ -38,12 +37,14 @@ class dDataControlMixin(dControlMixin.dControlMixin):
 	def getBlankValue(self):
 		""" Return the empty value of the control.
 		"""
-		if isinstance(self, wx.TextCtrl):
+		if isinstance(self, dabo.ui.dTextBox, dabo.ui.dEditBox):
 			return ""
-		elif isinstance(self, wx.CheckBox):
+		elif isinstance(self, dabo.ui.dCheckBox):
 			return False
-		elif isinstance(self, wx.SpinCtrl):
+		elif isinstance(self, dabo.ui.dSpinner):
 			return 0
+		else:
+			return None
 
 
 	def getFieldVal(self):

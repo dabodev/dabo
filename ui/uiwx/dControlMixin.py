@@ -15,7 +15,6 @@ class dControlMixin(pm.dPemMixin):
 
 		dControlMixin.doDefault()
 
-		self.addToDform()
 
 	def initEvents(self):
 		dControlMixin.doDefault()
@@ -34,13 +33,3 @@ class dControlMixin(pm.dPemMixin):
 		if self.debug:
 			dabo.infoLog.write(_("%s: onHit() called.") % self.Name)
 		
-	def addToDform(self):
-		""" Ask the dForm to add this control to its registry.
-		"""
-		try:
-			self.Form.addControl(self)
-		except AttributeError:
-			# perhaps the form isn't a dForm
-			pass
-
-
