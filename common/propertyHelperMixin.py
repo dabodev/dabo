@@ -126,10 +126,14 @@ class PropertyHelperMixin(object):
 	def getPropertyList(classOrInstance):
 		""" Returns the list of properties for this object (class or instance).
 		"""
+		## pkm: check out revision 927 if you have problems.
 		propList = []
-		for item in dir(classOrInstance):
-			if type(eval("classOrInstance.%s" % item)) == property:
-				propList.append(item)
+		for c in classOrInstance.__mro__:
+			for item in dir(c):
+				if c.__dict__.has_key(item):
+					if type(c.__dict__[item]) == property:
+						if propList.count(item) == 0:
+							propList.append(item)
 		return propList
 	getPropertyList = classmethod(getPropertyList)
 

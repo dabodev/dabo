@@ -510,8 +510,7 @@ class dPemMixin(dPemMixinBase):
 			except: pass
 		self._pemObject.SetBackgroundColour(value)
 		if self._pemObject == self:
-			# Background color changes don't seem to result in
-			# an automatic refresh.
+			# Background color changes don't result in an automatic refresh.
 			self.Refresh()
 
 
