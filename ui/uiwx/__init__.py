@@ -36,6 +36,7 @@ from dFormDataNav import dFormDataNav
 from dFormMain import dFormMain
 from dGauge import dGauge
 from dGrid import dGrid
+from dGridSizer import dGridSizer
 from dGridDataNav import dGridDataNav
 from dLabel import dLabel
 from dLine import dLine
