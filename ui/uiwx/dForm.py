@@ -112,6 +112,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			# Don't bother checking
 			return True
 		bizList = self.getBizobjsToCheck()
+		
 		if bizList:
 			changed = False
 			for biz in bizList:

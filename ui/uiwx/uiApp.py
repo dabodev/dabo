@@ -75,32 +75,27 @@ class uiApp(wx.App, dObject):
 			
 	
 	def onFileExit(self, evt):
-		"""We need to close all of the forms except the main form
-		first. Once that's done, we can close the main window.
+		"""The MainForm contains the logic in its close methods to 
+		cycle through all the forms and determine if they can all be
+		safely closed. If it closes them all, it will close itself.
 		"""
-		mf = self.dApp.MainForm
-		forms2close = [frm for frm in self.dApp.uiForms
-				if frm is not mf]
-		while forms2close:
-			frm = forms2close[0]
-			# This will allow forms to veto closing (i.e., user doesn't
-			# want to save pending changes). 
-			if frm.close() == False:
-				# The form stopped the closing process. The user
-				# must deal with this form (save changes, etc.) 
-				# before the app can exit.
-				frm.bringToFront()
-				return
-			else:
-				forms2close.remove(frm)
-		# If all forms closed, then we can close the main form. If they 
-		# didn't, then one of the forms stopped the close process
-		# Remove any deleted forms from the collection		
-		if mf is not None:
-			# Do we need to check if other forms are still around?
-			mf.close()
-				
-
+		if self.dApp.MainForm:
+			self.dApp.MainForm.close()
+		else:
+			frms = self.Application.uiForms
+			while frms:
+				frm = frms[0]
+				# This will allow forms to veto closing (i.e., user doesn't
+				# want to save pending changes). 
+				if frm.close() == False:
+					# The form stopped the closing process. The user
+					# must deal with this form (save changes, etc.) 
+					# before the app can exit.
+					frm.bringToFront()
+					return False
+				else:
+					frms.remove(frm)
+		
 
 	def onEditCut(self, evt):
 		self.onEditCopy(evt, cut=True)

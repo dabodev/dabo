@@ -61,6 +61,24 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 		self.bindEvent(dabo.dEvents.Idle, self.__onIdle)
 		self.bindEvent(dabo.dEvents.Resize, self.__onResize)
 
+	
+	def _beforeClose(self, evt=None):
+		forms2close = [frm for frm in self.Application.uiForms
+				if frm is not self]
+		while forms2close:
+			frm = forms2close[0]
+			# This will allow forms to veto closing (i.e., user doesn't
+			# want to save pending changes). 
+			if frm.close() == False:
+				# The form stopped the closing process. The user
+				# must deal with this form (save changes, etc.) 
+				# before the app can exit.
+				frm.bringToFront()
+				return False
+			else:
+				forms2close.remove(frm)
+
+	
 	def __onPaint(self, evt):
 		dc = wx.PaintDC(self)
 		self.draw(dc)

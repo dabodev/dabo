@@ -61,6 +61,9 @@ class dFormMixin(pm.dPemMixin):
 		
 	def __onWxClose(self, evt):
 		self.raiseEvent(dEvents.Close, evt)
+		if evt.CanVeto():
+			evt.Veto()
+		
 		
 	def __onWxActivate(self, evt):
 		""" Raise the Dabo Activate or Deactivate appropriately.
@@ -91,7 +94,7 @@ class dFormMixin(pm.dPemMixin):
 	def __onClose(self, evt):
 		force = evt.EventData["force"]
 		if not force:
-			if not self._beforeClose(evt):
+			if self._beforeClose(evt) == False:
 				evt.stop()
 				return
 			# Run the cleanup code.
@@ -109,7 +112,7 @@ class dFormMixin(pm.dPemMixin):
 		preventing it.
 		"""
 		if not force:
-			if not self._beforeClose():
+			if self._beforeClose() == False:
 				return False
 		# Run any cleanup code
 		self.closing()
