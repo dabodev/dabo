@@ -1,3 +1,4 @@
+
 import wx
 import dabo
 #dabo.ui.loadUI("wx")
@@ -22,6 +23,11 @@ class dDialog(wx.Dialog, dabo.ui.dPemMixin):
 		dabo.ui.dPemMixin.__init__(self, preClass, parent, properties=properties, 
 				style=style, *args, **kwargs)
 
+	def _initEvents(self):
+		self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
+		self.Bind(wx.EVT_CLOSE, self.__onWxClose)
+		self.bindEvent(dEvents.Activate, self.__onActivate)
+		self.bindEvent(dEvents.Close, self.__onClose)
 		
 	def _afterInit(self):
 		super(dDialog, self)._afterInit()
@@ -29,7 +35,26 @@ class dDialog(wx.Dialog, dabo.ui.dPemMixin):
 		# Hook method, so that we add the buttons last
 		self._addControls()
 
-	
+	def __onWxClose(self, evt):
+		self.raiseEvent(dEvents.Close, evt)
+		
+	def __onWxActivate(self, evt):
+		""" Raise the Dabo Activate or Deactivate appropriately.
+		"""
+		if bool(evt.GetActive()):
+			self.raiseEvent(dEvents.Activate, evt)
+		else:
+			self.raiseEvent(dEvents.Deactivate, evt)
+			
+	def __onActivate(self, evt): 
+		if hasattr(self, "GetStatusBar"):
+			if self.GetStatusBar() is None and self.ShowStatusBar:
+				self.CreateStatusBar()
+
+	def __onClose(self, evt):
+		if self.Application is not None:
+			self.Application.uiForms.remove(self)
+		
 	def show(self):
 		if self.AutoSize:
 			self.Fit()

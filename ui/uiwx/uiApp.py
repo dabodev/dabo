@@ -292,7 +292,7 @@ class uiApp(wx.App, dObject):
 
 	def onHelpAbout(self, evt):
 		dlg = ui.dAbout(self.dApp.MainForm)
-		dlg.Show()
+		dlg.show()
 
 		
 	def getLoginInfo(self, message=None):
