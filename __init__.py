@@ -31,7 +31,7 @@
     
     dabo.db and dabo.biz are completely ui-free, while dabo.ui (currently)
     requires wxPython. We have allowed for possible future support for other
-    ui libraries, such as PyQt and curses.
+    ui libraries, such as PyQt, tk, and curses.
         
     The Dabo framework will have to be distributed to your client's machine(s),
     along with your project-specific data definitions and (if applicable), your

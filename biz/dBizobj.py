@@ -1,8 +1,8 @@
 import dabo.dConstants as k
 import dabo.db.dConnection as dConnection
-from dabo.db.dCursor import dCursor
+from dabo.db.dCursorMixin import dCursorMixin
 
-class dBizObj(object):
+class dBizobj(object):
     # Title of the cursor. Used in resolving DataSource references
     dataSource = ""
     # SQL statement used to create the cursor's data
@@ -54,7 +54,7 @@ class dBizObj(object):
         # Save the connection reference
         self._conn = dConnection
         # Mixin class 1 : the dabo cursor class
-        self.dCursorMixinClass = dCursor
+        self.dCursorMixinClass = dCursorMixin
         # Mixin class 2 : the cursor class from the db api
         self.dbapiCursorClass = self._conn.getDictCursor()
         self.createCursor()

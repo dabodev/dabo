@@ -3,26 +3,33 @@
     This object gets instantiated from the client app's main.py,
     and lives through the life of the application.
     
-        -- sets up an empty data connections object which holds 
-        -- connectInfo connected to pretty names, then looks for
-        -- an expected file and if it exists fills out a connection
-        -- entry.
+        -- set up an empty data connections object which holds 
+        -- connectInfo objects connected to pretty names. Entries
+        -- can be added programatically, but upon initialiazation
+        -- it will look for a file called 'dbConnectionDefs.py' which
+        -- contains connection definitions.
 
-        -- decides which ui to use (wx) and gets that ball rolling
+        -- Set up a DB Connection manager, that is basically a dictionary
+        -- of dConnection objects. This allows connections to be shared
+        -- application-wide.
 
-        -- makes a system menu bar, based on a combination
+        -- decide which ui to use (wx) and gets that ball rolling
+
+        -- make a system menu bar, based on a combination
         -- of dabo defaults and user resource files.
 
         -- ditto for toolbar(s)
 
-        -- looks for a mainFrame ui resource file in an expected 
+        -- look for a mainFrame ui resource file in an expected 
         -- place, otherwise uses default dabo mainFrame, and 
-        -- instantiates that. 
+        -- instantiate that. 
 
-        -- maintains a forms collection and provides interfaces for
+        -- maintain a forms collection and provide interfaces for
         -- opening dForms, closing them, and iterating through them.
 
-        -- starts the main app event loop.
+        -- start the main app event loop.
+
+        -- clean up and exit gracefully
 '''
 import sys, os
 import db, ui
