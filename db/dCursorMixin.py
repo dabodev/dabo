@@ -179,7 +179,7 @@ class dCursorMixin(dabo.common.dObject):
 			# the mx modules are installed on the machine, the adapter
 			# will use that type instead of the native datetime.
 			try:
-				import mx
+				import mx.DateTime
 				mxdt = mx.DateTime.DateTimeType
 				for row in self._records:
 					for fld in row.keys():

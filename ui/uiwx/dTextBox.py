@@ -122,7 +122,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		elif str(dataType) == "<type 'DateTime'>":
 			# mx DateTime type. MySQLdb will use this if mx is installed.
 			try:
-				import mx
+				import mx.DateTime
 				value = mx.DateTime.DateTimeFrom(str(strVal))
 			except ImportError:
 				value = self._value
@@ -332,7 +332,7 @@ if __name__ == "__main__":
 	testParms = [IntText, FloatText, StrText, BoolText, DateText, DateTimeText]			
 	
 	try:
-		import mx
+		import mx.DateTime
 		class MxDateTimeText(TestBase):
 			def afterInit(self):
 				self.Value = mx.DateTime.now()
