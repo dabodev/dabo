@@ -265,7 +265,7 @@ class dCursorMixin:
                 pkWhere = self.makePkWhere(rec)
                 updClause = self.makeUpdClause(diff)
                 sql = "update %s set %s where %s" % (self.table, updClause, pkWhere)
-                print sql
+
             # Save off the props that will change on the update
             self.__saveProps()
             #run the update
@@ -346,7 +346,7 @@ class dCursorMixin:
         diff = mem.makeDiff(rec)
         if diff:
             for fld, val in diff.items():
-                rec[fld] = mem._snapshot[fld]
+                rec[fld] = mem.getOrigVal[fld]
         return k.FILE_OK
 
 
@@ -512,6 +512,7 @@ class dCursorMixin:
             else:
                 ret += fld + "=" + str(pkVal) + " "
         return ret
+        
 
     def makeUpdClause(self, diff):
         """ Creates the 'set field=val' section of an Update statement """

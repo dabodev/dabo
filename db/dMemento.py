@@ -11,7 +11,7 @@ class dMemento(object):
 
 
     def setMemento(self, vals):
-        self._snapshot = vals.copy()
+        self.__snapshot = vals.copy()
         
 
     def isChanged(self, newvals):
@@ -19,9 +19,17 @@ class dMemento(object):
         Returns a boolean value, depending on whether or not 
         the passed dictionary of values is identical to the current snapshot.
         """
-        return (self._snapshot != newvals)
+        return (self.__snapshot != newvals)
 
 
+    def getOrigVal(self, fld):
+        """ Given a field name, returns the values saved in the snapshot """
+        ret = None
+        if self.__snapshot.has_key(fld):
+            ret = self.__snapshot[fld]
+        return ret
+        
+    
     def makeDiff(self, newvals, isNewRecord=False):
         """ 
         The idea here is to create a dictionary containing just the values 
@@ -40,6 +48,6 @@ class dMemento(object):
                 continue
             # OK, if this is a new record, include all the values. Otherwise, just
             # include the changed ones.
-            if isNewRecord or self._snapshot[kk] != vv:
+            if isNewRecord or self.__snapshot[kk] != vv:
                 ret[kk] = vv
         return ret
