@@ -210,7 +210,21 @@ class dBackend(dabo.common.dObject):
 		preceed the field name in an update statement.
 		"""
 		return tbl + "."
-
+	
+	
+	def massageDescription(self, cursor):
+		"""Some dbapi programs do strange things to the description.
+		In particular, kinterbasdb forces the field names to upper case 
+		if the field statement in the SQL that was executed contains an 
+		'as' expression. 
+		
+		This is called after every execute() by the cursor, since the 
+		description field is updated each time. By default, we do 
+		nothing to the description.
+		"""
+		return
+		
+		
 	###########################################	
 	# The following methods by default simply return the text 
 	# supplied to them. If a particular backend (Firebird comes

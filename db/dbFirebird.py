@@ -200,6 +200,15 @@ and rdb$unique_flag = 1 """ % tableName.upper()
 	def addWhere(self, clause, exp, comp="and"):
 		quoted = self.dblQuoteField(exp)
 		return self.addWithSep(clause, quoted, sep=" %s " % comp)
+	
+	def massageDescription(self, cursor):
+		"""Force all the field names to lower case."""
+		dd = cursor.description
+		cursor.description = tuple([(elem[0].lower(), elem[1], elem[2], 
+				elem[3], elem[4], elem[5], elem[6]) 
+				for elem in dd])
+		
+	
 
 	def setSQL(self, sql):
 		return self.dblQuoteField(sql)

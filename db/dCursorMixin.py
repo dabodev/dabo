@@ -140,6 +140,10 @@ class dCursorMixin(dabo.common.dObject):
 		except:
 			pass
 		
+		# Some backend programs do odd things to the description
+		# This allows each backend to handle these quirks individually.
+		self._getBackendObject().massageDescription(self)
+		
 		if self.RowCount > 0:
 			self.RowNumber = max(self.RowNumber, 0, (self.RowCount-1) )
 
