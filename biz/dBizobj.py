@@ -559,7 +559,7 @@ class dBizobj(dabo.common.dObject):
 		current PK value. This will add 
 		"""
 		if self.DataSource and self.LinkField:
-			val = self.__fldTypeote(self.getParentPK())
+			val = self.escQuote(self.getParentPK())
 			self.Cursor.setChildFilterClause(" %s.%s = %s " % (self.DataSource, 
 					self.LinkField, val) )
 					
