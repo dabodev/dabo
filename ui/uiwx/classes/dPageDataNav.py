@@ -429,11 +429,11 @@ class dChildViewPage(dPage.dPage):
 	def __init__(self, parent, dataSource):
 		dChildViewPage.doDefault(parent, 'pageChildView')
 		self.dataSource = dataSource
+		self.bizobj = self.getDform().getBizobj().getChildByDataSource(self.dataSource)
 		
 	
 	def onEnterPage(self):
-		bizobj = self.getDform().getBizobj(self.dataSource)
-		if bizobj and bizobj.getRowCount() >= 0:
+		if self.bizobj and self.bizobj.getRowCount() >= 0:
 			if not self.itemsCreated:
 				self.createItems()
 		if self.itemsCreated:
@@ -450,8 +450,7 @@ class dChildViewPage(dPage.dPage):
 
 	def createItems(self):
 		form = self.getDform()
-		bizobj = form.getBizobj(self.dataSource)
-		self.grid = dGrid.dGrid(self, bizobj, form)
+		self.grid = dGrid.dGrid(self, self.bizobj, form)
 		self.grid.SetName('ChildViewGrid')
 		self.GetSizer().Add(self.grid, 1, wx.EXPAND)
 		
@@ -460,8 +459,7 @@ class dChildViewPage(dPage.dPage):
 		
 	def fillGrid(self):
 		form = self.getDform()
-		bizobj = form.getBizobj(self.dataSource)
-		self.grid.columnDefs = form.getColumnDefs(bizobj.DataSource)
+		self.grid.columnDefs = form.getColumnDefs(self.bizobj.DataSource)
 		self.grid.fillGrid()
 		self.GetSizer().Layout()
 		for window in self.grid.GetChildren():

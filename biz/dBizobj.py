@@ -718,6 +718,17 @@ class dBizobj(dabo.common.DoDefaultMixin):
 			ret.append(child)
 		return tuple(ret)
 		
+	
+	def getChildByDataSource(self, dataSource):
+		""" Return a reference to the child bizobj with the passed dataSource.
+		"""
+		ret = None
+		for child in self.getChildren():
+			if child.DataSource == dataSource:
+				ret = child
+				break
+		return ret
+		
 		
 	########## SQL Builder interface section ##############
 	def addField(self, exp):

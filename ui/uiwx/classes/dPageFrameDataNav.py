@@ -9,6 +9,7 @@ class dPageFrameDataNav(pgf.dPageFrame):
 
 
 	def afterInit(self):
+		self.PageCount = 0
 		self.addDefaultPages()
 		dPageFrameDataNav.doDefault()
 
