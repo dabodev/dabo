@@ -15,27 +15,42 @@ class dDataControlMixin:
         
         self.dataSource = None
         self.dataField = None
-    
+        self.bizobj = None
+        
     def initEvents(self):
         pass
-    
-    def refresh(self):
-        ''' Ask the dForm for the current value of the field.'''
+
+    def getFieldVal(self):
+        ''' Ask the bizobj what the current value of the field is. '''
         
-        if self.dataSource and self.dataField:
-            val = self.dForm.getFieldVal(self.dataSource, self.dataField)
-            self.SetValue(val)
-        else:
-            print "... no connected dataSource or dataField"
+        if not self.bizobj:
+            # Need to ask the form for the bizobj reference
+            self.bizobj = self.dForm.getBizobj(self.dataSource)
+        return self.bizobj.getFieldVal(self.dataField)
     
-    def EVT_FIELDCHANGED(win, id, func):
-        win.Connect(id, -1, dEvents.EVT_FIELDCHANGED, func)
+        
+    def setFieldVal(self, value):
+        ''' Ask the bizobj to update the field value. '''
+        
+        if not self.bizobj:
+            # Need to ask the form for the bizobj reference
+            self.bizobj = self.dForm.getBizobj(self.dataSource)
+        return self.bizobj.setFieldVal(self.dataField, value)
+        
+        
+    def refresh(self):
+        ''' Update control value to match the current value from the bizobj. '''
+        if self.dataSource and self.dataField:
+            self.SetValue(self.getFieldVal())
+        
 
     def onValueRefresh(self, event): 
-        print "onValueRefresh received by %s" % (self.GetName(),)
+        if self.debug:
+            print "onValueRefresh received by %s" % (self.GetName(),)
         self.refresh()
         event.Skip()
 
+    
     def OnSetFocus(self, event):
         try:
             self._oldVal = self.GetValue()
@@ -55,9 +70,19 @@ class dDataControlMixin:
                 self.SetSelection(-1,-1) # select all text
         except:
             pass
-            
+        
+        ### Question: VFP does an implicit refresh() here, just in case
+        ###           the control hasn't been updated with the value of
+        ###           the field yet. We could do a self.refresh() here,
+        ###           or we can be confident this won't be necessary in
+        ###           Dabo. Anyway, if you are reading this and having
+        ###           this sort of trouble, just uncomment the following
+        ###           line and see if it fixes it:
+        #self.refresh()
+        
         event.Skip()
     
+        
     def OnKillFocus(self, event):
         try:
             if self.selectOnEntry == True:
@@ -70,18 +95,9 @@ class dDataControlMixin:
             curVal = None
             
         if curVal <> self._oldVal:
-            # Raise an event that the field value has changed,
-            # in case someone cares.  -- Is this useful for anything?
-            evt = dEvents.dEvent(dEvents.EVT_FIELDCHANGED, self.GetId())
-            self.GetEventHandler().ProcessEvent(evt)
-
             # Update the bizobj
             if self.dataSource and self.dataField:
-                response = self.dForm.setFieldVal(self.dataSource, 
-                                                  self.dataField, curVal)
+                response = self.setFieldVal(curVal)
                 if not response:
                     print "bizobj.setFieldVal failed."
-            else:
-                print "... no connected dataSource or dataField"
-
         event.Skip()

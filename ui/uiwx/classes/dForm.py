@@ -7,9 +7,8 @@ class dForm(wx.Frame):
         self.SetLabel("dForm")
         self.debug = False
         
-        self.bizobjs = []
-        self.primaryBizobj = 0
-        self.bizobjNames = {}
+        self.bizobjs = {}
+        self.primaryBizobj = None
         
         self.dControls = []
         self._resourceString = resourceString
@@ -32,8 +31,14 @@ class dForm(wx.Frame):
     
     def addBizobj(self, bizobj):
         ''' Add the passed dBizobj reference to this form. '''
-        self.bizobjs.append(bizobj)
-        self.bizobjNames[bizobj.dataSource] = len(self.bizobjs) - 1
+        self.bizobjs[bizobj.dataSource] = bizobj
+        if len(self.bizobjs) == 1:
+            # This is the first bizobj added: make it the 
+            # primary bizobj. If there will be more than
+            # one bizobj for this dForm, and the first one
+            # shouldn't be primary, it will be up to the 
+            # user to change it manually.
+            self.primaryBizobj = bizobj.dataSource
         print "added bizobj with dataSource of %s" % bizobj.dataSource
         
     def addControl(self, control):
@@ -45,32 +50,11 @@ class dForm(wx.Frame):
         self.dControls.append(control)
         print "added control %s" % control.GetName()
         
-        # Set up the frame to receive the notification that 
-        # the field value changed, and the object to receive
-        # the notification from the form that it's time to 
-        # refresh its value.
+        # Set up the object to receive the notification 
+        # from the form that it's time to refresh its value.
         if isinstance(control, dDataControlMixin.dDataControlMixin):
-            dDataControlMixin.dDataControlMixin.EVT_FIELDCHANGED(control, 
-                            control.GetId(), self.onFieldChanged)
             dForm.EVT_VALUEREFRESH(self, self.GetId(), control.onValueRefresh)
         
-    def onFieldChanged(self, event):
-        ''' A control is saying that its value has changed. Not sure if
-            this event callback is needed at all, actually, as the appropriate
-            action has already been taken in self.setFieldVal() directly.
-        '''
-        control = self.FindWindowById(event.GetId())
-        if self.debug:
-            print "\nEvent onFieldChanged received by %s.\n"\
-                "     Control: %s \n" \
-                "  dataSource: %s \n" \
-                "   dataField: %s \n" \
-                "       Value: %s \n" % (self.GetName(), 
-                                    control.GetName(), 
-                                    control.dataSource,
-                                    control.dataField,
-                                    control.GetValue())
-       
     def refreshControls(self):
         ''' Raise EVT_VALUEREFRESH which will be caught by all
             registered controls. 
@@ -114,18 +98,11 @@ class dForm(wx.Frame):
             print "in dForm.first(): No bizobjs defined."
         self.refreshControls()
     
-    def getFieldVal(self, dataSource, dataField):
-        ''' A dControl wants to know what its value should be. '''
-        bizobj = self.getBizobj(dataSource)
-        return bizobj.getFieldVal(dataField)
-    
-    def setFieldVal(self, dataSource, dataField, value):
-        ''' A dControl wants to update the value in the bizobj. '''
-        bizobj = self.getBizobj(dataSource)
-        return bizobj.setFieldVal(dataField, value)
-
     def getBizobj(self, dataSource):
-        return self.bizobjs[self.bizobjNames[dataSource]]
+        try:
+            return self.bizobjs[dataSource]
+        except KeyError:
+            return None
             
 if __name__ == "__main__":
     import test
