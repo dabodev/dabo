@@ -56,7 +56,6 @@ class dCursorMixin:
 		self.__backend = None
 		# Internal counters for row number and count properties.
 		self.__rownumber = -1
-		self.__rowcount = -1
 		
 		# properties for the SQL Builder functions
 		self._fieldClause = ""
@@ -119,7 +118,7 @@ class dCursorMixin:
 		else:
 			res = self.superCursor.execute(self, sql, params)
 		self._records = self.fetchall()
-		self.RowCount = len(self._records)
+		
 		if self.RowCount > 0:
 			self.RowNumber = max(self.RowNumber, 0, (self.RowCount-1) )
 
@@ -467,10 +466,7 @@ class dCursorMixin:
 	def getRowCount(self):
 		""" Get the row count of the current data set.
 		"""
-		try:
-			return self.RowCount
-		except AttributeError:
-			return -1
+		return self.RowCount
 
 
 	def getRowNumber(self):
@@ -623,7 +619,6 @@ class dCursorMixin:
 		tmprows.append(self._blank.copy())
 		self._records = tuple(tmprows)
 		# Adjust the RowCount and position
-		self.RowCount = len(self._records)
 		self.RowNumber = self.RowCount - 1
 		# Add the 'new record' flag to the last record (the one we just added)
 		self._records[self.RowNumber][k.CURSOR_NEWFLAG] = True
@@ -676,7 +671,7 @@ class dCursorMixin:
 		""" Delete the specified row. If no row specified, 
 		delete the currently active row.
 		"""
-		if self.RowNumber < 0:
+		if self.RowNumber < 0 or self.RowCount == 0:
 			# No query has been run yet
 			raise dException.NoRecordsException, _("No record to delete")
 		if delRowNum is None:
@@ -974,10 +969,6 @@ class dCursorMixin:
 		stackPos = len(self.holdrows) -1
 		if restoreRows:
 			self._records = self.holdrows[stackPos]
-		if self._records:
-			self.RowCount = len(self._records)
-		else:
-			self.RowCount = self.holdcount[stackPos]
 		self.RowNumber = min(self.holdpos[stackPos], self.RowCount-1)
 		self.description = self.holddesc[stackPos]
 		# Pop the top values off of the stack
@@ -1259,11 +1250,11 @@ class dCursorMixin:
 	def _getRowNumber(self):
 		return self.__rownumber
 	
-	def _setRowCount(self, num):
-		self.__rowcount = num
-	
 	def _getRowCount(self):
-		return self.__rowcount
+		try:
+			return len(self._records)
+		except AttributeError:
+			return -1
 	
 	BackendObject = property(_getBackendObject, _setBackendObject, None,
 			"Reference to the object that handles backend-specific actions.")
@@ -1271,6 +1262,6 @@ class dCursorMixin:
 	RowNumber = property(_getRowNumber, _setRowNumber, None,
 			"Current row in the recordset.")
 	
-	RowCount = property(_getRowCount, _setRowCount, None,
-			"Current number of rows in the recordset.")
+	RowCount = property(_getRowCount, None, None,
+			"Current number of rows in the recordset. Read-only.")
 	
