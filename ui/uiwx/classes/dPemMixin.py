@@ -163,6 +163,8 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 		''' Recreate self.
 		'''
 		if child:
+			ignoreProps = ["BaseClass", "Bottom", "Class", "Font", "FontFace", "FontInfo", 
+					"MousePointer", "Parent", "Right", "SuperClass", "WindowHandle"]
 			propDict = {}
 			propList = child.getPropertyList()
 			for prop in propList:
@@ -173,6 +175,8 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 			child.Destroy()
 			newObj = self.addObject(classRef, name, style=style)
 			for prop in propList:
+				if prop in ignoreProps:
+					continue
 				try:
 					sep = ""
 					val = propDict[prop]
@@ -187,17 +191,11 @@ class dPemMixin(dabo.common.DoDefaultMixin):
 
 				except:
 					pass
-			# Now set the props which require specific orders
-			newObj.Left = propDict["Left"]
-			newObj.Width = propDict["Width"]
-			newObj.Top = propDict["Top"]
-			newObj.Height = propDict["Height"]
 			
 			return newObj
 		else:
 			return self.Parent.reCreate(self)
-		
-					
+
 	# The following 3 flag functions are used in some of the property
 	# get/set functions.
 	def hasWindowStyleFlag(self, flag):
