@@ -1162,7 +1162,9 @@ class dBizobj(dabo.common.dObject):
 			return ""
 	def _setDataSource(self, val):
 		self._dataSource = str(val)
-		self._getCurrentCursor().Table = val
+		cursor = self._getCurrentCursor()
+		if cursor is not None:
+			cursor.Table = val
 		
 	def _getSQL(self):
 		try:
@@ -1171,7 +1173,9 @@ class dBizobj(dabo.common.dObject):
 			return ""
 	def _setSQL(self, val):
 		self._SQL = val
-		self._getCurrentCursor().setSQL(val)
+		cursor = self._getCurrentCursor()
+		if cursor is not None:
+			cursor.setSQL(val)
 		
 			
 	def _getRequeryOnLoad(self):
@@ -1209,7 +1213,9 @@ class dBizobj(dabo.common.dObject):
 			return ""
 	def _setKeyField(self, val):
 		self._keyField = val
-		self._getCurrentCursor().KeyField = val
+		cursor = self._getCurrentCursor()
+		if cursor is not None:
+			cursor.KeyField = val
 	
 	def _getLinkField(self):
 		try:
