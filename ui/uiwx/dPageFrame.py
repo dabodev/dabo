@@ -35,8 +35,11 @@ class dPageFrame(wx.Notebook, cm.dControlMixin):
 		evt.StopPropagation()
 
 		newPageNum = evt.GetSelection()
-		oldPageNum = self._lastPage
-		
+		try:
+			oldPageNum = self._lastPage
+		except AttributeError:
+			# _lastPage hasn't been defined yet.
+			oldPageNum = None
 		self.__pageChanged(newPageNum, oldPageNum)
 
 		
