@@ -123,7 +123,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		return [self.getPrimaryBizobj()]
 		
 		
-	def _beforeClose(self, evt):
+	def _beforeClose(self, evt=None):
 		""" See if there are any pending changes in the form, if the
 		form is set for checking for this. If everything's OK, call the 
 		hook method.
@@ -142,7 +142,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		return True
 		
 		
-	def close(self):
+	def closing(self):
 		""" Stub method to be customized in subclasses. At this point,
 		the form is going to close. If you need to do something that might
 		prevent the form from closing, code it in the beforeClose() 
@@ -641,11 +641,30 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				# active control may not be data-aware
 				pass
 	
+	
+	def close(self, force=False):
+		""" This method will close the form. If force = False (default)
+		the beforeClose methods will be called, and these will have
+		an opportunity to conditionally block the form from closing.
+		If force=True, the form is closed without any chance of 
+		preventing it.
+		"""
+		if not force:
+			if not self._beforeClose():
+				return
+		# Run any cleanup code
+		self.closing()
+		# Kill the form
+		self.Close(force=force)
+		
+		
 	def __onClose(self, evt):
-		if self._beforeClose(evt):
-			self.close()
-		else:
-			evt.stop()
+		force = evt.EventData["force"]
+		if not force:
+			if not self._beforeClose(evt):
+				evt.stop()
+		# Run the cleanup code.
+		self.closing()
 	
 
 	# Property get/set/del functions follow.

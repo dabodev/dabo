@@ -71,8 +71,8 @@ from dTimer import dTimer
 from dToggleButton import dToggleButton
 from dTreeView import dTreeView
 import dUICursors as dUICursors
-from dWizard import dWizard
 from dWizardPage import dWizardPage
+from dWizard import dWizard
 
 from getMouseObject import getMouseObject
 import dShell
@@ -162,8 +162,8 @@ def discontinueEvent(evt):
 def getEventData(wxEvt):
 	ed = {}
 
-	if isinstance(wxEvt, wx.KeyEvent) or isinstance(wxEvt, wx.MouseEvent) or \
-			isinstance(wxEvt, wx.CommandEvent):
+	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, 
+			wx.CommandEvent, wx.CloseEvent) ):
 		
 		if dabo.allNativeEventInfo:
 			# Cycle through all the attributes of the wx events, and evaluate them
@@ -208,4 +208,7 @@ def getEventData(wxEvt):
 		except (ValueError, OverflowError):
 			ed["keyChar"] = None
 
+	if isinstance(wxEvt, wx.CloseEvent):
+		ed["force"] = not wxEvt.CanVeto()
+		
 	return ed
