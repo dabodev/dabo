@@ -1,7 +1,7 @@
 June 13, 2004
-Announcing Dabo 0.1a
+Announcing Dabo 0.1.1
 
-See the ChangeLog for details of the changes between version 0.1 and 0.1a. In a nutshell, version 0.1a has:
+See the ChangeLog for details of the changes between version 0.1 and 0.1.1. In a nutshell, version 0.1.1 has:
 
 	+ preliminary support for Firebird database backend
 	+ tons of bugfixes
