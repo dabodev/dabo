@@ -24,7 +24,7 @@ class Test(object):
 
 	def runTest(self, classRef):
 		self.app.setup()
-		frame = self.app.MainFrame
+		frame = self.app.MainForm
 		object = classRef(frame)
 		object.debug = True
 		self.app.start()
@@ -33,7 +33,7 @@ class Test(object):
 		""" Create a dForm and populate it with example dWidgets. 
 		"""
 		self.app.setup()
-		frame = self.app.MainFrame
+		frame = self.app.MainForm
 		frame.Caption = "Test of all the dControls"
 		frame.debug = True
 		frame.LogEvents = ["All"]

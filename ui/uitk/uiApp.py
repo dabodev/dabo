@@ -18,8 +18,8 @@ class uiApp(dabo.common.dObject):
 	def setup(self, dApp):
 		self.dApp = dApp
 
-		if dApp.MainFrameClass is not None:
-			dApp.MainFrame = dApp.MainFrameClass()
+		if dApp.MainFormClass is not None:
+			dApp.MainForm = dApp.MainFormClass()
 
 	def start(self, dApp):
 		self.raiseEvent(dEvents.Activate)
@@ -29,7 +29,7 @@ class uiApp(dabo.common.dObject):
 		self.raiseEvent(dEvents.Deactivate)
 		
 	def onFileExit(self, event):
-		self.MainFrame.Close(True)
+		self.MainForm.Close(True)
 
 
 	def onEditCut(self, event):
@@ -160,7 +160,7 @@ class uiApp(dabo.common.dObject):
 
 
 	def onHelpAbout(self, event):
-		dlg = ui.dAbout(self.MainFrame, self.dApp)
+		dlg = ui.dAbout(self.MainForm, self.dApp)
 		dlg.Show()
 
 		

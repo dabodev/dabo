@@ -3,8 +3,8 @@ import wx
 import dPemMixin as pm
 
 class dMenu(wx.Menu, pm.dPemMixin):
-	def __init__(self, mainFrame=None):
-		if mainFrame:
-			self.mainFrame = mainFrame
-			self.actionList = mainFrame.Application.actionList
+	def __init__(self, mainForm=None):
+		if mainForm:
+			self.mainForm = mainForm
+			self.actionList = mainForm.Application.actionList
 		dMenu.doDefault()

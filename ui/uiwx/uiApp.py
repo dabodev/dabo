@@ -32,10 +32,10 @@ class uiApp(wx.App, dObject):
 
 		self.dApp = dApp
 		
-		if dApp.MainFrameClass is not None:
-			self.dApp.MainFrame = dApp.MainFrameClass()
-			self.SetTopWindow(self.dApp.MainFrame)
-			self.dApp.MainFrame.Show()
+		if dApp.MainFormClass is not None:
+			self.dApp.MainForm = dApp.MainFormClass()
+			self.SetTopWindow(self.dApp.MainForm)
+			self.dApp.MainForm.Show()
 
 
 	def start(self, dApp):
@@ -60,8 +60,8 @@ class uiApp(wx.App, dObject):
 			
 	
 	def onFileExit(self, evt):
-		if self.dApp.MainFrame is not None:
-			self.dApp.MainFrame.Close(True)
+		if self.dApp.MainForm is not None:
+			self.dApp.MainForm.Close(True)
 
 
 	def onEditCut(self, evt):
@@ -188,7 +188,7 @@ class uiApp(wx.App, dObject):
 
 
 	def onHelpAbout(self, evt):
-		dlg = ui.dAbout(self.dApp.MainFrame, self.dApp)
+		dlg = ui.dAbout(self.dApp.MainForm, self.dApp)
 		dlg.Show()
 
 		
@@ -198,7 +198,7 @@ class uiApp(wx.App, dObject):
 		try:
 			ld = self.loginDialog
 		except AttributeError:
-			ld = ui.dLogin(self.dApp.MainFrame)
+			ld = ui.dLogin(self.dApp.MainForm)
 		if message:
 			ld.setMessage(message)
 		ld.CenterOnParent()

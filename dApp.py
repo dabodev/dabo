@@ -78,12 +78,13 @@ class dApp(dabo.common.dObject):
 		dabo.dAppRef = self
 		dApp.doDefault()
 		self._initProperties()
-		# Params may need to be sent to the main frame. These two 
-		# props allow that
-		self.mainFrameParamList = []
-		self.mainFrameKeyParamList = {}
-
 		
+### PKM: commented this out as I don't understand the need for it		
+# 		# Params may need to be sent to the main frame. These two 
+# 		# props allow that
+# 		self.mainFrameParamList = []
+# 		self.mainFrameKeyParamList = {}
+
 	def setup(self):
 		""" Set up the app - call this before start()."""
 
@@ -112,10 +113,6 @@ class dApp(dabo.common.dObject):
 
 		self.uiApp.setup(self)
 
-		# temporary: keep the demos working with the old mainFrame variable:
-		self.mainFrame = self.MainFrame
-		self.mainFrameClass = self.MainFrameClass
-					
 
 	def start(self):
 		""" 
@@ -348,28 +345,28 @@ class dApp(dabo.common.dObject):
 		self._autoNegotiateUniqueNames = bool(value)
 		
 	
-	def _getMainFrame(self):
+	def _getMainForm(self):
 		try:
-			#return self._mainFrame
-			return self.mainFrame  # temporary: until demos updated
+			f = self._mainForm
 		except AttributeError:
-			return None
+			f = None
+			self._mainForm = None
+		return f
 			
-	def _setMainFrame(self, val):
-		#self._mainFrame = val
-		self.mainFrame = val  # temporary: until demos updated
-		
-		
-	def _getMainFrameClass(self):
+	def _setMainForm(self, val):
+		self._mainForm = val
+
+				
+	def _getMainFormClass(self):
 		try:
-			#return self._mainFrameClass
-			return self.mainFrameClass  # temporary: until demos updated
+			c = self._mainFormClass
 		except AttributeError:
-			return dabo.ui.dFormMain
+			c = dabo.ui.dFormMain
+			self._mainFormClass = c
+		return c
 			
-	def _setMainFrameClass(self, val):
-		#self._mainFrameClass = val
-		self.mainFrameClass = val  # temporary: until demos updated
+	def _setMainFormClass(self, val):
+		self._mainFormClass = val
 		
 		
 	def _getSecurityManager(self):
@@ -411,13 +408,13 @@ class dApp(dabo.common.dObject):
 						"value results in a unique integer being appended, or whether "
 						"a NameError is raised. Default is True: negotiate the name."))
 
-	MainFrame = property(_getMainFrame, _setMainFrame, None,
-		_("The object reference to the main frame of the application, or None. This gets "
-		"set automatically during application setup, based on the MainFrameClass."))
+	MainForm = property(_getMainForm, _setMainForm, None,
+		_("The object reference to the main form of the application, or None. This gets "
+		"set automatically during application setup, based on the MainFormClass."))
 		
-	MainFrameClass = property(_getMainFrameClass, _setMainFrameClass, None,
-		_("Specifies the class to use to instantiate the main frame (form). Defaults to "
-		"the dFormMain base class. Set to None if you don't want a main frame."))
+	MainFormClass = property(_getMainFormClass, _setMainFormClass, None,
+		_("Specifies the class to use to instantiate the main form. Defaults to "
+		"the dFormMain base class. Set to None if you don't want a main form."))
 		
 	UI = property(_getUI, _setUI,
 						None, _("Specifies the user interface to load, or None. "

@@ -128,7 +128,7 @@ class dFormMixin(pm.dPemMixin):
 		""" Save the current size and position of this form.
 		"""
 		if self.Application:
-			if self == self.Application.MainFrame:
+			if self == self.Application.MainForm:
 				for form in self.Application.uiForms:
 					try:
 						form.saveSizeAndPosition()
@@ -154,7 +154,7 @@ class dFormMixin(pm.dPemMixin):
 		versus non-MDI forms.
 		"""
 		if isinstance(self, wx.MDIChildFrame):
-			controllingFrame = self.Application.MainFrame
+			controllingFrame = self.Application.MainForm
 		else:
 			controllingFrame = self
 		if controllingFrame.GetStatusBar():
@@ -168,7 +168,7 @@ class dFormMixin(pm.dPemMixin):
 		menu.AppendItem(item)
 
 		if isinstance(self, wx.MDIChildFrame):
-			controllingFrame = self.Application.MainFrame
+			controllingFrame = self.Application.MainForm
 		else:
 			controllingFrame = self
 			
@@ -187,7 +187,7 @@ class dFormMixin(pm.dPemMixin):
 		toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
 
 		if isinstance(self, wx.MDIChildFrame):
-			controllingFrame = self.Application.MainFrame
+			controllingFrame = self.Application.MainForm
 		else:
 			controllingFrame = self
 		wx.EVT_MENU(controllingFrame, toolId, function)

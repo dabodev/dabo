@@ -25,6 +25,6 @@ class dShell(dabo.ui.dForm):
 		
 if __name__ == "__main__":
 	app = dabo.dApp()
-	app.MainFrameClass = dShell
+	app.MainFormClass = dShell
 	app.setup()
 	app.start()

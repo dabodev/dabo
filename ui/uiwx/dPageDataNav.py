@@ -615,7 +615,7 @@ class dChildViewPage(dPage.dPage):
 								PickList.doDefault()
 								self.Caption = "Picklist: %s" % self.Caption
 									
-						self.picklist = PickList(self.Application.mainFrame)
+						self.picklist = PickList(self.Application.MainForm)
 						self.picklist.bindEvent(dEvents.ItemPicked, self.newItemPicked)
 						self.picklist.Show()
 						self.picklist.Raise()
