@@ -224,7 +224,7 @@ class dApp(object):
 		""" Initialize the public properties of the app object. """
 
 		# it is useful to know from where we came
-		self.homeDir = os.getcwd()
+		self.homeDir = sys.path[0]
 
 		self.uiType   = None    # ('wx', 'qt', 'curses', 'http', etc.)
 		self.uiModule = None
