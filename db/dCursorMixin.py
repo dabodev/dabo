@@ -53,6 +53,8 @@ class dCursorMixin(dabo.common.dObject):
 		self.__nonUpdateFields = []
 		# User-editable list of non-updated fields
 		self.nonUpdateFields = []
+		# Flag that is set when the user explicitly sets the Key Field
+		self._keyFieldSet = False
 
 		self._blank = {}
 		self.__unsortedRows = []
@@ -67,15 +69,8 @@ class dCursorMixin(dabo.common.dObject):
 		# Reference to the object with backend-specific behaviors
 		self.__backend = None
 		
-		# properties for the SQL Builder functions
-		self._fieldClause = ""
-		self._fromClause = ""
-		self._whereClause = ""
-		self._childFilterClause = ""
-		self._groupByClause = ""
-		self._orderByClause = ""
-		self._limitClause = ""
-		self._defaultLimit = 1000
+		# set properties for the SQL Builder functions
+		self.clearSQL()
 		self.hasSqlBuilder = True
 		
 		# props for building the auxiliary cursor
@@ -92,6 +87,17 @@ class dCursorMixin(dabo.common.dObject):
 		self.sql = self._getBackendObject().setSQL(sql)
 
 
+	def clearSQL(self):
+		self._fieldClause = ""
+		self._fromClause = ""
+		self._whereClause = ""
+		self._childFilterClause = ""
+		self._groupByClause = ""
+		self._orderByClause = ""
+		self._limitClause = ""
+		self._defaultLimit = 1000
+
+		
 	def getSortColumn(self):
 		return self.sortColumn
 
@@ -371,7 +377,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		ret = val
 		if type(val) in (str, unicode):
 			if ("\n" in val) or ("<" in val) or ("&" in val):
-				ret = "<![CDATA[%s]]>" % val
+				ret = "<![CDATA[%s]]>" % val.encode(self.Encoding)
 		return ret
 
 	def setNonUpdateFields(self, fldList=[]):
@@ -1311,9 +1317,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if orderByClause:
 			orderByClause = "order by " + orderByClause
 		if limitClause:
-			limitClause = self.getLimitWord() + " " + limitClause
+			limitClause = "%s %s" % (self.getLimitWord(), limitClause)
 		else:
-			limitClause = self.getLimitWord() + " " + str(self._defaultLimit)
+			limitClause = "%s %s" % (self.getLimitWord(), self._defaultLimit)
 
 		return self._getBackendObject().formSQL(fieldClause, fromClause, 
 				whereClause, groupByClause, orderByClause, limitClause)
@@ -1372,6 +1378,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def _setKeyField(self, kf):
 		self._keyField = str(kf)
 		self._getAuxCursor()._keyField = str(kf)
+		self._keyFieldSet = True
 
 	def _setRowNumber(self, num):
 		self.__rownumber = num
@@ -1397,7 +1404,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def _setTable(self, table):
 		self._table = str(table)
 		self._getAuxCursor()._table = str(table)
-		
+		if not self._keyFieldSet:
+			# Get the PK field, if any
+			try:
+				self._keyField = [fld[0] for fld in self.getFields(table)
+						if fld[2] ][0]	
+			except: pass
+	
 	def _isAdding(self):
 		""" Return True if the current record is a new record.
 		"""
