@@ -89,7 +89,7 @@ class EventMixin(object):
 				binding = self.EventBindings.pop()
 				bindingClass, bindingFunction = binding[0], binding[1]
 				
-				if (eventClass is None or bindingEvent == eventClass) and (
+				if (eventClass is None or bindingClass == eventClass) and (
 					function is None or bindingFunction == function):
 						# Matched: already popped off, do nothing
 						pass
