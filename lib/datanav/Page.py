@@ -793,7 +793,9 @@ class EditPage(Page):
 			# is going to likely push the grid off the bottom, requiring a scroll,
 			# minimize that as much as possible by not allowing the non-grid controls 
 			# to expand.
-			gsProportion = 0
+			### For some reason, this is preventing the scroll panels from display
+			### the grids properly. So set this back to one for now.
+			gsProportion = 2	#0
 		mainSizer.insert(0, gs, "expand", gsProportion, border=20)
 
 		# Add top and bottom margins
