@@ -1,5 +1,37 @@
 See the Subversion log for all the details.
 
+
+Dabo-0.3.2 (2005-03-21) (Revision 959):
+
+Work continued on the Dabo report writer and report designer. The
+writer will now read and write the rfxml file format, and will do some 
+simple reports. The designer will edit the rfxml files, again, with simple
+formats. This isn't ready to use yet but the foundation is in place.
+
+cursorToXML() added.
+
+Encoding property added to databases.
+
+dBitmap introduced.
+dWizard introduced.
+dTreeView introduced.
+
+dGrid is being refactored, and is almost done. For a short time, it can
+be found as dGridX.
+
+We worked hard trying to get window closing not to segfault on Windows, 
+to get icons to display correctly on Mac, and to optimize Dabo in some key
+bottleneck areas. We've greatly improved Dabo's performance on all platforms,
+and Dabo now behaves less differently on each platform.
+
+Improved data binding: controls don't need to bind to a bizobj, but to any 
+object expression.
+
+Improved Firebird and PostgreSQL support.
+
+Lots of improvements and bug fixes, in all three tiers.
+
+
 Dabo-0.3.1 (2005-02-16) (Revision 802):
 
 Separated creation of dCursor from dBizobj.
