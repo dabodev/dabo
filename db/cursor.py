@@ -1,37 +1,20 @@
-from dConstants import dConstants as k
-from dMemento import dMemento
+import constants as k
+from memento import memento
 import types
 
-class dCursorMixin:
-    # Name of the primary key field for this cursor. If the PK is a composite
-    # (i.e., more than one field) include both separated by a comma
-    keyField = ""
-    # Name of the table in the database that this cursor is getting data from
-    table = ""
-    # SQL expression used to populate the cursor
-    sql = ""
-    # Holds the text of any error messages generated
-    _errorMsg = ""
-    # Holds the dict used for adding new blank records
-    _blank = {}
-
-
+class cursor(object):
     def __init__(self, sql="", *args, **kwargs):
-        if sql:
-            self.sql = sql
-
+    	self._initproperties()
+        self.sql = sql
 
     def setSQL(self, sql):
         self.sql = sql
 
-
     def setTable(self, table):
         self.table = table
 
-
     def setKeyField(self, kf):
         self.keyField = kf
-
 
     def requery(self, params=None):
         if params is None:
@@ -46,10 +29,8 @@ class dCursorMixin:
         self.addMemento(-1)
         return k.REQUERY_SUCCESS
 
-
     def setMemento(self):
         self.addMemento(self.rownumber)
-
 
     def getFieldVal(self, fld):
         """ Returns the value of the requested field """
@@ -63,7 +44,6 @@ class dCursorMixin:
             else:
                 self.addToErrorMsg("Field '" + fld + "' does not exist in the data set")
         return ret
-
 
     def setFieldVal(self, fld, val):
         """ Sets the value of the specified field """
@@ -79,7 +59,6 @@ class dCursorMixin:
                 self.addToErrorMsg("Field '" + fld + "' does not exist in the data set")
         return ret
 
-
     def first(self):
         """ Moves the record pointer to the first record of the recordset. """
         self._errorMsg = ""
@@ -90,7 +69,6 @@ class dCursorMixin:
             ret = k.FILE_NORECORDS
             self.addToErrorMsg("No records in data set")
         return ret
-
 
     def prior(self):
         """ Moves the record pointer back one position in the recordset. """
@@ -107,7 +85,6 @@ class dCursorMixin:
             self.addToErrorMsg("No records in data set")
         return ret
 
-
     def next(self):
         """ Moves the record pointer forward one position in the recordset. """
         self._errorMsg = ""
@@ -123,7 +100,6 @@ class dCursorMixin:
             self.addToErrorMsg("No records in data set")
         return ret
 
-
     def last(self):
         """ Moves the record pointer to the last record in the recordset. """
         self._errorMsg = ""
@@ -138,7 +114,6 @@ class dCursorMixin:
             ret = k.FILE_NORECORDS
             self.addToErrorMsg("No records in data set")
         return ret
-
 
     def save(self, allrows=0):
         self._errorMsg = ""
@@ -164,7 +139,6 @@ class dCursorMixin:
                 ret = FILE_CANCEL
                 break
         return ret
-
 
     def saverow(self, rec):
         newrec =  rec.has_key(k.CURSOR_NEWFLAG)
@@ -199,7 +173,6 @@ class dCursorMixin:
                     del rec[k.CURSOR_NEWFLAG]
         return ret
 
-
     def new(self):
         """ Adds a new record to the data set """
         ret = k.FILE_OK
@@ -220,7 +193,6 @@ class dCursorMixin:
         except:
             ret = k.FILE_CANCEL
         return ret
-
 
     def cancel(self, allrows=0):
         """ Reverts any changes back to the original values """
@@ -249,7 +221,6 @@ class dCursorMixin:
                 break
         return ret
 
-
     def delete(self, rownum):
         ret = k.FILE_OK
         rec = self._rows[rownum]
@@ -271,10 +242,8 @@ class dCursorMixin:
             ret = FILE_CANCEL
         return ret
 
-
     def cancelrow(self, rec):
         mem = rec[k.CURSOR_MEMENTO]
-
 
     def setDefaults(self, vals):
         """ Called after a new record is added so that default values can be set.
@@ -285,7 +254,6 @@ class dCursorMixin:
         for kk, vv in vals:
             row[kk] = vv
         row[k.CURSOR_MEMENTO].setMemento(row)
-
 
     def addMemento(self, rownum=-1):
         """ Adds a memento to the specified row. If the rownum is -1, it will
@@ -298,7 +266,6 @@ class dCursorMixin:
             row[k.CURSOR_MEMENTO] = dMemento()
         # Take the snapshot of the current values
         row[k.CURSOR_MEMENTO].setMemento(row)
-
 
     def setStructure(self):
         import re
@@ -333,7 +300,6 @@ class dCursorMixin:
                     # Int
                     _blank[fld] = 0
 
-
     def checkPK(self):
         """ Check to see that the field(s) specified in the keyField prop exist
         in the recordset. """
@@ -352,7 +318,6 @@ class dCursorMixin:
             self.addToErrorMsg("Primary key field '" + fld + "' does not exist in the data set")
             ret = 0
         return ret
-
 
     def makePkWhere(self):
         """ Creates the WHERE clause used for updates """
@@ -379,13 +344,11 @@ class dCursorMixin:
                 ret += fld + " = " + str(val) + " "
         return ret
 
-
     def saveProps(self, saverows=1):
         self.tmprows = self._rows
         self.tmpcount = self.rowcount
         self.tmppos = self.rownumber
         self.tmpdesc = self.description
-
 
     def restoreProps(self, restorerows=1):
         if restorerows:
@@ -393,7 +356,6 @@ class dCursorMixin:
         self.rowcount = len(self._rows)
         self.rownumber = min(self.tmppos, self.rowcount-1)
         self.description = self.tmpdesc
-
 
     def escapeQt(self, val):
         ret = val
@@ -404,7 +366,6 @@ class dCursorMixin:
             ret = "'" + val.replace(sl, sl+sl).replace(qt, sl+qt) + "'"
         return ret			
 
-
     def addToErrorMsg(self, txt):
         """ Adds the passed text to the current error message text, 
         inserting a newline if needed """
@@ -413,42 +374,32 @@ class dCursorMixin:
                 self._errorMsg += "\n"
             self._errorMsg += txt
 
-
     def getErrorMsg(self):
         return self._errorMsg
-
 
     def isAdding(self):
         """ Returns true if the current record has the new rec flag """
         return self._rows[self.rownumber].has_key(k.CURSOR_NEWFLAG)
 
-
     def beginTransaction(self):
         """ Implement specific calls in subclasses """
         return k.FILE_OK
-
 
     def commitTransaction(self):
         """ Implement specific calls in subclasses """
         return k.FILE_OK
 
-
     def rollbackTransaction(self):
         """ Implement specific calls in subclasses """
         return k.FILE_OK
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    def _initProperties(self):
+        # Name of the primary key field for this cursor. If the PK is a composite
+        # (i.e., more than one field) include both separated by a comma
+        self.keyField = ""
+        # Name of the table in the database that this cursor is getting data from
+        self.table = ""
+        # Holds the text of any error messages generated
+        self._errorMsg = ""
+        # Holds the dict used for adding new blank records
+        self._blank = {}

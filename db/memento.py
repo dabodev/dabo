@@ -1,6 +1,6 @@
-from dConstants import dConstants as k
+import constants as k
 
-class dMemento:
+class memento(object):
     def __init__(self, vals=None):
         if vals is None:
             self.setMemento({})
@@ -31,7 +31,7 @@ class dMemento:
             if kk == k.CURSOR_NEWFLAG:
                 # Ignore the new record flag.
                 continue
-            # OK, if this is a new record, include all the values. Otherwise, just
+            # If this is a new record, include all the values. Otherwise, just
             # include the changed ones.
             if newrec or self._snapshot[kk] != vv:
                 ret[kk] = vv
