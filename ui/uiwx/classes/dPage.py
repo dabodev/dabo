@@ -46,7 +46,8 @@ class dPage(dPanel.dScrollPanel):
 
 		Subclasses may override.
 		"""
-		self.Form.activeControlValid()
+		if hasattr(self, "Form"):
+			self.Form.activeControlValid()
 		pass
 
 
