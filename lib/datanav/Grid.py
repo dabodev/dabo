@@ -21,6 +21,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.grid = parent
 		self.preview = self.grid.Form.preview
 		self.bizobj = None		#self.grid.Form.getBizobj(parent.DataSource) 
+		# Holds a copy of the current data to prevent unnecessary re-drawing
+		self.__currData = ()
 
 		self.initTable()
 
@@ -81,8 +83,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		oldCol = self.grid.GetGridCursorCol()  # current column per the grid
 		if not oldCol:
 			oldCol = 0
-		self.Clear()
-		self.data = []
 
 		if not self.preview:
 			# Fill self.data based on bizobj records
@@ -110,7 +110,15 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			# update the form
 			self.grid.Form.rowNumber = 0
 			self.grid.Form.rowCount = 100
+		
+		if self.__currData == dataSet:
+			# Nothing's changed; no need to re-fill the table
+			return
+		else:
+			self.__currData = dataSet
 			
+		self.Clear()
+		self.data = []
 		for record in dataSet:
 			recordDict = []
 			for col in self.showCols:
