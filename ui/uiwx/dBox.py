@@ -1,7 +1,7 @@
 import wx
 import dControlMixin as cm
 
-class dBox(wx.StaticText, cm.dControlMixin):
+class dBox(wx.StaticBox, cm.dControlMixin):
 	""" Create a static (not data-aware) box.
 	"""
 	def __init__(self, parent, id=-1, label="", pos=(-1, -1), size=(-1, -1), name='dBox', style=0, *args, **kwargs):
