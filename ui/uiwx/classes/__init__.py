@@ -8,6 +8,7 @@
 # Import into private namespace:
 import dEvents
 import dMessageBox
+import dIcons
 
 # Import into public namespace:
 from dAbout import dAbout

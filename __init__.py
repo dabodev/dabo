@@ -71,3 +71,4 @@
                             
 '''
 from dApp import dApp
+from dLocalize import loc

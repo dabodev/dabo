@@ -4,6 +4,7 @@
 from dForm import dForm
 from dPageFrame import dPageFrame
 from dPage import *
+import dIcons
 
 class dFormDataNav(dForm):
     def __init__(self, parent=None, name="dFormDataNav", resourceString=None):
@@ -11,16 +12,57 @@ class dFormDataNav(dForm):
         
         self._gridColumnDefs = {}
     
+    def afterSetPrimaryBizobj(self):        
+        self.setupPageFrame()
+        #self.addVCR()
+        self.setupMenu()
+        self.setupToolBar()
+                
     def _appendToMenu(self, menu, caption, function):
         menuId = wx.NewId()
         menu.Append(menuId, caption)
         wx.EVT_MENU(self, menuId, function)
 
-    def afterSetPrimaryBizobj(self):        
-        self.setupPageFrame()
-        self.addVCR()
-        self.setupMenu()
+    def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):
+        toolId = wx.NewId()
+        toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
+        wx.EVT_MENU(self, toolId, function)
+    
+    def setupToolBar(self):
+        self.CreateToolBar()
+        toolBar = self.GetToolBar()
         
+        self._appendToToolBar(toolBar, "First", dIcons.getIconBitmap("leftArrows"),
+                              self.onFirst, "Go to the first record")
+            
+        self._appendToToolBar(toolBar, "Prior", dIcons.getIconBitmap("leftArrow"),
+                              self.onPrior, "Go to the prior record")
+            
+        self._appendToToolBar(toolBar, "Requery", dIcons.getIconBitmap("requery"),
+                              self.onRequery, "Requery dataset")
+        
+        self._appendToToolBar(toolBar, "Next", dIcons.getIconBitmap("rightArrow"),
+                              self.onNext, "Go to the next record")
+            
+        self._appendToToolBar(toolBar, "Last", dIcons.getIconBitmap("rightArrows"),
+                              self.onLast, "Go to the last record")
+        
+        toolBar.AddSeparator()
+        
+        self._appendToToolBar(toolBar, "New", dIcons.getIconBitmap("blank"),
+                              self.onNew, "Add a new record")
+            
+        self._appendToToolBar(toolBar, "Delete", dIcons.getIconBitmap("remove"),
+                              self.onDelete, "Delete this record")
+        
+        toolBar.AddSeparator()
+            
+        self._appendToToolBar(toolBar, "Save", dIcons.getIconBitmap("fileSave"),
+                              self.onRequery, "Save changes")
+    
+        self._appendToToolBar(toolBar, "Cancel", dIcons.getIconBitmap("fileClose"),
+                              self.onRequery, "Cancel changes")
+                              
     def getMenu(self):
         menu = dForm.getMenu(self)
         
