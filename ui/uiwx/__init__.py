@@ -23,6 +23,8 @@ from dPemMixin import dPemMixin
 dabo.ui.dPemMixin = dPemMixin
 from dControlMixin import dControlMixin
 dabo.ui.dControlMixin = dControlMixin
+from dDataControlMixin import dDataControlMixin
+dabo.ui.dDataControlMixin = dDataControlMixin
 
 # Import into public namespace:
 from dBox import dBox
