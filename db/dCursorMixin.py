@@ -54,6 +54,16 @@ class dCursorMixin:
 		# Reference to the object with backend-specific behaviors
 		self.__backend = None
 		
+		# Just in case this is used outside of the context of a bizobj
+		if not hasattr(self, "superCursor") or self.superCursor is None:
+			myBases = self.__class__.__bases__
+			for base in myBases:
+				# Find the first base class that doesn't have the 'autoPopulatePK'
+				# attribute. Designate that class as the superCursor class.
+				if hasattr(base, "fetchall"):
+					self.superCursor = base
+					break
+
 
 	def setSQL(self, sql):
 		self.sql = sql
@@ -974,38 +984,49 @@ class dCursorMixin:
 	
 	def getLastInsertID(self):
 		""" Return the most recently generated PK """
-		self.__saveProps()
-		ret = self.BackendObject.getLastInsertID(self)
-		self.__restoreProps()
+		ret = None
+		if self.BackendObject:
+			self.__saveProps()
+			ret = self.BackendObject.getLastInsertID(self)
+			self.__restoreProps()
 		return ret
 
 
 	def formatDateTime(self, val):
 		""" Format DateTime values for the backend """
-		return self.BackendObject.formatDateTime(val)
+		ret = val
+		if self.BackendObject:
+			ret = self.BackendObject.formatDateTime(val)
+		return ret
 
 
 	def beginTransaction(self):
 		""" Begin a SQL transaction."""
-		self.__saveProps()
-		ret = self.BackendObject.beginTransaction(self)
-		self.__restoreProps()
+		ret = None
+		if self.BackendObject:
+			self.__saveProps()
+			ret = self.BackendObject.beginTransaction(self)
+			self.__restoreProps()
 		return ret
 
 
 	def commitTransaction(self):
 		""" Commit a SQL transaction."""
-		self.__saveProps()
-		ret = self.BackendObject.commitTransaction(self)
-		self.__restoreProps()
+		ret = None
+		if self.BackendObject:
+			self.__saveProps()
+			ret = self.BackendObject.commitTransaction(self)
+			self.__restoreProps()
 		return ret
 
 
 	def rollbackTransaction(self):
 		""" Roll back (revert) a SQL transaction."""
-		self.__saveProps()
-		ret = self.BackendObject.rollbackTransaction(self)
-		self.__restoreProps()
+		ret = None
+		if self.BackendObject:
+			self.__saveProps()
+			ret = self.BackendObject.rollbackTransaction(self)
+			self.__restoreProps()
 		return ret
 
 
