@@ -1,11 +1,10 @@
 import wx
 from dControlMixin import dControlMixin
+from dDataControlMixin import dDataControlMixin
 
-# The EditBox is just a TextBox with some additional styles,
-# but what the hey, I'm used to having a separate control.
-# Drink Dabo. It's good for you.
+# The EditBox is just a TextBox with some additional styles.
 
-class dEditBox(wx.TextCtrl, dControlMixin):
+class dEditBox(wx.TextCtrl, dDataControlMixin, dControlMixin):
     def __init__(self, frame, widgetId=-1):
         if widgetId < 0:
             widgetId = wx.NewId()
@@ -13,12 +12,14 @@ class dEditBox(wx.TextCtrl, dControlMixin):
                 wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.TE_LINEWRAP)
         self.SetName("dEditBox")
         dControlMixin.__init__(self)
+        dDataControlMixin.__init__(self)
 
         self.selectOnEntry = False
             
     def initEvents(self):
         # init the common events:
         dControlMixin.initEvents(self)
+        dDataControlMixin.initEvents(self)
         
         # init the widget's specialized event(s):
         wx.EVT_TEXT(self, self.GetId(), self.onEvent)

@@ -1,23 +1,25 @@
 import wx
 from dControlMixin import dControlMixin
+from dDataControlMixin import dDataControlMixin
 
-class dTextBox(wx.TextCtrl, dControlMixin):
+class dTextBox(wx.TextCtrl, dDataControlMixin, dControlMixin):
     def __init__(self, parent, widgetId=-1):
         if widgetId < 0:
             widgetId = wx.NewId()
         wx.TextCtrl.__init__(self, parent, widgetId)
         self.SetName("dTextBox")
         dControlMixin.__init__(self)
+        dDataControlMixin.__init__(self)
 
         self.selectOnEntry = True
             
     def initEvents(self):
         # init the common events:
         dControlMixin.initEvents(self)
+        dDataControlMixin.initEvents(self)
         
         # init the widget's specialized event(s):
         wx.EVT_TEXT(self, self.GetId(), self.onEvent)
-
 
     # Event callback method(s) (override in subclasses):
     def OnText(self, event): pass

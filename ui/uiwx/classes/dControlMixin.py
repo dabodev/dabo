@@ -1,4 +1,4 @@
-''' dControlMixin.py: Provide behavior common to all controls '''
+''' dControlMixin.py: Provide behavior common to all dControls '''
 
 import wx, dEvents, dForm
 
@@ -15,26 +15,11 @@ class dControlMixin:
         self.initEvents()
         self.eventDict = self._getEventDict()
         
-        self._oldVal = None
-    
-        self.selectOnEntry = False
         self.focusSet = False
-        
-        self.dataSource = None
-        self.dataField = None
         
         self.dForm = self.getDform()
         self.addToDform()
     
-    def refresh(self):
-        ''' Ask the dForm for the current value of the field.'''
-        
-        if self.dataSource and self.dataField:
-            val = self.dForm.getFieldVal(self.dataSource, self.dataField)
-            self.SetValue(val)
-        else:
-            print "... no connected dataSource or dataField"
-        
     def getDform(self):
         ''' Crawl up the containership tree to find the dForm, if any. '''
         obj = self
@@ -52,16 +37,14 @@ class dControlMixin:
         if self.dForm:
             self.dForm.addControl(self)
                 
-    def EVT_FIELDCHANGED(win, id, func):
-        win.Connect(id, -1, dEvents.EVT_FIELDCHANGED, func)
-
     def getDefaultText(self):
         return "Dabo: %s" % self.GetName()
         
     def initEvents(self):
         ''' initEvents(object)
             All windows share common events, which are initialized here
-            instead of separately in each widget. '''
+            instead of separately in each widget. 
+        '''
         
         # Every event bound here must have a corresponding callback
         # below, in the "Common event callbacks" section
@@ -70,46 +53,11 @@ class dControlMixin:
         wx.EVT_SET_FOCUS(self, self.onEvent)
         wx.EVT_KILL_FOCUS(self, self.onEvent)
 
-
     # Common event callbacks (override in subclasses):
     
-    def OnSetFocus(self, event):
-        try:
-            self._oldVal = self.GetValue()
-        except AttributeError:   # labels, for example...
-            self._oldVal = None
+    def OnSetFocus(self, event): event.Skip()
         
-        try:
-            if (self.selectOnEntry == True and not self.focusSet 
-                and len(self.GetValue()) > 0):
-                # Select all text, and get rid of the insertion point.
-                # Choices of where to put the insertion point are:
-                # end of text, beginning of text, or -1, which 
-                # experimentation reveals to take it away completely.
-                # However, sometimes the value doesn't display with
-                # the -1 trick. So... for now, keep at 0...
-                self.SetInsertionPoint(0)
-                self.SetSelection(-1,-1) # select all text
-        except:
-            pass
-        
-    def OnKillFocus(self, event):
-        #print "killfocus: %s" % self.GetValue()
-        try:
-            if self.selectOnEntry == True:
-                self.SetSelection(0,0) # selects no text in text box
-        except:
-            pass
-        try:
-            curVal = self.GetValue()
-        except AttributeError:
-            curVal = None
-            
-        if curVal <> self._oldVal:
-            # Raise an event that the field value has changed,
-            # so that a parent can react appropriately
-            evt = dEvents.dEvent(dEvents.EVT_FIELDCHANGED, self.GetId())
-            self.GetEventHandler().ProcessEvent(evt)
+    def OnKillFocus(self, event):event.Skip()
             
     def OnEnterWindow(self, event):
         event.Skip()
@@ -151,12 +99,7 @@ class dControlMixin:
         # Skip() here in the framework, leaving that detail hidden from
         # the user of the framework.
         event.Skip()
-    
-    def onValueRefresh(self, event): 
-        print "onValueRefresh received by %s" % (self.GetName(),)
-        self.refresh()
-        event.Skip()
-    
+   
     def _getEventNameFromIdentifier(self, Id):
         try:
             eventName = self.eventDict[Id]

@@ -1,4 +1,4 @@
-import wx, dEvents, dControlMixin
+import wx, dEvents, dControlMixin, dDataControlMixin
 
 class dForm(wx.Frame):
     def __init__(self, frame=None, resourceString=None):
@@ -49,16 +49,17 @@ class dForm(wx.Frame):
         # the field value changed, and the object to receive
         # the notification from the form that it's time to 
         # refresh its value.
-        dControlMixin.dControlMixin.EVT_FIELDCHANGED(control, 
-                        control.GetId(), self.onFieldChanged)
-        dForm.EVT_VALUEREFRESH(self, self.GetId(), control.onValueRefresh)
+        if isinstance(control, dDataControlMixin.dDataControlMixin):
+            dDataControlMixin.dDataControlMixin.EVT_FIELDCHANGED(control, 
+                            control.GetId(), self.onFieldChanged)
+            dForm.EVT_VALUEREFRESH(self, self.GetId(), control.onValueRefresh)
         
     def onFieldChanged(self, event):
-        ''' A control is saying that its value has changed, so action is needed 
-            to notify the bizobj.
+        ''' A control is saying that its value has changed. Not sure if
+            this event callback is needed at all, actually, as the appropriate
+            action has already been taken in self.setFieldVal() directly.
         '''
         control = self.FindWindowById(event.GetId())
-        
         if self.debug:
             print "\nEvent onFieldChanged received by %s.\n"\
                 "     Control: %s \n" \
@@ -113,12 +114,19 @@ class dForm(wx.Frame):
             print "in dForm.first(): No bizobjs defined."
         self.refreshControls()
     
-    def getFieldVal(self, dataSource, fieldSource):
-        #print "bizobjs", self.bizobjs
-        #print "bizobjNames", self.bizobjNames
-        bizobj = self.bizobjs[self.bizobjNames[dataSource]]
-        return bizobj.getFieldVal(fieldSource)
-        
+    def getFieldVal(self, dataSource, dataField):
+        ''' A dControl wants to know what its value should be. '''
+        bizobj = self.getBizobj(dataSource)
+        return bizobj.getFieldVal(dataField)
+    
+    def setFieldVal(self, dataSource, dataField, value):
+        ''' A dControl wants to update the value in the bizobj. '''
+        bizobj = self.getBizobj(dataSource)
+        return bizobj.setFieldVal(dataField, value)
+
+    def getBizobj(self, dataSource):
+        return self.bizobjs[self.bizobjNames[dataSource]]
+            
 if __name__ == "__main__":
     import test
     test.Test().runTest(dForm)

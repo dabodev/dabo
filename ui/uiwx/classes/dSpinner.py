@@ -1,18 +1,21 @@
 import wx
 from dControlMixin import dControlMixin
+from dDataControlMixin import dDataControlMixin
 
-class dSpinner(wx.SpinCtrl, dControlMixin):
+class dSpinner(wx.SpinCtrl, dDataControlMixin, dControlMixin):
     def __init__(self, parent):
         widgetId = wx.NewId()
         wx.SpinCtrl.__init__(self, parent, widgetId)
         self.SetName("dSpinner")
         dControlMixin.__init__(self)
+        dDataControlMixin.__init__(self)
         
         self.SetRange(-64000, 64000)
     
     def initEvents(self):
         # init the common events:
         dControlMixin.initEvents(self)
+        dDataControlMixin.initEvents(self)
         
         # init the widget's specialized event(s):
         wx.EVT_SPINCTRL(self, self.GetId(), self.onEvent)
