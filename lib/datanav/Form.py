@@ -456,13 +456,10 @@ class Form(dabo.ui.dForm):
 		self.pageFrame.GetPage(0).requery()
 
 
-	def afterNew(self):
-		""" dForm will call this after a new record has been successfully added.
-		Make the edit page active, as a convenience to the user.
-		"""
-		self.pageFrame.SetSelection(2)
+	def onNew(self, evt):
+		self.pageFrame.newByDataSource(self.getBizobj().DataSource)
 
-		
+
 	def pickRecord(self):
 		""" This form is a picklist, and the user chose a record in the grid.
 		"""
