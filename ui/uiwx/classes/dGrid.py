@@ -505,7 +505,7 @@ class dGrid(wx.grid.Grid):
                 self.deleteRecord()
             elif keyCode == 343:    # F2
                 self.processSort()
-            elif char and char.isalnum() and not evt.HasModifiers():
+            elif char and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
                 self.addToIncrementalSearch(char)
             else:
                 evt.Skip()

@@ -56,7 +56,7 @@ class dSelectPage(dPage):
         self.selectOptionsPanel = self._getSelectOptionsPanel()
         self._initEnabled()
         self.GetSizer().Add(self.selectOptionsPanel, 0, wx.GROW|wx.ALL, 5)
-        #self.requery()
+        self.selectOptionsPanel.SetFocus()
 
     def OnSelectCheckbox(self, event):
         self._setEnabled(event.GetEventObject())
