@@ -3,9 +3,9 @@
     interactive Python session and 'import bizZip'. 
 '''
 from dabo.db.dConnection import dConnection
-from dabo.biz import dBiz
+from dabo.biz import dBizobj
 
-class bizZip(dBiz):
+class bizZip(dBizobj):
     dataSource = "zipcodes"
     keyField = "iid"
     sql = "select * from zipcodes where ccity like 'penf%' "

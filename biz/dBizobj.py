@@ -2,7 +2,7 @@ import dabo.dConstants as k
 import dabo.db.dConnection as dConnection
 from dabo.db.dCursor import dCursor
 
-class dBiz(object):
+class dBizObj(object):
     # Title of the cursor. Used in resolving DataSource references
     dataSource = ""
     # SQL statement used to create the cursor's data

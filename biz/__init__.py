@@ -18,5 +18,5 @@ Ed Leafe writes:
 So, dabo.biz sits in between dabo.db and dabo.ui
 
 '''
-from dBiz import dBiz
+from dBizobj import dBizobj
 
