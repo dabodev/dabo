@@ -14,7 +14,7 @@ class dFormDataNav(dForm):
             + Edit   : Edit the current record in the result set.
     '''
     def __init__(self, parent=None, name="dFormDataNav", resourceString=None):
-        super(dFormDataNav, self).__init__(parent, name, resourceString)
+        dForm.__init__(self, parent, name, resourceString)
         
         self._columnDefs = {}
     
@@ -123,27 +123,19 @@ class dFormDataNav(dForm):
         Called whenever the primary bizobj is set or whenever this
         frame receives the focus.
         '''
-        if isinstance(self, wx.MDIChildFrame):
-            # Attach the menu to the main frame
-            mb = self.dApp.mainFrame.GetMenuBar()
-            menuIndex = mb.FindMenu("&Navigation")
-            if menuIndex >= 0:
-                mb.Remove(menuIndex)
-        else:
-            # Attach the menu to this frame
-            mb = self.GetMenuBar()
-        menuIndex = mb.GetMenuCount()-1
+        mb = self.GetMenuBar()
+
+        menuIndex = mb.FindMenu("&Navigation")
         if menuIndex < 0:
-            menuIndex = 0
+            menuIndex = mb.GetMenuCount()-1
+            if menuIndex < 0:
+                menuIndex = 0
             
-        ### The intent is for the Navigation menu to be positioned before
-        ### the Help menu, but it isn't working. No matter what I set for
-        ### menuIndex, the nav menu always appears at the end.
-        mb.Insert(menuIndex, self.getMenu(), "&Navigation")
-        
-        if not isinstance(self, wx.MDIChildFrame):
-            self.SetMenuBar(mb)
-            
+            ### The intent is for the Navigation menu to be positioned before
+            ### the Help menu, but it isn't working. No matter what I set for
+            ### menuIndex, the nav menu always appears at the end.
+            mb.Insert(menuIndex, self.getMenu(), "&Navigation")
+         
                 
     def setupPageFrame(self):
         ''' Set up the select/browse/edit/n pageframe.
