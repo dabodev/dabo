@@ -388,8 +388,14 @@ class dDataNavForm(dForm.dForm):
 			biz.setFieldClause("")
 			for fld in self.FieldSpecs.keys():
 				fldInfo = self.FieldSpecs[fld]
-				if int(fldInfo["editInclude"]) or int(fldInfo["listInclude"]):
-					biz.addField("%s.%s as %s" % (tbl, fld, fld) )
+				#if int(fldInfo["editInclude"]) or int(fldInfo["listInclude"]):
+				## pkm: No! If the field is included in the fieldSpec file, it needs to
+				##      be part of the SQL fields clause, whether or not it is to be
+				##      included in in the browse or edit pages. Consider, for example,
+				##      the pk field: That needs to be included but you most likely don't
+				##      want to show it in the UI. There could be plenty of fields that
+				##      the developer wants to grab but not show the user.
+				biz.addField("%s.%s as %s" % (tbl, fld, fld) )
 			biz.setFromClause(tbl)
 	
 			self.childViews = []

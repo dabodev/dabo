@@ -736,7 +736,7 @@ class dEditPage(DataNavPage):
 					mainSizer.append( (10, -1) )
 					mainSizer.append(grdLabel, 0, "expand", alignment="center", 
 							border=10, borderFlags=("left", "right") )
-					grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid")
+					grid = self.addObject(dDataNavGrid.dDataNavGrid, "BrowseGrid", _explicitName=False)
 					grid.fieldSpecs = self.Form.getFieldSpecsForTable(child)
 					grid.DataSource = child
 					grid.setBizobj(childBiz)
