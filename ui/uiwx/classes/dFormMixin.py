@@ -8,6 +8,8 @@ class dFormMixin(pm.dPemMixin):
 	def __init__(self):
 		dFormMixin.doDefault()
 		self.debug = False
+		
+		self.debugText = ""
 
 		wx.EVT_CLOSE(self, self.OnClose)
 		wx.EVT_SET_FOCUS(self, self.OnSetFocus)
@@ -45,6 +47,19 @@ class dFormMixin(pm.dPemMixin):
 		""" Subclasses can extend the menu bar here.
 		"""
 		pass
+
+
+	def onDebugDlg(self, evt):
+		# Handy hook for getting info.
+		dlg = wx.TextEntryDialog(self, "Command to Execute", "Debug", self.debugText)
+		if dlg.ShowModal() == wx.ID_OK:
+			self.debugText = dlg.GetValue()
+			try:
+				# Handy shortcuts for common references
+				bo = self.getBizobj()
+				exec(self.debugText)
+			except: print "Could not execute:", self.debugText
+		dlg.Destroy()	
 
 
 	def getMenu(self):

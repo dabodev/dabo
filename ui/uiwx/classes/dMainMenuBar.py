@@ -20,6 +20,10 @@ class FileMenu(m.dMenu):
 	def __init__(self, mainFrame):
 		FileMenu.doDefault(mainFrame)
 
+		item = wx.MenuItem(self, -1, "Debug Info\tCtrl+D", "Hook for printing out debug info" ) 
+		self.AppendItem(item)
+		mainFrame.Bind(wx.EVT_MENU, mainFrame.onDebugDlg, item)
+
 		item = wx.MenuItem(self, -1, "E&xit\tAlt+F4", "Exit the application")
 		item.SetBitmap(dIcons.getIconBitmap("close"))
 		self.AppendItem(item)
