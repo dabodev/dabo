@@ -3,19 +3,29 @@ import dabo
 from dabo.dLocalize import _
 
 class EventMixin(object):
-	""" Mix-in class making objects know how to bind and raise Dabo events.
+	"""Mix-in class making objects know how to bind and raise Dabo events.
 
 	All Dabo objects inherit this functionality.	
 	"""
 	def bindEvent(self, eventClass, function):
-		""" Bind a dEvent to a callback function.
+		"""Bind a dEvent to a callback function.
 		"""
-		self.EventBindings.append((eventClass, function))
+		self._EventBindings.append((eventClass, function))
 		
+
+	def bindEvents(self, bindings):
+		"""Bind a sequence of [dEvent, callback] lists.
+		"""
+		if type(bindings) in (list, tuple):
+			for binding in bindings:
+				self.bindEvent(binding[0], binding[1])
+		else:
+			raise TypeError, "Sequence expected."
 		
+
 	def raiseEvent(self, eventClass, uiEvent=None, 
 	               uiCallAfterFunc=None, *args, **kwargs):
-		""" Send the event to all registered listeners.
+		"""Send the event to all registered listeners.
 		
 		If uiEvent is sent, dEvents.Event will be able to parse it for useful
 		information to send along to the callback. If uiCallAfterFunc is sent, the
@@ -53,7 +63,7 @@ class EventMixin(object):
 		event = eventClass(self, uiEvent, *args, **kwargs)
 		
 		# Now iterate the bindings, and execute the callbacks:
-		for binding in self.EventBindings:
+		for binding in self._EventBindings:
 			bindingClass, bindingFunction = binding[0], binding[1]
 			if bindingClass == eventClass:
 				if uiCallAfterFunc:
@@ -98,12 +108,12 @@ class EventMixin(object):
 		removed.
 		"""
 		if eventClass is None and function is None:
-			# Short-circuit: blank the entire list of EventBindings
-			self.EventBindings = []
+			# Short-circuit: blank the entire list of _EventBindings
+			self._EventBindings = []
 		else:			
-			# Iterate through EventBindings and remove the appropriate ones
-			for index in range(len(self.EventBindings), 0, -1):
-				binding = self.EventBindings.pop()
+			# Iterate through _EventBindings and remove the appropriate ones
+			for index in range(len(self._EventBindings), 0, -1):
+				binding = self._EventBindings.pop()
 				bindingClass, bindingFunction = binding[0], binding[1]
 				
 				if (eventClass is None or bindingClass == eventClass) and (
@@ -112,7 +122,7 @@ class EventMixin(object):
 						pass
 				else:
 					# Not matched: put it back
-					self.EventBindings.append(binding)
+					self._EventBindings.append(binding)
 
 		
 	def _getEventBindings(self):
@@ -128,7 +138,7 @@ class EventMixin(object):
 		else:
 			raise ValueError, "EventBindings must be a list."
 		
-	EventBindings = property(_getEventBindings, _setEventBindings, None, 
+	_EventBindings = property(_getEventBindings, _setEventBindings, None, 
 		_("The list of event bindings ([Event, callback]) for this object."))		
 	
 
@@ -142,13 +152,13 @@ if __name__ == "__main__":
 			print "evtObject:", eventObject
 		
 	o = EventMixin()
-	print "EventBindings:", o.EventBindings
+	print "EventBindings:", o._EventBindings
 	
 	o.bindEvent(TestEvent, testFunc)
-	print "EventBindings:", o.EventBindings
+	print "EventBindings:", o._EventBindings
 
 	o.raiseEvent(TestEvent)
 	
 	o.unBindEvent(TestEvent)
-	print "EventBindings:", o.EventBindings
+	print "EventBindings:", o._EventBindings
 		
