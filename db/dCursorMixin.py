@@ -557,7 +557,7 @@ class dCursorMixin:
 						# Some databases have specific rules for formatting date values.
 						vals += ", " + self.formatDateTime(vv)
 					else:
-						vals += ", " + str(self.__escQuote(vv))
+						vals += ", " + str(self.escQuote(vv))
 				# Trim leading comma-space from the strings
 				flds = flds[2:]
 				vals = vals[2:]
@@ -932,7 +932,7 @@ class dCursorMixin:
 				ret += ", "
 			
 			if type(val) in (types.StringType, types.UnicodeType):
-				ret += fld + " = " + self.__escQuote(val) + " "
+				ret += fld + " = " + self.escQuote(val) + " "
 			else:
 				if type(val) == type(datetime.date(1,1,1)):
 					ret += fld + " = " + self.formatDateTime(val)
@@ -976,19 +976,11 @@ class dCursorMixin:
 		del self.holddesc[stackPos]		
 
 
-	def __escQuote(self, val):
-		""" Escape special characters in SQL strings.
-
-		Escapes any single quotes that could cause SQL syntax errors. Also 
-		escapes backslashes, since they have special meaning in SQL parsing. 
-		Finally, wraps the value in single quotes.
-		"""
+	def escQuote(self, val):
+		""" Escape special characters in SQL strings. """
 		ret = val
 		if type(val) in (types.StringType, types.UnicodeType):
-			# escape and then wrap in single quotes
-			sl = "\\"
-			qt = "\'"
-			ret = qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
+			ret = self.BackendObject.escQuote(val)
 		return ret          
 
 

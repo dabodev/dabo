@@ -26,6 +26,13 @@ class MySQL(dBackend):
 	def getDictCursorClass(self):
 		import MySQLdb.cursors as cursors
 		return cursors.DictCursor
+
+	def escQuote(self, val):
+		# escape backslashes and single quotes, and
+		# wrap the result in single quotes
+		sl = "\\"
+		qt = "\'"
+		return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
 	
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """

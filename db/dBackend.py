@@ -39,6 +39,16 @@ class dBackend(dabo.common.dObject):
 		the default is to return the original value.
 		"""
 		return val
+
+	def escQuote(self, val):
+		""" Escape special characters in SQL strings.
+
+		Escapes any single quotes that could cause SQL syntax errors, as well 
+		as any other characters which have special meanings with the backend
+		database's engine.
+		"""
+		# OVERRIDE IN SUBCLASSES!
+		return val
 	
 	def getLastInsertID(self, cursor):
 		""" Return the ID of the last inserted row, or None.

@@ -29,6 +29,13 @@ class Firebird(dBackend):
 	def getDictCursorClass(self):
 		return kinterbasdb.Cursor
 
+	def escQuote(self, val):
+		# escape backslashes and single quotes, and
+		# wrap the result in single quotes
+		sl = "\\"
+		qt = "\'"
+		return qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
+	
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
@@ -56,16 +63,58 @@ class Firebird(dBackend):
 
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
-		tempCursor.execute("select rdb$field_name from rdb$relation_fields "
-			"where rdb$relation_name = '%s'" % tableName)
+
+		sql = """  SELECT b.RDB$FIELD_NAME, d.RDB$TYPE_NAME,
+ c.RDB$FIELD_LENGTH, c.RDB$FIELD_SCALE, b.RDB$FIELD_ID
+ FROM RDB$RELATIONS a
+ INNER JOIN RDB$RELATION_FIELDS b
+ ON a.RDB$RELATION_NAME = b.RDB$RELATION_NAME
+ INNER JOIN RDB$FIELDS c
+ ON b.RDB$FIELD_SOURCE = c.RDB$FIELD_NAME
+ INNER JOIN RDB$TYPES d
+ ON c.RDB$FIELD_TYPE = d.RDB$TYPE
+ WHERE a.RDB$SYSTEM_FLAG = 0
+ AND d.RDB$FIELD_NAME = 'RDB$FIELD_TYPE'
+ AND a.RDB$RELATION_NAME = '%s'
+ ORDER BY b.RDB$FIELD_ID """ % tableName.upper()
+# ORDER BY a.RDB$RELATION_NAME, b.RDB$FIELD_ID """ % tableName.upper()
+ 
+		tempCursor.execute(sql)
 		rs = tempCursor.fetchall()
 		
-		# This isn't fully implemented yet. You'll get the field names but not
-		# the field types or whether the field is a pk or not.
+		# This isn't fully implemented yet. We need to determine which field is the PK.
 		fields = []
 		for r in rs:
 			name = r[0]
-			ft = "?"
+			
+			ftype = r[1].strip().lower()
+			if ftype == "text":
+				ft = "C"
+			elif ftype == "varying":
+				if r[2] > 64:
+					ft = "M"
+				else:
+					ft = "C"
+			elif ftype in ("long", "short", "int64", "double"):
+				# Can be either integers or float types, depending on column 3
+				if r[3] == 0:
+					# integer
+					ft = "I"
+				else:
+					ft = "N"
+			elif ftype == "float":
+				ft = "N"
+			elif ftype == "date":
+				ft = "D"
+			elif ftype == "time":
+				# Default it to character for now
+				ft = "C"
+			elif ftype == "timestamp":
+				ft = "T"
+			else:
+				# BLOB
+				ft = "?"
+
 			pk = False
 			
 			fields.append((name.strip(), ft, pk))
