@@ -5,9 +5,8 @@ import dMessageBox, dEvents, wx
 class dSelectPage(dPage.dPage):
 
     def __init__(self, parent):
-        super(dSelectPage, self).__init__(parent, "SelectPage")
-    
-    
+        super(dSelectPage, self).__init__(parent, "pageSelect")
+                
     def createItems(self):
         self.selectOptionsPanel = self._getSelectOptionsPanel()
         self._initEnabled()
@@ -256,10 +255,11 @@ class dSelectPage(dPage.dPage):
 
 
 class dBrowsePage(dPage.dPage):
-    def __init__(self, parent):
-        super(dBrowsePage, self).__init__(parent, "BrowsePage")
 
-            
+    def __init__(self, parent):
+        super(dBrowsePage, self).__init__(parent, "pageBrowse")
+        
+                    
     def onRowNumChanged(self, event):
         # If RowNumChanged is received AND we are the
         # active page, select the row in the grid
@@ -315,9 +315,9 @@ class dBrowsePage(dPage.dPage):
 class dEditPage(dPage.dPage):
 
     def __init__(self, parent):
-        super(dEditPage, self).__init__(parent, "EditPage")
-    
-    
+        super(dEditPage, self).__init__(parent, "pageEdit")
+
+                    
     def onEnterPage(self):
         super(dEditPage, self).onEnterPage()
         self.onValueRefresh()

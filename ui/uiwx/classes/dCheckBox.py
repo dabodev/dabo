@@ -2,11 +2,19 @@ import wx
 import dControlMixin as cm
 import dDataControlMixin as dcm
 
+
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin, cm.dControlMixin):
     def __init__(self, parent, name="dCheckBox", label=""):
-        wx.CheckBox.__init__(self, parent, -1, label)
+        pre = wx.PreCheckBox()
+        self.beforeInit(pre)                  # defined in dPemMixin
+        pre.Create(parent, -1, label)
+        
+        self.this = pre.this
+        self._setOORInfo(self)
+        
         cm.dControlMixin.__init__(self, name)
         dcm.dDataControlMixin.__init__(self)
+        self.afterInit()                      # defined in dPemMixin
 
             
     def initEvents(self):

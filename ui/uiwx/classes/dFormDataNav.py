@@ -11,9 +11,10 @@ class dFormDataNav(frm.dForm):
             + Browse : Browse the result set and pick an item to edit.
             + Edit   : Edit the current record in the result set.
     '''
-    def __init__(self, parent=None, name="dFormDataNav", resourceString=None):
-        super(dFormDataNav, self).__init__(parent, name, resourceString)
-        
+    #def __init__(self, parent=None, name="dFormDataNav", resourceString=None):
+    #    super(dFormDataNav, self).__init__(parent, name, resourceString)
+    
+    def beforeInit(self, preObject):    
         self._columnDefs = {}
 
             

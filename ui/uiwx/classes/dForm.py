@@ -10,8 +10,10 @@ from dabo.dLocalize import _
 # type frames.
 if wx.Platform == '__WXMSW__':
     wxFrameClass = wx.MDIChildFrame
+    wxPreFrameClass = wx.PreMDIChildFrame
 else:
     wxFrameClass = wx.Frame
+    wxPreFrameClass = wx.PreFrame
 
 
 class dForm(wxFrameClass, fm.dFormMixin):
@@ -26,8 +28,14 @@ class dForm(wxFrameClass, fm.dFormMixin):
             style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT
         else:
             style = wx.DEFAULT_FRAME_STYLE
-        wxFrameClass.__init__(self, parent, -1, "", style=style)
-
+        
+        pre = wxPreFrameClass()
+        self.beforeInit(pre)                  # defined in dPemMixin
+        pre.Create(parent, -1, '', style=style)
+        
+        self.this = pre.this
+        self._setOORInfo(self)
+        
         self.Name = name
         self.Caption = name
         
@@ -55,6 +63,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
         self.SetSizer(wx.BoxSizer(wx.VERTICAL))
         self.GetSizer().Layout()
         
+        self.afterInit()                      # defined in dPemMixin
+
         
     def addBizobj(self, bizobj):
         ''' Add a bizobj to this form.

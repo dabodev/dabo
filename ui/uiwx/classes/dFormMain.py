@@ -7,15 +7,24 @@ import dFormMixin as fm
 # type frames.
 if wx.Platform == '__WXMSW__':      # Microsoft Windows
     wxFrameClass = wx.MDIParentFrame
+    wxPreFrameClass = wx.PreMDIParentFrame
 else:
     wxFrameClass = wx.Frame
+    wxPreFrameClass = wx.PreFrame
 
 class dFormMain(wxFrameClass, fm.dFormMixin):
     def __init__(self, dApp=None):
-        wxFrameClass.__init__(self, None, -1, "dFormMain")
+        pre = wxPreFrameClass()
+        self.beforeInit(pre)                  # defined in dPemMixin
+        pre.Create(None, -1, "dFormMain")
+        
+        self.this = pre.this
+        self._setOORInfo(self)
+        
         self.SetName("dFormMain")
         self.SetSize((640,480))
         self.SetPosition((0,0))
+
         fm.dFormMixin.__init__(self, dApp)
         
         if wx.Platform != '__WXMAC__':
@@ -29,6 +38,7 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
             self.SetLabel("Dabo")
             self.setStatusText("Welcome to Dabo!")
         
+        self.afterInit()                      # defined in dPemMixin
         
 if __name__ == "__main__":
     import test

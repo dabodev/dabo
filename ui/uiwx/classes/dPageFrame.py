@@ -1,10 +1,22 @@
 import wx, dControlMixin
 
 class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
+    
     def __init__(self, parent, name="dPageFrame"):
-        wx.Notebook.__init__(self, parent, -1)
+        pre = wx.PreNotebook()
+        self.beforeInit(pre)                  # defined in dPemMixin
+        pre.Create(parent, -1)
+        
+        self.this = pre.this
+        self._setOORInfo(self)
+        
         dControlMixin.dControlMixin.__init__(self, name)
+        self.afterInit()                      # defined in dPemMixin
+        
+        
+    def afterInit(self):
         self.lastSelection = 0
+        super(dPageFrame, self).afterInit()
 
         
     def initEvents(self):

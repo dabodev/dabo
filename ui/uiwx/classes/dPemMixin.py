@@ -1,4 +1,5 @@
 ''' dPemMixin.py: Provide common PEM functionality '''
+import wx
 
 class dPemMixin(object):
     ''' Provide Property/Event/Method interfaces for dForms and dControls.
@@ -6,7 +7,37 @@ class dPemMixin(object):
     Subclasses can extend the property sheet by defining their own get/set
     functions along with their own property() statements.
     '''
+    def __getattr__(self, att):
+        ''' Try to resolve att to a child object reference.
+        
+        This allows accessing children with the style:
+           self.mainPanel.txtName.Value = "test"
+        '''
+        ret = self.FindWindowByName(att)
+        if not ret:
+            raise AttributeError, "%s object has no attribute %s" % (
+                self.GetName(), att)
+        return ret
+
+                
+    def beforeInit(self, preCreateObject):
+        ''' Called before the wx object is fully instantiated.
+        
+        Allows things like extra style flags to be set or XRC resources to
+        be loaded. Subclasses can override this as necessary.
+        '''
+        pass
+        
     
+    def afterInit(self):
+        ''' Called after the wx object's __init__ has run fully.
+        
+        Subclasses should place their __init__ code here in this hook,
+        instead of overriding __init__ directly.
+        '''
+        pass
+        
+            
     def getPropertyList(classOrInstance):
         ''' Return the list of properties for this object (class or instance).
         '''

@@ -3,9 +3,14 @@ import dPageFrame as pgf
 import dPageDataNav as pag
 
 class dPageFrameDataNav(pgf.dPageFrame):
+    
     def __init__(self, parent, name="dPageFrameDataNav"):
         super(dPageFrameDataNav, self).__init__(parent, name)
-        self.addDefaultPages()        
+    
+    
+    def afterInit(self):
+        self.addDefaultPages()
+        super(dPageFrameDataNav, self).afterInit()
 
         
     def addDefaultPages(self):

@@ -4,11 +4,19 @@ import wx, dControlMixin
 class dPage(wx.Panel, dControlMixin.dControlMixin):
         
     def __init__(self, parent, name="dPage"):
-        wx.Panel.__init__(self, parent, 0)
+        pre = wx.PrePanel()
+        self.beforeInit(pre)                  # defined in dPemMixin
+        pre.Create(parent, 0)
+        
+        self.this = pre.this
+        self._setOORInfo(self)
+        
         dControlMixin.dControlMixin.__init__(self, name)
-
+        
         self.initSizer()
         self.itemsCreated = False
+        
+        self.afterInit()                      # defined in dPemMixin
         
     
     def initSizer(self):

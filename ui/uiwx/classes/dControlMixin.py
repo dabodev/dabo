@@ -6,11 +6,12 @@ import dPemMixin as pm
 class dControlMixin(pm.dPemMixin):
     ''' Provide common functionality for all controls.
     '''
-    def __init__(self, name):
+    def __init__(self, name=None):
         pm.dPemMixin.__init__(self)
         
         self.debug = False
-        self.Name = name
+        if name:
+            self.Name = name
         self.Caption = self.getDefaultText()
         
         # Subclass will intercept the initEvents first, allowing
@@ -98,12 +99,3 @@ class dControlMixin(pm.dPemMixin):
         event.Skip()
 
         
-    def setDefaultFont(self):
-        ''' Set the default font properties for the control.
-        '''
-        font = self.GetFont()
-        if self.GetClassName() == "wxStaticText":
-            font.SetPointSize(10)
-        self.SetFont(font)
-   
-
