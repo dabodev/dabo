@@ -60,7 +60,8 @@ class dDateTextBox(dTextBox.dTextBox):
 		# Default format; can be changed in setup code or in RightClick
 		self.dateFormat = "American"
 		# Pattern for recognizing dates from databases
-		self.dbPat = re.compile("(\d{4})[-/.](\d{2})[-/.](\d{2}) (\d{2}):(\d{2}):([\d\.]+)")
+		self.dbDTPat = re.compile("(\d{4})[-/\.](\d{1,2})[-/\.](\d{1,2}) (\d{1,2}):(\d{1,2}):([\d\.]+)")
+		self.dbDPat = re.compile("(\d{4})[-/\.](\d{1,2})[-/\.](\d{1,2})")
 		# Two-digit year value that is the cutoff in interpreting 
 		# dates as being either 19xx or 20xx.
 		self.rollover = 50
@@ -313,8 +314,9 @@ C: Popup Calendar to Select
 		
 		# See if it matches any standard pattern. Values retrieved
 		# from databases will always be in their own format
-		if self.dbPat.match(val):
-			year, month, day, hr, mn, sec = self.dbPat.match(val).groups()
+		if self.dbDTPat.match(val):
+			# DateTime pattern
+			year, month, day, hr, mn, sec = self.dbDTPat.match(val).groups()
 			# Convert to numeric
 			year = int(year)
 			month = int(month)
@@ -322,6 +324,14 @@ C: Popup Calendar to Select
 			hr = int(hr)
 			mn = int(mn)
 			sec = int(round(float(sec), 0) )
+		elif self.dbDPat.match(val):
+			# Date-only pattern
+			year, month, day = self.dbDPat.match(val).groups()
+			hr, mn, sec = 0
+			# Convert to numeric
+			year = int(year)
+			month = int(month)
+			day = int(day)
 		else:
 			# See if there is a time component
 			try:
@@ -393,7 +403,7 @@ C: Popup Calendar to Select
 			if not testing:
 				# Don't fill up the logs with error messages from tests that 
 				# are expected to fail.
-				dabo.errorLog.write(_("Invalid date specified. Y,M,D = %s, %s, %s" % (year, month, day) ))
+				dabo.errorLog.write(_("Invalid date specified. Y,M,D, val = %s, %s, %s, %s" % (year, month, day, val) ))
 			ret = None
 		return ret
 	
