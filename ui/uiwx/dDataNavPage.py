@@ -29,6 +29,7 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 	def initEvents(self):
 		SelectionOpDropdown.doDefault()
 		self.bindEvent(dEvents.Hit, self.onChoiceMade)
+		self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
 		
 	def setTarget(self, tgt):
 		""" Sets the reference to the object that will receive focus
@@ -36,16 +37,19 @@ class SelectionOpDropdown(dDropdownList.dDropdownList):
 		"""
 		self.target = tgt
 		
-	def onChoiceMade(self, evt):
+	def onValueChanged(self, evt):
+		# italicize if we are ignoring the field:
 		self.FontItalic = (IGNORE_STRING in self.StringValue)
+		
+	def onChoiceMade(self, evt):
 		if self.target is not None:
 			self.target.FontItalic = self.FontItalic
 			if IGNORE_STRING not in self.StringValue:
 				# A comparison op was selected; let 'em enter a value
 				self.target.SetFocus()
-			
+		
 
-
+				
 class DataNavPage(dPage.dPage):
 	def afterInit(self):
 		#DataNavPage.doDefault()
@@ -155,9 +159,9 @@ class SelectOptionsPanel(dPanel.dPanel):
 		self.selectOptions = []
 		
 
-class sortLabel(dLabel.dLabel):
+class SortLabel(dLabel.dLabel):
 	def initEvents(self):
-		super(sortLabel, self).initEvents()
+		super(SortLabel, self).initEvents()
 		self.bindEvent(dEvents.MouseRightClick, self.Parent.Parent.onSortLabelRClick)
 		# Add a property for the related field
 		self.relatedDataField = ""
@@ -434,12 +438,11 @@ class dSelectPage(DataNavPage):
 			if int(fs[fld]["searchInclude"]):
 				fldList.append( (fld, int(fs[fld]["searchOrder"])) )
 		fldList.sort(lambda x, y: cmp(x[1], y[1]))
-		gridRow = 0
+		
 		for fldOrd in fldList:
-			gridRow += 1
 			fld = fldOrd[0]
 			fldInfo = fs[fld]
-			lbl = sortLabel(panel)
+			lbl = SortLabel(panel)
 			lbl.Caption = "%s:" % fldInfo["caption"]
 			lbl.relatedDataField = fld
 			
@@ -451,7 +454,6 @@ class dSelectPage(DataNavPage):
 			if not opList.StringValue:
 				opList.StringValue = opList.GetString(0)
 			opList.setTarget(ctrl)
-			opList.FontItalic = (IGNORE_STRING in opList.StringValue)
 			
 			gsz.append(lbl, alignment="right")
 			gsz.append(opList, alignment="left")
