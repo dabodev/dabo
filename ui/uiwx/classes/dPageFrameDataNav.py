@@ -28,11 +28,11 @@ class dPageFrameDataNav(pgf.dPageFrame):
 
 		self.AssignImageList(il)
 		
-		if self.dForm.FormType != 'Edit':
+		if self.Form.FormType != 'Edit':
 			self.AddPage(self.SelectPageClass(self), 'Select', imageId=0)
 			self.AddPage(self.BrowsePageClass(self), 'Browse', imageId=1)
 		
-		if self.dForm.FormType != 'PickList':
+		if self.Form.FormType != 'PickList':
 			self.AddPage(self.EditPageClass(self), 'Edit', imageId=2)
 
 			bizobj = self.Parent.getBizobj()

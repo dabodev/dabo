@@ -54,7 +54,7 @@ class dFormDataNav(frm.dForm):
 	def setupToolBar(self):
 		if isinstance(self, wx.MDIChildFrame):
 			# Toolbar will be attached to top-level frame
-			controllingFrame = self.dApp.mainFrame
+			controllingFrame = self.Application.mainFrame
 		else:
 			# Toolbar will be attached to this frame
 			controllingFrame = self

@@ -15,7 +15,7 @@ else:
 class dFormMain(wxFrameClass, fm.dFormMixin):
 	""" This is the main top-level form for the application.
 	"""
-	def __init__(self, dApp=None):
+	def __init__(self):
 
 		self._baseClass = dFormMain
 

@@ -51,7 +51,7 @@ class dDataControlMixin(pm.dPemMixin):
 		"""
 		if not self.bizobj:
 			# Ask the form for the bizobj reference, and cache for next time
-			self.bizobj = self.dForm.getBizobj(self.DataSource)
+			self.bizobj = self.Form.getBizobj(self.DataSource)
 		return self.bizobj.getFieldVal(self.DataField)
 
 
@@ -60,7 +60,7 @@ class dDataControlMixin(pm.dPemMixin):
 		"""
 		if not self.bizobj:
 			# Ask the form for the bizobj reference, and cache for next time
-			self.bizobj = self.dForm.getBizobj(self.DataSource)
+			self.bizobj = self.Form.getBizobj(self.DataSource)
 		return self.bizobj.setFieldVal(self.DataField, value)
 
 
@@ -85,7 +85,7 @@ class dDataControlMixin(pm.dPemMixin):
 		self.refresh()
 		
 		try:
-			if self.SelectOnEntry and self.dForm.FindFocus() == self:
+			if self.SelectOnEntry and self.Form.FindFocus() == self:
 				self.selectAll()
 		except AttributeError:
 			# only text controls have SelectOnEntry
@@ -147,29 +147,29 @@ class dDataControlMixin(pm.dPemMixin):
 		""" Save control's value to dApp's user settings table.
 		"""
 		try:
-			dApp = self.dForm.dApp
+			app = self.Application
 		except AttributeError:
-			dApp = None
+			app = None
 
 		# It is too late to get Value directly:		
 		value = self._oldVal	
 		
-		if dApp:
+		if app:
 			name = self.getAbsoluteName()
-			dApp.setUserSetting("%s.Value" % name, self.getShortDataType(value), value)
+			app.setUserSetting("%s.Value" % name, self.getShortDataType(value), value)
 		
 			
 	def restoreValue(self):
 		""" Set the control's value to the value in dApp's user settings table.
 		"""
 		try:
-			dApp = self.dApp
+			app = self.Application
 		except AttributeError:
-			dApp = None
+			app = None
 			
-		if dApp:
+		if app:
 			name = self.getAbsoluteName()
-			value = dApp.getUserSetting("%s.Value" % name)
+			value = app.getUserSetting("%s.Value" % name)
 
 			try:
 				self.Value = value

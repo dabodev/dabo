@@ -243,6 +243,26 @@ class dPemMixin(dabo.common.dObject):
 
 	# Property get/set/delete methods follow.
 
+	def _getForm(self):
+		""" Return a reference to the containing Form. 
+		"""
+		try:
+			return self._cachedForm
+		except AttributeError:
+			import dabo.ui
+			obj, frm = self, None
+			while obj:
+				parent = obj.Parent
+				if isinstance(parent, dabo.ui.dForm):
+					frm = parent
+					break
+				else:
+					obj = parent
+			if frm:
+				self._cachedForm = frm   # Cache for next time
+			return frm
+
+
 	def _getFont(self):
 		return self._pemObject.GetFont()
 	
@@ -357,7 +377,7 @@ class dPemMixin(dabo.common.dObject):
 	def _setName(self, name):
 		parent = self._pemObject.GetParent()
 		if parent:
-			if not self.dApp or self.dApp.AutoNegotiateUniqueNames:
+			if not self.Application or self.Application.AutoNegotiateUniqueNames:
 				i = 0
 				while True:
 					nameError = False
@@ -524,6 +544,9 @@ class dPemMixin(dabo.common.dObject):
 
 
 	# Property definitions follow
+	Form = property(_getForm, None, None,
+					'Object reference to the dForm containing the object. (read only).')
+	
 	WindowHandle = property(_getWindowHandle, None, None,
 					'The platform-specific handle for the window. Read-only. (long)')
 

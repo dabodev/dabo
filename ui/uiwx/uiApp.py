@@ -26,7 +26,7 @@ class uiApp(wx.App):
 
 		self.dApp = dApp
 
-		self.mainFrame = dFormMain(dApp)
+		self.mainFrame = dFormMain()
 		self.SetTopWindow(self.mainFrame)
 
 

@@ -43,8 +43,8 @@ class dLogin(dDialog):
 		
 	def initProperties(self):
 		dLogin.doDefault()
-		if self.dApp:
-			appName = self.dApp.getAppInfo("appName")
+		if self.Application:
+			appName = self.Application.getAppInfo("appName")
 		else:
 			appName = ''
 		if len(appName) > 0:

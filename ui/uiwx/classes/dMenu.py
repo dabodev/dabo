@@ -6,5 +6,5 @@ class dMenu(wx.Menu, pm.dPemMixin):
 	def __init__(self, mainFrame=None):
 		if mainFrame:
 			self.mainFrame = mainFrame
-			self.actionList = mainFrame.dApp.actionList
+			self.actionList = mainFrame.Application.actionList
 		dMenu.doDefault()

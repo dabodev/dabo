@@ -31,7 +31,7 @@ class dSecurityManager(dabo.common.dObject):
 									attempt+1, self.LoginAttemptsAllowed)
 			else:
 				message = _("Please enter your login information.")
-			user, password = self.dApp.uiApp.getLoginInfo(message)
+			user, password = self.Application.uiApp.getLoginInfo(message)
 
 			if user is None:
 				# login form canceled.

@@ -123,7 +123,7 @@ class dSelectPage(dPage.dPage):
 		evt.Skip()
 
 	def requery(self):
-		bizobj = self.dForm.getBizobj()
+		bizobj = self.Form.getBizobj()
 		where = self.getWhere()
 		bizobj.setWhereClause(where)
 		
@@ -141,7 +141,7 @@ class dSelectPage(dPage.dPage):
 		# But it won't automatically use that sql, so we set it here:
 		bizobj.setSQL(sql)
 
-		self.dForm.requery()
+		self.Form.requery()
 
 		if self.GetParent().GetSelection() == 0:
 			# If the select page is active, now make the browse page active
@@ -149,8 +149,8 @@ class dSelectPage(dPage.dPage):
 
 
 	def _getSelectOptionsPanel(self):
-		dataSource = self.dForm.getBizobj().DataSource
-		columnDefs = self.dForm.getColumnDefs(dataSource)
+		dataSource = self.Form.getBizobj().DataSource
+		columnDefs = self.Form.getColumnDefs(dataSource)
 		panel = SelectOptionsPanel(self)
 		
 		stringMatchAll = []
@@ -320,14 +320,14 @@ class dBrowsePage(dPage.dPage):
 
 
 	def updateGrid(self):
-		bizobj = self.dForm.getBizobj()
+		bizobj = self.Form.getBizobj()
 		if bizobj and bizobj.getRowCount() >= 0:
 			if not self.itemsCreated:
 				self.createItems()
 			if self.itemsCreated:
 				self.fillGrid()
 
-			row = self.dForm.getBizobj().getRowNumber()
+			row = self.Form.getBizobj().getRowNumber()
 			col = self.BrowseGrid.GetGridCursorCol()
 			self.BrowseGrid.SetGridCursor(row, col)
 			self.BrowseGrid.MakeCellVisible(row, col)
@@ -339,11 +339,11 @@ class dBrowsePage(dPage.dPage):
 
 
 	def createItems(self):
-		bizobj = self.dForm.getBizobj()
+		bizobj = self.Form.getBizobj()
 		grid = self.addObject(dGridDataNav.dGridDataNav, 'BrowseGrid')
 		grid.DataSource = bizobj.DataSource
 		self.GetSizer().Add(grid, 1, wx.EXPAND)
-		grid.columnDefs = self.dForm.getColumnDefs(bizobj.DataSource)
+		grid.columnDefs = self.Form.getColumnDefs(bizobj.DataSource)
 		
 		preview = self.addObject(dCommandButton.dCommandButton, 'cmdPreview')
 		preview.Caption = "Preview"
@@ -354,7 +354,7 @@ class dBrowsePage(dPage.dPage):
 
 
 	def fillGrid(self):
-		bizobj = self.dForm.getBizobj()
+		bizobj = self.Form.getBizobj()
 		self.BrowseGrid.fillGrid()
 		self.GetSizer().Layout()
 		for window in self.BrowseGrid.GetChildren():
@@ -362,12 +362,12 @@ class dBrowsePage(dPage.dPage):
 
 
 	def newRecord(self):
-		self.dForm.new()
+		self.Form.new()
 		self.editRecord()
 	
 		
 	def deleteRecord(self):
-		self.dForm.delete()
+		self.Form.delete()
 
 	
 	def editRecord(self):
@@ -378,7 +378,7 @@ class dBrowsePage(dPage.dPage):
 	def onPreview(self, event):
 		if self.itemsCreated:
 			html = self.grid.getHTML(justStub=False)
-			win = wx.html.HtmlEasyPrinting("Dabo Quick Print", self.dForm)
+			win = wx.html.HtmlEasyPrinting("Dabo Quick Print", self.Form)
 			printData = win.GetPrintData()
 			setupData = win.GetPageSetupData()
 			#printData.SetPaperId(wx.PAPER_LETTER)
@@ -390,7 +390,7 @@ class dBrowsePage(dPage.dPage):
 			#setupData.SetMarginTopLeft((17,7))
 			#s#etupData.SetMarginBottomRight((17,5))
 	#       # setupData.SetOrientation(wx.LANDSCAPE)
-			win.SetHeader("<B>%s</B>" % (self.dForm.Caption,))
+			win.SetHeader("<B>%s</B>" % (self.Form.Caption,))
 			win.SetFooter("<CENTER>Page @PAGENUM@ of @PAGESCNT@</CENTER>")
 			#win.PageSetup()
 			win.PreviewText(html)
@@ -408,7 +408,7 @@ class dEditPage(dPage.dPage):
 
 
 	def onValueRefresh(self, event=None):
-		form = self.dForm
+		form = self.Form
 		bizobj = form.getBizobj()
 		if bizobj and bizobj.getRowCount() >= 0:
 			self.Enable(True)
@@ -419,8 +419,8 @@ class dEditPage(dPage.dPage):
 
 
 	def createItems(self):
-		dataSource = self.dForm.getBizobj().DataSource
-		columnDefs = self.dForm.getColumnDefs(dataSource)
+		dataSource = self.Form.getBizobj().DataSource
+		columnDefs = self.Form.getColumnDefs(dataSource)
 
 		for column in columnDefs:
 
@@ -464,7 +464,7 @@ class dEditPage(dPage.dPage):
 				else:
 					label.Caption = '%s:' % column['caption']
 
-				if self.dForm.getBizobj().getRowCount() >= 0:
+				if self.Form.getBizobj().getRowCount() >= 0:
 					objectRef.refresh()
 
 				if fieldType in ['M',]:
@@ -489,7 +489,7 @@ class dChildViewPage(dPage.dPage):
 	def __init__(self, parent, dataSource):
 		dChildViewPage.doDefault(parent, 'pageChildView')
 		self.dataSource = dataSource
-		self.bizobj = self.dForm.getBizobj().getChildByDataSource(self.dataSource)
+		self.bizobj = self.Form.getBizobj().getChildByDataSource(self.dataSource)
 		self.pickListRef = None
 	
 	def onEnterPage(self):
@@ -515,7 +515,7 @@ class dChildViewPage(dPage.dPage):
 
 
 	def createItems(self):
-		cb = self.dForm.getChildBehavior(self.dataSource)
+		cb = self.Form.getChildBehavior(self.dataSource)
 		if cb['EnableNew']:
 			nb = self.addObject(dCommandButton.dCommandButton, 'cmdNew')
 			nb.Caption = "Add new child record"
@@ -529,7 +529,7 @@ class dChildViewPage(dPage.dPage):
 
 		
 	def fillGrid(self):
-		self.ChildViewGrid.columnDefs = self.dForm.getColumnDefs(self.dataSource)
+		self.ChildViewGrid.columnDefs = self.Form.getColumnDefs(self.dataSource)
 		self.ChildViewGrid.fillGrid()
 		self.GetSizer().Layout()
 		for window in self.ChildViewGrid.GetChildren():
@@ -539,7 +539,7 @@ class dChildViewPage(dPage.dPage):
 	def newItemPicked(self, evt):
 		pickBizobj = evt.GetEventObject().getBizobj()
 		pickedPK = pickBizobj.getPK()
-		cb = self.dForm.getChildBehavior(self.dataSource)
+		cb = self.Form.getChildBehavior(self.dataSource)
 		try:
 			fkField = cb['FK']
 		except KeyError:
@@ -562,7 +562,7 @@ class dChildViewPage(dPage.dPage):
 
 			
 	def newRecord(self, evt=None):
-		cb = self.dForm.getChildBehavior(self.dataSource)
+		cb = self.Form.getChildBehavior(self.dataSource)
 		if cb['EnableNew']:
 			try:
 				newBehavior = cb['NewBehavior']
@@ -587,7 +587,7 @@ class dChildViewPage(dPage.dPage):
 									PickList.doDefault()
 									self.Caption = "Picklist: %s" % self.Caption
 									
-							ref = PickList(self.dForm)
+							ref = PickList(self.Form)
 							self.pickListRef = ref
 						
 							EVT_ITEMPICKED = wx.PyEventBinder(dEvents.EVT_ITEMPICKED, 0)    
@@ -607,14 +607,14 @@ class dChildViewPage(dPage.dPage):
 	def deleteRecord(self):
 		""" Ask the bizobj to delete the current record.
 		"""
-		cb = self.dForm.getChildBehavior(self.dataSource)
+		cb = self.Form.getChildBehavior(self.dataSource)
 		if cb['EnableDelete']:
 			message = _("This will delete the highlighted child record, and cannot "
 							"be canceled.\n\n Are you sure you want to do this?")
 			if dMessageBox.areYouSure(message, defaultNo=True):
 				try:
 					self.bizobj.delete()
-					self.dForm.setStatusText(_("Child record deleted."))
+					self.Form.setStatusText(_("Child record deleted."))
 				except dException.dException, e:
 					dMessageBox.stop("Delete failed with response:\n%s" % str(e))
 				self.fillGrid()
@@ -623,7 +623,7 @@ class dChildViewPage(dPage.dPage):
 	
 			
 	def editRecord(self):
-		cb = self.dForm.getChildBehavior(self.dataSource)
+		cb = self.Form.getChildBehavior(self.dataSource)
 		if cb['EnableEdit']:
 			dMessageBox.stop("Editing childview records isn't supported yet.")
 		else:

@@ -15,11 +15,11 @@ class dFormMixin(pm.dPemMixin):
 		wx.EVT_ACTIVATE(self, self.OnActivate)
 
 		if self.Parent == wx.GetApp().GetTopWindow():
-			self.dApp.uiForms.add(self)
+			self.Application.uiForms.add(self)
 
 		self.restoredSP = False
 
-		if self.dApp:
+		if self.Application:
 			try:
 				self.SetMenuBar(mnb.dMainMenuBar(self))
 				self.afterSetMenuBar()
@@ -63,7 +63,7 @@ class dFormMixin(pm.dPemMixin):
 
 	def OnClose(self, event):
 		if self.GetParent() == wx.GetApp().GetTopWindow():
-			self.dApp.uiForms.remove(self)
+			self.Application.uiForms.remove(self)
 		self.saveSizeAndPosition()
 		event.Skip()
 
@@ -81,13 +81,13 @@ class dFormMixin(pm.dPemMixin):
 		Ask dApp for the last saved setting of height, width, left, and top, 
 		and set those properties on this form.
 		"""
-		if self.dApp:
+		if self.Application:
 			name = self.getAbsoluteName()
 
-			left = self.dApp.getUserSetting("%s.left" % name)
-			top = self.dApp.getUserSetting("%s.top" % name)
-			width = self.dApp.getUserSetting("%s.width" % name)
-			height = self.dApp.getUserSetting("%s.height" % name)
+			left = self.Application.getUserSetting("%s.left" % name)
+			top = self.Application.getUserSetting("%s.top" % name)
+			width = self.Application.getUserSetting("%s.width" % name)
+			height = self.Application.getUserSetting("%s.height" % name)
 
 			if (type(left), type(top)) == (type(int()), type(int())):
 				self.SetPosition((left,top))
@@ -98,9 +98,9 @@ class dFormMixin(pm.dPemMixin):
 	def saveSizeAndPosition(self):
 		""" Save the current size and position of this form.
 		"""
-		if self.dApp:
+		if self.Application:
 			if self == wx.GetApp().GetTopWindow():
-				for form in self.dApp.uiForms:
+				for form in self.Application.uiForms:
 					try:
 						form.saveSizeAndPosition()
 					except wx.PyDeadObjectError:
@@ -111,10 +111,10 @@ class dFormMixin(pm.dPemMixin):
 			pos = self.GetPosition()
 			size = self.GetSize()
 
-			self.dApp.setUserSetting("%s.left" % name, "I", pos[0])
-			self.dApp.setUserSetting("%s.top" % name, "I", pos[1])
-			self.dApp.setUserSetting("%s.width" % name, "I", size[0])
-			self.dApp.setUserSetting("%s.height" % name, "I", size[1])
+			self.Application.setUserSetting("%s.left" % name, "I", pos[0])
+			self.Application.setUserSetting("%s.top" % name, "I", pos[1])
+			self.Application.setUserSetting("%s.width" % name, "I", size[0])
+			self.Application.setUserSetting("%s.height" % name, "I", size[1])
 
 
 	def setStatusText(self, *args):
@@ -125,7 +125,7 @@ class dFormMixin(pm.dPemMixin):
 		versus non-MDI forms.
 		"""
 		if isinstance(self, wx.MDIChildFrame):
-			controllingFrame = self.dApp.mainFrame
+			controllingFrame = self.Application.mainFrame
 		else:
 			controllingFrame = self
 		if controllingFrame.GetStatusBar():
@@ -139,7 +139,7 @@ class dFormMixin(pm.dPemMixin):
 		menu.AppendItem(item)
 
 		if isinstance(self, wx.MDIChildFrame):
-			controllingFrame = self.dApp.mainFrame
+			controllingFrame = self.Application.mainFrame
 		else:
 			controllingFrame = self
 			
@@ -158,7 +158,7 @@ class dFormMixin(pm.dPemMixin):
 		toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
 
 		if isinstance(self, wx.MDIChildFrame):
-			controllingFrame = self.dApp.mainFrame
+			controllingFrame = self.Application.mainFrame
 		else:
 			controllingFrame = self
 		wx.EVT_MENU(controllingFrame, toolId, function)

@@ -46,7 +46,7 @@ class dPage(dPanel.dScrollPanel):
 
 		Subclasses may override.
 		"""
-		self.dForm.activeControlValid()
+		self.Form.activeControlValid()
 		pass
 
 

@@ -15,7 +15,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
 		wx.grid.PyGridTableBase.__init__(self)
 
-		self.bizobj = parent.dForm.getBizobj(parent.DataSource) 
+		self.bizobj = parent.Form.getBizobj(parent.DataSource) 
 		self.grid = parent
 
 		self.initTable()
@@ -42,8 +42,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.relativeColumns = [] 
 		for column in range(len(self.grid.columnDefs)):
 			if self.grid.columnDefs[column]['showGrid']:
-				order = self.grid.dApp.getUserSetting("%s.%s.%s.%s" % (
-							self.grid.dForm.Name, 
+				order = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
+							self.grid.Form.Name, 
 							self.grid.Name,
 							"Column%s" % column,
 							"ColumnOrder"))
@@ -128,8 +128,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				gridCol = index
 				fieldType = column['type']
 
-				width = self.grid.dApp.getUserSetting("%s.%s.%s.%s" % (
-							self.grid.dForm.Name, 
+				width = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
+							self.grid.Form.Name, 
 							self.grid.GetName(),
 							colName,
 							"Width"))
@@ -207,8 +207,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		for relativeColumn in self.relativeColumns:
 			column = self.grid.columnDefs[relativeColumn]
 			if column['showGrid']:
-				self.grid.dApp.setUserSetting("%s.%s.%s.%s" % (
-						self.grid.dForm.Name,
+				self.grid.Application.setUserSetting("%s.%s.%s.%s" % (
+						self.grid.Form.Name,
 						self.grid.Name,
 						"Column%s" % index,
 						"ColumnOrder"), "I", "%s" % (relativeColumn))
@@ -297,8 +297,8 @@ class dGridDataNav(dGrid.dGrid):
 		"""
 
 		# Get the default row size from dApp's user settings
-		s = self.dApp.getUserSetting("%s.%s.%s" % (
-						self.dForm.Name, 
+		s = self.Application.getUserSetting("%s.%s.%s" % (
+						self.Form.Name, 
 						self.GetName(),
 						"RowSize"))
 		if s:
@@ -315,8 +315,8 @@ class dGridDataNav(dGrid.dGrid):
 		col = event.GetRowOrCol()
 		width = self.GetColSize(col)
 
-		self.dApp.setUserSetting("%s.%s.%s.%s" % (
-						self.dForm.Name, 
+		self.Application.setUserSetting("%s.%s.%s.%s" % (
+						self.Form.Name, 
 						self.Name,
 						"Column%s" % self.GetTable().relativeColumns[col],
 						"Width"), "I", width)
@@ -332,10 +332,10 @@ class dGridDataNav(dGrid.dGrid):
 		
 		if oldRow != newRow:
 			try:
-				self.dForm.getBizobj(self.DataSource).setRowNumber(newRow)
+				self.Form.getBizobj(self.DataSource).setRowNumber(newRow)
 			except dException.dException:
 				pass
-		self.dForm.refreshControls()
+		self.Form.refreshControls()
 		event.Skip()
 
 
@@ -486,7 +486,7 @@ class dGridDataNav(dGrid.dGrid):
 
 		By default, this is interpreted as a request to edit the record.
 		"""
-		if self.dForm.FormType == 'PickList':
+		if self.Form.FormType == 'PickList':
 			self.pickRecord()
 		else:
 			self.editRecord()
@@ -535,18 +535,18 @@ class dGridDataNav(dGrid.dGrid):
 			char = None
 
 		if keyCode == 13:           # Enter
-			if self.dForm.FormType == "PickList":
+			if self.Form.FormType == "PickList":
 				self.pickRecord()
 			else:
 				self.editRecord()
 		else:
 			if keyCode == 127:      # Del
-				if self.dForm.FormType != "PickList":
+				if self.Form.FormType != "PickList":
 					self.deleteRecord()
 			elif keyCode == 343:    # F2
 				self.processSort()
-			elif keyCode == 27 and self.dForm.FormType == "PickList":  # Esc
-				self.dForm.Close()
+			elif keyCode == 27 and self.Form.FormType == "PickList":  # Esc
+				self.Form.Close()
 			elif char and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
 				self.addToIncrementalSearch(char)
 			else:
@@ -574,7 +574,7 @@ class dGridDataNav(dGrid.dGrid):
 	def pickRecord(self, event=None):
 		""" The form is a picklist, and the user picked a record.
 		"""
-		self.dForm.pickRecord()
+		self.Form.pickRecord()
 		
 		
 	def processSort(self, gridCol=None):
@@ -600,7 +600,7 @@ class dGridDataNav(dGrid.dGrid):
 				sortOrder = "ASC"
 
 		try:
-			self.dForm.getBizobj(self.DataSource).sort(columnToSort, sortOrder)
+			self.Form.getBizobj(self.DataSource).sort(columnToSort, sortOrder)
 			self.sortedColumn = gridCol
 			self.sortOrder = sortOrder
 	
@@ -619,7 +619,7 @@ class dGridDataNav(dGrid.dGrid):
 			gridCol = 0
 		cursorCol = self.GetTable().colNames[gridCol]
 
-		row = self.dform.getBizobj(self.DataSource).seek(self.currentIncrementalSearch, cursorCol, 
+		row = self.Form.getBizobj(self.DataSource).seek(self.currentIncrementalSearch, cursorCol, 
 								caseSensitive=False, near=True)
 
 		if row > -1:
@@ -628,7 +628,7 @@ class dGridDataNav(dGrid.dGrid):
 
 		# Add a '.' to the status bar to signify that the search is
 		# done, and clear the search string for next time.
-		self.dForm.setStatusText('Search: %s.'
+		self.Form.setStatusText('Search: %s.'
 				% self.currentIncrementalSearch)
 		self.currentIncrementalSearch = ''
 
@@ -642,7 +642,7 @@ class dGridDataNav(dGrid.dGrid):
 		self.incrementalSearchTimer.Stop()
 
 		self.currentIncrementalSearch = ''.join((self.currentIncrementalSearch, key))
-		self.dForm.setStatusText('Search: %s'
+		self.Form.setStatusText('Search: %s'
 				% self.currentIncrementalSearch)
 
 		self.incrementalSearchTimer.Start(self.incrementalSearchTimerInterval)
@@ -655,7 +655,7 @@ class dGridDataNav(dGrid.dGrid):
 		"""
 		popup = wx.Menu()
 
-		if self.dForm.FormType == 'PickList':
+		if self.Form.FormType == 'PickList':
 			id_pick = wx.NewId()
 			item = wx.MenuItem(popup, id_pick, "&Pick", "Pick this record")
 			item.SetBitmap(dIcons.getIconBitmap("edit"))
@@ -696,8 +696,8 @@ class dGridDataNav(dGrid.dGrid):
 		size = self.GetRowSize(row)
 
 		# Persist the new size
-		self.dApp.setUserSetting("%s.%s.%s" % (
-						self.dForm.Name, 
+		self.Application.setUserSetting("%s.%s.%s" % (
+						self.Form.Name, 
 						self.Name,
 						"RowSize"), "I", size)
 

@@ -61,13 +61,13 @@ cellpadding="0" border="1">
 </body>
 </html>
 '''
-	def __init__(self, parent, dApp=None):
+	def __init__(self, parent, app=None):
 		wx.Dialog.__init__(self, parent, -1, '')
 		html = wx.html.HtmlWindow(self, -1, size=(420, -1))
 		py_version = sys.version.split()[0]
-		if dApp:
-			dabo_version = dApp.getAppInfo("appVersion")
-			dabo_appName = dApp.getAppInfo("appName")
+		if app:
+			dabo_version = app.getAppInfo("appVersion")
+			dabo_appName = app.getAppInfo("appName")
 		else:
 			dabo_version = "?"
 			dabo_appName = "Dabo"

@@ -27,7 +27,7 @@ class dControlMixin(pm.dPemMixin):
 		""" Ask the dForm to add this control to its registry.
 		"""
 		try:
-			self.dForm.addControl(self)
+			self.Form.addControl(self)
 		except AttributeError:
 			# perhaps the form isn't a dForm
 			pass
