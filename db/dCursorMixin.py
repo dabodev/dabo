@@ -1285,6 +1285,8 @@ class dCursorMixin(dabo.common.dObject):
 			if self._cursorFactoryClass is not None:
 				if self._cursorFactoryFunc is not None:
 					self.__auxCursor = self._cursorFactoryFunc(self._cursorFactoryClass)
+		if not self.__auxCursor:
+			self.__auxCursor = self.__class__()				
 		return self.__auxCursor
 	
 	def setBackendObject(self, obj):
