@@ -357,7 +357,6 @@ class SelectPage(Page):
 	
 	def onRequery(self, evt):
 		self.requery()
-		evt.Skip()
 	
 	
 	def setLimit(self, biz):
@@ -482,14 +481,14 @@ class SelectPage(Page):
 				
 		# Now add the limit field
 		lbl = dabo.ui.dLabel(panel)
-		lbl.Caption = "&%s:" % _("Limit")
+		lbl.Caption =  _("&Limit")
 		limTxt = SelectTextBox(panel)
 		if len(limTxt.Value) == 0:
 			limTxt.Value = "1000"
 		self.selectFields["limit"] = {"ctrl" : limTxt	}
 		requeryButton = dabo.ui.dButton(panel)
-		requeryButton.Caption = "&%s" % _("Requery")
-		requeryButton.Default = True             # Doesn't work on Linux, but test on win/mac
+		requeryButton.Caption =  _("&Requery")
+		requeryButton.DefaultButton = True
 		requeryButton.bindEvent(dEvents.Hit, self.onRequery)
 		
 		gsz.append(lbl, alignment="right")

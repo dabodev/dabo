@@ -142,7 +142,7 @@ class dPemMixin(dPemMixinBase):
 
 			
 	def _beforeInit(self, pre):
-		self._acceleratorTable = []
+		self._acceleratorTable = {}
 		self._name = "?"
 		self._pemObject = pre
 		self.initStyleProperties()
@@ -174,10 +174,6 @@ class dPemMixin(dPemMixinBase):
 		self.initChildObjects()
 		self.afterInit()
 		
-		try:
-			self.SetAcceleratorTable(wx.AcceleratorTable(self._acceleratorTable))
-		except:
-			pass
 		self._initEvents()
 		self.initEvents()
 		self.raiseEvent(dEvents.Create)
@@ -301,17 +297,17 @@ class dPemMixin(dPemMixinBase):
 
 
 	def bindKey(self, keyCombo, callback):
-		"""Bind a key sequence such as "ctrl+c" to a callback function.
+		"""Bind a key combination such as "ctrl+c" to a callback function.
 
 		See dKeys.keyStrings for the valid string key codes.
 		See dKeys.modifierStrings for the valid modifier codes.
 
 		Examples:
-			# When user presses <esc>, cancel the form:
-			self.bindKey("esc", self.Close)
+			# When user presses <esc>, close the form:
+			form.bindKey("esc", form.Close)
 
-			# When user presses <ctrl><w>, close the form:
-			self.bindKey("ctrl+w", self.Close)
+			# When user presses <ctrl><alt><w>, close the form:
+			form.bindKey("ctrl+alt+w", form.Close)
 		"""
 		keys = keyCombo.split("+")
 
@@ -330,11 +326,29 @@ class dPemMixin(dPemMixinBase):
 			# It isn't a special key. Get the code from the ascii table:
 			keyCode = ord(key)
 
-		# Now, set up the accelerator table:
+		# If the key combo was previously registered, we need to make sure the
+		# event binding for the old id is removed:
+		self.unbindKey(keyCombo)
+
+		# Now, set up the accelerator table with this new entry:
 		anId = wx.NewId()
-		self._acceleratorTable.append((flags, keyCode, anId))
+		table = self._acceleratorTable
+		table[keyCombo] = (flags, keyCode, anId)
+		self.SetAcceleratorTable(wx.AcceleratorTable(table.values()))
 		self.Bind(wx.EVT_MENU, callback, id=anId)
 		
+
+	def unbindKey(self, keyCombo):
+		"""Unbind a previously bound key combination.
+
+		Fail silently if the key combination didn't exist already.
+		"""
+		table = self._acceleratorTable
+		if table.has_key(keyCombo):
+			self.Unbind(wx.EVT_MENU, id=table[keyCombo][2])
+			del table[keyCombo]
+			self.SetAcceleratorTable(wx.AcceleratorTable(table.values()))
+
 
 	def getPropertyInfo(self, name):
 		d = super(dPemMixin, self).getPropertyInfo(name)

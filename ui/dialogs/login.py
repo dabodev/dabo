@@ -68,10 +68,10 @@ class Login(dabo.ui.dDialog):
 		
 		self.addObject(dabo.ui.dButton, 'cmdAccept')
 		self.addObject(dabo.ui.dButton, 'cmdCancel')
-		self.cmdAccept.Caption = "Accept"
-		self.cmdAccept.Default = True
-		self.cmdCancel.Caption = "Cancel"
-		self.cmdCancel.Cancel = True
+		self.cmdAccept.Caption = _("&Accept")
+		self.cmdAccept.DefaultButton = True
+		self.cmdCancel.Caption = _("Cancel")
+		self.cmdCancel.CancelButton = True
 
 		self.addObject(lblMessage, 'lblMessage')
 
@@ -126,10 +126,7 @@ class Login(dabo.ui.dDialog):
 		self.cmdAccept.bindEvent(dEvents.Hit, self.onAccept)
 		self.cmdCancel.bindEvent(dEvents.Hit, self.onCancel)
 		
-		# Map escape key to cancelbutton:
-		self.bindKey("esc", self.onCancel)
-
-		# Map enter key to accept button:
+		# Map enter key to accept button (because DefaultButton doesn't work):
 		self.bindKey("enter", self.onAccept)
 
 		
