@@ -465,6 +465,10 @@ class dPemMixin(dPemMixinBase):
 		return {"editor": "colour"}
 
 	def _setBackColor(self, value):
+		if type(value) == str:
+			try:
+				value = self.getColorTupleFromName(value)
+			except: pass
 		self._pemObject.SetBackgroundColour(value)
 		if self._pemObject == self:
 			# Background color changes don't seem to result in
@@ -615,6 +619,10 @@ class dPemMixin(dPemMixinBase):
 		return {"editor": "colour"}
 
 	def _setForeColor(self, value):
+		if type(value) == str:
+			try:
+				value = self.getColorTupleFromName(value)
+			except: pass
 		self._pemObject.SetForegroundColour(value)
 
 	

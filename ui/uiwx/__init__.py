@@ -70,6 +70,7 @@ from dTextBox import dTextBox
 from dTimer import dTimer
 from dToggleButton import dToggleButton
 from dTreeView import dTreeView
+import dUICursors as dUICursors
 
 from getMouseObject import getMouseObject
 import dShell

@@ -41,7 +41,7 @@ class dSizerMixin(dabo.common.dObject):
 		
 		if type(item) == tuple:
 			# spacer
-			self.Add(item)
+			self.Add(item, proportion)
 		else:
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, borderFlags, layout)
@@ -94,7 +94,7 @@ class dSizerMixin(dabo.common.dObject):
 		
 		if type(item) == tuple:
 			# spacer
-			self.Insert(index, item)
+			self.Insert(index, item, proportion)
 		else:
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, borderFlags, layout)
@@ -133,7 +133,7 @@ class dSizerMixin(dabo.common.dObject):
 		self.Detach(item)
 	
 	
-	def addSpacer(self, val, pos=None):
+	def addSpacer(self, val, pos=None, proportion=0):
 		if self.Orientation == "Vertical":
 			spacer = (1, val)
 		elif self.Orientation == "Horizontal":
@@ -142,16 +142,21 @@ class dSizerMixin(dabo.common.dObject):
 			# Something's up; bail out
 			return
 		if pos:
-			self.Insert(pos, spacer)
+			self.Insert(pos, spacer, proportion=proportion)
 		else:
-			self.Add(spacer)
+			self.Add(spacer, proportion=proportion)
 	
 	
-	def insertSpacer(self, pos, val):
+	def appendSpacer(self, val, proportion=0):
+		"""Appends a spacer to the sizer."""
+		self.addSpacer(val, None, proportion)
+	
+	
+	def insertSpacer(self, pos, val, proportion=0):
 		"""Added to be consistent with the sizers' add/insert
 		design. Inserts a spacer at the specified position.
 		"""
-		self.addSpacer(val, pos)
+		self.addSpacer(val, pos, proportion)
 		
 		
 	def addDefaultSpacer(self, pos=None):
