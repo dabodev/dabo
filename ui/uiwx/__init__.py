@@ -42,6 +42,7 @@ from dEditBox import dEditBox
 from dFileDialog import dFileDialog
 from dFileDialog import dFolderDialog
 from dFileDialog import dSaveDialog
+from dFontDialog import dFontDialog
 from dForm import dForm
 from dFormMain import dFormMain
 from dGauge import dGauge

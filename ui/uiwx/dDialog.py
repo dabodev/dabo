@@ -42,6 +42,11 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 		else:
 			return self.Show(True)
 
+
+	def hide(self):
+		self.Show(False)
+		
+		
 	def _addControls(self):
 		"""Any controls that need to be added to the dialog 
 		can be added in this method in framework classes, or

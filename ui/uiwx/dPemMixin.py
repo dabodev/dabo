@@ -453,6 +453,11 @@ class dPemMixin(dPemMixinBase):
 			return self.Parent.reCreate(self)
 	
 	
+	def release(self):
+		""" Calls the object's destructor. """
+		self.Destroy()
+		
+		
 	def clone(self, obj, name=None):
 		""" Create another object just like the passed object. It assumes that the 
 		calling object will be the container of the newly created object.

@@ -98,7 +98,7 @@ class About(dabo.ui.dDialog):
 		self.Close()
 	
 	def onClose(self, evt=None):
-		self.Destroy()
+		self.release()
 	
 	def onEasterEgg(self, evt):
 		try:

@@ -1,5 +1,5 @@
 import dabo
-import re
+import re, os, glob
 import wx
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -87,6 +87,16 @@ class dNode(dabo.common.dObject):
 	def _getDescendents(self):
 		return self.tree.getDescendents(self)
 
+	def _getSel(self):
+		sel = self.tree.Selection
+		if type(sel) == list:	
+			ret = self in sel
+		else:
+			ret = (self == sel)
+		return ret
+	def _setSel(self, val):
+		self.tree.SelectItem(self.id, val)
+
 	def _getSiblings(self):
 		return self.tree.getSiblings(self)
 
@@ -116,6 +126,9 @@ class dNode(dabo.common.dObject):
 			an image, it returns the index of the node's image in the parent 
 			tree's image list.   (int)""") )
 			
+	Selected = property(_getSel, _setSel, None,
+			_("Is this node selected?.  (bool)") )
+	
 	Siblings = property(_getSiblings, None, None,
 			_("List of all nodes with the same parent node.  (list of dNodes)") )
 	
@@ -146,7 +159,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		
 		
 		### Only for testing!
-# 		self.Size = (300,400)
+		self.Size = (300,400)
 # 		self.addDummyData()
 # 		self.expandAll()
 # 		self.addImage("edit")
@@ -303,6 +316,45 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			ret = [n for n in nodes 
 				if re.match(srchPat, n.txt) ]
 		return ret
+	
+	
+	def makeDirTree(self, dirPath, wildcard=None, showHidden=False):
+		self.DeleteAllItems()
+		# Add any trailing slash character
+		self._pathNode = {}
+		# Define the function to be passed to os.path.walk
+		def addNode(showHid, currDir, fNames):
+			prnt, nm = os.path.split(currDir)
+			if not showHid:
+				if nm[:1] == ".":
+					return
+			try:
+				nd = self._pathNode[currDir] = self._pathNode[prnt].appendChild(nm)
+			except:
+				# If this is the first entry, we need to set the root
+				if len(self._pathNode.keys()) == 0:
+					nd = self._pathNode[currDir] = self.setRootNode(nm)
+				else:
+					# parent wasn't added, because it was hidden
+					return
+			for f in fNames:
+				fullName = os.path.join(currDir, f)
+				if os.path.isdir(fullName):
+					# it will be added as a directory
+					continue
+				if not showHid:
+					if f[:1] == ".":
+						continue
+				if wildcard is not None:
+					res = glob.glob(os.path.join(currDir, wildcard))
+					if not fullName in res:
+						continue
+				nd.appendChild(f)
+		def sortNode(arg, currDir, fNames):
+			self.SortChildren(self._pathNode[currDir].id)
+		os.path.walk(dirPath, addNode, showHidden)
+		os.path.walk(dirPath, sortNode, None)
+
 
 
 	def addDummyData(self):

@@ -252,7 +252,7 @@ class Wizard(dabo.ui.dForm):
 			val = 0
 		elif val > len(self._pages) -1:
 			# We're done
-			self.Destroy()
+			self.release()
 			return
 		self._currentPage = val
 		self._pages[self._currentPage].onEnterPage(direction)

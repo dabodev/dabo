@@ -209,7 +209,7 @@ class SelectPage(Page):
 		mn.append("Sort Ascending", bindfunc=self.handleSortAsc)
 		mn.append("Sort Descending", bindfunc=self.handleSortDesc)
 		self.PopupMenu(mn, self.ClientToScreen(evt.GetPosition()) )
-		mn.Destroy()
+		mn.release()
 
 	def handleSortRemove(self, evt): 
 		self.handleSort(evt.GetId(), "remove")
@@ -475,8 +475,8 @@ class SelectPage(Page):
 						}
 			else:
 				dabo.errorLog.write("No control found for type '%s'." % fldInfo["type"])
-				lbl.Destroy()
-				opList.Destroy()
+				lbl.release()
+				opList.release()
 
 				
 		# Now add the limit field

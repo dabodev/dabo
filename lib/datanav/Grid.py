@@ -746,7 +746,7 @@ class Grid(dabo.ui.dGrid):
 					help="Delete this record")
 
 		self.PopupMenu(popup, self.mousePosition)
-		popup.Destroy()
+		popup.release()
 
 
 	def OnGridRowSize(self, evt):

@@ -251,7 +251,7 @@ class Form(dabo.ui.dForm):
 		currPage = 0
 		try:
 			currPage = self.pageFrame.GetSelection()
-			self.pageFrame.Destroy()
+			self.pageFrame.release()
 			chld = self.GetSizer().GetChildren()
 			for c in chld:
 				if c.IsSizer():
