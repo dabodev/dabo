@@ -853,10 +853,12 @@ if __name__ == "__main__":
 	rw.ShowBandOutlines = True
 	rw.UseTestCursor = True
 
-	for reportForm in ("./samplespec.rfxml", "./samplespec.py"):
-		output = "./test-%s.pdf" % os.path.splitext(reportForm)[1][1:]
-		print "Creating %s from report form %s..." % (output, reportForm)
-		rw.ReportFormFile = reportForm
-		rw.OutputName = output
-		rw.write()
-
+	if len(sys.argv) > 1:
+		for reportForm in sys.argv[1:]:
+			output = "./%s.pdf" % os.path.splitext(reportForm)[0]
+			print "Creating %s from report form %s..." % (output, reportForm)
+			rw.ReportFormFile = reportForm
+			rw.OutputName = output
+			rw.write()
+	else:
+		print "Usage: reportWriter <specFile> [<specFile>...]"

@@ -6,22 +6,48 @@ from reportWriter import ReportWriter
 
 
 class BandLabel(dabo.ui.dPanel):
+	def afterInit(self):
+		self._dragging = False
+		self._dragStart = (0,0)
+
 	def initEvents(self):
 		self.bindEvent(dEvents.Paint, self.onPaint)
 		self.bindEvent(dEvents.MouseLeftDown, self.onLeftDown)
+		self.bindEvent(dEvents.MouseLeftUp, self.onLeftUp)
 		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onDoubleClick)
 		self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
 
+
+	def onLeftUp(self, evt):
+		if self._dragging:
+			pos = evt.EventData["mousePosition"]
+			yoffset = pos[1] - self._dragStart[1]
+			if yoffset != 0:
+				# dragging the band is changing the height of the band.
+				oldHeight = self.Parent._rw.getPt(self.Parent.getProp("height"))
+				newHeight = oldHeight + yoffset
+				if yoffset < 0: newHeight = 0
+				self.Parent.setProp("height", newHeight)
+		self._dragging = False
+	
+
 	def onLeftDown(self, evt):
-		print "onLeftDown", self.Caption
+		try:
+			movable = not self.Parent.getProp("designerLock")
+		except KeyError:
+			movable = True
+
+		if movable:
+			self._dragging = True
+			self._dragStart = evt.EventData["mousePosition"]
+		else:
+			self._dragging = False
+
 
 	def onMouseEnter(self, evt):
 		import wx		## need to abstract mouse cursor
-		try:
-			lock = eval(self.Parent.props["designerLock"])
-		except KeyError:
-			lock = False
-		if lock:
+
+		if self.Parent.getProp("designerLock"):
 			self.SetCursor(wx.NullCursor)
 		else:
 			self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENS))
@@ -66,10 +92,28 @@ class Band(dabo.ui.dPanel):
 		               BackColor=(128,128,128), Height=self._bandLabelHeight)
 
 
+	def getProp(self, prop):
+		"""Evaluate and return the specified property value."""
+		try:
+			val = eval(self.props[prop])
+		except KeyError:
+			val = None
+		return val
+
+
+	def setProp(self, prop, val, sendPropsChanged=True):
+		"""Set the specified object property to the specified value.
+
+		If setting more than one property, self.setProps() is faster.
+		"""
+		self.props[prop] = str(val)
+		if sendPropsChanged:
+			self.Parent.propsChanged()
+
 	def setProps(self, propvaldict):
 		"""Set the specified object properties to the specified values."""
 		for p,v in propvaldict.items():
-			self.props[p] = v
+			self.setProp(p, v, False)
 		self.Parent.propsChanged()
 
 
