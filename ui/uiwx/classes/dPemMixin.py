@@ -7,16 +7,32 @@ class dPemMixin(object):
     functions along with their own property() statements.
     '''
     
+    def getPropertyList(classOrInstance):
+        ''' Return the list of properties for this object (class or instance).
+        '''
+        propList = []
+        for item in dir(classOrInstance):
+            if type(eval("classOrInstance.%s" % item)) == property:
+                propList.append(item)
+        return propList
+    getPropertyList = classmethod(getPropertyList)
+    
     # Scroll to the bottom to see the property definitions.
     
     # Property get/set/delete methods follow.
     def _getBaseClass(self):
-        return self._baseClass
+        try:
+            return self._baseClass
+        except AttributeError:
+            return None
     def _setBaseClass(self, baseClass):
         self._baseClass = baseClass
         
     def _getParentClass(self):
-        return self._parentClass
+        try:
+            return self._parentClass
+        except AttributeError:
+            return None
     def _setParentClass(self, parentClass):
         self._parentClass = parentClass
     
@@ -76,7 +92,7 @@ class dPemMixin(object):
     def _getEnabled(self):
         return self.IsEnabled()
     def _setEnabled(self, value):
-        self.SetEnabled(value)
+        self.Enable(value)
 
 
     def _getBackColor(self):

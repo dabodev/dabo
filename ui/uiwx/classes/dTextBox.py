@@ -9,7 +9,8 @@ class dTextBox(wx.TextCtrl, dDataControlMixin, dControlMixin):
         dDataControlMixin.__init__(self)
 
         self.SelectOnEntry = True
-            
+        
+    
     def initEvents(self):
         # init the common events:
         dControlMixin.initEvents(self)

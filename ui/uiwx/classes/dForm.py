@@ -103,7 +103,9 @@ class dForm(wxFrameClass, dFormMixin):
         '''
         self.dControls[control.GetName()] = control
         if self.debug:
-            print "added control %s" % control.GetName()
+            print "added control %s which has the following properties:" % control.GetName()
+            for prop in control.getPropertyList():
+                print "  %s: %s" % (prop, eval("control.%s" % prop))
         
         # Set up the control to receive the notification 
         # from the form that it's time to refresh its value,

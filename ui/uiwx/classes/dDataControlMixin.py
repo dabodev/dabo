@@ -58,11 +58,11 @@ class dDataControlMixin(dPemMixin):
         '''
         if self.DataSource and self.DataField:
             try:
-                self.SetValue(self.getFieldVal())
-                self.Enable(self.enabled)
+                self.Value = self.getFieldVal()
+                self.Enabled = self.enabled
             except TypeError:
-                self.SetValue(self.getBlankValue())
-                self.Enable(False)
+                self.Value = self.getBlankValue()
+                self.Enabled = False
 
                             
     def onValueRefresh(self, event): 
@@ -94,7 +94,7 @@ class dDataControlMixin(dPemMixin):
         except AttributeError:   # perhaps the containing frame isn't a dForm
             pass
             
-        self._oldVal = self.GetValue()
+        self._oldVal = self.Value
         
         if self.SelectOnEntry:
             self.selectAll()
@@ -117,7 +117,7 @@ class dDataControlMixin(dPemMixin):
     def flushValue(self):
         ''' Save any changes to the underlying bizobj field.
         '''
-        curVal = self.GetValue()
+        curVal = self.Value
             
         if curVal != self._oldVal and self.DataSource and self.DataField:
             response = self.setFieldVal(curVal)
@@ -128,25 +128,40 @@ class dDataControlMixin(dPemMixin):
     # Property get/set/del methods follow. Scroll to bottom to see the property
     # definitions themselves.
     def _getSelectOnEntry(self):
-        return self._SelectOnEntry
+        try:
+            return self._SelectOnEntry
+        except AttributeError:
+            return False
     def _setSelectOnEntry(self, value):
         self._SelectOnEntry = value
         
     def _getDataSource(self):
-        return self._DataSource
+        try:
+            return self._DataSource
+        except AttributeError:
+            return None
     def _setDataSource(self, value):
         self._DataSource = value
         
     def _getDataField(self):
-        return self._DataField
+        try:
+            return self._DataField
+        except AttributeError:
+            return None
     def _setDataField(self, value):
         self._DataField = value            
 
+    def _getValue(self):
+        return self.GetValue()
+    def _setValue(self, value):
+        self.SetValue(value)
     
     # Property definitions:
     SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
-                        'Specifies whether all text gets selected upon receiving focus.')
+                        'Specifies whether all text gets selected upon receiving focus. (bool)')
     DataSource = property(_getDataSource, _setDataSource, None,
-                        'Specifies the dataset to use as the source of data.')
+                        'Specifies the dataset to use as the source of data. (str)')
     DataField = property(_getDataField, _setDataField, None,
-                        'Specifies the data field of the dataset to use as the source of data.')
+                         'Specifies the data field of the dataset to use as the source of data. (str)')
+    Value = property(_getValue, _setValue, None,
+                        'Specifies the current state of the control (the value of the field).')
