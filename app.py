@@ -25,7 +25,7 @@
         -- starts the main app event loop.
 '''
 import sys, os
-import ui
+import db, ui
 
 class Collection(list):
     ''' Collection : Base class for the various collection
@@ -58,10 +58,31 @@ class App(object):
     def setup(self):
         # dabo is going to want to import various things from the homeDir
         sys.path.append(self.homeDir)
-        self.setUI()
-        print "User interface set to %s using module %s" % (self.uiType, self.uiModule)
-    
-    def setUI(self):
+        self.initUI()
+        self.initDB()
+
+    def initDB(self):
+        dbConnectionDefs = None
+        try:
+            globals_ = {}
+            execfile("%s/dbConnectionDefs.py" % (self.homeDir,), globals_)
+            dbConnectionDefs = globals_["dbConnectionDefs"]
+        except:
+            dbConnectionDefs = None
+        
+        if dbConnectionDefs <> None and type(dbConnectionDefs) == type(dict()):
+            
+            # For each connection type, get a db() object bound:
+            for entry in dbConnectionDefs:
+                dbConnectionDefs[entry]["dbObject"] = db.Db()
+            print "%s database connection definition(s) loaded." % len(dbConnectionDefs)
+
+        else:
+            print "No database connection definitions loaded (dbConnectionDefs.py)"
+        self.dbConnectionDefs = dbConnectionDefs 
+
+                
+    def initUI(self):
         if self.uiType == None:
             # Future: read a config file in the homeDir
             # Present: set UI to wx
@@ -75,6 +96,7 @@ class App(object):
         else:
             # Custom app code already set this: don't touch
             pass
+        print "User interface set to %s using module %s" % (self.uiType, self.uiModule)
             
     def start(self):
         print "app.start"
@@ -93,4 +115,4 @@ class App(object):
         self.uiResources   = {}
         
         # Initialize DB collections
-        self.dbConnections = {} 
+        self.dbConnectionDefs = {} 

@@ -167,20 +167,6 @@ class MainApp(wx.App):
         else:
             return False
             
-    def initConnection(self):
-        self.dbc = db.Db()
-        
-        try:
-            file = open("./dbConnection.py", "r")
-            exec(file)
-            self.dbc.connectInfo.dbTypeName = dbConnectionDef["dbType"]
-            self.dbc.connectInfo.host = dbConnectionDef["host"]
-            self.dbc.connectInfo.user = dbConnectionDef["user"]
-            self.dbc.connectInfo.password = dbConnectionDef["password"]
-            self.dbc.connectInfo.db = dbConnectionDef["db"]
-          
-        except:
-            print "Couldn't find dbConnection.py - data access won't work..."
         
     def _getDynamicViews(self):
         dynamicViews = {}
