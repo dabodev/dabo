@@ -679,7 +679,12 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _getName(self):
-		name = self._pemObject.GetName()
+		try:
+			name = self._pemObject.GetName()
+		except AttributeError:
+			# Some objects that inherit from dPemMixin (dMenu*) don't have GetNam()
+			# or SetName() methods.
+			name = self._name
 		self._name = name      # keeps name available even after C++ object is gone.
 		return name
 	
@@ -719,8 +724,11 @@ class dPemMixin(dPemMixinBase):
 			# wouldn't matter anyway in a practical sense.
 			name = name
 
-#- 		print "setting name to '%s'" % name
-		self._pemObject.SetName(str(name))
+		try:
+			self._pemObject.SetName(str(name))
+		except AttributeError:
+			# Some objects that inherit from dPemMixin do not implement SetName().
+			pass
 		self._name = self._pemObject.GetName()
 
 	
