@@ -186,7 +186,7 @@ class Hit(Event):
 		return issubclass(objectClass, (ui.dBitmapButton, ui.dButton, ui.dCheckBox,
 			ui.dDropdownList, ui.dEditBox, ui.dListBox,
 			ui.dRadioGroup, ui.dSlider, ui.dSpinner, ui.dTextBox,
-			ui.dTimer, ui.dToggleButton, ui.dMenu))
+			ui.dTimer, ui.dToggleButton, ui.dMenuItem))
 	appliesToClass = classmethod(appliesToClass)
 	
 class Idle(Event):
