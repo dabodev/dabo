@@ -34,17 +34,21 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		# need to implement
 		return False
 	def _setCancelButton(self, value):
-		warnings.warn(Warning, "CancelButton isn't implemented yet.")	
+		warnings.warn("CancelButton isn't implemented yet.", Warning)	
 	
 	def _getDefaultButton(self):
-		return self._pemObject.Parent.GetDefaultItem() == self
+		return self._pemObject.GetParent().GetDefaultItem() == self._pemObject
 	def _setDefaultButton(self, value):
 		if value:
-			self._pemObject.Parent.SetDefaultItem(self)
+			self._pemObject.GetParent().SetDefaultItem(self._pemObject)
 			if wx.Platform == '__WXGTK__':
-				warnings.warn(Warning, "DefaultButton doesn't seem to work on GTK.")
+				warnings.warn("DefaultButton doesn't seem to work on GTK.", Warning)
 		else:
-			self._pemObject.SetDefaultItem(None)
+			if self._pemObject.GetParent().GetDefaultItem() == self._pemObject:
+				# Only change the default item to None if it wasn't self: if another object
+				# is the default item, setting self.DefaultButton = False shouldn't also set
+				# that other object's DefaultButton to False.
+				self.SetDefaultItem(None)
 
 	def _getNormalPicture(self):
 		return self.GetBitmapLabel()
@@ -93,12 +97,11 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 
 
 if __name__ == "__main__":
-	import test
+	import test, dTextBox
 	class c(dBitmapButton):
 		def afterInit(self):
 			# Demonstrate that the Picture props are working.
 			self.Picture = "daboIcon048"
 			self.DownPicture = "daboIcon064"
 			self.FocusPicture = "daboIcon016"
-			
 	test.Test().runTest(c)
