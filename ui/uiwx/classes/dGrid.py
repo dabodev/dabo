@@ -586,7 +586,7 @@ class dGrid(wx.grid.Grid):
         
         # Add a '.' to the status bar to signify that the search is
         # done, and clear the search string for next time.
-        self.GetParent().getDform().SetStatusText('Search: %s.'
+        self.GetParent().getDform().setStatusText('Search: %s.'
                  % self.currentIncrementalSearch)
         self.currentIncrementalSearch = ''
 
@@ -600,7 +600,7 @@ class dGrid(wx.grid.Grid):
         self.incrementalSearchTimer.Stop()
         
         self.currentIncrementalSearch = ''.join((self.currentIncrementalSearch, key))
-        self.GetParent().getDform().SetStatusText('Search: %s'
+        self.GetParent().getDform().setStatusText('Search: %s'
                  % self.currentIncrementalSearch)
 
         self.incrementalSearchTimer.Start(self.incrementalSearchTimerInterval)

@@ -17,8 +17,10 @@ class dFormMixin(dPemMixin):
             self.dApp.uiForms.add(self)
         
         self.restoredSP = False  
-        self.SetMenuBar(dMainMenuBar(self))
-        self.afterSetMenuBar()
+        
+        if self.dApp:
+            self.SetMenuBar(dMainMenuBar(self))
+            self.afterSetMenuBar()
 
         
     def OnActivate(self, event): 
