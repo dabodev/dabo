@@ -1,5 +1,6 @@
 import wx
 import dabo.ui
+import dabo.dConstants as k
 from uiApp import uiApp
 
 uiType = {'shortName': 'wx', 'moduleName': 'uiwx', 'longName': 'wxPython'}
@@ -49,6 +50,7 @@ from dGauge import dGauge
 from dGrid import dGrid
 from dGridSizer import dGridSizer
 import dIcons
+from dImage import dImage
 import dKeys
 from dLabel import dLabel
 from dLine import dLine
@@ -76,8 +78,32 @@ from dToggleButton import dToggleButton
 from dTreeView import dTreeView
 import dUICursors as dUICursors
 
-from getMouseObject import getMouseObject
 import dShell
+
+
+def getMouseObject():
+	return wx.FindWindowAtPoint(wx.GetMousePosition())
+
+
+def _getPath(cls, **kwargs):
+	ret = None
+	fd = cls(parent=None, **kwargs)
+	if fd.show() == k.DLG_OK:
+		ret = fd.Path
+	fd.release()
+	return ret
+
+def getFile(message="Choose a file", defaultPath="", defaultFile="", wildcard="*"):
+	return _getPath(dFileDialog, message=message, defaultPath=defaultPath, 
+			defaultFile=defaultFile, wildcard=wildcard)
+
+def getSaveAs(message="Save to:", defaultPath="", defaultFile="", wildcard="*"):
+	return _getPath(dSaveDialog, message=message, defaultPath=defaultPath, 
+			defaultFile=defaultFile, wildcard=wildcard)
+
+def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
+	return _getPath(dFolderDialog, message=message, defaultPath=defaultPath, 
+			wildcard=wildcard)
 
 
 # Tell Dabo Designer what classes to put in the selection menu:
