@@ -2,8 +2,9 @@
 import sys, types
 import dabo, dabo.common
 from dabo.dLocalize import _
+import dabo.ui.dPemMixinBase
 
-class dPemMixin(dabo.common.dObject):
+class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	""" Provide Property/Event/Method interfaces for dForms and dControls.
 
 	Subclasses can extend the property sheet by defining their own get/set
@@ -47,54 +48,10 @@ class dPemMixin(dabo.common.dObject):
 		self.beforeInit()
 		
 		
-	def beforeInit(self):
-		""" Called before the object is fully instantiated.
-		"""
-		pass
-		
-
 	def _afterInit(self):
 		self.initProperties()
 		self.initChildObjects()
 		self.afterInit()
-		
-
-	def afterInit(self):
-		""" Called after the wx object's __init__ has run fully.
-
-		Subclasses should place their __init__ code here in this hook,
-		instead of overriding __init__ directly.
-		"""
-		pass
-		
-
-	def initProperties(self):
-		""" Hook for subclasses.
-
-		Dabo Designer will set properties here, such as:
-			self.Name = "MyTextBox"
-			self.BackColor = (192,192,192)
-		"""
-		pass
-		
-		
-	def initStyleProperties(self):
-		""" Hook for subclasses.
-
-		Dabo Designer will set style properties here, such as:
-			self.BorderStyle = "Sunken"
-			self.Alignment = "Center"
-		"""
-		pass
-
-		
-	def initChildObjects(self):
-		""" Hook for subclasses.
-		
-		Dabo Designer will set its addObject code here, such as:
-			self.addObject(dTextBox, 'txtLastName')
-		"""
-		pass
 		
 
 	def getAbsoluteName(self):
@@ -137,46 +94,7 @@ class dPemMixin(dabo.common.dObject):
 		object = classRef(self, name=name, *args, **kwargs)
 		return object
 
-	
-	def getPropValDict(self, obj):
-		propValDict = {}
-		propList = obj.getPropertyList()
-		for prop in propList:
-			if prop == "Form":
-				# This property is not used.
-				continue
-			propValDict[prop] = eval("obj.%s" % prop)
-		return propValDict
-	
-	
-	def applyPropValDict(self, obj, pvDict):
-		ignoreProps = ["Application", "BaseClass", "Bottom", "Class", "Font", 
-				"FontFace", "FontInfo", "Form", "MousePointer", "Parent", 
-				"Right", "SuperClass", "WindowHandle"]
-		propList = obj.getPropertyList()
-		name = obj.Name
-		for prop in propList:
-			if prop in ignoreProps:
-				continue
-			try:
-				sep = ""	# Empty String
-				val = pvDict[prop]
-				if type(val) in (types.UnicodeType, types.StringType):
-					sep = "'"	# Single Quote
-				try:
-					exp = "obj.%s = %s" % (prop, sep+self.escapeQt(str(val))+sep)
-					exec(exp)
-				except:
-					#pass
-					dabo.errorLog.write(_("Could not set property: %s"), exp)
-			except:
-				pass
-		# Font assignment can be complicated during the iteration of properties,
-		# so assign it explicitly here at the end.
-		if pvDict.has_key("Font"):
-			obj.Font = pvDict["Font"]
 			
-	
 	def reCreate(self, child=None):
 		""" Recreate self.
 		"""
@@ -209,134 +127,126 @@ class dPemMixin(dabo.common.dObject):
 	# Scroll to the bottom to see the property definitions.
 
 	# Property get/set/delete methods follow.
-
-	def _getForm(self):
-		""" Return a reference to the containing Form. 
+	
+	def _getGeometryTuple(self):
+		""" Convert Tkinter's 'widthXheight+left+top' format into a more usable
+		set of 2-tuples. The first tuple is (width,height) and the second is
+		(left,top). This is used by the various property getters/setters for
+		left, top, height, width.
 		"""
-		try:
-			return self._cachedForm
-		except AttributeError:
-			import dabo.ui
-			obj, frm = self, None
-			while obj:
-				parent = obj.Parent
-				if isinstance(parent, dabo.ui.dForm):
-					frm = parent
-					break
-				else:
-					obj = parent
-			if frm:
-				self._cachedForm = frm   # Cache for next time
-			return frm
+		g = self.wm_geometry()
+		size = tuple([int(k) for k in (g[0:g.find('+')].split('x'))])
+		pos = tuple([int(k) for k in (g[g.find('+')+1:].split('+'))])
+		return (size, pos)
+
+	def _setGeometryTuple(self, geometryTuple):
+		""" Given a geometry tuple, convert and send to Tkinter to be applied.
+		"""
+		size = geometryTuple[0]
+		pos = geometryTuple[1]
+		self.wm_geometry("%sx%s+%s+%s" % (size[0], size[1], pos[0], pos[1]))
+		
 
 
 	def _getFont(self):
-		return self.GetFont()
+		return "Not implemented yet."
 	
 	def _getFontEditorInfo(self):
 		return {'editor': 'font'}
 	
 	def _setFont(self, font):
-		self.SetFont(font)
+		dabo.errorLog.write("_setFont not implemented yet.")
 
 		
 	def _getFontInfo(self):
-		return self.GetFont().GetNativeFontInfoDesc()
+		return "Not implemented yet."
 
 	def _getFontBold(self):
-		return self.GetFont().GetWeight() == wx.BOLD
+		return "Not implemented yet."
 	def _setFontBold(self, fontBold):
-		font = self.GetFont()
-		if fontBold:
-			font.SetWeight(wx.BOLD)
-		else:
-			font.SetWeight(wx.LIGHT)    # wx.NORMAL doesn't seem to work...
-		self.SetFont(font)
+		dabo.errorLog.write("_setFontBold not implemented yet.")
 
 	def _getFontItalic(self):
-		return self.Font.GetStyle() == wx.ITALIC
+		return "Not implemented yet."
 	def _setFontItalic(self, fontItalic):
-		font = self.Font
-		if fontItalic:
-			font.SetStyle(wx.ITALIC)
-		else:
-			font.SetStyle(wx.NORMAL)
-		self.Font = font
+		dabo.errorLog.write("_setFontItalic not implemented yet.")
 
 	def _getFontFace(self):
-		return self.Font.GetFaceName()
+		return "Not implemented yet."
 
 	def _getFontSize(self):
-		return self.Font.GetPointSize()
+		return "Not implemented yet."
 	def _setFontSize(self, fontSize):
-		font = self.Font
-		font.SetPointSize(int(fontSize))
-		self.Font = font
+		dabo.errorLog.write("_setFontSize not implemented yet.")
 
 	def _getFontUnderline(self):
-		return self.Font.GetUnderlined()
+		return "Not implemented yet."
 	def _setFontUnderline(self, val):
-		# underlining doesn't seem to be working...
-		font = self.Font
-		font.SetUnderlined(bool(val))
-		self.Font = font
+		dabo.errorLog.write("_setFontUnderline not implemented yet.")
 
 
 	def _getTop(self):
-		return self.GetPosition()[1]
+		return self._getGeometryTuple()[1][1]
 	def _setTop(self, top):
-		self.SetPosition((self.Left, int(top)))
-
+		size = self._getGeometryTuple()[0]
+		pos = list(self._getGeometryTuple()[1])
+		pos[1] = top
+		pos = tuple(pos)
+		self._setGeometryTuple((size, pos))
+		
 	def _getLeft(self):
-		return self.GetPosition()[0]
+		return self._getGeometryTuple()[1][0]
 	def _setLeft(self, left):
-		self.SetPosition((int(left), self.Top))
+		size = self._getGeometryTuple()[0]
+		pos = list(self._getGeometryTuple()[1])
+		pos[0] = left
+		pos = tuple(pos)
+		self._setGeometryTuple((size, pos))
 
 	def _getPosition(self):
-		return self.GetPosition()
+		return self._getGeometryTuple()[1]
 
 	def _setPosition(self, position):
-		self.SetPosition(position)
-
-	def _getBottom(self):
-		return self.Top + self.Height
-	def _setBottom(self, bottom):
-		self.Top = int(bottom) - self.Height
-
-	def _getRight(self):
-		return self.Left + self.Width
-	def _setRight(self, right):
-		self.Left = int(right) - self.Width
+		size = self._getGeometryTuple()[0]
+		pos = tuple(position)
+		self._setGeometryTuple((size, pos))
 
 
 	def _getWidth(self):
-		return self.GetSize()[0]
+		return self._getGeometryTuple()[0][0]
 
 	def _getWidthEditorInfo(self):
 		return {'editor': 'integer', 'min': 0, 'max': 8192}
 
 	def _setWidth(self, width):
-		self.SetSize((int(width), self.GetSize()[1]))
-		self.SetMinSize(self.SetSize())
+		pos = self._getGeometryTuple()[1]
+		size = list(self._getGeometryTuple()[0])
+		size[0] = width
+		size = tuple(size)
+		self._setGeometryTuple((size, pos))
 
 
 	def _getHeight(self):
-		return self.GetSize()[1]
+		return self._getGeometryTuple()[0][1]
 
 	def _getHeightEditorInfo(self):
 		return {'editor': 'integer', 'min': 0, 'max': 8192}
 
 	def _setHeight(self, height):
-		self.SetSize((self.GetSize()[0], int(height)))
-		self.SetMinSize(self.GetSize())
+		pos = self._getGeometryTuple()[1]
+		size = list(self._getGeometryTuple()[0])
+		size[1] = height
+		size = tuple(size)
+		self._setGeometryTuple((size, pos))
 
 
-	def _getSize(self): 
-		return self.GetSize()
-
+	def _getSize(self):
+		return self._getGeometryTuple()[0]
+		
 	def _setSize(self, size):
-		self.SetSize(size)
-		self.SetMinSize(size)
+		pos = self._getGeometryTuple()[1]
+		size = tuple(size)
+		self._setGeometryTuple((size, pos))
 
 	def _getName(self):
 		name = self.winfo_name()
@@ -344,7 +254,7 @@ class dPemMixin(dabo.common.dObject):
 		return name
 	
 	def _setName(self, name):
-		parent = self.GetParent()
+		parent = self.Parent
 		if parent:
 			if not self.Application or self.Application.AutoNegotiateUniqueNames:
 				i = 0
@@ -355,8 +265,8 @@ class dPemMixin(dabo.common.dObject):
 					else:
 						candidate = '%s%s' % (name, i)
 
-					for window in self.GetParent().GetChildren():
-						if window.GetName() == candidate and window != self:
+					for window in parent.winfo_children():
+						if window.Name == candidate and window != self:
 							nameError = True
 							break
 					if nameError:
@@ -373,8 +283,9 @@ class dPemMixin(dabo.common.dObject):
 			# wouldn't matter anyway in a practical sense.
 			pass					
 
-		self.SetName(str(name))
-		self._name = self.GetName()
+		# The following results in an exception. How to change the name???
+		self.winfo_name(str(name))
+		self._name = self.winfo_name()
 
 	def _getCaption(self):
 		return self.wm_title()
@@ -449,7 +360,10 @@ class dPemMixin(dabo.common.dObject):
 		self.Show(bool(value))
 
 	def _getParent(self):
-		parent = self.nametowidget(self.winfo_parent())
+		try:
+			parent = self.nametowidget(self.winfo_parent())
+		except:
+			parent = None
 		if isinstance(parent, dPemMixin):
 			return parent
 		else:
@@ -511,8 +425,6 @@ class dPemMixin(dabo.common.dObject):
 
 
 	# Property definitions follow
-	Form = property(_getForm, None, None,
-					'Object reference to the dForm containing the object. (read only).')
 	
 	WindowHandle = property(_getWindowHandle, None, None,
 					'The platform-specific handle for the window. Read-only. (long)')
@@ -536,10 +448,6 @@ class dPemMixin(dabo.common.dObject):
 					'The top position of the object. (int)')
 	Left = property(_getLeft, _setLeft, None,
 					'The left position of the object. (int)')
-	Bottom = property(_getBottom, _setBottom, None,
-					'The position of the bottom part of the object. (int)')
-	Right = property(_getRight, _setRight, None,
-					'The position of the right part of the object. (int)')
 	Position = property(_getPosition, _setPosition, None, 
 					'The (x,y) position of the object. (tuple)')
 

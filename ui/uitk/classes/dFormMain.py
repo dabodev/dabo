@@ -15,7 +15,6 @@ class dFormMain(Tkinter.Tk, fm.dFormMixin):
 		self._afterInit()
 		
 	def afterInit(self):
-		print "ai"
 		self.Caption = "Dabo"
 		self.setStatusText("Welcome to Dabo!")
 
