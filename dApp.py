@@ -88,8 +88,9 @@ class dApp(dabo.common.dObject):
 	def setup(self):
 		""" Set up the app - call this before start()."""
 
-		# dabo is going to want to import various things from the homeDir
-		sys.path.append(self.homeDir)
+		# dabo is going to want to import various things from the Home Directory
+		if self.HomeDirectory not in sys.path:
+			sys.path.append(self.HomeDirectory)
 
 		if not self.getAppInfo("appName"):
 			self.setAppInfo("appName", "Dabo")
@@ -186,7 +187,7 @@ class dApp(dabo.common.dObject):
 		"""
 		import ConfigParser
 
-		configFileName = '%s/.userSettings.ini' % self.homeDir
+		configFileName = '%s/.userSettings.ini' % self.HomeDirectory
 
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
@@ -220,7 +221,7 @@ class dApp(dabo.common.dObject):
 		# to see this get saved in a persistent dabosettings db table.
 		import ConfigParser
 
-		configFileName = '%s/.userSettings.ini' % self.homeDir
+		configFileName = '%s/.userSettings.ini' % self.HomeDirectory
 
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
@@ -252,17 +253,6 @@ class dApp(dabo.common.dObject):
 
 	def _initProperties(self):
 		""" Initialize the public properties of the app object. """
-
-		# it is useful to know from where we came
-		# Note: sometimes the runtime distros will alter the path so
-		# that the first entry is not a valid directory. Go throught the path
-		# and use the first valid directory.
-		###self.homeDir = sys.path[0]
-		for pth in sys.path:
-			if os.path.exists(os.path.join(pth, ".")):
-				self.homeDir = pth
-				break
-		
 
 		self.uiType   = None    # ('wx', 'qt', 'curses', 'http', etc.)
 		#self.uiModule = None
@@ -348,6 +338,29 @@ class dApp(dabo.common.dObject):
 		self._autoNegotiateUniqueNames = bool(value)
 		
 	
+	def _getHomeDirectory(self):
+		try:
+			hd = self._homeDirectory
+		except AttributeError:
+			# Note: sometimes the runtime distros will alter the path so
+			# that the first entry is not a valid directory. Go through the path
+			# and use the first valid directory.
+			hd = None
+			for pth in sys.path:
+				if os.path.exists(os.path.join(pth, ".")):
+					hd = pth
+					break
+			if hd is None:
+				# punt:
+				hd = os.getcwd()
+			self._homeDirectory = hd
+			
+		return hd
+		
+	def _setHomeDirectory(self, val):
+		self._homeDirectory = val
+
+				
 	def _getMainForm(self):
 		try:
 			f = self._mainForm
@@ -411,6 +424,9 @@ class dApp(dabo.common.dObject):
 						"value results in a unique integer being appended, or whether "
 						"a NameError is raised. Default is True: negotiate the name."))
 
+	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
+		_("Specifies the home-base directory for the application's program files."))
+		
 	MainForm = property(_getMainForm, _setMainForm, None,
 		_("The object reference to the main form of the application, or None. This gets "
 		"set automatically during application setup, based on the MainFormClass."))
