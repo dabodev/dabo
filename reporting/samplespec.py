@@ -6,7 +6,21 @@ PageHeader, PageFooter, GroupHeader, GroupFooter, and Detail, and objects such
 as text boxes, rectangles, and lines.
 
 Most values are expressions to be evaluated at runtime (ie they are dynamic).
+
+'self' in expressions refer to the ReportWriter instance, which by default 
+supplies the following:
+	Properties:
+		+ Cursor: the data cursor running against this report form.
+		+ Record: the dictionary of the current record in the data cursor.
 """
+
+# If TestCursor is provided by the spec, the report writer will use it 
+# as the Cursor if dReportWriter.UseTestCursor==True. This allows for easy 
+# previewing in the designer without having to set up/tear down actual data 
+# when all you want is to see how the report will look.
+TestCursor = [{"cArtist": "The Clash", "iid": 1},
+              {"cArtist": "Queen", "iid": 2},
+              {"cArtist": "Ben Harper and the Innocent Criminals", "iid":3}]
 
 Page = {"size": ''' "letter" ''',
         "orientation": ''' "portrait" ''',
@@ -18,14 +32,14 @@ Page = {"size": ''' "letter" ''',
 
 
 PageBackground = {"objects": [{"type": "string",
-                           "expr": ''' "Test" ''',
+                           "expr": ''' "test" ''',
                            "align": ''' "left" ''',
                            "rotation": ''' 55 ''',
                            "x": ''' "4.25 in" ''',
                            "y": ''' "5.5 in" ''',
                            "width": ''' "1 in" ''',
                            "fontName": ''' "Helvetica" ''',
-                           "fontSize": ''' 20 ''',
+                           "fontSize": ''' 7 ''',
                            "fillColor": ''' (.4, .1, .3) ''',
                            "borderWidth": ''' ".5 pt" ''',
                            "borderColor": ''' (.1,.8,.4) ''',
@@ -48,11 +62,12 @@ PageHeader = {"height": ''' "0.5 in" ''',
                            "expr": ''' "Dabo's Favorite Artists" ''',
                            "align": ''' "center" ''',
                            "x": ''' "3.75 in" ''',
-                           "y": ''' "0.3 in" ''',
+                           "hAnchor": ''' "center" ''',
+                           "y": ''' ".3 in" ''',
                            "width": ''' "6 in" ''',
                            "height": ''' ".25 in" ''',
                            "borderWidth": ''' "0 pt" ''',
-                           "fontFace": ''' "Helvetica" ''',
+                           "fontName": ''' "Helvetica" ''',
                            "fontSize": ''' 14 ''',
                           }]
 }
@@ -60,7 +75,7 @@ PageHeader = {"height": ''' "0.5 in" ''',
 PageFooter = {"height": ''' "1.25 in" ''',
               "objects": [{"type": "image",
                            "expr": ''' "../icons/dabo_lettering_250x100.png" ''',
-                           "x": ''' report["bands"]["PageFooter"]["width"]-1 ''',
+                           "x": ''' self.Bands["PageFooter"]["width"]-1 ''',
                            "y": ''' "1" ''',
                            "rotation": ''' 0 ''',
                            "hAnchor": ''' "right" ''',
@@ -76,7 +91,7 @@ PageFooter = {"height": ''' "1.25 in" ''',
 
 Detail = {"height": ''' ".25 in" ''',
           "objects": [{"type": "string",
-                       "expr": ''' record['cArtist'] ''',
+                       "expr": ''' self.Record['cArtist'] ''',
                        "align": ''' "left" ''',
                        "fontFace": ''' "Helvetica" ''',
                        "fontSize": ''' 12 ''',
@@ -95,5 +110,5 @@ Group1Footer = {"height": ''' "0 in" ''',
                 "objects": []}
 
 Groups = [{"name": "Group1",
-           "expr": ''' "record['cartist']" ''',}
+           "expr": ''' record['cartist'] ''',}
          ]
