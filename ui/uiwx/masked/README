@@ -1,0 +1,8 @@
+This is a temporary holding place for a masked edit control provided by
+Vladimir Sekissov. I'd love to get this masking functionality built in
+to dTextBox, ideally using a property such as InputMask which when left
+at None or blank does the default masking for the given datatype, but that
+can be overridden by setting the property. 
+
+pkm 2/7/2005
+
