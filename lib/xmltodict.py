@@ -71,3 +71,33 @@ def xmltodict(xml):
 		# argument must have been raw xml:
 		return parser.Parse(xml)
 
+
+def dicttoxml(d, level=0):
+	"""Given a Python dictionary, return an xml string.
+
+	The dictionary must be in the format returned by dicttoxml(), with keys
+	on "attributes", "cdata", "name", and "children".
+	"""
+	att = ""
+	if d.has_key("attributes"):
+		for a, v in d["attributes"].items():
+			att += ' %s="%s"' % (a, v)
+
+	s = "%s<%s%s" % ("\t" * level, d["name"], att)
+
+	if not d.has_key("cdata") and not d.has_key("children"):
+		s += " />\n"
+	else:
+		s += ">"
+		if d.has_key("cdata"):
+			s += "%s" % d["cdata"]
+
+		if d.has_key("children") and len(d["children"]) > 0:
+			s += "\n"
+			for child in d["children"]:
+				s += dicttoxml(child, level+1)
+			s += "%s" % "\t" * level
+		
+		s += "</%s>\n" % d["name"]
+
+	return s

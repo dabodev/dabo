@@ -4,6 +4,7 @@ import reportlab.graphics.shapes as shapesimport reportlab.lib.pagesizes as pag
 import reportlab.lib.units as units
 #import reportlab.lib.colors as colors
 from dabo.lib.xmltodict import xmltodict
+from dabo.lib.xmltodict import dicttoxml
 
 
 class ReportWriter(object):
@@ -731,3 +732,4 @@ if __name__ == "__main__":
 		rw.ReportFormFile = reportForm
 		rw.OutputName = output
 		rw.write()
+		
