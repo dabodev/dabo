@@ -75,6 +75,7 @@ from dSlider import dSlider
 from dSpinner import dSpinner
 from dSplitForm import dSplitForm
 from dSplitter import dSplitter
+from dStatusBar import dStatusBar
 from dTextBox import dTextBox
 from dTimer import dTimer
 from dToggleButton import dToggleButton

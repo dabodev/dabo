@@ -137,6 +137,9 @@ class dPemMixin(dPemMixinBase):
 		self._acceleratorTable = {}
 		self._name = "?"
 		self._pemObject = pre
+		self._needRedraw = True
+		self._borderColor = "black"
+		self._borderWidth = 0
 		self.beforeInit()
 		
 	
@@ -224,6 +227,8 @@ class dPemMixin(dPemMixinBase):
 		self.raiseEvent(dEvents.Destroy, evt)
 		
 	def __onWxIdle(self, evt):
+		if self._needRedraw:
+			self._redraw()
 		self.raiseEvent(dEvents.Idle, evt)
 		
 	def __onWxGotFocus(self, evt):
@@ -285,11 +290,14 @@ class dPemMixin(dPemMixinBase):
 			self.raiseEvent(dEvents.MouseRightClick, evt)
 			self._mouseRightDown = False
 	
-	
 	def __onWxPaint(self, evt):
+		if self._borderWidth > 0:
+			self._needRedraw = True
 		self.raiseEvent(dEvents.Paint, evt)
 	
 	def __onWxResize(self, evt):
+		if self._borderWidth > 0:
+			self._needRedraw = True
 		self.raiseEvent(dEvents.Resize, evt)
 
 
@@ -478,11 +486,41 @@ class dPemMixin(dPemMixinBase):
 			return None
 		else:
 			return None
-			
+	
+	
+	def setAll(self, prop, val, recurse=True, filt=None):
+		"""Iterates through all child objects, and attempts to set the
+		value of the specified property to the specified value. If this
+		object has no child objects, nothing happens. If any child object
+		does not have the specified attribute/property, no attempt
+		is made to add it. 
+		If 'recurse' is True, setAll will be called on each child.
+		If 'filt' is not empty, only children that matcg the expression in 'filt' 
+		will be affected. The expression will be evaluated assuming
+		the child object is prefixed to the expression. For example, if
+		you want to only affect objects whose value of their 'foo' attribute
+		equals 42, you'd pass:  filt="foo == 42", which would result in the 
+		following being evaluated: eval("chld.%s" % filt). If that eval returns 
+		True, the object will be affected.
+		"""
+		for chld in self.Children:
+			ok = hasattr(chld, prop)
+			if ok:
+				if filt:
+					ok = eval("chld.%s" % filt)
+			if ok:
+				if type(val) in (str, unicode):
+					# Wrap the value in single quotes
+					exec("chld.%s = '%s'" % (prop, val))
+				else:
+					exec("chld.%s = %s" % (prop, val))
+			if recurse:
+				if hasattr(chld, "setAll"):
+					chld.setAll(prop, val, recurse=recurse, filt=filt)
+
 			
 	def reCreate(self, child=None):
-		""" Recreate self.
-		"""
+		""" Recreate self. """
 		if child is not None:
 			propValDict = child.getProperties()
 			style = child.GetWindowStyle()
@@ -499,7 +537,26 @@ class dPemMixin(dPemMixinBase):
 	def release(self):
 		""" Calls the object's destructor. """
 		self.Destroy()
-		
+	
+	
+	def _redraw(self):
+		"""If the object has drawing routines that affect its appearance, this
+		method is where they go. Subclasses should place code in the 
+		redraw() hook method.
+		"""
+		# Draw the border, if any
+		if self._borderWidth > 0:
+			dc = wx.ClientDC(self)
+			pen = wx.Pen(self._borderColor, self._borderWidth)
+			dc.SetPen(pen)
+			pts = [(0,0), (self.Width, 0), (self.Width, self.Height), (0, self.Height), (0,0)]
+			dc.DrawLines(pts)
+
+		# Call the hook
+		self.redraw()
+		# Clear the idle flag.
+		self._needRedraw = False
+	def redraw(self): pass
 		
 	def clone(self, obj, name=None):
 		""" Create another object just like the passed object. It assumes that the 
@@ -544,12 +601,9 @@ class dPemMixin(dPemMixinBase):
 	def _getBackColor(self):
 		return self.GetBackgroundColour()
 
-	def _getBackColorEditorInfo(self):
-		return {"editor": "colour"}
-
 	def _setBackColor(self, value):
 		if self._constructed():
-			if type(value) == str:
+			if type(value) in (str, unicode):
 				try:
 					value = dColors.colorTupleFromName(value)
 				except: pass
@@ -559,6 +613,32 @@ class dPemMixin(dPemMixinBase):
 		else:
 			self._properties["BackColor"] = value
 
+	def _getBackColorEditorInfo(self):
+		return {"editor": "colour"}
+
+	def _getBorderColor(self):
+		return self._borderColor
+
+	def _setBorderColor(self, value):
+		if self._constructed():
+			if type(value) in (str, unicode):
+				try:
+					value = dColors.colorTupleFromName(value)
+				except: pass
+			self._borderColor = value
+			self._needRedraw = True
+		else:
+			self._properties["BorderColor"] = value
+
+	def _getBorderWidth(self):
+		return self._borderWidth
+
+	def _setBorderWidth(self, value):
+		if self._constructed():
+			self._borderWidth = value
+			self._needRedraw = True
+		else:
+			self._properties["BorderWidth"] = value
 
 	def _getBorderStyle(self):
 		if self.hasWindowStyleFlag(wx.RAISED_BORDER):
@@ -743,7 +823,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setForeColor(self, val):
 		if self._constructed():
-			if type(val) == str:
+			if type(value) in (str, unicode):
 				try:
 					val = dColors.colorTupleFromName(val)
 				except: pass
@@ -994,6 +1074,10 @@ class dPemMixin(dPemMixinBase):
 	BackColor = property(_getBackColor, _setBackColor, None,
 			_("Specifies the background color of the object. (tuple)"))
 
+	BorderColor = property(_getBorderColor, _setBorderColor, None,
+			_("""Color of the border drawn around the control, if any. 
+			Default='black'  (str or color tuple)"""))
+
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
 			"Specifies the type of border for this window. (int). \n"
 			"     None \n"
@@ -1001,6 +1085,10 @@ class dPemMixin(dPemMixinBase):
 			"     Sunken \n"
 			"     Raised")
 	
+	BorderWidth = property(_getBorderWidth, _setBorderWidth, None,
+			_("""Width of the border drawn around the control, if any. 
+			Default=0 (no border)  (int)"""))
+
 	Caption = property(_getCaption, _setCaption, None, 
 			"The caption of the object. (str)")
 

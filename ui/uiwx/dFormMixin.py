@@ -78,9 +78,11 @@ class dFormMixin(pm.dPemMixin):
 			restSP = False
 		if not restSP:
 			self.restoreSizeAndPosition()
-		if hasattr(self, "GetStatusBar"):
-			if self.GetStatusBar() is None and not isinstance(self, wx.MDIChildFrame) and self.ShowStatusBar:
-				self.CreateStatusBar()
+		if hasattr(self, "getStatusBar"):
+			if (self.getStatusBar() is None 
+					and not isinstance(self, wx.MDIChildFrame) 
+					and self.ShowStatusBar):
+				self._createStatusBar()
 
 		if self.Application is not None:
 			self.Application._setActiveForm(self)
@@ -103,6 +105,13 @@ class dFormMixin(pm.dPemMixin):
 		self.saveSizeAndPosition()
 	
 
+	def _createStatusBar(self):
+		self.SetStatusBar(dabo.ui.dStatusBar(self))
+	
+	def getStatusBar(self):
+		return self.GetStatusBar()
+		
+		
 	def close(self, force=False):
 		""" This method will close the form. If force = False (default)
 		the beforeClose methods will be called, and these will have
