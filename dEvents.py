@@ -24,7 +24,15 @@ class Event(dObject):
 		self._insertEventData()
 		self._logEvent()
 		
-				
+
+	def stop(self):
+		"""Stop the event from being handled by other handlers.
+		
+		This is an alternative to setting the Continue property to False.
+		"""
+		self.Continue = False
+		
+		
 	def _insertEventData(self):
 		""" Place ui-specific stuff into the ui-agnostic EventData dictionary.
 		"""
