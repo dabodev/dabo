@@ -38,6 +38,7 @@ from dDialog import dDialog
 from dDialog import dOkCancelDialog
 from dEditBox import dEditBox
 from dFileDialog import dFileDialog
+from dFileDialog import dSaveDialog
 from dForm import dForm
 from dFormDataNav import dFormDataNav
 from dFormMain import dFormMain
@@ -94,6 +95,38 @@ for __classRef in __dClasses:
 	__classDict["topLevel"] = __classRef.__name__.find("Form") >= 0
 	__classDict["doc"] = __classRef.__doc__
 	daboDesignerClasses.append(__classDict)
+
+propsToShowInDesigner = ("Alignment", "AskToSave", "AutoResize", 
+		"AutoSize", "BackColor", "BaseClass", "BorderResizable", "BorderStyle", 
+		"Bottom", "CancelButton", "Caption", "Centered", "Choices", "Class", 
+		"DataField", "DataSource", "DefaultButton", "DownPicture", "Enabled", 
+		"FocusPicture", "Font", "FontBold", "FontDescription", "FontFace", 
+		"FontInfo", "FontItalic", "FontSize", "FontUnderline", "ForeColor", 
+		"Height", "HelpContextText", "Icon", "IconBundle", "Interval", "Left", 
+		"Max", "MaxElements", "Min", "MinPanelSize", "Modal", 
+		"MousePointer", "MultipleSelect", "Name", "Orientation", "PageClass", 
+		"PageCount", "PasswordEntry", "Picture", "Position", "Range", "ReadOnly", 
+		"Right", "SashPosition", "SaveRestoreValue", "SelectOnEntry", 
+		"ShowCaption", "ShowCloseButton", "ShowLabels", "ShowMaxButton", 
+		"ShowMinButton", "ShowStatusBar", "ShowSystemMenu", "Size", "Sizer", 
+		"SpinnerArrowKeys", "SpinnerWrap", "StringValue", "SuperClass", 
+		"TabPosition", "TinyTitleBar", "ToolTipText", "Top", "UserValue", "Value", 
+		"ValueMode", "Visible", "Width", "WindowState")
+
+propsToEditInDesigner = ("Alignment", "AskToSave", "AutoResize", "AutoSize", 
+		"BackColor", "BorderResizable", "BorderStyle", "Bottom", "CancelButton", 
+		"Caption", "Centered", "Choices", "DataField", "DataSource", "DefaultButton", 
+		"DownPicture", "Enabled", "FocusPicture", "Font", "FontBold", "FontFace", 
+		"FontItalic", "FontSize", "FontUnderline", "ForeColor", "Height", 
+		"HelpContextText", "Icon", "IconBundle", "Interval", "Left", "Max", 
+		"MaxElements", "Min", "MinPanelSize", "Modal", "MultipleSelect", "Name", 
+		"Orientation", "PageClass", "PageCount", "PasswordEntry", "Picture", 
+		"Range", "ReadOnly", "Right", "SashPosition", "SaveRestoreValue", 
+		"SelectOnEntry", "ShowCaption", "ShowCloseButton", "ShowLabels", 
+		"ShowMaxButton", "ShowMinButton", "ShowStatusBar", "ShowSystemMenu", 
+		"SpinnerArrowKeys", "SpinnerWrap", "TabPosition", "TinyTitleBar", 
+		"ToolTipText", "Top", "UserValue", "Value", "ValueMode", "Visible", "Width", 
+		"WindowState")
 
 
 def continueEvent(evt):

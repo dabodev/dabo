@@ -295,17 +295,8 @@ class dPemMixin(dPemMixinBase):
 		#d = dPemMixin.doDefault(name)   # the property helper does most of the work
 		d = super(dPemMixin, self).getPropertyInfo(name)
 
-		# Hide some wx-specific props in the designer:
-		noShowDesigner = (
-			"EventBindings",
-			"FontInfo",
-			"LogEvents",
-			"Parent",
-			"Position", 
-			"Size", 
-			"TypeID",
-			"WindowHandle")
-		d["showInDesigner"] = name not in noShowDesigner
+		# List of all props we ever want to show in the Designer
+		d["showInDesigner"] = name in dabo.ui.propsToShowInDesigner
 
 		# Some wx-specific props need to be initialized early. Let the designer know:
 		d["preInitProperty"] = name in self._initProperties.values()
@@ -313,18 +304,7 @@ class dPemMixin(dPemMixinBase):
 		# Finally, override the default editable state. The base behavior
 		# is to make any prop with a setter method editable, but some simply
 		# should not be edited in the Designer.
-		if name in (
-				"BaseClass",
-				"Class",
-				"EventBindings",
-				"FontInfo",
-				"LogEvents",
-				"MousePointer",
-				"Parent",
-				"Sizer",
-				"SuperClass"):
-			d["editValueInDesigner"] = False
-
+		d["editValueInDesigner"] = name in dabo.ui.propsToEditInDesigner
 
 		return d
 		
@@ -591,6 +571,10 @@ class dPemMixin(dPemMixinBase):
 	
 	def _getFontFace(self):
 		return self._pemObject.Font.GetFaceName()
+	def _setFontFace(self, val):
+		f = self._pemObject.Font
+		f.SetFaceName(val)
+		self._pemObject.Font = f
 
 	
 	def _getFontSize(self):
@@ -822,7 +806,7 @@ class dPemMixin(dPemMixinBase):
 	FontDescription = property(_getFontDescription, None, None, 
 			"Human-readable description of the current font settings. (str)")
 	
-	FontFace = property(_getFontFace, None, None,
+	FontFace = property(_getFontFace, _setFontFace, None,
 			"Specifies the font face. (str)")
 	
 	FontInfo = property(_getFontInfo, None, None,

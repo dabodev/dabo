@@ -1,4 +1,6 @@
 import wx
+import dabo.dConstants as k
+
 
 class dFileDialog(wx.FileDialog):
 	_IsContainer = False
@@ -15,12 +17,15 @@ class dFileDialog(wx.FileDialog):
 	def show(self):
 		res = self.ShowModal()
 		if res ==  wx.ID_OK:
+			ret = k.DLG_OK
 			self._dir = self.GetDirectory()
 			self._fname = self.GetFilename()
 			self._path = self.GetPath()
 		else:	
 			self._dir = self._fname = self._path = ""
-	
+			ret = k.DLG_CANCEL
+		return ret
+		
 
 	def _getDir(self):
 		return self._dir
@@ -62,3 +67,12 @@ class dFileDialog(wx.FileDialog):
 	Wildcard = property(_getWildcard, _setWildcard, None, 
 			"The wildcard that will limit the files displayed in the dialog.  (str)")
 
+
+class dSaveDialog(dFileDialog):
+	def __init__(self, parent=None, message="Save to:", defaultDir="", 
+			defaultFile="", wildcard="*.*", style=wx.SAVE):
+		self._baseClass = dSaveDialog
+		super(dSaveDialog, self).__init__(parent=parent, message=message, 
+				defaultDir=defaultDir, defaultFile=defaultFile, 
+				wildcard=wildcard, style=style)
+		self._dir = self._fname = self._msg = self._path = self._wildcard = ""
