@@ -75,7 +75,6 @@ ToDo: pointers to get started.
 # locations. Do this before any other imports.
 import sys
 import dabo.common
-import dabo.lib
 infoLog = dabo.common.Log()
 infoLog.Caption = "Dabo Info Log"
 infoLog.LogObject = sys.stdout

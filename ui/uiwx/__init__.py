@@ -58,7 +58,10 @@ from dTimer import dTimer
 from dToggleButton import dToggleButton
 from dTreeView import dTreeView
 
+from getMouseObject import getMouseObject
+
 import dShell
+
 
 # Tell Dabo Designer what classes to put in the selection menu:
 __dClasses = [dBox, dBitmapButton, dBox, dCheckBox, dCommandButton,  
