@@ -159,6 +159,21 @@ class dPemMixin(object):
 		else:
 			raise AttributeError, "%s is not a property." % name
 
+	
+	def addObject(self, className, moduleName, name, *args, **kwargs):
+		''' Instantiate object as a child of self.
+		
+		The moduleName must be importable, and the className must be an identifier
+		for a class definition in moduleName. The name parameter will be used on 
+		the resulting instance. Additional arguments received will be passed on
+		to the constructor of the object.
+		
+		The class must be a Dabo object.
+		'''
+		exec("import %s as addObjectModule" % moduleName)
+		object = eval("addObjectModule.%s(self, name=name, *args, **kwargs)" % className)
+		
+		
 	# The following 3 flag functions are used in some of the property
 	# get/set functions.
 	def hasWindowStyleFlag(self, flag):
