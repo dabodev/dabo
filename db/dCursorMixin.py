@@ -53,9 +53,6 @@ class dCursorMixin(dabo.common.dObject):
 		self.__nonUpdateFields = []
 		# User-editable list of non-updated fields
 		self.nonUpdateFields = []
-		# Default encoding
-		#sysenc = sys.getdefaultencoding()
-		#self.__encoding = sysenc == 'ascii' and 'latin-1' or sysenc
 
 		self._blank = {}
 		self.__unsortedRows = []
@@ -119,7 +116,7 @@ class dCursorMixin(dabo.common.dObject):
 		
 		# Make sure all Unicode charcters are properly encoded.
 		if type(sql) == types.UnicodeType:
-			sqlEX = sql.encode(self._getBackendObject().Encoding)
+			sqlEX = sql.encode(self.Encoding)
 		else:
 			sqlEX = sql
 
@@ -157,7 +154,7 @@ class dCursorMixin(dabo.common.dObject):
 					for i in range(0, fldcount):
 						if type(row[i]) == str:	
 							# String; convert it to unicode
-							dic[fldNames[i]] = unicode(row[i], self._getBackendObject().Encoding)
+							dic[fldNames[i]] = unicode(row[i], self.Encoding)
 						else:
 							dic[fldNames[i]] = row[i]
 					tmpRows.append(dic)
@@ -170,7 +167,7 @@ class dCursorMixin(dabo.common.dObject):
 						val = row[fld]
 						if type(val) == str:	
 							# String; convert it to unicode
-							row[fld]= unicode(val, self._getBackendObject().Encoding)
+							row[fld]= unicode(val, self.Encoding)
 			
 			# There can be a problem with the MySQLdb adapter if
 			# the mx modules are installed on the machine, the adapter
@@ -1052,7 +1049,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				ret += " AND "
 			pkVal = rec[fld]
 			if type(pkVal) in (types.StringType, types.UnicodeType):
-				ret += tblPrefix + fld + "='" + pkVal.encode(self._getBackendObject().Encoding) + "' "
+				ret += tblPrefix + fld + "='" + pkVal.encode(self.Encoding) + "' "
 			else:
 				ret += tblPrefix + fld + "=" + str(pkVal) + " "
 		return ret
@@ -1359,9 +1356,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			return self._autoPopulatePK
 		except AttributeError:
 			return True
-			
 	def _setAutoPopulatePK(self, autopop):
 		self._autoPopulatePK = bool(autopop)
+		
+	def _getEncoding(self):
+		return self._getBackendObject().Encoding
 		
 	def _getKeyField(self):
 		try:
@@ -1406,6 +1405,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None,
 			_("When inserting a new record, does the backend populate the PK field?")) 
+	
+	Encoding = property(_getEncoding, None, None,
+			_("Encoding type used by the Backend  (string)") )
 			
 	IsAdding = property(_isAdding, None, None,
 			_("Returns True if the current record is new and unsaved"))
