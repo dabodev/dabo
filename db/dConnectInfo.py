@@ -44,12 +44,19 @@ class dConnectInfo(dabo.common.dObject):
 		if backendName is not None:
 			_backendName = backendName
 			# Evaluate each type of backend
-			if backendName.lower() == "mysql":
+			nm = backendName.lower()
+			if nm == "mysql":
 				import dbMySQL
 				self._backendObject = dbMySQL.MySQL()
-			elif backendName.lower() == "gadfly":
+			elif nm == "gadfly":
 				import dbGadfly
 				self._backendObject = dbGadfly.Gadfly()
+			elif nm == "sqlite":
+				import dbSqlite
+				self._backendObject = dbSqlite.Sqlite()
+			elif nm == "firebird":
+				import dbFirebird
+				self._backendObject = dbFirebird.Firebird()
 			else:
 				self._backendName = None
 				self._backendObject = None
