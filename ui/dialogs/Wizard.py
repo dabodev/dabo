@@ -30,6 +30,11 @@ class Wizard(dabo.ui.dForm):
 		self._currentPage = -1
 		self._blankPage = None
 		
+		# Experimental!
+		# Automatically sets the page to match the form's BackColor. Set
+		# this to False if you want the pages to have their own BackColor.
+		self.setPageColor = False
+		
 		# Changing this attribute determines if we confirm when
 		# the user clicks 'Cancel'
 		self.verifyCancel = True
@@ -42,12 +47,13 @@ class Wizard(dabo.ui.dForm):
 		self.setup()
 		if pgs:
 			self.append(pgs)
-		self.start()
 		
 	
 	def setup(self):
 		""" This creates the controls used by the wizard. """
 		mp = self.mainPanel
+		if self.setPageColor:
+			mp.BackColor = self.BackColor
 		mpsz = mp.Sizer
 		mpsz.Spacing = 10
 		mpsz.Border = 12
@@ -64,6 +70,8 @@ class Wizard(dabo.ui.dForm):
 		
 		# This is the panel that will contain the various pages
 		pp = self.pagePanel = dabo.ui.dPanel(mp)
+		if self.setPageColor:
+			pp.BackColor = pp.Parent.BackColor
 		ppsz = pp.Sizer = dabo.ui.dSizer("v") 
 		
 		hsz.append(pp, 1, "x")
@@ -142,7 +150,6 @@ class Wizard(dabo.ui.dForm):
 			for p in pg:
 				self.append(p)
 		else:
-			print "APPEND", pg
 			page = pg(self.pagePanel)
 			page.Size = self.pagePanel.Size
 			self._pages.append(page)
@@ -164,12 +171,20 @@ class Wizard(dabo.ui.dForm):
 	def showPage(self):
 		if self.PageCount == 0:
 			return
+		if self._blankPage:
+			try:
+				self.pagePanel.Sizer.remove(self._blankPage)
+			except: pass
+			self._blankPage.release()
 		for idx in range(self.PageCount):
 			page = self._pages[idx] 
 			if idx == self._currentPage:
 				page.Visible = True
 				# Need this to keep the pages resizing correctly.
 				page.Size = self.pagePanel.Size
+				# Helps the pages look better under Windows
+				if self.setPageColor:
+					page.BackColor = self.BackColor
 				self.pagePanel.Sizer.append(page, 1, "x")
 				self.btnBack.Enabled = (idx > 0)
 				cap = _("Next >")
@@ -186,10 +201,10 @@ class Wizard(dabo.ui.dForm):
 	
 	def showBlankPage(self):
 		if self._blankPage is None:
-			self._blankPage = WizardPage(self)
+			self._blankPage = WizardPage(self.pagePanel)
 			self._blankPage.Title = _("This Space For Rent")
 		self._blankPage.Visible = True
-		self.Sizer.append(self._blankPage, 1, "x")
+		self.pagePanel.Sizer.append(self._blankPage, 1, "x")
 		self.btnBack.Enabled = self.btnNext.Enabled = False
 		self.layout()
 	
@@ -225,10 +240,13 @@ class Wizard(dabo.ui.dForm):
 			self.showBlankPage()
 			return
 		val = min(val, self.PageCount-1)
-		# First, see if the current page will allow us to leave
-		direction = {True: "forward", False: "back"}[self._currentPage < val]
-		if not self._pages[self._currentPage].onLeavePage(direction):
-			return
+		if self._currentPage < 0:
+			direction = "forward"
+		else:
+			# First, see if the current page will allow us to leave
+			direction = {True: "forward", False: "back"}[self._currentPage < val]
+			if not self._pages[self._currentPage].onLeavePage(direction):
+				return
 		# Now make sure that the current page is valid
 		if val < 0:
 			val = 0
