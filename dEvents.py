@@ -249,13 +249,6 @@ class LostFocus(Event):
 	appliesToClass = classmethod(appliesToClass)
 
 
-class LostFocus(Event):
-	"""Occurs when the control loses the focus."""
-	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.dPemMixin)
-	appliesToClass = classmethod(appliesToClass)
-
-
 class MenuHighlight(MenuEvent):
 	"""Occurs when a menu item is highlighted."""
 	pass

@@ -5,8 +5,6 @@ dabo.lib.datanav subframework. It does not descend from dControlMixin at this
 time, but is self-contained. There is a dGridDataTable definition here as 
 well, that defines the 'data' that gets displayed in the grid.
 """
-import wx
-import wx.grid
 import dabo
 import dabo.ui
 import dabo.dException as dException
@@ -14,7 +12,7 @@ dabo.ui.loadUI("wx")
 from dabo.dLocalize import _, n_
 
 
-class Grid(dabo.ui.dGridX):
+class Grid(dabo.ui.dGrid):
 	def _afterInit(self):
 		super(Grid, self)._afterInit()
 		self.bizobj = None

@@ -48,9 +48,6 @@ from dForm import dForm
 from dFormMain import dFormMain
 from dGauge import dGauge
 from dGrid import dGrid
-
-from dGridX import dGrid as dGridX
-
 from dGridSizer import dGridSizer
 import dIcons
 from dImage import dImage
@@ -349,7 +346,7 @@ def browse(dataSource):
 		cap = "Browse"
 	
 	browseForm = dabo.ui.dForm(None, Caption=cap)
-	grd = dGridX(browseForm)
+	grd = dGrid(browseForm)
 	grd.buildFromDataSet(dataSet)
 	browseForm.Sizer.append(grd, 1, "x")
 	browseForm.layout()
