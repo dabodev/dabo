@@ -292,9 +292,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		This will revert back to the state of the records when they were last
 		requeried or saved.
 		"""
-		
-		print "CANCEL:", dataSource
-		
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
