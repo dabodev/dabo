@@ -45,44 +45,9 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		
 		
 	def flushValue(self):
-		# Overridden: need to set Value to the converted value before running 
-		# the default behavior.
-		dataType = type(self.Value)
-		
-		# Need the string value from the textbox (not the raw Value): get 
-		# from wx directly:
-		strVal = self.GetValue()
-		
-		# Convert the current string value of the control, as entered by the 
-		# user, into the proper data type.
-		if dataType == bool:
-			# Bools can't convert from string representations, because a zero-
-			# length denotes False, and anything else denotes True.
-			if strVal == "True":
-				value = True
-			else:
-				value = False
-				
-		else:
-			# Other types can convert directly.
-			try:
-				value = dataType(strVal)
-			except ValueError:
-				# The Python object couldn't convert it. Our validator, once implemented, 
-				# won't let the user get this far. In the meantime, log the Error and just keep
-				# the old value.
-				dabo.errorLog.write("Couldn't convert literal '%s' to %s." % (strVal, dataType))
-				value = self.Value
-			
-		# Only update self.Value if it differs:
-		if value != self.Value:
-			# Update the private variable directly to avoid emitting ValueChanged twice:
-			# once in the Value setter, and once when we run the superclass code below.
-			self._value = value
-		
 		# Call the wx SetValue() directly to reset the string value displayed to the user.
 		# This resets the value to the string representation as Python shows it.
-		self.SetValue(self._getStringValue(value))
+		self.SetValue(self._getStringValue(self.Value))
 			
 		# Now that the dabo Value is set properly, the default behavior that flushes 
 		# the value to the bizobj can be called:
@@ -142,15 +107,40 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 		
 	def _getValue(self):
-		# Override the base behavior. Just return self._value
-		# which has been updated by self._setValue() and self.flushValue()
+		# Return the value as reported by wx, but convert it to the data type as
+		# reported by self._value.
 		try:
-			ret = self._value
+			_value = self._value
 		except AttributeError:
-			# The default value is an empty string
-			ret = self._value = ""
-		return ret
-			
+			_value = self._value = ""
+		dataType = type(_value)
+		
+		# Get the string value as reported by wx, which is the up-to-date value of the control:
+		strVal = self.GetValue()
+		
+		# Convert the current string value of the control, as entered by the 
+		# user, into the proper data type.
+		if dataType == bool:
+			# Bools can't convert from string representations, because a zero-
+			# length denotes False, and anything else denotes True.
+			if strVal == "True":
+				value = True
+			else:
+				value = False
+				
+		else:
+			# Other types can convert directly.
+			try:
+				value = dataType(strVal)
+			except ValueError:
+				# The Python object couldn't convert it. Our validator, once implemented, 
+				# won't let the user get this far. In the meantime, log the Error and just keep
+				# the old value.
+				dabo.errorLog.write("Couldn't convert literal '%s' to %s." % (strVal, dataType))
+				value = self._value
+		
+		return value		
+	
 					
 	def _setValue(self, value):
 		# Must convert all to string for sending to wx, but our internal 
