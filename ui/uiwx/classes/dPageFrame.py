@@ -1,10 +1,12 @@
 import wx, dControlMixin
+import dPage
 
 class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 	""" Create a container for an unlimited number of pages.
 	"""
 	def __init__(self, parent, id=-1, pos=wx.DefaultPosition,
-			size=wx.DefaultSize, style=0, name='dPageFrame'):
+			size=wx.DefaultSize, style=0, name='dPageFrame',
+			pages=7):
 
 		self._baseClass = dPageFrame
 
@@ -17,6 +19,11 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
 		
 		dControlMixin.dControlMixin.__init__(self, name)
 		self.afterInit()                      # defined in dPemMixin
+		
+		if pages:
+			for i in range(0, pages):
+				self.AddPage(dPage.dPage(self), "Page " + str(i+1) )
+		
 
 
 	def afterInit(self):

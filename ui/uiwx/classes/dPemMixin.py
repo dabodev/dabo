@@ -92,7 +92,7 @@ class dPemMixin(dabo.common.DoDefaultMixin, dabo.common.PropertyHelperMixin):
 
 		# Some wx-specific props need to be initialized early. Let the designer know:
 		d['preInitProperty'] = name in ('Alignment', 'BorderStyle', 'PasswordEntry', 
-				'Orientation')
+				'Orientation', 'ShowLabels')
 
 		return d
 		
