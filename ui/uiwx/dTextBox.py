@@ -22,6 +22,12 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		self.Bind(wx.EVT_TEXT, self._onWxHit)
 		
 		
+	def _getInitPropertiesList(self):
+		additional = ["PasswordEntry",]
+		original = list(super(dTextBox, self)._getInitPropertiesList())
+		return tuple(original + additional)
+
+
 	def flushValue(self):
 		# Call the wx SetValue() directly to reset the string value displayed to the user.
 		# This resets the value to the string representation as Python shows it.

@@ -8,11 +8,13 @@ from dabo.lib.reporting.reportWriter import ReportWriter
 #------------------------------------------------------------------------------
 #  ObjectPanel Class
 # 
-#  All of the various types of report objects like strings, images, rectangles,
-#  etc. are ObjectPanels. ObjectPanels get instantiated from the Band's 
-#  getObject() method.
-
 class ObjectPanel(dabo.ui.dPanel):
+	"""Base class for all report objects
+	
+	All of the various types of report objects like strings, images, rectangles,
+	etc. are ObjectPanels. ObjectPanels get instantiated from the Band's 
+	getObject() method.
+	"""
 	def afterInit(self):
 		self._rd = self.Form.editor
 		self._rw = self._rd._rw
@@ -225,11 +227,13 @@ class ObjectPanel(dabo.ui.dPanel):
 #------------------------------------------------------------------------------
 #  BandLabel Class
 # 
-#  These are the bands like pageHeader, pageFooter, and detail that
-#  the user can drag up and down to make the band smaller or larger,
-#  respectively.
-
 class BandLabel(dabo.ui.dPanel):
+	"""Base class for the movable label at the bottom of each band.
+	
+	These are the bands like pageHeader, pageFooter, and detail that
+	the user can drag up and down to make the band smaller or larger,
+	respectively.
+	"""
 	def afterInit(self):
 		self._dragging = False
 		self._dragStart = (0,0)
@@ -359,10 +363,12 @@ class BandLabel(dabo.ui.dPanel):
 #
 #  Band Class
 #
-#  Bands contain any number of objects, which can receive the focus and be
-#  acted upon. Bands also manage their own BandLabels.
-
 class Band(dabo.ui.dPanel):
+	"""Base class for report bands.
+	
+	Bands contain any number of objects, which can receive the focus and be
+	acted upon. Bands also manage their own BandLabels.
+	"""
 	def afterInit(self):
 		self._rd = self.Form.editor
 		self._rw = self._rd._rw
@@ -520,13 +526,16 @@ class Band(dabo.ui.dPanel):
 #
 #  ReportDesigner Class
 #
-#  This is the main report designer panel that contains the bands and
-#  handles setting properties on report objects. While a given object is
-#  considered to be owned by a particular band, the report designer still
-#  controls the placement of the object because, among other things, a given
-#  object can cross bands (a rectangle extending from the group header to the
-#  group footer, for instance) or move from one band to another.
 class ReportDesigner(dabo.ui.dScrollPanel):
+	"""Main report designer panel.
+	
+	This is the main report designer panel that contains the bands and
+	handles setting properties on report objects. While a given object is
+	considered to be owned by a particular band, the report designer still
+	controls the placement of the object because, among other things, a given
+	object can cross bands (a rectangle extending from the group header to the
+	group footer, for instance) or move from one band to another.
+	"""
 	def afterInit(self):
 		self._bands = []
 		self._rulers = {}
@@ -765,7 +774,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			modstr = ""
 		self.Form.Caption = "%s%s: %s" % (modstr,
 		                                  self.Form._captionBase,
-			                                self._fileName)
+		                                  self._fileName)
 
 	def newFile(self):
 		if self.closeFile():
@@ -926,10 +935,9 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 #
 #  ReportDesignerForm Class
 #
-#  This class provides the containing form, status bar, and menu for the
-#  ReportDesigner.
-
 class ReportDesignerForm(dabo.ui.dForm):
+	"""Main form, status bar, and menu for the report designer.
+	"""
 	def afterInit(self):
 		self._captionBase = self.Caption = "Dabo Report Designer"
 		self.Sizer = None
@@ -1011,7 +1019,7 @@ class ReportDesignerForm(dabo.ui.dForm):
 		fileMenu.prependSeparator()
 
 		fileMenu.prepend("Save &As", bindfunc=self.onFileSaveAs, bmp="saveAs", 
-                     help="Save under a different file name")
+		                 help="Save under a different file name")
 
 		fileMenu.prepend("&Save\tCtrl+S", bindfunc=self.onFileSave, bmp="save",
 		                 help="Save file")

@@ -92,7 +92,10 @@ class dPemMixin(dPemMixinBase):
 			# Hack: wx.Menu has no style, parent, or id arg.
 			del self._initProperties["style"]
 		else:
-			self._initProperties["style"] = style
+			if self._initProperties.has_key("style"):
+				self._initProperties["style"] = self._initProperties["style"] | style
+			else:
+				self._initProperties["style"] = style
 			self._initProperties["parent"] = parent
 			self._initProperties["id"] = id_
 		
@@ -929,7 +932,7 @@ class dPemMixin(dPemMixinBase):
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
 			"Specifies the shape of the mouse pointer when it enters this window. (obj)")
 	
- 	Name = property(_getName, _setName, None, 
+	Name = property(_getName, _setName, None, 
 			"""Specifies the name of the object, which must be unique among siblings.
 			
 			If the specified name isn't unique, an exception will be raised. See also
