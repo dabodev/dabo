@@ -29,7 +29,6 @@ def loadUI(uiType):
 	""" Load the given UI into the global namespace.
 	"""
 	retVal = False
-	
 	currType = getUIType()
 	mods = {"wx" : "dabo.ui.uiwx", "tk" : "dabo.ui.uitk"}
 	if uiType.lower() in ("wx", "wxpython", "uiwx"):

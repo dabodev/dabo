@@ -39,7 +39,6 @@
 import sys, os, warnings, glob
 import ConfigParser
 import dabo, dabo.ui, dabo.db
-import dabo.ui.dialogs
 import dabo.common, dSecurityManager
 from dLocalize import _
 

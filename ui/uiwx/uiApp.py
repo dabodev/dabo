@@ -1,7 +1,6 @@
 import sys, os, wx
 import dabo
 import dabo.ui as ui
-import dabo.ui.dialogs
 import dabo.dEvents as dEvents
 from dabo.common.dObject import dObject
 

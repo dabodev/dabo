@@ -1,6 +1,6 @@
 import sys
-import dabo
-if dabo.ui.getUIType() is None:
+import dabo, dabo.ui
+if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
