@@ -5,9 +5,17 @@ import dabo.dEvents as dEvents
 class dPage(dPanel.dScrollPanel):
 	""" Create a page to appear as a tab in a dPageFrame.
 	"""
-	def __init__(self, parent, name="dPage"):
-		#dPage.doDefault(parent, name=name)
-		super(dPage, self).__init__(parent, name=name)
+	def __init__(self, parent, *args, **kwargs):
+		if "name" in kwargs.keys():
+			if "_explicitName" in kwargs.keys():
+				_explicitName = kwargs["_explicitName"]
+			else:
+				_explicitName = True
+			name = kwargs["name"]
+		else:
+			_explicitName = False
+			name = "dPage"
+		super(dPage, self).__init__(parent, name=name, _explicitName=_explicitName)
 
 
 	def afterInit(self):

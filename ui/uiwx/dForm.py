@@ -32,8 +32,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
 	like next(), last(), save(), and requery().
 	"""
-	def __init__(self, parent=None, id=-1, title='', name='dForm', *args, **kwargs):
+	def __init__(self, parent=None, id=-1, title='', *args, **kwargs):
 		self._baseClass = dForm
+		name, _explicitName = self._processName(kwargs, "dForm")
+		
 		if parent:
 			style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT
 		else:
@@ -41,19 +43,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 		pre = wxPreFrameClass()
 		self._beforeInit(pre)                  # defined in dPemMixin
-		pre.Create(parent, id, title, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id, title, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 		
-		try:		
-			self.Name, self.Caption = name, name
-		except NameError:
-			# Name isn't unique: punt for now: likely, user code will change the
-			# name anyway.
-			name = "%s_%s" % (name, self.GetId())
-			self.Name, self.Caption = name, name
-			
-		fm.dFormMixin.__init__(self)
+		fm.dFormMixin.__init__(self, name=name, _explicitName=_explicitName)
 
 		self.debug = False
 		self.bizobjs = {}

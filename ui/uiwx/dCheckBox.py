@@ -11,16 +11,18 @@ from dabo.dLocalize import _
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 	""" Allows visual editing of boolean values.
 	"""
-	def __init__(self, parent, id=-1, name="dCheckBox", style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, style=0, *args, **kwargs):
 		
 		self._baseClass = dCheckBox
 
+		name, _explicitName = self._processName(kwargs, "dCheckBox")
+		
 		pre = wx.PreCheckBox()
 		self._beforeInit(pre)
-		pre.Create(parent, id, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id, style=style|pre.GetWindowStyle(), *args, **kwargs)
 		self.PostCreate(pre)
 		
-		dcm.dDataControlMixin.__init__(self, name)
+		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
 		self._afterInit()
 
 

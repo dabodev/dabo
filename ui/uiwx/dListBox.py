@@ -10,10 +10,11 @@ from dabo.dLocalize import _
 class dListBox(wx.ListBox, dcm.dDataControlMixin):
 	""" Allows presenting a choice of items for the user to choose from.
 	"""
-	def __init__(self, parent, id=-1, choices=["Dabo", "Default"], name="dListBox", 
+	def __init__(self, parent, id=-1, choices=["Dabo", "Default"], 
 			style=0, selectionType="single", *args, **kwargs):
 
 		self._baseClass = dListBox
+		name, _explicitName = self._processName(kwargs, "dListBox")
 
 		pre = wx.PreListBox()
 		self._beforeInit(pre)
@@ -32,7 +33,7 @@ class dListBox(wx.ListBox, dcm.dDataControlMixin):
 
 		self.PostCreate(pre)
 
-		dcm.dDataControlMixin.__init__(self, name)
+		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
 		self._afterInit()
 
 

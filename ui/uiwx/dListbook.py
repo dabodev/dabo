@@ -12,18 +12,19 @@ class dListbook(wx.Listbook, dControlMixin.dControlMixin):
 	""" Create a container for an unlimited number of pages.
 	"""
 	def __init__(self, parent, id=-1, pos=wx.DefaultPosition,
-			size=wx.DefaultSize, style=0, name="dListbook"):
+			size=wx.DefaultSize, style=0):
 
 		self._baseClass = dListbook
+		name, _explicitName = self._processName(kwargs, "dListbook")
 
 		pre = wx.PreListbook()
 		self._beforeInit(pre)
 		style = style | pre.GetWindowStyle()
-		pre.Create(parent, id, pos, size, style, name)
+		pre.Create(parent, id, pos, size, style)
 
 		self.PostCreate(pre)
 		
-		dControlMixin.dControlMixin.__init__(self, name)
+		dControlMixin.dControlMixin.__init__(self, name, _explicitName=_explicitName)
 		
 		self.lastSelection = 0
 		self.PageCount = 3

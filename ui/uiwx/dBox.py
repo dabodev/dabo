@@ -8,17 +8,20 @@ import dControlMixin as cm
 class dBox(wx.StaticBox, cm.dControlMixin):
 	""" Create a static (not data-aware) box.
 	"""
-	def __init__(self, parent, id=-1, label="", pos=(-1, -1), size=(-1, -1), name='dBox', style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, label="", pos=(-1, -1), size=(-1, -1), style=0, *args, **kwargs):
 
 		self._baseClass = dBox
+		
+		name, _explicitName = self._processName(kwargs, "dBox")
 		
 		pre = wx.PreStaticBox()
 		self._beforeInit(pre)
 		
-		pre.Create(parent, id, label, pos, size, name=name, style=style | pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id, label, pos, size, style=style | pre.GetWindowStyle(), *args, **kwargs)
 		self.PostCreate(pre)
-
-		cm.dControlMixin.__init__(self, name)
+		
+		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
+		
 		self._afterInit()
 
 

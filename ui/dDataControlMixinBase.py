@@ -11,9 +11,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	""" Provide common functionality for the data-aware controls.
 	"""
 	
-	def __init__(self, name=None):
+	def __init__(self, name=None, _explicitName=True):
 		#dDataControlMixinBase.doDefault(name)
-		super(dDataControlMixinBase, self).__init__(name)
+		super(dDataControlMixinBase, self).__init__(name, _explicitName=_explicitName)
 
 		self._oldVal = self.Value
 		self.enabled = True

@@ -11,19 +11,19 @@ class dCommandButton(wx.Button, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button.
 	"""
 
-	def __init__(self, parent, id=-1, name="dCommandButton", style=0,
-				 *args, **kwargs):
+	def __init__(self, parent, id=-1, style=0, *args, **kwargs):
 
 		self._baseClass = dCommandButton
+		
+		name, _explicitName = self._processName(kwargs, "dCommandButton")
 
 		pre = wx.PreButton()
 		self._beforeInit(pre)
-		pre.Create(parent, id, name=name, style=style|pre.GetWindowStyle(),
-				   *args, **kwargs)
+		pre.Create(parent, id, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 		
-		cm.dControlMixin.__init__(self, name)
+		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
 		self._afterInit()
 
 

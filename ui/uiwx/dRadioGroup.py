@@ -10,10 +10,11 @@ from dabo.dLocalize import _
 class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	""" Allows choosing one option from a list of options.
 	"""
-	def __init__(self, parent, id=-1, label='', name="dRadioGroup", 
+	def __init__(self, parent, id=-1, label='', 
 		choices=['Option A', 'Option B'], style=0, *args, **kwargs):
 
 		self._baseClass = dRadioGroup
+		name, _explicitName = self._processName(kwargs, "dRadioGroup")
 
 		pre = wx.PreRadioBox()
 		self._beforeInit(pre)                  # defined in dPemMixin
@@ -24,11 +25,11 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 			maxElements = 1
 
 		pre.Create(parent, id, label=label, choices=choices, majorDimension=maxElements,
-				name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
+				style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 
-		dcm.dDataControlMixin.__init__(self, name)
+		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
 		self._afterInit()                      # defined in dPemMixin
 
 

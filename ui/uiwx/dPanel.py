@@ -13,17 +13,19 @@ class dPanel(wx.Panel, dControlMixin.dControlMixin):
 	instead, and then adding the panel to the form.
 	"""
 
-	def __init__(self, parent, id=-1, name="dPanel", style=wx.TAB_TRAVERSAL, *args, **kwargs):
+	def __init__(self, parent, id=-1, style=wx.TAB_TRAVERSAL, *args, **kwargs):
 
 		self._baseClass = dPanel
 
+		name, _explicitName = self._processName(kwargs, "dPanel")
+		
 		pre = wx.PrePanel()
 		self._beforeInit(pre)
-		pre.Create(parent, id=id, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id=id, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 		
-		dControlMixin.dControlMixin.__init__(self, name)
+		dControlMixin.dControlMixin.__init__(self, name, _explicitName=_explicitName)
 
 		self._afterInit()
 
@@ -35,18 +37,19 @@ class dScrollPanel(wx.ScrolledWindow, dControlMixin.dControlMixin):
 	flexible for many uses. Consider laying out your forms on panels
 	instead, and then adding the panel to the form.
 	"""
-
-	def __init__(self, parent, id=-1, name="dScrollPanel", style=wx.TAB_TRAVERSAL, *args, **kwargs):
+	def __init__(self, parent, id=-1, style=wx.TAB_TRAVERSAL, *args, **kwargs):
 
 		self._baseClass = dScrollPanel
 
+		name, _explicitName = self._processName(kwargs, "dScrollPanel")
+		
 		pre = wx.PreScrolledWindow()
 		self._beforeInit(pre)
-		pre.Create(parent, id=id, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id=id, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 		
-		dControlMixin.dControlMixin.__init__(self, name)
+		dControlMixin.dControlMixin.__init__(self, name, _explicitName=_explicitName)
 		
 		self.SetScrollbars(10, 10, -1, -1)
 		self._afterInit()

@@ -11,10 +11,11 @@ from dIcons import getIconBitmap
 class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button.
 	"""
-	def __init__(self, parent, id=-1, bitmap=None, name="dBitmapButton", 
-				style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, bitmap=None, style=0, *args, **kwargs):
 		
 		self._baseClass = dBitmapButton
+		
+		name, _explicitName = self._processName(kwargs, "dBitmapButton")
 
 		pre = wx.PreBitmapButton()
 		self._beforeInit(pre)
@@ -23,11 +24,12 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 			# Default to the Dabo icon
 			bitmap = getIconBitmap("daboIcon048")
 		
-		pre.Create(parent, id, bitmap, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id, bitmap, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 		
-		cm.dControlMixin.__init__(self, name)
+		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
+		
 		self._afterInit()
 
 

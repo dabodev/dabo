@@ -329,16 +329,6 @@ class dApp(dabo.common.dObject):
 				" touch it." % (self.UI,)))
 
 
-	def _getAutoNegotiateUniqueNames(self):
-		try:
-			return self._autoNegotiateUniqueNames
-		except AttributeError:
-			return True
-	
-	def _setAutoNegotiateUniqueNames(self, value):
-		self._autoNegotiateUniqueNames = bool(value)
-		
-	
 	def _getHomeDirectory(self):
 		try:
 			hd = self._homeDirectory
@@ -429,11 +419,6 @@ class dApp(dabo.common.dObject):
 	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
 			"Returns the form that currently has focus, or None.  (dForm)" )
 	
-	AutoNegotiateUniqueNames = property(_getAutoNegotiateUniqueNames,_setAutoNegotiateUniqueNames,
-			None, _("Specifies whether setting an object\'s name to a non-unique "
-			"value results in a unique integer being appended, or whether "
-			"a NameError is raised. Default is True: negotiate the name."))
-
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
 			_("Specifies the home-base directory for the application's program files."))
 		

@@ -46,9 +46,12 @@ class dDateTextBox(dTextBox.dTextBox):
 	to the date value they need. The keystrokes are the same as those used
 	by Quicken, the popular personal finance program.
 	"""
-	def __init__(self, parent, id=-1, name="dDateTextBox", style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, style=0, *args, **kwargs):
 		#dDateTextBox.doDefault(parent, id, name, style, *args, **kwargs)
-		super(dDateTextBox, self).__init__(parent, id, name, style, *args, **kwargs)
+		name, _explicitName = self._processName(kwargs, "dDateTextBox")
+		kwargs["name"] = name
+		kwargs["_explicitName"] = _explicitName
+		super(dDateTextBox, self).__init__(parent, id, style, *args, **kwargs)
 
 	def beforeInit(self, pre):
 		self.date = wx.DateTime_Now()

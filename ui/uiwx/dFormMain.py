@@ -31,15 +31,14 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 
 		pre = wxPreFrameClass()
 		self._beforeInit(pre)
-		pre.Create(None, -1, "dFormMain")
+		pre.Create(None, -1)
 
 		self.PostCreate(pre)
 		
-		self.Name = "dFormMain"
 		self.Size = (640,480)
 		self.Position = (0,0)
 
-		fm.dFormMixin.__init__(self)
+		fm.dFormMixin.__init__(self, name="dFormMain", _explicitName=False)
 		
 		if wx.Platform != '__WXMAC__':
 			self.CreateStatusBar()

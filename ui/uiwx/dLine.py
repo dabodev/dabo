@@ -8,17 +8,18 @@ import dControlMixin as cm
 class dLine(wx.StaticLine, cm.dControlMixin):
 	""" Create a static (not data-aware) line.
 	"""
-	def __init__(self, parent, id=-1, name='dLine', style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, style=0, *args, **kwargs):
 
 		self._baseClass = dLine
+		name, _explicitName = self._processName(kwargs, "dLine")
 
 		pre = wx.PreStaticLine()
 		self._beforeInit(pre)
 
-		pre.Create(parent, id, name=name, style=style | pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id, style=style | pre.GetWindowStyle(), *args, **kwargs)
 		self.PostCreate(pre)
 
-		cm.dControlMixin.__init__(self, name)
+		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
 		self._afterInit()
 
 

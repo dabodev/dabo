@@ -8,18 +8,19 @@ import dControlMixin as cm
 class dGauge(wx.Gauge, cm.dControlMixin):
 	""" Allows the creation of progress bars.
 	"""
-	def __init__(self, parent, id=-1, name="dGauge", style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, style=0, *args, **kwargs):
 
 		self._baseClass = dGauge
+		name, _explicitName = self._processName(kwargs, "dGauge")
 
 		pre = wx.PreGauge()
 		self._beforeInit(pre)
 		
-		pre.Create(parent, id, 100, name=name, style=style|pre.GetWindowStyle(), *args, **kwargs)
+		pre.Create(parent, id, 100, style=style|pre.GetWindowStyle(), *args, **kwargs)
 
 		self.PostCreate(pre)
 
-		cm.dControlMixin.__init__(self, name)
+		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
 		self._afterInit()
 
 

@@ -190,7 +190,7 @@ class dPemMixin(dPemMixinBase):
 		The classRef argument must be a Dabo UI class definition. (it must inherit 
 		dPemMixin).
 		
-		If the name argument, if passed, will be sent along to the object's 
+		The name argument, if passed, will be sent along to the object's 
 		constructor, which will attempt to set its Name accordingly. If the name
 		argument is not passed (or None), the object will get a default Name as 
 		defined in the object's class definition.
@@ -225,6 +225,23 @@ class dPemMixin(dPemMixinBase):
 		super(dPemMixin, self).raiseEvent(eventClass, nativeEvent, *args, **kwargs)
 	
 			
+	def _processName(self, kwargs, defaultName):
+		# Called by the constructors of the dObjects, to properly set the
+		# name of the object based on whether the user set it explicitly
+		# or Dabo is to provide it implicitly.
+		if "name" in kwargs.keys():
+			if "_explicitName" in kwargs.keys():
+				_explicitName = kwargs["_explicitName"]
+				del kwargs["_explicitName"]
+			else:
+				_explicitName = True
+			name = kwargs["name"]
+		else:
+			_explicitName = False
+			name = defaultName
+		return name, _explicitName
+		
+
 	def reCreate(self, child=None):
 		""" Recreate self.
 		"""
@@ -520,10 +537,12 @@ class dPemMixin(dPemMixinBase):
 		self._name = name      # keeps name available even after C++ object is gone.
 		return name
 	
-	def _setName(self, name):
+	def _setName(self, name, _userExplicit=True):
 		parent = self._pemObject.GetParent()
 		if parent:
-			if not self.Application or self.Application.AutoNegotiateUniqueNames:
+			if not _userExplicit:
+				# Dabo is setting the name implicitly, in which case we want to mangle
+				# the name if necessary to make it unique (we don't want a NameError).
 				i = 0
 				while True:
 					nameError = False
@@ -532,7 +551,7 @@ class dPemMixin(dPemMixinBase):
 					else:
 						candidate = '%s%s' % (name, i)
 
-					for window in self._pemObject.GetParent().GetChildren():
+					for window in parent.GetChildren():
 						if window.GetName() == candidate and window != self:
 							nameError = True
 							break
@@ -542,14 +561,19 @@ class dPemMixin(dPemMixinBase):
 						name = candidate
 						break
 			else:
-				raise NameError, "A unique object name is required."
+				# the user is explicitly setting the Name. If another object already
+				# has the name, we must raise an exception immediately.
+				for window in parent.GetChildren():
+					if str(window.GetName()) == str(name) and window != self:
+						raise NameError, "Name '%s' is already in use." % name
 				
 		else:
 			# Can't do the name check for siblings, so allow it for now.
 			# This problem would only apply to top-level forms, so it really
 			# wouldn't matter anyway in a practical sense.
-			pass					
+			name = name
 
+#- 		print "setting name to '%s'" % name
 		self._pemObject.SetName(str(name))
 		self._name = self._pemObject.GetName()
 

@@ -11,20 +11,22 @@ class dDropdownList(wx.Choice, dcm.dDataControlMixin):
 	""" Allows presenting a choice of items for the user to choose from.
 	"""
 	def __init__(self, parent, id=-1, pos=wx.DefaultPosition, size=wx.DefaultSize, 
-			choices=["Dabo", "Default"], name="dDropdownList", style=0, *args, **kwargs):
+			choices=["Dabo", "Default"], style=0, *args, **kwargs):
 
 		self._baseClass = dDropdownList
+		
+		name, _explicitName = self._processName(kwargs, "dDropdownList")
 
 		self._choices = list(choices)
 
 		pre = wx.PreChoice()
 		self._beforeInit(pre)
 		style=style|pre.GetWindowStyle()
-		pre.Create(parent, id, pos, size, choices, name=name, *args, **kwargs)
+		pre.Create(parent, id, pos, size, choices, *args, **kwargs)
 
 		self.PostCreate(pre)
 
-		dcm.dDataControlMixin.__init__(self, name)
+		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName)
 		self._afterInit()
 		
 

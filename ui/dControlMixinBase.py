@@ -8,12 +8,12 @@ import dabo.dEvents as dEvents
 class dControlMixinBase(dabo.ui.dPemMixin):
 	""" Provide common functionality for all controls.
 	"""
-	def __init__(self, name=None):
-		if not name:
+	def __init__(self, name=None, _explicitName=True):
+		if name is None:
 			name = self.Name
 		
 		try:
-			self.Name = name
+			self._setName(name, _userExplicit=_explicitName)
 		except AttributeError:
 			# Some toolkits (Tkinter) don't let objects change their
 			# names after instantiation.

@@ -7,9 +7,11 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
 class dFormMixin(pm.dPemMixin):
-	def __init__(self):
+	def __init__(self, name="dFormMixin", _explicitName=False):
 		#dFormMixin.doDefault()
 		super(dFormMixin, self).__init__()
+		
+		self._setName(name, _explicitName)
 		
 		self.debugText = ""
 		self.useOldDebugDialog = False
@@ -26,7 +28,7 @@ class dFormMixin(pm.dPemMixin):
 
 		if not self.Icon:
 			self.Icon = wx.Icon(dabo.icons.getIconFileName('daboIcon048'), wx.BITMAP_TYPE_PNG)
-		
+	
 				
 	def _initEvents(self):
 		#dFormMixin.doDefault()
