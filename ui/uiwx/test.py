@@ -24,10 +24,10 @@ class Test(object):
 	def __init__(self):
 		self.app = wx.PySimpleApp()
 
-	def runTest(self, classRef):
+	def runTest(self, classRef, *args, **kwargs):
 		frame = wx.Frame(None, -1, "")
 		frame.SetSize((300,52))
-		object = classRef(frame)
+		object = classRef(frame, *args, **kwargs)
 		object.debug = True
 		object.LogEvents = logEvents
 		frame.SetLabel("Test of %s" % object.Name)

@@ -10,18 +10,14 @@ from dabo.dLocalize import _
 class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	""" Allows choosing one option from a list of options.
 	"""
-	def __init__(self, parent, id=-1, label='', name="dRadioGroup", style=0, *args, **kwargs):
+	def __init__(self, parent, id=-1, label='', name="dRadioGroup", 
+		choices=['Option A', 'Option B'], style=0, *args, **kwargs):
 
 		self._baseClass = dRadioGroup
 
 		pre = wx.PreRadioBox()
 		self._beforeInit(pre)                  # defined in dPemMixin
-		
-		try:
-			choices = pre._optionList
-		except AttributeError:
-			choices = ['Option A', 'Option B']
-		
+
 		try:	
 			maxElements = pre._maxElements
 		except AttributeError:
@@ -82,21 +78,6 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		else:
 			raise ValueError, "The only possible settings are 'None', 'Row', and 'Column'."
 			
-	def _getOptionList(self):
-		l = []
-		for item in range(self._pemObject.GetCount()):
-			l.append(self._pemObject.GetString(item))
-		return l
-	
-	def _getOptionListEditorInfo(self):
-		return {'editor': 'propvallist'}
-			
-	def _setOptionList(self, val):
-		if type(val) == type(list()):
-			self._pemObject._optionList = val
-		else:
-			raise TypeError, "Option list must be a Python list."
-			
 	def _getValue(self):
 		return self._pemObject.GetSelection()
 	def _setValue(self, value):
@@ -115,13 +96,10 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 						'	"Row"\n'
 						'	"Column"')
 	
-	OptionList = property(_getOptionList, _setOptionList, None,
-						'Specifies the list of options to display. Read-only at runtime. (list of strings).')
-	
 	Value = property(_getValue, _setValue, None,
 						'Specifies the current state of the control (the value of the field). (varies)')
 
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dRadioBox)
+	test.Test().runTest(dRadioGroup, choices=["apples", "mangoes"])
