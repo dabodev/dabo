@@ -169,11 +169,6 @@ class dPemMixin(dPemMixinBase):
 				# This is completely moot when sizers are employed.
 				self.Position = (0, 0)
 
-# 			if self.Size == (-1, -1):
-# 				# The object was instantiated with a default position,
-# 				# which ended up being (-1,-1). Change this to (0,0). 
-# 				# This is completely moot when sizers are employed.
-# 				self.Size = (0, 0)
 		except:
 			pass
 
@@ -823,7 +818,7 @@ class dPemMixin(dPemMixinBase):
 
 	# Property definitions follow
 	BackColor = property(_getBackColor, _setBackColor, None,
-			"Specifies the background color of the object. (tuple)")
+			_("Specifies the background color of the object. (tuple)"))
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
 			"Specifies the type of border for this window. (int). \n"
