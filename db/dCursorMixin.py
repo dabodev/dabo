@@ -97,7 +97,7 @@ class dCursorMixin(dabo.common.dObject):
 		
 	
 	def setSQL(self, sql):
-		self.sql = sql
+		self.sql = self.BackendObject.setSQL(sql)
 
 
 	def getSortColumn(self):
@@ -1019,8 +1019,8 @@ class dCursorMixin(dabo.common.dObject):
 		return ret
 
 
-	def processFields(self, str):
-		return self.BackendObject.processFields(str)
+	def processFields(self, txt):
+		return self.BackendObject.processFields(txt)
 		
 	
 	def escQuote(self, val):
@@ -1101,7 +1101,7 @@ class dCursorMixin(dabo.common.dObject):
 	def setFieldClause(self, clause):
 		""" Set the field clause of the sql statement.
 		"""
-		self._fieldClause = clause
+		self._fieldClause = self.BackendObject.setFieldClause(clause)
 
 	def addField(self, exp):
 		""" Add a field to the field clause.
@@ -1117,7 +1117,7 @@ class dCursorMixin(dabo.common.dObject):
 	def setFromClause(self, clause):
 		""" Set the from clause of the sql statement.
 		"""
-		self._fromClause = clause
+		self._fromClause = self.BackendObject.setFromClause(clause)
 
 	def addFrom(self, exp):
 		""" Add a table to the sql statement.
@@ -1136,7 +1136,7 @@ class dCursorMixin(dabo.common.dObject):
 	def setWhereClause(self, clause):
 		""" Set the where clause of the sql statement.
 		"""
-		self._whereClause = clause
+		self._whereClause = self.BackendObject.setWhereClause(clause)
 
 	def addWhere(self, exp, comp="and"):
 		""" Add an expression to the where clause.
@@ -1156,7 +1156,7 @@ class dCursorMixin(dabo.common.dObject):
 	def setChildFilterClause(self, clause):
 		""" Set the child filter clause of the sql statement.
 		"""
-		self._childFilterClause = clause
+		self._childFilterClause = self.BackendObject.setChildFilterClause(clause)
 
 	def getGroupByClause(self):
 		""" Get the group-by clause of the sql statement.
@@ -1166,7 +1166,7 @@ class dCursorMixin(dabo.common.dObject):
 	def setGroupByClause(self, clause):
 		""" Set the group-by clause of the sql statement.
 		"""
-		self._groupByClause = clause
+		self._groupByClause = self.BackendObject.setGroupByClause(clause)
 
 	def addGroupBy(self, exp):
 		""" Add an expression to the group-by clause.
@@ -1182,7 +1182,7 @@ class dCursorMixin(dabo.common.dObject):
 	def setOrderByClause(self, clause):
 		""" Set the order-by clause of the sql statement.
 		"""
-		self._orderByClause = clause
+		self._orderByClause = self.BackendObject.setOrderByClause(clause)
 
 	def addOrderBy(self, exp):
 		""" Add an expression to the order-by clause.

@@ -46,7 +46,7 @@ class Firebird(dBackend):
 		"""
 		return
 
-	def processFields(self, str):
+	def processFields(self, txt):
 		""" Firebird requires that all field names be surrounded 
 		by double quotes.
 		"""
@@ -200,10 +200,25 @@ and rdb$unique_flag = 1 """ % tableName.upper()
 	def addWhere(self, clause, exp, comp="and"):
 		quoted = self.dblQuoteField(exp)
 		return self.addWithSep(clause, quoted, sep=" %s " % comp)
+
+	def setSQL(self, sql):
+		return self.dblQuoteField(sql)
+	def setFieldClause(self, clause):
+		return self.dblQuoteField(clause)
+	def setFromClause(self, clause):
+		return self.dblQuoteField(clause)
+	def setWhereClause(self, clause):
+		return self.dblQuoteField(clause)
+	def setChildFilterClause(self, clause):
+		return self.dblQuoteField(clause)
+	def setGroupByClause(self, clause):
+		return self.dblQuoteField(clause)
+	def setOrderByClause(self, clause):
+		return self.dblQuoteField(clause)
 		
-	def dblQuoteField(self, str):
+	def dblQuoteField(self, txt):
 		""" Takes a string and returns the same string with
 		all occurrences of xx.yy replaced with xx."yy"
 		"""
-		return self.fieldPat.sub("\g<1>.\"\g<2>\"", str)
+		return self.fieldPat.sub("\g<1>.\"\g<2>\"", txt)
 		

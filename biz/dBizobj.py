@@ -162,11 +162,11 @@ class dBizobj(dabo.common.dObject):
 		self.__cursors[key].setCursorFactory(self.Connection.getCursor, cursorClass)
 
 		crs = self.__cursors[key]
-		crs.setSQL(self.SQL)
 		crs.KeyField = self.KeyField
 		crs.Table = self.DataSource
 		crs.AutoPopulatePK = self.AutoPopulatePK
 		crs.BackendObject = self.Connection.BackendObject
+		crs.setSQL(self.SQL)
 		if self.RequeryOnLoad:
 			crs.requery()
 		self.afterCreateCursor(crs)

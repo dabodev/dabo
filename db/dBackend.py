@@ -58,11 +58,11 @@ class dBackend(dabo.common.dObject):
 		""" Only used in some backends """
 		return
 
-	def processFields(self, str):
+	def processFields(self, txt):
 		""" Default is to return the string unchanged. Override
 		in cases where the str needs processing.
 		"""
-		return str
+		return txt
 
 
 	def escQuote(self, val):
@@ -177,13 +177,9 @@ class dBackend(dabo.common.dObject):
 		the required clauses. Some backends order these differently, so 
 		they should override this method with their own ordering.
 		"""
-		sql = "select "
-		for clause in (fieldClause, fromClause, whereClause, groupByClause,
-			orderByClause, limitClause):
-			
-			if len(clause) > 0:
-				sql += "%s\n" % clause
-				
+		clauses =  (fieldClause, fromClause, whereClause, groupByClause,
+				orderByClause, limitClause)
+		sql = "select " + "\n".join( [clause for clause in clauses if clause] )
 		return sql
 
 	def prepareWhere(self, clause):
@@ -212,5 +208,24 @@ class dBackend(dabo.common.dObject):
 		"""
 		return tbl + "."
 
-			
-			
+
+	###########################################	
+	# The following methods by default simply return the text 
+	# supplied to them. If a particular backend (Firebird comes
+	# to mind) has specific formatting requirements, though, 
+	# that subclass should override these.
+	def setSQL(self, sql):
+		return sql
+	def setFieldClause(self, clause):
+		return clause
+	def setFromClause(self, clause):
+		return clause
+	def setWhereClause(self, clause):
+		return clause
+	def setChildFilterClause(self, clause):
+		return clause
+	def setGroupByClause(self, clause):
+		return clause
+	def setOrderByClause(self, clause):
+		return clause
+	###########################################	
