@@ -14,18 +14,49 @@ class dConnectInfo(dabo.common.dObject):
 		ci.password = 'dabo'
 	"""
 	def __init__(self, backendName=None, host=None, user=None, 
-					password=None, dbName=None, port=None):
+					password=None, dbName=None, port=None, connInfo=None):
 		self._baseClass = dConnectInfo
 		#dConnectInfo.doDefault(self)
 		super(dConnectInfo, self).__init__()
-		self.BackendName = backendName
-		self.Host = host
-		self.User = user
-		self.Password = password
-		self.DbName = dbName
-		self.Port = port
 		
-		
+		if connInfo:	
+			self.setConnInfo(connInfo)
+		else:
+			# Read the parameters
+			self.BackendName = backendName
+			self.Host = host
+			self.User = user
+			self.Password = password
+			self.DbName = dbName
+			self.Port = port
+	
+	
+	def setConnInfo(self, connInfo, nm=""):
+		if type(connInfo) == dict:
+			# The info is already in dict format
+			connDict = connInfo
+		else:
+			# They've passed the info in XML format. Either this is the actual
+			# XML, or it is a path to the XML file. Either way, the parser
+			# will handle it.
+			cd = dabo.common.connParser.importConnections(connInfo)
+			# There may be multiple connections in this file. If they passed a 
+			# name, use that connection; otherwise, use the first.
+			try:
+				connDict = cd[nm]
+			except:
+				nm = cd.keys()[0]
+				connDict = cd[nm]
+			
+		# They passed a dictionary containing the connection settings
+		self.BackendName = connDict["dbtype"]
+		self.Host = connDict["host"]
+		self.User = connDict["user"]
+		self.Password = connDict["password"]
+		self.DbName = connDict["database"]
+		self.Port = int(connDict["port"])
+	
+	
 	def getConnection(self):
 		return self.BackendObject.getConnection(self)
 
@@ -34,8 +65,7 @@ class dConnectInfo(dabo.common.dObject):
 			return self.BackendObject.getDictCursorClass()
 		except TypeError:
 			return None
-	
-	
+		
 	def encrypt(self, val):
 		tc = TinyCrypt(self.generateKey(val))
 		return tc.encrypt(val)
@@ -65,9 +95,7 @@ class dConnectInfo(dabo.common.dObject):
 
 			
 	def _setBackendName(self, backendName):
-		""" Set the backend type for the connection if valid. 
-		"""
-		
+		""" Set the backend type for the connection if valid. """
 		_oldObject = self.BackendObject
 		
 		# As other backends are coded into the framework, we will need 
