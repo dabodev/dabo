@@ -173,7 +173,7 @@ class dPemMixin(dPemMixinBase):
 	def getPropertyInfo(self, name):
 		#d = dPemMixin.doDefault(name)   # the property helper does most of the work
 		d = super(dPemMixin, self).getPropertyInfo(name)
-		
+
 		# Hide some wx-specific props in the designer:
 		d['showInDesigner'] = not name in ('Size', 'Position', 'WindowHandle', 'TypeID')
 

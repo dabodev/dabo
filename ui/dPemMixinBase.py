@@ -85,7 +85,7 @@ class dPemMixinBase(dabo.common.dObject):
 	def getPropertyInfo(self, name):
 		""" Abstract method: subclasses MUST override for UI-specifics.
 		"""
-		pass
+		return super(dPemMixinBase, self).getPropertyInfo(name)
 		
 	
 	def addObject(self, classRef, name, *args, **kwargs):
