@@ -50,7 +50,6 @@ class Test(object):
         object = classRef(frame)
         print "Running test for %s" % (object.GetName())
         object.SetFocus()
-        dControlMixin.EVT_FIELDCHANGED(object, object.GetId(), self.OnFieldChanged)
         frame.Show(1)
         self.app.MainLoop()
     

@@ -1,4 +1,4 @@
-''' dabo.ui.wxDabo '''
+''' dabo.ui.uiwx '''
 
 #from uiApp import *
 from classes.dCheckBox import dCheckBox
@@ -13,7 +13,7 @@ from classes.dDataControlMixin import dDataControlMixin
 from classes.dSpinner import dSpinner
 from classes.dEditBox import dEditBox
 from classes.dTextBox import dTextBox
-from classes.dEvents import dEvents
+#from classes.dEvents import *
 from classes.dTreeView import dTreeView
 from classes.dFormMain import dFormMain
 from classes.dVCR import dVCR

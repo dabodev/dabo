@@ -116,6 +116,7 @@ class dControlMixin:
         eventDict = {
                         10020: ["EVT_TEXT",             "OnText"],
                         10031: ["EVT_BUTTON",           "OnButton"],
+                        10032: ["EVT_CHECKBOX",         "OnCheckBox"],
                         10046: ["EVT_SPINCTRL",         "OnSpin"],
                         10056: ["EVT_ENTER_WINDOW",     "OnEnterWindow"],
                         10057: ["EVT_LEAVE_WINDOW",     "OnLeaveWindow"],
