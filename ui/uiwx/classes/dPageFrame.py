@@ -16,7 +16,7 @@ class dPageFrame(wx.Notebook, dControlMixin.dControlMixin):
         
     def afterInit(self):
         self.lastSelection = 0
-        super(dPageFrame, self).afterInit()
+        dPageFrame.doDefault()
 
         
     def initEvents(self):

@@ -21,7 +21,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
 
     def afterInit(self):
         self.SelectOnEntry = False
-        super(dEditBox, self).afterInit()
+        dEditBox.doDefault()
             
         
     def initEvents(self):

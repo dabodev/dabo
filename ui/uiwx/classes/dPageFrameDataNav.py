@@ -5,12 +5,12 @@ import dPageDataNav as pag
 class dPageFrameDataNav(pgf.dPageFrame):
     
     def __init__(self, parent, name="dPageFrameDataNav"):
-        super(dPageFrameDataNav, self).__init__(parent, name)
+        dPageFrameDataNav.doDefault(parent, name)
     
-    
+        
     def afterInit(self):
         self.addDefaultPages()
-        super(dPageFrameDataNav, self).afterInit()
+        dPageFrameDataNav.doDefault()
 
         
     def addDefaultPages(self):

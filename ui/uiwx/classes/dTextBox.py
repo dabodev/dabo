@@ -18,7 +18,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin, cm.dControlMixin):
     
     def afterInit(self):
         self.SelectOnEntry = True
-        super(dTextBox, self).afterInit()
+        dTextBox.doDefault()
         
     
     def initEvents(self):

@@ -5,7 +5,7 @@ import dMessageBox, dEvents, wx
 class dSelectPage(dPage.dPage):
 
     def __init__(self, parent):
-        super(dSelectPage, self).__init__(parent, "pageSelect")
+        dSelectPage.doDefault(parent, "pageSelect")
                 
     def createItems(self):
         self.selectOptionsPanel = self._getSelectOptionsPanel()
@@ -257,7 +257,7 @@ class dSelectPage(dPage.dPage):
 class dBrowsePage(dPage.dPage):
 
     def __init__(self, parent):
-        super(dBrowsePage, self).__init__(parent, "pageBrowse")
+        dBrowsePage.doDefault(parent, "pageBrowse")
         
                     
     def onRowNumChanged(self, event):
@@ -315,11 +315,11 @@ class dBrowsePage(dPage.dPage):
 class dEditPage(dPage.dPage):
 
     def __init__(self, parent):
-        super(dEditPage, self).__init__(parent, "pageEdit")
+        dEditPage.doDefault(parent, "pageEdit")
 
                     
     def onEnterPage(self):
-        super(dEditPage, self).onEnterPage()
+        dEditPage.doDefault()
         self.onValueRefresh()
 
         

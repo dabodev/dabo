@@ -11,8 +11,6 @@ class dFormDataNav(frm.dForm):
             + Browse : Browse the result set and pick an item to edit.
             + Edit   : Edit the current record in the result set.
     '''
-    #def __init__(self, parent=None, name="dFormDataNav", resourceString=None):
-    #    super(dFormDataNav, self).__init__(parent, name, resourceString)
     
     def beforeInit(self, preObject):    
         self._columnDefs = {}
@@ -71,7 +69,7 @@ class dFormDataNav(frm.dForm):
                 
         
     def getMenu(self):
-        menu = super(dFormDataNav, self).getMenu()
+        menu = dFormDataNav.doDefault()
         
         self._appendToMenu(menu, "Set Selection Criteria\tAlt+1", 
                           self.onSetSelectionCriteria, 

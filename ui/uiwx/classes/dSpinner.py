@@ -20,7 +20,7 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin, cm.dControlMixin):
     def afterInit(self):
         self.SpinnerLowValue = -64000
         self.SpinnerHighValue = 64000
-        super(dSpinner, self).afterInit()
+        dSpinner.doDefault()
     
     
     def initEvents(self):
