@@ -1,67 +1,21 @@
-from dConstants import dConstants as k
-import dConnection
+import dConstants as k
+import dabo.dbType as dbType
+import dabo.dbConnection as dbConnection
 import dCursorMixin
 
 ### TODO ### - Change to Gadfly
-from MySQLdb import cursors
+#from MySQLdb import cursors
 
-class dBizobj:
-    # Title of the cursor. Used in resolving DataSource references
-    dataSource = ""
-    # SQL statement used to create the cursor's data
-    sql = ""
-    # When true, the cursor object does not run its query immediately. This
-    # is useful for parameterized queries
-    noDataOnLoad = 0
-    # Reference to the cursor object 
-    _cursor = None
-    # Class to instantiate for the cursor object
-    cursorMixinClass = dCursorMixin.dCursorMixin
-    # Base class to instantiate for the cursor object
-    ### TODO ### - change to Gadfly for default
-    cursorBaseClass = cursors.DictCursor
-    # Reference to the parent bizobj to this one.
-    _parent = None
-    # Collection of child bizobjs for this
-    _children = []
-    # Name of field that is the PK 
-    keyField = ""
-    # Name of field that is the FK back to the parent
-    linkField = ""
-    # Holds any error messages generated during a process
-    _errorMsg = ""
-    # Dictionary holding any default values to apply when a new record is created
-    defaultValues = {}		
-    # Do we requery child bizobjs after a Save()?
-    requeryChildOnSave = 1
-    # Should new child records be added when a new parent record is added?
-    newChildOnNew = 0
-    # If this bizobj's parent has newChildOnNew =1, do we create a record here?
-    newRecordOnNewParent = 0
-    # In the onNew() method, do we fill in the linkField with the value returned by calling the parent
-    # bizobj's GetKeyValue() method?
-    fillLinkFromParent = 0
-    # After a requery, do we try to restore the record position to the same PK?
-    savePosOnRequery = 1
-
-    ##########################################
-    ### referential integrity stuff ####
-    ##########################################
-    ### Possible values for each type (not all are relevant for each action):
-    ### IGNORE - don't worry about the presence of child records
-    ### RESTRICT - don't allow action if there are child records
-    ### CASCADE - changes to the parent are cascaded to the children
-    deleteChildLogic = k.REFINTEG_CASCADE		# child records will be deleted
-    updateChildLogic = k.REFINTEG_IGNORE	# parent keys can be changed w/o affecting children
-    insertChildLogic = k.REFINTEG_IGNORE		# child records can be inserted even if no parent record exists.
-    ##########################################
-    # Versioning...
-    _version = "0.1.0"
+# Somehow, get the dbType from 'above' - the app object?
+#dbModule = dbType.MySQL().dbapi
+#cursors = dbModule.cursors
 
 
-    def __init__(self, conn):
+class dBizobj(object):
+    def __init__(self, dbConnection):
+        self._initProperties()
         # Save the connection reference
-        self._conn = conn
+        self._conn = dbConnection
         # Now create the cursor that this bizobj will be using for data
         if self.beforeCreateCursor():
             crsClass = self.getCursorClass(self.cursorMixinClass, self.cursorBaseClass)
@@ -533,4 +487,58 @@ class dBizobj:
     def afterChange(self, retStatus): pass
     def afterConnection(self): pass
     def afterCreateCursor(self): pass
+
+    def _initProperties(self):
+        # Title of the cursor. Used in resolving DataSource references
+        self.dataSource = ""
+        # SQL statement used to create the cursor's data
+        self.sql = ""
+        # When true, the cursor object does not run its query immediately. This
+        # is useful for parameterized queries
+        self.noDataOnLoad = 0
+        # Reference to the cursor object 
+        self._cursor = None
+        # Class to instantiate for the cursor object
+        self.cursorMixinClass = dCursorMixin.dCursorMixin
+        # Base class to instantiate for the cursor object
+        ### TODO ### - change to Gadfly for default
+        self.cursorBaseClass = cursors.DictCursor
+        # Reference to the parent bizobj to this one.
+        self._parent = None
+        # Collection of child bizobjs for this
+        self._children = []
+        # Name of field that is the PK 
+        self.keyField = ""
+        # Name of field that is the FK back to the parent
+        self.linkField = ""
+        # Holds any error messages generated during a process
+        self._errorMsg = ""
+        # Dictionary holding any default values to apply when a new record is created
+        self.defaultValues = {}		
+        # Do we requery child bizobjs after a Save()?
+        self.requeryChildOnSave = 1
+        # Should new child records be added when a new parent record is added?
+        self.newChildOnNew = 0
+        # If this bizobj's parent has newChildOnNew =1, do we create a record here?
+        self.newRecordOnNewParent = 0
+        # In the onNew() method, do we fill in the linkField with the value returned by calling the parent
+        # bizobj's GetKeyValue() method?
+        self. fillLinkFromParent = 0
+        # After a requery, do we try to restore the record position to the same PK?
+        self.savePosOnRequery = 1
+
+        ##########################################
+        ### referential integrity stuff ####
+        ##########################################
+        ### Possible values for each type (not all are relevant for each action):
+        ### IGNORE - don't worry about the presence of child records
+        ### RESTRICT - don't allow action if there are child records
+        ### CASCADE - changes to the parent are cascaded to the children
+        self.deleteChildLogic = k.REFINTEG_CASCADE		# child records will be deleted
+        self.updateChildLogic = k.REFINTEG_IGNORE	# parent keys can be changed w/o affecting children
+        self.insertChildLogic = k.REFINTEG_IGNORE		# child records can be inserted even if no parent record exists.
+        ##########################################
+        # Versioning...
+        self._version = "0.1.0"
+
 

@@ -1,4 +1,3 @@
-from dConstants import dConstants as k
 
 class dConnection:
     """
@@ -30,12 +29,12 @@ class dConnection:
     def _openConnection(self):
         """ Open a connection to the database, and store it for future use. """
         # For testing only! Should be made more generic for all db types
-        from connstring import getConnVals
-        import MySQLdb
-        connstring = """self._conn = MySQLdb.connect(host="%s", user="%s", passwd="%s", db="%s")""" % getConnVals() 
-
-        try:
-            exec(connstring)
-        except:
-            self._conn = None
+#        from connstring import getConnVals
+#        import MySQLdb
+#         connstring = """self._conn = MySQLdb.connect(host="%s", user="%s", passwd="%s", db="%s")""" % getConnVals() 
+# 
+#         try:
+#             exec(connstring)
+#         except:
+#             self._conn = None
 
