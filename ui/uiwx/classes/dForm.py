@@ -1,5 +1,6 @@
 import wx, dEvents, dControlMixin, dDataControlMixin
 from dFormMixin import dFormMixin
+from dabo.dLocalize import loc
 import dabo.dConstants as k
 import dMessageBox, dProgressDialog
 

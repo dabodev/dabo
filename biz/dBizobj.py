@@ -91,7 +91,6 @@ class dBizobj(object):
         If there is no object attribute named 'att', and no field in the cursor by that
         name, an AttributeError is raised.
         """
-        print "\tgetting field %s" % att
         ret = self.getFieldVal(att)
         if ret is None:
             raise AttributeError, " '%s' object has no attribute '%s' " % (self.__class__.__name__, att)
