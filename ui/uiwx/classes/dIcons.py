@@ -13,9 +13,11 @@ def getIconBitmap(iconName):
     '''
     try:
         fileName = dabo.icons.getIconFileName(iconName)
-        r = wx.Bitmap(fileName)
-        return r
+        r = wx.Image(fileName, wx.BITMAP_TYPE_PNG)
+        r.SetMask(True)
+        return r.ConvertToBitmap()
     except (NameError, AttributeError):
         r = wx.NullBitmap
     return r
+
 
