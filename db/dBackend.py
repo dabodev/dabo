@@ -27,6 +27,10 @@ class dBackend(dabo.common.dObject):
 		""" override in subclasses """
 		return None
 	
+	def getCursor(self, cursorClass):
+		""" override in subclasses """
+		return None
+	
 	def formatDateTime(self, val):
 		""" Properly format a datetime value to be included in an Update
 		or Insert statement. Each backend can have different requirements

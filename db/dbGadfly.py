@@ -13,6 +13,10 @@ class Gadfly(dBackend):
 		import gadfly as dbapi
 		return dbapi.gadfly(connectInfo.dbName, connectInfo.host)
 
+	def getCursor(self, cursorClass):
+		""" Not tested! Replace with actual Gadfly code """
+		return self._connection.cursor()
+
 
 class GadflyClient(dBackend):
 	""" Network client version of Gadfly: connect to a Gadfly server.

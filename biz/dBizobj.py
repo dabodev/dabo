@@ -135,7 +135,8 @@ class dBizobj(dabo.common.dObject):
 		if self.TESTING:
 			self.__cursors[key] = self._conn.cursor(cursorclass=cursorClass)
 		else:
-			self.__cursors[key] = self._conn.getConnection().cursor(cursorclass=cursorClass)
+			self.__cursors[key] = self._conn.getCursor(cursorClass)
+
 		crs = self.__cursors[key]
 		crs.setSQL(self.SQL)
 		crs.setKeyField(self.KeyField)
