@@ -17,7 +17,8 @@ def logPoint(msg=""):
 		if filename.startswith("./"):
 			filename = filename[2:]
 		output.write("%s:%s in %s:\n" % (filename, line, funcname))
-		output.write("	%s\n" % "".join(lines)[:-1])
+		if lines:
+			output.write("	%s\n" % "".join(lines)[:-1])
 	s = output.getvalue()
 	# I actually logged the result, but you could also print it:
 	print s

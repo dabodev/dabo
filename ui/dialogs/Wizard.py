@@ -145,6 +145,7 @@ class Wizard(dabo.ui.dForm):
 	
 	def start(self):
 		self.CurrentPage = 0
+		self.show()	
 	
 	
 	def append(self, pg):
@@ -179,6 +180,9 @@ class Wizard(dabo.ui.dForm):
 			except: pass
 			self._blankPage.release()
 		for idx in range(self.PageCount):
+			try:
+				self.pagePanel.Sizer.remove(page)
+			except: pass
 			page = self._pages[idx] 
 			if idx == self._currentPage:
 				page.Visible = True
@@ -195,9 +199,6 @@ class Wizard(dabo.ui.dForm):
 				self.btnNext.Caption = cap
 			else:
 				self._pages[idx].Visible = False
-				try:
-					self.pagePanel.Sizer.remove(page)
-				except: pass
 		self.layout()
 	
 	

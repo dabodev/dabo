@@ -51,8 +51,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		# setting by the user, override it.
 		idx = 0
 		colFlds = []
-		# Make a copy
-		colDefs = list(colDefs)
+#		# Make a copy
+#		colDefs = list(colDefs)
 		# See if the defs have changed. If so, clear the data to force
 		# a re-draw of the table.
 		if colDefs != self.colDefs:
@@ -66,13 +66,14 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					nm = ""
 			colFlds.append(nm)
 			colName = "Column_%s" % nm
-			pos = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
-					self.grid.Form.Name, 
-					self.grid.Name,
-					colName,
-					"ColumnOrder"))
-			if pos is not None:
-				colDefs.Order = pos
+			if col.Order == -1:
+				pos = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
+						self.grid.Form.Name, 
+						self.grid.Name,
+						colName,
+						"ColumnOrder"))
+				if pos is not None:
+					col.Order = pos
 			# If the data types are actual types and not strings, convert
 			# them to common strings.
 			if type(col.DataType) == type:
@@ -205,16 +206,15 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			gridCol = idx
 			fieldType = col.DataType.lower()
 
-			# 1) Try to get the column width from the saved user settings:
-			width = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
-					self.grid.Form.Name, 
-					self.grid.Name,
-					colName,
-					"Width"))
-
-			# 2) Try to get the column width from the fieldspecs:
-			if width is None:
+			width = None
+			# 1) Try to get the column width from the fieldspecs:
+			if col.Width != -1:
 				width = col.Width
+
+			# 2) Try to get the column width from the saved user settings:
+			if width is None:
+				width = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
+						self.grid.Form.Name, self.grid.Name, colName, "Width"))
 			
 			# 3) Get sensible default width if the above two methods failed:
 			if width is None or (width < 0):
@@ -278,7 +278,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			self.grid.Application.setUserSetting("%s.%s.%s.%s" % (
 					self.grid.Form.Name,
 					self.grid.Name,
-					"Column_%s" % col[0],
+					"Column_%s" % col.Field,
 					"ColumnOrder"), (colOrder * 10) )
 		
 		# If a column was previously sorted, update its new position in the grid
@@ -330,17 +330,48 @@ class dColumn(dabo.common.dObject):
 	"""
 	def __init__(self, parent=None):
 		super(dColumn, self).__init__()
+		self._caption = "Column"
+		self._order = -1
+		self._width = -1
 		# Normally I would make these properties, but there
 		# is no need now for any getter/setter interaction, so 
 		# I am naming them as if they were properties, in case 
 		# we discover a need to turn them into props later on.
 		self.Parent = parent
 		self.Name = ""
-		self.Order = -1
 		self.Field = ""
 		self.DataType = ""
-		self.Width = 100
-		self.Caption = "Column"
+		
+	def changeMsg(self, prop):
+		if self.Parent:
+			self.Parent.onColumnChange(self, prop)
+	
+	def _getCap(self):
+		return self._caption
+	def _setCap(self, val):
+		self._caption = val
+		self.changeMsg("caption")
+	
+	def _getOrd(self):
+		return self._order
+	def _setOrd(self, val):
+		self._order = val
+		self.changeMsg("order")
+	
+	def _getWd(self):
+		return self._width
+	def _setWd(self, val):
+		self._width = val
+		self.changeMsg("width")
+	
+	Caption = property(_getCap, _setCap, None,
+			_("Caption displayed in this column's header  (str)") )
+
+	Order = property(_getOrd, _setOrd, None,
+			_("Order of this column  (int)") )
+
+	Width = property(_getWd, _setWd, None,
+			_("Width of this column  (int)") )
 	
 
 
@@ -380,6 +411,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# for now, since I don't see the immediate need for getter/setter
 		# actions.
 		self.SameSizeRows = True
+		# Internal tracker for row height
+		self._rowHt = self.GetDefaultRowSize()
 
 		self.currSearchStr = ""
 		self.incSearchTimer = dabo.ui.dTimer(self)
@@ -389,8 +422,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.sortOrder = ""
 		self.caseSensitiveSorting = False
 
-		self.SetRowLabelSize(0)        # turn off row labels
-		self.EnableEditing(False)      # this isn't a spreadsheet
+		# By default, row labels are not shown. They can be displayed
+		# if desired by setting ShowRowLabels = True, and their size
+		# can be adjusted by setting RowLabelWidth = <width>
+		self._rowLabelWidth = self.GetDefaultRowLabelSize()
+		self._showRowLabels = False
+		self.SetRowLabelSize(0)
+		self._editable = False
+		self.EnableEditing(self._editable)
 
 		self.headerDragging = False    # flag used by mouse motion event handler
 		self.headerDragFrom = 0
@@ -404,11 +443,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.Bind(wx.grid.EVT_GRID_SELECT_CELL, self.__onWxGridSelectCell)
 		self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.__onWxColSize)
 		self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.__onWxRightClick)
+		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxCellChange)
 
 		self.bindEvent(dEvents.GridRowSize, self._onGridRowSize)
 		self.bindEvent(dEvents.GridSelectCell, self._onGridSelectCell)
 		self.bindEvent(dEvents.GridColSize, self._onGridColSize)
 		self.bindEvent(dEvents.GridRightClick, self.onGridRightClick)
+		self.bindEvent(dEvents.GridCellEdited, self._onGridCellEdited)
 
 		self.initHeader()
 		
@@ -423,6 +464,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.__onWxGridRowSize)
 
 		header.Bind(wx.EVT_LEFT_DOWN, self.onHeaderLeftDown)
+		header.Bind(wx.EVT_LEFT_DCLICK, self.onHeaderLeftDClick)
 		header.Bind(wx.EVT_LEFT_UP, self.onHeaderLeftUp)
 		header.Bind(wx.EVT_MOTION, self.onHeaderMotion)
 		header.Bind(wx.EVT_PAINT, self.onHeaderPaint)
@@ -524,7 +566,27 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				ret = []
 		return ret
 		
-		
+
+	def _onGridCellEdited(self, evt):
+		row, col = evt.EventData["row"], evt.EventData["col"]
+		rowData = self.getDataSet()[row]
+		fld = self.Columns[col].Field
+		newVal = self.GetCellValue(row, col)
+		oldVal = rowData[fld]
+		if newVal != oldVal:
+			# Update the local copy of the data
+			rowData[fld] = self.GetCellValue(row, col)
+			# Call the hook
+			self.onGridCellEdited(row, col, newVal)
+
+	def onGridCellEdited(self, row, col, newVal): 
+		"""Called when the user has edited a cell
+		and changed the value. Changes to the cell
+		can be written back to the data source if 
+		desired.
+		"""
+		pass
+
 	def _onGridColSize(self, evt):
 		"Occurs when the user resizes the width of the column."
 		col = evt.EventData["rowOrCol"]
@@ -554,6 +616,22 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def onGridSelectCell(self, evt): pass
 
 
+	def onColumnChange(self, col, chgType):
+		"""Called by the grid columns whenever any of their properties
+		are directly changed, allowing the grid to react.
+		"""
+		if chgType == "width":
+			self.Application.setUserSetting("%s.%s.%s.%s" % (
+					self.Form.Name, self.Name, "Column_%s" % col.Field, 
+					"Width"), col.Width)
+		elif chgType == "order":
+			self.Application.setUserSetting("%s.%s.%s.%s" % (
+					self.Form.Name, self.Name, "Column_%s" % col.Field,
+					"ColumnOrder"), (col.Order * 10) )
+		# Update the grid
+		self.fillGrid(True)
+		
+
 	def onHeaderPaint(self, evt):
 		""" Occurs when it is time to paint the grid column headers.
 		NOTE: The event object is a raw wx Event, not a Dabo event.
@@ -566,6 +644,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Thanks Roger Binns for the correction to totColSize
 		totColSize = -self.GetViewStart()[0] * self.GetScrollPixelsPerUnit()[0]
 
+		# Get the height
+		ht = self.GetColLabelSize()
+
 		# We are totally overriding wx's drawing of the column headers,
 		# so we are responsible for drawing the rectangle, the column
 		# header text, and the sort indicators.
@@ -573,13 +654,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			dc.SetBrush(wx.Brush("WHEAT", wx.TRANSPARENT))
 			dc.SetTextForeground(wx.BLACK)
 			colSize = self.GetColSize(col)
-			rect = (totColSize, 0, colSize, 32)
+			rect = (totColSize, 0, colSize, ht)
 			dc.DrawRectangle(rect[0] - (col != 0 and 1 or 0), 
 					rect[1], 
 					rect[2] + (col != 0 and 1 or 0), 
 					rect[3])
 			totColSize += colSize
-
 
 			if self.Columns[col].Field == self.sortedColumn:
 				font.SetWeight(wx.BOLD)
@@ -696,6 +776,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		pass
 
 
+	def onHeaderLeftDClick(self, evt):
+		""" Occurs when the left mouse button is double-clicked in the grid header.
+		"""
+		pass
+
+
 	def onLeftDClick(self, evt): 
 		"Occurs when the user double-clicks a cell in the grid."
 		pass
@@ -756,6 +842,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 						F2:  sort the current column
 				AlphaNumeric:  incremental search
 		"""
+		if self.Editable:
+			# Can't search and edit at the same time
+			return
+
 		keyCode = evt.EventData["keyCode"]
 		try:
 			char = chr(keyCode)
@@ -1041,6 +1131,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.raiseEvent(dEvents.GridRightClick, evt)
 		evt.Skip()
 
+	def __onWxCellChange(self, evt):
+		self.raiseEvent(dEvents.GridCellEdited, evt)
+		evt.Skip()
+
 
 	def maxColOrder(self):
 		""" Return the highest value of Order for all columns."""
@@ -1090,6 +1184,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.ProcessTableMessage(msg)
 		self.fillGrid(True)
 
+	def _getEd(self):
+		return self._editable
+	def _setEd(self, val):
+		self._editable = val
+		self.EnableEditing(val)
 
 	def _getNumCols(self):
 		return len(self.Columns)
@@ -1117,6 +1216,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.EndBatch()
 			self.fillGrid(True)
 			
+	def _getHdr(self):
+		if not self._hdr:
+			self._hdr = self.GetGridColLabelWindow()
+		return self._hdr
+
 	def _getNumRows(self):
 		return self._Table.GetNumberRows()
 	
@@ -1138,11 +1242,33 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.SetGridCursor(val, cn)
 			self.MakeCellVisible(val, cn)
 
-	def _getHdr(self):
-		if not self._hdr:
-			self._hdr = self.GetGridColLabelWindow()
-		return self._hdr
-		
+	def _getRHt(self):
+		return self._rowHt
+	def _setRHt(self, val):
+		if val != self._rowHt:
+			self._rowHt = val
+			self.SetDefaultRowSize(val, True)
+			self.ForceRefresh()
+			# Persist the new size
+			self.Application.setUserSetting("%s.%s.%s" % (
+					self.Form.Name, self.Name, "RowSize"), val)
+
+	def _getRowLabels(self):
+		return self._showRowLabels
+	def _setRowLabels(self, val):
+		self._showRowLabels = val
+		if val:
+			self.SetRowLabelSize(self._rowLabelWidth)
+		else:
+			self.SetRowLabelSize(0)
+
+	def _getRowLabelWidth(self):
+		return self._rowLabelWidth
+	def _setRowLabelWidth(self, val):
+		self._rowLabelWidth = val
+		if self._showRowLabels:
+			self.SetRowLabelSize(self._rowLabelWidth)
+
 	def _getSrchDel(self):
 		return self._searchDelay
 	def _setSrchDel(self, val):
@@ -1167,16 +1293,30 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	CurrRow = property(_getRowNum, _setRowNum, None,
 			_("Currently selected row  (int)") )
 			
+	Editable = property(_getEd, _setEd, None,
+			_("Can the contents of the grid be edited?  (bool)") )
+			
 	Header = property(_getHdr, None, None,
 			_("Reference to the grid header window.  (header object?)") )
 			
 	RowCount = property(_getNumRows, None, None, 
 			_("Number of rows in the grid.  (int)") )
 
+	RowHeight = property(_getRHt, _setRHt, None,
+			_("Row Height for all rows of the grid  (int)"))
+
+	RowLabelWidth = property(_getRowLabelWidth, _setRowLabelWidth, None,
+			_("""Width of the label on the left side of t
+			he rows. This only changes
+			the grid if ShowRowLabels is True.  (int)"""))
+
 	SearchDelay = property(_getSrchDel, _setSrchDel, None,
 			_("""Delay in miliseconds between keystrokes before the 
 			incremental search clears  (int)""") )
 			
+	ShowRowLabels = property(_getRowLabels, _setRowLabels, None,
+			_("Are row labels shown?  (bool)") )
+
 	_Table = property(_getTbl, _setTbl, None,
 			_("Reference to the internal table class  (dGridDataTable)") )
 
@@ -1188,7 +1328,7 @@ if __name__ == '__main__':
 
 	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
-			self.BackColor = "green"
+			self.BackColor = "khaki"
 			g = self.grid = dGrid(self)
 			self.Sizer.append(g, 1, "x", border=40, borderFlags="all")
 			
@@ -1216,6 +1356,7 @@ if __name__ == '__main__':
 		
 		def getDataSet(self):
 			return self.dataSet
+
 			
 			
 	app = dabo.dApp()

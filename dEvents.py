@@ -368,6 +368,10 @@ class GridRightClick(GridEvent):
 	"""Occurs when the user right-clicks on the grid."""
 	pass
 
+class GridCellEdited(GridEvent):
+	"""Occurs when the user edits the content of a grid cell."""
+	pass
+
 class GridColSize(GridEvent):
 	"""Occurs when the grid's columns are resized."""
 	pass
