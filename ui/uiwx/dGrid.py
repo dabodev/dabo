@@ -4,6 +4,7 @@ This is the base Dabo dGrid, usually used for showing a set of records
 in a dataset, and optionally allowing the fields to be edited.
 """
 import datetime
+import locale
 import wx
 import wx.grid
 import dabo
@@ -125,7 +126,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.colLabels = [col.Caption for col in self.colDefs]
 		self.dataTypes = [self.convertType(col.DataType) 
 				for col in self.colDefs]
-	
+		self.colNames = [col.Field for col in self.colDefs]
 	
 	def convertType(self, typ):
 		"""Convert common types, names and abbreviations for 
@@ -176,7 +177,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				if record.has_key(fld):
 					recordVal = record[fld]
 					if type(recordVal) == unicode:
-						recordVal = recordVal.encode("latin-1")
+						recordVal = recordVal.encode(locale.getdefaultlocale()[1])
 					if col.DataType.lower() in ("string", "unicode", "str", "char", "text", "varchar"):
 						# Limit to first 'n' chars...
 						recordVal = str(recordVal)[:self.grid.stringDisplayLen]

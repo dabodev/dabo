@@ -33,8 +33,9 @@ class Grid(dabo.ui.dGrid):
 	
 
 	def populate(self):
-		if not self.built:
-			self.buildFromDataSet(self.getDataSet(), 
+		ds = self.getDataSet()
+		if not self.built and ds:
+			self.buildFromDataSet(ds, 
 					keyCaption=self.fieldCaptions, 
 					columnsToSkip=self.skipFields, 
 					colOrder=self.colOrders)
@@ -118,15 +119,15 @@ class Grid(dabo.ui.dGrid):
 		popup = dabo.ui.dMenu()
 
 		if self.Form.FormType == 'PickList':
-			popup.append("&Pick", bindfunc=self.pickRecord, bmp="edit",
-					help="Pick this record")
+			popup.append(_("&Pick"), bindfunc=self.pickRecord, bmp="edit",
+					help=_("Pick this record"))
 		else:
-			popup.append("&New", bindfunc=self.newRecord, bmp="blank",
-					help="Add a new record")
+			popup.append(_("&New"), bindfunc=self.newRecord, bmp="blank",
+					help=_("Add a new record"))
 			popup.append("&Edit", bindfunc=self.editRecord, bmp="edit",
-					help="Edit this record")
+					help=_("Edit this record"))
 			popup.append("&Delete", bindfunc=self.deleteRecord, bmp="delete",
-					help="Delete this record")
+					help=_("Delete this record"))
 		self.PopupMenu(popup, self.mousePosition)
 		popup.release()
 
