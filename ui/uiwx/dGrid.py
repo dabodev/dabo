@@ -358,7 +358,7 @@ class dColumn(dabo.common.dObject):
 	def _getFld(self):
 		return self._field
 	def _setFld(self, val):
-		self._Field = val
+		self._field = val
 		self.changeMsg("field")
 	
 	def _getName(self):
