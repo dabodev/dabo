@@ -65,7 +65,20 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def setRowLabels(self, rowLbls):
 		self.rowLabels = rowLbls
 		
+	
+	def GetRowLabelValue(self, row):
+		try:
+			return self.rowLabels[row]
+		except:
+			return ""
+	
+	def GetColLabelValue(self, col):
+		try:
+			return self.colDefs[col].Caption
+		except:
+			return ""
 		
+			
 	def setColumns(self, colDefs):
 		"""This method receives a list of column definitions, and creates
 		the appropriate columns.
@@ -763,10 +776,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			dc.SetTextForeground(wx.BLACK)
 			colSize = self.GetColSize(col)
 			rect = (totColSize, 0, colSize, ht)
-			dc.DrawRectangle(rect[0] - (col != 0 and 1 or 0), 
-					rect[1], 
-					rect[2] + (col != 0 and 1 or 0), 
-					rect[3])
+# 			dc.DrawRectangle(rect[0] - (col != 0 and 1 or 0), 
+# 					rect[1], 
+# 					rect[2] + (col != 0 and 1 or 0), 
+# 					rect[3])
 			totColSize += colSize
 
 			if self.Columns[col].Field == self.sortedColumn:
@@ -789,10 +802,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			else:
 				font.SetWeight(wx.NORMAL)
 
-			dc.SetFont(font)
-			dc.DrawLabel("%s" % self.GetTable().colLabels[col],
-					rect, wx.ALIGN_CENTER | wx.ALIGN_TOP)
-
+# 			dc.SetFont(font)
+# 			dc.DrawLabel("%s" % self.GetTable().colLabels[col],
+# 					rect, wx.ALIGN_CENTER | wx.ALIGN_TOP)
+			evt.Skip()
 
 	def MoveColumn(self, colNum, toNum):
 		""" Move the column to a new position."""
@@ -1047,8 +1060,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			# Create the list to hold the rows for sorting
 			caseSensitive = self.caseSensitiveSorting
 			sortList = []
+			rowNum = 0
 			for row in self.dataSet:
-				sortList.append([row[columnToSort], row])
+				if self.RowLabels:
+					sortList.append([row[columnToSort], row, self.RowLabels[rowNum]])
+					rowNum += 1
+				else:
+					sortList.append([row[columnToSort], row])
 			# At this point we have a list consisting of lists. Each of these member
 			# lists contain the sort value in the zeroth element, and the row as
 			# the first element.
@@ -1065,9 +1083,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				sortList.reverse()
 			# Extract the rows into a new list, then set the dataSet to the new list
 			newRows = []
+			newLabels = []
 			for elem in sortList:
 				newRows.append(elem[1])
+				if self.RowLabels:
+					newLabels.append(elem[2])
 			self.dataSet = newRows
+			self.RowLabels = newLabels
 		self.fillGrid(True)
 
 
