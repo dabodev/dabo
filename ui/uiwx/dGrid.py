@@ -29,10 +29,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		# Holds a copy of the current data to prevent unnecessary re-drawing
 		self.__currData = []
 
-		self.initTable()
+		self._initTable()
 
 
-	def initTable(self):
+	def _initTable(self):
 		self.relativeColumns = []
 		self.colLabels = []
 		self.colNames = []
@@ -41,6 +41,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.imageBaseThumbnails = []
 		self.imageLists = {}
 		self.data = []
+		self.rowLabels = []
 		# Cell renderer and editor classes
 		self.defaultRenderers = {
 			"str" : wx.grid.GridCellStringRenderer, 
@@ -56,8 +57,15 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			"long" : wx.grid.GridCellNumberEditor, 
 			"float" : wx.grid.GridCellFloatEditor, 
 			"list" : wx.grid.GridCellChoiceEditor  }
+		# Call the hook
+		self.initTable()
+	def initTable(self): pass
 
-	
+
+	def setRowLabels(self, rowLbls):
+		self.rowLabels = rowLbls
+		
+		
 	def setColumns(self, colDefs):
 		"""This method receives a list of column definitions, and creates
 		the appropriate columns.
@@ -98,6 +106,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				typeDict = {
 						str : "string", 
 						unicode : "unicode", 
+						bool : "bool",
 						int : "integer",
 						float : "float", 
 						long : "long", 
@@ -250,6 +259,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			self.grid.SetColSize(gridCol, width)
 			idx += 1
 		self.grid.EndBatch()
+		# Show the row labels, if any
+		for ii in range(len(self.rowLabels)):
+			self.SetRowLabelValue(ii, self.rowLabels[ii])
+			print "ROW LABEL", ii, self.GetRowLabelValue(ii)
 
 
 	# The following methods are required by the grid, to find out certain
@@ -292,19 +305,26 @@ class dColumn(dabo.common.dObject):
 	they provide a way to interact with the underlying grid table in a more
 	straightforward manner.
 	"""
-	def __init__(self, parent=None):
+	def __init__(self, parent=None, *args, **kwargs):
 		super(dColumn, self).__init__()
-		self._caption = "Column"
-		self._order = -1
-		self._width = -1
-		# Normally I would make these properties, but there
-		# is no need now for any getter/setter interaction, so 
-		# I am naming them as if they were properties, in case 
-		# we discover a need to turn them into props later on.
-		self.Parent = parent
-		self.Name = ""
-		self.Field = ""
-		self.DataType = ""
+		
+		# This class doesn't have support for the typical Dabo 
+		# technique of passing in property settings in the 
+		# constructor, so fake it here.
+		try: self._caption = kwargs["Caption"]
+		except: self._caption = "Column"
+		try: self._order = kwargs["Order"]
+		except: self._order = -1
+		try: self._width = kwargs["Width"]
+		except: self._width = -1
+		try: self._parent = kwargs["Parent"]
+		except: self._parent = parent
+		try: self._name = kwargs["Name"]
+		except: self._name = ""
+		try: self._field = kwargs["Field"]
+		except: self._field = ""
+		try: self._dataType = kwargs["DataType"]
+		except: self._dataType = ""
 		
 	def changeMsg(self, prop):
 		if self.Parent:
@@ -316,11 +336,33 @@ class dColumn(dabo.common.dObject):
 		self._caption = val
 		self.changeMsg("caption")
 	
+	def _getDTyp(self):
+		return self._dataType
+	def _setDTyp(self, val):
+		self._dataType = val
+		self.changeMsg("datatype")
+	
+	def _getFld(self):
+		return self._field
+	def _setFld(self, val):
+		self._Field = val
+		self.changeMsg("field")
+	
+	def _getName(self):
+		return self._name
+	def _setName(self, val):
+		self._name = val
+	
 	def _getOrd(self):
 		return self._order
 	def _setOrd(self, val):
 		self._order = val
 		self.changeMsg("order")
+	
+	def _getParent(self):
+		return self._parent
+	def _setParent(self, val):
+		self._parent = val
 	
 	def _getWd(self):
 		return self._width
@@ -331,9 +373,21 @@ class dColumn(dabo.common.dObject):
 	Caption = property(_getCap, _setCap, None,
 			_("Caption displayed in this column's header  (str)") )
 
+	DataType = property(_getDTyp, _setDTyp, None,
+			_("Description of the data type for this column  (str)") )
+
+	Field = property(_getFld, _setFld, None,
+			_("Field key in the data set to which this column is bound.  (str)") )
+
+	Name = property(_getName, _setName, None,
+			_("Name of this column  (str)") )
+
 	Order = property(_getOrd, _setOrd, None,
 			_("Order of this column  (int)") )
 
+	Parent = property(_getParent, _setParent, None,
+			_("Parent of this object.  (dGrid)") )
+	
 	Width = property(_getWd, _setWd, None,
 			_("Width of this column  (int)") )
 	
@@ -351,12 +405,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.dataSet = []
 		# List of column specs
 		self.Columns = []
+		# List of Row Labels, if any
+		self.RowLabels = []
 		
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
 		
 	def _afterInit(self):
-		super(dGrid, self)._afterInit()
 		self.bizobj = None
 		self._header = None
 		self.fieldSpecs = {}
@@ -408,7 +463,16 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.headerDragFrom = 0
 		self.headerDragTo = 0
 		self.headerSizing = False
+		#Call the default behavior
+		super(dGrid, self)._afterInit()
+		
+		# Set the header props/events
+		self.initHeader()		
+		# If a data set was passed to the constructor, create the grid
+		self.buildFromDataSet(self._passedDataSet)
 
+
+	def initEvents(self):
 		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
 		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onLeftDClick)
@@ -424,11 +488,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.bindEvent(dEvents.GridColSize, self._onGridColSize)
 		self.bindEvent(dEvents.GridRightClick, self.onGridRightClick)
 		self.bindEvent(dEvents.GridCellEdited, self._onGridCellEdited)
-
-		self.initHeader()
-		
-		# If a data set was passed to the constructor, create the grid
-		self.buildFromDataSet(self._passedDataSet)
 
 
 	def initHeader(self):
@@ -455,13 +514,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if s:
 			self.SetDefaultRowSize(s)
 		tbl = self._Table
-# 		tbl.bizobj = self.bizobj
 		
 		tbl.setColumns(self.Columns)
+		tbl.setRowLabels(self.RowLabels)
 		tbl.fillTable(force)
 		
 		if force:
-# 			row = self.bizobj.RowNumber
 			row = max(0, self.CurrentRow)
 			col = max(0, self.CurrentColumn)
 			# Needed on Linux to get the grid to have the focus:
@@ -473,10 +531,22 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.MakeCellVisible(row, col)
 				self.MakeCellVisible(row, col)
 			self.SetGridCursor(row, col)
+		
+		# Set the types
+		for ii in range(len(self.Columns)):
+			col = self.Columns[ii]
+			if col.DataType == "bool":
+				self.SetColFormatBool(ii)
+			elif col.DataType in ("int", "long"):
+				self.SetColFormatNumber(ii)
+			elif col.DataType == "float":
+				self.SetColFormatFloat(ii)
+		
 		if currFocus is not None:
 			try:
 				currFocus.SetFocus()
 			except: pass
+		
 	
 	
 	def buildFromDataSet(self, ds, keyCaption=None, 
@@ -1453,8 +1523,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			_("Row Height for all rows of the grid  (int)"))
 
 	RowLabelWidth = property(_getRowLabelWidth, _setRowLabelWidth, None,
-			_("""Width of the label on the left side of t
-			he rows. This only changes
+			_("""Width of the label on the left side of the rows. This only changes
 			the grid if ShowRowLabels is True.  (int)"""))
 
 	SearchDelay = property(_getSearchDelay, _setSearchDelay, None,

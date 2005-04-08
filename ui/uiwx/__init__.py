@@ -48,13 +48,13 @@ from dForm import dForm
 from dFormMain import dFormMain
 from dGauge import dGauge
 from dGrid import dGrid
+from dGrid import dColumn
 from dGridSizer import dGridSizer
 import dIcons
 from dImage import dImage
 import dKeys
 from dLabel import dLabel
 from dLine import dLine
-from dListbook import dListbook
 from dListBox import dListBox
 from dListControl import dListControl
 from dBaseMenuBar import dBaseMenuBar
@@ -65,6 +65,8 @@ from dRadioGroup import dRadioGroup
 from dPanel import dPanel
 from dPanel import dScrollPanel
 from dPageFrame import dPageFrame
+from dPageFrame import dPageList
+from dPageFrame import dPageSelect
 from dPage import dPage
 from dSizer import dSizer
 from dBorderSizer import dBorderSizer
@@ -85,17 +87,17 @@ import dShell
 # Tell Dabo Designer what classes to put in the selection menu:
 __dClasses = [dBox, dBitmapButton, dButton, dCheckBox, dComboBox, 
 		dDateTextBox, dDropdownList, dEditBox, dForm, dGauge, dGrid, 
-		dLabel, dLine, dListbook, dListBox, dListControl, dRadioGroup,
-		dPanel, dScrollPanel, dPageFrame, dPage, dSlider, dSpinner,  
+		dLabel, dLine, dListBox, dListControl, dRadioGroup, dPanel, dScrollPanel, 
+		dPageFrame, dPageList, dPageSelect, dPage, dSlider, dSpinner, 
 		dSplitForm, dSplitter, dTextBox, dTimer, dToggleButton, dTreeView]
 
 # These are the classes that can be added to any container class in 
 # the Designer.
-__dControlClasses = [dBox, dBitmapButton, dButton, dCheckBox, 
-		dComboBox, dDateTextBox, dDropdownList, dEditBox, dGauge, 
-		dGrid, dLabel, dLine, dListbook, dListBox, dListControl, dRadioGroup, 
-		dPanel, dScrollPanel, dPageFrame, dPage, dSlider, dSpinner, dSplitter, 
-		dTextBox, dTimer, dToggleButton, dTreeView]
+__dControlClasses = [dBox, dBitmapButton, dButton, dCheckBox, dComboBox, 
+		dDateTextBox, dDropdownList, dEditBox, dGauge, dGrid, dLabel, dLine, 
+		dListBox, dListControl, dRadioGroup, dPanel, dScrollPanel, dPageFrame, 
+		dPageList, dPageSelect, dPage, dSlider, dSpinner, dSplitter, dTextBox, 
+		dTimer, dToggleButton, dTreeView]
 
 daboDesignerClasses = []
 for __classRef in __dClasses:
