@@ -44,7 +44,8 @@ class dPage(dPanel.dScrollPanel):
 						
 	def __onPageLeave(self, evt):
 		if hasattr(self, "Form"):
-			self.Form.activeControlValid()
+			if hasattr(self.Form, "activeControlValid"):
+				self.Form.activeControlValid()
 			
 
 	def _getPagePosition(self):
