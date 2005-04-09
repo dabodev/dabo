@@ -539,6 +539,11 @@ class dPemMixin(dPemMixinBase):
 		self.Destroy()
 	
 	
+	def setFocus(self):
+		"""Wrapper to the wx method."""
+		self.SetFocus()
+		
+		
 	def _redraw(self):
 		"""If the object has drawing routines that affect its appearance, this
 		method is where they go. Subclasses should place code in the 

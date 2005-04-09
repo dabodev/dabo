@@ -54,7 +54,7 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 	def onChoiceMade(self, evt):
 		if IGNORE_STRING not in self.StringValue:
 			# A comparison op was selected; let 'em enter a value
-			self.Target.SetFocus()
+			self.Target.setFocus()
 		
 	def _getTarget(self):
 		try:
@@ -260,7 +260,7 @@ class SelectPage(Page):
 	def createItems(self):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
 		self.GetSizer().append(self.selectOptionsPanel, "expand", 1, border=20)
-		self.selectOptionsPanel.SetFocus()
+		self.selectOptionsPanel.setFocus()
 		#SelectPage.doDefault()
 		super(SelectPage, self).createItems()
 		if self.Form.RequeryOnLoad:
@@ -557,12 +557,10 @@ class BrowsePage(Page):
 		# the row in the grid.
 		
 		# If we aren't the active page, strange things can happen if we
-		# don't explicitly SetFocus back to the active page. 
-		activePage = self.Parent.SelectedPage
-		if activePage == self:
-			self.updateGrid()
-		else:
-			activePage.SetFocus()
+		# don't explicitly setFocus back to the active page. 
+		self.updateGrid()
+		if self.Parent.SelectedPage != self:
+			self.Parent.SelectedPage.setFocus()
 
 
 	def updateGrid(self):
@@ -576,7 +574,7 @@ class BrowsePage(Page):
 			if bizobj and bizobj.RowCount >= 0:
 				if self.itemsCreated:
 					self.fillGrid(False)
-		self.BrowseGrid.CurrRow = bizobj.RowNumber
+		self.BrowseGrid.CurrentRow = bizobj.RowNumber
 
 		
 	def __onPageEnter(self, evt):
@@ -775,7 +773,7 @@ class EditPage(Page):
 					grid.fillGrid()
 					#grid.Height = 100
 					for window in grid.GetChildren():
-						window.SetFocus()
+						window.setFocus()
 					mainSizer.append(grid, 1, "expand", border=10,
 							borderFlags=("left", "right") )
 		
@@ -800,7 +798,7 @@ class EditPage(Page):
 		self.Sizer.layout()
 		self.itemsCreated = True
 		if firstControl is not None:
-			firstControl.SetFocus()
+			firstControl.setFocus()
 
 
 

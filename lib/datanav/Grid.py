@@ -104,7 +104,7 @@ class Grid(dabo.ui.dGrid):
 	def deleteRecord(self, evt=None):
 		""" Request that the current row be deleted."""
 		self.Parent.deleteRecord(self.bizobj.DataSource)
-		self.SetFocus()  ## required or assertion happens on Gtk
+		self.setFocus()  ## required or assertion happens on Gtk
 
 
 	def pickRecord(self, evt=None):

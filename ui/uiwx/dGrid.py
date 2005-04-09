@@ -545,6 +545,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.MakeCellVisible(row, col)
 			self.SetGridCursor(row, col)
 		
+		self.SetColLabelAlignment(wx.ALIGN_CENTRE, wx.ALIGN_CENTRE)
 		# Set the types
 		for ii in range(len(self.Columns)):
 			col = self.Columns[ii]

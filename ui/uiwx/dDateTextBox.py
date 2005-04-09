@@ -146,7 +146,7 @@ C: Popup Calendar to Select
 			# Try moving it to the left
 			self.calPanel.Left = max(0, (self.Parent.Width - self.calPanel.Width) )
 		self.calPanel.Show(True)
-		self.calPanel.SetFocus()
+		self.calPanel.setFocus()
 		
 	
 	def __onRightClick(self, evt):
