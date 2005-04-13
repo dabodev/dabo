@@ -53,6 +53,20 @@ class dPageSelect(wx.Choicebook, dPageFrameMixin):
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		# Dictionary for tracking images by key value
 		self._imageList = {}
-# 		
-# class dPageFrame(dNotebookFrame, dPageFrameMixin):
-# 	pass
+
+	def SetPageText(self, pg, tx):
+		"""Need to override this because this is not implemented yet
+		on the Mac, at least as of wxPython 2.5.5.1
+		"""
+		# Get a reference to the Choice control
+		dd = self.GetChildren()[0]
+		# Save the current position
+		pos = dd.GetSelection()
+		# Get the current contents
+		choices = [dd.GetString(n) for n in range(dd.GetCount()) ]
+		choices[pg] = tx
+		dd.Clear()
+		dd.AppendItems(choices)
+		dd.SetSelection(pos)
+		
+		

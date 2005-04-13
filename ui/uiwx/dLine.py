@@ -13,6 +13,17 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dLine
 		preClass = wx.PreStaticLine
+		
+		# Set the minimum initial Height and Width to 1.
+		if kwargs.has_key("Width"):
+			kwargs["Width"] = max(1, kwargs["Width"])
+		else:
+			kwargs["Width"] = 1
+		if kwargs.has_key("Height"):
+			kwargs["Height"] = max(1, kwargs["Height"])
+		else:
+			kwargs["Height"] = 1
+		
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 	
 	

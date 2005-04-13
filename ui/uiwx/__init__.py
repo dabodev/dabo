@@ -356,3 +356,35 @@ def browse(dataSource):
 	# This will allow you to optionally manage the grid and form
 	return browseForm, grd
 
+
+def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
+		italic=None):
+	"""Calculate the width and height of the given text using the supplied
+	font information. If any font parameters are missing, they are taken 
+	from the specified window, or, if no window is specified, the currently
+	active form. If no form is active, the app's MainForm is used.
+	"""
+	if wind is None:
+		wind = dabo.dAppRef.ActiveForm
+	if txt is None:
+		try:
+			txt = wind.Caption
+		except:
+			raise ValueError, "No text supplied to fontMetric call"
+	fnt = wind.GetFont()
+	if face is not None:
+		fnt.SetFaceName(face)
+	if size is not None:
+		fnt.SetPointSize(size)
+	if bold is not None:
+		fnt.SetWeight(wx.BOLD)
+	if italic is not None:
+		fnt.SetStyle(wx.ITALIC)
+	
+	dc = wx.ClientDC(wind)
+	dc.SetFont(fnt)
+	return dc.GetTextExtent(txt)
+
+	
+	
+	

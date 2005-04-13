@@ -164,6 +164,10 @@ class dPageFrameMixin(cm.dControlMixin):
 		else:
 			self._properties["PageCount"] = value
 	
+	def _getPgs(self):
+		return [pg for pg in self.Children
+				if isinstance(pg, dabo.ui.dPage) ]
+		
 	def _getSelectedPage(self):
 		return self.GetPage(self.GetSelection())
 
@@ -219,6 +223,9 @@ class dPageFrameMixin(cm.dControlMixin):
 			_("""Specifies the number of pages in the pageframe. (int) 
 			When using this to increase the number of pages, PageClass 
 			will be queried as the object to use as the page object.""") )
+	
+	Pages = property(_getPgs, None, None,
+			_("Returns a list of the contained pages.  (list)") )
 	
 	SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
 			_("References the current frontmost page.  (dPage)") )
