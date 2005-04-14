@@ -4,6 +4,7 @@ import wx
 import dabo.dEvents as dEvents
 import dabo.ui
 from dabo.common import specParser
+from dabo.dLocalize import _, n_
 import PageFrame
 
 dabo.ui.loadUI("wx")
@@ -15,7 +16,7 @@ class Form(dabo.ui.dForm):
 		+ PageFrame with 3 pages by default:
 			+ Select : Enter sql-select criteria.
 			+ Browse : Browse the result set and pick an item to edit.
-			+ Edit   : Edit the current record in the result set.
+			+ Edit	 : Edit the current record in the result set.
 	"""
 	def beforeInit(self):
 		super(Form, self).beforeInit()
@@ -31,6 +32,12 @@ class Form(dabo.ui.dForm):
 		self.saveCancelRequeryAll = False
 		# Used for turning sizer outline drawing on pages
 		self.drawSizerOutlines = False
+		# What sort of pageframe style do we want?
+		# Choices are "tabs", "list" or "select"
+		self.pageFrameStyle = "tabs"
+		# Where do the pageframe tabs/selector go?
+		# Choices = Top (default), Bottom, Left or Right
+		self.tabPosition = "Top"
 	
 	
 	def __init__(self, parent=None, previewMode=False, tbl=""):
@@ -81,7 +88,7 @@ class Form(dabo.ui.dForm):
 			return super(Form, self).confirmChanges()
 	
 	
-	def afterSetPrimaryBizobj(self):        
+	def afterSetPrimaryBizobj(self):		
 		pass
 		
 		
@@ -104,56 +111,56 @@ class Form(dabo.ui.dForm):
 			# Toolbar will be attached to this frame
 			controllingFrame = self
 		toolBar = wx.ToolBar(controllingFrame, -1)
-		toolBar.SetToolBitmapSize((16,16))    # Needed on non-Linux platforms
+		toolBar.SetToolBitmapSize((16,16))	  # Needed on non-Linux platforms
 
 		if self.FormType != 'Edit':
-			self._appendToToolBar(toolBar, "First",
-			                      dabo.ui.dIcons.getIconBitmap("leftArrows"),
-			                      self.onFirst, "Go to the first record")
-
-			self._appendToToolBar(toolBar, "Prior",
-			                      dabo.ui.dIcons.getIconBitmap("leftArrow"),
-			                      self.onPrior, "Go to the prior record")
-
-			self._appendToToolBar(toolBar, "Requery",
-			                      dabo.ui.dIcons.getIconBitmap("requery"),
-			                      self.onRequery, "Requery dataset")
-
-			self._appendToToolBar(toolBar, "Next",
-			                      dabo.ui.dIcons.getIconBitmap("rightArrow"),
-			                      self.onNext, "Go to the next record")
-
-			self._appendToToolBar(toolBar, "Last",
-			                      dabo.ui.dIcons.getIconBitmap("rightArrows"),
-			                      self.onLast, "Go to the last record")
+			self._appendToToolBar(toolBar, _("First"),
+					  dabo.ui.dIcons.getIconBitmap("leftArrows"),
+					  self.onFirst, _("Go to the first record"))
+			
+			self._appendToToolBar(toolBar, _("Prior"),
+					  dabo.ui.dIcons.getIconBitmap("leftArrow"),
+					  self.onPrior, _("Go to the prior record"))
+			
+			self._appendToToolBar(toolBar, _("Requery"),
+					  dabo.ui.dIcons.getIconBitmap("requery"),
+					  self.onRequery, _("Requery dataset"))
+			
+			self._appendToToolBar(toolBar, _("Next"),
+					  dabo.ui.dIcons.getIconBitmap("rightArrow"),
+					  self.onNext, _("Go to the next record"))
+			
+			self._appendToToolBar(toolBar, _("Last"),
+					  dabo.ui.dIcons.getIconBitmap("rightArrows"),
+					  self.onLast, _("Go to the last record"))
 
 			toolBar.AddSeparator()
 
 		if self.FormType == 'Normal':
-			self._appendToToolBar(toolBar, "New", 
-			                      dabo.ui.dIcons.getIconBitmap("blank"),
-			                      self.onNew, "Add a new record")
-
-			self._appendToToolBar(toolBar, "Delete", 
-			                      dabo.ui.dIcons.getIconBitmap("delete"),
-			                      self.onDelete, "Delete this record")
+			self._appendToToolBar(toolBar, _("New"), 
+					  dabo.ui.dIcons.getIconBitmap("blank"),
+					  self.onNew, _("Add a new record"))
+			
+			self._appendToToolBar(toolBar, _("Delete"), 
+					  dabo.ui.dIcons.getIconBitmap("delete"),
+					  self.onDelete, _("Delete this record"))
 
 			toolBar.AddSeparator()
 
 		if self.FormType != 'PickList':
-			self._appendToToolBar(toolBar, "Save", 
-			                      dabo.ui.dIcons.getIconBitmap("save"),
-			                      self.onSave, "Save changes")
-
-			self._appendToToolBar(toolBar, "Cancel", 
-			                      dabo.ui.dIcons.getIconBitmap("revert"),
-			                      self.onCancel, "Cancel changes")
-
-		toolBar.AddSeparator()
-		self._appendToToolBar(toolBar, "Show SQL", 
-		                      dabo.ui.dIcons.getIconBitmap("zoomOut"),
-		                      self.onShowSQL, 
-		                      "Show the last executed SQL statement")
+			self._appendToToolBar(toolBar, _("Save"), 
+					  dabo.ui.dIcons.getIconBitmap("save"),
+					  self.onSave, _("Save changes"))
+			
+			self._appendToToolBar(toolBar, _("Cancel"), 
+					  dabo.ui.dIcons.getIconBitmap("revert"),
+					  self.onCancel, _("Cancel changes"))
+			
+			toolBar.AddSeparator()
+			self._appendToToolBar(toolBar, _("Show SQL"), 
+					dabo.ui.dIcons.getIconBitmap("zoomOut"),
+					self.onShowSQL, 
+					_("Show the last executed SQL statement"))
 
 
 		controllingFrame.SetToolBar(toolBar)
@@ -162,57 +169,57 @@ class Form(dabo.ui.dForm):
 
 	def getMenu(self):
 		menu = super(Form, self).getMenu()
-		menu.Caption = "&Navigation"
-
-		menu.append("Set Selection Criteria\tAlt+1", 
-		            bindfunc=self.onSetSelectionCriteria, bmp="checkMark",
-		            help="Set the selection criteria for the recordset.")
-		menu.append("Browse Records\tAlt+2", 
-		            bindfunc=self.onBrowseRecords, bmp="browse",
-		            help="Browse the records in the current recordset.")
-
+		menu.Caption = _("&Navigation")
+  
+		menu.append(_("Set Selection Criteria")+"\tAlt+1", 
+				bindfunc=self.onSetSelectionCriteria, bmp="checkMark",
+				help=_("Set the selection criteria for the recordset."))
+		menu.append(_("Browse Records")+"\tAlt+2", 
+				bindfunc=self.onBrowseRecords, bmp="browse",
+				help=_("Browse the records in the current recordset."))
+  
 		# Add one edit menu item for every edit page (every page past the second)
-		for index in range(2, self.PageFrame.PageCount):
-			title = "%s\tAlt+%d" % (self.PageFrame.GetPage(index).Caption,
-			                        index+1)
+		for index in range(2, self.pageFrame.PageCount):
+			title = "%s\tAlt+%d" % (_(self.pageFrame.Pages[index].Caption),
+					index+1)
 			menu.append(title, bindfunc=self.onEditCurrentRecord, bmp="edit",
-			            help="Edit the fields of the currently selected record.",
-			            Tag=self.PageFrame.GetPage(index).dataSource)
-		menu.appendSeparator()
-
-		if self.FormType != "Edit":
-			menu.append("Requery\tCtrl+R", bindfunc=self.onRequery, bmp="requery",
-			            help="Get a new recordset from the backend.")		
-		if self.FormType != "PickList":
-			menu.append("Save Changes\tCtrl+S", bindfunc=self.onSave, bmp="save",
-			            help="Save any changes made to the records.")	
-			menu.append("Cancel Changes", bindfunc=self.onCancel, bmp="revert",
-			            help="Cancel any changes made to the records.")
+					help=_("Edit the fields of the currently selected record."),
+					Tag=self.pageFrame.Pages[index].dataSource)
 			menu.appendSeparator()
-
+  
+		if self.FormType != "Edit":
+			menu.append(_("Requery")+"\tCtrl+R", bindfunc=self.onRequery, bmp="requery",
+					help=_("Get a new recordset from the backend."))		
+		if self.FormType != "PickList":
+			menu.append(_("Save Changes")+"\tCtrl+S", bindfunc=self.onSave, bmp="save",
+					help=_("Save any changes made to the records."))	
+			menu.append(_("Cancel Changes"), bindfunc=self.onCancel, bmp="revert",
+					help=_("Cancel any changes made to the records."))
+			menu.appendSeparator()
+  
 		
 		if self.FormType != "Edit":
-			menu.append("Select First Record", bindfunc=self.onFirst, 
-			            bmp="leftArrows", help="Go to the first record in the set.")	
-			menu.append("Select Prior Record\tCtrl+,", bindfunc=self.onPrior, 
-			            bmp="leftArrow", help="Go to the prior record in the set.")	
-			menu.append("Select Next Record\tCtrl+.", bindfunc=self.onNext, 
-			            bmp="rightArrow", help="Go to the next record in the set.")
-			menu.append("Select Last Record", bindfunc=self.onLast, 
-			            bmp="rightArrows", help="Go to the last record in the set.")
+			menu.append(_("Select First Record"), bindfunc=self.onFirst, 
+					bmp="leftArrows", help=_("Go to the first record in the set.")) 
+			menu.append(_("Select Prior Record")+"\tCtrl+,", bindfunc=self.onPrior, 
+					bmp="leftArrow", help=_("Go to the prior record in the set."))	
+			menu.append(_("Select Next Record")+"\tCtrl+.", bindfunc=self.onNext, 
+					bmp="rightArrow", help=_("Go to the next record in the set."))
+			menu.append(_("Select Last Record"), bindfunc=self.onLast, 
+					bmp="rightArrows", help=_("Go to the last record in the set."))
 			menu.appendSeparator()
 		
 		if self.FormType == "Normal":
-			menu.append("New Record\tCtrl+N", bindfunc=self.onNew, bmp="blank",
-			            help="Add a new record to the dataset.")
-			menu.append("Delete Current Record", bindfunc=self.onDelete, bmp="delete",
-			            help="Delete the current record from the dataset.")
+			menu.append(_("New Record")+"\tCtrl+N", bindfunc=self.onNew, bmp="blank",
+					help=_("Add a new record to the dataset."))
+			menu.append(_("Delete Current Record"), bindfunc=self.onDelete, bmp="delete",
+					help=_("Delete the current record from the dataset."))
 			menu.appendSeparator()
-
-		menu.append("Show/Hide Sizer Lines\tCtrl+L",  
-		            bindfunc=self.onShowSizerLines, menutype="check",
-		            help="Cool debug feature, check it out!")
-
+  
+		menu.append(_("Show/Hide Sizer Lines")+"\tCtrl+L",	
+				bindfunc=self.onShowSizerLines, menutype="check",
+				help=_("Cool debug feature, check it out!"))
+  
 		return menu
 
 
@@ -228,7 +235,7 @@ class Form(dabo.ui.dForm):
 		frame receives the focus.
 		"""
 		mb = self.GetMenuBar()
-		menuIndex = mb.FindMenu("&Navigation")
+		menuIndex = mb.FindMenu(_("&Navigation"))
 		
 		if menuIndex < 0:
 			menuIndex = mb.GetMenuCount()-1
@@ -262,8 +269,8 @@ class Form(dabo.ui.dForm):
 		except: pass
 		
 		if self.beforeSetupPageFrame():
-#			self.lockScreen()
-			self.pageFrame = PageFrame.PageFrame(self)
+			self.pageFrame = PageFrame.PageFrame(self, tabStyle=self.pageFrameStyle,
+					TabPosition=self.tabPosition)
 			self.Sizer.append(self.pageFrame, "expand", 1)
 			self.pageFrame.addSelectPage()
 			self.pageFrame.addBrowsePage()
@@ -274,7 +281,6 @@ class Form(dabo.ui.dForm):
 			self.addEditPages(ds)
 			self.pageFrame.SetSelection(currPage)
 			self.afterSetupPageFrame()
-#			self.unlockScreen()
 			self.Sizer.layout()
 			self.refresh()
 
@@ -285,9 +291,9 @@ class Form(dabo.ui.dForm):
 	def addEditPages(self, ds):
 		biz = self.getBizobj(ds)
 		if biz:
-			title = "Edit " + biz.Caption
+			title = _("Edit") + " " + _(biz.Caption)
 		else:
-			title = "Edit"
+			title = _("Edit")
 		self.pageFrame.addEditPage(ds, title)
 		if biz:
 			for child in biz.getChildren():
@@ -317,7 +323,7 @@ class Form(dabo.ui.dForm):
 		sql = self.getPrimaryBizobj().getSQL()
 		if sql is None:
 			sql = "-Nothing executed yet-"
-		mb = dabo.ui.dMessageBox.info(sql, "Last SQL")
+		mb = dabo.ui.dMessageBox.info(sql, _("Last SQL"))
 
 	def setFieldSpecs(self, xml, tbl):
 		""" Reads in the field spec file and creates the appropriate
@@ -374,11 +380,11 @@ class Form(dabo.ui.dForm):
 					fldInfo = self.FieldSpecs[fld]
 					#if int(fldInfo["editInclude"]) or int(fldInfo["listInclude"]):
 					## pkm: No! If the field is included in the fieldSpec file, it needs to
-					##      be part of the SQL fields clause, whether or not it is to be
-					##      included in in the browse or edit pages. Consider, for example,
-					##      the pk field: That needs to be included but you most likely don't
-					##      want to show it in the UI. There could be plenty of fields that
-					##      the developer wants to grab but not show the user.
+					##		be part of the SQL fields clause, whether or not it is to be
+					##		included in in the browse or edit pages. Consider, for example,
+					##		the pk field: That needs to be included but you most likely don't
+					##		want to show it in the UI. There could be plenty of fields that
+					##		the developer wants to grab but not show the user.
 					
 					expression = "%s.%s" % (tbl, fld)
 					biz.addField("%s as %s" % (expression, fld) )
@@ -522,15 +528,15 @@ class Form(dabo.ui.dForm):
 
 	# Property definitions:
 	FormType = property(_getFormType, _setFormType, None,
-				"Specifies the type of form this is:\n"
-				"	Normal: a normal dataNav form.\n"
-				"	PickList: only select/browse pages shown, and the form\n"
-				"		is modal, returning the pk of the picked record.\n"
-				"	Edit: modal version of normal, with no Select/Browse pages.\n"
-				"		User code sends the pk of the record to edit.")
+			"Specifies the type of form this is:\n"
+			"	Normal: a normal dataNav form.\n"
+			"	PickList: only select/browse pages shown, and the form\n"
+			"		is modal, returning the pk of the picked record.\n"
+			"	Edit: modal version of normal, with no Select/Browse pages.\n"
+			"		User code sends the pk of the record to edit.")
 
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
-				"Specifies whether an automatic requery happens when the form is loaded.")
+			"Specifies whether an automatic requery happens when the form is loaded.")
 	
 	FieldSpecs = property(_getFieldSpecs, _setFieldSpecs, None, 
 			"Reference to the dictionary containing field behavior specs")

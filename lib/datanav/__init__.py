@@ -4,10 +4,9 @@
 
 from Form import Form
 from Grid import Grid
-from Page import Page, SelectPage, EditPage
-from PageFrame import PageFrame
+from Page import Page, SelectPage, EditPage, BrowsePage
+from PageFrame import PageFrameMixin, PageFrame
 
 Form = Form
 Grid = Grid
-Page, SelectPage, EditPage = Page, SelectPage, EditPage
-PageFrame = PageFrame
+Page, SelectPage, EditPage, BrowsePage = Page, SelectPage, EditPage, BrowsePage

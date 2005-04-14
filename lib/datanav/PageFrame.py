@@ -1,15 +1,18 @@
 import wx
 import dabo.ui
+import dabo.dEvents as dEvents
 import Page as pag
-from dabo.dLocalize import _
+from dabo.dLocalize import _, n_
+
 dabo.ui.loadUI("wx")
 
 
-class PageFrame(dabo.ui.dPageFrame):
-
-	def __init__(self, parent, Name="PageFrame", defaultPages=False):
+class PageFrameMixin(object):
+	def __init__(self, parent, Name="PageFrame", defaultPages=False,
+			*args, **kwargs):
 		self._defaultPagesOnLoad = defaultPages
-		super(PageFrame, self).__init__(parent, Name=Name)
+		#super(self.__class__, self).__init__(parent, Name=Name)
+		self._pageClass.__init__(self, parent, Name=Name, *args, **kwargs)
 		# Add the images for the various pages.
 		self.addImage("checkMark")
 		self.addImage("browse")
@@ -23,7 +26,9 @@ class PageFrame(dabo.ui.dPageFrame):
 		self.dsEditPages = {}
 		if self.DefaultPagesOnLoad:
 			self.addDefaultPages()
-		super(PageFrame, self).initProperties()
+
+		#super(self.__class__, self).initProperties()
+		self._pageClass.initProperties(self)
 		
 		
 	def addDefaultPages(self):
@@ -45,13 +50,13 @@ class PageFrame(dabo.ui.dPageFrame):
 							child.Caption, imgKey="childview")
 
 
-	def addSelectPage(self, title="Select"):
+	def addSelectPage(self, title=_("Select")):
 		self.appendPage(self.SelectPageClass(self), caption=title, imgKey="checkMark")
 	
-	def addBrowsePage(self, title="Browse"):
+	def addBrowsePage(self, title=_("Browse")):
 		self.appendPage(self.BrowsePageClass(self), caption=title, imgKey="browse")
 	
-	def addEditPage(self, ds=None, title="Edit"):
+	def addEditPage(self, ds=None, title=_("Edit")):
 		self.appendPage(self.EditPageClass(self, ds=ds), caption=title, imgKey="edit")
 		# The page number will be the PageCount minus one.
 		self.dsEditPages[ds] = self.PageCount - 1
@@ -62,7 +67,8 @@ class PageFrame(dabo.ui.dPageFrame):
 	def newByDataSource(self, ds):
 		self.Form.new(ds)
 		self.SelectedPage = self.dsEditPages[ds]
-
+		self.SelectedPage.raiseEvent(dEvents.ValueRefresh)
+		
 	def deleteByDataSource(self, ds):
 		self.Form.delete(ds)
 		
@@ -73,7 +79,7 @@ class PageFrame(dabo.ui.dPageFrame):
 			return pag.SelectPage
 		
 	def _setSelectPageClass(self, value):
-		if issubclass(value, dPage.dPage):
+		if issubclass(value, dabo.ui.dPage):
 			self._selectPageClass = value
 		else:
 			raise TypeError, "SelectPageClass must descend from dPage."
@@ -86,7 +92,7 @@ class PageFrame(dabo.ui.dPageFrame):
 			return pag.BrowsePage
 		
 	def _setBrowsePageClass(self, value):
-		if issubclass(value, dPage.dPage):
+		if issubclass(value, dabo.ui.dPage):
 			self._browsePageClass = value
 		else:
 			raise TypeError, "BrowsePageClass must descend from dPage."
@@ -99,7 +105,7 @@ class PageFrame(dabo.ui.dPageFrame):
 			return pag.EditPage
 		
 	def _setEditPageClass(self, value):
-		if issubclass(value, dPage.dPage):
+		if issubclass(value, dabo.ui.dPage):
 			self._editPageClass = value
 		else:
 			raise TypeError, "EditPageClass must descend from dPage."
@@ -143,3 +149,25 @@ class PageFrame(dabo.ui.dPageFrame):
 	DefaultPagesOnLoad = property(_getDefaultPagesOnLoad, _setDefaultPagesOnLoad, None,
 						"Specifies whether the default Select/Browse/Edit pages should be "
 						"automatically set up at instantiation.")
+
+
+
+def PageFrame(parent, tabStyle="tabs", tabPosition="Top", 
+		mixin=PageFrameMixin, *args, **kwargs):
+	try:
+		tabStyles = {"tabs": dabo.ui.dPageFrame,
+			     "frame": dabo.ui.dPageFrame,
+			     "list": dabo.ui.dPageList,
+			     "select": dabo.ui.dPageSelect
+			     }
+		pageClass = tabStyles[tabStyle.lower()]
+	except KeyError:
+		raise KeyError, \
+		      "tabStyle must be one of %s" % tabStyles.keys()
+
+	class DataNavFrame(mixin, pageClass):
+		_pageClass = property(lambda self: pageClass)
+		def __init__(*args, **kwargs):
+			mixin.__init__(*args, **kwargs)
+
+	return DataNavFrame(parent, *args, **kwargs)
