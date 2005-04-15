@@ -42,21 +42,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.imageLists = {}
 		self.data = []
 		self.rowLabels = []
-		# Cell renderer and editor classes
-		self.defaultRenderers = {
-			"str" : wx.grid.GridCellStringRenderer, 
-			"bool" : wx.grid.GridCellBoolRenderer, 
-			"int" : wx.grid.GridCellNumberRenderer, 
-			"long" : wx.grid.GridCellNumberRenderer, 
-			"float" : wx.grid.GridCellFloatRenderer, 
-			"list" : wx.grid.GridCellStringRenderer  }
-		self.defaultEditors = {
-			"str" : wx.grid.GridCellTextEditor, 
-			"bool" : wx.grid.GridCellBoolEditor, 
-			"int" : wx.grid.GridCellNumberEditor, 
-			"long" : wx.grid.GridCellNumberEditor, 
-			"float" : wx.grid.GridCellFloatEditor, 
-			"list" : wx.grid.GridCellChoiceEditor  }
 		# Call the hook
 		self.initTable()
 	def initTable(self): pass
@@ -275,7 +260,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		# Show the row labels, if any
 		for ii in range(len(self.rowLabels)):
 			self.SetRowLabelValue(ii, self.rowLabels[ii])
-			print "ROW LABEL", ii, self.GetRowLabelValue(ii)
 
 
 	# The following methods are required by the grid, to find out certain
@@ -306,6 +290,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			ret = self.data[row][col]
 		except:
 			ret = ""
+	
+# 		if col==2:
+# 			print "CELL VAL", row, col, ret
 		return ret
 
 	def SetValue(self, row, col, value):
@@ -471,6 +458,22 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.SetRowLabelSize(0)
 		self._editable = False
 		self.EnableEditing(self._editable)
+		
+		# Cell renderer and editor classes
+		self.defaultRenderers = {
+			"str" : wx.grid.GridCellStringRenderer, 
+			"bool" : wx.grid.GridCellBoolRenderer, 
+			"int" : wx.grid.GridCellNumberRenderer, 
+			"long" : wx.grid.GridCellNumberRenderer, 
+			"float" : wx.grid.GridCellFloatRenderer, 
+			"list" : wx.grid.GridCellStringRenderer  }
+		self.defaultEditors = {
+			"str" : wx.grid.GridCellTextEditor, 
+			"bool" : wx.grid.GridCellBoolEditor, 
+			"int" : wx.grid.GridCellNumberEditor, 
+			"long" : wx.grid.GridCellNumberEditor, 
+			"float" : wx.grid.GridCellFloatEditor, 
+			"list" : wx.grid.GridCellChoiceEditor  }
 
 		self.headerDragging = False    # flag used by mouse motion event handler
 		self.headerDragFrom = 0
@@ -506,6 +509,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def initHeader(self):
 		""" Initialize behavior for the grid header region."""
 		header = self.Header
+		self.defaultHdrCursor = header.GetCursor()
 
 		self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.__onWxGridRowSize)
 
@@ -550,7 +554,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		for ii in range(len(self.Columns)):
 			col = self.Columns[ii]
 			if col.DataType == "bool":
-				self.SetColFormatBool(ii)
+				for rr in range(self.RowCount):
+					if ii == 2:
+						self.SetCellRenderer(rr, ii, self.defaultRenderers["bool"]())
+					if self.Editable:
+						self.SetCellEditor(rr, ii, self.defaultEditors["bool"]())
 			elif col.DataType in ("int", "long"):
 				self.SetColFormatNumber(ii)
 			elif col.DataType == "float":
@@ -758,6 +766,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		""" Occurs when it is time to paint the grid column headers.
 		NOTE: The event object is a raw wx Event, not a Dabo event.
 		"""
+		dabo.ui.callAfter(self.hdrPaint)
+		evt.Skip()
+	
+	def hdrPaint(self):
 		w = self.Header
 		dc = wx.PaintDC(w)
 		clientRect = w.GetClientRect()
@@ -806,7 +818,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 # 			dc.SetFont(font)
 # 			dc.DrawLabel("%s" % self.GetTable().colLabels[col],
 # 					rect, wx.ALIGN_CENTER | wx.ALIGN_TOP)
-			evt.Skip()
+
 
 	def MoveColumn(self, colNum, toNum):
 		""" Move the column to a new position."""
@@ -899,6 +911,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				if curCol > begCol:
 					curCol += 1
 				self.MoveColumn(begCol, curCol)
+			self.Header.SetCursor(self.defaultHdrCursor)
 		elif self.headerSizing:
 			pass
 		else:
@@ -1413,6 +1426,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return self._header
 
 
+	def _getHeaderHt(self):
+		return self.GetColLabelSize()
+	def _setHeaderHt(self, val):
+		self.SetColLabelSize(val)
+
 	def _getRowCount(self):
 		return self._Table.GetNumberRows()
 	
@@ -1539,6 +1557,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	Header = property(_getHeader, None, None,
 			_("Reference to the grid header window.  (header object?)") )
 			
+	HeaderHeight = property(_getHeaderHt, _setHeaderHt, None, 
+			_("Height of the column headers.  (int)") )
+	
 	RowCount = property(_getRowCount, None, None, 
 			_("Number of rows in the grid.  (int)") )
 
