@@ -75,8 +75,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			mp = self.mainPanel = dabo.ui.dPanel(self)
 			self.Sizer.append(mp, 1, "x")
 			mp.Sizer = dabo.ui.dSizer(self.Sizer.Orientation)
-
-		dForm.doDefault()
+		super(dForm, self)._afterInit()
 	
 	
 	def show(self):

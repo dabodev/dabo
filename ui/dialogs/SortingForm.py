@@ -1,6 +1,6 @@
 import dabo
-from dabo.lib.ListSorter import ListSorter
 dabo.ui.loadUI("wx")
+from dabo.lib.ListSorter import ListSorter
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
 from dabo.dLocalize import _
@@ -22,7 +22,10 @@ class SortingForm(dabo.ui.dOkCancelDialog):
 
 
 	def _getChoices(self):
-		return self._itms
+		try:
+			return self.listBox.Choices
+		except:
+			return self._itms
 	def _setChoices(self, chc):
 		self._itms = self.listBox.Choices = list(chc)
 		
@@ -38,8 +41,10 @@ if __name__ == "__main__":
 	app.setup()
 	app.MainForm.Choices = ["apple", "pear", "banana", "peach", "strawberry", "lime"]
 	
-	# Need to do this, as dialogs don't release when closed
 	def closeIt(evt):
+		# Print out the sorted order
+		print "Sorted:", app.MainForm.Choices
+		# Need to do this, as dialogs don't release when closed
 		app.MainForm.release()
 	app.MainForm.bindEvent(dEvents.Deactivate, closeIt)
 	

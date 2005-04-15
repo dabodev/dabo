@@ -202,85 +202,6 @@ class SortLabel(dabo.ui.dLabel):
 		self.relatedDataField = ""
 
 
-class SortOrderForm(dabo.ui.dDialog):
-	def __init__(self, parent, items=[]):
-		self.listItems = items
-		SortOrderForm.doDefault(parent, style=wx.CAPTION | wx.RESIZE_BORDER )
-	
-	def setItems(self, items):
-		self.listItems = items
-
-	def _setList(self):
-		self.list.Set([e[1] for e in self.listItems])
-		
-	def afterInit(self):
-		sz = self.GetSizer()
-		hsz = dabo.ui.dSizer("h")
-		bUp = dabo.ui.dButton(self)
-		bUp.Caption = _("Up")
-		bDown = dabo.ui.dButton(self)
-		bDown.Caption = _("Down")
-		bDelete = dabo.ui.dButton(self)
-		bDelete.Caption = _("Delete")
-		hsz.append(bUp, "expand")
-		hsz.append(bDown, "expand")
-		hsz.append(bDelete)
-		sz.append(hsz, 0, alignment="centre")
-		bUp.bindEvent(dEvents.Hit, self.onUpButton)
-		bDown.bindEvent(dEvents.Hit, self.onDownButton)
-		bDelete.bindEvent(dEvents.Hit, self.onDeleteButton)
-		self.list = dabo.ui.dListBox(self)
-		self._setList()
-		sz.append(self.list, "expand", 1)
-		
-		hsz = dabo.ui.dSizer("h")
-		bOK = dabo.ui.dButton(self)
-		bOK.Caption = _("OK")
-		bOK.bindEvent(dEvents.Hit, self.onOKButton)
-		hsz.append(bOK, "expand", 1)
-		bCancel = dabo.ui.dButton(self)
-		bCancel.Caption = _("Cancel")
-		bCancel.bindEvent(dEvents.Hit, self.onCancelButton)
-		hsz.append(bCancel, "expand", 1)
-		sz.append(hsz, 0, alignment="centre")
-		
-		self.Layout()
-
-	def getItems(self):
-		return self.listItems
-
-	def onUpButton(self, evt):
-		self.reorder(-1)
-
-	def onDownButton(self, evt):
-		self.reorder(1)
-
-	def onDeleteButton(self, evt):
-		pos = self.list.GetSelection()
-		if pos >= 0:
-			del self.listItems[pos]
-			self._setList()
-		if self.listItems:
-			newpos = min(len(self.listItems)-1, pos)	
-		
-	def reorder(self, dir):
-		pos = self.list.GetSelection()
-		if pos >= 0:
-			maxlen = len(self.listItems) -1
-			choice = self.listItems[pos]
-			del self.listItems[pos]
-			newpos = min(maxlen, max(0, pos + dir) )
-			self.listItems.insert(newpos, choice)
-			self._setList()
-			self.list.SetSelection(newpos)
-
-	def onOKButton(self, evt):
-		self.EndModal(0)
-	
-	def onCancelButton(self, evt):
-		self.EndModal(1)
-
-		
 class SelectPage(Page):
 	def afterInit(self):
 		super(SelectPage, self).afterInit()
@@ -292,9 +213,9 @@ class SelectPage(Page):
 
 
 	def onSortLabelRClick(self, evt):
-		self.sortDS = evt.EventObject.relatedDataField
-		self.sortCap = evt.EventObject.Caption
-		self.sortObj = evt.GetEventObject()
+		obj = self.sortObj = evt.EventObject
+		self.sortDS = obj.relatedDataField
+		self.sortCap = obj.Caption
 		mn = dabo.ui.dMenu()
 		if self.sortFields:
 			mn.append(_("Show sort order"), bindfunc=self.handleSortOrder)
@@ -304,7 +225,7 @@ class SelectPage(Page):
 
 		mn.append(_("Sort Ascending"), bindfunc=self.handleSortAsc)
 		mn.append(_("Sort Descending"), bindfunc=self.handleSortDesc)
-		self.PopupMenu(mn, self.ClientToScreen(evt.GetPosition()) )
+		self.PopupMenu(mn, obj.formCoordinates(evt.EventData["mousePosition"]) )
 		mn.release()
 
 	def handleSortOrder(self, evt): 
@@ -321,6 +242,21 @@ class SelectPage(Page):
 				del self.sortFields[self.sortDS]
 			except:
 				pass
+		elif action== "show":
+			# Get the descrips and order
+			sf = self.sortFields
+			sfk = sf.keys()
+			dd = [(sf[kk][0], kk, "%s %s" % (sf[kk][2], sf[kk][1]))
+					for kk in sfk ]
+			dd.sort()
+			sortDesc = [itm[2] for itm in dd]
+			sortedList = dabo.ui.sortList(sortDesc)
+			newPos = 0
+			for itm in sortedList:
+				origPos = sortDesc.index(itm)
+				key = dd[origPos][1]
+				self.sortFields[key] = (newPos, self.sortFields[key][1], self.sortFields[key][2])
+				newPos += 1
 		elif action != "show":
 			if self.sortFields.has_key(self.sortDS):
 				self.sortFields[self.sortDS] = (self.sortFields[self.sortDS][0], 
@@ -329,18 +265,6 @@ class SelectPage(Page):
 				self.sortFields[self.sortDS] = (self.sortIndex, action, self.sortCap)
 				self.sortIndex += 1
 		self.sortCap = self.sortDS = ""
-		sf = SortOrderForm(None, items=self._orderByClause(infoOnly=True))
-		sf.Caption = _("Change fields order")
-		sf.Centre()
-		res = sf.ShowModal()
-
-		if not res:
-			items = sf.getItems()
-			sortDSs = [i[0] for i in items]
-			for ds in self.sortFields.keys():
-				if ds not in sortDSs: del self.sortFields[ds]
-			for ds, idx in zip(sortDSs, range(0, len(sortDSs))):
-				self.sortFields[ds] = (idx,) + self.sortFields[ds][1:]
 				
 			
 		

@@ -1,5 +1,5 @@
 import dabo
-#dabo.ui.loadUI("wx")
+dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
 from dabo.dLocalize import _
@@ -60,4 +60,29 @@ class ListSorter(dabo.ui.dPanel):
 	Choices = property(_getChoices, _setChoices, None,
 			_("Items in the list to sort.   (list)") )
 
+
+def main():
+	class TestForm(dabo.ui.dForm):
+		def afterInit(self):
+			self.lst = ListSorter(self, Choices=["apple", "pear", "banana", "peach", "strawberry", "lime"])
+			btn = dabo.ui.dButton(self, Caption="Bye")
+			btn.bindEvent(dabo.dEvents.Hit, self.onButton)
+			self.Sizer.append(self.lst, 1, "x")
+			self.Sizer.append(btn, halign="center")
+		
+		def onButton(self, evt):
+			ch = self.lst.Choices
+			print "Choices:"
+			for itm in ch:
+				print "\t", itm
+			self.close()
+
+	app = dabo.dApp()
+	app.MainFormClass = TestForm
+	app.setup()
+	app.start()
+
+	
+if __name__ == "__main__":
+	main()
 

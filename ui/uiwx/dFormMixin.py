@@ -104,7 +104,7 @@ class dFormMixin(pm.dPemMixin):
 			self.closing()
 		
 		# On the Mac, this next line prevents Bus Errors when closing a form.
-		self.Visible = False		
+		self.Visible = False	
 		self._isClosed = True
 		self.SetFocus()
 		if self.Application is not None:
@@ -113,10 +113,14 @@ class dFormMixin(pm.dPemMixin):
 	
 
 	def _createStatusBar(self):
-		self.SetStatusBar(dabo.ui.dStatusBar(self))
+		if hasattr(self, "SetStatusBar"):
+			self.SetStatusBar(dabo.ui.dStatusBar(self))
 	
 	def getStatusBar(self):
-		return self.GetStatusBar()
+		if hasattr(self, "GetStatusBar"):
+			return self.GetStatusBar()
+		else:
+			return None
 		
 		
 	def close(self, force=False):

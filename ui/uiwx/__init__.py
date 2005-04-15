@@ -318,8 +318,9 @@ def sortList(chc, Caption=""):
 	and returns the sorted list if the user clicks 'OK'. If they cancel
 	out, the original list is returned.
 	"""
+	from dabo.ui.dialogs.SortingForm import SortingForm
 	ret = chc
-	sf = dabo.ui.dialogs.SortingForm(None, Choices=list(chc))
+	sf = SortingForm(None, Choices=list(chc))
 	if Caption:
 		sf.Caption = Caption
 	if sf.show() == k.DLG_OK:

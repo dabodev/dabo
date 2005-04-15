@@ -140,6 +140,8 @@ class dPemMixin(dPemMixinBase):
 		self._needRedraw = True
 		self._borderColor = "black"
 		self._borderWidth = 0
+		# Flag that gets set to True when the object is being Destroyed
+		self._finito = False		
 		self.beforeInit()
 		
 	
@@ -222,8 +224,9 @@ class dPemMixin(dPemMixinBase):
 		
 		self.initEvents()
 
-	
+
 	def __onWxDestroy(self, evt):
+		self._finito = True
 		self.raiseEvent(dEvents.Destroy, evt)
 		
 	def __onWxIdle(self, evt):
@@ -250,9 +253,11 @@ class dPemMixin(dPemMixinBase):
 		evt.ResumePropagation(1)
 	
 	def __onWxLostFocus(self, evt):
+		if self._finito: return
 		self.raiseEvent(dEvents.LostFocus, evt)
 	
 	def __onWxMove(self, evt):
+		if self._finito: return
 		self.raiseEvent(dEvents.Move, evt)
 	
 	def __onWxMouseEnter(self, evt):
@@ -291,11 +296,13 @@ class dPemMixin(dPemMixinBase):
 			self._mouseRightDown = False
 	
 	def __onWxPaint(self, evt):
+		if self._finito: return
 		if self._borderWidth > 0:
 			self._needRedraw = True
 		self.raiseEvent(dEvents.Paint, evt)
 	
 	def __onWxResize(self, evt):
+		if self._finito: return
 		if self._borderWidth > 0:
 			self._needRedraw = True
 		self.raiseEvent(dEvents.Resize, evt)
@@ -412,6 +419,25 @@ class dPemMixin(dPemMixinBase):
 			# Call with wx.CallAfter in the next Idle.
 			super(dPemMixin, self).raiseEvent(eventClass, nativeEvent,
 				uiCallAfterFunc=wx.CallAfter, *args, **kwargs)
+	
+	
+	def formCoordinates(self, pos):
+		"""A mouse click will report coordinates relative to the window
+		which was clicked. For a control in a form, it is sometimes 
+		necessary to translate this point to a position relative to the 
+		containing form.
+		"""
+		ret = self.absoluteCoordinates(pos)
+		if hasattr(self, "Form") and self.Form is not None:
+			ret = self.Form.ScreenToClient(ret)
+		return ret
+	
+	
+	def absoluteCoordinates(self, pos):
+		"""Translates a position value for a control to absolute
+		screen position.
+		"""
+		return self.ClientToScreen(pos)
 	
 	
 	def _getControllingSizerItem(self):

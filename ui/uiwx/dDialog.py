@@ -80,6 +80,11 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 	def _setModal(self, val):
 		self._modal = val
 	
+	def _getShowStat(self):
+		# Dialogs cannot have status bars.
+		return False
+	_showStatusBar	= property(_getShowStat)
+
 	AutoSize = property(_getAutoSize, _setAutoSize, None,
 			"When True, the dialog resizes to fit the added controls.  (bool)")
 	Caption = property(_getCaption, _setCaption, None,
