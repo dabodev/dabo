@@ -15,7 +15,13 @@ USE_ORIG_CLASS = True
 #   This is the new version of the class
 #   It may be unstable and contain debugging output
 #####################
-class dDateTextBoxNew(wx.DatePickerCtrl, dcm.dDataControlMixin):
+try:
+	dpClass = wx.DatePickerCtrl
+except:
+	# Older wxPython versions don't have this class
+	USE_ORIG_CLASS = True
+	dpClass = wx.TextCtrl
+class dDateTextBoxNew(dpClass, dcm.dDataControlMixin):
 	""" Convenient control for managing dates.
 	"""
 	_IsContainer = False
