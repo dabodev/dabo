@@ -134,7 +134,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.dataTypes = [self.convertType(col.DataType) 
 				for col in self.colDefs]
 		self.colNames = [col.Field for col in self.colDefs]
-	
+
+
 	def convertType(self, typ):
 		"""Convert common types, names and abbreviations for 
 		data types into the constants needed by the wx.grid.
@@ -155,8 +156,26 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			ret = wx.grid.GRID_VALUE_FLOAT
 		elif lowtyp in (datetime.date, datetime.datetime, datetime.time, 
 				"date", "datetime", "time", "d", "t"):
-			ret = wx.grid.GRID_VALUE_STRING
+			ret = wx.grid.GRID_VALUE_DATETIME
 		return ret
+
+	
+	def CanGetValueAs(self, row, col, typ):
+		return typ == self.dataTypes[col]
+
+	def CanSetValueAs(self, row, col, typ):
+		return typ == self.dataTypes[col]
+
+###  wx.grid constants that are used.
+# GRID_VALUE_BOOL
+# GRID_VALUE_CHOICE
+# GRID_VALUE_CHOICEINT
+# GRID_VALUE_DATETIME
+# GRID_VALUE_FLOAT
+# GRID_VALUE_LONG
+# GRID_VALUE_NUMBER
+# GRID_VALUE_STRING
+# GRID_VALUE_TEXT
 		
 		
 	def fillTable(self, force=False):
@@ -462,6 +481,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Cell renderer and editor classes
 		self.defaultRenderers = {
 			"str" : wx.grid.GridCellStringRenderer, 
+			"string" : wx.grid.GridCellStringRenderer, 
 			"bool" : wx.grid.GridCellBoolRenderer, 
 			"int" : wx.grid.GridCellNumberRenderer, 
 			"long" : wx.grid.GridCellNumberRenderer, 
@@ -469,6 +489,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			"list" : wx.grid.GridCellStringRenderer  }
 		self.defaultEditors = {
 			"str" : wx.grid.GridCellTextEditor, 
+			"string" : wx.grid.GridCellTextEditor, 
 			"bool" : wx.grid.GridCellBoolEditor, 
 			"int" : wx.grid.GridCellNumberEditor, 
 			"long" : wx.grid.GridCellNumberEditor, 
@@ -521,6 +542,30 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		header.Bind(wx.EVT_PAINT, self.onHeaderPaint)
 
 
+	def GetCellValue(self, row, col):
+		try:
+			ret = self._Table.GetValue(row, col)
+		except:
+			ret = super(dGrid, self).GetCellValue(row, col)
+		return ret
+
+	def GetValue(self, row, col):
+		try:
+			ret = self._Table.GetValue(row, col)
+		except:
+			ret = super(dGrid, self).GetValue(row, col)
+		return ret
+
+	def SetValue(self, row, col, value):
+		try:
+			self._Table.SetValue(row, col, value)
+		except:
+			super(dGrid, self).SetValue(row, col, value)
+	
+	
+
+
+
 	def fillGrid(self, force=False):
 		""" Refresh the grid to match the data in the data set."""
 		# Save the focus, if any
@@ -554,15 +599,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		for ii in range(len(self.Columns)):
 			col = self.Columns[ii]
 			if col.DataType == "bool":
-				for rr in range(self.RowCount):
-					if ii == 2:
-						self.SetCellRenderer(rr, ii, self.defaultRenderers["bool"]())
-					if self.Editable:
-						self.SetCellEditor(rr, ii, self.defaultEditors["bool"]())
+				self.SetColFormatBool(ii)
 			elif col.DataType in ("int", "long"):
 				self.SetColFormatNumber(ii)
 			elif col.DataType == "float":
 				self.SetColFormatFloat(ii)
+			if self.Editable:
+				edClass = self.defaultEditors[col.DataType]
+				for rr in range(self.RowCount):
+					self.SetCellEditor(rr, ii, edClass())
 		
 		if currFocus is not None:
 			try:
