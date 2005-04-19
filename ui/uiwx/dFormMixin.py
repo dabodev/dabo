@@ -108,7 +108,9 @@ class dFormMixin(pm.dPemMixin):
 		self._isClosed = True
 		self.SetFocus()
 		if self.Application is not None:
-			self.Application.uiForms.remove(self)
+			try:
+				self.Application.uiForms.remove(self)
+			except: pass
 		self.saveSizeAndPosition()
 	
 

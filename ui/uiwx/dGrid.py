@@ -206,7 +206,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 						recordVal = recordVal.encode(locale.getdefaultlocale()[1])
 					if col.DataType.lower() in ("string", "unicode", "str", "char", "text", "varchar"):
 						# Limit to first 'n' chars...
-						recordVal = str(recordVal)[:self.grid.stringDisplayLen]
+						recordVal = unicode(recordVal)[:self.grid.stringDisplayLen]
 					elif col.DataType.lower() == "bool":
 						# coerce to bool (could have been 0/1)
 						if type(recordVal) in (unicode, str):
@@ -425,7 +425,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# List of column specs
 		self.Columns = []
 		# List of Row Labels, if any
-		self.RowLabels = []
+		self._rowLabels = []
 		
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
@@ -495,6 +495,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			"long" : wx.grid.GridCellNumberEditor, 
 			"float" : wx.grid.GridCellFloatEditor, 
 			"list" : wx.grid.GridCellChoiceEditor  }
+		# If you want a custom editor/renderer for any column, 
+		# add an entry to these dicts with the field name
+		# as the key.
+		self.customRenderers = {}
+		self.customEditors = {}
+		# The list editors require a list to construct them. Add a key
+		# containing the field name and the corresponding list for
+		# that field to this dict.
+		self.listEditors = {}
 
 		self.headerDragging = False    # flag used by mouse motion event handler
 		self.headerDragFrom = 0
@@ -535,7 +544,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.__onWxGridRowSize)
 
 		header.Bind(wx.EVT_LEFT_DOWN, self.onHeaderLeftDown)
-		header.Bind(wx.EVT_LEFT_DCLICK, self.onHeaderLeftDClick)
+		header.Bind(wx.EVT_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
+
+
 		header.Bind(wx.EVT_LEFT_UP, self.onHeaderLeftUp)
 		header.Bind(wx.EVT_RIGHT_UP, self.onHeaderRightUp)
 		header.Bind(wx.EVT_MOTION, self.onHeaderMotion)
@@ -556,14 +567,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			ret = super(dGrid, self).GetValue(row, col)
 		return ret
 
-	def SetValue(self, row, col, value):
+	def SetValue(self, row, col, val):
 		try:
-			self._Table.SetValue(row, col, value)
-		except:
-			super(dGrid, self).SetValue(row, col, value)
-	
-	
-
+			self._Table.SetValue(row, col, val)
+		except StandardError, e:
+			super(dGrid, self).SetCellValue(row, col, val)
+		# Update the main data source
+		try:
+			fld = self.Columns[col].Field
+			self.dataSet[row][fld] = val
+		except StandardError, e:
+			dabo.errorLog.write("Cannot update data set: %s" % e)
 
 
 	def fillGrid(self, force=False):
@@ -598,16 +612,36 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Set the types
 		for ii in range(len(self.Columns)):
 			col = self.Columns[ii]
-			if col.DataType == "bool":
-				self.SetColFormatBool(ii)
-			elif col.DataType in ("int", "long"):
-				self.SetColFormatNumber(ii)
-			elif col.DataType == "float":
-				self.SetColFormatFloat(ii)
-			if self.Editable:
-				edClass = self.defaultEditors[col.DataType]
+			fld = col.Field
+			typ = col.DataType
+			if self.customRenderers.has_key(fld):
+				rndClass = self.customRenderers[fld]
 				for rr in range(self.RowCount):
-					self.SetCellEditor(rr, ii, edClass())
+					self.SetCellRenderer(rr, ii, rndClass())
+			else:
+				if col.DataType == "bool":
+					self.SetColFormatBool(ii)
+				elif col.DataType in ("int", "long"):
+					self.SetColFormatNumber(ii)
+				elif col.DataType == "float":
+					self.SetColFormatFloat(ii)
+			if self.Editable:
+				if self.customEditors.has_key(fld):
+					edtClass = self.customEditors[fld]
+				else:
+					edtClass = self.defaultEditors[col.DataType]
+				if typ == "list":
+					# There should be a custom list specified for this field
+					if self.listEditors.has_key(fld):
+						lst = self.listEditors[fld]
+					else:
+						lst = []
+					for rr in range(self.RowCount):
+						self.SetCellEditor(rr, ii, edtClass(choices=lst))
+				else:
+					# Non-list values
+					for rr in range(self.RowCount):
+						self.SetCellEditor(rr, ii, edtClass())
 		
 		if currFocus is not None:
 			try:
@@ -978,10 +1012,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def onHeaderLeftDClick(self, evt):
-		""" Occurs when the left mouse button is double-clicked in the grid header.
-		NOTE: evt is a wxPython event, not a Dabo event.
-		By default, this is interpreted as a request to auto-size the column.
-		"""
+		""" Occurs when the left mouse button is double-clicked in the grid header."""
 		pass
 
 
@@ -993,9 +1024,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	
 	def onLeftDClick(self, evt): 
-		"""Occurs when the user double-clicks a cell in the grid.
-		NOTE: evt is a wxPython event, not a Dabo event.
-		"""
+		"""Occurs when the user double-clicks anywhere in the grid."""
+		if evt.EventData.has_key("row"):
+			# User double-clicked on a cell
+			self.onGridLeftDClick(evt)
+		else:
+			# On the header
+			self.onHeaderLeftDClick(evt)
+
+
+	def onGridLeftDClick(self, evt):
+		"""The user double-clicked on a cell in the grid."""
 		pass
 
 
@@ -1422,18 +1461,23 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.ProcessTableMessage(msg)
 		self.fillGrid(True)
 
-
-	def _getEditable(self):
-		return self._editable
-
-	def _setEditable(self, val):
-		if self._constructed():
-			self._editable = val
-			self.EnableEditing(val)
-		else:
-			self._properties["Editable"] = val
-
-
+	
+		
+	def cell(self, row, col):
+		class GridCell(object):
+			def __init__(self, parent, row, col):
+				self.parent = parent
+				self.row = row
+				self.col = col
+			
+			def _getVal(self):
+				return self.parent.GetValue(self.row, self.col)
+			def _setVal(self, val):
+				self.parent.SetValue(self.row, self.col, val)
+			Value = property(_getVal, _setVal)
+		return GridCell(self, row, col)
+		
+	
 	def _getColumnCount(self):
 		return len(self.Columns)
 
@@ -1463,6 +1507,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.fillGrid(True)
 		else:
 			self._properties["ColumnCount"] = val
+
+
+	def _getColLbls(self):
+		ret = []
+		for col in range(self.ColumnCount):
+			ret.append(self.GetColLabelValue(col))
+		return ret
 
 
 	def _getHeader(self):
@@ -1521,6 +1572,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self._properties["CurrentRow"] = val		
 
 
+	def _getEditable(self):
+		return self._editable
+
+	def _setEditable(self, val):
+		if self._constructed():
+			self._editable = val
+			self.EnableEditing(val)
+		else:
+			self._properties["Editable"] = val
+
+
 	def _getRowHeight(self):
 		return self._rowHeight
 
@@ -1535,6 +1597,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 						self.Form.Name, self.Name, "RowSize"), val)
 		else:
 				self._properties["RowHeight"] = val
+
+
+	def _getRowLbls(self):
+		return self._rowLabels
+	
+	def _setRowLbls(self, val):
+		self._rowLabels = val
+		self.fillGrid()
 
 
 	def _getShowRowLabels(self):
@@ -1587,6 +1657,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	ColumnCount = property(_getColumnCount, _setColumnCount, None, 
 			_("Number of columns in the grid.  (int)") )
 	
+	ColumnLabels = property(_getColLbls, None, None, 
+			_("List of the column labels.  (list)") )
+	
 	CurrentColumn = property(_getCurrentColumn, _setCurrentColumn, None,
 			_("Currently selected column  (int)") )
 			
@@ -1611,6 +1684,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	RowHeight = property(_getRowHeight, _setRowHeight, None,
 			_("Row Height for all rows of the grid  (int)"))
 
+	RowLabels = property(_getRowLbls, _setRowLbls, None, 
+			_("List of the row labels.  (list)") )
+	
 	RowLabelWidth = property(_getRowLabelWidth, _setRowLabelWidth, None,
 			_("""Width of the label on the left side of the rows. This only changes
 			the grid if ShowRowLabels is True.  (int)"""))

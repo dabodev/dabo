@@ -93,13 +93,17 @@ class uiApp(wx.App, dObject):
 				frm = frms[0]
 				# This will allow forms to veto closing (i.e., user doesn't
 				# want to save pending changes). 
-				if frm.close() == False:
-					# The form stopped the closing process. The user
-					# must deal with this form (save changes, etc.) 
-					# before the app can exit.
-					frm.bringToFront()
-					return False
-				else:
+				try:
+					if frm.close() == False:
+						# The form stopped the closing process. The user
+						# must deal with this form (save changes, etc.) 
+						# before the app can exit.
+						frm.bringToFront()
+						return False
+					else:
+						frms.remove(frm)
+				except:
+					# Object is already deleted
 					frms.remove(frm)
 		
 
