@@ -196,6 +196,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		
 		self.Clear()
 		self.data = []
+		encod = self.grid.Encoding
 		for record in dataSet:
 			recordDict = []
 			for col in self.colDefs:
@@ -206,7 +207,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 						recordVal = recordVal.encode(locale.getdefaultlocale()[1])
 					if col.DataType.lower() in ("string", "unicode", "str", "char", "text", "varchar"):
 						# Limit to first 'n' chars...
-						recordVal = unicode(recordVal)[:self.grid.stringDisplayLen]
+						recordVal = unicode(recordVal, encod)[:self.grid.stringDisplayLen]
 					elif col.DataType.lower() == "bool":
 						# coerce to bool (could have been 0/1)
 						if type(recordVal) in (unicode, str):
@@ -504,6 +505,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# containing the field name and the corresponding list for
 		# that field to this dict.
 		self.listEditors = {}
+		# Type of encoding to use with unicode data
+		self.defaultEncoding = "latin-1"
 
 		self.headerDragging = False    # flag used by mouse motion event handler
 		self.headerDragFrom = 0
@@ -1581,7 +1584,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.EnableEditing(val)
 		else:
 			self._properties["Editable"] = val
-
+	
+	
+	def _getEncoding(self):
+		if self.bizobj:
+			ret = self.bizobj.Encoding
+		else:
+			ret = self.defaultEncoding
+		return ret
+		
 
 	def _getRowHeight(self):
 		return self._rowHeight
@@ -1671,6 +1682,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			
 	Editable = property(_getEditable, _setEditable, None,
 			_("Can the contents of the grid be edited?  (bool)") )
+			
+	Encoding = property(_getEncoding, None, None,
+			_("Name of encoding to use for unicode  (str)") )
 			
 	Header = property(_getHeader, None, None,
 			_("Reference to the grid header window.  (header object?)") )

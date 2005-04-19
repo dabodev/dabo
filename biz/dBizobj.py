@@ -1174,7 +1174,14 @@ class dBizobj(dabo.common.dObject):
 		cursor = self._getCurrentCursor()
 		if cursor is not None:
 			cursor.Table = val
-			
+	
+	def _getEncoding(self):
+		ret = "latin-1"
+		cursor = self._getCurrentCursor()
+		if cursor is not None:
+			ret = cursor.Encoding
+		return ret
+
 	def _getRequeryOnLoad(self):
 		try:
 			ret = self._requeryOnLoad
@@ -1326,6 +1333,9 @@ class dBizobj(dabo.common.dObject):
 	DataSource = property(_getDataSource, _setDataSource, None,
 			_("The title of the cursor. Used in resolving DataSource references. (str)"))
 	
+	Encoding = property(_getEncoding, None, None,
+			_("Name of encoding to use for unicode  (str)") )
+			
 	FillLinkFromParent = property(_getFillLinkFromParent, _setFillLinkFromParent, None,
 			_("""In the onNew() method, do we fill in the linkField with the value returned 
 			by calling the parent bizobj\'s GetKeyValue() method? (bool)"""))

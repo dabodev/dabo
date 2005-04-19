@@ -32,8 +32,9 @@ class dFormMixin(pm.dPemMixin):
 				# perhaps we are a dDialog
 				pass
 
+		self._iconFile = dabo.icons.getIconFileName("daboIcon048")
 		if not self.Icon:
-			self.Icon = wx.Icon(dabo.icons.getIconFileName('daboIcon048'), wx.BITMAP_TYPE_PNG)
+			self.Icon = wx.Icon(self._iconFile, wx.BITMAP_TYPE_PNG)
 
 		self.debugText = ""
 		self.useOldDebugDialog = False

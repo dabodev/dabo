@@ -73,9 +73,7 @@ class Login(dabo.ui.dDialog):
 
 		self.user, self.password = None, None
 		
-		bm = wx.EmptyBitmap(0,0)
-		bm.CopyFromIcon(self.Icon)
-		self.bm = wx.StaticBitmap(self, -1, bm)	
+		self.bm = dabo.ui.dImage(self, Picture=self._iconFile)
 		
 		mainSizer = self.Sizer
 		mainSizer.append((0,5))
