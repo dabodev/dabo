@@ -166,17 +166,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def CanSetValueAs(self, row, col, typ):
 		return typ == self.dataTypes[col]
 
-###  wx.grid constants that are used.
-# GRID_VALUE_BOOL
-# GRID_VALUE_CHOICE
-# GRID_VALUE_CHOICEINT
-# GRID_VALUE_DATETIME
-# GRID_VALUE_FLOAT
-# GRID_VALUE_LONG
-# GRID_VALUE_NUMBER
-# GRID_VALUE_STRING
-# GRID_VALUE_TEXT
-		
 		
 	def fillTable(self, force=False):
 		""" Fill the grid's data table to match the data set."""
@@ -310,9 +299,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			ret = self.data[row][col]
 		except:
 			ret = ""
-	
-# 		if col==2:
-# 			print "CELL VAL", row, col, ret
 		return ret
 
 	def SetValue(self, row, col, value):
@@ -507,6 +493,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.listEditors = {}
 		# Type of encoding to use with unicode data
 		self.defaultEncoding = "latin-1"
+		# What color should the little sort indicator arrow be?
+		self.sortArrowColor = "Orange"
 
 		self.headerDragging = False    # flag used by mouse motion event handler
 		self.headerDragFrom = 0
@@ -522,16 +510,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def initEvents(self):
-		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
-		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onLeftDClick)
-		
 		self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.__onWxGridRowSize)
 		self.Bind(wx.grid.EVT_GRID_SELECT_CELL, self.__onWxGridSelectCell)
 		self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.__onWxColSize)
 		self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.__onWxRightClick)
 		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxCellChange)
 
+		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
+		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onLeftDClick)
 		self.bindEvent(dEvents.GridRowSize, self._onGridRowSize)
 		self.bindEvent(dEvents.GridSelectCell, self._onGridSelectCell)
 		self.bindEvent(dEvents.GridColSize, self._onGridColSize)
@@ -544,16 +531,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		header = self.Header
 		self.defaultHdrCursor = header.GetCursor()
 
-		self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.__onWxGridRowSize)
-
-		header.Bind(wx.EVT_LEFT_DOWN, self.onHeaderLeftDown)
 		header.Bind(wx.EVT_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
+		header.Bind(wx.EVT_LEFT_DOWN, self.__onWxMouseLeftDown)
+		header.Bind(wx.EVT_LEFT_UP, self.__onWxMouseLeftUp)
+		header.Bind(wx.EVT_RIGHT_UP, self.__onWxMouseRightUp)
+		header.Bind(wx.EVT_MOTION, self.__onWxMouseMotion)
+		header.Bind(wx.EVT_PAINT, self.__onWxHeaderPaint)
 
-
-		header.Bind(wx.EVT_LEFT_UP, self.onHeaderLeftUp)
-		header.Bind(wx.EVT_RIGHT_UP, self.onHeaderRightUp)
-		header.Bind(wx.EVT_MOTION, self.onHeaderMotion)
-		header.Bind(wx.EVT_PAINT, self.onHeaderPaint)
+		self.bindEvent(dEvents.MouseLeftDown, self.onMouseLeftDown)
+		self.bindEvent(dEvents.MouseLeftUp, self.onMouseLeftUp)
+		self.bindEvent(dEvents.MouseRightUp, self.onMouseRightUp)
+		self.bindEvent(dEvents.MouseMove, self.onMouseMove)
+		self.bindEvent(dEvents.Paint, self.onHeaderPaint)
 
 
 	def GetCellValue(self, row, col):
@@ -844,12 +833,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.fillGrid(True)
 		
 
+	def __onWxHeaderPaint(self, evt):
+		self.raiseEvent(dEvents.Paint, evt)
 	def onHeaderPaint(self, evt):
-		""" Occurs when it is time to paint the grid column headers.
-		NOTE: The event object is a raw wx Event, not a Dabo event.
-		"""
+		""" Occurs when it is time to paint the grid column headers."""
 		dabo.ui.callAfter(self.hdrPaint)
-		evt.Skip()
 	
 	def hdrPaint(self):
 		w = self.Header
@@ -884,13 +872,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				left = rect[0] + 3
 				top = rect[1] + 3
 
-				dc.SetBrush(wx.Brush("WHEAT", wx.SOLID))
+				dc.SetBrush(wx.Brush(self.sortArrowColor, wx.SOLID))
 				if self.sortOrder == "DESC":
 					# Down arrow
-					dc.DrawPolygon([(left,top), (left+6,top), (left+3,top+4)])
+					dc.DrawPolygon([(left,top), (left+6,top), (left+3,top+6)])
 				elif self.sortOrder == "ASC":
 					# Up arrow
-					dc.DrawPolygon([(left+3,top), (left+6, top+4), (left, top+4)])
+					dc.DrawPolygon([(left+3,top), (left+6, top+6), (left, top+6)])
 				else:
 					# Column is not sorted, so don't draw.
 					pass    
@@ -932,17 +920,26 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.incSearchTimer.stop()
 
 
-	def onHeaderMotion(self, evt):
-		""" Occurs when the mouse moves in the grid header.
-		NOTE: The event object is a raw wx Event, not a Dabo event.
-		"""
+	def __onWxMouseMotion(self, evt):
+		self.raiseEvent(dEvents.MouseMove, evt)
+	def onMouseMove(self, evt):
+		evt.Continue = False
+		if evt.EventData.has_key("row"):
+			self.onGridMouseMove(evt)
+		else:
+			self.onHeaderMouseMove(evt)
+	def onGridMouseMove(self, evt):
+		""" Occurs when the left mouse button moves over the grid."""
+		pass
+	def onHeaderMouseMove(self, evt):
+		""" Occurs when the mouse moves in the grid header."""
 		headerIsDragging = self.headerDragging
 		headerIsSizing = self.headerSizing
-		dragging = evt.Dragging()
+		dragging = evt.EventData["mouseDown"]
 		header = self.Header
 
 		if dragging:
-			x,y = evt.GetX(), evt.GetY()
+			x,y = evt.EventData["mousePosition"]
 
 			if not headerIsSizing and (
 				self.getColByX(x) == self.getColByX(x-2) == self.getColByX(x+2)):
@@ -971,17 +968,26 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.headerSizing = True
 
 
+	def __onWxMouseLeftUp(self, evt):
+		self.raiseEvent(dEvents.MouseLeftUp, evt)
+	def onMouseLeftUp(self, evt):
+		evt.Continue = False
+		if evt.EventData.has_key("row"):
+			self.onGridLeftUp(evt)
+		else:
+			self.onHeaderLeftUp(evt)
+	def onGridLeftUp(self, evt):
+		""" Occurs when the left mouse button is released in the grid."""
+		pass
 	def onHeaderLeftUp(self, evt):
-		""" Occurs when the left mouse button goes up in the grid header.
+		""" Occurs when the left mouse button is released in the grid header.
 
 		Basically, this comes down to two possibilities: the end of a drag
 		operation, or a single-click operation. If we were dragging, then
 		it is possible a column needs to change position. If we were clicking,
 		then it is a sort operation.
-		
-		NOTE: The event object is a raw wx Event, not a Dabo event.
 		"""
-		x,y = evt.GetX(), evt.GetY()
+		x,y = evt.EventData["mousePosition"]
 		if self.headerDragging:
 			# A drag action is ending
 			self.headerDragTo = (x,y)
@@ -1002,16 +1008,25 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			# do a processSort() on that column.
 			col = self.getColByX(x)
 			self.processSort(col)
-
 		self.headerDragging = False
 		self.headerSizing = False
+ 		evt.Continue = False
 
 
-	def onHeaderLeftDown(self, evt):
-		""" Occurs when the left mouse button goes down in the grid header.
-		NOTE: evt is a wxPython event, not a Dabo event.
-		"""
+	def __onWxMouseLeftDown(self, evt):
+		self.raiseEvent(dEvents.MouseLeftDown, evt)
+	def onMouseLeftDown(self, evt):
+		evt.Continue = False
+		if evt.EventData.has_key("row"):
+			self.onGridLeftDown(evt)
+		else:
+			self.onHeaderLeftDown(evt)
+	def onGridLeftDown(self, evt):
+		""" Occurs when the left mouse button is pressed in the grid."""
 		pass
+	def onHeaderLeftDown(self, evt):
+		""" Occurs when the left mouse button is pressed in the grid header."""
+		evt.Continue = False
 
 
 	def onHeaderLeftDClick(self, evt):
@@ -1019,10 +1034,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		pass
 
 
+	def __onWxMouseRightUp(self, evt):
+		self.raiseEvent(dEvents.MouseRightUp, evt)
+	def onMouseRightUp(self, evt):
+		evt.Continue = False
+		if evt.EventData.has_key("row"):
+			self.onGridRightUp(evt)
+		else:
+			self.onHeaderRightUp(evt)
+	def onGridRightUp(self, evt):
+		""" Occurs when the right mouse button goes up in the grid."""
+		pass
 	def onHeaderRightUp(self, evt):
-		""" Occurs when the right mouse button goes up in the grid header.
-		NOTE: evt is a wxPython event, not a Dabo event.
-		"""
+		""" Occurs when the right mouse button goes up in the grid header."""
+		pass
 		self.autoSizeCol( self.getColByX(evt.GetX()))
 
 	
