@@ -84,7 +84,11 @@ class EventMixin(object):
 				# The event handler set the Continue flag to False, specifying that
 				# no more event handlers should process the event.
 				break
-		self.__raisedEvents.pop()
+		try:
+			self.__raisedEvents.pop()
+		except:
+			# This is a deleted object; no need (or ability!) to do anything else.
+			return
 		
 		if uiEvent is not None:
 			# Let the UI lib know whether to do the default event behavior

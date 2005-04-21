@@ -178,22 +178,6 @@ class dFormMixin(pm.dPemMixin):
 		dlg.Show()
 
 	
-	def lockScreen(self):
-		"""Locks the visual updates to the screen to improve performance
-		when many items are being updated at once.
-		IMPORTANT: you must call unlockScreen() when you are done,
-		or your form will look like it isn't responding.
-		"""
-		self.Freeze()
-	
-	
-	def unlockScreen(self):
-		"""Unlocks the screen so that visual updates can be made. Must
-		be called after a call to lockScreen().
-		"""
-		self.Thaw()
-	
-	
 	def refresh(self):
 		"""Refreshed the values of the controls, and also calls the
 		wxPython Refresh to update the form.

@@ -226,7 +226,7 @@ class dPemMixin(dPemMixinBase):
 
 
 	def __onWxDestroy(self, evt):
-		self._finito = True
+		self._finito = (self == evt.GetEventObject() )
 		self.raiseEvent(dEvents.Destroy, evt)
 		
 	def __onWxIdle(self, evt):
@@ -378,6 +378,22 @@ class dPemMixin(dPemMixinBase):
 
 		return d
 		
+	
+	def lockDisplay(self):
+		"""Locks the visual updates to the control to improve performance
+		when many items are being updated at once.
+		IMPORTANT: you must call unlockDisplay() when you are done,
+		or your form (or parts of it) will look like it isn't responding.
+		"""
+		self.Freeze()
+	
+	
+	def unlockDisplay(self):
+		"""Unlocks the screen so that visual updates can be made. Must
+		be called after a call to lockDisplay().
+		"""
+		self.Thaw()
+	
 	
 	def addObject(self, classRef, Name=None, *args, **kwargs):
 		""" Instantiate object as a child of self.
