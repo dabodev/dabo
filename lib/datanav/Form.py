@@ -261,11 +261,11 @@ class Form(dabo.ui.dForm):
 		try:
 			currPage = self.pageFrame.GetSelection()
 			self.pageFrame.release()
-			chld = self.GetSizer().GetChildren()
+			chld = self.Sizer.Children
 			for c in chld:
 				if c.IsSizer():
-					if isinstance(c.GetSizer(), wx.NotebookSizer):
-						self.GetSizer().Detach(c.GetSizer())
+					if isinstance(c.Sizer, wx.NotebookSizer):
+						self.Sizer.Detach(c.Sizer)
 		except: pass
 		
 		if self.beforeSetupPageFrame():

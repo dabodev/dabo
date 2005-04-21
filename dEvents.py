@@ -184,6 +184,18 @@ class Create(Event):
 		return issubclass(objectClass, dabo.ui.dPemMixin)
 	appliesToClass = classmethod(appliesToClass)
 	
+class ChildBorn(Event):
+	"""Occurs when a shild control is created."""
+	def __init__(self, *args, **kwargs):
+		try:
+			self.Child = kwargs["child"]
+		except KeyError:
+			self.Child = None
+		super(ChildBorn, self).__init__(*args, **kwargs)
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
+	
 class Deactivate(Event):
 	"""Occurs when another form becomes active."""
 	def appliesToClass(eventClass, objectClass):

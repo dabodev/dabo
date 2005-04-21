@@ -41,10 +41,10 @@ class dPageFrameMixin(cm.dControlMixin):
 		self._lastPage = newPageNum
 		if oldPageNum is not None:
 			if oldPageNum >=0:
-				self.GetPage(oldPageNum).raiseEvent(dEvents.PageLeave)
+				self.Pages[oldPageNum].raiseEvent(dEvents.PageLeave)
 
 		if newPageNum >= 0 and self.PageCount > newPageNum:
-			self.GetPage(newPageNum).raiseEvent(dEvents.PageEnter)
+			self.Pages[newPageNum].raiseEvent(dEvents.PageEnter)
 		
 	
 	# Image-handling function
@@ -89,27 +89,39 @@ class dPageFrameMixin(cm.dControlMixin):
 		return ret
 		
 	
-	def appendPage(self, pg, caption="", imgKey=None):
+	def appendPage(self, pgCls=None, caption="", imgKey=None):
 		""" Appends the page to the pageframe, and optionally sets
 		the page caption and image. The image should have already
 		been added to the pageframe if it is going to be set here.
 		"""
-		idx = None
-		if imgKey:
-			idx = self._imageList[imgKey]
-		self.AddPage(pg, text=caption, imageId=idx)
+		return self.insertPage(self.GetPageCount(), pgCls, caption, imgKey)
 		
 	
-	def insertPage(self, pos, pg, caption="", imgKey=None):
+	def insertPage(self, pos, pgCls=None, caption="", imgKey=None):
 		""" Insert the page into the pageframe at the specified position, 
 		and optionally sets the page caption and image. The image 
 		should have already been added to the pageframe if it is 
 		going to be set here.
 		"""
-		idx = None
+		if pgCls is None:
+			pgCls = self.PageClass
+		pg = pgCls(self)
 		if imgKey:
 			idx = self._imageList[imgKey]
-		self.InsertPage(pos, pg, text=caption, imageId=idx)
+			self.InsertPage(pos, pg, text=caption, imageId=idx)
+		else:
+			self.InsertPage(pos, pg, text=caption)
+		return self.Pages[pos]
+
+
+	def layout(self):
+		""" Wrap the wx version of the call, if possible. """
+		self.Layout()
+		try:
+			# Call the Dabo version, if present
+			self.Sizer.layout()
+		except:
+			pass
 
 		
 	def _getPageIndex(self, pg):
@@ -150,17 +162,16 @@ class dPageFrameMixin(cm.dControlMixin):
 			value = int(value)
 			pageCount = self.GetPageCount()
 			pageClass = self.PageClass
-		
 			if value < 0:
 				raise ValueError, "Cannot set PageCount to less than zero."
 		
 			if value > pageCount:
 				for i in range(pageCount, value):
-					self._pemObject.AddPage(pageClass(self), "Page %s" % (i+1,))
+					self.appendPage(pageClass, caption="Page %s" % (i+1,))
 			elif value < pageCount:
 				for i in range(pageCount, value, -1):
 					self.DeletePage(i-1)
-					self.Refresh()
+# 			self.Refresh()
 		else:
 			self._properties["PageCount"] = value
 	
@@ -177,6 +188,16 @@ class dPageFrameMixin(cm.dControlMixin):
 			self.SetSelection(idx)
 		else:
 			self._properties["SelectedPage"] = pg
+		
+
+	def _getSelectedPageNum(self):
+		return self.GetSelection()
+
+	def _setSelectedPageNum(self, val):
+		if self._constructed():
+			self.SetSelection(val)
+		else:
+			self._properties["SelectedPageNum"] = val
 		
 
 	def _getTabPosition(self):
@@ -229,6 +250,9 @@ class dPageFrameMixin(cm.dControlMixin):
 	
 	SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
 			_("References the current frontmost page.  (dPage)") )
+						
+	SelectedPageNum = property(_getSelectedPageNum, _setSelectedPageNum, None,
+			_("Returns the index of the current frontmost page.  (int)") )
 						
 	TabPosition = property(_getTabPosition, _setTabPosition, None, 
 			_("""Specifies where the page tabs are located. (int) 

@@ -411,9 +411,9 @@ class SelectPage(Page):
 			ret = frm.requery()
 
 		if ret:
-			if self.GetParent().GetSelection() == 0:
+			if self.Parent.SelectedPageNum == 0:
 				# If the select page is active, now make the browse page active
-				self.GetParent().SetSelection(1)
+				self.Parent.SelectedPageNum = 1
 	
 	
 	def getSelectorOptions(self, typ, ws):
@@ -571,8 +571,8 @@ class BrowsePage(Page):
 		# If we aren't the active page, strange things can happen if we
 		# don't explicitly setFocus back to the active page. 
 		self.updateGrid()
-		if self.Parent.SelectedPage != self:
-			self.Parent.SelectedPage.setFocus()
+# 		if self.Parent.SelectedPage != self:
+# 			self.Parent.SelectedPage.setFocus()
 
 
 	def updateGrid(self):

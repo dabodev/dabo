@@ -222,9 +222,21 @@ class dPemMixin(dPemMixinBase):
 		self.Bind(wx.EVT_PAINT, self.__onWxPaint)
 		self.Bind(wx.EVT_SIZE, self.__onWxResize)
 		
+		self.bindEvent(dEvents.Create, self.__onCreate)
+		self.bindEvent(dEvents.ChildBorn, self.__onChildBorn)
+		
 		self.initEvents()
 
 
+	def __onCreate(self, evt):
+		if self.Parent:
+			self.Parent.raiseEvent(dEvents.ChildBorn, None, child=self)
+	
+	def __onChildBorn(self, evt):
+		""" evt.Child will contain the reference to the new child. """
+		pass
+		
+		
 	def __onWxDestroy(self, evt):
 		self._finito = (self == evt.GetEventObject() )
 		self.raiseEvent(dEvents.Destroy, evt)
@@ -759,6 +771,10 @@ class dPemMixin(dPemMixinBase):
 			return self.GetChildren()
 		else:
 			return None
+	
+	
+	def _getCntrlSizer(self):
+		return self.GetContainingSizer()
 		
 		
 	def _getEnabled(self):
@@ -1126,76 +1142,78 @@ class dPemMixin(dPemMixinBase):
 			Default='black'  (str or color tuple)"""))
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
-			"Specifies the type of border for this window. (int). \n"
-			"     None \n"
-			"     Simple \n"
-			"     Sunken \n"
-			"     Raised")
+			_("""Specifies the type of border for this window. (int).
+			     None
+			     Simple
+			     Sunken 
+			     Raised""") )
 	
 	BorderWidth = property(_getBorderWidth, _setBorderWidth, None,
 			_("""Width of the border drawn around the control, if any. 
 			Default=0 (no border)  (int)"""))
 
 	Caption = property(_getCaption, _setCaption, None, 
-			"The caption of the object. (str)")
+			_("The caption of the object. (str)") )
 
 	Children = property(_getChildren, None, None, 
-		_("""Returns a list of object references to the children of this object.
-
-		Only applies to containers. Children will be None for non-containers."""))
+			_("""Returns a list of object references to the children of this object.
+			Only applies to containers. Children will be None for non-containers."""))
+	
+	ControllingSizer = property(_getCntrlSizer, None, None,
+			_("Reference to the sizer that controls this control's layout.  (dSizer)") )
 		
 	Enabled = property(_getEnabled, _setEnabled, None,
-			"Specifies whether the object (and its children) can get user input. (bool)")
+			_("Specifies whether the object (and its children) can get user input. (bool)") )
 
 	Font = property(_getFont, _setFont, None,
-			"The font properties of the object. (obj)")
+			_("The font properties of the object. (obj)") )
 	
 	FontBold = property(_getFontBold, _setFontBold, None,
-			"Specifies if the font is bold-faced. (bool)")
+			_("Specifies if the font is bold-faced. (bool)") )
 	
 	FontDescription = property(_getFontDescription, None, None, 
-			"Human-readable description of the current font settings. (str)")
+			_("Human-readable description of the current font settings. (str)") )
 	
 	FontFace = property(_getFontFace, _setFontFace, None,
-			"Specifies the font face. (str)")
+			_("Specifies the font face. (str)") )
 	
 	FontInfo = property(_getFontInfo, None, None,
-			"Specifies the platform-native font info string. Read-only. (str)")
+			_("Specifies the platform-native font info string. Read-only. (str)") )
 	
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
-			"Specifies whether font is italicized. (bool)")
+			_("Specifies whether font is italicized. (bool)") )
 	
 	FontSize = property(_getFontSize, _setFontSize, None,
-			"Specifies the point size of the font. (int)")
+			_("Specifies the point size of the font. (int)") )
 	
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
-			"Specifies whether text is underlined. (bool)")
+			_("Specifies whether text is underlined. (bool)") )
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
-			"Specifies the foreground color of the object. (tuple)")
+			_("Specifies the foreground color of the object. (tuple)") )
 
 	Height = property(_getHeight, _setHeight, None,
-			"The height of the object. (int)")
+			_("The height of the object. (int)") )
 	
 	HelpContextText = property(_getHelpContextText, _setHelpContextText, None,
-			"Specifies the context-sensitive help text associated with this window. (str)")
+			_("Specifies the context-sensitive help text associated with this window. (str)") )
 	
 	Left = property(_getLeft, _setLeft, None,
-			"The left position of the object. (int)")
+			_("The left position of the object. (int)") )
 	
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
-			"Specifies the shape of the mouse pointer when it enters this window. (obj)")
+			_("Specifies the shape of the mouse pointer when it enters this window. (obj)") )
 	
 	Name = property(_getName, _setName, None, 
-			"""Specifies the name of the object, which must be unique among siblings.
+			_("""Specifies the name of the object, which must be unique among siblings.
 			
 			If the specified name isn't unique, an exception will be raised. See also
 			NameBase, which let's you set a base name and Dabo will automatically append
 			integers to make it unique.
-			""")
+			""") )
 	
 	NameBase = property(None, _setNameBase, None,
-			"""Specifies the base name of the object.
+			_("""Specifies the base name of the object.
 			
 			The base name specified will become the object's Name, unless another sibling
 			already has that name, in which case Dabo will find the next unique name by
@@ -1207,37 +1225,37 @@ class dPemMixin(dPemMixinBase):
 			with Name = "txtAddress1".
 			
 			This property is write-only at runtime.
-			""")
+			""") )
 		
 	Parent = property(_getParent, _setParent, None,	
-			"The containing object. (obj)")
+			_("The containing object. (obj)") )
 
 	Position = property(_getPosition, _setPosition, None, 
-			"The (x,y) position of the object. (tuple)")
+			_("The (x,y) position of the object. (tuple)") )
 
 	Size = property(_getSize, _setSize, None,
-			"The size of the object. (tuple)")
+			_("The size of the object. (tuple)") )
 
 	Sizer = property(_getSizer, _setSizer, None, 
-			"The sizer for the object.")
+			_("The sizer for the object.") )
 
 	Tag = property(_getTag, _setTag, None,
-			"A property that user code can safely use for specific purposes.")
+			_("A property that user code can safely use for specific purposes.") )
 		
 	ToolTipText = property(_getToolTipText, _setToolTipText, None,
-			"Specifies the tooltip text associated with this window. (str)")
+			_("Specifies the tooltip text associated with this window. (str)") )
 
 	Top = property(_getTop, _setTop, None, 
-			"The top position of the object. (int)")
+			_("The top position of the object. (int)") )
 	
 	Visible = property(_getVisible, _setVisible, None,
-			"Specifies whether the object is visible at runtime. (bool)")                    
+			_("Specifies whether the object is visible at runtime. (bool)") )                    
 
 	Width = property(_getWidth, _setWidth, None,
-			"The width of the object. (int)")
+			_("The width of the object. (int)") )
 	
 	WindowHandle = property(_getWindowHandle, None, None,
-			"The platform-specific handle for the window. Read-only. (long)")
+			_("The platform-specific handle for the window. Read-only. (long)") )
 
 
 

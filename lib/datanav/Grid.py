@@ -28,7 +28,7 @@ class Grid(dabo.ui.dGrid):
 		ret = self.dataSet
 		if not self.inAutoSizeCalc:
 			if self.bizobj:
-				ret = self.bizobj.getDataSet()
+				ret = self.dataSet = self.bizobj.getDataSet()
 		return ret
 	
 

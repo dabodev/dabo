@@ -659,7 +659,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""
 		if not ds:
 			return
-#		self.Form.lockScreen()
+#		self.Form.lockDisplay()
 		origColNum = self.ColumnCount
 		self.Columns = []
 		self.dataSet = ds
@@ -707,7 +707,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if autoSizeCols:
 			self.autoSizeCol("all")
 		self._ignoreColUpdates = False
-#		self.Form.unlockScreen()
+#		self.Form.unlockDisplay()
 
 
 	def autoSizeCol(self, colNum):
@@ -716,7 +716,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		all columns will be auto-sized.
 		"""	
 		# lock the screen
-#		self.Form.lockScreen()
+		self.lockDisplay()
 		# Changing the columns' Width prop will send an update
 		# message back to this grid. We want to ignore that
 		self._ignoreColUpdates = True
@@ -751,7 +751,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.fillGrid(False)
 		self.inAutoSizeCalc = False
 		self._ignoreColUpdates = False
-#		self.Form.unlockScreen()		
+		self.unlockDisplay()		
 
 
 	def getDataSet(self):
