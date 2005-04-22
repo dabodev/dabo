@@ -119,7 +119,7 @@ class dApp(dabo.common.dObject):
 		# Flip the flag
 		self._wasSetup = True
 
-
+	
 	def start(self):
 		""" 
 		Start the application event loop, which involves
@@ -297,7 +297,14 @@ class dApp(dabo.common.dObject):
 	def decrypt(self, val):
 		return self.Crypto.decrypt(val)
 
-
+	
+	def getCharset(self):
+		"""Are we running a unicode-capable UI? Returns 
+		'unicode' or 'ascii'.
+		"""
+		return self.uiApp.charset
+		
+		
 	def _initProperties(self):
 		""" Initialize the public properties of the app object. """
 
@@ -400,7 +407,11 @@ class dApp(dabo.common.dObject):
 	def onEditPreferences(self, evt):
 		self.uiApp.onEditPreferences(evt)
 	############################	
-
+	
+	
+	def copyToClipboard(self, txt):
+		self.uiApp.copyToClipboard(txt)
+		
 	def onHelpAbout(self, evt):
 		import dabo.ui.dialogs.about as about
 		dlg = about.About(self.MainForm)

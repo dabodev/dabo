@@ -24,21 +24,21 @@ class About(dabo.ui.dDialog):
 		clickBinding = (dEvents.MouseLeftDown, self.onClear)
 
 		pnlBack = dabo.ui.dPanel(self, BackColor="Peru")
-		pnlBack.bindEvent(*clickBinding)
+# 		pnlBack.bindEvent(*clickBinding)
  		self.Sizer.append(pnlBack, 1, "x")
 		pnlBack.Sizer = sz = dabo.ui.dSizer("v")
 
 		pnlHead = dabo.ui.dPanel(pnlBack, BackColor="PeachPuff")
-		pnlHead.bindEvent(*clickBinding)
+# 		pnlHead.bindEvent(*clickBinding)
 		pnlHead.Sizer = ps = dabo.ui.dSizer("h")
 
 		ps.Border = 32
 		lblHead = dabo.ui.dLabel(pnlHead, Caption="Dabo", FontSize=36, 
 		                         FontBold=True)
-		lblHead.bindEvent(*clickBinding)
+# 		lblHead.bindEvent(*clickBinding)
 
 		ps.appendSpacer(5, 1)
-		ps.append(lblHead, 3, "x", alignment=("center", "middle"))
+		ps.append(lblHead, 3, "x", halign="center", valign="middle")
 		ps.appendSpacer(5, 1)
 		
 		sz.Spacing = 20
@@ -49,16 +49,16 @@ class About(dabo.ui.dDialog):
 		
 		# Get all the version info, etc.
 		app = self.Application
-		pyVersion = "%s on %s" % (sys.version.split()[0], sys.platform)
+		self.pyVersion = "%s on %s" % (sys.version.split()[0], sys.platform)
 		if app:
 			appVersion = app.getAppInfo("appVersion")
 			appName = app.getAppInfo("appName")
 		else:
 			appVersion = "?"
 			appName = "Dabo"
-		daboVersion = dabo.version["version"]
+		self.daboVersion = dabo.version["version"]
 		uiName = dabo.ui.uiType["longName"]
-		uiVersion = "%s on %s" % (dabo.ui.uiType["version"], 
+		self.uiVersion = "%s on %s" % (dabo.ui.uiType["version"], 
 		                          dabo.ui.uiType["platform"])
 
 		# Define the style dicts for the labels
@@ -72,26 +72,43 @@ class About(dabo.ui.dDialog):
 		gs = dabo.ui.dGridSizer(maxCols=2, hgap=5, vgap=10)
 		gs.setColExpand(True, "all")
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=_("Dabo Version:"), 
-		                         properties=labelStyle), alignment="right")
-		gs.append(dabo.ui.dLabel(pnlBack, Caption=daboVersion, properties=valStyle))
+		                         properties=labelStyle), halign="right")
+		gs.append(dabo.ui.dLabel(pnlBack, Caption=self.daboVersion, properties=valStyle))
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=_("UI Version:"), 
-		                         properties=labelStyle), alignment="right")
-		gs.append(dabo.ui.dLabel(pnlBack, Caption=uiVersion, properties=valStyle))
+		                         properties=labelStyle), halign="right")
+		gs.append(dabo.ui.dLabel(pnlBack, Caption=self.uiVersion, properties=valStyle))
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=_("Python Version:"), 
-		                         properties=labelStyle), alignment="right")
-		gs.append(dabo.ui.dLabel(pnlBack, Caption=pyVersion, properties=valStyle))
+		                         properties=labelStyle), halign="right")
+		gs.append(dabo.ui.dLabel(pnlBack, Caption=self.pyVersion, properties=valStyle))
 
-		for child in pnlBack.Children:
-				child.bindEvent(*clickBinding)
+# 		for child in pnlBack.Children:
+# 				child.bindEvent(*clickBinding)
 
-		sz.append(gs, 1, "x", alignment="right")
+		sz.append(gs, 1, "x", halign="right")
+		
+		# Copy info
+		btnCopy = dabo.ui.dButton(pnlBack, Caption=_("Copy Info"))
+		btnCopy.bindEvent(dEvents.Hit, self.onCopyInfo)
+		sz.append(btnCopy, 0, halign="center")
+		
 		sz.BorderBottom = True
 		btn = dabo.ui.dButton(pnlBack, Caption=_("OK"), CancelButton=True)
 		btn.bindEvent(dEvents.Hit, self.onClear)
-		sz.append(btn, 0, alignment="center")
+		sz.append(btn, 0, halign="center")
 		
 		self.Layout()
 		pnlBack.Fit()
+	
+	
+	def onCopyInfo(self, evt):
+		"""Copy the system information to the Clipboard"""
+		info = """Platform: %s
+Dabo Version: %s
+UI Version: %s (%s)
+Python Version: %s
+""" % (self.Application.Platform, self.daboVersion,
+				self.uiVersion, self.Application.getCharset(), self.pyVersion)
+		self.Application.copyToClipboard(info)		
 
 
 	def onClear(self, evt):

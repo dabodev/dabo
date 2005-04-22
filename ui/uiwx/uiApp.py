@@ -26,9 +26,12 @@ class uiApp(wx.App, dObject):
 		self.SetAppName(dApp.getAppInfo("appName"))
 		self.SetClassName(dApp.getAppInfo("appName"))
 		self.SetVendorName(dApp.getAppInfo("vendorName"))
-
-		string = "wxPython Version: %s %s" % (wx.VERSION_STRING, 
-			wx.PlatformInfo[1])
+		
+		self.charset = "unicode"
+		if not self.charset in wx.PlatformInfo:
+			self.charset = "ascii"
+		string = "wxPython Version: %s %s (%s)" % (wx.VERSION_STRING, 
+			wx.PlatformInfo[1], self.charset)
 			
 		if wx.PlatformInfo[0] == "__WXGTK__":
 			string += " (%s)" % wx.PlatformInfo[3]
@@ -130,15 +133,17 @@ class uiApp(wx.App, dObject):
 					selectedText = None
 	
 				if selectedText:
-					data = wx.TextDataObject()
-					data.SetText(selectedText)
-					cb = wx.TheClipboard
-					cb.Open()
-					cb.SetData(data)
-					cb.Close()
-	
+					self.copyToClipboard(selectedText)
 					if cut:
 						win.Remove(win.GetSelection()[0], win.GetSelection()[1])
+	
+	def copyToClipboard(self, txt):
+		data = wx.TextDataObject()
+		data.SetText(txt)
+		cb = wx.TheClipboard
+		cb.Open()
+		cb.SetData(data)
+		cb.Close()
 
 
 	def onEditPaste(self, evt):
