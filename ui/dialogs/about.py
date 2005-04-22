@@ -56,10 +56,12 @@ class About(dabo.ui.dDialog):
 		else:
 			appVersion = "?"
 			appName = "Dabo"
-		self.daboVersion = dabo.version
+		self.daboVersion = "Version %s; Revision %s" % (dabo.version["version"],
+				dabo.version["revision"])
+
 		uiName = dabo.ui.uiType["longName"]
 		self.uiVersion = "%s on %s" % (dabo.ui.uiType["version"], 
-		                          dabo.ui.uiType["platform"])
+				dabo.ui.uiType["platform"])
 
 		# Define the style dicts for the labels
 		fntBase = 10
@@ -72,15 +74,15 @@ class About(dabo.ui.dDialog):
 		gs = dabo.ui.dGridSizer(maxCols=2, hgap=5, vgap=10)
 		gs.setColExpand(True, "all")
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=_("Dabo Version:"), 
-		                         properties=labelStyle), halign="right")
+				 properties=labelStyle), halign="right")
 		gs.append(dabo.ui.dLabel(pnlBack, Caption="%s (rev. %s)" 
-		                         % (self.daboVersion["version"], 
-		                            self.daboVersion["revision"]), properties=valStyle))
+				 % (dabo.version["version"], dabo.version["revision"]), 
+				 properties=valStyle))
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=_("UI Version:"), 
-		                         properties=labelStyle), halign="right")
+				properties=labelStyle), halign="right")
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=self.uiVersion, properties=valStyle))
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=_("Python Version:"), 
-		                         properties=labelStyle), halign="right")
+				properties=labelStyle), halign="right")
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=self.pyVersion, properties=valStyle))
 
 # 		for child in pnlBack.Children:
