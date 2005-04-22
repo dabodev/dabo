@@ -574,19 +574,38 @@ class dPemMixin(dPemMixinBase):
 
 			
 	def reCreate(self, child=None):
-		""" Recreate self. """
+		""" Recreate an object. """
 		if child is not None:
-			propValDict = child.getProperties()
+			propValDict = child.getProperties(ignoreErrors=True, 
+					propsToSkip=("Parent", "NameBase", "SuperClass"))
 			style = child.GetWindowStyle()
 			classRef = child.__class__
 			name = child.Name
 			child.Destroy()
 			newObj = self.addObject(classRef, name, style=style)
-			newObj.setProperties(propValDict)
+			newObj.setProperties(propValDict, ignoreErrors=True)
 			return newObj
 		else:
 			return self.Parent.reCreate(self)
 	
+	
+	def changeParent(self, newParent):
+		"""The native wx method doesn't work on Macs."""
+		return newParent.adopt(self)
+		
+	
+	def adopt(self, obj):
+		"""Moves an object to a new parent container."""
+		if self.Application.Platform != "Mac":
+			# Reparent() doesn't work on Macs
+			obj.Reparent(self)
+		else:
+			# Re-create the object in the new parent, and then
+			# destroy this instance. Note that any previous references
+			# to this object will now be invalid.
+			obj = self.reCreate(obj)
+		return obj
+
 	
 	def release(self):
 		""" Calls the object's destructor. """

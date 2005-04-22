@@ -31,7 +31,8 @@ class PropertyHelperMixin(object):
 			return None
 			
 				
-	def getProperties(self, propertySequence=(), *propertyArguments):
+	def getProperties(self, propertySequence=(), propsToSkip=(),
+			ignoreErrors=False, *propertyArguments):
 		""" Returns a dictionary of property name/value pairs.
 		
 		If a sequence of properties is passed, just those property values
@@ -60,6 +61,8 @@ class PropertyHelperMixin(object):
 		
 		def _fillPropDict(_propSequence):
 			for prop in _propSequence:
+				if prop in propsToSkip:
+					continue
 				propRef = eval("self.__class__.%s" % prop)
 				if type(propRef) == property:
 					getter = propRef.fget
@@ -69,7 +72,9 @@ class PropertyHelperMixin(object):
 						except Exception, e:
 							propDict[prop] = e
 					else:
-						raise ValueError, "Property '%s' is not readable." % prop
+						if not ignoreErrors:
+							raise ValueError, "Property '%s' is not readable." % prop
+						pass
 				else:
 					raise AttributeError, "'%s' is not a property." % prop
 					
@@ -91,7 +96,7 @@ class PropertyHelperMixin(object):
 		return propDict
 
 	
-	def setProperties(self, propDict={}, **propKw):
+	def setProperties(self, propDict={}, ignoreErrors=False, **propKw):
 		""" Sets a group of properties on the object all at once.
 			
 		You have the following options for sending the properties:
@@ -112,7 +117,8 @@ class PropertyHelperMixin(object):
 					if setter is not None:
 						setter(self, _propDict[prop])
 					else:
-						raise ValueError, "Property '%s' is read-only." % prop
+						if not ignoreErrors:
+							raise ValueError, "Property '%s' is read-only." % prop
 				else:
 					raise AttributeError, "'%s' is not a property." % prop
 					
