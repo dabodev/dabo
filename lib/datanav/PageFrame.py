@@ -12,7 +12,7 @@ class PageFrameMixin(object):
 			*args, **kwargs):
 		self._defaultPagesOnLoad = defaultPages
 		#super(self.__class__, self).__init__(parent, Name=Name)
-		self._pageClass.__init__(self, parent, Name=Name, *args, **kwargs)
+		self._pageStyleClass.__init__(self, parent, Name=Name, *args, **kwargs)
 		# Add the images for the various pages.
 		self.addImage("checkMark")
 		self.addImage("browse")
@@ -28,7 +28,7 @@ class PageFrameMixin(object):
 			self.addDefaultPages()
 
 		#super(self.__class__, self).initProperties()
-		self._pageClass.initProperties(self)
+		self._pageStyleClass.initProperties(self)
 		
 		
 	def addDefaultPages(self):
@@ -161,13 +161,13 @@ def PageFrame(parent, tabStyle="tabs", tabPosition="Top",
 			     "list": dabo.ui.dPageList,
 			     "select": dabo.ui.dPageSelect
 			     }
-		pageClass = tabStyles[tabStyle.lower()]
+		pageStyleClass = tabStyles[tabStyle.lower()]
 	except KeyError:
 		raise KeyError, \
 		      "tabStyle must be one of %s" % tabStyles.keys()
 
-	class DataNavFrame(mixin, pageClass):
-		_pageClass = property(lambda self: pageClass)
+	class DataNavFrame(mixin, pageStyleClass):
+		_pageStyleClass = property(lambda self: pageStyleClass)
 		def __init__(*args, **kwargs):
 			mixin.__init__(*args, **kwargs)
 
