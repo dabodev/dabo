@@ -13,7 +13,7 @@ class About(dabo.ui.dDialog):
 		
 	def initEvents(self):
 		# Destroy the window when deactivated:
-		self.bindEvent(dEvents.Deactivate, self.onClear)
+#		self.bindEvent(dEvents.Deactivate, self.onClear)
 		self.bindEvent(dEvents.Close, self.onClose)
 		self.bindKey("space", self.onClear)
 		self.bindKey("enter", self.onClear)
