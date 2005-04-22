@@ -56,7 +56,7 @@ class About(dabo.ui.dDialog):
 		else:
 			appVersion = "?"
 			appName = "Dabo"
-		self.daboVersion = dabo.version["version"]
+		self.daboVersion = dabo.version
 		uiName = dabo.ui.uiType["longName"]
 		self.uiVersion = "%s on %s" % (dabo.ui.uiType["version"], 
 		                          dabo.ui.uiType["platform"])
@@ -73,7 +73,9 @@ class About(dabo.ui.dDialog):
 		gs.setColExpand(True, "all")
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=_("Dabo Version:"), 
 		                         properties=labelStyle), halign="right")
-		gs.append(dabo.ui.dLabel(pnlBack, Caption=self.daboVersion, properties=valStyle))
+		gs.append(dabo.ui.dLabel(pnlBack, Caption="%s (%s)" 
+		                         % (self.daboVersion["version"], 
+		                            self.daboVersion["revision"]), properties=valStyle))
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=_("UI Version:"), 
 		                         properties=labelStyle), halign="right")
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=self.uiVersion, properties=valStyle))
