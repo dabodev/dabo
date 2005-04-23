@@ -339,7 +339,7 @@ class TextFormat(object):
         self._scaner = scan
                     
     def _mask_format(self, text):
-        if not (type(text) == str or type(text) == unicode):
+        if not isinstance(text, basestring):
             text = text is None and "" or str(text)
         out = ""
         for f in self._cmask:

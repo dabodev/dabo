@@ -105,7 +105,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		return keys
 		
 	def _setKeys(self, val):
-		if type(val) == dict:
+		if isinstance(val, dict):
 			self._keys = val
 			self._invertedKeys = dict([[v,k] for k,v in val.iteritems()])
 		else:

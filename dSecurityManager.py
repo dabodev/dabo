@@ -146,7 +146,7 @@ class dSecurityManager(dabo.common.dObject):
 			return ''
 			
 	def _setUserCaption(self, value):
-		if type(value) in (type(str()), type(unicode())):
+		if isinstance(value, basestring):
 			self._userCaption = value
 		else:
 			raise TypeError, 'User caption must be string or unicode.'

@@ -54,7 +54,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		"""
 		if key is None:
 			key = str(img)
-		if type(img) in (str, unicode):
+		if isinstance(img, basestring):
 			img = dabo.ui.dIcons.getIconBitmap(img)
 		il = self.GetImageList()
 		if not il:
@@ -71,7 +71,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		"""
 		pgIdx = self._getPageIndex(pg)
 		if pgIdx is not None:
-			if type(imgKey) == int:
+			if isinstance(imgKey, int):
 				imgIdx = imgKey
 			else:
 				imgIdx = self._imageList[imgKey]
@@ -129,7 +129,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		is needed by most methods that act on pages.
 		"""
 		ret = None
-		if type(pg) == int:
+		if isinstance(pg, int):
 			ret = pg
 		else:
 			# Most likely a page instance was passed. Find its index

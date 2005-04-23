@@ -218,13 +218,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			
 			
 	def getShortDataType(self, value):
-		if type(value) in [type(int()), type(long())]:
+		if isinstance(value, (int, long)):
 			return "I"
-		elif type(value) in [type(str()), type(unicode())]:
+		elif isinstance(value, basestring):
 			return "C"
-		elif type(value) in [type(float()), ]:
+		elif isinstance(value, float):
 			return "N"
-		elif type(value) in [type(bool()), ]:
+		elif isinstance(value, bool):
 			return "L"
 		else:
 			dabo.infoLog.write(_("getShortDataType - unknown type: %s") % (value,))

@@ -29,7 +29,7 @@ class dBitmap(wx.StaticBitmap, cm.dControlMixin):
 		return self.GetBitmap()
 	def _setBitmap(self, bmp):
 		if self._constructed():
-			if type(bmp) == str:
+			if isinstance(bmp, basestring):
 				bmp = dabo.ui.dIcons.getIconBitmap(bmp)
 			elif not bmp:
 				bmp = wx.EmptyBitmap(1,1)

@@ -563,7 +563,7 @@ class dPemMixin(dPemMixinBase):
 				if filt:
 					ok = eval("chld.%s" % filt)
 			if ok:
-				if type(val) in (str, unicode):
+				if isinstance(val, basestring):
 					# Wrap the value in single quotes
 					exec("chld.%s = '%s'" % (prop, val))
 				else:
@@ -681,7 +681,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setBackColor(self, val):
 		if self._constructed():
-			if type(val) in (str, unicode):
+			if isinstance(val, basestring):
 				try:
 					val = dColors.colorTupleFromName(val)
 				except: pass
@@ -699,7 +699,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setBorderColor(self, val):
 		if self._constructed():
-			if type(val) in (str, unicode):
+			if isinstance(val, basestring):
 				try:
 					val = dColors.colorTupleFromName(val)
 				except: pass
@@ -905,7 +905,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setForeColor(self, val):
 		if self._constructed():
-			if type(val) in (str, unicode):
+			if isinstance(val, basestring):
 				try:
 					val = dColors.colorTupleFromName(val)
 				except: pass

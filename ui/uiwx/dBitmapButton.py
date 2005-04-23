@@ -64,7 +64,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 
 	def _setNormalPicture(self, value):
 		if self._constructed():
-			if type(value) == type(""):
+			if isinstance(value, basestring):
 				# Convert to bitmap
 				value = getIconBitmap(value)
 			self.SetBitmapLabel(value)
@@ -77,7 +77,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 
 	def _setDownPicture(self, value):
 		if self._constructed():
-			if type(value) == type(""):
+			if isinstance(value, basestring):
 				# Convert to bitmap
 				value = getIconBitmap(value)
 			self.SetBitmapSelected(value)
@@ -90,7 +90,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 
 	def _setFocusPicture(self, value):
 		if self._constructed():
-			if type(value) == type(""):
+			if isinstance(value, basestring):
 				# Convert to bitmap
 				value = getIconBitmap(value)
 			self.SetBitmapFocus(value)

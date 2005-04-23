@@ -104,7 +104,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		if row is None:
 			row = self.RowCount
 			insert = True
-		if type(tx) in (list, tuple):
+		if isinstance(tx, (list, tuple)):
 			if insert:
 				self.InsertStringItem(row, "")
 			currCol = col
@@ -169,7 +169,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		"""
 		if key is None:
 			key = str(img)
-		if type(img) in (str, unicode):
+		if isinstance(img, basestring):
 			img = dabo.ui.dIcons.getIconBitmap(img)
 		il = self.GetImageList(wx.IMAGE_LIST_NORMAL)
 		if not il:
@@ -184,7 +184,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		to the specified key. May also optionally pass the index of the 
 		image in the ImageList rather than the key.
 		"""
-		if type(imgKey) == int:
+		if isinstance(imgKey, int):
 			imgIdx = imgKey
 		else:
 			imgIdx = self.__imageList[imgKey]
@@ -243,9 +243,9 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		return ret
 	def _setValue(self, val):
 		if self._constructed():
-			if type(val) == int:
+			if isinstance(val, int):
 				self.Select(val)
-			elif type(val) in (str, unicode):
+			elif isinstance(val, basestring):
 				self.Select(self.FindItem(-1, val))
 		else:
 			self._properties["Value"] = val

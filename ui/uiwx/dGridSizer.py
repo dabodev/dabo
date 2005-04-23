@@ -40,7 +40,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		cell as specified by the Max* properties.		
 		"""
 		(targetRow, targetCol) = self.determineAvailableCell(row, col)
-		if type(item) == type(tuple()):
+		if isinstance(item, tuple):
 			# spacer
 			self.Add(item, (targetRow, targetCol) )
 		else:
@@ -118,12 +118,12 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		""" Sets the 'growable' status of one or more columns. """
 		# If the colNums argument was passed first, switch it with the 
 		# expand argument
-		if type(expand) in (int, str):
+		if isinstance(expand, (int, str)):
 			expand, colNums = colNums, expand
-		if type(colNums) in (list, tuple):
+		if isinstance(colNums, (list, tuple)):
 			for col in colNums:
 				self.setColExpand(expand, col, proportion)
-		elif type(colNums) == str:
+		elif isinstance(colNums, str):
 			if colNums.lower() == "all":
 				chldrn = self.GetChildren()
 				c = {}
@@ -147,12 +147,12 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		""" Sets the 'growable' status of one or more rows. """
 		# If the colNums argument was passed first, switch it with the 
 		# expand argument
-		if type(expand) in (int, str):
+		if isinstance(expand, (int, str)):
 			expand, rowNums = rowNums, expand
-		if type(rowNums) in (list, tuple):
+		if isinstance(rowNums, (list, tuple)):
 			for row in rowNums:
 				self.setRowExpand(expand, row, proportion)
-		elif type(rowNums) == str:
+		elif isinstance(rowNums, str):
 			if rowNums.lower() == "all":
 				chldrn = self.GetChildren()
 				r = {}

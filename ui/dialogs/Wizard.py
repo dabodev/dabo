@@ -149,7 +149,7 @@ class Wizard(dabo.ui.dForm):
 	
 	
 	def append(self, pg):
-		if type(pg) in (list, tuple):
+		if isinstance(pg, (list, tuple)):
 			for p in pg:
 				self.append(p)
 		else:
@@ -160,7 +160,7 @@ class Wizard(dabo.ui.dForm):
 	
 	
 	def insert(self, pos, pg):
-		if type(pg) in (list, tuple):
+		if isinstance(pg, (list, tuple)):
 			pg.reverse()
 			for p in pg:
 				self.insert(pos, p)

@@ -86,10 +86,10 @@ class dControlItemMixin(dDataControlMixin):
 		return keys
 		
 	def _setKeys(self, val):
-		if type(val) == dict:
+		if isinstance(val, dict):
 			self._keys = val
 			self._invertedKeys = dict([[v,k] for k,v in val.iteritems()])
-		elif type(val) in (list, tuple):
+		elif isinstance(val, (list, tuple)):
 			self._keys = val
 			self._invertedKeys = None
 		else:
@@ -108,7 +108,7 @@ class dControlItemMixin(dDataControlMixin):
 			if selection < 0:
 				# This is returned by the control to indicate no selection
 				continue
-			if type(self.Keys) in (list, tuple):
+			if isinstance(self.Keys, (list, tuple)):
 				try:
 					values.append(self.Keys[selection])
 				except IndexError:
@@ -134,7 +134,7 @@ class dControlItemMixin(dDataControlMixin):
 			# and selects that position or positions.
 	
 			# convert singular to tuple:
-			if type(value) not in (list, tuple):
+			if not isinstance(value, (list, tuple)):
 				value = (value,)
 		
 			# Clear all current selections:
@@ -160,7 +160,7 @@ class dControlItemMixin(dDataControlMixin):
 	def _setPositionValue(self, value):
 		if self._constructed():
 			# convert singular to tuple:
-			if type(value) not in (list, tuple):
+			if not isinstance(value, (list, tuple)):
 				value = (value,)
 			# Clear all current selections:
 			self.clearSelections()
@@ -204,7 +204,7 @@ class dControlItemMixin(dDataControlMixin):
 	def _setStringValue(self, value):
 		if self._constructed():
 			# convert singular to tuple:
-			if type(value) not in (list, tuple):
+			if not isinstance(value, (list, tuple)):
 				value = (value,)
 			# Clear all current selections:
 			self.clearSelections()
@@ -212,7 +212,7 @@ class dControlItemMixin(dDataControlMixin):
 			for string in value:
 				if string is None:
 					continue
-				if type(string) in (str, unicode):
+				if isinstance(string, basestring):
 					index = self.FindString(string)
 					if index < 0:
 						raise ValueError, _("String must be present in the choices.")

@@ -8,7 +8,7 @@ class dBorderSizer(wx.StaticBoxSizer, dSizerMixin.dSizerMixin):
 	
 	def __init__(self, box, orientation="h"):
 		# Make sure that they got the params in the right order
-		if type(box) == type(""):
+		if isinstance(box, basestring):
 			box, orientation = orientation, box
 		if not isinstance(box, wx.StaticBox):
 			raise dException.dException, "Must pass an instance of a box to dBorderSizer"

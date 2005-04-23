@@ -23,7 +23,7 @@ def getPt(val):
     > print self.getPt(1)
     1
     """
-    if type(val) in (int, long, float):
+    if isinstance(val, (int, long, float)):
             # return as-is as the pt value.
             return val
     else:

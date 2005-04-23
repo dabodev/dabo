@@ -33,7 +33,7 @@ class dConnectInfo(dabo.common.dObject):
 	
 	
 	def setConnInfo(self, connInfo, nm=""):
-		if type(connInfo) == dict:
+		if isinstance(connInfo, dict):
 			# The info is already in dict format
 			connDict = connInfo
 		else:

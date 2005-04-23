@@ -423,7 +423,7 @@ class ReportWriter(object):
 		> print self.getPt(1)
 		1
 		"""
-		if type(val) in (int, long, float):
+		if isinstance(val, (int, long, float)):
 			# return as-is as the pt value.
 			return val
 		else:
@@ -673,7 +673,7 @@ class ReportWriter(object):
 			if element == "type":
 				continue
 			child = {"name": element, "children": []}
-			if type(form[element]) in (str, unicode):
+			if isinstance(form[element], basestring):
 				child["cdata"] = form[element]
 			elif element == "testcursor":
 				row = form["testcursor"][0]
@@ -681,13 +681,13 @@ class ReportWriter(object):
 				fields = row.keys()
 				fields.sort()
 				for field in fields:
-					if type(row[field]) in (str, unicode):
+					if isinstance(row[field], basestring):
 						t = "str"
-					elif type(row[field]) in (float, ):
+					elif isinstance(row[field], float):
 						t = "float"
-					elif type(row[field]) in (int, long):
+					elif isinstance(row[field], (int, long)):
 						t = "int"
-					elif type(row[field]) in (bool,):
+					elif isinstance(row[field], bool):
 						t = "bool"
 					atts[field] = t
 				child["attributes"] = atts
@@ -720,7 +720,7 @@ class ReportWriter(object):
 					objects.append(obj)
 				child["children"] = objects
 
-			elif type(form[element]) == dict:
+			elif isinstance(form[element], dict):
 				child = self._getXMLDictFromForm(form[element], child)
 
 			d["children"].append(child)
@@ -863,7 +863,7 @@ class ReportWriter(object):
 		return v
 		
 	def _setOutputFile(self, val):
-		if type(val) == file:
+		if isinstance(val, file):
 			self._outputFile = val
 		else:
 			s = os.path.split(val)

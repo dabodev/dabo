@@ -37,14 +37,14 @@ class dSizerMixin(dabo.common.dObject):
 		"""Adds the passed object to the end of the list of items controlled
 		by the sizer.
 		"""
-		if type(layout) == int:
+		if isinstance(layout, int):
 			# proportion was passed first
 			layout, proportion = proportion, layout
 			# in case layout wasn't specified
-			if type(layout) == int:
+			if isinstance(layout, int):
 				layout = "normal"
 		
-		if type(item) == tuple:
+		if isinstance(item, tuple):
 			# spacer
 			self.Add(item, proportion)
 		else:
@@ -63,14 +63,14 @@ class dSizerMixin(dabo.common.dObject):
 		"""Inserts an object into the list of items controlled by the sizer at 
 		the specified position.
 		"""
-		if type(layout) == int:
+		if isinstance(layout, int):
 			# proportion was passed first
 			layout, proportion = proportion, layout
 			# in case layout wasn't specified
-			if type(layout) == int:
+			if isinstance(layout, int):
 				layout = "normal"
 		
-		if type(item) == tuple:
+		if isinstance(item, tuple):
 			# spacer
 			self.Insert(index, item, proportion)
 		else:
@@ -250,7 +250,7 @@ class dSizerMixin(dabo.common.dObject):
 			# the separate halign and valign values.
 			# If alignment is passed as a single string instead of a tuple, 
 			# convert it.
-			if type(alignment) == str:
+			if isinstance(alignment, basestring):
 				alignFlags = (alignment, )
 			else:
 				alignFlags = alignment
@@ -271,7 +271,7 @@ class dSizerMixin(dabo.common.dObject):
 			elif flag == "middle":
 				_wxFlags = _wxFlags | wx.ALIGN_CENTER_VERTICAL
 
-		if type(borderFlags) == str:
+		if isinstance(borderFlags, basestring):
 			borderFlags = (borderFlags, )
 		if borderFlags is None:
 			# Add any default borders. If no defaults set, set it to the default 'all'

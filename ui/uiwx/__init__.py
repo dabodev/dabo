@@ -334,7 +334,7 @@ def browse(dataSource):
 	is created and displayed. If the source is a Dabo cursor object, 
 	its getDataSet() method will be called to extract the data.
 	"""
-	if type(dataSource) not in (list, tuple):
+	if not isinstance(dataSource, (list, tuple)):
 		# See if it has a getDataSet() method available
 		if hasattr(dataSource, "getDataSet"):
 			dataSet = dataSource.getDataSet()

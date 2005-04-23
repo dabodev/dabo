@@ -23,7 +23,7 @@ class Test(object):
 		self.app = wx.PySimpleApp()
 
 	def runTest(self, classRefs, *args, **kwargs):
-		if type(classRefs) not in (tuple, list):
+		if not isinstance(classRefs, (tuple, list)):
 			classRefs = (classRefs,)
 		isDialog = False
 		if issubclass(classRefs[0], (wx.Frame, wx.Dialog)):

@@ -125,7 +125,7 @@ class dCursorMixin(dabo.common.dObject):
 		sql = self.processFields(sql)
 		
 		# Make sure all Unicode charcters are properly encoded.
-		if type(sql) == types.UnicodeType:
+		if isinstance(sql, unicode):
 			sqlEX = sql.encode(self.Encoding)
 		else:
 			sqlEX = sql
@@ -152,7 +152,7 @@ class dCursorMixin(dabo.common.dObject):
 			self.RowNumber = max(self.RowNumber, 0, (self.RowCount-1) )
 
 		if self._records:
-			if type(self._records[0]) == types.TupleType:
+			if isinstance(self._records[0], tuple):
 				# Need to convert each row to a Dict
 				tmpRows = []
 				# First, get the description property and extract the field names from that
@@ -166,7 +166,7 @@ class dCursorMixin(dabo.common.dObject):
 				for row in self._records:
 					dic= {}
 					for i in range(0, fldcount):
-						if type(row[i]) == str:	
+						if isinstance(row[i], str):
 							# String; convert it to unicode
 							dic[fldNames[i]] = unicode(row[i], self.Encoding)
 						else:
@@ -179,7 +179,7 @@ class dCursorMixin(dabo.common.dObject):
 				for row in self._records:
 					for fld in row.keys():
 						val = row[fld]
-						if type(val) == str:	
+						if isinstance(val, str):	
 							# String; convert it to unicode
 							row[fld]= unicode(val, self.Encoding)
 			
@@ -192,7 +192,7 @@ class dCursorMixin(dabo.common.dObject):
 				for row in self._records:
 					for fld in row.keys():
 						val = row[fld]
-						if type(val) == mxdt:
+						if isinstance(val, mxdt):
 							# Convert to normal datetime
 							row[fld]= datetime.datetime(val.year, val.month, val.day, 
 									val.hour, val.minute, int(val.second) )
@@ -315,7 +315,7 @@ class dCursorMixin(dabo.common.dObject):
 		# lists contain the sort value in the zeroth element, and the row as
 		# the first element.
 		# First, see if we are comparing strings
-		compString = type(sortList[0][0]) in (types.StringType, types.UnicodeType)
+		compString = isinstance(sortList[0][0], basestring)
 		if compString and not caseSensitive:
 			# Use a case-insensitive sort.
 			sortList.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
@@ -383,7 +383,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def escape(self, val):
 		""" Provides the proper escaping of values in XML output """
 		ret = val
-		if type(val) in (str, unicode):
+		if isinstance(val, basestring):
 			if ("\n" in val) or ("<" in val) or ("&" in val):
 				ret = "<![CDATA[%s]]>" % val.encode(self.Encoding)
 		return ret
@@ -540,13 +540,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			rec = self._records[self.RowNumber]
 			if rec.has_key(fld):
 				if type(rec[fld]) != type(val):
-					if ( type(val) in (types.UnicodeType, types.StringType) 
-							and type(rec[fld]) in (types.UnicodeType, types.StringType) ):
-						if type(rec[fld]) == types.StringType:
+					if isinstance(val, basestring) and isinstance(rec[fld], basestring):
+						if isinstance(rec[fld], str):
 							val = str(val)
 						else:
 							val = unicode(val)
-					elif type(rec[fld]) == type(int()) and type(val) == type(bool()):
+					elif isinstance(rec[fld], int) and isinstance(val, bool):
 						# convert bool to int (original field val was int, but UI
 						# changed to int. 
 						val = int(val)
@@ -556,7 +555,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					# native field type is not. Ignore these
 					dtStrings = ("<type 'DateTime'>", "<type 'Date'>")
 					if str(type(rec[fld])) in dtStrings:
-						if type(val) in (type(""), type(u"")):
+						if isinstance(val, basestring):
 							ignore = True
 					
 					else:
@@ -565,7 +564,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						ignore = self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG)
 					
 					if not ignore:
-						msg = "!!! Data Type Mismatch: field=" + fld + ". Expecting:" + str(type(rec[fld])) + "; got:" + str(type(val))
+						msg = "!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s" \
+						      % (fld, str(type(rec[fld])), str(type(val)))
 						dabo.errorLog.write(msg)
 					
 				rec[fld] = val
@@ -714,7 +714,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					flds += ", " + kk
 					
 					# add value to expression
-					if type(vv) in ( datetime.date, datetime.datetime ):
+					if isinstance(vv, (datetime.date, datetime.datetime)):
 						# Some databases have specific rules for formatting date values.
 						vals += ", " + self.formatDateTime(vv)
 					else:
@@ -1016,23 +1016,23 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			sortList.append( [self._records[i][fld], i] )
 
 		# Determine if we are seeking string values
-		compString = type(sortList[0][0]) in (types.StringType, types.UnicodeType)
+		compString = isinstance(sortList[0][0], basestring)
 
 		if not compString:
 			# coerce val to be the same type as the field type
-			if type(sortList[0][0]) == type(int()):
+			if isinstance(sortList[0][0], int):
 				try:
 					val = int(val)
 				except ValueError:
 					val = int(0)
 
-			elif type(sortList[0][0]) == type(long()):
+			elif isinstance(sortList[0][0], long):
 				try:
 					val = long(val)
 				except ValueError:
 					val = long(0)
 
-			elif type(sortList[0][0]) == type(float()):
+			elif isinstance(sortList[0][0], float):
 				try:
 					val = float(val)
 				except ValueError:
@@ -1110,7 +1110,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if ret:
 				ret += " AND "
 			pkVal = getPkVal(fld)
-			if type(pkVal) in (types.StringType, types.UnicodeType):
+			if isinstance(pkVal, basestring):
 				ret += tblPrefix + fld + "='" + pkVal.encode(self.Encoding) + "' "
 			else:
 				ret += tblPrefix + fld + "=" + str(pkVal) + " "
@@ -1130,11 +1130,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if ret:
 				ret += ", "
 			
-			if type(val) in (types.StringType, types.UnicodeType):
+			if isinstance(val, basestring):
 				escVal = self.escQuote(val)
 				ret += tblPrefix + fld + " = " + escVal + " "
 			else:
-				if type(val) in ( datetime.date, datetime.datetime ):
+				if isinstance(val, (datetime.date, datetime.datetime)):
 					ret += tblPrefix + fld + " = " + self.formatDateTime(val)
 				else:
 					ret += tblPrefix + fld + " = " + str(val) + " "
@@ -1148,7 +1148,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def escQuote(self, val):
 		""" Escape special characters in SQL strings. """
 		ret = val
-		if type(val) in (types.StringType, types.UnicodeType):
+		if isinstance(val, basestring):
 			ret = self._getBackendObject().escQuote(val)
 		return ret          
 

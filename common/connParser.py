@@ -62,7 +62,7 @@ def createXML(cxns):
 	"""
 	ret = getXMLWrapper()
 	cxml = ""
-	if type(cxns) in (list, tuple):
+	if isinstance(cxns, (list, tuple)):
 		for cx in cxns:
 			cxml += genConnXML(cx)
 	else:
@@ -88,7 +88,7 @@ def fileRef(ref=""):
 	XML to the parser. Returns a file-like object, or None.
 	"""
 	ret = None
-	if type(ref) in (unicode, str):
+	if isinstance(ref, basestring):
 		if os.path.exists(ref):
 			ret = file(ref)
 		else:

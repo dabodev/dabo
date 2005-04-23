@@ -259,13 +259,13 @@ class dApp(dabo.common.dObject):
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
 
-		if type(value) in (str, unicode):
+		if isinstance(value, basestring):
 			valueType = "C"
-		elif type(value) == bool:
+		elif isinstance(value, bool):
 			valueType = "L"
-		elif type(value) in (float,):
+		elif isinstance(value, float):
 			valueType = "N"
-		elif type(value) in (int, long):
+		elif isinstance(value, (int, long)):
 			valueType = "I"
 			
 		if not cp.has_section("UserSettings"):

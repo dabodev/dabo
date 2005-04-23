@@ -90,7 +90,7 @@ def fileRef(ref=""):
 	XML to the parser. Returns a file-like object, or None.
 	"""
 	ret = None
-	if type(ref) in (unicode, str):
+	if isinstance(ref, basestring):
 		if os.path.exists(ref):
 			ret = file(ref)
 		else:

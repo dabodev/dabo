@@ -81,7 +81,7 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 
 	def _setIcon(self, v):
 		if self._constructed():
-			if type(v) == str:
+			if isinstance(v, basestring):
 				# Icon name was passed; get the actual bitmap
 				v = dIcons.getIconBitmap(v)
 			if v is None:

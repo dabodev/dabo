@@ -285,7 +285,7 @@ class uiApp(wx.App, dObject):
 					value = win.GetValue()
 				except AttributeError:
 					value = None
-				if type(value) not in (type(str()), type(unicode())):
+				if not isinstance(value, basestring):
 					dabo.errorLog.write("Active control isn't text-based.")
 					return
 

@@ -16,7 +16,7 @@ class EventMixin(object):
 	def bindEvents(self, bindings):
 		"""Bind a sequence of [dEvent, callback] lists.
 		"""
-		if type(bindings) in (list, tuple):
+		if isinstance(bindings, (list, tuple)):
 			for binding in bindings:
 				self.bindEvent(binding[0], binding[1])
 		else:
@@ -137,7 +137,7 @@ class EventMixin(object):
 			return self._eventBindings
 			
 	def _setEventBindings(self, val):
-		if type(val) == list:
+		if isinstance(val, list):
 			self._eventBindings = val
 		else:
 			raise ValueError, "EventBindings must be a list."

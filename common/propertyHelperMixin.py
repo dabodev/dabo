@@ -78,10 +78,10 @@ class PropertyHelperMixin(object):
 				else:
 					raise AttributeError, "'%s' is not a property." % prop
 					
-		if type(propertySequence) in (list, tuple):
+		if isinstance(propertySequence, (list, tuple)):
 			_fillPropDict(propertySequence)
 		else:
-			if type(propertySequence) in (str, unicode):
+			if isinstance(propertySequence, basestring):
 				# propertySequence is actually a string property name:
 				# append to the propertyArguments tuple.
 				propertyArguments = list(propertyArguments)
@@ -138,7 +138,7 @@ class PropertyHelperMixin(object):
 		except:
 			propList = None
 
-		if type(propList) == list:
+		if isinstance(propList, list):
 			## A prior call has already generated the propList
 			return propList
 

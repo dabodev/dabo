@@ -248,9 +248,9 @@ class dFormMixin(pm.dPemMixin):
 			width = self.Application.getUserSetting("%s.width" % name)
 			height = self.Application.getUserSetting("%s.height" % name)
 
-			if (type(left), type(top)) == (type(int()), type(int())):
+			if isinstance(left, int) and isinstance(top, int):
 				self.Position = (left,top)
-			if (type(width), type(height)) == (type(int()), type(int())):
+			if isinstance(width, int) and isinstance(height, int):
 				self.Size = (width,height)
 
 			self.restoredSP = True

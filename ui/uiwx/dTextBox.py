@@ -183,14 +183,14 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		
 		Used internally by _setValue and flushValue.
 		"""
-		if type(value) in (str, unicode):
+		if isinstance(value, basestring):
 			# keep it unicode instead of converting to str
 			strVal = value
-		elif type(value) == datetime.date:
+		elif isinstance(value, datetime.date):
 			# Use the ISO 8601 date string format so we can convert
 			# back from a known quantity later...
 			strVal = value.isoformat()
-		elif type(value) == datetime.datetime:
+		elif isinstance(value, datetime.datetime):
 			# Use the ISO 8601 datetime string format (with a " " separator
 			# instead of "T") 
 			strVal = value.isoformat(" ")

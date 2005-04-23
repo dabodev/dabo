@@ -192,14 +192,14 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				fld = col.Field
 				if record.has_key(fld):
 					recordVal = record[fld]
-					if type(recordVal) == unicode:
+					if isinstance(recordVal, unicode):
 						recordVal = recordVal.encode(locale.getdefaultlocale()[1])
 					if col.DataType.lower() in ("string", "unicode", "str", "char", "text", "varchar"):
 						# Limit to first 'n' chars...
 						recordVal = unicode(recordVal, encod)[:self.grid.stringDisplayLen]
 					elif col.DataType.lower() == "bool":
 						# coerce to bool (could have been 0/1)
-						if type(recordVal) in (unicode, str):
+						if isinstance(recordVal, basestring):
 							recordVal = bool(int(recordVal))
 						else:
 							recordVal = bool(recordVal)
@@ -736,12 +736,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		try:
 			# Having a problem with Unicode in the native
 			# AutoSize() function.
-			if type(colNum) == str:
+			if isinstance(colNum, str):
 				#They passed "all"
 				self.AutoSizeColumns(setAsMin=False)
 				for ii in range(len(self.Columns)):
 					self.Columns[ii].Width = self.GetColSize(ii)
-			elif type(colNum) in (int, long):
+			elif isinstance(colNum, (int, long)):
 				self.AutoSizeColumn(colNum, setAsMin=False)
 				self.Columns[colNum].Width = self.GetColSize(colNum)
 		except:
@@ -1197,7 +1197,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			# lists contain the sort value in the zeroth element, and the row as
 			# the first element.
 			# First, see if we are comparing strings
-			sortingStrings = type(sortList[0][0]) in (str,unicode)
+			sortingStrings = isinstance(sortList[0][0], basestring)
 			if sortingStrings and not caseSensitive:
 				# Use a case-insensitive sort.
 				sortList.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
@@ -1241,20 +1241,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			sortList.append( [ds[i][fld], i] )
 
 		# Determine if we are seeking string values
-		compString = type(sortList[0][0]) in (str, unicode)
+		compString = isinstance(sortList[0][0], basestring)
 		if not compString:
 			# coerce srchStr to be the same type as the field type
-			if type(sortList[0][0]) == int:
+			if isinstance(sortList[0][0], int):
 				try:
 					srchStr = int(srchStr)
 				except ValueError:
 					srchStr = int(0)
-			elif type(sortList[0][0]) == long:
+			elif isinstance(sortList[0][0], long):
 				try:
 					srchStr = long(srchStr)
 				except ValueError:
 					srchStr = long(0)
-			elif type(sortList[0][0]) == float:
+			elif isinstance(sortList[0][0], float):
 				try:
 					srchStr = float(srchStr)
 				except ValueError:
@@ -1473,7 +1473,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		colNum = None
 		if col is None:
 			colNum = self.ColumnCount - 1
-		elif type(col) == int:
+		elif isinstance(col, int):
 			colNum = col
 		else:
 			# They probably passed a specific column instance

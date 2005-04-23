@@ -51,7 +51,7 @@ class dNode(dabo.common.dObject):
 	def _getBackColor(self):
 		return self.tree.GetItemBackgroundColour(self.id)
 	def _setBackColor(self, val):
-		if type(val) in (unicode, str):
+		if isinstance(val, basestring):
 			try:
 				val = dColors.colorTupleFromName(val)
 			except: pass
@@ -65,7 +65,7 @@ class dNode(dabo.common.dObject):
 	def _getForeColor(self):
 		return self.tree.GetItemTextColour(self.id)
 	def _setForeColor(self, val):
-		if type(val) in (unicode, str):
+		if isinstance(val, basestring):
 			try:
 				val = dColors.colorTupleFromName(val)
 			except: pass
@@ -89,7 +89,7 @@ class dNode(dabo.common.dObject):
 
 	def _getSel(self):
 		sel = self.tree.Selection
-		if type(sel) == list:	
+		if isinstance(sel, list):	
 			ret = self in sel
 		else:
 			ret = (self == sel)
@@ -221,7 +221,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		"""
 		if key is None:
 			key = str(img)
-		if type(img) in (str, unicode):
+		if isinstance(img, basestring):
 			img = dabo.ui.dIcons.getIconBitmap(img)
 		il = self.GetImageList()
 		if not il:
@@ -236,7 +236,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		to the specified key. May also optionally pass the index of the 
 		image in the ImageList rather than the key.
 		"""
-		if type(imgKey) == int:
+		if isinstance(imgKey, int):
 			imgIdx = imgKey
 		else:
 			imgIdx = self.__imageList[imgKey]
@@ -295,7 +295,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			nodes = self.nodes
 		else:
 			nodes = top.Descendents
-		if type(srch) in (unicode, str):
+		if isinstance(srch, basestring):
 			ret = [n for n in nodes 
 				if n.txt == srch ]
 		elif isinstance(srch, wx.TreeItemId):
@@ -316,7 +316,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			nodes = self.nodes
 		else:
 			nodes = top.Descendents
-		if type(srchPat) in (unicode, str):
+		if isinstance(srchPat, basestring):
 			ret = [n for n in nodes 
 				if re.match(srchPat, n.txt) ]
 		return ret
