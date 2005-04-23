@@ -1,10 +1,4 @@
-_inspect = False
-
-import sys
-
-if _inspect:
-	import inspect
-
+import inspect
 
 class DoDefaultMixin(object):
 	""" An alternative way to call superclass method code.
@@ -36,42 +30,39 @@ class DoDefaultMixin(object):
 		Also, due to the implementation, the calling class must use the 'self'
 		convention - don't use 'this' or some other identifier for the class instance.
 		"""
-
-		if _inspect and "self.doDefault(" in inspect.stack()[1][4][0]:
-			## I can't find a way, besides using the inspect.stack() call, to find
-			## out if the caller is calling this on self (incorrect). I'm leaving
-			## this code in because it works, but we can't run with it because it
-			## is way too slow.
-			raise TypeError("doDefault() must be called on the class, not on self.")
 		
-		frame = sys._getframe(1)
+		frame = inspect.currentframe(1)
 		self = frame.f_locals["self"]
 		methodName = frame.f_code.co_name
 		
 		# If the super() class doesn't have the method attribute, we'll pass silently
 		# because that is what the user will expect: they probably defined the method
-		# but out of habit used the doDefault() call anyway.		
-		method = cls.__getattribute__(cls, methodName)
+		# in their code but out of habit used the doDefault() call anyway.
+		method = getattr(super(cls, self), methodName, None)
 		
 		# Assert that the method object is actually a method
-		if not _inspect or (
-			method is not None and (
-			inspect.ismethod(method) or inspect.isfunction(method))):
-	
-			return eval("super(cls, self).%s(*args, **kwargs)" % methodName)
+		if inspect.ismethod(method):
+			return method(*args, **kwargs)
 	
 	doDefault = classmethod(doDefault)
 
 	
 if __name__ == '__main__':
 	class TestBase(list, DoDefaultMixin):
-		def MyMethod(self):
-			print "TestBase.MyMethod called."
-			
-	class MyTest(TestBase):
-		def MyMethod(self):
-			print "MyTest.MyMethod called."
+		# No myMethod here
+		pass
+
+	class MyTest1(TestBase):
+		def myMethod(self):
+			print "MyTest1.myMethod called."
+			MyTest1.doDefault()
+		
+	class MyTest2(MyTest1): pass
+
+	class MyTest(MyTest2):
+		def myMethod(self):
+			print "MyTest.myMethod called."
 			MyTest.doDefault()
 			
 	t = MyTest()
-	t.MyMethod()
+	t.myMethod()
