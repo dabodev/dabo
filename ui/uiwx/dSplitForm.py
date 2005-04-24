@@ -9,14 +9,13 @@ from dabo.dLocalize import _
 class dSplitForm(dForm.dForm):
 	def _afterInit(self):
 		super(dSplitForm, self)._afterInit()
-		win = dSplitter.dSplitter(self)
+		win = dSplitter.dSplitter(self, createPanes=1)
 		self.Sizer.append(win, 1, "expand")
 		win.Show(True)
 		# Store the references
 		self.splitter = win
-		self.Layout()
+		self.layout()
 
-			
 	def unsplit(self):
 		self.splitter.unsplit()
 	

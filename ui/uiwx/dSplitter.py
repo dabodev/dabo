@@ -9,35 +9,23 @@ import random
 import dControlMixin as cm
 
 
-class SplitMenu(dabo.ui.dMenu):
-	def __init__(self, frm=None, useRemoveOpt=True):
-		super(SplitMenu, self).__init__(frm)
-		self.idSplit = wx.NewId()
-		self.idRemove = wx.NewId()
-		self.Append(self.idSplit, "Split this pane")
-		if useRemoveOpt:
-			self.Append(self.idRemove, "Remove this pane")
-
-
 class SplitterPanel(dabo.ui.dPanel):
 	def __init__(self, parent):
 		super(SplitterPanel, self).__init__(parent)
-		self.Bind(wx.EVT_MENU, self.onMenu)
 		self.bindEvent(dEvents.MouseRightClick, self.onRClick)
 	
 	def onRClick(self, evt):
-		rem = self.Parent.canRemove(self) 
-		menu = SplitMenu(useRemoveOpt=rem)
+		sm = dabo.ui.dMenu(self)
+		sm.append("Split this pane", bindfunc=self.onSplit)
+		if self.Parent.canRemove(self):
+			sm.append("Remove this pane", bindfunc=self.onRemove)
 		pos = evt.EventData["mousePosition"]
-		self.PopupMenu(menu, pos)
-	
-	def onMenu(self, evt):
-		menu = evt.GetEventObject()
-		id = evt.GetId()
-		if id == menu.idSplit:
-			self.split()
-		elif id == menu.idRemove:
-			self.remove()
+		self.PopupMenu(sm, pos)
+
+	def onSplit(self, evt):
+		self.split()
+	def onRemove(self, evt):
+		self.remove()
 	
 	def remove(self):
 		self.Parent.remove(self)
@@ -57,7 +45,7 @@ class SplitterPanel(dabo.ui.dPanel):
 			self.Sizer = dabo.ui.dSizer(newDir)
 		if dir is None:
 			dir = newDir
-		win = dSplitter(self)
+		win = dSplitter(self, createPanes=True)
 		win.Orientation = dir
 		win.unsplit()
 		win.split()

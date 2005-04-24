@@ -346,7 +346,18 @@ class uiApp(wx.App, dObject):
 		return v
 	def _setActiveForm(self, frm):
 		self._activeForm = frm
+		
+		
+	def _getNoneDisp(self):
+		return self._noneDisp
+	def _setNoneDisp(self, val):
+		self._noneDisp = val
+		
+
 	
 	ActiveForm = property(_getActiveForm, None, None, 
 			"Returns the form that currently has focus, or None.  (dForm)" )
 
+	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None, 
+			_("Text to display for null (None) values.  (str)") )
+	

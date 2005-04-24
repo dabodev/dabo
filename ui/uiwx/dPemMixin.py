@@ -1041,7 +1041,7 @@ class dPemMixin(dPemMixinBase):
 	
 	def _setParent(self, val):
 		if self._constructed():
-			self.Reparent(val)
+			self.changeParent(val)
 		else:
 			self._properties["Parent"] = val
 

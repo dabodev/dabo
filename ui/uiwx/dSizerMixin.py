@@ -37,26 +37,17 @@ class dSizerMixin(dabo.common.dObject):
 		"""Adds the passed object to the end of the list of items controlled
 		by the sizer.
 		"""
-		if isinstance(layout, int):
-			# proportion was passed first
-			layout, proportion = proportion, layout
-			# in case layout wasn't specified
-			if isinstance(layout, int):
-				layout = "normal"
+		self.insert(len(self.Children), item, layout=layout, proportion=proportion, 
+				alignment=alignment, halign=halign, valign=valign, border=border, 
+				borderFlags=borderFlags)
+
+
+	def append1x(self, item, **kwargs):
+		"""Shorthand for sizer.append(item, 1, "x"). """
+		kwargs["layout"] = "expand"
+		kwargs["proportion"] = 1
+		self.append(item, **kwargs)
 		
-		if isinstance(item, tuple):
-			# spacer
-			self.Add(item, proportion)
-		else:
-			# item is the window to add to the sizer
-			_wxFlags = self._getWxFlags(alignment, halign, valign, borderFlags, layout)
-			# If there are objects in this sizer already, add the default spacer
-			if len(self.GetChildren()) > 0:
-				self.addDefaultSpacer()
-			if border is None:
-				border = self.Border
-			self.Add(item, proportion, _wxFlags, border)
-			
 
 	def insert(self, index, item, layout="normal", proportion=0, alignment=None,
 			halign="left", valign="top", border=None, borderFlags=None):

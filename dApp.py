@@ -464,6 +464,12 @@ class dApp(dabo.common.dObject):
 		self._mainFormClass = val
 		
 		
+	def _getNoneDisp(self):
+		return self.uiApp.NoneDisplay
+	def _setNoneDisp(self, val):
+		self.uiApp.NoneDisplay = val
+		
+
 	def _getSecurityManager(self):
 		try:
 			return self._securityManager
@@ -540,6 +546,9 @@ class dApp(dabo.common.dObject):
 	MainFormClass = property(_getMainFormClass, _setMainFormClass, None,
 			_("""Specifies the class to use to instantiate the main form. Defaults to 
 			the dFormMain base class. Set to None if you don't want a main form."""))
+	
+	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None, 
+			_("Text to display for null (None) values.  (str)") )
 	
 	Platform = property(_getPlatform, None, None,
 			_("""Returns one of 'Mac', 'Win' or 'GTK', depending on where we're 

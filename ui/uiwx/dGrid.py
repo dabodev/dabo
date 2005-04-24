@@ -100,7 +100,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					col.Order = pos
 			# If the data types are actual types and not strings, convert
 			# them to common strings.
-			if type(col.DataType) == type:
+			if isinstance(type(col.DataType), type):
 				typeDict = {
 						str : "string", 
 						unicode : "unicode", 
@@ -192,11 +192,17 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				fld = col.Field
 				if record.has_key(fld):
 					recordVal = record[fld]
-					if isinstance(recordVal, unicode):
-						recordVal = recordVal.encode(locale.getdefaultlocale()[1])
-					if col.DataType.lower() in ("string", "unicode", "str", "char", "text", "varchar"):
+					recType = type(recordVal)
+					if recordVal is None:
+						recordVal = self.grid.NoneDisplay
+					recType = type(recordVal)
+					if isinstance(recordVal, basestring):
+						if recType is unicode:
+							recordVal = recordVal.encode(locale.getdefaultlocale()[1])
+						else:
+							recordVal = unicode(recordVal, encod)
 						# Limit to first 'n' chars...
-						recordVal = unicode(recordVal, encod)[:self.grid.stringDisplayLen]
+						recordVal = recordVal[:self.grid.stringDisplayLen]
 					elif col.DataType.lower() == "bool":
 						# coerce to bool (could have been 0/1)
 						if isinstance(recordVal, basestring):
@@ -695,7 +701,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			col = dColumn(self)
 			col.Caption = cap
 			col.Field = colKey
-			col.DataType = type(firstRec[colKey])
+			dt = col.DataType = type(firstRec[colKey])
+			if dt is type(None):
+				for rec in ds[1:]:
+					val = rec[colKey]
+					if val is not None:
+						dt = type(val)
+						break
+				col.DataType = dt
+			if dt is type(None):
+				# Default to string type
+				dt = col.DataType = str
+				
 			# See if any order was specified
 			if colOrder.has_key(colKey):
 				col.Order = colOrder[colKey]
@@ -1554,6 +1571,16 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return self.GetColLabelSize()
 	def _setHeaderHt(self, val):
 		self.SetColLabelSize(val)
+	
+	
+	def _getNoneDisp(self):
+		try:
+			# See if the Application has a value set
+			ret = self.Application.NoneDisplay
+		except:
+			ret = _("<null>")
+		return ret
+		
 
 	def _getRowCount(self):
 		return self._Table.GetNumberRows()
@@ -1591,8 +1618,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _setCurrentRow(self, val):
 		if self._constructed():
+			val = min(val, self.RowCount-1)	
 			if val > -1:
-				val = min(val, self.RowCount)	
 				cn = self.CurrentColumn
 				self.SetGridCursor(val, cn)
 				self.MakeCellVisible(val, cn)
@@ -1716,6 +1743,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			
 	HeaderHeight = property(_getHeaderHt, _setHeaderHt, None, 
 			_("Height of the column headers.  (int)") )
+	
+	NoneDisplay = property(_getNoneDisp, None, None, 
+			_("Text to display for null (None) values.  (str)") )
 	
 	RowCount = property(_getRowCount, None, None, 
 			_("Number of rows in the grid.  (int)") )
