@@ -3,6 +3,7 @@ import dabo
 import dabo.ui as ui
 import dabo.dEvents as dEvents
 from dabo.common.dObject import dObject
+from dabo.dLocalize import _, n_
 
 class uiApp(wx.App, dObject):
 	_IsContainer = False
@@ -12,7 +13,8 @@ class uiApp(wx.App, dObject):
 		dObject.__init__(self)
 		self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
 		
-		self.Name = "uiApp"
+		self.Name = _("uiApp")
+		self._noneDisp = _("<null>")
 		
 		
 	def OnInit(self):
@@ -35,11 +37,11 @@ class uiApp(wx.App, dObject):
 			
 		if wx.PlatformInfo[0] == "__WXGTK__":
 			string += " (%s)" % wx.PlatformInfo[3]
-			self._platform = "GTK"
+			self._platform = _("GTK")
 		elif wx.PlatformInfo[0] == "__WXMAC__":
-			self._platform = "Mac"
+			self._platform = _("Mac")
 		elif wx.PlatformInfo[0] == "__WXMSW__":
-			self._platform = "Win"
+			self._platform = _("Win")
 
 		dabo.infoLog.write(string)
 			
@@ -169,7 +171,7 @@ class uiApp(wx.App, dObject):
 		
 
 	def onEditPreferences(self, evt):
-		dabo.infoLog.write("Stub: uiApp.onEditPreferences()")
+		dabo.infoLog.write(_("Stub: uiApp.onEditPreferences()"))
 
 
 	def onEditUndo(self, evt):
@@ -178,7 +180,7 @@ class uiApp(wx.App, dObject):
 			try:
 				win.Undo()
 			except AttributeError:
-				dabo.errorLog.write("No apparent way to undo.")
+				dabo.errorLog.write(_("No apparent way to undo."))
 	
 
 	def onEditRedo(self, evt):
@@ -187,12 +189,11 @@ class uiApp(wx.App, dObject):
 			try:
 				win.Redo()
 			except AttributeError:
-				dabo.errorLog.write("No apparent way to redo.")
+				dabo.errorLog.write(_("No apparent way to redo."))
 
 
 	def onEditFind(self, evt):
-		""" Display a Find dialog. 
-		"""
+		""" Display a Find dialog. """
 		if self.ActiveForm:
 			win = self.ActiveForm.ActiveControl
 			if win:
@@ -234,8 +235,7 @@ class uiApp(wx.App, dObject):
 					
 
 	def onEditFindAgain(self, evt):
-		"""Repeat the last search.
-		"""
+		"""Repeat the last search."""
 		try:
 			fd = self.findReplaceData
 			self.OnFind(fd)
@@ -245,8 +245,7 @@ class uiApp(wx.App, dObject):
 			
 
 	def OnFindClose(self, evt):
-		""" User clicked the close button, so hide the dialog.
-		"""
+		""" User clicked the close button, so hide the dialog."""
 		evt.GetEventObject().Destroy()
 		evt.Skip()
 
@@ -286,7 +285,7 @@ class uiApp(wx.App, dObject):
 				except AttributeError:
 					value = None
 				if not isinstance(value, basestring):
-					dabo.errorLog.write("Active control isn't text-based.")
+					dabo.errorLog.write(_("Active control isn't text-based."))
 					return
 
 
@@ -315,11 +314,12 @@ class uiApp(wx.App, dObject):
 						win.SetSelection(currentPos-result, currentPos-result-len(findString))
 					win.ShowPosition(win.GetSelection()[1])
 				else:
-					dabo.infoLog.write("Not found")
+					dabo.infoLog.write(_("Not found"))
 
 
 	def getLoginInfo(self, message=None):
-		""" Display the login form, and return the user/password as entered by the user.
+		""" Display the login form, and return the user/password 
+		as entered by the user.
 		"""
 		import dabo.ui.dialogs.login as login
 		ld = login.Login(self.dApp.MainForm)
@@ -356,7 +356,7 @@ class uiApp(wx.App, dObject):
 
 	
 	ActiveForm = property(_getActiveForm, None, None, 
-			"Returns the form that currently has focus, or None.  (dForm)" )
+			_("Returns the form that currently has focus, or None.  (dForm)" ) )
 
 	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None, 
 			_("Text to display for null (None) values.  (str)") )
