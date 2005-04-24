@@ -17,6 +17,17 @@ import dControlMixin as cm
 import dKeys
 import dUICursors
 
+# See if the new decimal module is present. This is necessary 
+# because if running under Python 2.4 or later and using MySQLdb,
+# some values will be returned as decimals, and we need to 
+# conditionally convert them for display.
+_USE_DECIMAL = True
+try:
+	from decimal import Decimal
+except ImportError:
+	_USE_DECIMAL = False
+		
+		
 
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
@@ -28,7 +39,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.bizobj = None		#self.grid.Form.getBizobj(parent.DataSource) 
 		# Holds a copy of the current data to prevent unnecessary re-drawing
 		self.__currData = []
-
 		self._initTable()
 
 
@@ -111,6 +121,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 						datetime.date : "date", 
 						datetime.datetime : "datetime", 
 						datetime.time : "time" }
+				if _USE_DECIMAL:
+					typeDict[Decimal] = "decimal"
 				try:
 					col.DataType = typeDict[col.DataType]
 				except: pass
@@ -146,13 +158,16 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			lowtyp = typ.lower()
 		else:
 			lowtyp = typ
+			if _USE_DECIMAL:
+				if typ is Decimal:
+					lowtyp = "decimal"
 		if lowtyp in (bool, "bool", "boolean", "logical", "l"):
 			ret = wx.grid.GRID_VALUE_BOOL
 		if lowtyp in (int, long, "int", "integer", "bigint", "i", "long"):
 			ret = wx.grid.GRID_VALUE_NUMBER
 		elif lowtyp in (str, unicode, "char", "varchar", "text", "c", "s"):
 			ret = wx.grid.GRID_VALUE_STRING
-		elif lowtyp in (float, "float", "f"):
+		elif lowtyp in (float, "float", "f", "decimal"):
 			ret = wx.grid.GRID_VALUE_FLOAT
 		elif lowtyp in (datetime.date, datetime.datetime, datetime.time, 
 				"date", "datetime", "time", "d", "t"):
