@@ -468,6 +468,16 @@ class dPemMixin(dPemMixinBase):
 		return self.ClientToScreen(pos)
 	
 	
+	def showContextMenu(self, menu, pos=None):
+		"""Display a context menu (popup) at the specified position.
+		If no position is specified, the menu will be displayed at the 
+		current mouse position.
+		"""
+		if pos is None:
+			pos = wx.GetMousePosition()
+		self.PopupMenu(menu, pos)
+		
+	
 	def _getControllingSizerItem(self):
 		"""Returns the sizer item (or None if not in a sizer) that controls
 		the sizing of this control. It is useful for getting information

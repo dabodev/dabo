@@ -493,8 +493,8 @@ class SelectPage(Page):
 					opList.StringValue = opList.GetString(0)
 				opList.Target = ctrl
 				
-				gsz.append(lbl, alignment="right")
-				gsz.append(opList, alignment="left")
+				gsz.append(lbl, halign="right")
+				gsz.append(opList, halign="left")
 				gsz.append(ctrl, "expand")
 				
 				# Store the info for later use when constructing the query
@@ -525,7 +525,7 @@ class SelectPage(Page):
 		gsz.append(limTxt)
 		btnRow = gsz.findFirstEmptyCell()[0] + 1
 		gsz.append(requeryButton, "expand", row=btnRow, col=1, 
-				alignment="right")
+				halign="right")
 		
 		# Make the last column growable
 		gsz.setColExpand(True, 2)

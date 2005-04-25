@@ -118,7 +118,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		""" Sets the 'growable' status of one or more columns. """
 		# If the colNums argument was passed first, switch it with the 
 		# expand argument
-		if isinstance(expand, (int, str)):
+		if isinstance(expand, str):
 			expand, colNums = colNums, expand
 		if isinstance(colNums, (list, tuple)):
 			for col in colNums:
@@ -147,7 +147,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		""" Sets the 'growable' status of one or more rows. """
 		# If the colNums argument was passed first, switch it with the 
 		# expand argument
-		if isinstance(expand, (int, str)):
+		if isinstance(expand, str):
 			expand, rowNums = rowNums, expand
 		if isinstance(rowNums, (list, tuple)):
 			for row in rowNums:

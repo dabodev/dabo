@@ -128,7 +128,7 @@ class Grid(dabo.ui.dGrid):
 					help=_("Edit this record"))
 			popup.append("&Delete", bindfunc=self.deleteRecord, bmp="delete",
 					help=_("Delete this record"))
-		self.PopupMenu(popup, self.mousePosition)
+		self.showContextMenu(popup, self.mousePosition)
 		popup.release()
 
 
