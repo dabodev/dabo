@@ -52,19 +52,55 @@ Y : First Day of Year
 R : Last Day of yeaR
 C: Popup Calendar to Select
 """
+		# Grab a reference to the inner text control
+		self.txt = [cc for cc in self.GetChildren() 
+				if isinstance(cc, wx.TextCtrl) ][0]
+		# turn off the the beep
+		v1 = self.txt.GetValidator()
+		self.vld = v1.Clone()
+		self.vld.SetBellOnError(False)
+
+		print "BEFORE", self.vld
+
+		self.txt.SetValidator(self.vld)
+		
+		print "AFTER", self.vld
+		
 	
 	def _initEvents(self):
 		super(dDateTextBoxNew, self)._initEvents()
 		self.bindEvent(dabo.dEvents.KeyChar, self.__onChar)
 		self.Bind(wx.EVT_DATE_CHANGED, self.__onWxChange)
-		self.bindEvent(dabo.dEvents.ValueChanged, self.onChange)	
+		self.bindEvent(dabo.dEvents.ValueChanged, self.onChange)
+
+		self.txt = [cc for cc in self.GetChildren() 
+				if isinstance(cc, wx.TextCtrl) ][0]
+		self.txt.Bind(wx.EVT_CHAR, self.__onInnerKeyChar)
+# 		self.txt.Bind(wx.EVT_KEY_DOWN, self.__onInnerKeyDown)
+		self.txt.Bind(wx.EVT_KEY_UP, self.__onInnerKeyUp)
+
+	
+	def __onInnerKeyChar(self, evt):
+# 		evt.StopPropagation()
+# 		print "INNER", evt.KeyCode()
+		self.raiseEvent(dabo.dEvents.KeyChar, evt)
+		
+# 	def __onInnerKeyDown(self, evt):
+# 		print "INNER DOWN", evt.KeyCode()
+# 		self.raiseEvent(dabo.dEvents.KeyDown, evt)
+		
+	def __onInnerKeyUp(self, evt):
+		print "INNER UP", evt.KeyCode()
+		self.raiseEvent(dabo.dEvents.KeyChar, evt)
+		
 	
 	def __onWxChange(self, evt):
 		self.raiseEvent(dabo.dEvents.ValueChanged, evt)
 	
 	def onChange(self, evt):
 		"""Called whenever the user changes the value in the control"""
-		print "CHANGE!", self.Value
+		pass
+#		print "CHANGE!", self.Value
 		
 	
 	def __onChar(self, evt):
@@ -81,6 +117,8 @@ C: Popup Calendar to Select
 			return
 		if keycode < 0 or keycode > 255:
 			# Let it be handled higher up
+			
+			print "IGNORING"
 			return
 
 		key = chr(keycode).lower()
@@ -107,45 +145,45 @@ C: Popup Calendar to Select
 			self.dayInterval(-1)
 		elif key == "m":
 			# First day of month
-			val = self.GetValue()
+			val = self.getValidValue()
 			if val.GetDay() == 1:
 				# Already at the first of the month; go back one month
 				self.dayInterval(-1)
-			val = self.GetValue()
+			val = self.getValidValue()
 			newVal = val.SetDay(1)
 			self.Value = newVal
 		elif key == "h":
 			# Last day of month
-			orig = self.GetValue()
-			val = self.GetValue()
+			val = self.getValidValue()
+			origDay = val.GetDay()
 			val.SetToLastMonthDay()
-			if orig == val:
+			if origDay == val.GetDay():
 				# Already at end of month; increment the month
 				self.dayInterval(1)
-				val = self.GetValue()
+				val = self.getValidValue()
 				val.SetToLastMonthDay()
 			self.Value = val
  		elif key == "y":
  			# First day of year
-			val = self.GetValue()
+			val = self.getValidValue()
 			if val.GetDay() == 1:
 				if val.GetMonth() == 0:
 				# Already at the first of the year; go back one year
 					self.dayInterval(-1)
-			val = self.GetValue()
+			val = self.getValidValue()
 			newval = val.SetDay(1)
 			newval = newval.SetMonth(0)
 			self.Value = newval
  		elif key == "r":
  			# Last day of year
-			orig = self.GetValue()
-			val = self.GetValue()
+			val = self.getValidValue()
+			origDay, origMonth = val.GetDay(), val.GetMonth()
 			val.SetMonth(11)
 			val.SetToLastMonthDay()
-			if orig == val:
+			if (origDay, origMonth) == (val.GetDay(), val.GetMonth()):
 				# Already at end of month; increment the month
 				self.dayInterval(1)
-				val = self.GetValue()
+				val = self.getValidValue()
 				val.SetMonth(11)
 				val.SetToLastMonthDay()
 			self.Value = val
@@ -159,16 +197,25 @@ C: Popup Calendar to Select
 			# This shouldn't happen, because onChar would have filtered it out.
 			dabo.infoLog.write("Warning in dDateTextBox.adjustDate: %s key sent." % key)
 			return
-		
+	
+	
+	def getValidValue(self):
+		""" Returns the value of the control, or Now() if the control
+		does not contain a valid date.
+		"""
+		val = self.GetValue()
+		if not val.IsValid():
+			val = wx.DateTime.Now()
+		return val		
 
 	def dayInterval(self, days):
-		val = self.GetValue()
+		val = self.getValidValue()
 		newval = val.AddDS(wx.DateSpan.Days(days))
 		self.Value = newval
 
 	
 	def monthInterval(self, months):
-		val = self.GetValue()
+		val = self.getValidValue()
 		newval = val.AddDS(wx.DateSpan.Months(months))
 		self.Value = newval
 	

@@ -213,7 +213,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					recType = type(recordVal)
 					if isinstance(recordVal, basestring):
 						if recType is unicode:
-							recordVal = recordVal.encode(locale.getdefaultlocale()[1])
+							recordVal = recordVal.encode(wx.GetDefaultPyEncoding())
 						else:
 							recordVal = unicode(recordVal, encod)
 						# Limit to first 'n' chars...
@@ -513,7 +513,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# that field to this dict.
 		self.listEditors = {}
 		# Type of encoding to use with unicode data
-		self.defaultEncoding = "latin-1"
+		self.defaultEncoding = wx.GetDefaultPyEncoding()		#"latin-1"
 		# What color should the little sort indicator arrow be?
 		self.sortArrowColor = "Orange"
 
