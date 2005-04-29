@@ -8,4 +8,8 @@ from dabo.dLocalize import _, n_
 import dControlMixin as dcm
 
 
-class dStatusBar(wx.StatusBar, dcm.dControlMixin): pass
+class dStatusBar(wx.StatusBar, dcm.dControlMixin):
+	def __init__(self, *args, **kwargs):
+		super(dStatusBar, self).__init__(*args, **kwargs)
+		self._baseClass = dStatusBar
+

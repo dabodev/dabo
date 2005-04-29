@@ -171,6 +171,10 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		self.Bind(wx.EVT_TREE_ITEM_EXPANDED, self._onTreeItemExpand)
 
 	
+	def clear(self):
+		self.DeleteAllItems()
+
+	
 	def setRootNode(self, txt):
 		id = self.AddRoot(txt)
 		ret = dNode(self, id, txt, None)
@@ -323,7 +327,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 	
 	
 	def makeDirTree(self, dirPath, wildcard=None, showHidden=False):
-		self.DeleteAllItems()
+		self.clear()
 		# Add any trailing slash character
 		self._pathNode = {}
 		# Define the function to be passed to os.path.walk
