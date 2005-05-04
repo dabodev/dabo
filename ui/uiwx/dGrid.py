@@ -873,7 +873,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	
 	def hdrPaint(self):
 		w = self.Header
-		dc = wx.PaintDC(w)
+		dc = wx.ClientDC(w)
 		clientRect = w.GetClientRect()
 		font = dc.GetFont()
 
