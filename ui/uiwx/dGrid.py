@@ -26,7 +26,12 @@ try:
 	from decimal import Decimal
 except ImportError:
 	_USE_DECIMAL = False
-		
+
+# wx versions < 2.6 don't have the GetDefaultPyEncoding function:
+try:
+	defaultEncoding = wx.GetDefaultPyEncoding()
+except AttributeError:
+	defaultEncoding = "latin-1"
 		
 
 class dGridDataTable(wx.grid.PyGridTableBase):
@@ -213,7 +218,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					recType = type(recordVal)
 					if isinstance(recordVal, basestring):
 						if recType is unicode:
-							recordVal = recordVal.encode(wx.GetDefaultPyEncoding())
+							recordVal = recordVal.encode(defaultEncoding)
 						else:
 							recordVal = unicode(recordVal, encod)
 						# Limit to first 'n' chars...
@@ -513,7 +518,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# that field to this dict.
 		self.listEditors = {}
 		# Type of encoding to use with unicode data
-		self.defaultEncoding = wx.GetDefaultPyEncoding()		#"latin-1"
+		self.defaultEncoding = defaultEncoding
 		# What color should the little sort indicator arrow be?
 		self.sortArrowColor = "Orange"
 
