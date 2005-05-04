@@ -207,32 +207,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.data = []
 		encod = self.grid.Encoding
 		for record in dataSet:
-			recordDict = []
-			for col in self.colDefs:
-				fld = col.Field
-				if record.has_key(fld):
-					recordVal = record[fld]
-					recType = type(recordVal)
-					if recordVal is None:
-						recordVal = self.grid.NoneDisplay
-					recType = type(recordVal)
-					if isinstance(recordVal, basestring):
-						if recType is unicode:
-							recordVal = recordVal.encode(defaultEncoding)
-						else:
-							recordVal = unicode(recordVal, encod)
-						# Limit to first 'n' chars...
-						recordVal = recordVal[:self.grid.stringDisplayLen]
-					elif col.DataType.lower() == "bool":
-						# coerce to bool (could have been 0/1)
-						if isinstance(recordVal, basestring):
-							recordVal = bool(int(recordVal))
-						else:
-							recordVal = bool(recordVal)
-				else:
-					# If there is no such value, don't display anything
-					recordVal = ""
-				recordDict.append(recordVal)
+			recordDict = self.formatRowDict(record)
 			self.data.append(recordDict)
 		self.grid.BeginBatch()
 		# The data table is now current, but the grid needs to be
@@ -296,6 +271,69 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		for ii in range(len(self.rowLabels)):
 			self.SetRowLabelValue(ii, self.rowLabels[ii])
 
+	
+	def formatRowDict(self, rec):
+		"""Takes a row from a record set, and contructs a dict
+		that matches the column layout. Also encodes all unicode
+		values to properly display.
+		"""
+		returnDict = []
+		for col in self.colDefs:
+			fld = col.Field
+			if rec.has_key(fld):
+				recVal = rec[fld]
+				recType = type(recVal)
+				if recVal is None:
+					recVal = self.grid.NoneDisplay
+				recType = type(recVal)
+				if isinstance(recVal, basestring):
+					if recType is unicode:
+						recVal = recVal.encode(defaultEncoding)
+					else:
+						recVal = unicode(recVal, encod)
+					# Limit to first 'n' chars...
+					recVal = recVal[:self.grid.stringDisplayLen]
+				elif col.DataType.lower() == "bool":
+					# coerce to bool (could have been 0/1)
+					if isinstance(recVal, basestring):
+						recVal = bool(int(recVal))
+					else:
+						recVal = bool(recVal)
+			else:
+				# If there is no such value, don't display anything
+				recVal = ""
+			returnDict.append(recVal)
+		return returnDict
+	
+	
+	def addTempRow(self, row):
+		"""Used by the autosize routine to add an individual row 
+		containing the captions for the columns so that the autosize
+		function takes them into account. It is then followed by a
+		call to self.removeTempRow() to restore the data back to its
+		original state.
+		"""
+		rowDict = self.formatRowDict(row)
+		self.data.append(rowDict)
+		self.grid.BeginBatch()
+		msg = wx.grid.GridTableMessage(self,
+				wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED, 1)
+		self.grid.ProcessTableMessage(msg)
+		self.grid.EndBatch()
+
+
+	def removeTempRow(self):
+		"""Removes the temp row that was added in a prior call to 
+		addTempRow(). This method assumes that the last row
+		in the data set is the row to remove.
+		"""
+		tmp = self.data.pop()
+		msg = wx.grid.GridTableMessage(self,
+				wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,
+				len(self.data), 1)
+		self.grid.ProcessTableMessage(msg)
+		self.grid.EndBatch()
+	
 
 	# The following methods are required by the grid, to find out certain
 	# important details about the underlying table.                
@@ -766,10 +804,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		capRow = {}
 		for col in self.Columns:
 			capRow[col.Field] = col.Caption
-		lst = list(self.dataSet)
-		lst.append(capRow)
-		self.dataSet = lst
-		self.fillGrid(True)
+		self._Table.addTempRow(capRow)
 		try:
 			# Having a problem with Unicode in the native
 			# AutoSize() function.
@@ -783,9 +818,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.Columns[colNum].Width = self.GetColSize(colNum)
 		except:
 			pass
-		self.dataSet.remove(capRow)
-		self.dataSet = tuple(self.dataSet)
-		self.fillGrid(False)
+		self._Table.removeTempRow()
 		self.inAutoSizeCalc = False
 		self._ignoreColUpdates = False
 		self.unlockDisplay()		
