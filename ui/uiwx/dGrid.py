@@ -207,8 +207,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.data = []
 		encod = self.grid.Encoding
 		for record in dataSet:
-			recordDict = self.formatRowDict(record)
-			self.data.append(recordDict)
+			recordFmt = self.formatRowForData(record)
+			self.data.append(recordFmt)
 		self.grid.BeginBatch()
 		# The data table is now current, but the grid needs to be
 		# notified.
@@ -266,18 +266,18 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			
 			self.grid.SetColSize(gridCol, width)
 			idx += 1
-		self.grid.EndBatch()
 		# Show the row labels, if any
 		for ii in range(len(self.rowLabels)):
 			self.SetRowLabelValue(ii, self.rowLabels[ii])
+		self.grid.EndBatch()
 
 	
-	def formatRowDict(self, rec):
-		"""Takes a row from a record set, and contructs a dict
+	def formatRowForData(self, rec):
+		"""Takes a row from a record set, and contructs a list
 		that matches the column layout. Also encodes all unicode
 		values to properly display.
 		"""
-		returnDict = []
+		returnFmt = []
 		for col in self.colDefs:
 			fld = col.Field
 			if rec.has_key(fld):
@@ -302,8 +302,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			else:
 				# If there is no such value, don't display anything
 				recVal = ""
-			returnDict.append(recVal)
-		return returnDict
+			returnFmt.append(recVal)
+		return returnFmt
 	
 	
 	def addTempRow(self, row):
@@ -313,8 +313,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		call to self.removeTempRow() to restore the data back to its
 		original state.
 		"""
-		rowDict = self.formatRowDict(row)
-		self.data.append(rowDict)
+		rowFmt = self.formatRowForData(row)
+		self.data.append(rowFmt)
 		self.grid.BeginBatch()
 		msg = wx.grid.GridTableMessage(self,
 				wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED, 1)
@@ -328,6 +328,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		in the data set is the row to remove.
 		"""
 		tmp = self.data.pop()
+		self.grid.BeginBatch()
 		msg = wx.grid.GridTableMessage(self,
 				wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,
 				len(self.data), 1)
