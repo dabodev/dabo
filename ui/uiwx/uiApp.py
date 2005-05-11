@@ -2,6 +2,7 @@ import sys, os, wx
 import dabo
 import dabo.ui as ui
 import dabo.dEvents as dEvents
+import dabo.lib.dUtils as dUtils
 from dabo.common.dObject import dObject
 from dabo.dLocalize import _, n_
 
@@ -216,22 +217,36 @@ class uiApp(wx.App, dObject):
 				dlg.Bind(wx.EVT_CLOSE, self.OnFindClose)
 	
 				dlg.Show()
-	#- 			self.findDialog = dlg
+				self.findDialog = dlg
 			
 	
 	def onEnterInFindDialog(self, evt):
-		## I don't know what to do from here: how do I simulate the user
-		## clicking "find"...
-		pass
-#- 		findButton = None
-#- 		dlg = self.findDialog
-#- #- 		print dir(dlg)
-#- 		for child in dlg.GetChildren():
-#- 			if child.GetName() == "button" and child.GetLabel() == "Find":
-#- 				findButton = child
-#- 				break
-#- 		if findButton is not None:
-#- 			findButton.Command(wx.CommandEvent(wx.wxEVT_COMMAND_BUTTON_CLICKED))			
+		"""We need to simulate what happens in the Find dialog when
+		the user clicks the Find button. This requires that we manually 
+		update the find data with the dialog values, and then carry out the
+		find as before.
+		"""
+		frd = self.findReplaceData
+		kids = self.findDialog.GetChildren()
+		flags = 0
+		for kid in kids:
+			if isinstance(kid, wx.TextCtrl):
+				frd.SetFindString(kid.GetValue())
+			elif isinstance(kid, wx.CheckBox):
+				lbl = kid.GetLabel()
+				if lbl == "Whole word":
+					if kid.GetValue():
+						flags = flags | wx.FR_WHOLEWORD
+				elif lbl == "Match case":
+					if kid.GetValue():
+						flags = flags | wx.FR_MATCHCASE
+			elif isinstance(kid, wx.RadioBox):
+				# Search direction; either 'Up' or 'Down'
+				if kid.GetStringSelection() == "Down":
+					flags = flags | wx.FR_DOWN
+		frd.SetFlags(flags)
+		# We've set all the values; now do the Find.
+		self.OnFind(evt)
 					
 
 	def onEditFindAgain(self, evt):
@@ -252,34 +267,38 @@ class uiApp(wx.App, dObject):
 
 	def OnFind(self, evt):
 		""" User clicked the 'find' button in the find dialog.
-
 		Run the search on the current control, if it is a text-based control.
 		Select the found text in the control.
 		"""
-#- 		flags = evt.GetFlags()
-#- 		findString = evt.GetFindString()
 		flags = self.findReplaceData.GetFlags()
 		findString = self.findReplaceData.GetFindString()
 		downwardSearch = (flags & wx.FR_DOWN) == wx.FR_DOWN
 		wholeWord = (flags & wx.FR_WHOLEWORD) == wx.FR_WHOLEWORD
 		matchCase = (flags & wx.FR_MATCHCASE) == wx.FR_MATCHCASE
-		
+
 		win = self.findWindow
-		
 		if win:
-			try:
-				# SCT:
-				start = win.GetCurrentPos()
-				flags = 0
+			if isinstance(win, wx.stc.StyledTextCtrl):
+				# STC
 				if downwardSearch:
+					start = win.GetSelection()[1]
 					finish = win.GetTextLength()
+					pos = win.FindText(start, finish, findString, flags)
 				else:
-					finish = 0
-				pos = win.FindText(start, finish, findString, flags)
+					start = win.GetSelection()[0]
+					txt = win.GetText()[:start]
+					txRev = dUtils.reverseText(txt)
+					fsRev = dUtils.reverseText(findString)
+					if not matchCase:
+						fsRev = fsRev.lower()
+						txRev = txRev.lower()
+					# Don't have the code to implement Whole Word search yet.
+					posRev = txRev.find(fsRev)
+					pos = len(txt) - posRev - len(fsRev)
 				if pos > -1:
 					win.SetSelection(pos, pos+len(findString))
-				
-			except AttributeError:		
+
+			else:
 				try: 
 					value = win.GetValue()
 				except AttributeError:
@@ -288,35 +307,32 @@ class uiApp(wx.App, dObject):
 					dabo.errorLog.write(_("Active control isn't text-based."))
 					return
 
-
-				currentPos = win.GetInsertionPoint()
-
 				if downwardSearch:
+					currentPos = win.GetSelection()[1]
 					value = win.GetValue()[currentPos:]
 				else:
-					value = win.GetValue()[0:currentPos]
-					value = list(value)
-					value.reverse()
-					value = ''.join(value)
-					findString = list(findString)
-					findString.reverse()
-					findString = ''.join(findString)
-
+					currentPos = win.GetSelection()[0]
+					value = win.GetValue()[:currentPos]
+					value = dUtils.reverseText(value)
+					findString = dUtils.reverseText(findString)
 				if not matchCase:
 					value = value.lower()
 					findString = findString.lower()
+				# Don't have the code to implement Whole Word search yet.
 
 				result = value.find(findString)
 				if result >= 0:
-					if downwardSearch:
-						win.SetSelection(currentPos+result, currentPos+result+len(findString))
-					else:
-						win.SetSelection(currentPos-result, currentPos-result-len(findString))
+					selStart = currentPos + result
+					if not downwardSearch:
+						# Need to allow for the reversed text positions
+						selStart = len(value) - result - len(findString)
+					selEnd = selStart + len(findString)
+					win.SetSelection(selStart, selEnd)
 					win.ShowPosition(win.GetSelection()[1])
 				else:
 					dabo.infoLog.write(_("Not found"))
 
-
+	
 	def getLoginInfo(self, message=None):
 		""" Display the login form, and return the user/password 
 		as entered by the user.
