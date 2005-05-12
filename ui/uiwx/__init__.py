@@ -67,6 +67,7 @@ from dPanel import dScrollPanel
 from dPageFrame import dPageFrame
 from dPageFrame import dPageList
 from dPageFrame import dPageSelect
+from dPageNoTabs import dPageNoTabs
 from dPage import dPage
 from dSizer import dSizer
 from dBorderSizer import dBorderSizer
