@@ -14,8 +14,5 @@ def reverseText(tx):
 	dUtils.reverseText("Wow, this is so cool!")
 		=> returns "!looc os si siht ,woW"
 	"""
-	txL = list(tx)
-	txL.reverse()
-	txR = ''.join(txL)
-	return txR
+	return tx[::-1]
 
