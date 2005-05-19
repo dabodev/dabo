@@ -81,75 +81,7 @@ from dTimer import dTimer
 from dToggleButton import dToggleButton
 from dTreeView import dTreeView
 import dUICursors as dUICursors
-
 import dShell
-
-
-# Tell Dabo Designer what classes to put in the selection menu:
-__dClasses = [dBox, dBitmapButton, dButton, dCheckBox, dComboBox, 
-		dDateTextBox, dDropdownList, dEditBox, dForm, dGauge, dGrid, 
-		dLabel, dLine, dListBox, dListControl, dRadioGroup, dPanel, dScrollPanel, 
-		dPageFrame, dPageList, dPageSelect, dPage, dSlider, dSpinner, 
-		dSplitForm, dSplitter, dTextBox, dTimer, dToggleButton, dTreeView]
-
-# These are the classes that can be added to any container class in 
-# the Designer.
-__dControlClasses = [dBox, dBitmapButton, dButton, dCheckBox, dComboBox, 
-		dDateTextBox, dDropdownList, dEditBox, dGauge, dGrid, dLabel, dLine, 
-		dListBox, dListControl, dRadioGroup, dPanel, dScrollPanel, dPageFrame, 
-		dPageList, dPageSelect, dPage, dSlider, dSpinner, dSplitter, dTextBox, 
-		dTimer, dToggleButton, dTreeView]
-
-daboDesignerClasses = []
-for __classRef in __dClasses:
-	__classDict = {}
-	__classDict["class"] = __classRef
-	__classDict["name"] = __classRef.__name__
-	__classDict["prompt"] = "%s&%s" % (__classRef.__name__[0], __classRef.__name__[1:])
-	__classDict["topLevel"] = __classRef.__name__.find("Form") >= 0
-	__classDict["doc"] = __classRef.__doc__
-	daboDesignerClasses.append(__classDict)
-
-daboDesignerControls = []
-for __classRef in __dControlClasses:
-	__classDict = {}
-	__classDict["class"] = __classRef
-	__classDict["name"] = __classRef.__name__
-	__classDict["prompt"] = "%s&%s" % (__classRef.__name__[0], __classRef.__name__[1:])
-	__classDict["doc"] = __classRef.__doc__
-	daboDesignerControls.append(__classDict)
-
-propsToShowInDesigner = ("Alignment", "AskToSave", "AutoResize", 
-		"AutoSize", "BackColor", "BaseClass", "BorderResizable", "BorderStyle", 
-		"Bottom", "CancelButton", "Caption", "Centered", "Choices", "Class", 
-		"DataField", "DataSource", "DefaultButton", "DownPicture", "Enabled", 
-		"FocusPicture", "Font", "FontBold", "FontDescription", "FontFace", 
-		"FontInfo", "FontItalic", "FontSize", "FontUnderline", "ForeColor", 
-		"Height", "HelpContextText", "Icon", "IconBundle", "Interval", "Left", 
-		"Max", "MaxElements", "Min", "MinPanelSize", "Modal", 
-		"MousePointer", "MultipleSelect", "Name", "Orientation", "PageClass", 
-		"PageCount", "PasswordEntry", "Picture", "Position", "Range", "ReadOnly", 
-		"Right", "SashPosition", "SaveRestoreValue", "SelectOnEntry", 
-		"ShowCaption", "ShowCloseButton", "ShowLabels", "ShowMaxButton", 
-		"ShowMinButton", "ShowStatusBar", "ShowSystemMenu", "Size", "Sizer", 
-		"SpinnerArrowKeys", "SpinnerWrap", "StringValue", "SuperClass", 
-		"TabPosition", "TinyTitleBar", "ToolTipText", "Top", "UserValue", "Value", 
-		"ValueMode", "Visible", "Width", "WindowState")
-
-propsToEditInDesigner = ("Alignment", "AskToSave", "AutoResize", "AutoSize", 
-		"BackColor", "BorderResizable", "BorderStyle", "Bottom", "CancelButton", 
-		"Caption", "Centered", "Choices", "DataField", "DataSource", "DefaultButton", 
-		"DownPicture", "Enabled", "FocusPicture", "Font", "FontBold", "FontFace", 
-		"FontItalic", "FontSize", "FontUnderline", "ForeColor", "Height", 
-		"HelpContextText", "Icon", "IconBundle", "Interval", "Left", "Max", 
-		"MaxElements", "Min", "MinPanelSize", "Modal", "MultipleSelect", "Name", 
-		"Orientation", "PageClass", "PageCount", "PasswordEntry", "Picture", 
-		"Range", "ReadOnly", "Right", "SashPosition", "SaveRestoreValue", 
-		"SelectOnEntry", "ShowCaption", "ShowCloseButton", "ShowLabels", 
-		"ShowMaxButton", "ShowMinButton", "ShowStatusBar", "ShowSystemMenu", 
-		"SpinnerArrowKeys", "SpinnerWrap", "TabPosition", "TinyTitleBar", 
-		"ToolTipText", "Top", "UserValue", "Value", "ValueMode", "Visible", "Width", 
-		"WindowState")
 
 
 def callAfter(fnc, *args, **kwargs):

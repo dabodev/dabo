@@ -290,7 +290,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					if recType is unicode:
 						recVal = recVal.encode(defaultEncoding)
 					else:
-						recVal = unicode(recVal, encod)
+						recVal = unicode(recVal, defaultEncoding)
 					# Limit to first 'n' chars...
 					recVal = recVal[:self.grid.stringDisplayLen]
 				elif col.DataType.lower() == "bool":
@@ -636,7 +636,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		except StandardError, e:
 			dabo.errorLog.write("Cannot update data set: %s" % e)
 
-
+	# Wrapper methods to Dabo-ize these calls.
+	def getValue(self, row, col):
+		return self.GetValue(row, col)
+	def setValue(self, row, col, val):
+		return self.SetValue(row, col, val)
+		
+		
 	def fillGrid(self, force=False):
 		""" Refresh the grid to match the data in the data set."""
 		# Save the focus, if any
@@ -1638,7 +1644,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _getRowCount(self):
 		return self._Table.GetNumberRows()
-	
+		
+	def _getCurrCellVal(self):
+		return self.GetValue(self.GetGridCursorRow(), self.GetGridCursorCol())	
+
+	def _setCurrCellVal(self, val):
+		self.SetValue(self.GetGridCursorRow(), self.GetGridCursorCol(), val)	
+		self.Refresh()
+
 
 	def _getCurrentColumn(self):
 		return self.GetGridCursorCol()
@@ -1777,6 +1790,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	ColumnLabels = property(_getColLbls, None, None, 
 			_("List of the column labels.  (list)") )
 	
+	CurrentCellValue = property(_getCurrCellVal, _setCurrCellVal, None,
+			_("Value of the currently selected grid cell  (varies)") )
+			
 	CurrentColumn = property(_getCurrentColumn, _setCurrentColumn, None,
 			_("Currently selected column  (int)") )
 			
