@@ -478,7 +478,7 @@ class dPemMixin(dPemMixinBase):
 		self.PopupMenu(menu, pos)
 		
 	
-	def _getControllingSizerItem(self):
+	def getControllingSizerItem(self):
 		"""Returns the sizer item (or None if not in a sizer) that controls
 		the sizing of this control. It is useful for getting information
 		about how the item is being sized, and for changing those 
@@ -497,7 +497,7 @@ class dPemMixin(dPemMixinBase):
 		passed is contained in the sizer item's flags.
 		"""
 		prop = prop.lower().strip()
-		flag = self._getControllingSizerItem().GetFlag()
+		flag = self.getControllingSizerItem().GetFlag()
 		propDict = {"left" : wx.ALIGN_LEFT, 
 			"right" : wx.ALIGN_RIGHT,
 			"center" : wx.ALIGN_CENTER, 
