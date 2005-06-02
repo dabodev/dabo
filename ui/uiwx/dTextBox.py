@@ -268,6 +268,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			# The regex didn't match
 			return None
 	
+	
 	def _getDateTimeRegex(self):
 		exp = {}
 		exp["year"] = "(?P<year>[0-9]{4,4})"              ## year 0000-9999
@@ -277,10 +278,11 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		exp["minute"] = "(?P<minute>[0-5][0-9])"          ## minute 00-59
 		exp["second"] = "(?P<second>[0-5][0-9])"          ## second 00-59
 		exp["ms"] = "\.{0,1}(?P<ms>[0-9]{0,6})"           ## optional ms
+		exp["sep"] = "(?P<sep> |T)"
 		
-		exps = "^%s-%s-%s %s:%s:%s%s$" % (exp["year"], exp["month"],
-			exp["day"], exp["hour"], exp["minute"], exp["second"], exp["ms"])
-			
+		exps = "^%s-%s-%s%s%s:%s:%s%s$" % (exp["year"], exp["month"],
+			exp["day"], exp["sep"], exp["hour"], exp["minute"], exp["second"], exp["ms"])
+		
 		return re.compile(exps)
 
 			

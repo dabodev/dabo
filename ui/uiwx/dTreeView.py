@@ -402,7 +402,11 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		return ret
 	def _setSelection(self, node):
 		if self._constructed():
-			self.SelectItem(node.id)
+			if isinstance(node, (list, tuple)):
+				for itm in node:
+					self.SelectItem(itm.id, True)
+			else:
+				self.SelectItem(node.id)
 		else:
 			self._properties["Selection"] = node
 	
