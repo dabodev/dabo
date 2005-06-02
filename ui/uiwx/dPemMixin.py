@@ -18,7 +18,6 @@ class dPemMixin(dPemMixinBase):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
-
 		self._properties = {}
 		
 		# Lots of useful wx props are actually only settable before the
@@ -140,6 +139,7 @@ class dPemMixin(dPemMixinBase):
 		self._needRedraw = True
 		self._borderColor = "black"
 		self._borderWidth = 0
+		self._borderLineStyle = "solid"
 		# Flag that gets set to True when the object is being Destroyed
 		self._finito = False		
 		self.beforeInit()
@@ -635,7 +635,18 @@ class dPemMixin(dPemMixinBase):
 		# Draw the border, if any
 		if self._borderWidth > 0:
 			dc = wx.ClientDC(self)
-			pen = wx.Pen(self._borderColor, self._borderWidth)
+			
+			sty = self._borderLineStyle
+			lnStyle = wx.SOLID
+			if sty in ("dash", "dashed"):
+#				lnStyle = wx.LONG_DASH		#wx.SHORT_DASH
+				lnStyle = wx.SHORT_DASH
+			elif sty in ("dot", "dotted"):
+				lnStyle = wx.DOT
+			elif sty in ("dotdash", "dashdot"):
+				lnStyle = wx.DOT_DASH
+			pen = wx.Pen(self._borderColor, self._borderWidth, lnStyle)
+			
 			dc.SetPen(pen)
 			pts = [(0,0), (self.Width, 0), (self.Width, self.Height), (0, self.Height), (0,0)]
 			dc.DrawLines(pts)
@@ -717,6 +728,17 @@ class dPemMixin(dPemMixinBase):
 			self._needRedraw = True
 		else:
 			self._properties["BorderColor"] = val
+	
+	def _getBorderLineStyle(self):
+		return self._borderLineStyle
+	
+	def _setBorderLineStyle(self, val):
+		val = val.lower().strip()
+		if val in ("solid", "dash", "dashed", "dot", "dotted", "dotdash", "dashdot"):
+			self._borderLineStyle = val
+			self._needRedraw = True
+		else:
+			raise ValueError, "The only possible values are 'Solid', 'Dash', 'Dot', or 'DotDash'"
 
 	def _getBorderWidth(self):
 		return self._borderWidth
@@ -1169,6 +1191,15 @@ class dPemMixin(dPemMixinBase):
 	BorderColor = property(_getBorderColor, _setBorderColor, None,
 			_("""Color of the border drawn around the control, if any. 
 			Default='black'  (str or color tuple)"""))
+	
+	BorderLineStyle = property(_getBorderLineStyle, _setBorderLineStyle, None,
+			_("""Style of line for the border drawn around the control. Possible
+			choices are:
+				'solid'  (default)
+				'dash' / 'dashed'
+				'dot' / 'dotted'
+				'dotdash' / 'dashdot'
+			"""))
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
 			_("""Specifies the type of border for this window. (int).

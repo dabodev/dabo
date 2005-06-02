@@ -77,8 +77,13 @@ class dNode(dabo.common.dObject):
 		return self.tree.setNodeImg(self, key)
 		
 	def _getCap(self):
-		return self.tree.GetItemText(self.id)
+		if self.txt:
+			ret = self.txt
+		else:
+			ret = self.tree.GetItemText(self.id)
+		return ret
 	def _setCap(self, val):
+		self.txt = val
 		self.tree.SetItemText(self.id, val)
 	
 	def _getChildren(self):
