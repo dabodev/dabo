@@ -229,7 +229,7 @@ class dPemMixin(dPemMixinBase):
 
 
 	def __onCreate(self, evt):
-		if self.Parent:
+		if self.Parent and hasattr(self.Parent, "raiseEvent"):
 			self.Parent.raiseEvent(dEvents.ChildBorn, None, child=self)
 	
 	def __onChildBorn(self, evt):
