@@ -132,9 +132,12 @@ class dPageNoTabs(dabo.ui.dPanel):
 
 
 
+import random
 class TestPage(dPage.dPage):
 	def afterInit(self):
 		self.lbl = dabo.ui.dLabel(self, FontSize=36)
+		color = random.choice(dabo.common.dColors.colorDict.keys())
+		self.BackColor = self.lbl.Caption = color
 		self.Sizer = sz = dabo.ui.dSizer("h")
 		sz.appendSpacer(1, 1)
 		sz.append(self.lbl, 1)

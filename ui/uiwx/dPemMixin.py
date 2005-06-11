@@ -478,26 +478,12 @@ class dPemMixin(dPemMixinBase):
 		self.PopupMenu(menu, pos)
 		
 	
-	def getControllingSizerItem(self):
-		"""Returns the sizer item (or None if not in a sizer) that controls
-		the sizing of this control. It is useful for getting information
-		about how the item is being sized, and for changing those 
-		settings.
-		"""
-		pos = self.getPositionInSizer()
-		if pos is None:
-			# Nothing to do here...
-			return None
-		sz = self.GetContainingSizer()
-		return sz.GetChildren()[pos]
-	
-	
 	def _getSizerInfo(self, prop):
 		"""Returns True or False based on whether the property
 		passed is contained in the sizer item's flags.
 		"""
 		prop = prop.lower().strip()
-		flag = self.getControllingSizerItem().GetFlag()
+		flag = self.ControllingSizerItem.GetFlag()
 		propDict = {"left" : wx.ALIGN_LEFT, 
 			"right" : wx.ALIGN_RIGHT,
 			"center" : wx.ALIGN_CENTER, 
@@ -827,6 +813,13 @@ class dPemMixin(dPemMixinBase):
 	def _getCntrlSizer(self):
 		return self.GetContainingSizer()
 		
+	def _getCntrlSzItem(self):
+		pos = self.getPositionInSizer()
+		if pos is None:
+			# Nothing to do here...
+			return None
+		sz = self.GetContainingSizer()
+		return sz.GetChildren()[pos]
 		
 	def _getEnabled(self):
 		return self.IsEnabled()
@@ -1221,6 +1214,11 @@ class dPemMixin(dPemMixinBase):
 	
 	ControllingSizer = property(_getCntrlSizer, None, None,
 			_("Reference to the sizer that controls this control's layout.  (dSizer)") )
+
+	ControllingSizerItem = property(_getCntrlSzItem, None, None,
+			_("""Returns the sizer item (or None if not in a sizer) that controls the 
+		sizing of this control. It is useful for getting information about how the 
+		item is being sized, and for changing those settings. (wx.SizerItem)"""))
 		
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("Specifies whether the object (and its children) can get user input. (bool)") )

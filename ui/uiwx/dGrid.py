@@ -181,10 +181,16 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 	
 	def CanGetValueAs(self, row, col, typ):
-		return typ == self.dataTypes[col]
+		if self.grid.useCustomGetValue:
+			return self.grid.customCanGetValueAs(row, col, typ)
+		else:
+			return typ == self.dataTypes[col]
 
 	def CanSetValueAs(self, row, col, typ):
-		return typ == self.dataTypes[col]
+		if self.grid.useCustomSetValue:
+			return self.grid.customCanSetValueAs(row, col, typ)
+		else:
+			return typ == self.dataTypes[col]
 
 		
 	def fillTable(self, force=False):
@@ -478,7 +484,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.Columns = []
 		# List of Row Labels, if any
 		self._rowLabels = []
-		
+
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
 		
@@ -529,6 +535,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.SetRowLabelSize(0)
 		self._editable = False
 		self.EnableEditing(self._editable)
+		
+		# These need to be set to True, and custom methods provided,
+		# if a grid with variable types in a single column is used.
+		self.useCustomGetValue = False
+		self.useCustomSetValue = False
 		
 		# Cell renderer and editor classes
 		self.defaultRenderers = {
@@ -641,7 +652,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return self.GetValue(row, col)
 	def setValue(self, row, col, val):
 		return self.SetValue(row, col, val)
-		
+
+	# These two methods need to be customized if a grid has columns
+	# with more than one type of data in them.	
+	def customCanGetValueAs(self, row, col, typ): pass
+	def customCanSetValueAs(self, row, col, typ): pass
+			
 		
 	def fillGrid(self, force=False):
 		""" Refresh the grid to match the data in the data set."""

@@ -155,8 +155,12 @@ def getEventData(wxEvt):
 		
 	if isinstance(wxEvt, wx.TreeEvent):
 		tree = wxEvt.GetEventObject()
-		ed["selectedNode"] = tree.Selection
-		ed["selectedCaption"] = tree.Selection.Caption
+		sel = tree.Selection
+		ed["selectedNode"] = sel
+		if isinstance(sel, list):
+			ed["selectedCaption"] = ", ".join([ss.Caption for ss in sel])
+		else:
+			ed["selectedCaption"] = tree.Selection.Caption
 	
 	if isinstance(wxEvt, wx.grid.GridEvent):
 		ed["row"] = wxEvt.GetRow()
