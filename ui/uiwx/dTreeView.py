@@ -178,6 +178,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 	
 	def clear(self):
 		self.DeleteAllItems()
+		self.nodes = []
 
 	
 	def setRootNode(self, txt):
@@ -402,8 +403,11 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 					if n.id in ids]
 		else:
 			id = self.GetSelection()
-			ret = [ n for n in self.nodes
-					if n.id == id][0]
+			if id:
+				ret = [ n for n in self.nodes
+						if n.id == id]
+			else:
+				ret = []
 		return ret
 	def _setSelection(self, node):
 		if self._constructed():

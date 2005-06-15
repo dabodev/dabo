@@ -1099,6 +1099,9 @@ class dPemMixin(dPemMixinBase):
 	def _setSizer(self, val):
 		if self._constructed():
 			self.SetSizer(val)
+			try:
+				val.Parent = self
+			except: pass
 		else:
 			self._properties["Sizer"] = val
 			
