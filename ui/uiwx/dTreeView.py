@@ -398,7 +398,10 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 	
 	def _getSelection(self):
 		if self.__multiSelect:
-			ids = self.GetSelections()
+			try:
+				ids = self.GetSelections()
+			except:
+				ids = []
 			ret = [ n for n in self.nodes
 					if n.id in ids]
 		else:
