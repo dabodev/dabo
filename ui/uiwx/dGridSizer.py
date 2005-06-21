@@ -8,6 +8,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	_IsContainer = False
 	
 	def __init__(self, vgap=3, hgap=3, maxRows=0, maxCols=0, **kwargs):
+		self._baseClass = dGridSizer
 		wx.GridBagSizer.__init__(self, vgap=vgap, hgap=hgap)
 		
 		self._maxRows = 0
@@ -140,7 +141,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 				try:
 					self.RemoveGrowableCol(colNums)
 				except: pass
-		self.Layout()
+		self.layout()
 		
 		
 	def setRowExpand(self, expand, rowNums, proportion=0):
@@ -172,6 +173,30 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		self.Layout()
 		
 	
+	def isRowGrowable(self, row):
+		"""Returns True if the specified row is growable."""
+		# If the row isn't growable, it will throw an error
+		ret = True
+		try:
+			self.RemoveGrowableRow(row)
+			self.AddGrowableRow(row)
+		except:
+			ret = False
+		return ret
+		
+		
+	def isColGrowable(self, col):
+		"""Returns True if the specified column is growable."""
+		# If the col isn't growable, it will throw an error
+		ret = True
+		try:
+			self.RemoveGrowableCol(col)
+			self.AddGrowableCol(col)
+		except:
+			ret = False
+		return ret
+		
+		
 	def moveCell(self, fromRow, fromCol, toRow, toCol, delay=False):
 		""" Move the contents of the specified cell to the target
 		location. By default, layout() is called; this can be changed when 
@@ -227,8 +252,36 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 						break
 				emptyCol += 1
 		return ret
+	
+	
+	def getGridPos(self, obj):
+		"""Given an object that is contained in this grid
+		sizer, returns a (row,col) tuple for that item's location.
+		"""
+		if isinstance(obj, wx.GBSizerItem):
+			obj = self.getItem(obj)
+		try:
+			row, col = self.GetItemPosition(obj)
+		except PyAssertionError, e:
+			# Window isn't controlled by this sizer
+			row, col = None, None
+		return (row, col)
 
 
+	def getGridSpan(self, obj):
+		"""Given an object that is contained in this grid
+		sizer, returns a (row,col) tuple for that item's cell span.
+		"""
+		if isinstance(obj, wx.GBSizerItem):
+			obj = self.getItem(obj)
+		try:
+			row, col = self.GetItemSpan(win)
+		except PyAssertionError, e:
+			# Window isn't controlled by this sizer
+			row, col = None, None
+		return (row, col)
+
+	
 	def copyGrid(self, oldGrid):
 		""" This method takes an existing GridSizer, and copies
 		the contents to the current grid. The properties of each

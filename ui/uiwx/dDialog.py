@@ -64,11 +64,11 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 		""" Need to augment this to make sure the dialog
 		is removed from the app's forms collection.
 		"""
-		super(dDialog, self).release()
 		if self.Application is not None:
 			try:
 				self.Application.uiForms.remove(self)
 			except: pass
+		super(dDialog, self).release()
 		
 
 	def _getAutoSize(self):

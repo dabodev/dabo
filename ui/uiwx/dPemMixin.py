@@ -532,8 +532,9 @@ class dPemMixin(dPemMixinBase):
 			dabo.errorLog.write(_("Containing sizer did not match item %s") % self.Name)
 			return None
 		elif isinstance(sz, wx.GridBagSizer):
-			# Need to find out how to do this...
-			return None
+			# Return a row,col tuple
+			row, col = sz.GetItemPosition(self)
+			return (row, col)
 		else:
 			return None
 	
@@ -814,12 +815,15 @@ class dPemMixin(dPemMixinBase):
 		return self.GetContainingSizer()
 		
 	def _getCntrlSzItem(self):
-		pos = self.getPositionInSizer()
-		if pos is None:
-			# Nothing to do here...
-			return None
 		sz = self.GetContainingSizer()
-		return sz.GetChildren()[pos]
+		if isinstance(sz, wx.GridBagSizer):
+			return sz.FindItem(self)
+		else:
+			pos = self.getPositionInSizer()
+			if pos is None:
+				# Nothing to do here...
+				return None
+			return sz.GetChildren()[pos]
 		
 	def _getEnabled(self):
 		return self.IsEnabled()

@@ -384,7 +384,7 @@ class dColumn(dabo.common.dObject):
 	"""
 	def __init__(self, parent=None, *args, **kwargs):
 		super(dColumn, self).__init__()
-		
+			
 		# This class doesn't have support for the typical Dabo 
 		# technique of passing in property settings in the 
 		# constructor, so fake it here.
@@ -402,6 +402,10 @@ class dColumn(dabo.common.dObject):
 		except: self._field = ""
 		try: self._dataType = kwargs["DataType"]
 		except: self._dataType = ""
+		# Can this column be sorted? Default: True
+		self.canSort = True
+		# Do we run incremental search with this column? Default: True
+		self.canIncrSearch = True
 		
 	def changeMsg(self, prop):
 		if self.Parent:
@@ -1255,12 +1259,19 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			gridCol = self.CurrentColumn
 		
 		if isinstance(gridCol, dColumn):
+			canSort = gridCol.canSort
 			columnToSort = gridCol
 			sortCol = self.Columns.index(gridCol)
 		else:
 			sortCol = gridCol
 			columnToSort = self.Columns[gridCol].Field
+			canSort = self.Columns[gridCol].canSort
 
+		if not canSort:
+			# Some columns, especially those with mixed values,
+			# should not be sorted.
+			return
+			
 		sortOrder="ASC"
 		if columnToSort == self.sortedColumn:
 			sortOrder = self.sortOrder
@@ -1313,8 +1324,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def runIncSearch(self):
-		""" Run the incremental search.
-		"""
+		""" Run the incremental search."""
 		gridCol = self.CurrentColumn
 		if gridCol < 0:
 			gridCol = 0
@@ -1322,9 +1332,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if self.RowCount <= 0:
 			# Nothing to seek within!
 			return
+		if not self.Columns[gridCol].canIncrSearch:
+			# Doesn't apply to this column.
+			self.currSearchStr = ""
+			return
 		newRow = self.CurrentRow
 		ds = self.getDataSet()
-		srchStr = self.currSearchStr
+		srchStr = origSrchStr = self.currSearchStr
+		self.currSearchStr = ""
 		near = self.searchNearest
 		caseSensitive = self.searchCaseSensitive
 		# Copy the specified field vals and their row numbers to a list, and 
@@ -1388,7 +1403,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		# Add a '.' to the status bar to signify that the search is
 		# done, and clear the search string for next time.
-		self.Form.setStatusText("Search: %s." % self.currSearchStr)
+		self.Form.setStatusText("Search: %s." % origSrchStr)
 		self.currSearchStr = ""
 
 
