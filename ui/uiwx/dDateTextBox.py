@@ -335,7 +335,7 @@ C: Popup Calendar to Select
 	def initEvents(self):
 		#dDateTextBox.doDefault()
 		super(dDateTextBoxOrig, self).initEvents()
-		self.bindEvent(dabo.dEvents.MouseRightDown, self.__onRightClick)
+		self.bindEvent(dabo.dEvents.MouseRightUp, self.__onRightClick)
 		if self.useWxEvents:
 			self.Bind(wx.EVT_CHAR, self.__onChar)
 		else:
@@ -378,11 +378,8 @@ C: Popup Calendar to Select
 	def __onRightClick(self, evt):
 		""" Display a context menu for selecting the desired date format """
 		menu = dabo.ui.dMenu()
-		bindobj = self
-		if wx.Platform == "__WXMAC__":
-			bindobj = menu
 		for nm, format in self.formats.items():
-			itm = menu.append(format["prompt"], bindobj, func=self.onRClickMenu)
+			itm = menu.append(format["prompt"], bindfunc=self.onRClickMenu)
 			format["id"] = itm.GetId()
 		self.Parent.PopupMenu(menu, evt.EventData["mousePosition"])
 		evt.Continue = False  # otherwise, a GTK unicode menu will appear

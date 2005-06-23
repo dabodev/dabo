@@ -116,8 +116,12 @@ class EventMixin(object):
 			self._EventBindings = []
 		else:			
 			# Iterate through _EventBindings and remove the appropriate ones
-			for index in range(len(self._EventBindings), 0, -1):
-				binding = self._EventBindings.pop()
+			eb = self._EventBindings[:]
+			num = len(self._EventBindings)
+			self._EventBindings = []
+			newBindings = []
+			for index in range(num, 0, -1):
+				binding = eb.pop()
 				bindingClass, bindingFunction = binding[0], binding[1]
 				
 				if (eventClass is None or bindingClass == eventClass) and (
@@ -126,9 +130,12 @@ class EventMixin(object):
 						pass
 				else:
 					# Not matched: put it back
-					self._EventBindings.append(binding)
+					newBindings.append(binding)
+			self._EventBindings = newBindings
 
-		
+	# Allow for alternate capitalization
+	unbindEvent = unBindEvent
+	
 	def _getEventBindings(self):
 		try:
 			return self._eventBindings
