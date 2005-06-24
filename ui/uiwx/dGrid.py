@@ -402,6 +402,9 @@ class dColumn(dabo.common.dObject):
 		except: self._field = ""
 		try: self._dataType = kwargs["DataType"]
 		except: self._dataType = ""
+		try: self._capBkColor = kwargs["HeaderBackgroundColor"]
+		except: self._hdrBkColor = None
+
 		# Can this column be sorted? Default: True
 		self.canSort = True
 		# Do we run incremental search with this column? Default: True
@@ -428,6 +431,16 @@ class dColumn(dabo.common.dObject):
 	def _setFld(self, val):
 		self._field = val
 		self.changeMsg("field")
+	
+	def _getHdrBkColor(self):
+		return self._hdrBkColor
+	def _setHdrBkColor(self, val):
+		if isinstance(val, basestring):
+			try:
+				val = dColors.colorTupleFromName(val)
+			except: pass
+		self._hdrBkColor = val
+		self.Parent.Refresh()
 	
 	def _getName(self):
 		return self._name
@@ -459,6 +472,9 @@ class dColumn(dabo.common.dObject):
 
 	Field = property(_getFld, _setFld, None,
 			_("Field key in the data set to which this column is bound.  (str)") )
+
+	HeaderBackgroundColor = property(_getHdrBkColor, _setHdrBkColor, None,
+			_("Optional color for the background of the column header  (str)") )
 
 	Name = property(_getName, _setName, None,
 			_("Name of this column  (str)") )
@@ -934,9 +950,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.raiseEvent(dEvents.Paint, evt)
 	def onHeaderPaint(self, evt):
 		""" Occurs when it is time to paint the grid column headers."""
-		dabo.ui.callAfter(self.hdrPaint)
-	
-	def hdrPaint(self):
+# 		dabo.ui.callAfter(self.hdrPaint)
+# 	
+# 	def hdrPaint(self):
 		w = self.Header
 		dc = wx.ClientDC(w)
 		clientRect = w.GetClientRect()
@@ -948,18 +964,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Get the height
 		ht = self.GetColLabelSize()
 
-		# We are totally overriding wx's drawing of the column headers,
-		# so we are responsible for drawing the rectangle, the column
-		# header text, and the sort indicators.
 		for col in range(self.ColumnCount):
 			dc.SetBrush(wx.Brush("WHEAT", wx.TRANSPARENT))
 			dc.SetTextForeground(wx.BLACK)
 			colSize = self.GetColSize(col)
 			rect = (totColSize, 0, colSize, ht)
-# 			dc.DrawRectangle(rect[0] - (col != 0 and 1 or 0), 
-# 					rect[1], 
-# 					rect[2] + (col != 0 and 1 or 0), 
-# 					rect[3])
+			colObj = self.Columns[col]
+			if colObj.HeaderBackgroundColor is not None:
+				holdBrush = dc.GetBrush()
+				dc.SetBrush(wx.Brush(colObj.HeaderBackgroundColor, wx.SOLID))
+				dc.DrawRectangle(rect[0] - (col != 0 and 1 or 0), 
+						rect[1], 
+						rect[2] + (col != 0 and 1 or 0), 
+						rect[3])
+				dc.SetBrush(holdBrush)
 			totColSize += colSize
 
 			if self.Columns[col].Field == self.sortedColumn:
