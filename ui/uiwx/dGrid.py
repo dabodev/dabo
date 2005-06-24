@@ -402,7 +402,7 @@ class dColumn(dabo.common.dObject):
 		except: self._field = ""
 		try: self._dataType = kwargs["DataType"]
 		except: self._dataType = ""
-		try: self._capBkColor = kwargs["HeaderBackgroundColor"]
+		try: self._hdrBkColor = kwargs["HeaderBackgroundColor"]
 		except: self._hdrBkColor = None
 
 		# Can this column be sorted? Default: True
