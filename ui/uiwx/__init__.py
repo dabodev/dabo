@@ -33,6 +33,7 @@ from dBitmap import dBitmap
 from dBitmapButton import dBitmapButton
 from dButton import dButton
 from dCheckBox import dCheckBox
+from dColorDialog import dColorDialog
 from dComboBox import dComboBox
 from dCommandButton import dCommandButton
 from dDateTextBox import dDateTextBox
@@ -192,6 +193,15 @@ def getEventData(wxEvt):
 	
 def getMouseObject():
 	return wx.FindWindowAtPoint(wx.GetMousePosition())
+
+
+def getColor(color=None):
+	ret = None
+	dlg = dColorDialog(None, color)
+	if dlg.show() == k.DLG_OK:
+		ret = dlg.getColor()
+	dlg.release()
+	return ret
 
 
 def _getPath(cls, **kwargs):
