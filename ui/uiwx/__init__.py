@@ -195,11 +195,31 @@ def getMouseObject():
 	return wx.FindWindowAtPoint(wx.GetMousePosition())
 
 
+def getString(message="Please enter a string:", caption="Dabo",	defaultValue=""):
+	dlg = wx.TextEntryDialog(None, message, caption, defaultValue)
+	retVal = dlg.ShowModal()
+	if retVal in (wx.ID_YES, wx.ID_OK):
+		val = dlg.GetValue()
+	else:
+		val = None
+	dlg.Destroy()
+	return val
+	
+
 def getColor(color=None):
 	ret = None
 	dlg = dColorDialog(None, color)
 	if dlg.show() == k.DLG_OK:
 		ret = dlg.getColor()
+	dlg.release()
+	return ret
+
+
+def getFont(font=None):
+	ret = None
+	dlg = dFontDialog(None, font)
+	if dlg.show() == k.DLG_OK:
+		ret = dlg.getFont()
 	dlg.release()
 	return ret
 

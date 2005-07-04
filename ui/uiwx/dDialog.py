@@ -30,9 +30,9 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 	def _afterInit(self):
 		self.MenuBarClass = None
 		self.Sizer = dabo.ui.dSizer("V")
-		self.mainPanel = mp = dabo.ui.dPanel(self)
-		self.Sizer.append1x(mp)
-		mp.Sizer = dabo.ui.dSizer("V")
+# 		self.mainPanel = mp = dabo.ui.dPanel(self)
+# 		self.Sizer.append1x(mp)
+# 		mp.Sizer = dabo.ui.dSizer("V")
 		super(dDialog, self)._afterInit()
 		# Hook method, so that we add the buttons last
 		self._addControls()
@@ -121,8 +121,7 @@ class dOkCancelDialog(dDialog):
 		# before we add the OK/Cancel buttons.
 		super(dOkCancelDialog, self)._addControls()
 
-		mp = self.mainPanel
-		pnl = dabo.ui.dPanel(mp)
+		pnl = dabo.ui.dPanel(self)
 		hs = dabo.ui.dSizer("H")
 		pnl.Sizer = hs
 		hs.append( (24, 1) )
@@ -144,9 +143,9 @@ class dOkCancelDialog(dDialog):
 		
 		# Add a 10-pixel spacer between the added controls and 
 		# the OK/Cancel button panel
-		mp.Sizer.append( (1, 10) )		
-		mp.Sizer.append(pnl, 0, alignment=("bottom", "right") )#, border=20)
-		mp.Sizer.append( (1, 20) )		
+		self.Sizer.append( (1, 10) )		
+		self.Sizer.append(pnl, 0, alignment=("bottom", "right") )#, border=20)
+		self.Sizer.append( (1, 20) )		
 		
 		self.Layout()
 		

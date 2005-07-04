@@ -17,17 +17,6 @@ def getForm():
 		else:
 			form = mainForm
 
-def getString(message="Please enter a string:", caption="Dabo",	defaultValue=""):
-	form = getForm()	
-	dlg = wx.TextEntryDialog(form, message, caption, defaultValue)
-	retVal = dlg.ShowModal()
-	if retVal in (wx.ID_YES, wx.ID_OK):
-		val = dlg.GetValue()
-	else:
-		val = None
-	dlg.Destroy()
-	return val
-	
 class dMessageBox(wx.MessageDialog):
 	def __init__(self, message, title, style):
 		form = getForm()
