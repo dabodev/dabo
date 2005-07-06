@@ -4,6 +4,7 @@ import dabo.ui
 import dabo.dException as dException
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _, n_
+from dabo.lib.dUtils import padl
 
 dabo.ui.loadUI("wx")
 
@@ -813,10 +814,4 @@ class EditPage(Page):
 			firstControl.setFocus()
 
 
-
-# For convenience		
-def padl(string, length, fill=" "):
-	string = str(string)[:length]
-	return (fill * (length-len(string)) ) + string
-		
 

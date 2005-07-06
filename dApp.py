@@ -80,7 +80,7 @@ class dApp(dabo.common.dObject):
 		Various UI's will have app objects also, which 
 		dabo.App is a wrapper for. 
 	"""
-	def __init__(self):
+	def __init__(self, selfStart=False):
 		self._uiAlreadySet = False
 		dabo.dAppRef = self
 		#dApp.doDefault()
@@ -91,6 +91,13 @@ class dApp(dabo.common.dObject):
 		self.showMainFormOnStart = True
 		self._wasSetup = False
 		self._cryptoProvider = None
+		
+		# For simple UI apps, this allows the app object to be created
+		# and started in one step. It also suppresses the display of
+		# the main form.
+		if selfStart:
+			self.showMainFormOnStart = False
+			self.setup()
 		
 
 	def setup(self, initUI=True):

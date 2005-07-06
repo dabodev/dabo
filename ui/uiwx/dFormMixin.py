@@ -44,6 +44,10 @@ class dFormMixin(pm.dPemMixin):
 			self.Application.uiForms.add(self)
 		# Flag to skip updates when they aren't needed
 		self._isClosed = False
+		# Centering information
+		self._normLeft = self.Left
+		self._normTop = self.Top
+		self._centered = False
 		
 		super(dFormMixin, self)._afterInit()
 	
@@ -280,23 +284,8 @@ class dFormMixin(pm.dPemMixin):
 
 
 	def setStatusText(self, *args):
-		""" Set the text of the status bar.
-
-		Call this instead of SetStatusText() and dabo will decide whether to 
-		send the text to the main frame or this frame. This matters with MDI
-		versus non-MDI forms.
-		"""
-		if isinstance(self, wx.MDIChildFrame):
-			controllingFrame = self.Application.MainForm
-		else:
-			controllingFrame = self
-		if controllingFrame.GetStatusBar():
-			if self._holdStatusText:
-				controllingFrame.SetStatusText(self._holdStatusText)
-				self._holdStatusText = ""
-			else:
-				controllingFrame.SetStatusText(*args)
-			controllingFrame.GetStatusBar().Update()
+		"""Moved functionality to the StatusText property setter."""
+		self._setStatusText(*args)
 		
 	
 	def layout(self):
@@ -337,6 +326,23 @@ class dFormMixin(pm.dPemMixin):
 
 	def _getActiveControl(self):
 		return self.FindFocus()
+	
+	def _getCentered(self):
+		return self._centered
+	def _setCentered(self, val):
+		oldCentered = self._centered
+		self._centered = val
+		if val:
+			if not oldCentered:
+				# Save the old position
+				self._normLeft = self.Left
+				self._normTop = self.Top
+			# Center it!
+			self.CenterOnScreen(wx.BOTH)
+		else:
+			# restore the old position
+			self.Left = self._normLeft
+			self.Top = self._normTop
 
 	def _getIcon(self):
 		try:
@@ -458,6 +464,35 @@ class dFormMixin(pm.dPemMixin):
 		if value:
 			self.addWindowStyleFlag(wx.SYSTEM_MENU)
 
+	def _getStatusText(self):
+		ret = ""
+		if isinstance(self, wx.MDIChildFrame):
+			controllingFrame = self.Application.MainForm
+		else:
+			controllingFrame = self
+		sb = controllingFrame.GetStatusBar()
+		if sb:
+			ret = sb.GetStatusText()
+		return ret
+	def _setStatusText(self, val):
+		""" Set the text of the status bar. Dabo will decide whether to 
+		send the text to the main frame or this frame. This matters with MDI
+		versus non-MDI forms.
+		"""
+		if isinstance(self, wx.MDIChildFrame):
+			controllingFrame = self.Application.MainForm
+		else:
+			controllingFrame = self
+		if controllingFrame.GetStatusBar():
+			if self._holdStatusText:
+				controllingFrame.SetStatusText(self._holdStatusText)
+				self._holdStatusText = ""
+			else:
+				controllingFrame.SetStatusText(val)
+			controllingFrame.GetStatusBar().Update()
+
+
+
 	def _getTinyTitleBar(self):
 		return self.hasWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
 	def _setTinyTitleBar(self, value):
@@ -512,6 +547,9 @@ class dFormMixin(pm.dPemMixin):
 	ActiveControl = property(_getActiveControl, None, None, 
 		_("Contains a reference to the active control on the form, or None."))
 
+	Centered = property(_getCentered, _setCentered, None, 
+		_("Centers the form on the screen when set to True.  (bool)"))
+
 	Icon = property(_getIcon, _setIcon, None, 
 		_("Specifies the icon for the form. (wxIcon)"))
 
@@ -549,6 +587,9 @@ class dFormMixin(pm.dPemMixin):
 
 	ShowSystemMenu = property(_getShowSystemMenu, _setShowSystemMenu, None,
 		_("Specifies whether a system menu is displayed in the title bar. (bool)."))
+
+	StatusText = property(_getStatusText, _setStatusText, None,
+		_("Text displayed in the form's status bar. (string)"))
 
 	TinyTitleBar = property(_getTinyTitleBar, _setTinyTitleBar, None,
 		_("Specifies whether the title bar is small, like a tool window. (bool)."))

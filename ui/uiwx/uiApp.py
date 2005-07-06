@@ -91,10 +91,16 @@ class uiApp(wx.App, dObject):
 		cycle through all the forms and determine if they can all be
 		safely closed. If it closes them all, it will close itself.
 		"""
+		frms = self.Application.uiForms
 		if self.dApp.MainForm:
+			# First close all non-child forms
+			orphans = [frm for frm in frms
+					if frm.Parent is not self.dApp.MainForm]
+			for orphan in orphans:
+				orphan.close()
+			# Now close the main form. It will close any of its children.
 			self.dApp.MainForm.close()
 		else:
-			frms = self.Application.uiForms
 			while frms:
 				frm = frms[0]
 				# This will allow forms to veto closing (i.e., user doesn't
