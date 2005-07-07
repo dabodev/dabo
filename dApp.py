@@ -336,40 +336,31 @@ class dApp(dabo.common.dObject):
 		check for a python code definition file named 'dbConnectionDefs'.
 		"""
 		connDefs = {}
+
+		# Import any *.cnxml files
 		parser = dabo.common.connParser
-		homeDir = self.HomeDirectory
-		if os.path.exists("%sdefault.cnxml" % homeDir):
-			connDefs = parser.importConnections("%sdefault.cnxml" % homeDir)
-		if not connDefs:
-			# Try importing all .cnxml files
-			cnFiles = glob.glob("*.cnxml")
-			for cn in cnFiles:
-				cnDefs = parser.importConnections(cn)
-				connDefs.update(cnDefs)
-		if not connDefs:
-			# No XML definitions present. Try looking for python code
-			# definitions instead.
-			try:
-				import dbConnectionDefs
-				connDefs = dbConnectionDefs.getDefs()
-			except:
-				pass
+		files = glob.glob(os.path.join(self.HomeDirectory, "*.cnxml"))
+		for f in files:
+			connDefs.update(parser.importConnections(f))
+
+		# Import any python code connection definitions (the "old" way).
+		try:
+			import dbConnectionDefs
+			connDefs.update(dbConnectionDefs.getDefs())
+		except:
+			pass
 		
-		if connDefs:
-			# For each connection definition, add an entry to 
-			# self.dbConnectionDefs that contains a key on the 
-			# name, and a value of a dConnectInfo object.
-			for k in connDefs.keys():
-				entry = connDefs[k]
-				ci = dabo.db.dConnectInfo()
-				ci.setConnInfo(entry)
-				self.dbConnectionDefs[k] = ci
+		# For each connection definition, add an entry to 
+		# self.dbConnectionDefs that contains a key on the 
+		# name, and a value of a dConnectInfo object.
+		for k,v in connDefs.items():
+			print k,v
+			ci = dabo.db.dConnectInfo()
+			ci.setConnInfo(v)
+			self.dbConnectionDefs[k] = ci
 
-			dabo.infoLog.write(_("%s database connection definition(s) loaded.") % (
-												len(self.dbConnectionDefs)))
-
-		else:
-			dabo.infoLog.write(_("No database connection definitions loaded (dbConnectionDefs.py)"))
+		dabo.infoLog.write(_("%s database connection definition(s) loaded.") 
+			% (len(self.dbConnectionDefs)))
 
 
 	def _initUI(self):

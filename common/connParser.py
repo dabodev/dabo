@@ -3,11 +3,11 @@ from StringIO import StringIO
 import os.path
 
 class connHandler(xml.sax.ContentHandler):
-	_IsContainer = False
 	
 	def __init__(self):
 		self.connDict = {}
-		self.blankConn = {"dbtype" : "",
+		self.blankConn = {"name": "",
+				"dbtype" : "",
 				"host" : "",
 				"database" : "",
 				"user" : "",
@@ -35,7 +35,11 @@ class connHandler(xml.sax.ContentHandler):
 		if name == "connection":
 			if self.currDict:
 				# Save it to the conn dict
-				nm = "%s@%s" % (self.currDict["user"], self.currDict["host"])
+				nm = self.currDict["name"]
+				if not nm:
+					# name not defined: follow the old convention of user@host
+					nm = self.currDict["name"] = ("%s@%s" 
+						% (self.currDict["user"], self.currDict["host"]))
 				self.connDict[nm] = self.currDict.copy()
 				self.currDict = self.blankConn.copy()
 		self.element = None
@@ -75,12 +79,17 @@ def genConnXML(d):
 	a 'connection' XML element.
 	"""
 	try:
-		ret = getConnTemplate() % (d["dbtype"], d["host"], 
+		if not d.has_key("name"):
+			d["name"] = "%s@%s" % (d["user"], d["host"])
+		ret = getConnTemplate() % (d["name"], d["dbtype"], d["host"], 
 				d["database"], d["user"], d["password"], d["port"])
 	except:
 		# Not a valid conn info dict
 		ret = ""
 	return ret
+	### pkm: I'm pretty sure we want to remove the above try block and propagate
+	###      the exceptions instead of returning "", but am leaving it as-is for
+	###      now for lack of time to test the repercussions.
 
 
 def fileRef(ref=""):
@@ -111,6 +120,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/conn.xsd">
 
 def getConnTemplate():
 	return """	<connection dbtype="%s">
+		<name>%s</name>
 		<host>%s</host>
 		<database>%s</database>
 		<user>%s</user>
