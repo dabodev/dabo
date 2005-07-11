@@ -9,13 +9,13 @@ from xml.parsers import expat
 
 
 class Xml2Obj:
-	'XML to Object'
+	"""XML to Object"""
 	def __init__(self):
 		self.root = None
 		self.nodeStack = []
         
 	def StartElement(self,name,attributes):
-		'SAX start element even handler'
+		"""SAX start element even handler"""
 		element = {"name": name.encode()}
 		if len(attributes) > 0:
 			element["attributes"] = attributes
@@ -31,17 +31,17 @@ class Xml2Obj:
 		self.nodeStack.append(element)
         
 	def EndElement(self,name):
-		'SAX end element event handler'
+		"""SAX end element event handler"""
 		self.nodeStack = self.nodeStack[:-1]
 
 	def CharacterData(self,data):
-		'SAX character data event handler'
+		"""SAX character data event handler"""
 		if string.strip(data):
 			data = data.replace("&lt;", "<")
 			data = data.encode()
 			element = self.nodeStack[-1]
 			if not element.has_key("cdata"):
-				element["cdata"] = ''
+				element["cdata"] = ""
 			element["cdata"] += data
 
 	def Parse(self, xml):
@@ -59,7 +59,7 @@ class Xml2Obj:
 		return self.root
 
 	def ParseFromFile(self, filename):
-		return self.Parse(open(filename,'r').read())
+		return self.Parse(open(filename,"r").read())
 
 
 def xmltodict(xml):
@@ -84,7 +84,7 @@ def dicttoxml(d, level=0):
 
 	if d.has_key("attributes"):
 		for a, v in d["attributes"].items():
-			att += ' %s="%s"' % (a, v)
+			att += " %s="%s": % (a, v)
 
 	s += "%s<%s%s" % ("\t" * level, d["name"], att)
 

@@ -2,7 +2,7 @@ import wx
 import dabo.dConstants as k
 
 
-class OsDialogMixin:
+class OsDialogMixin(object):
 	def __init__(self):
 		self._dir = self._fname = self._msg = self._path = self._wildcard = ""
 

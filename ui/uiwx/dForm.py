@@ -3,7 +3,7 @@ import dabo.dEvents as dEvents
 import dFormMixin as fm
 import dabo.dException as dException
 import dabo.dConstants as k
-import dMessageBox, dProgressDialog
+import dProgressDialog
 import dSizer
 from dabo.dLocalize import _
 import time
@@ -120,7 +120,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 					changed = changed or biz.isAnyChanged()
 			
 			if changed:
-				response = dMessageBox.areYouSure(_("Do you wish to save your changes?"),
+				response = dabo.ui.areYouSure(_("Do you wish to save your changes?"),
 						cancelButton=True)
 				if response == None:    # cancel
 					# They canceled, so don't let the form close
@@ -347,7 +347,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.notifyUser(err)
 			return
 		if bizobj.isAnyChanged() and self.AskToSave:
-			response = dMessageBox.areYouSure(_("Do you wish to save your changes?"),
+			response = dabo.ui.areYouSure(_("Do you wish to save your changes?"),
 								cancelButton=True)
 
 			if response == None:    # cancel
@@ -415,7 +415,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if message is None:
 			message = _("This will delete the current record from %s, and cannot "
 			            "be canceled.\n\n Are you sure you want to do this?") % ds
-		if dMessageBox.areYouSure(message, defaultNo=True):
+		if dabo.ui.areYouSure(message, defaultNo=True):
 			try:
 				bizobj.delete()
 				self.setStatusText(_("Record Deleted."))
@@ -445,7 +445,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			message = _("This will delete all records in the recordset, and cannot "
 						"be canceled.\n\n Are you sure you want to do this?")
 
-		if dMessageBox.areYouSure(message, defaultNo=True):
+		if dabo.ui.areYouSure(message, defaultNo=True):
 			try:
 				bizobj.deleteAll()
 				self.refreshControls()
@@ -505,9 +505,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		this in your own classes if you prefer a different display.
 		"""
 		if severe:
-			func = dMessageBox.stop
+			func = dabo.ui.stop
 		else:
-			func = dMessageBox.info
+			func = dabo.ui.info
 		func(message=msg, title=title)
 
 

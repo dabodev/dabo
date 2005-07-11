@@ -683,7 +683,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		"""Decides whether user should be prompted to save, and whether to save."""
 		result = True
 		if self._rw._isModified():
-			result = dabo.ui.dMessageBox.areYouSure("Save changes to file %s?" 
+			result = dabo.ui.areYouSure("Save changes to file %s?" 
 			                                        % self._fileName)
 			if result:
 				self.saveFile()
@@ -722,7 +722,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 			if fname is None:
 				break
 			if os.path.exists(fname):
-				r = dabo.ui.dMessageBox.areYouSure("File '%s' already exists. "
+				r = dabo.ui.areYouSure("File '%s' already exists. "
 					"Do you want to overwrite it?" % fname, defaultNo=True)
 					
 				if r == None:

@@ -1,7 +1,5 @@
 """ dFormMixin.py """
 import dPemMixin as pm
-#import dBaseMenuBar as mnb
-#import dMenu, dMessageBox, dabo.icons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 

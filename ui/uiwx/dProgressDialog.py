@@ -30,7 +30,6 @@ import time
 from threading import *
 import wx
 import dabo
-import dMessageBox
 from dabo.dLocalize import _
 
 ID_CANCEL = wx.NewId()

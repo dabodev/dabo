@@ -142,7 +142,7 @@ Python Version: %s
 			ee = "dabo"
 			self.unbindKey("o")
 		if ee == "dabo":
-			dabo.ui.dMessageBox.info("""
+			dabo.ui.info("""
 Working for a rise, better my station
 Take my baby to sophistication
 She's seen the ads, she thinks it's nice

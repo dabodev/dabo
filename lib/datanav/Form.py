@@ -323,7 +323,7 @@ class Form(dabo.ui.dForm):
 		sql = self.getPrimaryBizobj().getSQL()
 		if sql is None:
 			sql = "-Nothing executed yet-"
-		mb = dabo.ui.dMessageBox.info(sql, _("Last SQL"))
+		mb = dabo.ui.info(sql, _("Last SQL"))
 
 	def setFieldSpecs(self, xml, tbl):
 		""" Reads in the field spec file and creates the appropriate

@@ -121,7 +121,7 @@ class Wizard(dabo.ui.dForm):
 	def onCancel(self, evt):
 		# User clicked the Cancel button
 		if self.verifyCancel:
-			if not dabo.ui.dMessageBox.areYouSure(self.confirmCancelMsg, 
+			if not dabo.ui.areYouSure(self.confirmCancelMsg, 
 					"Cancel Received", cancelButton=False):
 				return
 		self.Close()
@@ -350,7 +350,7 @@ the box on Page Two.
 			ret = True
 			if dir == "forward":
 				if not self.txt.Value:
-					dabo.ui.dMessageBox.stop( _("Fill in the text box!!") )
+					dabo.ui.stop( _("Fill in the text box!!") )
 					ret = False
 			return ret
 

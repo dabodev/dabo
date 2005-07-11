@@ -625,7 +625,7 @@ class BrowsePage(Page):
 		if self.itemsCreated:
 			if self.Form.preview:
 				# Just previewing 
-				dabo.ui.dMessageBox.info(message="Not available in preview mode", 
+				dabo.ui.info(message="Not available in preview mode", 
 						title = "Preview Mode")
 				return
 			import wx.html

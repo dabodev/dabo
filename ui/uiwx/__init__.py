@@ -62,6 +62,7 @@ from dBaseMenuBar import dBaseMenuBar
 from dMenuBar import dMenuBar
 from dMenu import dMenu
 from dMenuItem import *
+from dMessageBox import dMessageBox
 from dRadioGroup import dRadioGroup
 from dPanel import dPanel
 from dPanel import dScrollPanel
@@ -206,6 +207,43 @@ def getString(message="Please enter a string:", caption="Dabo",	defaultValue="")
 	return val
 	
 
+def areYouSure(message="Are you sure?", title="Dabo",
+			defaultNo=False, cancelButton=True):
+	style = wx.YES_NO|wx.ICON_QUESTION
+	if cancelButton:
+		style = style|wx.CANCEL
+	if defaultNo:
+		style = style|wx.NO_DEFAULT
+
+	dlg = dMessageBox(message, title, style)
+
+	retval = dlg.ShowModal()
+	dlg.Destroy()
+
+	if retval in (wx.ID_YES, wx.ID_OK):
+		return True
+	elif retval in (wx.ID_NO,):
+		return False
+	else:
+		return None
+
+
+def stop(message="Stop", title="Dabo"):
+	style = wx.OK|wx.ICON_HAND
+	dlg = dMessageBox(message, title, style)
+	retval = dlg.ShowModal()
+	dlg.Destroy()
+	return None
+
+
+def info(message="Information", title="Dabo"):
+	style = wx.OK|wx.ICON_INFORMATION
+	dlg = dMessageBox(message, title, style)
+	retval = dlg.ShowModal()
+	dlg.Destroy()
+	return None
+
+	
 def getColor(color=None):
 	ret = None
 	dlg = dColorDialog(None, color)
@@ -239,8 +277,11 @@ def getFile(*args, **kwargs):
 def getSaveAs(*args, **kwargs):
 	if not kwargs.has_key("message"):
 		kwargs["message"] = "Save to:"
-	wc = _getWild(*args)
-	return _getPath(dSaveDialog, wildcard=wc, **kwargs)
+	if kwargs.has_key("wildcard"):
+		args = list(args)
+		args.append(kwargs["wildcard"])
+	kwargs["wildcard"] = _getWild(*args)
+	return _getPath(dSaveDialog, **kwargs)
 
 def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
 	return _getPath(dFolderDialog, message=message, defaultPath=defaultPath, 
