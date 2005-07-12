@@ -3,7 +3,7 @@ import os
 import wx, dabo
 import dPemMixin as pm
 import dBaseMenuBar as mnb
-import dMenu, 
+import dMenu
 import dabo.icons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
