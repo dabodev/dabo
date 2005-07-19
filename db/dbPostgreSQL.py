@@ -14,7 +14,7 @@ class Postgres(dBackend):
 
 	def getConnection(self, connectInfo):
 		### TODO: what connector should we use?
-		import psycopg as dbapi
+		import psycopg2 as dbapi
 		#from pyPgSQL import PgSQL as dbapi
 		
 		#- jfcs 11/01/04 port needs to be a string
@@ -35,7 +35,7 @@ class Postgres(dBackend):
 		### TODO: If PostgreSQL doesn't offer specific Dict cursors, 
 		###   return a plain one, and Dabo will convert it.
 		# the new psycopg 2.0 supports DictCursor
-		import psycopg.extras as cursors
+		import psycopg2.extras as cursors
 		return cursors.DictCursor 
 
 	def escQuote(self, val):

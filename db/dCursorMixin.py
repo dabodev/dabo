@@ -152,7 +152,7 @@ class dCursorMixin(dabo.common.dObject):
 			self.RowNumber = max(self.RowNumber, 0, (self.RowCount-1) )
 
 		if self._records:
-			if isinstance(self._records[0], tuple):
+			if isinstance(self._records[0], tuple) or isinstance(self._records[0], list):
 				# Need to convert each row to a Dict
 				tmpRows = []
 				# First, get the description property and extract the field names from that
