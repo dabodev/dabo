@@ -785,8 +785,7 @@ class EditPage(Page):
 					self.childGrids.append(grid)
 					grid.populate()
 					#grid.Height = 100
-					for window in grid.GetChildren():
-						window.setFocus()
+				
 					mainSizer.append(grid, 1, "expand", border=10,
 							borderFlags=("left", "right") )
 		
