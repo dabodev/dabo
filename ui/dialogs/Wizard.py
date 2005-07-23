@@ -124,7 +124,7 @@ class Wizard(dabo.ui.dForm):
 			if not dabo.ui.areYouSure(self.confirmCancelMsg, 
 					"Cancel Received", cancelButton=False):
 				return
-		self.Close()
+		dabo.ui.callAfter(self.Close)
 				
 	
 	def _finish(self):

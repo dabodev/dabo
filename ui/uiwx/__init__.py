@@ -62,7 +62,7 @@ from dBaseMenuBar import dBaseMenuBar
 from dMenuBar import dMenuBar
 from dMenu import dMenu
 from dMenuItem import *
-from dMessageBox import dMessageBox
+import dMessageBox
 from dRadioGroup import dRadioGroup
 from dPanel import dPanel
 from dPanel import dScrollPanel
@@ -205,45 +205,15 @@ def getString(message="Please enter a string:", caption="Dabo",	defaultValue="")
 		val = None
 	dlg.Destroy()
 	return val
-	
-
-def areYouSure(message="Are you sure?", title="Dabo",
-			defaultNo=False, cancelButton=True):
-	style = wx.YES_NO|wx.ICON_QUESTION
-	if cancelButton:
-		style = style|wx.CANCEL
-	if defaultNo:
-		style = style|wx.NO_DEFAULT
-
-	dlg = dMessageBox(message, title, style)
-
-	retval = dlg.ShowModal()
-	dlg.Destroy()
-
-	if retval in (wx.ID_YES, wx.ID_OK):
-		return True
-	elif retval in (wx.ID_NO,):
-		return False
-	else:
-		return None
 
 
-def stop(message="Stop", title="Dabo"):
-	style = wx.OK|wx.ICON_HAND
-	dlg = dMessageBox(message, title, style)
-	retval = dlg.ShowModal()
-	dlg.Destroy()
-	return None
+# For convenience, make it so one can call dabo.ui.stop("Can't do that")
+# instead of having to type dabo.ui.dMessageBox.stop("Can't do that")
+areYouSure = dMessageBox.areYouSure
+stop = dMessageBox.stop
+info = dMessageBox.info
 
 
-def info(message="Information", title="Dabo"):
-	style = wx.OK|wx.ICON_INFORMATION
-	dlg = dMessageBox(message, title, style)
-	retval = dlg.ShowModal()
-	dlg.Destroy()
-	return None
-
-	
 def getColor(color=None):
 	ret = None
 	dlg = dColorDialog(None, color)
