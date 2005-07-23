@@ -561,22 +561,36 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.useCustomSetValue = False
 		
 		# Cell renderer and editor classes
+		self.stringRendererClass = wx.grid.GridCellStringRenderer
+		self.boolRendererClass = wx.grid.GridCellBoolRenderer
+		self.intRendererClass = wx.grid.GridCellNumberRenderer
+		self.longRendererClass = wx.grid.GridCellNumberRenderer
+		self.floatRendererClass = wx.grid.GridCellFloatRenderer
+		self.listRendererClass = wx.grid.GridCellStringRenderer
+		self.stringEditorClass = wx.grid.GridCellTextEditor
+		self.boolEditorClass = wx.grid.GridCellBoolEditor
+		self.intEditorClass = wx.grid.GridCellNumberEditor
+		self.longEditorClass = wx.grid.GridCellNumberEditor
+		self.floatEditorClass = wx.grid.GridCellFloatEditor
+		self.listEditorClass = wx.grid.GridCellChoiceEditor		
+		
 		self.defaultRenderers = {
-			"str" : wx.grid.GridCellStringRenderer, 
-			"string" : wx.grid.GridCellStringRenderer, 
-			"bool" : wx.grid.GridCellBoolRenderer, 
-			"int" : wx.grid.GridCellNumberRenderer, 
-			"long" : wx.grid.GridCellNumberRenderer, 
-			"float" : wx.grid.GridCellFloatRenderer, 
-			"list" : wx.grid.GridCellStringRenderer  }
+			"str" : self.stringRendererClass, 
+			"string" : self.stringRendererClass, 
+			"bool" : self.boolRendererClass, 
+			"int" : self.intRendererClass, 
+			"long" : self.longRendererClass, 
+			"float" : self.floatRendererClass, 
+			"list" : self.listRendererClass  }
 		self.defaultEditors = {
-			"str" : wx.grid.GridCellTextEditor, 
-			"string" : wx.grid.GridCellTextEditor, 
-			"bool" : wx.grid.GridCellBoolEditor, 
-			"int" : wx.grid.GridCellNumberEditor, 
-			"long" : wx.grid.GridCellNumberEditor, 
-			"float" : wx.grid.GridCellFloatEditor, 
-			"list" : wx.grid.GridCellChoiceEditor  }
+			"str" : self.stringEditorClass, 
+			"string" : self.stringEditorClass, 
+			"bool" : self.boolEditorClass, 
+			"int" : self.intEditorClass, 
+			"long" : self.longEditorClass, 
+			"float" : self.floatEditorClass, 
+			"list" : self.listEditorClass }
+		
 		# If you want a custom editor/renderer for any column, 
 		# add an entry to these dicts with the field name
 		# as the key.
@@ -676,6 +690,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	# with more than one type of data in them.	
 	def customCanGetValueAs(self, row, col, typ): pass
 	def customCanSetValueAs(self, row, col, typ): pass
+	
+	# Wrap the native wx methods
+	def setEditorForCell(self, row, col, edt):
+		self.SetCellEditor(row, col, edt)
+	def setRendererForCell(self, row, col, rnd):
+		self.SetCellRenderer(row, col, rnd)
 			
 		
 	def fillGrid(self, force=False):
