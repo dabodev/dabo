@@ -54,7 +54,7 @@ class Grid(dabo.ui.dGrid):
 	def setBizobj(self, biz):
 		self.bizobj = biz
 
-	def onLeftDClick(self, evt): 
+	def onGridLeftDClick(self, evt): 
 		""" Occurs when the user double-clicks a cell in the grid. 
 		By default, this is interpreted as a request to edit the record.
 		"""

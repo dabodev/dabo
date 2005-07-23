@@ -39,8 +39,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		super(dGridDataTable, self).__init__()
 
 		self.grid = parent
-		# This is specific to the datanav grids
-# 		self.preview = self.grid.Form.preview
 		self.bizobj = None		#self.grid.Form.getBizobj(parent.DataSource) 
 		# Holds a copy of the current data to prevent unnecessary re-drawing
 		self.__currData = []
@@ -59,7 +57,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.rowLabels = []
 		# Call the hook
 		self.initTable()
-	def initTable(self): pass
+
+
+	def initTable(self):
+		pass
 
 
 	def setRowLabels(self, rowLbls):
@@ -80,15 +81,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		
 			
 	def setColumns(self, colDefs):
-		"""This method receives a list of column definitions, and creates
-		the appropriate columns.
+		"""Create columns based on passed list of column definitions.
 		"""
 		# Column order should already be in the definition. If there is a custom
 		# setting by the user, override it.
 		idx = 0
 		colFlds = []
-#		# Make a copy
-#		colDefs = list(colDefs)
+
 		# See if the defs have changed. If not, update any column info,
 		# and return. If so, clear the data to force a re-draw of the table.
 		if colDefs == self.colDefs:
@@ -200,7 +199,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		oldCol = self.grid.CurrentColumn  # current column per the grid
 		if not oldCol:
 			oldCol = 0
-		# Get the data from the parent grid.
+		# Get the data from the grid.
 		dataSet = self.grid.getDataSet()
 		if not force:
 			if self.__currData == dataSet:
@@ -221,14 +220,14 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if len(self.data) > rows:
 			# tell the grid we've added row(s)
 			num = len(self.data) - rows
-			msg = wx.grid.GridTableMessage(self,         # The table
+			msg = wx.grid.GridTableMessage(self,       # The table
 				wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,  # what we did to it
 				num)                                     # how many
 			
 		elif rows > len(self.data):
 			# tell the grid we've deleted row(s)
 			num = rows - len(self.data) 
-			msg = wx.grid.GridTableMessage(self,        # The table
+			msg = wx.grid.GridTableMessage(self,      # The table
 				wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,  # what we did to it
 				0,                                      # position
 				num)                                    # how many
@@ -246,14 +245,15 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			fieldType = col.DataType.lower()
 
 			width = None
-			# 1) Try to get the column width from the fieldspecs:
+			# 1) Try to get the column width from the column definition:
 			if col.Width != -1:
+				## pkm: it would be -1 if not passed to to the column constructor
 				width = col.Width
 
 			# 2) Try to get the column width from the saved user settings:
 			if width is None:
 				width = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
-						self.grid.Form.Name, self.grid.Name, colName, "Width"))
+					self.grid.Form.Name, self.grid.Name, colName, "Width"))
 			
 			# 3) Get sensible default width if the above two methods failed:
 			if width is None or (width < 0):
@@ -491,7 +491,6 @@ class dColumn(dabo.common.dObject):
 
 
 class dGrid(wx.grid.Grid, cm.dControlMixin):
-	_IsContainer = False
 	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dGrid
@@ -512,7 +511,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.bizobj = None
 		self._header = None
 		self.fieldSpecs = {}
-		# This value is in miliseconds
+		# This value is in milliseconds
 		self._searchDelay = 600
 		# When doing an incremental search, do we stop
 		# at the nearest matching value?
@@ -614,7 +613,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxCellChange)
 
 		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
-		self.bindEvent(dEvents.MouseLeftDoubleClick, self.onLeftDClick)
+		self.bindEvent(dEvents.MouseLeftDoubleClick, self._onLeftDClick)
 		self.bindEvent(dEvents.GridRowSize, self._onGridRowSize)
 		self.bindEvent(dEvents.GridSelectCell, self._onGridSelectCell)
 		self.bindEvent(dEvents.GridColSize, self._onGridColSize)
@@ -1038,7 +1037,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def __onWxMouseMotion(self, evt):
 		self.raiseEvent(dEvents.MouseMove, evt)
 	def onMouseMove(self, evt):
-		evt.Continue = False
+		## pkm: commented out the evt.Continue=False because it doesn't appear
+		##      to be needed, and it prevents the native UI from responding.
+		#evt.Continue = False
 		if evt.EventData.has_key("row"):
 			self.onGridMouseMove(evt)
 		else:
@@ -1086,7 +1087,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def __onWxMouseLeftUp(self, evt):
 		self.raiseEvent(dEvents.MouseLeftUp, evt)
 	def onMouseLeftUp(self, evt):
-		evt.Continue = False
+		## pkm: commented out the evt.Continue=False because it doesn't appear
+		##      to be needed, and it prevents the native UI from responding.
+		#evt.Continue = False
 		if evt.EventData.has_key("row"):
 			self.onGridLeftUp(evt)
 		else:
@@ -1125,7 +1128,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.processSort(col)
 		self.headerDragging = False
 		self.headerSizing = False
- 		evt.Continue = False
+		## pkm: commented out the evt.Continue=False because it doesn't appear
+		##      to be needed, and it prevents the native UI from responding.
+		#evt.Continue = False
 
 
 	def __onWxMouseLeftDown(self, evt):
@@ -1166,7 +1171,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.autoSizeCol( self.getColByX(evt.GetX()))
 
 	
-	def onLeftDClick(self, evt): 
+	def _onLeftDClick(self, evt): 
 		"""Occurs when the user double-clicks anywhere in the grid."""
 		if evt.EventData.has_key("row"):
 			# User double-clicked on a cell
