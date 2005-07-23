@@ -176,9 +176,12 @@ class dPageFrameMixin(cm.dControlMixin):
 			self._properties["PageCount"] = value
 	
 	def _getPgs(self):
-		return [pg for pg in self.Children
-				if isinstance(pg, dabo.ui.dPage) ]
-		
+		## pkm: It is possible for pages to not be instances of dPage
+		##      (such as in the AppWizard), resulting in self.PageCount > len(self.Pages)
+		##      if using the commented code below. 
+		#return [pg for pg in self.Children	if isinstance(pg, dabo.ui.dPage) ]
+		return [self.GetPage(pg) for pg in range(self.PageCount)]
+
 	def _getSelectedPage(self):
 		return self.GetPage(self.GetSelection())
 
