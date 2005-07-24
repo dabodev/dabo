@@ -66,13 +66,13 @@ if __name__ == "__main__":
 	from dConnectInfo import dConnectInfo
 	ci = dConnectInfo("MySQL")
 	ci.Host = "paulmcnett.com"
-	ci.DbName = "house"
+	ci.DbName = "dabotest"
 	ci.User = "dabo"
 	ci.Password = ci.encrypt("dabo")
 
 	conn = dConnection(ci).getConnection()
 	cursor = conn.cursor()
-	print cursor.execute("select * from addressbook order by iid limit 10") 
+	print cursor.execute("select * from recipes order by iid limit 10") 
 	for row in cursor.fetchall():
 		print row[0], row[1]
 
