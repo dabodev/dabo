@@ -34,7 +34,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 
 
 	def append(self, item, layout="normal", row=-1, col=-1, 
-			rowSpan=1, colSpan=1, alignment=None,halign="left", 
+			rowSpan=1, colSpan=1, alignment=None, halign="left", 
 			valign="middle", border=0, borderFlags=("all",), flag=None):
 		""" Inserts the passed item at the specified position in the grid. If no
 		position is specified, the item is inserted at the first available open 
@@ -119,12 +119,12 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		""" Sets the 'growable' status of one or more columns. """
 		# If the colNums argument was passed first, switch it with the 
 		# expand argument
-		if isinstance(expand, str):
+		if isinstance(expand, basestring):
 			expand, colNums = colNums, expand
 		if isinstance(colNums, (list, tuple)):
 			for col in colNums:
 				self.setColExpand(expand, col, proportion)
-		elif isinstance(colNums, str):
+		elif isinstance(colNums, basestring):
 			if colNums.lower() == "all":
 				chldrn = self.GetChildren()
 				c = {}
@@ -148,12 +148,12 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		""" Sets the 'growable' status of one or more rows. """
 		# If the colNums argument was passed first, switch it with the 
 		# expand argument
-		if isinstance(expand, str):
+		if isinstance(expand, basestring):
 			expand, rowNums = rowNums, expand
 		if isinstance(rowNums, (list, tuple)):
 			for row in rowNums:
 				self.setRowExpand(expand, row, proportion)
-		elif isinstance(rowNums, str):
+		elif isinstance(rowNums, basestring):
 			if rowNums.lower() == "all":
 				chldrn = self.GetChildren()
 				r = {}

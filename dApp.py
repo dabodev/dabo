@@ -354,7 +354,6 @@ class dApp(dabo.common.dObject):
 		# self.dbConnectionDefs that contains a key on the 
 		# name, and a value of a dConnectInfo object.
 		for k,v in connDefs.items():
-			print k,v
 			ci = dabo.db.dConnectInfo()
 			ci.setConnInfo(v)
 			self.dbConnectionDefs[k] = ci

@@ -84,7 +84,7 @@ def dicttoxml(d, level=0):
 
 	if d.has_key("attributes"):
 		for a, v in d["attributes"].items():
-			att += " %s="%s": % (a, v)
+			att += " %s=\"%s\"" % (a, v)
 
 	s += "%s<%s%s" % ("\t" * level, d["name"], att)
 
@@ -105,5 +105,8 @@ def dicttoxml(d, level=0):
 
 		if level == 1:
 			s += "\n"
+	
+	if level == 0:
+		s = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + s
 
 	return s

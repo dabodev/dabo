@@ -65,10 +65,10 @@ class dConnection(dabo.common.dObject):
 if __name__ == "__main__":
 	from dConnectInfo import dConnectInfo
 	ci = dConnectInfo("MySQL")
-	ci.host = "paulmcnett.com"
-	ci.dbName = "house"
-	ci.user = "dabo"
-	ci.password = "dabo"
+	ci.Host = "paulmcnett.com"
+	ci.DbName = "house"
+	ci.User = "dabo"
+	ci.Password = ci.encrypt("dabo")
 
 	conn = dConnection(ci).getConnection()
 	cursor = conn.cursor()
