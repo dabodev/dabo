@@ -81,7 +81,7 @@ def genConnXML(d):
 	try:
 		if not d.has_key("name"):
 			d["name"] = "%s@%s" % (d["user"], d["host"])
-		ret = getConnTemplate() % (d["name"], d["dbtype"], d["host"], 
+		ret = getConnTemplate() % (d["dbtype"], d["name"], d["host"], 
 				d["database"], d["user"], d["password"], d["port"])
 	except:
 		# Not a valid conn info dict
