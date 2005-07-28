@@ -14,7 +14,7 @@ class dPemMixin(dPemMixinBase):
 	functions along with their own property() statements.
 	"""
 	def __init__(self, preClass=None, parent=None, properties=None, 
-	             *args, **kwargs):
+			*args, **kwargs):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
@@ -175,7 +175,8 @@ class dPemMixin(dPemMixinBase):
 		
 	def _preInitUI(self, kwargs):
 		"""Subclass hook. Some wx objects (RadioBox) need certain props forced if
-		they hadn't been set by the user either as a parm or in beforeInit()"""
+		they hadn't been set by the user either as a parm or in beforeInit()
+		"""
 		return kwargs
 		
 	def _getInitPropertiesList(self):
@@ -364,7 +365,6 @@ class dPemMixin(dPemMixinBase):
 
 	def unbindKey(self, keyCombo):
 		"""Unbind a previously bound key combination.
-
 		Fail silently if the key combination didn't exist already.
 		"""
 		table = self._acceleratorTable
@@ -515,7 +515,8 @@ class dPemMixin(dPemMixinBase):
 		place.
 		If the containing sizer is a box sizer, the integer position will
 		be returned. If it is a grid sizer, a row,col tuple will be returned.
-		If the object is not contained in a sizer, None will be returned."""
+		If the object is not contained in a sizer, None will be returned.
+		"""
 		sz = self.GetContainingSizer()
 		if not sz:
 			return None
@@ -643,7 +644,8 @@ class dPemMixin(dPemMixinBase):
 		# Clear the idle flag.
 		self._needRedraw = False
 	def redraw(self): pass
-		
+	
+	
 	def clone(self, obj, name=None):
 		""" Create another object just like the passed object. It assumes that the 
 		calling object will be the container of the newly created object.
@@ -660,24 +662,21 @@ class dPemMixin(dPemMixinBase):
 	# The following 3 flag functions are used in some of the property
 	# get/set functions.
 	def hasWindowStyleFlag(self, flag):
-		""" Return whether or not the flag is set. (bool)
-		"""
+		""" Return whether or not the flag is set. (bool)"""
 		if self._constructed():
 			return (self.GetWindowStyleFlag() & flag) == flag
 		else:
 			return (self._preInitProperties["style"] & flag) == flag
 
 	def addWindowStyleFlag(self, flag):
-		""" Add the flag to the window style.
-		"""
+		""" Add the flag to the window style."""
 		if self._constructed():
 			self.SetWindowStyleFlag(self.GetWindowStyleFlag() | flag)
 		else:
 			self._preInitProperties["style"] = self._preInitProperties["style"] | flag
 
 	def delWindowStyleFlag(self, flag):
-		""" Remove the flag from the window style.
-		"""
+		""" Remove the flag from the window style."""
 		if self._constructed():
 			self.SetWindowStyleFlag(self.GetWindowStyleFlag() & (~flag))
 		else:
@@ -755,7 +754,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _getBorderStyleEditorInfo(self):
 		return {"editor": "list", "values": ["Default", "None", "Simple", "Sunken", 
-						"Raised", "Double", "Static"]}
+				"Raised", "Double", "Static"]}
 
 	def _setBorderStyle(self, style):
 		self.delWindowStyleFlag(wx.NO_BORDER)
@@ -783,7 +782,7 @@ class dPemMixin(dPemMixinBase):
 			pass
 		else:
 			raise ValueError, ("The only possible values are 'None', "
-							"'Simple', 'Sunken', and 'Raised.'")
+					"'Simple', 'Sunken', and 'Raised.'")
 	
 	
 	def _getCaption(self):

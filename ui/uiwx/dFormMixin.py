@@ -17,10 +17,8 @@ class dFormMixin(pm.dPemMixin):
 			##              by passing it to the constructor.
 			style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT
 		else:
-			style = wx.DEFAULT_FRAME_STYLE
-		
+			style = wx.DEFAULT_FRAME_STYLE	
 		kwargs["style"] = style
-		
 		super(dFormMixin, self).__init__(preClass, parent, properties, *args, **kwargs)
 		
 
@@ -49,7 +47,6 @@ class dFormMixin(pm.dPemMixin):
 		self._normLeft = self.Left
 		self._normTop = self.Top
 		self._centered = False
-		
 		super(dFormMixin, self)._afterInit()
 	
 				
@@ -86,12 +83,12 @@ class dFormMixin(pm.dPemMixin):
 			restSP = False
 		if not restSP:
 			self.restoreSizeAndPosition()
-		if hasattr(self, "getStatusBar"):
-			if (self.getStatusBar() is None 
-					and not isinstance(self, wx.MDIChildFrame) 
-					and self.ShowStatusBar):
-				self._createStatusBar()
-
+		
+		# If the ShowStatusBar property was set to True, this will create it
+		sb = self.StatusBar
+		# If the ShowToolBar property was set to True, this will create it
+		tb = self.ToolBar
+		
 		if self.Application is not None:
 			self.Application._setActiveForm(self)
 	
@@ -119,18 +116,29 @@ class dFormMixin(pm.dPemMixin):
 			except: pass
 		self.saveSizeAndPosition()
 	
-
-	def _createStatusBar(self):
-		if hasattr(self, "SetStatusBar"):
-			self.SetStatusBar(dabo.ui.dStatusBar(self))
-	
-	def getStatusBar(self):
+	def _getStatusBar(self):
 		if hasattr(self, "GetStatusBar"):
-			return self.GetStatusBar()
+			ret = self.GetStatusBar()
+			if (ret is None
+					and not isinstance(self, wx.MDIChildFrame) 
+					and self.ShowStatusBar):
+				ret = dabo.ui.dStatusBar(self)
+				self.SetStatusBar(ret)
 		else:
-			return None
+			ret = None
+		return ret
 		
+	def _getToolBar(self):
+		if hasattr(self, "GetToolBar"):
+			ret = self.GetToolBar()
+			if ret is None and self.ShowToolBar:
+				ret = dabo.ui.dToolBar(self)
+				self.SetToolBar(ret)
+		else:
+			ret = None
+		return ret
 		
+	
 	def close(self, force=False):
 		""" This method will close the form. If force = False (default)
 		the beforeClose methods will be called, and these will have
@@ -311,16 +319,18 @@ class dFormMixin(pm.dPemMixin):
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
 		menu.append(caption, bindfunc=function, bmp=bitmap)
 
-			
-	def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):
-		toolId = wx.NewId()
-		toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
-
-		if isinstance(self, wx.MDIChildFrame):
-			controllingFrame = self.Application.MainForm
-		else:
-			controllingFrame = self
-		wx.EVT_MENU(controllingFrame, toolId, function)
+	def appendToolBarButton(self, name, pic, bindfunc=None, toggle=False, tip="", help=""):
+		self.ToolBar.appendButton(name, pic, bindfunc=bindfunc, toggle=toggle, 
+				tip=tip, help=help)
+# 	def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):
+# 		toolId = wx.NewId()
+# 		toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
+# 
+# 		if isinstance(self, wx.MDIChildFrame):
+# 			controllingFrame = self.Application.MainForm
+# 		else:
+# 			controllingFrame = self
+# 		wx.EVT_MENU(controllingFrame, toolId, function)
 
 
 	# property get/set/del functions follow:
@@ -450,11 +460,10 @@ class dFormMixin(pm.dPemMixin):
 
 	def _getShowStatusBar(self):
 		try:
-			ssb = self._showStatusBar
+			ret = self._showStatusBar
 		except AttributeError:
-			ssb = self._showStatusBar = True
-		return ssb
-		
+			ret = self._showStatusBar = True
+		return ret	
 	def _setShowStatusBar(self, val):
 		self._showStatusBar = bool(val)
 		
@@ -464,7 +473,17 @@ class dFormMixin(pm.dPemMixin):
 		self.delWindowStyleFlag(wx.SYSTEM_MENU)
 		if value:
 			self.addWindowStyleFlag(wx.SYSTEM_MENU)
-
+			
+	def _getShowToolBar(self):
+		try:
+			ret = self._showToolBar
+		except AttributeError:
+			# Default to no toolbar
+			ret = self._showToolBar = False
+		return ret
+	def _setShowToolBar(self, val):
+		self._showToolBar = bool(val)	
+	
 	def _getStatusText(self):
 		ret = ""
 		if isinstance(self, wx.MDIChildFrame):
@@ -491,8 +510,6 @@ class dFormMixin(pm.dPemMixin):
 			else:
 				controllingFrame.SetStatusText(val)
 			controllingFrame.GetStatusBar().Update()
-
-
 
 	def _getTinyTitleBar(self):
 		return self.hasWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
@@ -589,11 +606,20 @@ class dFormMixin(pm.dPemMixin):
 	ShowSystemMenu = property(_getShowSystemMenu, _setShowSystemMenu, None,
 		_("Specifies whether a system menu is displayed in the title bar. (bool)."))
 
+	ShowToolBar = property(_getShowToolBar, _setShowToolBar, None,
+		_("Specifies whether the Tool bar gets automatically created."))
+
+	StatusBar = property(_getStatusBar, None, None,
+		_("Status bar for this form. (dStatusBar)"))
+
 	StatusText = property(_getStatusText, _setStatusText, None,
 		_("Text displayed in the form's status bar. (string)"))
 
 	TinyTitleBar = property(_getTinyTitleBar, _setTinyTitleBar, None,
 		_("Specifies whether the title bar is small, like a tool window. (bool)."))
+
+	ToolBar = property(_getToolBar, None, None,
+		_("Tool bar for this form. (dToolBar)"))
 
 	WindowState = property(_getWindowState, _setWindowState, None,
 		_("""Specifies the current state of the form. (int)

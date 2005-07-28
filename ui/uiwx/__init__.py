@@ -80,6 +80,7 @@ from dSplitter import dSplitter
 from dStatusBar import dStatusBar
 from dTextBox import dTextBox
 from dTimer import dTimer
+from dToolBar import dToolBar
 from dToggleButton import dToggleButton
 from dTreeView import dTreeView
 import dUICursors as dUICursors
@@ -364,6 +365,84 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	dc.SetFont(fnt)
 	return dc.GetTextExtent(txt)
 
-	
+def getBitmap(name):
+	"""wxPython comes with several built-in bitmaps for common icons. 
+	This wraps the procedure for generating these bitmaps. If a name is
+	passed for which there is no icon, None is returned. 
+	NOTE: this returns a raw bitmap, not a dabo.ui.dBitmap object.
+	"""
+	ret = None
+	constants = {"addbookmark" : wx.ART_ADD_BOOKMARK,
+		"button" : wx.ART_BUTTON,
+		"cd" : wx.ART_CDROM,
+		"cdrom" : wx.ART_CDROM,
+		"commondialog" : wx.ART_CMN_DIALOG,
+		"dialog" : wx.ART_CMN_DIALOG,
+		"copy" : wx.ART_COPY,
+		"cross" : wx.ART_CROSS_MARK,
+		"crossmark" : wx.ART_CROSS_MARK,
+		"cut" : wx.ART_CUT,
+		"delete" : wx.ART_DELETE,
+		"delbookmark" : wx.ART_DEL_BOOKMARK,
+		"error" : wx.ART_ERROR,
+		"exe" : wx.ART_EXECUTABLE_FILE,
+		"exefile" : wx.ART_EXECUTABLE_FILE,
+		"open" : wx.ART_FILE_OPEN,
+		"save" : wx.ART_FILE_SAVE,
+		"saveas" : wx.ART_FILE_SAVE_AS,
+		"find" : wx.ART_FIND,
+		"findreplace" : wx.ART_FIND_AND_REPLACE,
+		"floppy" : wx.ART_FLOPPY,
+		"folder" : wx.ART_FOLDER,
+		"folderopen" : wx.ART_FOLDER_OPEN,
+		"frame" : wx.ART_FRAME_ICON,
+		"frameicon" : wx.ART_FRAME_ICON,
+		"back" : wx.ART_GO_BACK,
+		"directoryup" : wx.ART_GO_DIR_UP,
+		"down" : wx.ART_GO_DOWN,
+		"forward" : wx.ART_GO_FORWARD,
+		"home" : wx.ART_GO_HOME,
+		"parent" : wx.ART_GO_TO_PARENT,
+		"up" : wx.ART_GO_UP,
+		"hd" : wx.ART_HARDDISK,
+		"harddisk" : wx.ART_HARDDISK,
+		"help" : wx.ART_HELP,
+		"helpbook" : wx.ART_HELP_BOOK,
+		"helpbrowser" : wx.ART_HELP_BROWSER,
+		"helpfolder" : wx.ART_HELP_FOLDER,
+		"helppage" : wx.ART_HELP_PAGE,
+		"helpsettings" : wx.ART_HELP_SETTINGS,
+		"helpsidepanel" : wx.ART_HELP_SIDE_PANEL,
+		"info" : wx.ART_INFORMATION,
+		"information" : wx.ART_INFORMATION,
+		"listview" : wx.ART_LIST_VIEW,
+		"menu" : wx.ART_MENU,
+		"messagebox" : wx.ART_MESSAGE_BOX,
+		"missingimage" : wx.ART_MISSING_IMAGE,
+		"new" : wx.ART_NEW,
+		"newdir" : wx.ART_NEW_DIR,
+		"normalfile" : wx.ART_NORMAL_FILE,
+		"file" : wx.ART_NORMAL_FILE,
+		"other" : wx.ART_OTHER,
+		"paste" : wx.ART_PASTE,
+		"print" : wx.ART_PRINT,
+		"question" : wx.ART_QUESTION,
+		"quit" : wx.ART_QUIT,
+		"redo" : wx.ART_REDO,
+		"removable" : wx.ART_REMOVABLE,
+		"reportview" : wx.ART_REPORT_VIEW,
+		"tickmark" : wx.ART_TICK_MARK,
+		"tip" : wx.ART_TIP,
+		"toolbar" : wx.ART_TOOLBAR,
+		"undo" : wx.ART_UNDO,
+		"warning" : wx.ART_WARNING}
+	try:
+		const = constants[name.lower()]
+	except KeyError:
+		const = None
+	if const:
+		ret = wx.ArtProvider.GetBitmap(const)
+	return ret
+
 	
 	

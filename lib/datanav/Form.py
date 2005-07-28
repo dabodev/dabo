@@ -38,6 +38,8 @@ class Form(dabo.ui.dForm):
 		# Where do the pageframe tabs/selector go?
 		# Choices = Top (default), Bottom, Left or Right
 		self.tabPosition = "Top"
+		# We want a toolbar
+		self.ShowToolBar = True
 	
 	
 	def __init__(self, parent=None, previewMode=False, tbl=""):
@@ -104,67 +106,38 @@ class Form(dabo.ui.dForm):
 		
 		
 	def setupToolBar(self):
-		if isinstance(self, wx.MDIChildFrame):
-			# Toolbar will be attached to top-level form
-			controllingFrame = self.Application.MainForm
-		else:
-			# Toolbar will be attached to this frame
-			controllingFrame = self
-		toolBar = wx.ToolBar(controllingFrame, -1)
-		toolBar.SetToolBitmapSize((16,16))	  # Needed on non-Linux platforms
-
+		tb = self.ToolBar
+		tb.MaxWidth = 16
+		tb.MaxHeight = 16
+		
 		if self.FormType != 'Edit':
-			self._appendToToolBar(toolBar, _("First"),
-					  dabo.ui.dIcons.getIconBitmap("leftArrows"),
-					  self.onFirst, _("Go to the first record"))
-			
-			self._appendToToolBar(toolBar, _("Prior"),
-					  dabo.ui.dIcons.getIconBitmap("leftArrow"),
-					  self.onPrior, _("Go to the prior record"))
-			
-			self._appendToToolBar(toolBar, _("Requery"),
-					  dabo.ui.dIcons.getIconBitmap("requery"),
-					  self.onRequery, _("Requery dataset"))
-			
-			self._appendToToolBar(toolBar, _("Next"),
-					  dabo.ui.dIcons.getIconBitmap("rightArrow"),
-					  self.onNext, _("Go to the next record"))
-			
-			self._appendToToolBar(toolBar, _("Last"),
-					  dabo.ui.dIcons.getIconBitmap("rightArrows"),
-					  self.onLast, _("Go to the last record"))
-
-			toolBar.AddSeparator()
+			self.appendToolBarButton("First", "leftArrows", bindfunc=self.onFirst, 
+					tip=_("First"), help=_("Go to the first record"))
+			self.appendToolBarButton("Prior", "leftArrow", bindfunc=self.onPrior, 
+					tip=_("Prior"), help=_("Go to the prior record"))
+			self.appendToolBarButton("Requery", "requery", bindfunc=self.onRequery, 
+					tip=_("Requery"), help=_("Requery dataset"))
+			self.appendToolBarButton("Next", "rightArrow", bindfunc=self.onNext, 
+					tip=_("Next"), help=_("Go to the next record"))
+			self.appendToolBarButton("Last", "rightArrows", bindfunc=self.onLast, 
+					tip=_("Last"), help=_("Go to the last record"))
+			tb.appendSeparator()
 
 		if self.FormType == 'Normal':
-			self._appendToToolBar(toolBar, _("New"), 
-					  dabo.ui.dIcons.getIconBitmap("blank"),
-					  self.onNew, _("Add a new record"))
-			
-			self._appendToToolBar(toolBar, _("Delete"), 
-					  dabo.ui.dIcons.getIconBitmap("delete"),
-					  self.onDelete, _("Delete this record"))
-
-			toolBar.AddSeparator()
+			self.appendToolBarButton("New", "blank", bindfunc=self.onNew, 
+					tip=_("New"), help=_("Add a new record"))
+			self.appendToolBarButton("Delete", "delete", bindfunc=self.onDelete, 
+					tip=_("New"), help=_("Delete this record"))
+			tb.appendSeparator()
 
 		if self.FormType != 'PickList':
-			self._appendToToolBar(toolBar, _("Save"), 
-					  dabo.ui.dIcons.getIconBitmap("save"),
-					  self.onSave, _("Save changes"))
-			
-			self._appendToToolBar(toolBar, _("Cancel"), 
-					  dabo.ui.dIcons.getIconBitmap("revert"),
-					  self.onCancel, _("Cancel changes"))
-			
-			toolBar.AddSeparator()
-			self._appendToToolBar(toolBar, _("Show SQL"), 
-					dabo.ui.dIcons.getIconBitmap("zoomOut"),
-					self.onShowSQL, 
-					_("Show the last executed SQL statement"))
-
-
-		controllingFrame.SetToolBar(toolBar)
-		toolBar.Realize()  # Needed on non-Linux platforms
+			self.appendToolBarButton("Save", "save", bindfunc=self.onSave, 
+					tip=_("Save"), help=_("Save changes"))
+			self.appendToolBarButton("Cancel", "revert", bindfunc=self.onCancel, 
+					tip=_("Cancel"), help=_("Cancel changes"))
+			tb.appendSeparator()
+			self.appendToolBarButton("SQL", "zoomOut", bindfunc=self.onShowSQL, 
+					tip=_("Show SQL"), help=_("Show the last executed SQL statement"))
 
 
 	def getMenu(self):

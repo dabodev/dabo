@@ -18,17 +18,17 @@ class PropertyHelperMixin(object):
 		return propdict
 	
 	
-	def extractKey(self, kwdict, key):
+	def extractKey(self, kwdict, key, defaultVal=None):
 		""" If the supplied key is present in the kwdict, the associated
 		value is returned, and that key's element is deleted from the
-		dict. If the key doesn't exist, None is returned.
+		dict. If the key doesn't exist, the default value is returned.
 		"""
 		try:
 			ret = kwdict[key]
 			del kwdict[key]
 			return ret
 		except KeyError:
-			return None
+			return defaultVal
 			
 				
 	def getProperties(self, propertySequence=(), propsToSkip=(),

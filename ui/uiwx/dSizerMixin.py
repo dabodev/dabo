@@ -32,6 +32,11 @@ class dSizerMixin(dabo.common.dObject):
 				or
 			sizer.append(object, "x")
 	"""
+	# First, let's wrap some of the wx constants for those cases where
+	# we need to work with them directly.
+	horizontalFlag = wx.HORIZONTAL
+	verticalFlag = wx.VERTICAL
+	
 	def append(self, item, layout="normal", proportion=0, alignment=None,
 			halign="left", valign="top", border=None, borderFlags=None):
 		"""Adds the passed object to the end of the list of items controlled
