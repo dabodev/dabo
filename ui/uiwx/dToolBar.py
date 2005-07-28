@@ -56,11 +56,11 @@ class dToolBar(wx.ToolBar, pm):
 		wd, ht = picBmp.GetWidth(), picBmp.GetHeight()
 		needScale = False
 		
-		if self.MaxWidth > 0:
-			wd = min(self.MaxWidth, wd)
+		if (self.MaxWidth > 0) and (wd > self.MaxWidth):
+			wd = self.MaxWidth
 			needScale = True
-		if self.MaxHeight > 0:
-			ht = min(self.MaxHeight, ht)
+		if (self.MaxHeight > 0) and (wd > self.MaxHeight):
+			ht = self.MaxHeight
 			needScale = True
 		if needScale:
 			picBmp = self.resizeBmp(picBmp, wd, ht)
