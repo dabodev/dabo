@@ -41,8 +41,10 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		cell as specified by the Max* properties.		
 		"""
 		(targetRow, targetCol) = self.determineAvailableCell(row, col)
-		if isinstance(item, tuple):
+		if isinstance(item, (tuple, int)):
 			# spacer
+			if isinstance(item, int):
+				item = (item, item)
 			self.Add(item, (targetRow, targetCol) )
 		else:
 			# item is the window to add to the sizer
