@@ -6,6 +6,7 @@ from dabo.dLocalize import _
 
 class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	_IsContainer = False
+	GridSizerItem = wx.GBSizerItem
 	
 	def __init__(self, vgap=3, hgap=3, maxRows=0, maxCols=0, **kwargs):
 		self._baseClass = dGridSizer
@@ -22,7 +23,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		else:
 			# Rows were passed.
 			self.MaxRows = maxRows
-		self.SetFlexibleDirection(wx.BOTH)
+		self.SetFlexibleDirection(self.bothFlag)
 		# Keep track of the highest numbered row/col that
 		# contains an item
 		self._highRow = self._highCol = -1
@@ -260,7 +261,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		"""Given an object that is contained in this grid
 		sizer, returns a (row,col) tuple for that item's location.
 		"""
-		if isinstance(obj, wx.GBSizerItem):
+		if isinstance(obj, self.GridSizerItem):
 			obj = self.getItem(obj)
 		try:
 			row, col = self.GetItemPosition(obj)
@@ -274,7 +275,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		"""Given an object that is contained in this grid
 		sizer, returns a (row,col) tuple for that item's cell span.
 		"""
-		if isinstance(obj, wx.GBSizerItem):
+		if isinstance(obj, self.GridSizerItem):
 			obj = self.getItem(obj)
 		try:
 			row, col = self.GetItemSpan(win)

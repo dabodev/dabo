@@ -36,7 +36,24 @@ class dSizerMixin(dabo.common.dObject):
 	# we need to work with them directly.
 	horizontalFlag = wx.HORIZONTAL
 	verticalFlag = wx.VERTICAL
-	
+	bothFlag = wx.BOTH
+	leftFlag = wx.ALIGN_LEFT 
+	rightFlag = wx.ALIGN_RIGHT
+	centerFlag = wx.ALIGN_CENTER 
+	centreFlag = wx.ALIGN_CENTER
+	topFlag = wx.ALIGN_TOP 
+	bottomFlag = wx.ALIGN_BOTTOM 
+	middleFlag = wx.ALIGN_CENTER_VERTICAL
+	borderBottomFlag = wx.BOTTOM
+	borderLeftFlag = wx.LEFT
+	borderRightFlag = wx.RIGHT 
+	borderTopFlag = wx.TOP 
+	borderAllFlag = wx.ALL 
+	expandFlag = wx.EXPAND
+	growFlag = wx.EXPAND
+	fixedFlag = wx.FIXED_MINSIZE 
+			
+			
 	def append(self, item, layout="normal", proportion=0, alignment=None,
 			halign="left", valign="top", border=None, borderFlags=None):
 		"""Adds the passed object to the end of the list of items controlled
@@ -260,51 +277,51 @@ class dSizerMixin(dabo.common.dObject):
 			alignFlags = (halign, valign)
 		for flag in [flag.lower() for flag in alignFlags]:
 			if flag == "left":
-				_wxFlags = _wxFlags | wx.ALIGN_LEFT
+				_wxFlags = _wxFlags | self.leftFlag
 			elif flag == "right":
-				_wxFlags = _wxFlags | wx.ALIGN_RIGHT
+				_wxFlags = _wxFlags | self.rightFlag
 			elif flag in ("center", "centre"):
-				_wxFlags = _wxFlags | wx.ALIGN_CENTER
+				_wxFlags = _wxFlags | self.centerFlag
 			elif flag == "top":
-				_wxFlags = _wxFlags | wx.ALIGN_TOP
+				_wxFlags = _wxFlags | self.topFlag
 			elif flag == "bottom":
-				_wxFlags = _wxFlags | wx.ALIGN_BOTTOM
+				_wxFlags = _wxFlags | self.bottomFlag
 			elif flag == "middle":
-				_wxFlags = _wxFlags | wx.ALIGN_CENTER_VERTICAL
+				_wxFlags = _wxFlags | self.middleFlag
 
 		if isinstance(borderFlags, basestring):
 			borderFlags = (borderFlags, )
 		if borderFlags is None:
 			# Add any default borders. If no defaults set, set it to the default 'all'
 			if self.BorderBottom:
-				_wxFlags = _wxFlags | wx.BOTTOM
+				_wxFlags = _wxFlags | self.borderBottomFlag
 			if self.BorderLeft:
-				_wxFlags = _wxFlags | wx.LEFT
+				_wxFlags = _wxFlags | self.borderLeftFlag
 			if self.BorderRight:
-				_wxFlags = _wxFlags | wx.RIGHT
+				_wxFlags = _wxFlags | self.borderRightFlag
 			if self.BorderTop:
-				_wxFlags = _wxFlags | wx.TOP
+				_wxFlags = _wxFlags | self.borderTopFlag
 			# Should we set the default?
 			if not (self.BorderBottom or self.BorderLeft 
 					or self.BorderRight or self.BorderTop):
-				_wxFlags = _wxFlags | wx.ALL
+				_wxFlags = _wxFlags | self.borderAllFlag
 		else:
 			for flag in [flag.lower() for flag in borderFlags]:
 				if flag == "left":
-					_wxFlags = _wxFlags | wx.LEFT
+					_wxFlags = _wxFlags | self.borderLeftFlag
 				elif flag == "right":
-					_wxFlags = _wxFlags | wx.RIGHT
+					_wxFlags = _wxFlags | self.borderRightFlag
 				elif flag == "top":
-					_wxFlags = _wxFlags | wx.TOP
+					_wxFlags = _wxFlags | self.borderTopFlag
 				elif flag == "bottom":
-					_wxFlags = _wxFlags | wx.BOTTOM
+					_wxFlags = _wxFlags | self.borderBottomFlag
 				elif flag == "all":
-					_wxFlags = _wxFlags | wx.ALL
+					_wxFlags = _wxFlags | self.borderAllFlag
 
 		if layout.lower() in ("expand", "ex", "exp", "x", "grow"):
-			_wxFlags = _wxFlags | wx.EXPAND
+			_wxFlags = _wxFlags | self.expandFlag
 		elif layout.lower() == "fixed":
-			_wxFlags = _wxFlags | wx.FIXED_MINSIZE
+			_wxFlags = _wxFlags | self.fixedFlag
 
 		return _wxFlags				
 
@@ -373,18 +390,18 @@ class dSizerMixin(dabo.common.dObject):
 		
  	def _getOrientation(self):
 		o = self.GetOrientation()
-		if o == wx.VERTICAL:
+		if o == self.verticalFlag:
 			return "Vertical"
-		elif o == wx.HORIZONTAL:
+		elif o == self.horizontalFlag:
 			return "Horizontal"
 		else:
 			return "?"
 			
 	def _setOrientation(self, val):
 		if val[0].lower() == "v":
-			self.SetOrientation(wx.VERTICAL)
+			self.SetOrientation(self.verticalFlag)
 		else:
-			self.SetOrientation(wx.HORIZONTAL)
+			self.SetOrientation(self.horizontalFlag)
 	
 	def _getSpacing(self):
 		try:
