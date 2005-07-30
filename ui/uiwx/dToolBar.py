@@ -1,4 +1,4 @@
-""" dMenuBar.py """
+""" dToolBar.py """
 import wx
 import dabo
 import os.path
@@ -6,6 +6,8 @@ from dPemMixin import dPemMixin as pm
 import dMenu
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
+
+dabo.ui.loadUI("wx")
 
 class dToolBar(wx.ToolBar, pm):
 	"""Creates a toolbar, which can contain buttons that behave
@@ -21,6 +23,8 @@ class dToolBar(wx.ToolBar, pm):
 		# Get the max props, if any
 		maxwd = self.extractKey(kwargs, "MaxWidth", 0)
 		maxht = self.extractKey(kwargs, "MaxHeight", 0)
+		style = self.extractKey(kwargs, "style", 0)
+		kwargs["style"] = style |  wx.TB_DOCKABLE | wx.TB_TEXT
 		
 		pm.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
@@ -36,8 +40,6 @@ class dToolBar(wx.ToolBar, pm):
 		# Update the props. This will also update the tool's bitmap size
 		self.MaxWidth = maxwd
 		self.MaxHeight = maxht
-		
-		
 		
 
 	def appendButton(self, name, pic, bindfunc=None, toggle=False, tip="", help=""):
@@ -59,7 +61,7 @@ class dToolBar(wx.ToolBar, pm):
 		if (self.MaxWidth > 0) and (wd > self.MaxWidth):
 			wd = self.MaxWidth
 			needScale = True
-		if (self.MaxHeight > 0) and (wd > self.MaxHeight):
+		if (self.MaxHeight > 0) and (ht > self.MaxHeight):
 			ht = self.MaxHeight
 			needScale = True
 		if needScale:
@@ -67,6 +69,7 @@ class dToolBar(wx.ToolBar, pm):
 		
 		butt = self.AddSimpleTool(id, bitmap=picBmp, isToggle=toggle, 
 				shortHelpString=tip, longHelpString=help)
+		butt.SetLabel(name)
 		if bindfunc:
 			self.Application.uiApp.Bind(wx.EVT_MENU, bindfunc, butt)
 		self.Realize()
@@ -169,6 +172,7 @@ class dToolBar(wx.ToolBar, pm):
 	_NextToolID = property(_getNextID, None, None, 
 		_("Next Available ID for tracking toolbar buttons  (int)"))
 
+		
 
 if __name__ == "__main__":
 	def clickCopy(evt):
@@ -178,14 +182,19 @@ if __name__ == "__main__":
 	app = dabo.dApp()
 	app.setup()
 	mf = app.MainForm
-	tb = dToolBar(mf, MaxWidth=20, MaxHeight=20)
+	mf.ShowToolBar = True
+	tb = mf.ToolBar
+	tb.MaxWidth=20
+	tb.MaxHeight=20
 	tb.appendButton("Copy", pic="copy", toggle=False, bindfunc=clickCopy, 
 			tip="Copy", help="Much Longer Copy Help Text")
 	tb.appendButton("Timer", pic="dTimer", toggle=True, bindfunc=clickTimer,
 			tip="Timer Toggle", help="Timer Help Text")
 	tb.appendButton("Dabo", pic="daboIcon128", toggle=True, tip="Dabo! Dabo! Dabo!", 
 			help="Large icon resized to fit in the max dimensions")
-#	tb.Visible = True
- 	mf.SetToolBar(tb)
-	app.start()
+	tb.appendSeparator()
+	tb.appendButton("Exit", pic="close", toggle=True, bindfunc=app.onFileExit, 
+			tip="Exit", help="Quit the application")
+	
+ 	app.start()
 	

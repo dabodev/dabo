@@ -645,7 +645,20 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	AskToSave = property(_getAskToSave, _setAskToSave, None, 
 			"Specifies whether a save prompt appears before the data is requeried. (bool)")
 
-		
+
+class dToolForm(dForm):
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		style = self.extractKey(kwargs, "style", 0)
+		style = style | wx.FRAME_TOOL_WINDOW | wx.STAY_ON_TOP | wx.RESIZE_BORDER
+		kwargs["style"] = style	
+		kwargs["ShowStatusBar"] = False
+		kwargs["ShowToolBar"] = False
+		self.MenuBarClass = None
+# 		kwargs[""] = 
+		super(dToolForm, self).__init__(parent=parent, properties=properties, *args, **kwargs)
+
+			
+					
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(dForm)

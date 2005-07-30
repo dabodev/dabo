@@ -46,6 +46,7 @@ from dFileDialog import dFolderDialog
 from dFileDialog import dSaveDialog
 from dFontDialog import dFontDialog
 from dForm import dForm
+from dForm import dToolForm
 from dFormMain import dFormMain
 from dGauge import dGauge
 from dGrid import dGrid

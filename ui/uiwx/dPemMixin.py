@@ -1101,7 +1101,7 @@ class dPemMixin(dPemMixinBase):
 		
 	def _setSizer(self, val):
 		if self._constructed():
-			self.SetSizer(val)
+			self.SetSizer(val, True)
 			try:
 				val.Parent = self
 			except: pass

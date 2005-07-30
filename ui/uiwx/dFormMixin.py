@@ -17,7 +17,10 @@ class dFormMixin(pm.dPemMixin):
 			##              by passing it to the constructor.
 			style = wx.DEFAULT_FRAME_STYLE|wx.FRAME_FLOAT_ON_PARENT
 		else:
-			style = wx.DEFAULT_FRAME_STYLE	
+			style = self.extractKey(kwargs, "style", 0)
+			if not style:
+				# No style was explicitly set
+				style = wx.DEFAULT_FRAME_STYLE	
 		kwargs["style"] = style
 		super(dFormMixin, self).__init__(preClass, parent, properties, *args, **kwargs)
 		

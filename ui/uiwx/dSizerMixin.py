@@ -164,6 +164,11 @@ class dSizerMixin(dabo.common.dObject):
 		return ret	
 	
 	
+	def release(self):
+		"""Wrapper method for wx's Destroy"""
+		self.Destroy()
+		
+		
 	def drawOutline(self, win, recurse=False):
 		""" There are some cases where being able to see the sizer
 		is helpful, such as at design time. This method can be called
