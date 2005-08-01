@@ -2,6 +2,18 @@ import wx
 import dabo.ui
 import dabo.dConstants as k
 from uiApp import uiApp
+import os
+import sys
+
+# Check for proper wxPython build
+try:
+	import wx.stc
+	import wx.gizmos
+	import wx.animate
+except ImportError:
+	print ("\nYour wxPython installation was not built correctly. " + 
+			"Please make sure that the wx.animate, wx.stc and wx.gizmos modules are properly built.\n")
+	sys.exit()
 
 uiType = {'shortName': 'wx', 'moduleName': 'uiwx', 'longName': 'wxPython'}
 uiType['version'] = wx.VERSION_STRING
@@ -366,6 +378,36 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	dc.SetFont(fnt)
 	return dc.GetTextExtent(txt)
 
+	
+def strToBmp(val):
+	"""This can be either a path, or the name of a built-in graphic."""
+	ret = None
+	if os.path.exists(val):
+		ret = pathToBmp(val)
+	else:
+		# See if it's a standard icon
+		ret = dIcons.getIconBitmap(val)
+		if not ret:
+			# See if it's a built-in graphic
+			ret = getBitmap(val)
+	if not ret:
+		# Return an empty bitmap
+		ret = wx.EmptyBitmap(1, 1)
+	return ret
+	
+	
+def pathToBmp(self, pth):
+	img = wx.NullImage
+	img.LoadFile(pth)
+	return img.ConvertToBitmap()
+
+
+def resizeBmp(self, bmp, wd, ht):
+	img = bmp.ConvertToImage()
+	img.Rescale(wd, ht)
+	return img.ConvertToBitmap()
+	
+	
 def getBitmap(name):
 	"""wxPython comes with several built-in bitmaps for common icons. 
 	This wraps the procedure for generating these bitmaps. If a name is

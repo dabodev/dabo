@@ -19,15 +19,6 @@ class uiApp(wx.App, dObject):
 		
 		
 	def OnInit(self):
-		# Check for proper wxPython build
-		try:
-			import wx.stc
-			import wx.gizmos
-			import wx.animate
-		except:
-			print ("\nYour wxPython installation was not built correctly. " + 
-					"Please make sure that the wx.animate, wx.stc and wx.gizmos modules are properly built.\n")
-			return False
 		return True
 
 
