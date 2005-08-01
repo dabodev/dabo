@@ -192,7 +192,7 @@ class dApp(dabo.common.dObject):
 			
 		The return value would be ["pkm", "egl"]
 		"""
-		configFileName = "%s/.userSettings.ini" % self.HomeDirectory
+		configFileName = os.path.join(self.HomeDirectory, ".userSettings.ini")
 
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
@@ -231,7 +231,7 @@ class dApp(dabo.common.dObject):
 						day,hour,minute,second,?,?,?)'
 
 		"""
-		configFileName = "%s/.userSettings.ini" % self.HomeDirectory
+		configFileName = os.path.join(self.HomeDirectory, ".userSettings.ini")
 
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
@@ -261,7 +261,7 @@ class dApp(dabo.common.dObject):
 		"""
 		# For now, save this info in a plain ini file. Eventually, I'd like
 		# to see this get saved in a persistent dabosettings db table.
-		configFileName = "%s/.userSettings.ini" % self.HomeDirectory
+		configFileName = os.path.join(self.HomeDirectory, ".userSettings.ini")
 
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
@@ -426,7 +426,7 @@ class dApp(dabo.common.dObject):
 				if os.path.exists(os.path.join(pth, ".")):
 					hd = pth
 					break
-			if hd is None:
+			if hd is None or len(hd.strip()) == 0:
 				# punt:
 				hd = os.getcwd()
 			self._homeDirectory = hd
