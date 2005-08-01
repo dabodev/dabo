@@ -1,3 +1,5 @@
+import re
+
 colorDict = {"aliceblue" : (240, 248, 255), 
 		"antiquewhite" : (250, 235, 215), 
 		"aqua" : (0, 255, 255), 
@@ -197,6 +199,16 @@ def colorTupleFromName(color):
 	try:
 		return colorDict[color.lower().strip()]
 	except KeyError:
+		return colorTupleFromString(color)
+
+		
+def colorTupleFromString(color):
+	colorTuplePat = "\((\d+), *(\d+), *(\d+)\)"
+	mtch = re.match(colorTuplePat, color)
+	if mtch:
+		grps = mtch.groups()
+		ret = (int(grps[0]), int(grps[1]), int(grps[2]))
+	else:
 		raise KeyError, "Color '%s' is not defined." % color
 
 

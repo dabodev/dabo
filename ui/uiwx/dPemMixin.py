@@ -692,9 +692,10 @@ class dPemMixin(dPemMixinBase):
 				try:
 					val = dColors.colorTupleFromName(val)
 				except: pass
-			self.SetBackgroundColour(val)
-			# Background color changes don't result in an automatic refresh.
-			self.Refresh()
+			if isinstance(val, tuple):
+				self.SetBackgroundColour(val)
+				# Background color changes don't result in an automatic refresh.
+				self.Refresh()
 		else:
 			self._properties["BackColor"] = val
 
