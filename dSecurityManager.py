@@ -23,16 +23,17 @@ class dSecurityManager(dabo.common.dObject):
 		
 		
 	def login(self):
-		# Ask the ui to display the login form to the user, and then 
-		# validate the results. Return True if validation succeeds.
+		"""Ask the ui to display the login form to the user.
 		
-		ret = False		
+		Validate the results, and return True if validation succeeds.
+		"""
+		
+		ret = False
+		message = self.LoginMessage
 		for attempt in range(self.LoginAttemptsAllowed):
 			if attempt > 0:
 				message = _("Login incorrect, please try again. (%s/%s)") % (
-									attempt+1, self.LoginAttemptsAllowed)
-			else:
-				message = _("Please enter your login information.")
+				            attempt+1, self.LoginAttemptsAllowed)
 			user, password = self.Application.uiApp.getLoginInfo(message)
 
 			if user is None:
@@ -111,7 +112,18 @@ class dSecurityManager(dabo.common.dObject):
 	def _setLoginAttemptsAllowed(self, value):
 		self._loginAttemptsAllowed = int(value)
 		
-		
+	
+	def _getLoginMessage(self):
+		try:
+			m = self._loginMessage
+		except AttributeError:
+			m = self._loginMessage =  _("Please enter your login information.")
+		return m
+
+	def _setLoginMessage(self, val):
+		self._loginMessage = val
+
+
 	def _getLoginPause(self):
 		try:
 			return self._loginPause
@@ -159,16 +171,18 @@ class dSecurityManager(dabo.common.dObject):
 			return ()
 			
 	LoginAttemptsAllowed = property(_getLoginAttemptsAllowed, _setLoginAttemptsAllowed, None,
-					_('Specifies the number of attempts the user has to login successfully.'))
-					
+		_('Specifies the number of attempts the user has to login successfully.'))
+
+	LoginMessage = property(_getLoginMessage, _setLoginMessage, None,
+		_('Specifies the message to initially display on the login form.'))					
 	LoginPause = property(_getLoginPause, _setLoginPause, None,
-					_('Specifies the number of (fractional) seconds to wait between '
-					'successive login attempts.'))
+		_('Specifies the number of (fractional) seconds to wait between '
+		'successive login attempts.'))
 					
 	RequireAppLogin = property(_getRequireAppLogin, _setRequireAppLogin, None,
-					_('Specifies whether the user is required to login to the application '
-					'at startup. Note that this does not turn on/off login prompts globally, '
-					'just at application startup.'))
+		_('Specifies whether the user is required to login to the application '
+		'at startup. Note that this does not turn on/off login prompts globally, '
+		'just at application startup.'))
 						
 	UserCaption = property(_getUserCaption, _setUserCaption, None,
 					_('The long descriptive name of the logged-on user.'))
