@@ -434,7 +434,10 @@ class dApp(dabo.common.dObject):
 		return hd
 		
 	def _setHomeDirectory(self, val):
-		self._homeDirectory = val
+		if os.path.exists(val):
+			self._homeDirectory = os.path.abspath(val)
+		else:
+			raise ValueError, "%s: Path does not exist." % val
 
 				
 	def _getMainForm(self):
@@ -533,7 +536,7 @@ class dApp(dabo.common.dObject):
 			_("Reference to the object that provides cryptographic services.  (varies)" ) )
 	
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
-			_("Specifies the home-base directory for the application's program files."))
+			_("Specifies the home-base directory for the application's program files (absolute path)."))
 		
 	MainForm = property(_getMainForm, _setMainForm, None,
 			_("""The object reference to the main form of the application, or None. 
