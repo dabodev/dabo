@@ -11,9 +11,8 @@ try:
 	import wx.gizmos
 	import wx.animate
 except ImportError:
-	print ("\nYour wxPython installation was not built correctly. " + 
+	sys.exit("\nYour wxPython installation was not built correctly. " + 
 			"Please make sure that the wx.animate, wx.stc and wx.gizmos modules are properly built.\n")
-	sys.exit()
 
 uiType = {'shortName': 'wx', 'moduleName': 'uiwx', 'longName': 'wxPython'}
 uiType['version'] = wx.VERSION_STRING
