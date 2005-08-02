@@ -73,7 +73,7 @@ def xmltodict(xml):
 		return parser.Parse(xml)
 
 
-def dicttoxml(d, level=0):
+def dicttoxml(d, level=0, header=None):
 	"""Given a Python dictionary, return an xml string.
 
 	The dictionary must be in the format returned by dicttoxml(), with keys
@@ -107,6 +107,9 @@ def dicttoxml(d, level=0):
 			s += "\n"
 	
 	if level == 0:
-		s = "<?xml version=\"1.0\" encoding=\"UTF-8\" standalone=\"no\"?>\n" + s
+		if header is None:
+			header = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n"""
+		else:
+			s = header + s
 
 	return s
