@@ -91,11 +91,6 @@ from dBug import logPoint
 # dApp will change the following values upon its __init__:
 dAppRef = None
 
-# Event logging is turned off globally by default for performance reasons.
-# Set to True (and also set LogEvents on the object(s)) to get logging.
-eventLogging = False
+# Import global settings:
+from settings import *
 
-# Set the following to True to get all the data in the UI event put into
-# the dEvent EventData dictionary. Only do that for testing, though, 
-# because it is very expensive from a performance standpoint.
-allNativeEventInfo = False
