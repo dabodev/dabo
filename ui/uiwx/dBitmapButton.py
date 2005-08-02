@@ -9,19 +9,19 @@ from dabo.dLocalize import _
 from dIcons import getIconBitmap
 
 class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
-	""" Allows the user to cause an action to occur by pushing a button.
-	"""
+	""" Allows the user to cause an action to occur by pushing a button."""
 	_IsContainer = False
 	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dBitmapButton
 		preClass = wx.PreBitmapButton
+		# If no picture specified, default to the Dabo icon
+		picName = self.extractKey(kwargs, "Picture", "daboIcon048")
+		kwargs["Picture"] = picName
+		# Initialize the self._*picture attributes
+		self._picture = self._downPicture = self._focusPicture = ""
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-
-		if self.Picture == wx.NullBitmap:
-			# Default to the dabo icon
-			self.Picture = "daboIcon048"
-
+		
 
 	def _initEvents(self):
 		super(dBitmapButton, self)._initEvents()
@@ -34,7 +34,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		# need to implement
 		return False
 
-	def _setCancelButton(self, value):
+	def _setCancelButton(self, val):
 		warnings.warn("CancelButton isn't implemented yet.", Warning)	
 	
 
@@ -43,10 +43,9 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 			return self.Parent.GetDefaultItem() == self
 		else:
 			return False
-
-	def _setDefaultButton(self, value):
+	def _setDefaultButton(self, val):
 		if self._constructed():
-			if value:
+			if val:
 				if self.Parent is not None:
 					self.Parent.SetDefaultItem(self._pemObject)
 			else:
@@ -56,67 +55,78 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 					# that other object's DefaultButton to False.
 					self.SetDefaultItem(None)
 		else:
-			self._properties["DefaultButton"] = value
+			self._properties["DefaultButton"] = val
 
 
-	def _getNormalPicture(self):
-		return self.GetBitmapLabel()
-
-	def _setNormalPicture(self, value):
-		if self._constructed():
-			if isinstance(value, basestring):
-				# Convert to bitmap
-				value = getIconBitmap(value)
-			self.SetBitmapLabel(value)
-		else:
-			self._properties["NormalPicture"] = value
-
+	def _getDownBitmap(self):
+		return self.GetBitmapSelected()
 	
 	def _getDownPicture(self):
-		return self.GetBitmapSelected()
-
-	def _setDownPicture(self, value):
+		return self._downPicture
+	def _setDownPicture(self, val):
+		self._downPicture = val
 		if self._constructed():
-			if isinstance(value, basestring):
-				# Convert to bitmap
-				value = getIconBitmap(value)
-			self.SetBitmapSelected(value)
+			self.SetBitmapSelected(dabo.ui.strToBmp(val))
 		else:
-			self._properties["DownPicture"] = value
+			self._properties["DownPicture"] = val
 
+	def _getFocusBitmap(self):
+		return self.GetBitmapFocus()
 	
 	def _getFocusPicture(self):
-		return self.GetBitmapFocus()
-
-	def _setFocusPicture(self, value):
+		return self._focusPicture
+	def _setFocusPicture(self, val):
+		self._focusPicture = val
 		if self._constructed():
-			if isinstance(value, basestring):
-				# Convert to bitmap
-				value = getIconBitmap(value)
-			self.SetBitmapFocus(value)
+			self.SetBitmapFocus(dabo.ui.strToBmp(val))
 		else:
-			self._properties["FocusPicture"] = value
+			self._properties["FocusPicture"] = val
 	
+	def _getNormalBitmap(self):
+		return self.GetBitmapLabel()
+	
+	def _getNormalPicture(self):
+		return self._picture
+	def _setNormalPicture(self, val):
+		self._picture = val
+		if self._constructed():
+			bmp = dabo.ui.strToBmp(val)
+			self.SetBitmapLabel(bmp)
+			# If the others haven't been specified, default them to the same
+			if not self._downPicture:
+				self.SetBitmapSelected(bmp)
+			if not self._focusPicture:
+				self.SetBitmapFocus(bmp)
+		else:
+			self._properties["NormalPicture"] = val
+
 
 	# Property definitions:
+	Bitmap = property(_getNormalBitmap, None, None,
+		_("""The bitmap normally displayed on the button.  (wx.Bitmap)"""))
+
 	CancelButton = property(_getCancelButton, _setCancelButton, None,
 		_("Specifies whether this Bitmap button gets clicked on -Escape-."))
 						
 	DefaultButton = property(_getDefaultButton, _setDefaultButton, None, 
 		_("Specifies whether this Bitmap button gets clicked on -Enter-."))
 
-	Picture = property(_getNormalPicture, _setNormalPicture, None,
-		_("""Specifies the image normally displayed on the button. 
-		
-		This is the default if none of the other Picture properties are 
-		specified.
-		"""))
+	DownBitmap = property(_getDownBitmap, None, None,
+		_("The bitmap displayed on the button when it is depressed.  (wx.Bitmap)"))
 
 	DownPicture = property(_getDownPicture, _setDownPicture, None,
-		_("Specifies the image displayed on the button when it is depressed."))
+		_("Specifies the image displayed on the button when it is depressed.  (str)"))
+
+	FocusBitmap = property(_getFocusBitmap, None, None,
+		_("The bitmap displayed on the button when it receives focus.  (wx.Bitmap)"))
 
 	FocusPicture = property(_getFocusPicture, _setFocusPicture, None,
-		_("Specifies the image displayed on the button when it receives focus."))
+		_("Specifies the image displayed on the button when it receives focus.  (str)"))
+
+	Picture = property(_getNormalPicture, _setNormalPicture, None,
+		_("""Specifies the image normally displayed on the button.  This is the 
+		default if none of the other Picture properties are 
+		specified.  (str)"""))
 
 
 if __name__ == "__main__":
@@ -125,6 +135,6 @@ if __name__ == "__main__":
 		def afterInit(self):
 			# Demonstrate that the Picture props are working.
 			self.Picture = "daboIcon048"
-			self.DownPicture = "daboIcon064"
-			self.FocusPicture = "daboIcon016"
+			self.DownPicture = "save"
+			self.FocusPicture = "daboIcon096"
 	test.Test().runTest(c)

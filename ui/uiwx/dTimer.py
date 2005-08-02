@@ -24,7 +24,7 @@ class dTimer(dabo.ui.dBitmap):
 
 		
 	def _afterInit(self):
-		self.Bitmap = "dTimer"
+		self.Picture = "dTimer"
 		self._timer = wx.Timer(self)
 		super(dTimer, self)._afterInit()
 		self.Visible = False

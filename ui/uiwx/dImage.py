@@ -22,16 +22,14 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		self._imgProp = 1.0
 		self.__image = None
 		bmp = wx.EmptyBitmap(1, 1)
-		fName = self.extractKey(kwargs, "Picture")
+		picName = self.extractKey(kwargs, "Picture", "")
 
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
 				bitmap=bmp, *args, **kwargs)
 		
-		# Display the picture, if any
-		if fName is not None:
-			if os.path.exists(fName):
-				self.Picture = fName
-				bmp = self.Bitmap
+		# Display the picture, if any. This will also initialize the 
+		# self._picture attribute
+		self.Picture = picName
 	
 	
 	def _initEvents(self):
@@ -58,7 +56,11 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		szProp = w/h
 		imgProp = self._imgProp
 		sm = self.ScaleMode[0].lower()
-		if sm == "c":
+		
+		if self._Image.GetWidth() ==  self._Image.GetHeight() == 1:
+			# Empty bitmap; no need to scale.
+			img = self._Image
+		elif sm == "c":
 			# Clip; Don't change anything
 			img = self._Image
 		elif sm == "p":
@@ -87,7 +89,7 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 	# Property definitions
 	def _getBmp(self):
 		if self._bmp is None:
-			self._bmp = wx.EmptyBitmap(1, 1)
+			self._bmp = wx.EmptyBitmap(1, 1, 1)
 		return self._bmp
 	def _setBmp(self, val):
 		self._bmp = val
@@ -95,8 +97,18 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 	def _getPic(self):
 		return self._picture
 	def _setPic(self, val):
+		# Don't allow built-in graphics to be displayed here
 		if not os.path.exists(val):
-			return
+			if val:
+				# They passed a non-existent image file
+				raise IOError, "No file named '%s' exists." % val
+			else:
+				# Empty string passed; clear any current image
+				self._picture = ""
+				self._bmp = wx.EmptyBitmap(1, 1, 1)
+				self.__image = self._bmp.ConvertToImage()
+				self._showPic()
+				return
 		self._picture = val
 		self._Image.LoadFile(val)
 		self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
@@ -141,8 +153,6 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
  
 	
 if __name__ == "__main__":
-	import test
-	
 	class ImgForm(dabo.ui.dForm):
 		def afterInit(self):
 			# Sliders work differently on OS X
@@ -234,7 +244,9 @@ if __name__ == "__main__":
 				else:
 					ht = self.VSlider.Value * 0.01 * self.imgPanel.Height
 				self.img.Size = (wd, ht)
-				
-				
+						
 
-	test.Test().runTest(ImgForm)
+	app = dabo.dApp()
+	app.MainFormClass = ImgForm
+	app.start()
+	
