@@ -49,15 +49,24 @@ class uiApp(wx.App, dObject):
 		wx.InitAllImageHandlers()
 
 		self.dApp = dApp
-		
-		if dApp.MainFormClass is not None:
-			self.dApp.MainForm = dApp.MainFormClass()
-			self.SetTopWindow(self.dApp.MainForm)
-			self.dApp.MainForm.Show(dApp.showMainFormOnStart)
+	
+		if dApp.MainForm is None:
+			if dApp.MainFormClass is not None:
+				self.dApp.MainForm = dApp.MainFormClass()
+
 			
+	def setMainForm(self, val):
+		try:
+			self.dApp.MainForm.Destroy()
+		except:
+			pass
+		self.SetTopWindow(val)
+		val.Show(self.dApp.showMainFormOnStart)
+		
 
 	def start(self, dApp):
 		# Manually raise Activate, as wx doesn't do that automatically
+
 		self.raiseEvent(dEvents.Activate)
 		self.MainLoop()
 

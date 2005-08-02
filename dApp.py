@@ -449,6 +449,7 @@ class dApp(dabo.common.dObject):
 		return f
 			
 	def _setMainForm(self, val):
+		self.uiApp.setMainForm(val)
 		self._mainForm = val
 
 				
