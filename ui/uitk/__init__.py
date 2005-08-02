@@ -1,6 +1,8 @@
+import dabo
 import dabo.ui
 from uiApp import uiApp
 
+dabo.infoLog.write("The Tkinter module is experimental only, and doesn't work. You've been warned.")
 uiType = {'shortName': 'tk', 'moduleName': 'uitk', 'longName': 'Tkinter'}
 
 
