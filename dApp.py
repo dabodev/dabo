@@ -80,12 +80,13 @@ class dApp(dabo.common.dObject):
 		Various UI's will have app objects also, which 
 		dabo.App is a wrapper for. 
 	"""
-	def __init__(self, selfStart=False):
+	_call_beforeInit, _call_afterInit = False, False
+
+	def __init__(self, selfStart=False, properties=None, *args, **kwargs):
 		self._uiAlreadySet = False
 		dabo.dAppRef = self
-		#dApp.doDefault()
-		super(dApp, self).__init__()
-		self._initProperties()
+		self._beforeInit()
+		super(dApp, self).__init__(properties, *args, **kwargs)
 		# egl: added the option of keeping the main form hidden
 		# initially. The default behavior is for it to be shown, as usual.
 		self.showMainFormOnStart = True
@@ -98,7 +99,7 @@ class dApp(dabo.common.dObject):
 		if selfStart:
 			self.showMainFormOnStart = False
 			self.setup()
-		
+		self._afterInit()		
 
 	def setup(self, initUI=True):
 		""" Set up the app - call this before start()."""
