@@ -247,7 +247,7 @@ class dCursorMixin(dabo.common.dObject):
 		if not self._records[0].has_key(col):
 			raise dException.dException, _("Invalid column specified for sort: ") + col
 
-		newCol  = col
+		newCol = col
 		if col == currCol:
 			# Not changing the column; most likely they are flipping 
 			# the sort order.
@@ -316,12 +316,25 @@ class dCursorMixin(dabo.common.dObject):
 		# the first element.
 		# First, see if we are comparing strings
 		compString = isinstance(sortList[0][0], basestring)
+		sortfunc = None
 		if compString and not caseSensitive:
 			# Use a case-insensitive sort.
-			sortList.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
+			sortfunc = lambda x, y: cmp(x[0].lower(), y[0].lower())
 		else:
-			sortList.sort()
-
+			# can't compare NoneType to some types: sort None lower than anything else:
+			def nonesort(v,w):
+				x, y = v[0], w[0]
+				if x is None and y is None:
+					return 0
+				elif x is None and y is not None:
+					return -1
+				elif x is not None and y is None:
+					return 1
+				else:
+					return cmp(x,y)
+			sortfunc = nonesort	
+		sortList.sort(sortfunc)
+			
 		# Unless DESC was specified as the sort order, we're done sorting
 		if ord == "DESC":
 			sortList.reverse()

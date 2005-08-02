@@ -1306,10 +1306,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			canSort = gridCol.canSort
 			columnToSort = gridCol
 			sortCol = self.Columns.index(gridCol)
+			dataType = self.Columns[gridCol].DataType
 		else:
 			sortCol = gridCol
 			columnToSort = self.Columns[gridCol].Field
 			canSort = self.Columns[gridCol].canSort
+			dataType = None  ## will hunt for the dataType below
 
 		if not canSort:
 			# Some columns, especially those with mixed values,
@@ -1345,13 +1347,57 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			# lists contain the sort value in the zeroth element, and the row as
 			# the first element.
 			# First, see if we are comparing strings
-			sortingStrings = isinstance(sortList[0][0], basestring)
-			if sortingStrings and not caseSensitive:
-				# Use a case-insensitive sort.
-				sortList.sort(lambda x, y: cmp(x[0].lower(), y[0].lower()))
+			if dataType is None:
+				f = sortList[0][0]
+				if f is None:
+					# We are just poking around, trying to glean the datatype, which is prone
+					# to error. The record we just checked is None, so try the last record and
+					# then give up.
+					f = sortList[-1][0]
+				#pkm: I think grid column DataType properties should store raw python
+				#     types, not string renditions of them. But for now, convert to
+				#     string renditions. I also think that this codeblock should be 
+				#     obsolete once all dabo grids use dColumn objects.
+				import datetime
+				import decimal
+				if isinstance(f, datetime.date):
+					dataType = "date"
+				elif isinstance(f, datetime.datetime):
+					dataType = "datetime"
+				elif isinstance(f, unicode):
+					dataType = "unicode"
+				elif isinstance(f, str):
+					dataType = "string"
+				elif isinstance(f, long):
+					dataType = "long"
+				elif isinstance(f, int):
+					dataType = "int"
+				elif isinstance(f, decimal.Decimal):
+					dataType = "decimal"
+				else:
+					dataType = None
+				sortingStrings = isinstance(sortList[0][0], basestring)
 			else:
-				sortList.sort()
-	
+				sortingStrings = dataType in ("unicode", "string")
+			
+			sortfunc = None
+			if sortingStrings and not caseSensitive:
+				sortfunc = lambda x, y: cmp(x[0].lower(), y[0].lower())
+			elif dataType in ("date", "datetime"):
+				# can't compare NoneType to these types:
+				def datetimesort(v,w):
+					x, y = v[0], w[0]
+					if x is None and y is None:
+						return 0
+					elif x is None and y is not None:
+						return -1
+					elif x is not None and y is None:
+						return 1
+					else:
+						return cmp(x,y)
+				sortfunc = datetimesort	
+			sortList.sort(sortfunc)
+			
 			# Unless DESC was specified as the sort order, we're done sorting
 			if sortOrder == "DESC":
 				sortList.reverse()
