@@ -382,29 +382,9 @@ class dColumn(dabo.common.dObject):
 	they provide a way to interact with the underlying grid table in a more
 	straightforward manner.
 	"""
-	def __init__(self, parent=None, *args, **kwargs):
+	def __init__(self, *args, **kwargs):
 		super(dColumn, self).__init__()
 			
-		# This class doesn't have support for the typical Dabo 
-		# technique of passing in property settings in the 
-		# constructor, so fake it here.
-		try: self._caption = kwargs["Caption"]
-		except: self._caption = "Column"
-		try: self._order = kwargs["Order"]
-		except: self._order = -1
-		try: self._width = kwargs["Width"]
-		except: self._width = -1
-		try: self._parent = kwargs["Parent"]
-		except: self._parent = parent
-		try: self._name = kwargs["Name"]
-		except: self._name = ""
-		try: self._field = kwargs["Field"]
-		except: self._field = ""
-		try: self._dataType = kwargs["DataType"]
-		except: self._dataType = ""
-		try: self._hdrBkColor = kwargs["HeaderBackgroundColor"]
-		except: self._hdrBkColor = None
-
 		# Can this column be sorted? Default: True
 		self.canSort = True
 		# Do we run incremental search with this column? Default: True
@@ -414,78 +394,99 @@ class dColumn(dabo.common.dObject):
 		if self.Parent:
 			self.Parent.onColumnChange(self, prop)
 	
-	def _getCap(self):
-		return self._caption
-	def _setCap(self, val):
+	def _getCaption(self):
+		try:
+			v = self._caption
+		except AttributeError:
+			v = self._caption = "Column"
+		return v
+
+	def _setCaption(self, val):
 		self._caption = val
 		self.changeMsg("caption")
 	
-	def _getDTyp(self):
-		return self._dataType
-	def _setDTyp(self, val):
+
+	def _getDataType(self):
+		try:
+			v = self._dataType
+		except AttributeError:
+			v = self._dataType = ""
+		return v
+
+	def _setDataType(self, val):
 		self._dataType = val
 		self.changeMsg("datatype")
 	
-	def _getFld(self):
-		return self._field
-	def _setFld(self, val):
+
+	def _getField(self):
+		try:
+			v = self._field
+		except AttributeError:
+			v = self._field = ""
+		return v
+
+	def _setField(self, val):
 		self._field = val
 		self.changeMsg("field")
 	
-	def _getHdrBkColor(self):
-		return self._hdrBkColor
-	def _setHdrBkColor(self, val):
+
+	def _getHeaderBackgroundColor(self):
+		try:
+			v = self._headerBackgroundColor
+		except AttributeError:
+			v = self._headerBackgroundColor = None
+		return v
+
+	def _setHeaderBackgroundColor(self, val):
 		if isinstance(val, basestring):
 			try:
 				val = dColors.colorTupleFromName(val)
-			except: pass
-		self._hdrBkColor = val
+			except: 
+				pass
+		self._headerBackgroundColor = val
 		self.Parent.Refresh()
 	
-	def _getName(self):
-		return self._name
-	def _setName(self, val):
-		self._name = val
-	
-	def _getOrd(self):
-		return self._order
-	def _setOrd(self, val):
+
+	def _getOrder(self):
+		try:
+			v = self._order
+		except AttributeError:
+			v = self._order = -1
+		return v
+
+	def _setOrder(self, val):
 		self._order = val
 		self.changeMsg("order")
 	
-	def _getParent(self):
-		return self._parent
-	def _setParent(self, val):
-		self._parent = val
-	
-	def _getWd(self):
-		return self._width
-	def _setWd(self, val):
+
+	def _getWidth(self):
+		try:
+			v = self._width
+		except AttributeError:
+			v = self._width = -1
+		return v
+
+	def _setWidth(self, val):
 		self._width = val
 		self.changeMsg("width")
 	
-	Caption = property(_getCap, _setCap, None,
+
+	Caption = property(_getCaption, _setCaption, None,
 			_("Caption displayed in this column's header  (str)") )
 
-	DataType = property(_getDTyp, _setDTyp, None,
+	DataType = property(_getDataType, _setDataType, None,
 			_("Description of the data type for this column  (str)") )
 
-	Field = property(_getFld, _setFld, None,
+	Field = property(_getField, _setField, None,
 			_("Field key in the data set to which this column is bound.  (str)") )
 
-	HeaderBackgroundColor = property(_getHdrBkColor, _setHdrBkColor, None,
+	HeaderBackgroundColor = property(_getHeaderBackgroundColor, _setHeaderBackgroundColor, None,
 			_("Optional color for the background of the column header  (str)") )
 
-	Name = property(_getName, _setName, None,
-			_("Name of this column  (str)") )
-
-	Order = property(_getOrd, _setOrd, None,
+	Order = property(_getOrder, _setOrder, None,
 			_("Order of this column  (int)") )
 
-	Parent = property(_getParent, _setParent, None,
-			_("Parent of this object.  (dGrid)") )
-	
-	Width = property(_getWd, _setWd, None,
+	Width = property(_getWidth, _setWidth, None,
 			_("Width of this column  (int)") )
 	
 
@@ -1421,6 +1422,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# there are more efficient search algorithms, but for this purpose, we'll
 		# just use brute force
 		for fldval, row in sortList:
+			if not isinstance(fldval, basestring):
+				fldval = str(fldval)
 			if not compString or caseSensitive:
 				match = (fldval == srchStr)
 			else:

@@ -18,13 +18,14 @@ class dBizobj(dabo.common.dObject):
 	# Need to set this here
 	useFieldProps = False
 
+	# Tell dObject that we'll call before and afterInit manually:
+	_call_beforeInit, _call_afterInit = False, False
 
-	def __init__(self, conn):
+	def __init__(self, conn, properties=None, *args, **kwargs):
 		""" User code should override beforeInit() and/or afterInit() instead.
 		"""
 		self._beforeInit()
 		self._conn = conn
-		self._initProperties()
 			
 		super(dBizobj, self).__init__()
 

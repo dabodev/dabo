@@ -7,7 +7,41 @@ from dabo.dLocalize import _
 class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 	""" The basic ancestor of all dabo objects.
 	"""
-	_IsContainer = False
+	# Subclasses can set these to False, in which case they are responsible
+	# for maintaining the following call order:
+	#   self._beforeInit()
+	#   # optional stuff
+	#   super().__init__()
+	#   # optional stuff
+	#   self._afterInit()
+	# or, not calling super() at all, but remember to call _initProperties() and
+	# the call to setProperties() at the end!
+	_call_beforeInit, _call_afterInit = True, True
+
+	def __init__(self, properties=None, *args, **kwargs):
+		self._properties = {}
+		if self._call_beforeInit:
+			self._beforeInit()
+		self._initProperties()
+
+		# Now that user code has had an opportunity to set the properties, we can 
+		# see if there are properties sent to the constructor which will augment 
+		# or override the properties set in beforeInit().
+		
+		# The keyword properties can come from either, both, or none of:
+		#    + the properties dict
+		#    + the kwargs dict
+		# Get them sanitized into one dict:
+		if properties is not None:
+			# Override the class values
+			for k,v in properties.items():
+				self._properties[k] = v
+		properties = self.extractKeywordProperties(kwargs, self._properties)
+		if self._call_afterInit:
+			self._afterInit()
+		self.setProperties(properties)
+
+
 
 	def beforeInit(self, *args, **kwargs):
 		""" Subclass hook.

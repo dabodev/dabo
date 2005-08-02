@@ -18,6 +18,9 @@ class dPemMixin(dPemMixinBase):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
+
+		# NOTE: Do not call super(), there is similar code in propertyhelpermixin.__init__()
+		#       that we override here.
 		self._properties = {}
 		
 		# Lots of useful wx props are actually only settable before the

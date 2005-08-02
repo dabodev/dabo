@@ -1,18 +1,30 @@
+import sys
+import os
+######################################################
+# Very first thing: check for proper wxPython build:
+_failedLibs = []
+for lib in ("wx", "wx.stc", "wx.gizmos"):  ## note: may need wx.animate as well
+	try:
+		__import__(lib)
+	except ImportError:
+		_failedLibs.append(lib)
+
+if len(_failedLibs) > 0:
+	msg = """
+Your wxPython installation was not built correctly. Please make sure that
+the following required libraries have been built:
+
+	%s
+	""" % "\n\t".join(_failedLibs)
+	
+	sys.exit(msg)
+del(_failedLibs)
+#######################################################
 import wx
 import dabo.ui
 import dabo.dConstants as k
 from uiApp import uiApp
-import os
-import sys
 
-# Check for proper wxPython build
-try:
-	import wx.stc
-	import wx.gizmos
-	import wx.animate
-except ImportError:
-	sys.exit("\nYour wxPython installation was not built correctly. " + 
-			"Please make sure that the wx.animate, wx.stc and wx.gizmos modules are properly built.\n")
 
 uiType = {'shortName': 'wx', 'moduleName': 'uiwx', 'longName': 'wxPython'}
 uiType['version'] = wx.VERSION_STRING

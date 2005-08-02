@@ -1,13 +1,13 @@
 from dabo.lib.reporting_old.reportWriter import ReportWriter
 from dabo.common.dObject import dObject
 
+# dReportWriter is simply a raw ReportWriter/dObject mixin:
 class dReportWriter(dObject, ReportWriter): pass
+
 
 if __name__ == "__main__":
 	## run a test:
-	rw = dReportWriter()
-	rw.Name = "dReportWriter1"
-	rw.OutputFile = "./dReportWriter-test.pdf"
+	rw = dReportWriter(Name="dReportWriter1", OutputFile="./dRW-test.pdf")
 	print rw.Name, rw.Application
 
 	xml = """
