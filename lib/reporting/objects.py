@@ -7,13 +7,13 @@ defined in report.py
 from reportlab.graphics import shapes
 from util import *
 
-from dabo.lib.serialization import *
+from serialization import *
 
 
 class GenericObject(Serializable):
-	"""	This object implements the functionalities that are common to every object.
+	"""This object implements the functionalities that are common to every object.
 
-	It cannot be used as is, but must be subclassed.	Subclasses must implement 
+	It cannot be used as is, but must be subclassed.  Subclasses must implement 
 	the _draw() method, in order to perform the actual drawing.
 	"""
 	name = UnevalStringAttr('???')

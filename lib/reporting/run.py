@@ -1,6 +1,5 @@
-
 import sys, os, os.path
-import dabo.lib.serialization as serialization
+import serialization
 import report
             
 if __name__ == "__main__":

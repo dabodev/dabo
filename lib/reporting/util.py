@@ -1,6 +1,4 @@
-
 import reportlab.lib.units as units
-
 
 def dictunion(lhs, rhs):
 	""" Dictionary union

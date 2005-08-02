@@ -1,6 +1,5 @@
-
 from reportlab.pdfgen import canvas
-from dabo.lib.serialization import *
+from serialization import *
 from util import *
 
 
