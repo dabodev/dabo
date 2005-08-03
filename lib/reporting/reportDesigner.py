@@ -83,6 +83,13 @@ class ObjectPanel(dabo.ui.dPanel):
 		self.Parent.drawObject(self.Props)
 
 	def onDoubleClick(self, evt):
+		if not self.Selected:
+			# Well, our user double-clicked, and the single-click should have
+			# selected us, but perhaps they had the shift key down resulting
+			# in the second mousedown unselecting us. Nonetheless, we should
+			# be selected:
+			self._rd._selectedObjects.append(self)
+			self.Refresh()
 		self.Parent._rd.propertyDialog(self)
 
 	def onMouseLeave(self, evt):
@@ -619,7 +626,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 	def _onKeyUp(self, evt):
 		# Note: using onKeyUp because it appears something is eating KeyDown on 
 		# Windows, perhaps the scrollPanel scrollbars.
-		# certain keys, like the arrow keys, are used by the designer.
+		# Certain keys, like the arrow keys, are used by the designer.
 		from dabo.ui import dKeys
 		shiftDown = evt.EventData["shiftDown"]
 		ctrlDown = evt.EventData["controlDown"]	 # ? handled differently? (linux at least)
@@ -627,38 +634,43 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		keys = {dKeys.key_Up: "up",
 		        dKeys.key_Down: "down", 
 		        dKeys.key_Right: "right",
-		        dKeys.key_Left: "left"}
+		        dKeys.key_Left: "left",
+		        dKeys.key_Return: "enter"}
 
 		if keys.has_key(keyCode):
 			key = keys[keyCode]
 			if len(self._selectedObjects) > 0:
 				evt.stop()  ## don't let the arrow key scroll the window
-				size, turbo = False, False
-				if shiftDown:
-					if key in ["up", "down"]:
-						propName = "height"
-					else:
-						propName = "width"
+				if key == "enter":
+					if ctrlDown:
+						self.propertyDialog(self._selectedObjects[-1])
 				else:
-					if key in ["up", "down"]:
-						propName = "y"
+					size, turbo = False, False
+					if shiftDown:
+						if key in ["up", "down"]:
+							propName = "height"
+						else:
+							propName = "width"
 					else:
-						propName = "x"
-				
-				if key in ["up", "right"]:
-					adj = 1
-				else:
-					adj = -1
-				
-				if ctrlDown:
-					adj = adj * 10
-				
-				for o in self._selectedObjects:
-					val = o.getProp(propName)
-					if val is None:
-						val = eval("self._rw.default_%s" % propName)
-					val = self._rw.getPt(val)
-					o.setProp(propName, val+adj)
+						if key in ["up", "down"]:
+							propName = "y"
+						else:
+							propName = "x"
+					
+					if key in ["up", "right"]:
+						adj = 1
+					else:
+						adj = -1
+					
+					if ctrlDown:
+						adj = adj * 10
+					
+					for o in self._selectedObjects:
+						val = o.getProp(propName)
+						if val is None:
+							val = eval("self._rw.default_%s" % propName)
+						val = self._rw.getPt(val)
+						o.setProp(propName, val+adj)
 						
 
 	def clearReportForm(self):
@@ -1055,6 +1067,16 @@ class ReportDesignerForm(dabo.ui.dForm):
 		if fname:
 			self.editor.saveFile(fname)
 			
+	def onFilePreviewReport(self, evt):
+		import tempfile
+		fname = self.editor._rw.OutputFile = tempfile.mktemp(prefix="DaboReportPreview_", suffix=".pdf")
+		self.editor._rw.write()
+		try:
+			os.startfile(fname)
+		except AttributeError:
+			# startfile not available on Linux, punt with xpdf:
+			os.popen2("xpdf %s" % fname)
+
 	def onViewZoomIn(self, evt):
 		ed = self.getCurrentEditor()
 		ed._zoom = ed._zoom + .1
@@ -1076,6 +1098,11 @@ class ReportDesignerForm(dabo.ui.dForm):
 		viewMenu = mb.getMenu("View")
 		dIcons = dabo.ui.dIcons
 				
+		fileMenu.prependSeparator()
+
+		fileMenu.prepend("Preview Report", bindfunc=self.onFilePreviewReport, 
+		                 help="Preview the report as a PDF")
+
 		fileMenu.prependSeparator()
 
 		fileMenu.prepend("Save &As", bindfunc=self.onFileSaveAs, bmp="saveAs", 
