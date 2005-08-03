@@ -592,7 +592,8 @@ class ReportWriter(object):
 		c.showPage()
 		
 		if save:
-			c.save()
+			if self.OutputFile is not None:
+				c.save()
 			self._canvas = None
 
 
