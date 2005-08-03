@@ -1,4 +1,4 @@
-from dabo.lib.reporting_old.reportWriter import ReportWriter
+from dabo.lib.reporting.reportWriter import ReportWriter
 from dabo.common.dObject import dObject
 
 # dReportWriter is simply a raw ReportWriter/dObject mixin:
