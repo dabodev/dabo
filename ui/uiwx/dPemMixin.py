@@ -617,6 +617,11 @@ class dPemMixin(dPemMixinBase):
 		"""Wrapper to the wx method."""
 		self.SetFocus()
 		
+	
+	def refresh(self):
+		"""Wrapper to the wx method."""
+		self.Refresh()
+		
 		
 	def _redraw(self):
 		"""If the object has drawing routines that affect its appearance, this

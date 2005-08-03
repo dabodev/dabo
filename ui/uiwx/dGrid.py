@@ -1358,8 +1358,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				#     types, not string renditions of them. But for now, convert to
 				#     string renditions. I also think that this codeblock should be 
 				#     obsolete once all dabo grids use dColumn objects.
-				import datetime
-				import decimal
 				if isinstance(f, datetime.date):
 					dataType = "date"
 				elif isinstance(f, datetime.datetime):
@@ -1372,7 +1370,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					dataType = "long"
 				elif isinstance(f, int):
 					dataType = "int"
-				elif isinstance(f, decimal.Decimal):
+				elif _USE_DECIMAL and isinstance(f, decimal.Decimal):
 					dataType = "decimal"
 				else:
 					dataType = None
