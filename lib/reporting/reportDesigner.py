@@ -1013,6 +1013,7 @@ class ReportDesignerForm(dabo.ui.dForm):
 	def afterInit(self):
 		self.addObject(ReportDesigner, Name="editor")
 		self.fillMenu()
+		self._tempfiles = []  # report form previews, for example, to delete on close.
 
 	def initEvents(self):
 		self.bindEvent(dEvents.Close, self.onClose)
@@ -1024,6 +1025,11 @@ class ReportDesignerForm(dabo.ui.dForm):
 		result = self.editor.closeFile()
 		if result is None:
 			evt.stop()
+		else:
+			for f in self._tempfiles:
+				if os.path.exists(f):
+					os.remove(f)
+			self._tempfiles = []
 		
 	def onFileNew(self, evt):
 		o = self.editor
@@ -1076,6 +1082,7 @@ class ReportDesignerForm(dabo.ui.dForm):
 		except AttributeError:
 			# startfile not available on Linux, punt with xpdf:
 			os.popen2("xpdf %s" % fname)
+		self._tempfiles.append(fname)
 
 	def onViewZoomIn(self, evt):
 		ed = self.getCurrentEditor()
