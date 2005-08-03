@@ -1080,8 +1080,12 @@ class ReportDesignerForm(dabo.ui.dForm):
 		try:
 			os.startfile(fname)
 		except AttributeError:
-			# startfile not available on Linux, punt with xpdf:
-			os.popen2("xpdf %s" % fname)
+			# startfile only available on Windows
+			if sys.platform == "darwin":
+				os.system("open %s" % fname)
+			else:
+				# on Linux, punt with xpdf:
+				os.popen2("xpdf %s" % fname)
 		self._tempfiles.append(fname)
 
 	def onViewZoomIn(self, evt):
