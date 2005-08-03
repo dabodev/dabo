@@ -20,6 +20,16 @@ class ObjectPanel(dabo.ui.dPanel):
 		self._rw = self._rd._rw
 		self._props = {}
 		self._anchors = {}
+		self._anchorThickness = 5
+		self._anchor = None
+		self._mouseDown = False
+		self._mousePosition = (0,0)
+		self._mouseDragMode = ""
+
+		# For expressions to evaluate in the designer just like they do in the report
+		# writer, proxies must be set up:
+		self.Bands = self._rw.Bands
+
 
 	def initEvents(self):
 		self.bindEvent(dEvents.Paint, self.onPaint)
@@ -28,14 +38,22 @@ class ObjectPanel(dabo.ui.dPanel):
 		self.bindEvent(dEvents.MouseMove, self.onMouseMove)
 		self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
 		self.bindEvent(dEvents.MouseLeave, self.onMouseLeave)
+		self.bindEvent(dEvents.MouseLeftDown, self.onMouseLeftDown)
+		self.bindEvent(dEvents.MouseLeftUp, self.onMouseLeftUp)
 
-	def getProp(self, prop, evaluate=True):
+	def getProp(self, prop, evaluate=True, fillDefault=True):
 		try:
 			val = self.Props[prop]
 		except KeyError:
 			val = None
 
-		if evaluate and val is not None and prop not in ("type",):
+		if val is None and fillDefault:
+			try:
+				val = repr(self._rw.__getattribute__("default_%s" % prop))
+			except AttributeError:
+				pass
+
+		if val is not None and evaluate and prop not in ("type",):
 			try:
 				vale = eval(val)
 			except:
@@ -68,38 +86,40 @@ class ObjectPanel(dabo.ui.dPanel):
 		self.Parent._rd.propertyDialog(self)
 
 	def onMouseLeave(self, evt):
-		import wx
-		self.SetCursor(wx.NullCursor)	
+		if not self._mouseDown:
+			import wx
+			self.SetCursor(wx.NullCursor)	
 
 	def onMouseEnter(self, evt):
-		self._setMouseCursor(evt.EventData["mousePosition"])
+		if not self._mouseDown:
+			self._setMouseMoveMode(evt.EventData["mousePosition"])
 
 	def onMouseMove(self, evt):
-		self._setMouseCursor(evt.EventData["mousePosition"])
+		oldPos = self._mousePosition
+		curPos = evt.EventData["mousePosition"]
+		xDiff = curPos[0] - oldPos[0]
+		yDiff = curPos[1] - oldPos[1]
 
-	def _setMouseCursor(self, pos):
-		import wx
-		if self.Selected:
-			if self._mouseOnAnchor(pos):
-				self.SetCursor(wx.StockCursor(wx.CURSOR_SIZING))
-			else:
-				self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENWSE))
+		if self._mouseDown:
+			hAnchor = self.getProp("hAnchor")
+			vAnchor = self.getProp("vAnchor")
+			w, h = self.getProp("width"), self.getProp("height")
+			x, y = self.getProp("x"), self.getProp("y")
+			getPt = self._rw.getPt
+			x,y,w,h = getPt(x), getPt(y), getPt(w), getPt(h)
+	
+			if self._mouseDragMode == "sizing":
+				anchorInfo = self._anchors[self._anchor]
+				self.setProps({"height": h-yDiff, "width": w-xDiff})
+			elif self._mouseDragMode == "moving":
+				self.setProps({"x": x+xDiff, "y": y-yDiff})
+				
 		else:
-			self.SetCursor(wx.NullCursor)					
+			self._setMouseMoveMode(evt.EventData["mousePosition"])
 
-	def _mouseOnAnchor(self, pos):
-		retval = False
-		for v in self._anchors.values():
-			vv = []
-			for x in range(self._anchorThickness):
-				for y in range(self._anchorThickness):
-					vv.append((v[2]+x,v[3]+y))						
-			if pos in vv:
-				retval = True
-				break
-		return retval
-
-	def onLeftClick(self, evt):
+	def onMouseLeftDown(self, evt):
+		self._mouseDown = True
+		self._mousePosition = evt.EventData["mousePosition"]
 		if not self.Selected:
 			if evt.EventData["shiftDown"] or evt.EventData["controlDown"]:
 				self._rd._selectedObjects.append(self)
@@ -114,7 +134,39 @@ class ObjectPanel(dabo.ui.dPanel):
 					if self._rd._selectedObjects[idx] == self:
 						del self._rd._selectedObjects[idx]
 						break
+			else:
+				oldSelectedObjects = copy.copy(self._rd._selectedObjects)
+				self._rd._selectedObjects = [self,]
+				for obj in oldSelectedObjects:
+					obj.Refresh()
 		self.Refresh()
+
+	def onMouseLeftUp(self, evt):
+		self._mouseDown = False
+
+	def _setMouseMoveMode(self, pos):
+		import wx
+		self._anchor = self._mouseOnAnchor(pos) 
+		if self._anchor is not None:
+			self._mouseDragMode = "sizing"
+			self.SetCursor(wx.StockCursor(wx.CURSOR_SIZING))
+		else:
+			self._mouseDragMode = "moving"
+			self.SetCursor(wx.StockCursor(wx.CURSOR_SIZENWSE))
+
+	def _mouseOnAnchor(self, pos):
+		"""Return the anchor that the mouse is on, or None."""
+		for k,v in self._anchors.items():
+			vv = []
+			for x in range(self._anchorThickness):
+				for y in range(self._anchorThickness):
+					vv.append((v[2]+x,v[3]+y))
+			if pos in vv:
+				return k
+		return None
+
+	def onLeftClick(self, evt):
+		pass
 
 	def onPaint(self, evt):
 		import wx		## (need to abstract DC drawing)
@@ -128,7 +180,7 @@ class ObjectPanel(dabo.ui.dPanel):
 
 			x,y = (rect[0], rect[1])
 			width, height = (rect[2], rect[3])
-			thickness = 3
+			thickness = self._anchorThickness
 
 			if self.Props.has_key("hAnchor"):
 				hAnchor = eval(self.Props["hAnchor"])
@@ -140,20 +192,21 @@ class ObjectPanel(dabo.ui.dPanel):
 			else:
 				vAnchor = self._rw.default_vAnchor
 
-			anchors = {"tl": ["top", "left", x, y],
-				    "bl": ["bottom", "left", x, y + height - thickness],
-				    "tc": ["top", "center", x+(.5*width), y],
-				    "bc": ["bottom", "center", x+(.5*width), y+height-thickness],
-				    "tr": ["top", "right", x+width-thickness, y],
-				    "br": ["bottom", "right", x+width-thickness, y+height-thickness],}
+			anchors = {"lt": ["left", "top", x, y],
+			           "lb": ["left", "bottom", x, y+height-thickness],
+			           "ct": ["center", "top", x+(.5*width)-(.5*thickness), y],
+			           "cb": ["center", "bottom", x+(.5*width)-(.5*thickness), y+height-thickness],
+			           "rt": ["right", "top", x+width-thickness, y],
+			           "rb": ["right", "bottom", x+width-thickness, y+height-thickness],
+			           "lm": ["left", "middle", x, y+(.5*height)-(.5*thickness)],
+			           "rm": ["right", "middle", x+width-thickness, y+(.5*height)-(.5*thickness)]}
 
 			self._anchors = anchors
-			self._anchorThickness = thickness
 
 			pen = dc.GetPen()
 
 			for k,v in anchors.items():
-				if hAnchor == v[1] and vAnchor == v[0]:
+				if hAnchor == v[0] and vAnchor == v[1]:
 					dc.SetBrush(wx.Brush((192,0,192), wx.SOLID))
 					dc.SetPen(wx.Pen((192,0,192)))
 				else:
