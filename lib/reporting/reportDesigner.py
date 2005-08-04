@@ -742,10 +742,11 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 
 	def _onKeyChar(self, evt):
-		# Certain keys, like the arrow keys, are used by the designer.
+		# Certain keys, like the arrow keys, are used by the designer:
 		from dabo.ui import dKeys
 		shiftDown = evt.EventData["shiftDown"]
 		ctrlDown = evt.EventData["controlDown"]	 # ? handled differently? (linux at least)
+		altDown = evt.EventData["altDown"]
 		keyCode = evt.EventData["keyCode"]
 		keys = {dKeys.key_Up: "up",
 		        dKeys.key_Down: "down", 
@@ -753,13 +754,14 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		        dKeys.key_Left: "left",
 		        dKeys.key_Return: "enter"}
 
-		if keys.has_key(keyCode):
+		if not altDown and keys.has_key(keyCode):
+			# (If the alt key is down, let the window manager have the event, otherwise,
+			#  we'll steal the event for our own use).
 			key = keys[keyCode]
 			if len(self._selectedObjects) > 0:
-				evt.stop()  ## don't let the arrow key scroll the window
-				if key == "enter":
-					if ctrlDown:
-						self.propertyDialog(self._selectedObjects[-1])
+				evt.stop()  ## don't let the arrow key scroll the window.
+				if ctrlDown and key == "enter":
+					self.propertyDialog(self._selectedObjects[-1])
 				else:
 					size, turbo = False, False
 					if shiftDown:
