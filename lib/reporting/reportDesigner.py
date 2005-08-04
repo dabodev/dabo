@@ -769,15 +769,16 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		else:
 			cond = win
 
-		if cond and keys.has_key(keyCode):
+		if keys.has_key(keyCode):
 			# (If the alt key is down, let the window manager have the event, otherwise,
 			#  we'll steal the event for our own use).
 			key = keys[keyCode]
 			if len(self._selectedObjects) > 0:
-				evt.stop()  ## don't let the arrow key scroll the window.
 				if ctrlDown and key == "enter":
+					evt.stop()
 					self.propertyDialog(self._selectedObjects[-1])
-				else:
+				elif cond and key != "enter":
+					evt.stop()  ## don't let the arrow key scroll the window.
 					size, turbo = False, False
 					if shiftDown:
 						if key in ["up", "down"]:
