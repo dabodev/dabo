@@ -30,6 +30,8 @@ class ObjectPanel(dabo.ui.dPanel):
 		self._dragStart = (0,0)
 		self._dragImage = None
 
+		self._captureBitmap = None
+
 		# For expressions to evaluate in the designer just like they do in the report
 		# writer, proxies must be set up:
 		self.Bands = self._rw.Bands
@@ -111,11 +113,6 @@ class ObjectPanel(dabo.ui.dPanel):
 			if not self._dragging:
 				self._dragging = True
 				self._dragStart = evt.EventData["mousePosition"]
-				if self._mouseDragMode == "moving":
-					#self.SetCursor(wx.StockCursor(wx.CURSOR_CROSS))
-					self._captureBitmap = self.getCaptureBitmap()
-				elif self._mouseDragMode == "sizing":
-					pass
 					
 		else:
 			self._setMouseMoveMode(evt.EventData["mousePosition"])
@@ -133,6 +130,12 @@ class ObjectPanel(dabo.ui.dPanel):
 					     - self._dragStart[0]    ## (correct for xpos in the band)
 					     + 2)                    ## fudge factor
 
+
+#					if ypos < self.Parent.Top:
+#						# Don't show the object dragging above the topmost valid position:
+#						ypos = self.Parent.Top
+#					if ypos > self.Parent.Bottom-self.Parent._bandLabelHeight-self.Height:
+#						ypos = self.Parent.Bottom-self.Parent._bandLabelHeight-self.Height
 
 					if self._dragImage is None:
 						# Erase the band label, and instantiate the dragImage rendition of it.
@@ -182,11 +185,12 @@ class ObjectPanel(dabo.ui.dPanel):
 				z = self.Parent.Parent._zoom
 				# dragging the object is moving it to a new position.
 				oldx = self._rw.getPt(self.getProp("x"))
-				newx = oldx + (xoffset/z)
+				newx = round(oldx + (xoffset/z),1)
 				if newx < 0: newx = 0
 				oldy = self._rw.getPt(self.getProp("y"))
-				newy = oldy - (yoffset/z)
-				if newy < 0: newy = 0
+				newy = round(oldy - (yoffset/z),1)
+#				if newy < 0:
+#					newy = 0
 				self.setProps({"y": newy, "x": newx})
 			self._rd.showPosition()
 			self.Form.Refresh()
@@ -252,6 +256,55 @@ class ObjectPanel(dabo.ui.dPanel):
 		dc = wx.PaintDC(self)
 		rect = self.GetClientRect()
 		dc.SetBrush(wx.Brush(self.BackColor, wx.SOLID))
+
+		if self.getProp("type") == "string":
+			expr = self.getProp("expr", evaluate=False)
+			if expr is None:
+				expr = "<< missing expression >>"
+
+			alignments = {"left": wx.ALIGN_LEFT,
+					"center": wx.ALIGN_CENTER,
+					"right": wx.ALIGN_RIGHT,}
+
+			alignment = self.getProp("align")
+			if alignment is None:
+				alignment = self._rw.default_align
+			dc.DrawLabel(expr, (rect[0]+2, rect[1], rect[2]-4, rect[3]),
+				      alignments[alignment])
+
+		if self.getProp("type") == "image":
+			bmp = None
+			expr = self.getProp("expr", evaluate=False)
+			if expr is None:
+				expr = "<< missing expression >>"
+			else:
+				try:
+					imageFile = eval(expr)
+				except:
+					imageFile = None
+				if imageFile is not None:
+					if os.path.exists(imageFile):
+						import wx
+						expr = None
+						img = wx.Image(imageFile)
+						## Whether rescaling, resizing, or nothing happens depends on the 
+						## scalemode prop. For now, we just unconditionally rescale:
+						img.Rescale(rect[2], rect[3])
+						bmp = img.ConvertToBitmap()
+					else:
+						expr = "<< file not found >>"
+				else:
+					expr = "<< error parsing expr >>"
+			if bmp is not None:
+				dc.DrawBitmap(bmp, rect[0], rect[1])
+			else:
+				dc.DrawLabel(expr, (rect[0]+2, rect[1], rect[2]-4, rect[3]), wx.ALIGN_LEFT)
+
+		# Capture the bitmap when the object is in "pristine" state, before select 
+		# handles are drawn. This bitmap will be used if the object is dragged.
+		self._captureBitmap = self.getCaptureBitmap()
+
+		dc.SetBrush(wx.Brush(self.ForeColor, wx.TRANSPARENT))
 		if self.Selected:
 			# border around selected control with sizer boxes:
 			dc.DrawRectangle(rect[0]+1,rect[1]+1,rect[2]-2,rect[3]-2)
@@ -296,21 +349,6 @@ class ObjectPanel(dabo.ui.dPanel):
 			# border around unselected control
 			dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
 
-		if self.getProp("type") == "string":
-			expr = self.getProp("expr", evaluate=False)
-			if expr is None:
-				expr = "<< missing expression >>"
-
-			alignments = {"left": wx.ALIGN_LEFT,
-					"center": wx.ALIGN_CENTER,
-					"right": wx.ALIGN_RIGHT,}
-
-			alignment = self.getProp("align")
-			if alignment is None:
-				alignment = self._rw.default_align
-			dc.DrawLabel(expr, (rect[0]+2, rect[1], rect[2]-4, rect[3]),
-				      alignments[alignment])
-
 	def _getSelected(self):
 		return self in self._rd._selectedObjects
 	
@@ -344,7 +382,7 @@ class ObjectPanel(dabo.ui.dPanel):
 		                       {"name": "rotation", "caption": "Rotation",
 		                        "defaultValue": self._rw.default_rotation},]
 
-		if val["type"] == "string":
+		if val["type"] in ("string", "image"):
 			self.availableProps.insert(0, {"name": "expr", "caption": "Expression",
 			                               "defaultValue": self._rw.default_expr})
 
@@ -833,6 +871,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		dlg = PropertyDialog(self.Form, 
 		                     Caption="%s Properties" % caption)
 		dlg.show()
+		self.showPosition()
 
 
 	def promptToSave(self):
