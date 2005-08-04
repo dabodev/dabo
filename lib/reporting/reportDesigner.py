@@ -1148,6 +1148,7 @@ class ReportDesignerForm(dabo.ui.dForm):
 		self.addObject(dabo.ui.dPageFrame, Name="pgf")
 		self.pgf.appendPage(ReportDesigner, caption="Visual Editor")
 		self.pgf.appendPage(XmlEditor, caption="XML Editor")
+		self.pgf.appendPage(PreviewWindow, caption="Preview")
 		self.pgf.Pages[0].bindEvent(dEvents.PageEnter, self.onEnterVisualEditorPage)
 		self.pgf.Pages[1].bindEvent(dEvents.PageEnter, self.onEnterXmlEditorPage)
 		self.pgf.Pages[1].bindEvent(dEvents.PageLeave, self.onLeaveXmlEditorPage)
@@ -1319,6 +1320,17 @@ class ReportDesignerForm(dabo.ui.dForm):
 
 class XmlEditor(dabo.ui.dEditBox): pass
 
+class PreviewWindow(dabo.ui.dImage):
+	def initEvents(self):
+		self.bindEvent(dEvents.PageEnter, self.onPageEnter)
+	def onPageEnter(self, evt):
+		self.render()
+	def render(self):
+		# eventually, a platform-independent pdf viewer window will hopefully be
+		# available. Until that time, just display the report in the available
+		# external viewer:
+		self.Form.onFilePreviewReport(None)
+		dabo.ui.callAfter(self.Form.pgf._setSelectedPageNum, 0)
 
 if __name__ == "__main__":
 	app = dabo.dApp()
