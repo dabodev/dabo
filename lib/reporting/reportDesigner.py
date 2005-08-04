@@ -747,6 +747,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		shiftDown = evt.EventData["shiftDown"]
 		ctrlDown = evt.EventData["controlDown"]	 # ? handled differently? (linux at least)
 		altDown = evt.EventData["altDown"]
+		metaDown = evt.EventData["metaDown"]
 		keyCode = evt.EventData["keyCode"]
 		keys = {dKeys.key_Up: "up",
 		        dKeys.key_Down: "down", 
@@ -754,7 +755,21 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		        dKeys.key_Left: "left",
 		        dKeys.key_Return: "enter"}
 
-		if not altDown and keys.has_key(keyCode):
+		# Mac: wants metaDown (or the scrollbar will scroll)
+		mac = metaDown
+		# Win: wants altDown (or other controls will steal the arrows)
+		win = altDown
+		# Lin: wants nothing down (or window manager events get in the way)
+		lin = not metaDown and not altDown
+
+		if "linux" in sys.platform:
+			cond = lin
+		elif "darwin" in sys.platform:
+			cond = mac
+		else:
+			cond = win
+
+		if cond and keys.has_key(keyCode):
 			# (If the alt key is down, let the window manager have the event, otherwise,
 			#  we'll steal the event for our own use).
 			key = keys[keyCode]
