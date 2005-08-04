@@ -63,7 +63,7 @@ class Wizard(dabo.ui.dForm):
 		
 		if not self.iconName:
 			self.iconName = "empty"
-		self.wizardIcon = dabo.ui.dBitmap(mp, bitmap=self.iconName)
+		self.wizardIcon = dabo.ui.dBitmap(mp, Picture=self.iconName)
 		hsz = dabo.ui.dSizer("h")
 		hsz.Spacing = 20
 		hsz.append(self.wizardIcon, 0)

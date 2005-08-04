@@ -14,7 +14,7 @@ class dPemMixin(dPemMixinBase):
 	functions along with their own property() statements.
 	"""
 	def __init__(self, preClass=None, parent=None, properties=None, 
-			*args, **kwargs):
+			attProperties=None, *args, **kwargs):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
@@ -124,6 +124,10 @@ class dPemMixin(dPemMixinBase):
 		self._initEvents()
 		self._afterInit()
 		self.setProperties(properties)
+		# 'attProperties' are properties restored from XML-like files where
+		# all values are stored as strings.
+		if attProperties:
+			self.setPropertiesFromAtts(attProperties)
 
 
 	def _constructed(self):

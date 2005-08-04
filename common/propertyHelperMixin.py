@@ -129,6 +129,32 @@ class PropertyHelperMixin(object):
 		_setProps(propKw)
 
 			
+	def setPropertiesFromAtts(self, propDict={}, ignoreExtra=True):
+		""" Sets a group of properties on the object all at once. This
+		is different from the regular setProperties() method because
+		it only accepts a dict containing prop:value pairs, and it
+		assumes that the value is always a string. It will convert
+		the value to the correct type for the property, and then set
+		the property to that converted value.
+		"""
+		for prop, val in propDict.items():
+			if not hasattr(self, prop):
+				# Not a valid property
+				if ignoreExtra:
+					# ignore
+					continue
+				else:
+					raise AttributeError, "'%s' is not a property." % prop				
+			try:
+				exec("self.%s = %s" % (prop, val) )
+			except:
+				# If this is property holds strings, we need to quote the value.
+				try:
+					exec("self.%s = '%s'" % (prop, val) )
+				except:
+					raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
+		
+			
 	def getPropertyList(classOrInstance):
 		""" Returns the list of properties for this object (class or instance).
 		"""
