@@ -155,7 +155,7 @@ class ReportWriter(object):
 		
 		if vAnchor == "top":
 			y = y - height
-		elif vAnchor == "center":
+		elif vAnchor == "middle":
 			y = y - (height / 2)
 	
 		

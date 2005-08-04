@@ -26,6 +26,10 @@ class ObjectPanel(dabo.ui.dPanel):
 		self._mousePosition = (0,0)
 		self._mouseDragMode = ""
 
+		self._dragging = False
+		self._dragStart = (0,0)
+		self._dragImage = None
+
 		# For expressions to evaluate in the designer just like they do in the report
 		# writer, proxies must be set up:
 		self.Bands = self._rw.Bands
@@ -38,8 +42,8 @@ class ObjectPanel(dabo.ui.dPanel):
 		self.bindEvent(dEvents.MouseMove, self.onMouseMove)
 		self.bindEvent(dEvents.MouseEnter, self.onMouseEnter)
 		self.bindEvent(dEvents.MouseLeave, self.onMouseLeave)
-		self.bindEvent(dEvents.MouseLeftDown, self.onMouseLeftDown)
-		self.bindEvent(dEvents.MouseLeftUp, self.onMouseLeftUp)
+		self.bindEvent(dEvents.MouseLeftDown, self.onLeftDown)
+		self.bindEvent(dEvents.MouseLeftUp, self.onLeftUp)
 
 	def getProp(self, prop, evaluate=True, fillDefault=True):
 		try:
@@ -102,29 +106,99 @@ class ObjectPanel(dabo.ui.dPanel):
 			self._setMouseMoveMode(evt.EventData["mousePosition"])
 
 	def onMouseMove(self, evt):
-		oldPos = self._mousePosition
-		curPos = evt.EventData["mousePosition"]
-		xDiff = curPos[0] - oldPos[0]
-		yDiff = curPos[1] - oldPos[1]
-
+		import wx  ## need to abstract DC and mouse cursors!!
 		if self._mouseDown:
-			hAnchor = self.getProp("hAnchor")
-			vAnchor = self.getProp("vAnchor")
-			w, h = self.getProp("width"), self.getProp("height")
-			x, y = self.getProp("x"), self.getProp("y")
-			getPt = self._rw.getPt
-			x,y,w,h = getPt(x), getPt(y), getPt(w), getPt(h)
-	
-			if self._mouseDragMode == "sizing":
-				anchorInfo = self._anchors[self._anchor]
-				self.setProps({"height": h-yDiff, "width": w-xDiff})
-			elif self._mouseDragMode == "moving":
-				self.setProps({"x": x+xDiff, "y": y-yDiff})
-				
+			if not self._dragging:
+				self._dragging = True
+				self._dragStart = evt.EventData["mousePosition"]
+				if self._mouseDragMode == "moving":
+					#self.SetCursor(wx.StockCursor(wx.CURSOR_CROSS))
+					self._captureBitmap = self.getCaptureBitmap()
+				elif self._mouseDragMode == "sizing":
+					pass
+					
 		else:
 			self._setMouseMoveMode(evt.EventData["mousePosition"])
 
-	def onMouseLeftDown(self, evt):
+		if self._dragging:
+			pos = evt.EventData["mousePosition"]
+
+			if self._mouseDragMode == "moving":
+				if pos[1] != self._dragStart[1] or pos[0] != self._dragStart[0]:
+					ypos = (self.Parent.Top + self.Top + pos[1] 
+					     - self._dragStart[1]    ## (correct for ypos in the band)
+					     + 2)                    ## fudge factor
+
+					xpos = (self.Parent.Left + self.Left + pos[0] 
+					     - self._dragStart[0]    ## (correct for xpos in the band)
+					     + 2)                    ## fudge factor
+
+
+					if self._dragImage is None:
+						# Erase the band label, and instantiate the dragImage rendition of it.
+						dc = wx.WindowDC(self)
+						dc.Clear()
+
+						self._dragImage = wx.DragImage(self._captureBitmap,
+						                               wx.StockCursor(wx.CURSOR_HAND))
+
+						self._dragImage.BeginDragBounded((xpos, ypos), 
+						                                 self, self.Parent.Parent)
+						self._dragImage.Show()
+
+					self._dragImage.Move((xpos,ypos))
+
+			else:
+				oldPos = self._mousePosition
+				curPos = evt.EventData["mousePosition"]
+				xDiff = curPos[0] - oldPos[0]
+				yDiff = curPos[1] - oldPos[1]
+
+				hAnchor = self.getProp("hAnchor")
+				vAnchor = self.getProp("vAnchor")
+				w, h = self.getProp("width"), self.getProp("height")
+				x, y = self.getProp("x"), self.getProp("y")
+				getPt = self._rw.getPt
+				x,y,w,h = getPt(x), getPt(y), getPt(w), getPt(h)
+				anchorInfo = self._anchors[self._anchor]
+				self.setProps({"height": h-yDiff, "width": w-xDiff})
+				self._rd.showPosition()
+				
+
+	def onLeftUp(self, evt):
+		self._mouseDown = False
+		dragging = self._dragging
+		self._dragging = False
+		if dragging and self._mouseDragMode == "moving":
+			if self._dragImage is not None:
+				self._dragImage.EndDrag()
+			self._dragImage = None
+			pos = evt.EventData["mousePosition"]
+
+			xoffset = pos[0] - self._dragStart[0]
+			yoffset = pos[1] - self._dragStart[1]
+
+			if yoffset != 0 or xoffset !=0:
+				z = self.Parent.Parent._zoom
+				# dragging the object is moving it to a new position.
+				oldx = self._rw.getPt(self.getProp("x"))
+				newx = oldx + (xoffset/z)
+				if newx < 0: newx = 0
+				oldy = self._rw.getPt(self.getProp("y"))
+				newy = oldy - (yoffset/z)
+				if newy < 0: newy = 0
+				self.setProps({"y": newy, "x": newx})
+			self._rd.showPosition()
+			self.Form.Refresh()
+
+	def onLeftDown(self, evt):
+		if self.Application.Platform == "Mac":
+			# Mac needs the following line, or LeftUp will never fire. TODO:
+			# figure out how to abstract this into dPemMixin (if possible).
+			# I posted a message to wxPython-mac regarding this - not sure if
+			# it is a bug or a "by design" platform inconsistency.
+			evt.stop()
+
 		self._mouseDown = True
 		self._mousePosition = evt.EventData["mousePosition"]
 		if not self.Selected:
@@ -146,10 +220,8 @@ class ObjectPanel(dabo.ui.dPanel):
 				self._rd._selectedObjects = [self,]
 				for obj in oldSelectedObjects:
 					obj.Refresh()
+		self._rd.showPosition()
 		self.Refresh()
-
-	def onMouseLeftUp(self, evt):
-		self._mouseDown = False
 
 	def _setMouseMoveMode(self, pos):
 		import wx
@@ -399,7 +471,12 @@ class BandLabel(dabo.ui.dPanel):
 		dc.DrawRectangle(rect[0],rect[1],rect[2],rect[3])
 		rect[0] = rect[0]+5
 		rect[1] = rect[1]+1
-		dc.DrawLabel(self.Caption, rect, wx.ALIGN_LEFT)
+		if self.Parent.getProp("designerLock"):
+			locktext = "(locked)"
+		else:
+			locktext = ""
+		cap = "%s  |  height: %s  %s" % (self.Caption, self.Parent.getProp("height"), locktext)
+		dc.DrawLabel(cap, rect, wx.ALIGN_LEFT)
 
 
 	def _getCaption(self):
@@ -533,7 +610,7 @@ class Band(dabo.ui.dPanel):
 
 		if vAnchor == "top":
 			y = y + height
-		elif vAnchor == "center":
+		elif vAnchor == "middle":
 			y = y + (height/2)
 
 		o.Size = (z*width, z*height)
@@ -674,7 +751,18 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 							# don't allow width or height to be negative
 							newval = 0
 						o.setProp(propName, newval)
+		self.showPosition()
 						
+
+	def showPosition(self):
+		"""If one object is selected, show its position and size."""
+		if len(self._selectedObjects) == 1:
+			o = self._selectedObjects[0]
+			st = ("x:%(x)s y:%(y)s  width:%(width)s height:%(height)s" % o.Props)
+			self.Form.setStatusText(st)
+		else:
+			self.Form.setStatusText("")
+
 
 	def clearReportForm(self):
 		"""Called from afterInit and closeFile to clear the report form."""
