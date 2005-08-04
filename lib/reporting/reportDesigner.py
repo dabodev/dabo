@@ -16,7 +16,7 @@ class ObjectPanel(dabo.ui.dPanel):
 	getObject() method.
 	"""
 	def afterInit(self):
-		self._rd = self.Form.editor
+		self._rd = self.Form.getCurrentEditor()
 		self._rw = self._rd._rw
 		self._props = {}
 		self._anchors = {}
@@ -83,7 +83,9 @@ class ObjectPanel(dabo.ui.dPanel):
 		"""Set the specified object properties to the specified values."""
 		for p,v in propvaldict.items():
 			self.setProp(p, v, False)
+		self._rd.propsChanged(redraw=False)
 		self.draw()
+		self.Refresh()
 
 	def draw(self):
 		self.Parent.drawObject(self.Props)
@@ -165,7 +167,7 @@ class ObjectPanel(dabo.ui.dPanel):
 				x,y,w,h = getPt(x), getPt(y), getPt(w), getPt(h)
 				anchorInfo = self._anchors[self._anchor]
 				self.setProps({"height": h-yDiff, "width": w-xDiff})
-				self._rd.showPosition()
+#				self._rd.showPosition()
 				
 
 	def onLeftUp(self, evt):
@@ -192,7 +194,7 @@ class ObjectPanel(dabo.ui.dPanel):
 #				if newy < 0:
 #					newy = 0
 				self.setProps({"y": newy, "x": newx})
-			self._rd.showPosition()
+#			self._rd.showPosition()
 			self.Form.Refresh()
 
 	def onLeftDown(self, evt):
@@ -549,7 +551,7 @@ class Band(dabo.ui.dPanel):
 		self.Top = 100
 
 	def afterInit(self):
-		self._rd = self.Form.editor
+		self._rd = self.Form.getCurrentEditor()
 		self._rw = self._rd._rw
 		self.Bands = self._rw.Bands
 		self._objects = {}
@@ -789,7 +791,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 							# don't allow width or height to be negative
 							newval = 0
 						o.setProp(propName, newval)
-		self.showPosition()
+		#self.showPosition()
 						
 
 	def showPosition(self):
@@ -1016,9 +1018,11 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 
 	def propsChanged(self, redraw=True):
 		"""Called by subobjects to notify the report designer that a prop has changed."""
-		self.setCaption()
 		if redraw:
 			self.drawReportForm()
+		self.setCaption()
+		self.showPosition()
+		self.Form.setModified(self)
 		
 	def _onFormResize(self, evt):
 		self.drawReportForm()
@@ -1141,18 +1145,54 @@ class ReportDesignerForm(dabo.ui.dForm):
 		self.Sizer = None
 		
 	def afterInit(self):
-		self.addObject(ReportDesigner, Name="editor")
+		self.addObject(dabo.ui.dPageFrame, Name="pgf")
+		self.pgf.appendPage(ReportDesigner, caption="Visual Editor")
+		self.pgf.appendPage(XmlEditor, caption="XML Editor")
+		self.pgf.Pages[0].bindEvent(dEvents.PageEnter, self.onEnterVisualEditorPage)
+		self.pgf.Pages[1].bindEvent(dEvents.PageEnter, self.onEnterXmlEditorPage)
+		self.pgf.Pages[1].bindEvent(dEvents.PageLeave, self.onLeaveXmlEditorPage)
 		self.fillMenu()
 		self._tempfiles = []  # report form previews, for example, to delete on close.
+
+		self._visualEditorUpToDate = True
+		self._xmlEditorUpToDate = False
 
 	def initEvents(self):
 		self.bindEvent(dEvents.Close, self.onClose)
 
+	def setModified(self, page):
+		if isinstance(page, ReportDesigner):
+			self._xmlEditorUpToDate = False
+		elif isinstance(page, XmlEditor):
+			self._visualEditorUpToDate = False
+
+	def onEnterVisualEditorPage(self, evt):
+		if not self._visualEditorUpToDate:
+			editBox = self.pgf.Pages[1]
+			editor = self.getCurrentEditor()
+			editor.clearReportForm()
+			editor._rw.ReportForm = editor._rw._getFormFromXML(editBox.Value)
+			editor.initReportForm()
+			self._visualEditorUpToDate = True
+
+	def onEnterXmlEditorPage(self, evt):
+		editBox = self.pgf.Pages[1]
+		if not self._xmlEditorUpToDate:
+			editor = self.getCurrentEditor()
+			editBox.Value = editor._rw._getXMLFromForm(editor._rw.ReportForm)
+			self._xmlEditorUpToDate = True
+		self._xmlEditorOldValue = editBox.Value
+
+	def onLeaveXmlEditorPage(self, evt):
+		editBox = self.pgf.Pages[1]
+		if editBox.Value != self._xmlEditorOldValue:
+			self._visualEditorUpToDate = False
+			
 	def getCurrentEditor(self):
-		return self.editor
+		return self.pgf.Pages[0]
 
 	def onClose(self, evt):
-		result = self.editor.closeFile()
+		result = self.getCurrentEditor().closeFile()
 		if result is None:
 			evt.stop()
 		else:
@@ -1162,7 +1202,7 @@ class ReportDesignerForm(dabo.ui.dForm):
 			self._tempfiles = []
 		
 	def onFileNew(self, evt):
-		o = self.editor
+		o = self.getCurrentEditor()
 		if o._rw.ReportFormFile is None and not o._rw._isModified():
 			# open in this editor
 			o = self
@@ -1171,11 +1211,11 @@ class ReportDesignerForm(dabo.ui.dForm):
 			o = ReportDesignerForm(self.Parent)
 			o.Size = self.Size
 			o.Position = self.Position + (20,20)
-		o.editor.newFile()
+		o.getCurrentEditor().newFile()
 		o.Show()
 
 	def onFileOpen(self, evt):
-		o = self.editor
+		o = self.getCurrentEditor()
 		fileName = o.promptForFileName("Open")
 		if fileName is not None:
 			if o._rw.ReportFormFile is None and not o._rw._isModified():
@@ -1186,27 +1226,27 @@ class ReportDesignerForm(dabo.ui.dForm):
 				o = ReportDesignerForm(self.Parent)
 				o.Size = self.Size
 				o.Position = self.Position + (20,20)
-			o.editor.newFile()
+			o.getCurrentEditor().newFile()
 			o.Show()
-			o.editor.openFile(fileName)
+			o.getCurrentEditor().openFile(fileName)
 
 	def onFileSave(self, evt):
-		self.editor.saveFile()
+		self.getCurrentEditor().saveFile()
 		
 	def onFileClose(self, evt):
-		result = self.editor.closeFile()
+		result = self.getCurrentEditor().closeFile()
 		if result is not None:
 			self.Close()
 		
 	def onFileSaveAs(self, evt):
-		fname = self.editor.promptForSaveAs()
+		fname = self.getCurrentEditor().promptForSaveAs()
 		if fname:
-			self.editor.saveFile(fname)
+			self.getCurrentEditor().saveFile(fname)
 			
 	def onFilePreviewReport(self, evt):
 		import tempfile
-		fname = self.editor._rw.OutputFile = tempfile.mktemp(prefix="DaboReportPreview_", suffix=".pdf")
-		self.editor._rw.write()
+		fname = self.getCurrentEditor()._rw.OutputFile = tempfile.mktemp(prefix="DaboReportPreview_", suffix=".pdf")
+		self.getCurrentEditor()._rw.write()
 		try:
 			os.startfile(fname)
 		except AttributeError:
@@ -1277,6 +1317,9 @@ class ReportDesignerForm(dabo.ui.dForm):
 #------------------------------------------------------------------------------
 
 
+class XmlEditor(dabo.ui.dEditBox): pass
+
+
 if __name__ == "__main__":
 	app = dabo.dApp()
 	app.MainFormClass = None
@@ -1284,10 +1327,10 @@ if __name__ == "__main__":
 	if len(sys.argv) > 1:
 		for fileSpec in sys.argv[1:]:
 			form = ReportDesignerForm(None)
-			form.editor.openFile("%s" % fileSpec)
+			form.getCurrentEditor().openFile("%s" % fileSpec)
 			form.Show()
 	else:
 		form = ReportDesignerForm(None)
-		form.editor.newFile()
+		form.getCurrentEditor().newFile()
 		form.Show()
 	app.start()
