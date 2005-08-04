@@ -226,6 +226,8 @@ class dPemMixin(dPemMixinBase):
 		self.Bind(wx.EVT_LEAVE_WINDOW, self.__onWxMouseLeave)
 		self.Bind(wx.EVT_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
 		self.Bind(wx.EVT_MOTION, self.__onWxMouseMove)
+
+		self.Bind(wx.EVT_CONTEXT_MENU, self.__onWxContextMenu)
 		
 		self.Bind(wx.EVT_PAINT, self.__onWxPaint)
 		self.Bind(wx.EVT_SIZE, self.__onWxResize)
@@ -315,6 +317,9 @@ class dPemMixin(dPemMixinBase):
 			self.raiseEvent(dEvents.MouseRightClick, evt)
 			self._mouseRightDown = False
 	
+	def __onWxContextMenu(self, evt):
+		self.raiseEvent(dEvents.ContextMenu, evt)
+
 	def __onWxPaint(self, evt):
 		if self._finito: return
 		if self._borderWidth > 0:

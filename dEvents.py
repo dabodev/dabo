@@ -195,6 +195,10 @@ class ChildBorn(Event):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dPemMixin)
 	appliesToClass = classmethod(appliesToClass)
+
+class ContextMenu(MenuEvent):
+	"""Occurs when the user requests a context menu (right-click on Win, opt-click on Mac, etc."""
+	pass
 	
 class Deactivate(Event):
 	"""Occurs when another form becomes active."""
