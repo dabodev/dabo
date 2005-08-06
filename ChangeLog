@@ -1,5 +1,36 @@
 See the Subversion log for all the details.
 
+Dabo-0.4 (2005-08-07) (Revision 1122):
+
+Cleaned up the initialization of properties. No more initStyleProperties(),
+user code just puts their props in initProperties() or sends them to the
+constructor in the properties arg or as separate named arguments. The
+framework sorts out when the properties need to be set in the object
+construction cycle.
+
+Lots of sizer improvement, such as...
+
+New dGrid, with dColumn and Header objects available for reference.
+
+Lots of convenience functions written, including...
+
+Simplified access to common dialogs. For instance, getFile(), getColor(), 
+getBitmap(), getString() functions all show the dialog and return the
+result. So, to get a font, just call dabo.ui.getFont(). Similarly, 
+to show a common messagebox and get the response, just use dabo.ui.info(),
+dabo.ui.stop(), or dabo.ui.areYouSure(). 
+
+doDefault() much faster now (thanks to Alex Martelli)
+
+Support for decimal.Decimal.
+
+New classes: dColorDialog, dToolBar.
+
+Work on the report writer and report designer progresses. 
+
+We finally have distutils support. To install Dabo, do the standard
+"python setup.py install". Thanks to limodou for submitting the patch.
+
 
 Dabo-0.3.2 (2005-03-21) (Revision 959):
 

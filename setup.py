@@ -13,7 +13,7 @@ setup(
     author = 'Ed Leafe and Paul McNett',
     author_email = 'dev@dabodev.com',
     description = 'Dabo 3-tier Application Framework',
-    license = 'BSD-Like',
+    license = 'MIT',
     packages = find_packages(),
     package_data = {
         '':['ANNOUNCE', 'AUTHORS', 'ChangeLog', 'INSTALL',
