@@ -970,9 +970,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.raiseEvent(dEvents.Paint, evt)
 	def onHeaderPaint(self, evt):
 		""" Occurs when it is time to paint the grid column headers."""
-# 		dabo.ui.callAfter(self.hdrPaint)
-# 	
-# 	def hdrPaint(self):
+		dabo.ui.callAfter(self.hdrPaint)
+	
+	def hdrPaint(self):
 		w = self.Header
 		dc = wx.ClientDC(w)
 		clientRect = w.GetClientRect()
