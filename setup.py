@@ -2,10 +2,13 @@ import ez_setup # From http://peak.telecommunity.com/DevCenter/setuptools
 ez_setup.use_setuptools()
 
 from setuptools import setup, find_packages
+from dabo.__version__ import version
+
+daboVersion = version["version"]
 
 setup(
     name = "Dabo",
-    version = "0.4",
+    version = daboVersion,
     url = 'http://dabodev.com/',
     author = 'Ed Leafe and Paul McNett',
     author_email = 'dev@dabodev.com',

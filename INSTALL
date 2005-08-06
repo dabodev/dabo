@@ -1,14 +1,20 @@
 Dabo - Some brief installation notes.
 
-Prerequisites:
+PREREQUISITES:
 + Python (we recommend the latest, currently 2.4.x)
 + MySQLdb (to run the demos)
 + wxPython (we recommend the latest, currently 2.6.x)
 + reportlab
 
-Dabo will be installed using the Python distutils - python setup.py install,
-but that isn't set up yet, so here is a quick blurb to get you going.
+INSTALLATION:
+As root or administrator, execute the following shell command:
+	python setup.py install
 
+That's it! 
+
+
+
+PRIOR INSTRUCTIONS (OUT OF DATE)
 Dabo is a runtime library, which your applications will import using standard 
 Python syntax. Therefore, it needs to be in PYTHONPATH, so that your 
 'import dabo' statements will find it. The easiest way to do this is to put 
