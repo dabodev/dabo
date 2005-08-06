@@ -2,7 +2,7 @@ import sys, os, copy
 import dabo, dabo.ui
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
-from reportWriter import ReportWriter
+from dabo.dReportWriter import ReportWriter
 
 
 #------------------------------------------------------------------------------
@@ -133,6 +133,10 @@ class ObjectPanel(dabo.ui.dPanel):
 					     + 2)                    ## fudge factor
 
 
+## I'll be moving the object panels to be children of the main editor window and no
+## longer children of the band panels, so that they can be moved to different panels 
+## in the designer.
+
 #					if ypos < self.Parent.Top:
 #						# Don't show the object dragging above the topmost valid position:
 #						ypos = self.Parent.Top
@@ -167,7 +171,6 @@ class ObjectPanel(dabo.ui.dPanel):
 				x,y,w,h = getPt(x), getPt(y), getPt(w), getPt(h)
 				anchorInfo = self._anchors[self._anchor]
 				self.setProps({"height": h-yDiff, "width": w-xDiff})
-#				self._rd.showPosition()
 				
 
 	def onLeftUp(self, evt):
@@ -194,7 +197,6 @@ class ObjectPanel(dabo.ui.dPanel):
 #				if newy < 0:
 #					newy = 0
 				self.setProps({"y": newy, "x": newx})
-#			self._rd.showPosition()
 			self.Form.Refresh()
 
 	def onLeftDown(self, evt):
@@ -725,20 +727,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		self.clearReportForm()
 
 		self.Form.bindEvent(dEvents.Resize, self._onFormResize)
-		#self.bindEvent(dEvents.KeyDown, self._onKeyDown)
-		#self.bindEvent(dEvents.KeyUp, self._onKeyUp)
 		self.bindEvent(dEvents.KeyChar, self._onKeyChar)
-
-#	def _onKeyDown(self, evt):
-#		# eat the arrow keys which will otherwise scroll the window.
-#		from dabo.ui import dKeys
-#		keyCode = evt.EventData["keyCode"]
-#		arrows = {dKeys.key_Up: "up",
-#		          dKeys.key_Down: "down", 
-#		          dKeys.key_Right: "right",
-#		          dKeys.key_Left: "left"}
-#		if arrows.has_key(keyCode):
-#			evt.stop()
 
 
 	def _onKeyChar(self, evt):
@@ -756,6 +745,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		        dKeys.key_Return: "enter"}
 
 		# Mac: wants metaDown (or the scrollbar will scroll)
+		##  --> actually, the scrollbar still scrolls, even though we evt.stop()
 		mac = metaDown
 		# Win: wants altDown (or other controls will steal the arrows)
 		win = altDown
@@ -809,7 +799,6 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 							# don't allow width or height to be negative
 							newval = 0
 						o.setProp(propName, newval)
-		#self.showPosition()
 						
 
 	def showPosition(self):
@@ -1344,7 +1333,7 @@ class PreviewWindow(dabo.ui.dImage):
 	def onPageEnter(self, evt):
 		self.render()
 	def render(self):
-		# eventually, a platform-independent pdf viewer window will hopefully be
+		# Eventually, a platform-independent pdf viewer window will hopefully be
 		# available. Until that time, just display the report in the available
 		# external viewer:
 		self.Form.onFilePreviewReport(None)
