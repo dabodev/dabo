@@ -130,10 +130,10 @@ class Wizard(dabo.ui.dForm):
 	def _finish(self):
 		pg = self._pages[self.CurrentPage]
 		ok = pg.onLeavePage("forward")
-		if ok or (ok is None):
+		if ok is not False:
 			finOK = self.finish()
-			if finOK or (finOK is None):
-				self.close()
+			if finOK is not False:
+				self.close(True)
 
 
 	def finish(self):
@@ -144,9 +144,9 @@ class Wizard(dabo.ui.dForm):
 		
 	
 	def start(self):
-		self.CurrentPage = 0
 		self.show()	
-	
+		self.CurrentPage = 0
+		
 	
 	def append(self, pg):
 		if isinstance(pg, (list, tuple)):
@@ -249,9 +249,8 @@ class Wizard(dabo.ui.dForm):
 			# First, see if the current page will allow us to leave
 			direction = {True: "forward", False: "back"}[self._currentPage < val]
 			ok = self._pages[self._currentPage].onLeavePage(direction)
-			if ok is not None:
-				if not ok:
-					return
+			if ok is False:
+				return
 		# Now make sure that the current page is valid
 		if val < 0:
 			val = 0
@@ -374,5 +373,5 @@ to play some more.
 	wiz = Wizard(image="daboIcon096", Height=450, Width=530,
 			Pages=(WizPageOne, WizPageTwo, WizPageThree, WizPageFour,
 			WizPageFive) )
-	wiz.show()
+	wiz.start()
 	app.start()
