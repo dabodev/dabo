@@ -157,7 +157,7 @@ class Form(dabo.ui.dForm):
 					index+1)
 			menu.append(title, bindfunc=self.onEditCurrentRecord, bmp="edit",
 					help=_("Edit the fields of the currently selected record."),
-					Tag=self.pageFrame.Pages[index].dataSource)
+					Tag=self.pageFrame.Pages[index].DataSource)
 			menu.appendSeparator()
   
 		if self.FormType != "Edit":

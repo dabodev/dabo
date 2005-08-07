@@ -651,19 +651,15 @@ class BrowsePage(Page):
 class EditPage(Page):
 	def __init__(self, parent, ds=None):
 		super(EditPage, self).__init__(parent)		#, Name="pageEdit")
-		self.dataSource = ds
+		
+		self.itemsCreated = False
+		self._dataSource = ds
 		self.childGrids = []
 		self.childrenAdded = False
-		if ds is None:
-			self.fieldSpecs = self.Form.FieldSpecs
-			if not self.Form.preview:
-				self.dataSource = self.Form.getBizobj().DataSource
-			else:
-				self.dataSource = ""
-		else:
-			self.fieldSpecs = self.Form.getFieldSpecsForTable(ds)
-		self.createItems()
-
+		if self.DataSource:
+			self.buildPage()
+		
+			
 	def initEvents(self):
 		super(EditPage, self).initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
@@ -671,15 +667,21 @@ class EditPage(Page):
 		self.bindEvent(dEvents.ValueRefresh, self.__onValueRefresh)
 		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		
+	def buildPage(self):
+		if not self.DataSource:
+			return
+		self.fieldSpecs = self.Form.getFieldSpecsForTable(self.DataSource)
+		self.createItems()
+
 	def __onRowNumChanged(self, evt):
 		for cg in self.childGrids:
 			cg.populate()
 
 	def __onPageLeave(self, evt):
-		self.Form.setPrimaryBizobjToDefault(self.dataSource)
+		self.Form.setPrimaryBizobjToDefault(self.DataSource)
 		
 	def __onPageEnter(self, evt):
-		self.Form.setPrimaryBizobj(self.dataSource)
+		self.Form.setPrimaryBizobj(self.DataSource)
 		
 		self.__onValueRefresh()
 		# The current row may have changed. Make sure that the
@@ -688,7 +690,7 @@ class EditPage(Page):
 
 	def __onValueRefresh(self, evt=None):
 		form = self.Form
-		bizobj = form.getBizobj(self.dataSource)
+		bizobj = form.getBizobj(self.DataSource)
 		if bizobj and bizobj.RowCount > 0:
 			self.Enable(True)
 		else:
@@ -732,7 +734,7 @@ class EditPage(Page):
 
 			objectRef = classRef(self)
 			objectRef.Name = fieldName
-			objectRef.DataSource = self.dataSource
+			objectRef.DataSource = self.DataSource
 			objectRef.DataField = fieldName
 			objectRef.enabled = fieldEnabled
 			
@@ -767,7 +769,7 @@ class EditPage(Page):
 			# If there is a child table, add it
 			for rkey in relationSpecs.keys():
 				rs = relationSpecs[rkey]
-				if rs["source"].lower() == self.dataSource.lower():
+				if rs["source"].lower() == self.DataSource.lower():
 					childGridCount += 1
 					child = rs["target"]
 					childBiz = self.Form.getBizobj(child)
@@ -812,5 +814,13 @@ class EditPage(Page):
 		if firstControl is not None:
 			firstControl.setFocus()
 
-
+	def _getDS(self):
+		return self._dataSource
+	def _setDS(self, val):
+		self._dataSource = val
+		if not self.itemsCreated:
+			self.buildPage()
+			
+	DataSource = property(_getDS, _setDS, None,
+			_("Table that is the primary source for the fields displayed on the page  (str)") )
 

@@ -58,7 +58,7 @@ class PageFrameMixin(object):
 	
 	def addEditPage(self, ds=None, title=_("Edit")):
 		edPg = self.appendPage(self.EditPageClass, caption=title, imgKey="edit")
-		edPg.dataSource = ds
+		edPg.DataSource = ds
 		# The page number will be the PageCount minus one.
 		self.dsEditPages[ds] = self.PageCount - 1
 	
