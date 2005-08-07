@@ -15,6 +15,10 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		self._baseClass = dTextBox
 		preClass = wx.PreTextCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		
+		# Keep passwords, etc., from being written to disk
+		if self.PasswordEntry:
+			self.IsSecret = True
 
 	
 	def _initEvents(self):
@@ -80,12 +84,13 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 	def _getPasswordEntry(self):
 		return self.hasWindowStyleFlag(wx.TE_PASSWORD)
-
 	def _setPasswordEntry(self, value):
 		self.delWindowStyleFlag(wx.TE_PASSWORD)
 		if value:
 			self.addWindowStyleFlag(wx.TE_PASSWORD)
-	
+			self.IsSecret = True
+
+				
 	def _getSelectOnEntry(self):
 		try:
 			return self._SelectOnEntry

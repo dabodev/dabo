@@ -15,7 +15,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			
 		self._value = self.Value
 		self.enabled = True
-
+		# Flag for sensitive info (passwords, etc.)
+		self._isSecret = False
 		# Initialize runtime properties
 		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
 		
@@ -192,11 +193,12 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def saveValue(self):
 		""" Save control's value to dApp's user settings table.
 		"""
-
+		if self.IsSecret:
+			# Don't store sensitive info
+			return
 		# It is too late to get Value directly (since we are being called from Destroy, and wx
 		# has already released the C++ part of the object).
 		value = self._value	
-
 		if self.Application:
 			name = self.getAbsoluteName()
 			self.Application.setUserSetting("%s.Value" % name, value)
@@ -204,8 +206,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			
 	def restoreValue(self):
 		""" Set the control's value to the value in dApp's user settings table.
-		"""
-			
+		"""			
 		if self.Application:
 			name = self.getAbsoluteName()
 			value = self.Application.getUserSetting("%s.Value" % name)
@@ -270,6 +271,11 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return ""
 	def _setDataField(self, value):
 		self._DataField = str(value)
+	
+	def _getSecret(self):
+		return self._isSecret
+	def _setSecret(self, val):
+		self._isSecret = val
 
 	def _getSaveRestoreValue(self):
 		try:
@@ -310,6 +316,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			_("""Specifies the data field of the dataset to use as the source 
 			of data. (str)""") )
 	
+	IsSecret = property(_getSecret, _setSecret, None,
+			_("Flag for indicating sensitive data that is not to be persisted.   (bool)") )
+			
 	SaveRestoreValue = property(_getSaveRestoreValue, _setSaveRestoreValue, None, 
 			_("""Specifies whether the Value of the control gets saved when 
 			destroyed and restored when created. Use when the control isn't 
