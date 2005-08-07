@@ -110,6 +110,136 @@ from dTreeView import dTreeView
 import dUICursors as dUICursors
 import dShell
 
+artConstants = {}
+if hasattr(wx, "ART_ADD_BOOKMARK"):
+	artConstants["addbookmark"] = wx.ART_ADD_BOOKMARK
+if hasattr(wx, "ART_BUTTON"):
+	artConstants["button"] = wx.ART_BUTTON
+if hasattr(wx, "ART_CDROM"):
+	artConstants["cd"] = wx.ART_CDROM
+if hasattr(wx, "ART_CDROM"):
+	artConstants["cdrom"] = wx.ART_CDROM
+if hasattr(wx, "ART_CMN_DIALOG"):
+	artConstants["commondialog"] = wx.ART_CMN_DIALOG
+if hasattr(wx, "ART_CMN_DIALOG"):
+	artConstants["dialog"] = wx.ART_CMN_DIALOG
+if hasattr(wx, "ART_COPY"):
+	artConstants["copy"] = wx.ART_COPY
+if hasattr(wx, "ART_CROSS_MARK"):
+	artConstants["cross"] = wx.ART_CROSS_MARK
+if hasattr(wx, "ART_CROSS_MARK"):
+	artConstants["crossmark"] = wx.ART_CROSS_MARK
+if hasattr(wx, "ART_CUT"):
+	artConstants["cut"] = wx.ART_CUT
+if hasattr(wx, "ART_DELETE"):
+	artConstants["delete"] = wx.ART_DELETE
+if hasattr(wx, "ART_DEL_BOOKMARK"):
+	artConstants["delbookmark"] = wx.ART_DEL_BOOKMARK
+if hasattr(wx, "ART_ERROR"):
+	artConstants["error"] = wx.ART_ERROR
+if hasattr(wx, "ART_EXECUTABLE_FILE"):
+	artConstants["exe"] = wx.ART_EXECUTABLE_FILE
+if hasattr(wx, "ART_EXECUTABLE_FILE"):
+	artConstants["exefile"] = wx.ART_EXECUTABLE_FILE
+if hasattr(wx, "ART_FILE_OPEN"):
+	artConstants["open"] = wx.ART_FILE_OPEN
+if hasattr(wx, "ART_FILE_SAVE"):
+	artConstants["save"] = wx.ART_FILE_SAVE
+if hasattr(wx, "ART_FILE_SAVE_AS"):
+	artConstants["saveas"] = wx.ART_FILE_SAVE_AS
+if hasattr(wx, "ART_FIND"):
+	artConstants["find"] = wx.ART_FIND
+if hasattr(wx, "ART_FIND_AND_REPLACE"):
+	artConstants["findreplace"] = wx.ART_FIND_AND_REPLACE
+if hasattr(wx, "ART_FLOPPY"):
+	artConstants["floppy"] = wx.ART_FLOPPY
+if hasattr(wx, "ART_FOLDER"):
+	artConstants["folder"] = wx.ART_FOLDER
+if hasattr(wx, "ART_FOLDER_OPEN"):
+	artConstants["folderopen"] = wx.ART_FOLDER_OPEN
+if hasattr(wx, "ART_FRAME_ICON"):
+	artConstants["frame"] = wx.ART_FRAME_ICON
+if hasattr(wx, "ART_FRAME_ICON"):
+	artConstants["frameicon"] = wx.ART_FRAME_ICON
+if hasattr(wx, "ART_GO_BACK"):
+	artConstants["back"] = wx.ART_GO_BACK
+if hasattr(wx, "ART_GO_DIR_UP"):
+	artConstants["directoryup"] = wx.ART_GO_DIR_UP
+if hasattr(wx, "ART_GO_DOWN"):
+	artConstants["down"] = wx.ART_GO_DOWN
+if hasattr(wx, "ART_GO_FORWARD"):
+	artConstants["forward"] = wx.ART_GO_FORWARD
+if hasattr(wx, "ART_GO_HOME"):
+	artConstants["home"] = wx.ART_GO_HOME
+if hasattr(wx, "ART_GO_TO_PARENT"):
+	artConstants["parent"] = wx.ART_GO_TO_PARENT
+if hasattr(wx, "ART_GO_UP"):
+	artConstants["up"] = wx.ART_GO_UP
+if hasattr(wx, "ART_HARDDISK"):
+	artConstants["hd"] = wx.ART_HARDDISK
+if hasattr(wx, "ART_HARDDISK"):
+	artConstants["harddisk"] = wx.ART_HARDDISK
+if hasattr(wx, "ART_HELP"):
+	artConstants["help"] = wx.ART_HELP
+if hasattr(wx, "ART_HELP_BOOK"):
+	artConstants["helpbook"] = wx.ART_HELP_BOOK
+if hasattr(wx, "ART_HELP_BROWSER"):
+	artConstants["helpbrowser"] = wx.ART_HELP_BROWSER
+if hasattr(wx, "ART_HELP_FOLDER"):
+	artConstants["helpfolder"] = wx.ART_HELP_FOLDER
+if hasattr(wx, "ART_HELP_PAGE"):
+	artConstants["helppage"] = wx.ART_HELP_PAGE
+if hasattr(wx, "ART_HELP_SETTINGS"):
+	artConstants["helpsettings"] = wx.ART_HELP_SETTINGS
+if hasattr(wx, "ART_HELP_SIDE_PANEL"):
+	artConstants["helpsidepanel"] = wx.ART_HELP_SIDE_PANEL
+if hasattr(wx, "ART_INFORMATION"):
+	artConstants["info"] = wx.ART_INFORMATION
+if hasattr(wx, "ART_INFORMATION"):
+	artConstants["information"] = wx.ART_INFORMATION
+if hasattr(wx, "ART_LIST_VIEW"):
+	artConstants["listview"] = wx.ART_LIST_VIEW
+if hasattr(wx, "ART_MENU"):
+	artConstants["menu"] = wx.ART_MENU
+if hasattr(wx, "ART_MESSAGE_BOX"):
+	artConstants["messagebox"] = wx.ART_MESSAGE_BOX
+if hasattr(wx, "ART_MISSING_IMAGE"):
+	artConstants["missingimage"] = wx.ART_MISSING_IMAGE
+if hasattr(wx, "ART_NEW"):
+	artConstants["new"] = wx.ART_NEW
+if hasattr(wx, "ART_NEW_DIR"):
+	artConstants["newdir"] = wx.ART_NEW_DIR
+if hasattr(wx, "ART_NORMAL_FILE"):
+	artConstants["normalfile"] = wx.ART_NORMAL_FILE
+if hasattr(wx, "ART_NORMAL_FILE"):
+	artConstants["file"] = wx.ART_NORMAL_FILE
+if hasattr(wx, "ART_OTHER"):
+	artConstants["other"] = wx.ART_OTHER
+if hasattr(wx, "ART_PASTE"):
+	artConstants["paste"] = wx.ART_PASTE
+if hasattr(wx, "ART_PRINT"):
+	artConstants["print"] = wx.ART_PRINT
+if hasattr(wx, "ART_QUESTION"):
+	artConstants["question"] = wx.ART_QUESTION
+if hasattr(wx, "ART_QUIT"):
+	artConstants["quit"] = wx.ART_QUIT
+if hasattr(wx, "ART_REDO"):
+	artConstants["redo"] = wx.ART_REDO
+if hasattr(wx, "ART_REMOVABLE"):
+	artConstants["removable"] = wx.ART_REMOVABLE
+if hasattr(wx, "ART_REPORT_VIEW"):
+	artConstants["reportview"] = wx.ART_REPORT_VIEW
+if hasattr(wx, "ART_TICK_MARK"):
+	artConstants["tickmark"] = wx.ART_TICK_MARK
+if hasattr(wx, "ART_TIP"):
+	artConstants["tip"] = wx.ART_TIP
+if hasattr(wx, "ART_TOOLBAR"):
+	artConstants["toolbar"] = wx.ART_TOOLBAR
+if hasattr(wx, "ART_UNDO"):
+	artConstants["undo"] = wx.ART_UNDO
+if hasattr(wx, "ART_WARNING"):
+	artConstants["warning"] = wx.ART_WARNING
+
 
 def callAfter(fnc, *args, **kwargs):
 	"""There are times when this functionality is needed when creating UI
@@ -422,81 +552,19 @@ def resizeBmp(self, bmp, wd, ht):
 def getBitmap(name):
 	"""wxPython comes with several built-in bitmaps for common icons. 
 	This wraps the procedure for generating these bitmaps. If a name is
-	passed for which there is no icon, None is returned. 
+	passed for which there is no icon, None is returned. Different versions
+	of wxPython contain different art constants, so each assignment is
+	bracketed 
 	NOTE: this returns a raw bitmap, not a dabo.ui.dBitmap object.
 	"""
 	ret = None
-	constants = {"addbookmark" : wx.ART_ADD_BOOKMARK,
-		"button" : wx.ART_BUTTON,
-		"cd" : wx.ART_CDROM,
-		"cdrom" : wx.ART_CDROM,
-		"commondialog" : wx.ART_CMN_DIALOG,
-		"dialog" : wx.ART_CMN_DIALOG,
-		"copy" : wx.ART_COPY,
-		"cross" : wx.ART_CROSS_MARK,
-		"crossmark" : wx.ART_CROSS_MARK,
-		"cut" : wx.ART_CUT,
-		"delete" : wx.ART_DELETE,
-		"delbookmark" : wx.ART_DEL_BOOKMARK,
-		"error" : wx.ART_ERROR,
-		"exe" : wx.ART_EXECUTABLE_FILE,
-		"exefile" : wx.ART_EXECUTABLE_FILE,
-		"open" : wx.ART_FILE_OPEN,
-		"save" : wx.ART_FILE_SAVE,
-		"saveas" : wx.ART_FILE_SAVE_AS,
-		"find" : wx.ART_FIND,
-		"findreplace" : wx.ART_FIND_AND_REPLACE,
-		"floppy" : wx.ART_FLOPPY,
-		"folder" : wx.ART_FOLDER,
-		"folderopen" : wx.ART_FOLDER_OPEN,
-		"frame" : wx.ART_FRAME_ICON,
-		"frameicon" : wx.ART_FRAME_ICON,
-		"back" : wx.ART_GO_BACK,
-		"directoryup" : wx.ART_GO_DIR_UP,
-		"down" : wx.ART_GO_DOWN,
-		"forward" : wx.ART_GO_FORWARD,
-		"home" : wx.ART_GO_HOME,
-		"parent" : wx.ART_GO_TO_PARENT,
-		"up" : wx.ART_GO_UP,
-		"hd" : wx.ART_HARDDISK,
-		"harddisk" : wx.ART_HARDDISK,
-		"help" : wx.ART_HELP,
-		"helpbook" : wx.ART_HELP_BOOK,
-		"helpbrowser" : wx.ART_HELP_BROWSER,
-		"helpfolder" : wx.ART_HELP_FOLDER,
-		"helppage" : wx.ART_HELP_PAGE,
-		"helpsettings" : wx.ART_HELP_SETTINGS,
-		"helpsidepanel" : wx.ART_HELP_SIDE_PANEL,
-		"info" : wx.ART_INFORMATION,
-		"information" : wx.ART_INFORMATION,
-		"listview" : wx.ART_LIST_VIEW,
-		"menu" : wx.ART_MENU,
-		"messagebox" : wx.ART_MESSAGE_BOX,
-		"missingimage" : wx.ART_MISSING_IMAGE,
-		"newdir" : wx.ART_NEW_DIR,
-		"normalfile" : wx.ART_NORMAL_FILE,
-		"file" : wx.ART_NORMAL_FILE,
-		"other" : wx.ART_OTHER,
-		"paste" : wx.ART_PASTE,
-		"print" : wx.ART_PRINT,
-		"question" : wx.ART_QUESTION,
-		"quit" : wx.ART_QUIT,
-		"redo" : wx.ART_REDO,
-		"removable" : wx.ART_REMOVABLE,
-		"reportview" : wx.ART_REPORT_VIEW,
-		"tickmark" : wx.ART_TICK_MARK,
-		"tip" : wx.ART_TIP,
-		"toolbar" : wx.ART_TOOLBAR,
-		"undo" : wx.ART_UNDO,
-		"warning" : wx.ART_WARNING}
 	try:
-		const = constants[name.lower()]
+		const = artConstants[name.lower()]
 	except KeyError:
 		const = None
 	if const:
 		ret = wx.ArtProvider.GetBitmap(const)
 	return ret
 
-# "new" : wx.ART_NEW,
 			
 	
