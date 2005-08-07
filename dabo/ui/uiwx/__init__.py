@@ -473,7 +473,6 @@ def getBitmap(name):
 		"menu" : wx.ART_MENU,
 		"messagebox" : wx.ART_MESSAGE_BOX,
 		"missingimage" : wx.ART_MISSING_IMAGE,
-		"new" : wx.ART_NEW,
 		"newdir" : wx.ART_NEW_DIR,
 		"normalfile" : wx.ART_NORMAL_FILE,
 		"file" : wx.ART_NORMAL_FILE,
@@ -498,5 +497,6 @@ def getBitmap(name):
 		ret = wx.ArtProvider.GetBitmap(const)
 	return ret
 
-	
+# "new" : wx.ART_NEW,
+			
 	
