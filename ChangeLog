@@ -26,7 +26,8 @@ Support for decimal.Decimal.
 
 New classes: dColorDialog, dToolBar.
 
-Work on the report writer and report designer progresses. 
+Work on the report writer and report designer progresses. The report designer
+is now in the daboide project, not here in dabo anymore.
 
 We finally have distutils support. To install Dabo, do the standard
 "python setup.py install". Thanks to limodou for submitting the patch.
