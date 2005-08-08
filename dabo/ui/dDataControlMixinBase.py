@@ -8,15 +8,12 @@ from dabo.dLocalize import _
 
 
 class dDataControlMixinBase(dabo.ui.dControlMixin):
-	""" Provide common functionality for the data-aware controls.
-	"""
+	""" Provide common functionality for the data-aware controls."""
 	def __init__(self, *args, **kwargs):
 		super(dDataControlMixinBase, self).__init__(*args, **kwargs)
 			
 		self._value = self.Value
 		self.enabled = True
-		# Flag for sensitive info (passwords, etc.)
-		self._isSecret = False
 		# Initialize runtime properties
 		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
 		
@@ -145,8 +142,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	
 	
 	def flushValue(self):
-		""" Save any changes to the underlying source field.
-		"""
+		""" Save any changes to the underlying source field."""
 		curVal = self.Value
 		
 		try:
@@ -191,8 +187,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def saveValue(self):
-		""" Save control's value to dApp's user settings table.
-		"""
+		""" Save control's value to dApp's user settings table."""
 		if self.IsSecret:
 			# Don't store sensitive info
 			return
@@ -205,8 +200,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		
 			
 	def restoreValue(self):
-		""" Set the control's value to the value in dApp's user settings table.
-		"""			
+		""" Set the control's value to the value in dApp's user settings table."""			
 		if self.Application:
 			name = self.getAbsoluteName()
 			value = self.Application.getUserSetting("%s.Value" % name)
@@ -273,7 +267,11 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self._DataField = str(value)
 	
 	def _getSecret(self):
-		return self._isSecret
+		try:
+			return self._isSecret
+		except AttributeError:
+			self._isSecret = False
+			return self._isSecret
 	def _setSecret(self, val):
 		self._isSecret = val
 

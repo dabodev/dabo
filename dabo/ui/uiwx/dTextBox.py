@@ -325,7 +325,10 @@ if __name__ == "__main__":
 			self.bindEvent(dabo.dEvents.ValueChanged, self.onValueChanged)
 			
 		def onValueChanged(self, evt):
-			print "%s.onValueChanged:" % self.Name, self.Value, type(self.Value)
+			if self.IsSecret:
+				print "%s changed, but the new value is a secret!" % self.Name
+			else:
+				print "%s.onValueChanged:" % self.Name, self.Value, type(self.Value)
 		
 
 	class IntText(TestBase):
@@ -344,6 +347,13 @@ if __name__ == "__main__":
 		def afterInit(self):
 			self.Value = "Lunchtime"
 
+	class PWText(TestBase):
+		def __init__(self, *args, **kwargs):
+			kwargs["PasswordEntry"] = True
+			super(PWText, self).__init__(*args, **kwargs)
+		def afterInit(self):
+			self.Value = "TopSecret!"
+
 	class DateText(TestBase):
 		def afterInit(self):
 			self.Value = datetime.date.today()
@@ -352,7 +362,7 @@ if __name__ == "__main__":
 		def afterInit(self):
 			self.Value = datetime.datetime.now()
 	
-	testParms = [IntText, FloatText, StrText, BoolText, DateText, DateTimeText]			
+	testParms = [IntText, FloatText, StrText, PWText, BoolText, DateText, DateTimeText]			
 	
 	try:
 		import mx.DateTime
