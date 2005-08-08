@@ -70,6 +70,7 @@ class ReportWriter(object):
 	## The following defaults will be used for properties that weren't defined in
 	## the spec file (no need to explicitly define properties if you want the 
 	## defaults). Subclass to change defaults to your needs.
+	default_designerLock = False
 	default_pageSize = "letter"            # you may want 'a4' outside of the US
 	default_pageOrientation = "portrait"   # the other option is "landscape"
 	default_marginLeft = 36
