@@ -133,7 +133,7 @@ class Wizard(dabo.ui.dForm):
 		if ok is not False:
 			finOK = self.finish()
 			if finOK is not False:
-				self.close(True)
+				dabo.ui.callAfter(self.close, True)
 
 
 	def finish(self):
