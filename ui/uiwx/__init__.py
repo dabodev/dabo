@@ -436,6 +436,10 @@ def _getWild(*args):
 				fDesc = "Dabo FileSpec Files (*.fsxml)|*.fsxml"
 			elif a == "cnxml":
 				fDesc = "Dabo Connection Files (*.cnxml)|*.cnxml"
+			elif a == "rfxml":
+				fDesc = "Dabo Report Format Files (*.rfxml)|*.rfxml"
+			elif a == "cdxml":
+				fDesc = "Dabo Class Designer Files (*.cdxml)|*.cdxml"
 			else:
 				if a in fileDict:
 					fDesc = tmplt % (fileDict[a], a, a)
