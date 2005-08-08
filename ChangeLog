@@ -1,6 +1,6 @@
 See the Subversion log for all the details.
 
-Dabo-0.4 (2005-08-08) (Revision 1130):
+Dabo-0.4 (2005-08-08) (Revision 1132):
 
 Cleaned up the initialization of properties. No more initStyleProperties();
 user code just puts their props in initProperties() or sends them to the
