@@ -1,24 +1,31 @@
 See the Subversion log for all the details.
 
-Dabo-0.4 (2005-08-07) (Revision 1122):
+Dabo-0.4 (2005-08-08) (Revision 1130):
 
-Cleaned up the initialization of properties. No more initStyleProperties(),
+Cleaned up the initialization of properties. No more initStyleProperties();
 user code just puts their props in initProperties() or sends them to the
 constructor in the properties arg or as separate named arguments. The
 framework sorts out when the properties need to be set in the object
 construction cycle.
 
-Lots of sizer improvement, such as...
+Improved sizers by separating out the Halign and Valign properties, 
+eliminating the need to use the 'alignment' flags parameter. Added the 
+'Parent' property, making it easy to reference the control that 'owns' 
+the sizer. Also added the convenience method 'append1x(item)', which is 
+shorthand for writing 'append(item, 1, "expand")', since it is used so 
+frequently. The grid sizers now have 'isRowGrowable()' and 'isColGrowable()'
+methods for checking the status of any row/column.
 
 New dGrid, with dColumn and Header objects available for reference.
 
-Lots of convenience functions written, including...
-
-Simplified access to common dialogs. For instance, getFile(), getColor(), 
-getBitmap(), getString() functions all show the dialog and return the
-result. So, to get a font, just call dabo.ui.getFont(). Similarly, 
-to show a common messagebox and get the response, just use dabo.ui.info(),
-dabo.ui.stop(), or dabo.ui.areYouSure(). 
+Lots of convenience functions written, such as those designed for simplified 
+access to common dialogs, are now built into the dabo.ui module. Examples: 
+getFile(), getColor(), getBitmap(), and the getString() functions, which all 
+create, show and destroy the required dialog window, and then return the 
+result. So, to present the user with a font selection dialog, just call 
+dabo.ui.getFont(), and the selected font will be returned (or None if they 
+canceled). Similarly, to show a common messagebox and get the response, 
+just use dabo.ui.info(), dabo.ui.stop(), or dabo.ui.areYouSure(). 
 
 doDefault() much faster now (thanks to Alex Martelli)
 
