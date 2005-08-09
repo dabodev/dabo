@@ -10,14 +10,13 @@ from dIcons import getIconBitmap
 
 class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button."""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dBitmapButton
 		preClass = wx.PreBitmapButton
-		# If no picture specified, default to the Dabo icon
-		picName = self.extractKey(kwargs, "Picture", "daboIcon048")
-		kwargs["Picture"] = picName
+#		# If no picture specified, default to the Dabo icon
+### pkm: no, this overrides if someone puts the Picture prop in a subclass.
+#		picName = self.extractKey(kwargs, "Picture", "daboIcon048")
+#		kwargs["Picture"] = picName
 		# Initialize the self._*picture attributes
 		self._picture = self._downPicture = self._focusPicture = ""
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
@@ -98,7 +97,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 			if not self._focusPicture:
 				self.SetBitmapFocus(bmp)
 		else:
-			self._properties["NormalPicture"] = val
+			self._properties["Picture"] = val
 
 
 	# Property definitions:
@@ -129,12 +128,15 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		specified.  (str)"""))
 
 
+class _dBitmapButton_test(dBitmapButton):
+	def afterInit(self):
+		# Demonstrate that the Picture props are working.
+		self.Picture = "save"
+		self.DownPicture = "browse"
+		self.FocusPicture = "edit"
+		self.Width = 100
+		self.Height = 25
+
 if __name__ == "__main__":
 	import test
-	class c(dBitmapButton):
-		def afterInit(self):
-			# Demonstrate that the Picture props are working.
-			self.Picture = "daboIcon048"
-			self.DownPicture = "save"
-			self.FocusPicture = "daboIcon096"
-	test.Test().runTest(c)
+	test.Test().runTest(_dBitmapButton_test)

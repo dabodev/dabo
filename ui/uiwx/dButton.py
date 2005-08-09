@@ -12,8 +12,6 @@ import dabo.dEvents as dEvents
 class dButton(wx.Button, cm.dControlMixin):
 	""" Allows the user to cause an action to occur by pushing a button.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dButton
 		preClass = wx.PreButton
@@ -79,6 +77,11 @@ class dButton(wx.Button, cm.dControlMixin):
 		_("Specifies whether this command button gets clicked on -Enter-."))
 
 
+class _dButton_test(dButton):
+	def initProperties(self):
+		self.Caption = "hey"
+		self.FontSize = 8
+
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dButton, Caption="hey", FontSize=8)
+	test.Test().runTest(_dButton_test)

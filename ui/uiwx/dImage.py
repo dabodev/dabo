@@ -10,8 +10,6 @@ import dControlMixin as dcm
 class dImage(wx.StaticBitmap, dcm.dControlMixin):
 	""" Create a simple bitmap to display images. 
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dImage
 		preClass = wx.StaticBitmap

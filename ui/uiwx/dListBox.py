@@ -10,8 +10,6 @@ from dabo.dLocalize import _
 class dListBox(wx.ListBox, dcm.dControlItemMixin):
 	""" Allows presenting a choice of items for the user to choose from.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dListBox
 		self._choices = []
@@ -50,43 +48,37 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 			_("Can multiple items be selected at once?  (bool)") )
 
 
+class _dListBox_test(dListBox):
+	def initProperties(self):
+		self.setup()
+
+	def initEvents(self):
+		self.bindEvent(dabo.dEvents.Hit, self.onHit)
+			
+	def setup(self):
+		# Simulate a database:
+		developers = ({"lname": "McNett", "fname": "Paul", "iid": 42},
+			{"lname": "Leafe", "fname": "Ed", "iid": 23})
+			
+		choices = []
+		keys = {}
+		for developer in developers:
+			choices.append("%s %s" % (developer['fname'], developer['lname']))
+			keys[developer["iid"]] = len(choices) - 1
+		self.MultipleSelect = True
+		self.Choices = choices
+		self.Keys = keys
+		self.ValueMode = 'Key'
+		self.Value = 23
+						
+	def onHit(self, evt):
+		print "KeyValue: ", self.KeyValue
+		print "PositionValue: ", self.PositionValue
+		print "StringValue: ", self.StringValue
+		print "Value: ", self.Value
+	
 
 if __name__ == "__main__":
 	import test
-	class T(dListBox):
-		def afterInit(self):
-			T.doDefault()
-			self.ForeColor = "aquamarine"
-			self.setup()
-
-		def initEvents(self):
-			T.doDefault()
-			self.bindEvent(dabo.dEvents.Hit, self.onHit)
-			
-		def setup(self):
-			print "Simulating a database:"
-			developers = ({"lname": "McNett", "fname": "Paul", "iid": 42},
-				{"lname": "Leafe", "fname": "Ed", "iid": 23})
-			
-			choices = []
-			keys = {}
-			for developer in developers:
-				choices.append("%s %s" % (developer['fname'], developer['lname']))
-				keys[developer["iid"]] = len(choices) - 1
-			self.MultipleSelect = True
-			self.Choices = choices
-			self.Keys = keys
-			self.ValueMode = 'Key'
-			self.Value = 23
-			#self.Value = None
-			#self.Value = ("Ed Leafe", "Paul McNett")
-			#self.Value = 1
-						
-		def onHit(self, evt):
-			print "KeyValue: ", self.KeyValue
-			print "PositionValue: ", self.PositionValue
-			print "StringValue: ", self.StringValue
-			print "Value: ", self.Value
-	
-	test.Test().runTest(T)
+	test.Test().runTest(_dListBox_test)
 

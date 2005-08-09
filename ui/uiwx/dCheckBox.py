@@ -11,8 +11,6 @@ from dabo.dLocalize import _
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 	""" Allows visual editing of boolean values.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dCheckBox
 		preClass = wx.PreCheckBox
@@ -41,9 +39,6 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		else:
 			return "Left"
 
-	def _getAlignmentEditorInfo(self):
-		return {"editor": "list", "values": ["Left", "Right"]}
-
 	def _setAlignment(self, value):
 		self.delWindowStyleFlag(wx.ALIGN_RIGHT)
 		if str(value) == "Right":
@@ -62,7 +57,12 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		Right : Checkbox to right of text
 		""")
 
-						
+
+class _dCheckBox_test(dCheckBox):
+			def initProperties(self):
+				self.Caption = "Do you wish to pass?"
+				self.Width = 222			
+
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dCheckBox)
+	test.Test().runTest(_dCheckBox_test)

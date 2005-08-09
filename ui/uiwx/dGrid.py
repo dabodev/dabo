@@ -1892,6 +1892,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 
 	def _getTable(self):
+		## pkm: we can't call this until after the grid is fully constructed. Need to fix.
 		tbl = self.GetTable()
 		if not tbl:
 			tbl = dGridDataTable(self)
@@ -1962,8 +1963,32 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			_("Reference to the internal table class  (dGridDataTable)") )
 
 
+class _dGrid_test_not_working(dGrid):
+	### pkm: this test isn't working. Need to work on dGrid so it can be instantiated
+	###      like any other control.
+	def initProperties(self):
+		self.dataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
+		                {"name" : "Mike Leafe", "age" : 18, "coder" :  False} ]
 
-	
+		col = dColumn(self)
+		col.Name = "Person"
+		col.Order = 10
+		col.Field = "name"
+		col.DataType = "string"
+		col.Width = 300
+		col.Caption = "Customer Name"
+		self.addColumn(col)
+		
+		col = dColumn(self)
+		col.Name = "Age"
+		col.Order = 30
+		col.Field = "age"
+		col.DataType = "integer"
+		col.Width = 40
+		col.Caption = "Age"
+		self.addColumn(col)
+		
+
 
 if __name__ == '__main__':
 

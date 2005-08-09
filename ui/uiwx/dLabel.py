@@ -9,8 +9,6 @@ import dControlMixin as cm
 class dLabel(wx.StaticText, cm.dControlMixin):
 	""" Create a static (not data-aware) label.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dLabel
 		preClass = wx.PreStaticText
@@ -36,9 +34,6 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 			return "Center"
 		else:
 			return "Left"
-
-	def _getAlignmentEditorInfo(self):
-		return {"editor": "list", "values": ["Left", "Center", "Right"]}
 
 	def _setAlignment(self, value):
 		# Note: Alignment must be set before object created.
@@ -111,8 +106,14 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 			_("Sets the size of the Font (int)") )
 
 
+class _dLabel_test(dLabel):
+	def initProperties(self):
+		self.FontBold = True
+		self.Alignment = "Center"
+		self.ForeColor = "Red"
+		self.Width = 300
+		self.Caption = "My God, it's full of stars!"
+
 if __name__ == "__main__":
 	import test
-	testProps = {"FontBold": True, "Alignment": "Center", "ForeColor": "Red"}
-	test.Test().runTest(dLabel, Width=150, Caption="Hello", 
-			properties=testProps)
+	test.Test().runTest(_dLabel_test)

@@ -12,6 +12,7 @@ test of dTextBox.
 If you instead run this test.py as a script, a form will be instantiated with 
 all the dControls.
 """
+import os
 import wx
 import dabo.ui as ui
 ui.loadUI("wx")
@@ -63,6 +64,57 @@ class Test(object):
 		
 
 	def testAll(self):
+		""" Create a dForm and populate it with example dWidgets. 
+		"""
+		frame = ui.dForm(Name="formTest")
+		frame.Width, frame.Height = 640, 480
+		frame.Caption = "Test of all the dControls"
+		frame.debug = True
+		frame.LogEvents = logEvents
+
+		panel = frame.addObject(ui.dScrollPanel, "panelTest")
+		labelWidth = 150
+		vs = ui.dSizer("vertical")
+
+		# Get all the python modules in this directory into a list:
+		modules = [modname.split(".")[0] for modname in os.listdir(".") if modname[-3:] == ".py"]
+		modules.sort()
+		for modname in modules:
+			# if the module has a test class, instantiate it:
+			mod = __import__(modname)
+			objname = "_%s_test" % modname
+			if mod.__dict__.has_key(objname):
+				obj = mod.__dict__[objname](panel)
+					
+				bs = ui.dSizer("horizontal")
+				label = ui.dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)
+
+				label.Caption = "%s:" % modname
+				bs.append(label)
+
+				if isinstance(object, ui.dEditBox):
+					layout = "expand"
+				else:
+					layout = "normal"
+
+				obj.debug = True
+
+				bs.append(obj, layout)
+
+				if isinstance(obj, ui.dEditBox):
+					vs.append(bs, "expand")
+				else:
+					vs.append(bs, "expand")
+	
+		panel.Sizer = vs
+
+		fs = frame.Sizer = ui.dSizer("vertical")
+		fs.append(panel, "expand", 1)
+		fs.layout()
+		frame.Show()
+		self.app.MainLoop()
+
+	def testAll_old(self):
 		""" Create a dForm and populate it with example dWidgets. 
 		"""
 		frame = ui.dForm(Name="formTest")

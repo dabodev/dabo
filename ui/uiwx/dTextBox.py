@@ -9,8 +9,6 @@ from dabo.dLocalize import _
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	""" Allows editing one line of string or unicode data.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dTextBox
 		preClass = wx.PreTextCtrl
@@ -310,6 +308,10 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
 			"Specifies whether all text gets selected upon receiving focus. (bool)")
 
+class _dTextBox_test(dTextBox):
+	def afterInit(self):
+		self.Value = "Dabo rules!"
+		self.Size = (200, 20)
 
 if __name__ == "__main__":
 	import test
