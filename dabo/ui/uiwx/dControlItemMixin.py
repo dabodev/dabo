@@ -41,13 +41,6 @@ class dControlItemMixin(dDataControlMixin):
 		pass
 		
 		
-	def _getValueModeEditorInfo(self):
-		return {"editor": "list", "values": ["string", "position", "key"]}
-
-
-	def _getChoicesEditorInfo(self):
-		return {"editor" : "choice"}
-	
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getChoices(self):

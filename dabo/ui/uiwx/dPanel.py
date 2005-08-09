@@ -12,8 +12,6 @@ class dPanel(wx.Panel, cm.dControlMixin):
 	flexible for many uses. Consider laying out your forms on panels
 	instead, and then adding the panel to the form.
 	"""
-	_IsContainer = True
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dPanel
 		preClass = wx.PrePanel

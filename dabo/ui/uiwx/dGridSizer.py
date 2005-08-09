@@ -5,7 +5,6 @@ import dSizerMixin
 from dabo.dLocalize import _
 
 class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
-	_IsContainer = False
 	GridSizerItem = wx.GBSizerItem
 	
 	def __init__(self, vgap=3, hgap=3, maxRows=0, maxCols=0, **kwargs):

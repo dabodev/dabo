@@ -8,8 +8,6 @@ import dabo.dEvents as dEvents
 class dMenuItem(wx.MenuItem, pm.dPemMixin):
 	"""Creates an item in a menu.
 	"""
-	_IsContainer = False
-
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dMenuItem
 		preClass = wx.MenuItem
@@ -132,12 +130,10 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 class dCheckMenuItem(dMenuItem):
 	"""Creates a checkbox-like item in a menu.
 	"""
-	_IsContainer = False
 	pass
 
 
 class dRadioMenuItem(dMenuItem):
 	"""Creates a radiobox-like item in a menu.
 	"""
-	_IsContainer = False
 	pass

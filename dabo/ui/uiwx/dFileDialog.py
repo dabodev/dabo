@@ -67,7 +67,6 @@ class OsDialogMixin(object):
 
 
 class dFileDialog(wx.FileDialog, OsDialogMixin):
-	_IsContainer = False
 	_exposeFiles = True
 	
 	def __init__(self, parent=None, message="Choose a file", defaultPath="", 
@@ -79,7 +78,6 @@ class dFileDialog(wx.FileDialog, OsDialogMixin):
 
 	
 class dFolderDialog(wx.DirDialog, OsDialogMixin):
-	_IsContainer = False
 	_exposeFiles = False
 	
 	def __init__(self, parent=None, message="Choose a folder", 

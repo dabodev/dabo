@@ -535,9 +535,6 @@ class dFormMixin(pm.dPemMixin):
 			# These only work on Windows, I fear
 			return 'Normal'
 
-	def _getWindowStateEditorInfo(self):
-		return {'editor': 'list', 'values': ['Normal', 'Minimized', 'Maximized', 'FullScreen']}
-
 	def _setWindowState(self, value):
 		if self._constructed():
 			value = str(value)

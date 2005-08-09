@@ -716,8 +716,6 @@ class dPemMixin(dPemMixinBase):
 		else:
 			self._properties["BackColor"] = val
 
-	def _getBackColorEditorInfo(self):
-		return {"editor": "colour"}
 
 	def _getBorderColor(self):
 		return self._borderColor
@@ -770,9 +768,6 @@ class dPemMixin(dPemMixinBase):
 		else:
 			return "Default"
 
-	def _getBorderStyleEditorInfo(self):
-		return {"editor": "list", "values": ["Default", "None", "Simple", "Sunken", 
-				"Raised", "Double", "Static"]}
 
 	def _setBorderStyle(self, style):
 		self.delWindowStyleFlag(wx.NO_BORDER)
@@ -854,9 +849,6 @@ class dPemMixin(dPemMixinBase):
 
 	def _getFont(self):
 		return self.GetFont()
-	
-	def _getFontEditorInfo(self):
-		return {"editor": "font"}
 	
 	def _setFont(self, val):
 		if self._constructed():
@@ -946,9 +938,6 @@ class dPemMixin(dPemMixinBase):
 	def _getForeColor(self):
 		return self.GetForegroundColour()
 
-	def _getForeColorEditorInfo(self):
-		return {"editor": "colour"}
-
 	def _setForeColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
@@ -962,9 +951,6 @@ class dPemMixin(dPemMixinBase):
 	
 	def _getHeight(self):
 		return self.GetSize()[1]
-
-	def _getHeightEditorInfo(self):
-		return {"editor": "integer", "min": 0, "max": 8192}
 
 	def _setHeight(self, val):
 		if self._constructed():
@@ -1145,9 +1131,6 @@ class dPemMixin(dPemMixinBase):
 		else:
 			return ""
 
-	def _getToolTipTextEditorInfo(self):
-		return {"editor": "string", "len": 8192}
-
 	def _setToolTipText(self, val):
 		if self._constructed():
 			t = self.GetToolTip()
@@ -1182,9 +1165,6 @@ class dPemMixin(dPemMixinBase):
 		
 	def _getWidth(self):
 		return self.GetSize()[0]
-
-	def _getWidthEditorInfo(self):
-		return {"editor": "integer", "min": 0, "max": 8192}
 
 	def _setWidth(self, val):
 		if self._constructed():

@@ -140,8 +140,6 @@ class dNode(dabo.common.dObject):
 	
 
 class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dTreeView
 		self.nodes = []

@@ -3,8 +3,6 @@ import dabo.dConstants as k
 
 
 class dFontDialog(wx.FontDialog):
-	_IsContainer = False
-	
 	def __init__(self, parent=None, fontData=None):
 		self._baseClass = dFontDialog
 		

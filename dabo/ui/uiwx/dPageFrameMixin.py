@@ -9,8 +9,6 @@ from dabo.dLocalize import _
 class dPageFrameMixin(cm.dControlMixin):
 	""" Create a container for an unlimited number of pages.
 	"""
-	_IsContainer = True
-
 	def _initEvents(self):
 		super(dPageFrameMixin, self)._initEvents()
 		self.Bind(self._evtPageChanged, self.__onPageChanged)
@@ -212,9 +210,6 @@ class dPageFrameMixin(cm.dControlMixin):
 			return "Left"
 		else:
 			return "Top"
-
-	def _getTabPositionEditorInfo(self):
-		return {"editor": "list", "values": ["Top", "Left", "Right", "Bottom"]}
 
 	def _setTabPosition(self, value):
 		value = str(value)

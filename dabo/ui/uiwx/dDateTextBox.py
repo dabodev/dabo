@@ -21,11 +21,10 @@ except:
 	# Older wxPython versions don't have this class
 	USE_ORIG_CLASS = True
 	dpClass = wx.TextCtrl
+
 class dDateTextBoxNew(dpClass, dcm.dDataControlMixin):
 	""" Convenient control for managing dates.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dDateTextBox
 		preClass = wx.PreDatePickerCtrl

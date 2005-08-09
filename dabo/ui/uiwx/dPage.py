@@ -6,8 +6,6 @@ from dabo.dLocalize import _
 class dPage(dPanel.dScrollPanel):
 	""" Create a page to appear as a tab in a dPageFrame.
 	"""
-	_IsContainer = True
-	
 	def _afterInit(self):
 		self.initSizer()
 		self.itemsCreated = False

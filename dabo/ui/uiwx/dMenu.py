@@ -16,8 +16,6 @@ dRadioItem = wx.ITEM_RADIO
 class dMenu(wx.Menu, pm.dPemMixin):
 	"""Creates a menu, which can contain submenus, menu items, and separators.
 	"""
-	_IsContainer = True
-
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dMenu
 		preClass = wx.Menu

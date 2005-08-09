@@ -14,8 +14,6 @@ class dToolBar(wx.ToolBar, pm):
 	more like menu items than regular controls. Other controls,
 	such as dropdown lists, can also be added.
 	"""
-	_IsContainer = True
-
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dToolBar
 		preClass = wx.PreToolBar

@@ -11,8 +11,6 @@ import dIcons
 class dBitmap(wx.StaticBitmap, cm.dControlMixin):
 	""" Create a simple bitmap to display images. 
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dBitmap
 		preClass = wx.StaticBitmap

@@ -4,8 +4,6 @@ import dPemMixin
 import dSizerMixin
 
 class dSizer(wx.BoxSizer, dSizerMixin.dSizerMixin):
-	_IsContainer = False
-	
 	def __init__(self, orientation="h", **kwargs ):
 		# Convert Dabo orientation to wx orientation
 		self._baseClass = dSizer
