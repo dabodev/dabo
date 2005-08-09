@@ -14,36 +14,3 @@ That's it!
 
 
 
-PRIOR INSTRUCTIONS (OUT OF DATE)
-Dabo is a runtime library, which your applications will import using standard 
-Python syntax. Therefore, it needs to be in PYTHONPATH, so that your 
-'import dabo' statements will find it. The easiest way to do this is to put 
-dabo into your Python installation's site-packages directory. The easiest way 
-to find out where this is on your system (yes, it varies, so we can't just tell
-you where it is) is to start Python and query sys.path.
-
-For instance:
-
-[pmcnett@sol dabo]$ python
-Python 2.3.2 (#1, Oct  6 2003, 10:07:16)
-[GCC 3.2.2 20030222 (Red Hat Linux 3.2.2-5)] on linux2
-Type "help", "copyright", "credits" or "license" for more information.
->>> import sys
->>> sys.path
-['', '/home/pmcnett/dl/python/wxPythonSrc-2.5.1.5/wxPython', '/usr/lib/python23.zip', 
-'/usr/lib/python2.3', '/usr/lib/python2.3/plat-linux2', '/usr/lib/python2.3/lib-tk', 
-'/usr/lib/python2.3/lib-dynload', '/usr/lib/python2.3/site-packages', 
-'/usr/lib/python2.3/site-packages/PythonCAD', '/usr/local/gnue/lib/python']
-
-I can see that my site-packages directory is installed in 
-/usr/lib/python2.3/site-packages. So I can then copy or symlink the dabo root 
-directory there to make it importable. You will likely need administrative 
-privileges to do this on your system, unless you happen to be running Windows,
-which most likely will let you write to any location that you want.
-
-If you would rather put dabo somewhere else, you can put a text file called 
-dabo.pth inside your Python site-packages directory. The contents of this file 
-must specify the parent directory where Dabo can be found. For instance, if 
-you put Dabo in c:\programs\myprogs\dabo, you'll need your dabo.pth to say 
-'c:\programs\myprogs'.
-

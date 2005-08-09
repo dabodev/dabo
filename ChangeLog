@@ -1,5 +1,10 @@
 See the Subversion log for all the details.
 
+Current:
+
+Improved test framework for uiwx.
+
+
 Dabo-0.4 (2005-08-08) (Revision 1132):
 
 Cleaned up the initialization of properties. No more initStyleProperties();
