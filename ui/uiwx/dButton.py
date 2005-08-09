@@ -79,8 +79,19 @@ class dButton(wx.Button, cm.dControlMixin):
 
 class _dButton_test(dButton):
 	def initProperties(self):
-		self.Caption = "hey"
+		self.Caption = "You better not push me"
 		self.FontSize = 8
+		self.Width = 223
+
+	def initEvents(self):
+		self.bindEvent(dEvents.Hit, self.onHit)
+
+	def onHit(self, evt):
+		self.ForeColor = "purple"
+		self.FontBold = True
+		self.FontItalic = True
+		self.Caption = "Ok, you cross this line, and you die."
+		self.Width = 333
 
 if __name__ == "__main__":
 	import test
