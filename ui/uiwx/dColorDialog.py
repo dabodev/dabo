@@ -4,8 +4,6 @@ import dabo.common.dColors as dColors
 
 
 class dColorDialog(wx.ColourDialog):
-	_IsContainer = False
-	
 	def __init__(self, parent=None, color=None):
 		self._baseClass = dColorDialog
 		dat = wx.ColourData()

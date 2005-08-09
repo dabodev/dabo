@@ -32,8 +32,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
 	like next(), last(), save(), and requery().
 	"""
-	_IsContainer = True
-	
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dForm
 		preClass = wxPreFrameClass

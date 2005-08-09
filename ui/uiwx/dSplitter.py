@@ -63,8 +63,6 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 	panels (subclass of SplitterPanel), each of which can further 
 	split itself in two.
 	"""
-	_IsContainer = True
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 			
 		self._baseClass = dSplitter

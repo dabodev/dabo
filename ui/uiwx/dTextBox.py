@@ -50,9 +50,6 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		else:
 			return "Left"
 
-	def _getAlignmentEditorInfo(self):
-		return {'editor': 'list', 'values': ['Left', 'Center', 'Right']}
-
 	def _setAlignment(self, value):
 		# Note: alignment doesn't seem to work, at least on GTK2
 		self.delWindowStyleFlag(wx.TE_LEFT)

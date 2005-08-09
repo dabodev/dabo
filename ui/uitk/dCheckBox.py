@@ -11,8 +11,6 @@ from dabo.dLocalize import _
 class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 	""" Allows visual editing of boolean values.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dCheckBox
 		preClass = Tkinter.Checkbutton

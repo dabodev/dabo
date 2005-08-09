@@ -55,9 +55,7 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 		else:
 			self.addWindowStyleFlag(wx.SL_VERTICAL)
 
-	def _getOrientationEditorInfo(self):
-		return {"editor": "list", "values": ["Horizontal", "Vertical"]}
-	
+
 	def _getLineSize(self):
 		return self.GetLineSize()
 	def _setLineSize(self, value):

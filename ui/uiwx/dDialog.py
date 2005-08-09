@@ -8,8 +8,6 @@ import dFormMixin as fm
 
 
 class dDialog(wx.Dialog, fm.dFormMixin):
-	_IsContainer = True
-	
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dDialog
 		self._modal = True

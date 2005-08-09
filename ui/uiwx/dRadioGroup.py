@@ -76,9 +76,6 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		return d
 	
 	
-	def _getChoicesEditorInfo(self):
-		return {"editor" : "choice"}
-	
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -158,11 +155,6 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		else:
 			raise ValueError, "The only possible settings are 'None', 'Row', and 'Column'."
 			
-	def _getValueModeEditorInfo(self):
-		return {"editor": "list", "values": ["string", "position", "key"]}
-
-	def _getOrientationEditorInfo(self):
-		return {'editor': 'list', 'values': ['None', 'Row', 'Column']}
 		
 	def _getPositionValue(self):
 		return self.GetSelection()

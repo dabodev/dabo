@@ -9,9 +9,6 @@ import dabo.dEvents as dEvents
 class dMenuBar(wx.MenuBar, pm.dPemMixin):
 	"""Creates a menu bar, which can contain dMenus.
 	"""
-	_IsContainer = True
-
-
 	def __init__(self, properties=None, *args, **kwargs):
 		self._baseClass = dMenuBar
 		preClass = wx.MenuBar
