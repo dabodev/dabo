@@ -6,21 +6,28 @@ if __name__ == "__main__":
 import dControlMixin as cm
 
 class dLine(wx.StaticLine, cm.dControlMixin):
-	""" Create a static (not data-aware) line.
+	""" Create a horizontal or vertical line.
+
+	If Orientation is "Vertical", Height refers to the length of the line. 
+  If Orientation is "Horizontal", Width refers to the length of the line.
+	The other value refers to how wide the control is, which affects how much
+	buffer space will enclose the line, which will appear in the center of
+	this space.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dLine
 		preClass = wx.PreStaticLine
 		
 		# Set the minimum initial Height and Width to 1.
-		if kwargs.has_key("Width"):
-			kwargs["Width"] = max(1, kwargs["Width"])
-		else:
-			kwargs["Width"] = 1
-		if kwargs.has_key("Height"):
-			kwargs["Height"] = max(1, kwargs["Height"])
-		else:
-			kwargs["Height"] = 1
+## pkm: no, don't do this: it overrides whatever was set in a subclass initProperties()
+#		if kwargs.has_key("Width"):
+#			kwargs["Width"] = max(1, kwargs["Width"])
+#		else:
+#			kwargs["Width"] = 1
+#		if kwargs.has_key("Height"):
+#			kwargs["Height"] = max(1, kwargs["Height"])
+#		else:
+#			kwargs["Height"] = 1
 		
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 	
@@ -31,8 +38,7 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 		
 	# property get/set functions
 	def _getOrientation(self):
-# 		if self.hasWindowStyleFlag(wx.LI_VERTICAL):
-		if self.Height >= self.Width:
+ 		if self.hasWindowStyleFlag(wx.LI_VERTICAL):
 			return "Vertical"
 		else:
 			return "Horizontal"
@@ -50,7 +56,7 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 			self.addWindowStyleFlag(wx.LI_HORIZONTAL)
 		else:
 			raise ValueError, ("The only possible values are "
-							"'Horizontal' and 'Vertical'.")
+			                   "'Horizontal' and 'Vertical'.")
 
 	# property definitions follow:
 	Orientation = property(_getOrientation, _setOrientation, None,
@@ -64,7 +70,8 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 
 class _dLine_test(dLine):
 	def initProperties(self):
-		self.Width = 100
+		self.Orientation = "Horizontal"
+		self.Width = 200
 		self.Height = 10
 
 if __name__ == "__main__":
