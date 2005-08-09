@@ -428,24 +428,20 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			selected node. If this is defined as MultiSelect, it will return
 			a list of selected nodes.  (dNode or list of dNodes)""") )
 		
+class _dTreeView_test(dTreeView):
+	def afterInit(self): 
+		self.addDummyData()
+		self.Width = 240
+		self.Height = 140
+
+	def onSelection(self, evt):
+		print "Selected node caption:", evt.EventData["selectedCaption"]
+	def onItemCollapse(self, evt):
+		print "Collapsed node caption:", evt.EventData["selectedCaption"]
+	def onItemExpand(self, evt):
+		print "Expanded node caption:", evt.EventData["selectedCaption"]
+		
 			
 if __name__ == "__main__":
 	import test
-	
-	class TestTree(dTreeView):
-		def afterInit(self): 
-			self.addDummyData()
-# 		self.Size = (300,400)
-# 		self.expandAll()
-# 		self.addImage("edit")
-# 		self.addImage("browse")
-# 		self.addImage("checkMark")
-
-		def onSelection(self, evt):
-			print "Selected node caption:", evt.EventData["selectedCaption"]
-		def onItemCollapse(self, evt):
-			print "Collapsed node caption:", evt.EventData["selectedCaption"]
-		def onItemExpand(self, evt):
-			print "Expanded node caption:", evt.EventData["selectedCaption"]
-		
-	test.Test().runTest(TestTree)
+	test.Test().runTest(_dTreeView_test)

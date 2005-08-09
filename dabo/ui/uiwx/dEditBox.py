@@ -12,8 +12,6 @@ from dabo.dLocalize import _
 class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 	""" Allows editing of string or unicode data of unlimited length.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dEditBox
 		preClass = wx.PreTextCtrl
@@ -41,9 +39,6 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 			return 'Center'
 		else:
 			return 'Left'
-
-	def _getAlignmentEditorInfo(self):
-		return {'editor': 'list', 'values': ['Left', 'Center', 'Right']}
 
 	def _setAlignment(self, value):
 		self.delWindowStyleFlag(wx.TE_LEFT)
@@ -97,6 +92,38 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		"""Specifies whether all text gets selected upon receiving focus.""")
 
 
+class _dEditBox_test(dEditBox):
+	def initProperties(self):
+		self.Size = (333, 175)
+		self.Value = """Love, exciting and new
+Come aboard, were expecting you
+Love, lifes sweetest reward
+Let it flow, it floats back to you
+
+Love Boat soon will be making another run
+The Love Boat promises something for everyone
+Set a course for adventure
+Your mind on a new romance
+
+Love wont hurt anymore
+Its an open smile on a friendly shore
+Yes love...
+Its love...
+
+Love Boat soon will be making another run
+The Love Boat promises something for everyone
+Set a course for adventure
+Your mind on a new romance
+
+Love wont hurt anymore
+Its an open smile on a friendly shore
+Its love...
+Its love...
+Its love...
+Its the Love Boat
+Its the Love Boat 
+"""
+
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dEditBox)
+	test.Test().runTest(_dEditBox_test)

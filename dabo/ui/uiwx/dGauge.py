@@ -8,8 +8,6 @@ import dControlMixin as cm
 class dGauge(wx.Gauge, cm.dControlMixin):
 	""" Allows the creation of progress bars.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dGauge
 		preClass = wx.PreGauge
@@ -46,9 +44,6 @@ class dGauge(wx.Gauge, cm.dControlMixin):
 		else:
 			self.addWindowStyleFlag(wx.GA_VERTICAL)
 
-	def _getOrientationEditorInfo(self):
-		return {"editor": "list", "values": ["Horizontal", "Vertical"]}
-
 	def _getValue(self):
 		return self.GetValue()
 		
@@ -67,26 +62,26 @@ class dGauge(wx.Gauge, cm.dControlMixin):
 			"Specifies the state of the gauge, relative to max value.")
 
 
+class _dGauge_test(dGauge):
+	def afterInit(self):
+		self._timer = dabo.ui.dTimer(self.GetParent())
+		self._timer.bindEvent(dabo.dEvents.Hit, self.onTimer)
+		self.setup()
+			
+	def setup(self):
+		self.Range = 100
+		self.Value = 0
+		self._timer.Interval = 23
+		self._timer.start()
+			
+	def onTimer(self, evt):
+		if self.Value < self.Range:
+			self.Value += 1
+		else:
+			self._timer.stop()
+			self.setup()				
+
+
 if __name__ == "__main__":
 	import test
-	class C(dGauge):
-		def afterInit(self):
-			C.doDefault()
-			self._timer = dabo.ui.dTimer(self.GetParent())
-			self._timer.bindEvent(dabo.dEvents.Hit, self.onTimer)
-			self.setup()
-			
-		def setup(self):
-			self.Range = 100
-			self.Value = 0
-			self._timer.Interval = 8
-			self._timer.start()
-			
-		def onTimer(self, evt):
-			if self.Value < self.Range:
-				self.Value += 1
-			else:
-				self._timer.stop()
-				self.setup()				
-	
-	test.Test().runTest(C)
+	test.Test().runTest(_dGauge_test)

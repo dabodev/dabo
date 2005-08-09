@@ -10,8 +10,6 @@ import dIcons
 class dTimer(dabo.ui.dBitmap):
 	""" Create a timer. 
 	"""
-	_IsContainer = False
-	
 	# Note: this class is implemented as a static bitmap which serves as
 	# a proxy to the underlying timer object. This was to allow the timer
 	# to have a parent object and to fit in with the dabo events. This will
@@ -24,11 +22,10 @@ class dTimer(dabo.ui.dBitmap):
 
 		
 	def _afterInit(self):
+		self.Visible = False	
 		self.Picture = "dTimer"
 		self._timer = wx.Timer(self)
 		super(dTimer, self)._afterInit()
-		self.Visible = False
-	
 		
 	def _initEvents(self):
 		super(dTimer, self)._initEvents()
@@ -43,7 +40,6 @@ class dTimer(dabo.ui.dBitmap):
 		# only let the the bitmap be shown if this is design time
 		designTime = (self.Application is None)
 		if designTime:
-			#dTimer.doDefault(*args, **kwargs)
 			super(dTimer, self).Show(*args, **kwargs)
 		else:
 			self.Bitmap = None
@@ -91,16 +87,16 @@ class dTimer(dabo.ui.dBitmap):
 			"for its Interval, the timer will be started."))
 	
 	
+class _dTimer_test(dTimer):
+	def afterInit(self):
+		self.Interval = 1000
+		self.Visible = True
+		self.start()
+	def initEvents(self):
+		self.bindEvent(dabo.dEvents.Hit, self.onHit)
+	def onHit(self, evt):
+		print "timer fired!"
+		
 if __name__ == "__main__":
 	import test
-	
-	class C(dTimer):
-		def afterInit(self):
-			self.Interval = 1000
-			self.start()
-		def initEvents(self):
-			self.bindEvent(dabo.dEvents.Hit, self.onHit)
-		def onHit(self, evt):
-			print "timer fired!"
-		
-	test.Test().runTest(C)
+	test.Test().runTest(_dTimer_test)

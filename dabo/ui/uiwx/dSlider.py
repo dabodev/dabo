@@ -12,8 +12,6 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 	
 	Slider does not allow entering a value with the keyboard.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dSlider
 		preClass = wx.PreSlider
@@ -30,12 +28,18 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 	def _getMin(self):
 		return self.GetMin()
 	def _setMin(self, value):
-		self.SetMin(value)
+		if self._constructed():
+			self.SetMin(value)
+		else:
+			self._properties["Min"] = value
 		
 	def _getMax(self):
 		return self.GetMax()
 	def _setMax(self, value):
-		self.SetMax(value)
+		if self._constructed():
+			self.SetMax(value)
+		else:
+			self._properties["Max"] = value
 		
 	def _getOrientation(self):
 		if self.GetWindowStyle() & wx.SL_VERTICAL:
@@ -57,7 +61,10 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 	def _getLineSize(self):
 		return self.GetLineSize()
 	def _setLineSize(self, value):
-		return self.SetLineSize(value)
+		if self._constructed():
+			return self.SetLineSize(value)
+		else:
+			self._properties["LineSize"] = value
 
 	def _getValue(self):
 		return super(dSlider, self)._getValue()
@@ -74,7 +81,6 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 			self.addWindowStyleFlag(wx.SL_LABELS)
 
 
-
 	# Property definitions:
 	Orientation = property(_getOrientation, _setOrientation, None, 
 			"Specifies whether the Slider is displayed as Horizontal or Vertical.")
@@ -88,11 +94,15 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 			"Specifies the state of the Slider, relative to max value.")
 
 
+class _dSlider_test(dSlider):
+	def initProperties(self):
+		self.Size = (200, 40)
+		self.Max = 95
+		self.Min = 23
+		self.Value = 75
+		self.ShowLabels = True
+		self.Orientation = "Horizontal"
+
 if __name__ == "__main__":
 	import test
-	class c(dSlider):
-		def afterInit(self):
-			self.Value = 75
-			self.ShowLabels = True
-			self.Orientation = "Vertical"
-	test.Test().runTest(c)
+	test.Test().runTest(_dSlider_test)

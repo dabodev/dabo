@@ -11,17 +11,16 @@ from dabo.dLocalize import _
 
 
 class dListControl(wx.ListCtrl, dcm.dDataControlMixin, 
-					ListMixin.ListCtrlAutoWidthMixin):
+                   ListMixin.ListCtrlAutoWidthMixin):
 	""" The List Control is ideal for visually dealing with data sets
 	where each 'row' is a unit, where it doesn't make sense to deal
 	with individual elements inside of the row. If you need to be
 	able work with individual elements, you should use a grid.
-	
-	The mixin allows the rightmost column to expand as the 
-	control is resized. There is no way to turn that off as of now.	
-	"""
-	_IsContainer = False
-	
+	"""	
+
+	# The mixin allows the rightmost column to expand as the 
+	# control is resized. There is no way to turn that off as of now.	
+
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dListControl
 		
@@ -283,22 +282,25 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	ValueColumn = property(_getValCol, _setValCol, None,
 			_("The column whose text is reflected in Value (default=0).  (int)") )
 			
-			
+
+
+class _dListControl_test(dListControl):
+	def afterInit(self):
+		self.setColumns( ("Main Column", "Another Column") )
+		self.setColumnWidth(0, 150)
+		self.append( ("Second Line", "222") )
+		self.append( ("Third Line", "333") )
+		self.append( ("Fourth Line", "444") )
+		self.insert( ("First Line", "111") )
+
+	def initProperties(self):
+		self.Width = 275
+		self.Height = 200
+		
+	def onHit(self, evt):
+		print "HIT!", self.Value
+
 			
 if __name__ == "__main__":
 	import test
-	
-	class TestListControl(dListControl):
-		def afterInit(self):
-			self.setColumns( ("Main Column", "Another Column") )
-			self.setColumnWidth(0, 150)
-#			self.setColumnWidth(1, wx.LIST_AUTOSIZE)
-			self.append( ("Second Line", "222") )
-			self.append( ("Third Line", "333") )
-			self.append( ("Fourth Line", "444") )
-			self.insert( ("First Line", "111") )
-		
-		def onHit(self, evt):
-			print "HIT!", self.Value
-		
-	test.Test().runTest(TestListControl)
+	test.Test().runTest(_dListControl_test)

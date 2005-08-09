@@ -23,21 +23,22 @@ class dToggleButton(wx.ToggleButton, dcm.dDataControlMixin):
 		self.Bind(wx.EVT_TOGGLEBUTTON, self._onWxHit)
 		
 
+class _dToggleButton_test(dToggleButton):
+	def afterInit(self):
+		self.Caption = "Toggle me!"
+		self.Size = (100, 31)
+
+	def initEvents(self):
+		self.bindEvent(dEvents.Hit, self.onHit)
+		
+	def onHit(self, evt):
+		if self.Value:
+			state = "down"
+		else:
+			state = "up"
+		self.Caption = _("State: %s" % state)
+
 
 if __name__ == "__main__":
 	import test
-	
-	class T(dToggleButton):
-		def initEvents(self):
-			T.doDefault()
-			self.debug = True
-			self.bindEvent(dEvents.Hit, self.onHit)
-			
-		def onHit(self, evt):
-			if self.Value:
-				state = "down"
-			else:
-				state = "up"
-			dabo.infoLog.write(_("%s: onHit() called. State: %s") % (self.Name, state))
-	
-	test.Test().runTest(T)
+	test.Test().runTest(_dToggleButton_test)

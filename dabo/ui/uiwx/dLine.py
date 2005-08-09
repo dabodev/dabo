@@ -8,8 +8,6 @@ import dControlMixin as cm
 class dLine(wx.StaticLine, cm.dControlMixin):
 	""" Create a static (not data-aware) line.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dLine
 		preClass = wx.PreStaticLine
@@ -39,10 +37,6 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 		else:
 			return "Horizontal"
 
-	def _getOrientationEditorInfo(self):
-		return {"editor": "list", "values": ["Horizontal", "Vertical"], 
-				"editValueInDesigner":False}
-
 	def _setOrientation(self, value):
 		# Note: Orientation must be set before object created.
 		self.delWindowStyleFlag(wx.LI_VERTICAL)
@@ -67,6 +61,12 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 						"If the Width is greater than the Height, it will be Horizontal. "
 						"Otherwise, it will be Vertical.")
 
+
+class _dLine_test(dLine):
+	def initProperties(self):
+		self.Width = 100
+		self.Height = 10
+
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dLine)
+	test.Test().runTest(_dLine_test)

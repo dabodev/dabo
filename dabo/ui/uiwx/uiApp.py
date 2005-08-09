@@ -7,8 +7,6 @@ from dabo.common.dObject import dObject
 from dabo.dLocalize import _, n_
 
 class uiApp(wx.App, dObject):
-	_IsContainer = False
-	
 	def __init__(self, *args):
 		wx.App.__init__(self, 0, args)
 		dObject.__init__(self)

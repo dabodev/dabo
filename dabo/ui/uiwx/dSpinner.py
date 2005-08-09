@@ -10,8 +10,6 @@ from dabo.dLocalize import _
 class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 	""" Allows editing integer values.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dSpinner
 		preClass = wx.PreSpinCtrl
@@ -41,19 +39,24 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 		return self.GetMax()
 
 	def _setMax(self, value):
-		rangeLow = self.GetMin()
-		rangeHigh = int(value)
-		self.SetRange(rangeLow, rangeHigh)
+		if self._constructed():
+			rangeLow = self.GetMin()
+			rangeHigh = int(value)
+			self.SetRange(rangeLow, rangeHigh)
+		else:
+			self._properties["Max"] = value
 
 
 	def _getMin(self):
 		return self.GetMin()
 
 	def _setMin(self, value):
-		rangeLow = int(value)
-		rangeHigh = self.Max
-		self.SetRange(rangeLow, rangeHigh)
-
+		if self._constructed():
+			rangeLow = int(value)
+			rangeHigh = self.Max
+			self.SetRange(rangeLow, rangeHigh)
+		else:
+			self._properties["Min"] = value
 
 	def _getSpinnerWrap(self):
 		return self.hasWindowStyleFlag(wx.SP_WRAP)
@@ -74,7 +77,12 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 	SpinnerWrap = property(_getSpinnerWrap, _setSpinnerWrap, None,
 		"Specifies whether the spinner value wraps at the high/low value. (bool)")
 
+class _dSpinner_test(dSpinner):
+	def initProperties(self):
+		self.Max = 12
+		self.Min = 5
+		self.SpinnerWrap = True
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dSpinner, Max=12, Min=5, SpinnerWrap=True)
+	test.Test().runTest(_dSpinner_test)

@@ -10,8 +10,6 @@ from dabo.dLocalize import _
 class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	""" Allows choosing one option from a list of options.
 	"""
-	_IsContainer = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dRadioGroup
 		preClass = wx.PreRadioBox
@@ -95,7 +93,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		if self._constructed():
 			raise ValueError, "Cannot change RadioGroup choices at runtime."
 		else:
-			self._choices = self._initProperties["choices"] = choices
+			self._choices = self._properties["Choices"] = choices
 	
 	def _getKeys(self):
 		try:
@@ -313,42 +311,41 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		""")
 	
 
+class _dRadioGroup_test(dRadioGroup):
+	def beforeInit(self):
+		self.setup()
+
+	def initProperties(self):
+		self.ForeColor = "darkblue"
+		self.BackColor = "wheat"
+		self.Orientation = "None"
+		
+	def initEvents(self):
+		self.bindEvent(dabo.dEvents.Hit, self.onHit)
+			
+	def setup(self):
+		print "Simulating a database:"
+		developers = ({"lname": "McNett", "fname": "Paul", "iid": 42},
+			{"lname": "Leafe", "fname": "Ed", "iid": 23})
+			
+		choices = []
+		keys = {}
+		for developer in developers:
+			choices.append("%s %s" % (developer['fname'], developer['lname']))
+			keys[developer["iid"]] = len(choices) - 1
+			
+		self.Choices = choices
+		self.Keys = keys
+		self.ValueMode = 'key'
+			
+	def onHit(self, evt):
+		print "KeyValue: ", self.KeyValue
+		print "PositionValue: ", self.PositionValue
+		print "StringValue: ", self.StringValue
+		print "Value: ", self.Value
+		self.enable(42, False)
+		
+
 if __name__ == "__main__":
 	import test
-	class _T(dRadioGroup):
-		def beforeInit(self):
-			self.Orientation = "None"
-			self.setup()
-
-		def afterInit(self):
-			_T.doDefault()
-			self.ForeColor = "darkblue"
-			self.BackColor = "wheat"
-		
-		def initEvents(self):
-			_T.doDefault()
-			self.bindEvent(dabo.dEvents.Hit, self.onHit)
-			
-		def setup(self):
-			print "Simulating a database:"
-			developers = ({"lname": "McNett", "fname": "Paul", "iid": 42},
-				{"lname": "Leafe", "fname": "Ed", "iid": 23})
-			
-			choices = []
-			keys = {}
-			for developer in developers:
-				choices.append("%s %s" % (developer['fname'], developer['lname']))
-				keys[developer["iid"]] = len(choices) - 1
-			
-			self.Choices = choices
-			self.Keys = keys
-			self.ValueMode = 'key'
-			
-		def onHit(self, evt):
-			print "KeyValue: ", self.KeyValue
-			print "PositionValue: ", self.PositionValue
-			print "StringValue: ", self.StringValue
-			print "Value: ", self.Value
-			self.enable(42, False)
-		
-	test.Test().runTest(_T)
+	test.Test().runTest(_dRadioGroup_test)
