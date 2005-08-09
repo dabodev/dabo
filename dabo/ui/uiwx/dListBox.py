@@ -57,14 +57,14 @@ class _dListBox_test(dListBox):
 			
 	def setup(self):
 		# Simulate a database:
-		developers = ({"lname": "McNett", "fname": "Paul", "iid": 42},
-			{"lname": "Leafe", "fname": "Ed", "iid": 23})
+		actors = ({"lname": "Jason Leigh", "fname": "Jennifer", "iid": 42},
+			{"lname": "Cates", "fname": "Phoebe", "iid": 23})
 			
 		choices = []
 		keys = {}
-		for developer in developers:
-			choices.append("%s %s" % (developer['fname'], developer['lname']))
-			keys[developer["iid"]] = len(choices) - 1
+		for actor in actors:
+			choices.append("%s %s" % (actor['fname'], actor['lname']))
+			keys[actor["iid"]] = len(choices) - 1
 		self.MultipleSelect = True
 		self.Choices = choices
 		self.Keys = keys

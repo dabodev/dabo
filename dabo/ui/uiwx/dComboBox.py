@@ -82,14 +82,14 @@ class _dComboBox_test(dComboBox):
 			
 	def setup(self):
 		# Simulating a database:
-		developers = ({"lname": "McNett", "fname": "Paul", "iid": 42},
-			{"lname": "Leafe", "fname": "Ed", "iid": 23})
+		wannabeCowboys = ({"lname": "Reagan", "fname": "Ronald", "iid": 42},
+			{"lname": "Bush", "fname": "George W.", "iid": 23})
 			
 		choices = []
 		keys = {}
-		for developer in developers:
-			choices.append("%s %s" % (developer['fname'], developer['lname']))
-			keys[developer["iid"]] = len(choices) - 1
+		for wannabe in wannabeCowboys:
+			choices.append("%s %s" % (wannabe['fname'], wannabe['lname']))
+			keys[wannabe["iid"]] = len(choices) - 1
 			
 		self.Choices = choices
 		self.Keys = keys

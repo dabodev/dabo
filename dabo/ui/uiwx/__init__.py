@@ -58,7 +58,6 @@ from dButton import dButton
 from dCheckBox import dCheckBox
 from dColorDialog import dColorDialog
 from dComboBox import dComboBox
-from dCommandButton import dCommandButton
 from dDateTextBox import dDateTextBox
 from dDropdownList import dDropdownList
 from dDialog import dDialog

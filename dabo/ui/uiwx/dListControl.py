@@ -288,10 +288,10 @@ class _dListControl_test(dListControl):
 	def afterInit(self):
 		self.setColumns( ("Main Column", "Another Column") )
 		self.setColumnWidth(0, 150)
-		self.append( ("Second Line", "222") )
-		self.append( ("Third Line", "333") )
-		self.append( ("Fourth Line", "444") )
-		self.insert( ("First Line", "111") )
+		self.append( ("The Phantom Menace", "Episode 1") )
+		self.append( ("Attack of the Clones", "Episode 2") )
+		self.append( ("Revenge of the Sith", "Episode 3") )
+		self.insert( ("A New Hope", "Episode 4") )
 
 	def initProperties(self):
 		self.Width = 275
