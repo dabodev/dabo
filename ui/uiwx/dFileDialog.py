@@ -12,10 +12,16 @@ class OsDialogMixin(object):
 		res = self.ShowModal()
 		if res ==  wx.ID_OK:
 			ret = k.DLG_OK
-			self._path = self.GetPath()
+			if self._multiple:
+				self._path = self.GetPaths()
+			else:
+				self._path = self.GetPath()
 			if self._exposeFiles:
 				self._dir = self.GetDirectory()
-				self._fname = self.GetFilename()
+				if self._multiple:
+					self._fname = self.GetFilenames()
+				else:
+					self._fname = self.GetFilename()
 		return ret
 	
 	def release(self):
@@ -50,16 +56,16 @@ class OsDialogMixin(object):
 			self.SetWildcard(txt)
 	
 	Directory = property(_getDir, _setDir, None, 
-			"The directory of the selected file.  (str)")
+			"The directory of the selected file or files (str)")
 	
 	FileName = property(_getFileName, _setFileName, None, 
-			"The name of the selected file.  (str)")
+			"The name of the selected file (str) or files (tuple of strs)")
 	
 	Message = property(_getMessage, _setMessage, None, 
 			"The prompt displayed to the user.  (str)")
 
 	Path = property(_getPath, _setPath, None, 
-			"The full path of the selected file.  (str)")
+			"The full path of the selected file (str)  or files (tuple of strs)")
 
 	Wildcard = property(_getWildcard, _setWildcard, None, 
 			"The wildcard that will limit the files displayed in the dialog.  (str)")
@@ -70,8 +76,13 @@ class dFileDialog(wx.FileDialog, OsDialogMixin):
 	_exposeFiles = True
 	
 	def __init__(self, parent=None, message="Choose a file", defaultPath="", 
-			defaultFile="", wildcard="*.*", style=wx.OPEN):
+			defaultFile="", wildcard="*.*", multiple=False, style=wx.OPEN):
 		self._baseClass = dFileDialog
+		if multiple:
+			style = style | wx.MULTIPLE
+			self._multiple = True
+		else:
+			self._multiple = False
 		super(dFileDialog, self).__init__(parent=parent, message=message, 
 				defaultDir=defaultPath, defaultFile=defaultFile, 
 				wildcard=wildcard, style=style)
