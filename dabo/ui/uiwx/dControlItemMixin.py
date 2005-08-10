@@ -1,8 +1,7 @@
 from dDataControlMixin import dDataControlMixin
 from dabo.dLocalize import _
 import wx
-import dabo.ui
-
+import dabo
 
 class dControlItemMixin(dDataControlMixin):
 	""" This mixin class factors out the common code among all of the
@@ -40,17 +39,27 @@ class dControlItemMixin(dDataControlMixin):
 		can be multiple selections.
 		"""
 		pass
-		
+
+	def setSelection(self, index):
+		if self.Count > index:
+			self.SetSelection(index)
+		else:
+			## pkm: I think on Windows the order of property setting
+			## matters, and the selected row is getting set before
+			## the items have been set. Make a log and ignore for now.
+			dabo.errorLog.write("dControlItemMixin::setSelection(): index > count")
+
 	def _isMultiSelect(self):
 		"""Return whether this control has multiple-selectable items.
 
 		Only dListBox is a candidate for this.
 		"""
-		if not isinstance(self, dabo.ui.dListBox):
-			return False
-		if not self.MultipleSelect:
-			return False
-		return True
+		try:
+			ms = self.MultipleSelect
+		except AttributeError:
+			ms = False
+		return ms
+
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -148,7 +157,7 @@ class dControlItemMixin(dDataControlMixin):
 			for key in value:
 				if key is None:
 					continue
-				self.SetSelection(self.Keys[key])
+				self.setSelection(self.Keys[key])
 			self._afterValueChanged()
 		else:
 			self._properties["KeyValue"] = value
@@ -173,7 +182,7 @@ class dControlItemMixin(dDataControlMixin):
 				if index is None:
 					continue
 				try:
-					self.SetSelection(index)
+					self.setSelection(index)
 				except: pass
 			self._afterValueChanged()
 		else:
@@ -221,7 +230,7 @@ class dControlItemMixin(dDataControlMixin):
 					if index < 0:
 						raise ValueError, _("String must be present in the choices.")
 					else:
-						self.SetSelection(index)
+						self.setSelection(index)
 				else:
 					raise TypeError, _("Unicode or string required.")
 			self._afterValueChanged()
