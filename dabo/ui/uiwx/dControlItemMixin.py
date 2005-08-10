@@ -1,6 +1,7 @@
 from dDataControlMixin import dDataControlMixin
 from dabo.dLocalize import _
 import wx
+import dabo.ui
 
 
 class dControlItemMixin(dDataControlMixin):
@@ -40,6 +41,16 @@ class dControlItemMixin(dDataControlMixin):
 		"""
 		pass
 		
+	def _isMultiSelect(self):
+		"""Return whether this control has multiple-selectable items.
+
+		Only dListBox is a candidate for this.
+		"""
+		if not isinstance(self, dabo.ui.dListBox):
+			return False
+		if not self.MultipleSelect:
+			return False
+		return True
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -92,7 +103,7 @@ class dControlItemMixin(dDataControlMixin):
 	def _getKeyValue(self):
 		selections = self.PositionValue
 		values = []
-		if not self.isMultiSelect:
+		if not self._isMultiSelect():
 			if selections is None:
 				return None
 			else:
@@ -112,7 +123,7 @@ class dControlItemMixin(dDataControlMixin):
 				except KeyError:
 					values.append(None)
 		
-		if not self.isMultiSelect:
+		if not self._isMultiSelect():
 			if len(values) > 0:
 				return values[0]
 			else:
@@ -144,7 +155,7 @@ class dControlItemMixin(dDataControlMixin):
 
 
 	def _getPositionValue(self):
-		if not self.isMultiSelect:
+		if not self._isMultiSelect():
 			return self.GetSelection()
 		else:
 			selections = self.GetSelections()
@@ -171,7 +182,7 @@ class dControlItemMixin(dDataControlMixin):
 	
 	def _getStringValue(self):
 		selections = self.PositionValue
-		if not self.isMultiSelect:
+		if not self._isMultiSelect():
 			if selections is None:
 				return None
 			else:
@@ -185,7 +196,7 @@ class dControlItemMixin(dDataControlMixin):
 			except:
 				# Invalid index; usually an empty list
 				pass
-		if not self.isMultiSelect:
+		if not self._isMultiSelect():
 			# convert to singular
 			if len(strings) > 0:
 				return strings[0]

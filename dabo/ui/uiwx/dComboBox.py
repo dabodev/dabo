@@ -11,8 +11,6 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 	
 	The user can choose an item in the dropdown, or enter freeform text.
 	"""
-	isMultiSelect = False
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dComboBox
 		self._choices = []
