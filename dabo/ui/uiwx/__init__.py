@@ -432,7 +432,7 @@ def _getWild(*args):
 			elif a == "*":
 				fDesc = "All Files (*)|*"
 			elif a == "fsxml":
-				fDesc = "Dabo FileSpec Files (*.fsxml)|*.fsxml"
+				fDesc = "Dabo FieldSpec Files (*.fsxml)|*.fsxml"
 			elif a == "cnxml":
 				fDesc = "Dabo Connection Files (*.cnxml)|*.cnxml"
 			elif a == "rfxml":
