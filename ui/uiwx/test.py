@@ -12,6 +12,7 @@ test of dTextBox.
 If you instead run this test.py as a script, a form will be instantiated with 
 all the dControls.
 """
+import sys
 import os
 import wx
 import dabo.ui as ui
@@ -84,8 +85,13 @@ class Test(object):
 			mod = __import__(modname)
 			objname = "_%s_test" % modname
 			if mod.__dict__.has_key(objname):
-				obj = mod.__dict__[objname](panel)
-					
+				try:
+					obj = mod.__dict__[objname](panel)
+				except Exception, e:
+					print "+++++++++++++++++++++++++++++++++++++++"
+					print "+++ Instantiating %s caused:" % objname
+					print sys.exc_info()
+					print "+++++++++++++++++++++++++++++++++++++++"
 				bs = ui.dSizer("horizontal")
 				label = ui.dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)
 
