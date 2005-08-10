@@ -16,12 +16,9 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 		self._keys = []
 		self._invertedKeys = []
 		self._valueMode = "string"
-		self.isMultiSelect = False
 
 		preClass = wx.PreListBox
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-		# This may have been set when created.
-		self.isMultiSelect = self.hasWindowStyleFlag(wx.LB_EXTENDED)
 
 			
 	def _initEvents(self):
@@ -49,9 +46,6 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 
 
 class _dListBox_test(dListBox):
-	"""This causes the following on Windows:
-		(well, I would have copied/pasted the traceback, but I can't find a way...)
-	"""
 	def initProperties(self):
 		self.setup()
 
