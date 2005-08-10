@@ -48,7 +48,7 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 			_("Can multiple items be selected at once?  (bool)") )
 
 
-class _dListBox_test(dListBox):
+class __dListBox_test(dListBox):
 	def initProperties(self):
 		self.setup()
 
