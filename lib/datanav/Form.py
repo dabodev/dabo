@@ -127,7 +127,7 @@ class Form(dabo.ui.dForm):
 			self.appendToolBarButton("New", "blank", bindfunc=self.onNew, 
 					tip=_("New"), help=_("Add a new record"))
 			self.appendToolBarButton("Delete", "delete", bindfunc=self.onDelete, 
-					tip=_("New"), help=_("Delete this record"))
+					tip=_("Delete"), help=_("Delete this record"))
 			tb.appendSeparator()
 
 		if self.FormType != 'PickList':
