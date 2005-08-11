@@ -144,7 +144,8 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			# Other types can convert directly.
 			try:
 				value = dataType(strVal)
-			except (ValueError, TypeError):
+			#except (ValueError, TypeError):
+			except:
 				# The Python object couldn't convert it. Our validator, once 
 				# implemented, won't let the user get this far. In the meantime, 
 				# log the Error and just keep the old value.
@@ -370,8 +371,19 @@ if __name__ == "__main__":
 				self.Value = mx.DateTime.now()
 				
 		testParms.append(MxDateTimeText)
-	except:
+	except ImportError:
 		# skip it: mx may not be available
 		pass
+
+	try:
+		import decimal
+		class DecimalText(TestBase):
+			def afterInit(self):
+				self.Value = decimal.Decimal("23.42")
+		testParms.append(DecimalText)
+	except ImportError:
+		# decimal only in python >= 2.4
+		pass
+
 		
 	test.Test().runTest(testParms)
