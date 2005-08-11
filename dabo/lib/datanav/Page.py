@@ -380,7 +380,15 @@ class SelectPage(Page):
 				
 				# We have the pieces of the clause; assemble them together
 				if useStdFormat:
-					whr = "%s.%s %s %s" % (tbl, fld, opStr, matchStr)
+					try:
+						## the datanav bizobj has an optional dict that contains
+						## mappings from the fld to the actual names of the backend
+						## table and field, so that you can have fields in your where
+						## clause that aren't members of the "main" table.
+						table, field = biz.backendTableFields[fld]
+					except (AttributeError, KeyError):
+						table, field = tbl, fld
+					whr = "%s.%s %s %s" % (table, field, opStr, matchStr)
 				if len(whr) > 0:
 					biz.addWhere(whr)
 		return

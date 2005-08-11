@@ -6,7 +6,8 @@ from Form import Form
 from Grid import Grid
 from Page import Page, SelectPage, EditPage, BrowsePage
 from PageFrame import PageFrameMixin, PageFrame
+from Bizobj import Bizobj
 
-Form = Form
-Grid = Grid
-Page, SelectPage, EditPage, BrowsePage = Page, SelectPage, EditPage, BrowsePage
+#Form = Form
+#Grid = Grid
+#Page, SelectPage, EditPage, BrowsePage = Page, SelectPage, EditPage, BrowsePage
