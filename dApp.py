@@ -506,7 +506,14 @@ class dApp(dabo.common.dObject):
 			raise RuntimeError, _("The UI cannot be reset once assigned.")
 
 	def _getPlatform(self):
-		return self.uiApp._getPlatform()
+		try:
+			uiApp = self.uiApp
+		except AttributeError:
+			uiApp = None
+		if uiApp is not None:
+			return self.uiApp._getPlatform()
+		else:
+			return "?"
 
 
 	def _getActiveForm(self):
