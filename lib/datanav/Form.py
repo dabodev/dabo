@@ -267,10 +267,19 @@ class Form(dabo.ui.dForm):
 			title = _("Edit") + " " + _(biz.Caption)
 		else:
 			title = _("Edit")
-		self.pageFrame.addEditPage(ds, title)
+		self.addEditPage(ds, title)
 		if biz:
 			for child in biz.getChildren():
 				self.addEditPages(child.DataSource)
+
+
+	def addEditPage(self, ds, title, pageClass=None):
+		"""Called when it is time to add the edit page for the passed datasource.
+
+		Subclasses may override, or send their own pageClass.
+		"""
+		self.pageFrame.addEditPage(ds, title, pageClass)
+
 
 	def onSetSelectionCriteria(self, evt):
 		""" Occurs when the user chooses to set the selection criteria.
