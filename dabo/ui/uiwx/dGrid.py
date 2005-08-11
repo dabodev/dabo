@@ -296,7 +296,22 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					if recType is unicode:
 						recVal = recVal.encode(defaultEncoding)
 					else:
-						recVal = unicode(recVal, defaultEncoding)
+						try:
+							recVal = unicode(recVal, defaultEncoding)
+						except:
+							encs = ("utf-8", "latin-1")
+							ok = False
+							for enc in encs:
+								if enc != defaultEncoding:
+									try:
+										recVal = unicode(recVal, enc)
+										ok = True
+									except:
+										pass
+							if not ok:
+								# Not sure how to handle this. For now, just use a dummy value
+								#print "ENCODING PROBLEM:", recVal, defaultEncoding
+								recVal = "##encoding problem##"
 					# Limit to first 'n' chars...
 					recVal = recVal[:self.grid.stringDisplayLen]
 				elif col.DataType.lower() == "bool":
@@ -540,6 +555,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.currSearchStr = ""
 		self.incSearchTimer = dabo.ui.dTimer(self)
 		self.incSearchTimer.bindEvent(dEvents.Hit, self.onSearchTimer)
+		# Flag for turning off incremental search behavior. Default to on.
+		self.useIncrementalSearch = True
 
 		self.sortedColumn = None
 		self.sortOrder = ""
@@ -1251,7 +1268,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			if keyCode == dKeys.keyStrings["f2"]:    # F2
 				self.processSort()
 		"""
-		pass
+		# Return False to prevent the keypress from being 'eaten'
+		return False
 		
 
 	def onKeyDown(self, evt): 
@@ -1282,7 +1300,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			elif keyCode == dKeys.keyStrings["escape"]:
 				self.onEscapeAction()
 				evt.stop()
-			elif char and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
+			elif char and self.useIncrementalSearch and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
 				self.addToSearchStr(char)
 				# For some reason, without this the key happens twice
 				evt.stop()
