@@ -148,7 +148,9 @@ class dPemMixin(dPemMixinBase):
 		self._borderWidth = 0
 		self._borderLineStyle = "solid"
 		# Flag that gets set to True when the object is being Destroyed
-		self._finito = False		
+		self._finito = False
+		# Dict to hold key bindings
+		self._keyBindings = {}
 		self.beforeInit()
 		
 	
@@ -351,6 +353,7 @@ class dPemMixin(dPemMixinBase):
 		# The modifier keys, if any, comprise all but the last key in keys
 		mods = keys[:-1]
 		key = keys[-1]
+		upMods = [mm.upper() for mm in mods]
 
 		# Convert the string mods and key into the correct parms for wx:
 		flags = dKeys.mod_Normal
@@ -372,9 +375,36 @@ class dPemMixin(dPemMixinBase):
 		table = self._acceleratorTable
 		table[keyCombo] = (flags, keyCode, anId)
 		self.SetAcceleratorTable(wx.AcceleratorTable(table.values()))
-		self.Bind(wx.EVT_MENU, callback, id=anId)
-		
+		# Store the modifier keys that will have been pressed to trigger
+		# this key event. They will be included in the Dabo event that is
+		# passed to the callback function.
+		ed = {}
+		ed["keyCode"] = keyCode
+		ed["rawKeyCode"] = keyCode
+		ed["rawKeyFlags"] = flags
+		ed["hasModifiers"] = bool(mods)
+		ed["altDown"] = "ALT" in upMods
+		ed["commandDown"] = "CMD" in upMods
+		ed["controlDown"] = "CTRL" in upMods 
+		ed["metaDown"] = "META" in upMods
+		ed["shiftDown"] = "SHIFT" in upMods
+		bnd = {"callback" : callback, "eventData" : ed}
+		self._keyBindings[anId] = bnd
+		self.Bind(wx.EVT_MENU, self._keyCallback, id=anId)
 
+				
+	def _keyCallback(self, evt):
+		bnd = self._keyBindings[evt.GetId()]
+		keyEvent = dabo.dEvents.KeyEvent(None)
+		keyEvent.EventData = bnd["eventData"]
+		try:
+			callback = bnd["callback"]
+		except:
+			# binding doesn't exist
+			return
+		callback(keyEvent)
+			
+	
 	def unbindKey(self, keyCombo):
 		"""Unbind a previously bound key combination.
 		Fail silently if the key combination didn't exist already.
