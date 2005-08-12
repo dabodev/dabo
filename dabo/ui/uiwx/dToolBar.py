@@ -1,15 +1,17 @@
 """ dToolBar.py """
 import wx
-import dabo
+import dabo, dabo.ui
 import os.path
-from dPemMixin import dPemMixin as pm
+
+dabo.ui.loadUI("wx")
+
+import dControlMixin as cm
 import dMenu
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
-dabo.ui.loadUI("wx")
 
-class dToolBar(wx.ToolBar, pm):
+class dToolBar(wx.ToolBar, cm.dControlMixin):
 	"""Creates a toolbar, which can contain buttons that behave
 	more like menu items than regular controls. Other controls,
 	such as dropdown lists, can also be added.
@@ -24,7 +26,7 @@ class dToolBar(wx.ToolBar, pm):
 		style = self.extractKey(kwargs, "style", 0)
 		kwargs["style"] = style |  wx.TB_DOCKABLE | wx.TB_TEXT
 		
-		pm.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
 		# We need to track tool IDs internally for referencing the 
 		# buttons once they are created
@@ -179,7 +181,7 @@ if __name__ == "__main__":
 		dabo.ui.info("CHECKED: %s, ID: %s" % (evt.Checked(), evt.GetId()))
 	app = dabo.dApp()
 	app.setup()
-	mf = app.MainForm
+	mf = app.MainForm = dabo.ui.dForm()
 	mf.ShowToolBar = True
 	tb = mf.ToolBar
 	tb.MaxWidth=20
