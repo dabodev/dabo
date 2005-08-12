@@ -104,14 +104,14 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					nm = ""
 			colFlds.append(nm)
 			colName = "Column_%s" % nm
-			if col.Order == -1:
-				pos = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
+			pos = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
 						self.grid.Form.Name, 
 						self.grid.Name,
 						colName,
 						"ColumnOrder"))
-				if pos is not None:
-					col.Order = pos
+			if pos is not None:
+				col.Order = pos
+
 			# If the data types are actual types and not strings, convert
 			# them to common strings.
 			if isinstance(type(col.DataType), type):
@@ -410,10 +410,11 @@ class dColumn(dabo.common.dObject):
 		"""Return our column index in the grid, or -1."""
 		t = self.Parent._Table
 		gridCol = -1
-		for idx, dCol in enumerate(t.colDefs):
-			if dCol == self:
-				gridCol = idx
-				break
+		if t is not None:
+			for idx, dCol in enumerate(t.colDefs):
+				if dCol == self:
+					gridCol = idx
+					break
 		return gridCol
 
 
@@ -426,7 +427,7 @@ class dColumn(dabo.common.dObject):
 
 	def _setCaption(self, val):
 		self._caption = val
-		self.changeMsg("caption")
+		self.changeMsg("Caption")
 	
 
 	def _getDataType(self):
@@ -438,7 +439,7 @@ class dColumn(dabo.common.dObject):
 
 	def _setDataType(self, val):
 		self._dataType = val
-		self.changeMsg("datatype")
+		self.changeMsg("DataType")
 	
 
 	def _getField(self):
@@ -450,7 +451,7 @@ class dColumn(dabo.common.dObject):
 
 	def _setField(self, val):
 		self._field = val
-		self.changeMsg("field")
+		self.changeMsg("Field")
 	
 
 	def _getHeaderBackgroundColor(self):
@@ -479,7 +480,7 @@ class dColumn(dabo.common.dObject):
 
 	def _setOrder(self, val):
 		self._order = val
-		self.changeMsg("order")
+		self.changeMsg("Order")
 	
 
 	def _getWidth(self):
@@ -997,26 +998,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""Called by the grid columns whenever any of their properties
 		are directly changed, allowing the grid to react.
 		"""
-		# Get the gridcol:
-		gridCol = col._GridColumnIndex
-		if gridCol is None:
-			print "### gridCol is None in onColumnChange()"
-			gridCol = -1
-		
-
-### pkm: We only want to update the user settings when/if the *user* resized
-###      or reordered the column, not when done programatically, so commenting:
-#		if chgType == "width":
-#			self.Application.setUserSetting("%s.%s.%s.%s" % (
-#					self.Form.Name, self.Name, "Column_%s" % col.Field, 
-#					"Width"), col.Width)
-#		elif chgType == "order":
-#			self.Application.setUserSetting("%s.%s.%s.%s" % (
-#					self.Form.Name, self.Name, "Column_%s" % col.Field,
-#					"ColumnOrder"), (col.Order * 10) )
-
-
-
 		if self._ignoreColUpdates:
 			# The column is being updated after a grid change, so
 			# no need to update the grid again.
