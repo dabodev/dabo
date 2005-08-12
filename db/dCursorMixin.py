@@ -65,6 +65,8 @@ class dCursorMixin(dabo.common.dObject):
 		self.__nonUpdateFields = []
 		self.nonUpdateFields = []
 		self.__tmpPK = -1		# temp PK value for new records.
+		# Holds the data types for each field
+		self._types = {}
 		
 		# Holds reference to auxiliary cursor that handles queries that
 		# are not supposed to affect the record set.
@@ -211,6 +213,9 @@ class dCursorMixin(dabo.common.dObject):
 			self.sql = self.getSQL()
 		
 		self.execute(self.sql, params)
+		
+		# Store the data types for each field
+		self.storeFieldTypes()
 		# Add mementos to each row of the result set
 		self.addMemento(-1)
 
@@ -229,6 +234,15 @@ class dCursorMixin(dabo.common.dObject):
 		return True
 
 
+	def storeFieldTypes(self):
+		"""Stores the data type for each column in the result set."""
+		self._types = {}
+		if self.RowCount > 0:
+			rec = self._records[0]
+			for fname, fval in rec.items():
+				self._types[fname] = type(fval)
+			
+		
 	def sort(self, col, dir=None, caseSensitive=True):
 		""" Sort the result set on the specified column in the specified order.
 
@@ -538,21 +552,23 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			ret = rec[fld]
 		else:
 			raise dException.dException, "%s '%s' %s" % (
-						_("Field"),
-						fld,
-						_("does not exist in the data set"))
+					_("Field"), fld, _("does not exist in the data set"))
 		return ret
 
 
 	def setFieldVal(self, fld, val):
-		""" Set the value of the specified field. 
-		"""
+		""" Set the value of the specified field. """
 		if self.RowCount <= 0:
 			raise dException.dException, _("No records in the data set")
 		else:
 			rec = self._records[self.RowNumber]
 			if rec.has_key(fld):
-				if type(rec[fld]) != type(val):
+				fldType = self._types[fld]
+				if fldType != type(val):
+					
+					import pdb
+					pdb.set_trace()
+					
 					if isinstance(val, basestring) and isinstance(rec[fld], basestring):
 						if isinstance(rec[fld], str):
 							val = str(val)
@@ -562,15 +578,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						# convert bool to int (original field val was int, but UI
 						# changed to int. 
 						val = int(val)
-				if type(rec[fld]) != type(val):
+				if fldType != type(val):
 					ignore = False
 					# Date and DateTime types are handled as character, even if the 
-					# native field type is not. Ignore these
-					dtStrings = ("<type 'DateTime'>", "<type 'Date'>")
-					if str(type(rec[fld])) in dtStrings:
+					# native field type is not. Ignore these. NOTE: we have to deal with the 
+					# string representation of these classes, as there is no primitive for either
+					# 'DateTime' or 'Date'.
+					dtStrings = ("<type 'DateTime'>", "<type 'Date'>", "<type 'datetime.datetime'>")
+					if str(fldType) in dtStrings:
 						if isinstance(val, basestring):
 							ignore = True
-					
 					else:
 						# This can also happen with a new record, since we just stuff the
 						# fields full of empty strings.
@@ -578,7 +595,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					
 					if not ignore:
 						msg = "!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s" \
-						      % (fld, str(type(rec[fld])), str(type(val)))
+						      % (fld, str(fldType), str(type(val)))
 						dabo.errorLog.write(msg)
 					
 				rec[fld] = val
