@@ -38,7 +38,9 @@ class Grid(dabo.ui.dGrid):
 			self.buildFromDataSet(ds, 
 					keyCaption=self.fieldCaptions, 
 					columnsToSkip=self.skipFields, 
-					colOrder=self.colOrders)
+					colOrder=self.colOrders,
+					colWidths=self.colWidths,
+					autoSizeCols=False)
 			self.built = True
 		else:
 			self.fillGrid()
@@ -149,7 +151,13 @@ class Grid(dabo.ui.dGrid):
 		for kk in val.keys():
 			if kk in self.skipFields:
 				continue
-			self.colOrders[kk] = val[kk]["listOrder"]
+			self.colOrders[kk] = int(val[kk]["listOrder"])
+
+		self.colWidths = {}
+		for kk in val.keys():
+			if kk in self.skipFields:
+				continue
+			self.colWidths[kk] = int(val[kk]["listColWidth"])
 
 	FieldSpecs = property(_getFldSpecs, _setFldSpecs, None, 
 			_("Holds the fields specs for this form  (dict)") )

@@ -235,43 +235,33 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			msg = None
 		if msg:        
 			self.grid.ProcessTableMessage(msg)
-		# Column widths come from dApp user settings, the fieldSpecs, or get sensible
-		# defaults based on field type.
-		idx = 0
-		for col in self.colDefs:
+		# Column widths come from multiple places. In decreasing precedence:
+		#   1) dApp user settings, 
+		#   2) the fieldSpecs
+		#   3) have the grid autosize
+		for idx, col in enumerate(self.colDefs):
 			fld = col.Field
 			colName = "Column_%s" % fld
 			gridCol = idx
 			fieldType = col.DataType.lower()
+			app = self.grid.Application
 
-			width = None
-			# 1) Try to get the column width from the column definition:
-			if col.Width != -1:
-				## pkm: it would be -1 if not passed to to the column constructor
+			# 1) Try to get the column width from the saved user settings:
+			width = app.getUserSetting("%s.%s.%s.%s" % (self.grid.Form.Name, 
+			                                            self.grid.Name, colName, 
+			                                            "Width"))
+
+			if width is None:
+				# 2) Try to get the column width from the column definition:
 				width = col.Width
 
-			# 2) Try to get the column width from the saved user settings:
-			if width is None:
-				width = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
-					self.grid.Form.Name, self.grid.Name, colName, "Width"))
-			
-			# 3) Get sensible default width if the above two methods failed:
 			if width is None or (width < 0):
-				# old way
-				minWidth = 10 * len(col.Caption)   ## Fudge!
-				
-				if fieldType[:3] == "int":
-					width = 50
-				elif fieldType[:3] in ("num", "flo", "dou"):
-					width = 75
-				elif fieldType[:4] == "bool":
-					width = 75
-				else:
-					width = 200
-				width = max(width, minWidth)
+				# 3) Have the grid autosize:
+				self.grid.autoSizeCol(gridCol)
+			else:
+				col.Width = width
+				#self.grid.SetColSize(gridCol, width)
 			
-			self.grid.SetColSize(gridCol, width)
-			idx += 1
 		# Show the row labels, if any
 		for ii in range(len(self.rowLabels)):
 			self.SetRowLabelValue(ii, self.rowLabels[ii])
@@ -397,9 +387,10 @@ class dColumn(dabo.common.dObject):
 	they provide a way to interact with the underlying grid table in a more
 	straightforward manner.
 	"""
-	def __init__(self, *args, **kwargs):
+	def __init__(self, parent, *args, **kwargs):
 		super(dColumn, self).__init__()
-			
+		
+		self.Parent = parent	
 		# Can this column be sorted? Default: True
 		self.canSort = True
 		# Do we run incremental search with this column? Default: True
@@ -409,6 +400,17 @@ class dColumn(dabo.common.dObject):
 		if self.Parent:
 			self.Parent.onColumnChange(self, prop)
 	
+	def _getGridColumnIndex(self):
+		"""Return our column index in the grid, or -1."""
+		t = self.Parent._Table
+		gridCol = -1
+		for idx, dCol in enumerate(t.colDefs):
+			if dCol == self:
+				gridCol = idx
+				break
+		return gridCol
+
+
 	def _getCaption(self):
 		try:
 			v = self._caption
@@ -480,10 +482,11 @@ class dColumn(dabo.common.dObject):
 		except AttributeError:
 			v = self._width = -1
 		return v
+#		return self.Parent.GetColSize(self._GridColumnIndex)
 
 	def _setWidth(self, val):
+		self.Parent.SetColSize(self._GridColumnIndex, val)
 		self._width = val
-		self.changeMsg("width")
 	
 
 	Caption = property(_getCaption, _setCaption, None,
@@ -504,6 +507,7 @@ class dColumn(dabo.common.dObject):
 	Width = property(_getWidth, _setWidth, None,
 			_("Width of this column  (int)") )
 	
+	_GridColumnIndex = property(_getGridColumnIndex)
 
 
 class dGrid(wx.grid.Grid, cm.dControlMixin):
@@ -787,7 +791,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	
 	
 	def buildFromDataSet(self, ds, keyCaption=None, 
-			columnsToSkip=[], colOrder={}, autoSizeCols=True):
+			columnsToSkip=[], colOrder={}, colWidths={}, autoSizeCols=True):
 		"""This method will create a grid for a given data set.
 		A 'data set' is a sequence of dicts, each containing field/
 		value pairs. The columns will be taken from ds[0].keys(),
@@ -854,8 +858,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			# See if any order was specified
 			if colOrder.has_key(colKey):
 				col.Order = colOrder[colKey]
-			# Use a default width
-			col.Width = -1
+
+			# See if any width was specified
+			if colWidths.has_key(colKey):
+				col.Width = colWidths[colKey]
+			else:
+				# Use a default width
+				col.Width = -1
+
 			self.Columns.append(col)
 		# Populate the grid
 		self.fillGrid(True)
@@ -942,9 +952,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		colNum = evt.EventData["rowOrCol"]
 		col = self.Columns[colNum]
 		colName = "Column_%s" % col.Field
-		width = self.GetColSize(colNum)
-		col.Width = width
+		#width = self.GetColSize(colNum)
+		width = col.Width
+		#col.Width = width
+		self.Application.setUserSetting("%s.%s.%s.%s" % (self.Form.Name, 
+		                                                 self.Name, colName, 
+		                                                "Width"), width)
 		self.onGridColSize(evt)
+
 	
 	def onGridColSize(self, evt): pass
 
@@ -967,14 +982,26 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""Called by the grid columns whenever any of their properties
 		are directly changed, allowing the grid to react.
 		"""
-		if chgType == "width":
-			self.Application.setUserSetting("%s.%s.%s.%s" % (
-					self.Form.Name, self.Name, "Column_%s" % col.Field, 
-					"Width"), col.Width)
-		elif chgType == "order":
-			self.Application.setUserSetting("%s.%s.%s.%s" % (
-					self.Form.Name, self.Name, "Column_%s" % col.Field,
-					"ColumnOrder"), (col.Order * 10) )
+		# Get the gridcol:
+		gridCol = col._GridColumnIndex
+		if gridCol is None:
+			print "### gridCol is None in onColumnChange()"
+			gridCol = -1
+		
+
+### pkm: We only want to update the user settings when/if the *user* resized
+###      or reordered the column, not when done programatically, so commenting:
+#		if chgType == "width":
+#			self.Application.setUserSetting("%s.%s.%s.%s" % (
+#					self.Form.Name, self.Name, "Column_%s" % col.Field, 
+#					"Width"), col.Width)
+#		elif chgType == "order":
+#			self.Application.setUserSetting("%s.%s.%s.%s" % (
+#					self.Form.Name, self.Name, "Column_%s" % col.Field,
+#					"ColumnOrder"), (col.Order * 10) )
+
+
+
 		if self._ignoreColUpdates:
 			# The column is being updated after a grid change, so
 			# no need to update the grid again.
