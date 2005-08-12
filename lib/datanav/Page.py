@@ -297,7 +297,7 @@ class SelectPage(Page):
 
 
 	def setWhere(self, biz):
-		biz.setWhereClause("")
+		biz.setWhereClause(biz.getBaseWhereClause())
 		tbl = biz.DataSource
 		flds = self.selectFields.keys()
 		whr = ""

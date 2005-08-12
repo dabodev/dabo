@@ -1,6 +1,16 @@
 import dabo.biz
 
 class Bizobj(dabo.biz.dBizobj):
+	def getBaseWhereClause(self):
+		"""Subclasses can return a where clause stub that will always exist,
+		no matter what the user selects on the select page. For instance:
+	
+			return "clients.ldeleted = 0 and invoices.ldeleted=0"
+	
+		Don't include the word "where": that'll be added automatically later.
+		"""
+		return ""
+
 	def addField(self, fld):
 		try:
 			self.backendTableFields
