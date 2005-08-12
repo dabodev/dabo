@@ -297,7 +297,13 @@ class SelectPage(Page):
 
 
 	def setWhere(self, biz):
-		biz.setWhereClause(biz.getBaseWhereClause())
+		try:
+			baseWhere = biz.getBaseWhereClause()
+		except AttributeError:
+			# prior datanav apps inherited from dBizobj directly,
+			# and dBizobj doesn't define getBaseWhereClause. 
+			baseWhere = ""
+		biz.setWhereClause(baseWhere)
 		tbl = biz.DataSource
 		flds = self.selectFields.keys()
 		whr = ""
