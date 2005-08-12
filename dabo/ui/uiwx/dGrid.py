@@ -139,7 +139,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		colDefs.sort(self.orderSort)
 		self.colDefs = colDefs
 		self.setColumnInfo()
-		
 	
 	def orderSort(self, col1, col2):
 		return cmp(col1.Order, col2.Order)
@@ -387,14 +386,21 @@ class dColumn(dabo.common.dObject):
 	they provide a way to interact with the underlying grid table in a more
 	straightforward manner.
 	"""
-	def __init__(self, parent, *args, **kwargs):
-		super(dColumn, self).__init__()
-		
-		self.Parent = parent	
+	_call_beforeInit, _call_afterInit = False, False
+
+	def __init__(self, parent, properties=None, *args, **kwargs):
+		self._beforeInit()
+		kwargs["Parent"] = parent
+		super(dColumn, self).__init__(properties, *args, **kwargs)
+
+		## pkm: let's turn these into props asap:
 		# Can this column be sorted? Default: True
 		self.canSort = True
 		# Do we run incremental search with this column? Default: True
 		self.canIncrSearch = True
+
+		self._afterInit()		
+
 		
 	def changeMsg(self, prop):
 		if self.Parent:
@@ -481,12 +487,20 @@ class dColumn(dabo.common.dObject):
 			v = self._width
 		except AttributeError:
 			v = self._width = -1
+		if self.Parent:
+			idx = self._GridColumnIndex
+			if idx >= 0:
+				# Make sure the grid is in sync:
+				self.Parent.SetColSize(self._GridColumnIndex, v)
 		return v
-#		return self.Parent.GetColSize(self._GridColumnIndex)
 
 	def _setWidth(self, val):
-		self.Parent.SetColSize(self._GridColumnIndex, val)
 		self._width = val
+		if self.Parent:
+			idx = self._GridColumnIndex
+			if idx >= 0:
+				# Change the size in the wx grid:
+				self.Parent.SetColSize(self._GridColumnIndex, val)
 	
 
 	Caption = property(_getCaption, _setCaption, None,
@@ -952,9 +966,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		colNum = evt.EventData["rowOrCol"]
 		col = self.Columns[colNum]
 		colName = "Column_%s" % col.Field
-		#width = self.GetColSize(colNum)
-		width = col.Width
-		#col.Width = width
+
+		# Sync our column object up with what the grid is reporting, and because
+		# the user made this change, save to the userSettings:
+		width = col.Width = self.GetColSize(colNum)
 		self.Application.setUserSetting("%s.%s.%s.%s" % (self.Form.Name, 
 		                                                 self.Name, colName, 
 		                                                "Width"), width)

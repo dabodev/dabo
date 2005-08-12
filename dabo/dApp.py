@@ -275,6 +275,8 @@ class dApp(dabo.common.dObject):
 			valueType = "N"
 		elif isinstance(value, (int, long)):
 			valueType = "I"
+		else:
+			valueType = "?"
 			
 		if not cp.has_section("UserSettings"):
 			cp.add_section("UserSettings")
