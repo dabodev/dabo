@@ -666,6 +666,7 @@ class EditPage(Page):
 	def __init__(self, parent, ds=None):
 		super(EditPage, self).__init__(parent)		#, Name="pageEdit")
 		
+		self._focusToControl = None
 		self.itemsCreated = False
 		self._dataSource = ds
 		self.childGrids = []
@@ -696,6 +697,10 @@ class EditPage(Page):
 		
 	def __onPageEnter(self, evt):
 		self.Form.setPrimaryBizobj(self.DataSource)
+		focusToControl = self._focusToControl
+		if focusToControl is not None:
+			focusToControl.setFocus()
+			self._focusToControl = None
 		
 		self.__onValueRefresh()
 		# The current row may have changed. Make sure that the
@@ -765,7 +770,8 @@ class EditPage(Page):
 
 			if not self.Form.preview:
 				if self.Form.getBizobj().RowCount >= 0:
-					objectRef.refresh()
+					#objectRef.refresh()
+					pass
 
 			gs.append(label, alignment=("top", "right") )
 			if fieldType in ["memo",]:
@@ -825,8 +831,7 @@ class EditPage(Page):
 
 		self.Sizer.layout()
 		self.itemsCreated = True
-		if firstControl is not None:
-			firstControl.setFocus()
+		self._focusToControl = firstControl
 
 	def _getDS(self):
 		return self._dataSource
