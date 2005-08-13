@@ -121,7 +121,7 @@ class Postgres(dBackend):
 			name = r[1]
 			fldType =r[2]
 			pk = False
-			if thePKFieldName is None:
+			if thePKFieldName is not None:
 				pk = (name == thePKFieldName)
 			
 			if 'int' in fldType:
