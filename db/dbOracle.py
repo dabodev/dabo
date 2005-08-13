@@ -22,8 +22,9 @@ customizing these methods, report it to the dabo-dev list; it may require
 some refactoring of the code to handle a situation that is unique to this
 particular database.
 """
-from dBackend import dBackend
 import datetime
+from dabo.dLocalize import _
+from dBackend import dBackend
 
 class NEWDATABASE(dBackend):
 	def __init__(self):
