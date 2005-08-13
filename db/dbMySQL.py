@@ -64,8 +64,9 @@ class MySQL(dBackend):
 		# The field name is the first element of the tuple. Find the
 		# first entry with the field name 'Key'; that will be the 
 		# position for the PK flag
+		pkPos = 0
 		for i in range(len(fldDesc)):
-			if fldDesc[i][0] == 'Key':
+			if fldDesc[i][0] == "Key":
 				pkPos = i
 				break
 		

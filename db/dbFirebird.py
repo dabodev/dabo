@@ -151,7 +151,11 @@ class Firebird(dBackend):
 				# BLOB
 				ft = "?"
 			
-			pk = (name.lower() == pkField.lower() )
+			if pkField is None:
+				# No pk defined for the table
+				pk = False
+			else:
+				pk = (name.lower() == pkField.lower() )
 			
 			fields.append((name.strip().lower(), ft, pk))
 		return tuple(fields)

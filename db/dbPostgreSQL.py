@@ -109,7 +109,7 @@ class Postgres(dBackend):
 		ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname" % myoid)	
 		rs2=tempCursor.fetchall()
 		if rs2==[]:
-			thePKFieldName=False
+			thePKFieldName = None
 		else:
 			thestr=rs2[0][3]
 			thePKFieldName=thestr[thestr.find('(')+1:thestr.find(')')]
@@ -120,10 +120,9 @@ class Postgres(dBackend):
 			
 			name = r[1]
 			fldType =r[2]
-			if name == thePKFieldName:
-				pk = True
-			else:
-			        pk = False
+			pk = False
+			if thePKFieldName is None:
+				pk = (name == thePKFieldName)
 			
 			if 'int' in fldType:
 				fldType = 'I'
