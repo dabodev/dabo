@@ -1095,7 +1095,10 @@ class dPemMixin(dPemMixinBase):
 	
 
 	def _setNameBase(self, val):
-		self._setName(val, False)
+		if self._constructed():
+			self._setName(val, False)
+		else:
+			self._properties["NameBase"] = val
 		
 		
 	def _getParent(self):

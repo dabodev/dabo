@@ -42,10 +42,10 @@ class Form(dabo.ui.dForm):
 		self.ShowToolBar = True
 	
 	
-	def __init__(self, parent=None, previewMode=False, tbl=""):
+	def __init__(self, parent=None, previewMode=False, tbl="", *args, **kwargs):
 		self.preview = previewMode
 		self.previewDataSource = tbl
-		super(Form, self).__init__(parent)
+		super(Form, self).__init__(parent, *args, **kwargs)
 		# We will need to set these separated if in Preview mode.
 		self.rowNumber = 0
 		self.rowCount = 0
