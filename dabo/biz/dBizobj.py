@@ -167,6 +167,7 @@ class dBizobj(dabo.common.dObject):
 		crs.setSQL(self.SQL)
 		if self.RequeryOnLoad:
 			crs.requery()
+			self.first()
 		self.afterCreateCursor(crs)
 
 

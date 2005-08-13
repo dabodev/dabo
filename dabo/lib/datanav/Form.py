@@ -231,8 +231,9 @@ class Form(dabo.ui.dForm):
 		self.setupPageFrame, and/or self.afterSetupPageFrame().
 		"""
 		currPage = 0
+		biz = self.getBizobj()
 		try:
-			currPage = self.pageFrame.GetSelection()
+			currPage = self.pageFrame.SelectedPage
 			self.pageFrame.release()
 			chld = self.Sizer.Children
 			for c in chld:
@@ -250,9 +251,9 @@ class Form(dabo.ui.dForm):
 			if self.preview:
 				ds = self.previewDataSource
 			else:
-				ds = self.getBizobj().DataSource
+				ds = biz.DataSource
 			self.addEditPages(ds)
-			self.pageFrame.SetSelection(currPage)
+			self.pageFrame.SelectedpageNum = currPage
 			self.afterSetupPageFrame()
 			self.Sizer.layout()
 			self.refresh()
