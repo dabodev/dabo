@@ -1,3 +1,4 @@
+from dabo.dLocalize import _
 import dBackend
 
 class Gadfly(dBackend):

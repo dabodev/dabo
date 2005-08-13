@@ -1,7 +1,8 @@
 """ dabo.db.backend.py : abstractions for the various db api's """
+import sys
+from dabo.dLocalize import _
 import dabo.dException as dException
 import dabo.common
-import sys
 
 class dBackend(dabo.common.dObject):
 	""" Abstract object: inherit from this to define new dabo db interfaces.
