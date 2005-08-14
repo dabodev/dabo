@@ -91,7 +91,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		"""
 		ret = self.confirmChanges()
 		if ret:
-			ret = super(dForm, self).beforeClose(evt)
+			ret = super(dForm, self)._beforeClose(evt)
 		return ret
 		
 		
