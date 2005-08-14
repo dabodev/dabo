@@ -266,15 +266,18 @@ class dPemMixin(dPemMixinBase):
 		## pkm 3/14/05: not sure about the ResumePropagation(), 
 		## but I noticed on Windows that it is needed for the keypresses
 		## to get noticed by anything but the focused control.
-		evt.ResumePropagation(1)
+		## 2005.8.14 - ed - This is what is preventing keystrokes from working
+		## under Linux. We may need to bracket the code and only
+		## make this call if we are running on Windows.
+#		evt.ResumePropagation(1)
 		
 	def __onWxKeyUp(self, evt):
 		self.raiseEvent(dEvents.KeyUp, evt)
-		evt.ResumePropagation(1)
+#		evt.ResumePropagation(1)
 		
 	def __onWxKeyDown(self, evt):
 		self.raiseEvent(dEvents.KeyDown, evt)
-		evt.ResumePropagation(1)
+#		evt.ResumePropagation(1)
 	
 	def __onWxLostFocus(self, evt):
 		if self._finito: return
