@@ -180,10 +180,10 @@ class Wizard(dabo.ui.dForm):
 			except: pass
 			self._blankPage.release()
 		for idx in range(self.PageCount):
+			page = self._pages[idx] 
 			try:
 				self.pagePanel.Sizer.remove(page)
 			except: pass
-			page = self._pages[idx] 
 			if idx == self._currentPage:
 				page.Visible = True
 				# Need this to keep the pages resizing correctly.
