@@ -269,7 +269,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		err = self.beforeSave()
 		if err:
 			self.notifyUser(err)
-			return
+			return False
 		try:
 			if self.SaveAllRows:
 				bizobj.saveAll()
@@ -290,7 +290,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.notifyUser(msg, severe=True)
 			return False
 		self.afterSave()
-		
+		return True
 			
 	def cancel(self, dataSource=None):
 		""" Ask the bizobj to cancel its changes.
