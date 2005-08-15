@@ -14,6 +14,7 @@ all the dControls.
 """
 import sys
 import os
+import traceback
 import wx
 import dabo.ui as ui
 ui.loadUI("wx")
@@ -90,7 +91,7 @@ class Test(object):
 				except Exception, e:
 					print "+++++++++++++++++++++++++++++++++++++++"
 					print "+++ Instantiating %s caused:" % objname
-					print sys.exc_info()
+					print traceback.print_exception(*sys.exc_info())
 					print "+++++++++++++++++++++++++++++++++++++++"
 				bs = ui.dSizer("horizontal")
 				label = ui.dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)

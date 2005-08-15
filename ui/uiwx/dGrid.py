@@ -104,11 +104,14 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					nm = ""
 			colFlds.append(nm)
 			colName = "Column_%s" % nm
-			pos = self.grid.Application.getUserSetting("%s.%s.%s.%s" % (
-						self.grid.Form.Name, 
-						self.grid.Name,
-						colName,
-						"ColumnOrder"))
+			app = self.grid.Application
+			pos = None
+			if app is not None:
+				pos = app.getUserSetting("%s.%s.%s.%s" % (
+				                         self.grid.Form.Name, 
+				                         self.grid.Name,
+				                         colName,
+				                         "ColumnOrder"))
 			if pos is not None:
 				col.Order = pos
 
@@ -246,9 +249,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			app = self.grid.Application
 
 			# 1) Try to get the column width from the saved user settings:
-			width = app.getUserSetting("%s.%s.%s.%s" % (self.grid.Form.Name, 
-			                                            self.grid.Name, colName, 
-			                                            "Width"))
+			width = None
+			if app is not None:
+				width = app.getUserSetting("%s.%s.%s.%s" % (self.grid.Form.Name, 
+				                                            self.grid.Name, colName, 
+				                                            "Width"))
 
 			if width is None:
 				# 2) Try to get the column width from the column definition:
@@ -401,7 +406,11 @@ class dColumn(dabo.common.dObject):
 
 		self._afterInit()		
 
-		
+	def _constructed(self):
+		if isinstance(self.Parent, wx.grid.Grid):
+			return self.Parent._constructed()
+		return False
+
 	def changeMsg(self, prop):
 		if self.Parent:
 			self.Parent.onColumnChange(self, prop)
@@ -479,8 +488,11 @@ class dColumn(dabo.common.dObject):
 		return v
 
 	def _setOrder(self, val):
-		self._order = val
-		self.changeMsg("Order")
+		if self._constructed():
+			self._order = val
+			self.changeMsg("Order")
+		else:
+			self._properties["Order"] = val
 	
 
 	def _getWidth(self):
@@ -496,12 +508,15 @@ class dColumn(dabo.common.dObject):
 		return v
 
 	def _setWidth(self, val):
-		self._width = val
-		if self.Parent:
-			idx = self._GridColumnIndex
-			if idx >= 0:
-				# Change the size in the wx grid:
-				self.Parent.SetColSize(self._GridColumnIndex, val)
+		if self._constructed():
+			self._width = val
+			if self.Parent:
+				idx = self._GridColumnIndex
+				if idx >= 0:
+					# Change the size in the wx grid:
+					self.Parent.SetColSize(self._GridColumnIndex, val)
+		else:
+			self._properties["Width"] = val
 	
 
 	Caption = property(_getCaption, _setCaption, None,
@@ -539,6 +554,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# List of Row Labels, if any
 		self._rowLabels = []
 
+		# Columns notify the grid when their properties change
+		# Sometimes the grid itself initiated the change, and doesn't
+		# need to be notified.
+		self._ignoreColUpdates = False
+
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
 		
@@ -563,10 +583,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.SameSizeRows = True
 		# Internal tracker for row height
 		self._rowHeight = self.GetDefaultRowSize()
-		# Columns notify the grid when their properties change
-		# Sometimes the grid itself initiated the change, and doesn't
-		# need to be notified.
-		self._ignoreColUpdates = False
+
 		# When calculating auto-size widths, we don't want to use
 		# the normal means of getting data sets.
 		self.inAutoSizeCalc = False
@@ -740,8 +757,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Save the focus, if any
 		currFocus = self.FindFocus()
 		# Get the default row size from dApp's user settings
-		s = self.Application.getUserSetting("%s.%s.%s" % (self.Form.Name, 
-				self.GetName(), "RowSize"))
+		app = self.Application
+		if app is not None:
+			s = app.getUserSetting("%s.%s.%s" % (self.Form.Name, 
+					self.GetName(), "RowSize"))
+		else:
+			s = None
 		if s:
 			self.SetDefaultRowSize(s)
 		tbl = self._Table
@@ -971,9 +992,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Sync our column object up with what the grid is reporting, and because
 		# the user made this change, save to the userSettings:
 		width = col.Width = self.GetColSize(colNum)
-		self.Application.setUserSetting("%s.%s.%s.%s" % (self.Form.Name, 
-		                                                 self.Name, colName, 
-		                                                "Width"), width)
+		app = self.Application
+		if app is not None:
+			app.setUserSetting("%s.%s.%s.%s" % (self.Form.Name, 
+		                                      self.Name, colName, 
+		                                      "Width"), width)
 		self.onGridColSize(evt)
 
 	
@@ -1002,8 +1025,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			# The column is being updated after a grid change, so
 			# no need to update the grid again.
 			return
-		# Update the grid
-		self.fillGrid(True)
+		if self._constructed():
+			# Update the grid
+			self.fillGrid(True)
 		
 
 	def __onWxHeaderPaint(self, evt):
@@ -1076,11 +1100,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.Columns.insert(toNum, oldCol)
 		for col in self.Columns:
 			col.Order = self.Columns.index(col) * 10
-			self.Application.setUserSetting("%s.%s.%s.%s" % (
-					self.Form.Name,
-					self.Name,
-					"Column_%s" % col.Field,
-					"ColumnOrder"), col.Order )
+			app = self.Application
+			if app is not None:
+				app.setUserSetting("%s.%s.%s.%s" % (
+				                   self.Form.Name,
+				                   self.Name,
+				                   "Column_%s" % col.Field,
+				                   "ColumnOrder"), col.Order )
 		self.fillGrid(True)
 		self._ignoreColUpdates = False
 
@@ -1572,8 +1598,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		size = self.GetRowSize(row)
 
 		# Persist the new size
-		self.Application.setUserSetting("%s.%s.%s" % (
-				self.Form.Name, self.Name, "RowSize"), size)
+		app = self.Application
+		if app is not None:
+			app.setUserSetting("%s.%s.%s" % (
+			                   self.Form.Name, self.Name, "RowSize"), size)
 		
 		if self.SameSizeRows:
 			self.SetDefaultRowSize(size, True)
@@ -1885,8 +1913,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.SetDefaultRowSize(val, True)
 				self.ForceRefresh()
 				# Persist the new size
-				self.Application.setUserSetting("%s.%s.%s" % (
-						self.Form.Name, self.Name, "RowSize"), val)
+				app = self.Application
+				if app is not None:
+					app.setUserSetting("%s.%s.%s" % (
+					                   self.Form.Name, self.Name, "RowSize"), val)
 		else:
 				self._properties["RowHeight"] = val
 
@@ -2004,13 +2034,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			_("Reference to the internal table class  (dGridDataTable)") )
 
 
-class _dGrid_test_not_working(dGrid):
+class _dGrid_test(dGrid):
 	### pkm: this test isn't working. Need to work on dGrid so it can be instantiated
 	###      like any other control.
 	def initProperties(self):
 		self.dataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
 		                {"name" : "Mike Leafe", "age" : 18, "coder" :  False} ]
+		self.Width = 360
+		self.Height = 150
 
+	def afterInit(self):
+		_dGrid_test.doDefault()
 		col = dColumn(self)
 		col.Name = "Person"
 		col.Order = 10
