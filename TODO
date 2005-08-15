@@ -4,3 +4,15 @@ http://dabodev.com/wiki/ReleaseRoadmap
 http://dabodev.com/wiki/DeveloperRoadmap
 
 
+##pkm: Here are some open items:
+
++ datanav:
+
+	+ editing new records results in those edits being lost. This 
+	  could be a datanav issue, but may be a base dCursor issue.
+
+	+ date/datetime fields can't be edited: None will get sent back
+	  to the database, resulting in a NULL value for the field. Again,
+	  at this point we don't know if this is datanav or dCursor.
+
+

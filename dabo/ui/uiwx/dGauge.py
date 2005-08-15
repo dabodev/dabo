@@ -66,20 +66,21 @@ class _dGauge_test(dGauge):
 	def afterInit(self):
 		self._timer = dabo.ui.dTimer(self.GetParent())
 		self._timer.bindEvent(dabo.dEvents.Hit, self.onTimer)
-		self.setup()
-			
-	def setup(self):
-		self.Range = 100
-		self.Value = 0
 		self._timer.Interval = 23
 		self._timer.start()
+			
+	def initProperties(self):
+		self.Range = 1000
+		self.Value = 0
+		self.Width = 300
 			
 	def onTimer(self, evt):
 		if self.Value < self.Range:
 			self.Value += 1
 		else:
 			self._timer.stop()
-			self.setup()				
+			self.Value = 0
+			self._timer.start()				
 
 
 if __name__ == "__main__":
