@@ -806,8 +806,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		
 
 	def new(self):
-		""" Add a new record to the data set.
-		"""
+		""" Add a new record to the data set."""
 		if not self._blank:
 			self.__setStructure()
 		# Copy the _blank dict to the _records, and adjust everything accordingly
@@ -823,8 +822,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def cancel(self, allrows=False):
-		""" Revert any changes to the data set back to the original values.
-		"""
+		""" Revert any changes to the data set back to the original values."""
 		# Make sure that there is data to save
 		if not self.RowCount > 0:
 			raise dException.dException, _("No data to cancel")
@@ -1457,10 +1455,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self._getBackendObject().Encoding
 	
 	def _getDescrip(self):
-		if self.description is None:
-			return ()
-		else:
-			return self.description
+		return self.__backend.getDescription(self)
 			
 	def _getKeyField(self):
 		try:
