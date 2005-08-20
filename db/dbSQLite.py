@@ -14,8 +14,6 @@ class SQLite(dBackend):
 		return self._connection
 
 	def getDictCursorClass(self):
-		#### TODO: Replace with appropriate SQLite dbapi module class
-		####   or just a standard cursor, if it doesn't offer Dict cursors.
 		return pysqlite2.Cursor
 
 	def escQuote(self, val):
@@ -34,68 +32,62 @@ class SQLite(dBackend):
 		return "%s%s%s" % (sqt, str(val), sqt)
 		
 	def getTables(self, includeSystemTables=False):
-		#### TODO: Verify that this works with SQLite, including
-		####    the option for including/excluding system tables.
 		tempCursor = self._connection.cursor()
-		tempCursor.execute("show tables")
+		tempCursor.execute("select * from sqlite_master")
 		rs = tempCursor.fetchall()
-		tables = []
-		for record in rs:
-			tables.append(record[0])
+		if includeSystemTables:
+			tables = [rec[1] for rec in rs
+					if rec[0] == "table"]
+		else:
+			tables = [rec[1] for rec in rs
+					if rec[0] == "table"
+					and not rec[0].startswith("sqlite_")]
 		return tuple(tables)
 		
 	def getTableRecordCount(self, tableName):
-		#### TODO: Verify that this is the correct syntax for SQLite
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("select count(*) as ncount from %s" % tableName)
 		return tempCursor.fetchall()[0][0]
 
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
-		#### TODO: Modify for SQLite syntax
-		tempCursor.execute("describe %s" % tableName)
+		# Get the name of the PK, if any
+		pkName = ""
+		try:
+			# If any of these statements fail, there is no valid
+			# PK defined for this table.
+			tempCursor.execute("select * from sqlite_master 
+					where tbl_name = '%s'" 	% tableName)
+			# The SQL CREATE code is in position 4 of the tuple
+			tblSQL = tempCursor.fetchall()[0][4].lower()
+			# Remove the CREATE...
+			parenPos = tblSQL.find("(")
+			tblSQL = tblSQL[parenPos:]
+			pkPos = tblSQL.find("primary key")
+			tblSQL = tblSQL[:pkPos]
+			# The PK field name is the first word of the last
+			# field def in that string
+			commaPos = tblSQL.find(",")
+			while commaPos > -1:
+				tblSQL = tblSQL[commaPos:]
+				commaPos = tblSQL.find(",")
+			pkName = tblSQL.split(" ")[0]
+		except:
+			pass
+
+		# Now get the field info
+		tempCursor.execute("pragma table_info'%s')" % tableName)
 		rs = tempCursor.fetchall()
-		fldDesc = tempCursor.description
-		# The field name is the first element of the tuple. Find the
-		# first entry with the field name 'Key'; that will be the 
-		# position for the PK flag
-		for i in range(len(fldDesc)):
-			if fldDesc[i][0] == 'Key':
-				pkPos = i
-				break
-		
 		fields = []
-		for r in rs:
-			#### TODO: Alter these so that they match the field type
-			####    names returned by SQLite.
-			name = r[0]
-			ft = r[1]
-			if ft.split()[0] == "tinyint(1)":
-				ft = "B"
-			elif "int" in ft:
-				ft = "I"
-			elif "varchar" in ft:
-				# will be followed by length
-				ln = int(ft.split("(")[1].split(")")[0])
-				if ln > 255:
-					ft = "M"
-				else:
-					ft = "C"
-			elif "char" in ft :
-				ft = "C"
-			elif "text" in ft:
-				ft = "M"
-			elif "decimal" in ft:
-				ft = "N"
-			elif "datetime" in ft:
-				ft = "T"
-			elif "date" in ft:
-				ft = "D"
-			elif "enum" in ft:
-				ft = "C"
+		for rec in rs:
+			typ = rec[2].lower()
+			if typ == "integer":	
+				fldType = "I"
+			elif typ == "real":
+				fldType = "N"
 			else:
-				ft = "?"
-			pk = (r[pkPos] == "PRI")
-			
-			fields.append((name.strip(), ft, pk))
+				# SQLite treats everything else as text
+				fldType = "C"
+
+			fields.append( (rec[1], fldType, rec[1].lower() == pkName)
 		return tuple(fields)

@@ -87,6 +87,8 @@ from __version__ import version
 import dEvents
 
 from dBug import logPoint
+import pdb
+trace = pdb.set_trace
 
 # dApp will change the following values upon its __init__:
 dAppRef = None

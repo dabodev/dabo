@@ -238,6 +238,20 @@ class dBackend(dabo.common.dObject):
 		return
 	
 	
+	def  getDescription(self, cursor):
+		"""Normally, cursors should always be able to report their
+		description properly. However, some backends such as 
+		SQLite will not report a description if there is no data in the
+		record set. This method provides a way for those backends
+		to deal with this. By default, though, just return the contents
+		of the description attribute.
+		"""
+		if cursor.description is None:
+			return ()
+		else:
+			return cursor.description
+
+	
 	def pregenPK(self, cursor):
 		"""In the case where the database requires that PKs be generated 
 		before an insert, this method provides a backend-specific 
