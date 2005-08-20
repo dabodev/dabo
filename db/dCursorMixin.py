@@ -62,7 +62,6 @@ class dCursorMixin(dabo.common.dObject):
 
 		self._blank = {}
 		self.__unsortedRows = []
-		self.__nonUpdateFields = []
 		self.nonUpdateFields = []
 		self.__tmpPK = -1		# temp PK value for new records.
 		# Holds the data types for each field
@@ -132,6 +131,9 @@ class dCursorMixin(dabo.common.dObject):
 		else:
 			sqlEX = sql
 		
+		# Testing! Want to be able to view Save SQL, too.
+		self.lastSQL = sqlEX
+
 		try:
 			if params is None or len(params) == 0:
 				res = self.superCursor.execute(self, sqlEX)

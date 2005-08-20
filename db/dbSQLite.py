@@ -2,6 +2,7 @@ import datetime
 import pysqlite2
 from dabo.dLocalize import _
 from dBackend import dBackend
+from pysqlite2 import dbapi2 as dbapi
 
 class SQLite(dBackend):
 	def __init__(self):
@@ -9,12 +10,11 @@ class SQLite(dBackend):
 		self.dbModuleName = "pysqlite2"
 
 	def getConnection(self, connectInfo):
-		from pysqlite2 import dbapi2 as dbapi
 		self._connection = dbapi.connect(connectInfo.DbName)
 		return self._connection
 
 	def getDictCursorClass(self):
-		return pysqlite2.Cursor
+		return dbapi.Cursor
 
 	def escQuote(self, val):
 		#### TODO: Verify that SQLite uses this method for escaping quotes
@@ -56,8 +56,8 @@ class SQLite(dBackend):
 		try:
 			# If any of these statements fail, there is no valid
 			# PK defined for this table.
-			tempCursor.execute("select * from sqlite_master 
-					where tbl_name = '%s'" 	% tableName)
+			tempCursor.execute("""select * from sqlite_master 
+					where tbl_name = '%s'""" 	% tableName)
 			# The SQL CREATE code is in position 4 of the tuple
 			tblSQL = tempCursor.fetchall()[0][4].lower()
 			# Remove the CREATE...
@@ -89,5 +89,5 @@ class SQLite(dBackend):
 				# SQLite treats everything else as text
 				fldType = "C"
 
-			fields.append( (rec[1], fldType, rec[1].lower() == pkName)
+			fields.append( (rec[1], fldType, rec[1].lower() == pkName))
 		return tuple(fields)
