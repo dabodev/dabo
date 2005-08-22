@@ -55,7 +55,11 @@ class dConnectInfo(dabo.common.dObject):
 		self.User = connDict["user"]
 		self.Password = connDict["password"]
 		self.DbName = connDict["database"]
-		self.Port = int(connDict["port"])
+		try:
+			self.Port = int(connDict["port"])
+		except ValueError:
+			# No valid port given
+			self.Port = None
 	
 	
 	def getConnection(self):

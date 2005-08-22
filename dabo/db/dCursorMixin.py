@@ -59,6 +59,10 @@ class dCursorMixin(dabo.common.dObject):
 		# in some cases, such as a single bizobj managing several cursors, 
 		# it will be a separate object.
 		self.sqlManager = self
+		# Attribute that holds the data of the cursor
+		self._records = ()
+		# Attribute that holds the current row number
+		self.__rownumber = -1
 
 		self._blank = {}
 		self.__unsortedRows = []
@@ -131,9 +135,6 @@ class dCursorMixin(dabo.common.dObject):
 		else:
 			sqlEX = sql
 		
-		# Testing! Want to be able to view Save SQL, too.
-		self.lastSQL = sqlEX
-
 		try:
 			if params is None or len(params) == 0:
 				res = self.superCursor.execute(self, sqlEX)
@@ -153,7 +154,9 @@ class dCursorMixin(dabo.common.dObject):
 		self._getBackendObject().massageDescription(self)
 		
 		if self.RowCount > 0:
-			self.RowNumber = max(self.RowNumber, 0, (self.RowCount-1) )
+			self.RowNumber = max(0, self.RowNumber)
+			maxrow = max(0, (self.RowCount-1) )
+			self.RowNumber = min(self.RowNumber, maxrow)
 
 		if self._records:
 			if isinstance(self._records[0], tuple) or isinstance(self._records[0], list):
@@ -426,36 +429,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		
 		
 	def __setNonUpdateFields(self):
-		if not self.Table:
-			# No table specified, so no update checking is possible
-			return
-		# This is the current description of the cursor.
-		if not self.FieldDescription:
-			# A query hasn't been run yet; so we need to get one
-			holdWhere = self._whereClause
-			self.addWhere("1 = 0")
-			self.execute(self.getSQL())
-			self._whereClause = holdWhere
-		descFlds = self.FieldDescription
-		# Get the raw version of the table
-		sql = """select * from %s where 1=0 """ % self.Table
-		auxCrs = self._getAuxCursor()
-		auxCrs.execute( sql )
-		# This is the clean version of the table.
-		stdFlds = auxCrs.FieldDescription
-
-		# Get all the fields that are not in the table.
-		self.__nonUpdateFields = [d[0] for d in descFlds 
-				if d[0] not in [s[0] for s in stdFlds] ]
-		# Extract the remaining fields (no need to test any already excluded
-		remFlds = [ d for d in descFlds if d[0] not in self.__nonUpdateFields ]
-		
-		# Now add any for which the members (except the display value, 
-		# which is in position 2) do not match
-		self.__nonUpdateFields += [ b[0] for b in remFlds 
-				for s in [z for z in stdFlds if z[0] == b[0] ]
-				if (b[1] != s[1]) or (b[3] != s[3]) or (b[4] != s[4]) 
-				or (b[5] != s[5]) or (b[6] != s[6]) ]
+		"""Delegate this to the backend object."""
+		self._getBackendObject().setNonUpdateFields(self)
 	
 
 	def isChanged(self, allRows=True):
@@ -543,8 +518,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def getFieldVal(self, fld):
-		""" Return the value of the specified field.
-		"""
+		""" Return the value of the specified field."""
 		ret = None
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set.")
@@ -883,11 +857,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			# some backends(PostgreSQL) don't return information about number of deleted rows
 			# try to fetch it before
 			sql = "select count(*) as cnt from %s where %s" % (self.Table, pkWhere)
-			self._getAuxCursor().execute(sql)
-			res = self._getAuxCursor().getFieldVal('cnt')
+			aux = self._getAuxCursor()
+			aux.execute(sql)
+			res = aux.getFieldVal('cnt')
 			if res:
 				sql = "delete from %s where %s" % (self.Table, pkWhere)
-				self._getAuxCursor().execute(sql)
+				aux.execute(sql)
 
 
 		if not res:
@@ -951,34 +926,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def __setStructure(self):
-		""" Try using the no-records version of the SQL statement. Otherwise,
-		we need to parse the sql property to get what we need.
+		"""Get the empty description from the backend object, 
+		as different backends handle empty recordsets differently.
 		"""
-		try:
-			tmpsql = self.getStructureOnlySql()
-		except AttributeError:
-			import re
-			pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:where\s(.*))+)\s*", re.I | re.M)
-			if pat.search(self.sql):
-				# There is a WHERE clause. Add the NODATA clause
-				tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
-			else:
-				# no WHERE clause. See if it has GROUP BY or ORDER BY clauses
-				pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:group\s*by\s(.*))+)\s*", re.I | re.M)
-				if pat.search(self.sql):
-					tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
-				else:               
-					pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:order\s*by\s(.*))+)\s*", re.I | re.M)
-					if pat.search(self.sql):
-						tmpsql = pat.sub("\\1 where 1=0 ", self.sql)
-					else:               
-						# Nothing. So just tack it on the end.
-						tmpsql = self.sql + " where 1=0 "
-
-		auxCrs = self._getAuxCursor()
-		auxCrs.execute(tmpsql)
-
-		dscrp = auxCrs.FieldDescription
+		dscrp = self._getBackendObject().getStructureDescription(self)
 		for fld in dscrp:
 			fldname = fld[0]
 
@@ -1120,7 +1071,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		Optionally pass in a record object, otherwise use the current record.
 		"""
-		tblPrefix = self.Table + "."
+		tblPrefix = self._getBackendObject().getWhereTablePrefix(self.Table)
 		if not rec:
 			rec = self._records[self.RowNumber]
 		aFields = self.KeyField.split(",")

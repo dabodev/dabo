@@ -225,6 +225,18 @@ class dBackend(dabo.common.dObject):
 		return tbl + "."
 	
 	
+	def getWhereTablePrefix(self, tbl):
+		""" By default, the comparisons in the WHERE clauses of
+		SQL statements will be in the form of
+					tablename.fieldname
+		but some backends do no accept this syntax. If not, change
+		this method to return an empty string, or whatever should 
+		preceed the field name in a comparison in the WHERE clause
+		of an SQL statement.
+		"""
+		return tbl + "."
+	
+	
 	def massageDescription(self, cursor):
 		"""Some dbapi programs do strange things to the description.
 		In particular, kinterbasdb forces the field names to upper case 
@@ -258,8 +270,77 @@ class dBackend(dabo.common.dObject):
 		means of accomplishing this. By default, we return None.
 		"""
 		return None
+	
+	
+	def setNonUpdateFields(self, cursor):
+		"""Normally, this routine should work for all backends. But
+		in the case of SQLite, the routine that grabs an empty cursor
+		doesn't fill in the description, so that backend has to use
+		an alternative approach.
+		"""
+		if not cursor.Table:
+			# No table specified, so no update checking is possible
+			return
+		# This is the current description of the cursor.
+		if not cursor.FieldDescription:
+			# A query hasn't been run yet; so we need to get one
+			holdWhere = cursor._whereClause
+			cursor.addWhere("1 = 0")
+			cursor.execute(cursor.getSQL())
+			cursor._whereClause = holdWhere
+		descFlds = cursor.FieldDescription
+		# Get the raw version of the table
+		sql = """select * from %s where 1=0 """ % cursor.Table
+		auxCrs = cursor._getAuxCursor()
+		auxCrs.execute( sql )
+		# This is the clean version of the table.
+		stdFlds = auxCrs.FieldDescription
+
+		# Get all the fields that are not in the table.
+		cursor.__nonUpdateFields = [d[0] for d in descFlds 
+				if d[0] not in [s[0] for s in stdFlds] ]
+		# Extract the remaining fields (no need to test any already excluded
+		remFlds = [ d for d in descFlds if d[0] not in cursor.__nonUpdateFields ]
+		
+		# Now add any for which the members (except the display value, 
+		# which is in position 2) do not match
+		cursor.__nonUpdateFields += [ b[0] for b in remFlds 
+				for s in [z for z in stdFlds if z[0] == b[0] ]
+				if (b[1] != s[1]) or (b[3] != s[3]) or (b[4] != s[4]) 
+				or (b[5] != s[5]) or (b[6] != s[6]) ]
 		
 		
+	def getStructureDescription(self, cursor):
+		"""This will work for most backends. However, SQLite doesn't
+		properly return the structure when no records are returned.
+		"""
+		#Try using the no-records version of the SQL statement. 
+		try:
+			tmpsql = cursor.getStructureOnlySql()
+		except AttributeError:
+			# We need to parse the sql property to get what we need.
+			import re
+			pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:where\s(.*))+)\s*", re.I | re.M | re.S)
+			if pat.search(cursor.sql):
+				# There is a WHERE clause. Add the NODATA clause
+				tmpsql = pat.sub("\\1 where 1=0 ", cursor.sql)
+			else:
+				# no WHERE clause. See if it has GROUP BY or ORDER BY clauses
+				pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:group\s*by\s(.*))+)\s*", re.I | re.M | re.S)
+				if pat.search(cursor.sql):
+					tmpsql = pat.sub("\\1 where 1=0 ", cursor.sql)
+				else:               
+					pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:order\s*by\s(.*))+)\s*", re.I | re.M | re.S)
+					if pat.search(cursor.sql):
+						tmpsql = pat.sub("\\1 where 1=0 ", cursor.sql)
+					else:               
+						# Nothing. So just tack it on the end.
+						tmpsql = cursor.sql + " where 1=0 "
+		auxCrs = cursor._getAuxCursor()
+		auxCrs.execute(tmpsql)
+		return auxCrs.FieldDescription
+	
+	
 	###########################################	
 	# The following methods by default simply return the text 
 	# supplied to them. If a particular backend (Firebird comes
