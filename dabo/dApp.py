@@ -42,6 +42,7 @@ import dabo, dabo.ui, dabo.db
 import dabo.common, dSecurityManager
 from dLocalize import _
 from dabo.common.SimpleCrypt import SimpleCrypt
+import dUserSettingProvider
 
 
 class Collection(list):
@@ -193,27 +194,11 @@ class dApp(dabo.common.dObject):
 			
 		The return value would be ["pkm", "egl"]
 		"""
-		configFileName = os.path.join(self.HomeDirectory, ".userSettings.ini")
+		if self.UserSettingProvider:
+			return self.UserSettingProvider.getUserSettingKeys(spec)
+		return None
 
-		cp = ConfigParser.ConfigParser()
-		cp.read(configFileName)
 
-		spec = spec.lower()
-		
-		try:
-			items = cp.items("UserSettings")
-		except ConfigParser.NoSectionError:
-			items = []
-		
-		ret = []	
-		for item in items:
-			wholekey = item[0].lower()
-			if wholekey[:len(spec)] == spec:
-				key = wholekey[len(spec):].split(".")[0]
-				if ret.count(key) == 0:
-					ret.append(key)
-		return ret
-		
 	def getUserSetting(self, item, user="*", system="*"):
 		""" Return the value of the user settings table that 
 			corresponds to the item, user, and system id 
@@ -232,63 +217,16 @@ class dApp(dabo.common.dObject):
 						day,hour,minute,second,?,?,?)'
 
 		"""
-		configFileName = os.path.join(self.HomeDirectory, ".userSettings.ini")
-
-		cp = ConfigParser.ConfigParser()
-		cp.read(configFileName)
-
-		try:
-			valueType = cp.get("UserSettingsValueTypes", item)
-		except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-			valueType = "C"
-
-		try:
-			if valueType == "I":
-				value = cp.getint("UserSettings", item)
-			elif valueType == "N":
-				value = cp.getfloat("UserSettings", item)
-			elif valueType == "L":
-				value = cp.getboolean("UserSettings", item)
-			else:
-				value = cp.get("UserSettings", item)
-		except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-			value = None
-
-		return value
+		if self.UserSettingProvider:
+			return self.UserSettingProvider.getUserSetting(item, user, system)
+		return None
 
 
 	def setUserSetting(self, item, value):
 		"""Persist a value to the user settings file.
 		"""
-		# For now, save this info in a plain ini file. Eventually, I'd like
-		# to see this get saved in a persistent dabosettings db table.
-		configFileName = os.path.join(self.HomeDirectory, ".userSettings.ini")
-
-		cp = ConfigParser.ConfigParser()
-		cp.read(configFileName)
-
-		if isinstance(value, basestring):
-			valueType = "C"
-		elif isinstance(value, bool):
-			valueType = "L"
-		elif isinstance(value, float):
-			valueType = "N"
-		elif isinstance(value, (int, long)):
-			valueType = "I"
-		else:
-			valueType = "?"
-			
-		if not cp.has_section("UserSettings"):
-			cp.add_section("UserSettings")
-		cp.set("UserSettings", item, str(value))
-
-		if not cp.has_section("UserSettingsValueTypes"):
-			cp.add_section("UserSettingsValueTypes")
-		cp.set("UserSettingsValueTypes", item, valueType)
-
-		configFile = open(configFileName, "w")
-		cp.write(configFile)
-		configFile.close()
+		if self.UserSettingProvider:
+			self.UserSettingProvider.setUserSetting(item, value)
 		
 		
 	def getUserCaption(self):
@@ -507,6 +445,32 @@ class dApp(dabo.common.dObject):
 		else:
 			raise RuntimeError, _("The UI cannot be reset once assigned.")
 
+	
+	def _getUserSettingProvider(self):
+		try:
+			v = self._userSettingProvider
+		except AttributeError:
+			if self.UserSettingProviderClass is not None:
+				v = self._userSettingProvider = self.UserSettingProviderClass()
+			else:
+				v = self._userSettingProvider = None
+		return v
+
+	def _setUserSettingProvider(self, val):
+		self._userSettingProvider = val
+
+
+	def _getUserSettingProviderClass(self):
+		try:
+			v = self._userSettingProviderClass
+		except AttributeError:
+			v = self._userSettingProviderClass = dUserSettingProvider.dUserSettingProvider
+		return v
+
+	def _setUserSettingProviderClass(self, val):
+		self._userSettingProviderClass = val
+
+
 	def _getPlatform(self):
 		try:
 			uiApp = self.uiApp
@@ -568,7 +532,21 @@ class dApp(dabo.common.dObject):
 	UI = property(_getUI, _setUI, None, 
 			_("""Specifies the user interface to load, or None. Once set, 
 			it cannot be reassigned.  (str)""") )
-	
+
+	UserSettingProvider = property(_getUserSettingProvider, _setUserSettingProvider,
+			_("""Specifies the reference to the object providing user preference persistence.
+			
+			The default UserSettingProvider will save user preferences inside the .dabo
+			directory inside the user's	home directory."""))
+
+	UserSettingProviderClass = property(_getUserSettingProviderClass,
+			_setUserSettingProviderClass,
+			_("""Specifies the class to use for user preference persistence.
+			
+			The default UserSettingProviderClass will save user preferences inside the .dabo
+			directory inside the user's	home directory, and will be instantiated by Dabo
+			automatically."""))
+
 	SecurityManager = property(_getSecurityManager, _setSecurityManager, None, 
 			_("""Specifies the Security Manager, if any. You must subclass 
 			dSecurityManager, overriding the appropriate hooks and properties, 
