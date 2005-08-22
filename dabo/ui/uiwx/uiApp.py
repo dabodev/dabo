@@ -2,7 +2,7 @@ import sys, os, wx
 import dabo
 import dabo.ui as ui
 import dabo.dEvents as dEvents
-import dabo.lib.dUtils as dUtils
+import dabo.lib.utils as utils
 from dabo.common.dObject import dObject
 from dabo.dLocalize import _, n_
 
@@ -300,8 +300,8 @@ class uiApp(wx.App, dObject):
 				else:
 					start = win.GetSelection()[0]
 					txt = win.GetText()[:start]
-					txRev = dUtils.reverseText(txt)
-					fsRev = dUtils.reverseText(findString)
+					txRev = utils.reverseText(txt)
+					fsRev = utils.reverseText(findString)
 					if not matchCase:
 						fsRev = fsRev.lower()
 						txRev = txRev.lower()
@@ -326,8 +326,8 @@ class uiApp(wx.App, dObject):
 				else:
 					currentPos = win.GetSelection()[0]
 					value = win.GetValue()[:currentPos]
-					value = dUtils.reverseText(value)
-					findString = dUtils.reverseText(findString)
+					value = utils.reverseText(value)
+					findString = utils.reverseText(findString)
 				if not matchCase:
 					value = value.lower()
 					findString = findString.lower()

@@ -4,7 +4,7 @@ import dabo.ui
 import dabo.dException as dException
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _, n_
-from dabo.lib.dUtils import padl
+from dabo.lib.utils import padl
 
 dabo.ui.loadUI("wx")
 

@@ -2,11 +2,11 @@
 # in lots of places throughout Dabo. Typically, to use a function 'foo()' in
 # this file, add the following import statement to your script:
 #
-#	import dabo.lib.util as util
+#	import dabo.lib.utils as utils
 # 
 # Then, in your code, simply call:
 #
-#	util.foo()
+#	utils.foo()
 
 import os
 import sys
@@ -15,7 +15,7 @@ import sys
 def reverseText(tx):
 	"""Takes a string and returns it reversed. Example:
 	
-	dUtils.reverseText("Wow, this is so cool!")
+	utils.reverseText("Wow, this is so cool!")
 		=> returns "!looc os si siht ,woW"
 	"""
 	return tx[::-1]
