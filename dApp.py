@@ -110,11 +110,13 @@ class dApp(dabo.common.dObject):
 			sys.path.append(self.HomeDirectory)
 
 		if not self.getAppInfo("appName"):
-			self.setAppInfo("appName", "Dabo")
+			self.setAppInfo("appName", "Dabo Application")
+		if not self.getAppInfo("appShortName"):
+			self.setAppInfo("appShortName", self.getAppInfo("appName").replace(" ", ""))
 		if not self.getAppInfo("appVersion"):
-			self.setAppInfo("appVersion", dabo.version["version"])
+				self.setAppInfo("appVersion", "")
 		if not self.getAppInfo("vendorName"):
-			self.setAppInfo("vendorName", "Dabo")
+			self.setAppInfo("vendorName", "")
 
 		self._initDB()
 		

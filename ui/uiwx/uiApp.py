@@ -50,7 +50,7 @@ class uiApp(wx.App, dObject):
 	
 		if dApp.MainForm is None:
 			if dApp.MainFormClass is not None:
-				self.dApp.MainForm = dApp.MainFormClass()
+				self.dApp.MainForm = dApp.MainFormClass(Caption=dApp.getAppInfo("appName"))
 
 			
 	def setMainForm(self, val):
