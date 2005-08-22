@@ -75,7 +75,7 @@ def getUserHomeDirectory():
 	return hd
 
 
-def getUserDaboDirectory():
+def getUserDaboDirectory(appName="Dabo"):
 	"""Return the directory where Dabo can save user preference and setting information.
 
 	On *nix, this will be something like /home/pmcnett/.dabo
@@ -85,19 +85,22 @@ def getUserDaboDirectory():
 	cannot be determined (because platform conventions were circumvented), the return
 	value will be None.
 
-	This function will try to create the directory if it doesn't already exist.
+	if appName is passed, the directory will be named accordingly.
+
+	This function will try to create the directory if it doesn't already exist, but if the
+	creation of the directory fails, the return value will revert to None.
 	"""
 	dd = None
 	if sys.platform in ("win32", ):
 		dd = os.environ.get("APPDATA")
 		if dd is not None:
-			dd = os.path.join(dd, "Dabo")
+			dd = os.path.join(dd, appName)
 
 	if dd is None:
 		dd = getUserHomeDirectory()
 
 		if dd is not None:
-			dd = os.path.join(dd, ".dabo")
+			dd = os.path.join(dd, ".%s" % appName.lower())
 
 	if not os.path.exists(dd):
 		# try to create the dabo directory:
@@ -105,5 +108,6 @@ def getUserDaboDirectory():
 			os.makedirs(dd)
 		except:
 			print "Couldn't create the .dabo directory (%s)." % dd
+			dd = None
 
 	return dd

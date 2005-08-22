@@ -1,6 +1,8 @@
 import os
 import ConfigParser
 import dabo
+import dabo.lib.utils as utils
+
 
 class dUserSettingProvider(dabo.common.dObject):
 	def getUserSettingKeys(self, spec):
@@ -15,7 +17,8 @@ class dUserSettingProvider(dabo.common.dObject):
 		The return value would be ["pkm", "egl"]
 		"""
 		homeDir = self._getHomeDir()
-		configFileName = os.path.join(homeDir, ".userSettings.ini")
+		fileName = self._getFileName()
+		configFileName = os.path.join(homeDir, fileName)
 
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
@@ -55,7 +58,8 @@ class dUserSettingProvider(dabo.common.dObject):
 
 		"""
 		homeDir = self._getHomeDir()
-		configFileName = os.path.join(homeDir, ".userSettings.ini")
+		fileName = self._getFileName()
+		configFileName = os.path.join(homeDir, fileName)
 
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
@@ -84,7 +88,8 @@ class dUserSettingProvider(dabo.common.dObject):
 		"""Persist a value to the user settings file.
 		"""
 		homeDir = self._getHomeDir()
-		configFileName = os.path.join(homeDir, ".userSettings.ini")
+		fileName = self._getFileName()
+		configFileName = os.path.join(homeDir, fileName)
 
 		cp = ConfigParser.ConfigParser()
 		cp.read(configFileName)
@@ -114,7 +119,9 @@ class dUserSettingProvider(dabo.common.dObject):
 		
 	def _getHomeDir(self):
 		"""Return the home directory where the settings file should live."""
-		##pkm: I want to migrate this from the application's home dir to the user's
-		##     home directory. eg on Linux: /home/pmcnett/.dabo/appRecipes-userSettings.ini
-		##     ...but for now, this file is <appDir>/.userSettings.ini
-		return self.Application.HomeDirectory		
+		return utils.getUserDaboDirectory()
+
+	def _getFileName(self):
+		"""Return the name of the settings file."""
+		appName = self.Application.getAppInfo("appShortName")
+		return "userSettings-%s.ini" % appName

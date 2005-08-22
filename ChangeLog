@@ -2,7 +2,14 @@ See the Subversion log for all the details.
 
 Current:
 
-Improved test framework for uiwx.
+Improved test framework for uiwx. Now you can run ui/uiwx/test.py and get
+almost all of the dabo controls in one form, and they are the same tests 
+that you get when you run an individual control directly.
+
+Dabo user settings are no longer saved to .userSettings.ini in the app
+directory, but are saved to the user's home directory (in ~.dabo/) or
+if on Windows, in <User Profile>/Application Data/Dabo/.
+
 
 
 Dabo-0.4 (2005-08-08) (Revision 1132):
