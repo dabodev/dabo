@@ -55,10 +55,12 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		
 
 	def _preInitUI(self, kwargs):
+		if kwargs.has_key("choices"):
+			import warnings
+			warnings.warn("Change the 'choices' argument to 'Choices'", DeprecationWarning)
 		if not kwargs.has_key("choices"):
-			# init will fail if Choices wasn't set up by now, either by sending it 
-			# as an arg to the constructor or by setting it in beforeInit().
-			self._choices = kwargs["choices"] = ["1", "2", "3"]
+			# wx requires the choices=[] argument, but Dabo's spelling is Choices.
+			kwargs["choices"] = self.Choices
 		if not kwargs.has_key("majorDimension"):
 			self._maxElements = kwargs["majorDimension"] = 1
 		return kwargs
@@ -304,13 +306,11 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	
 
 class _dRadioGroup_test(dRadioGroup):
-	def beforeInit(self):
-		self.setup()
-
 	def initProperties(self):
 		self.ForeColor = "darkblue"
 		self.BackColor = "wheat"
 		self.Orientation = "None"
+		self.setup()
 		
 	def initEvents(self):
 		self.bindEvent(dabo.dEvents.Hit, self.onHit)
@@ -340,4 +340,4 @@ class _dRadioGroup_test(dRadioGroup):
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(_dRadioGroup_test)
+	test.Test().runTest(_dRadioGroup_test, choices=["a", "b"])
