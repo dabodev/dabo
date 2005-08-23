@@ -19,12 +19,9 @@ class SQLite(dBackend):
 		return dbapi.Cursor
 
 	def escQuote(self, val):
-		#### TODO: Verify that SQLite uses this method for escaping quotes
-		# escape backslashes and single quotes, and
-		# wrap the result in single quotes
 		sl = "\\"
 		qt = "\'"
-		return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
+		return qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
 	
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
