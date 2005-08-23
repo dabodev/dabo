@@ -10,6 +10,9 @@ Dabo user settings are no longer saved to .userSettings.ini in the app
 directory, but are saved to the user's home directory (in ~.dabo/) or
 if on Windows, in <User Profile>/Application Data/Dabo/.
 
+Support for SQLite added. As of this moment, Dabo supports all major 
+open-source database backends: MySQL, PostgreSQL, Firebird, and SQLite.
+Next on the list should be Oracle, Sybase, and MS-SQL.
 
 
 Dabo-0.4 (2005-08-08) (Revision 1132):
