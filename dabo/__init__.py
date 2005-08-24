@@ -83,7 +83,11 @@ errorLog.Caption = "Dabo Error Log"
 errorLog.LogObject = sys.stderr
 
 from dApp import dApp
-from dReportWriter import dReportWriter
+try:
+	from dReportWriter import dReportWriter
+except:
+	# Dependencies weren't satisfied: no report writer available.
+	pass
 
 from __version__ import version
 import dEvents
