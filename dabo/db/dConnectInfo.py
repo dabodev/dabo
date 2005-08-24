@@ -3,34 +3,47 @@ import random
 from dabo.dLocalize import _
 
 class dConnectInfo(dabo.common.dObject):
-	""" Holder for the properties for connecting to the backend.
+	""" Holder for the properties for connecting to the backend. Each 
+	backend may have different names for properties, but this object
+	tries to abstract that. The value stored in the Password must be 
+	encrypted in the format set in the app. This class has  'encrypt' and
+	'decrypt' functions for doing this, or you can set the PlainTextPassword
+	property, and the class will encypt that value and set the Password
+	property for you.
+	
+	You can create it in several ways, like most Dabo objects. First, you 
+	can pass all the settings as parameters to the constructor:
+	
+		ci = dConnectInfo(BackendName="MySQL", Host="domain.com",
+			User="daboUser", PlainTextPassword="secret", Port=3306,
+			DbName="myData")
+			
+	Or you can create a dictionary of the various props, and pass that
+	in the 'connInfo' parameter:
+	
+		connDict = {"BackendName" : "MySQL", "Host" : "domain.com",
+			"User" : "daboUser", "PlainTextPassword" : "secret", 
+			"Port" : 3306, "DbName" : "myData"}
+		ci = dConnectInfo(connInfo=connDict)
+		
+	Or, finally, you can create the object and then set the props
+	individually:
 
-	Each backend may have different names for properties, but this object
-	tries to abstract that.
-
-		ci = ConnectInfo('MySQL')
-		ci.host = 'domain.com'
-		ci.user = 'dabo'
-		ci.password = 'dabo'
+		ci = dConnectInfo()
+		ci.BackendName = "MySQL"
+		ci.Host = "domain.com"
+		ci.User = "daboUser"
+		ci.PlainTextPassword = "secret"
+		ci.DbName = "myData"
 	"""
-	def __init__(self, backendName=None, host=None, user=None, 
-					password=None, dbName=None, port=None, connInfo=None):
+	def __init__(self, connInfo=None, **kwargs):
 		self._baseClass = dConnectInfo
 		self._backendObject = None
-		#dConnectInfo.doDefault(self)
-		super(dConnectInfo, self).__init__()
-		
+		self._host = self._user = self._password = self._dbName = self._port = ""
+		super(dConnectInfo, self).__init__(**kwargs)
 		if connInfo:	
 			self.setConnInfo(connInfo)
-		else:
-			# Read the parameters
-			self.BackendName = backendName
-			self.Host = host
-			self.User = user
-			self.Password = password
-			self.DbName = dbName
-			self.Port = port
-	
+
 	
 	def setConnInfo(self, connInfo, nm=""):
 		if isinstance(connInfo, dict):
@@ -50,16 +63,24 @@ class dConnectInfo(dabo.common.dObject):
 				connDict = cd[nm]
 			
 		# They passed a dictionary containing the connection settings
-		self.BackendName = connDict["dbtype"]
-		self.Host = connDict["host"]
-		self.User = connDict["user"]
-		self.Password = connDict["password"]
-		self.DbName = connDict["database"]
-		try:
-			self.Port = int(connDict["port"])
-		except ValueError:
-			# No valid port given
-			self.Port = None
+		if connDict.has_key("dbtype"):
+			self.BackendName = connDict["dbtype"]
+		if connDict.has_key("host"):
+			self.Host = connDict["host"]
+		if connDict.has_key("user"):
+			self.User = connDict["user"]
+		if connDict.has_key("password"):
+			self.Password = connDict["password"]
+		if connDict.has_key("plaintextpassword"):
+			self.PlainTextPassword = connDict["plaintextpassword"]
+		if connDict.has_key("database"):
+			self.DbName = connDict["database"]
+		if connDict.has_key("port"):
+			try:
+				self.Port = int(connDict["port"])
+			except ValueError:
+				# No valid port given
+				self.Port = None
 	
 	
 	def getConnection(self):
@@ -99,12 +120,9 @@ class dConnectInfo(dabo.common.dObject):
 			return self._backendName
 		except AttributeError:
 			return None
-
-			
 	def _setBackendName(self, backendName):
 		""" Set the backend type for the connection if valid. """
 		_oldObject = self._backendObject
-		
 		# As other backends are coded into the framework, we will need 
 		# to expand the if/elif list.
 		if backendName is not None:
@@ -127,63 +145,63 @@ class dConnectInfo(dabo.common.dObject):
 				self._backendObject = dbPostgreSQL.Postgres()
 			else:
 				raise ValueError, "Invalid backend name: %s." % nm
-				
 			if _oldObject != self._backendObject:
 				self._backendName = nm
-				
 		else:
 			self._backendName = None
 			self._backendObject = None
 
+	def _getDbName(self): 
+		return self._dbName
+	def _setDbName(self, dbName): 
+		self._dbName = dbName
 			
-	def _getHost(self): 
+	def _getHost(self):
 		return self._host
-
 	def _setHost(self, host): 
 		self._host = host
 
 	def _getUser(self): 
 		return self._user
-
 	def _setUser(self, user): 
 		self._user = user
 
 	def _getPassword(self): 
 		return self._password
-
 	def _setPassword(self, password): 
 		self._password = password
 
-	def _getDbName(self): 
-		return self._dbName
-
-	def _setDbName(self, dbName): 
-		self._dbName = dbName
+	def _setPlainPassword(self, val): 
+		self._password = self.encrypt(val)
 
 	def _getPort(self): 
 		return self._port
-
 	def _setPort(self, port): 
 		self._port = port
 
-	BackendName = property(_getBackendName, _setBackendName)
-	Host = property(_getHost, _setHost, None, 
-			'The host name or ip address. (str)')
-	User = property(_getUser, _setUser, None,
-			'The user name. (str)')
-	Password = property(_getPassword, _setPassword, None,
-			'The password of the user. (str)')
+
+	BackendName = property(_getBackendName, _setBackendName, None,
+			_("Name of the backend database type.  (str)"))
 	DbName = property(_getDbName, _setDbName, None,
-			'The database name to login to. (str)')
+			_("The database name to login to. (str)"))
+	Host = property(_getHost, _setHost, None, 
+			_("The host name or ip address. (str)"))
+	Password = property(_getPassword, _setPassword, None,
+			_("The encrypted password of the user. (str)"))
+	PlainTextPassword = property(None, _setPlainPassword, None,
+			_("""Write-only property that encrypts the value and stores that
+				in the Password property. (str)"""))
 	Port = property(_getPort, _setPort, None, 
-			'The port to connect on (may not be applicable for all databases). (int)')
+			_("The port to connect on (may not be applicable for all databases). (int)"))
+	User = property(_getUser, _setUser, None,
+			_("The user name. (str)"))
 
 
-if __name__ == '__main__':
+if __name__ == "__main__":
 	test = dConnectInfo()
-	print test.backendName
-	test.backendName = "MySQL"
-	print test.backendName
-#	test.backendName = "mssql"
-#	print test.backendName
+	print test.BackendName
+	test.BackendName = "MySQL"
+	print test.BackendName
+	test.BackendName = "SQLite"
+	print test.BackendName
 

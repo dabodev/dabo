@@ -3,10 +3,10 @@ from dConnectInfo import dConnectInfo
 from dCursorMixin import dCursorMixin
 
 class dConnection(dabo.common.dObject):
-	""" Hold a connection to a backend database. 
-	"""
+	""" Hold a connection to a backend database. """
 	def __init__(self, connectInfo, parent=None):
 		self._baseClass = dConnection
+		super(dConnection, self).__init__(parent=parent)
 		# Store a reference to the parent object (bizobj maybe; app 
 		# object connection collection most likely)
 		self.Parent = parent
@@ -64,11 +64,11 @@ class dConnection(dabo.common.dObject):
 
 if __name__ == "__main__":
 	from dConnectInfo import dConnectInfo
-	ci = dConnectInfo("MySQL")
+	ci = dConnectInfo(BackendName="MySQL")
 	ci.Host = "paulmcnett.com"
 	ci.DbName = "dabotest"
 	ci.User = "dabo"
-	ci.Password = ci.encrypt("dabo")
+	ci.PlainTextPassword = "dabo"
 
 	conn = dConnection(ci).getConnection()
 	cursor = conn.cursor()
