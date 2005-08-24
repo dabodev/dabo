@@ -122,30 +122,30 @@ class dOkCancelDialog(dDialog):
 		pnl = dabo.ui.dPanel(self)
 		hs = dabo.ui.dSizer("H")
 		pnl.Sizer = hs
-		hs.append( (24, 1) )
-		self.btnOK = dabo.ui.dButton(pnl, id=wx.ID_DEFAULT, Caption="OK")
+#		hs.append( (24, 1) )
+		self.btnOK = dabo.ui.dButton(pnl, id=wx.ID_OK)
 		self.btnOK.bindEvent(dEvents.Hit, self.onOK)
 		hs.append(self.btnOK, 1)
-		hs.append( (16, 1) )
-		self.btnCancel = dabo.ui.dButton(pnl, id=wx.ID_CANCEL, Caption="Cancel")
+		hs.append( (4, 1) )
+		self.btnCancel = dabo.ui.dButton(pnl, id=wx.ID_CANCEL)
 		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
 		hs.append(self.btnCancel, 1)
-		hs.append( (24, 1) )
+		hs.append( (5, 1) )
 		
-		pnl.Layout()
+		pnl.layout()
 		pnl.Fit()
 		# Add a little breathing room
 		pnl.Width += 4
 		pnl.Height += 4
-		pnl.Layout()
+		pnl.layout()
 		
 		# Add a 10-pixel spacer between the added controls and 
 		# the OK/Cancel button panel
 		self.Sizer.append( (1, 10) )		
 		self.Sizer.append(pnl, 0, alignment=("bottom", "right") )#, border=20)
-		self.Sizer.append( (1, 20) )		
+		self.Sizer.append( (1, 5) )		
 		
-		self.Layout()
+		self.layout()
 		
 	
 	def addControls(self):
