@@ -11,7 +11,7 @@ class SQLite(dBackend):
 		self.dbModuleName = "pysqlite2"
 
 	def getConnection(self, connectInfo):
-		pth = os.path.expanduser(connectInfo.DbName)
+		pth = os.path.expanduser(connectInfo.Database)
 		self._connection = dbapi.connect(pth)
 		return self._connection
 
@@ -50,29 +50,29 @@ class SQLite(dBackend):
 
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
-		# Get the name of the PK, if any
-		pkName = ""
-		try:
-			# If any of these statements fail, there is no valid
-			# PK defined for this table.
-			tempCursor.execute("""select * from sqlite_master 
-					where tbl_name = '%s'""" 	% tableName)
-			# The SQL CREATE code is in position 4 of the tuple
-			tblSQL = tempCursor.fetchall()[0][4].lower()
-			# Remove the CREATE...
-			parenPos = tblSQL.find("(")
-			tblSQL = tblSQL[parenPos+1:]
-			pkPos = tblSQL.find("primary key")
-			tblSQL = tblSQL[:pkPos]
-			# The PK field name is the first word of the last
-			# field def in that string
-			commaPos = tblSQL.find(",")
-			while commaPos > -1:
-				tblSQL = tblSQL[commaPos:]
-				commaPos = tblSQL.find(",")
-			pkName = tblSQL.strip().split(" ")[0]
-		except:
-			pass
+# 		Get the name of the PK, if any
+# 		pkName = ""
+# 		try:
+# 			If any of these statements fail, there is no valid
+# 			PK defined for this table.
+# 			tempCursor.execute("""select * from sqlite_master 
+# 					where tbl_name = '%s'""" 	% tableName)
+# 			The SQL CREATE code is in position 4 of the tuple
+# 			tblSQL = tempCursor.fetchall()[0][4].lower()
+# 			Remove the CREATE...
+# 			parenPos = tblSQL.find("(")
+# 			tblSQL = tblSQL[parenPos+1:]
+# 			pkPos = tblSQL.find("primary key")
+# 			tblSQL = tblSQL[:pkPos]
+# 			The PK field name is the first word of the last
+# 			field def in that string
+# 			commaPos = tblSQL.find(",")
+# 			while commaPos > -1:
+# 				tblSQL = tblSQL[commaPos:]
+# 				commaPos = tblSQL.find(",")
+# 			pkName = tblSQL.strip().split(" ")[0]
+# 		except:
+# 			pass
 
 		# Now get the field info
 		tempCursor.execute("pragma table_info('%s')" % tableName)
@@ -87,8 +87,10 @@ class SQLite(dBackend):
 			else:
 				# SQLite treats everything else as text
 				fldType = "C"
-
-			fields.append( (rec[1], fldType, rec[1].lower() == pkName))
+			# Adi J. Sieker pointed out that the sixth column of the pragma command
+			# returns a value indicating whether the field is the PK or not. This simplifies 
+			# the routine over having to parse the CREATE TABLE code.
+			fields.append( (rec[1], fldType, bool(rec[5])) )
 		return tuple(fields)
 
 
@@ -160,4 +162,3 @@ class SQLite(dBackend):
 				fields.append( (rec["name"], fldType, False))
 			ret = tuple(fields)
 		return ret
-

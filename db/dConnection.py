@@ -64,9 +64,9 @@ class dConnection(dabo.common.dObject):
 
 if __name__ == "__main__":
 	from dConnectInfo import dConnectInfo
-	ci = dConnectInfo(BackendName="MySQL")
+	ci = dConnectInfo(DbType="MySQL")
 	ci.Host = "paulmcnett.com"
-	ci.DbName = "dabotest"
+	ci.Database = "dabotest"
 	ci.User = "dabo"
 	ci.PlainTextPassword = "dabo"
 
