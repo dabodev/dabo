@@ -64,8 +64,7 @@ def loadUI(uiType):
 # global namespace. This is really only meant as a convenience for the 
 # dabo developers when rolling single-file distributions - we don't want
 # everyone setting this environment variable. To specify the UI for your
-# app, you should instead set the UserInterface property of the dApp 
-# object.
+# app, you should instead set the UI property of the dApp object.
 try:
 	__defaultUI = os.environ['DABO_DEFAULT_UI']
 except KeyError:
@@ -82,7 +81,8 @@ if __defaultUI:
 		from uiwx import *
 	
 else:
-	dabo.infoLog.write(_("No default UI set. (DABO_DEFAULT_UI)"))
+	pass
+	#dabo.infoLog.write(_("No default UI set. (DABO_DEFAULT_UI)"))
 
 	
 	
