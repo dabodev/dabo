@@ -40,8 +40,15 @@ class Form(dabo.ui.dForm):
 		self.tabPosition = "Top"
 		# We want a toolbar
 		self.ShowToolBar = True
+		# The list of _tempfiles will be deleted when the form is destroyed:
+		self._tempFiles = []
 	
-	
+
+	def _initEvents(self):
+		self.bindEvent(dEvents.Close, self._onClose)
+		Form.doDefault()
+
+
 	def __init__(self, parent=None, previewMode=False, tbl="", *args, **kwargs):
 		self.preview = previewMode
 		self.previewDataSource = tbl
@@ -56,7 +63,17 @@ class Form(dabo.ui.dForm):
 		if self.FormType == 'PickList':
 			# Map escape key to close the form
 			self.bindKey("esc", self.Close)
-			
+
+		
+	def _onClose(self, evt):
+		for f in self._tempFiles:
+			try:
+				os.remove(f)
+			except:
+				# perhaps it is already gone, removed explicitly.
+				pass
+
+	
 	def save(self, dataSource=None):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
@@ -458,6 +475,88 @@ class Form(dabo.ui.dForm):
 	def getEditClassForField(self, fieldName):
 		"""Hook: User code can supply a class of control to use on the edit page."""
 		return None
+
+
+	def getReportForm(self, mode):
+		"""Returns the rfxml to generate a report for the dataset.
+
+		The mode is one of "all" or "one", and determines if the entire recordset
+		is printed, or just the current record. This allows for different report
+		formats for each case.
+
+		The rfxml can come from a few places, in descending precedence:
+			1) if self.ReportForm["all"] or self.ReportForm["one"] exists,
+			   that will be used.    *** NOT IMPLEMENTED YET ***
+
+			2) if self.ReportFormFile["all"] or self.ReportFormFile["one"] exists,
+			   that will be used.    *** NOT IMPLEMENTED YET ***
+
+			3) if self.Application.HomeDirectory/reports/datanav-<cursorname>-(all|one).rfxml
+			   exists, that will be used. IOW, drop in a properly named rfxml file into 
+			   the reports directory underneath your application home, and it will be used
+			   automatically.        *** NOT IMPLEMENTED YET ***
+
+			4) a generic report form will be generated. If mode=="all", the fields displayed
+			   will be as defined in the browse page. If mode=="one", the fields displayed
+			   will be as defined in the edit page.   *** PARTIALLY IMPLEMENTED ***
+		"""
+		rfxml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<report>
+	<title>"""
+		rfxml += "Quick Report: %s" % self.Caption
+		rfxml += """</title>
+	<page>
+		<marginBottom>".5 in"</marginBottom>
+		<marginLeft>".5 in"</marginLeft>
+		<marginRight>".5 in"</marginRight>
+		<marginTop>".25 in"</marginTop>
+		<orientation>"portrait"</orientation>
+		<size>"letter"</size>
+	</page>
+
+	<pageHeader>
+		<height>"0.25 in"</height>
+		<objects>
+			<string>
+				<align>"center"</align>
+				<valign>"top"</valign>
+				<borderWidth>"0 pt"</borderWidth>
+				<expr>self.ReportForm["title"]</expr>
+				<fontName>"Helvetica"</fontName>
+				<fontSize>14</fontSize>
+				<hAnchor>"center"</hAnchor>
+				<height>15.96</height>
+				<name>title</name>
+				<width>384.0</width>
+				<x>265.0</x>
+				<y>0.0</y>
+			</string>
+		</objects>
+	</pageHeader>
+
+	<detail>
+		<height>25</height>
+		<objects>"""
+		x = 0
+		for col in self.PageFrame.Pages[1].BrowseGrid.Columns:
+			coldict = {"caption": col.Caption, "field": col.Field, "width": col.Width, "x": x}
+			rfxml += """
+			<string>
+				<expr>str(self.Record["%(field)s"])</expr>
+				<height>15</height>
+				<width>%(width)s</width>
+				<x>%(x)s</x>
+				<y>0</y>
+			</string>""" % coldict
+			x += coldict["width"]
+		rfxml += """
+		</objects>
+	</detail>
+
+</report>
+"""
+		return rfxml
 
 				
 	def _getFormType(self):

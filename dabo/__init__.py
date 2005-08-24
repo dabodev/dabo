@@ -83,6 +83,8 @@ errorLog.Caption = "Dabo Error Log"
 errorLog.LogObject = sys.stderr
 
 from dApp import dApp
+from dReportWriter import dReportWriter
+
 from __version__ import version
 import dEvents
 

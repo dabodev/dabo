@@ -14,6 +14,10 @@ Support for SQLite added. As of this moment, Dabo supports all major
 open-source database backends: MySQL, PostgreSQL, Firebird, and SQLite.
 Next on the list should be Oracle, Sybase, and MS-SQL.
 
+Started work implementing a Quick Report in the datanav library, which 
+replaces the old HTML Print Preview. This uses the fledgling Dabo Report
+Writer to create a PDF rendition of the dataset. 
+
 
 Dabo-0.4 (2005-08-08) (Revision 1132):
 
