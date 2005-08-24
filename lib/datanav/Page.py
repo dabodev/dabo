@@ -1,3 +1,5 @@
+import os
+import sys
 import wx
 import dabo
 import dabo.ui
@@ -635,7 +637,7 @@ class BrowsePage(Page):
 		self.layout()
 		
 
-	def onPreview(self, evt):
+	def __onPreview_old(self, evt):
 		if self.itemsCreated:
 			if self.Form.preview:
 				# Just previewing 
@@ -661,7 +663,68 @@ class BrowsePage(Page):
 			#win.PageSetup()
 			win.PreviewText(html)
 
-			
+
+	def onPreview(self, evt):
+		if not self.itemsCreated:
+			return
+		if self.Form.preview:
+			# Just previewing 
+			dabo.ui.info(message="Not available in preview mode", 
+			             title = "Preview Mode")
+			return
+
+		class ReportFormatDialog(dabo.ui.dOkCancelDialog):
+			def initProperties(self):
+				self.Caption = "Choose Report"
+				self.mode = None
+
+			def addControls(self):
+				self.addObject(dabo.ui.dRadioGroup, Name="radMode", Caption="Mode",
+				               Orientation="Row", 
+				               Choices=["List all records in dataset", "Just this record"],
+				               ValueMode="Key",
+				               Keys={"all":0, "one":1})
+				self.Sizer.append(self.radMode, 1, "expand", border=5)
+				self.addObject(dabo.ui.dButton, Name="btnAdvanced", Caption="Advanced",
+				               Enabled=False)
+				self.Sizer.append(self.btnAdvanced, border=5)
+
+			def onOK(self, evt):
+				self.mode = self.radMode.Value
+
+		d = ReportFormatDialog()
+		d.show()
+		mode = d.mode
+		d.release()
+
+		if mode is not None:
+			# Run the report
+			biz = self.Form.getBizobj()
+			rfxml = self.Form.getReportForm(mode)
+			cursor = biz.getDataSet()
+			if mode == "one":
+				cursor = (cursor[biz.RowNumber],)
+
+			outputfile = "%s.pdf" % os.tempnam()
+			self.Form._tempFiles.append(outputfile)
+
+			rw = dabo.dReportWriter(OutputFile=outputfile, 
+			                        ReportFormXML=rfxml, 
+			                        Cursor=cursor)
+			rw.write()
+
+			# Now, preview using the platform's default pdf viewer:
+			try:
+				os.startfile(outputfile)
+			except AttributeError:
+				# startfile only available on Windows
+				if sys.platform == "darwin":
+					os.system("open %s" % outputfile)
+				else:
+					# on Linux, punt with xpdf:
+					os.popen2("xpdf %s" % outputfile)
+
+
 class EditPage(Page):
 	def __init__(self, parent, ds=None):
 		super(EditPage, self).__init__(parent)		#, Name="pageEdit")
