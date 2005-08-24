@@ -14,41 +14,54 @@ class dConnectInfo(dabo.common.dObject):
 	You can create it in several ways, like most Dabo objects. First, you 
 	can pass all the settings as parameters to the constructor:
 	
-		ci = dConnectInfo(BackendName="MySQL", Host="domain.com",
+		ci = dConnectInfo(DbType="MySQL", Host="domain.com",
 			User="daboUser", PlainTextPassword="secret", Port=3306,
-			DbName="myData")
+			Database="myData")
 			
 	Or you can create a dictionary of the various props, and pass that
 	in the 'connInfo' parameter:
 	
-		connDict = {"BackendName" : "MySQL", "Host" : "domain.com",
+		connDict = {"DbType" : "MySQL", "Host" : "domain.com",
 			"User" : "daboUser", "PlainTextPassword" : "secret", 
-			"Port" : 3306, "DbName" : "myData"}
+			"Port" : 3306, "Database" : "myData"}
 		ci = dConnectInfo(connInfo=connDict)
 		
 	Or, finally, you can create the object and then set the props
 	individually:
 
 		ci = dConnectInfo()
-		ci.BackendName = "MySQL"
+		ci.DbType = "MySQL"
 		ci.Host = "domain.com"
 		ci.User = "daboUser"
 		ci.PlainTextPassword = "secret"
-		ci.DbName = "myData"
+		ci.Database = "myData"
 	"""
 	def __init__(self, connInfo=None, **kwargs):
 		self._baseClass = dConnectInfo
 		self._backendObject = None
-		self._host = self._user = self._password = self._dbName = self._port = ""
+		self._host = self._user = self._password = self._dbType = self._database = self._port = ""
 		super(dConnectInfo, self).__init__(**kwargs)
 		if connInfo:	
 			self.setConnInfo(connInfo)
 
 	
+	def lowerKeys(self, dct):
+		"""Takes a dict, and returns another dict identical except
+		for the fact that all the keys that were string types are now 
+		lower case.
+		"""
+		ret = {}
+		for kk, vv in dct.items():
+			if isinstance(kk, basestring):
+				kk = kk.lower()
+			ret[kk] = vv
+		return ret
+		
+		
 	def setConnInfo(self, connInfo, nm=""):
 		if isinstance(connInfo, dict):
 			# The info is already in dict format
-			connDict = connInfo
+			connDict = self.lowerKeys(connInfo)
 		else:
 			# They've passed the info in XML format. Either this is the actual
 			# XML, or it is a path to the XML file. Either way, the parser
@@ -64,7 +77,7 @@ class dConnectInfo(dabo.common.dObject):
 			
 		# They passed a dictionary containing the connection settings
 		if connDict.has_key("dbtype"):
-			self.BackendName = connDict["dbtype"]
+			self.DbType = connDict["dbtype"]
 		if connDict.has_key("host"):
 			self.Host = connDict["host"]
 		if connDict.has_key("user"):
@@ -74,7 +87,7 @@ class dConnectInfo(dabo.common.dObject):
 		if connDict.has_key("plaintextpassword"):
 			self.PlainTextPassword = connDict["plaintextpassword"]
 		if connDict.has_key("database"):
-			self.DbName = connDict["database"]
+			self.Database = connDict["database"]
 		if connDict.has_key("port"):
 			try:
 				self.Port = int(connDict["port"])
@@ -115,19 +128,19 @@ class dConnectInfo(dabo.common.dObject):
 	def getBackendObject(self):
 		return self._backendObject
 
-	def _getBackendName(self): 
+	def _getDbType(self): 
 		try:
-			return self._backendName
+			return self._dbType
 		except AttributeError:
 			return None
-	def _setBackendName(self, backendName):
+	def _setDbType(self, dbType):
 		""" Set the backend type for the connection if valid. """
 		_oldObject = self._backendObject
 		# As other backends are coded into the framework, we will need 
 		# to expand the if/elif list.
-		if backendName is not None:
+		if dbType is not None:
 			# Evaluate each type of backend
-			nm = backendName.lower()
+			nm = dbType.lower()
 			if nm == "mysql":
 				import dbMySQL
 				self._backendObject = dbMySQL.MySQL()
@@ -144,17 +157,17 @@ class dConnectInfo(dabo.common.dObject):
 				import dbPostgreSQL
 				self._backendObject = dbPostgreSQL.Postgres()
 			else:
-				raise ValueError, "Invalid backend name: %s." % nm
+				raise ValueError, "Invalid database type: %s." % nm
 			if _oldObject != self._backendObject:
-				self._backendName = nm
+				self._dbType = nm
 		else:
-			self._backendName = None
+			self._dbType = None
 			self._backendObject = None
 
-	def _getDbName(self): 
-		return self._dbName
-	def _setDbName(self, dbName): 
-		self._dbName = dbName
+	def _getDatabase(self): 
+		return self._database
+	def _setDatabase(self, database): 
+		self._database = database
 			
 	def _getHost(self):
 		return self._host
@@ -180,9 +193,9 @@ class dConnectInfo(dabo.common.dObject):
 		self._port = port
 
 
-	BackendName = property(_getBackendName, _setBackendName, None,
+	DbType = property(_getDbType, _setDbType, None,
 			_("Name of the backend database type.  (str)"))
-	DbName = property(_getDbName, _setDbName, None,
+	Database = property(_getDatabase, _setDatabase, None,
 			_("The database name to login to. (str)"))
 	Host = property(_getHost, _setHost, None, 
 			_("The host name or ip address. (str)"))
@@ -199,9 +212,9 @@ class dConnectInfo(dabo.common.dObject):
 
 if __name__ == "__main__":
 	test = dConnectInfo()
-	print test.BackendName
-	test.BackendName = "MySQL"
-	print test.BackendName
-	test.BackendName = "SQLite"
-	print test.BackendName
+	print test.DbType
+	test.DbType = "MySQL"
+	print test.DbType
+	test.DbType = "SQLite"
+	print test.DbType
 

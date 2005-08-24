@@ -19,7 +19,7 @@ class MySQL(dBackend):
 		self._connection = dbapi.connect(host=connectInfo.Host, 
 				user = connectInfo.User,
 				passwd = connectInfo.revealPW(),
-				db=connectInfo.DbName,
+				db=connectInfo.Database,
 				port=port)
 
 		return self._connection

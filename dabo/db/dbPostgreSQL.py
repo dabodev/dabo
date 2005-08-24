@@ -25,7 +25,7 @@ class Postgres(dBackend):
 				
 		DSN = "host=%s port=%s dbname=%s user=%s password=%s" % (connectInfo.Host,
 			port,
-			connectInfo.DbName,
+			connectInfo.Database,
 			connectInfo.User,
 			connectInfo.revealPW())
 			

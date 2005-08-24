@@ -22,10 +22,10 @@ class Firebird(dBackend):
 		host = str(connectInfo.Host)
 		user = str(connectInfo.User)
 		password = str(connectInfo.revealPW())
-		database = str(connectInfo.DbName)
+		database = str(connectInfo.Database)
 		
-		self._connection = kinterbasdb.connect(host=host, user=user, password=password,
-				database=database)
+		self._connection = kinterbasdb.connect(host=host, user=user, 
+				password=password, database=database)
 		return self._connection
 		
 	def getDictCursorClass(self):
