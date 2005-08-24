@@ -44,10 +44,10 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 	
 		
 	def afterInit(self):
-		#dFormMain.doDefault()
 		super(dFormMain, self).afterInit()
-		self.Caption = "Dabo"
-		self.setStatusText("Welcome to Dabo!")
+		## caption and status text handled in uiApp now
+		#self.Caption = "Dabo"
+		#self.setStatusText("Welcome to Dabo!")
 		
 		# This is to accomodate the Dabo icon, which has a white background.
 		# We should set the white as transparent and set a mask, though.

@@ -50,7 +50,11 @@ class uiApp(wx.App, dObject):
 	
 		if dApp.MainForm is None:
 			if dApp.MainFormClass is not None:
-				self.dApp.MainForm = dApp.MainFormClass(Caption=dApp.getAppInfo("appName"))
+				f = self.dApp.MainForm = dApp.MainFormClass()
+				if len(f.Caption) == 0:
+					# The MainForm has no caption. Put in the application name, which by
+					# default (as of this writing) is "Dabo Application"
+					f.Caption = dApp.getAppInfo("appName")
 
 			
 	def setMainForm(self, val):
