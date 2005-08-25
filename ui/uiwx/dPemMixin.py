@@ -288,10 +288,16 @@ class dPemMixin(dPemMixinBase):
 		self.raiseEvent(dEvents.Move, evt)
 	
 	def __onWxMouseEnter(self, evt):
+		st = self.StatusText
+		if st is not None and self.Form is not None:
+			self.Form.setStatusText(st)
 		self.raiseEvent(dEvents.MouseEnter, evt)
 		
 	def __onWxMouseLeave(self, evt):
 		self._mouseLeftDown, self._mouseRightDown = False, False
+		st = self.StatusText
+		if st is not None and self.Form is not None:
+			self.Form.setStatusText("")
 		self.raiseEvent(dEvents.MouseLeave, evt)
 		
 	def __onWxMouseLeftDoubleClick(self, evt):
@@ -1148,6 +1154,17 @@ class dPemMixin(dPemMixinBase):
 		else:
 			self._properties["Sizer"] = val
 			
+
+	def _getStatusText(self):
+		try:
+			v = self._statusText
+		except AttributeError:
+			v = self._statusText = None
+		return v
+
+	def _setStatusText(self, val):
+		self._statusText = val
+
 		
 	def _getTag(self):
 		try:
@@ -1336,6 +1353,9 @@ class dPemMixin(dPemMixinBase):
 
 	Sizer = property(_getSizer, _setSizer, None, 
 			_("The sizer for the object.") )
+
+	StatusText = property(_getStatusText, _setStatusText, None,
+			_("Specifies the text that displays in the form's status bar, if any."))
 
 	Tag = property(_getTag, _setTag, None,
 			_("A property that user code can safely use for specific purposes.") )
