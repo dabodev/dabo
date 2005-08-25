@@ -16,6 +16,7 @@ import sys
 import os
 import traceback
 import wx
+import dabo
 import dabo.ui as ui
 ui.loadUI("wx")
 
@@ -23,7 +24,9 @@ ui.loadUI("wx")
 logEvents = ["All", "Idle", "MouseMove"]
 class Test(object):
 	def __init__(self):
-		self.app = wx.PySimpleApp()
+		self.app = dabo.dApp()
+		self.app.MainFormClass=None
+		self.app.setup()
 
 	def runTest(self, classRefs, *args, **kwargs):
 		if not isinstance(classRefs, (tuple, list)):
@@ -35,25 +38,25 @@ class Test(object):
 			frame = classRefs[0](None, *args, **kwargs)
 			isDialog = (issubclass(classRefs[0], wx.Dialog))
 		else:
-			frame = wx.Frame(None, -1, "")
-			frame.SetSizer(ui.dSizer("Vertical"))
+			frame = ui.dForm(Name="formTest")
+			frame.Sizer = ui.dSizer("Vertical")
 			for class_ in classRefs:
 				object = class_(frame, LogEvents=logEvents, *args, **kwargs)
 				object.Width = 300
-				frame.GetSizer().append(object, 1, "expand")
+				frame.Sizer.append(object, 1, "expand")
 			
 			# This will get a good approximation of the required size
-			w,h = frame.GetSizer().GetMinSize()
+			w,h = frame.Sizer.GetMinSize()
 			# Some controls don't report sizing correctly, so set a minimum
 			w = max(w, 100)
 			h = max(h, 50)
 			
-			frame.SetSize( (w+10, h+30) )
+			frame.Size = ( (w+10, h+30) )
 			if len(classRefs) > 1:
-				frame.SetLabel("Test of multiple objects")
+				frame.Caption = "Test of multiple objects"
 			else:
-				frame.SetLabel("Test of %s" % object.BaseClass.__name__)
-			object.SetFocus()
+				frame.Caption = "Test of %s" % object.BaseClass.__name__
+			object.setFocus()
 		
 		if isDialog:
 			ret = frame.ShowModal()
@@ -62,16 +65,14 @@ class Test(object):
 		else:
 			frame.Show()
 			frame.Layout()
-			self.app.MainLoop()
+			self.app.start()
 		
 
 	def testAll(self):
 		""" Create a dForm and populate it with example dWidgets. 
 		"""
-		frame = ui.dForm(Name="formTest")
-		frame.Width, frame.Height = 640, 480
+		frame = ui.dForm(Name="formTestAll")
 		frame.Caption = "Test of all the dControls"
-		frame.debug = True
 		frame.LogEvents = logEvents
 
 		panel = frame.addObject(ui.dScrollPanel, "panelTest")
@@ -93,6 +94,11 @@ class Test(object):
 					print "+++ Instantiating %s caused:" % objname
 					print traceback.print_exception(*sys.exc_info())
 					print "+++++++++++++++++++++++++++++++++++++++"
+
+				if objname == "_dToolBar_test":
+					frame.ToolBar = obj
+					break
+
 				bs = ui.dSizer("horizontal")
 				label = ui.dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)
 
@@ -103,8 +109,6 @@ class Test(object):
 					layout = "expand"
 				else:
 					layout = "normal"
-
-				obj.debug = True
 
 				bs.append(obj, layout)
 
@@ -118,69 +122,9 @@ class Test(object):
 		fs = frame.Sizer = ui.dSizer("vertical")
 		fs.append(panel, "expand", 1)
 		fs.layout()
-		frame.Show()
-		self.app.MainLoop()
+		self.app.MainForm = frame
+		self.app.start()
 
-	def testAll_old(self):
-		""" Create a dForm and populate it with example dWidgets. 
-		"""
-		frame = ui.dForm(Name="formTest")
-		frame.Width, frame.Height = 640, 480
-		frame.Caption = "Test of all the dControls"
-		frame.debug = True
-		frame.LogEvents = logEvents
-
-		panel = frame.addObject(ui.dPanel, "panelTest")
-
-		labelWidth = 150
-
-		vs = ui.dSizer("vertical")
-
-		for object in (ui.dBitmapButton(panel),
-					ui.dBox(panel),
-					ui.dCheckBox(panel),
-					ui.dButton(panel),
-					ui.dDateTextBox(panel),
-					ui.dDropdownList(panel),
-					ui.dEditBox(panel),
-					ui.dGauge(panel),
-					ui.dLine(panel),
-					ui.dRadioGroup(panel),
-					ui.dSlider(panel),
-					ui.dSpinner(panel),
-					ui.dTextBox(panel),
-					ui.dToggleButton(panel)):
-					
-			bs = ui.dSizer("horizontal")
-			label = ui.dLabel(panel, Alignment="Right", AutoResize=False, Width=labelWidth)
-
-			label.Caption = "%s:" % object.Name
-			bs.append(label)
-
-			if isinstance(object, ui.dEditBox):
-				layout = "expand"
-			else:
-				layout = "normal"
-
-			object.debug = True
-
-			bs.append(object, layout, 1)
-
-			if isinstance(object, ui.dEditBox):
-				vs.append(bs, "expand", 1)
-			else:
-				vs.append(bs, "expand")
-
-		bs = ui.dSizer("horizontal")
-
-		vs.append(bs, "expand")
-
-		panel.SetSizer(vs)
-
-		frame.SetSizer(ui.dSizer("vertical"))
-		frame.GetSizer().append(panel, "expand")
-		frame.Show()
-		self.app.MainLoop()
 
 if __name__ == "__main__":
 	t = Test()

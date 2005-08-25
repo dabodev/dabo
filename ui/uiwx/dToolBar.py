@@ -20,26 +20,17 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		self._baseClass = dToolBar
 		preClass = wx.PreToolBar
 		
-		# Get the max props, if any
-		maxwd = self.extractKey(kwargs, "MaxWidth", 0)
-		maxht = self.extractKey(kwargs, "MaxHeight", 0)
 		style = self.extractKey(kwargs, "style", 0)
 		kwargs["style"] = style |  wx.TB_DOCKABLE | wx.TB_TEXT
-		
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-		
+
 		# We need to track tool IDs internally for referencing the 
 		# buttons once they are created
 		self._nextToolID = 0
 		self._tools = {}
 		# Need this to load/convert image files to bitmaps
 		self._image = wx.NullImage
-		# Limits the size of buttons. Zero implies no limit.
-		self._maxWd = maxwd
-		self._maxHt = maxht
-		# Update the props. This will also update the tool's bitmap size
-		self.MaxWidth = maxwd
-		self.MaxHeight = maxht
+
+		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
 
 	def appendButton(self, name, pic, bindfunc=None, toggle=False, tip="", help=""):
@@ -70,7 +61,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		butt = self.AddSimpleTool(id, bitmap=picBmp, isToggle=toggle, 
 				shortHelpString=tip, longHelpString=help)
 		butt.SetLabel(name)
-		if bindfunc:
+		if bindfunc and self.Application:
 			self.Application.uiApp.Bind(wx.EVT_MENU, bindfunc, butt)
 		self.Realize()
 		
@@ -111,45 +102,52 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 
 	def updBmpSize(self):
 		toolBmpWd, toolBmpHt = self.GetToolBitmapSize()
-		if self._maxWd:
-			toolBmpWd = self._maxWd
-		if self._maxHt:
-			toolBmpHt = self._maxHt
+		if self.MaxWidth:
+			toolBmpWd = self.MaxWidth
+		if self.MaxHeight:
+			toolBmpHt = self.MaxHeight
 		self.SetToolBitmapSize((toolBmpWd, toolBmpHt))
 
 
-
-#- 	def GetChildren(self):
-#- 		# wx doesn't provide GetChildren() for menubars or menus, but dPemMixin
-#- 		# calls it in _getChildren(). The Dabo developer wants the submenus of
-#- 		# the menubar, but is using the consistent Children property to do it.
-#- 		children = [self.GetMenu(index) for index in range(self.GetMenuCount())]
-#- 		return children
-
 	def _getForm(self):
-		return self.GetFrame()
+		try:
+			v = self._form
+		except AttributeError:
+			v = self._form = None
+		return v
 
 	def _setForm(self, val):
-		if self._constructed():
-			if val != self.GetFrame():
-				self.Detach()
-				self.Attach(val)
-		else:
-			self._properties["Form"] = val
-	
+		self._form = val	
+
 	
 	def _getMaxHt(self):
-		return self._maxHt
+		try:
+			v = self._maxHt
+		except AttributeError:
+			v = self._maxHt = 0
+		return v
+
 	def _setMaxHt(self, val):
 		self._maxHt = val
-		self.updBmpSize()
+		if self._constructed():
+			self.updBmpSize()
+		else:
+			self._properties["MaxHeight"] = val
 		
 		
 	def _getMaxWd(self):
-		return self._maxWd
+		try:
+			v = self._maxWd
+		except AttributeError:
+			v = self._maxWd = 0
+		return v
+
 	def _setMaxWd(self, val):
 		self._maxWd = val
-		self.updBmpSize()
+		if self._constructed():
+			self.updBmpSize()
+		else:
+			self._properties["MaxWidth"] = val
 		
 		
 	def _getNextID(self):
@@ -172,29 +170,40 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 	_NextToolID = property(_getNextID, None, None, 
 		_("Next Available ID for tracking toolbar buttons  (int)"))
 
-		
+
+class _dToolBar_test(dToolBar):
+	def initProperties(self):
+		self.MaxWidth = 20
+		self.MaxHeight = 20
+
+	def afterInit(self):
+		self.appendButton("Copy", pic="copy", toggle=False, bindfunc=self.onCopy, 
+		                  tip="Copy", help="Much Longer Copy Help Text")
+
+		self.appendButton("Timer", pic="dTimer", toggle=True, bindfunc=self.onTimer,
+		                  tip="Timer Toggle", help="Timer Help Text")
+
+		self.appendButton("Dabo", pic="daboIcon128", toggle=True, tip="Dabo! Dabo! Dabo!", 
+		                  help="Large icon resized to fit in the max dimensions")
+
+		self.appendSeparator()
+
+		self.appendButton("Exit", pic="close", toggle=True, bindfunc=self.onExit, 
+		                  tip="Exit", help="Quit the application")
+
+	def onCopy(self, evt):
+		dabo.ui.info("Copy Clicked!")
+
+	def onTimer(self, evt):
+		dabo.ui.info("CHECKED: %s, ID: %s" % (evt.Checked(), evt.GetId()))
+
+	def onExit(self, evt):
+		app = self.Application
+		if app:
+			app.onFileExit(None)
+		else:
+			dabo.ui.stop("Sorry, there isn't an app object - can't exit.")
 
 if __name__ == "__main__":
-	def clickCopy(evt):
-		dabo.ui.info("Copy Clicked!")
-	def clickTimer(evt):
-		dabo.ui.info("CHECKED: %s, ID: %s" % (evt.Checked(), evt.GetId()))
-	app = dabo.dApp()
-	app.setup()
-	mf = app.MainForm = dabo.ui.dForm()
-	mf.ShowToolBar = True
-	tb = mf.ToolBar
-	tb.MaxWidth=20
-	tb.MaxHeight=20
-	tb.appendButton("Copy", pic="copy", toggle=False, bindfunc=clickCopy, 
-			tip="Copy", help="Much Longer Copy Help Text")
-	tb.appendButton("Timer", pic="dTimer", toggle=True, bindfunc=clickTimer,
-			tip="Timer Toggle", help="Timer Help Text")
-	tb.appendButton("Dabo", pic="daboIcon128", toggle=True, tip="Dabo! Dabo! Dabo!", 
-			help="Large icon resized to fit in the max dimensions")
-	tb.appendSeparator()
-	tb.appendButton("Exit", pic="close", toggle=True, bindfunc=app.onFileExit, 
-			tip="Exit", help="Quit the application")
-	
- 	app.start()
-	
+	import test
+	test.Test().runTest(_dToolBar_test)

@@ -136,11 +136,15 @@ class dFormMixin(pm.dPemMixin):
 			ret = self.GetToolBar()
 			if ret is None and self.ShowToolBar:
 				ret = dabo.ui.dToolBar(self)
-				self.SetToolBar(ret)
+				self.ToolBar = ret
 		else:
 			ret = None
 		return ret
 		
+	def _setToolBar(self, val):
+		self.SetToolBar(val)
+		# the wx toolbar doesn't otherwise know what form it is attached to:
+		val.Form = self
 	
 	def close(self, force=False):
 		""" This method will close the form. If force = False (default)
@@ -618,7 +622,7 @@ class dFormMixin(pm.dPemMixin):
 	TinyTitleBar = property(_getTinyTitleBar, _setTinyTitleBar, None,
 		_("Specifies whether the title bar is small, like a tool window. (bool)."))
 
-	ToolBar = property(_getToolBar, None, None,
+	ToolBar = property(_getToolBar, _setToolBar, None,
 		_("Tool bar for this form. (dToolBar)"))
 
 	WindowState = property(_getWindowState, _setWindowState, None,
