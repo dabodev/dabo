@@ -69,6 +69,22 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		self._tools[name] = butt
 		
 			
+	def appendControl(self, control, bindfunc=None):
+		"""Adds any Dabo Control to the toolbar. Pass the function 
+		you want to be called when this button is clicked in the 'bindfunc' param.
+		"""
+		butt = self.AddControl(control)
+		butt.SetLabel(control.Name)
+		if bindfunc and self.Application:
+			control.bindEvent(dEvents.Hit, bindfunc)
+		self.Realize()
+		
+		# Store the button reference
+		self._tools[control.Name] = butt
+
+		return control
+
+
 	def appendSeparator(self):
 		self.AddSeparator()
 		self.Realize()
