@@ -345,7 +345,10 @@ class dApp(dabo.common.dObject):
 	def onEditFindAgain(self, evt):
 		self.uiApp.onEditFindAgain(evt)
 	def onEditPreferences(self, evt):
-		self.uiApp.onEditPreferences(evt)
+		try:
+			self.ActiveForm.onEditPreferences(evt)
+		except:
+			self.uiApp.onEditPreferences(evt)
 	############################	
 	
 	
