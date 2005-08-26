@@ -46,9 +46,9 @@ class dTimer(dabo.ui.dBitmap):
 			
 	def start(self, interval=-1):
 		if interval >= 0:
-			self._interval = interval
-		if self._interval > 0:
-			self._timer.Start(self._interval)
+			self.Interval = interval
+		if self.Interval > 0:
+			self._timer.Start(self.Interval)
 		else:
 			self._timer.Stop()
 		return self._timer.IsRunning()
@@ -61,7 +61,11 @@ class dTimer(dabo.ui.dBitmap):
 		
 	# property get/set functions
 	def _getInterval(self):
-		return self._interval
+		try:
+			v = self._interval
+		except AttributeError:
+			v = self._interval = 0
+		return v
 	
 	def _setInterval(self, val):
 		self._interval = val
