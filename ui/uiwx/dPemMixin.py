@@ -118,8 +118,9 @@ class dPemMixin(dPemMixinBase):
 		# autonegotiate by adding an integer until it is a unique name.
 		# If a Name is given explicitly, a NameError will be raised if
 		# the given Name isn't unique among siblings:
-		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-		self._initName(name, _explicitName=_explicitName)
+		if not dabo.fastNameSet:
+			name, _explicitName = self._processName(kwargs, self.__class__.__name__)
+			self._initName(name, _explicitName=_explicitName)
 
 		self._initEvents()
 		self._afterInit()
@@ -1045,6 +1046,31 @@ class dPemMixin(dPemMixinBase):
 	def _setName(self, name, _userExplicit=True):
 		if self._constructed():
 			currentName = self._getName()
+			if dabo.fastNameSet:
+				# The user is responsible for setting and unsetting the global fastNameSet
+				# flag. It means that they are initializing a bunch of objects and want good
+				# performance, and that they are taking responsibility for making sure the
+				# names are unique. Just set the name and return, without all the checking.
+				self._name = name
+				try:
+					self.SetName(name)
+				except AttributeError:
+					# Some objects that inherit from dPemMixin do not implement SetName().
+					pass
+
+				try: 
+					del self.Parent.__dict__[currentName]
+				except (AttributeError, KeyError):
+					# Parent could be None, or currentName wasn't bound yet (init)
+					pass
+	
+				try:
+					self.Parent.__dict__[name] = self
+				except AttributeError:
+					# Parent could be None
+					pass
+				return
+
 			parent = self.Parent
 			if parent is not None:
 				if not _userExplicit:
@@ -1081,12 +1107,13 @@ class dPemMixin(dPemMixinBase):
 				name = name
 	
 			name = str(name)
+			self._name = name
 			try:
 				self.SetName(name)
 			except AttributeError:
 				# Some objects that inherit from dPemMixin do not implement SetName().
 				pass
-			self._name = name
+
 			try: 
 				del self.Parent.__dict__[currentName]
 			except (AttributeError, KeyError):
