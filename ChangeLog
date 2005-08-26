@@ -18,6 +18,10 @@ Started work implementing a Quick Report in the datanav library, which
 replaces the old HTML Print Preview. This uses the fledgling Dabo Report
 Writer to create a PDF rendition of the dataset. 
 
+Added new property for all controls: StatusText. When set, and when the 
+form has a status bar, that text will show in the form's status bar when
+the mouse enters the control. 
+
 
 Dabo-0.4 (2005-08-08) (Revision 1132):
 
