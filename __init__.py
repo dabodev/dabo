@@ -16,11 +16,10 @@ getting all the fancy bells and whistles implemented. Keep things as
 simple as possible though, while still fulfilling your customer's 
 specifications. Simplicity is the better part of elegance.
 
-Dabo is fun to say, which is enough justification for its name, but 
-perhaps it could stand for:
-	Database Application Business Objects
-	Database Application Builder O (Just think, it could have been ActiveO... <g>)
-	Object oriented Business Application Development (but OBAD sounds so bad)
+Beyond the wizards and xml definition files, Dabo exposes a nice
+API in Python for manually creating your own class definitions. IOW,
+we let you have as much control as you need. You aren't required to
+take advantage of our xml definition formats at all.
 
 Dabo has three main submodules, representing the three tiers common
 in modern database application design:
@@ -41,17 +40,16 @@ out of this, but that is outside the scope of Dabo itself, and you'll use
 a different method for each target platform.
 
 To run Dabo, and apps based on Dabo, you need:
-	+ Python 2.3 or higher
+	+ Python 2.3 or higher (2.4 recommended)
 
-	+ wxPython 2.5 or higher, which has a dependency on:
-		+ wxWindows 2.5 or higher
+	+ wxPython 2.5 or higher (2.6 highly recommended)
 		(only necessary for apps with a ui: because of the modular
 		nature of Dabo's design, it is possible to use just the
 		db layer, or the db layer in conjunction with the biz
 		layer, with no ui at all.)
 
 	+ Windows 98SE or higher
-	+ Macintosh OSX 10.2 or higher
+	+ Macintosh OSX 10.2 or higher (*much* nicer in Tiger - 10.4)
 	+ Linux 2.4 with X11 running
 
 	+ Access to some sort of database server, along with the 
@@ -62,13 +60,37 @@ To run Dabo, and apps based on Dabo, you need:
 	DB API coupled with the individual database drivers. This
 	is, at the same time, less flexible, tougher to get started
 	with, but more capable, more multi-platform, and better 
-	performing, than ODBC is.) 
+	performing, than ODBC is.) (we recommend starting with MySQL
+	installed, because all of the demo code has the best support
+	for MySQL).
 
-How you get started is pretty much up to you. Look at the demo.
-Run a wizard. Hand-edit the data definition files.
+How you get started is pretty much up to you. Look at the code in the
+separate dabodemo project. Run the AppWizard in the separate daboide
+project. Hand-edit the data definition files and Python code that the 
+AppWizard generates for you.
 
-ToDo: pointers to get started.
+For some quick eye-candy, once you've installed Dabo using the standard
+'python setup.py install' method, do this from your Python interpreter:
 
+	import dabo
+	dabo.dApp().start()
+
+press Ctrl+D and type the following into the command window that appears:
+
+	tb = self.addObject(dabo.ui.dTextBox)
+
+Notice the textbox in the upper left hand corner?
+
+	tb.Value = "yippee!"
+	tb.FontBold = True
+	print tb.Value
+
+Now, use the ui to change the value in the textbox, and switch back to
+the command window.
+
+	print tb.Value
+
+Have fun in your exploration of Dabo. 
 """
 
 # Instantiate the logger object, which will send messages to user-overridable
