@@ -491,16 +491,22 @@ class dFormMixin(pm.dPemMixin):
 	def _setShowToolBar(self, val):
 		self._showToolBar = bool(val)	
 	
+
 	def _getStatusText(self):
 		ret = ""
 		if isinstance(self, wx.MDIChildFrame):
 			controllingFrame = self.Application.MainForm
 		else:
 			controllingFrame = self
-		sb = controllingFrame.GetStatusBar()
+		try:
+			sb = controllingFrame.GetStatusBar()
+		except AttributeError:
+			# certain dialogs don't have status bars
+			sb = None
 		if sb:
 			ret = sb.GetStatusText()
 		return ret
+
 	def _setStatusText(self, val):
 		""" Set the text of the status bar. Dabo will decide whether to 
 		send the text to the main frame or this frame. This matters with MDI
