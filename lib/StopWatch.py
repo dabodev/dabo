@@ -5,10 +5,10 @@ class StopWatch(object):
 	
 	def __init__(self, *args, **kwargs):
 		super(StopWatch, self).__init__(*args, **kwargs)
-		self.clear()
+		self.reset()
 		
-	def clear(self):
-		"""Clear the stopwatch timer."""
+	def reset(self):
+		"""Reset the stopwatch timer."""
 		self.stop()
 		self._value = 0.00
 		
@@ -59,7 +59,7 @@ if __name__ == "__main__":
 	sw.start()
 	for i in range(100):
 		print sw.Value, sw.Running
-	sw.clear()
+	sw.reset()
 	print sw._running, sw._value, sw._beg
 	print sw.Value, sw.Running
 	print "-------3---------"
