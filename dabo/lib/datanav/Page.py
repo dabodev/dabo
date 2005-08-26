@@ -708,9 +708,15 @@ class BrowsePage(Page):
 			outputfile = "%s.pdf" % os.tempnam()
 			self.Form._tempFiles.append(outputfile)
 
-			rw = dabo.dReportWriter(OutputFile=outputfile, 
-			                        ReportFormXML=rfxml, 
-			                        Cursor=cursor)
+			try:
+				import dabo.dReportWriter as drw
+			except ImportError:
+				dabo.ui.stop("Error importing dReportWriter. Check your terminal output.")
+				return
+				
+			rw = drw.dReportWriter(OutputFile=outputfile, 
+			                       ReportFormXML=rfxml, 
+			                       Cursor=cursor)
 			rw.write()
 
 			# Now, preview using the platform's default pdf viewer:
