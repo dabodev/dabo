@@ -30,6 +30,17 @@ eventLogging = False
 # because it is very expensive from a performance standpoint.
 allNativeEventInfo = False
 
+# Set the following to True to bypass Dabo's checking to make sure siblings
+# have unique names, greatly speeding up instantiation of many objects. We
+# recommend you leave it as-is here, and wrap your object creations around
+# setting it to True. eg:
+#
+# 	dabo.fastNameSet=True
+#   for i in range(200):
+#     self.addObject(dabo.ui.dButton, Name="b_%s" % i)
+#   dabo.fastNameSet=False
+fastNameSet = False
+
 ### Settings - end
 
 # Do not copy/paste anything below this line into settings_override.py.
