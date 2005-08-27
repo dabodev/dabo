@@ -516,16 +516,24 @@ class dBizobj(dabo.common.dObject):
 		"""Replaces all 'fld' values in the recordset with the specified
 		value, as long as the record meets the specified condition. 
 		"""
-		flds = self.getFieldNames()
-		pat = "(\w+)"
-		condSplit = re.split(pat, cond)
-		wordCnt = len(condSplit)
-		for ii in range(wordCnt):
-			if condSplit[ii] in flds:
-				# This is a field name; change it to a self reference
-				condSplit[ii] = "self.%s" % condSplit[ii]
-		# Join it back up
-		cond = "".join(condSplit)
+		if cond:
+			# A condition was passed. Massage the string, replacing
+			# raw field names with self.fieldname so that eval() can be
+			# used to determine if it's True.
+			flds = self.getFieldNames()
+			pat = "(\w+)"
+			condSplit = re.split(pat, cond)
+			wordCnt = len(condSplit)
+			for ii in range(wordCnt):
+				if condSplit[ii] in flds:
+					# This is a field name; change it to a self reference
+					condSplit[ii] = "self.%s" % condSplit[ii]
+			# Join it back up
+			cond = "".join(condSplit)
+		else:
+			# No condition was passed. This means that they want
+			# to replace *all* records.
+			cond = "True"
 		self.scan(self.__condReplace, cond, fld, val)
 
 
