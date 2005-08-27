@@ -5,6 +5,8 @@ from dabo.dLocalize import _
 import dabo.dException as dException
 import dabo.common
 import types
+import re
+
 
 class dBizobj(dabo.common.dObject):
 	""" The middle tier, where the business logic resides.
@@ -12,9 +14,6 @@ class dBizobj(dabo.common.dObject):
 	# Class to instantiate for the cursor object
 	dCursorMixinClass = dCursorMixin
 
-	# Versioning...
-	_version = "0.2.0"
-	
 	# Need to set this here
 	useFieldProps = False
 
@@ -22,12 +21,11 @@ class dBizobj(dabo.common.dObject):
 	_call_beforeInit, _call_afterInit = False, False
 
 	def __init__(self, conn, properties=None, *args, **kwargs):
-		""" User code should override beforeInit() and/or afterInit() instead.
-		"""
+		""" User code should override beforeInit() and/or afterInit() instead."""
 		self._beforeInit()
 		self._conn = conn
-			
-		super(dBizobj, self).__init__()
+
+		super(dBizobj, self).__init__(properties=properties, *args, **kwargs)
 
 		# Dictionary holding any default values to apply when a new record is created
 		# (should be made into a property - do we have a name/value editor for the propsheet?)
@@ -195,7 +193,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self._getCurrentCursor().first()
+		self._CurrentCursor.first()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
@@ -214,7 +212,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self._getCurrentCursor().prior()
+		self._CurrentCursor.prior()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
@@ -233,7 +231,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self._getCurrentCursor().next()
+		self._CurrentCursor.next()
 		self.requeryAllChildren()
 		
 		self.afterPointerMove()
@@ -252,7 +250,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self._getCurrentCursor().last()
+		self._CurrentCursor.last()
 		self.requeryAllChildren()
 
 		self.afterPointerMove()
@@ -263,7 +261,7 @@ class dBizobj(dabo.common.dObject):
 		""" Iterates through all the records of the bizobj, and calls save()
 		for any record that has pending changes.
 		"""
-		cursor = self._getCurrentCursor()
+		cursor = self._CurrentCursor
 		useTransact = startTransaction or topLevel
 		if useTransact:
 			# Tell the cursor to issue a BEGIN TRANSACTION command
@@ -296,7 +294,7 @@ class dBizobj(dabo.common.dObject):
 		If the save is successful, the save() of all child bizobjs will be
 		called as well. 
 		"""
-		cursor = self._getCurrentCursor()
+		cursor = self._CurrentCursor
 		errMsg = self.beforeSave()
 		if errMsg:
 			raise dException.dException, errMsg
@@ -371,7 +369,7 @@ class dBizobj(dabo.common.dObject):
 			raise dException.dException, errMsg
 
 		# Tell the cursor to cancel any changes
-		self._getCurrentCursor().cancel()
+		self._CurrentCursor.cancel()
 		# Tell each child to cancel themselves
 		for child in self.__children:
 			child.cancelAll()
@@ -384,7 +382,7 @@ class dBizobj(dabo.common.dObject):
 	def delete(self, startTransaction=False):
 		""" Delete the current row of the data set.
 		"""
-		cursor = self._getCurrentCursor()
+		cursor = self._CurrentCursor
 		errMsg = self.beforeDelete()
 		if not errMsg:
 			errMsg = self.beforePointerMove()
@@ -464,7 +462,7 @@ class dBizobj(dabo.common.dObject):
 		"""
 		if rownum is None:
 			rownum = self.RowNumber
-		return self._getCurrentCursor().getRecordStatus(rownum)
+		return self._CurrentCursor.getRecordStatus(rownum)
 
 
 	def scan(self, func, *args, **kwargs):
@@ -505,9 +503,41 @@ class dBizobj(dabo.common.dObject):
 				row = self.RowCount  - 1
 				if row >= 0:
 					self.RowNumber = row
-				
 
 
+	def getFieldNames(self):
+		"""Returns a tuple of all the field names in the cursor."""
+		flds = self._CurrentCursor.getFields()
+		# This is a tuple of 3-tuples; we just want the names
+		return tuple([ff[0] for ff in flds])
+		
+		
+	def replaceFor(self, cond, fld, val):
+		"""Replaces all 'fld' values in the recordset with the specified
+		value, as long as the record meets the specified condition. 
+		"""
+		flds = self.getFieldNames()
+		pat = "(\w+)"
+		condSplit = re.split(pat, cond)
+		wordCnt = len(condSplit)
+		for ii in range(wordCnt):
+			if condSplit[ii] in flds:
+				# This is a field name; change it to a self reference
+				condSplit[ii] = "self.%s" % condSplit[ii]
+		# Join it back up
+		cond = "".join(condSplit)
+		self.scan(self.__condReplace, cond, fld, val)
+
+
+	def __condReplace(self, cond, fld, val):
+		"""Usually passed to the scan() method as part of the 
+		replaceFor() logic. Accepts a condition, and if that 
+		condition is True, replaces the value of 'fld' with 'val'.
+		"""
+		if eval(cond):
+			self.setFieldVal(fld, val)
+			
+		
 	def new(self):
 		""" Create a new record and populate it with default values.
 		 
@@ -519,7 +549,7 @@ class dBizobj(dabo.common.dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 
-		self._getCurrentCursor().new()
+		self._CurrentCursor.new()
 		# Hook method for things to do after a new record is created.
 		self._onNew()
 
@@ -553,7 +583,7 @@ class dBizobj(dabo.common.dObject):
 			# sql passed; set it explicitly
 			self.SQL = sql
 		# propagate the SQL downward:
-		self._getCurrentCursor().setSQL(self.SQL)
+		self._CurrentCursor.setSQL(self.SQL)
 
 
 	def requery(self):
@@ -582,7 +612,7 @@ class dBizobj(dabo.common.dObject):
 			currPK = None
 
 		# run the requery
-		self._getCurrentCursor().requery(params)
+		self._CurrentCursor.requery(params)
 
 		if self.RestorePositionOnRequery:
 			self._moveToPK(currPK)
@@ -613,7 +643,7 @@ class dBizobj(dabo.common.dObject):
 				else:
 					val = self.escQuote(self.getParentPK())
 				filtExpr = " %s.%s = %s " % (self.DataSource, self.LinkField, val)
-			self._getCurrentCursor().setChildFilterClause(filtExpr)
+			self._CurrentCursor.setChildFilterClause(filtExpr)
 					
 
 	def sort(self, col, ord=None, caseSensitive=True):
@@ -623,7 +653,7 @@ class dBizobj(dabo.common.dObject):
 		in a particular order. All the checking on the parameters is done
 		in the cursor. 
 		"""
-		self._getCurrentCursor().sort(col, ord, caseSensitive)
+		self._CurrentCursor.sort(col, ord, caseSensitive)
 
 
 	def setParams(self, params):
@@ -677,7 +707,7 @@ class dBizobj(dabo.common.dObject):
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
 		"""
-		self._getCurrentCursor().moveToRowNum(rownum)
+		self._CurrentCursor.moveToRowNum(rownum)
 		if updateChildren:
 			pk = self.getPK()
 			for child in self.__children:
@@ -690,7 +720,7 @@ class dBizobj(dabo.common.dObject):
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
 		"""
-		self._getCurrentCursor().moveToPK(pk)
+		self._CurrentCursor.moveToPK(pk)
 		if updateChildren:
 			for child in self.__children:
 				# Let the child know the current dependent PK
@@ -712,7 +742,7 @@ class dBizobj(dabo.common.dObject):
 		If runRequery is True, and the record pointer is moved, all child bizobjs
 		will be requeried, and the afterPointerMove() hook method will fire.
 		"""
-		ret = self._getCurrentCursor().seek(val, fld, caseSensitive, near)
+		ret = self._CurrentCursor.seek(val, fld, caseSensitive, near)
 		if ret != -1:
 			if runRequery:
 				self.requeryAllChildren()
@@ -745,7 +775,7 @@ class dBizobj(dabo.common.dObject):
 		By default, only the current record is checked. Call isAnyChanged() to
 		check all records.
 		"""
-		ret = self._getCurrentCursor().isChanged(allRows = False)
+		ret = self._CurrentCursor.isChanged(allRows = False)
 		
 		if not ret:
 			# see if any child bizobjs have changed
@@ -760,7 +790,7 @@ class dBizobj(dabo.common.dObject):
 		"""If the current record is a new, unsaved record, this returns True.
 		Otherwise, False is returned.
 		"""
-		return self._getCurrentCursor().isNewUnsaved()
+		return self._CurrentCursor.isNewUnsaved()
 		
 		
 	def onDeleteLastRecord(self):
@@ -793,7 +823,7 @@ class dBizobj(dabo.common.dObject):
 		
 		User subclasses should leave this alone and instead override onNew(). 
 		"""
-		cursor = self._getCurrentCursor()
+		cursor = self._CurrentCursor
 		cursor.setDefaults(self.defaultValues)
 		
 		if self.AutoPopulatePK:
@@ -838,15 +868,7 @@ class dBizobj(dabo.common.dObject):
 			# Update the key value for the cursor
 			self.__currentCursorKey = val
 			# Make sure there is a cursor object for this key.
-			self.setCurrentCursor()
-	
-	
-	def setCurrentCursor(self):
-		""" Sees if there is a cursor in the cursors dict with a key that matches
-		the current parent key. If not, creates one.
-		"""
-		if not self.__cursors.has_key(self.__currentCursorKey):
-			self.createCursor()
+			self._CurrentCursor = val
 	
 	
 	def addChild(self, child):
@@ -958,7 +980,7 @@ class dBizobj(dabo.common.dObject):
 		if self.KeyField is None:
 			raise dException.dException, "No key field defined for table: " + self.DataSource
 
-		return self._getCurrentCursor().getFieldVal(self.KeyField)
+		return self._CurrentCursor.getFieldVal(self.KeyField)
 
 
 	def getParentPK(self):
@@ -976,7 +998,7 @@ class dBizobj(dabo.common.dObject):
 	def getFieldVal(self, fld):
 		""" Return the value of the specified field in the current row. 
 		"""
-		cursor = self._getCurrentCursor()
+		cursor = self._CurrentCursor
 		if cursor is not None:
 			return cursor.getFieldVal(fld)
 		else:
@@ -986,7 +1008,7 @@ class dBizobj(dabo.common.dObject):
 	def setFieldVal(self, fld, val):
 		""" Set the value of the specified field in the current row.
 		"""
-		cursor = self._getCurrentCursor()
+		cursor = self._CurrentCursor
 		if cursor is not None:
 			try:
 				cursor.setFieldVal(fld, val)
@@ -1004,7 +1026,7 @@ class dBizobj(dabo.common.dObject):
 		and user code can do this as well if needed, but you'll need to keep 
 		the bizobj notified of any row changes and field value changes manually.
 		"""
-		return self._getCurrentCursor().getDataSet()
+		return self._CurrentCursor.getDataSet()
 	
 	
 	def getDataStructure(self):
@@ -1014,7 +1036,7 @@ class dBizobj(dabo.common.dObject):
 			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
 			2: boolean specifying whether this is a pk field.
 		"""
-		return self._getCurrentCursor().getFields(self.DataSource)
+		return self._CurrentCursor.getFields(self.DataSource)
 
 
 	def getParams(self):
@@ -1038,7 +1060,7 @@ class dBizobj(dabo.common.dObject):
 		
 		User code should not normally call this method.
 		"""
-		self._getCurrentCursor().setMemento()
+		self._CurrentCursor.setMemento()
 
 
 	def getChildren(self):
@@ -1068,60 +1090,54 @@ class dBizobj(dabo.common.dObject):
 		escapes backslashes, since they have special meaning in SQL parsing. 
 		Finally, wraps the value in single quotes.
 		"""
-		return self._getCurrentCursor().escQuote(val)
+		return self._CurrentCursor.escQuote(val)
 	
 	
 	def formatDateTime(self, val):
 		""" Wrap a date or date-time value in the format 
 		required by the backend.
 		"""
-		return self._getCurrentCursor().formatDateTime(val)
+		return self._CurrentCursor.formatDateTime(val)
 
 
 	def getNonUpdateFields(self):
-		return self._getCurrentCursor().getNonUpdateFields()
+		return self._CurrentCursor.getNonUpdateFields()
 		
 	def setNonUpdateFields(self, fldList=[]):
-		self._getCurrentCursor().setNonUpdateFields(fldList)
+		self._CurrentCursor.setNonUpdateFields(fldList)
 	
 	def getWordMatchFormat(self):
-		return self._getCurrentCursor().getWordMatchFormat()
+		return self._CurrentCursor.getWordMatchFormat()
 		
-	def _getCurrentCursor(self):
-		try:
-			return self.__cursors[self.__currentCursorKey]
-		except KeyError:
-			# There is no current cursor
-			return None
 	
 		
 	########## SQL Builder interface section ##############
 	def addField(self, exp):
-		return self._getCurrentCursor().addField(exp)
+		return self._CurrentCursor.addField(exp)
 	def addFrom(self, exp):
-		return self._getCurrentCursor().addFrom(exp)
+		return self._CurrentCursor.addFrom(exp)
 	def addGroupBy(self, exp):
-		return self._getCurrentCursor().addGroupBy(exp)
+		return self._CurrentCursor.addGroupBy(exp)
 	def addOrderBy(self, exp):
-		return self._getCurrentCursor().addOrderBy(exp)
+		return self._CurrentCursor.addOrderBy(exp)
 	def addWhere(self, exp, comp="and"):
-		return self._getCurrentCursor().addWhere(exp)
+		return self._CurrentCursor.addWhere(exp)
 	def getSQL(self):
-		return self._getCurrentCursor().getSQL()
+		return self._CurrentCursor.getSQL()
 	def setFieldClause(self, clause):
-		return self._getCurrentCursor().setFieldClause(clause)
+		return self._CurrentCursor.setFieldClause(clause)
 	def setFromClause(self, clause):
-		return self._getCurrentCursor().setFromClause(clause)
+		return self._CurrentCursor.setFromClause(clause)
 	def setGroupByClause(self, clause):
-		return self._getCurrentCursor().setGroupByClause(clause)
+		return self._CurrentCursor.setGroupByClause(clause)
 	def setLimitClause(self, clause):
-		return self._getCurrentCursor().setLimitClause(clause)
+		return self._CurrentCursor.setLimitClause(clause)
 	def setOrderByClause(self, clause):
-		return self._getCurrentCursor().setOrderByClause(clause)
+		return self._CurrentCursor.setOrderByClause(clause)
 	def setWhereClause(self, clause):
-		return self._getCurrentCursor().setWhereClause(clause)
+		return self._CurrentCursor.setWhereClause(clause)
 	def prepareWhere(self, clause):
-		return self._getCurrentCursor().prepareWhere(clause)
+		return self._CurrentCursor.prepareWhere(clause)
 		
 
 
@@ -1166,6 +1182,20 @@ class dBizobj(dabo.common.dObject):
 	def _setCaption(self, val):
 		self._caption = str(val)
 	
+	def _getCurrentCursor(self):
+		try:
+			return self.__cursors[self.__currentCursorKey]
+		except KeyError:
+			# There is no current cursor
+			return None
+	def _setCurrentCursor(self, val):
+		""" Sees if there is a cursor in the cursors dict with a key that matches
+		the current parent key. If not, creates one.
+		"""
+		self.__currentCursorKey = val
+		if not self.__cursors.has_key(val):
+			self.createCursor()
+	
 	def _getDataSource(self):
 		try: 
 			return self._dataSource
@@ -1173,13 +1203,13 @@ class dBizobj(dabo.common.dObject):
 			return ""
 	def _setDataSource(self, val):
 		self._dataSource = str(val)
-		cursor = self._getCurrentCursor()
+		cursor = self._CurrentCursor
 		if cursor is not None:
 			cursor.Table = val
 	
 	def _getEncoding(self):
 		ret = "latin-1"
-		cursor = self._getCurrentCursor()
+		cursor = self._CurrentCursor
 		if cursor is not None:
 			ret = cursor.Encoding
 		return ret
@@ -1219,7 +1249,7 @@ class dBizobj(dabo.common.dObject):
 			return ""
 	def _setKeyField(self, val):
 		self._keyField = val
-		cursor = self._getCurrentCursor()
+		cursor = self._CurrentCursor
 		if cursor is not None:
 			cursor.KeyField = val
 	
@@ -1272,7 +1302,7 @@ class dBizobj(dabo.common.dObject):
 		self._fillLinkFromParent = bool(val)
 		
 	def _isAdding(self):
-		return self._getCurrentCursor().IsAdding
+		return self._CurrentCursor.IsAdding
 	
 	def _getRestorePositionOnRequery(self):
 		try:
@@ -1283,10 +1313,10 @@ class dBizobj(dabo.common.dObject):
 		self._restorePositionOnRequery = bool(val)
 
 	def _getRowCount(self):
-		return self._getCurrentCursor().RowCount
+		return self._CurrentCursor.RowCount
 
 	def _getRowNumber(self):
-		return self._getCurrentCursor().RowNumber
+		return self._CurrentCursor.RowNumber
 	def _setRowNumber(self, rownum):
 		errMsg = self.beforeSetRowNumber()
 		if not errMsg:
@@ -1305,7 +1335,7 @@ class dBizobj(dabo.common.dObject):
 			return ""
 	def _setSQL(self, val):
 		self._SQL = val
-		cursor = self._getCurrentCursor()
+		cursor = self._CurrentCursor
 		if cursor is not None:
 			cursor.setSQL(val)
 
@@ -1331,6 +1361,9 @@ class dBizobj(dabo.common.dObject):
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("The friendly title of the cursor, used in messages to the end user. (str)"))
+	
+	_CurrentCursor = property(_getCurrentCursor, _setCurrentCursor, None,
+			_("The cursor object for the currently selected key value. (dCursorMixin child)"))
 	
 	DataSource = property(_getDataSource, _setDataSource, None,
 			_("The title of the cursor. Used in resolving DataSource references. (str)"))

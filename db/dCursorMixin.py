@@ -1140,7 +1140,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		return self._getBackendObject().getTableRecordCount(tableName)
 		
-	def getFields(self, tableName):
+	def getFields(self, tableName=None):
 		""" Get field information about the backend table.
 		
 		Returns a list of 3-tuples, where the 3-tuple's elements are:
@@ -1148,8 +1148,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
 			2: boolean specifying whether this is a pk field.
 		"""
+		if tableName is None:
+			# Use the default
+			tableName = self.Table
 		return self._getBackendObject().getFields(tableName)
-		
+	
+	
 	def getLastInsertID(self):
 		""" Return the most recently generated PK """
 		ret = None
