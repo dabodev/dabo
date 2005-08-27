@@ -541,7 +541,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if rec.has_key(fld):
 				fldType = self._types[fld]
 				if fldType != type(val):
-					if isinstance(val, basestring) and isinstance(rec[fld], basestring):
+					convTypes = (str, unicode, int, float, long, complex)
+					if isinstance(val, convTypes) and isinstance(rec[fld], basestring):
 						if isinstance(rec[fld], str):
 							val = str(val)
 						else:
