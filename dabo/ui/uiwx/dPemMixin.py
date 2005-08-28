@@ -670,6 +670,14 @@ class dPemMixin(dPemMixinBase):
 	def refresh(self):
 		"""Wrapper to the wx method."""
 		self.Refresh()
+	
+	
+	def fitToSizer(self):
+		"""If the object has a sizer, this will fit the object to 
+		the size of the contained objects.
+		"""
+		if self.Sizer:
+			self.Fit()
 		
 		
 	def _redraw(self):
@@ -842,6 +850,8 @@ class dPemMixin(dPemMixinBase):
 		return self.GetLabel()
 	
 	def _setCaption(self, val):
+		# Force the value to string
+		val = "%s" % val
 		if self._constructed():
 			## 2/23/2005: there is a bug in wxGTK that resets the font when the 
 			##            caption changes. So this is a workaround:
