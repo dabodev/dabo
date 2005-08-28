@@ -53,6 +53,12 @@ class dSizerMixin(dabo.common.dObject):
 	growFlag = wx.EXPAND
 	fixedFlag = wx.FIXED_MINSIZE 
 			
+	
+	def appendItems(self, items, *args, **kwargs):
+		"""Append each item to the sizer."""
+		for item in items:
+			self.append(item, *args, **kwargs)
+			
 			
 	def append(self, item, layout="normal", proportion=0, alignment=None,
 			halign="left", valign="top", border=None, borderFlags=None):
@@ -184,6 +190,18 @@ class dSizerMixin(dabo.common.dObject):
 	def release(self):
 		"""Wrapper method for wx's Destroy"""
 		self.Destroy()
+	
+	
+	def showItem(self, itm):
+		"""Makes sure that the passed item is visible"""
+		self.Show(itm, show=True, recursive=True)
+		self.layout()
+		
+		
+	def hideItem(self, itm):
+		"""Hides the passed item"""
+		self.Show(itm, show=False, recursive=True)
+		self.layout()
 		
 		
 	def drawOutline(self, win, recurse=False):

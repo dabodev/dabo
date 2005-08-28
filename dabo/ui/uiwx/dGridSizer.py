@@ -209,12 +209,17 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		sz = self.FindItemAtPosition( (fromRow, fromCol) )
 		if sz:
 			if sz.IsWindow():
-				item = sz.GetWindow()
-				self.SetItemPosition(item, (toRow, toCol) )
-				if not delay:
-					self.layout()
+				obj = sz.GetWindow()
+				self.moveObject(obj, toRow, toCol, delay=delay)
 
 			
+	def moveObject(self, obj, targetRow, targetCol, delay=False):
+		"""Moves the object to the given row/col if possible."""
+		self.SetItemPosition(obj, (targetRow, targetCol) )
+		if not delay:
+			self.layout()
+		
+		
 	def determineAvailableCell(self, row, col):
 		(targetRow, targetCol) = (row, col)
 		if (row == -1) or (col == -1):
@@ -282,6 +287,45 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			# Window isn't controlled by this sizer
 			row, col = None, None
 		return (row, col)
+	
+	
+	def getItemByRowCol(self, row, col):
+		"""Returns the item at the given position if one 
+		exists. If not, returns None.
+		"""
+		try:
+			itm = self.FindItemAtPosition((row, col))
+			ret = itm.GetWindow()
+		except:
+			ret = None
+		return ret
+	
+	
+	def getNeighbor(self, obj, dir):
+		"""Returns the object adjacent to the given object. Possible
+		values for 'dir' are: left, right, up, down.
+		"""
+		dir = dir[0].lower()
+		if dir not in "lrud":
+			return None		
+		offsets = {"l" : (0, -1), "r" : (0, 1), "u" : (-1, 0), "d" : (1, 0)}
+		off = offsets[dir]
+		return self.getItemAtOffset(obj, off)
+		
+	
+	def getItemAtOffset(self, obj, off):
+		"""Given an object and a (row, col) offset, returns
+		the object at the offset position, or None if no such 
+		object exists.
+		"""
+		row, col = self.getGridPos(obj)
+		newRow = row + off[0]
+		newCol = col + off[1]
+		try:
+			ret = self.getItemByRowCol(newRow, newCol)
+		except:
+			ret = None
+		return ret
 
 	
 	def copyGrid(self, oldGrid):
