@@ -155,8 +155,20 @@ class dControlItemMixin(dDataControlMixin):
 		
 			# Select items that match indices in value:
 			for key in value:
-				if key is None:
-					continue
+				if not self.Keys.has_key(key):
+					# self.Keys does not have the requested key. This could happen, for
+					# example, if the bound field is a foreign key, and we are just adding
+					# a new record. In my case, the iclientid field is ''. I want the list
+					# to display "< None >" and map that to a value of None, so I set up a
+					# Choice and a Key for that in my app code.
+
+					# setting key to None here will result in an exception if there is no
+					# key on None (user code must set their Keys to have a None key). But
+					# the effect this has is that if the control is getting set to a value
+					# that doesn't exist in self.Keys, we'll set the list to select the 
+					# item that is matched to None, if available. Else, it's a runtime
+					# exception.
+					key = None
 				self.setSelection(self.Keys[key])
 			self._afterValueChanged()
 		else:
