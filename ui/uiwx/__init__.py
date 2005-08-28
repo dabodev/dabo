@@ -519,10 +519,19 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	if italic is not None:
 		fnt.SetStyle(wx.ITALIC)
 	
+	if not isinstance(wind, dabo.ui.dForm):
+		try:
+			wind = wind.Form
+		except:
+			try:
+				wind = wind.Parent
+			except:
+				pass
 	dc = wx.ClientDC(wind)
 	dc.SetFont(fnt)
-	return dc.GetTextExtent(txt)
-
+	ret = dc.GetTextExtent(txt)
+	return ret
+	
 	
 def strToBmp(val):
 	"""This can be either a path, or the name of a built-in graphic."""
