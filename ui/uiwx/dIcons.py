@@ -14,12 +14,7 @@ def getIconBitmap(iconName, setMask=True):
 	"""
 	fileName = dabo.icons.getIconFileName(iconName)
 	if os.path.exists(fileName):
-		if wx.GetApp():
-			r = wx.Image(fileName, wx.BITMAP_TYPE_PNG)
-			r.SetMask(setMask)
-			return r.ConvertToBitmap()
-		else:
-			return wx.NullBitmap
+		return dabo.ui.pathToBmp(fileName)
 	else:
-		return wx.NullBitmap
+		return wx.EmptyBitmap(1, 1)
 
