@@ -194,20 +194,24 @@ class uiApp(wx.App, dObject):
 
 	def onEditUndo(self, evt):
 		if self.ActiveForm:
-			win = self.ActiveForm.ActiveControl
-			try:
-				win.Undo()
-			except AttributeError:
-				dabo.errorLog.write(_("No apparent way to undo."))
+			hasCode = self.ActiveForm.onEditUndo(evt)
+			if hasCode is False:
+				win = self.ActiveForm.ActiveControl
+				try:
+					win.Undo()
+				except AttributeError:
+					dabo.errorLog.write(_("No apparent way to undo."))
 	
 
 	def onEditRedo(self, evt):
 		if self.ActiveForm:
-			win = self.ActiveForm.ActiveControl
-			try:
-				win.Redo()
-			except AttributeError:
-				dabo.errorLog.write(_("No apparent way to redo."))
+			hasCode = self.ActiveForm.onEditRedo(evt)
+			if hasCode is False:
+				win = self.ActiveForm.ActiveControl
+				try:
+					win.Redo()
+				except AttributeError:
+					dabo.errorLog.write(_("No apparent way to redo."))
 
 
 	def onEditFind(self, evt):

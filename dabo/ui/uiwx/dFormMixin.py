@@ -252,7 +252,25 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		menu = dMenu.dMenu()
 		return menu
-
+	
+	
+	def onEditUndo(self, evt):
+		"""If you want your form to respond to the Undo menu item in
+		the Edit menu that is installed in the Dabo base menu, override 
+		this method, and either return nothing, or return something other
+		than False.
+		"""
+		return False
+		
+		
+	def onEditRedo(self, evt):
+		"""If you want your form to respond to the Redo menu item in
+		the Edit menu that is installed in the Dabo base menu, override 
+		this method, and either return nothing, or return something other
+		than False.
+		"""
+		return False
+		
 		
 	def restoreSizeAndPosition(self):
 		""" Restore the saved window geometry for this form.
