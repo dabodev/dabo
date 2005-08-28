@@ -366,6 +366,7 @@ def getString(message="Please enter a string:", caption="Dabo",	defaultValue="")
 areYouSure = dMessageBox.areYouSure
 stop = dMessageBox.stop
 info = dMessageBox.info
+exclaim = dMessageBox.exclaim
 
 
 def getColor(color=None):
