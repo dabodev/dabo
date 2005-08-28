@@ -45,7 +45,19 @@ def areYouSure(message="Are you sure?", title="Dabo",
 
 
 def stop(message="Stop", title="Dabo"):
-	style = wx.OK|wx.ICON_HAND
+	icon = wx.ICON_HAND
+	showMessageBox(message=message, title=title, icon=icon)
+
+def info(message="Information", title="Dabo"):
+	icon = wx.ICON_INFORMATION
+	showMessageBox(message=message, title=title, icon=icon)
+
+def exclaim(message="Important!", title="Dabo"):
+	icon = wx.ICON_EXCLAMATION
+	showMessageBox(message=message, title=title, icon=icon)
+
+def showMessageBox(message, title, icon):
+	style = wx.OK | icon
 	dlg = dMessageBox(message, title, style)
 	retval = dlg.ShowModal()
 	dlg.Destroy()
