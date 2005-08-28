@@ -816,7 +816,12 @@ class EditPage(Page):
 				elif fieldType in ["bool",]:
 					classRef = dabo.ui.dCheckBox
 				elif fieldType in ["date",]:
-					classRef = dabo.ui.dDateTextBox
+					#pkm: temporary: dDateTextBox is misbehaving still. So, until we get
+					#     it figured out, change the type of control used for date editing
+					#     to a raw dTextBox, which can handle viewing/setting dates but 
+					#     doesn't have all the extra features of dDateTextBox. (2005/08/28)
+					#classRef = dabo.ui.dDateTextBox
+					classRef = dabo.ui.dTextBox
 				else:
 					classRef = dabo.ui.dTextBox
 
