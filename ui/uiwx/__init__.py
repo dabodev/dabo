@@ -540,13 +540,13 @@ def strToBmp(val):
 	return ret
 	
 	
-def pathToBmp(self, pth):
+def pathToBmp(pth):
 	img = wx.NullImage
 	img.LoadFile(pth)
 	return img.ConvertToBitmap()
 
 
-def resizeBmp(self, bmp, wd, ht):
+def resizeBmp(bmp, wd, ht):
 	img = bmp.ConvertToImage()
 	img.Rescale(wd, ht)
 	return img.ConvertToBitmap()
