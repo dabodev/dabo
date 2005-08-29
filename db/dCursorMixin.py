@@ -902,6 +902,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		row = self._records[self.RowNumber]
 		for kk, vv in vals.items():
 			if row.has_key(kk):
+				if type(vv) in (types.FunctionType, types.MethodType):
+					vv = vv()
 				row[kk] = vv
 			else:
 				# We probably shouldn't add an erroneous field name to the row
