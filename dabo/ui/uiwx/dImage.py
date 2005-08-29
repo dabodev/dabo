@@ -154,12 +154,14 @@ if __name__ == "__main__":
 	class ImgForm(dabo.ui.dForm):
 		def afterInit(self):
 			# Sliders work differently on OS X
-			self.onMac = (wx.PlatformInfo[0] == "__WXMAC__")
+			### egl - This has been fixed in more recent versions of wxPython
+			# self.reverseVert = (wx.PlatformInfo[0] == "__WXMAC__")
+			self.reverseVert = False
 			# Create a panel with horiz. and vert.  sliders
 			self.imgPanel = dabo.ui.dPanel(self)
 			self.VSlider = dabo.ui.dSlider(self, Orientation="V", Min=1, Max=100)
 			self.HSlider = dabo.ui.dSlider(self, Orientation="H", Min=1, Max=100)
-			if self.onMac:
+			if self.reverseVert:
 				self.VSlider.Value = 0
 			else:
 				self.VSlider.Value = 100
@@ -218,7 +220,7 @@ if __name__ == "__main__":
 				# Change the width of the image
 				self.img.Width = (self.imgPanel.Width * val)
 			else:
-				if self.onMac:
+				if self.reverseVert:
 					val = 1.01 - val
 				self.img.Height = (self.imgPanel.Height * val)
 			
@@ -237,7 +239,7 @@ if __name__ == "__main__":
 			if self.needUpdate:
 				self.needUpdate = False
 				wd = self.HSlider.Value * 0.01 * self.imgPanel.Width
-				if self.onMac:
+				if self.reverseVert:
 					ht = (101 - self.VSlider.Value) * 0.01 * self.imgPanel.Height
 				else:
 					ht = self.VSlider.Value * 0.01 * self.imgPanel.Height
