@@ -93,6 +93,7 @@ class dFolderDialog(wx.DirDialog, OsDialogMixin):
 	
 	def __init__(self, parent=None, message="Choose a folder", 
 			defaultPath="", wildcard="*.*"):
+		self._multiple = False
 		self._baseClass = dFolderDialog
 		super(dFolderDialog, self).__init__(parent=parent, message=message, 
 				defaultPath=defaultPath, style=wx.DD_NEW_DIR_BUTTON)
