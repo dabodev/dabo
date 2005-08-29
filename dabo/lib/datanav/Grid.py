@@ -43,7 +43,8 @@ class Grid(dabo.ui.dGrid):
 					autoSizeCols=False)
 			self.built = True
 		else:
-			self.fillGrid()
+			self.fillGrid(True)
+		self.Form.refresh()
 		
 
 	def sort(self):
