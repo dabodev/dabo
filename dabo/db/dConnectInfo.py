@@ -59,6 +59,9 @@ class dConnectInfo(dabo.common.dObject):
 		
 		
 	def setConnInfo(self, connInfo, nm=""):
+	
+		print "SetConnInfo:", connInfo
+		
 		if isinstance(connInfo, dict):
 			# The info is already in dict format
 			connDict = self.lowerKeys(connInfo)
@@ -74,7 +77,9 @@ class dConnectInfo(dabo.common.dObject):
 			except:
 				nm = cd.keys()[0]
 				connDict = cd[nm]
-			
+		
+		print "CONND", connDict
+		
 		# They passed a dictionary containing the connection settings
 		if connDict.has_key("dbtype"):
 			self.DbType = connDict["dbtype"]
@@ -159,7 +164,7 @@ class dConnectInfo(dabo.common.dObject):
 			else:
 				raise ValueError, "Invalid database type: %s." % nm
 			if _oldObject != self._backendObject:
-				self._dbType = nm
+				self._dbType = dbType
 		else:
 			self._dbType = None
 			self._backendObject = None
