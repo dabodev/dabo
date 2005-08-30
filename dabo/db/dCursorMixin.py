@@ -601,11 +601,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
-	def getDataSet(self):
-		""" Get the entire data set encapsulated in a tuple.
+	def getDataSet(self, flds=None):
+		""" Get the entire data set encapsulated in a tuple. If the optional
+		'flds' parameter is given, the result set will be filtered to only 
+		include the specified fields.
 		"""
 		try:
-			return self._records
+			ret = self._records
+			if flds:
+				retlist = []
+				for rec in ret:
+					filtRec = {}
+					for fld in flds:
+						filtRec[fld] = rec[fld]
+					retlist.append(filtRec)
+				ret = tuple(retlist)
+			return ret
 		except AttributeError:
 			return ()
 
@@ -613,7 +624,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def getRowCount(self):
 		""" Get the row count of the current data set.
 		
-		Redundant: Just get this from the property RowCount.
+		Obsolete: Just get this from the property RowCount.
 		"""
 		return self.RowCount
 
@@ -621,7 +632,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def getRowNumber(self):
 		""" Get the active row number of the data set.
 		
-		Redundant: Just get this from the property RowNumber.
+		Obsolete: Just get this from the property RowNumber.
 		"""
 		return self.RowNumber
 
