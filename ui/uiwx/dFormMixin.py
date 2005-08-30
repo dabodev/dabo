@@ -96,6 +96,7 @@ class dFormMixin(pm.dPemMixin):
 			self.Application._setActiveForm(self)
 	
 	def __onDeactivate(self, evt):
+		self.saveSizeAndPosition()
 		if self.Application is not None and self.Application.ActiveForm == self:
 			self.Application._setActiveForm(None)
 	
@@ -114,10 +115,16 @@ class dFormMixin(pm.dPemMixin):
 		self._isClosed = True
 		self.SetFocus()
 		if self.Application is not None:
+			self.saveSizeAndPosition()
+			if self == self.Application.MainForm:
+				for form in self.Application.uiForms:
+					try:
+						form.saveSizeAndPosition()
+					except wx.PyDeadObjectError:
+						pass
 			try:
 				self.Application.uiForms.remove(self)
 			except: pass
-		self.saveSizeAndPosition()
 	
 	def _getStatusBar(self):
 		if hasattr(self, "GetStatusBar"):
@@ -280,7 +287,6 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		if self.Application and self.SaveUserGeometry:
 			name = self.getAbsoluteName()
-
 			left = self.Application.getUserSetting("%s.left" % name)
 			top = self.Application.getUserSetting("%s.top" % name)
 			width = self.Application.getUserSetting("%s.width" % name)
@@ -298,13 +304,6 @@ class dFormMixin(pm.dPemMixin):
 		""" Save the current size and position of this form.
 		"""
 		if self.Application:
-			if self == self.Application.MainForm:
-				for form in self.Application.uiForms:
-					try:
-						form.saveSizeAndPosition()
-					except wx.PyDeadObjectError:
-						pass
-
 			if self.SaveUserGeometry:
 				name = self.getAbsoluteName()
 
