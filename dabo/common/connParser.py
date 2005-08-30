@@ -80,6 +80,10 @@ def genConnXML(d):
 	"""
 	try:
 		if not d.has_key("name"):
+			if not d["user"]:
+				d["user"] = "anybody"
+			if not d["host"]:
+				d["host"] = "local"
 			d["name"] = "%s@%s" % (d["user"], d["host"])
 		ret = getConnTemplate() % (d["dbtype"], d["name"], d["host"], 
 				d["database"], d["user"], d["password"], d["port"])
