@@ -15,7 +15,7 @@ Dabo user settings are no longer saved to .userSettings.ini in the app
 directory, but are saved to the user's home directory (in ~.dabo/) or
 if on Windows, in <User Profile>/Application Data/Dabo/.
 
-Support for SQLite added. As of this moment, Dabo supports all major 
+Support for SQLite added. As of this moment, Dabo supports several major 
 open-source database backends: MySQL, PostgreSQL, Firebird, and SQLite.
 Next on the list should be Oracle, Sybase, and MS-SQL.
 
@@ -26,6 +26,13 @@ Writer to create a PDF rendition of the dataset.
 Added new property for all controls: StatusText. When set, and when the 
 form has a status bar, that text will show in the form's status bar when
 the mouse enters the control. 
+
+Expanded the dabo.ui.strToBmp() function to accept an optional scale factor
+or width/height values. If they are passed, the returned bitmap image is 
+sized to those values.
+
+Added an optional parameter to the bizobj and cursor's getDataSet() method.
+If you send a list of field names, only those fields are returned. 
 
 Fixed some lingering bugs in the dabo.ui.uiwx package and the datanav
 lib. dWizard works better now. Improved dGauge, dLine, dBox, dRadioBox, 
