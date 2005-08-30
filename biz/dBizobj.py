@@ -1027,14 +1027,14 @@ class dBizobj(dabo.common.dObject):
 			return None
 
 
-	def getDataSet(self):
+	def getDataSet(self, flds=None):
 		""" Return the full data set from the cursor. 
 		
 		Used by UI objects such as the grid for efficient reading of the data,
 		and user code can do this as well if needed, but you'll need to keep 
 		the bizobj notified of any row changes and field value changes manually.
 		"""
-		return self._CurrentCursor.getDataSet()
+		return self._CurrentCursor.getDataSet(flds)
 	
 	
 	def getDataStructure(self):
