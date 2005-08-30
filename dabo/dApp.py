@@ -201,7 +201,7 @@ class dApp(dabo.common.dObject):
 		return None
 
 
-	def getUserSetting(self, item, user="*", system="*"):
+	def getUserSetting(self, item, default=None, user="*", system="*"):
 		""" Return the value of the user settings table that 
 			corresponds to the item, user, and system id 
 			passed. Based on the ctype field in the table, 
@@ -220,7 +220,7 @@ class dApp(dabo.common.dObject):
 
 		"""
 		if self.UserSettingProvider:
-			return self.UserSettingProvider.getUserSetting(item, user, system)
+			return self.UserSettingProvider.getUserSetting(item, default, user, system)
 		return None
 
 

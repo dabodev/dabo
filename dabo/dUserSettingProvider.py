@@ -39,7 +39,7 @@ class dUserSettingProvider(dabo.common.dObject):
 					ret.append(key)
 		return ret
 		
-	def getUserSetting(self, item, user="*", system="*"):
+	def getUserSetting(self, item, default=None, user="*", system="*"):
 		""" Return the value of the user settings table that 
 			corresponds to the item, user, and system id 
 			passed. Based on the ctype field in the table, 
@@ -79,7 +79,7 @@ class dUserSettingProvider(dabo.common.dObject):
 			else:
 				value = cp.get("UserSettings", item)
 		except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
-			value = None
+			value = default
 
 		return value
 

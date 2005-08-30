@@ -529,11 +529,16 @@ class dFormMixin(pm.dPemMixin):
 		send the text to the main frame or this frame. This matters with MDI
 		versus non-MDI forms.
 		"""
+		hasStatus = True
 		if isinstance(self, wx.MDIChildFrame):
 			controllingFrame = self.Application.MainForm
 		else:
 			controllingFrame = self
-		if controllingFrame.GetStatusBar():
+		try:
+			controllingFrame.GetStatusBar
+		except AttributeError:
+			hasStatus = False
+		if hasStatus and controllingFrame.GetStatusBar():
 			if self._holdStatusText:
 				controllingFrame.SetStatusText(self._holdStatusText)
 				self._holdStatusText = ""
