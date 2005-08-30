@@ -1,5 +1,7 @@
 """ dPemMixin.py: Provide common PEM functionality """
-import wx, sys, types
+import wx
+import sys
+import types
 import dabo, dabo.common
 from dabo.dLocalize import _
 from dabo.ui.dPemMixinBase import dPemMixinBase

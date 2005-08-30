@@ -544,8 +544,13 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	return ret
 	
 	
-def strToBmp(val):
-	"""This can be either a path, or the name of a built-in graphic."""
+def strToBmp(val, scale=None, width=None, height=None):
+	"""This can be either a path, or the name of a built-in graphic.
+	If an adjusted size is desired, you can either pass a 'scale' value
+	(where 1.00 is full size, 0.5 scales it to 50% in both Height and 
+	Width), or you can pass specific 'height' and 'width' values. The 
+	final image will be a bitmap resized to those specs.	
+	"""
 	ret = None
 	if os.path.exists(val):
 		ret = pathToBmp(val)
@@ -558,6 +563,34 @@ def strToBmp(val):
 	if not ret:
 		# Return an empty bitmap
 		ret = wx.EmptyBitmap(1, 1)
+	
+	if ret is not None:
+		if scale is None and width is None and height is None:
+			# No resize specs
+			pass
+		else:
+			img = ret.ConvertToImage()
+			oldWd = float(img.GetWidth())
+			oldHt = float(img.GetHeight())
+			if scale is not None:
+				# The bitmap should be scaled.
+				newWd = oldWd * scale
+				newHt = oldHt * scale
+			else:
+				if width is not None and height is not None:
+					# They passed both
+					newWd = width
+					newHt = height
+				elif width is not None:
+					newWd = width
+					# Scale the height
+					newHt = oldHt * (newWd / oldWd)
+				elif height is not None:
+					newHt = height
+					# Scale the width
+					newWd = oldWd * (newHt / oldHt)
+			img.Rescale(newWd, newHt)
+			ret = img.ConvertToBitmap()	
 	return ret
 	
 	

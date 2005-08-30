@@ -404,7 +404,7 @@ class dSizerMixin(dabo.common.dObject):
 		return ret
 	
 	def _getHt(self):
-		return self.GetSize()[0]
+		return self.GetSize()[1]
 		
  	def _getOrientation(self):
 		o = self.GetOrientation()
@@ -437,7 +437,7 @@ class dSizerMixin(dabo.common.dObject):
 		self.ShowItems(val)
 	
 	def _getWd(self):
-		return self.GetSize()[1]		
+		return self.GetSize()[0]		
 		
 	
 	Border = property(_getBorder, _setBorder, None,
