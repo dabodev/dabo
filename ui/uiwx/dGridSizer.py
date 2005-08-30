@@ -9,6 +9,11 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	
 	def __init__(self, vgap=3, hgap=3, maxRows=0, maxCols=0, **kwargs):
 		self._baseClass = dGridSizer
+		# Save these values, as there is no easy way to determine them
+		# later
+		self.hgap = hgap
+		self.vgap = vgap
+		
 		wx.GridBagSizer.__init__(self, vgap=vgap, hgap=hgap)
 		
 		self._maxRows = 0
