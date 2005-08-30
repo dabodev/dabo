@@ -14,13 +14,9 @@ The Dabo Report Writer has dependencies on libraries you
 don't appear to have installed. You still need:
 
 	%s
-	
-You can still run Dabo, but any attempt to run reports
-will fail.""" % "\n\t".join(_failedLibs)
+	""" % "\n\t".join(_failedLibs)
 
-	## pkm: don't exit the program just because reportlab isn't installed
-	#	sys.exit(msg)
-	print msg
+	sys.exit(msg)
 del(_failedLibs)
 #######################################################
 
