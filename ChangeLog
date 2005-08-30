@@ -1,10 +1,15 @@
 See the Subversion log for all the details.
 
-Current:
+Dabo-0.4.1 (2005-08-30) (Revision 1222):
 
 Improved test framework for uiwx. Now you can run ui/uiwx/test.py and get
 almost all of the dabo controls in one form, and they are the same tests 
 that you get when you run an individual control directly.
+
+Factored out the saving/restoring of user settings out of dApp into 
+the separate dUserSettingProvider class, which can be subclassed or
+overridded by the developers. Added properties UserSettingProvider
+and UserSettingProviderClass to dApp. 
 
 Dabo user settings are no longer saved to .userSettings.ini in the app
 directory, but are saved to the user's home directory (in ~.dabo/) or
@@ -21,6 +26,29 @@ Writer to create a PDF rendition of the dataset.
 Added new property for all controls: StatusText. When set, and when the 
 form has a status bar, that text will show in the form's status bar when
 the mouse enters the control. 
+
+Fixed some lingering bugs in the dabo.ui.uiwx package and the datanav
+lib. dWizard works better now. Improved dGauge, dLine, dBox, dRadioBox, 
+dListBox, dToolBar, and dSizers.
+
+Added simple decimal support to dTextBox.
+
+Work continues on dGrid, specifically dColumn is now better worked 
+into the "Dabo Way".
+
+Added dabo.trace() function, that will drop you into pdb.
+
+dConnectInfo reworked to have better property names.
+
+Removed dependency on PIL and reportlab from Dabo. These are dependencies
+still, but only if you try to run a report.
+
+Added dabo.lib.StopWatch.StopWatch class, which is a light Python 
+stopwatch with start(), stop(), reset() methods and Value property.
+
+This is a partial list. Both Ed and Paul have been very busy with Dabo
+since 0.4 a few weeks ago. Lots of bugfixes and enhancements were made,
+and we encourage everyone to upgrade.
 
 
 Dabo-0.4 (2005-08-08) (Revision 1132):
