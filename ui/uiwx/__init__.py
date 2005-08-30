@@ -466,10 +466,13 @@ def sortList(chc, Caption=""):
 	return ret
 
 
-def browse(dataSource):
+def browse(dataSource, parent=None):
 	"""Given a data source, a form with a grid containing the data
 	is created and displayed. If the source is a Dabo cursor object, 
 	its getDataSet() method will be called to extract the data.
+
+	If parent is passed, the form isn't created, and the browsegrid
+	becomes a child of parent instead.
 	"""
 	if not isinstance(dataSource, (list, tuple)):
 		# See if it has a getDataSet() method available
@@ -484,15 +487,23 @@ def browse(dataSource):
 	else:
 		dataSet = dataSource
 		cap = "Browse"
-	
-	browseForm = dabo.ui.dForm(None, Caption=cap)
-	grd = dGrid(browseForm)
+
+	parentPassed = True
+	if parent is None:
+		parent = dabo.ui.dForm(None, Caption=cap)
+		parentPassed = False
+
+	grd = dGrid(parent)
 	grd.buildFromDataSet(dataSet)
-	browseForm.Sizer.append(grd, 1, "x")
-	browseForm.layout()
-	browseForm.show()
+
+	parent.Sizer.append(grd, 1, "x")
+	parent.layout()
+
+	if not parentPassed:
+		parent.show()
+
 	# This will allow you to optionally manage the grid and form
-	return browseForm, grd
+	return parent, grd
 
 
 def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
