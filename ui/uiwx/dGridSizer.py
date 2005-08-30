@@ -274,7 +274,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			obj = self.getItem(obj)
 		try:
 			row, col = self.GetItemPosition(obj)
-		except PyAssertionError, e:
+		except:
 			# Window isn't controlled by this sizer
 			row, col = None, None
 		return (row, col)
