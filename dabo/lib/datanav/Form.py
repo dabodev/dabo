@@ -320,7 +320,7 @@ class Form(dabo.ui.dForm):
 
 
 	def onShowSQL(self, evt):
-		sql = self.getPrimaryBizobj().getSQL()
+		sql = self.PrimaryBizobj.getSQL()
 		if sql is None:
 			sql = "-Nothing executed yet-"
 		mb = dabo.ui.info(sql, _("Last SQL"))
@@ -338,7 +338,7 @@ class Form(dabo.ui.dForm):
 		the relations with the parent bizobj
 		"""
 		self.RelationSpecs = self.parseXML(xml, "Relation")
-		primaryBizobj = self.getPrimaryBizobj()
+		primaryBizobj = self.PrimaryBizobj
 		# This will make sure all relations and sub-relations are set.
 		newBizobjs = primaryBizobj.addChildByRelationDict(self.RelationSpecs, 
 				bizModule)
@@ -419,7 +419,9 @@ class Form(dabo.ui.dForm):
 			# to the main bizobj
 			if ds != self._mainTable:
 				# Don't reset if it it's already the main bizobj
-				self.setPrimaryBizobj(self._mainTable)
+				# Note: we can send the data source, and the form will
+				# correctly set the matching bizobj.
+				self.PrimaryBizobj = self._mainTable
 		
 	
 	def getBizobjsToCheck(self):
