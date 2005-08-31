@@ -32,7 +32,10 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	def __sizeToBitmap(self):
 		if self.Picture:
 			bmp = self.Bitmap
-			self.Size = (bmp.GetWidth(), bmp.GetHeight())
+			## There's a certain border where the image will get clipped on the button,
+			## to account for the curved corners. The fudge of 10 looks good on GTK.
+			fudge = 10
+			self.Size = (bmp.GetWidth()+fudge, bmp.GetHeight()+fudge)
 
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
