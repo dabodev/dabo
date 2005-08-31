@@ -1,6 +1,6 @@
 See the Subversion log for all the details.
 
-Dabo-0.4.1 (2005-08-30) (Revision 1222):
+Dabo-0.4.1 (2005-08-30) (Revision 1226):
 
 Improved test framework for uiwx. Now you can run ui/uiwx/test.py and get
 almost all of the dabo controls in one form, and they are the same tests 
