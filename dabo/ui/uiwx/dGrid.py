@@ -756,6 +756,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		""" Refresh the grid to match the data in the data set."""
 		# Save the focus, if any
 		currFocus = self.FindFocus()
+		currDataField = None
+	
+		# if the current focus is data-aware, we must temporarily remove it's binding
+		# or the value of the control will flow to other records in the bizobj, but
+		# I admit that I'm not entirely sure why. 
+		if currFocus:
+			try:
+				currDataField = currFocus.DataField
+				currFocus.DataField = ""
+			except AttributeError:
+				pass
+
 		# Get the default row size from dApp's user settings
 		app = self.Application
 		if app is not None:
@@ -818,10 +830,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					# Non-list values
 					for rr in range(self.RowCount):
 						self.SetCellEditor(rr, ii, edtClass())
-		
+				
 		if currFocus is not None:
+			# put the data binding back and re-set the focus:
 			try:
-				currFocus.SetFocus()
+				currFocus.setFocus()
+				currFocus.DataField = currDataField
+				currFocus.refresh()
 			except: pass
 		
 	
