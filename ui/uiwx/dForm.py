@@ -18,7 +18,7 @@ import time
 #                 want to enable MDI on Windows, just take out the "False and"
 #                 in the below if statement, and do the same in dFormMain.py.
 
-if False and wx.Platform == '__WXMSW__':
+if False and wx.Platform == "__WXMSW__":
 	wxFrameClass = wx.MDIChildFrame
 	wxPreFrameClass = wx.PreMDIChildFrame
 else:
@@ -101,7 +101,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		If so, ask the user if they want to save/discard/cancel.
 		
 		Subclasses may have their own bizobj management schemes,
-		so we can't rely on simply calling getPrimaryBizobj() here.
+		so we can't rely on simplyreferring to PrimaryBizobj here.
 		Instead, we'll call a special method that will return a list
 		of bizobjs to act upon.
 		"""
@@ -135,7 +135,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		bizobj may be checked, or even several. In those cases, override
 		this method and return a list of the required bizobjs.
 		"""
-		return [self.getPrimaryBizobj()]
+		return [self.PrimaryBizobj]
 		
 		
 	def addBizobj(self, bizobj):
@@ -146,38 +146,17 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		"""
 		self.bizobjs[bizobj.DataSource] = bizobj
 		if len(self.bizobjs) == 1:
-			self.setPrimaryBizobj(bizobj.DataSource)
+			self.PrimaryBizobj = bizobj
 		self.setStatusText("Bizobj '%s' %s." % (bizobj.DataSource, _("added")))
 
 
-	def getPrimaryBizobj(self):
-		bo = None
-		if self.bizobjs.has_key(self._primaryBizobj):
-			bo = self.bizobjs[self._primaryBizobj]
-		return bo
-
-
-	def setPrimaryBizobj(self, dataSource):
-		try:
-			bo = self.bizobjs[dataSource]
-		except KeyError:
-			bo = None
-		if bo:
-			self._primaryBizobj = dataSource
-			self.afterSetPrimaryBizobj()
-		else:
-			dabo.infoLog.write(_("bizobj for data source %s does not exist.") % dataSource)
-
-
 	def afterSetPrimaryBizobj(self):
-		""" Subclass hook.
-		"""
+		""" Subclass hook."""
 		pass
 
 
 	def _moveRecordPointer(self, func, dataSource=None):
-		""" Move the record pointer using the specified function.
-		"""
+		""" Move the record pointer using the specified function."""
 		self.activeControlValid()
 		err = self.beforePointerMove()
 		if err:
@@ -427,8 +406,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		
 
 	def deleteAll(self, dataSource=None, message=None):
-		""" Ask the primary bizobj to delete all records from the recordset.
-		"""
+		""" Ask the primary bizobj to delete all records from the recordset."""
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -510,12 +488,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def getBizobj(self, dataSource=None, parentBizobj=None):
-		""" Return the bizobj with the passed dataSource.
-
-		If no dataSource is passed, getBizobj() will return the primary bizobj.
+		""" Return the bizobj with the passed dataSource. If no 
+		dataSource is passed, getBizobj() will return the primary bizobj.
 		"""
 		if not parentBizobj and not dataSource:
-			return self.getPrimaryBizobj()
+			return self.PrimaryBizobj
 		
 		if not parentBizobj and self.bizobjs.has_key(dataSource):
 			return self.bizobjs[dataSource]
@@ -620,14 +597,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	
 	
 	# Property get/set/del functions follow.
-	def _getSaveAllRows(self):
-		try:
-			return self._SaveAllRows
-		except AttributeError:
-			return True
-	def _setSaveAllRows(self, value):
-		self._SaveAllRows = bool(value)
-
 	def _getAskToSave(self):
 		try:
 			return self._AskToSave
@@ -636,12 +605,56 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	def _setAskToSave(self, value):
 		self._AskToSave = bool(value)
 
-	# Property definitions:
-	SaveAllRows = property(_getSaveAllRows, _setSaveAllRows, None, 
-			"Specifies whether dataset is row- or table-buffered. (bool)")
+	def _getSaveAllRows(self):
+		try:
+			return self._SaveAllRows
+		except AttributeError:
+			return True
+	def _setSaveAllRows(self, value):
+		self._SaveAllRows = bool(value)
 
+	def _getPrimaryBizobj(self):
+		"""The attribute '_primaryBizobj' should be a bizobj, but due
+		to old code design, might be a data source name. These methods
+		will handle the old style, but work primarily with the preferred
+		new style.
+		"""
+		bo = None
+		if isinstance(self._primaryBizobj, dabo.biz.dBizobj):
+			bo = self._primaryBizobj
+		else:
+			if self.bizobjs.has_key(self._primaryBizobj):
+				bo = self.bizobjs[self._primaryBizobj]
+				# Update to bizobj reference
+				self._primaryBizobj = bo
+		return bo
+	def _setPrimaryBizobj(self, bizOrDataSource):
+		if isinstance(bizOrDataSource, dabo.biz.dBizobj):
+			self._primaryBizobj = bizOrDataSource
+		else:
+			try:
+				bo = self.bizobjs[bizOrDataSource]
+			except KeyError:
+				bo = None
+			if bo:
+				self._primaryBizobj = bo
+				self.afterSetPrimaryBizobj()
+			else:
+				dabo.infoLog.write(_("bizobj for data source %s does not exist.") % bizOrDataSource)
+
+
+
+	# Property definitions:
 	AskToSave = property(_getAskToSave, _setAskToSave, None, 
-			"Specifies whether a save prompt appears before the data is requeried. (bool)")
+			_("""Specifies whether a save prompt appears before the data
+			is requeried. (bool)""") )
+
+	PrimaryBizobj = property(_getPrimaryBizobj, _setPrimaryBizobj, None, 
+			_("Reference to the primary bizobj for this form  (dBizobj)") )
+
+	SaveAllRows = property(_getSaveAllRows, _setSaveAllRows, None, 
+			_("Specifies whether dataset is row- or table-buffered. (bool)") )
+
 
 
 class dToolForm(dForm):
