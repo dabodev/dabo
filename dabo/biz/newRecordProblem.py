@@ -16,12 +16,9 @@ class BizTest(dabo.biz.dBizobj):
 	def initProperties(self):
 		self.DataSource = "test"
 		self.KeyField = "id"
+		self.DefaultValues = {"timestamp": datetime.datetime.utcnow}
 
 	def afterInit(self):
-		self.defaultValues = {"timestamp": datetime.datetime.utcnow}
-		self.setBaseSQL()
-		
-	def setBaseSQL(self):
 		self.addFrom("test")
 		self.addField("test.id as id")
 		self.addField("test.comment as comment")

@@ -27,10 +27,6 @@ class dBizobj(dabo.common.dObject):
 
 		super(dBizobj, self).__init__(properties=properties, *args, **kwargs)
 
-		# Dictionary holding any default values to apply when a new record is created
-		# (should be made into a property - do we have a name/value editor for the propsheet?)
-		self.defaultValues = {}
-		
 		cn = self._conn
 		if cn:
 			# Base cursor class : the cursor class from the db api
@@ -48,6 +44,11 @@ class dBizobj(dabo.common.dObject):
 		self.__cursors = {}
 		# PK of the currently-selected cursor
 		self.__currentCursorKey = None
+
+		# Dictionary holding any default values to apply when a new record is created. This is
+		# now the DefaultValues property (used to be self.defaultValues attribute)
+		self._defaultValues = {}
+
 		# Cursor to manage SQL Builder info.
 		self._sqlMgrCursor = None
 		self._conn = None
@@ -549,7 +550,7 @@ class dBizobj(dabo.common.dObject):
 	def new(self):
 		""" Create a new record and populate it with default values.
 		 
-		Default values are specified in the defaultValues dictionary. 
+		Default values are specified in the DefaultValues dictionary. 
 		"""
 		errMsg = self.beforeNew()
 		if not errMsg:
@@ -832,7 +833,7 @@ class dBizobj(dabo.common.dObject):
 		User subclasses should leave this alone and instead override onNew(). 
 		"""
 		cursor = self._CurrentCursor
-		cursor.setDefaults(self.defaultValues)
+		cursor.setDefaults(self.DefaultValues)
 		
 		if self.AutoPopulatePK:
 			# Provide a temporary PK so that any linked children can be properly
@@ -1227,6 +1228,12 @@ class dBizobj(dabo.common.dObject):
 		if cursor is not None:
 			cursor.Table = val
 	
+	def _getDefaultValues(self):
+		return self._defaultValues
+
+	def _setDefaultValues(self, val):
+		self._defaultValues = val
+
 	def _getEncoding(self):
 		ret = "latin-1"
 		cursor = self._CurrentCursor
@@ -1411,6 +1418,13 @@ class dBizobj(dabo.common.dObject):
 	DataSource = property(_getDataSource, _setDataSource, None,
 			_("The title of the cursor. Used in resolving DataSource references. (str)"))
 	
+	DefaultValues = property(_getDefaultValues, _setDefaultValues, None,
+			_("""A dictionary specifying default values for fields when a new record is added.
+
+				The values of the dictionary can be literal (must match the field type), or 
+				they can be a function object which will be called when the new record is added
+				to the bizobj."""))
+
 	Encoding = property(_getEncoding, None, None,
 			_("Name of encoding to use for unicode  (str)") )
 			
