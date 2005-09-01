@@ -20,6 +20,9 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		# This controls whether the button automatically resizes
 		# itself when its Picture changes.
 		self._autoSize = False
+		# On some platforms, we need to add some 'breathing room'
+		# around the bitmap image in order for it to appear correctly
+		self._bmpBorder = 10
 		
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
@@ -32,10 +35,8 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	def __sizeToBitmap(self):
 		if self.Picture:
 			bmp = self.Bitmap
-			## There's a certain border where the image will get clipped on the button,
-			## to account for the curved corners. The fudge of 10 looks good on GTK.
-			fudge = 10
-			self.Size = (bmp.GetWidth()+fudge, bmp.GetHeight()+fudge)
+			self.Size = (bmp.GetWidth() + self._bmpBorder, 
+					bmp.GetHeight() + self._bmpBorder)
 
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
@@ -45,6 +46,14 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		return self._autoSize
 	def _setAutoSize(self, val):
 		self._autoSize = val
+	
+	def _getBmpBorder(self):
+		return self._bmpBorder
+	def _setBmpBorder(self, val):
+		self._bmpBorder = val
+		if self._autoSize:
+			self.__sizeToBitmap()
+			
 		
 	def _getCancelButton(self):
 		# need to implement
@@ -150,6 +159,9 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		
 	Bitmap = property(_getNormalBitmap, None, None,
 		_("""The bitmap normally displayed on the button.  (wx.Bitmap)"""))
+
+	BitmapBorder = property(_getBmpBorder, _setBmpBorder, None,
+		_("""Extra space around the bitmap, used when auto-sizing.  (int)"""))
 
 	CancelButton = property(_getCancelButton, _setCancelButton, None,
 		_("Specifies whether this Bitmap button gets clicked on -Escape-."))
