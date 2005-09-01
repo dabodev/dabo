@@ -111,6 +111,7 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 class dOkCancelDialog(dDialog):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dOkCancelDialog
+		self._accepted = False
 		super(dOkCancelDialog, self).__init__(parent=parent, properties=properties, *args, **kwargs)
 
 
@@ -157,11 +158,21 @@ class dOkCancelDialog(dDialog):
 		
 		
 	def onOK(self, evt):
+		self.Accepted = True
 		self.EndModal(k.DLG_OK)
+
 	def onCancel(self, evt):
+		self.Accepted = False
 		self.EndModal(k.DLG_CANCEL)
-		
-		
+
+	def _getAccepted(self):
+		return self._accepted		
+
+	def _setAccepted(self, val):
+		self._accepted = val
+	
+	Accepted = property(_getAccepted, _setAccepted)
+
 
 if __name__ == "__main__":
 	import test

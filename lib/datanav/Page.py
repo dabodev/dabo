@@ -765,7 +765,7 @@ class EditPage(Page):
 		self.Form.setPrimaryBizobjToDefault(self.DataSource)
 		
 	def __onPageEnter(self, evt):
-		self.Form.setPrimaryBizobj(self.DataSource)
+		self.Form.PrimaryBizobj = self.DataSource
 		focusToControl = self._focusToControl
 		if focusToControl is not None:
 			focusToControl.setFocus()
