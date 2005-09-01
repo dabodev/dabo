@@ -742,7 +742,6 @@ class EditPage(Page):
 		self.childrenAdded = False
 		if self.DataSource:
 			self.buildPage()
-		
 			
 	def initEvents(self):
 		super(EditPage, self).initEvents()
@@ -804,7 +803,7 @@ class EditPage(Page):
 			fieldEnabled = (fldInfo["editReadOnly"] != "1")
 			
 			label = dabo.ui.dLabel(self)		#, style=labelStyle)
-			label.Name="lbl%s" % fieldName 
+			label.NameBase="lbl%s" % fieldName 
 
 			# Hook into user's code in case they want to control the object displaying
 			# the data:
@@ -826,7 +825,7 @@ class EditPage(Page):
 					classRef = dabo.ui.dTextBox
 
 			objectRef = classRef(self)
-			objectRef.Name = fieldName
+			objectRef.NameBase = fieldName
 			objectRef.DataSource = self.DataSource
 			objectRef.DataField = fieldName
 			objectRef.enabled = fieldEnabled
