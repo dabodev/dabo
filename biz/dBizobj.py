@@ -337,12 +337,12 @@ class dBizobj(dabo.common.dObject):
 			# Nothing to roll back; just throw it back for the form to display
 			raise dException.NoRecordsException, e
 			
-#		except dException.dException, e:
+		except dException.dException, e:
 			# Something failed; reset things.
-#			if useTransact:
-#				cursor.rollbackTransaction()
+			if useTransact:
+				cursor.rollbackTransaction()
 			# Pass the exception to the UI
-#			raise dException.dException, e
+			raise dException.dException, e
 
 		# Some backends (Firebird particularly) need to be told to write 
 		# their changes even if no explicit transaction was started.
