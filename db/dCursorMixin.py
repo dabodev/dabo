@@ -213,9 +213,8 @@ class dCursorMixin(dabo.common.dObject):
 		self.lastSQL = self.sql
 		self.lastParams = params
 		
-		if not self.sql:
-			# Don't run an empty SQL statement!
-			self.sql = self.getSQL()
+		# The sql builder will create the sql:
+		self.sql = self.getSQL()
 		
 		self.execute(self.sql, params)
 		
