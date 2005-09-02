@@ -165,6 +165,10 @@ class TreeEvent(Event):
 		return issubclass(objectClass, dabo.ui.dTreeView)
 	appliesToClass = classmethod(appliesToClass)
 
+class ListEvent(Event):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dListControl, dabo.ui.dListBox)
+	appliesToClass = classmethod(appliesToClass)
 	
 class Activate(Event):
 	"""Occurs when the form or application becomes active."""
@@ -352,6 +356,9 @@ class SashDoubleClick(SashEvent):
 	"""Occurs when a user double-clicks on the sash of a splitter window."""
 	pass
 
+class ListSelection(ListEvent):
+	""" Occurs when an item is highlighted in a list."""
+	pass
 
 class TreeSelection(TreeEvent):
 	""" Occurs when the selected item in a tree control changes."""

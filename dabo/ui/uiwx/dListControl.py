@@ -1,6 +1,6 @@
 import dabo
 import wx
-import	wx.lib.mixins.listctrl	as ListMixin
+import wx.lib.mixins.listctrl	as ListMixin
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -24,22 +24,17 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dListControl
 		
-		# The default is single selection. It will allow multiple selections 
-		# if MultiSelect is passed as an init param.
-		selType = wx.LC_SINGLE_SEL
-		isMultiSel = self.extractKey(kwargs, "MultiSelect")
-		if isMultiSel:
-			selType = 0
-		
+		self._lastSelectedIndex = None
+		self._hitIndex = None
+		self._valCol = 0
+
 		try:
-			style = style | wx.LC_REPORT | selType
+			style = style | wx.LC_REPORT
 		except:
-			style = wx.LC_REPORT | selType
+			style = wx.LC_REPORT
 		preClass = wx.PreListCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, style=style, *args, **kwargs)
 		ListMixin.ListCtrlAutoWidthMixin.__init__(self)
-		self._selIndex = 0
-		self._valCol = 0
 		# Dictionary for tracking images by key value
 		self.__imageList = {}	
 
@@ -47,8 +42,8 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	def _initEvents(self):
 		super(dListControl, self)._initEvents()
 		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.__onSelection)
+		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.__onActivation)
 		self.Bind(wx.EVT_LIST_KEY_DOWN, self.__onWxKeyDown)
-		self.bindEvent(dEvents.Hit, self.onHit)
 	
 	
 	def addColumn(self, caption):
@@ -92,7 +87,9 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	def setColumnWidth(self, col, wd):
 		self.SetColumnWidth(col, wd)
 	
-	
+	def setItemData(self, item, data):
+		return self.SetItemData(item, data)
+
 	def append(self, tx, col=0, row=None):
 		""" Appends a row with the associated text in the specified column.
 		If the value for tx is a list/tuple, the values will be set in the columns
@@ -100,25 +97,27 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		add to a non-existent column, it will be ignored.
 		"""
 		insert = False
+		new_item = None
+
 		if row is None:
 			row = self.RowCount
 			insert = True
 		if isinstance(tx, (list, tuple)):
 			if insert:
-				self.InsertStringItem(row, "")
+				new_item = self.InsertStringItem(row, "")
 			currCol = col
 			for itm in tx:
-				self.append(itm, currCol, row)
+				new_item = self.append(itm, currCol, row)
 				currCol += 1
 		else:
 			if col < self.ColumnCount:
 				if insert:
-					self.InsertStringItem(row, "")
+					new_item = self.InsertStringItem(row, "")
 				self.SetStringItem(row, col, tx)
 			else:
 				# should we raise an error? Add the column automatically?
 				pass
-	
+		return new_item
 	
 	def appendRows(self, seq, col=0):
 		""" Accepts a list/tuple of data. Each element in the sequence
@@ -199,12 +198,15 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		return ret
 		
 	
-	def __onSelection(self, evt):
-		self._selIndex = evt.GetIndex()
+	def __onActivation(self, evt):
+		self._hitIndex = evt.GetIndex()
 		# Call the default Hit code
 		self._onWxHit(evt)
-	
-	def onHit(self, evt): pass
+
+	def __onSelection(self, evt):
+		self._lastSelectedIndex = evt.GetIndex()
+		# Call the default Hit code
+		self.raiseEvent(dEvents.ListSelection, evt)
 	
 	def __onWxKeyDown(self, evt):
 		self.raiseEvent(dEvents.KeyDown, evt)
@@ -234,12 +236,29 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	def _getRowCount(self):
 		return self.GetItemCount()
 		
+	def _getHitIndex(self):
+		return self._hitIndex
+
+	def _getLastSelectedIndex(self):
+		return self._lastSelectedIndex
+
+	def _getMultipleSelect(self):
+		return not self.hasWindowStyleFlag(wx.LC_SINGLE_SEL)
+
+	def _setMultipleSelect(self, val):
+		if bool(val):
+			self.delWindowStyleFlag(wx.LC_SINGLE_SEL)
+		else:
+			self.addWindowStyleFlag(wx.LC_SINGLE_SEL)
+
 	def _getValue(self):
-		ret = None
 		try:
-			ret = self.GetItem(self._selIndex, self._valCol).GetText()
-		except: pass
-		return ret
+			item = self.GetItem(self.LastSelectedIndex, self.ValueColumn)
+		except TypeError:
+			item = None
+		if item is not None:
+			return item.GetText()
+
 	def _setValue(self, val):
 		if self._constructed():
 			if isinstance(val, int):
@@ -251,11 +270,14 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 
 	def _getValues(self):
 		ret = []
-		indxs = self._getSelected()
+		indxs = self.SelectedIndices
 		for idx in indxs:
 			try:
-				ret.append(self.GetItem(idx, self._valCol).GetText())
-			except: pass
+				item = self.GetItem(idx, self.ValueColumn)
+			except TypeError:
+				item = None
+			if item is not None:
+				ret.append(item.GetText())
 		return ret
 	
 	def _getValCol(self):
@@ -266,6 +288,15 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 
 	ColumnCount = property(_getColCount, None, None, 
 			_("Number of columns in the control (read-only).  (int)") )
+
+	HitIndex = property(_getHitIndex, None, None,
+			_("Returns the index of the last hit item."))
+
+	LastSelectedIndex = property(_getLastSelectedIndex, None, None,
+			_("Returns the index of the last selected item."))
+
+	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
+			_("Specifies whether multiple rows can be selected in the list."))
 
 	RowCount = property(_getRowCount, None, None, 
 			_("Number of rows in the control (read-only).  (int)") )
@@ -296,9 +327,17 @@ class _dListControl_test(dListControl):
 	def initProperties(self):
 		self.Width = 275
 		self.Height = 200
+		self.MultipleSelect = True
 		
+	def initEvents(self):
+		self.bindEvent(dEvents.Hit, self.onHit)
+		self.bindEvent(dEvents.ListSelection, self.onListSelection)
+
 	def onHit(self, evt):
-		print "HIT!", self.Value
+		print "HIT!", self.Value, self.HitIndex
+
+	def onListSelection(self, evt):
+		print "List Selection!", self.Value, self.LastSelectedIndex, self.SelectedIndices
 
 			
 if __name__ == "__main__":
