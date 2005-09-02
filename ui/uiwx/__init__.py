@@ -49,6 +49,10 @@ from dControlMixin import dControlMixin
 dabo.ui.dControlMixin = dControlMixin
 from dDataControlMixin import dDataControlMixin
 dabo.ui.dDataControlMixin = dDataControlMixin
+from dFormMixin import dFormMixin
+dabo.ui.dFormMixin = dFormMixin
+from dSizerMixin import dSizerMixin
+dabo.ui.dSizerMixin = dSizerMixin
 
 # Import into public namespace:
 from dBox import dBox
