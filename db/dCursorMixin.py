@@ -546,7 +546,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if typ:
 			try:
 				ret = {"C" : str, "D" : datetime.date, "B" : bool, 
-					"N" : float, "M" : str}[typ]
+					"N" : float, "M" : str, "I" : int, "T" : datetime.datetime}[typ]
 			except KeyError:
 				ret = None
 		return ret
