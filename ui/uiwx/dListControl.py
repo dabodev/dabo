@@ -251,6 +251,24 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		else:
 			self.addWindowStyleFlag(wx.LC_SINGLE_SEL)
 
+	def _getHeaderVisible(self):
+		return not self.hasWindowStyleFlag(wx.LC_NO_HEADER)
+
+	def _setHeaderVisible(self, val):
+		if bool(val):
+			self.delWindowStyleFlag(wx.LC_NO_HEADER)
+		else:
+			self.addWindowStyleFlag(wx.LC_NO_HEADER)
+
+	def _getHorizontalRules(self, val):
+		return self.hasWindowStyleFlag(wx.LC_HRULES)
+
+	def _setHorizontalRules(self, val):
+		if bool(val):
+			self.addWindowStyleFlag(wx.LC_HRULES)
+		else:
+			self.delWindowStyleFlag(wx.LC_HRULES)
+
 	def _getValue(self):
 		try:
 			item = self.GetItem(self.LastSelectedIndex, self.ValueColumn)
@@ -285,12 +303,27 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	def _setValCol(self, val):
 		self._valCol = val
 		
+	def _getVerticalRules(self, val):
+		return self.hasWindowStyleFlag(wx.LC_VRULES)
+
+	def _setVerticalRules(self, val):
+		if bool(val):
+			self.addWindowStyleFlag(wx.LC_VRULES)
+		else:
+			self.delWindowStyleFlag(wx.LC_VRULES)
+
 
 	ColumnCount = property(_getColCount, None, None, 
 			_("Number of columns in the control (read-only).  (int)") )
 
+	HeaderVisible = property(_getHeaderVisible, _setHeaderVisible, None, 
+			_("Specifies whether the header is shown or not."))
+
 	HitIndex = property(_getHitIndex, None, None,
 			_("Returns the index of the last hit item."))
+
+	HorizontalRules = property(_getHorizontalRules, _setHorizontalRules, None,
+			_("Specifies whether light rules are drawn between rows."))
 
 	LastSelectedIndex = property(_getLastSelectedIndex, None, None,
 			_("Returns the index of the last selected item."))
@@ -309,11 +342,14 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		
 	Values = property(_getValues, None, None,
 			_("Returns a list containing the Value of all selected rows  (list of str)" ) )
-		
+
 	ValueColumn = property(_getValCol, _setValCol, None,
 			_("The column whose text is reflected in Value (default=0).  (int)") )
 			
+	VerticalRules = property(_getVerticalRules, _setVerticalRules, None,
+			_("Specifies whether light rules are drawn between rows."))
 
+	
 
 class _dListControl_test(dListControl):
 	def afterInit(self):
@@ -328,6 +364,9 @@ class _dListControl_test(dListControl):
 		self.Width = 275
 		self.Height = 200
 		self.MultipleSelect = True
+		self.HorizontalRules = True
+		self.VerticalRules = True
+		#self.HeaderVisible = False
 		
 	def initEvents(self):
 		self.bindEvent(dEvents.Hit, self.onHit)
