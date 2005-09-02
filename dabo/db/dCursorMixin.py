@@ -1,4 +1,8 @@
-import types, datetime, inspect, sys, re
+import types
+import datetime
+import inspect
+import sys
+import re
 
 import dabo
 import dabo.dConstants as k
@@ -527,6 +531,27 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
+	def _fldTypeFromDB(self, fld):
+		"""Try to determine the field type from the database information
+		If the field isn't found, return None.
+		"""
+		ret = None
+		flds = self.getFields()
+		try:
+			typ = [ff[1] for ff in flds if ff[0] == fld][0]
+		except IndexError:
+			# This 'fld' value is not a native field, so no way to 
+			# determine its type
+			typ = None
+		if typ:
+			try:
+				ret = {"C" : str, "D" : datetime.date, "B" : bool, 
+					"N" : float, "M" : str}[typ]
+			except KeyError:
+				ret = None
+		return ret
+		
+
 	def setFieldVal(self, fld, val):
 		""" Set the value of the specified field. """
 		if self.RowCount <= 0:
@@ -536,6 +561,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if rec.has_key(fld):
 				if self._types.has_key(fld):
 					fldType = self._types[fld]
+				else:
+					fldType = self._fldTypeFromDB(fld)
+				if fldType is not None:
 					if fldType != type(val):
 						convTypes = (str, unicode, int, float, long, complex)
 						if isinstance(val, convTypes) and isinstance(rec[fld], basestring):
@@ -566,7 +594,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 							msg = "!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s" \
 								  % (fld, str(fldType), str(type(val)))
 							dabo.errorLog.write(msg)
-					
 				rec[fld] = val
 
 			else:
