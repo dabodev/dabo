@@ -127,7 +127,7 @@ class dCursorMixin(dabo.common.dObject):
 		# marked.
 		sql = self.processFields(sql)
 		
-		# Make sure all Unicode charcters are properly encoded.
+		# Make sure all Unicode characters are properly encoded.
 		if isinstance(sql, unicode):
 			sqlEX = sql.encode(self.Encoding)
 		else:
@@ -240,7 +240,8 @@ class dCursorMixin(dabo.common.dObject):
 			rec = self._records[0]
 			for fname, fval in rec.items():
 				self._types[fname] = type(fval)
-			
+		else:
+			print "RowCount is %s, so storeFieldTypes() can't run as implemented." % self.RowCount
 		
 	def sort(self, col, dir=None, caseSensitive=True):
 		""" Sort the result set on the specified column in the specified order.
@@ -528,12 +529,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def setFieldVal(self, fld, val):
 		""" Set the value of the specified field. """
+
 		if self.RowCount <= 0:
 			raise dException.dException, _("No records in the data set")
 		else:
 			rec = self._records[self.RowNumber]
 			if rec.has_key(fld):
-				fldType = self._types[fld]
+				try:
+					fldType = self._types[fld]
+				except:
+					print """This exception is getting eaten by the try block in dBizobj.setFieldVal.
+fld doesn't exist in self._types, because storeFieldTypes() didn't process it."""
 				if fldType != type(val):
 					convTypes = (str, unicode, int, float, long, complex)
 					if isinstance(val, convTypes) and isinstance(rec[fld], basestring):
@@ -568,8 +574,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				rec[fld] = val
 
 			else:
-				raise dException.dException, "%s '%s' %s" % ( _("Field"),
-							fld, _("does not exist in the data set") 	)
+				s = _("Field '%s' does not exist in the data set.") % (fld,)
+				raise dException.dException, s
 
 
 	def getRecordStatus(self, rownum=None):
@@ -699,7 +705,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				raise dException.QueryException, e
 
 		self.commitTransaction()
-
 
 	def __saverow(self, rec):
 		newrec =  rec.has_key(k.CURSOR_NEWFLAG)
