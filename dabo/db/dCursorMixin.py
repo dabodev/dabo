@@ -529,51 +529,43 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def setFieldVal(self, fld, val):
 		""" Set the value of the specified field. """
-
 		if self.RowCount <= 0:
 			raise dException.dException, _("No records in the data set")
 		else:
 			rec = self._records[self.RowNumber]
 			if rec.has_key(fld):
-				try:
+				if self._types.has_key(fld):
 					fldType = self._types[fld]
-				except:
-					print """This exception is getting eaten by the try block in dBizobj.setFieldVal.
-fld doesn't exist in self._types, because storeFieldTypes() didn't process it."""
-					# pkm: I'm setting the fldType to None. Not sure if this is "correct" but it fixes
-					#      my immediate issue because it lets the below code run. But in general, we
-					#      have *got* to stop eating unhandled exceptions.
-					fldType = None
-				if fldType != type(val):
-					convTypes = (str, unicode, int, float, long, complex)
-					if isinstance(val, convTypes) and isinstance(rec[fld], basestring):
-						if isinstance(rec[fld], str):
-							val = str(val)
+					if fldType != type(val):
+						convTypes = (str, unicode, int, float, long, complex)
+						if isinstance(val, convTypes) and isinstance(rec[fld], basestring):
+							if isinstance(rec[fld], str):
+								val = str(val)
+							else:
+								val = unicode(val)
+						elif isinstance(rec[fld], int) and isinstance(val, bool):
+							# convert bool to int (original field val was int, but UI
+							# changed to int. 
+							val = int(val)
+					if fldType != type(val):
+						ignore = False
+						# Date and DateTime types are handled as character, even if the 
+						# native field type is not. Ignore these. NOTE: we have to deal with the 
+						# string representation of these classes, as there is no primitive for either
+						# 'DateTime' or 'Date'.
+						dtStrings = ("<type 'DateTime'>", "<type 'Date'>", "<type 'datetime.datetime'>")
+						if str(fldType) in dtStrings:
+							if isinstance(val, basestring):
+								ignore = True
 						else:
-							val = unicode(val)
-					elif isinstance(rec[fld], int) and isinstance(val, bool):
-						# convert bool to int (original field val was int, but UI
-						# changed to int. 
-						val = int(val)
-				if fldType != type(val):
-					ignore = False
-					# Date and DateTime types are handled as character, even if the 
-					# native field type is not. Ignore these. NOTE: we have to deal with the 
-					# string representation of these classes, as there is no primitive for either
-					# 'DateTime' or 'Date'.
-					dtStrings = ("<type 'DateTime'>", "<type 'Date'>", "<type 'datetime.datetime'>")
-					if str(fldType) in dtStrings:
-						if isinstance(val, basestring):
-							ignore = True
-					else:
-						# This can also happen with a new record, since we just stuff the
-						# fields full of empty strings.
-						ignore = self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG)
-					
-					if not ignore:
-						msg = "!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s" \
-						      % (fld, str(fldType), str(type(val)))
-						dabo.errorLog.write(msg)
+							# This can also happen with a new record, since we just stuff the
+							# fields full of empty strings.
+							ignore = self._records[self.RowNumber].has_key(k.CURSOR_NEWFLAG)
+						
+						if not ignore:
+							msg = "!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s" \
+								  % (fld, str(fldType), str(type(val)))
+							dabo.errorLog.write(msg)
 					
 				rec[fld] = val
 
