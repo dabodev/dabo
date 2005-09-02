@@ -1109,10 +1109,10 @@ class dBizobj(dabo.common.dObject):
 		return self._CurrentCursor.formatDateTime(val)
 
 
-	def getNonUpdateFields(self):
+	def _getNonUpdateFields(self):
 		return self._CurrentCursor.getNonUpdateFields()
 		
-	def setNonUpdateFields(self, fldList=[]):
+	def _setNonUpdateFields(self, fldList=[]):
 		self._CurrentCursor.setNonUpdateFields(fldList)
 	
 	def getWordMatchFormat(self):
@@ -1451,7 +1451,7 @@ class dBizobj(dabo.common.dObject):
 	NewRecordOnNewParent = property(_getNewRecordOnNewParent, _setNewRecordOnNewParent, None,
 			_("If this bizobj\'s parent has NewChildOnNew==True, do we create a record here? (bool)"))
 
-	NonUpdateFields = property(getNonUpdateFields, setNonUpdateFields, None,
+	NonUpdateFields = property(_getNonUpdateFields, _setNonUpdateFields, None,
 			_("Fields in the cursor to be ignored during updates"))
 	
 	Parent = property(_getParent, _setParent, None,
