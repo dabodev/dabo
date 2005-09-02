@@ -540,6 +540,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				except:
 					print """This exception is getting eaten by the try block in dBizobj.setFieldVal.
 fld doesn't exist in self._types, because storeFieldTypes() didn't process it."""
+					# pkm: I'm setting the fldType to None. Not sure if this is "correct" but it fixes
+					#      my immediate issue because it lets the below code run. But in general, we
+					#      have *got* to stop eating unhandled exceptions.
+					fldType = None
 				if fldType != type(val):
 					convTypes = (str, unicode, int, float, long, complex)
 					if isinstance(val, convTypes) and isinstance(rec[fld], basestring):
