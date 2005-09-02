@@ -1,22 +1,22 @@
 import os
 import re
-import pysqlite2
 from dabo.dLocalize import _
 from dBackend import dBackend
-from pysqlite2 import dbapi2 as dbapi
 
 class SQLite(dBackend):
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "pysqlite2"
+		from pysqlite2 import dbapi2 as dbapi
+		self.dbapi = dbapi
 
 	def getConnection(self, connectInfo):
 		pth = os.path.expanduser(connectInfo.Database)
-		self._connection = dbapi.connect(pth)
+		self._connection = self.dbapi.connect(pth)
 		return self._connection
 
 	def getDictCursorClass(self):
-		return dbapi.Cursor
+		return self.dbapi.Cursor
 
 	def escQuote(self, val):
 		sl = "\\"
