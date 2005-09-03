@@ -1,4 +1,4 @@
-""" dabo.biz : Dabo BizObj's
+""" dabo.biz : Dabo Business Objects (bizobjs)
 
 Ed Leafe writes:
 
