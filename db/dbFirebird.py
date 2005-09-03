@@ -10,6 +10,8 @@ class Firebird(dBackend):
 		dBackend.__init__(self)
 		self.dbModuleName = "kinterbasdb"
 		self.fieldPat = re.compile("([A-Za-z_][A-Za-z0-9-_]+)\.([A-Za-z_][A-Za-z0-9-_]+)")
+		import kinterbasdb
+		self.dbapi = kinterbasdb
 
 
 	def getConnection(self, connectInfo):
@@ -23,12 +25,12 @@ class Firebird(dBackend):
 		password = str(connectInfo.revealPW())
 		database = str(connectInfo.Database)
 		
-		self._connection = kinterbasdb.connect(host=host, user=user, 
+		self._connection = self.dbapi.connect(host=host, user=user, 
 				password=password, database=database)
 		return self._connection
 		
 	def getDictCursorClass(self):
-		return kinterbasdb.Cursor
+		return self.dbapi.Cursor
 	
 	def noResultsOnSave(self):
 		""" Firebird does not return the number of records updated, so
