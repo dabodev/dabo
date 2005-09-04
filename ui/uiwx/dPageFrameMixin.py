@@ -53,7 +53,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		if key is None:
 			key = str(img)
 		if isinstance(img, basestring):
-			img = dabo.ui.dIcons.getIconBitmap(img)
+			img = dabo.ui.strToBmp(img)
 		il = self.GetImageList()
 		if not il:
 			il = wx.ImageList(16, 16, initialCount=0)

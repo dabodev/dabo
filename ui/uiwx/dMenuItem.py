@@ -2,6 +2,7 @@
 import wx
 import dPemMixin as pm
 import dIcons
+import dabo
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
@@ -77,14 +78,14 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 	def _getIcon(self):
 		return self.GetBitmap()
 
-	def _setIcon(self, v):
+	def _setIcon(self, val):
 		if self._constructed():
-			if isinstance(v, basestring):
+			if isinstance(val, basestring):
 				# Icon name was passed; get the actual bitmap
-				v = dIcons.getIconBitmap(v)
-			if v is None:
-				v = wx.NullBitmap
-			self.SetBitmap(v)
+				val = dabo.ui.strToBmp(val)
+			if val is None:
+				val = wx.EmptyBitmap(1, 1)
+			self.SetBitmap(val)
 
 			# Win32 at least needs the following line, or the caption
 			# will look really funky, but Linux can't have this line or
@@ -93,15 +94,15 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 			if self.Application.Platform in ("Win",):
 				self.Caption = self.Caption
 		else:
-			self._properties["Icon"] = v
+			self._properties["Icon"] = val
 
 
 	def _getParent(self):
 		try:
-			v = self._parent
+			ret = self._parent
 		except AttributeError:
-			v = self._parent = None
-		return v
+			ret = self._parent = None
+		return ret
 
 	def _setParent(self, val):
 		self._parent = val

@@ -42,7 +42,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		id = self._NextToolID
 		if isinstance(pic, basestring):
 			# path was passed
-			picBmp = self.strToBmp(pic)
+			picBmp = dabo.ui.strToBmp(pic)
 		else:
 			picBmp = pic
 		
@@ -90,26 +90,6 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		self.Realize()
 		
 		
-	def strToBmp(self, val):
-		"""This can be either a path, or the name of a built-in graphic."""
-		ret = None
-		if os.path.exists(val):
-			ret = self.pathToBmp(val)
-		else:
-			# See if it's a standard icon
-			ret = dabo.ui.dIcons.getIconBitmap(val)
-			if not ret:
-				# See if it's a built-in graphic
-				ret = dabo.ui.getBitmap(val)
-		return ret
-		
-		
-	def pathToBmp(self, pth):
-		img = self._image
-		img.LoadFile(pth)
-		return img.ConvertToBitmap()
-
-
 	def resizeBmp(self, bmp, wd, ht):
 		img = bmp.ConvertToImage()
 		img.Rescale(wd, ht)
