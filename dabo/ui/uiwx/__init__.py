@@ -351,10 +351,16 @@ def getEventData(wxEvt):
 	
 	
 def getMouseObject():
+	"""Returns a reference to the object below the mouse pointer
+	at the moment the command is issued. Useful for interactive 
+	development when testing changes to classes 'in the wild' of a 
+	live application.
+	"""
 	return wx.FindWindowAtPoint(wx.GetMousePosition())
 
 
 def getString(message="Please enter a string:", caption="Dabo",	defaultValue=""):
+	"""Simple dialog for returning a small bit of text from the user."""
 	dlg = wx.TextEntryDialog(None, message, caption, defaultValue)
 	retVal = dlg.ShowModal()
 	if retVal in (wx.ID_YES, wx.ID_OK):
@@ -374,6 +380,10 @@ exclaim = dMessageBox.exclaim
 
 
 def getColor(color=None):
+	"""Displays the color selection dialog for the platform.
+	Returns an RGB tuple of the selected color, or None if
+	no selection was made.
+	"""
 	ret = None
 	dlg = dColorDialog(None, color)
 	if dlg.show() == k.DLG_OK:
@@ -383,6 +393,10 @@ def getColor(color=None):
 
 
 def getFont(font=None):
+	"""Displays the font selection dialog for the platform.
+	Returns a font object that can be assigned to a control's
+	Font property.
+	"""
 	ret = None
 	dlg = dFontDialog(None, font)
 	if dlg.show() == k.DLG_OK:
@@ -400,6 +414,10 @@ def _getPath(cls, **kwargs):
 	return ret
 
 def getFile(*args, **kwargs):
+	"""Displays the file selection dialog for the platform.
+	Returns the path to the selected file, or None if no selection
+	was made.
+	"""
 	wc = _getWild(*args)
 	return _getPath(dFileDialog, wildcard=wc, **kwargs)
 
@@ -413,6 +431,10 @@ def getSaveAs(*args, **kwargs):
 	return _getPath(dSaveDialog, **kwargs)
 
 def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
+	"""Displays the folder selection dialog for the platform.
+	Returns the path to the selected folder, or None if no selection
+	was made.
+	"""
 	return _getPath(dFolderDialog, message=message, defaultPath=defaultPath, 
 			wildcard=wildcard)
 
@@ -547,7 +569,10 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	ret = dc.GetTextExtent(txt)
 	return ret
 	
-	
+
+# For applications that use the same image more than once,
+# this speeds up resolution of the requested image name.
+_bmpCache = {}	
 def strToBmp(val, scale=None, width=None, height=None):
 	"""This can be either a path, or the name of a built-in graphic.
 	If an adjusted size is desired, you can either pass a 'scale' value
@@ -556,17 +581,32 @@ def strToBmp(val, scale=None, width=None, height=None):
 	final image will be a bitmap resized to those specs.	
 	"""
 	ret = None
+	if _bmpCache.has_key(val):
+		return _bmpCache[val]
 	if os.path.exists(val):
 		ret = pathToBmp(val)
 	else:
+		# Include all the pathing possibilities
+		iconpaths = [os.path.join(pth, val) 
+				for pth in dabo.icons.__path__]
+		dabopaths = [os.path.join(pth, val) 
+				for pth in dabo.__path__]
+		# Create a list of the places to search for the image, with
+		# the most likely choices first.
+		paths = [val] + iconpaths + dabopaths
 		# See if it's a standard icon
-		ret = dIcons.getIconBitmap(val)
+		for pth in paths:
+			ret = dIcons.getIconBitmap(pth, noEmptyBmp=True)
+			if ret:
+				break
 		if not ret:
 			# See if it's a built-in graphic
 			ret = getBitmap(val)
 	if not ret:
 		# Return an empty bitmap
 		ret = wx.EmptyBitmap(1, 1)
+	else:
+		_bmpCache[val] = ret
 	
 	if ret is not None:
 		if scale is None and width is None and height is None:

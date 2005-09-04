@@ -168,7 +168,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		if key is None:
 			key = str(img)
 		if isinstance(img, basestring):
-			img = dabo.ui.dIcons.getIconBitmap(img)
+			img = dabo.ui.strToBmp(img)
 		il = self.GetImageList(wx.IMAGE_LIST_NORMAL)
 		if not il:
 			il = wx.ImageList(16, 16, initialCount=0)
