@@ -582,8 +582,8 @@ def strToBmp(val, scale=None, width=None, height=None):
 	"""
 	ret = None
 	if _bmpCache.has_key(val):
-		return _bmpCache[val]
-	if os.path.exists(val):
+		ret = _bmpCache[val]
+	elif os.path.exists(val):
 		ret = pathToBmp(val)
 	else:
 		# Include all the pathing possibilities
