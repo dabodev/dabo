@@ -1003,7 +1003,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self.RowNumber = rownum
 
 
-	def seek(self, val, fld=None, caseSensitive=True, near=False):
+	def seek(self, val, fld=None, caseSensitive=True, near=False, movePointer=True):
 		""" Find the first row where the field value matches the passed value.
 
 		Returns the row number of the first record that matches the passed
@@ -1086,6 +1086,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					toofar = fldval > val
 				if toofar:
 					break
+		if movePointer and ret > -1:
+			# Move the record pointer
+			self.RowNumber = ret
 		return ret
 
 

@@ -236,7 +236,7 @@ class dBizobj(dabo.common.dObject):
 		self.requeryAllChildren()
 		
 		self.afterPointerMove()
-		self.afterNext
+		self.afterNext()
 
 
 	def last(self):
