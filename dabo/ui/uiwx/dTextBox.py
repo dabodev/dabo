@@ -6,13 +6,18 @@ if __name__ == "__main__":
 import dDataControlMixin as dcm
 from dabo.dLocalize import _
 
+
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	""" Allows editing one line of string or unicode data.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dTextBox
+
+		self._dregex = {}
+
 		preClass = wx.PreTextCtrl
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
+		                               *args, **kwargs)
 		
 		# Keep passwords, etc., from being written to disk
 		if self.PasswordEntry:
@@ -179,6 +184,17 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			self._properties["Value"] = value
 
 		
+	def _getStrictDateEntry(self):
+		try:
+			v = self._strictDateEntry
+		except AttributeError:
+			v = self._strictDateEntry = False
+		return v
+
+	def _setStrictDateEntry(self, val):
+		self._strictDateEntry = bool(val)
+
+
 	def _getStringValue(self, value):
 		"""Given a value of any data type, return a string rendition.
 		
@@ -203,38 +219,66 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 		
 	def _getDateFromString(self, string):
-		"""Given a string in ISO 8601 date format, return a 
-		datetime.date object.
+		"""Given a string in an accepted date format, return a 
+		datetime.date object, or None.
 		"""
-		try:
-			regex = self._dregex
-		except AttributeError:
-			regex = self._dregex = re.compile(self._getDateRegex())
+		ret = None
+		formats = ["ISO8601"]
+		if not self.StrictDateEntry:
+			# Add some less strict date-entry formats:
+			formats.append("YYYYMMDD")
+			formats.append("YYMMDD")
+			formats.append("MMDD")
+			# (define more formats in _getDateRegex, and enter them above
+			#  in more explicit -> less explicit order.)
+
+		# Try each format in order:
+		for format in formats:
+			try:
+				regex = self._dregex[format]
+			except KeyError:
+				regex = self._dregex[format] = self._getDateRegex(format)
 			
-		m = regex.match(string)
-		if m is not None:
-			groups = m.groupdict()
-			try:		
-				return datetime.date(int(groups["year"]), 
-					int(groups["month"]),
-					int(groups["day"]))
-			except ValueError:
-				# Could be that the day was out of range for the particular month
-				# (Sept. only has 30 days but the regex will allow 31, etc.)
-				return None
-		else:
-			# The regex didn't match
-			return None
-	
-	def _getDateRegex(self):
-		exp = {}
-		exp["year"] = "(?P<year>[0-9]{4,4})"              ## year 0000-9999
-		exp["month"] = "(?P<month>0[1-9]|1[012])"         ## month 01-12
-		exp["day"] = "(?P<day>0[1-9]|[1-2][0-9]|3[0-1])"  ## day 01-31
+			m = regex.match(string)
+			if m is not None:
+				groups = m.groupdict()
+				if not groups.has_key("year"):
+					curYear = datetime.date.today().year
+					if groups.has_key("shortyear"):
+						groups["year"] = int("%s%s" % (str(curYear)[:2], 
+					                                 groups["shortyear"]))
+					else:
+						groups["year"] = curYear
+				try:		
+					ret = datetime.date(int(groups["year"]), 
+						int(groups["month"]),
+						int(groups["day"]))
+				except ValueError:
+					# Could be that the day was out of range for the particular month
+					# (Sept. only has 30 days but the regex will allow 31, etc.)
+					pass
+			if ret is not None:
+				break	
+		return ret
+
+	def _getDateRegex(self, format):
+		elements = {}
+		elements["year"] = "(?P<year>[0-9]{4,4})"              ## year 0000-9999
+		elements["shortyear"] = "(?P<shortyear>[0-9]{2,2})"    ## year 00-99
+		elements["month"] = "(?P<month>0[1-9]|1[012])"         ## month 01-12
+		elements["day"] = "(?P<day>0[1-9]|[1-2][0-9]|3[0-1])"  ## day 01-31
 		
-		exps = "^%s-%s-%s$" % (exp["year"], exp["month"], exp["day"])
-			
-		return re.compile(exps)
+		if format == "ISO8601":
+			exp = "^%(year)s-%(month)s-%(day)s$"
+		elif format == "YYYYMMDD":
+			exp = "^%(year)s%(month)s%(day)s$"
+		elif format == "YYMMDD":
+			exp = "^%(shortyear)s%(month)s%(day)s$"
+		elif format == "MMDD":
+			exp = "^%(month)s%(day)s$"
+		else:
+			return None
+		return re.compile(exp % elements)
 
 			
 	def _getDateTimeFromString(self, string):
@@ -305,6 +349,15 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	
 	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
 			"Specifies whether all text gets selected upon receiving focus. (bool)")
+
+	StrictDateEntry = property(_getStrictDateEntry, _setStrictDateEntry, None,
+			"""Specifies whether date values must be entered in strict ISO8601 format.
+
+			If not strict, dates can be accepted in YYYYMMDD, YYMMDD, and MMDD format,
+			which will be coerced into sensible date values automatically.
+
+			Default is False.""")
+
 
 class _dTextBox_test(dTextBox):
 	def afterInit(self):
