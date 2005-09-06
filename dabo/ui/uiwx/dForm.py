@@ -595,6 +595,41 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				# active control may not be data-aware
 				pass
 	
+	def fieldValidate(self, ctrl):
+		"""Call the bizobj for the control's DataSource. If the control's 
+		value is rejected for field validation reasons, a 
+		BusinessRuleViolation exception will be raised, and the form
+		can then respond to this.
+		"""
+		ds = ctrl.DataSource
+		df = ctrl.DataField
+		val = ctrl.Value
+		if not ds or not df:
+			# DataSource/Field is missing; nothing to validate.
+			return
+		biz = self.getBizobj(ds)
+		if not biz:
+			# No bizobj for that DataSource; record the error
+			dabo.errorLog.write("No business object found for DataSource: '%s', DataField: '%s' "
+					% (ds, df))
+			return
+		ret = False
+		try:
+			biz.validateField(df, val)
+			ret = True
+		except dException.BusinessRuleViolation, e:
+			self.onFieldValidationFailed(ctrl, ds, df, val, e)
+		return ret
+
+
+	def onFieldValidationFailed(self, ctrl, ds, df, val, err):
+		"""Basic handling of field-level validation failure. You should
+		override it with your own code to handle this failure 
+		appropriately for your application.
+		"""
+		self.setStatusText(_("Validation failed for %s: %s") % (df, err))
+		dabo.ui.callAfter(ctrl.setFocus)
+		
 	
 	# Property get/set/del functions follow.
 	def _getAskToSave(self):
