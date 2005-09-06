@@ -16,6 +16,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self.enabled = True
 		# Initialize runtime properties
 		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
+		# Flag for turning on field-level validation
+		self._fieldValidate = False
 		
 	
 	def _initEvents(self):
@@ -46,24 +48,38 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def __onGotFocus(self, evt):
 		# self._oldVal will be compared to self.Value in flushValue()
 		self._oldVal = self.Value
-
+		# User-definable GotFocus hook
+		self.gotFocus(evt)
 		try:
 			if self.SelectOnEntry:
 				self.selectAll()
 		except AttributeError:
 			# only text controls have SelectOnEntry
 			pass
-
+	def gotFocus(self, evt):
+		pass
+	
 	
 	def __onLostFocus(self, evt):
-		self.flushValue()
-		
+		ok = True
+		# Call the field-level validation if indicated.
+		if self._fieldValidate:
+			if self._oldVal != self.Value:
+				if hasattr(self.Form, "fieldValidate"):
+					ok = self.Form.fieldValidate(self)
+		if ok is not False:
+			# If validation fails, don't write the value to the source.
+			self.flushValue()
+		# User-definable LostFocus hook
+		self.lostFocus(evt)
 		try:
 			if self.SelectOnEntry:
 				self.selectNone()
 		except AttributeError:
 			# only text controls have SelectOnEntry
 			pass
+	def lostFocus(self, evt):
+		pass
 
 			
 	def __onValueRefresh(self, evt): 
@@ -266,6 +282,12 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def _setDataField(self, value):
 		self._DataField = str(value)
 	
+	
+	def _getFldVldt(self):
+		return self._fieldValidate
+	def _setFldVldt(sef, val):
+		self._fieldValidate = val
+	
 	def _getSecret(self):
 		try:
 			return self._isSecret
@@ -313,6 +335,11 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	DataField = property(_getDataField, _setDataField, None,
 			_("""Specifies the data field of the dataset to use as the source 
 			of data. (str)""") )
+	
+	FieldValidate = property(_getFldVldt, _setFldVldt, None,
+			_("""When True, automatically calls the form's fieldValidate() 
+			method, which will call the same method in the appropriate
+			bizobj. Default=False (bool)""") )
 	
 	IsSecret = property(_getSecret, _setSecret, None,
 			_("Flag for indicating sensitive data that is not to be persisted.   (bool)") )

@@ -686,7 +686,7 @@ class dBizobj(dabo.common.dObject):
 			# No need to validate if the data hasn't changed
 			message = self.validateRecord()
 			if message:
-				errMsg += self.validateRecord()
+				errMsg += message
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
 
@@ -710,6 +710,32 @@ class dBizobj(dabo.common.dObject):
 		"""
 		pass
 
+	
+	def validateField(self, fld, val):
+		"""This is called by the form when a control that is marked for field-
+		level validation loses focus. It handles communication between the 
+		bizobj methods and the form. When creating Dabo apps, if you want
+		to add field-level validation rules, you should override fieldValidation()
+		with your specific code.
+		"""
+		errMsg = ""
+		message = self.fieldValidation(fld, val)
+		if message:
+			errMsg += message
+		if errMsg:
+			raise dException.BusinessRuleViolation, errMsg
+	
+	
+	def fieldValidation(self, fld, val):
+		"""This is the method to override if you need field-level validation
+		to your app. It will receive the field name and the new value; you can
+		then apply your business rules to determine if the new value is
+		valid. If not, return a string describing the problem. Any non-empty
+		return value from this method will prevent the control's value
+		from being changed.
+		"""
+		pass
+		
 
 	def _moveToRowNum(self, rownum, updateChildren=True):
 		""" For internal use only! Should never be called from a developer's code.
