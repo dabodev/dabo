@@ -10,6 +10,8 @@ class dPemMixinBase(dabo.common.dObject):
 	functions along with their own property() statements.
 	"""
 	
+	_call_beforeInit, _call_afterInit = False, False
+
 	def _initUI(self):
 		""" Abstract method: subclasses MUST override for UI-specifics.
 		"""

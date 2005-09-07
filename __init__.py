@@ -92,6 +92,8 @@ the command window.
 
 Have fun in your exploration of Dabo. 
 """
+# Import global settings (do this first, as other imports may rely on it):
+from settings import *
 
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
@@ -116,6 +118,4 @@ trace = pdb.set_trace
 # dApp will change the following values upon its __init__:
 dAppRef = None
 
-# Import global settings:
-from settings import *
 

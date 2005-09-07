@@ -132,6 +132,7 @@ class dPemMixin(dPemMixinBase):
 		if attProperties:
 			self.setPropertiesFromAtts(attProperties)
 
+		dPemMixinBase.__init__(self)
 
 	def _constructed(self):
 		"""Returns True if the ui object has been fully created yet, False otherwise."""
