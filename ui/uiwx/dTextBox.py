@@ -1,10 +1,20 @@
-import re, datetime
-import wx, dabo, dabo.ui
+import re
+import datetime
+import wx
+
+try:
+	import decimal
+except ImportError:
+	# decimal is only in Python 2.4 or greater
+	decimal = None
+
+import dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dDataControlMixin as dcm
 from dabo.dLocalize import _
+import dabo.dEvents as dEvents
 
 
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
@@ -145,11 +155,20 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			except ImportError:
 				value = self._value
 		
+		elif (decimal is not None and dataType == decimal.Decimal):
+			try:
+				_oldVal = self._oldVal
+			except:
+				_oldVal = None
+			if type(_oldVal) == decimal.Decimal:
+				# Enforce the precision as previously set programatically
+				value = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
+			else:
+				value = decimal.Decimal(strVal)
 		else:
 			# Other types can convert directly.
 			try:
 				value = dataType(strVal)
-			#except (ValueError, TypeError):
 			except:
 				# The Python object couldn't convert it. Our validator, once 
 				# implemented, won't let the user get this far. In the meantime, 
@@ -170,7 +189,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			# that is currently showing numeric data.
 		
 			strVal = self._getStringValue(value)
-			_oldVal = self.Value
+			_oldVal = self._oldVal = self.Value
 				
 			# save the actual value for return by _getValue:
 			self._value = value
@@ -433,6 +452,13 @@ if __name__ == "__main__":
 		class DecimalText(TestBase):
 			def afterInit(self):
 				self.Value = decimal.Decimal("23.42")
+			def initEvents(self):
+				self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
+			def onValueChanged(self, evt):
+				# This tests that when the value is changed programatically, the user is enforced to
+				# use the same precision:
+				if self.Value == decimal.Decimal("23.23"):
+					self.Value = decimal.Decimal("42.4242")
 		testParms.append(DecimalText)
 	except ImportError:
 		# decimal only in python >= 2.4
