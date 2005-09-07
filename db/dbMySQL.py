@@ -1,4 +1,8 @@
 import datetime
+try:
+	import decimal
+except ImportError:
+	decimal = None
 from dabo.dLocalize import _
 from dBackend import dBackend
 
@@ -15,12 +19,28 @@ class MySQL(dBackend):
 		port = connectInfo.Port
 		if not port:
 			port = 3306
-				
+
+		kwargs = {}
+		if decimal is not None:
+			# MySQLdb doesn't provide decimal converter by default, so we do it here
+			from MySQLdb import converters
+			from MySQLdb import constants
+
+			DECIMAL = constants.FIELD_TYPE.DECIMAL
+			conversions = converters.conversions.copy()
+			conversions[DECIMAL] = decimal.Decimal
+
+			def dec2str(dec, dic):
+				return str(dec)
+
+			conversions[decimal.Decimal] = dec2str
+			kwargs["conv"] = conversions
+
 		self._connection = dbapi.connect(host=connectInfo.Host, 
 				user = connectInfo.User,
 				passwd = connectInfo.revealPW(),
 				db=connectInfo.Database,
-				port=port)
+				port=port, **kwargs)
 
 		return self._connection
 
@@ -91,6 +111,8 @@ class MySQL(dBackend):
 				ft = "M"
 			elif "decimal" in ft:
 				ft = "N"
+			elif "float" in ft:
+				ft = "F"
 			elif "datetime" in ft:
 				ft = "T"
 			elif "date" in ft:
