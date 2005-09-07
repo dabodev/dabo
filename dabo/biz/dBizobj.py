@@ -711,7 +711,7 @@ class dBizobj(dabo.common.dObject):
 		pass
 
 	
-	def validateField(self, fld, val):
+	def fieldValidation(self, fld, val):
 		"""This is called by the form when a control that is marked for field-
 		level validation loses focus. It handles communication between the 
 		bizobj methods and the form. When creating Dabo apps, if you want
@@ -719,14 +719,14 @@ class dBizobj(dabo.common.dObject):
 		with your specific code.
 		"""
 		errMsg = ""
-		message = self.fieldValidation(fld, val)
+		message = self.validateFields(fld, val)
 		if message:
 			errMsg += message
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
 	
 	
-	def fieldValidation(self, fld, val):
+	def validateFields(self, fld, val):
 		"""This is the method to override if you need field-level validation
 		to your app. It will receive the field name and the new value; you can
 		then apply your business rules to determine if the new value is

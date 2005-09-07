@@ -595,7 +595,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				# active control may not be data-aware
 				pass
 	
-	def fieldValidate(self, ctrl):
+	def validateField(self, ctrl):
 		"""Call the bizobj for the control's DataSource. If the control's 
 		value is rejected for field validation reasons, a 
 		BusinessRuleViolation exception will be raised, and the form
@@ -615,7 +615,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			return
 		ret = False
 		try:
-			biz.validateField(df, val)
+			biz.fieldValidation(df, val)
 			ret = True
 		except dException.BusinessRuleViolation, e:
 			self.onFieldValidationFailed(ctrl, ds, df, val, e)

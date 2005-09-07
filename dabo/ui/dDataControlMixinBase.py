@@ -16,8 +16,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self.enabled = True
 		# Initialize runtime properties
 		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
-		# Flag for turning on field-level validation
-		self._fieldValidate = False
+		self._inFldValid = False
 		
 	
 	def _initEvents(self):
@@ -47,7 +46,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	
 	def __onGotFocus(self, evt):
 		# self._oldVal will be compared to self.Value in flushValue()
-		self._oldVal = self.Value
+		if not self._inFldValid:
+			self._oldVal = self.Value
+		self._inFldValid = False
 		# User-definable GotFocus hook
 		self.gotFocus(evt)
 		try:
@@ -57,18 +58,26 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			# only text controls have SelectOnEntry
 			pass
 	def gotFocus(self, evt):
+		"""User-customizable hook for the GotFocus() event. This method
+		is empty by definition, so override it without fear of trampling on
+		Dabo framework code.
+		"""
 		pass
 	
 	
 	def __onLostFocus(self, evt):
 		ok = True
 		# Call the field-level validation if indicated.
-		if self._fieldValidate:
-			if self._oldVal != self.Value:
-				if hasattr(self.Form, "fieldValidate"):
-					ok = self.Form.fieldValidate(self)
-		if ok is not False:
-			# If validation fails, don't write the value to the source.
+		if self._oldVal != self.Value:
+			if hasattr(self.Form, "validateField"):
+				ok = self.Form.validateField(self)
+		if ok is False:
+			# If validation fails, don't write the value to the source. Also,
+			# flag this field so that the gotFocus() doesn't set _oldVal
+			# to the invalid value.
+			self._inFldValid = True
+		else:
+			# Everything's hunky dory; push the value to the DataSource.
 			self.flushValue()
 		# User-definable LostFocus hook
 		self.lostFocus(evt)
@@ -79,6 +88,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			# only text controls have SelectOnEntry
 			pass
 	def lostFocus(self, evt):
+		"""User-customizable hook for the LostFocus() event. This method
+		is empty by definition, so override it without fear of trampling on
+		Dabo framework code.
+		"""
 		pass
 
 			
@@ -281,13 +294,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return ""
 	def _setDataField(self, value):
 		self._DataField = str(value)
-	
-	
-	def _getFldVldt(self):
-		return self._fieldValidate
-	def _setFldVldt(sef, val):
-		self._fieldValidate = val
-	
+
 	def _getSecret(self):
 		try:
 			return self._isSecret
@@ -335,11 +342,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	DataField = property(_getDataField, _setDataField, None,
 			_("""Specifies the data field of the dataset to use as the source 
 			of data. (str)""") )
-	
-	FieldValidate = property(_getFldVldt, _setFldVldt, None,
-			_("""When True, automatically calls the form's fieldValidate() 
-			method, which will call the same method in the appropriate
-			bizobj. Default=False (bool)""") )
 	
 	IsSecret = property(_getSecret, _setSecret, None,
 			_("Flag for indicating sensitive data that is not to be persisted.   (bool)") )
