@@ -1,3 +1,4 @@
+import types
 import traceback
 import dabo
 from dabo.dLocalize import _
@@ -7,6 +8,10 @@ class EventMixin(object):
 
 	All Dabo objects inherit this functionality.	
 	"""
+	def __init__(self, *args, **kwargs):
+		if dabo.autoBindEvents:
+			self._autoBindEvents()
+
 	def bindEvent(self, eventClass, function):
 		"""Bind a dEvent to a callback function.
 		"""
@@ -133,6 +138,49 @@ class EventMixin(object):
 					newBindings.append(binding)
 			self._EventBindings = newBindings
 
+	def _autoBindEvents(self):
+		"""Automatically bind any on*() methods to the associated event.
+
+		User code only needs to define the callback, and Dabo will automatically
+		set up the event binding. This will satisfy lots of common cases where 
+		you want an object to respond to its own events. If you want another 
+		object to respond to an event, you'll still have to manually set up that
+		event binding.
+
+		We recommend that for manual bindings, to name them slightly different.
+		For example, if you have a dButton and you want the form to respond to 
+		the Button's Hit event, don't name the form method onHit, because that 
+		would result in an automatic binding of 
+		form.bindEvent(dEvents.Hit, form.onHit). Instead, name the form method
+		onButtonHit() or similar.
+
+		FEATURE NOT AUTOMATIC YET: to try out this feature, you need to enable
+		it explicitly:
+			dabo.autoBindEvents = True
+
+		I want to solicit comments from Ed and others before making this change
+		the default behavior, so that we can ditch it if necessary without 
+		worrying that user code may be relying on it.
+
+		This feature is inspired by PythonCard.
+		"""
+		import dabo.dEvents as dEvents
+		funcNames = [i for i in dir(self) if i[:2] == "on"]
+		for funcName in funcNames:
+			for m in self.__class__.mro():
+				funcObj = None
+				try:
+					funcObj = m.__dict__[funcName]
+					break
+				except KeyError:
+					pass
+			if type(funcObj) in (types.FunctionType, types.MethodType):
+				evtName = funcName[2:]
+				if evtName in dir(dEvents):
+					evtObj = dEvents.__dict__[evtName]
+					funcObj = eval("self.%s" % funcName)  ## (can't use __class__.dict...)
+					self.bindEvent(evtObj, funcObj)
+
 	# Allow for alternate capitalization
 	unbindEvent = unBindEvent
 	
@@ -148,7 +196,7 @@ class EventMixin(object):
 			self._eventBindings = val
 		else:
 			raise ValueError, "EventBindings must be a list."
-		
+
 	_EventBindings = property(_getEventBindings, _setEventBindings, None, 
 		_("The list of event bindings ([Event, callback]) for this object."))		
 	

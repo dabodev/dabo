@@ -41,7 +41,9 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 			self._afterInit()
 		self.setProperties(properties)
 
-
+		DoDefaultMixin.__init__(self)		
+		PropertyHelperMixin.__init__(self)		
+		EventMixin.__init__(self)		
 
 	def beforeInit(self, *args, **kwargs):
 		""" Subclass hook.

@@ -41,6 +41,10 @@ allNativeEventInfo = False
 #   dabo.fastNameSet=False
 fastNameSet = False
 
+# See dabo/common/eventMixin/_autoBindEvents for an explanation of the 
+# next setting:
+autoBindEvents = False
+
 ### Settings - end
 
 # Do not copy/paste anything below this line into settings_override.py.
