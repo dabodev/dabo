@@ -49,20 +49,12 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if not self._inFldValid:
 			self._oldVal = self.Value
 		self._inFldValid = False
-		# User-definable GotFocus hook
-		self.gotFocus(evt)
 		try:
 			if self.SelectOnEntry:
 				self.selectAll()
 		except AttributeError:
 			# only text controls have SelectOnEntry
 			pass
-	def gotFocus(self, evt):
-		"""User-customizable hook for the GotFocus() event. This method
-		is empty by definition, so override it without fear of trampling on
-		Dabo framework code.
-		"""
-		pass
 	
 	
 	def __onLostFocus(self, evt):
@@ -79,20 +71,12 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		else:
 			# Everything's hunky dory; push the value to the DataSource.
 			self.flushValue()
-		# User-definable LostFocus hook
-		self.lostFocus(evt)
 		try:
 			if self.SelectOnEntry:
 				self.selectNone()
 		except AttributeError:
 			# only text controls have SelectOnEntry
 			pass
-	def lostFocus(self, evt):
-		"""User-customizable hook for the LostFocus() event. This method
-		is empty by definition, so override it without fear of trampling on
-		Dabo framework code.
-		"""
-		pass
 
 			
 	def __onValueRefresh(self, evt): 
