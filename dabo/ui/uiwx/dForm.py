@@ -89,7 +89,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		form is set for checking for this. If everything's OK, call the 
 		hook method.
 		"""
-		ret = self.confirmChanges()
+		ret = True
+		if not self._isClosed:
+			ret = self.confirmChanges()
 		if ret:
 			ret = super(dForm, self)._beforeClose(evt)
 		return ret
@@ -265,7 +267,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			
 		except dException.BusinessRuleViolation, e:
 			self.setStatusText(_("Save failed."))
-			msg = "%s:\n\n%s" % (_("Save Failed:"), _( str(e) ))
+			msg = "%s:\n\n%s" % (_("Save Failed"), _( str(e) ))
 			self.notifyUser(msg, severe=True)
 			return False
 		self.afterSave()
