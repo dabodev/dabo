@@ -1079,6 +1079,10 @@ class dPemMixin(dPemMixinBase):
 					# Parent could be None, or currentName wasn't bound yet (init)
 					pass
 	
+				# Make sure that the name isn't already used
+				if self.Parent:
+					if hasattr(self.Parent, name):
+						raise NameError, "Name '%s' is already in use." % name
 				try:
 					self.Parent.__dict__[name] = self
 				except AttributeError:
@@ -1093,16 +1097,16 @@ class dPemMixin(dPemMixinBase):
 					# the name if necessary to make it unique (we don't want a NameError).
 					i = 0
 					while True:
-						nameError = False
 						if i == 0:
 							candidate = name
 						else:
 							candidate = "%s%s" % (name, i)
-	
-						for window in parent.GetChildren():
-							if window.GetName() == candidate and window != self:
-								nameError = True
-								break
+						nameError = hasattr(parent, name)
+						if not nameError:
+							for window in parent.GetChildren():
+								if window.GetName() == candidate and window != self:
+									nameError = True
+									break
 						if nameError:
 							i += 1
 						else:
@@ -1111,9 +1115,12 @@ class dPemMixin(dPemMixinBase):
 				else:
 					# the user is explicitly setting the Name. If another object already
 					# has the name, we must raise an exception immediately.
-					for window in parent.GetChildren():
-						if str(window.GetName()) == str(name) and window != self:
-							raise NameError, "Name '%s' is already in use." % name
+					if hasattr(parent, name):
+						raise NameError, "Name '%s' is already in use." % name
+					else:
+						for window in parent.GetChildren():
+							if str(window.GetName()) == str(name) and window != self:
+								raise NameError, "Name '%s' is already in use." % name
 					
 			else:
 				# Can't do the name check for siblings, so allow it for now.
