@@ -226,6 +226,7 @@ class dCursorMixin(dabo.common.dObject):
 		# any updates.
 		self.__setNonUpdateFields()
 
+
 		# Clear the unsorted list, and then apply the current sort
 		self.__unsortedRows = []
 		if self.sortColumn:
@@ -419,7 +420,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				ret = "<![CDATA[%s]]>" % val.encode(self.Encoding)
 		return ret
 
-	def setNonUpdateFields(self, fldList=[]):
+	def setNonUpdateFields(self, fldList=None):
+		if fldList is None:
+			fldList = []
 		self.nonUpdateFields = fldList
 	
 	
@@ -961,7 +964,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if not row.has_key(k.CURSOR_MEMENTO):
 			row[k.CURSOR_MEMENTO] = dMemento()
 		# Take the snapshot of the current values
-		row[k.CURSOR_MEMENTO].setMemento(row)
+		row[k.CURSOR_MEMENTO].setMemento(row, skipFields=self.getNonUpdateFields())
 
 
 	def __setStructure(self):

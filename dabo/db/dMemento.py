@@ -3,28 +3,38 @@ import dabo.dConstants as k
 class dMemento(object):
 	__snapshot = {}
 
-	def __init__(self, vals=None):
+	def __init__(self, vals=None, skipFields=None):
+		self.__skipFields = []
 		if vals is None:
 			self.setMemento({})
 		else:
-			self.setMemento(vals)
+			self.setMemento(vals, skipFields)
 
 		self.diff = {}
 
 
-	def setMemento(self, vals):
-		self.__snapshot = vals.copy()
+	def setMemento(self, vals, skipFields=None):
+		if skipFields is None:
+			skipFields = []
+		self.__skipFields = skipFields
+		vals = vals.copy()
+		for f in skipFields:
+			del(vals[f])
+		self.__snapshot = vals
 
 
 	def isChanged(self, newvals):
 		""" Return True if the snapshot does not match the passed dictionary.
 		"""
+		skipFields = self.__skipFields
+		newvals = newvals.copy()
+		for f in skipFields:
+			del(newvals[f])
+		return (self.__snapshot != newvals)
 
 #         if self.__snapshot != newvals:
 #           print "orig:", self.__snapshot
 #           print "new:", newvals
-
-		return (self.__snapshot != newvals)
 
 
 	def getOrigVal(self, fld):
@@ -53,6 +63,9 @@ class dMemento(object):
 		"""
 		ret = {}
 		for kk, vv in newvals.items():
+			if kk in self.__skipFields:
+				# Ignore the skipped fields
+				continue
 			if kk == k.CURSOR_MEMENTO:
 				# Ignore the mementos
 				continue
