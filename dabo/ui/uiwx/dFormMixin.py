@@ -352,10 +352,10 @@ class dFormMixin(pm.dPemMixin):
 			if self._objectRegistry.has_key(id):
 				raise KeyError, _("Duplicate RegID '%s' found") % id
 			self._objectRegistry[id] = obj
-		if self.__dict__.has_key(id):
-			dabo.errorLog.write(_("RegID '%s' conflicts with existing name") % id)
-		else:
-			self.__dict__[id] = obj
+			if self.__dict__.has_key(id):
+				dabo.errorLog.write(_("RegID '%s' conflicts with existing name") % id)
+			else:
+				self.__dict__[id] = obj
 		
 		
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
