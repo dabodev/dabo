@@ -719,14 +719,14 @@ class dBizobj(dabo.common.dObject):
 		with your specific code.
 		"""
 		errMsg = ""
-		message = self.validateFields(fld, val)
+		message = self.validateField(fld, val)
 		if message:
 			errMsg += message
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
 	
 	
-	def validateFields(self, fld, val):
+	def validateField(self, fld, val):
 		"""This is the method to override if you need field-level validation
 		to your app. It will receive the field name and the new value; you can
 		then apply your business rules to determine if the new value is
