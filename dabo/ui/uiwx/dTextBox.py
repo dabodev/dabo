@@ -160,11 +160,19 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				_oldVal = self._oldVal
 			except:
 				_oldVal = None
-			if type(_oldVal) == decimal.Decimal:
-				# Enforce the precision as previously set programatically
-				value = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
-			else:
-				value = decimal.Decimal(strVal)
+
+			try:
+				if type(_oldVal) == decimal.Decimal:
+					# Enforce the precision as previously set programatically
+					strVal, _oldVal
+					value = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
+				else:
+					value = decimal.Decimal(strVal)
+			except:
+				dabo.errorLog.write("Couldn't convert literal '%s' to %s." 
+					% (strVal, dataType))
+				value = self._value
+				
 		else:
 			# Other types can convert directly.
 			try:
