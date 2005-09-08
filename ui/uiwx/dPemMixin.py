@@ -155,6 +155,8 @@ class dPemMixin(dPemMixinBase):
 		self._finito = False
 		# Dict to hold key bindings
 		self._keyBindings = {}
+		# Unique identifier attribute, if needed
+		self._registryID = ""
 		self.beforeInit()
 		
 	
@@ -828,21 +830,21 @@ class dPemMixin(dPemMixinBase):
 		self.delWindowStyleFlag(wx.DOUBLE_BORDER)
 		self.delWindowStyleFlag(wx.STATIC_BORDER)
 
-		style = str(style)
+		style = str(style).lower().strip()
 
-		if style == "None":
+		if style == "none":
 			self.addWindowStyleFlag(wx.NO_BORDER)
-		elif style == "Simple":
+		elif style == "simple":
 			self.addWindowStyleFlag(wx.SIMPLE_BORDER)
-		elif style == "Sunken":
+		elif style == "sunken":
 			self.addWindowStyleFlag(wx.SUNKEN_BORDER)
-		elif style == "Raised":
+		elif style == "raised":
 			self.addWindowStyleFlag(wx.RAISED_BORDER)
-		elif style == "Double":
+		elif style == "double":
 			self.addWindowStyleFlag(wx.DOUBLE_BORDER)
-		elif style == "Static":
+		elif style == "static":
 			self.addWindowStyleFlag(wx.STATIC_BORDER)
-		elif style == "Default":
+		elif style == "default":
 			pass
 		else:
 			raise ValueError, ("The only possible values are 'None', "
@@ -1169,6 +1171,19 @@ class dPemMixin(dPemMixinBase):
 		else:
 			self._properties["Position"] = val
 
+
+	def _getRegID(self):
+		return self._registryID
+	def _setRegID(self, val):
+		if self._registryID:
+			# These should be immutable once set
+			raise AttributeError, _("RegIDs cannot be changed once they are set")
+		self._registryID = val
+		try:
+			self.Form.registerObject(self)
+		except:
+			dabo.errorLog.write(_("Failed to register RegID '%s'") % val)
+	
 	
 	def _getSize(self): 
 		return self.GetSize()
@@ -1387,6 +1402,9 @@ class dPemMixin(dPemMixinBase):
 
 	Position = property(_getPosition, _setPosition, None, 
 			_("The (x,y) position of the object. (tuple)") )
+
+	RegID = property(_getRegID, _setRegID, None, 
+			_("A unique identifier used for referencing by other objects. (str)") )
 
 	Size = property(_getSize, _setSize, None,
 			_("The size of the object. (tuple)") )

@@ -22,6 +22,7 @@ class dFormMixin(pm.dPemMixin):
 				# No style was explicitly set
 				style = wx.DEFAULT_FRAME_STYLE	
 		kwargs["style"] = style
+		self._objectRegistry = {}
 		super(dFormMixin, self).__init__(preClass, parent, properties, *args, **kwargs)
 		
 
@@ -338,6 +339,23 @@ class dFormMixin(pm.dPemMixin):
 	def sendToBack(self):
 		"""Places this window behind all others."""
 		self.Lower()
+	
+	
+	def registerObject(self, obj):
+		"""Stores a reference to the passed object using the RegID key
+		property of the object for later retrieval. You may reference the 
+		object as if it were a child object of this form; i.e., by using simple
+		dot notation, with the RegID as the 'name' of the object. 		
+		"""
+		if hasattr(obj, "RegID"):
+			id = obj.RegID
+			if self._objectRegistry.has_key(id):
+				raise KeyError, _("Duplicate RegID '%s' found") % id
+			self._objectRegistry[id] = obj
+		if self.__dict__.has_key(id):
+			dabo.errorLog.write(_("RegID '%s' conflicts with existing name") % id)
+		else:
+			self.__dict__[id] = obj
 		
 		
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
