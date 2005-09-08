@@ -1138,7 +1138,9 @@ class dBizobj(dabo.common.dObject):
 	def _getNonUpdateFields(self):
 		return self._CurrentCursor.getNonUpdateFields()
 		
-	def _setNonUpdateFields(self, fldList=[]):
+	def _setNonUpdateFields(self, fldList=None):
+		if fldList is None:
+			fldList = []
 		self._CurrentCursor.setNonUpdateFields(fldList)
 	
 	def getWordMatchFormat(self):
