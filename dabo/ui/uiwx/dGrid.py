@@ -32,7 +32,7 @@ try:
 	defaultEncoding = wx.GetDefaultPyEncoding()
 except AttributeError:
 	defaultEncoding = "latin-1"
-		
+
 
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
@@ -66,7 +66,16 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def setRowLabels(self, rowLbls):
 		self.rowLabels = rowLbls
 		
-	
+	def GetAttr(self, row, col, no_idea):
+		## dGrid maintains one attribute object that applies to every row 
+		## in the column. This can be extended later with optional cell-specific
+		## attributes to override the column-specific ones, but I'll wait for
+		## the need to present itself... perhaps we can implement a VFP-inspired
+		## DynamicBackColor, DynamicFont..., etc.
+
+		## The column attr object is maintained in dColumn:
+		return self.grid.Columns[col]._gridColAttr.Clone()
+
 	def GetRowLabelValue(self, row):
 		try:
 			return self.rowLabels[row]
@@ -404,7 +413,9 @@ class dColumn(dabo.common.dObject):
 		# Do we run incremental search with this column? Default: True
 		self.canIncrSearch = True
 
-		self._afterInit()		
+		# dColumn maintains one attr object that the grid table will use:
+		self._gridColAttr = wx.grid.GridCellAttr()
+		self._afterInit()
 
 	def _constructed(self):
 		if isinstance(self.Parent, wx.grid.Grid):
@@ -448,6 +459,17 @@ class dColumn(dabo.common.dObject):
 
 	def _setDataType(self, val):
 		self._dataType = val
+		# Automatically set the Alignment based on the data type. TODO: refactor
+		# so that Alignment can be set to "Automatic" (the default) and run this
+		# code block only when that is the case.
+		if True:  ## (if self.HorizontalCellAlignment == "Automatic")
+			# for some reason, the DataType is first getting set to a type, and then
+			# to a common string representing that type. I've coded this to just 
+			# respond to the string values, but I'm not sure that's right.
+			if isinstance(val, basestring):
+				if val in ("decimal", "float", "long", "int"):
+					self.HorizontalCellAlignment = "Right"
+
 		self.changeMsg("DataType")
 	
 
@@ -479,6 +501,59 @@ class dColumn(dabo.common.dObject):
 		self._headerBackgroundColor = val
 		self.Parent.Refresh()
 	
+	def _getHorizontalCellAlignment(self):
+		mapping = {wx.ALIGN_LEFT: "Left", wx.ALIGN_RIGHT: "Right",
+	             wx.ALIGN_CENTRE: "Center"}
+		
+		wxAlignment = self._gridColAttr.GetAlignment()[0]
+		try:
+			val = mapping[wxAlignment]
+		except KeyError:
+			val = "Left"
+		return val
+
+	def _setHorizontalCellAlignment(self, val):
+		mapping = {"Left": wx.ALIGN_LEFT, "Right": wx.ALIGN_RIGHT,
+	             "Center": wx.ALIGN_CENTRE}
+		
+		try:
+			wxHorAlign = mapping[val]
+		except KeyError:
+			wxHorAlign = mapping["Left"]
+			val = "Left"
+
+		wxVertAlign = self._gridColAttr.GetAlignment()[1]
+
+		self._gridColAttr.SetAlignment(wxHorAlign, wxVertAlign)
+		self.Parent.refresh()
+
+
+	def _getVerticalCellAlignment(self):
+		mapping = {wx.ALIGN_TOP: "Top", wx.ALIGN_BOTTOM: "Bottom",
+	             wx.ALIGN_CENTRE: "Center"}
+		
+		wxAlignment = self._gridColAttr.GetAlignment()[1]
+		try:
+			val = mapping[wxAlignment]
+		except KeyError:
+			val = "Top"
+		return val
+
+	def _setVerticalCellAlignment(self, val):
+		mapping = {"Top": wx.ALIGN_TOP, "Bottom": wx.ALIGN_BOTTOM,
+	             "Center": wx.ALIGN_CENTRE}
+		
+		try:
+			wxVertAlign = mapping[val]
+		except KeyError:
+			wxVertAlign = mapping["Top"]
+			val = "Top"
+
+		wxHorAlign = self._gridColAttr.GetAlignment()[0]
+
+		self._gridColAttr.SetAlignment(wxHorAlign, wxVertAlign)
+		self.Parent.refresh()
+
 
 	def _getOrder(self):
 		try:
@@ -531,8 +606,18 @@ class dColumn(dabo.common.dObject):
 	HeaderBackgroundColor = property(_getHeaderBackgroundColor, _setHeaderBackgroundColor, None,
 			_("Optional color for the background of the column header  (str)") )
 
+	HorizontalCellAlignment = property(_getHorizontalCellAlignment, _setHorizontalCellAlignment, None,
+			_("""Horizontal alignment for all cells in this column. (str)
+
+Acceptable values are "Left", "Center", and "Right". """))
+
 	Order = property(_getOrder, _setOrder, None,
 			_("Order of this column  (int)") )
+
+	VerticalCellAlignment = property(_getVerticalCellAlignment, _setVerticalCellAlignment, None,
+			_("""Vertical alignment for all cells in this column. (str)
+
+Acceptable values are "Top", "Center", and "Bottom". """))
 
 	Width = property(_getWidth, _setWidth, None,
 			_("Width of this column  (int)") )
@@ -619,12 +704,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.boolRendererClass = wx.grid.GridCellBoolRenderer
 		self.intRendererClass = wx.grid.GridCellNumberRenderer
 		self.longRendererClass = wx.grid.GridCellNumberRenderer
+		self.decimalRendererClass = wx.grid.GridCellNumberRenderer
 		self.floatRendererClass = wx.grid.GridCellFloatRenderer
 		self.listRendererClass = wx.grid.GridCellStringRenderer
 		self.stringEditorClass = wx.grid.GridCellTextEditor
 		self.boolEditorClass = wx.grid.GridCellBoolEditor
 		self.intEditorClass = wx.grid.GridCellNumberEditor
 		self.longEditorClass = wx.grid.GridCellNumberEditor
+		self.decimalEditorClass = wx.grid.GridCellNumberEditor
 		self.floatEditorClass = wx.grid.GridCellFloatEditor
 		self.listEditorClass = wx.grid.GridCellChoiceEditor		
 		
@@ -634,6 +721,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			"bool" : self.boolRendererClass, 
 			"int" : self.intRendererClass, 
 			"long" : self.longRendererClass, 
+			"decimal" : self.decimalRendererClass,
 			"float" : self.floatRendererClass, 
 			"list" : self.listRendererClass  }
 		self.defaultEditors = {
@@ -642,6 +730,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			"bool" : self.boolEditorClass, 
 			"int" : self.intEditorClass, 
 			"long" : self.longEditorClass, 
+			"decimal" : self.decimalRendererClass,
 			"float" : self.floatEditorClass, 
 			"list" : self.listEditorClass }
 		
