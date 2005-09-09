@@ -83,7 +83,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			dabo.infoLog.write("dGrid.Table.GetAttr:: kind is not 0, it is %s." % kind)
 
 		## The column attr object is maintained in dColumn:
-		return self.grid.Columns[col]._gridColAttr.Clone()
+		try:
+			return self.grid.Columns[col]._gridColAttr.Clone()
+		except IndexError:
+			# Something is out of order in the setting up of the grid: the grid table
+			# has columns, but self.grid.Columns doesn't know about it yet. Just return
+			# the default:
+			return self.grid._defaultGridColAttr.Clone()
 
 	def GetRowLabelValue(self, row):
 		try:
@@ -423,7 +429,7 @@ class dColumn(dabo.common.dObject):
 		self.canIncrSearch = True
 
 		# dColumn maintains one attr object that the grid table will use:
-		self._gridColAttr = wx.grid.GridCellAttr()
+		self._gridColAttr = self.Parent._defaultGridColAttr.Clone()
 		self._afterInit()
 
 	def _constructed(self):
@@ -664,6 +670,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# List of Row Labels, if any
 		self._rowLabels = []
 
+		# dColumn maintains its own cell attribute object, but this is the default:
+		self._defaultGridColAttr = wx.grid.GridCellAttr()
+	
 		# Columns notify the grid when their properties change
 		# Sometimes the grid itself initiated the change, and doesn't
 		# need to be notified.
