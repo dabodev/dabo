@@ -150,7 +150,7 @@ class dPemMixin(dPemMixinBase):
 		self._needRedraw = True
 		self._borderColor = "black"
 		self._borderWidth = 0
-		self._borderLineStyle = "solid"
+		self._borderLineStyle = "Solid"
 		# Flag that gets set to True when the object is being Destroyed
 		self._finito = False
 		# Dict to hold key bindings
