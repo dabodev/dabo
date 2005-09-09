@@ -1188,6 +1188,8 @@ class dPemMixin(dPemMixinBase):
 		self._registryID = val
 		try:
 			self.Form.registerObject(self)
+			# If the Form defines event callbacks for the object, bind them:
+			self._autoBindEvents(context=self.Form)
 		except:
 			dabo.errorLog.write(_("Failed to register RegID '%s'") % val)
 	
