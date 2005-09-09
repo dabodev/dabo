@@ -10,7 +10,7 @@ class EventMixin(object):
 	"""
 	def __init__(self, *args, **kwargs):
 		if dabo.autoBindEvents:
-			self._autoBindEvents()
+			self._autoBindEvents(context=self)
 
 	def bindEvent(self, eventClass, function):
 		"""Bind a dEvent to a callback function.
@@ -138,7 +138,7 @@ class EventMixin(object):
 					newBindings.append(binding)
 			self._EventBindings = newBindings
 
-	def _autoBindEvents(self):
+	def _autoBindEvents(self, context):
 		"""Automatically bind any on*() methods to the associated event.
 
 		User code only needs to define the callback, and Dabo will automatically
@@ -147,63 +147,65 @@ class EventMixin(object):
 		object to respond to an event, you'll still have to manually set up that
 		event binding.
 
-		We recommend that for manual bindings, to name them slightly different.
-		For example, if you have a dButton and you want the form to respond to 
-		the Button's Hit event, don't name the form method onHit, because that 
-		would result in an automatic binding of 
-		form.bindEvent(dEvents.Hit, form.onHit). Instead, name the form method
-		onButtonHit() or similar.
-
 		FEATURE NOT AUTOMATIC YET: to try out this feature, you need to enable
 		it explicitly:
 			dabo.autoBindEvents = True
 
-		I want to solicit comments from Ed and others before making this change
-		the default behavior, so that we can ditch it if necessary without 
-		worrying that user code may be relying on it.
-
 		This feature is inspired by PythonCard.
 		"""
 		import dabo.dEvents as dEvents
-		def autoBind(context):
-			if context is None:
+
+		if context is None:
+			# context could be None if during the setting of RegID property, 
+			# self.Form evaluates to None.
+			return
+
+		regid = None
+		contextText = ""
+		if context != self:
+			regid = self.RegID
+			if regid is None or regid == "":
 				return
+			contextText = "_%s" % regid
+						
+		funcNames = [i for i in dir(context) if i[:2] == "on"]
+		for funcName in funcNames:
+			# if funcName is onActivate, then parsedEvtName == "Activate" and parsedRegID=""
+			# if funcName is onHit_MyButton, then parsedEvtName == "Hit" and parsedRegID="MyButton":
+			parsedEvtName = funcName.split("_")[0][2:]
+			parsedRegID = "_".join(funcName.split("_")[1:])
 
-			regid = None
-			if context != self:
-				regid = self.RegID
-				if regid is None or regid == "":
-					return
-				
-			funcNames = [i for i in dir(context) if i[:2] == "on"]
-			for funcName in funcNames:
-				s = funcName.split("_")
-				if regid is not None:
-					if len(s) < 2 or s[1] != regid:
-						continue
-				else:
-					if len(s) > 1:
-						continue
-				for m in context.__class__.mro():
-					funcObj = None
-					try:
-						funcObj = m.__dict__[funcName]
-						break
-					except KeyError:
-						pass
-				if type(funcObj) in (types.FunctionType, types.MethodType):
-					evtName = funcName[2:].split("_")[0]
-					if evtName in dir(dEvents):
-						evtObj = dEvents.__dict__[evtName]
-						funcObj = eval("context.%s" % funcName)  ## (can't use __class__.dict...)
-						self.bindEvent(evtObj, funcObj)
+			# Test to see if evt/regid matches:
+			if regid is not None:
+				if parsedRegID != regid:
+					# This function name doesn't match self's RegID
+					continue
+			else:
+				if len(parsedRegID) > 0:
+					# This function name has a RegID attached, but self doesn't
+					continue
+			if parsedEvtName not in dir(dEvents):
+				# The function's event name isn't recognized
+				continue
 
-		autoBind(context=self)
-		try:
-			autoBind(context=self.Form)
-		except AttributeError:
-			# some objects don't have Form property
-			pass
+			# If we got this far, we have a match. 
+
+			# Get the object reference to the function:
+			for m in context.__class__.mro():
+				funcObj = None
+				try:
+					funcObj = m.__dict__[funcName]
+					# The function is defined in this superclass: break here
+					break
+				except KeyError:
+					# The function isn't defined here: continue the crawl up the mro
+					pass
+
+			if type(funcObj) in (types.FunctionType, types.MethodType):
+					evtObj = dEvents.__dict__[parsedEvtName]
+					funcObj = eval("context.%s" % funcName)  ## (can't use __class__.dict...)
+					self.bindEvent(evtObj, funcObj)
+
 
 	# Allow for alternate capitalization (deprecated):
 	unBindEvent = unbindEvent
