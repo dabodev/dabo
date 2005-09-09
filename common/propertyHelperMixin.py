@@ -1,6 +1,44 @@
+from dabo.dLocalize import _
+
 class PropertyHelperMixin(object):
 	""" Helper functions for getting information on class properties.
 	"""
+
+	def _expandPropStringValue(self, value, propList):
+		""" Called from various property setters: expand value into one of the
+		accepted property values in propList. We allow properties to be set
+		using case-insensitivity, and for properties with distinct first letters
+		for user code to just set the property using the first letter.
+		"""
+		value = value.lower().strip()
+		
+		uniqueFirstLetter = True
+		firstLetterCounts = {}
+		firstLetters = {}
+		lowerPropMap = {}
+		for idx, prop in enumerate(propList):
+			letter = prop[0:1].lower()
+			firstLetterCounts[letter] = firstLetterCounts.get(letter, 0) + 1
+			if firstLetterCounts[letter] > 1:
+				uniqueFirstLetter = False
+			firstLetters[letter] = propList[idx]
+			lowerPropMap[prop.lower().strip()] = prop
+
+		if uniqueFirstLetter:
+			# just worry about the first letter in value:
+			value = firstLetters.get(value[0:1])
+		else:
+			value = lowerPropMap.get(value)
+		
+		if value is None:
+			s = _("The only accepted values for this property are ")
+			for idx, p in enumerate(propList):
+				if idx == len(propList) - 1:
+					s += """%s '%s'.""" % (_("and"), p)
+				else:
+					s += """'%s', """ % p
+			raise ValueError, s
+		return value
 
 	def extractKeywordProperties(self, kwdict, propdict):
 		""" Called from __init__: puts any property keyword arguments into
