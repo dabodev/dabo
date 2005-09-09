@@ -535,6 +535,7 @@ class dColumn(dabo.common.dObject):
 				self._setHorizontalCellAlignment("Right", _autoAlign=True)
 		
 	def _setHorizontalCellAlignment(self, val, _autoAlign=False):
+		val = self._expandPropStringValue(val, ("Automatic", "Left", "Right", "Center"))
 		if val == "Automatic" and not _autoAlign:
 			self._autoHorizontalCellAlignment = True
 			self._setAutoHorizontalCellAlignment()

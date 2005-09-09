@@ -694,7 +694,7 @@ class dPemMixin(dPemMixinBase):
 		if self._borderWidth > 0:
 			dc = wx.ClientDC(self)
 			
-			sty = self._borderLineStyle
+			sty = self._borderLineStyle.lower()
 			lnStyle = wx.SOLID
 			if sty in ("dash", "dashed"):
 #				lnStyle = wx.LONG_DASH		#wx.SHORT_DASH
@@ -788,12 +788,9 @@ class dPemMixin(dPemMixinBase):
 		return self._borderLineStyle
 	
 	def _setBorderLineStyle(self, val):
-		val = val.lower().strip()
-		if val in ("solid", "dash", "dashed", "dot", "dotted", "dotdash", "dashdot"):
-			self._borderLineStyle = val
-			self._needRedraw = True
-		else:
-			raise ValueError, "The only possible values are 'Solid', 'Dash', 'Dot', or 'DotDash'"
+		val = self._expandPropStringValue(val, ("Solid", "Dash", "Dashed", "Dot", "Dotted", "DotDash", "DashDot"))
+		self._borderLineStyle = val
+		self._needRedraw = True
 
 	def _getBorderWidth(self):
 		return self._borderWidth
