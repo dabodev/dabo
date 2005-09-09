@@ -673,8 +673,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._rowLabels = []
 
 		# dColumn maintains its own cell attribute object, but this is the default:
-		self._defaultGridColAttr = wx.grid.GridCellAttr()
-	
+		attr = self._defaultGridColAttr = wx.grid.GridCellAttr()
+		attr.SetAlignment(wx.ALIGN_TOP, wx.ALIGN_LEFT)
+
 		# Columns notify the grid when their properties change
 		# Sometimes the grid itself initiated the change, and doesn't
 		# need to be notified.
