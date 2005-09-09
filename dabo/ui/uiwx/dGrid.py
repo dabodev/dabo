@@ -90,6 +90,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			# has columns, but self.grid.Columns doesn't know about it yet. Just return
 			# the default:
 			return self.grid._defaultGridColAttr.Clone()
+			# (further testing reveals that this really isn't a problem: the grid is 
+			#  just empty - no columns or rows added yet)
 
 	def GetRowLabelValue(self, row):
 		try:
@@ -529,7 +531,7 @@ class dColumn(dabo.common.dObject):
 	def _setAutoHorizontalCellAlignment(self):
 		dt = self.DataType
 		if isinstance(dt, basestring):
-			if dt in ("decimal", "float", "long", "int"):
+			if dt in ("decimal", "float", "long", "integer"):
 				self._setHorizontalCellAlignment("Right", _autoAlign=True)
 		
 	def _setHorizontalCellAlignment(self, val, _autoAlign=False):
@@ -2231,10 +2233,10 @@ if __name__ == '__main__':
 			col.Width = 40
 			col.Caption = "Age"
 			g.addColumn(col)
+
 		
-		
-		def getDataSet(self):
-			return self.dataSet
+#		def getDataSet(self):
+#			return self.dataSet
 
 			
 			
