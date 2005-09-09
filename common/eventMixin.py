@@ -9,8 +9,7 @@ class EventMixin(object):
 	All Dabo objects inherit this functionality.	
 	"""
 	def __init__(self, *args, **kwargs):
-		if dabo.autoBindEvents:
-			self._autoBindEvents(context=self)
+		self._autoBindEvents(context=self)
 
 	def bindEvent(self, eventClass, function):
 		"""Bind a dEvent to a callback function.
@@ -154,6 +153,10 @@ class EventMixin(object):
 		This feature is inspired by PythonCard.
 		"""
 		import dabo.dEvents as dEvents
+
+		if not dabo.autoBindEvents:
+			# autobinding is switched off globally
+			return
 
 		if context is None:
 			# context could be None if during the setting of RegID property, 
