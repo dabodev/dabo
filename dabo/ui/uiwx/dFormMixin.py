@@ -22,6 +22,7 @@ class dFormMixin(pm.dPemMixin):
 				# No style was explicitly set
 				style = wx.DEFAULT_FRAME_STYLE	
 		kwargs["style"] = style
+		self._objectRegistry = {}
 		super(dFormMixin, self).__init__(preClass, parent, properties, *args, **kwargs)
 		
 
@@ -348,12 +349,25 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		if hasattr(obj, "RegID"):
 			id = obj.RegID
+			if self._objectRegistry.has_key(id):
+				raise KeyError, _("Duplicate RegID '%s' found") % id
+			self._objectRegistry[id] = obj
 			if hasattr(self, id) or self.__dict__.has_key(id):
 				dabo.errorLog.write(_("RegID '%s' conflicts with existing name") % id)
 			else:
 				self.__dict__[id] = obj
 		
-		
+	
+	def getObjectByRegID(self, id):
+		"""Given a RegID value, this will return a reference to the 
+		associated object, if any. If not, returns None.
+		"""
+		if self._objectRegistry.has_key(id):
+			return self._objectRegistry[id]
+		else:
+			return None
+			
+			
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
 		menu.append(caption, bindfunc=function, bmp=bitmap)
 
@@ -570,21 +584,21 @@ class dFormMixin(pm.dPemMixin):
 	def _getWindowState(self):
 		try:
 			if self.IsFullScreen():
-				return 'FullScreen'
+				return "FullScreen"
 			elif self.IsMaximized():
-				return 'Maximized'
+				return "Maximized"
 			elif self.IsMinimized():
-				return 'Minimized'
+				return "Minimized"
 			else:
-				return 'Normal'
+				return "Normal"
 		except AttributeError:
 			# These only work on Windows, I fear
-			return 'Normal'
+			return "Normal"
 
 	def _setWindowState(self, value):
 		if self._constructed():
-			value = str(value)
-			if value == 'Normal':
+			lowvalue = str(value).lower().strip()
+			if lowvalue == "normal":
 				if self.IsFullScreen():
 					self.ShowFullScreen(False)
 				elif self.IsMaximized():
@@ -594,11 +608,11 @@ class dFormMixin(pm.dPemMixin):
 				else:
 					# window already normal, but just in case:
 					self.Maximize(False)
-			elif value == 'Minimized':
+			elif lowvalue == "minimized":
 				self.Iconize()
-			elif value == 'Maximized':
+			elif lowvalue == "maximized":
 				self.Maximize()
-			elif value == 'FullScreen':
+			elif lowvalue == "fullscreen":
 				self.ShowFullScreen()
 			else:
 				raise ValueError, ("The only possible values are "
