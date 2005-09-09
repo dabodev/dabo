@@ -468,17 +468,8 @@ class dColumn(dabo.common.dObject):
 
 	def _setDataType(self, val):
 		self._dataType = val
-		# Automatically set the Alignment based on the data type. TODO: refactor
-		# so that Alignment can be set to "Automatic" (the default) and run this
-		# code block only when that is the case.
-		if True:  ## (if self.HorizontalCellAlignment == "Automatic")
-			# for some reason, the DataType is first getting set to a type, and then
-			# to a common string representing that type. I've coded this to just 
-			# respond to the string values, but I'm not sure that's right.
-			if isinstance(val, basestring):
-				if val in ("decimal", "float", "long", "int"):
-					self.HorizontalCellAlignment = "Right"
-
+		if "Automatic" in self.HorizontalCellAlignment:
+			self._setAutoHorizontalCellAlignment()
 		self.changeMsg("DataType")
 	
 
@@ -511,6 +502,11 @@ class dColumn(dabo.common.dObject):
 		self.Parent.Refresh()
 	
 	def _getHorizontalCellAlignment(self):
+		try:
+			auto = self._autoHorizontalCellAlignment
+		except AttributeError:
+			auto = self._autoHorizontalCellAlignment = True
+		
 		mapping = {wx.ALIGN_LEFT: "Left", wx.ALIGN_RIGHT: "Right",
 	             wx.ALIGN_CENTRE: "Center"}
 		
@@ -519,9 +515,25 @@ class dColumn(dabo.common.dObject):
 			val = mapping[wxAlignment]
 		except KeyError:
 			val = "Left"
+		
+		if auto:
+			val = "%s (Automatic)" % val
 		return val
 
-	def _setHorizontalCellAlignment(self, val):
+	def _setAutoHorizontalCellAlignment(self):
+		dt = self.DataType
+		if isinstance(dt, basestring):
+			if dt in ("decimal", "float", "long", "int"):
+				self._setHorizontalCellAlignment("Right", _autoAlign=True)
+		
+	def _setHorizontalCellAlignment(self, val, _autoAlign=False):
+		if val == "Automatic" and not _autoAlign:
+			self._autoHorizontalCellAlignment = True
+			self._setAutoHorizontalCellAlignment()
+			return
+		if val != "Automatic" and not _autoAlign:
+			self._autoHorizontalCellAlignment = False
+
 		mapping = {"Left": wx.ALIGN_LEFT, "Right": wx.ALIGN_RIGHT,
 	             "Center": wx.ALIGN_CENTRE}
 		
@@ -618,7 +630,11 @@ class dColumn(dabo.common.dObject):
 	HorizontalCellAlignment = property(_getHorizontalCellAlignment, _setHorizontalCellAlignment, None,
 			_("""Horizontal alignment for all cells in this column. (str)
 
-Acceptable values are "Left", "Center", and "Right". """))
+Acceptable values are:
+	"Automatic": The cell's contents will align right for numeric data, left for text. (default)
+	"Left"
+	"Center"
+	"Right" """))
 
 	Order = property(_getOrder, _setOrder, None,
 			_("Order of this column  (int)") )
