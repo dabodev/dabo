@@ -107,7 +107,7 @@ class EventMixin(object):
 		return r
 			
 			
-	def unBindEvent(self, eventClass=None, function=None):
+	def unbindEvent(self, eventClass=None, function=None):
 		""" Remove a previously registered event binding.
 		
 		Removes all registrations that exist for the given binding for this
@@ -165,24 +165,48 @@ class EventMixin(object):
 		This feature is inspired by PythonCard.
 		"""
 		import dabo.dEvents as dEvents
-		funcNames = [i for i in dir(self) if i[:2] == "on"]
-		for funcName in funcNames:
-			for m in self.__class__.mro():
-				funcObj = None
-				try:
-					funcObj = m.__dict__[funcName]
-					break
-				except KeyError:
-					pass
-			if type(funcObj) in (types.FunctionType, types.MethodType):
-				evtName = funcName[2:]
-				if evtName in dir(dEvents):
-					evtObj = dEvents.__dict__[evtName]
-					funcObj = eval("self.%s" % funcName)  ## (can't use __class__.dict...)
-					self.bindEvent(evtObj, funcObj)
+		def autoBind(context):
+			if context is None:
+				return
 
-	# Allow for alternate capitalization
-	unbindEvent = unBindEvent
+			regid = None
+			if context != self:
+				regid = self.RegID
+				if regid is None or regid == "":
+					return
+				
+			funcNames = [i for i in dir(context) if i[:2] == "on"]
+			for funcName in funcNames:
+				s = funcName.split("_")
+				if regid is not None:
+					if len(s) < 2 or s[1] != regid:
+						continue
+				else:
+					if len(s) > 1:
+						continue
+				for m in context.__class__.mro():
+					funcObj = None
+					try:
+						funcObj = m.__dict__[funcName]
+						break
+					except KeyError:
+						pass
+				if type(funcObj) in (types.FunctionType, types.MethodType):
+					evtName = funcName[2:].split("_")[0]
+					if evtName in dir(dEvents):
+						evtObj = dEvents.__dict__[evtName]
+						funcObj = eval("context.%s" % funcName)  ## (can't use __class__.dict...)
+						self.bindEvent(evtObj, funcObj)
+
+		autoBind(context=self)
+		try:
+			autoBind(context=self.Form)
+		except AttributeError:
+			# some objects don't have Form property
+			pass
+
+	# Allow for alternate capitalization (deprecated):
+	unBindEvent = unbindEvent
 	
 	def _getEventBindings(self):
 		try:
