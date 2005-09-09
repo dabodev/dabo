@@ -424,12 +424,6 @@ class dColumn(dabo.common.dObject):
 		kwargs["Parent"] = parent
 		super(dColumn, self).__init__(properties, *args, **kwargs)
 
-		## pkm: let's turn these into props asap:
-		# Can this column be sorted? Default: True
-		self.canSort = True
-		# Do we run incremental search with this column? Default: True
-		self.canIncrSearch = True
-
 		# dColumn maintains one attr object that the grid table will use:
 		self._gridColAttr = self.Parent._defaultGridColAttr.Clone()
 		self._afterInit()
@@ -570,6 +564,7 @@ class dColumn(dabo.common.dObject):
 		return val
 
 	def _setVerticalCellAlignment(self, val):
+		val = self._expandPropStringValue(val, ("Top", "Bottom", "Center"))
 		mapping = {"Top": wx.ALIGN_TOP, "Bottom": wx.ALIGN_BOTTOM,
 	             "Center": wx.ALIGN_CENTRE}
 		
@@ -599,6 +594,27 @@ class dColumn(dabo.common.dObject):
 		else:
 			self._properties["Order"] = val
 	
+
+	def _getSearchable(self):
+		try:
+			v = self._searchable
+		except:
+			v = self._searchable = True
+		return v
+
+	def _setSearchable(self, val):
+		self._searchable = bool(val)
+
+
+	def _getSortable(self):
+		try:
+			v = self._sortable
+		except:
+			v = self._sortable = True
+		return v
+
+	def _setSortable(self, val):
+		self._sortable = bool(val)
 
 	def _getWidth(self):
 		try:
@@ -647,6 +663,16 @@ Acceptable values are:
 
 	Order = property(_getOrder, _setOrder, None,
 			_("Order of this column  (int)") )
+
+	Searchable = property(_getSearchable, _setSearchable, None,
+			_("""Specifies whether this column's incremental search is enabled. Default: True
+
+The grid's Searchable property will override this setting."""))
+
+	Sortable = property(_getSortable, _setSortable, None,
+			_("""Specifies whether this column can be sorted. Default: True
+
+The grid's Sortable property will override this setting."""))
 
 	VerticalCellAlignment = property(_getVerticalCellAlignment, _setVerticalCellAlignment, None,
 			_("""Vertical alignment for all cells in this column. (str)
@@ -714,8 +740,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.currSearchStr = ""
 		self.incSearchTimer = dabo.ui.dTimer(self)
 		self.incSearchTimer.bindEvent(dEvents.Hit, self.onSearchTimer)
-		# Flag for turning off incremental search behavior. Default to on.
-		self.useIncrementalSearch = True
 
 		self.sortedColumn = None
 		self.sortOrder = ""
@@ -1491,7 +1515,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			elif keyCode == dKeys.keyStrings["escape"]:
 				self.onEscapeAction()
 				evt.stop()
-			elif char and self.useIncrementalSearch and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
+			elif char and (self.Searchable and self.Columns[self.CurrentColumn].Searchable) and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
 				self.addToSearchStr(char)
 				# For some reason, without this the key happens twice
 				evt.stop()
@@ -1510,16 +1534,16 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""
 		if gridCol == None:
 			gridCol = self.CurrentColumn
-		
+
 		if isinstance(gridCol, dColumn):
-			canSort = gridCol.canSort
+			canSort = (self.Sortable and gridCol.Sortable)
 			columnToSort = gridCol
 			sortCol = self.Columns.index(gridCol)
 			dataType = self.Columns[gridCol].DataType
 		else:
 			sortCol = gridCol
 			columnToSort = self.Columns[gridCol].Field
-			canSort = self.Columns[gridCol].canSort
+			canSort = (self.Sortable and self.Columns[gridCol].Sortable)
 			dataType = None  ## will hunt for the dataType below
 
 		if not canSort:
@@ -1629,7 +1653,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if self.RowCount <= 0:
 			# Nothing to seek within!
 			return
-		if not self.Columns[gridCol].canIncrSearch:
+		if not (self.Searchable and self.Columns[gridCol].Searchable):
 			# Doesn't apply to this column.
 			self.currSearchStr = ""
 			return
@@ -2104,6 +2128,28 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._searchDelay = val
 		
 
+	def _getSearchable(self):
+		try:
+			v = self._searchable
+		except:
+			v = self._searchable = True
+		return v
+
+	def _setSearchable(self, val):
+		self._searchable = bool(val)
+
+
+	def _getSortable(self):
+		try:
+			v = self._sortable
+		except:
+			v = self._sortable = True
+		return v
+
+	def _setSortable(self, val):
+		self._sortable = bool(val)
+
+
 	def _getTable(self):
 		## pkm: we can't call this until after the grid is fully constructed. Need to fix.
 		tbl = self.GetTable()
@@ -2165,10 +2211,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			_("""Width of the label on the left side of the rows. This only changes
 			the grid if ShowRowLabels is True.  (int)"""))
 
+	Searchable = property(_getSearchable, _setSearchable, None,
+			_("""Specifies whether the columns can be searched. Default: True
+
+If True, and if the column's Searchable is True, the column will be searchable."""))
+
 	SearchDelay = property(_getSearchDelay, _setSearchDelay, None,
 			_("""Delay in miliseconds between keystrokes before the 
 			incremental search clears  (int)""") )
 			
+	Sortable = property(_getSortable, _setSortable, None,
+			_("""Specifies whether the columns can be sorted. Default: True
+
+If True, and if the column's Sortable is True, the column will be sortable."""))
+
 	ShowRowLabels = property(_getShowRowLabels, _setShowRowLabels, None,
 			_("Are row labels shown?  (bool)") )
 
@@ -2234,8 +2290,12 @@ if __name__ == '__main__':
 			col.DataType = "integer"
 			col.Width = 40
 			col.Caption = "Age"
+			col.Sortable = False
+			col.Searchable = False
 			g.addColumn(col)
 
+			#g.Sortable = False
+			#g.Searchable = False
 		
 #		def getDataSet(self):
 #			return self.dataSet
