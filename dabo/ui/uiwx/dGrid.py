@@ -66,12 +66,21 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def setRowLabels(self, rowLbls):
 		self.rowLabels = rowLbls
 		
-	def GetAttr(self, row, col, no_idea):
-		## dGrid maintains one attribute object that applies to every row 
+	def GetAttr(self, row, col, kind=0):
+		## dColumn maintains one attribute object that applies to every row 
 		## in the column. This can be extended later with optional cell-specific
 		## attributes to override the column-specific ones, but I'll wait for
 		## the need to present itself... perhaps we can implement a VFP-inspired
 		## DynamicBackColor, DynamicFont..., etc.
+
+		# I have no idea what the kind arg is for. It is sent by wxGrid to this
+		# function, it always seems to be 0, and it isn't documented in the 
+		# wxWidgets docs (but it does appear in the wxPython method signature 
+		# but still isn't documented there.)
+		if kind != 0:
+			# I'd like to know when kind isn't 0, to make sure I've covered all the
+			# bases. Well okay, it's really because I'm just curious.
+			dabo.infoLog.write("dGrid.Table.GetAttr:: kind is not 0, it is %s." % kind)
 
 		## The column attr object is maintained in dColumn:
 		return self.grid.Columns[col]._gridColAttr.Clone()
