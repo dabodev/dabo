@@ -1078,7 +1078,8 @@ class dPemMixin(dPemMixinBase):
 	
 				# Make sure that the name isn't already used
 				if self.Parent:
-					if hasattr(self.Parent, name):
+					if hasattr(self.Parent, name) and type(getattr(self.Parent, name)) != wx._core._wxPyDeadObject \
+						and getattr(self.Parent, name) != self:
 						raise NameError, "Name '%s' is already in use." % name
 				try:
 					self.Parent.__dict__[name] = self
@@ -1098,7 +1099,8 @@ class dPemMixin(dPemMixinBase):
 							candidate = name
 						else:
 							candidate = "%s%s" % (name, i)
-						nameError = hasattr(parent, candidate)
+						nameError = hasattr(parent, candidate) and type(getattr(parent, candidate)) != wx._core._wxPyDeadObject \
+							and getattr(parent, candidate) != self
 						if not nameError:
 							for window in parent.GetChildren():
 								if window.GetName() == candidate and window != self:
@@ -1112,7 +1114,8 @@ class dPemMixin(dPemMixinBase):
 				else:
 					# the user is explicitly setting the Name. If another object already
 					# has the name, we must raise an exception immediately.
-					if hasattr(parent, name):
+					if hasattr(parent, name) and type(getattr(parent, name)) != wx._core._wxPyDeadObject \
+						and getattr(parent, name) != self:
 						raise NameError, "Name '%s' is already in use." % name
 					else:
 						for window in parent.GetChildren():
