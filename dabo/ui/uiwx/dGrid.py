@@ -2303,11 +2303,23 @@ if __name__ == '__main__':
 					{"name" : "Mike Leafe", "age" : 18, "coder" :  False} ]
 
 			col = dColumn(g)
-			col.Name = "Person"
+			col.Name = "Geek"
 			col.Order = 10
+			col.Field = "coder"
+			col.DataType = "bool"
+			col.Width = 60
+			col.Caption = "Geek?"
+			col.Sortable = False
+			col.Searchable = False
+			col.Editable = True
+			g.addColumn(col)
+
+			col = dColumn(g)
+			col.Name = "Person"
+			col.Order = 20
 			col.Field = "name"
 			col.DataType = "string"
-			col.Width = 300
+			col.Width = 200
 			col.Caption = "Customer Name"
 			col.Editable = True
 			g.addColumn(col)
@@ -2323,7 +2335,7 @@ if __name__ == '__main__':
 			col.Searchable = False
 			g.addColumn(col)
 
-			#g.Editable = True
+			g.Editable = True
 			#g.Sortable = False
 			#g.Searchable = False
 		
