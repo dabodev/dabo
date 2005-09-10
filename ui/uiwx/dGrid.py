@@ -174,6 +174,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		
 		
 	def setColumnInfo(self):
+		self.colDefs.sort(self.orderSort)		
 		self.colLabels = [col.Caption for col in self.colDefs]
 		self.dataTypes = [self.convertType(col.DataType) 
 				for col in self.colDefs]
@@ -657,10 +658,10 @@ class dColumn(dabo.common.dObject):
 	Editable = property(_getEditable, _setEditable, None,
 			_("""Is the column editable? (bool)
 
-If Editable, and if the grid is set as Editable, the cell values in this
-column are editable by the user. When editable, incremental searching will
-not be enabled, regardless of the Searchable property setting.
-""") )
+				If Editable, and if the grid is set as Editable, the cell values in this
+				column are editable by the user. When editable, incremental searching will
+				not be enabled, regardless of the Searchable property setting.
+				""") )
 
 	Field = property(_getField, _setField, None,
 			_("Field key in the data set to which this column is bound.  (str)") )
@@ -671,29 +672,26 @@ not be enabled, regardless of the Searchable property setting.
 	HorizontalCellAlignment = property(_getHorizontalCellAlignment, _setHorizontalCellAlignment, None,
 			_("""Horizontal alignment for all cells in this column. (str)
 
-Acceptable values are:
-	"Automatic": The cell's contents will align right for numeric data, left for text. (default)
-	"Left"
-	"Center"
-	"Right" """))
+				Acceptable values are:
+					'Automatic': The cell's contents will align right for numeric data, left for text. (default)
+					'Left'
+					'Center'
+					'Right' """))
 
 	Order = property(_getOrder, _setOrder, None,
 			_("Order of this column  (int)") )
 
 	Searchable = property(_getSearchable, _setSearchable, None,
-			_("""Specifies whether this column's incremental search is enabled. Default: True
-
-The grid's Searchable property will override this setting."""))
+			_("""Specifies whether this column's incremental search is enabled. 
+					Default: True. The grid's Searchable property will override this setting."""))
 
 	Sortable = property(_getSortable, _setSortable, None,
-			_("""Specifies whether this column can be sorted. Default: True
-
-The grid's Sortable property will override this setting."""))
+			_("""Specifies whether this column can be sorted. Default: True. The grid's 
+					Sortable property will override this setting."""))
 
 	VerticalCellAlignment = property(_getVerticalCellAlignment, _setVerticalCellAlignment, None,
-			_("""Vertical alignment for all cells in this column. (str)
-
-Acceptable values are "Top", "Center", and "Bottom". """))
+			_("""Vertical alignment for all cells in this column. Acceptable values 
+			are 'Top', 'Center', and 'Bottom'.  (str)"""))
 
 	Width = property(_getWidth, _setWidth, None,
 			_("Width of this column  (int)") )
