@@ -475,6 +475,14 @@ class dColumn(dabo.common.dObject):
 		self.changeMsg("DataType")
 	
 
+	def _getEditable(self):
+		return not self._gridColAttr.IsReadOnly()
+
+	def _setEditable(self, val):
+		self._gridColAttr.SetReadOnly(not val)
+		self.Parent.refresh()
+		
+
 	def _getField(self):
 		try:
 			v = self._field
@@ -646,6 +654,14 @@ class dColumn(dabo.common.dObject):
 	DataType = property(_getDataType, _setDataType, None,
 			_("Description of the data type for this column  (str)") )
 
+	Editable = property(_getEditable, _setEditable, None,
+			_("""Is the column editable? (bool)
+
+If Editable, and if the grid is set as Editable, the cell values in this
+column are editable by the user. When editable, incremental searching will
+not be enabled, regardless of the Searchable property setting.
+""") )
+
 	Field = property(_getField, _setField, None,
 			_("Field key in the data set to which this column is bound.  (str)") )
 
@@ -700,8 +716,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._rowLabels = []
 
 		# dColumn maintains its own cell attribute object, but this is the default:
-		attr = self._defaultGridColAttr = wx.grid.GridCellAttr()
-		attr.SetAlignment(wx.ALIGN_TOP, wx.ALIGN_LEFT)
+		self._defaultGridColAttr = self._getDefaultGridColAttr()
 
 		# Columns notify the grid when their properties change
 		# Sometimes the grid itself initiated the change, and doesn't
@@ -964,7 +979,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					self.SetColFormatNumber(ii)
 				elif col.DataType == "float":
 					self.SetColFormatFloat(ii)
-			if self.Editable:
+			if self.Editable and col.Editable:
 				if self.customEditors.has_key(fld):
 					edtClass = self.customEditors[fld]
 				else:
@@ -1495,7 +1510,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 						F2:  sort the current column
 				AlphaNumeric:  incremental search
 		"""
-		if self.Editable:
+		if self.Editable and self.Columns[self.CurrentColumn].Editable:
 			# Can't search and edit at the same time
 			return
 
@@ -1938,6 +1953,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			Value = property(_getVal, _setVal)
 		return GridCell(self, row, col)
 		
+
+	def _getDefaultGridColAttr(self):
+		""" Return the GridCellAttr that will be used for all columns by default."""
+		attr = wx.grid.GridCellAttr()
+		attr.SetAlignment(wx.ALIGN_TOP, wx.ALIGN_LEFT)
+		attr.SetReadOnly(True)
+		return attr
 	
 	def _getColumnCount(self):
 		return len(self.Columns)
@@ -2051,11 +2073,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def _getEditable(self):
-		return self._editable
+		return self.IsEditable()
 
 	def _setEditable(self, val):
 		if self._constructed():
-			self._editable = val
 			self.EnableEditing(val)
 		else:
 			self._properties["Editable"] = val
@@ -2184,7 +2205,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			_("Currently selected row  (int)") )
 			
 	Editable = property(_getEditable, _setEditable, None,
-			_("Can the contents of the grid be edited?  (bool)") )
+			_("""Can the contents of the grid be edited?  (bool)
+
+This setting enables/disables cell editing globally. When False, no cells
+will be editable by the user. When True, cells in columns set as Editable
+will be editable by the user. Note that grids and columns are both set
+with Editable=False by default, so to enable cell editing you need to turn
+it on in the appropriate column as well as in the grid.
+""") )
 			
 	Encoding = property(_getEncoding, None, None,
 			_("Name of encoding to use for unicode  (str)") )
@@ -2281,6 +2309,7 @@ if __name__ == '__main__':
 			col.DataType = "string"
 			col.Width = 300
 			col.Caption = "Customer Name"
+			col.Editable = True
 			g.addColumn(col)
 		
 			col = dColumn(g)
@@ -2294,6 +2323,7 @@ if __name__ == '__main__':
 			col.Searchable = False
 			g.addColumn(col)
 
+			#g.Editable = True
 			#g.Sortable = False
 			#g.Searchable = False
 		
