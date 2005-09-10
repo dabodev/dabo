@@ -16,7 +16,7 @@ class dPemMixin(dPemMixinBase):
 	functions along with their own property() statements.
 	"""
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, False
-	
+
 	def __init__(self, preClass=None, parent=None, properties=None, 
 			attProperties=None, *args, **kwargs):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
@@ -821,7 +821,8 @@ class dPemMixin(dPemMixinBase):
 			return "Default"
 
 
-	def _setBorderStyle(self, style):
+	def _setBorderStyle(self, val):
+		style = self._expandPropStringValue(val, ("None", "Simple", "Sunken", "Raised", "Double", "Static", "Default"))
 		self.delWindowStyleFlag(wx.NO_BORDER)
 		self.delWindowStyleFlag(wx.SIMPLE_BORDER)
 		self.delWindowStyleFlag(wx.SUNKEN_BORDER)
@@ -829,25 +830,20 @@ class dPemMixin(dPemMixinBase):
 		self.delWindowStyleFlag(wx.DOUBLE_BORDER)
 		self.delWindowStyleFlag(wx.STATIC_BORDER)
 
-		style = str(style).lower().strip()
-
-		if style == "none":
+		if style == "None":
 			self.addWindowStyleFlag(wx.NO_BORDER)
-		elif style == "simple":
+		elif style == "Simple":
 			self.addWindowStyleFlag(wx.SIMPLE_BORDER)
-		elif style == "sunken":
+		elif style == "Sunken":
 			self.addWindowStyleFlag(wx.SUNKEN_BORDER)
-		elif style == "raised":
+		elif style == "Raised":
 			self.addWindowStyleFlag(wx.RAISED_BORDER)
-		elif style == "double":
+		elif style == "Double":
 			self.addWindowStyleFlag(wx.DOUBLE_BORDER)
-		elif style == "static":
+		elif style == "Static":
 			self.addWindowStyleFlag(wx.STATIC_BORDER)
-		elif style == "default":
+		elif style == "Default":
 			pass
-		else:
-			raise ValueError, ("The only possible values are 'None', "
-					"'Simple', 'Sunken', and 'Raised.'")
 	
 	
 	def _getCaption(self):
@@ -1306,15 +1302,17 @@ class dPemMixin(dPemMixinBase):
 
 	BorderColor = property(_getBorderColor, _setBorderColor, None,
 			_("""Color of the border drawn around the control, if any. 
+
 			Default='black'  (str or color tuple)"""))
 	
 	BorderLineStyle = property(_getBorderLineStyle, _setBorderLineStyle, None,
 			_("""Style of line for the border drawn around the control. Possible
 			choices are:
-				'solid'  (default)
-				'dash' / 'dashed'
-				'dot' / 'dotted'
-				'dotdash' / 'dashdot'
+				'Solid'  (default)
+				'Dash'
+				'Dot' 
+				'DotDash'
+				'DashDot'
 			"""))
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
@@ -1326,7 +1324,8 @@ class dPemMixin(dPemMixinBase):
 	
 	BorderWidth = property(_getBorderWidth, _setBorderWidth, None,
 			_("""Width of the border drawn around the control, if any. 
-			Default=0 (no border)  (int)"""))
+			
+Default=0 (no border)  (int)"""))
 
 	Caption = property(_getCaption, _setCaption, None, 
 			_("The caption of the object. (str)") )
