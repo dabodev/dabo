@@ -81,7 +81,7 @@ class dApp(dabo.common.dObject):
 		Various UI's will have app objects also, which 
 		dabo.App is a wrapper for. 
 	"""
-	_call_beforeInit, _call_afterInit = False, False
+	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, True
 
 	def __init__(self, selfStart=False, properties=None, *args, **kwargs):
 		self._uiAlreadySet = False

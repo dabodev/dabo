@@ -157,7 +157,6 @@ class EventMixin(object):
 		if not dabo.autoBindEvents:
 			# autobinding is switched off globally
 			return
-
 		if context is None:
 			# context could be None if during the setting of RegID property, 
 			# self.Form evaluates to None.

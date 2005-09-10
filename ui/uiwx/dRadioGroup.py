@@ -340,4 +340,4 @@ class _dRadioGroup_test(dRadioGroup):
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(_dRadioGroup_test, choices=["a", "b"])
+	test.Test().runTest(_dRadioGroup_test)

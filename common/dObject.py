@@ -16,13 +16,14 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 	#   self._afterInit()
 	# or, not calling super() at all, but remember to call _initProperties() and
 	# the call to setProperties() at the end!
-	_call_beforeInit, _call_afterInit = True, True
+	_call_beforeInit, _call_afterInit, _call_initProperties = True, True, True
 
 	def __init__(self, properties=None, *args, **kwargs):
 		self._properties = {}
 		if self._call_beforeInit:
 			self._beforeInit()
-		self._initProperties()
+		if self._call_initProperties:
+			self._initProperties()
 
 		# Now that user code has had an opportunity to set the properties, we can 
 		# see if there are properties sent to the constructor which will augment 
@@ -44,6 +45,7 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 		DoDefaultMixin.__init__(self)		
 		PropertyHelperMixin.__init__(self)		
 		EventMixin.__init__(self)		
+
 
 	def beforeInit(self, *args, **kwargs):
 		""" Subclass hook.
