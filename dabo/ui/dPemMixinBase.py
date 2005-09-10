@@ -9,9 +9,6 @@ class dPemMixinBase(dabo.common.dObject):
 	Subclasses can extend the property sheet by defining their own get/set
 	functions along with their own property() statements.
 	"""
-	
-	_call_beforeInit, _call_afterInit = False, False
-
 	def _initUI(self):
 		""" Abstract method: subclasses MUST override for UI-specifics.
 		"""

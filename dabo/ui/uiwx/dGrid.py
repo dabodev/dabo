@@ -417,7 +417,7 @@ class dColumn(dabo.common.dObject):
 	they provide a way to interact with the underlying grid table in a more
 	straightforward manner.
 	"""
-	_call_beforeInit, _call_afterInit = False, False
+	_call_beforeInit, _call_afterInit, _callInitProperties = False, False, True
 
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._beforeInit()

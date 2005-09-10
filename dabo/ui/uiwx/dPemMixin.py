@@ -15,6 +15,8 @@ class dPemMixin(dPemMixinBase):
 	Subclasses can extend the property sheet by defining their own get/set
 	functions along with their own property() statements.
 	"""
+	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, False
+	
 	def __init__(self, preClass=None, parent=None, properties=None, 
 			attProperties=None, *args, **kwargs):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
@@ -132,7 +134,7 @@ class dPemMixin(dPemMixinBase):
 		if attProperties:
 			self.setPropertiesFromAtts(attProperties)
 
-		dPemMixinBase.__init__(self)
+		super(dPemMixin, self).__init__(*args, **kwargs)
 
 	def _constructed(self):
 		"""Returns True if the ui object has been fully created yet, False otherwise."""
