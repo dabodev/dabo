@@ -2336,7 +2336,16 @@ if __name__ == '__main__':
 			g.Editable = True
 			#g.Sortable = False
 			#g.Searchable = False
-		
+			
+			self.Sizer.appendSpacer(10)
+			
+			chk = dabo.ui.dCheckBox(self, Caption="Edit Geek", RegID="geekEdit")
+			self.Sizer.append(chk, halign="Center")
+	
+		def onHit_geekEdit(self, evt):
+			print "AUTO BIND WORKS!"
+			
+			
 #		def getDataSet(self):
 #			return self.dataSet
 
