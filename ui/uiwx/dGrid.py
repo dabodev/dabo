@@ -74,13 +74,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		## DynamicBackColor, DynamicFont..., etc.
 
 		# I have no idea what the kind arg is for. It is sent by wxGrid to this
-		# function, it always seems to be 0, and it isn't documented in the 
+		# function, it always seems to be either 0 or 4 (4 when the , and it isn't documented in the 
 		# wxWidgets docs (but it does appear in the wxPython method signature 
 		# but still isn't documented there.)
-		if kind != 0:
-			# I'd like to know when kind isn't 0, to make sure I've covered all the
-			# bases. Well okay, it's really because I'm just curious.
-			dabo.infoLog.write("dGrid.Table.GetAttr:: kind is not 0, it is %s." % kind)
+#		if kind not in (0, 4):
+#			# I'd like to know when kind isn't 0, to make sure I've covered all the
+#			# bases. Well okay, it's really because I'm just curious.
+#			dabo.infoLog.write("dGrid.Table.GetAttr:: kind is not 0, it is %s." % kind)
 
 		## The column attr object is maintained in dColumn:
 		try:
@@ -450,6 +450,24 @@ class dColumn(dabo.common.dObject):
 		return gridCol
 
 
+	def _updateEditor(self):
+		"""The Field, DataType, or CustomEditor has changed: set in the attr"""
+		editor = self.Editor
+		if editor is not None:
+			kwargs = {}
+			if editor in (wx.grid.GridCellChoiceEditor,):
+				kwargs["choices"] = self.ListEditorChoices
+			editor = editor(**kwargs)
+		self._gridColAttr.SetEditor(editor)
+
+	def _updateRenderer(self):
+		"""The Field, DataType, or CustomRenderer has changed: set in the attr"""
+		renderer = self.Renderer
+		if renderer is not None:
+			renderer = renderer()
+		self._gridColAttr.SetRenderer(renderer)
+	
+
 	def _getCaption(self):
 		try:
 			v = self._caption
@@ -462,6 +480,30 @@ class dColumn(dabo.common.dObject):
 		self.changeMsg("Caption")
 	
 
+	def _getCustomEditor(self):
+		try:
+			v = self._customEditor
+		except AttributeError:
+			v = self._customEditor = None
+		return v
+
+	def _setCustomEditor(self, val):
+		self._customEditor = val
+		self._updateEditor()
+
+
+	def _getCustomRenderer(self):
+		try:
+			v = self._customRenderer
+		except AttributeError:
+			v = self._customRenderer = None
+		return v
+
+	def _setCustomRenderer(self, val):
+		self._customRenderer = val
+		self._updateRenderer()
+
+
 	def _getDataType(self):
 		try:
 			v = self._dataType
@@ -473,6 +515,8 @@ class dColumn(dabo.common.dObject):
 		self._dataType = val
 		if "Automatic" in self.HorizontalCellAlignment:
 			self._setAutoHorizontalCellAlignment()
+		self._updateRenderer()
+		self._updateEditor()
 		self.changeMsg("DataType")
 	
 
@@ -484,6 +528,12 @@ class dColumn(dabo.common.dObject):
 		self.Parent.refresh()
 		
 
+	def _getEditor(self):
+		v = self.CustomEditor
+		if v is None:
+			v = self.Parent.defaultEditors.get(self.DataType)
+		return v
+
 	def _getField(self):
 		try:
 			v = self._field
@@ -493,6 +543,8 @@ class dColumn(dabo.common.dObject):
 
 	def _setField(self, val):
 		self._field = val
+		self._updateRenderer()
+		self._updateEditor()
 		self.changeMsg("Field")
 	
 
@@ -510,7 +562,7 @@ class dColumn(dabo.common.dObject):
 			except: 
 				pass
 		self._headerBackgroundColor = val
-		self.Parent.Refresh()
+		self.Parent.refresh()
 	
 	def _getHorizontalCellAlignment(self):
 		try:
@@ -560,33 +612,23 @@ class dColumn(dabo.common.dObject):
 		self._gridColAttr.SetAlignment(wxHorAlign, wxVertAlign)
 		self.Parent.refresh()
 
-
-	def _getVerticalCellAlignment(self):
-		mapping = {wx.ALIGN_TOP: "Top", wx.ALIGN_BOTTOM: "Bottom",
-	             wx.ALIGN_CENTRE: "Center"}
-		
-		wxAlignment = self._gridColAttr.GetAlignment()[1]
+	
+	def _getListEditorChoices(self):
 		try:
-			val = mapping[wxAlignment]
-		except KeyError:
-			val = "Top"
-		return val
+			v = self._listEditorChoices
+		except:
+			v = []
+		return v
 
-	def _setVerticalCellAlignment(self, val):
-		val = self._expandPropStringValue(val, ("Top", "Bottom", "Center"))
-		mapping = {"Top": wx.ALIGN_TOP, "Bottom": wx.ALIGN_BOTTOM,
-	             "Center": wx.ALIGN_CENTRE}
-		
-		try:
-			wxVertAlign = mapping[val]
-		except KeyError:
-			wxVertAlign = mapping["Top"]
-			val = "Top"
+	def _setListEditorChoices(self, val):
+		self._listEditorChoices = val
 
-		wxHorAlign = self._gridColAttr.GetAlignment()[0]
 
-		self._gridColAttr.SetAlignment(wxHorAlign, wxVertAlign)
-		self.Parent.refresh()
+	def _getRenderer(self):
+		v = self.CustomRenderer
+		if v is None:
+			v = self.Parent.defaultRenderers.get(self.DataType)
+		return v
 
 
 	def _getOrder(self):
@@ -625,6 +667,35 @@ class dColumn(dabo.common.dObject):
 	def _setSortable(self, val):
 		self._sortable = bool(val)
 
+
+	def _getVerticalCellAlignment(self):
+		mapping = {wx.ALIGN_TOP: "Top", wx.ALIGN_BOTTOM: "Bottom",
+	             wx.ALIGN_CENTRE: "Center"}
+		
+		wxAlignment = self._gridColAttr.GetAlignment()[1]
+		try:
+			val = mapping[wxAlignment]
+		except KeyError:
+			val = "Top"
+		return val
+
+	def _setVerticalCellAlignment(self, val):
+		val = self._expandPropStringValue(val, ("Top", "Bottom", "Center"))
+		mapping = {"Top": wx.ALIGN_TOP, "Bottom": wx.ALIGN_BOTTOM,
+	             "Center": wx.ALIGN_CENTRE}
+		
+		try:
+			wxVertAlign = mapping[val]
+		except KeyError:
+			wxVertAlign = mapping["Top"]
+			val = "Top"
+
+		wxHorAlign = self._gridColAttr.GetAlignment()[0]
+
+		self._gridColAttr.SetAlignment(wxHorAlign, wxVertAlign)
+		self.Parent.refresh()
+
+
 	def _getWidth(self):
 		try:
 			v = self._width
@@ -652,6 +723,20 @@ class dColumn(dabo.common.dObject):
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption displayed in this column's header  (str)") )
 
+	CustomEditor = property(_getCustomEditor, _setCustomEditor, None,
+			_("""Custom Editor for this column.  (default: None)
+
+				Set this to override the default editor, which Dabo will select based
+				on the data type of the field.
+				"""))
+
+	CustomRenderer = property(_getCustomRenderer, _setCustomRenderer, None,
+			_("""Custom Renderer for this column.  (default: None)
+
+				Set this to override the default renderer, which Dabo will select based
+				on the data type of the field.
+				"""))
+
 	DataType = property(_getDataType, _setDataType, None,
 			_("Description of the data type for this column  (str)") )
 
@@ -663,6 +748,13 @@ class dColumn(dabo.common.dObject):
 				not be enabled, regardless of the Searchable property setting.
 				""") )
 
+	Editor = property(_getEditor, None, None,
+			_("""Returns the editor used for cells in the column.
+
+				This will be self.CustomEditor if set, or the default editor for the 
+				datatype of the field.
+				"""))
+  
 	Field = property(_getField, _setField, None,
 			_("Field key in the data set to which this column is bound.  (str)") )
 
@@ -678,9 +770,22 @@ class dColumn(dabo.common.dObject):
 					'Center'
 					'Right' """))
 
+	ListEditorChoices = property(_getListEditorChoices, _setListEditorChoices, None,
+		_("""Specifies the list of choices that will appear in the list.
+
+			Only applies if the DataType is set as "list".
+			"""))
+
 	Order = property(_getOrder, _setOrder, None,
 			_("Order of this column  (int)") )
 
+	Renderer = property(_getRenderer, None, None,
+			_("""Returns the renderer used for cells in the column.
+
+				This will be self.CustomRenderer if set, or the default renderer for the 
+				datatype of the field.
+				"""))
+  
 	Searchable = property(_getSearchable, _setSearchable, None,
 			_("""Specifies whether this column's incremental search is enabled. 
 					Default: True. The grid's Searchable property will override this setting."""))
@@ -708,8 +813,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Grab the DataSet parameter if passed
 		self._passedDataSet = self.extractKey(kwargs, "DataSet")
 		self.dataSet = []
-		# List of column specs
-		self.Columns = []
 		# List of Row Labels, if any
 		self._rowLabels = []
 
@@ -809,15 +912,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			"float" : self.floatEditorClass, 
 			"list" : self.listEditorClass }
 		
-		# If you want a custom editor/renderer for any column, 
-		# add an entry to these dicts with the field name
-		# as the key.
-		self.customRenderers = {}
-		self.customEditors = {}
-		# The list editors require a list to construct them. Add a key
-		# containing the field name and the corresponding list for
-		# that field to this dict.
-		self.listEditors = {}
 		# Type of encoding to use with unicode data
 		self.defaultEncoding = defaultEncoding
 		# What color should the little sort indicator arrow be?
@@ -961,40 +1055,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.SetGridCursor(row, col)
 		
 		self.SetColLabelAlignment(wx.ALIGN_CENTRE, wx.ALIGN_CENTRE)
-		# Set the types
-		for ii in range(len(self.Columns)):
-			col = self.Columns[ii]
-			fld = col.Field
-			typ = col.DataType
-			if self.customRenderers.has_key(fld):
-				rndClass = self.customRenderers[fld]
-				for rr in range(self.RowCount):
-					self.SetCellRenderer(rr, ii, rndClass())
-			else:
-				if col.DataType == "bool":
-					self.SetColFormatBool(ii)
-				elif col.DataType in ("int", "long"):
-					self.SetColFormatNumber(ii)
-				elif col.DataType == "float":
-					self.SetColFormatFloat(ii)
-			if self.Editable and col.Editable:
-				if self.customEditors.has_key(fld):
-					edtClass = self.customEditors[fld]
-				else:
-					edtClass = self.defaultEditors[col.DataType]
-				if typ == "list":
-					# There should be a custom list specified for this field
-					if self.listEditors.has_key(fld):
-						lst = self.listEditors[fld]
-					else:
-						lst = []
-					for rr in range(self.RowCount):
-						self.SetCellEditor(rr, ii, edtClass(choices=lst))
-				else:
-					# Non-list values
-					for rr in range(self.RowCount):
-						self.SetCellEditor(rr, ii, edtClass())
-				
+
 		if currFocus is not None:
 			# put the data binding back and re-set the focus:
 			try:
@@ -1024,7 +1085,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			return
 #		self.Form.lockDisplay()
 		origColNum = self.ColumnCount
-		self.Columns = []
+		self._columns = []
 		self.dataSet = ds
 		firstRec = ds[0]
 		# Dabo cursors add some columns to the data set. These
@@ -1081,7 +1142,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				# Use a default width
 				col.Width = -1
 
-			self.Columns.append(col)
+			self._columns.append(col)
 		# Populate the grid
 		self.fillGrid(True)
 		if autoSizeCols:
@@ -1272,11 +1333,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		""" Move the column to a new position."""
 		self._ignoreColUpdates = True
 		oldCol = self.Columns[colNum]
-		self.Columns.remove(oldCol)
+		self._columns.remove(oldCol)
 		if toNum > colNum:
-			self.Columns.insert(toNum-1, oldCol)
+			self._columns.insert(toNum-1, oldCol)
 		else:
-			self.Columns.insert(toNum, oldCol)
+			self._columns.insert(toNum, oldCol)
 		for col in self.Columns:
 			col.Order = self.Columns.index(col) * 10
 			app = self.Application
@@ -1903,7 +1964,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			col = dColumn(self)
 		if col.Order == -1:
 			col.Order = self.maxColOrder() + 10
-		self.Columns.append(col)
+		self._columns.append(col)
 		if not inBatch:
 			msg = wx.grid.GridTableMessage(self._Table,
 					wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
@@ -1928,7 +1989,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				# No such column
 				# raise an error?
 				return
-		del self.Columns[colNum]
+		del self._columns[colNum]
 		msg = wx.grid.GridTableMessage(self._Table,
 				wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
 				colNum, 1)
@@ -1959,6 +2020,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		attr.SetReadOnly(True)
 		return attr
 	
+
+	def _getColumns(self):
+		try:
+			v = self._columns
+		except AttributeError:
+			v = self._columns = []
+		return v
+
+
 	def _getColumnCount(self):
 		return len(self.Columns)
 
@@ -1975,7 +2045,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					msg = wx.grid.GridTableMessage(self._Table,
 							wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
 							val, abs(colChange))
-					self.Columns = self.Columns[:val]
+					self._columns = self.Columns[:val]
 				else:
 					msg = wx.grid.GridTableMessage(self._Table,
 							wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
@@ -2003,10 +2073,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return self._header
 
 
-	def _getHeaderHt(self):
+	def _getHeaderHeight(self):
 		return self.GetColLabelSize()
-	def _setHeaderHt(self, val):
-		self.SetColLabelSize(val)
+	def _setHeaderHeight(self, val):
+		if self._constructed():
+			self.SetColLabelSize(val)
+		else:
+			self._properties["HeaderHeight"]
 	
 	
 	def _getNoneDisp(self):
@@ -2190,12 +2263,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	ColumnLabels = property(_getColLbls, None, None, 
 			_("List of the column labels.  (list)") )
 	
+	Columns = property(_getColumns, None, None,
+			_("List of dColumns.  (list)"))
+
 	CurrentCellValue = property(_getCurrCellVal, _setCurrCellVal, None,
 			_("Value of the currently selected grid cell  (varies)") )
 			
 	CurrentColumn = property(_getCurrentColumn, _setCurrentColumn, None,
-			_("Currently selected column  (int)") )
-			
+			_("Currently selected column index. (int)") )
+	
 	CurrentField = property(_getCurrentField, _setCurrentField, None,
 			_("Field for the currently selected column  (str)") )
 			
@@ -2218,7 +2294,7 @@ it on in the appropriate column as well as in the grid.
 	Header = property(_getHeader, None, None,
 			_("Reference to the grid header window.  (header object?)") )
 			
-	HeaderHeight = property(_getHeaderHt, _setHeaderHt, None, 
+	HeaderHeight = property(_getHeaderHeight, _setHeaderHeight, None, 
 			_("Height of the column headers.  (int)") )
 	
 	NoneDisplay = property(_getNoneDisp, None, None, 
@@ -2246,21 +2322,20 @@ If True, and if the column's Searchable is True, the column will be searchable."
 			_("""Delay in miliseconds between keystrokes before the 
 			incremental search clears  (int)""") )
 			
+	ShowRowLabels = property(_getShowRowLabels, _setShowRowLabels, None,
+			_("Are row labels shown?  (bool)") )
+
 	Sortable = property(_getSortable, _setSortable, None,
 			_("""Specifies whether the columns can be sorted. Default: True
 
 If True, and if the column's Sortable is True, the column will be sortable."""))
-
-	ShowRowLabels = property(_getShowRowLabels, _setShowRowLabels, None,
-			_("Are row labels shown?  (bool)") )
 
 	_Table = property(_getTable, _setTable, None,
 			_("Reference to the internal table class  (dGridDataTable)") )
 
 
 class _dGrid_test(dGrid):
-	### pkm: this test isn't working. Need to work on dGrid so it can be instantiated
-	###      like any other control.
+
 	def initProperties(self):
 		self.dataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
 		                {"name" : "Mike Leafe", "age" : 18, "coder" :  False} ]
@@ -2346,11 +2421,7 @@ if __name__ == '__main__':
 			print "AUTO BIND WORKS!"
 			
 			
-#		def getDataSet(self):
-#			return self.dataSet
-
-			
-			
+	dabo.autoBindEvents = True			
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
 	app.setup()
