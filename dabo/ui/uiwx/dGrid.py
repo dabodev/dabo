@@ -477,7 +477,7 @@ class dColumn(dabo.common.dObject):
 
 	def _setCaption(self, val):
 		self._caption = val
-		self.changeMsg("Caption")
+		self.Parent.refresh() ## note: may want to use RefreshRect just on the column header region
 	
 
 	def _getCustomEditor(self):
@@ -517,7 +517,7 @@ class dColumn(dabo.common.dObject):
 			self._setAutoHorizontalCellAlignment()
 		self._updateRenderer()
 		self._updateEditor()
-		self.changeMsg("DataType")
+#		self.changeMsg("DataType")  ## don't think this is necessary, now that the attr handles.
 	
 
 	def _getEditable(self):
