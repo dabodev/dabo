@@ -915,7 +915,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Type of encoding to use with unicode data
 		self.defaultEncoding = defaultEncoding
 		# What color should the little sort indicator arrow be?
-		self.sortArrowColor = "Orange"
+		self.sortArrowColor = "Silver"
 
 		self.headerDragging = False    # flag used by mouse motion event handler
 		self.headerDragFrom = 0
@@ -1003,12 +1003,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def customCanGetValueAs(self, row, col, typ): pass
 	def customCanSetValueAs(self, row, col, typ): pass
 	
-	# Wrap the native wx methods
-	def setEditorForCell(self, row, col, edt):
-		self.SetCellEditor(row, col, edt)
-	def setRendererForCell(self, row, col, rnd):
-		self.SetCellRenderer(row, col, rnd)
-			
 		
 	def fillGrid(self, force=False):
 		""" Refresh the grid to match the data in the data set."""
@@ -1054,7 +1048,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.MakeCellVisible(row, col)
 			self.SetGridCursor(row, col)
 		
-		self.SetColLabelAlignment(wx.ALIGN_CENTRE, wx.ALIGN_CENTRE)
+#		self.SetColLabelAlignment(wx.ALIGN_CENTRE, wx.ALIGN_CENTRE)
 
 		if currFocus is not None:
 			# put the data binding back and re-set the focus:
@@ -1851,68 +1845,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 	def onGridRowSize(self, evt): pass
 
-
-	def getHTML(self, justStub=True, tableHeaders=True):
-		""" Get HTML suitable for printing out the data in this grid.
-
-		This can be used by client code to get a quick and dirty report
-		via wxHtmlEasyPrinting, for example. 
-
-		If justStub is False, it will be a standalone HTML file complete 
-		with <html><head> etc...
-		"""
-		cols = self.GetNumberCols()
-		rows = self.GetNumberRows()
-
-		if not justStub:
-			html = ["<html><body>"]
-		else:
-			html = []
-
-		html.append("""<table border="1" cellpadding="2" cellspacing="0" width="100%">""")
-
-		# get the column widths as proportional percentages:
-		gridWidth = 0
-		for col in range(cols):
-			gridWidth += self.GetColSize(col)
-
-		if tableHeaders:
-			html.append("<tr>")
-			for col in range(cols):
-				colSize = str(int((100 * self.GetColSize(col)) / gridWidth) - 2) + "%"
-				#colSize = self.GetColSize(col)
-				colValue = self.GetTable().colLabels[col]
-				html.append("""<td align="center" valign="center" width="%s"><b>%s</b></td>"""
-								% (colSize,colValue))
-			html.append("</tr>")
-
-		for row in range(rows):
-			html.append("<tr>")
-			for col in range(cols):
-				colName = self.GetTable().colNames[col]
-				colVal = self.GetTable().data[row][col]
-				html.append("""<td align="left" valign="top"><font size="1">%s</font></td>"""
-								% colVal)
-			html.append("</tr>")
-
-		html.append("</table>")
-
-		if not justStub:
-			html.append("</body></html>")
-		return "\n".join(html)
-
-
-#- pkm: these don't appear to be used
-#-	def getRowHeight(self, row):
-#-		return self.GetRowSize(row)
-	
-#-	def setRowHeight(self, row, ht):
-#-		if self.SameSizeRows:
-#-			self.SetDefaultRowSize(ht, True)
-#-			self.ForceRefresh()
-#-		else:
-#-			self.SetRowSize(row, ht)
-			
 	
 	def getColByX(self, x):
 		""" Given the x-coordinate, return the column number.
@@ -2341,16 +2273,34 @@ class _dGrid_test(dGrid):
 		                {"name" : "Mike Leafe", "age" : 18, "coder" :  False} ]
 		self.Width = 360
 		self.Height = 150
+		self.Editable = True
+		#self.Sortable = False
+		#self.Searchable = False
+
 
 	def afterInit(self):
 		_dGrid_test.doDefault()
+
+		col = dColumn(self)
+		col.Name = "Geek"
+		col.Order = 10
+		col.Field = "coder"
+		col.DataType = "bool"
+		col.Width = 60
+		col.Caption = "Geek?"
+		col.Sortable = False
+		col.Searchable = False
+		col.Editable = True
+		self.addColumn(col)
+
 		col = dColumn(self)
 		col.Name = "Person"
-		col.Order = 10
+		col.Order = 20
 		col.Field = "name"
 		col.DataType = "string"
-		col.Width = 300
+		col.Width = 200
 		col.Caption = "Customer Name"
+		col.Editable = True
 		self.addColumn(col)
 		
 		col = dColumn(self)
@@ -2360,8 +2310,10 @@ class _dGrid_test(dGrid):
 		col.DataType = "integer"
 		col.Width = 40
 		col.Caption = "Age"
+		col.Sortable = False
+		col.Searchable = False
 		self.addColumn(col)
-		
+
 
 
 if __name__ == '__main__':
@@ -2369,48 +2321,9 @@ if __name__ == '__main__':
 	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
 			self.BackColor = "khaki"
-			g = self.grid = dGrid(self)
+			g = self.grid = _dGrid_test(self)
 			self.Sizer.append(g, 1, "x", border=40, borderFlags="all")
 			
-			g.dataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
-					{"name" : "Mike Leafe", "age" : 18, "coder" :  False} ]
-
-			col = dColumn(g)
-			col.Name = "Geek"
-			col.Order = 10
-			col.Field = "coder"
-			col.DataType = "bool"
-			col.Width = 60
-			col.Caption = "Geek?"
-			col.Sortable = False
-			col.Searchable = False
-			col.Editable = True
-			g.addColumn(col)
-
-			col = dColumn(g)
-			col.Name = "Person"
-			col.Order = 20
-			col.Field = "name"
-			col.DataType = "string"
-			col.Width = 200
-			col.Caption = "Customer Name"
-			col.Editable = True
-			g.addColumn(col)
-		
-			col = dColumn(g)
-			col.Name = "Age"
-			col.Order = 30
-			col.Field = "age"
-			col.DataType = "integer"
-			col.Width = 40
-			col.Caption = "Age"
-			col.Sortable = False
-			col.Searchable = False
-			g.addColumn(col)
-
-			g.Editable = True
-			#g.Sortable = False
-			#g.Searchable = False
 			
 			self.Sizer.appendSpacer(10)
 			
