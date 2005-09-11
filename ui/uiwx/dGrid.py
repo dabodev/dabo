@@ -418,21 +418,25 @@ class dColumn(dabo.common.dObject):
 	they provide a way to interact with the underlying grid table in a more
 	straightforward manner.
 	"""
-	_call_beforeInit, _call_afterInit, _callInitProperties = False, False, True
+	_call_beforeInit, _call_afterInit, _call_initProperties = False, True, True
 
 	def __init__(self, parent, properties=None, *args, **kwargs):
+		self._isConstructed = False
 		self._beforeInit()
 		kwargs["Parent"] = parent
+		# dColumn maintains one attr object that the grid table will use:
+		self._gridColAttr = parent._defaultGridColAttr.Clone()
+
 		super(dColumn, self).__init__(properties, *args, **kwargs)
 
-		# dColumn maintains one attr object that the grid table will use:
-		self._gridColAttr = self.Parent._defaultGridColAttr.Clone()
-		self._afterInit()
 
+	def _afterInit(self):
+		self._isConstructed = True
+		super(dColumn, self)._afterInit()
+		
+		
 	def _constructed(self):
-		if isinstance(self.Parent, wx.grid.Grid):
-			return self.Parent._constructed()
-		return False
+		return self._isConstructed
 
 	def changeMsg(self, prop):
 		if self.Parent:
@@ -474,11 +478,14 @@ class dColumn(dabo.common.dObject):
 		except AttributeError:
 			v = self._caption = "Column"
 		return v
-
 	def _setCaption(self, val):
-		self._caption = val
-		self.Parent.refresh() ## note: may want to use RefreshRect just on the column header region
-	
+		if self._constructed():
+			self._caption = val
+			if self.Parent:
+				## note: may want to use RefreshRect just on the column header region
+				self.Parent.refresh()
+		else:
+			self._properties["Caption"] = val
 
 	def _getCustomEditor(self):
 		try:
@@ -486,11 +493,12 @@ class dColumn(dabo.common.dObject):
 		except AttributeError:
 			v = self._customEditor = None
 		return v
-
 	def _setCustomEditor(self, val):
-		self._customEditor = val
-		self._updateEditor()
-
+		if self._constructed():
+			self._customEditor = val
+			self._updateEditor()
+		else:
+			self._properties["CustomEditor"] = val
 
 	def _getCustomRenderer(self):
 		try:
@@ -498,11 +506,12 @@ class dColumn(dabo.common.dObject):
 		except AttributeError:
 			v = self._customRenderer = None
 		return v
-
 	def _setCustomRenderer(self, val):
-		self._customRenderer = val
-		self._updateRenderer()
-
+		if self._constructed():
+			self._customRenderer = val
+			self._updateRenderer()
+		else:
+			self._properties["CustomRenderer"] = val
 
 	def _getDataType(self):
 		try:
@@ -510,28 +519,32 @@ class dColumn(dabo.common.dObject):
 		except AttributeError:
 			v = self._dataType = ""
 		return v
-
 	def _setDataType(self, val):
-		self._dataType = val
-		if "Automatic" in self.HorizontalCellAlignment:
-			self._setAutoHorizontalCellAlignment()
-		self._updateRenderer()
-		self._updateEditor()
-#		self.changeMsg("DataType")  ## don't think this is necessary, now that the attr handles.
-	
+		if self._constructed():
+			self._dataType = val
+			if "Automatic" in self.HorizontalCellAlignment:
+				self._setAutoHorizontalCellAlignment()
+			self._updateRenderer()
+			self._updateEditor()
+			#self.changeMsg("DataType")  ## don't think this is necessary, now that the attr handles.
+		else:
+			self._properties["DataType"] = val
 
 	def _getEditable(self):
 		return not self._gridColAttr.IsReadOnly()
-
 	def _setEditable(self, val):
-		self._gridColAttr.SetReadOnly(not val)
-		self.Parent.refresh()
-		
+		if self._constructed():
+			self._gridColAttr.SetReadOnly(not val)
+			if self.Parent:
+				self.Parent.refresh()
+		else:
+			self._properties["Editable"] = val			
 
 	def _getEditor(self):
 		v = self.CustomEditor
 		if v is None:
-			v = self.Parent.defaultEditors.get(self.DataType)
+			if self.Parent:
+				v = self.Parent.defaultEditors.get(self.DataType)
 		return v
 
 	def _getField(self):
@@ -540,13 +553,14 @@ class dColumn(dabo.common.dObject):
 		except AttributeError:
 			v = self._field = ""
 		return v
-
 	def _setField(self, val):
-		self._field = val
-		self._updateRenderer()
-		self._updateEditor()
-		self.changeMsg("Field")
-	
+		if self._constructed():
+			self._field = val
+			self._updateRenderer()
+			self._updateEditor()
+			self.changeMsg("Field")
+		else:
+			self._properties["Field"] = val
 
 	def _getHeaderBackgroundColor(self):
 		try:
@@ -554,35 +568,34 @@ class dColumn(dabo.common.dObject):
 		except AttributeError:
 			v = self._headerBackgroundColor = None
 		return v
-
 	def _setHeaderBackgroundColor(self, val):
-		if isinstance(val, basestring):
-			try:
-				val = dColors.colorTupleFromName(val)
-			except: 
-				pass
-		self._headerBackgroundColor = val
-		self.Parent.refresh()
+		if self._constructed():
+			if isinstance(val, basestring):
+				try:
+					val = dColors.colorTupleFromName(val)
+				except: 
+					pass
+			self._headerBackgroundColor = val
+			if self.Parent:
+				self.Parent.refresh()
+		else:
+			self._properties["HeaderBackgroundColor"] = val
 	
 	def _getHorizontalCellAlignment(self):
 		try:
 			auto = self._autoHorizontalCellAlignment
 		except AttributeError:
 			auto = self._autoHorizontalCellAlignment = True
-		
 		mapping = {wx.ALIGN_LEFT: "Left", wx.ALIGN_RIGHT: "Right",
 	             wx.ALIGN_CENTRE: "Center"}
-		
 		wxAlignment = self._gridColAttr.GetAlignment()[0]
 		try:
 			val = mapping[wxAlignment]
 		except KeyError:
 			val = "Left"
-		
 		if auto:
 			val = "%s (Automatic)" % val
 		return val
-
 	def _setAutoHorizontalCellAlignment(self):
 		dt = self.DataType
 		if isinstance(dt, basestring):
@@ -590,27 +603,27 @@ class dColumn(dabo.common.dObject):
 				self._setHorizontalCellAlignment("Right", _autoAlign=True)
 		
 	def _setHorizontalCellAlignment(self, val, _autoAlign=False):
-		val = self._expandPropStringValue(val, ("Automatic", "Left", "Right", "Center"))
-		if val == "Automatic" and not _autoAlign:
-			self._autoHorizontalCellAlignment = True
-			self._setAutoHorizontalCellAlignment()
-			return
-		if val != "Automatic" and not _autoAlign:
-			self._autoHorizontalCellAlignment = False
-
-		mapping = {"Left": wx.ALIGN_LEFT, "Right": wx.ALIGN_RIGHT,
-	             "Center": wx.ALIGN_CENTRE}
-		
-		try:
-			wxHorAlign = mapping[val]
-		except KeyError:
-			wxHorAlign = mapping["Left"]
-			val = "Left"
-
-		wxVertAlign = self._gridColAttr.GetAlignment()[1]
-
-		self._gridColAttr.SetAlignment(wxHorAlign, wxVertAlign)
-		self.Parent.refresh()
+		if self._constructed():
+			val = self._expandPropStringValue(val, ("Automatic", "Left", "Right", "Center"))
+			if val == "Automatic" and not _autoAlign:
+				self._autoHorizontalCellAlignment = True
+				self._setAutoHorizontalCellAlignment()
+				return
+			if val != "Automatic" and not _autoAlign:
+				self._autoHorizontalCellAlignment = False
+			mapping = {"Left": wx.ALIGN_LEFT, "Right": wx.ALIGN_RIGHT,
+					 "Center": wx.ALIGN_CENTRE}
+			try:
+				wxHorAlign = mapping[val]
+			except KeyError:
+				wxHorAlign = mapping["Left"]
+				val = "Left"
+			wxVertAlign = self._gridColAttr.GetAlignment()[1]
+			self._gridColAttr.SetAlignment(wxHorAlign, wxVertAlign)
+			if self.Parent:
+				self.Parent.refresh()
+		else:
+			self._properties["HorizontalCellAlignment"] = val
 
 	
 	def _getListEditorChoices(self):
@@ -619,17 +632,19 @@ class dColumn(dabo.common.dObject):
 		except:
 			v = []
 		return v
-
 	def _setListEditorChoices(self, val):
-		self._listEditorChoices = val
+		if self._constructed():
+			self._listEditorChoices = val
+		else:
+			self._properties["ListEditorChoices"] = val
 
 
 	def _getRenderer(self):
 		v = self.CustomRenderer
 		if v is None:
-			v = self.Parent.defaultRenderers.get(self.DataType)
+			if self.Parent:
+				v = self.Parent.defaultRenderers.get(self.DataType)
 		return v
-
 
 	def _getOrder(self):
 		try:
@@ -637,14 +652,12 @@ class dColumn(dabo.common.dObject):
 		except AttributeError:
 			v = self._order = -1
 		return v
-
 	def _setOrder(self, val):
 		if self._constructed():
 			self._order = val
 			self.changeMsg("Order")
 		else:
 			self._properties["Order"] = val
-	
 
 	def _getSearchable(self):
 		try:
@@ -652,10 +665,11 @@ class dColumn(dabo.common.dObject):
 		except:
 			v = self._searchable = True
 		return v
-
 	def _setSearchable(self, val):
-		self._searchable = bool(val)
-
+		if self._constructed():
+			self._searchable = bool(val)
+		else:
+			self._properties["Searchable"] = val
 
 	def _getSortable(self):
 		try:
@@ -663,38 +677,38 @@ class dColumn(dabo.common.dObject):
 		except:
 			v = self._sortable = True
 		return v
-
 	def _setSortable(self, val):
-		self._sortable = bool(val)
+		if self._constructed():
+			self._sortable = bool(val)
+		else:
+			self._properties["Sortable"] = val
 
 
 	def _getVerticalCellAlignment(self):
 		mapping = {wx.ALIGN_TOP: "Top", wx.ALIGN_BOTTOM: "Bottom",
 	             wx.ALIGN_CENTRE: "Center"}
-		
 		wxAlignment = self._gridColAttr.GetAlignment()[1]
 		try:
 			val = mapping[wxAlignment]
 		except KeyError:
 			val = "Top"
 		return val
-
 	def _setVerticalCellAlignment(self, val):
-		val = self._expandPropStringValue(val, ("Top", "Bottom", "Center"))
-		mapping = {"Top": wx.ALIGN_TOP, "Bottom": wx.ALIGN_BOTTOM,
-	             "Center": wx.ALIGN_CENTRE}
-		
-		try:
-			wxVertAlign = mapping[val]
-		except KeyError:
-			wxVertAlign = mapping["Top"]
-			val = "Top"
-
-		wxHorAlign = self._gridColAttr.GetAlignment()[0]
-
-		self._gridColAttr.SetAlignment(wxHorAlign, wxVertAlign)
-		self.Parent.refresh()
-
+		if self._constructed():
+			val = self._expandPropStringValue(val, ("Top", "Bottom", "Center"))
+			mapping = {"Top": wx.ALIGN_TOP, "Bottom": wx.ALIGN_BOTTOM,
+					 "Center": wx.ALIGN_CENTRE}
+			try:
+				wxVertAlign = mapping[val]
+			except KeyError:
+				wxVertAlign = mapping["Top"]
+				val = "Top"
+			wxHorAlign = self._gridColAttr.GetAlignment()[0]
+			self._gridColAttr.SetAlignment(wxHorAlign, wxVertAlign)
+			if self.Parent:
+				self.Parent.refresh()
+		else:
+			self._properties["VerticalCellAlignment"] = val
 
 	def _getWidth(self):
 		try:
@@ -707,7 +721,6 @@ class dColumn(dabo.common.dObject):
 				# Make sure the grid is in sync:
 				self.Parent.SetColSize(self._GridColumnIndex, v)
 		return v
-
 	def _setWidth(self, val):
 		if self._constructed():
 			self._width = val
@@ -724,36 +737,29 @@ class dColumn(dabo.common.dObject):
 			_("Caption displayed in this column's header  (str)") )
 
 	CustomEditor = property(_getCustomEditor, _setCustomEditor, None,
-			_("""Custom Editor for this column.  (default: None)
-
-				Set this to override the default editor, which Dabo will select based
-				on the data type of the field.
-				"""))
+			_("""Custom Editor for this column. Default: None. Set this to override 
+			the default editor, which Dabo will select based on the data type of 
+			the field.  (varies)"""))
 
 	CustomRenderer = property(_getCustomRenderer, _setCustomRenderer, None,
-			_("""Custom Renderer for this column.  (default: None)
-
-				Set this to override the default renderer, which Dabo will select based
-				on the data type of the field.
-				"""))
+			_("""Custom Renderer for this column. Default: None. Set this to 
+			override the default renderer, which Dabo will select based on the 
+			data type of the field.  (varies)"""))
 
 	DataType = property(_getDataType, _setDataType, None,
 			_("Description of the data type for this column  (str)") )
 
 	Editable = property(_getEditable, _setEditable, None,
-			_("""Is the column editable? (bool)
-
-				If Editable, and if the grid is set as Editable, the cell values in this
-				column are editable by the user. When editable, incremental searching will
-				not be enabled, regardless of the Searchable property setting.
-				""") )
+			_("""If True, and if the grid is set as Editable, the cell values in this
+				column are editable by the user. If False, the cells in this column 
+				cannot be edited no matter what the grid setting is. When editable, 
+				incremental searching will not be enabled, regardless of the 
+				Searchable property setting.  (bool)""") )
 
 	Editor = property(_getEditor, None, None,
-			_("""Returns the editor used for cells in the column.
-
-				This will be self.CustomEditor if set, or the default editor for the 
-				datatype of the field.
-				"""))
+			_("""Returns the editor used for cells in the column. This will be 
+				self.CustomEditor if set, or the default editor for the 
+				datatype of the field.  (varies)"""))
   
 	Field = property(_getField, _setField, None,
 			_("Field key in the data set to which this column is bound.  (str)") )
@@ -763,7 +769,6 @@ class dColumn(dabo.common.dObject):
 
 	HorizontalCellAlignment = property(_getHorizontalCellAlignment, _setHorizontalCellAlignment, None,
 			_("""Horizontal alignment for all cells in this column. (str)
-
 				Acceptable values are:
 					'Automatic': The cell's contents will align right for numeric data, left for text. (default)
 					'Left'
@@ -771,28 +776,26 @@ class dColumn(dabo.common.dObject):
 					'Right' """))
 
 	ListEditorChoices = property(_getListEditorChoices, _setListEditorChoices, None,
-		_("""Specifies the list of choices that will appear in the list.
-
-			Only applies if the DataType is set as "list".
-			"""))
+		_("""Specifies the list of choices that will appear in the list. Only applies 
+		if the DataType is set as "list".  (list)"""))
 
 	Order = property(_getOrder, _setOrder, None,
-			_("Order of this column  (int)") )
+			_("""Order of this column. Columns in the grid are arranged according
+			to their relative Order. (int)""") )
 
 	Renderer = property(_getRenderer, None, None,
-			_("""Returns the renderer used for cells in the column.
-
-				This will be self.CustomRenderer if set, or the default renderer for the 
-				datatype of the field.
-				"""))
+			_("""Returns the renderer used for cells in the column. This will be 
+			self.CustomRenderer if set, or the default renderer for the datatype 
+			of the field.  (varies)"""))
   
 	Searchable = property(_getSearchable, _setSearchable, None,
 			_("""Specifies whether this column's incremental search is enabled. 
-					Default: True. The grid's Searchable property will override this setting."""))
+			Default: True. The grid's Searchable property will override this setting.
+			(bool)"""))
 
 	Sortable = property(_getSortable, _setSortable, None,
 			_("""Specifies whether this column can be sorted. Default: True. The grid's 
-					Sortable property will override this setting."""))
+			Sortable property will override this setting.  (bool)"""))
 
 	VerticalCellAlignment = property(_getVerticalCellAlignment, _setVerticalCellAlignment, None,
 			_("""Vertical alignment for all cells in this column. Acceptable values 
@@ -1609,7 +1612,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""
 		if gridCol == None:
 			gridCol = self.CurrentColumn
-
+			
 		if isinstance(gridCol, dColumn):
 			canSort = (self.Sortable and gridCol.Sortable)
 			columnToSort = gridCol
@@ -2218,14 +2221,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			_("Currently selected row  (int)") )
 			
 	Editable = property(_getEditable, _setEditable, None,
-			_("""Can the contents of the grid be edited?  (bool)
-
-This setting enables/disables cell editing globally. When False, no cells
-will be editable by the user. When True, cells in columns set as Editable
-will be editable by the user. Note that grids and columns are both set
-with Editable=False by default, so to enable cell editing you need to turn
-it on in the appropriate column as well as in the grid.
-""") )
+			_("""This setting enables/disables cell editing globally. When False, no cells
+			will be editable by the user. When True, cells in columns set as Editable
+			will be editable by the user. Note that grids and columns are both set
+			with Editable=False by default, so to enable cell editing you need to turn
+			it on in the appropriate column as well as in the grid.  (bool)""") )
 			
 	Encoding = property(_getEncoding, None, None,
 			_("Name of encoding to use for unicode  (str)") )
@@ -2253,9 +2253,9 @@ it on in the appropriate column as well as in the grid.
 			the grid if ShowRowLabels is True.  (int)"""))
 
 	Searchable = property(_getSearchable, _setSearchable, None,
-			_("""Specifies whether the columns can be searched. Default: True
-
-If True, and if the column's Searchable is True, the column will be searchable."""))
+			_("""Specifies whether the columns can be searched. If True, 
+			and if the column's Searchable property is True, the column 
+			will be searchable. Default: True  (bool)"""))
 
 	SearchDelay = property(_getSearchDelay, _setSearchDelay, None,
 			_("""Delay in miliseconds between keystrokes before the 
@@ -2265,16 +2265,15 @@ If True, and if the column's Searchable is True, the column will be searchable."
 			_("Are row labels shown?  (bool)") )
 
 	Sortable = property(_getSortable, _setSortable, None,
-			_("""Specifies whether the columns can be sorted. Default: True
-
-If True, and if the column's Sortable is True, the column will be sortable."""))
+			_("""Specifies whether the columns can be sorted. If True, 
+			and if the column's Sortable property is True, the column 
+			will be sortable. Default: True  (bool)"""))
 
 	_Table = property(_getTable, _setTable, None,
 			_("Reference to the internal table class  (dGridDataTable)") )
 
 
 class _dGrid_test(dGrid):
-
 	def initProperties(self):
 		self.dataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
 		                {"name" : "Mike Leafe", "age" : 18, "coder" :  False} ]
@@ -2288,60 +2287,39 @@ class _dGrid_test(dGrid):
 	def afterInit(self):
 		_dGrid_test.doDefault()
 
-		col = dColumn(self)
-		col.Name = "Geek"
-		col.Order = 10
-		col.Field = "coder"
-		col.DataType = "bool"
-		col.Width = 60
-		col.Caption = "Geek?"
-		col.Sortable = False
-		col.Searchable = False
-		col.Editable = True
+		col = dColumn(self, Name="Geek", Order=10, Field="coder",
+				DataType="bool", Width=60, Caption="Geek?", Sortable=False,
+				Searchable=False, Editable=True)
 		self.addColumn(col)
 
-		col = dColumn(self)
-		col.Name = "Person"
-		col.Order = 20
-		col.Field = "name"
-		col.DataType = "string"
-		col.Width = 200
-		col.Caption = "Customer Name"
-		col.Editable = True
+		col = dColumn(self, Name="Person", Order=20, Field="name",
+				DataType="string", Width=200, Caption="Customer Name",
+				Sortable=True, Searchable=True, Editable=False)
 		self.addColumn(col)
 		
-		col = dColumn(self)
-		col.Name = "Age"
-		col.Order = 30
-		col.Field = "age"
-		col.DataType = "integer"
-		col.Width = 40
-		col.Caption = "Age"
-		col.Sortable = False
-		col.Searchable = False
+		col = dColumn(self, Name="Age", Order=30, Field="age",
+				DataType="integer", Width=40, Caption="Age",
+				Sortable=True, Searchable=False, Editable=True)
 		self.addColumn(col)
 
 
 
 if __name__ == '__main__':
-
 	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
 			self.BackColor = "khaki"
-			g = self.grid = _dGrid_test(self)
+			g = self.grid = _dGrid_test(self, RegID="sampleGrid")
 			self.Sizer.append(g, 1, "x", border=40, borderFlags="all")
-			
-			
 			self.Sizer.appendSpacer(10)
 			
-			chk = dabo.ui.dCheckBox(self, Caption="Edit Geek", RegID="geekEdit")
+			chk = dabo.ui.dCheckBox(self, Caption="Edit Geek", RegID="geekEdit",
+					DataSource="self.Form.sampleGrid", DataField="Editable")
 			self.Sizer.append(chk, halign="Center")
+			chk.refresh()
 	
-		def onHit_geekEdit(self, evt):
-			print "AUTO BIND WORKS!"
+		
 			
-			
-	dabo.autoBindEvents = True			
+# 	dabo.autoBindEvents = True			
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
 	app.setup()
