@@ -1002,7 +1002,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	# with more than one type of data in them.	
 	def customCanGetValueAs(self, row, col, typ): pass
 	def customCanSetValueAs(self, row, col, typ): pass
-	
+
+	# Wrap the native wx methods
+	#pkm: I wonder about putting these in dColumn as setEditorForRow() instead. Thoughts?
+	def setEditorForCell(self, row, col, edt):
+		self.SetCellEditor(row, col, edt)
+	def setRendererForCell(self, row, col, rnd):
+		self.SetCellRenderer(row, col, rnd)
+				
 		
 	def fillGrid(self, force=False):
 		""" Refresh the grid to match the data in the data set."""
