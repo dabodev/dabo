@@ -369,8 +369,7 @@ class _dListControl_test(dListControl):
 		#self.HeaderVisible = False
 		
 	def initEvents(self):
-		self.bindEvent(dEvents.Hit, self.onHit)
-		self.bindEvent(dEvents.ListSelection, self.onListSelection)
+		self.autoBindEvents()
 
 	def onHit(self, evt):
 		print "HIT!", self.Value, self.HitIndex

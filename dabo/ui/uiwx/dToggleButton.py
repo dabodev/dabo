@@ -27,7 +27,7 @@ class _dToggleButton_test(dToggleButton):
 		self.Size = (100, 31)
 
 	def initEvents(self):
-		self.bindEvent(dEvents.Hit, self.onHit)
+		self.autoBindEvents()
 		
 	def onHit(self, evt):
 		if self.Value:

@@ -96,11 +96,14 @@ class _dTimer_test(dTimer):
 		self.Interval = 1000
 		self.Visible = True
 		self.start()
+
 	def initEvents(self):
-		self.bindEvent(dabo.dEvents.Hit, self.onHit)
+		self.autoBindEvents()
+
 	def onHit(self, evt):
 		print "timer fired!"
 		
+
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dTimer_test)
