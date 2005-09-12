@@ -136,7 +136,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				                         self.grid.Form.Name, 
 				                         self.grid.Name,
 				                         colName,
-				                         "ColumnOrder"))
+				                         "Order"))
 			if pos is not None:
 				col.Order = pos
 
@@ -474,6 +474,18 @@ class dColumn(dabo.common.dObject):
 		
 	def _constructed(self):
 		return self._isConstructed
+
+
+	def _persist(self, prop):
+		"""Persist the current prop setting to the user settings table."""
+		
+		app = self.Application
+		grid = self.Parent
+		colName = "column_%s" % self.Field
+		val = getattr(self, prop)
+		settingName = "%s.%s.%s.%s" % (grid.Form.Name, grid.Name, colName, prop)
+
+		app.setUserSetting(settingName, val)
 
 
 	def changeMsg(self, prop):
@@ -969,6 +981,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		""" Initialize behavior for the grid header region."""
 		header = self.Header
 		self.defaultHdrCursor = header.GetCursor()
+		self._headerMousePosition = (0,0)
+		self._headerMouseLeftDown, self._headerMouseRightDown = False, False
+
 
 		header.Bind(wx.EVT_LEFT_DCLICK, self.__onWxHeaderMouseLeftDoubleClick)
 		header.Bind(wx.EVT_LEFT_DOWN, self.__onWxHeaderMouseLeftDown)
@@ -978,12 +993,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		header.Bind(wx.EVT_MOTION, self.__onWxHeaderMouseMotion)
 		header.Bind(wx.EVT_PAINT, self.__onWxHeaderPaint)
 		header.Bind(wx.EVT_CONTEXT_MENU, self.__onWxHeaderContextMenu)
+		header.Bind(wx.EVT_ENTER_WINDOW, self.__onWxHeaderMouseEnter)
+		header.Bind(wx.EVT_LEAVE_WINDOW, self.__onWxHeaderMouseLeave)
+
 
 		self.bindEvent(dEvents.GridHeaderMouseLeftDown, self._onGridHeaderMouseLeftDown)
 		self.bindEvent(dEvents.GridHeaderPaint, self._onHeaderPaint)
 		self.bindEvent(dEvents.GridHeaderMouseMove, self._onGridHeaderMouseMove)
 		self.bindEvent(dEvents.GridHeaderMouseLeftUp, self._onGridHeaderMouseLeftUp)
 		self.bindEvent(dEvents.GridHeaderMouseRightUp, self._onGridHeaderMouseRightUp)
+		self.bindEvent(dEvents.GridHeaderMouseRightClick, self._onGridHeaderMouseRightClick)
+
 
 	def GetCellValue(self, row, col):
 		try:
@@ -1172,10 +1192,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 #		self.Form.unlockDisplay()
 
 
-	def autoSizeCol(self, colNum):
-		"""This sets the requested column to the minimum width 
-		necessary to display its data. You can pass 'all' instead, and
-		all columns will be auto-sized.
+	def autoSizeCol(self, colNum, persist=False):
+		"""Set the column to the minimum width necessary to display its data.
+
+		Set colNum='all' to auto-size all columns. Set persist=True to persist the
+		fact that the column should be auto-sized to the user settings table.
 		"""	
 		# lock the screen
 		self.lockDisplay()
@@ -1200,9 +1221,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.AutoSizeColumns(setAsMin=False)
 				for ii in range(len(self.Columns)):
 					self.Columns[ii].Width = self.GetColSize(ii)
+					if persist:
+						self.Columns[ii]._persist("Width")
+						
 			elif isinstance(colNum, (int, long)):
 				self.AutoSizeColumn(colNum, setAsMin=False)
 				self.Columns[colNum].Width = self.GetColSize(colNum)
+				if persist:
+					self.Columns[colNum]._persist("Width")
 		except:
 			pass
 		self._Table.removeTempRow()
@@ -1300,13 +1326,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self._columns.insert(toNum, oldCol)
 		for col in self.Columns:
 			col.Order = self.Columns.index(col) * 10
-			app = self.Application
-			if app is not None:
-				app.setUserSetting("%s.%s.%s.%s" % (
-				                   self.Form.Name,
-				                   self.Name,
-				                   "Column_%s" % col.Field,
-				                   "ColumnOrder"), col.Order )
+			col._persist("Order")
 		self.fillGrid(True)
 		self._ignoreColUpdates = False
 
@@ -1331,7 +1351,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		User code can append menu items, or replace/remove the menu entirely. 
 		Return a dMenu or None from this hook. Default: no context menu.
 		"""
-		return None
+		return menu
+
+
+	def fillHeaderContextMenu(self, menu):
+		""" User hook called just before showing the context menu for the header.
+
+		User code can append menu items, or replace/remove the menu entirely. 
+		Return a dMenu or None from this hook. The default menu includes an
+		option to autosize the column.
+		"""
+		return menu
 
 
 	def onEnterKeyAction(self):
@@ -1679,27 +1709,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		width = col.Width = self.GetColSize(colNum)
 		app = self.Application
 		if app is not None:
-			app.setUserSetting("%s.%s.%s.%s" % (self.Form.Name, 
-		                                      self.Name, colName, 
-		                                      "Width"), width)
+			col._persist("Width")
 	
-
-	def _onGridSelectCell(self, evt):
-		""" Occurs when the grid's cell focus has changed."""
-		oldRow = self.CurrentRow
-		newRow = evt.EventData["row"]
-		
-		if oldRow != newRow:
-			if self.bizobj:
-				self.bizobj.RowNumber = newRow
-		self.Form.refreshControls()
-
 
 	def _onGridHeaderMouseMove(self, evt):
 		headerIsDragging = self._headerDragging
 		headerIsSizing = self._headerSizing
 		dragging = evt.EventData["mouseDown"]
 		header = self.Header
+		self._headerMousePosition = evt.EventData["mousePosition"]
 
 		if dragging:
 			x,y = evt.EventData["mousePosition"]
@@ -1767,9 +1785,30 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		#evt.Continue = False
 
 
+	def _onGridHeaderMouseRightClick(self, evt):
+		# Make the popup menu appear in the location that was clicked. We init
+		# the menu here, then call the user hook method to optionally fill the
+		# menu. If we get a menu back from the user hook, we display it.
+
+		position = self._headerMousePosition
+		menu = dabo.ui.dMenu()
+
+		# Fill the default menu item(s):
+		def _autosizeColumn(evt):
+			self.autoSizeCol(self.getColByX(self._headerMousePosition[0]), persist=True)
+		menu.append(_("&Autosize Column"), bindfunc=_autosizeColumn, 
+		            help=_("Autosize the column based on the data in the column."))
+
+		menu = self.fillHeaderContextMenu(menu)
+
+		if menu is not None and len(menu.Children) > 0:
+			self.PopupMenu(menu, position)
+			menu.release()
+
+
 	def _onGridHeaderMouseRightUp(self, evt):
 		""" Occurs when the right mouse button goes up in the grid header."""
-		self.autoSizeCol( self.getColByX(evt.GetX()))
+		pass
 
 	
 	def _onGridMouseRightClick(self, evt):
@@ -1785,12 +1824,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		menu = dabo.ui.dMenu()
 		menu = self.fillContextMenu(menu)
 
-		if menu is not None:
+		if menu is not None and len(menu.Children) > 0:
 			self.PopupMenu(menu, position)
 			menu.release()
 	
 
 	def _onGridHeaderMouseLeftDown(self, evt):
+		# We need to eat this event, because the native wx grid will select all
+		# rows in the column, which is a spreadsheet-like behavior, not a data-
+		# aware grid-like behavior. However, let's keep our eyes out for a better
+		# way to handle this, because eating events could cause some hard-to-debug
+		# problems later (there could be other, more critical code, that isn't 
+		# being allowed to run).
 		evt.Continue = False
 
 
@@ -1814,6 +1859,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.ForceRefresh()
 
 	
+	def _onGridSelectCell(self, evt):
+		""" Occurs when the grid's cell focus has changed."""
+		oldRow = self.CurrentRow
+		newRow = evt.EventData["row"]
+		
+		if oldRow != newRow:
+			if self.bizobj:
+				self.bizobj.RowNumber = newRow
+		self.Form.refreshControls()
+
+
 	def _onKeyDown(self, evt): 
 		""" Occurs when the user presses a key inside the grid. 
 		Default actions depend on the key being pressed:
@@ -1891,16 +1947,28 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.raiseEvent(dEvents.GridHeaderContextMenu, evt)
 		evt.Skip()
 
+	def __onWxHeaderMouseEnter(self, evt):
+		self.raiseEvent(dEvents.GridHeaderMouseEnter, evt)
+		
+	def __onWxHeaderMouseLeave(self, evt):
+		self._headerMouseLeftDown, self._headerMouseRightDown = False, False
+		self.raiseEvent(dEvents.GridHeaderMouseLeave, evt)
+
 	def __onWxHeaderMouseLeftDoubleClick(self, evt):
 		self.raiseEvent(dEvents.GridHeaderMouseLeftDoubleClick, evt)
 		evt.Skip()
 
 	def __onWxHeaderMouseLeftDown(self, evt):
 		self.raiseEvent(dEvents.GridHeaderMouseLeftDown, evt)
+		self._headerMouseLeftDown = True
 		#evt.Skip() #- don't skip or all the rows will be selected.
 
 	def __onWxHeaderMouseLeftUp(self, evt):
 		self.raiseEvent(dEvents.GridHeaderMouseLeftUp, evt)
+		if self._headerMouseLeftDown:
+			# mouse went down and up in the header: send a click:
+			self.raiseEvent(dEvents.GridHeaderMouseLeftClick, evt)
+			self._headerMouseLeftDown = False
 		evt.Skip()
 
 	def __onWxHeaderMouseMotion(self, evt):
@@ -1909,10 +1977,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def __onWxHeaderMouseRightDown(self, evt):
 		self.raiseEvent(dEvents.GridHeaderMouseRightDown, evt)
+		self._headerMouseRightDown = True
 		evt.Skip()
 
 	def __onWxHeaderMouseRightUp(self, evt):
 		self.raiseEvent(dEvents.GridHeaderMouseRightUp, evt)
+		if self._headerMouseRightDown:
+			# mouse went down and up in the header: send a click:
+			self.raiseEvent(dEvents.GridHeaderMouseRightClick, evt)
+			self._headerMouseRightDown = False
 		evt.Skip()
 
 	def __onWxHeaderPaint(self, evt):

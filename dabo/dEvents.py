@@ -380,6 +380,14 @@ class GridHeaderContextMenu(GridEvent, MenuEvent):
 	"""Occurs when the context menu is requested in the grid header region."""
 	pass
 
+class GridHeaderMouseEnter(GridEvent, MouseEvent):
+	"""Occurs when the mouse pointer enters the grid's header region."""
+	pass
+
+class GridHeaderMouseLeave(GridEvent, MouseEvent):
+	"""Occurs when the mouse pointer leaves the grid's header region."""
+	pass
+
 class GridHeaderMouseLeftClick(GridEvent, MouseEvent):
 	"""Occurs when the left mouse button is clicked in the header region."""
 	pass
@@ -394,6 +402,10 @@ class GridHeaderMouseLeftDown(GridEvent, MouseEvent):
 
 class GridHeaderMouseLeftUp(GridEvent, MouseEvent):
 	"""Occurs when the left mouse button goes up in the header region."""
+	pass
+
+class GridHeaderMouseRightClick(GridEvent, MouseEvent):
+	"""Occurs when the right mouse button is clicked in the header region."""
 	pass
 
 class GridHeaderMouseRightDown(GridEvent, MouseEvent):
