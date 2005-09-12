@@ -503,6 +503,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			# The form isn't using bizobjs, but locally-bound data
 			# controls
 			return self
+		
+		# See if it is the RegID of a registered control
+		reg = self.getObjectByRegID(dataSource)
+		if reg:
+			return reg
 
 		# No top-level bizobj had the dataSource name, so now go through
 		# the children, and return the first one that matches.
@@ -603,6 +608,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		BusinessRuleViolation exception will be raised, and the form
 		can then respond to this.
 		"""
+		
 		ds = ctrl.DataSource
 		df = ctrl.DataField
 		val = ctrl.Value
@@ -615,6 +621,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			dabo.errorLog.write("No business object found for DataSource: '%s', DataField: '%s' "
 					% (ds, df))
 			return
+		if not isinstance(biz, dabo.biz.dBizobj):
+			# DataSource isn't a bizobj, so no need to validate
+			return True
 		ret = False
 		try:
 			biz.fieldValidation(df, val)

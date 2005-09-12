@@ -299,23 +299,29 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def _getSrc(self):
 		if self.__src is None:
 			ds = self.DataSource
+			self._srcIsBizobj = False
 			if ds:
 				# Source can be a bizobj, which we get from the form, or
 				# another object.
 				if ds.lower() == "form":
 					# We're bound to the form itself
 					self.__src = self.Form
-					self._srcIsBizobj = False
 				elif ds[:5] == "self.":
 					# it's a locally resolvable reference.
 					try: 
 						self.__src = eval(ds)
-						self._srcIsBizobj = False
 					except: pass
 				else:
-					# It's a bizobj reference; get it from the Form.
-					self.__src = self.Form.getBizobj(ds)
-					self._srcIsBizobj = True
+					# See if it's a RegID reference to another object
+					try:
+						self.__src = self.Form.getObjectByRegID(ds)
+					except:
+						self.__src = None
+					if self.__src is None:
+						# It's a bizobj reference; get it from the Form.
+						self.__src = self.Form.getBizobj(ds)
+						if self.__src:
+							self._srcIsBizobj = True
 		return self.__src
 
 	
