@@ -14,7 +14,9 @@ class EventMixin(object):
 	def bindEvent(self, eventClass, function):
 		"""Bind a dEvent to a callback function.
 		"""
-		self._EventBindings.append((eventClass, function))
+		eb = self._EventBindings
+		if (eventClass, function) not in eb:
+			eb.append((eventClass, function))
 		
 
 	def bindEvents(self, bindings):
