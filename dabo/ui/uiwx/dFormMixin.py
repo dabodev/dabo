@@ -214,7 +214,7 @@ class dFormMixin(pm.dPemMixin):
 		self.Refresh()
 		
 		
-	def refreshControls(self):
+	def refreshControls(self, grid=None):
 		""" Refresh the value of all contained dControls.
 
 		Raises EVT_VALUEREFRESH which will be caught by all dControls, who will
@@ -223,7 +223,7 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		self.raiseEvent(dEvents.ValueRefresh)
 		try:
-			self.setStatusText(self.getCurrentRecordText())
+			self.setStatusText(self.getCurrentRecordText(grid=grid))
 		except: pass
 
 
