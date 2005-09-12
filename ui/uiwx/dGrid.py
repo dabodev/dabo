@@ -962,7 +962,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		## wx.EVT_CONTEXT_MENU doesn't appear to be working for dGrid yet:
 #		self.bindEvent(dEvents.GridContextMenu, self._onContextMenu)
-		self.bindEvent(dEvents.GridMouseRightDown, self._onContextMenu)
+		self.bindEvent(dEvents.GridMouseRightClick, self._onGridMouseRightClick)
 
 
 	def initHeader(self):
@@ -1324,17 +1324,30 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	##----------------------------------------------------------##
 	##               begin: user hook methods                   ##
 	##----------------------------------------------------------##
+
+	def fillContextMenu(self, menu):
+		""" User hook called just before showing the context menu.
+
+		User code can append menu items, or replace/remove the menu entirely. 
+		Return a dMenu or None from this hook. Default: no context menu.
+		"""
+		return None
+
+
 	def onEnterKeyAction(self):
 		"Customize in subclasses"
 		pass
+
 		
 	def onDeleteKeyAction(self):
 		"Customize in subclasses"
 		pass
+
 	
 	def onEscapeAction(self):
 		"Customize in subclasses"
 		pass
+
 	
 	def processKeyPress(self, char):
 		"""Hook method for classes that need to process 
@@ -1345,7 +1358,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""
 		# Return False to prevent the keypress from being 'eaten'
 		return False
-		
+
 	##----------------------------------------------------------##
 	##                end: user hook methods                    ##
 	##----------------------------------------------------------##
@@ -1568,17 +1581,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.incSearchTimer.start(self.SearchDelay)
 
 
-	def popupMenu(self):
-		""" Display a popup menu of relevant choices. 
-		By default, the choices are 'New', 'Edit', and 'Delete'.
-		"""
-		popup = dabo.ui.dMenu()
-		popup.append("Dabo Grid")
-		popup.append("Default Popup")
-		self.PopupMenu(popup, self.mousePosition)
-		popup.release()
-
-
 	def getColByX(self, x):
 		""" Given the x-coordinate, return the column number.
 		"""
@@ -1770,15 +1772,27 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.autoSizeCol( self.getColByX(evt.GetX()))
 
 	
-	def _onContextMenu(self, evt):
-		# Make the popup menu appear in the location that was clicked
-		self.mousePosition = evt.GetPosition()
+	def _onGridMouseRightClick(self, evt):
+		# Make the popup menu appear in the location that was clicked. We init
+		# the menu here, then call the user hook method to optionally fill the
+		# menu. If we get a menu back from the user hook, we display it.
 
-		# Display the popup menu, if any
-		self.popupMenu()
+		# First though, make the cell the user right-clicked on the current cell:
+		self.CurrentRow = evt.GetRow()
+		self.CurrentColumn = evt.GetCol()
+
+		position = evt.EventData["position"]
+		menu = dabo.ui.dMenu()
+		menu = self.fillContextMenu(menu)
+
+		if menu is not None:
+			self.PopupMenu(menu, position)
+			menu.release()
+	
 
 	def _onGridHeaderMouseLeftDown(self, evt):
 		evt.Continue = False
+
 
 	def _onGridRowSize(self, evt):
 		""" Occurs when the user sizes the height of the row. If the
@@ -1925,7 +1939,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		evt.Skip()
 
 	def __onWxMouseRightClick(self, evt):
-		self.raiseEvent(dEvents.GridRightClick, evt)
+		self.raiseEvent(dEvents.GridMouseRightClick, evt)
 		evt.Skip()
 
 	def __onWxMouseRightDown(self, evt):
@@ -1940,7 +1954,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	##       end: wx callbacks to re-route to dEvents           ##
 	##----------------------------------------------------------##
 
-
+	
 	def _getDefaultGridColAttr(self):
 		""" Return the GridCellAttr that will be used for all columns by default."""
 		attr = wx.grid.GridCellAttr()
@@ -2314,7 +2328,7 @@ if __name__ == '__main__':
 	
 		
 			
-# 	dabo.autoBindEvents = True			
+ 	dabo.autoBindEvents = True			
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
 	app.setup()

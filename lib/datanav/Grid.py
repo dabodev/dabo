@@ -89,10 +89,12 @@ class Grid(dabo.ui.dGrid):
 		else:
 			self.editRecord()
 	
+
 	def onDeleteKeyAction(self):
 		if self.Form.FormType != "PickList":
 			self.deleteRecord()
 	
+
 	def onEscapeAction(self):
 		if self.Form.FormType == "PickList":
 			self.Form.close()
@@ -119,24 +121,22 @@ class Grid(dabo.ui.dGrid):
 		self.Form.pickRecord()
 		
 		
-	def popupMenu(self):
-		""" Display a popup menu of relevant choices. 
+	def fillContextMenu(self, menu):
+		""" Display a context menu of relevant choices.
+	
 		By default, the choices are 'New', 'Edit', and 'Delete'.
 		"""
-		popup = dabo.ui.dMenu()
-
 		if self.Form.FormType == 'PickList':
-			popup.append(_("&Pick"), bindfunc=self.pickRecord, bmp="edit",
-					help=_("Pick this record"))
+			menu.append(_("&Pick"), bindfunc=self.pickRecord, bmp="edit",
+			            help=_("Pick this record"))
 		else:
-			popup.append(_("&New"), bindfunc=self.newRecord, bmp="blank",
-					help=_("Add a new record"))
-			popup.append("&Edit", bindfunc=self.editRecord, bmp="edit",
-					help=_("Edit this record"))
-			popup.append("&Delete", bindfunc=self.deleteRecord, bmp="delete",
-					help=_("Delete this record"))
-		self.showContextMenu(popup, self.mousePosition)
-		popup.release()
+			menu.append(_("&New"), bindfunc=self.newRecord, bmp="blank",
+			            help=_("Add a new record"))
+			menu.append("&Edit", bindfunc=self.editRecord, bmp="edit",
+			            help=_("Edit this record"))
+			menu.append("&Delete", bindfunc=self.deleteRecord, bmp="delete",
+			            help=_("Delete this record"))
+		return menu
 
 
 	def _getFldSpecs(self):

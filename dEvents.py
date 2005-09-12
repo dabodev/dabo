@@ -452,10 +452,6 @@ class GridSelectCell(GridEvent):
 	"""Occurs when the a new cell is selected in the grid."""
 	pass
 
-class GridRightClick(GridEvent):
-	"""Occurs when the user right-clicks on the grid."""
-	pass
-
 class GridCellEdited(GridEvent):
 	"""Occurs when the user edits the content of a grid cell."""
 	pass
