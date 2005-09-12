@@ -372,6 +372,78 @@ class TreeItemExpand(TreeEvent):
 	""" Occurs when a collapsed item in a tree expands."""
 	pass
 
+class GridContextMenu(GridEvent, MenuEvent):
+	"""Occurs when the context menu is requested in the grid region."""
+	pass
+
+class GridHeaderContextMenu(GridEvent, MenuEvent):
+	"""Occurs when the context menu is requested in the grid header region."""
+	pass
+
+class GridHeaderMouseLeftClick(GridEvent, MouseEvent):
+	"""Occurs when the left mouse button is clicked in the header region."""
+	pass
+
+class GridHeaderMouseLeftDoubleClick(GridEvent, MouseEvent):
+	"""Occurs when the left mouse button is double-clicked in the header region."""
+	pass
+
+class GridHeaderMouseLeftDown(GridEvent, MouseEvent):
+	"""Occurs when the left mouse button goes down in the header region."""
+	pass
+
+class GridHeaderMouseLeftUp(GridEvent, MouseEvent):
+	"""Occurs when the left mouse button goes up in the header region."""
+	pass
+
+class GridHeaderMouseRightDown(GridEvent, MouseEvent):
+	"""Occurs when the left mouse button goes down in the header region."""
+	pass
+
+class GridHeaderMouseRightUp(GridEvent, MouseEvent):
+	"""Occurs when the left mouse button goes up in the header region."""
+	pass
+
+class GridHeaderMouseMove(GridEvent, MouseEvent):
+	"""Occurs when the mouse moves in the grid header region."""
+	pass
+
+class GridHeaderPaint(GridEvent):
+	"""Occurs when it's time to paint the grid header."""
+	pass
+
+class GridMouseLeftClick(GridEvent, MouseEvent):
+	"""Occurs when the left mouse button is clicked in the grid region."""
+	pass
+
+class GridMouseLeftDoubleClick(GridEvent, MouseEvent):
+	"""Occurs when the left mouse button is double-clicked in the grid region."""
+	pass
+
+class GridMouseLeftDown(GridEvent, MouseEvent):
+	"""Occurs when the left mouse button goes down in the grid region."""
+	pass
+
+class GridMouseLeftUp(GridEvent, MouseEvent):
+	"""Occurs when the left mouse button goes up in the grid region."""
+	pass
+
+class GridMouseRightClick(GridEvent, MouseEvent):
+	"""Occurs when the right mouse button is clicked in the header region."""
+	pass
+
+class GridMouseRightDown(GridEvent, MouseEvent):
+	"""Occurs when the right mouse button goes down in the grid region."""
+	pass
+
+class GridMouseRightUp(GridEvent, MouseEvent):
+	"""Occurs when the right mouse button goes up in the grid region."""
+	pass
+
+class GridMouseMove(GridEvent, MouseEvent):
+	"""Occurs when the mouse moves in the grid region (not the headers)."""
+	pass
+
 class GridRowSize(GridEvent):
 	"""Occurs when the grid's rows are resized."""
 	pass
