@@ -160,18 +160,13 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		# Dictionary for tracking images by key value
 		self.__imageList = {}	
 		
-		self.bindEvent(dEvents.Hit, self.onHit)
-		self.bindEvent(dEvents.TreeSelection, self.onSelection)
-		self.bindEvent(dEvents.TreeItemCollapse, self.onItemCollapse)
-		self.bindEvent(dEvents.TreeItemExpand, self.onItemExpand)
-
 		
 	def _initEvents(self):
 		super(dTreeView, self)._initEvents()
 		self.Bind(wx.EVT_LEFT_UP, self._onWxHit)
-		self.Bind(wx.EVT_TREE_SEL_CHANGED, self._onTreeSel)
-		self.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self._onTreeItemCollapse)
-		self.Bind(wx.EVT_TREE_ITEM_EXPANDED, self._onTreeItemExpand)
+		self.Bind(wx.EVT_TREE_SEL_CHANGED, self.__onTreeSel)
+		self.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.__onTreeItemCollapse)
+		self.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.__onTreeItemExpand)
 
 	
 	def clear(self):
@@ -369,16 +364,12 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 
 
 	# Event-handling code
-	def _onTreeSel(self, evt):
+	def __onTreeSel(self, evt):
 		self.raiseEvent(dEvents.TreeSelection, evt)
-	def _onTreeItemCollapse(self, evt):
+	def __onTreeItemCollapse(self, evt):
 		self.raiseEvent(dEvents.TreeItemCollapse, evt)
-	def _onTreeItemExpand(self, evt):
+	def __onTreeItemExpand(self, evt):
 		self.raiseEvent(dEvents.TreeItemExpand, evt)
-	def onSelection(self, evt): pass
-	def onHit(self, evt): pass
-	def onItemCollapse(self, evt): pass
-	def onItemExpand(self, evt): pass
 
 
 	def addDummyData(self):
@@ -426,17 +417,29 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			selected node. If this is defined as MultiSelect, it will return
 			a list of selected nodes.  (dNode or list of dNodes)""") )
 		
+
 class _dTreeView_test(dTreeView):
 	def afterInit(self): 
 		self.addDummyData()
 		self.Width = 240
 		self.Height = 140
 
-	def onSelection(self, evt):
+	def initEvents(self):
+		self.autoBindEvents()
+
+	def onHit(self, evt):
+		## pkm: currently, Hit happens on left mouse up, which totally ignores
+		##      keyboarding through the tree. I'm wondering about mapping 
+		##      TreeSelection instead... thoughts?
+		print "Hit!"
+
+	def onTreeSelection(self, evt):
 		print "Selected node caption:", evt.EventData["selectedCaption"]
-	def onItemCollapse(self, evt):
+
+	def onTreeItemCollapse(self, evt):
 		print "Collapsed node caption:", evt.EventData["selectedCaption"]
-	def onItemExpand(self, evt):
+
+	def onTreeItemExpand(self, evt):
 		print "Expanded node caption:", evt.EventData["selectedCaption"]
 		
 			

@@ -39,7 +39,7 @@ class _dDropdownList_test(dDropdownList):
 		self.setup()
 		
 	def initEvents(self):
-		self.bindEvent(dabo.dEvents.Hit, self.onHit)
+		self.autoBindEvents()
 			
 	def setup(self):
 		# Simulating a database

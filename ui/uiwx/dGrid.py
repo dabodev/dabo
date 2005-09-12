@@ -2397,9 +2397,8 @@ if __name__ == '__main__':
 			self.Sizer.append(chk, halign="Center")
 			chk.refresh()
 	
-		
+	
 			
- 	dabo.autoBindEvents = True			
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
 	app.setup()

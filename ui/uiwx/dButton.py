@@ -84,7 +84,7 @@ class _dButton_test(dButton):
 		self.Width = 223
 
 	def initEvents(self):
-		self.bindEvent(dEvents.Hit, self.onHit)
+		self.autoBindEvents()
 
 	def onHit(self, evt):
 		self.ForeColor = "purple"

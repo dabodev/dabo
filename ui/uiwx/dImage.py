@@ -32,10 +32,10 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 	
 	def _initEvents(self):
 		super(dImage, self)._initEvents()
-		self.bindEvent(dEvents.Resize, self.onResize)
+		self.bindEvent(dEvents.Resize, self._onResize)
 	
 	
-	def onResize(self, evt):
+	def _onResize(self, evt):
 		self._showPic()
 
 

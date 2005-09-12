@@ -139,7 +139,8 @@ class EventMixin(object):
 					newBindings.append(binding)
 			self._EventBindings = newBindings
 
-	def _autoBindEvents(self, context):
+	
+	def autoBindEvents(self):
 		"""Automatically bind any on*() methods to the associated event.
 
 		User code only needs to define the callback, and Dabo will automatically
@@ -150,13 +151,28 @@ class EventMixin(object):
 
 		FEATURE NOT AUTOMATIC YET: to try out this feature, you need to enable
 		it explicitly:
-			dabo.autoBindEvents = True
+			dabo.autoBindEvents = True  ## (global)
+			--or--
+			def initEvents(self):
+				self.autoBindEvents()  ## (local to the class)
 
 		This feature is inspired by PythonCard.
 		"""
+		# We call _autoBindEvents for self and form, and force it because it was
+		# asked for explicitly.
+		self._autoBindEvents(context=self, force=True)
+		try:
+			form = self.Form
+		except AttributeError:
+			form = None
+		if form is not None:
+			self._autoBindEvents(context=form, force=True)
+
+
+	def _autoBindEvents(self, context, force=False):
 		import dabo.dEvents as dEvents
 
-		if not dabo.autoBindEvents:
+		if not (force or dabo.autoBindEvents):
 			# autobinding is switched off globally
 			return
 		if context is None:

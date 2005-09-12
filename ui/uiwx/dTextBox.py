@@ -401,8 +401,7 @@ if __name__ == "__main__":
 			self.LogEvents = ["ValueChanged",]
 			
 		def initEvents(self):
-			TestBase.doDefault()
-			self.bindEvent(dabo.dEvents.ValueChanged, self.onValueChanged)
+			self.autoBindEvents()
 			
 		def onValueChanged(self, evt):
 			if self.IsSecret:
@@ -460,14 +459,9 @@ if __name__ == "__main__":
 		class DecimalText(TestBase):
 			def afterInit(self):
 				self.Value = decimal.Decimal("23.42")
-			def initEvents(self):
-				self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
-			def onValueChanged(self, evt):
-				# This tests that when the value is changed programatically, the user is enforced to
-				# use the same precision:
-				if self.Value == decimal.Decimal("23.23"):
-					self.Value = decimal.Decimal("42.4242")
+
 		testParms.append(DecimalText)
+
 	except ImportError:
 		# decimal only in python >= 2.4
 		pass

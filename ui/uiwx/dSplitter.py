@@ -12,9 +12,9 @@ import dControlMixin as cm
 class SplitterPanel(dabo.ui.dPanel):
 	def __init__(self, parent):
 		super(SplitterPanel, self).__init__(parent)
-		self.bindEvent(dEvents.MouseRightClick, self.onRClick)
+		self.bindEvent(dEvents.MouseRightClick, self._onRClick)
 	
-	def onRClick(self, evt):
+	def _onRClick(self, evt):
 		sm = dabo.ui.dMenu(self)
 		sm.append("Split this pane", bindfunc=self.onSplit)
 		if self.Parent.canRemove(self):
