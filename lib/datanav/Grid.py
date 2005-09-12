@@ -47,7 +47,10 @@ class Grid(dabo.ui.dGrid):
 					autoSizeCols=False)
 			self.built = True
 		else:
-			self.fillGrid(True)
+			## pkm: this call appears to be redundant, as the grid as already been 
+			##      filled in dGrid:
+			#self.fillGrid(True)
+			pass
 		self.Form.refresh()
 		
 
