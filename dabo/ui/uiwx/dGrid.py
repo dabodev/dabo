@@ -236,7 +236,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		else:
 			self.__currData = dataSet
 		
-		self.Clear()
+		## pkm: Discovered this call isn't needed. Not sure if it improves anything
+		##      without it, however:
+		#self.Clear()
+
 		self.data = []
 		encod = self.grid.Encoding
 		for record in dataSet:
@@ -1509,7 +1512,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					newLabels.append(elem[2])
 			self.dataSet = newRows
 			self.RowLabels = newLabels
-		self.fillGrid(True)
+
+		## pkm: We don't need to refill the grid, just the data table. This change
+		##      saves about 1/10 of a sec. on a grid with 2200 rows and 6 fields.
+		#self.fillGrid(True)
+		self._Table.fillTable(False)
+
+		## I'm also going to experiment with ditching the table.data list and just 
+		## linking directly to the dataset. Then when requery/sort/add/delete 
+		## operations happen, we just need to fill one dataset, not two. The other 
+		## major avenue for improvement would be to implement efficient sorting,
+		## which I've seen good recipes for on the internet.
 
 
 	def runIncSearch(self):
