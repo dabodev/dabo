@@ -133,10 +133,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			pos = None
 			if app is not None:
 				pos = app.getUserSetting("%s.%s.%s.%s" % (
-				                         self.grid.Form.Name, 
-				                         self.grid.Name,
-				                         colName,
-				                         "Order"))
+						self.grid.Form.Name, 
+						self.grid.Name,
+						colName,
+						"Order"))
 			if pos is not None:
 				col.Order = pos
 
@@ -1728,7 +1728,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					# A header reposition is beginning
 					self._headerDragging = True
 					self._headerDragFrom = (x,y)
-
 				else:
 					# already dragging.
 					begCol = self.getColByX(self._headerDragFrom[0])
@@ -1863,11 +1862,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		""" Occurs when the grid's cell focus has changed."""
 		oldRow = self.CurrentRow
 		newRow = evt.EventData["row"]
-		
 		if oldRow != newRow:
 			if self.bizobj:
 				self.bizobj.RowNumber = newRow
-		self.Form.refreshControls()
+		dabo.ui.callAfter(self.Form.refreshControls, grid=self)
 
 
 	def _onKeyDown(self, evt): 

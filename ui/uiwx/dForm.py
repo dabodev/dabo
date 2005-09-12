@@ -159,6 +159,9 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 	def _moveRecordPointer(self, func, dataSource=None):
 		""" Move the record pointer using the specified function."""
+		
+		print "MOVE REC POINT", self.getCurrentRecordText(dataSource)
+		
 		self.activeControlValid()
 		err = self.beforePointerMove()
 		if err:
@@ -565,26 +568,32 @@ class dForm(wxFrameClass, fm.dFormMixin):
 	def afterNew(self): pass
 	def afterPointerMove(self): pass
 
-	def getCurrentRecordText(self, dataSource=None):
+
+	def getCurrentRecordText(self, dataSource=None, grid=None):
 		""" Get the text to describe which record is current.
 		"""
-		bizobj = self.getBizobj(dataSource)
-		if bizobj is None:
-			try:
-				# Some situations, such as form preview mode, will
-				# store these directly, since they lack bizobjs
-				rowCount = self.rowCount
-				rowNumber = self.rowNumber
-			except:
-				rowCount = 1
-				rowNumber = 0
+		if dataSource is None and grid is not None:
+			# This is being called by a regular grid not tied to a bizobj
+			rowCount = grid.RowCount
+			rowNumber = grid.CurrentRow+1
 		else:
-			rowCount = bizobj.RowCount
-			if rowCount > 0:
-				rowNumber = bizobj.RowNumber+1
+			bizobj = self.getBizobj(dataSource)
+			if bizobj is None:
+				try:
+					# Some situations, such as form preview mode, will
+					# store these directly, since they lack bizobjs
+					rowCount = self.rowCount
+					rowNumber = self.rowNumber+1
+				except:
+					rowCount = 1
+					rowNumber = 1
 			else:
-				rowNumber = 0
-		return _("Record " ) + ("%s/%s" % (rowNumber, rowCount))
+				rowCount = bizobj.RowCount
+				if rowCount > 0:
+					rowNumber = bizobj.RowNumber+1
+				else:
+					rowNumber = 1
+		return _("Record %s/%s" % (rowNumber, rowCount))
 
 
 	def activeControlValid(self):
