@@ -74,7 +74,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		## DynamicBackColor, DynamicFont..., etc.
 
 		# I have no idea what the kind arg is for. It is sent by wxGrid to this
-		# function, it always seems to be either 0 or 4 (4 when the , and it isn't documented in the 
+		# function, it always seems to be either 0 or 4, and it isn't documented in the 
 		# wxWidgets docs (but it does appear in the wxPython method signature 
 		# but still isn't documented there.)
 #		if kind not in (0, 4):
@@ -920,10 +920,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# What color should the little sort indicator arrow be?
 		self.sortArrowColor = "Silver"
 
-		self.headerDragging = False    # flag used by mouse motion event handler
-		self.headerDragFrom = 0
-		self.headerDragTo = 0
-		self.headerSizing = False
+		self._headerDragging = False    # flag used by mouse motion event handler
+		self._headerDragFrom = 0
+		self._headerDragTo = 0
+		self._headerSizing = False
 		#Call the default behavior
 		super(dGrid, self)._afterInit()
 		
@@ -937,17 +937,30 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
 		self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.__onWxGridRowSize)
 		self.Bind(wx.grid.EVT_GRID_SELECT_CELL, self.__onWxGridSelectCell)
-		self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.__onWxColSize)
-		self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.__onWxRightClick)
-		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxCellChange)
+		self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.__onWxGridColSize)
+		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.__onWxMouseLeftClick)
+		self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.__onWxMouseRightClick)
+		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxGridCellChange)
 
-		self.bindEvent(dEvents.KeyDown, self.onKeyDown)
-		self.bindEvent(dEvents.MouseLeftDoubleClick, self._onLeftDClick)
+		gridWindow = self.GetGridWindow()
+
+		gridWindow.Bind(wx.EVT_MOTION, self.__onWxMouseMotion)
+		gridWindow.Bind(wx.EVT_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
+		gridWindow.Bind(wx.EVT_LEFT_DOWN, self.__onWxMouseLeftDown)
+		gridWindow.Bind(wx.EVT_LEFT_UP, self.__onWxMouseLeftUp)
+		gridWindow.Bind(wx.EVT_RIGHT_DOWN, self.__onWxMouseRightDown)
+		gridWindow.Bind(wx.EVT_RIGHT_UP, self.__onWxMouseRightUp)
+		gridWindow.Bind(wx.EVT_CONTEXT_MENU, self.__onWxContextMenu)
+
+		self.bindEvent(dEvents.KeyDown, self._onKeyDown)
 		self.bindEvent(dEvents.GridRowSize, self._onGridRowSize)
 		self.bindEvent(dEvents.GridSelectCell, self._onGridSelectCell)
 		self.bindEvent(dEvents.GridColSize, self._onGridColSize)
-		self.bindEvent(dEvents.GridRightClick, self.onGridRightClick)
 		self.bindEvent(dEvents.GridCellEdited, self._onGridCellEdited)
+
+		## wx.EVT_CONTEXT_MENU doesn't appear to be working for dGrid yet:
+#		self.bindEvent(dEvents.GridContextMenu, self._onContextMenu)
+		self.bindEvent(dEvents.GridMouseRightDown, self._onContextMenu)
 
 
 	def initHeader(self):
@@ -955,19 +968,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		header = self.Header
 		self.defaultHdrCursor = header.GetCursor()
 
-		header.Bind(wx.EVT_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
-		header.Bind(wx.EVT_LEFT_DOWN, self.__onWxMouseLeftDown)
-		header.Bind(wx.EVT_LEFT_UP, self.__onWxMouseLeftUp)
-		header.Bind(wx.EVT_RIGHT_UP, self.__onWxMouseRightUp)
-		header.Bind(wx.EVT_MOTION, self.__onWxMouseMotion)
+		header.Bind(wx.EVT_LEFT_DCLICK, self.__onWxHeaderMouseLeftDoubleClick)
+		header.Bind(wx.EVT_LEFT_DOWN, self.__onWxHeaderMouseLeftDown)
+		header.Bind(wx.EVT_LEFT_UP, self.__onWxHeaderMouseLeftUp)
+		header.Bind(wx.EVT_RIGHT_DOWN, self.__onWxHeaderMouseRightDown)
+		header.Bind(wx.EVT_RIGHT_UP, self.__onWxHeaderMouseRightUp)
+		header.Bind(wx.EVT_MOTION, self.__onWxHeaderMouseMotion)
 		header.Bind(wx.EVT_PAINT, self.__onWxHeaderPaint)
+		header.Bind(wx.EVT_CONTEXT_MENU, self.__onWxHeaderContextMenu)
 
-		self.bindEvent(dEvents.MouseLeftDown, self.onMouseLeftDown)
-		self.bindEvent(dEvents.MouseLeftUp, self.onMouseLeftUp)
-		self.bindEvent(dEvents.MouseRightUp, self.onMouseRightUp)
-		self.bindEvent(dEvents.MouseMove, self.onMouseMove)
-		self.bindEvent(dEvents.Paint, self.onHeaderPaint)
-
+		self.bindEvent(dEvents.GridHeaderMouseLeftDown, self._onGridHeaderMouseLeftDown)
+		self.bindEvent(dEvents.GridHeaderPaint, self._onHeaderPaint)
+		self.bindEvent(dEvents.GridHeaderMouseMove, self._onGridHeaderMouseMove)
+		self.bindEvent(dEvents.GridHeaderMouseLeftUp, self._onGridHeaderMouseLeftUp)
+		self.bindEvent(dEvents.GridHeaderMouseRightUp, self._onGridHeaderMouseRightUp)
 
 	def GetCellValue(self, row, col):
 		try:
@@ -1206,61 +1220,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return ret
 		
 
-	def _onGridCellEdited(self, evt):
-		row, col = evt.EventData["row"], evt.EventData["col"]
-		rowData = self.getDataSet()[row]
-		fld = self.Columns[col].Field
-		newVal = self.GetCellValue(row, col)
-		oldVal = rowData[fld]
-		if newVal != oldVal:
-			# Update the local copy of the data
-			rowData[fld] = self.GetCellValue(row, col)
-			# Call the hook
-			self.onGridCellEdited(row, col, newVal)
-
-	def onGridCellEdited(self, row, col, newVal): 
-		"""Called when the user has edited a cell
-		and changed the value. Changes to the cell
-		can be written back to the data source if 
-		desired.
-		"""
-		pass
-
-
-	def _onGridColSize(self, evt):
-		"Occurs when the user resizes the width of the column."
-		colNum = evt.EventData["rowOrCol"]
-		col = self.Columns[colNum]
-		colName = "Column_%s" % col.Field
-
-		# Sync our column object up with what the grid is reporting, and because
-		# the user made this change, save to the userSettings:
-		width = col.Width = self.GetColSize(colNum)
-		app = self.Application
-		if app is not None:
-			app.setUserSetting("%s.%s.%s.%s" % (self.Form.Name, 
-		                                      self.Name, colName, 
-		                                      "Width"), width)
-		self.onGridColSize(evt)
-
-	
-	def onGridColSize(self, evt): pass
-
-
-	def _onGridSelectCell(self, evt):
-		""" Occurs when the grid's cell focus has changed."""
-		oldRow = self.CurrentRow
-		newRow = evt.EventData["row"]
-		
-		if oldRow != newRow:
-			if self.bizobj:
-				self.bizobj.RowNumber = newRow
-		self.Form.refreshControls()
-		self.onGridSelectCell(evt)
-
-	def onGridSelectCell(self, evt): pass
-
-
 	def onColumnChange(self, col, chgType):
 		"""Called by the grid columns whenever any of their properties
 		are directly changed, allowing the grid to react.
@@ -1274,13 +1233,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.fillGrid(True)
 		
 
-	def __onWxHeaderPaint(self, evt):
-		self.raiseEvent(dEvents.Paint, evt)
-	def onHeaderPaint(self, evt):
-		""" Occurs when it is time to paint the grid column headers."""
-		dabo.ui.callAfter(self.hdrPaint)
-	
-	def hdrPaint(self):
+	def _paintHeader(self):
 		w = self.Header
 		dc = wx.ClientDC(w)
 		clientRect = w.GetClientRect()
@@ -1364,184 +1317,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		else:
 			self.incSearchTimer.stop()
 
-
-	def __onWxMouseMotion(self, evt):
-		self.raiseEvent(dEvents.MouseMove, evt)
-	def onMouseMove(self, evt):
-		## pkm: commented out the evt.Continue=False because it doesn't appear
-		##      to be needed, and it prevents the native UI from responding.
-		#evt.Continue = False
-		if evt.EventData.has_key("row"):
-			self.onGridMouseMove(evt)
-		else:
-			self.onHeaderMouseMove(evt)
-	def onGridMouseMove(self, evt):
-		""" Occurs when the left mouse button moves over the grid."""
-		pass
-	def onHeaderMouseMove(self, evt):
-		""" Occurs when the mouse moves in the grid header."""
-		headerIsDragging = self.headerDragging
-		headerIsSizing = self.headerSizing
-		dragging = evt.EventData["mouseDown"]
-		header = self.Header
-
-		if dragging:
-			x,y = evt.EventData["mousePosition"]
-
-			if not headerIsSizing and (
-				self.getColByX(x) == self.getColByX(x-2) == self.getColByX(x+2)):
-				if not headerIsDragging:
-					# A header reposition is beginning
-					self.headerDragging = True
-					self.headerDragFrom = (x,y)
-
-				else:
-					# already dragging.
-					begCol = self.getColByX(self.headerDragFrom[0])
-					curCol = self.getColByX(x)
-
-					# The visual indicators (changing the mouse cursor) isn't currently
-					# working. It would work without the evt.Skip() below, but that is 
-					# needed for when the column is resized.
-					uic = dUICursors
-					if begCol == curCol:
-						# Give visual indication that a move is initiated
-						header.SetCursor(uic.getStockCursor(uic.Cursor_Size_WE))
-					else:
-						# Give visual indication that this is an acceptable drop target
-						header.SetCursor(uic.getStockCursor(uic.Cursor_Bullseye))
-			else:
-				# A size action is happening
-				self.headerSizing = True
-
-
-	def __onWxMouseLeftUp(self, evt):
-		self.raiseEvent(dEvents.MouseLeftUp, evt)
-	def onMouseLeftUp(self, evt):
-		## pkm: commented out the evt.Continue=False because it doesn't appear
-		##      to be needed, and it prevents the native UI from responding.
-		#evt.Continue = False
-		if evt.EventData.has_key("row"):
-			self.onGridLeftUp(evt)
-		else:
-			self.onHeaderLeftUp(evt)
-	def onGridLeftUp(self, evt):
-		""" Occurs when the left mouse button is released in the grid."""
-		pass
-	def onHeaderLeftUp(self, evt):
-		""" Occurs when the left mouse button is released in the grid header.
-
-		Basically, this comes down to two possibilities: the end of a drag
-		operation, or a single-click operation. If we were dragging, then
-		it is possible a column needs to change position. If we were clicking,
-		then it is a sort operation.
-		"""
-		x,y = evt.EventData["mousePosition"]
-		if self.headerDragging:
-			# A drag action is ending
-			self.headerDragTo = (x,y)
-
-			begCol = self.getColByX(self.headerDragFrom[0])
-			curCol = self.getColByX(x)
-
-			if begCol != curCol:
-				if curCol > begCol:
-					curCol += 1
-				self.MoveColumn(begCol, curCol)
-			self.Header.SetCursor(self.defaultHdrCursor)
-		elif self.headerSizing:
-			pass
-		else:
-			# we weren't dragging, and the mouse was just released.
-			# Find out the column we are in based on the x-coord, and
-			# do a processSort() on that column.
-			col = self.getColByX(x)
-			self.processSort(col)
-		self.headerDragging = False
-		self.headerSizing = False
-		## pkm: commented out the evt.Continue=False because it doesn't appear
-		##      to be needed, and it prevents the native UI from responding.
-		#evt.Continue = False
-
-
-	def __onWxMouseLeftDown(self, evt):
-		self.raiseEvent(dEvents.MouseLeftDown, evt)
-	def onMouseLeftDown(self, evt):
-		evt.Continue = False
-		if evt.EventData.has_key("row"):
-			self.onGridLeftDown(evt)
-		else:
-			self.onHeaderLeftDown(evt)
-	def onGridLeftDown(self, evt):
-		""" Occurs when the left mouse button is pressed in the grid."""
-		pass
-	def onHeaderLeftDown(self, evt):
-		""" Occurs when the left mouse button is pressed in the grid header."""
-		evt.Continue = False
-
-
-	def onHeaderLeftDClick(self, evt):
-		""" Occurs when the left mouse button is double-clicked in the grid header."""
-		pass
-
-
-	def __onWxMouseRightUp(self, evt):
-		self.raiseEvent(dEvents.MouseRightUp, evt)
-	def onMouseRightUp(self, evt):
-		evt.Continue = False
-		if evt.EventData.has_key("row"):
-			self.onGridRightUp(evt)
-		else:
-			self.onHeaderRightUp(evt)
-	def onGridRightUp(self, evt):
-		""" Occurs when the right mouse button goes up in the grid."""
-		pass
-	def onHeaderRightUp(self, evt):
-		""" Occurs when the right mouse button goes up in the grid header."""
-		pass
-		self.autoSizeCol( self.getColByX(evt.GetX()))
-
 	
-	def _onLeftDClick(self, evt): 
-		"""Occurs when the user double-clicks anywhere in the grid."""
-		if evt.EventData.has_key("row"):
-			# User double-clicked on a cell
-			self.onGridLeftDClick(evt)
-		else:
-			# On the header
-			self.onHeaderLeftDClick(evt)
-
-
-	def onGridLeftDClick(self, evt):
-		"""The user double-clicked on a cell in the grid."""
-		pass
-
-
-	def onGridRightClick(self, evt):
-		""" Occurs when the user right-clicks a cell in the grid. 
-		By default, this is interpreted as a request to display the popup 
-		menu, as defined in self.popupMenu().
-		NOTE: evt is a wxPython event, not a Dabo event.
-		"""
-		# Select the cell that was right-clicked upon
-		self.CurrentRow = evt.GetRow()
-		self.CurrentColumn = evt.GetCol()
-
-		# Make the popup menu appear in the location that was clicked
-		self.mousePosition = evt.GetPosition()
-
-		# Display the popup menu, if any
-		self.popupMenu()
-
-
-	def OnGridLabelLeftClick(self, evt):
-		""" Occurs when the user left-clicks a grid column label. 
-		By default, this is interpreted as a request to sort the column.
-		NOTE: evt is a wxPython event, not a Dabo event.
-		"""
-		self.processSort(evt.GetCol())
-	
-	
+	##----------------------------------------------------------##
+	##               begin: user hook methods                   ##
+	##----------------------------------------------------------##
 	def onEnterKeyAction(self):
 		"Customize in subclasses"
 		pass
@@ -1564,44 +1343,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Return False to prevent the keypress from being 'eaten'
 		return False
 		
-
-	def onKeyDown(self, evt): 
-		""" Occurs when the user presses a key inside the grid. 
-		Default actions depend on the key being pressed:
-					Enter:  edit the record
-						Del:  delete the record
-						F2:  sort the current column
-				AlphaNumeric:  incremental search
-		"""
-		if self.Editable and self.Columns[self.CurrentColumn].Editable:
-			# Can't search and edit at the same time
-			return
-
-		keyCode = evt.EventData["keyCode"]
-		try:
-			char = chr(keyCode)
-		except ValueError:       # keycode not in ascii range
-			char = None
-
-		if keyCode == dKeys.keyStrings["enter"]:           # Enter
-			self.onEnterKeyAction()
-			evt.stop()
-		else:
-			if keyCode == dKeys.keyStrings["delete"]:      # Del
-				self.onDeleteKeyAction()
-				evt.stop()
-			elif keyCode == dKeys.keyStrings["escape"]:
-				self.onEscapeAction()
-				evt.stop()
-			elif char and (self.Searchable and self.Columns[self.CurrentColumn].Searchable) and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
-				self.addToSearchStr(char)
-				# For some reason, without this the key happens twice
-				evt.stop()
-			else:
-				if self.processKeyPress(keyCode):
-					# Key was handled
-					evt.stop()
-				
+	##----------------------------------------------------------##
+	##                end: user hook methods                    ##
+	##----------------------------------------------------------##
 
 
 	def processSort(self, gridCol=None):
@@ -1832,30 +1576,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		popup.release()
 
 
-	def _onGridRowSize(self, evt):
-		""" Occurs when the user sizes the height of the row. If the
-		property 'SameSizeRows' is True, Dabo overrides the wxPython 
-		default and applies that size change to all rows, not just the row 
-		the user sized.
-		"""
-		row = evt.GetRowOrCol()
-		size = self.GetRowSize(row)
-
-		# Persist the new size
-		app = self.Application
-		if app is not None:
-			app.setUserSetting("%s.%s.%s" % (
-			                   self.Form.Name, self.Name, "RowSize"), size)
-		
-		if self.SameSizeRows:
-			self.SetDefaultRowSize(size, True)
-			self.ForceRefresh()
-		# Call the user hook
-		self.onGridRowSize(evt)
-		
-	def onGridRowSize(self, evt): pass
-
-	
 	def getColByX(self, x):
 		""" Given the x-coordinate, return the column number.
 		"""
@@ -1863,31 +1583,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if col == wx.NOT_FOUND:
 			col = -1
 		return col
-
-
-	def __onWxGridRowSize(self, evt):
-		self.raiseEvent(dEvents.GridRowSize, evt)
-		evt.Skip()
-
-	def __onWxColSize(self, evt):
-		self.raiseEvent(dEvents.GridColSize, evt)
-		evt.Skip()
-		
-	def __onWxGridSelectCell(self, evt):
-		self.raiseEvent(dEvents.GridSelectCell, evt)
-		evt.Skip()
-
-	def __onWxRightClick(self, evt):
-		self.raiseEvent(dEvents.GridRightClick, evt)
-		evt.Skip()
-
-	def __onWxMouseLeftDoubleClick(self, evt):
-		self.raiseEvent(dEvents.MouseLeftDoubleClick, evt)
-		evt.Skip()
-
-	def __onWxCellChange(self, evt):
-		self.raiseEvent(dEvents.GridCellEdited, evt)
-		evt.Skip()
 
 
 	def maxColOrder(self):
@@ -1939,7 +1634,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.fillGrid(True)
 
 	
-		
 	def cell(self, row, col):
 		class GridCell(object):
 			def __init__(self, parent, row, col):
@@ -1955,6 +1649,295 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return GridCell(self, row, col)
 		
 
+	##----------------------------------------------------------##
+	##        begin: dEvent callbacks for internal use          ##
+	##----------------------------------------------------------##
+	def _onGridCellEdited(self, evt):
+		row, col = evt.EventData["row"], evt.EventData["col"]
+		rowData = self.getDataSet()[row]
+		fld = self.Columns[col].Field
+		newVal = self.GetCellValue(row, col)
+		oldVal = rowData[fld]
+		if newVal != oldVal:
+			# Update the local copy of the data
+			rowData[fld] = self.GetCellValue(row, col)
+
+
+	def _onGridColSize(self, evt):
+		"Occurs when the user resizes the width of the column."
+		colNum = evt.EventData["rowOrCol"]
+		col = self.Columns[colNum]
+		colName = "Column_%s" % col.Field
+
+		# Sync our column object up with what the grid is reporting, and because
+		# the user made this change, save to the userSettings:
+		width = col.Width = self.GetColSize(colNum)
+		app = self.Application
+		if app is not None:
+			app.setUserSetting("%s.%s.%s.%s" % (self.Form.Name, 
+		                                      self.Name, colName, 
+		                                      "Width"), width)
+	
+
+	def _onGridSelectCell(self, evt):
+		""" Occurs when the grid's cell focus has changed."""
+		oldRow = self.CurrentRow
+		newRow = evt.EventData["row"]
+		
+		if oldRow != newRow:
+			if self.bizobj:
+				self.bizobj.RowNumber = newRow
+		self.Form.refreshControls()
+
+
+	def _onGridHeaderMouseMove(self, evt):
+		headerIsDragging = self._headerDragging
+		headerIsSizing = self._headerSizing
+		dragging = evt.EventData["mouseDown"]
+		header = self.Header
+
+		if dragging:
+			x,y = evt.EventData["mousePosition"]
+
+			if not headerIsSizing and (
+				self.getColByX(x) == self.getColByX(x-2) == self.getColByX(x+2)):
+				if not headerIsDragging:
+					# A header reposition is beginning
+					self._headerDragging = True
+					self._headerDragFrom = (x,y)
+
+				else:
+					# already dragging.
+					begCol = self.getColByX(self._headerDragFrom[0])
+					curCol = self.getColByX(x)
+
+					# The visual indicators (changing the mouse cursor) isn't currently
+					# working. It would work without the evt.Skip() below, but that is 
+					# needed for when the column is resized.
+					uic = dUICursors
+					if begCol == curCol:
+						# Give visual indication that a move is initiated
+						header.SetCursor(uic.getStockCursor(uic.Cursor_Size_WE))
+					else:
+						# Give visual indication that this is an acceptable drop target
+						header.SetCursor(uic.getStockCursor(uic.Cursor_Bullseye))
+			else:
+				# A size action is happening
+				self._headerSizing = True
+
+
+	def _onGridHeaderMouseLeftUp(self, evt):
+		""" Occurs when the left mouse button is released in the grid header.
+
+		Basically, this comes down to two possibilities: the end of a drag
+		operation, or a single-click operation. If we were dragging, then
+		it is possible a column needs to change position. If we were clicking,
+		then it is a sort operation.
+		"""
+		x,y = evt.EventData["mousePosition"]
+		if self._headerDragging:
+			# A drag action is ending
+			self._headerDragTo = (x,y)
+
+			begCol = self.getColByX(self._headerDragFrom[0])
+			curCol = self.getColByX(x)
+
+			if begCol != curCol:
+				if curCol > begCol:
+					curCol += 1
+				self.MoveColumn(begCol, curCol)
+			self.Header.SetCursor(self.defaultHdrCursor)
+		elif self._headerSizing:
+			pass
+		else:
+			# we weren't dragging, and the mouse was just released.
+			# Find out the column we are in based on the x-coord, and
+			# do a processSort() on that column.
+			col = self.getColByX(x)
+			self.processSort(col)
+		self._headerDragging = False
+		self._headerSizing = False
+		## pkm: commented out the evt.Continue=False because it doesn't appear
+		##      to be needed, and it prevents the native UI from responding.
+		#evt.Continue = False
+
+
+	def _onGridHeaderMouseRightUp(self, evt):
+		""" Occurs when the right mouse button goes up in the grid header."""
+		self.autoSizeCol( self.getColByX(evt.GetX()))
+
+	
+	def _onContextMenu(self, evt):
+		# Make the popup menu appear in the location that was clicked
+		self.mousePosition = evt.GetPosition()
+
+		# Display the popup menu, if any
+		self.popupMenu()
+
+	def _onGridHeaderMouseLeftDown(self, evt):
+		evt.Continue = False
+
+	def _onGridRowSize(self, evt):
+		""" Occurs when the user sizes the height of the row. If the
+		property 'SameSizeRows' is True, Dabo overrides the wxPython 
+		default and applies that size change to all rows, not just the row 
+		the user sized.
+		"""
+		row = evt.GetRowOrCol()
+		size = self.GetRowSize(row)
+
+		# Persist the new size
+		app = self.Application
+		if app is not None:
+			app.setUserSetting("%s.%s.%s" % (
+			                   self.Form.Name, self.Name, "RowSize"), size)
+		
+		if self.SameSizeRows:
+			self.SetDefaultRowSize(size, True)
+			self.ForceRefresh()
+
+	
+	def _onKeyDown(self, evt): 
+		""" Occurs when the user presses a key inside the grid. 
+		Default actions depend on the key being pressed:
+					Enter:  edit the record
+						Del:  delete the record
+						F2:  sort the current column
+				AlphaNumeric:  incremental search
+		"""
+		if self.Editable and self.Columns[self.CurrentColumn].Editable:
+			# Can't search and edit at the same time
+			return
+
+		keyCode = evt.EventData["keyCode"]
+		try:
+			char = chr(keyCode)
+		except ValueError:       # keycode not in ascii range
+			char = None
+
+		if keyCode == dKeys.keyStrings["enter"]:           # Enter
+			self.onEnterKeyAction()
+			evt.stop()
+		else:
+			if keyCode == dKeys.keyStrings["delete"]:      # Del
+				self.onDeleteKeyAction()
+				evt.stop()
+			elif keyCode == dKeys.keyStrings["escape"]:
+				self.onEscapeAction()
+				evt.stop()
+			elif char and (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
+				and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
+				self.addToSearchStr(char)
+				# For some reason, without this the key happens twice
+				evt.stop()
+			else:
+				if self.processKeyPress(keyCode):
+					# Key was handled
+					evt.stop()
+
+
+	def _onHeaderPaint(self, evt):
+		dabo.ui.callAfter(self._paintHeader)
+	
+	##----------------------------------------------------------##
+	##        end: dEvent callbacks for internal use            ##
+	##----------------------------------------------------------##
+
+
+	##----------------------------------------------------------##
+	##      begin: wx callbacks to re-route to dEvents          ##
+	##----------------------------------------------------------##
+	
+	## dGrid has to reimplement all of this to augment what dPemMixin does,
+	## to offer separate events in the grid versus the header region.
+	def __onWxContextMenu(self, evt):
+		self.raiseEvent(dEvents.GridContextMenu, evt)
+		evt.Skip()
+
+	def __onWxGridColSize(self, evt):
+		self.raiseEvent(dEvents.GridColSize, evt)
+		evt.Skip()
+		
+	def __onWxGridCellChange(self, evt):
+		self.raiseEvent(dEvents.GridCellEdited, evt)
+		evt.Skip()
+
+	def __onWxGridRowSize(self, evt):
+		self.raiseEvent(dEvents.GridRowSize, evt)
+		evt.Skip()
+
+	def __onWxGridSelectCell(self, evt):
+		self.raiseEvent(dEvents.GridSelectCell, evt)
+		evt.Skip()
+
+	def __onWxHeaderContextMenu(self, evt):
+		self.raiseEvent(dEvents.GridHeaderContextMenu, evt)
+		evt.Skip()
+
+	def __onWxHeaderMouseLeftDoubleClick(self, evt):
+		self.raiseEvent(dEvents.GridHeaderMouseLeftDoubleClick, evt)
+		evt.Skip()
+
+	def __onWxHeaderMouseLeftDown(self, evt):
+		self.raiseEvent(dEvents.GridHeaderMouseLeftDown, evt)
+		#evt.Skip() #- don't skip or all the rows will be selected.
+
+	def __onWxHeaderMouseLeftUp(self, evt):
+		self.raiseEvent(dEvents.GridHeaderMouseLeftUp, evt)
+		evt.Skip()
+
+	def __onWxHeaderMouseMotion(self, evt):
+		self.raiseEvent(dEvents.GridHeaderMouseMove, evt)
+		evt.Skip()
+
+	def __onWxHeaderMouseRightDown(self, evt):
+		self.raiseEvent(dEvents.GridHeaderMouseRightDown, evt)
+		evt.Skip()
+
+	def __onWxHeaderMouseRightUp(self, evt):
+		self.raiseEvent(dEvents.GridHeaderMouseRightUp, evt)
+		evt.Skip()
+
+	def __onWxHeaderPaint(self, evt):
+		self.raiseEvent(dEvents.GridHeaderPaint, evt)
+
+	def __onWxMouseLeftDoubleClick(self, evt):
+		self.raiseEvent(dEvents.GridMouseLeftDoubleClick, evt)
+		evt.Skip()
+
+	def __onWxMouseLeftClick(self, evt):
+		self.raiseEvent(dEvents.GridMouseLeftClick, evt)
+		evt.Skip()
+
+	def __onWxMouseLeftDown(self, evt):
+		self.raiseEvent(dEvents.GridMouseLeftDown, evt)
+		evt.Skip()
+
+	def __onWxMouseLeftUp(self, evt):
+		self.raiseEvent(dEvents.GridMouseLeftUp, evt)
+		evt.Skip()
+
+	def __onWxMouseMotion(self, evt):
+		self.raiseEvent(dEvents.GridMouseMove, evt)
+		evt.Skip()
+
+	def __onWxMouseRightClick(self, evt):
+		self.raiseEvent(dEvents.GridRightClick, evt)
+		evt.Skip()
+
+	def __onWxMouseRightDown(self, evt):
+		self.raiseEvent(dEvents.GridMouseRightDown, evt)
+		evt.Skip()
+
+	def __onWxMouseRightUp(self, evt):
+		self.raiseEvent(dEvents.GridMouseRightUp, evt)
+		evt.Skip()
+
+	##----------------------------------------------------------##
+	##       end: wx callbacks to re-route to dEvents           ##
+	##----------------------------------------------------------##
+
+
 	def _getDefaultGridColAttr(self):
 		""" Return the GridCellAttr that will be used for all columns by default."""
 		attr = wx.grid.GridCellAttr()
@@ -1963,6 +1946,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return attr
 	
 
+
+	##----------------------------------------------------------##
+	##              begin: property definitions                 ##
+	##----------------------------------------------------------##
 	def _getColumns(self):
 		try:
 			v = self._columns
@@ -2271,6 +2258,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	_Table = property(_getTable, _setTable, None,
 			_("Reference to the internal table class  (dGridDataTable)") )
+
+	##----------------------------------------------------------##
+	##               end: property definitions                  ##
+	##----------------------------------------------------------##
 
 
 class _dGrid_test(dGrid):
