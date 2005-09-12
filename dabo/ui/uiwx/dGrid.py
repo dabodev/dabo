@@ -107,8 +107,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		
 			
 	def setColumns(self, colDefs):
-		"""Create columns based on passed list of column definitions.
-		"""
+		"""Create columns based on passed list of column definitions."""
 		# Column order should already be in the definition. If there is a custom
 		# setting by the user, override it.
 		idx = 0
@@ -430,6 +429,44 @@ class dColumn(dabo.common.dObject):
 		super(dColumn, self).__init__(properties, *args, **kwargs)
 
 
+	def _beforeInit(self):
+		super(dColumn, self)._beforeInit()
+		# Define the cell renderer and editor classes
+		self.stringRendererClass = wx.grid.GridCellStringRenderer
+		self.boolRendererClass = wx.grid.GridCellBoolRenderer
+		self.intRendererClass = wx.grid.GridCellNumberRenderer
+		self.longRendererClass = wx.grid.GridCellNumberRenderer
+		self.decimalRendererClass = wx.grid.GridCellNumberRenderer
+		self.floatRendererClass = wx.grid.GridCellFloatRenderer
+		self.listRendererClass = wx.grid.GridCellStringRenderer
+		self.stringEditorClass = wx.grid.GridCellTextEditor
+		self.boolEditorClass = wx.grid.GridCellBoolEditor
+		self.intEditorClass = wx.grid.GridCellNumberEditor
+		self.longEditorClass = wx.grid.GridCellNumberEditor
+		self.decimalEditorClass = wx.grid.GridCellNumberEditor
+		self.floatEditorClass = wx.grid.GridCellFloatEditor
+		self.listEditorClass = wx.grid.GridCellChoiceEditor		
+		
+		self.defaultRenderers = {
+			"str" : self.stringRendererClass, 
+			"string" : self.stringRendererClass, 
+			"bool" : self.boolRendererClass, 
+			"int" : self.intRendererClass, 
+			"long" : self.longRendererClass, 
+			"decimal" : self.decimalRendererClass,
+			"float" : self.floatRendererClass, 
+			"list" : self.listRendererClass  }
+		self.defaultEditors = {
+			"str" : self.stringEditorClass, 
+			"string" : self.stringEditorClass, 
+			"bool" : self.boolEditorClass, 
+			"int" : self.intEditorClass, 
+			"long" : self.longEditorClass, 
+			"decimal" : self.decimalRendererClass,
+			"float" : self.floatEditorClass, 
+			"list" : self.listEditorClass }
+		
+
 	def _afterInit(self):
 		self._isConstructed = True
 		super(dColumn, self)._afterInit()
@@ -438,9 +475,11 @@ class dColumn(dabo.common.dObject):
 	def _constructed(self):
 		return self._isConstructed
 
+
 	def changeMsg(self, prop):
 		if self.Parent:
 			self.Parent.onColumnChange(self, prop)
+	
 	
 	def _getGridColumnIndex(self):
 		"""Return our column index in the grid, or -1."""
@@ -453,7 +492,7 @@ class dColumn(dabo.common.dObject):
 					break
 		return gridCol
 
-
+	
 	def _updateEditor(self):
 		"""The Field, DataType, or CustomEditor has changed: set in the attr"""
 		editor = self.Editor
@@ -463,6 +502,7 @@ class dColumn(dabo.common.dObject):
 				kwargs["choices"] = self.ListEditorChoices
 			editor = editor(**kwargs)
 		self._gridColAttr.SetEditor(editor)
+		
 
 	def _updateRenderer(self):
 		"""The Field, DataType, or CustomRenderer has changed: set in the attr"""
@@ -543,8 +583,7 @@ class dColumn(dabo.common.dObject):
 	def _getEditor(self):
 		v = self.CustomEditor
 		if v is None:
-			if self.Parent:
-				v = self.Parent.defaultEditors.get(self.DataType)
+			v = self.defaultEditors.get(self.DataType)
 		return v
 
 	def _getField(self):
@@ -642,8 +681,7 @@ class dColumn(dabo.common.dObject):
 	def _getRenderer(self):
 		v = self.CustomRenderer
 		if v is None:
-			if self.Parent:
-				v = self.Parent.defaultRenderers.get(self.DataType)
+			v = self.defaultRenderers.get(self.DataType)
 		return v
 
 	def _getOrder(self):
@@ -808,7 +846,6 @@ class dColumn(dabo.common.dObject):
 
 
 class dGrid(wx.grid.Grid, cm.dControlMixin):
-	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dGrid
 		preClass = wx.grid.Grid
@@ -879,41 +916,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# if a grid with variable types in a single column is used.
 		self.useCustomGetValue = False
 		self.useCustomSetValue = False
-		
-		# Cell renderer and editor classes
-		self.stringRendererClass = wx.grid.GridCellStringRenderer
-		self.boolRendererClass = wx.grid.GridCellBoolRenderer
-		self.intRendererClass = wx.grid.GridCellNumberRenderer
-		self.longRendererClass = wx.grid.GridCellNumberRenderer
-		self.decimalRendererClass = wx.grid.GridCellNumberRenderer
-		self.floatRendererClass = wx.grid.GridCellFloatRenderer
-		self.listRendererClass = wx.grid.GridCellStringRenderer
-		self.stringEditorClass = wx.grid.GridCellTextEditor
-		self.boolEditorClass = wx.grid.GridCellBoolEditor
-		self.intEditorClass = wx.grid.GridCellNumberEditor
-		self.longEditorClass = wx.grid.GridCellNumberEditor
-		self.decimalEditorClass = wx.grid.GridCellNumberEditor
-		self.floatEditorClass = wx.grid.GridCellFloatEditor
-		self.listEditorClass = wx.grid.GridCellChoiceEditor		
-		
-		self.defaultRenderers = {
-			"str" : self.stringRendererClass, 
-			"string" : self.stringRendererClass, 
-			"bool" : self.boolRendererClass, 
-			"int" : self.intRendererClass, 
-			"long" : self.longRendererClass, 
-			"decimal" : self.decimalRendererClass,
-			"float" : self.floatRendererClass, 
-			"list" : self.listRendererClass  }
-		self.defaultEditors = {
-			"str" : self.stringEditorClass, 
-			"string" : self.stringEditorClass, 
-			"bool" : self.boolEditorClass, 
-			"int" : self.intEditorClass, 
-			"long" : self.longEditorClass, 
-			"decimal" : self.decimalRendererClass,
-			"float" : self.floatEditorClass, 
-			"list" : self.listEditorClass }
 		
 		# Type of encoding to use with unicode data
 		self.defaultEncoding = defaultEncoding
@@ -1025,6 +1027,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def setEditorForCell(self, row, col, edt):
 		self.SetCellEditor(row, col, edt)
 	def setRendererForCell(self, row, col, rnd):
+		print "SET RENDER", row, col, rnd
 		self.SetCellRenderer(row, col, rnd)
 				
 		
@@ -2267,7 +2270,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 class _dGrid_test(dGrid):
 	def initProperties(self):
 		self.dataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
-		                {"name" : "Mike Leafe", "age" : 18, "coder" :  False} ]
+		                {"name" : "Mike Leafe", "age" : 18, "coder" :  False},
+		                {"name" : "Dan Leafe", "age" : 13, "coder" :  False} ]
 		self.Width = 360
 		self.Height = 150
 		self.Editable = True
@@ -2303,8 +2307,8 @@ if __name__ == '__main__':
 			self.Sizer.append(g, 1, "x", border=40, borderFlags="all")
 			self.Sizer.appendSpacer(10)
 			
-			chk = dabo.ui.dCheckBox(self, Caption="Edit Geek", RegID="geekEdit",
-					DataSource="self.Form.sampleGrid", DataField="Editable")
+			chk = dabo.ui.dCheckBox(self, Caption="Edit Table", RegID="geekEdit",
+					DataSource="sampleGrid", DataField="Editable")
 			self.Sizer.append(chk, halign="Center")
 			chk.refresh()
 	
