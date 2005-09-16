@@ -234,15 +234,16 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		_oldRowCount = self._oldRowCount
 
 		# Get the data from the grid.
-		dataSet = self.grid.DataSource
-		if dataSet is None:
-			return
+		dataSource = self.grid.DataSource
 		bizobj = self.grid.getBizobj()
 
 		if bizobj:
 			dataSet = bizobj
 			_newRowCount = dataSet.RowCount
 		else:
+			dataSet = self.grid.DataSet
+			if dataSet is None:
+				return
 			_newRowCount = len(dataSet)
 			if _oldRowCount is None:
 				## still haven't tracked down why, but bizobj grids needed _oldRowCount
@@ -382,7 +383,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if bizobj:
 			return bizobj.RowCount
 		try:
-			num = len(self.grid.DataSource)
+			num = len(self.grid.DataSet)
 		except:
 			num = 0
 		return num
@@ -402,7 +403,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				return True
 		if field:
 			try:
-				return not self.grid.DataSource[row][field]
+				return not self.grid.DataSet[row][field]
 			except IndexError, KeyError:
 				return True
 		return True
@@ -417,14 +418,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			else:
 				return ""
 		try:
-			ret = self.grid.DataSource[row][field]
+			ret = self.grid.DataSet[row][field]
 		except:
 			ret = ""
 		return ret
 
 
 	def SetValue(self, row, col, value):
-		#self.data[row][col] = value
 		field = self.grid.Columns[col].DataField
 		bizobj = self.grid.getBizobj()
 		if bizobj:
@@ -432,7 +432,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			bizobj.RowNumber = row
 			bizobj.setFieldVal(field, value)
 		else:
-			self.grid.DataSource[row][field] = value
+			self.grid.DataSet[row][field] = value
 
 
 
@@ -1229,14 +1229,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 		# Type of encoding to use with unicode data
 		self.defaultEncoding = defaultEncoding
-		# What color should the little sort indicator arrow be?
-		self.sortArrowColor = "Black"
 
-		self._headerDragging = False    # flag used by mouse motion event handler
+		# What color/size should the little sort indicator arrow be?
+		self.sortIndicatorColor = "Black"
+		self.sortIndicatorSize = 6
+		self.sortIndicatorBuffer = 3
+
+		# flags used by mouse motion event handlers:
+		self._headerDragging = False
 		self._headerDragFrom = 0
 		self._headerDragTo = 0
 		self._headerSizing = False
-		#Call the default behavior
+
 		super(dGrid, self)._afterInit()
 		
 		# Set the header props/events
@@ -1329,7 +1333,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				biz.RowNumber = row
 				biz.setFieldVal(fld, val)
 			else:
-				self.DataSource[row][fld] = val
+				self.DataSet[row][fld] = val
 		except StandardError, e:
 			dabo.errorLog.write("Cannot update data set: %s" % e)
 
@@ -1434,7 +1438,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""
 		if not ds:
 			return
-		self.DataSource = ds
+		if isinstance(ds, basestring):
+			# assume it is a bizobj datasource:
+			self.DataSource = ds
+		else:
+			self.DataSource = None
+			self.DataSet = ds
 		bizobj = self.getBizobj()
 		if bizobj:
 			firstRec = bizobj.getDataSet(rows=1)[0]
@@ -1513,7 +1522,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		## This function will get used in both if/elif below:
 		def _setColSize(idx):
-				capBuffer = 5  ## breathing room around header caption
+				## breathing room around header caption:
+				capBuffer = 5
+				## add additional room to account for possible sort indicator:
+				capBuffer += ((2*self.sortIndicatorSize) + (2*self.sortIndicatorBuffer))
 				colObj = self.Columns[idx]
 				autoWidth = self.GetColSize(idx)
 				
@@ -1561,9 +1573,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		w = self.Header
 		dc = wx.ClientDC(w)
 
-		sortIndicatorSize = 6
-		sortIndicatorBuffer = 3
-
 		for col in cols:
 			sortIndicator = False
 
@@ -1593,19 +1602,19 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				sortIndicator = True
 				# draw a triangle, pointed up or down, at the top left 
 				# of the column. TODO: Perhaps replace with prettier icons
-				left = rect[0] + sortIndicatorBuffer
-				top = rect[1] + sortIndicatorBuffer
+				left = rect[0] + self.sortIndicatorBuffer
+				top = rect[1] + self.sortIndicatorBuffer
 
-				dc.SetBrush(wx.Brush(self.sortArrowColor, wx.SOLID))
+				dc.SetBrush(wx.Brush(self.sortIndicatorColor, wx.SOLID))
 				if self.sortOrder == "DESC":
 					# Down arrow
-					dc.DrawPolygon([(left,top), (left+sortIndicatorSize,top), 
-					                (left+sortIndicatorBuffer,top+sortIndicatorSize)])
+					dc.DrawPolygon([(left, top), (left+self.sortIndicatorSize, top), 
+					                (left+self.sortIndicatorBuffer, top+self.sortIndicatorSize)])
 				elif self.sortOrder == "ASC":
 					# Up arrow
-					dc.DrawPolygon([(left+sortIndicatorBuffer,top), 
-					                (left+sortIndicatorSize, top+sortIndicatorSize), 
-					                (left,top+sortIndicatorSize)])
+					dc.DrawPolygon([(left+self.sortIndicatorBuffer, top), 
+					                (left+self.sortIndicatorSize, top+self.sortIndicatorSize), 
+					                (left, top+self.sortIndicatorSize)])
 				else:
 					# Column is not sorted, so don't draw.
 					sortIndicator = False
@@ -1629,7 +1638,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			sortBuffer = horBuffer
 			if sortIndicator:
 				# If there's a sort indicator, we'll nudge the caption over
-				sortBuffer += (sortIndicatorBuffer + sortIndicatorSize)
+				sortBuffer += (self.sortIndicatorBuffer + self.sortIndicatorSize)
 			trect = list(rect)
 			trect[0] = trect[0] + sortBuffer
 			trect[1] = trect[1] + vertBuffer
@@ -1771,7 +1780,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			sortList = []
 			rowNum = 0
 			rowlabels = self.RowLabels
-			for row in self.DataSource:
+			for row in self.DataSet:
 				if rowlabels:
 					sortList.append([row[columnToSort], row, rowlabels[rowNum]])
 					rowNum += 1
@@ -1841,7 +1850,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				if self.RowLabels:
 					newLabels.append(elem[2])
 			self.RowLabels = newLabels
-			self.DataSource = newRows
+			self.DataSet = newRows
 
 		if biz:
 			self.CurrentRow = biz.RowNumber
@@ -1864,7 +1873,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			return
 		newRow = self.CurrentRow
 		biz = self.getBizobj()
-		ds = self.DataSource
+		ds = self.DataSet
 		srchStr = origSrchStr = self.currSearchStr
 		self.currSearchStr = ""
 		near = self.searchNearest
@@ -2052,7 +2061,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if bizobj:
 			oldVal = bizobj.getFieldVal(fld, row)
 		else:
-			oldVal = self.DataSource[row][fld]
+			oldVal = self.DataSet[row][fld]
 		if newVal != oldVal:
 			# Update the local copy of the data
 			if bizobj:
@@ -2060,7 +2069,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				bizobj.RowNumber = row
 				bizobj.setFieldVal(fld, newVal)
 			else:
-				self.DataSource[row][fld] = newVal
+				self.DataSet[row][fld] = newVal
 
 
 	def _onGridColSize(self, evt):
@@ -2518,6 +2527,33 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self._properties["CurrentRow"] = val		
 
 
+	def _getDataSet(self):
+		if self.DataSource is not None:
+			bo = self.getBizobj()
+			if bo:
+				return bo.getDataSet()
+			return None
+		try:
+			v = self._dataSet
+		except AttributeError:
+			v = self._dataSet = None
+		return v
+
+	def _setDataSet(self, val):
+		if self._constructed():
+			if self.DataSource is not None:
+				raise ValueError, "Cannot set DataSet: DataSource defined."
+			self._dataSet = val
+			self.fillGrid(True)
+			biz = self.getBizobj()
+			if biz:
+				## I think I want to have the bizobj raise the RowNumChanged event,
+				## but for now this will suffice:
+				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
+		else:
+			self._properties["DataSet"] = val
+
+
 	def _getDataSource(self):
 		try:
 			v = self._dataSource
@@ -2527,6 +2563,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _setDataSource(self, val):
 		if self._constructed():
+			oldBizobj = self.getBizobj()
+			if oldBizobj:
+				oldBizobj.unbindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
+			self._dataSet = None
 			self._dataSource = val
 			self.fillGrid(True)
 			biz = self.getBizobj()
@@ -2549,8 +2589,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	
 	
 	def _getEncoding(self):
-		if isinstance(self.DataSource, dabo.biz.dBizobj):
-			ret = self.DataSource.Encoding
+		bo = self.getBizobj()
+		if bo is not None:
+			ret = bo.Encoding
 		else:
 			ret = self.defaultEncoding
 		return ret
@@ -2670,15 +2711,30 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	CurrentRow = property(_getCurrentRow, _setCurrentRow, None,
 			_("Currently selected row  (int)") )
 
+	DataSet = property(_getDataSet, _setDataSet, None,
+			_("""The set of data displayed in the grid.  (set of dicts)
+
+				When DataSource isn't defined, setting DataSet to a set of dicts,
+				such as what you get from calling dBizobj.getDataSet(), will
+				define the source of the data that the grid displays.
+
+				If DataSource is defined, DataSet is read-only and returns the dataSet
+				from the bizobj."""))
+			
 	DataSource = property(_getDataSource, _setDataSource, None,
-			_("The source of the data, either a dBizobj instance or a set of dicts."))
+			_("""The source of the data to display in the grid.  (str)
+
+				This corresponds to a bizobj with a matching DataSource on the form,
+				and setting this makes it impossible to set DataSet."""))
 			
 	Editable = property(_getEditable, _setEditable, None,
-			_("""This setting enables/disables cell editing globally. When False, no cells
-			will be editable by the user. When True, cells in columns set as Editable
-			will be editable by the user. Note that grids and columns are both set
-			with Editable=False by default, so to enable cell editing you need to turn
-			it on in the appropriate column as well as in the grid.  (bool)""") )
+			_("""This setting enables/disables cell editing globally.  (bool)
+
+			When False, no cells will be editable by the user. When True, cells in 
+			columns set as Editable	will be editable by the user. Note that grids 
+			and columns are both set with Editable=False by default, so to enable 
+			cell editing you need to turn	it on in the appropriate column as well 
+			as in the grid.""") )
 			
 	Encoding = property(_getEncoding, None, None,
 			_("Name of encoding to use for unicode  (str)") )
@@ -2732,9 +2788,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 class _dGrid_test(dGrid):
 	def initProperties(self):
-		self.DataSource = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
-		                   {"name" : "Mike Leafe", "age" : 18, "coder" :  False},
-		                   {"name" : "Dan Leafe", "age" : 13, "coder" :  False} ]
+		self.DataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
+		                {"name" : "Mike Leafe", "age" : 18, "coder" :  False},
+		                {"name" : "Dan Leafe", "age" : 13, "coder" :  False} ]
 		self.Width = 360
 		self.Height = 150
 		self.Editable = True
