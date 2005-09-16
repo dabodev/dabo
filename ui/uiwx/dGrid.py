@@ -1608,7 +1608,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				left = rect[0] + self.sortIndicatorBuffer
 				top = rect[1] + self.sortIndicatorBuffer
 
-				brushColor = dColors.colorTupleFromName(self.sortArrowColor)
+				brushColor = dColors.colorTupleFromName(self.sortIndicatorColor)
 				dc.SetBrush(wx.Brush(brushColor, wx.SOLID))
 				if self.sortOrder == "DESC":
 					# Down arrow
