@@ -817,10 +817,7 @@ class dColumn(dabo.common.dObject):
 	def _setHeaderBackgroundColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
-				try:
-					val = dColors.colorTupleFromName(val)
-				except: 
-					pass
+				val = dColors.colorTupleFromName(val)
 			self._headerBackgroundColor = val
 			self._refreshHeader()
 		else:
@@ -831,16 +828,13 @@ class dColumn(dabo.common.dObject):
 		try:
 			v = self._headerForegroundColor
 		except AttributeError:
-			v = self._headerForegroundColor = dColors.colorTupleFromName("Black")
+			v = self._headerForegroundColor = None
 		return v
 
 	def _setHeaderForegroundColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
-				try:
-					val = dColors.colorTupleFromName(val)
-				except: 
-					pass
+				val = dColors.colorTupleFromName(val)
 			self._headerForegroundColor = val
 			self._refreshHeader()
 		else:
@@ -851,12 +845,12 @@ class dColumn(dabo.common.dObject):
 		try:
 			val = self._headerHorizontalAlignment
 		except AttributeError:
-			val = self._headerHorizontalAlignment = "Center"
+			val = self._headerHorizontalAlignment = None
 		return val
 
 	def _setHeaderHorizontalAlignment(self, val):
 		if self._constructed():
-			v = self._expandPropStringValue(val, ("Left", "Right", "Center"))
+			v = self._expandPropStringValue(val, ("Left", "Right", "Center", None))
 			self._headerHorizontalAlignment = v
 			self._refreshHeader()
 		else:
@@ -867,12 +861,12 @@ class dColumn(dabo.common.dObject):
 		try:
 			val = self._headerVerticalAlignment
 		except AttributeError:
-			val = self._headerVerticalAlignment = "Center"
+			val = self._headerVerticalAlignment = None
 		return val
 
 	def _setHeaderVerticalAlignment(self, val):
 		if self._constructed():
-			v = self._expandPropStringValue(val, ("Top", "Bottom", "Center"))
+			v = self._expandPropStringValue(val, ("Top", "Bottom", "Center", None))
 			self._headerVerticalAlignment = v
 			self._refreshHeader()
 		else:
@@ -1109,14 +1103,14 @@ class dColumn(dabo.common.dObject):
 	HeaderFontSize = property(_getHeaderFontSize, _setHeaderFontSize, None,
 			_("Specifies the point size of the header font. (int)") )
 	
-	HeaderHorizontalAlignment = property(_getHeaderHorizontalAlignment, _setHeaderHorizontalAlignment, None,
-			_("Specifies the horizontal alignment of the header caption. ('Left', 'Center', 'Right')"))
-
 	HeaderFontUnderline = property(_getHeaderFontUnderline, _setHeaderFontUnderline, None,
 			_("Specifies whether column header text is underlined. (bool)") )
 
 	HeaderForegroundColor = property(_getHeaderForegroundColor, _setHeaderForegroundColor, None,
 			_("Optional color for the foreground (text) of the column header  (str)") )
+
+	HeaderHorizontalAlignment = property(_getHeaderHorizontalAlignment, _setHeaderHorizontalAlignment, None,
+			_("Specifies the horizontal alignment of the header caption. ('Left', 'Center', 'Right')"))
 
 	HeaderVerticalAlignment = property(_getHeaderVerticalAlignment, _setHeaderVerticalAlignment, None,
 			_("Specifies the vertical alignment of the header caption. ('Top', 'Center', 'Bottom')"))
@@ -1582,14 +1576,23 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			colObj = self.Columns[col]
 			rect = colObj._getHeaderRect()
 			dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
-			dc.SetTextForeground(colObj.HeaderForegroundColor)
+
+			fcolor = colObj.HeaderForegroundColor
+			if fcolor is None:
+				fcolor = self.HeaderForegroundColor
+
+			bcolor = colObj.HeaderBackgroundColor
+			if bcolor is None:
+				bcolor = self.HeaderBackgroundColor
+
+			dc.SetTextForeground(fcolor)
 			font = colObj.HeaderFont			
 
 			holdBrush = dc.GetBrush()
 			holdPen = dc.GetPen()
 			
-			if colObj.HeaderBackgroundColor is not None:
-				dc.SetBrush(wx.Brush(colObj.HeaderBackgroundColor, wx.SOLID))
+			if bcolor is not None:
+				dc.SetBrush(wx.Brush(bcolor, wx.SOLID))
 				dc.SetPen(wx.Pen(None, width=0))
 				dc.DrawRectangle(rect[0] - (col != 0 and 1 or 0), 
 					rect[1], 
@@ -1619,16 +1622,25 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					# Column is not sorted, so don't draw.
 					sortIndicator = False
 			
-			dc.SetTextForeground(colObj.HeaderForegroundColor)
-			font = colObj.HeaderFont			
  			dc.SetFont(font)
-			ah = {"Center": wx.ALIGN_CENTRE_HORIZONTAL, 
-			      "Left": wx.ALIGN_LEFT, 
-			      "Right": wx.ALIGN_RIGHT}[colObj.HeaderHorizontalAlignment]
+			ah = colObj.HeaderHorizontalAlignment
+			av = colObj.HeaderVerticalAlignment
+			if ah is None:
+				ah = self.HeaderHorizontalAlignment
+			if av is None:
+				av = self.HeaderVerticalAlignment
+			if ah is None:
+				ah = "Center"
+			if av is None:
+				av = "Center"
 
-			av = {"Center": wx.ALIGN_CENTRE_VERTICAL, 
-			      "Top": wx.ALIGN_TOP,
-			      "Bottom": wx.ALIGN_BOTTOM}[colObj.HeaderVerticalAlignment]
+			wxah = {"Center": wx.ALIGN_CENTRE_HORIZONTAL, 
+			        "Left": wx.ALIGN_LEFT, 
+			        "Right": wx.ALIGN_RIGHT}[ah]
+
+			wxav = {"Center": wx.ALIGN_CENTRE_VERTICAL, 
+			        "Top": wx.ALIGN_TOP,
+			        "Bottom": wx.ALIGN_BOTTOM}[av]
 
 			# Give some more space around the rect - some platforms use a 3d look
 			# and anyway it looks better if left/right aligned text isn't right on 
@@ -1642,13 +1654,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			trect = list(rect)
 			trect[0] = trect[0] + sortBuffer
 			trect[1] = trect[1] + vertBuffer
-			if colObj.HeaderHorizontalAlignment == "Center":
+			if ah == "Center":
 				trect[2] = trect[2] - (2*sortBuffer)
 			else:	
 				trect[2] = trect[2] - (horBuffer+sortBuffer)
 			trect[3] = trect[3] - (2*vertBuffer)
 			trect = wx.Rect(*trect)
- 			dc.DrawLabel("%s" % colObj.Caption, trect, av|ah)
+ 			dc.DrawLabel("%s" % colObj.Caption, trect, wxav|wxah)
 			dc.DestroyClippingRegion()
 
 
@@ -2597,6 +2609,72 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return ret
 		
 
+	def _getHeaderBackgroundColor(self):
+		try:
+			v = self._headerBackgroundColor
+		except AttributeError:
+			v = self._headerBackgroundColor = None
+		return v
+
+	def _setHeaderBackgroundColor(self, val):
+		if self._constructed():
+			if isinstance(val, basestring):
+				val = dColors.colorTupleFromName(val)
+			self._headerBackgroundColor = val
+			self.refresh()
+		else:
+			self._properties["HeaderBackgroundColor"] = val
+
+	
+	def _getHeaderForegroundColor(self):
+		try:
+			v = self._headerForegroundColor
+		except AttributeError:
+			v = self._headerForegroundColor = None
+		return v
+
+	def _setHeaderForegroundColor(self, val):
+		if self._constructed():
+			if isinstance(val, basestring):
+				val = dColors.colorTupleFromName(val)
+			self._headerForegroundColor = val
+			self.refresh()
+		else:
+			self._properties["HeaderForegroundColor"] = val
+
+	
+	def _getHeaderHorizontalAlignment(self):
+		try:
+			val = self._headerHorizontalAlignment
+		except AttributeError:
+			val = self._headerHorizontalAlignment = None
+		return val
+
+	def _setHeaderHorizontalAlignment(self, val):
+		if self._constructed():
+			v = self._expandPropStringValue(val, ("Left", "Right", "Center", None))
+			self._headerHorizontalAlignment = v
+			self.refresh()
+		else:
+			self._properties["HeaderHorizontalAlignment"] = val
+
+
+	def _getHeaderVerticalAlignment(self):
+		try:
+			val = self._headerVerticalAlignment
+		except AttributeError:
+			val = self._headerVerticalAlignment = None
+		return val
+
+	def _setHeaderVerticalAlignment(self, val):
+		if self._constructed():
+			v = self._expandPropStringValue(val, ("Top", "Bottom", "Center", None))
+			self._headerVerticalAlignment = v
+			self.refresh()
+		else:
+			self._properties["HeaderVerticalAlignment"] = val
+
+
 	def _getRowHeight(self):
 		return self._rowHeight
 
@@ -2742,6 +2820,30 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	Header = property(_getHeader, None, None,
 			_("Reference to the grid header window.  (header object?)") )
 			
+	HeaderBackgroundColor = property(_getHeaderBackgroundColor, _setHeaderBackgroundColor, None,
+			_("""Optional color for the background of the column headers.  (str or None)
+
+			This is only the default: setting the corresponding dColumn property will
+			override.""") )
+
+	HeaderForegroundColor = property(_getHeaderForegroundColor, _setHeaderForegroundColor, None,
+			_("""Optional color for the foreground (text) of the column headers.  (str or None)
+
+			This is only the default: setting the corresponding dColumn property will
+			override.""") )
+
+	HeaderHorizontalAlignment = property(_getHeaderHorizontalAlignment, _setHeaderHorizontalAlignment, None,
+			_("""The horizontal alignment of the header captions. ('Left', 'Center', 'Right')
+
+			This is only the default: setting the corresponding dColumn property will
+			override.""") )
+
+	HeaderVerticalAlignment = property(_getHeaderVerticalAlignment, _setHeaderVerticalAlignment, None,
+			_("""The vertical alignment of the header captions. ('Top', 'Center', 'Bottom')
+
+			This is only the default: setting the corresponding dColumn property will
+			override.""") )
+
 	HeaderHeight = property(_getHeaderHeight, _setHeaderHeight, None, 
 			_("Height of the column headers.  (int)") )
 	
