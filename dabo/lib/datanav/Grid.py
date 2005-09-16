@@ -17,9 +17,10 @@ class Grid(dabo.ui.dGrid):
 		super(Grid, self)._initProperties()
 		self.bindEvent(dEvents.GridMouseLeftDoubleClick, self.onGridLeftDClick)
 
+
 	def _afterInit(self):
 		super(Grid, self)._afterInit()
-		self.bizobj = None
+		##pkm self.bizobj = None
 		self._fldSpecs = None
 		self.skipFields = []
 		self.fieldCaptions = {}
@@ -27,17 +28,24 @@ class Grid(dabo.ui.dGrid):
 		self.built = False
 		self.customSort = True
 
-
-	def getDataSet(self):
+	
+	def getDataSet_old_pkm(self, requery=False):
+		# Normally, getDataSet() just returns the object reference to the list
+		# previously generated, but if we just requeried, we need to ask the 
+		# bizobj for the new dataSet.
+		if requery:
+			ret = self.dataSet = None
 		ret = self.dataSet
-		if not self.inAutoSizeCalc:
-			if self.bizobj:
-				ret = self.dataSet = self.bizobj.getDataSet()
+		if not ret:
+			if not self.inAutoSizeCalc:
+				if self.bizobj:
+					ret = self.dataSet = self.bizobj.getDataSet()
 		return ret
 	
 
 	def populate(self):
-		ds = self.getDataSet()
+		##pkm ds = self.getDataSet(requery=True)
+		ds = self.DataSource
 		if not self.built and ds:
 			self.buildFromDataSet(ds, 
 					keyCaption=self.fieldCaptions, 
@@ -49,7 +57,7 @@ class Grid(dabo.ui.dGrid):
 		else:
 			## pkm: this call appears to be redundant, as the grid as already been 
 			##      filled in dGrid:
-			#self.fillGrid(True)
+			self.fillGrid(True)
 			pass
 		self.Form.refresh()
 		
@@ -57,12 +65,13 @@ class Grid(dabo.ui.dGrid):
 	def sort(self):
 		# The superclass will have already set the sort properties.
 		# We want to send those to the bizobj for sorting.
-		ds1 = self.dataSet
-		self.bizobj.sort(self.sortedColumn, self.sortOrder)
+		bizobj = self.Form.getBizobj(self.DataSource)
+		bizobj.sort(self.sortedColumn, self.sortOrder, self.caseSensitiveSorting)
 		
 	
 	def setBizobj(self, biz):
-		self.bizobj = biz
+		self.DataSource = biz.DataSource
+
 
 	def onGridLeftDClick(self, evt): 
 		""" Occurs when the user double-clicks a cell in the grid. 
@@ -105,17 +114,17 @@ class Grid(dabo.ui.dGrid):
 
 	def newRecord(self, evt=None):
 		""" Request that a new row be added."""
-		self.Parent.newRecord(self.bizobj.DataSource)
+		self.Parent.newRecord(self.DataSource)
 
 
 	def editRecord(self, evt=None):
 		""" Request that the current row be edited."""
-		self.Parent.editRecord(self.bizobj.DataSource)
+		self.Parent.editRecord(self.DataSource)
 
 
 	def deleteRecord(self, evt=None):
 		""" Request that the current row be deleted."""
-		self.Parent.deleteRecord(self.bizobj.DataSource)
+		self.Parent.deleteRecord(self.DataSource)
 		self.setFocus()  ## required or assertion happens on Gtk
 
 

@@ -16,6 +16,8 @@ from dabo.dLocalize import _, n_
 import dControlMixin as cm
 import dKeys
 import dUICursors
+import dabo.biz
+import dabo.common.dColors as dColors
 
 # See if the new decimal module is present. This is necessary 
 # because if running under Python 2.4 or later and using MySQLdb,
@@ -39,22 +41,16 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		super(dGridDataTable, self).__init__()
 
 		self.grid = parent
-		self.bizobj = None		#self.grid.Form.getBizobj(parent.DataSource) 
-		# Holds a copy of the current data to prevent unnecessary re-drawing
-		self.__currData = []
 		self._initTable()
 
 
 	def _initTable(self):
 		self.relativeColumns = []
-		self.colLabels = []
-		self.colNames = []
 		self.colDefs = []
-		self.dataTypes = []
 		self.imageBaseThumbnails = []
 		self.imageLists = {}
-		self.data = []
 		self.rowLabels = []
+		self._oldRowCount = None
 		# Call the hook
 		self.initTable()
 
@@ -66,6 +62,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def setRowLabels(self, rowLbls):
 		self.rowLabels = rowLbls
 		
+
 	def GetAttr(self, row, col, kind=0):
 		## dColumn maintains one attribute object that applies to every row 
 		## in the column. This can be extended later with optional cell-specific
@@ -84,7 +81,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 		## The column attr object is maintained in dColumn:
 		try:
-			return self.grid.Columns[col]._gridColAttr.Clone()
+			dcol = self.grid.Columns[col]
+			attr = dcol._gridColAttr.Clone()
 		except IndexError:
 			# Something is out of order in the setting up of the grid: the grid table
 			# has columns, but self.grid.Columns doesn't know about it yet. Just return
@@ -93,17 +91,30 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			# (further testing reveals that this really isn't a problem: the grid is 
 			#  just empty - no columns or rows added yet)
 
+		## Now, override with a custom renderer/editor for this row/col if applicable.
+		customEditor = dcol.CustomEditors.get(row)
+		customRenderer = dcol.CustomRenderers.get(row)
+		if customEditor is not None:
+			attr.SetEditor(customEditor())
+		if customRenderer is not None:
+			attr.SetRenderer(customRenderer())
+
+		return attr
+
+
 	def GetRowLabelValue(self, row):
 		try:
 			return self.rowLabels[row]
 		except:
 			return ""
 	
+
 	def GetColLabelValue(self, col):
-		try:
-			return self.colDefs[col].Caption
-		except:
-			return ""
+		# The column headers are painted when the wxGrid queries this method, as
+		# this is the most appropriate time to do so. We return "" so that wx 
+		# doesn't draw the string itself.
+		self.grid._paintHeader(col)
+		return ""
 		
 			
 	def setColumns(self, colDefs):
@@ -118,10 +129,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if colDefs == self.colDefs:
 			self.setColumnInfo()
 			return
-		else:
-			self.__currData = []
+
 		for col in colDefs:
-			nm = col.Field
+			nm = col.DataField
 			while not nm:
 				nm = str(idx)
 				idx += 1
@@ -174,10 +184,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		
 	def setColumnInfo(self):
 		self.colDefs.sort(self.orderSort)		
-		self.colLabels = [col.Caption for col in self.colDefs]
-		self.dataTypes = [self.convertType(col.DataType) 
-				for col in self.colDefs]
-		self.colNames = [col.Field for col in self.colDefs]
 
 
 	def convertType(self, typ):
@@ -211,67 +217,79 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if self.grid.useCustomGetValue:
 			return self.grid.customCanGetValueAs(row, col, typ)
 		else:
-			return typ == self.dataTypes[col]
+			dcol = self.grid.Columns[col]
+			return typ == self.convertType(dcol.DataType)
 
 	def CanSetValueAs(self, row, col, typ):
 		if self.grid.useCustomSetValue:
 			return self.grid.customCanSetValueAs(row, col, typ)
 		else:
-			return typ == self.dataTypes[col]
+			dcol = self.grid.Columns[col]
+			return typ == self.convertType(dcol.DataType)
 
 		
 	def fillTable(self, force=False):
 		""" Fill the grid's data table to match the data set."""
-		rows = self.GetNumberRows()
+
+		_oldRowCount = self._oldRowCount
+
+		# Get the data from the grid.
+		dataSet = self.grid.DataSource
+		if dataSet is None:
+			return
+		bizobj = self.grid.getBizobj()
+
+		if bizobj:
+			dataSet = bizobj
+			_newRowCount = dataSet.RowCount
+		else:
+			_newRowCount = len(dataSet)
+			if _oldRowCount is None:
+				## still haven't tracked down why, but bizobj grids needed _oldRowCount
+				## to be initialized to None, or extra rows would be added. Since we
+				## aren't a bizobj grid, we need to change that None to 0 here so that
+				## the rows can get appended below.
+				_oldRowCount = 0
+
+		if _oldRowCount == _newRowCount and not force:
+			return
+			
 		oldRow = self.grid.CurrentColumn  # current row per the grid
 		oldCol = self.grid.CurrentColumn  # current column per the grid
 		if not oldCol:
 			oldCol = 0
-		# Get the data from the grid.
-		dataSet = self.grid.getDataSet()
-		if not force:
-			if self.__currData == dataSet:
-				# Nothing's changed; no need to re-fill the table
-				return
-		else:
-			self.__currData = dataSet
-		
-		## pkm: Discovered this call isn't needed. Not sure if it improves anything
-		##      without it, however:
-		#self.Clear()
 
-		self.data = []
 		encod = self.grid.Encoding
-		for record in dataSet:
-			recordFmt = self.formatRowForData(record)
-			self.data.append(recordFmt)
 		self.grid.BeginBatch()
 		# The data table is now current, but the grid needs to be
 		# notified.
-		if len(self.data) > rows:
+
+		if _oldRowCount is not None and _newRowCount > _oldRowCount:
 			# tell the grid we've added row(s)
-			num = len(self.data) - rows
+			num = _newRowCount - _oldRowCount
 			msg = wx.grid.GridTableMessage(self,       # The table
 				wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,  # what we did to it
 				num)                                     # how many
 			
-		elif rows > len(self.data):
+		elif _oldRowCount is not None and _oldRowCount > _newRowCount:
 			# tell the grid we've deleted row(s)
-			num = rows - len(self.data) 
+			num = _oldRowCount - _newRowCount
 			msg = wx.grid.GridTableMessage(self,      # The table
 				wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,  # what we did to it
 				0,                                      # position
 				num)                                    # how many
 		else:
 			msg = None
+
 		if msg:        
 			self.grid.ProcessTableMessage(msg)
 		# Column widths come from multiple places. In decreasing precedence:
 		#   1) dApp user settings, 
 		#   2) the fieldSpecs
 		#   3) have the grid autosize
+
 		for idx, col in enumerate(self.colDefs):
-			fld = col.Field
+			fld = col.DataField
 			colName = "Column_%s" % fld
 			gridCol = idx
 			fieldType = col.DataType.lower()
@@ -300,7 +318,14 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			self.SetRowLabelValue(ii, self.rowLabels[ii])
 		self.grid.EndBatch()
 
-	
+		self._oldRowCount = _newRowCount
+
+
+	##pkm: The following function doesn't seem to be necessary, at least when 
+	##     connected directly to a bizobj. The appRecipes demo properly displays
+	##     the unicode chars, etc. But if this is necessary, because of the 
+	##     reworking of things, we should probably make it formatFieldForData(fld,row)
+	##     and call it from self.GetValue(). Ed, thoughts?
 	def formatRowForData(self, rec):
 		"""Takes a row from a record set, and contructs a list
 		that matches the column layout. Also encodes all unicode
@@ -308,7 +333,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		"""
 		returnFmt = []
 		for col in self.colDefs:
-			fld = col.Field
+			fld = col.DataField
 			if rec.has_key(fld):
 				recVal = rec[fld]
 				recType = type(recVal)
@@ -350,68 +375,64 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		return returnFmt
 	
 	
-	def addTempRow(self, row):
-		"""Used by the autosize routine to add an individual row 
-		containing the captions for the columns so that the autosize
-		function takes them into account. It is then followed by a
-		call to self.removeTempRow() to restore the data back to its
-		original state.
-		"""
-		rowFmt = self.formatRowForData(row)
-		self.data.append(rowFmt)
-		self.grid.BeginBatch()
-		msg = wx.grid.GridTableMessage(self,
-				wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED, 1)
-		self.grid.ProcessTableMessage(msg)
-		self.grid.EndBatch()
-
-
-	def removeTempRow(self):
-		"""Removes the temp row that was added in a prior call to 
-		addTempRow(). This method assumes that the last row
-		in the data set is the row to remove.
-		"""
-		tmp = self.data.pop()
-		self.grid.BeginBatch()
-		msg = wx.grid.GridTableMessage(self,
-				wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,
-				len(self.data), 1)
-		self.grid.ProcessTableMessage(msg)
-		self.grid.EndBatch()
-	
-
 	# The following methods are required by the grid, to find out certain
 	# important details about the underlying table.                
 	def GetNumberRows(self):
+		bizobj = self.grid.getBizobj()
+		if bizobj:
+			return bizobj.RowCount
 		try:
-			num = len(self.data)
+			num = len(self.grid.DataSource)
 		except:
 			num = 0
 		return num
 
+
 	def GetNumberCols(self):
-		try:
-			num = len(self.colLabels)
-		except:
-			num = 0
-		return num
+		return self.grid.ColumnCount
 
 
 	def IsEmptyCell(self, row, col):
-		try:
-			return not self.data[row][col]
-		except IndexError:
-			return True
+		bizobj = self.grid.getBizobj()
+		field = self.grid.Columns[col].DataField
+		if bizobj:
+			if field:
+				return not bizobj.getFieldVal(field, row)
+			else:
+				return True
+		if field:
+			try:
+				return not self.grid.DataSource[row][field]
+			except IndexError, KeyError:
+				return True
+		return True
+
 
 	def GetValue(self, row, col):
+		bizobj = self.grid.getBizobj()
+		field = self.grid.Columns[col].DataField
+		if bizobj:
+			if field:
+				return bizobj.getFieldVal(field, row)
+			else:
+				return ""
 		try:
-			ret = self.data[row][col]
+			ret = self.grid.DataSource[row][field]
 		except:
 			ret = ""
 		return ret
 
+
 	def SetValue(self, row, col, value):
-		self.data[row][col] = value
+		#self.data[row][col] = value
+		field = self.grid.Columns[col].DataField
+		bizobj = self.grid.getBizobj()
+		if bizobj:
+			# make sure we are on the correct row already (we should be already):
+			bizobj.RowNumber = row
+			bizobj.setFieldVal(field, value)
+		else:
+			self.grid.DataSource[row][field] = value
 
 
 
@@ -435,8 +456,9 @@ class dColumn(dabo.common.dObject):
 	def _beforeInit(self):
 		super(dColumn, self)._beforeInit()
 		# Define the cell renderer and editor classes
+		import gridRenderers
 		self.stringRendererClass = wx.grid.GridCellStringRenderer
-		self.boolRendererClass = wx.grid.GridCellBoolRenderer
+		self.boolRendererClass = gridRenderers.BoolRenderer
 		self.intRendererClass = wx.grid.GridCellNumberRenderer
 		self.longRendererClass = wx.grid.GridCellNumberRenderer
 		self.decimalRendererClass = wx.grid.GridCellNumberRenderer
@@ -470,6 +492,15 @@ class dColumn(dabo.common.dObject):
 			"list" : self.listEditorClass }
 		
 
+	def getRendererForRow(self, row):
+		"""Return the cell renderer for the passed row."""
+		d = self.CustomRenderers
+		r = d.get(row)
+		if r is None:
+			r = self.Renderer
+		return r
+
+
 	def _afterInit(self):
 		self._isConstructed = True
 		super(dColumn, self)._afterInit()
@@ -479,23 +510,56 @@ class dColumn(dabo.common.dObject):
 		return self._isConstructed
 
 
+	def _getHeaderRect(self):
+		"""Return the rect of this header in the header window."""
+		grid = self.Parent
+		height = self.Parent.HeaderHeight
+		width = self.Width
+		top = 0
+
+		# Thanks Roger Binns:
+		left = -grid.GetViewStart()[0] * grid.GetScrollPixelsPerUnit()[0]
+
+		for col in range(self.Parent.ColumnCount):
+			colObj = self.Parent.Columns[col]
+			if colObj == self:
+				break
+			left += colObj.Width
+
+		return (left, top, width, height)
+
+
+	def _refreshHeader(self):
+		"""Refresh just this column's header."""
+		if self.Parent:
+			# This will trigger wx to query GetColLabelValue(), which will in turn
+			# call paintHeader() on just this column. It's roundabout, but gives the
+			# best overall results, but risks relying on wx implementation details. 
+			# Other options, in case this starts to fail, are: 
+			#		self.Parent.Header.Refresh()
+			#		self.Parent._paintHeader(self._GridColumnIndex)
+			self.Parent.SetColLabelValue(self._GridColumnIndex, "")
+
+
+	def _refreshGrid(self):
+		"""Refresh the grid region, not the header region."""
+		if self.Parent:
+			gw = self.Parent.GetGridWindow()
+			gw.Refresh()
+
+
 	def _persist(self, prop):
 		"""Persist the current prop setting to the user settings table."""
 		
 		app = self.Application
 		grid = self.Parent
-		colName = "column_%s" % self.Field
+		colName = "column_%s" % self.DataField
 		val = getattr(self, prop)
 		settingName = "%s.%s.%s.%s" % (grid.Form.Name, grid.Name, colName, prop)
 
 		app.setUserSetting(settingName, val)
 
 
-	def changeMsg(self, prop):
-		if self.Parent:
-			self.Parent.onColumnChange(self, prop)
-	
-	
 	def _getGridColumnIndex(self):
 		"""Return our column index in the grid, or -1."""
 		t = self.Parent._Table
@@ -533,14 +597,14 @@ class dColumn(dabo.common.dObject):
 		except AttributeError:
 			v = self._caption = "Column"
 		return v
+
 	def _setCaption(self, val):
 		if self._constructed():
 			self._caption = val
-			if self.Parent:
-				## note: may want to use RefreshRect just on the column header region
-				self.Parent.refresh()
+			self._refreshHeader()
 		else:
 			self._properties["Caption"] = val
+
 
 	def _getCustomEditor(self):
 		try:
@@ -548,6 +612,7 @@ class dColumn(dabo.common.dObject):
 		except AttributeError:
 			v = self._customEditor = None
 		return v
+
 	def _setCustomEditor(self, val):
 		if self._constructed():
 			self._customEditor = val
@@ -555,12 +620,25 @@ class dColumn(dabo.common.dObject):
 		else:
 			self._properties["CustomEditor"] = val
 
+
+	def _getCustomEditors(self):
+		try:
+			v = self._customEditors
+		except AttributeError:
+			v = self._customEditors = {}
+		return v
+
+	def _setCustomEditors(self, val):
+		self._customEditors = val
+
+
 	def _getCustomRenderer(self):
 		try:
 			v = self._customRenderer
 		except AttributeError:
 			v = self._customRenderer = None
 		return v
+
 	def _setCustomRenderer(self, val):
 		if self._constructed():
 			self._customRenderer = val
@@ -568,25 +646,39 @@ class dColumn(dabo.common.dObject):
 		else:
 			self._properties["CustomRenderer"] = val
 
+
+	def _getCustomRenderers(self):
+		try:
+			v = self._customRenderers
+		except AttributeError:
+			v = self._customRenderers = {}
+		return v
+
+	def _setCustomRenderers(self, val):
+		self._customRenderers = val
+
+
 	def _getDataType(self):
 		try:
 			v = self._dataType
 		except AttributeError:
 			v = self._dataType = ""
 		return v
+
 	def _setDataType(self, val):
 		if self._constructed():
 			self._dataType = val
-			if "Automatic" in self.HorizontalCellAlignment:
-				self._setAutoHorizontalCellAlignment()
+			if "Automatic" in self.HorizontalAlignment:
+				self._setAutoHorizontalAlignment()
 			self._updateRenderer()
 			self._updateEditor()
-			#self.changeMsg("DataType")  ## don't think this is necessary, now that the attr handles.
 		else:
 			self._properties["DataType"] = val
 
+
 	def _getEditable(self):
 		return not self._gridColAttr.IsReadOnly()
+
 	def _setEditable(self, val):
 		if self._constructed():
 			self._gridColAttr.SetReadOnly(not val)
@@ -595,26 +687,125 @@ class dColumn(dabo.common.dObject):
 		else:
 			self._properties["Editable"] = val			
 
+
 	def _getEditor(self):
 		v = self.CustomEditor
 		if v is None:
 			v = self.defaultEditors.get(self.DataType)
 		return v
 
-	def _getField(self):
+
+	def _getDataField(self):
 		try:
-			v = self._field
+			v = self._dataField
 		except AttributeError:
-			v = self._field = ""
+			v = self._dataField = ""
 		return v
-	def _setField(self, val):
+
+	def _setDataField(self, val):
 		if self._constructed():
-			self._field = val
+			self._dataField = val
 			self._updateRenderer()
 			self._updateEditor()
-			self.changeMsg("Field")
 		else:
-			self._properties["Field"] = val
+			self._properties["DataField"] = val
+
+
+	def _getHeaderFont(self):
+		try:
+			v = self._headerFont
+		except AttributeError:
+			if self.Parent:
+				v = self.Parent.GetLabelFont()
+			else:
+				v = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.LIGHT)
+		return v
+	
+	def _setHeaderFont(self, val):
+		if self._constructed():
+			self._headerFont = val
+			self._refreshHeader()
+		else:
+			self._properties["HeaderFont"] = val
+
+	
+	def _getHeaderFontBold(self):
+		return self.HeaderFont.GetWeight() == wx.BOLD
+	
+	def _setHeaderFontBold(self, val):
+		if self._constructed():
+			font = self.HeaderFont
+			if val:
+				font.SetWeight(wx.BOLD)
+			else:
+				font.SetWeight(wx.LIGHT)    # wx.NORMAL doesn't seem to work...
+			self.HeaderFont = font
+		else:
+			self._properties["HeaderFontBold"] = val
+
+	def _getHeaderFontDescription(self):
+		f = self.HeaderFont
+		ret = f.GetFaceName() + " " + str(f.GetPointSize())
+		if f.GetWeight() == wx.BOLD:
+			ret += " B"
+		if f.GetStyle() == wx.ITALIC:
+			ret += " I"
+		return ret
+	
+	def _getHeaderFontInfo(self):
+		return self.HeaderFont.GetNativeFontInfoDesc()
+
+		
+	def _getHeaderFontItalic(self):
+		return self.HeaderFont.GetStyle() == wx.ITALIC
+	
+	def _setHeaderFontItalic(self, val):
+		if self._constructed():
+			font = self.HeaderFont
+			if val:
+				font.SetStyle(wx.ITALIC)
+			else:
+				font.SetStyle(wx.NORMAL)
+			self.HeaderFont = font
+		else:
+			self._properties["HeaderFontItalic"] = val
+
+	
+	def _getHeaderFontFace(self):
+		return self.HeaderFont.GetFaceName()
+
+	def _setHeaderFontFace(self, val):
+		if self._constructed():
+			f = self.HeaderFont
+			f.SetFaceName(val)
+			self.HeaderFont = f
+		else:
+			self._properties["HeaderFontFace"] = val
+
+	
+	def _getHeaderFontSize(self):
+		return self.HeaderFont.GetPointSize()
+	
+	def _setHeaderFontSize(self, val):
+		if self._constructed():
+			font = self.HeaderFont
+			font.SetPointSize(int(val))
+			self.HeaderFont = font
+		else:
+			self._properties["HeaderFontSize"] = val
+	
+	def _getHeaderFontUnderline(self):
+		return self.HeaderFont.GetUnderlined()
+	
+	def _setHeaderFontUnderline(self, val):
+		if self._constructed():
+			# underlining doesn't seem to be working...
+			font = self.HeaderFont
+			font.SetUnderlined(bool(val))
+			self.HeaderFont = font
+		else:
+			self._properties["HeaderFontUnderline"] = val
+
 
 	def _getHeaderBackgroundColor(self):
 		try:
@@ -622,6 +813,7 @@ class dColumn(dabo.common.dObject):
 		except AttributeError:
 			v = self._headerBackgroundColor = None
 		return v
+
 	def _setHeaderBackgroundColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
@@ -630,16 +822,68 @@ class dColumn(dabo.common.dObject):
 				except: 
 					pass
 			self._headerBackgroundColor = val
-			if self.Parent:
-				self.Parent.refresh()
+			self._refreshHeader()
 		else:
 			self._properties["HeaderBackgroundColor"] = val
+
 	
-	def _getHorizontalCellAlignment(self):
+	def _getHeaderForegroundColor(self):
 		try:
-			auto = self._autoHorizontalCellAlignment
+			v = self._headerForegroundColor
 		except AttributeError:
-			auto = self._autoHorizontalCellAlignment = True
+			v = self._headerForegroundColor = dColors.colorTupleFromName("Black")
+		return v
+
+	def _setHeaderForegroundColor(self, val):
+		if self._constructed():
+			if isinstance(val, basestring):
+				try:
+					val = dColors.colorTupleFromName(val)
+				except: 
+					pass
+			self._headerForegroundColor = val
+			self._refreshHeader()
+		else:
+			self._properties["HeaderForegroundColor"] = val
+
+	
+	def _getHeaderHorizontalAlignment(self):
+		try:
+			val = self._headerHorizontalAlignment
+		except AttributeError:
+			val = self._headerHorizontalAlignment = "Center"
+		return val
+
+	def _setHeaderHorizontalAlignment(self, val):
+		if self._constructed():
+			v = self._expandPropStringValue(val, ("Left", "Right", "Center"))
+			self._headerHorizontalAlignment = v
+			self._refreshHeader()
+		else:
+			self._properties["HeaderHorizontalAlignment"] = val
+
+
+	def _getHeaderVerticalAlignment(self):
+		try:
+			val = self._headerVerticalAlignment
+		except AttributeError:
+			val = self._headerVerticalAlignment = "Center"
+		return val
+
+	def _setHeaderVerticalAlignment(self, val):
+		if self._constructed():
+			v = self._expandPropStringValue(val, ("Top", "Bottom", "Center"))
+			self._headerVerticalAlignment = v
+			self._refreshHeader()
+		else:
+			self._properties["HeaderVerticalAlignment"] = val
+
+
+	def _getHorizontalAlignment(self):
+		try:
+			auto = self._autoHorizontalAlignment
+		except AttributeError:
+			auto = self._autoHorizontalAlignment = True
 		mapping = {wx.ALIGN_LEFT: "Left", wx.ALIGN_RIGHT: "Right",
 	             wx.ALIGN_CENTRE: "Center"}
 		wxAlignment = self._gridColAttr.GetAlignment()[0]
@@ -650,21 +894,22 @@ class dColumn(dabo.common.dObject):
 		if auto:
 			val = "%s (Automatic)" % val
 		return val
-	def _setAutoHorizontalCellAlignment(self):
+
+	def _setAutoHorizontalAlignment(self):
 		dt = self.DataType
 		if isinstance(dt, basestring):
 			if dt in ("decimal", "float", "long", "integer"):
-				self._setHorizontalCellAlignment("Right", _autoAlign=True)
+				self._setHorizontalAlignment("Right", _autoAlign=True)
 		
-	def _setHorizontalCellAlignment(self, val, _autoAlign=False):
+	def _setHorizontalAlignment(self, val, _autoAlign=False):
 		if self._constructed():
 			val = self._expandPropStringValue(val, ("Automatic", "Left", "Right", "Center"))
 			if val == "Automatic" and not _autoAlign:
-				self._autoHorizontalCellAlignment = True
-				self._setAutoHorizontalCellAlignment()
+				self._autoHorizontalAlignment = True
+				self._setAutoHorizontalAlignment()
 				return
 			if val != "Automatic" and not _autoAlign:
-				self._autoHorizontalCellAlignment = False
+				self._autoHorizontalAlignment = False
 			mapping = {"Left": wx.ALIGN_LEFT, "Right": wx.ALIGN_RIGHT,
 					 "Center": wx.ALIGN_CENTRE}
 			try:
@@ -674,10 +919,9 @@ class dColumn(dabo.common.dObject):
 				val = "Left"
 			wxVertAlign = self._gridColAttr.GetAlignment()[1]
 			self._gridColAttr.SetAlignment(wxHorAlign, wxVertAlign)
-			if self.Parent:
-				self.Parent.refresh()
+			self._refreshGrid()
 		else:
-			self._properties["HorizontalCellAlignment"] = val
+			self._properties["HorizontalAlignment"] = val
 
 	
 	def _getListEditorChoices(self):
@@ -686,6 +930,7 @@ class dColumn(dabo.common.dObject):
 		except:
 			v = []
 		return v
+
 	def _setListEditorChoices(self, val):
 		if self._constructed():
 			self._listEditorChoices = val
@@ -699,18 +944,20 @@ class dColumn(dabo.common.dObject):
 			v = self.defaultRenderers.get(self.DataType)
 		return v
 
+
 	def _getOrder(self):
 		try:
 			v = self._order
 		except AttributeError:
 			v = self._order = -1
 		return v
+
 	def _setOrder(self, val):
 		if self._constructed():
 			self._order = val
-			self.changeMsg("Order")
 		else:
 			self._properties["Order"] = val
+
 
 	def _getSearchable(self):
 		try:
@@ -718,11 +965,13 @@ class dColumn(dabo.common.dObject):
 		except:
 			v = self._searchable = True
 		return v
+
 	def _setSearchable(self, val):
 		if self._constructed():
 			self._searchable = bool(val)
 		else:
 			self._properties["Searchable"] = val
+
 
 	def _getSortable(self):
 		try:
@@ -730,6 +979,7 @@ class dColumn(dabo.common.dObject):
 		except:
 			v = self._sortable = True
 		return v
+
 	def _setSortable(self, val):
 		if self._constructed():
 			self._sortable = bool(val)
@@ -737,7 +987,7 @@ class dColumn(dabo.common.dObject):
 			self._properties["Sortable"] = val
 
 
-	def _getVerticalCellAlignment(self):
+	def _getVerticalAlignment(self):
 		mapping = {wx.ALIGN_TOP: "Top", wx.ALIGN_BOTTOM: "Bottom",
 	             wx.ALIGN_CENTRE: "Center"}
 		wxAlignment = self._gridColAttr.GetAlignment()[1]
@@ -746,7 +996,8 @@ class dColumn(dabo.common.dObject):
 		except KeyError:
 			val = "Top"
 		return val
-	def _setVerticalCellAlignment(self, val):
+
+	def _setVerticalAlignment(self, val):
 		if self._constructed():
 			val = self._expandPropStringValue(val, ("Top", "Bottom", "Center"))
 			mapping = {"Top": wx.ALIGN_TOP, "Bottom": wx.ALIGN_BOTTOM,
@@ -758,10 +1009,10 @@ class dColumn(dabo.common.dObject):
 				val = "Top"
 			wxHorAlign = self._gridColAttr.GetAlignment()[0]
 			self._gridColAttr.SetAlignment(wxHorAlign, wxVertAlign)
-			if self.Parent:
-				self.Parent.refresh()
+			self._refreshGrid()
 		else:
-			self._properties["VerticalCellAlignment"] = val
+			self._properties["VerticalAlignment"] = val
+
 
 	def _getWidth(self):
 		try:
@@ -774,6 +1025,7 @@ class dColumn(dabo.common.dObject):
 				# Make sure the grid is in sync:
 				self.Parent.SetColSize(self._GridColumnIndex, v)
 		return v
+
 	def _setWidth(self, val):
 		if self._constructed():
 			self._width = val
@@ -790,14 +1042,30 @@ class dColumn(dabo.common.dObject):
 			_("Caption displayed in this column's header  (str)") )
 
 	CustomEditor = property(_getCustomEditor, _setCustomEditor, None,
-			_("""Custom Editor for this column. Default: None. Set this to override 
-			the default editor, which Dabo will select based on the data type of 
-			the field.  (varies)"""))
+			_("""Custom Editor for this column. Default: None. 
+
+			Set this to override the default editor, which Dabo will select based 
+			on the data type of the field."""))
+
+	CustomEditors = property(_getCustomEditors, _setCustomEditors, None,
+			_("""Dictionary of custom editors for this column. Default: {}. 
+
+			Set this to override the default editor on a row-by-row basis. If there
+			is no custom editor for a given row in CustomEditors, the CustomEditor
+			property setting will apply."""))
 
 	CustomRenderer = property(_getCustomRenderer, _setCustomRenderer, None,
-			_("""Custom Renderer for this column. Default: None. Set this to 
-			override the default renderer, which Dabo will select based on the 
-			data type of the field.  (varies)"""))
+			_("""Custom Renderer for this column. Default: None. 
+
+			Set this to override the default renderer, which Dabo will select based 
+			on the data type of the field."""))
+
+	CustomRenderers = property(_getCustomRenderers, _setCustomRenderers, None,
+			_("""Dictionary of custom renderers for this column. Default: {}. 
+
+			Set this to override the default renderer on a row-by-row basis. If there
+			is no custom renderer for a given row in CustomRenderers, the 
+			CustomRenderer property setting will apply."""))
 
 	DataType = property(_getDataType, _setDataType, None,
 			_("Description of the data type for this column  (str)") )
@@ -814,13 +1082,46 @@ class dColumn(dabo.common.dObject):
 				self.CustomEditor if set, or the default editor for the 
 				datatype of the field.  (varies)"""))
   
-	Field = property(_getField, _setField, None,
+	DataField = property(_getDataField, _setDataField, None,
 			_("Field key in the data set to which this column is bound.  (str)") )
 
 	HeaderBackgroundColor = property(_getHeaderBackgroundColor, _setHeaderBackgroundColor, None,
 			_("Optional color for the background of the column header  (str)") )
 
-	HorizontalCellAlignment = property(_getHorizontalCellAlignment, _setHorizontalCellAlignment, None,
+	HeaderFont = property(_getHeaderFont, _setHeaderFont, None,
+			_("The font properties of the column's header. (obj)") )
+	
+	HeaderFontBold = property(_getHeaderFontBold, _setHeaderFontBold, None,
+			_("Specifies if the header font is bold-faced. (bool)") )
+	
+	HeaderFontDescription = property(_getHeaderFontDescription, None, None, 
+			_("Human-readable description of the current header font settings. (str)") )
+	
+	HeaderFontFace = property(_getHeaderFontFace, _setHeaderFontFace, None,
+			_("Specifies the font face for the column header. (str)") )
+	
+	HeaderFontInfo = property(_getHeaderFontInfo, None, None,
+			_("Specifies the platform-native font info string for the column header. Read-only. (str)") )
+	
+	HeaderFontItalic = property(_getHeaderFontItalic, _setHeaderFontItalic, None,
+			_("Specifies whether the header font is italicized. (bool)") )
+	
+	HeaderFontSize = property(_getHeaderFontSize, _setHeaderFontSize, None,
+			_("Specifies the point size of the header font. (int)") )
+	
+	HeaderHorizontalAlignment = property(_getHeaderHorizontalAlignment, _setHeaderHorizontalAlignment, None,
+			_("Specifies the horizontal alignment of the header caption. ('Left', 'Center', 'Right')"))
+
+	HeaderFontUnderline = property(_getHeaderFontUnderline, _setHeaderFontUnderline, None,
+			_("Specifies whether column header text is underlined. (bool)") )
+
+	HeaderForegroundColor = property(_getHeaderForegroundColor, _setHeaderForegroundColor, None,
+			_("Optional color for the foreground (text) of the column header  (str)") )
+
+	HeaderVerticalAlignment = property(_getHeaderVerticalAlignment, _setHeaderVerticalAlignment, None,
+			_("Specifies the vertical alignment of the header caption. ('Top', 'Center', 'Bottom')"))
+
+	HorizontalAlignment = property(_getHorizontalAlignment, _setHorizontalAlignment, None,
 			_("""Horizontal alignment for all cells in this column. (str)
 				Acceptable values are:
 					'Automatic': The cell's contents will align right for numeric data, left for text. (default)
@@ -850,7 +1151,7 @@ class dColumn(dabo.common.dObject):
 			_("""Specifies whether this column can be sorted. Default: True. The grid's 
 			Sortable property will override this setting.  (bool)"""))
 
-	VerticalCellAlignment = property(_getVerticalCellAlignment, _setVerticalCellAlignment, None,
+	VerticalAlignment = property(_getVerticalAlignment, _setVerticalAlignment, None,
 			_("""Vertical alignment for all cells in this column. Acceptable values 
 			are 'Top', 'Center', and 'Bottom'.  (str)"""))
 
@@ -865,25 +1166,19 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._baseClass = dGrid
 		preClass = wx.grid.Grid
 		
-		# Grab the DataSet parameter if passed
-		self._passedDataSet = self.extractKey(kwargs, "DataSet")
-		self.dataSet = []
 		# List of Row Labels, if any
 		self._rowLabels = []
 
+		# Columns prop:
+		self._columns = []
+
 		# dColumn maintains its own cell attribute object, but this is the default:
 		self._defaultGridColAttr = self._getDefaultGridColAttr()
-
-		# Columns notify the grid when their properties change
-		# Sometimes the grid itself initiated the change, and doesn't
-		# need to be notified.
-		self._ignoreColUpdates = False
 
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
 		
 	def _afterInit(self):
-		self.bizobj = None
 		self._header = None
 		self.fieldSpecs = {}
 		# This value is in milliseconds
@@ -946,8 +1241,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 		# Set the header props/events
 		self.initHeader()		
-		# If a data set was passed to the constructor, create the grid
-		self.buildFromDataSet(self._passedDataSet)
 
 
 	def initEvents(self):
@@ -984,6 +1277,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		""" Initialize behavior for the grid header region."""
 		header = self.Header
 		self.defaultHdrCursor = header.GetCursor()
+		self._headerNeedsRedraw = False
 		self._headerMousePosition = (0,0)
 		self._headerMouseLeftDown, self._headerMouseRightDown = False, False
 
@@ -998,10 +1292,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		header.Bind(wx.EVT_CONTEXT_MENU, self.__onWxHeaderContextMenu)
 		header.Bind(wx.EVT_ENTER_WINDOW, self.__onWxHeaderMouseEnter)
 		header.Bind(wx.EVT_LEAVE_WINDOW, self.__onWxHeaderMouseLeave)
+		header.Bind(wx.EVT_IDLE, self.__onWxHeaderIdle)
 
 
 		self.bindEvent(dEvents.GridHeaderMouseLeftDown, self._onGridHeaderMouseLeftDown)
-		self.bindEvent(dEvents.GridHeaderPaint, self._onHeaderPaint)
 		self.bindEvent(dEvents.GridHeaderMouseMove, self._onGridHeaderMouseMove)
 		self.bindEvent(dEvents.GridHeaderMouseLeftUp, self._onGridHeaderMouseLeftUp)
 		self.bindEvent(dEvents.GridHeaderMouseRightUp, self._onGridHeaderMouseRightUp)
@@ -1029,8 +1323,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			super(dGrid, self).SetCellValue(row, col, val)
 		# Update the main data source
 		try:
-			fld = self.Columns[col].Field
-			self.dataSet[row][fld] = val
+			fld = self.Columns[col].DataField
+			biz = self.getBizobj()
+			if biz:
+				biz.RowNumber = row
+				biz.setFieldVal(fld, val)
+			else:
+				self.DataSource[row][fld] = val
 		except StandardError, e:
 			dabo.errorLog.write("Cannot update data set: %s" % e)
 
@@ -1045,13 +1344,21 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def customCanGetValueAs(self, row, col, typ): pass
 	def customCanSetValueAs(self, row, col, typ): pass
 
+
 	# Wrap the native wx methods
-	#pkm: I wonder about putting these in dColumn as setEditorForRow() instead. Thoughts?
 	def setEditorForCell(self, row, col, edt):
-		self.SetCellEditor(row, col, edt)
+		## dColumn maintains a dict of overriding editor mappings, but keep this 
+		## function for convenience.
+		dcol = self.Columns[col]
+		dcol.CustomEditors[row] = edt
+		#self.SetCellEditor(row, col, edt)
+
 	def setRendererForCell(self, row, col, rnd):
-		print "SET RENDER", row, col, rnd
-		self.SetCellRenderer(row, col, rnd)
+		## dColumn maintains a dict of overriding renderer mappings, but keep this
+		## function for convenience.
+		dcol = self.Columns[row]
+		dcol.CustomRenderers[row] = rnd
+		#self.SetCellRenderer(row, col, rnd)
 				
 		
 	def fillGrid(self, force=False):
@@ -1074,7 +1381,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		app = self.Application
 		if app is not None:
 			s = app.getUserSetting("%s.%s.%s" % (self.Form.Name, 
-					self.GetName(), "RowSize"))
+					self.Name, "RowSize"))
 		else:
 			s = None
 		if s:
@@ -1127,50 +1434,43 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""
 		if not ds:
 			return
-#		self.Form.lockDisplay()
-		origColNum = self.ColumnCount
-		self._columns = []
-		self.dataSet = ds
-		firstRec = ds[0]
+		self.DataSource = ds
+		bizobj = self.getBizobj()
+		if bizobj:
+			firstRec = bizobj.getDataSet(rows=1)[0]
+		else:
+			# not a bizobj datasource
+			firstRec = ds[0]
 		# Dabo cursors add some columns to the data set. These
 		# artifacts need to be removed. They all begin with 'dabo-'.
 		colKeys = [key for key in firstRec.keys()
 				if (key[:5] != "dabo-") and (key not in columnsToSkip)]
-		# Update the number of columns
-		colChange = len(colKeys) - origColNum 
-		if colChange != 0:
-			msg = ""
-			if colChange < 0:
-				msg = wx.grid.GridTableMessage(self._Table,
-						wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
-						origColNum-1, abs(colChange))
-			else:
-				msg = wx.grid.GridTableMessage(self._Table,
-						wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
-						colChange)
-			if msg:
-				self.BeginBatch()
-				self.ProcessTableMessage(msg)
-				self.EndBatch()
+
 		# Add the columns
-		self._ignoreColUpdates = True
 		for colKey in colKeys:
 			# Use the keyCaption values, if possible
 			try:
 				cap = keyCaption[colKey]
 			except:
 				cap = colKey
-			col = dColumn(self)
+			col = self.addColumn()
 			col.Caption = cap
-			col.Field = colKey
-			dt = col.DataType = type(firstRec[colKey])
+			col.DataField = colKey
+			dt = type(firstRec[colKey])
 			if dt is type(None):
-				for rec in ds[1:]:
-					val = rec[colKey]
-					if val is not None:
-						dt = type(val)
-						break
-				col.DataType = dt
+				if bizobj:
+					for idx in range(bizobj.RowCount)[1:]:
+						val = bizobj.getFieldVal(colKey, idx)
+						if val is not None:
+							dt = type(val)
+							break
+				else:
+					for rec in ds[1:]:
+						val = rec[colKey]
+						if val is not None:
+							dt = type(val)
+							break
+			col.DataType = dt
 			if dt is type(None):
 				# Default to string type
 				dt = col.DataType = str
@@ -1186,26 +1486,21 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				# Use a default width
 				col.Width = -1
 
-			self._columns.append(col)
 		# Populate the grid
 		self.fillGrid(True)
 		if autoSizeCols:
 			self.autoSizeCol("all")
-		self._ignoreColUpdates = False
-#		self.Form.unlockDisplay()
 
 
 	def autoSizeCol(self, colNum, persist=False):
 		"""Set the column to the minimum width necessary to display its data.
 
 		Set colNum='all' to auto-size all columns. Set persist=True to persist the
-		fact that the column should be auto-sized to the user settings table.
+		new width to the user settings table.
 		"""	
+		maxWidth = 250  ## limit the width of the column to something reasonable
 		# lock the screen
 		self.lockDisplay()
-		# Changing the columns' Width prop will send an update
-		# message back to this grid. We want to ignore that
-		self._ignoreColUpdates = True
 		# We also don't want the Table's call to grid.getDataSet()
 		# to wipe out our temporary changes.
 		self.inAutoSizeCalc = True
@@ -1214,87 +1509,81 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# then remove the row afterwards.
 		capRow = {}
 		for col in self.Columns:
-			capRow[col.Field] = col.Caption
-		self._Table.addTempRow(capRow)
-		try:
-			# Having a problem with Unicode in the native
-			# AutoSize() function.
-			if isinstance(colNum, str):
-				#They passed "all"
-				self.AutoSizeColumns(setAsMin=False)
-				for ii in range(len(self.Columns)):
-					self.Columns[ii].Width = self.GetColSize(ii)
-					if persist:
-						self.Columns[ii]._persist("Width")
-						
-			elif isinstance(colNum, (int, long)):
-				self.AutoSizeColumn(colNum, setAsMin=False)
-				self.Columns[colNum].Width = self.GetColSize(colNum)
+			capRow[col.DataField] = col.Caption
+
+		## This function will get used in both if/elif below:
+		def _setColSize(idx):
+				capBuffer = 5  ## breathing room around header caption
+				colObj = self.Columns[idx]
+				autoWidth = self.GetColSize(idx)
+				
+				# Account for the width of the header caption:
+				cw = dabo.ui.fontMetricFromFont(colObj.Caption, 
+				                                colObj.HeaderFont)[0] + capBuffer
+				w = max(autoWidth, cw)
+				w = min(w, maxWidth)
+				colObj.Width = w
+
 				if persist:
-					self.Columns[colNum]._persist("Width")
-		except:
-			pass
-		self._Table.removeTempRow()
+					colObj._persist("Width")
+		
+		if isinstance(colNum, str):
+			## autosize all columns:
+			try:
+				self.AutoSizeColumns(setAsMin=False)
+			except:
+				# Having a problem with Unicode in the native function
+				pass
+
+			# Regardless of whether or not the native call worked, make sure that the
+			# column widths as wx has them are propagated to the column widths as
+			# dColumn has them:
+			for ii in range(len(self.Columns)):
+				_setColSize(ii)
+						
+		elif isinstance(colNum, (int, long)):
+			try:
+				self.AutoSizeColumn(colNum, setAsMin=False)
+			except:
+				pass
+			_setColSize(colNum)
+
 		self.inAutoSizeCalc = False
-		self._ignoreColUpdates = False
+		self.refresh()
 		self.unlockDisplay()		
 
 
-	def getDataSet(self):
-		"""Customize to your needs. Default is to use an internal property,
-		and if that is empty, simply ask the form."""
-		ret = self.dataSet
-		if not ret:
-			try:
-				ret = self.Form.getDataSet()
-			except:
-				ret = []
-		return ret
-		
-
-	def onColumnChange(self, col, chgType):
-		"""Called by the grid columns whenever any of their properties
-		are directly changed, allowing the grid to react.
-		"""
-		if self._ignoreColUpdates:
-			# The column is being updated after a grid change, so
-			# no need to update the grid again.
-			return
-		if self._constructed():
-			# Update the grid
-			self.fillGrid(True)
-		
-
-	def _paintHeader(self):
+	def _paintHeader(self, col=None):
+		if col is None:
+			cols = range(self.ColumnCount)
+		else:
+			cols = (col,)
 		w = self.Header
 		dc = wx.ClientDC(w)
-		clientRect = w.GetClientRect()
-		font = dc.GetFont()
 
-		# Thanks Roger Binns for the correction to totColSize
-		totColSize = -self.GetViewStart()[0] * self.GetScrollPixelsPerUnit()[0]
-
-		# Get the height
-		ht = self.GetColLabelSize()
-
-		for col in range(self.ColumnCount):
-			dc.SetBrush(wx.Brush("WHEAT", wx.TRANSPARENT))
-			dc.SetTextForeground(wx.BLACK)
-			colSize = self.GetColSize(col)
-			rect = (totColSize, 0, colSize, ht)
+		for col in cols:
+			if not self.IsVisible(self.CurrentRow, col, False):
+				# The self is completely off the screen: no need to paint
+				continue
 			colObj = self.Columns[col]
-			if colObj.HeaderBackgroundColor is not None:
-				holdBrush = dc.GetBrush()
-				dc.SetBrush(wx.Brush(colObj.HeaderBackgroundColor, wx.SOLID))
-				dc.DrawRectangle(rect[0] - (col != 0 and 1 or 0), 
-						rect[1], 
-						rect[2] + (col != 0 and 1 or 0), 
-						rect[3])
-				dc.SetBrush(holdBrush)
-			totColSize += colSize
+			rect = colObj._getHeaderRect()
+			dc.SetTextForeground(colObj.HeaderForegroundColor)
+			font = colObj.HeaderFont			
 
-			if self.Columns[col].Field == self.sortedColumn:
-				font.SetWeight(wx.BOLD)
+			holdBrush = dc.GetBrush()
+			holdPen = dc.GetPen()
+			
+			if colObj.HeaderBackgroundColor is not None:
+				dc.SetBrush(wx.Brush(colObj.HeaderBackgroundColor, wx.SOLID))
+				dc.SetPen(wx.Pen(None, width=0))
+				dc.DrawRectangle(rect[0] - (col != 0 and 1 or 0), 
+					rect[1], 
+					rect[2] + (col != 0 and 1 or 0), 
+					rect[3])
+			dc.SetPen(holdPen)
+			dc.SetBrush(holdBrush)
+
+			if self.Columns[col].DataField == self.sortedColumn:
 				# draw a triangle, pointed up or down, at the top left 
 				# of the column. TODO: Perhaps replace with prettier icons
 				left = rect[0] + 3
@@ -1310,17 +1599,33 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				else:
 					# Column is not sorted, so don't draw.
 					pass    
-			else:
-				font.SetWeight(wx.NORMAL)
+			
+			dc.SetTextForeground(colObj.HeaderForegroundColor)
+			font = colObj.HeaderFont			
+ 			dc.SetFont(font)
+			ah = {"Center": wx.ALIGN_CENTRE_HORIZONTAL, 
+			      "Left": wx.ALIGN_LEFT, 
+			      "Right": wx.ALIGN_RIGHT}[colObj.HeaderHorizontalAlignment]
 
-# 			dc.SetFont(font)
-# 			dc.DrawLabel("%s" % self.GetTable().colLabels[col],
-# 					rect, wx.ALIGN_CENTER | wx.ALIGN_TOP)
+			av = {"Center": wx.ALIGN_CENTRE_VERTICAL, 
+			      "Top": wx.ALIGN_TOP,
+			      "Bottom": wx.ALIGN_BOTTOM}[colObj.HeaderVerticalAlignment]
+
+			# Give some more space around the rect - some platforms use a 3d look
+			# and anyway it looks better if left/right aligned text isn't right on 
+			# the line.
+			buffer = 2
+			trect = list(rect)
+			trect[0] = rect[0] + buffer
+			trect[1] = rect[1] + buffer
+			trect[2] = rect[2] - (2*buffer)
+			trect[3] = rect[3] - (2*buffer)
+			trect = tuple(rect)
+ 			dc.DrawLabel("%s" % colObj.Caption, trect, av|ah)
 
 
 	def MoveColumn(self, colNum, toNum):
 		""" Move the column to a new position."""
-		self._ignoreColUpdates = True
 		oldCol = self.Columns[colNum]
 		self._columns.remove(oldCol)
 		if toNum > colNum:
@@ -1331,7 +1636,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			col.Order = self.Columns.index(col) * 10
 			col._persist("Order")
 		self.fillGrid(True)
-		self._ignoreColUpdates = False
 
 
 	def onSearchTimer(self, evt):
@@ -1407,13 +1711,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			gridCol = self.CurrentColumn
 			
 		if isinstance(gridCol, dColumn):
+			colObj = gridCol
 			canSort = (self.Sortable and gridCol.Sortable)
 			columnToSort = gridCol
 			sortCol = self.Columns.index(gridCol)
 			dataType = self.Columns[gridCol].DataType
 		else:
+			colObj = self.Columns[gridCol]
 			sortCol = gridCol
-			columnToSort = self.Columns[gridCol].Field
+			columnToSort = self.Columns[gridCol].DataField
 			canSort = (self.Sortable and self.Columns[gridCol].Sortable)
 			dataType = None  ## will hunt for the dataType below
 
@@ -1432,18 +1738,23 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.sortOrder = sortOrder
 		self.sortedColumn = columnToSort
 		
+		biz = self.getBizobj()
+
 		if self.customSort:
-			# Grids tied to bizobj cursors may want to use their own
-			# sorting.
+			# Grids tied to bizobj cursors may want to use their own sorting.
 			self.sort()
+		elif biz:
+			# Use the default sort() in the bizobj:
+			biz.sort(columnToSort, sortOrder, self.caseSensitiveSorting)
 		else:
 			# Create the list to hold the rows for sorting
 			caseSensitive = self.caseSensitiveSorting
 			sortList = []
 			rowNum = 0
-			for row in self.dataSet:
-				if self.RowLabels:
-					sortList.append([row[columnToSort], row, self.RowLabels[rowNum]])
+			rowlabels = self.RowLabels
+			for row in self.DataSource:
+				if rowlabels:
+					sortList.append([row[columnToSort], row, rowlabels[rowNum]])
 					rowNum += 1
 				else:
 					sortList.append([row[columnToSort], row])
@@ -1510,19 +1821,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				newRows.append(elem[1])
 				if self.RowLabels:
 					newLabels.append(elem[2])
-			self.dataSet = newRows
 			self.RowLabels = newLabels
+			self.DataSource = newRows
 
-		## pkm: We don't need to refill the grid, just the data table. This change
-		##      saves about 1/10 of a sec. on a grid with 2200 rows and 6 fields.
-		#self.fillGrid(True)
-		self._Table.fillTable(False)
-
-		## I'm also going to experiment with ditching the table.data list and just 
-		## linking directly to the dataset. Then when requery/sort/add/delete 
-		## operations happen, we just need to fill one dataset, not two. The other 
-		## major avenue for improvement would be to implement efficient sorting,
-		## which I've seen good recipes for on the internet.
+		if biz:
+			self.CurrentRow = biz.RowNumber
+		
+		self.refresh()
 
 
 	def runIncSearch(self):
@@ -1530,7 +1835,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		gridCol = self.CurrentColumn
 		if gridCol < 0:
 			gridCol = 0
-		fld = self.Columns[gridCol].Field
+		fld = self.Columns[gridCol].DataField
 		if self.RowCount <= 0:
 			# Nothing to seek within!
 			return
@@ -1539,7 +1844,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.currSearchStr = ""
 			return
 		newRow = self.CurrentRow
-		ds = self.getDataSet()
+		biz = self.getBizobj()
+		ds = self.DataSource
 		srchStr = origSrchStr = self.currSearchStr
 		self.currSearchStr = ""
 		near = self.searchNearest
@@ -1548,7 +1854,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# add those lists to the sort list
 		sortList = []
 		for i in range(0, self.RowCount):
-			sortList.append( [ds[i][fld], i] )
+			if biz:
+				val = biz.getFieldVal(fld, i)
+			else:
+				val = ds[i][fld]
+			sortList.append( [val, i] )
 
 		# Determine if we are seeking string values
 		compString = isinstance(sortList[0][0], basestring)
@@ -1649,13 +1959,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			col = dColumn(self)
 		if col.Order == -1:
 			col.Order = self.maxColOrder() + 10
+		col.Width = 75
 		self._columns.append(col)
 		if not inBatch:
 			msg = wx.grid.GridTableMessage(self._Table,
 					wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
 					1)
 			self.ProcessTableMessage(msg)
-			self.fillGrid(True)
+		return col
 
 
 	def removeColumn(self, col=None):
@@ -1697,25 +2008,47 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return GridCell(self, row, col)
 		
 
+	def getBizobj(self):
+		ds = self.DataSource
+		if isinstance(ds, basestring):
+			return self.Form.getBizobj(ds)
+		return None
+
+
 	##----------------------------------------------------------##
 	##        begin: dEvent callbacks for internal use          ##
 	##----------------------------------------------------------##
+	def __onRowNumChanged(self, evt):
+		# The form reports that the rownum has changed: sync the grid CurrentRow
+		biz = self.getBizobj()
+		if biz:
+			self.CurrentRow = biz.RowNumber
+
+		
 	def _onGridCellEdited(self, evt):
+		bizobj = self.getBizobj()
 		row, col = evt.EventData["row"], evt.EventData["col"]
-		rowData = self.getDataSet()[row]
-		fld = self.Columns[col].Field
+		fld = self.Columns[col].DataField
 		newVal = self.GetCellValue(row, col)
-		oldVal = rowData[fld]
+		if bizobj:
+			oldVal = bizobj.getFieldVal(fld, row)
+		else:
+			oldVal = self.DataSource[row][fld]
 		if newVal != oldVal:
 			# Update the local copy of the data
-			rowData[fld] = self.GetCellValue(row, col)
+			if bizobj:
+				# Put on correct RowNumber if not already (this should already be the case)
+				bizobj.RowNumber = row
+				bizobj.setFieldVal(fld, newVal)
+			else:
+				self.DataSource[row][fld] = newVal
 
 
 	def _onGridColSize(self, evt):
 		"Occurs when the user resizes the width of the column."
 		colNum = evt.EventData["rowOrCol"]
 		col = self.Columns[colNum]
-		colName = "Column_%s" % col.Field
+		colName = "Column_%s" % col.DataField
 
 		# Sync our column object up with what the grid is reporting, and because
 		# the user made this change, save to the userSettings:
@@ -1876,8 +2209,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		oldRow = self.CurrentRow
 		newRow = evt.EventData["row"]
 		if oldRow != newRow:
-			if self.bizobj:
-				self.bizobj.RowNumber = newRow
+			bizobj = self.getBizobj()
+			if bizobj:
+				bizobj.RowNumber = newRow
 		dabo.ui.callAfter(self.Form.refreshControls, grid=self)
 
 
@@ -1918,10 +2252,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				if self.processKeyPress(keyCode):
 					# Key was handled
 					evt.stop()
-
-
-	def _onHeaderPaint(self, evt):
-		dabo.ui.callAfter(self._paintHeader)
+		
 	
 	##----------------------------------------------------------##
 	##        end: dEvent callbacks for internal use            ##
@@ -1956,6 +2287,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def __onWxHeaderContextMenu(self, evt):
 		self.raiseEvent(dEvents.GridHeaderContextMenu, evt)
+		evt.Skip()
+
+	def __onWxHeaderIdle(self, evt):
+		self.raiseEvent(dEvents.GridHeaderIdle, evt)
 		evt.Skip()
 
 	def __onWxHeaderMouseEnter(self, evt):
@@ -2001,6 +2336,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def __onWxHeaderPaint(self, evt):
 		self.raiseEvent(dEvents.GridHeaderPaint, evt)
+		evt.Skip()
 
 	def __onWxMouseLeftDoubleClick(self, evt):
 		self.raiseEvent(dEvents.GridMouseLeftDoubleClick, evt)
@@ -2052,11 +2388,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	##              begin: property definitions                 ##
 	##----------------------------------------------------------##
 	def _getColumns(self):
-		try:
-			v = self._columns
-		except AttributeError:
-			v = self._columns = []
-		return v
+		return self._columns
 
 
 	def _getColumnCount(self):
@@ -2090,13 +2422,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self._properties["ColumnCount"] = val
 
 
-	def _getColLbls(self):
-		ret = []
-		for col in range(self.ColumnCount):
-			ret.append(self.GetColLabelValue(col))
-		return ret
-
-
 	def _getHeader(self):
 		if not self._header:
 			self._header = self.GetGridColLabelWindow()
@@ -2105,6 +2430,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _getHeaderHeight(self):
 		return self.GetColLabelSize()
+
 	def _setHeaderHeight(self, val):
 		if self._constructed():
 			self.SetColLabelSize(val)
@@ -2147,12 +2473,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 
 	def _getCurrentField(self):
-		return self.Columns[self.GetGridCursorCol()].Field
+		return self.Columns[self.GetGridCursorCol()].DataField
 
 	def _setCurrentField(self, val):
 		if self._constructed():
 			for ii in range(len(self.Columns)):
-				if self.Columns[ii].Field == val:
+				if self.Columns[ii].DataField == val:
 					self.CurrentColumn = ii
 					break
 		else:	
@@ -2173,6 +2499,26 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self._properties["CurrentRow"] = val		
 
 
+	def _getDataSource(self):
+		try:
+			v = self._dataSource
+		except AttributeError:
+			v = self._dataSource = None
+		return v
+
+	def _setDataSource(self, val):
+		if self._constructed():
+			self._dataSource = val
+			self.fillGrid(True)
+			biz = self.getBizobj()
+			if biz:
+				## I think I want to have the bizobj raise the RowNumChanged event,
+				## but for now this will suffice:
+				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
+		else:
+			self._properties["DataSource"] = val
+
+
 	def _getEditable(self):
 		return self.IsEditable()
 
@@ -2184,8 +2530,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	
 	
 	def _getEncoding(self):
-		if self.bizobj:
-			ret = self.bizobj.Encoding
+		if isinstance(self.DataSource, dabo.biz.dBizobj):
+			ret = self.DataSource.Encoding
 		else:
 			ret = self.defaultEncoding
 		return ret
@@ -2277,7 +2623,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		tbl = self.GetTable()
 		if not tbl:
 			tbl = dGridDataTable(self)
-			self.SetTable(tbl, True)
+			self.SetTable(tbl, False)
 		return tbl	
 
 	def _setTable(self, tbl):
@@ -2289,9 +2635,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	ColumnCount = property(_getColumnCount, _setColumnCount, None, 
 			_("Number of columns in the grid.  (int)") )
-	
-	ColumnLabels = property(_getColLbls, None, None, 
-			_("List of the column labels.  (list)") )
 	
 	Columns = property(_getColumns, None, None,
 			_("List of dColumns.  (list)"))
@@ -2307,6 +2650,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			
 	CurrentRow = property(_getCurrentRow, _setCurrentRow, None,
 			_("Currently selected row  (int)") )
+
+	DataSource = property(_getDataSource, _setDataSource, None,
+			_("The source of the data, either a dBizobj instance or a set of dicts."))
 			
 	Editable = property(_getEditable, _setEditable, None,
 			_("""This setting enables/disables cell editing globally. When False, no cells
@@ -2367,9 +2713,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 class _dGrid_test(dGrid):
 	def initProperties(self):
-		self.dataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
-		                {"name" : "Mike Leafe", "age" : 18, "coder" :  False},
-		                {"name" : "Dan Leafe", "age" : 13, "coder" :  False} ]
+		self.DataSource = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
+		                   {"name" : "Mike Leafe", "age" : 18, "coder" :  False},
+		                   {"name" : "Dan Leafe", "age" : 13, "coder" :  False} ]
 		self.Width = 360
 		self.Height = 150
 		self.Editable = True
@@ -2380,21 +2726,32 @@ class _dGrid_test(dGrid):
 	def afterInit(self):
 		_dGrid_test.doDefault()
 
-		col = dColumn(self, Name="Geek", Order=10, Field="coder",
+		col = dColumn(self, Name="Geek", Order=10, DataField="coder",
 				DataType="bool", Width=60, Caption="Geek?", Sortable=False,
 				Searchable=False, Editable=True)
 		self.addColumn(col)
 
-		col = dColumn(self, Name="Person", Order=20, Field="name",
+#		col.CustomRenderers[1] = col.stringRendererClass
+		col.HeaderFontBold = False
+
+		col = dColumn(self, Name="Person", Order=20, DataField="name",
 				DataType="string", Width=200, Caption="Customer Name",
 				Sortable=True, Searchable=True, Editable=False)
 		self.addColumn(col)
 		
-		col = dColumn(self, Name="Age", Order=30, Field="age",
+		col.HeaderFontItalic = True
+		col.HeaderBackgroundColor = "orange"
+		col.HeaderVerticalAlignment = "Top"
+		col.HeaderHorizontalAlignment = "Left"
+
+		col = dColumn(self, Name="Age", Order=30, DataField="age",
 				DataType="integer", Width=40, Caption="Age",
 				Sortable=True, Searchable=False, Editable=True)
 		self.addColumn(col)
 
+		col.HeaderVerticalAlignment = "Bottom"
+		col.HeaderHorizontalAlignment = "Right"
+		col.HeaderForegroundColor = "brown"
 
 
 if __name__ == '__main__':
@@ -2409,8 +2766,7 @@ if __name__ == '__main__':
 					DataSource="sampleGrid", DataField="Editable")
 			self.Sizer.append(chk, halign="Center")
 			chk.refresh()
-	
-	
+
 			
 	app = dabo.dApp()
 	app.MainFormClass = TestForm

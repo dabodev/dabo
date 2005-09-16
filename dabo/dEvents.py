@@ -380,6 +380,10 @@ class GridHeaderContextMenu(GridEvent, MenuEvent):
 	"""Occurs when the context menu is requested in the grid header region."""
 	pass
 
+class GridHeaderIdle(GridEvent):
+	"""Occurs when an idle cycle happens in the grid header."""
+	pass
+
 class GridHeaderMouseEnter(GridEvent, MouseEvent):
 	"""Occurs when the mouse pointer enters the grid's header region."""
 	pass

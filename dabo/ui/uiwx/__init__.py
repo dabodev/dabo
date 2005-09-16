@@ -532,6 +532,15 @@ def browse(dataSource, parent=None):
 	return parent, grd
 
 
+def fontMetricFromFont(txt, font):
+	wind = wx.Frame(None)
+	dc = wx.ClientDC(wind)
+	dc.SetFont(font)
+	ret = dc.GetTextExtent(txt)
+	wind.Destroy()
+	return ret
+
+
 def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 		italic=None):
 	"""Calculate the width and height of the given text using the supplied
