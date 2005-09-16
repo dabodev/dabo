@@ -1230,7 +1230,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Type of encoding to use with unicode data
 		self.defaultEncoding = defaultEncoding
 		# What color should the little sort indicator arrow be?
-		self.sortArrowColor = "Silver"
+		self.sortArrowColor = "Black"
 
 		self._headerDragging = False    # flag used by mouse motion event handler
 		self._headerDragFrom = 0
@@ -1561,9 +1561,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		w = self.Header
 		dc = wx.ClientDC(w)
 
+		sortIndicatorSize = 6
+		sortIndicatorBuffer = 3
+
 		for col in cols:
+			sortIndicator = False
+
 			if not self.IsVisible(self.CurrentRow, col, False):
-				# The self is completely off the screen: no need to paint
+				# The column is completely off the screen: no need to paint
 				continue
 			colObj = self.Columns[col]
 			rect = colObj._getHeaderRect()
@@ -1585,21 +1590,25 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			dc.SetBrush(holdBrush)
 
 			if self.Columns[col].DataField == self.sortedColumn:
+				sortIndicator = True
 				# draw a triangle, pointed up or down, at the top left 
 				# of the column. TODO: Perhaps replace with prettier icons
-				left = rect[0] + 3
-				top = rect[1] + 3
+				left = rect[0] + sortIndicatorBuffer
+				top = rect[1] + sortIndicatorBuffer
 
 				dc.SetBrush(wx.Brush(self.sortArrowColor, wx.SOLID))
 				if self.sortOrder == "DESC":
 					# Down arrow
-					dc.DrawPolygon([(left,top), (left+6,top), (left+3,top+6)])
+					dc.DrawPolygon([(left,top), (left+sortIndicatorSize,top), 
+					                (left+sortIndicatorBuffer,top+sortIndicatorSize)])
 				elif self.sortOrder == "ASC":
 					# Up arrow
-					dc.DrawPolygon([(left+3,top), (left+6, top+6), (left, top+6)])
+					dc.DrawPolygon([(left+sortIndicatorBuffer,top), 
+					                (left+sortIndicatorSize, top+sortIndicatorSize), 
+					                (left,top+sortIndicatorSize)])
 				else:
 					# Column is not sorted, so don't draw.
-					pass    
+					sortIndicator = False
 			
 			dc.SetTextForeground(colObj.HeaderForegroundColor)
 			font = colObj.HeaderFont			
@@ -1615,13 +1624,21 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			# Give some more space around the rect - some platforms use a 3d look
 			# and anyway it looks better if left/right aligned text isn't right on 
 			# the line.
-			buffer = 2
+			horBuffer = 3
+			vertBuffer = 2
+			sortBuffer = horBuffer
+			if sortIndicator:
+				# If there's a sort indicator, we'll nudge the caption over
+				sortBuffer += (sortIndicatorBuffer + sortIndicatorSize)
 			trect = list(rect)
-			trect[0] = rect[0] + buffer
-			trect[1] = rect[1] + buffer
-			trect[2] = rect[2] - (2*buffer)
-			trect[3] = rect[3] - (2*buffer)
-			trect = tuple(rect)
+			trect[0] = trect[0] + sortBuffer
+			trect[1] = trect[1] + vertBuffer
+			if colObj.HeaderHorizontalAlignment == "Center":
+				trect[2] = trect[2] - (2*sortBuffer)
+			else:	
+				trect[2] = trect[2] - (horBuffer+sortBuffer)
+			trect[3] = trect[3] - (2*vertBuffer)
+			trect = wx.Rect(*trect)
  			dc.DrawLabel("%s" % colObj.Caption, trect, av|ah)
 			dc.DestroyClippingRegion()
 

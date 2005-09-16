@@ -14,9 +14,7 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 
 	def Draw(self, grid, attr, dc, rect, row, col, isSelected): 
 		"""Customisation Point: Draw the data from grid in the rectangle with attributes using the dc""" 
-		print row, isSelected
 		self.clip(dc, rect) 
-		#self.Background( grid, attr, dc, rect, row, col, isSelected)
 
 		# We use our custom attr, not the one wx passes:
 		attr = grid._Table.GetAttr(row, col)
