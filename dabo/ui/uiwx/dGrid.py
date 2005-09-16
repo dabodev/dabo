@@ -526,7 +526,7 @@ class dColumn(dabo.common.dObject):
 				break
 			left += colObj.Width
 
-		return (left, top, width, height)
+		return wx.Rect(left, top, width, height)
 
 
 	def _refreshHeader(self):
@@ -1567,6 +1567,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				continue
 			colObj = self.Columns[col]
 			rect = colObj._getHeaderRect()
+			dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
 			dc.SetTextForeground(colObj.HeaderForegroundColor)
 			font = colObj.HeaderFont			
 
@@ -1622,6 +1623,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			trect[3] = rect[3] - (2*buffer)
 			trect = tuple(rect)
  			dc.DrawLabel("%s" % colObj.Caption, trect, av|ah)
+			dc.DestroyClippingRegion()
 
 
 	def MoveColumn(self, colNum, toNum):
