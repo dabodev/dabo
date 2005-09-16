@@ -133,7 +133,10 @@ class SQLite(dBackend):
 		""" Return an empty cursor description. """
 		ret = ()
 		# First, get the SQL
-		sql = cursor.sql
+		try:
+			sql = cursor.sql
+		except:
+			sql = ""
 		if sql:
 			mtch = re.search("select\s(.+)\sfrom\s*.*", sql, re.I | re.M | re.S)
 			if mtch:

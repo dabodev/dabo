@@ -80,6 +80,7 @@ class dBizobj(dabo.common.dObject):
 		self._newRecordOnNewParent = False
 		self._newChildOnNew = False
 		self._fillLinkFromParent = False
+		self.exitScan = False
 		
 		##########################################
 		### referential integrity stuff ####
@@ -548,9 +549,8 @@ class dBizobj(dabo.common.dObject):
 			
 		
 	def new(self):
-		""" Create a new record and populate it with default values.
-		 
-		Default values are specified in the DefaultValues dictionary. 
+		""" Create a new record and populate it with default values. Default 
+		values are specified in the DefaultValues dictionary. 
 		"""
 		errMsg = self.beforeNew()
 		if not errMsg:
