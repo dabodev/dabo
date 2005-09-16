@@ -17,6 +17,8 @@ class PropertyHelperMixin(object):
 		firstLetters = {}
 		lowerPropMap = {}
 		for idx, prop in enumerate(propList):
+			if prop is None:
+				continue
 			letter = prop[0:1].lower()
 			firstLetterCounts[letter] = firstLetterCounts.get(letter, 0) + 1
 			if firstLetterCounts[letter] > 1:
@@ -31,13 +33,14 @@ class PropertyHelperMixin(object):
 			value = lowerPropMap.get(value)
 		
 		if value is None:
-			s = _("The only accepted values for this property are ")
-			for idx, p in enumerate(propList):
-				if idx == len(propList) - 1:
-					s += """%s '%s'.""" % (_("and"), p)
-				else:
-					s += """'%s', """ % p
-			raise ValueError, s
+			if None not in propList:
+				s = _("The only accepted values for this property are ")
+				for idx, p in enumerate(propList):
+					if idx == len(propList) - 1:
+						s += """%s '%s'.""" % (_("and"), p)
+					else:
+						s += """'%s', """ % p
+				raise ValueError, s
 		return value
 
 	def extractKeywordProperties(self, kwdict, propdict):
