@@ -519,13 +519,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			return rec[self.KeyField]
 
 
-	def getFieldVal(self, fld):
-		""" Return the value of the specified field."""
+	def getFieldVal(self, fld, row=None):
+		""" Return the value of the specified field in the current or specified row."""
 		ret = None
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set.")
 
-		rec = self._records[self.RowNumber]
+		if row is None:
+			row = self.RowNumber
+
+		rec = self._records[row]
 		if rec.has_key(fld):
 			ret = rec[fld]
 		else:
@@ -627,13 +630,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
-	def getDataSet(self, flds=None):
-		""" Get the entire data set encapsulated in a tuple. If the optional
+	def getDataSet(self, flds=(), rowStart=0, rows=None):
+		""" Get the entire data set encapsulated in a list. If the optional
 		'flds' parameter is given, the result set will be filtered to only 
 		include the specified fields.
 		"""
 		try:
-			ret = self._records
+			if rows is not None:
+				ret = self._records[rowStart:rows]
+			else:
+				ret = self._records[rowStart:]
 			if flds:
 				retlist = []
 				for rec in ret:

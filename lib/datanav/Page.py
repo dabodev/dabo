@@ -587,7 +587,8 @@ class BrowsePage(Page):
 		
 		# If we aren't the active page, strange things can happen if we
 		# don't explicitly setFocus back to the active page. 
-		self.updateGrid()
+		#self.updateGrid()
+		pass
 # 		if self.Parent.SelectedPage != self:
 # 			self.Parent.SelectedPage.setFocus()
 
@@ -603,7 +604,8 @@ class BrowsePage(Page):
 			if bizobj and bizobj.RowCount >= 0:
 				if self.itemsCreated:
 					self.fillGrid(False)
-		self.BrowseGrid.CurrentRow = bizobj.RowNumber
+		## dGrid handles this now:
+		#self.BrowseGrid.CurrentRow = bizobj.RowNumber
 
 		
 	def __onPageEnter(self, evt):
@@ -617,7 +619,7 @@ class BrowsePage(Page):
 
 	def createItems(self):
 		bizobj = self.Form.getBizobj()
-		grid = Grid.Grid(self, Name="BrowseGrid")
+		grid = Grid.Grid(self, NameBase="BrowseGrid")
 		grid.FieldSpecs = self.Form.FieldSpecs
 		if not self.Form.preview:
 			grid.setBizobj(bizobj)

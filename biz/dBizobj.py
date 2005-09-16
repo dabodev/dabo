@@ -1030,12 +1030,12 @@ class dBizobj(dabo.common.dObject):
 			return None
 
 
-	def getFieldVal(self, fld):
-		""" Return the value of the specified field in the current row. 
+	def getFieldVal(self, fld, row=None):
+		""" Return the value of the specified field in the current or specified row. 
 		"""
 		cursor = self._CurrentCursor
 		if cursor is not None:
-			return cursor.getFieldVal(fld)
+			return cursor.getFieldVal(fld, row)
 		else:
 			return None
 
@@ -1054,7 +1054,7 @@ class dBizobj(dabo.common.dObject):
 			return None
 
 
-	def getDataSet(self, flds=None):
+	def getDataSet(self, flds=(), rowStart=0, rows=None):
 		""" Return the full data set from the cursor. 
 		
 		Used by UI objects such as the grid for efficient reading of the data,
