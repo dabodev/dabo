@@ -542,7 +542,7 @@ class Form(dabo.ui.dForm):
 		<objects>"""
 		x = 0
 		for col in self.PageFrame.Pages[1].BrowseGrid.Columns:
-			coldict = {"caption": col.Caption, "field": col.Field, "width": col.Width, "x": x}
+			coldict = {"caption": col.Caption, "field": col.DataField, "width": col.Width, "x": x}
 			rfxml += """
 			<string>
 				<expr>str(self.Record["%(field)s"])</expr>
