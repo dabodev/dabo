@@ -1263,11 +1263,14 @@ class dBizobj(dabo.common.dObject):
 		self._defaultValues = val
 
 	def _getEncoding(self):
-		ret = "latin-1"
+		ret = "utf-8"
 		cursor = self._CurrentCursor
 		if cursor is not None:
 			ret = cursor.Encoding
 		return ret
+
+	def _setEncoding(self, val):
+		self._CurrentCursor.Encoding = val
 
 	def _getRequeryOnLoad(self):
 		try:
@@ -1453,7 +1456,7 @@ class dBizobj(dabo.common.dObject):
 				they can be a function object which will be called when the new record is added
 				to the bizobj."""))
 
-	Encoding = property(_getEncoding, None, None,
+	Encoding = property(_getEncoding, _setEncoding, None,
 			_("Name of encoding to use for unicode  (str)") )
 			
 	FillLinkFromParent = property(_getFillLinkFromParent, _setFillLinkFromParent, None,
