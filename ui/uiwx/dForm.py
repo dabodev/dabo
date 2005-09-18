@@ -159,9 +159,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 	def _moveRecordPointer(self, func, dataSource=None):
 		""" Move the record pointer using the specified function."""
-		
-		print "MOVE REC POINT", self.getCurrentRecordText(dataSource)
-		
+
 		self.activeControlValid()
 		err = self.beforePointerMove()
 		if err:
