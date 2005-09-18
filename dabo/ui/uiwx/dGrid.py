@@ -45,23 +45,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def _initTable(self):
-		self.relativeColumns = []
 		self.colDefs = []
-		self.imageBaseThumbnails = []
-		self.imageLists = {}
-		self.rowLabels = []
 		self._oldRowCount = None
-		# Call the hook
-		self.initTable()
 
-
-	def initTable(self):
-		pass
-
-
-	def setRowLabels(self, rowLbls):
-		self.rowLabels = rowLbls
-		
 
 	def GetAttr(self, row, col, kind=0):
 		## dColumn maintains one attribute object that applies to every row 
@@ -104,7 +90,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 	def GetRowLabelValue(self, row):
 		try:
-			return self.rowLabels[row]
+			return self.grid.RowLabels[row]
 		except:
 			return ""
 	
@@ -121,8 +107,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		"""Create columns based on passed list of column definitions."""
 		# Column order should already be in the definition. If there is a custom
 		# setting by the user, override it.
-		idx = 0
-		colFlds = []
 
 		# See if the defs have changed. If not, update any column info,
 		# and return. If so, clear the data to force a re-draw of the table.
@@ -130,14 +114,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			self.setColumnInfo()
 			return
 
-		for col in colDefs:
+		for idx, col in enumerate(colDefs):
 			nm = col.DataField
 			while not nm:
 				nm = str(idx)
 				idx += 1
 				if nm in colFlds:
 					nm = ""
-			colFlds.append(nm)
 			colName = "Column_%s" % nm
 			app = self.grid.Application
 			pos = None
@@ -315,8 +298,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				#self.grid.SetColSize(gridCol, width)
 			
 		# Show the row labels, if any
-		for ii in range(len(self.rowLabels)):
-			self.SetRowLabelValue(ii, self.rowLabels[ii])
+		for idx, label in enumerate(self.grid.RowLabels):
+			self.SetRowLabelValue(idx, label)
 		self.grid.EndBatch()
 
 		self._oldRowCount = _newRowCount
@@ -1412,7 +1395,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		tbl = self._Table
 		
 		tbl.setColumns(self.Columns)
-		tbl.setRowLabels(self.RowLabels)
 		tbl.fillTable(force)
 		
 		if force:
@@ -1690,7 +1672,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			dc.DestroyClippingRegion()
 
 
-	def MoveColumn(self, colNum, toNum):
+	def moveColumn(self, colNum, toNum):
 		""" Move the column to a new position."""
 		oldCol = self.Columns[colNum]
 		self._columns.remove(oldCol)
@@ -2179,7 +2161,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			if begCol != curCol:
 				if curCol > begCol:
 					curCol += 1
-				self.MoveColumn(begCol, curCol)
+				self.moveColumn(begCol, curCol)
 			self.Header.SetCursor(self.defaultHdrCursor)
 		elif self._headerSizing:
 			pass
@@ -2719,10 +2701,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self._properties["RowHeight"] = val
 
 
-	def _getRowLbls(self):
+	def _getRowLables(self):
 		return self._rowLabels
 	
-	def _setRowLbls(self, val):
+	def _setRowLables(self, val):
 		self._rowLabels = val
 		self.fillGrid()
 
@@ -2882,7 +2864,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	RowHeight = property(_getRowHeight, _setRowHeight, None,
 			_("Row Height for all rows of the grid  (int)"))
 
-	RowLabels = property(_getRowLbls, _setRowLbls, None, 
+	RowLabels = property(_getRowLables, _setRowLables, None, 
 			_("List of the row labels.  (list)") )
 	
 	RowLabelWidth = property(_getRowLabelWidth, _setRowLabelWidth, None,
@@ -2934,7 +2916,7 @@ class _dGrid_test(dGrid):
 				Searchable=False, Editable=True)
 		self.addColumn(col)
 
-#		col.CustomRenderers[1] = col.stringRendererClass
+		col.CustomRenderers[1] = col.stringRendererClass
 		col.HeaderFontBold = False
 
 		col = dColumn(self, Name="Person", Order=20, DataField="name",
@@ -2956,6 +2938,8 @@ class _dGrid_test(dGrid):
 		col.HeaderHorizontalAlignment = "Right"
 		col.HeaderForegroundColor = "brown"
 
+		self.RowLabels = ["a", "b", "3"]
+		#self.ShowRowLabels = True
 
 if __name__ == '__main__':
 	class TestForm(dabo.ui.dForm):
