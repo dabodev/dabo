@@ -292,11 +292,15 @@ class dFormMixin(pm.dPemMixin):
 			top = self.Application.getUserSetting("%s.top" % name)
 			width = self.Application.getUserSetting("%s.width" % name)
 			height = self.Application.getUserSetting("%s.height" % name)
+			state = self.Application.getUserSetting("%s.windowstate" % name)
 
 			if isinstance(left, int) and isinstance(top, int):
 				self.Position = (left,top)
 			if isinstance(width, int) and isinstance(height, int):
 				self.Size = (width,height)
+
+			if state is not None:
+				self.WindowState = state
 
 			self.restoredSP = True
 
@@ -307,14 +311,21 @@ class dFormMixin(pm.dPemMixin):
 		if self.Application:
 			if self.SaveUserGeometry:
 				name = self.getAbsoluteName()
+				state = self.WindowState
+				self.Application.setUserSetting("%s.windowstate" % name, state)
 
-				pos = self.Position
-				size = self.Size
+				if state == 'Normal':
+					# Don't save size and position when the window
+					# is minimized, maximized or fullscreen because
+					# windows doesn't supply correct value if the window
+					# is in one of these staes.
+					pos = self.Position
+					size = self.Size
 
-				self.Application.setUserSetting("%s.left" % name, pos[0])
-				self.Application.setUserSetting("%s.top" % name, pos[1])
-				self.Application.setUserSetting("%s.width" % name, size[0])
-				self.Application.setUserSetting("%s.height" % name, size[1])
+					self.Application.setUserSetting("%s.left" % name, pos[0])
+					self.Application.setUserSetting("%s.top" % name, pos[1])
+					self.Application.setUserSetting("%s.width" % name, size[0])
+					self.Application.setUserSetting("%s.height" % name, size[1])
 
 
 	def setStatusText(self, *args):
@@ -587,7 +598,7 @@ class dFormMixin(pm.dPemMixin):
 				return "FullScreen"
 			elif self.IsMaximized():
 				return "Maximized"
-			elif self.IsMinimized():
+			elif self.IsIconized():
 				return "Minimized"
 			else:
 				return "Normal"
@@ -603,7 +614,7 @@ class dFormMixin(pm.dPemMixin):
 					self.ShowFullScreen(False)
 				elif self.IsMaximized():
 					self.Maximize(False)
-				elif self.IsIconized:
+				elif self.IsIconized():
 					self.Iconize(False)
 				else:
 					# window already normal, but just in case:
