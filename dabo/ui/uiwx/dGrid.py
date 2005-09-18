@@ -92,12 +92,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			#  just empty - no columns or rows added yet)
 
 		## Now, override with a custom renderer/editor for this row/col if applicable.
-		customEditor = dcol.CustomEditors.get(row)
-		customRenderer = dcol.CustomRenderers.get(row)
-		if customEditor is not None:
-			attr.SetEditor(customEditor())
-		if customRenderer is not None:
-			attr.SetRenderer(customRenderer())
+		customEditorClass = dcol.CustomEditors.get(row)
+		customRendererClass = dcol.CustomRenderers.get(row)
+		if customEditorClass is not None:
+			attr.SetEditor(customEditorClass())
+		if customRendererClass is not None:
+			attr.SetRenderer(customRendererClass())
 
 		return attr
 
@@ -574,20 +574,20 @@ class dColumn(dabo.common.dObject):
 	
 	def _updateEditor(self):
 		"""The Field, DataType, or CustomEditor has changed: set in the attr"""
-		editor = self.Editor
-		if editor is not None:
+		editorClass = self.EditorClass
+		if editorClass is not None:
 			kwargs = {}
-			if editor in (wx.grid.GridCellChoiceEditor,):
+			if editorClass in (wx.grid.GridCellChoiceEditor,):
 				kwargs["choices"] = self.ListEditorChoices
-			editor = editor(**kwargs)
+			editor = editorClass(**kwargs)
 		self._gridColAttr.SetEditor(editor)
 		
 
 	def _updateRenderer(self):
 		"""The Field, DataType, or CustomRenderer has changed: set in the attr"""
-		renderer = self.Renderer
-		if renderer is not None:
-			renderer = renderer()
+		rendClass = self.RendererClass
+		if rendClass is not None:
+			renderer = rendClass()
 		self._gridColAttr.SetRenderer(renderer)
 	
 
@@ -606,19 +606,19 @@ class dColumn(dabo.common.dObject):
 			self._properties["Caption"] = val
 
 
-	def _getCustomEditor(self):
+	def _getCustomEditorClass(self):
 		try:
-			v = self._customEditor
+			v = self._customEditorClass
 		except AttributeError:
-			v = self._customEditor = None
+			v = self._customEditorClass = None
 		return v
 
-	def _setCustomEditor(self, val):
+	def _setCustomEditorClass(self, val):
 		if self._constructed():
-			self._customEditor = val
+			self._customEditorClass = val
 			self._updateEditor()
 		else:
-			self._properties["CustomEditor"] = val
+			self._properties["CustomEditorClass"] = val
 
 
 	def _getCustomEditors(self):
@@ -632,19 +632,30 @@ class dColumn(dabo.common.dObject):
 		self._customEditors = val
 
 
-	def _getCustomRenderer(self):
+	def _getCustomListEditorChoices(self):
 		try:
-			v = self._customRenderer
+			v = self._customListEditorChoices
 		except AttributeError:
-			v = self._customRenderer = None
+			v = self._customListEditorChoices = {}
 		return v
 
-	def _setCustomRenderer(self, val):
+	def _setCustomListEditorChoices(self, val):
+		self._customListEditorChoices = val
+
+
+	def _getCustomRendererClass(self):
+		try:
+			v = self._customRendererClass
+		except AttributeError:
+			v = self._customRendererClass = None
+		return v
+
+	def _setCustomRendererClass(self, val):
 		if self._constructed():
-			self._customRenderer = val
+			self._customRendererClass = val
 			self._updateRenderer()
 		else:
-			self._properties["CustomRenderer"] = val
+			self._properties["CustomRendererClass"] = val
 
 
 	def _getCustomRenderers(self):
@@ -688,8 +699,8 @@ class dColumn(dabo.common.dObject):
 			self._properties["Editable"] = val			
 
 
-	def _getEditor(self):
-		v = self.CustomEditor
+	def _getEditorClass(self):
+		v = self.CustomEditorClass
 		if v is None:
 			v = self.defaultEditors.get(self.DataType)
 		return v
@@ -932,8 +943,8 @@ class dColumn(dabo.common.dObject):
 			self._properties["ListEditorChoices"] = val
 
 
-	def _getRenderer(self):
-		v = self.CustomRenderer
+	def _getRendererClass(self):
+		v = self.CustomRendererClass
 		if v is None:
 			v = self.defaultRenderers.get(self.DataType)
 		return v
@@ -1035,31 +1046,41 @@ class dColumn(dabo.common.dObject):
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption displayed in this column's header  (str)") )
 
-	CustomEditor = property(_getCustomEditor, _setCustomEditor, None,
-			_("""Custom Editor for this column. Default: None. 
+	CustomEditorClass = property(_getCustomEditorClass, 
+			_setCustomEditorClass, None,
+			_("""Custom Editor class for this column. Default: None. 
 
-			Set this to override the default editor, which Dabo will select based 
-			on the data type of the field."""))
+			Set this to override the default editor class, which Dabo will 
+			select based on the data type of the field."""))
 
 	CustomEditors = property(_getCustomEditors, _setCustomEditors, None,
 			_("""Dictionary of custom editors for this column. Default: {}. 
 
-			Set this to override the default editor on a row-by-row basis. If there
-			is no custom editor for a given row in CustomEditors, the CustomEditor
-			property setting will apply."""))
+			Set this to override the default editor class on a row-by-row basis. 
+			If there is no custom editor class for a given row in CustomEditors, 
+			the CustomEditor property setting will apply."""))
 
-	CustomRenderer = property(_getCustomRenderer, _setCustomRenderer, None,
-			_("""Custom Renderer for this column. Default: None. 
+	CustomListEditorChoices = property(_getCustomListEditorChoices, 
+			_setCustomListEditorChoices, None,
+			_("""Dictionary of custom list choices for this column. Default: {}. 
 
-			Set this to override the default renderer, which Dabo will select based 
+			Set this to override the default list choices on a row-by-row basis. 
+			If there is no custom entry for a given row in CustomListEditorChoices, 
+			the ListEditorChoices property setting will apply."""))
+
+	CustomRendererClass = property(_getCustomRendererClass, 
+			_setCustomRendererClass, None,
+			_("""Custom Renderer class for this column. Default: None. 
+
+			Set this to override the default renderer class, which Dabo will select based 
 			on the data type of the field."""))
 
 	CustomRenderers = property(_getCustomRenderers, _setCustomRenderers, None,
 			_("""Dictionary of custom renderers for this column. Default: {}. 
 
-			Set this to override the default renderer on a row-by-row basis. If there
-			is no custom renderer for a given row in CustomRenderers, the 
-			CustomRenderer property setting will apply."""))
+			Set this to override the default renderer class on a row-by-row basis. 
+			If there is no custom renderer for a given row in CustomRenderers, the 
+			CustomRendererClass property setting will apply."""))
 
 	DataType = property(_getDataType, _setDataType, None,
 			_("Description of the data type for this column  (str)") )
@@ -1071,9 +1092,9 @@ class dColumn(dabo.common.dObject):
 				incremental searching will not be enabled, regardless of the 
 				Searchable property setting.  (bool)""") )
 
-	Editor = property(_getEditor, None, None,
-			_("""Returns the editor used for cells in the column. This will be 
-				self.CustomEditor if set, or the default editor for the 
+	EditorClass = property(_getEditorClass, None, None,
+			_("""Returns the editor class used for cells in the column. This 
+				will be self.CustomEditorClass if set, or the default editor for the 
 				datatype of the field.  (varies)"""))
   
 	DataField = property(_getDataField, _setDataField, None,
@@ -1131,10 +1152,10 @@ class dColumn(dabo.common.dObject):
 			_("""Order of this column. Columns in the grid are arranged according
 			to their relative Order. (int)""") )
 
-	Renderer = property(_getRenderer, None, None,
-			_("""Returns the renderer used for cells in the column. This will be 
-			self.CustomRenderer if set, or the default renderer for the datatype 
-			of the field.  (varies)"""))
+	RendererClass = property(_getRendererClass, None, None,
+			_("""Returns the renderer class used for cells in the column. This will be 
+			self.CustomRendererClass if set, or the default renderer class for the 
+			datatype of the field.  (varies)"""))
   
 	Searchable = property(_getSearchable, _setSearchable, None,
 			_("""Specifies whether this column's incremental search is enabled. 
@@ -1354,7 +1375,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def setRendererForCell(self, row, col, rnd):
 		## dColumn maintains a dict of overriding renderer mappings, but keep this
 		## function for convenience.
-		dcol = self.Columns[row]
+		dcol = self.Columns[col]
 		dcol.CustomRenderers[row] = rnd
 		#self.SetCellRenderer(row, col, rnd)
 				
