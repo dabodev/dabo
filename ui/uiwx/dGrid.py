@@ -575,7 +575,9 @@ class dColumn(dabo.common.dObject):
 	def _updateEditor(self):
 		"""The Field, DataType, or CustomEditor has changed: set in the attr"""
 		editorClass = self.EditorClass
-		if editorClass is not None:
+		if editorClass is None:
+			editor = None
+		else:
 			kwargs = {}
 			if editorClass in (wx.grid.GridCellChoiceEditor,):
 				kwargs["choices"] = self.ListEditorChoices
@@ -586,7 +588,9 @@ class dColumn(dabo.common.dObject):
 	def _updateRenderer(self):
 		"""The Field, DataType, or CustomRenderer has changed: set in the attr"""
 		rendClass = self.RendererClass
-		if rendClass is not None:
+		if rendClass is None:
+			renderer = None
+		else:
 			renderer = rendClass()
 		self._gridColAttr.SetRenderer(renderer)
 	
