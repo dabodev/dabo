@@ -1470,6 +1470,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def _getEncoding(self):
 		return self._getBackendObject().Encoding
 	
+	def _setEncoding(self, val):
+		self._getBackendObject().Encoding = val
+	
 	def _getDescrip(self):
 		return self.__backend.getDescription(self)
 			
@@ -1548,7 +1551,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	CurrentSQL = property(_getCurrentSQL, None, None,
 			_("Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."))
 
-	Encoding = property(_getEncoding, None, None,
+	Encoding = property(_getEncoding, _setEncoding, None,
 			_("Encoding type used by the Backend  (string)") )
 			
 	FieldDescription = property(_getDescrip, None, None,

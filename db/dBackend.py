@@ -13,8 +13,9 @@ class dBackend(dabo.common.dObject):
 		super(dBackend, self).__init__()
 		self.dbModuleName = None
 		self._connection = None
-		sysenc = sys.getdefaultencoding()
-		self._encoding = sysenc == 'ascii' and 'latin-1' or sysenc
+#		sysenc = sys.getdefaultencoding()
+#		self._encoding = sysenc == 'ascii' and 'latin-1' or sysenc
+		self._encoding = "utf-8"
 
 	def isValidModule(self):
 		""" Test the dbapi to see if it is supported on this computer. 
