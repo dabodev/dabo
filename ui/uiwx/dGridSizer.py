@@ -350,7 +350,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 				self.append(itm, flag=f)
 
 
-	def drawOutline(self, win):
+	def drawOutline(self, win, recurse=False):
 		""" Need to override this method to draw the outline
 		properly for the grid.
 		"""
