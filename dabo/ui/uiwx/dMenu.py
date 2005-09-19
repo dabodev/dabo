@@ -8,9 +8,9 @@ import dabo.dEvents as dEvents
 
 
 # wx constants for styles
-dNormalItem = wx.ITEM_NORMAL
-dCheckItem =  wx.ITEM_CHECK
-dRadioItem = wx.ITEM_RADIO
+NormalItemType = wx.ITEM_NORMAL
+CheckItemType =  wx.ITEM_CHECK
+RadioItemType = wx.ITEM_RADIO
 
 
 class dMenu(wx.Menu, pm.dPemMixin):
@@ -82,7 +82,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 	
 
 	def append(self, caption, bindfunc=None, help="", bmp=None, menutype="", 
-	           **kwargs):
+				**kwargs):
 		"""Append a dMenuItem with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
@@ -127,21 +127,23 @@ class dMenu(wx.Menu, pm.dPemMixin):
 	def _getItem(self, prompt, bindfunc, help, icon, menutype, **kwargs):
 		itmtyp = self._getItemType(menutype)
 		itm = dMenuItem.dMenuItem(self, Caption=prompt, HelpText=help, Icon=icon, 
-		                          kind=itmtyp, **kwargs)
+				kind=itmtyp, **kwargs)
 		if bindfunc:
 			itm.bindEvent(dEvents.Hit, bindfunc)
 		return itm
 
 	def _getItemType(self, typ):
 		typ = str(typ).lower()[:3]
-		ret = dNormalItem
-		if typ in ("che", "chk"):
-			ret = dCheckItem
-		elif typ == "rad":
-			# Currently only implemented under Windows and GTK, 
-			# use #if wxHAS_RADIO_MENU_ITEMS to test for 
-			# availability of this feature.
-			ret = dRadioItem
+		ret = NormalItemType
+		# This is to work around a bug in Gtk 
+		if self.Application.Platform != "GTK":
+			if typ in ("che", "chk"):
+				ret = CheckItemType
+			elif typ == "rad":
+				# Currently only implemented under Windows and GTK, 
+				# use #if wxHAS_RADIO_MENU_ITEMS to test for 
+				# availability of this feature.
+				ret = RadioItemType
 		return ret
 
 	def _setId(self, id_):
@@ -157,7 +159,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 			# and re-raise Dabo events. If Application
 			# is None, however, this won't work because of wx limitations.
 			self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT,
-			                            self.__onWxMenuHighlight, id=id_)
+					self.__onWxMenuHighlight, id=id_)
 		
 	def _isPopupMenu(self):
 		## TODO: Make dMenu work as a submenu, a child of dMenuBar, or as a popup.
