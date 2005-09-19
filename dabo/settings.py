@@ -43,7 +43,7 @@ fastNameSet = False
 
 # See dabo/common/eventMixin/_autoBindEvents for an explanation of the 
 # next setting:
-autoBindEvents = False
+autoBindEvents = True
 
 ### Settings - end
 

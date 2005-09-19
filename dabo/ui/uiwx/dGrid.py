@@ -46,7 +46,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 	def _initTable(self):
 		self.colDefs = []
-		self._oldRowCount = None
+		self._oldRowCount = 0
 
 
 	def GetAttr(self, row, col, kind=0):
@@ -1179,7 +1179,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
-		
+
 	def _afterInit(self):
 		self._header = None
 		self.fieldSpecs = {}
@@ -2581,6 +2581,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if self._constructed():
 			if self.DataSource is not None:
 				raise ValueError, "Cannot set DataSet: DataSource defined."
+			# We must make sure the grid's table is initialized first:
+			self._Table
 			self._dataSet = val
 			self.fillGrid(True)
 			biz = self.getBizobj()
@@ -2601,6 +2603,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _setDataSource(self, val):
 		if self._constructed():
+			# We must make sure the grid's table is initialized first:
+			self._Table
 			oldBizobj = self.getBizobj()
 			if oldBizobj:
 				oldBizobj.unbindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
