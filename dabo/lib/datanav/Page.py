@@ -71,8 +71,8 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 	
 				
 class Page(dabo.ui.dPage):
-	def afterInit(self):
-		super(Page, self).afterInit()
+	def _afterInit(self):
+		super(Page, self)._afterInit()
 		# Needed for drawing sizer outlines
 		self.redrawOutlines = False
 		self.bindEvent(dEvents.Resize, self.onResize)
