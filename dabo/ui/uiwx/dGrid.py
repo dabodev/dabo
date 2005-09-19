@@ -1270,9 +1270,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		self.bindEvent(dEvents.KeyDown, self._onKeyDown)
 		self.bindEvent(dEvents.GridRowSize, self._onGridRowSize)
-		self.bindEvent(dEvents.GridSelectCell, self._onGridSelectCell)
+		self.bindEvent(dEvents.GridCellSelected, self._onGridCellSelected)
 		self.bindEvent(dEvents.GridColSize, self._onGridColSize)
 		self.bindEvent(dEvents.GridCellEdited, self._onGridCellEdited)
+		self.bindEvent(dEvents.GridMouseLeftClick, self._onGridMouseLeftClick)
 
 		## wx.EVT_CONTEXT_MENU doesn't appear to be working for dGrid yet:
 #		self.bindEvent(dEvents.GridContextMenu, self._onContextMenu)
@@ -2232,6 +2233,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		evt.Continue = False
 
 
+	def _onGridMouseLeftClick(self, evt):
+		self.ShowCellEditControl()
+
+
 	def _onGridRowSize(self, evt):
 		""" Occurs when the user sizes the height of the row. If the
 		property 'SameSizeRows' is True, Dabo overrides the wxPython 
@@ -2252,10 +2257,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.ForceRefresh()
 
 	
-	def _onGridSelectCell(self, evt):
+	def _onGridCellSelected(self, evt):
 		""" Occurs when the grid's cell focus has changed."""
 		oldRow = self.CurrentRow
 		newRow = evt.EventData["row"]
+		if self.ActivateEditorOnSelect:
+			dabo.ui.callAfter(self.EnableCellEditControl)
 		if oldRow != newRow:
 			bizobj = self.getBizobj()
 			if bizobj:
@@ -2330,7 +2337,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		evt.Skip()
 
 	def __onWxGridSelectCell(self, evt):
-		self.raiseEvent(dEvents.GridSelectCell, evt)
+		self.raiseEvent(dEvents.GridCellSelected, evt)
 		evt.Skip()
 
 	def __onWxHeaderContextMenu(self, evt):
@@ -2435,6 +2442,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	##----------------------------------------------------------##
 	##              begin: property definitions                 ##
 	##----------------------------------------------------------##
+	def _getActivateEditorOnSelect(self):
+		try:
+			v = self._activateEditorOnSelect
+		except AttributeError:
+			v = self._activateEditorOnSelect = True
+		return v
+
+	def _setActivateEditorOnSelect(self, val):
+		self._activateEditorOnSelect = bool(val)
+
+
 	def _getColumns(self):
 		return self._columns
 
@@ -2778,6 +2796,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		else:
 			self._properties["Table"] = value
 
+
+	ActivateEditorOnSelect = property(
+			_getActivateEditorOnSelect, _setActivateEditorOnSelect, None,
+			_("Specifies whether the cell editor, if any, is activated upon cell selection."))
 
 	ColumnCount = property(_getColumnCount, _setColumnCount, None, 
 			_("Number of columns in the grid.  (int)") )

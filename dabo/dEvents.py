@@ -464,7 +464,7 @@ class GridRowSize(GridEvent):
 	"""Occurs when the grid's rows are resized."""
 	pass
 
-class GridSelectCell(GridEvent):
+class GridCellSelected(GridEvent):
 	"""Occurs when the a new cell is selected in the grid."""
 	pass
 
