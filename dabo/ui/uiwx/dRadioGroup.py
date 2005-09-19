@@ -48,6 +48,38 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 			self.enableKey(item, val)
 		
 		
+	def showKey(self, item, val=True):
+		"""Shows or hides an individual button, referenced by key value."""
+		index = self.Keys[item]
+		self.ShowItem(index, val)
+	
+	def showPosition(self, item, val=True):
+		"""Shows or hides an individual button, referenced by position (index)."""
+		self.ShowItem(item, val)
+		
+	def showString(self, item, val=True):
+		"""Shows or hides an individual button, referenced by string display value."""
+		index = self.FindString(item)
+		self.ShowItem(index, val)
+		
+	def show(self, item, val=True):
+		"""Shows or hides an individual button.
+		
+		The item argument specifies which button to hide/show, and its type
+		depends on the setting of self.ValueType:
+		
+			"position" : The item is referenced by index position.
+			"string"   : The item is referenced by its string display value.
+			"key"      : The item is referenced by its key value.
+		"""
+		if self.ValueMode == "position":
+			self.showPosition(item, val)
+		elif self.ValueMode == "string":
+			self.showString(item, val)
+		elif self.ValueMode == "key":
+			self.showKey(item, val)
+		
+		
 	def _getInitPropertiesList(self):
 		additional = ["MaxElements", "Choices"]
 		original = list(super(dRadioGroup, self)._getInitPropertiesList())
