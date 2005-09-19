@@ -61,6 +61,7 @@ class dFormMixin(pm.dPemMixin):
 		self.bindEvent(dEvents.Activate, self.__onActivate)
 		self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
 		self.bindEvent(dEvents.Close, self.__onClose)
+		self.bindEvent(dEvents.Resize, self.__onResize)
 	
 		
 	def __onWxClose(self, evt):
@@ -82,10 +83,10 @@ class dFormMixin(pm.dPemMixin):
 		# Restore the saved size and position, which can't happen 
 		# in __init__ because we may not have our name yet.
 		try:
-			restSP = self.restoredSP
+			restoredSP = self.restoredSP
 		except:
-			restSP = False
-		if not restSP:
+			restoredSP = False
+		if not restoredSP:
 			self.restoreSizeAndPosition()
 		
 		# If the ShowStatusBar property was set to True, this will create it
@@ -97,10 +98,19 @@ class dFormMixin(pm.dPemMixin):
 			self.Application._setActiveForm(self)
 	
 	def __onDeactivate(self, evt):
-		self.saveSizeAndPosition()
+#		self.saveSizeAndPosition()
 		if self.Application is not None and self.Application.ActiveForm == self:
 			self.Application._setActiveForm(None)
 	
+
+	def __onResize(self, evt):
+		try:
+			restoredSP = self.restoredSP
+		except:
+			restoredSP = False
+
+		if restoredSP:		
+			self.saveSizeAndPosition()
 	
 	def __onClose(self, evt):
 		force = evt.EventData["force"]
@@ -111,18 +121,13 @@ class dFormMixin(pm.dPemMixin):
 			# Run the cleanup code.
 			self.closing()
 		
+		app = self.Application
+
 		# On the Mac, this next line prevents Bus Errors when closing a form.
 		self.Visible = False	
 		self._isClosed = True
 		self.SetFocus()
-		if self.Application is not None:
-			self.saveSizeAndPosition()
-			if self == self.Application.MainForm:
-				for form in self.Application.uiForms:
-					try:
-						form.saveSizeAndPosition()
-					except wx.PyDeadObjectError:
-						pass
+		if app is not None:
 			try:
 				self.Application.uiForms.remove(self)
 			except: pass
@@ -301,7 +306,6 @@ class dFormMixin(pm.dPemMixin):
 
 			if state is not None:
 				self.WindowState = state
-
 			self.restoredSP = True
 
 
