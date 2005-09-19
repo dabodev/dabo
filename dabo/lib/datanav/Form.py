@@ -31,7 +31,7 @@ class Form(dabo.ui.dForm):
 		# the form? Default is to only affect the current bizobj
 		self.saveCancelRequeryAll = False
 		# Used for turning sizer outline drawing on pages
-		self.drawSizerOutlines = False
+		self._drawSizerOutlines = False
 		# What sort of pageframe style do we want?
 		# Choices are "tabs", "list" or "select"
 		self.pageFrameStyle = "tabs"
@@ -179,7 +179,7 @@ class Form(dabo.ui.dForm):
   
 		if self.FormType != "Edit":
 			menu.append(_("Requery")+"\tCtrl+R", bindfunc=self.onRequery, bmp="requery",
-					help=_("Get a new recordset from the backend."))		
+					help=_("Get a new recordset from the backend."), menutype="check")		
 		if self.FormType != "PickList":
 			menu.append(_("Save Changes")+"\tCtrl+S", bindfunc=self.onSave, bmp="save",
 					help=_("Save any changes made to the records."))	
@@ -206,15 +206,20 @@ class Form(dabo.ui.dForm):
 					help=_("Delete the current record from the dataset."))
 			menu.appendSeparator()
   
-		menu.append(_("Show/Hide Sizer Lines")+"\tCtrl+L",	
+		vm = self.MenuBar.getMenu(_("View"))
+		vm.append(_("Show/Hide Sizer Lines")+"\tCtrl+L",	
 				bindfunc=self.onShowSizerLines, menutype="check",
 				help=_("Cool debug feature, check it out!"))
-  
 		return menu
 
 
 	def onShowSizerLines(self, evt):
-		self.drawSizerOutlines = evt.EventObject.IsChecked()
+		if self.Application.Platform == "GTK":
+			# The menu event will not have an 'IsChecked' method, due
+			# to a platform bug.			
+			self.DrawSizerOutlines = not self.DrawSizerOutlines
+		else:
+			self.DrawSizerOutlines = evt.EventObject.IsChecked()
 		self.refresh()
 
 

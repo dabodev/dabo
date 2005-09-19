@@ -2,7 +2,6 @@ import os
 import sys
 import wx
 import dabo
-import dabo.ui
 import dabo.dException as dException
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _, n_
@@ -14,9 +13,8 @@ from dabo.ui import dPanel
 import Grid
 
 IGNORE_STRING, CHOICE_TRUE, CHOICE_FALSE = (n_("-ignore-"),
-					    n_("Is True"),
-					    n_("Is False")
-					    )
+		n_("Is True"),
+		n_("Is False") )
 
 ASC, DESC = (n_("asc"), n_("desc"))
 
@@ -110,12 +108,12 @@ class Page(dabo.ui.dPage):
 
 		
 	def onResize(self, evt):
-		self.redrawOutlines = self.Form.drawSizerOutlines
+		self.redrawOutlines = self.Form.DrawSizerOutlines
 		
 	def onIdle(self, evt):
 		if self.redrawOutlines:
 			self.redrawOutlines = False
-			self.drawOutline(self, self.GetSizer(), 0)
+			self.drawOutline(self, self.Sizer, 0)
 
 	def drawOutline(self, win, sz, level):
 		if sz is None:
