@@ -45,7 +45,12 @@ class Grid(dabo.ui.dGrid):
 
 	def populate(self):
 		##pkm ds = self.getDataSet(requery=True)
-		ds = self.DataSet
+		ds = self.DataSource
+		if not ds:
+			# Usually, datanav grids will have a DataSource pointing to the DataSource
+			# of a bizobj. However, they could also have no datasource but instead a
+			# raw DataSet. This is true in minesweeper, for example.
+			ds = self.DataSet
 		if not self.built and ds:
 			self.buildFromDataSet(ds, 
 					keyCaption=self.fieldCaptions, 
@@ -57,7 +62,7 @@ class Grid(dabo.ui.dGrid):
 		else:
 			## pkm: this call appears to be redundant, as the grid as already been 
 			##      filled in dGrid:
-			#self.fillGrid(True)
+			self.fillGrid(True)
 			pass
 		self.Form.refresh()
 		
