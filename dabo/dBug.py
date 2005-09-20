@@ -1,7 +1,7 @@
 import inspect
 from cStringIO import StringIO
 
-def logPoint(msg=""):
+def logPoint(msg="", levels=None):
 	stack = inspect.stack()
 	# get rid of logPoint's part of the stack:
 	stack = stack[1:]
@@ -9,7 +9,12 @@ def logPoint(msg=""):
 	output = StringIO()
 	if msg:
 		output.write(str(msg) + "\n")
-	for stackLine in stack:
+	
+	if levels is None:
+		stackSection = stack
+	else:
+		stackSection = stack[-1*levels:]
+	for stackLine in stackSection:
 		frame, filename, line, funcname, lines, unknown = stackLine
 		if filename.endswith("/unittest.py"):
 			# unittest.py code is a boring part of the traceback

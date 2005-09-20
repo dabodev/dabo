@@ -344,6 +344,8 @@ class dApp(dabo.common.dObject):
 		self.uiApp.onEditFind(evt)
 	def onEditFindAgain(self, evt):
 		self.uiApp.onEditFindAgain(evt)
+	def onShowSizerLines(self, evt):
+		self.uiApp.onShowSizerLines(evt)
 	def onEditPreferences(self, evt):
 		try:
 			self.ActiveForm.onEditPreferences(evt)
@@ -359,6 +361,14 @@ class dApp(dabo.common.dObject):
 		import dabo.ui.dialogs.about as about
 		dlg = about.About(self.MainForm)
 		dlg.show()
+	
+	
+	def _getDrawSizerOutlines(self):
+		return self.uiApp.DrawSizerOutlines
+	
+	def _setDrawSizerOutlines(self, val):
+		self.uiApp.DrawSizerOutlines = val
+	
 	
 	def _getHomeDirectory(self):
 		try:
@@ -514,6 +524,9 @@ class dApp(dabo.common.dObject):
 	
 	Crypto = property(_getCrypto, _setCrypto, None, 
 			_("Reference to the object that provides cryptographic services.  (varies)" ) )
+	
+	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
+			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)") )
 	
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
 			_("Specifies the home-base directory for the application's program files (absolute path)."))
