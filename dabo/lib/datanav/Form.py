@@ -30,8 +30,6 @@ class Form(dabo.ui.dForm):
 		# current primary bizobj, or do we use the main bizobj for
 		# the form? Default is to only affect the current bizobj
 		self.saveCancelRequeryAll = False
-		# Used for turning sizer outline drawing on pages
-		self._drawSizerOutlines = False
 		# What sort of pageframe style do we want?
 		# Choices are "tabs", "list" or "select"
 		self.pageFrameStyle = "tabs"
@@ -205,22 +203,8 @@ class Form(dabo.ui.dForm):
 			menu.append(_("Delete Current Record"), bindfunc=self.onDelete, bmp="delete",
 					help=_("Delete the current record from the dataset."))
 			menu.appendSeparator()
-  
-		vm = self.MenuBar.getMenu(_("View"))
-		vm.append(_("Show/Hide Sizer Lines")+"\tCtrl+L",	
-				bindfunc=self.onShowSizerLines, menutype="check",
-				help=_("Cool debug feature, check it out!"))
+
 		return menu
-
-
-	def onShowSizerLines(self, evt):
-		if self.Application.Platform == "GTK":
-			# The menu event will not have an 'IsChecked' method, due
-			# to a platform bug.			
-			self.DrawSizerOutlines = not self.DrawSizerOutlines
-		else:
-			self.DrawSizerOutlines = evt.EventObject.IsChecked()
-		self.refresh()
 
 
 	def setupMenu(self):
@@ -229,7 +213,7 @@ class Form(dabo.ui.dForm):
 		Called whenever the primary bizobj is set or whenever this
 		frame receives the focus.
 		"""
-		mb = self.GetMenuBar()
+		mb = self.MenuBar
 		menuIndex = mb.FindMenu(_("&Navigation"))
 		
 		if menuIndex < 0:
@@ -604,17 +588,6 @@ class Form(dabo.ui.dForm):
 	def _setRelationSpecs(self, val):
 		self._relationSpecs = val
 		
-	def _setDrawSizerOutlines(self, val):
-		self._drawSizerOutlines = val
-		# Need to update the pages
-		for i in range(self.pageFrame.PageCount):
-			pg = self.pageFrame.GetPage(i)
-			if hasattr(pg, "drawSizerOutlines"):
-				pg.drawSizerOutlines = val
-	def _getDrawSizerOutlines(self):
-		return self._drawSizerOutlines		
-	
-
 	# Property definitions:
 	FormType = property(_getFormType, _setFormType, None,
 			"Specifies the type of form this is:\n"
@@ -632,6 +605,3 @@ class Form(dabo.ui.dForm):
 
 	RelationSpecs = property(_getRelationSpecs, _setRelationSpecs, None, 
 			"Reference to the dictionary containing table relation specs")
-
-	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
-			"Controls whether outlines are drawn indicating the current state of the sizers on the form.")

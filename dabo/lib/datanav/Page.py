@@ -71,14 +71,6 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 	
 				
 class Page(dabo.ui.dPage):
-	def _afterInit(self):
-		super(Page, self)._afterInit()
-		# Needed for drawing sizer outlines
-		self.redrawOutlines = False
-		self.bindEvent(dEvents.Resize, self.onResize)
-		self.bindEvent(dEvents.Paint, self.onResize)
-		self.bindEvent(dEvents.Idle, self.onIdle)
-
 	def newRecord(self, ds=None):
 		""" Called by a browse grid when the user wants to edit the current row. 
 		"""
@@ -107,85 +99,6 @@ class Page(dabo.ui.dPage):
 			self.Parent.editByDataSource(ds)
 
 		
-	def onResize(self, evt):
-		self.redrawOutlines = self.Form.DrawSizerOutlines
-		
-	def onIdle(self, evt):
-		if self.redrawOutlines:
-			self.redrawOutlines = False
-			self.drawOutline(self, self.Sizer, 0)
-
-	def drawOutline(self, win, sz, level):
-		if sz is None:
-			return
-		x, y = sz.GetPosition()
-		w, h = sz.GetSize()
-		off = 1
-		
-		if isinstance(sz, wx.NotebookSizer):
-			nb = sz.GetNotebook()
-			for i in range(nb.GetPageCount()):
-				pg = nb.GetPage(i)
-				self.drawOutline(pg, pg.GetSizer(), level+1)
-		else:
-			chil = sz.GetChildren()
-			for c in chil:
-				if c.IsSizer():
-					self.drawOutline(win, c.GetSizer(), level+1)
-# 				elif c.IsSpacer():
-# 					self.drawOutline(win, c.GetSpacer(), level+1)
-				else:
-					# Window
-					subwin = c.GetWindow()
-					if subwin is not None:
-						self.drawOutline(subwin, subwin.GetSizer(), level+1) 
-
-		# Initialize the draw client
-		dc = wx.ClientDC(win)
-		if isinstance(sz, wx.NotebookSizer):
-			dc.SetPen(wx.Pen("green", 1, wx.SOLID))
-		if isinstance(sz, wx.NotebookSizer):
-			dc.SetPen(wx.Pen("green", 1, wx.SOLID))
-		else:
-			if isinstance(sz, wx.GridBagSizer):
-				# This is necessary due to a bug in the subclassing of the
-				# wx.GridBagSizer class.
-				self.drawGridBagSizerOutline(win, sz)
-			else:
-				sz.drawOutline(win)
-
-
-	def drawGridBagSizerOutline(self, win, sz):
-		""" This is a hack to get around the bug in wxPython where
-		subclasses of wx.GridBagSizer added to another sizer lose their 
-		subclass info, and revert to the base wx.GridBagSizer class.
-		"""
-		dc = wx.ClientDC(win)
-		dc.SetBrush(wx.TRANSPARENT_BRUSH)
-		dc.SetLogicalFunction(wx.COPY)
-		x, y = sz.GetPosition()
-		w, h = sz.GetSize()
-		rows = sz.GetRows()
-		cols = sz.GetCols()
-		vgap = sz.GetVGap()
-		hgap = sz.GetHGap()
-		x2,y2 = x,y
-		rhts = sz.GetRowHeights()
-		dc.SetPen(wx.Pen("blue", 1, wx.SOLID))
-		for hh in rhts:
-			dc.DrawRectangle(x2, y2, w, hh)
-			y2 += hh+vgap
-		x2 = x
-		y2 = y
-		cwds = sz.GetColWidths()
-		dc.SetPen(wx.Pen("red", 1, wx.SOLID))
-		for ww in cwds:
-			dc.DrawRectangle(x2, y2, ww, h)
-			x2 += ww+hgap
-		dc.SetPen(wx.Pen("green", 3, wx.LONG_DASH))
-		dc.DrawRectangle(x,y,w,h)
-
-
 class SelectOptionsPanel(dPanel):
 	""" Base class for the select options panel.
 	"""
