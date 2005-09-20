@@ -52,13 +52,13 @@ class Grid(dabo.ui.dGrid):
 			# raw DataSet. This is true in minesweeper, for example.
 			ds = self.DataSet
 		if not self.built and ds:
-			self.buildFromDataSet(ds, 
+			if self.buildFromDataSet(ds, 
 					keyCaption=self.fieldCaptions, 
 					columnsToSkip=self.skipFields, 
 					colOrder=self.colOrders,
 					colWidths=self.colWidths,
-					autoSizeCols=False)
-			self.built = True
+					autoSizeCols=False):
+				self.built = True
 		else:
 			## pkm: this call appears to be redundant, as the grid as already been 
 			##      filled in dGrid:
