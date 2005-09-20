@@ -377,6 +377,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def IsEmptyCell(self, row, col):
+		if row >= self.grid.RowCount:
+			self.fillTable(True)
+			return ""
+
 		bizobj = self.grid.getBizobj()
 		field = self.grid.Columns[col].DataField
 		if bizobj:
@@ -393,8 +397,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def GetValue(self, row, col):
+		if row >= self.grid.RowCount:
+			self.fillTable(True)
+			return ""
+
 		bizobj = self.grid.getBizobj()
 		field = self.grid.Columns[col].DataField
+		
 		if bizobj:
 			if field:
 				return bizobj.getFieldVal(field, row)
