@@ -381,7 +381,9 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		
 		for ch in self.Children:
 			if ch.IsSizer():
-				ch.GetSizer().drawOutline(win, recurse)
+				sz = ch.GetSizer()
+				if hasattr(sz, "drawOutline"):
+					sz.drawOutline(win, recurse)
 			elif ch.IsWindow():
 				w = ch.GetWindow()
 				if isinstance(w, dabo.ui.dPageFrame):
