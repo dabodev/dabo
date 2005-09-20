@@ -229,7 +229,9 @@ class dSizerMixin(dabo.common.dObject):
 		if recurse:
 			for ch in self.GetChildren():
 				if ch.IsSizer():
-					ch.GetSizer().drawOutline(win, recurse)
+					sz = ch.GetSizer()
+					if hasattr(sz, "drawOutline"):
+						sz.drawOutline(win, recurse)
 				elif ch.IsWindow():
 					w = ch.GetWindow()
 					if isinstance(w, dabo.ui.dPageFrame):
