@@ -101,6 +101,11 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	def _initEvents(self):
 		super(dRadioGroup, self)._initEvents()
 		self.Bind(wx.EVT_RADIOBOX, self._onWxHit)
+	
+			
+	def _onWxHit(self, evt):
+		self.flushValue()
+		dRadioGroup.doDefault(evt)
 		
 		
 	def getPropertyInfo(self, name):
