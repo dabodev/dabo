@@ -1439,7 +1439,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		property, this is a 1:1 dict containing key:order.
 		"""
 		if not ds:
-			return
+			return False
 		if isinstance(ds, basestring):
 			# assume it is a bizobj datasource:
 			self.DataSource = ds
@@ -1448,7 +1448,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.DataSet = ds
 		bizobj = self.getBizobj()
 		if bizobj:
-			firstRec = bizobj.getDataSet(rows=1)[0]
+			data = bizobj.getDataSet(rows=1)
+			if data:
+				firstRec = data[0]
+			else:
+				return False
 		else:
 			# not a bizobj datasource
 			firstRec = ds[0]
@@ -1501,6 +1505,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.fillGrid(True)
 		if autoSizeCols:
 			self.autoSizeCol("all")
+		return True
 
 
 	def autoSizeCol(self, colNum, persist=False):

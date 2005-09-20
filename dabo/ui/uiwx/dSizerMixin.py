@@ -231,11 +231,12 @@ class dSizerMixin(dabo.common.dObject):
 				if ch.IsSizer():
 					ch.GetSizer().drawOutline(win, recurse)
 				elif ch.IsWindow():
-					try:
-						w = ch.GetWindow()
+					w = ch.GetWindow()
+					if isinstance(w, dabo.ui.dPageFrame):
+						w = w.SelectedPage
+					if hasattr(w, "Sizer") and w.Sizer:	
 						w.Sizer.drawOutline(w, True)
-					except: pass
-	
+
 	
 	def listMembers(self, recurse=False, lvl=0):
 		"""Debugging method. This will list all the members of this sizer,
