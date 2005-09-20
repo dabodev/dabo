@@ -378,6 +378,16 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			x2 += ww+hgap
 		dc.SetPen(wx.Pen("green", 3, wx.LONG_DASH))
 		dc.DrawRectangle(x,y,w,h)
+		
+		for ch in self.Children:
+			if ch.IsSizer():
+				ch.GetSizer().drawOutline(win, recurse)
+			elif ch.IsWindow():
+				w = ch.GetWindow()
+				if isinstance(w, dabo.ui.dPageFrame):
+					w = w.SelectedPage
+				if hasattr(w, "Sizer") and w.Sizer:	
+					w.Sizer.drawOutline(w, True)
 	
 	
 	def _getMaxRows(self):
