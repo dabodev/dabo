@@ -20,16 +20,11 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 	def _initEvents(self):
 		super(dCheckBox, self)._initEvents()
 		self.Bind(wx.EVT_CHECKBOX, self._onWxHit)
-		
-		if wx.Platform == "__WXMAC__":
-			# On Mac, checkboxes don't receive the focus, so we need to flush the 
-			# value on every hit. (pkm: I'm thinking maybe we should do it this 
-			# way for all platforms, for all non-textentry data controls.)
-			self.bindEvent(dEvents.Hit, self.__onHit )
 	
 			
-	def __onHit(self, evt):
+	def _onWxHit(self, evt):
 		self.flushValue()
+		dCheckBox.doDefault(evt)
 
 		
 	# property get/set functions

@@ -157,7 +157,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def flushValue(self):
 		""" Save any changes to the underlying source field."""
 		curVal = self.Value
-		
+		ret = None
 		try:
 			oldVal = self._oldVal
 		except AttributeError:
@@ -168,7 +168,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				src = self.Source
 				if self._srcIsBizobj:
 					try:
-						return src.setFieldVal(self.DataField, curVal)
+						ret = src.setFieldVal(self.DataField, curVal)
 					except AttributeError:
 						# Eventually, we'll want our global error handler be the one to write
 						# to the errorLog, at which point we should reraise the exception as 
@@ -191,12 +191,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			self._afterValueChanged()
 		
 		# In most controls, self._oldVal is set upon GotFocus. Some controls
-		# like dCheckBox on Mac and dDropdownList don't emit focus events, so
+		# like dCheckBox and dDropdownList don't emit focus events, so
 		# flushValue must stand alone (those controls call flushValue() upon
 		# every Hit, while other controls call flushValue() upon LostFocus. 
 		# Setting _oldVal to None here ensures that any changes will get saved
 		# no matter what type of control we are...
 		self._oldVal = None
+		return ret
 
 
 	def saveValue(self):
