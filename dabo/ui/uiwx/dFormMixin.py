@@ -47,6 +47,8 @@ class dFormMixin(pm.dPemMixin):
 			self.Application.uiForms.add(self)
 		# Flag to skip updates when they aren't needed
 		self._isClosed = False
+		# Sizer outline drawing flag
+		self.__needOutlineRedraw = False
 		# Centering information
 		self._normLeft = self.Left
 		self._normTop = self.Top
@@ -62,6 +64,8 @@ class dFormMixin(pm.dPemMixin):
 		self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
 		self.bindEvent(dEvents.Close, self.__onClose)
 		self.bindEvent(dEvents.Resize, self.__onResize)
+		self.bindEvent(dEvents.Paint, self.__onPaint)
+		self.bindEvent(dEvents.Idle, self.__onIdle)
 	
 		
 	def __onWxClose(self, evt):
@@ -108,9 +112,19 @@ class dFormMixin(pm.dPemMixin):
 			restoredSP = self.restoredSP
 		except:
 			restoredSP = False
-
 		if restoredSP:		
 			self.saveSizeAndPosition()
+	
+	
+	def __onPaint(self, evt):
+		self.__needOutlineRedraw = self.Application.DrawSizerOutlines
+	
+	
+	def __onIdle(self, evt):
+		if self.__needOutlineRedraw:
+			if self.Sizer:
+				self.Sizer.drawOutline(self, recurse=True)
+	
 	
 	def __onClose(self, evt):
 		force = evt.EventData["force"]
