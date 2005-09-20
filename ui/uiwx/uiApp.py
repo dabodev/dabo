@@ -14,6 +14,7 @@ class uiApp(wx.App, dObject):
 		
 		self.Name = _("uiApp")
 		self._noneDisp = _("<null>")
+		self._drawSizerOutlines = False
 		
 		
 	def OnInit(self):
@@ -354,6 +355,15 @@ class uiApp(wx.App, dObject):
 					dabo.infoLog.write(_("Not found"))
 
 	
+	def onShowSizerLines(self, evt):
+		"""Toggles whether sizer lines are drawn. This is simply a tool 
+		to help people visualize how sizers lay out objects.
+		"""
+		self._drawSizerOutlines = not self._drawSizerOutlines
+		if self.ActiveForm:
+			self.ActiveForm.refresh()
+		
+	
 	def getLoginInfo(self, message=None):
 		""" Display the login form, and return the user/password 
 		as entered by the user.
@@ -381,12 +391,21 @@ class uiApp(wx.App, dObject):
 		except AttributeError:
 			v = self._activeForm = None
 		return v
+
 	def _setActiveForm(self, frm):
 		self._activeForm = frm
 		
 		
+	def _getDrawSizerOutlines(self):
+		return self._drawSizerOutlines
+	
+	def _setDrawSizerOutlines(self, val):
+		self._drawSizerOutlines = val
+	
+	
 	def _getNoneDisp(self):
 		return self._noneDisp
+
 	def _setNoneDisp(self, val):
 		self._noneDisp = val
 		
@@ -395,6 +414,9 @@ class uiApp(wx.App, dObject):
 	ActiveForm = property(_getActiveForm, None, None, 
 			_("Returns the form that currently has focus, or None.  (dForm)" ) )
 
+	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
+			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)") )
+	
 	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None, 
 			_("Text to display for null (None) values.  (str)") )
 	

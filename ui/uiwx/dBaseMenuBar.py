@@ -12,66 +12,66 @@ import wx, os
 from dMenu import dMenu
 from dMenuBar import dMenuBar
 import dIcons
-import dabo
+from dabo.dLocalize import _, n_
 
 
 class FileMenu(dMenu):
 	def _afterInit(self):
 		super(FileMenu, self)._afterInit()
 		app = self.Application
-		self.Caption = "&File"
+		self.Caption = _("&File")
 
-		self.append("Command Window\tCtrl+D", bindfunc=app.onCmdWin, 
-				help="Open up a command window for debugging" )
+		self.append(_("Command Window") + "\tCtrl+D", bindfunc=app.onCmdWin, 
+				help=_("Open up a command window for debugging") )
 		
-		prmpt = "Close Windo&w\tCtrl+W"
+		prmpt = _("Close Windo&w") + "\tCtrl+W"
 		self.append(prmpt, bindfunc=app.onWinClose,
-				help="Close the current window" )
+				help=_("Close the current window") )
 
 		self.appendSeparator()
 
-		prmpt = "E&xit\tAlt+F4"
+		prmpt = _("E&xit") + "\tAlt+F4"
 		if wx.Platform == '__WXMAC__':
-			prmpt = "&Quit\tCtrl+Q"
+			prmpt = _("&Quit") + "\tCtrl+Q"
 		self.append(prmpt, bindfunc=app.onFileExit, bmp="close",
-				help="Exit the application" )
+				help=_("Exit the application") )
 
 
 class EditMenu(dMenu):
 	def _afterInit(self):
 		super(EditMenu, self)._afterInit()
 		app = self.Application
-		self.Caption = "&Edit"
+		self.Caption = _("&Edit")
 
-		self.append("Undo\tCtrl+Z", bindfunc=app.onEditUndo, bmp="undo",
-				help="Undo last action" )
+		self.append(_("Undo") + "\tCtrl+Z", bindfunc=app.onEditUndo, bmp="undo",
+				help=_("Undo last action") )
 
-		self.append("Redo\tCtrl+R", bindfunc=app.onEditRedo, bmp="redo",
-				help="Undo last undo" )
-
-		self.appendSeparator()
-
-		self.append("Cut\tCtrl+X", bindfunc=app.onEditCut, bmp="cut",
-				help="Cut selected text" )
-
-		self.append("&Copy\tCtrl+C", bindfunc=app.onEditCopy, bmp="copy",
-				help="Copy selected text" )
-
-		self.append("&Paste\tCtrl+V", bindfunc=app.onEditPaste, bmp="paste",
-				help="Paste text from clipboard" )
+		self.append(_("Redo") + "\tCtrl+R", bindfunc=app.onEditRedo, bmp="redo",
+				help=_("Undo last undo") )
 
 		self.appendSeparator()
 
-		self.append("&Find\tCtrl+F", bindfunc=app.onEditFind, bmp="find",
-				help="Find text in the active window" )
+		self.append(_("Cut") + "\tCtrl+X", bindfunc=app.onEditCut, bmp="cut",
+				help=_("Cut selected text") )
 
-		self.append("Find Again\tCtrl+G", bindfunc=app.onEditFindAgain, bmp="",
-				help="Repeat the last search" )
+		self.append(_("&Copy") + "\tCtrl+C", bindfunc=app.onEditCopy, bmp="copy",
+				help=_("Copy selected text") )
+
+		self.append(_("&Paste") + "\tCtrl+V", bindfunc=app.onEditPaste, bmp="paste",
+				help=_("Paste text from clipboard") )
 
 		self.appendSeparator()
 
-		itm = self.append("Preferences", bindfunc=app.onEditPreferences, bmp="configure",
-				help="Set user preferences" )
+		self.append(_("&Find") + "\tCtrl+F", bindfunc=app.onEditFind, bmp="find",
+				help=_("Find text in the active window") )
+
+		self.append(_("Find Again") + "\tCtrl+G", bindfunc=app.onEditFindAgain, bmp="",
+				help=_("Repeat the last search") )
+
+		self.appendSeparator()
+
+		itm = self.append(_("Preferences"), bindfunc=app.onEditPreferences, bmp="configure",
+				help=_("Set user preferences") )
 		# Put the prefs item in the App Menu on Mac
 		wx.App_SetMacPreferencesMenuItemId(itm.GetId())
 
@@ -80,16 +80,21 @@ class EditMenu(dMenu):
 class ViewMenu(dMenu):
 	def _afterInit(self):
 		super(ViewMenu, self)._afterInit()
-		self.Caption = "&View"
+		app = self.Application
+		self.Caption = _("&View")
+		
+		itm = self.append(_("Show/Hide Sizer Lines")+"\tCtrl+L",	
+				bindfunc=app.onShowSizerLines, menutype="check",
+				help=_("Cool sizer visualizing feature; check it out!"))
 
 class HelpMenu(dMenu):
 	def _afterInit(self):
 		super(HelpMenu, self)._afterInit()
 		app = self.Application
-		self.Caption = "&Help"
+		self.Caption = _("&Help")
 
-		itm = self.append("&About", bindfunc=app.onHelpAbout, bmp="apply",
-				help="About this application" )
+		itm = self.append(_("&About"), bindfunc=app.onHelpAbout, bmp="apply",
+				help=_("About this application") )
 		# Put the about menu in the App Menu on Mac
 		wx.App_SetMacAboutMenuItemId(itm.GetId())
 		wx.App_SetMacHelpMenuTitleName(self.Caption)
