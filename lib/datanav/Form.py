@@ -118,8 +118,7 @@ class Form(dabo.ui.dForm):
 		self.setupPageFrame()
 		self.setupToolBar()
 		self.setupMenu()
-		
-		
+	
 	def setupToolBar(self):
 		tb = self.ToolBar
 		tb.MaxWidth = 16
@@ -264,6 +263,8 @@ class Form(dabo.ui.dForm):
 			self.Sizer.layout()
 			self.refresh()
 
+		if self.RequeryOnLoad:
+			self.PageFrame.Pages[0].requery()
 			
 	def beforeSetupPageFrame(self): return True
 	def afterSetupPageFrame(self): pass

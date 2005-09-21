@@ -44,16 +44,17 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.mainPanel = None
 		self.mkPanel = self.extractKey(kwargs, "panel")
 		
+		# Use this for timing queries and other long-
+		# running events
+		self.stopWatch = wx.StopWatch()
+		self.stopWatch.Pause()
+		
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 # 		if self.mainPanel:
 # 			# Can't do this in the _afterInit, as properties haven't been
 # 			# applied at that point.
 # 			self.mainPanel.BackColor = self.BackColor
-		# Use this for timing queries and other long-
-		# running events
-		self.stopWatch = wx.StopWatch()
-		self.stopWatch.Pause()
 		
 		# Determines if the user is prompted to save changes
 		# when the form is closed.
