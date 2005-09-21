@@ -48,6 +48,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		# running events
 		self.stopWatch = wx.StopWatch()
 		self.stopWatch.Pause()
+
+		# Determines if the user is prompted to save changes
+		# when the form is closed.
+		self.checkForChanges = True
 		
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
@@ -56,9 +60,6 @@ class dForm(wxFrameClass, fm.dFormMixin):
 # 			# applied at that point.
 # 			self.mainPanel.BackColor = self.BackColor
 		
-		# Determines if the user is prompted to save changes
-		# when the form is closed.
-		self.checkForChanges = True
 		
 		# Used to override some cases where the status
 		# text should be displayed despite other processes
