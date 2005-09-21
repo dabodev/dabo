@@ -64,6 +64,7 @@ class dFormMixin(pm.dPemMixin):
 		self.bindEvent(dEvents.Deactivate, self.__onDeactivate)
 		self.bindEvent(dEvents.Close, self.__onClose)
 		self.bindEvent(dEvents.Resize, self.__onResize)
+		self.bindEvent(dEvents.Move, self.__onMove)
 		self.bindEvent(dEvents.Paint, self.__onPaint)
 		self.bindEvent(dEvents.Idle, self.__onIdle)
 	
@@ -107,6 +108,15 @@ class dFormMixin(pm.dPemMixin):
 			self.Application._setActiveForm(None)
 	
 
+	def __onMove(self, evt):
+		try:
+			restoredSP = self.restoredSP
+		except:
+			restoredSP = False
+		if restoredSP:		
+			self.saveSizeAndPosition()
+	
+	
 	def __onResize(self, evt):
 		try:
 			restoredSP = self.restoredSP
