@@ -528,7 +528,7 @@ class BrowsePage(Page):
 
 	def createItems(self):
 		bizobj = self.Form.getBizobj()
-		grid = Grid.Grid(self, NameBase="BrowseGrid")
+		grid = self.Form.BrowseGridClass(self, NameBase="BrowseGrid")
 		grid.FieldSpecs = self.Form.FieldSpecs
 		if not self.Form.preview:
 			grid.setBizobj(bizobj)

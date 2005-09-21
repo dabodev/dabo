@@ -6,6 +6,7 @@ import dabo.ui
 from dabo.common import specParser
 from dabo.dLocalize import _, n_
 import PageFrame
+import Grid
 
 dabo.ui.loadUI("wx")
 
@@ -583,7 +584,20 @@ class Form(dabo.ui.dForm):
 		return self._allFieldSpecs[self._mainTable]
 	def _setFieldSpecs(self, val):
 		self._allFieldSpecs[self._mainTable] = val
-		
+
+
+	def _getBrowseGridClass(self):
+		try:
+			val = self._browseGridClass
+		except AttributeError:
+			val = Grid.Grid
+		return val
+
+	def _setBrowseGridClass(self, val):
+		assert issubclass(val, Grid.Grid)
+		self._browseGridClass = val		
+
+
 	def _getRelationSpecs(self):
 		return self._relationSpecs
 	def _setRelationSpecs(self, val):
@@ -597,6 +611,9 @@ class Form(dabo.ui.dForm):
 			"		is modal, returning the pk of the picked record.\n"
 			"	Edit: modal version of normal, with no Select/Browse pages.\n"
 			"		User code sends the pk of the record to edit.")
+
+	BrowseGridClass = property(_getBrowseGridClass, _setBrowseGridClass, None,
+			"""Specifies the class to use for the browse grid.""")
 
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
 			"Specifies whether an automatic requery happens when the form is loaded.")
