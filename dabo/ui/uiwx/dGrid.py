@@ -2278,7 +2278,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		""" Occurs when the grid's cell focus has changed."""
 		oldRow = self.CurrentRow
 		newRow = evt.EventData["row"]
-		if self.ActivateEditorOnSelect:
+		newCol = evt.EventData["col"]
+		try:
+			co = self.Columns[newCol]
+		except:
+			co = None
+		if co and self.Editable and co.Editable and self.ActivateEditorOnSelect:
 			dabo.ui.callAfter(self.EnableCellEditControl)
 		if oldRow != newRow:
 			bizobj = self.getBizobj()
