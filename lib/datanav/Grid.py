@@ -82,10 +82,17 @@ class Grid(dabo.ui.dGrid):
 		""" Occurs when the user double-clicks a cell in the grid. 
 		By default, this is interpreted as a request to edit the record.
 		"""
-		if self.Form.FormType == "PickList":
-			self.pickRecord()
-		else:
-			self.editRecord()
+		try:
+			if self.Form.FormType == "PickList":
+				self.pickRecord()
+			else:
+				self.editRecord()
+
+		except AttributeError:
+			## FormType is a prop of datanav forms. Even though we expect Grid to be 
+			## part of a datanav form, let's try to make it work even out of that
+			## context
+			pass
 
 
 	def processKeyPress(self, keyCode): 
@@ -101,20 +108,28 @@ class Grid(dabo.ui.dGrid):
 
 
 	def onEnterKeyAction(self):
-		if self.Form.FormType == "PickList":
-			self.pickRecord()
-		else:
-			self.editRecord()
-	
+		try:
+			if self.Form.FormType == "PickList":
+				self.pickRecord()
+			else:
+				self.editRecord()
+		except AttributeError:
+			pass
 
 	def onDeleteKeyAction(self):
-		if self.Form.FormType != "PickList":
-			self.deleteRecord()
+		try:
+			if self.Form.FormType != "PickList":
+				self.deleteRecord()
+		except AttributeError:
+			pass
 	
 
 	def onEscapeAction(self):
-		if self.Form.FormType == "PickList":
-			self.Form.close()
+		try:
+			if self.Form.FormType == "PickList":
+				self.Form.close()
+		except AttributeError:
+			pass
 
 
 	def newRecord(self, evt=None):
@@ -143,17 +158,21 @@ class Grid(dabo.ui.dGrid):
 	
 		By default, the choices are 'New', 'Edit', and 'Delete'.
 		"""
-		if self.Form.FormType == 'PickList':
-			menu.append(_("&Pick"), bindfunc=self.pickRecord, bmp="edit",
-			            help=_("Pick this record"))
-		else:
-			menu.append(_("&New"), bindfunc=self.newRecord, bmp="blank",
-			            help=_("Add a new record"))
-			menu.append("&Edit", bindfunc=self.editRecord, bmp="edit",
-			            help=_("Edit this record"))
-			menu.append("&Delete", bindfunc=self.deleteRecord, bmp="delete",
-			            help=_("Delete this record"))
-		return menu
+		try:
+			if self.Form.FormType == 'PickList':
+				menu.append(_("&Pick"), bindfunc=self.pickRecord, bmp="edit",
+				            help=_("Pick this record"))
+			else:
+				menu.append(_("&New"), bindfunc=self.newRecord, bmp="blank",
+				            help=_("Add a new record"))
+				menu.append("&Edit", bindfunc=self.editRecord, bmp="edit",
+				            help=_("Edit this record"))
+				menu.append("&Delete", bindfunc=self.deleteRecord, bmp="delete",
+				            help=_("Delete this record"))
+			return menu
+		except AttributeError:
+			# may not be a datanav form
+			pass
 
 
 	def _getFldSpecs(self):
