@@ -303,7 +303,7 @@ class Form(dabo.ui.dForm):
 
 		
 	def onEditCurrentRecord(self, evt):
-		""" Occurs when the user chooses to edits the current record.
+		""" Occurs when the user chooses to edit the current record.
 		"""
 		# We stored the datasource in the menu item's Tag property when
 		# the menu was created.

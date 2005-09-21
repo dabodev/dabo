@@ -1183,6 +1183,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Columns prop:
 		self._columns = []
 
+		# Internal flag to determine if the prior sort order needs to be restored:
+		self._sortRestored = False
+
 		# dColumn maintains its own cell attribute object, but this is the default:
 		self._defaultGridColAttr = self._getDefaultGridColAttr()
 
@@ -1218,12 +1221,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.incSearchTimer = dabo.ui.dTimer(self)
 		self.incSearchTimer.bindEvent(dEvents.Hit, self.onSearchTimer)
 
-		self.sortedColumn = None
-		self.sortOrder = ""
-		self.caseSensitiveSorting = False
-		# If there is a custom sort method, set this to True
-		self.customSort = False
-
 		# By default, row labels are not shown. They can be displayed
 		# if desired by setting ShowRowLabels = True, and their size
 		# can be adjusted by setting RowLabelWidth = <width>
@@ -1242,7 +1239,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.defaultEncoding = defaultEncoding
 
 		# What color/size should the little sort indicator arrow be?
-		self.sortIndicatorColor = "Black"
+		self.sortIndicatorColor = "DarkSlateGrey"
 		self.sortIndicatorSize = 6
 		self.sortIndicatorBuffer = 3
 
@@ -1256,6 +1253,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 		# Set the header props/events
 		self.initHeader()		
+
+		self.sortedColumn = None
+		self.sortOrder = None
+		self.caseSensitiveSorting = False
+
+		# If there is a custom sort method, set this to True
+		self.customSort = False
 
 
 	def initEvents(self):
@@ -1429,8 +1433,26 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				currFocus.DataField = currDataField
 				currFocus.refresh()
 			except: pass
-		
+
+		if not self._sortRestored:	
+			dabo.ui.callAfter(self._restoreSort)
+			self._sortRestored = True
+
+
+	def _restoreSort(self):
+		self.sortedColumn = self._getUserSetting("sortedColumn")
+		self.sortOrder = self._getUserSetting("sortOrder")
 	
+		if self.sortedColumn is not None:
+			sortCol = None
+			for idx, col in enumerate(self.Columns):
+				if col.DataField == self.sortedColumn:
+					sortCol = idx
+					break
+			if sortCol is not None:
+				self.CurrentColumn = sortCol
+				self.processSort(sortCol, toggleSort=False)
+
 	
 	def buildFromDataSet(self, ds, keyCaption=None, 
 			columnsToSkip=[], colOrder={}, colWidths={}, autoSizeCols=True):
@@ -1767,7 +1789,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	##----------------------------------------------------------##
 
 
-	def processSort(self, gridCol=None):
+	def processSort(self, gridCol=None, toggleSort=True):
 		""" Sort the grid column.
 
 		Toggle between ascending and descending. If the grid column index isn't 
@@ -1797,10 +1819,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		sortOrder="ASC"
 		if columnToSort == self.sortedColumn:
 			sortOrder = self.sortOrder
-			if sortOrder == "ASC":
-				sortOrder = "DESC"
-			else:
-				sortOrder = "ASC"
+			if toggleSort:
+				if sortOrder == "ASC":
+					sortOrder = "DESC"
+				else:
+					sortOrder = "ASC"
 		self.sortOrder = sortOrder
 		self.sortedColumn = columnToSort
 		
@@ -1894,6 +1917,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.CurrentRow = biz.RowNumber
 		
 		self.refresh()
+
+		self._setUserSetting("sortedColumn")
+		self._setUserSetting("sortOrder")
 
 
 	def runIncSearch(self):
@@ -2079,6 +2105,22 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if isinstance(ds, basestring):
 			return self.Form.getBizobj(ds)
 		return None
+
+
+	def _getUserSetting(self, prop):
+		"""Get the value of prop from the user settings table."""
+		app = self.Application
+		settingName = "%s.%s.%s" % (self.Form.Name, self.Name, prop)
+
+		val = app.getUserSetting(settingName)
+		return val
+
+	def _setUserSetting(self, prop):
+		"""Persist the value of prop to the user settings table."""
+		app = self.Application
+		val = getattr(self, prop)
+		settingName = "%s.%s.%s" % (self.Form.Name, self.Name, prop)
+		app.setUserSetting(settingName, val)
 
 
 	##----------------------------------------------------------##
