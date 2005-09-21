@@ -991,6 +991,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# Handle the non-standard cases
 				if _USE_DECIMAL and typ is Decimal:
 					newval = Decimal()
+					# If the backend reports a decimal scale, use it. Scale refers to the
+					# number of decimal places.
+					scale = fld[5]
+					if scale is not None:
+						ex = "0.%s" % ("0"*scale)
+						newval = newval.quantize(Decimal(ex))
 				elif typ is datetime.datetime:
 					newval = datetime.datetime.min
 				elif typ is datetime.date:
