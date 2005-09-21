@@ -264,7 +264,7 @@ class Form(dabo.ui.dForm):
 			self.refresh()
 
 		if self.RequeryOnLoad:
-			self.PageFrame.Pages[0].requery()
+			dabo.ui.callAfter(self.PageFrame.Pages[0].requery)
 			
 	def beforeSetupPageFrame(self): return True
 	def afterSetupPageFrame(self): pass
