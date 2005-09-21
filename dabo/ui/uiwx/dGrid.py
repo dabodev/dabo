@@ -1614,12 +1614,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		for col in cols:
 			sortIndicator = False
 
-			if self.GetNumberRows() > 0 and not self.IsVisible(self.CurrentRow, col, False):
-				# The column is completely off the screen: no need to paint. The 
-				# GetNumberRows() call makes sure the header does get painted in case
-				# there aren't any rows in the grid.
-				continue
-
 			colObj = self.Columns[col]
 			rect = colObj._getHeaderRect()
 			dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
