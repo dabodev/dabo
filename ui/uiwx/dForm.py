@@ -92,6 +92,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		"""
 		ret = True
 		if not self._isClosed:
+			self.activeControlValid()
 			ret = self.confirmChanges()
 		if ret:
 			ret = super(dForm, self)._beforeClose(evt)
