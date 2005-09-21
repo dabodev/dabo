@@ -314,7 +314,14 @@ class Form(dabo.ui.dForm):
 		sql = self.PrimaryBizobj.getSQL()
 		if sql is None:
 			sql = "-Nothing executed yet-"
-		mb = dabo.ui.info(sql, _("Last SQL"))
+			mb = dabo.ui.info(sql, _("Last SQL"))
+			return
+		dlg = dabo.ui.dDialog(self, Caption=_("Last SQL"))
+		eb = dlg.addObject(dabo.ui.dEditBox, ReadOnly=True, Value=sql, Size=(400, 400))
+		dlg.Sizer.append1x(eb)
+		dlg.show()
+		dlg.release()
+
 
 	def setFieldSpecs(self, xml, tbl):
 		""" Reads in the field spec file and creates the appropriate
