@@ -3,6 +3,12 @@ import datetime
 import inspect
 import sys
 import re
+# Make sure that the user's installation supports Decimal.
+_USE_DECIMAL = True
+try:
+	from decimal import Decimal
+except ImportError:
+	_USE_DECIMAL = False
 
 import dabo
 import dabo.dConstants as k
@@ -980,10 +986,24 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		dscrp = self._getBackendObject().getStructureDescription(self)
 		for fld in dscrp:
 			fldname = fld[0]
+			try:
+				typ = self._types[fldname]
+				# Handle the non-standard cases
+				if _USE_DECIMAL and typ is Decimal:
+					newval = Decimal()
+				elif typ is datetime.datetime:
+					newval = datetime.datetime.min
+				elif typ is datetime.date:
+					newval = datetime.date.min
+				else:
+					newval = typ()
+			except StandardError, e:
+				# Either the data types have not yet been defined, or 
+				# it is a type that cannot be instantiated simply.
+				dabo.errorLog.write(_("Failed to create newval for field '%s'") % fldname)
+				newval = ""
+			self._blank[fldname] = newval
 
-			### For now, just initialize the fields to empty strings,
-			###    and let the updates take care of the type.
-			self._blank[fldname] = ""
 		# Mark the calculated and derived fields.
 		self.__setNonUpdateFields()
 
