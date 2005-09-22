@@ -101,7 +101,7 @@ class dCursorMixin(dabo.common.dObject):
 	def setSQL(self, sql):
 		pass
 		# This function isn't needed anymore
-		#self.sql = self._getBackendObject().setSQL(sql)
+		#self.sql = self.BackendObject.setSQL(sql)
 
 
 	def clearSQL(self):
@@ -159,7 +159,7 @@ class dCursorMixin(dabo.common.dObject):
 		
 		# Some backend programs do odd things to the description
 		# This allows each backend to handle these quirks individually.
-		self._getBackendObject().massageDescription(self)
+		self.BackendObject.massageDescription(self)
 		
 		if self.RowCount > 0:
 			self.RowNumber = max(0, self.RowNumber)
@@ -438,7 +438,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		
 	def __setNonUpdateFields(self):
 		"""Delegate this to the backend object."""
-		self._getBackendObject().setNonUpdateFields(self)
+		self.BackendObject.setNonUpdateFields(self)
 	
 
 	def isChanged(self, allRows=True):
@@ -791,12 +791,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					self.setFieldVal(self.KeyField, newPKVal)
 				
 			#run the update
-			res = self._getAuxCursor().execute(sql)
+			aux = self.AuxCursor
+			res = aux.execute(sql)
 			
 			if newrec and self.AutoPopulatePK and (newPKVal is None):
 				# Call the database backend-specific code to retrieve the
 				# most recently generated PK value.
-				newPKVal = self.getLastInsertID()
+				newPKVal = aux.getLastInsertID()
 				if newPKVal:
 					self.setFieldVal(self.KeyField, newPKVal)
 
@@ -807,7 +808,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				if not res:
 					# Different backends may cause res to be None
 					# even if the save is successful.
-					self._getBackendObject().noResultsOnSave()
+					self.BackendObject.noResultsOnSave()
 			rec[k.CURSOR_MEMENTO].setMemento(rec)
 
 	
@@ -818,7 +819,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		retrieve a new PK if the backend supports this. We use the 
 		auxiliary cursor so as not to alter the current data.
 		"""
-		return self._getBackendObject().pregenPK(self._getAuxCursor())
+		return self.BackendObject.pregenPK(self.AuxCursor)
 		
 		
 	def makeUpdDiff(self, rec, isnew=False):
@@ -906,7 +907,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			# some backends(PostgreSQL) don't return information about number of deleted rows
 			# try to fetch it before
 			sql = "select count(*) as cnt from %s where %s" % (self.Table, pkWhere)
-			aux = self._getAuxCursor()
+			aux = self.AuxCursor
 			aux.execute(sql)
 			res = aux.getFieldVal('cnt')
 			if res:
@@ -916,7 +917,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		if not res:
 			# Nothing was deleted
-			self._getBackendObject().noResultsOnDelete()
+			self.BackendObject.noResultsOnDelete()
 		else:
 			# Delete the record from the current dataset
 			self.removeRow(delRowNum)
@@ -937,7 +938,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		to disk even without starting a transaction. This is the method
 		to call to accomplish this.
 		"""
-		self._getBackendObject().flush(self)
+		self.BackendObject.flush(self)
 
 
 	def setDefaults(self, vals):
@@ -983,7 +984,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Get the empty description from the backend object, 
 		as different backends handle empty recordsets differently.
 		"""
-		dscrp = self._getBackendObject().getStructureDescription(self)
+		dscrp = self.BackendObject.getStructureDescription(self)
 		for fld in dscrp:
 			fldname = fld[0]
 			try:
@@ -1148,7 +1149,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		Optionally pass in a record object, otherwise use the current record.
 		"""
-		tblPrefix = self._getBackendObject().getWhereTablePrefix(self.Table)
+		tblPrefix = self.BackendObject.getWhereTablePrefix(self.Table)
 		if not rec:
 			rec = self._records[self.RowNumber]
 		aFields = self.KeyField.split(",")
@@ -1175,7 +1176,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Create the 'set field=val' section of the Update statement. 
 		"""
 		ret = ""
-		tblPrefix = self._getBackendObject().getUpdateTablePrefix(self.Table)
+		tblPrefix = self.BackendObject.getUpdateTablePrefix(self.Table)
 		
 		for fld, val in diff.items():
 			# Skip the fields that are not to be updated.
@@ -1196,26 +1197,26 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def processFields(self, txt):
-		return self._getBackendObject().processFields(txt)
+		return self.BackendObject.processFields(txt)
 		
 	
 	def escQuote(self, val):
 		""" Escape special characters in SQL strings. """
 		ret = val
 		if isinstance(val, basestring):
-			ret = self._getBackendObject().escQuote(val)
+			ret = self.BackendObject.escQuote(val)
 		return ret          
 
 
 	def getTables(self, includeSystemTables=False):
 		""" Return a tuple of tables in the current database.
 		"""
-		return self._getBackendObject().getTables(includeSystemTables)
+		return self.BackendObject.getTables(includeSystemTables)
 		
 	def getTableRecordCount(self, tableName):
 		""" Get the number of records in the backend table.
 		"""
-		return self._getBackendObject().getTableRecordCount(tableName)
+		return self.BackendObject.getTableRecordCount(tableName)
 		
 	def getFields(self, tableName=None):
 		""" Get field information about the backend table.
@@ -1228,47 +1229,46 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if tableName is None:
 			# Use the default
 			tableName = self.Table
-		return self._getBackendObject().getFields(tableName)
+		return self.BackendObject.getFields(tableName)
 	
 	
 	def getLastInsertID(self):
 		""" Return the most recently generated PK """
 		ret = None
-		if self._getBackendObject():
-			# Should we pass 'self' or 'self._getAuxCursor()'?
-			ret = self._getBackendObject().getLastInsertID(self)
+		if self.BackendObject:
+			ret = self.BackendObject.getLastInsertID(self)
 		return ret
 
 	
 	def formatDateTime(self, val):
 		""" Format DateTime values for the backend """
 		ret = val
-		if self._getBackendObject():
-			ret = self._getBackendObject().formatDateTime(val)
+		if self.BackendObject:
+			ret = self.BackendObject.formatDateTime(val)
 		return ret
 
 
 	def beginTransaction(self):
 		""" Begin a SQL transaction."""
 		ret = None
-		if self._getBackendObject():
-			ret = self._getBackendObject().beginTransaction(self._getAuxCursor())
+		if self.BackendObject:
+			ret = self.BackendObject.beginTransaction(self.AuxCursor)
 		return ret
 
 
 	def commitTransaction(self):
 		""" Commit a SQL transaction."""
 		ret = None
-		if self._getBackendObject():
-			ret = self._getBackendObject().commitTransaction(self._getAuxCursor())
+		if self.BackendObject:
+			ret = self.BackendObject.commitTransaction(self.AuxCursor)
 		return ret
 
 
 	def rollbackTransaction(self):
 		""" Roll back (revert) a SQL transaction."""
 		ret = None
-		if self._getBackendObject():
-			ret = self._getBackendObject().rollbackTransaction(self._getAuxCursor())
+		if self.BackendObject:
+			ret = self.BackendObject.rollbackTransaction(self.AuxCursor)
 		return ret
 	
 
@@ -1281,13 +1281,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def setFieldClause(self, clause):
 		""" Set the field clause of the sql statement.
 		"""
-		self.sqlManager._fieldClause = self.sqlManager._getBackendObject().setFieldClause(clause)
+		self.sqlManager._fieldClause = self.sqlManager.BackendObject.setFieldClause(clause)
 
 	def addField(self, exp):
 		""" Add a field to the field clause.
 		"""
-		if self.sqlManager._getBackendObject():
-			self.sqlManager._fieldClause = self.sqlManager._getBackendObject().addField(self.sqlManager._fieldClause, exp)
+		if self.sqlManager.BackendObject:
+			self.sqlManager._fieldClause = self.sqlManager.BackendObject.addField(self.sqlManager._fieldClause, exp)
 		return self.sqlManager._fieldClause
 
 	def getFromClause(self):
@@ -1298,7 +1298,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def setFromClause(self, clause):
 		""" Set the from clause of the sql statement.
 		"""
-		self.sqlManager._fromClause = self.sqlManager._getBackendObject().setFromClause(clause)
+		self.sqlManager._fromClause = self.sqlManager.BackendObject.setFromClause(clause)
 
 	def addFrom(self, exp):
 		""" Add a table to the sql statement.
@@ -1306,8 +1306,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		For joins, use setFromClause() to set the entire from clause
 		explicitly.
 		"""
-		if self.sqlManager._getBackendObject():
-			self.sqlManager._fromClause = self.sqlManager._getBackendObject().addFrom(self.sqlManager._fromClause, exp)
+		if self.sqlManager.BackendObject:
+			self.sqlManager._fromClause = self.sqlManager.BackendObject.addFrom(self.sqlManager._fromClause, exp)
 		return self.sqlManager._fromClause
 
 
@@ -1319,18 +1319,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def setWhereClause(self, clause):
 		""" Set the where clause of the sql statement.
 		"""
-		self.sqlManager._whereClause = self.sqlManager._getBackendObject().setWhereClause(clause)
+		self.sqlManager._whereClause = self.sqlManager.BackendObject.setWhereClause(clause)
 
 	def addWhere(self, exp, comp="and"):
 		""" Add an expression to the where clause.
 		"""
-		if self.sqlManager._getBackendObject():
-			self.sqlManager._whereClause = self.sqlManager._getBackendObject().addWhere(self.sqlManager._whereClause, exp, comp)
+		if self.sqlManager.BackendObject:
+			self.sqlManager._whereClause = self.sqlManager.BackendObject.addWhere(self.sqlManager._whereClause, exp, comp)
 		return self.sqlManager._whereClause
 
 	def prepareWhere(self, clause):
 		""" Modifies WHERE clauses as needed for each backend. """
-		return self.sqlManager._getBackendObject().prepareWhere(clause)
+		return self.sqlManager.BackendObject.prepareWhere(clause)
 		
 	def getChildFilterClause(self):
 		""" Get the child filter part of the sql statement.
@@ -1340,7 +1340,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def setChildFilterClause(self, clause):
 		""" Set the child filter clause of the sql statement.
 		"""
-		self.sqlManager._childFilterClause = self.sqlManager._getBackendObject().setChildFilterClause(clause)
+		self.sqlManager._childFilterClause = self.sqlManager.BackendObject.setChildFilterClause(clause)
 
 	def getGroupByClause(self):
 		""" Get the group-by clause of the sql statement.
@@ -1350,13 +1350,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def setGroupByClause(self, clause):
 		""" Set the group-by clause of the sql statement.
 		"""
-		self.sqlManager._groupByClause = self.sqlManager._getBackendObject().setGroupByClause(clause)
+		self.sqlManager._groupByClause = self.sqlManager.BackendObject.setGroupByClause(clause)
 
 	def addGroupBy(self, exp):
 		""" Add an expression to the group-by clause.
 		"""
-		if self.sqlManager._getBackendObject():
-			self.sqlManager._groupByClause = self.sqlManager._getBackendObject().addGroupBy(self.sqlManager._groupByClause, exp)
+		if self.sqlManager.BackendObject:
+			self.sqlManager._groupByClause = self.sqlManager.BackendObject.addGroupBy(self.sqlManager._groupByClause, exp)
 		return self.sqlManager._groupByClause
 
 	def getOrderByClause(self):
@@ -1367,13 +1367,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def setOrderByClause(self, clause):
 		""" Set the order-by clause of the sql statement.
 		"""
-		self.sqlManager._orderByClause = self.sqlManager._getBackendObject().setOrderByClause(clause)
+		self.sqlManager._orderByClause = self.sqlManager.BackendObject.setOrderByClause(clause)
 
 	def addOrderBy(self, exp):
 		""" Add an expression to the order-by clause.
 		"""
-		if self.sqlManager._getBackendObject():
-			self.sqlManager._orderByClause = self.sqlManager._getBackendObject().addOrderBy(self.sqlManager._orderByClause, exp)
+		if self.sqlManager.BackendObject:
+			self.sqlManager._orderByClause = self.sqlManager.BackendObject.addOrderBy(self.sqlManager._orderByClause, exp)
 		return self.sqlManager._orderByClause
 
 	def getLimitClause(self):
@@ -1390,8 +1390,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Return the word to use in the db-specific limit clause.
 		"""
 		ret = "limit"
-		if self.sqlManager._getBackendObject():
-			ret = self.sqlManager._getBackendObject().getLimitWord()
+		if self.sqlManager.BackendObject:
+			ret = self.sqlManager.BackendObject.getLimitWord()
 		return ret
 			
 	def getLimitPosition(self):
@@ -1401,8 +1401,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		are sufficient.
 		"""
 		ret = "bottom"
-		if self.sqlManager._getBackendObject():
-			ret = self.sqlManager._getBackendObject().getLimitPosition()
+		if self.sqlManager.BackendObject:
+			ret = self.sqlManager.BackendObject.getLimitPosition()
 		return ret			
 			
 	def getSQL(self):
@@ -1440,7 +1440,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		else:
 			limitClause = "%s %s" % (self.sqlManager.getLimitWord(), self.sqlManager._defaultLimit)
 
-		return self.sqlManager._getBackendObject().formSQL(fieldClause, fromClause, 
+		return self.sqlManager.BackendObject.formSQL(fieldClause, fromClause, 
 				whereClause, groupByClause, orderByClause, limitClause)
 		
 
@@ -1457,24 +1457,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	
 	
 	def getWordMatchFormat(self):
-		return self.sqlManager._getBackendObject().getWordMatchFormat()
-
-	def _getAuxCursor(self):
-		if self.__auxCursor is None:
-			if self._cursorFactoryClass is not None:
-				if self._cursorFactoryFunc is not None:
-					self.__auxCursor = self._cursorFactoryFunc(self._cursorFactoryClass)
-		if not self.__auxCursor:
-			self.__auxCursor = self._getBackendObject().getCursor(self.__class__)
-		return self.__auxCursor
-	
-	def setBackendObject(self, obj):
-		self.__backend = obj
-		self._getAuxCursor().__backend = obj
-	
-	def _getBackendObject(self):
-		return self.__backend
-
+		return self.sqlManager.BackendObject.getWordMatchFormat()
 
 	## Property getter/setter methods ##
 	def _getAutoSQL(self):
@@ -1487,6 +1470,25 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			return True
 	def _setAutoPopulatePK(self, autopop):
 		self._autoPopulatePK = bool(autopop)
+
+
+	def _getAuxCursor(self):
+		if self.__auxCursor is None:
+			if self._cursorFactoryClass is not None:
+				if self._cursorFactoryFunc is not None:
+					self.__auxCursor = self._cursorFactoryFunc(self._cursorFactoryClass)
+		if not self.__auxCursor:
+			self.__auxCursor = self.BackendObject.getCursor(self.__class__)
+		return self.__auxCursor
+	
+
+	def _getBackendObject(self):
+		return self.__backend
+
+	def _setBackendObject(self, obj):
+		self.__backend = obj
+		self.AuxCursor.__backend = obj
+	
 		
 	def _getCurrentSQL(self):
 		if self.UserSQL is not None:
@@ -1494,10 +1496,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self.AutoSQL
 
 	def _getEncoding(self):
-		return self._getBackendObject().Encoding
+		return self.BackendObject.Encoding
 	
 	def _setEncoding(self, val):
-		self._getBackendObject().Encoding = val
+		self.BackendObject.Encoding = val
 	
 	def _getDescrip(self):
 		return self.__backend.getDescription(self)
@@ -1517,7 +1519,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			
 	def _setKeyField(self, kf):
 		self._keyField = str(kf)
-		self._getAuxCursor()._keyField = str(kf)
+		self.AuxCursor._keyField = str(kf)
 		self._keyFieldSet = True
 
 	def _setRowNumber(self, num):
@@ -1543,7 +1545,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			
 	def _setTable(self, table):
 		self._table = str(table)
-		self._getAuxCursor()._table = str(table)
+		self.AuxCursor._table = str(table)
 		if not self._keyFieldSet:
 			# Get the PK field, if any
 			try:
@@ -1573,6 +1575,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None,
 			_("When inserting a new record, does the backend populate the PK field?")) 
+	
+	AuxCursor = property(_getAuxCursor, None, None,
+			_("""Auxiliary cursor object that handles queries that would otherwise
+			affect the main cursor's data set.  (dCursorMixin subclass)""")) 
+	
+	BackendObject = property(_getBackendObject, _setBackendObject, None,
+			_("Returns a reference to the object defining backend-specific behavior (dBackend)")) 
 	
 	CurrentSQL = property(_getCurrentSQL, None, None,
 			_("Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."))
