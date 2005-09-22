@@ -162,7 +162,7 @@ class dBizobj(dabo.common.dObject):
 		crs.KeyField = self.KeyField
 		crs.Table = self.DataSource
 		crs.AutoPopulatePK = self.AutoPopulatePK
-		crs.setBackendObject(cn.getBackendObject())
+		crs.BackendObject = cn.getBackendObject()
 		crs.sqlManager = self.SqlManager
 		crs.setSQL(self.SQL)
 		if self.RequeryOnLoad:
@@ -1414,7 +1414,7 @@ class dBizobj(dabo.common.dObject):
 			crs.KeyField = self.KeyField
 			crs.Table = self.DataSource
 			crs.AutoPopulatePK = self.AutoPopulatePK
-			crs.setBackendObject(cn.getBackendObject())
+			crs.BackendObject = cn.getBackendObject()
 		return self._sqlMgrCursor
 
 	def _getUserSQL(self):
