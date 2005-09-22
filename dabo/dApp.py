@@ -274,18 +274,21 @@ class dApp(dabo.common.dObject):
 
 	def _initDB(self):
 		"""Set the available connection definitions for use by the app. 
-		First look for a file named 'default.cnxml'; if none exists, 
-		read in all .cnxml files. If no such XML definition files exist,
-		check for a python code definition file named 'dbConnectionDefs'.
+
+		First read in all .cnxml files. If no such XML definition files exist,
+		check for a python code definition file named 'dbConnectionDefs.py'.
 		"""
 		connDefs = {}
-
-		# Import any *.cnxml files
 		parser = dabo.common.connParser
-		files = glob.glob(os.path.join(self.HomeDirectory, "*.cnxml"))
-		for f in files:
-			connDefs.update(parser.importConnections(f))
 
+		# Import any .cnxml files in HomeDir and/or HomeDir/db:
+		for dbDir in (os.path.join(self.HomeDirectory, "db"), self.HomeDirectory):
+			if os.path.exists(dbDir) and os.path.isdir(dbDir):
+				files = glob.glob(os.path.join(dbDir, "*.cnxml"))
+				for f in files:
+					connDefs.update(parser.importConnections(f))
+			
+	
 		# Import any python code connection definitions (the "old" way).
 		try:
 			import dbConnectionDefs
