@@ -30,10 +30,10 @@ class dFormMixin(pm.dPemMixin):
 		if self.Application and self.MenuBarClass:
 			try:
 	 			self.MenuBar = self.MenuBarClass()
-				self.afterSetMenuBar()
 			except AttributeError:
 				# perhaps we are a dDialog
 				pass
+			self.afterSetMenuBar()
 
 		self._iconFile = dabo.icons.getIconFileName("daboIcon048")
 		if not self.Icon:
