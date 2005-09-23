@@ -26,13 +26,13 @@ class dDropdownList(wx.Choice, dcm.dControlItemMixin):
 		
 		# wx.Choice doesn't seem to emit lostfocus and gotfocus events. Therefore,
 		# flush the value on every hit.
-		self.bindEvent(dEvents.Hit, self.__onHit )
+		self.bindEvent(dEvents.Hit, self.__onHit)
 	
 	
 	def __onHit(self, evt):
 		self.flushValue()
 		
-		
+
 class _dDropdownList_test(dDropdownList):
 	def initProperties(self):
 		self.Width = 250
