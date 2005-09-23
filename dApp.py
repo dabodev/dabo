@@ -271,7 +271,9 @@ class dApp(dabo.common.dObject):
 		self.dbConnectionDefs = {} 
 
 		self._appInfo = {}
+		super(dApp, self)._initProperties()
 
+		
 	def _initDB(self):
 		"""Set the available connection definitions for use by the app. 
 
