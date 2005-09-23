@@ -72,7 +72,7 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 				
 class Page(dabo.ui.dPage):
 	def newRecord(self, ds=None):
-		""" Called by a browse grid when the user wants to edit the current row. 
+		""" Called by a browse grid when the user wants to add a new row. 
 		"""
 		if ds is None:
 			self.Form.new()

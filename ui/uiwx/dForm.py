@@ -276,7 +276,8 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			return False
 		self.afterSave()
 		return True
-			
+	
+		
 	def cancel(self, dataSource=None):
 		""" Ask the bizobj to cancel its changes.
 
@@ -452,18 +453,20 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		if err:
 			self.notifyUser(err)
 			return		
+
 		try:
 			bizobj.new()
-			statusText = self.getCurrentRecordText(dataSource)
-			self.setStatusText(statusText)
-			self.refreshControls()
-
-			# Notify listeners that the row number changed:
-			self.raiseEvent(dEvents.RowNumChanged)
-
 		except dException.dException, e:
 			self.notifyUser(_("Add new record failed with response:\n\n%s" % str(e)), 
 					severe=True)
+
+		statusText = self.getCurrentRecordText(dataSource)
+		self.setStatusText(statusText)
+		self.refreshControls()
+
+		# Notify listeners that the row number changed:
+		self.raiseEvent(dEvents.RowNumChanged)
+
 		self.afterNew()
 		
 
