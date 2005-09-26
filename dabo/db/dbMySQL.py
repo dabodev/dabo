@@ -78,7 +78,7 @@ class MySQL(dBackend):
 
 	def getFields(self, tableName):
 		if not tableName:
-			return tuple([])
+			return tuple()
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("describe %s" % tableName)
 		rs = tempCursor.fetchall()

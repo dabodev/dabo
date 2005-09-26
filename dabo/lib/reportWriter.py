@@ -1,6 +1,7 @@
 import copy
 import datetime
 import decimal
+import locale
 import sys
 import os
 ######################################################
@@ -108,6 +109,9 @@ class ReportWriter(object):
 	default_padRight = 0
 	default_padTop = 0
 	default_padBottom = 0
+
+	home_dir = "."
+
 
 	def draw(self, object, origin):
 		"""Draw the given object on the Canvas.
@@ -421,7 +425,11 @@ class ReportWriter(object):
 				# "natural" state 1:1 pixel:point, which could flow out of the object's
 				# width/height, resulting in clipping.
 				width, height = None, None
-			c.drawImage(eval(object["expr"]), 0, 0, width, height, mask)
+
+			imageFile = eval(object["expr"])
+			if not os.path.exists(imageFile):
+				imageFile = os.path.join(self.home_dir, imageFile)
+			c.drawImage(imageFile, 0, 0, width, height, mask)
 
 		## All done, restore the canvas state to how we found it (important because
 		## rotating, scaling, etc. are cumulative, not absolute and we don't want
