@@ -47,7 +47,7 @@ class dConnection(dabo.common.dObject):
 		
 		bo = self.getBackendObject()
 		crs = bo.getCursor(DaboCursor)
-		crs.setBackendObject(bo)
+		crs.BackendObject = bo
 		return crs
 
 
