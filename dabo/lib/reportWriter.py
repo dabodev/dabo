@@ -1,4 +1,8 @@
-import sys, os, copy
+import copy
+import datetime
+import decimal
+import sys
+import os
 ######################################################
 # Very first thing: check for required libraries:
 _failedLibs = []
@@ -272,7 +276,7 @@ class ReportWriter(object):
 	
 			# draw the string using the function that matches the alignment:
 			s = eval(object["expr"])
-			func(posx, 0, s)
+			func(posx, 0, str(s))
 	
 		elif object["type"] == "frameset":
 			# A frame is directly related to reportlab's platypus Frame.
@@ -482,36 +486,94 @@ class ReportWriter(object):
 			# Create the reportlab canvas:
 			c = self._canvas = canvas.Canvas(_outputFile, pagesize=pageSize)
 		
-		# Get the page margins into variables:
-		ml = self.getPt(eval(_form["page"]["marginLeft"]))
-		mt = self.getPt(eval(_form["page"]["marginTop"]))
-		mr = self.getPt(eval(_form["page"]["marginRight"]))
-		mb = self.getPt(eval(_form["page"]["marginBottom"]))
+
+		# Initialize the groups list:
+		groups = _form.get("groups", ())
+		for group in groups:
+			group["curVal"] = None
+		groupsDesc = [i for i in groups]
+		groupsDesc.reverse()
+
+		# Initialize the variables list:
+		variables = _form.get("variables", ())
+		self.Variables = {}
+		for variable in variables:
+			variable["value"] = None
+			variable["curReset"] = None
+			self.Variables[variable["name"]] = eval(variable["initialValue"])
+
+		self._recordNumber = 0
+
+
+		def processVariables():
+			"""Apply the user's expressions to the current value of all the report vars.
+
+			This is called once per record iteration, before the detail for the current
+			band is printed..
+			"""
+			variables = self.ReportForm.get("variables", ())
+			for variable in variables:
+				resetAt = eval(variable["resetAt"])
+				curReset = variable["curReset"]
+				if resetAt != curReset:
+					# resetAt tripped: value to initial value
+					self.Variables[variable["name"]] = eval(variable["initialValue"])
+				variable["curReset"] = resetAt
+
+				# run the variable expression to get the current value:
+				variable["value"] = eval(variable["expr"])
+
+				# update the value of the public variable:
+				self.Variables[variable["name"]] = variable["value"]			
+					
+
+		def printBand(band, y=None, groupIndex=None):
+			"""Generic function for printing any band."""
+
+			_form = self.ReportForm
+
+			# Get the page margins into variables:
+			ml = self.getPt(eval(_form["page"]["marginLeft"]))
+			mt = self.getPt(eval(_form["page"]["marginTop"]))
+			mr = self.getPt(eval(_form["page"]["marginRight"]))
+			mb = self.getPt(eval(_form["page"]["marginBottom"]))
 		
-		# Page header/footer origins are needed in various places:
-		pageHeaderOrigin = (ml, pageHeight - mt 
-		                    - self.getPt(eval(_form["pageHeader"]["height"])))
-		pageFooterOrigin = (ml, mb)
+			# Page header/footer origins are needed in various places:
+			pageHeaderOrigin = (ml, pageHeight - mt 
+			                    - self.getPt(eval(_form["pageHeader"]["height"])))
+			pageFooterOrigin = (ml, mb)
 		
-		
-		# Print the static bands:
-		for band in ("pageBackground", "pageHeader", "pageFooter", "pageForeground"):
-			self.Bands[band] = {}
-			try:
-				bandDict = eval("_form['%s']" % band)
-			except KeyError:
-				# band not defined
-				continue
-		
-			# Find out geometry of the band and fill into report["bands"][band]
-			x = ml
-			if band == "pageHeader":
+			if y is None:
 				y = pageHeaderOrigin[1]
+
+			try:
+				if groupIndex is not None:
+					bandDict = _form["groups"][groupIndex][band]
+				else:
+					bandDict = _form[band]
+			except KeyError:
+				# Band name doesn't exist.
+				return y
+
+			self.Bands[band] = {}
+
+			try:		
+				height = self.getPt(eval(bandDict["height"]))
+			except KeyError:
+				height = self.getPt(self.default_bandHeight)
+
+			x = ml
+			y = y - height
+			width = pageWidth - ml - mr
+
+			# Non-detail band special cases:
+			if band == "pageHeader":
+				x,y = pageHeaderOrigin
 			elif band == "pageFooter":
-				y = pageFooterOrigin[1]
-			else:
+				x,y = pageFooterOrigin
+			elif band in ("pageBackground", "pageForeground"):
 				x,y = 0,1
-			
+
 			if band in ("pageBackground", "pageForeground"):
 				width, height = pageWidth-1, pageHeight-1
 			else:
@@ -520,6 +582,17 @@ class ReportWriter(object):
 					height = self.getPt(eval(bandDict["height"]))
 				except KeyError:
 					height = self.default_bandHeight
+
+			if band == "detail":
+				pf = _form.get("pageFooter")
+				if pf is None:
+					pfHeight = 0
+				else:
+					pfHeight = self.getPt(eval(pf["height"]))
+				if y < pageFooterOrigin[1] + pfHeight:
+					endPage()
+					beginPage()
+					y = pageHeaderOrigin[1] - height
 		
 			self.Bands[band]["x"] = x
 			self.Bands[band]["y"] = y
@@ -527,83 +600,77 @@ class ReportWriter(object):
 			self.Bands[band]["height"] = height
 		
 			if self.ShowBandOutlines:
-				self.printBandOutline(band, x, y, width, height)
-		
+				self.printBandOutline("%s (record %s)" % (band, self.RecordNumber), 
+					                                          x, y, width, height)
+
 			if bandDict.has_key("objects"):
 				for object in bandDict["objects"]:
-
-					if band == "pageHeader":
-						origin = pageHeaderOrigin
-					elif band == "pageFooter":
-						origin = pageFooterOrigin
-					else:
-						origin = (0,1)
-		
 					try:
 						x = self.getPt(eval(object["x"]))
 					except KeyError:
 						x = self.default_x
 
 					try:
-						y = self.getPt(eval(object["y"]))
+						y1 = self.getPt(eval(object["y"]))
 					except KeyError:
-						y = self.default_y
+						y1 = self.default_y
 
-					# make x,y relative to the origin point of the band we are in:
-					x = x + origin[0]
-					y = y + origin[1]
-		
-					self.draw(object, (x, y))
-		
-		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
-		y = pageHeaderOrigin[1]
-#		groups = _form.Groups
-		
-		self._recordNumber = 0
-
-		for record in self.Cursor:
-			self.Record = record
-			for band in ("detail",):
-				bandDict = eval("_form['%s']" % band)
-				self.Bands[band] = {}
-
-				try:		
-					height = self.getPt(eval(bandDict["height"]))
-				except KeyError:
-					height = self.getPt(self.default_bandHeight)
-
-				x = ml
-				y = y - height
-				width = pageWidth - ml - mr
-		
-				self.Bands[band]["x"] = x
-				self.Bands[band]["y"] = y
-				self.Bands[band]["width"] = width
-				self.Bands[band]["height"] = height
-		
-				if self.ShowBandOutlines:
-					self.printBandOutline("%s (record %s)" % (band, self.RecordNumber), 
-					                                          x, y, width, height)
-
-				if bandDict.has_key("objects"):
-					for object in bandDict["objects"]:
-						try:
-							x = self.getPt(eval(object["x"]))
-						except KeyError:
-							x = self.default_x
-
-						try:
-							y1 = self.getPt(eval(object["y"]))
-						except KeyError:
-							y1 = self.default_y
-
-						x = ml + x
-						y1 = y + y1
-						self.draw(object, (x, y1))
+					x = ml + x
+					y1 = y + y1
+					self.draw(object, (x, y1))
 						
-				self._recordNumber += 1
+			return y		
+
+
+		def beginPage():
+			# Print the static bands that appear below detail in z-order:
+			for band in ("pageBackground", "pageHeader", "pageFooter"):
+				printBand(band)
+
+
+		def endPage():
+			printBand("pageForeground")
+			self.Canvas.showPage()
 		
-		c.showPage()
+		
+		beginPage()
+
+		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
+		y = None
+		for idx, record in enumerate(self.Cursor):
+			self.Record = record
+
+			# print group footers for previous group if necessary:
+			if idx > 0:
+				for idx, group in enumerate(groupsDesc):
+					if group["curVal"] != eval(group["expr"]):
+						y = printBand("groupFooter", y, -idx)
+
+			# Any report variables need their values evaluated again:
+			processVariables()
+
+			# print group headers for this group if necessary:
+			for idx, group in enumerate(groups):
+				if group["curVal"] != eval(group["expr"]):
+					group["curVal"] = eval(group["expr"])
+					np = group.get("startOnNewPage", False)
+					if np and self.RecordNumber > 0:
+						endPage()
+						beginPage()
+						y = None
+					y = printBand("groupHeader", y, idx)
+
+			# print the detail band:
+			y = printBand("detail", y)
+
+			self._recordNumber += 1
+
+
+		# print the group footers for the last group:
+		for idx, group in enumerate(groupsDesc):
+			y = printBand("groupFooter", y, -idx)
+
+		endPage()
 		
 		if save:
 			if self.OutputFile is not None:
@@ -782,8 +849,8 @@ class ReportWriter(object):
 			formdict = {}
 
 		if xmldict.has_key("children"):
-			# children with name of "objects" are band object lists
-			# other children are sub-dictionaries.
+			# children with name of "objects", "variables" or "groups" are band 
+			# object lists, while other children are sub-dictionaries.
 			for child in xmldict["children"]:
 				if child["name"] == "testcursor":
 					# special case.
@@ -794,7 +861,8 @@ class ReportWriter(object):
 						if childrecord["name"] == "record":
 							for field, value in childrecord["attributes"].items():
 								datatype = eval(datatypes[field])
-								record[field] = datatype(value)
+#								record[field] = datatype(value)
+								record[field] = eval(value)
 							records.append(record)
 					formdict[child["name"]] = records
 				elif child.has_key("cdata"):
@@ -802,12 +870,13 @@ class ReportWriter(object):
 				elif child.has_key("attributes"):
 					formdict[child["name"]] = child["attributes"]
 				elif child.has_key("children"):
-					if child["name"] == "objects":
-						formdict["objects"] = []
+					if child["name"] in ("objects", "groups", "variables"):
+						coll = child["name"]
+						formdict[coll] = []
 						for obchild in child["children"]:
 							c = self._getFormFromXMLDict(obchild, {}, level+1)
 							c["type"] = obchild["name"]
-							formdict["objects"].append(c)
+							formdict[coll].append(c)
 					else:
 						formdict[child["name"]] = self._getFormFromXMLDict(child, {}, level+1)
 
