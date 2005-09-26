@@ -34,6 +34,7 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 		super(dDialog, self)._afterInit()
 		# Hook method, so that we add the buttons last
 		self._addControls()
+		self.bindKey("esc", self._onEscape)
 
 		
 	def show(self):
@@ -50,7 +51,12 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 	def hide(self):
 		self.Show(False)
 		
-		
+
+	def _onEscape(self, evt):
+		if self.ReleaseOnEscape:
+			self.release()
+
+
 	def _addControls(self):
 		"""Any controls that need to be added to the dialog 
 		can be added in this method in framework classes, or
@@ -74,39 +80,66 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 
 	def _getAutoSize(self):
 		return self._fit
+
 	def _setAutoSize(self, val):
 		self._fit = val
+
+
 	def _getCaption(self):
 		return self.GetTitle()
+
 	def _setCaption(self, val):
 		if self._constructed():
 			self.SetTitle(val)
 		else:
 			self._properties["Caption"] = val
+
+
 	def _getCentered(self):
 		return self._centered
+
 	def _setCentered(self, val):
 		self._centered = val
+
+
 	def _getModal(self):
 		return self._modal
+
 	def _setModal(self, val):
 		self._modal = val
 	
+
+	def _getReleaseOnEscape(self):
+		try:
+			val = self._releaseOnEscape
+		except AttributeError:
+			val = True
+		return val
+
+	def _setReleaseOnEscape(self, val):
+		self._releaseOnEscape = bool(val)
+
+
 	def _getShowStat(self):
 		# Dialogs cannot have status bars.
 		return False
 	_showStatusBar	= property(_getShowStat)
 
+
 	AutoSize = property(_getAutoSize, _setAutoSize, None,
 			"When True, the dialog resizes to fit the added controls.  (bool)")
+
 	Caption = property(_getCaption, _setCaption, None,
 			"The text that appears in the dialog's title bar  (str)" )
+
 	Centered = property(_getCentered, _setCentered, None,
 			"Determines if the dialog is displayed centered on the screen.  (bool)")
+
 	Modal = property(_getModal, _setModal, None,
 			"Determines if the dialog is shown modal (default) or modeless.  (bool)")
-
-
+	
+	ReleaseOnEscape = property(_getReleaseOnEscape, _setReleaseOnEscape, None,
+			"Determines if the <Esc> key releases the dialog (the default).")
 
 class dOkCancelDialog(dDialog):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
