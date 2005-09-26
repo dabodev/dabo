@@ -2,7 +2,12 @@ from dabo.lib.reportWriter import ReportWriter
 from dabo.common.dObject import dObject
 
 # dReportWriter is simply a raw ReportWriter/dObject mixin:
-class dReportWriter(dObject, ReportWriter): pass
+class dReportWriter(dObject, ReportWriter):
+	def _afterInit(self):
+		app = self.Application
+		if app is not None:
+			self.home_dir = app.HomeDirectory
+		super(dReportWriter, self)._afterInit()
 
 
 if __name__ == "__main__":
