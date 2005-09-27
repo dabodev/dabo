@@ -29,7 +29,7 @@ tempFileHolder = TempFileHolder()
 getTempFile = tempFileHolder.getTempFile
 
 
-def previewPDF(path):
+def previewPDF(path, modal=False):
 	"""Preview the passed PDF file in the default PDF viewer."""
 	try:
 		os.startfile(path)
@@ -38,7 +38,23 @@ def previewPDF(path):
 		if sys.platform == "darwin":
 			os.system("open %s" % path)
 		else:
-			# on Linux, punt with xpdf:
-			os.popen2("xpdf %s" % path)
+			# On Linux, try to find an installed viewer and just use the first one
+			# found. I just don't know how to reliably get the default viewer from 
+			# the many distros.
+			viewers = ("gpdf", "kpdf", "evince", "acroread", "xpdf", "firefox", 
+			           "mozilla-firefox")
 
+			viewer = None
+			for v in viewers:
+				r = os.system("which %s > /dev/null" % v)
+				if r == 0:
+					viewer = v
+					break
+
+			if viewer:
+				if modal:
+					sysfunc = os.system
+				else:
+					sysfunc = os.popen2
+				sysfunc("%s %s" % (viewer, path))
 

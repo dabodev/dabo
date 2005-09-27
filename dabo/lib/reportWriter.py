@@ -614,18 +614,18 @@ class ReportWriter(object):
 			if bandDict.has_key("objects"):
 				for object in bandDict["objects"]:
 					try:
-						x = self.getPt(eval(object["x"]))
+						x1 = self.getPt(eval(object["x"]))
 					except KeyError:
-						x = self.default_x
+						x1 = self.default_x
 
 					try:
 						y1 = self.getPt(eval(object["y"]))
 					except KeyError:
 						y1 = self.default_y
 
-					x = ml + x
+					x1 = x + x1
 					y1 = y + y1
-					self.draw(object, (x, y1))
+					self.draw(object, (x1, y1))
 						
 			return y		
 
