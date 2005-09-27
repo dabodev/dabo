@@ -136,6 +136,10 @@ class dPemMixin(dPemMixinBase):
 
 		super(dPemMixin, self).__init__(*args, **kwargs)
 
+		# Finally, at the end of the init cycle, raise the Create event
+		self.raiseEvent(dEvents.Create)
+
+
 	def _constructed(self):
 		"""Returns True if the ui object has been fully created yet, False otherwise."""
 		try:
@@ -185,9 +189,6 @@ class dPemMixin(dPemMixinBase):
 		self._mouseLeftDown, self._mouseRightDown = False, False
 
 		self.afterInit()
-
-		# Raise the Create event, in case someone wants to bind to that...		
-		self.raiseEvent(dEvents.Create)
 
 		
 	def _preInitUI(self, kwargs):
