@@ -6,6 +6,7 @@ import dabo.dException as dException
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _, n_
 from dabo.lib.utils import padl
+import dabo.lib.reportUtils as reportUtils
 
 dabo.ui.loadUI("wx")
 
@@ -548,33 +549,6 @@ class BrowsePage(Page):
 		self.layout()
 		
 
-	def __onPreview_old(self, evt):
-		if self.itemsCreated:
-			if self.Form.preview:
-				# Just previewing 
-				dabo.ui.info(message="Not available in preview mode", 
-						title = "Preview Mode")
-				return
-			import wx.html
-			html = self.BrowseGrid.getHTML(justStub=False)
-			win = wx.html.HtmlEasyPrinting("Dabo Quick Print", self.Form)
-			printData = win.GetPrintData()
-			setupData = win.GetPageSetupData()
-			#printData.SetPaperId(wx.PAPER_LETTER)
-			setupData.SetPaperId(wx.PAPER_LETTER)
-			if self.BrowseGrid.GetNumberCols() > 20:
-				printData.SetOrientation(wx.LANDSCAPE)
-			else:
-				printData.SetOrientation(wx.PORTRAIT)
-			#setupData.SetMarginTopLeft((17,7))
-			#s#etupData.SetMarginBottomRight((17,5))
-	#       # setupData.SetOrientation(wx.LANDSCAPE)
-			win.SetHeader("<B>%s</B>" % (self.Form.Caption,))
-			win.SetFooter("<CENTER>Page @PAGENUM@ of @PAGESCNT@</CENTER>")
-			#win.PageSetup()
-			win.PreviewText(html)
-
-
 	def onPreview(self, evt):
 		if not self.itemsCreated:
 			return
@@ -616,8 +590,7 @@ class BrowsePage(Page):
 			if mode == "one":
 				cursor = (cursor[biz.RowNumber],)
 
-			outputfile = "%s.pdf" % os.tempnam()
-			self.Form._tempFiles.append(outputfile)
+			outputfile = reportUtils.getTempFile()
 
 			try:
 				import dabo.dReportWriter as drw
@@ -631,15 +604,7 @@ class BrowsePage(Page):
 			rw.write()
 
 			# Now, preview using the platform's default pdf viewer:
-			try:
-				os.startfile(outputfile)
-			except AttributeError:
-				# startfile only available on Windows
-				if sys.platform == "darwin":
-					os.system("open %s" % outputfile)
-				else:
-					# on Linux, punt with xpdf:
-					os.popen2("xpdf %s" % outputfile)
+			reportUtils.previewPDF(outputfile)
 
 
 class EditPage(Page):
