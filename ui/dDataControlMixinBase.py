@@ -209,14 +209,20 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		# has already released the C++ part of the object).
 		value = self._value	
 		if self.Application:
-			name = self.getAbsoluteName()
+			if self.RegID:
+				name = "%s.%s" % (self.Form.Name, self.RegID)
+			else:
+				name = self.getAbsoluteName()
 			self.Application.setUserSetting("%s.Value" % name, value)
 		
 			
 	def restoreValue(self):
 		""" Set the control's value to the value in dApp's user settings table."""			
 		if self.Application:
-			name = self.getAbsoluteName()
+			if self.RegID:
+				name = "%s.%s" % (self.Form.Name, self.RegID)
+			else:
+				name = self.getAbsoluteName()
 			value = self.Application.getUserSetting("%s.Value" % name)
 
 			if value is not None:
