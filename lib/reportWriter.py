@@ -566,9 +566,15 @@ class ReportWriter(object):
 			self.Bands[band] = {}
 
 			try:		
-				height = self.getPt(eval(bandDict["height"]))
+				height = eval(bandDict["height"])
 			except KeyError:
-				height = self.getPt(self.default_bandHeight)
+				height = self.default_bandHeight
+
+			if height is not None:
+				height = self.getPt(height)
+			else:
+				# figure out height based on the objects in the band.
+				height = self.calculateBandHeight(bandDict)
 
 			x = ml
 			y = y - height
@@ -581,15 +587,8 @@ class ReportWriter(object):
 				x,y = pageFooterOrigin
 			elif band in ("pageBackground", "pageForeground"):
 				x,y = 0,1
-
-			if band in ("pageBackground", "pageForeground"):
 				width, height = pageWidth-1, pageHeight-1
-			else:
-				width = pageWidth - ml - mr
-				try:
-					height = self.getPt(eval(bandDict["height"]))
-				except KeyError:
-					height = self.default_bandHeight
+
 
 			if band == "detail":
 				pf = _form.get("pageFooter")
@@ -686,6 +685,26 @@ class ReportWriter(object):
 			self._canvas = None
 
 
+	def calculateBandHeight(self, bandDict):
+		maxHeight = 0
+		if bandDict.has_key("objects"):
+			for object in bandDict["objects"]:
+				try:
+					y = self.getPt(eval(object["y"]))
+				except KeyError:
+					y = self.default_y
+
+				try:
+					ht = eval(object["height"])
+				except KeyError:
+					ht = self.default_height
+				ht = self.getPt(ht)
+
+				thisHeight = y + ht
+				maxHeight = max(thisHeight, maxHeight)
+		return maxHeight
+
+		
 	def getPageSize(self):
 		## Set the Page Size:
 		# get the string pageSize value from the spec file:

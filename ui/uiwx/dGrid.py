@@ -440,7 +440,8 @@ class dColumn(dabo.common.dObject):
 		self._beforeInit()
 		kwargs["Parent"] = parent
 		# dColumn maintains one attr object that the grid table will use:
-		self._gridColAttr = parent._defaultGridColAttr.Clone()
+		a = self._gridColAttr = parent._defaultGridColAttr.Clone()
+		a.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.LIGHT))
 
 		super(dColumn, self).__init__(properties, *args, **kwargs)
 
@@ -716,6 +717,96 @@ class dColumn(dabo.common.dObject):
 			self._updateEditor()
 		else:
 			self._properties["DataField"] = val
+
+
+	def _getFont(self):
+		return self._gridColAttr.GetFont()
+	
+	def _setFont(self, val):
+		if self._constructed():
+			assert isinstance(val, wx.Font)
+			self._gridColAttr.SetFont(val)
+			self._refreshGrid()
+		else:
+			self._properties["Font"] = val
+
+	
+	def _getFontBold(self):
+		return self.Font.GetWeight() == wx.BOLD
+	
+	def _setFontBold(self, val):
+		if self._constructed():
+			font = self.Font
+			if val:
+				font.SetWeight(wx.BOLD)
+			else:
+				font.SetWeight(wx.LIGHT)
+			self.Font = font
+		else:
+			self._properties["FontBold"] = val
+
+	def _getFontDescription(self):
+		f = self.Font
+		ret = f.GetFaceName() + " " + str(f.GetPointSize())
+		if f.GetWeight() == wx.BOLD:
+			ret += " B"
+		if f.GetStyle() == wx.ITALIC:
+			ret += " I"
+		return ret
+	
+	def _getFontInfo(self):
+		return self.Font.GetNativeFontInfoDesc()
+
+		
+	def _getFontItalic(self):
+		return self.Font.GetStyle() == wx.ITALIC
+	
+	def _setFontItalic(self, val):
+		if self._constructed():
+			font = self.Font
+			if val:
+				font.SetStyle(wx.ITALIC)
+			else:
+				font.SetStyle(wx.NORMAL)
+			self.Font = font
+		else:
+			self._properties["FontItalic"] = val
+
+	
+	def _getFontFace(self):
+		return self.Font.GetFaceName()
+
+	def _setFontFace(self, val):
+		if self._constructed():
+			f = self.Font
+			f.SetFaceName(val)
+			self.Font = f
+		else:
+			self._properties["FontFace"] = val
+
+	
+	def _getFontSize(self):
+		return self.Font.GetPointSize()
+	
+	def _setFontSize(self, val):
+		if self._constructed():
+			font = self.Font
+			font.SetPointSize(int(val))
+			self.Font = font
+		else:
+			self._properties["FontSize"] = val
+	
+	def _getFontUnderline(self):
+		return self.Font.GetUnderlined()
+	
+	def _setFontUnderline(self, val):
+		if self._constructed():
+			# underlining doesn't seem to be working...
+			font = self.Font
+			font.SetUnderlined(bool(val))
+			self.Font = font
+		else:
+			self._properties["FontUnderline"] = val
 
 
 	def _getHeaderFont(self):
@@ -1096,6 +1187,30 @@ class dColumn(dabo.common.dObject):
 	DataField = property(_getDataField, _setDataField, None,
 			_("Field key in the data set to which this column is bound.  (str)") )
 
+	Font = property(_getFont, _setFont, None,
+			_("The font properties of the column's cells. (obj)") )
+	
+	FontBold = property(_getFontBold, _setFontBold, None,
+			_("Specifies if the cell font is bold-faced. (bool)") )
+	
+	FontDescription = property(_getFontDescription, None, None, 
+			_("Human-readable description of the column's cell font settings. (str)") )
+	
+	FontFace = property(_getFontFace, _setFontFace, None,
+			_("Specifies the font face for the column cells. (str)") )
+	
+	FontInfo = property(_getFontInfo, None, None,
+			_("Specifies the platform-native font info string for the column cells. Read-only. (str)") )
+	
+	FontItalic = property(_getFontItalic, _setFontItalic, None,
+			_("Specifies whether the column's cell font is italicized. (bool)") )
+	
+	FontSize = property(_getFontSize, _setFontSize, None,
+			_("Specifies the point size of the column's cell font. (int)") )
+	
+	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
+			_("Specifies whether cell text is underlined. (bool)") )
+
 	HeaderBackgroundColor = property(_getHeaderBackgroundColor, _setHeaderBackgroundColor, None,
 			_("Optional color for the background of the column header  (str)") )
 
@@ -1191,6 +1306,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
+		# Need to sync the size reported by wx to the size reported by Dabo:
+		self.RowHeight = self.RowHeight
+
 
 	def _afterInit(self):
 		self._header = None
@@ -2299,15 +2417,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		row = evt.GetRowOrCol()
 		size = self.GetRowSize(row)
 
-		# Persist the new size
-		app = self.Application
-		if app is not None:
-			app.setUserSetting("%s.%s.%s" % (
-			                   self.Form.Name, self.Name, "RowSize"), size)
-		
 		if self.SameSizeRows:
-			self.SetDefaultRowSize(size, True)
-			self.ForceRefresh()
+			self.RowHeight = size
 
 	
 	def _onGridCellSelected(self, evt):
@@ -2740,12 +2851,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		try:
 			val = self._headerHorizontalAlignment
 		except AttributeError:
-			val = self._headerHorizontalAlignment = None
+			val = self._headerHorizontalAlignment = "Center"
 		return val
 
 	def _setHeaderHorizontalAlignment(self, val):
 		if self._constructed():
-			v = self._expandPropStringValue(val, ("Left", "Right", "Center", None))
+			v = self._expandPropStringValue(val, ("Left", "Right", "Center"))
 			self._headerHorizontalAlignment = v
 			self.refresh()
 		else:
@@ -2756,12 +2867,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		try:
 			val = self._headerVerticalAlignment
 		except AttributeError:
-			val = self._headerVerticalAlignment = None
+			val = self._headerVerticalAlignment = "Center"
 		return val
 
 	def _setHeaderVerticalAlignment(self, val):
 		if self._constructed():
-			v = self._expandPropStringValue(val, ("Top", "Bottom", "Center", None))
+			v = self._expandPropStringValue(val, ("Top", "Bottom", "Center"))
 			self._headerVerticalAlignment = v
 			self.refresh()
 		else:
