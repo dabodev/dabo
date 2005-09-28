@@ -77,14 +77,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			# (further testing reveals that this really isn't a problem: the grid is 
 			#  just empty - no columns or rows added yet)
 
-		## Now, override with a custom renderer/editor for this row/col if applicable.
-		customEditorClass = dcol.CustomEditors.get(row)
-		customRendererClass = dcol.CustomRenderers.get(row)
-		if customEditorClass is not None:
-			attr.SetEditor(customEditorClass())
-		if customRendererClass is not None:
-			attr.SetRenderer(customRendererClass())
-
+		## Now, override with a custom renderer for this row/col if applicable.
+		## Note that only the renderer is handled here, as we are segfaulting when
+		## handling the editor here.
+		r = dcol.getRendererClassForRow(row)
+		if r is not None:
+			attr.SetRenderer(r())
 		return attr
 
 
@@ -166,7 +164,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		
 		
 	def setColumnInfo(self):
-		self.colDefs.sort(self.orderSort)		
+		self.colDefs.sort(self.orderSort)
 
 
 	def convertType(self, typ):
@@ -485,15 +483,6 @@ class dColumn(dabo.common.dObject):
 			"list" : self.listEditorClass }
 		
 
-	def getRendererForRow(self, row):
-		"""Return the cell renderer for the passed row."""
-		d = self.CustomRenderers
-		r = d.get(row)
-		if r is None:
-			r = self.Renderer
-		return r
-
-
 	def _afterInit(self):
 		self._isConstructed = True
 		super(dColumn, self)._afterInit()
@@ -501,6 +490,38 @@ class dColumn(dabo.common.dObject):
 		
 	def _constructed(self):
 		return self._isConstructed
+
+
+	def _setEditor(self, row):
+		"""Set the editor for the entire column based on the editor for this row.
+
+		This is a workaround to a problem that is preventing us from setting the
+		editor for a specific cell at the time the grid needs it.
+		"""
+		edClass = self.getEditorClassForRow(row)
+		attr = self._gridColAttr.Clone()
+		if edClass:
+			e = edClass()
+			attr.SetEditor(e)
+		self._gridColAttr = attr
+
+
+	def getEditorClassForRow(self, row):
+		"""Return the cell editor class for the passed row."""
+		d = self.CustomEditors
+		e = d.get(row)
+		if e is None:
+			e = self.EditorClass
+		return e
+
+
+	def getRendererClassForRow(self, row):
+		"""Return the cell renderer class for the passed row."""
+		d = self.CustomRenderers
+		r = d.get(row)
+		if r is None:
+			r = self.RendererClass
+		return r
 
 
 	def _getHeaderRect(self):
@@ -555,8 +576,11 @@ class dColumn(dabo.common.dObject):
 
 	def _getGridColumnIndex(self):
 		"""Return our column index in the grid, or -1."""
-		t = self.Parent._Table
 		gridCol = -1
+		try:
+			t = self.Parent._Table
+		except:
+			t = None
 		if t is not None:
 			for idx, dCol in enumerate(t.colDefs):
 				if dCol == self:
@@ -576,7 +600,7 @@ class dColumn(dabo.common.dObject):
 				kwargs["choices"] = self.ListEditorChoices
 			editor = editorClass(**kwargs)
 		self._gridColAttr.SetEditor(editor)
-		
+
 
 	def _updateRenderer(self):
 		"""The Field, DataType, or CustomRenderer has changed: set in the attr"""
@@ -2420,9 +2444,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if self.SameSizeRows:
 			self.RowHeight = size
 
-	
+
 	def _onGridCellSelected(self, evt):
 		""" Occurs when the grid's cell focus has changed."""
+
+		## pkm 2005-09-28: This works around a nasty segfault:
+		self.HideCellEditControl()
+		## but periodically test it. My current version: 2.6.1.1pre
+
 		oldRow = self.CurrentRow
 		newRow = evt.EventData["row"]
 		newCol = evt.EventData["col"]
@@ -2430,6 +2459,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			co = self.Columns[newCol]
 		except:
 			co = None
+
+		if co:
+			## pkm 2005-09-28: Part of the editor segfault workaround. This sets the
+			##                 editor for the entire column, at a point in time before
+			##                 the grid is actually asking for the editor, and in a 
+			##                 fashion that ensures the editor instance doesn't go
+			##                 out of scope prematurely.
+			co._setEditor(newRow)
+
 		if co and self.Editable and co.Editable and self.ActivateEditorOnSelect:
 			dabo.ui.callAfter(self.EnableCellEditControl)
 		if oldRow != newRow:
