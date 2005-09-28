@@ -500,23 +500,16 @@ class Form(dabo.ui.dForm):
 			   will be as defined in the browse page. If mode=="one", the fields displayed
 			   will be as defined in the edit page.   *** PARTIALLY IMPLEMENTED ***
 		"""
+		grid = self.PageFrame.Pages[1].BrowseGrid
+
 		rfxml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
 <report>
 	<title>"""
 		rfxml += "Quick Report: %s" % self.Caption
 		rfxml += """</title>
-	<page>
-		<marginBottom>".5 in"</marginBottom>
-		<marginLeft>".5 in"</marginLeft>
-		<marginRight>".5 in"</marginRight>
-		<marginTop>".25 in"</marginTop>
-		<orientation>"portrait"</orientation>
-		<size>"letter"</size>
-	</page>
-
 	<pageHeader>
-		<height>"0.25 in"</height>
+		<height>"0.75 in"</height>
 		<objects>
 			<string>
 				<align>"center"</align>
@@ -529,33 +522,132 @@ class Form(dabo.ui.dForm):
 				<height>15.96</height>
 				<name>title</name>
 				<width>384.0</width>
-				<x>265.0</x>
-				<y>0.0</y>
-			</string>
+				<x>self.Bands["pageHeader"]["width"]/2</x>
+				<y>"0.6 in"</y>
+			</string>"""
+		x = 0
+		horBuffer = 3
+		vertBuffer = 5
+		for col in grid.Columns:
+			coldict = {"caption": col.Caption, "fontSize": col.HeaderFontSize,
+			           "width": col.Width, "x": x+horBuffer}
+			coldict["horBuffer"] = horBuffer
+			coldict["vertBuffer"] = vertBuffer
+			coldict["rectWidth"] = coldict["width"] + (2*horBuffer)
+			coldict["rectHeight"] = grid.HeaderHeight
+			hAlign = col.HeaderHorizontalAlignment
+			if hAlign is None:
+				hAlign = grid.HeaderHorizontalAlignment
+			coldict["textHorAlignment"] = "'%s'" % hAlign.lower().split(" ")[0]
+			coldict["rectX"] = x
+			vAlign = col.HeaderVerticalAlignment	
+			if vAlign is None:
+				vAlign = grid.HeaderHorizontalAlignment
+			vAlign = vAlign[:3]
+			if vAlign == "Cen":
+				textY = (coldict["rectHeight"] / 2) - (coldict["fontSize"]/2)
+			elif vAlign == "Top":
+				textY = coldict["rectHeight"] - coldict["fontSize"]
+			else:
+				textY = vertBuffer
+			coldict["textY"] = textY
+
+			x += coldict["rectWidth"]
+			if x > 720:
+				# We'll run off the edge of the page, ignore the rest:
+				break
+
+			rfxml += """
+			<rect>
+				<width>%(rectWidth)s</width>
+				<height>%(rectHeight)s</height>
+				<strokeWidth>0.25</strokeWidth>
+				<fillColor>(0.9,0.9,0.9)</fillColor>
+				<x>%(rectX)s</x>
+				<y>0</y>
+			</rect>
+			<string>
+				<expr>"%(caption)s"</expr>
+				<height>%(fontSize)s</height>
+				<align>%(textHorAlignment)s</align>
+				<fontSize>%(fontSize)s</fontSize>
+				<width>%(width)s</width>
+				<x>%(x)s</x>
+				<y>%(textY)s</y>
+			</string>""" % coldict
+		
+		rfxml += """
 		</objects>
 	</pageHeader>
 
 	<detail>
-		<height>25</height>
+		<height>None</height>
 		<objects>"""
 		x = 0
-		for col in self.PageFrame.Pages[1].BrowseGrid.Columns:
-			coldict = {"caption": col.Caption, "field": col.DataField, "width": col.Width, "x": x}
+		horBuffer = 3
+		vertBuffer = 5
+		for col in grid.Columns:
+			coldict = {"caption": col.Caption, "field": col.DataField, 
+			           "width": col.Width, "fontSize": col.FontSize,
+			           "x": x+horBuffer}
+			coldict["horBuffer"] = horBuffer
+			coldict["vertBuffer"] = vertBuffer
+			coldict["rectWidth"] = coldict["width"] + (2*horBuffer)
+			coldict["rectHeight"] = col.Parent.RowHeight
+			coldict["textHorAlignment"] = "'%s'" % col.HorizontalAlignment.lower().split(" ")[0]
+			coldict["rectX"] = x
+			vAlign = col.VerticalAlignment	[:3]
+			if vAlign == "Cen":
+				textY = (coldict["rectHeight"] / 2) - (coldict["fontSize"]/2)
+			elif vAlign == "Top":
+				textY = coldict["rectHeight"] - coldict["fontSize"]
+			else:
+				textY = vertBuffer
+			coldict["textY"] = textY
+
+			x += coldict["rectWidth"]
+			if x > 720:
+				# We'll run off the edge of the page, ignore the rest:
+				break
+
 			rfxml += """
+			<rect>
+				<width>%(rectWidth)s</width>
+				<height>%(rectHeight)s</height>
+				<strokeWidth>0.25</strokeWidth>
+				<x>%(rectX)s</x>
+				<y>0</y>
+			</rect>
 			<string>
 				<expr>str(self.Record["%(field)s"])</expr>
-				<height>15</height>
+				<height>%(fontSize)s</height>
+				<align>%(textHorAlignment)s</align>
+				<fontSize>%(fontSize)s</fontSize>
 				<width>%(width)s</width>
 				<x>%(x)s</x>
-				<y>0</y>
+				<y>%(textY)s</y>
 			</string>""" % coldict
-			x += coldict["width"]
+
+		orientation = "portrait"
+		if x > 504:
+			# switch to landscape
+			orientation = "landscape"
+		
 		rfxml += """
 		</objects>
 	</detail>
 
+	<page>
+		<marginBottom>".5 in"</marginBottom>
+		<marginLeft>".5 in"</marginLeft>
+		<marginRight>".5 in"</marginRight>
+		<marginTop>".25 in"</marginTop>
+		<orientation>"%s"</orientation>
+		<size>"letter"</size>
+	</page>
+
 </report>
-"""
+""" % orientation
 		return rfxml
 
 				
