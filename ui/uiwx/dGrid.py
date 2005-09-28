@@ -3117,6 +3117,7 @@ class _dGrid_test(dGrid):
 		self.addColumn(col)
 
 		col.CustomRenderers[1] = col.stringRendererClass
+		col.CustomEditors[1] = col.stringEditorClass
 		col.HeaderFontBold = False
 
 		col = dColumn(self, Name="Person", Order=20, DataField="name",
