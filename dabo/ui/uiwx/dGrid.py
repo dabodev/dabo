@@ -501,9 +501,20 @@ class dColumn(dabo.common.dObject):
 		edClass = self.getEditorClassForRow(row)
 		attr = self._gridColAttr.Clone()
 		if edClass:
-			e = edClass()
-			attr.SetEditor(e)
+			kwargs = {}
+			if edClass in (wx.grid.GridCellChoiceEditor,):
+				kwargs["choices"] = self.getListEditorChoicesForRow(row)
+			editor = edClass(**kwargs)
+			attr.SetEditor(editor)
 		self._gridColAttr = attr
+
+
+	def getListEditorChoicesForRow(self, row):
+		"""Return the list of choices for the list editor for the given row."""
+		choices = self.CustomListEditorChoices.get(row)
+		if choices is None:
+			choices = self.ListEditorChoices
+		return choices
 
 
 	def getEditorClassForRow(self, row):
@@ -3136,9 +3147,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 class _dGrid_test(dGrid):
 	def initProperties(self):
-		self.DataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True},
-		                {"name" : "Mike Leafe", "age" : 18, "coder" :  False},
-		                {"name" : "Dan Leafe", "age" : 13, "coder" :  False} ]
+		self.DataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True, "color": "brown"},
+		                {"name" : "Mike Leafe", "age" : 18, "coder" :  False, "color": "purple"},
+		                {"name" : "Dan Leafe", "age" : 13, "coder" :  False, "color": "green"}]
 		self.Width = 360
 		self.Height = 150
 		self.Editable = True
@@ -3172,6 +3183,14 @@ class _dGrid_test(dGrid):
 				DataType="integer", Width=40, Caption="Age",
 				Sortable=True, Searchable=False, Editable=True)
 		self.addColumn(col)
+
+		col = dColumn(self, Name="Color", Order=40, DataField="color",
+				DataType="string", Width=40, Caption="Favorite Color",
+				Sortable=True, Searchable=False, Editable=True)
+		self.addColumn(col)
+
+		col.ListEditorChoices = ["green", "brown", "purple"]
+		col.CustomEditorClass = col.listEditorClass
 
 		col.HeaderVerticalAlignment = "Bottom"
 		col.HeaderHorizontalAlignment = "Right"
