@@ -1,6 +1,7 @@
 import copy
 import datetime
 import decimal
+Decimal = decimal.Decimal
 import locale
 import sys
 import os
@@ -113,12 +114,14 @@ class ReportWriter(object):
 	home_dir = "."
 
 
-	def draw(self, object, origin):
+	def draw(self, object, origin, getNeededHeight=False):
 		"""Draw the given object on the Canvas.
 
 		The object is a dictionary containing properties, and	origin is the (x,y)
 		tuple where the object will be drawn. 
 		"""
+		neededHeight = 0
+
 		## (Can't get x,y directly from object because it may have been modified 
 		## by the calling program to adjust for	band position, and draw() 
 		## doesn't know about bands.)
@@ -137,10 +140,14 @@ class ReportWriter(object):
 		except (KeyError, TypeError, ValueError): 
 			width = self.default_width
 	
-		try: 
-			height = self.getPt(eval(object["height"]))
-		except (KeyError, TypeError, ValueError): 
-			height = self.default_height
+		height = object.get("calculatedHeight", None)
+		if height is not None:
+			height = eval(height)
+		else:
+			try: 
+				height = self.getPt(eval(object["height"]))
+			except (KeyError, TypeError, ValueError): 
+				height = self.default_height
 	
 		try: 
 			rotation = eval(object["rotation"])
@@ -343,46 +350,56 @@ class ReportWriter(object):
 
 			objects = object["objects"]
 			story = []
-			for object in objects:
-				t = object["type"]
+			for fobject in objects:
+				objNeededHeight = 0
+
+				t = fobject["type"]
 				try:
-					s = styles_[eval(object["style"])]
+					s = styles_[eval(fobject["style"])]
 				except:
 					s = styles_[self.default_style]
-				e = eval(object["expr"])
+				e = eval(fobject["expr"])
 				s = copy.deepcopy(s)
 
-				if object.has_key("fontSize"):
-					s.fontSize = eval(object["fontSize"])
+				if fobject.has_key("fontSize"):
+					s.fontSize = eval(fobject["fontSize"])
 
-				if object.has_key("fontName"):
-					s.fontName = eval(object["fontName"])
+				if fobject.has_key("fontName"):
+					s.fontName = eval(fobject["fontName"])
 				
-				if object.has_key("leading"):
-					s.leading = eval(object["leading"])
+				if fobject.has_key("leading"):
+					s.leading = eval(fobject["leading"])
 
-				if object.has_key("spaceAfter"):
-					s.spaceAfter = eval(object["spaceAfter"])
+				if fobject.has_key("spaceAfter"):
+					s.spaceAfter = eval(fobject["spaceAfter"])
 
-				if object.has_key("spaceBefore"):
-					s.spaceBefore = eval(object["spaceBefore"])
+				if fobject.has_key("spaceBefore"):
+					s.spaceBefore = eval(fobject["spaceBefore"])
 
-				if object.has_key("leftIndent"):
-					s.leftIndent = eval(object["leftIndent"])
+				if fobject.has_key("leftIndent"):
+					s.leftIndent = eval(fobject["leftIndent"])
 
-				if object.has_key("firstLineIndent"):
-					s.firstLineIndent = eval(object["firstLineIndent"])
+				if fobject.has_key("firstLineIndent"):
+					s.firstLineIndent = eval(fobject["firstLineIndent"])
 
 				if t == "paragraph":
-					story.append(platypus.Paragraph(e, s))
+					p = platypus.Paragraph(e, s)
+					story.append(p)
+					objNeededHeight += p.wrap(columnWidth-padLeft-padRight, None)[1]
+
+				neededHeight = max(neededHeight, objNeededHeight) + padTop + padBottom
 
 			for columnIndex in range(columns):
 				f = platypus.Frame(columnIndex*columnWidth, 0, columnWidth, height, leftPadding=padLeft,
 				                   rightPadding=padRight, topPadding=padTop,
 				                   bottomPadding=padBottom, id=frameId, 
 				                   showBoundary=boundary)
-
-				f.addFromList(story, c)
+				if getNeededHeight:
+					object["calculatedHeight"] = "%s" % neededHeight
+				else:
+					f.addFromList(story, c)
+					if len(story) > 0:
+						print "!!!", neededHeight, story[0].wrap(columnWidth, None)
 	
 		elif object["type"] == "image":
 			try: 
@@ -435,6 +452,7 @@ class ReportWriter(object):
 		## rotating, scaling, etc. are cumulative, not absolute and we don't want
 		## to start with a canvas in an unknown state.)
 		c.restoreState()
+		return neededHeight
 
 
 	def getPt(self, val):
@@ -612,6 +630,11 @@ class ReportWriter(object):
 
 			if bandDict.has_key("objects"):
 				for object in bandDict["objects"]:
+					showExpr = object.get("showExpr")
+					if showExpr is not None:
+						if not eval(showExpr):
+							# user's showExpr evaluated to False: don't print!
+							continue
 					try:
 						x1 = self.getPt(eval(object["x"]))
 					except KeyError:
@@ -698,6 +721,8 @@ class ReportWriter(object):
 					ht = eval(object["height"])
 				except KeyError:
 					ht = self.default_height
+				if ht is None:
+					ht = self.calculateObjectHeight(object)
 				ht = self.getPt(ht)
 
 				thisHeight = y + ht
@@ -705,6 +730,11 @@ class ReportWriter(object):
 		return maxHeight
 
 		
+	def calculateObjectHeight(self, obj):
+		neededHeight = self.draw(obj, (0,0), getNeededHeight=True)
+		return neededHeight
+
+
 	def getPageSize(self):
 		## Set the Page Size:
 		# get the string pageSize value from the spec file:
