@@ -407,7 +407,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 
 	
 
-class TestListControl(dListControl):
+class _dListControl_test(dListControl):
 	def afterInit(self):
 		self.setColumns( ("Main Column", "Another Column") )
 		self.setColumnWidth(0, 150)
@@ -436,4 +436,4 @@ class TestListControl(dListControl):
 			
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(TestListControl)
+	test.Test().runTest(_dListControl_test)
