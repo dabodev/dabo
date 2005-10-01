@@ -1,3 +1,5 @@
+import datetime
+from decimal import Decimal
 import os
 import sys
 
@@ -58,3 +60,36 @@ def previewPDF(path, modal=False):
 					sysfunc = os.popen2
 				sysfunc("%s %s" % (viewer, path))
 
+
+def getTestCursorXmlFromDataSet(dataset):
+	"""Returns the xml for insertion into a .rfxml file from a dataset."""
+
+	assert len(dataset) > 0
+
+	typemap = {int: "int",
+	          long: "long",
+	          float: "float",
+	          str: "str",
+	          unicode: "str",
+	          bool: "bool",
+	          Decimal: "Decimal",
+	          datetime.date: "datetime.date",
+	          datetime.datetime: "datetime.datetime",}
+
+	xml = """\t<testcursor """
+	for k, v in dataset[0].items():
+		xml += """%s="%s" """ % (k, typemap.get(type(v)))
+	xml += """ >\n"""
+
+	for r in dataset:
+		xml += """\t\t<record """
+		for k, v in r.items():
+			if isinstance(v, basestring):
+				v = v.replace("'", "")
+			v = repr(v)
+			v = v.replace('"', "'")
+			xml += """%s="%s" """ % (k, v)
+		xml += """ />\n"""
+	
+	xml += """\t</testcursor>\n"""
+	return xml
