@@ -1,10 +1,8 @@
-import dabo
 import wx
-import wx.lib.mixins.listctrl	as ListMixin
-
+import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-
+import wx.lib.mixins.listctrl	as ListMixin
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -18,7 +16,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	able work with individual elements, you should use a grid.
 	"""	
 
-	# The mixin allows the rightmost column to expand as the 
+	# The ListMixin allows the rightmost column to expand as the 
 	# control is resized. There is no way to turn that off as of now.	
 
 	def __init__(self, parent, properties=None, *args, **kwargs):
@@ -67,28 +65,54 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 			
 	
 	def select(self, row):
+		"""Selects the specified row. In a MultipleSelect control, any 
+		other selected rows remain selected.
+		"""
+		if row < self.RowCount:
+			self.SetItemState(row, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
+		else:
+			dabo.errorLog.write("An attempt was made to select a non-existent row")
+
+
+	def selectOnly(self, row):
+		"""Selects the specified row. In a MultipleSelect control, any 
+		other selected rows are de-selected first.
+		"""
+		if self.MultipleSelect:
+			self.unselectAll()
 		self.SetItemState(row, wx.LIST_STATE_SELECTED, wx.LIST_STATE_SELECTED)
 
 
 	def unselect(self, row):
+		"""De-selects the specified row. In a MultipleSelect control, any 
+		other selected rows remain selected.
+		"""
 		self.SetItemState(row, 0, wx.LIST_STATE_SELECTED)
 
 
 	def selectAll(self):
-		for row in range(self.RowCount):
-			self.select(row)
+		"""Selects all rows in a MultipleSelect control, or generates a 
+		warning if the control is not set to MultipleSelect.
+		"""
+		if self.MultipleSelect:
+			for row in range(self.RowCount):
+				self.select(row)
+		else:
+			dabo.errorLog.write("'selectAll()' may only be called on List Controls that designated as MultipleSelect")
 			
 
 	def unselectAll(self):
+		"""De-selects all rows."""
 		for row in range(self.RowCount):
 			self.unselect(row)
-			
+	# Override the default selectNone to something appropriate for this control.
+	selectNone = unselectAll
+	
 	
 	def setColumnWidth(self, col, wd):
+		"""Sets the width of the specified column."""
 		self.SetColumnWidth(col, wd)
-	
-	def setItemData(self, item, data):
-		return self.SetItemData(item, data)
+
 
 	def append(self, tx, col=0, row=None):
 		""" Appends a row with the associated text in the specified column.
@@ -118,6 +142,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 				# should we raise an error? Add the column automatically?
 				pass
 		return new_item
+		
 	
 	def appendRows(self, seq, col=0):
 		""" Accepts a list/tuple of data. Each element in the sequence
@@ -147,12 +172,16 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		"""
 		for itm in seq:
 			self.insert(itm, row=row, col=col)
-		
 
 
 	def removeRow(self, row):
+		"""Deletes the specified row if it exists, or generates a warning
+		if it does not.
+		"""
 		if row < self.RowCount:
 			self.DeleteItem(row)
+		else:
+			dabo.errorLog.write("An attempt was made to remove a non-existent row")
 	
 	
 	def clear(self):
@@ -194,7 +223,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		""" Returns the index of the specified item's image in the 
 		current image list, or -1 if no image is set for the item.
 		"""
-		ret = GetItem(itm).GetImage()
+		ret = self.GetItem(itm).GetImage()
 		return ret
 		
 	
@@ -202,14 +231,17 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		self._hitIndex = evt.GetIndex()
 		# Call the default Hit code
 		self._onWxHit(evt)
+		
 
 	def __onSelection(self, evt):
 		self._lastSelectedIndex = evt.GetIndex()
 		# Call the default Hit code
 		self.raiseEvent(dEvents.ListSelection, evt)
+		
 	
 	def __onWxKeyDown(self, evt):
 		self.raiseEvent(dEvents.KeyDown, evt)
+		
 		
 	def _getSelectedIndices(self):
 		ret = []
@@ -221,6 +253,8 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 			pos = indx
 			ret.append(indx)
 		return ret
+		
+		
 	def _setSelectedIndices(self, selList):
 		if self._constructed():
 			self.unselectAll()
@@ -229,53 +263,71 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 						wx.LIST_STATE_SELECTED)
 		else:
 			self._properties["SelectedIndices"] = selList
+			
 
 	def _getColCount(self):
 		return self.GetColumnCount()
 		
+		
 	def _getRowCount(self):
 		return self.GetItemCount()
 		
+		
 	def _getHitIndex(self):
 		return self._hitIndex
+		
 
 	def _getLastSelectedIndex(self):
 		return self._lastSelectedIndex
+		
 
 	def _getMultipleSelect(self):
 		return not self.hasWindowStyleFlag(wx.LC_SINGLE_SEL)
+		
 
 	def _setMultipleSelect(self, val):
 		if bool(val):
 			self.delWindowStyleFlag(wx.LC_SINGLE_SEL)
 		else:
 			self.addWindowStyleFlag(wx.LC_SINGLE_SEL)
+			
 
 	def _getHeaderVisible(self):
 		return not self.hasWindowStyleFlag(wx.LC_NO_HEADER)
+		
 
 	def _setHeaderVisible(self, val):
 		if bool(val):
 			self.delWindowStyleFlag(wx.LC_NO_HEADER)
 		else:
 			self.addWindowStyleFlag(wx.LC_NO_HEADER)
+			
 
 	def _getHorizontalRules(self, val):
 		return self.hasWindowStyleFlag(wx.LC_HRULES)
+		
 
 	def _setHorizontalRules(self, val):
 		if bool(val):
 			self.addWindowStyleFlag(wx.LC_HRULES)
 		else:
 			self.delWindowStyleFlag(wx.LC_HRULES)
+			
 
 	def _getValue(self):
-		try:
-			item = self.GetItem(self.LastSelectedIndex, self.ValueColumn)
-		except TypeError:
-			item = None
-		if item is not None:
+		item = None
+		idx = self.LastSelectedIndex
+		colcnt = self.ColumnCount
+		vc = self.ValueColumn
+		
+		if idx is not None:
+			if 0 <= vc <= colcnt:
+				item = self.GetItem(idx, vc)
+		if item is None:
+			return None
+		else:
 			return item.GetText()
+			
 
 	def _setValue(self, val):
 		if self._constructed():
@@ -285,6 +337,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 				self.Select(self.FindItem(-1, val))
 		else:
 			self._properties["Value"] = val
+			
 
 	def _getValues(self):
 		ret = []
@@ -297,14 +350,17 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 			if item is not None:
 				ret.append(item.GetText())
 		return ret
+		
 	
 	def _getValCol(self):
 		return self._valCol
 	def _setValCol(self, val):
 		self._valCol = val
 		
+		
 	def _getVerticalRules(self, val):
 		return self.hasWindowStyleFlag(wx.LC_VRULES)
+		
 
 	def _setVerticalRules(self, val):
 		if bool(val):
@@ -351,7 +407,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 
 	
 
-class _dListControl_test(dListControl):
+class TestListControl(dListControl):
 	def afterInit(self):
 		self.setColumns( ("Main Column", "Another Column") )
 		self.setColumnWidth(0, 150)
@@ -380,4 +436,4 @@ class _dListControl_test(dListControl):
 			
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(_dListControl_test)
+	test.Test().runTest(TestListControl)
