@@ -40,11 +40,13 @@ class Test(object):
 		else:
 			frame = ui.dForm(Name="formTest")
 			frame.Sizer = ui.dSizer("Vertical")
+			frame.testObjects = []
 			for class_ in classRefs:
 				object = class_(frame, LogEvents=logEvents, *args, **kwargs)
 				object.Width = 300
 				frame.Sizer.append(object, 1, "expand")
-			
+				frame.testObjects.append(object)
+
 			# This will get a good approximation of the required size
 			w,h = frame.Sizer.GetMinSize()
 			# Some controls don't report sizing correctly, so set a minimum
