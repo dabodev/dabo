@@ -628,9 +628,9 @@ class ReportWriter(object):
 					# printed as well. Actually, this should be reworked so that any subsequent
 					# group header records get accounted for as well...
 					b = _form["detail"]
-					extraHeight = b.get("height")
+					extraHeight = eval(b.get("height"))
 					if extraHeight is None:
-						extraHeight = default_band_height
+						extraHeight = self.default_bandHeight
 					else:
 						extraHeight = self.getPt(eval(extraHeight))
 					if extraHeight is None:
