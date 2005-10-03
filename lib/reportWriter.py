@@ -632,7 +632,7 @@ class ReportWriter(object):
 					if extraHeight is None:
 						extraHeight = self.default_bandHeight
 					else:
-						extraHeight = self.getPt(eval(extraHeight))
+						extraHeight = self.getPt(extraHeight)
 					if extraHeight is None:
 						extraHeight = self.calculateBandHeight(b)
 				if y < pageFooterOrigin[1] + pfHeight + extraHeight:
