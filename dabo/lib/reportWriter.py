@@ -667,17 +667,22 @@ class ReportWriter(object):
 					# printed as well. Actually, this should be reworked so that any subsequent
 					# group header records get accounted for as well...
 					b = _form["detail"]
-					extraHeight = eval(b.get("height"))
+					extraHeight = b.get("height")
 					if extraHeight is None:
 						extraHeight = self.default_bandHeight
 					else:
-						extraHeight = self.getPt(extraHeight)
+						extraHeight = eval(extraHeight)
 					if extraHeight is None:
 						extraHeight = self.calculateBandHeight(b)
+					else:
+						extraHeight = self.getPt(extraHeight)
 				if y < pageFooterOrigin[1] + pfHeight + extraHeight:
 					endPage()
 					beginPage()
-					y = pageHeaderOrigin[1] - height
+					y = pageHeaderOrigin[1]
+					if band == "detail":
+						y = reprintGroupHeaders(y)
+					y = y - height
 				
 				
 			self.Bands[band]["x"] = x
@@ -723,7 +728,16 @@ class ReportWriter(object):
 			printBand("pageForeground")
 			self.Canvas.showPage()
 		
+		def reprintGroupHeaders(y):
+			for group in groups:
+				reprint = group.get("reprintHeaderOnNewPage")
+				if reprint is not None:
+					reprint = eval(reprint)
+					if reprint is not None:
+						y = printBand("groupHeader", y, group)
 		
+			return y
+
 		beginPage()
 
 		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
