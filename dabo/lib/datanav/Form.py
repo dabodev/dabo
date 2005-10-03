@@ -511,21 +511,9 @@ class Form(dabo.ui.dForm):
 	<pageHeader>
 		<height>"0.75 in"</height>
 		<objects>
-			<string>
-				<align>"center"</align>
-				<valign>"top"</valign>
-				<borderWidth>"0 pt"</borderWidth>
-				<expr>self.ReportForm["title"]</expr>
-				<fontName>"Helvetica"</fontName>
-				<fontSize>14</fontSize>
-				<hAnchor>"center"</hAnchor>
-				<height>15.96</height>
-				<name>title</name>
-				<width>384.0</width>
-				<x>self.Bands["pageHeader"]["width"]/2</x>
-				<y>"0.6 in"</y>
-			</string>"""
+"""
 		x = 0
+		reportWidth = 0
 		horBuffer = 3
 		vertBuffer = 5
 		for col in grid.Columns:
@@ -557,6 +545,8 @@ class Form(dabo.ui.dForm):
 				# We'll run off the edge of the page, ignore the rest:
 				break
 
+			reportWidth = x
+
 			rfxml += """
 			<rect>
 				<width>%(rectWidth)s</width>
@@ -575,7 +565,23 @@ class Form(dabo.ui.dForm):
 				<x>%(x)s</x>
 				<y>%(textY)s</y>
 			</string>""" % coldict
-		
+
+		rfxml += """
+			<string>
+				<align>"center"</align>
+				<valign>"top"</valign>
+				<borderWidth>"0 pt"</borderWidth>
+				<expr>self.ReportForm["title"]</expr>
+				<fontName>"Helvetica"</fontName>
+				<fontSize>14</fontSize>
+				<hAnchor>"center"</hAnchor>
+				<height>15.96</height>
+				<name>title</name>
+				<width>%s</width>
+				<x>%s</x>
+				<y>"0.6 in"</y>
+			</string>""" % (reportWidth, reportWidth/2)
+				
 		rfxml += """
 		</objects>
 	</pageHeader>
