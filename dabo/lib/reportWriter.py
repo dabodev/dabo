@@ -220,6 +220,45 @@ class ReportWriter(object):
 			d.add(r)
 			d.drawOn(c, x, y)
 	
+		if object["type"] == "line":
+			d = shapes.Drawing(width, height)
+			d.rotate(rotation)
+	
+			props = {}
+			## props available in reportlab that we use:
+			##   x,y,width,height
+			##   fillColor: None for transparent, or (r,g,b)
+			##   strokeColor: None for transparent, or (r,g,b)
+			##   strokeDashArray: None
+			##   strokeWidth: 0.25
+	
+			## props available that we don't currently use:
+			##   rx, ry
+			##   strokeMiterLimit: 0
+			##   strokeLineJoin: 0
+			##   strokeLineCap: 0
+			##
+	
+			try:
+				props["strokeWidth"] = self.getPt(eval(object["strokeWidth"]))
+			except KeyError: 
+				props["strokeWidth"] = self.default_strokeWidth
+	
+			try:
+				props["strokeColor"] = eval(object["strokeColor"])
+			except KeyError:
+				props["strokeColor"] = self.default_strokeColor
+	
+			try:
+				props["strokeDashArray"] = eval(object["strokeDashArray"])
+			except KeyError:
+				props["strokeDashArray"] = self.default_strokeDashArray
+	
+			r = shapes.Line(0, 0, width, height)
+			r.setProperties(props)
+			d.add(r)
+			d.drawOn(c, x, y)
+	
 		elif object["type"] == "string":
 			## Set the props for strings:
 			try: 
