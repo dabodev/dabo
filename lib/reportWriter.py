@@ -286,7 +286,11 @@ class ReportWriter(object):
 				posx = 0
 	
 			# draw the string using the function that matches the alignment:
-			s = eval(object["expr"])
+			try:
+				s = eval(object["expr"])
+			except Exception, e:
+				# Something failed in the eval, print the exception string instead:
+				s = e
 			func(posx, 0, str(s))
 	
 		elif object["type"] == "frameset":
@@ -398,8 +402,6 @@ class ReportWriter(object):
 					object["calculatedHeight"] = "%s" % neededHeight
 				else:
 					f.addFromList(story, c)
-					if len(story) > 0:
-						print "!!!", neededHeight, story[0].wrap(columnWidth, None)
 	
 		elif object["type"] == "image":
 			try: 
@@ -530,6 +532,9 @@ class ReportWriter(object):
 
 		self._recordNumber = 0
 
+		## Let the page header have access to the first record:
+		if len(self.Cursor) > 0:
+			self.Record = self.Cursor[0]
 
 		def processVariables():
 			"""Apply the user's expressions to the current value of all the report vars.
@@ -553,7 +558,7 @@ class ReportWriter(object):
 				self.Variables[variable["name"]] = variable["value"]			
 					
 
-		def printBand(band, y=None, groupIndex=None):
+		def printBand(band, y=None, group=None):
 			"""Generic function for printing any band."""
 
 			_form = self.ReportForm
@@ -573,13 +578,14 @@ class ReportWriter(object):
 				y = pageHeaderOrigin[1]
 
 			try:
-				if groupIndex is not None:
-					bandDict = _form["groups"][groupIndex][band]
+				if group is not None:
+					bandDict = group[band]
 				else:
 					bandDict = _form[band]
 			except KeyError:
 				# Band name doesn't exist.
 				return y
+
 
 			self.Bands[band] = {}
 
@@ -608,17 +614,33 @@ class ReportWriter(object):
 				width, height = pageWidth-1, pageHeight-1
 
 
-			if band == "detail":
-				pf = _form.get("pageFooter")
-				if pf is None:
-					pfHeight = 0
-				else:
-					pfHeight = self.getPt(eval(pf["height"]))
-				if y < pageFooterOrigin[1] + pfHeight:
+			pf = _form.get("pageFooter")
+			if pf is None:
+				pfHeight = 0
+			else:
+				pfHeight = self.getPt(eval(pf["height"]))
+
+			if band in ("detail", "groupHeader", "groupFooter"):
+				extraHeight = 0
+				if band == "groupHeader":
+					# Also account for the height of the first detail record: don't print the
+					# group header on this page if we don't get at least one detail record
+					# printed as well. Actually, this should be reworked so that any subsequent
+					# group header records get accounted for as well...
+					b = _form["detail"]
+					extraHeight = b.get("height")
+					if extraHeight is None:
+						extraHeight = default_band_height
+					else:
+						extraHeight = eval(extraHeight)
+					if extraHeight is None:
+						extraHeight = self.calculateBandHeight(b)
+				if y < pageFooterOrigin[1] + pfHeight + extraHeight:
 					endPage()
 					beginPage()
 					y = pageHeaderOrigin[1] - height
-		
+				
+				
 			self.Bands[band]["x"] = x
 			self.Bands[band]["y"] = y
 			self.Bands[band]["width"] = width
@@ -656,7 +678,7 @@ class ReportWriter(object):
 			# Print the static bands that appear below detail in z-order:
 			for band in ("pageBackground", "pageHeader", "pageFooter"):
 				printBand(band)
-
+			self._brandNewPage = True
 
 		def endPage():
 			printBand("pageForeground")
@@ -668,14 +690,38 @@ class ReportWriter(object):
 		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
 		y = None
 		for idx, record in enumerate(self.Cursor):
+			_lastRecord = self.Record
 			self.Record = record
 
 			# print group footers for previous group if necessary:
 			if idx > 0:
+				# First pass, iterate through the groups outer->inner, and if any group
+				# expr has changed, reset the curval for the group and all child groups.
+				resetCurVals = False
+				for idx, group in enumerate(groups):
+					if resetCurVals or group["curVal"] != eval(group["expr"]):
+						resetCurVals = True
+						group["curVal"] = None
+
+				# Second pass, iterate through the groups inner->outer, and print the 
+				# group footers for groups that have changed.
 				for idx, group in enumerate(groupsDesc):
 					if group["curVal"] != eval(group["expr"]):
-						y = printBand("groupFooter", y, -idx)
-
+						# We need to temporarily move back to the last record so that the
+						# group footer reflects what the user expects.
+						self.Record = _lastRecord
+						y = printBand("groupFooter", y, group)
+						self.Record = record
+						
+				"""
+				for idx, group in enumerate(groupsDesc):
+					if group["curVal"] != eval(group["expr"]):
+						# We need to temporarily move back to the last record so that the
+						# group footer reflects what the user expects.
+						self.Record = _lastRecord
+						y = printBand("groupFooter", y, group)
+						self.Record = record
+				"""
 			# Any report variables need their values evaluated again:
 			processVariables()
 
@@ -683,12 +729,13 @@ class ReportWriter(object):
 			for idx, group in enumerate(groups):
 				if group["curVal"] != eval(group["expr"]):
 					group["curVal"] = eval(group["expr"])
-					np = group.get("startOnNewPage", False)
-					if np and self.RecordNumber > 0:
+					np = eval(group.get("startOnNewPage", "False")) and self.RecordNumber > 0
+					if np:
 						endPage()
 						beginPage()
 						y = None
-					y = printBand("groupHeader", y, idx)
+					y = printBand("groupHeader", y, group)
+
 
 			# print the detail band:
 			y = printBand("detail", y)
@@ -698,7 +745,7 @@ class ReportWriter(object):
 
 		# print the group footers for the last group:
 		for idx, group in enumerate(groupsDesc):
-			y = printBand("groupFooter", y, -idx)
+			y = printBand("groupFooter", y, group)
 
 		endPage()
 		
