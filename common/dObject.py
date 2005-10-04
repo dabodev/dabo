@@ -1,3 +1,5 @@
+import string
+import types
 import dabo
 from dabo.common import PropertyHelperMixin
 from dabo.common import DoDefaultMixin
@@ -126,19 +128,83 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 		return '.'.join(names)
 
 		
-	def getValidEvents(self):
-		"""Returns a list of valid Dabo events for this object.
-		"""
-		import dabo.dEvents as e  # imported here to avoid circular import 
-		validEvents = []
-		events = [e.__dict__[evt] for evt in dir(e)]
-		for evt in events:
-			if type(evt) == type and issubclass(evt, e.Event):
-				if evt.appliesToClass(self.__class__):
-					validEvents.append(evt)
-		return validEvents
+	def getMethodList(cls):
+		"""Return the list of (Dabo) methods for this class or instance."""
+		try:
+			methodList = cls.__methodList
+		except:
+			methodList = None
+
+		if isinstance(methodList, list):
+			## A prior call has already generated the methodList
+			return methodList
+
+		methodList = []
+		for c in cls.__mro__:
+			for item in dir(c):
+				if item[0] in string.lowercase:
+					if c.__dict__.has_key(item):
+						if type(c.__dict__[item]) in (types.MethodType, types.FunctionType):
+							if methodList.count(item) == 0:
+								methodList.append(item)
+		methodList.sort()
+		cls.__methodList = methodList
+		return methodList
+	getMethodList = classmethod(getMethodList)
+
+
+	def getApiDoc(cls, outputType="html-single"):
+		PEM_COLUMNS = float(3)  ## float simply for round() to work right
+
+		className = cls.__name__
+		classDoc = cls.__doc__
+		if classDoc is None:
+			classDoc = ""
+		classDoc = "<br>".join(classDoc.split("\n"))
+
+		html = """
+<h1>Class %(className)s</h1>
+<p>%(classDoc)s</p>
+<hr>
+""" % locals()
+
+		def getListing(name, items):
+			html = """
+<h2>%(name)s</h2>
+<table width="100%%" cellpadding="5" cellspacing="0" border="0">
+""" % locals()
+
+			for idx, item in enumerate(items):
+				definedHere = (cls.__dict__.has_key(item))
+				if idx % PEM_COLUMNS == 0:
+					if idx > 0:
+						html += """	</tr>
+"""
+					html += """	<tr>
+"""
+				if definedHere:
+					html += """		<td><b><a href="#prop_%(item)s">%(item)s</a></b></td>
+""" % locals()
+				else:
+					html += """		<td><a href="#prop_%(item)s">%(item)s</a></td>
+""" % locals()
+
+			html += """
+	</tr>
+</table>
+<hr>
+"""
+			return html
 		
-		
+		# Property, Event, Method Listings:
+		html += getListing("Properties", cls.getPropertyList())
+		html += getListing("Events", cls.getEventList())
+		html += getListing("Methods", cls.getMethodList())
+
+		return html
+	getApiDoc = classmethod(getApiDoc)
+
+
 	def _getBaseClass(self):
 		# Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:
 		# 	class dBackend(object)

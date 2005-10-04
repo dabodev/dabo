@@ -1,7 +1,9 @@
+import string
 import types
 import traceback
 import dabo
 from dabo.dLocalize import _
+
 
 class EventMixin(object):
 	"""Mix-in class making objects know how to bind and raise Dabo events.
@@ -225,6 +227,38 @@ class EventMixin(object):
 					evtObj = dEvents.__dict__[parsedEvtName]
 					funcObj = eval("context.%s" % funcName)  ## (can't use __class__.dict...)
 					self.bindEvent(evtObj, funcObj)
+
+
+	def getEventList(cls):
+		"""Return a list of valid Dabo event names for this object."""
+		el = cls.getValidEvents()
+		el = [e.__name__ for e in el if e.__name__[0] in string.uppercase]
+		el.sort()
+		return el
+	getEventList = classmethod(getEventList)
+
+
+	def getValidEvents(cls):
+		"""Returns a list of valid Dabo event classes for this object.
+
+		The cls parameter can actually be either a class or self.
+		"""
+		classRef = cls
+		try:
+			issubclass(cls, object)
+		except TypeError:
+			# we are an instance, cls is self.
+			classRef = cls.__class__
+
+		import dabo.dEvents as e  # imported here to avoid circular import 
+		validEvents = []
+		events = [e.__dict__[evt] for evt in dir(e)]
+		for evt in events:
+			if type(evt) == type and issubclass(evt, e.Event):
+				if evt.appliesToClass(classRef):
+					validEvents.append(evt)
+		return validEvents
+	getValidEvents = classmethod(getValidEvents)
 
 
 	# Allow for alternate capitalization (deprecated):
