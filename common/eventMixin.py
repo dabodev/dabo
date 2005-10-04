@@ -151,13 +151,6 @@ class EventMixin(object):
 		object to respond to an event, you'll still have to manually set up that
 		event binding.
 
-		FEATURE NOT AUTOMATIC YET: to try out this feature, you need to enable
-		it explicitly:
-			dabo.autoBindEvents = True  ## (global)
-			--or--
-			def initEvents(self):
-				self.autoBindEvents()  ## (local to the class)
-
 		This feature is inspired by PythonCard.
 		"""
 		# We call _autoBindEvents for self and form, and force it because it was

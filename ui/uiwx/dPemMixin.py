@@ -434,22 +434,10 @@ class dPemMixin(dPemMixinBase):
 			self.SetAcceleratorTable(wx.AcceleratorTable(table.values()))
 
 
-	def getPropertyInfo(self, name):
-		d = super(dPemMixin, self).getPropertyInfo(name)
+	def getPropertyInfo(cls, name):
+		return super(dPemMixin, cls).getPropertyInfo(name)
+	getPropertyInfo = classmethod(getPropertyInfo)
 
-		# List of all props we ever want to show in the Designer
-		d["showInDesigner"] = name in dabo.ui.propsToShowInDesigner
-
-		# Some wx-specific props need to be initialized early. Let the designer know:
-		d["preInitProperty"] = name in self._preInitProperties.values()
-		
-		# Finally, override the default editable state. The base behavior
-		# is to make any prop with a setter method editable, but some simply
-		# should not be edited in the Designer.
-		d["editValueInDesigner"] = name in dabo.ui.propsToEditInDesigner
-
-		return d
-		
 	
 	def lockDisplay(self):
 		"""Locks the visual updates to the control to improve performance

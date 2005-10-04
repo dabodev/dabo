@@ -107,13 +107,6 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		self.flushValue()
 		dRadioGroup.doDefault(evt)
 		
-		
-	def getPropertyInfo(self, name):
-		d = super(dRadioGroup, self).getPropertyinfo(name)
-		if not d['preInitProperty']:
-			d['preInitProperty'] = name in ('MaxElements', 'Orientation', 'Choices')
-		return d
-	
 	
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property

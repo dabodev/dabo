@@ -239,6 +239,7 @@ class PropertyHelperMixin(object):
 			classRef = cls.__class__
 
 		propRef = getattr(classRef, name)
+
 		if type(propRef) == property:
 			if propRef.fget is None:
 				# With no getter, the property's value cannot be determined
