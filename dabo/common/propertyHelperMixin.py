@@ -1,4 +1,6 @@
+import string
 from dabo.dLocalize import _
+
 
 class PropertyHelperMixin(object):
 	""" Helper functions for getting information on class properties.
@@ -42,6 +44,7 @@ class PropertyHelperMixin(object):
 						s += """'%s', """ % p
 				raise ValueError, s
 		return value
+
 
 	def extractKeywordProperties(self, kwdict, propdict):
 		""" Called from __init__: puts any property keyword arguments into
@@ -196,12 +199,11 @@ class PropertyHelperMixin(object):
 					raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
 		
 			
-	def getPropertyList(classOrInstance):
+	def getPropertyList(cls):
 		""" Returns the list of properties for this object (class or instance).
 		"""
-		## pkm: check out revision 927 if you have problems.
 		try:
-			propList = classOrInstance.__propList
+			propList = cls.__propList
 		except:
 			propList = None
 
@@ -210,60 +212,61 @@ class PropertyHelperMixin(object):
 			return propList
 
 		propList = []
-		for c in classOrInstance.__mro__:
+		for c in cls.__mro__:
 			for item in dir(c):
-				if c.__dict__.has_key(item):
-					if type(c.__dict__[item]) == property:
-						if propList.count(item) == 0:
-							propList.append(item)
-		classOrInstance.__propList = propList
+				if item[0] in string.uppercase:
+					if c.__dict__.has_key(item):
+						if type(c.__dict__[item]) == property:
+							if propList.count(item) == 0:
+								propList.append(item)
+		propList.sort()
+		cls.__propList = propList
 		return propList
 	getPropertyList = classmethod(getPropertyList)
 
 
-	def getPropertyInfo(self, name):
+	def getPropertyInfo(cls, name):
 		""" Returns a dictionary of information about the passed property name.
 		"""
-		propRef = eval("self.__class__.%s" % name)
+		# cls can be either a class or self
+		classRef = cls
+		try:
+			issubclass(cls, object)
+		except TypeError:
+			classRef = cls.__class__
+
+		propRef = getattr(classRef, name)
 		if type(propRef) == property:
 			if propRef.fget is None:
 				# With no getter, the property's value cannot be determined
 				propVal = None
 			else:
-				propVal = propRef.fget(self)
+				try:
+					propVal = propRef.fget(cls)
+				except:
+					# There are many reasons the propval may not be determined for now, 
+					# such as not being a live instance.
+					propVal = None
 	
 			d = {}
 			d["name"] = name
 
 			if propRef.fget:
-				d["showValueInDesigner"] = True
+				d["readable"] = True
 			else:
-				d["showValueInDesigner"] = False
+				d["readable"] = False
 
 			if propRef.fset:
-				d["editValueInDesigner"] = True
+				d["writable"] = True
 			else:
-				d["editValueInDesigner"] = False
+				d["writable"] = False
 
 			d["doc"] = propRef.__doc__
 
 			dataType = d["type"] = type(propVal)
 
-			try:
-				d["editorInfo"] = eval("self._get%sEditorInfo()" % name)
-			except:
-				# There isn't an explicit editor setup, so let's derive it:
-				if dataType in (str, unicode):
-					d["editorInfo"] = {"editor": "string", "len": 256}
-				elif dataType == bool:
-					d["editorInfo"] = {"editor": "boolean"}
-				elif dataType in (int, long):
-					d["editorInfo"] = {"editor": "integer", "min": -65535, "max": 65536}
-				else:
-					# punt
-					d["editorInfo"] = {"editor": "string"}
 			return d
 		else:
 			raise AttributeError, "%s is not a property." % name
-
+	getPropertyInfo = classmethod(getPropertyInfo)
 	

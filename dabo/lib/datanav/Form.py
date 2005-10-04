@@ -10,6 +10,14 @@ import Grid
 
 dabo.ui.loadUI("wx")
 
+
+class ItemPicked(dEvents.Event):
+	"""Occurs when an item was picked from a picklist."""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, Form)
+	appliesToClass = classmethod(appliesToClass)
+	
+
 class Form(dabo.ui.dForm):
 	""" This is a dForm but with the following added controls:
 		+ Navigation Menu

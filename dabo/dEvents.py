@@ -167,7 +167,7 @@ class TreeEvent(Event):
 
 class ListEvent(Event):
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.dListControl, dabo.ui.dListBox)
+		return issubclass(objectClass, (dabo.ui.dListControl, dabo.ui.dListBox))
 	appliesToClass = classmethod(appliesToClass)
 	
 class Activate(Event):
@@ -234,12 +234,6 @@ class Idle(Event):
 	"""
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dPemMixin)
-	appliesToClass = classmethod(appliesToClass)
-	
-class ItemPicked(Event):
-	"""Occurs when an item was picked from a picklist."""
-	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, (dabo.ui.dDataNavForm, dabo.ui.dFormDataNav))
 	appliesToClass = classmethod(appliesToClass)
 	
 class GotFocus(Event):
@@ -481,7 +475,7 @@ class GridColSize(GridEvent):
 class ValueChanged(Event):
 	"""Occurs when the control's value has changed, whether programmatically or interactively."""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.dDataControlMixin.dDataControlMixin)
+		return issubclass(objectClass, dabo.ui.dDataControlMixin)
 	appliesToClass = classmethod(appliesToClass)
 	
 class ValueRefresh(Event):
