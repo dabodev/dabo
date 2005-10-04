@@ -199,12 +199,15 @@ class PropertyHelperMixin(object):
 					raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
 		
 			
-	def getPropertyList(cls):
+	def getPropertyList(cls, refresh=False):
 		""" Returns the list of properties for this object (class or instance).
 		"""
 		try:
 			propList = cls.__propList
 		except:
+			propList = None
+
+		if refresh:
 			propList = None
 
 		if isinstance(propList, list):
