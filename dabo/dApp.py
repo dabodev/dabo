@@ -107,7 +107,8 @@ class dApp(dabo.common.dObject):
 		self._afterInit()		
 
 	def setup(self, initUI=True):
-		""" Set up the app - call this before start()."""
+		"""Set up the application object.
+		"""
 
 		# dabo is going to want to import various things from the Home Directory
 		if self.HomeDirectory not in sys.path:
@@ -136,10 +137,7 @@ class dApp(dabo.common.dObject):
 
 	
 	def start(self):
-		""" 
-		Start the application event loop, which involves
-			wrapping the application object for the ui library
-			being used.
+		"""Start the application event loop.
 		"""
 		if not self._wasSetup:
 			# Convenience; if you don't need to customize setup(), just
@@ -160,9 +158,7 @@ class dApp(dabo.common.dObject):
 
 
 	def finish(self):
-		""" 
-		The main event loop has exited and the application
-			is about to finish.
+		"""Called when the application event loop has ended.
 		"""
 		self.uiApp.finish()
 		dabo.infoLog.write(_("Application finished."))
@@ -190,7 +186,7 @@ class dApp(dabo.common.dObject):
 
 
 	def getUserSettingKeys(self, spec):
-		"""Return a list of all keys underneath <spec>.
+		"""Return a list of all keys underneath <spec> in the user settings table.
 		
 		For example, if spec is "appWizard.dbDefaults", and there are
 		userSettings entries for:
@@ -206,22 +202,7 @@ class dApp(dabo.common.dObject):
 
 
 	def getUserSetting(self, item, default=None, user="*", system="*"):
-		""" Return the value of the user settings table that 
-			corresponds to the item, user, and system id 
-			passed. Based on the ctype field in the table, 
-			convert the return value into the appropriate
-			type first.
-
-			Types:    I: Int
-					N: Float
-					C: String
-					M: String
-					D: Date, saved as a string 3-tuple 
-						of integers '(year,month,day)'
-					T: DateTime, saved as a string 
-						9-tuple of integers '(year,month,
-						day,hour,minute,second,?,?,?)'
-
+		"""Return the value of the item in the user settings table.
 		"""
 		if self.UserSettingProvider:
 			return self.UserSettingProvider.getUserSetting(item, default, user, system)
@@ -247,8 +228,17 @@ class dApp(dabo.common.dObject):
 	# These two methods pass encryption/decryption requests
 	# to the Crypto object
 	def encrypt(self, val):
+		"""Return the encrypted string value.
+
+		The request is passed to the Crypto object for processing.
+		"""
 		return self.Crypto.encrypt(val)
+
 	def decrypt(self, val):
+		"""Return decrypted string value.
+	
+		The request is passed to the Crypto object for processing.
+		"""
 		return self.Crypto.decrypt(val)
 
 	
