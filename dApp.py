@@ -75,11 +75,15 @@ class Collection(list):
 
 
 class dApp(dabo.common.dObject):
-	""" dabo.dApp
+	"""The containing object for the entire application.
 
-		The containing object for the entire application.
-		Various UI's will have app objects also, which 
-		dabo.App is a wrapper for. 
+	All Dabo objects have an Application property which refers to the dApp
+	instance. Instantiate your dApp object from your main script, like so:
+
+	>>> import dabo
+	>>> app = dabo.dApp
+	>>> app.setup()
+	>>> app.start()
 	"""
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, True
 
@@ -520,6 +524,7 @@ class dApp(dabo.common.dObject):
 			# Use the default crypto
 			self._cryptoProvider = SimpleCrypt()
 		return self._cryptoProvider
+
 	def _setCrypto(self, val):
 		self._cryptoProvider = val
 
@@ -531,39 +536,65 @@ class dApp(dabo.common.dObject):
 			_("Reference to the object that provides cryptographic services.  (varies)" ) )
 	
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
-			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)") )
+			_("""Determines if sizer outlines are drawn on the ActiveForm.  (bool)"""))
 	
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
-			_("Specifies the home-base directory for the application's program files (absolute path)."))
+			_("""Specifies the application's home directory. (string)
+
+			The HomeDirectory is the top-level directory for your application files,
+			the directory where your main script lives. You never know what the 
+			current directory will be on a given system, but HomeDirectory will always
+			get you to your files."""))
 		
 	MainForm = property(_getMainForm, _setMainForm, None,
-			_("""The object reference to the main form of the application, or None. 
-			This gets set automatically during application setup, based on the 
-			MainFormClass."""))
+			_("""The object reference to the main form of the application, or None.
+ 
+			The MainForm gets instantiated automatically during application setup, 
+			based on the value of MainFormClass. If you want to swap in your own
+			MainForm instance, do it after setup() but before start(), as in:
+
+			>>> import dabo
+			>>> app = dabo.dApp()
+			>>> app.setup()
+			>>> app.MainForm = myMainFormInstance
+			>>> app.start()"""))
 		
 	MainFormClass = property(_getMainFormClass, _setMainFormClass, None,
-			_("""Specifies the class to use to instantiate the main form. Defaults to 
-			the dFormMain base class. Set to None if you don't want a main form."""))
+			_("""Specifies the class to instantiate for the main form. 
+
+			Defaults to the dFormMain base class. Set to None if you don't want a 
+			main form, or set to your own main form class. Do this before calling
+			dApp.setup(), as in:
+
+			>>> import dabo
+			>>> app = dabo.dApp()
+			>>> app.MainFormClass = MyMainForm
+			>>> app.setup()
+			>>> app.start()"""))
 	
 	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None, 
 			_("Text to display for null (None) values.  (str)") )
 	
 	Platform = property(_getPlatform, None, None,
-			_("""Returns one of 'Mac', 'Win' or 'GTK', depending on where we're 
-			running  (string)""") )
+			_("""Returns the platform we are running on. (str)
+
+			This will be one of 'Mac', 'Win' or 'GTK'.""") )
 			
 	UI = property(_getUI, _setUI, None, 
-			_("""Specifies the user interface to load, or None. Once set, 
-			it cannot be reassigned.  (str)""") )
+			_("""Specifies the user interface to load, or None. (str)
 
-	UserSettingProvider = property(_getUserSettingProvider, _setUserSettingProvider,
+			This is the user interface library, such as 'wx' or 'tk'. Note that
+			'wx' is the only supported user interface library at this point."""))
+
+	UserSettingProvider = property(_getUserSettingProvider, 
+			_setUserSettingProvider, None,
 			_("""Specifies the reference to the object providing user preference persistence.
 			
 			The default UserSettingProvider will save user preferences inside the .dabo
 			directory inside the user's	home directory."""))
 
 	UserSettingProviderClass = property(_getUserSettingProviderClass,
-			_setUserSettingProviderClass,
+			_setUserSettingProviderClass, None,
 			_("""Specifies the class to use for user preference persistence.
 			
 			The default UserSettingProviderClass will save user preferences inside the .dabo
@@ -571,9 +602,10 @@ class dApp(dabo.common.dObject):
 			automatically."""))
 
 	SecurityManager = property(_getSecurityManager, _setSecurityManager, None, 
-			_("""Specifies the Security Manager, if any. You must subclass 
-			dSecurityManager, overriding the appropriate hooks and properties, 
-			and then set dApp.SecurityManager to an instance of your subclass. 
-			There is no security manager by default - you explicitly set this 
-			to use Dabo security.""") )
+			_("""Specifies the Security Manager, if any. 
+
+			You must subclass 	dSecurityManager, overriding the appropriate hooks 
+			and properties, and then set dApp.SecurityManager to an instance of your 
+			subclass. There is no security manager by default - you explicitly set 
+			this to use Dabo security.""") )
 
