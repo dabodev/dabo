@@ -42,7 +42,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		# If this is True, a panel will be automatically added to the
 		# form and sized to fill the form.
 		self.mainPanel = None
-		self.mkPanel = self.extractKey(kwargs, "panel")
+		self.mkPanel = self._extractKey(kwargs, "panel")
 		
 		# Use this for timing queries and other long-
 		# running events
@@ -718,7 +718,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 class dToolForm(dForm):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
-		style = self.extractKey(kwargs, "style", 0)
+		style = self._extractKey(kwargs, "style", 0)
 		style = style | wx.FRAME_TOOL_WINDOW | wx.STAY_ON_TOP | wx.RESIZE_BORDER
 		kwargs["style"] = style	
 		kwargs["ShowStatusBar"] = False

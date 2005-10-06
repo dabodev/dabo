@@ -20,7 +20,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		self._baseClass = dToolBar
 		preClass = wx.PreToolBar
 		
-		style = self.extractKey(kwargs, "style", 0)
+		style = self._extractKey(kwargs, "style", 0)
 		kwargs["style"] = style |  wx.TB_DOCKABLE | wx.TB_TEXT
 
 		# We need to track tool IDs internally for referencing the 

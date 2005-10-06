@@ -14,8 +14,8 @@ class Wizard(dabo.ui.dForm):
 	"""
 	
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
-		pgs = self.extractKey(kwargs, "Pages")
-		self.iconName = self.extractKey(kwargs, "image")
+		pgs = self._extractKey(kwargs, "Pages")
+		self.iconName = self._extractKey(kwargs, "image")
 		# Add the main panel
 		kwargs["panel"] = True
 		kwargs["BorderResizable"] = False
