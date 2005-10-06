@@ -7,8 +7,7 @@ from dabo.dLocalize import _
 
 
 class dDropdownList(wx.Choice, dcm.dControlItemMixin):
-	""" Allows presenting a choice of items for the user to choose from.
-	"""
+	""" Allows presenting a choice of items for the user to choose from."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dDropdownList
 		self._choices = []
@@ -32,13 +31,6 @@ class dDropdownList(wx.Choice, dcm.dControlItemMixin):
 
 class _dDropdownList_test(dDropdownList):
 	def initProperties(self):
-		self.Width = 250
-		self.setup()
-		
-	def initEvents(self):
-		self.autoBindEvents()
-			
-	def setup(self):
 		# Simulating a database
 		developers = ({"lname": "McNett", "fname": "Paul", "iid": 42},
 			{"lname": "Leafe", "fname": "Ed", "iid": 23})
@@ -51,8 +43,13 @@ class _dDropdownList_test(dDropdownList):
 			
 		self.Choices = choices
 		self.Keys = keys
-		self.ValueMode = 'key'
+		self.ValueMode = "key"
+		
+
+	def initEvents(self):
+		self.autoBindEvents()
 			
+
 	def onHit(self, evt):
 		print "KeyValue: ", self.KeyValue
 		print "PositionValue: ", self.PositionValue
