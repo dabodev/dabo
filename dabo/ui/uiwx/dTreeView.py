@@ -144,13 +144,13 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		self._baseClass = dTreeView
 		self.nodes = []
 
-		style = self.extractKey(kwargs, "style")
+		style = self._extractKey(kwargs, "style")
 		if not style:
 			style = wx.TR_DEFAULT_STYLE
-		ed = self.extractKey(kwargs, "editable")
+		ed = self._extractKey(kwargs, "editable")
 		if ed:
 			style = style | wx.TR_EDIT_LABELS
-		isMultiSel = self.extractKey(kwargs, "MultiSelect")
+		isMultiSel = self._extractKey(kwargs, "MultiSelect")
 		self.__multiSelect = isMultiSel
 		if isMultiSel:
 			style = style | wx.TR_MULTIPLE | wx.TR_EXTENDED		

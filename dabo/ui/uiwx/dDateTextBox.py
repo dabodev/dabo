@@ -29,7 +29,7 @@ class dDateTextBoxNew(dpClass, dcm.dDataControlMixin):
 		self._baseClass = dDateTextBox
 		preClass = wx.PreDatePickerCtrl
 		
-		style = self.extractKey(kwargs, "style")
+		style = self._extractKey(kwargs, "style")
 		if not style:
 			style = wx.DP_DROPDOWN | wx.DP_ALLOWNONE | wx.DP_SHOWCENTURY 
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 

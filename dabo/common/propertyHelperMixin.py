@@ -62,7 +62,7 @@ class PropertyHelperMixin(object):
 		return propdict
 	
 	
-	def extractKey(self, kwdict, key, defaultVal=None):
+	def _extractKey(self, kwdict, key, defaultVal=None):
 		""" If the supplied key is present in the kwdict, the associated
 		value is returned, and that key's element is deleted from the
 		dict. If the key doesn't exist, the default value is returned.

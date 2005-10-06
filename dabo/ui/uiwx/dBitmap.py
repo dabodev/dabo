@@ -14,7 +14,7 @@ class dBitmap(wx.StaticBitmap, cm.dControlMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dBitmap
 		preClass = wx.StaticBitmap
-		picName = self.extractKey(kwargs, "Picture", "")
+		picName = self._extractKey(kwargs, "Picture", "")
 		
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		

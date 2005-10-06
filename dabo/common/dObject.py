@@ -53,6 +53,10 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 		""" Subclass hook.
 		
 		Called before the object is fully instantiated.
+
+		Usually, user code should override afterInit() instead, but there may be
+		cases where you need to set an attribute before the init stage is fully
+		underway.
 		"""
 		pass
 		
@@ -62,9 +66,8 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 		
 		Called after the object's __init__ has run fully.
 
-		Subclasses should place their __init__ code here in this hook,
-		instead of overriding __init__ directly, to avoid conflicting
-		with base Dabo behavior.
+		Subclasses should place their __init__ code here in this hook, instead of 
+		overriding __init__ directly, to avoid conflicting with base Dabo behavior.
 		"""
 		pass
 		
@@ -72,7 +75,7 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 	def initProperties(self):
 		""" Hook for subclasses.
 
-		User code can set properties here, such as:
+		User subclasses should set properties here, such as:
 			self.Name = "MyTextBox"
 			self.BackColor = (192,192,192)
 		"""
@@ -82,7 +85,7 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 	def initEvents(self):
 		""" Hook for subclasses.
 		
-		User code can do custom event binding here, such as:
+		User code should do custom event binding here, such as:
 			self.bindEvent(dEvents.GotFocus, self.customGotFocusHandler)
 		"""
 		pass
@@ -93,10 +96,12 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 		"""
 		self.beforeInit()
 
+
 	def _initProperties(self):
 		"""Framework subclass hook.
 		"""
 		self.initProperties()
+
 
 	def _afterInit(self):
 		"""Framework subclass hook.
