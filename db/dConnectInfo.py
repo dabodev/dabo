@@ -99,6 +99,7 @@ class dConnectInfo(dabo.common.dObject):
 	def getConnection(self):
 		return self._backendObject.getConnection(self)
 
+
 	def getDictCursorClass(self):
 		try:
 			return self._backendObject.getDictCursorClass()
@@ -112,6 +113,7 @@ class dConnectInfo(dabo.common.dObject):
 		else:
 			cryp = dabo.common.SimpleCrypt()
 			return cryp.encrypt(val)
+			
 
 	def decrypt(self, val):
 		if self.Application:
@@ -128,11 +130,13 @@ class dConnectInfo(dabo.common.dObject):
 	def getBackendObject(self):
 		return self._backendObject
 
+
 	def _getDbType(self): 
 		try:
 			return self._dbType
 		except AttributeError:
 			return None
+			
 	def _setDbType(self, dbType):
 		""" Set the backend type for the connection if valid. """
 		_oldObject = self._backendObject
@@ -141,71 +145,92 @@ class dConnectInfo(dabo.common.dObject):
 		if dbType is not None:
 			# Evaluate each type of backend
 			nm = dbType.lower()
-			if nm == "mysql":
-				import dbMySQL
-				self._backendObject = dbMySQL.MySQL()
-			elif nm == "gadfly":
-				import dbGadfly
-				self._backendObject = dbGadfly.Gadfly()
-			elif nm == "sqlite":
-				import dbSQLite
-				self._backendObject = dbSQLite.SQLite()
-			elif nm == "firebird":
-				import dbFirebird
-				self._backendObject = dbFirebird.Firebird()
-			elif nm == "postgresql":
-				import dbPostgreSQL
-				self._backendObject = dbPostgreSQL.Postgres()
-			else:
-				raise ValueError, "Invalid database type: %s." % nm
+			try:
+				if nm == "mysql":
+					import dbMySQL
+					self._backendObject = dbMySQL.MySQL()
+				elif nm == "gadfly":
+					import dbGadfly
+					self._backendObject = dbGadfly.Gadfly()
+				elif nm == "sqlite":
+					import dbSQLite
+					self._backendObject = dbSQLite.SQLite()
+				elif nm == "firebird":
+					import dbFirebird
+					self._backendObject = dbFirebird.Firebird()
+				elif nm == "postgresql":
+					import dbPostgreSQL
+					self._backendObject = dbPostgreSQL.Postgres()
+				else:
+					raise ValueError, "Invalid database type: %s." % nm
+			except ImportError:
+				dabo.errorLog.write(_("You do not have the database module for %s installed") % dbType)
+				self._dbType = None
+				self._backendObject = None
 			if _oldObject != self._backendObject:
 				self._dbType = dbType
 		else:
 			self._dbType = None
 			self._backendObject = None
 
+
 	def _getDatabase(self): 
 		return self._database
+		
 	def _setDatabase(self, database): 
 		self._database = database
+
 			
 	def _getHost(self):
 		return self._host
+		
 	def _setHost(self, host): 
 		self._host = host
 
+
 	def _getUser(self): 
 		return self._user
+		
 	def _setUser(self, user): 
 		self._user = user
 
+
 	def _getPassword(self): 
 		return self._password
+		
 	def _setPassword(self, password): 
 		self._password = password
+
 
 	def _setPlainPassword(self, val): 
 		self._password = self.encrypt(val)
 
 	def _getPort(self): 
 		return self._port
+		
 	def _setPort(self, port): 
 		self._port = port
 
 
 	DbType = property(_getDbType, _setDbType, None,
 			_("Name of the backend database type.  (str)"))
+
 	Database = property(_getDatabase, _setDatabase, None,
 			_("The database name to login to. (str)"))
+
 	Host = property(_getHost, _setHost, None, 
 			_("The host name or ip address. (str)"))
+
 	Password = property(_getPassword, _setPassword, None,
 			_("The encrypted password of the user. (str)"))
+
 	PlainTextPassword = property(None, _setPlainPassword, None,
 			_("""Write-only property that encrypts the value and stores that
 				in the Password property. (str)"""))
+
 	Port = property(_getPort, _setPort, None, 
 			_("The port to connect on (may not be applicable for all databases). (int)"))
+
 	User = property(_getUser, _setUser, None,
 			_("The user name. (str)"))
 
