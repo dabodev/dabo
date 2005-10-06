@@ -354,6 +354,10 @@ class ListSelection(ListEvent):
 	""" Occurs when an item is highlighted in a list."""
 	pass
 
+class ListDeselection(ListEvent):
+	""" Occurs when a selected item is deselected in a list."""
+	pass
+
 class TreeSelection(TreeEvent):
 	""" Occurs when the selected item in a tree control changes."""
 	pass

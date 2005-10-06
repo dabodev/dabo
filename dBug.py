@@ -26,4 +26,4 @@ def logPoint(msg="", levels=None):
 			output.write("	%s\n" % "".join(lines)[:-1])
 	s = output.getvalue()
 	# I actually logged the result, but you could also print it:
-	print s
+	return s
