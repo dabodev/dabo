@@ -10,13 +10,13 @@ from dabo.dLocalize import _
 class dDataControlMixinBase(dabo.ui.dControlMixin):
 	""" Provide common functionality for the data-aware controls."""
 	def __init__(self, *args, **kwargs):
+		self._inFldValid = False
+		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
 		super(dDataControlMixinBase, self).__init__(*args, **kwargs)
 			
 		self._value = self.Value
 		self.enabled = True
 		# Initialize runtime properties
-		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
-		self._inFldValid = False
 		
 	
 	def _initEvents(self):
