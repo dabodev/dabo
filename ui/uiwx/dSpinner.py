@@ -59,12 +59,12 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 			self._properties["Min"] = value
 
 	def _getSpinnerWrap(self):
-		return self.hasWindowStyleFlag(wx.SP_WRAP)
+		return self._hasWindowStyleFlag(wx.SP_WRAP)
 
 	def _setSpinnerWrap(self, value):
-		self.delWindowStyleFlag(wx.SP_WRAP)
+		self._delWindowStyleFlag(wx.SP_WRAP)
 		if value:
-			self.addWindowStyleFlag(wx.SP_WRAP)
+			self._addWindowStyleFlag(wx.SP_WRAP)
 
 
 	# Property definitions:

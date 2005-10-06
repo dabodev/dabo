@@ -42,7 +42,7 @@ class EventMixin(object):
 		
 		Additional arguments, if any, are sent along to the constructor	of the 
 		event. While this feature exists so that UI-lib event handlers can pass 
-		along information (such as the keystroke information in a	key event), user 
+		along information (such as the keystroke information in a key event), user 
 		code may pass along additional arguments as well, which	will exist in the 
 		event.EventData dictionary property.
 		

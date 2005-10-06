@@ -58,27 +58,27 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		
 	# property get/set functions
 	def _getAlignment(self):
-		if self.hasWindowStyleFlag(wx.TE_RIGHT):
+		if self._hasWindowStyleFlag(wx.TE_RIGHT):
 			return "Right"
-		elif self.hasWindowStyleFlag(wx.TE_CENTRE):
+		elif self._hasWindowStyleFlag(wx.TE_CENTRE):
 			return "Center"
 		else:
 			return "Left"
 
 	def _setAlignment(self, value):
 		# Note: alignment doesn't seem to work, at least on GTK2
-		self.delWindowStyleFlag(wx.TE_LEFT)
-		self.delWindowStyleFlag(wx.TE_CENTRE)
-		self.delWindowStyleFlag(wx.TE_RIGHT)
+		self._delWindowStyleFlag(wx.TE_LEFT)
+		self._delWindowStyleFlag(wx.TE_CENTRE)
+		self._delWindowStyleFlag(wx.TE_RIGHT)
 
 		value = str(value)
 
 		if value == 'Left':
-			self.addWindowStyleFlag(wx.TE_LEFT)
+			self._addWindowStyleFlag(wx.TE_LEFT)
 		elif value == 'Center':
-			self.addWindowStyleFlag(wx.TE_CENTRE)
+			self._addWindowStyleFlag(wx.TE_CENTRE)
 		elif value == 'Right':
-			self.addWindowStyleFlag(wx.TE_RIGHT)
+			self._addWindowStyleFlag(wx.TE_RIGHT)
 		else:
 			raise ValueError, "The only possible values are 'Left', 'Center', and 'Right'"
 
@@ -93,11 +93,11 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 
 	def _getPasswordEntry(self):
-		return self.hasWindowStyleFlag(wx.TE_PASSWORD)
+		return self._hasWindowStyleFlag(wx.TE_PASSWORD)
 	def _setPasswordEntry(self, value):
-		self.delWindowStyleFlag(wx.TE_PASSWORD)
+		self._delWindowStyleFlag(wx.TE_PASSWORD)
 		if value:
-			self.addWindowStyleFlag(wx.TE_PASSWORD)
+			self._addWindowStyleFlag(wx.TE_PASSWORD)
 			self.IsSecret = True
 
 				

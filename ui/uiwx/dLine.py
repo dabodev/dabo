@@ -38,22 +38,22 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 		
 	# property get/set functions
 	def _getOrientation(self):
- 		if self.hasWindowStyleFlag(wx.LI_VERTICAL):
+ 		if self._hasWindowStyleFlag(wx.LI_VERTICAL):
 			return "Vertical"
 		else:
 			return "Horizontal"
 
 	def _setOrientation(self, value):
 		# Note: Orientation must be set before object created.
-		self.delWindowStyleFlag(wx.LI_VERTICAL)
-		self.delWindowStyleFlag(wx.LI_HORIZONTAL)
+		self._delWindowStyleFlag(wx.LI_VERTICAL)
+		self._delWindowStyleFlag(wx.LI_HORIZONTAL)
 
 		value = str(value)
 
 		if value == "Vertical":
-			self.addWindowStyleFlag(wx.LI_VERTICAL)
+			self._addWindowStyleFlag(wx.LI_VERTICAL)
 		elif value == "Horizontal":
-			self.addWindowStyleFlag(wx.LI_HORIZONTAL)
+			self._addWindowStyleFlag(wx.LI_HORIZONTAL)
 		else:
 			raise ValueError, ("The only possible values are "
 			                   "'Horizontal' and 'Vertical'.")

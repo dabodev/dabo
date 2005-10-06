@@ -167,21 +167,21 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 			self._maxElements = self._initProperties["majorDimension"] = int(val)
 		
 	def _getOrientation(self):
-		if self.hasWindowStyleFlag(wx.RA_SPECIFY_ROWS):
+		if self._hasWindowStyleFlag(wx.RA_SPECIFY_ROWS):
 			return "Column"
-		elif self.hasWindowStyleFlag(wx.RA_SPECIFY_COLS):
+		elif self._hasWindowStyleFlag(wx.RA_SPECIFY_COLS):
 			return "Row"
 		else:
 			return "None"
 	
 	def _setOrientation(self, val):
 		val = str(val).lower()
-		self.delWindowStyleFlag(wx.RA_SPECIFY_ROWS)
-		self.delWindowStyleFlag(wx.RA_SPECIFY_COLS)
+		self._delWindowStyleFlag(wx.RA_SPECIFY_ROWS)
+		self._delWindowStyleFlag(wx.RA_SPECIFY_COLS)
 		if val == "row":
-			self.addWindowStyleFlag(wx.RA_SPECIFY_COLS)
+			self._addWindowStyleFlag(wx.RA_SPECIFY_COLS)
 		elif val[:3] == "col":
-			self.addWindowStyleFlag(wx.RA_SPECIFY_ROWS)
+			self._addWindowStyleFlag(wx.RA_SPECIFY_ROWS)
 		elif val == "none":
 			pass
 		else:

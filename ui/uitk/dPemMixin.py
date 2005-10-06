@@ -476,17 +476,17 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		return self.GetHandle()
 
 	def _getBorderStyle(self):
-		if self.hasWindowStyleFlag(wx.RAISED_BORDER):
+		if self._hasWindowStyleFlag(wx.RAISED_BORDER):
 			return 'Raised'
-		elif self.hasWindowStyleFlag(wx.SUNKEN_BORDER):
+		elif self._hasWindowStyleFlag(wx.SUNKEN_BORDER):
 			return 'Sunken'
-		elif self.hasWindowStyleFlag(wx.SIMPLE_BORDER):
+		elif self._hasWindowStyleFlag(wx.SIMPLE_BORDER):
 			return 'Simple'
-		elif self.hasWindowStyleFlag(wx.DOUBLE_BORDER):
+		elif self._hasWindowStyleFlag(wx.DOUBLE_BORDER):
 			return 'Double'
-		elif self.hasWindowStyleFlag(wx.STATIC_BORDER):
+		elif self._hasWindowStyleFlag(wx.STATIC_BORDER):
 			return 'Static'
-		elif self.hasWindowStyleFlag(wx.NO_BORDER):
+		elif self._hasWindowStyleFlag(wx.NO_BORDER):
 			return 'None'
 		else:
 			return 'Default'
@@ -496,27 +496,27 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 						'Raised', 'Double', 'Static']}
 
 	def _setBorderStyle(self, style):
-		self.delWindowStyleFlag(wx.NO_BORDER)
-		self.delWindowStyleFlag(wx.SIMPLE_BORDER)
-		self.delWindowStyleFlag(wx.SUNKEN_BORDER)
-		self.delWindowStyleFlag(wx.RAISED_BORDER)
-		self.delWindowStyleFlag(wx.DOUBLE_BORDER)
-		self.delWindowStyleFlag(wx.STATIC_BORDER)
+		self._delWindowStyleFlag(wx.NO_BORDER)
+		self._delWindowStyleFlag(wx.SIMPLE_BORDER)
+		self._delWindowStyleFlag(wx.SUNKEN_BORDER)
+		self._delWindowStyleFlag(wx.RAISED_BORDER)
+		self._delWindowStyleFlag(wx.DOUBLE_BORDER)
+		self._delWindowStyleFlag(wx.STATIC_BORDER)
 
 		style = str(style)
 
 		if style == 'None':
-			self.addWindowStyleFlag(wx.NO_BORDER)
+			self._addWindowStyleFlag(wx.NO_BORDER)
 		elif style == 'Simple':
-			self.addWindowStyleFlag(wx.SIMPLE_BORDER)
+			self._addWindowStyleFlag(wx.SIMPLE_BORDER)
 		elif style == 'Sunken':
-			self.addWindowStyleFlag(wx.SUNKEN_BORDER)
+			self._addWindowStyleFlag(wx.SUNKEN_BORDER)
 		elif style == 'Raised':
-			self.addWindowStyleFlag(wx.RAISED_BORDER)
+			self._addWindowStyleFlag(wx.RAISED_BORDER)
 		elif style == 'Double':
-			self.addWindowStyleFlag(wx.DOUBLE_BORDER)
+			self._addWindowStyleFlag(wx.DOUBLE_BORDER)
 		elif style == 'Static':
-			self.addWindowStyleFlag(wx.STATIC_BORDER)
+			self._addWindowStyleFlag(wx.STATIC_BORDER)
 		elif style == 'Default':
 			pass
 		else:

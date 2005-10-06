@@ -189,7 +189,7 @@ class Create(Event):
 	appliesToClass = classmethod(appliesToClass)
 	
 class ChildBorn(Event):
-	"""Occurs when a shild control is created."""
+	"""Occurs when a child control is created."""
 	def __init__(self, *args, **kwargs):
 		try:
 			self.Child = kwargs["child"]

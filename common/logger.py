@@ -28,6 +28,7 @@ class Log(dObject):
 	"""
 	
 	def write(self, message):
+		"""Writes the passed message to the log."""
 		if self.LogTimeStamp:
 			timestamp = "%s: " % time.asctime()
 		else:

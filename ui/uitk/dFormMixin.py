@@ -189,53 +189,53 @@ class dFormMixin(pm.dPemMixin):
 # 		self._Icons = icons       # wx doesn't provide GetIcons()
 # 
 # 	def _getBorderResizable(self):
-# 		return self.hasWindowStyleFlag(wx.RESIZE_BORDER)
+# 		return self._hasWindowStyleFlag(wx.RESIZE_BORDER)
 # 	def _setBorderResizable(self, value):
-# 		self.delWindowStyleFlag(wx.RESIZE_BORDER)
+# 		self._delWindowStyleFlag(wx.RESIZE_BORDER)
 # 		if value:
-# 			self.addWindowStyleFlag(wx.RESIZE_BORDER)
+# 			self._addWindowStyleFlag(wx.RESIZE_BORDER)
 # 
 # 	def _getShowMaxButton(self):
-# 		return self.hasWindowStyleFlag(wx.MAXIMIZE_BOX)
+# 		return self._hasWindowStyleFlag(wx.MAXIMIZE_BOX)
 # 	def _setShowMaxButton(self, value):
-# 		self.delWindowStyleFlag(wx.MAXIMIZE_BOX)
+# 		self._delWindowStyleFlag(wx.MAXIMIZE_BOX)
 # 		if value:
-# 			self.addWindowStyleFlag(wx.MAXIMIZE_BOX)
+# 			self._addWindowStyleFlag(wx.MAXIMIZE_BOX)
 # 
 # 	def _getShowMinButton(self):
-# 		return self.hasWindowStyleFlag(wx.MINIMIZE_BOX)
+# 		return self._hasWindowStyleFlag(wx.MINIMIZE_BOX)
 # 	def _setShowMinButton(self, value):
-# 		self.delWindowStyleFlag(wx.MINIMIZE_BOX)
+# 		self._delWindowStyleFlag(wx.MINIMIZE_BOX)
 # 		if value:
-# 			self.addWindowStyleFlag(wx.MINIMIZE_BOX)
+# 			self._addWindowStyleFlag(wx.MINIMIZE_BOX)
 # 
 # 	def _getShowCloseButton(self):
-# 		return self.hasWindowStyleFlag(wx.CLOSE_BOX)
+# 		return self._hasWindowStyleFlag(wx.CLOSE_BOX)
 # 	def _setShowCloseButton(self, value):
-# 		self.delWindowStyleFlag(wx.CLOSE_BOX)
+# 		self._delWindowStyleFlag(wx.CLOSE_BOX)
 # 		if value:
-# 			self.addWindowStyleFlag(wx.CLOSE_BOX)
+# 			self._addWindowStyleFlag(wx.CLOSE_BOX)
 # 
 # 	def _getShowCaption(self):
-# 		return self.hasWindowStyleFlag(wx.CAPTION)
+# 		return self._hasWindowStyleFlag(wx.CAPTION)
 # 	def _setShowCaption(self, value):
-# 		self.delWindowStyleFlag(wx.CAPTION)
+# 		self._delWindowStyleFlag(wx.CAPTION)
 # 		if value:
-# 			self.addWindowStyleFlag(wx.CAPTION)
+# 			self._addWindowStyleFlag(wx.CAPTION)
 # 
 # 	def _getShowSystemMenu(self):
-# 		return self.hasWindowStyleFlag(wx.SYSTEM_MENU)
+# 		return self._hasWindowStyleFlag(wx.SYSTEM_MENU)
 # 	def _setShowSystemMenu(self, value):
-# 		self.delWindowStyleFlag(wx.SYSTEM_MENU)
+# 		self._delWindowStyleFlag(wx.SYSTEM_MENU)
 # 		if value:
-# 			self.addWindowStyleFlag(wx.SYSTEM_MENU)
+# 			self._addWindowStyleFlag(wx.SYSTEM_MENU)
 # 
 # 	def _getTinyTitleBar(self):
-# 		return self.hasWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
+# 		return self._hasWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
 # 	def _setTinyTitleBar(self, value):
-# 		self.delWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
+# 		self._delWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
 # 		if value:
-# 			self.addWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
+# 			self._addWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
 # 
 # 	def _getWindowState(self):
 # 		try:

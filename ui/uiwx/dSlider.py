@@ -48,12 +48,12 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 			return "Horizontal"
 			
 	def _setOrientation(self, value):
-		self.delWindowStyleFlag(wx.SL_HORIZONTAL)
-		self.delWindowStyleFlag(wx.SL_VERTICAL)
+		self._delWindowStyleFlag(wx.SL_HORIZONTAL)
+		self._delWindowStyleFlag(wx.SL_VERTICAL)
 		if value.lower()[:1] == "h":
-			self.addWindowStyleFlag(wx.SL_HORIZONTAL)
+			self._addWindowStyleFlag(wx.SL_HORIZONTAL)
 		else:
-			self.addWindowStyleFlag(wx.SL_VERTICAL)
+			self._addWindowStyleFlag(wx.SL_VERTICAL)
 
 
 	def _getLineSize(self):
@@ -74,9 +74,9 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 		return (self.GetWindowStyle() & wx.SL_LABELS > 0)
 			
 	def _setShowLabels(self, value):
-		self.delWindowStyleFlag(wx.SL_LABELS)
+		self._delWindowStyleFlag(wx.SL_LABELS)
 		if value:
-			self.addWindowStyleFlag(wx.SL_LABELS)
+			self._addWindowStyleFlag(wx.SL_LABELS)
 
 
 	# Property definitions:

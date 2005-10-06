@@ -28,16 +28,16 @@ class dLabel(Tkinter.Label, cm.dControlMixin):
 
 # 	# property get/set functions
 # 	def _getAutoResize(self):
-# 		return not self.hasWindowStyleFlag(wx.ST_NO_AUTORESIZE)
+# 		return not self._hasWindowStyleFlag(wx.ST_NO_AUTORESIZE)
 # 	def _setAutoResize(self, value):
-# 		self.delWindowStyleFlag(wx.ST_NO_AUTORESIZE)
+# 		self._delWindowStyleFlag(wx.ST_NO_AUTORESIZE)
 # 		if not value:
-# 			self.addWindowStyleFlag(wx.ST_NO_AUTORESIZE)
+# 			self._addWindowStyleFlag(wx.ST_NO_AUTORESIZE)
 # 
 # 	def _getAlignment(self):
-# 		if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):
+# 		if self._hasWindowStyleFlag(wx.ALIGN_RIGHT):
 # 			return 'Right'
-# 		elif self.hasWindowStyleFlag(wx.ALIGN_CENTRE):
+# 		elif self._hasWindowStyleFlag(wx.ALIGN_CENTRE):
 # 			return 'Center'
 # 		else:
 # 			return 'Left'
@@ -47,18 +47,18 @@ class dLabel(Tkinter.Label, cm.dControlMixin):
 # 
 # 	def _setAlignment(self, value):
 # 		# Note: Alignment must be set before object created.
-# 		self.delWindowStyleFlag(wx.ALIGN_LEFT)
-# 		self.delWindowStyleFlag(wx.ALIGN_CENTRE)
-# 		self.delWindowStyleFlag(wx.ALIGN_RIGHT)
+# 		self._delWindowStyleFlag(wx.ALIGN_LEFT)
+# 		self._delWindowStyleFlag(wx.ALIGN_CENTRE)
+# 		self._delWindowStyleFlag(wx.ALIGN_RIGHT)
 # 
 # 		value = str(value)
 # 
 # 		if value == 'Left':
-# 			self.addWindowStyleFlag(wx.ALIGN_LEFT)
+# 			self._addWindowStyleFlag(wx.ALIGN_LEFT)
 # 		elif value == 'Center':
-# 			self.addWindowStyleFlag(wx.ALIGN_CENTRE)
+# 			self._addWindowStyleFlag(wx.ALIGN_CENTRE)
 # 		elif value == 'Right':
-# 			self.addWindowStyleFlag(wx.ALIGN_RIGHT)
+# 			self._addWindowStyleFlag(wx.ALIGN_RIGHT)
 # 		else:
 # 			raise ValueError, ("The only possible values are "
 # 							"'Left', 'Center', and 'Right'.")

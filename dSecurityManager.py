@@ -4,24 +4,6 @@ from dLocalize import _
 
 class dSecurityManager(dabo.common.dObject):
 	
-	def __init__(self, *args, **kwargs):
-		self.beforeInit()
-		#dSecurityManager.doDefault(*args, **kwargs)
-		super(dSecurityManager, self).__init__(*args, **kwargs)
-		self.initProperties()
-		self.afterInit()
-		
-	
-	def beforeInit(self):
-		pass
-		
-	def afterInit(self):
-		pass
-		
-	def initProperties(self):
-		pass
-		
-		
 	def login(self):
 		"""Ask the ui to display the login form to the user.
 		
@@ -60,14 +42,12 @@ class dSecurityManager(dabo.common.dObject):
 		
 	
 	def afterLoginFailure(self):
-		""" Subclass hook called after an unsuccessful login attempt.
-		"""
+		""" Subclass hook called after an unsuccessful login attempt."""
 		pass
 	
 	
 	def afterLoginSuccess(self):
-		""" Subclass hook called after a successful login.
-		"""
+		""" Subclass hook called after a successful login."""
 		pass
 		
 		
@@ -171,26 +151,27 @@ class dSecurityManager(dabo.common.dObject):
 			return ()
 			
 	LoginAttemptsAllowed = property(_getLoginAttemptsAllowed, _setLoginAttemptsAllowed, None,
-		_('Specifies the number of attempts the user has to login successfully.'))
+		_("""Specifies the number of attempts the user has to login successfully."""))
 
 	LoginMessage = property(_getLoginMessage, _setLoginMessage, None,
-		_('Specifies the message to initially display on the login form.'))					
+		_("""Specifies the message to initially display on the login form."""))					
+
 	LoginPause = property(_getLoginPause, _setLoginPause, None,
-		_('Specifies the number of (fractional) seconds to wait between '
-		'successive login attempts.'))
+		_("""Number of seconds to wait between successive login attempts."""))
 					
 	RequireAppLogin = property(_getRequireAppLogin, _setRequireAppLogin, None,
-		_('Specifies whether the user is required to login to the application '
-		'at startup. Note that this does not turn on/off login prompts globally, '
-		'just at application startup.'))
+		_("""Specifies whether the user is required to login at app startup."""))
 						
 	UserCaption = property(_getUserCaption, _setUserCaption, None,
-					_('The long descriptive name of the logged-on user.'))
+		_("""The long descriptive name of the logged-on user."""))
 	
 	UserGroups = property(_getUserGroups, None, None,
-					_('The tuple of groups that the user belongs to.'))
+		_("""The tuple of groups that the user belongs to.
+
+		Business objects can be configured to selectively allow/deny various types
+		of access based on the group(s) of the logged-in user."""))
 	
 	UserName = property(_getUserName, None, None, 
-					_('The name of the logged-on user. Read-only.'))
+		_("""The name of the logged-on user. Read-only."""))
 					
 					

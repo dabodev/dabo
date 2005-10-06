@@ -202,11 +202,11 @@ class dPageFrameMixin(cm.dControlMixin):
 		
 
 	def _getTabPosition(self):
-		if self.hasWindowStyleFlag(self._tabposBottom):
+		if self._hasWindowStyleFlag(self._tabposBottom):
 			return "Bottom"
-		elif self.hasWindowStyleFlag(self._tabposRight):
+		elif self._hasWindowStyleFlag(self._tabposRight):
 			return "Right"
-		elif self.hasWindowStyleFlag(self._tabposLeft):
+		elif self._hasWindowStyleFlag(self._tabposLeft):
 			return "Left"
 		else:
 			return "Top"
@@ -214,18 +214,18 @@ class dPageFrameMixin(cm.dControlMixin):
 	def _setTabPosition(self, value):
 		value = str(value)
 
-		self.delWindowStyleFlag(self._tabposBottom)
-		self.delWindowStyleFlag(self._tabposRight)
-		self.delWindowStyleFlag(self._tabposLeft)
+		self._delWindowStyleFlag(self._tabposBottom)
+		self._delWindowStyleFlag(self._tabposRight)
+		self._delWindowStyleFlag(self._tabposLeft)
 
 		if value == "Top":
 			pass
 		elif value == "Left":
-			self.addWindowStyleFlag(self._tabposLeft)
+			self._addWindowStyleFlag(self._tabposLeft)
 		elif value == "Right":
-			self.addWindowStyleFlag(self._tabposRight)
+			self._addWindowStyleFlag(self._tabposRight)
 		elif value == "Bottom":
-			self.addWindowStyleFlag(self._tabposBottom)
+			self._addWindowStyleFlag(self._tabposBottom)
 		else:
 			raise ValueError, ("The only possible values are "
 						"'Top', 'Left', 'Right', and 'Bottom'")
