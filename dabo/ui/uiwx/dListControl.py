@@ -291,36 +291,36 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 		
 
 	def _getMultipleSelect(self):
-		return not self.hasWindowStyleFlag(wx.LC_SINGLE_SEL)
+		return not self._hasWindowStyleFlag(wx.LC_SINGLE_SEL)
 		
 
 	def _setMultipleSelect(self, val):
 		if bool(val):
-			self.delWindowStyleFlag(wx.LC_SINGLE_SEL)
+			self._delWindowStyleFlag(wx.LC_SINGLE_SEL)
 		else:
-			self.addWindowStyleFlag(wx.LC_SINGLE_SEL)
+			self._addWindowStyleFlag(wx.LC_SINGLE_SEL)
 			
 
 	def _getHeaderVisible(self):
-		return not self.hasWindowStyleFlag(wx.LC_NO_HEADER)
+		return not self._hasWindowStyleFlag(wx.LC_NO_HEADER)
 		
 
 	def _setHeaderVisible(self, val):
 		if bool(val):
-			self.delWindowStyleFlag(wx.LC_NO_HEADER)
+			self._delWindowStyleFlag(wx.LC_NO_HEADER)
 		else:
-			self.addWindowStyleFlag(wx.LC_NO_HEADER)
+			self._addWindowStyleFlag(wx.LC_NO_HEADER)
 			
 
 	def _getHorizontalRules(self, val):
-		return self.hasWindowStyleFlag(wx.LC_HRULES)
+		return self._hasWindowStyleFlag(wx.LC_HRULES)
 		
 
 	def _setHorizontalRules(self, val):
 		if bool(val):
-			self.addWindowStyleFlag(wx.LC_HRULES)
+			self._addWindowStyleFlag(wx.LC_HRULES)
 		else:
-			self.delWindowStyleFlag(wx.LC_HRULES)
+			self._delWindowStyleFlag(wx.LC_HRULES)
 			
 
 	def _getValue(self):
@@ -368,14 +368,14 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 		
 		
 	def _getVerticalRules(self, val):
-		return self.hasWindowStyleFlag(wx.LC_VRULES)
+		return self._hasWindowStyleFlag(wx.LC_VRULES)
 		
 
 	def _setVerticalRules(self, val):
 		if bool(val):
-			self.addWindowStyleFlag(wx.LC_VRULES)
+			self._addWindowStyleFlag(wx.LC_VRULES)
 		else:
-			self.delWindowStyleFlag(wx.LC_VRULES)
+			self._delWindowStyleFlag(wx.LC_VRULES)
 
 
 	ColumnCount = property(_getColCount, None, None, 

@@ -243,9 +243,7 @@ class dApp(dabo.common.dObject):
 
 	
 	def getCharset(self):
-		"""Are we running a unicode-capable UI? Returns 
-		'unicode' or 'ascii'.
-		"""
+		"""Returns one of 'unicode' or 'ascii'.	"""
 		return self.uiApp.charset
 		
 		
@@ -354,6 +352,7 @@ class dApp(dabo.common.dObject):
 	
 	
 	def copyToClipboard(self, txt):
+		"Place the passed text onto the clipboard."""
 		self.uiApp.copyToClipboard(txt)
 		
 	def onHelpAbout(self, evt):
@@ -581,20 +580,20 @@ class dApp(dabo.common.dObject):
 			_("""Specifies the reference to the object providing user preference persistence.
 			
 			The default UserSettingProvider will save user preferences inside the .dabo
-			directory inside the user's	home directory."""))
+			directory inside the user's home directory."""))
 
 	UserSettingProviderClass = property(_getUserSettingProviderClass,
 			_setUserSettingProviderClass, None,
 			_("""Specifies the class to use for user preference persistence.
 			
 			The default UserSettingProviderClass will save user preferences inside the .dabo
-			directory inside the user's	home directory, and will be instantiated by Dabo
+			directory inside the user's home directory, and will be instantiated by Dabo
 			automatically."""))
 
 	SecurityManager = property(_getSecurityManager, _setSecurityManager, None, 
 			_("""Specifies the Security Manager, if any. 
 
-			You must subclass 	dSecurityManager, overriding the appropriate hooks 
+			You must subclass dSecurityManager, overriding the appropriate hooks 
 			and properties, and then set dApp.SecurityManager to an instance of your 
 			subclass. There is no security manager by default - you explicitly set 
 			this to use Dabo security.""") )

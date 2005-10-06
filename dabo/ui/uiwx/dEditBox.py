@@ -33,26 +33,26 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		
 	# property get/set functions
 	def _getAlignment(self):
-		if self.hasWindowStyleFlag(wx.TE_RIGHT):
+		if self._hasWindowStyleFlag(wx.TE_RIGHT):
 			return 'Right'
-		elif self.hasWindowStyleFlag(wx.TE_CENTRE):
+		elif self._hasWindowStyleFlag(wx.TE_CENTRE):
 			return 'Center'
 		else:
 			return 'Left'
 
 	def _setAlignment(self, value):
-		self.delWindowStyleFlag(wx.TE_LEFT)
-		self.delWindowStyleFlag(wx.TE_CENTRE)
-		self.delWindowStyleFlag(wx.TE_RIGHT)
+		self._delWindowStyleFlag(wx.TE_LEFT)
+		self._delWindowStyleFlag(wx.TE_CENTRE)
+		self._delWindowStyleFlag(wx.TE_RIGHT)
 
 		value = str(value).lower()
 
 		if value == 'left':
-			self.addWindowStyleFlag(wx.TE_LEFT)
+			self._addWindowStyleFlag(wx.TE_LEFT)
 		elif value == 'center':
-			self.addWindowStyleFlag(wx.TE_CENTRE)
+			self._addWindowStyleFlag(wx.TE_CENTRE)
 		elif value == 'right':
-			self.addWindowStyleFlag(wx.TE_RIGHT)
+			self._addWindowStyleFlag(wx.TE_RIGHT)
 		else:
 			raise ValueError, ("The only possible values are "
 							"'Left', 'Center', and 'Right'.")

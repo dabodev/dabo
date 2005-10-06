@@ -37,12 +37,12 @@ class dGauge(wx.Gauge, cm.dControlMixin):
 			return "Horizontal"
 			
 	def _setOrientation(self, value):
-		self.delWindowStyleFlag(wx.GA_HORIZONTAL)
-		self.delWindowStyleFlag(wx.GA_VERTICAL)
+		self._delWindowStyleFlag(wx.GA_HORIZONTAL)
+		self._delWindowStyleFlag(wx.GA_VERTICAL)
 		if value.lower()[:1] == "h":
-			self.addWindowStyleFlag(wx.GA_HORIZONTAL)
+			self._addWindowStyleFlag(wx.GA_HORIZONTAL)
 		else:
-			self.addWindowStyleFlag(wx.GA_VERTICAL)
+			self._addWindowStyleFlag(wx.GA_VERTICAL)
 
 	def _getValue(self):
 		return self.GetValue()

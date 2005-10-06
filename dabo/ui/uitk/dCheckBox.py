@@ -54,7 +54,7 @@ class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 	
 	# property get/set functions
 # 	def _getAlignment(self):
-# 		if self.hasWindowStyleFlag(wx.ALIGN_RIGHT):
+# 		if self._hasWindowStyleFlag(wx.ALIGN_RIGHT):
 # 			return 'Right'
 # 		else:
 # 			return 'Left'
@@ -63,9 +63,9 @@ class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 # 		return {'editor': 'list', 'values': ['Left', 'Right']}
 # 
 # 	def _setAlignment(self, value):
-# 		self.delWindowStyleFlag(wx.ALIGN_RIGHT)
+# 		self._delWindowStyleFlag(wx.ALIGN_RIGHT)
 # 		if str(value) == 'Right':
-# 			self.addWindowStyleFlag(wx.ALIGN_RIGHT)
+# 			self._addWindowStyleFlag(wx.ALIGN_RIGHT)
 # 		elif str(value) == 'Left':
 # 			pass
 # 		else:
