@@ -269,6 +269,11 @@ class PropertyHelperMixin(object):
 
 			dataType = d["type"] = type(propVal)
 
+			d["definedIn"] = None			
+			for o in classRef.__mro__:
+				if o.__dict__.has_key(name):
+					d["definedIn"] = o
+
 			return d
 		else:
 			raise AttributeError, "%s is not a property." % name

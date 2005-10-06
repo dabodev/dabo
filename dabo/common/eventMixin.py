@@ -31,8 +31,8 @@ class EventMixin(object):
 			raise TypeError, "Sequence expected."
 		
 
-	def raiseEvent(self, eventClass, uiEvent=None, 
-	               uiCallAfterFunc=None, *args, **kwargs):
+	def raiseEvent(self, eventClass, uiEvent=None, uiCallAfterFunc=None, 
+	               *args, **kwargs):
 		"""Send the event to all registered listeners.
 		
 		If uiEvent is sent, dEvents.Event will be able to parse it for useful
@@ -40,11 +40,11 @@ class EventMixin(object):
 		callbacks will be wrapped in that function so that the UI-lib can process
 		our Dabo events at next idle instead of immediately in this event cycle.
 		
-		Additional arguments, if any, are sent along to the constructor
-		of the event. While this feature exists so that UI-lib event handlers
-		can pass along information (such as the keystroke information in a
-		key event), user code may pass along additional arguments as well, which
-		will exist in the event.EventData dictionary property.
+		Additional arguments, if any, are sent along to the constructor	of the 
+		event. While this feature exists so that UI-lib event handlers can pass 
+		along information (such as the keystroke information in a	key event), user 
+		code may pass along additional arguments as well, which	will exist in the 
+		event.EventData dictionary property.
 		
 		User code need not worry too much about all these extra arguments, as in 
 		most cases they'll be completely unnecessary. Just call raiseEvent() with
