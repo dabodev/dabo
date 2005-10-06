@@ -253,10 +253,28 @@ def callAfter(fnc, *args, **kwargs):
 	
 	
 def continueEvent(evt):
-	evt.Skip()
+	try:
+		evt.Skip()
+	except AttributeError, e:
+		# Event could be a Dabo event, not a wx event
+		if isinstance(evt, dabo.dEvents.Event):
+			pass
+		else:
+			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
+					% (str(evt), str(e)))
+	
 	
 def discontinueEvent(evt):
-	evt.Skip(False)
+	try:
+		evt.Skip(False)
+	except AttributeError, e:
+		# Event could be a Dabo event, not a wx event
+		if isinstance(evt, dabo.dEvents.Event):
+			pass
+		else:
+			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
+					% (str(evt), str(e)))
+	
 	
 def getEventData(wxEvt):
 	ed = {}
@@ -321,6 +339,13 @@ def getEventData(wxEvt):
 			ed["selectedCaption"] = ", ".join([ss.Caption for ss in sel])
 		else:
 			ed["selectedCaption"] = tree.Selection.Caption
+	
+	if hasattr(wxEvt, "GetIndex"):
+		ed["index"] = wxEvt.GetIndex()
+	else:
+		if hasattr(wxEvt, "GetSelection"):
+			ed["index"] = wxEvt.GetSelection()
+
 	
 	if isinstance(wxEvt, wx.grid.GridEvent):
 		ed["row"] = wxEvt.GetRow()

@@ -12,9 +12,6 @@ class dDropdownList(wx.Choice, dcm.dControlItemMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dDropdownList
 		self._choices = []
-		self._keys = []
-		self._invertedKeys = []
-		self._valueMode = "string"
 
 		preClass = wx.PreChoice
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)

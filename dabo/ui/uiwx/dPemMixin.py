@@ -367,7 +367,6 @@ class dPemMixin(dPemMixinBase):
 			form.bindKey("ctrl+alt+w", form.Close)
 		"""
 		keys = keyCombo.split("+")
-
 		# The modifier keys, if any, comprise all but the last key in keys
 		mods = keys[:-1]
 		key = keys[-1]
@@ -379,7 +378,7 @@ class dPemMixin(dPemMixinBase):
 			flags = flags | dKeys.modifierStrings[mod]
 
 		try:
-			keyCode = dKeys.keyStrings[key]
+			keyCode = dKeys.keyStrings[key.lower()]
 		except KeyError:
 			# It isn't a special key. Get the code from the ascii table:
 			keyCode = ord(key)

@@ -3,12 +3,12 @@ import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import wx.lib.mixins.listctrl	as ListMixin
-import dDataControlMixin as dcm
+import dControlItemMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 
-class dListControl(wx.ListCtrl, dcm.dDataControlMixin, 
+class dListControl(wx.ListCtrl, dcm.dControlItemMixin, 
                    ListMixin.ListCtrlAutoWidthMixin):
 	""" The List Control is ideal for visually dealing with data sets
 	where each 'row' is a unit, where it doesn't make sense to deal
@@ -31,7 +31,7 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		except:
 			style = wx.LC_REPORT
 		preClass = wx.PreListCtrl
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, style=style, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, style=style, *args, **kwargs)
 		ListMixin.ListCtrlAutoWidthMixin.__init__(self)
 		# Dictionary for tracking images by key value
 		self.__imageList = {}	
@@ -40,7 +40,9 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 	def _initEvents(self):
 		super(dListControl, self)._initEvents()
 		self.Bind(wx.EVT_LIST_ITEM_SELECTED, self.__onSelection)
+		self.Bind(wx.EVT_LIST_ITEM_DESELECTED, self.__onDeselection)
 		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.__onActivation)
+		self.Bind(wx.EVT_LIST_ITEM_FOCUSED, self.__onFocus)
 		self.Bind(wx.EVT_LIST_KEY_DOWN, self.__onWxKeyDown)
 	
 	
@@ -233,10 +235,17 @@ class dListControl(wx.ListCtrl, dcm.dDataControlMixin,
 		self._onWxHit(evt)
 		
 
+	def __onFocus(self, evt):
+		self.raiseEvent(dEvents.GotFocus, evt)
+		
+
 	def __onSelection(self, evt):
 		self._lastSelectedIndex = evt.GetIndex()
-		# Call the default Hit code
 		self.raiseEvent(dEvents.ListSelection, evt)
+		
+	
+	def __onDeselection(self, evt):
+		self.raiseEvent(dEvents.ListDeselection, evt)
 		
 	
 	def __onWxKeyDown(self, evt):
@@ -428,12 +437,25 @@ class _dListControl_test(dListControl):
 		self.autoBindEvents()
 
 	def onHit(self, evt):
-		print "HIT!", self.Value, self.HitIndex
+		print "KeyValue: ", self.KeyValue
+		print "PositionValue: ", self.PositionValue
+		print "StringValue: ", self.StringValue
+		print "Value: ", self.Value
 
 	def onListSelection(self, evt):
 		print "List Selection!", self.Value, self.LastSelectedIndex, self.SelectedIndices
 
-			
-if __name__ == "__main__":
-	import test
-	test.Test().runTest(_dListControl_test)
+	def onListDeselection(self, evt):
+		print "Row deselected:", evt.EventData["index"]
+
+
+if __name__ == '__main__':
+	class TestForm(dabo.ui.dForm): pass
+	app = dabo.dApp(MainFormClass=TestForm)
+	app.setup()
+	
+	mf = app.MainForm
+	mf.testListControl = _dListControl_test(mf)
+
+	app.start()
+
