@@ -39,7 +39,7 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 			# Override the class values
 			for k,v in properties.items():
 				self._properties[k] = v
-		properties = self.extractKeywordProperties(kwargs, self._properties)
+		properties = self._extractKeywordProperties(kwargs, self._properties)
 		if self._call_afterInit:
 			self._afterInit()
 		self.setProperties(properties)

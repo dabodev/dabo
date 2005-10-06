@@ -46,7 +46,7 @@ class PropertyHelperMixin(object):
 		return value
 
 
-	def extractKeywordProperties(self, kwdict, propdict):
+	def _extractKeywordProperties(self, kwdict, propdict):
 		""" Called from __init__: puts any property keyword arguments into
 		the property dictionary, so that __init__ can pass that dict to 
 		setProperties() when appropriate (and so the property keywords are

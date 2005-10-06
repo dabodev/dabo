@@ -33,7 +33,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			# Override the class values
 			for k,v in properties.items():
 				self.properties[k] = v
-		properties = self.extractKeywordProperties(kwargs, self.properties)
+		properties = self._extractKeywordProperties(kwargs, self.properties)
 		
 		# If a Name isn't given, a default name will be used, and it'll 
 		# autonegotiate by adding an integer until it is a unique name.
