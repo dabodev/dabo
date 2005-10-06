@@ -68,7 +68,7 @@ class dPemMixin(dPemMixinBase):
 			# Override the class values
 			for k,v in properties.items():
 				self._properties[k] = v
-		properties = self.extractKeywordProperties(kwargs, self._properties)
+		properties = self._extractKeywordProperties(kwargs, self._properties)
 		
 		if kwargs.has_key("style"):
 			# If wx style parm sent, keep it as-is
