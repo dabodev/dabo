@@ -14,19 +14,23 @@ class dControlItemMixin(dDataControlMixin):
 		super(dControlItemMixin, self).__init__(*args, **kwargs)
 
 		
-	def appendItem(self, txt):
+	def appendItem(self, txt, select=False):
 		""" Adds a new item to the end of the list """
 		chc = self._choices
 		chc.append(txt)
 		self.Choices = chc
+		if select:
+			self.StringValue = txt
 	
 	
-	def insertItem(self, pos, txt):
+	def insertItem(self, pos, txt, select=False):
 		""" Inserts a new item into the specified position. """
 		chc = self._choices[:pos]
 		chc.append(txt)
 		chc += self._choices[pos:]
 		self.Choices = chc
+		if select:
+			self.StringValue = txt
 	
 	
 	def removeItem(self, pos):
@@ -46,6 +50,7 @@ class dControlItemMixin(dDataControlMixin):
 		can be multiple selections.
 		"""
 		pass
+		
 
 	def setSelection(self, index):
 		if self.Count > index:
@@ -55,6 +60,7 @@ class dControlItemMixin(dDataControlMixin):
 			## matters, and the selected row is getting set before
 			## the items have been set. Make a log and ignore for now.
 			dabo.errorLog.write("dControlItemMixin::setSelection(): index > count")
+
 
 	def _isMultiSelect(self):
 		"""Return whether this control has multiple-selectable items."""
@@ -73,6 +79,7 @@ class dControlItemMixin(dDataControlMixin):
 		except AttributeError:
 			_choices = self._choices = []
 		return _choices
+		
 		
 	def _setChoices(self, choices):
 		if self._constructed():
@@ -101,6 +108,7 @@ class dControlItemMixin(dDataControlMixin):
 		except AttributeError:
 			keys = self._keys = {}
 		return keys
+		
 		
 	def _setKeys(self, val):
 		if isinstance(val, dict):
@@ -238,6 +246,7 @@ class dControlItemMixin(dDataControlMixin):
 				return None
 		else:
 			return tuple(strings)
+			
 	
 	def _setStringValue(self, value):
 		if self._constructed():
@@ -272,6 +281,7 @@ class dControlItemMixin(dDataControlMixin):
 			ret = self.StringValue
 		return ret
 		
+		
 	def _setValue(self, value):
 		if self.ValueMode == "position":
 			self.PositionValue = value
@@ -279,6 +289,7 @@ class dControlItemMixin(dDataControlMixin):
 			self.KeyValue = value
 		else:
 			self.StringValue = value
+			
 
 	def _getValueMode(self):
 		try:
@@ -286,6 +297,7 @@ class dControlItemMixin(dDataControlMixin):
 		except AttributeError:	
 			vm = self._valueMode = "string"
 		return vm
+		
 		
 	def _setValueMode(self, val):
 		val = str(val).lower()

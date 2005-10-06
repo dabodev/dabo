@@ -15,6 +15,10 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 		self._baseClass = dComboBox
 		self._choices = []
 		self._userVal = False
+		# Flag for appending items when the user presses 'Enter'
+		self.appendOnEnter = False
+		# Holds the text to be appended
+		self._textToAppend = ""
 
 		preClass = wx.PreComboBox
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
@@ -35,9 +39,42 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 	def __onTextBox(self, evt):
 		self._userVal = True
 		evt.Skip()
+		if self.appendOnEnter:
+			txt = evt.GetString()
+			if txt not in self.Choices:
+				self._textToAppend = txt
+				if self.beforeAppendOnEnter() is not False:
+					if self._textToAppend:
+						self.appendItem(self._textToAppend, select=True)
+						self.afterAppendOnEnter()
 		self.raiseEvent(dabo.dEvents.Hit, evt)
 	
 
+	def beforeAppendOnEnter(self):
+		"""Hook method that is called when user-defined text is entered
+		into the combo box and Enter is pressed (when self.appendOnEnter
+		is True). This gives the programmer the ability to interact with such
+		events, and optionally prevent them from happening. Returning 
+		False will prevent the append from happening.
+		
+		The text value to be appended is stored in self._textToAppend. You
+		may modify this value (e.g., force to upper case), or delete it entirely
+		(e.g., filter out obscenities and such). If you set self._textToAppend
+		to an empty string, nothing will be appended. So this 'before' hook
+		gives you two opportunities to prevent the append: return a non-
+		empty value, or clear out self._textToAppend.
+		"""
+		pass
+		
+		
+	def afterAppendOnEnter(self):
+		"""Hook method that provides a means to interact with the newly-
+		changed list of items after a new item has been added by the user 
+		pressing Enter, but before control returns to the program.
+		"""
+		pass
+		
+		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getUserValue(self):
@@ -55,6 +92,7 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 		else:
 			self._properties["UserValue"] = value
 	
+	
 	UserValue = property(_getUserValue, _setUserValue, None,
 		"""Specifies the text displayed in the textbox portion of the ComboBox.
 		
@@ -70,7 +108,7 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 class _dComboBox_test(dComboBox):
 	def initProperties(self):
 		self.setup()
-		self.Width = 300
+		self.appendOnEnter = True
 		
 	def initEvents(self):
 		self.autoBindEvents()
@@ -89,16 +127,25 @@ class _dComboBox_test(dComboBox):
 		self.Choices = choices
 		self.Keys = keys
 		self.ValueMode = 'key'
-			
+	
+	
+	def beforeAppendOnEnter(self):
+		txt = self._textToAppend.strip().lower()
+		if txt == "dabo":
+			dabo.infoLog.write("Attempted to add Dabo to the list!!!")
+			return False
+		elif txt.find("nixon") > -1:
+			self._textToAppend = "Tricky Dick"
+		
+		
 	def onHit(self, evt):
 		print "KeyValue: ", self.KeyValue
 		print "PositionValue: ", self.PositionValue
 		print "StringValue: ", self.StringValue
 		print "Value: ", self.Value
 		print "UserValue: ", self.UserValue
+		
 			
-
-
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dComboBox_test)
