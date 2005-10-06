@@ -7,6 +7,13 @@ class dControlItemMixin(dDataControlMixin):
 	""" This mixin class factors out the common code among all of the
 	controls that contain lists of items.
 	"""
+	def __init__(self, *args, **kwargs):
+		self._keys = []
+		self._invertedKeys = []
+		self._valueMode = "string"
+		super(dControlItemMixin, self).__init__(*args, **kwargs)
+
+		
 	def appendItem(self, txt):
 		""" Adds a new item to the end of the list """
 		chc = self._choices
@@ -50,10 +57,7 @@ class dControlItemMixin(dDataControlMixin):
 			dabo.errorLog.write("dControlItemMixin::setSelection(): index > count")
 
 	def _isMultiSelect(self):
-		"""Return whether this control has multiple-selectable items.
-
-		Only dListBox is a candidate for this.
-		"""
+		"""Return whether this control has multiple-selectable items."""
 		try:
 			ms = self.MultipleSelect
 		except AttributeError:
@@ -139,6 +143,7 @@ class dControlItemMixin(dDataControlMixin):
 				return None		
 		else:
 			return tuple(values)
+			
 		
 	def _setKeyValue(self, value):
 		if self._constructed():
@@ -176,11 +181,19 @@ class dControlItemMixin(dDataControlMixin):
 
 
 	def _getPositionValue(self):
-		if not self._isMultiSelect():
-			return self.GetSelection()
+		if hasattr(self, "SelectedIndices"):
+			ret = tuple(self.SelectedIndices)
+			if not self._isMultiSelect():
+				# Only return a single index
+				ret = ret[0]
 		else:
-			selections = self.GetSelections()
-			return tuple(selections)
+			if not self._isMultiSelect():
+				ret = self.GetSelection()
+			else:
+				selections = self.GetSelections()
+				ret = tuple(selections)
+		return ret
+		
 
 	def _setPositionValue(self, value):
 		if self._constructed():

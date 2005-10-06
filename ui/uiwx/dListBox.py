@@ -13,9 +13,6 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dListBox
 		self._choices = []
-		self._keys = []
-		self._invertedKeys = []
-		self._valueMode = "string"
 
 		preClass = wx.PreListBox
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
@@ -23,13 +20,27 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 			
 	def _initEvents(self):
 		super(dListBox, self)._initEvents()
-		self.Bind(wx.EVT_LISTBOX, self._onWxHit)
+		self.Bind(wx.EVT_LISTBOX_DCLICK, self._onWxHit)
+		self.Bind(wx.EVT_LISTBOX, self.__onSelection)
+		self.bindKey("Enter", self._onEnter)
 	
 	
 	def clearSelections(self):
 		for elem in self.GetSelections():
 			self.SetSelection(elem, False)
 
+	
+	def _onEnter(self, evt):
+		self.raiseEvent(dEvents.Hit, evt)
+		
+		
+	def __onSelection(self, evt):
+		"""Fired when an item is selected."""
+		if evt.IsSelection():
+			self.raiseEvent(dEvents.ListSelection, evt)
+		else:
+			self.raiseEvent(dEvents.ListDeselection, evt)
+		
 	
 	def _getMultipleSelect(self):
 		return self.hasWindowStyleFlag(wx.LB_EXTENDED)
@@ -55,7 +66,8 @@ class _dListBox_test(dListBox):
 	def setup(self):
 		# Simulate a database:
 		actors = ({"lname": "Jason Leigh", "fname": "Jennifer", "iid": 42},
-			{"lname": "Cates", "fname": "Phoebe", "iid": 23})
+			{"lname": "Cates", "fname": "Phoebe", "iid": 23},
+			{"lname": "Reinhold", "fname": "Judge", "iid": 13})
 			
 		choices = []
 		keys = {}
@@ -69,10 +81,21 @@ class _dListBox_test(dListBox):
 		self.Value = 23
 						
 	def onHit(self, evt):
-		print "KeyValue: ", self.KeyValue
-		print "PositionValue: ", self.PositionValue
-		print "StringValue: ", self.StringValue
-		print "Value: ", self.Value
+		print "HIT:"
+		print "\tKeyValue: ", self.KeyValue
+		print "\tPositionValue: ", self.PositionValue
+		print "\tStringValue: ", self.StringValue
+		print "\tValue: ", self.Value
+	
+	def onListSelection(self, evt):
+		print "SELECTION:"
+		print "\tKeyValue: ", self.KeyValue
+		print "\tPositionValue: ", self.PositionValue
+		print "\tStringValue: ", self.StringValue
+		print "\tValue: ", self.Value
+
+	def onListDeselection(self, evt):
+		print "Deselected: Item #", evt.EventData["index"]
 	
 
 if __name__ == "__main__":
