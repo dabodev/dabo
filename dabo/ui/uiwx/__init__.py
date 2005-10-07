@@ -251,7 +251,12 @@ def callAfter(fnc, *args, **kwargs):
 	"""
 	wx.CallAfter(fnc, *args, **kwargs)
 	
-	
+
+def yieldUI(*args, **kwargs):
+	"""Yield to other apps/messages."""
+	wx.Yield(*args, **kwargs)	
+
+
 def continueEvent(evt):
 	try:
 		evt.Skip()
