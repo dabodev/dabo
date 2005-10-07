@@ -257,6 +257,20 @@ def yieldUI(*args, **kwargs):
 	wx.Yield(*args, **kwargs)	
 
 
+def busyInfo(msg="Please wait...", *args, **kwargs):
+	"""Display a message that the system is busy.
+
+	To use this, assign the return value to a local object. but note that the 
+	message will stay until the object is explicitly unbound. For example:
+
+	bi = dabo.ui.busyInfo("Please wait while I count to 10000...")
+	for i in range(10000):
+		pass
+	bi = None
+"""
+	return wx.BusyInfo(msg, *args, **kwargs)
+
+
 def continueEvent(evt):
 	try:
 		evt.Skip()
