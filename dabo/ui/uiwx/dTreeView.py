@@ -354,6 +354,19 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		os.path.walk(dirPath, sortNode, None)
 
 
+	def addDummyData(self):
+		""" For testing purposes! """
+		self.DeleteAllItems()
+		r = self.setRootNode("This is the root")
+		c1 = r.appendChild("First Child")
+		c2 = r.appendChild("Second Child")
+		c3 = r.appendChild("Third Child")
+		c21 = c2.appendChild("Grandkid #1")
+		c22 = c2.appendChild("Grandkid #2")
+		c23 = c2.appendChild("Grandkid #3")
+		c221 = c22.appendChild("Great-Grandkid #1")
+		
+
 	# Event-handling code
 	def __onTreeSel(self, evt):
 		self.raiseEvent(dEvents.TreeSelection, evt)
@@ -498,19 +511,6 @@ class _dTreeView_test(dTreeView):
 	def onTreeItemExpand(self, evt):
 		print "Expanded node caption:", evt.EventData["selectedCaption"]
 		
-	def addDummyData(self):
-		""" For testing purposes! """
-		self.DeleteAllItems()
-		r = self.setRootNode("This is the root")
-		c1 = r.appendChild("First Child")
-		c2 = r.appendChild("Second Child")
-		c3 = r.appendChild("Third Child")
-		c21 = c2.appendChild("Grandkid #1")
-		c22 = c2.appendChild("Grandkid #2")
-		c23 = c2.appendChild("Grandkid #3")
-		c221 = c22.appendChild("Great-Grandkid #1")
-		
-
 			
 if __name__ == "__main__":
 	import test
