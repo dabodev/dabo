@@ -1,5 +1,90 @@
 See the Subversion log for all the details.
 
+Dabo-0.4.2 (2005-10-07) (Revision 14??):
+Added PrimaryBizobj property to dForm, which can replace calls to getBizobj().
+
+Added Accepted property to dOkCancelDialog, which gets set automatically if the
+user pressed "OK".
+
+Added AutoSQL, UserSQL, CurrentSQL, LastSQL properties to dCursor and dBizobj.
+When time to requery, the SQL will come from UserSQL if set, or AutoSQL will
+be regenerated. 
+
+Fixed a bug that kept changes to a new record from getting committed.
+
+Added DefaultValues property to bizobj.
+
+Added ListSelection and ListDeselection events to dListControl. Added properties
+MultipleSelect, HitIndex, LastSelectedIndex, HeaderVisible, HorizontalRules,
+and VerticalRules.
+
+Added new property to dTextBox: StrictDateEntry. Changed the code for
+interpreting dates entered by the user to allow for some less explicit
+formats (YYYYMMDD, YYMMDD, and MMDD). If StrictDateEntry is False (the
+default), these other formats will be used when interpreting dates
+entered by the user.
+
+Added field-level validation to the framework.
+
+Improved support for decimal.Decimal, both at the database level and in
+dTextBox.
+
+Added new auto event binding, which automatically binds events based on any
+defined callback functions. For example, if you have a method onMouseEnter()
+defined, the dEvents.MouseEnter will automatically be bound to that method.
+Inspired by PythonCard.
+
+Added RegID property to forms, that allows for object registration with the 
+form. Linked this to the auto event binding, so that if a form has a method
+of onHit_cmdOK(), the cmdOk's hit will get bound to the form's callback, 
+automatically.
+
+Improved dGrid and dColumn. Many properties added, and you are now in much
+finer control over the display of grid column headers, grid cell attributes,
+grid cell editors and renderers, and the grid itself. 
+
+Began work of allowing case-insensitive property values for properties that
+take string values, and for properties that take a limited number of values
+where the first letter is unique, you can set the property by just using the
+first letter. dTextBox.Alignment = "c" sets the property to "Center", for 
+example.
+
+Modified dBizobj, dCursorMixin, and dBackend so that the user can specify 
+the Unicode Encoding to use. Changed the default encoding from latin-1 to
+utf-8.
+
+Added feature to optionally draw sizer outlines on any form that uses dSizers.
+This is currently accessible via an option in the View menu whan the base
+menu bar is in use, or you can turn it on/off programatically.
+
+Grids now remember the column that is sorted, and resort when next instantiated.
+
+Added support in dReportWriter for report groups and report variables, and 
+dynamic band heights (based on the height of contained objects). Added showExpr,
+which is an expression that evaluates at runtime and if true, shows the object
+in the report, and not if false. 
+
+Improved the automatic print preview report format in datanav. It now:
+
+	+ prints column headers
+
+	+ mirrors the font size, column width, cell vertical and horizontal
+	  alignment, and column height of the grid
+
+	+ mirrors the font size, header height, vertical and horizontal 
+	  alignment of the grid headers
+
+	+ automatically reorients to landscape if the detail flows beyond the width
+	  of portrait
+
+	+ stops printing more columns if doing so would result in overflowing the
+	  right margin
+
+Key bindings are now case-insensitive.
+
+Improved docstrings and API documentation.
+
+
 Dabo-0.4.1 (2005-08-30) (Revision 1226):
 
 Improved test framework for uiwx. Now you can run ui/uiwx/test.py and get
