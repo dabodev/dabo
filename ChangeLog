@@ -1,7 +1,7 @@
 See the Subversion log for all the details.
 
 Dabo-0.4.2 (2005-10-07) (Revision 14??):
-Added PrimaryBizobj property to dForm, which can replace calls to getBizobj().
+Added PrimaryBizobj property to dForm, which can replace calls to getPrimaryBizobj().
 
 Added Accepted property to dOkCancelDialog, which gets set automatically if the
 user pressed "OK".
@@ -16,7 +16,7 @@ Added DefaultValues property to bizobj.
 
 Added ListSelection and ListDeselection events to dListControl. Added properties
 MultipleSelect, HitIndex, LastSelectedIndex, HeaderVisible, HorizontalRules,
-and VerticalRules.
+and VerticalRules. Changed the behavior of both dListControl and dListBox so that merely selecting an item doesn't raise the Hit event; instead, it raises a ListSelection event, and if another item had been previously selected, it raises a ListDeselection event. Hit is only raised from double-clicking on an item, or by pressing Enter.
 
 Added new property to dTextBox: StrictDateEntry. Changed the code for
 interpreting dates entered by the user to allow for some less explicit
@@ -34,10 +34,15 @@ defined callback functions. For example, if you have a method onMouseEnter()
 defined, the dEvents.MouseEnter will automatically be bound to that method.
 Inspired by PythonCard.
 
-Added RegID property to forms, that allows for object registration with the 
-form. Linked this to the auto event binding, so that if a form has a method
-of onHit_cmdOK(), the cmdOk's hit will get bound to the form's callback, 
-automatically.
+Added RegID property to forms, that allows for object registration
+with the form. Not all objects require RegIDs, but if they have one,
+they must be unique among all objects in a form. A reference to that
+object can then be gotten from any other object by calling
+'self.Form.getObjectByRegID(<regid>)'.
+
+Linked RegID to the auto event binding, so that if a form has a method
+of onHit_cmdOK(), and has a button with a RegID of 'cmdOK', the
+cmdOk's Hit will get bound to the form's callback, automatically.
 
 Improved dGrid and dColumn. Many properties added, and you are now in much
 finer control over the display of grid column headers, grid cell attributes,
@@ -54,7 +59,7 @@ the Unicode Encoding to use. Changed the default encoding from latin-1 to
 utf-8.
 
 Added feature to optionally draw sizer outlines on any form that uses dSizers.
-This is currently accessible via an option in the View menu whan the base
+This is currently accessible via an option in the View menu when the base
 menu bar is in use, or you can turn it on/off programatically.
 
 Grids now remember the column that is sorted, and resort when next instantiated.
