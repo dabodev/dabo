@@ -1,11 +1,12 @@
 import os
 import dabo
 
-# If dabo is a subversion working copy, we'll try to get the current
-# revision using the svnversion command against that working copy.
-# Else, we'll get the revision as saved in _daborevs, which is an
-# external svn repository updated by a svn post-commit hook on the
-# server. 
+_version = "0.4.2"
+
+# If dabo is a subversion working copy, we'll try to get the current revision 
+# using the svnversion command against that working copy. Otherwise, we'll get
+# the revision as saved in _daborevs, which is an external svn repository 
+# updated by a svn post-commit hook on the server. 
 daboPath = dabo.__path__[0]
 _revision = None
 olddir = os.getcwd()
@@ -22,7 +23,7 @@ if _revision is None:
 	from dabo.lib._daborevs import _revs
 	_revision = _revs["dabo"]
 
-version = {"version": "0.4.1",
+version = {"version": _version,
            "revision": _revision}
 
 if __name__ == "__main__":

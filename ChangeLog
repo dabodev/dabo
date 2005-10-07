@@ -1,6 +1,6 @@
 See the Subversion log for all the details.
 
-Dabo-0.4.2 (2005-10-07) (Revision 14??):
+Dabo-0.4.2 (2005-10-07) (Revision 1418):
 Added PrimaryBizobj property to dForm, which can replace calls to getPrimaryBizobj().
 
 Added Accepted property to dOkCancelDialog, which gets set automatically if the
