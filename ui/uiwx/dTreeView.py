@@ -142,23 +142,14 @@ class dNode(dabo.common.dObject):
 class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dTreeView
-		self.nodes = []
 
-		style = self._extractKey(kwargs, "style")
-		if not style:
-			style = wx.TR_DEFAULT_STYLE
-		ed = self._extractKey(kwargs, "editable")
-		if ed:
-			style = style | wx.TR_EDIT_LABELS
-		isMultiSel = self._extractKey(kwargs, "MultiSelect")
-		self.__multiSelect = isMultiSel
-		if isMultiSel:
-			style = style | wx.TR_MULTIPLE | wx.TR_EXTENDED		
-
-		preClass = wx.PreTreeCtrl
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, style=style, *args, **kwargs)
 		# Dictionary for tracking images by key value
 		self.__imageList = {}	
+		self.nodes = []
+
+		preClass = wx.PreTreeCtrl
+		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
+		                           *args, **kwargs)
 		
 		
 	def _initEvents(self):
@@ -372,21 +363,31 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		self.raiseEvent(dEvents.TreeItemExpand, evt)
 
 
-	def addDummyData(self):
-		""" For testing purposes! """
-		self.DeleteAllItems()
-		r = self.setRootNode("This is the root")
-		c1 = r.appendChild("First Child")
-		c2 = r.appendChild("Second Child")
-		c3 = r.appendChild("Third Child")
-		c21 = c2.appendChild("Grandkid #1")
-		c22 = c2.appendChild("Grandkid #2")
-		c23 = c2.appendChild("Grandkid #3")
-		c221 = c22.appendChild("Great-Grandkid #1")
-		
-	
+	def _getEditable(self):
+		return self._hasWindowStyleFlag(wx.TR_EDIT_LABELS)
+
+	def _setEditable(self, val):
+		self._delWindowStyleFlag(wx.TR_EDIT_LABELS)
+		if val:
+			self._addWindowStyleFlag(wx.TR_EDIT_LABELS)
+
+
+	def _getMultipleSelect(self):
+		return self._hasWindowStyleFlag(wx.TR_MULTIPLE)
+
+	def _setMultipleSelect(self, val):
+		self._delWindowStyleFlag(wx.TR_MULTIPLE)
+		self._delWindowStyleFlag(wx.TR_EXTENDED)
+		self._delWindowStyleFlag(wx.TR_SINGLE)
+		if val:
+			self._addWindowStyleFlag(wx.TR_MULTIPLE)
+			self._addWindowStyleFlag(wx.TR_EXTENDED)
+		else:
+			self._addWindowStyleFlag(wx.TR_SINGLE)
+			
+
 	def _getSelection(self):
-		if self.__multiSelect:
+		if self.MultipleSelect:
 			try:
 				ids = self.GetSelections()
 			except:
@@ -401,6 +402,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			else:
 				ret = []
 		return ret
+
 	def _setSelection(self, node):
 		if self._constructed():
 			if isinstance(node, (list, tuple)):
@@ -412,20 +414,74 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			self._properties["Selection"] = node
 	
 	
+	def _getShowButtons(self):
+		return self._hasWindowStyleFlag(wx.TR_HAS_BUTTONS)
+
+	def _setShowButtons(self, val):
+		self._delWindowStyleFlag(wx.TR_HAS_BUTTONS)
+		self._delWindowStyleFlag(wx.TR_NO_BUTTONS)
+		if val:
+			self._addWindowStyleFlag(wx.TR_HAS_BUTTONS)
+		else:
+			self._addWindowStyleFlag(wx.TR_NO_BUTTONS)
+			
+
+	def _getShowRootNode(self):
+		return not self._hasWindowStyleFlag(wx.TR_HIDE_ROOT)
+
+	def _setShowRootNode(self, val):
+		self._delWindowStyleFlag(wx.TR_HIDE_ROOT)
+		if not val:
+			self._addWindowStyleFlag(wx.TR_HIDE_ROOT)
+			
+
+	def _getShowRootNodeLines(self):
+		return self._hasWindowStyleFlag(wx.TR_LINES_AT_ROOT)
+
+	def _setShowRootNodeLines(self, val):
+		self._delWindowStyleFlag(wx.TR_LINES_AT_ROOT)
+		if val:
+			self._addWindowStyleFlag(wx.TR_LINES_AT_ROOT)
+			
+
+	Editable = property(_getEditable, _setEditable, None,
+		_("""Specifies whether the tree labels can be edited by the user."""))
+
+	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
+		_("""Specifies whether more than one node may be selected at once."""))
+	
 	Selection = property(_getSelection, _setSelection, None,
-			_("""If this is not a MultiSelect tree, it returns the currently 
-			selected node. If this is defined as MultiSelect, it will return
-			a list of selected nodes.  (dNode or list of dNodes)""") )
+		_("""Specifies which node or nodes are selected.
+
+		If MultipleSelect is False, an integer referring to the currently selected
+		node is specified. If MultipleSelect is True, a list of selected nodes is
+		specified."""))
+
+	ShowButtons = property(_getShowButtons, _setShowButtons, None,
+		_("""Specifies whether +/- indicators are show at the left of parent nodes."""))
 		
+	ShowRootNode = property(_getShowRootNode, _setShowRootNode, None,
+		_("""Specifies whether the root node is included in the treeview.
+
+		There can be only one root node, so if you want several root nodes you can
+		fake it by setting ShowRootNode to False. Now, your top child nodes have
+		the visual indication of being sibling root nodes."""))
+		
+	ShowRootNodeLines = property(_getShowRootNodeLines, _setShowRootNodeLines, None,
+		_("""Specifies whether vertical lines are shown between root siblings."""))
+
 
 class _dTreeView_test(dTreeView):
+	def initProperties(self):
+		self.MultipleSelect = True
+		#self.Editable = True
+		self.ShowRootNode = False
+		self.ShowRootNodeLines = True
+
 	def afterInit(self): 
 		self.addDummyData()
 		self.Width = 240
 		self.Height = 140
-
-	def initEvents(self):
-		self.autoBindEvents()
 
 	def onHit(self, evt):
 		## pkm: currently, Hit happens on left mouse up, which totally ignores
@@ -442,6 +498,19 @@ class _dTreeView_test(dTreeView):
 	def onTreeItemExpand(self, evt):
 		print "Expanded node caption:", evt.EventData["selectedCaption"]
 		
+	def addDummyData(self):
+		""" For testing purposes! """
+		self.DeleteAllItems()
+		r = self.setRootNode("This is the root")
+		c1 = r.appendChild("First Child")
+		c2 = r.appendChild("Second Child")
+		c3 = r.appendChild("Third Child")
+		c21 = c2.appendChild("Grandkid #1")
+		c22 = c2.appendChild("Grandkid #2")
+		c23 = c2.appendChild("Grandkid #3")
+		c221 = c22.appendChild("Great-Grandkid #1")
+		
+
 			
 if __name__ == "__main__":
 	import test
