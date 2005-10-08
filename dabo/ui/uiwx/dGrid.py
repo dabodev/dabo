@@ -479,7 +479,7 @@ class dColumn(dObject):
 			"bool" : self.boolEditorClass, 
 			"int" : self.intEditorClass, 
 			"long" : self.longEditorClass, 
-			"decimal" : self.decimalRendererClass,
+			"decimal" : self.decimalEditorClass,
 			"float" : self.floatEditorClass, 
 			"list" : self.listEditorClass }
 		
