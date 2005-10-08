@@ -1,9 +1,11 @@
 """ dPemMixin.py: Provide common PEM functionality """
-import dabo, dabo.common
+import dabo
 import types
+from dabo.dObject import dObject
 from dabo.dLocalize import _
 
-class dPemMixinBase(dabo.common.dObject):
+
+class dPemMixinBase(dObject):
 	""" Provide Property/Event/Method interfaces for dForms and dControls.
 
 	Subclasses can extend the property sheet by defining their own get/set

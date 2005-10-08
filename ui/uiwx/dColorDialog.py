@@ -1,6 +1,6 @@
 import wx
 import dabo.dConstants as k
-import dabo.common.dColors as dColors
+import dabo.dColors as dColors
 
 
 class dColorDialog(wx.ColourDialog):

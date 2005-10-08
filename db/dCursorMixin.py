@@ -15,9 +15,10 @@ import dabo.dConstants as k
 from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
 import dabo.dException as dException
-import dabo.common
+from dabo.dObject import dObject
 
-class dCursorMixin(dabo.common.dObject):
+
+class dCursorMixin(dObject):
 	def __init__(self, sql="", *args, **kwargs):
 		self.initProperties()
 		if sql and isinstance(sql, basestring) and len(sql) > 0:
@@ -28,7 +29,7 @@ class dCursorMixin(dabo.common.dObject):
 		## pkm: Neither of the above are correct. We need to explicitly
 		##      call dObject's __init__, otherwise the cursor object with
 		##      which we are mixed-in will take the __init__.
-		dabo.common.dObject.__init__(self)
+		dObject.__init__(self, *args, **kwargs)
 		
 		# Just in case this is used outside of the context of a bizobj
 		if not hasattr(self, "superCursor") or self.superCursor is None:

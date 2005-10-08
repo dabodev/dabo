@@ -3,7 +3,7 @@ import dabo
 import dabo.ui as ui
 import dabo.dEvents as dEvents
 import dabo.lib.utils as utils
-from dabo.common.dObject import dObject
+from dabo.dObject import dObject
 from dabo.dLocalize import _, n_
 
 class uiApp(wx.App, dObject):

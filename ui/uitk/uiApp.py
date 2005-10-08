@@ -3,13 +3,14 @@ import Tkinter
 import dabo
 import dabo.ui as ui
 import dabo.dEvents as dEvents
-import dabo.common
+from dabo.dObject import dObject
+
 
 # First step is to figure out how to wrap a tk application object if there is one.
 # When that is done, copy/paste/modify from uiwx/uiApp.py.
 
 # It doesn't look like Tkinter has an application object, just a mainloop() method.
-class uiApp(dabo.common.dObject):
+class uiApp(dObject):
 	
 	def __init__(self):
 		uiApp.doDefault()

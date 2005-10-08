@@ -17,7 +17,8 @@ import dControlMixin as cm
 import dKeys
 import dUICursors
 import dabo.biz
-import dabo.common.dColors as dColors
+import dabo.dColors as dColors
+from dabo.dObject import dObject
 
 # See if the new decimal module is present. This is necessary 
 # because if running under Python 2.4 or later and using MySQLdb,
@@ -426,7 +427,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 
-class dColumn(dabo.common.dObject):
+class dColumn(dObject):
 	""" These aren't the actual columns that appear in the grid; rather,
 	they provide a way to interact with the underlying grid table in a more
 	straightforward manner.

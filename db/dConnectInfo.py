@@ -1,8 +1,11 @@
-import dabo.common
 import random
+from dabo.lib.connParser import importConnections
+from dabo.dObject import dObject
 from dabo.dLocalize import _
+from dabo.lib.SimpleCrypt import SimpleCrypt
 
-class dConnectInfo(dabo.common.dObject):
+
+class dConnectInfo(dObject):
 	""" Holder for the properties for connecting to the backend. Each 
 	backend may have different names for properties, but this object
 	tries to abstract that. The value stored in the Password must be 
@@ -66,7 +69,7 @@ class dConnectInfo(dabo.common.dObject):
 			# They've passed the info in XML format. Either this is the actual
 			# XML, or it is a path to the XML file. Either way, the parser
 			# will handle it.
-			cd = dabo.common.connParser.importConnections(connInfo)
+			cd = importConnections(connInfo)
 			# There may be multiple connections in this file. If they passed a 
 			# name, use that connection; otherwise, use the first.
 			try:
@@ -111,7 +114,7 @@ class dConnectInfo(dabo.common.dObject):
 		if self.Application:
 			return self.Application.encrypt(val)
 		else:
-			cryp = dabo.common.SimpleCrypt()
+			cryp = SimpleCrypt()
 			return cryp.encrypt(val)
 			
 
@@ -119,7 +122,7 @@ class dConnectInfo(dabo.common.dObject):
 		if self.Application:
 			return self.Application.decrypt(val)
 		else:
-			cryp = dabo.common.SimpleCrypt()
+			cryp = SimpleCrypt()
 			return cryp.decrypt(val)
 	
 	

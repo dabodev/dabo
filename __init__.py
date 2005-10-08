@@ -98,17 +98,18 @@ from settings import *
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
 import sys
-import dabo.common
-infoLog = dabo.common.Log()
+from dabo.lib.logger import Log
+infoLog = Log()
 infoLog.Caption = "Dabo Info Log"
 infoLog.LogObject = sys.stdout
-errorLog = dabo.common.Log()
+errorLog = Log()
 errorLog.Caption = "Dabo Error Log"
 errorLog.LogObject = sys.stderr
 
 from dApp import dApp
 
 from __version__ import version
+import dColors
 import dEvents
 
 from dBug import logPoint

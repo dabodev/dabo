@@ -2,9 +2,10 @@
 import sys
 from dabo.dLocalize import _
 import dabo.dException as dException
-import dabo.common
+from dabo.dObject import dObject
 
-class dBackend(dabo.common.dObject):
+
+class dBackend(dObject):
 	""" Abstract object: inherit from this to define new dabo db interfaces.
 	"""
 	def __init__(self):

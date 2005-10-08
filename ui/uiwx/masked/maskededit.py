@@ -7,6 +7,7 @@ import wx.lib.masked.numctrl as numctrl
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
+from dabo.dObject import dObject
 import dabo.ui.uiwx.dDataControlMixin as dcm
 import dabo.ui.uiwx.dTextBox as dTextBox
 import format
@@ -130,7 +131,7 @@ if __name__ == "__main__":
 	import dabo.ui.uiwx.test as test
 
 	# This test sets up several textboxes, each editing different data types.	
-	class TestBase(dabo.common.dObject):
+	class TestBase(dObject):
 		def initProperties(self):
 			TestBase.doDefault()
 			self.LogEvents = ["ValueChanged",]

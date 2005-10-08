@@ -1,8 +1,9 @@
 import time
-import dabo.common
+from dabo.dObject import dObject
 from dLocalize import _
 
-class dSecurityManager(dabo.common.dObject):
+
+class dSecurityManager(dObject):
 	
 	def login(self):
 		"""Ask the ui to display the login form to the user.
