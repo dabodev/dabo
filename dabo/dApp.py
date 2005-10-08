@@ -39,9 +39,11 @@
 import sys, os, warnings, glob
 import ConfigParser
 import dabo, dabo.ui, dabo.db
-import dabo.common, dSecurityManager
+from dabo.lib.connParser import importConnections
+import dSecurityManager
 from dLocalize import _
-from dabo.common.SimpleCrypt import SimpleCrypt
+from dabo.lib.SimpleCrypt import SimpleCrypt
+from dabo.dObject import dObject
 import dUserSettingProvider
 
 
@@ -74,7 +76,7 @@ class Collection(list):
 			del self[index]
 
 
-class dApp(dabo.common.dObject):
+class dApp(dObject):
 	"""The containing object for the entire application.
 
 	All Dabo objects have an Application property which refers to the dApp
@@ -273,14 +275,13 @@ class dApp(dabo.common.dObject):
 		check for a python code definition file named 'dbConnectionDefs.py'.
 		"""
 		connDefs = {}
-		parser = dabo.common.connParser
 
 		# Import any .cnxml files in HomeDir and/or HomeDir/db:
 		for dbDir in (os.path.join(self.HomeDirectory, "db"), self.HomeDirectory):
 			if os.path.exists(dbDir) and os.path.isdir(dbDir):
 				files = glob.glob(os.path.join(dbDir, "*.cnxml"))
 				for f in files:
-					connDefs.update(parser.importConnections(f))
+					connDefs.update(importConnections(f))
 			
 	
 		# Import any python code connection definitions (the "old" way).

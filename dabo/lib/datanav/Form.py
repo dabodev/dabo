@@ -3,7 +3,7 @@ import random
 import wx
 import dabo.dEvents as dEvents
 import dabo.ui
-from dabo.common import specParser
+from dabo.lib.specParser import importRelationSpecs, importFieldSpecs
 from dabo.dLocalize import _, n_
 import PageFrame
 import Grid
@@ -359,9 +359,9 @@ class Form(dabo.ui.dForm):
 		create a temp file if raw XML is passed.
 		"""
 		if specType.lower() == "relation":
-			ret = specParser.importRelationSpecs(xml)
+			ret = importRelationSpecs(xml)
 		else:
-			ret = specParser.importFieldSpecs(xml)
+			ret = importFieldSpecs(xml)
 		return ret
 		
 		

@@ -7,6 +7,7 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _, n_
 from dabo.lib.utils import padl
 import dabo.lib.reportUtils as reportUtils
+from dabo.dObject import dObject
 
 dabo.ui.loadUI("wx")
 
@@ -20,7 +21,7 @@ IGNORE_STRING, CHOICE_TRUE, CHOICE_FALSE = (n_("-ignore-"),
 ASC, DESC = (n_("asc"), n_("desc"))
 
 # Controls for the select page:
-class SelectControlMixin(dabo.common.dObject):
+class SelectControlMixin(dObject):
 	def initProperties(self):
 		SelectControlMixin.doDefault()
 		self.SaveRestoreValue = True

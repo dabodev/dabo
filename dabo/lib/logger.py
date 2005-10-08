@@ -1,5 +1,5 @@
 import sys, os, time
-from dObject import dObject
+from dabo.dObject import dObject
 from dabo.dLocalize import _
 
 class Log(dObject):

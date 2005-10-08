@@ -1,11 +1,12 @@
 import string
 import types
 import dabo
-from dabo.common import PropertyHelperMixin
-from dabo.common import DoDefaultMixin
-from dabo.common import EventMixin
+from dabo.lib.propertyHelperMixin import PropertyHelperMixin
+from dabo.lib.doDefaultMixin import DoDefaultMixin
+from dabo.lib.eventMixin import EventMixin
 from dabo.dLocalize import _
 	
+
 class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 	""" The basic ancestor of all dabo objects.
 	"""

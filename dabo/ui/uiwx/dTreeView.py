@@ -6,10 +6,11 @@ if __name__ == "__main__":
 import dControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-import dabo.common.dColors as dColors
+import dabo.dColors as dColors
+from dabo.dObject import dObject
 
 
-class dNode(dabo.common.dObject):
+class dNode(dObject):
 	"""Wrapper class for the tree nodes."""
 	def __init__(self, tree, id, txt, parent):
 		self.tree = tree

@@ -1,14 +1,14 @@
+import types
+import re
 import dabo
 import dabo.dConstants as k
 from dabo.db.dCursorMixin import dCursorMixin
 from dabo.dLocalize import _
 import dabo.dException as dException
-import dabo.common
-import types
-import re
+from dabo.dObject import dObject
 
 
-class dBizobj(dabo.common.dObject):
+class dBizobj(dObject):
 	""" The middle tier, where the business logic resides.
 	"""
 	# Class to instantiate for the cursor object

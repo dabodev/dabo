@@ -1,11 +1,11 @@
+import random
 import wx
 import dabo
 dabo.ui.loadUI("wx")
 import dForm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-from dabo.common import dColors
-import random
+import dabo.dColors as dColors
 import dControlMixin as cm
 
 

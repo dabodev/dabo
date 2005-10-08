@@ -2,11 +2,11 @@
 import wx
 import sys
 import types
-import dabo, dabo.common
+import dabo
 from dabo.dLocalize import _
 from dabo.ui.dPemMixinBase import dPemMixinBase
 import dabo.dEvents as dEvents
-import dabo.common.dColors as dColors
+import dabo.dColors as dColors
 import dKeys
 
 class dPemMixin(dPemMixinBase):

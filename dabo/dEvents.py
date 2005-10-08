@@ -1,6 +1,6 @@
 import time
 import dabo
-from dabo.common import dObject
+from dabo.dObject import dObject
 import dabo.ui as ui
 import dabo.biz.dBizobj as dBizobj
 

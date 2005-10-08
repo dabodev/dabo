@@ -2,9 +2,10 @@ import wx
 import dabo
 import dPemMixin
 from dabo.dLocalize import _
+from dabo.dObject import dObject
 
 
-class dSizerMixin(dabo.common.dObject):
+class dSizerMixin(dObject):
 	"""Provides the interface for interacting with Sizers in Dabo.
 	Many of the methods for adding objects to sizers take the 
 	following parameters:

@@ -2,9 +2,10 @@ import os
 import ConfigParser
 import dabo
 import dabo.lib.utils as utils
+from dabo.dObject import dObject
 
 
-class dUserSettingProvider(dabo.common.dObject):
+class dUserSettingProvider(dObject):
 	def getUserSettingKeys(self, spec):
 		"""Return a list of all keys underneath <spec>.
 		

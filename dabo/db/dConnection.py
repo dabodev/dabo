@@ -1,8 +1,9 @@
-import dabo.common
+from dabo.dObject import dObject
 from dConnectInfo import dConnectInfo
 from dCursorMixin import dCursorMixin
 
-class dConnection(dabo.common.dObject):
+
+class dConnection(dObject):
 	""" Hold a connection to a backend database. """
 	def __init__(self, connectInfo, parent=None):
 		self._baseClass = dConnection
