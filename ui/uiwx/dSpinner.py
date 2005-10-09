@@ -19,6 +19,7 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 	def _initEvents(self):
 		super(dSpinner, self)._initEvents()
 		self.Bind(wx.EVT_SPINCTRL, self._onWxHit)
+		self.Bind(wx.EVT_TEXT, self._onWxText)
 		
 
 	def _preInitUI(self, kwargs):
@@ -31,6 +32,13 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 		additional = ["SpinnerWrap",]
 		original = list(super(dSpinner, self)._getInitPropertiesList())
 		return tuple(original + additional)
+		
+	
+	def _onWxText(self, evt):
+		if evt.IsChecked():
+			# If the user enters invalid text in the text field, IsChecked()
+			# will return False, so we know to ignore the input.
+			self.raiseEvent(dabo.dEvents.Hit, evt)
 		
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
@@ -77,11 +85,16 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 	SpinnerWrap = property(_getSpinnerWrap, _setSpinnerWrap, None,
 		"Specifies whether the spinner value wraps at the high/low value. (bool)")
 
+
 class _dSpinner_test(dSpinner):
 	def initProperties(self):
 		self.Max = 12
 		self.Min = 5
 		self.SpinnerWrap = True
+
+	def onHit(self, evt):
+		print "HIT!", self.Value
+		
 
 if __name__ == "__main__":
 	import test
