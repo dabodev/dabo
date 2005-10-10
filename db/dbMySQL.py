@@ -98,7 +98,7 @@ class MySQL(dBackend):
 			ft = r[1]
 			if ft.split()[0] == "tinyint(1)":
 				ft = "B"
-			elif "int" in ft or "long" in ft:
+			elif "int" in ft or ft == "long":
 				ft = "I"
 			elif "varchar" in ft:
 				# will be followed by length
