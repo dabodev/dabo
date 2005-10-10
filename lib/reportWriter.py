@@ -426,9 +426,15 @@ class ReportWriter(object):
 					s.firstLineIndent = eval(fobject["firstLineIndent"])
 
 				if t == "paragraph":
-					p = platypus.Paragraph(e, s)
-					story.append(p)
-					objNeededHeight += p.wrap(columnWidth-padLeft-padRight, None)[1]
+					paras = e.split("\n")
+					for para in paras:
+						if len(para) == 0: 
+							# Blank line
+							p = platypus.Spacer(0, s.leading)
+						else:
+							p = platypus.Paragraph(para, s)
+						story.append(p)
+						objNeededHeight += p.wrap(columnWidth-padLeft-padRight, None)[1]
 
 				neededHeight = max(neededHeight, objNeededHeight) + padTop + padBottom
 

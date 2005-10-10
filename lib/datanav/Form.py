@@ -488,26 +488,36 @@ class Form(dabo.ui.dForm):
 	def getReportForm(self, mode):
 		"""Returns the rfxml to generate a report for the dataset.
 
-		The mode is one of "all" or "one", and determines if the entire recordset
-		is printed, or just the current record. This allows for different report
-		formats for each case.
+		The mode is one of "list" or "expanded", and determines the format of the 
+		report output. "list" basically mimics the browse grid, with one line per
+		record, and the columns as specified in the browse grid. "expanded" mimics
+		the edit page, with any number of lines for each record.
 
 		The rfxml can come from a few places, in descending precedence:
-			1) if self.ReportForm["all"] or self.ReportForm["one"] exists,
+			1) if self.ReportForm["list"] or self.ReportForm["expanded"] exists,
 			   that will be used.    *** NOT IMPLEMENTED YET ***
 
-			2) if self.ReportFormFile["all"] or self.ReportFormFile["one"] exists,
+			2) if self.ReportFormFile["list"] or self.ReportFormFile["expanded"] exists,
 			   that will be used.    *** NOT IMPLEMENTED YET ***
 
-			3) if self.Application.HomeDirectory/reports/datanav-<cursorname>-(all|one).rfxml
+			3) if self.Application.HomeDirectory/reports/datanav-<cursorname>-(list|expanded).rfxml
 			   exists, that will be used. IOW, drop in a properly named rfxml file into 
 			   the reports directory underneath your application home, and it will be used
 			   automatically.        *** NOT IMPLEMENTED YET ***
 
-			4) a generic report form will be generated. If mode=="all", the fields displayed
-			   will be as defined in the browse page. If mode=="one", the fields displayed
+			4) a generic report form will be generated. If mode=="list", the fields displayed
+			   will be as defined in the browse page. If mode=="expanded", the fields displayed
 			   will be as defined in the edit page.   *** PARTIALLY IMPLEMENTED ***
 		"""
+		if mode.lower() == "list":
+			return self.getAutoReportForm_list()
+		elif mode.lower() == "expanded":
+			return self.getAutoReportForm_expanded()
+		else:
+			raise ValueError, "'list' or 'expanded' are the only choices."
+
+
+	def getAutoReportForm_list(self):
 		grid = self.PageFrame.Pages[1].BrowseGrid
 
 		rfxml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
@@ -664,7 +674,146 @@ class Form(dabo.ui.dForm):
 """ % orientation
 		return rfxml
 
-				
+
+	def _getAllChildObjects(self, container, objects=None, currentY=0):
+		"""Get all child objects recursively."""
+		if objects is None:
+			objects = []
+
+		for c in container.Children:
+			if isinstance(c, dabo.ui.dPanel):
+				objects = self._getAllChildObjects(c, objects, c.Top)
+				continue
+			try:
+				c.Alignment
+			except:
+				continue
+			objects.append(((c.Left, c.Top + currentY), c))
+		return objects
+
+		
+	def getAutoReportForm_expanded(self):
+		ep = self.PageFrame.Pages[2]
+		objects = self._getAllChildObjects(ep)
+
+		rfxml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+
+<report>
+	<title>"""
+		rfxml += "Quick Report: %s" % self.Caption
+		rfxml += """</title>
+	<pageHeader>
+		<height>"0.75 in"</height>
+		<objects>
+			<string>
+				<align>"left"</align>
+				<valign>"top"</valign>
+				<borderWidth>"0 pt"</borderWidth>
+				<expr>self.ReportForm["title"]</expr>
+				<fontName>"Helvetica"</fontName>
+				<fontSize>14</fontSize>
+				<hAnchor>"left"</hAnchor>
+				<height>15.96</height>
+				<name>title</name>
+				<width>"8 in"</width>
+				<x>0</x>
+				<y>"0.6 in"</y>
+			</string>
+		</objects>
+	</pageHeader>
+
+	<groups>
+		<group>
+			<expr>self.RecordNumber</expr>
+			<startOnNewPage>True</startOnNewPage>
+		</group>
+	</groups>
+
+	<detail>
+		<height>None</height>
+		<objects>"""
+		horBuffer = 3
+		vertBuffer = 5
+		maxX = 0
+		for obj in objects:
+			o = obj[1]
+			maxX = max(maxX, (obj[0][0]+o.Width))
+			obDict = {"Height": o.Height,
+			          "Alignment": o.Alignment.lower(),
+			          "FontSize": o.FontSize,
+			          "Width": o.Width,
+			          "Left": obj[0][0],
+			          "Top": obj[0][1]}
+
+			if isinstance(o, dabo.ui.dLabel):
+				obDict["Caption"] = o.Caption
+				rfxml += """
+			<string>
+				<expr>"%(Caption)s"</expr>
+				<height>%(Height)s</height>
+				<align>"%(Alignment)s"</align>
+				<fontSize>%(FontSize)s</fontSize>
+				<width>%(Width)s</width>
+				<x>%(Left)s</x>
+				<y>self.Bands["detail"]["height"] - %(Top)s</y>
+			</string>""" % obDict
+
+			else:
+				obDict["DataField"] = o.DataField
+				if isinstance(o, dabo.ui.dEditBox):
+					rfxml += """
+			<frameset>
+				<x>%(Left)s + 10</x>
+				<y>self.Bands["detail"]["height"] - %(Top)s + 8 </y>
+				<vAnchor>"top"</vAnchor>
+				<height>None</height>
+				<borderWidth>.25</borderWidth>
+				<width>%(Width)s</width>
+				<objects>
+					<paragraph>
+						<expr>str(self.Record["%(DataField)s"])</expr>
+						<fontName>"Helvetica"</fontName>
+						<fontSize>%(FontSize)s</fontSize>
+						<align>"%(Alignment)s"</align>
+					</paragraph>
+				</objects>
+			</frameset>""" % obDict
+				else:
+					rfxml += """
+			<string>
+				<expr>str(self.Record["%(DataField)s"])</expr>
+				<height>%(FontSize)s</height>
+				<borderWidth>0.25</borderWidth>
+				<align>"%(Alignment)s"</align>
+				<fontSize>%(FontSize)s</fontSize>
+				<width>%(Width)s</width>
+				<x>%(Left)s + 10</x>
+				<y>self.Bands["detail"]["height"] - %(Top)s</y>
+			</string>""" % obDict
+
+		orientation = "portrait"
+		if maxX > 504:
+			# switch to landscape
+			orientation = "landscape"
+		
+		rfxml += """
+		</objects>
+	</detail>
+
+	<page>
+		<marginBottom>".5 in"</marginBottom>
+		<marginLeft>".5 in"</marginLeft>
+		<marginRight>".5 in"</marginRight>
+		<marginTop>".25 in"</marginTop>
+		<orientation>"%s"</orientation>
+		<size>"letter"</size>
+	</page>
+
+</report>
+""" % orientation
+		return rfxml
+
+
 	def _getFormType(self):
 		try:
 			return self._formType

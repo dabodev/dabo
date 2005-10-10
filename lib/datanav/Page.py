@@ -567,9 +567,9 @@ class BrowsePage(Page):
 			def addControls(self):
 				self.addObject(dabo.ui.dRadioGroup, Name="radMode", Caption="Mode",
 				               Orientation="Row", 
-				               Choices=["List all records in dataset", "Just this record"],
+				               Choices=["List Format", "Expanded Format"],
 				               ValueMode="Key",
-				               Keys={"all":0, "one":1})
+				               Keys={"list":0, "expanded":1})
 				self.Sizer.append(self.radMode, 1, "expand", border=5)
 				self.addObject(dabo.ui.dButton, Name="btnAdvanced", Caption="Advanced",
 				               Enabled=False)
@@ -588,9 +588,6 @@ class BrowsePage(Page):
 			biz = self.Form.getBizobj()
 			rfxml = self.Form.getReportForm(mode)
 			cursor = biz.getDataSet()
-			if mode == "one":
-				cursor = (cursor[biz.RowNumber],)
-
 			outputfile = reportUtils.getTempFile()
 
 			try:
