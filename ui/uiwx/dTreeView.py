@@ -161,6 +161,12 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		self.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.__onTreeItemExpand)
 
 	
+	def _getInitPropertiesList(self):
+		additional = ["ShowRootNode", "ShowRootNodeLines", "Editable"]
+		original = list(super(dTreeView, self)._getInitPropertiesList())
+		return tuple(original + additional)
+
+		
 	def clear(self):
 		self.DeleteAllItems()
 		self.nodes = []
@@ -487,10 +493,11 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 
 class _dTreeView_test(dTreeView):
 	def initProperties(self):
-		self.MultipleSelect = True
+		pass
+		#self.MultipleSelect = True
 		#self.Editable = True
-		self.ShowRootNode = False
-		self.ShowRootNodeLines = True
+		#self.ShowRootNode = False
+		#self.ShowRootNodeLines = True
 
 	def afterInit(self): 
 		self.addDummyData()
@@ -515,4 +522,4 @@ class _dTreeView_test(dTreeView):
 			
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(_dTreeView_test)
+	test.Test().runTest(_dTreeView_test, ShowRootNode=False, ShowRootNodeLines=True, Editable=True, MultipleSelect=True)
