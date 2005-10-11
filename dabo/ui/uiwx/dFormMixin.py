@@ -7,9 +7,32 @@ import dMenu
 import dabo.icons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
+from dabo.lib.xmltodict import xmltodict as XTD
+from dabo.lib.utils import dictStringify
+
 
 class dFormMixin(pm.dPemMixin):
-	def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
+	def __init__(self, preClass, parent=None, properties=None, 
+			src=None, *args, **kwargs):
+		
+		self._childList = None
+		if src:
+			# This is being created from a Class Designer file. 
+			try:
+				# The Class Designer adds some atts that it uses that are in
+				# the way at runtime. Make sure they are filtered out
+				attsToSkip = ["designerClass", "SlotCount"]
+				contents = XTD(src, attsToSkip)
+			except StandardError, e:
+				dabo.errorLog.write("Error parsing source file '%s': %s" % (src, str(e)))
+				self.release()
+				return False
+			# Add the atts to the keyword args
+			kwargs.update(dictStringify(contents["attributes"]))
+			# We've extracted all we need to know about the form,
+			# so set the child list to the contained child objects.
+			self._childList = contents["children"]
+				
 		if False and parent:
 			## pkm 3/10/05: I like it better now without the float on parent option
 			##              and think it is a better default to stick with the wx
@@ -53,9 +76,94 @@ class dFormMixin(pm.dPemMixin):
 		self._normLeft = self.Left
 		self._normTop = self.Top
 		self._centered = False
+		
+		if self._childList is not None:
+			# This will contain information for constructing the contained
+			# objects for this form.
+			self._addChildren(self._childList)			
 		super(dFormMixin, self)._afterInit()
 	
 				
+	def _addChildren(self, childList, parent=None, szr=None):
+		"""This method receives a list of dicts containing information
+		on the child objects to be added. Each of these objects may 
+		contain child objects of their own, and so this method may be
+		called recursively.
+		"""
+		if parent is None:
+			parent = self
+		
+		for child in childList:
+			try:
+				nm = child["name"]
+				szrInfo = {}
+				atts = dictStringify(child["attributes"])
+				if atts.has_key("sizerInfo"):
+					# The value is a string representation of the dict, so
+					# we need to eval() it.
+					szrInfo = eval(atts["sizerInfo"])
+					del atts["sizerInfo"]
+				kids = []
+				if child.has_key("children"):
+					kids = child["children"]
+					
+				# Right now we are limiting this to Dabo classes.
+				cls = dabo.ui.__dict__[nm]
+				if issubclass(cls, dabo.ui.dSizer):
+					ornt = "Horizontal"
+					if atts.has_key("Orientation"):
+						ornt = atts["Orientation"]
+						del atts["Orientation"]
+					parent.Sizer = sz = cls(orientation=ornt, properties=atts)
+					if kids:
+						self._addChildren(kids, parent=parent, szr=sz)
+
+				elif issubclass(cls, dabo.ui.dGridSizer):
+					# This should have a MaxDimension property that
+					# will determine which of the Rows/Columns atts
+					# we use.
+					dim = "c"
+					rows, cols = 0, 0
+					if atts.has_key("Rows"):
+						rows = atts["Rows"]
+						del atts["Rows"]
+					if atts.has_key("Columns"):
+						rows = atts["Columns"]
+						del atts["Columns"]
+					if atts.has_key("MaxDimension"):
+						dim = atts["MaxDimension"].lower()
+						del atts["MaxDimension"]
+					
+					if dim == "c":
+						sz = cls(maxCols=cols, properties=atts)
+					else:
+						sz = cls(maxRows=rows, properties=atts)
+					parent.Sizer = sz
+					if kids:
+						self._addChildren(kids, parent=parent, szr=sz)
+	
+				else: 
+					row, col = (None, None)
+					if atts.has_key("rowColPos"):
+						row, col = eval(atts["rowColPos"])
+						del atts["rowColPos"]
+					obj = cls(parent=parent, properties=atts)
+					if szr:
+						if row is not None and col is not None:
+							szr.append(obj, row=row, col=col)
+						else:
+							szr.append(obj)
+						if szrInfo:
+							szr.setItemProps(obj.ControllingSizerItem, szrInfo)
+					if kids:
+						self._addChildren(kids, parent=obj)
+		
+			except StandardError, e:
+				# This is for development only. It will be changed to a 
+				# writing in the error log when this is stable
+				print "ERROR creating children:", e
+	
+	
 	def _initEvents(self):
 		super(dFormMixin, self)._initEvents()
 		self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)

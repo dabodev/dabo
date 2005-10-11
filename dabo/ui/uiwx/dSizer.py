@@ -21,7 +21,37 @@ class dSizer(wx.BoxSizer, dSizerMixin.dSizerMixin):
 			except: pass
 		self.afterInit()
 
+
 	def afterInit(self): pass	
+	
 		
+	def getItemProp(self, itm, prop):
+		"""Get the current value of the specified property for the sizer item."""
+		if prop == "Border":
+			return itm.GetBorder()
+		elif prop == "Proportion":
+			return itm.GetProportion()
+		else:
+			# Property is in the flag setting.
+			flag = itm.GetFlag()
+			szClass = dabo.ui.dSizer
+			if prop == "Expand":
+				return bool(flag & szClass.expandFlag)
+			elif prop == "Halign":
+				if flag & szClass.centerFlag:
+					return "Center"
+				elif flag & szClass.rightFlag:
+					return "Right"
+				else: 		#if flag & szClass.leftFlag:
+					return "Left"
+			elif prop == "Valign":
+				if flag & szClass.middleFlag:
+					return "Middle"
+				elif flag & szClass.bottomFlag:
+					return "Bottom"
+				else:		#if flag & szClass.topFlag:
+					return "Top"
+
+
 if __name__ == "__main__":
 	s = dSizer()

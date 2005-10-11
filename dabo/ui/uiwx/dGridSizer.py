@@ -333,6 +333,42 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		return ret
 
 	
+	def getItemProp(self, itm, prop):
+		ret = None
+		if itm.IsWindow():
+			chil = itm.GetWindow()
+		else:
+			chil = itm.GetSizer()
+		row, col = self.getGridPos(chil)
+		if prop == "RowExpand":
+			ret = self.isRowGrowable(row)
+		elif prop == "ColExpand":
+			ret = self.isColGrowable(col)
+		elif prop == "Proportion":
+			ret = itm.GetProportion()
+		else:
+			# Property is in the flag setting.
+			flag = itm.GetFlag()
+			szClass = dabo.ui.dSizer
+			if prop == "Halign":
+				if flag & szClass.centerFlag:
+					ret = "Center"
+				elif flag & szClass.rightFlag:
+					ret = "Right"
+				else: 		#if flag & szClass.leftFlag:
+					ret = "Left"
+			elif prop == "Valign":
+				if flag & szClass.middleFlag:
+					ret = "Middle"
+				elif flag & szClass.bottomFlag:
+					ret = "Bottom"
+				else:		#if flag & szClass.topFlag:
+					ret = "Top"
+		if ret is None:
+			print "NO PROP:", prop, itm
+		return ret
+		
+					
 	def copyGrid(self, oldGrid):
 		""" This method takes an existing GridSizer, and copies
 		the contents to the current grid. The properties of each

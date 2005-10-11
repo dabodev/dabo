@@ -203,8 +203,77 @@ class dSizerMixin(dObject):
 		"""Hides the passed item"""
 		self.Show(itm, show=False, recursive=True)
 		self.layout()
-		
-		
+
+
+	def getItemProp(self, itm, prop):
+		"""Get the current value of the specified property for the sizer item.
+		Must be defined separately for box and grid sizers.
+		"""
+		pass
+	
+	
+	def setItemProp(self, itm, prop, val):
+		"""Given a sizer item, a property and a value, sets things as you
+		would expect. 
+		"""
+		lowprop = prop.lower()
+		if isinstance(itm, dabo.ui.dGridSizer.GridSizerItem):
+			row, col = self.getGridPos(itm)
+		if lowprop == 'proportion':
+			itm.SetProportion(int(val))
+		elif lowprop == "border":
+			itm.SetBorder(int(val))
+		elif lowprop == "rowexpand":
+			self.setRowExpand(val, row)
+		elif lowprop == "colexpand":
+			self.setColExpand(val, col)			
+		elif lowprop in ("expand", "halign", "valign"):
+			pd = {"left" : self.leftFlag, 
+					"right" : self.rightFlag,
+					"center" : self.centerFlag, 
+					"centre" : self.centreFlag,
+					"top" : self.topFlag, 
+					"bottom" : self.bottomFlag, 
+					"middle" : self.middleFlag,
+					"borderbottom" : self.borderBottomFlag,
+					"borderleft" : self.borderLeftFlag,
+					"borderright" : self.borderRightFlag, 
+					"bordertop" : self.borderTopFlag, 
+					"borderall" : self.borderAllFlag, 
+					"expand" : self.expandFlag,
+					"grow" : self.expandFlag,
+					"fixed" : self.fixedFlag }		
+			flg = itm.GetFlag()
+			if lowprop == "expand":
+				xFlag = pd["expand"]
+				if val:
+					flg = flg | xFlag
+				else:
+					flg = flg & ~xFlag
+			elif lowprop in ("halign", "valign"):
+				opts = {"halign" : ("left", "center", "right"),
+						"valign" : ("top", "middle", "bottom")}[lowprop]
+				vallow = val.lower()
+				for opt in opts:
+					if opt == vallow:
+						flg = flg | pd[opt]
+					else:
+						flg = flg & ~pd[opt]
+			itm.SetFlag(flg)
+		try:
+			self.Parent.layout()
+		except:
+			self.layout()
+	
+
+	def setItemProps(self, itm, props):
+		"""This accepts a dict of properties and values, and
+		applies them to the specified sizer item.
+		"""
+		for prop, val in props.items():
+			self.setItemProp(itm, prop, val)
+	
+
 	def drawOutline(self, win, recurse=False):
 		""" There are some cases where being able to see the sizer
 		is helpful, such as at design time. This method can be called
