@@ -196,13 +196,16 @@ def colorTupleFromName(color):
 	color name is not case-sensitive. If the color name doesn't exist, an exception
 	is raised.
 	"""
+	ret = None
 	try:
-		return colorDict[color.lower().strip()]
+		ret = colorDict[color.lower().strip()]
 	except KeyError:
-		return colorTupleFromString(color)
-
+		ret = colorTupleFromString(color)
+	return ret
+	
 		
 def colorTupleFromString(color):
+	ret = None
 	colorTuplePat = "\((\d+), *(\d+), *(\d+)\)"
 	mtch = re.match(colorTuplePat, color)
 	if mtch:
@@ -210,6 +213,7 @@ def colorTupleFromString(color):
 		ret = (int(grps[0]), int(grps[1]), int(grps[2]))
 	else:
 		raise KeyError, "Color '%s' is not defined." % color
+	return ret
 
 
 def randomColor():
