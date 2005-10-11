@@ -536,6 +536,17 @@ def sortList(chc, Caption=""):
 	return ret
 
 
+def createForm(srcFile, show=False):
+	"""Pass in a .cdxml file from the Designer, and this will
+	instantiate a form from that spec. Returns a reference
+	to the newly-created form.
+	"""
+	frm = dForm(src=srcFile)
+	if show:
+		frm.show()
+	return frm
+	
+	
 def browse(dataSource, parent=None):
 	"""Given a data source, a form with a grid containing the data
 	is created and displayed. If the source is a Dabo cursor object, 
