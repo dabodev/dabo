@@ -397,11 +397,11 @@ class dApp(dObject):
 				
 	def _getMainForm(self):
 		try:
-			f = self._mainForm
+			frm = self._mainForm
 		except AttributeError:
-			f = None
+			frm = None
 			self._mainForm = None
-		return f
+		return frm
 			
 	def _setMainForm(self, val):
 		self.uiApp.setMainForm(val)
@@ -410,11 +410,11 @@ class dApp(dObject):
 				
 	def _getMainFormClass(self):
 		try:
-			c = self._mainFormClass
+			cls = self._mainFormClass
 		except AttributeError:
-			c = dabo.ui.dFormMain
-			self._mainFormClass = c
-		return c
+			cls = dabo.ui.dFormMain
+			self._mainFormClass = cls
+		return cls
 			
 	def _setMainFormClass(self, val):
 		self._mainFormClass = val
@@ -462,24 +462,24 @@ class dApp(dObject):
 	
 	def _getUserSettingProvider(self):
 		try:
-			v = self._userSettingProvider
+			ret = self._userSettingProvider
 		except AttributeError:
 			if self.UserSettingProviderClass is not None:
-				v = self._userSettingProvider = self.UserSettingProviderClass()
+				ret = self._userSettingProvider = self.UserSettingProviderClass()
 			else:
-				v = self._userSettingProvider = None
-		return v
-
+				ret = self._userSettingProvider = None
+		return ret
+		
 	def _setUserSettingProvider(self, val):
 		self._userSettingProvider = val
 
 
 	def _getUserSettingProviderClass(self):
 		try:
-			v = self._userSettingProviderClass
+			ret = self._userSettingProviderClass
 		except AttributeError:
-			v = self._userSettingProviderClass = dUserSettingProvider.dUserSettingProvider
-		return v
+			ret = self._userSettingProviderClass = dUserSettingProvider.dUserSettingProvider
+		return ret
 
 	def _setUserSettingProviderClass(self, val):
 		self._userSettingProviderClass = val
@@ -550,16 +550,16 @@ class dApp(dObject):
 			>>> app.start()"""))
 		
 	MainFormClass = property(_getMainFormClass, _setMainFormClass, None,
-			_("""Specifies the class to instantiate for the main form. 
+			_("""Specifies the class to instantiate for the main form. Can be a
+			class reference, or the path to a .cdxml file.
 
 			Defaults to the dFormMain base class. Set to None if you don't want a 
 			main form, or set to your own main form class. Do this before calling
-			dApp.setup(), as in:
+			dApp.start(), as in:
 
 			>>> import dabo
 			>>> app = dabo.dApp()
 			>>> app.MainFormClass = MyMainForm
-			>>> app.setup()
 			>>> app.start()"""))
 	
 	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None, 

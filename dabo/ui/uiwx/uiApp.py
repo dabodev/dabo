@@ -49,13 +49,20 @@ class uiApp(wx.App, dObject):
 
 		self.dApp = dApp
 	
-		if dApp.MainForm is None:
+		frm = dApp.MainForm
+		if frm is None:
 			if dApp.MainFormClass is not None:
-				f = self.dApp.MainForm = dApp.MainFormClass()
-				if len(f.Caption) == 0:
-					# The MainForm has no caption. Put in the application name, which by
-					# default (as of this writing) is "Dabo Application"
-					f.Caption = dApp.getAppInfo("appName")
+				mfc = dApp.MainFormClass
+				if isinstance(mfc, basestring):
+					# It is a path to .cdxml file
+					frm = self.dApp.MainForm = dabo.ui.createForm(mfc)
+				else:
+					frm = self.dApp.MainForm = mfc()
+		if frm is not None:
+			if len(frm.Caption) == 0:
+				# The MainForm has no caption. Put in the application name, which by
+				# default (as of this writing) is "Dabo Application"
+				frm.Caption = dApp.getAppInfo("appName")
 
 			
 	def setMainForm(self, val):
