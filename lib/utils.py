@@ -111,3 +111,21 @@ def getUserDaboDirectory(appName="Dabo"):
 			dd = None
 
 	return dd
+	
+	
+def dictStringify(dct):
+	"""The ability to pass a properties dict to an object relies on
+	the practice of passing '**properties' to a function. Seems that 
+	Python requires that the keys in any dict being expanded like
+	this be strings, not unicode. This method returns a dict with all
+	unicode keys changed to strings.
+	"""
+	ret = {}
+	for kk, vv in dct.items():
+		if isinstance(kk, unicode):
+			ret[str(kk)] = vv
+		else:
+			ret[kk] = vv
+	return ret
+		
+	
