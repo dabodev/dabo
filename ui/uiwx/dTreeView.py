@@ -162,7 +162,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 
 	
 	def _getInitPropertiesList(self):
-		additional = ["ShowRootNode", "ShowRootNodeLines", "Editable"]
+		additional = ["ShowRootNode", "ShowRootNodeLines", "Editable", "ShowButtons"]
 		original = list(super(dTreeView, self)._getInitPropertiesList())
 		return tuple(original + additional)
 
