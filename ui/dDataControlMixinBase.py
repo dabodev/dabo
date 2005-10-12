@@ -118,7 +118,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				# Do we need to disable the control?
 				#self.Enabled = False
 		else:
-			if self._srcIsInstanceMethod is None:
+			if self._srcIsInstanceMethod is None and self.Source is not None:
 				self._srcIsInstanceMethod = eval("type(self.Source.%s)" % self.DataField) == type(self.refresh)
 			if self._srcIsInstanceMethod:
 				expr = "self.Source.%s()" % self.DataField

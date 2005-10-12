@@ -118,7 +118,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			while not nm:
 				nm = str(idx)
 				idx += 1
-				if nm in colFlds:
+				if nm in colDefs:
 					nm = ""
 			colName = "Column_%s" % nm
 			app = self.grid.Application
