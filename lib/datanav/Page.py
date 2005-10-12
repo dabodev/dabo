@@ -748,7 +748,7 @@ class EditPage(Page):
 					mainSizer.append(grdLabel, 0, "expand", alignment="center", 
 							border=10, borderFlags=("left", "right") )
 					grid = self.addObject(Grid.Grid, "BrowseGrid" + child)
-					grid.fieldSpecs = self.Form.getFieldSpecsForTable(child)
+					grid.FieldSpecs = self.Form.getFieldSpecsForTable(child)
 					grid.DataSource = child
 					grid.setBizobj(childBiz)
 					self.childGrids.append(grid)
