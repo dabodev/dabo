@@ -8,6 +8,8 @@ from dabo.ui.dPemMixinBase import dPemMixinBase
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 import dKeys
+from dabo.dObject import dObject
+
 
 class dPemMixin(dPemMixinBase):
 	""" Provides Property/Event/Method interfaces for dForms and dControls.
@@ -163,8 +165,8 @@ class dPemMixin(dPemMixinBase):
 		self._keyBindings = {}
 		# Unique identifier attribute, if needed
 		self._registryID = ""
-		# List of all persistent drawn object
-		self._drawObjects = []
+		# List of all drawn objects
+		self._drawnObjects = []
 		self.beforeInit()
 		
 	
@@ -346,7 +348,7 @@ class dPemMixin(dPemMixinBase):
 		if self._finito: return
 		if self._borderWidth > 0:
 			self._needRedraw = True
-		elif len(self._drawObjects) > 0:
+		elif len(self._drawnObjects) > 0:
 			self._needRedraw = True
 		self.raiseEvent(dEvents.Paint, evt)
 	
@@ -354,7 +356,7 @@ class dPemMixin(dPemMixinBase):
 		if self._finito: return
 		if self._borderWidth > 0:
 			self._needRedraw = True
-		elif len(self._drawObjects) > 0:
+		elif len(self._drawnObjects) > 0:
 			self._needRedraw = True
 		self.raiseEvent(dEvents.Resize, evt)
 
@@ -679,54 +681,29 @@ class dPemMixin(dPemMixinBase):
 			self.Fit()
 	
 	
-	def stopDrawing(self, handle):
-		"""Turns off drawing for the shape represented by the given handle"""
-		try:
-			rec = [dic for dic in self._drawObjects
-					if dic["handle"] == handle][0]
-			rec["draw"] = False
-			self._redraw()
-		except StandardError, e:
-			dabo.errorLog.write("Couldn't disable drawing for handle '%s'." % handle)
-		
-		
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
 			fillColor=None, persist=True):
 		"""Draws a circle of the specified radius around the specified point.
-		You can change the color and thickness of the line, as well as the 
+		You can set the color and thickness of the line, as well as the 
 		color of the fill. Normally, when persist=True, the circle will be 
 		re-drawn on paint events, but if you pass False, it will be drawn 
 		once only. 
 		
-		A handle to this drawing is returned, or None if persist=False. 
-		You can 'remove' the drawing by calling self.stopDrawing(handle).
+		A drawing object is returned, or None if persist=False. You can 
+		'remove' the drawing by setting the Visible property of the 
+		returned object to False. You can also manipulate the position, size,
+		color, and fill by changing the various properties of the object.
 		"""
-		handle = None
-		if persist:
-			# Add it to the list of drawing objects
-			handle = len(self._drawObjects)
-			self._drawObjects.append({"handle" : handle, "shape" : "circle",
-				"x" : xPos, "y" : yPos, "rad" : rad, "pen" : penColor, 
-				"width" : penWidth, "fill" : fillColor, "draw" : True})
+		obj = _drawObject(self, FillColor=fillColor, PenColor=penColor,
+				PenWidth=penWidth, Radius=rad, Shape="circle", 
+				Xpos=xPos, Ypos=yPos)
+		# Add it to the list of drawing objects
+		self._drawnObjects.append(obj)
 		self._redraw()
-		return handle
-		
-		
-	def _drawShape(self, data):
-		"""Receives a dict containing the information needed to draw a circle"""
-		if not data["draw"]:
-			# The object has been removed from active drawing
-			return
-		dc = wx.ClientDC(self)
-		dc.SetPen(wx.Pen(data["pen"], data["width"], wx.SOLID))
-		fill = data["fill"]
-		if fill is None:
-			brush = wx.Brush(fill, style=wx.TRANSPARENT)
-		else:
-			brush = wx.Brush(fill)
-		dc.SetBrush(brush)
-		if data["shape"] == "circle":
-			dc.DrawCircle(data["x"], data["y"], data["rad"])
+		if not persist:
+			self._drawnObjects.remove(obj)
+			obj = None
+		return obj
 		
 		
 	def _redraw(self):
@@ -756,8 +733,8 @@ class dPemMixin(dPemMixinBase):
 			dc.DrawLines(pts)
 
 		# Draw any shapes
-		for dat in self._drawObjects:
-			self._drawShape(dat)
+		for obj in self._drawnObjects:
+			obj.draw()
 			
 		# Call the hook
 		self.redraw()
@@ -766,6 +743,24 @@ class dPemMixin(dPemMixinBase):
 	def redraw(self): pass
 	
 	
+	def _bringDrawObjectToFront(self, obj):
+		"""Given a drawing object, moves it to the end of the 
+		list, so that it is drawn last.
+		"""
+		self._drawnObjects.remove(obj)
+		self._drawnObjects.append(obj)
+		self._needRedraw = True
+
+		
+	def _sendDrawObjectToBack(self, obj):
+		"""Given a drawing object, moves it to the beginning of the 
+		list, so that it is drawn first.
+		"""
+		self._drawnObjects.remove(obj)
+		self._drawnObjects.insert(0, obj)
+		self._needRedraw = True
+
+
 	def clone(self, obj, name=None):
 		""" Create another object just like the passed object. It assumes that the 
 		calling object will be the container of the newly created object.
@@ -1492,6 +1487,149 @@ Default=0 (no border)  (int)"""))
 			_("The platform-specific handle for the window. Read-only. (long)") )
 
 
+
+class _drawObject(dObject):
+	"""Class to handle drawing in Dabo. It is not meant to be used directly;
+	instead, it is returned after a drawing instruction is called.
+	"""
+	def __init__(self, parent, *args, **kwargs):
+		self._inInit = True
+		# Initialize property atts
+		self._parent = parent
+		self._fillColor = None
+		self._penColor = None
+		self._penWidth = None
+		self._radius = None
+		self._shape = None
+		self._visible = True
+		self._xPos = None
+		self._yPos = None
+		super(_drawObject, self).__init__(*args, **kwargs)
+		self._inInit = False
+	
+	
+	def update(self):
+		self.Parent._needRedraw = True
+		
+		
+	def draw(self):
+		"""Does the actual drawing. NOTE: it does not clear any old 
+		drawings of the shape, so this shouldn't be called except as 
+		part of a method of the parent that first clears the background.
+		"""
+		if not self.Visible or self._inInit:
+			return
+		dc = wx.ClientDC(self.Parent)
+		pc = dColors.colorTupleFromName(self.PenColor)
+		dc.SetPen(wx.Pen(pc, self.PenWidth, wx.SOLID))
+		fill = dColors.colorTupleFromName(self.FillColor)
+		if fill is None:
+			brush = wx.Brush(fill, style=wx.TRANSPARENT)
+		else:
+			brush = wx.Brush(fill)
+		dc.SetBrush(brush)
+		if self.Shape == "circle":
+			dc.DrawCircle(self.Xpos, self.Ypos, self.Radius)
+		
+	
+	def bringToFront(self):
+		self.Parent._bringDrawObjectToFront(self)
+		
+	
+	def sendToBack(self):
+		self.Parent._sendDrawObjectToBack(self)
+		
+
+	def _getFillColor(self):
+		return self._fillColor
+		
+	def _setFillColor(self, val):
+		self._fillColor = val
+		self.update()
+
+	def _getParent(self):
+		return self._parent
+		
+	def _setParent(self, val):
+		self._parent = val
+
+	def _getPenColor(self):
+		return self._penColor
+		
+	def _setPenColor(self, val):
+		self._penColor = val
+		self.update()
+
+	def _getPenWidth(self):
+		return self._penWidth
+		
+	def _setPenWidth(self, val):
+		self._penWidth = val
+		self.update()
+
+	def _getRadius(self):
+		return self._radius
+		
+	def _setRadius(self, val):
+		self._radius = val
+		self.update()
+		
+	def _getShape(self):
+		return self._shape
+		
+	def _setShape(self, val):
+		self._shape = val
+		
+	def _getVisible(self):
+		return self._visible
+		
+	def _setVisible(self, val):
+		self._visible = val
+		self.update()
+
+	def _getXpos(self):
+		return self._xPos
+		
+	def _setXpos(self, val):
+		self._xPos = val
+		self.update()
+		
+	def _getYpos(self):
+		return self._yPos
+		
+	def _setYpos(self, val):
+		self._yPos = val
+		self.update()
+		
+		
+	FillColor = property(_getFillColor, _setFillColor, None,
+			_("Background color for the shape  (color)"))
+
+	PenColor = property(_getPenColor, _setPenColor, None,
+			_("ForeColor of the shape's lines  (color)"))
+
+	PenWidth = property(_getPenWidth, _setPenWidth, None,
+			_("Width of the shape's lines  (int)"))
+	
+	Parent = property(_getParent, _setParent, None,
+			_("Reference to the object being drawn upon.  (object)"))
+
+	Radius = property(_getRadius, _setRadius, None,
+			_("For circles, the radius of the shape  (int)"))
+
+	Shape = property(_getShape, _setShape, None,
+			_("Type of shape to draw  (str)"))
+
+	Visible = property(_getVisible, _setVisible, None,
+			_("Controls whether the shape is drawn.  (bool)"))
+
+	Xpos = property(_getXpos, _setXpos, None,
+			_("For circles, x position of the center.  (int)"))
+
+	Ypos = property(_getYpos, _setYpos, None,
+			_("For circles, y position of the center.  (int)"))
+
+	
 
 
 if __name__ == "__main__":
