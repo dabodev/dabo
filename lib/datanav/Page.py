@@ -598,7 +598,8 @@ class BrowsePage(Page):
 				
 			rw = drw.dReportWriter(OutputFile=outputfile, 
 			                       ReportFormXML=rfxml, 
-			                       Cursor=cursor)
+			                       Cursor=cursor,
+			                       Encoding=biz.Encoding)
 			rw.write()
 
 			# Now, preview using the platform's default pdf viewer:
