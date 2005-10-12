@@ -28,6 +28,9 @@ class Grid(dabo.ui.dGrid):
 		self.built = False
 		self.customSort = True
 
+		if self.Form.preview:
+			self.DataSource = self.Form.previewDataSource
+
 	
 	def getDataSet_old_pkm(self, requery=False):
 		# Normally, getDataSet() just returns the object reference to the list
