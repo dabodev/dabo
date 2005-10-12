@@ -643,7 +643,7 @@ class Form(dabo.ui.dForm):
 				<y>0</y>
 			</rect>
 			<string>
-				<expr>str(self.Record["%(field)s"])</expr>
+				<expr>unicode(self.Record["%(field)s"])</expr>
 				<height>%(fontSize)s</height>
 				<align>%(textHorAlignment)s</align>
 				<fontSize>%(fontSize)s</fontSize>
@@ -771,7 +771,7 @@ class Form(dabo.ui.dForm):
 				<width>%(Width)s</width>
 				<objects>
 					<paragraph>
-						<expr>str(self.Record["%(DataField)s"])</expr>
+						<expr>unicode(self.Record["%(DataField)s"])</expr>
 						<fontName>"Helvetica"</fontName>
 						<fontSize>%(FontSize)s</fontSize>
 						<align>"%(Alignment)s"</align>
@@ -781,7 +781,7 @@ class Form(dabo.ui.dForm):
 				else:
 					rfxml += """
 			<string>
-				<expr>str(self.Record["%(DataField)s"])</expr>
+				<expr>unicode(self.Record["%(DataField)s"])</expr>
 				<height>%(FontSize)s</height>
 				<borderWidth>0.25</borderWidth>
 				<align>"%(Alignment)s"</align>

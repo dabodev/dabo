@@ -326,11 +326,11 @@ class ReportWriter(object):
 	
 			# draw the string using the function that matches the alignment:
 			try:
-				s = eval(object["expr"])
+				s = eval(object["expr"]).encode(self.Encoding)
 			except Exception, e:
 				# Something failed in the eval, print the exception string instead:
 				s = e
-			func(posx, 0, s.encode(self.Encoding))
+			func(posx, 0, s)
 	
 		elif object["type"] == "frameset":
 			# A frame is directly related to reportlab's platypus Frame.
