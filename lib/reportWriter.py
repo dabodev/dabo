@@ -330,7 +330,7 @@ class ReportWriter(object):
 			except Exception, e:
 				# Something failed in the eval, print the exception string instead:
 				s = e
-			func(posx, 0, str(s))
+			func(posx, 0, s.encode(self.Encoding))
 	
 		elif object["type"] == "frameset":
 			# A frame is directly related to reportlab's platypus Frame.
@@ -1103,6 +1103,21 @@ class ReportWriter(object):
 		"""Specifies the data cursor that the report runs against.""")
 
 
+	def _getEncoding(self):
+		try:
+			v = self._encoding
+		except AttributeError:
+			v = self._encoding = "utf-8"
+			#v = self._encoding = sys.getdefaultencoding()
+		return v
+
+	def _setEncoding(self, val):
+		self._encoding = val
+
+	Encoding = property(_getEncoding, _setEncoding, None,
+		"""Specifies the encoding for unicode strings.""")
+
+
 	def _getOutputFile(self):
 		try:
 			v = self._outputFile
@@ -1240,6 +1255,7 @@ class ReportWriter(object):
 
 	def _setShowBandOutlines(self, val):
 		self._showBandOutlines = bool(val)
+
 
 	ShowBandOutlines = property(_getShowBandOutlines, _setShowBandOutlines, None,
 		"""Specifies whether the report bands are printed with outlines for
