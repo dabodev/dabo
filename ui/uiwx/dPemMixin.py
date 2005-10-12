@@ -163,6 +163,8 @@ class dPemMixin(dPemMixinBase):
 		self._keyBindings = {}
 		# Unique identifier attribute, if needed
 		self._registryID = ""
+		# List of all persistent drawn object
+		self._drawObjects = []
 		self.beforeInit()
 		
 	
@@ -344,11 +346,15 @@ class dPemMixin(dPemMixinBase):
 		if self._finito: return
 		if self._borderWidth > 0:
 			self._needRedraw = True
+		elif len(self._drawObjects) > 0:
+			self._needRedraw = True
 		self.raiseEvent(dEvents.Paint, evt)
 	
 	def __onWxResize(self, evt):
 		if self._finito: return
 		if self._borderWidth > 0:
+			self._needRedraw = True
+		elif len(self._drawObjects) > 0:
 			self._needRedraw = True
 		self.raiseEvent(dEvents.Resize, evt)
 
@@ -671,6 +677,56 @@ class dPemMixin(dPemMixinBase):
 		"""
 		if self.Sizer:
 			self.Fit()
+	
+	
+	def stopDrawing(self, handle):
+		"""Turns off drawing for the shape represented by the given handle"""
+		try:
+			rec = [dic for dic in self._drawObjects
+					if dic["handle"] == handle][0]
+			rec["draw"] = False
+			self._redraw()
+		except StandardError, e:
+			dabo.errorLog.write("Couldn't disable drawing for handle '%s'." % handle)
+		
+		
+	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
+			fillColor=None, persist=True):
+		"""Draws a circle of the specified radius around the specified point.
+		You can change the color and thickness of the line, as well as the 
+		color of the fill. Normally, when persist=True, the circle will be 
+		re-drawn on paint events, but if you pass False, it will be drawn 
+		once only. 
+		
+		A handle to this drawing is returned, or None if persist=False. 
+		You can 'remove' the drawing by calling self.stopDrawing(handle).
+		"""
+		handle = None
+		if persist:
+			# Add it to the list of drawing objects
+			handle = len(self._drawObjects)
+			self._drawObjects.append({"handle" : handle, "shape" : "circle",
+				"x" : xPos, "y" : yPos, "rad" : rad, "pen" : penColor, 
+				"width" : penWidth, "fill" : fillColor, "draw" : True})
+		self._redraw()
+		return handle
+		
+		
+	def _drawShape(self, data):
+		"""Receives a dict containing the information needed to draw a circle"""
+		if not data["draw"]:
+			# The object has been removed from active drawing
+			return
+		dc = wx.ClientDC(self)
+		dc.SetPen(wx.Pen(data["pen"], data["width"], wx.SOLID))
+		fill = data["fill"]
+		if fill is None:
+			brush = wx.Brush(fill, style=wx.TRANSPARENT)
+		else:
+			brush = wx.Brush(fill)
+		dc.SetBrush(brush)
+		if data["shape"] == "circle":
+			dc.DrawCircle(data["x"], data["y"], data["rad"])
 		
 		
 	def _redraw(self):
@@ -678,6 +734,8 @@ class dPemMixin(dPemMixinBase):
 		method is where they go. Subclasses should place code in the 
 		redraw() hook method.
 		"""
+		# First, clear any old drawing
+		self.ClearBackground()
 		# Draw the border, if any
 		if self._borderWidth > 0:
 			dc = wx.ClientDC(self)
@@ -697,6 +755,10 @@ class dPemMixin(dPemMixinBase):
 			pts = [(0,0), (self.Width, 0), (self.Width, self.Height), (0, self.Height), (0,0)]
 			dc.DrawLines(pts)
 
+		# Draw any shapes
+		for dat in self._drawObjects:
+			self._drawShape(dat)
+			
 		# Call the hook
 		self.redraw()
 		# Clear the idle flag.
