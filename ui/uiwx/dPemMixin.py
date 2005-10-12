@@ -698,6 +698,25 @@ class dPemMixin(dPemMixinBase):
 				PenWidth=penWidth, Radius=rad, Shape="circle", 
 				Xpos=xPos, Ypos=yPos)
 		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
+	
+	
+	def drawRectangle(self, xPos, yPos, width, height, penColor="black", 
+			penWidth=1, fillColor=None, persist=True):
+		"""Draws a rectangle of the specified width and height beginning
+		at the specified point. See the 'drawCircle()' method above for more
+		details.
+		"""
+		obj = _drawObject(self, FillColor=fillColor, PenColor=penColor,
+				PenWidth=penWidth, Shape="rect", 
+				Xpos=xPos, Ypos=yPos, Width=width, Height=height)
+		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
+
+
+	def _addToDrawnObjects(self, obj, persist):
 		self._drawnObjects.append(obj)
 		self._redraw()
 		if not persist:
@@ -1497,11 +1516,13 @@ class _drawObject(dObject):
 		# Initialize property atts
 		self._parent = parent
 		self._fillColor = None
+		self._height = None
 		self._penColor = None
 		self._penWidth = None
 		self._radius = None
 		self._shape = None
 		self._visible = True
+		self._width = None
 		self._xPos = None
 		self._yPos = None
 		super(_drawObject, self).__init__(*args, **kwargs)
@@ -1530,7 +1551,9 @@ class _drawObject(dObject):
 		dc.SetBrush(brush)
 		if self.Shape == "circle":
 			dc.DrawCircle(self.Xpos, self.Ypos, self.Radius)
-		
+		elif self.Shape == "rect":
+			dc.DrawRectangle(self.Xpos, self.Ypos, self.Width, self.Height)
+
 	
 	def bringToFront(self):
 		self.Parent._bringDrawObjectToFront(self)
@@ -1545,6 +1568,13 @@ class _drawObject(dObject):
 		
 	def _setFillColor(self, val):
 		self._fillColor = val
+		self.update()
+
+	def _getHeight(self):
+		return self._height
+		
+	def _setHeight(self, val):
+		self._height = val
 		self.update()
 
 	def _getParent(self):
@@ -1587,6 +1617,13 @@ class _drawObject(dObject):
 		self._visible = val
 		self.update()
 
+	def _getWidth(self):
+		return self._width
+		
+	def _setWidth(self, val):
+		self._width = val
+		self.update()
+
 	def _getXpos(self):
 		return self._xPos
 		
@@ -1604,6 +1641,9 @@ class _drawObject(dObject):
 		
 	FillColor = property(_getFillColor, _setFillColor, None,
 			_("Background color for the shape  (color)"))
+
+	Height = property(_getHeight, _setHeight, None,
+			_("For rectangles, the height of the shape  (int)"))
 
 	PenColor = property(_getPenColor, _setPenColor, None,
 			_("ForeColor of the shape's lines  (color)"))
@@ -1623,11 +1663,16 @@ class _drawObject(dObject):
 	Visible = property(_getVisible, _setVisible, None,
 			_("Controls whether the shape is drawn.  (bool)"))
 
+	Width = property(_getWidth, _setWidth, None,
+			_("For rectangles, the width of the shape  (int)"))
+
 	Xpos = property(_getXpos, _setXpos, None,
-			_("For circles, x position of the center.  (int)"))
+			_("""For circles, the x position of the center. For rectangles, 
+			the x position of the top left corner. (int)"""))
 
 	Ypos = property(_getYpos, _setYpos, None,
-			_("For circles, y position of the center.  (int)"))
+			_("""For circles, the y position of the center. For rectangles, 
+			the y position of the top left corner. (int)"""))
 
 	
 
