@@ -325,11 +325,18 @@ class ReportWriter(object):
 				posx = 0
 	
 			# draw the string using the function that matches the alignment:
+			f = False
 			try:
-				s = eval(object["expr"]).encode(self.Encoding)
+				s = eval(object["expr"])
 			except Exception, e:
 				# Something failed in the eval, print the exception string instead:
 				s = e
+				f = True
+			if not f:
+				if isinstance(s, basestring):
+					s = s.encode(self.Encoding)
+				else:
+					s = unicode(s)
 			func(posx, 0, s)
 	
 		elif object["type"] == "frameset":
@@ -401,7 +408,7 @@ class ReportWriter(object):
 					s = styles_[eval(fobject["style"])]
 				except:
 					s = styles_[self.default_style]
-				e = eval(fobject["expr"])
+				e = eval(fobject["expr"]).encode(self.Encoding)
 				s = copy.deepcopy(s)
 
 				if fobject.has_key("fontSize"):
