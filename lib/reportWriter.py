@@ -942,6 +942,12 @@ class ReportWriter(object):
 						t = "int"
 					elif isinstance(row[field], bool):
 						t = "bool"
+					elif isinstance(row[field], datetime.date):
+						t = "datetime.date"
+					elif isinstance(row[field], datetime.datetime):
+						t = "datetime.datetime"
+					elif isinstance(row[field], Decimal):
+						t = "Decimal"
 					atts[field] = t
 				child["attributes"] = atts
 					
@@ -951,7 +957,7 @@ class ReportWriter(object):
 					fields.sort()
 					attr = {}
 					for field in fields:
-						attr[field] = row[field]
+						attr[field] = repr(row[field])
 					cursor.append({"name": "record", "attributes": attr})
 					child["children"] = cursor
 
