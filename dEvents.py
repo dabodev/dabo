@@ -99,8 +99,10 @@ class Event(dObject):
 					break
 
 	def __getattr__(self, att):
-		return getattr(self._uiEvent, att)
-
+		if self._eventData.has_key(att):
+			ret = self._eventData[att]
+		return ret
+			
 	def _getContinue(self):
 		return self._continue
 		
