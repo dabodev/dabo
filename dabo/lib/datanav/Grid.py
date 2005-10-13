@@ -28,7 +28,7 @@ class Grid(dabo.ui.dGrid):
 		self.built = False
 		self.customSort = True
 
-		if self.Form.preview:
+		if hasattr(self.Form, "preview") and self.Form.preview:
 			self.DataSource = self.Form.previewDataSource
 
 	
