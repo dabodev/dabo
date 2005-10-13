@@ -159,6 +159,8 @@ class dPemMixin(dPemMixinBase):
 		self._borderColor = "black"
 		self._borderWidth = 0
 		self._borderLineStyle = "Solid"
+		# Reference to the border-drawing object
+		self._border = None
 		# Flag that gets set to True when the object is being Destroyed
 		self._finito = False
 		# Dict to hold key bindings
@@ -346,16 +348,12 @@ class dPemMixin(dPemMixinBase):
 
 	def __onWxPaint(self, evt):
 		if self._finito: return
-		if self._borderWidth > 0:
-			self._needRedraw = True
 		elif len(self._drawnObjects) > 0:
 			self._needRedraw = True
 		self.raiseEvent(dEvents.Paint, evt)
 	
 	def __onWxResize(self, evt):
 		if self._finito: return
-		if self._borderWidth > 0:
-			self._needRedraw = True
 		elif len(self._drawnObjects) > 0:
 			self._needRedraw = True
 		self.raiseEvent(dEvents.Resize, evt)
@@ -682,7 +680,7 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
-			fillColor=None, persist=True):
+			fillColor=None, lineStyle=None, persist=True):
 		"""Draws a circle of the specified radius around the specified point.
 		You can set the color and thickness of the line, as well as the 
 		color of the fill. Normally, when persist=True, the circle will be 
@@ -695,21 +693,21 @@ class dPemMixin(dPemMixinBase):
 		color, and fill by changing the various properties of the object.
 		"""
 		obj = _drawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, Radius=rad, Shape="circle", 
-				Xpos=xPos, Ypos=yPos)
+				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle, 
+				Shape="circle", Xpos=xPos, Ypos=yPos)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 	
 	
 	def drawRectangle(self, xPos, yPos, width, height, penColor="black", 
-			penWidth=1, fillColor=None, persist=True):
+			penWidth=1, fillColor=None, lineStyle=None, persist=True):
 		"""Draws a rectangle of the specified width and height beginning
 		at the specified point. See the 'drawCircle()' method above for more
 		details.
 		"""
 		obj = _drawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, Shape="rect", 
+				PenWidth=penWidth, LineStyle=lineStyle, Shape="rect", 
 				Xpos=xPos, Ypos=yPos, Width=width, Height=height)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
@@ -717,25 +715,27 @@ class dPemMixin(dPemMixinBase):
 
 
 	def drawPolygon(self, points, penColor="black", penWidth=1, 
-				fillColor=None, persist=True):
+				fillColor=None, lineStyle=None, persist=True):
 		"""Draws a polygon defined by the specified points. The 'points'
 		parameter should be a tuple of (x,y) pairs defining the polygon.
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = _drawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, Shape="polygon", Points=points)
+				PenWidth=penWidth, LineStyle=lineStyle, 
+				Shape="polygon", Points=points)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawLine(self, x1, y1, x2, y2, penColor="black", penWidth=1, 
-				fillColor=None, persist=True):
+				fillColor=None, lineStyle=None, persist=True):
 		"""Draws a line between (x1,y1) and (x2, y2). 
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = _drawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, Shape="line", Points=((x1,y1), (x2,y2)) )
+				PenWidth=penWidth, LineStyle=lineStyle, 
+				Shape="line", Points=((x1,y1), (x2,y2)) )
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -757,29 +757,9 @@ class dPemMixin(dPemMixinBase):
 		"""
 		# First, clear any old drawing
 		self.ClearBackground()
-		# Draw the border, if any
-		if self._borderWidth > 0:
-			dc = wx.ClientDC(self)
-			
-			sty = self._borderLineStyle.lower()
-			lnStyle = wx.SOLID
-			if sty in ("dash", "dashed"):
-#				lnStyle = wx.LONG_DASH		#wx.SHORT_DASH
-				lnStyle = wx.SHORT_DASH
-			elif sty in ("dot", "dotted"):
-				lnStyle = wx.DOT
-			elif sty in ("dotdash", "dashdot"):
-				lnStyle = wx.DOT_DASH
-			pen = wx.Pen(self._borderColor, self._borderWidth, lnStyle)
-			
-			dc.SetPen(pen)
-			pts = [(0,0), (self.Width, 0), (self.Width, self.Height), (0, self.Height), (0,0)]
-			dc.DrawLines(pts)
-
 		# Draw any shapes
 		for obj in self._drawnObjects:
 			obj.draw()
-			
 		# Call the hook
 		self.redraw()
 		# Clear the idle flag.
@@ -805,6 +785,14 @@ class dPemMixin(dPemMixinBase):
 		self._needRedraw = True
 
 
+	def _onResizeBorder(self, evt):
+		"""Called when the user has defined a border for the control, and
+		the control is resized.
+		"""
+		brd = self._border
+		brd.Width, brd.Height = self.Width, self.Height
+
+		
 	def clone(self, obj, name=None):
 		""" Create another object just like the passed object. It assumes that the 
 		calling object will be the container of the newly created object.
@@ -869,6 +857,8 @@ class dPemMixin(dPemMixinBase):
 					val = dColors.colorTupleFromName(val)
 				except: pass
 			self._borderColor = val
+			if self._border:
+				self._border.PenColor = val
 			self._needRedraw = True
 		else:
 			self._properties["BorderColor"] = val
@@ -879,6 +869,8 @@ class dPemMixin(dPemMixinBase):
 	def _setBorderLineStyle(self, val):
 		val = self._expandPropStringValue(val, ("Solid", "Dash", "Dashed", "Dot", "Dotted", "DotDash", "DashDot"))
 		self._borderLineStyle = val
+		if self._border:
+			self._border.LineStyle = val
 		self._needRedraw = True
 
 	def _getBorderWidth(self):
@@ -887,7 +879,20 @@ class dPemMixin(dPemMixinBase):
 	def _setBorderWidth(self, val):
 		if self._constructed():
 			self._borderWidth = val
-			self._needRedraw = True
+			if self._border:
+				if val == 0:
+					self._drawnObjects.remove(self._border)
+				else:
+					self._border.PenWidth = val
+			else:
+				if val > 0:
+					self._border = self.drawRectangle(0, 0, self.Width, 
+							self.Height, penColor=self.BorderColor, penWidth=val)
+			if self._border:
+				# Tie it to resizing
+				self.bindEvent(dEvents.Resize, self._onResizeBorder)
+			else:
+				self.unbindEvent(dEvents.Resize, self._onResizeBorder)
 		else:
 			self._properties["BorderWidth"] = val
 
@@ -1542,6 +1547,7 @@ class _drawObject(dObject):
 		self._parent = parent
 		self._fillColor = None
 		self._height = None
+		self._lineStyle = None
 		self._penColor = None
 		self._penWidth = None
 		self._points = None
@@ -1567,11 +1573,23 @@ class _drawObject(dObject):
 		if not self.Visible or self._inInit:
 			return
 		dc = wx.ClientDC(self.Parent)
+		pw = self.PenWidth
 		if self.PenColor is None:
 			pc = dColors.colorTupleFromName("black")
 		else:
 			pc = dColors.colorTupleFromName(self.PenColor)
-		dc.SetPen(wx.Pen(pc, self.PenWidth, wx.SOLID))
+
+		sty = self._lineStyle
+		lnStyle = wx.SOLID
+		if sty in ("dash", "dashed"):
+#				lnStyle = wx.LONG_DASH		#wx.SHORT_DASH
+			lnStyle = wx.SHORT_DASH
+		elif sty in ("dot", "dotted"):
+			lnStyle = wx.DOT
+		elif sty in ("dotdash", "dashdot"):
+			lnStyle = wx.DOT_DASH
+
+		dc.SetPen(wx.Pen(pc, pw, lnStyle))
 		fill = self.FillColor
 		if fill is None:
 			brush = wx.Brush(fill, style=wx.TRANSPARENT)
@@ -1581,7 +1599,8 @@ class _drawObject(dObject):
 		if self.Shape == "circle":
 			dc.DrawCircle(self.Xpos, self.Ypos, self.Radius)
 		elif self.Shape == "rect":
-			dc.DrawRectangle(self.Xpos, self.Ypos, self.Width, self.Height)
+			dc.DrawLines([(0,0), (self.Width-pw, 0), (self.Width-pw, self.Height-pw), 
+					(0, self.Height-pw), (0,0)])
 		elif self.Shape == "polygon":
 			dc.DrawPolygon(self.Points)
 		elif self.Shape == "line":
@@ -1598,6 +1617,7 @@ class _drawObject(dObject):
 		self.Parent._sendDrawObjectToBack(self)
 		
 
+	# Property get/set methods
 	def _getFillColor(self):
 		return self._fillColor
 		
@@ -1610,6 +1630,15 @@ class _drawObject(dObject):
 		
 	def _setHeight(self, val):
 		self._height = val
+		self.update()
+	
+	def _getLineStyle(self):
+		return self._lineStyle
+	
+	def _setLineStyle(self, val):
+		if isinstance(val, basestring):
+			val = val.lower()
+		self._lineStyle = val
 		self.update()
 
 	def _getParent(self):
@@ -1686,6 +1715,9 @@ class _drawObject(dObject):
 
 	Height = property(_getHeight, _setHeight, None,
 			_("For rectangles, the height of the shape  (int)"))
+
+	LineStyle = property(_getLineStyle, _setLineStyle, None,
+			_("Line style (solid, dash, dot) drawn  (str)"))
 
 	Parent = property(_getParent, _setParent, None,
 			_("Reference to the object being drawn upon.  (object)"))
