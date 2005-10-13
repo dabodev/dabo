@@ -84,12 +84,21 @@ def dicttoxml(d, level=0, header=None):
 	The dictionary must be in the format returned by dicttoxml(), with keys
 	on "attributes", "cdata", "name", and "children".
 	"""
+
+	def quote(v):
+		"""Add surrounding quotes to the string."""
+		for quote in ('"', "'", '"""', "'''"):
+			if quote not in v:
+				break
+		return '%s%s%s' % (quote, v, quote)
+
 	att = ""
 	s = ""
 
 	if d.has_key("attributes"):
 		for a, v in d["attributes"].items():
-			att += " %s=\"%s\"" % (a, v)
+			v = quote(v)
+			att += " %s=%s" % (a, v)
 
 	s += "%s<%s%s" % ("\t" * level, d["name"], att)
 
