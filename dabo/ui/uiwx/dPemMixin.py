@@ -716,6 +716,31 @@ class dPemMixin(dPemMixinBase):
 		return obj
 
 
+	def drawPolygon(self, points, penColor="black", penWidth=1, 
+				fillColor=None, persist=True):
+		"""Draws a polygon defined by the specified points. The 'points'
+		parameter should be a tuple of (x,y) pairs defining the polygon.
+		See the 'drawCircle()' method above for more details.
+		"""
+		obj = _drawObject(self, FillColor=fillColor, PenColor=penColor,
+				PenWidth=penWidth, Shape="polygon", Points=points)
+		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
+
+
+	def drawLine(self, x1, y1, x2, y2, penColor="black", penWidth=1, 
+				fillColor=None, persist=True):
+		"""Draws a line between (x1,y1) and (x2, y2). 
+		See the 'drawCircle()' method above for more details.
+		"""
+		obj = _drawObject(self, FillColor=fillColor, PenColor=penColor,
+				PenWidth=penWidth, Shape="line", Points=((x1,y1), (x2,y2)) )
+		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
+
+
 	def _addToDrawnObjects(self, obj, persist):
 		self._drawnObjects.append(obj)
 		self._redraw()
@@ -1519,6 +1544,7 @@ class _drawObject(dObject):
 		self._height = None
 		self._penColor = None
 		self._penWidth = None
+		self._points = None
 		self._radius = None
 		self._shape = None
 		self._visible = True
@@ -1541,18 +1567,27 @@ class _drawObject(dObject):
 		if not self.Visible or self._inInit:
 			return
 		dc = wx.ClientDC(self.Parent)
-		pc = dColors.colorTupleFromName(self.PenColor)
+		if self.PenColor is None:
+			pc = dColors.colorTupleFromName("black")
+		else:
+			pc = dColors.colorTupleFromName(self.PenColor)
 		dc.SetPen(wx.Pen(pc, self.PenWidth, wx.SOLID))
-		fill = dColors.colorTupleFromName(self.FillColor)
+		fill = self.FillColor
 		if fill is None:
 			brush = wx.Brush(fill, style=wx.TRANSPARENT)
 		else:
-			brush = wx.Brush(fill)
+			brush = wx.Brush(dColors.colorTupleFromName(fill))
 		dc.SetBrush(brush)
 		if self.Shape == "circle":
 			dc.DrawCircle(self.Xpos, self.Ypos, self.Radius)
 		elif self.Shape == "rect":
 			dc.DrawRectangle(self.Xpos, self.Ypos, self.Width, self.Height)
+		elif self.Shape == "polygon":
+			dc.DrawPolygon(self.Points)
+		elif self.Shape == "line":
+			x1, y1 = self.Points[0]
+			x2, y2 = self.Points[1]
+			dc.DrawLine(x1, y1, x2, y2)
 
 	
 	def bringToFront(self):
@@ -1595,6 +1630,13 @@ class _drawObject(dObject):
 		
 	def _setPenWidth(self, val):
 		self._penWidth = val
+		self.update()
+
+	def _getPoints(self):
+		return self._points
+		
+	def _setPoints(self, val):
+		self._points = val
 		self.update()
 
 	def _getRadius(self):
@@ -1645,14 +1687,17 @@ class _drawObject(dObject):
 	Height = property(_getHeight, _setHeight, None,
 			_("For rectangles, the height of the shape  (int)"))
 
+	Parent = property(_getParent, _setParent, None,
+			_("Reference to the object being drawn upon.  (object)"))
+
 	PenColor = property(_getPenColor, _setPenColor, None,
 			_("ForeColor of the shape's lines  (color)"))
 
 	PenWidth = property(_getPenWidth, _setPenWidth, None,
 			_("Width of the shape's lines  (int)"))
 	
-	Parent = property(_getParent, _setParent, None,
-			_("Reference to the object being drawn upon.  (object)"))
+	Points = property(_getPoints, _setPoints, None,
+			_("Tuple of (x,y) pairs defining a polygon.  (tuple)"))
 
 	Radius = property(_getRadius, _setRadius, None,
 			_("For circles, the radius of the shape  (int)"))
