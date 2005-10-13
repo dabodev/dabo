@@ -106,7 +106,7 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		""")
 
 	UserThreeState = property(_getUserThreeState, _setUserThreeState, None,
-		"""Specifies wether the user is allowed to set thethird states.
+		"""Specifies whether the user is allowed to set the third state.
 			
 		True  : User is allowed to set the third state.
 		False : User isn't allowed to set the third state.(default)
