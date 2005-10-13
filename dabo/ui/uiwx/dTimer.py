@@ -76,9 +76,9 @@ class dTimer(dabo.ui.dBitmap):
 	def _setEnabled(self, val):
 		if self._constructed():
 			if val:
-				self.Enable()
+				self.start()
 			else:
-				self.Disable()
+				self.stop()
 		else:
 			self._properties["Enabled"] = val
 		
