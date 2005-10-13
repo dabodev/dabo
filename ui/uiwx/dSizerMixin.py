@@ -479,7 +479,7 @@ class dSizerMixin(dObject):
 	def _getHt(self):
 		return self.GetSize()[1]
 		
- 	def _getOrientation(self):
+	def _getOrientation(self):
 		o = self.GetOrientation()
 		if o == self.verticalFlag:
 			return "Vertical"

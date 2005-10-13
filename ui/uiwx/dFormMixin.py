@@ -52,7 +52,7 @@ class dFormMixin(pm.dPemMixin):
 	def _afterInit(self):
 		if self.Application and self.MenuBarClass:
 			try:
-	 			self.MenuBar = self.MenuBarClass()
+					self.MenuBar = self.MenuBarClass()
 			except AttributeError:
 				# perhaps we are a dDialog
 				pass
