@@ -111,9 +111,6 @@ class ReportWriter(object):
 	default_padTop = 0
 	default_padBottom = 0
 
-	home_dir = "."
-
-
 	def draw(self, object, origin, getNeededHeight=False):
 		"""Draw the given object on the Canvas.
 
@@ -325,18 +322,15 @@ class ReportWriter(object):
 				posx = 0
 	
 			# draw the string using the function that matches the alignment:
-			f = False
 			try:
 				s = eval(object["expr"])
 			except Exception, e:
 				# Something failed in the eval, print the exception string instead:
 				s = e
-				f = True
-			if not f:
-				if isinstance(s, basestring):
-					s = s.encode(self.Encoding)
-				else:
-					s = unicode(s)
+			if isinstance(s, basestring):
+				s = s.encode(self.Encoding)
+			else:
+				s = unicode(s)
 			func(posx, 0, s)
 	
 		elif object["type"] == "frameset":
@@ -499,7 +493,9 @@ class ReportWriter(object):
 
 			imageFile = eval(object["expr"])
 			if not os.path.exists(imageFile):
-				imageFile = os.path.join(self.home_dir, imageFile)
+				imageFile = os.path.join(self.HomeDirectory, imageFile)
+			imageFile = str(imageFile)
+
 			c.drawImage(imageFile, 0, 0, width, height, mask)
 
 		## All done, restore the canvas state to how we found it (important because
@@ -711,7 +707,12 @@ class ReportWriter(object):
 				for object in bandDict["objects"]:
 					showExpr = object.get("showExpr")
 					if showExpr is not None:
-						if not eval(showExpr):
+						try:
+							ev = eval(showExpr)
+						except:
+							## expression failed to eval: default to True (show it)
+							ev = True
+						if not ev:
 							# user's showExpr evaluated to False: don't print!
 							continue
 					try:
@@ -1125,6 +1126,27 @@ class ReportWriter(object):
 		"""Specifies the encoding for unicode strings.""")
 
 
+	def _getHomeDirectory(self):
+		try:
+			v = self._homeDirectory
+		except AttributeError:
+			v = self._homeDirectory = self.Application.HomeDirectory
+		return v
+
+	def _setHomeDirectory(self, val):
+		self._homeDirectory = val
+
+	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
+		"""Specifies the home directory for the report.
+
+		Resources on disk (image files, etc.) will be looked for relative to the
+		HomeDirectory if specified with relative pathing. The HomeDirectory should
+		be the directory that contains the report form file. If you set 
+		self.ReportFormFile, HomeDirectory will be set for you automatically. 
+		Otherwise, HomeDirectory will be set to self.Application.HomeDirectory.
+		""")
+
+
 	def _getOutputFile(self):
 		try:
 			v = self._outputFile
@@ -1229,8 +1251,9 @@ class ReportWriter(object):
 			else:
 				raise ValueError, "Invalid file type."
 			self._reportFormFile = val
+			self.HomeDirectory = os.path.join(os.path.split(val)[:-1])[0]
 		else:
-				raise ValueError, "Specified file does not exist."
+			raise ValueError, "Specified file does not exist."
 		
 	ReportFormFile = property(_getReportFormFile, _setReportFormFile, None,
 		"""Specifies the path and filename of the report form spec file.""")
