@@ -831,7 +831,7 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _getBackColor(self):
-		return self.GetBackgroundColour()
+		return self.GetBackgroundColour().Get()
 
 	def _setBackColor(self, val):
 		if self._constructed():
@@ -1078,7 +1078,7 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _getForeColor(self):
-		return self.GetForegroundColour()
+		return self.GetForegroundColour().Get()
 
 	def _setForeColor(self, val):
 		if self._constructed():
