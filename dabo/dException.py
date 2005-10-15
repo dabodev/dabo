@@ -1,8 +1,6 @@
 
 class dException(StandardError):
-	"""
-	Base class in the framework for passing exceptions.
-	"""
+	"""	Base class in the framework for passing exceptions."""
 	
 
 class BeginningOfFileException(dException):
@@ -26,4 +24,7 @@ class BusinessRuleViolation(dException):
 
 
 class MissingPKException(dException):
+	pass
+
+class ConnectionLostException(dException):
 	pass
