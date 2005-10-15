@@ -156,6 +156,11 @@ class dPemMixin(dPemMixinBase):
 		self._name = "?"
 		self._pemObject = pre
 		self._needRedraw = True
+		# Do we need to clear the background before 
+		# redrawing? Most cases will be no, but if you
+		# have problems with drawings leaving behind 
+		# unwanted debris, set this to True
+		self._autoClearDrawings = False
 		self._borderColor = "black"
 		self._borderWidth = 0
 		self._borderLineStyle = "Solid"
@@ -755,8 +760,12 @@ class dPemMixin(dPemMixinBase):
 		method is where they go. Subclasses should place code in the 
 		redraw() hook method.
 		"""
-		# First, clear any old drawing
-		self.ClearBackground()
+		# First, clear any old drawing if requested
+		if self._autoClearDrawings:
+			
+			dabo.trace()
+			
+			self.ClearBackground()
 		# Draw any shapes
 		for obj in self._drawnObjects:
 			obj.draw()
@@ -1604,22 +1613,26 @@ class _drawObject(dObject):
 			return
 		dc = wx.ClientDC(self.Parent)
 		pw = self.PenWidth
-		if self.PenColor is None:
-			pc = dColors.colorTupleFromName("black")
+		if not pw:
+			# No pen
+			pen = wx.TRANSPARENT_PEN
 		else:
-			pc = dColors.colorTupleFromName(self.PenColor)
-
-		sty = self._lineStyle
-		lnStyle = wx.SOLID
-		if sty in ("dash", "dashed"):
+			if self.PenColor is None:
+				pc = dColors.colorTupleFromName("black")
+			else:
+				pc = dColors.colorTupleFromName(self.PenColor)
+			sty = self._lineStyle
+			lnStyle = wx.SOLID
+			if sty in ("dash", "dashed"):
 #				lnStyle = wx.LONG_DASH		#wx.SHORT_DASH
-			lnStyle = wx.SHORT_DASH
-		elif sty in ("dot", "dotted"):
-			lnStyle = wx.DOT
-		elif sty in ("dotdash", "dashdot"):
-			lnStyle = wx.DOT_DASH
+				lnStyle = wx.SHORT_DASH
+			elif sty in ("dot", "dotted"):
+				lnStyle = wx.DOT
+			elif sty in ("dotdash", "dashdot"):
+				lnStyle = wx.DOT_DASH
+			pen = wx.Pen(pc, pw, lnStyle)
+		dc.SetPen(pen)
 
-		dc.SetPen(wx.Pen(pc, pw, lnStyle))
 		fill = self.FillColor
 		if fill is None:
 			brush = wx.Brush(fill, style=wx.TRANSPARENT)
