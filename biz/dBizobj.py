@@ -271,6 +271,8 @@ class dBizobj(dObject):
 		
 		try:
 			self.scan(self._saveRowIfChanged, startTransaction=False, topLevel=False)
+		except dException.ConnectionLostException, e:
+			raise dException.ConnectionLostException, e
 		except dException.dException, e:
 			if useTransact:
 				cursor.rollbackTransaction()
@@ -333,6 +335,9 @@ class dBizobj(dObject):
 				self.requeryAllChildren()
 
 			self.setMemento()
+
+		except dException.ConnectionLostException, e:
+			raise dException.ConnectionLostException, e
 
 		except dException.NoRecordsException, e:
 			# Nothing to roll back; just throw it back for the form to display

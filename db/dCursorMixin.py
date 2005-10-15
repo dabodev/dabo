@@ -150,7 +150,14 @@ class dCursorMixin(dObject):
 			else:
 				res = self.superCursor.execute(self, sqlEX, params)
 		except Exception, e:
-			raise dException.dException, e
+			# If this is due to a broken connection, let the user know.
+			# Different backends have different messages, but they
+			# should all contain the string 'connect' in them.
+			if "connect" in str(e).lower():
+				raise dException.ConnectionLostException, e
+			else:
+				raise dException.dException, e
+
 		# Not all backends support 'fetchall' after executing a query
 		# that doesn't return records, such as an update.
 		try:
@@ -738,10 +745,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		for rec in recs:
 			try:
 				self.__saverow(rec)
-			except Exception, e:
-				# Error was raised. Exit and rollback the changes
-				self.rollbackTransaction()
-				raise dException.QueryException, e
+			except StandardError, e:
+				if "connect" in str(e).lower():
+					raise dException.ConnectionLostException, e
+				else:
+					# Error was raised. Exit and rollback the changes
+					self.rollbackTransaction()
+					raise dException.QueryException, e
 
 		self.commitTransaction()
 

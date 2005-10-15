@@ -1,4 +1,5 @@
 import random
+import dabo
 from dabo.lib.connParser import importConnections
 from dabo.dObject import dObject
 from dabo.dLocalize import _
