@@ -143,18 +143,26 @@ class uiApp(wx.App, dObject):
 
 
 	def onEditCopy(self, evt, cut=False):
-		# Some controls (stc...) have Cut(), Copy(), Paste() methods,
-		# while others do not. Try these methods first, but fall back
-		# to interacting with wx.TheClipboard if necessary.
+		# If Dabo subclasses define copy() or cut(), it will handle. Otherwise, 
+		# some controls (stc...) have Cut(), Copy(), Paste() methods - call those.
+		# If neither of the above works, then copy text to the clipboard.
 		if self.ActiveForm:
 			win = self.ActiveForm.ActiveControl
-			try:
-				if cut:
-					win.Cut()
-				else:
-					win.Copy()
-					
-			except AttributeError:
+			if cut:
+				handled = (win.cut() is not None)
+				if not handled:
+					if hasattr(win, "Cut"):
+						win.Cut()
+						handled = True
+			else:
+				handled = (win.copy() is not None)
+				if not handled:
+					if hasattr(win, "Copy"):
+						win.Copy()
+						handled = True
+
+			if not handled:
+				# If it's a text control, get the string that is selected from it.
 				try:
 					selectedText = win.GetStringSelection()
 				except AttributeError:
@@ -165,6 +173,7 @@ class uiApp(wx.App, dObject):
 					if cut:
 						win.Remove(win.GetSelection()[0], win.GetSelection()[1])
 	
+
 	def copyToClipboard(self, txt):
 		data = wx.TextDataObject()
 		data.SetText(txt)
@@ -177,10 +186,13 @@ class uiApp(wx.App, dObject):
 	def onEditPaste(self, evt):
 		if self.ActiveForm:
 			win = self.ActiveForm.ActiveControl
-			try:
-				win.Paste()
-			except AttributeError:
+			handled = (win.paste() is not None)
+			if not handled:
+				if hasattr(win, "Paste"):
+					win.Paste()
+					handled = True
 			
+			if not handled:
 				try:
 					selection = win.GetSelection()
 				except AttributeError:
