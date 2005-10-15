@@ -806,6 +806,36 @@ class dPemMixin(dPemMixinBase):
 		return newObj
 		
 
+	def copy(self):
+		"""Called by uiApp when the user requests a copy operation.
+
+		Return None (the default) and uiApp will try a default copy operation.
+		Return anything other than None and uiApp will assume that the copy 
+		operation has been handled.
+		"""
+		return None
+
+
+	def cut(self):
+		"""Called by uiApp when the user requests a cut operation.
+
+		Return None (the default) and uiApp will try a default cut operation.
+		Return anything other than None and uiApp will assume that the cut 
+		operation has been handled.
+		"""
+		return None
+
+
+	def paste(self):
+		"""Called by uiApp when the user requests a paste operation.
+
+		Return None (the default) and uiApp will try a default paste operation.
+		Return anything other than None and uiApp will assume that the paste 
+		operation has been handled.
+		"""
+		return None
+
+
 	# The following 3 flag functions are used in some of the property
 	# get/set functions.
 	def _hasWindowStyleFlag(self, flag):
