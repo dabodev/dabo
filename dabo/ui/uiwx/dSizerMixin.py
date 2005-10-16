@@ -100,7 +100,7 @@ class dSizerMixin(dObject):
 				border = self.Border
 			# If there are objects in this sizer already, add the default spacer
 			addSpacer = ( len(self.GetChildren()) > 0)
-			self.Insert(index, item, proportion, _wxFlags, border)
+			self.Insert(index, item, proportion=proportion, flag=_wxFlags, border=border)
 			if addSpacer:
 				self.addDefaultSpacer(index+1)
 
@@ -423,6 +423,8 @@ class dSizerMixin(dObject):
 		except:
 			return 0
 	def _setBorder(self, val):
+		if isinstance(val, basestring):
+			val = int(val)
 		self._border = val
 		
 	def _getBorderAll(self):
@@ -432,6 +434,8 @@ class dSizerMixin(dObject):
 		except:
 			return False
 	def _setBorderAll(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
 		self._borderBottom = self._borderTop = self._borderLeft = self._borderRight = val
 		
 	def _getBorderBottom(self):
@@ -440,6 +444,8 @@ class dSizerMixin(dObject):
 		except:
 			return False
 	def _setBorderBottom(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
 		self._borderBottom = val
 		
 	def _getBorderLeft(self):
@@ -448,6 +454,8 @@ class dSizerMixin(dObject):
 		except:
 			return False
 	def _setBorderLeft(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
 		self._borderLeft = val
 		
 	def _getBorderRight(self):
@@ -456,6 +464,8 @@ class dSizerMixin(dObject):
 		except:
 			return False
 	def _setBorderRight(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
 		self._borderRight = val
 		
 	def _getBorderTop(self):
@@ -464,6 +474,8 @@ class dSizerMixin(dObject):
 		except:
 			return False
 	def _setBorderTop(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
 		self._borderTop = val
 	
 	def _getChildren(self):
@@ -501,11 +513,15 @@ class dSizerMixin(dObject):
 			# Default to zero
 			return 0
 	def _setSpacing(self, val):
+		if isinstance(val, basestring):
+			val = int(val)
 		self._space = val
 			
 	def _getVisible(self):
 		return self._visible
 	def _setVisible(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
 		self._visible = val
 		self.ShowItems(val)
 	

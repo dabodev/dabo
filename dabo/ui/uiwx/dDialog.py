@@ -4,6 +4,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dConstants as k
+from dabo.dLocalize import _
 import dFormMixin as fm
 
 
@@ -24,6 +25,9 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 		fm.dFormMixin.__init__(self, preClass, parent, properties=properties, 
 				*args, **kwargs)
 
+		# Hook method, so that we add the buttons last
+		self._addControls()
+
 
 	def _afterInit(self):
 		self.MenuBarClass = None
@@ -32,8 +36,6 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 # 		self.Sizer.append1x(mp)
 # 		mp.Sizer = dabo.ui.dSizer("V")
 		super(dDialog, self)._afterInit()
-		# Hook method, so that we add the buttons last
-		self._addControls()
 		self.bindKey("esc", self._onEscape)
 
 		

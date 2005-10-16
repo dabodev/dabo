@@ -50,7 +50,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			# spacer
 			if isinstance(item, int):
 				item = (item, item)
-			self.Add(item, (targetRow, targetCol) )
+			self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan) )
 		else:
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, halign, valign, borderFlags, layout)
@@ -178,6 +178,16 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 					self.RemoveGrowableRow(rowNums)
 				except: pass
 		self.Layout()
+		
+		
+	def setFullExpand(self):
+		"""Convenience method for setting all columns and rows of the 
+		sizer to be growable. Must be called after all items are added,
+		as any rows or columns added after the call will be the default
+		of non-growable.
+		"""
+		self.setColExpand(True, "all")
+		self.setRowExpand(True, "all")
 		
 	
 	def isRowGrowable(self, row):

@@ -7,6 +7,7 @@ import dProgressDialog
 import dSizer
 from dabo.dLocalize import _
 import time
+import sys
 
 # Different platforms expect different frame types. Notably,
 # most users on Windows expect and prefer the MDI parent/child
@@ -186,8 +187,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def first(self, dataSource=None):
-		""" Ask the bizobj to move to the first record.
-		"""
+		""" Ask the bizobj to move to the first record."""
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -200,8 +200,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.afterFirst()
 
 	def last(self, dataSource=None):
-		""" Ask the bizobj to move to the last record.
-		"""
+		""" Ask the bizobj to move to the last record."""
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -214,8 +213,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.afterLast()
 
 	def prior(self, dataSource=None):
-		""" Ask the bizobj to move to the previous record.
-		"""
+		""" Ask the bizobj to move to the previous record."""
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -228,8 +226,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		self.afterPrior()
 		
 	def next(self, dataSource=None):
-		""" Ask the bizobj to move to the next record.
-		"""
+		""" Ask the bizobj to move to the next record."""
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -243,8 +240,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		
 
 	def save(self, dataSource=None):
-		""" Ask the bizobj to commit its changes to the backend.
-		"""
+		""" Ask the bizobj to commit its changes to the backend."""
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -264,6 +260,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.setStatusText(_("Changes to %s saved.") % (
 					self.SaveAllRows and "all records" or "current record",))
 					
+		except dException.ConnectionLostException, e:
+			msg = self._connectionLostMsg(str(e))
+			self.notifyUser(msg, title=_("Data Connection Lost"), severe=True)
+			sys.exit()
+
 		except dException.NoRecordsException, e:
 			# No records were saved. No big deal; just let 'em know.
 			self.setStatusText(_("Nothing to save!"))
@@ -274,10 +275,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			msg = "%s:\n\n%s" % (_("Save Failed"), _( str(e) ))
 			self.notifyUser(msg, severe=True)
 			return False
+
 		self.afterSave()
 		return True
 	
-		
+	
 	def cancel(self, dataSource=None):
 		""" Ask the bizobj to cancel its changes.
 
@@ -309,16 +311,14 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def onRequery(self, evt):
-		""" Occurs when an EVT_MENU event is received by this form.
-		"""
+		""" Occurs when an EVT_MENU event is received by this form."""
 		self.requery()
 		self.Raise()
 		evt.Skip()
 
 
 	def requery(self, dataSource=None):
-		""" Ask the bizobj to requery.
-		"""
+		""" Ask the bizobj to requery."""
 		ret = False
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
@@ -368,6 +368,11 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		except dException.MissingPKException, e:
 			self.notifyUser(str(e), title=_("Requery Failed"), severe=True)
 
+		except dException.ConnectionLostException, e:
+			msg = self._connectionLostMsg(str(e))
+			self.notifyUser(msg, title=_("Data Connection Lost"), severe=True)
+			sys.exit()
+
 		except dException.dException, e:
 			dabo.errorLog.write(_("Requery failed with response: %s") % str(e))
 			self.notifyUser(str(e), title=_("Requery Not Allowed"), severe=True)
@@ -376,8 +381,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		
 
 	def delete(self, dataSource=None, message=None):
-		""" Ask the bizobj to delete the current record.
-		"""
+		""" Ask the bizobj to delete the current record."""
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -406,6 +410,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				self.refreshControls()
 				# Notify listeners that the row number changed:
 				self.raiseEvent(dEvents.RowNumChanged)
+			except dException.ConnectionLostException, e:
+				msg = self._connectionLostMsg(str(e))
+				self.notifyUser(msg, title=_("Data Connection Lost"), severe=True)
+				sys.exit()
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
@@ -434,6 +442,10 @@ class dForm(wxFrameClass, fm.dFormMixin):
 				self.refreshControls()
 				# Notify listeners that the row number changed:
 				self.raiseEvent(dEvents.RowNumChanged)
+			except dException.ConnectionLostException, e:
+				msg = self._connectionLostMsg(str(e))
+				self.notifyUser(msg, title=_("Data Connection Lost"), severe=True)
+				sys.exit()
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete All failed with response: %s") % str(e))
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
@@ -441,8 +453,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		
 
 	def new(self, dataSource=None):
-		""" Ask the bizobj to add a new record to the recordset.
-		"""
+		""" Ask the bizobj to add a new record to the recordset."""
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
@@ -474,14 +485,12 @@ class dForm(wxFrameClass, fm.dFormMixin):
 
 
 	def getSQL(self, dataSource=None):
-		""" Get the current SQL from the bizobj.
-		"""
+		""" Get the current SQL from the bizobj."""
 		return self.getBizobj(dataSource).getSQL()
 
 
 	def setSQL(self, sql, dataSource=None):
-		""" Set the SQL for the bizobj.
-		"""
+		""" Set the SQL for the bizobj."""
 		self.getBizobj(dataSource).setSQL(sql)
 		
 	
@@ -494,6 +503,13 @@ class dForm(wxFrameClass, fm.dFormMixin):
 		else:
 			func = dabo.ui.info
 		func(message=msg, title=title)
+
+
+	def _connectionLostMsg(self, err):
+		return _("""The connection to the database has closed for unknown reasons.
+Any unsaved changes to the data will be lost.
+
+Database error message: %s""") %	err
 
 
 	def getBizobj(self, dataSource=None, parentBizobj=None):
@@ -614,6 +630,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			except AttributeError:
 				# active control may not be data-aware
 				pass
+				
 	
 	def validateField(self, ctrl):
 		"""Call the bizobj for the control's DataSource. If the control's 
