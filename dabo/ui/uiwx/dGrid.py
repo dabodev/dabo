@@ -2418,8 +2418,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# menu. If we get a menu back from the user hook, we display it.
 
 		# First though, make the cell the user right-clicked on the current cell:
-		self.CurrentRow = evt.GetRow()
-		self.CurrentColumn = evt.GetCol()
+		self.CurrentRow = evt.row
+		self.CurrentColumn = evt.col
 
 		position = evt.EventData["position"]
 		menu = dabo.ui.dMenu()
@@ -2523,7 +2523,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.onEscapeAction()
 				evt.stop()
 			elif char and (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
-				and (char.isalnum() or char.isspace()) and not evt.HasModifiers():
+				and (char.isalnum() or char.isspace() and not evt.hasModifiers):
 				self.addToSearchStr(char)
 				# For some reason, without this the key happens twice
 				evt.stop()
