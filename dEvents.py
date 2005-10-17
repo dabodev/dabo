@@ -99,9 +99,10 @@ class Event(dObject):
 					break
 
 	def __getattr__(self, att):
-		if self._eventData.has_key(att):
+		if self.EventData.has_key(att):
 			return self._eventData[att]
-		return None
+		raise AttributeError, "%s.%s object has no attribute %s." % (
+			self.__class__.__module__, self.__class__.__name__, att)
 			
 	def _getContinue(self):
 		return self._continue
