@@ -37,11 +37,13 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		"""Insert a dMenuItem at the bottom of the menu."""
 		self.AppendItem(item)
 		item.Parent = self
+		
 
 	def insertItem(self, pos, item):
 		"""Insert a dMenuItem before the specified position in the menu."""
 		self.InsertItem(pos, item)
 		item.Parent = self
+		
 
 	def prependItem(self, item):
 		"""Insert a dMenuItem at the top of the menu."""
@@ -54,12 +56,14 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		wxMenuItem = self.AppendMenu(-1, menu.Caption, menu, help=menu.HelpText)
 		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
+		
 
 	def insertMenu(self, pos, menu):
 		"""Insert a dMenu before the specified position in the menu."""
 		wxMenuItem = self.InsertMenu(-1, pos, menu.Caption, menu, help=menu.HelpText)
 		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
+		
 		
 	def prependMenu(self, menu):
 		"""Insert a dMenu at the top of the menu."""
@@ -71,10 +75,12 @@ class dMenu(wx.Menu, pm.dPemMixin):
 	def appendSeparator(self):
 		"""Insert a separator at the bottom of the menu."""
 		self.AppendSeparator()
+		
 
 	def insertSeparator(self, pos):
 		"""Insert a separator before the specified position in the menu."""
 		self.InsertSeparator(pos)
+
 
 	def prependSeparator(self):
 		"""Insert a separator at the top of the menu."""
@@ -95,6 +101,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		item = self._getItem(caption, bindfunc, help, bmp, menutype, **kwargs)
 		self.appendItem(item)
 		return item
+		
 	
 	def insert(self, pos, caption, bindfunc=None, help="", bmp=None, menutype=""):
 		"""Insert a dMenuItem at the given position with the specified properties.
@@ -107,8 +114,9 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		them on; if not valid, an exception will be raised.
 		"""
 		item = self._getItem(caption, bindfunc, help, bmp, menutype)
-		self.insertItem(item)
+		self.insertItem(pos, item)
 		return item
+		
 
 	def prepend(self, caption, bindfunc=None, help="", bmp=None, menutype=""):
 		"""Prepend a dMenuItem with the specified properties.
@@ -124,6 +132,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		self.prependItem(item)
 		return item
 		
+		
 	def _getItem(self, prompt, bindfunc, help, icon, menutype, **kwargs):
 		itmtyp = self._getItemType(menutype)
 		itm = dMenuItem.dMenuItem(self, Caption=prompt, HelpText=help, Icon=icon, 
@@ -131,6 +140,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		if bindfunc:
 			itm.bindEvent(dEvents.Hit, bindfunc)
 		return itm
+
 
 	def _getItemType(self, typ):
 		typ = str(typ).lower()[:3]
@@ -146,8 +156,9 @@ class dMenu(wx.Menu, pm.dPemMixin):
 				ret = RadioItemType
 		return ret
 
+
 	def _setId(self, id_):
-		"""wxMenu's don't have id's of their own - they only get set when the 
+		"""wxMenus don't have ids of their own - they only get set when the 
 		menu gets added as a submenu - and then it becomes a wxMenuItem with a
 		special submenu flag. This hook, called from append|insert|prependMenu(),
 		allows the menu event bindings to take place.
@@ -161,11 +172,28 @@ class dMenu(wx.Menu, pm.dPemMixin):
 			self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT,
 					self.__onWxMenuHighlight, id=id_)
 		
+		
 	def _isPopupMenu(self):
 		## TODO: Make dMenu work as a submenu, a child of dMenuBar, or as a popup.
 		return False
 
 
+	def getItemPosByCaption(self, cap):
+		"""Given a caption, returns the position of the menu item whose
+		caption matches the specified value. Useful when you want to 
+		insert a menu item before a specific item.
+		"""
+		ok = False
+		for pos, itm in enumerate(self.Children):
+			if itm.GetLabel() == cap:
+				ok = True
+				ret = pos
+				break
+		if not ok:
+			ret = None
+		return ret
+		
+	
 	def GetChildren(self):
 		# wx doesn't provide GetChildren() for menubars or menus, but dPemMixin
 		# calls it in _getChildren(). The Dabo developer wants the submenus and
@@ -193,6 +221,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		else:
 			self._properties["Caption"] = val
 
+
 	def _getEnabled(self):
 		return self.IsEnabled()
 
@@ -205,6 +234,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 	def _getForm(self):
 		return self.Parent.Form
+
 
 	def _getHelpText(self):
 		try:
