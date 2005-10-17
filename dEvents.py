@@ -100,8 +100,8 @@ class Event(dObject):
 
 	def __getattr__(self, att):
 		if self._eventData.has_key(att):
-			ret = self._eventData[att]
-		return ret
+			return self._eventData[att]
+		return None
 			
 	def _getContinue(self):
 		return self._continue
