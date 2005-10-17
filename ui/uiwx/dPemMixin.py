@@ -762,10 +762,8 @@ class dPemMixin(dPemMixinBase):
 		"""
 		# First, clear any old drawing if requested
 		if self._autoClearDrawings:
-			
-			dabo.trace()
-			
 			self.ClearBackground()
+			
 		# Draw any shapes
 		for obj in self._drawnObjects:
 			obj.draw()
@@ -879,9 +877,10 @@ class dPemMixin(dPemMixinBase):
 					val = dColors.colorTupleFromName(val)
 				except: pass
 			if isinstance(val, tuple):
-				self.SetBackgroundColour(val)
-				# Background color changes don't result in an automatic refresh.
-				self.Refresh()
+				if val != self.GetBackgroundColour().Get():
+					self.SetBackgroundColour(val)
+					# Background color changes don't result in an automatic refresh.
+					self.Refresh()
 		else:
 			self._properties["BackColor"] = val
 
@@ -1125,7 +1124,8 @@ class dPemMixin(dPemMixinBase):
 				try:
 					val = dColors.colorTupleFromName(val)
 				except: pass
-			self.SetForegroundColour(val)
+			if val != self.GetForegroundColour().Get():
+				self.SetForegroundColour(val)
 		else:
 			self._properties["ForeColor"] = val
 
@@ -1620,7 +1620,10 @@ class _drawObject(dObject):
 			if self.PenColor is None:
 				pc = dColors.colorTupleFromName("black")
 			else:
-				pc = dColors.colorTupleFromName(self.PenColor)
+				if isinstance(self.PenColor, basestring):
+					pc = dColors.colorTupleFromName(self.PenColor)
+				else:
+					pc = self.PenColor
 			sty = self._lineStyle
 			lnStyle = wx.SOLID
 			if sty in ("dash", "dashed"):
@@ -1637,13 +1640,14 @@ class _drawObject(dObject):
 		if fill is None:
 			brush = wx.Brush(fill, style=wx.TRANSPARENT)
 		else:
-			brush = wx.Brush(dColors.colorTupleFromName(fill))
+			if isinstance(fill, basestring):
+				fill = dColors.colorTupleFromName(fill)
+			brush = wx.Brush(fill)
 		dc.SetBrush(brush)
 		if self.Shape == "circle":
 			dc.DrawCircle(self.Xpos, self.Ypos, self.Radius)
 		elif self.Shape == "rect":
-			dc.DrawLines([(0,0), (self.Width-pw, 0), (self.Width-pw, self.Height-pw), 
-					(0, self.Height-pw), (0,0)])
+			dc.DrawRectangle(self.Xpos, self.Ypos, self.Width, self.Height)
 		elif self.Shape == "polygon":
 			dc.DrawPolygon(self.Points)
 		elif self.Shape == "line":
@@ -1665,15 +1669,17 @@ class _drawObject(dObject):
 		return self._fillColor
 		
 	def _setFillColor(self, val):
-		self._fillColor = val
-		self.update()
+		if self._fillColor != val:
+			self._fillColor = val
+			self.update()
 
 	def _getHeight(self):
 		return self._height
 		
 	def _setHeight(self, val):
-		self._height = val
-		self.update()
+		if self._height != val:
+			self._height = val
+			self.update()
 	
 	def _getLineStyle(self):
 		return self._lineStyle
@@ -1681,8 +1687,9 @@ class _drawObject(dObject):
 	def _setLineStyle(self, val):
 		if isinstance(val, basestring):
 			val = val.lower()
-		self._lineStyle = val
-		self.update()
+		if self._lineStyle != val:
+			self._lineStyle = val
+			self.update()
 
 	def _getParent(self):
 		return self._parent
@@ -1694,29 +1701,33 @@ class _drawObject(dObject):
 		return self._penColor
 		
 	def _setPenColor(self, val):
-		self._penColor = val
-		self.update()
+		if self._penColor != val:
+			self._penColor = val
+			self.update()
 
 	def _getPenWidth(self):
 		return self._penWidth
 		
 	def _setPenWidth(self, val):
-		self._penWidth = val
-		self.update()
+		if self._penWidth != val:
+			self._penWidth = val
+			self.update()
 
 	def _getPoints(self):
 		return self._points
 		
 	def _setPoints(self, val):
-		self._points = val
-		self.update()
+		if self._points != val:
+			self._points = val
+			self.update()
 
 	def _getRadius(self):
 		return self._radius
 		
 	def _setRadius(self, val):
-		self._radius = val
-		self.update()
+		if self._radius != val:
+			self._radius = val
+			self.update()
 		
 	def _getShape(self):
 		return self._shape
@@ -1728,29 +1739,33 @@ class _drawObject(dObject):
 		return self._visible
 		
 	def _setVisible(self, val):
-		self._visible = val
-		self.update()
+		if self._visible != val:
+			self._visible = val
+			self.update()
 
 	def _getWidth(self):
 		return self._width
 		
 	def _setWidth(self, val):
-		self._width = val
-		self.update()
+		if self._width != val:
+			self._width = val
+			self.update()
 
 	def _getXpos(self):
 		return self._xPos
 		
 	def _setXpos(self, val):
-		self._xPos = val
-		self.update()
+		if self._xPos != val:
+			self._xPos = val
+			self.update()
 		
 	def _getYpos(self):
 		return self._yPos
 		
 	def _setYpos(self, val):
-		self._yPos = val
-		self.update()
+		if self._yPos != val:
+			self._yPos = val
+			self.update()
 		
 		
 	FillColor = property(_getFillColor, _setFillColor, None,
