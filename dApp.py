@@ -318,12 +318,24 @@ class dApp(dObject):
 			dabo.infoLog.write(_("User interface already set to '%s', so dApp didn't "
 				" touch it." % (self.UI,)))
 
+
+	def onCmdWin(self, evt):
+		self.showCommandWindow()
+
+
+	def showCommandWindow(self, context=None):
+		"""Display a command window for debugging."""
+		if context is None:
+			context = self.ActiveForm
+		dlg = dabo.ui.dShell.dShell(context)
+		dlg.Show()
+
 	
+	
+
 	########################
 	# This next section simply passes menu events to the UI
 	# layer to be handled there.
-	def onCmdWin(self, evt):
-		self.uiApp.onCmdWin(evt)
 	def onWinClose(self, evt):
 		self.uiApp.onWinClose(evt)
 	def onFileExit(self, evt):
@@ -362,13 +374,38 @@ class dApp(dObject):
 		dlg.show()
 	
 	
+	
+
+	def _getActiveForm(self):
+		if self.uiApp is not None:
+			return self.uiApp.ActiveForm
+		else:
+			return None
+			
+	def _setActiveForm(self, frm):
+		if self.uiApp is not None:
+			self.uiApp._setActiveForm(frm)
+		else:
+			dabo.errorLog.write("Can't set ActiveForm: no uiApp.")
+	
+
+	def _getCrypto(self):
+		if self._cryptoProvider is None:
+			# Use the default crypto
+			self._cryptoProvider = SimpleCrypt()
+		return self._cryptoProvider
+
+	def _setCrypto(self, val):
+		self._cryptoProvider = val
+
+
 	def _getDrawSizerOutlines(self):
 		return self.uiApp.DrawSizerOutlines
 	
 	def _setDrawSizerOutlines(self, val):
 		self.uiApp.DrawSizerOutlines = val
 	
-	
+
 	def _getHomeDirectory(self):
 		try:
 			hd = self._homeDirectory
@@ -441,6 +478,17 @@ class dApp(dObject):
 			raise TypeError, _("SecurityManager must descend from dSecurityManager.")
 			
 			
+	def _getShowCommandWindowMenu(self):
+		try:
+			v = self._showCommandWindowMenu
+		except AttributeError:
+			v = self._showCommandWindowMenu = True
+		return v
+			
+	def _setShowCommandWindowMenu(self, val):
+		self._showCommandWindowMenu = bool(val)
+			
+			
 	def _getUI(self):
 		try:
 			return dabo.ui.getUIType()
@@ -496,28 +544,6 @@ class dApp(dObject):
 			return "?"
 
 
-	def _getActiveForm(self):
-		if self.uiApp is not None:
-			return self.uiApp.ActiveForm
-		else:
-			return None
-			
-	def _setActiveForm(self, frm):
-		if self.uiApp is not None:
-			self.uiApp._setActiveForm(frm)
-		else:
-			dabo.errorLog.write("Can't set ActiveForm: no uiApp.")
-	
-	
-	def _getCrypto(self):
-		if self._cryptoProvider is None:
-			# Use the default crypto
-			self._cryptoProvider = SimpleCrypt()
-		return self._cryptoProvider
-
-	def _setCrypto(self, val):
-		self._cryptoProvider = val
-
 	
 	ActiveForm = property(_getActiveForm, None, None, 
 			_("Returns the form that currently has focus, or None.  (dForm)" ) )
@@ -570,6 +596,22 @@ class dApp(dObject):
 
 			This will be one of 'Mac', 'Win' or 'GTK'.""") )
 			
+	SecurityManager = property(_getSecurityManager, _setSecurityManager, None, 
+			_("""Specifies the Security Manager, if any. 
+
+			You must subclass dSecurityManager, overriding the appropriate hooks 
+			and properties, and then set dApp.SecurityManager to an instance of your 
+			subclass. There is no security manager by default - you explicitly set 
+			this to use Dabo security.""") )
+
+	ShowCommandWindowMenu = property(_getShowCommandWindowMenu,
+			_setShowCommandWindowMenu, None, 
+			_("""Specifies whether the command window option is shown in the menu.
+
+			If True (the default), there will be a File|Command Window option
+			available in the base menu. If False, your code can still start the 
+			command window by calling app.showCommandWindow() directly.""") )
+
 	UI = property(_getUI, _setUI, None, 
 			_("""Specifies the user interface to load, or None. (str)
 
@@ -590,12 +632,4 @@ class dApp(dObject):
 			The default UserSettingProviderClass will save user preferences inside the .dabo
 			directory inside the user's home directory, and will be instantiated by Dabo
 			automatically."""))
-
-	SecurityManager = property(_getSecurityManager, _setSecurityManager, None, 
-			_("""Specifies the Security Manager, if any. 
-
-			You must subclass dSecurityManager, overriding the appropriate hooks 
-			and properties, and then set dApp.SecurityManager to an instance of your 
-			subclass. There is no security manager by default - you explicitly set 
-			this to use Dabo security.""") )
 
