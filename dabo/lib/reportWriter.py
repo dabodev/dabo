@@ -433,6 +433,16 @@ class ReportWriter(object):
 							# Blank line
 							p = platypus.Spacer(0, s.leading)
 						else:
+							def escapePara(para):
+								words = para.split(" ")
+								for idx, word in enumerate(words):
+									if "&" in word and ";" not in word:
+										word = word.replace("&", "&amp;")
+									if "<" in word and ">" not in word:
+										word = word.replace("<", "&lt;")
+									words[idx] = word
+								return " ".join(words)
+							para = escapePara(para)
 							p = platypus.Paragraph(para, s)
 						story.append(p)
 						objNeededHeight += p.wrap(columnWidth-padLeft-padRight, None)[1]
