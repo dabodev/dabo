@@ -792,6 +792,33 @@ class dPemMixin(dPemMixinBase):
 		self._needRedraw = True
 
 
+	def _moveDrawObjectUp(self, obj, levels=1):
+		"""Given a drawing object, moves it up in the drawing stack
+		the specified number of places. This means moving it down
+		in position in the list.
+		"""
+		pos = self._drawnObjects.index(obj)
+		newPos = pos + levels
+		self._drawnObjects.remove(obj)
+		self._drawnObjects.insert(newPos, obj)
+		self._needRedraw = True
+
+
+	def _moveDrawObjectDown(self, obj, levels=1):
+		"""Given a drawing object, moves it down in the drawing stack
+		the specified number of places. This means moving it up
+		in position in the list.
+		"""
+		pos = self._drawnObjects.index(obj)
+		newPos = max(0, pos - levels)
+		self._drawnObjects.remove(obj)
+		self._drawnObjects.insert(newPos, obj)
+		self._needRedraw = True
+
+		
+
+
+
 	def _onResizeBorder(self, evt):
 		"""Called when the user has defined a border for the control, and
 		the control is resized.
@@ -1662,6 +1689,14 @@ class _drawObject(dObject):
 	
 	def sendToBack(self):
 		self.Parent._sendDrawObjectToBack(self)
+		
+
+	def moveUp(self, levels=1):
+		self.Parent._moveDrawObjectUp(self, levels)
+		
+	
+	def moveDown(self, levels=1):
+		self.Parent._moveDrawObjectDown(self, levels)
 		
 
 	# Property get/set methods
