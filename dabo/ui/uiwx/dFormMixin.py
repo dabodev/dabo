@@ -338,11 +338,7 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		pass
 
-	def onCmdWin(self, evt):
-		dlg = dabo.ui.dShell.dShell(self)
-		dlg.Show()
 
-	
 	def refresh(self):
 		"""Refreshed the values of the controls, and also calls the
 		wxPython Refresh to update the form.

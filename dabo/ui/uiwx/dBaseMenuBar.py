@@ -21,8 +21,9 @@ class FileMenu(dMenu):
 		app = self.Application
 		self.Caption = _("&File")
 
-		self.append(_("Command Window") + "\tCtrl+D", bindfunc=app.onCmdWin, 
-				help=_("Open up a command window for debugging") )
+		if self.Application.ShowCommandWindowMenu:
+			self.append(_("Command Window") + "\tCtrl+D", bindfunc=app.onCmdWin, 
+					help=_("Open up a command window for debugging") )
 		
 		prmpt = _("Close Windo&w") + "\tCtrl+W"
 		self.append(prmpt, bindfunc=app.onWinClose,
