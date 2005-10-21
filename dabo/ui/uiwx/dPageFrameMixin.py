@@ -43,6 +43,8 @@ class dPageFrameMixin(cm.dControlMixin):
 
 		if newPageNum >= 0 and self.PageCount > newPageNum:
 			self.Pages[newPageNum].raiseEvent(dEvents.PageEnter)
+			self.raiseEvent(dEvents.PageChanged)
+			
 		
 	
 	# Image-handling function
@@ -146,7 +148,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			return dPage.dPage
 			
 	def _setPageClass(self, value):
-		if issubclass(value, dControlMixin.dControlMixin):
+		if issubclass(value, cm.dControlMixin):
 			self._pageClass = value
 		else:
 			raise TypeError, "PageClass must descend from a Dabo base class."
@@ -169,7 +171,6 @@ class dPageFrameMixin(cm.dControlMixin):
 			elif value < pageCount:
 				for i in range(pageCount, value, -1):
 					self.DeletePage(i-1)
-# 			self.Refresh()
 		else:
 			self._properties["PageCount"] = value
 	
@@ -180,8 +181,13 @@ class dPageFrameMixin(cm.dControlMixin):
 		#return [pg for pg in self.Children	if isinstance(pg, dabo.ui.dPage) ]
 		return [self.GetPage(pg) for pg in range(self.PageCount)]
 
+
 	def _getSelectedPage(self):
-		return self.GetPage(self.GetSelection())
+		try:
+			ret = self.GetPage(self.GetSelection())
+		except:
+			ret = None
+		return ret		
 
 	def _setSelectedPage(self, pg):
 		if self._constructed():

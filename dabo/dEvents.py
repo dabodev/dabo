@@ -324,6 +324,13 @@ class Paint(Event):
 		return issubclass(objectClass, dabo.ui.dPemMixin)
 	appliesToClass = classmethod(appliesToClass)
 	
+class PageChanged(Event):
+	"""Occurs when a page in a pageframe-like control changes"""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
+				dabo.ui.dPageSelect, dabo.ui.dPageNoTabs))
+	appliesToClass = classmethod(appliesToClass)
+	
 class PageEnter(Event):
 	"""Occurs when the page becomes the active page."""
 	def appliesToClass(eventClass, objectClass):
