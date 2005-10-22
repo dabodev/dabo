@@ -4,22 +4,28 @@ from dabo.dLocalize import _
 
 
 class dPage(dPanel.dScrollPanel):
-	""" Create a page to appear as a tab in a dPageFrame.
-	"""
+	""" Create a page to appear as a tab in a pageframe."""
+	def __init__(self, *args, **kwargs):
+		super(dPage, self).__init__(*args, **kwargs)
+		self._baseClass = dPage	
+		
+		
 	def _afterInit(self):
 		self.initSizer()
 		self.itemsCreated = False
 		super(dPage, self)._afterInit()
 		
+		
 	def _initEvents(self):
 		super(dPage, self)._initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
+		
 
 	def initSizer(self):
-		""" Set up the default vertical box sizer for the page.
-		"""
+		""" Set up the default vertical box sizer for the page."""
 		self.Sizer = dSizer.dSizer("vertical")
+		
 
 	def createItems(self):
 		""" Create the controls in the page.
@@ -34,7 +40,7 @@ class dPage(dPanel.dScrollPanel):
 		if not self.itemsCreated:
 			self.createItems()
 			self.itemsCreated = True
-			self.Sizer.layout()
+			self.layout()
 			
 			# Needed on Linux to get the sizer to layout:
 			self.Size = (-1,-1)
@@ -47,16 +53,9 @@ class dPage(dPanel.dScrollPanel):
 			
 
 	def _getPagePosition(self):
-		""" Returns the position of this page within its parent.
-		"""
-		parent = self.Parent
-		cnt = parent.GetPageCount()
-		ret = -1
-		for i in range(cnt):
-			if parent.GetPage(i) == self:
-				ret = i
-				break
-		return ret
+		""" Returns the position of this page within its parent."""
+		return self.Parent.Pages.index(self)
+
 	
 
 	def _getCaption(self):
@@ -66,6 +65,7 @@ class dPage(dPanel.dScrollPanel):
 		if pos > -1:
 			ret = self.Parent.GetPageText(pos)
 		return ret
+
 	def _setCaption(self, val):
 		if self._constructed():
 			pos = self._getPagePosition()
@@ -77,6 +77,7 @@ class dPage(dPanel.dScrollPanel):
 	
 	def _getImage(self):
 		return self.Parent.getPageImg(self)
+
 	def _setImage(self, imgKey):
 		if self._constructed():
 			self.Parent.setPageImage(self, imgKey)

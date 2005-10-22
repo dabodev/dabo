@@ -297,7 +297,7 @@ def discontinueEvent(evt):
 	
 def getEventData(wxEvt):
 	ed = {}
-
+	
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, wx.TreeEvent,
 			wx.CommandEvent, wx.CloseEvent, wx.grid.GridEvent,
 			wx.grid.GridSizeEvent) ):
@@ -346,6 +346,9 @@ def getEventData(wxEvt):
 				ed["keyChar"] = chr(wxEvt.GetRawKeyCode())
 		except (ValueError, OverflowError):
 			ed["keyChar"] = None
+	
+	if isinstance(wxEvt, wx.ContextMenuEvent):
+		ed["mousePosition"] = wxEvt.GetPosition()
 
 	if isinstance(wxEvt, wx.CloseEvent):
 		ed["force"] = not wxEvt.CanVeto()
