@@ -83,8 +83,11 @@ class _dButton_test(dButton):
 		self.FontSize = 8
 		self.Width = 223
 
-	def initEvents(self):
-		self.autoBindEvents()
+	def onContextMenu(self, evt):
+		print "context menu"
+
+	def onMouseRightClick(self, evt):
+		print "right click"
 
 	def onHit(self, evt):
 		self.ForeColor = "purple"
