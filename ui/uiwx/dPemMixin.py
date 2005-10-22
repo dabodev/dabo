@@ -530,7 +530,7 @@ class dPemMixin(dPemMixinBase):
 		current mouse position.
 		"""
 		if pos is None:
-			pos = wx.GetMousePosition()
+			pos = self.ScreenToClient(wx.GetMousePosition())
 		self.PopupMenu(menu, pos)
 		
 	

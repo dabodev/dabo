@@ -2,13 +2,12 @@ import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dControlMixin as cm
-import dPage
+from dPage import dPage
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 	
 class dPageFrameMixin(cm.dControlMixin):
-	""" Create a container for an unlimited number of pages.
-	"""
+	""" Create a container for an unlimited number of pages."""
 	def _initEvents(self):
 		super(dPageFrameMixin, self)._initEvents()
 		self.Bind(self._evtPageChanged, self.__onPageChanged)
@@ -46,7 +45,6 @@ class dPageFrameMixin(cm.dControlMixin):
 			self.raiseEvent(dEvents.PageChanged)
 			
 		
-	
 	# Image-handling function
 	def addImage(self, img, key=None):
 		""" Adds the passed image to the control's ImageList, and maintains
@@ -145,7 +143,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		try:
 			return self._pageClass
 		except AttributeError:
-			return dPage.dPage
+			return dPage
 			
 	def _setPageClass(self, value):
 		if issubclass(value, cm.dControlMixin):
