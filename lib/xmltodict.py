@@ -85,19 +85,21 @@ def dicttoxml(d, level=0, header=None):
 	on "attributes", "cdata", "name", and "children".
 	"""
 
-	def quote(v):
+	def addQuote(val):
 		"""Add surrounding quotes to the string."""
-		for quote in ('"', "'", '"""', "'''"):
-			if quote not in v:
+		if not isinstance(val, basestring):
+			val = str(val)
+		for qt in ('"', "'", '"""', "'''"):
+			if qt not in val:
 				break
-		return '%s%s%s' % (quote, v, quote)
+		return "%s%s%s" % (qt, val, qt)
 
 	att = ""
 	s = ""
 
 	if d.has_key("attributes"):
 		for a, v in d["attributes"].items():
-			v = quote(v)
+			v = addQuote(v)
 			att += " %s=%s" % (a, v)
 
 	s += "%s<%s%s" % ("\t" * level, d["name"], att)
