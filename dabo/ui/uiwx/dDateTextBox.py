@@ -279,7 +279,10 @@ class dDateTextBoxOrig(dTextBox.dTextBox):
 					"format" : "%m/%d/%Y"},
 				"YMD": {"prompt": "YMD (YYYY-MM-DD)", 
 					"setting": "YMD", 
-					"format" : "%Y-%m-%d"} }
+					"format" : "%Y-%m-%d"},
+				"European": {"prompt": "European (DD.MM.YYYY)", 
+					"setting": "european", 
+					"format" : "%d.%m.%Y"} }
 		# Default format; can be changed in setup code or in RightClick
 		self.dateFormat = "American"
 		# Pattern for recognizing dates from databases
@@ -338,7 +341,7 @@ C: Popup Calendar to Select
 		if self.useWxEvents:
 			self.Bind(wx.EVT_CHAR, self.__onChar)
 		else:
-	 		self.bindEvent(dabo.dEvents.KeyChar, self.__onChar)
+			self.bindEvent(dabo.dEvents.KeyChar, self.__onChar)
 		self.bindEvent(dabo.dEvents.MouseLeftDoubleClick, self.__onDblClick)
 		self.bindEvent(dabo.dEvents.LostFocus, self.__onLostFocus)
 	
@@ -380,7 +383,7 @@ C: Popup Calendar to Select
 		for nm, format in self.formats.items():
 			itm = menu.append(format["prompt"], bindfunc=self.onRClickMenu)
 			format["id"] = itm.GetId()
-		self.Parent.PopupMenu(menu, evt.EventData["mousePosition"])
+		self.showContextMenu(menu)
 		evt.Continue = False  # otherwise, a GTK unicode menu will appear
 		
 		
@@ -388,7 +391,7 @@ C: Popup Calendar to Select
 		""" Set the date format to the selected value."""
 		try:
 			# See which format has the matching ID
-			id = evt.GetId()
+			id = evt.EventData["id"]
 			for fmt in self.formats.values():
 				if fmt["id"] == id:
 					self.dateFormat = fmt["setting"]
