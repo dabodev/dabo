@@ -160,10 +160,11 @@ class Form(dabo.ui.dForm):
 			self.appendToolBarButton("Cancel", "revert", bindfunc=self.onCancel, 
 					tip=_("Cancel"), help=_("Cancel changes"))
 			tb.appendSeparator()
-			self.appendToolBarButton("SQL", "zoomOut", bindfunc=self.onShowSQL, 
-					tip=_("Show SQL"), help=_("Show the last executed SQL statement"))
 
 		if self.FormType != "Edit":
+			self.appendToolBarButton("SQL", "zoomNormal", bindfunc=self.onShowSQL, 
+					tip=_("Show SQL"), help=_("Show the last executed SQL statement"))
+
 			self.appendToolBarButton(_("Quick Report"), "print",
 					bindfunc=self.onQuickReport, tip=_("Quick Report"),
 					help=_("Run a Quick Report on the current dataset"))
@@ -216,6 +217,7 @@ class Form(dabo.ui.dForm):
 			menu.appendSeparator()
 
 		if self.FormType != "Edit":
+			menu.append(_("Show SQL"), bindfunc=self.onShowSQL, bmp="zoomNormal")
 			menu.append(_("Quick Report"), bindfunc=self.onQuickReport, bmp="print")
 
 		return menu
