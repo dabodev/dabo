@@ -2302,7 +2302,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _onGridColSize(self, evt):
 		"Occurs when the user resizes the width of the column."
-		colNum = evt.EventData["rowOrCol"]
+		colNum = evt.EventData["col"]
 		col = self.Columns[colNum]
 		colName = "Column_%s" % col.DataField
 
@@ -2450,7 +2450,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		default and applies that size change to all rows, not just the row 
 		the user sized.
 		"""
-		row = evt.GetRowOrCol()
+		row = evt.EventData["row"]
 		size = self.GetRowSize(row)
 
 		if self.SameSizeRows:

@@ -297,6 +297,7 @@ def discontinueEvent(evt):
 	
 def getEventData(wxEvt):
 	ed = {}
+	eventType = wxEvt.GetEventType()
 	
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, wx.TreeEvent,
 			wx.CommandEvent, wx.CloseEvent, wx.grid.GridEvent,
@@ -386,7 +387,11 @@ def getEventData(wxEvt):
 		except: pass
 	
 	if isinstance(wxEvt, wx.grid.GridSizeEvent):
-		ed["rowOrCol"] = wxEvt.GetRowOrCol()
+		#ed["rowOrCol"] = wxEvt.GetRowOrCol()
+		if eventType == wx.grid.EVT_GRID_ROW_SIZE.evtType[0]:
+			ed["row"] = wxEvt.GetRowOrCol()
+		elif eventType == wx.grid.EVT_GRID_COL_SIZE.evtType[0]:
+			ed["col"] = wxEvt.GetRowOrCol()
 		ed["position"] = wxEvt.GetPosition()
 		ed["altDown"] = wxEvt.AltDown()
 		ed["controlDown"] = wxEvt.ControlDown()
