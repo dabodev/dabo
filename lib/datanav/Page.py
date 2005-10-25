@@ -6,7 +6,6 @@ import dabo.dException as dException
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _, n_
 from dabo.lib.utils import padl
-import dabo.lib.reportUtils as reportUtils
 from dabo.dObject import dObject
 
 dabo.ui.loadUI("wx")
@@ -538,10 +537,6 @@ class BrowsePage(Page):
 		else:
 			grid.DataSource = self.Form.previewDataSource
 		self.Sizer.append(grid, 2, "expand")
-		preview = self.addObject(dabo.ui.dButton, "cmdPreview")
-		preview.Caption = _("Print Preview")
-		preview.bindEvent(dEvents.Hit, self.onPreview)
-		self.Sizer.append(preview, 0)		
 		self.itemsCreated = True
 	
 
@@ -549,62 +544,6 @@ class BrowsePage(Page):
 		self.BrowseGrid.populate()
 		self.layout()
 		
-
-	def onPreview(self, evt):
-		if not self.itemsCreated:
-			return
-		if self.Form.preview:
-			# Just previewing 
-			dabo.ui.info(message="Not available in preview mode", 
-			             title = "Preview Mode")
-			return
-
-		class ReportFormatDialog(dabo.ui.dOkCancelDialog):
-			def initProperties(self):
-				self.Caption = "Choose Report"
-				self.mode = None
-
-			def addControls(self):
-				self.addObject(dabo.ui.dRadioGroup, Name="radMode", Caption="Mode",
-				               Orientation="Row", 
-				               Choices=["List Format", "Expanded Format"],
-				               ValueMode="Key",
-				               Keys={"list":0, "expanded":1})
-				self.Sizer.append(self.radMode, 1, "expand", border=5)
-				self.addObject(dabo.ui.dButton, Name="btnAdvanced", Caption="Advanced",
-				               Enabled=False)
-				self.Sizer.append(self.btnAdvanced, border=5)
-
-			def onOK(self, evt):
-				self.mode = self.radMode.Value
-
-		d = ReportFormatDialog()
-		d.show()
-		mode = d.mode
-		d.release()
-
-		if mode is not None:
-			# Run the report
-			biz = self.Form.getBizobj()
-			rfxml = self.Form.getReportForm(mode)
-			cursor = biz.getDataSet()
-			outputfile = reportUtils.getTempFile()
-
-			try:
-				import dabo.dReportWriter as drw
-			except ImportError:
-				dabo.ui.stop("Error importing dReportWriter. Check your terminal output.")
-				return
-				
-			rw = drw.dReportWriter(OutputFile=outputfile, 
-			                       ReportFormXML=rfxml, 
-			                       Cursor=cursor,
-			                       Encoding=biz.Encoding)
-			rw.write()
-
-			# Now, preview using the platform's default pdf viewer:
-			reportUtils.previewPDF(outputfile)
-
 
 class EditPage(Page):
 	def __init__(self, parent, ds=None):
