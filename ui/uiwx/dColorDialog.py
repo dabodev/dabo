@@ -16,6 +16,8 @@ class dColorDialog(wx.ColourDialog):
 					color = dColors.colorTupleFromName(color)
 					dat.SetColour(color)
 				except: pass
+			elif isinstance(color, tuple):
+				dat.SetColour(color)
 		super(dColorDialog, self).__init__(parent, data=dat)
 		self._selColor = None
 	
