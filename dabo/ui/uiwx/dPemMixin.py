@@ -1398,11 +1398,10 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _getToolTipText(self):
-		t = self.GetToolTip()
-		if t:
-			return t.GetTip()
-		else:
-			return ""
+		try:
+			return self._toolTipText
+		except:
+			return ''
 
 	def _setToolTipText(self, val):
 		if self._constructed():
@@ -1413,6 +1412,7 @@ class dPemMixin(dPemMixinBase):
 				if val:
 					t = wx.ToolTip(val)
 					self.SetToolTip(t)
+					self._toolTipText = val
 		else:
 			self._properties["ToolTipText"] = val
 
