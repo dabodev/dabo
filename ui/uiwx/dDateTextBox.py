@@ -162,8 +162,8 @@ C: Popup Calendar to Select
 				val = self.getValidValue()
 				val.SetToLastMonthDay()
 			self.Value = val
- 		elif key == "y":
- 			# First day of year
+		elif key == "y":
+			# First day of year
 			val = self.getValidValue()
 			if val.GetDay() == 1:
 				if val.GetMonth() == 0:
@@ -173,8 +173,8 @@ C: Popup Calendar to Select
 			newval = val.SetDay(1)
 			newval = newval.SetMonth(0)
 			self.Value = newval
- 		elif key == "r":
- 			# Last day of year
+		elif key == "r":
+			# Last day of year
 			val = self.getValidValue()
 			origDay, origMonth = val.GetDay(), val.GetMonth()
 			val.SetMonth(11)
@@ -186,12 +186,12 @@ C: Popup Calendar to Select
 				val.SetMonth(11)
 				val.SetToLastMonthDay()
 			self.Value = val
- 		elif key == "[":
- 			# Back one month
- 			self.monthInterval(-1)
- 		elif key == "]":
- 			# Forward one month
- 			self.monthInterval(1)
+		elif key == "[":
+			# Back one month
+			self.monthInterval(-1)
+		elif key == "]":
+			# Forward one month
+			self.monthInterval(1)
 		else:
 			# This shouldn't happen, because onChar would have filtered it out.
 			dabo.infoLog.write("Warning in dDateTextBox.adjustDate: %s key sent." % key)
@@ -492,26 +492,26 @@ C: Popup Calendar to Select
 			# Last day of month
 			self.date.SetToLastMonthDay()
 			self.Value = self.date
- 		elif key == "y":
- 			# First day of year
- 			self.date.SetMonth(0).SetDay(1)
- 			self.Value = self.date
+		elif key == "y":
+			# First day of year
+			self.date.SetMonth(0).SetDay(1)
+			self.Value = self.date
 			forward = False
- 		elif key == "r":
- 			# Last day of year
- 			self.date.SetMonth(11).SetDay(31)
- 			self.Value = self.date
- 		elif key == "[":
- 			# Back one month
- 			self.monthInterval(-1)
+		elif key == "r":
+			# Last day of year
+			self.date.SetMonth(11).SetDay(31)
+			self.Value = self.date
+		elif key == "[":
+			# Back one month
+			self.monthInterval(-1)
 			forward = False
- 		elif key == "]":
- 			# Forward one month
- 			self.monthInterval(1)
- 		elif key == "c":
- 			# Show the calendar
- 			self.showCalendar()
- 			checkBoundary = False
+		elif key == "]":
+			# Forward one month
+			self.monthInterval(1)
+		elif key == "c":
+			# Show the calendar
+			self.showCalendar()
+			checkBoundary = False
 		else:
 			# This shouldn't happen, because onChar would have filtered it out.
 			dabo.infoLog.write("Warning in dDateTextBox.adjustDate: %s key sent." % key)

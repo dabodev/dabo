@@ -25,7 +25,7 @@ class About(dabo.ui.dDialog):
 
 		pnlBack = dabo.ui.dPanel(self, BackColor="Peru")
 # 		pnlBack.bindEvent(*clickBinding)
- 		self.Sizer.append(pnlBack, 1, "x")
+		self.Sizer.append(pnlBack, 1, "x")
 		pnlBack.Sizer = sz = dabo.ui.dSizer("v")
 
 		pnlHead = dabo.ui.dPanel(pnlBack, BackColor="PeachPuff")
@@ -34,7 +34,7 @@ class About(dabo.ui.dDialog):
 
 		ps.Border = 32
 		lblHead = dabo.ui.dLabel(pnlHead, Caption="Dabo", FontSize=36, 
-		                         FontBold=True)
+								FontBold=True)
 # 		lblHead.bindEvent(*clickBinding)
 
 		ps.appendSpacer(5, 1)
@@ -74,10 +74,10 @@ class About(dabo.ui.dDialog):
 		gs = dabo.ui.dGridSizer(maxCols=2, hgap=5, vgap=10)
 		gs.setColExpand(True, "all")
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=_("Dabo Version:"), 
-				 properties=labelStyle), halign="right")
+					properties=labelStyle), halign="right")
 		gs.append(dabo.ui.dLabel(pnlBack, Caption="%s (rev. %s)" 
-				 % (dabo.version["version"], dabo.version["revision"]), 
-				 properties=valStyle))
+					% (dabo.version["version"], dabo.version["revision"]), 
+					properties=valStyle))
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=_("UI Version:"), 
 				properties=labelStyle), halign="right")
 		gs.append(dabo.ui.dLabel(pnlBack, Caption=self.uiVersion, properties=valStyle))

@@ -211,5 +211,5 @@ class dOkCancelDialog(dDialog):
 
 if __name__ == "__main__":
 	import test
- 	test.Test().runTest(dDialog)
+	test.Test().runTest(dDialog)
 	test.Test().runTest(dOkCancelDialog)
