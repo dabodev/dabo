@@ -1060,13 +1060,13 @@ class dBizobj(dObject):
 
 
 	def getDataSet(self, flds=(), rowStart=0, rows=None):
-		""" Return the full data set from the cursor. 
-		
-		Used by UI objects such as the grid for efficient reading of the data,
-		and user code can do this as well if needed, but you'll need to keep 
-		the bizobj notified of any row changes and field value changes manually.
+		""" Get the entire data set encapsulated in a list. 
+
+		If the optional	'flds' parameter is given, the result set will be filtered 
+		to only include the specified fields. rowStart specifies the starting row
+		to include, and rows is the number of rows to return. 
 		"""
-		return self._CurrentCursor.getDataSet(flds)
+		return self._CurrentCursor.getDataSet(flds, rowStart, rows)
 	
 	
 	def getDataStructure(self):

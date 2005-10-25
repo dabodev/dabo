@@ -645,13 +645,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def getDataSet(self, flds=(), rowStart=0, rows=None):
-		""" Get the entire data set encapsulated in a list. If the optional
-		'flds' parameter is given, the result set will be filtered to only 
-		include the specified fields.
+		""" Get the entire data set encapsulated in a list. 
+
+		If the optional	'flds' parameter is given, the result set will be filtered 
+		to only include the specified fields. rowStart specifies the starting row
+		to include, and rows is the number of rows to return. 
 		"""
 		try:
 			if rows is not None:
-				ret = self._records[rowStart:rows]
+				ret = self._records[rowStart:rowStart+rows]
 			else:
 				ret = self._records[rowStart:]
 			if flds:
