@@ -362,6 +362,9 @@ def getEventData(wxEvt):
 		else:
 			ed["selectedCaption"] = tree.Selection.Caption
 	
+	if hasattr(wxEvt, "GetId"):
+		ed["id"] = wxEvt.GetId()
+
 	if hasattr(wxEvt, "GetIndex"):
 		ed["index"] = wxEvt.GetIndex()
 	else:
