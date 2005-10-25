@@ -5,6 +5,7 @@ import dabo.dEvents as dEvents
 import dabo.ui
 from dabo.lib.specParser import importRelationSpecs, importFieldSpecs
 from dabo.dLocalize import _, n_
+import dabo.lib.reportUtils as reportUtils
 import PageFrame
 import Grid
 
@@ -162,10 +163,14 @@ class Form(dabo.ui.dForm):
 			self.appendToolBarButton("SQL", "zoomOut", bindfunc=self.onShowSQL, 
 					tip=_("Show SQL"), help=_("Show the last executed SQL statement"))
 
+		if self.FormType != "Edit":
+			self.appendToolBarButton(_("Quick Report"), "print",
+					bindfunc=self.onQuickReport, tip=_("Quick Report"),
+					help=_("Run a Quick Report on the current dataset"))
 
 	def getMenu(self):
 		menu = super(Form, self).getMenu()
-		menu.Caption = _("&Navigation")
+		menu.Caption = _("&Actions")
   
 		menu.append(_("Set Selection Criteria")+"\tAlt+1", 
 				bindfunc=self.onSetSelectionCriteria, bmp="checkMark",
@@ -192,9 +197,7 @@ class Form(dabo.ui.dForm):
 			menu.append(_("Cancel Changes"), bindfunc=self.onCancel, bmp="revert",
 					help=_("Cancel any changes made to the records."))
 			menu.appendSeparator()
-  
 		
-		if self.FormType != "Edit":
 			menu.append(_("Select First Record"), bindfunc=self.onFirst, 
 					bmp="leftArrows", help=_("Go to the first record in the set.")) 
 			menu.append(_("Select Prior Record")+"\tCtrl+,", bindfunc=self.onPrior, 
@@ -211,6 +214,9 @@ class Form(dabo.ui.dForm):
 			menu.append(_("Delete Current Record"), bindfunc=self.onDelete, bmp="delete",
 					help=_("Delete the current record from the dataset."))
 			menu.appendSeparator()
+
+		if self.FormType != "Edit":
+			menu.append(_("Quick Report"), bindfunc=self.onQuickReport, bmp="print")
 
 		return menu
 
@@ -329,6 +335,83 @@ class Form(dabo.ui.dForm):
 		dlg.Sizer.append1x(eb)
 		dlg.show()
 		dlg.release()
+
+
+	def onQuickReport(self, evt):
+		if self.preview:
+			# Just previewing 
+			dabo.ui.info(message="Not available in preview mode", 
+			             title = "Preview Mode")
+			return
+
+		class ReportFormatDialog(dabo.ui.dOkCancelDialog):
+			def initProperties(self):
+				self.Caption = "Quick Report"
+				self.mode = None
+				self.records = None
+
+			def addControls(self):
+				self.addObject(dabo.ui.dRadioGroup, Name="radMode", Caption="Mode",
+				               Orientation="Row", 
+				               Choices=["List Format", "Expanded Format"],
+				               ValueMode="Key",
+				               Keys={"list":0, "expanded":1},
+				               SaveRestoreValue=True)
+				self.Sizer.append(self.radMode, 1, "expand", border=5)
+
+				self.addObject(dabo.ui.dRadioGroup, Name="radRecords", 
+				               Caption="Report On",
+				               Orientation="Row", 
+				               Choices=["All records in dataset", 
+				                        "Just current record"],
+				               ValueMode="Key",
+				               Keys={"all":0, "one":1},
+				               SaveRestoreValue=True)
+				self.Sizer.append(self.radRecords, 1, "expand", border=5)
+
+				self.addObject(dabo.ui.dButton, Name="btnAdvanced", Caption="Advanced",
+				               Enabled=False)
+				self.Sizer.append(self.btnAdvanced, border=5)
+
+			def onOK(self, evt):
+				self.mode = self.radMode.Value
+				self.records = self.radRecords.Value
+
+		# Name the dialog unique to the active page, so that the user's settings
+		# will save and restore uniquely. They may want to usually print just the
+		# current record in expanded format when on the edit page, and a list 
+		# format otherwise, for example.
+		name = "FrmQuickReport_%s" % self.PageFrame.SelectedPage.Caption
+		d = ReportFormatDialog(self, NameBase=name)
+		d.show()
+		mode = d.mode
+		records = d.records
+		d.release()
+
+		if mode is not None:
+			# Run the report
+			biz = self.getBizobj()
+			rfxml = self.getReportForm(mode)
+			if records == "all":
+				cursor = biz.getDataSet()
+			else:
+				cursor = biz.getDataSet(rowStart=biz.RowNumber, rows=1)
+			outputfile = reportUtils.getTempFile()
+
+			try:
+				import dabo.dReportWriter as drw
+			except ImportError:
+				dabo.ui.stop("Error importing dReportWriter. Check your terminal output.")
+				return
+				
+			rw = drw.dReportWriter(OutputFile=outputfile, 
+			                       ReportFormXML=rfxml, 
+			                       Cursor=cursor,
+			                       Encoding=biz.Encoding)
+			rw.write()
+
+			# Now, preview using the platform's default pdf viewer:
+			reportUtils.previewPDF(outputfile)
 
 
 	def setFieldSpecs(self, xml, tbl):
