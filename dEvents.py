@@ -223,7 +223,7 @@ class Hit(Event):
 	"""Occurs with the control's default event (button click, listbox pick, checkbox, etc.)"""
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, (ui.dBitmapButton, ui.dButton, ui.dCheckBox,
-			ui.dDropdownList, ui.dEditBox, ui.dListBox,
+			ui.dComboBox, ui.dDropdownList, ui.dEditBox, ui.dListBox,
 			ui.dRadioGroup, ui.dSlider, ui.dSpinner, ui.dTextBox,
 			ui.dTimer, ui.dToggleButton, ui.dMenuItem))
 	appliesToClass = classmethod(appliesToClass)
