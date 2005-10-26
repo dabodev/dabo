@@ -38,7 +38,7 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 		
 	# property get/set functions
 	def _getOrientation(self):
- 		if self._hasWindowStyleFlag(wx.LI_VERTICAL):
+		if self._hasWindowStyleFlag(wx.LI_VERTICAL):
 			return "Vertical"
 		else:
 			return "Horizontal"

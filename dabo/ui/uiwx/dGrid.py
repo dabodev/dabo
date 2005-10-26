@@ -1818,7 +1818,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					# Column is not sorted, so don't draw.
 					sortIndicator = False
 			
- 			dc.SetFont(font)
+			dc.SetFont(font)
 			ah = colObj.HeaderHorizontalAlignment
 			av = colObj.HeaderVerticalAlignment
 			if ah is None:
@@ -1856,7 +1856,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				trect[2] = trect[2] - (horBuffer+sortBuffer)
 			trect[3] = trect[3] - (2*vertBuffer)
 			trect = wx.Rect(*trect)
- 			dc.DrawLabel("%s" % colObj.Caption, trect, wxav|wxah)
+			dc.DrawLabel("%s" % colObj.Caption, trect, wxav|wxah)
 			dc.DestroyClippingRegion()
 
 
