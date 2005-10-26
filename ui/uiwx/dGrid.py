@@ -282,8 +282,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			width = None
 			if app is not None:
 				width = app.getUserSetting("%s.%s.%s.%s" % (self.grid.Form.Name, 
-				                                            self.grid.Name, colName, 
-				                                            "Width"))
+					self.grid.Name, colName, 
+				  "Width"))
 
 			if width is None:
 				# 2) Try to get the column width from the column definition:
@@ -1013,7 +1013,7 @@ class dColumn(dObject):
 		except AttributeError:
 			auto = self._autoHorizontalAlignment = True
 		mapping = {wx.ALIGN_LEFT: "Left", wx.ALIGN_RIGHT: "Right",
-	             wx.ALIGN_CENTRE: "Center"}
+				wx.ALIGN_CENTRE: "Center"}
 		wxAlignment = self._gridColAttr.GetAlignment()[0]
 		try:
 			val = mapping[wxAlignment]
@@ -1039,7 +1039,7 @@ class dColumn(dObject):
 			if val != "Automatic" and not _autoAlign:
 				self._autoHorizontalAlignment = False
 			mapping = {"Left": wx.ALIGN_LEFT, "Right": wx.ALIGN_RIGHT,
-					 "Center": wx.ALIGN_CENTRE}
+					"Center": wx.ALIGN_CENTRE}
 			try:
 				wxHorAlign = mapping[val]
 			except KeyError:
@@ -1117,7 +1117,7 @@ class dColumn(dObject):
 
 	def _getVerticalAlignment(self):
 		mapping = {wx.ALIGN_TOP: "Top", wx.ALIGN_BOTTOM: "Bottom",
-	             wx.ALIGN_CENTRE: "Center"}
+				wx.ALIGN_CENTRE: "Center"}
 		wxAlignment = self._gridColAttr.GetAlignment()[1]
 		try:
 			val = mapping[wxAlignment]
@@ -1129,7 +1129,7 @@ class dColumn(dObject):
 		if self._constructed():
 			val = self._expandPropStringValue(val, ("Top", "Bottom", "Center"))
 			mapping = {"Top": wx.ALIGN_TOP, "Bottom": wx.ALIGN_BOTTOM,
-					 "Center": wx.ALIGN_CENTRE}
+					"Center": wx.ALIGN_CENTRE}
 			try:
 				wxVertAlign = mapping[val]
 			except KeyError:
@@ -1219,7 +1219,7 @@ class dColumn(dObject):
 			_("""Returns the editor class used for cells in the column. This 
 				will be self.CustomEditorClass if set, or the default editor for the 
 				datatype of the field.  (varies)"""))
-  
+
 	DataField = property(_getDataField, _setDataField, None,
 			_("Field key in the data set to which this column is bound.  (str)") )
 
@@ -1303,7 +1303,7 @@ class dColumn(dObject):
 			_("""Returns the renderer class used for cells in the column. This will be 
 			self.CustomRendererClass if set, or the default renderer class for the 
 			datatype of the field.  (varies)"""))
-  
+
 	Searchable = property(_getSearchable, _setSearchable, None,
 			_("""Specifies whether this column's incremental search is enabled. 
 			Default: True. The grid's Searchable property will override this setting.
@@ -1723,7 +1723,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				
 				# Account for the width of the header caption:
 				cw = dabo.ui.fontMetricFromFont(colObj.Caption, 
-				                                colObj.HeaderFont)[0] + capBuffer
+						colObj.HeaderFont)[0] + capBuffer
 				w = max(autoWidth, cw)
 				w = min(w, maxWidth)
 				colObj.Width = w
@@ -1808,12 +1808,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				if self.sortOrder == "DESC":
 					# Down arrow
 					dc.DrawPolygon([(left, top), (left+self.sortIndicatorSize, top), 
-					                (left+self.sortIndicatorBuffer, top+self.sortIndicatorSize)])
+							(left+self.sortIndicatorBuffer, top+self.sortIndicatorSize)])
 				elif self.sortOrder == "ASC":
 					# Up arrow
 					dc.DrawPolygon([(left+self.sortIndicatorBuffer, top), 
-					                (left+self.sortIndicatorSize, top+self.sortIndicatorSize), 
-					                (left, top+self.sortIndicatorSize)])
+							(left+self.sortIndicatorSize, top+self.sortIndicatorSize), 
+							(left, top+self.sortIndicatorSize)])
 				else:
 					# Column is not sorted, so don't draw.
 					sortIndicator = False
@@ -1831,12 +1831,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				av = "Center"
 
 			wxah = {"Center": wx.ALIGN_CENTRE_HORIZONTAL, 
-			        "Left": wx.ALIGN_LEFT, 
-			        "Right": wx.ALIGN_RIGHT}[ah]
+					"Left": wx.ALIGN_LEFT, 
+					"Right": wx.ALIGN_RIGHT}[ah]
 
 			wxav = {"Center": wx.ALIGN_CENTRE_VERTICAL, 
-			        "Top": wx.ALIGN_TOP,
-			        "Bottom": wx.ALIGN_BOTTOM}[av]
+					"Top": wx.ALIGN_TOP,
+					"Bottom": wx.ALIGN_BOTTOM}[av]
 
 			# Give some more space around the rect - some platforms use a 3d look
 			# and anyway it looks better if left/right aligned text isn't right on 
@@ -2398,7 +2398,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		def _autosizeColumn(evt):
 			self.autoSizeCol(self.getColByX(self._headerMousePosition[0]), persist=True)
 		menu.append(_("&Autosize Column"), bindfunc=_autosizeColumn, 
-		            help=_("Autosize the column based on the data in the column."))
+				help=_("Autosize the column based on the data in the column."))
 
 		menu = self.fillHeaderContextMenu(menu)
 
@@ -2942,7 +2942,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				app = self.Application
 				if app is not None:
 					app.setUserSetting("%s.%s.%s" % (
-					                   self.Form.Name, self.Name, "RowSize"), val)
+							self.Form.Name, self.Name, "RowSize"), val)
 		else:
 				self._properties["RowHeight"] = val
 
@@ -3149,8 +3149,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 class _dGrid_test(dGrid):
 	def initProperties(self):
 		self.DataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True, "color": "brown"},
-		                {"name" : "Mike Leafe", "age" : 18, "coder" :  False, "color": "purple"},
-		                {"name" : "Dan Leafe", "age" : 13, "coder" :  False, "color": "green"}]
+				{"name" : "Mike Leafe", "age" : 18, "coder" :  False, "color": "purple"},
+				{"name" : "Dan Leafe", "age" : 13, "coder" :  False, "color": "green"}]
 		self.Width = 360
 		self.Height = 150
 		self.Editable = True

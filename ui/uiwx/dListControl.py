@@ -9,7 +9,7 @@ from dabo.dLocalize import _
 
 
 class dListControl(wx.ListCtrl, dcm.dControlItemMixin, 
-                   ListMixin.ListCtrlAutoWidthMixin):
+		ListMixin.ListCtrlAutoWidthMixin):
 	""" The List Control is ideal for visually dealing with data sets
 	where each 'row' is a unit, where it doesn't make sense to deal
 	with individual elements inside of the row. If you need to be

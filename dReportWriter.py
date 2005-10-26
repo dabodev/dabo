@@ -62,7 +62,7 @@ if __name__ == "__main__":
 				<expr>"(also see the test in dabo/lib/reporting)"</expr>
 				<align>"right"</align>
 				<hAnchor>"right"</hAnchor>
-        <x>self.Bands["pageFooter"]["width"]-1</x>
+				<x>self.Bands["pageFooter"]["width"]-1</x>
 				<y>"0 in"</y>
 				<width>"6 in"</width>
 			</string>

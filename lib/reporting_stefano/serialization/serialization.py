@@ -2,7 +2,7 @@
 from attributes import *
 from children import *
 
-       
+
 class SerializableMeta(type):
 	def __init__(cls, name, bases, dict):
 		newDict = {}
@@ -12,7 +12,7 @@ class SerializableMeta(type):
 				attributes.extend(base._xmlSerializationAttributes)
 		for name, obj in dict.items():
 			if (isinstance(obj, SerializableAttribute) 
-			    or isinstance(obj, SerializableObjectChild)):
+					or isinstance(obj, SerializableObjectChild)):
 				attributes.append( (name, obj) )
 				delattr(cls, name)
 			else:
@@ -27,7 +27,7 @@ class Serializable(object):
 	def __init__(self, **args):
 		self.srcValues = {}
 		attributeNames = [attrName for attrName, 
-		                  attrType in self._xmlSerializationAttributes]
+				attrType in self._xmlSerializationAttributes]
 		for key, value in args.iteritems():
 			assert key in attributeNames, "Unknown attribute name %r for object %s" \
 			                               % (key, self.__class__.__name__)
