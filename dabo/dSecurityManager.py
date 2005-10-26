@@ -16,7 +16,7 @@ class dSecurityManager(dObject):
 		for attempt in range(self.LoginAttemptsAllowed):
 			if attempt > 0:
 				message = _("Login incorrect, please try again. (%s/%s)") % (
-				            attempt+1, self.LoginAttemptsAllowed)
+						attempt+1, self.LoginAttemptsAllowed)
 			user, password = self.Application.uiApp.getLoginInfo(message)
 
 			if user is None:

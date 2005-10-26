@@ -136,7 +136,7 @@ class SelectPage(Page):
 			mn.append(_("Show sort order"), bindfunc=self.handleSortOrder)
 		if self.sortFields.has_key(self.sortDS):
 			mn.append(_("Remove sort on ") + self.sortCap, 
-			          bindfunc=self.handleSortRemove)
+					bindfunc=self.handleSortRemove)
 
 		mn.append(_("Sort Ascending"), bindfunc=self.handleSortAsc)
 		mn.append(_("Sort Descending"), bindfunc=self.handleSortDesc)
@@ -347,30 +347,26 @@ class SelectPage(Page):
 		if typ in ("char", "memo"):
 			if typ == "char":
 				chcList = [n_("Equals"), 
-					   n_("Begins With"),
-					   n_("Contains")
-					   ]
+						n_("Begins With"),
+						n_("Contains")]
 			elif typ == "memo":
 				chcList = [n_("Begins With"),
-					   n_("Contains")
-					   ]
+						n_("Contains")]
 			if ws != "0":
 				chcList.append(n_("Matches Words"))
 			chc = tuple(chcList)
 		elif typ in ("date", "datetime"):
 			chc = (n_("Equals"),
-			       n_("On or Before"),
-			       n_("On or After"),
-			       n_("Before"),
-			       n_("After")
-			       )
+					n_("On or Before"),
+					n_("On or After"),
+					n_("Before"),
+					n_("After") )
 		elif typ in ("int", "float", "decimal"):
 			chc = (n_("Equals"), 
-			       n_("Greater than"),
-			       n_("Greater than/Equal to"),
-			       n_("Less than"),
-			       n_("Less than/Equal to")
-			       )
+					n_("Greater than"),
+					n_("Greater than/Equal to"),
+					n_("Less than"),
+					n_("Less than/Equal to"))
 		elif typ == "bool":
 			chc = (CHOICE_TRUE, CHOICE_FALSE)
 		else:
