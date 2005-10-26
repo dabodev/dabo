@@ -27,7 +27,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 		preClass = wx.PreTextCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
-		                               *args, **kwargs)
+				*args, **kwargs)
 		
 		# Keep passwords, etc., from being written to disk
 		if self.PasswordEntry:
@@ -273,7 +273,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 					curYear = datetime.date.today().year
 					if groups.has_key("shortyear"):
 						groups["year"] = int("%s%s" % (str(curYear)[:2], 
-					                                 groups["shortyear"]))
+								groups["shortyear"]))
 					else:
 						groups["year"] = curYear
 				try:		

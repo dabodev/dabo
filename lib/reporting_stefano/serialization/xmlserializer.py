@@ -20,7 +20,7 @@ class DeserializingParser(object):
 	def StartElement(self, name, attributes):
 		expectedNames = self.expectedNamesStack[-1]
 		assert name in expectedNames, 'Unexpected tag %r (expecting: %s)' \
-		                               % (name, ', '.join(expectedNames))
+				% (name, ', '.join(expectedNames))
 		if len(self.objStack) == 0:
 			# root element
 			self.rootObj = self.rootCls()

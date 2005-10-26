@@ -612,7 +612,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						
 						if not ignore:
 							msg = "!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s" \
-								  % (fld, str(fldType), str(type(val)))
+									% (fld, str(fldType), str(type(val)))
 							dabo.errorLog.write(msg)
 				rec[fld] = val
 

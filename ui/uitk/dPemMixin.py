@@ -527,75 +527,75 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	# Property definitions follow
 	
 	WindowHandle = property(_getWindowHandle, None, None,
-					'The platform-specific handle for the window. Read-only. (long)')
+			'The platform-specific handle for the window. Read-only. (long)')
 
 	Font = property(_getFont, _setFont, None,
-					'The font properties of the object. (obj)')
+			'The font properties of the object. (obj)')
 	FontInfo = property(_getFontInfo, None, None,
-					'Specifies the platform-native font info string. Read-only. (str)')
+			'Specifies the platform-native font info string. Read-only. (str)')
 	FontBold = property(_getFontBold, _setFontBold, None,
-					'Specifies if the font is bold-faced. (bool)')
+			'Specifies if the font is bold-faced. (bool)')
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
-					'Specifies whether font is italicized. (bool)')
+			'Specifies whether font is italicized. (bool)')
 	FontFace = property(_getFontFace, None, None,
-					'Specifies the font face. (str)')
+			'Specifies the font face. (str)')
 	FontSize = property(_getFontSize, _setFontSize, None,
-					'Specifies the point size of the font. (int)')
+			'Specifies the point size of the font. (int)')
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
-					'Specifies whether text is underlined. (bool)')
+			'Specifies whether text is underlined. (bool)')
 
 	Top = property(_getTop, _setTop, None, 
-					'The top position of the object. (int)')
+			'The top position of the object. (int)')
 	Left = property(_getLeft, _setLeft, None,
-					'The left position of the object. (int)')
+			'The left position of the object. (int)')
 	Position = property(_getPosition, _setPosition, None, 
-					'The (x,y) position of the object. (tuple)')
+			'The (x,y) position of the object. (tuple)')
 
 	Width = property(_getWidth, _setWidth, None,
-					'The width of the object. (int)')
+			'The width of the object. (int)')
 	Height = property(_getHeight, _setHeight, None,
-					'The height of the object. (int)')
+			'The height of the object. (int)')
 	Size = property(_getSize, _setSize, None,
-					'The size of the object. (tuple)')
+			'The size of the object. (tuple)')
 
 
 	Caption = property(_getCaption, _setCaption, None, 
-					'The caption of the object. (str)')
+			'The caption of the object. (str)')
 
 	Enabled = property(_getEnabled, _setEnabled, None,
-					'Specifies whether the object (and its children) can get user input. (bool)')
+			'Specifies whether the object (and its children) can get user input. (bool)')
 
 	Visible = property(_getVisible, _setVisible, None,
-					'Specifies whether the object is visible at runtime. (bool)')                    
+			'Specifies whether the object is visible at runtime. (bool)')                    
 
 
 	BackColor = property(_getBackColor, _setBackColor, None,
-					'Specifies the background color of the object. (tuple)')
+			'Specifies the background color of the object. (tuple)')
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
-					'Specifies the foreground color of the object. (tuple)')
+			'Specifies the foreground color of the object. (tuple)')
 
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
-					'Specifies the shape of the mouse pointer when it enters this window. (obj)')
+			'Specifies the shape of the mouse pointer when it enters this window. (obj)')
 	
- 	Name = property(_getName, _setName, None, 
- 					'The name of the object. (str)')
+	Name = property(_getName, _setName, None, 
+			'The name of the object. (str)')
 	
 	Parent = property(_getParent, _setParent, None,	
-					'The containing object. (obj)')
+			'The containing object. (obj)')
 
 	ToolTipText = property(_getToolTipText, _setToolTipText, None,
-					'Specifies the tooltip text associated with this window. (str)')
+			'Specifies the tooltip text associated with this window. (str)')
 
 	HelpContextText = property(_getHelpContextText, _setHelpContextText, None,
-					'Specifies the context-sensitive help text associated with this window. (str)')
+			'Specifies the context-sensitive help text associated with this window. (str)')
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
-					'Specifies the type of border for this window. (int). \n'
-					'     None \n'
-					'     Simple \n'
-					'     Sunken \n'
-					'     Raised')
+			'Specifies the type of border for this window. (int). \n'
+			'     None \n'
+			'     Simple \n'
+			'     Sunken \n'
+			'     Raised')
 
 
 if __name__ == "__main__":

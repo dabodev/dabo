@@ -402,7 +402,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			return
 		if message is None:
 			message = _("This will delete the current record from %s, and cannot "
-			            "be canceled.\n\n Are you sure you want to do this?") % ds
+					"be canceled.\n\n Are you sure you want to do this?") % ds
 		if dabo.ui.areYouSure(message, defaultNo=True):
 			try:
 				bizobj.delete()

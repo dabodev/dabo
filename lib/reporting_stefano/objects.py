@@ -62,9 +62,9 @@ class Rect(GenericObject):
 
 		rect = shapes.Rect(0, 0, self.width, self.height)
 		rect.setProperties({'strokeWidth':self.strokeWidth,
-		                    'fillColor':self.fillColor,
-		                    'strokeColor':self.strokeColor,
-		                    'strokeDashArray':self.strokeDashArray,
+				'fillColor':self.fillColor,
+				'strokeColor':self.strokeColor,
+				'strokeDashArray':self.strokeDashArray,
 		})
 		drawing.add(rect)
 		drawing.drawOn(canvas, x, y)
@@ -104,8 +104,8 @@ class String(GenericObject):
 		canvas.clipPath(path, stroke=stroke)
 
 		func, posx = {"center": (canvas.drawCentredString, (self.width / 2)),
-		              "right": (canvas.drawRightString, self.width),
-		              "left": (canvas.drawString, 0),}[self.align]
+				"right": (canvas.drawRightString, self.width),
+				"left": (canvas.drawString, 0),}[self.align]
 
 		# draw the string using the function that matches the alignment:
 		func(posx, 0, self.expr)
@@ -141,7 +141,7 @@ class Image(GenericObject):
 			# width/height, resulting in clipping.
 			self.width, self.height = None, None
 		canvas.drawImage(self.expr, 0, 0, self.width, self.height, self.imageMask)
-        
+
 #
 #  Frameset is commented out because I haven't implemented it yet.
 #  The reason for this is lazyness :), but also uncertainty:
@@ -156,7 +156,7 @@ class Image(GenericObject):
 ##      for our banded report writer we want to be able to define columns per 
 ##      page. Different things.
 
-        
+
 #class Frameset(GenericObject):
 #    def __init__(self, borderWidth='0', 
 #                       borderColor='(0, 0, 0)', 
@@ -238,5 +238,3 @@ class Image(GenericObject):
 #                               showBoundary=boundary)
 #
 #            f.addFromList(story, canvas)
-    
-        

@@ -16,7 +16,7 @@ class dButton(wx.Button, cm.dControlMixin):
 		self._baseClass = dButton
 		preClass = wx.PreButton
 		cm.dControlMixin.__init__(self, preClass, parent, properties, 
-		                          *args, **kwargs)
+				*args, **kwargs)
 
 
 	def _initEvents(self):

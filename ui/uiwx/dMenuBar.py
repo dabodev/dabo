@@ -16,7 +16,7 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 
 	def _initEvents(self):
 		self.Application.uiApp.Bind(wx.EVT_MENU_OPEN,
-		                            self.__onWxMenuOpen, self.Form)
+				self.__onWxMenuOpen, self.Form)
 
 	def __onWxMenuOpen(self, evt):
 		## pkm: EVT_OPEN only applies to the top-level menus: those in the menubar.

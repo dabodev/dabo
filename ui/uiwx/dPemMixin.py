@@ -1475,10 +1475,10 @@ class dPemMixin(dPemMixinBase):
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
 			_("""Specifies the type of border for this window. (int).
-			     None
-			     Simple
-			     Sunken 
-			     Raised""") )
+				None
+				Simple
+				Sunken 
+				Raised""") )
 	
 	BorderWidth = property(_getBorderWidth, _setBorderWidth, None,
 			_("""Width of the border drawn around the control, if any. 

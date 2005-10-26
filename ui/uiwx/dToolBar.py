@@ -174,18 +174,18 @@ class _dToolBar_test(dToolBar):
 
 	def afterInit(self):
 		self.appendButton("Copy", pic="copy", toggle=False, bindfunc=self.onCopy, 
-		                  tip="Copy", help="Much Longer Copy Help Text")
+				tip="Copy", help="Much Longer Copy Help Text")
 
 		self.appendButton("Timer", pic="dTimer", toggle=True, bindfunc=self.onTimer,
-		                  tip="Timer Toggle", help="Timer Help Text")
+				tip="Timer Toggle", help="Timer Help Text")
 
 		self.appendButton("Dabo", pic="daboIcon128", toggle=True, tip="Dabo! Dabo! Dabo!", 
-		                  help="Large icon resized to fit in the max dimensions")
+				help="Large icon resized to fit in the max dimensions")
 
 		self.appendSeparator()
 
 		self.appendButton("Exit", pic="close", toggle=True, bindfunc=self.onExit, 
-		                  tip="Exit", help="Quit the application")
+				tip="Exit", help="Quit the application")
 
 	def onCopy(self, evt):
 		dabo.ui.info("Copy Clicked!")

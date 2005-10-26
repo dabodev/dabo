@@ -165,14 +165,14 @@ class Grid(dabo.ui.dGrid):
 		try:
 			if self.Form.FormType == 'PickList':
 				menu.append(_("&Pick"), bindfunc=self.pickRecord, bmp="edit",
-				            help=_("Pick this record"))
+						help=_("Pick this record"))
 			else:
 				menu.append(_("&New"), bindfunc=self.newRecord, bmp="blank",
-				            help=_("Add a new record"))
+						help=_("Add a new record"))
 				menu.append("&Edit", bindfunc=self.editRecord, bmp="edit",
-				            help=_("Edit this record"))
+						help=_("Edit this record"))
 				menu.append("&Delete", bindfunc=self.deleteRecord, bmp="delete",
-				            help=_("Delete this record"))
+						help=_("Delete this record"))
 			return menu
 		except AttributeError:
 			# may not be a datanav form
