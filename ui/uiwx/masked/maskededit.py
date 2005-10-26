@@ -22,19 +22,16 @@ def _add_properties(parent_name, param_names):
 		old_setter = '%s.Set%s' % (parent_name, prop)
 		new_setter = 'Set%s' % (prop)
 		setter_def = 'def %s(self, val): %s(self, val),'\
-			     'self._formatter.SetParameters(%s=val)' \
-			     % (new_setter, old_setter, param)
+				'self._formatter.SetParameters(%s=val)' \
+				% (new_setter, old_setter, param)
 		prop_def = '%s = property(%s, %s, None,'\
-			   '"See documentation on wx.lib.masked.textctrl")' % (prop, old_getter, new_setter)
+				'"See documentation on wx.lib.masked.textctrl")' % (prop, old_getter, new_setter)
 		ret.extend([setter_def, prop_def])
 
 	return tuple(ret)
 	
 class dMaskedTextBox(textctrl.TextCtrl, dTextBox):
-	""" Allows editing one line of string or unicode data
-	using text mask.
-	"""
-	_IsContainer = False
+	""" Allows editing one line of string or unicode data	using text mask.	"""
 	for p in _add_properties('textctrl.TextCtrl', textctrl.TextCtrl.exposed_basectrl_params):
 		exec(p)
 	
@@ -65,7 +62,7 @@ class dMaskedTextBox(textctrl.TextCtrl, dTextBox):
 		value = self._formatter.fromstr(strVal, dataType)
 		if value is None:
 			dabo.errorLog.write("Couldn't convert literal '%s' to %s."
-					    % (strVal, dataType))
+					% (strVal, dataType))
 			value = self._value
 		return value
 
@@ -84,15 +81,14 @@ class dMaskedTextBox(textctrl.TextCtrl, dTextBox):
 		return self._formatter.format(value)
 
 	Value = property(_getValue, _setValue, None,
-			 "Specifies the current state of the control (the value of the field). (varies)")
+			"Specifies the current state of the control (the value of the field). (varies)")
 
 class dMaskedNumBox(numctrl.NumCtrl, dTextBox):
-	""" Allows editing numbers using masked formats.
-	"""
+	""" Allows editing numbers using masked formats."""
 	_IsContainer = False
 	for p in _add_properties('numctrl.NumCtrl',
-				 numctrl.NumCtrl.exposed_basectrl_params + \
-				 tuple(numctrl.NumCtrl.valid_ctrl_params.keys())):
+			numctrl.NumCtrl.exposed_basectrl_params + \
+			tuple(numctrl.NumCtrl.valid_ctrl_params.keys())):
 		exec(p)
 	
 	def __init__(self, parent, properties=None, *args, **kwargs):
@@ -125,7 +121,7 @@ class dMaskedNumBox(numctrl.NumCtrl, dTextBox):
 		return self._formatter.format(value)
 
 	Value = property(_getValue, _setValue, None,
-			 "Specifies the current state of the control (the value of the field). (varies)")
+			"Specifies the current state of the control (the value of the field). (varies)")
 
 if __name__ == "__main__":
 	import dabo.ui.uiwx.test as test
