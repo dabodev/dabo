@@ -148,7 +148,7 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 
 	_Image = property(_getImg, None, None, 
 			_("Underlying image handler object  (wx.Image)") )
- 
+
 	
 if __name__ == "__main__":
 	class ImgForm(dabo.ui.dForm):

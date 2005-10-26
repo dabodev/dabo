@@ -14,7 +14,7 @@ class Xml2Obj:
 		self.root = None
 		self.nodeStack = []
 		self.attsToSkip = []
-        
+
 	def StartElement(self,name,attributes):
 		"""SAX start element even handler"""
 		element = {"name": name.encode()}
@@ -23,7 +23,7 @@ class Xml2Obj:
 				if attributes.has_key(att):
 					del attributes[att]
 			element["attributes"] = attributes
-	    
+
 		# Push element onto the stack and make it a child of parent
 		if len(self.nodeStack) > 0:
 			parent = self.nodeStack[-1]
@@ -33,7 +33,7 @@ class Xml2Obj:
 		else:
 			self.root = element
 		self.nodeStack.append(element)
-        
+
 	def EndElement(self,name):
 		"""SAX end element event handler"""
 		self.nodeStack = self.nodeStack[:-1]
@@ -59,7 +59,7 @@ class Xml2Obj:
 
 		# Parse the XML File
 		ParserStatus = Parser.Parse(xml, 1)
-        
+
 		return self.root
 
 	def ParseFromFile(self, filename):

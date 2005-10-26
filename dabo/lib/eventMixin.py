@@ -32,7 +32,7 @@ class EventMixin(object):
 		
 
 	def raiseEvent(self, eventClass, uiEvent=None, uiCallAfterFunc=None, 
-	               *args, **kwargs):
+			*args, **kwargs):
 		"""Send the event to all registered listeners.
 		
 		If uiEvent is sent, dEvents.Event will be able to parse it for useful

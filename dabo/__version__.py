@@ -24,7 +24,7 @@ if _revision is None:
 	_revision = _revs["dabo"]
 
 version = {"version": _version,
-           "revision": _revision}
+		"revision": _revision}
 
 if __name__ == "__main__":
 	print "Dabo Version: %s \n    Revision: %s" % (

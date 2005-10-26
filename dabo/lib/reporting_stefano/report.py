@@ -16,7 +16,7 @@ class Report(Serializable):
 		c = canvas.Canvas(output, pagesize=self.page.size)
 		self.page.doLayout(self, c, cursor)
 		c.save()
-        
+
 	def getTestCursor(self):
 		for record in self.testcursor.records:
 			yield record.getDict()
@@ -116,7 +116,7 @@ class Page(Serializable):
 		the background, header, footer and foreground, when present.
 		"""
 		env = {'report':report,
-		       'page':self,
+				'page':self,
 		}
 		self._placeStaticBands(env)
 
@@ -124,8 +124,8 @@ class Page(Serializable):
 		for recordNumber, record in enumerate(cursor):
 			detailEnv = env.copy()
 			detailEnv.update({'detail': self.detail,
-			                  'record': record,
-			                  'recordNumber': recordNumber,
+					'record': record,
+					'recordNumber': recordNumber,
 			})
 			self.detail.evaluateHeight(detailEnv)
 			if pageInitialized and not self._detailBandFits():

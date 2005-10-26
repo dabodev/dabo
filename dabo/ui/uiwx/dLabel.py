@@ -89,9 +89,9 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 	# property definitions follow:
 	Alignment = property(_getAlignment, _setAlignment, None,
 			_("""Specifies the alignment of the text. (str)
-	   Left (default)
-	   Center
-	   Right""") )
+			Left (default)
+			Center
+			Right""") )
 	AutoResize = property(_getAutoResize, _setAutoResize, None,
 			_("Specifies whether the length of the caption determines "
 			"the size of the label. (bool)") )

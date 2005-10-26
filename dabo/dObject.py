@@ -251,16 +251,16 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 	
 
 	Application = property(_getApplication, None, None, 
- 		_("""Object reference to the Dabo Application object. (read only)."""))
+			_("""Object reference to the Dabo Application object. (read only)."""))
 	
 	BaseClass = property(_getBaseClass, None, None, 
- 		_("""The base Dabo class of the object. Read-only. (class)"""))
+			_("""The base Dabo class of the object. Read-only. (class)"""))
 	
 	Class = property(_getClass, None, None,
-		_("""The class the object is based on. Read-only. (class)"""))
- 	
+			_("""The class the object is based on. Read-only. (class)"""))
+	
 	LogEvents = property(_getLogEvents, _setLogEvents, None, 
-		_("""Specifies which events to log. (list of strings)
+			_("""Specifies which events to log. (list of strings)
 
 		If the first element is 'All', all events except the following listed events 
 		will be logged. 
@@ -272,13 +272,13 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 		"""))
 					
 	Name = property(_getName, _setName, None, 
- 		_("""The name of the object. (str)"""))
+			_("""The name of the object. (str)"""))
 	
 	Parent = property(_getParent, _setParent, None,	
-		_("""The containing object. (obj)"""))
- 	
+			_("""The containing object. (obj)"""))
+	
 	SuperClass = property(_getSuperClass, None, None, 
- 		_("""The parent class of the object. Read-only. (class)"""))
+			_("""The parent class of the object. Read-only. (class)"""))
 
 
 if __name__ == "__main__":

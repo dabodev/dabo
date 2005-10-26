@@ -564,7 +564,7 @@ class dApp(dObject):
 		
 	MainForm = property(_getMainForm, _setMainForm, None,
 			_("""The object reference to the main form of the application, or None.
- 
+
 			The MainForm gets instantiated automatically during application setup, 
 			based on the value of MainFormClass. If you want to swap in your own
 			MainForm instance, do it after setup() but before start(), as in:

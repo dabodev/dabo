@@ -150,7 +150,7 @@ class KeyEvent(Event):
 class MenuEvent(Event):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, (dabo.ui.dMenu, dabo.ui.dMenuItem,
-		                                dabo.ui.dMenuBar))
+				dabo.ui.dMenuBar))
 	appliesToClass = classmethod(appliesToClass)
 	
 class MouseEvent(Event):

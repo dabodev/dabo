@@ -4,7 +4,7 @@ import dIcons
 
 checkedBitmap = dIcons.getIconBitmap("boolRendererChecked")
 uncheckedBitmap = dIcons.getIconBitmap("boolRendererUnchecked")
- 
+
 class BoolRenderer(wx.grid.PyGridCellRenderer): 
 	"""The default wx Bool renderer is really ugly, so this is a replacement."""
 
@@ -33,7 +33,7 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 		""" 
 		return wx.Size(checkedBitmap.GetWidth(), checkedBitmap.GetHeight())
 
- 
+
 	def getValueBitmap( self, grid, row, col ): 
 		value = grid._Table.GetValue(row, col)
 		if value:
@@ -72,7 +72,7 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 			t = hbuffer
 
 		dc.DrawBitmap(bitmap, rect.x+l, rect.y+t) 
- 
+
 
 	def clip( self, dc, rect ): 
 		"""Setup the clipping rectangle""" 

@@ -15,7 +15,7 @@ class dCheckBox(Tkinter.Checkbutton, dcm.dDataControlMixin):
 		self._baseClass = dCheckBox
 		preClass = Tkinter.Checkbutton
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
-		                               *args, **kwargs)
+				*args, **kwargs)
 
 		self.pack()
 

@@ -159,14 +159,14 @@ def PageFrame(parent, tabStyle="tabs", tabPosition="Top",
 		mixin=PageFrameMixin, *args, **kwargs):
 	try:
 		tabStyles = {"tabs": dabo.ui.dPageFrame,
-			     "frame": dabo.ui.dPageFrame,
-			     "list": dabo.ui.dPageList,
-			     "select": dabo.ui.dPageSelect
-			     }
+				"frame": dabo.ui.dPageFrame,
+				"list": dabo.ui.dPageList,
+				"select": dabo.ui.dPageSelect
+		}
 		pageStyleClass = tabStyles[tabStyle.lower()]
 	except KeyError:
 		raise KeyError, \
-		      "tabStyle must be one of %s" % tabStyles.keys()
+				"tabStyle must be one of %s" % tabStyles.keys()
 
 	class DataNavFrame(mixin, pageStyleClass):
 		_pageStyleClass = property(lambda self: pageStyleClass)

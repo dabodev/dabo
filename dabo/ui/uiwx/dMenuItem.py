@@ -27,7 +27,7 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 			# is None, however, this won't work because of wx limitations.
 			self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, self)
 			self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT, 
-			                            self.__onWxMenuHighlight, self)
+					self.__onWxMenuHighlight, self)
 
 
 	def __onWxMenuHighlight(self, evt):

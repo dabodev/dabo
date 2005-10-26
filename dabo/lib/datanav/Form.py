@@ -172,14 +172,14 @@ class Form(dabo.ui.dForm):
 	def getMenu(self):
 		menu = super(Form, self).getMenu()
 		menu.Caption = _("&Actions")
-  
+
 		menu.append(_("Set Selection Criteria")+"\tAlt+1", 
 				bindfunc=self.onSetSelectionCriteria, bmp="checkMark",
 				help=_("Set the selection criteria for the recordset."))
 		menu.append(_("Browse Records")+"\tAlt+2", 
 				bindfunc=self.onBrowseRecords, bmp="browse",
 				help=_("Browse the records in the current recordset."))
-  
+
 		# Add one edit menu item for every edit page (every page past the second)
 		for index in range(2, self.pageFrame.PageCount):
 			title = "%s\tAlt+%d" % (_(self.pageFrame.Pages[index].Caption),
@@ -188,7 +188,7 @@ class Form(dabo.ui.dForm):
 					help=_("Edit the fields of the currently selected record."),
 					Tag=self.pageFrame.Pages[index].DataSource)
 			menu.appendSeparator()
-  
+
 		if self.FormType != "Edit":
 			menu.append(_("Requery")+"\tCtrl+R", bindfunc=self.onRequery, bmp="requery",
 					help=_("Get a new recordset from the backend."), menutype="check")		
@@ -343,7 +343,7 @@ class Form(dabo.ui.dForm):
 		if self.preview:
 			# Just previewing 
 			dabo.ui.info(message="Not available in preview mode", 
-			             title = "Preview Mode")
+					title = "Preview Mode")
 			return
 
 		class ReportFormatDialog(dabo.ui.dOkCancelDialog):
@@ -354,25 +354,25 @@ class Form(dabo.ui.dForm):
 
 			def addControls(self):
 				self.addObject(dabo.ui.dRadioGroup, Name="radMode", Caption="Mode",
-				               Orientation="Row", 
-				               Choices=["List Format", "Expanded Format"],
-				               ValueMode="Key",
-				               Keys={"list":0, "expanded":1},
-				               SaveRestoreValue=True)
+						Orientation="Row", 
+						Choices=["List Format", "Expanded Format"],
+						ValueMode="Key",
+						Keys={"list":0, "expanded":1},
+						SaveRestoreValue=True)
 				self.Sizer.append(self.radMode, 1, "expand", border=5)
 
 				self.addObject(dabo.ui.dRadioGroup, Name="radRecords", 
-				               Caption="Report On",
-				               Orientation="Row", 
-				               Choices=["All records in dataset", 
-				                        "Just current record"],
-				               ValueMode="Key",
-				               Keys={"all":0, "one":1},
-				               SaveRestoreValue=True)
+						Caption="Report On",
+						Orientation="Row", 
+						Choices=["All records in dataset", 
+								"Just current record"],
+						ValueMode="Key",
+						Keys={"all":0, "one":1},
+						SaveRestoreValue=True)
 				self.Sizer.append(self.radRecords, 1, "expand", border=5)
 
 				self.addObject(dabo.ui.dButton, Name="btnAdvanced", Caption="Advanced",
-				               Enabled=False)
+						Enabled=False)
 				self.Sizer.append(self.btnAdvanced, border=5)
 
 			def onOK(self, evt):
@@ -407,9 +407,9 @@ class Form(dabo.ui.dForm):
 				return
 				
 			rw = drw.dReportWriter(OutputFile=outputfile, 
-			                       ReportFormXML=rfxml, 
-			                       Cursor=cursor,
-			                       Encoding=biz.Encoding)
+					ReportFormXML=rfxml, 
+					Cursor=cursor,
+					Encoding=biz.Encoding)
 			rw.write()
 
 			# Now, preview using the platform's default pdf viewer:
@@ -621,7 +621,7 @@ class Form(dabo.ui.dForm):
 		vertBuffer = 5
 		for col in grid.Columns:
 			coldict = {"caption": col.Caption, "fontSize": col.HeaderFontSize,
-			           "width": col.Width, "x": x+horBuffer}
+					"width": col.Width, "x": x+horBuffer}
 			coldict["horBuffer"] = horBuffer
 			coldict["vertBuffer"] = vertBuffer
 			coldict["rectWidth"] = coldict["width"] + (2*horBuffer)
@@ -697,8 +697,8 @@ class Form(dabo.ui.dForm):
 		vertBuffer = 5
 		for col in grid.Columns:
 			coldict = {"caption": col.Caption, "field": col.DataField, 
-			           "width": col.Width, "fontSize": col.FontSize,
-			           "x": x+horBuffer}
+					"width": col.Width, "fontSize": col.FontSize,
+					"x": x+horBuffer}
 			coldict["horBuffer"] = horBuffer
 			coldict["vertBuffer"] = vertBuffer
 			coldict["rectWidth"] = coldict["width"] + (2*horBuffer)
@@ -824,11 +824,11 @@ class Form(dabo.ui.dForm):
 			o = obj[1]
 			maxX = max(maxX, (obj[0][0]+o.Width))
 			obDict = {"Height": o.Height,
-			          "Alignment": o.Alignment.lower(),
-			          "FontSize": o.FontSize,
-			          "Width": o.Width,
-			          "Left": obj[0][0],
-			          "Top": obj[0][1]}
+					"Alignment": o.Alignment.lower(),
+					"FontSize": o.FontSize,
+					"Width": o.Width,
+					"Left": obj[0][0],
+					"Top": obj[0][1]}
 
 			if isinstance(o, dabo.ui.dLabel):
 				obDict["Caption"] = o.Caption

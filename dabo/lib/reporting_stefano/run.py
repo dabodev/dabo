@@ -1,7 +1,7 @@
 import sys, os, os.path
 import serialization
 import report
-            
+
 if __name__ == "__main__":
 	if len(sys.argv) > 1:
 		for reportForm in sys.argv[1:]:

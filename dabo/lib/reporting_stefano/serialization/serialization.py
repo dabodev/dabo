@@ -30,12 +30,12 @@ class Serializable(object):
 				attrType in self._xmlSerializationAttributes]
 		for key, value in args.iteritems():
 			assert key in attributeNames, "Unknown attribute name %r for object %s" \
-			                               % (key, self.__class__.__name__)
+					% (key, self.__class__.__name__)
 			self.srcValues[key] = value
 
 	def getExpectedNames(cls):
 		assert hasattr(cls, '_xmlSerializationAttributes'), "Class %r does not " \
-		               "define list of attributes needed for deserialization" % cls
+				"define list of attributes needed for deserialization" % cls
 		names = []
 		for attrName, attrType in cls._xmlSerializationAttributes:
 			if isinstance(attrType, SerializableAttribute):
@@ -47,7 +47,7 @@ class Serializable(object):
 
 	def getChildObjType(cls, childName):
 		assert hasattr(cls, '_xmlSerializationAttributes'), "Class %r does not " \
-		               "define list of attributes needed for deserialization" % cls
+				"define list of attributes needed for deserialization" % cls
 		for attrName, attrType in cls._xmlSerializationAttributes:
 			if isinstance(attrType, SerializableAttribute):
 				if attrName == childName:
@@ -70,9 +70,9 @@ class Serializable(object):
 				import traceback
 				traceback.print_exc()
 				raise Exception("Error validating value %r for attribute %r (type %r) "
-				                "in object %s" % (value, attrName, 
-				                                  attrType.__class__.__name__, 
-				                                  self.__class__.__name__))
+						"in object %s" % (value, attrName, 
+						attrType.__class__.__name__, 
+						self.__class__.__name__))
 			setattr(self, attrName, value)
 
 

@@ -150,7 +150,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 
 		preClass = wx.PreTreeCtrl
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
-		                           *args, **kwargs)
+				*args, **kwargs)
 		
 		
 	def _initEvents(self):

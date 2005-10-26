@@ -83,7 +83,7 @@ class dTimer(dabo.ui.dBitmap):
 			self._properties["Enabled"] = val
 		
 	Interval = property(_getInterval, _setInterval, None,
-		 _("Specifies the timer interval (milliseconds)."))
+			_("Specifies the timer interval (milliseconds)."))
 	
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("Alternative means of starting/stopping the timer, or determining "

@@ -9,7 +9,7 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 	""" Create a horizontal or vertical line.
 
 	If Orientation is "Vertical", Height refers to the length of the line. 
-  If Orientation is "Horizontal", Width refers to the length of the line.
+	If Orientation is "Horizontal", Width refers to the length of the line.
 	The other value refers to how wide the control is, which affects how much
 	buffer space will enclose the line, which will appear in the center of
 	this space.
@@ -56,7 +56,7 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 			self._addWindowStyleFlag(wx.LI_HORIZONTAL)
 		else:
 			raise ValueError, ("The only possible values are "
-			                   "'Horizontal' and 'Vertical'.")
+					"'Horizontal' and 'Vertical'.")
 
 	# property definitions follow:
 	Orientation = property(_getOrientation, _setOrientation, None,

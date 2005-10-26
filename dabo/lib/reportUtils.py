@@ -44,7 +44,7 @@ def previewPDF(path, modal=False):
 			# found. I just don't know how to reliably get the default viewer from 
 			# the many distros.
 			viewers = ("gpdf", "kpdf", "evince", "acroread", "xpdf", "firefox", 
-			           "mozilla-firefox")
+					"mozilla-firefox")
 
 			viewer = None
 			for v in viewers:
@@ -67,14 +67,14 @@ def getTestCursorXmlFromDataSet(dataset):
 	assert len(dataset) > 0
 
 	typemap = {int: "int",
-	          long: "long",
-	          float: "float",
-	          str: "str",
-	          unicode: "str",
-	          bool: "bool",
-	          Decimal: "Decimal",
-	          datetime.date: "datetime.date",
-	          datetime.datetime: "datetime.datetime",}
+			long: "long",
+			float: "float",
+			str: "str",
+			unicode: "str",
+			bool: "bool",
+			Decimal: "Decimal",
+			datetime.date: "datetime.date",
+			datetime.datetime: "datetime.datetime",}
 
 	xml = """\t<testcursor """
 	for k, v in dataset[0].items():
