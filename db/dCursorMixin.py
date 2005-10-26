@@ -973,7 +973,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			else:
 				# We probably shouldn't add an erroneous field name to the row
 				raise ValueError, "Can't set default value for nonexistent field '%s'." % kk
- 		row[k.CURSOR_MEMENTO].setMemento(row)
+		row[k.CURSOR_MEMENTO].setMemento(row)
 
 
 	def addMemento(self, rownum=-1):
