@@ -1240,8 +1240,12 @@ class dBizobj(dObject):
 		try:
 			return self.__cursors[self.__currentCursorKey]
 		except KeyError:
-			# There is no current cursor
-			return None
+			# There is no current cursor. Try creating one.
+			self.createCursor()
+			try:
+				return self.__cursors[self.__currentCursorKey]
+			except KeyError:
+				return None
 	def _setCurrentCursor(self, val):
 		""" Sees if there is a cursor in the cursors dict with a key that matches
 		the current parent key. If not, creates one.
