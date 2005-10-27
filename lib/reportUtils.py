@@ -1,5 +1,11 @@
 import datetime
-from decimal import Decimal
+
+_USE_DECIMAL = True
+try:
+	from decimal import Decimal
+except ImportError:
+	_USE_DECIMAL = False
+
 import os
 import sys
 
@@ -72,9 +78,11 @@ def getTestCursorXmlFromDataSet(dataset):
 			str: "str",
 			unicode: "str",
 			bool: "bool",
-			Decimal: "Decimal",
 			datetime.date: "datetime.date",
 			datetime.datetime: "datetime.datetime",}
+
+	if _USE_DECIMAL:
+		typemap[Decimal] = "Decimal"
 
 	xml = """\t<testcursor """
 	for k, v in dataset[0].items():
