@@ -1,7 +1,13 @@
 import copy
 import datetime
-import decimal
-Decimal = decimal.Decimal
+
+_USE_DECIMAL = True
+try:
+	import decimal
+	Decimal = decimal.Decimal
+except ImportError:
+	_USE_DECIMAL = False
+
 import locale
 import sys
 import os
@@ -956,7 +962,7 @@ class ReportWriter(object):
 						t = "datetime.date"
 					elif isinstance(row[field], datetime.datetime):
 						t = "datetime.datetime"
-					elif isinstance(row[field], Decimal):
+					elif _USE_DECIMAL and isinstance(row[field], Decimal):
 						t = "Decimal"
 					atts[field] = t
 				child["attributes"] = atts
