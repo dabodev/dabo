@@ -141,7 +141,7 @@ class dFormMixin(pm.dPemMixin):
 					parent.Sizer = sz
 					if kids:
 						self._addChildren(kids, parent=parent, szr=sz)
-	
+
 				else: 
 					row, col = (None, None)
 					if atts.has_key("rowColPos"):
@@ -156,7 +156,17 @@ class dFormMixin(pm.dPemMixin):
 						if szrInfo:
 							szr.setItemProps(obj.ControllingSizerItem, szrInfo)
 					if kids:
-						self._addChildren(kids, parent=obj)
+						if isinstance(obj, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
+								dabo.ui.dPageSelect, dabo.ui.dPageNoTabs)):
+							# 'kids' will each be a dPage
+							for pageno, pg in enumerate(obj.Pages):
+								pgInfo = kids[pageno]
+								if pgInfo.has_key("attributes"):
+									pg.setPropertiesFromAtts(pgInfo["attributes"])
+								if pgInfo.has_key("children"):
+									self._addChildren(pgInfo["children"], parent=pg)
+						else:
+							self._addChildren(kids, parent=obj)
 		
 			except StandardError, e:
 				# This is for development only. It will be changed to a 
