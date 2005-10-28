@@ -18,7 +18,7 @@ class dBizobj(dObject):
 	useFieldProps = False
 
 	# Tell dObject that we'll call before and afterInit manually:
-	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, True
+	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, False
 
 	def __init__(self, conn, properties=None, *args, **kwargs):
 		""" User code should override beforeInit() and/or afterInit() instead."""
@@ -36,6 +36,9 @@ class dBizobj(dObject):
 			# exception will be raised in that method.
 			self.createCursor()
 
+		# We need to make sure the cursor is created *before* the call to 
+		# initProperties()
+		self._initProperties()
 		self._afterInit()
 	
 	
