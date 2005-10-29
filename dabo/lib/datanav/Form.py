@@ -351,6 +351,7 @@ class Form(dabo.ui.dForm):
 				self.Caption = "Quick Report"
 				self.mode = None
 				self.records = None
+				self.saveNamedReportForm = False
 
 			def addControls(self):
 				self.addObject(dabo.ui.dRadioGroup, Name="radMode", Caption="Mode",
@@ -371,9 +372,19 @@ class Form(dabo.ui.dForm):
 						SaveRestoreValue=True)
 				self.Sizer.append(self.radRecords, 1, "expand", border=5)
 
-				self.addObject(dabo.ui.dButton, Name="btnAdvanced", Caption="Advanced",
-						Enabled=False)
+				self.addObject(dabo.ui.dButton, Name="btnAdvanced", Caption="Advanced")
 				self.Sizer.append(self.btnAdvanced, border=5)
+
+				self.btnAdvanced.bindEvent(dEvents.Hit, self.onAdvanced)
+
+			def onAdvanced(self, evt):
+ 				if dabo.ui.areYouSure("Would you like to save the report form xml "
+						"(rfxml) to your application's reports directory? If you say "
+						"'yes', you'll be able to modify the file and it will be used "
+						"as the Quick Report from now on (it will no longer be auto-"
+						"generated). The file will be generated when you click 'OK'."
+						"\n\nGenerate the report form file?"):
+					self.saveNamedReportForm = True
 
 			def onOK(self, evt):
 				self.mode = self.radMode.Value
@@ -388,12 +399,21 @@ class Form(dabo.ui.dForm):
 		d.show()
 		mode = d.mode
 		records = d.records
+		saveNamedReportForm = d.saveNamedReportForm
 		d.release()
 
 		if mode is not None:
 			# Run the report
 			biz = self.getBizobj()
 			rfxml = self.getReportForm(mode)
+
+			if saveNamedReportForm:
+				filename = os.path.join(self.Application.HomeDirectory, "reports",
+						"datanav-%s-%s.rfxml" % (biz.DataSource, mode))
+				if not os.path.exists(os.path.join(self.Application.HomeDirectory, "reports")):
+					os.mkdir(os.path.join(self.Application.HomeDirectory, "reports"))
+				open(filename, "w").write(rfxml)
+
 			if records == "all":
 				cursor = biz.getDataSet()
 			else:
@@ -588,12 +608,23 @@ class Form(dabo.ui.dForm):
 			3) if self.Application.HomeDirectory/reports/datanav-<cursorname>-(list|expanded).rfxml
 			   exists, that will be used. IOW, drop in a properly named rfxml file into 
 			   the reports directory underneath your application home, and it will be used
-			   automatically.        *** NOT IMPLEMENTED YET ***
+			   automatically.
 
 			4) a generic report form will be generated. If mode=="list", the fields displayed
 			   will be as defined in the browse page. If mode=="expanded", the fields displayed
-			   will be as defined in the edit page.   *** PARTIALLY IMPLEMENTED ***
+			   will be as defined in the edit page.
 		"""
+		def getNamedReportForm(mode):
+			fileName = os.path.join(self.Application.HomeDirectory, "reports", 
+					"datanav-%s-%s.rfxml" % (self.getBizobj().DataSource, mode))
+			if os.path.exists(fileName):
+				return open(fileName).read()
+			return None
+
+		form = getNamedReportForm(mode)
+		if form is not None:
+			return form
+		
 		if mode.lower() == "list":
 			return self.getAutoReportForm_list()
 		elif mode.lower() == "expanded":
