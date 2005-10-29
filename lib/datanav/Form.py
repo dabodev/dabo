@@ -224,24 +224,24 @@ class Form(dabo.ui.dForm):
 
 
 	def setupMenu(self):
-		""" Set up the navigation menu for this frame.
+		""" Set up the action menu for this frame.
 
-		Called whenever the primary bizobj is set or whenever this
-		frame receives the focus.
+		Called when the form is created and also when the fieldspecs are set.
 		"""
 		mb = self.MenuBar
-		menuIndex = mb.FindMenu(_("&Navigation"))
+		menuIndex = mb.getMenuIndex(_("Actions"))
 		
-		if menuIndex < 0:
-			menuIndex = mb.GetMenuCount()-1
-			if menuIndex < 0:
-				menuIndex = 0
+		if menuIndex is not None:
+			mb.remove(menuIndex)
 
-			### The intent is for the Navigation menu to be positioned before
-			### the Help menu, but it isn't working. No matter what I set for
-			### menuIndex, the nav menu always appears at the end on Linux, but
-			### appears correctly on Mac and Win.
-			mb.insertMenu(menuIndex, self.getMenu())
+		# We want the action menu right after the view menu:
+		menuIndex = mb.getMenuIndex(_("View"))
+		if menuIndex is None:
+			# punt:
+			menuIndex = 2
+		menuIndex += 1
+
+		mb.insertMenu(menuIndex, self.getMenu())
 
 
 	def setupPageFrame(self):

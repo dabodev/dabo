@@ -34,21 +34,21 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 
 
 	def appendMenu(self, menu):
-		"""Insert a dMenu at the end of the dMenuBar."""
+		"""Inserts a dMenu at the end of the dMenuBar."""
 		ret = self.Append(menu, menu.Caption)
 		if ret:
 			menu.Parent = self
 		return ret
 
 	def insertMenu(self, pos, menu):
-		"""Insert a dMenu in the dMenuBar at the specified position."""
+		"""Inserts a dMenu in the dMenuBar at the specified position."""
 		ret = self.Insert(pos, menu, menu.Caption)
 		if ret:
 			menu.Parent = self
 		return ret
 
 	def prependMenu(self, menu):
-		"""Insert a dMenu at the beginning of the dMenuBar."""
+		"""Inserts a dMenu at the beginning of the dMenuBar."""
 		ret = self.PrependMenu(menu, menu.Caption)
 		if ret:
 			menu.Parent = self
@@ -56,31 +56,79 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 
 
 	def append(self, caption):
-		"""Appends a dMenu to the end of the dMenuBar."""
-		menu = self._getMenu(caption)
+		"""Appends a dMenu to the end of the dMenuBar.
+
+		A generic dMenu will be created with the passed caption. Also see the
+		appendMenu() function, which takes a dMenu instance as an argument.
+		"""
+		menu = self._getGenericMenu(caption)
 		self.appendMenu(menu)
 		return menu
 
+
 	def insert(self, pos, caption):
-		"""Inserts a dMenu at the specified position in the dMenuBar."""
-		menu = self._getMenu(caption)
+		"""Inserts a dMenu at the specified position in the dMenuBar.
+
+		A generic dMenu will be created with the passed caption. Also see the
+		insertMenu() function, which takes a dMenu instance as an argument.
+		"""
+		menu = self._getGenericMenu(caption)
 		self.insertMenu(pos, menu)
 		return menu
 
+
 	def prepend(self, caption):
-		"""Prepends a dMenu to the beginning of the dMenuBar."""
-		menu = self._getMenu(caption)
+		"""Prepends a dMenu to the beginning of the dMenuBar.
+
+		A generic dMenu will be created with the passed caption. Also see the
+		prependMenu() function, which takes a dMenu instance as an argument.
+		"""
+		menu = self._getGenericMenu(caption)
 		self.prependMenu(menu)
 		return menu
 
-	def _getMenu(self, caption):
+
+	def _getGenericMenu(self, caption):
+		"""Returns a dMenu instance with the passed caption.
+
+		This is used by the append(), insert(), and prepend() functions.
+		"""
 		return dMenu.dMenu(self, Caption=caption)
 		
 
+	def remove(self, index, release=True):
+		"""Removes the menu at the specified index from the menu bar.
+
+		If release is True (the default), the menu is deleted as well. If release 
+		is False, a reference to the menu object will be returned, and the caller 
+		is responsible for deleting it.
+		"""
+		menu = self.Remove(index)
+		if release:
+			menu.release()
+		return menu
+
+
 	def getMenu(self, caption):
 		"""Returns a reference to the menu with the specified caption.
+
+		If the menu isn't found, None is returned.
 		"""
-		return self.GetMenu(self.FindMenu(caption))
+		idx = self.getMenuIndex(caption)
+		if idx is not None:
+			return self.GetMenu(idx)
+		return None
+
+
+	def getMenuIndex(self, caption):
+		"""Returns the index of the menu with the specified caption.
+
+		If the menu isn't found, None is returned.
+		"""
+		ret = self.FindMenu(caption)
+		if ret < 0:
+			ret = None
+		return ret
 
 
 	def GetChildren(self):
