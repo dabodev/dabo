@@ -67,7 +67,7 @@ class dCursorMixin(dObject):
 		# it will be a separate object.
 		self.sqlManager = self
 		# Attribute that holds the data of the cursor
-		self._records = ()
+		self._records = DataSet()
 		# Attribute that holds the current row number
 		self.__rownumber = -1
 
@@ -161,14 +161,13 @@ class dCursorMixin(dObject):
 		# Not all backends support 'fetchall' after executing a query
 		# that doesn't return records, such as an update.
 		try:
-			self._records = self.fetchall()
+			self._records = DataSet(self.fetchall())
 		except:
 			pass
 		
 		# Some backend programs do odd things to the description
 		# This allows each backend to handle these quirks individually.
 		self.BackendObject.massageDescription(self)
-		
 		if self.RowCount > 0:
 			self.RowNumber = max(0, self.RowNumber)
 			maxrow = max(0, (self.RowCount-1) )
@@ -195,8 +194,7 @@ class dCursorMixin(dObject):
 						else:
 							dic[fldNames[i]] = row[i]
 					tmpRows.append(dic)
-				self._records = tuple(tmpRows)
-
+				self._records = DataSet(tmpRows)
 			else:
 				# Make all string values into unicode
 				for row in self._records:
@@ -205,7 +203,6 @@ class dCursorMixin(dObject):
 						if isinstance(val, str):	
 							# String; convert it to unicode
 							row[fld]= unicode(val, self.Encoding)
-			
 			# There can be a problem with the MySQLdb adapter if
 			# the mx modules are installed on the machine, the adapter
 			# will use that type instead of the native datetime.
@@ -222,6 +219,8 @@ class dCursorMixin(dObject):
 			except ImportError:
 				# mx not installed; no problem
 				pass
+			# Convert to DataSet 
+			self._records = DataSet(self._records)
 		return res
 	
 	
@@ -375,7 +374,7 @@ class dCursorMixin(dObject):
 		newRows = []
 		for elem in sortList:
 			newRows.append(elem[1])
-		self._records = tuple(newRows)
+		self._records = DataSet(newRows)
 
 		# restore the RowNumber
 		if currRowKey:
@@ -664,6 +663,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						filtRec[fld] = rec[fld]
 					retlist.append(filtRec)
 				ret = tuple(retlist)
+			ret = DataSet(ret)
 			return ret
 		except AttributeError:
 			return ()
@@ -851,7 +851,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		# Copy the _blank dict to the _records, and adjust everything accordingly
 		tmprows = list(self._records)
 		tmprows.append(self._blank.copy())
-		self._records = tuple(tmprows)
+		self._records = DataSet(tmprows)
 		# Adjust the RowCount and position
 		self.RowNumber = self.RowCount - 1
 		# Add the 'new record' flag to the last record (the one we just added)
@@ -942,7 +942,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		lRec = list(self._records)
 		del lRec[r]
-		self._records = tuple(lRec)
+		self._records = DataSet(lRec)
 		self.RowNumber = min(self.RowNumber, self.RowCount-1)
 	
 	
@@ -1626,3 +1626,45 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			
 	UserSQL = property(_getUserSQL, _setUserSQL, None,
 			_("SQL statement to run. If set, the automatic SQL builder will not be used."))
+
+
+
+class DataSet(tuple):
+	""" This class assumes that its contents are not ordinary tuples, but
+	rather tuples consisting of dicts, where the dict keys are field names.
+	This is the data structure returned by the dCursorMixin class.
+	"""
+	def select(self, flds=None, where=None, orderBy=None):
+		fldList = []
+		whereList = []
+		orderByList = []
+		if flds is None or flds == "*":
+			# All fields
+			flds = self[0].keys()
+		elif isinstance(flds, basestring):
+			# Convert to list
+			flds = [flds]
+		for fld in flds:
+			fldList.append("'%s' : rec['%s']" % (fld, fld))
+		fldsToReturn = ", ".join(fldList)
+		fldsToReturn = "{%s}" % fldsToReturn
+		
+		# Where list elements. Each element should be in the form: <fld> <op> <val>
+		# TODO: add support for format: <fld>.func() <op> <val>
+		#		or: func(<fld>) <op> <val>
+		if where is None:
+			whereClause = ""
+		else:
+			if isinstance(where, basestring):
+				where = [where]
+			for wh in where:
+				fld, op, val = wh.split(" ", 2)
+				whereList.append("rec['%s'] %s %s" % (fld, op, val))
+			whereClause = " and ".join(whereList)
+		if whereClause:
+			whereClause = " if %s" % whereClause		
+		
+		stmnt = "[%s for rec in self %s]" % (fldsToReturn, whereClause)
+		resultSet = eval(stmnt)
+		return resultSet
+	
