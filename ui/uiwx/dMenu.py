@@ -133,6 +133,20 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		return item
 		
 		
+	def remove(self, index, release=True):
+		"""Removes the item at the specified index from the menu.
+
+		If release is True (the default), the item is deleted as well. If release 
+		is False, a reference to the  object will be returned, and the caller 
+		is responsible for deleting it.
+		"""
+		item = self.Children[index]
+		self.RemoveItem(item)
+		if release:
+			item.Destroy()
+		return item
+
+
 	def _getItem(self, prompt, bindfunc, help, icon, menutype, **kwargs):
 		itmtyp = self._getItemType(menutype)
 		itm = dMenuItem.dMenuItem(self, Caption=prompt, HelpText=help, Icon=icon, 
@@ -178,22 +192,28 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		return False
 
 
-	def getItemPosByCaption(self, cap):
-		"""Given a caption, returns the position of the menu item whose
-		caption matches the specified value. Useful when you want to 
-		insert a menu item before a specific item.
+	def getItemIndex(self, caption):
+		"""Returns the index of the item with the specified caption.
+
+		If the item isn't found, None is returned.
 		"""
-		ok = False
 		for pos, itm in enumerate(self.Children):
-			if itm.GetLabel() == cap:
-				ok = True
-				ret = pos
-				break
-		if not ok:
-			ret = None
-		return ret
+			if itm.GetLabel() == caption:
+				return pos
+		return None
 		
-	
+
+	def getItem(self, caption):
+		"""Returns a reference to the menu item with the specified caption.
+
+		If the item isn't found, None is returned.
+		"""
+		idx = self.getItemIndex(caption)
+		if idx is not None:
+			return self.FindItemByPosition(idx)
+		return None
+
+
 	def GetChildren(self):
 		# wx doesn't provide GetChildren() for menubars or menus, but dPemMixin
 		# calls it in _getChildren(). The Dabo developer wants the submenus and
