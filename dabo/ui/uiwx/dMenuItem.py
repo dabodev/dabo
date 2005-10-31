@@ -1,4 +1,5 @@
 """ dMenuItem.py """
+import types
 import wx
 import dPemMixin as pm
 import dIcons
@@ -14,6 +15,7 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 		preClass = wx.MenuItem
 		self.Parent = parent
 		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+
 
 	def _initEvents(self):
 		## wx.MenuItems don't have a Bind() of their own, so this serves to 
@@ -49,6 +51,18 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 			self.SetText(val)
 		else:
 			self._properties["Caption"] = val
+
+
+	def _getDynamicEnabled(self):
+		try:
+			val = self._dynamicEnabled
+		except AttributeError:
+			val = self._dynamicEnabled = None
+		return val
+
+	def _setDynamicEnabled(self, val):
+		assert isinstance(val, (types.FunctionType, types.MethodType))
+		self._dynamicEnabled = val
 
 
 	def _getEnabled(self):
@@ -110,22 +124,29 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 
 
 	Caption = property(_getCaption, _setCaption, None,
-		_("Specifies the text of the menu item."))
+			_("Specifies the text of the menu item."))
+
+	DynamicEnabled = property(_getDynamicEnabled, _setDynamicEnabled, None,
+			_("""Specifies a function to run to determine whether the item is enabled.
+
+			The function will run when the parent menu is activated, and will set the
+			menu item's Enabled property to the return value of the function.
+			"""))
 
 	Enabled = property(_getEnabled, _setEnabled, None,
-		_("Specifies whether the menu item can be interacted with."))
+			_("Specifies whether the menu item can be interacted with."))
 
 	Icon = property(_getIcon, _setIcon, None,
-		_("Specifies the icon for the menu item."))
+			_("Specifies the icon for the menu item."))
 
 	Form = property(_getForm, None, None,
-		_("Specifies the containing form."))
+			_("Specifies the containing form."))
 
 	HelpText = property(_getHelpText, _setHelpText, None,
-		_("Specifies the help text associated with this menu. (str)"))
+			_("Specifies the help text associated with this menu. (str)"))
 
 	Parent = property(_getParent, _setParent, None, 
-		_("Specifies the parent menu."))
+			_("Specifies the parent menu."))
 
 
 class dCheckMenuItem(dMenuItem):
