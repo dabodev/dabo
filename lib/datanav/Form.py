@@ -218,9 +218,21 @@ class Form(dabo.ui.dForm):
 
 		if self.FormType != "Edit":
 			menu.append(_("Show SQL"), bindfunc=self.onShowSQL, bmp="zoomNormal")
-			menu.append(_("Quick Report"), bindfunc=self.onQuickReport, bmp="print")
+			menu.append(_("Quick Report"), bindfunc=self.onQuickReport, bmp="print",
+					DynamicEnabled=self.enableQuickReport)
 
 		return menu
+
+
+	def enableQuickReport(self):
+		## Can't enable quick report unless the dataset has been requeried once and
+		## the browse grid exists (because it gets the layout from the browse grid).
+		ret = True
+		try:
+			self.PageFrame.Pages[1].BrowseGrid
+		except AttributeError:
+			ret = False
+		return ret
 
 
 	def setupMenu(self):

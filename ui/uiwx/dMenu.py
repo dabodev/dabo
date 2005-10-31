@@ -20,12 +20,37 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		self._baseClass = dMenu
 		preClass = wx.Menu
 		self.Parent = parent
+		## pkm: When a dMenuItem is added to a dMenu, the wx functions only
+		##      add the C++ portion, not the mixed-in dabo dMenuItem object.
+		##      To work around this, we maintain an internal dictionary that
+		##      maps the id of the wxMenuItem to the dMenuItem object.
+		self._daboChildren = {}
 		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
 	def _initEvents(self):
-		## see self._setId(), which is where this needs to take place
-		pass
+		## see self._setId(), which is where the binding of wxEvents needs to take 
+		## place.
+		self.bindEvent(dEvents.MenuHighlight, self._onMenuHighlight)
+
+
+	def _onMenuHighlight(self, evt):
+		## Note that this code is here in a dabo binding instead of in the wx binding
+		## because of the way we've worked around wx limitations: dMenu as a top-level
+		## menu in a menu bar doesn't send wx events.
+		self._setDynamicEnabled()
+
+
+	def _setDynamicEnabled(self):
+		"""For each dMenuItem, set Enabled per the item's DynamicEnabled prop."""
+		for item in self.Children:
+			# separators haven't been abstracted yet, so there are still pure wx items.
+			try:
+				de = item.DynamicEnabled
+			except:
+				de = None
+			if de is not None:
+				item.Enabled = de()
 
 
 	def __onWxMenuHighlight(self, evt):
@@ -35,20 +60,23 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 	def appendItem(self, item):
 		"""Insert a dMenuItem at the bottom of the menu."""
-		self.AppendItem(item)
+		wxItem = self.AppendItem(item)
 		item.Parent = self
+		self._daboChildren[wxItem.GetId()] = item
 		
 
 	def insertItem(self, pos, item):
 		"""Insert a dMenuItem before the specified position in the menu."""
 		self.InsertItem(pos, item)
 		item.Parent = self
+		self._daboChildren[wxItem.GetId()] = item
 		
 
 	def prependItem(self, item):
 		"""Insert a dMenuItem at the top of the menu."""
 		self.PrependItem(item)
 		item.Parent = self
+		self._daboChildren[wxItem.GetId()] = item
 
 
 	def appendMenu(self, menu):
@@ -56,6 +84,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		wxMenuItem = self.AppendMenu(-1, menu.Caption, menu, help=menu.HelpText)
 		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
+		self._daboChildren[wxMenuItem.GetId()] = menu
 		
 
 	def insertMenu(self, pos, menu):
@@ -63,6 +92,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		wxMenuItem = self.InsertMenu(-1, pos, menu.Caption, menu, help=menu.HelpText)
 		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
+		self._daboChildren[wxMenuItem.GetId()] = menu
 		
 		
 	def prependMenu(self, menu):
@@ -70,6 +100,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		wxMenuItem = self.PrependMenu(-1, menu.Caption, menu, help=menu.HelpText)
 		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
+		self._daboChildren[wxMenuItem.GetId()] = menu
 
 
 	def appendSeparator(self):
@@ -141,6 +172,9 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		is responsible for deleting it.
 		"""
 		item = self.Children[index]
+		id_ = item.GetId()
+		if self._daboChildren.has_key(id_):
+			del self._daboChildren[id_]
 		self.RemoveItem(item)
 		if release:
 			item.Destroy()
@@ -180,12 +214,11 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		## MenuOpen and MenuClose don't appear to be working on Linux. Need
 		## to test on Mac and Win.
 		if self.Application is not None:
-			# Set up a mechanism to catch menu events
-			# and re-raise Dabo events. If Application
-			# is None, however, this won't work because of wx limitations.
+			# Set up a mechanism to catch menu events and re-raise Dabo events. 
+			# If Application is None, however, this won't work because of wx 
+			# limitations.
 			self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT,
 					self.__onWxMenuHighlight, id=id_)
-		
 		
 	def _isPopupMenu(self):
 		## TODO: Make dMenu work as a submenu, a child of dMenuBar, or as a popup.
@@ -210,7 +243,9 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		"""
 		idx = self.getItemIndex(caption)
 		if idx is not None:
-			return self.FindItemByPosition(idx)
+			wxItem = self.FindItemByPosition(idx)
+			if wxItem:
+				return self._daboChildren.get(wxItem.GetId(), wxItem)
 		return None
 
 
@@ -219,11 +254,9 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		# calls it in _getChildren(). The Dabo developer wants the submenus and
 		# items in this menu, but is using the consistent Children property to 
 		# do it.
-		## pkm: GetMenuItems() only returns the C++ part of the menu item, not
-		##      the dabo mixed-in portion. I'll have to look into this, but until
-		##      I have a fix, dMenu.Children will always return an empty list.
 		children = self.GetMenuItems()
-		return children
+		daboChildren = [self._daboChildren.get(c.GetId(), c) for c in children]
+		return daboChildren
 
 
 	def _getCaption(self):
