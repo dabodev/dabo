@@ -67,14 +67,14 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 	def insertItem(self, pos, item):
 		"""Insert a dMenuItem before the specified position in the menu."""
-		self.InsertItem(pos, item)
+		wxItem = self.InsertItem(pos, item)
 		item.Parent = self
 		self._daboChildren[wxItem.GetId()] = item
 		
 
 	def prependItem(self, item):
 		"""Insert a dMenuItem at the top of the menu."""
-		self.PrependItem(item)
+		wxItem = self.PrependItem(item)
 		item.Parent = self
 		self._daboChildren[wxItem.GetId()] = item
 
