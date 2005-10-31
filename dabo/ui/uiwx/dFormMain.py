@@ -16,7 +16,8 @@ import time
 ## want to enable MDI on Windows, just take out the "False and"
 ## in the below if statement, and do the same in dForm.py.
 
-if False and wx.Platform == '__WXMSW__':	  # Microsoft Windows
+#if False and wx.Platform == '__WXMSW__':	  # Microsoft Windows
+if True:
 	wxFrameClass = wx.MDIParentFrame
 	wxPreFrameClass = wx.PreMDIParentFrame
 else:
