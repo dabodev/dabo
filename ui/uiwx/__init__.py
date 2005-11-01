@@ -113,6 +113,7 @@ from dStatusBar import dStatusBar
 from dTextBox import dTextBox
 from dTimer import dTimer
 from dToolBar import dToolBar
+from dToolBar import dToolBarItem
 from dToggleButton import dToggleButton
 from dTreeView import dTreeView
 import dUICursors as dUICursors
