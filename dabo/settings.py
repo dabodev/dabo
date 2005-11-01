@@ -75,7 +75,10 @@ autoBindEvents = True
 # All the MDI setting does is make dFormMain == (dFormMainSDI or dFormMainParentMDI)
 # and dForm == (dFormSDI or dFormChildMDI)
 MDI = False
-
+# (note: MDI doesn't work at all on Mac as of this writing, and is implemented
+#        as a pageframe on Linux. I'm almost thinking we should default to True
+#        on Windows though, because it seems to be the arrangement most users
+#        expect.)
 
 
 ### Settings - end
