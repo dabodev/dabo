@@ -52,9 +52,9 @@ class dPageNoTabs(dabo.ui.dPanel):
 		it will select the first page.
 		"""
 		try:
-			self.SelectedPageNum += 1
+			self.SelectedPageNumber += 1
 		except IndexError:
-			self.SelectedPageNum = 0
+			self.SelectedPageNumber = 0
 
 	
 	def priorPage(self):
@@ -62,7 +62,7 @@ class dPageNoTabs(dabo.ui.dPanel):
 		it will select the last page.
 		"""
 		try:
-			self.SelectedPageNum -= 1
+			self.SelectedPageNumber -= 1
 		except IndexError:
 			self.SelectedPage = self.Pages[-1]
 			
@@ -128,7 +128,7 @@ class dPageNoTabs(dabo.ui.dPanel):
 	SelectedPage = property(_getSel, _setSel, None,
 			_("Returns a reference to the currently displayed page  (dPage | dPanel)") )
 
-	SelectedPageNum = property(_getSelNum, _setSelNum, None,
+	SelectedPageNumber = property(_getSelNum, _setSelNum, None,
 			_("Returns a reference to the index of the currently displayed page  (int)") )
 
 

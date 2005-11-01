@@ -195,14 +195,14 @@ class dPageFrameMixin(cm.dControlMixin):
 			self._properties["SelectedPage"] = pg
 		
 
-	def _getSelectedPageNum(self):
+	def _getSelectedPageNumber(self):
 		return self.GetSelection()
 
-	def _setSelectedPageNum(self, val):
+	def _setSelectedPageNumber(self, val):
 		if self._constructed():
 			self.SetSelection(val)
 		else:
-			self._properties["SelectedPageNum"] = val
+			self._properties["SelectedPageNumber"] = val
 		
 
 	def _getTabPosition(self):
@@ -253,7 +253,8 @@ class dPageFrameMixin(cm.dControlMixin):
 	SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
 			_("References the current frontmost page.  (dPage)") )
 						
-	SelectedPageNum = property(_getSelectedPageNum, _setSelectedPageNum, None,
+	SelectedPageNumber = property(_getSelectedPageNumber, _setSelectedPageNumber, 
+			None,
 			_("Returns the index of the current frontmost page.  (int)") )
 						
 	TabPosition = property(_getTabPosition, _setTabPosition, None, 
