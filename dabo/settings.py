@@ -62,6 +62,22 @@ fastNameSet = False
 autoBindEvents = True
 
 
+# If you set MDI to True, then dFormMain and dForm will default to being MDI
+# parent and MDI child, respectively. IOW, you don't have to change your dForm
+# and dFormMain subclasses to inherit from dFormChildMDI, etc., but it comes at
+# the cost of being a global setting. This must be set before dabo.ui is 
+# imported (ie right at the top of your app). Note that you could instead choose
+# to deal with MDI/SDI explicitly in your form subclasses. IOW:
+#		class MyForm(dabo.ui.dFormChildMDI)
+#		class MyForm(dabo.ui.dFormParentMDI)
+#		class MyForm(dabo.ui.dFormSDI)
+#
+# All the MDI setting does is make dFormMain == (dFormMainSDI or dFormMainParentMDI)
+# and dForm == (dFormSDI or dFormChildMDI)
+MDI = False
+
+
+
 ### Settings - end
 
 # Do not copy/paste anything below this line into settings_override.py.

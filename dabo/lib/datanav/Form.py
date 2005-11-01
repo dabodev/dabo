@@ -66,7 +66,6 @@ class Form(dabo.ui.dForm):
 		self.rowCount = 0
 
 	def _afterInit(self):
-		#Form.doDefault()
 		super(Form, self)._afterInit()
 		if self.FormType == 'PickList':
 			# Map escape key to close the form
@@ -86,7 +85,6 @@ class Form(dabo.ui.dForm):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
 				dataSource = self._mainTable
-		#return Form.doDefault(dataSource)
 		return super(Form, self).save(dataSource)
 	
 	

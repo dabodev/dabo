@@ -6,30 +6,11 @@ import dabo
 
 import time
 
-# Different platforms expect different frame types. Notably,
-# most users on Windows expect and prefer the MDI parent/child
-# type frames.
 
-## pkm 06/09/2004: disabled MDI even on Windows. There are some issues that I
-## don't have time to track down right now... better if it works
-## on Windows similarly to Linux instead of not at all... if you
-## want to enable MDI on Windows, just take out the "False and"
-## in the below if statement, and do the same in dForm.py.
-
-#if False and wx.Platform == '__WXMSW__':	  # Microsoft Windows
-if True:
-	wxFrameClass = wx.MDIParentFrame
-	wxPreFrameClass = wx.PreMDIParentFrame
-else:
-	wxFrameClass = wx.Frame
-	wxPreFrameClass = wx.PreFrame
-
-class dFormMain(wxFrameClass, fm.dFormMixin):
+class dFormMainBase(fm.dFormMixin):
 	""" This is the main top-level form for the application.
 	"""
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
-		self._baseClass = dFormMain
-		preClass = wxPreFrameClass
+	def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 	
 		self.Size = (640,480)
@@ -45,7 +26,7 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 	
 		
 	def afterInit(self):
-		super(dFormMain, self).afterInit()
+		super(dFormMainBase, self).afterInit()
 		## caption and status text handled in uiApp now
 		#self.Caption = "Dabo"
 		#self.setStatusText("Welcome to Dabo!")
@@ -100,6 +81,26 @@ class dFormMain(wxFrameClass, fm.dFormMixin):
 	def draw(self, dc):
 		wd,ht = dc.GetSize()
 		dc.DrawBitmap(self.bitmap, 10, (ht - 110))
+
+
+class dFormMainSDI(wx.Frame, dFormMainBase):
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		self._baseClass = dFormMain
+		preClass = wx.PreFrame
+		dFormMainBase.__init__(self, preClass, parent, properties, *args, **kwargs)
+
+
+class dFormMainParentMDI(wx.MDIParentFrame, dFormMainBase):
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		self._baseClass = dFormMain
+		preClass = wx.PreMDIParentFrame
+		dFormMainBase.__init__(self, preClass, parent, properties, *args, **kwargs)
+
+if dabo.settings.MDI:
+	dFormMain = dFormMainParentMDI
+else:
+	dFormMain = dFormMainSDI
+
 
 if __name__ == "__main__":
 	import test
