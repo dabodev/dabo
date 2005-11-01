@@ -19,17 +19,9 @@ class dFormMainBase(fm.dFormMixin):
 		if wx.Platform != '__WXMAC__':
 			self.CreateStatusBar()
 
-		# Go figure: in order to get rid of the automatic sizing on forms,
-		# you gotta set the sizer to something other than None!
-		self.Sizer = dSizer.dSizer("vertical")
-		self.Sizer.layout()
-	
 		
-	def afterInit(self):
-		super(dFormMainBase, self).afterInit()
-		## caption and status text handled in uiApp now
-		#self.Caption = "Dabo"
-		#self.setStatusText("Welcome to Dabo!")
+	def _afterInit(self):
+		super(dFormMainBase, self)._afterInit()
 		
 		# This is to accomodate the Dabo icon, which has a white background.
 		# We should set the white as transparent and set a mask, though.
@@ -95,6 +87,7 @@ class dFormMainParentMDI(wx.MDIParentFrame, dFormMainBase):
 		self._baseClass = dFormMain
 		preClass = wx.PreMDIParentFrame
 		dFormMainBase.__init__(self, preClass, parent, properties, *args, **kwargs)
+
 
 if dabo.settings.MDI:
 	dFormMain = dFormMainParentMDI
