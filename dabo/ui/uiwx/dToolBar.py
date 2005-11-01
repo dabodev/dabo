@@ -23,23 +23,28 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		style = self._extractKey(kwargs, "style", 0)
 		kwargs["style"] = style |  wx.TB_DOCKABLE | wx.TB_TEXT
 
-		# We need to track tool IDs internally for referencing the 
-		# buttons once they are created
-		self._nextToolID = 0
-		self._tools = {}
+		# wx doesn't return anything for GetChildren(), but we are giving Dabo
+		# that feature, for easy polymorphic referencing of the buttons and 
+		# controls in a toolbar.
+		self._daboChildren = []
+
 		# Need this to load/convert image files to bitmaps
 		self._image = wx.NullImage
 
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
 
-	def appendButton(self, name, pic, bindfunc=None, toggle=False, tip="", help=""):
-		"""Adds a tool (button) to the toolbar. You must pass an image for the 
-		button; it can be a wx.Bitmap, or a path to an image file. If you pass
-		toggle=True, the button will exist in an up and down state. Pass the function 
-		you want to be called when this button is clicked in the 'bindfunc' param.
+	def appendButton(self, caption, pic, bindfunc=None, toggle=False, 
+			tip="", help=""):
+		"""Adds a tool (button) to the toolbar. 
+
+		You must pass a caption and an image for the button. The picture can be a 
+		wx.Bitmap, or a path to an image file of any supported type. If you pass 
+		toggle=True, the button will exist in an up and down state. Pass the 
+		function you want to be called when this button is clicked in the 
+		'bindfunc' param.
 		"""
-		id = self._NextToolID
+		id_ = wx.NewId()
 		if isinstance(pic, basestring):
 			# path was passed
 			picBmp = dabo.ui.strToBmp(pic)
@@ -58,35 +63,38 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		if needScale:
 			picBmp = self.resizeBmp(picBmp, wd, ht)
 		
-		butt = self.AddSimpleTool(id, bitmap=picBmp, isToggle=toggle, 
+		butt = self.AddSimpleTool(id_, bitmap=picBmp, isToggle=toggle, 
 				shortHelpString=tip, longHelpString=help)
-		butt.SetLabel(name)
+		butt.SetLabel(caption)
 		if bindfunc and self.Application:
 			self.Application.uiApp.Bind(wx.EVT_MENU, bindfunc, butt)
 		self.Realize()
 		
 		# Store the button reference
-		self._tools[name] = butt
+		self._daboChildren.append(butt)
 		
 			
 	def appendControl(self, control, bindfunc=None):
-		"""Adds any Dabo Control to the toolbar. Pass the function 
-		you want to be called when this button is clicked in the 'bindfunc' param.
+		"""Adds any Dabo Control to the toolbar. 
+
+		Pass the function you want to be called when this button is clicked in the 
+		'bindfunc' param.
 		"""
 		butt = self.AddControl(control)
-		butt.SetLabel(control.Name)
+		butt.SetLabel(control.Caption)
 		if bindfunc and self.Application:
 			control.bindEvent(dEvents.Hit, bindfunc)
 		self.Realize()
 		
 		# Store the button reference
-		self._tools[control.Name] = butt
+		self._daboChildren.append(butt)
 
 		return control
 
 
 	def appendSeparator(self):
-		self.AddSeparator()
+		sep = self.AddSeparator()
+		self._daboChildren.append(sep)
 		self.Realize()
 		
 		
@@ -103,6 +111,11 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		if self.MaxHeight:
 			toolBmpHt = self.MaxHeight
 		self.SetToolBitmapSize((toolBmpWd, toolBmpHt))
+
+
+	def GetChildren(self):
+		## This overrides the wx default which just returns an empty list.
+		return self._daboChildren
 
 
 	def _getForm(self):
@@ -146,12 +159,6 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 			self._properties["MaxWidth"] = val
 		
 		
-	def _getNextID(self):
-		ret = self._nextToolID
-		self._nextToolID += 1
-		return ret
-		
-
 	Form = property(_getForm, _setForm, None,
 		_("Specifies the form that we are a member of."))
 	
@@ -162,9 +169,6 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 	MaxWidth = property(_getMaxWd, _setMaxWd, None,
 		_("""When set to a value greater than zero, will limit the width of 
 		added buttons to this value. (int)""" ) )
-
-	_NextToolID = property(_getNextID, None, None, 
-		_("Next Available ID for tracking toolbar buttons  (int)"))
 
 
 class _dToolBar_test(dToolBar):
