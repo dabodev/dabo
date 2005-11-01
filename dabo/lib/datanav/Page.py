@@ -338,9 +338,9 @@ class SelectPage(Page):
 			ret = frm.requery()
 
 		if ret:
-			if self.Parent.SelectedPageNum == 0:
+			if self.Parent.SelectedPageNumber == 0:
 				# If the select page is active, now make the browse page active
-				self.Parent.SelectedPageNum = 1
+				self.Parent.SelectedPageNumber = 1
 	
 	
 	def getSelectorOptions(self, typ, ws):

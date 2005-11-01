@@ -298,8 +298,9 @@ class dFormMixin(pm.dPemMixin):
 		
 	def _setToolBar(self, val):
 		self.SetToolBar(val)
-		# the wx toolbar doesn't otherwise know what form it is attached to:
-		val.Form = self
+		if val is not None:
+			# the wx toolbar doesn't otherwise know what form it is attached to:
+			val.Form = self
 	
 	def close(self, force=False):
 		""" This method will close the form. If force = False (default)
