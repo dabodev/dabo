@@ -302,7 +302,8 @@ class _dToolBar_test(dToolBar):
 		dabo.ui.info("Copy Clicked!")
 
 	def onTimer(self, evt):
-		dabo.ui.info("CHECKED: %s, ID: %s" % (evt.Checked(), evt.GetId()))
+		item = evt.EventObject
+		dabo.ui.info("CHECKED: %s, ID: %s" % (item.IsToggled(), item.GetId()))
 
 	def onExit(self, evt):
 		app = self.Application
