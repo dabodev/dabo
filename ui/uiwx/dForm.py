@@ -9,34 +9,15 @@ from dabo.dLocalize import _
 import time
 import sys
 
-# Different platforms expect different frame types. Notably,
-# most users on Windows expect and prefer the MDI parent/child
-# type frames.
 
-# pkm 06/09/2004: disabled MDI even on Windows. There are some issues that I
-#                 don't have time to track down right now... better if it works
-#                 on Windows similarly to Linux instead of not at all... if you
-#                 want to enable MDI on Windows, just take out the "False and"
-#                 in the below if statement, and do the same in dFormMain.py.
-
-if False and wx.Platform == "__WXMSW__":
-	wxFrameClass = wx.MDIChildFrame
-	wxPreFrameClass = wx.PreMDIChildFrame
-else:
-	wxFrameClass = wx.Frame
-	wxPreFrameClass = wx.PreFrame
-
-
-class dForm(wxFrameClass, fm.dFormMixin):
+class dFormBase(fm.dFormMixin):
 	""" Create a dForm object, which is a bizobj-aware form.
 
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
 	like next(), last(), save(), and requery().
 	"""
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
-		self._baseClass = dForm
-		preClass = wxPreFrameClass
-		
+
+	def __init__(self, preClass, parent, properties, *args, **kwargs):
 		self.bizobjs = {}
 		self._primaryBizobj = None
 		
@@ -76,7 +57,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			mp = self.mainPanel = dabo.ui.dPanel(self)
 			self.Sizer.append(mp, 1, "x")
 			mp.Sizer = dabo.ui.dSizer(self.Sizer.Orientation)
-		super(dForm, self)._afterInit()
+		super(dFormBase, self)._afterInit()
 	
 	
 	def show(self):
@@ -97,7 +78,7 @@ class dForm(wxFrameClass, fm.dFormMixin):
 			self.activeControlValid()
 			ret = self.confirmChanges()
 		if ret:
-			ret = super(dForm, self)._beforeClose(evt)
+			ret = super(dFormBase, self)._beforeClose(evt)
 		return ret
 		
 		
@@ -732,8 +713,33 @@ Database error message: %s""") %	err
 			_("Specifies whether dataset is row- or table-buffered. (bool)") )
 
 
+class dFormSDI(wx.Frame, dFormBase):
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		self._baseClass = dForm
+		preClass = wx.PreFrame
+		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-class dToolForm(dForm):
+
+class dFormParentMDI(wx.MDIParentFrame, dFormBase):
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		self._baseClass = dForm
+		preClass = wx.PreMDIParentFrame
+		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
+
+
+class dFormChildMDI(wx.MDIChildFrame, dFormBase):
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		self._baseClass = dForm
+		preClass = wx.PreMDIChildFrame
+		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
+
+if dabo.settings.MDI:
+	dForm = dFormChildMDI
+else:
+	dForm = dFormSDI
+
+
+class dToolForm(dFormSDI):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		style = self._extractKey(kwargs, "style", 0)
 		style = style | wx.FRAME_TOOL_WINDOW | wx.STAY_ON_TOP | wx.RESIZE_BORDER
