@@ -1638,33 +1638,37 @@ class DataSet(tuple):
 		fldList = []
 		whereList = []
 		orderByList = []
+		keys = self[0].keys()
 		if flds is None or flds == "*":
 			# All fields
-			flds = self[0].keys()
+			flds = keys
 		elif isinstance(flds, basestring):
 			# Convert to list
 			flds = [flds]
 		for fld in flds:
-			fldList.append("'%s' : rec['%s']" % (fld, fld))
+			fldList.append("'%s' : _dataSet_rec['%s']" % (fld, fld))
 		fldsToReturn = ", ".join(fldList)
 		fldsToReturn = "{%s}" % fldsToReturn
 		
-		# Where list elements. Each element should be in the form: <fld> <op> <val>
-		# TODO: add support for format: <fld>.func() <op> <val>
-		#		or: func(<fld>) <op> <val>
+		# Where list elements
 		if where is None:
 			whereClause = ""
 		else:
 			if isinstance(where, basestring):
 				where = [where]
+			patTemplate = "(.*\\b)%s(\\b.*)"
 			for wh in where:
-				fld, op, val = wh.split(" ", 2)
-				whereList.append("rec['%s'] %s %s" % (fld, op, val))
+				for kk in keys:
+					pat = patTemplate % kk
+					mtch = re.match(pat, wh)
+					if mtch:
+						wh = mtch.groups()[0] + "_dataSet_rec['%s']" % kk + mtch.groups()[1]
+				whereList.append(wh)
 			whereClause = " and ".join(whereList)
 		if whereClause:
 			whereClause = " if %s" % whereClause		
 		
-		stmnt = "[%s for rec in self %s]" % (fldsToReturn, whereClause)
+		stmnt = "[%s for _dataSet_rec in self %s]" % (fldsToReturn, whereClause)
 		resultSet = eval(stmnt)
 		return resultSet
 	
