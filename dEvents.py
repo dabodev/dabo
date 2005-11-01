@@ -328,7 +328,7 @@ class PageChanged(Event):
 	"""Occurs when a page in a pageframe-like control changes"""
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
-				dabo.ui.dPageSelect, dabo.ui.dPageNoTabs))
+				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))
 	appliesToClass = classmethod(appliesToClass)
 	
 class PageEnter(Event):
