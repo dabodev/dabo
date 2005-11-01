@@ -9,19 +9,27 @@ import dControlMixin as cm
 import dMenu
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
+from dabo.dObject import dObject
 
 
 class dToolBar(wx.ToolBar, cm.dControlMixin):
-	"""Creates a toolbar, which can contain buttons that behave
-	more like menu items than regular controls. Other controls,
-	such as dropdown lists, can also be added.
+	"""Creates a toolbar, which is a menu-like collection of icons.
+
+	You may also add items to a toolbar such as separators and real Dabo
+	controls, such as dropdown lists, radio boxes, and text boxes.
+
+	The toolbar can be detached into a floating toolbar, and reattached by the
+	user at will.
 	"""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dToolBar
 		preClass = wx.PreToolBar
 		
 		style = self._extractKey(kwargs, "style", 0)
-		kwargs["style"] = style |  wx.TB_DOCKABLE | wx.TB_TEXT
+		# Note: need to set the TB_TEXT flag, in order for that to be toggleable
+		#       after instantiation. Because most toolbars will want to have icons
+		#       only, there is code in _initProperties to turn it off by default.
+		kwargs["style"] = style | wx.TB_TEXT
 
 		# wx doesn't return anything for GetChildren(), but we are giving Dabo
 		# that feature, for easy polymorphic referencing of the buttons and 
@@ -32,7 +40,22 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		self._image = wx.NullImage
 
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-		
+
+
+	def _initProperties(self):
+		# default to no text captions (this fires before user subclass code and user
+		# overriding arguments, so it won't conflict if the user sets ShowCaptions		
+		# explicitly.
+		self.ShowCaptions = False
+		self.Dockable = True
+		super(dToolBar, self)._initProperties()
+
+
+	def _getInitPropertiesList(self):
+		additional = ["Dockable", ]
+		original = list(super(dToolBar, self)._getInitPropertiesList())
+		return tuple(original + additional)
+
 
 	def appendButton(self, caption, pic, bindfunc=None, toggle=False, 
 			tip="", help=""):
@@ -62,18 +85,23 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 			needScale = True
 		if needScale:
 			picBmp = self.resizeBmp(picBmp, wd, ht)
-		
-		butt = self.AddSimpleTool(id_, bitmap=picBmp, isToggle=toggle, 
-				shortHelpString=tip, longHelpString=help)
-		butt.SetLabel(caption)
-		if bindfunc and self.Application:
-			self.Application.uiApp.Bind(wx.EVT_MENU, bindfunc, butt)
+	
+		butt = dToolBarItem(self.DoAddTool(id_, caption, picBmp, 
+				shortHelp=tip, longHelp=help))
+
+		if toggle:
+			self.SetToggle(id_, True)
+
+		if bindfunc:
+			butt.bindEvent(dEvents.Hit, bindfunc)
 		self.Realize()
 		
 		# Store the button reference
 		self._daboChildren.append(butt)
 		
+		return butt
 			
+
 	def appendControl(self, control, bindfunc=None):
 		"""Adds any Dabo Control to the toolbar. 
 
@@ -82,20 +110,21 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		"""
 		butt = self.AddControl(control)
 		butt.SetLabel(control.Caption)
-		if bindfunc and self.Application:
+		if bindfunc:
 			control.bindEvent(dEvents.Hit, bindfunc)
 		self.Realize()
 		
-		# Store the button reference
-		self._daboChildren.append(butt)
+		# Store the control reference:
+		self._daboChildren.append(control)
 
 		return control
 
 
 	def appendSeparator(self):
-		sep = self.AddSeparator()
+		sep = dToolBarItem(self.AddSeparator())
 		self._daboChildren.append(sep)
 		self.Realize()
+		return sep
 		
 		
 	def resizeBmp(self, bmp, wd, ht):
@@ -118,6 +147,15 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		return self._daboChildren
 
 
+	def _getDockable(self):
+		return self._hasWindowStyleFlag(wx.TB_DOCKABLE)
+
+	def _setDockable(self, val):
+		self._delWindowStyleFlag(wx.TB_DOCKABLE)
+		if val:
+			self._addWindowStyleFlag(wx.TB_DOCKABLE)
+		
+		
 	def _getForm(self):
 		try:
 			v = self._form
@@ -159,16 +197,85 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 			self._properties["MaxWidth"] = val
 		
 		
+	def _getShowCaptions(self):
+		return self._hasWindowStyleFlag(wx.TB_TEXT)
+
+	def _setShowCaptions(self, val):
+		if self._constructed():
+			self._delWindowStyleFlag(wx.TB_TEXT)
+			if val:
+				self._addWindowStyleFlag(wx.TB_TEXT)
+			self.Realize()
+		else:
+			self._properties["ShowCaptions"] = val
+		
+		
+	def _getShowIcons(self):
+		return not self._hasWindowStyleFlag(wx.TB_NOICONS)
+
+	def _setShowIcons(self, val):
+		if self._constructed():
+			self._delWindowStyleFlag(wx.TB_NOICONS)
+			if not val:
+				self._addWindowStyleFlag(wx.TB_NOICONS)
+			self.Realize()
+		else:
+			self._properties["ShowIcons"] = val
+		
+		
+	Dockable = property(_getDockable, _setDockable, None,
+		_("""Specifies whether the toolbar can be docked and undocked.  (bool)
+
+			Currently, this only seems to work on Linux, and can't be changed after
+			instantiation. Default is True."""))
+
 	Form = property(_getForm, _setForm, None,
 		_("Specifies the form that we are a member of."))
 	
 	MaxHeight = property(_getMaxHt, _setMaxHt, None,
-		_("""When set to a value greater than zero, will limit the height of 
-		added buttons to this value. (int)""" ) )
+		_("""Specifies the maximum height of added buttons.  (int)
+
+		When set to zero, there will be no height limit.""" ) )
 
 	MaxWidth = property(_getMaxWd, _setMaxWd, None,
-		_("""When set to a value greater than zero, will limit the width of 
-		added buttons to this value. (int)""" ) )
+		_("""Specifies the maximum width of added buttons.  (int)
+
+		When set to zero, there will be no width limit.""" ) )
+
+	ShowCaptions = property(_getShowCaptions, _setShowCaptions, None,
+		_("""Specifies whether the text captions are shown in the toolbar.  (bool)
+
+		Default is False."""))
+
+	ShowIcons = property(_getShowIcons, _setShowIcons, None,
+		_("""Specifies whether the icons are shown in the toolbar.  (bool)
+
+		Note that you can set both ShowCaptions and ShowIcons to False, but in 
+		that case, the icons will still show.
+
+		Default is True."""))
+
+
+class dToolBarItem(dObject):
+	"""Creates a toolbar item."""
+	## I can't figure out, for the life of me, how to mix-in dObject with 
+	## wx.ToolBarToolBase - I always get a RunTimeError that there isn't a
+	## constructor. Therefore, I've made this wrapper class to decorate the
+	## wx.ToolBarToolBase instance that comes back from the DoAddTool()
+	## function.
+	def __init__(self, wxToolBarToolBase):
+		self._wxToolBarItem = wxToolBarToolBase
+		if self.Application:
+			self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, 
+					wxToolBarToolBase)
+
+	def __getattr__(self, attr):
+		if hasattr(self._wxToolBarItem, attr):
+			return getattr(self._wxToolBarItem, attr)
+		raise AttributeError
+
+	def __onWxHit(self, evt):
+		self.raiseEvent(dEvents.Hit)
 
 
 class _dToolBar_test(dToolBar):
