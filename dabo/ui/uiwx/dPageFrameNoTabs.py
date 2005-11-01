@@ -7,11 +7,11 @@ import dabo.dColors as dColors
 from dabo.dLocalize import _
 
 
-class dPageNoTabs(dabo.ui.dPanel):
+class dPageFrameNoTabs(dabo.ui.dPanel):
 	def _afterInit(self):
 		self.Sizer = dabo.ui.dSizer()
 		self._pageClass = dPage.dPage
-		super(dPageNoTabs, self)._afterInit()
+		super(dPageFrameNoTabs, self)._afterInit()
 		
 		
 	def appendPage(self, pgCls=None, makeActive=False):
@@ -152,7 +152,7 @@ class TestPage(dPage.dPage):
 class TestForm(dabo.ui.dForm):
 	def afterInit(self):
 		self.Caption = "Tabless Pageframe Example"
-		self.pgf = pgf = dPageNoTabs(self)
+		self.pgf = pgf = dPageFrameNoTabs(self)
 		pgf.PageClass = TestPage
 		pgf.PageCount = 5
 		idx = 0

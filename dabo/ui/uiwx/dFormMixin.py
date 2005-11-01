@@ -157,7 +157,7 @@ class dFormMixin(pm.dPemMixin):
 							szr.setItemProps(obj.ControllingSizerItem, szrInfo)
 					if kids:
 						if isinstance(obj, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
-								dabo.ui.dPageSelect, dabo.ui.dPageNoTabs)):
+								dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs)):
 							# 'kids' will each be a dPage
 							for pageno, pg in enumerate(obj.Pages):
 								pgInfo = kids[pageno]
