@@ -1665,7 +1665,7 @@ class DataSet(tuple):
 	_dictSubName = "_dataSet_rec"
 	
 	
-	def _fldReplace(self, expr):
+	def _fldReplace(self, expr, dictName=None):
 		"""The list comprehensions require the field names be the keys
 		in a dictionary expression. Users, though, should not have to know
 		about this. This takes a user-defined, SQL-like expressions, and 
@@ -1675,29 +1675,31 @@ class DataSet(tuple):
 		keys = self[0].keys()
 		patTemplate = "(.*\\b)%s(\\b.*)"
 		ret = expr
+		if dictName is None:
+			dictName = self._dictSubName
 		for kk in keys:
 			pat = patTemplate % kk
 			mtch = re.match(pat, ret)
 			if mtch:
-				ret = mtch.groups()[0] + "%s['%s']" % (self._dictSubName, kk) + mtch.groups()[1]
+				ret = mtch.groups()[0] + "%s['%s']" % (dictName, kk) + mtch.groups()[1]
 		return ret
 		
 	
-	def select(self, flds=None, where=None, orderBy=None):
+	def select(self, fields=None, where=None, orderBy=None):
 		fldList = []
 		whereList = []
 		orderByList = []
 		keys = self[0].keys()
-		if flds is None or flds == "*":
+		if fields is None or fields == "*":
 			# All fields
-			flds = keys
-		elif isinstance(flds, basestring):
+			fields = keys
+		elif isinstance(fields, basestring):
 			# Convert to list
-			flds = [flds]
-		for fld in flds:
+			fields = [fields]
+		for fld in fields:
 			fldList.append("'%s' : %s" % (fld, self._fldReplace(fld)))
-		fldsToReturn = ", ".join(fldList)
-		fldsToReturn = "{%s}" % fldsToReturn
+		fieldsToReturn = ", ".join(fldList)
+		fieldsToReturn = "{%s}" % fieldsToReturn
 		
 		# Where list elements
 		if where is None:
@@ -1710,7 +1712,51 @@ class DataSet(tuple):
 			whereClause = " and ".join(whereList)
 		if whereClause:
 			whereClause = " if %s" % whereClause		
-		
-		stmnt = "[%s for %s in self %s]" % (fldsToReturn, self._dictSubName, whereClause)
+		stmnt = "[%s for %s in self %s]" % (fieldsToReturn, self._dictSubName, whereClause)
 		resultSet = eval(stmnt)
-		return resultSet
+		
+		if orderBy:
+			# This should be a comma separated string in the format:
+			#		fld1, fld2 desc, fld3 asc
+			# After the field name is an optional direction, either 'asc' 
+			# (ascending, default) or 'desc' (descending).
+			# IMPORTANT! Fields referenced in 'orderBy' MUST be in 
+			# the result data set!
+			orderByList = orderBy.split(",")
+			sortList = []
+			
+			def orderBySort(val1, val2):
+				ret = 0
+				compList = orderByList[:]
+				while not ret:
+					comp = compList[0]
+					compList = compList[1:]
+					if comp[-4:].lower() == "desc":
+						compVals = (-1, 1)
+					else:
+						compVals = (1, -1)
+					# Remove the direction, if any, from the comparison.
+					compWords = comp.split(" ")
+					if compWords[-1].lower() in ("asc", "desc"):
+						compWords = compWords[:-1]
+					comp = " ".join(compWords)
+					cmp1 = self._fldReplace(comp, "val1")
+					cmp2 = self._fldReplace(comp, "val2")
+					eval1 = eval(cmp1)
+					eval2 = eval(cmp2)
+					if eval1 > eval2:
+						ret = compVals[0]
+					elif eval1 < eval2:
+						ret = compVals[1]
+					else:
+						# They are equal. Continue comparing using the 
+						# remaining terms in compList, if any.
+						if not compList:
+							break
+				return ret
+		
+			resultSet.sort(orderBySort)
+		
+		return DataSet(resultSet)
+
+
