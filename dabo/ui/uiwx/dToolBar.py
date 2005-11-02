@@ -138,7 +138,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 			ht = self.MaxHeight
 			needScale = True
 		if needScale:
-			picBmp = self.resizeBmp(picBmp, wd, ht)
+			picBmp = self._resizeBmp(picBmp, wd, ht)
 	
 		if pos is None:
 			# append
@@ -246,13 +246,35 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		return item
 
 
-	def resizeBmp(self, bmp, wd, ht):
+	def getItemIndex(self, caption):
+		"""Returns the index of the item with the specified caption.
+
+		If the item isn't found, None is returned.
+		"""
+		for pos, itm in enumerate(self.Children):
+			if itm.Caption == caption:
+				return pos
+		return None
+		
+
+	def getItem(self, caption):
+		"""Returns a reference to the item with the specified caption.
+
+		If the item isn't found, None is returned.
+		"""
+		idx = self.getItemIndex(caption)
+		if idx is not None:
+			return self.Children[idx]
+		return None
+
+
+	def _resizeBmp(self, bmp, wd, ht):
 		img = bmp.ConvertToImage()
 		img.Rescale(wd, ht)
 		return img.ConvertToBitmap()
 
 
-	def updBmpSize(self):
+	def _updBmpSize(self):
 		toolBmpWd, toolBmpHt = self.GetToolBitmapSize()
 		if self.MaxWidth:
 			toolBmpWd = self.MaxWidth
@@ -320,7 +342,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 	def _setMaxHt(self, val):
 		self._maxHt = val
 		if self._constructed():
-			self.updBmpSize()
+			self._updBmpSize()
 		else:
 			self._properties["MaxHeight"] = val
 		
@@ -335,7 +357,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 	def _setMaxWd(self, val):
 		self._maxWd = val
 		if self._constructed():
-			self.updBmpSize()
+			self._updBmpSize()
 		else:
 			self._properties["MaxWidth"] = val
 		
