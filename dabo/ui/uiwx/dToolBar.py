@@ -52,9 +52,29 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 
 
 	def _getInitPropertiesList(self):
-		additional = ["Dockable", ]
+		additional = ["Dockable",]
 		original = list(super(dToolBar, self)._getInitPropertiesList())
 		return tuple(original + additional)
+
+
+	def appendItem(self, item):
+		"""Insert a dToolBarItem at the end of the toolbar."""
+		wxItem = self.AddToolItem(item)
+		self._daboChildren.append(item)
+		return item
+
+
+	def insertItem(self, pos, item):
+		"""Insert a dToolBarItem before the specified position in the toolbar."""
+		wxItem = self.InsertToolItem(pos, item)
+		self._daboChildren.insert(pos, item)
+		return item
+		
+
+	def prependItem(self, item):
+		"""Insert a dToolBarItem at the beginning of the toolbar."""
+		self.insertItem(0, item)
+		return item
 
 
 	def appendButton(self, caption, pic, bindfunc=None, toggle=False, 
@@ -67,6 +87,40 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		function you want to be called when this button is clicked in the 
 		'bindfunc' param.
 		"""
+		return self._appendInsertButton(None, caption, pic, bindfunc, 
+				toggle,	tip, help)
+
+
+	def insertButton(self, pos, caption, pic, bindfunc=None, toggle=False, 
+			tip="", help=""):
+		"""Inserts a tool (button) to the toolbar at the specified position. 
+
+		You must pass a caption and an image for the button. The picture can be a 
+		wx.Bitmap, or a path to an image file of any supported type. If you pass 
+		toggle=True, the button will exist in an up and down state. Pass the 
+		function you want to be called when this button is clicked in the 
+		'bindfunc' param.
+		"""
+		return self._appendInsertButton(pos, caption, pic, bindfunc, 
+				toggle,	tip, help)
+
+
+	def prependButton(self, caption, pic, bindfunc=None, toggle=False, 
+			tip="", help=""):
+		"""Inserts a tool (button) to the beginning of the toolbar. 
+
+		You must pass a caption and an image for the button. The picture can be a 
+		wx.Bitmap, or a path to an image file of any supported type. If you pass 
+		toggle=True, the button will exist in an up and down state. Pass the 
+		function you want to be called when this button is clicked in the 
+		'bindfunc' param.
+		"""
+		return self.insertButton(0, caption, pic, bindfunc, toggle,	tip, help)
+
+
+	def _appendInsertButton(self, pos, caption, pic, bindfunc, toggle, 
+			tip, help):
+		"""Common code for the append|insert|prependButton() functions."""
 		id_ = wx.NewId()
 		if isinstance(pic, basestring):
 			# path was passed
@@ -86,18 +140,26 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		if needScale:
 			picBmp = self.resizeBmp(picBmp, wd, ht)
 	
-		butt = dToolBarItem(self.DoAddTool(id_, caption, picBmp, 
+		if pos is None:
+			# append
+			butt = dToolBarItem(self.DoAddTool(id_, caption, picBmp, 
+					shortHelp=tip, longHelp=help))
+		else:
+			# insert
+			butt = dToolBarItem(self.DoInsertTool(pos, id_, caption, picBmp, 
 				shortHelp=tip, longHelp=help))
-
-		if toggle:
-			self.SetToggle(id_, True)
+			
+		self.SetToggle(id_, toggle)
 
 		if bindfunc:
 			butt.bindEvent(dEvents.Hit, bindfunc)
 		self.Realize()
 		
 		# Store the button reference
-		self._daboChildren.append(butt)
+		if pos is None:
+			self._daboChildren.append(butt)
+		else:
+			self._daboChildren.insert(pos, butt)
 		
 		return butt
 			
@@ -105,8 +167,8 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 	def appendControl(self, control, bindfunc=None):
 		"""Adds any Dabo Control to the toolbar. 
 
-		Pass the function you want to be called when this button is clicked in the 
-		'bindfunc' param.
+		Optionally, pass the function you want to be called when this button is 
+		clicked in the bindfunc parameter.
 		"""
 		butt = self.AddControl(control)
 		butt.SetLabel(control.Caption)
@@ -120,13 +182,70 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		return control
 
 
+	def insertControl(self, pos, control, bindfunc=None):
+		"""Inserts any Dabo Control to the toolbar at the specified position. 
+
+		Optionally, pass the function you want to be called when this button is 
+		clicked in the bindfunc parameter.
+		"""
+		butt = self.InsertControl(pos, control)
+		butt.SetLabel(control.Caption)
+		if bindfunc:
+			control.bindEvent(dEvents.Hit, bindfunc)
+		self.Realize()
+		
+		# Store the control reference:
+		self._daboChildren.insert(0, control)
+
+		return control
+
+
+	def prependControl(self, control, bindfunc=None):
+		"""Inserts any Dabo Control to the beginning of the toolbar. 
+
+		Optionally, pass the function you want to be called when this button is 
+		clicked in the bindfunc parameter.
+		"""
+		return self.insertControl(0, control, bindfunc)
+
+
 	def appendSeparator(self):
+		"""Inserts a separator at the end of the toolbar."""
 		sep = dToolBarItem(self.AddSeparator())
 		self._daboChildren.append(sep)
 		self.Realize()
 		return sep
 		
-		
+
+	def insertSeparator(self, pos):
+		"""Inserts a separator before the specified position in the toolbar."""
+		sep = dToolBarItem(self.InsertSeparator(pos))
+		self._daboChildren.insert(pos, sep)
+		self.Realize()
+		return sep
+
+
+	def prependSeparator(self):
+		"""Inserts a separator at the beginning of the toolbar."""
+		return self.insertSeparator(0)
+	
+	
+	def remove(self, index, release=True):
+		"""Removes the item at the specified index from the toolbar.
+
+		If release is True (the default), the item is deleted as well. If release 
+		is False, a reference to the  object will be returned, and the caller 
+		is responsible for deleting it.
+		"""
+		item = self.Children[index]
+		id_ = item._id
+		del(self._daboChildren[index])
+		self.RemoveTool(id_)
+		if release:
+			item.Destroy()
+		return item
+
+
 	def resizeBmp(self, bmp, wd, ht):
 		img = bmp.ConvertToImage()
 		img.Rescale(wd, ht)
@@ -145,6 +264,30 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 	def GetChildren(self):
 		## This overrides the wx default which just returns an empty list.
 		return self._daboChildren
+
+	
+	def _recreateItem(self, item):
+		"""Recreate the passed dToolBarItem, and put it back in its original place.
+
+		This is necessary when changing some or all of the dToolBarItem properties,
+		and is called from within that object as a callafter.
+		"""
+		id_ = item._id
+		idx = self._getIndexByItem(item)
+		if idx is not None:
+			self.remove(idx, False)
+			self.insertItem(idx, item)		
+
+
+	def _getIndexByItem(self, item):
+		"""Given a dToolBarItem object reference, return the index in the toolbar.
+
+		Return None if the item doesn't exist in the toolbar.
+		"""
+		for idx, o in enumerate(self.Children):
+			if o == item:
+				return idx
+		return None
 
 
 	def _getDockable(self):
@@ -265,6 +408,7 @@ class dToolBarItem(dObject):
 	## function.
 	def __init__(self, wxToolBarToolBase):
 		self._wxToolBarItem = wxToolBarToolBase
+		self._id = wxToolBarToolBase.GetId()
 		if self.Application:
 			self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, 
 					wxToolBarToolBase)
@@ -276,6 +420,69 @@ class dToolBarItem(dObject):
 
 	def __onWxHit(self, evt):
 		self.raiseEvent(dEvents.Hit)
+
+
+	def _getCanToggle(self):
+		return bool(self._wxToolBarItem.CanBeToggled())
+
+	def _setCanToggle(self, val):
+		self._wxToolBarItem.SetToggle(bool(val))
+
+
+	def _getCaption(self):
+		return self._wxToolBarItem.GetLabel()
+
+	def _setCaption(self, val):
+		self._wxToolBarItem.SetLabel(val)
+		dabo.ui.callAfter(self.Parent._recreateItem, self)
+
+
+	def _getEnabled(self):
+		return self.Parent.GetToolEnabled(self._id)
+
+	def _setEnabled(self, val):
+		self.Parent.EnableTool(self._id, bool(val))
+
+
+	def _getParent(self):
+		return self._wxToolBarItem.GetToolBar()
+
+
+	def _getValue(self):
+		if self.CanToggle:
+			return bool(self.Parent.GetToolState(self._id))
+		return None
+
+	def _setValue(self, val):
+		assert self.CanToggle, "Can't set Value on a non-toggleable tool."
+		self.Parent.ToggleTool(self._id, bool(val))
+
+
+	CanToggle = property(_getCanToggle, _setCanToggle, None,
+			_("""Specifies whether the toolbar item can be toggled.  (bool)
+
+			For toggleable items, the Value property will tell you if the item is
+			currently toggled or not."""))
+
+
+	Caption = property(_getCaption, _setCaption, None,
+			_("""Specifies the text caption of the toolbar item.
+
+			You will only see the caption if dToolBar.ShowCaptions is set to True.
+			"""))
+
+	Enabled = property(_getEnabled, _setEnabled, None,
+			_("""Specifies whether the user may interact with the button."""))
+
+	Parent = property(_getParent, None, None,
+			_("""Contains an object reference to the containing toolbar."""))
+
+	Value = property(_getValue, _setValue, None,
+			_("""Specifies whether the toolbar item is toggled or not.  (bool)
+
+			For items with CanToggle = True, returns one of True or False, depending
+			on the state of the button. For items with CanToggle = False, returns
+			None."""))
 
 
 class _dToolBar_test(dToolBar):
@@ -303,7 +510,7 @@ class _dToolBar_test(dToolBar):
 
 	def onTimer(self, evt):
 		item = evt.EventObject
-		dabo.ui.info("CHECKED: %s, ID: %s" % (item.IsToggled(), item.GetId()))
+		dabo.ui.info("CHECKED: %s, ID: %s" % (item.Value, item.GetId()))
 
 	def onExit(self, evt):
 		app = self.Application
