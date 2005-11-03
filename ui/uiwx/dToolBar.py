@@ -21,7 +21,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 	The toolbar can be detached into a floating toolbar, and reattached by the
 	user at will.
 	"""
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dToolBar
 		preClass = wx.PreToolBar
 		
@@ -59,15 +59,17 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 
 	def appendItem(self, item):
 		"""Insert a dToolBarItem at the end of the toolbar."""
-		wxItem = self.AddToolItem(item)
+		wxItem = self.AddToolItem(item._wxToolBarItem)
 		self._daboChildren.append(item)
+		item._parent = self
 		return item
 
 
 	def insertItem(self, pos, item):
 		"""Insert a dToolBarItem before the specified position in the toolbar."""
-		wxItem = self.InsertToolItem(pos, item)
+		wxItem = self.InsertToolItem(pos, item._wxToolBarItem)
 		self._daboChildren.insert(pos, item)
+		item._parent = self
 		return item
 		
 
@@ -121,7 +123,6 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 	def _appendInsertButton(self, pos, caption, pic, bindfunc, toggle, 
 			tip, help):
 		"""Common code for the append|insert|prependButton() functions."""
-		id_ = wx.NewId()
 		if isinstance(pic, basestring):
 			# path was passed
 			picBmp = dabo.ui.strToBmp(pic)
@@ -140,6 +141,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		if needScale:
 			picBmp = self._resizeBmp(picBmp, wd, ht)
 	
+		id_ = wx.NewId()
 		if pos is None:
 			# append
 			butt = dToolBarItem(self.DoAddTool(id_, caption, picBmp, 
@@ -160,7 +162,8 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 			self._daboChildren.append(butt)
 		else:
 			self._daboChildren.insert(pos, butt)
-		
+		butt._parent = self
+
 		return butt
 			
 
@@ -213,6 +216,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		"""Inserts a separator at the end of the toolbar."""
 		sep = dToolBarItem(self.AddSeparator())
 		self._daboChildren.append(sep)
+		sep._parent = self
 		self.Realize()
 		return sep
 		
@@ -221,6 +225,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		"""Inserts a separator before the specified position in the toolbar."""
 		sep = dToolBarItem(self.InsertSeparator(pos))
 		self._daboChildren.insert(pos, sep)
+		sep._parent = self
 		self.Realize()
 		return sep
 
@@ -241,6 +246,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		id_ = item._id
 		del(self._daboChildren[index])
 		self.RemoveTool(id_)
+		item._parent = None
 		if release:
 			item.Destroy()
 		return item
@@ -428,17 +434,34 @@ class dToolBarItem(dObject):
 	## constructor. Therefore, I've made this wrapper class to decorate the
 	## wx.ToolBarToolBase instance that comes back from the DoAddTool()
 	## function.
-	def __init__(self, wxToolBarToolBase):
-		self._wxToolBarItem = wxToolBarToolBase
-		self._id = wxToolBarToolBase.GetId()
+	def __init__(self, wxItem=None):
+		if wxItem is None:
+			wxItem = self._getWxToolBarItem()
+		self._wxToolBarItem = wxItem
+		self._id = wxItem.GetId()
+		self._parent = None
 		if self.Application:
-			self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, 
-					wxToolBarToolBase)
+			self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, wxItem)
+
 
 	def __getattr__(self, attr):
+		"""Exposes the underlying wx functions and attributes."""
 		if hasattr(self._wxToolBarItem, attr):
 			return getattr(self._wxToolBarItem, attr)
 		raise AttributeError
+
+
+	def _getWxToolBarItem(self):
+		"""Create the underlying wxToolBarToolBase item, and attach it to self."""
+		# The only way I can figure out how to do this is to call 
+		# toolbar.DoAddTool() and save the result. Hence, the throwaway toolbar.
+		tb = dToolBar(self.Application.ActiveForm)
+		id_ = wx.NewId()
+		wxItem = tb.DoAddTool(id_, "temp", dabo.ui.strToBmp("dCheckBox"))
+		tb.RemoveTool(id_)
+		tb.release()
+		return wxItem
+
 
 	def __onWxHit(self, evt):
 		self.raiseEvent(dEvents.Hit)
@@ -456,18 +479,24 @@ class dToolBarItem(dObject):
 
 	def _setCaption(self, val):
 		self._wxToolBarItem.SetLabel(val)
-		dabo.ui.callAfter(self.Parent._recreateItem, self)
+		if self.Parent:
+			dabo.ui.callAfter(self.Parent._recreateItem, self)
 
 
 	def _getEnabled(self):
 		return self.Parent.GetToolEnabled(self._id)
 
 	def _setEnabled(self, val):
-		self.Parent.EnableTool(self._id, bool(val))
+		if self.Parent:
+			self.Parent.EnableTool(self._id, bool(val))
+		else:
+			self.Enable(bool(val))
 
 
 	def _getParent(self):
-		return self._wxToolBarItem.GetToolBar()
+		## Calling GetToolBar() on a free item causes a segfault.
+		#return self._wxToolBarItem.GetToolBar()
+		return self._parent
 
 
 	def _getValue(self):
@@ -477,7 +506,11 @@ class dToolBarItem(dObject):
 
 	def _setValue(self, val):
 		assert self.CanToggle, "Can't set Value on a non-toggleable tool."
-		self.Parent.ToggleTool(self._id, bool(val))
+		if self.Parent:
+			self.Parent.ToggleTool(self._id, bool(val))
+		else:
+			if bool(self.IsToggled()) != bool(val):
+				self.Toggle()
 
 
 	CanToggle = property(_getCanToggle, _setCanToggle, None,
