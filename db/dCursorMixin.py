@@ -1760,3 +1760,126 @@ class DataSet(tuple):
 		return DataSet(resultSet)
 
 
+	def join(self, target, sourceAlias, targetAlias, condition,
+			sourceFields=None, targetFields=None, where=None, 
+			orderBy=None, joinType=None):
+		"""This method joins the current DataSet and the target 
+		DataSet, based on the specified condition. The 'joinType'
+		parameter will determine the type of join (inner, left, right, full).
+		Where and orderBy will affect the result of the join, and so they
+		should reference fields in the result set without alias qualifiers.		
+		"""
+		if joinType is None:
+			joinType = "inner"
+		joinType = joinType.lower().strip()
+		if joinType == "outer":
+			# This is the same as 'left outer'
+			joinType = "left"
+		if "outer" in joinType.split():
+			tmp = joinType.split()
+			tmp.remove("outer")
+			joinType = tmp[0]
+		
+		leftDS = self
+		rightDS = target
+		leftAlias = sourceAlias
+		rightAlias = targetAlias
+		leftFields = sourceFields
+		rightFields = targetFields
+		if joinType == "right":
+			# Same as left; we just need to reverse things
+			(leftDS, rightDS, leftAlias, rightAlias, leftFields, 
+					rightFields) = (rightDS, leftDS, rightAlias, leftAlias, 
+					rightFields, leftFields)
+		
+		# Parse the condition. It should have an '==' in it. If not, 
+		# raise an error.
+		condList = condition.split("==")
+		if len(condList) == 1:
+			# No equality specified
+			errMsg = _("Bad join: no '==' in join condition: %s") % condition
+			raise dException.QueryException, errMsg
+		
+		leftCond = None
+		rightCond = None
+		leftPat = "(.*)(\\b%s\\b)(.*)" % leftAlias
+		rightPat = "(.*)(\\b%s\\b)(.*)" % rightAlias
+		
+		mtch = re.match(leftPat, condList[0])
+		if mtch:
+			leftCond = condList[0].strip()
+		else:
+			mtch = re.match(leftPat, condList[1])
+			if mtch:
+				leftCond = condList[1].strip()
+		mtch = re.match(rightPat, condList[0])
+		if mtch:
+			rightCond = condList[0].strip()
+		else:
+			mtch = re.match(rightPat, condList[1])
+			if mtch:
+				rightCond = condList[1].strip()
+		condError = ""
+		if leftCond is None:
+			condError += _("No join condition specified for alias '%s'") % leftAlias
+		if rightCond is None:
+			if condError:
+				condError += "; "
+			condError += _("No join condition specified for alias '%s'") % rightAlias
+		if condError:
+			raise dException.QueryException, condError
+		
+		# OK, we now know how to do the join. The plan is this:
+		# 	create an empty result list
+		# 	scan through all the left records
+		# 		if leftFields, run a select to get only those fields.
+		# 		find all the matching right records using select
+		# 		if matches, update each with the left select and add
+		# 				to the result.
+		# 		if no matches:
+		# 			if inner join:
+		# 				skip to next
+		# 			else:
+		# 				get dict.fromkeys() for right select
+		# 				update left with fromkeys and add to result
+		# 	
+		# 	We'll worry about full joins later.
+
+		resultSet = []
+		for leftRec in leftDS:
+			if leftFields:
+				leftSelect = DataSet([leftRec]).select(fields=leftFields)[0]
+			else:
+				leftSelect = leftRec
+			tmpLeftCond = leftCond.replace(leftAlias, "leftRec")
+			tmpLeftCond = "%s['%s']" % tuple(tmpLeftCond.split("."))
+			leftVal = eval(tmpLeftCond)
+			
+			if isinstance(leftVal, basestring):
+				leftVal = "'%s'" % leftVal
+			rightWhere = rightCond.replace(rightAlias + ".", "") + "== %s" % leftVal
+			rightRecs = rightDS.select(fields=rightFields, where=rightWhere)
+
+			if rightRecs:
+				for rightRec in rightRecs:
+					rightRec.update(leftSelect)
+					resultSet.append(rightRec)
+			else:
+				if not joinType == "inner":
+					rightKeys = rightDS.select(fields=rightFields)[0].keys()
+					leftSelect.update(dict.fromkeys(rightKeys))
+					resultSet.append(leftSelect)
+		
+		resultSet = DataSet(resultSet)
+		if where or orderBy:
+			resultSet = resultSet.select(where=where, orderBy=orderBy)
+		return resultSet
+
+
+
+
+
+
+
+
+
