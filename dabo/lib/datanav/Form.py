@@ -290,9 +290,6 @@ class Form(dabo.ui.dForm):
 			self.Sizer.layout()
 			self.refresh()
 
-		if self.RequeryOnLoad:
-			dabo.ui.callAfter(self.PageFrame.Pages[0].requery)
-			
 	def beforeSetupPageFrame(self): return True
 	def afterSetupPageFrame(self): pass
 	
