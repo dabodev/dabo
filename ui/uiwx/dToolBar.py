@@ -62,6 +62,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		wxItem = self.AddToolItem(item._wxToolBarItem)
 		self._daboChildren.append(item)
 		item._parent = self
+		self.Realize()
 		return item
 
 
@@ -70,6 +71,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		wxItem = self.InsertToolItem(pos, item._wxToolBarItem)
 		self._daboChildren.insert(pos, item)
 		item._parent = self
+		self.Realize()
 		return item
 		
 
