@@ -189,6 +189,9 @@ class SelectPage(Page):
 		self.selectOptionsPanel.setFocus()
 		#SelectPage.doDefault()
 		super(SelectPage, self).createItems()
+		if self.Form.RequeryOnLoad:
+			dabo.ui.callAfter(self.requery)
+			
 
 	
 	def setOrderBy(self, biz):
