@@ -35,14 +35,17 @@ class dPageFrameMixin(cm.dControlMixin):
 
 		
 	def __pageChanged(self, newPageNum, oldPageNum):
+		## Because of platform inconsistencies, it is safer to raise the dabo
+		## events in a callafter instead of directly.
 		self._lastPage = newPageNum
 		if oldPageNum is not None:
 			if oldPageNum >=0:
-				self.Pages[oldPageNum].raiseEvent(dEvents.PageLeave)
+				dabo.ui.callAfter(self.Pages[oldPageNum].raiseEvent, dEvents.PageLeave)
 
 		if newPageNum >= 0 and self.PageCount > newPageNum:
-			self.Pages[newPageNum].raiseEvent(dEvents.PageEnter)
-			self.raiseEvent(dEvents.PageChanged)
+			dabo.ui.callAfter(self.Pages[newPageNum].raiseEvent, dEvents.PageEnter)
+			dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged, 
+					oldPageNum=oldPageNum, newPageNum=newPageNum)
 			
 		
 	# Image-handling function
