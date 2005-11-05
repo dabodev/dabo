@@ -1922,10 +1922,6 @@ class DataSet(tuple):
 	def __init__(self, *args, **kwargs):
 		super(DataSet, self).__init__(*args, **kwargs)
 		if _useSQLite:
-			# Create a name for temporary tables
-			alphanum = "abcdefghijklmnopqrstuvwxyz0123456789"
-			self._sqliteTableName = "dabo_%s" % "".join(random.sample(alphanum, 7))
-			
 			# Register the adapters
 			if _USE_DECIMAL:
 				sqlite.register_adapter(Decimal, self._adapt_decimal)
@@ -1946,15 +1942,6 @@ class DataSet(tuple):
 		return str(decVal)
 	
 	
-	def _escQuote(self, val):
-		ret = val
-		if isinstance(val, basestring):
-			sl = "\\"
-			qt = "\'"
-			ret = qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
-		return ret
-
-		
 	def _convert_decimal(self, strval):
 		"""This is a converter routine. Takes the string 
 		representation of a Decimal value and return an actual 
@@ -1966,6 +1953,35 @@ class DataSet(tuple):
 			ret = float(strval)
 		return ret
 	
+	
+	def _escQuote(self, val):
+		ret = val
+		if isinstance(val, basestring):
+			sl = "\\"
+			qt = "\'"
+			ret = qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
+		return ret
+
+		
+	def _fldReplace(self, expr, dictName=None):
+		"""The list comprehensions require the field names be the keys
+		in a dictionary expression. Users, though, should not have to know
+		about this. This takes a user-defined, SQL-like expressions, and 
+		substitutes any field name with the corresponding dict
+		expression.
+		"""
+		keys = self[0].keys()
+		patTemplate = "(.*\\b)%s(\\b.*)"
+		ret = expr
+		if dictName is None:
+			dictName = self._dictSubName
+		for kk in keys:
+			pat = patTemplate % kk
+			mtch = re.match(pat, ret)
+			if mtch:
+				ret = mtch.groups()[0] + "%s['%s']" % (dictName, kk) + mtch.groups()[1]
+		return ret
+		
 	
 	def _makeCreateTable(self):
 		"""Makes the CREATE TABLE string needed to represent
@@ -1991,11 +2007,44 @@ class DataSet(tuple):
 			else:
 				qt = ""
 			insList.append("quote(%(" +  key + ")s)")
-		self._insertTemplate = "insert into %s values (%s)" % (self._sqliteTableName,
-				", ".join(insList))
-		return "create table %s (%s)" % (self._sqliteTableName, ", ".join(retList))
+		self._insertTemplate = "insert into dataset values (%s)" % ", ".join(insList)
+		return "create table dataset (%s)" % ", ".join(retList)
 		
 	
+	def replace(self, field, valOrExpr, scope=None):
+		"""Replaces the value of the specified field with the given value
+		or expression. All records matching the scope are affected; if
+		no scope is specified, all records are affected.
+		
+		'valOrExpr' will be treated as a literal value, unless it is prefixed
+		with an equals sign. All expressions will therefore be a string 
+		beginning with '='. Literals can be of any type. 
+		"""
+		
+# 		dabo.trace()
+		
+		
+		if scope is None:
+			scope = "True"
+		else:
+			scope = self._fldReplace(scope, "rec")
+		
+		literal = True
+		if isinstance(valOrExpr, basestring):
+			if valOrExpr.strip()[0] == "=":
+				literal = False
+				valOrExpr = valOrExpr.replace("=", "", 1)
+			valOrExpr = self._fldReplace(valOrExpr, "rec")
+		for rec in self:
+			if eval(scope):
+				if literal:
+					rec[field] = valOrExpr
+				else:
+					expr = "rec['%s'] = %s" % (field, valOrExpr)
+					exec(expr)
+		
+		
+		
 	def select(self, sqlExpr):
 		"""This will query the data set and return the resulting 
 		data set. It requires that SQLite and pysqlite2 are installed;
@@ -2007,10 +2056,8 @@ class DataSet(tuple):
 		The 'from dataset' is case-insensitive.
 		"""
 		if not _useSQLite:
+			dabo.errorLog.write(_("SQLite and pysqlite2 must be installed to use this function"))
 			return None
-		fromClause = "from %s " % self._sqliteTableName
-		sql = re.sub("\\bfrom dataset\\b", fromClause, sqlExpr, re.I)
-		
 		conn = sqlite.connect(":memory:")
 		crs = conn.cursor()
 		crs.execute(self._makeCreateTable())
@@ -2022,7 +2069,7 @@ class DataSet(tuple):
 			crs.execute(self._insertTemplate % quoted)
 		
 		# We have a table now with the necessary data. Run the query!
-		crs.execute(sql)
+		crs.execute(sqlExpr)
 		tmpres = crs.fetchall()
 		dscrp = [fld[0] for fld in crs.description]
 		res = []
