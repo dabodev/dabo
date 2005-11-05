@@ -216,7 +216,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		_oldRowCount = self._oldRowCount
 
 		# Get the data from the grid.
-		dataSource = self.grid.DataSource
 		bizobj = self.grid.getBizobj()
 
 		if bizobj:
@@ -377,8 +376,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 	def IsEmptyCell(self, row, col):
 		if row >= self.grid.RowCount:
-			self.fillTable(True)
-			return ""
+			return True
 
 		bizobj = self.grid.getBizobj()
 		field = self.grid.Columns[col].DataField
@@ -397,7 +395,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 	def GetValue(self, row, col):
 		if row >= self.grid.RowCount:
-			self.fillTable(True)
 			return ""
 
 		bizobj = self.grid.getBizobj()
