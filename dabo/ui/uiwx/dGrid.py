@@ -212,7 +212,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		
 	def fillTable(self, force=False):
 		""" Fill the grid's data table to match the data set."""
-
 		_oldRowCount = self._oldRowCount
 
 		# Get the data from the grid.
@@ -1623,12 +1622,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if not ds:
 			return False
 		if isinstance(ds, basestring):
-			# assume it is a bizobj datasource:
-			self.DataSource = ds
+			# Assume it is a bizobj datasource.
+			if self.DataSource != ds:
+				self.DataSource = ds
 		else:
 			self.DataSource = None
 			self.DataSet = ds
 		bizobj = self.getBizobj()
+
 		if bizobj:
 			data = bizobj.getDataSet(rows=1)
 			if data:
@@ -1638,10 +1639,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		else:
 			# not a bizobj datasource
 			firstRec = ds[0]
-		# Dabo cursors add some columns to the data set. These
-		# artifacts need to be removed. They all begin with 'dabo-'.
+
 		colKeys = [key for key in firstRec.keys()
-				if (key[:5] != "dabo-") and (key not in columnsToSkip)]
+				if (key not in columnsToSkip)]
 
 		# Add the columns
 		for colKey in colKeys:

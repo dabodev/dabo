@@ -32,20 +32,6 @@ class Grid(dabo.ui.dGrid):
 			self.DataSource = self.Form.previewDataSource
 
 	
-	def getDataSet_old_pkm(self, requery=False):
-		# Normally, getDataSet() just returns the object reference to the list
-		# previously generated, but if we just requeried, we need to ask the 
-		# bizobj for the new dataSet.
-		if requery:
-			ret = self.dataSet = None
-		ret = self.dataSet
-		if not ret:
-			if not self.inAutoSizeCalc:
-				if self.bizobj:
-					ret = self.dataSet = self.bizobj.getDataSet()
-		return ret
-	
-
 	def populate(self):
 		##pkm ds = self.getDataSet(requery=True)
 		ds = self.DataSource
@@ -77,8 +63,8 @@ class Grid(dabo.ui.dGrid):
 		bizobj.sort(self.sortedColumn, self.sortOrder, self.caseSensitiveSorting)
 		
 	
-	def setBizobj(self, biz):
-		self.DataSource = biz.DataSource
+#	def setBizobj(self, biz):
+#		self.DataSource = biz.DataSource
 
 
 	def onGridLeftDClick(self, evt): 
@@ -149,7 +135,6 @@ class Grid(dabo.ui.dGrid):
 		""" Request that the current row be deleted."""
 		self.Parent.deleteRecord(self.DataSource)
 		self.fillGrid()
-#		self.setFocus()  ## required or assertion happens on Gtk
 
 
 	def pickRecord(self, evt=None):
