@@ -663,32 +663,27 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				ret = self._records[rowStart:rowStart+rows]
 			else:
 				ret = self._records[rowStart:]
-			if not returnInternals:
-				# This flag controls whether the 'fields' in the record set that
-				# are Dabo-related (memento, new flag, etc.) are included in
-				# the data set. The default is False, since no one outside of 
-				# Dabo framework programmers ever needs to know about 
-				# those fields.
-				if flds:
-					# Do nothing. The user has specified the fields they want, and
-					# these will only be returned if they specifically request them.
-					pass
-				else:
-					# They want 'all' fields. Create a list of all fields that aren't
-					# for internal use only.
-					flds = [fld[0] for fld in self.getFields()]
-			if flds:
-				retlist = []
-				for rec in ret:
-					filtRec = {}
-					for fld in flds:
-						filtRec[fld] = rec[fld]
-					retlist.append(filtRec)
-				ret = tuple(retlist)
-			ret = DataSet(ret)
-			return ret
 		except AttributeError:
+			# return empty dataset
 			return DataSet()
+
+		internals = (kons.CURSOR_MEMENTO, kons.CURSOR_NEWFLAG, 
+				kons.CURSOR_TMPKEY_FIELD)
+
+		for rec in ret:
+			if not flds and not returnInternals:
+				# user didn't specify explicit fields and doesn't want internals
+				for internal in internals:
+					if rec.has_key(internal):
+						del rec[internal]
+			if flds:
+				# user specified specific fields - get rid of all others
+				for k in rec.keys():
+					if k not in flds:
+						del rec[k]
+
+		ret = DataSet(ret)
+		return ret
 
 
 	def getRowCount(self):
