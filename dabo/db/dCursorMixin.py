@@ -1,6 +1,7 @@
 import types
 import datetime
 import inspect
+import random
 import sys
 import re
 # Make sure that the user's installation supports Decimal.
@@ -9,6 +10,12 @@ try:
 	from decimal import Decimal
 except ImportError:
 	_USE_DECIMAL = False
+# We also need to know if sqlite is installed
+_useSQLite = True
+try:
+	from pysqlite2 import dbapi2 as sqlite
+except ImportError:
+	_useSQLite = False
 
 import dabo
 import dabo.dConstants as kons
@@ -1655,7 +1662,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 
-class DataSet(tuple):
+class DataSetOld(tuple):
 	""" This class assumes that its contents are not ordinary tuples, but
 	rather tuples consisting of dicts, where the dict keys are field names.
 	This is the data structure returned by the dCursorMixin class.
@@ -1685,17 +1692,30 @@ class DataSet(tuple):
 		return ret
 		
 	
+	def processFields(self, fields, aliasDict):
+		if isinstance(fields, basestring):
+			fields = fields.split(",")
+		for num, fld in enumerate(fields):
+			fld = fld.replace(" AS ", " as ").replace(" As ", " as ").strip()
+			fa = fld.split(" as ")
+			if len(fa) > 1:
+				# An alias is specified
+				fld = fa[0].strip()
+				aliasDict[fld] = fa[1].strip()
+			fields[num] = fld
+		return fields, aliasDict
+
+
 	def select(self, fields=None, where=None, orderBy=None):
 		fldList = []
+		fldAliases = {}
 		whereList = []
 		orderByList = []
 		keys = self[0].keys()
 		if fields is None or fields == "*":
 			# All fields
 			fields = keys
-		elif isinstance(fields, basestring):
-			# Convert to list
-			fields = [fields]
+		fields, fldAliases = self.processFields(fields, fldAliases)
 		for fld in fields:
 			fldList.append("'%s' : %s" % (fld, self._fldReplace(fld)))
 		fieldsToReturn = ", ".join(fldList)
@@ -1715,6 +1735,16 @@ class DataSet(tuple):
 		stmnt = "[%s for %s in self %s]" % (fieldsToReturn, self._dictSubName, whereClause)
 		resultSet = eval(stmnt)
 		
+		if fldAliases:
+			# We need to replace the keys for the field names with the 
+			# appropriate alias names
+			for rec in resultSet:
+				for key, val in fldAliases.items():
+					orig = rec.get(key)
+					if orig:
+						rec[val] = orig
+						del rec[key]
+					
 		if orderBy:
 			# This should be a comma separated string in the format:
 			#		fld1, fld2 desc, fld3 asc
@@ -1786,12 +1816,18 @@ class DataSet(tuple):
 		rightAlias = targetAlias
 		leftFields = sourceFields
 		rightFields = targetFields
+		leftFldAliases = {}
+		rightFldAliases = {}
 		if joinType == "right":
 			# Same as left; we just need to reverse things
 			(leftDS, rightDS, leftAlias, rightAlias, leftFields, 
 					rightFields) = (rightDS, leftDS, rightAlias, leftAlias, 
 					rightFields, leftFields)
 		
+		
+		leftFields, leftFldAliases = self.processFields(leftFields, leftFldAliases)
+		rightFields, rightFldAliases = self.processFields(rightFields, rightFldAliases)
+
 		# Parse the condition. It should have an '==' in it. If not, 
 		# raise an error.
 		condList = condition.split("==")
@@ -1877,6 +1913,131 @@ class DataSet(tuple):
 
 
 
+class DataSet(tuple):
+	""" This class assumes that its contents are not ordinary tuples, but
+	rather tuples consisting of dicts, where the dict keys are field names.
+	This is the data structure returned by the dCursorMixin class.
+	
+	It is used to give these data sets the ability to be queried, joined, etc.
+	This is accomplished by using SQLite in-memory databases. If SQLite
+	and pysqlite2 are not installed on the machine this is run on, a 
+	warning message will be printed out and the SQL functions will return 
+	None. The data will still be usable, though.
+	"""
+	def __init__(self, *args, **kwargs):
+		super(DataSet, self).__init__(*args, **kwargs)
+		if _useSQLite:
+			# Create a name for temporary tables
+			alphanum = "abcdefghijklmnopqrstuvwxyz0123456789"
+			self._sqliteTableName = "dabo_%s" % "".join(random.sample(alphanum, 7))
+			
+			# Register the adapters
+			if _USE_DECIMAL:
+				sqlite.register_adapter(Decimal, self._adapt_decimal)
+			
+			# Register the converters
+			if _USE_DECIMAL:
+				sqlite.register_converter("decimal", self._convert_decimal)
+		
+			self._typeDict = {int: "integer", long: "integer", str: "text", 
+					unicode: "text", float: "real", datetime.date: "date", 
+					datetime.datetime: "timestamp"}
+			if _USE_DECIMAL:
+				self._typeDict[Decimal] = "decimal"
+
+	
+	def _adapt_decimal(self, decVal):
+		"""Converts the decimal value to a string for storage"""
+		return str(decVal)
+	
+	
+	def _escQuote(self, val):
+		ret = val
+		if isinstance(val, basestring):
+			sl = "\\"
+			qt = "\'"
+			ret = qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
+		return ret
+
+		
+	def _convert_decimal(self, strval):
+		"""This is a converter routine. Takes the string 
+		representation of a Decimal value and return an actual 
+		decimal, if that module is present. If not, returns a float.
+		"""
+		if _USE_DECIMAL:
+			ret = Decimal(strval)
+		else:
+			ret = float(strval)
+		return ret
+	
+	
+	def _makeCreateTable(self):
+		"""Makes the CREATE TABLE string needed to represent
+		this data set. There must be at least one record in the 
+		data set, or we can't get the necessary column info.
+		"""
+		if len(self) == 0:
+			return None
+		rec = self[0]
+		keys = rec.keys()
+		retList = []
+		insList = []
+		
+		for key in keys:
+			typ = type(rec[key])
+			try:
+				retList.append("%s %s" % (key, self._typeDict[typ]))
+			except KeyError:
+				retList.append(key)
+			# Add to the data insert template
+			if issubclass(typ, basestring):
+				qt = "'"
+			else:
+				qt = ""
+			insList.append("quote(%(" +  key + ")s)")
+		self._insertTemplate = "insert into %s values (%s)" % (self._sqliteTableName,
+				", ".join(insList))
+		return "create table %s (%s)" % (self._sqliteTableName, ", ".join(retList))
+		
+	
+	def select(self, sqlExpr):
+		"""This will query the data set and return the resulting 
+		data set. It requires that SQLite and pysqlite2 are installed;
+		if they aren't, this will return None.
+		
+		The SQL expression is a standard SQL expression, with 
+		the exception that there the FROM clause should always be:
+		'from dataset', since these datasets do not have table names.
+		The 'from dataset' is case-insensitive.
+		"""
+		if not _useSQLite:
+			return None
+		fromClause = "from %s " % self._sqliteTableName
+		sql = re.sub("\\bfrom dataset\\b", fromClause, sqlExpr, re.I)
+		
+		conn = sqlite.connect(":memory:")
+		crs = conn.cursor()
+		crs.execute(self._makeCreateTable())
+		
+		for rec in self:
+			quoted = {}
+			for key, val in rec.items():
+				quoted[key] = self._escQuote(val)
+			crs.execute(self._insertTemplate % quoted)
+		
+		# We have a table now with the necessary data. Run the query!
+		crs.execute(sql)
+		tmpres = crs.fetchall()
+		dscrp = [fld[0] for fld in crs.description]
+		res = []
+		for tmprec in tmpres:
+			rec = {}
+			for pos, val in enumerate(tmprec):
+				rec[dscrp[pos]] = val
+			res.append(rec)
+
+		return DataSet(res)
 
 
 
