@@ -531,7 +531,8 @@ class BrowsePage(Page):
 		grid = self.Form.BrowseGridClass(self, NameBase="BrowseGrid")
 		grid.FieldSpecs = self.Form.FieldSpecs
 		if not self.Form.preview:
-			grid.setBizobj(bizobj)
+			pass
+			#grid.setBizobj(bizobj)
 			grid.DataSource = bizobj.DataSource
 		else:
 			grid.DataSource = self.Form.previewDataSource
