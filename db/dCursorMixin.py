@@ -660,9 +660,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		try:
 			if rows is not None:
-				ret = self._records[rowStart:rowStart+rows]
+				tmp = self._records[rowStart:rowStart+rows]
 			else:
-				ret = self._records[rowStart:]
+				tmp = self._records[rowStart:]
+			# The dicts in the returned dat set need to be copied; 
+			# otherwise, modifying the data set will modify this 
+			# cursor's records!
+			ret = [tmprec.copy() for tmprec in tmp]
 		except AttributeError:
 			# return empty dataset
 			return DataSet()
@@ -685,26 +689,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		ret = DataSet(ret)
 		return ret
 
-
-	def getRowCount(self):
-		""" Get the row count of the current data set.
+	
+	def replace(self, field, valOrExpr, scope=None):
+		"""Replaces the value of the specified field with the given value
+		or expression. All records matching the scope are affected; if
+		no scope is specified, all records are affected.
 		
-		Obsolete: Just get this from the property RowCount.
+		'valOrExpr' will be treated as a literal value, unless it is prefixed
+		with an equals sign. All expressions will therefore be a string 
+		beginning with '='. Literals can be of any type. 
 		"""
-		return self.RowCount
-
-
-	def getRowNumber(self):
-		""" Get the active row number of the data set.
-		
-		Obsolete: Just get this from the property RowNumber.
-		"""
-		return self.RowNumber
-
+		if isinstance(self._records, DataSet):
+			self._records.replace(field, valOrExpr, scope=scope)
+			
 
 	def first(self):
-		""" Move the record pointer to the first record of the data set. 
-		"""
+		""" Move the record pointer to the first record of the data set."""
 		if self.RowCount > 0:
 			self.RowNumber = 0
 		else:
@@ -712,8 +712,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def prior(self):
-		""" Move the record pointer back one position in the recordset.
-		"""
+		""" Move the record pointer back one position in the recordset."""
 		if self.RowCount > 0:
 			if self.RowNumber > 0:
 				self.RowNumber -= 1
@@ -724,8 +723,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def next(self):
-		""" Move the record pointer forward one position in the recordset.
-		"""
+		""" Move the record pointer forward one position in the recordset."""
 		if self.RowCount > 0:
 			if self.RowNumber < (self.RowCount-1):
 				self.RowNumber += 1
@@ -736,8 +734,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def last(self):
-		""" Move the record pointer to the last record in the recordset.
-		"""
+		""" Move the record pointer to the last record in the recordset."""
 		if self.RowCount > 0:
 			self.RowNumber = self.RowCount-1
 		else:
@@ -745,8 +742,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def save(self, allrows=False):
-		""" Save any changes to the data back to the data store.
-		"""
+		""" Save any changes to the data back to the data store."""
 		# Make sure that there is data to save
 		if self.RowCount <= 0:
 			raise dException.dException, _("No data to save")
@@ -2020,10 +2016,6 @@ class DataSet(tuple):
 		with an equals sign. All expressions will therefore be a string 
 		beginning with '='. Literals can be of any type. 
 		"""
-		
-# 		dabo.trace()
-		
-		
 		if scope is None:
 			scope = "True"
 		else:
