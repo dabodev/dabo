@@ -522,6 +522,18 @@ class dBizobj(dObject):
 		return tuple([ff[0] for ff in flds])
 		
 		
+	def replace(self, field, valOrExpr, scope=None):
+		"""Replaces the value of the specified field with the given value
+		or expression. All records matching the scope are affected; if
+		no scope is specified, all records are affected.
+		
+		'valOrExpr' will be treated as a literal value, unless it is prefixed
+		with an equals sign. All expressions will therefore be a string 
+		beginning with '='. Literals can be of any type. 
+		"""
+		self._CurrentCursor.replace(field, valOrExpr, scope=scope)
+		
+
 	def replaceFor(self, cond, fld, val):
 		"""Replaces all 'fld' values in the recordset with the specified
 		value, as long as the record meets the specified condition. 
