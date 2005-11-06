@@ -1950,63 +1950,6 @@ class DataSet(tuple):
 		return ret
 	
 	
-	def _escQuote(self, val):
-		ret = val
-		if isinstance(val, basestring):
-			sl = "\\"
-			qt = "\'"
-			ret = qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
-		return ret
-
-		
-	def _fldReplace(self, expr, dictName=None):
-		"""The list comprehensions require the field names be the keys
-		in a dictionary expression. Users, though, should not have to know
-		about this. This takes a user-defined, SQL-like expressions, and 
-		substitutes any field name with the corresponding dict
-		expression.
-		"""
-		keys = self[0].keys()
-		patTemplate = "(.*\\b)%s(\\b.*)"
-		ret = expr
-		if dictName is None:
-			dictName = self._dictSubName
-		for kk in keys:
-			pat = patTemplate % kk
-			mtch = re.match(pat, ret)
-			if mtch:
-				ret = mtch.groups()[0] + "%s['%s']" % (dictName, kk) + mtch.groups()[1]
-		return ret
-		
-	
-	def _makeCreateTable(self):
-		"""Makes the CREATE TABLE string needed to represent
-		this data set. There must be at least one record in the 
-		data set, or we can't get the necessary column info.
-		"""
-		if len(self) == 0:
-			return None
-		rec = self[0]
-		keys = rec.keys()
-		retList = []
-		insList = []
-		
-		for key in keys:
-			typ = type(rec[key])
-			try:
-				retList.append("%s %s" % (key, self._typeDict[typ]))
-			except KeyError:
-				retList.append(key)
-			# Add to the data insert template
-			if issubclass(typ, basestring):
-				qt = "'"
-			else:
-				qt = ""
-			insList.append("quote(%(" +  key + ")s)")
-		self._insertTemplate = "insert into dataset values (%s)" % ", ".join(insList)
-		return "create table dataset (%s)" % ", ".join(retList)
-		
-	
 	def replace(self, field, valOrExpr, scope=None):
 		"""Replaces the value of the specified field with the given value
 		or expression. All records matching the scope are affected; if
@@ -2036,32 +1979,111 @@ class DataSet(tuple):
 					exec(expr)
 		
 		
+	def _fldReplace(self, expr, dictName=None):
+		"""The list comprehensions require the field names be the keys
+		in a dictionary expression. Users, though, should not have to know
+		about this. This takes a user-defined, SQL-like expressions, and 
+		substitutes any field name with the corresponding dict
+		expression.
+		"""
+		keys = self[0].keys()
+		patTemplate = "(.*\\b)%s(\\b.*)"
+		ret = expr
+		if dictName is None:
+			dictName = self._dictSubName
+		for kk in keys:
+			pat = patTemplate % kk
+			mtch = re.match(pat, ret)
+			if mtch:
+				ret = mtch.groups()[0] + "%s['%s']" % (dictName, kk) + mtch.groups()[1]
+		return ret
 		
-	def select(self, sqlExpr):
-		"""This will query the data set and return the resulting 
-		data set. It requires that SQLite and pysqlite2 are installed;
+	
+	def _makeCreateTable(self, ds, alias=None):
+		"""Makes the CREATE TABLE string needed to represent
+		this data set. There must be at least one record in the 
+		data set, or we can't get the necessary column info.
+		"""
+		if len(ds) == 0:
+			return None
+		if alias is None:
+			# Use the default
+			alias = "dataset"
+		rec = ds[0]
+		keys = rec.keys()
+		retList = []
+		
+		for key in keys:
+			typ = type(rec[key])
+			try:
+				retList.append("%s %s" % (key, ds._typeDict[typ]))
+			except KeyError:
+				retList.append(key)
+		return "create table %s (%s)" % (alias, ", ".join(retList))
+		
+	
+	def _populate(self, cursor, ds, alias=None):
+		"""This is the method that converts a Python dataset
+		into a SQLite table with the name specified by 'alias'.
+		"""
+		if alias is None:
+			# Use the default
+			alias = "dataset"
+		if len(ds) == 0:
+			# Can't create and populate a table without a structure
+			dabo.errorLog.write(_("Cannot populate without data for alias %s") 
+					% alias)
+			return None
+		cursor.execute(self._makeCreateTable(ds, alias))
+		flds, vals = ds[0].keys(), ds[0].values()
+		fldCnt = len(flds)
+		params = ["?"] * fldCnt
+		insStmnt = "insert into %s (%s) values (%s)" % (alias, 
+				", ".join(flds), ", ".join(params))
+		for rec in ds:
+			vals = rec.values()
+			cursor.execute(insStmnt, vals)
+		
+
+	def execute(self, sqlExpr, cursorDict=None):
+		"""This method allows you to work with a Python data set
+		(i.e., a tuple of dictionaries) as if it were a SQL database. You
+		can run any sort of statement that you can in a normal SQL
+		database. It requires that SQLite and pysqlite2 are installed;
 		if they aren't, this will return None.
 		
-		The SQL expression is a standard SQL expression, with 
-		the exception that there the FROM clause should always be:
-		'from dataset', since these datasets do not have table names.
-		The 'from dataset' is case-insensitive.
+		The SQL expression can be any standard SQL expression; however,
+		the FROM clause should always be: 'from dataset', since these 
+		datasets do not have table names.
+		
+		If you want to do multi-dataset joins, you need to pass the 
+		additional DataSet objects in a dictionary, where the value is the
+		DataSet, and the key is the alias used to reference that DataSet
+		in your join statement.
 		"""
 		if not _useSQLite:
 			dabo.errorLog.write(_("SQLite and pysqlite2 must be installed to use this function"))
 			return None
-		conn = sqlite.connect(":memory:")
+		conn = sqlite.connect(":memory:", 
+				detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
 		crs = conn.cursor()
-		crs.execute(self._makeCreateTable())
-		
-		for rec in self:
-			quoted = {}
-			for key, val in rec.items():
-				quoted[key] = self._escQuote(val)
-			crs.execute(self._insertTemplate % quoted)
-		
+
+		# Create the table for this DataSet
+		self._populate(crs, self, "dataset")
+		# Now create any of the tables for the join DataSets
+		if cursorDict is not None:
+			for alias, ds in cursorDict.items():
+				self._populate(crs, ds, alias)
+				
 		# We have a table now with the necessary data. Run the query!
 		crs.execute(sqlExpr)
+		
+		# We need to know what sort of statement was run. Only a 'select'
+		# will return results. The rest ('update', 'delete', 'insert') return
+		# nothing. In those cases, we need to run a 'select *' to get the 
+		# modified data set.
+		if not sqlExpr.lower().strip().startswith("select "):
+			crs.execute("select * from dataset")
 		tmpres = crs.fetchall()
 		dscrp = [fld[0] for fld in crs.description]
 		res = []
