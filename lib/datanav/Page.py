@@ -690,7 +690,6 @@ class EditPage(Page):
 					grid = self.addObject(Grid.Grid, "BrowseGrid" + child)
 					grid.FieldSpecs = self.Form.getFieldSpecsForTable(child)
 					grid.DataSource = child
-					grid.setBizobj(childBiz)
 					self.childGrids.append(grid)
 					grid.populate()
 					#grid.Height = 100
