@@ -979,7 +979,14 @@ class dBizobj(dObject):
 					
 				childBiz = self.getChildByDataSource(target)
 				if not childBiz:
-					childBizClass = bizModule.__dict__["Biz" + target.title()]
+					# target is the datasource of the bizobj to find.
+					childBizClass = None
+					for candidate, candidateClass in bizModule.__dict__.items():
+						if type(candidateClass) == type:
+							candidateInstance = candidateClass(self._conn)
+							if candidateInstance.DataSource.lower() == target.lower():
+								childBizClass = candidateClass
+
 					childBiz = childBizClass(self._conn)
 					self.addChild(childBiz)
 					addedChildren.append(childBiz)
