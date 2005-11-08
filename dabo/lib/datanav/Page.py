@@ -105,8 +105,6 @@ class SelectOptionsPanel(dPanel):
 	"""
 	def initProperties(self):
 		self.Name = "selectOptionsPanel"
-		# selectOptions is a list of dictionaries
-		self.selectOptions = []
 		
 
 class SortLabel(dabo.ui.dLabel):
@@ -187,7 +185,6 @@ class SelectPage(Page):
 		self.selectOptionsPanel = self._getSelectOptionsPanel()
 		self.GetSizer().append(self.selectOptionsPanel, "expand", 1, border=20)
 		self.selectOptionsPanel.setFocus()
-		#SelectPage.doDefault()
 		super(SelectPage, self).createItems()
 		if self.Form.RequeryOnLoad:
 			dabo.ui.callAfter(self.requery)
