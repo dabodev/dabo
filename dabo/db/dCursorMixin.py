@@ -267,7 +267,8 @@ class dCursorMixin(dObject):
 				self._types[fname] = type(fval)
 		else:
 			print "RowCount is %s, so storeFieldTypes() can't run as implemented." % self.RowCount
-		
+	
+	
 	def sort(self, col, dir=None, caseSensitive=True):
 		""" Sort the result set on the specified column in the specified order.
 
@@ -314,6 +315,7 @@ class dCursorMixin(dObject):
 					newOrd = dir.upper()
 				else:
 					raise dException.dException, _("Invalid Sort direction specified: ") + dir
+		
 		self.__sortRows(newCol, newOrd, caseSensitive)
 		# Save the current sort values
 		self.sortColumn = newCol
@@ -1918,19 +1920,37 @@ class DataSet(tuple):
 	def __init__(self, *args, **kwargs):
 		super(DataSet, self).__init__(*args, **kwargs)
 		if _useSQLite:
+			self._connection = None
+			self._cursor = None
+			self._populated = False
+			# We may need to encode fields that are not legal names.
+			self.fieldAliases = {}
+			# Pickling mementos is slow. This dict will hold them
+			# instead
+			self._mementoHold = {}
+			self._mementoSequence = 0
 			# Register the adapters
+			sqlite.register_adapter(dMemento, self._adapt_memento)
 			if _USE_DECIMAL:
 				sqlite.register_adapter(Decimal, self._adapt_decimal)
 			
 			# Register the converters
+			sqlite.register_converter("memento", self._convert_memento)
 			if _USE_DECIMAL:
 				sqlite.register_converter("decimal", self._convert_decimal)
 		
 			self._typeDict = {int: "integer", long: "integer", str: "text", 
 					unicode: "text", float: "real", datetime.date: "date", 
-					datetime.datetime: "timestamp"}
+					datetime.datetime: "timestamp", dMemento : "memento"}
 			if _USE_DECIMAL:
 				self._typeDict[Decimal] = "decimal"
+
+	
+	def __del__(self):
+		if self._cursor is not None:
+			self._cursor.close()
+		if self._connection is not None:
+			self._connection.close()
 
 	
 	def _adapt_decimal(self, decVal):
@@ -1948,6 +1968,20 @@ class DataSet(tuple):
 		else:
 			ret = float(strval)
 		return ret
+	
+	
+	def _adapt_memento(self, mem):
+		"""Substitutes a sequence for the memento for storage"""
+		pos = self._mementoSequence
+		self._mementoSequence += 1
+		self._mementoHold[pos] = mem
+		return str(pos)
+	
+	
+	def _convert_memento(self, strval):
+		"""Replaces the placeholder sequence with the actual memento."""
+		pos = int(strval)
+		return self._mementoHold[pos]
 	
 	
 	def replace(self, field, valOrExpr, scope=None):
@@ -1978,7 +2012,20 @@ class DataSet(tuple):
 					expr = "rec['%s'] = %s" % (field, valOrExpr)
 					exec(expr)
 		
+	
+	def sort(self, col, ascdesc=None, caseSensitive=None):
+		if ascdesc is None:
+			ascdesc = "ASC"
+		casecollate = ""
+		if caseSensitive is False:
+			# The default of None will be case-sensitive
+			casecollate = " COLLATE NOCASE "		
+		stmnt = "select * from dataset order by %s %s %s"
+		stmnt = stmnt % (col, casecollate, ascdesc)
+		ret = self.execute(stmnt)
+		return ret
 		
+
 	def _fldReplace(self, expr, dictName=None):
 		"""The list comprehensions require the field names be the keys
 		in a dictionary expression. Users, though, should not have to know
@@ -2014,15 +2061,21 @@ class DataSet(tuple):
 		retList = []
 		
 		for key in keys:
+			if key.startswith("dabo-"):
+				# This is an internal field
+				safekey = key.replace("-", "_")
+				self.fieldAliases[safekey] = key
+			else:
+				safekey = key
 			typ = type(rec[key])
 			try:
-				retList.append("%s %s" % (key, ds._typeDict[typ]))
+				retList.append("%s %s" % (safekey, ds._typeDict[typ]))
 			except KeyError:
-				retList.append(key)
+				retList.append(safekey)
 		return "create table %s (%s)" % (alias, ", ".join(retList))
 		
 	
-	def _populate(self, cursor, ds, alias=None):
+	def _populate(self, ds, alias=None):
 		"""This is the method that converts a Python dataset
 		into a SQLite table with the name specified by 'alias'.
 		"""
@@ -2034,16 +2087,27 @@ class DataSet(tuple):
 			dabo.errorLog.write(_("Cannot populate without data for alias %s") 
 					% alias)
 			return None
-		cursor.execute(self._makeCreateTable(ds, alias))
-		flds, vals = ds[0].keys(), ds[0].values()
-		fldCnt = len(flds)
-		params = ["?"] * fldCnt
-		insStmnt = "insert into %s (%s) values (%s)" % (alias, 
-				", ".join(flds), ", ".join(params))
-		for rec in ds:
-			vals = rec.values()
-			cursor.execute(insStmnt, vals)
+		if ds._populated:
+			# Data's already there; no need to re-load it
+			return
+		self._cursor.execute(self._makeCreateTable(ds, alias))
 		
+		flds, vals = ds[0].keys(), ds[0].values()
+		# Fields may contain illegal names. This will correct them
+		flds = [fld.replace("dabo-", "dabo_") for fld in flds]
+		fldParams = [":%s" % fld for fld in flds]
+		fldCnt = len(flds)
+		insStmnt = "insert into %s (%s) values (%s)" % (alias, 
+				", ".join(flds), ", ".join(fldParams))
+		
+		def recGenerator(ds):
+			for rec in ds:
+				yield rec
+
+		self._cursor.executemany(insStmnt, recGenerator(ds))
+		if ds is self:
+			self._populated = True
+			
 
 	def execute(self, sqlExpr, cursorDict=None):
 		"""This method allows you to work with a Python data set
@@ -2061,39 +2125,77 @@ class DataSet(tuple):
 		DataSet, and the key is the alias used to reference that DataSet
 		in your join statement.
 		"""
+		def dict_factory(cursor, row):
+			dd = {}
+			for idx, col in enumerate(cursor.description):
+				dd[col[0]] = row[idx]
+			return dd
+
+		class DictCursor(sqlite.Cursor):
+			def __init__(self, *args, **kwargs):
+				sqlite.Cursor.__init__(self, *args, **kwargs)
+				self.row_factory = dict_factory
+
 		if not _useSQLite:
 			dabo.errorLog.write(_("SQLite and pysqlite2 must be installed to use this function"))
 			return None
-		conn = sqlite.connect(":memory:", 
-				detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES)
-		crs = conn.cursor()
+		if self._connection is None:
+			self._connection = sqlite.connect(":memory:", 
+					detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES,
+					isolation_level="EXCLUSIVE")
+		if self._cursor is None:
+			self._cursor = self._connection.cursor(factory=DictCursor)
+		
+# 		import time
+# 		st = time.clock()
+# 		print "starting"
 
 		# Create the table for this DataSet
-		self._populate(crs, self, "dataset")
+		self._populate(self, "dataset")
+		
+# 		pt = time.clock()
+# 		print "POPULATED", pt-st
 		# Now create any of the tables for the join DataSets
 		if cursorDict is not None:
 			for alias, ds in cursorDict.items():
-				self._populate(crs, ds, alias)
+				self._populate(ds, alias)
 				
 		# We have a table now with the necessary data. Run the query!
-		crs.execute(sqlExpr)
+		self._cursor.execute(sqlExpr)
 		
+# 		et = time.clock()
+# 		print "EXECUTED", et - pt
 		# We need to know what sort of statement was run. Only a 'select'
 		# will return results. The rest ('update', 'delete', 'insert') return
 		# nothing. In those cases, we need to run a 'select *' to get the 
 		# modified data set.
 		if not sqlExpr.lower().strip().startswith("select "):
-			crs.execute("select * from dataset")
-		tmpres = crs.fetchall()
-		dscrp = [fld[0] for fld in crs.description]
-		res = []
-		for tmprec in tmpres:
-			rec = {}
-			for pos, val in enumerate(tmprec):
-				rec[dscrp[pos]] = val
-			res.append(rec)
-
-		return DataSet(res)
+			self._cursor.execute("select * from dataset")
+		tmpres = self._cursor.fetchall()
+		
+# 		ft = time.clock()
+# 		print "FETCH", ft-et
+		return DataSet(tmpres)
+		
+# 		
+# 		dabo.trace()
+# 		
+# 		res = []
+# 		if tmpres:
+# 			# There will be no description if there are no records.
+# 			dscrp = [fld[0] for fld in self._cursor.description]
+# 			for tmprec in tmpres:
+# 				rec = {}
+# 				for pos, val in enumerate(tmprec):
+# 					fld = dscrp[pos]
+# 					if self.fieldAliases.has_key(fld):
+# 						fld = self.fieldAliases[fld]
+# 					rec[fld] = val
+# 				res.append(rec)
+# 		
+# 		dt = time.clock()
+# 		print "CONVERTED", dt-ft
+		
 
 
 
