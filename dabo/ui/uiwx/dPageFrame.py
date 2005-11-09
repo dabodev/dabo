@@ -36,9 +36,9 @@ class dPageList(wx.Listbook, dPageFrameMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dPageList
 		preClass = wx.PreListbook
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		# Dictionary for tracking images by key value
 		self._imageList = {}
+		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
 class dPageSelect(wx.Choicebook, dPageFrameMixin):

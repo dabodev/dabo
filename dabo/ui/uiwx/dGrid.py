@@ -1657,8 +1657,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 			## pkm: Get the datatype from what is specified in fieldspecs, not from
 			##      the actual type of the record. 
-			dt = colTypes[colKey]
-#			dt = type(firstRec[colKey])
+			try:
+				dt = colTypes[colKey]
+			except KeyError:
+				# But if it didn't exist in the fieldspecs, use the actual type:
+				dt = type(firstRec[colKey])
 
 			if dt is type(None):
 				if bizobj:
