@@ -111,11 +111,12 @@ class dBizobj(dObject):
 		name, an AttributeError is raised.
 		"""
 		if self.useFieldProps:
+			err = False
 			try:
 				ret = self.getFieldVal(att)
 			except (dException.dException, dException.NoRecordsException):
-				ret = None
-			if ret is None:
+				err = True
+			if err == True:
 				raise AttributeError, " '%s' object has no attribute '%s' " % (self.__class__.__name__, att)
 			return ret
 
