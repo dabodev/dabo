@@ -14,6 +14,7 @@ class WizardPage(dabo.ui.dScrollPanel):
 		super(WizardPage, self).__init__(parent=parent, 
 				properties=properties, *args, **kwargs)
 		
+		self._wizard = None
 		self._nextPage = self._prevPage = None
 		self._title = None
 		self._titleFontFace = self.FontFace
@@ -21,7 +22,7 @@ class WizardPage(dabo.ui.dScrollPanel):
 		self.setup()
 		self.layout()
 		
-	
+
 	def setup(self):
 		self.makeSizer()
 		if self.Title is None:
@@ -102,27 +103,43 @@ class WizardPage(dabo.ui.dScrollPanel):
 	# Property definitions.
 	def _getTitle(self):
 		return self._titleCaption
+
 	def _setTitle(self, val):
 		self._titleCaption = val
 		if self._title:
 			self._title.Caption = val
 			self.layout()
 
+
 	def _getTitleFace(self):
 		return self._titleFontFace
+
 	def _setTitleFace(self, val):
 		self._titleFontFace = val
 		if self._title:
 			self._title.FontFace = val
 			self.layout()
 
+
 	def _getTitleSize(self):
 		return self._titleFontSize
+
 	def _setTitleSize(self, val):
 		self._titleFontSize = val
 		if self._title:
 			self._title.FontSize = val
 			self.layout()
+
+
+	def _getWizard(self):
+		ret = self._wizard
+		if ret is None:
+			ret = self.Form
+		return ret
+	
+	def _setWizard(self, val):
+		self._wizard = val
+	
 
 
 	Title = property(_getTitle, _setTitle, None,
@@ -134,3 +151,5 @@ class WizardPage(dabo.ui.dScrollPanel):
 	TitleSize = property(_getTitleSize, _setTitleSize, None,
 			_("Size in points for the Title (default=18).  (int)") )
 	
+	Wizard = property(_getWizard, _setWizard, None,
+			_("Reference to the wizard form this page is in  (Wizard object)"))
