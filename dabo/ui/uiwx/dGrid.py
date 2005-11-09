@@ -1605,7 +1605,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	
 	def buildFromDataSet(self, ds, keyCaption=None, 
-			columnsToSkip=[], colOrder={}, colWidths={}, autoSizeCols=True):
+			columnsToSkip=[], colOrder={}, colWidths={}, colTypes={},
+			autoSizeCols=True):
 		"""This method will create a grid for a given data set.
 		A 'data set' is a sequence of dicts, each containing field/
 		value pairs. The columns will be taken from ds[0].keys(),
@@ -1653,7 +1654,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			col = self.addColumn()
 			col.Caption = cap
 			col.DataField = colKey
-			dt = type(firstRec[colKey])
+
+			## pkm: Get the datatype from what is specified in fieldspecs, not from
+			##      the actual type of the record. 
+			dt = colTypes[colKey]
+#			dt = type(firstRec[colKey])
+
 			if dt is type(None):
 				if bizobj:
 					for idx in range(bizobj.RowCount)[1:]:

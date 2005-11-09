@@ -46,6 +46,7 @@ class Grid(dabo.ui.dGrid):
 					columnsToSkip=self.skipFields, 
 					colOrder=self.colOrders,
 					colWidths=self.colWidths,
+					colTypes=self.colTypes,
 					autoSizeCols=False):
 				self.built = True
 		else:
@@ -188,6 +189,13 @@ class Grid(dabo.ui.dGrid):
 			if kk in self.skipFields:
 				continue
 			self.colWidths[kk] = int(val[kk]["listColWidth"])
+
+		self.colTypes = {}
+		for kk in val.keys():
+			if kk in self.skipFields:
+				continue
+			self.colTypes[kk] = val[kk]["type"]
+
 
 	FieldSpecs = property(_getFldSpecs, _setFldSpecs, None, 
 			_("Holds the fields specs for this form  (dict)") )
