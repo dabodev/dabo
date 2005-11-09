@@ -49,6 +49,13 @@ class dFormMixin(pm.dPemMixin):
 		super(dFormMixin, self).__init__(preClass, parent, properties, *args, **kwargs)
 		
 
+	def _getInitPropertiesList(self):
+		additional = ["ShowCloseButton", "ShowMinButton", "ShowMaxButton", 
+				"ShowSystemMenu", "TinyTitleBar", "FloatOnParent", "ShowInTaskBar"]
+		original = list(super(dFormMixin, self)._getInitPropertiesList())
+		return tuple(original + additional)
+		
+
 	def _afterInit(self):
 		if self.Application and self.MenuBarClass:
 			try:
@@ -444,6 +451,8 @@ class dFormMixin(pm.dPemMixin):
 				self.Size = (width,height)
 
 			if state is not None:
+				if state == "Minimized":
+					state = "Normal"
 				self.WindowState = state
 			self.restoredSP = True
 
@@ -596,6 +605,16 @@ class dFormMixin(pm.dPemMixin):
 		if value:
 			self._addWindowStyleFlag(wx.RESIZE_BORDER)
 
+
+	def _getFloatOnParent(self):
+		return self._hasWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
+
+	def _setFloatOnParent(self, value):
+		self._delWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
+		if value:
+			self._addWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
+
+
 	def _getShowMaxButton(self):
 		return self._hasWindowStyleFlag(wx.MAXIMIZE_BOX)
 	def _setShowMaxButton(self, value):
@@ -663,6 +682,16 @@ class dFormMixin(pm.dPemMixin):
 		self._delWindowStyleFlag(wx.CAPTION)
 		if value:
 			self._addWindowStyleFlag(wx.CAPTION)
+
+
+	def _getShowInTaskBar(self):
+		return not self._hasWindowStyleFlag(wx.FRAME_NO_TASKBAR)
+
+	def _setShowInTaskBar(self, value):
+		self._delWindowStyleFlag(wx.FRAME_NO_TASKBAR)
+		if not value:
+			self._addWindowStyleFlag(wx.FRAME_NO_TASKBAR)
+
 
 	def _getShowStatusBar(self):
 		try:
@@ -779,6 +808,9 @@ class dFormMixin(pm.dPemMixin):
 	ActiveControl = property(_getActiveControl, None, None, 
 		_("Contains a reference to the active control on the form, or None."))
 
+	BorderResizable = property(_getBorderResizable, _setBorderResizable, None,
+		_("Specifies whether the user can resize this form. (bool)."))
+
 	Centered = property(_getCentered, _setCentered, None, 
 		_("Centers the form on the screen when set to True.  (bool)"))
 
@@ -788,8 +820,8 @@ class dFormMixin(pm.dPemMixin):
 	IconBundle = property(_getIconBundle, _setIconBundle, None,
 		_("Specifies the set of icons for the form. (wxIconBundle)"))
 
-	BorderResizable = property(_getBorderResizable, _setBorderResizable, None,
-		_("Specifies whether the user can resize this form. (bool)."))
+	FloatOnParent = property(_getFloatOnParent, _setFloatOnParent, None,
+		_("Specifies whether the form stays on top of the parent or not."))
 
 	MenuBar = property(_getMenuBar, _setMenuBar, None,
 		_("Specifies the menu bar instance for the form."))
@@ -804,6 +836,9 @@ class dFormMixin(pm.dPemMixin):
 		
 	ShowCaption = property(_getShowCaption, _setShowCaption, None,
 		_("Specifies whether the caption is displayed in the title bar. (bool)."))
+
+	ShowInTaskBar = property(_getShowInTaskBar, _setShowInTaskBar, None,
+		_("Specifies whether the form is shown in the taskbar.  (bool)."))
 
 	ShowMaxButton = property(_getShowMaxButton, _setShowMaxButton, None,
 		_("Specifies whether a maximize button is displayed in the title bar. (bool)."))
