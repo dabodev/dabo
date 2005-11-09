@@ -117,7 +117,7 @@ class Grid(dabo.ui.dGrid):
 	def onEscapeAction(self):
 		try:
 			if self.Form.FormType == "PickList":
-				self.Form.close()
+				self.Form.hide()
 		except AttributeError:
 			pass
 

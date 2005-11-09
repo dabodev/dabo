@@ -12,13 +12,6 @@ import Grid
 dabo.ui.loadUI("wx")
 
 
-class ItemPicked(dEvents.Event):
-	"""Occurs when an item was picked from a picklist."""
-	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, Form)
-	appliesToClass = classmethod(appliesToClass)
-	
-
 class Form(dabo.ui.dForm):
 	""" This is a dForm but with the following added controls:
 		+ Navigation Menu
@@ -68,8 +61,8 @@ class Form(dabo.ui.dForm):
 	def _afterInit(self):
 		super(Form, self)._afterInit()
 		if self.FormType == 'PickList':
-			# Map escape key to close the form
-			self.bindKey("esc", self.Close)
+			# Map escape key to hide the form
+			self.bindKey("esc", self.hide)
 
 		
 	def _onClose(self, evt):
@@ -163,9 +156,11 @@ class Form(dabo.ui.dForm):
 			self.appendToolBarButton("SQL", "zoomNormal", bindfunc=self.onShowSQL, 
 					tip=_("Show SQL"), help=_("Show the last executed SQL statement"))
 
+		if self.FormType == "Normal":
 			self.appendToolBarButton(_("Quick Report"), "print",
 					bindfunc=self.onQuickReport, tip=_("Quick Report"),
 					help=_("Run a Quick Report on the current dataset"))
+
 
 	def getMenu(self):
 		menu = super(Form, self).getMenu()
@@ -174,22 +169,25 @@ class Form(dabo.ui.dForm):
 		menu.append(_("Set Selection Criteria")+"\tAlt+1", 
 				bindfunc=self.onSetSelectionCriteria, bmp="checkMark",
 				help=_("Set the selection criteria for the recordset."))
+
 		menu.append(_("Browse Records")+"\tAlt+2", 
 				bindfunc=self.onBrowseRecords, bmp="browse",
 				help=_("Browse the records in the current recordset."))
 
 		# Add one edit menu item for every edit page (every page past the second)
-		for index in range(2, self.pageFrame.PageCount):
-			title = "%s\tAlt+%d" % (_(self.pageFrame.Pages[index].Caption),
-					index+1)
-			menu.append(title, bindfunc=self.onEditCurrentRecord, bmp="edit",
-					help=_("Edit the fields of the currently selected record."),
-					Tag=self.pageFrame.Pages[index].DataSource)
-			menu.appendSeparator()
+		if self.FormType != "PickList":
+			for index in range(2, self.pageFrame.PageCount):
+				title = "%s\tAlt+%d" % (_(self.pageFrame.Pages[index].Caption),
+						index+1)
+				menu.append(title, bindfunc=self.onEditCurrentRecord, bmp="edit",
+						help=_("Edit the fields of the currently selected record."),
+						Tag=self.pageFrame.Pages[index].DataSource)
+				menu.appendSeparator()
 
 		if self.FormType != "Edit":
 			menu.append(_("Requery")+"\tCtrl+R", bindfunc=self.onRequery, bmp="requery",
 					help=_("Get a new recordset from the backend."), menutype="check")		
+	
 		if self.FormType != "PickList":
 			menu.append(_("Save Changes")+"\tCtrl+S", bindfunc=self.onSave, bmp="save",
 					help=_("Save any changes made to the records."))	
@@ -216,6 +214,8 @@ class Form(dabo.ui.dForm):
 
 		if self.FormType != "Edit":
 			menu.append(_("Show SQL"), bindfunc=self.onShowSQL, bmp="zoomNormal")
+
+		if self.FormType == "Normal":
 			menu.append(_("Quick Report"), bindfunc=self.onQuickReport, bmp="print",
 					DynamicEnabled=self.enableQuickReport)
 
@@ -284,7 +284,8 @@ class Form(dabo.ui.dForm):
 				ds = self.previewDataSource
 			else:
 				ds = biz.DataSource
-			self.addEditPages(ds)
+			if self.FormType != "PickList":
+				self.addEditPages(ds)
 			self.pageFrame.SelectedpageNum = currPage
 			self.afterSetupPageFrame()
 			self.Sizer.layout()
@@ -588,8 +589,8 @@ class Form(dabo.ui.dForm):
 	def pickRecord(self):
 		""" This form is a picklist, and the user chose a record in the grid.
 		"""
-		# Raise EVT_ITEMPICKED so the originating form can act
-		self.raiseEvent(dEvents.ItemPicked)
+		# Raise Hit event so the originating form can act
+		self.raiseEvent(dEvents.Hit)
 
 	
 	def getEditClassForField(self, fieldName):
@@ -943,8 +944,6 @@ class Form(dabo.ui.dForm):
 		except AttributeError:
 			return "Normal"
 	
-	def _getFormTypeEditorInfo(self):
-		return {'editor': 'list', 'values': ['Normal', 'PickList', 'Edit']}
 			
 	def _setFormType(self, value):
 		value = value.lower()
