@@ -126,12 +126,13 @@ class dPemMixin(dPemMixinBase):
 			name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 			self._initName(name, _explicitName=_explicitName)
 
+		# Set the properties *before* calling the afterInit hook
+		self.setProperties(properties)
+
 		# _initEvents() will call the initEvents() user hook
 		self._initEvents()
 		# _afterInit() will call the afterInit() user hook
 		self._afterInit()
-
-		self.setProperties(properties)
 
 		# 'attProperties' are properties restored from XML-like files where
 		# all values are stored as strings.
