@@ -6,7 +6,7 @@ import dabo.dConstants as k
 from WizardPage import WizardPage
 
 
-class Wizard(dabo.ui.dForm):
+class Wizard(dabo.ui.dDialog):
 	""" This is the main form for creating wizards. To use it, define
 	a series of wizard pages, based on WizardPage. Then add these
 	classes to your subclass of Wizard. The order that you add them 
@@ -16,16 +16,20 @@ class Wizard(dabo.ui.dForm):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		pgs = self._extractKey(kwargs, "Pages")
 		self.iconName = self._extractKey(kwargs, "image")
-		# Add the main panel
-		kwargs["panel"] = True
 		kwargs["BorderResizable"] = False
 		kwargs["ShowMaxButton"] = False
 		kwargs["ShowMinButton"] = False
 		kwargs["ShowCloseButton"] = False
-		kwargs["ShowStatusBar"] = False
+# 		kwargs["ShowStatusBar"] = False
 				
-		super(Wizard, self).__init__(parent=parent, properties=properties, *args, **kwargs)
+		super(Wizard, self).__init__(parent=parent, 
+				properties=properties, *args, **kwargs)
 		
+		# Add the main panel
+		mp = self.mainPanel = dabo.ui.dPanel(self)
+		self.Sizer.append(mp, 1, "x")
+		mp.Sizer = dabo.ui.dSizer(self.Sizer.Orientation)
+
 		self._pages = []
 		self._currentPage = -1
 		self._blankPage = None
@@ -124,7 +128,7 @@ class Wizard(dabo.ui.dForm):
 			if not dabo.ui.areYouSure(self.confirmCancelMsg, 
 					"Cancel Received", cancelButton=False):
 				return
-		dabo.ui.callAfter(self.Close)
+		dabo.ui.callAfter(self.closeWizard)
 				
 	
 	def _finish(self):
@@ -133,7 +137,7 @@ class Wizard(dabo.ui.dForm):
 		if ok is not False:
 			finOK = self.finish()
 			if finOK is not False:
-				dabo.ui.callAfter(self.close, True)
+				dabo.ui.callAfter(self.closeWizard)
 
 
 	def finish(self):
@@ -144,9 +148,17 @@ class Wizard(dabo.ui.dForm):
 		
 	
 	def start(self):
-		self.show()	
 		self.CurrentPage = 0
-		
+		self.show()	
+	
+	
+	def closeWizard(self):
+		self.close(True)
+		if self.Parent is None:
+			# Since this is a dialog, we need to explicitly remove
+			# it or the app will hang.
+			self.Destroy()
+			
 	
 	def append(self, pg):
 		if isinstance(pg, (list, tuple)):
@@ -154,6 +166,7 @@ class Wizard(dabo.ui.dForm):
 				self.append(p)
 		else:
 			page = pg(self.pagePanel)
+			page.wizard = self
 			page.Size = self.pagePanel.Size
 			self._pages.append(page)
 			page.Visible = False
