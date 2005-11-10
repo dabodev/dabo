@@ -1373,7 +1373,7 @@ class dPemMixin(dPemMixinBase):
 
 		
 	def _getPosition(self):
-		return self.GetPosition()
+		return self.GetPosition().Get()
 
 	def _setPosition(self, val):
 		if self._constructed():
@@ -1399,7 +1399,7 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def _getSize(self): 
-		return self.GetSize()
+		return self.GetSize().Get()
 
 	def _setSize(self, val):
 		if self._constructed():
