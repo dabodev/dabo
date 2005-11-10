@@ -14,6 +14,13 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dSlider
+		
+		style = self._extractKey(kwargs, "style")
+		if style is None:
+			kwargs["style"] = wx.SL_AUTOTICKS
+		else:
+			kwargs["style"] = style | wx.SL_AUTOTICKS
+		
 		preClass = wx.PreSlider
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
@@ -21,6 +28,15 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 	def _initEvents(self):
 		super(dSlider, self)._initEvents()
 		self.Bind(wx.EVT_SCROLL, self._onWxHit)
+		self.Bind(wx.EVT_SCROLL, self._onScroll)
+
+
+	def _onScroll(self, evt):
+		"""When the slider value changes, flush it to the DataSource,
+		if any, and then raise a ValueChanged event.
+		"""
+		self.flushValue()
+		self.raiseEvent(dEvents.ValueChanged, evt)
 
 				
 	# Property get/set/del methods follow. Scroll to bottom to see the property
@@ -68,6 +84,7 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 		return super(dSlider, self)._getValue()
 	def _setValue(self, value):
 		super(dSlider, self)._setValue(int(value))
+		self.flushValue()
 		
 
 	def _getShowLabels(self):

@@ -276,6 +276,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		except AttributeError:
 			return ""
 	def _setDataSource(self, value):
+		# Clear any old DataSource
+		self.__src = None
 		self._DataSource = str(value)
 
 	def _getDataField(self):
