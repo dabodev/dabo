@@ -19,8 +19,6 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 	def _initEvents(self):
 		super(dSpinner, self)._initEvents()
 		self.Bind(wx.EVT_SPINCTRL, self._onWxHit)
-		self.Bind(wx.EVT_TEXT, self._onWxText)
-		self.bindEvent(dEvents.Hit, self._onSpinnerHit)
 		
 
 	def _preInitUI(self, kwargs):
@@ -35,17 +33,11 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 		return tuple(original + additional)
 		
 	
-	def _onWxText(self, evt):
-		if evt.IsChecked():
-			# If the user enters invalid text in the text field, IsChecked()
-			# will return False, so we know to ignore the input.
-			self.raiseEvent(dabo.dEvents.Hit, evt)
-		
-	
-	def _onSpinnerHit(self, evt):
+	def _onWxHit(self, evt):
 		# Flush the data on each hit, not just when focus is lost.
 		self.flushValue()
-		
+		super(dSpinner, self)._onWxHit(evt)
+
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
