@@ -1947,10 +1947,11 @@ class DataSet(tuple):
 
 	
 	def __del__(self):
-		if self._cursor is not None:
-			self._cursor.close()
-		if self._connection is not None:
-			self._connection.close()
+		if _useSQLite:
+			if self._cursor is not None:
+				self._cursor.close()
+			if self._connection is not None:
+				self._connection.close()
 
 	
 	def _adapt_decimal(self, decVal):
