@@ -28,15 +28,6 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 	def _initEvents(self):
 		super(dSlider, self)._initEvents()
 		self.Bind(wx.EVT_SCROLL, self._onWxHit)
-		self.Bind(wx.EVT_SCROLL, self._onScroll)
-
-
-	def _onScroll(self, evt):
-		"""When the slider value changes, flush it to the DataSource,
-		if any, and then raise a ValueChanged event.
-		"""
-		self.flushValue()
-		self.raiseEvent(dEvents.ValueChanged, evt)
 
 				
 	# Property get/set/del methods follow. Scroll to bottom to see the property
