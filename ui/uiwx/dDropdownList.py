@@ -15,25 +15,19 @@ class dDropdownList(wx.Choice, dcm.dControlItemMixin):
 		preClass = wx.PreChoice
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 	
+
 	def _initEvents(self):
 		super(dDropdownList, self)._initEvents()
 		self.Bind(wx.EVT_CHOICE, self._onWxHit)
 
-		# Changing the value in a dropdown list should fire the Hit event.
-		self.bindEvent(dEvents.ValueChanged, self._onValChanged)
-		
+	
+	def _onWxHit(self, evt):
 		# wx.Choice doesn't seem to emit lostfocus and gotfocus events. Therefore,
 		# flush the value on every hit.
-		self.bindEvent(dEvents.Hit, self.__onHit)
-	
-	
-	def _onValChanged(self, evt):
-		self.raiseEvent(dEvents.Hit)
-		
-	
-	def __onHit(self, evt):
 		self.flushValue()
+		super(dDropdownList, self)._onWxHit(evt)
 		
+
 
 class _dDropdownList_test(dDropdownList):
 	def initProperties(self):
