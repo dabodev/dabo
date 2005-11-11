@@ -2397,7 +2397,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# the menu here, then call the user hook method to optionally fill the
 		# menu. If we get a menu back from the user hook, we display it.
 
-		position = self._headerMousePosition
 		menu = dabo.ui.dMenu()
 
 		# Fill the default menu item(s):
@@ -2409,8 +2408,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		menu = self.fillHeaderContextMenu(menu)
 
 		if menu is not None and len(menu.Children) > 0:
-			self.PopupMenu(menu, position)
-			menu.release()
+			self.showContextMenu(menu)
 
 
 	def _onGridHeaderMouseRightUp(self, evt):
@@ -2427,13 +2425,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.CurrentRow = evt.row
 		self.CurrentColumn = evt.col
 
-		position = evt.EventData["position"]
 		menu = dabo.ui.dMenu()
 		menu = self.fillContextMenu(menu)
 
 		if menu is not None and len(menu.Children) > 0:
-			self.PopupMenu(menu, position)
-			menu.release()
+			self.showContextMenu(menu)
 	
 
 	def _onGridHeaderMouseLeftDown(self, evt):
