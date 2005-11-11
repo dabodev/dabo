@@ -61,10 +61,19 @@ class Form(dabo.ui.dForm):
 	def _afterInit(self):
 		super(Form, self)._afterInit()
 		if self.FormType == 'PickList':
-			# Map escape key to hide the form
-			self.bindKey("esc", self.hide)
+			# The form is a picklist, which pops up so the user can choose a record,
+			# and then hides itself afterwards. In addition, the picklist should hide
+			# itself when other certain conditions are met.
+			def _onHide(evt):
+				self.hide()
 
-		
+			# Pressing Esc hides the form
+			self.bindKey("esc", _onHide)
+	
+			# Deactivating hides the form
+			self.bindEvent(dEvents.Deactivate, _onHide)
+
+
 	def _onClose(self, evt):
 		for f in self._tempFiles:
 			try:
