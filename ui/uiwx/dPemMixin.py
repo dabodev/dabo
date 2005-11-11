@@ -543,16 +543,22 @@ class dPemMixin(dPemMixinBase):
 		return self.ClientToScreen(pos)
 	
 	
-	def showContextMenu(self, menu, pos=None):
+	def showContextMenu(self, menu, pos=None, release=True):
 		"""Display a context menu (popup) at the specified position.
 
-		If no position is specified, the menu will be displayed at the 
-		current mouse position.
+		If no position is specified, the menu will be displayed at the current 
+		mouse position.
+
+		If release is True (the default), the menu will be released after the user
+		has dismissed it.
 		"""
 		if pos is None:
 			pos = self.ScreenToClient(wx.GetMousePosition())
 		self.PopupMenu(menu, pos)
-		
+
+		if release:
+			menu.release()
+
 	
 	def _getSizerInfo(self, prop):
 		"""Returns True or False based on whether the property passed is contained 
