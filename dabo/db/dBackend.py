@@ -47,6 +47,13 @@ class dBackend(dObject):
 		the default is to return the original value.
 		"""
 		return val
+
+	def formatNone(self):
+		""" Properly format a None value to be included in an update statement.
+
+		Each backend should override as needed. The default is to return "NULL".
+		"""
+		return "NULL"
 	
 	def noResultsOnSave(self):
 		""" Most backends will return a non-zero number if there are updates.

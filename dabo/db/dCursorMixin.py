@@ -796,6 +796,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					if isinstance(vv, (datetime.date, datetime.datetime)):
 						# Some databases have specific rules for formatting date values.
 						vals += ", " + self.formatDateTime(vv)
+					elif vv is None:
+						vals += ", " + self.formatNone()
 					else:
 						vals += ", " + str(self.escQuote(vv))
 				# Trim leading comma-space from the strings
@@ -807,7 +809,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				pkWhere = self.makePkWhere(rec)
 				updClause = self.makeUpdClause(diff)
 				sql = "update %s set %s where %s" % (self.Table, updClause, pkWhere)
-			
+
 			newPKVal = None
 			if newrec and self.AutoPopulatePK:
 				# Some backends do not provide a means to retrieve 
@@ -1219,6 +1221,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			else:
 				if isinstance(val, (datetime.date, datetime.datetime)):
 					ret += tblPrefix + fld + " = " + self.formatDateTime(val)
+				elif val is None:
+					ret += tblPrefix + fld + " = " + self.formatNone()
 				else:
 					ret += tblPrefix + fld + " = " + str(val) + " "
 		return ret
@@ -1272,6 +1276,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if self.BackendObject:
 			ret = self.BackendObject.formatDateTime(val)
 		return ret
+
+
+	def formatNone(self):
+		""" Format None values for the backend """
+		if self.BackendObject:
+			return self.BackendObject.formatNone()
 
 
 	def beginTransaction(self):
