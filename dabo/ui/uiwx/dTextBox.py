@@ -24,6 +24,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		self._baseClass = dTextBox
 
 		self._dregex = {}
+		self._lastDataType = None
 
 		preClass = wx.PreTextCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
@@ -123,6 +124,13 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		# string value of the control:
 		strVal = self.GetValue()
 		
+		if dataType == type(None):
+			# The current datatype of the control is NoneType, but more likely it's
+			# just that there happened to be a value of None for this field in one of
+			# the records. We've saved the last used non-None datatype, so we'll 
+			# assume that is the real type to use.
+			dataType = self._lastDataType
+
 		# Convert the current string value of the control, as entered by the 
 		# user, into the proper data type.
 		if dataType == bool:
@@ -132,6 +140,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				value = True
 			else:
 				value = False
+
 		elif dataType in (datetime.date, datetime.datetime):
 			# We expect the string to be in ISO 8601 format.
 			if dataType == datetime.date:
@@ -143,8 +152,6 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				# String wasn't in ISO 8601 format... put it back to a valid
 				# string with the previous value and the user will have to 
 				# try again.
-				dabo.errorLog.write("Couldn't convert literal '%s' to %s."
-					% (strVal, dataType))
 				value = self._value
 				
 		elif str(dataType) == "<type 'DateTime'>":
@@ -169,8 +176,6 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				else:
 					value = decimal.Decimal(strVal)
 			except:
-				dabo.errorLog.write("Couldn't convert literal '%s' to %s." 
-					% (strVal, dataType))
 				value = self._value
 				
 		else:
@@ -179,10 +184,8 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				value = dataType(strVal)
 			except:
 				# The Python object couldn't convert it. Our validator, once 
-				# implemented, won't let the user get this far. In the meantime, 
-				# log the Error and just keep the old value.
-				dabo.errorLog.write("Couldn't convert literal '%s' to %s." 
-					% (strVal, dataType))
+				# implemented, won't let the user get this far. Just keep the 
+				# old value.
 				value = self._value
 		return value		
 	
@@ -201,6 +204,11 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				
 			# save the actual value for return by _getValue:
 			self._value = value
+
+			if value is not None:
+				# Save the type of the value, so that in the case of actual None
+				# assignments, we know the datatype to expect.
+				self._lastDataType = type(value)
 
 			# Update the display no matter what:
 			self.SetValue(strVal)
