@@ -613,6 +613,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						if str(fldType) in dtStrings:
 							if isinstance(val, basestring):
 								ignore = True
+						elif val is None or fldType is type(None):
+							# Any field type can potentially hold None values (NULL). Ignore these.
+							ignore = True
 						else:
 							# This can also happen with a new record, since we just stuff the
 							# fields full of empty strings.
