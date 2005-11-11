@@ -358,22 +358,31 @@ class dCursorMixin(dObject):
 		# First, see if we are comparing strings
 		compString = isinstance(sortList[0][0], basestring)
 		sortfunc = None
+
+		# can't compare NoneType to some types: sort None lower than anything else:
+		def noneSort(vv, ww):
+			xx, yy = vv[0], ww[0]
+			if xx is None and yy is None:
+				return 0
+			elif xx is None and yy is not None:
+				return -1
+			elif xx is not None and yy is None:
+				return 1
+			else:
+				return cmp(xx, yy)
+
+		def caseInsensitiveSort(vv, ww):
+			vv, ww = vv[0], ww[0]
+			if vv is None:
+				vv = ""
+			if ww is None:
+				ww = ""
+			return cmp(vv.lower(), ww.lower())
+
 		if compString and not caseSensitive:
-			# Use a case-insensitive sort.
-			sortfunc = lambda x, y: cmp(x[0].lower(), y[0].lower())
+			sortfunc = caseInsensitiveSort
 		else:
-			# can't compare NoneType to some types: sort None lower than anything else:
-			def nonesort(vv, ww):
-				xx, yy = vv[0], ww[0]
-				if xx is None and yy is None:
-					return 0
-				elif xx is None and yy is not None:
-					return -1
-				elif xx is not None and yy is None:
-					return 1
-				else:
-					return cmp(xx, yy)
-			sortfunc = nonesort	
+			sortfunc = noneSort	
 		sortList.sort(sortfunc)
 			
 		# Unless DESC was specified as the sort order, we're done sorting
