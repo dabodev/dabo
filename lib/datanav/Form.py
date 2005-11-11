@@ -488,47 +488,21 @@ class Form(dabo.ui.dForm):
 		
 		
 	def creation(self):
-		""" Called after all the specs for the form have been set, and
-		after any other settings that need to be made have been made.
-		It initializes the SQL Builder, and creates the menu, toolbar  and
-		pageframe for the form.
+		""" Creates the menu, toolbar, and pageframe for the form.
+
+		This must be called by the subclass, probably at the end of afterInit(),
+		after the fieldSpecs and relationSpecs have been set.
 		"""
 		errMsg = self.beforeCreation()
 		if errMsg:
 			raise dException.dException, errMsg
-		if not self.preview:
-			# Set up the SQL Builder in the bizobj:
-			## pkm: no, that is in the bizobj now.
-			"""
-				tbl = self._mainTable
-				biz = self.getBizobj()
-				biz.setFieldClause("")
-				fromClause = tbl
-				for fld in self.FieldSpecs.keys():
-					fldInfo = self.FieldSpecs[fld]
-					#if int(fldInfo["editInclude"]) or int(fldInfo["listInclude"]):
-					## pkm: No! If the field is included in the fieldSpec file, it needs to
-					##		be part of the SQL fields clause, whether or not it is to be
-					##		included in in the browse or edit pages. Consider, for example,
-					##		the pk field: That needs to be included but you most likely don't
-					##		want to show it in the UI. There could be plenty of fields that
-					##		the developer wants to grab but not show the user.
-					
-					expression = "%s.%s" % (tbl, fld)
-					biz.addField("%s as %s" % (expression, fld) )
-				
-				biz.setFromClause(fromClause)
-		
-				self.childViews = []
-				for child in self.getBizobj().getChildren():
-					self.childViews.append({"dataSource": child.DataSource,
-							"caption": child.Caption,
-							"menuId": wx.NewId()})
-			"""
+
 		self.setupPageFrame()
 		self.setupToolBar()
 		if not self.preview:
 			self.setupMenu()
+		else:
+			self.ToolBar.Enabled = False
 		self.afterCreation()
 		
 	
