@@ -163,7 +163,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		except AttributeError:
 			oldVal = None
 		
-		if curVal != oldVal:
+		if curVal is None or curVal != oldVal:
 			if self.DataSource and self.DataField:
 				src = self.Source
 				if self._srcIsBizobj:
