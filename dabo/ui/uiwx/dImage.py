@@ -51,7 +51,10 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 			h = origH = self._Image.GetHeight()
 		w, h = float(w), float(h)
 		
-		szProp = w/h
+		if h == 0:
+			szProp = 1
+		else:
+			szProp = w/h
 		imgProp = self._imgProp
 		sm = self.ScaleMode[0].lower()
 		
