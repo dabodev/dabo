@@ -285,20 +285,13 @@ class MouseEnter(MouseEvent):
 class MouseLeave(MouseEvent): 
 	"""Occurs when the mouse pointer leaves the form or control."""
 	pass
-	
-class MouseLeftClick(MouseEvent):
-	"""Occurs when the mouse's left button is depressed and released on the control."""
-	pass
-	
-class MouseLeftDoubleClick(MouseEvent):
-	"""Occurs when the mouse's left button is double-clicked on the control."""
-	pass
-	
+
 class MouseMove(MouseEvent):
 	"""Occurs when the mouse moves in the control."""
+	pass
 	
-class MouseRightClick(MouseEvent):
-	"""Occurs when the mouse mouse's right button is depressed and released on the control."""
+class MouseWheel(MouseEvent):
+	"""Occurs when the user scrolls the mouse wheel."""
 	pass
 	
 class MouseLeftDown(MouseEvent):
@@ -309,6 +302,14 @@ class MouseLeftUp(MouseEvent):
 	"""Occurs when the mouse's left button is released on the control."""
 	pass
 	
+class MouseLeftClick(MouseEvent):
+	"""Occurs when the mouse's left button is depressed and released on the control."""
+	pass
+	
+class MouseLeftDoubleClick(MouseEvent):
+	"""Occurs when the mouse's left button is double-clicked on the control."""
+	pass
+	
 class MouseRightDown(MouseEvent):
 	"""Occurs when the mouse's right button is depressed on the control."""
 	pass
@@ -317,6 +318,30 @@ class MouseRightUp(MouseEvent):
 	"""Occurs when the mouse's right button is released on the control."""
 	pass
 
+class MouseRightClick(MouseEvent):
+	"""Occurs when the mouse mouse's right button is depressed and released on the control."""
+	pass
+	
+class MouseRightDoubleClick(MouseEvent):
+	"""Occurs when the mouse's right button is double-clicked on the control."""
+	pass
+	
+class MouseMiddleDown(MouseEvent):
+	"""Occurs when the mouse's middle button is depressed on the control."""
+	pass
+	
+class MouseMiddleUp(MouseEvent):
+	"""Occurs when the mouse's middle button is released on the control."""
+	pass
+
+class MouseMiddleClick(MouseEvent):
+	"""Occurs when the mouse mouse's middle button is depressed and released on the control."""
+	pass
+	
+class MouseMiddleDoubleClick(MouseEvent):
+	"""Occurs when the mouse's middle button is double-clicked on the control."""
+	pass
+	
 	
 class Paint(Event):
 	"""Occurs when it is time to paint the control."""
