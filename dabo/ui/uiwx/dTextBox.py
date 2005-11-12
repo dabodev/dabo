@@ -253,7 +253,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		return strVal
 
 		
-	def _getDateFromString(self, string):
+	def _getDateFromString(self, strVal):
 		"""Given a string in an accepted date format, return a 
 		datetime.date object, or None.
 		"""
@@ -274,7 +274,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			except KeyError:
 				regex = self._dregex[format] = self._getDateRegex(format)
 			
-			m = regex.match(string)
+			m = regex.match(strVal)
 			if m is not None:
 				groups = m.groupdict()
 				if not groups.has_key("year"):
@@ -316,7 +316,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		return re.compile(exp % elements)
 
 			
-	def _getDateTimeFromString(self, string):
+	def _getDateTimeFromString(self, strVal):
 		"""Given a string in ISO 8601 datetime format, return a 
 		datetime.datetime object.
 		"""
@@ -325,7 +325,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		except AttributeError:
 			regex = self._dtregex = re.compile(self._getDateTimeRegex())
 			
-		m = regex.match(string)
+		m = regex.match(strVal)
 		if m is not None:
 			groups = m.groupdict()
 			if len(groups["ms"]) == 0:
