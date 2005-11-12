@@ -64,6 +64,11 @@ class dFormBase(fm.dFormMixin):
 		self.Visible = True
 		
 		
+	def showModal(self):
+		self.MakeModal(True)
+		self.Visible = True
+		
+		
 	def hide(self):
 		self.Visible = False
 		

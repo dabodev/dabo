@@ -439,6 +439,7 @@ class dColumn(dObject):
 		a.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.LIGHT))
 
 		super(dColumn, self).__init__(properties, *args, **kwargs)
+		self._baseClass = dColumn
 
 
 	def _beforeInit(self):
