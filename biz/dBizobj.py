@@ -535,40 +535,6 @@ class dBizobj(dObject):
 		self._CurrentCursor.replace(field, valOrExpr, scope=scope)
 		
 
-	def replaceFor(self, cond, fld, val):
-		"""Replaces all 'fld' values in the recordset with the specified
-		value, as long as the record meets the specified condition. 
-		"""
-		if cond:
-			# A condition was passed. Massage the string, replacing
-			# raw field names with self.fieldname so that eval() can be
-			# used to determine if it's True.
-			flds = self.getFieldNames()
-			pat = "(\w+)"
-			condSplit = re.split(pat, cond)
-			wordCnt = len(condSplit)
-			for ii in range(wordCnt):
-				if condSplit[ii] in flds:
-					# This is a field name; change it to a self reference
-					condSplit[ii] = "self.%s" % condSplit[ii]
-			# Join it back up
-			cond = "".join(condSplit)
-		else:
-			# No condition was passed. This means that they want
-			# to replace *all* records.
-			cond = "True"
-		self.scan(self.__condReplace, cond, fld, val)
-
-
-	def __condReplace(self, cond, fld, val):
-		"""Usually passed to the scan() method as part of the 
-		replaceFor() logic. Accepts a condition, and if that 
-		condition is True, replaces the value of 'fld' with 'val'.
-		"""
-		if eval(cond):
-			self.setFieldVal(fld, val)
-			
-		
 	def new(self):
 		""" Create a new record and populate it with default values. Default 
 		values are specified in the DefaultValues dictionary. 
