@@ -1352,6 +1352,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# dColumn maintains its own cell attribute object, but this is the default:
 		self._defaultGridColAttr = self._getDefaultGridColAttr()
 
+		# Type of encoding to use with unicode data
+		self.defaultEncoding = defaultEncoding
+
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
 		# Need to sync the size reported by wx to the size reported by Dabo:
@@ -1401,9 +1404,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.useCustomGetValue = False
 		self.useCustomSetValue = False
 		
-		# Type of encoding to use with unicode data
-		self.defaultEncoding = defaultEncoding
-
 		# What color/size should the little sort indicator arrow be?
 		self.sortIndicatorColor = "DarkSlateGrey"
 		self.sortIndicatorSize = 6
