@@ -746,6 +746,8 @@ class dColumn(dObject):
 	def _setDataField(self, val):
 		if self._constructed():
 			self._dataField = val
+			if not self.Name or self.Name == "?":
+				self._name = _("col_%s") % val
 			self._updateRenderer()
 			self._updateEditor()
 		else:
@@ -1070,10 +1072,6 @@ class dColumn(dObject):
 		return v
 
 
-	def _getName(self):
-		return "col_%s" % self._dataField
-		
-		
 	def _getOrder(self):
 		try:
 			v = self._order
@@ -1295,9 +1293,6 @@ class dColumn(dObject):
 	ListEditorChoices = property(_getListEditorChoices, _setListEditorChoices, None,
 		_("""Specifies the list of choices that will appear in the list. Only applies 
 		if the DataType is set as "list".  (list)"""))
-
-	Name = property(_getName, None, None,
-			_("Displayed name for this column   (str)") )
 
 	Order = property(_getOrder, _setOrder, None,
 			_("""Order of this column. Columns in the grid are arranged according
