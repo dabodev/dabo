@@ -1352,9 +1352,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# dColumn maintains its own cell attribute object, but this is the default:
 		self._defaultGridColAttr = self._getDefaultGridColAttr()
 
-		# Type of encoding to use with unicode data
-		self.defaultEncoding = defaultEncoding
-
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
 		# Need to sync the size reported by wx to the size reported by Dabo:
@@ -1404,6 +1401,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.useCustomGetValue = False
 		self.useCustomSetValue = False
 		
+		# Type of encoding to use with unicode data
+		self.defaultEncoding = defaultEncoding
+
 		# What color/size should the little sort indicator arrow be?
 		self.sortIndicatorColor = "DarkSlateGrey"
 		self.sortIndicatorSize = 6
@@ -2228,12 +2228,21 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def getColByX(self, x):
-		""" Given the x-coordinate, return the column number.
-		"""
+		""" Given the x-coordinate, return the column number."""
 		col = self.XToCol(x + (self.GetViewStart()[0]*self.GetScrollPixelsPerUnit()[0]))
 		if col == wx.NOT_FOUND:
 			col = -1
 		return col
+
+
+	def getColByDataField(self, df):
+		""" Given a DataField value, return the corresponding column."""
+		try:
+			ret = [col for col in self.Columns
+					if col.DataField == df][0]
+		except IndexError:
+			ret = None
+		return ret	
 
 
 	def maxColOrder(self):
