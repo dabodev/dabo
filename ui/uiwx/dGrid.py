@@ -123,7 +123,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			colName = "Column_%s" % nm
 			app = self.grid.Application
 			pos = None
-			if app is not None:
+			if app is not None and not app.isDesigner:
 				pos = app.getUserSetting("%s.%s.%s.%s" % (
 						self.grid.Form.Name, 
 						self.grid.Name,
@@ -278,7 +278,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 			# 1) Try to get the column width from the saved user settings:
 			width = None
-			if app is not None:
+			if app is not None and not app.isDesigner:
 				width = app.getUserSetting("%s.%s.%s.%s" % (self.grid.Form.Name, 
 						self.grid.Name, colName, 
 						"Width"))
@@ -1337,6 +1337,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		# Columns prop:
 		self._columns = []
+		
+		# Underlying attribute for the ColumnClass property. When adding 
+		# columns automatically, this is the class to use to create them. 
+		# Can be overriden for grid-specific behaviors.
+		self._columnClass = dColumn
 
 		# Internal flag to determine if the prior sort order needs to be restored:
 		self._sortRestored = False
@@ -1560,7 +1565,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		# Get the default row size from dApp's user settings
 		app = self.Application
-		if app is not None:
+		if app is not None and not app.isDesigner:
 			s = app.getUserSetting("%s.%s.%s" % (self.Form.Name, 
 					self.Name, "RowSize"))
 		else:
@@ -2244,7 +2249,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		blank column is added, which can be customized later.
 		"""
 		if col is None:
-			col = dColumn(self)
+			col = self.ColumnClass(self)
 		if col.Order == -1:
 			col.Order = self.maxColOrder() + 10
 		col.Width = 75
@@ -2306,17 +2311,19 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def _getUserSetting(self, prop):
 		"""Get the value of prop from the user settings table."""
 		app = self.Application
-		settingName = "%s.%s.%s" % (self.Form.Name, self.Name, prop)
-
-		val = app.getUserSetting(settingName)
-		return val
+		ret = None
+		if not app.isDesigner:
+			settingName = "%s.%s.%s" % (self.Form.Name, self.Name, prop)
+			ret = app.getUserSetting(settingName)
+		return ret
 
 	def _setUserSetting(self, prop):
 		"""Persist the value of prop to the user settings table."""
 		app = self.Application
-		val = getattr(self, prop)
-		settingName = "%s.%s.%s" % (self.Form.Name, self.Name, prop)
-		app.setUserSetting(settingName, val)
+		if not app.isDesigner:
+			val = getattr(self, prop)
+			settingName = "%s.%s.%s" % (self.Form.Name, self.Name, prop)
+			app.setUserSetting(settingName, val)
 
 
 	##----------------------------------------------------------##
@@ -2725,6 +2732,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _getColumns(self):
 		return self._columns
+	
+	
+	def _getColumnClass(self):
+		return self._columnClass
+		
+	def _setColumnClass(self, val):
+		self._columnClass = val
 
 
 	def _getColumnCount(self):
@@ -3075,6 +3089,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			_getActivateEditorOnSelect, _setActivateEditorOnSelect, None,
 			_("Specifies whether the cell editor, if any, is activated upon cell selection."))
 
+	ColumnClass = property(_getColumnClass, _setColumnClass, None, 
+			_("""Class to instantiate when a change to ColumnCount requires
+			additional columns to be created. Default=dColumn.  (dColumn subclass)""") )
+	
 	ColumnCount = property(_getColumnCount, _setColumnCount, None, 
 			_("Number of columns in the grid.  (int)") )
 	

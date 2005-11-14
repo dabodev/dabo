@@ -369,7 +369,6 @@ class dPemMixin(dPemMixinBase):
 		self.raiseEvent(dEvents.MouseRightDoubleClick, evt)
 
 
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
 	def __onWxMouseMiddleDown(self, evt):
 		self._mouseMiddleDown = True
 		self.raiseEvent(dEvents.MouseMiddleDown, evt)
@@ -385,8 +384,7 @@ class dPemMixin(dPemMixinBase):
 
 	def __onWxMouseMiddleDoubleClick(self, evt):
 		self.raiseEvent(dEvents.MouseMiddleDoubleClick, evt)
-	
-# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - 
+
 
 	def __onWxContextMenu(self, evt):
 		self.raiseEvent(dEvents.ContextMenu, evt)

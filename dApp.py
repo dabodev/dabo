@@ -88,6 +88,10 @@ class dApp(dObject):
 	>>> app.start()
 	"""
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, True
+	# Behaviors which are normal in the framework may need to
+	# be modified when run as the Designer. This flag will 
+	# distinguish between the two states.
+	isDesigner = False
 
 	def __init__(self, selfStart=False, properties=None, *args, **kwargs):
 		self._uiAlreadySet = False
