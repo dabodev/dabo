@@ -1070,6 +1070,10 @@ class dColumn(dObject):
 		return v
 
 
+	def _getName(self):
+		return "col_%s" % self._dataField
+		
+		
 	def _getOrder(self):
 		try:
 			v = self._order
@@ -1292,6 +1296,9 @@ class dColumn(dObject):
 		_("""Specifies the list of choices that will appear in the list. Only applies 
 		if the DataType is set as "list".  (list)"""))
 
+	Name = property(_getName, None, None,
+			_("Displayed name for this column   (str)") )
+
 	Order = property(_getOrder, _setOrder, None,
 			_("""Order of this column. Columns in the grid are arranged according
 			to their relative Order. (int)""") )
@@ -1333,6 +1340,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		# Internal flag to determine if the prior sort order needs to be restored:
 		self._sortRestored = False
+		
+		# Used to provide 'data' when the DataSet is empty.
+		self.emptyRowsToAdd = 0
 
 		# dColumn maintains its own cell attribute object, but this is the default:
 		self._defaultGridColAttr = self._getDefaultGridColAttr()
@@ -1559,6 +1569,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.SetDefaultRowSize(s)
 		tbl = self._Table
 		
+		if self.emptyRowsToAdd and self.Columns:
+			# Used for display purposes when no data is present.
+			self._addEmptyRows()
+		
 		tbl.setColumns(self.Columns)
 		tbl.fillTable(force)
 		
@@ -1605,6 +1619,32 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.processSort(sortCol, toggleSort=False)
 
 	
+	def _addEmptyRows(self):
+		"""Adds blank rows of data to the grid. Used mostly by
+		the Designer to display a grid that actually looks like a grid.
+		"""
+		# First, get the type and field name for each column, and
+		# add an empty value to a dict.
+		colDict = {}
+		for col in self.Columns:
+			val = " " * 10
+			dt = col.DataType
+			if dt is "bool":
+				val = False
+			elif dt in ("int", "long"):
+				val = 0
+			elif dt in ("float", "decimal"):
+				val = 0.00
+			colDict[col.DataField] = val
+		# Now add as many rows as specified
+		ds = []
+		for cnt in xrange(self.emptyRowsToAdd):
+			ds.append(colDict)
+
+		self.emptyRowsToAdd = 0
+		self.DataSet = ds
+		
+		
 	def buildFromDataSet(self, ds, keyCaption=None, 
 			columnsToSkip=[], colOrder={}, colWidths={}, colTypes={},
 			autoSizeCols=True):
@@ -1996,12 +2036,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			sortList = []
 			rowNum = 0
 			rowlabels = self.RowLabels
-			for row in self.DataSet:
-				if rowlabels:
-					sortList.append([row[columnToSort], row, rowlabels[rowNum]])
-					rowNum += 1
-				else:
-					sortList.append([row[columnToSort], row])
+			if self.DataSet:
+				for row in self.DataSet:
+					if rowlabels:
+						sortList.append([row[columnToSort], row, rowlabels[rowNum]])
+						rowNum += 1
+					else:
+						sortList.append([row[columnToSort], row])
 			# At this point we have a list consisting of lists. Each of these member
 			# lists contain the sort value in the zeroth element, and the row as
 			# the first element.
@@ -2384,8 +2425,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			# we weren't dragging, and the mouse was just released.
 			# Find out the column we are in based on the x-coord, and
 			# do a processSort() on that column.
-			col = self.getColByX(x)
-			self.processSort(col)
+			if self.DataSet:
+				# No need to sort if there is no data.
+				col = self.getColByX(x)
+				self.processSort(col)
 		self._headerDragging = False
 		self._headerSizing = False
 		## pkm: commented out the evt.Continue=False because it doesn't appear
