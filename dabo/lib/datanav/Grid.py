@@ -13,6 +13,16 @@ from dabo.dLocalize import _, n_
 import dabo.dEvents as dEvents
 
 class Grid(dabo.ui.dGrid):
+	def _beforeInit(self, pre):
+		self._fldSpecs = None
+		self.includeFields = []
+		self.fieldCaptions = {}
+		self.colOrders = {}
+		self.built = False
+		self.customSort = True
+		super(Grid, self)._beforeInit(pre)
+
+
 	def _initProperties(self):
 		super(Grid, self)._initProperties()
 		self.bindEvent(dEvents.GridMouseLeftDoubleClick, self.onGridLeftDClick)
@@ -20,30 +30,23 @@ class Grid(dabo.ui.dGrid):
 
 	def _afterInit(self):
 		super(Grid, self)._afterInit()
-		##pkm self.bizobj = None
-		self._fldSpecs = None
-		self.skipFields = []
-		self.fieldCaptions = {}
-		self.colOrders = {}
-		self.built = False
-		self.customSort = True
 
 		if hasattr(self.Form, "preview") and self.Form.preview:
 			self.DataSource = self.Form.previewDataSource
 
 	
 	def populate(self):
-		##pkm ds = self.getDataSet(requery=True)
 		ds = self.DataSource
 		if not ds:
 			# Usually, datanav grids will have a DataSource pointing to the DataSource
 			# of a bizobj. However, they could also have no datasource but instead a
 			# raw DataSet. This is true in minesweeper, for example.
 			ds = self.DataSet
+
 		if not self.built and ds:
 			if self.buildFromDataSet(ds, 
 					keyCaption=self.fieldCaptions, 
-					columnsToSkip=self.skipFields, 
+					includeFields=self.includeFields, 
 					colOrder=self.colOrders,
 					colWidths=self.colWidths,
 					colTypes=self.colTypes,
@@ -167,32 +170,34 @@ class Grid(dabo.ui.dGrid):
 
 	def _getFldSpecs(self):
 		return self._fldSpecs
+
 	def _setFldSpecs(self, val):
 		self._fldSpecs = val
 		# Update the props
-		self.skipFields = [kk for kk in val
-				if val[kk]["listInclude"] == "0" ]
+		self.includeFields = [kk for kk in val
+				if val[kk]["listInclude"] == "1" ]
+
 		self.fieldCaptions = {}
 		for kk in val.keys():
-			if kk in self.skipFields:
+			if kk not in self.includeFields:
 				continue
 			self.fieldCaptions[kk] = val[kk]["caption"]
 
 		self.colOrders = {}
 		for kk in val.keys():
-			if kk in self.skipFields:
+			if kk not in self.includeFields:
 				continue
 			self.colOrders[kk] = int(val[kk]["listOrder"])
 
 		self.colWidths = {}
 		for kk in val.keys():
-			if kk in self.skipFields:
+			if kk not in self.includeFields:
 				continue
 			self.colWidths[kk] = int(val[kk]["listColWidth"])
 
 		self.colTypes = {}
 		for kk in val.keys():
-			if kk in self.skipFields:
+			if kk not in self.includeFields:
 				continue
 			self.colTypes[kk] = val[kk]["type"]
 
