@@ -1646,23 +1646,40 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 		
 	def buildFromDataSet(self, ds, keyCaption=None, 
-			columnsToSkip=[], colOrder={}, colWidths={}, colTypes={},
+			includeFields=None, colOrder=None, colWidths=None, colTypes=None,
 			autoSizeCols=True):
-		"""This method will create a grid for a given data set.
-		A 'data set' is a sequence of dicts, each containing field/
-		value pairs. The columns will be taken from ds[0].keys(),
-		with each column header being set to the key name, unless
-		the optional keyCaption parameter is passed. This parameter
-		is a 1:1 dict containing the data set keys as its keys,
-		and the desired caption as the corresponding value.
-		If the columnsToSkip parameter is set, any column in the 
-		data with a key in that list will not be added to the grid.
-		The columns will be in the order returned by ds.keys(), unless
-		the optional colOrder parameter is passed. Like the keyCaption
-		property, this is a 1:1 dict containing key:order.
+		"""Add columns with properties set based on the passed dataset.
+
+		A dataset is defined as one of:
+			+ a sequence of dicts, containing fieldname/fieldvalue pairs.
+			+ a string, which maps to a bizobj on the form.
+
+		The columns will be taken from the first record of the dataset,	with each 
+		column header caption being set to the field name, unless	the optional 
+		keyCaption parameter is passed. This parameter is a 1:1 dict containing 
+		the data set keys as its keys, and the desired caption as the 
+		corresponding value.
+
+		If the includeFields parameter is a sequence, the only columns added will 
+		be the fieldnames included in the includeFields sequence. If the 
+		includeFields	parameter is None, all fields will be added to the grid.
+
+		The columns will be in the order returned by ds.keys(), unless the 
+		optional colOrder parameter is passed. Like the keyCaption property, 
+		this is a 1:1 dict containing key:order.
 		"""
 		if not ds:
 			return False
+
+		if colOrder is None:
+			colOrder = {}
+
+		if colWidths is None:
+			colWidths = {}
+
+		if colTypes is None:
+			colTypes = {}
+
 		if isinstance(ds, basestring):
 			# Assume it is a bizobj datasource.
 			if self.DataSource != ds:
@@ -1683,7 +1700,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			firstRec = ds[0]
 
 		colKeys = [key for key in firstRec.keys()
-				if (key not in columnsToSkip)]
+				if (includeFields is None or key in includeFields)]
 
 		# Add the columns
 		for colKey in colKeys:
