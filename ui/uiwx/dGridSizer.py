@@ -350,7 +350,9 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		else:
 			chil = itm.GetSizer()
 		row, col = self.getGridPos(chil)
-		if prop == "RowExpand":
+		if prop == "Border":
+			return itm.GetBorder()
+		elif prop == "RowExpand":
 			ret = self.isRowGrowable(row)
 		elif prop == "ColExpand":
 			ret = self.isColGrowable(col)

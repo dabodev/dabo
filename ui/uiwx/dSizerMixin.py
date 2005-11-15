@@ -53,7 +53,7 @@ class dSizerMixin(dObject):
 	expandFlag = wx.EXPAND
 	growFlag = wx.EXPAND
 	fixedFlag = wx.FIXED_MINSIZE 
-			
+	
 	
 	def appendItems(self, items, *args, **kwargs):
 		"""Append each item to the sizer."""
