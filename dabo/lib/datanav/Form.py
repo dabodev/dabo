@@ -581,6 +581,21 @@ class Form(dabo.ui.dForm):
 		return None
 
 
+	def getSelectOptionsForField(self, fieldName):
+		"""Hook: User code can supply a list of select options.
+
+		Return a sequence of options to use for this field in the select page, eg:
+
+		("Equals", "Contains", "Less than", "Is")
+		"""
+		return None
+
+
+	def getSelectControlClassForField(self, fieldName):
+		"""Hook: User code can supply a class to use on the select page."""
+		return None
+
+
 	def getReportForm(self, mode):
 		"""Returns the rfxml to generate a report for the dataset.
 

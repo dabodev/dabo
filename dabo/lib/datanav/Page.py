@@ -239,10 +239,10 @@ class SelectPage(Page):
 				useStdFormat = True
 
 				if fldType in ("char", "memo"):
-					if opVal == "Equals":
+					if opVal.lower() in ("equals", "is"):
 						opStr = "="
 						matchStr = biz.escQuote(matchVal)
-					elif opVal == "Matches Words":
+					elif opVal.lower() == "matches words":
 						useStdFormat = False
 						whrMatches = []
 						for word in matchVal.split():
@@ -266,27 +266,27 @@ class SelectPage(Page):
 					else:
 						dt = matchVal
 					matchStr = biz.formatDateTime(dt)
-					if opVal == "Equals":
+					if opVal.lower() in ("equals", "is"):
 						opStr = "="
-					elif opVal == "On or Before":
+					elif opVal.lower() == "on or before":
 						opStr = "<="
-					elif opVal == "On or After":
+					elif opVal.lower() == "on or after":
 						opStr = ">="
-					elif opVal == "Before":
+					elif opVal.lower() == "before":
 						opStr = "<"
-					elif opVal == "After":
+					elif opVal.lower() == "after":
 						opStr = ">"
 
 				elif fldType in ("int", "float"):
-					if opVal == "Equals":
+					if opVal.lower() in ("equals", "is"):
 						opStr = "="
-					elif opVal == "Less than/Equal to":
+					elif opVal.lower() == "less than/equal to":
 						opStr = "<="
-					elif opVal == "Greater than/Equal to":
+					elif opVal.lower() == "greater than/equal to":
 						opStr = ">="
-					elif opVal == "Less than":
+					elif opVal.lower() == "less than":
 						opStr = "<"
-					elif opVal == "Greater than":
+					elif opVal.lower() == "greater than":
 						opStr = ">"
 						
 				elif fldType == "bool":
@@ -303,7 +303,7 @@ class SelectPage(Page):
 						## mappings from the fld to the actual names of the backend
 						## table and field, so that you can have fields in your where
 						## clause that aren't members of the "main" table.
-						table, field = biz.backendTableFields[fld]
+						table, field = biz.BackendTableFields[fld]
 					except (AttributeError, KeyError):
 						table, field = tbl, fld
 					whr = "%s.%s %s %s" % (table, field, opStr, matchStr)
@@ -372,8 +372,6 @@ class SelectPage(Page):
 		else:
 			dabo.errorLog.write("Type '%s' not recognized." % typ)
 			chc = ()
-		# Add the blank choice
-		chc = (IGNORE_STRING,) + chc
 		return chc
 
 
@@ -407,11 +405,26 @@ class SelectPage(Page):
 			lbl.Caption = "%s:" % fldInfo["caption"]
 			lbl.relatedDataField = fld
 			
-			opt = self.getSelectorOptions(fldInfo["type"], fldInfo["wordSearch"])
+			# First try getting the selector options from the user hook:
+			opt = self.Form.getSelectOptionsForField(fld)
+			
+			if opt is None:
+				# Automatically get the selector options based on the field type:
+				opt = self.getSelectorOptions(fldInfo["type"], fldInfo["wordSearch"])
+
+			# Add the blank choice and create the dropdown:
+			opt = (IGNORE_STRING,) + tuple(opt)
 			opList = SelectionOpDropdown(panel, choices=opt)
 			
-			ctrl = self.getSearchCtrl(fldInfo["type"], panel)
-			if ctrl is not None:
+			# First try getting the control class from the user hook:
+			ctrlClass = self.Form.getSelectControlClassForField(fld)
+
+			if ctrlClass is None:
+				# Automatically get the control class based on the field type:
+				ctrlClass = self.getSearchCtrlClass(fldInfo["type"])
+
+			if ctrlClass is not None:
+				ctrl = ctrlClass(panel)
 				if not opList.StringValue:
 					opList.StringValue = opList.GetString(0)
 				opList.Target = ctrl
@@ -427,7 +440,7 @@ class SelectPage(Page):
 						"type": fldInfo["type"]
 						}
 			else:
-				dabo.errorLog.write("No control found for type '%s'." % fldInfo["type"])
+				dabo.errorLog.write("No control class found for field '%s'." % fld)
 				lbl.release()
 				opList.release()
 
@@ -461,19 +474,16 @@ class SelectPage(Page):
 
 
 	
-	def getSearchCtrl(self, typ, parent):
-		"""Returns the appropriate editing control for the given data type.
+	def getSearchCtrlClass(self, typ):
+		"""Returns the appropriate editing control class for the given data type.
 		"""
 		if typ in ("char", "memo", "float", "int", "decimal", "datetime"):
-			ret = SelectTextBox(parent)
+			return SelectTextBox
 		elif typ == "bool":
-			#ret = SelectCheckBox(parent)
-			ret = SelectLabel(parent)
+			return SelectLabel
 		elif typ == "date":
-			ret = SelectDateTextBox(parent)
-		else:
-			ret = None
-		return ret
+			return SelectDateTextBox
+		return None
 	
 	
 class BrowsePage(Page):
