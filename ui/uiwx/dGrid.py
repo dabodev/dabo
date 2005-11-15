@@ -2222,7 +2222,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.incSearchTimer.start(self.SearchDelay)
 
 
-	def getColByX(self, x):
+	def getColNumByX(self, x):
 		""" Given the x-coordinate, return the column number."""
 		col = self.XToCol(x + (self.GetViewStart()[0]*self.GetScrollPixelsPerUnit()[0]))
 		if col == wx.NOT_FOUND:
@@ -2384,15 +2384,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			x,y = evt.EventData["mousePosition"]
 
 			if not headerIsSizing and (
-				self.getColByX(x) == self.getColByX(x-2) == self.getColByX(x+2)):
+				self.getColNumByX(x) == self.getColNumByX(x-2) == self.getColNumByX(x+2)):
 				if not headerIsDragging:
 					# A header reposition is beginning
 					self._headerDragging = True
 					self._headerDragFrom = (x,y)
 				else:
 					# already dragging.
-					begCol = self.getColByX(self._headerDragFrom[0])
-					curCol = self.getColByX(x)
+					begCol = self.getColNumByX(self._headerDragFrom[0])
+					curCol = self.getColNumByX(x)
 
 					# The visual indicators (changing the mouse cursor) isn't currently
 					# working. It would work without the evt.Skip() below, but that is 
@@ -2422,8 +2422,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			# A drag action is ending
 			self._headerDragTo = (x,y)
 
-			begCol = self.getColByX(self._headerDragFrom[0])
-			curCol = self.getColByX(x)
+			begCol = self.getColNumByX(self._headerDragFrom[0])
+			curCol = self.getColNumByX(x)
 
 			if begCol != curCol:
 				if curCol > begCol:
@@ -2438,7 +2438,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			# do a processSort() on that column.
 			if self.DataSet:
 				# No need to sort if there is no data.
-				col = self.getColByX(x)
+				col = self.getColNumByX(x)
 				self.processSort(col)
 		self._headerDragging = False
 		self._headerSizing = False
@@ -2456,7 +2456,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		# Fill the default menu item(s):
 		def _autosizeColumn(evt):
-			self.autoSizeCol(self.getColByX(self._headerMousePosition[0]), persist=True)
+			self.autoSizeCol(self.getColNumByX(self._headerMousePosition[0]), persist=True)
 		menu.append(_("&Autosize Column"), bindfunc=_autosizeColumn, 
 				help=_("Autosize the column based on the data in the column."))
 
