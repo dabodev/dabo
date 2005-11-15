@@ -7,7 +7,8 @@ class dSizer(wx.BoxSizer, dSizerMixin.dSizerMixin):
 	def __init__(self, orientation="h", properties=None, **kwargs ):
 		# Convert Dabo orientation to wx orientation
 		self._baseClass = dSizer
-		
+		self._border = 0
+
 		orient = self._extractKey(kwargs, "Orientation", orientation)
 		if orient[0].lower() == "v":
 			orientation = wx.VERTICAL
