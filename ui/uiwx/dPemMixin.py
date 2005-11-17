@@ -1452,7 +1452,11 @@ class dPemMixin(dPemMixinBase):
 		
 	def _setSizer(self, val):
 		if self._constructed():
-			self.SetSizer(val, True)
+			if val is None:
+				# Unset the sizer, but don't destroy it
+				self.SetSizer(val, False)
+			else:
+				self.SetSizer(val, True)
 			try:
 				val.Parent = self
 			except: pass
