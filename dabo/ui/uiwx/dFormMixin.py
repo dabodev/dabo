@@ -114,12 +114,12 @@ class dFormMixin(pm.dPemMixin):
 				if child.has_key("children"):
 					kids = child["children"]
 					
-			  if nm.lower() == "spacer":
-					  # This isn't a control; just a sizer spacer
-					  if szr:
-							  szr.append(int(atts["size"]))
-					  # Spacers can't have children, so...
-					  continue
+				if nm.lower() == "spacer":
+					# This isn't a control; just a sizer spacer
+					if szr:
+						szr.append(int(atts["size"]))
+						# Spacers can't have children, so...
+						continue
 
 			# Right now we are limiting this to Dabo classes.
 				cls = dabo.ui.__dict__[nm]
