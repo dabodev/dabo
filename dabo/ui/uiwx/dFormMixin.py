@@ -224,7 +224,8 @@ class dFormMixin(pm.dPemMixin):
 		except:
 			restoredSP = False
 		if not restoredSP:
-			self.restoreSizeAndPosition()
+			if self.SaveUserGeometry:
+				self.restoreSizeAndPosition()
 		
 		# If the ShowStatusBar property was set to True, this will create it
 		sb = self.StatusBar
