@@ -445,27 +445,50 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 					w.Sizer.drawOutline(w, True)
 	
 	
+	def _getHGap(self):
+		return self.GetHGap()
+	
+	def _setHGap(self, val):
+		self.SetHGap(val)
+		
+		
 	def _getMaxRows(self):
 		return self._maxRows
+	
 	def _setMaxRows(self, rows):
 		self._maxRows = rows
 		if rows:
 			self.MaxDimension = "r"
 			self.MaxCols = 0
 		
+		
 	def _getMaxCols(self):
 		return self._maxCols
+	
 	def _setMaxCols(self, cols):
 		self._maxCols = cols
 		if cols:
 			self.MaxDimension = "c"
 			self.MaxRows = 0
 	
+	
 	def _getMaxDimension(self):
 		return self._maxDimension
+	
 	def _setMaxDimension(self, val):
 		self._maxDimension = val
 		
+	
+	def _getVGap(self):
+		return self.GetVGap()
+	
+	def _setVGap(self, val):
+		self.SetVGap(val)
+		
+	
+	HGap = property(_getHGap, _setHGap, None,
+			_("Horizontal gap between cells in the sizer  (int)"))
+			
 	MaxRows = property(_getMaxRows, _setMaxRows, None,
 			_("When adding elements to the sizer, controls the max number "
 			"of rows to add before a new column is started. (int)") )
@@ -480,7 +503,11 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	
 	Orientation = property(_getMaxDimension, _setMaxDimension, None, 
 		"Alias for the MaxDimensions property.")
+			
+	VGap = property(_getVGap, _setVGap, None,
+			_("Vertical gap between cells in the sizer  (int)"))
 	
-		
+	
+
 if __name__ == "__main__":
 	s = dGridSizer()

@@ -118,8 +118,8 @@ class dFormMixin(pm.dPemMixin):
 					# This isn't a control; just a sizer spacer
 					if szr:
 						szr.append(int(atts["size"]))
-						# Spacers can't have children, so...
-						continue
+					# Spacers can't have children, so...
+					continue
 
 			# Right now we are limiting this to Dabo classes.
 				cls = dabo.ui.__dict__[nm]
