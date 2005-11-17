@@ -182,7 +182,16 @@ class Wizard(dabo.ui.dDialog):
 			page.Size = self.pagePanel.Size
 			self._pages.insert(pos, page)
 			page.Visible = False
-
+			
+	
+	def getPageByClass(self, pgClass):
+		"""Returns the first page that is an instance of the passed class"""
+		try:
+			ret = [pg for pg in self._pages if isinstance(pg, pgClass)][0]
+		except:
+			ret = None
+		return ret
+		
 	
 	def showPage(self):
 		if self.PageCount == 0:
