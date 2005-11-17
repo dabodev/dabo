@@ -69,6 +69,11 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			self.append(item, *args, **kwargs)
 	
 	
+	def appendSpacer(self, *args, **kwargs):
+		"""Alias for append()"""
+		self.append(*args, **kwargs)
+		
+		
 	def insert(self, *args, **kwargs):
 		""" This is not supported for this type of sizer """
 		return False

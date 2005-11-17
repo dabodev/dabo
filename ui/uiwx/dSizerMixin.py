@@ -90,9 +90,12 @@ class dSizerMixin(dObject):
 			if isinstance(layout, int):
 				layout = "normal"
 		
-		if isinstance(item, tuple):
+		if isinstance(item, (int, tuple)):
 			# spacer
-			self.Insert(index, item, proportion)
+			if isinstance(item, int):
+				self.addSpacer(item, pos=index, proportion=proportion)
+			else:
+				self.Insert(index, item, proportion)
 		else:
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, halign, valign, borderFlags, layout)
@@ -216,6 +219,14 @@ class dSizerMixin(dObject):
 		"""Given a sizer item, a property and a value, sets things as you
 		would expect. 
 		"""
+		if itm.IsSpacer():
+			spacer = (val, val)
+			if self.Orientation == "Vertical":
+				spacer = (1, val)
+			elif self.Orientation == "Horizontal":
+				spacer = (val, 1)
+			itm.SetSpacer(spacer)
+			return
 		lowprop = prop.lower()
 		if isinstance(itm, dabo.ui.dGridSizer.GridSizerItem):
 			row, col = self.getGridPos(itm)
