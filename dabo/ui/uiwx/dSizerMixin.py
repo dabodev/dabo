@@ -81,7 +81,8 @@ class dSizerMixin(dObject):
 	def insert(self, index, item, layout="normal", proportion=0, alignment=None,
 			halign="left", valign="top", border=None, borderFlags=None):
 		"""Inserts an object into the list of items controlled by the sizer at 
-		the specified position.
+		the specified position. Sets that object's _controllingSizer and 
+		_controllingSizerItem attributes.
 		"""
 		if isinstance(layout, int):
 			# proportion was passed first
@@ -92,10 +93,7 @@ class dSizerMixin(dObject):
 		
 		if isinstance(item, (int, tuple)):
 			# spacer
-			if isinstance(item, int):
-				self.addSpacer(item, pos=index, proportion=proportion)
-			else:
-				self.Insert(index, item, proportion)
+			self.addSpacer(item, pos=index, proportion=proportion)
 		else:
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, halign, valign, borderFlags, layout)
@@ -103,9 +101,12 @@ class dSizerMixin(dObject):
 				border = self.Border
 			# If there are objects in this sizer already, add the default spacer
 			addSpacer = ( len(self.GetChildren()) > 0)
-			self.Insert(index, item, proportion=proportion, flag=_wxFlags, border=border)
+			szItem = self.Insert(index, item, proportion=proportion, 
+					flag=_wxFlags, border=border)
 			if addSpacer:
 				self.addDefaultSpacer(index+1)
+			item._controllingSizer = self
+			item._controllingSizerItem = szItem
 
 	
 	def layout(self):
@@ -128,26 +129,39 @@ class dSizerMixin(dObject):
 		self.insert(0, *args, **kwargs)			
 	
 	
-	def remove(self, item):
+	def remove(self, item, destroy=None):
 		"""This will remove the item from the sizer. It will not cause
-		the item to be destroyed. If the item is not one of this sizer's
-		items, no error will be raised - it will simply do nothing.
+		the item to be destroyed unless the 'destroy' parameter is True. 
+		If the item is not one of this sizer's items, no error will be 
+		raised - it will simply do nothing.
 		"""
 		self.Detach(item)
+		item._controllingSizer = None
+		item._controllingSizerItem = None
+		if destroy:
+			try:
+				item.release()
+			except:
+				item.Destroy()
 	
 	
 	def addSpacer(self, val, pos=None, proportion=0):
-		if self.Orientation == "Vertical":
-			spacer = (1, val)
-		elif self.Orientation == "Horizontal":
-			spacer = (val, 1)
-		else:
-			# Something's up; bail out
-			return
+		if isinstance(val, int):
+			if self.Orientation == "Vertical":
+				spacer = (1, val)
+			elif self.Orientation == "Horizontal":
+				spacer = (val, 1)
+			else:
+				# Something's up; bail out
+				return
 		if pos is None:
-			self.Add(spacer, proportion=proportion)
+			itm = self.Add(spacer, proportion=proportion)
 		else:
-			self.Insert(pos, spacer, proportion=proportion)
+			itm = self.Insert(pos, spacer, proportion=proportion)
+		# Now get the spacer object, and set the reference to this
+		spc = itm.GetSpacer()
+		spc._controllingSizer = self
+		spc._controllingSizerItem = itm
 	
 	
 	def appendSpacer(self, val, proportion=0):
@@ -191,8 +205,24 @@ class dSizerMixin(dObject):
 		return ret	
 	
 	
-	def release(self):
-		"""Wrapper method for wx's Destroy"""
+	def release(self, releaseContents=False):
+		"""Normally just destroys the sizer, leaving any objects
+		controlled by the sizer intact. But if the 'releaseContents'
+		parameter is passed as True, all objects contained in the
+		sizer are destroyed first.
+		"""
+		if releaseContents:
+			for szItem in self.GetChildren():
+				if szItem.IsWindow():
+					itm = szItem.GetWindow()
+					itm.release()
+				elif szItem.IsSpacer():
+					# Spacers will be destroyed when the sizer is destroyed
+					pass
+				elif szItem.IsSizer():
+					szr = szItem.GetSizer()
+					szr.release(True)
+		# Release this sizer
 		self.Destroy()
 	
 	
@@ -433,10 +463,12 @@ class dSizerMixin(dObject):
 			return self._border
 		except:
 			return 0
+			
 	def _setBorder(self, val):
 		if isinstance(val, basestring):
 			val = int(val)
 		self._border = val
+		
 		
 	def _getBorderAll(self):
 		try:
@@ -444,53 +476,64 @@ class dSizerMixin(dObject):
 					and self._borderLeft and self._borderRight )
 		except:
 			return False
+			
 	def _setBorderAll(self, val):
 		if isinstance(val, basestring):
 			val = (val.lower()[0] in ("t", "y"))
 		self._borderBottom = self._borderTop = self._borderLeft = self._borderRight = val
+		
 		
 	def _getBorderBottom(self):
 		try:
 			return self._borderBottom
 		except:
 			return False
+			
 	def _setBorderBottom(self, val):
 		if isinstance(val, basestring):
 			val = (val.lower()[0] in ("t", "y"))
 		self._borderBottom = val
+		
 		
 	def _getBorderLeft(self):
 		try:
 			return self._borderLeft
 		except:
 			return False
+			
 	def _setBorderLeft(self, val):
 		if isinstance(val, basestring):
 			val = (val.lower()[0] in ("t", "y"))
 		self._borderLeft = val
+		
 		
 	def _getBorderRight(self):
 		try:
 			return self._borderRight
 		except:
 			return False
+			
 	def _setBorderRight(self, val):
 		if isinstance(val, basestring):
 			val = (val.lower()[0] in ("t", "y"))
 		self._borderRight = val
+		
 		
 	def _getBorderTop(self):
 		try:
 			return self._borderTop
 		except:
 			return False
+			
 	def _setBorderTop(self, val):
 		if isinstance(val, basestring):
 			val = (val.lower()[0] in ("t", "y"))
 		self._borderTop = val
 	
+	
 	def _getChildren(self):
 		return self.GetChildren()
+	
 	
 	def _getChildWindows(self):
 		itms = self.GetChildren()
@@ -499,8 +542,26 @@ class dSizerMixin(dObject):
 				if itm.IsWindow() ]
 		return ret
 	
+	
+	def _getCntrlSizer(self):
+		try:
+			ret = self._controllingSizer
+		except:
+			ret = self._controllingSizer = None
+		return ret
+		
+		
+	def _getCntrlSzItem(self):
+		try:
+			ret = self._controllingSizerItem
+		except:
+			ret = self._controllingSizerItem = None
+		return ret
+		
+
 	def _getHt(self):
 		return self.GetSize()[1]
+		
 		
 	def _getOrientation(self):
 		o = self.GetOrientation()
@@ -517,24 +578,29 @@ class dSizerMixin(dObject):
 		else:
 			self.SetOrientation(self.horizontalFlag)
 	
+	
 	def _getSpacing(self):
 		try:
 			return self._space
 		except:
 			# Default to zero
 			return 0
+			
 	def _setSpacing(self, val):
 		if isinstance(val, basestring):
 			val = int(val)
 		self._space = val
+		
 			
 	def _getVisible(self):
 		return self._visible
+		
 	def _setVisible(self, val):
 		if isinstance(val, basestring):
 			val = (val.lower()[0] in ("t", "y"))
 		self._visible = val
 		self.ShowItems(val)
+		
 	
 	def _getWd(self):
 		return self.GetSize()[0]		
@@ -559,6 +625,14 @@ class dSizerMixin(dObject):
 	ChildWindows = property(_getChildWindows, None, None, 
 			_("List of all the windows that are directly managed by this sizer  (list of controls" ) )
 	
+	ControllingSizer = property(_getCntrlSizer, None, None,
+			_("""Reference to the sizer that controls this control's layout.  (dSizer)""") )
+
+	ControllingSizerItem = property(_getCntrlSzItem, None, None,
+			_("""Reference to the sizer item that control's this control's layout.
+				This is useful for getting information about how the item is being 
+				sized, and for changing those settings."""))
+		
 	Height = property(_getHt, None, None,
 			_("Height of the sizer  (int)") )
 			

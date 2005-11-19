@@ -50,15 +50,20 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			# spacer
 			if isinstance(item, int):
 				item = (item, item)
-			self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan) )
+			szItem = self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan) )
+			spc = szItem.GetSpacer()
+			spc._controllingSizer = self
+			spc._controllingSizerItem = szItem
 		else:
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, halign, valign, borderFlags, layout)
 			if flag:
 				_wxFlags = _wxFlags | flag
-			self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan), 
+			szItem = self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan), 
 					flag=_wxFlags, border=border)
-		
+			item._controllingSizer = self
+			item._controllingSizerItem = szItem
+			
 		self._highRow = max(self._highRow, targetRow)
 		self._highCol = max(self._highCol, targetCol)
 		
@@ -92,6 +97,10 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 				itm = szitm.GetWindow()
 				self.Remove(itm)
 				itm.Destroy()
+			elif szitm.IsSizer():
+				szr = szitm.GetSizer()
+				# Release the sizer and its contents
+				szr.release(True)
 			elif szitm.IsSpacer():
 				itm = szitm.GetSpacer()
 				self.Remove(itm)
@@ -105,7 +114,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		
 	def removeCol(self, colNum):
 		""" Deletes any items contained in the specified column, and
-		then moves all items below it up to fill the space.
+		then moves all items to the right of it up to fill the space.
 		"""
 		for r in range(self._highRow):
 			szitm = self.FindItemAtPosition( (r, colNum) )
@@ -116,10 +125,14 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 				itm = szitm.GetWindow()
 				self.Remove(itm)
 				itm.Destroy()
+			elif szitm.IsSizer():
+				szr = szitm.GetSizer()
+				# Release the sizer and its contents
+				szr.release(True)
 			elif szitm.IsSpacer():
 				itm = szitm.GetSpacer()
 				self.Remove(itm)
-		# OK, all items are removed. Now move all higher columns upward
+		# OK, all items are removed. Now move all higher columns to the left
 		for r in range(self._highRow+1):
 			for c in range(colNum+1, self._highCol+1):
 				self.moveCell(r, c, r, c-1, delay=True)
@@ -449,6 +462,8 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		return self.GetHGap()
 	
 	def _setHGap(self, val):
+		if isinstance(val, basestring):
+			val = int(val)
 		self.SetHGap(val)
 		
 		
@@ -456,6 +471,8 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		return self._maxRows
 	
 	def _setMaxRows(self, rows):
+		if isinstance(rows, basestring):
+			rows = int(rows)
 		self._maxRows = rows
 		if rows:
 			self.MaxDimension = "r"
@@ -466,6 +483,8 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		return self._maxCols
 	
 	def _setMaxCols(self, cols):
+		if isinstance(cols, basestring):
+			cols = int(cols)
 		self._maxCols = cols
 		if cols:
 			self.MaxDimension = "c"
@@ -483,6 +502,8 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		return self.GetVGap()
 	
 	def _setVGap(self, val):
+		if isinstance(val, basestring):
+			val = int(val)
 		self.SetVGap(val)
 		
 	
