@@ -1106,19 +1106,20 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def _getCntrlSizer(self):
-		return self.GetContainingSizer()
+		try:
+			ret = self._controllingSizer
+		except:
+			ret = self._controllingSizer = None
+		return ret
+		
 		
 	def _getCntrlSzItem(self):
-		sz = self.GetContainingSizer()
-		if isinstance(sz, wx.GridBagSizer):
-			return sz.FindItem(self)
-		else:
-			pos = self.getPositionInSizer()
-			if pos is None:
-				# Nothing to do here...
-				return None
-			return sz.GetChildren()[pos]
-		
+		try:
+			ret = self._controllingSizerItem
+		except:
+			ret = self._controllingSizerItem = None
+		return ret
+
 
 	def _getEnabled(self):
 		return self.IsEnabled()

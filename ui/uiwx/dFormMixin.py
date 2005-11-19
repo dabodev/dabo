@@ -32,7 +32,7 @@ class dFormMixin(pm.dPemMixin):
 			# We've extracted all we need to know about the form,
 			# so set the child list to the contained child objects.
 			self._childList = contents["children"]
-				
+		
 		if False and parent:
 			## pkm 3/10/05: I like it better now without the float on parent option
 			##              and think it is a better default to stick with the wx
@@ -91,7 +91,8 @@ class dFormMixin(pm.dPemMixin):
 		super(dFormMixin, self)._afterInit()
 	
 				
-	def _addChildren(self, childList, parent=None, szr=None):
+	def _addChildren(self, childList, parent=None, szr=None, 
+			fromSzr=None):
 		"""This method receives a list of dicts containing information
 		on the child objects to be added. Each of these objects may 
 		contain child objects of their own, and so this method may be
@@ -99,7 +100,7 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		if parent is None:
 			parent = self
-		
+
 		for child in childList:
 			try:
 				nm = child["name"]
@@ -128,9 +129,13 @@ class dFormMixin(pm.dPemMixin):
 					if atts.has_key("Orientation"):
 						ornt = atts["Orientation"]
 						del atts["Orientation"]
-					parent.Sizer = sz = cls(orientation=ornt, properties=atts)
+					sz = cls(orientation=ornt, properties=atts)
+					if not fromSzr:
+						parent.Sizer = sz = cls(orientation=ornt, properties=atts)
+					self._addSrcObjToSizer(sz, szr, atts, szrInfo)
 					if kids:
-						self._addChildren(kids, parent=parent, szr=sz)
+						self._addChildren(kids, parent=parent, 
+								szr=sz, fromSzr=True)
 
 				elif issubclass(cls, dabo.ui.dGridSizer):
 					# This should have a MaxDimension property that
@@ -152,9 +157,12 @@ class dFormMixin(pm.dPemMixin):
 						sz = cls(maxCols=cols, properties=atts)
 					else:
 						sz = cls(maxRows=rows, properties=atts)
-					parent.Sizer = sz
+					if not fromSzr:
+						parent.Sizer = sz
+					self._addSrcObjToSizer(sz, szr, atts, szrInfo)
 					if kids:
-						self._addChildren(kids, parent=parent, szr=sz)
+						self._addChildren(kids, parent=parent, 
+								szr=sz, fromSzr=True)
 
 				else: 
 					row, col = (None, None)
@@ -162,13 +170,8 @@ class dFormMixin(pm.dPemMixin):
 						row, col = eval(atts["rowColPos"])
 						del atts["rowColPos"]
 					obj = cls(parent=parent, properties=atts)
-					if szr:
-						if row is not None and col is not None:
-							szr.append(obj, row=row, col=col)
-						else:
-							szr.append(obj)
-						if szrInfo:
-							szr.setItemProps(obj.ControllingSizerItem, szrInfo)
+					self._addSrcObjToSizer(obj, szr, atts, szrInfo, row, col)
+
 					if kids:
 						if isinstance(obj, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
 								dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs)):
@@ -188,6 +191,33 @@ class dFormMixin(pm.dPemMixin):
 				print "ERROR creating children:", e
 	
 	
+	def _addSrcObjToSizer(self, obj, szr, atts, szrInfo, 
+			row=None, col=None):
+		if szr:
+			if row is not None and col is not None:
+				szr.append(obj, row=row, col=col)
+			else:
+				szr.append(obj)
+			if szrInfo:
+				rowExp, colExp = {}, {}
+				if row is not None and col is not None:
+					# Get the expand info for each column and row
+					if szrInfo.has_key("RowExpand"):
+						rowExp[row] = szrInfo["RowExpand"]
+						del szrInfo["RowExpand"]
+					if szrInfo.has_key("ColExpand"):
+						colExp[col] = szrInfo["ColExpand"]
+						del szrInfo["ColExpand"]
+					
+				szr.setItemProps(obj.ControllingSizerItem, szrInfo)
+				
+				# If there is row/col expansion info, set it
+				for row, exp in rowExp.items():
+					szr.setRowExpand(exp, row)
+				for col, exp in colExp.items():
+					szr.setColExpand(exp, col)
+
+							
 	def _initEvents(self):
 		super(dFormMixin, self)._initEvents()
 		self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
