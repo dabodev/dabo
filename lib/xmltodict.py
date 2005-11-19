@@ -125,7 +125,6 @@ def dicttoxml(d, level=0, header=None):
 	if level == 0:
 		if header is None:
 			header = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n"""
-		else:
-			s = header + s
+		s = header + s
 
 	return s
