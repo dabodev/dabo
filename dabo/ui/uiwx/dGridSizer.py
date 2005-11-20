@@ -381,10 +381,10 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			flag = itm.GetFlag()
 			szClass = dabo.ui.dSizer
 			if prop == "Halign":
-				if flag & szClass.centerFlag:
-					ret = "Center"
-				elif flag & szClass.rightFlag:
+				if flag & szClass.rightFlag:
 					ret = "Right"
+				elif flag & szClass.centerFlag:
+					ret = "Center"
 				else: 		#if flag & szClass.leftFlag:
 					ret = "Left"
 			elif prop == "Valign":
@@ -394,6 +394,8 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 					ret = "Bottom"
 				else:		#if flag & szClass.topFlag:
 					ret = "Top"
+			elif prop == "Expand":
+				return bool(flag & szClass.expandFlag)
 		if ret is None:
 			print "NO PROP:", prop, itm
 		return ret

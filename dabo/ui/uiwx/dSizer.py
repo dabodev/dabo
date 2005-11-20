@@ -47,10 +47,10 @@ class dSizer(wx.BoxSizer, dSizerMixin.dSizerMixin):
 			if prop == "Expand":
 				return bool(flag & szClass.expandFlag)
 			elif prop == "Halign":
-				if flag & szClass.centerFlag:
-					return "Center"
-				elif flag & szClass.rightFlag:
+				if flag & szClass.rightFlag:
 					return "Right"
+				elif flag & szClass.centerFlag:
+					return "Center"
 				else: 		#if flag & szClass.leftFlag:
 					return "Left"
 			elif prop == "Valign":

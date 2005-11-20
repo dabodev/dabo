@@ -146,6 +146,7 @@ class dSizerMixin(dObject):
 	
 	
 	def addSpacer(self, val, pos=None, proportion=0):
+		spacer = val
 		if isinstance(val, int):
 			if self.Orientation == "Vertical":
 				spacer = (1, val)
