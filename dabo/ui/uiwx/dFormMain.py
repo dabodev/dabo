@@ -78,6 +78,7 @@ class dFormMainBase(fm.dFormMixin):
 class dFormMainSDI(wx.Frame, dFormMainBase):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dFormMain
+		self._mdi = False
 		preClass = wx.PreFrame
 		dFormMainBase.__init__(self, preClass, parent, properties, *args, **kwargs)
 
@@ -85,6 +86,7 @@ class dFormMainSDI(wx.Frame, dFormMainBase):
 class dFormMainParentMDI(wx.MDIParentFrame, dFormMainBase):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dFormMain
+		self._mdi = True
 		preClass = wx.PreMDIParentFrame
 		dFormMainBase.__init__(self, preClass, parent, properties, *args, **kwargs)
 

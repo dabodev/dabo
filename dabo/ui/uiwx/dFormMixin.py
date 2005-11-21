@@ -665,6 +665,11 @@ class dFormMixin(pm.dPemMixin):
 			self._addWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
 
 
+	def _getMDI(self):
+		## self._mdi defined in dForm.py/dFormMain.py:
+		return self._mdi
+
+
 	def _getShowMaxButton(self):
 		return self._hasWindowStyleFlag(wx.MAXIMIZE_BOX)
 	def _setShowMaxButton(self, value):
@@ -872,6 +877,16 @@ class dFormMixin(pm.dPemMixin):
 
 	FloatOnParent = property(_getFloatOnParent, _setFloatOnParent, None,
 		_("Specifies whether the form stays on top of the parent or not."))
+
+	MDI = property(_getMDI, None, None,
+		_("""Returns True if this is a MDI (Multiple Document Interface) form.  (bool)
+
+Otherwise, returns False if this is a SDI (Single Document Interface) form.
+Users on Microsoft Windows seem to expect MDI, while on other platforms SDI is
+preferred.
+
+See also: the dabo.MDI global setting.
+"""))
 
 	MenuBar = property(_getMenuBar, _setMenuBar, None,
 		_("Specifies the menu bar instance for the form."))
