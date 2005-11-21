@@ -122,10 +122,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					nm = ""
 			colName = "Column_%s" % nm
 			app = self.grid.Application
+			form = self.grid.Form
 			pos = None
-			if app is not None and not app.isDesigner:
+			if app is not None and form is not None and not app.isDesigner:
 				pos = app.getUserSetting("%s.%s.%s.%s" % (
-						self.grid.Form.Name, 
+						form.Name, 
 						self.grid.Name,
 						colName,
 						"Order"))
@@ -1560,8 +1561,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		# Get the default row size from dApp's user settings
 		app = self.Application
-		if app is not None and not app.isDesigner:
-			s = app.getUserSetting("%s.%s.%s" % (self.Form.Name, 
+		form = self.Form
+		if app is not None and form is not None and not app.isDesigner:
+			s = app.getUserSetting("%s.%s.%s" % (form.Name, 
 					self.Name, "RowSize"))
 		else:
 			s = None
@@ -2220,9 +2222,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					break
 		self.CurrentRow = newRow
 
-		# Add a '.' to the status bar to signify that the search is
-		# done, and clear the search string for next time.
-		self.Form.setStatusText("Search: %s." % origSrchStr)
+		if self.Form is not None:
+			# Add a '.' to the status bar to signify that the search is
+			# done, and clear the search string for next time.
+			self.Form.setStatusText("Search: %s." % origSrchStr)
 		self.currSearchStr = ""
 
 
@@ -2234,8 +2237,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""
 		self.incSearchTimer.stop()
 		self.currSearchStr = "".join((self.currSearchStr, key))
-		self.Form.setStatusText("Search: %s"
-				% self.currSearchStr)
+		if self.Form is not None:
+			self.Form.setStatusText("Search: %s" % self.currSearchStr)
 		self.incSearchTimer.start(self.SearchDelay)
 
 
@@ -2324,7 +2327,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def getBizobj(self):
 		ds = self.DataSource
-		if isinstance(ds, basestring):
+		if isinstance(ds, basestring) and self.Form is not None:
 			return self.Form.getBizobj(ds)
 		return None
 
@@ -2332,18 +2335,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def _getUserSetting(self, prop):
 		"""Get the value of prop from the user settings table."""
 		app = self.Application
+		form = self.Form
 		ret = None
-		if not app.isDesigner:
-			settingName = "%s.%s.%s" % (self.Form.Name, self.Name, prop)
+		if app is not None and form is not None and not app.isDesigner:
+			settingName = "%s.%s.%s" % (form.Name, self.Name, prop)
 			ret = app.getUserSetting(settingName)
 		return ret
 
 	def _setUserSetting(self, prop):
 		"""Persist the value of prop to the user settings table."""
 		app = self.Application
-		if not app.isDesigner:
+		form = self.Form
+		if app is not None and form is not None and not app.isDesigner:
 			val = getattr(self, prop)
-			settingName = "%s.%s.%s" % (self.Form.Name, self.Name, prop)
+			settingName = "%s.%s.%s" % (form.Name, self.Name, prop)
 			app.setUserSetting(settingName, val)
 
 
@@ -2565,7 +2570,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					# We are probably trying to select row 0 when there are no records
 					# in the bizobj.
 					self.SetGridCursor(-1,-1)
-		dabo.ui.callAfter(self.Form.refreshControls, grid=self)
+		if self.Form is not None:
+			dabo.ui.callAfter(self.Form.refreshControls, grid=self)
 
 
 	def _onKeyDown(self, evt): 
@@ -3021,9 +3027,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.ForceRefresh()
 				# Persist the new size
 				app = self.Application
-				if app is not None:
+				form = self.Form
+				if app is not None and form is not None:
 					app.setUserSetting("%s.%s.%s" % (
-							self.Form.Name, self.Name, "RowSize"), val)
+							form.Name, self.Name, "RowSize"), val)
 		else:
 				self._properties["RowHeight"] = val
 
