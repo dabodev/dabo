@@ -147,8 +147,20 @@ class dFormBase(fm.dFormMixin):
 		pass
 
 
-	def _moveRecordPointer(self, func, dataSource=None):
+	def moveToRowNumber(self, rowNumber, dataSource=None):
+		""" Move the record pointer to the specified row."""
+		bizobj = self.getBizobj(dataSource)
+		if bizobj is None:
+			# Running in preview or some other non-live mode
+			return
+		self._moveRecordPointer(bizobj.moveToRowNumber, dataSource, rowNumber)
+
+
+	def _moveRecordPointer(self, func, dataSource=None, *args, **kwargs):
 		""" Move the record pointer using the specified function."""
+		
+		biz = self.getBizobj(dataSource)
+		oldRowNum = biz.RowNumber
 
 		self.activeControlValid()
 		err = self.beforePointerMove()
@@ -156,7 +168,7 @@ class dFormBase(fm.dFormMixin):
 			self.notifyUser(err)
 			return
 		try:
-			response = func()
+			response = func(*args, **kwargs)
 		except dException.NoRecordsException:
 			self.setStatusText(_("No records in dataset."))
 		except dException.BeginningOfFileException:
@@ -166,8 +178,9 @@ class dFormBase(fm.dFormMixin):
 		except dException.dException, e:
 			self.notifyUser(str(e))
 		else:
-			# Notify listeners that the row number changed:
-			self.raiseEvent(dEvents.RowNumChanged)
+			if biz.RowNumber != oldRowNum:
+				# Notify listeners that the row number changed:
+				dabo.ui.callAfter(self.raiseEvent, dEvents.RowNumChanged)
 			self.refreshControls()
 		self.afterPointerMove()
 

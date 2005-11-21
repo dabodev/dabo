@@ -1129,6 +1129,11 @@ class dBizobj(dObject):
 		return self._CurrentCursor.formatDateTime(val)
 
 
+	def moveToRowNumber(self, rowNumber):
+		""" Move to the specified row number."""
+		self.RowNumber = rowNumber
+
+
 	def _getNonUpdateFields(self):
 		return self._CurrentCursor.getNonUpdateFields()
 		
