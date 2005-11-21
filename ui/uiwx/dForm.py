@@ -722,6 +722,7 @@ class dFormSDI(wx.Frame, dFormBase):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dForm
 		preClass = wx.PreFrame
+		self._mdi = False
 		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
@@ -729,6 +730,7 @@ class dFormParentMDI(wx.MDIParentFrame, dFormBase):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dForm
 		preClass = wx.PreMDIParentFrame
+		self._mdi = True
 		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
@@ -736,7 +738,9 @@ class dFormChildMDI(wx.MDIChildFrame, dFormBase):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dForm
 		preClass = wx.PreMDIChildFrame
+		self._mdi = True
 		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
+
 
 if dabo.settings.MDI:
 	dForm = dFormChildMDI
