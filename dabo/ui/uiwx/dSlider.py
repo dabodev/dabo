@@ -28,34 +28,35 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 	def _initEvents(self):
 		super(dSlider, self)._initEvents()
 		self.Bind(wx.EVT_SCROLL, self._onWxHit)
-		self.Bind(wx.EVT_SCROLL, self._onScroll)
 
 
-	def _onScroll(self, evt):
-		"""When the slider value changes, flush it to the DataSource,
-		if any, and then raise a ValueChanged event.
-		"""
+	def _onWxHit(self, evt):
 		self.flushValue()
+		super(dSlider, self)._onWxHit(evt)
 
 				
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getMin(self):
 		return self.GetMin()
+
 	def _setMin(self, value):
 		if self._constructed():
 			self.SetMin(value)
 		else:
 			self._properties["Min"] = value
 		
+
 	def _getMax(self):
 		return self.GetMax()
+
 	def _setMax(self, value):
 		if self._constructed():
 			self.SetMax(value)
 		else:
 			self._properties["Max"] = value
 		
+
 	def _getOrientation(self):
 		if self.GetWindowStyle() & wx.SL_VERTICAL:
 			return "Vertical"
@@ -73,18 +74,13 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 
 	def _getLineSize(self):
 		return self.GetLineSize()
+
 	def _setLineSize(self, value):
 		if self._constructed():
 			return self.SetLineSize(value)
 		else:
 			self._properties["LineSize"] = value
 
-	def _getValue(self):
-		return super(dSlider, self)._getValue()
-	def _setValue(self, value):
-		super(dSlider, self)._setValue(int(value))
-		self.flushValue()
-		
 
 	def _getShowLabels(self):
 		return (self.GetWindowStyle() & wx.SL_LABELS > 0)
@@ -98,14 +94,15 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 	# Property definitions:
 	Orientation = property(_getOrientation, _setOrientation, None, 
 			"Specifies whether the Slider is displayed as Horizontal or Vertical.")
+
 	Min = property(_getMin, _setMin, None, 
 			"Specifies the minimum value for the Slider.")
+
 	Max = property(_getMax, _setMax, None, 
 			"Specifies the maximum value for the Slider.")
+
 	ShowLabels = property(_getShowLabels, _setShowLabels, None, 
 			"Specifies if the labels are shown on the slider.")
-	Value = property(_getValue, _setValue, None, 
-			"Specifies the state of the Slider, relative to max value.")
 
 
 class _dSlider_test(dSlider):
