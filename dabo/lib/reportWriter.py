@@ -608,8 +608,11 @@ class ReportWriter(object):
 			"""
 			variables = self.ReportForm.get("variables", ())
 			for variable in variables:
-				resetAt = eval(variable["resetAt"])
-				curReset = variable["curReset"]
+				if variable.has_key("resetAt"):
+					resetAt = eval(variable["resetAt"])
+				else:
+					resetAt = None
+				curReset = variable.get("curReset")
 				if resetAt != curReset:
 					# resetAt tripped: value to initial value
 					self.Variables[variable["name"]] = eval(variable["initialValue"])
