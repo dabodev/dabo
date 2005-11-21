@@ -2565,7 +2565,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			bizobj = self.getBizobj()
 			if bizobj:
 				if bizobj.RowCount > newRow:
-					bizobj.RowNumber = newRow
+					# First attempt to go through the form.
+					if self.Form:
+						self.Form.moveToRowNumber(newRow, dataSource=bizobj.DataSource)
+					else:
+						# set the RowNumber on the bizobj directly
+						bizobj.RowNumber = newRow
 				else:
 					# We are probably trying to select row 0 when there are no records
 					# in the bizobj.
