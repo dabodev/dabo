@@ -46,7 +46,7 @@ class Wizard(dabo.ui.dDialog):
 		# confirmation is displayed.
 		self.confirmCancelMsg = _("Are you sure you want to exit?")
 		# We want to size the form explicitly
-		self.SaveUserGeometry = False
+		self.SaveRestorePosition = False
 		# We also want the wizard to respect explicit sizing
 		self.AutoSize = False
 		

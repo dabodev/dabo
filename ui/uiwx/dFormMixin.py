@@ -143,6 +143,7 @@ class dFormMixin(pm.dPemMixin):
 					# we use.
 					dim = "c"
 					rows, cols = 0, 0
+					hgap = vgap = None
 					if atts.has_key("Rows"):
 						rows = atts["Rows"]
 						del atts["Rows"]
@@ -152,11 +153,22 @@ class dFormMixin(pm.dPemMixin):
 					if atts.has_key("MaxDimension"):
 						dim = atts["MaxDimension"].lower()
 						del atts["MaxDimension"]
+					if atts.has_key("HGap"):
+						hgap = atts["HGap"]
+						del atts["HGap"]
+					if atts.has_key("VGap"):
+						vgap = atts["VGap"]
+						del atts["VGap"]
 					
 					if dim == "c":
 						sz = cls(maxCols=cols, properties=atts)
 					else:
 						sz = cls(maxRows=rows, properties=atts)
+					if hgap:
+						sz.HGap = hgap
+					if vgap:
+						sz.VGap = vgap
+					
 					if not fromSzr:
 						parent.Sizer = sz
 					self._addSrcObjToSizer(sz, szr, atts, szrInfo)
@@ -254,7 +266,7 @@ class dFormMixin(pm.dPemMixin):
 		except:
 			restoredSP = False
 		if not restoredSP:
-			if self.SaveUserGeometry:
+			if self.SaveRestorePosition:
 				self.restoreSizeAndPosition()
 		
 		# If the ShowStatusBar property was set to True, this will create it
@@ -475,7 +487,7 @@ class dFormMixin(pm.dPemMixin):
 		Ask dApp for the last saved setting of height, width, left, and top, 
 		and set those properties on this form.
 		"""
-		if self.Application and self.SaveUserGeometry:
+		if self.Application and self.SaveRestorePosition:
 			name = self.getAbsoluteName()
 			left = self.Application.getUserSetting("%s.left" % name)
 			top = self.Application.getUserSetting("%s.top" % name)
@@ -499,7 +511,7 @@ class dFormMixin(pm.dPemMixin):
 		""" Save the current size and position of this form.
 		"""
 		if self.Application:
-			if self.SaveUserGeometry:
+			if self.SaveRestorePosition:
 				name = self.getAbsoluteName()
 				state = self.WindowState
 				self.Application.setUserSetting("%s.windowstate" % name, state)
@@ -696,15 +708,15 @@ class dFormMixin(pm.dPemMixin):
 		self._menuBarClass = val
 		
 
-	def _getSaveUserGeometry(self):
+	def _getSaveRestorePosition(self):
 		try:
-			val = self._saveUserGeometry
+			val = self._saveRestorePosition
 		except AttributeError:
-			val = self._saveUserGeometry = not isinstance(self, dabo.ui.dDialog)
+			val = self._saveRestorePosition = not isinstance(self, dabo.ui.dDialog)
 		return val
 	
-	def _setSaveUserGeometry(self, val):
-		self._saveUserGeometry = val
+	def _setSaveRestorePosition(self, val):
+		self._saveRestorePosition = val
 
 
 	def _getShowCloseButton(self):
@@ -867,7 +879,8 @@ class dFormMixin(pm.dPemMixin):
 	MenuBarClass = property(_getMenuBarClass, _setMenuBarClass, None,
 		_("Specifies the menu bar class to use for the form, or None."))
 
-	SaveUserGeometry = property(_getSaveUserGeometry, _setSaveUserGeometry, None,
+	SaveRestorePosition = property(_getSaveRestorePosition, 
+		_setSaveRestorePosition, None,
 		_("""Specifies whether the form's position and size as set by the user
 			will get saved and restored in the next session. Default is True for
 			forms and False for dialogs."""))
