@@ -20,14 +20,14 @@ class dConnectInfo(dObject):
 	
 		ci = dConnectInfo(DbType="MySQL", Host="domain.com",
 			User="daboUser", PlainTextPassword="secret", Port=3306,
-			Database="myData")
+			Database="myData", Name="mainConnection")
 			
 	Or you can create a dictionary of the various props, and pass that
 	in the 'connInfo' parameter:
 	
 		connDict = {"DbType" : "MySQL", "Host" : "domain.com",
 			"User" : "daboUser", "PlainTextPassword" : "secret", 
-			"Port" : 3306, "Database" : "myData"}
+			"Port" : 3306, "Database" : "myData", "Name" : "mainConnection"}
 		ci = dConnectInfo(connInfo=connDict)
 		
 	Or, finally, you can create the object and then set the props
@@ -39,11 +39,12 @@ class dConnectInfo(dObject):
 		ci.User = "daboUser"
 		ci.PlainTextPassword = "secret"
 		ci.Database = "myData"
+		ci.Name = "mainConnection"
 	"""
 	def __init__(self, connInfo=None, **kwargs):
 		self._baseClass = dConnectInfo
 		self._backendObject = None
-		self._host = self._user = self._password = self._dbType = self._database = self._port = ""
+		self._host = self._user = self._password = self._dbType = self._database = self._port = self._name = ""
 		super(dConnectInfo, self).__init__(**kwargs)
 		if connInfo:	
 			self.setConnInfo(connInfo)
@@ -80,6 +81,8 @@ class dConnectInfo(dObject):
 				connDict = cd[nm]
 		
 		# They passed a dictionary containing the connection settings
+		if connDict.has_key("name"):
+			self.Name = connDict["name"]
 		if connDict.has_key("dbtype"):
 			self.DbType = connDict["dbtype"]
 		if connDict.has_key("host"):
@@ -192,6 +195,13 @@ class dConnectInfo(dObject):
 		self._host = host
 
 
+	def _getName(self):
+		return self._name
+		
+	def _setName(self, val): 
+		self._name = val
+
+
 	def _getUser(self): 
 		return self._user
 		
@@ -224,6 +234,9 @@ class dConnectInfo(dObject):
 
 	Host = property(_getHost, _setHost, None, 
 			_("The host name or ip address. (str)"))
+
+	Name = property(_getName, _setName, None, 
+			_("The name used to reference this connection. (str)"))
 
 	Password = property(_getPassword, _setPassword, None,
 			_("The encrypted password of the user. (str)"))
