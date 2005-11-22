@@ -48,26 +48,21 @@ import dUserSettingProvider
 
 
 class Collection(list):
-	""" 
-	Collection : Base class for the various collection
-					classes used in the app object.
+	""" Collection : Base class for the various collection
+	classes used in the app object.
 	"""
 
 	def __init__(self):
 		list.__init__(self)
 
+
 	def add(self, objRef):
-		""" 
-		Collection.add(objRef)
-			Add the object reference to the collection.
-		"""
+		"""Add the object reference to the collection."""
 		self.append(objRef)
+		
 
 	def remove(self, objRef):
-		""" 
-		Collection.remove(objRef)
-			Delete the object reference from the collection.
-		"""
+		"""Delete the object reference from the collection."""
 		try:
 			index = self.index(objRef)
 		except ValueError:
@@ -84,7 +79,6 @@ class dApp(dObject):
 
 	>>> import dabo
 	>>> app = dabo.dApp
-	>>> app.setup()
 	>>> app.start()
 	"""
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, True
@@ -92,6 +86,7 @@ class dApp(dObject):
 	# be modified when run as the Designer. This flag will 
 	# distinguish between the two states.
 	isDesigner = False
+	
 
 	def __init__(self, selfStart=False, properties=None, *args, **kwargs):
 		self._uiAlreadySet = False
@@ -110,16 +105,14 @@ class dApp(dObject):
 		if selfStart:
 			self.showMainFormOnStart = False
 			self.setup()
-		self._afterInit()		
+		self._afterInit()
+		
 
 	def setup(self, initUI=True):
-		"""Set up the application object.
-		"""
-
+		"""Set up the application object."""
 		# dabo is going to want to import various things from the Home Directory
 		if self.HomeDirectory not in sys.path:
 			sys.path.append(self.HomeDirectory)
-
 		if not self.getAppInfo("appName"):
 			self.setAppInfo("appName", "Dabo Application")
 		if not self.getAppInfo("appShortName"):
@@ -143,8 +136,7 @@ class dApp(dObject):
 
 	
 	def start(self):
-		"""Start the application event loop.
-		"""
+		"""Start the application event loop."""
 		if not self._wasSetup:
 			# Convenience; if you don't need to customize setup(), just
 			# call start()
@@ -164,18 +156,14 @@ class dApp(dObject):
 
 
 	def finish(self):
-		"""Called when the application event loop has ended.
-		"""
+		"""Called when the application event loop has ended."""
 		self.uiApp.finish()
+		self.closeConnections()
 		dabo.infoLog.write(_("Application finished."))
-		pass
 
 
 	def getAppInfo(self, item):
-		""" dApp.getAppInfo(self, item) -> value
-
-			Look up the item, and return the value.
-		"""
+		"""Look up the item, and return the value."""
 		try:
 			retVal = self._appInfo[item]
 		except KeyError:
@@ -184,10 +172,7 @@ class dApp(dObject):
 
 
 	def setAppInfo(self, item, value):
-		""" dApp.getAppInfo(self, item, value) -> None
-
-			Set item to value in the appinfo table.
-		"""
+		"""Set item to value in the appinfo table."""
 		self._appInfo[item] = value
 
 
@@ -208,23 +193,20 @@ class dApp(dObject):
 
 
 	def getUserSetting(self, item, default=None, user="*", system="*"):
-		"""Return the value of the item in the user settings table.
-		"""
+		"""Return the value of the item in the user settings table."""
 		if self.UserSettingProvider:
 			return self.UserSettingProvider.getUserSetting(item, default, user, system)
 		return None
 
 
 	def setUserSetting(self, item, value):
-		"""Persist a value to the user settings file.
-		"""
+		"""Persist a value to the user settings file."""
 		if self.UserSettingProvider:
 			self.UserSettingProvider.setUserSetting(item, value)
 		
 		
 	def getUserCaption(self):
-		""" Return the full name of the currently logged-on user.
-		"""
+		""" Return the full name of the currently logged-on user."""
 		if self.SecurityManager:
 			return self.SecurityManager.UserCaption
 		else:
@@ -234,28 +216,26 @@ class dApp(dObject):
 	# These two methods pass encryption/decryption requests
 	# to the Crypto object
 	def encrypt(self, val):
-		"""Return the encrypted string value.
-
-		The request is passed to the Crypto object for processing.
+		"""Return the encrypted string value. The request is passed 
+		to the Crypto object for processing.
 		"""
 		return self.Crypto.encrypt(val)
+		
 
 	def decrypt(self, val):
-		"""Return decrypted string value.
-	
-		The request is passed to the Crypto object for processing.
+		"""Return decrypted string value. The request is passed to 
+		the Crypto object for processing.
 		"""
 		return self.Crypto.decrypt(val)
 
 	
 	def getCharset(self):
-		"""Returns one of 'unicode' or 'ascii'.	"""
+		"""Returns one of 'unicode' or 'ascii'."""
 		return self.uiApp.charset
 		
 		
 	def _initProperties(self):
-		""" Initialize the public properties of the app object. """
-
+		""" Initialize the public properties of the app object."""
 		self.uiType   = None    # ("wx", "qt", "curses", "http", etc.)
 		#self.uiModule = None
 
@@ -267,6 +247,7 @@ class dApp(dObject):
 
 		# Initialize DB collections
 		self.dbConnectionDefs = {} 
+		self.dbConnections = {}
 
 		self._appInfo = {}
 		super(dApp, self)._initProperties()
@@ -286,8 +267,7 @@ class dApp(dObject):
 				files = glob.glob(os.path.join(dbDir, "*.cnxml"))
 				for f in files:
 					connDefs.update(importConnections(f))
-			
-	
+		
 		# Import any python code connection definitions (the "old" way).
 		try:
 			import dbConnectionDefs
@@ -308,9 +288,8 @@ class dApp(dObject):
 
 
 	def _initUI(self):
-		""" Set the user-interface library for the application. 
-		
-		Ignored if the UI was already explicitly set by user code.
+		""" Set the user-interface library for the application. Ignored 
+		if the UI was already explicitly set by user code.
 		"""
 		if self.UI is None and not self._uiAlreadySet:
 			# For now, default to wx, but it should be enhanced to read an
@@ -335,6 +314,41 @@ class dApp(dObject):
 		dlg.Show()
 
 	
+	def getConnectionByName(self, connName):
+		"""Given the name of a connection, returns the actual
+		connection. Stores the connection so that multiple requests
+		for the same named connection will not open multiple
+		connections. If the name doesn't exist in self.dbConnectionDefs,
+		then None is returned.
+		"""
+		if not self.dbConnections.has_key(connName):
+			if self.dbConnectionDefs.has_key(connName):
+				ci = self.dbConnectionDefs[connName]
+				self.dbConnections[connName] = dabo.db.dConnection(ci)
+		try:
+			ret = self.dbConnections[connName]
+		except KeyError:
+			ret = None
+		return ret
+	
+	
+	def closeConnections(self):
+		"""Cleanup as the app is exiting."""
+		for conn in self.dbConnections:
+			try:
+				conn.close()
+			except:
+				pass
+	
+	
+	def addConnectInfo(self, ci, name=None):
+		if name is None:
+			try:
+				name = ci.Name
+			except:
+				# Use a default name
+				name = "%s@%s" % (ci.User, ci.Host)
+		self.dbConnectionDefs[name] = ci
 	
 
 	########################
@@ -369,16 +383,15 @@ class dApp(dObject):
 	
 	
 	def copyToClipboard(self, txt):
-		"Place the passed text onto the clipboard."""
+		"""Place the passed text onto the clipboard."""
 		self.uiApp.copyToClipboard(txt)
 		
+
 	def onHelpAbout(self, evt):
 		import dabo.ui.dialogs.about as about
 		dlg = about.About(self.MainForm)
 		dlg.show()
-	
-	
-	
+
 
 	def _getActiveForm(self):
 		if self.uiApp is not None:
@@ -390,7 +403,7 @@ class dApp(dObject):
 		if self.uiApp is not None:
 			self.uiApp._setActiveForm(frm)
 		else:
-			dabo.errorLog.write("Can't set ActiveForm: no uiApp.")
+			dabo.errorLog.write(_("Can't set ActiveForm: no uiApp."))
 	
 
 	def _getCrypto(self):
@@ -425,15 +438,14 @@ class dApp(dObject):
 			if hd is None or len(hd.strip()) == 0:
 				# punt:
 				hd = os.getcwd()
-			self._homeDirectory = hd
-			
+			self._homeDirectory = hd			
 		return hd
 		
 	def _setHomeDirectory(self, val):
 		if os.path.exists(val):
 			self._homeDirectory = os.path.abspath(val)
 		else:
-			raise ValueError, "%s: Path does not exist." % val
+			raise ValueError, _("%s: Path does not exist.") % val
 
 				
 	def _getMainForm(self):
@@ -556,7 +568,7 @@ class dApp(dObject):
 			_("Reference to the object that provides cryptographic services.  (varies)" ) )
 	
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
-			_("""Determines if sizer outlines are drawn on the ActiveForm.  (bool)"""))
+			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)"))
 	
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
 			_("""Specifies the application's home directory. (string)
@@ -589,16 +601,15 @@ class dApp(dObject):
 
 			>>> import dabo
 			>>> app = dabo.dApp()
-			>>> app.MainFormClass = MyMainForm
+			>>> app.MainFormClass = MyMainFormClass
 			>>> app.start()"""))
 	
 	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None, 
 			_("Text to display for null (None) values.  (str)") )
 	
 	Platform = property(_getPlatform, None, None,
-			_("""Returns the platform we are running on. (str)
-
-			This will be one of 'Mac', 'Win' or 'GTK'.""") )
+			_("""Returns the platform we are running on. This will be 
+			one of 'Mac', 'Win' or 'GTK'.  (str)""") )
 			
 	SecurityManager = property(_getSecurityManager, _setSecurityManager, None, 
 			_("""Specifies the Security Manager, if any. 
