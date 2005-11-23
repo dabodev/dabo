@@ -3,7 +3,7 @@ import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
-import dabo.dConstants as k
+import dabo.dConstants as kons
 from dabo.dLocalize import _
 import dFormMixin as fm
 
@@ -44,11 +44,14 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 			self.Fit()
 		if self.Centered:
 			self.Centre()
+		retVals = {wx.ID_OK : kons.DLG_OK, 
+				wx.ID_CANCEL : kons.DLG_CANCEL}
 		if self.Modal:
-			return self.ShowModal()
+			ret = self.ShowModal()
 		else:
-			return self.Show(True)
-
+			ret = self.Show(True)
+		return retVals[ret]
+		
 
 	def hide(self):
 		self.Show(False)
@@ -194,11 +197,11 @@ class dOkCancelDialog(dDialog):
 		
 	def onOK(self, evt):
 		self.Accepted = True
-		self.EndModal(k.DLG_OK)
+		self.EndModal(kons.DLG_OK)
 
 	def onCancel(self, evt):
 		self.Accepted = False
-		self.EndModal(k.DLG_CANCEL)
+		self.EndModal(kons.DLG_CANCEL)
 
 	def _getAccepted(self):
 		return self._accepted		

@@ -22,7 +22,7 @@ del(_failedLibs)
 #######################################################
 import wx
 import dabo.ui
-import dabo.dConstants as k
+import dabo.dConstants as kons
 from uiApp import uiApp
 
 uiType = {"shortName": "wx", "moduleName": "uiwx", "longName": "wxPython"}
@@ -439,7 +439,7 @@ def getColor(color=None):
 	"""
 	ret = None
 	dlg = dColorDialog(None, color)
-	if dlg.show() == k.DLG_OK:
+	if dlg.show() == kons.DLG_OK:
 		ret = dlg.getColor()
 	dlg.release()
 	return ret
@@ -452,7 +452,7 @@ def getFont(font=None):
 	"""
 	ret = None
 	dlg = dFontDialog(None, font)
-	if dlg.show() == k.DLG_OK:
+	if dlg.show() == kons.DLG_OK:
 		ret = dlg.getFont()
 	dlg.release()
 	return ret
@@ -461,7 +461,7 @@ def getFont(font=None):
 def _getPath(cls, **kwargs):
 	ret = None
 	fd = cls(parent=None, **kwargs)
-	if fd.show() == k.DLG_OK:
+	if fd.show() == kons.DLG_OK:
 		ret = fd.Path
 	fd.release()
 	return ret
@@ -543,8 +543,9 @@ def sortList(chc, Caption=""):
 	sf = SortingForm(None, Choices=list(chc))
 	if Caption:
 		sf.Caption = Caption
-	if sf.show() == k.DLG_OK:
+	if sf.show() == kons.DLG_OK:
 		ret = sf.Choices
+		
 	sf.release()
 	return ret
 
