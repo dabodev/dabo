@@ -332,6 +332,11 @@ class dApp(dObject):
 		return ret
 	
 	
+	def getConnectionNames(self):
+		"""Returns a list of all defined connection names"""
+		return self.dbConnectionDefs.keys()
+		
+		
 	def closeConnections(self):
 		"""Cleanup as the app is exiting."""
 		for conn in self.dbConnections:
