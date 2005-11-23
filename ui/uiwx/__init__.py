@@ -25,19 +25,12 @@ import dabo.ui
 import dabo.dConstants as k
 from uiApp import uiApp
 
-
-uiType = {'shortName': 'wx', 'moduleName': 'uiwx', 'longName': 'wxPython'}
-uiType['version'] = wx.VERSION_STRING
+uiType = {"shortName": "wx", "moduleName": "uiwx", "longName": "wxPython"}
+uiType["version"] = wx.VERSION_STRING
 _platform = wx.PlatformInfo[1]
 if wx.PlatformInfo[0] == "__WXGTK__":
 	_platform += " (%s)" % wx.PlatformInfo[3]
-uiType['platform'] = _platform
-
-# The wx app object must be created before working with anything graphically.
-# As we don't want to require people to use dApp, and as dApp is the one that
-# creates wx.App (via uiApp), let's create an initial app object just to get
-# it loaded and make wx happy. It'll get replaced when dApp instantiates.
-#app = wx.PySimpleApp()
+uiType["platform"] = _platform
 
 # Import dPemMixin first, and then manually put into dabo.ui module. This is
 # because dControlMixinBase, which is in dabo.ui, descends from dPemMixin, which 
@@ -71,11 +64,11 @@ from dFileDialog import dFileDialog
 from dFileDialog import dFolderDialog
 from dFileDialog import dSaveDialog
 from dFontDialog import dFontDialog
-from dForm import dForm
 from dForm import dFormSDI
 from dForm import dFormChildMDI
 from dForm import dFormParentMDI
 from dForm import dToolForm
+from dForm import dForm
 from dFormMain import dFormMain
 from dFormMain import dFormMainSDI
 from dFormMain import dFormMainParentMDI
@@ -273,7 +266,7 @@ def busyInfo(msg="Please wait...", *args, **kwargs):
 	for i in range(10000):
 		pass
 	bi = None
-"""
+	"""
 	return wx.BusyInfo(msg, *args, **kwargs)
 
 
@@ -407,7 +400,6 @@ def getEventData(wxEvt):
 			# Don't think this is implemented yet
 			ed["commandDown"] = wxEvt.CmdDown()
 		except: pass
-	
 	return ed
 	
 	
@@ -474,6 +466,7 @@ def _getPath(cls, **kwargs):
 	fd.release()
 	return ret
 
+
 def getFile(*args, **kwargs):
 	"""Displays the file selection dialog for the platform.
 	Returns the path to the selected file, or None if no selection
@@ -481,6 +474,7 @@ def getFile(*args, **kwargs):
 	"""
 	wc = _getWild(*args)
 	return _getPath(dFileDialog, wildcard=wc, **kwargs)
+
 
 def getSaveAs(*args, **kwargs):
 	if not kwargs.has_key("message"):
@@ -491,6 +485,7 @@ def getSaveAs(*args, **kwargs):
 	kwargs["wildcard"] = _getWild(*args)
 	return _getPath(dSaveDialog, **kwargs)
 
+
 def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
 	"""Displays the folder selection dialog for the platform.
 	Returns the path to the selected folder, or None if no selection
@@ -498,6 +493,7 @@ def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
 	"""
 	return _getPath(dFolderDialog, message=message, defaultPath=defaultPath, 
 			wildcard=wildcard)
+
 
 def _getWild(*args):
 	ret = "*"
@@ -748,5 +744,14 @@ def getBitmap(name):
 		ret = wx.ArtProvider.GetBitmap(const)
 	return ret
 
-			
-	
+
+def setdFormClass(typ):
+	"""Re-defines 'dForm' as either the SDI form class, or the child MDI
+	form class, depending on the parameter, which can be either 'SDI'
+	or 'MDI'.
+	"""
+	lowtype = typ.lower().strip()
+	if lowtype == "mdi":
+		dabo.ui.__dict__["dForm"] = dFormChildMDI
+	elif lowtype == "sdi":
+		dabo.ui.__dict__["dForm"] = dFormSDI
