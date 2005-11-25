@@ -32,6 +32,9 @@ class dFormMixin(pm.dPemMixin):
 			# We've extracted all we need to know about the form,
 			# so set the child list to the contained child objects.
 			self._childList = contents["children"]
+		# Extract the connection name, if any
+		self._cxnName = self._extractKey(kwargs, "CxnName", "")
+		self._connection = None
 		
 		if False and parent:
 			## pkm 3/10/05: I like it better now without the float on parent option
@@ -83,6 +86,12 @@ class dFormMixin(pm.dPemMixin):
 		self._normLeft = self.Left
 		self._normTop = self.Top
 		self._centered = False
+		
+		if self._cxnName:
+			self.Connection = self.Application.getConnectionByName(self._cxnName)
+			if self.Connection is None:
+				dabo.infoLog.write(_("Could not establish connection '%s'") %
+						self._cxnName)
 		
 		if self._childList is not None:
 			# This will contain information for constructing the contained
@@ -605,6 +614,7 @@ class dFormMixin(pm.dPemMixin):
 	
 	def _getCentered(self):
 		return self._centered
+		
 	def _setCentered(self, val):
 		oldCentered = self._centered
 		self._centered = val
@@ -620,11 +630,20 @@ class dFormMixin(pm.dPemMixin):
 			self.Left = self._normLeft
 			self.Top = self._normTop
 
+
+	def _getConnection(self):
+		return self._connection
+
+	def _setConnection(self, val):
+		self._connection = val
+
+
 	def _getIcon(self):
 		try:
 			return self._Icon
 		except AttributeError:
 			return None
+			
 	def _setIcon(self, val):
 		if self._constructed():
 			self._Icon = val       # wx doesn't provide GetIcon()
@@ -635,21 +654,25 @@ class dFormMixin(pm.dPemMixin):
 					val = wx.EmptyIcon()
 					val.CopyFromBitmap(bmp)
 			self.SetIcon(val)
+			
 
 	def _getIconBundle(self):
 		try:
 			return self._Icons
 		except:
 			return None
+			
 	def _setIconBundle(self, val):
 		if self._constructed():
 			self.SetIcons(val)
 			self._Icons = val       # wx doesn't provide GetIcons()
 		else:
 			self._properties["Icons"] = val
+			
 
 	def _getBorderResizable(self):
 		return self._hasWindowStyleFlag(wx.RESIZE_BORDER)
+		
 	def _setBorderResizable(self, value):
 		self._delWindowStyleFlag(wx.RESIZE_BORDER)
 		if value:
@@ -672,13 +695,16 @@ class dFormMixin(pm.dPemMixin):
 
 	def _getShowMaxButton(self):
 		return self._hasWindowStyleFlag(wx.MAXIMIZE_BOX)
+		
 	def _setShowMaxButton(self, value):
 		self._delWindowStyleFlag(wx.MAXIMIZE_BOX)
 		if value:
 			self._addWindowStyleFlag(wx.MAXIMIZE_BOX)
+			
 
 	def _getShowMinButton(self):
 		return self._hasWindowStyleFlag(wx.MINIMIZE_BOX)
+		
 	def _setShowMinButton(self, value):
 		self._delWindowStyleFlag(wx.MINIMIZE_BOX)
 		if value:
@@ -701,6 +727,7 @@ class dFormMixin(pm.dPemMixin):
 				pass
 		else:
 			self._properties["MenuBar"] = val
+			
 
 	def _getMenuBarClass(self):
 		try:
@@ -726,13 +753,16 @@ class dFormMixin(pm.dPemMixin):
 
 	def _getShowCloseButton(self):
 		return self._hasWindowStyleFlag(wx.CLOSE_BOX)
+		
 	def _setShowCloseButton(self, value):
 		self._delWindowStyleFlag(wx.CLOSE_BOX)
 		if value:
 			self._addWindowStyleFlag(wx.CLOSE_BOX)
 
+
 	def _getShowCaption(self):
 		return self._hasWindowStyleFlag(wx.CAPTION)
+		
 	def _setShowCaption(self, value):
 		self._delWindowStyleFlag(wx.CAPTION)
 		if value:
@@ -754,15 +784,19 @@ class dFormMixin(pm.dPemMixin):
 		except AttributeError:
 			ret = self._showStatusBar = True
 		return ret	
+		
 	def _setShowStatusBar(self, val):
 		self._showStatusBar = bool(val)
 		
+		
 	def _getShowSystemMenu(self):
 		return self._hasWindowStyleFlag(wx.SYSTEM_MENU)
+		
 	def _setShowSystemMenu(self, value):
 		self._delWindowStyleFlag(wx.SYSTEM_MENU)
 		if value:
 			self._addWindowStyleFlag(wx.SYSTEM_MENU)
+			
 			
 	def _getShowToolBar(self):
 		try:
@@ -771,6 +805,7 @@ class dFormMixin(pm.dPemMixin):
 			# Default to no toolbar
 			ret = self._showToolBar = False
 		return ret
+		
 	def _setShowToolBar(self, val):
 		self._showToolBar = bool(val)	
 	
@@ -811,13 +846,16 @@ class dFormMixin(pm.dPemMixin):
 			else:
 				controllingFrame.SetStatusText(val)
 			controllingFrame.GetStatusBar().Update()
+			
 
 	def _getTinyTitleBar(self):
 		return self._hasWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
+		
 	def _setTinyTitleBar(self, value):
 		self._delWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
 		if value:
 			self._addWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
+			
 
 	def _getWindowState(self):
 		try:
@@ -861,85 +899,87 @@ class dFormMixin(pm.dPemMixin):
 
 	# property definitions follow:
 	ActiveControl = property(_getActiveControl, None, None, 
-		_("Contains a reference to the active control on the form, or None."))
+			_("Contains a reference to the active control on the form, or None."))
 
 	BorderResizable = property(_getBorderResizable, _setBorderResizable, None,
-		_("Specifies whether the user can resize this form. (bool)."))
+			_("Specifies whether the user can resize this form. (bool)."))
 
 	Centered = property(_getCentered, _setCentered, None, 
-		_("Centers the form on the screen when set to True.  (bool)"))
+			_("Centers the form on the screen when set to True.  (bool)"))
 
+	Connection = property(_getConnection, _setConnection, None,
+			_("The connection to the database used by this form  (dConnection)"))
+	
 	Icon = property(_getIcon, _setIcon, None, 
-		_("Specifies the icon for the form. (wxIcon)"))
+			_("Specifies the icon for the form. (wxIcon)"))
 
 	IconBundle = property(_getIconBundle, _setIconBundle, None,
-		_("Specifies the set of icons for the form. (wxIconBundle)"))
+			_("Specifies the set of icons for the form. (wxIconBundle)"))
 
 	FloatOnParent = property(_getFloatOnParent, _setFloatOnParent, None,
-		_("Specifies whether the form stays on top of the parent or not."))
+			_("Specifies whether the form stays on top of the parent or not."))
 
 	MDI = property(_getMDI, None, None,
-		_("""Returns True if this is a MDI (Multiple Document Interface) form.  (bool)
-
-Otherwise, returns False if this is a SDI (Single Document Interface) form.
-Users on Microsoft Windows seem to expect MDI, while on other platforms SDI is
-preferred.
-
-See also: the dabo.MDI global setting.
-"""))
+			_("""Returns True if this is a MDI (Multiple Document Interface) form.  (bool)
+	
+			Otherwise, returns False if this is a SDI (Single Document Interface) form.
+			Users on Microsoft Windows seem to expect MDI, while on other platforms SDI is
+			preferred.
+			
+			See also: the dabo.MDI global setting.  (bool)"""))
 
 	MenuBar = property(_getMenuBar, _setMenuBar, None,
-		_("Specifies the menu bar instance for the form."))
+			_("Specifies the menu bar instance for the form."))
 
 	MenuBarClass = property(_getMenuBarClass, _setMenuBarClass, None,
-		_("Specifies the menu bar class to use for the form, or None."))
+			_("Specifies the menu bar class to use for the form, or None."))
 
 	SaveRestorePosition = property(_getSaveRestorePosition, 
-		_setSaveRestorePosition, None,
-		_("""Specifies whether the form's position and size as set by the user
-			will get saved and restored in the next session. Default is True for
-			forms and False for dialogs."""))
+			_setSaveRestorePosition, None,
+			_("""Specifies whether the form's position and size as set by the user
+				will get saved and restored in the next session. Default is True for
+				forms and False for dialogs."""))
 		
 	ShowCaption = property(_getShowCaption, _setShowCaption, None,
-		_("Specifies whether the caption is displayed in the title bar. (bool)."))
+			_("Specifies whether the caption is displayed in the title bar. (bool)."))
 
 	ShowInTaskBar = property(_getShowInTaskBar, _setShowInTaskBar, None,
-		_("Specifies whether the form is shown in the taskbar.  (bool)."))
+			_("Specifies whether the form is shown in the taskbar.  (bool)."))
 
 	ShowMaxButton = property(_getShowMaxButton, _setShowMaxButton, None,
-		_("Specifies whether a maximize button is displayed in the title bar. (bool)."))
+			_("Specifies whether a maximize button is displayed in the title bar. (bool)."))
 
 	ShowMinButton = property(_getShowMinButton, _setShowMinButton, None,
-		_("Specifies whether a minimize button is displayed in the title bar. (bool)."))
+			_("Specifies whether a minimize button is displayed in the title bar. (bool)."))
 
 	ShowCloseButton = property(_getShowCloseButton, _setShowCloseButton, None,
-		_("Specifies whether a close button is displayed in the title bar. (bool)."))
+			_("Specifies whether a close button is displayed in the title bar. (bool)."))
 
 	ShowStatusBar = property(_getShowStatusBar, _setShowStatusBar, None,
-		_("Specifies whether the status bar gets automatically created."))
+			_("Specifies whether the status bar gets automatically created."))
 
 	ShowSystemMenu = property(_getShowSystemMenu, _setShowSystemMenu, None,
-		_("Specifies whether a system menu is displayed in the title bar. (bool)."))
+			_("Specifies whether a system menu is displayed in the title bar. (bool)."))
 
 	ShowToolBar = property(_getShowToolBar, _setShowToolBar, None,
-		_("Specifies whether the Tool bar gets automatically created."))
+			_("Specifies whether the Tool bar gets automatically created."))
 
 	StatusBar = property(_getStatusBar, None, None,
-		_("Status bar for this form. (dStatusBar)"))
+			_("Status bar for this form. (dStatusBar)"))
 
 	StatusText = property(_getStatusText, _setStatusText, None,
-		_("Text displayed in the form's status bar. (string)"))
+			_("Text displayed in the form's status bar. (string)"))
 
 	TinyTitleBar = property(_getTinyTitleBar, _setTinyTitleBar, None,
-		_("Specifies whether the title bar is small, like a tool window. (bool)."))
+			_("Specifies whether the title bar is small, like a tool window. (bool)."))
 
 	ToolBar = property(_getToolBar, _setToolBar, None,
-		_("Tool bar for this form. (dToolBar)"))
+			_("Tool bar for this form. (dToolBar)"))
 
 	WindowState = property(_getWindowState, _setWindowState, None,
-		_("""Specifies the current state of the form. (int)
-			
-				Normal
-				Minimized
-				Maximized
-				FullScreen"""))
+			_("""Specifies the current state of the form. (int)
+				
+					Normal
+					Minimized
+					Maximized
+					FullScreen"""))
