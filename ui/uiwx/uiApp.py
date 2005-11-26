@@ -244,6 +244,8 @@ class uiApp(wx.App, dObject):
 				try:
 					data = self.findReplaceData
 				except AttributeError:
+					data = None
+				if data is None:
 					data = wx.FindReplaceData(wx.FR_DOWN)
 					self.findReplaceData = data
 				dlg = wx.FindReplaceDialog(win, data, "Find")
@@ -255,7 +257,7 @@ class uiApp(wx.App, dObject):
 	
 				dlg.Bind(wx.EVT_FIND, self.OnFind)
 				dlg.Bind(wx.EVT_FIND_NEXT, self.OnFind)
-				dlg.Bind(wx.EVT_CLOSE, self.OnFindClose)
+				dlg.Bind(wx.EVT_FIND_CLOSE, self.OnFindClose)
 	
 				dlg.Show()
 				self.findDialog = dlg
@@ -302,7 +304,8 @@ class uiApp(wx.App, dObject):
 
 	def OnFindClose(self, evt):
 		""" User clicked the close button, so hide the dialog."""
-		evt.GetEventObject().Destroy()
+		self.findReplaceData = None
+		self.findDialog.Destroy()
 		evt.Skip()
 
 
