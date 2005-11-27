@@ -110,9 +110,6 @@ class _dComboBox_test(dComboBox):
 		self.setup()
 		self.appendOnEnter = True
 		
-	def initEvents(self):
-		self.autoBindEvents()
-			
 	def setup(self):
 		# Simulating a database:
 		wannabeCowboys = ({"lname": "Reagan", "fname": "Ronald", "iid": 42},

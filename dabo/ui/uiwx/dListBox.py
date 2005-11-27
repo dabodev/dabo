@@ -60,9 +60,6 @@ class _dListBox_test(dListBox):
 	def initProperties(self):
 		self.setup()
 
-	def initEvents(self):
-		self.autoBindEvents()
-			
 	def setup(self):
 		# Simulate a database:
 		actors = ({"lname": "Jason Leigh", "fname": "Jennifer", "iid": 42},

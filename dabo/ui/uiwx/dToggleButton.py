@@ -26,9 +26,6 @@ class _dToggleButton_test(dToggleButton):
 		self.Caption = "Toggle me!"
 		self.Size = (100, 31)
 
-	def initEvents(self):
-		self.autoBindEvents()
-		
 	def onHit(self, evt):
 		if self.Value:
 			state = "down"
