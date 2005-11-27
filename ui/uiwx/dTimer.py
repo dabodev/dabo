@@ -97,9 +97,6 @@ class _dTimer_test(dTimer):
 		self.Visible = True
 		self.start()
 
-	def initEvents(self):
-		self.autoBindEvents()
-
 	def onHit(self, evt):
 		print "timer fired!"
 		

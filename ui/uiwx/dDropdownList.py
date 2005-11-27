@@ -46,10 +46,6 @@ class _dDropdownList_test(dDropdownList):
 		self.ValueMode = "key"
 		
 
-	def initEvents(self):
-		self.autoBindEvents()
-			
-
 	def onHit(self, evt):
 		print "KeyValue: ", self.KeyValue
 		print "PositionValue: ", self.PositionValue

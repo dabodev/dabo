@@ -408,9 +408,6 @@ if __name__ == "__main__":
 			TestBase.doDefault()
 			self.LogEvents = ["ValueChanged",]
 			
-		def initEvents(self):
-			self.autoBindEvents()
-			
 		def onValueChanged(self, evt):
 			if self.IsSecret:
 				print "%s changed, but the new value is a secret!" % self.Name

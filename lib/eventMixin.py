@@ -11,14 +11,15 @@ class EventMixin(object):
 	All Dabo objects inherit this functionality.	
 	"""
 	def __init__(self, *args, **kwargs):
-		self._autoBindEvents(context=self)
+		self.autoBindEvents()
 
-	def bindEvent(self, eventClass, function):
+
+	def bindEvent(self, eventClass, function, _auto=False):
 		"""Bind a dEvent to a callback function.
 		"""
 		eb = self._EventBindings
 		if (eventClass, function) not in eb:
-			eb.append((eventClass, function))
+			eb.append((eventClass, function, _auto))
 		
 
 	def bindEvents(self, bindings):
@@ -153,15 +154,18 @@ class EventMixin(object):
 
 		This feature is inspired by PythonCard.
 		"""
-		# We call _autoBindEvents for self and form, and force it because it was
-		# asked for explicitly.
+		# First remove any previous auto bindings (in case the name or parent of
+		# the object is changing: we don't want the old bindings to stay active).
+		self._removeAutoBindings()
+
+		# We call _autoBindEvents for self and all parent containers, and force 
+		# it because it was asked for explicitly.
 		self._autoBindEvents(context=self, force=True)
-		try:
-			form = self.Form
-		except AttributeError:
-			form = None
-		if form is not None:
-			self._autoBindEvents(context=form, force=True)
+
+		parent = self.Parent
+		while parent:
+			self._autoBindEvents(context=parent, force=True)
+			parent = parent.Parent
 
 
 	def _autoBindEvents(self, context, force=False):
@@ -219,7 +223,7 @@ class EventMixin(object):
 			if type(funcObj) in (types.FunctionType, types.MethodType):
 					evtObj = dEvents.__dict__[parsedEvtName]
 					funcObj = eval("context.%s" % funcName)  ## (can't use __class__.dict...)
-					self.bindEvent(evtObj, funcObj)
+					self.bindEvent(evtObj, funcObj, _auto=True)
 
 
 	def getEventList(cls):
@@ -256,7 +260,19 @@ class EventMixin(object):
 
 	# Allow for alternate capitalization (deprecated):
 	unBindEvent = unbindEvent
-	
+
+
+	def _removeAutoBindings(self):
+		"""Remove all event bindings originally set by autoBindEvents()."""
+		toRemove = []
+		for idx, binding in enumerate(self._EventBindings):
+			if binding[2]:
+				toRemove.append(idx)
+		toRemove.reverse()
+		for idx in toRemove:
+			del(self._EventBindings[idx])
+
+
 	def _getEventBindings(self):
 		try:
 			return self._eventBindings

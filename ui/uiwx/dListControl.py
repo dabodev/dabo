@@ -433,9 +433,6 @@ class _dListControl_test(dListControl):
 		self.VerticalRules = True
 		#self.HeaderVisible = False
 		
-	def initEvents(self):
-		self.autoBindEvents()
-
 	def onHit(self, evt):
 		print "KeyValue: ", self.KeyValue
 		print "PositionValue: ", self.PositionValue

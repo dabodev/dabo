@@ -342,9 +342,6 @@ class _dRadioGroup_test(dRadioGroup):
 		self.Orientation = "None"
 		self.setup()
 		
-	def initEvents(self):
-		self.autoBindEvents()
-			
 	def setup(self):
 		print "Simulating a database:"
 		developers = ({"lname": "McNett", "fname": "Paul", "iid": 42},
