@@ -5,6 +5,8 @@ import dabo.dEvents as dEvents
 import dabo.lib.utils as utils
 from dabo.dObject import dObject
 from dabo.dLocalize import _, n_
+import dabo.dConstants as kons
+
 
 class uiApp(wx.App, dObject):
 	def __init__(self, *args):
@@ -15,6 +17,12 @@ class uiApp(wx.App, dObject):
 		self.Name = _("uiApp")
 		self._noneDisp = _("<null>")
 		self._drawSizerOutlines = False
+		# Various attributes used by the FindReplace dialog
+		self._findString = ""
+		self._replaceString = ""
+		self._findReplaceFlags = wx.FR_DOWN
+		self.findReplaceData = None
+		self.findDialog = None
 		
 		
 	def OnInit(self):
@@ -90,8 +98,7 @@ class uiApp(wx.App, dObject):
 		return self._platform
 		
 	def _onWxActivate(self, evt):
-		""" Raise the Dabo Activate or Deactivate appropriately.
-		"""
+		""" Raise the Dabo Activate or Deactivate appropriately."""
 		if bool(evt.GetActive()):
 			self.raiseEvent(dEvents.Activate, evt)
 		else:
@@ -234,21 +241,36 @@ class uiApp(wx.App, dObject):
 					dabo.errorLog.write(_("No apparent way to redo."))
 
 
-	def onEditFind(self, evt):
-		""" Display a Find dialog. """
+	def onEditFindAlone(self, evt):
+		self.onEditFind(evt, False)
+		
+		
+	def onEditFind(self, evt, replace=True):
+		""" Display a Find dialog.  By default, both 'Find' and 'Find/Replace'
+		will be a single dialog. By calling this method with replace=False,
+		you will get a Find-only version of the dialog.
+		"""
+		if self.findDialog is not None:
+			self.findDialog.Raise()
+			return
 		if self.ActiveForm:
 			win = self.ActiveForm.ActiveControl
 			if win:
 				self.findWindow = win           # Save reference for use by self.OnFind()
-	
 				try:
 					data = self.findReplaceData
 				except AttributeError:
 					data = None
 				if data is None:
-					data = wx.FindReplaceData(wx.FR_DOWN)
+					data = wx.FindReplaceData(self._findReplaceFlags)
+					data.SetFindString(self._findString)
+					data.SetReplaceString(self._replaceString)
 					self.findReplaceData = data
-				dlg = wx.FindReplaceDialog(win, data, "Find")
+				if replace:
+					dlg = wx.FindReplaceDialog(win, data, _("Find/Replace"), 
+							wx.FR_REPLACEDIALOG)
+				else:
+					dlg = wx.FindReplaceDialog(win, data, _("Find"))
 				
 				# Map enter key to find button:
 				anId = wx.NewId()
@@ -257,6 +279,8 @@ class uiApp(wx.App, dObject):
 	
 				dlg.Bind(wx.EVT_FIND, self.OnFind)
 				dlg.Bind(wx.EVT_FIND_NEXT, self.OnFind)
+				dlg.Bind(wx.EVT_FIND_REPLACE, self.OnFindReplace)
+				dlg.Bind(wx.EVT_FIND_REPLACE_ALL, self.OnFindReplaceAll)
 				dlg.Bind(wx.EVT_FIND_CLOSE, self.OnFindClose)
 	
 				dlg.Show()
@@ -274,7 +298,10 @@ class uiApp(wx.App, dObject):
 		flags = 0
 		for kid in kids:
 			if isinstance(kid, wx.TextCtrl):
-				frd.SetFindString(kid.GetValue())
+				if kid.GetId() == kons.FIND_DIALOG_FINDTEXT:
+					frd.SetFindString(kid.GetValue())
+				elif kid.GetId() == kons.FIND_DIALOG_REPLACETEXT:
+					frd.SetReplaceString(kid.GetValue())
 			elif isinstance(kid, wx.CheckBox):
 				lbl = kid.GetLabel()
 				if lbl == "Whole word":
@@ -294,42 +321,84 @@ class uiApp(wx.App, dObject):
 
 	def onEditFindAgain(self, evt):
 		"""Repeat the last search."""
+		if self.findReplaceData is None:
+			if self._findString:
+				data = wx.FindReplaceData(self._findReplaceFlags)
+				data.SetFindString(self._findString)
+				data.SetReplaceString(self._replaceString)
+				self.findReplaceData = data
 		try:
 			fd = self.findReplaceData
 			self.OnFind(fd)
-		except AttributeError:
+		except AttributeError, e:
 			self.onEditFind(None)
 			return
 			
 
 	def OnFindClose(self, evt):
 		""" User clicked the close button, so hide the dialog."""
+		frd = self.findReplaceData
+		self._findString = frd.GetFindString()
+		self._replaceString = frd.GetReplaceString()
+		self._findReplaceFlags = frd.GetFlags()
 		self.findReplaceData = None
 		self.findDialog.Destroy()
+		self.findDialog = None
 		evt.Skip()
 
-
-	def OnFind(self, evt):
+	
+	def OnFindReplace(self, evt):
+		self.OnFind(evt, action="Replace")
+		
+		
+	def OnFindReplaceAll(self, evt):
+		total = 0
+		wx.BeginBusyCursor()
+		while True:
+			ret = self.OnFind(evt, action="Replace")
+			if not ret:
+				break
+			total += 1
+		wx.EndBusyCursor()
+		# Tell the user what was done
+		msg = _("%s replacements were made") % total
+		if total == 1:
+			msg = _("1 replacement was made")
+		dabo.ui.info(msg, title=_("Replacement Complete"))
+		
+		
+	def OnFind(self, evt, action="Find"):
 		""" User clicked the 'find' button in the find dialog.
 		Run the search on the current control, if it is a text-based control.
 		Select the found text in the control.
 		"""
 		flags = self.findReplaceData.GetFlags()
 		findString = self.findReplaceData.GetFindString()
+		replaceString = self.findReplaceData.GetReplaceString()
+		replaceString2 = self.findReplaceData.GetReplaceString()
 		downwardSearch = (flags & wx.FR_DOWN) == wx.FR_DOWN
 		wholeWord = (flags & wx.FR_WHOLEWORD) == wx.FR_WHOLEWORD
 		matchCase = (flags & wx.FR_MATCHCASE) == wx.FR_MATCHCASE
 
+		ret = None
 		win = self.findWindow
 		if win:
 			if isinstance(win, wx.stc.StyledTextCtrl):
 				# STC
+				if action == "Replace":
+					# Make sure that there is something to replace
+					selectPos = win.GetSelection()
+					if selectPos[1] - selectPos[0] > 0:	
+						# There is something selected to replace
+						win.ReplaceSelection(replaceString)
+
+				selectPos = win.GetSelection()
 				if downwardSearch:
-					start = win.GetSelection()[1]
+					start = selectPos[1]
 					finish = win.GetTextLength()
 					pos = win.FindText(start, finish, findString, flags)
 				else:
-					start = win.GetSelection()[0]
+					start = selectPos[0]
 					txt = win.GetText()[:start]
 					txRev = utils.reverseText(txt)
 					fsRev = utils.reverseText(findString)
@@ -340,8 +409,10 @@ class uiApp(wx.App, dObject):
 					posRev = txRev.find(fsRev)
 					pos = len(txt) - posRev - len(fsRev)
 				if pos > -1:
+					ret = True
 					win.SetSelection(pos, pos+len(findString))
-
+				return ret
+				
 			else:
 				try: 
 					value = win.GetValue()
@@ -351,11 +422,18 @@ class uiApp(wx.App, dObject):
 					dabo.errorLog.write(_("Active control isn't text-based."))
 					return
 
+				if action == "Replace":
+					# If we have a selection, replace it.
+					selectPos = win.GetSelection()
+					if selectPos[1] - selectPos[0] > 0:
+						win.ReplaceSelection(replaceString)
+
+				selectPos = win.GetSelection()
 				if downwardSearch:
-					currentPos = win.GetSelection()[1]
+					currentPos = selectPos[1]
 					value = win.GetValue()[currentPos:]
 				else:
-					currentPos = win.GetSelection()[0]
+					currentPos = selectPos[0]
 					value = win.GetValue()[:currentPos]
 					value = utils.reverseText(value)
 					findString = utils.reverseText(findString)
@@ -375,8 +453,8 @@ class uiApp(wx.App, dObject):
 					win.ShowPosition(win.GetSelection()[1])
 				else:
 					dabo.infoLog.write(_("Not found"))
+				
 
-	
 	def onShowSizerLines(self, evt):
 		"""Toggles whether sizer lines are drawn. This is simply a tool 
 		to help people visualize how sizers lay out objects.

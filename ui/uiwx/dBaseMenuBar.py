@@ -63,11 +63,18 @@ class EditMenu(dMenu):
 
 		self.appendSeparator()
 
-		self.append(_("&Find") + "\tCtrl+F", bindfunc=app.onEditFind, bmp="find",
-				help=_("Find text in the active window") )
+		# By default, the Find and Replace functions use a single dialog. The
+		# commented lines below this enable the plain Find dialog call.
+		self.append(_("&Find / Replace") + "\tCtrl+F", bindfunc=app.onEditFind, 
+				bmp="find", help=_("Find text in the active window") )
+# 		self.append(_("Find") + "\tShift+Ctrl+F", bindfunc=app.onEditFindAlone, 
+# 				bmp="find", help=_("Find text in the active window") )
 
 		self.append(_("Find Again") + "\tCtrl+G", bindfunc=app.onEditFindAgain, bmp="",
 				help=_("Repeat the last search") )
+
+		self.append(_("&Find / Replace") + "\tCtrl+F", bindfunc=app.onEditFind, 
+				bmp="find", help=_("Find text in the active window") )
 
 		self.appendSeparator()
 

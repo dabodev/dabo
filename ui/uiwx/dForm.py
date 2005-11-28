@@ -761,16 +761,24 @@ else:
 	dForm = dFormSDI
 
 
-class dToolForm(dFormSDI):
+# class dToolForm(dFormSDI):
+class dToolForm(wx.MiniFrame, dFormBase):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
-		style = self._extractKey(kwargs, "style", 0)
-		style = style | wx.FRAME_TOOL_WINDOW | wx.STAY_ON_TOP | wx.RESIZE_BORDER
-		kwargs["style"] = style	
+		self._baseClass = dToolForm
+		preClass = wx.PreMiniFrame
+		self._mdi = False
+		kwargs["TinyTitleBar"] = True
 		kwargs["ShowStatusBar"] = False
 		kwargs["ShowToolBar"] = False
-		self.MenuBarClass = None
+		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
+# 		style = self._extractKey(kwargs, "style", 0)
+# 		style = style | wx.FRAME_TOOL_WINDOW | wx.STAY_ON_TOP | wx.RESIZE_BORDER
+# 		kwargs["style"] = style	
+# 		kwargs["ShowStatusBar"] = False
+# 		kwargs["ShowToolBar"] = False
+# 		self.MenuBarClass = None
 # 		kwargs[""] = 
-		super(dToolForm, self).__init__(parent=parent, properties=properties, *args, **kwargs)
+# 		super(dToolForm, self).__init__(parent=parent, properties=properties, *args, **kwargs)
 
 			
 					
