@@ -1389,7 +1389,7 @@ class dPemMixin(dPemMixinBase):
 				pass
 
 			## When the name changes, we need to autobind again:
-			self.autoBindEvents()
+			self.autoBindEvents(force=False)
 
 		else:
 			self._properties["Name"] = name
@@ -1409,7 +1409,7 @@ class dPemMixin(dPemMixinBase):
 		if self._constructed():
 			self.changeParent(val)
 			## When the object's parent changes, we need to autobind again:
-			self.autoBindEvents()
+			self.autoBindEvents(force=False)
 		else:
 			self._properties["Parent"] = val
 
@@ -1438,7 +1438,7 @@ class dPemMixin(dPemMixinBase):
 			dabo.errorLog.write(_("Failed to register RegID '%s'") % val)
 
 		# When the object's RegID is set, we need to autobind again:
-		self.autoBindEvents()
+		self.autoBindEvents(force=False)
 	
 	
 	def _getSize(self): 
