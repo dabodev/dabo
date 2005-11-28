@@ -21,6 +21,7 @@ class uiApp(wx.App, dObject):
 		self._findString = ""
 		self._replaceString = ""
 		self._findReplaceFlags = wx.FR_DOWN
+		self._findDlgID = self._replaceDlgID = None
 		self.findReplaceData = None
 		self.findDialog = None
 		
@@ -287,6 +288,22 @@ class uiApp(wx.App, dObject):
 				self.findDialog = dlg
 			
 	
+	def setFindDialogIDs(self):
+		"""Since the Find dialog is a wxPython control, we can't determine
+		which text control holds the Find value, and which holds the Replace
+		value. One thing that is certain, though, on all platforms is that the
+		Find textbox is physically above the Replace textbox, so we can use
+		its position to determine its function.
+		"""
+		tbs = [{ctl.GetPosition()[1] : ctl.GetId()} 
+				for ctl in self.findDialog.GetChildren()
+				if isinstance(ctl, wx.TextCtrl)]
+		
+		tbs.sort()
+		self._findDlgID = tbs[0].values()[0]
+		self._replaceDlgID = tbs[1].values()[0]
+		
+		
 	def onEnterInFindDialog(self, evt):
 		"""We need to simulate what happens in the Find dialog when
 		the user clicks the Find button. This requires that we manually 
@@ -296,11 +313,13 @@ class uiApp(wx.App, dObject):
 		frd = self.findReplaceData
 		kids = self.findDialog.GetChildren()
 		flags = 0
+		if self._findDlgID is None:
+			self.setFindDialogIDs()
 		for kid in kids:
 			if isinstance(kid, wx.TextCtrl):
-				if kid.GetId() == kons.FIND_DIALOG_FINDTEXT:
+				if kid.GetId() == self._findDlgID:
 					frd.SetFindString(kid.GetValue())
-				elif kid.GetId() == kons.FIND_DIALOG_REPLACETEXT:
+				elif kid.GetId() == self._replaceDlgID:
 					frd.SetReplaceString(kid.GetValue())
 			elif isinstance(kid, wx.CheckBox):
 				lbl = kid.GetLabel()
@@ -391,7 +410,6 @@ class uiApp(wx.App, dObject):
 					if selectPos[1] - selectPos[0] > 0:	
 						# There is something selected to replace
 						win.ReplaceSelection(replaceString)
-
 				selectPos = win.GetSelection()
 				if downwardSearch:
 					start = selectPos[1]
@@ -407,7 +425,10 @@ class uiApp(wx.App, dObject):
 						txRev = txRev.lower()
 					# Don't have the code to implement Whole Word search yet.
 					posRev = txRev.find(fsRev)
-					pos = len(txt) - posRev - len(fsRev)
+					if posRev > -1:
+						pos = len(txt) - posRev - len(fsRev)
+					else:
+						pos = -1
 				if pos > -1:
 					ret = True
 					win.SetSelection(pos, pos+len(findString))
