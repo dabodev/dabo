@@ -356,6 +356,21 @@ class dApp(dObject):
 		self.dbConnectionDefs[name] = ci
 	
 
+	def addConnectFile(self, connFile):
+		"""Accepts a cnxml file path, and reads in the connections
+		defined in it, adding them to self.dbConnectionDefs.
+		"""
+		if os.path.exists(connFile):
+			connDefs = importConnections(connFile)
+			# For each connection definition, add an entry to 
+			# self.dbConnectionDefs that contains a key on the 
+			# name, and a value of a dConnectInfo object.
+			for k,v in connDefs.items():
+				ci = dabo.db.dConnectInfo()
+				ci.setConnInfo(v)
+				self.dbConnectionDefs[k] = ci
+	
+
 	########################
 	# This next section simply passes menu events to the UI
 	# layer to be handled there.
@@ -375,6 +390,8 @@ class dApp(dObject):
 		self.uiApp.onEditPaste(evt)
 	def onEditFind(self, evt):
 		self.uiApp.onEditFind(evt)
+	def onEditFindAlone(self, evt):
+		self.uiApp.onEditFindAlone(evt)
 	def onEditFindAgain(self, evt):
 		self.uiApp.onEditFindAgain(evt)
 	def onShowSizerLines(self, evt):
