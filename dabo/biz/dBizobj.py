@@ -110,15 +110,18 @@ class dBizobj(dObject):
 		If there is no object attribute named 'att', and no field in the cursor by that
 		name, an AttributeError is raised.
 		"""
-		if self.useFieldProps:
-			err = False
-			try:
-				ret = self.getFieldVal(att)
-			except (dException.dException, dException.NoRecordsException):
-				err = True
-			if err == True:
-				raise AttributeError, " '%s' object has no attribute '%s' " % (self.__class__.__name__, att)
-			return ret
+		err = False
+		if len(self.__cursors) > 0:
+			if self.useFieldProps:
+				try:
+					ret = self.getFieldVal(att)
+				except (dException.dException, dException.NoRecordsException):
+					err = True
+		else:
+			err = True
+		if err:
+			raise AttributeError, " '%s' object has no attribute '%s' " % (self.__class__.__name__, att)
+		return ret
 
 
 	def __setattr__(self, att, val):
