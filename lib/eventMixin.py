@@ -204,7 +204,12 @@ class EventMixin(object):
 		regid = None
 		contextText = ""
 		if context != self:
-			regid = self.RegID
+			try:
+				regid = self.RegID
+			except AttributeError:
+				## As of this writing, RegID is defined in dPemMixin, but some of our
+				## classes derive directly from dObject. dColumn, for example. 
+				regid = None
 			if regid is None or regid == "":
 				return
 			contextText = "_%s" % regid
