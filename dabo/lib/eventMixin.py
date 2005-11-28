@@ -18,9 +18,9 @@ class EventMixin(object):
 		"""Bind a dEvent to a callback function.
 		"""
 		eb = self._EventBindings
-		if (eventClass, function) not in eb:
+		if (eventClass, function) not in [(b[0], b[1]) for b in eb]:
 			eb.append((eventClass, function, _auto))
-		
+
 
 	def bindEvents(self, bindings):
 		"""Bind a sequence of [dEvent, callback] lists.
