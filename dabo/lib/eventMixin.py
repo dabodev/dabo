@@ -11,7 +11,7 @@ class EventMixin(object):
 	All Dabo objects inherit this functionality.	
 	"""
 	def __init__(self, *args, **kwargs):
-		self.autoBindEvents()
+		self.autoBindEvents(force=False)
 
 
 	def bindEvent(self, eventClass, function, _auto=False):
@@ -143,14 +143,36 @@ class EventMixin(object):
 			self._EventBindings = newBindings
 
 	
-	def autoBindEvents(self):
+	def autoBindEvents(self, force=True):
 		"""Automatically bind any on*() methods to the associated event.
 
 		User code only needs to define the callback, and Dabo will automatically
 		set up the event binding. This will satisfy lots of common cases where 
-		you want an object to respond to its own events. If you want another 
-		object to respond to an event, you'll still have to manually set up that
-		event binding.
+		you want an object or its parent to respond to the object's events. 
+
+		To use this feature, just define a method on<EventName>(), or	if you 
+		want a parent container to respond to the event, make a method in the 
+		parent on<EventName>_<object Name or RegID>().
+
+		For example:
+			class MyButton(dabo.ui.dButton):
+				def onHit(self, evt):
+					print "Hit!"
+
+			class MyPanel(dabo.ui.dPanel):
+				def afterInit(self):
+					self.addObject(MyButton, RegID="btn1")
+
+				def onHit_btn1(self, evt):
+					print "panel: button hit!"
+
+		When the button is pressed, you'll see both 'hit' messages because of
+		auto event binding.
+
+		If you want to bind your events explicitly, you can turn off auto event
+		binding by calling:
+
+			 dabo.autoBindEvents = False
 
 		This feature is inspired by PythonCard.
 		"""
@@ -160,11 +182,11 @@ class EventMixin(object):
 
 		# We call _autoBindEvents for self and all parent containers, and force 
 		# it because it was asked for explicitly.
-		self._autoBindEvents(context=self, force=True)
+		self._autoBindEvents(context=self, force=force)
 
 		parent = self.Parent
 		while parent:
-			self._autoBindEvents(context=parent, force=True)
+			self._autoBindEvents(context=parent, force=force)
 			parent = parent.Parent
 
 
