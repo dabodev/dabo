@@ -94,6 +94,7 @@ class Test(object):
 			mod = __import__(modname)
 			objname = "_%s_test" % modname
 			if mod.__dict__.has_key(objname):
+				print "Trying to instantiate %s..." % objname
 				try:
 					obj = mod.__dict__[objname](panel)
 				except Exception, e:

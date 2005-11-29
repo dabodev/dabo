@@ -42,6 +42,10 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 		self.flushValue()
 		super(dSpinner, self)._onWxHit(evt)
 
+
+	def getBlankValue(self):
+		return 0
+
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.

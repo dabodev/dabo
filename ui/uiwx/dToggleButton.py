@@ -25,6 +25,10 @@ class dToggleButton(wx.ToggleButton, dcm.dDataControlMixin):
 		self.Bind(wx.EVT_TOGGLEBUTTON, self._onWxHit)
 		
 
+	def getBlankValue(self):
+		return False
+
+		
 class _dToggleButton_test(dToggleButton):
 	def afterInit(self):
 		self.Caption = "Toggle me!"

@@ -94,14 +94,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def getBlankValue(self):
 		""" Return the empty value of the control.
 		"""
-		if isinstance(self, (dabo.ui.dTextBox, dabo.ui.dEditBox) ):
-			return ""
-		elif isinstance(self, dabo.ui.dCheckBox):
-			return False
-		elif isinstance(self, dabo.ui.dSpinner):
-			return 0
-		else:
-			return None
+		return None
 
 
 	def refresh(self):
@@ -127,7 +120,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			try:
 				self.Value = eval(expr)
 			except:
-				dabo.errorLog.write("Could not evaluate value for %s" % expr)
+				## Couldn't evaluate, for whatever reason. Do the same thing that we do
+				## for bizobj datasources: fill in the blank value.
+				self.Value = self.getBlankValue()
+				#dabo.errorLog.write("Could not evaluate value for %s" % expr)
 			
 			
 	def select(self, position, length):
