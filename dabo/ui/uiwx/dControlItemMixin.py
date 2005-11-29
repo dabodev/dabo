@@ -56,10 +56,10 @@ class dControlItemMixin(dDataControlMixin):
 		if self.Count > index:
 			self.SetSelection(index)
 		else:
-			## pkm: I think on Windows the order of property setting
-			## matters, and the selected row is getting set before
-			## the items have been set. Make a log and ignore for now.
-			dabo.errorLog.write("dControlItemMixin::setSelection(): index > count")
+			## pkm: The user probably set the Value property from inside initProperties(),
+			##      and it is getting set before the Choice property has been applied.
+			##      If this is the case, callAfter is the ticket.
+			dabo.ui.callAfter(self.SetSelection, index)
 
 
 	def _isMultiSelect(self):

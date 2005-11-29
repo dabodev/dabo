@@ -20,28 +20,14 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 			
 	def _initEvents(self):
 		super(dListBox, self)._initEvents()
-		self.Bind(wx.EVT_LISTBOX_DCLICK, self._onWxHit)
-		self.Bind(wx.EVT_LISTBOX, self.__onSelection)
-		self.bindKey("Enter", self._onEnter)
+		self.Bind(wx.EVT_LISTBOX, self._onWxHit)
 	
 	
 	def clearSelections(self):
 		for elem in self.GetSelections():
 			self.SetSelection(elem, False)
 
-	
-	def _onEnter(self, evt):
-		self.raiseEvent(dEvents.Hit, evt)
 		
-		
-	def __onSelection(self, evt):
-		"""Fired when an item is selected."""
-		if evt.IsSelection():
-			self.raiseEvent(dEvents.ListSelection, evt)
-		else:
-			self.raiseEvent(dEvents.ListDeselection, evt)
-		
-	
 	def _getMultipleSelect(self):
 		return self._hasWindowStyleFlag(wx.LB_EXTENDED)
 	def _setMultipleSelect(self, val):
@@ -58,9 +44,6 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 
 class _dListBox_test(dListBox):
 	def initProperties(self):
-		self.setup()
-
-	def setup(self):
 		# Simulate a database:
 		actors = ({"lname": "Jason Leigh", "fname": "Jennifer", "iid": 42},
 			{"lname": "Cates", "fname": "Phoebe", "iid": 23},
@@ -68,32 +51,30 @@ class _dListBox_test(dListBox):
 			
 		choices = []
 		keys = {}
+
 		for actor in actors:
 			choices.append("%s %s" % (actor['fname'], actor['lname']))
 			keys[actor["iid"]] = len(choices) - 1
+
 		self.MultipleSelect = True
 		self.Choices = choices
 		self.Keys = keys
 		self.ValueMode = 'Key'
 		self.Value = 23
-						
+
 	def onHit(self, evt):
 		print "HIT:"
 		print "\tKeyValue: ", self.KeyValue
 		print "\tPositionValue: ", self.PositionValue
 		print "\tStringValue: ", self.StringValue
 		print "\tValue: ", self.Value
+		print "\tCount: ", self.Count
 	
-	def onListSelection(self, evt):
-		print "SELECTION:"
-		print "\tKeyValue: ", self.KeyValue
-		print "\tPositionValue: ", self.PositionValue
-		print "\tStringValue: ", self.StringValue
-		print "\tValue: ", self.Value
+	def onMouseLeftDoubleClick(self, evt):
+		print "double click at position %s" % self.PositionValue
 
-	def onListDeselection(self, evt):
-		print "Deselected: Item #", evt.EventData["index"]
-	
+	def onMouseLeftDown(self, evt):
+		print "mousedown"	
 
 if __name__ == "__main__":
 	import test
