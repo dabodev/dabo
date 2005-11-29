@@ -383,6 +383,11 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 	ColumnCount = property(_getColCount, None, None, 
 			_("Number of columns in the control (read-only).  (int)") )
 
+	Count = property(_getRowCount, None, None, 
+			_("""Number of rows in the control (read-only).  (int)
+
+				This is an alias for RowCount."""))
+
 	HeaderVisible = property(_getHeaderVisible, _setHeaderVisible, None, 
 			_("Specifies whether the header is shown or not."))
 
