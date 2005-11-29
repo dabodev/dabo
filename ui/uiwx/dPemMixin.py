@@ -1,6 +1,7 @@
-import wx
 import sys
+import time
 import types
+import wx
 import dabo
 from dabo.dLocalize import _
 from dabo.ui.dPemMixinBase import dPemMixinBase
@@ -227,8 +228,19 @@ class dPemMixin(dPemMixinBase):
 		# Bind wx events to handlers that re-raise the Dabo events:
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
 		
-		self.Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
 		self.Bind(wx.EVT_IDLE, self.__onWxIdle)
+
+		if self.BaseClass.__name__ == "dGrid":
+			## Ugly workaround for grids not firing focus events from the keyboard 
+			## correctly. 
+			self._lastGridFocusTimestamp = 0.0
+			self.GetGridCornerLabelWindow().Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
+			self.GetGridColLabelWindow().Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
+			self.GetGridRowLabelWindow().Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
+			self.GetGridWindow().Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
+
+		self.Bind(wx.EVT_SET_FOCUS, self.__onWxGotFocus)
+	
 		self.Bind(wx.EVT_KILL_FOCUS, self.__onWxLostFocus)
 			
 		self.Bind(wx.EVT_CHAR, self.__onWxKeyChar)
@@ -284,6 +296,13 @@ class dPemMixin(dPemMixinBase):
 
 		
 	def __onWxGotFocus(self, evt):
+		if self.BaseClass.__name__ == "dGrid":
+			## Continuation of ugly workaround for grid focus event. Only raise the
+			## Dabo event if we are reasonably sure it isn't a repeat.
+			prev = self._lastGridFocusTimestamp
+			now = self._lastGridFocusTimestamp = time.time()
+			if now-prev < .05:
+				return
 		self.raiseEvent(dEvents.GotFocus, evt)
 
 		
