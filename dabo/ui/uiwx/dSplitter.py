@@ -12,16 +12,15 @@ import dControlMixin as cm
 class SplitterPanel(dabo.ui.dPanel):
 	def __init__(self, parent):
 		super(SplitterPanel, self).__init__(parent)
-		self.bindEvent(dEvents.MouseRightClick, self._onRClick)
+		self.bindEvent(dEvents.ContextMenu, self._onContextMenu)
 	
 	
-	def _onRClick(self, evt):
+	def _onContextMenu(self, evt):
 		sm = dabo.ui.dMenu(self)
 		sm.append("Split this pane", bindfunc=self.onSplit)
 		if self.Parent.canRemove(self):
 			sm.append("Remove this pane", bindfunc=self.onRemove)
-		pos = evt.EventData["mousePosition"]
-		self.PopupMenu(sm, pos)
+		self.showContextMenu(sm)
 		
 
 	def onSplit(self, evt):
@@ -36,7 +35,7 @@ class SplitterPanel(dabo.ui.dPanel):
 		self.Parent.remove(self)
 		
 		
-	def split(self, dir=None):
+	def split(self, dir_=None):
 		if not self.Parent.IsSplit():
 			# Re-show the hidden split panel
 			self.Parent.split()
@@ -49,10 +48,10 @@ class SplitterPanel(dabo.ui.dPanel):
 			newDir = "h"
 		if self.Sizer is None:
 			self.Sizer = dabo.ui.dSizer(newDir)
-		if dir is None:
-			dir = newDir
+		if dir_ is None:
+			dir_ = newDir
 		win = dSplitter(self, createPanes=True)
-		win.Orientation = dir
+		win.Orientation = dir_
 		win.unsplit()
 		win.split()
 		self.Sizer.append(win, 1, "expand")
@@ -75,8 +74,12 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 		style = self._extractKey(kwargs, "style", 0) | baseStyle
 		self._createPanes = self._extractKey(kwargs, "createPanes", False)
 		self._splitOnInit = self._extractKey(kwargs, "splitOnInit", True)
-		self._colorizePanes = self._extractKey(kwargs, "colorizePanes", True)
 			
+		# Default to vertical split
+		self._orientation = "v"
+		self._sashPos = 100
+		self._minPanelSize = 0
+
 		preClass = wx.PreSplitterWindow
 		cm.dControlMixin.__init__(self, preClass, parent, properties, 
 				style=style, *args, **kwargs)
@@ -87,23 +90,17 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 	
 
 	def _afterInit(self):
-		super(dSplitter, self)._afterInit()
 		self.__p1 = None
 		self.__p2 = None
 		# Create the panes
 		if self._createPanes:
 			self.__p1 = SplitterPanel(self)
 			self.__p2 = SplitterPanel(self)
-			if self._colorizePanes:
-				self.__p1.BackColor = random.choice(dColors.colorDict.values())
-				self.__p2.BackColor = random.choice(dColors.colorDict.values())
 		
-		# Default to vertical split
-		self._orientation = "v"
-		self._sashPos = 100
-		self.MinPanelSize = 100
 		if self._splitOnInit:
 			self.split()
+
+		super(dSplitter, self)._afterInit()
 	
 	
 	def initialize(self, p1):
@@ -111,24 +108,27 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 	
 	
 	def _onSashDClick(self, evt):
-		""" Handle the doubl-clicking of the sash. This will call
+		""" Handle the double-clicking of the sash. This will call
 		the user-customizable onSashDClick() method.
 		"""
+		## Vetoing the event now will give user code the opportunity to not do the
+		## default of removing the sash, by calling evt.stop().
+		evt.Veto()
 		# Update the internal sash position attribute.
 		self._getSashPosition()
 		# Raise a dEvent for other code to bind to,
 		self.raiseEvent(dEvents.SashDoubleClick, evt)
 	
 		
-	def split(self, dir=None):
+	def split(self, dir_=None):
 		if self.IsSplit():
 			return
 		if self.Panel1 is None or self.Panel2 is None:
 			# No panels, so we can't split
 			return
 			
-		if dir:
-			self.Orientation = dir
+		if dir_:
+			self.Orientation = dir_
 		# Since unsplitting hides the panes, make sure that they are visible
 		self.Panel1.Visible = True
 		self.Panel2.Visible = True
@@ -177,7 +177,10 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 		return self.GetMinimumPaneSize()
 		
 	def _setMinPanelSize(self, val):
-		self.SetMinimumPaneSize(val)
+		if self._constructed():
+			self.SetMinimumPaneSize(val)
+		else:
+			self._properties["MinimumPanelSize"] = val
 		
 	
 	def _getOrientation(self):
@@ -233,7 +236,7 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 		self._sashPos = self.GetSashPosition()
 	
 	
-	MinPanelSize = property(_getMinPanelSize, _setMinPanelSize, None,
+	MinimumPanelSize = property(_getMinPanelSize, _setMinPanelSize, None,
 			_("Controls the minimum width/height of the panels.  (int)"))
 
 	Orientation = property(_getOrientation, _setOrientation, None,
@@ -253,7 +256,21 @@ class _dSplitter_test(dSplitter):
 	def __init__(self, *args, **kwargs):
 		kwargs["createPanes"] = True
 		super(_dSplitter_test, self).__init__(*args, **kwargs)
-				
+
+	def initProperties(self):
+		self.Width = 250
+		self.Height = 200
+		self.MinimumPanelSize = 20
+
+	def afterInit(self):
+		self.Panel1.BackColor = random.choice(dColors.colorDict.values())
+		self.Panel2.BackColor = random.choice(dColors.colorDict.values())
+
+	def onSashDoubleClick(self, evt):
+		if not dabo.ui.areYouSure("Remove the sash?"):
+			evt.stop()
+
+
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dSplitter_test)
