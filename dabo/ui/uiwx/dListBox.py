@@ -56,7 +56,7 @@ class _dListBox_test(dListBox):
 			choices.append("%s %s" % (actor['fname'], actor['lname']))
 			keys[actor["iid"]] = len(choices) - 1
 
-		self.MultipleSelect = True
+#		self.MultipleSelect = True
 		self.Choices = choices
 		self.Keys = keys
 		self.ValueMode = 'Key'
