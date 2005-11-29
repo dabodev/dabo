@@ -109,6 +109,17 @@ class HelpMenu(dMenu):
 
 
 class dBaseMenuBar(dMenuBar):
+	"""Creates a basic menu bar with File, Edit, and Help menus.
+
+	The Edit menu has standard Copy, Cut, and Paste menu items, and the Help menu
+	has an About menu item. On Mac, the About menu item and Help menu are moved
+	to the appropriate place in the application menu.
+
+	Typical usage would be to instantiate dBaseMenuBar, set it to your form's 
+	menubar (using form.MenuBar = dabo.ui.dBaseMenuBar) and then use the 
+	append() methods of dMenuBar and dMenu to add the specific dMenu(s) and
+	dMenuItem(s) that your application needs.
+	"""
 	def _afterInit(self):
 		super(dBaseMenuBar, self)._afterInit()
 		self.appendMenu(FileMenu(self))

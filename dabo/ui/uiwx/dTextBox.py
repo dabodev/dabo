@@ -18,7 +18,7 @@ import dabo.dEvents as dEvents
 
 
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
-	""" Allows editing one line of string or unicode data.
+	"""Creates a text box for editing one line of string data.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dTextBox

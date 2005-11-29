@@ -1,4 +1,3 @@
-""" dFormMixin.py """
 import os
 import wx, dabo
 import dPemMixin as pm

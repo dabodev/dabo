@@ -8,7 +8,11 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
-	""" Allows editing integer values.
+	"""Creates a spinner, which is a textbox with clickable up/down arrows.
+
+	Use this to edit integer values. You can set the maximum and minimum
+	allowable values, as well as the increment when the user clicks the 
+	arrows.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dSpinner

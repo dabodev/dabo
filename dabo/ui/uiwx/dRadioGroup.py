@@ -8,7 +8,12 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
-	""" Allows choosing one option from a list of options.
+	"""Creates a group of radio buttons, allowing mutually-exclusive choices.
+
+	Like a dDropdownList, use this to present the user with multiple choices and
+	for them to choose from one of the choices. Where the dDropdownList is
+	suitable for lists of one to a couple hundred choices, a dRadioGroup is 
+	really only suitable for lists of one to a dozen at most.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dRadioGroup

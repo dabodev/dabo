@@ -8,9 +8,9 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dSlider(wx.Slider, dcm.dDataControlMixin):
-	""" Allows editing integer values with a slider control.
+	"""Creates a slider control, allowing editing integer values.
 	
-	Slider does not allow entering a value with the keyboard.
+	Unlike dSpinner, dSlider does not allow entering a value with the keyboard.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dSlider

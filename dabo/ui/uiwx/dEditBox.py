@@ -10,7 +10,10 @@ from dabo.dLocalize import _
 # The EditBox is just a TextBox with some additional styles.
 
 class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
-	""" Allows editing of string or unicode data of unlimited length.
+	"""Creates an editbox, which allows editing of string data of unlimited size.
+
+	The editbox will create scrollbars as necessary, and can edit string or 
+	unicode data.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dEditBox

@@ -11,7 +11,7 @@ import sys
 
 
 class dFormBase(fm.dFormMixin):
-	""" Create a dForm object, which is a bizobj-aware form.
+	"""Creates a bizobj-aware form.
 
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
 	like next(), last(), save(), and requery().

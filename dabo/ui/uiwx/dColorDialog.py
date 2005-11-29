@@ -4,6 +4,7 @@ import dabo.dColors as dColors
 
 
 class dColorDialog(wx.ColourDialog):
+	"""Creates a dialog that allows the user to pick a color."""
 	def __init__(self, parent=None, color=None):
 		self._baseClass = dColorDialog
 		dat = wx.ColourData()
@@ -39,3 +40,8 @@ class dColorDialog(wx.ColourDialog):
 
 	def getColor(self):
 		return self._selColor
+
+
+if __name__ == "__main__":
+	import test
+	test.Test().runTest(dColorDialog)

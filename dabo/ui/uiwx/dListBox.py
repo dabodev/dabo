@@ -8,7 +8,7 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 class dListBox(wx.ListBox, dcm.dControlItemMixin):
-	""" Allows presenting a choice of items for the user to choose from.
+	"""Creates a listbox, allowing the user to choose one or more items.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dListBox

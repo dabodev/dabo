@@ -1,4 +1,3 @@
-""" dToolBar.py """
 import wx
 import dabo, dabo.ui
 import os.path
