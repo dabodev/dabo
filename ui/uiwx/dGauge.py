@@ -6,7 +6,7 @@ if __name__ == "__main__":
 import dControlMixin as cm
 
 class dGauge(wx.Gauge, cm.dControlMixin):
-	""" Allows the creation of progress bars.
+	"""Creates a gauge, which can be used as a progress bar.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dGauge

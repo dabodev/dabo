@@ -10,7 +10,17 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
 class dButton(wx.Button, cm.dControlMixin):
-	""" Allows the user to cause an action to occur by pushing a button.
+	"""Creates a button that can be pressed by the user to trigger an action.
+
+	Example:
+
+	class MyButton(dabo.ui.dButton):
+		def initProperties(self):
+			self.Caption = "Press Me"
+
+		def onHit(self, evt):
+			self.Caption = "Press Me one more time"
+
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dButton

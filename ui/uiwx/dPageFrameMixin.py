@@ -1,4 +1,6 @@
-import wx, dabo, dabo.ui
+import wx
+import dabo
+import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dControlMixin as cm
@@ -7,7 +9,7 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 	
 class dPageFrameMixin(cm.dControlMixin):
-	""" Create a container for an unlimited number of pages."""
+	"""Creates a container for an unlimited number of pages."""
 	def _initEvents(self):
 		super(dPageFrameMixin, self)._initEvents()
 		self.Bind(self._evtPageChanged, self.__onPageChanged)

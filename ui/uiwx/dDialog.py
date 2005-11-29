@@ -9,6 +9,12 @@ import dFormMixin as fm
 
 
 class dDialog(wx.Dialog, fm.dFormMixin):
+	"""Creates a dialog, which is a lightweight form.
+
+	Dialogs are like forms, but typically are modal and are requesting a very
+	specific piece of information from the user, and/or offering specific
+	information to the user.
+	"""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dDialog
 		self._modal = True

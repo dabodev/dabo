@@ -8,7 +8,11 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
 class dToggleButton(wx.ToggleButton, dcm.dDataControlMixin):
-	""" Allows the user to set an on/off condition by pressing a button.
+	"""Creates a button that toggles on and off, for editing boolean values.
+
+	This is functionally equivilent to a dCheckbox, but visually much different.
+	Also, it implies that pushing it will cause some sort of immediate action to
+	take place, like you get with a normal button.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dToggleButton

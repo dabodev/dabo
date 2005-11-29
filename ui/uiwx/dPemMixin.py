@@ -1,4 +1,3 @@
-""" dPemMixin.py: Provide common PEM functionality """
 import wx
 import sys
 import types

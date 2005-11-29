@@ -10,10 +10,12 @@ from dabo.dLocalize import _
 
 class dListControl(wx.ListCtrl, dcm.dControlItemMixin, 
 		ListMixin.ListCtrlAutoWidthMixin):
-	""" The List Control is ideal for visually dealing with data sets
-	where each 'row' is a unit, where it doesn't make sense to deal
-	with individual elements inside of the row. If you need to be
-	able work with individual elements, you should use a grid.
+	"""Creates a list control, which is a flexible, virtual list box.
+
+	The List Control is ideal for visually dealing with data sets where each 
+	'row' is a unit, where it doesn't make sense to deal with individual 
+	elements inside of the row. If you need to be	able work with individual 
+	elements, you should use a dGrid.
 	"""	
 
 	# The ListMixin allows the rightmost column to expand as the 

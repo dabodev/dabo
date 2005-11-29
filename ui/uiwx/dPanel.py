@@ -6,7 +6,7 @@ if __name__ == "__main__":
 import dControlMixin as cm
 
 class dPanel(wx.Panel, cm.dControlMixin):
-	""" This is a basic container for controls.
+	"""Creates a panel, a basic container for controls.
 
 	Panels can contain subpanels to unlimited depth, making them quite
 	flexible for many uses. Consider laying out your forms on panels

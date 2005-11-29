@@ -4,7 +4,7 @@ from dabo.dLocalize import _
 
 
 class dPage(dPanel.dScrollPanel):
-	""" Create a page to appear as a tab in a pageframe."""
+	"""Creates a page to appear as a tab in a pageframe."""
 	def __init__(self, *args, **kwargs):
 		super(dPage, self).__init__(*args, **kwargs)
 		self._baseClass = dPage	

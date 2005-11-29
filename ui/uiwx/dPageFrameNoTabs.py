@@ -8,6 +8,11 @@ from dabo.dLocalize import _
 
 
 class dPageFrameNoTabs(dabo.ui.dPanel):
+	"""Creates a pageframe with no tabs.
+
+	Your code will have to programatically set the current page, because the
+	user will have no way to do this.
+	"""
 	def _afterInit(self):
 		self.Sizer = dabo.ui.dSizer()
 		self._pageClass = dPage.dPage

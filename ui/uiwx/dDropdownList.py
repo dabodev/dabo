@@ -7,7 +7,13 @@ from dabo.dLocalize import _
 
 
 class dDropdownList(wx.Choice, dcm.dControlItemMixin):
-	""" Allows presenting a choice of items for the user to choose from."""
+	"""Creates a dropdown list, which allows the user to select one item.
+
+	This is a very simple control, suitable for choosing from one of a handful
+	of items. Only one column can be displayed. A more powerful, flexible 
+	control for all kinds of lists is dListControl, but dDropdownList does
+	suffice for simple needs.
+	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dDropdownList
 		self._choices = []

@@ -9,7 +9,7 @@ from dabo.dLocalize import _
 import dIcons
 
 class dBitmap(wx.StaticBitmap, cm.dControlMixin):
-	""" Create a simple bitmap to display images. 
+	"""Creates a simple bitmap control to display images on your forms. 
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dBitmap

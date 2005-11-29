@@ -141,6 +141,7 @@ class dNode(dObject):
 	
 
 class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
+	"""Creates a treeview, which allows display of hierarchical data."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dTreeView
 

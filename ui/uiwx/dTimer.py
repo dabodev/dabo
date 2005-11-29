@@ -8,7 +8,7 @@ from dabo.dLocalize import _
 import dIcons
 
 class dTimer(dabo.ui.dBitmap):
-	""" Create a timer. 
+	"""Creates a timer, for causing something to happen at regular intervals. 
 	"""
 	# Note: this class is implemented as a static bitmap which serves as
 	# a proxy to the underlying timer object. This was to allow the timer

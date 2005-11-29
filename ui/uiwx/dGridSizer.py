@@ -8,6 +8,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	GridSizerItem = wx.GBSizerItem
 	
 	def __init__(self, vgap=3, hgap=3, maxRows=0, maxCols=0, **kwargs):
+		"""TODO: what is a grid sizer?"""
 		self._baseClass = dGridSizer
 		# Save these values, as there is no easy way to determine them
 		# later

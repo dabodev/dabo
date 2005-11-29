@@ -6,8 +6,10 @@ if __name__ == "__main__":
 import dControlMixin as cm
 
 class dBox(wx.StaticBox, cm.dControlMixin):
-	""" Create a static (not data-aware) box.
+	"""Creates a box for visually grouping objects on your form.
 	"""
+	## pkm: I'm not sure of the utility of this class, since you can draw
+	##      borders around panels and direct draw on any object. Opinions?
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dBox
 		preClass = wx.PreStaticBox

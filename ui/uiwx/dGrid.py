@@ -1,8 +1,3 @@
-""" Grid.py
-
-This is the base Dabo dGrid, usually used for showing a set of records
-in a dataset, and optionally allowing the fields to be edited.
-"""
 import datetime
 import locale
 import wx
@@ -1324,6 +1319,14 @@ class dColumn(dObject):
 
 
 class dGrid(wx.grid.Grid, cm.dControlMixin):
+	"""Creates a grid, with rows and columns to represent records and fields.
+
+	Grids are powerful controls for allowing reading and writing of data. A 
+	grid can have any number of dColumns, which themselves have lots of properties
+	to manipulate. The grid is virtual, meaning that large amounts of data can
+	be accessed efficiently: only the data that needs to be shown on the current 
+	screen is copied and displayed.
+	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dGrid
 		preClass = wx.grid.Grid

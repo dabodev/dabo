@@ -1,4 +1,3 @@
-""" dMenu.py """
 import wx
 import dPemMixin as pm
 import dMenuItem

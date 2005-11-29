@@ -7,7 +7,7 @@ from dabo.dLocalize import _
 
 
 class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
-	"""Combination DropdownList and TextBox.
+	"""Creates a combobox, which combines a dropdown list with a textbox.
 	
 	The user can choose an item in the dropdown, or enter freeform text.
 	"""

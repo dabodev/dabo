@@ -9,7 +9,15 @@ from dabo.dLocalize import _
 from dIcons import getIconBitmap
 
 class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
-	""" Allows the user to cause an action to occur by pushing a button."""
+	"""Creates a button with a picture.
+
+	The button can have up to three pictures associated with it: 
+		Picture: the normal picture shown on the button.
+		DownPicture: the picture displayed when the button is depressed.
+		FocusPicture: the picture displayed when the button has the focus.
+
+	Otherwise, dBitmapButton behaves the same as a normal dButton.
+	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dBitmapButton
 		preClass = wx.PreBitmapButton

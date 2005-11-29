@@ -7,7 +7,7 @@ if __name__ == "__main__":
 import dControlMixin as cm
 
 class dLabel(wx.StaticText, cm.dControlMixin):
-	""" Create a static (not data-aware) label.
+	"""Creates a static label, to make a caption for another control, for example.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dLabel

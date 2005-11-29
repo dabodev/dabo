@@ -73,6 +73,7 @@ class OsDialogMixin(object):
 
 
 class dFileDialog(wx.FileDialog, OsDialogMixin):
+	"""Creates a file dialog, which asks the user to choose a file."""
 	_exposeFiles = True
 	
 	def __init__(self, parent=None, message="Choose a file", defaultPath="", 
@@ -89,6 +90,7 @@ class dFileDialog(wx.FileDialog, OsDialogMixin):
 
 	
 class dFolderDialog(wx.DirDialog, OsDialogMixin):
+	"""Creates a folder dialog, which asks the user to choose a folder."""
 	_exposeFiles = False
 	
 	def __init__(self, parent=None, message="Choose a folder", 
@@ -100,6 +102,7 @@ class dFolderDialog(wx.DirDialog, OsDialogMixin):
 
 
 class dSaveDialog(dFileDialog):
+	"""Creates a save dialog, which asks the user to specify a file to save to."""
 	def __init__(self, parent=None, message="Save to:", defaultPath="", 
 			defaultFile="", wildcard="*.*", style=wx.SAVE):
 		self._baseClass = dSaveDialog
@@ -108,3 +111,8 @@ class dSaveDialog(dFileDialog):
 				wildcard=wildcard, style=style)
 #		self._dir = self._fname = self._msg = self._path = self._wildcard = ""
 
+if __name__ == "__main__":
+	import test
+	test.Test().runTest(dFileDialog)
+	test.Test().runTest(dFolderDialog)
+	test.Test().runTest(dSaveDialog)

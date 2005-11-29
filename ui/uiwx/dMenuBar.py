@@ -1,4 +1,3 @@
-""" dMenuBar.py """
 import wx
 import dabo
 import dPemMixin as pm
@@ -8,6 +7,10 @@ import dabo.dEvents as dEvents
 
 class dMenuBar(wx.MenuBar, pm.dPemMixin):
 	"""Creates a menu bar, which can contain dMenus.
+
+	You probably don't want to use this directly. Instead, see dBaseMenuBar
+	which will give you a dMenuBar with the standard File, Edit, and Help
+	menus already set up for you.
 	"""
 	def __init__(self, properties=None, *args, **kwargs):
 		self._baseClass = dMenuBar

@@ -1,4 +1,3 @@
-""" dMenuItem.py """
 import types
 import wx
 import dPemMixin as pm
@@ -8,7 +7,7 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
 class dMenuItem(wx.MenuItem, pm.dPemMixin):
-	"""Creates an item in a menu.
+	"""Creates a menu item, which is usually represented as a string.
 	"""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dMenuItem

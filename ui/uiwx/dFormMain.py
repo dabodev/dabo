@@ -1,4 +1,3 @@
-""" dFormMain.py """
 import wx
 import dFormMixin as fm
 import dPanel, dIcons, dSizer

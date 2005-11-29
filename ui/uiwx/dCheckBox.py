@@ -9,7 +9,7 @@ from dabo.dLocalize import _
 
 	
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
-	""" Allows visual editing of boolean values.
+	"""Creates a checkbox, allowing editing boolean values.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dCheckBox
