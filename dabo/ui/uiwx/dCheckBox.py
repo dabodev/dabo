@@ -35,6 +35,10 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		dCheckBox.doDefault(evt)
 
 	
+	def getBlankValue(self):
+		return False
+
+		
 	# property get/set functions
 	def _getValue(self):
 		if not self._hasWindowStyleFlag(wx.CHK_3STATE):

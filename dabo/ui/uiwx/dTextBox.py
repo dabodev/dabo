@@ -57,6 +57,10 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		self.SetSelection(-1, -1)
 		
 		
+	def getBlankValue(self):
+		return ""
+
+		
 	# property get/set functions
 	def _getAlignment(self):
 		if self._hasWindowStyleFlag(wx.TE_RIGHT):
