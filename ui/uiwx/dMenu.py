@@ -128,8 +128,9 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(caption, bindfunc, help, bmp, menutype, **kwargs)
+		item = self._getItem(bindfunc, help, bmp, menutype, **kwargs)
 		self.appendItem(item)
+		item.Caption = caption
 		return item
 		
 	
@@ -143,8 +144,9 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(caption, bindfunc, help, bmp, menutype)
+		item = self._getItem(bindfunc, help, bmp, menutype)
 		self.insertItem(pos, item)
+		item.Caption = caption
 		return item
 		
 
@@ -158,8 +160,9 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(caption, bindfunc, help, bmp, menutype)
+		item = self._getItem(bindfunc, help, bmp, menutype)
 		self.prependItem(item)
+		item.Caption = caption
 		return item
 		
 		
@@ -180,9 +183,9 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		return item
 
 
-	def _getItem(self, prompt, bindfunc, help, icon, menutype, **kwargs):
+	def _getItem(self, bindfunc, help, icon, menutype, **kwargs):
 		itmtyp = self._getItemType(menutype)
-		itm = dMenuItem.dMenuItem(self, Caption=prompt, HelpText=help, Icon=icon, 
+		itm = dMenuItem.dMenuItem(self, HelpText=help, Icon=icon, 
 				kind=itmtyp, **kwargs)
 		if bindfunc:
 			itm.bindEvent(dEvents.Hit, bindfunc)
