@@ -152,7 +152,12 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 			butt = dToolBarItem(self.DoInsertTool(pos, id_, caption, picBmp, 
 				shortHelp=tip, longHelp=help))
 			
-		self.SetToggle(id_, toggle)
+		try:
+			self.SetToggle(id_, toggle)
+		except wx._core.PyAssertionError:
+			## The AssertionError: not implemented occurs on wxMac, even though
+			## SetToggle() obviously is implemented, because it does work.
+			pass
 
 		if bindfunc:
 			butt.bindEvent(dEvents.Hit, bindfunc)
