@@ -417,6 +417,7 @@ class dFormBase(fm.dFormMixin):
 				dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
 		self.afterDelete()
+		self.refresh()
 		
 
 	def deleteAll(self, dataSource=None, message=None):

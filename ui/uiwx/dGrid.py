@@ -2577,7 +2577,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				else:
 					# We are probably trying to select row 0 when there are no records
 					# in the bizobj.
-					self.SetGridCursor(-1,-1)
+					##pkm: the following call causes an assertion on Mac, and appears to be
+					##     unneccesary.
+					#self.SetGridCursor(0,0)
+					pass
 		if self.Form is not None:
 			dabo.ui.callAfter(self.Form.refreshControls, grid=self)
 
