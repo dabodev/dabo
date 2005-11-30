@@ -55,8 +55,13 @@ class dTimer(dabo.ui.dBitmap):
 	
 		
 	def stop(self):
-		self._timer.Stop()
-		return not self._timer.IsRunning()
+		try:
+			timer = self._timer
+		except AttributeError:
+			timer = None
+		if timer is not None:
+			self._timer.Stop()
+			return not self._timer.IsRunning()
 		
 		
 	# property get/set functions
