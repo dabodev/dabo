@@ -12,5 +12,15 @@ As root or administrator, execute the following shell command:
 
 That's it! 
 
+But... if you have trouble, and for whatever reason the setup.py doesn't
+work, just add a file named 'dabo.pth' to your site-packages directory,
+with the path to dabo e.g. '/home/pmcnett/projects/dabo'.
 
+If you are on Linux and got the following error:
+error: invalid Python installation: unable to open /usr/lib/python2.4/config/Makefile (No such file or directory)
+
+and you really want to get setup.py to install dabo for you, you need to
+install the python-dev package. For instance (on Debian):
+
+apt-get install python2.4-dev
 
