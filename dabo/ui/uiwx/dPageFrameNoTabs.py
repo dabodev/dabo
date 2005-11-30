@@ -14,7 +14,8 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 	user will have no way to do this.
 	"""
 	def _afterInit(self):
-		self.Sizer = dabo.ui.dSizer()
+		if self.Sizer is None:
+			self.Sizer = dabo.ui.dSizer()
 		self._pageClass = dPage.dPage
 		super(dPageFrameNoTabs, self)._afterInit()
 		
@@ -33,6 +34,8 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 		"""
 		if pgCls is None:
 			pgCls = self.PageClass
+		if self.Sizer is None:
+			self.Sizer = dabo.ui.dSizer()
 		pg = pgCls(self)
 		self.Sizer.insert(pos, pg, 1, "x")
 		self.layout()
