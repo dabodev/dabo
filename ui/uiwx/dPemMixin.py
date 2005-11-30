@@ -1796,7 +1796,7 @@ class _drawObject(dObject):
 
 		fill = self.FillColor
 		if fill is None:
-			brush = wx.Brush(fill, style=wx.TRANSPARENT)
+			brush = wx.TRANSPARENT_BRUSH
 		else:
 			if isinstance(fill, basestring):
 				fill = dColors.colorTupleFromName(fill)
