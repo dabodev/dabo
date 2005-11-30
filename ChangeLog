@@ -1,6 +1,6 @@
 See the Subversion log for all the details.
 
-Dabo-0.5 (2005-11-30) (Revision 1608):
+Dabo-0.5 (2005-11-30) (Revision 1610):
 
 Added a new class, DataSet, which lets you issue sql queries against local
 Dabo data, not just against the backend. You can query, sort, and update
@@ -62,12 +62,10 @@ Fixed some problems with the Hit event and dSpinner.
 Improved report writer's paragraph handling.
 
 Further removed user code from direct wx access in a few places. User code
-can
-still get at the wx structures though, just not quite as easily.
+can still get at the wx structures though, just not quite as easily.
 
 Fixed mixed indentation problems, made some code cleaner, and added/edited
-lots
-of docstrings. 
+lots of docstrings. 
 
 Added some useful functions to dMenu to remove items and get references to 
 menu items. 
