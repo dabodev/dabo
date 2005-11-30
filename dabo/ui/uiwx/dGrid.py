@@ -3108,7 +3108,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _getTable(self):
 		## pkm: we can't call this until after the grid is fully constructed. Need to fix.
-		tbl = self.GetTable()
+		try:
+			tbl = self.GetTable()
+		except:
+			tbl = None
 		if not tbl:
 			tbl = dGridDataTable(self)
 			self.SetTable(tbl, False)
