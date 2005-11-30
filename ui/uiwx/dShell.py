@@ -3,7 +3,7 @@ import dabo, dabo.ui
 
 dabo.ui.loadUI("wx")
 
-class dShell(dabo.ui.dForm):
+class dShell(dabo.ui.dFormSDI):
 	def afterInit(self):
 		self.shell = wx.py.shell.Shell(self)
 		
