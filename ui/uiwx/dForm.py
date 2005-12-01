@@ -732,14 +732,25 @@ Database error message: %s""") %	err
 			_("Specifies whether dataset is row- or table-buffered. (bool)") )
 
 
-class dFormSDI(wx.Frame, dFormBase):
+class dForm(wx.Frame, dFormBase):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dForm
+
+		dForm.__bases__ = (wx.Frame, dFormBase)
 		preClass = wx.PreFrame
 		self._mdi = False
+
+		if dabo.settings.MDI:
+			# Hack this into an MDI Child, but only if the parent is an MDI Parent:
+			if isinstance(parent, wx.MDIParentFrame):
+				dForm.__bases__ = (wx.MDIChildFrame, dFormBase)
+				preClass = wx.PreMDIChildFrame
+				self._mdi = True
+
 		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
+"""
 class dFormParentMDI(wx.MDIParentFrame, dFormBase):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dForm
@@ -754,15 +765,9 @@ class dFormChildMDI(wx.MDIChildFrame, dFormBase):
 		preClass = wx.PreMDIChildFrame
 		self._mdi = True
 		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
+"""
 
 
-if dabo.settings.MDI:
-	dForm = dFormChildMDI
-else:
-	dForm = dFormSDI
-
-
-# class dToolForm(dFormSDI):
 class dToolForm(wx.MiniFrame, dFormBase):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dToolForm
