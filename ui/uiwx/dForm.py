@@ -732,40 +732,26 @@ Database error message: %s""") %	err
 			_("Specifies whether dataset is row- or table-buffered. (bool)") )
 
 
+
 class dForm(wx.Frame, dFormBase):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dForm
 
-		dForm.__bases__ = (wx.Frame, dFormBase)
-		preClass = wx.PreFrame
-		self._mdi = False
-
-		if dabo.settings.MDI:
-			# Hack this into an MDI Child, but only if the parent is an MDI Parent:
-			if isinstance(parent, wx.MDIParentFrame):
-				dForm.__bases__ = (wx.MDIChildFrame, dFormBase)
-				preClass = wx.PreMDIChildFrame
-				self._mdi = True
+		if dabo.settings.MDI and isinstance(parent, wx.MDIParentFrame):
+			# Hack this into an MDI Child:
+			dForm.__bases__ = (wx.MDIChildFrame, dFormBase)
+			preClass = wx.PreMDIChildFrame
+			self._mdi = True
+		else:
+			# This is a normal SDI form:
+			dForm.__bases__ = (wx.Frame, dFormBase)
+			preClass = wx.PreFrame
+			self._mdi = False
+		## (Note that it is necessary to run the above block each time, because
+		##  we are modifying the dForm class definition globally.)
 
 		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-
-"""
-class dFormParentMDI(wx.MDIParentFrame, dFormBase):
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
-		self._baseClass = dForm
-		preClass = wx.PreMDIParentFrame
-		self._mdi = True
-		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
-
-
-class dFormChildMDI(wx.MDIChildFrame, dFormBase):
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
-		self._baseClass = dForm
-		preClass = wx.PreMDIChildFrame
-		self._mdi = True
-		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
-"""
 
 
 class dToolForm(wx.MiniFrame, dFormBase):
@@ -777,15 +763,6 @@ class dToolForm(wx.MiniFrame, dFormBase):
 		kwargs["ShowStatusBar"] = False
 		kwargs["ShowToolBar"] = False
 		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
-# 		style = self._extractKey(kwargs, "style", 0)
-# 		style = style | wx.FRAME_TOOL_WINDOW | wx.STAY_ON_TOP | wx.RESIZE_BORDER
-# 		kwargs["style"] = style	
-# 		kwargs["ShowStatusBar"] = False
-# 		kwargs["ShowToolBar"] = False
-# 		self.MenuBarClass = None
-# 		kwargs[""] = 
-# 		super(dToolForm, self).__init__(parent=parent, properties=properties, *args, **kwargs)
-
 			
 					
 if __name__ == "__main__":

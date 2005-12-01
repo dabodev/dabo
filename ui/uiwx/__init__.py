@@ -64,14 +64,9 @@ from dFileDialog import dFileDialog
 from dFileDialog import dFolderDialog
 from dFileDialog import dSaveDialog
 from dFontDialog import dFontDialog
-#from dForm import dFormSDI
-#from dForm import dFormChildMDI
-#from dForm import dFormParentMDI
 from dForm import dToolForm
 from dForm import dForm
 from dFormMain import dFormMain
-from dFormMain import dFormMainSDI
-from dFormMain import dFormMainParentMDI
 from dGauge import dGauge
 from dGrid import dGrid
 from dGrid import dColumn
