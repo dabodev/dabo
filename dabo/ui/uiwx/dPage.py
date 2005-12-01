@@ -1,4 +1,3 @@
-import sys
 import dPanel, dSizer
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -14,11 +13,6 @@ class dPage(dPanel.dScrollPanel):
 	def _afterInit(self):
 		self.initSizer()
 		self.itemsCreated = False
-
-		if sys.platform[:3] == "win":
-			## This keeps Pages from being ugly on Windows:
-			self.SetBackgroundColour(self.GetBackgroundColour())
-
 		super(dPage, self)._afterInit()
 		
 		
