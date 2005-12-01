@@ -107,135 +107,37 @@ from dTreeView import dTreeView
 import dUICursors as dUICursors
 import dShell
 
+
 artConstants = {}
-if hasattr(wx, "ART_ADD_BOOKMARK"):
-	artConstants["addbookmark"] = wx.ART_ADD_BOOKMARK
-if hasattr(wx, "ART_BUTTON"):
-	artConstants["button"] = wx.ART_BUTTON
-if hasattr(wx, "ART_CDROM"):
-	artConstants["cd"] = wx.ART_CDROM
-if hasattr(wx, "ART_CDROM"):
-	artConstants["cdrom"] = wx.ART_CDROM
-if hasattr(wx, "ART_CMN_DIALOG"):
-	artConstants["commondialog"] = wx.ART_CMN_DIALOG
-if hasattr(wx, "ART_CMN_DIALOG"):
-	artConstants["dialog"] = wx.ART_CMN_DIALOG
-if hasattr(wx, "ART_COPY"):
-	artConstants["copy"] = wx.ART_COPY
-if hasattr(wx, "ART_CROSS_MARK"):
-	artConstants["cross"] = wx.ART_CROSS_MARK
-if hasattr(wx, "ART_CROSS_MARK"):
-	artConstants["crossmark"] = wx.ART_CROSS_MARK
-if hasattr(wx, "ART_CUT"):
-	artConstants["cut"] = wx.ART_CUT
-if hasattr(wx, "ART_DELETE"):
-	artConstants["delete"] = wx.ART_DELETE
-if hasattr(wx, "ART_DEL_BOOKMARK"):
-	artConstants["delbookmark"] = wx.ART_DEL_BOOKMARK
-if hasattr(wx, "ART_ERROR"):
-	artConstants["error"] = wx.ART_ERROR
-if hasattr(wx, "ART_EXECUTABLE_FILE"):
-	artConstants["exe"] = wx.ART_EXECUTABLE_FILE
-if hasattr(wx, "ART_EXECUTABLE_FILE"):
-	artConstants["exefile"] = wx.ART_EXECUTABLE_FILE
-if hasattr(wx, "ART_FILE_OPEN"):
-	artConstants["open"] = wx.ART_FILE_OPEN
-if hasattr(wx, "ART_FILE_SAVE"):
-	artConstants["save"] = wx.ART_FILE_SAVE
-if hasattr(wx, "ART_FILE_SAVE_AS"):
-	artConstants["saveas"] = wx.ART_FILE_SAVE_AS
-if hasattr(wx, "ART_FIND"):
-	artConstants["find"] = wx.ART_FIND
-if hasattr(wx, "ART_FIND_AND_REPLACE"):
-	artConstants["findreplace"] = wx.ART_FIND_AND_REPLACE
-if hasattr(wx, "ART_FLOPPY"):
-	artConstants["floppy"] = wx.ART_FLOPPY
-if hasattr(wx, "ART_FOLDER"):
-	artConstants["folder"] = wx.ART_FOLDER
-if hasattr(wx, "ART_FOLDER_OPEN"):
-	artConstants["folderopen"] = wx.ART_FOLDER_OPEN
-if hasattr(wx, "ART_FRAME_ICON"):
-	artConstants["frame"] = wx.ART_FRAME_ICON
-if hasattr(wx, "ART_FRAME_ICON"):
-	artConstants["frameicon"] = wx.ART_FRAME_ICON
-if hasattr(wx, "ART_GO_BACK"):
-	artConstants["back"] = wx.ART_GO_BACK
-if hasattr(wx, "ART_GO_DIR_UP"):
-	artConstants["directoryup"] = wx.ART_GO_DIR_UP
-if hasattr(wx, "ART_GO_DOWN"):
-	artConstants["down"] = wx.ART_GO_DOWN
-if hasattr(wx, "ART_GO_FORWARD"):
-	artConstants["forward"] = wx.ART_GO_FORWARD
-if hasattr(wx, "ART_GO_HOME"):
-	artConstants["home"] = wx.ART_GO_HOME
-if hasattr(wx, "ART_GO_TO_PARENT"):
-	artConstants["parent"] = wx.ART_GO_TO_PARENT
-if hasattr(wx, "ART_GO_UP"):
-	artConstants["up"] = wx.ART_GO_UP
-if hasattr(wx, "ART_HARDDISK"):
-	artConstants["hd"] = wx.ART_HARDDISK
-if hasattr(wx, "ART_HARDDISK"):
-	artConstants["harddisk"] = wx.ART_HARDDISK
-if hasattr(wx, "ART_HELP"):
-	artConstants["help"] = wx.ART_HELP
-if hasattr(wx, "ART_HELP_BOOK"):
-	artConstants["helpbook"] = wx.ART_HELP_BOOK
-if hasattr(wx, "ART_HELP_BROWSER"):
-	artConstants["helpbrowser"] = wx.ART_HELP_BROWSER
-if hasattr(wx, "ART_HELP_FOLDER"):
-	artConstants["helpfolder"] = wx.ART_HELP_FOLDER
-if hasattr(wx, "ART_HELP_PAGE"):
-	artConstants["helppage"] = wx.ART_HELP_PAGE
-if hasattr(wx, "ART_HELP_SETTINGS"):
-	artConstants["helpsettings"] = wx.ART_HELP_SETTINGS
-if hasattr(wx, "ART_HELP_SIDE_PANEL"):
-	artConstants["helpsidepanel"] = wx.ART_HELP_SIDE_PANEL
-if hasattr(wx, "ART_INFORMATION"):
-	artConstants["info"] = wx.ART_INFORMATION
-if hasattr(wx, "ART_INFORMATION"):
-	artConstants["information"] = wx.ART_INFORMATION
-if hasattr(wx, "ART_LIST_VIEW"):
-	artConstants["listview"] = wx.ART_LIST_VIEW
-if hasattr(wx, "ART_MENU"):
-	artConstants["menu"] = wx.ART_MENU
-if hasattr(wx, "ART_MESSAGE_BOX"):
-	artConstants["messagebox"] = wx.ART_MESSAGE_BOX
-if hasattr(wx, "ART_MISSING_IMAGE"):
-	artConstants["missingimage"] = wx.ART_MISSING_IMAGE
-if hasattr(wx, "ART_NEW"):
-	artConstants["new"] = wx.ART_NEW
-if hasattr(wx, "ART_NEW_DIR"):
-	artConstants["newdir"] = wx.ART_NEW_DIR
-if hasattr(wx, "ART_NORMAL_FILE"):
-	artConstants["normalfile"] = wx.ART_NORMAL_FILE
-if hasattr(wx, "ART_NORMAL_FILE"):
-	artConstants["file"] = wx.ART_NORMAL_FILE
-if hasattr(wx, "ART_OTHER"):
-	artConstants["other"] = wx.ART_OTHER
-if hasattr(wx, "ART_PASTE"):
-	artConstants["paste"] = wx.ART_PASTE
-if hasattr(wx, "ART_PRINT"):
-	artConstants["print"] = wx.ART_PRINT
-if hasattr(wx, "ART_QUESTION"):
-	artConstants["question"] = wx.ART_QUESTION
-if hasattr(wx, "ART_QUIT"):
-	artConstants["quit"] = wx.ART_QUIT
-if hasattr(wx, "ART_REDO"):
-	artConstants["redo"] = wx.ART_REDO
-if hasattr(wx, "ART_REMOVABLE"):
-	artConstants["removable"] = wx.ART_REMOVABLE
-if hasattr(wx, "ART_REPORT_VIEW"):
-	artConstants["reportview"] = wx.ART_REPORT_VIEW
-if hasattr(wx, "ART_TICK_MARK"):
-	artConstants["tickmark"] = wx.ART_TICK_MARK
-if hasattr(wx, "ART_TIP"):
-	artConstants["tip"] = wx.ART_TIP
-if hasattr(wx, "ART_TOOLBAR"):
-	artConstants["toolbar"] = wx.ART_TOOLBAR
-if hasattr(wx, "ART_UNDO"):
-	artConstants["undo"] = wx.ART_UNDO
-if hasattr(wx, "ART_WARNING"):
-	artConstants["warning"] = wx.ART_WARNING
+for item in dir(wx):
+	if item[:4] == "ART_":
+		daboConstant = item[4:].lower().replace("_", "")
+		artConstants[daboConstant] = getattr(wx, item)
+
+# artConstant aliases:
+artConstants["cd"] = artConstants.get("cdrom")
+artConstants["commondialog"] = artConstants.get("cmndialog")
+artConstants["dialog"] = artConstants.get("cmndialog")
+artConstants["cross"] = artConstants.get("crossmark")
+artConstants["exe"] = artConstants.get("executablefile")
+artConstants["exefile"] = artConstants.get("executablefile")
+artConstants["exit"] = artConstants.get("quit")
+artConstants["open"] = artConstants.get("fileopen")
+artConstants["save"] = artConstants.get("filesave")
+artConstants["saveas"] = artConstants.get("filesaveas")
+artConstants["findreplace"] = artConstants.get("findandreplace")
+artConstants["frame"] = artConstants.get("frameicon")
+artConstants["back"] = artConstants.get("goback")
+artConstants["directoryup"] = artConstants.get("godirup")
+artConstants["down"] = artConstants.get("godown")
+artConstants["forward"] = artConstants.get("goforward")
+artConstants["home"] = artConstants.get("gohome")
+artConstants["parent"] = artConstants.get("gotoparent")
+artConstants["up"] = artConstants.get("goup")
+artConstants["hd"] = artConstants.get("harddisk")
+artConstants["info"] = artConstants.get("information")
+artConstants["file"] = artConstants.get("normalfile")
+
 
 
 def callAfter(fnc, *args, **kwargs):
@@ -674,7 +576,7 @@ def strToBmp(val, scale=None, width=None, height=None):
 				break
 		if not ret:
 			# See if it's a built-in graphic
-			ret = getBitmap(val)
+			ret = getCommonBitmap(val)
 	if not ret:
 		# Return an empty bitmap
 		ret = wx.EmptyBitmap(1, 1)
@@ -708,6 +610,7 @@ def strToBmp(val, scale=None, width=None, height=None):
 					newWd = oldWd * (newHt / oldHt)
 			img.Rescale(newWd, newHt)
 			ret = img.ConvertToBitmap()	
+	print val
 	return ret
 	
 	
@@ -723,22 +626,19 @@ def resizeBmp(bmp, wd, ht):
 	return img.ConvertToBitmap()
 	
 	
-def getBitmap(name):
+def getCommonBitmap(name):
 	"""wxPython comes with several built-in bitmaps for common icons. 
 	This wraps the procedure for generating these bitmaps. If a name is
 	passed for which there is no icon, None is returned. Different versions
 	of wxPython contain different art constants, so each assignment is
 	bracketed 
+
 	NOTE: this returns a raw bitmap, not a dabo.ui.dBitmap object.
 	"""
-	ret = None
-	try:
-		const = artConstants[name.lower()]
-	except KeyError:
-		const = None
+	const = artConstants.get(name.lower())
 	if const:
-		ret = wx.ArtProvider.GetBitmap(const)
-	return ret
+		return wx.ArtProvider.GetBitmap(const)
+	return None
 
 
 def setdFormClass(typ):
