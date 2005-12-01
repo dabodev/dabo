@@ -117,6 +117,7 @@ for item in dir(wx):
 # artConstant aliases:
 artConstants["cd"] = artConstants.get("cdrom")
 artConstants["commondialog"] = artConstants.get("cmndialog")
+artConstants["configure"] = artConstants.get("helpsettings")
 artConstants["dialog"] = artConstants.get("cmndialog")
 artConstants["cross"] = artConstants.get("crossmark")
 artConstants["exe"] = artConstants.get("executablefile")
@@ -137,7 +138,6 @@ artConstants["up"] = artConstants.get("goup")
 artConstants["hd"] = artConstants.get("harddisk")
 artConstants["info"] = artConstants.get("information")
 artConstants["file"] = artConstants.get("normalfile")
-
 
 
 def callAfter(fnc, *args, **kwargs):
@@ -574,7 +574,7 @@ def strToBmp(val, scale=None, width=None, height=None):
 			ret = dIcons.getIconBitmap(pth, noEmptyBmp=True)
 			if ret:
 				break
-		if not ret:
+		if not ret and len(val) > 0:
 			# See if it's a built-in graphic
 			ret = getCommonBitmap(val)
 	if not ret:
@@ -628,13 +628,12 @@ def resizeBmp(bmp, wd, ht):
 def getCommonBitmap(name):
 	"""wxPython comes with several built-in bitmaps for common icons. 
 	This wraps the procedure for generating these bitmaps. If a name is
-	passed for which there is no icon, None is returned. Different versions
-	of wxPython contain different art constants, so each assignment is
-	bracketed 
+	passed for which there is no icon, an image denoting a missing image
+	is returned.
 
 	NOTE: this returns a raw bitmap, not a dabo.ui.dBitmap object.
 	"""
-	const = artConstants.get(name.lower())
+	const = artConstants.get(name.lower(), artConstants.get("missingimage"))
 	if const:
 		return wx.ArtProvider.GetBitmap(const)
 	return None
