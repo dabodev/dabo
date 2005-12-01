@@ -460,6 +460,11 @@ class dApp(dObject):
 			if hd is None or len(hd.strip()) == 0:
 				# punt:
 				hd = os.getcwd()
+
+			if os.path.split(hd)[1][-4:] == ".zip":
+				# mangle HomeDirectory to not be the py2exe library.zip file,
+				# but the containing directory (the directory where the exe lives)
+				hd = os.path.split(hd)[0]
 			self._homeDirectory = hd			
 		return hd
 		
