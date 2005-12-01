@@ -26,7 +26,7 @@ class FileMenu(dMenu):
 					help=_("Open up a command window for debugging") )
 		
 		prmpt = _("Close Windo&w") + "\tCtrl+W"
-		self.append(prmpt, bindfunc=app.onWinClose,
+		self.append(prmpt, bindfunc=app.onWinClose, bmp="close",
 				help=_("Close the current window") )
 
 		self.appendSeparator()
@@ -34,7 +34,7 @@ class FileMenu(dMenu):
 		prmpt = _("E&xit") + "\tAlt+F4"
 		if wx.Platform == '__WXMAC__':
 			prmpt = _("&Quit") + "\tCtrl+Q"
-		self.append(prmpt, bindfunc=app.onFileExit, bmp="close",
+		self.append(prmpt, bindfunc=app.onFileExit, bmp="exit",
 				help=_("Exit the application") )
 
 
