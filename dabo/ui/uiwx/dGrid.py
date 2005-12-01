@@ -419,7 +419,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 
-class dColumn(dObject):
+class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	""" These aren't the actual columns that appear in the grid; rather,
 	they provide a way to interact with the underlying grid table in a more
 	straightforward manner.

@@ -185,9 +185,17 @@ class EventMixin(object):
 		self._autoBindEvents(context=self, force=force)
 
 		parent = self.Parent
+		stop = False
 		while parent:
+			lastParent = parent
 			self._autoBindEvents(context=parent, force=force)
-			parent = parent.Parent
+			if stop:
+				break
+			try:
+				parent = parent.Parent
+			except:
+				parent = self.Form
+				stop = True
 
 
 	def _autoBindEvents(self, context, force=False):
