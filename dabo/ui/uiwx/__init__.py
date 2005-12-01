@@ -610,7 +610,6 @@ def strToBmp(val, scale=None, width=None, height=None):
 					newWd = oldWd * (newHt / oldHt)
 			img.Rescale(newWd, newHt)
 			ret = img.ConvertToBitmap()	
-	print val
 	return ret
 	
 	
