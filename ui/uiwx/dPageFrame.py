@@ -1,11 +1,17 @@
-import wx, dabo, dabo.ui
+import sys
+import wx
+import dabo
+import dabo.ui
+
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
+
 import dControlMixin as cm
 import dPage
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dPageFrameMixin import dPageFrameMixin
+
 
 
 def readonly(value):
@@ -30,6 +36,15 @@ class dPageFrame(wx.Notebook, dPageFrameMixin):
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		# Dictionary for tracking images by key value
 		self._imageList = {}
+
+
+	def _afterInit(self):
+		if sys.platform[:3] == "win":
+			## This keeps Pages from being ugly on Windows:
+			self.SetBackgroundColour(self.GetBackgroundColour())
+
+		super(dPageFrame, self)._initEvents()
+
 
 
 class dPageList(wx.Listbook, dPageFrameMixin):
