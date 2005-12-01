@@ -74,26 +74,27 @@ class dFormMainBase(fm.dFormMixin):
 		dc.DrawBitmap(self.bitmap, 10, (ht - 110))
 
 
-class dFormMainSDI(wx.Frame, dFormMainBase):
+class dFormMain(wx.Frame, dFormMainBase):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dFormMain
-		self._mdi = False
-		preClass = wx.PreFrame
+
+		if dabo.settings.MDI:
+			# Hack this into an MDI Parent:
+			dFormMain.__bases__ = (wx.MDIParentFrame, dFormMainBase)
+			preClass = wx.PreMDIParentFrame
+			self._mdi = True
+		else:
+			# This is a normal SDI form:
+			dFormMain.__bases__ = (wx.Frame, dFormMainBase)
+			preClass = wx.PreFrame
+			self._mdi = False
+		## (Note that it is necessary to run the above block each time, because
+		##  we are modifying the dFormMain class definition globally.)
+
 		dFormMainBase.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
-class dFormMainParentMDI(wx.MDIParentFrame, dFormMainBase):
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
-		self._baseClass = dFormMain
-		self._mdi = True
-		preClass = wx.PreMDIParentFrame
-		dFormMainBase.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-
-if dabo.settings.MDI:
-	dFormMain = dFormMainParentMDI
-else:
-	dFormMain = dFormMainSDI
 
 
 if __name__ == "__main__":
