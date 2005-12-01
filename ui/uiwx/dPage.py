@@ -13,6 +13,10 @@ class dPage(dPanel.dScrollPanel):
 	def _afterInit(self):
 		self.initSizer()
 		self.itemsCreated = False
+
+		## This keeps Pages from being ugly on Windows:
+		self.SetBackgroundColour(self.GetBackgroundColour())
+
 		super(dPage, self)._afterInit()
 		
 		
