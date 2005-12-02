@@ -17,10 +17,15 @@ def getIcon(iconName):
 
 
 def getIconFileName(iconName):
+	"""Returns the full path and file name of the passed icon name.
+
+	If not found, returns None.
+	"""
 	iconName = addExtension(iconName)
 	ret = os.path.join(__path__[-1:][0], "%s" % iconName)
 	
 	if not os.path.exists(ret):
+		ret = None
 		for pth in sys.path:
 			icn = os.path.join(pth, "%s" % iconName)
 			if os.path.exists(icn):

@@ -67,9 +67,8 @@ class dFormMixin(pm.dPemMixin):
 				pass
 			self.afterSetMenuBar()
 
-		self._iconFile = dabo.icons.getIconFileName("daboIcon.ico")
 		if not self.Icon:
-			self.Icon = wx.Icon(self._iconFile, wx.BITMAP_TYPE_ICO)
+			self.Icon = "daboIcon.ico"
 
 		self.debugText = ""
 		self.useOldDebugDialog = False
@@ -642,18 +641,23 @@ class dFormMixin(pm.dPemMixin):
 			return self._Icon
 		except AttributeError:
 			return None
-			
+
 	def _setIcon(self, val):
 		if self._constructed():
-			self._Icon = val       # wx doesn't provide GetIcon()
 			if not isinstance(val, wx.Icon):
-				if os.path.exists(val):
-					# It's a file path
-					bmp = wx.Bitmap(val)
-					val = wx.EmptyIcon()
-					val.CopyFromBitmap(bmp)
-			self.SetIcon(val)
-			
+				iconPath = dabo.icons.getIconFileName(val)
+				if os.path.exists(iconPath):
+					ico = wx.Icon(iconPath, wx.BITMAP_TYPE_ANY)
+				else:
+					val = None
+			else:
+				ico = val
+			# wx doesn't provide GetIcon()
+			self._Icon = val
+			self.SetIcon(ico)
+		else:
+			self._properties["Icon"] = val
+
 
 	def _getIconBundle(self):
 		try:
