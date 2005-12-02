@@ -8,6 +8,7 @@ except ImportError:
 
 import os
 import sys
+import tempfile
 
 
 class TempFileHolder(object):
@@ -29,9 +30,10 @@ class TempFileHolder(object):
 		self._tempFiles.append(f)
 
 	def getTempFile(self, ext="pdf"):
-		f = "%s.%s" % (os.tempnam(), ext)
-		self.append(f)
-		return f
+		fd, fname = tempfile.mkstemp(suffix=".%s" % ext)
+		os.close(fd)
+		self.append(fname)
+		return fname
 
 tempFileHolder = TempFileHolder()
 getTempFile = tempFileHolder.getTempFile
