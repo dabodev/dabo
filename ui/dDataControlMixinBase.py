@@ -79,8 +79,12 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			pass
 
 			
-	def __onValueRefresh(self, evt): 
-		self.refresh()
+	def __onValueRefresh(self, evt):
+		try:
+			self.refresh()
+		except:
+			# Dead objects will cause errors; ignore 'em
+			pass
 		
 		try:
 			if self.SelectOnEntry and self.Form.ActiveControl == self:
