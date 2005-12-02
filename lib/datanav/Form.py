@@ -65,7 +65,7 @@ class Form(dabo.ui.dForm):
 			# and then hides itself afterwards. In addition, the picklist should hide
 			# itself when other certain conditions are met.
 			def _onHide(evt):
-				self.hide()
+				dabo.ui.callAfter(self.hide)
 
 			# Pressing Esc hides the form
 			self.bindKey("esc", _onHide)

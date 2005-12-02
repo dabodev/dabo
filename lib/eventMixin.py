@@ -63,7 +63,9 @@ class EventMixin(object):
 			
 		eventSig = (eventClass, args, kwargs)
 		if eventSig in self.__raisedEvents:
-			dabo.errorLog.write("End-around call of event %s" % str(eventSig))
+			# The event has already been called, for reasons we don't understand.
+			# Just return and do nothing.
+			#dabo.errorLog.write("End-around call of event %s" % str(eventSig))
 			#traceback.print_stack()
 			return None
 		else:
