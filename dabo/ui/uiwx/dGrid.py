@@ -1,3 +1,4 @@
+import sys
 import datetime
 import locale
 import wx
@@ -432,7 +433,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		kwargs["Parent"] = parent
 		# dColumn maintains one attr object that the grid table will use:
 		a = self._gridColAttr = parent._defaultGridColAttr.Clone()
-		a.SetFont(wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.LIGHT))
+		a.SetFont(self._getDefaultFont())
 
 		super(dColumn, self).__init__(properties, *args, **kwargs)
 		self._baseClass = dColumn
@@ -481,7 +482,16 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._isConstructed = True
 		super(dColumn, self)._afterInit()
 		
-		
+
+	def _getDefaultFont(self):
+		font = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.LIGHT)
+		if sys.platform[:3] == "win":
+			# The wx default is quite ugly
+			font.SetFaceName("Arial")
+			font.SetPointSize(9)
+		return font
+
+
 	def _constructed(self):
 		return self._isConstructed
 
@@ -844,10 +854,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		try:
 			v = self._headerFont
 		except AttributeError:
-			if self.Parent:
-				v = self.Parent.GetLabelFont()
-			else:
-				v = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.LIGHT)
+			v = self._getDefaultFont()
+			v.SetWeight(wx.BOLD)
 		return v
 	
 	def _setHeaderFont(self, val):
