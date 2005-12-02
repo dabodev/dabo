@@ -1,10 +1,7 @@
-""" dabo.ui.uiwx.dIcons.py 
-
-Icons are saved in dabo.icons in png format. This is
-the wrapper for wxPython to get the icon into a wxBitmap.
-"""
-import wx, dabo.icons
+import wx
 import os.path
+import dabo.icons
+
 
 def getIconBitmap(iconName, setMask=True, noEmptyBmp=False):
 	""" Get a bitmap rendition of the icon.
@@ -14,7 +11,7 @@ def getIconBitmap(iconName, setMask=True, noEmptyBmp=False):
 	if noEmptyBmp is False; otherwise, return None.
 	"""
 	fileName = dabo.icons.getIconFileName(iconName)
-	if os.path.exists(fileName):
+	if fileName and os.path.exists(fileName):
 		return dabo.ui.pathToBmp(fileName)
 	else:
 		if noEmptyBmp:
