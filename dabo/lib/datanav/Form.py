@@ -131,6 +131,9 @@ class Form(dabo.ui.dForm):
 	
 	def setupToolBar(self):
 		tb = self.ToolBar
+		if tb.Children:
+			# It's already been set up
+			return
 		tb.MaxWidth = 16
 		tb.MaxHeight = 16
 		
@@ -273,14 +276,12 @@ class Form(dabo.ui.dForm):
 		"""
 		currPage = 0
 		biz = self.getBizobj()
+
 		try:
 			currPage = self.pageFrame.SelectedPage
+			self.pageFrame.unbindEvent()
 			self.pageFrame.release()
-			chld = self.Sizer.Children
-			for c in chld:
-				if c.IsSizer():
-					if isinstance(c.Sizer, wx.NotebookSizer):
-						self.Sizer.Detach(c.Sizer)
+			del self.__dict__["PageFrame"]
 		except: pass
 		
 		if self.beforeSetupPageFrame():
