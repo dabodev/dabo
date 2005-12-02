@@ -647,7 +647,15 @@ class dFormMixin(pm.dPemMixin):
 			if not isinstance(val, wx.Icon):
 				iconPath = dabo.icons.getIconFileName(val)
 				if os.path.exists(iconPath):
-					ico = wx.Icon(iconPath, wx.BITMAP_TYPE_ANY)
+					ext = os.path.splitext(iconPath)[1].lower()
+					if ext == ".png":
+						bitmapType = wx.BITMAP_TYPE_PNG
+					elif ext == ".ico":
+						bitmapType = wx.BITMAP_TYPE_ICO
+					else:
+						# punt, but only ico will work on Windows
+						bitmapType = wx.BITMAP_TYPE_ANY
+					ico = wx.Icon(iconPath, bitmapType)
 				else:
 					val = None
 			else:
