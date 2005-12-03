@@ -385,6 +385,10 @@ class SashDoubleClick(SashEvent):
 	"""Occurs when a user double-clicks on the sash of a splitter window."""
 	pass
 
+class SashPositionChanged(SashEvent):
+	"""Occurs when a user moves the sash of a splitter window."""
+	pass
+
 class ListSelection(ListEvent):
 	""" Occurs when an item is highlighted in a list."""
 	pass

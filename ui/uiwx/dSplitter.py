@@ -87,7 +87,8 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 	
 	def _initEvents(self):
 		self.Bind(wx.EVT_SPLITTER_DCLICK, self._onSashDClick)
-	
+		self.Bind(wx.EVT_SPLITTER_SASH_POS_CHANGED, self._onSashPos)
+
 
 	def _afterInit(self):
 		self.__p1 = None
@@ -118,6 +119,14 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 		self._getSashPosition()
 		# Raise a dEvent for other code to bind to,
 		self.raiseEvent(dEvents.SashDoubleClick, evt)
+	
+		
+	def _onSashPos(self, evt):
+		"""Fires when the sash position is changed."""
+		# Update the internal sash position attribute.
+		self._getSashPosition()
+		# Raise a dEvent for other code to bind to,
+		self.raiseEvent(dEvents.SashPositionChanged, evt)
 	
 		
 	def split(self, dir_=None):
