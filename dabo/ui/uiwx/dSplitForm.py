@@ -9,7 +9,7 @@ from dabo.dLocalize import _
 class dSplitForm(dabo.ui.dForm):
 	def _afterInit(self):
 		super(dSplitForm, self)._afterInit()
-		win = dSplitter(self, createPanes=1)
+		win = dSplitter(self, createPanes=True, RegID="MainSplitter")
 		self.Sizer.append1x(win)
 		win.Visible = True
 		# Store the references
@@ -39,6 +39,20 @@ class dSplitForm(dabo.ui.dForm):
 		self.splitter.Orientation = val
 	
 	
+	def _getPanel1(self):
+		return self.splitter.Panel1
+		
+	def _setPanel1(self, pnl):
+		self.splitter.Panel1 = pnl
+			
+
+	def _getPanel2(self):
+		return self.splitter.Panel2
+		
+	def _setPanel2(self, pnl):
+		self.splitter.Panel2 = pnl
+	
+	
 	def _getSashPosition(self):
 		return self.splitter.SashPosition
 		
@@ -52,6 +66,12 @@ class dSplitForm(dabo.ui.dForm):
 	Orientation = property(_getOrientation, _setOrientation, None,
 			_("Determines if the window splits Horizontally or Vertically.  (str)"))
 			
+	Panel1 = property(_getPanel1, _setPanel1, None,
+			_("Returns the Top/Left panel.  (SplitterPanel)"))
+
+	Panel2 = property(_getPanel2, _setPanel2, None,
+			_("Returns the Bottom/Right panel.  (SplitterPanel)"))
+
 	SashPosition = property(_getSashPosition, _setSashPosition, None,
 			_("Position of the sash when the window is split.  (int)"))
 

@@ -36,8 +36,18 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		
 	def getBlankValue(self):
 		return ""
-
+	
+	
+	def scrollToBeginning(self):
+		"""Moves the insertion point to the beginning of the text"""
+		self.SetInsertionPoint(0)
 		
+
+	def scrollToEnd(self):
+		"""Moves the insertion point to the end of the text"""
+		self.SetInsertionPointEnd()
+		
+
 	# property get/set functions
 	def _getAlignment(self):
 		if self._hasWindowStyleFlag(wx.TE_RIGHT):

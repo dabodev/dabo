@@ -82,7 +82,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		
 	def insert(self, *args, **kwargs):
 		""" This is not supported for this type of sizer """
-		return False
+		raise NotImplementedError, _("Grid Sizers do not support insert()")
 	
 	
 	def removeRow(self, rowNum):
