@@ -227,6 +227,28 @@ class dSizerMixin(dObject):
 		self.Destroy()
 	
 	
+	def getPositionInSizer(self):
+		""" Returns the current position of this sizer in its containing sizer."""
+		sz = self._controllingSizer
+		if not sz:
+			return None
+		if isinstance(sz, wx.BoxSizer):
+			children = sz.GetChildren()
+			for pos, szitem in enumerate(children):
+				if szitem.IsSizer():
+					if szitem.GetSizer() == self:
+						return pos
+			# If we reached here, something's wrong!
+			dabo.errorLog.write(_("Containing sizer did not match item %s") % self.Name)
+			return None
+		elif isinstance(sz, wx.GridBagSizer):
+			# Return a row,col tuple
+			row, col = sz.GetItemPosition(self)
+			return (row, col)
+		else:
+			return None
+	
+	
 	def showItem(self, itm):
 		"""Makes sure that the passed item is visible"""
 		self.Show(itm, show=True, recursive=True)
