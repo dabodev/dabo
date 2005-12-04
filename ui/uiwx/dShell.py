@@ -3,6 +3,7 @@ import wx.py
 from wx.py import pseudo
 import dabo
 import dabo.dEvents as dEvents
+from dabo.dLocalize import _
 from dSplitForm import dSplitForm
 
 dabo.ui.loadUI("wx")
@@ -16,11 +17,10 @@ class dShell(dSplitForm):
 		splt.unbindEvent()
 		self.Orientation = "H"
 		self.unsplit()
-		self.split()
-		self._sashPct = 0.7
+		self._sashPct = 0.6
+		self._splitState = False
 		self.MainSplitter.bindEvent(dEvents.SashDoubleClick, 
 				self.sashDoubleClick)
-		
 		self.MainSplitter.bindEvent(dEvents.SashPositionChanged, 
 				self.sashPosChanged)
 		
@@ -33,15 +33,21 @@ class dShell(dSplitForm):
 		op.Sizer = dabo.ui.dSizer()
 		self.shell = wx.py.shell.Shell(self.CmdPanel)
 		cp.Sizer.append1x(self.shell)
+		self.shell.Bind(wx.EVT_RIGHT_UP, self.shellRight)
+
 		# create the output control
 		outControl = dabo.ui.dEditBox(op, RegID="edtOut", 
 				ReadOnly = True)
 		op.Sizer.append1x(outControl)
+		outControl.bindEvent(dEvents.MouseRightDown, 
+				self.outputRightDown)
 		
-		pseudoOut = pseudo.PseudoFileOut(write=self.appendOut)
-		pseudoErr = pseudo.PseudoFileOut(write=self.appendOut)
-		self.shell.interp.stdout = pseudoOut
-		self.shell.interp.stderr = pseudoErr
+		self._stdOut = self.shell.interp.stdout
+		self._stdErr = self.shell.interp.stderr
+		self._pseudoOut = pseudo.PseudoFileOut(write=self.appendOut)
+		self._pseudoErr = pseudo.PseudoFileOut(write=self.appendOut)
+		self.SplitState = True
+		
 		
 		# Make 'self' refer to the calling form, or this form if no calling form.
 		if self.Parent is None:
@@ -66,6 +72,32 @@ class dShell(dSplitForm):
 		dabo.ui.callAfter(ed.ShowPosition, endpos)
 		dabo.ui.callAfter(ed.SetSelection, endpos, endpos)
 
+
+	def outputRightDown(self, evt):
+		pop = dabo.ui.dMenu()
+		pop.append("Clear", bindfunc=self.onClearOutput)
+		self.showContextMenu(pop)
+		evt.stop()
+	
+	
+	def onClearOutput(self, evt):
+		self.edtOut.Value = ""
+	
+	
+	def shellRight(self, evt):
+		pop = dabo.ui.dMenu()
+		if self.SplitState:
+			pmpt = _("Unsplit")
+		else:
+			pmpt = _("Split")
+		pop.append(pmpt, bindfunc=self.onSplitContext)
+		self.showContextMenu(pop)
+		evt.StopPropagation()
+		
+
+	def onSplitContext(self, evt):
+		self.SplitState = (evt.EventObject.Caption == _("Split"))
+		evt.stop()
 		
 		
 	def onResize(self, evt):
@@ -103,6 +135,27 @@ class dShell(dSplitForm):
 		self.shell.SetZoom(self.shell.GetZoom()-1)
 	
 
+	def _getSplitState(self):
+		return self._splitState
+
+	def _setSplitState(self, val):
+		if self._splitState != val:
+			self._splitState = val
+			if val:
+				self.split()
+				self.shell.interp.stdout = self._pseudoOut
+				self.shell.interp.stderr = self._pseudoErr
+			else:
+				self.unsplit()
+				self.shell.interp.stdout = self._stdOut
+				self.shell.interp.stderr = self._stdErr
+			
+
+	SplitState = property(_getSplitState, _setSplitState, None,
+			_("""Controls whether the output is in a separate pane (default) 
+			or intermixed with the commands.  (bool)"""))
+	
+		
 
 def main():
 	app = dabo.dApp()
