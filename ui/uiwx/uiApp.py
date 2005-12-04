@@ -156,14 +156,17 @@ class uiApp(wx.App, dObject):
 		# If neither of the above works, then copy text to the clipboard.
 		if self.ActiveForm:
 			win = self.ActiveForm.ActiveControl
+			handled = False
 			if cut:
-				handled = (win.cut() is not None)
+				if hasattr(win, "cut"):
+					handled = (win.cut() is not None)
 				if not handled:
 					if hasattr(win, "Cut"):
 						win.Cut()
 						handled = True
 			else:
-				handled = (win.copy() is not None)
+				if hasattr(win, "copy"):
+					handled = (win.copy() is not None)
 				if not handled:
 					if hasattr(win, "Copy"):
 						win.Copy()
@@ -194,7 +197,9 @@ class uiApp(wx.App, dObject):
 	def onEditPaste(self, evt):
 		if self.ActiveForm:
 			win = self.ActiveForm.ActiveControl
-			handled = (win.paste() is not None)
+			handled = False
+			if hasattr(win, "paste"):
+				handled = (win.paste() is not None)
 			if not handled:
 				if hasattr(win, "Paste"):
 					win.Paste()

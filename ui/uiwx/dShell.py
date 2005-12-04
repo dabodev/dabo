@@ -123,8 +123,13 @@ class dShell(dSplitForm):
 				bmp="zoomNormal", help="Normal Zoom")
 		viewMenu.append("Zoom &Out\tCtrl+-", bindfunc=self.onViewZoomOut, 
 				bmp="zoomOut", help="Zoom Out")
-
-
+		editMenu = self.MenuBar.getMenu("Edit")
+		if editMenu.Children:
+			editMenu.appendSeparator()
+		editMenu.append("Clear O&utput\tCtrl+Back", 
+				bindfunc=self.onClearOutput, help="Clear Output Window")
+		
+		
 	def onViewZoomIn(self, evt):
 		self.shell.SetZoom(self.shell.GetZoom()+1)
 
