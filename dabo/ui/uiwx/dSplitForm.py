@@ -8,12 +8,10 @@ from dabo.dLocalize import _
 
 class dSplitForm(dabo.ui.dForm):
 	def _afterInit(self):
+		win = self.splitter = dSplitter(self, createPanes=True, RegID="MainSplitter")
 		super(dSplitForm, self)._afterInit()
-		win = dSplitter(self, createPanes=True, RegID="MainSplitter")
 		self.Sizer.append1x(win)
 		win.Visible = True
-		# Store the references
-		self.splitter = win
 		self.layout()
 
 
@@ -24,42 +22,59 @@ class dSplitForm(dabo.ui.dForm):
 	def split(self, dir=None):
 		self.splitter.split(dir)
 		
+
 	
 	def _getMinPanelSize(self):
 		return self.splitter.MinPanelSize
 		
 	def _setMinPanelSize(self, val):
-		self.splitter.MinPanelSize = val
+		if self._constructed():
+			self.splitter.MinPanelSize = val
+		else:
+			self._properties["MinPanelSize"] = val
 	
 	
 	def _getOrientation(self):
 		return self.splitter.Orientation
 		
 	def _setOrientation(self, val):
-		self.splitter.Orientation = val
+		if self._constructed():
+			self.splitter.Orientation = val
+		else:
+			self._properties["MinPanelSize"] = val
 	
 	
 	def _getPanel1(self):
 		return self.splitter.Panel1
 		
 	def _setPanel1(self, pnl):
-		self.splitter.Panel1 = pnl
+		if self._constructed():
+			self.splitter.Panel1 = pnl
+		else:
+			self._properties["Panel1"] = pnl
 			
 
 	def _getPanel2(self):
 		return self.splitter.Panel2
 		
 	def _setPanel2(self, pnl):
-		self.splitter.Panel2 = pnl
+		if self._constructed():
+			self.splitter.Panel2 = pnl
+		else:
+			self._properties["Panel2"] = pnl
 	
 	
 	def _getSashPosition(self):
 		return self.splitter.SashPosition
 		
 	def _setSashPosition(self, val):
-		self.splitter.SashPosition = val
+		if self._constructed():
+			self.splitter.SashPosition = val
+		else:
+			self._properties["SashPosition"] = val
 		
 	
+
 	MinPanelSize = property(_getMinPanelSize, _setMinPanelSize, None,
 			_("Controls the minimum width/height of the panels.  (int)"))
 			
@@ -74,6 +89,7 @@ class dSplitForm(dabo.ui.dForm):
 
 	SashPosition = property(_getSashPosition, _setSashPosition, None,
 			_("Position of the sash when the window is split.  (int)"))
+
 
 
 class _dSplitForm_test(dSplitForm):

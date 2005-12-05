@@ -10,6 +10,8 @@ dabo.ui.loadUI("wx")
 
 class dShell(dSplitForm):
 	def _afterInit(self):
+		self._sashPct = 0.6
+
 		super(dShell, self)._afterInit()
 		
 		splt = self.splitter
@@ -17,7 +19,6 @@ class dShell(dSplitForm):
 		splt.unbindEvent()
 		self.Orientation = "H"
 		self.unsplit()
-		self._sashPct = 0.6
 		self._splitState = False
 		self.MainSplitter.bindEvent(dEvents.SashDoubleClick, 
 				self.sashDoubleClick)
