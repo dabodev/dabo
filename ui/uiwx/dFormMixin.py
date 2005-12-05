@@ -47,7 +47,14 @@ class dFormMixin(pm.dPemMixin):
 				# No style was explicitly set
 				style = wx.DEFAULT_FRAME_STYLE	
 		kwargs["style"] = style
+
 		self._objectRegistry = {}
+
+		# Flag to skip updates when they aren't needed
+		self._isClosed = False
+		# Sizer outline drawing flag
+		self.__needOutlineRedraw = False
+
 		super(dFormMixin, self).__init__(preClass, parent, properties, *args, **kwargs)
 		
 
@@ -76,15 +83,12 @@ class dFormMixin(pm.dPemMixin):
 		self._holdStatusText = ""
 		if self.Application is not None:
 			self.Application.uiForms.add(self)
-		# Flag to skip updates when they aren't needed
-		self._isClosed = False
-		# Sizer outline drawing flag
-		self.__needOutlineRedraw = False
+		
 		# Centering information
 		self._normLeft = self.Left
 		self._normTop = self.Top
 		self._centered = False
-		
+
 		if self._cxnName:
 			self.Connection = self.Application.getConnectionByName(self._cxnName)
 			if self.Connection is None:

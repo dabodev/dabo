@@ -62,6 +62,7 @@ class SplitterPanel(dabo.ui.dPanel):
 	def unsplit(self, win=None):
 		self.splitter.unsplit(win)
 		
+
 		
 class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 	""" Main class for handling split windows. It will contain two
@@ -199,39 +200,48 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 			return "Horizontal"
 			
 	def _setOrientation(self, val):
-		orient = val.lower()[0]
-		if orient in ("h", "v"):
-			self._orientation = orient
+		if self._constructed():
+			orient = val.lower()[0]
+			if orient in ("h", "v"):
+				self._orientation = orient
+			else:
+				raise ValueError, "Orientation can only be 'Horizontal' or 'Vertical'"
 		else:
-			raise ValueError, "Orientation can only be 'Horizontal' or 'Vertical'"
+			self._properties["Orientation"] = val
 	
 	
 	def _getPanel1(self):
 		return self.__p1
 		
 	def _setPanel1(self, pnl):
-		splt = self.IsSplit()
-		if splt:
-			self.unsplit(self.__p1)
-		if self.__p1:
-			self.__p1.Destroy()
-		self.__p1 = pnl
-		if splt:
-			self.split()
+		if self._constructed():
+			splt = self.IsSplit()
+			if splt:
+				self.unsplit(self.__p1)
+			if self.__p1:
+				self.__p1.Destroy()
+			self.__p1 = pnl
+			if splt:
+				self.split()
+		else:
+			self._properties["Panel1"] = pnl
 			
 
 	def _getPanel2(self):
 		return self.__p2
 		
 	def _setPanel2(self, pnl):
-		splt = self.IsSplit()
-		if splt:
-			self.unsplit(self.__p2)
-		if self.__p2:
-			self.__p2.Destroy()
-		self.__p2 = pnl
-		if splt:
-			self.split()
+		if self._constructed():
+			splt = self.IsSplit()
+			if splt:
+				self.unsplit(self.__p2)
+			if self.__p2:
+				self.__p2.Destroy()
+			self.__p2 = pnl
+			if splt:
+				self.split()
+		else:
+			self._properties["Panel2"] = pnl
 			
 	
 	def _getSashPosition(self):
@@ -240,9 +250,13 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 		return self._sashPos
 		
 	def _setSashPosition(self, val):
-		self.SetSashPosition(val)
-		# Set the internal prop from the wx Prop
-		self._sashPos = self.GetSashPosition()
+		if self._constructed():
+			self.SetSashPosition(val)
+			# Set the internal prop from the wx Prop
+			self._sashPos = self.GetSashPosition()
+		else:
+			self._properties["SashPosition"] = val
+
 	
 	
 	MinimumPanelSize = property(_getMinPanelSize, _setMinPanelSize, None,

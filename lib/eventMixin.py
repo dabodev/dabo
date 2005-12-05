@@ -10,10 +10,6 @@ class EventMixin(object):
 
 	All Dabo objects inherit this functionality.	
 	"""
-	def __init__(self, *args, **kwargs):
-		self.autoBindEvents(force=False)
-
-
 	def bindEvent(self, eventClass, function, _auto=False):
 		"""Bind a dEvent to a callback function.
 		"""
