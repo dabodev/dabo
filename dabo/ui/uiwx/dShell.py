@@ -56,8 +56,8 @@ class dShell(dSplitForm):
 			ns = self.Parent
 		self.shell.interp.locals['self'] = ns
 
-		self.Caption = "dShell: self is %s" % ns.Name
-		self.setStatusText("Use this shell to interact with the runtime environment")
+		self.Caption = _("dShell: self is %s") % ns.Name
+		self.setStatusText(_("Use this shell to interact with the runtime environment"))
 		self.fillMenu()
 		self.shell.SetFocus()
 		
@@ -75,7 +75,7 @@ class dShell(dSplitForm):
 
 	def outputRightDown(self, evt):
 		pop = dabo.ui.dMenu()
-		pop.append("Clear", bindfunc=self.onClearOutput)
+		pop.append(_("Clear"), bindfunc=self.onClearOutput)
 		self.showContextMenu(pop)
 		evt.stop()
 	
@@ -114,20 +114,20 @@ class dShell(dSplitForm):
 		
 		
 	def fillMenu(self):
-		viewMenu = self.MenuBar.getMenu("View")
+		viewMenu = self.MenuBar.getMenu(_("View"))
 		if viewMenu.Children:
 			viewMenu.appendSeparator()
-		viewMenu.append("Zoom &In\tCtrl+=", bindfunc=self.onViewZoomIn, 
-				bmp="zoomIn", help="Zoom In")
-		viewMenu.append("&Normal Zoom\tCtrl+/", bindfunc=self.onViewZoomNormal, 
-				bmp="zoomNormal", help="Normal Zoom")
-		viewMenu.append("Zoom &Out\tCtrl+-", bindfunc=self.onViewZoomOut, 
-				bmp="zoomOut", help="Zoom Out")
-		editMenu = self.MenuBar.getMenu("Edit")
+		viewMenu.append(_("Zoom &In\tCtrl+="), bindfunc=self.onViewZoomIn, 
+				bmp="zoomIn", help=_("Zoom In"))
+		viewMenu.append(_("&Normal Zoom\tCtrl+/"), bindfunc=self.onViewZoomNormal, 
+				bmp="zoomNormal", help=_("Normal Zoom"))
+		viewMenu.append(_("Zoom &Out\tCtrl+-"), bindfunc=self.onViewZoomOut, 
+				bmp="zoomOut", help=_("Zoom Out"))
+		editMenu = self.MenuBar.getMenu(_("Edit"))
 		if editMenu.Children:
 			editMenu.appendSeparator()
-		editMenu.append("Clear O&utput\tCtrl+Back", 
-				bindfunc=self.onClearOutput, help="Clear Output Window")
+		editMenu.append(_("Clear O&utput\tCtrl+Back"), 
+				bindfunc=self.onClearOutput, help=_("Clear Output Window"))
 		
 		
 	def onViewZoomIn(self, evt):

@@ -32,6 +32,9 @@ if wx.PlatformInfo[0] == "__WXGTK__":
 	_platform += " (%s)" % wx.PlatformInfo[3]
 uiType["platform"] = _platform
 
+# Add this to the dabo.ui namespace
+deadObjectException = wx._core.PyDeadObjectError
+
 # Import dPemMixin first, and then manually put into dabo.ui module. This is
 # because dControlMixinBase, which is in dabo.ui, descends from dPemMixin, which 
 # is in dabo.ui.uiwx. Must also do the same with dControlMixin, as dDataControlMixinBase
@@ -228,6 +231,10 @@ def getEventData(wxEvt):
 		ed["shiftDown"] = wxEvt.ShiftDown()
 		if isinstance(wxEvt, wx.MouseEvent):
 			ed["mouseDown"] = wxEvt.Dragging()
+
+	if isinstance(wxEvt, wx.MenuEvent):
+		ed["prompt"] = wxEvt.GetEventObject().Caption
+		ed["menuObject"] = wxEvt.GetEventObject()
 
 	if isinstance(wxEvt, wx.KeyEvent):
 		ed["keyCode"] = wxEvt.KeyCode()
