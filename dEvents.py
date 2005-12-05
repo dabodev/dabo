@@ -271,6 +271,11 @@ class MenuHighlight(MenuEvent):
 	pass
 
 
+class MenuOpen(MouseEvent):
+	"""Occurs when a menu is about to be opened."""
+	pass
+
+
 class Move(Event):
 	"""Occurs when the control's position changes."""
 	def appliesToClass(eventClass, objectClass):

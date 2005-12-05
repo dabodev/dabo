@@ -228,6 +228,7 @@ class dPemMixin(dPemMixinBase):
 		# Bind wx events to handlers that re-raise the Dabo events:
 		self.Bind(wx.EVT_WINDOW_DESTROY, self.__onWxDestroy)
 		self.Bind(wx.EVT_IDLE, self.__onWxIdle)
+		self.Bind(wx.EVT_MENU_OPEN, self.__onWxMenuOpen)
 
 		if isinstance(self, dabo.ui.dGrid):
 			## Ugly workaround for grids not firing focus events from the keyboard 
@@ -291,6 +292,10 @@ class dPemMixin(dPemMixinBase):
 		if self._needRedraw:
 			self._redraw()
 		self.raiseEvent(dEvents.Idle, evt)
+
+		
+	def __onWxMenuOpen(self, evt):
+		self.raiseEvent(dEvents.MenuOpen, evt)
 
 		
 	def __onWxGotFocus(self, evt):
