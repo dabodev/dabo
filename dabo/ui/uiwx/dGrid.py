@@ -1,6 +1,7 @@
 import sys
 import datetime
 import locale
+import operator
 import wx
 import wx.grid
 import dabo
@@ -1950,6 +1951,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			col._persist("Order")
 		self.fillGrid(True)
 
+
+	def sizeToColumns(self):
+		"""Set the width of the grid equal to the sum of the widths
+		of the columns.
+		"""
+		self.Width = reduce(operator.add, [col.Width for col in self.Columns])
+		
 
 	def onSearchTimer(self, evt):
 		""" Occurs when the incremental search timer reaches its interval. 
