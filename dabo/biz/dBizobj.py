@@ -652,7 +652,12 @@ class dBizobj(dObject):
 		in a particular order. All the checking on the parameters is done
 		in the cursor. 
 		"""
-		self._CurrentCursor.sort(col, ord, caseSensitive)
+		try:
+			cc = self._CurrentCursor
+		except:
+			cc = None
+		if cc is not None:
+			self._CurrentCursor.sort(col, ord, caseSensitive)
 
 
 	def setParams(self, params):
@@ -800,7 +805,14 @@ class dBizobj(dObject):
 		By default, only the current record is checked. Call isAnyChanged() to
 		check all records.
 		"""
-		ret = self._CurrentCursor.isChanged(allRows = False)
+		try:
+			cc = self._CurrentCursor
+		except:
+			cc = None
+		if cc is None:
+			# No cursor, no changes.
+			return False
+		ret = cc.isChanged(allRows = False)
 		
 		if not ret:
 			# see if any child bizobjs have changed
@@ -1058,7 +1070,14 @@ class dBizobj(dObject):
 		to only include the specified fields. rowStart specifies the starting row
 		to include, and rows is the number of rows to return. 
 		"""
-		return self._CurrentCursor.getDataSet(flds, rowStart, rows)
+		ret = None
+		try:
+			cc = self._CurrentCursor
+		except:
+			cc = None
+		if cc is not None:
+			ret = self._CurrentCursor.getDataSet(flds, rowStart, rows)
+		return ret
 	
 	
 	def getDataStructure(self):
@@ -1219,19 +1238,23 @@ class dBizobj(dObject):
 		except:
 			return None
 
+
 	def _getCaption(self):
 		try:
 			return self._caption
 		except AttributeError:
 			return self.DataSource
+			
 	def _setCaption(self, val):
 		self._caption = str(val)
+
 
 	def _getCurrentSQL(self):
 		try:
 			v = self._CurrentCursor.CurrentSQL
 		except AttributeError:
 			return None
+
 
 	def _getCurrentCursor(self):
 		try:
@@ -1243,6 +1266,7 @@ class dBizobj(dObject):
 				return self.__cursors[self.__currentCursorKey]
 			except KeyError:
 				return None
+				
 	def _setCurrentCursor(self, val):
 		""" Sees if there is a cursor in the cursors dict with a key that matches
 		the current parent key. If not, creates one.
@@ -1250,23 +1274,27 @@ class dBizobj(dObject):
 		self.__currentCursorKey = val
 		if not self.__cursors.has_key(val):
 			self.createCursor()
+			
 	
 	def _getDataSource(self):
 		try: 
 			return self._dataSource
 		except AttributeError:
 			return ""
+			
 	def _setDataSource(self, val):
 		self._dataSource = str(val)
 		cursor = self._CurrentCursor
 		if cursor is not None:
 			cursor.Table = val
+			
 	
 	def _getDefaultValues(self):
 		return self._defaultValues
 
 	def _setDefaultValues(self, val):
 		self._defaultValues = val
+		
 
 	def _getEncoding(self):
 		ret = "utf-8"
@@ -1278,96 +1306,118 @@ class dBizobj(dObject):
 	def _setEncoding(self, val):
 		self._CurrentCursor.Encoding = val
 
+
 	def _getRequeryOnLoad(self):
 		try:
 			ret = self._requeryOnLoad
 		except AttributeError:
 			ret = False
 		return ret
+
 	def _setRequeryOnLoad(self, val):
 		self._requeryOnLoad = bool(val)
+
 		
 	def _getParent(self):
 		try:
 			return self._parent
 		except AttributeError:
 			return None
+
 	def _setParent(self, val):
 		if isinstance(val, dBizobj):
 			self._parent = val
 		else:
 			raise TypeError, "Parent must descend from dBizobj"
+
 			
 	def _getAutoPopulatePK(self):
 		try:
 			return self._autoPopulatePK
 		except AttributeError:
 			return True
+
 	def _setAutoPopulatePK(self, val):
 		self._autoPopulatePK = bool(val)
+
 	
 	def _getKeyField(self):
 		try:
 			return self._keyField
 		except AttributeError:
 			return ""
+
 	def _setKeyField(self, val):
 		self._keyField = val
 		cursor = self._CurrentCursor
 		if cursor is not None:
 			cursor.KeyField = val
 	
+
 	def _getLinkField(self):
 		try:
 			return self._linkField
 		except AttributeError:
 			return ""
+
 	def _setLinkField(self, val):
 		self._linkField = str(val)
+
 		
 	def _getParentLinkField(self):
 		try:
 			return self._parentLinkField
 		except AttributeError:
 			return ""
+
 	def _setParentLinkField(self, val):
 		self._parentLinkField = str(val)
+
 		
 	def _getRequeryChildOnSave(self):
 		try:
 			return self._requeryChildOnSave
 		except AttributeError:
 			return False
+
 	def _setRequeryChildOnSave(self, val):
 		self._requeryChildOnSave = bool(val)
+
 		
 	def _getNewRecordOnNewParent(self):
 		try:
 			return self._newRecordOnNewParent
 		except AttributeError:
 			return False
+
 	def _setNewRecordOnNewParent(self, val):
 		self._newRecordOnNewParent = bool(val)
+
 		
 	def _getNewChildOnNew(self):
 		try:
 			return self._newChildOnNew
 		except AttributeError:
 			return False
+
 	def _setNewChildOnNew(self, val):
 		self._newChildOnNew = bool(val)
+
 					
 	def _getFillLinkFromParent(self):
 		try:
 			return self._fillLinkFromParent
 		except AttributeError:
 			return False
+
 	def _setFillLinkFromParent(self, val):
 		self._fillLinkFromParent = bool(val)
+
 		
 	def _isAdding(self):
 		return self._CurrentCursor.IsAdding
 	
+
 	def _getLastSQL(self):
 		try:
 			v = self._CurrentCursor.LastSQL
@@ -1375,19 +1425,32 @@ class dBizobj(dObject):
 			v = None
 		return v
 			
+
 	def _getRestorePositionOnRequery(self):
 		try:
 			return self._restorePositionOnRequery
 		except AttributeError:
 			return True
+
 	def _setRestorePositionOnRequery(self, val):
 		self._restorePositionOnRequery = bool(val)
 
+
 	def _getRowCount(self):
-		return self._CurrentCursor.RowCount
+		try:
+			ret = self._CurrentCursor.RowCount
+		except:
+			ret = None
+		return ret
+		
 
 	def _getRowNumber(self):
-		return self._CurrentCursor.RowNumber
+		try:
+			ret = self._CurrentCursor.RowNumber
+		except:
+			ret = None
+		return ret
+
 	def _setRowNumber(self, rownum):
 		errMsg = self.beforeSetRowNumber()
 		if not errMsg:
@@ -1398,17 +1461,20 @@ class dBizobj(dObject):
 		self.requeryAllChildren()
 		self.afterPointerMove()
 		self.afterSetRowNumber()
+
 	
 	def _getSQL(self):
 		try:
 			return self._SQL
 		except AttributeError:
 			return ""
+			
 	def _setSQL(self, val):
 		self._SQL = val
 		cursor = self._CurrentCursor
 		if cursor is not None:
 			cursor.setSQL(val)
+
 
 	def _getSqlMgr(self):
 		if self._sqlMgrCursor is None:
@@ -1422,6 +1488,7 @@ class dBizobj(dObject):
 			crs.AutoPopulatePK = self.AutoPopulatePK
 			crs.BackendObject = cn.getBackendObject()
 		return self._sqlMgrCursor
+
 
 	def _getUserSQL(self):
 		try:
@@ -1458,9 +1525,9 @@ class dBizobj(dObject):
 	DefaultValues = property(_getDefaultValues, _setDefaultValues, None,
 			_("""A dictionary specifying default values for fields when a new record is added.
 
-				The values of the dictionary can be literal (must match the field type), or 
-				they can be a function object which will be called when the new record is added
-				to the bizobj."""))
+			The values of the dictionary can be literal (must match the field type), or 
+			they can be a function object which will be called when the new record is added
+			to the bizobj."""))
 
 	Encoding = property(_getEncoding, _setEncoding, None,
 			_("Name of encoding to use for unicode  (str)") )
