@@ -52,7 +52,6 @@ elif wx.Platform == '__WXMAC__':
 	monoFont = "Monaco"
 	propFont = "Verdana"
 	fontSize = 13
-	useSplitSashes = False
 else:
 	monoFont = "Courier"
 	propFont = "Helvetica"
@@ -124,51 +123,11 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self._styleTimer.Interval = styleTimerInterval
 			self._styleTimer.start()
 
-		if useSplitSashes:
-			self.dyn_sash = parent
-			self.SetupScrollBars()
-			#self.SetMarginWidth(1,0)
-			self.Bind(gizmos.EVT_DYNAMIC_SASH_SPLIT, self.OnSplit)
-			self.Bind(gizmos.EVT_DYNAMIC_SASH_UNIFY, self.OnUnify)
-
 	
 	def setFormCallbacks(self, funcTuple):
 		self._registerFunc, self._unRegisterFunc = funcTuple
 
 
-	def SetupScrollBars(self):
-		if not useSplitSashes:
-			return
-		# hook the scrollbars provided by the wxDynamicSashWindow
-		# to this view
-		v_bar = self.dyn_sash.GetVScrollBar(self)
-		h_bar = self.dyn_sash.GetHScrollBar(self)
-		v_bar.Bind(wx.EVT_SCROLL, self.OnSBScroll)
-		h_bar.Bind(wx.EVT_SCROLL, self.OnSBScroll)
-		v_bar.Bind(wx.EVT_SET_FOCUS, self.OnSBFocus)
-		h_bar.Bind(wx.EVT_SET_FOCUS, self.OnSBFocus)
-		
-		# And set the wxStyledText to use these scrollbars instead
-		# of its built-in ones.
-		self.SetVScrollBar(v_bar)
-		self.SetHScrollBar(h_bar)
-
-	
-	def OnSplit(self, evt):
-		if useSplitSashes:
-			newview = dEditor(self.dyn_sash)
-			newview.setFormCallbacks( (self._registerFunc, self._unRegisterFunc) )
-			self._registerFunc(newview)
-			newview.SetDocPointer(self.GetDocPointer())     # use the same document
-			self.SetupScrollBars()
-			newview.SetupScrollBars()
-
-				
-	def OnUnify(self, evt):
-		if useSplitSashes:
-			self.SetupScrollBars()
-			
-	
 	def __del__(self):
 		self._unRegisterFunc(self)
 		super(dEditor, self).__del__()

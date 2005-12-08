@@ -164,7 +164,7 @@ class dOkCancelDialog(dDialog):
 	def _addControls(self):
 		# We want every subclass to be able to add their controls
 		# before we add the OK/Cancel buttons.
-		self.pnlControl = dabo.ui.dPanel(self, BackColor="yellow")
+		self.pnlControl = dabo.ui.dPanel(self)
 		self.pnlControl.Sizer = dabo.ui.dSizer("v")
 		self.pnlButtons = pnl = dabo.ui.dPanel(self)
 		pnl.Sizer = hs = dabo.ui.dSizer("H")

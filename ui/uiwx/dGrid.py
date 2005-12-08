@@ -2614,7 +2614,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				if bizobj.RowCount > newRow:
 					# First attempt to go through the form.
 					if self.Form:
-						self.Form.moveToRowNumber(newRow, dataSource=bizobj.DataSource)
+						if hasattr(self.Form, "moveToRowNumber"):
+							self.Form.moveToRowNumber(newRow, dataSource=bizobj.DataSource)
 					else:
 						# set the RowNumber on the bizobj directly
 						bizobj.RowNumber = newRow
