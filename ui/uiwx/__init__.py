@@ -63,6 +63,7 @@ from dDropdownList import dDropdownList
 from dDialog import dDialog
 from dDialog import dOkCancelDialog
 from dEditBox import dEditBox
+from dEditor import dEditor
 from dFileDialog import dFileDialog
 from dFileDialog import dFolderDialog
 from dFileDialog import dSaveDialog
