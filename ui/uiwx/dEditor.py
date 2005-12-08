@@ -442,7 +442,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			## PythonCard - Thanks Kevin for suggesting I take a look at it.
 			evt.Continue = False
 			self.CmdKeyExecute(stc.STC_CMD_NEWLINE)
-			line = self.GetCurrentLine() - 1
+			line = self.LineNumber - 1
 			txt = self.GetLine(line).rstrip()
 			
 			currIndent = self.GetIndent()
@@ -539,6 +539,10 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			dabo.errorLog.write(_("Invalid syntax coloring type specified: %s") % typ)
 	
 	
+	def toggleWordWrap(self):
+		self.WordWrap = not self.WordWrap
+
+		
 	def OnModified(self, evt):
 		if not self._syntaxColoring:
 			return
@@ -950,6 +954,18 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self.raiseEvent(dEvents.TitleChanged)
 			
 
+	def increaseTextSize(self, pts=1):
+		self.ZoomLevel += pts
+		
+		
+	def decreaseTextSize(self, pts=1):
+		self.ZoomLevel -= pts
+		
+		
+	def restoreTextSize(self):
+		self.ZoomLevel = 0
+		
+		
 	def _getRuntimeObjectName(self):
 		"""Go backwards from the current position and get the runtime object name
 		that the user is currently editing. For example, if they entered a '.' after
@@ -987,12 +1003,12 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		runtime environment, for the purpose of getting auto-completion.
 		"""
 		classdef = None
-		for line in range(self.GetCurrentLine() - 1, -1, -1):
+		for line in range(self.LineNumber - 1, -1, -1):
 			text = self.GetLine(line).strip()
 			if text[0:6] == "class ":
 				# Now move forward, to get the entire classdef
 				args = ""
-				for line in range(line, self.GetCurrentLine()):
+				for line in range(line, self.LineNumber):
 					text = self.GetLine(line).strip()
 					if len(args) == 0 and "(" in text:
 						args = text[text.index("("):]
@@ -1072,13 +1088,69 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				pass
 			
 		ic = IC(self._namespaces)
-		for lineNum in range(self.GetCurrentLine() + 1):
+		for lineNum in range(self.LineNumber + 1):
 			line = self.GetLine(lineNum).rstrip()
 			ic.push(line)
 		sys.stderr, sys.stdout = stdErr, stdOut
 		
-		
 
+	def _getLineNumber(self):
+		return self.GetCurrentLine()
+
+	def _setLineNumber(self, val):
+		self.GotoLine(val)
+
+
+	def _getLineCount(self):
+		return self.GetLineCount()
+
+
+	def _getModified(self):
+		return self.GetModify()
+
+
+	def _getText(self):
+		return self.GetText()
+
+	def _setText(self, val):
+		self.SetText(val)
+
+
+	def _getWordWrap(self):
+		return self.GetWrapMode()
+
+	def _setWordWrap(self, val):
+		self.SetWrapMode(val)
+
+
+	def _getZoomLevel(self):
+		return self.GetZoom()
+
+	def _setZoomLevel(self, val):
+		self.SetZoom(val)
+
+
+	LineNumber = property(_getLineNumber, _setLineNumber, None,
+			_("Returns the current line number being edited  (int)"))
+	
+	LineCount = property(_getLineCount, None, None,
+			_("Total number of lines in the document  (int)"))
+	
+	Modified = property(_getModified, None, None,
+			_("Has the content of this editor been modified?  (bool)"))
+	
+	Text = property(_getText, _setText, None,
+			_("Current contents of the editor  (str)"))
+	
+	WordWrap = property(_getWordWrap, _setWordWrap, None,
+			_("""Controls whether text lines that are wider than the window
+			are soft-wrapped or clipped. (bool)"""))
+	
+	ZoomLevel = property(_getZoomLevel, _setZoomLevel, None,
+			_("Point increase/decrease from normal viewing size  (int)"))
+	
+	
+	
 class _dEditor_test(dEditor): pass
 
 if __name__ == '__main__':
