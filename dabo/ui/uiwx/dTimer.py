@@ -6,8 +6,10 @@ if __name__ == "__main__":
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import dIcons
+import dBitmap
 
-class dTimer(dabo.ui.dBitmap):
+
+class dTimer(dBitmap.dBitmap):
 	"""Creates a timer, for causing something to happen at regular intervals. 
 	"""
 	# Note: this class is implemented as a static bitmap which serves as

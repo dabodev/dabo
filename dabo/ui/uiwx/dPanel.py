@@ -1,4 +1,7 @@
-import wx, dabo, dabo.ui
+import wx
+import dabo
+from dabo.dLocalize import _
+
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -37,6 +40,7 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 	instead, and then adding the panel to the form.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
+		self._horizontalScroll = self._verticalScroll = True
 		self._baseClass = dScrollPanel
 		preClass = wx.PreScrolledWindow
 		kwargs["style"] = wx.TAB_TRAVERSAL
@@ -56,4 +60,27 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 			self.Sizer.layout()
 		except:
 			pass
+			
 
+	def _getHorizontalScroll(self):
+		return self._horizontalScroll
+
+	def _setHorizontalScroll(self, val):
+		self._horizontalScroll = val
+		self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
+		
+
+	def _getVerticalScroll(self):
+		return self._verticalScroll
+
+	def _setVerticalScroll(self, val):
+		self._verticalScroll = val
+		self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
+		
+
+	HorizontalScroll = property(_getHorizontalScroll, _setHorizontalScroll, None,
+			_("Controls whether this object will scroll horizontally (default=True)  (bool)"))
+	
+	VerticalScroll = property(_getVerticalScroll, _setVerticalScroll, None,
+			_("Controls whether this object will scroll vertically (default=True)  (bool)"))
+	
