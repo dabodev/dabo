@@ -106,13 +106,16 @@ class About(dabo.ui.dDialog):
 	
 	def onCopyInfo(self, evt):
 		"""Copy the system information to the Clipboard"""
-		info = """Platform: %s
-Dabo Version: %s
-UI Version: %s (%s)
-Python Version: %s
-""" % (self.Application.Platform, self.daboVersion,
-				self.uiVersion, self.Application.getCharset(), self.pyVersion)
-		self.Application.copyToClipboard(info)		
+		info = ["Platform: %s" % self.Application.Platform,
+				"Dabo Version: %s" % self.daboVersion,
+				"UI Version: %s (%s)" % (self.uiVersion, self.Application.getCharset()),
+				"Python Version: %s" % self.pyVersion]
+
+		if self.Application.Platform == "Win":
+			eol = "\r\n"
+		else:
+			eol = "\n"
+		self.Application.copyToClipboard(eol.join(info))		
 
 
 	def onClear(self, evt):
