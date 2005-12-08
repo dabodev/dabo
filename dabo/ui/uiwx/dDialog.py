@@ -152,6 +152,8 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 	ReleaseOnEscape = property(_getReleaseOnEscape, _setReleaseOnEscape, None,
 			"Determines if the <Esc> key releases the dialog (the default).")
 
+
+
 class dOkCancelDialog(dDialog):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dOkCancelDialog
@@ -162,34 +164,33 @@ class dOkCancelDialog(dDialog):
 	def _addControls(self):
 		# We want every subclass to be able to add their controls
 		# before we add the OK/Cancel buttons.
-		super(dOkCancelDialog, self)._addControls()
-
-		pnl = dabo.ui.dPanel(self)
+		self.pnlControl = dabo.ui.dPanel(self)
+		self.pnlControl.Sizer = dabo.ui.dSizer("v")
+		self.pnlButtons = pnl = dabo.ui.dPanel(self)
 		hs = dabo.ui.dSizer("H")
 		pnl.Sizer = hs
-#		hs.append( (24, 1) )
+		sz = self.Sizer
+		sz.Border = 20
+		sz.BorderLeft = sz.BorderRight = True
+		sz.append1x(self.pnlControl)
+		sz.appendSpacer(10)
+		sz.append(self.pnlButtons, 0, halign="right", valign="bottom")
+		super(dOkCancelDialog, self)._addControls()
+
 		self.btnOK = dabo.ui.dButton(pnl, id=wx.ID_OK)
 		self.btnOK.bindEvent(dEvents.Hit, self.onOK)
 		hs.append(self.btnOK, 1)
-		hs.append( (4, 1) )
+		hs.appendSpacer(5)
 		self.btnCancel = dabo.ui.dButton(pnl, id=wx.ID_CANCEL)
 		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
 		hs.append(self.btnCancel, 1)
-		hs.append( (5, 1) )
+		hs.appendSpacer(8)
 		
 		pnl.layout()
 		pnl.Fit()
 		# Add a little breathing room
 		pnl.Width += 4
 		pnl.Height += 4
-		pnl.layout()
-		
-		# Add a 10-pixel spacer between the added controls and 
-		# the OK/Cancel button panel
-		self.Sizer.append( (1, 10) )		
-		self.Sizer.append(pnl, 0, alignment=("bottom", "right") )#, border=20)
-		self.Sizer.append( (1, 5) )		
-		
 		self.layout()
 		
 	
@@ -204,6 +205,8 @@ class dOkCancelDialog(dDialog):
 	def onOK(self, evt):
 		self.Accepted = True
 		self.EndModal(kons.DLG_OK)
+	# Create an alias to this method.
+	onAccept = onOK
 
 	def onCancel(self, evt):
 		self.Accepted = False
