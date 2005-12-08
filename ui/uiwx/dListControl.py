@@ -229,6 +229,18 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 		"""
 		ret = self.GetItem(itm).GetImage()
 		return ret
+	
+
+	def getItemBackColor(self, itm):
+		return self.GetItemBackgroundColour(itm)
+
+
+	def setItemBackColor(self, itm, val):
+		if isinstance(val, basestring):
+			color = dabo.dColors.colorTupleFromName(val)
+		else:
+			color = val
+		self.SetItemBackgroundColour(itm, color)
 		
 	
 	def __onActivation(self, evt):
