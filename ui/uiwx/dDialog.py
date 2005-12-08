@@ -167,32 +167,33 @@ class dOkCancelDialog(dDialog):
 		self.pnlControl = dabo.ui.dPanel(self)
 		self.pnlControl.Sizer = dabo.ui.dSizer("v")
 		self.pnlButtons = pnl = dabo.ui.dPanel(self)
-		hs = dabo.ui.dSizer("H")
-		pnl.Sizer = hs
-		sz = self.Sizer
-		sz.Border = 20
-		sz.BorderLeft = sz.BorderRight = True
-		sz.append1x(self.pnlControl)
-		sz.appendSpacer(10)
-		sz.append(self.pnlButtons, 0, halign="right", valign="bottom")
-		super(dOkCancelDialog, self)._addControls()
-
+		pnl.Sizer = hs = dabo.ui.dSizer("H")
 		self.btnOK = dabo.ui.dButton(pnl, id=wx.ID_OK)
 		self.btnOK.bindEvent(dEvents.Hit, self.onOK)
+		hs.appendSpacer(20, 1)
 		hs.append(self.btnOK, 1)
 		hs.appendSpacer(5)
 		self.btnCancel = dabo.ui.dButton(pnl, id=wx.ID_CANCEL)
 		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
 		hs.append(self.btnCancel, 1)
 		hs.appendSpacer(8)
-		
 		pnl.layout()
 		pnl.Fit()
-		# Add a little breathing room
-		pnl.Width += 4
-		pnl.Height += 4
-		self.layout()
 		
+		sz = self.Sizer
+		sz.Border = 20
+		sz.BorderLeft = sz.BorderRight = True
+		sz.appendSpacer(10, 1)
+		sz.append1x(self.pnlControl)
+		sz.appendSpacer(10, 1)
+		sz.append(self.pnlButtons, 0, halign="right", valign="bottom", 
+				border=16, borderFlags=("right", "bottom"))
+		
+		# This is the point where the user adds controls.
+		super(dOkCancelDialog, self)._addControls()
+
+		self.layout()
+
 	
 	def addControls(self):
 		"""Use this method to add controls to the dialog. The OK/Cancel
