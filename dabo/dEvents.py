@@ -137,6 +137,11 @@ class DataEvent(Event):
 		return issubclass(objectClass, dabo.biz.dBizobj)
 	appliesToClass = classmethod(appliesToClass)
 			
+class EditorEvent(Event):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dEditor)
+	appliesToClass = classmethod(appliesToClass)
+			
 class GridEvent(Event):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dGrid)
@@ -145,6 +150,11 @@ class GridEvent(Event):
 class KeyEvent(Event):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
+	
+class ListEvent(Event):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, (dabo.ui.dListControl, dabo.ui.dListBox))
 	appliesToClass = classmethod(appliesToClass)
 	
 class MenuEvent(Event):
@@ -168,11 +178,6 @@ class TreeEvent(Event):
 		return issubclass(objectClass, dabo.ui.dTreeView)
 	appliesToClass = classmethod(appliesToClass)
 
-class ListEvent(Event):
-	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, (dabo.ui.dListControl, dabo.ui.dListBox))
-	appliesToClass = classmethod(appliesToClass)
-	
 class Activate(Event):
 	"""Occurs when the form or application becomes active."""
 	def appliesToClass(eventClass, objectClass):
@@ -518,8 +523,28 @@ class GridColSize(GridEvent):
 	"""Occurs when the grid's columns are resized."""
 	pass
 
-
+class DocumentationHint(EditorEvent):
+	"""Occurs when the editor wants documentation information to change.
 	
+	The IDE can bind to this to direct detailed documentation into a separate
+	window, likely replacing previous documentation. The user can choose how
+	to display that window, if at all.
+	
+	Raise this event with three additional keyword arguments:
+		+ shortDoc: a one-liner call tip
+		+ longDoc: a multi-line call tip plus expanded documentation
+		+ object: a reference to the object to be documented, in case
+			the listener wants to format additional information about 
+			the object.
+	"""
+	pass
+
+
+class TitleChanged(EditorEvent):
+	"""Occurs when the editor's title changes."""
+	pass
+
+
 class ValueChanged(Event):
 	"""Occurs when the control's value has changed, whether programmatically or interactively."""
 	def appliesToClass(eventClass, objectClass):
