@@ -49,7 +49,7 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 		if self.AutoSize:
 			self.Fit()
 		if self.Centered:
-			self.Centre()
+			wx.CallAfter(self.Centre)
 		retVals = {wx.ID_OK : kons.DLG_OK, 
 				wx.ID_CANCEL : kons.DLG_CANCEL}
 		if self.Modal:
@@ -164,7 +164,7 @@ class dOkCancelDialog(dDialog):
 	def _addControls(self):
 		# We want every subclass to be able to add their controls
 		# before we add the OK/Cancel buttons.
-		self.pnlControl = dabo.ui.dPanel(self)
+		self.pnlControl = dabo.ui.dPanel(self, BackColor="yellow")
 		self.pnlControl.Sizer = dabo.ui.dSizer("v")
 		self.pnlButtons = pnl = dabo.ui.dPanel(self)
 		pnl.Sizer = hs = dabo.ui.dSizer("H")
@@ -184,7 +184,7 @@ class dOkCancelDialog(dDialog):
 		sz.Border = 20
 		sz.BorderLeft = sz.BorderRight = True
 		sz.appendSpacer(10, 1)
-		sz.append1x(self.pnlControl)
+		sz.append(self.pnlControl, 10, "x")
 		sz.appendSpacer(10, 1)
 		sz.append(self.pnlButtons, 0, halign="right", valign="bottom", 
 				border=16, borderFlags=("right", "bottom"))
