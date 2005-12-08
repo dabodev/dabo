@@ -264,7 +264,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			self.grid.ProcessTableMessage(msg)
 		# Column widths come from multiple places. In decreasing precedence:
 		#   1) dApp user settings, 
-		#   2) the fieldSpecs
+		#   2) col.Width (as set by the Width prop or by the fieldspecs)
 		#   3) have the grid autosize
 
 		for idx, col in enumerate(self.colDefs):
@@ -594,11 +594,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		"""Return our column index in the grid, or -1."""
 		gridCol = -1
 		try:
-			t = self.Parent._Table
+			grid = self.Parent
 		except:
-			t = None
-		if t is not None:
-			for idx, dCol in enumerate(t.colDefs):
+			grid = None
+		if grid is not None:
+			for idx, dCol in enumerate(grid.Columns):
 				if dCol == self:
 					gridCol = idx
 					break
@@ -1155,7 +1155,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			idx = self._GridColumnIndex
 			if idx >= 0:
 				# Make sure the grid is in sync:
-				self.Parent.SetColSize(self._GridColumnIndex, v)
+				self.Parent.SetColSize(idx, v)
 		return v
 
 	def _setWidth(self, val):
@@ -1165,7 +1165,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				idx = self._GridColumnIndex
 				if idx >= 0:
 					# Change the size in the wx grid:
-					self.Parent.SetColSize(self._GridColumnIndex, val)
+					self.Parent.SetColSize(idx, val)
+					self.Parent.refresh()
 		else:
 			self._properties["Width"] = val
 	
@@ -1952,12 +1953,29 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.fillGrid(True)
 
 
-	def sizeToColumns(self):
-		"""Set the width of the grid equal to the sum of the widths
-		of the columns.
+	def sizeToColumns(self, scrollBarFudge=True):
+		"""Set the width of the grid equal to the sum of the widths	of the columns.
+
+		If scrollBarFudge is True, additional space will be added to account for
+		the width of the vertical scrollbar.
 		"""
-		self.Width = reduce(operator.add, [col.Width for col in self.Columns])
+		fudge = 5
+		if scrollBarFudge:
+			fudge = 18
+		self.Width = reduce(operator.add, [col.Width for col in self.Columns]) + fudge
 		
+
+	def sizeToRows(self, maxHeight=500, scrollBarFudge=True):
+		"""Set the height of the grid equal to the sum of the heights of the rows.
+
+		This is intended to be used only when the number of rows is expected to be
+		low. Set maxHeight to whatever you want the maximum height to be.
+		"""
+		fudge = 5
+		if scrollBarFudge:
+			fudge = 18
+		self.Height = min(self.RowHeight * self.RowCount, maxHeight) + fudge
+	
 
 	def onSearchTimer(self, evt):
 		""" Occurs when the incremental search timer reaches its interval. 
@@ -2293,15 +2311,25 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""
 		if col is None:
 			col = self.ColumnClass(self)
+		else:
+			col.Parent = self
 		if col.Order == -1:
 			col.Order = self.maxColOrder() + 10
-		col.Width = 75
 		self._columns.append(col)
 		if not inBatch:
 			msg = wx.grid.GridTableMessage(self._Table,
 					wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
 					1)
 			self.ProcessTableMessage(msg)
+
+		## Set the Width property last, otherwise it won't stick:
+		if not col.Width:
+			col.Width = 75
+		else:
+			## If Width was specified in the dColumn subclass or in the constructor,
+			## it's been set as the property but because it wasn't part of the grid
+			## yet it hasn't yet taken effect: force it.
+			col.Width = col.Width
 		return col
 
 
@@ -3043,6 +3071,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self._properties["HeaderVerticalAlignment"] = val
 
 
+	def _getHorizontalScrolling(self):
+		return self.GetScrollPixelsPerUnit()[0] > 0
+
+	def _setHorizontalScrolling(self, val):
+		if self._constructed():
+			if val:
+				self.SetScrollRate(20, self.GetScrollPixelsPerUnit()[1])
+			else:
+				self.SetScrollRate(0, self.GetScrollPixelsPerUnit()[1])
+			self.refresh()
+		else:
+			self._properties["HorizontalScrolling"] = val
+
+
 	def _getRowHeight(self):
 		return self._rowHeight
 
@@ -3068,20 +3110,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def _setRowLables(self, val):
 		self._rowLabels = val
 		self.fillGrid()
-
-
-	def _getShowRowLabels(self):
-		return self._showRowLabels
-
-	def _setShowRowLabels(self, val):
-		if self._constructed():
-			self._showRowLabels = val
-			if val:
-				self.SetRowLabelSize(self._rowLabelWidth)
-			else:
-				self.SetRowLabelSize(0)
-		else:
-			self._properties["ShowRowLabels"] = val
 
 
 	def _getRowLabelWidth(self):
@@ -3114,6 +3142,44 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._searchable = bool(val)
 
 
+	def _getShowColumnLabels(self):
+		return self._showColumnLabels
+
+	def _setShowColumnLabels(self, val):
+		if self._constructed():
+			self._showColumnLabels = val
+			if val:
+				self.SetColLabelSize(self.ColumnLabelHeight)
+			else:
+				self.SetColLabelSize(0)
+		else:
+			self._properties["ShowColumnLabels"] = val
+
+
+	def _getShowCellBorders(self):
+		return self.GridLinesEnabled()
+
+	def _setShowCellBorders(self, val):
+		if self._constructed():
+			self.EnableGridLines(val)
+		else:
+			self._properties["ShowCellBorders"] = val
+
+
+	def _getShowRowLabels(self):
+		return self._showRowLabels
+
+	def _setShowRowLabels(self, val):
+		if self._constructed():
+			self._showRowLabels = val
+			if val:
+				self.SetRowLabelSize(self._rowLabelWidth)
+			else:
+				self.SetRowLabelSize(0)
+		else:
+			self._properties["ShowRowLabels"] = val
+
+
 	def _getSortable(self):
 		try:
 			v = self._sortable
@@ -3123,6 +3189,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _setSortable(self, val):
 		self._sortable = bool(val)
+
+
+	def _getVerticalScrolling(self):
+		return self.GetScrollPixelsPerUnit()[1] > 0
+
+	def _setVerticalScrolling(self, val):
+		if self._constructed():
+			if val:
+				self.SetScrollRate(self.GetScrollPixelsPerUnit()[0], 20)
+			else:
+				self.SetScrollRate(self.GetScrollPixelsPerUnit()[0], 0)
+			self.refresh()
+		else:
+			self._properties["VerticalScrolling"] = val
 
 
 	def _getTable(self):
@@ -3227,6 +3307,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	HeaderHeight = property(_getHeaderHeight, _setHeaderHeight, None, 
 			_("Height of the column headers.  (int)") )
 	
+	HorizontalScrolling = property(_getHorizontalScrolling, _setHorizontalScrolling, None,
+			_("Is scrolling enabled in the horizontal direction?  (bool)"))
+
 	NoneDisplay = property(_getNoneDisp, None, None, 
 			_("Text to display for null (None) values.  (str)") )
 	
@@ -3252,13 +3335,22 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			_("""Delay in miliseconds between keystrokes before the 
 			incremental search clears  (int)""") )
 			
+	ShowColumnLabels = property(_getShowColumnLabels, _setShowColumnLabels, None,
+			_("Are column labels shown?  (bool)") )
+
 	ShowRowLabels = property(_getShowRowLabels, _setShowRowLabels, None,
 			_("Are row labels shown?  (bool)") )
+
+	ShowCellBorders = property(_getShowCellBorders, _setShowCellBorders, None,
+			_("Are borders around cells shown?  (bool)") )
 
 	Sortable = property(_getSortable, _setSortable, None,
 			_("""Specifies whether the columns can be sorted. If True, 
 			and if the column's Sortable property is True, the column 
 			will be sortable. Default: True  (bool)"""))
+
+	VerticalScrolling = property(_getVerticalScrolling, _setVerticalScrolling, None,
+			_("Is scrolling enabled in the vertical direction?  (bool)"))
 
 	_Table = property(_getTable, _setTable, None,
 			_("Reference to the internal table class  (dGridDataTable)") )
