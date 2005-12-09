@@ -1,4 +1,5 @@
-import wx, dabo
+import wx
+import dabo
 import dabo.dEvents as dEvents
 import dFormMixin as fm
 import dabo.dException as dException
@@ -24,7 +25,7 @@ class dFormBase(fm.dFormMixin):
 		# If this is True, a panel will be automatically added to the
 		# form and sized to fill the form.
 		self.mainPanel = None
-		self.mkPanel = self._extractKey(kwargs, "panel")
+		self.mkPanel = self._extractKey((kwargs, properties), "panel", False)
 		
 		# Use this for timing queries and other long-
 		# running events

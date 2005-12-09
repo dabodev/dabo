@@ -65,14 +65,23 @@ class PropertyHelperMixin(object):
 	def _extractKey(self, kwdict, key, defaultVal=None):
 		""" If the supplied key is present in the kwdict, the associated
 		value is returned, and that key's element is deleted from the
-		dict. If the key doesn't exist, the default value is returned.
+		dict. If the key doesn't exist, the default value is returned. If
+		kwdict is a tuple/list, it will look in each element until a value
+		is found.
 		"""
-		try:
-			ret = kwdict[key]
-			del kwdict[key]
-			return ret
-		except KeyError:
-			return defaultVal
+		if not isinstance(kwdict, (tuple, list)):
+			kwdict = (kwdict, )
+		ret = defaultVal
+		for dd in kwdict:
+			if dd is None:
+				continue
+			try:
+				ret = dd[key]
+				del dd[key]
+				break
+			except KeyError:
+				pass
+		return ret
 			
 				
 	def getProperties(self, propertySequence=(), propsToSkip=(),

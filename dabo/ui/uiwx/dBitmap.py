@@ -1,4 +1,5 @@
-import wx, dabo, dabo.ui
+import wx
+import dabo
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -9,12 +10,11 @@ from dabo.dLocalize import _
 import dIcons
 
 class dBitmap(wx.StaticBitmap, cm.dControlMixin):
-	"""Creates a simple bitmap control to display images on your forms. 
-	"""
+	"""Creates a simple bitmap control to display images on your forms."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dBitmap
 		preClass = wx.StaticBitmap
-		picName = self._extractKey(kwargs, "Picture", "")
+		picName = self._extractKey((kwargs, properties), "Picture", "")
 		
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		

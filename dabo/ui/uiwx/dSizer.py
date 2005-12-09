@@ -9,7 +9,7 @@ class dSizer(wx.BoxSizer, dSizerMixin.dSizerMixin):
 		self._baseClass = dSizer
 		self._border = 0
 
-		orient = self._extractKey(kwargs, "Orientation", orientation)
+		orient = self._extractKey((kwargs, properties), "Orientation", orientation)
 		if orient[0].lower() == "v":
 			orientation = wx.VERTICAL
 		else:

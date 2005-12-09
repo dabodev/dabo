@@ -24,7 +24,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		self._baseClass = dToolBar
 		preClass = wx.PreToolBar
 		
-		style = self._extractKey(kwargs, "style", 0)
+		style = self._extractKey((kwargs, properties), "style", 0)
 		# Note: need to set the TB_TEXT flag, in order for that to be toggleable
 		#       after instantiation. Because most toolbars will want to have icons
 		#       only, there is code in _initProperties to turn it off by default.
