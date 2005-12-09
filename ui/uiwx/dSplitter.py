@@ -72,9 +72,9 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dSplitter
 		baseStyle = wx.SP_3D | wx.SP_PERMIT_UNSPLIT
-		style = self._extractKey(kwargs, "style", 0) | baseStyle
-		self._createPanes = self._extractKey(kwargs, "createPanes", False)
-		self._splitOnInit = self._extractKey(kwargs, "splitOnInit", True)
+		style = self._extractKey((kwargs, properties), "style", 0)
+		self._createPanes = self._extractKey((kwargs, properties), "createPanes", False)
+		self._splitOnInit = self._extractKey((kwargs, properties), "splitOnInit", True)
 			
 		# Default to vertical split
 		self._orientation = "v"

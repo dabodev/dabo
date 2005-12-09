@@ -15,7 +15,7 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dSlider
 		
-		style = self._extractKey(kwargs, "style")
+		style = self._extractKey((kwargs, properties), "style")
 		if style is None:
 			kwargs["style"] = wx.SL_AUTOTICKS
 		else:

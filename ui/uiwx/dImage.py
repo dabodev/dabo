@@ -20,8 +20,11 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		self._imgProp = 1.0
 		self.__image = None
 		bmp = wx.EmptyBitmap(1, 1)
-		picName = self._extractKey(kwargs, "Picture", "")
-
+		picName = self._extractKey((kwargs, properties), "Picture", "")
+# 		if not picName:
+# 			# See if it was passed in the properties parameter
+# 			picName = self._extractKey(properties, "Picture", "")
+	
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
 				bitmap=bmp, *args, **kwargs)
 		
