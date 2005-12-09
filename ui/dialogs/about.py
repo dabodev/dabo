@@ -35,7 +35,8 @@ class About(dabo.ui.dDialog):
 		sz.append(pnlHead, 0, "x")
 		
 		eg = dabo.ui.dGrid(pnlBack, DataSet=self.getInfoDataSet(), 
-				ShowColumnLabels=False, ShowCellBorders=False)
+				ShowColumnLabels=False, ShowCellBorders=False,
+				CellHighlightWidth=0)
 		eg.addColumn(dabo.ui.dColumn(eg, Name="Name", DataField="name",
 				Sortable=False, Searchable=False, HorizontalAlignment="Right"))
 		eg.addColumn(dabo.ui.dColumn(eg, Name="Name", DataField="value",
