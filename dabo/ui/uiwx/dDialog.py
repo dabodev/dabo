@@ -162,6 +162,35 @@ class dOkCancelDialog(dDialog):
 
 
 	def _addControls(self):
+		# Set some default Sizer properties (user can easily override):
+		sz = self.Sizer
+		sz.Border = 20
+		sz.BorderLeft = sz.BorderRight = True
+
+		# Let the user add their controls
+		super(dOkCancelDialog, self)._addControls()
+
+		# Just in case user changed Self.Sizer, update our reference:
+		sz = self.Sizer
+
+		# Define Ok/Cancel, and tell wx that we want stock buttons:
+		self.btnOK = dabo.ui.dButton(self, id=wx.ID_OK)
+		self.btnOK.bindEvent(dEvents.Hit, self.onOK)
+		self.btnCancel = dabo.ui.dButton(self, id=wx.ID_CANCEL)
+		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
+		
+		# Put the buttons in a StdDialogButtonSizer, so they get positioned/sized
+		# per the native platform conventions, and add that sizer to self.Sizer:
+		buttonSizer = wx.StdDialogButtonSizer()
+		buttonSizer.AddButton(self.btnOK)
+		buttonSizer.AddButton(self.btnCancel)
+		buttonSizer.Realize()
+		sz.append1x(buttonSizer)
+
+		self.layout()
+
+	
+	def _addControls_old(self):
 		# We want every subclass to be able to add their controls
 		# before we add the OK/Cancel buttons.
 		self.pnlControl = dabo.ui.dPanel(self)
@@ -196,9 +225,10 @@ class dOkCancelDialog(dDialog):
 
 	
 	def addControls(self):
-		"""Use this method to add controls to the dialog. The OK/Cancel
-		buttons will be added after this method runs, so that they appear 
-		at the bottom of the dialog
+		"""Use this method to add controls to the dialog. 
+
+		The OK/Cancel	buttons will be added after this method runs, so that they 
+		appear at the bottom of the dialog.
 		"""
 		pass
 		
