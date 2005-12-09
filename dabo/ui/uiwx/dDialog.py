@@ -66,6 +66,7 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 	def _onEscape(self, evt):
 		if self.ReleaseOnEscape:
 			self.release()
+			self.Close()
 
 
 	def _addControls(self):
@@ -151,7 +152,6 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 	
 	ReleaseOnEscape = property(_getReleaseOnEscape, _setReleaseOnEscape, None,
 			"Determines if the <Esc> key releases the dialog (the default).")
-
 
 
 class dOkCancelDialog(dDialog):
