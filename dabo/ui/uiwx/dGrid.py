@@ -2896,9 +2896,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _setCurrentColumn(self, val):
 		if self._constructed():
-			rn = self.CurrentRow
-			self.SetGridCursor(rn, val)
-			self.MakeCellVisible(rn, val)
+			if val > -1:
+				val = min(val, self.ColumnCount)
+				rn = self.CurrentRow
+				self.SetGridCursor(rn, val)
+				self.MakeCellVisible(rn, val)
 		else:
 			self._properties["CurrentColumn"] = val
 		
