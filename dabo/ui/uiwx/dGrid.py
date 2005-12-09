@@ -2812,6 +2812,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def _setActivateEditorOnSelect(self, val):
 		self._activateEditorOnSelect = bool(val)
 
+	
+	def _getCellHighlightWidth(self):
+		return self.GetCellHighlightPenWidth()
+
+	def _setCellHighlightWidth(self, val):
+		if self._constructed():
+			self.SetCellHighlightPenWidth(val)
+			self.SetCellHighlightROPenWidth(val)
+		else:
+			self._properties["CellHighlightWidth"] = val
+
 
 	def _getColumns(self):
 		return self._columns
@@ -3227,6 +3238,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	ActivateEditorOnSelect = property(
 			_getActivateEditorOnSelect, _setActivateEditorOnSelect, None,
 			_("Specifies whether the cell editor, if any, is activated upon cell selection."))
+
+	CellHighlightWidth = property(_getCellHighlightWidth, _setCellHighlightWidth, None,
+			_("Specifies the width of the cell highlight box."))
 
 	ColumnClass = property(_getColumnClass, _setColumnClass, None, 
 			_("""Class to instantiate when a change to ColumnCount requires
