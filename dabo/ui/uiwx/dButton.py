@@ -63,20 +63,32 @@ class dButton(wx.Button, cm.dControlMixin):
 
 
 	def _getDefaultButton(self):
-		return self.Parent.GetDefaultItem() == self
+		try:
+			v = self._defaultButton
+		except AttributeError:
+			v = self._defaultButton = False
+		return v
 
 	def _setDefaultButton(self, value):
-		## pkm 2/9/2005: I'm tempted to reimplement the defaultbutton to use
-		##               key bindings instead of wx's GetDefaultItem(), as that
-		##               doesn't seem to work, at least not on all platforms.
-		if value:
-			self.Parent.SetDefaultItem(self)
+		if self._constructed():
+			self._defaultButton = value
+			if value:
+				self.SetDefault()
+				# Need to unset default from any other buttons:
+				for child in self.Parent.Children:
+					try:
+						db = child.DefaultButton
+					except:
+						db = False
+					if db:
+						child.DefaultButton = False
+			else:
+				# No wx-way to unset default button. Probably a rare need, anyway.
+				# One idea would be to create a hidden button, set default to it,
+				# and then destroy it.
+				pass
 		else:
-			if self._pemObject.GetParent().GetDefaultItem() == self._pemObject:
-				# Only change the default item to None if it wasn't self: if another 
-				# object is the default item, setting self.DefaultButton = False 
-				# shouldn't also set that other object's DefaultButton to False.
-				self.Parent.SetDefaultItem(None)
+			self._properties["DefaultButton"] = value
 
 
 	# Property definitions:

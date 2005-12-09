@@ -174,9 +174,9 @@ class dOkCancelDialog(dDialog):
 		sz = self.Sizer
 
 		# Define Ok/Cancel, and tell wx that we want stock buttons:
-		self.btnOK = dabo.ui.dButton(self, id=wx.ID_OK)
+		self.btnOK = dabo.ui.dButton(self, id=wx.ID_OK, DefaultButton=True)
 		self.btnOK.bindEvent(dEvents.Hit, self.onOK)
-		self.btnCancel = dabo.ui.dButton(self, id=wx.ID_CANCEL)
+		self.btnCancel = dabo.ui.dButton(self, id=wx.ID_CANCEL, CancelButton=True)
 		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
 		
 		# Put the buttons in a StdDialogButtonSizer, so they get positioned/sized
