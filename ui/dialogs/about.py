@@ -16,9 +16,6 @@ class About(dabo.ui.dDialog):
 		self.bindKey("enter", self.onClear)
 
 	def addControls(self):
-		# Catch mousedown in every control, but define the binding once:
-		clickBinding = (dEvents.MouseLeftDown, self.onClear)
-
 		pnlBack = dabo.ui.dPanel(self, BackColor="White")
 		self.Sizer.append(pnlBack, 1, "x")
 		pnlBack.Sizer = sz = dabo.ui.dSizer("v")
@@ -36,7 +33,6 @@ class About(dabo.ui.dDialog):
 		sz.Border = 20
 		sz.BorderTop = sz.BorderLeft = sz.BorderRight = True
 		sz.append(pnlHead, 0, "x")
-#		sz.BorderTop = False
 		
 		eg = dabo.ui.dGrid(pnlBack, DataSet=self.getInfoDataSet(), 
 				ShowColumnLabels=False, ShowCellBorders=False)
@@ -49,7 +45,6 @@ class About(dabo.ui.dDialog):
 		eg.sizeToRows()
 		eg.HorizontalScrolling = False
 		eg.VerticalScrolling = False
-		eg.CurrentColumn = -1
 		sz.append1x(eg)
 
 		# Copy info
