@@ -372,13 +372,14 @@ class Form(dabo.ui.dForm):
 				self.saveNamedReportForm = False
 
 			def addControls(self):
+				controlPanel = self.pnlControl
 				self.addObject(dabo.ui.dRadioGroup, Name="radMode", Caption="Mode",
 						Orientation="Row", 
 						Choices=["List Format", "Expanded Format"],
 						ValueMode="Key",
 						Keys={"list":0, "expanded":1},
 						SaveRestoreValue=True)
-				self.Sizer.append(self.radMode, 1, "expand", border=5)
+				controlPanel.Sizer.append(self.radMode, 1, "expand", border=5)
 
 				self.addObject(dabo.ui.dRadioGroup, Name="radRecords", 
 						Caption="Report On",
@@ -388,11 +389,11 @@ class Form(dabo.ui.dForm):
 						ValueMode="Key",
 						Keys={"all":0, "one":1},
 						SaveRestoreValue=True)
-				self.Sizer.append(self.radRecords, 1, "expand", border=5)
+				controlPanel.Sizer.append(self.radRecords, 1, "expand", border=5)
 
 				self.addObject(dabo.ui.dButton, Name="btnAdvanced", Caption="Advanced")
-				self.Sizer.append(self.btnAdvanced, border=5)
-
+				controlPanel.Sizer.append(self.btnAdvanced, border=5)
+				controlPanel.Sizer.layout()
 				self.btnAdvanced.bindEvent(dEvents.Hit, self.onAdvanced)
 
 			def onAdvanced(self, evt):
