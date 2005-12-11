@@ -1,5 +1,8 @@
 import wx
-import dabo, dabo.ui
+import dabo
+import dabo.ui
+import dabo.icons
+
 
 if dabo.ui.getUIType() is None:
 	dabo.ui.loadUI("wx")
@@ -73,7 +76,7 @@ class Login(dabo.ui.dDialog):
 
 		self.user, self.password = None, None
 		
-		self.bm = dabo.ui.dImage(self, Picture=self._iconFile)
+		self.bm = dabo.ui.dImage(self, Picture=dabo.icons.getIconFileName("daboIcon048.png"))
 		
 		mainSizer = self.Sizer
 		mainSizer.append((0,5))
