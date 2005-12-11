@@ -14,6 +14,7 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 	user will have no way to do this.
 	"""
 	def _afterInit(self):
+		self._activePage = None
 		if self.Sizer is None:
 			self.Sizer = dabo.ui.dSizer()
 		self._pageClass = dPage.dPage
@@ -47,12 +48,24 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 
 
 	def showPage(self, pg):
-		chldrn = self.Children
-		if pg in chldrn:
-			self._activePage = pg
-			for ch in chldrn:
+		ap = self._activePage
+		newPage = (pg is not ap)
+		if pg in self.Pages:
+			if newPage:
+				if ap is not None:
+					dabo.ui.callAfter(ap.raiseEvent, dEvents.PageLeave)
+					apNum = self.getPageNumber(ap)
+				else:
+					apNum = -1
+				dabo.ui.callAfter(pg.raiseEvent, dEvents.PageEnter)
+				dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged, 
+						oldPageNum=apNum, newPageNum=self.getPageNumber(pg))
+				self._activePage = pg
+			for ch in self.Pages:
 				self.Sizer.Show(ch, (ch is pg))
-		self.layout()
+			self.layout()
+		else:
+			raise AttributeError, _("Attempt to show non-member page")
 
 	
 	def nextPage(self):
@@ -73,7 +86,15 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 			self.SelectedPageNumber -= 1
 		except IndexError:
 			self.SelectedPage = self.Pages[-1]
-			
+	
+	
+	def getPageNumber(self, pg):
+		"""Given a page, returns its position."""
+		try:
+			ret = self.Pages.index(pg)
+		except:
+			ret = None
+		return ret
 		
 		
 	def _getPgCls(self):
@@ -101,6 +122,7 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 			if len(self.Children) < currPg:
 				self.SelectedPage = self.Children[-1]
 	
+	
 	def _getPages(self):
 		return self.Children	
 			
@@ -115,12 +137,10 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 	
 	
 	def _getSelNum(self):
-		try:
-			return self.Children.index(self._activePage)
-		except:
-			return None
+		return self.getPageNumber(self._activePage)
+			
 	def _setSelNum(self, val):
-		pg = self.Children[val]
+		pg = self.Pages[val]
 		self.showPage(pg)
 	
 	
