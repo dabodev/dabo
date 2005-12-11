@@ -2317,10 +2317,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			col.Order = self.maxColOrder() + 10
 		self._columns.append(col)
 		if not inBatch:
-			msg = wx.grid.GridTableMessage(self._Table,
-					wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
-					1)
-			self.ProcessTableMessage(msg)
+			self._syncColumnCount()
 
 		## Set the Width property last, otherwise it won't stick:
 		if not col.Width:
@@ -2334,8 +2331,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def removeColumn(self, col=None):
-		""" Removes a column to the grid. If no column is passed, 
-		the last column is removed.
+		""" Removes a column from the grid. 
+
+		If no column is passed, the last column is removed. The col argument can
+		be either a column index or a dColumn instance.
 		"""
 		colNum = None
 		if col is None:
@@ -2350,10 +2349,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				# raise an error?
 				return
 		del self._columns[colNum]
-		msg = wx.grid.GridTableMessage(self._Table,
-				wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
-				colNum, 1)
-		self.ProcessTableMessage(msg)
+		self._syncColumnCount()
 		self.fillGrid(True)
 
 	
@@ -2834,32 +2830,44 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._columnClass = val
 
 
+	def _syncColumnCount(self):
+		"""Sync wx's rendition of column count with our self.ColumnCount"""
+		msg = None
+		self.BeginBatch()
+		wxColumnCount = self.GetNumberCols()
+		daboColumnCount = len(self.Columns)
+		diff = daboColumnCount - wxColumnCount
+		if diff < 0:
+			msg = wx.grid.GridTableMessage(self._Table,
+					wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
+					val, abs(diff))
+
+		elif diff > 0:
+			msg = wx.grid.GridTableMessage(self._Table,
+					wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
+					diff)
+
+		if msg:
+			self.ProcessTableMessage(msg)
+		self.EndBatch()
+
+
 	def _getColumnCount(self):
 		return len(self.Columns)
 
 	def _setColumnCount(self, val):
 		if self._constructed():
-			msg = None
 			if val > -1:
 				colChange = val - self.ColumnCount 
-				self.BeginBatch()
 				if colChange == 0:
 					# No change
 					return
 				elif colChange < 0:
-					msg = wx.grid.GridTableMessage(self._Table,
-							wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
-							val, abs(colChange))
 					self._columns = self.Columns[:val]
 				else:
-					msg = wx.grid.GridTableMessage(self._Table,
-							wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
-							colChange)
 					for cc in range(colChange):
 						self.addColumn(inBatch=True)
-				if msg:
-					self.ProcessTableMessage(msg)
-				self.EndBatch()
+				self._syncColumnCount()
 				self.fillGrid(True)
 		else:
 			self._properties["ColumnCount"] = val
