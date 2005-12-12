@@ -2375,6 +2375,36 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return None
 
 
+	def _syncColumnCount(self):
+		"""Sync wx's rendition of column count with our self.ColumnCount"""
+		msg = None
+		self.BeginBatch()
+		wxColumnCount = self.GetNumberCols()
+		daboColumnCount = len(self.Columns)
+		diff = daboColumnCount - wxColumnCount
+		if diff < 0:
+			msg = wx.grid.GridTableMessage(self._Table,
+					wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
+					val, abs(diff))
+
+		elif diff > 0:
+			msg = wx.grid.GridTableMessage(self._Table,
+					wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
+					diff)
+
+		if msg:
+			self.ProcessTableMessage(msg)
+		self.EndBatch()
+
+
+	def _getDefaultGridColAttr(self):
+		""" Return the GridCellAttr that will be used for all columns by default."""
+		attr = wx.grid.GridCellAttr()
+		attr.SetAlignment(wx.ALIGN_TOP, wx.ALIGN_LEFT)
+		attr.SetReadOnly(True)
+		return attr
+	
+
 	def _getUserSetting(self, prop):
 		"""Get the value of prop from the user settings table."""
 		app = self.Application
@@ -2785,14 +2815,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	##----------------------------------------------------------##
 
 	
-	def _getDefaultGridColAttr(self):
-		""" Return the GridCellAttr that will be used for all columns by default."""
-		attr = wx.grid.GridCellAttr()
-		attr.SetAlignment(wx.ALIGN_TOP, wx.ALIGN_LEFT)
-		attr.SetReadOnly(True)
-		return attr
-	
-
 
 	##----------------------------------------------------------##
 	##              begin: property definitions                 ##
@@ -2828,28 +2850,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 	def _setColumnClass(self, val):
 		self._columnClass = val
-
-
-	def _syncColumnCount(self):
-		"""Sync wx's rendition of column count with our self.ColumnCount"""
-		msg = None
-		self.BeginBatch()
-		wxColumnCount = self.GetNumberCols()
-		daboColumnCount = len(self.Columns)
-		diff = daboColumnCount - wxColumnCount
-		if diff < 0:
-			msg = wx.grid.GridTableMessage(self._Table,
-					wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
-					val, abs(diff))
-
-		elif diff > 0:
-			msg = wx.grid.GridTableMessage(self._Table,
-					wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
-					diff)
-
-		if msg:
-			self.ProcessTableMessage(msg)
-		self.EndBatch()
 
 
 	def _getColumnCount(self):
