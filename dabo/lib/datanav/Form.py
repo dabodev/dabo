@@ -379,7 +379,6 @@ class Form(dabo.ui.dForm):
 						ValueMode="Key",
 						Keys={"list":0, "expanded":1},
 						SaveRestoreValue=True)
-				self.Sizer.appendSpacer((0,self.Sizer.Border))
 				self.Sizer.append1x(self.radMode)
 
 				self.addObject(dabo.ui.dRadioGroup, RegID="radRecords", 

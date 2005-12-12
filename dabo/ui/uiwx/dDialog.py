@@ -166,6 +166,7 @@ class dOkCancelDialog(dDialog):
 		sz = self.Sizer
 		sz.Border = 20
 		sz.BorderLeft = sz.BorderRight = True
+		sz.append((0, sz.Border))
 
 		# Let the user add their controls
 		super(dOkCancelDialog, self)._addControls()
@@ -185,7 +186,10 @@ class dOkCancelDialog(dDialog):
 		buttonSizer.AddButton(self.btnOK)
 		buttonSizer.AddButton(self.btnCancel)
 		buttonSizer.Realize()
-		sz.append1x(buttonSizer)
+
+		sz.append((0, sz.Border/2))
+		sz.append(buttonSizer, "expand")
+		sz.append((0, sz.Border))
 
 		self.layout()
 
