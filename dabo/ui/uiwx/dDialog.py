@@ -240,7 +240,8 @@ class dOkCancelDialog(dDialog):
 	def _setAccepted(self, val):
 		self._accepted = val
 	
-	Accepted = property(_getAccepted, _setAccepted)
+	Accepted = property(_getAccepted, _setAccepted, None,
+			_("Specifies whether the user accepted the dialog, or canceled."))
 
 
 if __name__ == "__main__":
