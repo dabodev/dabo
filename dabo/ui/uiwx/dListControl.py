@@ -14,7 +14,7 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 
 	The List Control is ideal for visually dealing with data sets where each 
 	'row' is a unit, where it doesn't make sense to deal with individual 
-	elements inside of the row. If you need to be	able work with individual 
+	elements inside of the row. If you need to be able work with individual 
 	elements, you should use a dGrid.
 	"""	
 
@@ -191,6 +191,17 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 	def clear(self):
 		""" Remove all the rows in the control. """
 		self.DeleteAllItems()
+	
+	
+	def _GetString(self, idx=None, col=None):
+		"""Since the wx List Control doesn't have a direct GetString() method,
+		which our code for dControlItemMixin expects, this 'fakes' it.
+		"""
+		if idx is None:
+			idx = self.LastSelectedIndex
+		if col is None:
+			col = self.ValueColumn
+		return self.GetItem(idx, col).GetText()
 		
 	
 	# Image-handling function
@@ -460,6 +471,7 @@ class _dListControl_test(dListControl):
 
 	def onListSelection(self, evt):
 		print "List Selection!", self.Value, self.LastSelectedIndex, self.SelectedIndices
+		
 
 	def onListDeselection(self, evt):
 		print "Row deselected:", evt.EventData["index"]

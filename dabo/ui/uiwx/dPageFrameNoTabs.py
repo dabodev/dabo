@@ -132,6 +132,7 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 			return self._activePage
 		except AttributeError:
 			return None
+			
 	def _setSel(self, pg):
 		self.showPage(pg)
 	

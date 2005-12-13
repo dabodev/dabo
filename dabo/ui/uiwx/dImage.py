@@ -8,8 +8,7 @@ import dControlMixin as dcm
 
 
 class dImage(wx.StaticBitmap, dcm.dControlMixin):
-	""" Create a simple bitmap to display images. 
-	"""
+	""" Create a simple bitmap to display images."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dImage
 		preClass = wx.StaticBitmap
@@ -18,12 +17,10 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		self._bmp = None
 		self._scaleMode = "Proportional"
 		self._imgProp = 1.0
+		self._rotation = 0
 		self.__image = None
 		bmp = wx.EmptyBitmap(1, 1)
 		picName = self._extractKey((kwargs, properties), "Picture", "")
-# 		if not picName:
-# 			# See if it was passed in the properties parameter
-# 			picName = self._extractKey(properties, "Picture", "")
 	
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
 				bitmap=bmp, *args, **kwargs)
@@ -40,6 +37,20 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 	
 	def _onResize(self, evt):
 		self._showPic()
+	
+	
+	def rotateCounterClockwise(self):
+		self._rotation -= 1
+		if self._rotation == -4:
+			self._rotation = 0
+		self._showPic()
+		
+		
+	def rotateClockwise(self):
+		self._rotation += 1
+		if self._rotation == 4:
+			self._rotation = 0
+		self._showPic()
 
 
 	def _showPic(self):
@@ -47,11 +58,21 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		if not self._Image.Ok():
 			# No image to display
 				return
+
+		img = self._Image.Copy()
+		switchProportions = False
+		if self._rotation:
+			cw = (self._rotation > 0)
+			absRotate = abs(self._rotation)
+			switchProportions = (absRotate % 2 == 1)
+			for xx in range(absRotate):
+				img = img.Rotate90(cw)
+			
 		w, h = origW, origH = self.Width, self.Height
 		if w == h == 1:
 			# Initial empty bitmap, let the image determine the size
-			w = origW = self._Image.GetWidth()
-			h = origH = self._Image.GetHeight()
+			w = origW = img.GetWidth()
+			h = origH = img.GetHeight()
 		w, h = float(w), float(h)
 		
 		if h == 0:
@@ -59,14 +80,19 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		else:
 			szProp = w/h
 		imgProp = self._imgProp
+		
+		if switchProportions:
+			# The image has been rotated.
+			imgProp = 1/imgProp
+			
 		sm = self.ScaleMode[0].lower()
 		
 		if self._Image.GetWidth() ==  self._Image.GetHeight() == 1:
 			# Empty bitmap; no need to scale.
-			img = self._Image
+			img = img
 		elif sm == "c":
 			# Clip; Don't change anything
-			img = self._Image
+			img = img
 		elif sm == "p":
 			# Proportional; find the largest dimension that fits.
 			if imgProp > szProp:
@@ -77,10 +103,10 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 				# Use the height as the limiting size
 				imgH = h
 				imgW = h * imgProp
-			img = self._Image.Scale(imgW, imgH)
+			img = img.Scale(imgW, imgH)
 		else:
 			# Stretch; just use the control size
-			img = self._Image.Scale(w, h)
+			img = img.Scale(w, h)
 		
 		# We have the adjusted image; now generate the bitmap			
 		self.Bitmap = img.ConvertToBitmap()
@@ -95,11 +121,14 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		if self._bmp is None:
 			self._bmp = wx.EmptyBitmap(1, 1, 1)
 		return self._bmp
+		
 	def _setBmp(self, val):
 		self._bmp = val
 		
+		
 	def _getPic(self):
 		return self._picture
+		
 	def _setPic(self, val):
 		# Don't allow built-in graphics to be displayed here
 		if not os.path.exists(val):
@@ -109,17 +138,21 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 			else:
 				# Empty string passed; clear any current image
 				self._picture = ""
+				self._rotation = 0
 				self._bmp = wx.EmptyBitmap(1, 1, 1)
 				self.__image = self._bmp.ConvertToImage()
 				self._showPic()
 				return
 		self._picture = val
+		self._rotation = 0
 		self._Image.LoadFile(val)
 		self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
 		self._showPic()
 	
+	
 	def _getScaleMode(self):
 		return self._scaleMode
+		
 	def _setScaleMode(self, val):
 		"""Only the first letter is significant. """
 		initial = val[0].lower()
@@ -190,6 +223,12 @@ if __name__ == "__main__":
 
 			hsz = dabo.ui.dSizer("H")
 			hsz.Spacing = 10
+			dabo.ui.dBitmapButton(self, RegID="btnRotateCW",
+					Picture="rotateCW")
+			dabo.ui.dBitmapButton(self, RegID="btnRotateCCW",
+					Picture="rotateCCW")
+			hsz.append(self.btnRotateCW)
+			hsz.append(self.btnRotateCCW)			
 			self.ddScale = dabo.ui.dDropdownList(self, 
 					Choices=["Proportional", "Stretch", "Clip"],
 					DataSource = "self.Form.img",
@@ -217,6 +256,14 @@ if __name__ == "__main__":
 			self.needUpdate = False
 
 
+		def onHit_btnRotateCW(self, evt):
+			self.img.rotateClockwise()
+
+
+		def onHit_btnRotateCCW(self, evt):
+			self.img.rotateCounterClockwise()
+
+
 		def onSlider(self, evt):
 			# Vertical sliders have their low value on the bottom on OSX;
 			# on MSW and GTK, the low value is at the top
@@ -238,8 +285,10 @@ if __name__ == "__main__":
 			# Prevent occasional double-events on Windows
 			evt.stop()
 		
+		
 		def onResize(self, evt):
 			self.needUpdate = True
+			
 		
 		def onIdle(self, evt):
 			if self.needUpdate:
