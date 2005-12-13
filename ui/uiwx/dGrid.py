@@ -2375,6 +2375,21 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return None
 
 
+	def refresh(self):
+		self._syncCurrentRow()
+		super(dGrid, self).refresh()
+
+
+	def _syncCurrentRow(self):
+		"""Sync the CurrentRow of the grid to the RowNumber of the bizobj.
+
+		Has no effect if the grid's DataSource isn't a link to a bizobj.
+		"""
+		bizobj = self.getBizobj()
+		if bizobj:
+			self.CurrentRow = bizobj.RowNumber
+
+
 	def _syncColumnCount(self):
 		"""Sync wx's rendition of column count with our self.ColumnCount"""
 		msg = None
@@ -2430,9 +2445,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	##----------------------------------------------------------##
 	def __onRowNumChanged(self, evt):
 		# The form reports that the rownum has changed: sync the grid CurrentRow
-		biz = self.getBizobj()
-		if biz:
-			self.CurrentRow = biz.RowNumber
+		self._syncCurrentRow()
 
 		
 	def _onGridCellEdited(self, evt):
