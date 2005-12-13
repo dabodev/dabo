@@ -506,6 +506,17 @@ class dApp(dObject):
 		self.uiApp.NoneDisplay = val
 		
 
+	def _getSearchDelay(self):
+		try:
+			return self._searchDelay
+		except AttributeError:
+			## I've found that a value of 300 isn't too fast nor too slow:
+			return 300
+			
+	def _setSearchDelay(self, value):
+		self._searchDelay = int(value)			
+
+			
 	def _getSecurityManager(self):
 		try:
 			return self._securityManager
@@ -637,6 +648,16 @@ class dApp(dObject):
 	Platform = property(_getPlatform, None, None,
 			_("""Returns the platform we are running on. This will be 
 			one of 'Mac', 'Win' or 'GTK'.  (str)""") )
+
+	SearchDelay = property(_getSearchDelay, _setSearchDelay, None,
+			_("""Specifies the delay before incrementeal searching begins.  (int)
+
+				As the user types, the search string is modified. If the time between
+				keystrokes exceeds SearchDelay (milliseconds), the search will run and 
+				the search string	will be cleared.
+
+				The value set here in the Application object will become the default for
+				all objects that provide incremental searching application-wide.""") )
 			
 	SecurityManager = property(_getSecurityManager, _setSecurityManager, None, 
 			_("""Specifies the Security Manager, if any. 
