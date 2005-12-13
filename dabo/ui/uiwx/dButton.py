@@ -57,9 +57,9 @@ class dButton(wx.Button, cm.dControlMixin):
 			##      I'm making the decision to bind it to self.Form, even though
 			##      self.Parent is also a valid choice.
 			if val:
-				self.Form.bindKey("esc", self.__onCancelButton)
+				self.Parent.bindKey("esc", self.__onCancelButton)
 			else:
-				self.Form.unbindKey("esc")
+				self.Parent.unbindKey("esc")
 
 
 	def _getDefaultButton(self):
