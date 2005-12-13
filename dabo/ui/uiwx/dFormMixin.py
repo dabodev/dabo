@@ -313,7 +313,10 @@ class dFormMixin(pm.dPemMixin):
 	
 	
 	def __onPaint(self, evt):
-		self.__needOutlineRedraw = self.Application.DrawSizerOutlines
+		if self.Application:
+			self.__needOutlineRedraw = self.Application.DrawSizerOutlines
+		else:
+			self.__needOutlineRedraw = False
 	
 	
 	def __onIdle(self, evt):
