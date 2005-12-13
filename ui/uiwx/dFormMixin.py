@@ -87,7 +87,6 @@ class dFormMixin(pm.dPemMixin):
 		# Centering information
 		self._normLeft = self.Left
 		self._normTop = self.Top
-		self._centered = False
 
 		if self._cxnName:
 			self.Connection = self.Application.getConnectionByName(self._cxnName)
@@ -616,12 +615,17 @@ class dFormMixin(pm.dPemMixin):
 
 	def _getActiveControl(self):
 		return self.FindFocus()
+
 	
 	def _getCentered(self):
-		return self._centered
+		if hasattr(self, "_centered"):
+			v = self._centered
+		else:
+			v = self._centered = False
+		return v
 		
 	def _setCentered(self, val):
-		oldCentered = self._centered
+		oldCentered = self.Centered
 		self._centered = val
 		if val:
 			if not oldCentered:
