@@ -36,7 +36,7 @@ class txtPass(txt):
 		self.PasswordEntry = True
 		
 		
-class Login(dabo.ui.dDialog):
+class Login(dabo.ui.dOkCancelDialog):
 	def initProperties(self):
 		self.AutoSize = False
 		self.BorderResizable = True
@@ -52,7 +52,7 @@ class Login(dabo.ui.dDialog):
 		self.ShowCloseButton = True
 		
 
-	def afterInit(self):
+	def addControls(self):
 		super(Login, self).afterInit()
 		
 		self.addObject(lbl, 'lblUserName')
@@ -65,13 +65,6 @@ class Login(dabo.ui.dDialog):
 		self.lblPassword.Caption = "Password:"
 		self.txtPassword.Value = ""
 		
-		self.addObject(dabo.ui.dButton, 'cmdAccept')
-		self.addObject(dabo.ui.dButton, 'cmdCancel')
-		self.cmdAccept.Caption = _("&Accept")
-		self.cmdAccept.DefaultButton = True
-		self.cmdCancel.Caption = _("Cancel")
-		self.cmdCancel.CancelButton = True
-
 		self.addObject(lblMessage, 'lblMessage')
 
 		self.user, self.password = None, None
@@ -107,20 +100,10 @@ class Login(dabo.ui.dDialog):
 		
 		mainSizer.append(self.lblMessage, "expand", 1)
 		
-		bs = dabo.ui.dSizer("horizontal")
-		bs.append(self.cmdAccept, alignment=("bottom",))
-		bs.append((3,0))	
-		bs.append(self.cmdCancel, alignment=("bottom",))
-		bs.append((5,0))
-		mainSizer.append(bs, proportion=1, alignment=("right",))
-		mainSizer.append((0,5))
 		mainSizer.layout()
 
-		self.cmdAccept.bindEvent(dEvents.Hit, self.onAccept)
-		self.cmdCancel.bindEvent(dEvents.Hit, self.onCancel)
-		
 		# Map enter key to accept button (because DefaultButton doesn't work):
-		self.bindKey("enter", self.onAccept)
+		self.bindKey("enter", self.onOK)
 
 		
 	def setMessage(self, message):
@@ -129,11 +112,11 @@ class Login(dabo.ui.dDialog):
 				
 	def onCancel(self, evt):
 		self.user, self.password = None, None
-		self.Hide()
+		Login.doDefault(evt)
 		
-	def onAccept(self, evt):
+	def onOK(self, evt):
 		self.user, self.password = self.txtUserName.Value, self.txtPassword.Value
-		self.Hide()
+		Login.doDefault(evt)
 		
 		
 if __name__ == '__main__':
