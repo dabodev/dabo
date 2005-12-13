@@ -27,12 +27,6 @@ try:
 except ImportError:
 	_USE_DECIMAL = False
 
-# wx versions < 2.6 don't have the GetDefaultPyEncoding function:
-try:
-	defaultEncoding = wx.GetDefaultPyEncoding()
-except AttributeError:
-	defaultEncoding = "latin-1"
-
 
 class dGridDataTable(wx.grid.PyGridTableBase):
 	def __init__(self, parent):
@@ -299,60 +293,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 		self._oldRowCount = _newRowCount
 
-
-	##pkm: The following function doesn't seem to be necessary, at least when 
-	##     connected directly to a bizobj. The appRecipes demo properly displays
-	##     the unicode chars, etc. But if this is necessary, because of the 
-	##     reworking of things, we should probably make it formatFieldForData(fld,row)
-	##     and call it from self.GetValue(). Ed, thoughts?
-	def formatRowForData(self, rec):
-		"""Takes a row from a record set, and contructs a list
-		that matches the column layout. Also encodes all unicode
-		values to properly display.
-		"""
-		returnFmt = []
-		for col in self.colDefs:
-			fld = col.DataField
-			if rec.has_key(fld):
-				recVal = rec[fld]
-				recType = type(recVal)
-				if recVal is None:
-					recVal = self.grid.NoneDisplay
-				recType = type(recVal)
-				if isinstance(recVal, basestring):
-					if recType is unicode:
-						recVal = recVal.encode(defaultEncoding)
-					else:
-						try:
-							recVal = unicode(recVal, defaultEncoding)
-						except:
-							encs = ("utf-8", "latin-1")
-							ok = False
-							for enc in encs:
-								if enc != defaultEncoding:
-									try:
-										recVal = unicode(recVal, enc)
-										ok = True
-									except:
-										pass
-							if not ok:
-								# Not sure how to handle this. For now, just use a dummy value
-								#print "ENCODING PROBLEM:", recVal, defaultEncoding
-								recVal = "##encoding problem##"
-					# Limit to first 'n' chars...
-					recVal = recVal[:self.grid.stringDisplayLen]
-				elif col.DataType.lower() == "bool":
-					# coerce to bool (could have been 0/1)
-					if isinstance(recVal, basestring):
-						recVal = bool(int(recVal))
-					else:
-						recVal = bool(recVal)
-			else:
-				# If there is no such value, don't display anything
-				recVal = ""
-			returnFmt.append(recVal)
-		return returnFmt
-	
 	
 	# The following methods are required by the grid, to find out certain
 	# important details about the underlying table.                
@@ -1341,17 +1281,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._baseClass = dGrid
 		preClass = wx.grid.Grid
 		
-		# List of Row Labels, if any
-		self._rowLabels = []
-
-		# Columns prop:
-		self._columns = []
-		
-		# Underlying attribute for the ColumnClass property. When adding 
-		# columns automatically, this is the class to use to create them. 
-		# Can be overriden for grid-specific behaviors.
-		self._columnClass = dColumn
-
 		# Internal flag to determine if the prior sort order needs to be restored:
 		self._sortRestored = False
 		
@@ -1361,20 +1290,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# dColumn maintains its own cell attribute object, but this is the default:
 		self._defaultGridColAttr = self._getDefaultGridColAttr()
 
-		# Type of encoding to use with unicode data
-		self.defaultEncoding = defaultEncoding
-
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
 		# Need to sync the size reported by wx to the size reported by Dabo:
 		self.RowHeight = self.RowHeight
+		self.ShowRowLabels = self.ShowRowLabels
 
 
 	def _afterInit(self):
-		self._header = None
-		self.fieldSpecs = {}
-		# This value is in milliseconds
-		self._searchDelay = 600
 		# When doing an incremental search, do we stop
 		# at the nearest matching value?
 		self.searchNearest = True
@@ -1383,31 +1306,19 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# How many characters of strings do we display?
 		self.stringDisplayLen = 64
 		
-		# Do we enforce that all rows are the same height? This
-		# would normally be a property, but I'm making it a simple att
-		# for now, since I don't see the immediate need for getter/setter
-		# actions.
-		self.SameSizeRows = True
-		# Internal tracker for row height
-		self._rowHeight = self.GetDefaultRowSize()
-
 		# When calculating auto-size widths, we don't want to use
 		# the normal means of getting data sets.
 		self.inAutoSizeCalc = False
 
 		self.currSearchStr = ""
-		self.incSearchTimer = dabo.ui.dTimer(self)
-		self.incSearchTimer.bindEvent(dEvents.Hit, self.onSearchTimer)
+		self.incSearchTimer = dabo.ui.dTimer(self, RegID="tmrIncrementalSearch")
 
 		# By default, row labels are not shown. They can be displayed
 		# if desired by setting ShowRowLabels = True, and their size
 		# can be adjusted by setting RowLabelWidth = <width>
-		self._rowLabelWidth = self.GetDefaultRowLabelSize()
-		self._showRowLabels = False
-		self.SetRowLabelSize(0)
-		self._editable = False
-		self.EnableEditing(self._editable)
-		
+		self.SetRowLabelSize(self.RowLabelWidth)
+		self.EnableEditing(self.Editable)
+
 		# These need to be set to True, and custom methods provided,
 		# if a grid with variable types in a single column is used.
 		self.useCustomGetValue = False
@@ -1424,17 +1335,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._headerDragTo = 0
 		self._headerSizing = False
 
-		super(dGrid, self)._afterInit()
-		
-		# Set the header props/events
-		self.initHeader()		
-
 		self.sortedColumn = None
 		self.sortOrder = None
 		self.caseSensitiveSorting = False
 
 		# If there is a custom sort method, set this to True
 		self.customSort = False
+
+		super(dGrid, self)._afterInit()
+		
+		# Set the header props/events
+		self.initHeader()		
 
 
 	def initEvents(self):
@@ -1470,7 +1381,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def initHeader(self):
 		""" Initialize behavior for the grid header region."""
-		header = self.Header
+		header = self._getWxHeader()
 		self.defaultHdrCursor = header.GetCursor()
 		self._headerNeedsRedraw = False
 		self._headerMousePosition = (0,0)
@@ -1617,6 +1528,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if not self._sortRestored:	
 			dabo.ui.callAfter(self._restoreSort)
 			self._sortRestored = True
+
+		## pkm: SelectionModes are:
+		##      0: cell selection (default) (wx.grid.Grid.wxSelectCells)
+		##      1: row selection            (wx.grid.Grid.wxSelectRows)
+		##      2: column selection         (wx.grid.Grid.wxSelectColumns)
+		#self.SetSelectionMode(1)
+		## We can work toward row selection, which will highlight the current row with
+		## whatever highlight color the user wants, but this will require work in catching
+		## the RANGE_SELECTED events and then setting the grid cursor appropriately. I'm
+		## out of time for today, so I'll leave these comments for now. In my experience,
+		## SetSelectionMode() must be called after the table is set on the grid, which is
+		## why this is here instead of in __init__.
 
 
 	def _restoreSort(self):
@@ -1841,7 +1764,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			cols = range(self.ColumnCount)
 		else:
 			cols = (col,)
-		w = self.Header
+		w = self._getWxHeader()
 		dc = wx.ClientDC(w)
 
 		for col in cols:
@@ -1942,11 +1865,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def moveColumn(self, colNum, toNum):
 		""" Move the column to a new position."""
 		oldCol = self.Columns[colNum]
-		self._columns.remove(oldCol)
+		self.Columns.remove(oldCol)
 		if toNum > colNum:
-			self._columns.insert(toNum-1, oldCol)
+			self.Columns.insert(toNum-1, oldCol)
 		else:
-			self._columns.insert(toNum, oldCol)
+			self.Columns.insert(toNum, oldCol)
 		for col in self.Columns:
 			col.Order = self.Columns.index(col) * 10
 			col._persist("Order")
@@ -1977,7 +1900,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.Height = min(self.RowHeight * self.RowCount, maxHeight) + fudge
 	
 
-	def onSearchTimer(self, evt):
+	def onHit_tmrIncrementalSearch(self, evt):
 		""" Occurs when the incremental search timer reaches its interval. 
 		It is time to run the search, if there is any search in the buffer.
 		"""
@@ -2272,11 +2195,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		Called by KeyDown when the user pressed an alphanumeric key. Add the 
 		key to the current search and start the timer.        
 		"""
+		app = self.Application
+		searchDelay = self.SearchDelay
+		if searchDelay is None:
+			if app is not None:
+				searchDelay = self.Application.SearchDelay
+			else:
+				# use a default
+				searchDelay = 300
+
 		self.incSearchTimer.stop()
 		self.currSearchStr = "".join((self.currSearchStr, key))
 		if self.Form is not None:
 			self.Form.setStatusText("Search: %s" % self.currSearchStr)
-		self.incSearchTimer.start(self.SearchDelay)
+		self.incSearchTimer.start(searchDelay)
 
 
 	def getColNumByX(self, x):
@@ -2315,7 +2247,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			col.Parent = self
 		if col.Order == -1:
 			col.Order = self.maxColOrder() + 10
-		self._columns.append(col)
+		self.Columns.append(col)
 		if not inBatch:
 			self._syncColumnCount()
 
@@ -2348,7 +2280,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				# No such column
 				# raise an error?
 				return
-		del self._columns[colNum]
+		del self.Columns[colNum]
 		self._syncColumnCount()
 		self.fillGrid(True)
 
@@ -2378,6 +2310,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def refresh(self):
 		self._syncCurrentRow()
 		super(dGrid, self).refresh()
+
+
+	def _getWxHeader(self):
+		"""Return the wx grid header window."""
+		return self.GetGridColLabelWindow()
 
 
 	def _syncCurrentRow(self):
@@ -2485,7 +2422,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		headerIsDragging = self._headerDragging
 		headerIsSizing = self._headerSizing
 		dragging = evt.EventData["mouseDown"]
-		header = self.Header
+		header = self._getWxHeader()
 		self._headerMousePosition = evt.EventData["mousePosition"]
 
 		if dragging:
@@ -2537,7 +2474,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				if curCol > begCol:
 					curCol += 1
 				self.moveColumn(begCol, curCol)
-			self.Header.SetCursor(self.defaultHdrCursor)
+			self._getWxHeader().SetCursor(self.defaultHdrCursor)
 		elif self._headerSizing:
 			pass
 		else:
@@ -2855,12 +2792,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def _getColumns(self):
-		return self._columns
+		if hasattr(self, "_columns"):
+			v = self._columns
+		else:
+			v = self._columns = []
+		return v
 	
 	
 	def _getColumnClass(self):
-		return self._columnClass
-		
+		if hasattr(self, "_columnClass"):
+			v = self._columnClass
+		else:
+			v = self._columnClass = dColumn
+		return v
+
 	def _setColumnClass(self, val):
 		self._columnClass = val
 
@@ -2876,7 +2821,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					# No change
 					return
 				elif colChange < 0:
-					self._columns = self.Columns[:val]
+					self.Columns = self.Columns[:val]
 				else:
 					for cc in range(colChange):
 						self.addColumn(inBatch=True)
@@ -2884,12 +2829,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.fillGrid(True)
 		else:
 			self._properties["ColumnCount"] = val
-
-
-	def _getHeader(self):
-		if not self._header:
-			self._header = self.GetGridColLabelWindow()
-		return self._header
 
 
 	def _getHeaderHeight(self):
@@ -3033,7 +2972,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if bo is not None:
 			ret = bo.Encoding
 		else:
-			ret = self.defaultEncoding
+			try:
+				ret = wx.GetDefaultPyEncoding()
+			except AttributeError:
+				# wx versions < 2.6 don't have the GetDefaultPyEncoding function
+				ret = "utf-8"
 		return ret
 		
 
@@ -3118,7 +3061,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def _getRowHeight(self):
-		return self._rowHeight
+		if hasattr(self, "_rowHeight"):
+			v = self._rowHeight
+		else:
+			v = self._rowHeight = self.GetDefaultRowSize()
+		return v
 
 	def _setRowHeight(self, val):
 		if self._constructed():
@@ -3137,7 +3084,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def _getRowLables(self):
-		return self._rowLabels
+		if hasattr(self, "_rowLabels"):
+			v = self._rowLabels
+		else:
+			v =	self._rowLabels = []
+		return v
 	
 	def _setRowLables(self, val):
 		self._rowLabels = val
@@ -3145,19 +3096,38 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def _getRowLabelWidth(self):
-		return self._rowLabelWidth
-
+		if hasattr(self, "_rowLabelWidth"):
+			v = self._rowLabelWidth
+		else:
+			v = self._rowLabelWidth = self.GetDefaultRowLabelSize()
+		return v
+		
 	def _setRowLabelWidth(self, val):
 		if self._constructed():
 			self._rowLabelWidth = val
-			if self._showRowLabels:
-				self.SetRowLabelSize(self._rowLabelWidth)
+			if self.ShowRowLabels:
+				self.SetRowLabelSize(val)
 		else:
 			self._properties["RowLabelWidth"] = val
 
 
+	def _getSameSizeRows(self):
+		if hasattr(self, "_sameSizeRows"):
+			v = self._sameSizeRows
+		else:
+			v = self._sameSizeRows = True
+		return v
+
+	def _setSameSizeRows(self, val):
+		self._sameSizeRows = bool(val)
+
+
 	def _getSearchDelay(self):
-		return self._searchDelay
+		if hasattr(self, "_searchDelay"):
+			v = self._searchDelay
+		else:
+			v = self._searchDelay = None
+		return v
 
 	def _setSearchDelay(self, val):
 		self._searchDelay = val
@@ -3199,13 +3169,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def _getShowRowLabels(self):
-		return self._showRowLabels
+		if hasattr(self, "_showRowLabels"):
+			v = self._showRowLabels
+		else:
+			v = self._showRowLabels = False
+		return v
 
 	def _setShowRowLabels(self, val):
 		if self._constructed():
 			self._showRowLabels = val
 			if val:
-				self.SetRowLabelSize(self._rowLabelWidth)
+				self.SetRowLabelSize(self.RowLabelWidth)
 			else:
 				self.SetRowLabelSize(0)
 		else:
@@ -3312,9 +3286,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	Encoding = property(_getEncoding, None, None,
 			_("Name of encoding to use for unicode  (str)") )
 			
-	Header = property(_getHeader, None, None,
-			_("Reference to the grid header window.  (header object?)") )
-			
 	HeaderBackgroundColor = property(_getHeaderBackgroundColor, _setHeaderBackgroundColor, None,
 			_("""Optional color for the background of the column headers.  (str or None)
 
@@ -3361,14 +3332,26 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			_("""Width of the label on the left side of the rows. This only changes
 			the grid if ShowRowLabels is True.  (int)"""))
 
+	SameSizeRows = property(_getSameSizeRows, _setSameSizeRows, None,
+			_("""Is every row the same height?  (bool)"""))
+
 	Searchable = property(_getSearchable, _setSearchable, None,
-			_("""Specifies whether the columns can be searched. If True, 
-			and if the column's Searchable property is True, the column 
-			will be searchable. Default: True  (bool)"""))
+			_("""Specifies whether the columns can be searched.   (bool)
+
+				If True, columns that have their Searchable properties set to True
+				will be searchable. 
+
+				Default: True"""))
 
 	SearchDelay = property(_getSearchDelay, _setSearchDelay, None,
-			_("""Delay in miliseconds between keystrokes before the 
-			incremental search clears  (int)""") )
+			_("""Specifies the delay before incrementeal searching begins.  (int or None)
+
+				As the user types, the search string is modified. If the time between
+				keystrokes exceeds SearchDelay (milliseconds), the search will run and 
+				the search string	will be cleared.
+
+				If SearchDelay is set to None (the default), Application.SearchDelay will
+				be used.""") )
 			
 	ShowColumnLabels = property(_getShowColumnLabels, _setShowColumnLabels, None,
 			_("Are column labels shown?  (bool)") )
