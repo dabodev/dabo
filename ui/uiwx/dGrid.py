@@ -3087,7 +3087,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if hasattr(self, "_rowLabels"):
 			v = self._rowLabels
 		else:
-			v =	self._rowLabels = []
+			v = self._rowLabels = []
 		return v
 	
 	def _setRowLables(self, val):
@@ -3099,7 +3099,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if hasattr(self, "_rowLabelWidth"):
 			v = self._rowLabelWidth
 		else:
-			v = self._rowLabelWidth = self.GetDefaultRowLabelSize()
+			v = self._rowLabelWidth =  self.GetDefaultRowLabelSize()
 		return v
 		
 	def _setRowLabelWidth(self, val):

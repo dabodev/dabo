@@ -14,7 +14,7 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 
 	The List Control is ideal for visually dealing with data sets where each 
 	'row' is a unit, where it doesn't make sense to deal with individual 
-	elements inside of the row. If you need to be able work with individual 
+	elements inside of the row. If you need to be able to work with individual 
 	elements, you should use a dGrid.
 	"""	
 
