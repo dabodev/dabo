@@ -3099,7 +3099,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if hasattr(self, "_rowLabelWidth"):
 			v = self._rowLabelWidth
 		else:
-			v = self._rowLabelWidth =  self.GetDefaultRowLabelSize()
+			v = self._rowLabelWidth = self.GetDefaultRowLabelSize()
 		return v
 		
 	def _setRowLabelWidth(self, val):
