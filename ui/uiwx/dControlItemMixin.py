@@ -236,8 +236,13 @@ class dControlItemMixin(dDataControlMixin):
 			try:
 				strings.append(self.GetString(index))
 			except:
-				# Invalid index; usually an empty list
-				pass
+				# If this is a list control, there is no native GetString.
+				# Use the Dabo-supplied replacement
+				try:
+					strings.append(self._GetString(index))
+				except:
+					# Invalid index; usually an empty list
+					pass
 		if not self._isMultiSelect():
 			# convert to singular
 			if len(strings) > 0:
