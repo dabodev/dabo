@@ -76,7 +76,13 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 		"""
 		self.addControls()
 	
-	def addControls(self): pass
+
+	def addControls(self):
+		"""Add your custom controls to the dialog.
+
+		This is a hook, called at the appropriate time by the framework.
+		"""
+		pass
 
 
 	def release(self):
@@ -155,6 +161,14 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 
 
 class dOkCancelDialog(dDialog):
+	"""Creates a dialog with OK/Cancel buttons and associated functionality.
+
+	Add your custom controls in the addControls() hook method, and respond to
+	the pressing of the Ok and Cancel buttons in the onOK() and onCancel() 
+	event handlers. The default behavior in both cases is just to close the
+	form, and you can query the Accepted property to find out if the user 
+	pressed "OK" or not.
+	"""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dOkCancelDialog
 		self._accepted = False
