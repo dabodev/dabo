@@ -187,43 +187,18 @@ class dOkCancelDialog(dDialog):
 		buttonSizer.AddButton(self.btnCancel)
 		buttonSizer.Realize()
 
+		# Wx rearranges the order of the buttons per platform conventions, but
+		# doesn't rearrange the tab order for us. So, we do it manually:
+		buttons = []
+		for child in buttonSizer.GetChildren():
+			win = child.GetWindow()
+			if win is not None:
+				buttons.append(win)
+		buttons[1].MoveAfterInTabOrder(buttons[0])
+
 		sz.append((0, sz.Border/2))
 		sz.append(buttonSizer, "expand")
 		sz.append((0, sz.Border))
-
-		self.layout()
-
-	
-	def _addControls_old(self):
-		# We want every subclass to be able to add their controls
-		# before we add the OK/Cancel buttons.
-		self.pnlControl = dabo.ui.dPanel(self)
-		self.pnlControl.Sizer = dabo.ui.dSizer("v")
-		self.pnlButtons = pnl = dabo.ui.dPanel(self)
-		pnl.Sizer = hs = dabo.ui.dSizer("H")
-		self.btnOK = dabo.ui.dButton(pnl, id=wx.ID_OK)
-		self.btnOK.bindEvent(dEvents.Hit, self.onOK)
-		hs.appendSpacer(20, 1)
-		hs.append(self.btnOK, 1)
-		hs.appendSpacer(5)
-		self.btnCancel = dabo.ui.dButton(pnl, id=wx.ID_CANCEL)
-		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
-		hs.append(self.btnCancel, 1)
-		hs.appendSpacer(8)
-		pnl.layout()
-		pnl.Fit()
-		
-		sz = self.Sizer
-		sz.Border = 20
-		sz.BorderLeft = sz.BorderRight = True
-		sz.appendSpacer(10, 1)
-		sz.append(self.pnlControl, 10, "x")
-		sz.appendSpacer(10, 1)
-		sz.append(self.pnlButtons, 0, halign="right", valign="bottom", 
-				border=16, borderFlags=("right", "bottom"))
-		
-		# This is the point where the user adds controls.
-		super(dOkCancelDialog, self)._addControls()
 
 		self.layout()
 
@@ -240,8 +215,6 @@ class dOkCancelDialog(dDialog):
 	def onOK(self, evt):
 		self.Accepted = True
 		self.EndModal(kons.DLG_OK)
-	# Create an alias to this method.
-	onAccept = onOK
 
 	def onCancel(self, evt):
 		self.Accepted = False
