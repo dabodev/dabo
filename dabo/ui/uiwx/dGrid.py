@@ -1527,7 +1527,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					break
 			if sortCol is not None:
 				self.CurrentColumn = sortCol
-				self.processSort(sortCol, toggleSort=False)
+				if self.RowCount > 0:
+					self.processSort(sortCol, toggleSort=False)
 
 	
 	def _addEmptyRows(self):
@@ -1605,7 +1606,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			if data:
 				firstRec = data[0]
 			else:
-				return False
+				# Ok, the bizobj doesn't have any records, yet we still want to build
+				# the grid. We can get enough info from getDataStructureFromDescription():
+				structure = bizobj.getDataStructureFromDescription()
+				firstRec = {}
+				for field in structure:
+					firstRec[field[0]] = None
+					if not colTypes.has_key(field[0]):
+						colTypes[field[0]] = field[1]
 		else:
 			# not a bizobj datasource
 			firstRec = ds[0]
@@ -1981,7 +1989,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.sort()
 		elif biz:
 			# Use the default sort() in the bizobj:
-			biz.sort(columnToSort, sortOrder, self.caseSensitiveSorting)
+			try:
+				biz.sort(columnToSort, sortOrder, self.caseSensitiveSorting)
+			except dException.NoRecordsException:
+				# no records to sort: who cares.
+				pass
 		else:
 			# Create the list to hold the rows for sorting
 			caseSensitive = self.caseSensitiveSorting

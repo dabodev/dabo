@@ -129,7 +129,22 @@ class dBackend(dObject):
 		# It will give the field names, but the type info and pk info isn't
 		# adequate generically yet.
 		return ()
-		
+
+
+	def getDaboFieldType(self, backendFieldType):
+		""" Return the Dabo code (I, T, D, ...) for the passed backend Field Type.
+
+		If it can't be determined, the field type will be '?'.
+		"""
+		return "?"
+
+
+	def getFieldInfoFromDescription(self, cursorDescription):
+		""" Return field information from the cursor description."""
+		# Default: return all the field names and "?", None for type and pkid.
+		return tuple([(d[0], self.getDaboFieldType(d[1]), None) for d in cursorDescription])
+
+
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
 		try:

@@ -1090,6 +1090,16 @@ class dBizobj(dObject):
 		return self._CurrentCursor.getFields(self.DataSource)
 
 
+	def getDataStructureFromDescription(self):
+		""" Gets the structure of the DataSource table. Returns a list
+		of 3-tuples, where the 3-tuple's elements are:
+			0: the field name (string)
+			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
+			2: boolean specifying whether this is a pk field.
+		"""
+		return self._CurrentCursor.getFieldInfoFromDescription()
+
+
 	def getParams(self):
 		""" Return the parameters to send to the cursor's execute method.
 		
