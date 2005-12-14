@@ -58,7 +58,7 @@ class Grid(dabo.ui.dGrid):
 			self.fillGrid(True)
 			pass
 		self.Form.refresh()
-		
+
 
 	def sort(self):
 		# The superclass will have already set the sort properties.

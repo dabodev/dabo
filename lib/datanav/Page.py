@@ -513,13 +513,14 @@ class BrowsePage(Page):
 		bizobj = self.Form.getBizobj()
 		if not self.itemsCreated:
 			self.createItems()
+			self.fillGrid(False)
 		if self.Form.preview:
 			if self.itemsCreated:
 				self.fillGrid(False)
 		else:
 			if bizobj and bizobj.RowCount >= 0:
 				if self.itemsCreated:
-					self.fillGrid(False)
+					self.BrowseGrid.refresh()
 		## dGrid handles this now:
 		#self.BrowseGrid.CurrentRow = bizobj.RowNumber
 
