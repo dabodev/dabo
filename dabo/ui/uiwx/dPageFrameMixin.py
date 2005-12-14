@@ -31,7 +31,7 @@ class dPageFrameMixin(cm.dControlMixin):
 
 		# Filter out the double events from wx:
 		now = time.time()
-		if not hasattr(self, "_lastPageChangedTime") or (now - self._lastPageChangedTime) > .001:
+		if not hasattr(self, "_lastPageChangedTime") or (now - self._lastPageChangedTime) > .01:
 			self._lastPageChangedTime = time.time()
 		else:
 			return
