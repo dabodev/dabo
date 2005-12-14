@@ -122,7 +122,8 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self._styleTimer.mode = "container"
 			self._styleTimer.Interval = styleTimerInterval
 			self._styleTimer.start()
-
+		self._clearDocument()
+		
 	
 	def setFormCallbacks(self, funcTuple):
 		self._registerFunc, self._unRegisterFunc = funcTuple
@@ -392,8 +393,8 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 
 		self.SetSelection(self.PositionFromLine(begLine), 
 			self.PositionFromLine(endLine+1))
-		
-
+	
+	
 	def onKeyDown(self, evt):
 		keyCode = evt.EventData["keyCode"]
 		if keyCode == wx.WXK_RETURN and autoIndent and not self.AutoCompActive():
@@ -923,6 +924,16 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		
 	def restoreTextSize(self):
 		self.ZoomLevel = 0
+	
+	
+	def moveToBeginning(self):
+		self.SetSelection(0, 0)
+		self.EnsureCaretVisible()
+		
+		
+	def moveToEnd(self):
+		self.SetSelection(-1, -1)
+		self.EnsureCaretVisible()
 		
 		
 	def _getRuntimeObjectName(self):
