@@ -226,41 +226,14 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 		if _oldRowCount == _newRowCount and not force:
 			return
-			
-		oldRow = self.grid.CurrentColumn  # current row per the grid
-		oldCol = self.grid.CurrentColumn  # current column per the grid
-		if not oldCol:
-			oldCol = 0
 
-		encod = self.grid.Encoding
-		self.grid.BeginBatch()
-		# The data table is now current, but the grid needs to be
-		# notified.
-
-		if _oldRowCount is not None and _newRowCount > _oldRowCount:
-			# tell the grid we've added row(s)
-			num = _newRowCount - _oldRowCount
-			msg = wx.grid.GridTableMessage(self,       # The table
-				wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,  # what we did to it
-				num)                                     # how many
-			
-		elif _oldRowCount is not None and _oldRowCount > _newRowCount:
-			# tell the grid we've deleted row(s)
-			num = _oldRowCount - _newRowCount
-			msg = wx.grid.GridTableMessage(self,      # The table
-				wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,  # what we did to it
-				0,                                      # position
-				num)                                    # how many
-		else:
-			msg = None
-
-		if msg:        
-			self.grid.ProcessTableMessage(msg)
+		self.grid._syncRowCount()
 		# Column widths come from multiple places. In decreasing precedence:
 		#   1) dApp user settings, 
 		#   2) col.Width (as set by the Width prop or by the fieldspecs)
 		#   3) have the grid autosize
 
+		self.grid.BeginBatch()
 		for idx, col in enumerate(self.colDefs):
 			fld = col.DataField
 			colName = "Column_%s" % fld
@@ -2309,6 +2282,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def refresh(self):
 		self._syncCurrentRow()
+		self._syncColumnCount()
+		self._syncRowCount()
 		super(dGrid, self).refresh()
 
 
@@ -2337,11 +2312,34 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if diff < 0:
 			msg = wx.grid.GridTableMessage(self._Table,
 					wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
-					val, abs(diff))
+					0, abs(diff))
 
 		elif diff > 0:
 			msg = wx.grid.GridTableMessage(self._Table,
 					wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
+					diff)
+
+		if msg:
+			self.ProcessTableMessage(msg)
+		self.EndBatch()
+
+
+	def _syncRowCount(self):
+		"""Sync wx's rendition of row count with our self.RowCount"""
+		msg = None
+		self.BeginBatch()
+		wxRowCount = self.GetNumberRows()
+		daboRowCount = self.RowCount
+		diff = daboRowCount - wxRowCount
+		if diff < 0:
+			msg = wx.grid.GridTableMessage(self._Table,
+					wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,
+					0,
+					abs(diff))
+
+		elif diff > 0:
+			msg = wx.grid.GridTableMessage(self._Table,
+					wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,
 					diff)
 
 		if msg:
