@@ -408,7 +408,13 @@ class dPemMixin(dPemMixinBase):
 
 
 	def __onWxContextMenu(self, evt):
-		self.raiseEvent(dEvents.ContextMenu, evt)
+		# Hide a problem on Windows where a single context event will
+		# be raised twice.
+		now = time.time()
+		if (not hasattr(self, "_lastContextMenuTime") or 
+				(now - self._lastContextMenuTime) > .001):
+			self._lastContextMenuTime = time.time()
+			self.raiseEvent(dEvents.ContextMenu, evt)
 
 
 	def __onWxPaint(self, evt):
