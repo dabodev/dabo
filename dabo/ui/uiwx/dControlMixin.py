@@ -1,3 +1,4 @@
+import time
 import wx
 import dabo.ui
 from dabo.ui.dControlMixinBase import dControlMixinBase
@@ -10,7 +11,13 @@ class dControlMixin(dControlMixinBase):
 		# entered in a text control, a timer reaching its interval, etc.
 		# We catch the wx event, and raise the dabo Hit event for user code
 		# to work with.
-		self.raiseEvent(dEvents.Hit, evt, *args, **kwargs)
+
+		# Hide a problem on Windows toolbars where a single command event will
+		# be raised up to three separate times.
+		now = time.time()
+		if not hasattr(self, "_lastHitTime") or (now - self._lastHitTime) > .001:
+			self.raiseEvent(dEvents.Hit, evt, *args, **kwargs)
+			self._lastHitTime = time.time()
 		
 	def getCaptureBitmap(self):
 		"""Returns a bitmap snapshot of self, as it appears in the UI at this moment.
