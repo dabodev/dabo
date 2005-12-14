@@ -125,7 +125,46 @@ class MySQL(dBackend):
 			
 			fields.append((name.strip(), ft, pk))
 		return tuple(fields)
+
+
+	def getDaboFieldType(self, backendFieldType):
+		import MySQLdb.constants.FIELD_TYPE as ftypes
+		typeMapping = {}
+		for i in dir(ftypes):
+			if i[0] != "_":
+				v = getattr(ftypes, i)
+				typeMapping[v] = i
 		
+		daboMapping = {"BLOB": "M",
+				"CHAR": "C",
+				"DATE": "D",
+				"DATETIME": "T",
+				"DECIMAL": "N",
+				"DOUBLE": "I",
+				"ENUM": "C",
+				"FLOAT": "N",
+				"GEOMETRY": "?",
+				"INT24": "I",
+				"INTERVAL": "?",
+				"LONG": "I",
+				"LONGLONG": "I",
+				"LONG_BLOB": "M",
+				"MEDIUM_BLOB": "M",
+				"NEWDATE": "?",
+				"NULL": "?",
+				"SET": "?",
+				"SHORT": "I",
+				"STRING": "C",
+				"TIME": "?",
+				"TIMESTAMP": "?",
+				"TINY": "I",
+				"TINY_BLOB": "M",
+				"VAR_STRING": "C",
+				"YEAR": "?"}
+
+		return daboMapping[typeMapping[backendFieldType]]
+
+
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
 		if self.useTransactions:

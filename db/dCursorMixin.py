@@ -1273,7 +1273,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			tableName = self.Table
 		return self.BackendObject.getFields(tableName)
 	
-	
+
+	def getFieldInfoFromDescription(self):
+		""" Get field information from the cursor description.
+
+		Returns a tuple of 3-tuples, where the 3-tuple's elements are:
+			0: the field name (string)
+			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T'), or None.
+			2: boolean specifying whether this is a pk field, or None.
+		"""
+		return self.BackendObject.getFieldInfoFromDescription(self.description)
+
+
 	def getLastInsertID(self):
 		""" Return the most recently generated PK """
 		ret = None
