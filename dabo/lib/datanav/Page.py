@@ -526,6 +526,7 @@ class BrowsePage(Page):
 
 		
 	def __onPageEnter(self, evt):
+		print "page enter"
 		self.updateGrid()
 		if not self._doneLayout:
 			self._doneLayout = True
