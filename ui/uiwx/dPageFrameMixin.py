@@ -1,3 +1,4 @@
+import time
 import wx
 import dabo
 import dabo.ui
@@ -8,6 +9,7 @@ from dPage import dPage
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 	
+
 class dPageFrameMixin(cm.dControlMixin):
 	"""Creates a container for an unlimited number of pages."""
 	def _initEvents(self):
@@ -24,10 +26,16 @@ class dPageFrameMixin(cm.dControlMixin):
 
 				
 	def __onPageChanged(self, evt):
-		# pkm: commenting the following 2 lines on linux removes the double events,
-		# but on Mac it removes all.  
 		evt.Skip()
 		evt.StopPropagation()
+
+		# Filter out the double events from wx:
+		now = time.time()
+		if not hasattr(self, "_lastPageChangedTime") or (now - self._lastPageChangedTime) > .001:
+			self._lastPageChangedTime = time.time()
+		else:
+			return
+
 
 		newPageNum = evt.GetSelection()
 		try:
