@@ -24,8 +24,9 @@ class dPageFrameMixin(cm.dControlMixin):
 
 				
 	def __onPageChanged(self, evt):
-		evt.Skip()
-		evt.StopPropagation()
+		# pkm: commenting the following 2 lines on linux removes the double events:
+		#	evt.Skip()
+		#	evt.StopPropagation()
 
 		newPageNum = evt.GetSelection()
 		try:
