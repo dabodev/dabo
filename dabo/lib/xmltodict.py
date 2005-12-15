@@ -14,53 +14,87 @@ class Xml2Obj:
 		self.root = None
 		self.nodeStack = []
 		self.attsToSkip = []
+		self._inCode = False
+		self._mthdName = ""
+		self._mthdCode = ""
+		self._codeDict = None
+		
 
-	def StartElement(self,name,attributes):
+	def StartElement(self, name, attributes):
 		"""SAX start element even handler"""
-		element = {"name": name.encode()}
-		if len(attributes) > 0:
-			for att in self.attsToSkip:
-				if attributes.has_key(att):
-					del attributes[att]
-			element["attributes"] = attributes
-
-		# Push element onto the stack and make it a child of parent
-		if len(self.nodeStack) > 0:
+		if name == "code":
+			# This is code for the parent element
+			self._inCode = True
 			parent = self.nodeStack[-1]
-			if not parent.has_key("children"):
-				parent["children"] = []
-			parent["children"].append(element)
+			if not parent.has_key("code"):
+				parent["code"] = {}
+				self._codeDict = parent["code"]
+
 		else:
-			self.root = element
-		self.nodeStack.append(element)
+			if self._inCode:
+				self._mthdName = name.encode()
+			else:
+				element = {"name": name.encode()}
+				if len(attributes) > 0:
+					for att in self.attsToSkip:
+						if attributes.has_key(att):
+							del attributes[att]
+					element["attributes"] = attributes
+		
+				# Push element onto the stack and make it a child of parent
+				if len(self.nodeStack) > 0:
+					parent = self.nodeStack[-1]
+					if not parent.has_key("children"):
+						parent["children"] = []
+					parent["children"].append(element)
+				else:
+					self.root = element
+				self.nodeStack.append(element)
 
-	def EndElement(self,name):
+
+	def EndElement(self, name):
 		"""SAX end element event handler"""
-		self.nodeStack = self.nodeStack[:-1]
+		if self._inCode:
+			if name == "code":
+				self._inCode = False
+				self._codeDict = None
+			else:
+				# End of an individual method
+				self._codeDict[self._mthdName] = self._mthdCode
+				self._mthdName = ""
+				self._mthdCode = ""
+		else:
+			self.nodeStack = self.nodeStack[:-1]
 
-	def CharacterData(self,data):
+
+	def CharacterData(self, data):
 		"""SAX character data event handler"""
-		if string.strip(data):
+		if data.strip():
 			data = data.replace("&lt;", "<")
 			data = data.encode()
-			element = self.nodeStack[-1]
-			if not element.has_key("cdata"):
-				element["cdata"] = ""
-			element["cdata"] += data
+			if self._inCode:
+				if self._mthdCode:
+					self._mthdCode += "\n%s" % data
+				else:
+					self._mthdCode = data
+			else:
+				element = self.nodeStack[-1]
+				if not element.has_key("cdata"):
+					element["cdata"] = ""
+				element["cdata"] += data
+			
 
 	def Parse(self, xml):
 		# Create a SAX parser
 		Parser = expat.ParserCreate()
-
 		# SAX event handlers
 		Parser.StartElementHandler = self.StartElement
 		Parser.EndElementHandler = self.EndElement
 		Parser.CharacterDataHandler = self.CharacterData
-
 		# Parse the XML File
 		ParserStatus = Parser.Parse(xml, 1)
-
 		return self.root
+
 
 	def ParseFromFile(self, filename):
 		return self.Parse(open(filename,"r").read())
@@ -78,13 +112,12 @@ def xmltodict(xml, attsToSkip=[]):
 		return parser.Parse(xml)
 
 
-def dicttoxml(d, level=0, header=None):
+def dicttoxml(dct, level=0, header=None):
 	"""Given a Python dictionary, return an xml string.
 
 	The dictionary must be in the format returned by dicttoxml(), with keys
-	on "attributes", "cdata", "name", and "children".
+	on "attributes", "code", "cdata", "name", and "children".
 	"""
-
 	def addQuote(val):
 		"""Add surrounding quotes to the string."""
 		if not isinstance(val, basestring):
@@ -95,36 +128,49 @@ def dicttoxml(d, level=0, header=None):
 		return "%s%s%s" % (qt, val, qt)
 
 	att = ""
-	s = ""
+	ret = ""
 
-	if d.has_key("attributes"):
-		for a, v in d["attributes"].items():
-			v = addQuote(v)
-			att += " %s=%s" % (a, v)
+	if dct.has_key("attributes"):
+		for key, val in dct["attributes"].items():
+			val = addQuote(val)
+			att += " %s=%s" % (key, val)
 
-	s += "%s<%s%s" % ("\t" * level, d["name"], att)
+	ret += "%s<%s%s" % ("\t" * level, dct["name"], att)
 
-	if not d.has_key("cdata") and not d.has_key("children"):
-		s += " />\n"
+	if (not dct.has_key("cdata") and not dct.has_key("children") 
+			and not dct.has_key("code")):
+		ret += " />\n"
 	else:
-		s += ">"
-		if d.has_key("cdata"):
-			s += "%s" % d["cdata"].replace("<", "&lt;")
+		ret += ">"
+		if dct.has_key("cdata"):
+			ret += "%s" % dct["cdata"].replace("<", "&lt;")
 
-		if d.has_key("children") and len(d["children"]) > 0:
-			s += "\n"
-			for child in d["children"]:
-				s += dicttoxml(child, level+1)
-			s += "%s" % "\t" * level
+		if dct.has_key("code"):
+			if len(dct["code"].keys()):
+				ret += "\n%s<code>\n"	% ("\t" * (level+1))
+				methodTab = "\t" * (level+2)
+				for mthd, cd in dct["code"].items():
+					# Make sure that the code ends with a linefeed
+					if not cd.endswith("\n"):
+						cd += "\n"
+					ret += "%s<%s><![CDATA[\n%s]]>\n%s</%s>\n" % (methodTab,
+							mthd, cd.replace("<", "&lt;"), methodTab, mthd)
+				ret += "%s</code>\n"	% ("\t" * (level+1))
+
+		if dct.has_key("children") and len(dct["children"]) > 0:
+			ret += "\n"
+			for child in dct["children"]:
+				ret += dicttoxml(child, level+1)
+			ret += "%s" % ("\t" * level)
 		
-		s += "</%s>\n" % d["name"]
+		ret += "%s</%s>\n" % (("\t" * level), dct["name"])
 
 		if level == 1:
-			s += "\n"
+			ret += "\n"
 	
 	if level == 0:
 		if header is None:
 			header = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n"""
-		s = header + s
+		ret = header + ret
 
-	return s
+	return ret
