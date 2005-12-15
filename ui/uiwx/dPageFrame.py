@@ -43,9 +43,20 @@ class dPageFrame(wx.Notebook, dPageFrameMixin):
 			## This keeps Pages from being ugly on Windows:
 			self.SetBackgroundColour(self.GetBackgroundColour())
 
-		super(dPageFrame, self)._initEvents()
+		super(dPageFrame, self)._afterInit()
 
 
+class _dPageFrame_test(dPageFrame):
+			def initProperties(self):
+				self.Width = 400
+				self.Height = 175
+
+			def afterInit(self):
+				self.appendPage(caption="Introduction")
+				self.appendPage(caption="Chapter I")
+
+			def onPageChanged(self, evt):
+				print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
 
 class dPageList(wx.Listbook, dPageFrameMixin):
 	_evtPageChanged = readonly(wx.EVT_LISTBOOK_PAGE_CHANGED)
@@ -90,3 +101,7 @@ class dPageSelect(wx.Choicebook, dPageFrameMixin):
 		dd.SetSelection(pos)
 		
 		
+if __name__ == "__main__":
+	import test
+	test.Test().runTest(_dPageFrame_test)
+

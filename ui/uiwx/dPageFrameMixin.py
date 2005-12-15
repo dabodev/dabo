@@ -29,14 +29,6 @@ class dPageFrameMixin(cm.dControlMixin):
 		evt.Skip()
 		evt.StopPropagation()
 
-		# Filter out the double events from wx:
-		now = time.time()
-		if not hasattr(self, "_lastPageChangedTime") or (now - self._lastPageChangedTime) > .01:
-			self._lastPageChangedTime = time.time()
-		else:
-			return
-
-
 		newPageNum = evt.GetSelection()
 		try:
 			oldPageNum = self._lastPage
