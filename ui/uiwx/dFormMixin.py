@@ -694,7 +694,11 @@ class dFormMixin(pm.dPemMixin):
 
 	def _setIcon(self, val):
 		if self._constructed():
-			if not isinstance(val, wx.Icon):
+			if val is None:
+				ico = wx.NullIcon
+			elif isinstance(val, wx.Icon):
+				ico = val
+			else:
 				iconPath = dabo.icons.getIconFileName(val)
 				if os.path.exists(iconPath):
 					ext = os.path.splitext(iconPath)[1].lower()
@@ -708,11 +712,13 @@ class dFormMixin(pm.dPemMixin):
 					ico = wx.Icon(iconPath, bitmapType)
 				else:
 					val = None
-			else:
-				ico = val
+					ico = wx.NullIcon
+#					raise ValueError, "Invalid icon specified."
+
 			# wx doesn't provide GetIcon()
 			self._Icon = val
 			self.SetIcon(ico)
+
 		else:
 			self._properties["Icon"] = val
 
