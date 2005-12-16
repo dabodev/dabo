@@ -120,7 +120,14 @@ class uiApp(wx.App, dObject):
 		"""
 		frms = self.Application.uiForms
 		if self.dApp.MainForm:
-			# First close all non-child forms
+			# First close all non-child forms. Some may be 'dead'
+			# already, so let's find those first.
+			for frm in frms:
+				try:
+					junk = frm.Visible
+				except dabo.ui.deadObjectException:
+					frms.remove(frm)
+			# Now we can work with the rest
 			orphans = [frm for frm in frms
 					if frm.Parent is not self.dApp.MainForm]
 			for orphan in orphans:
