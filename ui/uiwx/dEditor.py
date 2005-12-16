@@ -973,6 +973,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		runtime environment, for the purpose of getting auto-completion.
 		"""
 		classdef = None
+		args = []
 		for line in range(self.LineNumber - 1, -1, -1):
 			text = self.GetLine(line).strip()
 			if text[0:6] == "class ":
@@ -991,8 +992,9 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				# get rid of prepended (
 				args = args[1:]
 				break
-		classdef = "class self(%s): pass" % args
-		exec classdef in self._namespaces
+		if args:
+			classdef = "class self(%s): pass" % args
+			exec classdef in self._namespaces
 
 		
 	def _getRuntimeObject(self, runtimeObjectName):
@@ -1017,6 +1019,9 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			## exist in the _namespaces and hence we'll get autocompletion for 
 			## it. --pkm 9/20/04
 			self._makeContainingClassIntoSelf()
+		# Different editor usages may require additional namespace
+		# hacks, such as the above. This is a hook for adding such hacks.
+		self._namespaceHacks()
 		try:
 			o = self._namespaces[outerObjectName]
 		except KeyError:
@@ -1030,6 +1035,11 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 					o = None
 		return o
 	
+	
+	def _namespaceHacks(self):
+		"""Hook method for any additional namespace hacks"""
+		pass
+		
 	
 	def _fillNamespaces(self):
 		"""Get the names that will exist at runtime into the _namespaces dict."""
