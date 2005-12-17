@@ -18,7 +18,9 @@ setup(
 		package_data = {
 				'':['ANNOUNCE', 'AUTHORS', 'ChangeLog', 'INSTALL',
 				'LICENSE.TXT', 'README', 'TODO'],
-				'dabo.icons': ['*.png'],
+				'dabo.icons': ['*.png', '*.ico'],
+				'dabo.icons.cards.small': ['*.png', '*.ico'],
+				'dabo.icons.cards.large': ['*.png', '*.ico'],
 				'dabo.lib.reporting':['*.rfxml'],
 				'dabo.lib.reporting_stefano':['*.rfxml'],
 				'dabo.ui.uiwx.macImageProblem':['*.png'],
