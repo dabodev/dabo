@@ -700,7 +700,7 @@ class dFormMixin(pm.dPemMixin):
 				ico = val
 			else:
 				iconPath = dabo.icons.getIconFileName(val)
-				if os.path.exists(iconPath):
+				if iconPath and os.path.exists(iconPath):
 					ext = os.path.splitext(iconPath)[1].lower()
 					if ext == ".png":
 						bitmapType = wx.BITMAP_TYPE_PNG
