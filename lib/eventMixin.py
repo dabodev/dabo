@@ -243,15 +243,23 @@ class EventMixin(object):
 			# If we got this far, we have a match. 
 
 			# Get the object reference to the function:
-			for m in context.__class__.mro():
-				funcObj = None
-				try:
-					funcObj = m.__dict__[funcName]
-					# The function is defined in this superclass: break here
-					break
-				except KeyError:
-					# The function isn't defined here: continue the crawl up the mro
-					pass
+			funcObj = None
+			### Paul: this is the major change I propose: looking
+			### in the 'context' object first, instead of its __class__
+			try:
+				funcObj = context.__dict__[funcName]
+			except KeyError:
+				pass
+			
+			if funcObj is None:
+				for m in context.__class__.mro():
+					try:
+						funcObj = m.__dict__[funcName]
+						# The function is defined in this superclass: break here
+						break
+					except KeyError:
+						# The function isn't defined here: continue the crawl up the mro
+						pass
 
 			if type(funcObj) in (types.FunctionType, types.MethodType):
 					evtObj = dEvents.__dict__[parsedEvtName]
