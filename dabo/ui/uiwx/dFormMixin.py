@@ -133,7 +133,11 @@ class dFormMixin(pm.dPemMixin):
 			# NOTE: if the method name and the name in the 'def' statement
 			# are not the same, the results are undefined, and will probably crash.
 			exec compCode
-			exec ("cls.%s = %s" % (nm, nm))
+			exec "obj.%s = %s.__get__(obj)" % (nm, nm)
+# 			def bind(fun, arg):
+# 				return lambda *a, **k: fun(arg, *a, **k)
+#			exec "obj.%s = bind(%s, obj)" % (nm, nm)
+#			exec ("cls.%s = %s" % (nm, nm))
 		if dabo.autoBindEvents:
 			obj.autoBindEvents()
 			
@@ -241,6 +245,8 @@ class dFormMixin(pm.dPemMixin):
 								pgInfo = kids[pageno]
 								if pgInfo.has_key("attributes"):
 									pg.setPropertiesFromAtts(pgInfo["attributes"])
+								if pgInfo.has_key("code"):
+									self._addCode(pg, pgInfo["code"])
 								if pgInfo.has_key("children"):
 									self._addChildren(pgInfo["children"], parent=pg)
 						else:
