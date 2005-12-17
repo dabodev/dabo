@@ -349,6 +349,8 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 			
 
 	def _getValue(self):
+		if self.GetItemCount() == 0:
+			return None
 		item = None
 		idx = self.LastSelectedIndex
 		colcnt = self.ColumnCount
