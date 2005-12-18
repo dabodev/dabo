@@ -770,6 +770,13 @@ class dPemMixin(dPemMixinBase):
 			self.Fit()
 	
 	
+	def getMousePosition(self):
+		"""Returns the current mouse position on the entire screen
+		relative to this object.
+		"""
+		return self.ScreenToClient(wx.GetMousePosition()).Get()
+	
+	
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
 			fillColor=None, lineStyle=None, persist=True):
 		"""Draws a circle of the specified radius around the specified point.
@@ -836,6 +843,15 @@ class dPemMixin(dPemMixinBase):
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
+	
+	
+	def drawBitmap(self, bmp, x=0, y=0, persist=True):
+		"""Draws a bitmap on the object at the specified position."""
+		obj = _drawObject(self, Bitmap=bmp,
+				Shape="bmp", Xpos=x, Ypos=y)
+		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
 
 
 	def _addToDrawnObjects(self, obj, persist):
@@ -845,6 +861,10 @@ class dPemMixin(dPemMixinBase):
 			self._drawnObjects.remove(obj)
 			obj = None
 		return obj
+		
+		
+	def _removeFromDrawnObjects(self, obj):
+		self._drawnObjects.remove(obj)
 		
 		
 	def _redraw(self):
@@ -1749,6 +1769,7 @@ class _drawObject(dObject):
 		self._inInit = True
 		# Initialize property atts
 		self._parent = parent
+		self._bitmap = None
 		self._fillColor = None
 		self._height = None
 		self._lineStyle = None
@@ -1779,6 +1800,11 @@ class _drawObject(dObject):
 		if not self.Visible or self._inInit:
 			return
 		dc = wx.ClientDC(self.Parent)
+		
+		if self.Shape == "bmp":
+			dc.DrawBitmap(self._bitmap, self.Xpos, self.Ypos, False)
+			return
+		
 		pw = self.PenWidth
 		if not pw:
 			# No pen
@@ -1840,6 +1866,13 @@ class _drawObject(dObject):
 		
 
 	# Property get/set methods
+	def _getBitmap(self):
+		return self._bitmap
+
+	def _setBitmap(self, val):
+		self._bitmap = val
+
+
 	def _getFillColor(self):
 		return self._fillColor
 		
@@ -1848,6 +1881,7 @@ class _drawObject(dObject):
 			self._fillColor = val
 			self.update()
 
+
 	def _getHeight(self):
 		return self._height
 		
@@ -1855,6 +1889,7 @@ class _drawObject(dObject):
 		if self._height != val:
 			self._height = val
 			self.update()
+			
 	
 	def _getLineStyle(self):
 		return self._lineStyle
@@ -1865,12 +1900,14 @@ class _drawObject(dObject):
 		if self._lineStyle != val:
 			self._lineStyle = val
 			self.update()
+			
 
 	def _getParent(self):
 		return self._parent
 		
 	def _setParent(self, val):
 		self._parent = val
+
 
 	def _getPenColor(self):
 		return self._penColor
@@ -1879,6 +1916,7 @@ class _drawObject(dObject):
 		if self._penColor != val:
 			self._penColor = val
 			self.update()
+			
 
 	def _getPenWidth(self):
 		return self._penWidth
@@ -1887,6 +1925,7 @@ class _drawObject(dObject):
 		if self._penWidth != val:
 			self._penWidth = val
 			self.update()
+			
 
 	def _getPoints(self):
 		return self._points
@@ -1895,6 +1934,7 @@ class _drawObject(dObject):
 		if self._points != val:
 			self._points = val
 			self.update()
+			
 
 	def _getRadius(self):
 		return self._radius
@@ -1903,12 +1943,14 @@ class _drawObject(dObject):
 		if self._radius != val:
 			self._radius = val
 			self.update()
+			
 		
 	def _getShape(self):
 		return self._shape
 		
 	def _setShape(self, val):
 		self._shape = val
+		
 		
 	def _getVisible(self):
 		return self._visible
@@ -1917,6 +1959,7 @@ class _drawObject(dObject):
 		if self._visible != val:
 			self._visible = val
 			self.update()
+			
 
 	def _getWidth(self):
 		return self._width
@@ -1925,6 +1968,7 @@ class _drawObject(dObject):
 		if self._width != val:
 			self._width = val
 			self.update()
+			
 
 	def _getXpos(self):
 		return self._xPos
@@ -1933,6 +1977,7 @@ class _drawObject(dObject):
 		if self._xPos != val:
 			self._xPos = val
 			self.update()
+			
 		
 	def _getYpos(self):
 		return self._yPos
@@ -1943,6 +1988,9 @@ class _drawObject(dObject):
 			self.update()
 		
 		
+	Bitmap = property(_getBitmap, _setBitmap, None,
+			_("Bitmap to be drawn on the object  (dBitmap)"))
+	
 	FillColor = property(_getFillColor, _setFillColor, None,
 			_("Background color for the shape  (color)"))
 
