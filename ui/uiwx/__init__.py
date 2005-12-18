@@ -231,7 +231,7 @@ def getEventData(wxEvt):
 		ed["metaDown"] = wxEvt.MetaDown()
 		ed["shiftDown"] = wxEvt.ShiftDown()
 		if isinstance(wxEvt, wx.MouseEvent):
-			ed["mouseDown"] = wxEvt.Dragging()
+			ed["mouseDown"] = ed["dragging"] = wxEvt.Dragging()
 
 	if isinstance(wxEvt, wx.MenuEvent):
 		ed["prompt"] = wxEvt.GetEventObject().Caption
