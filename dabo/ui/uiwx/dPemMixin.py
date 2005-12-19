@@ -777,6 +777,23 @@ class dPemMixin(dPemMixinBase):
 		return self.ScreenToClient(wx.GetMousePosition()).Get()
 	
 	
+	def getCaptureBitmap(self):
+		"""Returns a bitmap snapshot of self, as it appears in the 
+		UI at this moment.
+		"""
+		rect = self.GetRect()
+		bmp = wx.EmptyBitmap(rect.width, rect.height)
+		memdc = wx.MemoryDC()
+		memdc.SelectObject(bmp)
+		if self.Parent is None:
+			dc = wx.WindowDC(self)
+		else:
+			dc = wx.WindowDC(self.Parent)
+		memdc.Blit(0,0, rect.width, rect.height, dc, rect.x, rect.y)
+		memdc.SelectObject(wx.NullBitmap)
+		return bmp
+
+
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
 			fillColor=None, lineStyle=None, persist=True):
 		"""Draws a circle of the specified radius around the specified point.
