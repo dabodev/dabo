@@ -53,6 +53,10 @@ class dSizerMixin(dObject):
 	expandFlag = wx.EXPAND
 	growFlag = wx.EXPAND
 	fixedFlag = wx.FIXED_MINSIZE 
+	# Also provide Dabo names for the sizer item classes
+	SizerItem = wx.SizerItem
+	GridSizerItem = wx.GBSizerItem
+
 	
 	
 	def appendItems(self, items, *args, **kwargs):
@@ -281,7 +285,7 @@ class dSizerMixin(dObject):
 			itm.SetSpacer(spacer)
 			return
 		lowprop = prop.lower()
-		if isinstance(itm, dabo.ui.dGridSizer.GridSizerItem):
+		if isinstance(itm, self.GridSizerItem):
 			row, col = self.getGridPos(itm)
 		if lowprop == 'proportion':
 			itm.SetProportion(int(val))
