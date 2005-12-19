@@ -32,8 +32,9 @@ if wx.PlatformInfo[0] == "__WXGTK__":
 	_platform += " (%s)" % wx.PlatformInfo[3]
 uiType["platform"] = _platform
 
-# Add this to the dabo.ui namespace
+# Add these to the dabo.ui namespace
 deadObjectException = wx._core.PyDeadObjectError
+nativeScrollBar = wx.ScrollBar
 
 # Import dPemMixin first, and then manually put into dabo.ui module. This is
 # because dControlMixinBase, which is in dabo.ui, descends from dPemMixin, which 
