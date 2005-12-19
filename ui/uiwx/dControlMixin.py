@@ -19,17 +19,3 @@ class dControlMixin(dControlMixinBase):
 			self.raiseEvent(dEvents.Hit, evt, *args, **kwargs)
 			self._lastHitTime = time.time()
 		
-	def getCaptureBitmap(self):
-		"""Returns a bitmap snapshot of self, as it appears in the UI at this moment.
-		"""
-		
-		## Not sure if this belongs here or not, but didn't want to lose it.
-		
-		rect = self.GetRect()
-		bmp = wx.EmptyBitmap(rect.width, rect.height)
-		memdc = wx.MemoryDC()
-		memdc.SelectObject(bmp)
-		dc = wx.WindowDC(self.Parent)
-		memdc.Blit(0,0, rect.width, rect.height, dc, rect.x, rect.y)
-		memdc.SelectObject(wx.NullBitmap)
-		return bmp
