@@ -1480,7 +1480,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			fieldClause = "*"
 		
 		if not fromClause:
-			fromClause = "from %s" % self.Table
+			fromClause = self.Table
 		
 		if childFilterClause:
 			# Prepend it to the where clause
