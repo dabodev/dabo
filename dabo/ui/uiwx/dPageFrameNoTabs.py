@@ -13,11 +13,15 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 	Your code will have to programatically set the current page, because the
 	user will have no way to do this.
 	"""
-	def _afterInit(self):
+	def __init__(self, *args, **kwargs):
+		self._pageClass = dPage.dPage
 		self._activePage = None
+		super(dPageFrameNoTabs, self).__init__(*args, **kwargs)
+		
+		
+	def _afterInit(self):
 		if self.Sizer is None:
 			self.Sizer = dabo.ui.dSizer()
-		self._pageClass = dPage.dPage
 		super(dPageFrameNoTabs, self)._afterInit()
 		
 		
