@@ -56,7 +56,7 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 			ret = self.ShowModal()
 		else:
 			ret = self.Show(True)
-		return retVals.get(ret, ret)
+		return retVals.get(ret)
 		
 
 	def hide(self):
