@@ -3,6 +3,7 @@ import ConfigParser
 import dabo
 import dabo.lib.utils as utils
 from dabo.dObject import dObject
+from dabo.dLocalize import _
 
 
 class dUserSettingProvider(dObject):
@@ -18,7 +19,7 @@ class dUserSettingProvider(dObject):
 		The return value would be ["pkm", "egl"]
 		"""
 		homeDir = self._getHomeDir()
-		fileName = self._getFileName()
+		fileName = self.SettingsFileName
 		configFileName = os.path.join(homeDir, fileName)
 
 		cp = ConfigParser.ConfigParser()
@@ -59,7 +60,7 @@ class dUserSettingProvider(dObject):
 
 		"""
 		homeDir = self._getHomeDir()
-		fileName = self._getFileName()
+		fileName = self.SettingsFileName
 		configFileName = os.path.join(homeDir, fileName)
 
 		cp = ConfigParser.ConfigParser()
@@ -89,7 +90,7 @@ class dUserSettingProvider(dObject):
 		"""Persist a value to the user settings file.
 		"""
 		homeDir = self._getHomeDir()
-		fileName = self._getFileName()
+		fileName = self.SettingsFileName
 		configFileName = os.path.join(homeDir, fileName)
 
 		cp = ConfigParser.ConfigParser()
@@ -118,11 +119,45 @@ class dUserSettingProvider(dObject):
 		cp.write(configFile)
 		configFile.close()
 		
-	def _getHomeDir(self):
-		"""Return the home directory where the settings file should live."""
-		return utils.getUserDaboDirectory()
 
-	def _getFileName(self):
-		"""Return the name of the settings file."""
-		appName = self.Application.getAppInfo("appShortName")
-		return "userSettings-%s.ini" % appName
+	def _getHomeDir(self):
+		"""Return the full path of the directory for the settings file."""
+		return utils.getUserDaboDirectory(self.SettingsDirectoryName)
+
+
+	def _getSettingsDirectoryName(self):
+		if hasattr(self, "_settingsDirectoryName"):
+			v = self._settingsDirectoryName
+		else:
+			v = self._settingsDirectoryName = self.Application.getAppInfo("appShortName")
+		return v
+
+	def _setSettingsDirectoryName(self, val):
+		self._settingsDirectoryName = val
+
+
+	def _getSettingsFileName(self):
+		if hasattr(self, "_settingsFileName"):
+			v = self._settingsFileName
+		else:
+			v = self._settingsFileName = "userSettings-%s.ini" \
+					% self.Application.getAppInfo("appShortName")
+		return v
+
+	def _setSettingsFileName(self, val):
+		self._settingsFileName = val
+
+
+	SettingsDirectoryName = property(_getSettingsDirectoryName, 
+			_setSettingsDirectoryName, None,
+			_("""The name of the directory to put the settings file.
+
+				This is just a directory name, not a full path. The path is determined
+				by platform conventions.
+				"""))
+
+	SettingsFileName = property(_getSettingsFileName, _setSettingsFileName, None,
+			_("""The name of the user settings file.
+
+				This is just a file name, not a full path.
+				"""))
