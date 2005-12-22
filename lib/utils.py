@@ -107,7 +107,7 @@ def getUserDaboDirectory(appName="Dabo"):
 		try:
 			os.makedirs(dd)
 		except:
-			print "Couldn't create the .dabo directory (%s)." % dd
+			print "Couldn't create the user setting directory (%s)." % dd
 			dd = None
 
 	return dd
