@@ -68,6 +68,8 @@ from dEditor import dEditor
 from dFileDialog import dFileDialog
 from dFileDialog import dFolderDialog
 from dFileDialog import dSaveDialog
+from dFoldPanelBar import dFoldPanelBar
+from dFoldPanelBar import dFoldPanel
 from dFontDialog import dFontDialog
 from dForm import dToolForm
 from dForm import dForm
