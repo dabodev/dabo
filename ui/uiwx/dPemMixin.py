@@ -89,6 +89,11 @@ class dPemMixin(dPemMixinBase):
 		elif isinstance(self, (dabo.ui.dMenu, dabo.ui.dMenuBar)):
 			# Hack: wx.Menu has no style, parent, or id arg.
 			del self._preInitProperties["style"]
+		elif isinstance(self, (dabo.ui.dFoldPanel, dabo.ui.dFoldPanelBar)):
+			# Hack: the FoldPanel classes have no style arg.
+			del self._preInitProperties["style"]
+			# This is needed because these classes require a 'parent' param.
+			kwargs["parent"] = parent
 		else:
 			if self._preInitProperties.has_key("style"):
 				self._preInitProperties["style"] = self._preInitProperties["style"] | style
