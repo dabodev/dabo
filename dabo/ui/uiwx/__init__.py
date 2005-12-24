@@ -56,6 +56,7 @@ from dBox import dBox
 from dBitmap import dBitmap
 from dBitmapButton import dBitmapButton
 from dButton import dButton
+from dCalendar import dCalendar
 from dCheckBox import dCheckBox
 from dColorDialog import dColorDialog
 from dComboBox import dComboBox
@@ -308,6 +309,13 @@ def getEventData(wxEvt):
 			# Don't think this is implemented yet
 			ed["commandDown"] = wxEvt.CmdDown()
 		except: pass
+	
+	if isinstance(wxEvt, wx.calendar.CalendarEvent):
+		ed["date"] = wxEvt.PyGetDate()
+		# This will be undefined for all but the
+		# EVT_CALENDAR_WEEKDAY_CLICKED event.
+		ed["weekday"] = wxEvt.GetWeekDay()
+
 	return ed
 	
 	

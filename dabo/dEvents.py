@@ -187,6 +187,12 @@ class SashEvent(Event):
 	appliesToClass = classmethod(appliesToClass)
 
 
+class CalendarEvent(Event):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dCalendar)
+	appliesToClass = classmethod(appliesToClass)
+
+
 class TreeEvent(Event):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dTreeView)
@@ -461,6 +467,31 @@ class SashDoubleClick(SashEvent):
 
 class SashPositionChanged(SashEvent):
 	"""Occurs when a user moves the sash of a splitter window."""
+	pass
+
+
+class CalendarDateChanged(CalendarEvent):
+	"""Occurs when the date on a calendar is changed."""
+	pass
+
+
+class CalendarDayChanged(CalendarEvent):
+	"""Occurs when the day of the month on a calendar is changed."""
+	pass
+
+
+class CalendarMonthChanged(CalendarEvent):
+	"""Occurs when the month on a calendar is changed."""
+	pass
+	
+
+class CalendarYearChanged(CalendarEvent):
+	"""Occurs when the year on a calendar is changed."""
+	pass
+
+
+class CalendarDayHeaderClicked(CalendarEvent):
+	"""Occurs when the day of week header is clicked."""
 	pass
 
 
