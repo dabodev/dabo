@@ -11,7 +11,7 @@ import time
 import sys
 
 
-class dFormBase(fm.dFormMixin):
+class BaseForm(fm.dFormMixin):
 	"""Creates a bizobj-aware form.
 
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
@@ -58,7 +58,7 @@ class dFormBase(fm.dFormMixin):
 			mp = self.mainPanel = dabo.ui.dPanel(self)
 			self.Sizer.append(mp, 1, "x")
 			mp.Sizer = dabo.ui.dSizer(self.Sizer.Orientation)
-		super(dFormBase, self)._afterInit()
+		super(BaseForm, self)._afterInit()
 	
 	
 	def show(self):
@@ -84,7 +84,7 @@ class dFormBase(fm.dFormMixin):
 			self.activeControlValid()
 			ret = self.confirmChanges()
 		if ret:
-			ret = super(dFormBase, self)._beforeClose(evt)
+			ret = super(BaseForm, self)._beforeClose(evt)
 		return ret
 		
 		
@@ -734,28 +734,28 @@ Database error message: %s""") %	err
 
 
 
-class dForm(wx.Frame, dFormBase):
+class dForm(wx.Frame, BaseForm):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dForm
 
 		if dabo.settings.MDI and isinstance(parent, wx.MDIParentFrame):
 			# Hack this into an MDI Child:
-			dForm.__bases__ = (wx.MDIChildFrame, dFormBase)
+			dForm.__bases__ = (wx.MDIChildFrame, BaseForm)
 			preClass = wx.PreMDIChildFrame
 			self._mdi = True
 		else:
 			# This is a normal SDI form:
-			dForm.__bases__ = (wx.Frame, dFormBase)
+			dForm.__bases__ = (wx.Frame, BaseForm)
 			preClass = wx.PreFrame
 			self._mdi = False
 		## (Note that it is necessary to run the above block each time, because
 		##  we are modifying the dForm class definition globally.)
 
-		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
+		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
 
-class dToolForm(wx.MiniFrame, dFormBase):
+class dToolForm(wx.MiniFrame, BaseForm):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dToolForm
 		preClass = wx.PreMiniFrame
@@ -763,8 +763,21 @@ class dToolForm(wx.MiniFrame, dFormBase):
 		kwargs["TinyTitleBar"] = True
 		kwargs["ShowStatusBar"] = False
 		kwargs["ShowToolBar"] = False
-		dFormBase.__init__(self, preClass, parent, properties, *args, **kwargs)
-			
+		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
+
+
+class dBorderlessForm(wx.Frame, BaseForm):
+	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		self._baseClass = dBorderlessForm
+		style = kwargs.get("style", 0)
+		kwargs["style"] = style | wx.NO_BORDER
+		kwargs["ShowStatusBar"] = False
+		kwargs["ShowSystemMenu"] = False
+		kwargs["MenuBarClass"] = None
+		preClass = wx.PreFrame
+		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
+	
+
 					
 if __name__ == "__main__":
 	import test

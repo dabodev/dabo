@@ -10,17 +10,16 @@ import dabo.dColors as dColors
 from dabo.dLocalize import _
 
 
-class dCalendar(wxcal.CalendarCtrl, dcm.dControlMixin):
+class BaseCalendar(wxcal.CalendarCtrl, dcm.dControlMixin):
+	"""This is the base wrapper of the wx calendar control. Do not
+	use this directly; instead, use either the 'dCalendar' or the 
+	'dExtendedCalendar' subclasses.
+	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dCalendar
 		preClass = wxcal.PreCalendarCtrl
 		
 		style = kwargs.get("style", 0)
-		if self._extractKey((kwargs, properties), "CompactDisplay", False):
-			style = style | wxcal.CAL_SEQUENTIAL_MONTH_SELECTION
-			self._compactDisplay = True
-		else:
-			self._compactDisplay = False
 		dow = self._firstDayOfWeek = self._extractKey((kwargs, properties), 
 				"FirstDayOfWeek", "Sunday")
 		if dow.lower().strip()[0] == "m":
@@ -174,10 +173,6 @@ class dCalendar(wxcal.CalendarCtrl, dcm.dControlMixin):
 		
 		
 	### Begin property defs  ###
-	def _getCompactDisplay(self):
-		return self._compactDisplay
-
-
 	def _getDate(self):
 		return self.PyGetDate()
 
@@ -302,10 +297,6 @@ class dCalendar(wxcal.CalendarCtrl, dcm.dControlMixin):
 		self.EnableHolidayDisplay(val)
 
 
-	CompactDisplay = property(_getCompactDisplay, None, None,
-			_("""Creates a more compact calendar layout. Default=True.
-			Read-only at runtime.  (bool)"""))
-
 	Date = property(_getDate, _setDate, None,
 			_("The current Date of the calendar  (datetime.date)"))
 	
@@ -348,12 +339,35 @@ class dCalendar(wxcal.CalendarCtrl, dcm.dControlMixin):
 
 
 
+class dCalendar(BaseCalendar):
+	"""This formats the calendar into a more compact layout, with
+	arrow buttons for moving back and forth a month at a time.
+	"""
+	def __init__(self, *args, **kwargs):
+		style = kwargs.get("style", 0)
+		kwargs["style"] = style | wxcal.CAL_SEQUENTIAL_MONTH_SELECTION
+		super(dCalendar, self).__init__(*args, **kwargs)
+
+
+
+class dExtendedCalendar(BaseCalendar):
+	"""This formats the calendar into an extended layout, with a 
+	dropdown list for selecting any month, and a spinner for 
+	moving from year to year. Use this when you need to be able
+	to navigate to any date quickly.
+	"""
+	def __init__(self, *args, **kwargs):
+		style = kwargs.get("style", 0)
+		kwargs["style"] = style &  ~wxcal.CAL_SEQUENTIAL_MONTH_SELECTION
+		super(dExtendedCalendar, self).__init__(*args, **kwargs)
+
+
 
 if __name__ == "__main__":
 	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
-			dCalendar(self, FirstDayOfWeek="monday",
-					CompactDisplay=True, RegID="cal")
+			dCalendar(self, FirstDayOfWeek="monday", 
+					Position=(0,0), RegID="cal")
 			self.cal.HighlightHolidays = True
 			self.cal.setHolidays(((None,12,25), (2006, 1, 4)))			
 		
@@ -369,6 +383,7 @@ if __name__ == "__main__":
 			print "YearChanged!", evt.date
 		def onHit_cal(self, evt):
 			print "Hit!", evt.date
+			self.release()
 			
 			
 	app = dabo.dApp()
