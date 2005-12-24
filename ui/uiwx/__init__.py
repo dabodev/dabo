@@ -1,5 +1,8 @@
 import sys
 import os
+import datetime
+import time
+
 ######################################################
 # Very first thing: check for proper wxPython build:
 _failedLibs = []
@@ -57,6 +60,7 @@ from dBitmap import dBitmap
 from dBitmapButton import dBitmapButton
 from dButton import dButton
 from dCalendar import dCalendar
+from dCalendar import dExtendedCalendar
 from dCheckBox import dCheckBox
 from dColorDialog import dColorDialog
 from dComboBox import dComboBox
@@ -72,8 +76,9 @@ from dFileDialog import dSaveDialog
 from dFoldPanelBar import dFoldPanelBar
 from dFoldPanelBar import dFoldPanel
 from dFontDialog import dFontDialog
-from dForm import dToolForm
 from dForm import dForm
+from dForm import dToolForm
+from dForm import dBorderlessForm
 from dFormMain import dFormMain
 from dGauge import dGauge
 from dGrid import dGrid
@@ -326,6 +331,48 @@ def getMouseObject():
 	live application.
 	"""
 	return wx.FindWindowAtPoint(wx.GetMousePosition())
+
+
+#### This will have to wait until I can figure out how to simulate a 
+#### modal form for the calendar.
+# def popupCalendar(dt=None, x=None, y=None, pos="topleft"):
+# 	"""Pops up a calendar control at the specified x,y location, relative
+# 	to the position. Positions can be one of 'topleft', 'topright', 
+# 	'bottomleft', 'bottomright'. If no date is specified, defaults to 
+# 	today. Returns the selected date, or None if the user presses Esc.
+# 	"""
+# 	class popCal(dBorderlessForm):
+# 		def afterInit(self):
+# 			dCalendar(self, RegID="cal", Position=(0,0))
+# 			self.Size = self.cal.Size
+# 			
+# 		def onHit_cal(self, evt):
+# 			self.Visible = False
+# 		
+# 	pos = pos.lower().strip()
+# 	if dt is None:
+# 		dt = datetime.date.today()
+# 	if x is None or y is None:
+# 		x,y = wx.GetMousePosition()
+# 	else:
+# 		x, y = wx.ClientToScreen(x, y)
+# 	
+# 	calForm = popCal(None)
+# 	calForm.cal.Date = dt
+# 	if "right" in pos:
+# 		x = x - calForm.Width
+# 	if "bottom" in pos:
+# 		y = y - calForm.Height
+# 	calForm.Position = x, y
+# 	calForm.Visible = True
+# 	calForm.setFocus()
+# # 	while calForm.Visible:
+# # 		time.sleep(0.5)
+# # 		print "wake", calForm.Visible
+# 	ret = calForm.cal.Date
+# 	calForm.release()
+# 	return ret
+	
 
 
 def getString(message="Please enter a string:", caption="Dabo",	defaultValue=""):
