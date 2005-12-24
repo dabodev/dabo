@@ -1,9 +1,16 @@
-import wx, dabo, dabo.ui
+import re
+import datetime
+import wx
+import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-
 import dDataControlMixin as dcm
+import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dTextBox import dTextBox
+from dPanel import dPanel
+from dButton import dButton
+
 
 # I'm in the process of attempting to convert the date text box 
 # to use the native wx.DatePickerCtrl instead of a plain text box.
@@ -23,8 +30,7 @@ except:
 	dpClass = wx.TextCtrl
 
 class dDateTextBoxNew(dpClass, dcm.dDataControlMixin):
-	""" Convenient control for managing dates.
-	"""
+	""" Convenient control for managing dates."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dDateTextBox
 		preClass = wx.PreDatePickerCtrl
@@ -68,9 +74,9 @@ C: Popup Calendar to Select
 	
 	def _initEvents(self):
 		super(dDateTextBoxNew, self)._initEvents()
-		self.bindEvent(dabo.dEvents.KeyChar, self.__onChar)
+		self.bindEvent(dEvents.KeyChar, self.__onChar)
 		self.Bind(wx.EVT_DATE_CHANGED, self.__onWxChange)
-		self.bindEvent(dabo.dEvents.ValueChanged, self.onChange)
+		self.bindEvent(dEvents.ValueChanged, self.onChange)
 
 		self.txt = [cc for cc in self.GetChildren() 
 				if isinstance(cc, wx.TextCtrl) ][0]
@@ -82,19 +88,19 @@ C: Popup Calendar to Select
 	def __onInnerKeyChar(self, evt):
 # 		evt.StopPropagation()
 # 		print "INNER", evt.KeyCode()
-		self.raiseEvent(dabo.dEvents.KeyChar, evt)
+		self.raiseEvent(dEvents.KeyChar, evt)
 		
 # 	def __onInnerKeyDown(self, evt):
 # 		print "INNER DOWN", evt.KeyCode()
-# 		self.raiseEvent(dabo.dEvents.KeyDown, evt)
+# 		self.raiseEvent(dEvents.KeyDown, evt)
 		
 	def __onInnerKeyUp(self, evt):
 		print "INNER UP", evt.KeyCode()
-		self.raiseEvent(dabo.dEvents.KeyChar, evt)
+		self.raiseEvent(dEvents.KeyChar, evt)
 		
 	
 	def __onWxChange(self, evt):
-		self.raiseEvent(dabo.dEvents.ValueChanged, evt)
+		self.raiseEvent(dEvents.ValueChanged, evt)
 	
 	def onChange(self, evt):
 		"""Called whenever the user changes the value in the control"""
@@ -207,6 +213,7 @@ C: Popup Calendar to Select
 			val = wx.DateTime.Now()
 		return val		
 
+
 	def dayInterval(self, days):
 		val = self.getValidValue()
 		newval = val.AddDS(wx.DateSpan.Days(days))
@@ -228,51 +235,43 @@ C: Popup Calendar to Select
 #############################
 #   Original version of the class
 #############################
-import re
-import wx
-import wx.calendar
-import dTextBox, dPanel, dButton
-
-
-class CalPanel(dPanel.dPanel):
-	def __init__(self, parent, pos=(-1,-1), dt=wx.DateTime_Now(), ctrl=None ):
+class CalPanel(dPanel):
+	def __init__(self, parent, pos=None, dt=None, ctrl=None ):
 		if dt is None:
-			self.date = wx.DateTime_Now()
+			self.date = datetime.date.today()
 		else:
 			self.date = dt
 		self.ctrl = ctrl
-		#CalPanel.doDefault(parent, pos=pos)
 		super(CalPanel, self).__init__(parent, pos=pos)
+		
 	
 	def afterInit(self):
 		""" Create the calendar control, and resize this panel 
-		to the calendar's size
+		to the calendar's size.
 		"""
-		self.cal = wx.calendar.CalendarCtrl(self, -1, self.date, pos = (5,5), 
-				style = wx.calendar.CAL_SUNDAY_FIRST
-				| wx.calendar.CAL_SEQUENTIAL_MONTH_SELECTION
-				)
-		self.Bind(wx.calendar.EVT_CALENDAR, self.onCal, id=self.cal.GetId())
-		wd, ht = self.cal.GetSize()
+		self.cal = dabo.ui.dCalendar(self, Position=(5, 5))
+		self.cal.Date = self.date
+		self.cal.bindEvent(dEvents.Hit, self.onCalSelection)
+		wd, ht = self.cal.Size
 		self.Size = (wd+10, ht+10)
 		self.BackColor = (192, 192, 0)
-		self.cal.Show(True)
+		self.cal.Visible = True
 		
-	def onCal(self, evt):
+	def onCalSelection(self, evt):
 		if self.ctrl is not None:
-			self.ctrl.Value = evt.GetDate()
-		self.cal.Destroy()
-		self.Show(False)
+			self.ctrl.Value = self.cal.Date
+			self.ctrl.setFocus()
+		self.Visible = False
 		
 
-class dDateTextBoxOrig(dTextBox.dTextBox):
+class dDateTextBoxOrig(dTextBox):
 	""" This is a specialized textbox class designed to work with date values.
 	It provides handy shortcut keystrokes so that users can quickly navigate
 	to the date value they need. The keystrokes are the same as those used
 	by Quicken, the popular personal finance program.
 	"""
 	def beforeInit(self):
-		self.date = wx.DateTime_Now()
+		self.date = datetime.date.today()	#wx.DateTime_Now()
 		self.formats = {
 				"American": {"prompt": "American (MM/DD/YYYY)", 
 					"setting" : "American", 
@@ -301,23 +300,15 @@ class dDateTextBoxOrig(dTextBox.dTextBox):
 		# Do we display a button on the right side for activating the calendar?
 		### TODO: still needs a lot of work to display properly.
 		self.showCalButton = False
-		# Temporary, while the new dEvents model is finished
-		self.useWxEvents = False
 	
 	
 	def afterInit(self):
 		if self.showCalButton:
 			# Create a button that will display the calendar
-			self.calButton = dButton.dButton(self.Parent)
-			self.calButton.Size = (self.Height, self.Height)
-			self.calButton.Right = self.Right
-			self.calButton.Caption = "V"
-			self.calButton.Show(True)
-# 			calSizer = wx.BoxSizer(wx.HORIZONTAL)
-# 			calSizer.Add(self, 1, wx.EXPAND)
-# 			calSizer.Add(self.calButton)
-			self.calButton.bindEvent(dabo.dEvents.Hit, self.onDblClick)
-#			self.Parent.Bind(wx.EVT_BUTTON, self.onDblClick, id=self.calButton.GetId() )
+			self.calButton = dButton(self.Parent, Size=(self.Height, self.Height),
+					Right=self.Right, Caption="V")
+			self.calButton.Visible = True
+			self.calButton.bindEvent(dEvents.Hit, self.onDblClick)
 			
 		# Tooltip help
 		self.ToolTipText = """Available Keys:
@@ -335,15 +326,11 @@ C: Popup Calendar to Select
 """
 	
 	def initEvents(self):
-		#dDateTextBox.doDefault()
 		super(dDateTextBoxOrig, self).initEvents()
-		self.bindEvent(dabo.dEvents.MouseRightUp, self.__onRightClick)
-		if self.useWxEvents:
-			self.Bind(wx.EVT_CHAR, self.__onChar)
-		else:
-			self.bindEvent(dabo.dEvents.KeyChar, self.__onChar)
-		self.bindEvent(dabo.dEvents.MouseLeftDoubleClick, self.__onDblClick)
-		self.bindEvent(dabo.dEvents.LostFocus, self.__onLostFocus)
+		self.bindEvent(dEvents.MouseRightUp, self.__onRightClick)
+		self.bindEvent(dEvents.KeyChar, self.__onChar)
+		self.bindEvent(dEvents.MouseLeftDoubleClick, self.__onDblClick)
+		self.bindEvent(dEvents.LostFocus, self.__onLostFocus)
 	
 		
 	def __onLostFocus(self, evt):
@@ -355,14 +342,18 @@ C: Popup Calendar to Select
 	
 	
 	def __onDblClick(self, evt):
-		""" Display a calendar to allow users to select dates.
-		"""
+		""" Display a calendar to allow users to select dates."""
 		self.showCalendar()
+		
 		
 	def showCalendar(self):
 		availHt = self.Parent.Bottom - self.Bottom
-		self.calPanel = CalPanel(self.Parent, pos = (self.Left, self.Bottom), 
-				dt = self.strToDate(self.Value), ctrl=self )
+		try:
+			self.calPanel.cal.Date = self.strToDate(self.Value)
+		except:
+			self.calPanel = CalPanel(self.Parent, dt=self.strToDate(self.Value), 
+					ctrl=self)
+		self.calPanel.Position = (self.Left, self.Bottom)
 		if self.Bottom + self.calPanel.Height > self.Parent.Bottom:
 			# Maybe we should move it above
 			if self.calPanel.Height <= self.Top:
@@ -373,7 +364,7 @@ C: Popup Calendar to Select
 		if self.Left + self.calPanel.Width > self.Parent.Right:
 			# Try moving it to the left
 			self.calPanel.Left = max(0, (self.Parent.Width - self.calPanel.Width) )
-		self.calPanel.Show(True)
+		self.calPanel.Visible = True
 		self.calPanel.setFocus()
 		
 	
@@ -403,21 +394,14 @@ C: Popup Calendar to Select
 		""" If a shortcut key was pressed, process that. Otherwise, eat 
 		inappropriate characters.
 		"""
-		if self.useWxEvents:
-			keycode = evt.GetKeyCode()
-		else:
-			try:
-				keycode = evt.EventData["keyCode"]
-			except:
-				# spurious key event; ignore
-				return
+		try:
+			keycode = evt.EventData["keyCode"]
+		except:
+			# spurious key event; ignore
+			return
 		if keycode < 0 or keycode > 255:
 			# Let it be handled higher up
 			return
-		
-		# Tried adding this, but it doesn't do anything.
-		#evt.StopPropagation()
-		
 		key = chr(keycode).lower()
 		shortcutKeys = "t+-mhyrc[]"
 		dateEntryKeys = "0123456789/-"
@@ -432,22 +416,18 @@ C: Popup Calendar to Select
 			
 			if val and self.strToDate(val, testing=True) is None:
 				adjust = False
-				if self.useWxEvents:
-					evt.Skip()
 			else:
 				# They've just finished typing a new date, or are just
 				# positioned on the field. Either way, update the stored 
 				# date to make sure they are in sync.
 				self.Value = val
-				if not self.useWxEvents:
-					evt.Continue = False
+				evt.Continue = False
 			if adjust:
 				self.adjustDate(key)
 	
 		elif key in dateEntryKeys:
 			# key can be used for date entry: allow
-			if self.useWxEvents:
-				evt.Skip()
+			pass
 		elif keycode in range(32, 129):
 			# key is in ascii range, but isn't one of the above
 			# allowed key sets. Disallow.
@@ -455,8 +435,7 @@ C: Popup Calendar to Select
 				evt.Continue = False
 		else:
 			# Pass the key up the chain to process - perhaps a Tab, Enter, or Backspace...
-			if self.useWxEvents:
-				evt.Skip()
+			pass
 
 
 	def adjustDate(self, key):
@@ -464,7 +443,7 @@ C: Popup Calendar to Select
 		shortcut keys.
 		"""
 		# Save the original value for comparison
-		orig = self.date.GetJDN()
+		orig = self.date.toordinal()
 		# Default direction
 		forward = True
 		# Flag to indicate errors in date processing
@@ -474,11 +453,11 @@ C: Popup Calendar to Select
 		
 		if key == "t":
 			# Today
-			self.date.SetToCurrent()
+			self.date = datetime.date.today()
 			self.Value = self.date
-# 		elif key == "q":
-# 			# DEV! For testing the handling of bad dates
-# 			self.Value = "18/33/1888"
+		elif key == "@":
+			# DEV! For testing the handling of bad dates
+			self.Value = "18/33/1888"
 		elif key == "+":
 			# Forward 1 day
 			self.dayInterval(1)
@@ -488,21 +467,21 @@ C: Popup Calendar to Select
 			forward = False
 		elif key == "m":
 			# First day of month
-			intv = -1 * (self.date.GetDay() -1)
-			self.dayInterval(intv)
+			self.date = self.date.replace(day=1)
+			self.Value = self.date
 			forward = False
 		elif key == "h":
 			# Last day of month
-			self.date.SetToLastMonthDay()
+			self.setToLastMonthDay()
 			self.Value = self.date
 		elif key == "y":
 			# First day of year
-			self.date.SetMonth(0).SetDay(1)
+			self.date = self.date.replace(month=1, day=1)
 			self.Value = self.date
 			forward = False
 		elif key == "r":
 			# Last day of year
-			self.date.SetMonth(11).SetDay(31)
+			self.date = self.date.replace(month=12, day=31)
 			self.Value = self.date
 		elif key == "[":
 			# Back one month
@@ -523,7 +502,7 @@ C: Popup Calendar to Select
 		if not self.dateOK:
 			return
 		if checkBoundary and self.continueAtBoundary:
-			if self.date.GetJDN() == orig:
+			if self.date.toordinal() == orig:
 				# Date hasn't changed; means we're at the boundary
 				# (first or last of the chosen interval). Move 1 day in
 				# the specified direction, then re-apply the key
@@ -535,24 +514,55 @@ C: Popup Calendar to Select
 	
 	
 	def dayInterval(self, days):
-		self.date.AddDS(wx.DateSpan.Days(days))
+		"""Adjusts the date by the given number of 'days'; negative
+		values move backwards.
+		"""
+		self.date += datetime.timedelta(days)
 		self.Value = self.date
 
 	
 	def monthInterval(self, months):
-		self.date.AddDS(wx.DateSpan.Months(months))
+		"""Adjusts the date by the given number of 'months'; 
+		negative values move backwards.
+		"""
+		mn = self.date.month + months
+		yr = self.date.year
+		dy = self.date.day
+		while mn < 1:
+			yr -= 1
+			mn += 12
+		while mn > 12:
+			yr += 1
+			mn -= 12
+		# May still be an invalid day for the selected month
+		ok = False
+		while not ok:
+			try:
+				self.date = self.date.replace(year=yr, month=mn, day=dy)
+				ok = True
+			except:
+				dy -= 1
 		self.Value = self.date
 	
+	
+	def setToLastMonthDay(self):
+		mn = self.date.month
+		td = datetime.timedelta(1)
+		while mn == self.date.month:
+			self.date += td
+		# We're now at the first of the next month. Go back one.
+		self.date -= td
+		
 
 	def getDateTuple(self):
-		return (self.date.GetYear(), self.date.GetMonth(), self.date.GetDay() )
+		return (self.date.year, self.date.month, self.date.day )
 
 	
 	def strToDate(self, val, testing=False):
 		""" This routine parses the text representing a date, using the 
 		current format. It adjusts for years given with two digits, using 
 		the rollover value to determine the century. It then returns a
-		wx.DateTime object set to the entered date.
+		datetime.date object set to the entered date.
 		"""
 		val = str(val)
 		ret = None
@@ -638,12 +648,8 @@ C: Popup Calendar to Select
 						year += 2000
 			except:
 				return ret
-		# Remember, months are zero-based here
 		try:
-			ret = wx.DateTimeFromDMY(day, month-1, year)
-			ret.SetHour(hr)
-			ret.SetMinute(mn)
-			ret.SetSecond(sec)
+			ret = datetime.date(year, month, day)
 		except:
 			if not testing:
 				# Don't fill up the logs with error messages from tests that 
@@ -657,21 +663,22 @@ C: Popup Calendar to Select
 		""" We need to convert this back to standard database format """
 		fmt = "%Y-%m-%d"
 		#return dDateTextBox.doDefault(self.date.Format(fmt) )
-		return super(dDateTextBoxOrig, self).setFieldVal(self.date.Format(fmt))
+		return super(dDateTextBoxOrig, self).setFieldVal(self.date.strftime(fmt))
 	
 	
 	def strFromDate(self):
 		""" Returns the string representation of the date object
 		given the current format.
 		"""
-		return self.date.Format(self.getCurrentFormat())
+		return self.date.strftime(self.getCurrentFormat())
 	
 	
 	def getCurrentFormat(self):
 		fmt = [ f["format"]
 				for f in self.formats.values() 
 				if f["setting"] == self.dateFormat][0]
-		return fmt		
+		return fmt
+		
 	
 	def _setValue(self, val):
 		""" We need to override this method, since the actual value
@@ -691,8 +698,10 @@ C: Popup Calendar to Select
 		#dDateTextBox.doDefault(self.strFromDate() )
 		super(dDateTextBoxOrig, self)._setValue(self.strFromDate())
 		
+		
 	def _getValue(self):
 		return super(dDateTextBoxOrig, self)._getValue()
+		
 		
 	Value = property(_getValue, _setValue, None,
 			"Specifies the current state of the control (the value of the field). (varies)" )
