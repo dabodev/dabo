@@ -773,8 +773,20 @@ class dPemMixin(dPemMixinBase):
 		"""Sets the size of the object to the size of the sizer."""
 		if self.Sizer:
 			self.Fit()
-	
-	
+
+
+	def _getWxColour(self, val):
+		"""Convert Dabo colors to wx.Colour objects"""
+		ret = None
+		if isinstance(val, basestring):
+			try:
+				val = dColors.colorTupleFromName(val)
+			except: pass
+		if isinstance(val, tuple):
+			ret = wx.Colour(*val)
+		return ret
+
+
 	def getMousePosition(self):
 		"""Returns the current mouse position on the entire screen
 		relative to this object.

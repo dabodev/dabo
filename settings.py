@@ -80,6 +80,11 @@ MDI = False
 #        on Windows though, because it seems to be the arrangement most users
 #        expect.)
 
+# When doing date calculations, displaying calendars, etc., this determines whether
+# 'Sunday' or 'Monday' is considered the beginning of the week
+firstDayOfWeek = "Sunday"
+
+
 
 ### Settings - end
 

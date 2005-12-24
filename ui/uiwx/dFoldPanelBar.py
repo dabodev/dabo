@@ -68,18 +68,6 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 		self.AddSeparator(self._getWxColour(color))
 		
 		
-	def _getWxColour(self, val):
-		"""Convert Dabo colors to wx.Colour objects"""
-		ret = None
-		if isinstance(val, basestring):
-			try:
-				val = dColors.colorTupleFromName(val)
-			except: pass
-		if isinstance(val, tuple):
-			ret = wx.Colour(*val)
-		return ret
-		
-		
 	def _getBarColor1(self):
 		return self._barColor1
 
@@ -207,9 +195,7 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 
 
 
-
 if __name__ == "__main__":
-
 	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
 			self.bar = dabo.ui.dFoldPanelBar(self)
@@ -258,7 +244,5 @@ if __name__ == "__main__":
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
 	app.start()
-			
-			
-			
-			
+
+
