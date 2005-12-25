@@ -84,6 +84,11 @@ MDI = False
 # 'Sunday' or 'Monday' is considered the beginning of the week
 firstDayOfWeek = "Sunday"
 
+# This setting controls the format that will be used by dDateTextBox controls
+# to display date values. The available choices are listed.
+dateFormat = "American"		# MM/DD/YYYY
+# dateFormat = "YMD"			# YYYY-MM-DD
+# dateFormat = "European"		# DD.MM.YYYY
 
 
 ### Settings - end
