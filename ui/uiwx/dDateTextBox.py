@@ -12,229 +12,6 @@ from dPanel import dPanel
 from dButton import dButton
 
 
-# I'm in the process of attempting to convert the date text box 
-# to use the native wx.DatePickerCtrl instead of a plain text box.
-# If you'd like to try the new version of the class, just change 
-# 'True' to 'False' in the line below:
-USE_ORIG_CLASS = True
-
-#####################
-#   This is the new version of the class
-#   It may be unstable and contain debugging output
-#####################
-try:
-	dpClass = wx.DatePickerCtrl
-except:
-	# Older wxPython versions don't have this class
-	USE_ORIG_CLASS = True
-	dpClass = wx.TextCtrl
-
-class dDateTextBoxNew(dpClass, dcm.dDataControlMixin):
-	""" Convenient control for managing dates."""
-	def __init__(self, parent, properties=None, *args, **kwargs):
-		self._baseClass = dDateTextBox
-		preClass = wx.PreDatePickerCtrl
-		
-		style = self._extractKey((kwargs, properties), "style")
-		if not style:
-			style = wx.DP_DROPDOWN | wx.DP_ALLOWNONE | wx.DP_SHOWCENTURY 
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
-				style=style, validator=wx.DefaultValidator, *args, **kwargs)
-
-	
-	def afterInit(self):
-		# Tooltip help
-		self.ToolTipText = """Available Keys:
-=============
-T : Today
-+ : Up One Day
-- : Down One Day
-[ : Up One Month
-] : Down One Month
-M : First Day of Month
-H : Last Day of montH
-Y : First Day of Year
-R : Last Day of yeaR
-C: Popup Calendar to Select
-"""
-		# Grab a reference to the inner text control
-		self.txt = [cc for cc in self.GetChildren() 
-				if isinstance(cc, wx.TextCtrl) ][0]
-		# turn off the the beep
-		v1 = self.txt.GetValidator()
-		self.vld = v1.Clone()
-		self.vld.SetBellOnError(False)
-
-		print "BEFORE", self.vld
-
-		self.txt.SetValidator(self.vld)
-		
-		print "AFTER", self.vld
-		
-	
-	def _initEvents(self):
-		super(dDateTextBoxNew, self)._initEvents()
-		self.bindEvent(dEvents.KeyChar, self.__onChar)
-		self.Bind(wx.EVT_DATE_CHANGED, self.__onWxChange)
-		self.bindEvent(dEvents.ValueChanged, self.onChange)
-
-		self.txt = [cc for cc in self.GetChildren() 
-				if isinstance(cc, wx.TextCtrl) ][0]
-		self.txt.Bind(wx.EVT_CHAR, self.__onInnerKeyChar)
-# 		self.txt.Bind(wx.EVT_KEY_DOWN, self.__onInnerKeyDown)
-		self.txt.Bind(wx.EVT_KEY_UP, self.__onInnerKeyUp)
-
-	
-	def __onInnerKeyChar(self, evt):
-# 		evt.StopPropagation()
-# 		print "INNER", evt.KeyCode()
-		self.raiseEvent(dEvents.KeyChar, evt)
-		
-# 	def __onInnerKeyDown(self, evt):
-# 		print "INNER DOWN", evt.KeyCode()
-# 		self.raiseEvent(dEvents.KeyDown, evt)
-		
-	def __onInnerKeyUp(self, evt):
-		print "INNER UP", evt.KeyCode()
-		self.raiseEvent(dEvents.KeyChar, evt)
-		
-	
-	def __onWxChange(self, evt):
-		self.raiseEvent(dEvents.ValueChanged, evt)
-	
-	def onChange(self, evt):
-		"""Called whenever the user changes the value in the control"""
-		pass
-#		print "CHANGE!", self.Value
-		
-	
-	def __onChar(self, evt):
-		""" If a shortcut key was pressed, process that. Otherwise, eat 
-		inappropriate characters.
-		"""
-		
-		print "CHAR", evt.EventData["keyCode"]
-		
-		try:
-			keycode = evt.EventData["keyCode"]
-		except:
-			# spurious key event; ignore
-			return
-		if keycode < 0 or keycode > 255:
-			# Let it be handled higher up
-			
-			print "IGNORING"
-			return
-
-		key = chr(keycode).lower()
-		shortcutKeys = "t+-mhyrc[]"
-		dateEntryKeys = "0123456789/-"
-		
-		if key in shortcutKeys:
-			evt.Continue = False
-			self.adjustDate(key)
-			
-
-	def adjustDate(self, key):
-		""" Modifies the current date value if the key is one of the 
-		shortcut keys.
-		"""
-		if key == "t":
-			# Today
-			self.Value = wx.DateTime.Now()
-		elif key == "+":
-			# Forward 1 day
-			self.dayInterval(1)
-		elif key == "-":
-			# Back 1 day
-			self.dayInterval(-1)
-		elif key == "m":
-			# First day of month
-			val = self.getValidValue()
-			if val.GetDay() == 1:
-				# Already at the first of the month; go back one month
-				self.dayInterval(-1)
-			val = self.getValidValue()
-			newVal = val.SetDay(1)
-			self.Value = newVal
-		elif key == "h":
-			# Last day of month
-			val = self.getValidValue()
-			origDay = val.GetDay()
-			val.SetToLastMonthDay()
-			if origDay == val.GetDay():
-				# Already at end of month; increment the month
-				self.dayInterval(1)
-				val = self.getValidValue()
-				val.SetToLastMonthDay()
-			self.Value = val
-		elif key == "y":
-			# First day of year
-			val = self.getValidValue()
-			if val.GetDay() == 1:
-				if val.GetMonth() == 0:
-				# Already at the first of the year; go back one year
-					self.dayInterval(-1)
-			val = self.getValidValue()
-			newval = val.SetDay(1)
-			newval = newval.SetMonth(0)
-			self.Value = newval
-		elif key == "r":
-			# Last day of year
-			val = self.getValidValue()
-			origDay, origMonth = val.GetDay(), val.GetMonth()
-			val.SetMonth(11)
-			val.SetToLastMonthDay()
-			if (origDay, origMonth) == (val.GetDay(), val.GetMonth()):
-				# Already at end of month; increment the month
-				self.dayInterval(1)
-				val = self.getValidValue()
-				val.SetMonth(11)
-				val.SetToLastMonthDay()
-			self.Value = val
-		elif key == "[":
-			# Back one month
-			self.monthInterval(-1)
-		elif key == "]":
-			# Forward one month
-			self.monthInterval(1)
-		else:
-			# This shouldn't happen, because onChar would have filtered it out.
-			dabo.infoLog.write("Warning in dDateTextBox.adjustDate: %s key sent." % key)
-			return
-	
-	
-	def getValidValue(self):
-		""" Returns the value of the control, or Now() if the control
-		does not contain a valid date.
-		"""
-		val = self.GetValue()
-		if not val.IsValid():
-			val = wx.DateTime.Now()
-		return val		
-
-
-	def dayInterval(self, days):
-		val = self.getValidValue()
-		newval = val.AddDS(wx.DateSpan.Days(days))
-		self.Value = newval
-
-	
-	def monthInterval(self, months):
-		val = self.getValidValue()
-		newval = val.AddDS(wx.DateSpan.Months(months))
-		self.Value = newval
-	
-	
-	def getBlankValue(self):
-		""" Override the default method; we need a wx-specific value."""
-		return wx.DateTime()
-
-
-
-#############################
-#   Original version of the class
-#############################
 class CalPanel(dPanel):
 	def __init__(self, parent, pos=None, dt=None, ctrl=None ):
 		if dt is None:
@@ -264,14 +41,14 @@ class CalPanel(dPanel):
 		self.Visible = False
 		
 
-class dDateTextBoxOrig(dTextBox):
+class dDateTextBox(dTextBox):
 	""" This is a specialized textbox class designed to work with date values.
 	It provides handy shortcut keystrokes so that users can quickly navigate
 	to the date value they need. The keystrokes are the same as those used
 	by Quicken, the popular personal finance program.
 	"""
 	def beforeInit(self):
-		self.date = datetime.date.today()	#wx.DateTime_Now()
+		self.date = datetime.date.today()
 		self.formats = {
 				"American": {"prompt": "American (MM/DD/YYYY)", 
 					"setting" : "American", 
@@ -282,11 +59,15 @@ class dDateTextBoxOrig(dTextBox):
 				"European": {"prompt": "European (DD.MM.YYYY)", 
 					"setting": "european", 
 					"format" : "%d.%m.%Y"} }
-		# Default format; can be changed in setup code or in RightClick
-		self.dateFormat = "American"
+		# Default format; can be changed in settings_override.py
+		# or by using the RightClick menu.
+		self.dateFormat = dabo.settings.dateFormat
 		# Pattern for recognizing dates from databases
 		self.dbDTPat = re.compile("(\d{4})[-/\.](\d{1,2})[-/\.](\d{1,2}) (\d{1,2}):(\d{1,2}):([\d\.]+)")
 		self.dbDPat = re.compile("(\d{4})[-/\.](\d{1,2})[-/\.](\d{1,2})")
+		self.dbEuroDTPat = re.compile("(\d{1,2})[-/\.](\d{1,2})[-/\.](\d{4}) (\d{1,2}):(\d{1,2}):([\d\.]+)")
+		self.dbEuroDPat = re.compile("(\d{1,2})[-/\.](\d{1,2})[-/\.](\d{4})")
+
 		# Two-digit year value that is the cutoff in interpreting 
 		# dates as being either 19xx or 20xx.
 		self.rollover = 50
@@ -326,8 +107,8 @@ C: Popup Calendar to Select
 """
 	
 	def initEvents(self):
-		super(dDateTextBoxOrig, self).initEvents()
-		self.bindEvent(dEvents.MouseRightUp, self.__onRightClick)
+		super(dDateTextBox, self).initEvents()
+		self.bindEvent(dEvents.MouseRightDown, self.__onRightDown)
 		self.bindEvent(dEvents.KeyChar, self.__onChar)
 		self.bindEvent(dEvents.MouseLeftDoubleClick, self.__onDblClick)
 		self.bindEvent(dEvents.LostFocus, self.__onLostFocus)
@@ -368,7 +149,7 @@ C: Popup Calendar to Select
 		self.calPanel.setFocus()
 		
 	
-	def __onRightClick(self, evt):
+	def __onRightDown(self, evt):
 		""" Display a context menu for selecting the desired date format """
 		menu = dabo.ui.dMenu()
 		for nm, format in self.formats.items():
@@ -376,8 +157,8 @@ C: Popup Calendar to Select
 			format["id"] = itm.GetId()
 		self.showContextMenu(menu)
 		evt.Continue = False  # otherwise, a GTK unicode menu will appear
-		
-		
+	
+	
 	def onRClickMenu(self, evt):
 		""" Set the date format to the selected value."""
 		try:
@@ -587,6 +368,24 @@ C: Popup Calendar to Select
 			year = int(year)
 			month = int(month)
 			day = int(day)
+		if self.dbEuroDTPat.match(val):
+			# DateTime pattern, Euro format
+			day, month, year, hr, mn, sec = self.dbEuroDTPat.match(val).groups()
+			# Convert to numeric
+			year = int(year)
+			month = int(month)
+			day = int(day)
+			hr = int(hr)
+			mn = int(mn)
+			sec = int(round(float(sec), 0) )
+		elif self.dbEuroDPat.match(val):
+			# Date-only pattern, Euro format
+			day, month, year = self.dbEuroDPat.match(val).groups()
+			hr = mn = sec = 0
+			# Convert to numeric
+			year = int(year)
+			month = int(month)
+			day = int(day)
 		else:
 			# See if there is a time component
 			try:
@@ -663,7 +462,7 @@ C: Popup Calendar to Select
 		""" We need to convert this back to standard database format """
 		fmt = "%Y-%m-%d"
 		#return dDateTextBox.doDefault(self.date.Format(fmt) )
-		return super(dDateTextBoxOrig, self).setFieldVal(self.date.strftime(fmt))
+		return super(dDateTextBox, self).setFieldVal(self.date.strftime(fmt))
 	
 	
 	def strFromDate(self):
@@ -696,30 +495,249 @@ C: Popup Calendar to Select
 			else:
 				self.dateOK = False
 		#dDateTextBox.doDefault(self.strFromDate() )
-		super(dDateTextBoxOrig, self)._setValue(self.strFromDate())
+		super(dDateTextBox, self)._setValue(self.strFromDate())
 		
 		
 	def _getValue(self):
-		return super(dDateTextBoxOrig, self)._getValue()
+		return super(dDateTextBox, self)._getValue()
 		
 		
 	Value = property(_getValue, _setValue, None,
 			"Specifies the current state of the control (the value of the field). (varies)" )
 	
-#########################
 
 
-if USE_ORIG_CLASS:
-	base = dDateTextBoxOrig
-else:
-	base = dDateTextBoxNew
-class dDateTextBox(base): pass
-
-
-		
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(dDateTextBox)
 
 
 
+
+
+
+#################################
+# 	wx.DatePicker-based version of the class
+# The one I've written seems to do everything 
+# this does and more, so I'm sticking with that.
+# I'll probably delete this soon, but for now 
+# I'm leaving it here, but commented out.
+#################################
+#################################
+# # I'm in the process of attempting to convert the date text box 
+# # to use the native wx.DatePickerCtrl instead of a plain text box.
+# # If you'd like to try the new version of the class, just change 
+# # 'True' to 'False' in the line below:
+# USE_ORIG_CLASS = False
+# 
+# #####################
+# #   This is the new version of the class
+# #   It may be unstable and contain debugging output
+# #####################
+# try:
+# 	dpClass = wx.DatePickerCtrl
+# except:
+# 	# Older wxPython versions don't have this class
+# 	USE_ORIG_CLASS = True
+# 	dpClass = wx.TextCtrl
+# 
+# class dDateTextBoxNew(dpClass, dcm.dDataControlMixin):
+# 	""" Convenient control for managing dates."""
+# 	def __init__(self, parent, properties=None, *args, **kwargs):
+# 		self._baseClass = dDateTextBox
+# 		preClass = wx.PreDatePickerCtrl
+# 		
+# 		style = self._extractKey((kwargs, properties), "style")
+# 		if not style:
+# 			style = wx.DP_DROPDOWN | wx.DP_ALLOWNONE | wx.DP_SHOWCENTURY 
+# 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
+# 				style=style, validator=wx.DefaultValidator, *args, **kwargs)
+# 
+# 	
+# 	def afterInit(self):
+# 		# Tooltip help
+# 		self.ToolTipText = """Available Keys:
+# =============
+# T : Today
+# + : Up One Day
+# - : Down One Day
+# [ : Up One Month
+# ] : Down One Month
+# M : First Day of Month
+# H : Last Day of montH
+# Y : First Day of Year
+# R : Last Day of yeaR
+# C: Popup Calendar to Select
+# """
+# 		# Grab a reference to the inner text control
+# 		self.txt = [cc for cc in self.GetChildren() 
+# 				if isinstance(cc, wx.TextCtrl) ][0]
+# 		# turn off the the beep
+# 		v1 = self.txt.GetValidator()
+# 		self.vld = v1.Clone()
+# 		self.vld.SetBellOnError(False)
+# 
+# 		print "BEFORE", self.vld
+# 
+# 		self.txt.SetValidator(self.vld)
+# 		
+# 		print "AFTER", self.vld
+# 		
+# 	
+# 	def _initEvents(self):
+# 		super(dDateTextBoxNew, self)._initEvents()
+# 		self.bindEvent(dEvents.KeyChar, self.__onChar)
+# 		self.Bind(wx.EVT_DATE_CHANGED, self.__onWxChange)
+# 		self.bindEvent(dEvents.ValueChanged, self.onChange)
+# 
+# 		self.txt = [cc for cc in self.GetChildren() 
+# 				if isinstance(cc, wx.TextCtrl) ][0]
+# 		self.txt.Bind(wx.EVT_CHAR, self.__onInnerKeyChar)
+# # 		self.txt.Bind(wx.EVT_KEY_DOWN, self.__onInnerKeyDown)
+# 		self.txt.Bind(wx.EVT_KEY_UP, self.__onInnerKeyUp)
+# 
+# 	
+# 	def __onInnerKeyChar(self, evt):
+# # 		evt.StopPropagation()
+# # 		print "INNER", evt.KeyCode()
+# 		self.raiseEvent(dEvents.KeyChar, evt)
+# 		
+# # 	def __onInnerKeyDown(self, evt):
+# # 		print "INNER DOWN", evt.KeyCode()
+# # 		self.raiseEvent(dEvents.KeyDown, evt)
+# 		
+# 	def __onInnerKeyUp(self, evt):
+# 		print "INNER UP", evt.KeyCode()
+# 		self.raiseEvent(dEvents.KeyChar, evt)
+# 		
+# 	
+# 	def __onWxChange(self, evt):
+# 		self.raiseEvent(dEvents.ValueChanged, evt)
+# 	
+# 	def onChange(self, evt):
+# 		"""Called whenever the user changes the value in the control"""
+# 		pass
+# #		print "CHANGE!", self.Value
+# 		
+# 	
+# 	def __onChar(self, evt):
+# 		""" If a shortcut key was pressed, process that. Otherwise, eat 
+# 		inappropriate characters.
+# 		"""
+# 		
+# 		print "CHAR", evt.EventData["keyCode"]
+# 		
+# 		try:
+# 			keycode = evt.EventData["keyCode"]
+# 		except:
+# 			# spurious key event; ignore
+# 			return
+# 		if keycode < 0 or keycode > 255:
+# 			# Let it be handled higher up
+# 			
+# 			print "IGNORING"
+# 			return
+# 
+# 		key = chr(keycode).lower()
+# 		shortcutKeys = "t+-mhyrc[]"
+# 		dateEntryKeys = "0123456789/-"
+# 		
+# 		if key in shortcutKeys:
+# 			evt.Continue = False
+# 			self.adjustDate(key)
+# 			
+# 
+# 	def adjustDate(self, key):
+# 		""" Modifies the current date value if the key is one of the 
+# 		shortcut keys.
+# 		"""
+# 		if key == "t":
+# 			# Today
+# 			self.Value = wx.DateTime.Now()
+# 		elif key == "+":
+# 			# Forward 1 day
+# 			self.dayInterval(1)
+# 		elif key == "-":
+# 			# Back 1 day
+# 			self.dayInterval(-1)
+# 		elif key == "m":
+# 			# First day of month
+# 			val = self.getValidValue()
+# 			if val.GetDay() == 1:
+# 				# Already at the first of the month; go back one month
+# 				self.dayInterval(-1)
+# 			val = self.getValidValue()
+# 			newVal = val.SetDay(1)
+# 			self.Value = newVal
+# 		elif key == "h":
+# 			# Last day of month
+# 			val = self.getValidValue()
+# 			origDay = val.GetDay()
+# 			val.SetToLastMonthDay()
+# 			if origDay == val.GetDay():
+# 				# Already at end of month; increment the month
+# 				self.dayInterval(1)
+# 				val = self.getValidValue()
+# 				val.SetToLastMonthDay()
+# 			self.Value = val
+# 		elif key == "y":
+# 			# First day of year
+# 			val = self.getValidValue()
+# 			if val.GetDay() == 1:
+# 				if val.GetMonth() == 0:
+# 				# Already at the first of the year; go back one year
+# 					self.dayInterval(-1)
+# 			val = self.getValidValue()
+# 			newval = val.SetDay(1)
+# 			newval = newval.SetMonth(0)
+# 			self.Value = newval
+# 		elif key == "r":
+# 			# Last day of year
+# 			val = self.getValidValue()
+# 			origDay, origMonth = val.GetDay(), val.GetMonth()
+# 			val.SetMonth(11)
+# 			val.SetToLastMonthDay()
+# 			if (origDay, origMonth) == (val.GetDay(), val.GetMonth()):
+# 				# Already at end of month; increment the month
+# 				self.dayInterval(1)
+# 				val = self.getValidValue()
+# 				val.SetMonth(11)
+# 				val.SetToLastMonthDay()
+# 			self.Value = val
+# 		elif key == "[":
+# 			# Back one month
+# 			self.monthInterval(-1)
+# 		elif key == "]":
+# 			# Forward one month
+# 			self.monthInterval(1)
+# 		else:
+# 			# This shouldn't happen, because onChar would have filtered it out.
+# 			dabo.infoLog.write("Warning in dDateTextBox.adjustDate: %s key sent." % key)
+# 			return
+# 	
+# 	
+# 	def getValidValue(self):
+# 		""" Returns the value of the control, or Now() if the control
+# 		does not contain a valid date.
+# 		"""
+# 		val = self.GetValue()
+# 		if not val.IsValid():
+# 			val = wx.DateTime.Now()
+# 		return val		
+# 
+# 
+# 	def dayInterval(self, days):
+# 		val = self.getValidValue()
+# 		newval = val.AddDS(wx.DateSpan.Days(days))
+# 		self.Value = newval
+# 
+# 	
+# 	def monthInterval(self, months):
+# 		val = self.getValidValue()
+# 		newval = val.AddDS(wx.DateSpan.Months(months))
+# 		self.Value = newval
+# 	
+# 	
+# 	def getBlankValue(self):
+# 		""" Override the default method; we need a wx-specific value."""
+# 		return wx.DateTime()
