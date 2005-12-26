@@ -455,6 +455,20 @@ class Resize(Event):
 	appliesToClass = classmethod(appliesToClass)
 	
 		
+class FoldPanelChange(Event):
+	"""Occurs when a panel in a dFoldPanelBar control is hidden or shown."""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dFoldPanelBar, dabo.ui.dFoldPanel)
+	appliesToClass = classmethod(appliesToClass)
+	
+		
+class FoldPanelCaptionClick(Event):
+	"""Occurs when the caption bar of a dFoldPanel is clicked."""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dFoldPanelBar, dabo.ui.dFoldPanel)
+	appliesToClass = classmethod(appliesToClass)
+	
+		
 class RowNumChanged(DataEvent):
 	"""Occurs when the cursor's row number has changed."""
 	pass

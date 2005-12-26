@@ -6,7 +6,8 @@ import time
 ######################################################
 # Very first thing: check for proper wxPython build:
 _failedLibs = []
-for lib in ("wx", "wx.stc", "wx.gizmos"):  ## note: may need wx.animate as well
+# note: may need wx.animate as well
+for lib in ("wx", "wx.stc", "wx.lib.foldpanelbar", "wx.gizmos"):
 	try:
 		__import__(lib)
 	except ImportError:
@@ -321,6 +322,11 @@ def getEventData(wxEvt):
 		# EVT_CALENDAR_WEEKDAY_CLICKED event.
 		ed["weekday"] = wxEvt.GetWeekDay()
 
+	if isinstance(wxEvt, wx.lib.foldpanelbar.CaptionBarEvent):
+		ed["expanded"] = wxEvt.GetFoldStatus()
+		ed["collapsed"] = not ed["expanded"]
+		ed["panel"] = wxEvt.GetEventObject().GetParent()
+		
 	return ed
 	
 	
