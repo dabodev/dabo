@@ -3189,10 +3189,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _setSelectionMode(self, val):
 		self._selectionMode = val
-		val1 = val.lower().strip()[0]
-		if val1 == "r":
+		val2 = val.lower().strip()[:2]
+		if val2 == "ro":
 			self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
-		elif val1 == "c":
+		elif val2 == "ce":
 			self.SetSelectionMode(wx.grid.Grid.wxGridSelectColumns)
 		else:
 			self.SetSelectionMode(wx.grid.Grid.wxGridSelectCells)
