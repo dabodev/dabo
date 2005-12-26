@@ -493,13 +493,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _persist(self, prop):
 		"""Persist the current prop setting to the user settings table."""
-		
 		app = self.Application
 		grid = self.Parent
 		colName = "column_%s" % self.DataField
 		val = getattr(self, prop)
 		settingName = "%s.%s.%s.%s" % (grid.Form.Name, grid.Name, colName, prop)
-
 		app.setUserSetting(settingName, val)
 
 
@@ -1262,6 +1260,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		# dColumn maintains its own cell attribute object, but this is the default:
 		self._defaultGridColAttr = self._getDefaultGridColAttr()
+		
+		# These hold the values that affect row/col hiliting
+		self._selectionForeColor = "black"
+		self._selectionBackColor = "yellow"
+		self._selectionMode = "cell"
+		self._modeSet = False
+		# Track the last row and col selected
+		self._lastRow = self._lastCol = None
 
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
@@ -1318,7 +1324,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		super(dGrid, self)._afterInit()
 		
 		# Set the header props/events
-		self.initHeader()		
+		self.initHeader()
 
 
 	def initEvents(self):
@@ -1329,6 +1335,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.__onWxMouseLeftClick)
 		self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.__onWxMouseRightClick)
 		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxGridCellChange)
+		self.Bind(wx.grid.EVT_GRID_RANGE_SELECT, self.__onWxGridRangeSelect)
 
 		gridWindow = self.GetGridWindow()
 
@@ -1474,7 +1481,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 		tbl.setColumns(self.Columns)
 		tbl.fillTable(force)
-		
+
 		if force:
 			row = max(0, self.CurrentRow)
 			col = max(0, self.CurrentColumn)
@@ -1502,17 +1509,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			dabo.ui.callAfter(self._restoreSort)
 			self._sortRestored = True
 
-		## pkm: SelectionModes are:
-		##      0: cell selection (default) (wx.grid.Grid.wxSelectCells)
-		##      1: row selection            (wx.grid.Grid.wxSelectRows)
-		##      2: column selection         (wx.grid.Grid.wxSelectColumns)
-		#self.SetSelectionMode(1)
-		## We can work toward row selection, which will highlight the current row with
-		## whatever highlight color the user wants, but this will require work in catching
-		## the RANGE_SELECTED events and then setting the grid cursor appropriately. I'm
-		## out of time for today, so I'll leave these comments for now. In my experience,
-		## SetSelectionMode() must be called after the table is set on the grid, which is
-		## why this is here instead of in __init__.
+		# This will make sure that the current selection mode is activated.
+		# We can't do it until after the first time the grid is filled.
+		if not self._modeSet:
+			self._modeSet = True
+			self.SelectionMode = self.SelectionMode
 
 
 	def _restoreSort(self):
@@ -2672,6 +2673,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def __onWxGridColSize(self, evt):
 		self.raiseEvent(dEvents.GridColSize, evt)
 		evt.Skip()
+	
+	def __onWxGridRangeSelect(self, evt):
+		self.raiseEvent(dEvents.GridRangeSelected, evt)
 		
 	def __onWxGridCellChange(self, evt):
 		self.raiseEvent(dEvents.GridCellEdited, evt)
@@ -2684,6 +2688,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def __onWxGridSelectCell(self, evt):
 		self.raiseEvent(dEvents.GridCellSelected, evt)
 		evt.Skip()
+		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
+		mode = self.GetSelectionMode()
+		if mode == wx.grid.Grid.wxGridSelectRows:
+			self.SelectRow(evt.GetRow())
+		elif mode == wx.grid.Grid.wxGridSelectColumns:
+			self.SelectCol(evt.GetCol())
 
 	def __onWxHeaderContextMenu(self, evt):
 		self.raiseEvent(dEvents.GridHeaderContextMenu, evt)
@@ -3154,6 +3164,40 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._searchable = bool(val)
 
 
+	def _getSelectionForeColor(self):
+		return self._selectionForeColor
+
+	def _setSelectionForeColor(self, val):
+		self._selectionForeColor = val
+		if isinstance(val, basestring):
+			val = dColors.colorTupleFromName(val)
+		self.SetSelectionForeground(val)
+
+
+	def _getSelectionBackColor(self):
+		return self._selectionBackColor
+
+	def _setSelectionBackColor(self, val):
+		self._selectionBackColor = val
+		if isinstance(val, basestring):
+			val = dColors.colorTupleFromName(val)
+		self.SetSelectionBackground(val)
+
+	
+	def _getSelectionMode(self):
+		return self._selectionMode
+
+	def _setSelectionMode(self, val):
+		self._selectionMode = val
+		val1 = val.lower().strip()[0]
+		if val1 == "r":
+			self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
+		elif val1 == "c":
+			self.SetSelectionMode(wx.grid.Grid.wxGridSelectColumns)
+		else:
+			self.SetSelectionMode(wx.grid.Grid.wxGridSelectCells)
+
+
 	def _getShowColumnLabels(self):
 		return self._showColumnLabels
 
@@ -3362,7 +3406,24 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 				If SearchDelay is set to None (the default), Application.SearchDelay will
 				be used.""") )
-			
+	
+	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
+			_("BackColor of selected cells  (str or RGB tuple)"))
+	
+	SelectionForeColor = property(_getSelectionForeColor, _setSelectionForeColor, None,
+			_("ForeColor of selected cells  (str or RGB tuple)"))
+	
+	SelectionMode = property(_getSelectionMode, _setSelectionMode, None,
+			_("""Determines how the grid displays selections.  (str)
+			Options are:
+				Cells/Plain/None - no row/col highlighting	(default)
+				Row - the row of the selected cell is highlighted
+				Column - the column of the selected cell is highlighted
+
+			The highlight color is determined by the SelectionBackColor and
+			SelectionForeColor properties.
+			"""))
+
 	ShowColumnLabels = property(_getShowColumnLabels, _setShowColumnLabels, None,
 			_("Are column labels shown?  (bool)") )
 

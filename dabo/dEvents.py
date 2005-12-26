@@ -640,6 +640,11 @@ class GridCellSelected(GridEvent):
 	pass
 
 
+class GridRangeSelected(GridEvent):
+	"""Occurs when the a new cell is selected in the grid."""
+	pass
+
+
 class GridCellEdited(GridEvent):
 	"""Occurs when the user edits the content of a grid cell."""
 	pass
