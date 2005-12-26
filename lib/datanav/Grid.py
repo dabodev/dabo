@@ -33,6 +33,9 @@ class Grid(dabo.ui.dGrid):
 
 		if hasattr(self.Form, "preview") and self.Form.preview:
 			self.DataSource = self.Form.previewDataSource
+		
+		# Highlight the selected row for the grid
+		self._selectionMode = "Row"
 
 	
 	def populate(self):
