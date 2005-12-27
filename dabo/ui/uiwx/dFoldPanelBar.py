@@ -34,6 +34,7 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 			# Must have been created from the parent control
 			self._bar = parent.GetParent()
 
+		self._captionForeColor = "black"
 		self._barStyles = ("Borderless", "BorderOnly", 
 				"FilledBorder", "VerticalFill", "HorizontalFill")
 		self._barStylesLow = ("borderless", "borderonly", 
@@ -69,7 +70,17 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 			color = "black"
 		self.AddSeparator(self._getWxColour(color))
 		
-		
+	
+	def layout(self):
+		""" Wrap the wx version of the call, if possible. """
+		self.Layout()
+		try:
+			# Call the Dabo version, if present
+			self.Sizer.layout()
+		except:
+			pass
+
+
 	def __onWxCaptionClick(self, evt):
 		self.raiseEvent(dEvents.FoldPanelCaptionClick, evt)
 				
@@ -119,6 +130,21 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 		self.refresh()
 		
 
+	def _getCaptionForeColor(self):
+		return self._captionForeColor
+
+	def _setCaptionForeColor(self, val):
+# 		dabo.infoLog.write("CaptionForeColor - Not implemented yet")
+		self._captionForeColor = val
+		style = self._captionBar.GetCaptionStyle()
+		style.SetCaptionColour(self._getWxColour(val))
+		self._captionBar.SetCaptionStyle(style)
+
+
+	def _getCaptionHeight(self):
+		return self._captionBar.GetSize()[1]
+
+
 	def _getCollapsed(self):
 		return not self.IsExpanded()
 
@@ -160,6 +186,12 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption displayed on the panel bar  (str)"))
 	
+	CaptionForeColor = property(_getCaptionForeColor, _setCaptionForeColor, None,
+			_("Text color of the caption bar  (str or tuple)"))
+	
+	CaptionHeight = property(_getCaptionHeight, None, None,
+			_("Height of the caption bar. Read-only  (int)"))
+	
 	Collapsed = property(_getCollapsed, _setCollapsed, None,
 			_("Is the panel's contents hidden?  (bool)"))
 	
@@ -190,6 +222,8 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 		
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
+		# We need this 'trick' so that the object crawling routines work
+		self._foldPanel.Parent = self
 		self._setInitialOpenPanel()
 		self.bindEvent(dEvents.FoldPanelChange, self.__onFoldPanelChange)
 	
@@ -238,7 +272,11 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 		self.raiseEvent(dEvents.FoldPanelChange, 
 				self._createCapBarEvt(pnl))
 
-	
+	# Throw in Dabo-style wrapper names
+	expand = Expand
+	collapse = Collapse
+
+
 	def collapseAll(self):
 		for pnl in self._panels:
 			pnl.Collapsed = True
@@ -247,6 +285,30 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 	def expandAll(self):
 		for pnl in self._panels:
 			pnl.Expanded = True
+
+
+	def refresh(self):
+		super(dFoldPanelBar, self).refresh()
+		if self.CollapseToBottom:
+			rect = self.RepositionCollapsedToBottom()
+			vertical = self.IsVertical()
+			if vertical and rect.GetHeight() > 0 or not vertical and rect.GetWidth() > 0:
+				self.RefreshRect(rect)
+			
+
+	def layout(self):
+		""" Wrap the wx version of the call, if possible. """
+		self.Layout()
+		try:
+			# Call the Dabo version, if present
+			self.Sizer.layout()
+		except:
+			pass
+
+	
+	def onResize(self, evt):
+		if self.Singleton:
+			self.sizePanelHeights()
 
 
 	def _setInitialOpenPanel(self):
@@ -291,6 +353,7 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 		curr = self.__openPanel
 		evtPanel = evt.panel
 		isOpening = evt.expanded
+		changing = curr is not evtPanel
 		if isOpening:
 			if curr is not None:
 				if curr is not evtPanel:
@@ -306,7 +369,24 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 				self.__openPanel = evtPanel
 			elif curr is evtPanel:
 				curr.Expanded = True
+		if changing:
+			self.sizePanelHeights()
 		self.__inSingletonProcess = False
+
+	
+	def sizePanelHeights(self):
+		if not self.Singleton:
+			return
+		# Size the open panel to fill the space
+		capHt = 0
+		for pnl in self._panels:
+			capHt += pnl._captionBar.GetSize()[1]
+		for pnl in self._panels:
+			if not pnl.Expanded:
+				continue
+			# Make the panel that big, plus the height of the caption
+			pnl.Height = self.Height - capHt + pnl._captionBar.GetSize()[1]
+		self.layout()
 
 	
 	def _getCollapseToBottom(self):
@@ -350,7 +430,7 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 	Singleton = property(_getSingleton, _setSingleton, None,
 			_("When True, one and only one panel at a time will be expanded  (bool)"))
 
-
+	
 
 
 if __name__ == "__main__":
