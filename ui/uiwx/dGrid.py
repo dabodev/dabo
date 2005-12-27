@@ -3192,7 +3192,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		val2 = val.lower().strip()[:2]
 		if val2 == "ro":
 			self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
-		elif val2 == "ce":
+		elif val2 == "co":
 			self.SetSelectionMode(wx.grid.Grid.wxGridSelectColumns)
 		else:
 			self.SetSelectionMode(wx.grid.Grid.wxGridSelectCells)
