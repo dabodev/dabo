@@ -39,6 +39,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def _initTable(self):
 		self.colDefs = []
 		self._oldRowCount = 0
+		self.grid.setTableAttributes(self)
 
 
 	def GetAttr(self, row, col, kind=0):
@@ -75,6 +76,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		r = dcol.getRendererClassForRow(row)
 		if r is not None:
 			attr.SetRenderer(r())
+		# Now check for alternate row coloration
+		if self.alternateRowColoring:
+			attr.SetBackgroundColour((self.rowColorEven, self.rowColorOdd)[row % 2])
 		return attr
 
 
@@ -1268,6 +1272,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._modeSet = False
 		# Track the last row and col selected
 		self._lastRow = self._lastCol = None
+		self._alternateRowColoring = False
+		self._rowColorEven = "white"
+		self._rowColorOdd = (212, 255, 212)		# very light green
 
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
@@ -1446,6 +1453,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		dcol.CustomRenderers[row] = rnd
 		#self.SetCellRenderer(row, col, rnd)
 				
+	
+	def setTableAttributes(self, tbl):
+		"""Set the attributes for table display"""
+		tbl.alternateRowColoring = self.AlternateRowColoring
+		tbl.rowColorOdd = self._getWxColour(self.RowColorOdd)
+		tbl.rowColorEven = self._getWxColour(self.RowColorEven)
+		
 		
 	def fillGrid(self, force=False):
 		""" Refresh the grid to match the data in the data set."""
@@ -2800,6 +2814,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._activateEditorOnSelect = bool(val)
 
 	
+	def _getAlternateRowColoring(self):
+		return self._alternateRowColoring
+
+	def _setAlternateRowColoring(self, val):
+		self._alternateRowColoring = val
+		self.setTableAttributes(self._Table)
+
+
 	def _getCellHighlightWidth(self):
 		return self.GetCellHighlightPenWidth()
 
@@ -3080,6 +3102,22 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self._properties["HorizontalScrolling"] = val
 
 
+	def _getRowColorEven(self):
+		return self._rowColorEven
+
+	def _setRowColorEven(self, val):
+		self._rowColorEven = val
+		self.setTableAttributes(self._Table)
+
+
+	def _getRowColorOdd(self):
+		return self._rowColorOdd
+
+	def _setRowColorOdd(self, val):
+		self._rowColorOdd = val
+		self.setTableAttributes(self._Table)
+
+
 	def _getRowHeight(self):
 		if hasattr(self, "_rowHeight"):
 			v = self._rowHeight
@@ -3251,20 +3289,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._sortable = bool(val)
 
 
-	def _getVerticalScrolling(self):
-		return self.GetScrollPixelsPerUnit()[1] > 0
-
-	def _setVerticalScrolling(self, val):
-		if self._constructed():
-			if val:
-				self.SetScrollRate(self.GetScrollPixelsPerUnit()[0], 20)
-			else:
-				self.SetScrollRate(self.GetScrollPixelsPerUnit()[0], 0)
-			self.refresh()
-		else:
-			self._properties["VerticalScrolling"] = val
-
-
 	def _getTable(self):
 		## pkm: we can't call this until after the grid is fully constructed. Need to fix.
 		try:
@@ -3283,10 +3307,28 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self._properties["Table"] = value
 
 
+	def _getVerticalScrolling(self):
+		return self.GetScrollPixelsPerUnit()[1] > 0
+
+	def _setVerticalScrolling(self, val):
+		if self._constructed():
+			if val:
+				self.SetScrollRate(self.GetScrollPixelsPerUnit()[0], 20)
+			else:
+				self.SetScrollRate(self.GetScrollPixelsPerUnit()[0], 0)
+			self.refresh()
+		else:
+			self._properties["VerticalScrolling"] = val
+
+
 	ActivateEditorOnSelect = property(
 			_getActivateEditorOnSelect, _setActivateEditorOnSelect, None,
 			_("Specifies whether the cell editor, if any, is activated upon cell selection."))
 
+	AlternateRowColoring = property(_getAlternateRowColoring, _setAlternateRowColoring, None,
+			_("""When True, alternate rows of the grid are colored according to 
+			the RowColorOdd and RowColorEven properties  (bool)"""))
+	
 	CellHighlightWidth = property(_getCellHighlightWidth, _setCellHighlightWidth, None,
 			_("Specifies the width of the cell highlight box."))
 
@@ -3372,6 +3414,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	NoneDisplay = property(_getNoneDisp, None, None, 
 			_("Text to display for null (None) values.  (str)") )
+	
+	RowColorEven = property(_getRowColorEven, _setRowColorEven, None,
+			_("""When alternate row coloring is active, controls the color 
+			of the even rows  (str or tuple)"""))
+	
+	RowColorOdd = property(_getRowColorOdd, _setRowColorOdd, None,
+			_("""When alternate row coloring is active, controls the color 
+			of the odd rows  (str or tuple)"""))
 	
 	RowCount = property(_getRowCount, None, None, 
 			_("Number of rows in the grid.  (int)") )
