@@ -163,7 +163,8 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 
 	
 	def _getInitPropertiesList(self):
-		additional = ["ShowRootNode", "ShowRootNodeLines", "Editable", "ShowButtons"]
+		additional = ["Editable", "MultipleSelect", "ShowRootNode", 
+				"ShowRootNodeLines", "ShowButtons"]
 		original = list(super(dTreeView, self)._getInitPropertiesList())
 		return tuple(original + additional)
 
@@ -324,6 +325,36 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		return ret
 	
 	
+	# These related functions all use self._getRelative().
+	def nextSibling(self, nd=None):
+		return self._getRelative(nd, self.GetNextSibling)
+	def priorSibling(self, nd=None):
+		return self._getRelative(nd, self.GetPrevSibling)
+	def nextNode(self, nd=None):
+		return self._getRelative(nd, self.GetNextVisible)
+	def priorNode(self, nd=None):
+		### There is a *not implemented* bug in wxPython right now.
+		### in the meantime, we'll have to settle for siblings only.
+		ret = self._getRelative(nd, self.GetPrevVisible)
+		if ret is None:
+			ret = self._getRelative(nd, self.GetPrevSibling)
+		return ret
+
+
+	def _getRelative(self, nd, func):
+		if nd is None:
+			nd = self.Selection
+		if isinstance(nd, list):
+			nd = nd[0]
+		try:
+			id = func(nd.id)
+			ret = [nod._obj for nod in self.nodes
+					if nod.id == id][0]
+		except:
+			ret = None
+		return ret
+	
+	
 	def makeDirTree(self, dirPath, wildcard=None, showHidden=False):
 		self.clear()
 		# Add any trailing slash character
@@ -426,6 +457,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 
 	def _setSelection(self, node):
 		if self._constructed():
+			self.UnselectAll()
 			if isinstance(node, (list, tuple)):
 				for itm in node:
 					self.SelectItem(itm.id, True)
