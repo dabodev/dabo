@@ -2251,14 +2251,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if not inBatch:
 			self._syncColumnCount()
 
-		## Set the Width property last, otherwise it won't stick:
-		if not col.Width:
-			col.Width = 75
-		else:
-			## If Width was specified in the dColumn subclass or in the constructor,
-			## it's been set as the property but because it wasn't part of the grid
-			## yet it hasn't yet taken effect: force it.
-			col.Width = col.Width
+		try:
+			## Set the Width property last, otherwise it won't stick:
+			if not col.Width:
+				col.Width = 75
+			else:
+				## If Width was specified in the dColumn subclass or in the constructor,
+				## it's been set as the property but because it wasn't part of the grid
+				## yet it hasn't yet taken effect: force it.
+				col.Width = col.Width
+		except:
+			# If the underlying wx grid doesn't yet know about the column, such
+			# as when adding columns with inBatch=True, this can throw an error
+			# For now, just log it
+			dabo.infoLog.write(_("Cannot set width of column %s") % col.Order)
 		return col
 
 
