@@ -300,10 +300,14 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			else:
 				return True
 		if field:
+			ret = True
 			try:
-				return not self.grid.DataSet[row][field]
-			except IndexError, KeyError:
-				return True
+				rec = self.grid.DataSet[row]
+				if rec and rec.has_key(field):
+					ret = not self.grid.DataSet[row][field]
+				return ret
+			except: pass
+			return ret
 		return True
 
 
@@ -1265,6 +1269,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# dColumn maintains its own cell attribute object, but this is the default:
 		self._defaultGridColAttr = self._getDefaultGridColAttr()
 		
+		# Some applications (I'm thinking the UI Designer here) need to be able
+		# to set Editing = True, but still disallow editing. This attribute does that.
+		self._vetoAllEditing = False
+		
 		# These hold the values that affect row/col hiliting
 		self._selectionForeColor = "black"
 		self._selectionBackColor = "yellow"
@@ -1297,7 +1305,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.inAutoSizeCalc = False
 
 		self.currSearchStr = ""
-		self.incSearchTimer = dabo.ui.dTimer(self, RegID="tmrIncrementalSearch")
+		self.incSearchTimer = dabo.ui.dTimer(self)
+		self.incSearchTimer.bindEvent(dEvents.Hit, self.onIncSearchTimer)
 
 		# By default, row labels are not shown. They can be displayed
 		# if desired by setting ShowRowLabels = True, and their size
@@ -1896,7 +1905,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.Height = min(self.RowHeight * self.RowCount, maxHeight) + fudge
 	
 
-	def onHit_tmrIncrementalSearch(self, evt):
+	def onIncSearchTimer(self, evt):
 		""" Occurs when the incremental search timer reaches its interval. 
 		It is time to run the search, if there is any search in the buffer.
 		"""
@@ -2217,6 +2226,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if col == wx.NOT_FOUND:
 			col = -1
 		return col
+
+
+	def getColByX(self, x):
+		""" Given the x-coordinate, return the column object."""
+		colNum = self.getColNumByX(x)
+		if (colNum < 0) or (colNum > self.ColumnCount-1):
+			return None
+		else:
+			return self.Columns[colNum]
 
 
 	def getColByDataField(self, df):
@@ -2601,19 +2619,19 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		newRow = evt.EventData["row"]
 		newCol = evt.EventData["col"]
 		try:
-			co = self.Columns[newCol]
+			col = self.Columns[newCol]
 		except:
-			co = None
+			col = None
 
-		if co:
+		if col:
 			## pkm 2005-09-28: Part of the editor segfault workaround. This sets the
 			##                 editor for the entire column, at a point in time before
 			##                 the grid is actually asking for the editor, and in a 
 			##                 fashion that ensures the editor instance doesn't go
 			##                 out of scope prematurely.
-			co._setEditor(newRow)
+			col._setEditor(newRow)
 
-		if co and self.Editable and co.Editable and self.ActivateEditorOnSelect:
+		if col and self.Editable and col.Editable and self.ActivateEditorOnSelect:
 			dabo.ui.callAfter(self.EnableCellEditControl)
 		if oldRow != newRow:
 			bizobj = self.getBizobj()
@@ -2709,11 +2727,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.raiseEvent(dEvents.GridCellSelected, evt)
 		evt.Skip()
 		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
-		mode = self.GetSelectionMode()
-		if mode == wx.grid.Grid.wxGridSelectRows:
-			self.SelectRow(evt.GetRow())
-		elif mode == wx.grid.Grid.wxGridSelectColumns:
-			self.SelectCol(evt.GetCol())
+		try:
+			mode = self.GetSelectionMode()
+			if mode == wx.grid.Grid.wxGridSelectRows:
+				self.SelectRow(evt.GetRow())
+			elif mode == wx.grid.Grid.wxGridSelectColumns:
+				self.SelectCol(evt.GetCol())
+		except wx._core.PyAssertionError:
+			# No table yet
+			pass
 
 	def __onWxHeaderContextMenu(self, evt):
 		self.raiseEvent(dEvents.GridHeaderContextMenu, evt)
@@ -2952,19 +2974,26 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _getDataSet(self):
 		if self.DataSource is not None:
+			ret = None
 			bo = self.getBizobj()
 			if bo:
-				return bo.getDataSet()
-			return None
-		try:
-			v = self._dataSet
-		except AttributeError:
-			v = self._dataSet = None
-		return v
+				ret = bo.getDataSet()
+			else:
+				# See if the DataSource is a reference
+				try:
+					ret = eval(self.DataSource)
+				except: pass
+			self._dataSet = ret
+		else:
+			try:
+				ret = self._dataSet
+			except AttributeError:
+				ret = self._dataSet = None
+		return ret			
 
 	def _setDataSet(self, val):
 		if self._constructed():
-			if self.DataSource is not None:
+			if (self.DataSource is not None) and not self.Application.isDesigner:
 				raise ValueError, "Cannot set DataSet: DataSource defined."
 			# We must make sure the grid's table is initialized first:
 			self._Table
@@ -3006,7 +3035,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def _getEditable(self):
-		return self.IsEditable()
+		if self._vetoAllEditing:
+			return False
+		else:
+			return self.IsEditable()
 
 	def _setEditable(self, val):
 		if self._constructed():
