@@ -124,6 +124,7 @@ class dFormMixin(pm.dPemMixin):
 		cls = obj.__class__
 		for nm, code in cd.items():
 			try:
+				code = code.replace("\n]", "]")
 				compCode = compile(code, "", "exec")
 			except SyntaxError, e:
 				dabo.errorLog.write(_("Method '%s' of object '%s' has the following error: %s")
@@ -172,7 +173,7 @@ class dFormMixin(pm.dPemMixin):
 					# Spacers can't have children, so...
 					continue
 
-			# Right now we are limiting this to Dabo classes.
+				# Right now we are limiting this to Dabo classes.
 				cls = dabo.ui.__dict__[nm]
 				if issubclass(cls, dabo.ui.dSizer):
 					ornt = "Horizontal"
@@ -231,14 +232,24 @@ class dFormMixin(pm.dPemMixin):
 					if atts.has_key("rowColPos"):
 						row, col = eval(atts["rowColPos"])
 						del atts["rowColPos"]
-					obj = cls(parent=parent, properties=atts)
+					isGrid = issubclass(cls, dabo.ui.dGrid)
+					if isGrid:
+						# Remove the 'ColumnCount' att
+						if atts.has_key("ColumnCount"):
+							del atts["ColumnCount"]
+					obj = cls(parent=parent, attProperties=atts)
 					self._addSrcObjToSizer(obj, szr, atts, szrInfo, row, col)
 
 					if code:
 						self._addCode(obj, code)
 
 					if kids:
-						if isinstance(obj, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
+						if isGrid:
+							# 'kids' will each be a dColumn
+							for kid in kids:
+								col = obj.addColumn()
+								col.setPropertiesFromAtts(kid["attributes"])
+						elif isinstance(obj, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
 								dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs)):
 							# 'kids' will each be a dPage
 							for pageno, pg in enumerate(obj.Pages):
