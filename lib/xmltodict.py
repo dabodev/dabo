@@ -118,13 +118,16 @@ def dicttoxml(dct, level=0, header=None):
 	The dictionary must be in the format returned by dicttoxml(), with keys
 	on "attributes", "code", "cdata", "name", and "children".
 	"""
-	def addQuote(val):
-		"""Add surrounding quotes to the string."""
+	def escQuote(val):
+		"""Add surrounding quotes to the string, and escape
+		any illegal XML characters.
+		"""
 		if not isinstance(val, basestring):
 			val = str(val)
 		for qt in ('"', "'", '"""', "'''"):
 			if qt not in val:
 				break
+		val = val.replace("<", "&lt;").replace(">", "&gt;")
 		return "%s%s%s" % (qt, val, qt)
 
 	att = ""
@@ -132,7 +135,7 @@ def dicttoxml(dct, level=0, header=None):
 
 	if dct.has_key("attributes"):
 		for key, val in dct["attributes"].items():
-			val = addQuote(val)
+			val = escQuote(val)
 			att += " %s=%s" % (key, val)
 
 	ret += "%s<%s%s" % ("\t" * level, dct["name"], att)
@@ -161,13 +164,8 @@ def dicttoxml(dct, level=0, header=None):
 			ret += "\n"
 			for child in dct["children"]:
 				ret += dicttoxml(child, level+1)
-			ret += "%s" % ("\t" * level)
-		
 		ret += "%s</%s>\n" % (("\t" * level), dct["name"])
 
-		if level == 1:
-			ret += "\n"
-	
 	if level == 0:
 		if header is None:
 			header = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n"""
