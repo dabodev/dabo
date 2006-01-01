@@ -400,34 +400,14 @@ class dFormMixin(pm.dPemMixin):
 				self.Application.uiForms.remove(self)
 			except: pass
 	
-	def _getStatusBar(self):
-		if hasattr(self, "GetStatusBar"):
-			ret = self.GetStatusBar()
-			if (ret is None
-					and not isinstance(self, wx.MDIChildFrame) 
-					and self.ShowStatusBar):
-				ret = dabo.ui.dStatusBar(self)
-				self.SetStatusBar(ret)
-		else:
-			ret = None
-		return ret
-		
-	def _getToolBar(self):
-		if hasattr(self, "GetToolBar"):
-			ret = self.GetToolBar()
-			if ret is None and self.ShowToolBar:
-				ret = dabo.ui.dToolBar(self)
-				self.ToolBar = ret
-		else:
-			ret = None
-		return ret
-		
-	def _setToolBar(self, val):
-		self.SetToolBar(val)
-		if val is not None:
-			# the wx toolbar doesn't otherwise know what form it is attached to:
-			val.Form = self
 	
+	def release(self):
+		""" Instead of just destroing the object, make sure that
+		we close it properly and clean up any references to it.
+		"""
+		self.close(True)
+
+
 	def close(self, force=False):
 		""" This method will close the form. If force = False (default)
 		the beforeClose methods will be called, and these will have
@@ -668,11 +648,19 @@ class dFormMixin(pm.dPemMixin):
 
 
 	# property get/set/del functions follow:
-
 	def _getActiveControl(self):
 		return self.FindFocus()
 
 	
+	def _getBorderResizable(self):
+		return self._hasWindowStyleFlag(wx.RESIZE_BORDER)
+		
+	def _setBorderResizable(self, value):
+		self._delWindowStyleFlag(wx.RESIZE_BORDER)
+		if value:
+			self._addWindowStyleFlag(wx.RESIZE_BORDER)
+
+
 	def _getCentered(self):
 		if hasattr(self, "_centered"):
 			v = self._centered
@@ -701,6 +689,15 @@ class dFormMixin(pm.dPemMixin):
 
 	def _setConnection(self, val):
 		self._connection = val
+
+
+	def _getFloatOnParent(self):
+		return self._hasWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
+
+	def _setFloatOnParent(self, value):
+		self._delWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
+		if value:
+			self._addWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
 
 
 	def _getIcon(self):
@@ -754,45 +751,9 @@ class dFormMixin(pm.dPemMixin):
 			self._properties["Icons"] = val
 			
 
-	def _getBorderResizable(self):
-		return self._hasWindowStyleFlag(wx.RESIZE_BORDER)
-		
-	def _setBorderResizable(self, value):
-		self._delWindowStyleFlag(wx.RESIZE_BORDER)
-		if value:
-			self._addWindowStyleFlag(wx.RESIZE_BORDER)
-
-
-	def _getFloatOnParent(self):
-		return self._hasWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
-
-	def _setFloatOnParent(self, value):
-		self._delWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
-		if value:
-			self._addWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
-
-
 	def _getMDI(self):
 		## self._mdi defined in dForm.py/dFormMain.py:
 		return self._mdi
-
-
-	def _getShowMaxButton(self):
-		return self._hasWindowStyleFlag(wx.MAXIMIZE_BOX)
-		
-	def _setShowMaxButton(self, value):
-		self._delWindowStyleFlag(wx.MAXIMIZE_BOX)
-		if value:
-			self._addWindowStyleFlag(wx.MAXIMIZE_BOX)
-			
-
-	def _getShowMinButton(self):
-		return self._hasWindowStyleFlag(wx.MINIMIZE_BOX)
-		
-	def _setShowMinButton(self, value):
-		self._delWindowStyleFlag(wx.MINIMIZE_BOX)
-		if value:
-			self._addWindowStyleFlag(wx.MINIMIZE_BOX)
 
 
 	def _getMenuBar(self):
@@ -835,15 +796,6 @@ class dFormMixin(pm.dPemMixin):
 		self._saveRestorePosition = val
 
 
-	def _getShowCloseButton(self):
-		return self._hasWindowStyleFlag(wx.CLOSE_BOX)
-		
-	def _setShowCloseButton(self, value):
-		self._delWindowStyleFlag(wx.CLOSE_BOX)
-		if value:
-			self._addWindowStyleFlag(wx.CLOSE_BOX)
-
-
 	def _getShowCaption(self):
 		return self._hasWindowStyleFlag(wx.CAPTION)
 		
@@ -853,6 +805,15 @@ class dFormMixin(pm.dPemMixin):
 			self._addWindowStyleFlag(wx.CAPTION)
 
 
+	def _getShowCloseButton(self):
+		return self._hasWindowStyleFlag(wx.CLOSE_BOX)
+		
+	def _setShowCloseButton(self, value):
+		self._delWindowStyleFlag(wx.CLOSE_BOX)
+		if value:
+			self._addWindowStyleFlag(wx.CLOSE_BOX)
+
+
 	def _getShowInTaskBar(self):
 		return not self._hasWindowStyleFlag(wx.FRAME_NO_TASKBAR)
 
@@ -860,6 +821,24 @@ class dFormMixin(pm.dPemMixin):
 		self._delWindowStyleFlag(wx.FRAME_NO_TASKBAR)
 		if not value:
 			self._addWindowStyleFlag(wx.FRAME_NO_TASKBAR)
+
+
+	def _getShowMaxButton(self):
+		return self._hasWindowStyleFlag(wx.MAXIMIZE_BOX)
+		
+	def _setShowMaxButton(self, value):
+		self._delWindowStyleFlag(wx.MAXIMIZE_BOX)
+		if value:
+			self._addWindowStyleFlag(wx.MAXIMIZE_BOX)
+			
+
+	def _getShowMinButton(self):
+		return self._hasWindowStyleFlag(wx.MINIMIZE_BOX)
+		
+	def _setShowMinButton(self, value):
+		self._delWindowStyleFlag(wx.MINIMIZE_BOX)
+		if value:
+			self._addWindowStyleFlag(wx.MINIMIZE_BOX)
 
 
 	def _getShowStatusBar(self):
@@ -893,6 +872,19 @@ class dFormMixin(pm.dPemMixin):
 	def _setShowToolBar(self, val):
 		self._showToolBar = bool(val)	
 	
+
+	def _getStatusBar(self):
+		if hasattr(self, "GetStatusBar"):
+			ret = self.GetStatusBar()
+			if (ret is None
+					and not isinstance(self, wx.MDIChildFrame) 
+					and self.ShowStatusBar):
+				ret = dabo.ui.dStatusBar(self)
+				self.SetStatusBar(ret)
+		else:
+			ret = None
+		return ret
+		
 
 	def _getStatusText(self):
 		ret = ""
@@ -941,6 +933,23 @@ class dFormMixin(pm.dPemMixin):
 			self._addWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
 			
 
+	def _getToolBar(self):
+		if hasattr(self, "GetToolBar"):
+			ret = self.GetToolBar()
+			if ret is None and self.ShowToolBar:
+				ret = dabo.ui.dToolBar(self)
+				self.ToolBar = ret
+		else:
+			ret = None
+		return ret
+		
+	def _setToolBar(self, val):
+		self.SetToolBar(val)
+		if val is not None:
+			# the wx toolbar doesn't otherwise know what form it is attached to:
+			val.Form = self
+
+	
 	def _getWindowState(self):
 		try:
 			if self.IsFullScreen():
@@ -986,22 +995,22 @@ class dFormMixin(pm.dPemMixin):
 			_("Contains a reference to the active control on the form, or None."))
 
 	BorderResizable = property(_getBorderResizable, _setBorderResizable, None,
-			_("Specifies whether the user can resize this form. (bool)."))
+			_("Specifies whether the user can resize this form.  (bool)."))
 
 	Centered = property(_getCentered, _setCentered, None, 
 			_("Centers the form on the screen when set to True.  (bool)"))
 
 	Connection = property(_getConnection, _setConnection, None,
 			_("The connection to the database used by this form  (dConnection)"))
+
+	FloatOnParent = property(_getFloatOnParent, _setFloatOnParent, None,
+			_("Specifies whether the form stays on top of the parent or not."))
 	
 	Icon = property(_getIcon, _setIcon, None, 
 			_("Specifies the icon for the form. (wxIcon)"))
 
 	IconBundle = property(_getIconBundle, _setIconBundle, None,
 			_("Specifies the set of icons for the form. (wxIconBundle)"))
-
-	FloatOnParent = property(_getFloatOnParent, _setFloatOnParent, None,
-			_("Specifies whether the form stays on top of the parent or not."))
 
 	MDI = property(_getMDI, None, None,
 			_("""Returns True if this is a MDI (Multiple Document Interface) form.  (bool)
@@ -1027,6 +1036,9 @@ class dFormMixin(pm.dPemMixin):
 	ShowCaption = property(_getShowCaption, _setShowCaption, None,
 			_("Specifies whether the caption is displayed in the title bar. (bool)."))
 
+	ShowCloseButton = property(_getShowCloseButton, _setShowCloseButton, None,
+			_("Specifies whether a close button is displayed in the title bar. (bool)."))
+
 	ShowInTaskBar = property(_getShowInTaskBar, _setShowInTaskBar, None,
 			_("Specifies whether the form is shown in the taskbar.  (bool)."))
 
@@ -1035,9 +1047,6 @@ class dFormMixin(pm.dPemMixin):
 
 	ShowMinButton = property(_getShowMinButton, _setShowMinButton, None,
 			_("Specifies whether a minimize button is displayed in the title bar. (bool)."))
-
-	ShowCloseButton = property(_getShowCloseButton, _setShowCloseButton, None,
-			_("Specifies whether a close button is displayed in the title bar. (bool)."))
 
 	ShowStatusBar = property(_getShowStatusBar, _setShowStatusBar, None,
 			_("Specifies whether the status bar gets automatically created."))

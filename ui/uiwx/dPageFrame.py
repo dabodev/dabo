@@ -33,6 +33,7 @@ class dPageFrame(wx.Notebook, dPageFrameMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dPageFrame
 		preClass = wx.PreNotebook
+		
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		# Dictionary for tracking images by key value
 		self._imageList = {}
@@ -42,21 +43,21 @@ class dPageFrame(wx.Notebook, dPageFrameMixin):
 		if sys.platform[:3] == "win":
 			## This keeps Pages from being ugly on Windows:
 			self.SetBackgroundColour(self.GetBackgroundColour())
-
 		super(dPageFrame, self)._afterInit()
 
 
 class _dPageFrame_test(dPageFrame):
-			def initProperties(self):
-				self.Width = 400
-				self.Height = 175
+	def initProperties(self):
+		self.Width = 400
+		self.Height = 175
+	
+	def afterInit(self):
+		self.appendPage(caption="Introduction")
+		self.appendPage(caption="Chapter I")
+	
+	def onPageChanged(self, evt):
+		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
 
-			def afterInit(self):
-				self.appendPage(caption="Introduction")
-				self.appendPage(caption="Chapter I")
-
-			def onPageChanged(self, evt):
-				print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
 
 class dPageList(wx.Listbook, dPageFrameMixin):
 	_evtPageChanged = readonly(wx.EVT_LISTBOOK_PAGE_CHANGED)
@@ -72,11 +73,13 @@ class dPageList(wx.Listbook, dPageFrameMixin):
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
+
 class dPageSelect(wx.Choicebook, dPageFrameMixin):
 	_evtPageChanged = readonly(wx.EVT_CHOICEBOOK_PAGE_CHANGED)
 	_tabposBottom = readonly(wx.CHB_BOTTOM)
 	_tabposRight = readonly(wx.CHB_RIGHT)
 	_tabposLeft = readonly(wx.CHB_LEFT)
+	
 	
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dPageSelect
@@ -84,6 +87,7 @@ class dPageSelect(wx.Choicebook, dPageFrameMixin):
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		# Dictionary for tracking images by key value
 		self._imageList = {}
+
 
 	def SetPageText(self, pg, tx):
 		"""Need to override this because this is not implemented yet

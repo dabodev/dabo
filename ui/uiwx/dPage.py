@@ -54,7 +54,11 @@ class dPage(dPanel.dScrollPanel):
 
 	def _getPagePosition(self):
 		""" Returns the position of this page within its parent."""
-		return self.Parent.Pages.index(self)
+		try:
+			ret = self.Parent.Pages.index(self)
+		except:
+			ret = -1
+		return ret
 
 	
 
