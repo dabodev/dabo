@@ -69,7 +69,20 @@ class dPemMixin(dPemMixinBase):
 			for k,v in properties.items():
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
-		
+		# Objects created from XML files will have their props passed
+		# in the 'attProperties' parameter, in which all values are strings.
+		# Convert these to the properties dict.
+		if attProperties:
+			for prop, val in attProperties.items():
+				try:
+					exec("properties['%s'] = %s" % (prop, val) )
+				except:
+					# If this is property holds strings, we need to quote the value.
+					try:
+						exec("properties['%s'] = '%s'" % (prop, val) )
+					except:
+						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
+
 		if kwargs.has_key("style"):
 			# If wx style parm sent, keep it as-is.
 			style = kwargs["style"]
@@ -138,11 +151,6 @@ class dPemMixin(dPemMixinBase):
 		self._initEvents()
 		# _afterInit() will call the afterInit() user hook
 		self._afterInit()
-
-		# 'attProperties' are properties restored from XML-like files where
-		# all values are stored as strings.
-		if attProperties:
-			self.setPropertiesFromAtts(attProperties)
 
 		super(dPemMixin, self).__init__(*args, **kwargs)
 

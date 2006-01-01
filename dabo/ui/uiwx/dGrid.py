@@ -2891,7 +2891,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					# No change
 					return
 				elif colChange < 0:
-					self.Columns = self.Columns[:val]
+					while self.ColumnCount > val:
+						self.Columns.remove(self.Columns[-1])
 				else:
 					for cc in range(colChange):
 						self.addColumn(inBatch=True)
