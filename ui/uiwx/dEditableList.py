@@ -27,28 +27,18 @@ class dEditableList(wx.gizmos.EditableListBox,
 		if self._canDelete:
 			style = style  | wx.gizmos.EL_ALLOW_DELETE
 		kwargs["style"] = style
+		# References to the components of this control
+		self._addButton = None
+		self._deleteButton = None
+		self._editButton = None
+		self._downButton = None
+		self._upButton = None
+		self._panel = None
 
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
 				*args, **kwargs)
 
 
-	def _afterInit(self):
-		"""We need to do this stuff after the control has been constructed,
-		but before the rest of the afterInit stuff is called, so that these
-		atts are available.
-		"""
-		# Set the reference to the main panel. 
-		self._panel = [pp for pp in self.Children
-				if isinstance(pp, wx.Panel)][0]
-		# Store references to the different buttons
-		self._editButton = self.GetEditButton()
-		self._addButton = self.GetNewButton()
-		self._deleteButton = self.GetDelButton()
-		self._upButton = self.GetUpButton()
-		self._downButton = self.GetDownButton()
-		super(dEditableList, self)._afterInit()
-		
-	
 	def GetValue(self):
 		"""This control doesn't natively support values, as it is designed
 		to simply order and/or edit the list. We need to provide this so that 
@@ -62,17 +52,23 @@ class dEditableList(wx.gizmos.EditableListBox,
 		to call the top panel's Layout(). So we'll do it manually.
 		"""
 		self.Layout()
-		self._panel.Layout()
+		self._Panel.Layout()
 		
 
 	## property get/set methods follow ##
+	def _getAddButton(self):
+		if self._addButton is None:
+			self._addButton = self.GetNewButton()
+		return self._addButton
+
+
 	def _getCanAdd(self):
 		return self._canAdd
 
 	def _setCanAdd(self, val):
 		if self._constructed():
 			self._canAdd = val
-			self._addButton.Show(val)
+			self._AddButton.Show(val)
 			self.layout()
 		else:
 			self._properties["CanAdd"] = val
@@ -84,7 +80,7 @@ class dEditableList(wx.gizmos.EditableListBox,
 	def _setCanDelete(self, val):
 		if self._constructed():
 			self._canDelete = val
-			self._deleteButton.Show(val)
+			self._DeleteButton.Show(val)
 			self.layout()
 		else:
 			self._properties["CanDelete"] = val
@@ -96,19 +92,19 @@ class dEditableList(wx.gizmos.EditableListBox,
 	def _setCanOrder(self, val):
 		if self._constructed():
 			self._canOrder = val
-			self._upButton.Show(val)
-			self._downButton.Show(val)
+			self._UpButton.Show(val)
+			self._DownButton.Show(val)
 		else:
 			self._properties["CanOrder"] = val
 		self.layout()
 	
 	
 	def _getCaption(self):
-		return self._panel.GetChildren()[0].GetLabel()
+		return self._Panel.GetChildren()[0].GetLabel()
 
 	def _setCaption(self, val):
 		if self._constructed():
-			self._panel.GetChildren()[0].SetLabel(val)
+			self._Panel.GetChildren()[0].SetLabel(val)
 		else:
 			self._properties["Caption"] = val
 
@@ -123,18 +119,57 @@ class dEditableList(wx.gizmos.EditableListBox,
 			self._properties["Choices"] = val
 
 
+	def _getDeleteButton(self):
+		if self._deleteButton is None:
+			self._deleteButton = self.GetDelButton()
+		return self._deleteButton
+
+
+
+	def _getDownButton(self):
+		if self._downButton is None:
+			self._downButton = self.GetDownButton()
+		return self._downButton
+
+
+
 	def _getEditable(self):
 		return self._editable
 
 	def _setEditable(self, val):
 		if self._constructed():
 			self._editable = val
-			self._editButton.Show(val)
+			self._EditButton.Show(val)
 			self.layout()
 		else:
 			self._properties["Editable"] = val
 
 
+	def _getEditButton(self):
+		if self._editButton is None:
+			self._editButton = self.GetEditButton()
+		return self._editButton
+
+
+
+	def _getPanel(self):
+		if self._panel is None:
+			self._panel = [pp for pp in self.Children
+					if isinstance(pp, wx.Panel)][0]
+		return self._panel
+
+
+
+	def _getUpButton(self):
+		if self._upButton is None:
+			self._upButton = self.GetUpButton()
+		return self._upButton
+
+
+
+	_AddButton = property(_getAddButton, None, None,
+			_("Reference to the new item button  (wx.Button)"))
+	
 	CanAdd = property(_getCanAdd, _setCanAdd, None,
 			_("Determines if the user can add new entries to the list  (bool)"))
 	
@@ -150,8 +185,24 @@ class dEditableList(wx.gizmos.EditableListBox,
 	Choices = property(_getChoices, _setChoices, None,
 			_("List that contains the entries in the control  (list)"))
 	
+	_DeleteButton = property(_getDeleteButton, None, None,
+			_("Reference to the delete item button  (wx.Button)"))
+	
+	_DownButton = property(_getDownButton, None, None,
+			_("Reference to the move item down button  (wx.Button)"))
+	
 	Editable = property(_getEditable, _setEditable, None,
 			_("Determines if the user can change existing entries  (bool)"))
+	
+	_EditButton = property(_getEditButton, None, None,
+			_("Reference to the edit item button  (wx.Button)"))
+	
+	_Panel = property(_getPanel, None, None,
+			_("""Reference to the panel that contains the caption 
+			and buttons  (wx.Panel)"""))
+	
+	_UpButton = property(_getUpButton, None, None,
+			_("Reference to the move item up button  (wx.Button)"))
 	
 
 
