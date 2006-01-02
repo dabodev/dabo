@@ -31,6 +31,12 @@ class dEditableList(wx.gizmos.EditableListBox,
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
 				*args, **kwargs)
 
+
+	def _afterInit(self):
+		"""We need to do this stuff after the control has been constructed,
+		but before the rest of the afterInit stuff is called, so that these
+		atts are available.
+		"""
 		# Set the reference to the main panel. 
 		self._panel = [pp for pp in self.Children
 				if isinstance(pp, wx.Panel)][0]
@@ -40,7 +46,8 @@ class dEditableList(wx.gizmos.EditableListBox,
 		self._deleteButton = self.GetDelButton()
 		self._upButton = self.GetUpButton()
 		self._downButton = self.GetDownButton()
-
+		super(dEditableList, self)._afterInit()
+		
 	
 	def GetValue(self):
 		"""This control doesn't natively support values, as it is designed
@@ -151,6 +158,7 @@ class dEditableList(wx.gizmos.EditableListBox,
 class _dEditableList_test(dEditableList):
 	def afterInit(self):
 		self.Choices = ["Johnny", "Joey", "DeeDee"]
+		self.Caption = "Gabba Gabba Hey"
 	
 	def onDestroy(self, evt):
 		# Need to check this, because apparently under the hood
@@ -159,7 +167,7 @@ class _dEditableList_test(dEditableList):
 		if self._finito:
 			print "Result:", self.Choices
 		
-		
+
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dEditableList_test)
