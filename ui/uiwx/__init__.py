@@ -503,19 +503,36 @@ def _getWild(*args):
 	return ret
 
 
-def sortList(chc, Caption=""):
+def sortList(chc, Caption="", ListCaption=""):
 	"""Wrapper function for the list sorting dialog. Accepts a list,
 	and returns the sorted list if the user clicks 'OK'. If they cancel
 	out, the original list is returned.
 	"""
 	from dabo.ui.dialogs.SortingForm import SortingForm
 	ret = chc
-	sf = SortingForm(None, Choices=list(chc))
-	if Caption:
-		sf.Caption = Caption
-	if sf.show() == kons.DLG_OK:
-		ret = sf.Choices
-		
+	# Make sure all items are string types. Convert those that are not,
+	# but store their original values in a dict to be used for converting
+	# back.
+	chcDict = {}
+	strChc = []
+	needConvert = False
+	for itm in chc:
+		key = itm
+		if not isinstance(itm, basestring):
+			needConvert = True
+			key = str(itm)
+			strChc.append(key)
+		else:
+			strChc.append(itm)
+		chcDict[key] = itm
+	sf = SortingForm(None, Choices=strChc, Caption=Caption,
+			ListCaption=ListCaption)
+	sf.show()
+	if sf.Accepted:
+		if needConvert:
+			ret = [chcDict[itm] for itm in sf.Choices]
+		else:
+			ret = sf.Choices
 	sf.release()
 	return ret
 
