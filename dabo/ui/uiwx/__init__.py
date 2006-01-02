@@ -69,6 +69,7 @@ from dDateTextBox import dDateTextBox
 from dDropdownList import dDropdownList
 from dDialog import dDialog
 from dDialog import dOkCancelDialog
+from dEditableList import dEditableList
 from dEditBox import dEditBox
 from dEditor import dEditor
 from dFileDialog import dFileDialog
