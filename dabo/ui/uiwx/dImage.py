@@ -9,7 +9,8 @@ import dControlMixin as dcm
 
 class dImage(wx.StaticBitmap, dcm.dControlMixin):
 	""" Create a simple bitmap to display images."""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, 
+			*args, **kwargs):
 		self._baseClass = dImage
 		preClass = wx.StaticBitmap
 
@@ -20,7 +21,7 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		self._rotation = 0
 		self.__image = None
 		bmp = wx.EmptyBitmap(1, 1)
-		picName = self._extractKey((kwargs, properties), "Picture", "")
+		picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
 	
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
 				bitmap=bmp, *args, **kwargs)
@@ -148,7 +149,7 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		self._Image.LoadFile(val)
 		self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
 		self._showPic()
-	
+		
 	
 	def _getScaleMode(self):
 		return self._scaleMode
