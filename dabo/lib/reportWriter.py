@@ -117,6 +117,9 @@ class ReportWriter(object):
 	default_padTop = 0
 	default_padBottom = 0
 
+	_clearMemento = True
+
+
 	def draw(self, object, origin, getNeededHeight=False):
 		"""Draw the given object on the Canvas.
 
@@ -1029,13 +1032,15 @@ class ReportWriter(object):
 
 
 	def _setMemento(self):
-		import copy
-		r = self._reportForm
-		if r is None:
-			m = None
-		else:
-			m = copy.deepcopy(r)
-		self._reportFormMemento = m
+		"""Set the memento of the report form, which is the pristine version."""
+		if self._clearMemento:
+			import copy
+			r = self._reportForm
+			if r is None:
+				m = None
+			else:
+				m = copy.deepcopy(r)
+			self._reportFormMemento = m
 
 	
 	def _getFormFromXMLDict(self, xmldict, formdict=None, level=0):
