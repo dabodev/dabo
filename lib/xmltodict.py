@@ -164,7 +164,11 @@ def dicttoxml(dct, level=0, header=None):
 			ret += "\n"
 			for child in dct["children"]:
 				ret += dicttoxml(child, level+1)
-		ret += "%s</%s>\n" % (("\t" * level), dct["name"])
+		indnt = ""
+		if ret.endswith("\n"):
+			# Indent the closing tag
+			indnt = ("\t" * level)
+		ret += "%s</%s>\n" % (indnt, dct["name"])
 
 	if level == 0:
 		if header is None:
