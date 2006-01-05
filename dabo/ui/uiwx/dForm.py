@@ -61,19 +61,11 @@ class BaseForm(fm.dFormMixin):
 		super(BaseForm, self)._afterInit()
 	
 	
-	def show(self):
-		self.Visible = True
-		
-		
 	def showModal(self):
 		self.MakeModal(True)
 		self.Visible = True
 		
 		
-	def hide(self):
-		self.Visible = False
-		
-
 	def _beforeClose(self, evt=None):
 		""" See if there are any pending changes in the form, if the
 		form is set for checking for this. If everything's OK, call the 

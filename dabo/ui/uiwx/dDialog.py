@@ -59,10 +59,6 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 		return retVals.get(ret)
 		
 
-	def hide(self):
-		self.Show(False)
-		
-
 	def _onEscape(self, evt):
 		if self.ReleaseOnEscape:
 			self.release()
