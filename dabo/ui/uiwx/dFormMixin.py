@@ -402,7 +402,7 @@ class dFormMixin(pm.dPemMixin):
 	
 	
 	def release(self):
-		""" Instead of just destroing the object, make sure that
+		""" Instead of just destroying the object, make sure that
 		we close it properly and clean up any references to it.
 		"""
 		self.close(True)
@@ -422,7 +422,9 @@ class dFormMixin(pm.dPemMixin):
 		self.closing()
 		# Kill the form
 		self.Close(force=True)
-		
+		# pkm: I've found that modal dialogs need Destroy():
+		self.Destroy()				
+
 		
 	def _beforeClose(self, evt=None):
 		""" See if there are any pending changes in the form, if the
