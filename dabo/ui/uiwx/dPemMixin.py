@@ -896,6 +896,25 @@ class dPemMixin(dPemMixinBase):
 		return obj
 
 
+	def drawText(self, text, x=0, y=0, angle=0, fontFace=None,
+			fontSize=None, fontBold=None, fontItalic=None,
+			fontUnderline=None, foreColor=None, backColor=None,
+			persist=True):
+		"""Draws text on the object at the specified position 
+		using the specified characteristics. Any characteristics
+		not specified will be set to the system default.
+		"""
+		obj = _drawObject(self, Shape="text", Text=text, Xpos=x, Ypos=y,
+				Angle=angle, FontFace=fontFace, FontSize=fontSize, 
+				FontBold=fontBold, FontItalic=fontItalic, 
+				FontUnderline=fontUnderline, ForeColor=foreColor,
+				BackColor=backColor)
+		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
+		
+		
+		
 	def _addToDrawnObjects(self, obj, persist):
 		self._drawnObjects.append(obj)
 		self._redraw()
@@ -1824,6 +1843,15 @@ class _drawObject(dObject):
 		self._width = None
 		self._xPos = None
 		self._yPos = None
+		self._fontFace = None
+		self._fontSize = None
+		self._fontBold = None
+		self._fontItalic = None
+		self._fontUnderline = None
+		self._foreColor = None
+		self._backColor = None
+		self._text = None
+		self._angle = 0
 		super(_drawObject, self).__init__(*args, **kwargs)
 		self._inInit = False
 	
@@ -1889,7 +1917,38 @@ class _drawObject(dObject):
 			x1, y1 = self.Points[0]
 			x2, y2 = self.Points[1]
 			dc.DrawLine(x1, y1, x2, y2)
-
+		elif self.Shape == "text":
+			txt = self._text
+			if not txt:
+				return
+			fnt = dc.GetFont()
+			if self._fontFace is not None:
+				fnt.SetFaceName(self._fontFace)
+			if self._fontSize is not None:
+				fnt.SetPointSize(self._fontSize)
+			if self._fontBold is not None:
+				if self._fontBold:
+					fnt.SetWeight(wx.BOLD)
+				else:
+					fnt.SetWeight(wx.NORMAL)
+			if self._fontItalic is not None:
+				if self._fontItalic:
+					fnt.SetStyle(wx.ITALIC)
+				else:
+					fnt.SetStyle(wx.NORMAL)
+			if self._fontUnderline is not None:
+				fnt.SetUnderlined(self._fontUnderline)
+			if self._foreColor is not None:
+				dc.SetTextForeground(self._foreColor)
+			if self._backColor is not None:
+				dc.SetTextBackground(self._backColor)
+			
+			dc.SetFont(fnt)
+			if self._angle == 0:
+				dc.DrawText(txt, self.Xpos, self.Ypos)
+			else:
+				dc.DrawRotatedText(txt, self.Xpos, self.Ypos, self._angle)
+					
 	
 	def bringToFront(self):
 		self.Parent._bringDrawObjectToFront(self)
@@ -1908,11 +1967,31 @@ class _drawObject(dObject):
 		
 
 	# Property get/set methods
+	def _getAngle(self):
+		return self._angle
+
+	def _setAngle(self, val):
+		if self._angle != val:
+			self._angle = val
+			self.update()
+
+
+	def _getBackColor(self):
+		return self._backColor
+
+	def _setBackColor(self, val):
+		if self._backColor != val:
+			self._backColor = val
+			self.update()
+
+
 	def _getBitmap(self):
 		return self._bitmap
 
 	def _setBitmap(self, val):
-		self._bitmap = val
+		if self._bitmap != val:
+			self._bitmap = val
+			self.update()
 
 
 	def _getFillColor(self):
@@ -1921,6 +2000,60 @@ class _drawObject(dObject):
 	def _setFillColor(self, val):
 		if self._fillColor != val:
 			self._fillColor = val
+			self.update()
+
+
+	def _getFontBold(self):
+		return self._fontBold
+
+	def _setFontBold(self, val):
+		if self._fontBold != val:
+			self._fontBold = val
+			self.update()
+
+
+	def _getFontFace(self):
+		return self._fontFace
+
+	def _setFontFace(self, val):
+		if self._fontFace != val:
+			self._fontFace = val
+			self.update()
+
+
+	def _getFontItalic(self):
+		return self._fontItalic
+
+	def _setFontItalic(self, val):
+		if self._fontItalic != val:
+			self._fontItalic = val
+			self.update()
+
+
+	def _getFontSize(self):
+		return self._fontSize
+
+	def _setFontSize(self, val):
+		if self._fontSize != val:
+			self._fontSize = val
+			self.update()
+
+
+	def _getFontUnderline(self):
+		return self._fontUnderline
+
+	def _setFontUnderline(self, val):
+		if self._fontUnderline != val:
+			self._fontUnderline = val
+			self.update()
+
+
+	def _getForeColor(self):
+		return self._foreColor
+
+	def _setForeColor(self, val):
+		if self._foreColor != val:
+			self._foreColor = val
 			self.update()
 
 
@@ -1994,6 +2127,13 @@ class _drawObject(dObject):
 		self._shape = val
 		
 		
+	def _getText(self):
+		return self._text
+
+	def _setText(self, val):
+		self._text = val
+
+
 	def _getVisible(self):
 		return self._visible
 		
@@ -2030,12 +2170,36 @@ class _drawObject(dObject):
 			self.update()
 		
 		
+	Angle = property(_getAngle, _setAngle, None,
+			_("Angle to draw text  (int)"))
+	
+	BackColor = property(_getBackColor, _setBackColor, None,
+			_("Background color of text when using text objects  (str or tuple)"))
+	
 	Bitmap = property(_getBitmap, _setBitmap, None,
 			_("Bitmap to be drawn on the object  (dBitmap)"))
 	
 	FillColor = property(_getFillColor, _setFillColor, None,
 			_("Background color for the shape  (color)"))
 
+	FontBold = property(_getFontBold, _setFontBold, None,
+			_("Bold setting for text objects  (bool)"))
+	
+	ForeColor = property(_getForeColor, _setForeColor, None,
+			_("Color of text when using text objects  (str or tuple)"))
+	
+	FontFace = property(_getFontFace, _setFontFace, None,
+			_("Face of the font used for text objects  (str)"))
+	
+	FontItalic = property(_getFontItalic, _setFontItalic, None,
+			_("Italic setting for text objects  (bool)"))
+	
+	FontSize = property(_getFontSize, _setFontSize, None,
+			_("Size of the font used for text objects  (int)"))
+
+	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
+			_("Underline setting for text objects  (bool)"))
+	
 	Height = property(_getHeight, _setHeight, None,
 			_("For rectangles, the height of the shape  (int)"))
 
@@ -2060,6 +2224,9 @@ class _drawObject(dObject):
 	Shape = property(_getShape, _setShape, None,
 			_("Type of shape to draw  (str)"))
 
+	Text = property(_getText, _setText, None,
+			_("Text to be drawn  (str)"))
+	
 	Visible = property(_getVisible, _setVisible, None,
 			_("Controls whether the shape is drawn.  (bool)"))
 
