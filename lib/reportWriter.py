@@ -116,11 +116,38 @@ class ReportWriter(object):
 	default_padRight = 0
 	default_padTop = 0
 	default_padBottom = 0
+	default_columnCount = 1
 
 	_clearMemento = True
 
 
-	def draw(self, object, origin, getNeededHeight=False):
+	def getProp(self, obj, prop, defaultName=None):
+		"""Return the value of the property of the report form.
+
+		If found in the report form, it will be eval()'d. Otherwise,
+		the default will be returned.
+		"""
+		val = None
+
+		if obj.has_key(prop):
+			try:
+				val = eval(obj[prop])
+			except:
+				# The eval() failed, use the default.
+				pass
+		else:
+			# The object doesn't have the prop, use the default.
+			pass
+
+		if val is None:
+			if hasattr(self, "default_%s" % prop):
+				if defaultName is None:
+					defaultName = prop
+				val = getattr(self, "default_%s" % defaultName)
+		return val
+
+
+	def draw(self, obj, origin, getNeededHeight=False):
 		"""Draw the given object on the Canvas.
 
 		The object is a dictionary containing properties, and	origin is the (x,y)
@@ -141,35 +168,18 @@ class ReportWriter(object):
 		c.saveState()
 
 		## These properties can apply to all objects:
-		try: 
-			width = self.getPt(eval(object["width"]))
-		except (KeyError, TypeError, ValueError): 
-			width = self.default_width
+		width = self.getPt(self.getProp(obj, "width"))
 	
-		height = object.get("calculatedHeight", None)
+		height = self.getProp(obj, "calculatedHeight")
 		if height is not None:
-			height = eval(height)
+			height = self.getPt(height)
 		else:
-			try: 
-				height = self.getPt(eval(object["height"]))
-			except (KeyError, TypeError, ValueError): 
-				height = self.default_height
+			height = self.getPt(self.getProp(obj, "height"))
 	
-		try: 
-			rotation = eval(object["rotation"])
-		except KeyError:
-			rotation = self.default_rotation
-	
-		try:
-			hAnchor = eval(object["hAnchor"])
-		except:
-			hAnchor = self.default_hAnchor
-	
-		try:
-			vAnchor = eval(object["vAnchor"])
-		except:
-			vAnchor = self.default_vAnchor
-	
+		rotation = self.getProp(obj, "rotation")
+		hAnchor = self.getProp(obj, "hAnchor")
+		vAnchor = self.getProp(obj, "vAnchor")	
+
 		if hAnchor == "right":
 			x = x - width
 		elif hAnchor == "center":
@@ -182,7 +192,7 @@ class ReportWriter(object):
 	
 		
 		## Do specific things based on object type:
-		if object["type"] == "rect":
+		if obj["type"] == "rect":
 			d = shapes.Drawing(width, height)
 			d.rotate(rotation)
 	
@@ -201,32 +211,17 @@ class ReportWriter(object):
 			##   strokeLineCap: 0
 			##
 	
-			try:
-				props["strokeWidth"] = self.getPt(eval(object["strokeWidth"]))
-			except KeyError: 
-				props["strokeWidth"] = self.default_strokeWidth
-	
-			try:
-				props["fillColor"] = eval(object["fillColor"])
-			except KeyError:
-				props["fillColor"] = self.default_fillColor
-	
-			try:
-				props["strokeColor"] = eval(object["strokeColor"])
-			except KeyError:
-				props["strokeColor"] = self.default_strokeColor
-	
-			try:
-				props["strokeDashArray"] = eval(object["strokeDashArray"])
-			except KeyError:
-				props["strokeDashArray"] = self.default_strokeDashArray
-	
+			for prop in ("strokeWidth", "fillColor", "strokeColor", 
+					"strokeDashArray", ):
+				props[prop] = self.getProp(obj, prop)
+			props["strokeWidth"] = self.getPt(props["strokeWidth"])
+
 			r = shapes.Rect(0, 0, width, height)
 			r.setProperties(props)
 			d.add(r)
 			d.drawOn(c, x, y)
 	
-		if object["type"] == "line":
+		if obj["type"] == "line":
 			d = shapes.Drawing(width, height)
 			d.rotate(rotation)
 	
@@ -245,57 +240,23 @@ class ReportWriter(object):
 			##   strokeLineCap: 0
 			##
 	
-			try:
-				props["strokeWidth"] = self.getPt(eval(object["strokeWidth"]))
-			except KeyError: 
-				props["strokeWidth"] = self.default_strokeWidth
-	
-			try:
-				props["strokeColor"] = eval(object["strokeColor"])
-			except KeyError:
-				props["strokeColor"] = self.default_strokeColor
-	
-			try:
-				props["strokeDashArray"] = eval(object["strokeDashArray"])
-			except KeyError:
-				props["strokeDashArray"] = self.default_strokeDashArray
-	
+			for prop in ("strokeWidth", "strokeColor", "strokeDashArray", ):
+				props[prop] = self.getProp(obj, prop)
+			props["strokeWidth"] = self.getPt(props["strokeWidth"])
+
 			r = shapes.Line(0, 0, width, height)
 			r.setProperties(props)
 			d.add(r)
 			d.drawOn(c, x, y)
 	
-		elif object["type"] == "string":
+		elif obj["type"] == "string":
 			## Set the props for strings:
-			try: 
-				borderWidth = self.getPt(eval(object["borderWidth"]))
-			except KeyError: 
-				borderWidth = self.default_borderWidth
-	
-			try: 
-				borderColor = eval(object["borderColor"])
-			except KeyError: 
-				borderColor = self.default_borderColor
-	
-			try:
-				align = eval(object["align"])
-			except KeyError:
-				align = self.default_align
-
-			try:
-				fontName = eval(object["fontName"])
-			except KeyError:
-				fontName = self.default_fontName
-	
-			try:
-				fontSize = eval(object["fontSize"])
-			except KeyError:
-				fontSize = self.default_fontSize
-	
-			try:
-				fontColor = eval(object["fontColor"])
-			except KeyError:
-				fontColor = self.default_fontColor
+			borderWidth = self.getPt(self.getProp(obj, "borderWidth"))
+			borderColor = self.getProp(obj, "borderColor")
+			align = self.getProp(obj, "align")
+			fontName = self.getProp(obj, "fontName")
+			fontSize = self.getProp(obj, "fontSize")
+			fontColor = self.getProp(obj, "fontColor")
 
 			## Set canvas props based on our props:
 			c.translate(x, y)
@@ -332,7 +293,7 @@ class ReportWriter(object):
 	
 			# draw the string using the function that matches the alignment:
 			try:
-				s = eval(object["expr"])
+				s = eval(obj["expr"])
 			except Exception, e:
 				# Something failed in the eval, print the exception string instead:
 				s = e
@@ -342,49 +303,18 @@ class ReportWriter(object):
 				s = unicode(s)
 			func(posx, 0, s)
 	
-		elif object["type"] == "frameset":
+		elif obj["type"] == "frameset":
 			# A frame is directly related to reportlab's platypus Frame.
-			try: 
-				borderWidth = self.getPt(eval(object["borderWidth"]))
-			except KeyError: 
-				borderWidth = self.default_borderWidth
+			borderWidth = self.getPt(self.getProp(obj, "borderWidth"))
+			borderColor = self.getProp(obj, "borderColor")
+			frameId = self.getProp(obj, "frameId")
+			padLeft = self.getPt(self.getProp(obj, "padLeft"))
+			padRight = self.getPt(self.getProp(obj, "padRight"))
+			padTop = self.getPt(self.getProp(obj, "padTop"))
+			padBottom = self.getPt(self.getProp(obj, "padBottom"))
+			columnCount = self.getProp(obj, "columnCount")
 	
-			try: 
-				borderColor = eval(object["borderColor"])
-			except KeyError: 
-				borderColor = self.default_borderColor
-	
-			try:
-				frameId = eval(object["frameId"])
-			except KeyError:
-				frameId = self.default_frameId
-
-			try:
-				padLeft = self.getPt(eval(object["padLeft"]))
-			except:
-				padLeft = self.default_padLeft
-
-			try:
-				padRight = self.getPt(eval(object["padRight"]))
-			except:
-				padRight = self.default_padRight
-
-			try:
-				padTop = self.getPt(eval(object["padTop"]))
-			except:
-				padTop = self.default_padTop
-
-			try:
-				padBottom = self.getPt(eval(object["padBottom"]))
-			except:
-				padBottom = self.default_padBottom
-
-			try:
-				columns = eval(object["columns"])
-			except:
-				columns = 1
-
-			columnWidth = width/columns
+			columnWidth = width/columnCount
 
 			## Set canvas props based on our props:
 			c.translate(x, y)
@@ -401,7 +331,7 @@ class ReportWriter(object):
 			
 			styles_ = styles.getSampleStyleSheet()
 
-			objects = object["objects"]
+			objects = obj["objects"]
 			story = []
 			for fobject in objects:
 				objNeededHeight = 0
@@ -458,36 +388,21 @@ class ReportWriter(object):
 
 				neededHeight = max(neededHeight, objNeededHeight) + padTop + padBottom
 
-			for columnIndex in range(columns):
+			for columnIndex in range(columnCount):
 				f = platypus.Frame(columnIndex*columnWidth, 0, columnWidth, height, leftPadding=padLeft,
 						rightPadding=padRight, topPadding=padTop,
 						bottomPadding=padBottom, id=frameId, 
 						showBoundary=boundary)
 				if getNeededHeight:
-					object["calculatedHeight"] = "%s" % neededHeight
+					obj["calculatedHeight"] = "%s" % neededHeight
 				else:
 					f.addFromList(story, c)
 	
-		elif object["type"] == "image":
-			try: 
-				borderWidth = self.getPt(eval(object["borderWidth"]))
-			except KeyError: 
-				borderWidth = self.default_borderWidth
-	
-			try: 
-				borderColor = eval(object["borderColor"])
-			except KeyError: 
-				borderColor = self.default_borderColor
-	
-			try: 
-				mask = eval(object["imageMask"])
-			except: 
-				mask = self.default_imageMask
-	
-			try:
-				mode = eval(object["scaleMode"])
-			except:
-				mode = self.default_scaleMode
+		elif obj["type"] == "image":
+			borderWidth = self.getPt(self.getProp(obj, "borderWidth"))
+			borderColor = self.getProp(obj, "borderColor")
+			mask = self.getProp(obj, "imageMask")
+			mode = self.getProp(obj, "scaleMode")
 
 			c.translate(x, y)
 			c.rotate(rotation)
@@ -510,7 +425,7 @@ class ReportWriter(object):
 				# width/height, resulting in clipping.
 				width, height = None, None
 
-			imageFile = eval(object["expr"])
+			imageFile = eval(obj["expr"])
 			if not os.path.exists(imageFile):
 				imageFile = os.path.join(self.HomeDirectory, imageFile)
 			imageFile = str(imageFile)
@@ -581,6 +496,9 @@ class ReportWriter(object):
 			# Create the reportlab canvas:
 			c = self._canvas = canvas.Canvas(_outputFile, pagesize=pageSize)
 		
+		# Get the number of columns:
+		columnCount = self.getProp(_form, "columnCount")
+		
 
 		# Initialize the groups list:
 		groups = _form.get("groups", ())
@@ -598,6 +516,7 @@ class ReportWriter(object):
 			self.Variables[variable["name"]] = eval(variable["initialValue"])
 
 		self._recordNumber = 0
+		self._currentColumn = 0
 
 		## Let the page header have access to the first record:
 		if len(self.Cursor) > 0:
@@ -634,16 +553,20 @@ class ReportWriter(object):
 			_form = self.ReportForm
 
 			# Get the page margins into variables:
-			ml = self.getPt(eval(_form["page"]["marginLeft"]))
-			mt = self.getPt(eval(_form["page"]["marginTop"]))
-			mr = self.getPt(eval(_form["page"]["marginRight"]))
-			mb = self.getPt(eval(_form["page"]["marginBottom"]))
+			ml = self.getPt(self.getProp(_form["page"], "marginLeft"))
+			mt = self.getPt(self.getProp(_form["page"], "marginTop"))
+			mr = self.getPt(self.getProp(_form["page"], "marginRight"))
+			mb = self.getPt(self.getProp(_form["page"], "marginBottom"))
 		
 			# Page header/footer origins are needed in various places:
 			pageHeaderOrigin = (ml, pageHeight - mt 
-					- self.getPt(eval(_form["pageHeader"]["height"])))
+					- self.getPt(self.getProp(_form["pageHeader"], "height")))
 			pageFooterOrigin = (ml, mb)
 		
+			workingPageWidth = pageWidth - ml - mr
+			columnWidth = workingPageWidth / columnCount
+#			print columnWidth, columnCount
+
 			if y is None:
 				y = pageHeaderOrigin[1]
 
@@ -656,9 +579,9 @@ class ReportWriter(object):
 				# Band name doesn't exist.
 				return y
 
-
 			self.Bands[band] = {}
 
+			# do the height calcs manually (not via getProp):
 			try:		
 				height = eval(bandDict["height"])
 			except KeyError:
@@ -688,7 +611,7 @@ class ReportWriter(object):
 			if pf is None:
 				pfHeight = 0
 			else:
-				pfHeight = self.getPt(eval(pf["height"]))
+				pfHeight = self.getPt(self.getProp(pf, "height"))
 
 			if band in ("detail", "groupHeader", "groupFooter"):
 				extraHeight = 0
@@ -726,8 +649,8 @@ class ReportWriter(object):
 						x, y, width, height)
 
 			if bandDict.has_key("objects"):
-				for object in bandDict["objects"]:
-					showExpr = object.get("showExpr")
+				for obj in bandDict["objects"]:
+					showExpr = obj.get("showExpr")
 					if showExpr is not None:
 						try:
 							ev = eval(showExpr)
@@ -737,19 +660,12 @@ class ReportWriter(object):
 						if not ev:
 							# user's showExpr evaluated to False: don't print!
 							continue
-					try:
-						x1 = self.getPt(eval(object["x"]))
-					except KeyError:
-						x1 = self.default_x
 
-					try:
-						y1 = self.getPt(eval(object["y"]))
-					except KeyError:
-						y1 = self.default_y
-
+					x1 = self.getPt(self.getProp(obj, "x"))
+					y1 = self.getPt(self.getProp(obj, "y"))
 					x1 = x + x1
 					y1 = y + y1
-					self.draw(object, (x1, y1))
+					self.draw(obj, (x1, y1))
 						
 			return y		
 
@@ -847,18 +763,15 @@ class ReportWriter(object):
 	def calculateBandHeight(self, bandDict):
 		maxHeight = 0
 		if bandDict.has_key("objects"):
-			for object in bandDict["objects"]:
-				try:
-					y = self.getPt(eval(object["y"]))
-				except KeyError:
-					y = self.default_y
+			for obj in bandDict["objects"]:
+				y = self.getPt(self.getProp(obj, "y"))
 
 				try:
-					ht = eval(object["height"])
+					ht = eval(obj["height"])
 				except KeyError:
 					ht = self.default_height
 				if ht is None:
-					ht = self.calculateObjectHeight(object)
+					ht = self.calculateObjectHeight(obj)
 				ht = self.getPt(ht)
 
 				thisHeight = y + ht
@@ -875,19 +788,14 @@ class ReportWriter(object):
 		## Set the Page Size:
 		# get the string pageSize value from the spec file:
 		_form = self.ReportForm
-		try:
-			pageSize = eval(_form["page"]["size"])
-		except KeyError:
-			pageSize = self.default_pageSize
+		pageSize = self.getProp(_form["page"], "size", "pageSize")
+
 		# reportlab expects the pageSize to be upper case:
 		pageSize = pageSize.upper()
 		# convert to the reportlab pageSize value (tuple(width,height)):
 		pageSize = eval("pagesizes.%s" % pageSize)
 		# run it through the portrait/landscape filter:
-		try:
-			orientation = eval(_form["page"]["orientation"])
-		except KeyError:
-			orientation = self.default_pageOrientation
+		orientation = self.getProp(_form["page"], "orientation", "pageOrientation")
 		func = eval("pagesizes.%s" % orientation)
 		return func(pageSize)
 
