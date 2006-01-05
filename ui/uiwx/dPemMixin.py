@@ -777,6 +777,16 @@ class dPemMixin(dPemMixinBase):
 		self.Refresh()
 	
 	
+	def show(self):
+		"""Make the object visible."""
+		self.Show(True)
+		
+		
+	def hide(self):
+		"""Make the object invisible."""
+		self.Show(False)
+		
+		
 	def fitToSizer(self):
 		"""Sets the size of the object to the size of the sizer."""
 		if self.Sizer:
