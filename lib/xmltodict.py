@@ -117,6 +117,8 @@ def dicttoxml(dct, level=0, header=None):
 
 	The dictionary must be in the format returned by dicttoxml(), with keys
 	on "attributes", "code", "cdata", "name", and "children".
+
+	Send your own XML header, otherwise a default one will be used.
 	"""
 	def escQuote(val):
 		"""Add surrounding quotes to the string, and escape

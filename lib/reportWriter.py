@@ -565,6 +565,7 @@ class ReportWriter(object):
 		
 			workingPageWidth = pageWidth - ml - mr
 			columnWidth = workingPageWidth / columnCount
+#			print workingPageWidth / 72, columnWidth / 72
 #			print columnWidth, columnCount
 
 			if y is None:
@@ -593,7 +594,6 @@ class ReportWriter(object):
 				# figure out height based on the objects in the band.
 				height = self.calculateBandHeight(bandDict)
 
-			x = ml
 			y = y - height
 			width = pageWidth - ml - mr
 
@@ -631,13 +631,18 @@ class ReportWriter(object):
 					else:
 						extraHeight = self.getPt(extraHeight)
 				if y < pageFooterOrigin[1] + pfHeight + extraHeight:
-					endPage()
-					beginPage()
+					if self._currentColumn >= columnCount-1:
+						endPage()
+						beginPage()
+						self._currentColumn = 0
+					else:
+						self._currentColumn += 1
 					y = pageHeaderOrigin[1]
 					if band == "detail":
 						y = reprintGroupHeaders(y)
 					y = y - height
 				
+			x = ml + (self._currentColumn * columnWidth)
 				
 			self.Bands[band]["x"] = x
 			self.Bands[band]["y"] = y
@@ -850,8 +855,23 @@ class ReportWriter(object):
 		"""Recursively generate the dict format required for the dicttoxml() function."""
 		if d is None:
 			d = {"name": "report", "children": []}
+
+		positions = {"title": 0, "page": 1, "pageBackground": 2, 
+				"pageForeground": 3, "groups": 4, "variables": 5,
+				"pageHeader": 6, "detail": 7, "pageFooter": 8}
+
+		def elementSort(x,y):
+			posX = positions.get(x, sys.maxint)
+			posY = positions.get(y, sys.maxint)
+			if posY > posX:
+				return -1
+			elif posY < posX:
+				return 1
+			return 0
+
 		elements = form.keys()
-		elements.sort()
+		elements.sort(elementSort)
+
 		for element in elements:
 			if element == "type":
 				continue
