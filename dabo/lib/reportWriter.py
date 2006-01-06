@@ -502,18 +502,25 @@ class ReportWriter(object):
 
 		# Initialize the groups list:
 		groups = _form.get("groups", ())
+		self._groupValues = {}
 		for group in groups:
-			group["curVal"] = None
+			vv = {}
+			vv["curVal"] = None
+			self._groupValues[group["expr"]] = vv
+
 		groupsDesc = [i for i in groups]
 		groupsDesc.reverse()
 
 		# Initialize the variables list:
 		variables = _form.get("variables", ())
+		self._variableValues = {}
 		self.Variables = {}
 		for variable in variables:
-			variable["value"] = None
-			variable["curReset"] = None
+			vv = {}
+			vv["value"] = None
+			vv["curReset"] = None
 			self.Variables[variable["name"]] = eval(variable["initialValue"])
+			self._variableValues[variable["name"]] = vv
 
 		self._recordNumber = 0
 		self._currentColumn = 0
@@ -530,21 +537,22 @@ class ReportWriter(object):
 			"""
 			variables = self.ReportForm.get("variables", ())
 			for variable in variables:
+				vv = self._variableValues[variable["name"]]
 				if variable.has_key("resetAt"):
 					resetAt = eval(variable["resetAt"])
 				else:
 					resetAt = None
-				curReset = variable.get("curReset")
+				curReset = vv.get("curReset")
 				if resetAt != curReset:
 					# resetAt tripped: value to initial value
 					self.Variables[variable["name"]] = eval(variable["initialValue"])
-				variable["curReset"] = resetAt
+				vv["curReset"] = resetAt
 
 				# run the variable expression to get the current value:
-				variable["value"] = eval(variable["expr"])
+				vv["value"] = eval(variable["expr"])
 
 				# update the value of the public variable:
-				self.Variables[variable["name"]] = variable["value"]			
+				self.Variables[variable["name"]] = vv["value"]			
 					
 
 		def printBand(band, y=None, group=None):
@@ -709,37 +717,32 @@ class ReportWriter(object):
 				# expr has changed, reset the curval for the group and all child groups.
 				resetCurVals = False
 				for idx, group in enumerate(groups):
-					if resetCurVals or group["curVal"] != eval(group["expr"]):
+					vv = self._groupValues[group["expr"]]
+					if resetCurVals or vv["curVal"] != eval(group["expr"]):
 						resetCurVals = True
-						group["curVal"] = None
+						vv["curVal"] = None
 
 				# Second pass, iterate through the groups inner->outer, and print the 
 				# group footers for groups that have changed.
 				for idx, group in enumerate(groupsDesc):
-					if group["curVal"] != eval(group["expr"]):
+					vv = self._groupValues[group["expr"]]
+					if vv["curVal"] != eval(group["expr"]):
 						# We need to temporarily move back to the last record so that the
 						# group footer reflects what the user expects.
 						self.Record = _lastRecord
 						y = printBand("groupFooter", y, group)
 						self.Record = record
 						
-				"""
-				for idx, group in enumerate(groupsDesc):
-					if group["curVal"] != eval(group["expr"]):
-						# We need to temporarily move back to the last record so that the
-						# group footer reflects what the user expects.
-						self.Record = _lastRecord
-						y = printBand("groupFooter", y, group)
-						self.Record = record
-				"""
 			# Any report variables need their values evaluated again:
 			processVariables()
 
 			# print group headers for this group if necessary:
 			for idx, group in enumerate(groups):
-				if group["curVal"] != eval(group["expr"]):
-					group["curVal"] = eval(group["expr"])
-					np = eval(group.get("startOnNewPage", "False")) and self.RecordNumber > 0
+				vv = self._groupValues[group["expr"]]
+				if vv["curVal"] != eval(group["expr"]):
+					vv["curVal"] = eval(group["expr"])
+					np = eval(group.get("startOnNewPage", "False")) \
+							and self.RecordNumber > 0
 					if np:
 						endPage()
 						beginPage()
@@ -856,18 +859,21 @@ class ReportWriter(object):
 		if d is None:
 			d = {"name": "report", "children": []}
 
-		positions = {"title": 0, "page": 1, "pageBackground": 2, 
-				"pageForeground": 3, "groups": 4, "variables": 5,
-				"pageHeader": 6, "detail": 7, "pageFooter": 8}
+		positions = {"title": 0, "columnCount": 5, "page": 10, 
+				"pageBackground": 20, 
+				"pageForeground": 30, "groups": 40, "variables": 50,
+				"pageHeader": 60, "groupHeader": 65, "detail": 70, 
+				"groupFooter": 75, "pageFooter": 80,
+				"objects": 99999, "testcursor": 999999}
 
 		def elementSort(x,y):
-			posX = positions.get(x, sys.maxint)
-			posY = positions.get(y, sys.maxint)
+			posX = positions.get(x, -1)
+			posY = positions.get(y, -1)
 			if posY > posX:
 				return -1
 			elif posY < posX:
 				return 1
-			return 0
+			return cmp(x,y)
 
 		elements = form.keys()
 		elements.sort(elementSort)
@@ -911,21 +917,27 @@ class ReportWriter(object):
 					cursor.append({"name": "record", "attributes": attr})
 					child["children"] = cursor
 
-			elif element == "objects":
+			elif element in ("objects", "variables", "groups"):
 				objects = []
 				for index in range(len(form[element])):
 					formobj = form[element][index]
 					obj = {"name": formobj["type"], "children": []}
 					props = formobj.keys()
-					props.sort()
-					if formobj.has_key("objects"):
+					props.sort(elementSort)
+					if formobj.has_key(element):
 						# Recurse
 						self._getXMLDictFromForm(formobj, obj)
 					else:
 						for prop in props:
 							if prop != "type":
-								obj["children"].append({"name": prop, 
-										"cdata": formobj[prop]})
+								if isinstance(formobj[prop], dict):
+									# Recurse
+									self._getXMLDictFromForm(formobj, obj)
+									break
+								else:
+									if element != "groups":
+										newchild = {"name": prop, "cdata": formobj[prop]}
+										obj["children"].append(newchild)
 					objects.append(obj)
 				child["children"] = objects
 
