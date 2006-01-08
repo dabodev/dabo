@@ -61,25 +61,27 @@ class dSizerMixin(dObject):
 	
 	def appendItems(self, items, *args, **kwargs):
 		"""Append each item to the sizer."""
+		ret = []
 		for item in items:
-			self.append(item, *args, **kwargs)
-			
+			ret.append(self.append(item, *args, **kwargs))
+		return ret
+		
 			
 	def append(self, item, layout="normal", proportion=0, alignment=None,
 			halign="left", valign="top", border=None, borderFlags=None):
 		"""Adds the passed object to the end of the list of items controlled
 		by the sizer.
 		"""
-		self.insert(len(self.Children), item, layout=layout, proportion=proportion, 
+		return self.insert(len(self.Children), item, layout=layout, proportion=proportion, 
 				alignment=alignment, halign=halign, valign=valign, border=border, 
 				borderFlags=borderFlags)
-
+		
 
 	def append1x(self, item, **kwargs):
 		"""Shorthand for sizer.append(item, 1, "x"). """
 		kwargs["layout"] = "expand"
 		kwargs["proportion"] = 1
-		self.append(item, **kwargs)
+		return self.append(item, **kwargs)
 		
 
 	def insert(self, index, item, layout="normal", proportion=0, alignment=None,
@@ -97,7 +99,7 @@ class dSizerMixin(dObject):
 		
 		if isinstance(item, (int, tuple)):
 			# spacer
-			self.addSpacer(item, pos=index, proportion=proportion)
+			ret = self.addSpacer(item, pos=index, proportion=proportion)
 		else:
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, halign, valign, borderFlags, layout)
@@ -105,13 +107,14 @@ class dSizerMixin(dObject):
 				border = self.Border
 			# If there are objects in this sizer already, add the default spacer
 			addSpacer = ( len(self.GetChildren()) > 0)
-			szItem = self.Insert(index, item, proportion=proportion, 
-					flag=_wxFlags, border=border)
+			ret = szItem = self.Insert(index, item, proportion=proportion, 
+					flag=_wxFlags, border=border, userData=self)
 			if addSpacer:
 				self.addDefaultSpacer(index+1)
 			item._controllingSizer = self
 			item._controllingSizerItem = szItem
-
+		return ret
+		
 	
 	def layout(self):
 		"""Layout the items in the sizer.
@@ -130,7 +133,7 @@ class dSizerMixin(dObject):
 	
 	def prepend(self, *args, **kwargs):
 		"""Insert the item at the beginning of the sizer layout."""
-		self.insert(0, *args, **kwargs)			
+		return self.insert(0, *args, **kwargs)			
 	
 	
 	def remove(self, item, destroy=None):
@@ -160,32 +163,29 @@ class dSizerMixin(dObject):
 				# Something's up; bail out
 				return
 		if pos is None:
-			itm = self.Add(spacer, proportion=proportion)
+			itm = self.Add(spacer, proportion=proportion, userData=self)
 		else:
-			itm = self.Insert(pos, spacer, proportion=proportion)
-		# Now get the spacer object, and set the reference to this
-		spc = itm.GetSpacer()
-		spc._controllingSizer = self
-		spc._controllingSizerItem = itm
+			itm = self.Insert(pos, spacer, proportion=proportion, userData=self)
+		return itm
 	
 	
 	def appendSpacer(self, val, proportion=0):
 		"""Appends a spacer to the sizer."""
-		self.addSpacer(val, None, proportion)
+		return self.addSpacer(val, None, proportion)
 	
 	
 	def insertSpacer(self, pos, val, proportion=0):
 		"""Added to be consistent with the sizers' add/insert
 		design. Inserts a spacer at the specified position.
 		"""
-		self.addSpacer(val, pos, proportion)
+		return self.addSpacer(val, pos, proportion)
 		
 		
 	def prependSpacer(self, val, proportion=0):
 		"""Added to be consistent with the sizers' add/insert
 		design. Inserts a spacer in the first position.
 		"""
-		self.addSpacer(val, 0, proportion=proportion)
+		return self.addSpacer(val, 0, proportion=proportion)
 		
 		
 	def addDefaultSpacer(self, pos=None):
@@ -276,14 +276,14 @@ class dSizerMixin(dObject):
 		"""Given a sizer item, a property and a value, sets things as you
 		would expect. 
 		"""
-		if itm.IsSpacer():
-			spacer = (val, val)
-			if self.Orientation == "Vertical":
-				spacer = (1, val)
-			elif self.Orientation == "Horizontal":
-				spacer = (val, 1)
-			itm.SetSpacer(spacer)
-			return
+# 		if itm.IsSpacer():
+# 			spacer = (val, val)
+# 			if self.Orientation == "Vertical":
+# 				spacer = (1, val)
+# 			elif self.Orientation == "Horizontal":
+# 				spacer = (val, 1)
+# 			itm.SetSpacer(spacer)
+# 			return
 		lowprop = prop.lower()
 		if isinstance(itm, self.GridSizerItem):
 			row, col = self.getGridPos(itm)
@@ -559,7 +559,10 @@ class dSizerMixin(dObject):
 	
 	
 	def _getChildren(self):
-		return self.GetChildren()
+		ret = self.GetChildren()
+		for itm in ret:
+			itm.ControllingSizer = self
+		return ret
 	
 	
 	def _getChildWindows(self):
@@ -635,14 +638,19 @@ class dSizerMixin(dObject):
 	
 	Border = property(_getBorder, _setBorder, None,
 			_("Sets the default border for the sizer.  (int)" ) )
+			
 	BorderAll = property(_getBorderAll, _setBorderAll, None,
 			_("By default, do we add the border to all sides?  (bool)" ) )
+			
 	BorderBottom = property(_getBorderBottom, _setBorderBottom, None,
 			_("By default, do we add the border to the bottom side?  (bool)" ) )
+			
 	BorderLeft = property(_getBorderLeft, _setBorderLeft, None,
 			_("By default, do we add the border to the left side?  (bool)" ) )
+			
 	BorderRight = property(_getBorderRight, _setBorderRight, None,
 			_("By default, do we add the border to the right side?  (bool)" ) )
+			
 	BorderTop = property(_getBorderTop, _setBorderTop, None,
 			_("By default, do we add the border to the top side?  (bool)" ) )
 

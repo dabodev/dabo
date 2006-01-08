@@ -386,7 +386,7 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 				continue
 			# Make the panel that big, plus the height of the caption
 			pnl.Height = self.Height - capHt + pnl._captionBar.GetSize()[1]
-		self.layout()
+		dabo.ui.callAfter(self.layout)
 
 	
 	def _getCollapseToBottom(self):

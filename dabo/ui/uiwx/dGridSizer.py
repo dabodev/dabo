@@ -53,6 +53,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			spc = szItem.GetSpacer()
 			spc._controllingSizer = self
 			spc._controllingSizerItem = szItem
+			szItem.ControllingSizer = self
 		else:
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, halign, valign, borderFlags, layout)
@@ -62,20 +63,24 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 					flag=_wxFlags, border=border)
 			item._controllingSizer = self
 			item._controllingSizerItem = szItem
+			szItem.ControllingSizer = self
 			
 		self._highRow = max(self._highRow, targetRow)
 		self._highCol = max(self._highCol, targetCol)
+		return szItem
 		
 		
 	def appendItems(self, items, *args, **kwargs):
 		""" Shortcut for appending multiple items at once. """
+		ret = []
 		for item in items:
-			self.append(item, *args, **kwargs)
+			ret.append(self.append(item, *args, **kwargs))
+		return ret
 	
 	
 	def appendSpacer(self, *args, **kwargs):
 		"""Alias for append()"""
-		self.append(*args, **kwargs)
+		return self.append(*args, **kwargs)
 		
 		
 	def insert(self, *args, **kwargs):
