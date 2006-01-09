@@ -388,6 +388,10 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 			pnl.Height = self.Height - capHt + pnl._captionBar.GetSize()[1]
 		dabo.ui.callAfter(self.layout)
 
+
+	def _getChildren(self):
+		return self._panels
+	
 	
 	def _getCollapseToBottom(self):
 		return bool(self._extraStyle & fpb.FPB_COLLAPSE_TO_BOTTOM)
@@ -420,6 +424,9 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 		self._setInitialOpenPanel()
 
 
+	Children = property(_getChildren, None, None,
+			_("List of all panels in the control  (list))"))
+			
 	CollapseToBottom = property(_getCollapseToBottom, _setCollapseToBottom, None,
 			_("When True, all collapsed panels are displayed at the bottom  (bool)"))
 	

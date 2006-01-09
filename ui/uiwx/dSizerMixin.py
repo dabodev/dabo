@@ -284,18 +284,24 @@ class dSizerMixin(dObject):
 # 				spacer = (val, 1)
 # 			itm.SetSpacer(spacer)
 # 			return
+		ret = False
 		lowprop = prop.lower()
 		if isinstance(itm, self.GridSizerItem):
 			row, col = self.getGridPos(itm)
 		if lowprop == 'proportion':
 			itm.SetProportion(int(val))
+			ret = True
 		elif lowprop == "border":
 			itm.SetBorder(int(val))
+			ret = True
 		elif lowprop == "rowexpand":
 			self.setRowExpand(val, row)
+			ret = True
 		elif lowprop == "colexpand":
 			self.setColExpand(val, col)			
+			ret = True
 		elif lowprop in ("expand", "halign", "valign"):
+			ret = True
 			pd = {"left" : self.leftFlag, 
 					"right" : self.rightFlag,
 					"center" : self.centerFlag, 
@@ -332,6 +338,7 @@ class dSizerMixin(dObject):
 			self.Parent.layout()
 		except:
 			self.layout()
+		return ret
 	
 
 	def setItemProps(self, itm, props):

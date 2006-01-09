@@ -166,13 +166,6 @@ class dFormMixin(pm.dPemMixin):
 				kids = child.get("children", [])
 				code = child.get("code", {})
 				
-				if nm.lower() == "spacer":
-					# This isn't a control; just a sizer spacer
-					if szr:
-						szr.append(int(atts["size"]))
-					# Spacers can't have children, so...
-					continue
-
 				# Right now we are limiting this to Dabo classes.
 				cls = dabo.ui.__dict__[nm]
 				if issubclass(cls, dabo.ui.dSizer):
@@ -237,7 +230,13 @@ class dFormMixin(pm.dPemMixin):
 						# Remove the 'ColumnCount' att
 						if atts.has_key("ColumnCount"):
 							del atts["ColumnCount"]
-					obj = cls(parent=parent, attProperties=atts)
+					
+					isSpacer = atts.has_key("Spacing")
+					if isSpacer:
+						obj = eval(atts["Spacing"])
+						del atts["Spacing"]
+					else:
+						obj = cls(parent=parent, attProperties=atts)
 					self._addSrcObjToSizer(obj, szr, atts, szrInfo, row, col)
 
 					if code:
@@ -273,9 +272,9 @@ class dFormMixin(pm.dPemMixin):
 			row=None, col=None):
 		if szr:
 			if row is not None and col is not None:
-				szr.append(obj, row=row, col=col)
+				itm = szr.append(obj, row=row, col=col)
 			else:
-				szr.append(obj)
+				itm = szr.append(obj)
 			if szrInfo:
 				rowExp, colExp = {}, {}
 				if row is not None and col is not None:
@@ -287,7 +286,7 @@ class dFormMixin(pm.dPemMixin):
 						colExp[col] = szrInfo["ColExpand"]
 						del szrInfo["ColExpand"]
 					
-				szr.setItemProps(obj.ControllingSizerItem, szrInfo)
+				szr.setItemProps(itm, szrInfo)
 				
 				# If there is row/col expansion info, set it
 				for row, exp in rowExp.items():
