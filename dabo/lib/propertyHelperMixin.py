@@ -212,7 +212,12 @@ class PropertyHelperMixin(object):
 		""" Returns the list of properties for this object (class or instance).
 		"""
 		try:
-			propList = cls.__propList
+			propLists = cls._propLists
+		except:
+			propLists = None
+
+		try:
+			propList = cls._propLists[cls]
 		except:
 			propList = None
 
@@ -232,7 +237,9 @@ class PropertyHelperMixin(object):
 							if propList.count(item) == 0:
 								propList.append(item)
 		propList.sort()
-		cls.__propList = propList
+		if not hasattr(cls, "_propLists"):
+			cls._propLists = {}
+		cls._propLists[cls] = propList
 		return propList
 	getPropertyList = classmethod(getPropertyList)
 
