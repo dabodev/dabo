@@ -1,6 +1,5 @@
 import dabo
 dabo.ui.loadUI("wx")
-from dabo.lib.ListSorter import ListSorter
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
