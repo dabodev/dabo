@@ -18,7 +18,7 @@ class SortingForm(dabo.ui.dOkCancelDialog):
 		self.listBox = dabo.ui.dEditableList(self, Caption=self._listCaption,
 				Choices=self._itms, Editable=False, CanDelete=False, 
 				CanAdd=False)
-		self.Sizer.append(self.listBox, 1, "expand", border=30, borderFlags="all")
+		self.Sizer.append(self.listBox, 1, "expand", border=30, borderSides="all")
 		self.layout()
 
 
