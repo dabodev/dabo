@@ -3597,7 +3597,7 @@ if __name__ == '__main__':
 		def afterInit(self):
 			self.BackColor = "khaki"
 			g = self.grid = _dGrid_test(self, RegID="sampleGrid")
-			self.Sizer.append(g, 1, "x", border=40, borderFlags="all")
+			self.Sizer.append(g, 1, "x", border=40, borderSides="all")
 			self.Sizer.appendSpacer(10)
 			
 			chk = dabo.ui.dCheckBox(self, Caption="Edit Table", RegID="geekEdit",

@@ -694,7 +694,7 @@ class EditPage(Page):
 					grdLabel.FontBold = True
 					#mainSizer.append( (10, -1) )
 					mainSizer.append(grdLabel, 0, "expand", alignment="center", 
-							border=10, borderFlags=("left", "right") )
+							border=10, borderSides=("left", "right") )
 					grid = self.addObject(Grid.Grid, "BrowseGrid" + child)
 					grid.FieldSpecs = self.Form.getFieldSpecsForTable(child)
 					grid.DataSource = child
@@ -703,7 +703,7 @@ class EditPage(Page):
 					#grid.Height = 100
 				
 					mainSizer.append(grid, 1, "expand", border=10,
-							borderFlags=("left", "right") )
+							borderSides=("left", "right") )
 		
 		if childGridCount == 0:
 			# Let the edit fields expand normally.
