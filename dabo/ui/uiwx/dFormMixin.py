@@ -60,15 +60,14 @@ class dFormMixin(pm.dPemMixin):
 		self._isClosed = False
 		# Sizer outline drawing flag
 		self.__needOutlineRedraw = False
-		# When in designer mode, we need to turn off various behaviors.
-		self._designerMode = False
 
 		super(dFormMixin, self).__init__(preClass, parent, properties, *args, **kwargs)
 		
 
 	def _getInitPropertiesList(self):
 		additional = ["ShowCloseButton", "ShowMinButton", "ShowMaxButton", 
-				"ShowSystemMenu", "TinyTitleBar", "FloatOnParent", "ShowInTaskBar"]
+				"ShowSystemMenu", "TinyTitleBar", "FloatOnParent", "ShowInTaskBar", 
+				"StayOnTop"]
 		original = list(super(dFormMixin, self)._getInitPropertiesList())
 		return tuple(original + additional)
 		
@@ -927,6 +926,15 @@ class dFormMixin(pm.dPemMixin):
 			controllingFrame.GetStatusBar().Update()
 			
 
+	def _getStayOnTop(self):
+		return self._hasWindowStyleFlag(wx.STAY_ON_TOP)
+
+	def _setStayOnTop(self, value):
+		self._delWindowStyleFlag(wx.STAY_ON_TOP)
+		if value:
+			self._addWindowStyleFlag(wx.STAY_ON_TOP)
+
+
 	def _getTinyTitleBar(self):
 		return self._hasWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
 		
@@ -1065,6 +1073,9 @@ class dFormMixin(pm.dPemMixin):
 
 	StatusText = property(_getStatusText, _setStatusText, None,
 			_("Text displayed in the form's status bar. (string)"))
+
+	StayOnTop = property(_getStayOnTop, _setStayOnTop, None,
+			_("Keeps the form on top of all other forms. (bool)"))
 
 	TinyTitleBar = property(_getTinyTitleBar, _setTinyTitleBar, None,
 			_("Specifies whether the title bar is small, like a tool window. (bool)."))
