@@ -465,7 +465,7 @@ class FoldPanelChange(Event):
 class FoldPanelCaptionClick(Event):
 	"""Occurs when the caption bar of a dFoldPanel is clicked."""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.dFoldPanelBar, dabo.ui.dFoldPanel)
+		return issubclass(objectClass, (dabo.ui.dFoldPanelBar, dabo.ui.dFoldPanel))
 	appliesToClass = classmethod(appliesToClass)
 	
 		
