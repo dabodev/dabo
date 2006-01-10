@@ -12,6 +12,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def __init__(self, *args, **kwargs):
 		self._inFldValid = False
 		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
+		self._designerMode = None
 
 		super(dDataControlMixinBase, self).__init__(*args, **kwargs)
 			
@@ -105,6 +106,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		""" Update control's value to match the current value from the source."""
 		if not self.DataSource or not self.DataField:
 			return
+		if self._DesignerMode:
+			return
 		if self.Source and self._srcIsBizobj:
 			try:
 				self.Value = self.Source.getFieldVal(self.DataField)
@@ -163,29 +166,30 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			oldVal = None
 		
 		if curVal is None or curVal != oldVal:
-			if self.DataSource and self.DataField:
-				src = self.Source
-				if self._srcIsBizobj:
-					try:
-						ret = src.setFieldVal(self.DataField, curVal)
-					except AttributeError:
-						# Eventually, we'll want our global error handler be the one to write
-						# to the errorLog, at which point we should reraise the exception as 
-						# commented below. However, raising the exception here without a global
-						# handler results in some ugly GTK messages and a segfault, so for now
-						# let's just log the problem and let the app continue on.
-						#raise AttributeError, "No source object found for datasource '%s'" % self.DataSource
-						dabo.errorLog.write("No source object found for datasource '%s'" % self.DataSource)
-				else:	
-					# If the binding is to a method, do not try to assign to that method.
-					if self._srcIsInstanceMethod is None:
-						self._srcIsInstanceMethod = eval("type(src.%s)" % self.DataField) == type(self.flushValue)
-					if self._srcIsInstanceMethod:
-						return
-					try:
-						exec("src.%s = curVal" % self.DataField)
-					except:
-						dabo.errorLog.write("Could not bind to '%s.%s'" % (self.DataSource, self.DataField) )
+			if not self._DesignerMode:
+				if self.DataSource and self.DataField:
+					src = self.Source
+					if self._srcIsBizobj:
+						try:
+							ret = src.setFieldVal(self.DataField, curVal)
+						except AttributeError:
+							# Eventually, we'll want our global error handler be the one to write
+							# to the errorLog, at which point we should reraise the exception as 
+							# commented below. However, raising the exception here without a global
+							# handler results in some ugly GTK messages and a segfault, so for now
+							# let's just log the problem and let the app continue on.
+							#raise AttributeError, "No source object found for datasource '%s'" % self.DataSource
+							dabo.errorLog.write("No source object found for datasource '%s'" % self.DataSource)
+					else:	
+						# If the binding is to a method, do not try to assign to that method.
+						if self._srcIsInstanceMethod is None:
+							self._srcIsInstanceMethod = eval("type(src.%s)" % self.DataField) == type(self.flushValue)
+						if self._srcIsInstanceMethod:
+							return
+						try:
+							exec("src.%s = curVal" % self.DataField)
+						except:
+							dabo.errorLog.write("Could not bind to '%s.%s'" % (self.DataSource, self.DataField) )
 
 			self._afterValueChanged()
 		
@@ -203,6 +207,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		""" Save control's value to dApp's user settings table."""
 		if self.IsSecret:
 			# Don't store sensitive info
+			return
+		if self._DesignerMode:
+			# Don't bother in design mode.
 			return
 		# It is too late to get Value directly (since we are being called from Destroy, and wx
 		# has already released the C++ part of the object).
@@ -291,6 +298,15 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self._DataField = str(value)
 		
 
+	def _getDesignerMode(self):
+		if self._designerMode is None:
+			try:
+				self._designerMode = self.Form._designerMode
+			except:
+				self._designerMode = False
+		return self._designerMode
+
+
 	def _getSecret(self):
 		try:
 			return self._isSecret
@@ -348,6 +364,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	DataField = property(_getDataField, _setDataField, None,
 			_("""Specifies the data field of the dataset to use as the source 
 			of data. (str)""") )
+	
+	_DesignerMode = property(_getDesignerMode, None, None,
+			_("""When True, the control is not running live, but being used
+			in design mode.  (bool)"""))
 	
 	IsSecret = property(_getSecret, _setSecret, None,
 			_("Flag for indicating sensitive data that is not to be persisted.   (bool)") )
