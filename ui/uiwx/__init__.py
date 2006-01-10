@@ -63,6 +63,7 @@ from dButton import dButton
 from dCalendar import dCalendar
 from dCalendar import dExtendedCalendar
 from dCheckBox import dCheckBox
+from dCheckListBox import dCheckListBox
 from dColorDialog import dColorDialog
 from dComboBox import dComboBox
 from dDateTextBox import dDateTextBox

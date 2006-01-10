@@ -24,7 +24,7 @@ class dSizerMixin(dObject):
 			cases, though, passing the separate halign and valign parameters
 			is preferable.
 		border: The width of the border. Default is 0, no border.
-		borderFlags: A tuple containing the locations to draw the border, such as
+		borderSides: A tuple containing the locations to draw the border, such as
 			("all") or ("top", "left", "bottom"). Default is ("all").
 		index: The index of the existing sizer item before which you want
 			the object inserted.
@@ -68,13 +68,18 @@ class dSizerMixin(dObject):
 		
 			
 	def append(self, item, layout="normal", proportion=0, alignment=None,
-			halign="left", valign="top", border=None, borderFlags=None):
+			halign="left", valign="top", border=None, borderSides=None,
+			borderFlags=None):
 		"""Adds the passed object to the end of the list of items controlled
 		by the sizer.
 		"""
+		if borderSides is None:
+			if borderFlags is not None:
+				dabo.errorLog.write(_("Depracation warning: use 'borderSides' parameter instead."))
+				borderSides = borderFlags
 		return self.insert(len(self.Children), item, layout=layout, proportion=proportion, 
 				alignment=alignment, halign=halign, valign=valign, border=border, 
-				borderFlags=borderFlags)
+				borderSides=borderSides)
 		
 
 	def append1x(self, item, **kwargs):
@@ -85,11 +90,16 @@ class dSizerMixin(dObject):
 		
 
 	def insert(self, index, item, layout="normal", proportion=0, alignment=None,
-			halign="left", valign="top", border=None, borderFlags=None):
+			halign="left", valign="top", border=None, borderSides=None, 
+			borderFlags=None):
 		"""Inserts an object into the list of items controlled by the sizer at 
 		the specified position. Sets that object's _controllingSizer and 
 		_controllingSizerItem attributes.
 		"""
+		if borderSides is None:
+			if borderFlags is not None:
+				dabo.errorLog.write(_("Depracation warning: use 'borderSides' parameter instead."))
+				borderSides = borderFlags
 		if isinstance(layout, int):
 			# proportion was passed first
 			layout, proportion = proportion, layout
@@ -102,7 +112,7 @@ class dSizerMixin(dObject):
 			ret = self.addSpacer(item, pos=index, proportion=proportion)
 		else:
 			# item is the window to add to the sizer
-			_wxFlags = self._getWxFlags(alignment, halign, valign, borderFlags, layout)
+			_wxFlags = self._getWxFlags(alignment, halign, valign, borderSides, layout)
 			if border is None:
 				border = self.Border
 			# If there are objects in this sizer already, add the default spacer
@@ -276,14 +286,6 @@ class dSizerMixin(dObject):
 		"""Given a sizer item, a property and a value, sets things as you
 		would expect. 
 		"""
-# 		if itm.IsSpacer():
-# 			spacer = (val, val)
-# 			if self.Orientation == "Vertical":
-# 				spacer = (1, val)
-# 			elif self.Orientation == "Horizontal":
-# 				spacer = (val, 1)
-# 			itm.SetSpacer(spacer)
-# 			return
 		ret = False
 		lowprop = prop.lower()
 		if isinstance(itm, self.GridSizerItem):
@@ -300,7 +302,7 @@ class dSizerMixin(dObject):
 		elif lowprop == "colexpand":
 			self.setColExpand(val, col)			
 			ret = True
-		elif lowprop in ("expand", "halign", "valign"):
+		elif lowprop in ("expand", "halign", "valign", "bordersides"):
 			ret = True
 			pd = {"left" : self.leftFlag, 
 					"right" : self.rightFlag,
@@ -309,14 +311,14 @@ class dSizerMixin(dObject):
 					"top" : self.topFlag, 
 					"bottom" : self.bottomFlag, 
 					"middle" : self.middleFlag,
-					"borderbottom" : self.borderBottomFlag,
-					"borderleft" : self.borderLeftFlag,
-					"borderright" : self.borderRightFlag, 
-					"bordertop" : self.borderTopFlag, 
-					"borderall" : self.borderAllFlag, 
 					"expand" : self.expandFlag,
 					"grow" : self.expandFlag,
-					"fixed" : self.fixedFlag }		
+					"fixed" : self.fixedFlag }	
+			pdBorder = {"bottom" : self.borderBottomFlag,
+					"left" : self.borderLeftFlag,
+					"right" : self.borderRightFlag, 
+					"top" : self.borderTopFlag, 
+					"all" : self.borderAllFlag }
 			flg = itm.GetFlag()
 			if lowprop == "expand":
 				xFlag = pd["expand"]
@@ -333,6 +335,22 @@ class dSizerMixin(dObject):
 						flg = flg | pd[opt]
 					else:
 						flg = flg & ~pd[opt]
+			elif lowprop == ("bordersides"):
+				if isinstance(val, basestring):
+					val = [val]
+				lowval = [vv.lower() for vv in val]
+				if "all" in lowval:
+					flg = flg | pdBorder["all"]
+				else:
+					for opt in pdBorder:
+						if opt == "all":
+							continue
+						xFlag = pdBorder[opt]
+						if opt in lowval:
+							flg = flg | xFlag
+						else:
+							flg = flg & ~xFlag
+
 			itm.SetFlag(flg)
 		try:
 			self.Parent.layout()
@@ -424,7 +442,7 @@ class dSizerMixin(dObject):
 		return ret
 		
 		
-	def _getWxFlags(self, alignment, halign, valign, borderFlags, layout):
+	def _getWxFlags(self, alignment, halign, valign, borderSides, layout):
 		"""This converts Dabo values for sizer control into wx-specific constants."""
 		# Begin with the constant for no flag values.
 		_wxFlags = 0
@@ -455,9 +473,9 @@ class dSizerMixin(dObject):
 			elif flag == "middle":
 				_wxFlags = _wxFlags | self.middleFlag
 
-		if isinstance(borderFlags, basestring):
-			borderFlags = (borderFlags, )
-		if borderFlags is None:
+		if isinstance(borderSides, basestring):
+			borderSides = (borderSides, )
+		if borderSides is None:
 			# Add any default borders. If no defaults set, set it to the default 'all'
 			if self.BorderBottom:
 				_wxFlags = _wxFlags | self.borderBottomFlag
@@ -472,7 +490,7 @@ class dSizerMixin(dObject):
 					or self.BorderRight or self.BorderTop):
 				_wxFlags = _wxFlags | self.borderAllFlag
 		else:
-			for flag in [flag.lower() for flag in borderFlags]:
+			for flag in [flag.lower() for flag in borderSides]:
 				if flag == "left":
 					_wxFlags = _wxFlags | self.borderLeftFlag
 				elif flag == "right":
