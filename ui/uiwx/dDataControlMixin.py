@@ -1,10 +1,10 @@
 from dabo.ui.dDataControlMixinBase import dDataControlMixinBase
+from dabo.dLocalize import _
+
 
 class dDataControlMixin(dDataControlMixinBase):
-
 	def select(self, position, length):
-		""" Select all text from <position> for <length> or end of string.
-		"""
+		""" Select all text from <position> for <length> or end of string."""
 		try:
 			self.SetInsertionPoint(1)
 			self.SetSelection(position, length)
@@ -14,8 +14,7 @@ class dDataControlMixin(dDataControlMixinBase):
 			
 			
 	def selectAll(self):
-		""" Select all text in the control.
-		"""
+		""" Select all text in the control."""
 		try:	
 			self.SetInsertionPoint(1)   # Best of all worlds (really)
 			self.SetSelection(-1,-1)    # select all text
@@ -25,8 +24,7 @@ class dDataControlMixin(dDataControlMixinBase):
 			
 			
 	def selectNone(self):
-		""" Select no text in the control.
-		"""
+		""" Select no text in the control."""
 		try:
 			self.SetSelection(0,0)
 		except AttributeError:
@@ -47,4 +45,5 @@ class dDataControlMixin(dDataControlMixinBase):
 
 		
 	Value = property(_getValue, _setValue, None,
-		'Specifies the current state of the control (the value of the field). (varies)')
+		_("""Specifies the current state of the control (the value of the 
+				field).  (varies)"""))

@@ -659,6 +659,11 @@ class GridRangeSelected(GridEvent):
 	pass
 
 
+class GridCellEditBegin(GridEvent):
+	"""Occurs when the editor for a grid cell is shown, allowing the user to edit."""
+	pass
+
+
 class GridCellEdited(GridEvent):
 	"""Occurs when the user edits the content of a grid cell."""
 	pass
