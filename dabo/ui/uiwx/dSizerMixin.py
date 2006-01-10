@@ -634,6 +634,26 @@ class dSizerMixin(dObject):
 			self.SetOrientation(self.horizontalFlag)
 	
 	
+	def _getParent(self):
+		ret = self._parent
+		ob = self
+		while ret is None:
+			# Nested sizers need to traverse their containing
+			# sizers to find the parent object
+			cs = ob.ControllingSizer
+			if cs is None:
+				# Something's wrong!
+				dabo.errorLog.write(_("Nested sizer missing its ControllingSizer"))
+				break
+			else:
+				ob = cs
+				ret = ob._parent 
+		return ret
+		
+	def _setParent(self, obj):
+		self._parent = obj
+					
+		
 	def _getSpacing(self):
 		try:
 			return self._space
@@ -699,6 +719,10 @@ class dSizerMixin(dObject):
 	Orientation = property(_getOrientation, _setOrientation, None, 
 			_("Sets the orientation of the sizer, either 'Vertical' or 'Horizontal'." ) )
 
+	Parent = property(_getParent, _setParent, None,	
+			_("""The object that contains this sizer. In the case of nested
+			sizers, it is the object that the outermost sizer belongs to. (obj)"""))
+	
 	Spacing = property(_getSpacing, _setSpacing, None, 
 			_("Amount of space automatically inserted between elements.  (int)" ) )
 			
