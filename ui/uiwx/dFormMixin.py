@@ -60,6 +60,8 @@ class dFormMixin(pm.dPemMixin):
 		self._isClosed = False
 		# Sizer outline drawing flag
 		self.__needOutlineRedraw = False
+		# When in designer mode, we need to turn off various behaviors.
+		self._designerMode = False
 
 		super(dFormMixin, self).__init__(preClass, parent, properties, *args, **kwargs)
 		
