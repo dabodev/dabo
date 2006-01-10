@@ -177,9 +177,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 		ret += "%s</%s>%s" % (indnt, dct["name"], os.linesep)
 
 		if linesep:
-			s = linesep.get(level, "")
-			print level, s
-			ret += s
+			ret += linesep.get(level, "")
 
 	if level == 0:
 		if header is None:
