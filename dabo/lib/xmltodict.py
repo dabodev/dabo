@@ -74,7 +74,7 @@ class Xml2Obj:
 			data = data.encode()
 			if self._inCode:
 				if self._mthdCode:
-					self._mthdCode += "\n%s" % data
+					self._mthdCode += "%s%s" % (os.linesep, data)
 				else:
 					self._mthdCode = data
 			else:
@@ -104,7 +104,7 @@ def xmltodict(xml, attsToSkip=[]):
 	"""Given an xml string or file, return a Python dictionary."""
 	parser = Xml2Obj()
 	parser.attsToSkip = attsToSkip
-	if "\n" not in xml and os.path.exists(xml):
+	if os.linesep not in xml and os.path.exists(xml):
 		# argument was a file
 		return parser.ParseFromFile(xml)
 	else:
@@ -112,13 +112,16 @@ def xmltodict(xml, attsToSkip=[]):
 		return parser.Parse(xml)
 
 
-def dicttoxml(dct, level=0, header=None):
+def dicttoxml(dct, level=0, header=None, linesep=None):
 	"""Given a Python dictionary, return an xml string.
 
 	The dictionary must be in the format returned by dicttoxml(), with keys
 	on "attributes", "code", "cdata", "name", and "children".
 
 	Send your own XML header, otherwise a default one will be used.
+
+	The linesep argument is a dictionary, with keys on levels, allowing the
+	developer to add extra whitespace depending on the level.
 	"""
 	def escQuote(val):
 		"""Add surrounding quotes to the string, and escape
@@ -144,7 +147,7 @@ def dicttoxml(dct, level=0, header=None):
 
 	if (not dct.has_key("cdata") and not dct.has_key("children") 
 			and not dct.has_key("code")):
-		ret += " />\n"
+		ret += " />%s" % os.linesep
 	else:
 		ret += ">"
 		if dct.has_key("cdata"):
@@ -152,29 +155,36 @@ def dicttoxml(dct, level=0, header=None):
 
 		if dct.has_key("code"):
 			if len(dct["code"].keys()):
-				ret += "\n%s<code>\n"	% ("\t" * (level+1))
+				ret += "%s%s<code>\n"	% (os.linesep, "\t" * (level+1))
 				methodTab = "\t" * (level+2)
 				for mthd, cd in dct["code"].items():
 					# Make sure that the code ends with a linefeed
-					if not cd.endswith("\n"):
-						cd += "\n"
-					ret += "%s<%s><![CDATA[\n%s]]>\n%s</%s>\n" % (methodTab,
-							mthd, cd.replace("<", "&lt;"), methodTab, mthd)
-				ret += "%s</code>\n"	% ("\t" * (level+1))
+					if not cd.endswith(os.linesep):
+						cd += os.linesep
+					ret += "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (methodTab,
+							mthd, os.linesep, cd.replace("<", "&lt;"), os.linesep, 
+							methodTab, mthd, os.linesep)
+				ret += "%s</code>%s"	% ("\t" * (level+1), os.linesep)
 
 		if dct.has_key("children") and len(dct["children"]) > 0:
-			ret += "\n"
+			ret += os.linesep
 			for child in dct["children"]:
-				ret += dicttoxml(child, level+1)
+				ret += dicttoxml(child, level+1, linesep=linesep)
 		indnt = ""
-		if ret.endswith("\n"):
+		if ret.endswith(os.linesep):
 			# Indent the closing tag
 			indnt = ("\t" * level)
-		ret += "%s</%s>\n" % (indnt, dct["name"])
+		ret += "%s</%s>%s" % (indnt, dct["name"], os.linesep)
+
+		if linesep:
+			s = linesep.get(level, "")
+			print level, s
+			ret += s
 
 	if level == 0:
 		if header is None:
-			header = """<?xml version="1.0" encoding="UTF-8" standalone="no"?>\n"""
+			header = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>%s' \
+					% os.linesep 
 		ret = header + ret
 
 	return ret
