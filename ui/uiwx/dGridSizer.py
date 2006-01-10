@@ -6,8 +6,20 @@ from dabo.dLocalize import _
 
 class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	def __init__(self, vgap=3, hgap=3, maxRows=0, maxCols=0, **kwargs):
-		"""TODO: what is a grid sizer?"""
+		"""dGridSizer is a sizer that can lay out items in a virtual grid arrangement.
+		Items can be placed is specific row/column positions if that position is
+		unoccupied. You can specify either MaxCols or MaxRows, and then append
+		items to the grid sizer; it will place them in the first open row/col
+		position, until the Max* dimension is reached; after that, it starts over in
+		the next row/col. This allows for easily adding items without having to
+		explicitly track each one's row/col. For example, if I have a bunch of 
+		labels and edit controls to add, and I want them in a grid arrangement
+		with labels on the left and controls on the right, I can set MaxCols to 2, 
+		and then append label, control, label, control, ..., and the dGridSizer
+		will automatically arrange them as desired.
+		"""
 		self._baseClass = dGridSizer
+		self._parent = None
 		# Save these values, as there is no easy way to determine them
 		# later
 		self.hgap = hgap
