@@ -1350,6 +1350,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.__onWxGridColSize)
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.__onWxMouseLeftClick)
 		self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.__onWxMouseRightClick)
+		self.Bind(wx.grid.EVT_GRID_EDITOR_SHOWN, self.__onWxGridEditorShown)
 		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxGridCellChange)
 		self.Bind(wx.grid.EVT_GRID_RANGE_SELECT, self.__onWxGridRangeSelect)
 
@@ -2715,6 +2716,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def __onWxGridRangeSelect(self, evt):
 		self.raiseEvent(dEvents.GridRangeSelected, evt)
 		
+	def __onWxGridEditorShown(self, evt):
+		self.raiseEvent(dEvents.GridCellEditBegin, evt)
+		evt.Skip()
+
 	def __onWxGridCellChange(self, evt):
 		self.raiseEvent(dEvents.GridCellEdited, evt)
 		evt.Skip()

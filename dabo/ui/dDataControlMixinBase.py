@@ -12,6 +12,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def __init__(self, *args, **kwargs):
 		self._inFldValid = False
 		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
+
 		super(dDataControlMixinBase, self).__init__(*args, **kwargs)
 			
 		self._value = self.Value
@@ -96,14 +97,12 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 
 
 	def getBlankValue(self):
-		""" Return the empty value of the control.
-		"""
+		""" Return the empty value of the control."""
 		return None
 
 
 	def refresh(self):
-		""" Update control's value to match the current value from the source.
-		"""
+		""" Update control's value to match the current value from the source."""
 		if not self.DataSource or not self.DataField:
 			return
 		if self.Source and self._srcIsBizobj:
@@ -275,18 +274,22 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return self._DataSource
 		except AttributeError:
 			return ""
+			
 	def _setDataSource(self, value):
 		# Clear any old DataSource
 		self.__src = None
 		self._DataSource = str(value)
+
 
 	def _getDataField(self):
 		try:
 			return self._DataField
 		except AttributeError:
 			return ""
+			
 	def _setDataField(self, value):
 		self._DataField = str(value)
+		
 
 	def _getSecret(self):
 		try:
@@ -294,16 +297,20 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		except AttributeError:
 			self._isSecret = False
 			return self._isSecret
+			
 	def _setSecret(self, val):
 		self._isSecret = val
+		
 
 	def _getSaveRestoreValue(self):
 		try:
 			return self._SaveRestoreValue
 		except AttributeError:
 			return False
+			
 	def _setSaveRestoreValue(self, value):
 		self._SaveRestoreValue = bool(value)
+		
 		
 	def _getSrc(self):
 		if self.__src is None:
@@ -315,7 +322,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				if ds.lower() == "form":
 					# We're bound to the form itself
 					self.__src = self.Form
-				elif ds[:5] == "self.":
+				elif ds.startswith("self."):
 					# it's a locally resolvable reference.
 					try: 
 						self.__src = eval(ds)
@@ -355,4 +362,4 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			_("Reference to the object to which this control's Value is bound  (object)") )
 			
 	Value = property(None, None, None,
-		_("Specifies the current state of the control (the value of the field). (varies)") )
+			_("Specifies the current state of the control (the value of the field). (varies)") )
