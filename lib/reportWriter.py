@@ -955,7 +955,8 @@ class ReportWriter(object):
 		# dicts with keys on 'cdata', 'children', 'name', and 'attributes'.
 		d = self._getXMLDictFromForm(form)
 		# Now that the dict is in the correct format, get the xml:
-		return dicttoxml(d, header=self._getXmlHeader())
+		return dicttoxml(d, header=self._getXmlHeader(), 
+				linesep={1: os.linesep*1})
 
 
 	def _getXmlHeader(self):
