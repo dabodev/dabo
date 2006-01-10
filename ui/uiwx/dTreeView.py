@@ -12,11 +12,11 @@ from dabo.dObject import dObject
 
 class dNode(dObject):
 	"""Wrapper class for the tree nodes."""
-	def __init__(self, tree, id, txt, parent):
+	def __init__(self, tree, _id, txt, parent):
 		self.tree = tree
-		# The 'id' in this case is a wxPython wx.TreeItemID object used
+		# The '_id' in this case is a wxPython wx.TreeItemID object used
 		# by wx to work with separate nodes.
-		self.id = id
+		self._id = _id
 		self.txt = txt
 		self.parent = parent
 	
@@ -50,27 +50,33 @@ class dNode(dObject):
 		
 	
 	def _getBackColor(self):
-		return self.tree.GetItemBackgroundColour(self.id)
+		return self.tree.GetItemBackgroundColour(self._id)
+
 	def _setBackColor(self, val):
 		if isinstance(val, basestring):
 			try:
 				val = dColors.colorTupleFromName(val)
 			except: pass
-		self.tree.SetItemBackgroundColour(self.id, val)
+		self.tree.SetItemBackgroundColour(self._id, val)
 	
+
 	def _getBold(self):
-		return self.tree.IsBold(self.id)
+		return self.tree.IsBold(self._id)
+
 	def _setBold(self, val):
-		self.tree.SetItemBold(self.id, val)
+		self.tree.SetItemBold(self._id, val)
+
 
 	def _getForeColor(self):
-		return self.tree.GetItemTextColour(self.id)
+		return self.tree.GetItemTextColour(self._id)
+
 	def _setForeColor(self, val):
+
 		if isinstance(val, basestring):
 			try:
 				val = dColors.colorTupleFromName(val)
 			except: pass
-		self.tree.SetItemTextColour(self.id, val)
+		self.tree.SetItemTextColour(self._id, val)
 	
 	def _getImg(self):
 		return self.tree.getNodeImg(self)
@@ -81,11 +87,11 @@ class dNode(dObject):
 		if self.txt:
 			ret = self.txt
 		else:
-			ret = self.tree.GetItemText(self.id)
+			ret = self.tree.GetItemText(self._id)
 		return ret
 	def _setCap(self, val):
 		self.txt = val
-		self.tree.SetItemText(self.id, val)
+		self.tree.SetItemText(self._id, val)
 	
 	def _getChildren(self):
 		return self.tree.getChildren(self)
@@ -101,7 +107,7 @@ class dNode(dObject):
 			ret = (self == sel)
 		return ret
 	def _setSel(self, val):
-		self.tree.SelectItem(self.id, val)
+		self.tree.SelectItem(self._id, val)
 
 	def _getSiblings(self):
 		return self.tree.getSiblings(self)
@@ -175,32 +181,32 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 
 	
 	def setRootNode(self, txt):
-		id = self.AddRoot(txt)
-		ret = dNode(self, id, txt, None)
+		_id = self.AddRoot(txt)
+		ret = dNode(self, _id, txt, None)
 		self.nodes.append(ret)
 		return ret
 	
 	
 	def appendNode(self, node, txt):
-		id = self.AppendItem(node.id, txt)
-		ret = dNode(self, id, txt, node)
+		_id = self.AppendItem(node._id, txt)
+		ret = dNode(self, _id, txt, node)
 		self.nodes.append(ret)
 		return ret
 
 
 	def removeNode(self, node):
-		self.Delete(node.id)
+		self.Delete(node._id)
 		for n in node.Descendents:
 			self.nodes.remove(n)
 		self.nodes.remove(node)
 	
 	
 	def expand(self, node):
-		self.Expand(node.id)
+		self.Expand(node._id)
 	
 	
 	def collapse(self, node):
-		self.Collapse(node.id)
+		self.Collapse(node._id)
 	
 	
 	def expandAll(self):	
@@ -214,7 +220,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 	
 	
 	def showNode(self, node):
-		self.EnsureVisible(node.id)
+		self.EnsureVisible(node._id)
 		
 		
 	# Image-handling function
@@ -243,14 +249,14 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			imgIdx = imgKey
 		else:
 			imgIdx = self.__imageList[imgKey]
-		self.SetItemImage(node.id, imgIdx)
+		self.SetItemImage(node._id, imgIdx)
 
 	
 	def getNodeImg(self, node):
 		""" Returns the index of the specified node's image in the 
 		current image list, or -1 if no image is set for the node.
 		"""
-		ret = self.GetItemImage(node.id)
+		ret = self.GetItemImage(node._id)
 		return ret
 		
 	
@@ -288,7 +294,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		""" Searches the nodes collection for all nodes that match
 		whose text matches the passed search value (if a text value
 		was passed). If a wxPython TreeItemID object is passed, returns
-		a list nodes matching that id value. If a specific node is passed
+		a list nodes matching that _id value. If a specific node is passed
 		in the top property, the search is limited to descendents of that
 		node.
 		Returns a list of matching nodes.
@@ -303,7 +309,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 				if n.txt == srch ]
 		elif isinstance(srch, wx.TreeItemId):
 			ret = [n for n in nodes 
-				if n.id == srch ]
+				if n._id == srch ]
 		return ret
 		
 		
@@ -347,9 +353,9 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		if isinstance(nd, list):
 			nd = nd[0]
 		try:
-			id = func(nd.id)
+			_id = func(nd._id)
 			ret = [nod._obj for nod in self.nodes
-					if nod.id == id][0]
+					if nod._id == _id][0]
 		except:
 			ret = None
 		return ret
@@ -388,7 +394,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 						continue
 				nd.appendChild(f)
 		def sortNode(arg, currDir, fNames):
-			self.SortChildren(self._pathNode[currDir].id)
+			self.SortChildren(self._pathNode[currDir]._id)
 		os.path.walk(dirPath, addNode, showHidden)
 		os.path.walk(dirPath, sortNode, None)
 
@@ -445,12 +451,12 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			except:
 				ids = []
 			ret = [ n for n in self.nodes
-					if n.id in ids]
+					if n._id in ids]
 		else:
-			id = self.GetSelection()
-			if id:
+			_id = self.GetSelection()
+			if _id:
 				ret = [ n for n in self.nodes
-						if n.id == id]
+						if n._id == _id]
 			else:
 				ret = []
 		return ret
@@ -460,9 +466,9 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			self.UnselectAll()
 			if isinstance(node, (list, tuple)):
 				for itm in node:
-					self.SelectItem(itm.id, True)
+					self.SelectItem(itm._id, True)
 			else:
-				self.SelectItem(node.id)
+				self.SelectItem(node._id)
 		else:
 			self._properties["Selection"] = node
 	
