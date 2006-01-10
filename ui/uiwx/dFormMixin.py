@@ -75,7 +75,7 @@ class dFormMixin(pm.dPemMixin):
 		
 
 	def _afterInit(self):
-		if self.Application and self.MenuBarClass:
+		if self.Application and self.MenuBarClass and self.ShowMenuBar:
 			try:
 					self.MenuBar = self.MenuBarClass()
 			except AttributeError:
@@ -836,6 +836,17 @@ class dFormMixin(pm.dPemMixin):
 			self._addWindowStyleFlag(wx.MAXIMIZE_BOX)
 			
 
+	def _getShowMenuBar(self):
+		if hasattr(self, "_showMenuBar"):
+			val = self._showMenuBar
+		else:
+			val = self._showMenuBar = True
+		return val
+
+	def _setShowMenuBar(self, val):
+		self._showMenuBar = bool(val)
+
+
 	def _getShowMinButton(self):
 		return self._hasWindowStyleFlag(wx.MINIMIZE_BOX)
 		
@@ -1057,6 +1068,9 @@ class dFormMixin(pm.dPemMixin):
 
 	ShowMaxButton = property(_getShowMaxButton, _setShowMaxButton, None,
 			_("Specifies whether a maximize button is displayed in the title bar. (bool)."))
+
+	ShowMenuBar = property(_getShowMenuBar, _setShowMenuBar, None,
+			_("Specifies whether a menubar is created and shown automatically."))
 
 	ShowMinButton = property(_getShowMinButton, _setShowMinButton, None,
 			_("Specifies whether a minimize button is displayed in the title bar. (bool)."))
