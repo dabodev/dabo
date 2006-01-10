@@ -39,11 +39,16 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 
 	def append(self, item, layout="normal", row=-1, col=-1, 
 			rowSpan=1, colSpan=1, alignment=None, halign="left", 
-			valign="middle", border=0, borderFlags=("all",), flag=None):
+			valign="middle", border=0, borderSides=("all",), 
+			borderFlags=("all",), flag=None):
 		""" Inserts the passed item at the specified position in the grid. If no
 		position is specified, the item is inserted at the first available open 
 		cell as specified by the Max* properties.		
 		"""
+		if borderSides is None:
+			if borderFlags is not None:
+				dabo.errorLog.write(_("Depracation warning: use 'borderSides' parameter instead."))
+				borderSides = borderFlags
 		(targetRow, targetCol) = self.determineAvailableCell(row, col)
 		if isinstance(item, (tuple, int)):
 			# spacer
@@ -56,7 +61,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			szItem.ControllingSizer = self
 		else:
 			# item is the window to add to the sizer
-			_wxFlags = self._getWxFlags(alignment, halign, valign, borderFlags, layout)
+			_wxFlags = self._getWxFlags(alignment, halign, valign, borderSides, layout)
 			if flag:
 				_wxFlags = _wxFlags | flag
 			szItem = self.Add(item, (targetRow, targetCol), span=(rowSpan, colSpan), 
@@ -396,6 +401,20 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 					ret = "Top"
 			elif prop == "Expand":
 				return bool(flag & szClass.expandFlag)
+			elif prop == "BorderSides":
+				pdBorder = {"Bottom" : self.borderBottomFlag,
+						"Left" : self.borderLeftFlag,
+						"Right" : self.borderRightFlag, 
+						"Top" : self.borderTopFlag}
+				if flag & self.borderAllFlag:
+					ret = ["All"]
+				else:
+					ret = []
+					for side, val in pdBorder.items():
+						if flag and val:
+							ret.append(key)
+					if not ret:
+						ret = ["None"]
 		if ret is None:
 			print "NO PROP:", prop, itm
 		return ret

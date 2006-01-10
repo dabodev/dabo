@@ -60,6 +60,20 @@ class dSizer(wx.BoxSizer, dSizerMixin.dSizerMixin):
 					return "Bottom"
 				else:		#if flag & szClass.topFlag:
 					return "Top"
+			elif prop == "BorderSides":
+				pdBorder = {"Bottom" : self.borderBottomFlag,
+						"Left" : self.borderLeftFlag,
+						"Right" : self.borderRightFlag, 
+						"Top" : self.borderTopFlag}
+				if flag & self.borderAllFlag:
+					return ["All"]
+				ret = []
+				for side, val in pdBorder.items():
+					if flag and val:
+						ret.append(key)
+				if not ret:
+					ret = ["None"]
+				return ret
 
 
 if __name__ == "__main__":
