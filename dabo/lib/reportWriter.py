@@ -840,9 +840,13 @@ class ReportWriter(object):
 		pageBackground = {}
 		pageForeground = {}
 
+		groups = {}
+		variables = {}
+
 		return {"title": title, "page": page, "pageHeader": pageHeader,
 				"detail": detail, "pageFooter": pageFooter, 
-				"pageBackground": pageBackground, "pageForeground": pageForeground}
+				"pageBackground": pageBackground, "pageForeground": pageForeground,
+				"groups": groups, "variables": variables}
 
 
 	def _isModified(self):
@@ -854,29 +858,29 @@ class ReportWriter(object):
 				or self.ReportForm == self._reportFormMemento)
 
 
+	def _elementSort(self, x, y):
+		positions = {"title": 0, "columnCount": 5, "page": 10, 
+				"groups": 40, "variables": 50, "pageBackground": 55, 
+				"pageHeader": 60, "groupHeader": 65, "detail": 70, 
+				"groupFooter": 75, "pageFooter": 80, "pageForeground": 90, 
+				"objects": 99999, "testcursor": 999999}
+
+		posX = positions.get(x, -1)
+		posY = positions.get(y, -1)
+		if posY > posX:
+			return -1
+		elif posY < posX:
+			return 1
+		return cmp(x,y)
+
+
 	def _getXMLDictFromForm(self, form, d=None):
 		"""Recursively generate the dict format required for the dicttoxml() function."""
 		if d is None:
 			d = {"name": "report", "children": []}
 
-		positions = {"title": 0, "columnCount": 5, "page": 10, 
-				"pageBackground": 20, 
-				"pageForeground": 30, "groups": 40, "variables": 50,
-				"pageHeader": 60, "groupHeader": 65, "detail": 70, 
-				"groupFooter": 75, "pageFooter": 80,
-				"objects": 99999, "testcursor": 999999}
-
-		def elementSort(x,y):
-			posX = positions.get(x, -1)
-			posY = positions.get(y, -1)
-			if posY > posX:
-				return -1
-			elif posY < posX:
-				return 1
-			return cmp(x,y)
-
 		elements = form.keys()
-		elements.sort(elementSort)
+		elements.sort(self._elementSort)
 
 		for element in elements:
 			if element == "type":
