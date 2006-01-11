@@ -42,6 +42,220 @@ import reportlab.platypus as platypus
 from dabo.lib.xmltodict import xmltodict
 from dabo.lib.xmltodict import dicttoxml
 
+class ReportObject(dict):
+	"""Abstract report object, such as a drawable object, a variable, or a group."""
+	def __init__(self, reportWriter, *args, **kwargs):
+		super(ReportObject, self).__init__(*args, **kwargs)
+		self.reportWriter = reportWriter
+		self.initPropDefaults()
+
+	def initPropDefaults(self):
+		self.PropDefaults["type"] = ""
+		self.PropDefaults["comment"] = ""
+
+	def getProp(self, prop):
+		"""Return the value of the property.
+
+		If defined, it will be eval()'d. Otherwise,	the default will be returned.
+		If there isn't a default, an exception will be raised as the object isn't
+		set up to have the passed prop.
+		"""
+		def getDefault():
+			if self.PropDefaults.has_key(prop):
+				return self.PropDefaults[prop]
+			else:
+				raise ValueError, "Property name '%s' unrecognized." % prop
+
+		if self.has_key(prop):
+			try:
+				return eval(self[prop])
+			except:
+				# eval() failed. Return the default.
+				return getDefault()
+		else:
+			# The prop isn't defined, use the default.
+			return getDefault()
+
+
+	def _getBands(self):
+		return self.reportWriter.Bands
+
+	def _getPropDefaults(self):
+		if hasattr(self, "_propDefaults"):
+			val = self._propDefaults
+		else:
+			val = self._propDefaults = {}
+		return val
+
+	def _setPropDefaults(self, val):
+		self._propDefaults = val
+
+
+	def _getRecord(self):
+		return self.reportWriter.Record
+
+
+	Bands = property(_getBands)
+	PropDefaults = property(_getPropDefaults, _setPropDefaults)
+	Record = property(_getRecord)
+
+class Drawable(ReportObject):
+	"""Abstract drawable report object, such as a rectangle or string."""
+	def initPropDefaults(self):
+		super(Drawable, self).initPropDefaults()
+		self.PropDefaults["x"] = 0
+		self.PropDefaults["y"] = 0 
+		self.PropDefaults["width"] = 55
+		self.PropDefaults["height"] = 18
+		self.PropDefaults["rotation"] = 0
+		self.PropDefaults["hAnchor"] = "left"
+		self.PropDefaults["vAnchor"] = "bottom"
+		self.PropDefaults["showExpr"] = None
+
+
+class Report(ReportObject):
+	"""Represents the report."""
+	def initPropDefaults(self):
+		super(Report, self).initPropDefaults()
+		self.PropDefaults["type"] = "report"
+		self.PropDefaults["title"] = ""
+		self.PropDefaults["columnCount"] = 1
+
+
+class Page(ReportObject):
+	"""Represents the page."""
+	def initPropDefaults(self):
+		super(Page, self).initPropDefaults()
+		self.PropDefaults["type"] = "page"
+		self.PropDefaults["marginBottom"] = ".5 in"
+		self.PropDefaults["marginLeft"] = ".5 in"
+		self.PropDefaults["marginRight"] = ".5 in"
+		self.PropDefaults["marginTop"] = ".5 in"
+		self.PropDefaults["orientation"] = "portrait"
+		self.PropDefaults["size"] = "letter"
+
+
+class Group(ReportObject):
+	"""Represents report groups."""
+	def initPropDefaults(self):
+		super(Group, self).initPropDefaults()
+		self.PropDefaults["type"] = "group"
+		self.PropDefaults["expr"] = ""
+		self.PropDefaults["startOnNewPage"] = False
+		self.PropDefaults["reprintHeaderOnNewPage"] = False
+
+
+class Variable(ReportObject):
+	"""Represents report variables."""
+	def initPropDefaults(self):
+		super(Variable, self).initPropDefaults()
+		self.PropDefaults["type"] = "variable"
+		self.PropDefaults["expr"] = ""
+		self.PropDefaults["name"] = ""
+		self.PropDefaults["resetAt"] = None
+
+
+class Band(ReportObject):
+	"""Abstract band."""
+	def initPropDefaults(self):
+		super(Band, self).initPropDefaults()
+		self.PropDefaults["type"] = self._getBandName()
+		self.PropDefaults["height"] = 0
+		self.PropDefaults["designerLock"] = False
+
+	def _getBandName(self):
+		name = self.__class__.__name__
+		return "%s%s" % (name[0].lower(), name[1:])
+		
+
+class PageBackground(Band): pass
+class PageHeader(Band): pass
+class Detail(Band): pass
+class PageFooter(Band): pass
+class GroupHeader(Band): pass
+class GroupFooter(Band): pass
+class PageForeground(Band): pass
+
+
+class Rect(Drawable):
+	"""Represents a rectangle."""
+	def initPropDefaults(self):
+		super(Rect, self).initPropDefaults()
+		self.PropDefaults["type"] = "rect"
+		self.PropDefaults["strokeWidth"] = 1
+		self.PropDefaults["fillColor"] = None
+		self.PropDefaults["strokeColor"] = (0, 0, 0)
+		self.PropDefaults["strokeDashArray"] = None
+
+
+class String(Drawable):
+	"""Represents a text string."""
+	def initPropDefaults(self):
+		super(String, self).initPropDefaults()
+		self.PropDefaults["type"] = "string"
+		self.PropDefaults["expr"] = ""
+		self.PropDefaults["borderWidth"] = 0
+		self.PropDefaults["borderColor"] = (0, 0, 0)
+		self.PropDefaults["align"] = "left"
+		self.PropDefaults["fontName"] = "Helvetica"
+		self.PropDefaults["fontSize"] = 10
+		self.PropDefaults["fontColor"] = (0, 0, 0)
+
+
+class Image(Drawable):
+	"""Represents an image."""
+	def initPropDefaults(self):
+		super(Image, self).initPropDefaults()
+		self.PropDefaults["type"] = "image"
+		self.PropDefaults["expr"] = ""
+		self.PropDefaults["borderWidth"] = 0
+		self.PropDefaults["borderColor"] = (0, 0, 0)
+		self.PropDefaults["imageMask"] = None
+		self.PropDefaults["scaleMode"] = "scale"
+
+
+class Line(Drawable):
+	"""Represents a line."""
+	def initPropDefaults(self):
+		super(Line, self).initPropDefaults()
+		self.PropDefaults["type"] = "line"
+		self.PropDefaults["strokeWidth"] = 1
+		self.PropDefaults["strokeColor"] = (0, 0, 0)
+		self.PropDefaults["strokeDashArray"] = None
+
+
+class Frameset(Drawable):
+	"""Represents a frameset."""
+	def initPropDefaults(self):
+		super(Frameset, self).initPropDefaults()
+		self.PropDefaults["type"] = "frameset"
+		self.PropDefaults["frameId"] = None
+		self.PropDefaults["borderWidth"] = 0
+		self.PropDefaults["borderColor"] = (0, 0, 0)
+		self.PropDefaults["padLeft"] = 0
+		self.PropDefaults["padRight"] = 0
+		self.PropDefaults["padTop"] = 0
+		self.PropDefaults["padBottom"] = 0
+		self.PropDefaults["columnCount"] = 1
+		self.PropDefaults["calculatedHeight"] = 20  ## this one has to go
+
+
+class Paragraph(Drawable):
+	"""Represents a paragraph."""
+	def initPropDefaults(self):
+		super(Paragraph, self).initPropDefaults()
+		self.PropDefaults["type"] = "paragraph"
+		self.PropDefaults["style"] = "Normal"
+		self.PropDefaults["fontSize"] = 10
+		self.PropDefaults["fontName"] = "Helvetica"
+		self.PropDefaults["leading"] = 0
+		self.PropDefaults["spaceAfter"] = 0
+		self.PropDefaults["spaceBefore"] = 0
+		self.PropDefaults["leftIndent"] = 0
+		self.PropDefaults["firstLineIndent"] = 0
+		self.PropDefaults["expr"] = ""
+
+
 
 class ReportWriter(object):
 	"""Reads a report form specification, iterates over a data cursor, and
@@ -78,73 +292,7 @@ class ReportWriter(object):
 
 	More documentation will come.
 	"""
-
-	## The following defaults will be used for properties that weren't defined in
-	## the spec file (no need to explicitly define properties if you want the 
-	## defaults). Subclass to change defaults to your needs.
-	default_designerLock = False
-	default_pageSize = "letter"            # you may want 'a4' outside of the US
-	default_pageOrientation = "portrait"   # the other option is "landscape"
-	default_marginLeft = 36
-	default_marginRight = 36
-	default_marginTop = 36
-	default_marginBottom = 36
-	default_width = 55
-	default_height = 18
-	default_x = 0
-	default_y = 0
-	default_rotation = 0                   # (0-359)
-	default_hAnchor = "left"               # hor. anchor (what x is relative to)
-	default_vAnchor = "bottom"             # vert. anchor (what y is relative to)
-	default_strokeWidth = 1                # the brush stroke width for shapes
-	default_fillColor = None               # None: transparent or (r,g,b) tuple
-	default_strokeColor = (0, 0, 0)        # (black)
-	default_strokeDashArray = None         # (use for dashed lines)
-	default_borderWidth = 0                # width of border around strings
-	default_borderColor = (0, 0, 0)        # color of border around strings
-	default_align = "left"                 # string alignment
-	default_fontName = "Helvetica"
-	default_fontSize = 10
-	default_fontColor = (0, 0, 0)      
-	default_imageMask = None               # Transparency mask for images
-	default_scaleMode = "scale"            # "clip" or "scale" for images.
-	default_bandHeight = 0
-	default_expr = "< New >"
-	default_style = "Normal"
-	default_frameId = None
-	default_padLeft = 0
-	default_padRight = 0
-	default_padTop = 0
-	default_padBottom = 0
-	default_columnCount = 1
-
 	_clearMemento = True
-
-
-	def getProp(self, obj, prop, defaultName=None):
-		"""Return the value of the property of the report form.
-
-		If found in the report form, it will be eval()'d. Otherwise,
-		the default will be returned.
-		"""
-		val = None
-
-		if obj.has_key(prop):
-			try:
-				val = eval(obj[prop])
-			except:
-				# The eval() failed, use the default.
-				pass
-		else:
-			# The object doesn't have the prop, use the default.
-			pass
-
-		if val is None:
-			if hasattr(self, "default_%s" % prop):
-				if defaultName is None:
-					defaultName = prop
-				val = getattr(self, "default_%s" % defaultName)
-		return val
 
 
 	def draw(self, obj, origin, getNeededHeight=False):
@@ -168,17 +316,20 @@ class ReportWriter(object):
 		c.saveState()
 
 		## These properties can apply to all objects:
-		width = self.getPt(self.getProp(obj, "width"))
+		width = self.getPt(obj.getProp("width"))
 	
-		height = self.getProp(obj, "calculatedHeight")
+		try:
+			height = obj.getProp("calculatedHeight")
+		except ValueError:
+			height = None
 		if height is not None:
 			height = self.getPt(height)
 		else:
-			height = self.getPt(self.getProp(obj, "height"))
+			height = self.getPt(obj.getProp("height"))
 	
-		rotation = self.getProp(obj, "rotation")
-		hAnchor = self.getProp(obj, "hAnchor")
-		vAnchor = self.getProp(obj, "vAnchor")	
+		rotation = obj.getProp("rotation")
+		hAnchor = obj.getProp("hAnchor")
+		vAnchor = obj.getProp("vAnchor")	
 
 		if hAnchor == "right":
 			x = x - width
@@ -213,7 +364,7 @@ class ReportWriter(object):
 	
 			for prop in ("strokeWidth", "fillColor", "strokeColor", 
 					"strokeDashArray", ):
-				props[prop] = self.getProp(obj, prop)
+				props[prop] = obj.getProp(prop)
 			props["strokeWidth"] = self.getPt(props["strokeWidth"])
 
 			r = shapes.Rect(0, 0, width, height)
@@ -241,7 +392,7 @@ class ReportWriter(object):
 			##
 	
 			for prop in ("strokeWidth", "strokeColor", "strokeDashArray", ):
-				props[prop] = self.getProp(obj, prop)
+				props[prop] = obj.getProp(prop)
 			props["strokeWidth"] = self.getPt(props["strokeWidth"])
 
 			r = shapes.Line(0, 0, width, height)
@@ -251,12 +402,12 @@ class ReportWriter(object):
 	
 		elif obj["type"] == "string":
 			## Set the props for strings:
-			borderWidth = self.getPt(self.getProp(obj, "borderWidth"))
-			borderColor = self.getProp(obj, "borderColor")
-			align = self.getProp(obj, "align")
-			fontName = self.getProp(obj, "fontName")
-			fontSize = self.getProp(obj, "fontSize")
-			fontColor = self.getProp(obj, "fontColor")
+			borderWidth = self.getPt(obj.getProp("borderWidth"))
+			borderColor = obj.getProp("borderColor")
+			align = obj.getProp("align")
+			fontName = obj.getProp("fontName")
+			fontSize = obj.getProp("fontSize")
+			fontColor = obj.getProp("fontColor")
 
 			## Set canvas props based on our props:
 			c.translate(x, y)
@@ -305,14 +456,14 @@ class ReportWriter(object):
 	
 		elif obj["type"] == "frameset":
 			# A frame is directly related to reportlab's platypus Frame.
-			borderWidth = self.getPt(self.getProp(obj, "borderWidth"))
-			borderColor = self.getProp(obj, "borderColor")
-			frameId = self.getProp(obj, "frameId")
-			padLeft = self.getPt(self.getProp(obj, "padLeft"))
-			padRight = self.getPt(self.getProp(obj, "padRight"))
-			padTop = self.getPt(self.getProp(obj, "padTop"))
-			padBottom = self.getPt(self.getProp(obj, "padBottom"))
-			columnCount = self.getProp(obj, "columnCount")
+			borderWidth = self.getPt(obj.getProp("borderWidth"))
+			borderColor = obj.getProp("borderColor")
+			frameId = obj.getProp("frameId")
+			padLeft = self.getPt(obj.getProp("padLeft"))
+			padRight = self.getPt(obj.getProp("padRight"))
+			padTop = self.getPt(obj.getProp("padTop"))
+			padBottom = self.getPt(obj.getProp("padBottom"))
+			columnCount = obj.getProp("columnCount")
 	
 			columnWidth = width/columnCount
 
@@ -337,33 +488,30 @@ class ReportWriter(object):
 				objNeededHeight = 0
 
 				t = fobject["type"]
-				try:
-					s = styles_[eval(fobject["style"])]
-				except:
-					s = styles_[self.default_style]
-				e = eval(fobject["expr"]).encode(self.Encoding)
+				s = styles_[fobject.getProp("style")]
+				e = fobject.getProp("expr").encode(self.Encoding)
 				s = copy.deepcopy(s)
 
 				if fobject.has_key("fontSize"):
-					s.fontSize = eval(fobject["fontSize"])
+					s.fontSize = fobject.getProp("fontSize")
 
 				if fobject.has_key("fontName"):
-					s.fontName = eval(fobject["fontName"])
+					s.fontName = fobject.getProp("fontName")
 				
 				if fobject.has_key("leading"):
-					s.leading = eval(fobject["leading"])
+					s.leading = fobject.getProp("leading")
 
 				if fobject.has_key("spaceAfter"):
-					s.spaceAfter = eval(fobject["spaceAfter"])
+					s.spaceAfter = fobject.getProp("spaceAfter")
 
 				if fobject.has_key("spaceBefore"):
-					s.spaceBefore = eval(fobject["spaceBefore"])
+					s.spaceBefore = fobject.getProp("spaceBefore")
 
 				if fobject.has_key("leftIndent"):
-					s.leftIndent = eval(fobject["leftIndent"])
+					s.leftIndent = fobject.getProp("leftIndent")
 
 				if fobject.has_key("firstLineIndent"):
-					s.firstLineIndent = eval(fobject["firstLineIndent"])
+					s.firstLineIndent = fobject.getProp("firstLineIndent")
 
 				if t == "paragraph":
 					paras = e.split("\n")
@@ -399,10 +547,10 @@ class ReportWriter(object):
 					f.addFromList(story, c)
 	
 		elif obj["type"] == "image":
-			borderWidth = self.getPt(self.getProp(obj, "borderWidth"))
-			borderColor = self.getProp(obj, "borderColor")
-			mask = self.getProp(obj, "imageMask")
-			mode = self.getProp(obj, "scaleMode")
+			borderWidth = self.getPt(obj.getProp("borderWidth"))
+			borderColor = obj.getProp("borderColor")
+			mask = obj.getProp("imageMask")
+			mode = obj.getProp("scaleMode")
 
 			c.translate(x, y)
 			c.rotate(rotation)
@@ -497,7 +645,7 @@ class ReportWriter(object):
 			c = self._canvas = canvas.Canvas(_outputFile, pagesize=pageSize)
 		
 		# Get the number of columns:
-		columnCount = self.getProp(_form, "columnCount")
+		columnCount = _form.getProp("columnCount")
 		
 
 		# Initialize the groups list:
@@ -559,16 +707,17 @@ class ReportWriter(object):
 			"""Generic function for printing any band."""
 
 			_form = self.ReportForm
+			page = _form["page"]
 
 			# Get the page margins into variables:
-			ml = self.getPt(self.getProp(_form["page"], "marginLeft"))
-			mt = self.getPt(self.getProp(_form["page"], "marginTop"))
-			mr = self.getPt(self.getProp(_form["page"], "marginRight"))
-			mb = self.getPt(self.getProp(_form["page"], "marginBottom"))
+			ml = self.getPt(page.getProp("marginLeft"))
+			mt = self.getPt(page.getProp("marginTop"))
+			mr = self.getPt(page.getProp("marginRight"))
+			mb = self.getPt(page.getProp("marginBottom"))
 		
 			# Page header/footer origins are needed in various places:
 			pageHeaderOrigin = (ml, pageHeight - mt 
-					- self.getPt(self.getProp(_form["pageHeader"], "height")))
+					- self.getPt(_form["pageHeader"].getProp("height")))
 			pageFooterOrigin = (ml, mb)
 		
 			workingPageWidth = pageWidth - ml - mr
@@ -590,17 +739,13 @@ class ReportWriter(object):
 
 			self.Bands[band] = {}
 
-			# do the height calcs manually (not via getProp):
-			try:		
-				height = eval(bandDict["height"])
-			except KeyError:
-				height = self.default_bandHeight
-
+			height = bandDict.getProp("height")
 			if height is not None:
 				height = self.getPt(height)
 			else:
 				# figure out height based on the objects in the band.
 				height = self.calculateBandHeight(bandDict)
+				print "*", band, height
 
 			y = y - height
 			width = pageWidth - ml - mr
@@ -619,7 +764,7 @@ class ReportWriter(object):
 			if pf is None:
 				pfHeight = 0
 			else:
-				pfHeight = self.getPt(self.getProp(pf, "height"))
+				pfHeight = self.getPt(pf.getProp("height"))
 
 			if band in ("detail", "groupHeader", "groupFooter"):
 				extraHeight = 0
@@ -631,7 +776,7 @@ class ReportWriter(object):
 					b = _form["detail"]
 					extraHeight = b.get("height")
 					if extraHeight is None:
-						extraHeight = self.default_bandHeight
+						extraHeight = b.PropDefaults["height"]
 					else:
 						extraHeight = eval(extraHeight)
 					if extraHeight is None:
@@ -674,8 +819,8 @@ class ReportWriter(object):
 							# user's showExpr evaluated to False: don't print!
 							continue
 
-					x1 = self.getPt(self.getProp(obj, "x"))
-					y1 = self.getPt(self.getProp(obj, "y"))
+					x1 = self.getPt(obj.getProp("x"))
+					y1 = self.getPt(obj.getProp("y"))
 					x1 = x + x1
 					y1 = y + y1
 					self.draw(obj, (x1, y1))
@@ -772,12 +917,9 @@ class ReportWriter(object):
 		maxHeight = 0
 		if bandDict.has_key("objects"):
 			for obj in bandDict["objects"]:
-				y = self.getPt(self.getProp(obj, "y"))
+				y = self.getPt(obj.getProp("y"))
 
-				try:
-					ht = eval(obj["height"])
-				except KeyError:
-					ht = self.default_height
+				ht = obj.getProp("height")
 				if ht is None:
 					ht = self.calculateObjectHeight(obj)
 				ht = self.getPt(ht)
@@ -796,14 +938,15 @@ class ReportWriter(object):
 		## Set the Page Size:
 		# get the string pageSize value from the spec file:
 		_form = self.ReportForm
-		pageSize = self.getProp(_form["page"], "size", "pageSize")
+		page = _form["page"]
+		pageSize = page.getProp("size")
 
 		# reportlab expects the pageSize to be upper case:
 		pageSize = pageSize.upper()
 		# convert to the reportlab pageSize value (tuple(width,height)):
 		pageSize = eval("pagesizes.%s" % pageSize)
 		# run it through the portrait/landscape filter:
-		orientation = self.getProp(_form["page"], "orientation", "pageOrientation")
+		orientation = page.getProp("orientation")
 		func = eval("pagesizes.%s" % orientation)
 		return func(pageSize)
 
@@ -823,30 +966,12 @@ class ReportWriter(object):
 
 		Defaults will be filled in. Used by the report designer.
 		"""
-		title = ""
-
-		page = {}
-		page["size"] = '"%s"' % self.default_pageSize
-		page["orientation"] = '"%s"' % self.default_pageOrientation
-		page["marginLeft"] = '"%s"' % self.default_marginLeft
-		page["marginRight"] = '"%s"' % self.default_marginRight
-		page["marginTop"] = '"%s"' % self.default_marginTop
-		page["marginBottom"] = '"%s"' % self.default_marginBottom
-
-		pageHeader = {"height": '"%s"' % self.default_bandHeight}
-		
-		detail = {"height": '"%s"' % self.default_bandHeight}
-		pageFooter = {"height": '"%s"' % self.default_bandHeight}
-		pageBackground = {}
-		pageForeground = {}
-
-		groups = {}
-		variables = {}
-
-		return {"title": title, "page": page, "pageHeader": pageHeader,
-				"detail": detail, "pageFooter": pageFooter, 
-				"pageBackground": pageBackground, "pageForeground": pageForeground,
-				"groups": groups, "variables": variables}
+		report = Report(self)
+		report.update({"title": "", "page": Page(self), "pageHeader": PageHeader(self),
+				"detail": Detail(self), "pageFooter": PageFooter(self), 
+				"pageBackground": PageBackground(self), "pageForeground": PageForeground(self),
+				"groups": [], "variables": []})
+		return report
 
 
 	def _isModified(self):
@@ -927,7 +1052,7 @@ class ReportWriter(object):
 					formobj = form[element][index]
 					obj = {"name": formobj["type"], "children": []}
 					props = formobj.keys()
-					props.sort(elementSort)
+					props.sort(self._elementSort)
 					if formobj.has_key(element):
 						# Recurse
 						self._getXMLDictFromForm(formobj, obj)
@@ -992,7 +1117,7 @@ class ReportWriter(object):
 		"""Recursively generate the form dict from the given xmldict."""
 
 		if formdict is None:
-			formdict = {}
+			formdict = self._getReportObject("report")
 
 		if xmldict.has_key("children"):
 			# children with name of "objects", "variables" or "groups" are band 
@@ -1020,13 +1145,35 @@ class ReportWriter(object):
 						coll = child["name"]
 						formdict[coll] = []
 						for obchild in child["children"]:
-							c = self._getFormFromXMLDict(obchild, {}, level+1)
+							reportObject = self._getReportObject(obchild["name"])
+							c = self._getFormFromXMLDict(obchild, reportObject, level+1)
 							c["type"] = obchild["name"]
 							formdict[coll].append(c)
 					else:
-						formdict[child["name"]] = self._getFormFromXMLDict(child, {}, level+1)
+						reportObject = self._getReportObject(child["name"])
+						formdict[child["name"]] = self._getFormFromXMLDict(child, 
+								reportObject, level+1)
 
 		return formdict
+
+
+	def _getReportObject(self, objectType):
+		typeMapping = {"report": Report, "page": Page, 
+				"group": Group, "variable": Variable,
+				"pageBackground": PageBackground, "pageHeader": PageHeader, 
+				"detail": Detail, "pageFooter": PageFooter, 
+				"groupHeader": GroupHeader,	"groupFooter": GroupFooter, 
+				"pageForeground": PageForeground, "rect": Rect,
+				"string": String, "image": Image, "line": Line,
+				"frameset": Frameset, "paragraph": Paragraph}
+
+		cls = typeMapping.get(objectType)
+		if cls is None:
+			print "rw needs to know about type '%s'..." % objectType
+			return dict()
+		else:
+			return cls(reportWriter=self)
+		
 
 
 	def _getFormFromXML(self, xml):
