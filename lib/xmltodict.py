@@ -7,6 +7,7 @@ import os
 import string
 from xml.parsers import expat
 
+code_linesep = "\n"
 
 class Xml2Obj:
 	"""XML to Object"""
@@ -74,7 +75,7 @@ class Xml2Obj:
 			data = data.encode()
 			if self._inCode:
 				if self._mthdCode:
-					self._mthdCode += "%s%s" % (os.linesep, data)
+					self._mthdCode += "%s%s" % (code_linesep, data)
 				else:
 					self._mthdCode = data
 			else:
@@ -155,7 +156,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
 		if dct.has_key("code"):
 			if len(dct["code"].keys()):
-				ret += "%s%s<code>\n"	% (os.linesep, "\t" * (level+1))
+				ret += "%s%s<code>%s"	% (os.linesep, "\t" * (level+1), os.linesep)
 				methodTab = "\t" * (level+2)
 				for mthd, cd in dct["code"].items():
 					# Make sure that the code ends with a linefeed
