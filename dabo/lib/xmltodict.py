@@ -167,12 +167,10 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 					if not cd.endswith(os.linesep):
 						cd += os.linesep
 
-					cd = cd.replace("<", "&lt;")
-
 					ret += "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (methodTab,
 							mthd, os.linesep, cd, os.linesep, 
 							methodTab, mthd, os.linesep)
-					ret += "%s</code>%s"	% ("\t" * (level+1), os.linesep)
+				ret += "%s</code>%s"	% ("\t" * (level+1), os.linesep)
 					
 
 		if dct.has_key("children") and len(dct["children"]) > 0:
