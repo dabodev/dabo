@@ -41,6 +41,7 @@ import reportlab.platypus as platypus
 #import reportlab.lib.colors as colors
 from dabo.lib.xmltodict import xmltodict
 from dabo.lib.xmltodict import dicttoxml
+from dabo.dLocalize import _
 
 class ReportObject(dict):
 	"""Abstract report object, such as a drawable object, a variable, or a group."""
@@ -49,11 +50,20 @@ class ReportObject(dict):
 		self.reportWriter = reportWriter
 		self.initPropDefaults()
 
+	def __eq__(self, d):
+		# We want empty dicts to compare not-equal. This is for the designer object
+		# tree view: on a new report lots of objects will compare {} == {}, resulting
+		# in the tree selection not working right.
+		if not d and not self and id(d) != id(self):
+			return False
+		else:
+			return super(ReportObject, self).__eq__(d)
+
 	def initPropDefaults(self):
 		self.PropDefaults["type"] = ""
 		self.PropDefaults["comment"] = ""
 
-	def getProp(self, prop):
+	def getProp(self, prop, evaluate=True):
 		"""Return the value of the property.
 
 		If defined, it will be eval()'d. Otherwise,	the default will be returned.
@@ -62,11 +72,17 @@ class ReportObject(dict):
 		"""
 		def getDefault():
 			if self.PropDefaults.has_key(prop):
-				return self.PropDefaults[prop]
+				val = self.PropDefaults[prop]
+				if not evaluate:
+					# defaults are not stringified:
+					val = repr(val)
+				return val
 			else:
 				raise ValueError, "Property name '%s' unrecognized." % prop
 
 		if self.has_key(prop):
+			if not evaluate:
+				return self[prop]
 			try:
 				return eval(self[prop])
 			except:
@@ -75,6 +91,13 @@ class ReportObject(dict):
 		else:
 			# The prop isn't defined, use the default.
 			return getDefault()
+
+
+	def setProp(self, prop, val):
+		"""Update the value of the property."""
+		if not self.PropDefaults.has_key(prop):
+			raise ValueError, "Property '%s' doesn't exist." % prop
+		self[prop] = val
 
 
 	def _getBands(self):
@@ -95,9 +118,34 @@ class ReportObject(dict):
 		return self.reportWriter.Record
 
 
+	def getPropVal(self, propName):
+		return self.getProp(propName, evaluate=False)
+
+	def updatePropVal(self, propName, propVal):
+		self.setProp(str(propName), str(propVal))
+
+
+	def _getDesProps(self):
+		strType = {"type" : str, "readonly" : False}
+		props = self.PropDefaults.keys()
+		desProps = {}
+		for prop in props:
+			desProps[prop] = strType
+		return desProps
+
+
+	DesignerProps = property(_getDesProps, None, None,
+		_("""Returns a dict of editable properties for the control, with the 
+		prop names as the keys, and the value for each another dict, 
+		containing the following keys: 'type', which controls how to display
+		and edit the property, and 'readonly', which will prevent editing
+		when True. (dict)""") )
+
 	Bands = property(_getBands)
 	PropDefaults = property(_getPropDefaults, _setPropDefaults)
 	Record = property(_getRecord)
+
+
 
 class Drawable(ReportObject):
 	"""Abstract drawable report object, such as a rectangle or string."""
@@ -745,7 +793,6 @@ class ReportWriter(object):
 			else:
 				# figure out height based on the objects in the band.
 				height = self.calculateBandHeight(bandDict)
-				print "*", band, height
 
 			y = y - height
 			width = pageWidth - ml - mr
