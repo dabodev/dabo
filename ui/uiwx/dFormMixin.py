@@ -128,8 +128,6 @@ class dFormMixin(pm.dPemMixin):
 		for nm, code in cd.items():
 			try:
 				code = code.replace("\n]", "]")
-				# Let's make sure that the code has consistent line endings
-				code = os.linesep.join(code.splitlines())
 				compCode = compile(code, "", "exec")
 			except SyntaxError, e:
 				dabo.errorLog.write(_("Method '%s' of object '%s' has the following error: %s")
