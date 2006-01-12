@@ -160,6 +160,9 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 				ret += "%s%s<code>%s" % (os.linesep, "\t" * (level+1), os.linesep)
 				methodTab = "\t" * (level+2)
 				for mthd, cd in dct["code"].items():
+					# Convert \n's in the code to os.linesep:
+					cd = os.linesep.join(cd.splitlines())
+
 					# Make sure that the code ends with a linefeed
 					if not cd.endswith(os.linesep):
 						cd += os.linesep
