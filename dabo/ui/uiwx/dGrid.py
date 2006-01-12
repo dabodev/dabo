@@ -547,6 +547,19 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._gridColAttr.SetRenderer(renderer)
 	
 
+	def _getBackgroundColor(self):
+		return self._gridColAttr.GetBackgroundColour()
+
+	def _setBackgroundColor(self, val):
+		if self._constructed():
+			if isinstance(val, basestring):
+				val = dColors.colorTupleFromName(val)
+			self._gridColAttr.SetBackgroundColour(val)
+			self._refreshGrid()
+		else:
+			self._properties["BackgroundColor"] = val
+
+	
 	def _getCaption(self):
 		try:
 			v = self._caption
@@ -770,6 +783,19 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._properties["FontUnderline"] = val
 
 
+	def _getForegroundColor(self):
+		return self._gridColAttr.GetTextColour()
+
+	def _setForegroundColor(self, val):
+		if self._constructed():
+			if isinstance(val, basestring):
+				val = dColors.colorTupleFromName(val)
+			self._gridColAttr.SetTextColour(val)
+			self._refreshGrid()
+		else:
+			self._properties["ForegroundColor"] = val
+
+	
 	def _getHeaderFont(self):
 		try:
 			v = self._headerFont
@@ -1090,6 +1116,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._properties["Width"] = val
 	
 
+	BackgroundColor = property(_getBackgroundColor, _setBackgroundColor, None,
+			_("Color for the background of each cell in the column."))
+
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption displayed in this column's header  (str)") )
 
@@ -1170,6 +1199,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
 			_("Specifies whether cell text is underlined. (bool)") )
+
+	ForegroundColor = property(_getForegroundColor, _setForegroundColor, None,
+			_("Color for the foreground (text) of each cell in the column."))
 
 	HeaderBackgroundColor = property(_getHeaderBackgroundColor, _setHeaderBackgroundColor, None,
 			_("Optional color for the background of the column header  (str)") )
