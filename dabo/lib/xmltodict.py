@@ -99,9 +99,7 @@ class Xml2Obj:
 
 
 	def ParseFromFile(self, filename):
-		ret = self.Parse(open(filename,"r").read())
-		print ret
-		return ret
+		return self.Parse(open(filename,"r").read())
 
 
 def xmltodict(xml, attsToSkip=[]):
@@ -165,13 +163,12 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 					# Make sure that the code ends with a linefeed
 					if not cd.endswith(os.linesep):
 						cd += os.linesep
+
 					cd = cd.replace("<", "&lt;")
-					tst = "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (methodTab,
+
+					ret += "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (methodTab,
 							mthd, os.linesep, cd, os.linesep, 
 							methodTab, mthd, os.linesep)
-					print tst
-					print tuple(tst)
-					ret += tst
 					ret += "%s</code>%s"	% ("\t" * (level+1), os.linesep)
 					
 
