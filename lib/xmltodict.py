@@ -7,6 +7,7 @@ import os
 import string
 from xml.parsers import expat
 
+# Python seems to need to compile code with \n linesep:
 code_linesep = "\n"
 
 class Xml2Obj:
@@ -98,7 +99,9 @@ class Xml2Obj:
 
 
 	def ParseFromFile(self, filename):
-		return self.Parse(open(filename,"r").read())
+		ret = self.Parse(open(filename,"r").read())
+		print ret
+		return ret
 
 
 def xmltodict(xml, attsToSkip=[]):
@@ -156,16 +159,21 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
 		if dct.has_key("code"):
 			if len(dct["code"].keys()):
-				ret += "%s%s<code>%s"	% (os.linesep, "\t" * (level+1), os.linesep)
+				ret += "%s%s<code>%s" % (os.linesep, "\t" * (level+1), os.linesep)
 				methodTab = "\t" * (level+2)
 				for mthd, cd in dct["code"].items():
 					# Make sure that the code ends with a linefeed
 					if not cd.endswith(os.linesep):
 						cd += os.linesep
-					ret += "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (methodTab,
-							mthd, os.linesep, cd.replace("<", "&lt;"), os.linesep, 
+					cd = cd.replace("<", "&lt;")
+					tst = "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (methodTab,
+							mthd, os.linesep, cd, os.linesep, 
 							methodTab, mthd, os.linesep)
-				ret += "%s</code>%s"	% ("\t" * (level+1), os.linesep)
+					print tst
+					print tuple(tst)
+					ret += tst
+					ret += "%s</code>%s"	% ("\t" * (level+1), os.linesep)
+					
 
 		if dct.has_key("children") and len(dct["children"]) > 0:
 			ret += os.linesep
