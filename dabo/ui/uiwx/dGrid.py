@@ -1515,7 +1515,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				for window in self.Children:
 					window.SetFocus()
 			# Needed on win and mac to get the grid to have the focus:
-#			self.GetGridWindow().SetFocus()
+			self.GetGridWindow().SetFocus()
 			if  not self.IsVisible(row, col):
 				self.MakeCellVisible(row, col)
 				self.MakeCellVisible(row, col)
