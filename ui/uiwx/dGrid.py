@@ -1509,15 +1509,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if force:
 			row = max(0, self.CurrentRow)
 			col = max(0, self.CurrentColumn)
-			# Needed on Linux to get the grid to have the focus:
-			for window in self.Children:
-				window.SetFocus()
+			if "linux" in sys.platform:
+				# Needed on Linux to get the grid to have the focus,
+				# but on windows this is deadly:
+				for window in self.Children:
+					window.SetFocus()
 			# Needed on win and mac to get the grid to have the focus:
-			self.GetGridWindow().SetFocus()
+#			self.GetGridWindow().SetFocus()
 			if  not self.IsVisible(row, col):
 				self.MakeCellVisible(row, col)
 				self.MakeCellVisible(row, col)
 			self.SetGridCursor(row, col)
+
 		
 #		self.SetColLabelAlignment(wx.ALIGN_CENTRE, wx.ALIGN_CENTRE)
 
