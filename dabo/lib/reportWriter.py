@@ -50,15 +50,6 @@ class ReportObject(dict):
 		self.reportWriter = reportWriter
 		self.initPropDefaults()
 
-	def __eq__(self, d):
-		# We want empty dicts to compare not-equal. This is for the designer object
-		# tree view: on a new report lots of objects will compare {} == {}, resulting
-		# in the tree selection not working right.
-		if not d and not self and id(d) != id(self):
-			return False
-		else:
-			return super(ReportObject, self).__eq__(d)
-
 	def initPropDefaults(self):
 		self.PropDefaults["type"] = ""
 		self.PropDefaults["comment"] = ""
