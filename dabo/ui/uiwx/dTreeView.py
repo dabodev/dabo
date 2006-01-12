@@ -257,9 +257,33 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		current image list, or -1 if no image is set for the node.
 		"""
 		ret = self.GetItemImage(node._id)
+		return ret		
+	
+	
+	def nodeForObject(self, obj):
+		"""Given an object, returns the corresponding node."""
+		try:
+			ret = [nd for nd in self.nodes
+					if nd._obj is obj][0]
+		except:
+			ret = None
+		return ret
+				
+	
+	def getParentNode(self, node):
+		"""Returns the node that is the parent of the given node, or 
+		None if the node is the root.
+		"""
+		parentID = self.GetItemParent(node._id)
+		ret = self.find(parentID)
+		if ret:
+			if isinstance(ret, list):
+				ret = ret[0]
+		else:
+			ret = None
 		return ret
 		
-	
+		
 	def getChildren(self, node):
 		""" Returns a list of all nodes that are child nodes of this node."""
 		ret = [n for n in self.nodes
@@ -332,22 +356,76 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 	
 	
 	# These related functions all use self._getRelative().
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	def nextSibling(self, nd=None):
+		"""Returns the next sibling node, or None if there are no more"""
 		return self._getRelative(nd, self.GetNextSibling)
+
+
 	def priorSibling(self, nd=None):
+		"""Returns the prior sibling node, or None if there are no more"""
 		return self._getRelative(nd, self.GetPrevSibling)
+		
+		
 	def nextNode(self, nd=None):
-		return self._getRelative(nd, self.GetNextVisible)
-	def priorNode(self, nd=None):
-		### There is a *not implemented* bug in wxPython right now.
-		### in the meantime, we'll have to settle for siblings only.
-		ret = self._getRelative(nd, self.GetPrevVisible)
+		"""If the current node has children, returns the first child node. If
+		it has no children, returns the next sibling. If there are no next
+		siblings, returns the next sibling of the parent node. If the parent
+		node has no more siblings, returns the next sibling of the grand-
+		parent node, etc. Returns None if we are at the absolute bottom
+		of the flattened tree structure. Sometimes referred to as 'flatdown'
+		navigation.
+		"""
+		if nd is None:
+			nd = self.Selection
+			if isinstance(nd, list):
+				nd = nd[0]
+		try:
+			ret = self.getChildren(nd)[0]._obj
+		except:
+			ret = None
 		if ret is None:
-			ret = self._getRelative(nd, self.GetPrevSibling)
+			ret = self._getRelative(nd, self.GetNextSibling)
+			while ret is None:
+				# No more siblings. Go up the tree, getting the next
+				# sibling of each parent until we either find one, or
+				# we reach the top.
+				nd = self.getParentNode(nd)
+				if nd is None:
+					break
+				ret = self._getRelative(nd, self.GetNextSibling)
+		return ret		
+			
+			
+	def priorNode(self, nd=None):
+		"""Returns last child of the prior sibling node. If there 
+		are no prior siblings, returns the parent. Sometimes 
+		referred to as 'flatup' navigation.
+		"""
+		if nd is None:
+			nd = self.Selection
+			if isinstance(nd, list):
+				nd = nd[0]
+		ret = self._getRelative(nd, self.GetPrevSibling)
+		if ret is None:
+			try:
+				ret = self.getParentNode(nd)._obj
+			except: pass
+		else:
+			# Find the last child of the last child of the last child...
+			nd = self.nodeForObject(ret)
+			kids = self.getChildren(nd)
+			while kids:
+				nd = kids[-1]
+				kids = self.getChildren(nd)
+			ret = nd._obj
 		return ret
 
 
 	def _getRelative(self, nd, func):
+		"""Used by nextNode(), nextSibling(), priorNode() and 
+		priorSibling() methods for relative movement.
+		"""
 		if nd is None:
 			nd = self.Selection
 		if isinstance(nd, list):
@@ -359,6 +437,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		except:
 			ret = None
 		return ret
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	
 	
 	def makeDirTree(self, dirPath, wildcard=None, showHidden=False):
