@@ -204,6 +204,14 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 		return self.GetItem(idx, col).GetText()
 		
 	
+	def setItemData(self, item, data):
+		""" Associate some data with the item. """
+		return self.SetItemData(item, data)
+
+	def getItemData(self, item):
+		""" Retrieve the data associated with the item. """
+		return self.GetItemData(item)
+
 	# Image-handling function
 	def addImage(self, img, key=None):
 		""" Adds the passed image to the control's ImageList, and maintains
