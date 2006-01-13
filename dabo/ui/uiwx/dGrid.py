@@ -247,11 +247,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 			# 1) Try to get the column width from the saved user settings:
 			width = None
-			if app is not None:
-# and not app.isDesigner:
+			if app is not None and not hasattr(self.grid, "isDesignerControl"):
 				width = app.getUserSetting("%s.%s.%s.%s" % (self.grid.Form.Name, 
-						self.grid.Name, colName, 
-						"Width"))
+						self.grid.Name, colName, "Width"))
 
 			if width is None:
 				# 2) Try to get the column width from the column definition:
