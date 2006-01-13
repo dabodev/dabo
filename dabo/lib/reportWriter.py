@@ -43,16 +43,21 @@ from dabo.lib.xmltodict import xmltodict
 from dabo.lib.xmltodict import dicttoxml
 from dabo.dLocalize import _
 
+def toPropDict(dataType, default, doc):
+	return {"dataType": dataType, "default": default, "doc": doc}
+
 class ReportObject(dict):
 	"""Abstract report object, such as a drawable object, a variable, or a group."""
 	def __init__(self, reportWriter, *args, **kwargs):
 		super(ReportObject, self).__init__(*args, **kwargs)
 		self.reportWriter = reportWriter
-		self.initPropDefaults()
+		self.initAvailableProps()
 
-	def initPropDefaults(self):
-		self.PropDefaults["type"] = ""
-		self.PropDefaults["comment"] = ""
+	def initAvailableProps(self):
+		self.AvailableProps["type"] = toPropDict(str, "", 
+				"""Specifies the type of report object this is.""")
+		self.AvailableProps["comment"] = toPropDict(str, "", 
+				"""You can add a comment here, the report will ignore it.""")
 
 	def getProp(self, prop, evaluate=True):
 		"""Return the value of the property.
@@ -62,8 +67,8 @@ class ReportObject(dict):
 		set up to have the passed prop.
 		"""
 		def getDefault():
-			if self.PropDefaults.has_key(prop):
-				val = self.PropDefaults[prop]
+			if self.AvailableProps.has_key(prop):
+				val = self.AvailableProps[prop]["default"]
 				if not evaluate:
 					# defaults are not stringified:
 					val = repr(val)
@@ -86,43 +91,47 @@ class ReportObject(dict):
 
 	def setProp(self, prop, val):
 		"""Update the value of the property."""
-		if not self.PropDefaults.has_key(prop):
+		if not self.AvailableProps.has_key(prop):
 			raise ValueError, "Property '%s' doesn't exist." % prop
 		self[prop] = val
-
-
-	def _getBands(self):
-		return self.reportWriter.Bands
-
-	def _getPropDefaults(self):
-		if hasattr(self, "_propDefaults"):
-			val = self._propDefaults
-		else:
-			val = self._propDefaults = {}
-		return val
-
-	def _setPropDefaults(self, val):
-		self._propDefaults = val
-
-
-	def _getRecord(self):
-		return self.reportWriter.Record
 
 
 	def getPropVal(self, propName):
 		return self.getProp(propName, evaluate=False)
 
+	def getPropDoc(self, propName):
+		return self.AvailableProps[propName]["doc"]
+
 	def updatePropVal(self, propName, propVal):
 		self.setProp(str(propName), str(propVal))
 
 
+	def _getAvailableProps(self):
+		if hasattr(self, "_AvailableProps"):
+			val = self._AvailableProps
+		else:
+			val = self._AvailableProps = {}
+		return val
+
+	def _setAvailableProps(self, val):
+		self._AvailableProps = val
+
+
+	def _getBands(self):
+		return self.reportWriter.Bands
+
+
 	def _getDesProps(self):
 		strType = {"type" : str, "readonly" : False}
-		props = self.PropDefaults.keys()
+		props = self.AvailableProps.keys()
 		desProps = {}
 		for prop in props:
 			desProps[prop] = strType
 		return desProps
+
+
+	def _getRecord(self):
+		return self.reportWriter.Record
 
 
 	DesignerProps = property(_getDesProps, None, None,
@@ -133,74 +142,162 @@ class ReportObject(dict):
 		when True. (dict)""") )
 
 	Bands = property(_getBands)
-	PropDefaults = property(_getPropDefaults, _setPropDefaults)
+	AvailableProps = property(_getAvailableProps, _setAvailableProps)
 	Record = property(_getRecord)
 
 
 
 class Drawable(ReportObject):
 	"""Abstract drawable report object, such as a rectangle or string."""
-	def initPropDefaults(self):
-		super(Drawable, self).initPropDefaults()
-		self.PropDefaults["x"] = 0
-		self.PropDefaults["y"] = 0 
-		self.PropDefaults["width"] = 55
-		self.PropDefaults["height"] = 18
-		self.PropDefaults["rotation"] = 0
-		self.PropDefaults["hAnchor"] = "left"
-		self.PropDefaults["vAnchor"] = "bottom"
-		self.PropDefaults["showExpr"] = None
+	def initAvailableProps(self):
+		super(Drawable, self).initAvailableProps()
+		self.AvailableProps["x"] = toPropDict(float, 0.0, 
+				"""Specifies the horizontal position of the object, relative to hAnchor.""")
+
+		self.AvailableProps["y"] = toPropDict(float, 0.0, 
+				"""Specifies the vertical position of the object, relative to vAnchor.""")
+
+		self.AvailableProps["width"] = toPropDict(float, 55.0, 
+				"""Specifies the width of the object.""")
+
+		self.AvailableProps["height"] = toPropDict(float, 18.0, 
+				"""Specifies the height of the object.""")
+
+		self.AvailableProps["rotation"] = toPropDict(float, 0.0, 
+				"""Specifies the rotation of the object, in degrees.""")
+
+		self.AvailableProps["hAnchor"] = toPropDict(str, "left", 
+				"""Specifies where horizontal position is relative to.
+
+				Must evaluate to 'left', 'center', or 'right'.""")
+
+		self.AvailableProps["vAnchor"] = toPropDict(str, "bottom", 
+				"""Specifies where vertical position is relative to.
+
+				Must evaluate to 'bottom', 'middle', or 'top'.""")
+
+		self.AvailableProps["show"] = toPropDict(bool, None, 
+				"""Determines if the object is shown on the report.
+
+				Specify an expression that evaluates to True or False. If False,
+				the object will not be shown on the report. Otherwise, it will.
+				Just like all other properties, your expression will be evaluated
+				every time this object is to be printed.
+				""")
 
 
 class Report(ReportObject):
 	"""Represents the report."""
-	def initPropDefaults(self):
-		super(Report, self).initPropDefaults()
-		self.PropDefaults["type"] = "report"
-		self.PropDefaults["title"] = ""
-		self.PropDefaults["columnCount"] = 1
+	def initAvailableProps(self):
+		super(Report, self).initAvailableProps()
+		self.AvailableProps["type"]["default"] = "report"
 
+		self.AvailableProps["title"] = toPropDict(str, "", 
+				"""Specifies the title of the report.""")
+
+		self.AvailableProps["columnCount"] = toPropDict(int, 1, 
+				"""Specifies the number of columns to divide the report into.""")
+
+	def insertRequiredElements(self):
+		"""Insert any missing required elements into the report form."""
+		self.setdefault("title", "")
+		self.setdefault("page", Page(self))
+		self.setdefault("pageHeader", PageHeader(self))
+		self.setdefault("detail", Detail(self))
+		self.setdefault("pageFooter", PageFooter(self))
+		self.setdefault("pageBackground", PageBackground(self))
+		self.setdefault("pageForeground", PageForeground(self))
+		self.setdefault("groups", [])
+		self.setdefault("variables", [])
 
 class Page(ReportObject):
 	"""Represents the page."""
-	def initPropDefaults(self):
-		super(Page, self).initPropDefaults()
-		self.PropDefaults["type"] = "page"
-		self.PropDefaults["marginBottom"] = ".5 in"
-		self.PropDefaults["marginLeft"] = ".5 in"
-		self.PropDefaults["marginRight"] = ".5 in"
-		self.PropDefaults["marginTop"] = ".5 in"
-		self.PropDefaults["orientation"] = "portrait"
-		self.PropDefaults["size"] = "letter"
+	def initAvailableProps(self):
+		super(Page, self).initAvailableProps()
+		self.AvailableProps["type"]["default"] = "page"
+
+		self.AvailableProps["marginBottom"] = toPropDict(float, ".5 in", 
+				"""Specifies the page's bottom margin.""")
+
+		self.AvailableProps["marginLeft"] = toPropDict(float, ".5 in", 
+				"""Specifies the page's left margin.""")
+
+		self.AvailableProps["marginTop"] = toPropDict(float, ".5 in", 
+				"""Specifies the page's top margin.""")
+
+		self.AvailableProps["marginRight"] = toPropDict(float, ".5 in", 
+				"""Specifies the page's right margin.""")
+
+		self.AvailableProps["orientation"] = toPropDict(str, "portrait", 
+				"""Specifies the page orientation.
+
+				Must evaluate to one of 'portrait' or 'landscape'.""")
+
+		self.AvailableProps["size"] = toPropDict(str, "letter", 
+				"""Specifies the page size.""")
 
 
 class Group(ReportObject):
 	"""Represents report groups."""
-	def initPropDefaults(self):
-		super(Group, self).initPropDefaults()
-		self.PropDefaults["type"] = "group"
-		self.PropDefaults["expr"] = ""
-		self.PropDefaults["startOnNewPage"] = False
-		self.PropDefaults["reprintHeaderOnNewPage"] = False
+	def initAvailableProps(self):
+		super(Group, self).initAvailableProps()
+		self.AvailableProps["type"]["default"] = "group"
+		self.AvailableProps["expr"] = toPropDict(str, None, 
+				"""Specifies the group expression.
+
+				When the value of the group expression changes, a new group will
+				be started.""")
+
+		self.AvailableProps["startOnNewPage"] = toPropDict(bool, False, 
+				"""Specifies whether new groups should begin on a new page.""")
+
+		self.AvailableProps["reprintHeaderOnNewPage"] = toPropDict(bool, False, 
+				"""Specifies whether the group header gets reprinted on new pages.""")
 
 
 class Variable(ReportObject):
 	"""Represents report variables."""
-	def initPropDefaults(self):
-		super(Variable, self).initPropDefaults()
-		self.PropDefaults["type"] = "variable"
-		self.PropDefaults["expr"] = ""
-		self.PropDefaults["name"] = ""
-		self.PropDefaults["resetAt"] = None
+	def initAvailableProps(self):
+		super(Variable, self).initAvailableProps()
+		self.AvailableProps["type"]["default"] = "variable"
+
+		self.AvailableProps["initialValue"] = toPropDict(str, None, 
+				"""Specifies the variable's initial value.""")
+
+		self.AvailableProps["expr"] = toPropDict(str, None, 
+				"""Specifies the variable expression.
+
+				At every new record in the cursor, the variable expression will be
+				evaluated.""")
+
+		self.AvailableProps["name"] = toPropDict(str, None, 
+				"""Specifies the name of the variable.""")
+
+		self.AvailableProps["resetAt"] = toPropDict(str, None, 
+				"""Specifies when to reset the variable to the initial value.
+
+				Typically, this will match a particular group expression.""")
+
 
 
 class Band(ReportObject):
 	"""Abstract band."""
-	def initPropDefaults(self):
-		super(Band, self).initPropDefaults()
-		self.PropDefaults["type"] = self._getBandName()
-		self.PropDefaults["height"] = 0
-		self.PropDefaults["designerLock"] = False
+	def initAvailableProps(self):
+		super(Band, self).initAvailableProps()
+		self.AvailableProps["type"]["default"] = self._getBandName()
+
+		self.AvailableProps["height"] = toPropDict(float, 0.0, 
+				"""Specifies the height of the band.
+
+				If the height evaluates to None, the height of the band will size
+				itself dynamically at runtime.""")
+
+		self.AvailableProps["designerLock"] = toPropDict(bool, False, 
+				"""Specifies whether the band height can be changed interactively.
+
+				Setting designerLock to True protects you from accidentally changing
+				the height of the band with the mouse at design time.""")
+
 
 	def _getBandName(self):
 		name = self.__class__.__name__
@@ -218,82 +315,176 @@ class PageForeground(Band): pass
 
 class Rect(Drawable):
 	"""Represents a rectangle."""
-	def initPropDefaults(self):
-		super(Rect, self).initPropDefaults()
-		self.PropDefaults["type"] = "rect"
-		self.PropDefaults["strokeWidth"] = 1
-		self.PropDefaults["fillColor"] = None
-		self.PropDefaults["strokeColor"] = (0, 0, 0)
-		self.PropDefaults["strokeDashArray"] = None
+	def initAvailableProps(self):
+		super(Rect, self).initAvailableProps()
+		self.AvailableProps["type"]["default"] = "rect"
+
+		self.AvailableProps["fillColor"] = toPropDict(tuple, None, 
+				"""Specifies the fill color.
+
+				If None, the fill color will be transparent.""")
+
+		self.AvailableProps["strokeWidth"] = toPropDict(float, 1, 
+				"""Specifies the width of the stroke, in points.""")
+
+		self.AvailableProps["strokeColor"] = toPropDict(tuple, (0, 0, 0), 
+				"""Specifies the stroke color.""")
+
+		self.AvailableProps["strokeDashArray"] = toPropDict(tuple, None, 
+				"""Specifies the stroke dash.
+
+				For instance, (1,1) will give you a dotted look, (1,1,5,1) will
+				give you a dash-dot look.""")
 
 
 class String(Drawable):
 	"""Represents a text string."""
-	def initPropDefaults(self):
-		super(String, self).initPropDefaults()
-		self.PropDefaults["type"] = "string"
-		self.PropDefaults["expr"] = ""
-		self.PropDefaults["borderWidth"] = 0
-		self.PropDefaults["borderColor"] = (0, 0, 0)
-		self.PropDefaults["align"] = "left"
-		self.PropDefaults["fontName"] = "Helvetica"
-		self.PropDefaults["fontSize"] = 10
-		self.PropDefaults["fontColor"] = (0, 0, 0)
+	def initAvailableProps(self):
+		super(String, self).initAvailableProps()
+		self.AvailableProps["type"]["default"] = "string"
+
+		self.AvailableProps["expr"] = toPropDict(str, None, 
+				"""Specifies the string to print.""")
+
+		self.AvailableProps["borderWidth"] = toPropDict(float, 0, 
+				"""Specifies the width of the border around the string.""")
+
+		self.AvailableProps["borderColor"] = toPropDict(tuple, (0, 0, 0), 
+				"""Specifies the border color.""")
+
+		self.AvailableProps["align"] = toPropDict(str, "left", 
+				"""Specifies the string alignment.
+
+				This must evaluate to one of 'left', 'center', or 'right'.""")
+
+		self.AvailableProps["fontName"] = toPropDict(str, "Helvetica", 
+				"""Specifies the font name.
+
+				Please note that for predictable cross-platform results, you should
+				stick to Times, Courier, and Helvetica. Other native fonts will
+				work if they exist on the system where the PDF is printed. Otherwise,
+				font substitution will occur.
+
+				For licensing reasons, reportlab does not embed any fonts inside the
+				generated PDF files other than "the big 13".""")
+
+		self.AvailableProps["fontSize"] = toPropDict(float, 10, 
+				"""Specifies the size of the font, in points.""")
+
+		self.AvailableProps["fontColor"] = toPropDict(tuple, (0, 0, 0), 
+				"""Specifies the color of the text.""")
 
 
 class Image(Drawable):
 	"""Represents an image."""
-	def initPropDefaults(self):
-		super(Image, self).initPropDefaults()
-		self.PropDefaults["type"] = "image"
-		self.PropDefaults["expr"] = ""
-		self.PropDefaults["borderWidth"] = 0
-		self.PropDefaults["borderColor"] = (0, 0, 0)
-		self.PropDefaults["imageMask"] = None
-		self.PropDefaults["scaleMode"] = "scale"
+	def initAvailableProps(self):
+		super(Image, self).initAvailableProps()
+		self.AvailableProps["type"]["default"] = "image"
+
+		self.AvailableProps["expr"] = toPropDict(str, "", 
+				"""Specifies the image to use.""")
+
+		self.AvailableProps["borderWidth"] = toPropDict(float, 0, 
+				"""Specifies the width of the image border.""")
+
+		self.AvailableProps["borderColor"] = toPropDict(tuple, (0, 0, 0), 
+				"""Specifies the color of the image border.""")
+
+		self.AvailableProps["imageMask"] = toPropDict(tuple, None, 
+				"""Specifies the image mask.""")
+
+		self.AvailableProps["scaleMode"] = toPropDict(str, "scale", 
+				"""Specifies how to handle frame and image of differing size.
+
+				"scale" will change the image size to fit the frame. "clip" will
+				display the image in the frame as-is.""")
 
 
 class Line(Drawable):
 	"""Represents a line."""
-	def initPropDefaults(self):
-		super(Line, self).initPropDefaults()
-		self.PropDefaults["type"] = "line"
-		self.PropDefaults["strokeWidth"] = 1
-		self.PropDefaults["strokeColor"] = (0, 0, 0)
-		self.PropDefaults["strokeDashArray"] = None
+	def initAvailableProps(self):
+		super(Line, self).initAvailableProps()
+		self.AvailableProps["type"]["default"] = "line"
+
+		self.AvailableProps["strokeWidth"] = toPropDict(float, 1, 
+				"""Specifies the width of the stroke, in points.""")
+
+		self.AvailableProps["strokeColor"] = toPropDict(tuple, (0, 0, 0), 
+				"""Specifies the stroke color.""")
+
+		self.AvailableProps["strokeDashArray"] = toPropDict(tuple, None, 
+				"""Specifies the stroke dash.
+
+				For instance, (1,1) will give you a dotted look, (1,1,5,1) will
+				give you a dash-dot look.""")
 
 
 class Frameset(Drawable):
 	"""Represents a frameset."""
-	def initPropDefaults(self):
-		super(Frameset, self).initPropDefaults()
-		self.PropDefaults["type"] = "frameset"
-		self.PropDefaults["frameId"] = None
-		self.PropDefaults["borderWidth"] = 0
-		self.PropDefaults["borderColor"] = (0, 0, 0)
-		self.PropDefaults["padLeft"] = 0
-		self.PropDefaults["padRight"] = 0
-		self.PropDefaults["padTop"] = 0
-		self.PropDefaults["padBottom"] = 0
-		self.PropDefaults["columnCount"] = 1
-		self.PropDefaults["calculatedHeight"] = 20  ## this one has to go
+	def initAvailableProps(self):
+		super(Frameset, self).initAvailableProps()
+		self.AvailableProps["type"]["default"] = "frameset"
+
+		self.AvailableProps["frameId"] = toPropDict(str, None, 
+				"""(to remove)""")
+
+		self.AvailableProps["borderWidth"] = toPropDict(float, 0, 
+				"""Specifies the width of the frame border.""")
+
+		self.AvailableProps["borderColor"] = toPropDict(tuple, (0, 0, 0), 
+				"""Specifies the border color.""")
+
+		self.AvailableProps["padLeft"] = toPropDict(float, 0, 
+				"""Specifies the padding on the left side of the frame.""")
+
+		self.AvailableProps["padRight"] = toPropDict(float, 0, 
+				"""Specifies the padding on the right side of the frame.""")
+
+		self.AvailableProps["padTop"] = toPropDict(float, 0, 
+				"""Specifies the padding on the top side of the frame.""")
+
+		self.AvailableProps["padBottom"] = toPropDict(float, 0, 
+				"""Specifies the padding on the bottom side of the frame.""")
+
+		self.AvailableProps["columnCount"] = toPropDict(int, 1, 
+				"""Specifies the number of columns in the frame.""")
+
+		self.AvailableProps["calculatedHeight"] = toPropDict(float, 0, 
+				"""(to remove)""")
 
 
 class Paragraph(Drawable):
 	"""Represents a paragraph."""
-	def initPropDefaults(self):
-		super(Paragraph, self).initPropDefaults()
-		self.PropDefaults["type"] = "paragraph"
-		self.PropDefaults["style"] = "Normal"
-		self.PropDefaults["fontSize"] = 10
-		self.PropDefaults["fontName"] = "Helvetica"
-		self.PropDefaults["leading"] = 0
-		self.PropDefaults["spaceAfter"] = 0
-		self.PropDefaults["spaceBefore"] = 0
-		self.PropDefaults["leftIndent"] = 0
-		self.PropDefaults["firstLineIndent"] = 0
-		self.PropDefaults["expr"] = ""
+	def initAvailableProps(self):
+		super(Paragraph, self).initAvailableProps()
+		self.AvailableProps["type"]["default"] = "paragraph"
 
+		self.AvailableProps["style"] = toPropDict(str, "Normal", 
+				"""Reportlab allows defining styles, but for now leave this as "Normal".""")
+
+		self.AvailableProps["fontSize"] = toPropDict(float, 10, 
+				"""Specifies the font size.""")
+
+		self.AvailableProps["fontName"] = toPropDict(str, "Helvetica", 
+				"""Specifies the font name.""")
+
+		self.AvailableProps["leading"] = toPropDict(float, 0, 
+				"""Specifies the font size.""")
+
+		self.AvailableProps["spaceAfter"] = toPropDict(float, 0, 
+				"""Specifies the font size.""")
+
+		self.AvailableProps["spaceBefore"] = toPropDict(float, 0, 
+				"""Specifies the font size.""")
+
+		self.AvailableProps["leftIndent"] = toPropDict(float, 0, 
+				"""Specifies the font size.""")
+
+		self.AvailableProps["firstLineIndent"] = toPropDict(float, 0, 
+				"""Specifies the font size.""")
+
+		self.AvailableProps["expr"] = toPropDict(str, "", 
+				"""Specifies the text to print.""")
 
 
 class ReportWriter(object):
@@ -814,7 +1005,7 @@ class ReportWriter(object):
 					b = _form["detail"]
 					extraHeight = b.get("height")
 					if extraHeight is None:
-						extraHeight = b.PropDefaults["height"]
+						extraHeight = b.AvailableProps["height"]
 					else:
 						extraHeight = eval(extraHeight)
 					if extraHeight is None:
@@ -846,15 +1037,15 @@ class ReportWriter(object):
 
 			if bandDict.has_key("objects"):
 				for obj in bandDict["objects"]:
-					showExpr = obj.get("showExpr")
-					if showExpr is not None:
+					show = obj.get("show")
+					if show is not None:
 						try:
-							ev = eval(showExpr)
+							ev = eval(show)
 						except:
 							## expression failed to eval: default to True (show it)
 							ev = True
 						if not ev:
-							# user's showExpr evaluated to False: don't print!
+							# user's show evaluated to False: don't print!
 							continue
 
 					x1 = self.getPt(obj.getProp("x"))
@@ -1005,10 +1196,7 @@ class ReportWriter(object):
 		Defaults will be filled in. Used by the report designer.
 		"""
 		report = Report(self)
-		report.update({"title": "", "page": Page(self), "pageHeader": PageHeader(self),
-				"detail": Detail(self), "pageFooter": PageFooter(self), 
-				"pageBackground": PageBackground(self), "pageForeground": PageForeground(self),
-				"groups": [], "variables": []})
+		report.insertRequiredElements()
 		return report
 
 
