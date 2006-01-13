@@ -60,11 +60,75 @@ class dNode(dObject):
 		self.tree.SetItemBackgroundColour(self._id, val)
 	
 
-	def _getBold(self):
-		return self.tree.IsBold(self._id)
+	def _getFont(self):
+		return self.tree.GetItemFont(self._id)
+	
+	def _setFont(self, val):
+		assert isinstance(val, wx.Font)
+		self.tree.SetItemFont(self._id, val)
 
-	def _setBold(self, val):
-		self.tree.SetItemBold(self._id, val)
+	
+	def _getFontBold(self):
+		return self.Font.GetWeight() == wx.BOLD
+	
+	def _setFontBold(self, val):
+		font = self.Font
+		if val:
+			font.SetWeight(wx.BOLD)
+		else:
+			font.SetWeight(wx.LIGHT)
+		self.Font = font
+
+	def _getFontDescription(self):
+		f = self.Font
+		ret = f.GetFaceName() + " " + str(f.GetPointSize())
+		if f.GetWeight() == wx.BOLD:
+			ret += " B"
+		if f.GetStyle() == wx.ITALIC:
+			ret += " I"
+		return ret
+	
+	def _getFontInfo(self):
+		return self.Font.GetNativeFontInfoDesc()
+
+		
+	def _getFontItalic(self):
+		return self.Font.GetStyle() == wx.ITALIC
+	
+	def _setFontItalic(self, val):
+		font = self.Font
+		if val:
+			font.SetStyle(wx.ITALIC)
+		else:
+			font.SetStyle(wx.NORMAL)
+		self.Font = font
+
+	
+	def _getFontFace(self):
+		return self.Font.GetFaceName()
+
+	def _setFontFace(self, val):
+		f = self.Font
+		f.SetFaceName(val)
+		self.Font = f
+
+	
+	def _getFontSize(self):
+		return self.Font.GetPointSize()
+	
+	def _setFontSize(self, val):
+		font = self.Font
+		font.SetPointSize(int(val))
+		self.Font = font
+	
+	def _getFontUnderline(self):
+		return self.Font.GetUnderlined()
+	
+	def _setFontUnderline(self, val):
+		# underlining doesn't seem to be working...
+		font = self.Font
+		font.SetUnderlined(bool(val))
+		self.Font = font
 
 
 	def _getForeColor(self):
@@ -125,9 +189,30 @@ class dNode(dObject):
 	Descendents = property(_getDescendents, None, None,
 			_("List of all nodes for which this node is a direct ancestor.  (list of dNodes)") )
 	
-	FontBold = property(_getBold, _setBold, None, 
-			_("Bold status for the text of this node.  (bool)") )
-		
+	Font = property(_getFont, _setFont, None,
+			_("The font properties of the node. (obj)") )
+	
+	FontBold = property(_getFontBold, _setFontBold, None,
+			_("Specifies if the node font is bold-faced. (bool)") )
+	
+	FontDescription = property(_getFontDescription, None, None, 
+			_("Human-readable description of the node's font settings. (str)") )
+	
+	FontFace = property(_getFontFace, _setFontFace, None,
+			_("Specifies the font face for the node. (str)") )
+	
+	FontInfo = property(_getFontInfo, None, None,
+			_("Specifies the platform-native font info string for the node. Read-only. (str)") )
+	
+	FontItalic = property(_getFontItalic, _setFontItalic, None,
+			_("Specifies whether the node's font is italicized. (bool)") )
+	
+	FontSize = property(_getFontSize, _setFontSize, None,
+			_("Specifies the point size of the node's font. (int)") )
+	
+	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
+			_("Specifies whether node text is underlined. (bool)") )
+
 	ForeColor = property(_getForeColor, _setForeColor, None,
 			_("Foreground (text) color of this node  (wx.Colour)") )
 			
