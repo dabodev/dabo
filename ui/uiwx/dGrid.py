@@ -247,7 +247,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 			# 1) Try to get the column width from the saved user settings:
 			width = None
-			if app is not None and not app.isDesigner:
+			if app is not None:
+# and not app.isDesigner:
 				width = app.getUserSetting("%s.%s.%s.%s" % (self.grid.Form.Name, 
 						self.grid.Name, colName, 
 						"Width"))
@@ -506,7 +507,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		colName = "column_%s" % self.DataField
 		val = getattr(self, prop)
 		settingName = "%s.%s.%s.%s" % (grid.Form.Name, grid.Name, colName, prop)
-		app.setUserSetting(settingName, val)
+		if app is not None:
+			app.setUserSetting(settingName, val)
 
 
 	def _getGridColumnIndex(self):
