@@ -422,12 +422,17 @@ def getFont(font=None):
 	Returns a font object that can be assigned to a control's
 	Font property.
 	"""
-	ret = None
-	dlg = dFontDialog(None, font)
+	fnt = None
+	if not isinstance(font, dFont):
+		# This will help identify older code
+		dabo.errorLog.write("Invalid font class passed to getFont")
+		dabo.dBug.logPoint()
+		
+	dlg = dFontDialog(None, font.NativeObject)
 	if dlg.show() == kons.DLG_OK:
-		ret = dlg.getFont()
+		fnt = dlg.getFont()
 	dlg.release()
-	return ret
+	return dFont(font=fnt)
 
 
 def _getPath(cls, **kwargs):
