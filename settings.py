@@ -90,6 +90,9 @@ dateFormat = "American"		# MM/DD/YYYY
 # dateFormat = "YMD"			# YYYY-MM-DD
 # dateFormat = "European"		# DD.MM.YYYY
 
+# Default font size when none other is specified
+defaultFontSize = 10
+
 
 ### Settings - end
 
