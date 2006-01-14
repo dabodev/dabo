@@ -78,6 +78,7 @@ from dFileDialog import dFolderDialog
 from dFileDialog import dSaveDialog
 from dFoldPanelBar import dFoldPanelBar
 from dFoldPanelBar import dFoldPanel
+from dFont import dFont
 from dFontDialog import dFontDialog
 from dForm import dForm
 from dForm import dToolForm
