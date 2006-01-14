@@ -118,13 +118,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			colName = "Column_%s" % nm
 			app = self.grid.Application
 			form = self.grid.Form
-			pos = None
-			if app is not None and form is not None and not app.isDesigner:
-				pos = app.getUserSetting("%s.%s.%s.%s" % (
-						form.Name, 
-						self.grid.Name,
-						colName,
-						"Order"))
+
+			pos = col._getUserSetting("Order")
 			if pos is not None:
 				col.Order = pos
 
@@ -244,12 +239,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			gridCol = idx
 			fieldType = col.DataType.lower()
 			app = self.grid.Application
+			form = self.grid.Form
 
 			# 1) Try to get the column width from the saved user settings:
-			width = None
-			if app is not None and not hasattr(self.grid, "isDesignerControl"):
-				width = app.getUserSetting("%s.%s.%s.%s" % (self.grid.Form.Name, 
-						self.grid.Name, colName, "Width"))
+			width = col._getUserSetting("Width")
 
 			if width is None:
 				# 2) Try to get the column width from the column definition:
@@ -501,12 +494,33 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _persist(self, prop):
 		"""Persist the current prop setting to the user settings table."""
+		self._setUserSetting(prop, getattr(self, prop))
+
+
+	def _getUserSetting(self, prop):
+		"""Get the property value from the user settings table."""
 		app = self.Application
 		grid = self.Parent
+		form = grid.Form
 		colName = "column_%s" % self.DataField
-		val = getattr(self, prop)
-		settingName = "%s.%s.%s.%s" % (grid.Form.Name, grid.Name, colName, prop)
-		if app is not None:
+
+		if app is not None and form is not None \
+				and not hasattr(grid, "isDesignerControl"):
+			settingName = "%s.%s.%s.%s" % (form.Name, grid.Name, colName, prop)
+			return app.getUserSetting(settingName)
+		return None
+
+
+	def _setUserSetting(self, prop, val):
+		"""Set the property value to the user settings table."""
+		app = self.Application
+		grid = self.Parent
+		form = grid.Form
+		colName = "column_%s" % self.DataField
+
+		if app is not None and form is not None \
+				and not hasattr(grid, "isDesignerControl"):
+			settingName = "%s.%s.%s.%s" % (form.Name, grid.Name, colName, prop)
 			app.setUserSetting(settingName, val)
 
 
@@ -1507,15 +1521,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				pass
 
 		# Get the default row size from dApp's user settings
-		app = self.Application
-		form = self.Form
-		if app is not None and form is not None and not app.isDesigner:
-			s = app.getUserSetting("%s.%s.%s" % (form.Name, 
-					self.Name, "RowSize"))
-		else:
-			s = None
-		if s:
-			self.SetDefaultRowSize(s)
+		rowSize = self._getUserSetting("RowSize")
+		if rowSize:
+			self.SetDefaultRowSize(rowSize)
 		tbl = self._Table
 		
 		if self.emptyRowsToAdd and self.Columns:
@@ -2125,8 +2133,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 		self.refresh()
 
-		self._setUserSetting("sortedColumn")
-		self._setUserSetting("sortOrder")
+		self._setUserSetting("sortedColumn", columnToSort)
+		self._setUserSetting("sortOrder", sortOrder)
 
 
 	def runIncSearch(self):
@@ -2434,17 +2442,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		app = self.Application
 		form = self.Form
 		ret = None
-		if app is not None and form is not None and not app.isDesigner:
+		if app is not None and form is not None \
+				and not hasattr(self, "isDesignerControl"):
 			settingName = "%s.%s.%s" % (form.Name, self.Name, prop)
 			ret = app.getUserSetting(settingName)
 		return ret
 
-	def _setUserSetting(self, prop):
+	def _setUserSetting(self, prop, val):
 		"""Persist the value of prop to the user settings table."""
 		app = self.Application
 		form = self.Form
-		if app is not None and form is not None and not app.isDesigner:
-			val = getattr(self, prop)
+		if app is not None and form is not None \
+				and not hasattr(self, "isDesignerControl"):
 			settingName = "%s.%s.%s" % (form.Name, self.Name, prop)
 			app.setUserSetting(settingName, val)
 
@@ -3021,7 +3030,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _setDataSet(self, val):
 		if self._constructed():
-			if (self.DataSource is not None) and not self.Application.isDesigner:
+			if (self.DataSource is not None) and not hasattr(self, "isDesignerControl"):
 				raise ValueError, "Cannot set DataSet: DataSource defined."
 			# We must make sure the grid's table is initialized first:
 			self._Table
@@ -3197,12 +3206,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self._rowHeight = val
 				self.SetDefaultRowSize(val, True)
 				self.ForceRefresh()
-				# Persist the new size
-				app = self.Application
-				form = self.Form
-				if app is not None and form is not None:
-					app.setUserSetting("%s.%s.%s" % (
-							form.Name, self.Name, "RowSize"), val)
+				# Persist the new size:
+				self._setUserSetting("RowSize", val)
 		else:
 				self._properties["RowHeight"] = val
 
