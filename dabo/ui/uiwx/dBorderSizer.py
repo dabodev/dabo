@@ -13,6 +13,7 @@ class dBorderSizer(wx.StaticBoxSizer, dabo.ui.dSizerMixin):
 	you passed.
 	"""
 	def __init__(self, box, orientation="h"):
+		self._baseClass = dBorderSizer
 		# Make sure that they got the params in the right order
 		if isinstance(box, basestring):
 			box, orientation = orientation, box
@@ -28,14 +29,26 @@ class dBorderSizer(wx.StaticBoxSizer, dabo.ui.dSizerMixin):
 		else:
 			orientation = wx.HORIZONTAL
 		wx.StaticBoxSizer.__init__(self, box, orientation)
-	
+
 
 	def _getBox(self):
 		return self.GetStaticBox()
 
+
+	def _getCaption(self):
+		return self.Box.Caption
+
+	def _setCaption(self, val):
+		self.Box.Caption = val
+
+
 	Box = property(_getBox, None, None,
 			_("Reference to the box used in the sizer  (dBox)"))
+			
 
+	Caption = property(_getCaption, _setCaption, None,
+			_("Caption for the box  (str)"))
+	
 
 	
 class TestForm(dabo.ui.dForm):

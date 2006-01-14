@@ -569,15 +569,30 @@ class dPemMixin(dPemMixinBase):
 		Additional positional and/or keyword arguments will be sent along to the
 		object's constructor.
 		"""
-		# Note that we could have just given addObject() a signature of:
-		#   addObject(self, classRef, *args, **kwargs)
-		# Which would simplify the implementation somewhat. However, we want
-		# to enforce name as the second argument to avoid breaking old code.
-		if Name is None:
-			object = classRef(self, *args, **kwargs)
-		else:
-			object = classRef(self, Name=Name, *args, **kwargs)
-		return object
+		# See if the 'classRef' is either some XML or the path of an XML file
+		if isinstance(classRef, basestring):
+			if os.path.isfile(classRef):
+				# This is a path, not raw XML
+				xml = open(classRef).read()
+			else:
+				xml = classRef
+			return self._addObjectXML(xml)
+		else:	
+			# Note that we could have just given addObject() a signature of:
+			#   addObject(self, classRef, *args, **kwargs)
+			# Which would simplify the implementation somewhat. However, we want
+			# to enforce name as the second argument to avoid breaking old code.
+			if Name is None:
+				obj = classRef(self, *args, **kwargs)
+			else:
+				obj = classRef(self, Name=Name, *args, **kwargs)
+			return obj
+	
+	
+	def _addObjectXML(self, xml):
+		"""Not implemented yet."""
+		dabo.errorLog.write("Not Implemented: addObject with XML")
+		return None
 
 	
 	def raiseEvent(self, eventClass, nativeEvent=None, *args, **kwargs):
