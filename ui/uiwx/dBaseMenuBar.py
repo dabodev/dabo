@@ -34,8 +34,8 @@ class FileMenu(dMenu):
 		prmpt = _("E&xit") + "\tAlt+F4"
 		if wx.Platform == '__WXMAC__':
 			prmpt = _("&Quit") + "\tCtrl+Q"
-		self.append(prmpt, bindfunc=app.onFileExit, bmp="exit",
-				help=_("Exit the application") )
+		self.append(prmpt, id=wx.ID_EXIT, bindfunc=app.onFileExit, 
+				bmp="exit", help=_("Exit the application") )
 
 
 class EditMenu(dMenu):
@@ -93,13 +93,15 @@ class ViewMenu(dMenu):
 				bindfunc=app.onShowSizerLines, menutype="check",
 				help=_("Cool sizer visualizing feature; check it out!"))
 
+
 class HelpMenu(dMenu):
 	def _afterInit(self):
 		super(HelpMenu, self)._afterInit()
 		app = self.Application
 		self.Caption = _("&Help")
 
-		itm = self.append(_("&About"), bindfunc=app.onHelpAbout, bmp="apply",
+		itm = self.append(_("&About"), id=wx.ID_ABOUT, 
+				bindfunc=app.onHelpAbout, bmp="apply",
 				help=_("About this application") )
 		# Put the about menu in the App Menu on Mac
 		wx.App_SetMacAboutMenuItemId(itm.GetId())
