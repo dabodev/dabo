@@ -353,8 +353,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._beforeInit()
 		kwargs["Parent"] = parent
 		# dColumn maintains one attr object that the grid table will use:
-		a = self._gridColAttr = parent._defaultGridColAttr.Clone()
-		a.SetFont(self._getDefaultFont())
+		att = self._gridColAttr = parent._defaultGridColAttr.Clone()
+		att.SetFont(self._getDefaultFont().NativeObject)
 
 		super(dColumn, self).__init__(properties, *args, **kwargs)
 		self._baseClass = dColumn
@@ -405,12 +405,13 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		
 
 	def _getDefaultFont(self):
-		font = wx.Font(10, wx.DEFAULT, wx.NORMAL, wx.LIGHT)
-		if sys.platform[:3] == "win":
+		ret = dabo.ui.dFont(Size=10, Bold=False, Italic=False, 
+				Underline=False)
+		if sys.platform.startswith("win"):
 			# The wx default is quite ugly
-			font.SetFaceName("Arial")
-			font.SetPointSize(9)
-		return font
+			ret.Face = "Arial"
+			ret.Size = 9
+		return ret
 
 
 	def _constructed(self):
@@ -694,91 +695,86 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
 	def _getFont(self):
-		return self._gridColAttr.GetFont()
+		return dabo.ui.dFont(font=self._gridColAttr.GetFont())
 	
 	def _setFont(self, val):
 		if self._constructed():
-			assert isinstance(val, wx.Font)
-			self._gridColAttr.SetFont(val)
+			if not isinstance(val, dabo.ui.dFont):
+				# This will help make sure that any old-style font references
+				# are caught.
+				dabo.errorLog.write("Incorrect font type passed")
+				dabo.dBug.logPoint()
+				return
+			self._gridColAttr.SetFont(val.NativeObject)
 			self._refreshGrid()
 		else:
 			self._properties["Font"] = val
 
 	
 	def _getFontBold(self):
-		return self.Font.GetWeight() == wx.BOLD
+		return self.Font.Bold
 	
 	def _setFontBold(self, val):
 		if self._constructed():
-			font = self.Font
-			if val:
-				font.SetWeight(wx.BOLD)
-			else:
-				font.SetWeight(wx.LIGHT)
-			self.Font = font
+			self.Font.Bold = val
+			self._gridColAttr.SetFont(self.Font.NativeObject)
+			self._refreshGrid()
 		else:
 			self._properties["FontBold"] = val
 
+
 	def _getFontDescription(self):
-		f = self.Font
-		ret = f.GetFaceName() + " " + str(f.GetPointSize())
-		if f.GetWeight() == wx.BOLD:
-			ret += " B"
-		if f.GetStyle() == wx.ITALIC:
-			ret += " I"
-		return ret
+		return self.Font.Description
+	
 	
 	def _getFontInfo(self):
-		return self.Font.GetNativeFontInfoDesc()
+		return self.Font.NativeObject.GetNativeFontInfoDesc()
 
 		
 	def _getFontItalic(self):
-		return self.Font.GetStyle() == wx.ITALIC
+		return self.Font.Italic
 	
 	def _setFontItalic(self, val):
 		if self._constructed():
-			font = self.Font
-			if val:
-				font.SetStyle(wx.ITALIC)
-			else:
-				font.SetStyle(wx.NORMAL)
-			self.Font = font
+			self.Font.Italic = val
+			self._gridColAttr.SetFont(self.Font.NativeObject)
+			self._refreshGrid()
 		else:
 			self._properties["FontItalic"] = val
 
 	
 	def _getFontFace(self):
-		return self.Font.GetFaceName()
+		return self.Font.Face
 
 	def _setFontFace(self, val):
 		if self._constructed():
-			f = self.Font
-			f.SetFaceName(val)
-			self.Font = f
+			self.Font.Face = val
+			self._gridColAttr.SetFont(self.Font.NativeObject)
+			self._refreshGrid()
 		else:
 			self._properties["FontFace"] = val
 
 	
 	def _getFontSize(self):
-		return self.Font.GetPointSize()
+		return self.Font.Size
 	
 	def _setFontSize(self, val):
 		if self._constructed():
-			font = self.Font
-			font.SetPointSize(int(val))
-			self.Font = font
+			self.Font.Size = val
+			self._gridColAttr.SetFont(self.Font.NativeObject)
+			self._refreshGrid()
 		else:
 			self._properties["FontSize"] = val
 	
+
 	def _getFontUnderline(self):
-		return self.Font.GetUnderlined()
+		return self.Font.Underline
 	
 	def _setFontUnderline(self, val):
 		if self._constructed():
-			# underlining doesn't seem to be working...
-			font = self.Font
-			font.SetUnderlined(bool(val))
-			self.Font = font
+			self.Font.Underline = val
+			self._gridColAttr.SetFont(self.Font.NativeObject)
+			self._refreshGrid()
 		else:
 			self._properties["FontUnderline"] = val
 
@@ -800,12 +796,18 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		try:
 			v = self._headerFont
 		except AttributeError:
-			v = self._getDefaultFont()
-			v.SetWeight(wx.BOLD)
+			v = self._headerFont = self._getDefaultFont()
+			v.Bold = True
 		return v
 	
 	def _setHeaderFont(self, val):
 		if self._constructed():
+			if not isinstance(val, dabo.ui.dFont):
+				# This will help make sure that any old-style font references
+				# are caught.
+				dabo.errorLog.write("Incorrect font type passed")
+				dabo.dBug.logPoint()
+				return
 			self._headerFont = val
 			self._refreshHeader()
 		else:
@@ -813,79 +815,64 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	
 	def _getHeaderFontBold(self):
-		return self.HeaderFont.GetWeight() == wx.BOLD
+		return self.HeaderFont.Bold
 	
 	def _setHeaderFontBold(self, val):
 		if self._constructed():
-			font = self.HeaderFont
-			if val:
-				font.SetWeight(wx.BOLD)
-			else:
-				font.SetWeight(wx.LIGHT)    # wx.NORMAL doesn't seem to work...
-			self.HeaderFont = font
+			self.HeaderFont.Bold = val
+			self._refreshHeader()
 		else:
 			self._properties["HeaderFontBold"] = val
 
+
 	def _getHeaderFontDescription(self):
-		f = self.HeaderFont
-		ret = f.GetFaceName() + " " + str(f.GetPointSize())
-		if f.GetWeight() == wx.BOLD:
-			ret += " B"
-		if f.GetStyle() == wx.ITALIC:
-			ret += " I"
-		return ret
+		return self.HeaderFont.Description
+
 	
 	def _getHeaderFontInfo(self):
-		return self.HeaderFont.GetNativeFontInfoDesc()
+		return self.HeaderFont.NativeObject.GetNativeFontInfoDesc()
 
 		
 	def _getHeaderFontItalic(self):
-		return self.HeaderFont.GetStyle() == wx.ITALIC
+		return self.HeaderFont.Italic
 	
 	def _setHeaderFontItalic(self, val):
 		if self._constructed():
-			font = self.HeaderFont
-			if val:
-				font.SetStyle(wx.ITALIC)
-			else:
-				font.SetStyle(wx.NORMAL)
-			self.HeaderFont = font
+			self.HeaderFont.Italic = val
+			self._refreshHeader()
 		else:
 			self._properties["HeaderFontItalic"] = val
 
 	
 	def _getHeaderFontFace(self):
-		return self.HeaderFont.GetFaceName()
+		return self.HeaderFont.Face
 
 	def _setHeaderFontFace(self, val):
 		if self._constructed():
-			f = self.HeaderFont
-			f.SetFaceName(val)
-			self.HeaderFont = f
+			self.HeaderFont.Face = val
+			self._refreshHeader()
 		else:
 			self._properties["HeaderFontFace"] = val
 
 	
 	def _getHeaderFontSize(self):
-		return self.HeaderFont.GetPointSize()
+		return self.HeaderFont.Size
 	
 	def _setHeaderFontSize(self, val):
 		if self._constructed():
-			font = self.HeaderFont
-			font.SetPointSize(int(val))
-			self.HeaderFont = font
+			self.HeaderFont.Size = val
+			self._refreshHeader()
 		else:
 			self._properties["HeaderFontSize"] = val
 	
+	
 	def _getHeaderFontUnderline(self):
-		return self.HeaderFont.GetUnderlined()
+		return self.HeaderFont.Underline
 	
 	def _setHeaderFontUnderline(self, val):
 		if self._constructed():
-			# underlining doesn't seem to be working...
-			font = self.HeaderFont
-			font.SetUnderlined(bool(val))
-			self.HeaderFont = font
+			self.HeaderFont.Underline = val
+			self._refreshHeader()
 		else:
 			self._properties["HeaderFontUnderline"] = val
 
@@ -1177,7 +1164,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			_("Field key in the data set to which this column is bound.  (str)") )
 
 	Font = property(_getFont, _setFont, None,
-			_("The font properties of the column's cells. (obj)") )
+			_("The font properties of the column's cells. (dFont)") )
 	
 	FontBold = property(_getFontBold, _setFontBold, None,
 			_("Specifies if the cell font is bold-faced. (bool)") )
@@ -1207,7 +1194,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			_("Optional color for the background of the column header  (str)") )
 
 	HeaderFont = property(_getHeaderFont, _setHeaderFont, None,
-			_("The font properties of the column's header. (obj)") )
+			_("The font properties of the column's header. (dFont)") )
 	
 	HeaderFontBold = property(_getHeaderFontBold, _setHeaderFontBold, None,
 			_("Specifies if the header font is bold-faced. (bool)") )
@@ -1766,7 +1753,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				
 				# Account for the width of the header caption:
 				cw = dabo.ui.fontMetricFromFont(colObj.Caption, 
-						colObj.HeaderFont)[0] + capBuffer
+						colObj.HeaderFont.NativeObject)[0] + capBuffer
 				w = max(autoWidth, cw)
 				w = min(w, maxWidth)
 				colObj.Width = w
@@ -1824,7 +1811,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				bcolor = self.HeaderBackgroundColor
 
 			dc.SetTextForeground(fcolor)
-			font = colObj.HeaderFont			
+			font = colObj.HeaderFont	.NativeObject
 
 			holdBrush = dc.GetBrush()
 			holdPen = dc.GetPen()

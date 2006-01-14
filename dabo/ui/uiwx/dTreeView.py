@@ -60,109 +60,104 @@ class dNode(dObject):
 		self.tree.SetItemBackgroundColour(self._id, val)
 	
 
-	def _getFont(self):
-		return self.tree.GetItemFont(self._id)
-	
-	def _setFont(self, val):
-		assert isinstance(val, wx.Font)
-		self.tree.SetItemFont(self._id, val)
-
-	
-	def _getFontBold(self):
-		return self.Font.GetWeight() == wx.BOLD
-	
-	def _setFontBold(self, val):
-		font = self.Font
-		if val:
-			font.SetWeight(wx.BOLD)
-		else:
-			font.SetWeight(wx.LIGHT)
-		self.Font = font
-
-	def _getFontDescription(self):
-		f = self.Font
-		ret = f.GetFaceName() + " " + str(f.GetPointSize())
-		if f.GetWeight() == wx.BOLD:
-			ret += " B"
-		if f.GetStyle() == wx.ITALIC:
-			ret += " I"
-		return ret
-	
-	def _getFontInfo(self):
-		return self.Font.GetNativeFontInfoDesc()
-
-		
-	def _getFontItalic(self):
-		return self.Font.GetStyle() == wx.ITALIC
-	
-	def _setFontItalic(self, val):
-		font = self.Font
-		if val:
-			font.SetStyle(wx.ITALIC)
-		else:
-			font.SetStyle(wx.NORMAL)
-		self.Font = font
-
-	
-	def _getFontFace(self):
-		return self.Font.GetFaceName()
-
-	def _setFontFace(self, val):
-		f = self.Font
-		f.SetFaceName(val)
-		self.Font = f
-
-	
-	def _getFontSize(self):
-		return self.Font.GetPointSize()
-	
-	def _setFontSize(self, val):
-		font = self.Font
-		font.SetPointSize(int(val))
-		self.Font = font
-	
-	def _getFontUnderline(self):
-		return self.Font.GetUnderlined()
-	
-	def _setFontUnderline(self, val):
-		# underlining doesn't seem to be working...
-		font = self.Font
-		font.SetUnderlined(bool(val))
-		self.Font = font
-
-
-	def _getForeColor(self):
-		return self.tree.GetItemTextColour(self._id)
-
-	def _setForeColor(self, val):
-
-		if isinstance(val, basestring):
-			try:
-				val = dColors.colorTupleFromName(val)
-			except: pass
-		self.tree.SetItemTextColour(self._id, val)
-	
-	def _getImg(self):
-		return self.tree.getNodeImg(self)
-	def _setImg(self, key):
-		return self.tree.setNodeImg(self, key)
-		
 	def _getCap(self):
 		if self.txt:
 			ret = self.txt
 		else:
 			ret = self.tree.GetItemText(self._id)
 		return ret
+		
 	def _setCap(self, val):
 		self.txt = val
 		self.tree.SetItemText(self._id, val)
 	
+	
 	def _getChildren(self):
 		return self.tree.getChildren(self)
+
 
 	def _getDescendents(self):
 		return self.tree.getDescendents(self)
 
+
+	def _getFont(self):
+		return dabo.ui.dFont(font=self.tree.GetItemFont(self._id))
+	
+	def _setFont(self, val):
+		if not isinstance(val, dabo.ui.dFont):
+			# This will help make sure that any old-style font references
+			# are caught.
+			dabo.errorLog.write("Incorrect font type passed")
+			dabo.dBug.logPoint()
+			return
+		self.tree.SetItemFont(self._id, val.NativeObject)
+
+	
+	def _getFontBold(self):
+		return self.tree.IsBold(self._id)
+	
+	def _setFontBold(self, val):
+		self.tree.SetItemBold(self._id, val)
+
+
+	def _getFontDescription(self):
+		return self.Font.Description
+
+	
+	def _getFontInfo(self):
+		return self.Font.NativeObject.GetNativeFontInfoDesc()
+
+		
+	def _getFontItalic(self):
+		return self.Font.Italic
+	
+	def _setFontItalic(self, val):
+		self.Font.Italic = val
+		self.tree.SetItemFont(self._id, self.Font.NativeObject)
+
+	
+	def _getFontFace(self):
+		return self.Font.Face
+
+	def _setFontFace(self, val):
+		self.Font.Face = val
+		self.tree.SetItemFont(self._id, self.Font.NativeObject)
+
+	
+	def _getFontSize(self):
+		return self.Font.Size
+	
+	def _setFontSize(self, val):
+		self.Font.Size = val
+		self.tree.SetItemFont(self._id, self.Font.NativeObject)
+	
+	
+	def _getFontUnderline(self):
+		return self.Font.Underline
+	
+	def _setFontUnderline(self, val):
+		self.Font.Underline = val
+		self.tree.SetItemFont(self._id, self.Font.NativeObject)
+
+
+	def _getForeColor(self):
+		return self.tree.GetItemTextColour(self._id)
+
+	def _setForeColor(self, val):
+		if isinstance(val, basestring):
+			try:
+				val = dColors.colorTupleFromName(val)
+			except: pass
+		self.tree.SetItemTextColour(self._id, val)
+	
+	
+	def _getImg(self):
+		return self.tree.getNodeImg(self)
+		
+	def _setImg(self, key):
+		return self.tree.setNodeImg(self, key)
+		
+		
 	def _getSel(self):
 		sel = self.tree.Selection
 		if isinstance(sel, list):	
@@ -170,8 +165,10 @@ class dNode(dObject):
 		else:
 			ret = (self == sel)
 		return ret
+		
 	def _setSel(self, val):
 		self.tree.SelectItem(self._id, val)
+		
 
 	def _getSiblings(self):
 		return self.tree.getSiblings(self)

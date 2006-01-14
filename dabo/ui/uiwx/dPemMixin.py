@@ -1251,10 +1251,8 @@ class dPemMixin(dPemMixinBase):
 
 	def _getFont(self):
 		ret = dabo.ui.dFont(Bold=self.FontBold, 
-				Description=self.FontDescription, Face=self.FontFace,
-				Italic=self.FontItalic, Size=self.FontSize,
-				Underline=self.FontUnderline)
-		ret._baseObject = self.GetFont()
+				Face=self.FontFace, Italic=self.FontItalic, 
+				Size=self.FontSize, Underline=self.FontUnderline)
 		return ret
 	
 	def _setFont(self, val):
