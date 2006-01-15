@@ -435,6 +435,16 @@ def getFont(font=None):
 	return dFont(font=fnt)
 
 
+def getAvailableFonts():
+	"""Returns a list of all fonts available on the current system."""
+	fEnum= wx.FontEnumerator()
+	fEnum.EnumerateFacenames()
+	list = fEnum.GetFacenames()
+	list.sort()
+	return list
+	
+
+
 def _getPath(cls, **kwargs):
 	ret = None
 	fd = cls(parent=None, **kwargs)
