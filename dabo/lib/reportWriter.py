@@ -54,8 +54,7 @@ class ReportObject(dict):
 		self.initAvailableProps()
 
 	def initAvailableProps(self):
-		self.AvailableProps["type"] = toPropDict(str, "", 
-				"""Specifies the type of report object this is.""")
+		self["type"] = "???"
 		self.AvailableProps["comment"] = toPropDict(str, "", 
 				"""You can add a comment here, the report will ignore it.""")
 
@@ -77,7 +76,7 @@ class ReportObject(dict):
 				raise ValueError, "Property name '%s' unrecognized." % prop
 
 		if self.has_key(prop):
-			if not evaluate:
+			if not evaluate or prop == "type":
 				return self[prop]
 			try:
 				return eval(self[prop])
@@ -151,6 +150,7 @@ class Drawable(ReportObject):
 	"""Abstract drawable report object, such as a rectangle or string."""
 	def initAvailableProps(self):
 		super(Drawable, self).initAvailableProps()
+		self["type"] = "drawable"
 		self.AvailableProps["x"] = toPropDict(float, 0.0, 
 				"""Specifies the horizontal position of the object, relative to hAnchor.""")
 
@@ -190,7 +190,7 @@ class Report(ReportObject):
 	"""Represents the report."""
 	def initAvailableProps(self):
 		super(Report, self).initAvailableProps()
-		self.AvailableProps["type"]["default"] = "report"
+		self["type"] = "report"
 
 		self.AvailableProps["title"] = toPropDict(str, "", 
 				"""Specifies the title of the report.""")
@@ -214,7 +214,7 @@ class Page(ReportObject):
 	"""Represents the page."""
 	def initAvailableProps(self):
 		super(Page, self).initAvailableProps()
-		self.AvailableProps["type"]["default"] = "page"
+		self["type"] = "page"
 
 		self.AvailableProps["marginBottom"] = toPropDict(float, ".5 in", 
 				"""Specifies the page's bottom margin.""")
@@ -241,7 +241,8 @@ class Group(ReportObject):
 	"""Represents report groups."""
 	def initAvailableProps(self):
 		super(Group, self).initAvailableProps()
-		self.AvailableProps["type"]["default"] = "group"
+		self["type"] = "group"
+
 		self.AvailableProps["expr"] = toPropDict(str, None, 
 				"""Specifies the group expression.
 
@@ -259,7 +260,7 @@ class Variable(ReportObject):
 	"""Represents report variables."""
 	def initAvailableProps(self):
 		super(Variable, self).initAvailableProps()
-		self.AvailableProps["type"]["default"] = "variable"
+		self["type"] = "variable"
 
 		self.AvailableProps["initialValue"] = toPropDict(str, None, 
 				"""Specifies the variable's initial value.""")
@@ -284,7 +285,7 @@ class Band(ReportObject):
 	"""Abstract band."""
 	def initAvailableProps(self):
 		super(Band, self).initAvailableProps()
-		self.AvailableProps["type"]["default"] = self._getBandName()
+		self["type"] = self._getBandName()
 
 		self.AvailableProps["height"] = toPropDict(float, 0.0, 
 				"""Specifies the height of the band.
@@ -317,7 +318,7 @@ class Rect(Drawable):
 	"""Represents a rectangle."""
 	def initAvailableProps(self):
 		super(Rect, self).initAvailableProps()
-		self.AvailableProps["type"]["default"] = "rect"
+		self["type"] = "rect"
 
 		self.AvailableProps["fillColor"] = toPropDict(tuple, None, 
 				"""Specifies the fill color.
@@ -341,7 +342,7 @@ class String(Drawable):
 	"""Represents a text string."""
 	def initAvailableProps(self):
 		super(String, self).initAvailableProps()
-		self.AvailableProps["type"]["default"] = "string"
+		self["type"] = "string"
 
 		self.AvailableProps["expr"] = toPropDict(str, None, 
 				"""Specifies the string to print.""")
@@ -379,7 +380,7 @@ class Image(Drawable):
 	"""Represents an image."""
 	def initAvailableProps(self):
 		super(Image, self).initAvailableProps()
-		self.AvailableProps["type"]["default"] = "image"
+		self["type"] = "image"
 
 		self.AvailableProps["expr"] = toPropDict(str, "", 
 				"""Specifies the image to use.""")
@@ -404,7 +405,7 @@ class Line(Drawable):
 	"""Represents a line."""
 	def initAvailableProps(self):
 		super(Line, self).initAvailableProps()
-		self.AvailableProps["type"]["default"] = "line"
+		self["type"] = "line"
 
 		self.AvailableProps["strokeWidth"] = toPropDict(float, 1, 
 				"""Specifies the width of the stroke, in points.""")
@@ -423,7 +424,7 @@ class Frameset(Drawable):
 	"""Represents a frameset."""
 	def initAvailableProps(self):
 		super(Frameset, self).initAvailableProps()
-		self.AvailableProps["type"]["default"] = "frameset"
+		self["type"] = "frameset"
 
 		self.AvailableProps["frameId"] = toPropDict(str, None, 
 				"""(to remove)""")
@@ -457,7 +458,7 @@ class Paragraph(Drawable):
 	"""Represents a paragraph."""
 	def initAvailableProps(self):
 		super(Paragraph, self).initAvailableProps()
-		self.AvailableProps["type"]["default"] = "paragraph"
+		self["type"] = "paragraph"
 
 		self.AvailableProps["style"] = toPropDict(str, "Normal", 
 				"""Reportlab allows defining styles, but for now leave this as "Normal".""")
