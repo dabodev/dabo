@@ -42,11 +42,14 @@ import reportlab.platypus as platypus
 from dabo.lib.xmltodict import xmltodict
 from dabo.lib.xmltodict import dicttoxml
 from dabo.dLocalize import _
+from dabo.lib.caselessDict import CaselessDict
+
 
 def toPropDict(dataType, default, doc):
 	return {"dataType": dataType, "default": default, "doc": doc}
 
-class ReportObject(dict):
+
+class ReportObject(CaselessDict):
 	"""Abstract report object, such as a drawable object, a variable, or a group."""
 	def __init__(self, reportWriter, *args, **kwargs):
 		super(ReportObject, self).__init__(*args, **kwargs)
