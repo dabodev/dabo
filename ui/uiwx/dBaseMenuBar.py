@@ -31,9 +31,9 @@ class FileMenu(dMenu):
 
 		self.appendSeparator()
 
-		prmpt = _("E&xit") + "\tAlt+F4"
-		if wx.Platform == '__WXMAC__':
-			prmpt = _("&Quit") + "\tCtrl+Q"
+		prmpt = _("&Quit") + "\tCtrl+Q"
+# 		if wx.Platform == '__WXWIN__':
+# 			prmpt = _("E&xit") + "\tAlt+F4"
 		self.append(prmpt, id=wx.ID_EXIT, bindfunc=app.onFileExit, 
 				bmp="exit", help=_("Exit the application") )
 

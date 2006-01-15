@@ -171,12 +171,16 @@ class dFormMixin(pm.dPemMixin):
 				
 				# Right now we are limiting this to Dabo classes.
 				cls = dabo.ui.__dict__[nm]
-				if issubclass(cls, dabo.ui.dSizer):
+				if issubclass(cls, (dabo.ui.dSizer, dabo.ui.dBorderSizer)):
 					ornt = "Horizontal"
 					if atts.has_key("Orientation"):
 						ornt = atts["Orientation"]
 						del atts["Orientation"]
-					sz = cls(orientation=ornt, properties=atts)
+					if issubclass(cls, dabo.ui.dSizer):
+						sz = cls(orientation=ornt, properties=atts)
+					else:
+						sz = cls(orientation=ornt, properties=atts, box=parent)
+						
 					if not fromSzr:
 						parent.Sizer = sz = cls(orientation=ornt, properties=atts)
 					self._addSrcObjToSizer(sz, szr, atts, szrInfo)
