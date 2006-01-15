@@ -12,7 +12,7 @@ class dBorderSizer(wx.StaticBoxSizer, dabo.ui.dSizerMixin):
 	will be created for you in the constructor as a child object of the parent
 	you passed.
 	"""
-	def __init__(self, box, orientation="h"):
+	def __init__(self, box, orientation="h", properties=None, **kwargs):
 		self._baseClass = dBorderSizer
 		# Make sure that they got the params in the right order
 		if isinstance(box, basestring):
@@ -24,11 +24,39 @@ class dBorderSizer(wx.StaticBoxSizer, dabo.ui.dSizerMixin):
 			except:
 				raise dException.dException, "Must pass an instance of dBox or a parent object to dBorderSizer"
 		# Convert Dabo orientation to wx orientation
-		if orientation[0].lower() == "v":
+		orient = self._extractKey((kwargs, properties), "Orientation", orientation)
+		if orient[0].lower() == "v":
 			orientation = wx.VERTICAL
 		else:
 			orientation = wx.HORIZONTAL
 		wx.StaticBoxSizer.__init__(self, box, orientation)
+
+		self._properties = {}
+		# The keyword properties can come from either, both, or none of:
+		#    + the properties dict
+		#    + the kwargs dict
+		# Get them sanitized into one dict:
+		if properties is not None:
+			# Override the class values
+			for k,v in properties.items():
+				self._properties[k] = v
+		properties = self._extractKeywordProperties(kwargs, self._properties)
+		self.setProperties(properties)
+		
+		# Mark the box as part of the sizer
+		self.Box._belongsToBorderSizer = True
+
+		self.afterInit()
+
+
+	def afterInit(self): pass	
+	
+
+	def _getBackColor(self):
+		return self.Box.BackColor
+
+	def _setBackColor(self, val):
+		self.Box.BackColor = val
 
 
 	def _getBox(self):
@@ -42,12 +70,64 @@ class dBorderSizer(wx.StaticBoxSizer, dabo.ui.dSizerMixin):
 		self.Box.Caption = val
 
 
+	def _getFontBold(self):
+		return self.Box.FontBold
+
+	def _setFontBold(self, val):
+		self.Box.FontBold = val
+
+
+	def _getFontFace(self):
+		return self.Box.FontFace
+
+	def _setFontFace(self, val):
+		self.Box.FontFace = val
+
+
+	def _getFontItalic(self):
+		return self.Box.FontItalic
+
+	def _setFontItalic(self, val):
+		self.Box.FontItalic = val
+
+
+	def _getFontSize(self):
+		return self.Box.FontSize
+
+	def _setFontSize(self, val):
+		self.Box.FontSize = val
+
+
+	def _getFontUnderline(self):
+		return self.Box.FontUnderline
+
+	def _setFontUnderline(self, val):
+		self.Box.FontUnderline = val
+
+
+	BackColor = property(_getBackColor, _setBackColor, None,
+			_("Color of the box background  (str or tuple)"))
+	
 	Box = property(_getBox, None, None,
 			_("Reference to the box used in the sizer  (dBox)"))
-			
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption for the box  (str)"))
+	
+	FontBold = property(_getFontBold, _setFontBold, None,
+			_("Controls the bold setting of the box caption  (bool)"))
+	
+	FontFace = property(_getFontFace, _setFontFace, None,
+			_("Controls the type face of the box caption  (str)"))
+	
+	FontItalic = property(_getFontItalic, _setFontItalic, None,
+			_("Controls the italic setting of the box caption  (bool)"))
+	
+	FontSize = property(_getFontSize, _setFontSize, None,
+			_("Size of the box caption font  (int)"))
+	
+	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
+			_("Controls the underline setting of the box caption  (bool)"))
 	
 
 	
