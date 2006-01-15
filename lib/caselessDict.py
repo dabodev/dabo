@@ -13,8 +13,7 @@ class CaselessDict(dict):
 		super(CaselessDict, self).__init__(*args, **kwargs)
 		
 		if isinstance(otherDict, dict):
-			for k, v in otherDict.items():
-				self[k] = v
+			self.update(otherDict)
 
 	def __setitem__(self, key, val):
 		dict.__setitem__(self, key.lower(), val)
@@ -68,6 +67,9 @@ class CaselessDict(dict):
 			self.__setitem__(key, default)
 		return self.__getitem__(key)
 
+	def update(self, otherDict):
+		for k, v in otherDict.items():
+			self[k] = v
 
 if __name__ == "__main__":
 	d = CaselessDict()
