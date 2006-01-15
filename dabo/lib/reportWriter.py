@@ -57,8 +57,7 @@ class ReportObject(CaselessDict):
 		self.initAvailableProps()
 
 	def initAvailableProps(self):
-		self["type"] = "???"
-		self.AvailableProps["comment"] = toPropDict(str, "", 
+		self.AvailableProps["Comment"] = toPropDict(str, "", 
 				"""You can add a comment here, the report will ignore it.""")
 
 	def getProp(self, prop, evaluate=True):
@@ -112,7 +111,7 @@ class ReportObject(CaselessDict):
 		if hasattr(self, "_AvailableProps"):
 			val = self._AvailableProps
 		else:
-			val = self._AvailableProps = {}
+			val = self._AvailableProps = CaselessDict()
 		return val
 
 	def _setAvailableProps(self, val):
@@ -153,20 +152,19 @@ class Drawable(ReportObject):
 	"""Abstract drawable report object, such as a rectangle or string."""
 	def initAvailableProps(self):
 		super(Drawable, self).initAvailableProps()
-		self["type"] = "drawable"
 		self.AvailableProps["x"] = toPropDict(float, 0.0, 
 				"""Specifies the horizontal position of the object, relative to hAnchor.""")
 
 		self.AvailableProps["y"] = toPropDict(float, 0.0, 
 				"""Specifies the vertical position of the object, relative to vAnchor.""")
 
-		self.AvailableProps["width"] = toPropDict(float, 55.0, 
+		self.AvailableProps["Width"] = toPropDict(float, 55.0, 
 				"""Specifies the width of the object.""")
 
-		self.AvailableProps["height"] = toPropDict(float, 18.0, 
+		self.AvailableProps["Height"] = toPropDict(float, 18.0, 
 				"""Specifies the height of the object.""")
 
-		self.AvailableProps["rotation"] = toPropDict(float, 0.0, 
+		self.AvailableProps["Rotation"] = toPropDict(float, 0.0, 
 				"""Specifies the rotation of the object, in degrees.""")
 
 		self.AvailableProps["hAnchor"] = toPropDict(str, "left", 
@@ -179,7 +177,7 @@ class Drawable(ReportObject):
 
 				Must evaluate to 'bottom', 'middle', or 'top'.""")
 
-		self.AvailableProps["show"] = toPropDict(bool, None, 
+		self.AvailableProps["Show"] = toPropDict(bool, None, 
 				"""Determines if the object is shown on the report.
 
 				Specify an expression that evaluates to True or False. If False,
@@ -193,50 +191,47 @@ class Report(ReportObject):
 	"""Represents the report."""
 	def initAvailableProps(self):
 		super(Report, self).initAvailableProps()
-		self["type"] = "report"
 
-		self.AvailableProps["title"] = toPropDict(str, "", 
+		self.AvailableProps["Title"] = toPropDict(str, "", 
 				"""Specifies the title of the report.""")
 
-		self.AvailableProps["columnCount"] = toPropDict(int, 1, 
+		self.AvailableProps["ColumnCount"] = toPropDict(int, 1, 
 				"""Specifies the number of columns to divide the report into.""")
 
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the report form."""
-		self.setdefault("title", "")
-		self.setdefault("page", Page(self))
-		self.setdefault("pageHeader", PageHeader(self))
-		self.setdefault("detail", Detail(self))
-		self.setdefault("pageFooter", PageFooter(self))
-		self.setdefault("pageBackground", PageBackground(self))
-		self.setdefault("pageForeground", PageForeground(self))
-		self.setdefault("groups", [])
-		self.setdefault("variables", [])
+		self.setdefault("Title", "")
+		self.setdefault("Page", Page(self))
+		self.setdefault("PageHeader", PageHeader(self))
+		self.setdefault("Detail", Detail(self))
+		self.setdefault("PageFooter", PageFooter(self))
+		self.setdefault("PageBackground", PageBackground(self))
+		self.setdefault("PageForeground", PageForeground(self))
+		self.setdefault("Groups", [])
+		self.setdefault("Variables", [])
 
 class Page(ReportObject):
 	"""Represents the page."""
 	def initAvailableProps(self):
 		super(Page, self).initAvailableProps()
-		self["type"] = "page"
-
-		self.AvailableProps["marginBottom"] = toPropDict(float, ".5 in", 
+		self.AvailableProps["MarginBottom"] = toPropDict(float, ".5 in", 
 				"""Specifies the page's bottom margin.""")
 
-		self.AvailableProps["marginLeft"] = toPropDict(float, ".5 in", 
+		self.AvailableProps["MarginLeft"] = toPropDict(float, ".5 in", 
 				"""Specifies the page's left margin.""")
 
-		self.AvailableProps["marginTop"] = toPropDict(float, ".5 in", 
+		self.AvailableProps["MarginTop"] = toPropDict(float, ".5 in", 
 				"""Specifies the page's top margin.""")
 
-		self.AvailableProps["marginRight"] = toPropDict(float, ".5 in", 
+		self.AvailableProps["MarginRight"] = toPropDict(float, ".5 in", 
 				"""Specifies the page's right margin.""")
 
-		self.AvailableProps["orientation"] = toPropDict(str, "portrait", 
+		self.AvailableProps["Orientation"] = toPropDict(str, "portrait", 
 				"""Specifies the page orientation.
 
 				Must evaluate to one of 'portrait' or 'landscape'.""")
 
-		self.AvailableProps["size"] = toPropDict(str, "letter", 
+		self.AvailableProps["Size"] = toPropDict(str, "letter", 
 				"""Specifies the page size.""")
 
 
@@ -244,18 +239,16 @@ class Group(ReportObject):
 	"""Represents report groups."""
 	def initAvailableProps(self):
 		super(Group, self).initAvailableProps()
-		self["type"] = "group"
-
 		self.AvailableProps["expr"] = toPropDict(str, None, 
 				"""Specifies the group expression.
 
 				When the value of the group expression changes, a new group will
 				be started.""")
 
-		self.AvailableProps["startOnNewPage"] = toPropDict(bool, False, 
+		self.AvailableProps["StartOnNewPage"] = toPropDict(bool, False, 
 				"""Specifies whether new groups should begin on a new page.""")
 
-		self.AvailableProps["reprintHeaderOnNewPage"] = toPropDict(bool, False, 
+		self.AvailableProps["ReprintHeaderOnNewPage"] = toPropDict(bool, False, 
 				"""Specifies whether the group header gets reprinted on new pages.""")
 
 
@@ -263,9 +256,7 @@ class Variable(ReportObject):
 	"""Represents report variables."""
 	def initAvailableProps(self):
 		super(Variable, self).initAvailableProps()
-		self["type"] = "variable"
-
-		self.AvailableProps["initialValue"] = toPropDict(str, None, 
+		self.AvailableProps["InitialValue"] = toPropDict(str, None, 
 				"""Specifies the variable's initial value.""")
 
 		self.AvailableProps["expr"] = toPropDict(str, None, 
@@ -274,10 +265,10 @@ class Variable(ReportObject):
 				At every new record in the cursor, the variable expression will be
 				evaluated.""")
 
-		self.AvailableProps["name"] = toPropDict(str, None, 
+		self.AvailableProps["Name"] = toPropDict(str, None, 
 				"""Specifies the name of the variable.""")
 
-		self.AvailableProps["resetAt"] = toPropDict(str, None, 
+		self.AvailableProps["ResetAt"] = toPropDict(str, None, 
 				"""Specifies when to reset the variable to the initial value.
 
 				Typically, this will match a particular group expression.""")
@@ -288,15 +279,13 @@ class Band(ReportObject):
 	"""Abstract band."""
 	def initAvailableProps(self):
 		super(Band, self).initAvailableProps()
-		self["type"] = self._getBandName()
-
-		self.AvailableProps["height"] = toPropDict(float, 0.0, 
+		self.AvailableProps["Height"] = toPropDict(float, 0.0, 
 				"""Specifies the height of the band.
 
 				If the height evaluates to None, the height of the band will size
 				itself dynamically at runtime.""")
 
-		self.AvailableProps["designerLock"] = toPropDict(bool, False, 
+		self.AvailableProps["DesignerLock"] = toPropDict(bool, False, 
 				"""Specifies whether the band height can be changed interactively.
 
 				Setting designerLock to True protects you from accidentally changing
@@ -317,51 +306,49 @@ class GroupFooter(Band): pass
 class PageForeground(Band): pass
 
 
-class Rect(Drawable):
+class Rectangle(Drawable):
 	"""Represents a rectangle."""
 	def initAvailableProps(self):
 		super(Rect, self).initAvailableProps()
-		self["type"] = "rect"
-
-		self.AvailableProps["fillColor"] = toPropDict(tuple, None, 
+		self.AvailableProps["FillColor"] = toPropDict(tuple, None, 
 				"""Specifies the fill color.
 
 				If None, the fill color will be transparent.""")
 
-		self.AvailableProps["strokeWidth"] = toPropDict(float, 1, 
+		self.AvailableProps["StrokeWidth"] = toPropDict(float, 1, 
 				"""Specifies the width of the stroke, in points.""")
 
-		self.AvailableProps["strokeColor"] = toPropDict(tuple, (0, 0, 0), 
+		self.AvailableProps["StrokeColor"] = toPropDict(tuple, (0, 0, 0), 
 				"""Specifies the stroke color.""")
 
-		self.AvailableProps["strokeDashArray"] = toPropDict(tuple, None, 
+		self.AvailableProps["StrokeDashArray"] = toPropDict(tuple, None, 
 				"""Specifies the stroke dash.
 
 				For instance, (1,1) will give you a dotted look, (1,1,5,1) will
 				give you a dash-dot look.""")
 
+## backwards compatibility:
+Rect = Rectangle
 
 class String(Drawable):
 	"""Represents a text string."""
 	def initAvailableProps(self):
 		super(String, self).initAvailableProps()
-		self["type"] = "string"
-
 		self.AvailableProps["expr"] = toPropDict(str, None, 
 				"""Specifies the string to print.""")
 
-		self.AvailableProps["borderWidth"] = toPropDict(float, 0, 
+		self.AvailableProps["BorderWidth"] = toPropDict(float, 0, 
 				"""Specifies the width of the border around the string.""")
 
-		self.AvailableProps["borderColor"] = toPropDict(tuple, (0, 0, 0), 
+		self.AvailableProps["BorderColor"] = toPropDict(tuple, (0, 0, 0), 
 				"""Specifies the border color.""")
 
-		self.AvailableProps["align"] = toPropDict(str, "left", 
+		self.AvailableProps["Align"] = toPropDict(str, "left", 
 				"""Specifies the string alignment.
 
 				This must evaluate to one of 'left', 'center', or 'right'.""")
 
-		self.AvailableProps["fontName"] = toPropDict(str, "Helvetica", 
+		self.AvailableProps["FontName"] = toPropDict(str, "Helvetica", 
 				"""Specifies the font name.
 
 				Please note that for predictable cross-platform results, you should
@@ -372,10 +359,10 @@ class String(Drawable):
 				For licensing reasons, reportlab does not embed any fonts inside the
 				generated PDF files other than "the big 13".""")
 
-		self.AvailableProps["fontSize"] = toPropDict(float, 10, 
+		self.AvailableProps["FontSize"] = toPropDict(float, 10, 
 				"""Specifies the size of the font, in points.""")
 
-		self.AvailableProps["fontColor"] = toPropDict(tuple, (0, 0, 0), 
+		self.AvailableProps["FontColor"] = toPropDict(tuple, (0, 0, 0), 
 				"""Specifies the color of the text.""")
 
 
@@ -383,21 +370,19 @@ class Image(Drawable):
 	"""Represents an image."""
 	def initAvailableProps(self):
 		super(Image, self).initAvailableProps()
-		self["type"] = "image"
-
 		self.AvailableProps["expr"] = toPropDict(str, "", 
 				"""Specifies the image to use.""")
 
-		self.AvailableProps["borderWidth"] = toPropDict(float, 0, 
+		self.AvailableProps["BorderWidth"] = toPropDict(float, 0, 
 				"""Specifies the width of the image border.""")
 
-		self.AvailableProps["borderColor"] = toPropDict(tuple, (0, 0, 0), 
+		self.AvailableProps["BorderColor"] = toPropDict(tuple, (0, 0, 0), 
 				"""Specifies the color of the image border.""")
 
-		self.AvailableProps["imageMask"] = toPropDict(tuple, None, 
+		self.AvailableProps["ImageMask"] = toPropDict(tuple, None, 
 				"""Specifies the image mask.""")
 
-		self.AvailableProps["scaleMode"] = toPropDict(str, "scale", 
+		self.AvailableProps["ScaleMode"] = toPropDict(str, "scale", 
 				"""Specifies how to handle frame and image of differing size.
 
 				"scale" will change the image size to fit the frame. "clip" will
@@ -408,15 +393,13 @@ class Line(Drawable):
 	"""Represents a line."""
 	def initAvailableProps(self):
 		super(Line, self).initAvailableProps()
-		self["type"] = "line"
-
-		self.AvailableProps["strokeWidth"] = toPropDict(float, 1, 
+		self.AvailableProps["StrokeWidth"] = toPropDict(float, 1, 
 				"""Specifies the width of the stroke, in points.""")
 
-		self.AvailableProps["strokeColor"] = toPropDict(tuple, (0, 0, 0), 
+		self.AvailableProps["StrokeColor"] = toPropDict(tuple, (0, 0, 0), 
 				"""Specifies the stroke color.""")
 
-		self.AvailableProps["strokeDashArray"] = toPropDict(tuple, None, 
+		self.AvailableProps["StrokeDashArray"] = toPropDict(tuple, None, 
 				"""Specifies the stroke dash.
 
 				For instance, (1,1) will give you a dotted look, (1,1,5,1) will
@@ -427,30 +410,28 @@ class Frameset(Drawable):
 	"""Represents a frameset."""
 	def initAvailableProps(self):
 		super(Frameset, self).initAvailableProps()
-		self["type"] = "frameset"
-
-		self.AvailableProps["frameId"] = toPropDict(str, None, 
+		self.AvailableProps["FrameId"] = toPropDict(str, None, 
 				"""(to remove)""")
 
-		self.AvailableProps["borderWidth"] = toPropDict(float, 0, 
+		self.AvailableProps["BorderWidth"] = toPropDict(float, 0, 
 				"""Specifies the width of the frame border.""")
 
-		self.AvailableProps["borderColor"] = toPropDict(tuple, (0, 0, 0), 
+		self.AvailableProps["BorderColor"] = toPropDict(tuple, (0, 0, 0), 
 				"""Specifies the border color.""")
 
-		self.AvailableProps["padLeft"] = toPropDict(float, 0, 
+		self.AvailableProps["PadLeft"] = toPropDict(float, 0, 
 				"""Specifies the padding on the left side of the frame.""")
 
-		self.AvailableProps["padRight"] = toPropDict(float, 0, 
+		self.AvailableProps["PadRight"] = toPropDict(float, 0, 
 				"""Specifies the padding on the right side of the frame.""")
 
-		self.AvailableProps["padTop"] = toPropDict(float, 0, 
+		self.AvailableProps["PadTop"] = toPropDict(float, 0, 
 				"""Specifies the padding on the top side of the frame.""")
 
-		self.AvailableProps["padBottom"] = toPropDict(float, 0, 
+		self.AvailableProps["PadBottom"] = toPropDict(float, 0, 
 				"""Specifies the padding on the bottom side of the frame.""")
 
-		self.AvailableProps["columnCount"] = toPropDict(int, 1, 
+		self.AvailableProps["ColumnCount"] = toPropDict(int, 1, 
 				"""Specifies the number of columns in the frame.""")
 
 		self.AvailableProps["calculatedHeight"] = toPropDict(float, 0, 
@@ -461,30 +442,28 @@ class Paragraph(Drawable):
 	"""Represents a paragraph."""
 	def initAvailableProps(self):
 		super(Paragraph, self).initAvailableProps()
-		self["type"] = "paragraph"
-
-		self.AvailableProps["style"] = toPropDict(str, "Normal", 
+		self.AvailableProps["Style"] = toPropDict(str, "Normal", 
 				"""Reportlab allows defining styles, but for now leave this as "Normal".""")
 
-		self.AvailableProps["fontSize"] = toPropDict(float, 10, 
+		self.AvailableProps["FontSize"] = toPropDict(float, 10, 
 				"""Specifies the font size.""")
 
-		self.AvailableProps["fontName"] = toPropDict(str, "Helvetica", 
+		self.AvailableProps["FontName"] = toPropDict(str, "Helvetica", 
 				"""Specifies the font name.""")
 
-		self.AvailableProps["leading"] = toPropDict(float, 0, 
+		self.AvailableProps["Leading"] = toPropDict(float, 0, 
 				"""Specifies the font size.""")
 
-		self.AvailableProps["spaceAfter"] = toPropDict(float, 0, 
+		self.AvailableProps["SpaceAfter"] = toPropDict(float, 0, 
 				"""Specifies the font size.""")
 
-		self.AvailableProps["spaceBefore"] = toPropDict(float, 0, 
+		self.AvailableProps["SpaceBefore"] = toPropDict(float, 0, 
 				"""Specifies the font size.""")
 
-		self.AvailableProps["leftIndent"] = toPropDict(float, 0, 
+		self.AvailableProps["LeftIndent"] = toPropDict(float, 0, 
 				"""Specifies the font size.""")
 
-		self.AvailableProps["firstLineIndent"] = toPropDict(float, 0, 
+		self.AvailableProps["FirstLineIndent"] = toPropDict(float, 0, 
 				"""Specifies the font size.""")
 
 		self.AvailableProps["expr"] = toPropDict(str, "", 
@@ -577,7 +556,8 @@ class ReportWriter(object):
 	
 		
 		## Do specific things based on object type:
-		if obj["type"] == "rect":
+		objType = obj.__class__.__name__
+		if objType == "Rectangle":
 			d = shapes.Drawing(width, height)
 			d.rotate(rotation)
 	
@@ -606,7 +586,7 @@ class ReportWriter(object):
 			d.add(r)
 			d.drawOn(c, x, y)
 	
-		if obj["type"] == "line":
+		if objType == "Line":
 			d = shapes.Drawing(width, height)
 			d.rotate(rotation)
 	
@@ -634,7 +614,7 @@ class ReportWriter(object):
 			d.add(r)
 			d.drawOn(c, x, y)
 	
-		elif obj["type"] == "string":
+		elif objType == "String":
 			## Set the props for strings:
 			borderWidth = self.getPt(obj.getProp("borderWidth"))
 			borderColor = obj.getProp("borderColor")
@@ -688,7 +668,7 @@ class ReportWriter(object):
 				s = unicode(s)
 			func(posx, 0, s)
 	
-		elif obj["type"] == "frameset":
+		elif objType == "Frameset":
 			# A frame is directly related to reportlab's platypus Frame.
 			borderWidth = self.getPt(obj.getProp("borderWidth"))
 			borderColor = obj.getProp("borderColor")
@@ -721,7 +701,7 @@ class ReportWriter(object):
 			for fobject in objects:
 				objNeededHeight = 0
 
-				t = fobject["type"]
+				t = fobject.__class__.__name__
 				s = styles_[fobject.getProp("style")]
 				e = fobject.getProp("expr").encode(self.Encoding)
 				s = copy.deepcopy(s)
@@ -780,7 +760,7 @@ class ReportWriter(object):
 				else:
 					f.addFromList(story, c)
 	
-		elif obj["type"] == "image":
+		elif objType == "Image":
 			borderWidth = self.getPt(obj.getProp("borderWidth"))
 			borderColor = obj.getProp("borderColor")
 			mask = obj.getProp("imageMask")
@@ -1214,11 +1194,11 @@ class ReportWriter(object):
 
 
 	def _elementSort(self, x, y):
-		positions = {"title": 0, "columnCount": 5, "page": 10, 
+		positions = CaselessDict({"title": 0, "columnCount": 5, "page": 10, 
 				"groups": 40, "variables": 50, "pageBackground": 55, 
 				"pageHeader": 60, "groupHeader": 65, "detail": 70, 
 				"groupFooter": 75, "pageFooter": 80, "pageForeground": 90, 
-				"objects": 99999, "testcursor": 999999}
+				"objects": 99999, "testcursor": 999999})
 
 		posX = positions.get(x, -1)
 		posY = positions.get(y, -1)
@@ -1280,7 +1260,7 @@ class ReportWriter(object):
 				objects = []
 				for index in range(len(form[element])):
 					formobj = form[element][index]
-					obj = {"name": formobj["type"], "children": []}
+					obj = {"name": formobj.__class__.__name__, "children": []}
 					props = formobj.keys()
 					props.sort(self._elementSort)
 					if formobj.has_key(element):
@@ -1347,7 +1327,7 @@ class ReportWriter(object):
 		"""Recursively generate the form dict from the given xmldict."""
 
 		if formdict is None:
-			formdict = self._getReportObject("report")
+			formdict = self._getReportObject("Report")
 
 		if xmldict.has_key("children"):
 			# children with name of "objects", "variables" or "groups" are band 
@@ -1377,7 +1357,6 @@ class ReportWriter(object):
 						for obchild in child["children"]:
 							reportObject = self._getReportObject(obchild["name"])
 							c = self._getFormFromXMLDict(obchild, reportObject, level+1)
-							c["type"] = obchild["name"]
 							formdict[coll].append(c)
 					else:
 						reportObject = self._getReportObject(child["name"])
@@ -1388,14 +1367,15 @@ class ReportWriter(object):
 
 
 	def _getReportObject(self, objectType):
-		typeMapping = {"report": Report, "page": Page, 
-				"group": Group, "variable": Variable,
-				"pageBackground": PageBackground, "pageHeader": PageHeader, 
-				"detail": Detail, "pageFooter": PageFooter, 
-				"groupHeader": GroupHeader,	"groupFooter": GroupFooter, 
-				"pageForeground": PageForeground, "rect": Rect,
-				"string": String, "image": Image, "line": Line,
-				"frameset": Frameset, "paragraph": Paragraph}
+		typeMapping = CaselessDict({"Report": Report, "Page": Page, 
+				"Group": Group, "Variable": Variable,
+				"PageBackground": PageBackground, "PageHeader": PageHeader, 
+				"Detail": Detail, "PageFooter": PageFooter, 
+				"GroupHeader": GroupHeader,	"GroupFooter": GroupFooter, 
+				"PageForeground": PageForeground, "Rect": Rectangle,
+				"Rectangle": Rectangle,
+				"String": String, "Image": Image, "Line": Line,
+				"Frameset": Frameset, "Paragraph": Paragraph})
 
 		cls = typeMapping.get(objectType)
 		if cls is None:

@@ -8,9 +8,13 @@ class CaselessDict(dict):
 		
 	_OriginalCase = property(_getOriginalCase)
 
-	def __init__(self, *args, **kwargs):
+	def __init__(self, otherDict=None, *args, **kwargs):
 		self._originalCase = {}
 		super(CaselessDict, self).__init__(*args, **kwargs)
+		
+		if isinstance(otherDict, dict):
+			for k, v in otherDict.items():
+				self[k] = v
 
 	def __setitem__(self, key, val):
 		dict.__setitem__(self, key.lower(), val)
