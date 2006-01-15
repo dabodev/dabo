@@ -18,7 +18,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dEditBox
 		preClass = wx.PreTextCtrl
-		kwargs["style"] = wx.TE_MULTILINE | wx.TE_WORDWRAP | wx.TE_LINEWRAP
+		kwargs["style"] = wx.TE_MULTILINE | wx.TE_WORDWRAP
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
