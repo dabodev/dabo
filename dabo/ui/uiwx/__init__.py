@@ -38,6 +38,7 @@ uiType["platform"] = _platform
 
 # Add these to the dabo.ui namespace
 deadObjectException = wx._core.PyDeadObjectError
+deadObject = wx._core._wxPyDeadObject
 nativeScrollBar = wx.ScrollBar
 
 # Import dPemMixin first, and then manually put into dabo.ui module. This is
