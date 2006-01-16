@@ -801,6 +801,18 @@ class ReportWriter(object):
 		return neededHeight
 
 
+	def getColorTupleFromReportLab(self, val):
+		"""Given a color tuple in reportlab format (values between 0 and 1), return
+		a color tuple in 0-255 format."""
+		return tuple([int(rgb*255) for rgb in val])
+
+
+	def getReportLabColorTuple(self, val):
+		"""Given a color tuple in rgb format (values between 0 and 255), return
+		a color tuple in reportlab 0-1 format."""
+		return tuple([rgb/255.0 for rgb in val])
+
+
 	def getPt(self, val):
 		"""Given a string or a number, convert the value into a numeric pt value.
 	
