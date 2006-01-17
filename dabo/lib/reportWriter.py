@@ -1257,8 +1257,6 @@ class ReportWriter(object):
 
 		Used by the report designer.
 		"""
-		if self.ReportForm:
-			print self.ReportForm.getMemento() == self._reportFormMemento
 		return not (self.ReportForm is None 
 				or self.ReportForm.getMemento() == self._reportFormMemento)
 
