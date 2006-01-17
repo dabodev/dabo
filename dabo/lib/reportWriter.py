@@ -94,7 +94,7 @@ class ReportObject(CaselessDict):
 		"""Update the value of the property."""
 		if not self.AvailableProps.has_key(prop):
 			raise ValueError, "Property '%s' doesn't exist." % prop
-		self[prop] = repr(val)
+		self[prop] = val
 
 
 	def getPropVal(self, propName):
