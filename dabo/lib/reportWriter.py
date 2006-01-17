@@ -234,6 +234,25 @@ class Report(ReportObject):
 		self.setdefault("Groups", Groups(self))
 		self.setdefault("Variables", Variables(self))
 
+
+	def getMemento(self, start=None):
+		"""Return a copy of all the key/values of this an all sub-objects."""
+		if start is None:
+			start = self
+		m = {}
+
+		for k, v in start.items():
+			if isinstance(v, dict):
+				m[k] = self.getMemento(v)
+			elif isinstance(v, list):
+				m[k] = []
+				for c in v:
+					m[k].append(self.getMemento(c))
+			else:
+				m[k] = v
+		return m			
+
+
 class Page(ReportObject):
 	"""Represents the page."""
 	def initAvailableProps(self):
@@ -1238,8 +1257,10 @@ class ReportWriter(object):
 
 		Used by the report designer.
 		"""
+		if self.ReportForm:
+			print self.ReportForm.getMemento() == self._reportFormMemento
 		return not (self.ReportForm is None 
-				or self.ReportForm == self._reportFormMemento)
+				or self.ReportForm.getMemento() == self._reportFormMemento)
 
 
 	def _elementSort(self, x, y):
@@ -1363,12 +1384,10 @@ class ReportWriter(object):
 	def _setMemento(self):
 		"""Set the memento of the report form, which is the pristine version."""
 		if self._clearMemento:
-			import copy
-			r = self._reportForm
-			if r is None:
-				m = None
+			if self._reportForm:
+				m = self._reportForm.getMemento()
 			else:
-				m = copy.deepcopy(r)
+				m = {}
 			self._reportFormMemento = m
 
 	
