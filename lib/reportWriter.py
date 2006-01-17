@@ -94,7 +94,7 @@ class ReportObject(CaselessDict):
 		"""Update the value of the property."""
 		if not self.AvailableProps.has_key(prop):
 			raise ValueError, "Property '%s' doesn't exist." % prop
-		self[prop] = val
+		self[prop] = repr(val)
 
 
 	def getPropVal(self, propName):
@@ -727,7 +727,7 @@ class ReportWriter(object):
 				if fobject.has_key("firstLineIndent"):
 					s.firstLineIndent = fobject.getProp("firstLineIndent")
 
-				if t == "paragraph":
+				if t.lower() == "paragraph":
 					paras = e.split("\n")
 					for para in paras:
 						if len(para) == 0: 
