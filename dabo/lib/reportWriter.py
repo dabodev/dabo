@@ -49,6 +49,30 @@ def toPropDict(dataType, default, doc):
 	return {"dataType": dataType, "default": default, "doc": doc}
 
 
+class ReportObjectCollection(list):
+	def __init__(self, reportWriter, *args, **kwargs):
+		super(ReportObjectCollection, self).__init__(*args, **kwargs)
+		self.reportWriter = reportWriter
+
+	def getPropDoc(self, prop):
+		return ""
+
+	def _getDesProps(self):
+		return {}
+
+	DesignerProps = property(_getDesProps, None, None,
+		_("""Returns a dict of editable properties for the control, with the 
+		prop names as the keys, and the value for each another dict, 
+		containing the following keys: 'type', which controls how to display
+		and edit the property, and 'readonly', which will prevent editing
+		when True. (dict)""") )
+
+
+class Variables(ReportObjectCollection): pass
+class Groups(ReportObjectCollection): pass
+class Objects(ReportObjectCollection): pass
+
+
 class ReportObject(CaselessDict):
 	"""Abstract report object, such as a drawable object, a variable, or a group."""
 	def __init__(self, reportWriter, *args, **kwargs):
@@ -207,8 +231,8 @@ class Report(ReportObject):
 		self.setdefault("PageFooter", PageFooter(self))
 		self.setdefault("PageBackground", PageBackground(self))
 		self.setdefault("PageForeground", PageForeground(self))
-		self.setdefault("Groups", [])
-		self.setdefault("Variables", [])
+		self.setdefault("Groups", Groups(self))
+		self.setdefault("Variables", Variables(self))
 
 class Page(ReportObject):
 	"""Represents the page."""
@@ -813,6 +837,19 @@ class ReportWriter(object):
 		return tuple([rgb/255.0 for rgb in val])
 
 
+	def ptToUnit(self, pt, unit):
+		"""Given a numeric pt like 36, return a string like '0.5 in'.
+
+		Warning, this isn't exact, and isn't intended to be.
+		"""
+		if unit == "in":
+			return "%.4g in" % (pt/units.inch,)
+		elif unit == "pt":
+			return "%.2g pt" % (pt,)
+		# hail mary that rl has the requested unit:
+		return "%.3g %s" % (getattr(units, unit, 1) * pt, unit)
+
+
 	def getPt(self, val):
 		"""Given a string or a number, convert the value into a numeric pt value.
 	
@@ -1365,7 +1402,7 @@ class ReportWriter(object):
 				elif child.has_key("children"):
 					if child["name"] in ("objects", "groups", "variables"):
 						coll = child["name"]
-						formdict[coll] = []
+						formdict[coll] = self._getReportObject(coll)
 						for obchild in child["children"]:
 							reportObject = self._getReportObject(obchild["name"])
 							c = self._getFormFromXMLDict(obchild, reportObject, level+1)
@@ -1387,7 +1424,8 @@ class ReportWriter(object):
 				"PageForeground": PageForeground, "Rect": Rectangle,
 				"Rectangle": Rectangle,
 				"String": String, "Image": Image, "Line": Line,
-				"Frameset": Frameset, "Paragraph": Paragraph})
+				"Frameset": Frameset, "Paragraph": Paragraph,
+				"Variables": Variables, "Groups": Groups, "Objects": Objects})
 
 		cls = typeMapping.get(objectType)
 		if cls is None:
