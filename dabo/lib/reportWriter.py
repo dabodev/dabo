@@ -862,11 +862,11 @@ class ReportWriter(object):
 		Warning, this isn't exact, and isn't intended to be.
 		"""
 		if unit == "in":
-			return "%.4g in" % (pt/units.inch,)
+			return "%.4f in" % (pt/units.inch,)
 		elif unit == "pt":
 			return "%s pt" % (pt,)
 		# hail mary that rl has the requested unit:
-		return "%.3g %s" % (getattr(units, unit, 1) * pt, unit)
+		return "%.3f %s" % (pt / getattr(units, unit, 1), unit)
 
 
 	def getPt(self, val):
