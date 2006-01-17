@@ -16,6 +16,12 @@ from dabo.dLocalize import _, n_
 
 
 class FileMenu(dMenu):
+	
+	def __init__(self, *args, **kwargs):
+		kwargs["MRU"] = True
+		self.doDefault(*args, **kwargs)
+		
+		
 	def _afterInit(self):
 		super(FileMenu, self)._afterInit()
 		app = self.Application
@@ -36,6 +42,7 @@ class FileMenu(dMenu):
 # 			prmpt = _("E&xit") + "\tAlt+F4"
 		self.append(prmpt, id=wx.ID_EXIT, bindfunc=app.onFileExit, 
 				bmp="exit", help=_("Exit the application") )
+
 
 
 class EditMenu(dMenu):

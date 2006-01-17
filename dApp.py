@@ -401,6 +401,11 @@ class dApp(dObject):
 			self.ActiveForm.onEditPreferences(evt)
 		except:
 			self.uiApp.onEditPreferences(evt)
+	# These handle MRU menu requests
+	def addToMRU(self, menu, prmpt, bindfunc=None):
+		self.uiApp.addToMRU(menu, prmpt, bindfunc)
+	def onMenuOpenMRU(self, menu):
+		self.uiApp.onMenuOpenMRU(menu)
 	############################	
 	
 	

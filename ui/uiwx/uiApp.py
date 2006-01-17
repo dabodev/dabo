@@ -24,6 +24,11 @@ class uiApp(wx.App, dObject):
 		self._findDlgID = self._replaceDlgID = None
 		self.findReplaceData = None
 		self.findDialog = None
+		# Atts used to manage MRU (Most Recently Used) menus.
+		self._mruMenuPrompts = {}
+		self._mruMenuFuncs = {}
+		self._mruMenuLinks = {}
+		self._mruMaxItems = 12
 		
 		
 	def OnInit(self):
@@ -488,6 +493,69 @@ class uiApp(wx.App, dObject):
 					dabo.infoLog.write(_("Not found"))
 				
 
+	def addToMRU(self, menu, prompt, bindfunc=None):
+		"""Adds the specified menu to the top of the list of 
+		MRU prompts for that menu.
+		"""
+		cap = menu.Caption
+		mn = self._mruMenuPrompts.get(cap, [])
+		if prompt in mn:
+			mn.remove(prompt)
+		mn.insert(0, prompt)
+		self._mruMenuPrompts[cap] = mn[:self._mruMaxItems]
+		mf = self._mruMenuFuncs.get(cap, {})
+		mf[prompt] = bindfunc
+		self._mruMenuFuncs[cap] = mf
+	
+	
+	def onMenuOpenMRU(self, menu):
+		"""Make sure that the MRU items are there and are in the 
+		correct order.
+		"""
+		cap = menu.Caption
+		mnPrm = self._mruMenuPrompts.get(cap, [])
+		if not mnPrm:
+			return
+		if menu._mruSeparator is None:
+			menu._mruSeparator = menu.appendSeparator()
+		tmplt = "&%s %s"
+		promptList = [tmplt % (pos+1, txt) 
+				for pos, txt in enumerate(mnPrm)]
+		idx = -1
+		ok = True
+		for prm in promptList:
+			try:
+				newIdx = menu.getItemIndex(prm)
+				if newIdx is None or (newIdx < idx):
+					ok = False
+					break
+				else:
+					idx = newIdx
+			except IndexError:
+				# The menu items aren't in this menu
+				ok = False
+				break
+		if not ok:
+			# Remove all the items
+			lnks = self._mruMenuLinks.get(menu, {})
+			kids = menu.Children
+			for itm in lnks.values()[::-1]:
+				if itm not in kids:
+					continue
+				try:
+					pos = kids.index(itm)
+					menu.remove(pos, True)
+				except IndexError, ValueErrror:
+					pass
+			# Add them all back
+			lnks = {}
+			fncs = self._mruMenuFuncs.get(cap, {})
+			for pos, txt in enumerate(mnPrm):
+				itm = menu.append(tmplt % (pos+1, txt), bindfunc=fncs.get(txt, None))
+				lnks[itm.GetId()] = itm
+			self._mruMenuLinks[menu] = lnks
+		
+	
 	def onShowSizerLines(self, evt):
 		"""Toggles whether sizer lines are drawn. This is simply a tool 
 		to help people visualize how sizers lay out objects.

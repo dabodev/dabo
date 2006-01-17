@@ -19,6 +19,11 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		self._baseClass = dMenu
 		preClass = wx.Menu
 		self.Parent = parent
+		self._useMRU = self._extractKey((properties, kwargs), "MRU", False)
+		self._mruPrompts = []
+		self._mruLinks = {}
+		self._mruMaxItems = 16
+		self._mruSeparator = None
 		## pkm: When a dMenuItem is added to a dMenu, the wx functions only
 		##      add the C++ portion, not the mixed-in dabo dMenuItem object.
 		##      To work around this, we maintain an internal dictionary that
@@ -26,7 +31,20 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		self._daboChildren = {}
 		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
+		self.Bind(wx.EVT_MENU_OPEN, self.__onWxMenuOpen)
+		if self._useMRU:
+			self.bindEvent(dEvents.MenuOpen, self._onMenuOpenMRU)
+			
 
+
+	def __onWxMenuOpen(self, evt):
+		self.raiseEvent(dEvents.MenuOpen, evt)
+
+
+	def _onMenuOpenMRU(self, evt):
+		self.Application.onMenuOpenMRU(self)
+	
+	
 	def _initEvents(self):
 		## see self._setId(), which is where the binding of wxEvents needs to take 
 		## place.
@@ -62,6 +80,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		wxItem = self.AppendItem(item)
 		item.Parent = self
 		self._daboChildren[wxItem.GetId()] = item
+		return item
 		
 
 	def insertItem(self, pos, item):
@@ -69,6 +88,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		wxItem = self.InsertItem(pos, item)
 		item.Parent = self
 		self._daboChildren[wxItem.GetId()] = item
+		return item
 		
 
 	def prependItem(self, item):
@@ -76,6 +96,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		wxItem = self.PrependItem(item)
 		item.Parent = self
 		self._daboChildren[wxItem.GetId()] = item
+		return item
 
 
 	def appendMenu(self, menu):
@@ -84,6 +105,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
 		self._daboChildren[wxMenuItem.GetId()] = menu
+		return menu
 		
 
 	def insertMenu(self, pos, menu):
@@ -92,6 +114,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
 		self._daboChildren[wxMenuItem.GetId()] = menu
+		return menu
 		
 		
 	def prependMenu(self, menu):
@@ -100,21 +123,22 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
 		self._daboChildren[wxMenuItem.GetId()] = menu
+		return menu
 
 
 	def appendSeparator(self):
 		"""Insert a separator at the bottom of the menu."""
-		self.AppendSeparator()
+		return self.AppendSeparator()
 		
 
 	def insertSeparator(self, pos):
 		"""Insert a separator before the specified position in the menu."""
-		self.InsertSeparator(pos)
+		return self.InsertSeparator(pos)
 
 
 	def prependSeparator(self):
 		"""Insert a separator at the top of the menu."""
-		self.PrependSeparator()
+		return self.PrependSeparator()
 	
 
 	def append(self, caption, bindfunc=None, help="", bmp=None, menutype="", 
@@ -232,10 +256,18 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 		If the item isn't found, None is returned.
 		"""
+		ret = None
 		for pos, itm in enumerate(self.Children):
 			if itm.GetLabel() == caption:
-				return pos
-		return None
+				ret = pos
+				break
+		if ret is None and "&" in caption:
+			cap = caption.replace("&", "")
+			for pos, itm in enumerate(self.Children):
+				if itm.GetLabel() == cap:
+					ret = pos
+					break
+		return ret
 		
 
 	def getItem(self, caption):

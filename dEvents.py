@@ -319,9 +319,11 @@ class MenuHighlight(MenuEvent):
 	pass
 
 
-class MenuOpen(MouseEvent):
+class MenuOpen(MenuEvent):
 	"""Occurs when a menu is about to be opened."""
-	pass
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
 
 
 class Move(Event):
