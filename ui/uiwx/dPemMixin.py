@@ -78,8 +78,9 @@ class dPemMixin(dPemMixinBase):
 					exec("properties['%s'] = %s" % (prop, val) )
 				except:
 					# If this is property holds strings, we need to quote the value.
+					escVal = val.replace('"', '\\"').replace("'", "\\'")
 					try:
-						exec("properties['%s'] = '%s'" % (prop, val) )
+						exec("properties['%s'] = '%s'" % (prop, escVal) )
 					except:
 						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
 
