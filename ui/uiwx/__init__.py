@@ -255,9 +255,11 @@ def getEventData(wxEvt):
 		# See if it's a menu selection
 		obj = wxEvt.GetEventObject()
 		if isinstance(obj, dMenu):
-			itm = obj._daboChildren[wxEvt.GetId()]
-			ed["prompt"] = itm.Caption
-			ed["menuItem"] = itm
+			itmID = wxEvt.GetId()
+			itm = obj._daboChildren.get(itmID, None)
+			if itm is not None:
+				ed["prompt"] = itm.Caption
+				ed["menuItem"] = itm
 
 	if isinstance(wxEvt, wx.KeyEvent):
 		ed["keyCode"] = wxEvt.KeyCode()
