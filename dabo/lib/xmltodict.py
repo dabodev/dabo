@@ -125,16 +125,18 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 	The linesep argument is a dictionary, with keys on levels, allowing the
 	developer to add extra whitespace depending on the level.
 	"""
-	def escQuote(val):
+	def escQuote(val, noEscape):
 		"""Add surrounding quotes to the string, and escape
 		any illegal XML characters.
 		"""
 		if not isinstance(val, basestring):
 			val = str(val)
-		for qt in ('"', "'", '"""', "'''"):
-			if qt not in val:
-				break
-		val = val.replace("<", "&lt;").replace(">", "&gt;")
+		qt = '"'
+		slsh = "\\"
+		val = val.replace("<", "&lt;").replace(">", "&gt;").replace(slsh, slsh+slsh)
+		if not noEscape:
+			# Escape any internal quotes
+			val =val.replace('"', '&quot;').replace("'", "&apos;")
 		return "%s%s%s" % (qt, val, qt)
 
 	att = ""
@@ -142,7 +144,9 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
 	if dct.has_key("attributes"):
 		for key, val in dct["attributes"].items():
-			val = escQuote(val)
+			# Some keys are already handled.
+			noEscape = key in ("sizerInfo",)
+			val = escQuote(val, noEscape)
 			att += " %s=%s" % (key, val)
 
 	ret += "%s<%s%s" % ("\t" * level, dct["name"], att)
