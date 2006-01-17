@@ -845,7 +845,7 @@ class ReportWriter(object):
 		if unit == "in":
 			return "%.4g in" % (pt/units.inch,)
 		elif unit == "pt":
-			return "%.2g pt" % (pt,)
+			return "%s pt" % (pt,)
 		# hail mary that rl has the requested unit:
 		return "%.3g %s" % (getattr(units, unit, 1) * pt, unit)
 
