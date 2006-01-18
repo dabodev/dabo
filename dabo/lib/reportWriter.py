@@ -93,9 +93,9 @@ class ReportObject(CaselessDict):
 
 	def addObject(self, typ):
 		obj = self.reportWriter._getReportObject(typ, self)
-		objects = self.get("Objects", self.reportWriter._getReportObject("objects", self))
+		objects = self.get("Objects", self.reportWriter._getReportObject("Objects", self))
 		objects.append(obj)
-		self["objects"] = objects
+		self["Objects"] = objects
 		return obj
 
 	def getMemento(self, start=None):
@@ -614,7 +614,7 @@ class ReportWriter(object):
 		if height is not None:
 			height = self.getPt(height)
 		else:
-			height = self.getPt(obj.getProp("height"))
+			height = self.getPt(obj.getProp("Height"))
 	
 		rotation = obj.getProp("rotation")
 		hAnchor = obj.getProp("hAnchor")
@@ -777,7 +777,7 @@ class ReportWriter(object):
 			
 			styles_ = styles.getSampleStyleSheet()
 
-			objects = obj["objects"]
+			objects = obj["Objects"]
 			story = []
 			for fobject in objects:
 				objNeededHeight = 0
@@ -1029,17 +1029,17 @@ class ReportWriter(object):
 			"""Generic function for printing any band."""
 
 			_form = self.ReportForm
-			page = _form["page"]
+			page = _form["Page"]
 
 			# Get the page margins into variables:
-			ml = self.getPt(page.getProp("marginLeft"))
-			mt = self.getPt(page.getProp("marginTop"))
-			mr = self.getPt(page.getProp("marginRight"))
-			mb = self.getPt(page.getProp("marginBottom"))
+			ml = self.getPt(page.getProp("MarginLeft"))
+			mt = self.getPt(page.getProp("MarginTop"))
+			mr = self.getPt(page.getProp("MarginRight"))
+			mb = self.getPt(page.getProp("MarginBottom"))
 		
 			# Page header/footer origins are needed in various places:
 			pageHeaderOrigin = (ml, pageHeight - mt 
-					- self.getPt(_form["pageHeader"].getProp("height")))
+					- self.getPt(_form["PageHeader"].getProp("Height")))
 			pageFooterOrigin = (ml, mb)
 		
 			workingPageWidth = pageWidth - ml - mr
@@ -1061,7 +1061,7 @@ class ReportWriter(object):
 
 			self.Bands[band] = {}
 
-			height = bandDict.getProp("height")
+			height = bandDict.getProp("Height")
 			if height is not None:
 				height = self.getPt(height)
 			else:
@@ -1085,7 +1085,7 @@ class ReportWriter(object):
 			if pf is None:
 				pfHeight = 0
 			else:
-				pfHeight = self.getPt(pf.getProp("height"))
+				pfHeight = self.getPt(pf.getProp("Height"))
 
 			if band in ("detail", "groupHeader", "groupFooter"):
 				extraHeight = 0
@@ -1095,9 +1095,9 @@ class ReportWriter(object):
 					# printed as well. Actually, this should be reworked so that any subsequent
 					# group header records get accounted for as well...
 					b = _form["detail"]
-					extraHeight = b.get("height")
+					extraHeight = b.get("Height")
 					if extraHeight is None:
-						extraHeight = b.AvailableProps["height"]
+						extraHeight = b.AvailableProps["Height"]
 					else:
 						extraHeight = eval(extraHeight)
 					if extraHeight is None:
@@ -1120,15 +1120,15 @@ class ReportWriter(object):
 				
 			self.Bands[band]["x"] = x
 			self.Bands[band]["y"] = y
-			self.Bands[band]["width"] = width
-			self.Bands[band]["height"] = height
+			self.Bands[band]["Width"] = width
+			self.Bands[band]["Height"] = height
 		
 			if self.ShowBandOutlines:
 				self.printBandOutline("%s (record %s)" % (band, self.RecordNumber), 
 						x, y, width, height)
 
-			if bandDict.has_key("objects"):
-				for obj in bandDict["objects"]:
+			if bandDict.has_key("Objects"):
+				for obj in bandDict["Objects"]:
 					show = obj.get("show")
 					if show is not None:
 						try:
@@ -1236,11 +1236,11 @@ class ReportWriter(object):
 
 	def calculateBandHeight(self, bandDict):
 		maxHeight = 0
-		if bandDict.has_key("objects"):
-			for obj in bandDict["objects"]:
+		if bandDict.has_key("Objects"):
+			for obj in bandDict["Objects"]:
 				y = self.getPt(obj.getProp("y"))
 
-				ht = obj.getProp("height")
+				ht = obj.getProp("Height")
 				if ht is None:
 					ht = self.calculateObjectHeight(obj)
 				ht = self.getPt(ht)
@@ -1320,7 +1320,7 @@ class ReportWriter(object):
 	def _getXMLDictFromForm(self, form, d=None):
 		"""Recursively generate the dict format required for the dicttoxml() function."""
 		if d is None:
-			d = {"name": "report", "children": []}
+			d = {"name": "Report", "children": []}
 
 		elements = form.keys()
 		elements.sort(self._elementSort)
@@ -1457,7 +1457,7 @@ class ReportWriter(object):
 				elif child.has_key("attributes"):
 					formdict[child["name"]] = child["attributes"]
 				elif child.has_key("children"):
-					if child["name"] in ("objects", "groups", "variables"):
+					if child["name"].lower() in ("objects", "groups", "variables"):
 						coll = child["name"]
 						formdict[coll] = self._getReportObject(coll, formdict)
 						for obchild in child["children"]:
@@ -1498,7 +1498,7 @@ class ReportWriter(object):
 		# Get the xml into a generic tree of dicts:
 		xmldict = xmltodict(xml)
 
-		if xmldict["name"] == "report":
+		if xmldict["name"].lower() == "report":
 			form = self._getFormFromXMLDict(xmldict)
 		else:
 			print "This isn't a valid rfxml string."
