@@ -1059,7 +1059,7 @@ class ReportWriter(object):
 				# Band name doesn't exist.
 				return y
 
-			self.Bands[band] = {}
+			self.Bands[band] = CaselessDict()
 
 			height = bandDict.getProp("Height")
 			if height is not None:
