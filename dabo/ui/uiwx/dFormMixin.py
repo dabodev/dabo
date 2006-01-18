@@ -468,8 +468,11 @@ class dFormMixin(pm.dPemMixin):
 		"""Refreshed the values of the controls, and also calls the
 		wxPython Refresh to update the form.
 		"""
-		self.refreshControls()
-		self.Refresh()
+		try:
+			self.refreshControls()
+			self.Refresh()
+		except:
+			dabo.infoLog.write(_("Problem refreshing form %s") % self._name)
 		
 		
 	def refreshControls(self, grid=None):
