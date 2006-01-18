@@ -237,7 +237,7 @@ class ChildBorn(Event):
 	appliesToClass = classmethod(appliesToClass)
 
 
-class ContextMenu(MenuEvent):
+class ContextMenu(Event):
 	"""Occurs when the user requests a context menu (right-click on Win,
 	control-click on Mac, etc.
 	"""
