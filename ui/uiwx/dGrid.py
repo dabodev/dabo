@@ -3000,11 +3000,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _setCurrentRow(self, val):
 		if self._constructed():
-			val = min(val, self.RowCount-1)	
-			if val > -1:
-				cn = self.CurrentColumn
-				self.SetGridCursor(val, cn)
-				self.MakeCellVisible(val, cn)
+			if val >= self.RowCount:
+				val = self.RowCount - 1
+			if val < 0:
+				val = 0
+			cn = self.CurrentColumn
+			dabo.ui.callAfter(self.SetGridCursor, val, cn)
+			self.MakeCellVisible(val, cn)
 		else:
 			self._properties["CurrentRow"] = val		
 
