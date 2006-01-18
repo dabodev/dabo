@@ -1450,7 +1450,7 @@ class ReportWriter(object):
 						coll = child["name"]
 						formdict[coll] = self._getReportObject(coll, formdict)
 						for obchild in child["children"]:
-							reportObject = self._getReportObject(obchild["name"], child)
+							reportObject = self._getReportObject(obchild["name"], formdict)
 							c = self._getFormFromXMLDict(obchild, reportObject, level+1)
 							formdict[coll].append(c)
 					else:
