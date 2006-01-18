@@ -392,15 +392,34 @@ class String(Drawable):
 				This must evaluate to one of 'left', 'center', or 'right'.""")
 
 		self.AvailableProps["FontName"] = toPropDict(str, "Helvetica", 
-				"""Specifies the font name.
+				"""Specifies the font name, boldface, and italics all in one.
 
-				Please note that for predictable cross-platform results, you should
-				stick to Times, Courier, and Helvetica. Other native fonts will
-				work if they exist on the system where the PDF is printed. Otherwise,
-				font substitution will occur.
+				There are only a handful of reliable selections:
+					Courier
+					Courier-Bold
+					Courier-Oblique
+					Courier-BoldOblique
 
-				For licensing reasons, reportlab does not embed any fonts inside the
-				generated PDF files other than "the big 13".""")
+					Helvetica
+					Helvetica-Bold
+					Helvetica-Oblique
+					Helvetica-BoldOblique
+
+					Times-Roman
+					Times-Bold
+					Times-Italic
+					Times-BoldItalic
+
+					Symbol
+
+					ZapfDingbats
+
+				Please note that for predictable cross-platform results, you need to
+				stick to the fonts above. Otherwise, you'll need to ensure any TTF
+				fonts you specify are distributed to all systems that create the 
+				reports. If you specify a font name that doesn't exist, the Dabo report
+				writer will default to 'Helvetica'.
+				""")
 
 		self.AvailableProps["FontSize"] = toPropDict(float, 10, 
 				"""Specifies the size of the font, in points.""")
@@ -672,7 +691,12 @@ class ReportWriter(object):
 			c.setLineWidth(borderWidth)
 			c.setStrokeColor(borderColor)
 			c.setFillColor(fontColor)
-			c.setFont(fontName, fontSize)
+			try:
+				c.setFont(fontName, fontSize)
+			except:
+				# An unavailable fontName was likely specified. The rw docs promise to
+				# default to Helvetica in this case.
+				c.setFont("Helvetica", fontSize)
 	
 			if borderWidth > 0:
 				stroke = 1
