@@ -50,9 +50,10 @@ def toPropDict(dataType, default, doc):
 
 
 class ReportObjectCollection(list):
-	def __init__(self, reportWriter, *args, **kwargs):
+	def __init__(self, reportWriter, parent=None, *args, **kwargs):
 		super(ReportObjectCollection, self).__init__(*args, **kwargs)
 		self.reportWriter = reportWriter
+		self.parent = parent
 
 	def getPropDoc(self, prop):
 		return ""
@@ -75,14 +76,34 @@ class Objects(ReportObjectCollection): pass
 
 class ReportObject(CaselessDict):
 	"""Abstract report object, such as a drawable object, a variable, or a group."""
-	def __init__(self, reportWriter, *args, **kwargs):
+	def __init__(self, reportWriter, parent=None, *args, **kwargs):
 		super(ReportObject, self).__init__(*args, **kwargs)
 		self.reportWriter = reportWriter
+		self.parent = parent
 		self.initAvailableProps()
 
 	def initAvailableProps(self):
 		self.AvailableProps["Comment"] = toPropDict(str, "", 
 				"""You can add a comment here, the report will ignore it.""")
+
+
+	def getMemento(self, start=None):
+		"""Return a copy of all the key/values of this and all sub-objects."""
+		if start is None:
+			start = self
+		m = {"type": start.__class__.__name__}
+
+		for k, v in start.items():
+			if isinstance(v, dict):
+				m[k] = self.getMemento(v)
+			elif isinstance(v, list):
+				m[k] = []
+				for c in v:
+					m[k].append(self.getMemento(c))
+			else:
+				m[k] = v
+		return m			
+
 
 	def getProp(self, prop, evaluate=True):
 		"""Return the value of the property.
@@ -233,24 +254,6 @@ class Report(ReportObject):
 		self.setdefault("PageForeground", PageForeground(self))
 		self.setdefault("Groups", Groups(self))
 		self.setdefault("Variables", Variables(self))
-
-
-	def getMemento(self, start=None):
-		"""Return a copy of all the key/values of this an all sub-objects."""
-		if start is None:
-			start = self
-		m = {}
-
-		for k, v in start.items():
-			if isinstance(v, dict):
-				m[k] = self.getMemento(v)
-			elif isinstance(v, list):
-				m[k] = []
-				for c in v:
-					m[k].append(self.getMemento(c))
-			else:
-				m[k] = v
-		return m			
 
 
 class Page(ReportObject):
@@ -859,8 +862,10 @@ class ReportWriter(object):
 				imageFile = os.path.join(self.HomeDirectory, imageFile)
 			imageFile = str(imageFile)
 
-			c.drawImage(imageFile, 0, 0, width, height, mask)
-
+			try:
+				c.drawImage(imageFile, 0, 0, width, height, mask)
+			except:
+				pass
 		## All done, restore the canvas state to how we found it (important because
 		## rotating, scaling, etc. are cumulative, not absolute and we don't want
 		## to start with a canvas in an unknown state.)
@@ -1417,7 +1422,7 @@ class ReportWriter(object):
 		"""Recursively generate the form dict from the given xmldict."""
 
 		if formdict is None:
-			formdict = self._getReportObject("Report")
+			formdict = self._getReportObject("Report", None)
 
 		if xmldict.has_key("children"):
 			# children with name of "objects", "variables" or "groups" are band 
@@ -1443,20 +1448,20 @@ class ReportWriter(object):
 				elif child.has_key("children"):
 					if child["name"] in ("objects", "groups", "variables"):
 						coll = child["name"]
-						formdict[coll] = self._getReportObject(coll)
+						formdict[coll] = self._getReportObject(coll, formdict)
 						for obchild in child["children"]:
-							reportObject = self._getReportObject(obchild["name"])
+							reportObject = self._getReportObject(obchild["name"], child)
 							c = self._getFormFromXMLDict(obchild, reportObject, level+1)
 							formdict[coll].append(c)
 					else:
-						reportObject = self._getReportObject(child["name"])
+						reportObject = self._getReportObject(child["name"], formdict)
 						formdict[child["name"]] = self._getFormFromXMLDict(child, 
 								reportObject, level+1)
 
 		return formdict
 
 
-	def _getReportObject(self, objectType):
+	def _getReportObject(self, objectType, parent):
 		typeMapping = CaselessDict({"Report": Report, "Page": Page, 
 				"Group": Group, "Variable": Variable,
 				"PageBackground": PageBackground, "PageHeader": PageHeader, 
@@ -1469,11 +1474,7 @@ class ReportWriter(object):
 				"Variables": Variables, "Groups": Groups, "Objects": Objects})
 
 		cls = typeMapping.get(objectType)
-		if cls is None:
-			print "rw needs to know about type '%s'..." % objectType
-			return dict()
-		else:
-			return cls(reportWriter=self)
+		return cls(reportWriter=self, parent=parent)
 		
 
 
