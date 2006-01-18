@@ -50,10 +50,15 @@ def toPropDict(dataType, default, doc):
 
 
 class ReportObjectCollection(list):
-	def __init__(self, reportWriter, parent=None, *args, **kwargs):
+	def __init__(self, reportWriter=None, parent=None, *args, **kwargs):
 		super(ReportObjectCollection, self).__init__(*args, **kwargs)
 		self.reportWriter = reportWriter
 		self.parent = parent
+
+	def addObject(self, typ):
+		obj = self.reportWriter._getReportObject(typ, self)
+		self.append(obj)
+		return obj
 
 	def getPropDoc(self, prop):
 		return ""
@@ -246,14 +251,14 @@ class Report(ReportObject):
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the report form."""
 		self.setdefault("Title", "")
-		self.setdefault("Page", Page(self))
-		self.setdefault("PageHeader", PageHeader(self))
-		self.setdefault("Detail", Detail(self))
-		self.setdefault("PageFooter", PageFooter(self))
-		self.setdefault("PageBackground", PageBackground(self))
-		self.setdefault("PageForeground", PageForeground(self))
-		self.setdefault("Groups", Groups(self))
-		self.setdefault("Variables", Variables(self))
+		self.setdefault("Page", Page(self.reportWriter, self))
+		self.setdefault("PageHeader", PageHeader(self.reportWriter, self))
+		self.setdefault("Detail", Detail(self.reportWriter, self))
+		self.setdefault("PageFooter", PageFooter(self.reportWriter, self))
+		self.setdefault("PageBackground", PageBackground(self.reportWriter, self))
+		self.setdefault("PageForeground", PageForeground(self.reportWriter, self))
+		self.setdefault("Groups", Groups(self.reportWriter, self))
+		self.setdefault("Variables", Variables(self.reportWriter, self))
 
 
 class Page(ReportObject):
@@ -1458,6 +1463,8 @@ class ReportWriter(object):
 						formdict[child["name"]] = self._getFormFromXMLDict(child, 
 								reportObject, level+1)
 
+		if isinstance(formdict, Report):
+			formdict.insertRequiredElements()
 		return formdict
 
 
@@ -1474,7 +1481,8 @@ class ReportWriter(object):
 				"Variables": Variables, "Groups": Groups, "Objects": Objects})
 
 		cls = typeMapping.get(objectType)
-		return cls(reportWriter=self, parent=parent)
+		ref = cls(reportWriter=self, parent=parent)
+		return ref
 		
 
 
