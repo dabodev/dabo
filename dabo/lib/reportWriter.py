@@ -91,6 +91,12 @@ class ReportObject(CaselessDict):
 		self.AvailableProps["Comment"] = toPropDict(str, "", 
 				"""You can add a comment here, the report will ignore it.""")
 
+	def addObject(self, typ):
+		obj = self.reportWriter._getReportObject(typ, self)
+		objects = self.get("Objects", self.reportWriter._getReportObject("objects", self))
+		objects.append(obj)
+		self["objects"] = objects
+		return obj
 
 	def getMemento(self, start=None):
 		"""Return a copy of all the key/values of this and all sub-objects."""
@@ -1297,7 +1303,7 @@ class ReportWriter(object):
 
 	def _elementSort(self, x, y):
 		positions = CaselessDict({"title": 0, "columnCount": 5, "page": 10, 
-				"groups": 40, "variables": 50, "pageBackground": 55, 
+				"groups": 50, "variables": 40, "pageBackground": 55, 
 				"pageHeader": 60, "groupHeader": 65, "detail": 70, 
 				"groupFooter": 75, "pageFooter": 80, "pageForeground": 90, 
 				"objects": 99999, "testcursor": 999999})
@@ -1358,7 +1364,7 @@ class ReportWriter(object):
 					cursor.append({"name": "record", "attributes": attr})
 					child["children"] = cursor
 
-			elif element in ("objects", "variables", "groups"):
+			elif element.lower() in ("objects", "variables", "groups"):
 				objects = []
 				for index in range(len(form[element])):
 					formobj = form[element][index]
