@@ -135,8 +135,10 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 		slsh = "\\"
 		val = val.replace("<", "&lt;").replace(">", "&gt;").replace(slsh, slsh+slsh)
 		if not noEscape:
+			# First escape internal ampersands:
+			val = val.replace("&", "&amp;")
 			# Escape any internal quotes
-			val =val.replace('"', '&quot;').replace("'", "&apos;")
+			val = val.replace('"', '&quot;').replace("'", "&apos;")
 		return "%s%s%s" % (qt, val, qt)
 
 	att = ""
