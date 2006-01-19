@@ -96,11 +96,17 @@ class ReportObject(CaselessDict):
 		"""Insert any missing required elements into the object."""
 		pass
 
-	def addObject(self, typ):
+	def addElement(self, typ):
+		"""Add a new element, replacing existing one of same name."""
 		obj = self.reportWriter._getReportObject(typ, self)
-		objects = self.get("Objects", self.reportWriter._getReportObject("Objects", self))
+		self[obj.__class__.__name__] = obj
+		return obj
+
+	def addObject(self, typ, collection="Objects"):
+		obj = self.reportWriter._getReportObject(typ, self)
+		objects = self.get(collection, self.reportWriter._getReportObject(collection, self))
 		objects.append(obj)
-		self["Objects"] = objects
+		self[collection] = objects
 		return obj
 
 	def getMemento(self, start=None):
@@ -563,7 +569,19 @@ class Paragraph(Drawable):
 		self.AvailableProps["expr"] = toPropDict(str, "", 
 				"""Specifies the text to print.""")
 
+class TestCursor(ReportObjectCollection):
+	def addRecord(self, record):
+		tRecord = self.reportWriter._getReportObject("TestRecord", self)
+		for k, v in record.items():
+			tRecord[k] = v
+		tRecord.initAvailableProps()
+		self.append(tRecord)
 
+class TestRecord(ReportObject):
+	def initAvailableProps(self):
+		for k, v in self.items():
+			self.AvailableProps[k] = toPropDict(str, "", "")
+	
 class ReportWriter(object):
 	"""Reads a report form specification, iterates over a data cursor, and
 	outputs a pdf file. Allows for lots of fine-tuned control over layout, and
@@ -1377,36 +1395,14 @@ class ReportWriter(object):
 			child = {"name": element, "children": []}
 			if isinstance(form[element], basestring):
 				child["cdata"] = form[element]
-			elif element == "testcursor":
-				row = form["testcursor"][0]
-				atts = {}
-				fields = row.keys()
-				fields.sort()
-				for field in fields:
-					if isinstance(row[field], basestring):
-						t = "str"
-					elif isinstance(row[field], float):
-						t = "float"
-					elif isinstance(row[field], (int, long)):
-						t = "int"
-					elif isinstance(row[field], bool):
-						t = "bool"
-					elif isinstance(row[field], datetime.date):
-						t = "datetime.date"
-					elif isinstance(row[field], datetime.datetime):
-						t = "datetime.datetime"
-					elif _USE_DECIMAL and isinstance(row[field], Decimal):
-						t = "Decimal"
-					atts[field] = t
-				child["attributes"] = atts
-					
+			elif element.lower() == "testcursor":
 				cursor = []
 				for row in form["testcursor"]:
 					fields = row.keys()
 					fields.sort()
 					attr = {}
 					for field in fields:
-						attr[field] = repr(row[field])
+						attr[field] = row[field]
 					cursor.append({"name": "record", "attributes": attr})
 					child["children"] = cursor
 
@@ -1485,19 +1481,13 @@ class ReportWriter(object):
 			# children with name of "objects", "variables" or "groups" are band 
 			# object lists, while other children are sub-dictionaries.
 			for child in xmldict["children"]:
-				if child["name"] == "testcursor":
-					# special case.
-					records = []
-					datatypes = child["attributes"]
+				if child["name"].lower() == "testcursor":
+					# Previously, we saved all the field types in the attributes. We need
+					# to ignore those if present, and make report["TestCursor"] a list of
+					# records.
+					cursor = formdict.addElement("TestCursor")
 					for childrecord in child["children"]:
-						record = {}
-						if childrecord["name"] == "record":
-							for field, value in childrecord["attributes"].items():
-								datatype = eval(datatypes[field])
-#								record[field] = datatype(value)
-								record[field] = eval(value)
-							records.append(record)
-					formdict[child["name"]] = records
+						cursor.addRecord(childrecord["attributes"])
 				elif child.has_key("cdata"):
 					formdict[child["name"]] = child["cdata"]
 				elif child.has_key("attributes"):
@@ -1528,7 +1518,8 @@ class ReportWriter(object):
 				"Rectangle": Rectangle,
 				"String": String, "Image": Image, "Line": Line,
 				"Frameset": Frameset, "Paragraph": Paragraph,
-				"Variables": Variables, "Groups": Groups, "Objects": Objects})
+				"Variables": Variables, "Groups": Groups, "Objects": Objects,
+				"TestCursor": TestCursor, "TestRecord": TestRecord})
 
 		cls = typeMapping.get(objectType)
 		ref = cls(reportWriter=self, parent=parent)
@@ -1575,9 +1566,16 @@ class ReportWriter(object):
 	def _getCursor(self):
 		if self.UseTestCursor:
 			try:
-				v = self.ReportForm["testcursor"]
+				v = self.ReportForm["TestCursor"]
 			except KeyError:
 				v = []
+			liveTest = []
+			for record in v:
+				liveRecord = CaselessDict()
+				for f, v in record.items():
+					liveRecord[f] = eval(v)
+				liveTest.append(liveRecord)
+			v = liveTest
 		else:
 			try:
 				v = self._cursor
