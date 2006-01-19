@@ -469,6 +469,14 @@ class Line(Drawable):
 	"""Represents a line."""
 	def initAvailableProps(self):
 		super(Line, self).initAvailableProps()
+		self.AvailableProps["LineSlant"] = toPropDict(str, "-", 
+				"""Specifies the slant of the line.
+
+				Valid values are "-", "|", "/", and "\\". Note that the 
+				backslash character needs to be escaped in Python by making
+				it a double-backslash.
+				""")
+
 		self.AvailableProps["StrokeWidth"] = toPropDict(float, 1, 
 				"""Specifies the width of the stroke, in points.""")
 
@@ -685,11 +693,40 @@ class ReportWriter(object):
 				props[prop] = obj.getProp(prop)
 			props["strokeWidth"] = self.getPt(props["strokeWidth"])
 
-			r = shapes.Line(0, 0, width, height)
-			r.setProperties(props)
-			d.add(r)
-			d.drawOn(c, x, y)
-	
+			lineSlant = obj.getProp("lineSlant")
+			anchors = {"left": 0,
+					"center": width/2,
+					"right": width,
+					"top": height,
+					"middle": height/2,
+					"bottom": 0}
+
+			if lineSlant == "-":
+				# draw line from (left,middle) to (right,middle) anchors
+				beg = (anchors["left"], anchors["middle"])
+				end = (anchors["right"], anchors["middle"])
+			elif lineSlant == "|":
+				# draw line from (center,bottom) to (center,top) anchors
+				beg = (anchors["center"], anchors["bottom"])
+				end = (anchors["center"], anchors["top"])
+			elif lineSlant == "\\":
+				# draw line from (right,bottom) to (left,top) anchors
+				beg = (anchors["right"], anchors["bottom"])
+				end = (anchors["left"], anchors["top"])
+			elif lineSlant == "/":
+				# draw line from (left,bottom) to (right,top) anchors
+				beg = (anchors["left"], anchors["bottom"])
+				end = (anchors["right"], anchors["top"])
+			else:
+				# don't draw the line
+				lineSlant = None
+
+			if lineSlant:
+				r = shapes.Line(beg[0], beg[1], end[0], end[1])
+				r.setProperties(props)
+				d.add(r)
+				d.drawOn(c, x, y)
+
 		elif objType == "String":
 			## Set the props for strings:
 			borderWidth = self.getPt(obj.getProp("borderWidth"))
