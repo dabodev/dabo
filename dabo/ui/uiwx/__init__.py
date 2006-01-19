@@ -437,8 +437,7 @@ def getFont(font=None):
 	if not isinstance(font, dFont):
 		# This will help identify older code
 		dabo.errorLog.write("Invalid font class passed to getFont")
-		dabo.dBug.logPoint()
-		
+		return None
 	dlg = dFontDialog(None, font.NativeObject)
 	if dlg.show() == kons.DLG_OK:
 		fnt = dlg.getFont()

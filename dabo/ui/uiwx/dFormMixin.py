@@ -12,8 +12,7 @@ from dabo.lib.utils import dictStringify
 
 class dFormMixin(pm.dPemMixin):
 	def __init__(self, preClass, parent=None, properties=None, 
-			src=None, *args, **kwargs):
-		
+			src=None, attProperties=None, *args, **kwargs):
 		self._childList = None
 		self._codeDict = None
 		if src:
@@ -28,7 +27,9 @@ class dFormMixin(pm.dPemMixin):
 				self.release()
 				return False
 			# Add the atts to the keyword args
-			kwargs.update(dictStringify(contents["attributes"]))
+			if attProperties is None:
+				attProperties = {}
+			attProperties.update(dictStringify(contents["attributes"]))
 			# We've extracted all we need to know about the form,
 			# so set the child list to the contained child objects.
 			self._childList = contents.get("children", [])
@@ -63,7 +64,8 @@ class dFormMixin(pm.dPemMixin):
 		# When in designer mode, we need to turn off various behaviors.
 		self._designerMode = False
 
-		super(dFormMixin, self).__init__(preClass, parent, properties, *args, **kwargs)
+		super(dFormMixin, self).__init__(preClass, parent, properties, 
+				attProperties, *args, **kwargs)
 		
 
 	def _getInitPropertiesList(self):
@@ -176,13 +178,13 @@ class dFormMixin(pm.dPemMixin):
 					if atts.has_key("Orientation"):
 						ornt = atts["Orientation"]
 						del atts["Orientation"]
-					if issubclass(cls, dabo.ui.dSizer):
-						sz = cls(orientation=ornt, properties=atts)
+					if issubclass(cls, dabo.ui.dBorderSizer):
+						sz = cls(parent, orientation=ornt, properties=atts)
 					else:
-						sz = cls(orientation=ornt, properties=atts, box=parent)
+						sz = cls(orientation=ornt, properties=atts)
 						
 					if not fromSzr:
-						parent.Sizer = sz = cls(orientation=ornt, properties=atts)
+						parent.Sizer = sz
 					self._addSrcObjToSizer(sz, szr, atts, szrInfo)
 					if kids:
 						self._addChildren(kids, parent=parent, 
@@ -272,7 +274,7 @@ class dFormMixin(pm.dPemMixin):
 			except StandardError, e:
 				# This is for development only. It will be changed to a 
 				# writing in the error log when this is stable
-				print "ERROR creating children:", e
+				print "ERROR creating children: %s" % child, e
 	
 	
 	def _addSrcObjToSizer(self, obj, szr, atts, szrInfo, 
