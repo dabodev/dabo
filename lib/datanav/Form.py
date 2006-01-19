@@ -6,6 +6,7 @@ import dabo.ui
 from dabo.lib.specParser import importRelationSpecs, importFieldSpecs
 from dabo.dLocalize import _, n_
 import dabo.lib.reportUtils as reportUtils
+from dabo.lib.reportWriter import *
 import PageFrame
 import Grid
 
@@ -642,160 +643,131 @@ class Form(dabo.ui.dForm):
 
 	def getAutoReportForm_list(self):
 		grid = self.PageFrame.Pages[1].BrowseGrid
+		rw = ReportWriter()
+		rf = rw.ReportForm = Report(reportWriter=rw, parent=None)
+		rf["Title"] = "Quick Report: %s" % self.Caption
+		rf["PageHeader"]["Height"] = '''"0.75 in"'''
 
-		rfxml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
-
-<report>
-	<title>"""
-		rfxml += "Quick Report: %s" % self.Caption
-		rfxml += """</title>
-	<pageHeader>
-		<height>"0.75 in"</height>
-		<objects>
-"""
+		# Page Header Columns:
 		x = 0
 		reportWidth = 0
 		horBuffer = 3
 		vertBuffer = 5
 		for col in grid.Columns:
-			coldict = {"caption": col.Caption, "fontSize": col.HeaderFontSize,
-					"width": col.Width, "x": x+horBuffer}
-			coldict["horBuffer"] = horBuffer
-			coldict["vertBuffer"] = vertBuffer
-			coldict["rectWidth"] = coldict["width"] + (2*horBuffer)
-			coldict["rectHeight"] = grid.HeaderHeight
 			hAlign = col.HeaderHorizontalAlignment
 			if hAlign is None:
 				hAlign = grid.HeaderHorizontalAlignment
-			coldict["textHorAlignment"] = "'%s'" % hAlign.lower().split(" ")[0]
-			coldict["rectX"] = x
+
 			vAlign = col.HeaderVerticalAlignment	
 			if vAlign is None:
 				vAlign = grid.HeaderHorizontalAlignment
 			vAlign = vAlign[:3]
 			if vAlign == "Cen":
-				textY = (coldict["rectHeight"] / 2) - (coldict["fontSize"]/2)
+				textY = (grid.HeaderHeight / 2) - (col.HeaderFontSize / 2)
 			elif vAlign == "Top":
-				textY = coldict["rectHeight"] - coldict["fontSize"]
+				textY = grid.HeaderHeight - col.HeaderFontSize
 			else:
 				textY = vertBuffer
-			coldict["textY"] = textY
 
-			x += coldict["rectWidth"]
-			if x > 720:
+			rectWidth = col.Width + (2 * horBuffer)
+
+			if x + rectWidth > 720:
 				# We'll run off the edge of the page, ignore the rest:
 				break
 
-			reportWidth = x
+			rect = rf["PageHeader"].addObject("Rectangle")
+			rect["Width"] = repr(rectWidth)
+			rect["Height"] = repr(grid.HeaderHeight)
+			rect["StrokeWidth"] = "0.25"
+			rect["FillColor"] = "(0.9, 0.9, 0.9)"
+			rect["x"] = repr(x)
+			rect["y"] = "0"
+			
+			string = rf["PageHeader"].addObject("String")
+			string["Width"] = repr(col.Width)
+			string["Height"] = repr(col.HeaderFontSize)
+			string["FontSize"] = repr(col.HeaderFontSize)
+			string["expr"] = repr(col.Caption)
+			string["align"] = "'%s'" % hAlign.lower().split(" ")[0]
+			string["x"] = repr(x+horBuffer)
+			string["y"] = repr(textY)
 
-			rfxml += """
-			<rect>
-				<width>%(rectWidth)s</width>
-				<height>%(rectHeight)s</height>
-				<strokeWidth>0.25</strokeWidth>
-				<fillColor>(0.9,0.9,0.9)</fillColor>
-				<x>%(rectX)s</x>
-				<y>0</y>
-			</rect>
-			<string>
-				<expr>"%(caption)s"</expr>
-				<height>%(fontSize)s</height>
-				<align>%(textHorAlignment)s</align>
-				<fontSize>%(fontSize)s</fontSize>
-				<width>%(width)s</width>
-				<x>%(x)s</x>
-				<y>%(textY)s</y>
-			</string>""" % coldict
+			x += rectWidth
 
-		rfxml += """
-			<string>
-				<align>"center"</align>
-				<valign>"top"</valign>
-				<borderWidth>"0 pt"</borderWidth>
-				<expr>self.ReportForm["title"]</expr>
-				<fontName>"Helvetica"</fontName>
-				<fontSize>14</fontSize>
-				<hAnchor>"center"</hAnchor>
-				<height>15.96</height>
-				<name>title</name>
-				<width>%s</width>
-				<x>%s</x>
-				<y>"0.6 in"</y>
-			</string>""" % (reportWidth, reportWidth/2)
-				
-		rfxml += """
-		</objects>
-	</pageHeader>
+		reportWidth = x
 
-	<detail>
-		<height>None</height>
-		<objects>"""
+		# Page Header Title:
+		string = rf["PageHeader"].addObject("String")
+		string["Width"] = repr(reportWidth)
+		string["Height"] = '''15.96'''
+		string["FontSize"] = '''14'''
+		string["expr"] = "self.ReportForm['title']"
+		string["align"] = '''"center"'''
+		string["hAnchor"] = '''"center"'''
+		string["BorderWidth"] = '''"0 pt"'''
+		string["x"] = repr(reportWidth/2)
+		string["y"] = '''"0.6 in"'''
+
+		# Detail Band:	
+		rf["Detail"]["Height"] = "None"
 		x = 0
 		horBuffer = 3
 		vertBuffer = 5
 		for col in grid.Columns:
-			coldict = {"caption": col.Caption, "field": col.DataField, 
-					"width": col.Width, "fontSize": col.FontSize,
-					"x": x+horBuffer}
-			coldict["horBuffer"] = horBuffer
-			coldict["vertBuffer"] = vertBuffer
-			coldict["rectWidth"] = coldict["width"] + (2*horBuffer)
-			coldict["rectHeight"] = col.Parent.RowHeight
-			coldict["textHorAlignment"] = "'%s'" % col.HorizontalAlignment.lower().split(" ")[0]
-			coldict["rectX"] = x
-			vAlign = col.VerticalAlignment	[:3]
-			if vAlign == "Cen":
-				textY = (coldict["rectHeight"] / 2) - (coldict["fontSize"]/2)
-			elif vAlign == "Top":
-				textY = coldict["rectHeight"] - coldict["fontSize"]
-			else:
-				textY = vertBuffer
-			coldict["textY"] = textY
+			rectWidth = col.Width + (2 * horBuffer)
+			textHorAlignment = "'%s'" % col.HorizontalAlignment.lower().split(" ")[0]
 
-			x += coldict["rectWidth"]
-			if x > 720:
+			if x + rectWidth > 720:
 				# We'll run off the edge of the page, ignore the rest:
 				break
 
-			rfxml += """
-			<rect>
-				<width>%(rectWidth)s</width>
-				<height>%(rectHeight)s</height>
-				<strokeWidth>0.25</strokeWidth>
-				<x>%(rectX)s</x>
-				<y>0</y>
-			</rect>
-			<string>
-				<expr>unicode(self.Record["%(field)s"])</expr>
-				<height>%(fontSize)s</height>
-				<align>%(textHorAlignment)s</align>
-				<fontSize>%(fontSize)s</fontSize>
-				<width>%(width)s</width>
-				<x>%(x)s</x>
-				<y>%(textY)s</y>
-			</string>""" % coldict
+			vAlign = col.VerticalAlignment[:3]
+			if vAlign == "Cen":
+				textY = (grid.RowHeight / 2) - (col.FontSize / 2)
+			elif vAlign == "Top":
+				textY = grid.RowHeight - col.FontSize
+			else:
+				textY = vertBuffer
 
+			rect = rf["Detail"].addObject("Rectangle")
+			string = rf["Detail"].addObject("String")
+
+			rect["Width"] = repr(rectWidth)
+			rect["Height"] = repr(grid.RowHeight)
+			rect["StrokeWidth"] = "0.25"
+			rect["x"] = repr(x)
+			rect["y"] = "0"
+
+			string["expr"] = "unicode(self.Record['%s'])" % col.DataField
+			string["Height"] = repr(col.FontSize)
+			string["Align"] = textHorAlignment
+			string["FontSize"] = repr(col.FontSize)
+			string["Width"] = repr(col.Width)
+			string["x"] = repr(x+horBuffer)
+			string["y"] = repr(textY)
+
+			x += rectWidth
+	
+		# Page settings:	
 		orientation = "portrait"
 		if x > 504:
 			# switch to landscape
 			orientation = "landscape"
-		
-		rfxml += """
-		</objects>
-	</detail>
 
-	<page>
-		<marginBottom>".5 in"</marginBottom>
-		<marginLeft>".5 in"</marginLeft>
-		<marginRight>".5 in"</marginRight>
-		<marginTop>".25 in"</marginTop>
-		<orientation>"%s"</orientation>
-		<size>"letter"</size>
-	</page>
+		rf["Page"]["MarginBottom"] = '''".5 in"'''
+		rf["Page"]["MarginLeft"] = '''".5 in"'''
+		rf["Page"]["MarginRight"] = '''".5 in"'''
+		rf["Page"]["MarginTop"] = '''".25 in"'''
+		rf["Page"]["Size"] = '''"letter"'''
+		rf["Page"]["Orientation"] = repr(orientation)
 
-</report>
-""" % orientation
-		return rfxml
+		testCursor = rf.addElement("TestCursor")
+		for rec in self.getBizobj().getDataSet(rows=10):
+			tRec = {}
+			for fld, val in rec.items():
+				tRec[fld] = repr(val)
+			testCursor.addRecord(tRec)
+		return rw._getXMLFromForm(rf)
 
 
 	def _getAllChildObjects(self, container, objects=None, currentY=0):
