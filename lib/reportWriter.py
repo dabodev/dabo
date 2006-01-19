@@ -86,10 +86,15 @@ class ReportObject(CaselessDict):
 		self.reportWriter = reportWriter
 		self.parent = parent
 		self.initAvailableProps()
+		self.insertRequiredElements()
 
 	def initAvailableProps(self):
 		self.AvailableProps["Comment"] = toPropDict(str, "", 
 				"""You can add a comment here, the report will ignore it.""")
+
+	def insertRequiredElements(self):
+		"""Insert any missing required elements into the object."""
+		pass
 
 	def addObject(self, typ):
 		obj = self.reportWriter._getReportObject(typ, self)
@@ -308,6 +313,11 @@ class Group(ReportObject):
 		self.AvailableProps["ReprintHeaderOnNewPage"] = toPropDict(bool, False, 
 				"""Specifies whether the group header gets reprinted on new pages.""")
 
+	def insertRequiredElements(self):
+		if not self.has_key("GroupHeader"):
+			self["GroupHeader"] = GroupHeader(reportWriter=self.reportWriter, parent=self)
+		if not self.has_key("GroupFooter"):
+			self["GroupFooter"] = GroupFooter(reportWriter=self.reportWriter, parent=self)
 
 class Variable(ReportObject):
 	"""Represents report variables."""
@@ -1013,7 +1023,7 @@ class ReportWriter(object):
 		for group in groups:
 			vv = {}
 			vv["curVal"] = None
-			self._groupValues[group["expr"]] = vv
+			self._groupValues[group.get("expr")] = vv
 
 		groupsDesc = [i for i in groups]
 		groupsDesc.reverse()
@@ -1325,7 +1335,6 @@ class ReportWriter(object):
 		Defaults will be filled in. Used by the report designer.
 		"""
 		report = Report(self)
-		report.insertRequiredElements()
 		return report
 
 
@@ -1498,7 +1507,7 @@ class ReportWriter(object):
 						coll = child["name"]
 						formdict[coll] = self._getReportObject(coll, formdict)
 						for obchild in child["children"]:
-							reportObject = self._getReportObject(obchild["name"], formdict)
+							reportObject = self._getReportObject(obchild["name"], formdict[coll])
 							c = self._getFormFromXMLDict(obchild, reportObject, level+1)
 							formdict[coll].append(c)
 					else:
@@ -1506,8 +1515,6 @@ class ReportWriter(object):
 						formdict[child["name"]] = self._getFormFromXMLDict(child, 
 								reportObject, level+1)
 
-		if isinstance(formdict, Report):
-			formdict.insertRequiredElements()
 		return formdict
 
 
