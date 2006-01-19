@@ -14,6 +14,8 @@ class dBorderSizer(wx.StaticBoxSizer, dabo.ui.dSizerMixin):
 	"""
 	def __init__(self, box, orientation="h", properties=None, **kwargs):
 		self._baseClass = dBorderSizer
+		self._border = 0
+		self._parent = None
 		# Make sure that they got the params in the right order
 		if isinstance(box, basestring):
 			box, orientation = orientation, box
