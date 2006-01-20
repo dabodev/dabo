@@ -63,6 +63,38 @@ if __name__ == '__main__':
 		def myMethod(self):
 			print "MyTest.myMethod called."
 			MyTest.doDefault()
-			
+
+	print "Test 1: simple test:"			
 	t = MyTest()
 	t.myMethod()
+
+	print "\nTest 2: diamond inheritence test:"
+
+	class A(DoDefaultMixin):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("A")
+
+	class B(A):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("B")
+			B.doDefault(arg)
+
+	class C(A):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("C")
+			C.doDefault(arg)
+
+	class D(B,C):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("D")
+			D.doDefault(arg)
+
+	t = D()
+	testList = []
+	t.meth(testList)
+	print testList
+
