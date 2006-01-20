@@ -19,7 +19,7 @@ class FileMenu(dMenu):
 	
 	def __init__(self, *args, **kwargs):
 		kwargs["MRU"] = True
-		self.doDefault(*args, **kwargs)
+		FileMenu.doDefault(*args, **kwargs)
 		
 		
 	def _afterInit(self):
