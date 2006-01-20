@@ -245,6 +245,7 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 	def _initEvents(self):
 		super(dTreeView, self)._initEvents()
 		self.Bind(wx.EVT_LEFT_UP, self._onWxHit)
+		self.Bind(wx.EVT_KEY_UP, self.__onKeyUp)
 		self.Bind(wx.EVT_TREE_SEL_CHANGED, self.__onTreeSel)
 		self.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.__onTreeItemCollapse)
 		self.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.__onTreeItemExpand)
@@ -576,6 +577,10 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 	# Event-handling code
 	def __onTreeSel(self, evt):
 		self.raiseEvent(dEvents.TreeSelection, evt)
+	def __onKeyUp(self, evt):
+		evt.Skip()
+		if evt.GetKeyCode() in (316, 317, 318, 319):
+			self._onWxHit(evt)
 	def __onTreeItemCollapse(self, evt):
 		self.raiseEvent(dEvents.TreeItemCollapse, evt)
 	def __onTreeItemExpand(self, evt):
