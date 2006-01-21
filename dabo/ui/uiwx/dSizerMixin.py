@@ -152,6 +152,13 @@ class dSizerMixin(dObject):
 		If the item is not one of this sizer's items, no error will be 
 		raised - it will simply do nothing.
 		"""
+		try:
+			item.Name
+		except dabo.ui.deadObjectException:
+			# The use of callAfter can sometimes result in destroyed
+			# objects being removed.
+			return
+			
 		self.Detach(item)
 		item._controllingSizer = None
 		item._controllingSizerItem = None
