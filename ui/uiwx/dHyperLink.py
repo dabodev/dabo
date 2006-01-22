@@ -165,5 +165,22 @@ class dHyperLink(hyperlink.HyperLinkCtrl, dcm.dControlMixin):
 	
 	VisitedUnderline = property(_getVisitedUnderline, _setVisitedUnderline, None,
 			_("Is the link underlined in the visited state?  (bool)"))
-	
-	
+
+
+
+class _dHyperLink_test(dHyperLink):
+	def afterInit(self):
+		self.Caption = "The Dabo Wiki"
+		self.FontSize = 24
+		self.URL = "http://dabodev.com/wiki/"
+		self.LinkColor = "olive"
+		self.VisitedColor = "maroon"
+		self.HoverColor = "crimson"
+		self.LinkUnderline = True
+		self.HoverUnderline = False
+		self.VisitedUnderline = True
+
+
+if __name__ == "__main__":
+	import test
+	test.Test().runTest(_dHyperLink_test)
