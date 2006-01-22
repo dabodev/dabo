@@ -7,7 +7,8 @@ import time
 # Very first thing: check for proper wxPython build:
 _failedLibs = []
 # note: may need wx.animate as well
-for lib in ("wx", "wx.stc", "wx.lib.foldpanelbar", "wx.gizmos"):
+for lib in ("wx", "wx.stc", "wx.lib.foldpanelbar", "wx.gizmos", 
+		"wx.lib.calendar"):
 	try:
 		__import__(lib)
 	except ImportError:
@@ -426,6 +427,38 @@ def getColor(color=None):
 	if dlg.show() == kons.DLG_OK:
 		ret = dlg.getColor()
 	dlg.release()
+	return ret
+
+
+def getDate(dt=None):
+	"""Displays a calendar dialog for the user to select a date. 
+	Defaults to the given date parameter, or today if no value
+	is passed.
+	"""
+	if dt is None:
+		dt = datetime.date.today()
+	try:
+		mm, dd, yy = dt.month, dt.day, dt.year
+	except:
+		dabo.errorLog.write(_("Invalid date value passed to getDate(): %s") % dt)
+		return None
+	try:
+		prnt = self.Application.ActiveForm
+	except:
+		prnt = None
+	dlg = wx.lib.calendar.CalenDlg(prnt, mm, dd, yy)
+	dlg.Centre()
+	if dlg.ShowModal() == wx.ID_OK:
+		result = dlg.result
+		day = int(result[1])
+		month = result[2]
+		year = int(result[3])
+		monthNames = ["January", "February", "March", "April", "May", "June", 
+				"July", "August", "September", "October", "November", "December"]
+		ret = datetime.date(year, monthNames.index(month)+1, day)
+	else:
+		ret = None
+	dlg.Destroy()
 	return ret
 
 
