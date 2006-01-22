@@ -168,6 +168,22 @@ def callAfter(fnc, *args, **kwargs):
 	wx.CallAfter(fnc, *args, **kwargs)
 	
 
+_callAfterIntervalReferences = {}
+def callAfterInterval(func, interval, *args, **kwargs):
+	"""Call the given function after <interval> milliseconds have elapsed.
+
+	If the function is called again before the interval has elapsed, the original
+	timer is destroyed and a new one instantiated. IOW, you can call this in a
+	tight loop, and only the last call will get executed. Useful when you want to
+	refresh something because you changed it, but the frequency of changes can be
+	high.
+	"""
+	futureCall = _callAfterIntervalReferences.get(func)
+	if futureCall:
+		futureCall.Stop()
+	_callAfterIntervalReferences[func] = wx.FutureCall(interval, func, *args, **kwargs)
+
+
 def yieldUI(*args, **kwargs):
 	"""Yield to other apps/messages."""
 	wx.Yield(*args, **kwargs)	
