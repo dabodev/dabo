@@ -50,13 +50,12 @@ def toPropDict(dataType, default, doc):
 
 
 class ReportObjectCollection(list):
-	def __init__(self, reportWriter=None, parent=None, *args, **kwargs):
+	def __init__(self, parent=None, *args, **kwargs):
 		super(ReportObjectCollection, self).__init__(*args, **kwargs)
-		self.reportWriter = reportWriter
 		self.parent = parent
 
-	def addObject(self, typ):
-		obj = self.reportWriter._getReportObject(typ, self)
+	def addObject(self, cls):
+		obj = cls(self)
 		self.append(obj)
 		return obj
 
@@ -81,9 +80,8 @@ class Objects(ReportObjectCollection): pass
 
 class ReportObject(CaselessDict):
 	"""Abstract report object, such as a drawable object, a variable, or a group."""
-	def __init__(self, reportWriter, parent=None, *args, **kwargs):
+	def __init__(self, parent=None, *args, **kwargs):
 		super(ReportObject, self).__init__(*args, **kwargs)
-		self.reportWriter = reportWriter
 		self.parent = parent
 		self.initAvailableProps()
 		self.insertRequiredElements()
@@ -96,17 +94,18 @@ class ReportObject(CaselessDict):
 		"""Insert any missing required elements into the object."""
 		pass
 
-	def addElement(self, typ):
+	def addElement(self, cls):
 		"""Add a new element, replacing existing one of same name."""
-		obj = self.reportWriter._getReportObject(typ, self)
+		obj = cls(self)
 		self[obj.__class__.__name__] = obj
 		return obj
 
-	def addObject(self, typ, collection="Objects"):
-		obj = self.reportWriter._getReportObject(typ, self)
-		objects = self.get(collection, self.reportWriter._getReportObject(collection, self))
+	def addObject(self, cls, collectionClass=Objects):
+		obj = cls(self)
+		collectionName = Objects.__name__
+		objects = self.get(collectionName, collectionClass(self))
 		objects.append(obj)
-		self[collection] = objects
+		self[collectionName] = objects
 		return obj
 
 	def getMemento(self, start=None):
@@ -186,7 +185,7 @@ class ReportObject(CaselessDict):
 
 
 	def _getBands(self):
-		return self.reportWriter.Bands
+		return self.Report.reportWriter.Bands
 
 
 	def _getDesProps(self):
@@ -199,8 +198,22 @@ class ReportObject(CaselessDict):
 
 
 	def _getRecord(self):
-		return self.reportWriter.Record
+		return self.Report._liveRecord
 
+
+	def _getReport(self):
+		parent = self
+		while not isinstance(parent, Report):
+			parent = parent.parent
+		return parent
+
+
+	def _getVariables(self):
+		return self.Report.reportWriter.Variables
+
+
+	AvailableProps = property(_getAvailableProps, _setAvailableProps)
+	Bands = property(_getBands)
 
 	DesignerProps = property(_getDesProps, None, None,
 		_("""Returns a dict of editable properties for the control, with the 
@@ -209,10 +222,9 @@ class ReportObject(CaselessDict):
 		and edit the property, and 'readonly', which will prevent editing
 		when True. (dict)""") )
 
-	Bands = property(_getBands)
-	AvailableProps = property(_getAvailableProps, _setAvailableProps)
 	Record = property(_getRecord)
-
+	Report = property(_getReport)
+	Variables = property(_getVariables)
 
 
 class Drawable(ReportObject):
@@ -268,14 +280,14 @@ class Report(ReportObject):
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the report form."""
 		self.setdefault("Title", "")
-		self.setdefault("Page", Page(self.reportWriter, self))
-		self.setdefault("PageHeader", PageHeader(self.reportWriter, self))
-		self.setdefault("Detail", Detail(self.reportWriter, self))
-		self.setdefault("PageFooter", PageFooter(self.reportWriter, self))
-		self.setdefault("PageBackground", PageBackground(self.reportWriter, self))
-		self.setdefault("PageForeground", PageForeground(self.reportWriter, self))
-		self.setdefault("Groups", Groups(self.reportWriter, self))
-		self.setdefault("Variables", Variables(self.reportWriter, self))
+		self.setdefault("Page", Page(self))
+		self.setdefault("PageHeader", PageHeader(self))
+		self.setdefault("Detail", Detail(self))
+		self.setdefault("PageFooter", PageFooter(self))
+		self.setdefault("PageBackground", PageBackground(self))
+		self.setdefault("PageForeground", PageForeground(self))
+		self.setdefault("Groups", Groups(self))
+		self.setdefault("Variables", Variables(self))
 
 
 class Page(ReportObject):
@@ -321,9 +333,9 @@ class Group(ReportObject):
 
 	def insertRequiredElements(self):
 		if not self.has_key("GroupHeader"):
-			self["GroupHeader"] = GroupHeader(reportWriter=self.reportWriter, parent=self)
+			self["GroupHeader"] = GroupHeader(self)
 		if not self.has_key("GroupFooter"):
-			self["GroupFooter"] = GroupFooter(reportWriter=self.reportWriter, parent=self)
+			self["GroupFooter"] = GroupFooter(parent=self)
 
 class Variable(ReportObject):
 	"""Represents report variables."""
@@ -571,7 +583,7 @@ class Paragraph(Drawable):
 
 class TestCursor(ReportObjectCollection):
 	def addRecord(self, record):
-		tRecord = self.reportWriter._getReportObject("TestRecord", self)
+		tRecord = TestRecord(self)
 		for k, v in record.items():
 			tRecord[k] = v
 		tRecord.initAvailableProps()
@@ -582,6 +594,7 @@ class TestRecord(ReportObject):
 		for k, v in self.items():
 			self.AvailableProps[k] = toPropDict(str, "", "")
 	
+
 class ReportWriter(object):
 	"""Reads a report form specification, iterates over a data cursor, and
 	outputs a pdf file. Allows for lots of fine-tuned control over layout, and
@@ -849,7 +862,15 @@ class ReportWriter(object):
 
 				t = fobject.__class__.__name__
 				s = styles_[fobject.getProp("style")]
-				e = fobject.getProp("expr").encode(self.Encoding)
+				try:
+					expr = eval(fobject["expr"])
+				except Exception, e:
+					# Something failed in the eval, print the exception string instead:
+					expr = e
+				if isinstance(s, basestring):
+					expr = expr.encode(self.Encoding)
+				else:
+					expr = unicode(expr)
 				s = copy.deepcopy(s)
 
 				if fobject.has_key("fontSize"):
@@ -874,7 +895,7 @@ class ReportWriter(object):
 					s.firstLineIndent = fobject.getProp("firstLineIndent")
 
 				if t.lower() == "paragraph":
-					paras = e.split("\n")
+					paras = expr.split("\n")
 					for para in paras:
 						if len(para) == 0: 
 							# Blank line
@@ -933,7 +954,7 @@ class ReportWriter(object):
 				# width/height, resulting in clipping.
 				width, height = None, None
 
-			imageFile = eval(obj["expr"])
+			imageFile = obj.getProp("expr")
 			if not os.path.exists(imageFile):
 				imageFile = os.path.join(self.HomeDirectory, imageFile)
 			imageFile = str(imageFile)
@@ -1021,6 +1042,8 @@ class ReportWriter(object):
 		if _form is None:
 			raise ValueError, "ReportForm must be set first."
 
+		_form.reportWriter = self
+
 		_outputFile = self.OutputFile
 
 		pageSize = self.getPageSize()		
@@ -1049,13 +1072,14 @@ class ReportWriter(object):
 		# Initialize the variables list:
 		variables = _form.get("variables", ())
 		self._variableValues = {}
-		self.Variables = {}
+		self.Variables = CaselessDict()
 		for variable in variables:
 			vv = {}
 			vv["value"] = None
 			vv["curReset"] = None
-			self.Variables[variable["name"]] = eval(variable["initialValue"])
-			self._variableValues[variable["name"]] = vv
+			varName = variable.get("Name")
+			self.Variables[varName] = variable.getProp("InitialValue")
+			self._variableValues[varName] = vv
 
 		self._recordNumber = 0
 		self._currentColumn = 0
@@ -1072,22 +1096,20 @@ class ReportWriter(object):
 			"""
 			variables = self.ReportForm.get("variables", ())
 			for variable in variables:
-				vv = self._variableValues[variable["name"]]
-				if variable.has_key("resetAt"):
-					resetAt = eval(variable["resetAt"])
-				else:
-					resetAt = None
+				varName = variable.get("Name")
+				resetAt = eval(variable.get("resetAt"))
+				vv = self._variableValues[varName]
 				curReset = vv.get("curReset")
 				if resetAt != curReset:
 					# resetAt tripped: value to initial value
-					self.Variables[variable["name"]] = eval(variable["initialValue"])
+					self.Variables[varName] = variable.getProp("InitialValue")
 				vv["curReset"] = resetAt
 
 				# run the variable expression to get the current value:
 				vv["value"] = eval(variable["expr"])
 
 				# update the value of the public variable:
-				self.Variables[variable["name"]] = vv["value"]			
+				self.Variables[varName] = vv["value"]			
 					
 
 		def printBand(band, y=None, group=None):
@@ -1124,7 +1146,7 @@ class ReportWriter(object):
 				# Band name doesn't exist.
 				return y
 
-			self.Bands[band] = CaselessDict()
+			self.ReportForm.Bands[band] = CaselessDict()
 
 			height = bandDict.getProp("Height")
 			if height is not None:
@@ -1183,10 +1205,10 @@ class ReportWriter(object):
 				
 			x = ml + (self._currentColumn * columnWidth)
 				
-			self.Bands[band]["x"] = x
-			self.Bands[band]["y"] = y
-			self.Bands[band]["Width"] = width
-			self.Bands[band]["Height"] = height
+			self.ReportForm.Bands[band]["x"] = x
+			self.ReportForm.Bands[band]["y"] = y
+			self.ReportForm.Bands[band]["Width"] = width
+			self.ReportForm.Bands[band]["Height"] = height
 		
 			if self.ShowBandOutlines:
 				self.printBandOutline("%s (record %s)" % (band, self.RecordNumber), 
@@ -1475,7 +1497,7 @@ class ReportWriter(object):
 		"""Recursively generate the form dict from the given xmldict."""
 
 		if formdict is None:
-			formdict = self._getReportObject("Report", None)
+			formdict = Report(None)
 
 		if xmldict.has_key("children"):
 			# children with name of "objects", "variables" or "groups" are band 
@@ -1485,7 +1507,7 @@ class ReportWriter(object):
 					# Previously, we saved all the field types in the attributes. We need
 					# to ignore those if present, and make report["TestCursor"] a list of
 					# records.
-					cursor = formdict.addElement("TestCursor")
+					cursor = formdict.addElement(TestCursor)
 					for childrecord in child["children"]:
 						cursor.addRecord(childrecord["attributes"])
 				elif child.has_key("cdata"):
@@ -1522,7 +1544,7 @@ class ReportWriter(object):
 				"TestCursor": TestCursor, "TestRecord": TestRecord})
 
 		cls = typeMapping.get(objectType)
-		ref = cls(reportWriter=self, parent=parent)
+		ref = cls(parent)
 		return ref
 		
 
@@ -1657,6 +1679,9 @@ class ReportWriter(object):
 
 	def _setRecord(self, val):
 		self._record = val
+		if self.ReportForm:
+			# allow access from the live report object:
+			self.ReportForm._liveRecord = val
 
 	Record = property(_getRecord, _setRecord, None,
 		"""Specifies the dictionary that represents the current record.
