@@ -20,9 +20,6 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		preClass = wx.Menu
 		self.Parent = parent
 		self._useMRU = self._extractKey((properties, kwargs), "MRU", False)
-		self._mruPrompts = []
-		self._mruLinks = {}
-		self._mruMaxItems = 16
 		self._mruSeparator = None
 		## pkm: When a dMenuItem is added to a dMenu, the wx functions only
 		##      add the C++ portion, not the mixed-in dabo dMenuItem object.
