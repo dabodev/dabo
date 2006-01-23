@@ -326,6 +326,13 @@ class MenuOpen(MenuEvent):
 	appliesToClass = classmethod(appliesToClass)
 
 
+class MenuClose(MenuEvent):
+	"""Occurs when a menu has just been closed."""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dPemMixin)
+	appliesToClass = classmethod(appliesToClass)
+
+
 class Move(Event):
 	"""Occurs when the control's position changes."""
 	def appliesToClass(eventClass, objectClass):

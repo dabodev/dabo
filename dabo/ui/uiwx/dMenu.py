@@ -13,7 +13,8 @@ RadioItemType = wx.ITEM_RADIO
 
 
 class dMenu(wx.Menu, pm.dPemMixin):
-	"""Creates a menu, which can contain submenus, menu items, and separators.
+	"""Creates a menu, which can contain submenus, menu items, 
+	and separators.
 	"""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dMenu
@@ -27,14 +28,28 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		##      maps the id of the wxMenuItem to the dMenuItem object.
 		self._daboChildren = {}
 		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-
-		self.Bind(wx.EVT_MENU_OPEN, self.__onWxMenuOpen)
+		self.Application.uiApp.Bind(wx.EVT_MENU_OPEN, self.__onWxMenuOpen)
+		self.Application.uiApp.Bind(wx.EVT_MENU_CLOSE, self.__onWxMenuClose)
 		if self._useMRU:
 			self.bindEvent(dEvents.MenuOpen, self._onMenuOpenMRU)
 
 		
 	def __onWxMenuOpen(self, evt):
-		self.raiseEvent(dEvents.MenuOpen, evt)
+		if evt.GetMenu().Caption == self.Caption:
+			# Opening a single menu will trigger the wx event 
+			# for every menu in the menubar.
+			self.raiseEvent(dEvents.MenuOpen, evt)
+		else:
+			evt.Skip()
+
+
+	def __onWxMenuClose(self, evt):
+		if evt.GetMenu().Caption == self.Caption:
+			# Closing a single menu will trigger the wx event 
+			# for every menu in the menubar.
+			self.raiseEvent(dEvents.MenuClose, evt)
+		else:
+			evt.Skip()
 
 
 	def _onMenuOpenMRU(self, evt):
