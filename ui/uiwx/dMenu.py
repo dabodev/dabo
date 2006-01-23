@@ -34,9 +34,8 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		self.Bind(wx.EVT_MENU_OPEN, self.__onWxMenuOpen)
 		if self._useMRU:
 			self.bindEvent(dEvents.MenuOpen, self._onMenuOpenMRU)
-			
 
-
+		
 	def __onWxMenuOpen(self, evt):
 		self.raiseEvent(dEvents.MenuOpen, evt)
 
@@ -207,6 +206,12 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		return item
 
 
+	def clear(self):
+		"""Removes all items in this menu."""
+		while self.Children:
+			self.remove(0)
+			
+			
 	def _getItem(self, bindfunc, help, icon, menutype, **kwargs):
 		itmtyp = self._getItemType(menutype)
 		itm = dMenuItem.dMenuItem(self, HelpText=help, Icon=icon, 

@@ -266,8 +266,8 @@ def getEventData(wxEvt):
 			ed["mouseDown"] = ed["dragging"] = wxEvt.Dragging()
 
 	if isinstance(wxEvt, wx.MenuEvent):
-		ed["prompt"] = wxEvt.GetEventObject().Caption
-		ed["menuObject"] = wxEvt.GetEventObject()
+		ed["menuObject"] = wxEvt.GetMenu()
+		ed["prompt"] = wxEvt.GetMenu().Caption
 
 	if isinstance(wxEvt, wx.CommandEvent):
 		# See if it's a menu selection

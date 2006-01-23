@@ -506,7 +506,7 @@ class uiApp(wx.App, dObject):
 		mf = self._mruMenuFuncs.get(cap, {})
 		mf[prompt] = bindfunc
 		self._mruMenuFuncs[cap] = mf
-	
+
 	
 	def onMenuOpenMRU(self, menu):
 		"""Make sure that the MRU items are there and are in the 

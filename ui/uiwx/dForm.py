@@ -746,6 +746,10 @@ class dForm(wx.Frame, BaseForm):
 		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
+	def Layout(self):
+		super(dForm, self).Layout()
+		wx.CallAfter(self.refresh)
+
 
 class dToolForm(wx.MiniFrame, BaseForm):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
