@@ -6,7 +6,6 @@ import dabo.ui
 from dabo.lib.specParser import importRelationSpecs, importFieldSpecs
 from dabo.dLocalize import _, n_
 import dabo.lib.reportUtils as reportUtils
-from dabo.lib.reportWriter import *
 import PageFrame
 import Grid
 
@@ -622,6 +621,7 @@ class Form(dabo.ui.dForm):
 			   will be as defined in the browse page. If mode=="expanded", the fields displayed
 			   will be as defined in the edit page.
 		"""
+		from dabo.lib.reportWriter import Report, Page, TestCursor, TestRecord, String, Rectangle
 		def getNamedReportForm(mode):
 			fileName = os.path.join(self.Application.HomeDirectory, "reports", 
 					"datanav-%s-%s.rfxml" % (self.getBizobj().DataSource, mode))
