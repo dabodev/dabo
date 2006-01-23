@@ -44,7 +44,12 @@ class dPageFrameMixin(cm.dControlMixin):
 		self._lastPage = newPageNum
 		if oldPageNum is not None:
 			if oldPageNum >=0:
-				dabo.ui.callAfter(self.Pages[oldPageNum].raiseEvent, dEvents.PageLeave)
+				try:
+					oldPage = self.Pages[oldPageNum]
+					dabo.ui.callAfter(oldPage.raiseEvent, dEvents.PageLeave)
+				except:
+					# Page has already been released
+					return
 
 		if newPageNum >= 0 and self.PageCount > newPageNum:
 			dabo.ui.callAfter(self.Pages[newPageNum].raiseEvent, dEvents.PageEnter)
@@ -119,6 +124,39 @@ class dPageFrameMixin(cm.dControlMixin):
 		return self.Pages[pos]
 
 
+	def removePage(self, pgOrPos, delPage=True):
+		"""Removes the specified page. You can specify a page by either
+		passing the page itself, or a position. If delPage is True (default),
+		the page is released, and None is returned. If delPage is
+		False, the page is returned.
+		"""
+		pos = pgOrPos
+		if isinstance(pgOrPos, int):
+			pg = self.Pages[pgOrPos]
+		else:
+			pg = pgOrPos
+			pos = self.Pages.index(pg)
+		if delPage:
+			self.DeletePage(pos)
+			ret = None
+		else:
+			self.RemovePage(pos)
+			ret = pg
+		return pg
+		
+		
+	def cyclePages(self, num):
+		"""Moves through the pages by the specified amount, wrapping
+		around the ends. Negative values move to previous pages; positive
+		move through the next pages.
+		"""
+		fwd = num > 0
+		self.lockDisplay()
+		for ii in range(abs(num)):
+			self.AdvanceSelection(fwd)
+		self.unlockDisplay()
+		
+		
 	def layout(self):
 		""" Wrap the wx version of the call, if possible. """
 		self.Layout()

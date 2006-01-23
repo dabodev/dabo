@@ -88,6 +88,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dEditor
+		self._fileName = ""
 		self._beforeInit(None)
 		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 
@@ -96,7 +97,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
 		self._afterInit()
 		
-		self._newFileName = "< New File >"
+		self._newFileName = _("< New File >")
 		self._defaultsSet = False
 		self._registerFunc = None
 		self._unRegisterFunc = None
@@ -123,6 +124,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self._styleTimer.Interval = styleTimerInterval
 			self._styleTimer.start()
 		self._clearDocument()
+		self.setTitle()
 		
 	
 	def setFormCallbacks(self, funcTuple):
@@ -902,13 +904,15 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			fileName = os.path.split(self._fileName)
 			fileName = fileName[len(fileName)-1]
 		except AttributeError:
-			fileName = "<?>"
+			fileName = ""
+		if not fileName:
+			fileName = self._newFileName
 			
 		if self.GetModify():
 			modChar = "*"
 		else:
 			modChar = ""
-		self._title = "Dabo Editor: %s %s" % (fileName, modChar)
+		self._title = "%s %s" % (fileName, modChar)
 
 		if self._title != _oldTitle:
 			self.raiseEvent(dEvents.TitleChanged)
