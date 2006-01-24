@@ -159,7 +159,7 @@ class PropertyHelperMixin(object):
 	
 		The following examples all do the same thing:
 		self.setProperties(FontBold=True, ForeColor="Red")
-		self.setProperties({"FontBold": True, "ForeColor": "Red")
+		self.setProperties({"FontBold": True, "ForeColor": "Red"})
 		self.setProperties({"FontBold": True}, ForeColor="Red")
 		"""
 		def _setProps(_propDict):
