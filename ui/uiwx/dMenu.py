@@ -35,20 +35,26 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 		
 	def __onWxMenuOpen(self, evt):
-		if evt.GetMenu().Caption == self.Caption:
-			# Opening a single menu will trigger the wx event 
-			# for every menu in the menubar.
-			self.raiseEvent(dEvents.MenuOpen, evt)
-		else:
+		try:
+			if evt.GetMenu().Caption == self.Caption:
+				# Opening a single menu will trigger the wx event 
+				# for every menu in the menubar.
+				self.raiseEvent(dEvents.MenuOpen, evt)
+			else:
+				evt.Skip()
+		except:
 			evt.Skip()
 
 
 	def __onWxMenuClose(self, evt):
-		if evt.GetMenu().Caption == self.Caption:
-			# Closing a single menu will trigger the wx event 
-			# for every menu in the menubar.
-			self.raiseEvent(dEvents.MenuClose, evt)
-		else:
+		try:
+			if evt.GetMenu().Caption == self.Caption:
+				# Closing a single menu will trigger the wx event 
+				# for every menu in the menubar.
+				self.raiseEvent(dEvents.MenuClose, evt)
+			else:
+				evt.Skip()
+		except:
 			evt.Skip()
 
 
