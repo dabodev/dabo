@@ -774,7 +774,12 @@ class dBorderlessForm(wx.Frame, BaseForm):
 		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
 	
 
+class _dForm_test(dForm):
+	def onActivate(self, evt):
+		print "Activate"
+	def onDeactivate(self, evt):
+		print "Deactivate"
 					
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(dForm)
+	test.Test().runTest(_dForm_test)
