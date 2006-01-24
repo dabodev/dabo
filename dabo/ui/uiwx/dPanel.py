@@ -84,3 +84,17 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 	VerticalScroll = property(_getVerticalScroll, _setVerticalScroll, None,
 			_("Controls whether this object will scroll vertically (default=True)  (bool)"))
 	
+
+class _dPanel_test(dPanel):
+	def initProperties(self):
+		self.BackColor = "wheat"
+
+	def onMouseLeftDown(self, evt):
+		print "mousedown"
+
+	def onPaint(self, evt):
+		print "paint"
+
+if __name__ == "__main__":
+	import test
+	test.Test().runTest(_dPanel_test)

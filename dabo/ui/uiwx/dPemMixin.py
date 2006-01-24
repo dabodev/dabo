@@ -97,7 +97,7 @@ class dPemMixin(dPemMixinBase):
 
 		if isinstance(self, dabo.ui.dMenuItem):
 			# Hack: wx.MenuItem doesn't take a style arg,
-			# and the parent arg is parentMenu
+			# and the parent arg is parentMenu.
 			del self._preInitProperties["style"]
 			self._preInitProperties["parentMenu"] = parent
 		elif isinstance(self, (dabo.ui.dMenu, dabo.ui.dMenuBar)):
@@ -135,6 +135,9 @@ class dPemMixin(dPemMixinBase):
 		if threeWayInit:
 			self.PostCreate(pre)
 
+		# Before calling super().__init__() below, we need to remove the wx args:
+		kwargs = self._removeWxArgs(kwargs)
+
 		self._pemObject = self
 
 		# If a Name isn't given, a default name will be used, and it'll 
@@ -155,8 +158,23 @@ class dPemMixin(dPemMixinBase):
 
 		super(dPemMixin, self).__init__(*args, **kwargs)
 
+		if dabo.fastNameSet:
+			# Event AutoBinding is set to happen when the Name property changes, but
+			# with fastNameSet on, that never happened. Call it manually:
+			self.autoBindEvents()
+
 		# Finally, at the end of the init cycle, raise the Create event
 		self.raiseEvent(dEvents.Create)
+
+
+	def _getWxArgs(self):
+		return ("style", "id", "parent")
+
+	def _removeWxArgs(self, kwargs):
+		for key in self._getWxArgs():
+			if kwargs.has_key(key):
+				del kwargs[key]
+		return kwargs
 
 
 	def _constructed(self):

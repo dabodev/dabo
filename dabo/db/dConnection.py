@@ -7,7 +7,7 @@ class dConnection(dObject):
 	""" Hold a connection to a backend database. """
 	def __init__(self, connectInfo, parent=None):
 		self._baseClass = dConnection
-		super(dConnection, self).__init__(parent=parent)
+		super(dConnection, self).__init__()
 		# Store a reference to the parent object (bizobj maybe; app 
 		# object connection collection most likely)
 		self.Parent = parent

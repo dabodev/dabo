@@ -16,6 +16,9 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
+	def _getWxArgs(self):
+		return ("kind", "parentMenu") + pm.dPemMixin._getWxArgs(self)
+
 	def _initEvents(self):
 		## wx.MenuItems don't have a Bind() of their own, so this serves to 
 		## override the base behavior in dPemMixin._initEvents() which has
