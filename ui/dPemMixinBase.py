@@ -59,16 +59,18 @@ class dPemMixinBase(dObject):
 		# Called by the constructors of the dObjects, to properly set the
 		# name of the object based on whether the user set it explicitly
 		# or Dabo is to provide it implicitly.
+		_explicitName = kwargs.get("_explicitName", False)
+		
 		if "Name" in kwargs.keys():
-			if "_explicitName" in kwargs.keys():
-				_explicitName = kwargs["_explicitName"]
-				del kwargs["_explicitName"]
-			else:
+			if "_explicitName" not in kwargs.keys():
+				# Name was sent; _explicitName wasn't.
 				_explicitName = True
 			name = kwargs["Name"]
 		else:
-			_explicitName = False
 			name = defaultName
+
+		if kwargs.has_key("_explicitName"):
+			del(kwargs["_explicitName"])
 		return name, _explicitName
 		
 

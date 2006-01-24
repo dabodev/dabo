@@ -41,10 +41,13 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 			for k,v in properties.items():
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
+		if kwargs:
+			# Some kwargs haven't been handled.
+			raise TypeError, "__init__() got an unexpected keyword argument '%s'" % kwargs.keys()[0]
 		if self._call_afterInit:
 			self._afterInit()
 		self.setProperties(properties)
-
+		
 		DoDefaultMixin.__init__(self)		
 		PropertyHelperMixin.__init__(self)		
 		EventMixin.__init__(self)		

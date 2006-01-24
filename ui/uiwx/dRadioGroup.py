@@ -89,7 +89,10 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		additional = ["MaxElements", "Choices"]
 		original = list(super(dRadioGroup, self)._getInitPropertiesList())
 		return tuple(original + additional)
-		
+
+	def _getWxArgs(self):
+		return ("majorDimension", "choices") + dcm.dDataControlMixin._getWxArgs(self)
+
 
 	def _preInitUI(self, kwargs):
 		if kwargs.has_key("choices"):
