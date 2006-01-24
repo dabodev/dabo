@@ -106,6 +106,7 @@ class dApp(dObject):
 			self.showMainFormOnStart = False
 			self.setup()
 		self._afterInit()
+		self.autoBindEvents()
 		
 
 	def setup(self, initUI=True):

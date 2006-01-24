@@ -12,7 +12,6 @@ class uiApp(wx.App, dObject):
 	def __init__(self, *args):
 		wx.App.__init__(self, 0, args)
 		dObject.__init__(self)
-		self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
 		
 		self.Name = _("uiApp")
 		self._noneDisp = _("<null>")
@@ -36,6 +35,8 @@ class uiApp(wx.App, dObject):
 
 
 	def setup(self, dApp):
+		self.dApp = dApp
+
 		# wx has properties for appName and vendorName, so Dabo should update
 		# these. Among other possible uses, I know that on Win32 wx will use
 		# these for determining the registry key structure.
@@ -43,6 +44,11 @@ class uiApp(wx.App, dObject):
 		self.SetClassName(dApp.getAppInfo("appName"))
 		self.SetVendorName(dApp.getAppInfo("vendorName"))
 		
+		self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
+		self.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
+		self.Bind(wx.EVT_KEY_UP, self._onWxKeyUp)
+		self.Bind(wx.EVT_CHAR, self._onWxKeyChar)
+
 		self.charset = "unicode"
 		if not self.charset in wx.PlatformInfo:
 			self.charset = "ascii"
@@ -61,8 +67,6 @@ class uiApp(wx.App, dObject):
 			
 		wx.InitAllImageHandlers()
 
-		self.dApp = dApp
-	
 		frm = dApp.MainForm
 		if frm is None:
 			if dApp.MainFormClass is not None:
@@ -103,15 +107,28 @@ class uiApp(wx.App, dObject):
 	def _getPlatform(self):
 		return self._platform
 		
+
 	def _onWxActivate(self, evt):
 		""" Raise the Dabo Activate or Deactivate appropriately."""
 		if bool(evt.GetActive()):
-			self.raiseEvent(dEvents.Activate, evt)
+			self.dApp.raiseEvent(dEvents.Activate, evt)
 		else:
-			self.raiseEvent(dEvents.Deactivate, evt)
+			self.dApp.raiseEvent(dEvents.Deactivate, evt)
+		evt.Skip()
+	
+	def _onWxKeyChar(self, evt):
+		self.dApp.raiseEvent(dEvents.KeyChar, evt)
 		evt.Skip()
 			
-	
+	def _onWxKeyDown(self, evt):
+		self.dApp.raiseEvent(dEvents.KeyDown, evt)
+		evt.Skip()
+			
+	def _onWxKeyUp(self, evt):
+		self.dApp.raiseEvent(dEvents.KeyUp, evt)
+		evt.Skip()
+			
+
 	def onWinClose(self, evt):
 		"""Close the topmost window, if any."""
 		if self.ActiveForm:
