@@ -14,10 +14,6 @@ class dControlItemMixin(dDataControlMixin):
 		super(dControlItemMixin, self).__init__(*args, **kwargs)
 
 		
-	def _getWxArgs(self):
-		return ("choices",) + dDataControlMixin._getWxArgs(self)
-
-
 	def appendItem(self, txt, select=False):
 		""" Adds a new item to the end of the list """
 		chc = self._choices
