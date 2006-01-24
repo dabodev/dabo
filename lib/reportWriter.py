@@ -1400,7 +1400,7 @@ class ReportWriter(object):
 			return -1
 		elif posY < posX:
 			return 1
-		return cmp(x,y)
+		return cmp(x.lower(), y.lower())
 
 
 	def _getXMLDictFromForm(self, form, d=None):
