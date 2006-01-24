@@ -55,7 +55,7 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 		# Enable detection of clicks on the caption bar
 		self._captionBar.Bind(wx.EVT_LEFT_UP, self.__onWxCaptionClick)
 	
-	
+
 	def onChildBorn(self, evt):
 		self._bar.lockDisplay()
 		ch = evt.child

@@ -95,33 +95,37 @@ class dPemMixin(dPemMixinBase):
 		else:
 			id_ = -1
 
-		if isinstance(self, dabo.ui.dMenuItem):
+		if self._preInitProperties.has_key("style"):
+			self._preInitProperties["style"] = self._preInitProperties["style"] | style
+		else:
+			self._preInitProperties["style"] = style
+		self._preInitProperties["parent"] = parent
+		self._preInitProperties["id"] = id_
+
+		# Hacks to fix up various things:
+		import dMenuBar, dMenuItem, dMenu, dFoldPanelBar
+		if isinstance(self, dMenuItem.dMenuItem):
 			# Hack: wx.MenuItem doesn't take a style arg,
 			# and the parent arg is parentMenu.
 			del self._preInitProperties["style"]
 			self._preInitProperties["parentMenu"] = parent
-		elif isinstance(self, (dabo.ui.dMenu, dabo.ui.dMenuBar)):
+			del self._preInitProperties["parent"]
+		elif isinstance(self, (dMenu.dMenu, dMenuBar.dMenuBar)):
 			# Hack: wx.Menu has no style, parent, or id arg.
-			del self._preInitProperties["style"]
-		elif isinstance(self, (dabo.ui.dFoldPanel, dabo.ui.dFoldPanelBar)):
+			del(self._preInitProperties["style"])
+			del(self._preInitProperties["id"])
+			del(self._preInitProperties["parent"])
+		elif isinstance(self, (dFoldPanelBar.dFoldPanel, dFoldPanelBar.dFoldPanelBar)):
 			# Hack: the FoldPanel classes have no style arg.
 			del self._preInitProperties["style"]
 			# This is needed because these classes require a 'parent' param.
 			kwargs["parent"] = parent
-		else:
-			if self._preInitProperties.has_key("style"):
-				self._preInitProperties["style"] = self._preInitProperties["style"] | style
-			else:
-				self._preInitProperties["style"] = style
-			self._preInitProperties["parent"] = parent
-			self._preInitProperties["id"] = id_
 		
 		# The user's subclass code has had a chance to tweak the init properties.
 		# Insert any of those into the arguments to send to the wx constructor:
 		properties = self._setInitProperties(**properties)
 		for prop in self._preInitProperties.keys():
 			kwargs[prop] = self._preInitProperties[prop]
-		
 		# Allow the object a chance to add any required parms, such as OptionGroup
 		# which needs a choices parm in order to instantiate.
 		kwargs = self._preInitUI(kwargs)
@@ -134,9 +138,6 @@ class dPemMixin(dPemMixinBase):
 		
 		if threeWayInit:
 			self.PostCreate(pre)
-
-		# Before calling super().__init__() below, we need to remove the wx args:
-		kwargs = self._removeWxArgs(kwargs)
 
 		self._pemObject = self
 
@@ -156,7 +157,7 @@ class dPemMixin(dPemMixinBase):
 		# _afterInit() will call the afterInit() user hook
 		self._afterInit()
 
-		super(dPemMixin, self).__init__(*args, **kwargs)
+		super(dPemMixin, self).__init__()
 
 		if dabo.fastNameSet:
 			# Event AutoBinding is set to happen when the Name property changes, but
@@ -165,16 +166,6 @@ class dPemMixin(dPemMixinBase):
 
 		# Finally, at the end of the init cycle, raise the Create event
 		self.raiseEvent(dEvents.Create)
-
-
-	def _getWxArgs(self):
-		return ("style", "id", "parent")
-
-	def _removeWxArgs(self, kwargs):
-		for key in self._getWxArgs():
-			if kwargs.has_key(key):
-				del kwargs[key]
-		return kwargs
 
 
 	def _constructed(self):
