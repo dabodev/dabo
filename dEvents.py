@@ -158,7 +158,7 @@ class GridEvent(Event):
 	
 class KeyEvent(Event):
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.dPemMixin)
+		return issubclass(objectClass, (dabo.ui.dPemMixin, dabo.dApp))
 	appliesToClass = classmethod(appliesToClass)
 	
 	
