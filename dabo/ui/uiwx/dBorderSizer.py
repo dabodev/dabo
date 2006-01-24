@@ -146,7 +146,7 @@ class TestForm(dabo.ui.dForm):
 		self.Sizer.append1x(pnl, border=18)
 		
 class _dBorderSizer_test(dBorderSizer):
-	def __init__(self, *args, **kwargs):
+	def __init__(self, bx=None, *args, **kwargs):
 		super(_dBorderSizer_test, self).__init__(box=bx, orientation="h", *args, **kwargs)
 
 
