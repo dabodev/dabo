@@ -200,7 +200,10 @@ def colorTupleFromName(color):
 	try:
 		ret = colorDict[color.lower().strip()]
 	except KeyError:
-		ret = colorTupleFromString(color)
+		try:
+			ret = colorTupleFromHex(color)
+		except:
+			ret = colorTupleFromString(color)
 	return ret
 	
 		
