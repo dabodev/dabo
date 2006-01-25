@@ -1663,7 +1663,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			else:
 				# Ok, the bizobj doesn't have any records, yet we still want to build
 				# the grid. We can get enough info from getDataStructureFromDescription():
-				structure = bizobj.getDataStructureFromDescription()
+				try:
+					structure = bizobj.getDataStructureFromDescription()
+				except:
+					# Well, that call failed... seems that sqlite doesn't define a cursor 
+					# description? I need to test this out. For now, fall back to the old
+					# code that gets the data structure by executing "select * from table
+					# where 1=0". The downside to this is that no derived fields will be
+					# included in the structure.
+					structure = bizobj.getDataStructure()
 				firstRec = {}
 				for field in structure:
 					firstRec[field[0]] = None
