@@ -1,20 +1,17 @@
 See the Subversion log for all the details.
 
 Dabo 0.5.1 (2006-01-25) (Revision 1860):
-Additional MDI/SDI improvements and fixes. By default, dForm on Windows will be
-a MDI child.
+Additional MDI/SDI improvements and fixes. By default, dForm on Windows will be a MDI child.
 
-Fixed PageFrame background color to take the background color from the form, not
-unconditional white. Only on Windows - Gtk and Mac do the right thing by default.
+Fixed PageFrame background color to take the background color from the form, not unconditional white. Only on Windows - Gtk and Mac do the right thing by default.
 
 Fixed various issues with getting icon files and converting them to bitmaps.
 
-Set the default grid font to Arial,9 on Windows, as the wx-default was just plain 
-ugly.
+Set the default grid font to Arial,9 on Windows, as the wx-default was just plain ugly.
 
 Added getPositionInSizer() method to sizers, since they may also be contained within sizers.
 
-Reworked dShell. Now it appears as a split window, with the standard command area on the top, and the output in the lower pane. 
+Reworked dShell. Now it appears as a split window, with the standard command area on the top, and the output in the lower pane.
 
 Changed dGridSizer to raise an exception if the insert method is called instead of just returning False.
 
@@ -24,7 +21,7 @@ Added scrollToBeginning() and scrollToEnd() methods to dEditBox.
 
 Added pass-through properties for dSplitForm's splitter's panels.
 
-Added the property 'SplitState' to the dShell class. By right-clicking on the shell, you can toggle between the new split behavior and the "traditional" single pane behavior. 
+Added the property 'SplitState' to the dShell class. By right-clicking on the shell, you can toggle between the new split behavior and the "traditional" single pane behavior.
 
 Added a right-click menu to the output pane. Right now all it can do is clear itself, but we could add other stuff such as font selection, etc.
 
@@ -54,9 +51,7 @@ Added new properties to grid:
 
 The scrolling properties are booleans, and will hide/show the scrollbars.
 
-Fixed some problems with setting the column's Width. For a number of reasons, 
-when you created a grid from scratch and then added columns using addColumn,
-the columns widths you'd specify weren't being respected. Fixed.
+Fixed some problems with setting the column's Width. For a number of reasons, when you created a grid from scratch and then added columns using addColumn, the columns widths you'd specify weren't being respected. Fixed.
 
 Moved the code for the dEditor class from ide/dEditor.py into its own uiwx-level class. This will allow other apps (I'm thinking Designer here!) to instantiate code editors where they need.
 
@@ -64,13 +59,9 @@ Revamped the layout of the dOkCancelDialog class to create the panel and sizer t
 
 Cleaned up some of the default spacing so that with AutoSize=True, the form still looks OK.
 
-Removed the split sash code from the dEditor. That stuff belongs in the form
-the editor is located, not in the editor itself.
+Removed the split sash code from the dEditor. That stuff belongs in the form the editor is located, not in the editor itself.
 
-Fixed a bug in dGrid that only seemed to pop up when the grid was located on
-a form with a bizobj but that wasn't a dForm. The presets dialog in
-minesweeper fit that description, and it was throwing errors when you
-navigated through the grid.
+Fixed a bug in dGrid that only seemed to pop up when the grid was located on a form with a bizobj but that wasn't a dForm. The presets dialog in minesweeper fit that description, and it was throwing errors when you navigated through the grid.
 
 Added methods for getting/setting the back color of individual items.
 
@@ -88,55 +79,33 @@ Improved dImage to support 90 degree rotation in either direction. Added rotatio
 
 Fixed a bug in dListControl's StringValue prop, and any other place where the framework was trying to call the control's GetString() method, since it doesn't have one.
 
-Added SearchDelay property to dApp, which becomes the default SearchDelay for
-dGrid. The dGrid SearchDelay can get set to any int but that won't override
-the dApp setting. If dGrid.SearchDelay is set to None (the default), that is
-when the dApp setting gets used. Set the default SearchDelay to 300 - better 
-than the previous 600 IMO but still not too fast. Eventually, when we provide 
-a default system preference screen, we should expose this property for the 
-user to tweak how they like.
+Added SearchDelay property to dApp, which becomes the default SearchDelay for dGrid. The dGrid SearchDelay can get set to any int but that won't override the dApp setting. If dGrid.SearchDelay is set to None (the default), that is when the dApp setting gets used. Set the default SearchDelay to 300 - better than the previous 600 IMO but still not too fast. Eventually, when we provide a default system preference screen, we should expose this property for the user to tweak how they like.
 
-Cleaned up and consolidated lots of stuff in dGrid, which shouldn't have any
-effect on runtime performance. Made SameSizeRows into an actual property.
+Cleaned up and consolidated lots of stuff in dGrid, which shouldn't have any effect on runtime performance. Made SameSizeRows into an actual property.
 
-Using the standard button sizer in the okay/cancel dialog is good, because
-it lets wx handle the platform-convention rules. However, even though it
-handles rearranging the order of the buttons as needed, it doesn't 
-rearrange tab order. So I added code to do that.
+Using the standard button sizer in the okay/cancel dialog is good, because it lets wx handle the platform-convention rules. However, even though it handles rearranging the order of the buttons as needed, it doesn't rearrange tab order. So I added code to do that.
 
 Reworked the login dialog to subclass from dOkCancelDialog.
 
-Reworked dGrid to sync the rowcount in refresh() calls. Fixed bug in syncing
-of column counts.
+Reworked dGrid to sync the rowcount in refresh() calls. Fixed bug in syncing of column counts.
 
-The entire populate() cycle was happening every time you entered the browse 
-page in datanav apps, when in reality the only thing you need to do in 
-current dGrids when the dataset has been requeried is a simple refresh().
+The entire populate() cycle was happening every time you entered the browse page in datanav apps, when in reality the only thing you need to do in current dGrids when the dataset has been requeried is a simple refresh().
 
 Added an initial call to _clearDocument(), which is where all the defaults are set for the editor. The DesignerEditor would not indent properly without this.
 
 Added moveToBeginning() and moveToEnd() methods to position the pointer at the beginning and end of the document, respectively.
 
-Added functions to dBizobj, dCursor, and dBackend to get the data structure
-from the cursor description, instead of querying the backend based on a 
-table name. This is more likely to contain correct information, but will
-need work for other backends besides MySQL. Also, getting the pkid is
-still problematic - but IMO it isn't a big deal to just have the user
-tell us which field to use as the PK.
+Added functions to dBizobj, dCursor, and dBackend to get the data structure from the cursor description, instead of querying the backend based on a table name. This is more likely to contain correct information, but will need work for other backends besides MySQL. Also, getting the pkid is still problematic - but IMO it isn't a big deal to just have the user tell us which field to use as the PK.
 
-Fixed dGrid's buildFromDataSet() to use the new function so it will work
-even if the bizobj has no records at the time of creation.
+Fixed dGrid's buildFromDataSet() to use the new function so it will work even if the bizobj has no records at the time of creation.
 
-Fixed dGrid.sort() to not care if sort is done on an empty bizobj.
-Added the logic to restore code saved in the Designer so that it functions properly in the re-created form.
+Fixed dGrid.sort() to not care if sort is done on an empty bizobj. Added the logic to restore code saved in the Designer so that it functions properly in the re-created form.
 
 This is big - really big. For the first time, you can create a form in the Designer, add code to be bound to events, or create custom methods, and that code will work in the form created from the .cdxml file exactly the same as if you had written those methods in a regular .py script.
 
 Improved the card deck pictures.
 
-Fixed some problems in the Icon setter that would cause errors if None was
-passed, or if the icon path didn't exist, as would be the case if you were
-running with py2exe and didn't include the icon files as resources.
+Fixed some problems in the Icon setter that would cause errors if None was passed, or if the icon path didn't exist, as would be the case if you were running with py2exe and didn't include the icon files as resources.
 
 Added a significant change to eventMixin.py's auto event binding logic. The code now first looks at the object itself before looking up its family tree. This is critical for the event binding when running a cdxml file, where methods are added to the object at runtime, and are not present in the class definition.
 
@@ -154,11 +123,7 @@ Added 'drawBitmap()' method to dPemMixin. Like the other wx.DC drawing methods, 
 
 Changed getSQL() so that if no FROM clause has been specified, it defaults to a FROM clause using the cursor's Table.
 
-Added properties SettingsFileName and SettingsDirectoryName to the app's
-UserSettingProvider. The defaults for both come from 
-app.getAppInfo("appShortName"), and determine the name of the directory
-and file name of the user settings file. The directory name will be 
-lower()'d and have a '.' prepended automatically.
+Addedproperties SettingsFileName and SettingsDirectoryName to the app's UserSettingProvider. The defaults for both come from app.getAppInfo("appShortName"), and determine the name of the directory and file name of the user settings file. The directory name will be lower()'d and have a '.' prepended automatically.
 
 Created the dFoldPanel and dFoldPanelBar classes, which wrap the built-in wx.lib.FoldPanel classes. Modified __init__.py to include these, and added some hacks to dPemMixin to enable them to work with the event structure.
 
@@ -212,9 +177,7 @@ Fixed a bug in dGridSizer. Apparently, calling 'AddGrowableRow/Col' multiple tim
 
 Added the drawText() method, along with the text draw objects.
 
-Added columns to reportWriter. Added smarter sorting of elements in the xml
-output, for instance putting the report title up top instead of on bottom,
-and putting the bands in order that they appear and not alpha order.
+Added columns to reportWriter. Added smarter sorting of elements in the xml output, for instance putting the report title up top instead of on bottom, and putting the bands in order that they appear and not alpha order.
 
 Changed all the sizer routines to return the SizerItem managing the object that was just added to the sizer.
 
@@ -224,22 +187,17 @@ Modified the dFoldPanelBar class to better time its refreshes. It's still a bit 
 
 Modified dFormMixin to handle the new Spacer panels correctly.
 
-Added a 'Children' property to dFoldPanelBar that returns the child panels,
-instead of the layout panel that it uses to manage the visible panels.
+Added a 'Children' property to dFoldPanelBar that returns the child panels, instead of the layout panel that it uses to manage the visible panels.
 
-Added a return value to setItemProp() in the sizers so that we can tell if a
-value was successfully applied.
+Added a return value to setItemProp() in the sizers so that we can tell if a value was successfully applied.
 
-Fixed the problem with propertyHelperMixin.getPropertyList(): it was
-caching the list of properties across the class hierarchy, instead of
-caching just for this one class definition. Good catch, Ed!
+Fixed the problem with propertyHelperMixin.getPropertyList(): it was caching the list of properties across the class hierarchy, instead of caching just for this one class definition. Good catch, Ed!
 
 Wrapped the wx.CheckListBox for Dabo.
 
 Changed the parameter to sizer for setting the sides that the Border property applies to from 'borderFlags' to 'borderSides', as this seems much more appropriate. Updated the sizers to properly get/set this prop from a list of values.
 
-Changed all hard-coded "\n" in dicttoxml to the more crossplatform idiom
-"%s" % os.linesep.
+Changed all hard-coded "\n" in dicttoxml to the more crossplatform idiom "%s" % os.linesep.
 
 Fixed a problem whereby nested sizers did not get their Parent property set. Thanks to Casey McGuire for catching this bug.
 
@@ -247,8 +205,7 @@ Added the GridCellEditBegin event, which is raised when a grid cell editor is sh
 
 Added StayOnTop property to dFormMixin.
 
-Added ShowMenuBar property, so I can avoid showing the Dabo menubar on my
-property sheet and object tree forms.
+Added ShowMenuBar property, so I can avoid showing the Dabo menubar on my property sheet and object tree forms.
 
 Added groups and variables elements to a newly created report form.
 
@@ -256,8 +213,7 @@ Changed the default position to (-1, -1), since (0, 0) places the form under the
 
 Fixed a problem with dGrid on Windows where the propsheet was stealing the focus
 
-Added ForegroundColor and BackgroundColor to dColumn. These props apply
-to all cells in a column that don't have custom renderers.
+Added ForegroundColor and BackgroundColor to dColumn. These props apply to all cells in a column that don't have custom renderers.
 
 Fleshed out the 'nextNode()' and 'priorNode()' methods to provide true flat navigation through the tree. Also cleaned up several other methods that dealt with nodes and their objects.
 
@@ -294,54 +250,31 @@ Added a Dabo wrapper for wx._core._wxPyDeadObject.
 Added a couple helper functions for converting between 0-255 rgb
 format and 0-1 format.
 
-Added basic MRU (Most Recently Used) capabilities to Dabo. I had looked at the wx.FileHistory class, but it seemed a bit too rigid to work with our design. 
-
-To use MRU in a menu, the menu should be created by passing 'MRU=True' in the constructor. I've 
+Added basic MRU (Most Recently Used) capabilities to Dabo. I had looked at the wx.FileHistory class, but it seemed a bit too rigid to work with our design. To use MRU in a menu, the menu should be created by passing 'MRU=True' in the constructor.
 
 Added Variables, Groups, and Objects as ReportObjectCollections. 
 
-Changed dEvents.ContextMenu to derive from Event instead of MenuEvent, since
-the contextmenu event is a request for a context menu to be displayed, and 
-not generated from any existing menu.
+Changed dEvents.ContextMenu to derive from Event instead of MenuEvent, since the contextmenu event is a request for a context menu to be displayed, and not generated from any existing menu.
 
-Added an addObject() function to report objects. Changed the sorting of 
-report elements so that Variables appears before Groups. Fixed a bug 
-which sometimes kept variables and groups from getting their xml
-generated.
+Added an addObject() function to report objects. Changed the sorting of report elements so that Variables appears before Groups. Fixed a bug which sometimes kept variables and groups from getting their xml generated.
 
 Modified xmltodict to properly escape any internal ampersands.
 
-Modified the Quick Report (list format) to generate the report form not by
-crafting the XML by hand, but by using the object interface and then finally
-having the report writer return the XML. This results in quick reports 
-getting the same XML format as if the Designer were used.
+Modified the Quick Report (list format) to generate the report form not by crafting the XML by hand, but by using the object interface and then finally having the report writer return the XML. This results in quick reports getting the same XML format as if the Designer were used.
 
 Added the dHyperLink control. This is a wrapped version of the wx.lib.hyperlink.HyperLinkCtrl.
 
-Added a new function to dabo.ui, callAfterInterval(func, interval). It will
-call the passed function after the interval has elapsed. Additionally, if
-callAfterInterval() is called again with the same function before the original
-timer had elapsed, the old timer is destroyed and the new one instantiated,
-making the function only run once, after a timer finally reaches the interval.
+Added a new function to dabo.ui, callAfterInterval(func, interval). It will call the passed function after the interval has elapsed. Additionally, if callAfterInterval() is called again with the same function before the original timer had elapsed, the old timer is destroyed and the new one instantiated, making the function only run once, after a timer finally reaches the interval.
 
 Added 'removePage()' and 'cyclePages()' functions to the dPageFrameMixin class. The former allow for a specific page to be removed, while the latter accepts an integer value and cycles the selected page forward (positive) or backwards (negative).
 
 Added a clear() function to dMenu() for removing all current items.
 
-Thanks to Brandon Singer, I've fixed a problem where passing kwargs to the 
-constructor of any dObject subclass would silently pass any unhandled 
-kwargs. The fix to the base problem was easy, but it turns out lots of 
-our code was relying on this. I fixed the obvious places (code that gets run
-from dabo/ui/uiwx/test.py) but I suspect I've missed a few. If you get
-the exception:
-
-TypeError: __init__() got an unexpected keyword argument '<argument>'
-
+Thanks to Brandon Singer, I've fixed a problem where passing kwargs to the constructor of any dObject subclass would silently pass any unhandled kwargs. The fix to the base problem was easy, but it turns out lots of our code was relying on this. I fixed the obvious places (code that gets run from dabo/ui/uiwx/test.py) but I suspect I've missed a few. If you get the exception:
+		TypeError: __init__() got an unexpected keyword argument '<argument>'
 then it is due to this fix.
 
-The minesweeper demo uses dabo.fastNameSet when creating the squares, and
-it turns out that when fastNameSet is True, autoBindEvents() doesn't run.
-Fixed.
+The minesweeper demo uses dabo.fastNameSet when creating the squares, and it turns out that when fastNameSet is True, autoBindEvents() doesn't run. Fixed.
 
 Fixed dApp to raise the Activate/Deactivate events properly. Fixed dApp to raise Key events. The app gets key events if no window has stopped the event along the way. So now we can dApp.bindEvent(dEvents.KeyChar, func). Fixed dApp to autoBindEvents().
 
