@@ -232,13 +232,26 @@ class dMenu(wx.Menu, pm.dPemMixin):
 			
 	def _getItem(self, bindfunc, help, icon, menutype, **kwargs):
 		itmtyp = self._getItemType(menutype)
+		itmid = self._getItemID(menutype)
+		if itmid <> wx.ID_DEFAULT:
+			kwargs["id"] = itmid
 		itm = dMenuItem.dMenuItem(self, HelpText=help, Icon=icon, 
 				kind=itmtyp, **kwargs)
 		if bindfunc:
 			itm.bindEvent(dEvents.Hit, bindfunc)
 		return itm
 
+	def _getItemID(self,typ):
+		typ = str(typ).lower()
+		ret = wx.ID_DEFAULT
+		if typ == "exit":
+			ret = wx.ID_EXIT
+		elif typ == "about":
+			ret = wx.ID_ABOUT
+		elif typ in ("pref", "prefs"):
+			ret = wx.ID_PREFERENCES
 
+		return ret
 	def _getItemType(self, typ):
 		typ = str(typ).lower()[:3]
 		ret = NormalItemType
