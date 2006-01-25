@@ -469,9 +469,14 @@ class dFormMixin(pm.dPemMixin):
 		try:
 			self.refreshControls()
 			self.Refresh()
-		except:
+		except dabo.ui.deadObjectException:
+			# This can happen if a form is released when there is a 
+			# pending callAfter() refresh.
+			pass
+		except StandardError, e:
 			dabo.infoLog.write(_("Problem refreshing form %s") % self._name)
-		
+			print e
+
 		
 	def refreshControls(self, grid=None):
 		""" Refresh the value of all contained dControls.
