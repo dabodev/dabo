@@ -334,6 +334,73 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 
+
+
+class GridListEditor(wx.grid.GridCellChoiceEditor):
+	def __init__(self, *args, **kwargs):
+		dabo.infoLog.write("GridListEditor: Init ")
+		dabo.infoLog.write(str(args))
+		dabo.infoLog.write(str(kwargs))
+		super(GridListEditor, self).__init__(*args, **kwargs)
+		
+	def Create(self, parent, id, evtHandler, *args, **kwargs): 
+		dabo.infoLog.write("GridListEditor: Create")
+		dabo.infoLog.write(str(args))
+		dabo.infoLog.write(str(kwargs))
+		self.control = dabo.ui.dDropdownList(parent=parent, id=id, 
+				ValueMode="String") 
+		self.SetControl(self.control) 
+		if evtHandler: 
+			self.control.PushEventHandler(evtHandler) 
+# 		super(GridListEditor, self).Create(parent, id, evtHandler)
+
+	def Clone(self):
+		return self.__class__() 
+
+	def SetParameters(self, paramStr):
+		dabo.infoLog.write("GridListEditor: SetParameters: %s" % paramStr)
+		self.control.Choices = eval(paramStr)
+		
+	def BeginEdit(self, row, col, grid):
+		dabo.infoLog.write("GridListEditor: BeginEdit (%d,%d)" % (row, col))
+		self.value = grid.GetTable().GetValue(row, col)
+		dabo.infoLog.write("GridListEditor: Value=%s" % self.value)
+		dabo.infoLog.write("GridListEditor: Choices=%s" % self.control.Choices)
+		try:
+			self.control.Value = self.value
+		except ValueError: 
+			dabo.infoLog.write("GridListEditor: Value not in Choices")
+		self.control.SetFocus()
+
+	def EndEdit(self, row, col, grid):
+		dabo.infoLog.write("GridListEditor: EndEdit (%d,%d)" % (row, col))
+		changed = False
+		v = self.control.Value
+		if v != self.value:
+			changed = True
+		if changed:
+			grid.GetTable().SetValue(row, col, value)
+		self.value = ""
+		self.control.Value = self.value
+		return changed
+
+	def Reset(self):
+		dabo.infoLog.write("GridListEditor: Reset")
+		self.control.Value = self.value
+
+# 	def SetSize(self, rectorig):
+# 		dabo.infoLog.write("GridListEditor: SetSize: %s" % rectorig)
+# 		dabo.infoLog.write("GridListEditor: type of rectorig: %s" % type(rectorig))
+# # 		rect = wx.Rect(rectorig)
+# # 		dabo.infoLog.write("GridListEditor RECT: %s" % rect)
+# 		super(GridListEditor, self).SetSize(rectorig)
+
+	def IsAcceptedKey(self, key):
+		dabo.infoLog.write("GridListEditor: check key: %d" % (key))
+		return true
+
+
+
 class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	""" These aren't the actual columns that appear in the grid; rather,
 	they provide a way to interact with the underlying grid table in a more
@@ -370,7 +437,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.longEditorClass = wx.grid.GridCellNumberEditor
 		self.decimalEditorClass = wx.grid.GridCellNumberEditor
 		self.floatEditorClass = wx.grid.GridCellFloatEditor
-		self.listEditorClass = wx.grid.GridCellChoiceEditor		
+# 		self.listEditorClass = wx.grid.GridCellChoiceEditor		
+		self.listEditorClass = GridListEditor
 		
 		self.defaultRenderers = {
 			"str" : self.stringRendererClass, 
@@ -1384,6 +1452,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.__onWxMouseLeftClick)
 		self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.__onWxMouseRightClick)
 		self.Bind(wx.grid.EVT_GRID_EDITOR_SHOWN, self.__onWxGridEditorShown)
+		self.Bind(wx.grid.EVT_GRID_EDITOR_CREATED, self.__onWxGridEditorCreated)
 		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxGridCellChange)
 		self.Bind(wx.grid.EVT_GRID_RANGE_SELECT, self.__onWxGridRangeSelect)
 
@@ -2759,6 +2828,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.raiseEvent(dEvents.GridCellEditBegin, evt)
 		evt.Skip()
 
+	def __onWxGridEditorCreated(self, evt):
+		""" Bind the kill focus event to the newly instantiated cell editor """ 
+		editor = evt.GetControl() 
+		editor.Bind(wx.EVT_KILL_FOCUS, self.__onWxGridCellEditorKillFocus) 
+		evt.Skip()
+
+	def __onWxGridCellEditorKillFocus(self, evt):
+		# Cell editor's grandparent, the grid GridWindow's parent, is the grid. 
+		self.SaveEditControlValue() 
+		self.HideCellEditControl() 
+		evt.Skip() 
+	
 	def __onWxGridCellChange(self, evt):
 		self.raiseEvent(dEvents.GridCellEdited, evt)
 		evt.Skip()
@@ -3008,13 +3089,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _setCurrentRow(self, val):
 		if self._constructed():
+			curr = self.GetGridCursorRow()
 			if val >= self.RowCount:
 				val = self.RowCount - 1
 			if val < 0:
 				val = 0
 			cn = self.CurrentColumn
-			dabo.ui.callAfter(self.SetGridCursor, val, cn)
-			self.MakeCellVisible(val, cn)
+			if curr != val:
+				# The row is being changed
+				if cn >= 0:
+					dabo.ui.callAfter(self.SetGridCursor, val, cn)
+				self.MakeCellVisible(val, cn)
 		else:
 			self._properties["CurrentRow"] = val		
 
