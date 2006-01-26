@@ -187,7 +187,12 @@ class dCursorMixin(dObject):
 				# First, get the description property and extract the field names from that
 				fldNames = []
 				for fld in self.FieldDescription:
-					fldNames.append(fld[0].lower())
+					### 2006.01.26: egl - Removed the lower() function, which was preventing
+					### this from working with case-sensitive backends. I can't recall why it was 
+					### ever added, so I'm leaving it here commented out in case we run into
+					### something that explains the need for this.
+					#fldNames.append(fld[0].lower())
+					fldNames.append(fld[0])
 				fldcount = len(fldNames)
 				# Now go through each row, and convert it to a dictionary. We will then
 				# add that dictionary to the tmpRows list. When all is done, we will replace 
@@ -266,7 +271,7 @@ class dCursorMixin(dObject):
 			for fname, fval in rec.items():
 				self._types[fname] = type(fval)
 		else:
-			print "RowCount is %s, so storeFieldTypes() can't run as implemented." % self.RowCount
+			dabo.errorLog.write(_("RowCount is %s, so storeFieldTypes() can't run as implemented.") % self.RowCount)
 	
 	
 	def sort(self, col, dir=None, caseSensitive=True):
@@ -604,7 +609,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					if fldType != type(val):
 						convTypes = (str, unicode, int, float, long, complex)
 						if isinstance(val, convTypes) and isinstance(rec[fld], basestring):
-							if isinstance(rec[fld], str):
+							if isinstance(fldType, str):
 								val = str(val)
 							else:
 								val = unicode(val)
