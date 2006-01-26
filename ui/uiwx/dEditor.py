@@ -763,18 +763,22 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		return dabo.ui.areYouSure(s)
 
 		
-	def promptForFileName(self, prompt="Select a file", saveAs=False):
+	def promptForFileName(self, prompt="Select a file", saveAs=False,
+			path=None):
 		"""Prompt the user for a file name."""
-		try:
-			dir_ = self._curdir
-		except:
-			dir_ = ""
+		if path is None:
+			try:
+				drct = self._curdir
+			except:
+				drct = ""
+		else:
+			drct = path
 		
 		if saveAs:
 			func = dabo.ui.getSaveAs
 		else:
 			func = dabo.ui.getFile
-		fname = func("py", "*", message=prompt, defaultPath=dir_)
+		fname = func("py", "*", message=prompt, defaultPath=drct)
 		return fname
 	
 		
