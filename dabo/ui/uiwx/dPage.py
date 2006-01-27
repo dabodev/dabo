@@ -8,7 +8,8 @@ class dPage(dPanel.dScrollPanel):
 	def __init__(self, *args, **kwargs):
 		super(dPage, self).__init__(*args, **kwargs)
 		self._baseClass = dPage	
-		
+		self.SetScrollbars(10, 10, -1, -1)
+
 		
 	def _afterInit(self):
 		self.initSizer()
