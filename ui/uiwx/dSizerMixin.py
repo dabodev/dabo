@@ -245,6 +245,8 @@ class dSizerMixin(dObject):
 					szr = szItem.GetSizer()
 					szr.release(True)
 		# Release this sizer
+		if isinstance(self, dabo.ui.dBorderSizer):
+			self.Box.release()
 		self.Destroy()
 	
 	

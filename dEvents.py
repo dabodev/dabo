@@ -543,6 +543,11 @@ class TreeItemExpand(TreeEvent):
 	pass
 
 
+class TreeItemContextMenu(TreeEvent):
+	""" Occurs when a tree item receives a context menu event."""
+	pass
+
+
 class GridContextMenu(GridEvent, MenuEvent):
 	"""Occurs when the context menu is requested in the grid region."""
 	pass
