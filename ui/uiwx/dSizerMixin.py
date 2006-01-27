@@ -431,13 +431,18 @@ class dSizerMixin(dObject):
 		w, h = self.GetSize()
 		# Offset
 		off = 0
+		# Pen Width
+		pw = 1
+		if self.Application.Platform == "Win":
+			# Make 'em a bit wider.
+			pw = 3
 		
 		dc = wx.ClientDC(win)
-		dc.SetPen(wx.Pen(self.outlineColor, 1, wx.SHORT_DASH))
+		dc.SetPen(wx.Pen(self.outlineColor, pw, wx.SHORT_DASH))
 		dc.SetBrush(wx.TRANSPARENT_BRUSH)
 		dc.SetLogicalFunction(wx.COPY)
 		# Draw the outline
-		dc.DrawRectangle( x+off, y+off, w-(2*off), h-(2*off) )
+		dabo.ui.callAfter(dc.DrawRectangle, x+off, y+off, w-(2*off), h-(2*off) )
 		
 		if recurse:
 			for ch in self.GetChildren():
