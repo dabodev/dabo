@@ -314,6 +314,10 @@ def getEventData(wxEvt):
 			ed["selectedCaption"] = ", ".join([ss.Caption for ss in sel])
 		else:
 			ed["selectedCaption"] = tree.Selection.Caption
+		try:
+			ed["itemID"] = wxEvt.GetItem()
+		except:
+			pass
 	
 	if hasattr(wxEvt, "GetId"):
 		ed["id"] = wxEvt.GetId()
