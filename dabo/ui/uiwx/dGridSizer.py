@@ -109,22 +109,23 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		""" Deletes any items contained in the specified row, and
 		then moves all items below it up to fill the space.
 		"""
-		for c in range(self._highCol):
+		for c in range(self._highCol+1):
 			szitm = self.FindItemAtPosition( (rowNum, c) )
 			if not szitm:
 				continue
 			itm = None
 			if szitm.IsWindow():
 				itm = szitm.GetWindow()
-				self.Remove(itm)
+				self.remove(itm)
 				itm.Destroy()
 			elif szitm.IsSizer():
 				szr = szitm.GetSizer()
 				# Release the sizer and its contents
+				self.remove(szr)
 				szr.release(True)
 			elif szitm.IsSpacer():
 				itm = szitm.GetSpacer()
-				self.Remove(itm)
+				self.remove(itm)
 		# OK, all items are removed. Now move all higher rows upward
 		for r in range(rowNum+1, self._highRow+1):
 			for c in range(self._highCol+1):
@@ -137,22 +138,23 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		""" Deletes any items contained in the specified column, and
 		then moves all items to the right of it up to fill the space.
 		"""
-		for r in range(self._highRow):
+		for r in range(self._highRow+1):
 			szitm = self.FindItemAtPosition( (r, colNum) )
 			if not szitm:
 				continue
 			itm = None
 			if szitm.IsWindow():
 				itm = szitm.GetWindow()
-				self.Remove(itm)
+				self.remove(itm)
 				itm.Destroy()
 			elif szitm.IsSizer():
 				szr = szitm.GetSizer()
+				self.remove(szr)
 				# Release the sizer and its contents
 				szr.release(True)
 			elif szitm.IsSpacer():
 				itm = szitm.GetSpacer()
-				self.Remove(itm)
+				self.remove(itm)
 		# OK, all items are removed. Now move all higher columns to the left
 		for r in range(self._highRow+1):
 			for c in range(colNum+1, self._highCol+1):
@@ -345,7 +347,10 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		"""
 		try:
 			itm = self.FindItemAtPosition((row, col))
-			ret = itm.GetWindow()
+			if itm.IsWindow():
+				ret = itm.GetWindow()
+			elif itm.IsSizer():
+				ret = itm.GetSizer()
 		except:
 			ret = None
 		return ret
