@@ -1,4 +1,5 @@
 import os
+import sys
 import wx, dabo
 import dPemMixin as pm
 import dBaseMenuBar as mnb
@@ -15,6 +16,11 @@ class dFormMixin(pm.dPemMixin):
 			src=None, attProperties=None, *args, **kwargs):
 		self._childList = None
 		self._codeDict = None
+
+		# Windows sends two Activate events, and one of them is too early.
+		# Skip the first one.
+		self._skipActivate = (sys.platform[:3] == "win")
+
 		if src:
 			# This is being created from a Class Designer file. 
 			try:
@@ -323,7 +329,11 @@ class dFormMixin(pm.dPemMixin):
 		""" Raise the Dabo Activate or Deactivate appropriately.
 		"""
 		if bool(evt.GetActive()):
-			self.raiseEvent(dEvents.Activate, evt)
+			if self._skipActivate:
+				# Skip the first activate (Windows)
+				self._skipActivate = False
+			else:
+				self.raiseEvent(dEvents.Activate, evt)
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
 			
