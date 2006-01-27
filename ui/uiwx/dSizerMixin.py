@@ -237,16 +237,16 @@ class dSizerMixin(dObject):
 			for szItem in self.GetChildren():
 				if szItem.IsWindow():
 					itm = szItem.GetWindow()
-					itm.release()
+					self.remove(itm, True)
 				elif szItem.IsSpacer():
 					# Spacers will be destroyed when the sizer is destroyed
 					pass
 				elif szItem.IsSizer():
 					szr = szItem.GetSizer()
-					szr.release(True)
+					self.remove(szr, True)
 		# Release this sizer
 		if isinstance(self, dabo.ui.dBorderSizer):
-			self.Box.release()
+			dabo.ui.callAfter(self.Box.release)
 		self.Destroy()
 	
 	
