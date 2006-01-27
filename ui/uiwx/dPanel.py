@@ -18,7 +18,8 @@ class dPanel(wx.Panel, cm.dControlMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dPanel
 		preClass = wx.PrePanel
-		kwargs["style"] = wx.TAB_TRAVERSAL
+		if "style" not in kwargs:
+			kwargs["style"] = wx.TAB_TRAVERSAL
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
@@ -43,9 +44,10 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 		self._horizontalScroll = self._verticalScroll = True
 		self._baseClass = dScrollPanel
 		preClass = wx.PreScrolledWindow
-		kwargs["style"] = wx.TAB_TRAVERSAL
+		if "style" not in kwargs:
+			kwargs["style"] = wx.TAB_TRAVERSAL
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-		self.SetScrollbars(10, 10, -1, -1)
+#		self.SetScrollbars(10, 10, -1, -1)
 	
 
 	def layout(self):
@@ -89,12 +91,40 @@ class _dPanel_test(dPanel):
 	def initProperties(self):
 		self.BackColor = "wheat"
 
+	def afterInit(self):
+		self.addObject(dPanel, BackColor = "green")
+
 	def onMouseLeftDown(self, evt):
 		print "mousedown"
 
 	def onPaint(self, evt):
 		print "paint"
 
+	def onKeyDown(self, evt):
+		print evt.EventData["keyCode"]
+
+
+class _dScrollPanel_test(dScrollPanel):
+	def initProperties(self):
+		self.BackColor = "wheat"
+
+	def afterInit(self):
+		subpan = self.addObject(dPanel, BackColor = "green")
+		subpan.bindEvent(dabo.dEvents.KeyDown, self.onKeyDown)
+		self.SetScrollbars(10,10,100,100)
+
+	def onMouseLeftDown(self, evt):
+		print "mousedown"
+		self.SetFocusIgnoringChildren()
+
+	def onPaint(self, evt):
+		print "paint"
+
+	def onKeyDown(self, evt):
+		print evt.EventData["keyCode"]
+
+
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dPanel_test)
+	test.Test().runTest(_dScrollPanel_test)
