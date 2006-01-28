@@ -98,6 +98,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self._afterInit()
 		
 		self._newFileName = _("< New File >")
+		self._curdir = os.getcwd()
 		self._defaultsSet = False
 		self._registerFunc = None
 		self._unRegisterFunc = None
@@ -890,7 +891,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				else:
 					return False
 			self._fileName = fileSpec
-			self._curdir = os.getcwd()
+			self._curdir = os.path.split(fileSpec)[0]
 			self.SetText(text)
 			self._clearDocument(clearText=False)
 			return True
