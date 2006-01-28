@@ -2,6 +2,7 @@
 
 import sys
 import os
+import re
 import keyword
 import code
 import inspect
@@ -102,6 +103,8 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self._defaultsSet = False
 		self._registerFunc = None
 		self._unRegisterFunc = None
+		# Used for parsing class and method names
+		self._pat = re.compile("^[ \t]*((?:(?:class)|(?:def)) [^\(]+)\(", re.M)
 
 		self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
 		self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
@@ -126,7 +129,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self._styleTimer.start()
 		self._clearDocument()
 		self.setTitle()
-		
+				
 	
 	def setFormCallbacks(self, funcTuple):
 		self._registerFunc, self._unRegisterFunc = funcTuple
@@ -135,6 +138,14 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 	def __del__(self):
 		self._unRegisterFunc(self)
 		super(dEditor, self).__del__()
+	
+	
+	def getFunctionList(self):
+		"""Returns a list of all 'class' and 'def' statements, along
+		with their starting positions in the text.
+		"""
+		it = self._pat.finditer(self.GetText())
+		return [(m.groups()[0], m.start()) for m in it]		
 		
 
 	def OnSBScroll(self, evt):
