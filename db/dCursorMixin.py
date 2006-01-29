@@ -1336,6 +1336,21 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 	
 
+	def createTable(self, tabledef):
+		"""Create a table based on the table definition."""
+		self.BackendObject.createJustTable(tabledef, self)
+		
+		
+	def createIndexes(self, tabledef):
+		"""Create indexes based on the table definition."""
+		self.BackendObject.createJustIndexes(tabledef, self)
+		
+		
+	def createTableAndIndexes(self, tabledef):
+		"""Create a table and its indexes based on the table definition."""
+		self.BackendObject.createTableAndIndexes(tabledef, self)
+
+
 	###     SQL Builder methods     ########
 	def getFieldClause(self):
 		""" Get the field clause of the sql statement."""

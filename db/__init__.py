@@ -30,3 +30,4 @@ from dConnection import dConnection
 from dCursorMixin import dCursorMixin
 from dMemento import dMemento
 from dConnectInfo import dConnectInfo
+from dTable import dTable

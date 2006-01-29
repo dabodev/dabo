@@ -364,6 +364,23 @@ class dBackend(dObject):
 		auxCrs.execute(tmpsql)
 		return auxCrs.FieldDescription
 	
+
+	##########		Created by Echo 	##############
+	def createJustTable(self, tabledef, cursor):
+		self.createTableAndIndex(tabledef, cursor, createIndexes=False)
+
+		
+	def createJustIndexes(self, tabledef, cursor):
+		self.createTableAndIndexes(tabledef, cursor, createTable=False)
+
+	
+	def createTableAndIndexes(self, tabledef, cursor, createTable=True, 
+			createIndex=True):
+		"""Creates a table and/or indexes based on the dTable passed to it."""
+		# OVERRIDE IN SUBCLASSES!
+		pass
+	##########		END  - Created by Echo 	##############
+
 	
 	###########################################	
 	# The following methods by default simply return the text 
