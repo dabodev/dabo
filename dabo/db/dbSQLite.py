@@ -19,9 +19,13 @@ class SQLite(dBackend):
 		return self.dbapi.Cursor
 
 	def escQuote(self, val):
+		if val is None:
+			return self.formatNone()
+			
 		sl = "\\"
 		qt = "\'"
-		return qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
+		return qt + str(val).replace(sl, sl+sl).replace(qt, qt+qt) + qt
+	
 	
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
@@ -29,6 +33,7 @@ class SQLite(dBackend):
 		####    values is returned correctly 
 		sqt = "'"		# single quote
 		return "%s%s%s" % (sqt, str(val), sqt)
+		
 		
 	def getTables(self, includeSystemTables=False):
 		tempCursor = self._connection.cursor()
@@ -165,3 +170,66 @@ class SQLite(dBackend):
 				fields.append( (rec["name"], fldType, False))
 			ret = tuple(fields)
 		return ret
+		
+
+	def createTableAndIndexes(self, tabledef, cursor, createTable=True, 
+			createIndexes=True):
+		if not tabledef.Name:
+			raise
+			
+		#Create the table
+		if createTable:
+			if not tabledef.IsTemp:
+				sql = "CREATE TABLE "
+			else:
+				sql = "CREATE TEMP TABLE "
+				
+			sql = sql + tabledef.Name + " ("
+			
+			for fld in tabledef.Fields:
+				sql = sql + fld.Name + " "
+				
+				if fld.DataType == "Numeric":
+					sql = sql + "INTEGER "
+					if fld.IsPK:
+						sql = sql + "PRIMARY KEY "
+						if fld.IsAutoIncrement:
+							sql = sql + "AUTOINCREMENT "
+				elif fld.DataType == "Float":
+					sql = sql + "REAL "
+				elif fld.DataType == "String":
+					sql = sql + "TEXT "
+				elif fld.DataType == "Date":
+					sql = sql + "TEXT "
+				elif fld.DataType == "Time":
+					sql = sql + "TEXT "
+				elif fld.DataType == "DateTime":
+					sql = sql + "TEXT "
+				elif fld.DataType == "Stamp":
+					sql = sql + "TEXT "
+				elif fld.DataType == "Binary":
+					sql = sql + "BLOB "
+					
+				if not fld.AllowNulls:
+					sql = sql + "NOT NULL "
+				sql = sql + "DEFAULT " + self.escQuote(fld.Default) + ","
+			if sql[-1:] == ",":
+				sql = sql[:-1]
+			sql = sql + ")"
+			
+			cursor.execute(sql)
+	
+		if createIndexes:
+			#Create the indexes
+			for idx in tabledef.Indexes:
+				if idx.Name.lower() != "primary":
+					sql = "CREATE INDEX " + idx.Name + " ON " + tabledef.Name + "("
+					
+					for fld in idx.Fields:
+						sql = sql + fld + ","
+				
+					if sql[-1:] == ",":
+						sql = sql[:-1]
+					sql = sql + ")"
+				
+			cursor.execute(sql)
