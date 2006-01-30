@@ -189,11 +189,29 @@ class ReportObject(CaselessDict):
 
 
 	def _getDesProps(self):
-		strType = {"type" : str, "readonly" : False}
+		strType = {"type" : str, "readonly" : False, "alsoDirectEdit": True}
 		props = self.AvailableProps.keys()
 		desProps = {}
 		for prop in props:
-			desProps[prop] = strType
+			desProps[prop] = strType.copy()
+			if "color" in prop.lower():
+				desProps[prop]["customEditor"] = "editColor"
+## 2006/1/30: The commented code below makes a dropdown list for the standard 
+#             fonts. However, it blows away the user being able to type in a
+#             font that isn't in the standard list. 
+#			if prop.lower() == "fontname":
+#				desProps[prop]["type"] = list
+#				desProps[prop]["values"] = ['"Courier"', '"Courier-Bold"', 
+#						'"Courier-Oblique"', '"Courier-BoldOblique"', '"Helvetica"', 
+#						'"Helvetica-Bold"', '"Helvetica-Oblique"', '"Helvetica-BoldOblique"',
+#						'"Times-Roman"', '"Times-Bold"', '"Times-Italic"', 
+#						'"Times-BoldItalic"', '"Symbol"', '"ZapfDingbats"']
+			if prop.lower() == "hanchor":
+				desProps[prop]["type"] = list
+				desProps[prop]["values"] = ['"Left"', '"Center"', '"Right"'] 
+			if prop.lower() == "vanchor":
+				desProps[prop]["type"] = list
+				desProps[prop]["values"] = ['"Bottom"', '"Middle"', '"Top"'] 
 		return desProps
 
 
@@ -666,8 +684,8 @@ class ReportWriter(object):
 			height = self.getPt(obj.getProp("Height"))
 	
 		rotation = obj.getProp("rotation")
-		hAnchor = obj.getProp("hAnchor")
-		vAnchor = obj.getProp("vAnchor")	
+		hAnchor = obj.getProp("hAnchor").lower()
+		vAnchor = obj.getProp("vAnchor").lower()
 
 		if hAnchor == "right":
 			x = x - width
@@ -1097,7 +1115,7 @@ class ReportWriter(object):
 			variables = self.ReportForm.get("variables", ())
 			for variable in variables:
 				varName = variable.get("Name")
-				resetAt = eval(variable.get("resetAt"))
+				resetAt = eval(variable.get("resetAt", "None"))
 				vv = self._variableValues[varName]
 				curReset = vv.get("curReset")
 				if resetAt != curReset:
