@@ -485,6 +485,12 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self._insertChar = ""
 			
 			
+	def setInactive(self):
+		"""Hides the auto-completion popup if one is open."""
+		if self.AutoCompActive():
+			self.AutoCompCancel()
+			
+		
 	def toggleSyntaxColoring(self):
 		"""Right now, just toggles between Python and none. In the future,
 		we will need to save the current lexer and toggle between that and
@@ -735,7 +741,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		while line <= lastChild:
 			if force:
 				if visLevels > 0:
-					self.ShowLines(line, line)
+					self.Lines(line, line)
 				else:
 					self.HideLines(line, line)
 			else:
@@ -823,7 +829,8 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 
 
 	def saveFile(self, fname=None):
-		os.chdir(self._curdir)
+		if self._curdir:
+			os.chdir(self._curdir)
 		if fname == None:
 			try:
 				fname = self._fileName
