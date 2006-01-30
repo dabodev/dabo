@@ -164,7 +164,10 @@ class dSizerMixin(dObject):
 		item._controllingSizerItem = None
 		if destroy:
 			try:
-				item.release()
+				if isinstance(item, dabo.ui.dSizerMixin):
+					item.release(True)
+				else:
+					item.release()
 			except:
 				item.Destroy()
 	
