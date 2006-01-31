@@ -1490,7 +1490,7 @@ class ReportWriter(object):
 
 	def _getXmlHeader(self):
 		"""Returns the XML header for the rfxml document."""
-		return """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+		header = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
 
 <!-- 
 		This is a Dabo report form xml (rfxml) document, describing a
@@ -1498,7 +1498,9 @@ class ReportWriter(object):
 		be edited by hand or by using the Dabo Report Designer.
 -->
 
+
 """
+		return os.linesep.join(header.splitlines())
 
 
 	def _setMemento(self):
