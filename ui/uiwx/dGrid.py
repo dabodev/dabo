@@ -1602,7 +1602,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		tbl.setColumns(self.Columns)
 		tbl.fillTable(force)
 
-		if force:
+
+		## pkm: I've disabled the following block, because setting the focus
+		##      can steal focus from the active form. It also doesn't seem 
+		##      right to have this code here...
+		if False and force:
 			row = max(0, self.CurrentRow)
 			col = max(0, self.CurrentColumn)
 			if "linux" in sys.platform:
