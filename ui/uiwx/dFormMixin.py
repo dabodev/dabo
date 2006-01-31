@@ -405,10 +405,17 @@ class dFormMixin(pm.dPemMixin):
 		
 		app = self.Application
 
+		self._isClosed = True
+
 		# On the Mac, this next line prevents Bus Errors when closing a form.
 		self.Visible = False	
-		self._isClosed = True
-		self.SetFocus()
+
+		# pkm: Not sure about this SetFocus() call, but there may have been a 
+		#      good reason. On Windows, though, it results in an extra cycle
+		#      of deactivate/activate, and it doesn't seem right that this 
+		#      would be needed, so I'm commenting it out.
+		#self.SetFocus()
+
 		if app is not None:
 			try:
 				self.Application.uiForms.remove(self)
