@@ -467,7 +467,11 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		if nd is None:
 			nd = self.Selection
 			if isinstance(nd, list):
-				nd = nd[0]
+				if nd:
+					nd = nd[0]
+				else:
+					# Empty list
+					return None
 		try:
 			ret = self.getChildren(nd)[0]._obj
 		except:
@@ -493,7 +497,11 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		if nd is None:
 			nd = self.Selection
 			if isinstance(nd, list):
-				nd = nd[0]
+				if nd:
+					nd = nd[0]
+				else:
+					# Empty list
+					return None
 		ret = self._getRelative(nd, self.GetPrevSibling)
 		if ret is None:
 			try:
@@ -517,7 +525,11 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		if nd is None:
 			nd = self.Selection
 		if isinstance(nd, list):
-			nd = nd[0]
+			if nd:
+				nd = nd[0]
+			else:
+				# Empty list
+				return None
 		try:
 			itemID = func(nd.itemID)
 			ret = [nod._obj for nod in self.nodes

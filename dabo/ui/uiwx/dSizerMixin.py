@@ -347,10 +347,10 @@ class dSizerMixin(dObject):
 		elif lowprop == "border":
 			itm.SetBorder(int(val))
 			ret = True
-		elif lowprop == "rowexpand":
+		elif lowprop == "rowexpand" and isinstance(self, dabo.ui.dGridSizer):
 			self.setRowExpand(val, row)
 			ret = True
-		elif lowprop == "colexpand":
+		elif lowprop == "colexpand" and isinstance(self, dabo.ui.dGridSizer):
 			self.setColExpand(val, col)			
 			ret = True
 		elif lowprop in ("expand", "halign", "valign", "bordersides"):
