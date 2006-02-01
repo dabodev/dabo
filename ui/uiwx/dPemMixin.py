@@ -323,7 +323,7 @@ class dPemMixin(dPemMixinBase):
 		if isinstance(self, (wx.Frame, wx.Dialog)):
 			self.bindEvent(dEvents.Refresh, self.__onRefresh)
 		else:
-			self.Form.bindEvent(dEvents.Refresh, self.__refreshDynamicProps)
+			self.Form.bindEvent(dEvents.Refresh, self.__onRefresh)
 
 		self.initEvents()
 
