@@ -52,11 +52,14 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	
 	def _getAutoSize(self):
 		return self._autoSize
+		
 	def _setAutoSize(self, val):
 		self._autoSize = val
+		
 	
 	def _getBmpBorder(self):
 		return self._bmpBorder
+		
 	def _setBmpBorder(self, val):
 		self._bmpBorder = val
 		if self._autoSize:
@@ -66,6 +69,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	def _getCancelButton(self):
 		# need to implement
 		return False
+		
 	def _setCancelButton(self, val):
 		warnings.warn("CancelButton isn't implemented yet.", Warning)	
 	
@@ -75,6 +79,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 			return self.Parent.GetDefaultItem() == self
 		else:
 			return False
+			
 	def _setDefaultButton(self, val):
 		if self._constructed():
 			if val:
@@ -93,37 +98,54 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	def _getDownBitmap(self):
 		return self.GetBitmapSelected()
 	
+	
 	def _getDownPicture(self):
 		return self._downPicture
+		
 	def _setDownPicture(self, val):
 		self._downPicture = val
 		if self._constructed():
-			self.SetBitmapSelected(dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt))
+			if isinstance(val, wx.Bitmap):
+				bmp = val
+			else:
+				bmp = dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
+			self.SetBitmapSelected(bmp)
 		else:
 			self._properties["DownPicture"] = val
 
+
 	def _getFocusBitmap(self):
 		return self.GetBitmapFocus()
+
 	
 	def _getFocusPicture(self):
 		return self._focusPicture
+
 	def _setFocusPicture(self, val):
 		self._focusPicture = val
 		if self._constructed():
-			self.SetBitmapFocus(dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt))
+			if isinstance(val, wx.Bitmap):
+				bmp = val
+			else:
+				bmp = dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
+			self.SetBitmapFocus(bmp)
 		else:
 			self._properties["FocusPicture"] = val
 
+
 	def _getImgHt(self):
 		return self._imgHt
+
 	def _setImgHt(self, val):
 		self._imgHt = val
 		if self._autoSize:
 			self.Picture = self.Picture
 			self.__sizeToBitmap()
-		
+	
+	
 	def _getImgScale(self):
 		return self._imgScale
+	
 	def _setImgScale(self, val):
 		self._imgScale = val
 		if self._autoSize:
@@ -132,23 +154,31 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 				self.Picture = pic
 			self.__sizeToBitmap()
 	
+	
 	def _getImgWd(self):
 		return self._imgWd
+	
 	def _setImgWd(self, val):
 		self._imgWd = val
 		if self._autoSize:
 			self.Picture = self.Picture
 			self.__sizeToBitmap()
 		
+		
 	def _getNormalBitmap(self):
 		return self.GetBitmapLabel()
 	
+	
 	def _getNormalPicture(self):
 		return self._picture
+	
 	def _setNormalPicture(self, val):
 		self._picture = val
 		if self._constructed():
-			bmp = dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
+			if isinstance(val, wx.Bitmap):
+				bmp = val
+			else:
+				bmp = dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
 			self.SetBitmapLabel(bmp)
 			# If the others haven't been specified, default them to the same
 			if not self._downPicture:

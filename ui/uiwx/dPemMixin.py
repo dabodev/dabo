@@ -9,6 +9,9 @@ import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 import dKeys
 from dabo.dObject import dObject
+# This can't be an attribute, since it is used in the __getattr__() 
+# method. It designates properties that can be dynamically updated.
+_prefixDynamic = "Dynamic"
 
 
 class dPemMixin(dPemMixinBase):
@@ -24,7 +27,6 @@ class dPemMixin(dPemMixinBase):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
-
 		self._properties = {}
 		
 		# Lots of useful wx props are actually only settable before the
@@ -44,6 +46,9 @@ class dPemMixin(dPemMixinBase):
 		# three-way init situation based on whether or not preClass is a function 
 		# type.
 		threeWayInit = (type(preClass) == types.FunctionType)
+		
+		# Dictionary to keep track of Dynamic properties
+		self._dynamic = {}
 		
 		if threeWayInit:
 			# Instantiate the wx Pre object
@@ -175,7 +180,29 @@ class dPemMixin(dPemMixinBase):
 		except Exception, e:
 			print e
 			return False
-
+	
+	
+	def __getattr__(self, att):
+		ret = None
+		if att.startswith(_prefixDynamic):
+			attFunc = self._dynamic.get(att)
+			if callable(attFunc):
+				ret = attFunc()
+		if ret is None:
+			ret = super(dPemMixin, self).__getattr__(att)
+		return ret
+	
+	
+	def __setattr__(self, att, val):
+		isSet = False
+		if att.startswith(_prefixDynamic):
+			if callable(val):
+				self._dynamic[att] = val
+				isSet = True
+		if not isSet:
+			super(dPemMixin, self).__setattr__(att, val)
+		
+				
 		
 	def _beforeInit(self, pre):
 		self._acceleratorTable = {}
@@ -293,6 +320,11 @@ class dPemMixin(dPemMixinBase):
 		self.bindEvent(dEvents.Create, self.__onCreate)
 		self.bindEvent(dEvents.ChildBorn, self.__onChildBorn)
 		
+		if isinstance(self, (wx.Frame, wx.Dialog)):
+			self.bindEvent(dEvents.Refresh, self.__onRefresh)
+		else:
+			self.Form.bindEvent(dEvents.Refresh, self.__refreshDynamicProps)
+
 		self.initEvents()
 
 
@@ -796,12 +828,34 @@ class dPemMixin(dPemMixinBase):
 		"""Sets focus to the object."""
 		self.SetFocus()
 		
+
+	def __onRefresh(self, evt):
+		"""Update any dynamic properties, and then call
+		the refresh() hook.
+		"""
+		self.__refreshDynamicProps()
+		self.refresh()
+		
+		
+	def __refreshDynamicProps(self):
+		"""Refreshes the object's contents, and/or repaints the object.
+		Also updates any dynamic properties.
+		"""
+		needRefresh = False
+		for prop, func in self._dynamic.items():
+			baseProp = prop[len(_prefixDynamic):]
+			exec("self.%s = func()" % baseProp)
+			needRefresh = True
+		if needRefresh:
+			# Call the native refresh
+			self.Refresh()
+	
 	
 	def refresh(self):
-		"""Refreshes the object's contents, and/or repaints the object."""
-		self.Refresh()
-	
-	
+		"""Hook method to allow a developer to customize refresh behavior."""
+		pass
+		
+		
 	def show(self):
 		"""Make the object visible."""
 		self.Show(True)

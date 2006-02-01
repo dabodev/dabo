@@ -479,13 +479,12 @@ class dFormMixin(pm.dPemMixin):
 		pass
 
 
-	def refresh(self):
+	def refresh(self, fromRefresh=False):
 		"""Refreshed the values of the controls, and also calls the
 		wxPython Refresh to update the form.
 		"""
 		try:
 			self.refreshControls()
-			self.Refresh()
 		except dabo.ui.deadObjectException:
 			# This can happen if a form is released when there is a 
 			# pending callAfter() refresh.
@@ -506,6 +505,8 @@ class dFormMixin(pm.dPemMixin):
 		try:
 			self.setStatusText(self.getCurrentRecordText(grid=grid))
 		except: pass
+		# Now update anything that needs refreshing
+		self.raiseEvent(dEvents.Refresh)
 
 
 	def onDebugDlg(self, evt):
