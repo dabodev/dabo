@@ -189,9 +189,9 @@ class dPemMixin(dPemMixinBase):
 			if callable(attFunc):
 				ret = attFunc()
 		if ret is None:
-			ret = super(dPemMixin, self).__getattr__(att)
+			raise AttributeError, att
 		return ret
-	
+		
 	
 	def __setattr__(self, att, val):
 		isSet = False
@@ -323,7 +323,10 @@ class dPemMixin(dPemMixinBase):
 		if isinstance(self, (wx.Frame, wx.Dialog)):
 			self.bindEvent(dEvents.Refresh, self.__onRefresh)
 		else:
-			self.Form.bindEvent(dEvents.Refresh, self.__onRefresh)
+			try:
+				self.Form.bindEvent(dEvents.Refresh, self.__onRefresh)
+			except AttributeError:
+				self.Parent.bindEvent(dEvents.Refresh, self.__onRefresh)
 
 		self.initEvents()
 
@@ -833,8 +836,13 @@ class dPemMixin(dPemMixinBase):
 		"""Update any dynamic properties, and then call
 		the refresh() hook.
 		"""
-		self.__refreshDynamicProps()
-		self.refresh()
+		try:
+			self.__refreshDynamicProps()
+			self.refresh()
+		except dabo.ui.deadObjectException:
+			# This can happen if a form is released when there is a 
+			# pending callAfter() refresh.
+			pass
 		
 		
 	def __refreshDynamicProps(self):
@@ -1215,7 +1223,7 @@ class dPemMixin(dPemMixinBase):
 		if self._constructed():
 			self._borderWidth = val
 			if self._border:
-				if val == 0:
+				if val == 0 and (self._border in self._drawnObjects):
 					self._drawnObjects.remove(self._border)
 				else:
 					self._border.PenWidth = val
