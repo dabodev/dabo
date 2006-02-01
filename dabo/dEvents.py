@@ -725,3 +725,10 @@ class ValueRefresh(Event):
 		return issubclass(objectClass, dabo.ui.dForm)
 	appliesToClass = classmethod(appliesToClass)
 
+
+class Refresh(Event):
+	"""Occurs when the form wants the controls to refresh their appearance."""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dForm)
+	appliesToClass = classmethod(appliesToClass)
+

@@ -131,22 +131,27 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		return self._picture
 		
 	def _setPic(self, val):
-		# Don't allow built-in graphics to be displayed here
-		if not os.path.exists(val):
-			if val:
-				# They passed a non-existent image file
-				raise IOError, "No file named '%s' exists." % val
-			else:
-				# Empty string passed; clear any current image
-				self._picture = ""
-				self._rotation = 0
-				self._bmp = wx.EmptyBitmap(1, 1, 1)
-				self.__image = self._bmp.ConvertToImage()
-				self._showPic()
-				return
-		self._picture = val
-		self._rotation = 0
-		self._Image.LoadFile(val)
+		if isinstance(val, wx.Image):
+			# An image stored as a stream is being used
+			self.__image = val
+			self._picture = "(stream)"
+		else:
+			# Don't allow built-in graphics to be displayed here
+			if not os.path.exists(val):
+				if val:
+					# They passed a non-existent image file
+					raise IOError, "No file named '%s' exists." % val
+				else:
+					# Empty string passed; clear any current image
+					self._picture = ""
+					self._rotation = 0
+					self._bmp = wx.EmptyBitmap(1, 1, 1)
+					self.__image = self._bmp.ConvertToImage()
+					self._showPic()
+					return
+			self._picture = val
+			self._rotation = 0
+			self._Image.LoadFile(val)
 		self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
 		self._showPic()
 		

@@ -24,23 +24,31 @@ class dBitmap(wx.StaticBitmap, cm.dControlMixin):
 
 	def _getBitmap(self):
 		return self.GetBitmap()
-	def _setBitmap(self, bmp):
+		
+	def _setBitmap(self, val):
 		if self._constructed():
-			if isinstance(bmp, basestring):
-				bmp = dabo.ui.dIcons.getIconBitmap(bmp)
-			elif not bmp:
+			if isinstance(val, basestring):
+				bmp = dabo.ui.dIcons.getIconBitmap(val)
+			elif isinstance(val, wx.Bitmap):
+				bmp = val
+			elif not val:
 				bmp = wx.EmptyBitmap(1,1)
 				self.SetPosition((-100,-100))
 			self.SetBitmap(bmp)
 		else:
 			self._properties["Bitmap"] = bmp
+			
 
 	def _getPicture(self):
 		return self.GetBitmap()
+		
 	def _setPicture(self, val):
 		self._picture = val
 		if self._constructed():
-			bmp = dabo.ui.strToBmp(val)
+			if isinstance(val, wx.Bitmap):
+				bmp = val
+			else:
+				bmp = dabo.ui.strToBmp(val)
 			self.SetBitmap(bmp)
 		else:
 			self._properties["Picture"] = val

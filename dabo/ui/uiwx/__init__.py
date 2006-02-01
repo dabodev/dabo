@@ -2,6 +2,7 @@ import sys
 import os
 import datetime
 import time
+import cStringIO
 
 ######################################################
 # Very first thing: check for proper wxPython build:
@@ -26,6 +27,7 @@ the following required libraries have been built:
 del(_failedLibs)
 #######################################################
 import wx
+from wx import ImageFromStream, BitmapFromImage
 import dabo.ui
 import dabo.dConstants as kons
 from uiApp import uiApp
@@ -720,7 +722,22 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	dc.SetFont(fnt)
 	ret = dc.GetTextExtent(txt)
 	return ret
+
+
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+# Using the img2py.py script in the wx.tools folder, you can convert
+# an image to a text stream that can be included in a Python script.
+# These next two methods take the image data and return a
+# bitmap and an image, respectively.
+def bitmapFromData(data):
+	return BitmapFromImage(imageFromData(data))
 	
+	
+def imageFromData(data):
+	stream = cStringIO.StringIO(data)
+	return ImageFromStream(stream)
+# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 
 # For applications that use the same image more than once,
 # this speeds up resolution of the requested image name.
