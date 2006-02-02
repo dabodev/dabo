@@ -70,7 +70,7 @@ class PageFrameMixin(object):
 	def newByDataSource(self, ds):
 		self.Form.new(ds)
 		self.SelectedPage = self.dsEditPages[ds]
-		self.SelectedPage.raiseEvent(dEvents.ValueRefresh)
+		self.SelectedPage.raiseEvent(dEvents.ValueUpdate)
 		
 	def deleteByDataSource(self, ds):
 		self.Form.delete(ds)

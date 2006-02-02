@@ -2764,7 +2764,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					#self.SetGridCursor(0,0)
 					pass
 		if self.Form is not None:
-			dabo.ui.callAfter(self.Form.refreshControls, grid=self)
+			dabo.ui.callAfter(self.Form.update)
 
 
 	def _onKeyDown(self, evt): 
@@ -3053,12 +3053,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def _getRowCount(self):
 		return self._Table.GetNumberRows()
 		
+		
 	def _getCurrCellVal(self):
 		return self.GetValue(self.GetGridCursorRow(), self.GetGridCursorCol())	
 
 	def _setCurrCellVal(self, val):
 		self.SetValue(self.GetGridCursorRow(), self.GetGridCursorCol(), val)	
-		self.Refresh()
+		self.refresh()
 
 
 	def _getCurrentColumn(self):

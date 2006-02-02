@@ -719,16 +719,18 @@ class ValueChanged(Event):
 	appliesToClass = classmethod(appliesToClass)
 	
 
-class ValueRefresh(Event):
-	"""Occurs when the form wants the controls to refresh their values."""
+class ValueUpdate(Event):
+	"""Occurs when a form wants its controls to update their values."""
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dForm)
 	appliesToClass = classmethod(appliesToClass)
 
 
-class Refresh(Event):
-	"""Occurs when the form wants the controls to refresh their appearance."""
+class Update(Event):
+	"""Occurs when a container wants its controls to update
+	their properties.
+	"""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.dForm)
+		return issubclass(objectClass, dabo.ui.dPemMixin)
 	appliesToClass = classmethod(appliesToClass)
 
