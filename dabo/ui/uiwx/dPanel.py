@@ -2,7 +2,6 @@ import wx
 import dabo
 from dabo.dLocalize import _
 
-
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
@@ -18,8 +17,9 @@ class dPanel(wx.Panel, cm.dControlMixin):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dPanel
 		preClass = wx.PrePanel
-		if "style" not in kwargs:
-			kwargs["style"] = wx.TAB_TRAVERSAL
+		style = self._extractKey((properties, kwargs), "style", 0)
+		style = style | wx.TAB_TRAVERSAL
+		kwargs["style"] = style
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
@@ -124,7 +124,50 @@ class _dScrollPanel_test(dScrollPanel):
 		print evt.EventData["keyCode"]
 
 
+class dDrawPanel(dPanel):
+	"""A version of the base panel that is optimized for drawing. It 
+	incorporates double-buffering so that repainting is done via 
+	blitting rather than the drawing primitives.
+	"""
+	def __init__(self, parent, properties=None, *args, **kwargs):
+		style = self._extractKey((properties, kwargs), "style", 0)
+		style = style | wx.NO_FULL_REPAINT_ON_RESIZE
+		kwargs["style"] = style
+		super(dDrawPanel, self).__init__(parent, properties, *args, **kwargs)
+		
+
+	def _afterInit(self):
+		# Do all the default stuff first.
+		super(dDrawPanel, self)._afterInit()
+		
+		# Set up the double-buffering.
+		self._buffer = wx.EmptyBitmap(1,1)
+		self.Bind(wx.EVT_PAINT, self._onPaintBuffer)
+		self.Bind(wx.EVT_SIZE, self._onResizeBuffer)
+
+
+	
+	def _onPaintBuffer(self, evt):
+		dc = wx.BufferedPaintDC(self, self._buffer)
+	
+	
+	def _onResizeBuffer(self, evt):
+		self._buffer = wx.EmptyBitmap(max(1, self.Width), max(1, self.Height))
+		self.__updateDrawing()
+	
+	
+	def __updateDrawing(self):
+		dc = wx.BufferedDC(wx.ClientDC(self), self._buffer)
+		dc.Clear() # make sure you clear the bitmap! 
+		self._redraw(dc)
+		
+		
+
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dPanel_test)
 	test.Test().runTest(_dScrollPanel_test)
+
+
+
+

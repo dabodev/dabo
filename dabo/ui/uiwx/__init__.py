@@ -108,6 +108,7 @@ import dMessageBox
 from dRadioGroup import dRadioGroup
 from dPanel import dPanel
 from dPanel import dScrollPanel
+from dPanel import dDrawPanel
 from dPageFrame import dPageFrame
 from dPageFrame import dPageList
 from dPageFrame import dPageSelect
