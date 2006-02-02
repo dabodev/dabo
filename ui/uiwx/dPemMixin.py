@@ -861,13 +861,15 @@ class dPemMixin(dPemMixinBase):
 			except dabo.ui.deadObjectException:
 				# See above comment about dead objects
 				return
+		self.lockDisplay()
 		try:
 			self.Refresh()
+			if self.Children:
+				self.raiseEvent(dEvents.Update)
 		except dabo.ui.deadObjectException:
 			# See above comment about dead objects
-			return
-		if self.Children:
-			self.raiseEvent(dEvents.Update)
+			pass
+		self.unlockDisplay()
 			
 		
 	def __updateDynamicProps(self):
@@ -972,7 +974,7 @@ class dPemMixin(dPemMixinBase):
 		returned object to False. You can also manipulate the position, size,
 		color, and fill by changing the various properties of the object.
 		"""
-		obj = _drawObject(self, FillColor=fillColor, PenColor=penColor,
+		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle, 
 				Shape="circle", Xpos=xPos, Ypos=yPos)
 		# Add it to the list of drawing objects
@@ -987,7 +989,7 @@ class dPemMixin(dPemMixinBase):
 
 		See the 'drawCircle()' method above for more details.
 		"""
-		obj = _drawObject(self, FillColor=fillColor, PenColor=penColor,
+		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, Shape="rect", 
 				Xpos=xPos, Ypos=yPos, Width=width, Height=height)
 		# Add it to the list of drawing objects
@@ -1004,7 +1006,7 @@ class dPemMixin(dPemMixinBase):
 
 		See the 'drawCircle()' method above for more details.
 		"""
-		obj = _drawObject(self, FillColor=fillColor, PenColor=penColor,
+		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, 
 				Shape="polygon", Points=points)
 		# Add it to the list of drawing objects
@@ -1018,7 +1020,7 @@ class dPemMixin(dPemMixinBase):
 
 		See the 'drawCircle()' method above for more details.
 		"""
-		obj = _drawObject(self, FillColor=fillColor, PenColor=penColor,
+		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, 
 				Shape="line", Points=((x1,y1), (x2,y2)) )
 		# Add it to the list of drawing objects
@@ -1028,7 +1030,7 @@ class dPemMixin(dPemMixinBase):
 	
 	def drawBitmap(self, bmp, x=0, y=0, persist=True):
 		"""Draws a bitmap on the object at the specified position."""
-		obj = _drawObject(self, Bitmap=bmp,
+		obj = DrawObject(self, Bitmap=bmp,
 				Shape="bmp", Xpos=x, Ypos=y)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
@@ -1043,7 +1045,7 @@ class dPemMixin(dPemMixinBase):
 		using the specified characteristics. Any characteristics
 		not specified will be set to the system default.
 		"""
-		obj = _drawObject(self, Shape="text", Text=text, Xpos=x, Ypos=y,
+		obj = DrawObject(self, Shape="text", Text=text, Xpos=x, Ypos=y,
 				Angle=angle, FontFace=fontFace, FontSize=fontSize, 
 				FontBold=fontBold, FontItalic=fontItalic, 
 				FontUnderline=fontUnderline, ForeColor=foreColor,
@@ -1067,25 +1069,26 @@ class dPemMixin(dPemMixinBase):
 		self._drawnObjects.remove(obj)
 		
 		
-	def _redraw(self):
+	def _redraw(self, dc=None):
 		"""If the object has drawing routines that affect its appearance, this
 		method is where they go. Subclasses should place code in the 
 		redraw() hook method.
 		"""
-		# First, clear any old drawing if requested
-		if self._autoClearDrawings:
-			self.ClearBackground()
+		if dc is None:
+			# First, clear any old drawing if requested
+			if self._autoClearDrawings:
+				self.ClearBackground()
 			
 		# Draw any shapes
 		for obj in self._drawnObjects:
-			obj.draw()
+			obj.draw(dc)
 		# Call the hook
-		self.redraw()
+		self.redraw(dc)
 		# Clear the idle flag.
 		self._needRedraw = False
 
 
-	def redraw(self): 
+	def redraw(self, dc): 
 		"""Called when the object is (re)drawn.
 
 		This is a user subclass hook, where you should put any drawing routines
@@ -1971,7 +1974,7 @@ class dPemMixin(dPemMixinBase):
 
 
 
-class _drawObject(dObject):
+class DrawObject(dObject):
 	"""Class to handle drawing on an object. 
 
 	It is not meant to be used directly; instead, it is returned after a drawing 
@@ -2003,7 +2006,7 @@ class _drawObject(dObject):
 		self._backColor = None
 		self._text = None
 		self._angle = 0
-		super(_drawObject, self).__init__(*args, **kwargs)
+		super(DrawObject, self).__init__(*args, **kwargs)
 		self._inInit = False
 	
 	
@@ -2011,7 +2014,7 @@ class _drawObject(dObject):
 		self.Parent._needRedraw = True
 		
 		
-	def draw(self):
+	def draw(self, dc=None):
 		"""Does the actual drawing. 
 
 		NOTE: it does not clear any old drawings of the shape, so this shouldn't be
@@ -2020,7 +2023,8 @@ class _drawObject(dObject):
 		"""
 		if not self.Visible or self._inInit:
 			return
-		dc = wx.ClientDC(self.Parent)
+		if dc is None:
+			dc = wx.ClientDC(self.Parent)
 		
 		if self.Shape == "bmp":
 			dc.DrawBitmap(self._bitmap, self.Xpos, self.Ypos, False)
