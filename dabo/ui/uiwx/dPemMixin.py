@@ -178,16 +178,21 @@ class dPemMixin(dPemMixinBase):
 		try:
 			return self == self._pemObject
 		except Exception, e:
-			print e
 			return False
 	
 	
 	def __getattr__(self, att):
 		ret = None
 		if att.startswith(_prefixDynamic):
-			attFunc = self._dynamic.get(att)
+			dyn = self._dynamic.get(att)
+			if isinstance(dyn, tuple):
+				attFunc = dyn[0]
+				funcArgs = dyn[1:]
+			else:
+				attFunc = dyn
+				funcArgs = ()
 			if callable(attFunc):
-				ret = attFunc()
+				ret = attFunc(*funcArgs)
 		if ret is None:
 			raise AttributeError, att
 		return ret
@@ -196,13 +201,13 @@ class dPemMixin(dPemMixinBase):
 	def __setattr__(self, att, val):
 		isSet = False
 		if att.startswith(_prefixDynamic):
-			if callable(val):
+			if callable(val) or (isinstance(val, tuple) and 
+					callable(val[0])):
 				self._dynamic[att] = val
 				isSet = True
 		if not isSet:
 			super(dPemMixin, self).__setattr__(att, val)
 		
-				
 		
 	def _beforeInit(self, pre):
 		self._acceleratorTable = {}
@@ -320,13 +325,10 @@ class dPemMixin(dPemMixinBase):
 		self.bindEvent(dEvents.Create, self.__onCreate)
 		self.bindEvent(dEvents.ChildBorn, self.__onChildBorn)
 		
-		if isinstance(self, (wx.Frame, wx.Dialog)):
-			self.bindEvent(dEvents.Refresh, self.__onRefresh)
-		else:
-			try:
-				self.Form.bindEvent(dEvents.Refresh, self.__onRefresh)
-			except AttributeError:
-				self.Parent.bindEvent(dEvents.Refresh, self.__onRefresh)
+		try:
+			self.Parent.bindEvent(dEvents.Update, self.__onUpdate)
+		except:
+			self.bindEvent(dEvents.Update, self.__onUpdate)
 
 		self.initEvents()
 
@@ -832,38 +834,75 @@ class dPemMixin(dPemMixinBase):
 		self.SetFocus()
 		
 
-	def __onRefresh(self, evt):
+	def __onUpdate(self, evt):
 		"""Update any dynamic properties, and then call
 		the refresh() hook.
 		"""
+		self.update()
+			
+		
+	def update(self):
+		"""Called to update the properties of this object and all of its
+		contained objects.
+		"""
 		try:
-			self.__refreshDynamicProps()
-			self.refresh()
+			self.__updateDynamicProps()
 		except dabo.ui.deadObjectException:
-			# This can happen if a form is released when there is a 
+			# This can happen if an object is released when there is a 
 			# pending callAfter() refresh.
 			pass
-		
-		
-	def __refreshDynamicProps(self):
-		"""Refreshes the object's contents, and/or repaints the object.
-		Also updates any dynamic properties.
-		"""
-		needRefresh = False
-		for prop, func in self._dynamic.items():
-			baseProp = prop[len(_prefixDynamic):]
-			exec("self.%s = func()" % baseProp)
-			needRefresh = True
-		if needRefresh:
-			# Call the native refresh
+		if isinstance(self, dabo.ui.dFormMixin):
+			# Only forms need to update controls' data
+			try:
+				self.updateControlValue()
+			except dabo.ui.deadObjectException:
+				# See above comment
+				pass
+		try:
 			self.Refresh()
+		except dabo.ui.deadObjectException:
+			# See above comment
+			pass
+		if self.Children:
+			self.raiseEvent(dEvents.Update)
+			
+		
+	def __updateDynamicProps(self):
+		"""Updates the object's dynamic properties."""
+		for prop, func in self._dynamic.items():
+			if isinstance(func, tuple):
+				args = func[1:]
+				func = func[0]
+			else:
+				args = ()
+			baseProp = prop[len(_prefixDynamic):]
+			exec("self.%s = func(*args)" % baseProp)
 	
 	
-	def refresh(self):
-		"""Hook method to allow a developer to customize refresh behavior."""
-		pass
-		
-		
+	def updateControlValue(self, grid=None):
+		"""Updates the value of all contained dControls.
+
+		Raises dEvents.ValueUpdate, which will be caught by all
+		dControls, who will in turn update themselves with the 
+		current value of their DataField in their DataSource. 
+		"""
+		self.raiseEvent(dEvents.ValueUpdate)
+		if self.AutoUpdateStatusText:
+			try:
+				self.setStatusText(self.getCurrentRecordText(grid=grid))
+			except: pass
+
+
+	def refresh(self, fromRefresh=False):
+		"""Repaints this control and all contained objects."""
+		try:
+			self.Refresh()
+		except dabo.ui.deadObjectException:
+			# This can happen if an object is released when there is a 
+			# pending callAfter() refresh.
+			pass
+
+	
 	def show(self):
 		"""Make the object visible."""
 		self.Show(True)
@@ -1222,8 +1261,8 @@ class dPemMixin(dPemMixinBase):
 	def _setBorderWidth(self, val):
 		if self._constructed():
 			self._borderWidth = val
-			if self._border:
-				if val == 0 and (self._border in self._drawnObjects):
+			if self._border and (self._border in self._drawnObjects):
+				if val == 0:
 					self._drawnObjects.remove(self._border)
 				else:
 					self._border.PenWidth = val

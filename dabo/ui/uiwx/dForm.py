@@ -174,7 +174,7 @@ class BaseForm(fm.dFormMixin):
 			if biz.RowNumber != oldRowNum:
 				# Notify listeners that the row number changed:
 				dabo.ui.callAfter(self.raiseEvent, dEvents.RowNumChanged)
-			self.refreshControls()
+			self.update()
 		self.afterPointerMove()
 
 
@@ -295,7 +295,7 @@ class BaseForm(fm.dFormMixin):
 				bizobj.cancel()
 			self.setStatusText(_("Changes to %s canceled.") % (
 					self.SaveAllRows and "all records" or "current record",))
-			self.refreshControls()
+			self.update()
 		except dException.dException, e:
 			dabo.errorLog.write(_("Cancel failed with response: %s") % str(e))
 			self.notifyUser(str(e), title=_("Cancel Not Allowed") )
@@ -342,7 +342,7 @@ class BaseForm(fm.dFormMixin):
 			self.stopWatch.Pause()
 			elapsed = round(self.stopWatch.Time()/1000.0, 3)
 			
-			self.refreshControls()
+			self.update()
 
 			# Notify listeners that the row number changed:
 			self.raiseEvent(dEvents.RowNumChanged)
@@ -399,7 +399,6 @@ class BaseForm(fm.dFormMixin):
 			try:
 				bizobj.delete()
 				self.setStatusText(_("Record Deleted."))
-				self.refreshControls()
 				# Notify listeners that the row number changed:
 				self.raiseEvent(dEvents.RowNumChanged)
 			except dException.ConnectionLostException, e:
@@ -410,7 +409,7 @@ class BaseForm(fm.dFormMixin):
 				dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
 		self.afterDelete()
-		self.refresh()
+		self.update()
 		
 
 	def deleteAll(self, dataSource=None, message=None):
@@ -432,7 +431,6 @@ class BaseForm(fm.dFormMixin):
 		if dabo.ui.areYouSure(message, defaultNo=True):
 			try:
 				bizobj.deleteAll()
-				self.refreshControls()
 				# Notify listeners that the row number changed:
 				self.raiseEvent(dEvents.RowNumChanged)
 			except dException.ConnectionLostException, e:
@@ -443,6 +441,7 @@ class BaseForm(fm.dFormMixin):
 				dabo.errorLog.write(_("Delete All failed with response: %s") % str(e))
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
 		self.afterDeleteAll()
+		self.update()
 		
 
 	def new(self, dataSource=None):
@@ -466,12 +465,12 @@ class BaseForm(fm.dFormMixin):
 
 		statusText = self.getCurrentRecordText(dataSource)
 		self.setStatusText(statusText)
-		self.refreshControls()
 
 		# Notify listeners that the row number changed:
 		self.raiseEvent(dEvents.RowNumChanged)
 
 		self.afterNew()
+		self.update()
 		
 
 	def afterNew(self): pass
@@ -748,7 +747,7 @@ class dForm(wx.Frame, BaseForm):
 
 	def Layout(self):
 		super(dForm, self).Layout()
-		wx.CallAfter(self.refresh)
+		wx.CallAfter(self.update)
 
 
 class dToolForm(wx.MiniFrame, BaseForm):

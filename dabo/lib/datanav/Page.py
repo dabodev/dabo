@@ -519,7 +519,7 @@ class BrowsePage(Page):
 		else:
 			if bizobj and bizobj.RowCount >= 0:
 				self.fillGrid(False)
-				self.BrowseGrid.refresh()
+				self.BrowseGrid.update()
 		## dGrid handles this now:
 		#self.BrowseGrid.CurrentRow = bizobj.RowNumber
 
@@ -555,7 +555,6 @@ class BrowsePage(Page):
 class EditPage(Page):
 	def __init__(self, parent, ds=None):
 		super(EditPage, self).__init__(parent)		#, Name="pageEdit")
-		
 		self._focusToControl = None
 		self.itemsCreated = False
 		self._dataSource = ds
@@ -563,40 +562,45 @@ class EditPage(Page):
 		self.childrenAdded = False
 		if self.DataSource:
 			self.buildPage()
+
 			
 	def initEvents(self):
 		super(EditPage, self).initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
-		self.bindEvent(dEvents.ValueRefresh, self.__onValueRefresh)
+		self.bindEvent(dEvents.ValueUpdate, self.__onValueUpdate)
 		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
-		
+	
+	
 	def buildPage(self):
 		if not self.DataSource:
 			return
 		self.fieldSpecs = self.Form.getFieldSpecsForTable(self.DataSource)
 		self.createItems()
 
+
 	def __onRowNumChanged(self, evt):
 		for cg in self.childGrids:
 			cg.populate()
 
+
 	def __onPageLeave(self, evt):
 		self.Form.setPrimaryBizobjToDefault(self.DataSource)
-		
+	
+	
 	def __onPageEnter(self, evt):
 		self.Form.PrimaryBizobj = self.DataSource
 		focusToControl = self._focusToControl
 		if focusToControl is not None:
 			focusToControl.setFocus()
 			self._focusToControl = None
-		
-		self.__onValueRefresh()
+		self.__onValueUpdate()
 		# The current row may have changed. Make sure that the
 		# values are current
 		self.__onRowNumChanged(None)
+		
 
-	def __onValueRefresh(self, evt=None):
+	def __onValueUpdate(self, evt=None):
 		form = self.Form
 		bizobj = form.getBizobj(self.DataSource)
 		if bizobj and bizobj.RowCount > 0:
@@ -664,7 +668,6 @@ class EditPage(Page):
 
 			if not self.Form.preview:
 				if self.Form.getBizobj().RowCount >= 0:
-					#objectRef.refresh()
 					pass
 
 			gs.append(label, alignment=("top", "right") )

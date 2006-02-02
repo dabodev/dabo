@@ -69,6 +69,9 @@ class dFormMixin(pm.dPemMixin):
 		self.__needOutlineRedraw = False
 		# When in designer mode, we need to turn off various behaviors.
 		self._designerMode = False
+		# Default behavior is for the form to set the status bar text with the 
+		# current record position. 
+		self._autoUpdateStatusText = True
 
 		super(dFormMixin, self).__init__(preClass, parent, properties, 
 				attProperties, *args, **kwargs)
@@ -474,61 +477,8 @@ class dFormMixin(pm.dPemMixin):
 		
 
 	def afterSetMenuBar(self):
-		""" Subclasses can extend the menu bar here.
-		"""
+		""" Subclasses can extend the menu bar here."""
 		pass
-
-
-	def refresh(self, fromRefresh=False):
-		"""Refreshed the values of the controls, and also calls the
-		wxPython Refresh to update the form.
-		"""
-		try:
-			self.refreshControls()
-			self.Refresh()
-		except dabo.ui.deadObjectException:
-			# This can happen if a form is released when there is a 
-			# pending callAfter() refresh.
-			pass
-		except StandardError, e:
-			dabo.infoLog.write(_("Problem refreshing form %s") % self._name)
-			print e
-
-		
-	def refreshControls(self, grid=None):
-		""" Refresh the value of all contained dControls.
-
-		Raises EVT_VALUEREFRESH which will be caught by all dControls, who will
-		in turn refresh themselves with the current value of the field in the
-		bizobj. 
-		"""
-		self.raiseEvent(dEvents.ValueRefresh)
-		try:
-			self.setStatusText(self.getCurrentRecordText(grid=grid))
-		except: pass
-		# Now update anything that needs refreshing
-		self.raiseEvent(dEvents.Refresh)
-
-
-	def onDebugDlg(self, evt):
-		# Handy hook for getting info.
-		if self.useOldDebugDialog:
-			dlg = wx.TextEntryDialog(self, "Command to Execute", "Debug", self.debugText)
-			if dlg.ShowModal() == wx.ID_OK:
-				self.debugText = dlg.GetValue()
-				try:
-					# Handy shortcuts for common references
-					try: bo = self.getBizobj()
-					except: pass
-					exec(self.debugText)
-				except StandardError, e: 
-					dabo.infoLog.write(_("Could not execute: %s") % self.debugText)
-					dabo.errorLog.write(e)
-
-			dlg.Destroy()	
-			
-		else:
-			self.onCmdWin(evt)
 
 
 	def getMenu(self):
@@ -685,6 +635,13 @@ class dFormMixin(pm.dPemMixin):
 		return self.FindFocus()
 
 	
+	def _getAutoUpdateStatusText(self):
+		return self._autoUpdateStatusText
+
+	def _setAutoUpdateStatusText(self, val):
+		self._autoUpdateStatusText = val
+
+
 	def _getBorderResizable(self):
 		return self._hasWindowStyleFlag(wx.RESIZE_BORDER)
 		
@@ -1046,6 +1003,9 @@ class dFormMixin(pm.dPemMixin):
 	# property definitions follow:
 	ActiveControl = property(_getActiveControl, None, None, 
 			_("Contains a reference to the active control on the form, or None."))
+	
+	AutoUpdateStatusText = property(_getAutoUpdateStatusText, _setAutoUpdateStatusText, None,
+			_("Does this form update the status text with the current record position?  (bool)"))
 
 	BorderResizable = property(_getBorderResizable, _setBorderResizable, None,
 			_("Specifies whether the user can resize this form.  (bool)."))

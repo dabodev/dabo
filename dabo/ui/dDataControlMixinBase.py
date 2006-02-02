@@ -25,9 +25,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		super(dDataControlMixinBase, self)._initEvents()
 		
 		try:
-			self.Form.bindEvent(dEvents.ValueRefresh, self.__onValueRefresh)
+			self.Form.bindEvent(dEvents.ValueUpdate, self.__onValueUpdate)
 		except AttributeError:
-			# Perhaps we aren't a child of a dForm
+			# Perhaps this control doesn't have a form reference?
 			pass
 		
 		self.bindEvent(dEvents.Create, self.__onCreate)
@@ -81,13 +81,12 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			pass
 
 			
-	def __onValueRefresh(self, evt):
+	def __onValueUpdate(self, evt):
 		try:
-			self.refresh()
+			self.update()
 		except:
 			# Dead objects will cause errors; ignore 'em
 			pass
-		
 		try:
 			if self.SelectOnEntry and self.Form.ActiveControl == self:
 				self.selectAll()
@@ -102,8 +101,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		return None
 
 
-	def refresh(self):
+	def update(self):
 		""" Update control's value to match the current value from the source."""
+		super(dDataControlMixinBase, self).update()
 		if not self.DataSource or not self.DataField:
 			return
 		if self._DesignerMode:
@@ -118,7 +118,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				#self.Enabled = False
 		else:
 			if self._srcIsInstanceMethod is None and self.Source is not None:
-				self._srcIsInstanceMethod = eval("type(self.Source.%s)" % self.DataField) == type(self.refresh)
+				self._srcIsInstanceMethod = eval("type(self.Source.%s)" % self.DataField) == type(self.update)
 			if self._srcIsInstanceMethod:
 				expr = "self.Source.%s()" % self.DataField
 			else:
