@@ -127,9 +127,10 @@ class dApp(dObject):
 		
 		if initUI:
 			self._initUI()
-
-			self.uiApp = dabo.ui.uiApp()
-			self.uiApp.setup(self)
+			
+			if self.UI is not None:
+				self.uiApp = dabo.ui.uiApp()
+				self.uiApp.setup(self)
 		else:
 			self.uiApp = None
 		# Flip the flag
@@ -559,7 +560,10 @@ class dApp(dObject):
 		# Load the appropriate ui module. dabo.ui will now contain
 		# the classes of that library, wx for instance.
 		if self.UI is None:
-			if dabo.ui.loadUI(uiType):
+			if uiType is None:
+				self._uiAlreadySet = True
+				dabo.infoLog.write(_("User interface set set to None."))
+			elif dabo.ui.loadUI(uiType):
 				self._uiAlreadySet = True
 				dabo.infoLog.write(_("User interface set to '%s' by dApp.") % (uiType,))
 			else:
