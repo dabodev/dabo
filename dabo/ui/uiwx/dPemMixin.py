@@ -838,7 +838,10 @@ class dPemMixin(dPemMixinBase):
 		"""Update any dynamic properties, and then call
 		the refresh() hook.
 		"""
-		self.update()
+		try:
+			self.update()
+		except dabo.ui.deadObjectException:
+			pass
 			
 		
 	def update(self):
@@ -850,19 +853,19 @@ class dPemMixin(dPemMixinBase):
 		except dabo.ui.deadObjectException:
 			# This can happen if an object is released when there is a 
 			# pending callAfter() refresh.
-			pass
+			return
 		if isinstance(self, dabo.ui.dFormMixin):
 			# Only forms need to update controls' data
 			try:
 				self.updateControlValue()
 			except dabo.ui.deadObjectException:
-				# See above comment
-				pass
+				# See above comment about dead objects
+				return
 		try:
 			self.Refresh()
 		except dabo.ui.deadObjectException:
-			# See above comment
-			pass
+			# See above comment about dead objects
+			return
 		if self.Children:
 			self.raiseEvent(dEvents.Update)
 			
