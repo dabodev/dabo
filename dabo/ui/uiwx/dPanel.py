@@ -161,6 +161,20 @@ class dDrawPanel(dPanel):
 		dc.Clear() # make sure you clear the bitmap! 
 		self._redraw(dc)
 		
+	
+	def _redraw(self, dc=None):
+		"""Override the base call to provide a buffered DC."""
+		try:
+			self._buffer
+		except:
+			# This is being called way too early; skip this call
+			return
+		if dc is None:
+			dc = wx.BufferedDC(wx.ClientDC(self), self._buffer)
+			dc.Clear() # make sure you clear the bitmap! 
+		super(dDrawPanel, self)._redraw(dc)
+		
+		
 		
 
 if __name__ == "__main__":
