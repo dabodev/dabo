@@ -52,7 +52,7 @@ if wx.Platform == '__WXMSW__':
 elif wx.Platform == '__WXMAC__':
 	monoFont = "Monaco"
 	propFont = "Verdana"
-	fontSize = 13
+	fontSize = 12
 else:
 	monoFont = "Courier"
 	propFont = "Helvetica"
@@ -140,7 +140,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self._styleTimer.start()
 		self._clearDocument()
 		self.setTitle()
-				
+	
 	
 	def setFormCallbacks(self, funcTuple):
 		self._registerFunc, self._unRegisterFunc = funcTuple
@@ -177,6 +177,8 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			foundLine = -1
 		if foundLine > -1:
 			self.moveToEnd()
+			# Add some breathing room above
+			self.LineNumber = foundLine-3
 			self.LineNumber = foundLine
 	
 	
@@ -958,6 +960,16 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self._fileName = fname
 		self._clearDocument(clearText=False)
 		
+		# Save the bookmarks
+		app = self.Application
+		base = ".".join(("bookmark", fname))
+		# Clear any existing settings.
+		app.deleteAllUserSettings(base)
+		for nm, hnd in self._bookmarks.items():
+			ln = self.MarkerLineFromHandle(hnd)
+			setName = ".".join((base, nm))
+			app.setUserSetting(setName, ln)
+		
 		
 	def checkChangesAndContinue(self):
 		"""Check to see if changes need to be saved, and if so prompt the user.
@@ -1021,9 +1033,24 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self._curdir = os.path.split(fileSpec)[0]
 			self.SetText(text)
 			self._clearDocument(clearText=False)
-			return True
+			ret = True
 		else:
-			return False
+			ret = False
+		
+		app = self.Application
+		fname = os.path.split(fileSpec)[1]
+		keyspec = ".".join(("bookmark", fname)).lower()
+		keys = app.getUserSettingKeys(keyspec)
+		for key in keys:
+			val = app.getUserSetting(".".join((keyspec, key)))
+			self.setBookmark(key, val)
+		
+		# Save the bookmarks
+# 		for nm, hnd in self._bookmarks.items():
+# 			ln = self.MarkerLineFromHandle(hnd)
+# 			setName = ".".join(("bookmark", fname, nm))
+# 			app.setUserSetting(setName, ln)
+		return ret
 
 
 	def setTitle(self):
