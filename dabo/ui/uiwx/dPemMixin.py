@@ -848,27 +848,20 @@ class dPemMixin(dPemMixinBase):
 		"""Called to update the properties of this object and all of its
 		contained objects.
 		"""
-		try:
-			self.__updateDynamicProps()
-		except dabo.ui.deadObjectException:
+		if self is dabo.ui.deadObject:
 			# This can happen if an object is released when there is a 
 			# pending callAfter() refresh.
 			return
+
+		self.__updateDynamicProps()
 		if isinstance(self, dabo.ui.dFormMixin):
 			# Only forms need to update controls' data
-			try:
-				self.updateControlValue()
-			except dabo.ui.deadObjectException:
-				# See above comment about dead objects
-				return
+			self.updateControlValue()
+
 		self.lockDisplay()
-		try:
-			self.Refresh()
-			if self.Children:
-				self.raiseEvent(dEvents.Update)
-		except dabo.ui.deadObjectException:
-			# See above comment about dead objects
-			pass
+		if self.Children:
+			self.raiseEvent(dEvents.Update)
+		self.Refresh()
 		self.unlockDisplay()
 			
 		
@@ -1227,7 +1220,7 @@ class dPemMixin(dPemMixinBase):
 				if val != self.GetBackgroundColour().Get():
 					self.SetBackgroundColour(val)
 					# Background color changes don't result in an automatic refresh.
-					self.Refresh()
+					self.refresh()
 		else:
 			self._properties["BackColor"] = val
 
