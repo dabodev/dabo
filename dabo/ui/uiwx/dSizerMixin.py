@@ -120,7 +120,7 @@ class dSizerMixin(dObject):
 			ret = szItem = self.Insert(index, item, proportion=proportion, 
 					flag=_wxFlags, border=border, userData=self)
 			if addSpacer:
-				self.addDefaultSpacer(index+1)
+				self.addDefaultSpacer(index)
 			item._controllingSizer = self
 			item._controllingSizerItem = szItem
 		return ret

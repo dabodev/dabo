@@ -110,6 +110,17 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
 		self.Bind(stc.EVT_STC_MODIFIED, self.OnModified)
 		self.Bind(stc.EVT_STC_STYLENEEDED, self.OnStyleNeeded)
+		
+		# Set the marker used for bookmarks
+		self._bmkPos = 5
+		self.MarkerDefine(self._bmkPos, 
+				stc.STC_MARK_CIRCLE, "gray", "cyan")
+		svd = self.Application.getUserSetting("bookmarks.%s",
+				self._fileName, "{}")
+		if svd:
+			self._bookmarks = eval(svd)
+		else:
+			self._bookmarks = {}
 
 		zoom = self.Application.getUserSetting("editor.zoom")
 		if zoom:
@@ -140,6 +151,104 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		super(dEditor, self).__del__()
 	
 	
+	def setBookmark(self, nm, line=None):
+		"""Creates a bookmark that can be referenced by the 
+		identifying name that is passed. If a bookmark already
+		exists for that name, the old one is deleted. The 
+		bookmark is set on the current line unless a specific 
+		line number is passed.
+		"""
+		if line is None:
+			line = self.LineNumber
+		if nm in self._bookmarks.keys():
+			self.clearBookmark(nm)
+		hnd = self.MarkerAdd(line, self._bmkPos)
+		self._bookmarks[nm] = hnd
+	
+	
+	def findBookmark(self, nm):
+		"""Moves to the line for the specified bookmark. If no such
+		bookmark exists, does nothing.
+		"""
+		try:
+			foundLine = self.MarkerLineFromHandle(self._bookmarks[nm])
+		except KeyError:
+			# No such bookmark
+			foundLine = -1
+		if foundLine > -1:
+			self.moveToEnd()
+			self.LineNumber = foundLine
+	
+	
+	def clearBookmark(self, nm):
+		"""Clears the specified bookmark. If no such bookmark 
+		exists, does nothing.
+		"""
+		try:
+			self.MarkerDeleteHandle(self._bookmarks[nm])
+			del self._bookmarks[nm]
+		except KeyError:
+			pass
+
+
+	def clearAllBookmarks(self):
+		"""Removes all bookmarks."""
+		self.MarkerDeleteAll(self._bmkPos)
+		self._bookmarks.clear()
+	
+	
+	def goNextBookMark(self, line=None):
+		"""Moves to the next bookmark in the document. If the
+		line to start searching from is not specified, searches from
+		the current line. If there are no more bookmarks, nothing
+		happens.
+		"""
+		### NOT WORKING! GOTTA FIGURE OUT THE MASK STUFF!  ###
+		if line is None:
+			line = self.LineNumber
+		print "START LN", line
+		nxtLine = self.MarkerNext(line, self._bmkPos)
+		print "NEXT", nxtLine
+		if nxtLine > -1:
+			self.moveToEnd()
+			self.LineNumber = nxtLine
+		
+		
+	def goPrevBookMark(self, line=None):
+		"""Moves to the previous bookmark in the document. If the
+		line to start searching from is not specified, searches from
+		the current line. If there are no more bookmarks, nothing
+		happens.
+		"""
+		### NOT WORKING! GOTTA FIGURE OUT THE MASK STUFF!  ###
+		if line is None:
+			line = self.LineNumber
+		print "START LN", line
+		nxtLine = self.MarkerPrevious(line, self._bmkPos)
+		print "PREV", nxtLine
+		if nxtLine > -1:
+			self.moveToEnd()
+			self.LineNumber = nxtLine
+		
+	
+	def getCurrentLineBookmark(self):
+		"""Returns the name of the bookmark for the current
+		line, or None if this line is not bookmarked.
+		"""
+		ret = None
+		curr = self.LineNumber
+		for nm, hnd in self._bookmarks.items():
+			if self.MarkerLineFromHandle(hnd) == curr:
+				ret = nm
+				break
+		return ret
+		
+		
+	def getBookmarkList(self):
+		"""Returns a list of all current bookmark names."""
+		return self._bookmarks.keys()
+		
+		
 	def getFunctionList(self):
 		"""Returns a list of all 'class' and 'def' statements, along
 		with their starting positions in the text.
