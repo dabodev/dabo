@@ -259,6 +259,14 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		return [(m.groups()[0], m.start()) for m in it]		
 		
 
+	def getMarginWidth(self):
+		"""Returns the width of the non-editing area along the left side."""
+		ret = 0
+		for ii in range(5):
+			ret += self.GetMarginWidth(ii)
+		return ret
+		
+		
 	def OnSBScroll(self, evt):
 		# redirect the scroll events from the dyn_sash's scrollbars to the STC
 		self.GetEventHandler().ProcessEvent(evt)
