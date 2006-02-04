@@ -491,22 +491,21 @@ class BrowsePage(Page):
 		super(BrowsePage, self).__init__(parent, Name="pageBrowse")
 		self._doneLayout = False
 
+
 	def initEvents(self):
 		super(BrowsePage, self).initEvents()
-		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
-		
 
-	def __onRowNumChanged(self, evt):
-		# If RowNumChanged is received AND we are the active page, select
-		# the row in the grid.
-		
-		# If we aren't the active page, strange things can happen if we
-		# don't explicitly setFocus back to the active page. 
-		#self.updateGrid()
-		pass
-# 		if self.Parent.SelectedPage != self:
-# 			self.Parent.SelectedPage.setFocus()
+
+	def __onPageEnter(self, evt):
+		self.updateGrid()
+		if not self._doneLayout:
+			self._doneLayout = True
+			self.Form.Height += 1
+			self.Layout()
+			self.Form.Height -= 1
+		if self.Form.SetFocusToBrowseGrid:
+			self.BrowseGrid.setFocus()
 
 
 	def updateGrid(self):
@@ -520,19 +519,8 @@ class BrowsePage(Page):
 			if bizobj and bizobj.RowCount >= 0:
 				self.fillGrid(False)
 				self.BrowseGrid.update()
-		## dGrid handles this now:
-		#self.BrowseGrid.CurrentRow = bizobj.RowNumber
 
 		
-	def __onPageEnter(self, evt):
-		self.updateGrid()
-		if not self._doneLayout:
-			self._doneLayout = True
-			self.Form.Height += 1
-			self.Layout()
-			self.Form.Height -= 1
-
-
 	def createItems(self):
 		bizobj = self.Form.getBizobj()
 		grid = self.Form.BrowseGridClass(self, NameBase="BrowseGrid")
