@@ -205,6 +205,18 @@ class dApp(dObject):
 		"""Persist a value to the user settings file."""
 		if self.UserSettingProvider:
 			self.UserSettingProvider.setUserSetting(item, value)
+	
+	
+	def deleteUserSetting(self, item):
+		"""Removes the given item from the user settings file."""
+		if self.UserSettingProvider:
+			self.UserSettingProvider.deleteUserSetting(item)
+	
+	
+	def deleteAllUserSettings(self, spec):
+		"""Deletes all settings that begin with the supplied spec."""
+		if self.UserSettingProvider:
+			self.UserSettingProvider.deleteAllUserSettings(spec)
 		
 		
 	def getUserCaption(self):
