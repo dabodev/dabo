@@ -910,38 +910,6 @@ class Form(dabo.ui.dForm):
 		return rfxml
 
 
-	def _getFormType(self):
-		try:
-			return self._formType
-		except AttributeError:
-			return "Normal"
-	
-			
-	def _setFormType(self, value):
-		value = value.lower()
-		if value == "normal":
-			self._formType = "Normal"
-		elif value == "picklist":
-			self._formType = "PickList"
-		elif value == "edit":
-			self._formType = "Edit"
-		else:
-			raise ValueError, "Form type must be 'Normal', 'PickList', or 'Edit'."
-			
-	def _getRequeryOnLoad(self):
-		try:
-			return self._requeryOnLoad
-		except AttributeError:
-			return False
-	def _setRequeryOnLoad(self, value):
-		self._requeryOnLoad = bool(value)
-
-	def _getFieldSpecs(self):
-		return self._allFieldSpecs[self._mainTable]
-	def _setFieldSpecs(self, val):
-		self._allFieldSpecs[self._mainTable] = val
-
-
 	def _getBrowseGridClass(self):
 		try:
 			val = self._browseGridClass
@@ -954,28 +922,89 @@ class Form(dabo.ui.dForm):
 		self._browseGridClass = val		
 
 
+	def _getFieldSpecs(self):
+		return self._allFieldSpecs[self._mainTable]
+
+	def _setFieldSpecs(self, val):
+		self._allFieldSpecs[self._mainTable] = val
+
+
+	def _getFormType(self):
+		try:
+			return self._formType
+		except AttributeError:
+			return "Normal"
+	
+	def _setFormType(self, value):
+		value = value.lower()
+		if value == "normal":
+			self._formType = "Normal"
+		elif value == "picklist":
+			self._formType = "PickList"
+		elif value == "edit":
+			self._formType = "Edit"
+		else:
+			raise ValueError, "Form type must be 'Normal', 'PickList', or 'Edit'."
+			
+
 	def _getRelationSpecs(self):
 		return self._relationSpecs
+
 	def _setRelationSpecs(self, val):
 		self._relationSpecs = val
 		
+
+	def _getRequeryOnLoad(self):
+		try:
+			return self._requeryOnLoad
+		except AttributeError:
+			return False
+
+	def _setRequeryOnLoad(self, value):
+		self._requeryOnLoad = bool(value)
+
+
+	def _getSetFocusToBrowseGrid(self):
+		if hasattr(self, "_setFocusToBrowseGrid"):
+			v = self._setFocusToBrowseGrid
+		else:
+			v = self._setFocusToBrowseGrid = True
+		return v
+
+	def _setSetFocusToBrowseGrid(self, val):
+		self._setFocusToBrowseGrid = bool(val)
+
+
 	# Property definitions:
-	FormType = property(_getFormType, _setFormType, None,
-			"Specifies the type of form this is:\n"
-			"	Normal: a normal dataNav form.\n"
-			"	PickList: only select/browse pages shown, and the form\n"
-			"		is modal, returning the pk of the picked record.\n"
-			"	Edit: modal version of normal, with no Select/Browse pages.\n"
-			"		User code sends the pk of the record to edit.")
-
 	BrowseGridClass = property(_getBrowseGridClass, _setBrowseGridClass, None,
-			"""Specifies the class to use for the browse grid.""")
+			_("""Specifies the class to use for the browse grid."""))
 
-	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
-			"Specifies whether an automatic requery happens when the form is loaded.")
-	
 	FieldSpecs = property(_getFieldSpecs, _setFieldSpecs, None, 
-			"Reference to the dictionary containing field behavior specs")
+			_("""Reference to the dictionary containing field behavior specs"""))
+
+	FormType = property(_getFormType, _setFormType, None,
+			_("""Specifies the type of form this is.
+
+The type of form determines the runtime behavior. FormType can be one of:
+	Normal: 
+		A normal dataNav form. The default.
+
+	PickList: 
+		Only select/browse pages shown, and the form is modal, returning the 
+		Primary Key of the picked record.
+
+	Edit:
+		Modal version of normal, with no Select/Browse pages. User code sends
+		the Primary Key of the record to edit.
+"""))
 
 	RelationSpecs = property(_getRelationSpecs, _setRelationSpecs, None, 
-			"Reference to the dictionary containing table relation specs")
+			_("""Reference to the dictionary containing table relation specs"""))
+
+	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
+			_("""Specifies whether an automatic requery happens when the form is loaded."""))
+
+	SetFocusToBrowseGrid = property(_getSetFocusToBrowseGrid, 
+			None, _setSetFocusToBrowseGrid,
+			_("""Does the focus go to the browse grid when the browse page is entered?"""))
+		
