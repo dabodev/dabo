@@ -214,7 +214,25 @@ class dCursorMixin(dObject):
 						val = row[fld]
 						if isinstance(val, str):	
 							# String; convert it to unicode
-							row[fld]= unicode(val, self.Encoding)
+							try:
+								row[fld]= unicode(val, self.Encoding)
+							except UnicodeDecodeError, e:
+								# Try the main two encodings
+								ok = False
+								for enc in ("utf8", "latin-1"):
+									if enc != self.Encoding:
+										try:
+											row[fld]= unicode(val, enc)
+											ok = True
+											break
+										except UnicodeDecodeError:
+											continue
+								if ok:
+									# Should we change self.Encoding at this point?
+									dabo.errorLog.write(_("Incorrect unicode encoding set; using '%s' instead")
+											% enc)
+								else:
+									raise UnicodeDecodeError, e
 			# There can be a problem with the MySQLdb adapter if
 			# the mx modules are installed on the machine, the adapter
 			# will use that type instead of the native datetime.
