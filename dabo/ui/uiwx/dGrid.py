@@ -477,6 +477,16 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _constructed(self):
 		return self._isConstructed
+	
+	
+	def release(self):
+		"""Usually don't need this, but it helps to keep this in 
+		line with other Dabo objects.
+		"""
+		try:
+			self.Parent.removeColumn(self)
+		except:
+			pass
 
 
 	def _setEditor(self, row):

@@ -843,7 +843,9 @@ class dPemMixin(dPemMixinBase):
 		"""Called to update the properties of this object and all of its
 		contained objects.
 		"""
-		if self is dabo.ui.deadObject:
+		try:
+			self.__updateDynamicProps()
+		except dabo.ui.deadObjectException:
 			# This can happen if an object is released when there is a 
 			# pending callAfter() refresh.
 			return
@@ -851,8 +853,6 @@ class dPemMixin(dPemMixinBase):
 		if isinstance(self, dabo.ui.dFormMixin):
 			# Only forms need to update controls' data
 			dabo.ui.callAfterInterval(self.updateControlValue, 200)
-
-		self.__updateDynamicProps()
 
 		if self.Children:
 			dabo.ui.callAfterInterval(self.raiseEvent, 200, dEvents.Update)
