@@ -848,7 +848,7 @@ class dPemMixin(dPemMixinBase):
 			dabo.ui.callAfterInterval(self.updateControlValue, 200)
 
 		if self.Children:
-			dabo.ui.callAfterInterval(self.raiseEvent, 200, dEvents.Update)
+			self.raiseEvent(dEvents.Update)
 		dabo.ui.callAfterInterval(self.Refresh, 200)
 			
 		
