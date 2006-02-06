@@ -182,7 +182,6 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def __getattr__(self, att):
-		ret = None
 		if att.startswith(_prefixDynamic):
 			dyn = self._dynamic.get(att)
 			if isinstance(dyn, tuple):
@@ -192,21 +191,17 @@ class dPemMixin(dPemMixinBase):
 				attFunc = dyn
 				funcArgs = ()
 			if callable(attFunc):
-				ret = attFunc(*funcArgs)
-		if ret is None:
-			raise AttributeError, att
-		return ret
+				return attFunc(*funcArgs)
+		raise AttributeError, att
 		
 	
 	def __setattr__(self, att, val):
-		isSet = False
 		if att.startswith(_prefixDynamic):
 			if callable(val) or (isinstance(val, tuple) and 
 					callable(val[0])):
 				self._dynamic[att] = val
-				isSet = True
-		if not isSet:
-			super(dPemMixin, self).__setattr__(att, val)
+				return
+		super(dPemMixin, self).__setattr__(att, val)
 		
 		
 	def _beforeInit(self, pre):
@@ -775,11 +770,7 @@ class dPemMixin(dPemMixinBase):
 				if filt:
 					ok = eval("chld.%s" % filt)
 			if ok:
-				if isinstance(val, basestring):
-					# Wrap the value in single quotes
-					exec("chld.%s = '%s'" % (prop, val))
-				else:
-					exec("chld.%s = %s" % (prop, val))
+				setattr(chld, prop, val)
 			if recurse:
 				if hasattr(chld, "setAll"):
 					chld.setAll(prop, val, recurse=recurse, filt=filt)
@@ -836,6 +827,8 @@ class dPemMixin(dPemMixinBase):
 
 	def __onUpdate(self, evt):
 		"""Update any dynamic properties, and then call	the refresh() hook."""
+		if isinstance(self, dabo.ui.deadObject):
+			return
 		self.update()
 			
 		
@@ -843,12 +836,12 @@ class dPemMixin(dPemMixinBase):
 		"""Called to update the properties of this object and all of its
 		contained objects.
 		"""
-		try:
-			self.__updateDynamicProps()
-		except dabo.ui.deadObjectException:
+		if isinstance(self, dabo.ui.deadObject):
 			# This can happen if an object is released when there is a 
 			# pending callAfter() refresh.
 			return
+
+		self.__updateDynamicProps()
 		
 		if isinstance(self, dabo.ui.dFormMixin):
 			# Only forms need to update controls' data
@@ -868,7 +861,7 @@ class dPemMixin(dPemMixinBase):
 			else:
 				args = ()
 			baseProp = prop[len(_prefixDynamic):]
-			exec("self.%s = func(*args)" % baseProp)
+			setattr(self, baseProp, func(*args))
 	
 	
 	def updateControlValue(self, grid=None):
