@@ -181,10 +181,10 @@ def callAfterInterval(func, interval, *args, **kwargs):
 	refresh something because you changed it, but the frequency of changes can be
 	high.
 	"""
-	futureCall = _callAfterIntervalReferences.get(func)
+	futureCall = _callAfterIntervalReferences.get((func, args))
 	if futureCall:
 		futureCall.Stop()
-	_callAfterIntervalReferences[func] = wx.FutureCall(interval, func, *args, **kwargs)
+	_callAfterIntervalReferences[(func, args)] = wx.FutureCall(interval, func, *args, **kwargs)
 
 
 def yieldUI(*args, **kwargs):
