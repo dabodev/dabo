@@ -94,3 +94,49 @@ def getEventData(uiEvent):
 	"""
 	return {}
 	
+
+def makeDynamicProperty(prop, additionalDoc=None):
+	"""Make a Dynamic property for the passed property.
+
+	Call this in your class definition, after you've defined the property
+	you'd like to make dynamic. For example:
+
+	Caption = property(_getCaption, _setCaption, None, None)
+	DynamicCaption = makeDynamicProperty(Caption)
+	"""
+	import inspect
+
+	propName = None
+	frame = inspect.currentframe(1)
+	for k, v in frame.f_locals.items():
+		if v is prop:
+			propName = k
+			break
+	if not propName:
+		raise ValueError
+
+	def fget(self):
+		return self._dynamic.get(propName)
+
+	def fset(self, func):
+		if func is None:
+			# For safety and housekeeping, delete the dynamic prop completely,
+			# instead of just setting to None.
+			if self._dynamic.has_key(propName):
+				del self._dynamic[propName]
+		else:
+			self._dynamic[propName] = func
+
+	doc = _("""Dynamically determine the value of the %s property.
+
+Specify a function and optional arguments that will get called from the
+update() method. The return value of the function will get set to the
+%s property. If Dynamic%s is set to None (the default), %s 
+will not be dynamically evaluated.
+""" % (propName, propName, propName, propName))
+
+	if additionalDoc:
+		doc += "\n\n" + additionalDoc
+
+	return property(fget, fset, None, doc)	
+
