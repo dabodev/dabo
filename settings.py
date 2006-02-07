@@ -93,6 +93,11 @@ dateFormat = "American"		# MM/DD/YYYY
 # Default font size when none other is specified
 defaultFontSize = 10
 
+# Delays were added to the update/refresh cycle for performance reasons, 
+# but these can impact negatively in some applications, notably the Designer.
+# For those apps, set this to False for better performance.
+useUpdateDelays = True
+
 
 ### Settings - end
 
