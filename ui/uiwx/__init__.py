@@ -844,3 +844,10 @@ def setdFormClass(typ):
 		dabo.ui.__dict__["dForm"] = dFormChildMDI
 	elif lowtype == "sdi":
 		dabo.ui.__dict__["dForm"] = dFormSDI
+
+
+class GridSizerSpanException(dabo.dException.dException):
+	"""Raised when an attempt is made to set the RowSpan or
+	ColSpan of an item to an illegal value.
+	"""
+	pass
