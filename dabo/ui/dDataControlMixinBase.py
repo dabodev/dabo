@@ -24,12 +24,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def _initEvents(self):
 		super(dDataControlMixinBase, self)._initEvents()
 		
-		try:
-			self.Form.bindEvent(dEvents.ValueUpdate, self.__onValueUpdate)
-		except AttributeError:
-			# Perhaps this control doesn't have a form reference?
-			pass
-		
 		self.bindEvent(dEvents.Create, self.__onCreate)
 		self.bindEvent(dEvents.Destroy, self.__onDestroy)
 		self.bindEvent(dEvents.GotFocus, self.__onGotFocus)
@@ -65,7 +59,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if self._oldVal != self.Value:
 			if hasattr(self.Form, "validateField"):
 				ok = self.Form.validateField(self)
-		if ok is False:
+		if not ok:
 			# If validation fails, don't write the value to the source. Also,
 			# flag this field so that the gotFocus() doesn't set _oldVal
 			# to the invalid value.
@@ -81,20 +75,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			pass
 
 			
-	def __onValueUpdate(self, evt):
-		try:
-			self.update()
-		except:
-			# Dead objects will cause errors; ignore 'em
-			pass
-		try:
-			if self.SelectOnEntry and self.Form.ActiveControl == self:
-				self.selectAll()
-		except AttributeError:
-			# only text controls have SelectOnEntry
-			pass 
-
-
 
 	def getBlankValue(self):
 		""" Return the empty value of the control."""
@@ -104,10 +84,15 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def update(self):
 		""" Update control's value to match the current value from the source."""
 		super(dDataControlMixinBase, self).update()
+
+		if getattr(self, "SelectOnEntry", False) and self.Form.ActiveControl == self:
+			self.selectAll()
+
 		if not self.DataSource or not self.DataField:
 			return
 		if self._DesignerMode:
 			return
+
 		if self.Source and self._srcIsBizobj:
 			try:
 				self.Value = self.Source.getFieldVal(self.DataField)

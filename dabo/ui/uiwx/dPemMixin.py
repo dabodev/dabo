@@ -298,7 +298,11 @@ class dPemMixin(dPemMixinBase):
 		try:
 			self.Parent.bindEvent(dEvents.Update, self.__onUpdate)
 		except:
-			self.bindEvent(dEvents.Update, self.__onUpdate)
+			## pkm: I don't think we want to bind this to self, because then you
+			##      will have recursion in the event handling. We are either a form
+			##      or somehow our Parent isn't a Dabo object. Just do nothing...
+			#self.bindEvent(dEvents.Update, self.__onUpdate)
+			pass
 
 		self.initEvents()
 
@@ -815,21 +819,13 @@ class dPemMixin(dPemMixinBase):
 			return
 
 		self.__updateDynamicProps()
-		
-		if isinstance(self, dabo.ui.dFormMixin):
-			# Only forms need to update controls' data
-			if dabo.useUpdateDelays:
-				dabo.ui.callAfterInterval(self.updateControlValue, 200)
-			else:
-				self.updateControlValue()
+
+		if isinstance(self, dabo.ui.dFormMixin) and self.AutoUpdateStatusText:
+			self.setStatusText(self.getCurrentRecordText())
 
 		if self.Children:
-			if dabo.useUpdateDelays:
-				dabo.ui.callAfterInterval(self.Refresh, 200)
-			else:
-				self.Refresh()
-		self.raiseEvent(dEvents.Update)
-			
+			self.raiseEvent(dEvents.Update)
+
 		
 	def __updateDynamicProps(self):
 		"""Updates the object's dynamic properties."""
@@ -842,20 +838,6 @@ class dPemMixin(dPemMixinBase):
 			setattr(self, prop, func(*args))
 	
 	
-	def updateControlValue(self, grid=None):
-		"""Updates the value of all contained dControls.
-
-		Raises dEvents.ValueUpdate, which will be caught by all
-		dControls, who will in turn update themselves with the 
-		current value of their DataField in their DataSource. 
-		"""
-		self.raiseEvent(dEvents.ValueUpdate)
-		if self.AutoUpdateStatusText:
-			try:
-				self.setStatusText(self.getCurrentRecordText(grid=grid))
-			except: pass
-
-
 	def refresh(self, fromRefresh=False):
 		"""Repaints this control and all contained objects."""
 		try:
