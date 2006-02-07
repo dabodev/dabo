@@ -353,6 +353,10 @@ class dSizerMixin(dObject):
 		elif lowprop == "colexpand" and isinstance(self, dabo.ui.dGridSizer):
 			self.setColExpand(val, col)			
 			ret = True
+		elif lowprop == "rowspan" and isinstance(self, dabo.ui.dGridSizer):
+			ret = self.setRowSpan(itm, val)
+		elif lowprop == "colspan" and isinstance(self, dabo.ui.dGridSizer):
+			ret = self.setColSpan(itm, val)
 		elif lowprop in ("expand", "halign", "valign", "bordersides"):
 			ret = True
 			pd = {"left" : self.leftFlag, 

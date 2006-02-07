@@ -313,6 +313,20 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		return ret
 	
 	
+	def getMaxRow(self):
+		"""Returns the highest row that contains an object."""
+		rows = [self.GetItemPosition(win)[0] + self.GetItemSpan(win)[0]
+				for win in self.ChildWindows]
+		return max(rows)
+	
+	
+	def getMaxCol(self):
+		"""Returns the highest column that contains an object."""
+		cols = [self.GetItemPosition(win)[1] + self.GetItemSpan(win)[1]
+				for win in self.ChildWindows]
+		return max(cols)
+	
+	
 	def getGridPos(self, obj):
 		"""Given an object that is contained in this grid
 		sizer, returns a (row,col) tuple for that item's location.
@@ -334,12 +348,42 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		if isinstance(obj, self.GridSizerItem):
 			obj = self.getItem(obj)
 		try:
-			row, col = self.GetItemSpan(win)
-		except PyAssertionError, e:
+			row, col = self.GetItemSpan(obj)
+		except wx.PyAssertionError, e:
 			# Window isn't controlled by this sizer
 			row, col = None, None
 		return (row, col)
 	
+	
+	def setGridSpan(self, obj, row=None, col=None):
+		"""Given an object that is contained in this grid
+		sizer, sets its span to the given values. Returns 
+		True if successful, or False if it fails, due to another
+		item in the way.
+		"""
+		if isinstance(obj, self.GridSizerItem):
+			obj = self.getItem(obj)
+		currRow, currCol = self.getGridSpan(obj)
+		if row is None:
+			row = currRow
+		if col is None:
+			col = currCol
+		spn = wx.GBSpan(row, col)
+		try:
+			self.SetItemSpan(obj, spn)
+		except:
+			raise dabo.ui.GridSizerSpanException, _("An item already exists in that location")
+	
+	
+	def setRowSpan(self, obj, rowspan):
+		"""Sets the row span, keeping the col span the same."""
+		self.setGridSpan(obj, row=rowspan)
+		
+	
+	def setColSpan(self, obj, colspan):
+		"""Sets the col span, keeping the row span the same."""
+		self.setGridSpan(obj, col=colspan)
+		
 	
 	def getItemByRowCol(self, row, col):
 		"""Returns the item at the given position if one 
@@ -396,6 +440,10 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			ret = self.isRowGrowable(row)
 		elif prop == "ColExpand":
 			ret = self.isColGrowable(col)
+		elif prop == "RowSpan":
+			ret = self.GetItemSpan(chil).GetRowspan()
+		elif prop == "ColSpan":
+			ret = self.GetItemSpan(chil).GetColspan()
 		elif prop == "Proportion":
 			ret = itm.GetProportion()
 		else:
