@@ -818,11 +818,17 @@ class dPemMixin(dPemMixinBase):
 		
 		if isinstance(self, dabo.ui.dFormMixin):
 			# Only forms need to update controls' data
-			dabo.ui.callAfterInterval(self.updateControlValue, 200)
+			if dabo.settings.useUpdateDelays:
+				dabo.ui.callAfterInterval(self.updateControlValue, 200)
+			else:
+				self.updateControlValue()
 
 		if self.Children:
-			self.raiseEvent(dEvents.Update)
-		dabo.ui.callAfterInterval(self.Refresh, 200)
+			if dabo.settings.useUpdateDelays:
+				dabo.ui.callAfterInterval(self.Refresh, 200)
+			else:
+				self.Refresh()
+		self.raiseEvent(dEvents.Update)
 			
 		
 	def __updateDynamicProps(self):
