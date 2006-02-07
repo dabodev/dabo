@@ -42,10 +42,10 @@ class Test(object):
 			frame.Sizer = ui.dSizer("Vertical")
 			frame.testObjects = []
 			for class_ in classRefs:
-				object = class_(frame, LogEvents=logEvents, *args, **kwargs)
-				object.Width = 300
-				frame.Sizer.append(object, 1, "expand")
-				frame.testObjects.append(object)
+				obj = class_(frame, LogEvents=logEvents, *args, **kwargs)
+				obj.Width = 300
+				frame.Sizer.append(obj, 1, "expand")
+				frame.testObjects.append(obj)
 
 			# This will get a good approximation of the required size
 			w,h = frame.Sizer.GetMinSize()
@@ -57,8 +57,9 @@ class Test(object):
 			if len(classRefs) > 1:
 				frame.Caption = "Test of multiple objects"
 			else:
-				frame.Caption = "Test of %s" % object.BaseClass.__name__
-			object.setFocus()
+				frame.Caption = "Test of %s" % obj.BaseClass.__name__
+
+			obj.setFocus()
 		
 		if isDialog:
 			ret = frame.ShowModal()
@@ -78,6 +79,7 @@ class Test(object):
 		frame.LogEvents = logEvents
 
 		panel = frame.addObject(ui.dScrollPanel, "panelTest")
+		panel.SetScrollbars(10,10,50,50)
 		labelWidth = 150
 		vs = ui.dSizer("vertical")
 
@@ -113,7 +115,7 @@ class Test(object):
 				label.Caption = "%s:" % modname
 				bs.append(label)
 
-				if isinstance(object, ui.dEditBox):
+				if isinstance(obj, ui.dEditBox):
 					layout = "expand"
 				else:
 					layout = "normal"
