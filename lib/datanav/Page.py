@@ -556,7 +556,6 @@ class EditPage(Page):
 		super(EditPage, self).initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
-		self.bindEvent(dEvents.ValueUpdate, self.__onValueUpdate)
 		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 	
 	
@@ -582,21 +581,11 @@ class EditPage(Page):
 		if focusToControl is not None:
 			focusToControl.setFocus()
 			self._focusToControl = None
-		self.__onValueUpdate()
 		# The current row may have changed. Make sure that the
 		# values are current
 		self.__onRowNumChanged(None)
 		
 
-	def __onValueUpdate(self, evt=None):
-		form = self.Form
-		bizobj = form.getBizobj(self.DataSource)
-		if bizobj and bizobj.RowCount > 0:
-			self.Enable(True)
-		else:
-			self.Enable(False)
-
-	
 	def createItems(self):
 		fs = self.fieldSpecs
 		relationSpecs = self.Form.RelationSpecs
