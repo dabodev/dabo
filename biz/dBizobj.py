@@ -9,21 +9,21 @@ from dabo.dObject import dObject
 
 
 class dBizobj(dObject):
-	""" The middle tier, where the business logic resides.
-	"""
+	""" The middle tier, where the business logic resides."""
 	# Class to instantiate for the cursor object
 	dCursorMixinClass = dCursorMixin
-
 	# Need to set this here
 	useFieldProps = False
-
 	# Tell dObject that we'll call before and afterInit manually:
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, False
+
 
 	def __init__(self, conn, properties=None, *args, **kwargs):
 		""" User code should override beforeInit() and/or afterInit() instead."""
 		self._beforeInit()
 		self._conn = conn
+		# Do we use autocommit for transactions?
+		self._autoCommit = False
 
 		super(dBizobj, self).__init__(properties=properties, *args, **kwargs)
 
@@ -120,7 +120,7 @@ class dBizobj(dObject):
 		else:
 			err = True
 		if err:
-			raise AttributeError, " '%s' object has no attribute '%s' " % (self.__class__.__name__, att)
+			raise AttributeError, _(" '%s' object has no attribute '%s' ") % (self.__class__.__name__, att)
 		return ret
 
 
@@ -171,6 +171,7 @@ class dBizobj(dObject):
 		crs.AutoPopulatePK = self.AutoPopulatePK
 		crs.BackendObject = cn.getBackendObject()
 		crs.sqlManager = self.SqlManager
+		crs.AutoCommit = self.AutoCommit
 		crs.setSQL(self.SQL)
 		if self.RequeryOnLoad:
 			crs.requery()
@@ -273,7 +274,7 @@ class dBizobj(dObject):
 		cursor = self._CurrentCursor
 		useTransact = startTransaction or topLevel
 		if useTransact:
-			# Tell the cursor to issue a BEGIN TRANSACTION command
+			# Tell the cursor to begin a transaction, if needed.
 			cursor.beginTransaction()
 		
 		try:
@@ -305,13 +306,17 @@ class dBizobj(dObject):
 		If the save is successful, the save() of all child bizobjs will be
 		called as well. 
 		"""
+		
+		dabo.trace()
+
+
 		cursor = self._CurrentCursor
 		errMsg = self.beforeSave()
 		if errMsg:
 			raise dException.dException, errMsg
 		
 		if self.KeyField is None:
-			raise dException.dException, "No key field defined for table: " + self.DataSource
+			raise dException.dException, _("No key field defined for table: ") + self.DataSource
 
 		# Validate any changes to the data. If there is data that fails
 		# validation, an Exception will be raised.
@@ -319,7 +324,7 @@ class dBizobj(dObject):
 		
 		useTransact = startTransaction or topLevel
 		if useTransact:
-			# Tell the cursor to issue a BEGIN TRANSACTION command
+			# Tell the cursor to begin a transaction, if needed.
 			cursor.beginTransaction()
 
 		# OK, this actually does the saving to the database
@@ -394,8 +399,7 @@ class dBizobj(dObject):
 
 
 	def delete(self, startTransaction=False):
-		""" Delete the current row of the data set.
-		"""
+		""" Delete the current row of the data set."""
 		cursor = self._CurrentCursor
 		errMsg = self.beforeDelete()
 		if not errMsg:
@@ -404,7 +408,7 @@ class dBizobj(dObject):
 			raise dException.dException, errMsg
 		
 		if self.KeyField is None:
-			raise dException.dException, "No key field defined for table: " + self.DataSource
+			raise dException.dException, _("No key field defined for table: ") + self.DataSource
 
 		if self.deleteChildLogic == k.REFINTEG_RESTRICT:
 			# See if there are any child records
@@ -442,8 +446,7 @@ class dBizobj(dObject):
 
 
 	def deleteAll(self, startTransaction=False):
-		""" Delete all rows in the data set.
-		"""
+		""" Delete all rows in the data set."""
 		while self.RowCount > 0:
 			self.first()
 			ret = self.delete(startTransaction)
@@ -598,7 +601,7 @@ class dBizobj(dObject):
 		if errMsg:
 			raise dException.dException, errMsg
 		if self.KeyField is None:
-			errMsg = "No Primary Key defined in the Bizobj for " + self.DataSource
+			errMsg = _("No Primary Key defined in the Bizobj for %s") % self.DataSource
 			raise dException.MissingPKException, errMsg
 		
 		# If this is a dependent (child) bizobj, this will enforce the relation
@@ -834,14 +837,12 @@ class dBizobj(dObject):
 		
 		
 	def onDeleteLastRecord(self):
-		""" Hook called when the last record has been deleted from the data set.
-		"""
+		""" Hook called when the last record has been deleted from the data set."""
 		pass
 
 
 	def _onSaveNew(self):
-		""" Called after successfully saving a new record.
-		"""
+		""" Called after successfully saving a new record."""
 		# If this is a new parent record with a new auto-generated PK, pass it on
 		# to the children before they save themselves.
 		if self.AutoPopulatePK:
@@ -853,8 +854,7 @@ class dBizobj(dObject):
 
 
 	def onSaveNew(self):
-		""" Hook method called after successfully saving a new record.
-		"""
+		""" Hook method called after successfully saving a new record."""
 		pass
 
 
@@ -865,23 +865,19 @@ class dBizobj(dObject):
 		"""
 		cursor = self._CurrentCursor
 		cursor.setDefaults(self.DefaultValues)
-		
 		if self.AutoPopulatePK:
 			# Provide a temporary PK so that any linked children can be properly
 			# identified until the record is saved and a permanent PK is obtained.
 			cursor.genTempAutoPK()
-		
 		# Fill in the link to the parent record
 		if self.Parent and self.FillLinkFromParent and self.LinkField:
 			self.setParentFK()
-
 		# Call the custom hook method
 		self.onNew()
 
 
 	def onNew(self):
-		""" Hook method called after the default values have been set in onNew(). 
-		"""
+		""" Hook method called after the default values have been set in onNew()."""
 		pass
 
 
@@ -1022,11 +1018,9 @@ class dBizobj(dObject):
 
 
 	def getPK(self):
-		""" Return the value of the PK field.
-		"""
+		""" Return the value of the PK field."""
 		if self.KeyField is None:
-			raise dException.dException, "No key field defined for table: " + self.DataSource
-
+			raise dException.dException, _("No key field defined for table: ") + self.DataSource
 		return self._CurrentCursor.getFieldVal(self.KeyField)
 
 
@@ -1043,8 +1037,7 @@ class dBizobj(dObject):
 
 
 	def getFieldVal(self, fld, row=None):
-		""" Return the value of the specified field in the current or specified row. 
-		"""
+		""" Return the value of the specified field in the current or specified row."""
 		cursor = self._CurrentCursor
 		if cursor is not None:
 			return cursor.getFieldVal(fld, row)
@@ -1053,8 +1046,7 @@ class dBizobj(dObject):
 
 
 	def setFieldVal(self, fld, val):
-		""" Set the value of the specified field in the current row.
-		"""
+		""" Set the value of the specified field in the current row."""
 		cursor = self._CurrentCursor
 		if cursor is not None:
 			try:
@@ -1128,8 +1120,7 @@ class dBizobj(dObject):
 
 
 	def getChildren(self):
-		""" Return a tuple of the child bizobjs.
-		"""
+		""" Return a tuple of the child bizobjs."""
 		ret = []
 		for child in self.__children:
 			ret.append(child)
@@ -1137,8 +1128,7 @@ class dBizobj(dObject):
 		
 	
 	def getChildByDataSource(self, dataSource):
-		""" Return a reference to the child bizobj with the passed dataSource.
-		"""
+		""" Return a reference to the child bizobj with the passed dataSource."""
 		ret = None
 		for child in self.getChildren():
 			if child.DataSource == dataSource:
@@ -1169,14 +1159,6 @@ class dBizobj(dObject):
 		self.RowNumber = rowNumber
 
 
-	def _getNonUpdateFields(self):
-		return self._CurrentCursor.getNonUpdateFields()
-		
-	def _setNonUpdateFields(self, fldList=None):
-		if fldList is None:
-			fldList = []
-		self._CurrentCursor.setNonUpdateFields(fldList)
-	
 	def getWordMatchFormat(self):
 		return self._CurrentCursor.getWordMatchFormat()
 		
@@ -1245,6 +1227,23 @@ class dBizobj(dObject):
 	def afterCreateCursor(self, cursor): pass
 
 
+	def _getAutoCommit(self):
+		return self._CurrentCursor.AutoCommit
+
+	def _setAutoCommit(self, val):
+		self._CurrentCursor.AutoCommit = val
+
+
+	def _getAutoPopulatePK(self):
+		try:
+			return self._autoPopulatePK
+		except AttributeError:
+			return True
+
+	def _setAutoPopulatePK(self, val):
+		self._autoPopulatePK = bool(val)
+
+	
 	def _getAutoSQL(self):
 		try:
 			return self._CurrentCursor.getSQL()
@@ -1320,40 +1319,20 @@ class dBizobj(dObject):
 		self._CurrentCursor.Encoding = val
 
 
-	def _getRequeryOnLoad(self):
+	def _getFillLinkFromParent(self):
 		try:
-			ret = self._requeryOnLoad
+			return self._fillLinkFromParent
 		except AttributeError:
-			ret = False
-		return ret
+			return False
 
-	def _setRequeryOnLoad(self, val):
-		self._requeryOnLoad = bool(val)
+	def _setFillLinkFromParent(self, val):
+		self._fillLinkFromParent = bool(val)
 
 		
-	def _getParent(self):
-		try:
-			return self._parent
-		except AttributeError:
-			return None
-
-	def _setParent(self, val):
-		if isinstance(val, dBizobj):
-			self._parent = val
-		else:
-			raise TypeError, "Parent must descend from dBizobj"
-
-			
-	def _getAutoPopulatePK(self):
-		try:
-			return self._autoPopulatePK
-		except AttributeError:
-			return True
-
-	def _setAutoPopulatePK(self, val):
-		self._autoPopulatePK = bool(val)
-
+	def _isAdding(self):
+		return self._CurrentCursor.IsAdding
 	
+
 	def _getKeyField(self):
 		try:
 			return self._keyField
@@ -1367,6 +1346,14 @@ class dBizobj(dObject):
 			cursor.KeyField = val
 	
 
+	def _getLastSQL(self):
+		try:
+			v = self._CurrentCursor.LastSQL
+		except AttributeError:
+			v = None
+		return v
+			
+
 	def _getLinkField(self):
 		try:
 			return self._linkField
@@ -1377,6 +1364,48 @@ class dBizobj(dObject):
 		self._linkField = str(val)
 
 		
+	def _getNewChildOnNew(self):
+		try:
+			return self._newChildOnNew
+		except AttributeError:
+			return False
+
+	def _setNewChildOnNew(self, val):
+		self._newChildOnNew = bool(val)
+
+					
+	def _getNewRecordOnNewParent(self):
+		try:
+			return self._newRecordOnNewParent
+		except AttributeError:
+			return False
+
+	def _setNewRecordOnNewParent(self, val):
+		self._newRecordOnNewParent = bool(val)
+
+		
+	def _getNonUpdateFields(self):
+		return self._CurrentCursor.getNonUpdateFields()
+		
+	def _setNonUpdateFields(self, fldList=None):
+		if fldList is None:
+			fldList = []
+		self._CurrentCursor.setNonUpdateFields(fldList)
+	
+
+	def _getParent(self):
+		try:
+			return self._parent
+		except AttributeError:
+			return None
+
+	def _setParent(self, val):
+		if isinstance(val, dBizobj):
+			self._parent = val
+		else:
+			raise TypeError, _("Parent must descend from dBizobj")
+
+			
 	def _getParentLinkField(self):
 		try:
 			return self._parentLinkField
@@ -1397,48 +1426,17 @@ class dBizobj(dObject):
 		self._requeryChildOnSave = bool(val)
 
 		
-	def _getNewRecordOnNewParent(self):
+	def _getRequeryOnLoad(self):
 		try:
-			return self._newRecordOnNewParent
+			ret = self._requeryOnLoad
 		except AttributeError:
-			return False
+			ret = False
+		return ret
 
-	def _setNewRecordOnNewParent(self, val):
-		self._newRecordOnNewParent = bool(val)
+	def _setRequeryOnLoad(self, val):
+		self._requeryOnLoad = bool(val)
 
 		
-	def _getNewChildOnNew(self):
-		try:
-			return self._newChildOnNew
-		except AttributeError:
-			return False
-
-	def _setNewChildOnNew(self, val):
-		self._newChildOnNew = bool(val)
-
-					
-	def _getFillLinkFromParent(self):
-		try:
-			return self._fillLinkFromParent
-		except AttributeError:
-			return False
-
-	def _setFillLinkFromParent(self, val):
-		self._fillLinkFromParent = bool(val)
-
-		
-	def _isAdding(self):
-		return self._CurrentCursor.IsAdding
-	
-
-	def _getLastSQL(self):
-		try:
-			v = self._CurrentCursor.LastSQL
-		except AttributeError:
-			v = None
-		return v
-			
-
 	def _getRestorePositionOnRequery(self):
 		try:
 			return self._restorePositionOnRequery
@@ -1516,6 +1514,8 @@ class dBizobj(dObject):
 
 	
 	### -------------- Property Definitions ------------------  ##
+	AutoCommit = property(_getAutoCommit, _setAutoCommit, None,
+			_("Do we need explicit begin/commit/rollback commands for transactions?  (bool)"))
 	
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None, 
 			_("Determines if we are using a table that auto-generates its PKs. (bool)"))
