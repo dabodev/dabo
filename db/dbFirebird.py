@@ -18,7 +18,6 @@ class Firebird(dBackend):
 		port = connectInfo.Port
 		if not port:
 			port = 3050
-
 		# kinterbasdb will barf with unicode strings:
 		host = str(connectInfo.Host)
 		user = str(connectInfo.User)
@@ -29,8 +28,10 @@ class Firebird(dBackend):
 				password=password, database=database)
 		return self._connection
 		
+		
 	def getDictCursorClass(self):
 		return self.dbapi.Cursor
+		
 	
 	def noResultsOnSave(self):
 		""" Firebird does not return the number of records updated, so
@@ -39,12 +40,14 @@ class Firebird(dBackend):
 		"""
 		return
 	
+	
 	def noResultsOnDelete(self):
 		""" Firebird does not return the number of records deleted, so
 		we just have to ignore this, since we can't tell a failed delete apart 
 		from a successful one.
 		"""
 		return
+		
 
 	def processFields(self, txt):
 		""" Firebird requires that all field names be surrounded 
@@ -60,10 +63,12 @@ class Firebird(dBackend):
 		qt = "\'"
 		return qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
 	
+	
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
 		return "%s%s%s" % (sqt, str(val), sqt)
+
 
 	def getTables(self, includeSystemTables=False):
 		if includeSystemTables:
@@ -89,7 +94,6 @@ class Firebird(dBackend):
 
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
-		
 		# Get the PK
 		sql = """ select inseg.rdb$field_name
 		from rdb$indices idxs join rdb$index_segments inseg
@@ -172,6 +176,7 @@ class Firebird(dBackend):
 	def getLimitWord(self):
 		""" Override the default 'limit', since Firebird doesn't use that. """
 		return "first"
+		
 
 	def formSQL(self, fieldClause, fromClause, 
 				whereClause, groupByClause, orderByClause, limitClause):

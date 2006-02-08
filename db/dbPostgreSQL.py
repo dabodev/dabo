@@ -13,15 +13,15 @@ class Postgres(dBackend):
 		self.dbModuleName = "psycopg"
 		self.useTransactions = True  # this does not appear to be required
 
+
 	def getConnection(self, connectInfo):
-		### TODO: what connector should we use?
 		import psycopg2 as dbapi
 		#from pyPgSQL import PgSQL as dbapi
 		
 		#- jfcs 11/01/04 port needs to be a string
 		port = str(connectInfo.Port)
-		if not port or port == 'None':
-			port = '5432'
+		if not port or port == "None":
+			port = "5432"
 				
 		DSN = "host=%s port=%s dbname=%s user=%s password=%s" % (connectInfo.Host,
 			port,
@@ -32,49 +32,46 @@ class Postgres(dBackend):
 		self._connection = dbapi.connect(DSN)
 		return self._connection
 
+
 	def getDictCursorClass(self):
-		### TODO: If PostgreSQL doesn't offer specific Dict cursors, 
-		###   return a plain one, and Dabo will convert it.
 		# the new psycopg 2.0 supports DictCursor
 		import psycopg2.extras as cursors
 		return cursors.DictCursor 
 
+
 	def escQuote(self, val):
-		### TODO: This method needs to escape any 'dangerous' characters,
-		###   and properly enclose a string value in quotes.
 		# escape backslashes and single quotes, and
 		# wrap the result in single quotes
 		sl = "\\"
 		qt = "\'"
 		return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
 	
+	
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
-		### TODO:  How does PostgreSQL handle date-time values?
 		sqt = "'"		# single quote
 		return "%s%s%s" % (sqt, str(val), sqt)
-		
+	
+	
 	def getTables(self, includeSystemTables=False):
 		tempCursor = self._connection.cursor()
-		### TODO: Verify that this is the correct syntax
 		# jfcs 11/01/04 assumed public schema
 		tempCursor.execute("select tablename from pg_tables where schemaname = 'public'")
 		rs = tempCursor.fetchall()
 		tables = []
 		for record in rs:
 			tables.append(record[0])
-
 		return tuple(tables)
-		
+
+	
 	def getTableRecordCount(self, tableName):
 		tempCursor = self._connection.cursor()
-		### TODO: Verify syntax
 		tempCursor.execute("select count(*) as ncount from %s" % tableName)
 		return tempCursor.fetchall()[0][0]
 
+
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
-		### TODO: Verify syntax
 		#jfcs 11/01/04 works great from psql (but does not work with the psycopg
 		#module) and only with postgres 7.4.x and later.  Too bad, the statement
 		#does everything in one shot.
@@ -90,7 +87,6 @@ class Postgres(dBackend):
 		#LEFT JOIN pg_class cl ON(cl.relname=cu.table_name) \
 		#LEFT JOIN pg_index i ON(cl.oid= i.indrelid) WHERE c.table_name= '%s'" % tableName)
 		#rs=tempCursor.fetchall()
-		
 		
 		# jfcs 11/01/04 Below sucks but works with 7.3.x and 7.4.x (don't know anything
 		# about 8.0.x) 
@@ -115,15 +111,12 @@ class Postgres(dBackend):
 			thePKFieldName=thestr[thestr.find('(')+1:thestr.find(')')]
 		
 		fields = []
-		### TODO: Verify the field type names returned.
 		for r in rs:
-			
 			name = r[1]
 			fldType =r[2]
 			pk = False
 			if thePKFieldName is not None:
 				pk = (name == thePKFieldName)
-			
 			if 'int' in fldType:
 				fldType = 'I'
 			elif 'char' in fldType :
@@ -138,34 +131,10 @@ class Postgres(dBackend):
 				fldType = 'D'
 			else:
 				fldType = "?"
-			
-			
 			fields.append((name.strip(), fldType, pk))
-			
 		return tuple(fields)
 		
-	### TODO: Customize these for PostgreSQL syntax.
 
-	def beginTransaction(self, cursor):
-		""" Begin a SQL transaction."""
-		# jfcs 11/01/04 not sure of this
-		# Normally Postgres is in the 
-		# transaction mode always????
-		#if self.useTransactions:
-		cursor.execute("BEGIN")
-
-	def commitTransaction(self, cursor):
-		""" Commit a SQL transaction."""
-		#if self.useTransactions:
-		cursor.execute("COMMIT")
-
-	def rollbackTransaction(self, cursor):
-		""" Roll back (revert) a SQL transaction."""
-		#if self.useTransactions:
-		cursor.execute("ROLLBACK")
-		
-
-	
 	def getUpdateTablePrefix(self, tbl):
 		""" By default, the update SQL statement will be in the form of
 					tablename.fieldname
@@ -174,23 +143,25 @@ class Postgres(dBackend):
 		preceed the field name in an update statement.
 		 Postgres needs to return an empty string."""
 		return ""
+		
+		
 	def noResultsOnSave(self):
 		""" Most backends will return a non-zero number if there are updates.
 		Some do not, so this will have to be customized in those cases.
 		"""
-		#TODO find out what it should return when it fails....
 		return 
+
 
 	def noResultsOnDelete(self):
 		""" Most backends will return a non-zero number if there are deletions.
 		Some do not, so this will have to be customized in those cases.
 		"""
 		#raise dException.dException, _("No records deleted")
-		#TODO find out what it should return when it fails....
 		return 
+
 	
 	def flush(self, cursor):
 		""" Postgres requires an explicit commit in order to have changes
 		to the database written to disk.
 		"""
-		cursor.execute("COMMIT")
+		self.commitTransaction()

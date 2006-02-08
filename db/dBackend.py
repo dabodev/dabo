@@ -6,38 +6,41 @@ from dabo.dObject import dObject
 
 
 class dBackend(dObject):
-	""" Abstract object: inherit from this to define new dabo db interfaces.
-	"""
+	""" Abstract object: inherit from this to define new dabo db interfaces."""
 	def __init__(self):
 		self._baseClass = dBackend
-		#dBackend.doDefault(self)
+		self._autoCommit = False
+		# This forces the setting on the connection
+		self.AutoCommit = False
 		super(dBackend, self).__init__()
 		self.dbModuleName = None
 		self._connection = None
-#		sysenc = sys.getdefaultencoding()
-#		self._encoding = sysenc == 'ascii' and 'latin-1' or sysenc
 		self._encoding = "utf-8"
 
+
 	def isValidModule(self):
-		""" Test the dbapi to see if it is supported on this computer. 
-		"""
+		""" Test the dbapi to see if it is supported on this computer."""
 		try:
 			dbapi = __import__(self.dbModuleName)
 			return True
 		except ImportError:
 			return False
 
+
 	def getConnection(self, connectInfo):
 		""" override in subclasses """
 		return None
+		
 
 	def getDictCursorClass(self):
 		""" override in subclasses """
 		return None
+		
 	
 	def getCursor(self, cursorClass):
 		""" override in subclasses if necessary """
 		return cursorClass(self._connection)
+	
 	
 	def formatDateTime(self, val):
 		""" Properly format a datetime value to be included in an Update
@@ -47,6 +50,7 @@ class dBackend(dObject):
 		the default is to return the original value.
 		"""
 		return val
+		
 
 	def formatNone(self):
 		""" Properly format a None value to be included in an update statement.
@@ -55,11 +59,13 @@ class dBackend(dObject):
 		"""
 		return "NULL"
 	
+	
 	def noResultsOnSave(self):
 		""" Most backends will return a non-zero number if there are updates.
 		Some do not, so this will have to be customized in those cases.
 		"""
 		raise dException.dException, _("No records updated")
+
 
 	def noResultsOnDelete(self):
 		""" Most backends will return a non-zero number if there are deletions.
@@ -67,9 +73,11 @@ class dBackend(dObject):
 		"""
 		raise dException.dException, _("No records deleted")
 		
+		
 	def flush(self, cursor):
 		""" Only used in some backends """
 		return
+		
 
 	def processFields(self, txt):
 		""" Default is to return the string unchanged. Override
@@ -88,6 +96,7 @@ class dBackend(dObject):
 		# OVERRIDE IN SUBCLASSES!
 		return val
 	
+	
 	def getLastInsertID(self, cursor):
 		""" Return the ID of the last inserted row, or None.
 		
@@ -95,8 +104,7 @@ class dBackend(dObject):
 		value, different databases have their own way of retrieving that value.
 		This method should be coded in backend-specific subclasses to address
 		that database's approach.
-		"""
-		
+		"""		
 		# Here is some code to fall back on if the specific subclass doesn't 
 		# override.
 		try:
@@ -108,6 +116,7 @@ class dBackend(dObject):
 		except AttributeError:
 			return None
 
+
 	def getTables(self, includeSystemTables=False):
 		""" Return a tuple of the tables in the current database.
 		
@@ -115,10 +124,12 @@ class dBackend(dObject):
 		"""
 		return tuple()
 		
+		
 	def getTableRecordCount(self, tableName):
 		""" Return the number of records in the backend table.
 		"""
 		return -1
+	
 	
 	def getFields(self, tableName):
 		""" Return field information from the backend table.
@@ -145,29 +156,36 @@ class dBackend(dObject):
 		return tuple([(d[0], self.getDaboFieldType(d[1]), None) for d in cursorDescription])
 
 
+	def getAutoCommitStatus(self, cursor):
+		return self._autoCommit
+	
+	
+	def setAutoCommitStatus(self, cursor, val):
+		if hasattr(self._connection, "autocommit"):
+			self._connection.autocommit(val)
+			self._autoCommit = val
+		else:
+			# Without an autocommit method, assume 
+			# no autocommit.
+			self._autoCommit = False
+		
+	
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
-		try:
+		if not cursor.AutoCommit:
 			cursor.connection.begin()
-		except:
-			# Should we raise an error?
-			pass
+
 		
 	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
-		try:
+		if not cursor.AutoCommit:
 			cursor.connection.commit()
-		except:
-			# Should we raise an error?
-			pass
+
 		
 	def rollbackTransaction(self, cursor):
 		""" Roll back (revert) a SQL transaction."""
-		try:
-			cursor.connection.rollback()
-		except:
-			# Should we raise an error?
-			pass
+		cursor.connection.rollback()
+
 		
 	def addWithSep(self, base, new, sep=",\n\t"):
 		""" Convenient method of adding to an expression that 
@@ -180,36 +198,38 @@ class dBackend(dObject):
 			ret = new
 		return ret
 		
+		
 	def addField(self, clause, exp):
-		""" Add a field to the field clause.
-		"""
+		""" Add a field to the field clause."""
 		return self.addWithSep(clause, exp)
+
 
 	def addFrom(self, clause, exp):
-		""" Add a table to the sql statement.
-		"""
+		""" Add a table to the sql statement."""
 		return self.addWithSep(clause, exp)
+		
 
 	def addWhere(self, clause, exp, comp="and"):
-		""" Add an expression to the where clause.
-		"""
+		""" Add an expression to the where clause."""
 		return self.addWithSep(clause, exp, sep=" %s " % comp)
+		
 
 	def addGroupBy(self, clause, exp):
-		""" Add an expression to the group-by clause.
-		"""
+		""" Add an expression to the group-by clause."""
 		return self.addWithSep(clause, exp)
+		
 
 	def addOrderBy(self, clause, exp):
-		""" Add an expression to the order-by clause.
-		"""
+		""" Add an expression to the order-by clause."""
 		return self.addWithSep(clause, exp)
+		
 		
 	def getLimitWord(self):
 		""" Return the word to use in the db-specific limit clause.
 		Override for backends that don't use the word 'limit'
 		"""
 		return "limit"
+	
 	
 	def formSQL(self, fieldClause, fromClause, 
 				whereClause, groupByClause, orderByClause, limitClause):
@@ -222,11 +242,13 @@ class dBackend(dObject):
 		sql = "select " + "\n".join( [clause for clause in clauses if clause] )
 		return sql
 
+
 	def prepareWhere(self, clause):
 		""" Normally, just return the original. Can be overridden as needed
 		for specific backends.
 		"""
 		return clause
+		
 		
 	def getWordMatchFormat(self):
 		""" By default, will return the standard format for an 
@@ -238,6 +260,7 @@ class dBackend(dObject):
 		respectively.
 		"""
 		return " %(field)s = %(value)s "
+
 
 	def getUpdateTablePrefix(self, tbl):
 		""" By default, the update SQL statement will be in the form of
@@ -314,7 +337,7 @@ class dBackend(dObject):
 			cursor._whereClause = holdWhere
 		descFlds = cursor.FieldDescription
 		# Get the raw version of the table
-		sql = """select * from %s where 1=0 """ % cursor.Table
+		sql = "select * from %s where 1=0 " % cursor.Table
 		auxCrs = cursor._getAuxCursor()
 		auxCrs.execute( sql )
 		# This is the clean version of the table.
@@ -408,8 +431,10 @@ class dBackend(dObject):
 		to notify database about proper charset conversion.
 		"""
 		self._encoding = enc
+		
 	def _getEncoding(self):
 		""" Get backend encoding."""
 		return self._encoding
 
-	Encoding = property(_getEncoding, _setEncoding, None, "Backend encoding")
+	Encoding = property(_getEncoding, _setEncoding, None, 
+			_("Backend encoding  (str)"))

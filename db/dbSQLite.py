@@ -9,28 +9,46 @@ class SQLite(dBackend):
 		self.dbModuleName = "pysqlite2"
 		from pysqlite2 import dbapi2 as dbapi
 		self.dbapi = dbapi
+		
 
 	def getConnection(self, connectInfo):
 		pth = os.path.expanduser(connectInfo.Database)
 		self._connection = self.dbapi.connect(pth)
 		return self._connection
+		
 
 	def getDictCursorClass(self):
 		return self.dbapi.Cursor
+		
 
 	def escQuote(self, val):
 		if val is None:
 			return self.formatNone()
-			
 		sl = "\\"
 		qt = "\'"
 		return qt + str(val).replace(sl, sl+sl).replace(qt, qt+qt) + qt
 	
 	
+	def setAutoCommitStatus(self, cursor, val):
+		"""SQLite doesn't use an 'autocommit()' method. Instead,
+		set the isolation_level property of the connection.
+		"""
+		if val:
+			self._connection.isolation_level = None
+		else:
+			self._connection.isolation_level = ""
+		self._autoCommit = val
+		
+	
+	def beginTransaction(self, cursor):
+		""" Begin a SQL transaction. Since pysqlite does an implicit
+		'begin' even when not using autocommit, simply do nothing.
+		"""
+		pass
+
+		
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
-		#### TODO: Make sure that the format for DateTime 
-		####    values is returned correctly 
 		sqt = "'"		# single quote
 		return "%s%s%s" % (sqt, str(val), sqt)
 		
@@ -48,10 +66,12 @@ class SQLite(dBackend):
 					and not rec[1].startswith("sqlite_")]
 		return tuple(tables)
 		
+		
 	def getTableRecordCount(self, tableName):
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("select count(*) as ncount from %s" % tableName)
 		return tempCursor.fetchall()[0][0]
+
 
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
@@ -130,9 +150,11 @@ class SQLite(dBackend):
 		"""Table name prefixes are not allowed."""
 		return ""
 
+
 	def noResultsOnSave(self):
 		""" SQLite does not return anything on a successful update"""
 		pass
+		
 		
 	def getStructureDescription(self, cursor):
 		""" Return an empty cursor description. """
@@ -183,7 +205,6 @@ class SQLite(dBackend):
 				sql = "CREATE TABLE "
 			else:
 				sql = "CREATE TEMP TABLE "
-				
 			sql = sql + tabledef.Name + " ("
 			
 			for fld in tabledef.Fields:
@@ -224,10 +245,8 @@ class SQLite(dBackend):
 			for idx in tabledef.Indexes:
 				if idx.Name.lower() != "primary":
 					sql = "CREATE INDEX " + idx.Name + " ON " + tabledef.Name + "("
-					
 					for fld in idx.Fields:
 						sql = sql + fld + ","
-				
 					if sql[-1:] == ",":
 						sql = sql[:-1]
 					sql = sql + ")"
