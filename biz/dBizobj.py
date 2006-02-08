@@ -480,10 +480,13 @@ class dBizobj(dObject):
 
 
 	def scan(self, func, *args, **kwargs):
-		""" Iterates over all the records in the Cursor, and applies the passed
-		function to each. If 'self.__scanRestorePosition' is True, the position of the current
-		record in the recordset is restored after the iteration. If 'self.__scanReverse' is true, 
-		the records are processed in reverse order.
+		"""Iterate over all records and apply the passed function to each.
+
+		Set self.exitScan to True to exit the scan on the next iteration.
+
+		If self.__scanRestorePosition is True, the position of the current
+		record in the recordset is restored after the iteration. If 
+		self.__scanReverse is true, the records are processed in reverse order.
 		"""
 		if self.RowCount <= 0:
 			# Nothing to scan!
