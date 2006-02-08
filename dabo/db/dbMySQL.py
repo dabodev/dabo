@@ -10,8 +10,7 @@ class MySQL(dBackend):
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "MySQLdb"
-		# Are we using a version of MySQL that supports transactions?
-		self.useTransactions = False
+
 
 	def getConnection(self, connectInfo):
 		import MySQLdb as dbapi
@@ -41,12 +40,13 @@ class MySQL(dBackend):
 				passwd = connectInfo.revealPW(),
 				db=connectInfo.Database,
 				port=port, **kwargs)
-
 		return self._connection
+
 
 	def getDictCursorClass(self):
 		import MySQLdb.cursors as cursors
 		return cursors.DictCursor
+
 
 	def escQuote(self, val):
 		# escape backslashes and single quotes, and
@@ -55,11 +55,13 @@ class MySQL(dBackend):
 		qt = "\'"
 		return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
 	
+	
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
 		return "%s%s%s" % (sqt, str(val), sqt)
-		
+	
+	
 	def getTables(self, includeSystemTables=False):
 		# MySQL doesn't have system tables, in the traditional sense, as 
 		# they exist in the mysql database.
@@ -71,10 +73,12 @@ class MySQL(dBackend):
 			tables.append(record[0])
 		return tuple(tables)
 		
+		
 	def getTableRecordCount(self, tableName):
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("select count(*) as ncount from %s" % tableName)
 		return tempCursor.fetchall()[0][0]
+
 
 	def getFields(self, tableName):
 		if not tableName:
@@ -161,26 +165,21 @@ class MySQL(dBackend):
 				"TINY_BLOB": "M",
 				"VAR_STRING": "C",
 				"YEAR": "?"}
-
 		return daboMapping[typeMapping[backendFieldType]]
+
+
+	def getWordMatchFormat(self):
+		""" MySQL's fulltext search expression"""
+		return """ match (%(field)s) against ("%(value)s") """
 
 
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
-		if self.useTransactions:
-			cursor.execute("BEGIN")
+		if not cursor.AutoCommit:
+			if hasattr(cursor.connection, "begin"):
+				cursor.connection.begin()
+			else:
+				cursor.execute("BEGIN")
+				
 
-	def commitTransaction(self, cursor):
-		""" Commit a SQL transaction."""
-		if self.useTransactions:
-			cursor.execute("COMMIT")
-
-	def rollbackTransaction(self, cursor):
-		""" Roll back (revert) a SQL transaction."""
-		if self.useTransactions:
-			cursor.execute("ROLLBACK")
-
-	def getWordMatchFormat(self):
-		""" MySQL's fulltext search expression
-		"""
-		return """ match (%(field)s) against ("%(value)s") """
+		

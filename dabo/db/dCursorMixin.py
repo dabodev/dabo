@@ -136,10 +136,10 @@ class dCursorMixin(dObject):
 
 
 	def execute(self, sql, params=()):
-		"""
-		The idea here is to let the super class do the actual work in retrieving the data. However, 
-		many cursor classes can only return row information as a list, not as a dictionary. This
-		method will detect that, and convert the results to a dictionary.
+		"""The idea here is to let the super class do the actual work in 
+		retrieving the data. However, many cursor classes can only return 
+		row information as a list, not as a dictionary. This method will 
+		detect that, and convert the results to a dictionary.
 		"""
 		# Some backends, notably Firebird, require that fields be specially
 		# marked.
@@ -264,12 +264,9 @@ class dCursorMixin(dObject):
 		self.storeFieldTypes()
 		# Add mementos to each row of the result set
 		self.addMemento(-1)
-
 		# Check for any derived fields that should not be included in 
 		# any updates.
 		self.__setNonUpdateFields()
-
-
 		# Clear the unsorted list, and then apply the current sort
 		self.__unsortedRows = []
 		if self.sortColumn:
@@ -490,11 +487,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	
 
 	def isChanged(self, allRows=True):
-		""" 	Scan all the records and compare them with their mementos. 
+		"""Scan all the records and compare them with their mementos. 
 		Returns True if any differ, False otherwise.
 		"""
 		ret = False
-
 		if self.RowCount > 0:
 			if allRows:
 				recs = self._records
@@ -578,7 +574,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		ret = None
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set.")
-
 		if row is None:
 			row = self.RowNumber
 
@@ -654,7 +649,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 							ignore = self._records[self.RowNumber].has_key(kons.CURSOR_NEWFLAG)
 						
 						if not ignore:
-							msg = "!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s" \
+							msg = _("!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s") \
 									% (fld, str(fldType), str(type(val)))
 							dabo.errorLog.write(msg)
 				rec[fld] = val
@@ -778,21 +773,20 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			raise dException.NoRecordsException, _("No records in data set")
 
 
-	def save(self, allrows=False):
+	def save(self, allrows=False, useTransaction=False):
 		""" Save any changes to the data back to the data store."""
 		# Make sure that there is data to save
 		if self.RowCount <= 0:
 			raise dException.dException, _("No data to save")
-
 		# Make sure that there is a PK
 		self.checkPK()
-
 		if allrows:
 			recs = self._records
 		else:
 			recs = (self._records[self.RowNumber],)
 
-		self.beginTransaction()
+		if useTransaction:
+			self.beginTransaction()
 
 		for rec in recs:
 			try:
@@ -801,11 +795,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				if "connect" in str(e).lower():
 					raise dException.ConnectionLostException, e
 				else:
-					# Error was raised. Exit and rollback the changes
-					self.rollbackTransaction()
+					# Error was raised. Exit and rollback the changes if
+					# this object started the transaction.
+					if useTransaction:
+						self.rollbackTransaction()
 					raise dException.QueryException, e
+		if useTransaction:
+			self.commitTransaction()
 
-		self.commitTransaction()
 
 	def __saverow(self, rec):
 		newrec =  rec.has_key(kons.CURSOR_NEWFLAG)
@@ -1195,8 +1192,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def checkPK(self):
-		""" Verify that the field(s) specified in the KeyField prop exist.
-		"""
+		""" Verify that the field(s) specified in the KeyField prop exist."""
 		# First, make sure that there is *something* in the field
 		if not self.KeyField:
 			raise dException.dException, _("checkPK failed; no primary key specified")
@@ -1279,9 +1275,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Return a tuple of tables in the current database."""
 		return self.BackendObject.getTables(includeSystemTables)
 		
+		
 	def getTableRecordCount(self, tableName):
 		""" Get the number of records in the backend table."""
 		return self.BackendObject.getTableRecordCount(tableName)
+		
 		
 	def getFields(self, tableName=None):
 		""" Get field information about the backend table.
@@ -1334,7 +1332,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Begin a SQL transaction."""
 		ret = None
 		if self.BackendObject:
-			ret = self.BackendObject.beginTransaction(self.AuxCursor)
+			if not self.AutoCommit:
+				ret = self.BackendObject.beginTransaction(self.AuxCursor)
 		return ret
 
 
@@ -1342,7 +1341,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Commit a SQL transaction."""
 		ret = None
 		if self.BackendObject:
-			ret = self.BackendObject.commitTransaction(self.AuxCursor)
+			if not self.AutoCommit:
+				ret = self.BackendObject.commitTransaction(self.AuxCursor)
 		return ret
 
 
@@ -1564,6 +1564,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		
 
 	## Property getter/setter methods ##
+	def _getAutoCommit(self):
+		return self.BackendObject.getAutoCommitStatus(self)
+		
+
+	def _setAutoCommit(self, val):
+		self.BackendObject.setAutoCommitStatus(self, val)
+
+
 	def _getAutoSQL(self):
 		return self.getSQL()
 		
@@ -1602,6 +1610,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self.AutoSQL
 		
 
+	def _getDescrip(self):
+		return self.__backend.getDescription(self)
+		
+			
 	def _getEncoding(self):
 		return self.BackendObject.Encoding
 	
@@ -1609,18 +1621,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self.BackendObject.Encoding = val
 		
 	
-	def _getDescrip(self):
-		return self.__backend.getDescription(self)
+	def _getIsAdding(self):
+		""" Return True if the current record is a new record."""
+		return self._records[self.RowNumber].has_key(kons.CURSOR_NEWFLAG)
 		
-			
-	def _getLastSQL(self):
-		try:
-			v = self._lastSQL
-		except AttributeError:
-			v = self._lastSQL = None
-		return v
-		
-			
+	
 	def _getKeyField(self):
 		try:
 			return self._keyField
@@ -1633,6 +1638,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self._keyFieldSet = True
 
 
+	def _getLastSQL(self):
+		try:
+			v = self._lastSQL
+		except AttributeError:
+			v = self._lastSQL = None
+		return v
+		
+			
 	def _getRowNumber(self):
 		try:
 			return self.__rownumber
@@ -1678,10 +1691,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self._userSQL = val
 
 
-	def _isAdding(self):
-		""" Return True if the current record is a new record."""
-		return self._records[self.RowNumber].has_key(kons.CURSOR_NEWFLAG)
-		
+	AutoCommit = property(_getAutoCommit, _setAutoCommit, None,
+			_("Do we need explicit begin/commit/rollback commands for transactions?  (bool)"))
 	
 	AutoSQL = property(_getAutoSQL, None, None,
 			_("Returns the SQL statement automatically generated by the sql manager."))
@@ -1705,7 +1716,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	FieldDescription = property(_getDescrip, None, None,
 			_("Tuple of field names and types, as returned by the backend  (tuple)") )
 			
-	IsAdding = property(_isAdding, None, None,
+	IsAdding = property(_getIsAdding, None, None,
 			_("Returns True if the current record is new and unsaved"))
 			
 	LastSQL = property(_getLastSQL, None, None,
