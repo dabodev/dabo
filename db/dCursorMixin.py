@@ -235,7 +235,7 @@ class dCursorMixin(dObject):
 								else:
 									raise UnicodeDecodeError, e
 
-		# Convert to DataSet 
+			# Convert to DataSet 
 			self._records = DataSet(self._records)
 		return res
 	
