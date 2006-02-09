@@ -51,14 +51,14 @@ class PageFrameMixin(object):
 
 
 	def addSelectPage(self, title=_("Select")):
-		self.appendPage(self.SelectPageClass, caption=title, imgKey="checkMark")
+		self.appendPage(self.Form.SelectPageClass, caption=title, imgKey="checkMark")
 	
 	def addBrowsePage(self, title=_("Browse")):
-		self.appendPage(self.BrowsePageClass, caption=title, imgKey="browse")
+		self.appendPage(self.Form.BrowsePageClass, caption=title, imgKey="browse")
 	
 	def addEditPage(self, ds=None, title=_("Edit"), pageClass=None):
 		if pageClass is None:
-			pageClass = self.EditPageClass
+			pageClass = self.Form.EditPageClass
 		edPg = self.appendPage(pageClass, caption=title, imgKey="edit")
 		edPg.DataSource = ds
 		# The page number will be the PageCount minus one.
@@ -75,45 +75,6 @@ class PageFrameMixin(object):
 	def deleteByDataSource(self, ds):
 		self.Form.delete(ds)
 		
-	def _getSelectPageClass(self):
-		try:
-			return self._selectPageClass
-		except AttributeError:
-			return pag.SelectPage
-		
-	def _setSelectPageClass(self, value):
-		if issubclass(value, dabo.ui.dPage):
-			self._selectPageClass = value
-		else:
-			raise TypeError, "SelectPageClass must descend from dPage."
-
-		
-	def _getBrowsePageClass(self):
-		try:
-			return self._browsePageClass
-		except AttributeError:
-			return pag.BrowsePage
-		
-	def _setBrowsePageClass(self, value):
-		if issubclass(value, dabo.ui.dPage):
-			self._browsePageClass = value
-		else:
-			raise TypeError, "BrowsePageClass must descend from dPage."
-	
-	
-	def _getEditPageClass(self):
-		try:
-			return self._editPageClass
-		except AttributeError:
-			return pag.EditPage
-		
-	def _setEditPageClass(self, value):
-		if issubclass(value, dabo.ui.dPage):
-			self._editPageClass = value
-		else:
-			raise TypeError, "EditPageClass must descend from dPage."
-
-	
 	def _getChildPageClass(self):
 		try:
 			return self._childPageClass
@@ -137,15 +98,6 @@ class PageFrameMixin(object):
 		self._defaultPagesOnLoad = bool(value)
 		
 			
-	SelectPageClass = property(_getSelectPageClass, _setSelectPageClass, None, 
-						"The class to use as the select page.")
-						
-	BrowsePageClass = property(_getBrowsePageClass, _setBrowsePageClass, None,
-						"The class to use as the browse page.")
-						
-	EditPageClass = property(_getEditPageClass, _setEditPageClass, None,
-						"The class to use as the main edit page.")
-						
 	ChildPageClass = property(_getChildPageClass, _setChildPageClass, None,
 						"The class to use for child pages.")
 						

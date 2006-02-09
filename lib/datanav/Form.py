@@ -7,6 +7,7 @@ from dabo.lib.specParser import importRelationSpecs, importFieldSpecs
 from dabo.dLocalize import _, n_
 import dabo.lib.reportUtils as reportUtils
 import PageFrame
+import Page
 import Grid
 
 dabo.ui.loadUI("wx")
@@ -520,18 +521,25 @@ class Form(dabo.ui.dForm):
 		if bizDS == ds:
 			# We didn't switch to another editing page, so reset it back
 			# to the main bizobj
-			if ds != self._mainTable:
+			try:
+				mainTable = self._mainTable
+			except AttributeError:
+				mainTable = ds
+			if ds != mainTable:
 				# Don't reset if it it's already the main bizobj
 				# Note: we can send the data source, and the form will
 				# correctly set the matching bizobj.
-				self.PrimaryBizobj = self._mainTable
+				self.PrimaryBizobj = mainTable
 		
 	
 	def getBizobjsToCheck(self):
 		""" The primary bizobj may be for one of the child pages.
 		Therefore, we should return the main bizobj here
 		"""
-		return [self.getBizobj(dataSource=self._mainTable)]
+		try:
+			return [self.getBizobj(dataSource=self._mainTable)]
+		except AttributeError:
+			return [self.PrimaryBizobj]
 		
 	
 	def beforeCreation(self):
@@ -922,8 +930,44 @@ class Form(dabo.ui.dForm):
 		self._browseGridClass = val		
 
 
+	def _getSelectPageClass(self):
+		try:
+			val = self._selectPageClass
+		except AttributeError:
+			val = Page.SelectPage
+		return val
+
+	def _setSelectPageClass(self, val):
+		self._selectPageClass = val		
+
+
+	def _getBrowsePageClass(self):
+		try:
+			val = self._browsePageClass
+		except AttributeError:
+			val = Page.BrowsePage
+		return val
+
+	def _setBrowsePageClass(self, val):
+		self._browsePageClass = val		
+
+
+	def _getEditPageClass(self):
+		try:
+			val = self._editPageClass
+		except AttributeError:
+			val = Page.EditPage
+		return val
+
+	def _setEditPageClass(self, val):
+		self._editPageClass = val		
+
+
 	def _getFieldSpecs(self):
-		return self._allFieldSpecs[self._mainTable]
+		try:
+			return self._allFieldSpecs[self._mainTable]
+		except AttributeError:
+			return None
 
 	def _setFieldSpecs(self, val):
 		self._allFieldSpecs[self._mainTable] = val
@@ -978,6 +1022,15 @@ class Form(dabo.ui.dForm):
 	# Property definitions:
 	BrowseGridClass = property(_getBrowseGridClass, _setBrowseGridClass, None,
 			_("""Specifies the class to use for the browse grid."""))
+
+	SelectPageClass = property(_getSelectPageClass, _setSelectPageClass, None,
+			_("""Specifies the class to use for the select page."""))
+
+	BrowsePageClass = property(_getBrowsePageClass, _setBrowsePageClass, None,
+			_("""Specifies the class to use for the browse page."""))
+
+	EditPageClass = property(_getEditPageClass, _setEditPageClass, None,
+			_("""Specifies the class to use for the edit page."""))
 
 	FieldSpecs = property(_getFieldSpecs, _setFieldSpecs, None, 
 			_("""Reference to the dictionary containing field behavior specs"""))

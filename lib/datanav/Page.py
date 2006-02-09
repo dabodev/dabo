@@ -182,7 +182,7 @@ class SelectPage(Page):
 			
 		
 	def createItems(self):
-		self.selectOptionsPanel = self._getSelectOptionsPanel()
+		self.selectOptionsPanel = self.getSelectOptionsPanel()
 		self.GetSizer().append(self.selectOptionsPanel, "expand", 1, border=20)
 		self.selectOptionsPanel.setFocus()
 		super(SelectPage, self).createItems()
@@ -343,7 +343,10 @@ class SelectPage(Page):
 				self.Parent.SelectedPageNumber = 1
 	
 	
-	def getSelectorOptions(self, typ, ws):
+	def getSelectorOptions(self, typ, wordSearch=False):
+		# The fieldspecs version sends the wordSearch parameter as a "1" or "0"
+		# string. The following conversion should work no matter what:
+		wordSearch = bool(int(wordSearch))
 		if typ in ("char", "memo"):
 			if typ == "char":
 				chcList = [n_("Equals"), 
@@ -352,7 +355,7 @@ class SelectPage(Page):
 			elif typ == "memo":
 				chcList = [n_("Begins With"),
 						n_("Contains")]
-			if ws != "0":
+			if wordSearch:
 				chcList.append(n_("Matches Words"))
 			chc = tuple(chcList)
 		elif typ in ("date", "datetime"):
@@ -375,7 +378,7 @@ class SelectPage(Page):
 		return chc
 
 
-	def _getSelectOptionsPanel(self):
+	def getSelectOptionsPanel(self):
 		if not self.Form.preview:
 			dataSource = self.Form.getBizobj().DataSource
 		else:
@@ -390,59 +393,60 @@ class SelectPage(Page):
 		label.FontBold = True
 		gsz.append(label, colSpan=3, alignment="center")
 		
-		# Get all the fields that should be included into a list. Order them
-		# into the order specified in the specs.
-		fldList = []
-		for fld in fs.keys():
-			if int(fs[fld]["searchInclude"]):
-				fldList.append( (fld, int(fs[fld]["searchOrder"])) )
-		fldList.sort(lambda x, y: cmp(x[1], y[1]))
+		if fs is not None:
+			# Get all the fields that should be included into a list. Order them
+			# into the order specified in the specs.
+			fldList = []
+			for fld in fs.keys():
+				if int(fs[fld]["searchInclude"]):
+					fldList.append( (fld, int(fs[fld]["searchOrder"])) )
+			fldList.sort(lambda x, y: cmp(x[1], y[1]))
 		
-		for fldOrd in fldList:
-			fld = fldOrd[0]
-			fldInfo = fs[fld]
-			lbl = SortLabel(panel)
-			lbl.Caption = "%s:" % fldInfo["caption"]
-			lbl.relatedDataField = fld
+			for fldOrd in fldList:
+				fld = fldOrd[0]
+				fldInfo = fs[fld]
+				lbl = SortLabel(panel)
+				lbl.Caption = "%s:" % fldInfo["caption"]
+				lbl.relatedDataField = fld
 			
-			# First try getting the selector options from the user hook:
-			opt = self.Form.getSelectOptionsForField(fld)
+				# First try getting the selector options from the user hook:
+				opt = self.Form.getSelectOptionsForField(fld)
 			
-			if opt is None:
-				# Automatically get the selector options based on the field type:
-				opt = self.getSelectorOptions(fldInfo["type"], fldInfo["wordSearch"])
+				if opt is None:
+					# Automatically get the selector options based on the field type:
+					opt = self.getSelectorOptions(fldInfo["type"], fldInfo["wordSearch"])
 
-			# Add the blank choice and create the dropdown:
-			opt = (IGNORE_STRING,) + tuple(opt)
-			opList = SelectionOpDropdown(panel, choices=opt)
+				# Add the blank choice and create the dropdown:
+				opt = (IGNORE_STRING,) + tuple(opt)
+				opList = SelectionOpDropdown(panel, choices=opt)
 			
-			# First try getting the control class from the user hook:
-			ctrlClass = self.Form.getSelectControlClassForField(fld)
+				# First try getting the control class from the user hook:
+				ctrlClass = self.Form.getSelectControlClassForField(fld)
 
-			if ctrlClass is None:
-				# Automatically get the control class based on the field type:
-				ctrlClass = self.getSearchCtrlClass(fldInfo["type"])
+				if ctrlClass is None:
+					# Automatically get the control class based on the field type:
+					ctrlClass = self.getSearchCtrlClass(fldInfo["type"])
 
-			if ctrlClass is not None:
-				ctrl = ctrlClass(panel)
-				if not opList.StringValue:
-					opList.StringValue = opList.GetString(0)
-				opList.Target = ctrl
+				if ctrlClass is not None:
+					ctrl = ctrlClass(panel)
+					if not opList.StringValue:
+						opList.StringValue = opList.GetString(0)
+					opList.Target = ctrl
 				
-				gsz.append(lbl, halign="right")
-				gsz.append(opList, halign="left")
-				gsz.append(ctrl, "expand")
+					gsz.append(lbl, halign="right")
+					gsz.append(opList, halign="left")
+					gsz.append(ctrl, "expand")
 				
-				# Store the info for later use when constructing the query
-				self.selectFields[fld] = {
-						"ctrl" : ctrl,
-						"op" : opList,
-						"type": fldInfo["type"]
-						}
-			else:
-				dabo.errorLog.write("No control class found for field '%s'." % fld)
-				lbl.release()
-				opList.release()
+					# Store the info for later use when constructing the query
+					self.selectFields[fld] = {
+							"ctrl" : ctrl,
+							"op" : opList,
+							"type": fldInfo["type"]
+							}
+				else:
+					dabo.errorLog.write("No control class found for field '%s'." % fld)
+					lbl.release()
+					opList.release()
 
 				
 		# Now add the limit field
@@ -589,6 +593,8 @@ class EditPage(Page):
 	def createItems(self):
 		fs = self.fieldSpecs
 		relationSpecs = self.Form.RelationSpecs
+		if fs is None:
+			return
 		showEdit = [ (fld, int(fs[fld]["editOrder"])) 
 				for fld in fs
 				if (fs[fld]["editInclude"] == "1")]
