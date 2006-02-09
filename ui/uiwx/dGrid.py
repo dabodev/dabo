@@ -1910,7 +1910,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				bcolor = self.HeaderBackgroundColor
 
 			dc.SetTextForeground(fcolor)
-			font = colObj.HeaderFont	.NativeObject
+			font = colObj.HeaderFont.NativeObject
 
 			holdBrush = dc.GetBrush()
 			holdPen = dc.GetPen()
