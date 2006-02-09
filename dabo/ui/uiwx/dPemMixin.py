@@ -820,7 +820,7 @@ class dPemMixin(dPemMixinBase):
 
 		self.__updateDynamicProps()
 
-		if isinstance(self, dabo.ui.dFormMixin) and self.AutoUpdateStatusText:
+		if isinstance(self, dabo.ui.dForm) and self.AutoUpdateStatusText:
 			self.setStatusText(self.getCurrentRecordText())
 
 		if self.Children:
