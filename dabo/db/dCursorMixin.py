@@ -234,23 +234,8 @@ class dCursorMixin(dObject):
 											break
 								else:
 									raise UnicodeDecodeError, e
-			# There can be a problem with the MySQLdb adapter if
-			# the mx modules are installed on the machine, the adapter
-			# will use that type instead of the native datetime.
-			try:
-				import mx.DateTime
-				mxdt = mx.DateTime.DateTimeType
-				for row in self._records:
-					for fld in row.keys():
-						val = row[fld]
-						if isinstance(val, mxdt):
-							# Convert to normal datetime
-							row[fld]= datetime.datetime(val.year, val.month, val.day, 
-									val.hour, val.minute, int(val.second) )
-			except ImportError:
-				# mx not installed; no problem
-				pass
-			# Convert to DataSet 
+
+		# Convert to DataSet 
 			self._records = DataSet(self._records)
 		return res
 	
