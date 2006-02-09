@@ -49,20 +49,17 @@ class Grid(dabo.ui.dGrid):
 			ds = self.DataSet
 
 		if not self.built and ds:
-			if self.buildFromDataSet(ds, 
-					keyCaption=self.fieldCaptions, 
-					includeFields=self.includeFields, 
-					colOrder=self.colOrders,
-					colWidths=self.colWidths,
-					colTypes=self.colTypes,
-					autoSizeCols=False):
-				self.built = True
+			if self.FieldSpecs is not None:
+				self.buildFromDataSet(ds, 
+						keyCaption=self.fieldCaptions, 
+						includeFields=self.includeFields, 
+						colOrder=self.colOrders,
+						colWidths=self.colWidths,
+						colTypes=self.colTypes,
+						autoSizeCols=False)
+			self.built = True
 		else:
-			## pkm: this call appears to be redundant, as the grid as already been 
-			##      filled in dGrid:
-			self.fillGrid(True)
-			pass
-		self.Form.refresh()
+			self.refresh()
 
 
 	def sort(self):
@@ -178,6 +175,10 @@ class Grid(dabo.ui.dGrid):
 
 	def _setFldSpecs(self, val):
 		self._fldSpecs = val
+
+		if val is None:
+			return
+
 		# Update the props
 		self.includeFields = [kk for kk in val
 				if val[kk]["listInclude"] == "1" ]
