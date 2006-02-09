@@ -217,20 +217,21 @@ class dCursorMixin(dObject):
 							try:
 								row[fld]= unicode(val, self.Encoding)
 							except UnicodeDecodeError, e:
-								# Try the main two encodings
+								# Try some common encodings:
 								ok = False
 								for enc in ("utf8", "latin-1"):
 									if enc != self.Encoding:
 										try:
 											row[fld]= unicode(val, enc)
 											ok = True
-											break
 										except UnicodeDecodeError:
 											continue
-								if ok:
-									# Should we change self.Encoding at this point?
-									dabo.errorLog.write(_("Incorrect unicode encoding set; using '%s' instead")
+										if ok:
+											# change self.Encoding and log the message
+											self.Encoding = enc
+											dabo.errorLog.write(_("Incorrect unicode encoding set; using '%s' instead")
 											% enc)
+											break
 								else:
 									raise UnicodeDecodeError, e
 			# There can be a problem with the MySQLdb adapter if
