@@ -39,10 +39,10 @@ class SplashScreen(wx.Frame):
 				maskColor = dabo.dColors.colorTupleFromName(maskColor)
 			self._bmp.SetMask(wx.Mask(self._bmp, maskColor))
 			
-# 		if wx.Platform == "__WXGTK__":
-# 			self.Bind(wx.EVT_WINDOW_CREATE, self.setSizeAndShape)
-# 		else:
-# 			self.setSizeAndShape()
+		if wx.Platform == "__WXGTK__":
+			self.Bind(wx.EVT_WINDOW_CREATE, self.setSizeAndShape)
+		else:
+			self.setSizeAndShape()
 		
 		self.setSizeAndShape()
 		
@@ -56,13 +56,14 @@ class SplashScreen(wx.Frame):
 		w = self._bmp.GetWidth()
 		h = self._bmp.GetHeight()
 		self.SetSize((w, h))
+		self.SetBackgroundColour(wx.WHITE)
 		reg = wx.RegionFromBitmap(self._bmp)
 		self.SetShape(reg)
-		self.Refresh()
 		self.CenterOnScreen()
+		self.Refresh()
 		if evt is not None:
 			evt.Skip()
-
+		
 
 	def _onMouseEvents(self, evt):
 		if evt.LeftDown() or evt.RightDown():
@@ -75,7 +76,6 @@ class SplashScreen(wx.Frame):
 
 	
 	def _disappear(self):
-		self.Hide()
 		try:
 			self.fc.Stop()
 		except:
@@ -98,10 +98,9 @@ class SplashScreen(wx.Frame):
 # 		dc.SetTextForeground(textcolour)
 # 		dc.DrawText(text, textpos[0], textpos[1])
 		
-		try:
-			wx.SafeYield()
-		except:
-			pass
+		# Seems like this only helps on OS X.
+		if wx.Platform == "__WXMAC__":
+			wx.SafeYield(self, True)
 		evt.Skip()
 
 
