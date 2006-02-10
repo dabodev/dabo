@@ -39,18 +39,20 @@ class SplashScreen(wx.Frame):
 				maskColor = dabo.dColors.colorTupleFromName(maskColor)
 			self._bmp.SetMask(wx.Mask(self._bmp, maskColor))
 			
-		if wx.Platform == "__WXGTK__":
-			self.Bind(wx.EVT_WINDOW_CREATE, self.setSizeAndShape)
-		else:
-			self.setSizeAndShape()
+# 		if wx.Platform == "__WXGTK__":
+# 			self.Bind(wx.EVT_WINDOW_CREATE, self.setSizeAndShape)
+# 		else:
+# 			self.setSizeAndShape()
+		
+		self.setSizeAndShape()
 		
 		self.Bind(wx.EVT_MOUSE_EVENTS, self._onMouseEvents)
 		self.Bind(wx.EVT_PAINT, self._onPaint)
 		if timeout > 0:
-			self.fc = wx.FutureCall(timeout, self.onTimer)
+			self.fc = wx.FutureCall(timeout, self._onTimer)
 		
 
-	def setSizeAndShape(self):
+	def setSizeAndShape(self, evt=None):
 		w = self._bmp.GetWidth()
 		h = self._bmp.GetHeight()
 		self.SetSize((w, h))
@@ -58,19 +60,21 @@ class SplashScreen(wx.Frame):
 		self.SetShape(reg)
 		self.Refresh()
 		self.CenterOnScreen()
+		if evt is not None:
+			evt.Skip()
 
 
 	def _onMouseEvents(self, evt):
 		if evt.LeftDown() or evt.RightDown():
-			self.disappear()
+			self._disappear()
 		evt.Skip()
 		
 		
-	def onTimer(self):
-		self.disappear()
+	def _onTimer(self):
+		self._disappear()
 
 	
-	def disappear(self):
+	def _disappear(self):
 		self.Hide()
 		try:
 			self.fc.Stop()
