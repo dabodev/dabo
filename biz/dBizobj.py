@@ -307,9 +307,6 @@ class dBizobj(dObject):
 		called as well. 
 		"""
 		
-		dabo.trace()
-
-
 		cursor = self._CurrentCursor
 		errMsg = self.beforeSave()
 		if errMsg:
