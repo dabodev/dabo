@@ -370,7 +370,9 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 			elif curr is evtPanel:
 				curr.Expanded = True
 		if changing:
-			self.sizePanelHeights()
+			self.layout()
+			dabo.ui.callAfter(self.sizePanelHeights)
+			self.refresh()
 		self.__inSingletonProcess = False
 
 	
@@ -378,14 +380,13 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 		if not self.Singleton:
 			return
 		# Size the open panel to fill the space
-		capHt = 0
-		for pnl in self._panels:
-			capHt += pnl._captionBar.GetSize()[1]
 		for pnl in self._panels:
 			if not pnl.Expanded:
 				continue
 			# Make the panel that big, plus the height of the caption
-			pnl.Height = self.Height - capHt + pnl._captionBar.GetSize()[1]
+			capHt = pnl.CaptionHeight * (len(self._panels) -1)
+			pnl.Height = self.Height - capHt
+			pnl.layout()
 		dabo.ui.callAfter(self.layout)
 
 

@@ -44,8 +44,6 @@ class SplashScreen(wx.Frame):
 		else:
 			self.setSizeAndShape()
 		
-		self.setSizeAndShape()
-		
 		self.Bind(wx.EVT_MOUSE_EVENTS, self._onMouseEvents)
 		self.Bind(wx.EVT_PAINT, self._onPaint)
 		if timeout > 0:
@@ -56,11 +54,9 @@ class SplashScreen(wx.Frame):
 		w = self._bmp.GetWidth()
 		h = self._bmp.GetHeight()
 		self.SetSize((w, h))
-		self.SetBackgroundColour(wx.WHITE)
 		reg = wx.RegionFromBitmap(self._bmp)
 		self.SetShape(reg)
 		self.CenterOnScreen()
-		self.Refresh()
 		if evt is not None:
 			evt.Skip()
 		
@@ -68,7 +64,6 @@ class SplashScreen(wx.Frame):
 	def _onMouseEvents(self, evt):
 		if evt.LeftDown() or evt.RightDown():
 			self._disappear()
-		evt.Skip()
 		
 		
 	def _onTimer(self):
@@ -83,10 +78,8 @@ class SplashScreen(wx.Frame):
 		self.Close()
 
 
-	def _onPaint(self, evt):		
-		dc = wx.PaintDC(self)
-		dc.DrawBitmap(self._bmp, 0, 0, False)
-
+	def _onPaint(self, evt):
+		dc = wx.BufferedPaintDC(self, self._bmp)
 		# I plan on adding support for a text string to be 
 		# displayed. This is Andrea's code, which I may use as 
 		# the basis for this.
@@ -97,7 +90,6 @@ class SplashScreen(wx.Frame):
 # 		dc.SetFont(textfont[0])
 # 		dc.SetTextForeground(textcolour)
 # 		dc.DrawText(text, textpos[0], textpos[1])
-		
 		# Seems like this only helps on OS X.
 		if wx.Platform == "__WXMAC__":
 			wx.SafeYield(self, True)
@@ -106,13 +98,41 @@ class SplashScreen(wx.Frame):
 
 
 class uiApp(wx.App, dObject):
-	def __init__(self, app, *args):
+	def __init__(self, app, callback, *args):
 		self.dApp = app
+		self.callback = callback
 		wx.App.__init__(self, 0, *args)
 		dObject.__init__(self)
 		
 		self.Name = _("uiApp")
 		self._noneDisp = _("<null>")
+		# wx has properties for appName and vendorName, so Dabo should update
+		# these. Among other possible uses, I know that on Win32 wx will use
+		# these for determining the registry key structure.
+		self.SetAppName(self.dApp.getAppInfo("appName"))
+		self.SetClassName(self.dApp.getAppInfo("appName"))
+		self.SetVendorName(self.dApp.getAppInfo("vendorName"))
+		
+		# Set the platform info.
+		self.charset = "unicode"
+		if not self.charset in wx.PlatformInfo:
+			self.charset = "ascii"
+		txt = "wxPython Version: %s %s (%s)" % (wx.VERSION_STRING, 
+				wx.PlatformInfo[1], self.charset)
+		if wx.PlatformInfo[0] == "__WXGTK__":
+			self._platform = _("GTK")
+			txt += " (%s)" % wx.PlatformInfo[3]
+		elif wx.PlatformInfo[0] == "__WXMAC__":
+			self._platform = _("Mac")
+		elif wx.PlatformInfo[0] == "__WXMSW__":
+			self._platform = _("Win")
+		dabo.infoLog.write(txt)
+		self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
+		self.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
+		self.Bind(wx.EVT_KEY_UP, self._onWxKeyUp)
+		self.Bind(wx.EVT_CHAR, self._onWxKeyChar)
+
+
 		self._drawSizerOutlines = False
 		# Various attributes used by the FindReplace dialog
 		self._findString = ""
@@ -126,6 +146,7 @@ class uiApp(wx.App, dObject):
 		self._mruMenuFuncs = {}
 		self._mruMenuLinks = {}
 		self._mruMaxItems = 12
+		wx.InitAllImageHandlers()
 		
 		
 	def OnInit(self):
@@ -133,44 +154,14 @@ class uiApp(wx.App, dObject):
 		if app.showSplashScreen:
 			splash = SplashScreen(app.splashImage, app.splashMaskColor, 
 					app.splashTimeout)
+			splash.CenterOnScreen()
 			splash.Show()
+		wx.CallAfter(self.callback)
+		del self.callback
 		return True
 
 
 	def setup(self):
-		# wx has properties for appName and vendorName, so Dabo should update
-		# these. Among other possible uses, I know that on Win32 wx will use
-		# these for determining the registry key structure.
-		self.SetAppName(self.dApp.getAppInfo("appName"))
-		self.SetClassName(self.dApp.getAppInfo("appName"))
-		self.SetVendorName(self.dApp.getAppInfo("vendorName"))
-		
-		self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
-		self.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
-		self.Bind(wx.EVT_KEY_UP, self._onWxKeyUp)
-		self.Bind(wx.EVT_CHAR, self._onWxKeyChar)
-
-		self.charset = "unicode"
-		if not self.charset in wx.PlatformInfo:
-			self.charset = "ascii"
-		txt = "wxPython Version: %s %s (%s)" % (wx.VERSION_STRING, 
-			wx.PlatformInfo[1], self.charset)
-			
-		if wx.PlatformInfo[0] == "__WXGTK__":
-			txt += " (%s)" % wx.PlatformInfo[3]
-			self._platform = _("GTK")
-		elif wx.PlatformInfo[0] == "__WXMAC__":
-			self._platform = _("Mac")
-		elif wx.PlatformInfo[0] == "__WXMSW__":
-			self._platform = _("Win")
-		dabo.infoLog.write(txt)
-			
-		wx.InitAllImageHandlers()
-
-#		ssClass = self.dApp.SplashScreenClass
-#		if ssClass is not None:
-#			ssClass().show()	
-
 		frm = self.dApp.MainForm
 		if frm is None:
 			if self.dApp.MainFormClass is not None:
