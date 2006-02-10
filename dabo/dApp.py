@@ -98,6 +98,13 @@ class dApp(dObject):
 		self.showMainFormOnStart = True
 		self._wasSetup = False
 		self._cryptoProvider = None
+		# If we are displaying a splash screen, these attributes control
+		# its appearance.
+		self.showSplashScreen = True
+		basepath = os.path.split(dabo.__file__)[0]
+		self.splashImage = os.path.join(basepath, "icons", "daboSplashName.png")
+		self.splashMaskColor = None
+		self.splashTimeout = 5000		
 		
 		# For simple UI apps, this allows the app object to be created
 		# and started in one step. It also suppresses the display of
@@ -129,8 +136,8 @@ class dApp(dObject):
 			self._initUI()
 			
 			if self.UI is not None:
-				self.uiApp = dabo.ui.uiApp()
-				self.uiApp.setup(self)
+				self.uiApp = dabo.ui.uiApp(self)
+				self.uiApp.setup()
 		else:
 			self.uiApp = None
 		# Flip the flag
@@ -525,6 +532,17 @@ class dApp(dObject):
 		self.uiApp.NoneDisplay = val
 		
 
+	def _getPlatform(self):
+		try:
+			uiApp = self.uiApp
+		except AttributeError:
+			uiApp = None
+		if uiApp is not None:
+			return self.uiApp._getPlatform()
+		else:
+			return "?"
+
+
 	def _getSearchDelay(self):
 		try:
 			return self._searchDelay
@@ -609,18 +627,6 @@ class dApp(dObject):
 		self._userSettingProviderClass = val
 
 
-	def _getPlatform(self):
-		try:
-			uiApp = self.uiApp
-		except AttributeError:
-			uiApp = None
-		if uiApp is not None:
-			return self.uiApp._getPlatform()
-		else:
-			return "?"
-
-
-	
 	ActiveForm = property(_getActiveForm, None, None, 
 			_("Returns the form that currently has focus, or None.  (dForm)" ) )
 	
@@ -662,7 +668,8 @@ class dApp(dObject):
 			>>> import dabo
 			>>> app = dabo.dApp()
 			>>> app.MainFormClass = MyMainFormClass
-			>>> app.start()"""))
+			>>> app.start()
+			(dForm) """))
 	
 	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None, 
 			_("Text to display for null (None) values.  (str)") )
