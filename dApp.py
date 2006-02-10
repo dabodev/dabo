@@ -92,19 +92,21 @@ class dApp(dObject):
 		self._uiAlreadySet = False
 		dabo.dAppRef = self
 		self._beforeInit()
+		# If we are displaying a splash screen, these attributes control
+		# its appearance. Extract them before the super call.
+		self.showSplashScreen = self._extractKey(kwargs, "showSplashScreen", False)
+		basepath = os.path.split(dabo.__file__)[0]
+		img = os.path.join(basepath, "icons", "daboSplashName.png")
+		self.splashImage = self._extractKey(kwargs, "splashImage", img)
+		self.splashMaskColor = self._extractKey(kwargs, "splashMaskColor", None)
+		self.splashTimeout = self._extractKey(kwargs, "splashTimeout", 5000)
+		
 		super(dApp, self).__init__(properties, *args, **kwargs)
 		# egl: added the option of keeping the main form hidden
 		# initially. The default behavior is for it to be shown, as usual.
 		self.showMainFormOnStart = True
 		self._wasSetup = False
 		self._cryptoProvider = None
-		# If we are displaying a splash screen, these attributes control
-		# its appearance.
-		self.showSplashScreen = True
-		basepath = os.path.split(dabo.__file__)[0]
-		self.splashImage = os.path.join(basepath, "icons", "daboSplashName.png")
-		self.splashMaskColor = None
-		self.splashTimeout = 5000		
 		
 		# For simple UI apps, this allows the app object to be created
 		# and started in one step. It also suppresses the display of
@@ -134,15 +136,20 @@ class dApp(dObject):
 		
 		if initUI:
 			self._initUI()
-			
 			if self.UI is not None:
-				self.uiApp = dabo.ui.uiApp(self)
-				self.uiApp.setup()
+				self.uiApp = dabo.ui.uiApp(self, callback=self.initUIApp)
 		else:
 			self.uiApp = None
 		# Flip the flag
 		self._wasSetup = True
 
+
+	def initUIApp(self):
+		"""Callback from the initial app setup. Used to allow the 
+		splash screen, if any, to be shown quickly.
+		"""
+		self.uiApp.setup()
+		
 	
 	def start(self):
 		"""Start the application event loop."""
