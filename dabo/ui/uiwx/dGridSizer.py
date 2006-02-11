@@ -313,14 +313,14 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		return ret
 	
 	
-	def getMaxRow(self):
+	def getHighRow(self):
 		"""Returns the highest row that contains an object."""
 		rows = [self.GetItemPosition(win)[0] + self.GetItemSpan(win)[0]
 				for win in self.ChildWindows]
 		return max(rows)
 	
 	
-	def getMaxCol(self):
+	def getHighCol(self):
 		"""Returns the highest column that contains an object."""
 		cols = [self.GetItemPosition(win)[1] + self.GetItemSpan(win)[1]
 				for win in self.ChildWindows]
@@ -428,45 +428,48 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 
 	
 	def getItemProp(self, itm, prop):
+		if not isinstance(itm, (self.SizerItem, self.GridSizerItem)):
+			itm = itm.ControllingSizerItem
 		ret = None
 		if itm.IsWindow():
 			chil = itm.GetWindow()
 		else:
 			chil = itm.GetSizer()
 		row, col = self.getGridPos(chil)
-		if prop == "Border":
+		lowprop = prop.lower()
+		if lowprop == "border":
 			return itm.GetBorder()
-		elif prop == "RowExpand":
+		elif lowprop == "rowexpand":
 			ret = self.isRowGrowable(row)
-		elif prop == "ColExpand":
+		elif lowprop == "colexpand":
 			ret = self.isColGrowable(col)
-		elif prop == "RowSpan":
+		elif lowprop == "rowspan":
 			ret = self.GetItemSpan(chil).GetRowspan()
-		elif prop == "ColSpan":
+		elif lowprop == "colspan":
 			ret = self.GetItemSpan(chil).GetColspan()
-		elif prop == "Proportion":
+		elif lowprop == "proportion":
 			ret = itm.GetProportion()
 		else:
 			# Property is in the flag setting.
 			flag = itm.GetFlag()
 			szClass = dabo.ui.dSizer
-			if prop == "Halign":
+			if lowprop == "halign":
 				if flag & szClass.rightFlag:
 					ret = "Right"
 				elif flag & szClass.centerFlag:
 					ret = "Center"
 				else: 		#if flag & szClass.leftFlag:
 					ret = "Left"
-			elif prop == "Valign":
+			elif lowprop == "valign":
 				if flag & szClass.middleFlag:
 					ret = "Middle"
 				elif flag & szClass.bottomFlag:
 					ret = "Bottom"
 				else:		#if flag & szClass.topFlag:
 					ret = "Top"
-			elif prop == "Expand":
+			elif lowprop == "expand":
 				return bool(flag & szClass.expandFlag)
-			elif prop == "BorderSides":
+			elif lowprop == "bordersides":
 				pdBorder = {"Bottom" : self.borderBottomFlag,
 						"Left" : self.borderLeftFlag,
 						"Right" : self.borderRightFlag, 
