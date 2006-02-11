@@ -291,6 +291,8 @@ class dSizerMixin(dObject):
 		"""Get the current value of the specified property for the sizer item.
 		Grid sizers must override with their specific props.
 		"""
+		if not isinstance(itm, (self.SizerItem, self.GridSizerItem)):
+			itm = itm.ControllingSizerItem
 		if prop == "Border":
 			return itm.GetBorder()
 		elif prop == "Proportion":
@@ -335,6 +337,8 @@ class dSizerMixin(dObject):
 		"""Given a sizer item, a property and a value, sets things as you
 		would expect. 
 		"""
+		if not isinstance(itm, (self.SizerItem, self.GridSizerItem)):
+			itm = itm.ControllingSizerItem
 		if val is None:
 			return
 		ret = False
