@@ -156,7 +156,8 @@ class uiApp(wx.App, dObject):
 					app.splashTimeout)
 			splash.CenterOnScreen()
 			splash.Show()
-		wx.CallAfter(self.callback)
+		if self.callback is not None:
+			wx.CallAfter(self.callback)
 		del self.callback
 		return True
 
