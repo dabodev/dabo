@@ -40,8 +40,8 @@ class dSizerMixin(dObject):
 	bothFlag = wx.BOTH
 	leftFlag = wx.ALIGN_LEFT 
 	rightFlag = wx.ALIGN_RIGHT
-	centerFlag = wx.ALIGN_CENTER 
-	centreFlag = wx.ALIGN_CENTER
+	centerFlag = wx.ALIGN_CENTER_HORIZONTAL
+	centreFlag = wx.ALIGN_CENTER_HORIZONTAL
 	topFlag = wx.ALIGN_TOP 
 	bottomFlag = wx.ALIGN_BOTTOM 
 	middleFlag = wx.ALIGN_CENTER_VERTICAL
@@ -57,7 +57,6 @@ class dSizerMixin(dObject):
 	SizerItem = wx.SizerItem
 	GridSizerItem = wx.GBSizerItem
 
-	
 	
 	def appendItems(self, items, *args, **kwargs):
 		"""Append each item to the sizer."""
@@ -512,7 +511,6 @@ class dSizerMixin(dObject):
 		"""This converts Dabo values for sizer control into wx-specific constants."""
 		# Begin with the constant for no flag values.
 		_wxFlags = 0
-
 		if alignment is not None:
 			# User passed an individual alignment tuple. Use that instead of
 			# the separate halign and valign values.
