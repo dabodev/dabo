@@ -447,7 +447,7 @@ class dFormMixin(pm.dPemMixin):
 		# Kill the form
 		self.Close(force=True)
 		# pkm: I've found that modal dialogs need Destroy():
-		self.Destroy()				
+		dabo.ui.callAfter(self.Destroy)
 
 		
 	def _beforeClose(self, evt=None):
