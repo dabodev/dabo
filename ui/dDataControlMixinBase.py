@@ -4,6 +4,7 @@
 import dabo, dabo.ui
 import dabo.dEvents as dEvents
 import dabo.dException as dException
+from dabo.dObject import dObject
 from dabo.dLocalize import _
 
 
@@ -318,27 +319,34 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			ds = self.DataSource
 			self._srcIsBizobj = False
 			if ds:
-				# Source can be a bizobj, which we get from the form, or
-				# another object.
-				if ds.lower() == "form":
-					# We're bound to the form itself
-					self.__src = self.Form
-				elif ds.startswith("self."):
-					# it's a locally resolvable reference.
-					try: 
-						self.__src = eval(ds)
-					except: pass
+				# First see if it's an actual object reference
+				if isinstance(ds, dObject):
+					self.__src = ds
+					self._srcIsInstanceMethod = False
 				else:
-					# See if it's a RegID reference to another object
-					try:
-						self.__src = self.Form.getObjectByRegID(ds)
-					except:
-						self.__src = None
-					if self.__src is None:
-						# It's a bizobj reference; get it from the Form.
-						self.__src = self.Form.getBizobj(ds)
-						if self.__src:
-							self._srcIsBizobj = True
+					# Source can be a bizobj, which we get from the form, or
+					# another object.
+					if ds.lower() == "form":
+						# We're bound to the form itself
+						self.__src = self.Form
+					elif ds.startswith("self."):
+						# it's a locally resolvable reference.
+						try: 
+							self.__src = eval(ds)
+						except: pass
+					else:
+						# See if it's a RegID reference to another object
+						try:
+							self.__src = self.Form.getObjectByRegID(ds)
+						except:
+							self.__src = None
+						if self.__src is None:
+							try:
+								# It's a bizobj reference; get it from the Form.
+								self.__src = self.Form.getBizobj(ds)
+							except: pass
+							if self.__src:
+								self._srcIsBizobj = True
 		return self.__src
 
 	
