@@ -640,17 +640,17 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._gridColAttr.SetRenderer(renderer)
 	
 
-	def _getBackgroundColor(self):
+	def _getBackColor(self):
 		return self._gridColAttr.GetBackgroundColour()
 
-	def _setBackgroundColor(self, val):
+	def _setBackColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
 				val = dColors.colorTupleFromName(val)
 			self._gridColAttr.SetBackgroundColour(val)
 			self._refreshGrid()
 		else:
-			self._properties["BackgroundColor"] = val
+			self._properties["BackColor"] = val
 
 	
 	def _getCaption(self):
@@ -871,17 +871,17 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._properties["FontUnderline"] = val
 
 
-	def _getForegroundColor(self):
+	def _getForeColor(self):
 		return self._gridColAttr.GetTextColour()
 
-	def _setForegroundColor(self, val):
+	def _setForeColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
 				val = dColors.colorTupleFromName(val)
 			self._gridColAttr.SetTextColour(val)
 			self._refreshGrid()
 		else:
-			self._properties["ForegroundColor"] = val
+			self._properties["ForeColor"] = val
 
 	
 	def _getHeaderFont(self):
@@ -969,38 +969,38 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._properties["HeaderFontUnderline"] = val
 
 
-	def _getHeaderBackgroundColor(self):
+	def _getHeaderBackColor(self):
 		try:
-			v = self._headerBackgroundColor
+			v = self._headerBackColor
 		except AttributeError:
-			v = self._headerBackgroundColor = None
+			v = self._headerBackColor = None
 		return v
 
-	def _setHeaderBackgroundColor(self, val):
+	def _setHeaderBackColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
 				val = dColors.colorTupleFromName(val)
-			self._headerBackgroundColor = val
+			self._headerBackColor = val
 			self._refreshHeader()
 		else:
-			self._properties["HeaderBackgroundColor"] = val
+			self._properties["HeaderBackColor"] = val
 
 	
-	def _getHeaderForegroundColor(self):
+	def _getHeaderForeColor(self):
 		try:
-			v = self._headerForegroundColor
+			v = self._headerForeColor
 		except AttributeError:
-			v = self._headerForegroundColor = None
+			v = self._headerForeColor = None
 		return v
 
-	def _setHeaderForegroundColor(self, val):
+	def _setHeaderForeColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
 				val = dColors.colorTupleFromName(val)
-			self._headerForegroundColor = val
+			self._headerForeColor = val
 			self._refreshHeader()
 		else:
-			self._properties["HeaderForegroundColor"] = val
+			self._properties["HeaderForeColor"] = val
 
 	
 	def _getHeaderHorizontalAlignment(self):
@@ -1195,7 +1195,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._properties["Width"] = val
 	
 
-	BackgroundColor = property(_getBackgroundColor, _setBackgroundColor, None,
+	BackColor = property(_getBackColor, _setBackColor, None,
 			_("Color for the background of each cell in the column."))
 
 	Caption = property(_getCaption, _setCaption, None,
@@ -1279,10 +1279,10 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
 			_("Specifies whether cell text is underlined. (bool)") )
 
-	ForegroundColor = property(_getForegroundColor, _setForegroundColor, None,
+	ForeColor = property(_getForeColor, _setForeColor, None,
 			_("Color for the foreground (text) of each cell in the column."))
 
-	HeaderBackgroundColor = property(_getHeaderBackgroundColor, _setHeaderBackgroundColor, None,
+	HeaderBackColor = property(_getHeaderBackColor, _setHeaderBackColor, None,
 			_("Optional color for the background of the column header  (str)") )
 
 	HeaderFont = property(_getHeaderFont, _setHeaderFont, None,
@@ -1309,7 +1309,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	HeaderFontUnderline = property(_getHeaderFontUnderline, _setHeaderFontUnderline, None,
 			_("Specifies whether column header text is underlined. (bool)") )
 
-	HeaderForegroundColor = property(_getHeaderForegroundColor, _setHeaderForegroundColor, None,
+	HeaderForeColor = property(_getHeaderForeColor, _setHeaderForeColor, None,
 			_("Optional color for the foreground (text) of the column header  (str)") )
 
 	HeaderHorizontalAlignment = property(_getHeaderHorizontalAlignment, _setHeaderHorizontalAlignment, None,
@@ -1901,13 +1901,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			rect = colObj._getHeaderRect()
 			dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
 
-			fcolor = colObj.HeaderForegroundColor
+			fcolor = colObj.HeaderForeColor
 			if fcolor is None:
-				fcolor = self.HeaderForegroundColor
+				fcolor = self.HeaderForeColor
 
-			bcolor = colObj.HeaderBackgroundColor
+			bcolor = colObj.HeaderBackColor
 			if bcolor is None:
-				bcolor = self.HeaderBackgroundColor
+				bcolor = self.HeaderBackColor
 
 			dc.SetTextForeground(fcolor)
 			font = colObj.HeaderFont.NativeObject
@@ -2386,7 +2386,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		else:
 			col.Parent = self
 		if col.Order == -1:
-			col.Order = self.maxColOrder() + 10
+			maxOrd = self.maxColOrder()
+			if maxOrd < 0:
+				newOrd = 0
+			else:
+				newOrd = maxOrd + 10
+			col.Order = newOrd
 		self.Columns.append(col)
 		if not inBatch:
 			self._syncColumnCount()
@@ -2403,8 +2408,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		except:
 			# If the underlying wx grid doesn't yet know about the column, such
 			# as when adding columns with inBatch=True, this can throw an error
-			# For now, just log it
-			dabo.infoLog.write(_("Cannot set width of column %s") % col.Order)
+			if not inBatch:
+				# For now, just log it
+				dabo.infoLog.write(_("Cannot set width of column %s") % col.Order)
 		return col
 
 
@@ -3207,38 +3213,38 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return ret
 		
 
-	def _getHeaderBackgroundColor(self):
+	def _getHeaderBackColor(self):
 		try:
-			v = self._headerBackgroundColor
+			v = self._headerBackColor
 		except AttributeError:
-			v = self._headerBackgroundColor = None
+			v = self._headerBackColor = None
 		return v
 
-	def _setHeaderBackgroundColor(self, val):
+	def _setHeaderBackColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
 				val = dColors.colorTupleFromName(val)
-			self._headerBackgroundColor = val
+			self._headerBackColor = val
 			self.refresh()
 		else:
-			self._properties["HeaderBackgroundColor"] = val
+			self._properties["HeaderBackColor"] = val
 
 	
-	def _getHeaderForegroundColor(self):
+	def _getHeaderForeColor(self):
 		try:
-			v = self._headerForegroundColor
+			v = self._headerForeColor
 		except AttributeError:
-			v = self._headerForegroundColor = None
+			v = self._headerForeColor = None
 		return v
 
-	def _setHeaderForegroundColor(self, val):
+	def _setHeaderForeColor(self, val):
 		if self._constructed():
 			if isinstance(val, basestring):
 				val = dColors.colorTupleFromName(val)
-			self._headerForegroundColor = val
+			self._headerForeColor = val
 			self.refresh()
 		else:
-			self._properties["HeaderForegroundColor"] = val
+			self._properties["HeaderForeColor"] = val
 
 	
 	def _getHeaderHorizontalAlignment(self):
@@ -3563,13 +3569,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	Encoding = property(_getEncoding, None, None,
 			_("Name of encoding to use for unicode  (str)") )
 			
-	HeaderBackgroundColor = property(_getHeaderBackgroundColor, _setHeaderBackgroundColor, None,
+	HeaderBackColor = property(_getHeaderBackColor, _setHeaderBackColor, None,
 			_("""Optional color for the background of the column headers.  (str or None)
 
 			This is only the default: setting the corresponding dColumn property will
 			override.""") )
 
-	HeaderForegroundColor = property(_getHeaderForegroundColor, _setHeaderForegroundColor, None,
+	HeaderForeColor = property(_getHeaderForeColor, _setHeaderForeColor, None,
 			_("""Optional color for the foreground (text) of the column headers.  (str or None)
 
 			This is only the default: setting the corresponding dColumn property will
@@ -3710,7 +3716,7 @@ class _dGrid_test(dGrid):
 		self.addColumn(col)
 		
 		col.HeaderFontItalic = True
-		col.HeaderBackgroundColor = "orange"
+		col.HeaderBackColor = "orange"
 		col.HeaderVerticalAlignment = "Top"
 		col.HeaderHorizontalAlignment = "Left"
 
@@ -3729,7 +3735,7 @@ class _dGrid_test(dGrid):
 
 		col.HeaderVerticalAlignment = "Bottom"
 		col.HeaderHorizontalAlignment = "Right"
-		col.HeaderForegroundColor = "brown"
+		col.HeaderForeColor = "brown"
 
 		self.RowLabels = ["a", "b", "3"]
 		#self.ShowRowLabels = True
