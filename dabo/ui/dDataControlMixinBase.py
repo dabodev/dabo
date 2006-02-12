@@ -14,6 +14,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self._inFldValid = False
 		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
 		self._designerMode = None
+		self._oldVal = None
 
 		super(dDataControlMixinBase, self).__init__(*args, **kwargs)
 			

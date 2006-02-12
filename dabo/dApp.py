@@ -453,13 +453,13 @@ class dApp(dObject):
 
 
 	def _getActiveForm(self):
-		if self.uiApp is not None:
+		if hasattr(self, "uiApp") and self.uiApp is not None:
 			return self.uiApp.ActiveForm
 		else:
 			return None
 			
 	def _setActiveForm(self, frm):
-		if self.uiApp is not None:
+		if hasattr(self, "uiApp") and self.uiApp is not None:
 			self.uiApp._setActiveForm(frm)
 		else:
 			dabo.errorLog.write(_("Can't set ActiveForm: no uiApp."))
