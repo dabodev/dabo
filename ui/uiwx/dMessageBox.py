@@ -18,6 +18,9 @@ def getForm():
 				form = mainForm
 		else:
 			form = mainForm
+		if form is None:
+			form = dabo.dAppRef.ActiveForm
+		return form
 
 
 class dMessageBox(wx.MessageDialog):
@@ -69,6 +72,7 @@ def exclaim(message="Important!", title=None):
 def showMessageBox(message, title, icon):
 	style = wx.OK | icon
 	dlg = dMessageBox(message, title, style)
+	dlg.CenterOnParent()
 	retval = dlg.ShowModal()
 	dlg.Destroy()
 	return None
