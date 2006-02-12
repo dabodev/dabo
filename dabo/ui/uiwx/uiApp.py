@@ -132,7 +132,6 @@ class uiApp(wx.App, dObject):
 		self.Bind(wx.EVT_KEY_UP, self._onWxKeyUp)
 		self.Bind(wx.EVT_CHAR, self._onWxKeyChar)
 
-
 		self._drawSizerOutlines = False
 		# Various attributes used by the FindReplace dialog
 		self._findString = ""
@@ -156,6 +155,9 @@ class uiApp(wx.App, dObject):
 					app.splashTimeout)
 			splash.CenterOnScreen()
 			splash.Show()
+			if wx.PlatformInfo[0] == "__WXMSW__":
+				# This seems to help the splash repaint properly on Windows.
+				splash.Update()
 		if self.callback is not None:
 			wx.CallAfter(self.callback)
 		del self.callback

@@ -438,6 +438,29 @@ def getString(message="Please enter a string:", caption="Dabo",	defaultValue="")
 	return val
 
 
+def getInt(message="Enter an integer value:", caption="Dabo",	defaultValue=0):
+	"""Simple dialog for returning an integer value from the user."""
+	class IntDialog(dabo.ui.dOkCancelDialog):
+		def addControls(self):
+			self.Caption = caption
+			lbl = dabo.ui.dLabel(self, Caption=message)
+			self.spnVal = dabo.ui.dSpinner(self, Value=defaultValue)
+			hs = dabo.ui.dSizer("h")
+			hs.append(lbl, halign="Right")
+			hs.appendSpacer(5)
+			hs.append(self.spnVal)
+			self.Sizer.append(hs)
+			
+	dlg = IntDialog()
+	dlg.show()
+	if dlg.Accepted:
+		val = dlg.spnVal.Value
+	else:
+		val = None
+	dlg.Destroy()
+	return val
+
+
 # For convenience, make it so one can call dabo.ui.stop("Can't do that")
 # instead of having to type dabo.ui.dMessageBox.stop("Can't do that")
 areYouSure = dMessageBox.areYouSure
