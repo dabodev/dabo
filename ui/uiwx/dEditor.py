@@ -111,29 +111,38 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.Bind(stc.EVT_STC_MODIFIED, self.OnModified)
 		self.Bind(stc.EVT_STC_STYLENEEDED, self.OnStyleNeeded)
 		
+		if delay:
+			self.bindEvent(dEvents.Idle, self.onIdle)
+		else:
+			self.setDefaults()
+			self._defaultsSet = True
+
+		self._syntaxColoring = True
+		self.addObject(StyleTimer, "_styleTimer")
+		self._styleTimer.stop()
+		
+		app = self.Application
 		# Set the marker used for bookmarks
 		self._bmkPos = 5
 		self.MarkerDefine(self._bmkPos, 
 				stc.STC_MARK_CIRCLE, "gray", "cyan")
-		svd = self.Application.getUserSetting("bookmarks.%s",
-				self._fileName, "{}")
+		justFname = os.path.split(self._fileName)[1]
+		svd = app.getUserSetting("bookmarks.%s", justFname, "{}")
 		if svd:
 			self._bookmarks = eval(svd)
 		else:
 			self._bookmarks = {}
 
-		zoom = self.Application.getUserSetting("editor.zoom")
-		if zoom:
-			self.SetZoom(zoom)
-		if delay:
-			self.bindEvent(dEvents.Idle, self.onIdle)
-		else:
-			self.setDefaults()
-		
-		self._syntaxColoring = True
-		self.addObject(StyleTimer, "_styleTimer")
-		self._styleTimer.stop()
-		
+#- 		zoom = app.getUserSetting("editor.zoom")
+#- 		if zoom:
+#- 			self.SetZoom(zoom)
+		self._fontFace = app.getUserSetting("editor.fontface")
+		self._fontSize = app.getUserSetting("editor.fontsize")
+		if self._fontFace:
+			dabo.ui.callAfter(self.changeFontFace, self._fontFace)
+		if self._fontSize:
+			dabo.ui.callAfter(self.changeFontSize, self._fontSize)
+
 		if useStyleTimer:
 			self._styleTimer.mode = "container"
 			self._styleTimer.Interval = styleTimerInterval
@@ -448,7 +457,37 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		# Make some styles,	 The lexer defines what each style is used for, we
 		# just have to define what each style looks like.  This set is adapted from
 		# Scintilla sample property files.
+		self.setDefaultFont(fontFace, fontSize)
+		# Python styles
+		self.setPyFont(fontFace, fontSize)
 
+		self.SetCaretForeground("BLUE")
+
+		# Register some images for use in the AutoComplete box.
+		self.RegisterImage(1, dabo.ui.strToBmp("daboIcon016"))
+		self.RegisterImage(2, dabo.ui.strToBmp("property"))	#, setMask=False))
+		self.RegisterImage(3, dabo.ui.strToBmp("event"))		#, setMask=False))
+		self.RegisterImage(4, dabo.ui.strToBmp("method"))		#, setMask=False))
+		self.RegisterImage(5, dabo.ui.strToBmp("class"))		#, setMask=False))
+
+		self.CallTipSetBackground("yellow")
+		
+
+	def changeFontFace(self, fontFace):
+		self._fontFace = fontFace
+		self.setDefaultFont(self._fontFace, self._fontSize)
+		self.setPyFont(self._fontFace, self._fontSize)
+		self.Application.setUserSetting("editor.fontface", self._fontFace)
+		
+	
+	def changeFontSize(self, fontSize):
+		self._fontSize = fontSize
+		self.setDefaultFont(self._fontFace, self._fontSize)
+		self.setPyFont(self._fontFace, self._fontSize)
+		self.Application.setUserSetting("editor.fontsize", self._fontSize)
+		
+		
+	def setDefaultFont(self, fontFace, fontSize):
 		# Global default styles for all languages
 		self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize))
 		self.StyleClearAll()  # Reset all to be like the default
@@ -465,8 +504,9 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.StyleSetSpec(stc.STC_STYLE_BRACEBAD,
 			"fore:#000000,back:#FF0000,bold")
 
-		# Python styles
-		# Default 
+
+	def setPyFont(self, fontFace, fontSize):
+		# Python-specific styles
 		self.StyleSetSpec(stc.STC_P_DEFAULT,
 			"fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
 		# Comments
@@ -509,18 +549,11 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.StyleSetSpec(stc.STC_P_STRINGEOL,
 			"fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize))
 
-		self.SetCaretForeground("BLUE")
 
-		# Register some images for use in the AutoComplete box.
-		self.RegisterImage(1, dabo.ui.strToBmp("daboIcon016"))
-		self.RegisterImage(2, dabo.ui.strToBmp("property"))	#, setMask=False))
-		self.RegisterImage(3, dabo.ui.strToBmp("event"))		#, setMask=False))
-		self.RegisterImage(4, dabo.ui.strToBmp("method"))		#, setMask=False))
-		self.RegisterImage(5, dabo.ui.strToBmp("class"))		#, setMask=False))
 
-		self.CallTipSetBackground("yellow")
+
+
 		
-
 	def onCommentLine(self, evt):
 		sel = self.GetSelection()
 		begLine = self.LineFromPosition(sel[0])
@@ -993,16 +1026,20 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		# set self._fileName, in case it was changed with a Save As
 		self._fileName = fname
 		self._clearDocument(clearText=False)
-		
+
 		# Save the bookmarks
 		app = self.Application
-		base = ".".join(("bookmark", fname))
+		justFname = os.path.split(fname)[1]
+		base = ".".join(("bookmark", justFname))
 		# Clear any existing settings.
 		app.deleteAllUserSettings(base)
 		for nm, hnd in self._bookmarks.items():
 			ln = self.MarkerLineFromHandle(hnd)
 			setName = ".".join((base, nm))
 			app.setUserSetting(setName, ln)
+		# Save the appearance settings
+		app.setUserSetting("editor.fontsize", self._fontSize)
+		app.setUserSetting("editor.fontface", self._fontFace)
 		
 		
 	def checkChangesAndContinue(self):
@@ -1071,6 +1108,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		else:
 			ret = False
 		
+		# Restore the bookmarks
 		app = self.Application
 		fname = os.path.split(fileSpec)[1]
 		keyspec = ".".join(("bookmark", fname)).lower()
@@ -1078,12 +1116,13 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		for key in keys:
 			val = app.getUserSetting(".".join((keyspec, key)))
 			self.setBookmark(key, val)
-		
-		# Save the bookmarks
-# 		for nm, hnd in self._bookmarks.items():
-# 			ln = self.MarkerLineFromHandle(hnd)
-# 			setName = ".".join(("bookmark", fname, nm))
-# 			app.setUserSetting(setName, ln)
+		# Restore the appearance
+		self._fontFace = app.getUserSetting("editor.fontface")
+		self._fontSize = app.getUserSetting("editor.fontsize")
+		if self._fontFace:
+			self.changeFontFace(self._fontFace)
+		if self._fontSize:
+			self.changeFontSize(self._fontSize)
 		return ret
 
 
