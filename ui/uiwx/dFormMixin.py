@@ -447,9 +447,17 @@ class dFormMixin(pm.dPemMixin):
 		# Kill the form
 		self.Close(force=True)
 		# pkm: I've found that modal dialogs need Destroy():
-		dabo.ui.callAfter(self.Destroy)
+		dabo.ui.callAfter(self.safeDestroy)
 
+
+	def safeDestroy(self):
+		"""Since the callAfter to close() was added, I'm getting a lot
+		of dead object warnings. This should fix that.
+		"""
+		if self:
+			self.Destroy()
 		
+
 	def _beforeClose(self, evt=None):
 		""" See if there are any pending changes in the form, if the
 		form is set for checking for this. If everything's OK, call the 

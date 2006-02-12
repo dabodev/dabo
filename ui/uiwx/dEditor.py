@@ -251,12 +251,38 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		return self._bookmarks.keys()
 		
 		
-	def getFunctionList(self):
+	def getFunctionList(self, sorted=False):
 		"""Returns a list of all 'class' and 'def' statements, along
 		with their starting positions in the text.
 		"""
 		it = self._pat.finditer(self.GetText())
-		return [(m.groups()[0], m.start()) for m in it]		
+		ret = [(m.groups()[0], m.start()) for m in it]
+		if sorted:
+			cls = ""
+			dct = {}
+			mthdList = []
+			clsList = []
+			for itms in ret:
+				itm = itms[0]
+				if itm.startswith("class"):
+					if mthdList:
+						dct[cls] = mthdList
+					cls = itm
+					clsList.append(itm)
+					mthdList = [itms]
+				else:
+					mthdList.append(itms)
+			if mthdList:
+				dct[cls] = mthdList
+			# We need to sort by class, and then within class, by method
+			ret = []
+			classes = dct.keys()
+			classes.sort()
+			for cls in classes:
+				mthds = dct[cls]
+				mthds.sort()
+				ret += mthds
+		return ret		
 		
 
 	def getMarginWidth(self):
