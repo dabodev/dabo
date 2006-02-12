@@ -489,7 +489,7 @@ class dPemMixin(dPemMixinBase):
 		# Convert the string mods and key into the correct parms for wx:
 		flags = dKeys.mod_Normal
 		for mod in mods:
-			flags = flags | dKeys.modifierStrings[mod]
+			flags = flags | dKeys.modifierStrings[mod.lower()]
 
 		try:
 			keyCode = dKeys.keyStrings[key.lower()]
