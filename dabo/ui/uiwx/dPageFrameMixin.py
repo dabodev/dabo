@@ -143,6 +143,35 @@ class dPageFrameMixin(cm.dControlMixin):
 			self.RemovePage(pos)
 			ret = pg
 		return pg
+	
+	
+	def movePage(self, oldPgOrPos, newPos, selecting=True):
+		"""Moves the specified 'old' page to the new position and
+		optionally selects it. If an invalid page number is passed,
+		it returns False without changing anything.
+		"""
+		self.Parent.lockDisplay()
+		pos = oldPgOrPos
+		if isinstance(oldPgOrPos, int):
+			if oldPgOrPos > self.PageCount-1:
+				return False
+			pg = self.Pages[oldPgOrPos]
+		else:
+			pg = oldPgOrPos
+			pos = self.Pages.index(pg)
+		# Make sure that the new position is valid
+		newPos = max(0, newPos)
+		newPos = min(self.PageCount-1, newPos)
+		if newPos == pos:
+			# No change
+			return
+		cap = pg.Caption
+		self.RemovePage(pos)
+		self.InsertPage(newPos, pg, cap)
+		if selecting:
+			self.SelectedPage = pg
+		self.Parent.unlockDisplay()
+		return True
 		
 		
 	def cyclePages(self, num):
