@@ -16,10 +16,13 @@ class SplitterPanel(dabo.ui.dPanel):
 	
 	
 	def _onContextMenu(self, evt):
+		evt.stop()
 		sm = dabo.ui.dMenu(self)
 		sm.append("Split this pane", bindfunc=self.onSplit)
 		if self.Parent.canRemove(self):
 			sm.append("Remove this pane", bindfunc=self.onRemove)
+		if self.Parent.IsSplit():
+			sm.append("Switch Orientation", bindfunc=self.onFlipParent)
 		self.showContextMenu(sm)
 		
 
@@ -30,6 +33,11 @@ class SplitterPanel(dabo.ui.dPanel):
 	def onRemove(self, evt):
 		self.remove()
 	
+	
+	def onFlipParent(self, evt):
+		ornt = self.Parent.Orientation
+		self.Parent.Orientation = ("H", "V")[ornt.startswith("H")]
+		
 	
 	def remove(self):
 		self.Parent.remove(self)
@@ -120,7 +128,7 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 		self._getSashPosition()
 		# Raise a dEvent for other code to bind to,
 		self.raiseEvent(dEvents.SashDoubleClick, evt)
-	
+		
 		
 	def _onSashPos(self, evt):
 		"""Fires when the sash position is changed."""
@@ -204,6 +212,11 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 			orient = val.lower()[0]
 			if orient in ("h", "v"):
 				self._orientation = orient
+				if self.IsSplit():
+					self.lockDisplay()
+					self.unsplit()
+					self.split()
+					self.unlockDisplay()
 			else:
 				raise ValueError, "Orientation can only be 'Horizontal' or 'Vertical'"
 		else:
@@ -288,6 +301,7 @@ class _dSplitter_test(dSplitter):
 	def afterInit(self):
 		self.Panel1.BackColor = random.choice(dColors.colorDict.values())
 		self.Panel2.BackColor = random.choice(dColors.colorDict.values())
+		
 
 	def onSashDoubleClick(self, evt):
 		if not dabo.ui.areYouSure("Remove the sash?"):
