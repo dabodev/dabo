@@ -1318,6 +1318,14 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		sys.stderr, sys.stdout = stdErr, stdOut
 		
 
+	def _getFileName(self):
+		return os.path.split(self._fileName)[1]
+
+
+	def _getFilePath(self):
+		return self._fileName
+
+
 	def _getLineNumber(self):
 		return self.GetCurrentLine()
 
@@ -1354,6 +1362,12 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.SetZoom(val)
 
 
+	FileName = property(_getFileName, None, None,
+			_("Name of the file being edited (without path info)  (str)"))
+	
+	FilePath = property(_getFilePath, None, None,
+			_("Full path of the file being edited  (str)"))
+	
 	LineNumber = property(_getLineNumber, _setLineNumber, None,
 			_("Returns the current line number being edited  (int)"))
 	
