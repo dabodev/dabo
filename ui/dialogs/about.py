@@ -52,7 +52,9 @@ class About(dabo.ui.dDialog):
 		btnCopy = dabo.ui.dButton(pnlBack, Caption=_("Copy Info"))
 		btnCopy.bindEvent(dEvents.Hit, self.onCopyInfo)
 		sz.append(btnCopy, 0, halign="right")
-		
+
+		sz.append((0,20))		
+
 		self.Layout()
 		pnlBack.Fit()
 	
