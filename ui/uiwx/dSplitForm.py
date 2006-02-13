@@ -23,7 +23,6 @@ class dSplitForm(dabo.ui.dForm):
 		self.splitter.split(dir)
 		
 
-	
 	def _getMinPanelSize(self):
 		return self.splitter.MinPanelSize
 		
@@ -93,8 +92,13 @@ class dSplitForm(dabo.ui.dForm):
 
 
 class _dSplitForm_test(dSplitForm):
-			def initProperties(self):
-				self.Caption = "Splitter Demo"
+	def initProperties(self):
+		self.Caption = "Splitter Demo"
+
+	def afterInit(self):
+		self.splitter.Panel1.BackColor = dabo.dColors.randomColor()
+		self.splitter.Panel2.BackColor = dabo.dColors.randomColor()
+		
 				
 if __name__ == "__main__":
 	import test
