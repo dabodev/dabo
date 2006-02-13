@@ -228,7 +228,32 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		"""Removes all items in this menu."""
 		while self.Children:
 			self.remove(0)
-			
+	
+	
+	def setCheck(self, cap, unCheckOthers=True):
+		"""When using checkmark-type menus, passing the
+		caption of the item you want checked to this method 
+		will check that item. If unCheckOthers is True, non-
+		matching items will be unchecked.
+		"""
+		for itm in self.Children:
+			if itm.GetText() == cap:
+				try:
+					itm.Check(True)
+				except:
+					pass
+			else:
+				if unCheckOthers:
+					try:
+						itm.Check(False)
+					except:
+						pass
+	
+	
+	def clearChecks(self):
+		"""Unchecks any checkmark-type menu items."""
+		self.setCheck(chr(255)*99)
+		
 			
 	def _getItem(self, bindfunc, help, icon, menutype, **kwargs):
 		itmtyp = self._getItemType(menutype)
@@ -241,6 +266,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 			itm.bindEvent(dEvents.Hit, bindfunc)
 		return itm
 
+
 	def _getItemID(self,typ):
 		typ = str(typ).lower()
 		ret = wx.ID_DEFAULT
@@ -250,8 +276,9 @@ class dMenu(wx.Menu, pm.dPemMixin):
 			ret = wx.ID_ABOUT
 		elif typ in ("pref", "prefs"):
 			ret = wx.ID_PREFERENCES
-
 		return ret
+		
+
 	def _getItemType(self, typ):
 		typ = str(typ).lower()[:3]
 		ret = NormalItemType
