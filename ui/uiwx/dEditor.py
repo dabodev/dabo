@@ -140,8 +140,12 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self._fontSize = app.getUserSetting("editor.fontsize")
 		if self._fontFace:
 			dabo.ui.callAfter(self.changeFontFace, self._fontFace)
+		else:
+			self._fontFace = self.GetFont().GetFaceName()
 		if self._fontSize:
 			dabo.ui.callAfter(self.changeFontSize, self._fontSize)
+		else:
+			self._fontSize = self.GetFont().GetPointSize()
 
 		if useStyleTimer:
 			self._styleTimer.mode = "container"
@@ -1120,9 +1124,13 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self._fontFace = app.getUserSetting("editor.fontface")
 		self._fontSize = app.getUserSetting("editor.fontsize")
 		if self._fontFace:
-			self.changeFontFace(self._fontFace)
+			dabo.ui.callAfter(self.changeFontFace, self._fontFace)
+		else:
+			self._fontFace = self.GetFont().GetFaceName()
 		if self._fontSize:
-			self.changeFontSize(self._fontSize)
+			dabo.ui.callAfter(self.changeFontSize, self._fontSize)
+		else:
+			self._fontSize = self.GetFont().GetPointSize()
 		return ret
 
 

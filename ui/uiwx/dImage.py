@@ -16,6 +16,8 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 
 		self._picture = ""
 		self._bmp = None
+		self._bitmapHeight = None
+		self._bitmapWidth = None
 		self._scaleMode = "Proportional"
 		self._imgProp = 1.0
 		self._rotation = 0
@@ -111,6 +113,9 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		
 		# We have the adjusted image; now generate the bitmap			
 		self.Bitmap = img.ConvertToBitmap()
+		self._bitmapHeight = self.Bitmap.GetHeight()
+		self._bitmapWidth = self.Bitmap.GetWidth()
+		
 		try:
 			self.SetBitmap(self.Bitmap)
 		except TypeError, e: pass
@@ -127,6 +132,14 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		self._bmp = val
 		
 		
+	def _getBitmapHeight(self):
+		return self._bitmapHeight
+
+
+	def _getBitmapWidth(self):
+		return self._bitmapWidth
+
+
 	def _getPic(self):
 		return self._picture
 		
@@ -179,6 +192,12 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 	Bitmap = property(_getBmp, _setBmp, None,
 			_("The bitmap representation of the displayed image.  (wx.Bitmap)") )
 
+	BitmapHeight = property(_getBitmapHeight, None, None,
+			_("Height of the actual displayed bitmap  (int)"))
+	
+	BitmapWidth = property(_getBitmapWidth, None, None,
+			_("Width of the actual displayed bitmap  (int)"))
+	
 	Picture = property(_getPic, _setPic, None,
 			_("The file used as the source for the displayed image.  (str)") )
 			
