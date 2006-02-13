@@ -1202,7 +1202,7 @@ class ReportWriter(object):
 					b = _form["detail"]
 					extraHeight = b.get("Height")
 					if extraHeight is None:
-						extraHeight = b.AvailableProps["Height"]
+						extraHeight = b.AvailableProps["Height"]["default"]
 					else:
 						extraHeight = eval(extraHeight)
 					if extraHeight is None:
