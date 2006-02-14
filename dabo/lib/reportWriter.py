@@ -86,6 +86,30 @@ class ReportObject(CaselessDict):
 		self.initAvailableProps()
 		self.insertRequiredElements()
 
+	def __getattr__(self, att):
+		rw = self.Report.reportWriter
+
+		# 1) Try mapping the requested attribute to the reportWriter. This will handle
+		#    things like 'self.Application'.
+		failed = False
+		try:
+			ret = getattr(rw, att)
+		except AttributeError:
+			failed = True
+		if not failed:
+			return ret
+
+		# 2) Try mapping to a variable (self.ord_amount -> self.Variables["ord_amount"])
+		if self.Variables.has_key(att):
+			return self.Variables.get(att)
+
+		# 3) Try mapping to a field in the dataset (self.ordid -> self.Record["ordid"])
+		if self.Record.has_key(att):
+			return self.Record.get(att)
+
+		raise AttributeError, "Can't get attribute '%s'." % att
+
+
 	def initAvailableProps(self):
 		self.AvailableProps["Comment"] = toPropDict(str, "", 
 				"""You can add a comment here, the report will ignore it.""")
@@ -126,7 +150,7 @@ class ReportObject(CaselessDict):
 		return m			
 
 
-	def getProp(self, prop, evaluate=True):
+	def getProp(self, prop, evaluate=True, returnException=False):
 		"""Return the value of the property.
 
 		If defined, it will be eval()'d. Otherwise,	the default will be returned.
@@ -148,8 +172,10 @@ class ReportObject(CaselessDict):
 				return self[prop]
 			try:
 				return eval(self[prop])
-			except:
-				# eval() failed. Return the default.
+			except Exception, e:
+				# eval() failed. Return the default or the exception string.
+				if returnException:
+					return e
 				return getDefault()
 		else:
 			# The prop isn't defined, use the default.
@@ -834,11 +860,8 @@ class ReportWriter(object):
 				posx = 0
 	
 			# draw the string using the function that matches the alignment:
-			try:
-				s = eval(obj["expr"])
-			except Exception, e:
-				# Something failed in the eval, print the exception string instead:
-				s = e
+			s = obj.getProp("expr", returnException=True)
+
 			if isinstance(s, basestring):
 				s = s.encode(self.Encoding)
 			else:
@@ -880,11 +903,8 @@ class ReportWriter(object):
 
 				t = fobject.__class__.__name__
 				s = styles_[fobject.getProp("style")]
-				try:
-					expr = eval(fobject["expr"])
-				except Exception, e:
-					# Something failed in the eval, print the exception string instead:
-					expr = e
+				expr = fobject.getProp("expr", returnException=True)
+
 				if isinstance(s, basestring):
 					expr = expr.encode(self.Encoding)
 				else:
@@ -1124,7 +1144,8 @@ class ReportWriter(object):
 				vv["curReset"] = resetAt
 
 				# run the variable expression to get the current value:
-				vv["value"] = eval(variable["expr"])
+				#vv["value"] = eval(variable["expr"])
+				vv["value"] = variable.getProp("expr", returnException=True)
 
 				# update the value of the public variable:
 				self.Variables[varName] = vv["value"]			
@@ -1289,7 +1310,7 @@ class ReportWriter(object):
 				resetCurVals = False
 				for idx, group in enumerate(groups):
 					vv = self._groupValues[group["expr"]]
-					if resetCurVals or vv["curVal"] != eval(group["expr"]):
+					if resetCurVals or vv["curVal"] != group.getProp("expr"):
 						resetCurVals = True
 						vv["curVal"] = None
 
@@ -1297,7 +1318,7 @@ class ReportWriter(object):
 				# group footers for groups that have changed.
 				for idx, group in enumerate(groupsDesc):
 					vv = self._groupValues[group["expr"]]
-					if vv["curVal"] != eval(group["expr"]):
+					if vv["curVal"] != group.getProp("expr"):
 						# We need to temporarily move back to the last record so that the
 						# group footer reflects what the user expects.
 						self.Record = _lastRecord
@@ -1310,8 +1331,8 @@ class ReportWriter(object):
 			# print group headers for this group if necessary:
 			for idx, group in enumerate(groups):
 				vv = self._groupValues[group["expr"]]
-				if vv["curVal"] != eval(group["expr"]):
-					vv["curVal"] = eval(group["expr"])
+				if vv["curVal"] != group.getProp("expr"):
+					vv["curVal"] = group.getProp("expr")
 					np = eval(group.get("startOnNewPage", "False")) \
 							and self.RecordNumber > 0
 					if np:
