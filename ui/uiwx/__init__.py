@@ -163,6 +163,20 @@ artConstants["info"] = artConstants.get("information")
 artConstants["file"] = artConstants.get("normalfile")
 
 
+def getUiApp(app, callback):
+	"""This returns an instance of uiApp. If one is already running, that
+	instance is returned. Otherwise, a new instance is created.
+	"""
+	ret = wx.GetApp()
+	if ret is None:
+		ret = uiApp(app, callback)
+	else:
+		# existing app; fire the callback, if any
+		if callback is not None:
+			wx.CallAfter(callback)
+	return ret
+	
+
 def callAfter(fnc, *args, **kwargs):
 	"""There are times when this functionality is needed when creating UI
 	code. This function simply wraps the wx.CallAfter function so that 

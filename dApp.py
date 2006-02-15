@@ -138,9 +138,11 @@ class dApp(dObject):
 			self._initUI()
 			if self.UI is not None:
 				if self.showSplashScreen:
-					self.uiApp = dabo.ui.uiApp(self, callback=self.initUIApp)
+					#self.uiApp = dabo.ui.uiApp(self, callback=self.initUIApp)
+					self.uiApp = dabo.ui.getUiApp(self, callback=self.initUIApp)
 				else:
-					self.uiApp = dabo.ui.uiApp(self, callback=None)
+					#self.uiApp = dabo.ui.uiApp(self, callback=None)
+					self.uiApp = dabo.ui.getUiApp(self, callback=None)
 					self.initUIApp()
 		else:
 			self.uiApp = None
