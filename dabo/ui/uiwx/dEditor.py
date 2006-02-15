@@ -478,6 +478,8 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		
 
 	def changeFontFace(self, fontFace):
+		if not self:
+			return
 		self._fontFace = fontFace
 		self.setDefaultFont(self._fontFace, self._fontSize)
 		self.setPyFont(self._fontFace, self._fontSize)
@@ -485,6 +487,8 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		
 	
 	def changeFontSize(self, fontSize):
+		if not self:
+			return
 		self._fontSize = fontSize
 		self.setDefaultFont(self._fontFace, self._fontSize)
 		self.setPyFont(self._fontFace, self._fontSize)
@@ -1318,6 +1322,20 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		sys.stderr, sys.stdout = stdErr, stdOut
 		
 
+	def _getColumn(self):
+		return self.GetColumn(self.GetCurrentPos())
+
+	def _setColumn(self, val):
+		val = max(0, val)
+		currPos = self.GetCurrentPos()
+		currCol = self.GetColumn(currPos)
+		diff = val - currCol
+		newPos = currPos + diff
+		endOfLinePos = self.GetLineEndPosition(self.LineNumber)
+		newPos = min(endOfLinePos, newPos)		
+		self.GotoPos(newPos)
+
+
 	def _getFileName(self):
 		return os.path.split(self._fileName)[1]
 
@@ -1362,6 +1380,9 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.SetZoom(val)
 
 
+	Column = property(_getColumn, _setColumn, None,
+			_("Returns the current column position of the cursor in the file  (int)"))
+	
 	FileName = property(_getFileName, None, None,
 			_("Name of the file being edited (without path info)  (str)"))
 	
