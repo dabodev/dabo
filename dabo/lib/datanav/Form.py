@@ -42,6 +42,8 @@ class Form(dabo.ui.dForm):
 		self.tabPosition = "Top"
 		# We want a toolbar
 		self.ShowToolBar = True
+		# We want the status bar showing record information
+		self._autoUpdateStatusText = True
 		# The list of _tempfiles will be deleted when the form is destroyed:
 		self._tempFiles = []
 	
