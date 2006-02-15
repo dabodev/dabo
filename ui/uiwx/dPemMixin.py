@@ -548,6 +548,36 @@ class dPemMixin(dPemMixinBase):
 			self.SetAcceleratorTable(wx.AcceleratorTable(table.values()))
 
 
+	def createFileDropTarget(self, handler=None):
+		"""Sets up this control to accept files dropped on it."""
+		class FileDropTarget(wx.FileDropTarget):
+			def __init__(self, hnd, obj):
+				"""'hnd' is the object that handles the drop action. 'obj'
+				is the object that this target is associated with.
+				"""
+				wx.FileDropTarget.__init__(self)
+				self.handler = hnd
+				self.obj = obj
+			def OnDropFiles(self, xpos, ypos, filelist):
+				if self.handler:
+					self.handler.processDroppedFiles(self.obj, xpos, ypos, filelist)
+				return True
+			def OnDragOver(self, xpos, ypos, result):
+				return wx.DragLink
+				
+		if handler is None:
+			# Default to self
+			handler = self
+		self.SetDropTarget(FileDropTarget(handler, self))
+		
+
+	def processDroppedFiles(obj, xpos, ypos, filelist):
+		"""Handler for files dropped on the control. Override in your
+		subclass/instance for your needs .
+		"""
+		pass
+		
+		
 	def getPropertyInfo(cls, name):
 		return super(dPemMixin, cls).getPropertyInfo(name)
 	getPropertyInfo = classmethod(getPropertyInfo)
