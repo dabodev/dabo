@@ -69,9 +69,9 @@ class dFormMixin(pm.dPemMixin):
 		self.__needOutlineRedraw = False
 		# When in designer mode, we need to turn off various behaviors.
 		self._designerMode = False
-		# Default behavior is for the form to set the status bar text with the 
-		# current record position. 
-		self._autoUpdateStatusText = True
+		# Default behavior used to be for the form to set the status bar text with the 
+		# current record position. Now we only turn it on for data apps.
+		self._autoUpdateStatusText = False
 
 		super(dFormMixin, self).__init__(preClass, parent, properties, 
 				attProperties, *args, **kwargs)
