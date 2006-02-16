@@ -534,8 +534,8 @@ class dPemMixin(dPemMixinBase):
 			# binding doesn't exist
 			return
 		callback(keyEvent)
-			
-	
+
+
 	def unbindKey(self, keyCombo):
 		"""Unbind a previously bound key combination.
 
@@ -1726,23 +1726,22 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _getToolTipText(self):
-		try:
-			return self._toolTipText
-		except:
-			return ""
+		return getattr(self, "_toolTipText", None)
 
 	def _setToolTipText(self, val):
-		if self._constructed():
-			t = self.GetToolTip()
-			if t:
-				t.SetTip(val)
-			else:
-				if val:
-					t = wx.ToolTip(val)
-					self.SetToolTip(t)
-					self._toolTipText = val
+		if not val and not self.ToolTipText:
+			# Don't keep setting blank tooltip repeatedly.
+			pass
 		else:
-			self._properties["ToolTipText"] = val
+			if not val:
+				## Note that this currently doesn't work, at least on Gtk2. Robin 
+				## appears to think it should, though, so let's hope... to be safe,
+				## I first set the tooltip to a blank string.
+				self.SetToolTip(wx.ToolTip(""))
+				self.SetToolTip(None)
+			else:
+				self.SetToolTip(wx.ToolTip(val))
+		self._toolTipText = val
 
 
 	def _getTop(self):
