@@ -1121,8 +1121,9 @@ class ReportWriter(object):
 			vv["value"] = None
 			vv["curReset"] = None
 			varName = variable.get("Name")
-			self.Variables[varName] = variable.getProp("InitialValue")
-			self._variableValues[varName] = vv
+			if varName:
+				self.Variables[varName] = variable.getProp("InitialValue")
+				self._variableValues[varName] = vv
 
 		self._recordNumber = 0
 		self._currentColumn = 0
@@ -1140,6 +1141,8 @@ class ReportWriter(object):
 			variables = self.ReportForm.get("variables", ())
 			for variable in variables:
 				varName = variable.get("Name")
+				if not varName:
+					continue
 				resetAt = eval(variable.get("resetAt", "None"))
 				vv = self._variableValues[varName]
 				curReset = vv.get("curReset")
