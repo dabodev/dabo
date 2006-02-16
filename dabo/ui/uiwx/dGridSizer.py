@@ -385,16 +385,20 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		self.setGridSpan(obj, col=colspan)
 		
 	
-	def getItemByRowCol(self, row, col):
-		"""Returns the item at the given position if one 
-		exists. If not, returns None.
+	def getItemByRowCol(self, row, col, returnObject=True):
+		"""Returns either the managed item or the sizer item at the 
+		given position if one exists. If not, returns None.
 		"""
 		try:
 			itm = self.FindItemAtPosition((row, col))
-			if itm.IsWindow():
-				ret = itm.GetWindow()
-			elif itm.IsSizer():
-				ret = itm.GetSizer()
+			if returnObject:
+				if itm.IsWindow():
+					ret = itm.GetWindow()
+				elif itm.IsSizer():
+					ret = itm.GetSizer()
+			else:
+				# Return the sizer item itself.
+				ret = itm
 		except:
 			ret = None
 		return ret
