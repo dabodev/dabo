@@ -1147,7 +1147,7 @@ class ReportWriter(object):
 				varName = variable.get("Name")
 				if not varName:
 					continue
-				resetAt = eval(variable.get("resetAt", "None"))
+				resetAt = variable.getProp("resetAt")
 				vv = self._variableValues[varName]
 				curReset = vv.get("curReset")
 				if resetAt != curReset:
