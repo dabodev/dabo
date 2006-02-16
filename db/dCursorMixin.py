@@ -141,6 +141,12 @@ class dCursorMixin(dObject):
 		row information as a list, not as a dictionary. This method will 
 		detect that, and convert the results to a dictionary.
 		"""
+		#### NOTE: NEEDS TO BE TESTED THOROUGHLY!!!!  ####
+		if sql.strip().split()[0].lower() == "select":
+			cursorToUse = self
+		else:
+			cursorToUse = self.AuxCursor
+			
 		# Some backends, notably Firebird, require that fields be specially
 		# marked.
 		sql = self.processFields(sql)
@@ -153,9 +159,9 @@ class dCursorMixin(dObject):
 		
 		try:
 			if params is None or len(params) == 0:
-				res = self.superCursor.execute(self, sqlEX)
+				res = cursorToUse.superCursor.execute(self, sqlEX)
 			else:
-				res = self.superCursor.execute(self, sqlEX, params)
+				res = cursorToUse.superCursor.execute(self, sqlEX, params)
 		except Exception, e:
 			# If this is due to a broken connection, let the user know.
 			# Different backends have different messages, but they
@@ -164,6 +170,10 @@ class dCursorMixin(dObject):
 				raise dException.ConnectionLostException, e
 			else:
 				raise dException.dException, e
+		
+		if cursorToUse is not self:
+			# No need to manipulate the data
+			return res
 
 		# Not all backends support 'fetchall' after executing a query
 		# that doesn't return records, such as an update.

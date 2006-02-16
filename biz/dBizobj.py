@@ -449,6 +449,13 @@ class dBizobj(dObject):
 			ret = self.delete(startTransaction)
 	
 	
+	def execute(self, expr):
+		"""Pass-through method that will take the 'expr' and pass
+		it to this bizobj's cursor for execution.
+		"""
+		self._CurrentCursor.execute(expr)
+	
+	
 	def getChangedRecordNumbers(self):
 		""" Returns a list of record numbers for which isChanged()
 		returns True. The changes may therefore not be in the record 
