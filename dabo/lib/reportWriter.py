@@ -224,7 +224,9 @@ class ReportObject(CaselessDict):
 				desProps[prop]["customEditor"] = "editColor"
 ## 2006/1/30: The commented code below makes a dropdown list for the standard 
 #             fonts. However, it blows away the user being able to type in a
-#             font that isn't in the standard list. 
+#             font that isn't in the standard list. Same with the other props.
+#             We need to get a combobox editor working, so that the user can 
+#             free-form type as well as select a predefined value from the list.
 #			if prop.lower() == "fontname":
 #				desProps[prop]["type"] = list
 #				desProps[prop]["values"] = ['"Courier"', '"Courier-Bold"', 
@@ -232,12 +234,15 @@ class ReportObject(CaselessDict):
 #						'"Helvetica-Bold"', '"Helvetica-Oblique"', '"Helvetica-BoldOblique"',
 #						'"Times-Roman"', '"Times-Bold"', '"Times-Italic"', 
 #						'"Times-BoldItalic"', '"Symbol"', '"ZapfDingbats"']
-			if prop.lower() == "hanchor":
-				desProps[prop]["type"] = list
-				desProps[prop]["values"] = ['"Left"', '"Center"', '"Right"'] 
-			if prop.lower() == "vanchor":
-				desProps[prop]["type"] = list
-				desProps[prop]["values"] = ['"Bottom"', '"Middle"', '"Top"'] 
+#			if prop.lower() == "hanchor":
+#				desProps[prop]["type"] = list
+#				desProps[prop]["values"] = ['"Left"', '"Center"', '"Right"'] 
+#			if prop.lower() == "vanchor":
+#				desProps[prop]["type"] = list
+#				desProps[prop]["values"] = ['"Bottom"', '"Middle"', '"Top"']
+#			if prop.lower() == "orientation" and self.__class__.__name__ == "Page":
+#				desProps[prop]["type"] = list
+#				desProps[prop]["values"] = ['"Portrait"', '"Landscape"']
 		return desProps
 
 
@@ -1393,7 +1398,7 @@ class ReportWriter(object):
 		# convert to the reportlab pageSize value (tuple(width,height)):
 		pageSize = eval("pagesizes.%s" % pageSize)
 		# run it through the portrait/landscape filter:
-		orientation = page.getProp("orientation")
+		orientation = page.getProp("orientation").lower()
 		func = eval("pagesizes.%s" % orientation)
 		return func(pageSize)
 
