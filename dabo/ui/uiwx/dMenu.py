@@ -252,7 +252,20 @@ class dMenu(wx.Menu, pm.dPemMixin):
 	
 	def clearChecks(self):
 		"""Unchecks any checkmark-type menu items."""
-		self.setCheck(chr(255)*99)
+		self.setCheck(None)
+	
+	
+	def isItemChecked(self, capOrItem):
+		if isinstance(capOrItem, basestring):
+			# Get the matching item
+			itm = self.getItem(capOrItem)
+		else:
+			itm = capOrItem
+		if itm is not None and itm.IsCheckable():
+			ret = itm.IsChecked()
+		else:
+			ret = None
+		return ret
 		
 			
 	def _getItem(self, bindfunc, help, icon, menutype, **kwargs):
