@@ -191,6 +191,14 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 				self.Destroy()				
 	
 	
+	def toggleSplit(self):
+		"""Flips the split status of the control."""
+		if self.IsSplit():
+			self.unsplit()
+		else:
+			self.split()
+			
+				
 	def _getMinPanelSize(self):
 		return self.GetMinimumPaneSize()
 		
@@ -271,7 +279,16 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 			self._properties["SashPosition"] = val
 
 	
-	
+	def _getSplit(self):
+		return self.IsSplit()
+
+	def _setSplit(self, val):
+		if val:
+			self.split()
+		else:
+			self.unsplit()
+
+
 	MinimumPanelSize = property(_getMinPanelSize, _setMinPanelSize, None,
 			_("Controls the minimum width/height of the panels.  (int)"))
 
@@ -286,6 +303,10 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 
 	SashPosition = property(_getSashPosition, _setSashPosition, None,
 			_("Position of the sash when the window is split.  (int)"))
+
+	Split = property(_getSplit, _setSplit, None,
+			_("Returns the split status of the control  (bool)"))
+	
 
 
 class _dSplitter_test(dSplitter):
