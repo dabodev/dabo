@@ -408,14 +408,19 @@ def getEventData(wxEvt):
 		
 	return ed
 	
-	
+
+def getMousePosition():
+	"""Returns the position of the mouse on the screen."""
+	return wx.GetMousePosition()
+
+
 def getMouseObject():
 	"""Returns a reference to the object below the mouse pointer
 	at the moment the command is issued. Useful for interactive 
 	development when testing changes to classes 'in the wild' of a 
 	live application.
 	"""
-	return wx.FindWindowAtPoint(wx.GetMousePosition())
+	return wx.FindWindowAtPoint(getMousePosition())
 
 
 #### This will have to wait until I can figure out how to simulate a 
