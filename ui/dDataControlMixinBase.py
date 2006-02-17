@@ -105,7 +105,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				#self.Enabled = False
 		else:
 			if self._srcIsInstanceMethod is None and self.Source is not None:
-				self._srcIsInstanceMethod = eval("type(self.Source.%s)" % self.DataField) == type(self.update)
+				if isinstance(self.DataSource, basestring):
+					self._srcIsInstanceMethod = False
+				else:
+					self._srcIsInstanceMethod = eval("type(self.Source.%s)" % self.DataField) == type(self.update)
 			if self._srcIsInstanceMethod:
 				expr = "self.Source.%s()" % self.DataField
 			else:
@@ -152,6 +155,11 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		except AttributeError:
 			oldVal = None
 		
+		
+		if self.DataField == "saveType":
+			dabo.trace()
+
+		
 		if curVal is None or curVal != oldVal:
 			if not self._DesignerMode:
 				if self.DataSource and self.DataField:
@@ -170,13 +178,23 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					else:	
 						# If the binding is to a method, do not try to assign to that method.
 						if self._srcIsInstanceMethod is None:
-							self._srcIsInstanceMethod = eval("type(src.%s)" % self.DataField) == type(self.flushValue)
+							if isinstance(self.DataSource, basestring):
+								self._srcIsInstanceMethod = False
+							else:
+								self._srcIsInstanceMethod = eval("type(src.%s)" % self.DataField) == type(self.flushValue)
 						if self._srcIsInstanceMethod:
 							return
-						try:
-							exec("src.%s = curVal" % self.DataField)
-						except:
-							dabo.errorLog.write("Could not bind to '%s.%s'" % (self.DataSource, self.DataField) )
+						if isinstance(src, basestring):
+							try:
+								exec ("src.%s = curVal" % self.DataField)
+							except:
+								dabo.errorLog.write("Could not bind to '%s.%s'" % (self.DataSource, self.DataField) )
+						else:
+							# The source is a direct object reference
+							try:
+								src.__setattr__(self.DataField, curVal)
+							except:
+								dabo.errorLog.write("Could not bind to '%s.%s'" % (self.DataSource._name, self.DataField) )
 
 			self._afterValueChanged()
 		
@@ -272,7 +290,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	def _setDataSource(self, value):
 		# Clear any old DataSource
 		self.__src = None
-		self._DataSource = str(value)
+		self._DataSource = value
 
 
 	def _getDataField(self):
