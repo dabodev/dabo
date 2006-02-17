@@ -155,11 +155,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		except AttributeError:
 			oldVal = None
 		
-		
-		if self.DataField == "saveType":
-			dabo.trace()
-
-		
 		if curVal is None or curVal != oldVal:
 			if not self._DesignerMode:
 				if self.DataSource and self.DataField:
