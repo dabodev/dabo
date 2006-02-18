@@ -639,10 +639,11 @@ Database error message: %s""") %	err
 			return
 		biz = self.getBizobj(ds)
 		if not biz:
-			# No bizobj for that DataSource; record the error
-			dabo.errorLog.write("No business object found for DataSource: '%s', DataField: '%s' "
-					% (ds, df))
-			return
+			# Now that DataSources are not always bizobjs, just return
+			## No bizobj for that DataSource; record the error
+			#dabo.errorLog.write("No business object found for DataSource: '%s', DataField: '%s' "
+			#		% (ds, df))
+			return True
 		if not isinstance(biz, dabo.biz.dBizobj):
 			# DataSource isn't a bizobj, so no need to validate
 			return True
