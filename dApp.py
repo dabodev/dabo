@@ -107,6 +107,10 @@ class dApp(dObject):
 		self.showMainFormOnStart = True
 		self._wasSetup = False
 		self._cryptoProvider = None
+		# Track names of menus whose MRUs need to be persisted. Set
+		# the key for each entry to the menu caption, and the value to
+		# the bound function.
+		self._persistentMRUs = {}
 		
 		# For simple UI apps, this allows the app object to be created
 		# and started in one step. It also suppresses the display of
@@ -172,17 +176,40 @@ class dApp(dObject):
 				userName = " (%s)" % userName
 			else:
 				userName = ""
-				
+			
+			self._retrieveMRUs()
 			self.uiApp.start(self)
 		self.finish()
 
 
 	def finish(self):
 		"""Called when the application event loop has ended."""
+		self._persistMRU()
 		self.uiApp.finish()
 		self.closeConnections()
 		dabo.infoLog.write(_("Application finished."))
 
+
+	def _persistMRU(self):
+		"""Persist any MRU lists to disk."""
+		base = "MRU.%s" % self.getAppInfo("appName")
+		self.deleteAllUserSettings(base)		
+		for cap in self._persistentMRUs.keys():
+			mruList = self.uiApp.getMRUListForMenu(cap)
+			setName = ".".join((base, cap))
+			self.setUserSetting(setName, mruList)
+	
+	
+	def _retrieveMRUs(self):
+		"""Retrieve any saved MRU lists."""
+		base = "MRU.%s" % self.getAppInfo("appName")
+		for cap, fcn in self._persistentMRUs.items():
+			itms = self.getUserSetting(".".join((base, cap)))
+			if itms:
+				# Should be a list of items. Add 'em in reverse order
+				for itm in itms:
+					self.uiApp.addToMRU(cap, itm, fcn)
+		
 
 	def getAppInfo(self, item):
 		"""Look up the item, and return the value."""

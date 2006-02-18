@@ -90,6 +90,9 @@ class dUserSettingProvider(dObject):
 				value = cp.getfloat(self._valSection, item)
 			elif valueType == "L":
 				value = cp.getboolean(self._valSection, item)
+			elif valueType == "M":
+				# Lists or tuples
+				value = eval(cp.get(self._valSection, item))
 			else:
 				value = cp.get(self._valSection, item)
 		except (ConfigParser.NoSectionError, ConfigParser.NoOptionError):
@@ -109,6 +112,8 @@ class dUserSettingProvider(dObject):
 			valueType = "N"
 		elif isinstance(value, (int, long)):
 			valueType = "I"
+		elif isinstance(value, (list, tuple)):
+			valueType = "M"
 		else:
 			valueType = "?"
 			

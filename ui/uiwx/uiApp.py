@@ -612,7 +612,11 @@ class uiApp(wx.App, dObject):
 		"""Adds the specified menu to the top of the list of 
 		MRU prompts for that menu.
 		"""
-		cap = menu.Caption
+		if isinstance(menu, basestring):
+			# They passed the menu caption directly
+			cap = menu
+		else:
+			cap = menu.Caption
 		mn = self._mruMenuPrompts.get(cap, [])
 		if prompt in mn:
 			mn.remove(prompt)
@@ -669,6 +673,16 @@ class uiApp(wx.App, dObject):
 				itm = menu.append(tmplt % (pos+1, txt), bindfunc=fncs.get(txt, None))
 				lnks[itm.GetId()] = itm
 			self._mruMenuLinks[menu] = lnks
+	
+	
+	def getMRUListForMenu(self, menu):
+		"""Gets the current list of MRU entries for the given menu."""
+		if isinstance(menu, basestring):
+			# They passed the menu caption directly
+			cap = menu
+		else:
+			cap = menu.Caption
+		return self._mruMenuPrompts.get(cap, [])
 		
 	
 	def onShowSizerLines(self, evt):
