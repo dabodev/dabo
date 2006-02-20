@@ -290,33 +290,34 @@ class dSizerMixin(dObject):
 		"""Get the current value of the specified property for the sizer item.
 		Grid sizers must override with their specific props.
 		"""
+		lowprop = prop.lower()
 		if not isinstance(itm, (self.SizerItem, self.GridSizerItem)):
 			itm = itm.ControllingSizerItem
-		if prop == "Border":
+		if lowprop == "border":
 			return itm.GetBorder()
-		elif prop == "Proportion":
+		elif lowprop == "proportion":
 			return itm.GetProportion()
 		else:
 			# Property is in the flag setting.
 			flag = itm.GetFlag()
 			szClass = dabo.ui.dSizer
-			if prop == "Expand":
+			if lowprop == "expand":
 				return bool(flag & szClass.expandFlag)
-			elif prop == "Halign":
+			elif lowprop == "halign":
 				if flag & szClass.rightFlag:
 					return "Right"
 				elif flag & szClass.centerFlag:
 					return "Center"
 				else: 		#if flag & szClass.leftFlag:
 					return "Left"
-			elif prop == "Valign":
+			elif lowprop == "valign":
 				if flag & szClass.middleFlag:
 					return "Middle"
 				elif flag & szClass.bottomFlag:
 					return "Bottom"
 				else:		#if flag & szClass.topFlag:
 					return "Top"
-			elif prop == "BorderSides":
+			elif lowprop == "bordersides":
 				pdBorder = {"Bottom" : self.borderBottomFlag,
 						"Left" : self.borderLeftFlag,
 						"Right" : self.borderRightFlag, 
