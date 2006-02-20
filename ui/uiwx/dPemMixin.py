@@ -123,6 +123,8 @@ class dPemMixin(dPemMixinBase):
 			del self._preInitProperties["style"]
 			# This is needed because these classes require a 'parent' param.
 			kwargs["parent"] = parent
+		# This is needed when running from a saved design file
+		self._extractKey(properties, "designerClass")
 		
 		# The user's subclass code has had a chance to tweak the init properties.
 		# Insert any of those into the arguments to send to the wx constructor:
@@ -154,7 +156,7 @@ class dPemMixin(dPemMixinBase):
 
 		# Set the properties *before* calling the afterInit hook
 		self.setProperties(properties)
-
+		
 		# _initEvents() will call the initEvents() user hook
 		self._initEvents()
 		# _afterInit() will call the afterInit() user hook
