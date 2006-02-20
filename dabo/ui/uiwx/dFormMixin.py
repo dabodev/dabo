@@ -26,7 +26,7 @@ class dFormMixin(pm.dPemMixin):
 			try:
 				# The Class Designer adds some atts that it uses that are in
 				# the way at runtime. Make sure they are filtered out
-				attsToSkip = ["designerClass", "SlotCount"]
+				attsToSkip = ["savedClass", "SlotCount"]
 				contents = XTD(src, attsToSkip)
 			except StandardError, e:
 				dabo.errorLog.write("Error parsing source file '%s': %s" % (src, str(e)))
@@ -163,11 +163,24 @@ class dFormMixin(pm.dPemMixin):
 		if parent is None:
 			parent = self
 
+		ret = []
 		for child in childList:
 			try:
+				atts = dictStringify(child["attributes"])
+				clsname = self._extractKey(atts, "designerClass", "")
+				# See if this is a saved class inserted into another design
+				if os.path.exists(clsname) and atts.has_key("classID"):
+					# Add the custom class. The method will return 
+					# the added object.
+					rcp = self._extractKey(atts, "rowColPos", None)
+					objList = self.addCustomClass(clsname, parent, szr, fromSzr, rcp)
+					# Now apply any custom changes saved in this class
+					self.setCustomChanges(objList, child)
+					ret += objList
+					continue
+
 				nm = child["name"]
 				szrInfo = {}
-				atts = dictStringify(child["attributes"])
 				if atts.has_key("sizerInfo"):
 					# The value is a string representation of the dict, so
 					# we need to eval() it.
@@ -175,6 +188,19 @@ class dFormMixin(pm.dPemMixin):
 					del atts["sizerInfo"]
 				kids = child.get("children", [])
 				code = child.get("code", {})
+				
+				# In case we are creating an object from a saved class, we
+				# need to remove some properties that are not needed here.
+				self._extractKey(atts, "savedClass")
+				self._extractKey(atts, "SlotCount")
+				# Save this 'property' (really just an attribute) so we can set it
+				# afterwards.
+				classID = self._extractKey(atts, "classID")
+				# Also, change the 'Name' property to 'NameBase'
+				# in case there are added classes with the same name.
+				origName = self._extractKey(atts, "Name")
+				if origName:
+					atts["NameBase"] = origName
 				
 				# Right now we are limiting this to Dabo classes.
 				cls = dabo.ui.__dict__[nm]
@@ -187,7 +213,10 @@ class dFormMixin(pm.dPemMixin):
 						sz = cls(parent, orientation=ornt, properties=atts)
 					else:
 						sz = cls(orientation=ornt, properties=atts)
-						
+					ret.append(sz)
+					# Set the classID, if any
+					if classID:
+						sz.classID = classID
 					if not fromSzr:
 						parent.Sizer = sz
 					self._addSrcObjToSizer(sz, szr, atts, szrInfo)
@@ -222,6 +251,10 @@ class dFormMixin(pm.dPemMixin):
 						sz = cls(maxCols=cols, properties=atts)
 					else:
 						sz = cls(maxRows=rows, properties=atts)
+					ret.append(sz)
+					# Set the classID, if any
+					if classID:
+						sz.classID = classID
 					if hgap:
 						sz.HGap = hgap
 					if vgap:
@@ -251,6 +284,10 @@ class dFormMixin(pm.dPemMixin):
 						del atts["Spacing"]
 					else:
 						obj = cls(parent=parent, attProperties=atts)
+					ret.append(obj)
+					# Set the classID, if any
+					if classID:
+						obj.classID = classID
 					self._addSrcObjToSizer(obj, szr, atts, szrInfo, row, col)
 
 					if code:
@@ -280,7 +317,9 @@ class dFormMixin(pm.dPemMixin):
 				# This is for development only. It will be changed to a 
 				# writing in the error log when this is stable
 				print "ERROR creating children: %s" % child, e
-	
+		# This will be a list of all added objects
+		return ret
+		
 	
 	def _addSrcObjToSizer(self, obj, szr, atts, szrInfo, 
 			row=None, col=None):
@@ -308,7 +347,114 @@ class dFormMixin(pm.dPemMixin):
 				for col, exp in colExp.items():
 					szr.setColExpand(exp, col)
 
-							
+
+	def addCustomClass(self, pth, parent, szr, fromSzr, rowcolpos=None):
+		"""Adds a saved class to the object."""
+		xml = open(pth).read()
+		try:
+			clsd = XTD(xml)
+		except:
+			raise IOError, _("This does not appear to be a valid class file: %s.") % pth
+		# We need to blank out the 'designerClass' attribute to avoid 
+		# adding this class in an infinite loop
+		try:
+			clsd["attributes"]["designerClass"] = ""
+		except: pass
+		# If we are adding the object to a grid sizer, we need to 
+		# specify the row/col.
+		if rowcolpos is not None:
+			clsd["attributes"]["rowColPos"] = rowcolpos
+		return self._addChildren([clsd], parent=parent, szr=szr, 
+			fromSzr=fromSzr)
+
+	
+	def setCustomChanges(self, objList, dct):
+		"""This takes a custom object that has been saved as part
+		of another design, and applies the changes saved with it
+		to itself and any children.
+		"""
+		# There can only be one object returned from a custom 
+		# class being added, but _addChildren always returns a list.
+		obj = objList[0]
+		atts = dct["attributes"]
+		code = dct.get("code", {})
+		sizerInfo = self._extractKey(atts, "sizerInfo", "{}")
+		if isinstance(sizerInfo, basestring):
+			sizerInfoDict = eval(sizerInfo)
+		else:
+			sizerInfoDict = sizerInfo
+		try:
+			sz = obj.ControllingSizer
+			sz.setItemProps(obj.ControllingSizerItem, sizerInfoDict)
+		except:
+			pass
+			
+		if code:
+			# There is custom code overriding the class code. Use that
+			self._addCode(obj, code)
+		for att, val in atts.items():
+			if att in ("children", "classID", "designerClass", "savedClass", "SlotCount"):
+				continue
+			else:
+				try:
+					exec "obj.%s = %s" % (att, val)
+				except:
+					# If this is attribute holds strings, we need to quote the value.
+					escVal = val.replace('"', '\\"').replace("'", "\\'")
+					try:
+						exec "obj.%s = '%s'" % (att, escVal)
+					except:
+						raise ValueError, "Could not set attribute '%s' to value: %s" % (att, val)
+		# If the item has children, set their atts, too.
+		isSizer = isinstance(obj, dabo.ui.dSizerMixin)
+		if isSizer:
+				if obj.Children:
+					childList = dct["children"]
+					kidList = []
+					for kidItem in obj.Children:
+						if kidItem.IsWindow():
+							kidList.append(kidItem.GetWindow())
+						elif kidItem.IsSizer():
+							kidList.append(kidItem.GetSizer())
+						else:
+							# spacer; nothing to do.
+							continue
+					for kid in kidList:
+						try:
+							kidID = kid.classID
+						except:
+							# Not a class member
+							continue
+						try:
+							kidDct = [cd for cd in childList
+									if cd["attributes"].get("classID", "") == kidID][0]
+							self.setCustomChanges([kid], kidDct)
+						except StandardError, e:
+							dabo.errorLog.write(_("Error locating sizer: %s") % e)
+		else:
+			if obj.Sizer:
+				childList = dct["children"]
+				szID = obj.Sizer.classID
+				try:
+					szDct = [cd for cd in childList
+							if cd["attributes"].get("classID", "") == szID][0]
+					self.setCustomChanges([obj.Sizer], szDct)
+				except StandardError, e:
+					dabo.errorLog.write(_("Error locating sizer: %s") % e)
+					
+			else:
+				if obj.Children:
+					childList = dct["children"]
+					for kid in obj.Children:
+						kidID = kid.classID
+						try:
+							kidDct = [cd for cd in childList
+									if cd["attributes"].get("classID", "") == kidID][0]
+							self.setCustomChanges([kid], kidDct)
+						except StandardError, e:
+							dabo.errorLog.write(_("Error locating child object: %s") % e)
+
+
 	def _initEvents(self):
 		super(dFormMixin, self)._initEvents()
 		self.Bind(wx.EVT_ACTIVATE, self.__onWxActivate)
