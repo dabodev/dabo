@@ -16,12 +16,12 @@ class dPanel(wx.Panel, cm.dControlMixin):
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dPanel
-		self._buffered = False
+		self._buffered = None
 		preClass = wx.PrePanel
 		style = self._extractKey((properties, kwargs), "style", 0)
 		style = style | wx.TAB_TRAVERSAL
 		kwargs["style"] = style
-		buff = self._extractKey((properties, kwargs), "Buffered", True)
+		buff = self._extractKey((properties, kwargs), "Buffered", False)
 		kwargs["Buffered"] = buff
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
