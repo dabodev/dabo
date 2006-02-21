@@ -16,10 +16,13 @@ class dPanel(wx.Panel, cm.dControlMixin):
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dPanel
+		self._buffered = False
 		preClass = wx.PrePanel
 		style = self._extractKey((properties, kwargs), "style", 0)
 		style = style | wx.TAB_TRAVERSAL
 		kwargs["style"] = style
+		buff = self._extractKey((properties, kwargs), "Buffered", True)
+		kwargs["Buffered"] = buff
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
@@ -31,6 +34,57 @@ class dPanel(wx.Panel, cm.dControlMixin):
 			self.Sizer.layout()
 		except:
 			pass
+	
+	
+	def _onPaintBuffer(self, evt):
+		dc = wx.BufferedPaintDC(self, self._buffer)
+	
+	
+	def _onResizeBuffer(self, evt):
+		self._buffer = wx.EmptyBitmap(max(1, self.Width), max(1, self.Height))
+		self.__updateDrawing()
+	
+	
+	def __updateDrawing(self):
+		dc = wx.BufferedDC(wx.ClientDC(self), self._buffer)
+		dc.Clear() # make sure you clear the bitmap! 
+		self._redraw(dc)
+		
+
+	def _redraw(self, dc=None):
+		if self._buffered:
+			# Override the base call to provide a buffered DC.
+			try:
+				self._buffer
+			except:
+				# This is being called way too early; skip this call
+				return
+			if dc is None:
+				dc = wx.BufferedDC(wx.ClientDC(self), self._buffer)
+				dc.Clear() # make sure you clear the bitmap! 
+		super(dPanel, self)._redraw(dc)
+
+
+	def _getBuffered(self):
+		return self._buffered
+
+	def _setBuffered(self, val):
+		if self._buffered == val:
+			return
+		self._buffered = val
+		if val:
+			# Set up the double-buffering.
+			self._buffer = wx.EmptyBitmap(max(1, self.Width), max(1, self.Height))
+			self.Bind(wx.EVT_PAINT, self._onPaintBuffer)
+			self.Bind(wx.EVT_SIZE, self._onResizeBuffer)
+		else:
+			self.Unbind(wx.EVT_PAINT)
+			self.Unbind(wx.EVT_SIZE)
+		
+
+	Buffered = property(_getBuffered, _setBuffered, None,
+			_("Does this panel use double-buffering to create smooth redrawing?  (bool)"))
+	
 		
 
 class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
@@ -124,58 +178,6 @@ class _dScrollPanel_test(dScrollPanel):
 		print evt.EventData["keyCode"]
 
 
-class dDrawPanel(dPanel):
-	"""A version of the base panel that is optimized for drawing. It 
-	incorporates double-buffering so that repainting is done via 
-	blitting rather than the drawing primitives.
-	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
-		style = self._extractKey((properties, kwargs), "style", 0)
-		style = style | wx.NO_FULL_REPAINT_ON_RESIZE
-		kwargs["style"] = style
-		super(dDrawPanel, self).__init__(parent, properties, *args, **kwargs)
-		
-
-	def _afterInit(self):
-		# Do all the default stuff first.
-		super(dDrawPanel, self)._afterInit()
-		
-		# Set up the double-buffering.
-		self._buffer = wx.EmptyBitmap(1,1)
-		self.Bind(wx.EVT_PAINT, self._onPaintBuffer)
-		self.Bind(wx.EVT_SIZE, self._onResizeBuffer)
-
-
-	
-	def _onPaintBuffer(self, evt):
-		dc = wx.BufferedPaintDC(self, self._buffer)
-	
-	
-	def _onResizeBuffer(self, evt):
-		self._buffer = wx.EmptyBitmap(max(1, self.Width), max(1, self.Height))
-		self.__updateDrawing()
-	
-	
-	def __updateDrawing(self):
-		dc = wx.BufferedDC(wx.ClientDC(self), self._buffer)
-		dc.Clear() # make sure you clear the bitmap! 
-		self._redraw(dc)
-		
-	
-	def _redraw(self, dc=None):
-		"""Override the base call to provide a buffered DC."""
-		try:
-			self._buffer
-		except:
-			# This is being called way too early; skip this call
-			return
-		if dc is None:
-			dc = wx.BufferedDC(wx.ClientDC(self), self._buffer)
-			dc.Clear() # make sure you clear the bitmap! 
-		super(dDrawPanel, self)._redraw(dc)
-		
-		
-		
 
 if __name__ == "__main__":
 	import test

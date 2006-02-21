@@ -108,7 +108,6 @@ import dMessageBox
 from dRadioGroup import dRadioGroup
 from dPanel import dPanel
 from dPanel import dScrollPanel
-from dPanel import dDrawPanel
 from dPageFrame import dPageFrame
 from dPageFrame import dPageList
 from dPageFrame import dPageSelect
@@ -186,7 +185,7 @@ def callAfter(fnc, *args, **kwargs):
 	
 
 _callAfterIntervalReferences = {}
-def callAfterInterval(func, interval, *args, **kwargs):
+def callAfterInterval(interval, func, *args, **kwargs):
 	"""Call the given function after <interval> milliseconds have elapsed.
 
 	If the function is called again before the interval has elapsed, the original
@@ -195,6 +194,9 @@ def callAfterInterval(func, interval, *args, **kwargs):
 	refresh something because you changed it, but the frequency of changes can be
 	high.
 	"""
+	if isinstance(func, int):
+		# Arguments are in the old order
+		interval, func = func, interval
 	futureCall = _callAfterIntervalReferences.get((func, args))
 	if futureCall:
 		futureCall.Stop()
