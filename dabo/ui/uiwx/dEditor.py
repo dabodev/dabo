@@ -343,8 +343,10 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		## Autocomplete settings:
 		self.AutoCompSetIgnoreCase(True)
 		self.AutoCompSetAutoHide(False)	 ## don't hide when the typed string no longer matches
-		#self.AutoCompStops(".(")  ## characters that will stop the autocomplete
+		self.AutoCompStops(" ")  ## characters that will stop the autocomplete
 		self.AutoCompSetFillUps(".(")
+		# This lets you go all the way back to the '.' without losing the AutoComplete
+		self.AutoCompSetCancelAtStart(False)
 
 		if useLexer:
 			self.SetLexer(stc.STC_LEX_PYTHON)
