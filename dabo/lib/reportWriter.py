@@ -284,6 +284,13 @@ class Drawable(ReportObject):
 	"""Abstract drawable report object, such as a rectangle or string."""
 	def initAvailableProps(self):
 		super(Drawable, self).initAvailableProps()
+
+		self.AvailableProps["DesignerLock"] = toPropDict(bool, False, 
+				"""Specifies whether the object's geometry can be changed interactively.
+
+				Setting designerLock to True protects you from accidentally changing
+				the size and position of the object with the mouse at design time.""")
+
 		self.AvailableProps["x"] = toPropDict(float, 0.0, 
 				"""Specifies the horizontal position of the object, relative to hAnchor.""")
 
