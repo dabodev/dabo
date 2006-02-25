@@ -189,7 +189,11 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 							try:
 								src.__setattr__(self.DataField, curVal)
 							except:
-								dabo.errorLog.write("Could not bind to '%s.%s'" % (self.DataSource._name, self.DataField) )
+								if hasattr(self.DataSource, "_name"):
+									nm = self.DataSource._name
+								else:
+									nm = str(self.DataSource)
+								dabo.errorLog.write("Could not bind to '%s.%s'" % (nm, self.DataField) )
 
 			self._afterValueChanged()
 		
