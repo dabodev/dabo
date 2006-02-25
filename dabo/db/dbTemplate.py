@@ -26,11 +26,13 @@ import datetime
 from dabo.dLocalize import _
 from dBackend import dBackend
 
+
 class NEWDATABASE(dBackend):
 	def __init__(self):
 		dBackend.__init__(self)
 		#### TODO: Customize with name of dbapi module
 		self.dbModuleName = "???"
+
 
 	def getConnection(self, connectInfo):
 		#### TODO: replace 'ZZZ' with dbapi module name
@@ -50,10 +52,12 @@ class NEWDATABASE(dBackend):
 
 		return self._connection
 
+
 	def getDictCursorClass(self):
 		#### TODO: Replace 'ZZZ' with appropriate NEWDATABASE dbapi 
 		####  module class or just a standard cursor, if it doesn't offer Dict cursors.
 		return ZZZ.DictCursor
+
 
 	def escQuote(self, val):
 		#### TODO: Verify that NEWDATABASE uses this method for escaping quotes
@@ -63,6 +67,7 @@ class NEWDATABASE(dBackend):
 		qt = "\'"
 		return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
 	
+
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		#### TODO: Make sure that the format for DateTime 
@@ -70,6 +75,7 @@ class NEWDATABASE(dBackend):
 		sqt = "'"		# single quote
 		return "%s%s%s" % (sqt, str(val), sqt)
 		
+
 	def getTables(self, includeSystemTables=False):
 		#### TODO: Verify that this works with NEWDATABASE, including
 		####    the option for including/excluding system tables.
@@ -81,11 +87,13 @@ class NEWDATABASE(dBackend):
 			tables.append(record[0])
 		return tuple(tables)
 		
+
 	def getTableRecordCount(self, tableName):
 		#### TODO: Verify that this is the correct syntax for NEWDATABASE
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("select count(*) as ncount from %s" % tableName)
 		return tempCursor.fetchall()[0][0]
+
 
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
@@ -137,20 +145,6 @@ class NEWDATABASE(dBackend):
 			fields.append((name.strip(), ft, pk))
 		return tuple(fields)
 		
-	def beginTransaction(self, cursor):
-		""" Begin a SQL transaction."""
-		#### TODO: Verify syntax
-		cursor.execute("BEGIN")
-
-	def commitTransaction(self, cursor):
-		""" Commit a SQL transaction."""
-		#### TODO: Verify syntax
-		cursor.execute("COMMIT")
-
-	def rollbackTransaction(self, cursor):
-		""" Roll back (revert) a SQL transaction."""
-		#### TODO: verify syntax
-		cursor.execute("ROLLBACK")
 
 	def getWordMatchFormat(self):
 		#### TODO: If NEWDATABASE supports fulltext searches with matching by
