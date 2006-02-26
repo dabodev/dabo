@@ -171,9 +171,8 @@ class dBackend(dObject):
 		
 	
 	def beginTransaction(self, cursor):
-		""" Begin a SQL transaction."""
-		if not cursor.AutoCommit:
-			cursor.connection.begin()
+		""" Begin a SQL transaction. Override in subclasses if needed."""
+		pass
 
 		
 	def commitTransaction(self, cursor):
