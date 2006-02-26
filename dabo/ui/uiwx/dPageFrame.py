@@ -13,7 +13,6 @@ from dabo.dLocalize import _
 from dPageFrameMixin import dPageFrameMixin
 
 
-
 def readonly(value):
 	""" Create a read-only property. """
 	return property(lambda self: value)

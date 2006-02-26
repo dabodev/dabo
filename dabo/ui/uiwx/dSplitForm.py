@@ -4,6 +4,7 @@ dabo.ui.loadUI("wx")
 from dSplitter import dSplitter
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
 
 
 class dSplitForm(dabo.ui.dForm):
@@ -76,9 +77,11 @@ class dSplitForm(dabo.ui.dForm):
 
 	MinPanelSize = property(_getMinPanelSize, _setMinPanelSize, None,
 			_("Controls the minimum width/height of the panels.  (int)"))
+	DynamicMinPanelSize = makeDynamicProperty(MinPanelSize)
 			
 	Orientation = property(_getOrientation, _setOrientation, None,
 			_("Determines if the window splits Horizontally or Vertically.  (str)"))
+	DynamicOrientation = makeDynamicProperty(Orientation)
 			
 	Panel1 = property(_getPanel1, _setPanel1, None,
 			_("Returns the Top/Left panel.  (SplitterPanel)"))
@@ -88,6 +91,7 @@ class dSplitForm(dabo.ui.dForm):
 
 	SashPosition = property(_getSashPosition, _setSashPosition, None,
 			_("Position of the sash when the window is split.  (int)"))
+	DynamicSashPosition = makeDynamicProperty(SashPosition)
 
 
 

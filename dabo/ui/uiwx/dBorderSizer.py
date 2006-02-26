@@ -1,6 +1,8 @@
 import wx
 import dabo
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
+
 
 dabo.ui.loadUI("wx")
 
@@ -109,27 +111,34 @@ class dBorderSizer(wx.StaticBoxSizer, dabo.ui.dSizerMixin):
 
 	BackColor = property(_getBackColor, _setBackColor, None,
 			_("Color of the box background  (str or tuple)"))
+	DynamicBackColor = makeDynamicProperty(BackColor)
 	
 	Box = property(_getBox, None, None,
 			_("Reference to the box used in the sizer  (dBox)"))
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption for the box  (str)"))
+	DynamicCaption = makeDynamicProperty(Caption)
 	
 	FontBold = property(_getFontBold, _setFontBold, None,
 			_("Controls the bold setting of the box caption  (bool)"))
+	DynamicFontBold = makeDynamicProperty(FontBold)
 	
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Controls the type face of the box caption  (str)"))
+	DynamicFontFace = makeDynamicProperty(FontFace)
 	
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
 			_("Controls the italic setting of the box caption  (bool)"))
+	DynamicFontItalic = makeDynamicProperty(FontItalic)
 	
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Size of the box caption font  (int)"))
+	DynamicFontSize = makeDynamicProperty(FontSize)
 	
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
 			_("Controls the underline setting of the box caption  (bool)"))
+	DynamicFontUnderline = makeDynamicProperty(FontUnderline)
 	
 
 	

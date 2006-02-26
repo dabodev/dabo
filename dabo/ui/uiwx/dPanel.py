@@ -6,6 +6,8 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dControlMixin as cm
+from dabo.ui import makeDynamicProperty
+
 
 class dPanel(wx.Panel, cm.dControlMixin):
 	"""Creates a panel, a basic container for controls.
@@ -136,9 +138,11 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 
 	HorizontalScroll = property(_getHorizontalScroll, _setHorizontalScroll, None,
 			_("Controls whether this object will scroll horizontally (default=True)  (bool)"))
+	DynamicHorizontalScroll = makeDynamicProperty(HorizontalScroll)
 	
 	VerticalScroll = property(_getVerticalScroll, _setVerticalScroll, None,
 			_("Controls whether this object will scroll vertically (default=True)  (bool)"))
+	DynamicVerticalScroll = makeDynamicProperty(VerticalScroll)
 	
 
 class _dPanel_test(dPanel):

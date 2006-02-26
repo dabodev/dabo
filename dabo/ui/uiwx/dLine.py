@@ -4,6 +4,8 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dControlMixin as cm
+from dabo.ui import makeDynamicProperty
+
 
 class dLine(wx.StaticLine, cm.dControlMixin):
 	"""Creates a horizontal or vertical line.
@@ -55,6 +57,7 @@ class dLine(wx.StaticLine, cm.dControlMixin):
 						"This is determined by the Width and Height properties. "
 						"If the Width is greater than the Height, it will be Horizontal. "
 						"Otherwise, it will be Vertical.")
+	DynamicOrientation = makeDynamicProperty(Orientation)
 
 
 class _dLine_test(dLine):

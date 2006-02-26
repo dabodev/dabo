@@ -5,6 +5,7 @@ import dPanel
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
 
 
 class dPageFrameNoTabs(dabo.ui.dPanel):
@@ -151,18 +152,22 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 	
 	PageClass = property(_getPgCls, _setPgCls, None,
 			_("The default class used when adding new pages.  (dPage)") )
+	DynamicPageClass = makeDynamicProperty(PageClass)
 
 	PageCount = property(_getPgCnt, _setPgCnt, None,
 			_("Returns the number of pages in this pageframe  (int)") )
+	DynamicPageCount = makeDynamicProperty(PageCount)
 	
 	Pages = property(_getPages, None, None,
 			_("List of all the pages.   (list)") )
 
 	SelectedPage = property(_getSel, _setSel, None,
 			_("Returns a reference to the currently displayed page  (dPage | dPanel)") )
+	DynamicSelectedPage = makeDynamicProperty(SelectedPage)
 
 	SelectedPageNumber = property(_getSelNum, _setSelNum, None,
 			_("Returns a reference to the index of the currently displayed page  (int)") )
+	DynamicSelectedPageNumber = makeDynamicProperty(SelectedPageNumber)
 
 
 

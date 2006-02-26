@@ -6,6 +6,7 @@ import dabo.dEvents as dEvents
 import dabo.dConstants as kons
 from dabo.dLocalize import _
 import dFormMixin as fm
+from dabo.ui import makeDynamicProperty
 
 
 class dDialog(wx.Dialog, fm.dFormMixin):
@@ -142,12 +143,15 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 
 	AutoSize = property(_getAutoSize, _setAutoSize, None,
 			"When True, the dialog resizes to fit the added controls.  (bool)")
+	DynamicAutoSize = makeDynamicProperty(AutoSize)
 
 	Caption = property(_getCaption, _setCaption, None,
 			"The text that appears in the dialog's title bar  (str)" )
+	DynamicCaption = makeDynamicProperty(Caption)
 
 	Centered = property(_getCentered, _setCentered, None,
 			"Determines if the dialog is displayed centered on the screen.  (bool)")
+	DynamicCentered = makeDynamicProperty(Centered)
 
 	Modal = property(_getModal, _setModal, None,
 			"Determines if the dialog is shown modal (default) or modeless.  (bool)")

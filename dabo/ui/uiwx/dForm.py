@@ -9,6 +9,7 @@ import dSizer
 from dabo.dLocalize import _
 import time
 import sys
+from dabo.ui import makeDynamicProperty
 
 
 class BaseForm(fm.dFormMixin):

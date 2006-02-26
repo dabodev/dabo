@@ -6,6 +6,8 @@ if __name__ == "__main__":
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
+
 
 class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	"""Creates a group of radio buttons, allowing mutually-exclusive choices.
@@ -277,6 +279,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		An exception will be raised if the Keys property hasn't been set up
 		to accomodate.
 		""")
+	DynamicKeyValue = makeDynamicProperty(KeyValue)
 		
 	MaxElements = property(_getMaxElements, _setMaxElements, None,
 		"""Specifies when to grow the radio group in the opposite Orientation.
@@ -287,6 +290,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		if Orientation=='Column'. When the max is reached, the radio group will grow
 		in the opposite direction to accomodate. 
 		""")
+	DynamicMaxElements = makeDynamicProperty(MaxElements)
 	
 	Orientation = property(_getOrientation, _setOrientation, None,
 		"""Specifies whether this is a vertical or horizontal RadioGroup.
@@ -299,6 +303,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		If there are more than a few radio buttons, you may wish to set MaxElements
 		to start growing the RadioGroup in two dimensions.
 		""")
+	DynamicOrientation = makeDynamicProperty(Orientation)
 
 	PositionValue = property(_getPositionValue, _setPositionValue, None,
 		"""Specifies the position (index) of the selected button.
@@ -307,6 +312,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		
 		Returns the current position, or sets the current position.
 		""")
+	DynamicPositionValue = makeDynamicProperty(PositionValue)
 
 	StringValue = property(_getStringValue, _setStringValue, None,
 		"""Specifies the text of the selected button.
@@ -317,6 +323,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		to the position with the specified text. An exception is raised if there
 		is no position with matching text.
 		""" )
+	DynamicStringValue = makeDynamicProperty(StringValue)
 
 	Value = property(_getValue, _setValue, None,
 		"""Specifies which button is currently selected in the group.
@@ -328,6 +335,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 			+ ValueMode="String"   : the displayed string of the selected button (string)
 			+ ValueMode="Key"      : the key of the selected button (can vary)
 		""")
+	DynamicValue = makeDynamicProperty(Value)
 	
 	ValueMode = property(_getValueMode, _setValueMode, None,
 		"""Specifies the information that the Value property refers to.
@@ -338,6 +346,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 		'String'   : Value refers to the displayed string for the selection (default) (string).
 		'Key'      : Value refers to a separate key, set using the Keys property (can vary).
 		""")
+	DynamicValueMode = makeDynamicProperty(ValueMode)
 	
 
 class _dRadioGroup_test(dRadioGroup):

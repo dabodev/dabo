@@ -8,6 +8,8 @@ if __name__ == "__main__":
 import dControlMixin as cm
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
+from dabo.ui import makeDynamicProperty
+
 
 class dButton(wx.Button, cm.dControlMixin):
 	"""Creates a button that can be pressed by the user to trigger an action.
@@ -94,10 +96,11 @@ class dButton(wx.Button, cm.dControlMixin):
 	# Property definitions:
 	CancelButton = property(_getCancelButton, _setCancelButton, None,
 		_("Specifies whether this command button gets clicked on -Escape-."))
+	DynamicCancelButton = makeDynamicProperty(CancelButton)
 						
 	DefaultButton = property(_getDefaultButton, _setDefaultButton, None, 
 		_("Specifies whether this command button gets clicked on -Enter-."))
-
+	DynamicDefaultButton = makeDynamicProperty(DefaultButton)
 
 class _dButton_test(dButton):
 	def initProperties(self):

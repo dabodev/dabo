@@ -6,6 +6,7 @@ if __name__ == "__main__":
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
 
 	
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
@@ -101,6 +102,7 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		Left  : Checkbox to left of text (default)
 		Right : Checkbox to right of text
 		""")
+	DynamicAlignment = makeDynamicProperty(Alignment)
 
 	ThreeState = property(_getThreeState, _setThreeState, None,
 		"""Specifies wether the checkbox support 3 states.
@@ -108,6 +110,7 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		True  : Checkbox supports 3 states
 		False : Checkbox supports 2 states (default)
 		""")
+	DynamicThreeState = makeDynamicProperty(ThreeState)
 
 	UserThreeState = property(_getUserThreeState, _setUserThreeState, None,
 		"""Specifies whether the user is allowed to set the third state.
@@ -115,9 +118,13 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 		True  : User is allowed to set the third state.
 		False : User isn't allowed to set the third state.(default)
 		""")
+	DynamicUserThreeState = makeDynamicProperty(UserThreeState)
 
 	Value = property(_getValue, _setValue, None,
 		'Specifies the current state of the control (the value of the field). (varies)')
+	DynamicValue = makeDynamicProperty(Value)
+
+
 
 class _dCheckBox_test(dCheckBox):
 			def initProperties(self):

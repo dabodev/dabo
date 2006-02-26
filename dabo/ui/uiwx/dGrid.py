@@ -16,6 +16,7 @@ import dUICursors
 import dabo.biz
 import dabo.dColors as dColors
 from dabo.dObject import dObject
+from dabo.ui import makeDynamicProperty
 
 # See if the new decimal module is present. This is necessary 
 # because if running under Python 2.4 or later and using MySQLdb,
@@ -1197,9 +1198,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	BackColor = property(_getBackColor, _setBackColor, None,
 			_("Color for the background of each cell in the column."))
+	DynamicBackColor = makeDynamicProperty(BackColor)
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption displayed in this column's header  (str)") )
+	DynamicCaption = makeDynamicProperty(Caption)
 
 	CustomEditorClass = property(_getCustomEditorClass, 
 			_setCustomEditorClass, None,
@@ -1207,6 +1210,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 			Set this to override the default editor class, which Dabo will 
 			select based on the data type of the field."""))
+	DynamicCustomEditorClass = makeDynamicProperty(CustomEditorClass)
 
 	CustomEditors = property(_getCustomEditors, _setCustomEditors, None,
 			_("""Dictionary of custom editors for this column. Default: {}. 
@@ -1214,6 +1218,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			Set this to override the default editor class on a row-by-row basis. 
 			If there is no custom editor class for a given row in CustomEditors, 
 			the CustomEditor property setting will apply."""))
+	DynamicCustomEditors = makeDynamicProperty(CustomEditors)
 
 	CustomListEditorChoices = property(_getCustomListEditorChoices, 
 			_setCustomListEditorChoices, None,
@@ -1222,6 +1227,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			Set this to override the default list choices on a row-by-row basis. 
 			If there is no custom entry for a given row in CustomListEditorChoices, 
 			the ListEditorChoices property setting will apply."""))
+	DynamicCustomListEditorChoices = makeDynamicProperty(CustomListEditorChoices)
 
 	CustomRendererClass = property(_getCustomRendererClass, 
 			_setCustomRendererClass, None,
@@ -1229,6 +1235,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 			Set this to override the default renderer class, which Dabo will select based 
 			on the data type of the field."""))
+	DynamicCustomRendererClass = makeDynamicProperty(CustomRendererClass)
 
 	CustomRenderers = property(_getCustomRenderers, _setCustomRenderers, None,
 			_("""Dictionary of custom renderers for this column. Default: {}. 
@@ -1236,9 +1243,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			Set this to override the default renderer class on a row-by-row basis. 
 			If there is no custom renderer for a given row in CustomRenderers, the 
 			CustomRendererClass property setting will apply."""))
+	DynamicCustomRenderers = makeDynamicProperty(CustomRenderers)
 
 	DataType = property(_getDataType, _setDataType, None,
 			_("Description of the data type for this column  (str)") )
+	DynamicDataType = makeDynamicProperty(DataType)
 
 	Editable = property(_getEditable, _setEditable, None,
 			_("""If True, and if the grid is set as Editable, the cell values in this
@@ -1246,6 +1255,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				cannot be edited no matter what the grid setting is. When editable, 
 				incremental searching will not be enabled, regardless of the 
 				Searchable property setting.  (bool)""") )
+	DynamicEditable = makeDynamicProperty(Editable)
 
 	EditorClass = property(_getEditorClass, None, None,
 			_("""Returns the editor class used for cells in the column. This 
@@ -1254,69 +1264,87 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	DataField = property(_getDataField, _setDataField, None,
 			_("Field key in the data set to which this column is bound.  (str)") )
+	DynamicDataField = makeDynamicProperty(DataField)
 
 	Font = property(_getFont, _setFont, None,
 			_("The font properties of the column's cells. (dFont)") )
+	DynamicFont = makeDynamicProperty(Font)
 	
 	FontBold = property(_getFontBold, _setFontBold, None,
 			_("Specifies if the cell font is bold-faced. (bool)") )
+	DynamicFontBold = makeDynamicProperty(FontBold)
 	
 	FontDescription = property(_getFontDescription, None, None, 
 			_("Human-readable description of the column's cell font settings. (str)") )
 	
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Specifies the font face for the column cells. (str)") )
+	DynamicFontFace = makeDynamicProperty(FontFace)
 	
 	FontInfo = property(_getFontInfo, None, None,
 			_("Specifies the platform-native font info string for the column cells. Read-only. (str)") )
 	
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
 			_("Specifies whether the column's cell font is italicized. (bool)") )
+	DynamicFontItalic = makeDynamicProperty(FontItalic)
 	
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Specifies the point size of the column's cell font. (int)") )
+	DynamicFontSize = makeDynamicProperty(FontSize)
 	
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
 			_("Specifies whether cell text is underlined. (bool)") )
+	DynamicFontUnderline = makeDynamicProperty(FontUnderline)
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
 			_("Color for the foreground (text) of each cell in the column."))
+	DynamicForeColor = makeDynamicProperty(ForeColor)
 
 	HeaderBackColor = property(_getHeaderBackColor, _setHeaderBackColor, None,
 			_("Optional color for the background of the column header  (str)") )
+	DynamicHeaderBackColor = makeDynamicProperty(HeaderBackColor)
 
 	HeaderFont = property(_getHeaderFont, _setHeaderFont, None,
 			_("The font properties of the column's header. (dFont)") )
+	DynamicHeaderFont = makeDynamicProperty(HeaderFont)
 	
 	HeaderFontBold = property(_getHeaderFontBold, _setHeaderFontBold, None,
 			_("Specifies if the header font is bold-faced. (bool)") )
+	DynamicHeaderFontBold = makeDynamicProperty(HeaderFontBold)
 	
 	HeaderFontDescription = property(_getHeaderFontDescription, None, None, 
 			_("Human-readable description of the current header font settings. (str)") )
 	
 	HeaderFontFace = property(_getHeaderFontFace, _setHeaderFontFace, None,
 			_("Specifies the font face for the column header. (str)") )
+	DynamicHeaderFontFace = makeDynamicProperty(HeaderFontFace)
 	
 	HeaderFontInfo = property(_getHeaderFontInfo, None, None,
 			_("Specifies the platform-native font info string for the column header. Read-only. (str)") )
 	
 	HeaderFontItalic = property(_getHeaderFontItalic, _setHeaderFontItalic, None,
 			_("Specifies whether the header font is italicized. (bool)") )
+	DynamicHeaderFontItalic = makeDynamicProperty(HeaderFontItalic)
 	
 	HeaderFontSize = property(_getHeaderFontSize, _setHeaderFontSize, None,
 			_("Specifies the point size of the header font. (int)") )
+	DynamicHeaderFontSize = makeDynamicProperty(HeaderFontSize)
 	
 	HeaderFontUnderline = property(_getHeaderFontUnderline, _setHeaderFontUnderline, None,
 			_("Specifies whether column header text is underlined. (bool)") )
+	DynamicHeaderFontUnderline = makeDynamicProperty(HeaderFontUnderline)
 
 	HeaderForeColor = property(_getHeaderForeColor, _setHeaderForeColor, None,
 			_("Optional color for the foreground (text) of the column header  (str)") )
+	DynamicHeaderForeColor = makeDynamicProperty(HeaderForeColor)
 
 	HeaderHorizontalAlignment = property(_getHeaderHorizontalAlignment, _setHeaderHorizontalAlignment, None,
 			_("Specifies the horizontal alignment of the header caption. ('Left', 'Center', 'Right')"))
+	DynamicHeaderHorizontalAlignment = makeDynamicProperty(HeaderHorizontalAlignment)
 
 	HeaderVerticalAlignment = property(_getHeaderVerticalAlignment, _setHeaderVerticalAlignment, None,
 			_("Specifies the vertical alignment of the header caption. ('Top', 'Center', 'Bottom')"))
+	DynamicHeaderVerticalAlignment = makeDynamicProperty(HeaderVerticalAlignment)
 
 	HorizontalAlignment = property(_getHorizontalAlignment, _setHorizontalAlignment, None,
 			_("""Horizontal alignment for all cells in this column. (str)
@@ -1325,14 +1353,17 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 					'Left'
 					'Center'
 					'Right' """))
+	DynamicHorizontalAlignment = makeDynamicProperty(HorizontalAlignment)
 
 	ListEditorChoices = property(_getListEditorChoices, _setListEditorChoices, None,
 		_("""Specifies the list of choices that will appear in the list. Only applies 
 		if the DataType is set as "list".  (list)"""))
+	DynamicListEditorChoices = makeDynamicProperty(ListEditorChoices)
 
 	Order = property(_getOrder, _setOrder, None,
 			_("""Order of this column. Columns in the grid are arranged according
 			to their relative Order. (int)""") )
+	DynamicOrder = makeDynamicProperty(Order)
 
 	RendererClass = property(_getRendererClass, None, None,
 			_("""Returns the renderer class used for cells in the column. This will be 
@@ -1343,17 +1374,21 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			_("""Specifies whether this column's incremental search is enabled. 
 			Default: True. The grid's Searchable property will override this setting.
 			(bool)"""))
+	DynamicSearchable = makeDynamicProperty(Searchable)
 
 	Sortable = property(_getSortable, _setSortable, None,
 			_("""Specifies whether this column can be sorted. Default: True. The grid's 
 			Sortable property will override this setting.  (bool)"""))
+	DynamicSortable = makeDynamicProperty(Sortable)
 
 	VerticalAlignment = property(_getVerticalAlignment, _setVerticalAlignment, None,
 			_("""Vertical alignment for all cells in this column. Acceptable values 
 			are 'Top', 'Center', and 'Bottom'.  (str)"""))
+	DynamicVerticalAlignment = makeDynamicProperty(VerticalAlignment)
 
 	Width = property(_getWidth, _setWidth, None,
 			_("Width of this column  (int)") )
+	DynamicWidth = makeDynamicProperty(Width)
 	
 	_GridColumnIndex = property(_getGridColumnIndex)
 
@@ -3511,20 +3546,25 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	ActivateEditorOnSelect = property(
 			_getActivateEditorOnSelect, _setActivateEditorOnSelect, None,
 			_("Specifies whether the cell editor, if any, is activated upon cell selection."))
+	DynamicActivateEditorOnSelect = makeDynamicProperty(ActivateEditorOnSelect)
 
 	AlternateRowColoring = property(_getAlternateRowColoring, _setAlternateRowColoring, None,
 			_("""When True, alternate rows of the grid are colored according to 
 			the RowColorOdd and RowColorEven properties  (bool)"""))
+	DynamicAlternateRowColoring = makeDynamicProperty(AlternateRowColoring)
 	
 	CellHighlightWidth = property(_getCellHighlightWidth, _setCellHighlightWidth, None,
 			_("Specifies the width of the cell highlight box."))
+	DynamicCellHighlightWidth = makeDynamicProperty(CellHighlightWidth)
 
 	ColumnClass = property(_getColumnClass, _setColumnClass, None, 
 			_("""Class to instantiate when a change to ColumnCount requires
 			additional columns to be created. Default=dColumn.  (dColumn subclass)""") )
+	DynamicColumnClass = makeDynamicProperty(ColumnClass)
 	
 	ColumnCount = property(_getColumnCount, _setColumnCount, None, 
 			_("Number of columns in the grid.  (int)") )
+	DynamicColumnCount = makeDynamicProperty(ColumnCount)
 	
 	Columns = property(_getColumns, None, None,
 			_("List of dColumns.  (list)"))
@@ -3534,12 +3574,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			
 	CurrentColumn = property(_getCurrentColumn, _setCurrentColumn, None,
 			_("Currently selected column index. (int)") )
+	DynamicCurrentColumn = makeDynamicProperty(CurrentColumn)
 	
 	CurrentField = property(_getCurrentField, _setCurrentField, None,
 			_("Field for the currently selected column  (str)") )
+	DynamicCurrentField = makeDynamicProperty(CurrentField)
 			
 	CurrentRow = property(_getCurrentRow, _setCurrentRow, None,
 			_("Currently selected row  (int)") )
+	DynamicCurrentRow = makeDynamicProperty(CurrentRow)
 
 	DataSet = property(_getDataSet, _setDataSet, None,
 			_("""The set of data displayed in the grid.  (set of dicts)
@@ -3550,12 +3593,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 				If DataSource is defined, DataSet is read-only and returns the dataSet
 				from the bizobj."""))
+	DynamicDataSet = makeDynamicProperty(DataSet)
 			
 	DataSource = property(_getDataSource, _setDataSource, None,
 			_("""The source of the data to display in the grid.  (str)
 
 				This corresponds to a bizobj with a matching DataSource on the form,
 				and setting this makes it impossible to set DataSet."""))
+	DynamicDataSource = makeDynamicProperty(DataSource)
 			
 	Editable = property(_getEditable, _setEditable, None,
 			_("""This setting enables/disables cell editing globally.  (bool)
@@ -3565,6 +3610,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			and columns are both set with Editable=False by default, so to enable 
 			cell editing you need to turn	it on in the appropriate column as well 
 			as in the grid.""") )
+	DynamicEditable = makeDynamicProperty(Editable)
 			
 	Encoding = property(_getEncoding, None, None,
 			_("Name of encoding to use for unicode  (str)") )
@@ -3574,30 +3620,36 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 			This is only the default: setting the corresponding dColumn property will
 			override.""") )
+	DynamicHeaderBackColor = makeDynamicProperty(HeaderBackColor)
 
 	HeaderForeColor = property(_getHeaderForeColor, _setHeaderForeColor, None,
 			_("""Optional color for the foreground (text) of the column headers.  (str or None)
 
 			This is only the default: setting the corresponding dColumn property will
 			override.""") )
+	DynamicHeaderForeColor = makeDynamicProperty(HeaderForeColor)
 
 	HeaderHorizontalAlignment = property(_getHeaderHorizontalAlignment, _setHeaderHorizontalAlignment, None,
 			_("""The horizontal alignment of the header captions. ('Left', 'Center', 'Right')
 
 			This is only the default: setting the corresponding dColumn property will
 			override.""") )
+	DynamicHeaderHorizontalAlignment = makeDynamicProperty(HeaderHorizontalAlignment)
 
 	HeaderVerticalAlignment = property(_getHeaderVerticalAlignment, _setHeaderVerticalAlignment, None,
 			_("""The vertical alignment of the header captions. ('Top', 'Center', 'Bottom')
 
 			This is only the default: setting the corresponding dColumn property will
 			override.""") )
+	DynamicHeaderVerticalAlignment = makeDynamicProperty(HeaderVerticalAlignment)
 
 	HeaderHeight = property(_getHeaderHeight, _setHeaderHeight, None, 
 			_("Height of the column headers.  (int)") )
+	DynamicHeaderHeight = makeDynamicProperty(HeaderHeight)
 	
 	HorizontalScrolling = property(_getHorizontalScrolling, _setHorizontalScrolling, None,
 			_("Is scrolling enabled in the horizontal direction?  (bool)"))
+	DynamicHorizontalScrolling = makeDynamicProperty(HorizontalScrolling)
 
 	NoneDisplay = property(_getNoneDisp, None, None, 
 			_("Text to display for null (None) values.  (str)") )
@@ -3605,26 +3657,32 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	RowColorEven = property(_getRowColorEven, _setRowColorEven, None,
 			_("""When alternate row coloring is active, controls the color 
 			of the even rows  (str or tuple)"""))
+	DynamicRowColorEven = makeDynamicProperty(RowColorEven)
 	
 	RowColorOdd = property(_getRowColorOdd, _setRowColorOdd, None,
 			_("""When alternate row coloring is active, controls the color 
 			of the odd rows  (str or tuple)"""))
+	DynamicRowColorOdd = makeDynamicProperty(RowColorOdd)
 	
 	RowCount = property(_getRowCount, None, None, 
 			_("Number of rows in the grid.  (int)") )
 
 	RowHeight = property(_getRowHeight, _setRowHeight, None,
 			_("Row Height for all rows of the grid  (int)"))
+	DynamicRowHeight = makeDynamicProperty(RowHeight)
 
 	RowLabels = property(_getRowLables, _setRowLables, None, 
 			_("List of the row labels.  (list)") )
+	DynamicRowLabels = makeDynamicProperty(RowLabels)
 	
 	RowLabelWidth = property(_getRowLabelWidth, _setRowLabelWidth, None,
 			_("""Width of the label on the left side of the rows. This only changes
 			the grid if ShowRowLabels is True.  (int)"""))
+	DynamicRowLabelWidth = makeDynamicProperty(RowLabelWidth)
 
 	SameSizeRows = property(_getSameSizeRows, _setSameSizeRows, None,
 			_("""Is every row the same height?  (bool)"""))
+	DynamicSameSizeRows = makeDynamicProperty(SameSizeRows)
 
 	Searchable = property(_getSearchable, _setSearchable, None,
 			_("""Specifies whether the columns can be searched.   (bool)
@@ -3633,6 +3691,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				will be searchable. 
 
 				Default: True"""))
+	DynamicSearchable = makeDynamicProperty(Searchable)
 
 	SearchDelay = property(_getSearchDelay, _setSearchDelay, None,
 			_("""Specifies the delay before incrementeal searching begins.  (int or None)
@@ -3643,12 +3702,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 				If SearchDelay is set to None (the default), Application.SearchDelay will
 				be used.""") )
+	DynamicSearchDelay = makeDynamicProperty(SearchDelay)
 	
 	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
 			_("BackColor of selected cells  (str or RGB tuple)"))
+	DynamicSelectionBackColor = makeDynamicProperty(SelectionBackColor)
 	
 	SelectionForeColor = property(_getSelectionForeColor, _setSelectionForeColor, None,
 			_("ForeColor of selected cells  (str or RGB tuple)"))
+	DynamicSelectionForeColor = makeDynamicProperty(SelectionForeColor)
 	
 	SelectionMode = property(_getSelectionMode, _setSelectionMode, None,
 			_("""Determines how the grid displays selections.  (str)
@@ -3660,23 +3722,29 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			The highlight color is determined by the SelectionBackColor and
 			SelectionForeColor properties.
 			"""))
+	DynamicSelectionMode = makeDynamicProperty(SelectionMode)
 
 	ShowColumnLabels = property(_getShowColumnLabels, _setShowColumnLabels, None,
 			_("Are column labels shown?  (bool)") )
+	DynamicShowColumnLabels = makeDynamicProperty(ShowColumnLabels)
 
 	ShowRowLabels = property(_getShowRowLabels, _setShowRowLabels, None,
 			_("Are row labels shown?  (bool)") )
+	DynamicShowRowLabels = makeDynamicProperty(ShowRowLabels)
 
 	ShowCellBorders = property(_getShowCellBorders, _setShowCellBorders, None,
 			_("Are borders around cells shown?  (bool)") )
+	DynamicShowCellBorders = makeDynamicProperty(ShowCellBorders)
 
 	Sortable = property(_getSortable, _setSortable, None,
 			_("""Specifies whether the columns can be sorted. If True, 
 			and if the column's Sortable property is True, the column 
 			will be sortable. Default: True  (bool)"""))
+	DynamicSortable = makeDynamicProperty(Sortable)
 
 	VerticalScrolling = property(_getVerticalScrolling, _setVerticalScrolling, None,
 			_("Is scrolling enabled in the vertical direction?  (bool)"))
+	DynamicVerticalScrolling = makeDynamicProperty(VerticalScrolling)
 
 	_Table = property(_getTable, _setTable, None,
 			_("Reference to the internal table class  (dGridDataTable)") )

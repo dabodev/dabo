@@ -6,6 +6,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dControlMixin as cm
+from dabo.ui import makeDynamicProperty
 
 
 class dLabel(wx.StaticText, cm.dControlMixin):
@@ -99,6 +100,7 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 			Left (default)
 			Center
 			Right""") )
+	DynamicAlignment = makeDynamicProperty(Alignment)
 			
 	AutoResize = property(_getAutoResize, _setAutoResize, None,
 			_("""Specifies whether the length of the caption determines
@@ -106,15 +108,19 @@ class dLabel(wx.StaticText, cm.dControlMixin):
 	
 	FontBold = property(_getFontBold, _setFontBold, None,
 			_("Sets the Bold of the Font (int)") )
+	DynamicFontBold = makeDynamicProperty(FontBold)
 			
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Sets the face of the Font (int)") )
+	DynamicFontFace = makeDynamicProperty(FontFace)
 			
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
 			_("Sets the Italic of the Font (int)") )
+	DynamicFontItalic = makeDynamicProperty(FontItalic)
 			
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Sets the size of the Font (int)") )
+	DynamicFontSize = makeDynamicProperty(FontSize)
 
 
 class _dLabel_test(dLabel):

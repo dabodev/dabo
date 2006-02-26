@@ -1,6 +1,7 @@
 """ 
 	dApp.py : The application object for Dabo.
 
+
 	This object gets instantiated from the client app's main.py,
 	and lives through the life of the application.
 

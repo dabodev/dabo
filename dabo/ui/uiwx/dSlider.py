@@ -6,6 +6,8 @@ if __name__ == "__main__":
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
+
 
 class dSlider(wx.Slider, dcm.dDataControlMixin):
 	"""Creates a slider control, allowing editing integer values.
@@ -94,15 +96,19 @@ class dSlider(wx.Slider, dcm.dDataControlMixin):
 	# Property definitions:
 	Orientation = property(_getOrientation, _setOrientation, None, 
 			"Specifies whether the Slider is displayed as Horizontal or Vertical.")
+	DynamicOrientation = makeDynamicProperty(Orientation)
 
 	Min = property(_getMin, _setMin, None, 
 			"Specifies the minimum value for the Slider.")
+	DynamicMin = makeDynamicProperty(Min)
 
 	Max = property(_getMax, _setMax, None, 
 			"Specifies the maximum value for the Slider.")
+	DynamicMax = makeDynamicProperty(Max)
 
 	ShowLabels = property(_getShowLabels, _setShowLabels, None, 
 			"Specifies if the labels are shown on the slider.")
+	DynamicShowLabels = makeDynamicProperty(ShowLabels)
 
 
 class _dSlider_test(dSlider):

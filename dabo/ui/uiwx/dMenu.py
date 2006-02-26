@@ -4,6 +4,7 @@ import dMenuItem
 import dIcons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
+from dabo.ui import makeDynamicProperty
 
 
 # wx constants for styles
@@ -423,15 +424,18 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		
 	Caption = property(_getCaption, _setCaption, None,
 		_("Specifies the text of the menu."))
+	DynamicCaption = makeDynamicProperty(Caption)
 
 	Enabled = property(_getEnabled, _setEnabled, None,
 		_("Specifies whether the menu can be interacted with."))
+	DynamicEnabled = makeDynamicProperty(Enabled)
 
 	Form = property(_getForm, None, None,
 		_("Specifies the form that contains the menu."))
 
 	HelpText = property(_getHelpText, _setHelpText, None,
 		_("Specifies the help text associated with this menu. (str)"))
+	DynamicHelpText = makeDynamicProperty(HelpText)
 
 	Parent = property(_getParent, _setParent, None, 
 		_("Specifies the parent menu or menubar."))

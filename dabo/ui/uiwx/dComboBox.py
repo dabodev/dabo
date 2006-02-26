@@ -4,6 +4,7 @@ if __name__ == "__main__":
 import dControlItemMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
 
 
 class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
@@ -103,6 +104,7 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 		KeyValue, setting UserValue does not change the currently selected item
 		in the list portion of the ComboBox.
 		""")
+	DynamicUserValue = makeDynamicProperty(UserValue)
 
 
 class _dComboBox_test(dComboBox):

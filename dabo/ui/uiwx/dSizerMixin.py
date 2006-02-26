@@ -3,6 +3,7 @@ import dabo
 import dPemMixin
 from dabo.dLocalize import _
 from dabo.dObject import dObject
+from dabo.ui import makeDynamicProperty
 
 
 class dSizerMixin(dObject):
@@ -748,6 +749,7 @@ class dSizerMixin(dObject):
 	
 	Border = property(_getBorder, _setBorder, None,
 			_("Sets the default border for the sizer.  (int)" ) )
+	DynamicBorder = makeDynamicProperty(Border)
 			
 	BorderAll = property(_getBorderAll, _setBorderAll, None,
 			_("By default, do we add the border to all sides?  (bool)" ) )
@@ -793,6 +795,7 @@ class dSizerMixin(dObject):
 			
 	Visible = property(_getVisible, _setVisible, None, 
 			_("Shows/hides the sizer and its contained items  (bool)" ) )
+	DynamicVisible = makeDynamicProperty(Visible)
 
 	Width = property(_getWd, None, None,
 			_("Width of this sizer  (int)") )

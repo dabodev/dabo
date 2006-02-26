@@ -7,6 +7,7 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import dabo.dColors as dColors
 import dControlMixin as cm
+from dabo.ui import makeDynamicProperty
 
 
 class SplitterPanel(dabo.ui.dPanel):
@@ -291,21 +292,27 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 
 	MinimumPanelSize = property(_getMinPanelSize, _setMinPanelSize, None,
 			_("Controls the minimum width/height of the panels.  (int)"))
+	DynamicMinimumPanelSize = makeDynamicProperty(MinimumPanelSize)
 
 	Orientation = property(_getOrientation, _setOrientation, None,
 			_("Determines if the window splits Horizontally or Vertically.  (string)"))
+	DynamicOrientation = makeDynamicProperty(Orientation)
 
 	Panel1 = property(_getPanel1, _setPanel1, None,
 			_("Returns the Top/Left panel.  (SplitterPanel)"))
+	DynamicPanel1 = makeDynamicProperty(Panel1)
 
 	Panel2 = property(_getPanel2, _setPanel2, None,
 			_("Returns the Bottom/Right panel.  (SplitterPanel)"))
+	DynamicPanel2 = makeDynamicProperty(Panel2)
 
 	SashPosition = property(_getSashPosition, _setSashPosition, None,
 			_("Position of the sash when the window is split.  (int)"))
+	DynamicSashPosition = makeDynamicProperty(SashPosition)
 
 	Split = property(_getSplit, _setSplit, None,
 			_("Returns the split status of the control  (bool)"))
+	DynamicSplit = makeDynamicProperty(Split)
 	
 
 

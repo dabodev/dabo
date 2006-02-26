@@ -3,6 +3,8 @@ import dabo
 import dPemMixin
 import dSizerMixin
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
+
 
 class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	def __init__(self, vgap=3, hgap=3, maxRows=0, maxCols=0, **kwargs):
@@ -602,24 +604,30 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	
 	HGap = property(_getHGap, _setHGap, None,
 			_("Horizontal gap between cells in the sizer  (int)"))
+	DynamicHGap = makeDynamicProperty(HGap)
 			
 	MaxRows = property(_getMaxRows, _setMaxRows, None,
 			_("When adding elements to the sizer, controls the max number "
 			"of rows to add before a new column is started. (int)") )
+	DynamicMaxRows = makeDynamicProperty(MaxRows)
 
 	MaxCols = property(_getMaxCols, _setMaxCols, None,
 			_("When adding elements to the sizer, controls the max number "
 			"of columns to add before a new row is started. (int)") )
+	DynamicMaxCols = makeDynamicProperty(MaxCols)
 
 	MaxDimension = property(_getMaxDimension, _setMaxDimension, None,
 			_("When adding elements to the sizer, this property determines "
 			" if we use rows or columns as the limiting value. (char: 'r' or 'c'(default) )") )
+	DynamicMaxDimension = makeDynamicProperty(MaxDimension)
 	
 	Orientation = property(_getMaxDimension, _setMaxDimension, None, 
 		"Alias for the MaxDimensions property.")
+	DynamicOrientation = makeDynamicProperty(Orientation)
 			
 	VGap = property(_getVGap, _setVGap, None,
 			_("Vertical gap between cells in the sizer  (int)"))
+	DynamicVGap = makeDynamicProperty(VGap)
 	
 	
 
