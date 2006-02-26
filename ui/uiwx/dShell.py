@@ -5,6 +5,7 @@ import dabo
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dSplitForm import dSplitForm
+from dabo.ui import makeDynamicProperty
 
 dabo.ui.loadUI("wx")
 
@@ -160,6 +161,7 @@ class dShell(dSplitForm):
 	SplitState = property(_getSplitState, _setSplitState, None,
 			_("""Controls whether the output is in a separate pane (default) 
 			or intermixed with the commands.  (bool)"""))
+	DynamicSplitState = makeDynamicProperty(SplitState)
 	
 		
 

@@ -8,6 +8,7 @@ import dControlMixin as cm
 from dPage import dPage
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
 	
 
 class dPageFrameMixin(cm.dControlMixin):
@@ -315,21 +316,25 @@ class dPageFrameMixin(cm.dControlMixin):
 			This really only applies when using the PageCount property to set the
 			number of pages. If you instead use AddPage() you still need to send 
 			an instance as usual. Class must descend from a dabo base class.""") )
+	DynamicPageClass = makeDynamicProperty(PageClass)
 						
 	PageCount = property(_getPageCount, _setPageCount, None, 
 			_("""Specifies the number of pages in the pageframe. (int) 
 			When using this to increase the number of pages, PageClass 
 			will be queried as the object to use as the page object.""") )
+	DynamicPageCount = makeDynamicProperty(PageCount)
 	
 	Pages = property(_getPgs, None, None,
 			_("Returns a list of the contained pages.  (list)") )
 	
 	SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
 			_("References the current frontmost page.  (dPage)") )
+	DynamicSelectedPage = makeDynamicProperty(SelectedPage)
 						
 	SelectedPageNumber = property(_getSelectedPageNumber, _setSelectedPageNumber, 
 			None,
 			_("Returns the index of the current frontmost page.  (int)") )
+	DynamicSelectedPageNumber = makeDynamicProperty(SelectedPageNumber)
 						
 	TabPosition = property(_getTabPosition, _setTabPosition, None, 
 			_("""Specifies where the page tabs are located. (int) 
@@ -337,4 +342,5 @@ class dPageFrameMixin(cm.dControlMixin):
 				Left 
 				Right 
 				Bottom""") )
+	DynamicTabPosition = makeDynamicProperty(TabPosition)
 

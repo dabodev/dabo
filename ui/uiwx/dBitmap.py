@@ -8,6 +8,8 @@ import dControlMixin as cm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import dIcons
+from dabo.ui import makeDynamicProperty
+
 
 class dBitmap(wx.StaticBitmap, cm.dControlMixin):
 	"""Creates a simple bitmap control to display images on your forms."""
@@ -56,10 +58,11 @@ class dBitmap(wx.StaticBitmap, cm.dControlMixin):
 	
 	Bitmap = property(_getBitmap, _setBitmap, None,
 		_("Use this to set the image.  (bitmap)") )
+	DynamicBitmap = makeDynamicProperty(Bitmap)
 	
 	Picture = property(_getPicture, _setPicture, None,
 		_("Specifies the image to be used for the bitmap.  (str)") )
-
+	DynamicPicture = makeDynamicProperty(Picture)
 
 
 class _dBitmap_test(dBitmap):

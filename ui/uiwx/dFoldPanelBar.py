@@ -7,6 +7,7 @@ import dControlMixin as dcm
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
 
 
 class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
@@ -167,9 +168,11 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 
 	BarColor1 = property(_getBarColor1, _setBarColor1, None,
 			_("Main color for the caption bar  (dColor)"))
+	DynamicBarColor1 = makeDynamicProperty(BarColor1)
 	
 	BarColor2 = property(_getBarColor2, _setBarColor2, None,
 			_("Secondary color for the caption bar. Only used in gradients  (dColor)"))
+	DynamicBarColor2 = makeDynamicProperty(BarColor2)
 	
 	BarStyle = property(_getBarStyle, _setBarStyle, None,
 			_(""""Determines how the bar containing the caption 
@@ -182,21 +185,26 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 				VerticalFill		(vertical gradient fill, using the two caption colors)
 				HorizontalFill		(horizontal gradient fill, using the two caption colors)
 			"""))
+	DynamicBarStyle = makeDynamicProperty(BarStyle)
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption displayed on the panel bar  (str)"))
+	DynamicCaption = makeDynamicProperty(Caption)
 	
 	CaptionForeColor = property(_getCaptionForeColor, _setCaptionForeColor, None,
 			_("Text color of the caption bar  (str or tuple)"))
+	DynamicCaptionForeColor = makeDynamicProperty(CaptionForeColor)
 	
 	CaptionHeight = property(_getCaptionHeight, None, None,
 			_("Height of the caption bar. Read-only  (int)"))
 	
 	Collapsed = property(_getCollapsed, _setCollapsed, None,
 			_("Is the panel's contents hidden?  (bool)"))
+	DynamicCollapsed = makeDynamicProperty(Collapsed)
 	
 	Expanded = property(_getExpanded, _setExpanded, None,
 			_("Is the panel's contents visible?  (bool)"))
+	DynamicExpanded = makeDynamicProperty(Expanded)
 
 
 
@@ -430,15 +438,16 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 			
 	CollapseToBottom = property(_getCollapseToBottom, _setCollapseToBottom, None,
 			_("When True, all collapsed panels are displayed at the bottom  (bool)"))
+	DynamicCollapseToBottom = makeDynamicProperty(CollapseToBottom)
 	
 	SingleClick = property(_getSingleClick, _setSingleClick, None,
 			_("""When True, a single click on the caption bar toggles the 
 			expanded/collapsed state  (bool)"""))
+	DynamicSingleClick = makeDynamicProperty(SingleClick)
 	
 	Singleton = property(_getSingleton, _setSingleton, None,
 			_("When True, one and only one panel at a time will be expanded  (bool)"))
-
-	
+	DynamicSingleton = makeDynamicProperty(Singleton)
 
 
 if __name__ == "__main__":

@@ -6,6 +6,8 @@ if __name__ == "__main__":
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
+
 
 class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 	"""Creates a spinner, which is a textbox with clickable up/down arrows.
@@ -84,12 +86,15 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 	# Property definitions:
 	Min = property(_getMin, _setMin, None, 
 		"Specifies the lowest possible value for the spinner. (int)")
+	DynamicMin = makeDynamicProperty(Min)
 
 	Max = property(_getMax, _setMax, None, 
 		"Specifies the highest possible value for the spinner. (int)")
+	DynamicMax = makeDynamicProperty(Max)
 
 	SpinnerWrap = property(_getSpinnerWrap, _setSpinnerWrap, None,
 		"Specifies whether the spinner value wraps at the high/low value. (bool)")
+	DynamicSpinnerWrap = makeDynamicProperty(SpinnerWrap)
 
 
 class _dSpinner_test(dSpinner):

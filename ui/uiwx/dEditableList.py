@@ -5,6 +5,7 @@ if __name__ == "__main__":
 import dControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
 
 
 class dEditableList(wx.gizmos.EditableListBox, 
@@ -172,15 +173,19 @@ class dEditableList(wx.gizmos.EditableListBox,
 	
 	CanAdd = property(_getCanAdd, _setCanAdd, None,
 			_("Determines if the user can add new entries to the list  (bool)"))
+	DynamicCanAdd = makeDynamicProperty(CanAdd)
 	
 	CanDelete = property(_getCanDelete, _setCanDelete, None,
 			_("Determines if the user can delete entries from the list  (bool)"))
+	DynamicCanDelete = makeDynamicProperty(CanDelete)
 
 	CanOrder = property(_getCanOrder, _setCanOrder, None,
 			_("Determines if the user can re-order items  (bool)"))
+	DynamicCanOrder = makeDynamicProperty(CanOrder)
 	
 	Caption = property(_getCaption, _setCaption, None,
 			_("Text that appears in the top panel of the control  (str)"))
+	DynamicCaption = makeDynamicProperty(Caption)
 	
 	Choices = property(_getChoices, _setChoices, None,
 			_("List that contains the entries in the control  (list)"))
@@ -193,6 +198,7 @@ class dEditableList(wx.gizmos.EditableListBox,
 	
 	Editable = property(_getEditable, _setEditable, None,
 			_("Determines if the user can change existing entries  (bool)"))
+	DynamicEditable = makeDynamicProperty(Editable)
 	
 	_EditButton = property(_getEditButton, None, None,
 			_("Reference to the edit item button  (wx.Button)"))

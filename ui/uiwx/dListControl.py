@@ -6,6 +6,7 @@ import wx.lib.mixins.listctrl	as ListMixin
 import dControlItemMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
 
 
 class dListControl(wx.ListCtrl, dcm.dControlItemMixin, 
@@ -423,18 +424,21 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 
 	HeaderVisible = property(_getHeaderVisible, _setHeaderVisible, None, 
 			_("Specifies whether the header is shown or not."))
+	DynamicHeaderVisible = makeDynamicProperty(HeaderVisible)
 
 	HitIndex = property(_getHitIndex, None, None,
 			_("Returns the index of the last hit item."))
 
 	HorizontalRules = property(_getHorizontalRules, _setHorizontalRules, None,
 			_("Specifies whether light rules are drawn between rows."))
+	DynamicHorizontalRules = makeDynamicProperty(HorizontalRules)
 
 	LastSelectedIndex = property(_getLastSelectedIndex, None, None,
 			_("Returns the index of the last selected item."))
 
 	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
 			_("Specifies whether multiple rows can be selected in the list."))
+	DynamicMultipleSelect = makeDynamicProperty(MultipleSelect)
 
 	RowCount = property(_getRowCount, None, None, 
 			_("Number of rows in the control (read-only).  (int)") )
@@ -444,15 +448,18 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 	
 	Value = property(_getValue, _setValue, None,
 			_("Returns current value (str)" ) )
+	DynamicValue = makeDynamicProperty(Value)
 		
 	Values = property(_getValues, None, None,
 			_("Returns a list containing the Value of all selected rows  (list of str)" ) )
 
 	ValueColumn = property(_getValCol, _setValCol, None,
 			_("The column whose text is reflected in Value (default=0).  (int)") )
+	DynamicValueColumn = makeDynamicProperty(ValueColumn)
 			
 	VerticalRules = property(_getVerticalRules, _setVerticalRules, None,
 			_("Specifies whether light rules are drawn between rows."))
+	DynamicVerticalRules = makeDynamicProperty(VerticalRules)
 
 	
 

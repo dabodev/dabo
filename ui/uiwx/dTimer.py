@@ -7,6 +7,7 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import dIcons
 import dBitmap
+from dabo.ui import makeDynamicProperty
 
 
 class dTimer(dBitmap.dBitmap):
@@ -91,11 +92,13 @@ class dTimer(dBitmap.dBitmap):
 		
 	Interval = property(_getInterval, _setInterval, None,
 			_("Specifies the timer interval (milliseconds)."))
+	DynamicInterval = makeDynamicProperty(Interval)
 	
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("Alternative means of starting/stopping the timer, or determining "
 			"its status. If Enabled is set to True and the timer has a positive value "
 			"for its Interval, the timer will be started."))
+	DynamicEnabled = makeDynamicProperty(Enabled)
 	
 	
 class _dTimer_test(dTimer):

@@ -2,6 +2,8 @@ from dDataControlMixin import dDataControlMixin
 from dabo.dLocalize import _
 import wx
 import dabo
+from dabo.ui import makeDynamicProperty
+
 
 class dControlItemMixin(dDataControlMixin):
 	""" This mixin class factors out the common code among all of the
@@ -353,12 +355,14 @@ class dControlItemMixin(dDataControlMixin):
 		the item(s) with the specified KeyValue(s).	An exception will be 
 		raised if the Keys property hasn't been set up to accomodate.
 		""") )
+	DynamicKeyValue = makeDynamicProperty(KeyValue)
 		
 	PositionValue = property(_getPositionValue, _setPositionValue, None,
 		_("""Specifies the position (index) of the selected item(s).
 		-> Integer or tuple of integers. Read-write at runtime.
 		Returns the current position(s), or sets the current position(s).
 		""") )
+	DynamicPositionValue = makeDynamicProperty(PositionValue)
 
 	StringValue = property(_getStringValue, _setStringValue, None,
 		_("""Specifies the text of the selected item.
@@ -367,6 +371,7 @@ class dControlItemMixin(dDataControlMixin):
 		with the specified text. An exception is raised if there is no 
 		position with matching text.
 		""") )
+	DynamicStringValue = makeDynamicProperty(StringValue)
 
 	Value = property(_getValue, _setValue, None,
 		_("""Specifies which item is currently selected in the list.
@@ -376,6 +381,7 @@ class dControlItemMixin(dDataControlMixin):
 			+ ValueMode="String"   : the displayed string of the selected item(s) (string)
 			+ ValueMode="Key"      : the key of the selected item(s) (can vary)
 		""") )
+	DynamicValue = makeDynamicProperty(Value)
 	
 	ValueMode = property(_getValueMode, _setValueMode, None,
 		_("""Specifies the information that the Value property refers to.
@@ -384,4 +390,5 @@ class dControlItemMixin(dDataControlMixin):
 		'String'   : Value refers to the displayed string for the selection (default) (string).
 		'Key'      : Value refers to a separate key, set using the Keys property (can vary).
 		""") )
+	DynamicValueMode = makeDynamicProperty(ValueMode)
 

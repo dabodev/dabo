@@ -6,6 +6,8 @@ if __name__ == "__main__":
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
+
 
 # The EditBox is just a TextBox with some additional styles.
 
@@ -101,12 +103,15 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		Center
 		Right
 		""")
+	DynamicAlignment = makeDynamicProperty(Alignment)
 	
 	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
 		"""Specifies whether or not the text can be edited.""")
+	DynamicReadOnly = makeDynamicProperty(ReadOnly)
 	
 	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
 		"""Specifies whether all text gets selected upon receiving focus.""")
+	DynamicSelectOnEntry = makeDynamicProperty(SelectOnEntry)
 
 
 class _dEditBox_test(dEditBox):

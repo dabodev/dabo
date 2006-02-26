@@ -5,6 +5,8 @@ import dIcons
 import dabo
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
+from dabo.ui import makeDynamicProperty
+
 
 class dMenuItem(wx.MenuItem, pm.dPemMixin):
 	"""Creates a menu item, which is usually represented as a string.
@@ -51,18 +53,6 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 			self.SetText(val)
 		else:
 			self._properties["Caption"] = val
-
-
-	def _getDynamicEnabled(self):
-		try:
-			val = self._dynamicEnabled
-		except AttributeError:
-			val = self._dynamicEnabled = None
-		return val
-
-	def _setDynamicEnabled(self, val):
-		assert isinstance(val, (types.FunctionType, types.MethodType))
-		self._dynamicEnabled = val
 
 
 	def _getEnabled(self):
@@ -125,25 +115,22 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("Specifies the text of the menu item."))
-
-	DynamicEnabled = property(_getDynamicEnabled, _setDynamicEnabled, None,
-			_("""Specifies a function to run to determine whether the item is enabled.
-
-			The function will run when the parent menu is activated, and will set the
-			menu item's Enabled property to the return value of the function.
-			"""))
+	DynamicCaption = makeDynamicProperty(Caption)
 
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("Specifies whether the menu item can be interacted with."))
+	DynamicEnabled = makeDynamicProperty(Enabled)
 
 	Icon = property(_getIcon, _setIcon, None,
 			_("Specifies the icon for the menu item."))
+	DynamicIcon = makeDynamicProperty(Icon)
 
 	Form = property(_getForm, None, None,
 			_("Specifies the containing form."))
 
 	HelpText = property(_getHelpText, _setHelpText, None,
 			_("Specifies the help text associated with this menu. (str)"))
+	DynamicHelpText = makeDynamicProperty(HelpText)
 
 	Parent = property(_getParent, _setParent, None, 
 			_("Specifies the parent menu."))

@@ -4,6 +4,8 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dControlMixin as cm
+from dabo.ui import makeDynamicProperty
+
 
 class dGauge(wx.Gauge, cm.dControlMixin):
 	"""Creates a gauge, which can be used as a progress bar.
@@ -56,10 +58,15 @@ class dGauge(wx.Gauge, cm.dControlMixin):
 	# Property definitions:
 	Orientation = property(_getOrientation, _setOrientation, None, 
 			"Specifies whether the gauge is displayed as Horizontal or Vertical.")
+	DynamicOrientation = makeDynamicProperty(Orientation)
+
 	Range = property(_getRange, _setRange, None, 
 			"Specifies the maximum value for the gauge.")
+	DynamicRange = makeDynamicProperty(Range)
+
 	Value = property(_getValue, _setValue, None, 
 			"Specifies the state of the gauge, relative to max value.")
+	DynamicValue = makeDynamicProperty(Value)
 
 
 class _dGauge_test(dGauge):

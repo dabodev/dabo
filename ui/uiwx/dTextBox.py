@@ -15,6 +15,7 @@ if __name__ == "__main__":
 import dDataControlMixin as dcm
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
+from dabo.ui import makeDynamicProperty
 
 
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
@@ -373,21 +374,26 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	# Property definitions:
 	Value = property(_getValue, _setValue, None,
 			"Specifies the current state of the control (the value of the field). (varies)")
+	DynamicValue = makeDynamicProperty(Value)
 
 	Alignment = property(_getAlignment, _setAlignment, None,
 			"Specifies the alignment of the text. (str) \n"
 			"   Left (default) \n"
 			"   Center \n"
 			"   Right")
+	DynamicAlignment = makeDynamicProperty(Alignment)
 
 	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
 			"Specifies whether or not the text can be edited. (bool)")
+	DynamicReadOnly = makeDynamicProperty(ReadOnly)
 
 	PasswordEntry = property(_getPasswordEntry, _setPasswordEntry, None,
 			"Specifies whether plain-text or asterisks are echoed. (bool)")
+	DynamicPasswordEntry = makeDynamicProperty(PasswordEntry)
 	
 	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
 			"Specifies whether all text gets selected upon receiving focus. (bool)")
+	DynamicSelectOnEntry = makeDynamicProperty(SelectOnEntry)
 
 	StrictDateEntry = property(_getStrictDateEntry, _setStrictDateEntry, None,
 			"""Specifies whether date values must be entered in strict ISO8601 format.
@@ -396,6 +402,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			which will be coerced into sensible date values automatically.
 
 			Default is False.""")
+	DynamicStrictDateEntry = makeDynamicProperty(StrictDateEntry)
 
 
 class _dTextBox_test(dTextBox):

@@ -5,6 +5,7 @@ if __name__ == "__main__":
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import dControlMixin as dcm
+from dabo.ui import makeDynamicProperty
 
 
 class dImage(wx.StaticBitmap, dcm.dControlMixin):
@@ -191,6 +192,7 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 	
 	Bitmap = property(_getBmp, _setBmp, None,
 			_("The bitmap representation of the displayed image.  (wx.Bitmap)") )
+	DynamicBitmap = makeDynamicProperty(Bitmap)
 
 	BitmapHeight = property(_getBitmapHeight, None, None,
 			_("Height of the actual displayed bitmap  (int)"))
@@ -200,6 +202,7 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 	
 	Picture = property(_getPic, _setPic, None,
 			_("The file used as the source for the displayed image.  (str)") )
+	DynamicPicture = makeDynamicProperty(Picture)
 			
 	ScaleMode = property(_getScaleMode, _setScaleMode, None,
 			_("""Determines how the image responds to sizing. Can be one
@@ -209,6 +212,7 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 					its original proportions. (default)
 				Stretch: the image resizes to the Height/Width of the control.
 			""") )
+	DynamicScaleMode = makeDynamicProperty(ScaleMode)
 
 	_Image = property(_getImg, None, None, 
 			_("Underlying image handler object  (wx.Image)") )

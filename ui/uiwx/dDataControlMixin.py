@@ -1,5 +1,6 @@
 from dabo.ui.dDataControlMixinBase import dDataControlMixinBase
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
 
 
 class dDataControlMixin(dDataControlMixinBase):
@@ -47,3 +48,5 @@ class dDataControlMixin(dDataControlMixinBase):
 	Value = property(_getValue, _setValue, None,
 		_("""Specifies the current state of the control (the value of the 
 				field).  (varies)"""))
+	DynamicValue = makeDynamicProperty(Value)
+

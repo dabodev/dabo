@@ -6,6 +6,8 @@ if __name__ == "__main__":
 import dControlItemMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
+
 
 class dListBox(wx.ListBox, dcm.dControlItemMixin):
 	"""Creates a listbox, allowing the user to choose one or more items.
@@ -40,6 +42,7 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 
 	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
 			_("Can multiple items be selected at once?  (bool)") )
+	DynamicMultipleSelect = makeDynamicProperty(MultipleSelect)
 
 
 class _dListBox_test(dListBox):

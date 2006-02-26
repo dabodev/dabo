@@ -5,6 +5,7 @@ import dMenu
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
+
 class dMenuBar(wx.MenuBar, pm.dPemMixin):
 	"""Creates a menu bar, which can contain dMenus.
 

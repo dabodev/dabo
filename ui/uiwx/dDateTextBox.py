@@ -10,6 +10,7 @@ from dabo.dLocalize import _
 from dTextBox import dTextBox
 from dPanel import dPanel
 from dButton import dButton
+from dabo.ui import makeDynamicProperty
 
 
 class CalPanel(dPanel):
@@ -504,6 +505,7 @@ C: Popup Calendar to Select
 		
 	Value = property(_getValue, _setValue, None,
 			"Specifies the current state of the control (the value of the field). (varies)" )
+	DynamicValue = makeDynamicProperty(Value)
 	
 
 

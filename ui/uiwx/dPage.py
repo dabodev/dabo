@@ -1,6 +1,7 @@
 import dPanel, dSizer
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+from dabo.ui import makeDynamicProperty
 
 
 class dPage(dPanel.dScrollPanel):
@@ -92,6 +93,7 @@ class dPage(dPanel.dScrollPanel):
 	
 	Caption = property(_getCaption, _setCaption, None, 
 			_("The text identifying this particular page.  (str)") )
+	DynamicCaption = makeDynamicProperty(Caption)
 
 	Image = property(_getImage, _setImage, None, 
 			_("""Sets the image that is displayed on the page tab. This is
@@ -99,4 +101,5 @@ class dPage(dPanel.dScrollPanel):
 			image already added to the parent pageframe.
 			When used to retrieve an image, it returns the index of the
 			page's image in the parent pageframe's image list.   (int)""") )
+	DynamicImage = makeDynamicProperty(Image)
 

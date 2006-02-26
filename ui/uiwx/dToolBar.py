@@ -9,6 +9,7 @@ import dMenu
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.dObject import dObject
+from dabo.ui import makeDynamicProperty
 
 
 class dToolBar(wx.ToolBar, cm.dControlMixin):
@@ -423,6 +424,8 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		_("""Specifies whether the text captions are shown in the toolbar.  (bool)
 
 		Default is False."""))
+	DynamicShowCaptions = makeDynamicProperty(ShowCaptions)
+
 
 	ShowIcons = property(_getShowIcons, _setShowIcons, None,
 		_("""Specifies whether the icons are shown in the toolbar.  (bool)
@@ -431,6 +434,7 @@ class dToolBar(wx.ToolBar, cm.dControlMixin):
 		that case, the icons will still show.
 
 		Default is True."""))
+	DynamicShowIcons = makeDynamicProperty(ShowIcons)
 
 
 class dToolBarItem(dObject):
@@ -525,15 +529,16 @@ class dToolBarItem(dObject):
 			For toggleable items, the Value property will tell you if the item is
 			currently toggled or not."""))
 
-
 	Caption = property(_getCaption, _setCaption, None,
 			_("""Specifies the text caption of the toolbar item.
 
 			You will only see the caption if dToolBar.ShowCaptions is set to True.
 			"""))
+	DynamicCaption = makeDynamicProperty(Caption)
 
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("""Specifies whether the user may interact with the button."""))
+	DynamicEnabled = makeDynamicProperty(Enabled)
 
 	Parent = property(_getParent, None, None,
 			_("""Contains an object reference to the containing toolbar."""))

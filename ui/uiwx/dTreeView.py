@@ -8,6 +8,7 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 import dabo.dColors as dColors
 from dabo.dObject import dObject
+from dabo.ui import makeDynamicProperty
 
 
 class dNode(dObject):
@@ -176,9 +177,11 @@ class dNode(dObject):
 	
 	BackColor = property(_getBackColor, _setBackColor, None,
 			_("Background color of this node  (wx.Colour)") )
+	DynamicBackColor = makeDynamicProperty(BackColor)
 			
 	Caption = property(_getCap, _setCap, None,
 			_("Returns/sets the text of this node.  (str)") )
+	DynamicCaption = makeDynamicProperty(Caption)
 			
 	Children = property(_getChildren, None, None,
 			_("List of all nodes for which this is their parent node.  (list of dNodes)") )
@@ -188,30 +191,37 @@ class dNode(dObject):
 	
 	Font = property(_getFont, _setFont, None,
 			_("The font properties of the node. (obj)") )
+	DynamicFont = makeDynamicProperty(Font)
 	
 	FontBold = property(_getFontBold, _setFontBold, None,
 			_("Specifies if the node font is bold-faced. (bool)") )
+	DynamicFontBold = makeDynamicProperty(FontBold)
 	
 	FontDescription = property(_getFontDescription, None, None, 
 			_("Human-readable description of the node's font settings. (str)") )
 	
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Specifies the font face for the node. (str)") )
+	DynamicFontFace = makeDynamicProperty(FontFace)
 	
 	FontInfo = property(_getFontInfo, None, None,
 			_("Specifies the platform-native font info string for the node. Read-only. (str)") )
 	
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
 			_("Specifies whether the node's font is italicized. (bool)") )
+	DynamicFontItalic = makeDynamicProperty(FontItalic)
 	
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Specifies the point size of the node's font. (int)") )
+	DynamicFontSize = makeDynamicProperty(FontSize)
 	
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
 			_("Specifies whether node text is underlined. (bool)") )
+	DynamicFontUnderline = makeDynamicProperty(FontUnderline)
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
 			_("Foreground (text) color of this node  (wx.Colour)") )
+	DynamicForeColor = makeDynamicProperty(ForeColor)
 			
 	Image = property(_getImg, _setImg, None,
 			_("""Sets the image that is displayed on the node. This is
@@ -219,9 +229,11 @@ class dNode(dObject):
 			image already added to the parent tree. 	When used to retrieve 
 			an image, it returns the index of the node's image in the parent 
 			tree's image list.   (int)""") )
+	DynamicImage = makeDynamicProperty(Image)
 			
 	Selected = property(_getSel, _setSel, None,
 			_("Is this node selected?.  (bool)") )
+	DynamicSelected = makeDynamicProperty(Selected)
 	
 	Siblings = property(_getSiblings, None, None,
 			_("List of all nodes with the same parent node.  (list of dNodes)") )
@@ -688,9 +700,11 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 
 	Editable = property(_getEditable, _setEditable, None,
 		_("""Specifies whether the tree labels can be edited by the user."""))
+	DynamicEditable = makeDynamicProperty(Editable)
 
 	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
 		_("""Specifies whether more than one node may be selected at once."""))
+	DynamicMultipleSelect = makeDynamicProperty(MultipleSelect)
 	
 	Selection = property(_getSelection, _setSelection, None,
 		_("""Specifies which node or nodes are selected.
@@ -698,9 +712,11 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		If MultipleSelect is False, an integer referring to the currently selected
 		node is specified. If MultipleSelect is True, a list of selected nodes is
 		specified."""))
+	DynamicSelection = makeDynamicProperty(Selection)
 
 	ShowButtons = property(_getShowButtons, _setShowButtons, None,
 		_("""Specifies whether +/- indicators are show at the left of parent nodes."""))
+	DynamicShowButtons = makeDynamicProperty(ShowButtons)
 		
 	ShowRootNode = property(_getShowRootNode, _setShowRootNode, None,
 		_("""Specifies whether the root node is included in the treeview.
@@ -708,9 +724,11 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		There can be only one root node, so if you want several root nodes you can
 		fake it by setting ShowRootNode to False. Now, your top child nodes have
 		the visual indication of being sibling root nodes."""))
+	DynamicShowRootNode = makeDynamicProperty(ShowRootNode)
 		
 	ShowRootNodeLines = property(_getShowRootNodeLines, _setShowRootNodeLines, None,
 		_("""Specifies whether vertical lines are shown between root siblings."""))
+	DynamicShowRootNodeLines = makeDynamicProperty(ShowRootNodeLines)
 
 
 class _dTreeView_test(dTreeView):
