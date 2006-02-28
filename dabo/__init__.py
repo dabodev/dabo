@@ -118,5 +118,3 @@ trace = pdb.set_trace
 
 # dApp will change the following values upon its __init__:
 dAppRef = None
-
-

@@ -16,8 +16,9 @@ class dTable(dObject):
 			field 3: 'last_name', it is a string field that has a max of 25
 				characters, NULL's are not allowed, part of an indexes 
 				'idx_last' and 'idx_name'
-			field 4: 'amount_owes', it is a float that has a precision of 2
-				and uses 8 bytes, the default is 0
+			field 4: 'amount_owes', it is a float that has a total of 8 decimal places,
+				2 of the decimal places are to the right of the point, uses 8 bytes,
+				and the default is 0
 			
 		Code Example:
 			from dabo.db import dTable
@@ -29,7 +30,7 @@ class dTable(dObject):
 			myTable.addField(Name="last_name", DataType="string", Size=25,
 					AllowNulls=False, Index="idx_last")
 			myTable.addField(Name="amount_owes", DataType="float",
-					Precision=2, Size=8, Default=0)
+					TotalDP=8, RightDP=2, Size=8, Default=0)
 			# When you want to have more than one field in an index, use addIndex().
 			myTable.addIndex(Name="idx_name", Fields=("last_name","first_name"))
 	"""
@@ -77,7 +78,10 @@ class dTable(dObject):
 			pass
 		else:
 			if pk == True:
-				self._pk = name
+				if self._pk is None:
+					self._pk = [name]
+				else:
+					self._pk.append(name)
 		
 		self._fields.append(dField(*args, **kwargs))
 		
@@ -201,10 +205,10 @@ class dField(dObject):
 		else:
 			pk = ""
 		
-		tmplt = "%s%s (%s, Size:%i, Precision:%i)%s %s Default:%s"
+		tmplt = "%s%s (%s, Size:%i, Total DP:%i Right DP:%i)%s %s Default:%s"
 		return tmplt % (self._name, pk, self._type.DataType, 
-				self._type.Size, self._type.Precision, autoi, 
-				allowednulls, self._default)
+				self._type.Size, self._type.TotalDP, self._type.RightDP,
+				autoi, allowednulls, self._default)
 	
 	
 	def _setAllowNulls(self, allow):
@@ -225,6 +229,12 @@ class dField(dObject):
 		self._default = default
 		
 	def _getDefault(self):
+		if self._default == None and self.IsPK:
+			if self.DataType == "Numeric":
+				self._default = '0'
+			else:
+				self._default = ''
+		
 		return self._default
 		
 		
@@ -247,18 +257,25 @@ class dField(dObject):
 		
 	def _getName(self):
 		return self._name
+
+
+	def _setTotalDP(self, places):
+		self._type.TotalDP = places
 		
-		
-	def _setPrecision(self, value):
-		self._type.Precision = value
-		
-	def _getPrecision(self):
-		return self._type.Precision
-	
-	
+	def _getTotalDP(self):
+		return self._type.TotalDP
+
+
+	def _setRightDP(self, places):
+		self._type.RightDP = places
+
+	def _getRightDP(self):
+		return self._type.RightDP
+
+
 	def _setSize(self, size):
 		self._type.Size = size
-		
+
 	def _getSize(self):
 		return self._type.Size
 		
@@ -290,12 +307,15 @@ class dField(dObject):
 	Name = property(_getName, _setName, None, 
 			_("The name of the table. (str)"))
 			
-	Precision = property(_getPrecision, _setPrecision, None, 
-			_("""The number of decimal places to the right of 
-			the period. (int)"""))
+	TotalDP = property(_getTotalDP, _setTotalDP, None,
+			_("The total number of decimal places  (int)"))
+	
+	RightDP = property(_getRightDP, _setRightDP, None,
+			_("""The number of decimal places to the right
+			of the period.  (int)"""))
 			
 	Size = property(_getSize, _setSize, None, 
-			_("The size required for the column in bytes. (int)"))
+			_("The size required for the column in bytes or character units if it's a string. (int)"))
 			
 	Type = property(_getType, _setType, None, 
 			_("The type of the column.  (class)"))
@@ -310,7 +330,8 @@ class fType(dObject):
 		self._baseClass = fType
 		self._data_type = "Numeric"
 		self._size = 1
-		self._precision = 0
+		self._total_dp = 0
+		self._right_dp = 0
 		fType.doDefault(*args, **kwargs)
 
 		
@@ -322,7 +343,8 @@ class fType(dObject):
 				"int": "Numeric",
 				"integer": "Numeric",
 				"float": "Float",
-				"decimal": "Float",					
+				"double": "Float",
+				"decimal": "Decimal",				
 				"string": "String",
 				"varchar": "String",
 				"char": "String",
@@ -337,25 +359,36 @@ class fType(dObject):
 		return self._data_type
 
 
-	def _setPrecision(self, precision):
-		self._precision = precision
+	def _setTotalDP(self, places):
+		self._total_dp = places
 		
-	def _getPrecision(self):
-		return self._precision
-		
-		
+	def _getTotalDP(self):
+		return self._total_dp
+	
+	
+	def _setRightDP(self, places):
+		self._right_dp = places
+
+	def _getRightDP(self):
+		return self._right_dp
+
+
 	def _setSize(self, size):
 		self._size = size
-		
+
 	def _getSize(self):
 		return self._size
-		
-		
+
+
 	DataType = property(_getDataType, _setDataType, None,
 			_("Type of data for this field  (str)"))
-		
-	Precision = property(_getPrecision, _setPrecision, None,
-			_("Precision of this field (decimal places)  (int)"))
+	
+	TotalDP = property(_getTotalDP, _setTotalDP, None,
+			_("The total number of decimal places  (int)"))
+	
+	RightDP = property(_getRightDP, _setRightDP, None,
+			_("""The number of decimal places to the right
+			of the period.  (int)"""))
 	
 	Size = property(_getSize, _setSize, None,
 			_("Size of this field  (int)"))
@@ -380,7 +413,7 @@ if __name__ == "__main__":
 	myTable.addField(Name="last_name", DataType="string", 
 			Size=25, AllowNulls=False, Index="idx_last")
 	myTable.addField(Name="amount_owes", DataType="float", 
-			Precision=2, Size=8, Default=0)
+			TotalDP=8, RightDP=2, Size=8, Default=0)
 	
 	#When you want to have more than one field in an index, use addIndex().
 	myTable.addIndex(Name="idx_name", 

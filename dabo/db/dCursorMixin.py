@@ -146,6 +146,7 @@ class dCursorMixin(dObject):
 			cursorToUse = self
 		else:
 			cursorToUse = self.AuxCursor
+			cursorToUse.AutoCommit = self.AutoCommit
 			
 		# Some backends, notably Firebird, require that fields be specially
 		# marked.
@@ -169,7 +170,7 @@ class dCursorMixin(dObject):
 			if "connect" in str(e).lower():
 				raise dException.ConnectionLostException, e
 			else:
-				raise dException.dException, e
+				raise dException.DBQueryException(e, sql)
 		
 		if cursorToUse is not self:
 			# No need to manipulate the data

@@ -5,6 +5,7 @@ except ImportError:
 	decimal = None
 from dabo.dLocalize import _
 from dBackend import dBackend
+import dabo.dException as dException
 
 class MySQL(dBackend):
 	def __init__(self):
@@ -35,11 +36,17 @@ class MySQL(dBackend):
 			conversions[decimal.Decimal] = dec2str
 			kwargs["conv"] = conversions
 
-		self._connection = dbapi.connect(host=connectInfo.Host, 
-				user = connectInfo.User,
-				passwd = connectInfo.revealPW(),
-				db=connectInfo.Database,
-				port=port, **kwargs)
+		try:
+			self._connection = dbapi.connect(host=connectInfo.Host, 
+					user = connectInfo.User,
+					passwd = connectInfo.revealPW(),
+					db=connectInfo.Database,
+					port=port, **kwargs)
+		except Exception, e:			
+			if "access denied" in str(e).lower():
+				raise dException.DBNoAccessException(e)
+			else:
+				raise dException.DataBaseException(e)
 		return self._connection
 
 
@@ -51,6 +58,11 @@ class MySQL(dBackend):
 	def escQuote(self, val):
 		# escape backslashes and single quotes, and
 		# wrap the result in single quotes
+		if val is None:
+			return self.formatNone()
+		if isinstance(val, int) or isinstance(val, long):
+			return val
+		
 		sl = "\\"
 		qt = "\'"
 		return qt + val.replace(sl, sl+sl).replace(qt, sl+qt) + qt
@@ -61,6 +73,15 @@ class MySQL(dBackend):
 		sqt = "'"		# single quote
 		return "%s%s%s" % (sqt, str(val), sqt)
 	
+	
+	def _isExistingTable(self, tablename):
+		tempCursor = self._connection.cursor()
+		tempCursor.execute("SHOW TABLES LIKE %s" % self.escQuote(tablename))
+		rs = tempCursor.fetchall()
+		if not rs:
+			return False
+		else:
+			return True
 	
 	def getTables(self, includeSystemTables=False):
 		# MySQL doesn't have system tables, in the traditional sense, as 
@@ -183,3 +204,119 @@ class MySQL(dBackend):
 				
 
 		
+	def createTableAndIndexes(self, tabledef, cursor, createTable=True, 
+			createIndexes=True):
+		if not tabledef.Name:
+			raise
+		
+		toExc = []
+		
+		#Create the table
+		if createTable:
+			if not tabledef.IsTemp:
+				sql = "CREATE TABLE "
+			else:
+				sql = "CREATE TEMPORARY TABLE "
+				
+			sql = sql + tabledef.Name + " ("
+			
+			for fld in tabledef.Fields:
+				dont_esc = False
+				sql = sql + fld.Name + " "
+				
+				if fld.DataType == "Numeric":
+					if fld.Size == 0:
+						sql = sql + "BIT "
+					elif fld.Size == 1:
+						sql = sql + "TINYINT "
+					elif fld.Size == 2:
+						sql = sql + "SMALLINT "
+					elif fld.Size in (3,4):
+						sql = sql + "INT "
+					elif fld.Size in (5,6,7,8):
+						sql = sql + "BIGINT "
+					else:
+						raise #what should happen?
+						
+					if fld.IsPK:
+						sql = sql + "PRIMARY KEY "
+						if fld.IsAutoIncrement:
+							sql = sql + "AUTO_INCREMENT "
+				elif fld.DataType == "Float":
+					if fld.Size in (0,1,2,3,4):
+						sql = sql + "FLOAT(" + str(fld.TotalDP) + "," + str(fld.RightDP) + ") "
+					elif fld.Size in (5,6,7,8):
+						sql = sql + "DOUBLE(" + str(fld.TotalDP) + "," + str(fld.RightDP) + ") "
+					else:
+						raise #what should happen?
+				elif fld.DataType == "Decimal":
+					sql = sql + "DECIMAL(" + str(fld.TotalDP) + "," + str(fld.RightDP) + ") "
+				elif fld.DataType == "String":
+					if fld.Size <= 255:
+						sql = sql + "VARCHAR(" + str(fld.Size) + ") "
+					elif fld.Size <= 65535:
+						sql = sql + "TEXT "
+					elif fld.Size <= 16777215:
+						sql = sql + "MEDIUMTEXT "
+					elif fld.Size <= 4294967295:
+						sql = sql + "LONGTEXT "
+					else:
+						raise #what should happen?
+				elif fld.DataType == "Date":
+					sql = sql + "DATE "
+				elif fld.DataType == "Time":
+					sql = sql + "TIME "
+				elif fld.DataType == "DateTime":
+					sql = sql + "DATETIME "
+				elif fld.DataType == "Stamp":
+					sql = sql + "STAMP "
+					fld.Default = "CURRENT_TIMESTAMP"
+					dont_esc = True
+				elif fld.DataType == "Binary":
+					if fld.Size <= 255:
+						sql = sql + "TIMYBLOB "
+					elif fld.Size <= 65535:
+						sql = sql + "BLOB "
+					elif fld.Size <= 16777215:
+						sql = sql + "MEDIUMBLOB "
+					elif fld.Size <= 4294967295:
+						sql = sql + "LONGBLOB "
+					else:
+						raise #what should happen?
+					
+				if not fld.AllowNulls:
+					sql = sql + "NOT NULL "
+				if not dont_esc:
+					sql = sql + "DEFAULT " + str(self.escQuote(fld.Default)) + ","
+			if sql[-1:] == ",":
+				sql = sql[:-1]
+			sql = sql + ")"
+			
+			try:
+				cursor.execute(sql)
+			except: #TODO Make this handle only an access error
+				toExc.append(sql)
+	
+		if createIndexes:
+			#Create the indexes
+			for idx in tabledef.Indexes:
+				if idx.Name.lower() != "primary":
+					sql = "CREATE INDEX " + idx.Name + " ON " + tabledef.Name + "("
+					
+					for fld in idx.Fields:
+						sql = sql + fld + ","
+				
+					if sql[-1:] == ",":
+						sql = sql[:-1]
+					sql = sql + ")"
+				
+				if toExc == []:
+					try:
+						cursor.execute(sql)
+					except: #TODO Make this handle only an access error
+						toExc.append(sql)
+				else:
+					toExc.append(sql)
+
+		if toExc != []:
+			return toExc
