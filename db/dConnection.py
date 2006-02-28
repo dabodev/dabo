@@ -1,3 +1,4 @@
+from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dConnectInfo import dConnectInfo
 from dCursorMixin import dCursorMixin
@@ -61,7 +62,11 @@ class dConnection(dObject):
 		database object.
 		"""
 		return self._connectInfo.getBackendObject()
+		
+	def _getConnInfo(self):
+		return self._connectInfo
 
+	ConnectInfo = property(_getConnInfo, None, None, _("The connectInfo for the connection.  (class)"))
 
 if __name__ == "__main__":
 	from dConnectInfo import dConnectInfo

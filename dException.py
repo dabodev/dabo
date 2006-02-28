@@ -28,3 +28,21 @@ class MissingPKException(dException):
 
 class ConnectionLostException(dException):
 	pass
+
+class DataBaseException(dException):
+	pass
+
+class DBNoAccessException(DataBaseException):
+	pass
+	
+class DBNoDBOnHostException(DataBaseException):
+	pass
+
+class DBQueryException(DataBaseException):
+	def __init__(self, err, sql):
+		self.sql = sql
+		self.err_desc = str(err)
+		
+	def __str__(self):
+		return self.err_desc + '\nSQL: ' + self.sql
+

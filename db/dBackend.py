@@ -3,6 +3,7 @@ import sys
 from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
+from dabo.db import dTable
 
 
 class dBackend(dObject):
@@ -388,6 +389,20 @@ class dBackend(dObject):
 	
 
 	##########		Created by Echo 	##############
+	def isExistingTable(self, table):
+		"""Returns weather or not the table exists.
+		"""
+		if isinstance(table, dTable):
+			return self._isExistingTable(table.name)
+		else:
+			return self._isExistingTable(table)
+
+
+	def _isExistingTable(self, tablename):
+		# OVERRIDE IN SUBCLASSES!
+		return False
+		
+	
 	def createJustTable(self, tabledef, cursor):
 		self.createTableAndIndex(tabledef, cursor, createIndexes=False)
 

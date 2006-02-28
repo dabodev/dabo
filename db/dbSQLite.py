@@ -24,6 +24,9 @@ class SQLite(dBackend):
 	def escQuote(self, val):
 		if val is None:
 			return self.formatNone()
+		if isinstance(val, int) or isinstance(val, long):
+			return val
+			
 		sl = "\\"
 		qt = "\'"
 		return qt + str(val).replace(sl, sl+sl).replace(qt, qt+qt) + qt
@@ -52,7 +55,17 @@ class SQLite(dBackend):
 		sqt = "'"		# single quote
 		return "%s%s%s" % (sqt, str(val), sqt)
 		
-		
+	
+	def _isExistingTable(self, tablename):
+		tempCursor = self._connection.cursor()
+		tempCursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=%s" % self.escQuote(tablename))
+		rs = tempCursor.fetchall()
+		if rs == []:
+			return False
+		else:
+			return True
+	
+	
 	def getTables(self, includeSystemTables=False):
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("select * from sqlite_master")
@@ -208,6 +221,7 @@ class SQLite(dBackend):
 			sql = sql + tabledef.Name + " ("
 			
 			for fld in tabledef.Fields:
+				dont_esc = False
 				sql = sql + fld.Name + " "
 				
 				if fld.DataType == "Numeric":
@@ -218,6 +232,8 @@ class SQLite(dBackend):
 							sql = sql + "AUTOINCREMENT "
 				elif fld.DataType == "Float":
 					sql = sql + "REAL "
+				elif fld.DataType == "Decimal":
+					sql = sql + "TEXT "
 				elif fld.DataType == "String":
 					sql = sql + "TEXT "
 				elif fld.DataType == "Date":
@@ -228,17 +244,21 @@ class SQLite(dBackend):
 					sql = sql + "TEXT "
 				elif fld.DataType == "Stamp":
 					sql = sql + "TEXT "
+					fld.Default = "CURRENT_TIMESTAMP"
+					dont_esc = True
 				elif fld.DataType == "Binary":
 					sql = sql + "BLOB "
 					
 				if not fld.AllowNulls:
 					sql = sql + "NOT NULL "
-				sql = sql + "DEFAULT " + self.escQuote(fld.Default) + ","
+				if not dont_esc:
+					sql = sql + "DEFAULT " + str(self.escQuote(fld.Default)) + ","
 			if sql[-1:] == ",":
 				sql = sql[:-1]
 			sql = sql + ")"
 			
 			cursor.execute(sql)
+			
 	
 		if createIndexes:
 			#Create the indexes
@@ -251,4 +271,4 @@ class SQLite(dBackend):
 						sql = sql[:-1]
 					sql = sql + ")"
 				
-			cursor.execute(sql)
+				cursor.execute(sql)
