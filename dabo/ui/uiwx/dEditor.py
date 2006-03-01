@@ -118,7 +118,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self._defaultsSet = True
 
 		self._syntaxColoring = True
-		self.addObject(StyleTimer, "_styleTimer")
+		self._styleTimer = StyleTimer()
 		self._styleTimer.stop()
 		
 		app = self.Application

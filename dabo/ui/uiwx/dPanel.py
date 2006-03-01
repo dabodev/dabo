@@ -43,6 +43,7 @@ class dPanel(wx.Panel, cm.dControlMixin):
 	
 	
 	def _onResizeBuffer(self, evt):
+		evt.Skip()
 		self._buffer = wx.EmptyBitmap(max(1, self.Width), max(1, self.Height))
 		self.__updateDrawing()
 	

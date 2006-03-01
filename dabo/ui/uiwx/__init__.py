@@ -208,18 +208,8 @@ def callEvery(interval, func, *args, **kwargs):
 	at the specified interval. Interval is given in milliseconds. It will pass along
 	any additional arguments to the function when it is called.
 	"""
-	class CallEveryTimer(wx.Timer):
-		def Notify(self):
-			func(*args, **kwargs)
-		def stop(self):
-			self.Stop()
-		def start(self):
-			self.Start(interval)
-		def release(self):
-			self.Destroy()
-			
-	ret = CallEveryTimer()
-	ret.Start(interval)
+	ret = dTimer(Interval=interval)
+	ret.start()
 	return ret
 
 
