@@ -208,7 +208,10 @@ def callEvery(interval, func, *args, **kwargs):
 	at the specified interval. Interval is given in milliseconds. It will pass along
 	any additional arguments to the function when it is called.
 	"""
+	def _onHit(evt):
+		func(*args, **kwargs)
 	ret = dTimer(Interval=interval)
+	ret.bindEvent(dabo.dEvents.Hit, _onHit)
 	ret.start()
 	return ret
 
