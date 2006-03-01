@@ -1,3 +1,4 @@
+import dabo
 from dabo.ui.dDataControlMixinBase import dDataControlMixinBase
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
@@ -39,7 +40,11 @@ class dDataControlMixin(dDataControlMixinBase):
 	def _setValue(self, value):
 		if self._constructed():
 			if (type(self.Value) != type(value) or self.Value != value):
-				self.SetValue(value)
+				try:
+					self.SetValue(value)
+				except TypeError, e:
+					dabo.errorLog.write(_("Could not set value of %s to %s. Error message: %s")
+							% (self._name, value, e))
 				self._afterValueChanged()
 		else:
 			self._properties["Value"] = value
