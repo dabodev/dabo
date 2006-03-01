@@ -42,6 +42,9 @@ class dPageFrameMixin(cm.dControlMixin):
 	def __pageChanged(self, newPageNum, oldPageNum):
 		## Because of platform inconsistencies, it is safer to raise the dabo
 		## events in a callafter instead of directly.
+		if not self:
+			# JIC this object has been released
+			return
 		self._lastPage = newPageNum
 		if oldPageNum is not None:
 			if oldPageNum >=0:

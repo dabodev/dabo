@@ -317,14 +317,14 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	
 	def getHighRow(self):
 		"""Returns the highest row that contains an object."""
-		rows = [self.GetItemPosition(win)[0] + self.GetItemSpan(win)[0]
+		rows = [self.GetItemPosition(win)[0] + (self.GetItemSpan(win)[0]-1)
 				for win in self.ChildWindows]
 		return max(rows)
 	
 	
 	def getHighCol(self):
 		"""Returns the highest column that contains an object."""
-		cols = [self.GetItemPosition(win)[1] + self.GetItemSpan(win)[1]
+		cols = [self.GetItemPosition(win)[1] + (self.GetItemSpan(win)[1]-1)
 				for win in self.ChildWindows]
 		return max(cols)
 	
