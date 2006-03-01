@@ -118,6 +118,10 @@ class dPemMixin(dPemMixinBase):
 			del(self._preInitProperties["style"])
 			del(self._preInitProperties["id"])
 			del(self._preInitProperties["parent"])
+		elif isinstance(self, (wx.Timer, )):
+			del(self._preInitProperties["style"])
+			del(self._preInitProperties["id"])
+			del(self._preInitProperties["parent"])
 		elif isinstance(self, (dFoldPanelBar.dFoldPanel, dFoldPanelBar.dFoldPanelBar)):
 			# Hack: the FoldPanel classes have no style arg.
 			del self._preInitProperties["style"]
@@ -205,6 +209,8 @@ class dPemMixin(dPemMixinBase):
 		self._drawnObjects = []
 		# Mouse click events rely on these:
 		self._mouseLeftDown, self._mouseRightDown = False, False
+		# Does this control fire its onHover() method when the mouse enters?
+		self._hover = None
 
 		self.beforeInit()
 		
@@ -297,6 +303,9 @@ class dPemMixin(dPemMixinBase):
 		self.bindEvent(dEvents.Create, self.__onCreate)
 		self.bindEvent(dEvents.ChildBorn, self.__onChildBorn)
 		
+		self.bindEvent(dEvents.MouseEnter, self.__onMouseEnter)
+		self.bindEvent(dEvents.MouseLeave, self.__onMouseLeave)
+		
 		try:
 			self.Parent.bindEvent(dEvents.Update, self.__onUpdate)
 		except:
@@ -309,6 +318,15 @@ class dPemMixin(dPemMixinBase):
 		self.initEvents()
 
 
+	def __onMouseEnter(self, evt):
+		if self._hover:
+			self._hoverTimer = dabo.ui.dTimer(Interval=100)
+	
+	
+	def __onMouseLeave(self, evt):
+		pass
+		
+			
 	def __onCreate(self, evt):
 		if self.Parent and hasattr(self.Parent, "raiseEvent"):
 			self.Parent.raiseEvent(dEvents.ChildBorn, None, child=self)
@@ -2217,6 +2235,13 @@ class DrawObject(dObject):
 			self.update()
 			
 	
+	def _getHover(self):
+		return self._hover
+
+	def _setHover(self, val):
+		self._hover = val
+
+
 	def _getLineStyle(self):
 		return self._lineStyle
 	
@@ -2354,6 +2379,9 @@ class DrawObject(dObject):
 	Height = property(_getHeight, _setHeight, None,
 			_("For rectangles, the height of the shape  (int)"))
 
+	Hover = property(_getHover, _setHover, None,
+			_("When True, Mouse Enter events fire the onHover method  (bool)"))
+	
 	LineStyle = property(_getLineStyle, _setLineStyle, None,
 			_("Line style (solid, dash, dot) drawn  (str)"))
 

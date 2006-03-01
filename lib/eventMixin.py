@@ -182,7 +182,10 @@ class EventMixin(object):
 		# it because it was asked for explicitly.
 		self._autoBindEvents(context=self, force=force)
 
-		parent = self.Parent
+		try:
+			parent = self.Parent
+		except AttributeError:
+			parent = None
 		stop = False
 		while parent:
 			lastParent = parent

@@ -71,7 +71,7 @@ class dGauge(wx.Gauge, cm.dControlMixin):
 
 class _dGauge_test(dGauge):
 	def afterInit(self):
-		self._timer = dabo.ui.dTimer(self.GetParent())
+		self._timer = dabo.ui.dTimer()
 		self._timer.bindEvent(dabo.dEvents.Hit, self.onTimer)
 		self._timer.Interval = 23
 		self._timer.start()

@@ -42,7 +42,7 @@ class Test(object):
 			frame.Sizer = ui.dSizer("Vertical")
 			frame.testObjects = []
 			for class_ in classRefs:
-				obj = class_(frame, LogEvents=logEvents, *args, **kwargs)
+				obj = class_(parent=frame, LogEvents=logEvents, *args, **kwargs)
 				obj.Width = 300
 				frame.Sizer.append(obj, 1, "expand")
 				frame.testObjects.append(obj)
