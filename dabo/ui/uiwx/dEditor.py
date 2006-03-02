@@ -1025,7 +1025,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			except:
 				fname = self._newFileName
 		
-		if fname == self._newFileName:
+		if not fname or (fname == self._newFileName):
 			# We are being asked to save a new file that doesn't exist on disk yet.
 			fname = self.promptForSaveAs()
 			if fname is None:
