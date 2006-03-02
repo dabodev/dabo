@@ -210,7 +210,8 @@ class dPemMixin(dPemMixinBase):
 		# Mouse click events rely on these:
 		self._mouseLeftDown, self._mouseRightDown = False, False
 		# Does this control fire its onHover() method when the mouse enters?
-		self._hover = None
+		self._hover = False
+		self._hoverTimer = None
 
 		self.beforeInit()
 		
@@ -320,11 +321,37 @@ class dPemMixin(dPemMixinBase):
 
 	def __onMouseEnter(self, evt):
 		if self._hover:
-			self._hoverTimer = dabo.ui.dTimer(Interval=100)
-	
+			if self._hoverTimer is None:
+				self._hoverTimer = dabo.ui.callEvery(100, self._checkMouseOver)
+			self._hoverTimer.start()
+			self.onHover()
+			
 	
 	def __onMouseLeave(self, evt):
-		pass
+		if self._hover:
+			if self._hoverTimer:
+				self._hoverTimer.stop()
+			self.endHover()
+	
+	
+	# These are stub methods, to be coded in the classes that 
+	# need them.
+	def onHover(self): pass
+	def endHover(self): pass
+	
+	
+	def _checkMouseOver(self):
+		mx, my = self.Parent.ScreenToClient(wx.GetMousePosition())
+		if not self.posIsWithin(mx, my):
+			self.__onMouseLeave(None)
+	
+	
+	def posIsWithin(self, xpos, ypos=None):
+		if ypos is None:
+			if isinstance(xpos, (tuple, list)):
+				xpos, ypos = xpos
+		ret = (self.Left <= xpos <= self.Right) and (self.Top <= ypos <= self.Bottom)
+		return ret
 		
 			
 	def __onCreate(self, evt):
@@ -1513,6 +1540,13 @@ class dPemMixin(dPemMixinBase):
 			self._properties["HelpContextText"] = val
 
 
+	def _getHover(self):
+		return self._hover
+
+	def _setHover(self, val):
+		self._hover = val
+
+
 	def _getLeft(self):
 		return self.GetPosition()[0]
 	
@@ -1911,6 +1945,10 @@ class dPemMixin(dPemMixinBase):
 			_("""Specifies the context-sensitive help text associated with this 
 				window. (str)""") )
 	
+	Hover = property(_getHover, _setHover, None,
+			_("""When True, Mouse Enter events fire the onHover method, and
+			MouseLeave events fire the endHover method  (bool)"""))
+	
 	Left = property(_getLeft, _setLeft, None,
 			_("Specifies the left position of the object. (int)") )
 	DynamicLeft = makeDynamicProperty(Left)
@@ -2235,13 +2273,6 @@ class DrawObject(dObject):
 			self.update()
 			
 	
-	def _getHover(self):
-		return self._hover
-
-	def _setHover(self, val):
-		self._hover = val
-
-
 	def _getLineStyle(self):
 		return self._lineStyle
 	
@@ -2379,9 +2410,6 @@ class DrawObject(dObject):
 	Height = property(_getHeight, _setHeight, None,
 			_("For rectangles, the height of the shape  (int)"))
 
-	Hover = property(_getHover, _setHover, None,
-			_("When True, Mouse Enter events fire the onHover method  (bool)"))
-	
 	LineStyle = property(_getLineStyle, _setLineStyle, None,
 			_("Line style (solid, dash, dot) drawn  (str)"))
 

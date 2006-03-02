@@ -149,9 +149,17 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 class _dPanel_test(dPanel):
 	def initProperties(self):
 		self.BackColor = "wheat"
+		self.Hover = True
 
 	def afterInit(self):
 		self.addObject(dPanel, BackColor = "green")
+
+	def onHover(self):
+		self._normBack = self.BackColor
+		self.BackColor = "yellow"
+	
+	def endHover(self):
+		self.BackColor = self._normBack
 
 	def onMouseLeftDown(self, evt):
 		print "mousedown"
