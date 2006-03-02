@@ -293,6 +293,7 @@ class dFormMixin(pm.dPemMixin):
 
 					if code:
 						self._addCode(obj, code)
+					obj.afterInit()
 
 					if kids:
 						if isGrid:
