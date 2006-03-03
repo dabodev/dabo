@@ -351,8 +351,6 @@ class Form(dabo.ui.dForm):
 		sql = self.PrimaryBizobj.LastSQL
 		if sql is None:
 			sql = "-Nothing executed yet-"
-			mb = dabo.ui.info(sql, _("Last SQL"))
-			return
 		dlg = dabo.ui.dDialog(self, Caption=_("Last SQL"))
 		eb = dlg.addObject(dabo.ui.dEditBox, ReadOnly=True, Value=sql, Size=(400, 400))
 		dlg.Sizer.append1x(eb)
