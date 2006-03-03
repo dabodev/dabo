@@ -325,15 +325,18 @@ class SelectPage(Page):
 		bizobj = frm.getBizobj()
 		ret = False
 		if bizobj is not None:
-			self.setWhere(bizobj)
-			self.setOrderBy(bizobj)
-			self.setLimit(bizobj)
+			sql = frm.CustomSQL
+			if sql is not None:
+				bizobj.UserSQL = sql
+			else:
+				# CustomSQL is not defined. Get it from the select page settings:
+				bizobj.UserSQL = None
+				self.setWhere(bizobj)
+				self.setOrderBy(bizobj)
+				self.setLimit(bizobj)
 			
-			# The bizobj will get the SQL from the sql builder:
-			sql = bizobj.getSQL()
-	
-			# But it won't automatically use that sql, so we set it here:
-			bizobj.setSQL(sql)
+				sql = bizobj.getSQL()
+				bizobj.setSQL(sql)
 	
 			ret = frm.requery()
 
