@@ -348,7 +348,7 @@ class Form(dabo.ui.dForm):
 
 
 	def onShowSQL(self, evt):
-		sql = self.PrimaryBizobj.getSQL()
+		sql = self.PrimaryBizobj.LastSQL
 		if sql is None:
 			sql = "-Nothing executed yet-"
 			mb = dabo.ui.info(sql, _("Last SQL"))
@@ -932,6 +932,14 @@ class Form(dabo.ui.dForm):
 		self._browseGridClass = val		
 
 
+	def _getCustomSQL(self):
+		return getattr(self, "_customSQL", None)
+
+	def _setCustomSQL(self, val):
+		assert val is None or isinstance(val, basestring)
+		self._customSQL = val
+
+
 	def _getSelectPageClass(self):
 		try:
 			val = self._selectPageClass
@@ -1025,11 +1033,11 @@ class Form(dabo.ui.dForm):
 	BrowseGridClass = property(_getBrowseGridClass, _setBrowseGridClass, None,
 			_("""Specifies the class to use for the browse grid."""))
 
-	SelectPageClass = property(_getSelectPageClass, _setSelectPageClass, None,
-			_("""Specifies the class to use for the select page."""))
-
 	BrowsePageClass = property(_getBrowsePageClass, _setBrowsePageClass, None,
 			_("""Specifies the class to use for the browse page."""))
+
+	CustomSQL = property(_getCustomSQL, _setCustomSQL, None,
+			_("""Specifies custom (overridden) SQL to use."""))
 
 	EditPageClass = property(_getEditPageClass, _setEditPageClass, None,
 			_("""Specifies the class to use for the edit page."""))
@@ -1058,6 +1066,9 @@ The type of form determines the runtime behavior. FormType can be one of:
 
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
 			_("""Specifies whether an automatic requery happens when the form is loaded."""))
+
+	SelectPageClass = property(_getSelectPageClass, _setSelectPageClass, None,
+			_("""Specifies the class to use for the select page."""))
 
 	SetFocusToBrowseGrid = property(_getSetFocusToBrowseGrid, 
 			None, _setSetFocusToBrowseGrid,
