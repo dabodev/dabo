@@ -146,7 +146,7 @@ class dCursorMixin(dObject):
 			cursorToUse = self
 		else:
 			cursorToUse = self.AuxCursor
-			cursorToUse.AutoCommit = self.AutoCommit
+			#cursorToUse.AutoCommit = self.AutoCommit
 			
 		# Some backends, notably Firebird, require that fields be specially
 		# marked.
