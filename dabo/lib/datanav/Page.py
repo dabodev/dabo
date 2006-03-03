@@ -459,6 +459,10 @@ class SelectPage(Page):
 		if len(limTxt.Value) == 0:
 			limTxt.Value = "1000"
 		self.selectFields["limit"] = {"ctrl" : limTxt	}
+
+		chkCustomSQL = panel.addObject(dabo.ui.dCheckBox, Caption="Use Custom SQL")
+		chkCustomSQL.bindEvent(dEvents.Hit, self._onCustomSQL)
+
 		requeryButton = dabo.ui.dButton(panel)
 		requeryButton.Caption =  _("&Requery")
 		requeryButton.DefaultButton = True
@@ -466,6 +470,8 @@ class SelectPage(Page):
 		
 		gsz.append(lbl, alignment="right")
 		gsz.append(limTxt)
+		gsz.append(chkCustomSQL)
+
 		btnRow = gsz.findFirstEmptyCell()[0] + 1
 		gsz.append(requeryButton, "expand", row=btnRow, col=1, 
 				halign="right")
@@ -479,6 +485,32 @@ class SelectPage(Page):
 
 		return panel
 
+
+	def _onCustomSQL(self, evt):
+		cb = evt.EventObject
+		bizobj = self.Form.getBizobj()
+		if cb.Value:
+			# Get default SQL, display to user, and then use whatever the user enters
+			sql = self.Form.CustomSQL
+			if sql is None:
+				# CustomSQL is not defined. Get it from the select page settings:
+				bizobj.UserSQL = None
+				self.setWhere(bizobj)
+				self.setOrderBy(bizobj)
+				self.setLimit(bizobj)
+			
+				sql = bizobj.getSQL()
+
+			dlg = dabo.ui.dDialog(self, Caption=_("Set Custom SQL"))
+			eb = dlg.addObject(dabo.ui.dEditBox, Value=sql, Size=(400, 400))
+			dlg.Sizer.append1x(eb)
+			dlg.show()
+			self.Form.CustomSQL = eb.Value
+			dlg.release()
+			
+		else:
+			# Clear the custom SQL
+			self.Form.CustomSQL = None
 
 	
 	def getSearchCtrlClass(self, typ):
