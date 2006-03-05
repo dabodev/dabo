@@ -1,5 +1,5 @@
-import wx, dabo, dabo.ui
-
+import wx
+import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
@@ -10,26 +10,29 @@ from dabo.ui import makeDynamicProperty
 
 	
 class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
-	"""Creates a checkbox, allowing editing boolean values.
-	"""
+	"""Creates a checkbox, allowing editing boolean values."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dCheckBox
 		preClass = wx.PreCheckBox
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, 
+				properties, *args, **kwargs)
 
 	
 	def _initEvents(self):
 		super(dCheckBox, self)._initEvents()
 		self.Bind(wx.EVT_CHECKBOX, self._onWxHit)
 	
+	
 	def initProperties(self):
 		self._3StateToValue = { wx.CHK_UNCHECKED : False, wx.CHK_CHECKED : True, wx.CHK_UNDETERMINED : None}
 		self._ValueTo3State = dict([[v,k] for k,v in self._3StateToValue.iteritems()])
 
+
 	def _getInitPropertiesList(self):
-		additional = ["ThreeState"]
+		additional = ["ThreeState", "Alignment"]
 		original = list(super(dCheckBox, self)._getInitPropertiesList())
 		return tuple(original + additional)
+			
 			
 	def _onWxHit(self, evt):
 		self.flushValue()
@@ -41,95 +44,92 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 
 		
 	# property get/set functions
-	def _getValue(self):
-		if not self._hasWindowStyleFlag(wx.CHK_3STATE):
-			return dcm.dDataControlMixin._getValue(self)
-		else:
-			return self._3StateToValue[self.Get3StateValue()]
-		
-	def _setValue(self, value):
-		if not self._hasWindowStyleFlag(wx.CHK_3STATE):
-			dcm.dDataControlMixin._setValue(self, value)
-		else:
-			try:
-				state = self._ValueTo3State[value]
-			except:
-				state = False
-
-			self.Set3StateValue(state)
-
 	def _getAlignment(self):
 		if self._hasWindowStyleFlag(wx.ALIGN_RIGHT):
 			return "Right"
 		else:
 			return "Left"
 
-	def _setAlignment(self, value):
+	def _setAlignment(self, val):
 		self._delWindowStyleFlag(wx.ALIGN_RIGHT)
-		if str(value) == "Right":
+		if val.lower()[0] == "r":
 			self._addWindowStyleFlag(wx.ALIGN_RIGHT)
-		elif str(value) == "Left":
+		elif val.lower()[0] == "l":
 			pass
 		else:
-			raise ValueError, "The only possible values are 'Left' and 'Right'."
+			raise ValueError, _("The only possible values are 'Left' and 'Right'.")
+		
 
 	def _getThreeState(self):
-		if self._hasWindowStyleFlag(wx.CHK_3STATE):
-			return True
-		else:
-			return False
+		return self._hasWindowStyleFlag(wx.CHK_3STATE)
 
-	def _setThreeState(self, value):
+	def _setThreeState(self, val):
 		self._delWindowStyleFlag(wx.CHK_3STATE)
-		if value == True:
+		if val == True:
 			self._addWindowStyleFlag(wx.CHK_3STATE)
 		
-	def _getUserThreeState(self):
-		if self._hasWindowStyleFlag(wx.CHK_ALLOW_3RD_STATE_FOR_USER):
-			return True
-		else:
-			return False
 
-	def _setUserThreeState(self, value):
+	def _getUserThreeState(self):
+		return self._hasWindowStyleFlag(wx.CHK_ALLOW_3RD_STATE_FOR_USER)
+
+	def _setUserThreeState(self, val):
 		self._delWindowStyleFlag(wx.CHK_ALLOW_3RD_STATE_FOR_USER)
-		if value == True:
+		if val == True:
 			self._addWindowStyleFlag(wx.CHK_ALLOW_3RD_STATE_FOR_USER)
+
+
+	def _getValue(self):
+		if not self._hasWindowStyleFlag(wx.CHK_3STATE):
+			return dcm.dDataControlMixin._getValue(self)
+		else:
+			return self._3StateToValue[self.Get3StateValue()]
+		
+	def _setValue(self, val):
+		if not self._hasWindowStyleFlag(wx.CHK_3STATE):
+			dcm.dDataControlMixin._setValue(self, val)
+		else:
+			try:
+				state = self._ValueTo3State[val]
+			except:
+				state = False
+			self.Set3StateValue(state)
+
 
 	# property definitions follow:
 	Alignment = property(_getAlignment, _setAlignment, None,
-		"""Specifies the alignment of the text.
-			
-		Left  : Checkbox to left of text (default)
-		Right : Checkbox to right of text
-		""")
+			_("""Specifies the alignment of the text.
+				
+			Left  : Checkbox to left of text (default)
+			Right : Checkbox to right of text"""))
 	DynamicAlignment = makeDynamicProperty(Alignment)
 
+
 	ThreeState = property(_getThreeState, _setThreeState, None,
-		"""Specifies wether the checkbox support 3 states.
-			
-		True  : Checkbox supports 3 states
-		False : Checkbox supports 2 states (default)
-		""")
+			_("""Specifies wether the checkbox support 3 states.
+				
+			True  : Checkbox supports 3 states
+			False : Checkbox supports 2 states (default)"""))
 	DynamicThreeState = makeDynamicProperty(ThreeState)
 
+
 	UserThreeState = property(_getUserThreeState, _setUserThreeState, None,
-		"""Specifies whether the user is allowed to set the third state.
-			
-		True  : User is allowed to set the third state.
-		False : User isn't allowed to set the third state.(default)
-		""")
+			_("""Specifies whether the user is allowed to set the third state.
+				
+			True  : User is allowed to set the third state.
+			False : User isn't allowed to set the third state.(default)"""))
 	DynamicUserThreeState = makeDynamicProperty(UserThreeState)
 
+
 	Value = property(_getValue, _setValue, None,
-		'Specifies the current state of the control (the value of the field). (varies)')
+			_("Specifies the current state of the control (the value of the field). (varies)"))
 	DynamicValue = makeDynamicProperty(Value)
 
 
 
 class _dCheckBox_test(dCheckBox):
-			def initProperties(self):
-				self.Caption = "Do you wish to pass?"
-				self.Width = 222			
+	def initProperties(self):
+		self.Caption = _("Do you wish to pass?")
+				
 
 if __name__ == "__main__":
 	import test
