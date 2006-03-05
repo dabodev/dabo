@@ -46,6 +46,10 @@ class dDataControlMixin(dDataControlMixinBase):
 					dabo.errorLog.write(_("Could not set value of %s to %s. Error message: %s")
 							% (self._name, value, e))
 				self._afterValueChanged()
+			else:
+				# Call flushValue() anyway. Data binding properties may have
+				# changed since the value was last set.
+				self.flushValue()
 		else:
 			self._properties["Value"] = value
 

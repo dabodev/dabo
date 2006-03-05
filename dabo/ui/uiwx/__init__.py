@@ -744,6 +744,12 @@ def fontMetricFromFont(txt, font):
 	return ret
 
 
+def fontMetricFromDrawObject(obj):
+	"""Given a drawn text object, returns the width and height of the text."""
+	return fontMetric(txt=obj.Text, face=obj.FontFace, size=obj.FontSize,
+			bold=obj.FontBold, italic=obj.FontItalic)
+	
+
 def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 		italic=None):
 	"""Calculate the width and height of the given text using the supplied
@@ -753,6 +759,11 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	"""
 	if wind is None:
 		wind = dabo.dAppRef.ActiveForm
+	needToRelease = False
+	if wind is None:
+		# Need to create one
+		wind = wx.Frame(None)
+		needToRelease = True
 	if txt is None:
 		try:
 			txt = wind.Caption
@@ -779,6 +790,8 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	dc = wx.ClientDC(wind)
 	dc.SetFont(fnt)
 	ret = dc.GetTextExtent(txt)
+	if needToRelease:
+		wind.Destroy()
 	return ret
 
 

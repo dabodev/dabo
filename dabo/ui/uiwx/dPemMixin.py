@@ -595,6 +595,15 @@ class dPemMixin(dPemMixinBase):
 			self.SetAcceleratorTable(wx.AcceleratorTable(table.values()))
 
 
+	def fitToSizer(self, extraWidth=0, extraHeight=0):
+		"""Resize the control to fit the size required by its sizer."""
+		self.layout()
+		self.Fit()
+		self.Width += extraWidth
+		self.Height += extraHeight
+		self.layout()
+		
+		
 	def createFileDropTarget(self, handler=None):
 		"""Sets up this control to accept files dropped on it."""
 		class FileDropTarget(wx.FileDropTarget):

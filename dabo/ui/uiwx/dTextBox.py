@@ -62,179 +62,6 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		return ""
 
 		
-	# property get/set functions
-	def _getAlignment(self):
-		if self._hasWindowStyleFlag(wx.TE_RIGHT):
-			return "Right"
-		elif self._hasWindowStyleFlag(wx.TE_CENTRE):
-			return "Center"
-		else:
-			return "Left"
-
-	def _setAlignment(self, value):
-		# Note: alignment doesn't seem to work, at least on GTK2
-		self._delWindowStyleFlag(wx.TE_LEFT)
-		self._delWindowStyleFlag(wx.TE_CENTRE)
-		self._delWindowStyleFlag(wx.TE_RIGHT)
-
-		value = str(value)
-
-		if value == 'Left':
-			self._addWindowStyleFlag(wx.TE_LEFT)
-		elif value == 'Center':
-			self._addWindowStyleFlag(wx.TE_CENTRE)
-		elif value == 'Right':
-			self._addWindowStyleFlag(wx.TE_RIGHT)
-		else:
-			raise ValueError, "The only possible values are 'Left', 'Center', and 'Right'"
-
-
-	def _getReadOnly(self):
-		return not self.IsEditable()
-	def _setReadOnly(self, value):
-		if self._constructed():
-			self.SetEditable(not bool(value))
-		else:
-			self._properties["ReadOnly"] = value
-
-
-	def _getPasswordEntry(self):
-		return self._hasWindowStyleFlag(wx.TE_PASSWORD)
-	def _setPasswordEntry(self, value):
-		self._delWindowStyleFlag(wx.TE_PASSWORD)
-		if value:
-			self._addWindowStyleFlag(wx.TE_PASSWORD)
-			self.IsSecret = True
-
-				
-	def _getSelectOnEntry(self):
-		try:
-			return self._SelectOnEntry
-		except AttributeError:
-			return False
-	def _setSelectOnEntry(self, value):
-		self._SelectOnEntry = bool(value)
-
-		
-	def _getValue(self):
-		# Return the value as reported by wx, but convert it to the data type as
-		# reported by self._value.
-		try:
-			_value = self._value
-		except AttributeError:
-			_value = self._value = ""
-		dataType = type(_value)
-		
-		# Get the string value as reported by wx, which is the up-to-date 
-		# string value of the control:
-		strVal = self.GetValue()
-		
-		if dataType == type(None):
-			# The current datatype of the control is NoneType, but more likely it's
-			# just that there happened to be a value of None for this field in one of
-			# the records. We've saved the last used non-None datatype, so we'll 
-			# assume that is the real type to use.
-			dataType = self._lastDataType
-
-		# Convert the current string value of the control, as entered by the 
-		# user, into the proper data type.
-		if dataType == bool:
-			# Bools can't convert from string representations, because a zero-
-			# length denotes False, and anything else denotes True.
-			if strVal == "True":
-				value = True
-			else:
-				value = False
-
-		elif dataType in (datetime.date, datetime.datetime):
-			# We expect the string to be in ISO 8601 format.
-			if dataType == datetime.date:
-				value = self._getDateFromString(strVal)
-			elif dataType == datetime.datetime:
-				value = self._getDateTimeFromString(strVal)
-				
-			if value is None:
-				# String wasn't in ISO 8601 format... put it back to a valid
-				# string with the previous value and the user will have to 
-				# try again.
-				value = self._value
-				
-		elif str(dataType) == "<type 'DateTime'>":
-			# mx DateTime type. MySQLdb will use this if mx is installed.
-			try:
-				import mx.DateTime
-				value = mx.DateTime.DateTimeFrom(str(strVal))
-			except ImportError:
-				value = self._value
-		
-		elif (decimal is not None and dataType == decimal.Decimal):
-			try:
-				_oldVal = self._oldVal
-			except:
-				_oldVal = None
-
-			try:
-				if type(_oldVal) == decimal.Decimal:
-					# Enforce the precision as previously set programatically
-					strVal, _oldVal
-					value = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
-				else:
-					value = decimal.Decimal(strVal)
-			except:
-				value = self._value
-				
-		else:
-			# Other types can convert directly.
-			try:
-				value = dataType(strVal)
-			except:
-				# The Python object couldn't convert it. Our validator, once 
-				# implemented, won't let the user get this far. Just keep the 
-				# old value.
-				value = self._value
-		return value		
-	
-					
-	def _setValue(self, value):
-		if self._constructed():
-			# Must convert all to string for sending to wx, but our internal 
-			# _value will always retain the correct type.
-		
-			# Todo: set up validators based on the type of data we are editing,
-			# so the user can't, for example, enter a letter "p" in a textbox
-			# that is currently showing numeric data.
-		
-			strVal = self._getStringValue(value)
-			_oldVal = self._oldVal = self.Value
-				
-			# save the actual value for return by _getValue:
-			self._value = value
-
-			if value is not None:
-				# Save the type of the value, so that in the case of actual None
-				# assignments, we know the datatype to expect.
-				self._lastDataType = type(value)
-
-			# Update the display no matter what:
-			self.SetValue(strVal)
-		
-			if type(_oldVal) != type(value) or _oldVal != value:
-				self._afterValueChanged()
-		else:
-			self._properties["Value"] = value
-
-		
-	def _getStrictDateEntry(self):
-		try:
-			v = self._strictDateEntry
-		except AttributeError:
-			v = self._strictDateEntry = False
-		return v
-
-	def _setStrictDateEntry(self, val):
-		self._strictDateEntry = bool(val)
-
-
 	def _getStringValue(self, value):
 		"""Given a value of any data type, return a string rendition.
 		
@@ -370,39 +197,214 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		
 		return re.compile(exps)
 
-			
-	# Property definitions:
-	Value = property(_getValue, _setValue, None,
-			"Specifies the current state of the control (the value of the field). (varies)")
-	DynamicValue = makeDynamicProperty(Value)
 
+	# property get/set functions
+	def _getAlignment(self):
+		if self._hasWindowStyleFlag(wx.TE_RIGHT):
+			return "Right"
+		elif self._hasWindowStyleFlag(wx.TE_CENTRE):
+			return "Center"
+		else:
+			return "Left"
+
+	def _setAlignment(self, val):
+		# Note: alignment doesn't seem to work, at least on GTK2
+		self._delWindowStyleFlag(wx.TE_LEFT)
+		self._delWindowStyleFlag(wx.TE_CENTRE)
+		self._delWindowStyleFlag(wx.TE_RIGHT)
+		val = val[0].lower()
+		if val == "l":
+			self._addWindowStyleFlag(wx.TE_LEFT)
+		elif val == "c":
+			self._addWindowStyleFlag(wx.TE_CENTRE)
+		elif val == "r":
+			self._addWindowStyleFlag(wx.TE_RIGHT)
+		else:
+			raise ValueError, "The only possible values are 'Left', 'Center', and 'Right'"
+
+
+	def _getPasswordEntry(self):
+		return self._hasWindowStyleFlag(wx.TE_PASSWORD)
+
+	def _setPasswordEntry(self, val):
+		self._delWindowStyleFlag(wx.TE_PASSWORD)
+		if val:
+			self._addWindowStyleFlag(wx.TE_PASSWORD)
+			self.IsSecret = True
+
+				
+	def _getReadOnly(self):
+		return not self.IsEditable()
+		
+	def _setReadOnly(self, val):
+		if self._constructed():
+			self.SetEditable(not bool(val))
+		else:
+			self._properties["ReadOnly"] = val
+
+
+	def _getSelectOnEntry(self):
+		try:
+			return self._SelectOnEntry
+		except AttributeError:
+			return False
+			
+	def _setSelectOnEntry(self, val):
+		self._SelectOnEntry = bool(val)
+
+		
+	def _getStrictDateEntry(self):
+		try:
+			v = self._strictDateEntry
+		except AttributeError:
+			v = self._strictDateEntry = False
+		return v
+
+	def _setStrictDateEntry(self, val):
+		self._strictDateEntry = bool(val)
+
+
+	def _getValue(self):
+		# Return the value as reported by wx, but convert it to the data type as
+		# reported by self._value.
+		try:
+			_value = self._value
+		except AttributeError:
+			_value = self._value = ""
+		dataType = type(_value)
+		
+		# Get the string value as reported by wx, which is the up-to-date 
+		# string value of the control:
+		strVal = self.GetValue()
+		
+		if dataType == type(None):
+			# The current datatype of the control is NoneType, but more likely it's
+			# just that there happened to be a value of None for this field in one of
+			# the records. We've saved the last used non-None datatype, so we'll 
+			# assume that is the real type to use.
+			dataType = self._lastDataType
+
+		# Convert the current string value of the control, as entered by the 
+		# user, into the proper data type.
+		if dataType == bool:
+			# Bools can't convert from string representations, because a zero-
+			# length denotes False, and anything else denotes True.
+			if strVal == "True":
+				retVal = True
+			else:
+				retVal = False
+
+		elif dataType in (datetime.date, datetime.datetime):
+			# We expect the string to be in ISO 8601 format.
+			if dataType == datetime.date:
+				retVal = self._getDateFromString(strVal)
+			elif dataType == datetime.datetime:
+				retVal = self._getDateTimeFromString(strVal)
+				
+			if retVal is None:
+				# String wasn't in ISO 8601 format... put it back to a valid
+				# string with the previous value and the user will have to 
+				# try again.
+				retVal = self._value
+				
+		elif str(dataType) == "<type 'DateTime'>":
+			# mx DateTime type. MySQLdb will use this if mx is installed.
+			try:
+				import mx.DateTime
+				retVal = mx.DateTime.DateTimeFrom(str(strVal))
+			except ImportError:
+				retVal = self._value
+		
+		elif (decimal is not None and dataType == decimal.Decimal):
+			try:
+				_oldVal = self._oldVal
+			except:
+				_oldVal = None
+
+			try:
+				if type(_oldVal) == decimal.Decimal:
+					# Enforce the precision as previously set programatically
+					strVal, _oldVal
+					retVal = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
+				else:
+					retVal = decimal.Decimal(strVal)
+			except:
+				retVal = self._value
+				
+		else:
+			# Other types can convert directly.
+			try:
+				retVal = dataType(strVal)
+			except:
+				# The Python object couldn't convert it. Our validator, once 
+				# implemented, won't let the user get this far. Just keep the 
+				# old value.
+				retVal = self._value
+		return retVal		
+	
+					
+	def _setValue(self, val):
+		if self._constructed():
+			# Must convert all to string for sending to wx, but our internal 
+			# _value will always retain the correct type.
+		
+			# Todo: set up validators based on the type of data we are editing,
+			# so the user can't, for example, enter a letter "p" in a textbox
+			# that is currently showing numeric data.
+		
+			strVal = self._getStringValue(val)
+			_oldVal = self._oldVal = self.Value
+				
+			# save the actual value for return by _getValue:
+			self._value = val
+
+			if val is not None:
+				# Save the type of the value, so that in the case of actual None
+				# assignments, we know the datatype to expect.
+				self._lastDataType = type(val)
+
+			# Update the display no matter what:
+			self.SetValue(strVal)
+		
+			if type(_oldVal) != type(val) or _oldVal != val:
+				self._afterValueChanged()
+		else:
+			self._properties["Value"] = val
+
+		
+	# Property definitions:
 	Alignment = property(_getAlignment, _setAlignment, None,
-			"Specifies the alignment of the text. (str) \n"
-			"   Left (default) \n"
-			"   Center \n"
-			"   Right")
+			_("""Specifies the alignment of the text. (str)
+			   Left (default)
+			   Center
+			   Right"""))
 	DynamicAlignment = makeDynamicProperty(Alignment)
 
-	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
-			"Specifies whether or not the text can be edited. (bool)")
-	DynamicReadOnly = makeDynamicProperty(ReadOnly)
-
 	PasswordEntry = property(_getPasswordEntry, _setPasswordEntry, None,
-			"Specifies whether plain-text or asterisks are echoed. (bool)")
+			_("Specifies whether plain-text or asterisks are echoed. (bool)"))
 	DynamicPasswordEntry = makeDynamicProperty(PasswordEntry)
+
+	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
+			_("Specifies whether or not the text can be edited. (bool)"))
+	DynamicReadOnly = makeDynamicProperty(ReadOnly)
 	
 	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
-			"Specifies whether all text gets selected upon receiving focus. (bool)")
+			_("Specifies whether all text gets selected upon receiving focus. (bool)"))
 	DynamicSelectOnEntry = makeDynamicProperty(SelectOnEntry)
 
 	StrictDateEntry = property(_getStrictDateEntry, _setStrictDateEntry, None,
-			"""Specifies whether date values must be entered in strict ISO8601 format.
+			_("""Specifies whether date values must be entered in strict ISO8601 format.
 
 			If not strict, dates can be accepted in YYYYMMDD, YYMMDD, and MMDD format,
 			which will be coerced into sensible date values automatically.
 
-			Default is False.""")
+			Default is False."""))
 	DynamicStrictDateEntry = makeDynamicProperty(StrictDateEntry)
+
+	Value = property(_getValue, _setValue, None,
+			_("Specifies the current state of the control (the value of the field). (varies)"))
+	DynamicValue = makeDynamicProperty(Value)
+
 
 
 class _dTextBox_test(dTextBox):

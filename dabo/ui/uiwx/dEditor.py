@@ -491,7 +491,20 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 	def changeFontSize(self, fontSize):
 		if not self:
 			return
-		self._fontSize = fontSize
+		if isinstance(fontSize, basestring):
+			if fontSize.startswith("+"):
+				newSize = self._fontSize + int(fontSize[1:])
+			elif fontSize.startswith("-"):
+				newSize = self._fontSize - int(fontSize[1:])
+			else:
+				# a raw string was passed
+				try:
+					newSize = int(fontSize)
+				except:
+					dabo.errorLog.write(_("Invalid value passed to changeFontSize: %s") % fontSize)
+					return
+			fontSize = newSize
+		self._fontSize = fontSize 
 		self.setDefaultFont(self._fontFace, self._fontSize)
 		self.setPyFont(self._fontFace, self._fontSize)
 		self.Application.setUserSetting("editor.fontsize", self._fontSize)

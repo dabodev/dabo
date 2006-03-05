@@ -307,6 +307,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def GetValue(self, row, col):
 		if row >= self.grid.RowCount:
 			return ""
+		
 
 		bizobj = self.grid.getBizobj()
 		field = self.grid.Columns[col].DataField
@@ -1584,7 +1585,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			dabo.errorLog.write("Cannot update data set: %s" % e)
 
 	# Wrapper methods to Dabo-ize these calls.
-	def getValue(self, row, col):
+	def getValue(self, row=None, col=None):
+		if row is None:
+			row = self.CurrentRow
+		if col is None:
+			col = self.CurrentColumn
 		return self.GetValue(row, col)
 	def setValue(self, row, col, val):
 		return self.SetValue(row, col, val)
