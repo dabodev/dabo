@@ -57,6 +57,21 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 		self._captionBar.Bind(wx.EVT_LEFT_UP, self.__onWxCaptionClick)
 	
 
+	def GetBestSize(self):
+		ret = super(dFoldPanel, self).GetBestSize()
+		sibCount = len(self.GetParent().GetChildren())
+		prnt = self.GetParent()
+		if prnt:
+			psz = prnt.GetSize()
+			pWd, pHt = psz.GetWidth(), psz.GetHeight()
+			capHt = self.CaptionHeight * (sibCount-1)
+			if ret.GetWidth() > pWd:
+				ret.SetWidth(pWd)
+			if ret.GetHeight() > pHt - capHt:
+				ret.SetHeight(pHt - capHt)
+		return ret
+		
+		
 	def onChildBorn(self, evt):
 		self._bar.lockDisplay()
 		ch = evt.child
