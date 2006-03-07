@@ -40,8 +40,11 @@ class dFormMixin(pm.dPemMixin):
 			# We've extracted all we need to know about the form,
 			# so set the child list to the contained child objects.
 			self._childList = contents.get("children", [])
-			# Save any form code for adding in later
-			self._codeDict = contents.get("code", {})
+			# Add any code for this form
+			cd = contents.get("code", {})
+			if cd:
+				self._addCodeAsMethod(cd)
+			
 			
 		# Extract the connection name, if any
 		self._cxnName = self._extractKey(kwargs, "CxnName", "")
@@ -111,10 +114,6 @@ class dFormMixin(pm.dPemMixin):
 				dabo.infoLog.write(_("Could not establish connection '%s'") %
 						self._cxnName)
 		
-		if self._codeDict:
-			# This will add the code in the dict in callable format to the form.
-			self._addCode(self, self._codeDict)
-			
 		if self._childList is not None:
 			# This will contain information for constructing the contained
 			# objects for this form.
@@ -123,37 +122,6 @@ class dFormMixin(pm.dPemMixin):
 		super(dFormMixin, self)._afterInit()
 	
 	
-	def _addCode(self, obj, cd):
-		"""This method takes a dictionary containing method names as
-		keys, and the method code as the corresponding values, compiles
-		it, and adds the method to the specified object. If the method
-		name begins with 'on', and dabo.autoBindEvents is True, an event
-		binding will be made just as with normal auto-binding. If the code 
-		cannot be compiled successfully, an error message will be added
-		to the Dabo ErrorLog, and the method will not be added.
-		"""
-		cls = obj.__class__
-		for nm, code in cd.items():
-			try:
-				code = code.replace("\n]", "]")
-				compCode = compile(code, "", "exec")
-			except SyntaxError, e:
-				dabo.errorLog.write(_("Method '%s' of object '%s' has the following error: %s")
-						% (nm, obj.Name, e))
-				continue
-			# OK, we have the compiled code. Add it to the class definition.
-			# NOTE: if the method name and the name in the 'def' statement
-			# are not the same, the results are undefined, and will probably crash.
-			exec compCode
-			exec "obj.%s = %s.__get__(obj)" % (nm, nm)
-# 			def bind(fun, arg):
-# 				return lambda *a, **k: fun(arg, *a, **k)
-#			exec "obj.%s = bind(%s, obj)" % (nm, nm)
-#			exec ("cls.%s = %s" % (nm, nm))
-		if dabo.autoBindEvents:
-			obj.autoBindEvents()
-			
-
 	def _addChildren(self, childList, parent=None, szr=None, 
 			fromSzr=None):
 		"""This method receives a list of dicts containing information
@@ -284,16 +252,12 @@ class dFormMixin(pm.dPemMixin):
 						obj = eval(atts["Spacing"])
 						del atts["Spacing"]
 					else:
-						obj = cls(parent=parent, attProperties=atts)
+						obj = cls(parent=parent, attProperties=atts, srcCode=code)
 					ret.append(obj)
 					# Set the classID, if any
 					if classID:
 						obj.classID = classID
 					self._addSrcObjToSizer(obj, szr, atts, szrInfo, row, col)
-
-					if code:
-						self._addCode(obj, code)
-					obj.afterInit()
 
 					if kids:
 						if isGrid:
@@ -309,7 +273,7 @@ class dFormMixin(pm.dPemMixin):
 								if pgInfo.has_key("attributes"):
 									pg.setPropertiesFromAtts(pgInfo["attributes"])
 								if pgInfo.has_key("code"):
-									self._addCode(pg, pgInfo["code"])
+									pg._addCodeAsMethod(pgInfo["code"])
 								if pgInfo.has_key("children"):
 									self._addChildren(pgInfo["children"], parent=pg)
 						else:
@@ -393,7 +357,7 @@ class dFormMixin(pm.dPemMixin):
 			
 		if code:
 			# There is custom code overriding the class code. Use that
-			self._addCode(obj, code)
+			obj._addCodeAsMethod(code)
 		for att, val in atts.items():
 			if att in ("children", "classID", "designerClass", "savedClass", "SlotCount"):
 				continue
