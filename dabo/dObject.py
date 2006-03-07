@@ -163,7 +163,32 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 		cls.__methodList = methodList
 		return methodList
 	getMethodList = classmethod(getMethodList)
-
+	
+	
+	def _addCodeAsMethod(self, cd):
+		"""This method takes a dictionary containing method names as
+		keys, and the method code as the corresponding values, compiles
+		it, and adds the methods to this object. If the method name begins 
+		with 'on', and dabo.autoBindEvents is True, an event binding will be 
+		made just as with normal auto-binding. If the code cannot be 
+		compiled successfully, an error message will be added
+		to the Dabo ErrorLog, and the method will not be added.
+		"""
+		cls = self.__class__
+		for nm, code in cd.items():
+			try:
+				code = code.replace("\n]", "]")
+				compCode = compile(code, "", "exec")
+			except SyntaxError, e:
+				dabo.errorLog.write(_("Method '%s' of object '%s' has the following error: %s")
+						% (nm, self.Name, e))
+				continue
+			# OK, we have the compiled code. Add it to the class definition.
+			# NOTE: if the method name and the name in the 'def' statement
+			# are not the same, the results are undefined, and will probably crash.
+			exec compCode
+			exec "self.%s = %s.__get__(self)" % (nm, nm)
+			
 
 	def _getBaseClass(self):
 		# Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:

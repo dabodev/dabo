@@ -21,7 +21,7 @@ class dPemMixin(dPemMixinBase):
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, False
 
 	def __init__(self, preClass=None, parent=None, properties=None, 
-			attProperties=None, *args, **kwargs):
+			attProperties=None, srcCode=None, *args, **kwargs):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
@@ -53,7 +53,10 @@ class dPemMixin(dPemMixinBase):
 			pre = preClass()
 		else:
 			pre = None
-
+		
+		if srcCode:
+			self._addCodeAsMethod(srcCode)
+		
 		# _beforeInit() will call the beforeInit() user hook
 		self._beforeInit(pre)
 		# _initProperties() will call the initProperties() user hook
@@ -212,9 +215,12 @@ class dPemMixin(dPemMixinBase):
 		# Does this control fire its onHover() method when the mouse enters?
 		self._hover = False
 		self._hoverTimer = None
-
+		# _beforeInit hook for Class Designer code
+		self._beforeInitDesignerHook()
+		# Call the user hook
 		self.beforeInit()
-		
+	def _beforeInitDesignerHook(self): pass
+
 	
 	def _afterInit(self):
 		if not wx.HelpProvider.Get():
