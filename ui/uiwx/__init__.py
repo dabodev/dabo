@@ -689,7 +689,10 @@ def createForm(srcFile, show=False):
 	instantiate a form from that spec. Returns a reference
 	to the newly-created form.
 	"""
-	frm = dForm(src=srcFile)
+	from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+	conv = DesignerXmlConverter()
+	cls = conv.classFromXml(srcFile)
+	frm = cls()
 	if show:
 		frm.show()
 	return frm
