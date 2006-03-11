@@ -191,7 +191,7 @@ class MySQL(dBackend):
 
 	def getWordMatchFormat(self):
 		""" MySQL's fulltext search expression"""
-		return """ match (%(field)s) against ("%(value)s") """
+		return """ match (%(table)s.%(field)s) against ("%(value)s") """
 
 
 	def beginTransaction(self, cursor):

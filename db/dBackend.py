@@ -255,11 +255,11 @@ class dBackend(dObject):
 		equality test. If search by words is available, the format
 		must be implemented in each specific backend.
 		
-		The format must have the expressions %(field)s and %(value)s
-		which will be replaced with the field and value strings, 
-		respectively.
+		The format must have the expressions %(table)s, %(field)s, 
+		and %(value)s, which will be replaced with the table, field, 
+		and value strings, respectively.
 		"""
-		return " %(field)s = %(value)s "
+		return " %(table)s.%(field)s = %(value)s "
 
 
 	def getUpdateTablePrefix(self, tbl):
