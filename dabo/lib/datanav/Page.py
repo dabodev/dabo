@@ -224,6 +224,15 @@ class SelectPage(Page):
 				# Handled elsewhere
 				continue
 			
+			try:
+				## the datanav bizobj has an optional dict that contains
+				## mappings from the fld to the actual names of the backend
+				## table and field, so that you can have fields in your where
+				## clause that aren't members of the "main" table.
+				table, field = biz.BackendTableFields[fld]
+			except (AttributeError, KeyError):
+				table, field = tbl, fld
+
 			opVal = self.selectFields[fld]["op"].Value
 			opStr = opVal
 			if not IGNORE_STRING in opVal:
@@ -246,7 +255,7 @@ class SelectPage(Page):
 						useStdFormat = False
 						whrMatches = []
 						for word in matchVal.split():
-							mtch = {"field":fld, "value":word}
+							mtch = {"table": table, "field": field, "value": word}
 							whrMatches.append( biz.getWordMatchFormat() % mtch )
 						if len(whrMatches) > 0:
 							whr = " and ".join(whrMatches)
@@ -298,14 +307,6 @@ class SelectPage(Page):
 				
 				# We have the pieces of the clause; assemble them together
 				if useStdFormat:
-					try:
-						## the datanav bizobj has an optional dict that contains
-						## mappings from the fld to the actual names of the backend
-						## table and field, so that you can have fields in your where
-						## clause that aren't members of the "main" table.
-						table, field = biz.BackendTableFields[fld]
-					except (AttributeError, KeyError):
-						table, field = tbl, fld
 					whr = "%s.%s %s %s" % (table, field, opStr, matchStr)
 				if len(whr) > 0:
 					biz.addWhere(whr)

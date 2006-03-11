@@ -149,8 +149,8 @@ class NEWDATABASE(dBackend):
 	def getWordMatchFormat(self):
 		#### TODO: If NEWDATABASE supports fulltext searches with matching by
 		####    words, create an expression that will execute such a search
-		####    The format must have the expressions %(field)s and %(value)s
-		####    which will be replaced with the field and value strings, 
+		####    The format must have the expressions %(table)s, %(field)s and %(value)s
+		####    which will be replaced with the table, field, and value strings, 
 		####    respectively. If NEWDATABASE does not support word searches, delete
 		####    this method to use the default backend class's method.
-		return """ match (%(field)s) against ("%(value)s") """
+		return """ match (%(table)s.%(field)s) against ("%(value)s") """
