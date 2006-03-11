@@ -410,7 +410,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	"""
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, True, True
 
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None,
+				*args, **kwargs):
 		self._isConstructed = False
 		self._beforeInit()
 		kwargs["Parent"] = parent

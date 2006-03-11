@@ -123,6 +123,9 @@ class dSizerMixin(dObject):
 				self.addDefaultSpacer(index)
 			item._controllingSizer = self
 			item._controllingSizerItem = szItem
+			if ret.IsSizer():
+				item._parent = self._parent
+
 		return ret
 		
 	

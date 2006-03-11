@@ -119,7 +119,10 @@ class dPageFrameMixin(cm.dControlMixin):
 		"""
 		if pgCls is None:
 			pgCls = self.PageClass
-		pg = pgCls(self)
+		if isinstance(pgCls, dPage):
+			pg = pgCls
+		else:
+			pg = pgCls(self)
 		if imgKey:
 			idx = self._imageList[imgKey]
 			self.InsertPage(pos, pg, text=caption, imageId=idx)
