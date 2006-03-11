@@ -88,15 +88,16 @@ import dabo.dEvents as dEvents
 			self.classText += os.linesep + self.indentCode(cd, 1)
 		
 		# Add any contained class definitions.
-		innerTxt = (3 * os.linesep) + \
+		if self.innerClassText:
+			innerTxt = (3 * os.linesep) + \
 """	def getCustControlClass(self, clsName):
 		# Define the classes, and return the matching class
 %s
 
 		return eval(clsName)"""
-		# Add in the class definition text
-		innerTxt = innerTxt % self.indentCode(self.innerClassText, 2)
-		self.classText += innerTxt
+			# Add in the class definition text
+			innerTxt = innerTxt % self.indentCode(self.innerClassText, 2)
+			self.classText += innerTxt
 		
 		# We're done!
 		
@@ -143,7 +144,6 @@ import dabo.dEvents as dEvents
 			currSizer.append(obj%s)
 			currSizer.setItemProps(obj, %s)
 """ % (nm, ornt, rowColString, szInfo)
-
 			
 			else:
 				# This isn't a sizer; it's a control
@@ -156,8 +156,9 @@ import dabo.dEvents as dEvents
 					attPropString = ", attProperties=%s" % cleanAtts
 				self.classText += os.linesep + \
 """		obj = %s%s(currParent%s)
-		currSizer.append(obj%s)
-		currSizer.setItemProps(obj, %s)
+		if currSizer:
+			currSizer.append(obj%s)
+			currSizer.setItemProps(obj, %s)
 """ % (moduleString, nm, attPropString, rowColString, szInfo)
 			
 			# If this item has child objects, push the appropriate objects
@@ -175,21 +176,82 @@ import dabo.dEvents as dEvents
 			currParent.Sizer = obj
 """
 				else:
-					# We're adding things to a control. We have to clear
-					# the current sizer, since the most likely child will 
-					# be the sizer that governs the contained controls.
-					# Tell the class that we are dealing with a new parent object
-					self.classText += os.linesep + \
+					# We need to handle Grids and PageFrames separately,
+					# since these 'children' are not random objects, but specific
+					# classes.
+					if atts.has_key("ColumnCount") or atts.has_key("PageCount"):
+						# Grid or pageframe
+						self.classText += os.linesep + \
+"""		parentStack.append(currParent)
+"""
+						isGrid = atts.has_key("ColumnCount")
+						if not isGrid:
+							# We need to set up a unique name for the pageframe
+							# so that all of the pages can reference their parent. Since
+							# pages can contain lots of other stuff, the default 'obj'
+							# reference will be trampled by the time the second page 
+							# is created.
+							pgfName = self.uniqname("pgf")
+							self.classText += os.linesep + \
+"""		# save a reference to the pageframe control
+		%s = obj
+""" % pgfName
+						for kid in kids:
+							kidCleanAtts = self.cleanAttributes(kid.get("attributes", {}))
+							if isGrid:
+								self.classText += os.linesep + \
+"""		col = dabo.ui.dColumn(obj, attProperties=%s)
+		obj.addColumn(col)
+		col.setPropertiesFromAtts(%s)
+""" % (kidCleanAtts, kidCleanAtts)
+							else:
+								nm = kid.get("name")
+								code = kid.get("code", {})
+								pgKids = kid.get("children")
+								attPropString = ""
+								moduleString = ""
+								# properties??
+								if code:
+									nm = self.createInnerClass(nm, atts, code)
+									nm = "self.getCustControlClass('%s')" % nm
+								else:
+									moduleString = "dabo.ui."
+									attPropString = ", attProperties=%s" % kidCleanAtts
+				
+								self.classText += os.linesep + \
+"""		pg = %s%s(%s%s)
+		%s.appendPage(pg)
+		pg.setPropertiesFromAtts(%s)
+		currSizer = pg.Sizer = None
+		parentStack.append(currParent)
+		currParent = pg
+		sizerDict[currParent] = []
+""" % (moduleString, nm, pgfName, attPropString, pgfName, kidCleanAtts)
+
+								if pgKids:
+									self.createChildCode(pgKids)								
+						# We've already processed the child objects for these
+						# grid/page controls, so clear the kids list.
+						kids = []
+
+					else:
+						# We're adding things to a control. We have to clear
+						# the current sizer, since the most likely child will 
+						# be the sizer that governs the contained controls.
+						# Tell the class that we are dealing with a new parent object
+						self.classText += os.linesep + \
 """		parentStack.append(currParent)
 		currParent = obj
 		currSizer = None
-		sizerDict[currParent] = []
+		if not sizerDict.has_key("currParent"):
+			sizerDict[currParent] = []
 """
-				# Call the create method recursively. When execution
-				# returns to this level, all the children for this object will
-				# have been added.
-				self.createChildCode(kids)
-				
+				if kids:
+					# Call the create method recursively. When execution
+					# returns to this level, all the children for this object will
+					# have been added.
+					self.createChildCode(kids)
+					
 				# Pop as needed off of the stacks.
 				if isSizer:
 					self.classText += os.linesep + \
@@ -200,7 +262,8 @@ import dabo.dEvents as dEvents
 				else:
 					self.classText += os.linesep + \
 """		currParent = parentStack.pop()
-		sizerDict[currParent] = []
+		if not sizerDict.has_key("currParent"):
+			sizerDict[currParent] = []
 """
 		return				
 
@@ -220,7 +283,6 @@ import dabo.dEvents as dEvents
 			self.innerClassText += self.indentCode(cd, 1)
 		self.innerClassText += (2 * os.linesep)
 		return clsName
-
 
 
 	def indentCode(self, cd, level):
@@ -246,7 +308,12 @@ import dabo.dEvents as dEvents
 		"""
 		ret = {}
 		for key, val in attDict.items():
-			if key not in ("SlotCount", "designerClass", "rowColPos", "sizerInfo"):
-				ret[key] = val
+			if key not in ("SlotCount", "designerClass", "rowColPos", "sizerInfo",
+					"PageCount", "ColumnCount"):
+				if key == "Name":
+					# Change it to 'NameBase' instead
+					ret["NameBase"] = val
+				else:
+					ret[key] = val
 		return ret
 		
