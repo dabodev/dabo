@@ -672,7 +672,8 @@ class dPemMixin(dPemMixinBase):
 		""" Instantiate object as a child of self.
 		
 		The classRef argument must be a Dabo UI class definition. (it must inherit 
-		dPemMixin).
+		dPemMixin). Alternatively, it can be a saved class definition in XML format,
+		as created by the Class Designer.
 		
 		The name argument, if passed, will be sent along to the object's 
 		constructor, which will attempt to set its Name accordingly. If the name
@@ -684,28 +685,19 @@ class dPemMixin(dPemMixinBase):
 		"""
 		# See if the 'classRef' is either some XML or the path of an XML file
 		if isinstance(classRef, basestring):
-			if os.path.isfile(classRef):
-				# This is a path, not raw XML
-				xml = open(classRef).read()
-			else:
-				xml = classRef
-			return self._addObjectXML(xml)
-		else:	
-			# Note that we could have just given addObject() a signature of:
-			#   addObject(self, classRef, *args, **kwargs)
-			# Which would simplify the implementation somewhat. However, we want
-			# to enforce name as the second argument to avoid breaking old code.
-			if Name is None:
-				obj = classRef(self, *args, **kwargs)
-			else:
-				obj = classRef(self, Name=Name, *args, **kwargs)
-			return obj
-	
-	
-	def _addObjectXML(self, xml):
-		"""Not implemented yet."""
-		dabo.errorLog.write("Not Implemented: addObject with XML")
-		return None
+			xml = classRef
+			from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+			conv = DesignerXmlConverter()
+			classRef = conv.classFromXml(xml)
+		# Note that we could have just given addObject() a signature of:
+		#   addObject(self, classRef, *args, **kwargs)
+		# Which would simplify the implementation somewhat. However, we want
+		# to enforce name as the second argument to avoid breaking old code.
+		if Name is None:
+			obj = classRef(self, *args, **kwargs)
+		else:
+			obj = classRef(self, Name=Name, *args, **kwargs)
+		return obj
 
 	
 	def raiseEvent(self, eventClass, nativeEvent=None, *args, **kwargs):
