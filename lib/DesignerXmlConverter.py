@@ -309,7 +309,7 @@ import dabo.dEvents as dEvents
 		ret = {}
 		for key, val in attDict.items():
 			if key not in ("SlotCount", "designerClass", "rowColPos", "sizerInfo",
-					"PageCount", "ColumnCount"):
+					"PageCount", "ColumnCount", "classID", "savedClass"):
 				if key == "Name":
 					# Change it to 'NameBase' instead
 					ret["NameBase"] = val
