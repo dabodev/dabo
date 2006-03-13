@@ -65,7 +65,7 @@ import dabo.dEvents as dEvents
 		cleanAtts = self.cleanAttributes(atts)
 		kids = dct.get("children", [])
 		code = dct.get("code", {})
-		# properties??
+		propDefs = eval(self._extractKey(atts, "propertyDefinitions", "{}"))
 		
 		# Create the main class definition
 		self.mainClassName = clsName = self.uniqname(nm)
@@ -86,6 +86,14 @@ import dabo.dEvents as dEvents
 		# Add any main class code
 		for cd in code.values():
 			self.classText += os.linesep + self.indentCode(cd, 1)
+			
+		# Add any property definitions
+		for prop, propDef in propDefs.items():
+			self.classText += os.linesep + \
+"""		%s = property(%s, %s, %s, 
+				\"\"\"%s\"\"\")
+""" % (prop, propDef["getter"], propDef["setter"], propDef["deller"], 
+		propDef["comment"])
 		
 		# Add any contained class definitions.
 		if self.innerClassText:
@@ -273,14 +281,27 @@ import dabo.dEvents as dEvents
 		an object that contains its own method code.
 		"""
 		clsName = self.uniqname(nm)
+		cleanAtts = self.cleanAttributes(atts)
+		propDefs = eval(self._extractKey(atts, "propertyDefinitions", "{}"))
+		
 		self.innerClassText += self.classTemplate  % (clsName, nm, 
-				self.currParent, atts, nm)
+				self.currParent, cleanAtts, nm)
 		self.innerClassNames.append(clsName)
 		# Since the code will be part of this class, which is at the outer level
 		# of indentation, it needs to be indented one level.
 		for cd in code.values():
-# 			self.innerClassText += os.linesep + self.indentCode(cd, 1)
-			self.innerClassText += self.indentCode(cd, 1)
+			self.innerClassText += os.linesep + self.indentCode(cd, 1)
+			if not self.innerClassText.endswith(os.linesep):
+				self.innerClassText += os.linesep
+# 			self.innerClassText += self.indentCode(cd, 1)
+		# Add any property definitions
+		for prop, propDef in propDefs.items():
+			self.innerClassText += os.linesep + \
+"""	%s = property(%s, %s, %s, 
+			\"\"\"%s\"\"\")
+""" % (prop, propDef["getter"], propDef["setter"], propDef["deller"], 
+		propDef["comment"])
+		
 		self.innerClassText += (2 * os.linesep)
 		return clsName
 
@@ -308,8 +329,9 @@ import dabo.dEvents as dEvents
 		"""
 		ret = {}
 		for key, val in attDict.items():
-			if key not in ("SlotCount", "designerClass", "rowColPos", "sizerInfo",
-					"PageCount", "ColumnCount", "classID", "savedClass"):
+			if key not in ("SlotCount", "designerClass", "rowColPos", 
+					"sizerInfo", "PageCount", "ColumnCount", "propertyDefinitions",
+					"classID", "savedClass"):
 				if key == "Name":
 					# Change it to 'NameBase' instead
 					ret["NameBase"] = val
