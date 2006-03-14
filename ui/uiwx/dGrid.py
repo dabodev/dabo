@@ -1938,7 +1938,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		for col in cols:
 			sortIndicator = False
 
-			colObj = self.Columns[col]
+			try:
+				colObj = self.Columns[col]
+			except IndexError:
+				# Grid is probably being created or destroyed, so just return
+				return
 			rect = colObj._getHeaderRect()
 			dc.SetClippingRegion(rect.x, rect.y, rect.width, rect.height)
 

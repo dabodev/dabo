@@ -364,18 +364,6 @@ class dApp(dObject):
 				" touch it." % (self.UI,)))
 
 
-	def onCmdWin(self, evt):
-		self.showCommandWindow()
-
-
-	def showCommandWindow(self, context=None):
-		"""Display a command window for debugging."""
-		if context is None:
-			context = self.ActiveForm
-		dlg = dabo.ui.dShell.dShell(context)
-		dlg.Show()
-
-	
 	def getConnectionByName(self, connName):
 		"""Given the name of a connection, returns the actual
 		connection. Stores the connection so that multiple requests
@@ -436,6 +424,8 @@ class dApp(dObject):
 	########################
 	# This next section simply passes menu events to the UI
 	# layer to be handled there.
+	def onCmdWin(self, evt):
+		self.uiApp.onCmdWin(evt)
 	def onWinClose(self, evt):
 		self.uiApp.onWinClose(evt)
 	def onFileExit(self, evt):

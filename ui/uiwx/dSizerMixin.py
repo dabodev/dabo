@@ -326,12 +326,12 @@ class dSizerMixin(dObject):
 						"Left" : self.borderLeftFlag,
 						"Right" : self.borderRightFlag, 
 						"Top" : self.borderTopFlag}
-				if flag & self.borderAllFlag:
+				if flag & self.borderAllFlag == self.borderAllFlag:
 					return ["All"]
 				ret = []
 				for side, val in pdBorder.items():
-					if flag and val:
-						ret.append(key)
+					if flag & val:
+						ret.append(side)
 				if not ret:
 					ret = ["None"]
 				return ret
@@ -401,6 +401,8 @@ class dSizerMixin(dObject):
 			elif lowprop == ("bordersides"):
 				if val is None:
 					return
+				# Clear the 'all' flag
+				flg = flg & ~pdBorder["all"]
 				if isinstance(val, basestring):
 					val = [val]
 				lowval = [vv.lower() for vv in val]
@@ -415,8 +417,8 @@ class dSizerMixin(dObject):
 							flg = flg | xFlag
 						else:
 							flg = flg & ~xFlag
-
 			itm.SetFlag(flg)
+
 		try:
 			self.Parent.layout()
 		except:
