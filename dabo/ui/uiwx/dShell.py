@@ -1,3 +1,4 @@
+import __builtin__
 import wx
 import wx.py
 from wx.py import pseudo
@@ -10,11 +11,21 @@ from dabo.ui import makeDynamicProperty
 dabo.ui.loadUI("wx")
 
 class dShell(dSplitForm):
+	def _onDestroy(self, evt):
+		__builtin__.raw_input = self._oldRawInput
+
 	def _afterInit(self):
 		self._sashPct = 0.6
 
 		super(dShell, self)._afterInit()
-		
+
+		# PyShell sets the raw_input function to a function of PyShell,
+		# but doesn't set it back on destroy, resulting in errors later
+		# on if something other than PyShell asks for raw_input (pdb, for
+		# example).
+		self._oldRawInput = __builtin__.raw_input
+		self.bindEvent(dabo.dEvents.Destroy, self._onDestroy)
+
 		splt = self.splitter
 		splt.MinimumPanelSize = 80
 		splt.unbindEvent()
