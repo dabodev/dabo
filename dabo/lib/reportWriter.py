@@ -251,7 +251,9 @@ class ReportObject(CaselessDict):
 
 
 	def _getRecord(self):
-		return self.Report._liveRecord
+		if hasattr(self.Report, "_liveRecord"):
+			return self.Report._liveRecord
+		return {}
 
 
 	def _getReport(self):
