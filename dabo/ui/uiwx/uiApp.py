@@ -227,6 +227,18 @@ class uiApp(wx.App, dObject):
 		evt.Skip()
 			
 
+	def onCmdWin(self, evt):
+		self.showCommandWindow()
+
+
+	def showCommandWindow(self, context=None):
+		"""Display a command window for debugging."""
+		if context is None:
+			context = self.ActiveForm
+		dlg = dabo.ui.dShell.dShell(context)
+		dlg.Show()
+
+	
 	def onWinClose(self, evt):
 		"""Close the topmost window, if any."""
 		if self.ActiveForm:
