@@ -1,5 +1,6 @@
 import string
 import types
+import new
 import dabo
 from dabo.lib.propertyHelperMixin import PropertyHelperMixin
 from dabo.lib.doDefaultMixin import DoDefaultMixin
@@ -186,8 +187,12 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 			# OK, we have the compiled code. Add it to the class definition.
 			# NOTE: if the method name and the name in the 'def' statement
 			# are not the same, the results are undefined, and will probably crash.
-			exec compCode
+			nmSpace = {}
+			exec compCode in nmSpace
+			mthd = nmSpace[nm]
 			exec "self.%s = %s.__get__(self)" % (nm, nm)
+			newMethod = new.instancemethod(mthd, self)
+			setattr(self, nm, newMethod)
 			
 
 	def _getBaseClass(self):

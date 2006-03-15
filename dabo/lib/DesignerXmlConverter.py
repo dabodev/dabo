@@ -31,12 +31,11 @@ class DesignerXmlConverter(dObject):
 		# Parse the XML and create the class definition text
 		self.createClassText(dct)
 
-#		compClass = compile(self.classText, "junk.py", "exec")
 		compClass = compile(self.classText, "", "exec")
-		exec compClass
-		ret = eval(self.mainClassName)
-		return ret
-	
+		nmSpace = {}
+		exec compClass in nmSpace
+		return nmSpace[self.mainClassName]
+
 	
 	def createClassText(self, dct):
 		# 'self.classText' will contain the generated code
