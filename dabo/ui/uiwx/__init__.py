@@ -3,6 +3,7 @@ import os
 import datetime
 import time
 import cStringIO
+from dabo.dLocalize import _
 
 ######################################################
 # Very first thing: check for proper wxPython build:
@@ -201,6 +202,30 @@ def callAfterInterval(interval, func, *args, **kwargs):
 	if futureCall:
 		futureCall.Stop()
 	_callAfterIntervalReferences[(func, args)] = wx.FutureCall(interval, func, *args, **kwargs)
+
+
+def setAfter(obj, prop, val):
+	"""Like callAfter(), but allows you to set a property instead of calling
+	a function.
+	"""
+	try:
+		fnc = eval("obj.__class__.%s.fset" % prop)
+		wx.CallAfter(fnc, obj, val)
+	except StandardError, e:
+		dabo.errorLog.write(_("setAfter() failed to set property '%s' to value '%s': %s.")
+				% (prop, val, e))
+	
+
+def setAfterInterval(interval, obj, prop, val):
+	"""Like callAfterInterval(), but allows you to set a property instead 
+	of calling a function.
+	"""
+	try:
+		fnc = eval("obj.__class__.%s.fset" % prop)
+		callAfterInterval(interval, fnc, obj, val)
+	except StandardError, e:
+		dabo.errorLog.write(_("setAfterInterval() failed to set property '%s' to value '%s': %s.")
+				% (prop, val, e))
 
 
 def callEvery(interval, func, *args, **kwargs):
