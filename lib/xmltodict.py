@@ -9,6 +9,8 @@ from xml.parsers import expat
 
 # Python seems to need to compile code with \n linesep:
 code_linesep = "\n"
+eol = os.linesep
+
 
 class Xml2Obj:
 	"""XML to Object"""
@@ -20,6 +22,12 @@ class Xml2Obj:
 		self._mthdName = ""
 		self._mthdCode = ""
 		self._codeDict = None
+		self._inProp = False
+		self._propName = ""
+		self._propData = ""
+		self._propDict = None
+		self._currPropAtt = ""
+		self._currPropDict = None
 		
 
 	def StartElement(self, name, attributes):
@@ -32,9 +40,27 @@ class Xml2Obj:
 				parent["code"] = {}
 				self._codeDict = parent["code"]
 
+		elif name == "properties":
+			# These are the custom property definitions
+			self._inProp = True
+			self._propName = ""
+			self._propData = ""
+			parent = self.nodeStack[-1]
+			if not parent.has_key("properties"):
+				parent["properties"] = {}
+				self._propDict = parent["properties"]
+
 		else:
 			if self._inCode:
 				self._mthdName = name.encode()
+			elif self._inProp:
+				if self._propName:
+					# In the middle of a prop definition
+					self._currPropAtt = name.encode()
+				else:
+					self._propName = name.encode()
+					self._currPropDict = {}
+					self._currPropAtt = ""
 			else:
 				element = {"name": name.encode()}
 				if len(attributes) > 0:
@@ -65,6 +91,18 @@ class Xml2Obj:
 				self._codeDict[self._mthdName] = self._mthdCode
 				self._mthdName = ""
 				self._mthdCode = ""
+		elif self._inProp:
+			if name == "properties":
+				self._inProp = False
+				self._propDict = None
+			elif name == self._propName:
+				# End of an individual prop definition
+				self._propDict[self._propName] = self._currPropDict
+				self._propName = ""
+			else:
+				# end of a property attribute
+				self._currPropDict[self._currPropAtt] = self._propData
+				self._propData = self._currPropAtt = ""
 		else:
 			self.nodeStack = self.nodeStack[:-1]
 
@@ -79,6 +117,8 @@ class Xml2Obj:
 					self._mthdCode += "%s%s" % (code_linesep, data)
 				else:
 					self._mthdCode = data
+			elif self._inProp:
+				self._propData += data
 			else:
 				element = self.nodeStack[-1]
 				if not element.has_key("cdata"):
@@ -106,7 +146,7 @@ def xmltodict(xml, attsToSkip=[]):
 	"""Given an xml string or file, return a Python dictionary."""
 	parser = Xml2Obj()
 	parser.attsToSkip = attsToSkip
-	if os.linesep not in xml and os.path.exists(xml):
+	if eol not in xml and os.path.exists(xml):
 		# argument was a file
 		return parser.ParseFromFile(xml)
 	else:
@@ -154,8 +194,8 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 	ret += "%s<%s%s" % ("\t" * level, dct["name"], att)
 
 	if (not dct.has_key("cdata") and not dct.has_key("children") 
-			and not dct.has_key("code")):
-		ret += " />%s" % os.linesep
+			and not dct.has_key("code") and not dct.has_key("properties")):
+		ret += " />%s" % eol
 	else:
 		ret += ">"
 		if dct.has_key("cdata"):
@@ -163,31 +203,43 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
 		if dct.has_key("code"):
 			if len(dct["code"].keys()):
-				ret += "%s%s<code>%s" % (os.linesep, "\t" * (level+1), os.linesep)
+				ret += "%s%s<code>%s" % (eol, "\t" * (level+1), eol)
 				methodTab = "\t" * (level+2)
 				for mthd, cd in dct["code"].items():
-					# Convert \n's in the code to os.linesep:
-					cd = os.linesep.join(cd.splitlines())
+					# Convert \n's in the code to eol:
+					cd = eol.join(cd.splitlines())
 
 					# Make sure that the code ends with a linefeed
-					if not cd.endswith(os.linesep):
-						cd += os.linesep
+					if not cd.endswith(eol):
+						cd += eol
 
 					ret += "%s<%s><![CDATA[%s%s]]>%s%s</%s>%s" % (methodTab,
-							mthd, os.linesep, cd, os.linesep, 
-							methodTab, mthd, os.linesep)
-				ret += "%s</code>%s"	% ("\t" * (level+1), os.linesep)
-					
+							mthd, eol, cd, eol, 
+							methodTab, mthd, eol)
+				ret += "%s</code>%s"	% ("\t" * (level+1), eol)
 
+		if dct.has_key("properties"):
+			if len(dct["properties"].keys()):
+				ret += "%s%s<properties>%s" % (eol, "\t" * (level+1), eol)
+				currTab = "\t" * (level+2)
+				for prop, val in dct["properties"].items():
+					ret += "%s<%s>%s" % (currTab, prop, eol)
+					for propItm, itmVal in val.items():
+						itmTab = "\t" * (level+3)
+						ret += "%s<%s>%s</%s>%s" % (itmTab, propItm, itmVal, 
+								propItm, eol)
+					ret += "%s</%s>%s" % (currTab, prop, eol)
+				ret += "%s</properties>%s"	% ("\t" * (level+1), eol)
+					
 		if dct.has_key("children") and len(dct["children"]) > 0:
-			ret += os.linesep
+			ret += eol
 			for child in dct["children"]:
 				ret += dicttoxml(child, level+1, linesep=linesep)
 		indnt = ""
-		if ret.endswith(os.linesep):
+		if ret.endswith(eol):
 			# Indent the closing tag
 			indnt = ("\t" * level)
-		ret += "%s</%s>%s" % (indnt, dct["name"], os.linesep)
+		ret += "%s</%s>%s" % (indnt, dct["name"], eol)
 
 		if linesep:
 			ret += linesep.get(level, "")
@@ -195,7 +247,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 	if level == 0:
 		if header is None:
 			header = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>%s' \
-					% os.linesep 
+					% eol 
 		ret = header + ret
 
 	return ret
