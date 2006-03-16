@@ -72,7 +72,6 @@ from dCheckListBox import dCheckListBox
 from dColorDialog import dColorDialog
 from dComboBox import dComboBox
 from dDateTextBox import dDateTextBox
-from dDragImage import dDragImage
 from dDropdownList import dDropdownList
 from dDialog import dDialog
 from dDialog import dOkCancelDialog
