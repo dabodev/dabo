@@ -282,6 +282,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def IsEmptyCell(self, row, col):
+		# pkm 3/16/06: Unconditionally returning False here solves the problem of 
+		#              previous cell contents overlapping into this column. I'll
+		#              leave the old code intact for awhile just in case...
+		return False
+
 		if row >= self.grid.RowCount:
 			return True
 
@@ -308,19 +313,23 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		if row >= self.grid.RowCount:
 			return ""
 		
-
+		ret = None
 		bizobj = self.grid.getBizobj()
 		field = self.grid.Columns[col].DataField
 		
 		if bizobj:
 			if field:
-				return bizobj.getFieldVal(field, row)
+				ret = bizobj.getFieldVal(field, row)
 			else:
-				return ""
-		try:
-			ret = self.grid.DataSet[row][field]
-		except:
-			ret = ""
+				ret = ""
+		else:
+			try:
+				ret = self.grid.DataSet[row][field]
+			except:
+				ret = ""
+
+		if ret is None:
+			ret = self.grid.NoneDisplay
 		return ret
 
 
