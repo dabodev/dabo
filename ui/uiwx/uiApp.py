@@ -105,7 +105,6 @@ class uiApp(wx.App, dObject):
 		dObject.__init__(self)
 		
 		self.Name = _("uiApp")
-		self._noneDisp = _("<null>")
 		# wx has properties for appName and vendorName, so Dabo should update
 		# these. Among other possible uses, I know that on Win32 wx will use
 		# these for determining the registry key structure.
@@ -736,20 +735,10 @@ class uiApp(wx.App, dObject):
 		self._drawSizerOutlines = val
 	
 	
-	def _getNoneDisp(self):
-		return self._noneDisp
-
-	def _setNoneDisp(self, val):
-		self._noneDisp = val
-		
-
 	
 	ActiveForm = property(_getActiveForm, None, None, 
 			_("Returns the form that currently has focus, or None.	(dForm)" ) )
 
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
 			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)") )
-	
-	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None, 
-			_("Text to display for null (None) values.	(str)") )
 	
