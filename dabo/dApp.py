@@ -558,9 +558,12 @@ class dApp(dObject):
 		
 		
 	def _getNoneDisp(self):
-		return self.uiApp.NoneDisplay
+		v = self._noneDisplay = getattr(self, "_noneDisplay", _("< None >"))
+		return v
+
 	def _setNoneDisp(self, val):
-		self.uiApp.NoneDisplay = val
+		assert isinstance(val, basestring)
+		self._noneDisplay = val
 		
 
 	def _getPlatform(self):

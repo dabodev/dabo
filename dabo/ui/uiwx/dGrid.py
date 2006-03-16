@@ -316,13 +316,16 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		
 		if bizobj:
 			if field:
-				return bizobj.getFieldVal(field, row)
+				ret = bizobj.getFieldVal(field, row)
 			else:
-				return ""
+				ret = ""
 		try:
 			ret = self.grid.DataSet[row][field]
 		except:
 			ret = ""
+
+		if ret is None:
+			ret = self.grid.NoneDisplay
 		return ret
 
 
@@ -3356,14 +3359,29 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._movableColumns = val
 
 
-	def _getNoneDisp(self):
-		try:
-			# See if the Application has a value set
-			ret = self.Application.NoneDisplay
-		except:
-			ret = _("<null>")
-		return ret
+	def _getNoneDisplay(self):
+		if hasattr(self, "_noneDisplay"):
+			# overridden in this class; use it
+			v = self._noneDisplay
+		else:
+			# not overridden here; use the setting in dApp:
+			if self.Application:
+				v = self.Application.NoneDisplay
+			else:
+				# no dApp; return the default.
+				v = _("< None >")
+		return v
 		
+	def _setNoneDisplay(self, val):
+		if val is None:
+			# Remove the att so that the default comes from dApp again
+			if hasattr(self, "_noneDisplay"):
+				del self._noneDisplay
+			return
+
+		assert isinstance(val, basestring)
+		self._noneDisplay = val
+
 
 	def _getResizableColumns(self):
 		return self._resizableColumns
@@ -3692,7 +3710,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	MovableColumns = property(_getMovableColumns, _setMovableColumns, None,
 			_("When False, the user cannot re-order the columns by dragging the headers  (bool)"))
 	
-	NoneDisplay = property(_getNoneDisp, None, None, 
+	NoneDisplay = property(_getNoneDisplay, _setNoneDisplay, None, 
 			_("Text to display for null (None) values.  (str)") )
 	
 	ResizableColumns = property(_getResizableColumns, _setResizableColumns, None,
