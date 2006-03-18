@@ -30,6 +30,10 @@ class DesignerXmlConverter(dObject):
 		dct = xtd(xml)
 		# Parse the XML and create the class definition text
 		self.createClassText(dct)
+		
+		## For debugging. This creates a copy of the generated code
+		## so that you can help determine any problems.
+		open("CLASSTEXT.py", "w").write(self.classText)
 
 		compClass = compile(self.classText, "", "exec")
 		nmSpace = {}
@@ -37,9 +41,11 @@ class DesignerXmlConverter(dObject):
 		return nmSpace[self.mainClassName]
 
 	
-	def createClassText(self, dct):
+	def createClassText(self, dct, addImports=True, specList=[]):
 		# 'self.classText' will contain the generated code
-		self.classText = """import dabo
+		self.classText = ""
+		if addImports:
+			self.classText += """import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 
@@ -61,9 +67,24 @@ import dabo.dEvents as dEvents
 	
 		nm = dct.get("name")
 		atts = dct.get("attributes", {})
-		cleanAtts = self.cleanAttributes(atts)
-		kids = dct.get("children", [])
 		code = dct.get("code", {})
+		kids = dct.get("children", [])
+		clsID = atts.get("classID", None)
+		rmv = []
+		specKids = []
+		for itm in specList:
+			if itm:
+				target = [subitem for subitem in itm
+						if subitem.get("attributes", {}).get("classID", "") == clsID]
+				if target:
+					atts.update(target[0].get("attributes", {}))
+					specKids.append(target[0].get("children", []))
+					code.update(target[0].get("code", {}))
+			else:
+				rmv.append(itm)
+		for rm in rmv:
+			specList.remove(rm)
+		cleanAtts = self.cleanAttributes(atts)
 		propDefs = eval(self._extractKey(atts, "propertyDefinitions", "{}"))
 		
 		# Create the main class definition
@@ -80,7 +101,7 @@ import dabo.dEvents as dEvents
 		sizerDict[currParent] = []
 """	
 		# Add the child code.
-		self.createChildCode(kids)
+		self.createChildCode(kids, specKids)
 		
 		# Add any main class code
 		for cd in code.values():
@@ -100,29 +121,44 @@ import dabo.dEvents as dEvents
 """	def getCustControlClass(self, clsName):
 		# Define the classes, and return the matching class
 %s
-
 		return eval(clsName)"""
 			# Add in the class definition text
 			innerTxt = innerTxt % self.indentCode(self.innerClassText, 2)
 			self.classText += innerTxt
 		
 		# We're done!
-		
-		## For debugging. This creates a copy of the generated code
-		## so that you can help determine any problems.
-		open("CLASSTEXT.py", "w").write(self.classText)
 		return
 	
 	
-	def createChildCode(self, childList):
+	def createChildCode(self, childList, specChildList=[]):
 		"""Takes a list of child object dicts, and adds their code to the 
 		generated class text.
 		"""
 		if not isinstance(childList, (list, tuple)):
 			childList = [childList]
+		if not isinstance(specChildList, (list, tuple)):
+			specChildList = [[specChildList]]
+		elif (len(specChildList) == 0) or not isinstance(specChildList[0], (list, tuple)):
+			specChildList = [specChildList]
 		for child in childList:
 			nm = child.get("name")
 			atts = child.get("attributes", {})
+			clsID = atts.get("classID", "")
+			
+# 			if clsID == "46914000":
+# 				dabo.trace()
+
+			specChild = {}
+			specKids = []
+			specCode = {}
+			for spc in specChildList:
+				specChildMatch = [specChild for specChild in spc
+						if specChild.get("attributes", {}).get("classID", None) == clsID]
+				if specChildMatch:
+					specChild = specChildMatch[0]
+					atts.update(specChild.get("attributes", {}))
+					specKids.append(specChild.get("children", []))
+					specCode.update(specChild.get("code", {}))
 			cleanAtts = self.cleanAttributes(atts)
 			szInfo = self._extractKey(atts, "sizerInfo", {})
 			rcPos = self._extractKey(atts, "rowColPos")
@@ -131,26 +167,40 @@ import dabo.dEvents as dEvents
 				rowColString = ", row=%s, col=%s" % eval(rcPos)
 			kids = child.get("children", [])
 			code = child.get("code", {})
+			code.update(specCode)
 			isCustom = False
-			# properties??
-			if code:
-				nm = self.createInnerClass(nm, atts, code)
+			isInherited = False
+			
+			clsname = self._extractKey(atts, "designerClass", "")
+			if os.path.exists(clsname) and atts.has_key("classID"):
+				chldList = [[child]] + specChildList[:]
+				nm = self.createInheritedClass(clsname, chldList)
+				code = {}
+				kids = []
 				isCustom = True
-			isSizer = atts.get("designerClass", "") in ("LayoutSizer", "LayoutGridSizer",
-					"LayoutBorderSizer")
+				isInherited = True
+			else:
+				if code:
+					nm = self.createInnerClass(nm, atts, code)
+					isCustom = True
 
+			isSizer = (clsname in ("LayoutSizer", "LayoutGridSizer",
+					"LayoutBorderSizer")) or (nm in ("dSizer", "dBorderSizer", "dGridSizer"))
 			if isSizer:
-				isGridSizer = atts.get("designerClass", "") == "LayoutGridSizer"
+				isGridSizer = clsname == "LayoutGridSizer"
+				isBorderSizer = clsname == "LayoutBorderSizer"
 				ornt = ""
 				if not isGridSizer:
-					ornt = "Orientation='%s'" % self._extractKey(atts, "Orientation", "V")
-
+					ornt = "Orientation='%s'" % self._extractKey(atts, "Orientation", "H")
+				prnt = ""
+				if isBorderSizer:
+					prnt = "currParent, "
 				self.classText += os.linesep + \
-"""		obj = dabo.ui.%s(%s)
+"""		obj = dabo.ui.%s(%s%s)
 		if currSizer:
 			currSizer.append(obj%s)
 			currSizer.setItemProps(obj, %s)
-""" % (nm, ornt, rowColString, szInfo)
+""" % (nm, prnt, ornt, rowColString, szInfo)
 			
 			else:
 				# This isn't a sizer; it's a control
@@ -257,7 +307,7 @@ import dabo.dEvents as dEvents
 					# Call the create method recursively. When execution
 					# returns to this level, all the children for this object will
 					# have been added.
-					self.createChildCode(kids)
+					self.createChildCode(kids, specKids)
 					
 				# Pop as needed off of the stacks.
 				if isSizer:
@@ -303,6 +353,24 @@ import dabo.dEvents as dEvents
 		
 		self.innerClassText += (2 * os.linesep)
 		return clsName
+	
+	
+	
+	def createInheritedClass(self, pth, specList):
+		"""When a custom class is contained in a cdxml file, we need
+		to add that class separately, and inherit from that. We will 
+		be passed a path to the cdxml file, along with a list of 
+		dictionaries that contains a dict for each level of specialization
+		for this class. 
+		"""
+		conv = DesignerXmlConverter()
+		xml = open(pth).read()
+		xmlDict = xtd(xml)
+		conv.createClassText(xmlDict, addImports=False, specList=specList)
+		self.innerClassText += conv.classText + (2 * os.linesep)
+		self.innerClassNames.append(conv.mainClassName)
+		return conv.mainClassName
+		
 
 
 	def indentCode(self, cd, level):
