@@ -7,6 +7,7 @@ class TestFrame(wx.Frame):
 		self.SetSize((300, 400))
 
 		self.tx1 = wx.TextCtrl(self, -1)
+		self.tx1.SetValue("Click button")
 		self.tx1.SetPosition( (20,20) )
 		self.tx1.Name = "Text1"
 
@@ -15,6 +16,7 @@ class TestFrame(wx.Frame):
 
 	def onBut(self, evt):
 		self.setFont()
+		self.printFont()
 
 	def setFont(self):
 		print "----button click----"
@@ -34,6 +36,10 @@ class TestFrame(wx.Frame):
 			return
 
 		print "font was already italic"
+
+	def printFont(self):
+		font = self.tx1.GetFont()
+		print "Font says it is %s and %s." % (font.GetWeightString(), font.GetStyleString())
 
 		
 		
