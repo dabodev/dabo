@@ -277,14 +277,15 @@ class dCursorMixin(dObject):
 
 	def storeFieldTypes(self):
 		"""Stores the data type for each column in the result set."""
-		self._types = {}
 		if self.RowCount > 0:
 			rec = self._records[0]
 			for fname, fval in rec.items():
 				self._types[fname] = type(fval)
 		else:
-			dabo.errorLog.write(_("RowCount is %s, so storeFieldTypes() can't run as implemented.") % self.RowCount)
-	
+			# See if we already have the information from a prior query
+			if len(self._types.keys()) == 0:
+				dabo.errorLog.write(_("RowCount is %s, so storeFieldTypes() can't run as implemented.") % self.RowCount)
+
 	
 	def sort(self, col, dir=None, caseSensitive=True):
 		""" Sort the result set on the specified column in the specified order.
