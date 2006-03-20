@@ -50,6 +50,11 @@ class dNode(dObject):
 		return
 		
 	
+	def _onFontPropsChanged(self, evt):
+		# Sent by the dFont object when any props changed. Wx needs to be notified:
+		self.tree.SetItemFont(self.itemID, self.Font._nativeFont)
+
+
 	def _getBackColor(self):
 		return self.tree.GetItemBackgroundColour(self.itemID)
 
@@ -82,23 +87,24 @@ class dNode(dObject):
 
 
 	def _getFont(self):
-		return dabo.ui.dFont(font=self.tree.GetItemFont(self.itemID))
+		if hasattr(self, "_font"):
+			v = self._font
+		else:
+			v = self.Font = dabo.ui.dFont(_nativeFont=self.tree.GetItemFont(self.itemID))
+		return v
 	
 	def _setFont(self, val):
-		if not isinstance(val, dabo.ui.dFont):
-			# This will help make sure that any old-style font references
-			# are caught.
-			dabo.errorLog.write("Incorrect font type passed")
-			dabo.dBug.logPoint()
-			return
-		self.tree.SetItemFont(self.itemID, val.NativeObject)
+		assert isinstance(val, dabo.ui.dFont)
+		self._font = val
+		self.tree.SetItemFont(self.itemID, val._nativeFont)
+		val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
 
 	
 	def _getFontBold(self):
-		return self.tree.IsBold(self.itemID)
+		return self.Font.Bold
 	
 	def _setFontBold(self, val):
-		self.tree.SetItemBold(self.itemID, val)
+		self.Font.Bold = val
 
 
 	def _getFontDescription(self):
@@ -114,7 +120,6 @@ class dNode(dObject):
 	
 	def _setFontItalic(self, val):
 		self.Font.Italic = val
-		self.tree.SetItemFont(self.itemID, self.Font.NativeObject)
 
 	
 	def _getFontFace(self):
@@ -122,7 +127,6 @@ class dNode(dObject):
 
 	def _setFontFace(self, val):
 		self.Font.Face = val
-		self.tree.SetItemFont(self.itemID, self.Font.NativeObject)
 
 	
 	def _getFontSize(self):
@@ -130,7 +134,6 @@ class dNode(dObject):
 	
 	def _setFontSize(self, val):
 		self.Font.Size = val
-		self.tree.SetItemFont(self.itemID, self.Font.NativeObject)
 	
 	
 	def _getFontUnderline(self):
@@ -138,7 +141,6 @@ class dNode(dObject):
 	
 	def _setFontUnderline(self, val):
 		self.Font.Underline = val
-		self.tree.SetItemFont(self.itemID, self.Font.NativeObject)
 
 
 	def _getForeColor(self):
