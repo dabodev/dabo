@@ -143,8 +143,17 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 					typeDict[Decimal] = "decimal"
 				try:
 					col.DataType = typeDict[col.DataType]
-				except: pass
-				
+				except:
+					# Not one of the standard types. Extract it from
+					# the string version of the type
+					try:
+						col.DataType = str(col.DataType).split("'")[1].lower()
+					except:
+						# Something's odd. Print an error message and move on.
+						dabo.errorLog.write("Unknown data type found in setColumns(): %s"
+								% col.DataType)
+						col.DataType = str(col.DataType)
+						
 		# Make sure that all cols have an Order set
 		for num in range(len(colDefs)):
 			col = colDefs[num]
