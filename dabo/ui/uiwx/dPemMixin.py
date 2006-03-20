@@ -885,7 +885,10 @@ class dPemMixin(dPemMixinBase):
 	
 	def setFocus(self):
 		"""Sets focus to the object."""
-		self.SetFocus()
+		# GotFocus for the next object fires before LostFocus for the current object,
+		# resulting in trouble if you call setFocus() inside your LostFocus code.
+		# Using a callAfter appears to solve the issue.
+		dabo.ui.callAfter(self.SetFocus)
 		
 
 	def __onUpdate(self, evt):
