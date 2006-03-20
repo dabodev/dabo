@@ -1217,6 +1217,11 @@ class dPemMixin(dPemMixinBase):
 		return None
 
 
+	def _onFontPropsChanged(self, evt):
+		# Sent by the dFont object when any props changed. Wx needs to be notified:
+		self.SetFont(self.Font._nativeFont)
+
+
 	# The following 3 flag functions are used in some of the property
 	# get/set functions.
 	def _hasWindowStyleFlag(self, flag):
@@ -1364,9 +1369,9 @@ class dPemMixin(dPemMixinBase):
 		if self._constructed():
 			## 2/23/2005: there is a bug in wxGTK that resets the font when the 
 			##            caption changes. So this is a workaround:
-			font = self.GetFont()
+			font = self.Font
 			self.SetLabel(val)
-			self.SetFont(font)
+			self.Font = font
 
 			# Frames have a Title separate from Label, but I can't think
 			# of a reason why that would be necessary... can you? 
@@ -1409,104 +1414,77 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _getFont(self):
-		ret = dabo.ui.dFont(Bold=self.FontBold, 
-				Face=self.FontFace, Italic=self.FontItalic, 
-				Size=self.FontSize, Underline=self.FontUnderline)
-		return ret
+		if hasattr(self, "_font"):
+			v = self._font
+		else:
+			v = self.Font = dabo.ui.dFont(_nativeFont=self.GetFont())
+		return v
 	
 	def _setFont(self, val):
+		assert isinstance(val, dabo.ui.dFont)
 		if self._constructed():
-			if val.Bold is not None:
-				self.FontBold = val.Bold
-			if val.Face is not None:
-				self.FontFace = val.Face
-			if val.Italic is not None:
-				self.FontItalic = val.Italic
-			if val.Size is not None:
-				self.FontSize = val.Size
-			if val.Underline is not None:
-				self.FontUnderline = val.Underline
+			self._font = val
+			self.SetFont(val._nativeFont)
+			val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
 		else:
 			self._properties["Font"] = val
 
 	
 	def _getFontBold(self):
-		return self.GetFont().GetWeight() == wx.BOLD
+		return self.Font.Bold
 	
 	def _setFontBold(self, val):
 		if self._constructed():
-			font = self.GetFont()
-			if val:
-				font.SetWeight(wx.BOLD)
-			else:
-				font.SetWeight(wx.LIGHT)
-			self.SetFont(font)
+			self.Font.Bold = bool(val)
 		else:
 			self._properties["FontBold"] = val
 
 
 	def _getFontDescription(self):
-		f = self.GetFont()
-		ret = f.GetFaceName() + " " + str(f.GetPointSize())
-		if f.GetWeight() == wx.BOLD:
-			ret += " B"
-		if f.GetStyle() == wx.ITALIC:
-			ret += " I"
-		return ret
+		return self.Font.Description
 	
 
 	def _getFontInfo(self):
-		return self.GetFont().GetNativeFontInfoDesc()
+		return self.Font._nativeFont.GetNativeFontInfoDesc()
 
 		
 	def _getFontItalic(self):
-		return self.GetFont().GetStyle() == wx.ITALIC
+		return self.Font.Italic
 	
 	def _setFontItalic(self, val):
 		if self._constructed():
-			font = self.GetFont()
-			if val:
-				font.SetStyle(wx.ITALIC)
-			else:
-				font.SetStyle(wx.NORMAL)
-			self.SetFont(font)
+			self.Font.Italic = bool(val)
 		else:
 			self._properties["FontItalic"] = val
 
 	
 	def _getFontFace(self):
-		return self.GetFont().GetFaceName()
+		return self.Font.Face
 
 	def _setFontFace(self, val):
 		if self._constructed():
-			f = self.GetFont()
-			f.SetFaceName(val)
-			self.SetFont(f)
+			self.Font.Face = val
 		else:
 			self._properties["FontFace"] = val
 
 	
 	def _getFontSize(self):
-		return self.GetFont().GetPointSize()
+		return self.Font.Size
 	
 	def _setFontSize(self, val):
 		if self._constructed():
-			font = self.GetFont()
-			font.SetPointSize(int(val))
-			self.SetFont(font)
+			self.Font.Size = val
 		else:
 			self._properties["FontSize"] = val
 	
 
 	def _getFontUnderline(self):
-		return self.GetFont().GetUnderlined()
+		return self.Font.Underline
 	
 	def _setFontUnderline(self, val):
 		if self._constructed():
 			# underlining doesn't seem to be working...
-			font = self.GetFont()
-			font.SetUnderlined(bool(val))
-			self.SetFont(font)
+			self.Font.Underline = bool(val)
 		else:
 			self._properties["FontUnderline"] = val
 

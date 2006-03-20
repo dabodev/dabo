@@ -7,24 +7,30 @@ from dabo.ui import makeDynamicProperty
 
 class dFont(dObject):
 	"""This class wraps the various font properties into a single object."""
-	def __init__(self, properties=None, font=None, *args, **kwargs):
-		if font is not None:
-			self._nativeObject = font
+	def __init__(self, properties=None, _nativeFont=None, *args, **kwargs):
+		if _nativeFont is not None:
+			self._nativeFont = _nativeFont
 		else:
-			self._nativeObject = wx.Font(dabo.settings.defaultFontSize, 
-					wx.DEFAULT, wx.NORMAL, wx.NORMAL)
+			self._nativeFont = wx.Font(dabo.settings.defaultFontSize, 
+					wx.FONTFAMILY_DEFAULT, wx.FONTSTYLE_NORMAL, 
+					wx.FONTWEIGHT_NORMAL)
 	
 		super(dFont, self).__init__(properties=properties, *args, **kwargs)
 
+
+	def _propsChanged(self):
+		self.raiseEvent(dabo.dEvents.FontPropertiesChanged)
+
 	
 	def _getBold(self):
-		return (self._nativeObject.GetWeight() == wx.BOLD)
+		return (self._nativeFont.GetWeight() == wx.FONTWEIGHT_BOLD)
 
 	def _setBold(self, val):
 		if val:
-			self._nativeObject.SetWeight(wx.BOLD)
+			self._nativeFont.SetWeight(wx.FONTWEIGHT_BOLD)
 		else:
-			self._nativeObject.SetWeight(wx.LIGHT)
+			self._nativeFont.SetWeight(wx.FONTWEIGHT_NORMAL)
+		self._propsChanged()
 
 
 	def _getDescription(self):
@@ -37,41 +43,38 @@ class dFont(dObject):
 
 
 	def _getFace(self):
-		return self._nativeObject.GetFaceName()
+		return self._nativeFont.GetFaceName()
 
 	def _setFace(self, val):
-		self._nativeObject.SetFaceName(val)
+		self._nativeFont.SetFaceName(val)
+		self._propsChanged()
 
 
 	def _getItalic(self):
-		return (self._nativeObject.GetStyle() == wx.ITALIC)
+		return (self._nativeFont.GetStyle() == wx.FONTSTYLE_ITALIC)
 
 	def _setItalic(self, val):
 		if val:
-			self._nativeObject.SetStyle(wx.ITALIC)
+			self._nativeFont.SetStyle(wx.FONTSTYLE_ITALIC)
 		else:
-			self._nativeObject.SetStyle(wx.NORMAL)
-
-
-	def _getNativeObject(self):
-		return self._nativeObject
-
-	def _setNativeObject(self, val):
-		self._nativeObject = val
+			self._nativeFont.SetStyle(wx.FONTSTYLE_NORMAL)
+		self._propsChanged()
 
 
 	def _getSize(self):
-		return self._nativeObject.GetPointSize()
+		return self._nativeFont.GetPointSize()
 
 	def _setSize(self, val):
-		self._nativeObject.SetPointSize(val)
+		self._nativeFont.SetPointSize(val)
+		self._propsChanged()
 
 
 	def _getUnderline(self):
-		return self._nativeObject.GetUnderlined()
+		return self._nativeFont.GetUnderlined()
 
 	def _setUnderline(self, val):
-		self._nativeObject.SetUnderlined(val)
+		self._nativeFont.SetUnderlined(val)
+		self._propsChanged()
 
 
 	Bold = property(_getBold, _setBold, None,
@@ -85,9 +88,6 @@ class dFont(dObject):
 	
 	Italic = property(_getItalic, _setItalic, None,
 			_("Italic setting for this font  (bool)"))
-	
-	NativeObject = property(_getNativeObject, _setNativeObject, None,
-			_("UI toolkit-specific font object  (wx.Font)"))
 	
 	Size = property(_getSize, _setSize, None,
 			_("Size in points for this font  (int)"))

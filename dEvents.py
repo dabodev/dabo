@@ -259,6 +259,13 @@ class Destroy(Event):
 	appliesToClass = classmethod(appliesToClass)
 	
 
+class FontPropertiesChanged(Event):
+	"""Occurs when the properties of a dFont have changed."""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dFont)
+	appliesToClass = classmethod(appliesToClass)
+
+
 class Hit(Event):
 	"""Occurs with the control's default event (button click, 
 	listbox pick, checkbox, etc.)

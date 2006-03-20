@@ -422,7 +422,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		kwargs["Parent"] = parent
 		# dColumn maintains one attr object that the grid table will use:
 		att = self._gridColAttr = parent._defaultGridColAttr.Clone()
-		att.SetFont(self._getDefaultFont().NativeObject)
+		att.SetFont(self._getDefaultFont()._nativeFont)
 
 		super(dColumn, self).__init__(properties, *args, **kwargs)
 		self._baseClass = dColumn
@@ -648,6 +648,16 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._gridColAttr.SetRenderer(renderer)
 	
 
+	def _onFontPropsChanged(self, evt):
+		# Sent by the dFont object when any props changed. Wx needs to be notified:
+		self._gridColAttr.SetFont(self.Font._nativeFont)
+		self._refreshGrid()
+
+	def _onHeaderFontPropsChanged(self, evt):
+		# Sent by the dFont object when any props changed. Wx needs to be notified:
+		self._refreshHeader()
+
+
 	def _getBackColor(self):
 		return self._gridColAttr.GetBackgroundColour()
 
@@ -795,17 +805,18 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
 	def _getFont(self):
-		return dabo.ui.dFont(font=self._gridColAttr.GetFont())
+		if hasattr(self, "_font"):
+			v = self._font
+		else:
+			v = self.Font = dabo.ui.dFont(_nativeFont=self._gridColAttr.GetFont())
+		return v
 	
 	def _setFont(self, val):
+		assert isinstance(val, dabo.ui.dFont)
 		if self._constructed():
-			if not isinstance(val, dabo.ui.dFont):
-				# This will help make sure that any old-style font references
-				# are caught.
-				dabo.errorLog.write("Incorrect font type passed")
-				dabo.dBug.logPoint()
-				return
-			self._gridColAttr.SetFont(val.NativeObject)
+			self._font = val
+			self._gridColAttr.SetFont(val._nativeFont)
+			val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
 			self._refreshGrid()
 		else:
 			self._properties["Font"] = val
@@ -817,8 +828,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setFontBold(self, val):
 		if self._constructed():
 			self.Font.Bold = val
-			self._gridColAttr.SetFont(self.Font.NativeObject)
-			self._refreshGrid()
 		else:
 			self._properties["FontBold"] = val
 
@@ -828,7 +837,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	
 	
 	def _getFontInfo(self):
-		return self.Font.NativeObject.GetNativeFontInfoDesc()
+		return self.Font._nativeFont.GetNativeFontInfoDesc()
 
 		
 	def _getFontItalic(self):
@@ -837,8 +846,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setFontItalic(self, val):
 		if self._constructed():
 			self.Font.Italic = val
-			self._gridColAttr.SetFont(self.Font.NativeObject)
-			self._refreshGrid()
 		else:
 			self._properties["FontItalic"] = val
 
@@ -849,8 +856,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setFontFace(self, val):
 		if self._constructed():
 			self.Font.Face = val
-			self._gridColAttr.SetFont(self.Font.NativeObject)
-			self._refreshGrid()
 		else:
 			self._properties["FontFace"] = val
 
@@ -861,8 +866,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setFontSize(self, val):
 		if self._constructed():
 			self.Font.Size = val
-			self._gridColAttr.SetFont(self.Font.NativeObject)
-			self._refreshGrid()
 		else:
 			self._properties["FontSize"] = val
 	
@@ -873,8 +876,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setFontUnderline(self, val):
 		if self._constructed():
 			self.Font.Underline = val
-			self._gridColAttr.SetFont(self.Font.NativeObject)
-			self._refreshGrid()
 		else:
 			self._properties["FontUnderline"] = val
 
@@ -893,23 +894,18 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	
 	def _getHeaderFont(self):
-		try:
+		if hasattr(self, "_headerFont"):
 			v = self._headerFont
-		except AttributeError:
-			v = self._headerFont = self._getDefaultFont()
+		else:
+			v = self.HeaderFont = self._getDefaultFont()
 			v.Bold = True
 		return v
 	
 	def _setHeaderFont(self, val):
+		assert isinstance(val, dabo.ui.dFont)
 		if self._constructed():
-			if not isinstance(val, dabo.ui.dFont):
-				# This will help make sure that any old-style font references
-				# are caught.
-				dabo.errorLog.write("Incorrect font type passed")
-				dabo.dBug.logPoint()
-				return
 			self._headerFont = val
-			self._refreshHeader()
+			val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onHeaderFontPropsChanged)
 		else:
 			self._properties["HeaderFont"] = val
 
@@ -920,7 +916,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setHeaderFontBold(self, val):
 		if self._constructed():
 			self.HeaderFont.Bold = val
-			self._refreshHeader()
 		else:
 			self._properties["HeaderFontBold"] = val
 
@@ -930,7 +925,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	
 	def _getHeaderFontInfo(self):
-		return self.HeaderFont.NativeObject.GetNativeFontInfoDesc()
+		return self.HeaderFont._nativeFont.GetNativeFontInfoDesc()
 
 		
 	def _getHeaderFontItalic(self):
@@ -939,7 +934,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setHeaderFontItalic(self, val):
 		if self._constructed():
 			self.HeaderFont.Italic = val
-			self._refreshHeader()
 		else:
 			self._properties["HeaderFontItalic"] = val
 
@@ -950,7 +944,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setHeaderFontFace(self, val):
 		if self._constructed():
 			self.HeaderFont.Face = val
-			self._refreshHeader()
 		else:
 			self._properties["HeaderFontFace"] = val
 
@@ -961,7 +954,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setHeaderFontSize(self, val):
 		if self._constructed():
 			self.HeaderFont.Size = val
-			self._refreshHeader()
 		else:
 			self._properties["HeaderFontSize"] = val
 	
@@ -972,7 +964,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setHeaderFontUnderline(self, val):
 		if self._constructed():
 			self.HeaderFont.Underline = val
-			self._refreshHeader()
 		else:
 			self._properties["HeaderFontUnderline"] = val
 
@@ -1908,7 +1899,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				
 				# Account for the width of the header caption:
 				cw = dabo.ui.fontMetricFromFont(colObj.Caption, 
-						colObj.HeaderFont.NativeObject)[0] + capBuffer
+						colObj.HeaderFont._nativeFont)[0] + capBuffer
 				w = max(autoWidth, cw)
 				w = min(w, maxWidth)
 				colObj.Width = w
@@ -1970,7 +1961,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				bcolor = self.HeaderBackColor
 
 			dc.SetTextForeground(fcolor)
-			font = colObj.HeaderFont.NativeObject
+			font = colObj.HeaderFont._nativeFont
 
 			holdBrush = dc.GetBrush()
 			holdPen = dc.GetPen()
