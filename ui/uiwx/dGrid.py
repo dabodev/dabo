@@ -131,16 +131,20 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			if isinstance(type(col.DataType), type):
 				typeDict = {
 						str : "string", 
+						"char": "string",
 						unicode : "unicode", 
 						bool : "bool",
 						int : "integer",
 						float : "float", 
 						long : "long", 
 						datetime.date : "date", 
+						"date": "date",
 						datetime.datetime : "datetime", 
+						"datetime": "datetime",
 						datetime.time : "time" }
 				if _USE_DECIMAL:
 					typeDict[Decimal] = "decimal"
+					typeDict["decimal"] = "decimal"
 				try:
 					col.DataType = typeDict[col.DataType]
 				except:
