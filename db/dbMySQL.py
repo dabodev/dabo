@@ -6,6 +6,7 @@ except ImportError:
 from dabo.dLocalize import _
 from dBackend import dBackend
 import dabo.dException as dException
+from dabo.db import dNoEscQuoteStr as dNoEQ
 
 class MySQL(dBackend):
 	def __init__(self):
@@ -58,10 +59,6 @@ class MySQL(dBackend):
 	def escQuote(self, val):
 		# escape backslashes and single quotes, and
 		# wrap the result in single quotes
-		if val is None:
-			return self.formatNone()
-		if isinstance(val, int) or isinstance(val, long):
-			return val
 		
 		sl = "\\"
 		qt = "\'"
@@ -212,7 +209,8 @@ class MySQL(dBackend):
 		toExc = []
 		
 		#Create the table
-		if createTable:
+		if createTable:			
+			
 			if not tabledef.IsTemp:
 				sql = "CREATE TABLE "
 			else:
@@ -221,7 +219,7 @@ class MySQL(dBackend):
 			sql = sql + tabledef.Name + " ("
 			
 			for fld in tabledef.Fields:
-				dont_esc = False
+				pks = []
 				sql = sql + fld.Name + " "
 				
 				if fld.DataType == "Numeric":
@@ -237,11 +235,7 @@ class MySQL(dBackend):
 						sql = sql + "BIGINT "
 					else:
 						raise #what should happen?
-						
-					if fld.IsPK:
-						sql = sql + "PRIMARY KEY "
-						if fld.IsAutoIncrement:
-							sql = sql + "AUTO_INCREMENT "
+											
 				elif fld.DataType == "Float":
 					if fld.Size in (0,1,2,3,4):
 						sql = sql + "FLOAT(" + str(fld.TotalDP) + "," + str(fld.RightDP) + ") "
@@ -269,9 +263,8 @@ class MySQL(dBackend):
 				elif fld.DataType == "DateTime":
 					sql = sql + "DATETIME "
 				elif fld.DataType == "Stamp":
-					sql = sql + "STAMP "
-					fld.Default = "CURRENT_TIMESTAMP"
-					dont_esc = True
+					sql = sql + "TIMESTAMP "
+					fld.Default = dNoEQ("CURRENT_TIMESTAMP")
 				elif fld.DataType == "Binary":
 					if fld.Size <= 255:
 						sql = sql + "TIMYBLOB "
@@ -283,18 +276,31 @@ class MySQL(dBackend):
 						sql = sql + "LONGBLOB "
 					else:
 						raise #what should happen?
-					
+				
+				if fld.IsPK:
+					sql = sql + "PRIMARY KEY "
+					pks.append(fld.Name)
+					if fld.IsAutoIncrement:
+						sql = sql + "AUTO_INCREMENT "
+				
 				if not fld.AllowNulls:
 					sql = sql + "NOT NULL "
-				if not dont_esc:
-					sql = sql + "DEFAULT " + str(self.escQuote(fld.Default)) + ","
+				if not fld.IsPK:
+					sql = sql + "DEFAULT " + self.formatForQuery(fld.Default) + ","
+				else:
+					sql = sql + ","
+				
+				if sql.count("PRIMARY KEY ") > 1:
+					print 'sql.count("PRIMARY KEY "):' + str(sql.count("PRIMARY KEY "))
+					sql = sql.replace("PRIMARY KEY ","") + "PRIMARY KEY(" + ",".join(pks) + "),"
+				
 			if sql[-1:] == ",":
 				sql = sql[:-1]
 			sql = sql + ")"
 			
 			try:
 				cursor.execute(sql)
-			except: #TODO Make this handle only an access error
+			except dException.DBNoAccessException:
 				toExc.append(sql)
 	
 		if createIndexes:
@@ -313,7 +319,7 @@ class MySQL(dBackend):
 				if toExc == []:
 					try:
 						cursor.execute(sql)
-					except: #TODO Make this handle only an access error
+					except dException.DBNoAccessException:
 						toExc.append(sql)
 				else:
 					toExc.append(sql)
