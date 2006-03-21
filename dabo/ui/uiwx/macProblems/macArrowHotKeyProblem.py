@@ -16,8 +16,11 @@ class TestFrame(wx.Frame):
 		mb.Append(menu, "Arrow key hotkey test")
 		self.SetMenuBar(mb)
 
+		self.testMenu = menu
+
+
 	def onHotKey(self, evt):
-		print evt.GetEventObject().GetLabel(evt.GetId()).split("\t")[0]	
+		print self.testMenu.GetLabel(evt.GetId()).split("\t")[0]	
 		
 
 if __name__ == '__main__':
