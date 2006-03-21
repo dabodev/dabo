@@ -438,6 +438,9 @@ class Band(ReportObject):
 				Setting designerLock to True protects you from accidentally changing
 				the height of the band with the mouse at design time.""")
 
+	def insertRequiredElements(self):
+		"""Insert any missing required elements into the band."""
+		self.setdefault("Objects", Objects(self))
 
 	def _getBandName(self):
 		name = self.__class__.__name__
@@ -610,6 +613,10 @@ class Frameset(Drawable):
 
 		self.AvailableProps["calculatedHeight"] = toPropDict(float, 0, 
 				"""(to remove)""")
+
+	def insertRequiredElements(self):
+		"""Insert any missing required elements into the frameset."""
+		self.setdefault("Objects", Objects(self))
 
 
 class Paragraph(Drawable):
