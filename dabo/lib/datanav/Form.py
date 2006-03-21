@@ -210,12 +210,21 @@ class Form(dabo.ui.dForm):
 					help=_("Cancel any changes made to the records."))
 			menu.appendSeparator()
 		
+			# On Mac, altKey is "Ctrl", which translates to "Command". On other
+			# platforms, altKey is "Alt". This lets us use the arrow keys for 
+			# navigation without conflicting with native text editing functions.
+			altKey = "Alt"
+			if self.Application.Platform.lower() == "mac":
+				altKey = "Ctrl"
+
 			menu.append(_("Select First Record"), bindfunc=self.onFirst, 
 					bmp="leftArrows", help=_("Go to the first record in the set.")) 
-			menu.append(_("Select Prior Record")+"\tCtrl+LEFT", bindfunc=self.onPrior, 
-					bmp="leftArrow", help=_("Go to the prior record in the set."))	
-			menu.append(_("Select Next Record")+"\tCtrl+RIGHT", bindfunc=self.onNext, 
-					bmp="rightArrow", help=_("Go to the next record in the set."))
+			menu.append(_("Select Prior Record")+"\t%s+LEFT" % altKey, 
+					bindfunc=self.onPrior,bmp="leftArrow", 
+					help=_("Go to the prior record in the set."))	
+			menu.append(_("Select Next Record")+"\t%s+RIGHT" % altKey, 
+					bindfunc=self.onNext, bmp="rightArrow", 
+					help=_("Go to the next record in the set."))
 			menu.append(_("Select Last Record"), bindfunc=self.onLast, 
 					bmp="rightArrows", help=_("Go to the last record in the set."))
 			menu.appendSeparator()
