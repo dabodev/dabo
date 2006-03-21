@@ -1227,6 +1227,10 @@ class dPemMixin(dPemMixinBase):
 
 	def _onFontPropsChanged(self, evt):
 		# Sent by the dFont object when any props changed. Wx needs to be notified:
+		if wx.Platform == "__WXMAC__":
+			# Mac bug: need to clear the font from the control first 
+			# (Thanks Peter Damoc):
+			self.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		self.SetFont(self.Font._nativeFont)
 
 

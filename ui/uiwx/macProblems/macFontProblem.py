@@ -32,10 +32,13 @@ class TestFrame(wx.Frame):
 		if font.GetStyle() == wx.FONTSTYLE_NORMAL:
 			print "font is not italic; set to italic"
 			font.SetStyle(wx.FONTSTYLE_ITALIC)
+			# Uncomment the following line for the workaround:
+			#self.tx1.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL))
 			self.tx1.SetFont(font)
 			return
 
 		print "font was already italic"
+
 
 	def printFont(self):
 		font = self.tx1.GetFont()
