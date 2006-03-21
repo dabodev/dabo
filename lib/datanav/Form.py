@@ -212,9 +212,9 @@ class Form(dabo.ui.dForm):
 		
 			menu.append(_("Select First Record"), bindfunc=self.onFirst, 
 					bmp="leftArrows", help=_("Go to the first record in the set.")) 
-			menu.append(_("Select Prior Record")+"\tAlt+LEFT", bindfunc=self.onPrior, 
+			menu.append(_("Select Prior Record")+"\tCtrl+LEFT", bindfunc=self.onPrior, 
 					bmp="leftArrow", help=_("Go to the prior record in the set."))	
-			menu.append(_("Select Next Record")+"\tAlt+RIGHT", bindfunc=self.onNext, 
+			menu.append(_("Select Next Record")+"\tCtrl+RIGHT", bindfunc=self.onNext, 
 					bmp="rightArrow", help=_("Go to the next record in the set."))
 			menu.append(_("Select Last Record"), bindfunc=self.onLast, 
 					bmp="rightArrows", help=_("Go to the last record in the set."))
