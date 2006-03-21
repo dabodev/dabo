@@ -325,7 +325,7 @@ class dBizobj(dObject):
 			cursor.beginTransaction()
 
 		# OK, this actually does the saving to the database
-		try:
+		##try:
 			cursor.save()
 			if self.IsAdding:
 				# Call the hook method for saving new records.
@@ -345,19 +345,19 @@ class dBizobj(dObject):
 
 			self.setMemento()
 
-		except dException.ConnectionLostException, e:
-			raise dException.ConnectionLostException, e
-
-		except dException.NoRecordsException, e:
-			# Nothing to roll back; just throw it back for the form to display
-			raise dException.NoRecordsException, e
-			
-		except dException.dException, e:
-			# Something failed; reset things.
-			if useTransact:
-				cursor.rollbackTransaction()
-			# Pass the exception to the UI
-			raise dException.dException, e
+#- 		except dException.ConnectionLostException, e:
+#- 			raise dException.ConnectionLostException, e
+#- 
+#- 		except dException.NoRecordsException, e:
+#- 			# Nothing to roll back; just throw it back for the form to display
+#- 			raise dException.NoRecordsException, e
+#- 			
+#- 		except dException.dException, e:
+#- 			# Something failed; reset things.
+#- 			if useTransact:
+#- 				cursor.rollbackTransaction()
+#- 			# Pass the exception to the UI
+#- 			raise dException.dException, e
 
 		# Some backends (Firebird particularly) need to be told to write 
 		# their changes even if no explicit transaction was started.
