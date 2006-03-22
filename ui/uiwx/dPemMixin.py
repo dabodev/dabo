@@ -992,9 +992,10 @@ class dPemMixin(dPemMixinBase):
 		offset = 0
 		if isinstance(self, dabo.ui.dForm):
 			dc = wx.WindowDC(self)
-			# Need to adjust for the title bar
-			cltTop = self.absoluteCoordinates(self.GetClientAreaOrigin())[1]
-			offset = self.Top - cltTop
+			if self.Application.Platform == "Mac":
+				# Need to adjust for the title bar
+				cltTop = self.absoluteCoordinates(self.GetClientAreaOrigin())[1]
+				offset = self.Top - cltTop
 		else:
 			dc = wx.ClientDC(self)
 		memdc.Blit(0, 0, self.Width, self.Height, dc, 0, offset)
