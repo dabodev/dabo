@@ -1,38 +1,14 @@
-import datetime
 import dabo
 from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.biz.dBizobj import dBizobj
-# Make sure that the user's installation supports Decimal.
-_USE_DECIMAL = True
-try:
-	from decimal import Decimal
-except ImportError:
-	_USE_DECIMAL = False
-
 
 class modglob:
 	_AutoTables = {}
 	_toExc = {}
 g = modglob()
-bizs = g._AutoTables
 
-
-def setupAutoBiz(conn, autoBizes):
-	"""This function sets up a list of dAutoBizobj's for auto creation.
-	Instead of doing this:
-		t = myBiz1(conn)
-		t = myBiz2(conn)
-		t = myBiz3(conn)
-		t = myBiz4(conn)
-	Use SetupAutoBiz like so:
-		dabo.biz.SetupAutoBiz(conn, (myBiz1, myBiz2, myBiz3, myBiz4))
-	"""
-	for obj in autoBizes:
-		t = obj(conn)
-		
-
-def autoCreateTables(noAccessDialog=None):
+def AutoCreateTables(noAccessDialog=None):
 	"""This function creates tables if they don't exist.
 	Tables are added to the list of tables for auto creation when the Table
 	property is set for a dAutoBizobj.
@@ -172,80 +148,14 @@ def _WriteQueriesToFile(queries):
 		
 class dAutoBizobj(dBizobj):
 	"""This class is just like bBizobj but is supports the auto creation of
-	the table by setting the table property.
-	
-	If there is a field that is set to AutoIncrement, self.AutoPopulatePK
-	is set to true.
-	If there is a field that is a stamp field, it is set to not update that field."""		
+	the table by setting the table property."""		
 	def _beforeInit(self):
 		dAutoBizobj.doDefault()
 		self._table = None
 		self._table_checked = False
 
 
-	def _afterInit(self):
-		table = self.getTable()
-		if table is not None:			
-			self._table = table
-			g._AutoTables[table.Name] = self
-			
-			self.DataSource = table.Name
-			self.KeyField = table.PK[0]
-			self.addFrom(table.Name)
-			for fld in table.Fields:
-				self.addField("%s.%s as %s" % (table.Name, fld.Name, fld.Name))
-				
-				if fld.DataType == "Numeric":
-					self._CurrentCursor._types[fld.Name] = type(int)
-				elif fld.DataType == "Float":
-					self._CurrentCursor._types[fld.Name] = type(float)
-				elif fld.DataType == "Decimal":
-					if _USE_DECIMAL:
-						self._CurrentCursor._types[fld.Name] = type(Decimal)
-					else:
-						pass
-				elif fld.DataType == "String":
-					self._CurrentCursor._types[fld.Name] = type(str)
-				elif fld.DataType == "Date":
-					self._CurrentCursor._types[fld.Name] = type(datetime.date)
-				elif fld.DataType == "Time":
-					self._CurrentCursor._types[fld.Name] = type(datetime.time)
-				elif fld.DataType == "DateTime":
-					self._CurrentCursor._types[fld.Name] = type(datetime.datetime)
-				elif fld.DataType == "Stamp":
-					self._CurrentCursor._types[fld.Name] = type(datetime.datetime)
-				elif fld.DataType == "Binary":
-					self._CurrentCursor._types[fld.Name] = type(str)
-				
-				if fld.IsAutoIncrement:
-					self.AutoPopulatePK = True
-				
-				if fld.DataType == "Stamp":
-					self._CurrentCursor.setNonUpdateFields([fld.Name])
-		
-		self.afterInit()
-
-		
-	def getTable(self):
-		"""Return the dTable definition for the table.
-		"""
-		#Override in subclass
-
-
-	def initTable(self):
-		"""Return the data to be inserted into the table after it has been created.
-		Return a dictionary with the column name as the key and a turple of values
-		for the value.
-		Example:
-			def initTable(self):
-				return 	{"first_name":("Admin","Bob"),
-						"last_name":("","Joe")}
-		"""
-		#Override in subclass
-
-
 	def CreateTable(self):
-		"""Create the tables that has been asigned to this bizobj."""
 		if self._table is None:
 			raise dException.dException(_("No table has been defined for this bizobj."))
 		
@@ -253,7 +163,6 @@ class dAutoBizobj(dBizobj):
 			self._table_checked = True
 			return
 			
-		#Create table
 		toExc = self._CurrentCursor.BackendObject.createTableAndIndexes(self._table, self._CurrentCursor)
 		if toExc:
 			if g._toExc.has_key(self._conn):
@@ -261,27 +170,20 @@ class dAutoBizobj(dBizobj):
 			else:
 				g._toExc[self._conn] = toExc
 
-		#Insert data
-		to_insert = self.initTable()
-		if to_insert:
-			#self.requery()
-			for i in range(0, len(to_insert[to_insert.keys()[0]])):
-				self.new()
-				for k in to_insert.keys():
-					self.setFieldVal(k, to_insert[k][i])
-				
-				try:
-					self.save()
-				except dException.DBQueryException, e:
-					if g._toExc.has_key(self._conn):
-						g._toExc[self._conn] = g._toExc[self._conn] + e.sql
-					else:
-						g._toExc[self._conn] = e.sql
+
+	def _setTable(self, table):
+		if self._table is not None:
+			raise dException.dException(_("Table can only be set once."))
+		self._table = table
+		g._AutoTables[table.Name] = self
+		
+		self.addFrom(table.Name)
+		for f in table.Fields:
+			self.addField("%s.%s as %s" % (table.Name, f.Name, f.Name))	
 
 
 	def _getTable(self):
 		return self._table
-
 		
-	Table = property(_getTable, None, None,
+	Table = property(_getTable, _setTable, None,
 			_("The table definition for this bizobj.  (object)"))
