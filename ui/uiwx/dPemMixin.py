@@ -986,11 +986,18 @@ class dPemMixin(dPemMixinBase):
 		bmp = wx.EmptyBitmap(rect.width, rect.height)
 		memdc = wx.MemoryDC()
 		memdc.SelectObject(bmp)
+		obj = self.Parent
 		if self.Parent is None:
+			obj = self
+		offset = 0
+		if isinstance(self, dabo.ui.dForm):
 			dc = wx.WindowDC(self)
+			# Need to adjust for the title bar
+			cltTop = self.absoluteCoordinates(self.GetClientAreaOrigin())[1]
+			offset = self.Top - cltTop
 		else:
-			dc = wx.WindowDC(self.Parent)
-		memdc.Blit(0,0, rect.width, rect.height, dc, rect.x, rect.y)
+			dc = wx.ClientDC(self)
+		memdc.Blit(0, 0, self.Width, self.Height, dc, 0, offset)
 		memdc.SelectObject(wx.NullBitmap)
 		return bmp
 
