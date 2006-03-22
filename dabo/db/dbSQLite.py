@@ -2,7 +2,6 @@ import os
 import re
 from dabo.dLocalize import _
 from dBackend import dBackend
-from dabo.db import dNoEscQuoteStr as dNoEQ
 
 class SQLite(dBackend):
 	def __init__(self):
@@ -22,7 +21,12 @@ class SQLite(dBackend):
 		return self.dbapi.Cursor
 		
 
-	def escQuote(self, val):			
+	def escQuote(self, val):
+		if val is None:
+			return self.formatNone()
+		if isinstance(val, int) or isinstance(val, long):
+			return val
+			
 		sl = "\\"
 		qt = "\'"
 		return qt + str(val).replace(sl, sl+sl).replace(qt, qt+qt) + qt
@@ -221,7 +225,11 @@ class SQLite(dBackend):
 				sql = sql + fld.Name + " "
 				
 				if fld.DataType == "Numeric":
-					sql = sql + "INTEGER "					
+					sql = sql + "INTEGER "
+					if fld.IsPK:
+						sql = sql + "PRIMARY KEY "
+						if fld.IsAutoIncrement:
+							sql = sql + "AUTOINCREMENT "
 				elif fld.DataType == "Float":
 					sql = sql + "REAL "
 				elif fld.DataType == "Decimal":
@@ -236,18 +244,15 @@ class SQLite(dBackend):
 					sql = sql + "TEXT "
 				elif fld.DataType == "Stamp":
 					sql = sql + "TEXT "
-					fld.Default = dNoEQ("CURRENT_TIMESTAMP")
+					fld.Default = "CURRENT_TIMESTAMP"
+					dont_esc = True
 				elif fld.DataType == "Binary":
 					sql = sql + "BLOB "
-				
-				if fld.IsPK:
-					sql = sql + "PRIMARY KEY "
-					if fld.IsAutoIncrement:
-						sql = sql + "AUTOINCREMENT "
-				
+					
 				if not fld.AllowNulls:
 					sql = sql + "NOT NULL "
-				sql = sql + "DEFAULT " + self.formatForQuery(fld.Default) + ","
+				if not dont_esc:
+					sql = sql + "DEFAULT " + str(self.escQuote(fld.Default)) + ","
 			if sql[-1:] == ",":
 				sql = sql[:-1]
 			sql = sql + ")"

@@ -1,11 +1,9 @@
 """ dabo.db.backend.py : abstractions for the various db api's """
 import sys
-import datetime
 from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.db import dTable
-from dabo.db import dNoEscQuoteStr
 
 
 class dBackend(dObject):
@@ -43,20 +41,6 @@ class dBackend(dObject):
 	def getCursor(self, cursorClass):
 		""" override in subclasses if necessary """
 		return cursorClass(self._connection)
-	
-	
-	def formatForQuery(self, val):
-		if isinstance(val, (datetime.date, datetime.datetime)):
-			# Some databases have specific rules for formatting date values.
-			return self.formatDateTime(val)
-		elif isinstance(val, (int, long)):
-			return str(val)
-		elif isinstance(val, dNoEscQuoteStr):
-			return str(val)
-		elif val is None:
-			return self.formatNone()
-		else:
-			return str(self.escQuote(val))
 	
 	
 	def formatDateTime(self, val):
@@ -431,7 +415,7 @@ class dBackend(dObject):
 			createIndex=True):
 		"""Creates a table and/or indexes based on the dTable passed to it."""
 		# OVERRIDE IN SUBCLASSES!
-		pass		
+		pass
 	##########		END  - Created by Echo 	##############
 
 	

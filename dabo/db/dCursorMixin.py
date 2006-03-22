@@ -23,8 +23,6 @@ from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
-from dabo.db import dNoEscQuoteStr
-from dabo.db import dTable
 
 
 class dCursorMixin(dObject):
@@ -171,8 +169,6 @@ class dCursorMixin(dObject):
 			# should all contain the string 'connect' in them.
 			if "connect" in str(e).lower():
 				raise dException.ConnectionLostException, e
-			if "access" in str(e).lower():
-				raise dException.DBNoAccessException(e)
 			else:
 				raise dException.DBQueryException(e, sql)
 		
@@ -638,16 +634,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						# native field type is not. Ignore these. NOTE: we have to deal with the 
 						# string representation of these classes, as there is no primitive for either
 						# 'DateTime' or 'Date'.
-						
-						
 						dtStrings = ("<type 'DateTime'>", "<type 'Date'>", "<type 'datetime.datetime'>")
-						if str(fldType) in dtStrings and isinstance(val, basestring):
+						if str(fldType) in dtStrings:
+							if isinstance(val, basestring):
 								ignore = True
 						elif val is None or fldType is type(None):
 							# Any field type can potentially hold None values (NULL). Ignore these.
-							ignore = True
-						elif isinstance(val, dNoEscQuoteStr.dNoEscQuoteStr):
-							# Sometimes you want to set it to a sql function, equation, ect.
 							ignore = True
 						else:
 							# This can also happen with a new record, since we just stuff the
@@ -831,7 +823,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					flds += ", " + kk
 					
 					# add value to expression
-					vals += ", " + self.formatForQuery(vv)					
+					if isinstance(vv, (datetime.date, datetime.datetime)):
+						# Some databases have specific rules for formatting date values.
+						vals += ", " + self.formatDateTime(vv)
+					elif vv is None:
+						vals += ", " + self.formatNone()
+					else:
+						vals += ", " + str(self.escQuote(vv))
 				# Trim leading comma-space from the strings
 				flds = flds[2:]
 				vals = vals[2:]
@@ -1246,7 +1244,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if ret:
 				ret += ", "
 			
-			ret += tblPrefix + fld + " = " + formatForQuery(val)			
+			if isinstance(val, basestring):
+				escVal = self.escQuote(val)
+				ret += tblPrefix + fld + " = " + escVal + " "
+			else:
+				if isinstance(val, (datetime.date, datetime.datetime)):
+					ret += tblPrefix + fld + " = " + self.formatDateTime(val)
+				elif val is None:
+					ret += tblPrefix + fld + " = " + self.formatNone()
+				else:
+					ret += tblPrefix + fld + " = " + str(val) + " "
 		return ret
 
 
@@ -1302,14 +1309,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		ret = None
 		if self.BackendObject:
 			ret = self.BackendObject.getLastInsertID(self)
-		return ret
-
-	
-	def formatForQuery(self, val):
-		""" Format any value for the backend """
-		ret = val
-		if self.BackendObject:
-			ret = self.BackendObject.formatForQuery(val)
 		return ret
 
 	
