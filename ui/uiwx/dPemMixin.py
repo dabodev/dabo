@@ -982,22 +982,26 @@ class dPemMixin(dPemMixinBase):
 		"""Returns a bitmap snapshot of self, as it appears in the 
 		UI at this moment.
 		"""
-		rect = self.GetRect()
-		bmp = wx.EmptyBitmap(rect.width, rect.height)
-		memdc = wx.MemoryDC()
-		memdc.SelectObject(bmp)
 		obj = self.Parent
 		if self.Parent is None:
 			obj = self
 		offset = 0
+		htReduction = 0
+		cltTop = self.absoluteCoordinates(self.GetClientAreaOrigin())[1]
 		if isinstance(self, dabo.ui.dForm):
 			dc = wx.WindowDC(self)
 			if self.Application.Platform == "Mac":
 				# Need to adjust for the title bar
-				cltTop = self.absoluteCoordinates(self.GetClientAreaOrigin())[1]
 				offset = self.Top - cltTop
+			elif self.Application.Platform == "GTK":
+				htReduction = cltTop - self.Top
 		else:
-			dc = wx.ClientDC(self)
+			dc = wx.ClientDC(obj)
+		rect = self.GetRect()
+		bmp = wx.EmptyBitmap(rect.width, rect.height)	# - htReduction)
+		memdc = wx.MemoryDC()
+		memdc.SelectObject(bmp)
+		
 		memdc.Blit(0, 0, self.Width, self.Height, dc, 0, offset)
 		memdc.SelectObject(wx.NullBitmap)
 		return bmp
