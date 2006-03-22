@@ -882,6 +882,8 @@ def saveScreenShot(obj=None, imgType=None, pth=None):
 			"pcx":  wx.BITMAP_TYPE_PCX}
 	if pth is None:
 		pth, typ = getSaveAsAndType(*imgType)
+	else:
+		typ = imgType[0]
 	if pth is None:
 		# User canceled
 		return
