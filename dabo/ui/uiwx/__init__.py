@@ -596,17 +596,21 @@ def getAvailableFonts():
 	fEnum.EnumerateFacenames()
 	list = fEnum.GetFacenames()
 	list.sort()
-	return list
-	
+	return list	
 
 
-def _getPath(cls, **kwargs):
-	ret = None
-	fd = cls(parent=None, **kwargs)
+def _getPath(cls, wildcard, **kwargs):
+	pth = None
+	idx = None
+	fd = cls(parent=None, wildcard=wildcard, **kwargs)
 	if fd.show() == kons.DLG_OK:
-		ret = fd.Path
+		pth = fd.Path
+		try:
+			idx = fd.GetFilterIndex()
+		except AttributeError:
+			idx = None
 	fd.release()
-	return ret
+	return (pth, idx)
 
 
 def getFile(*args, **kwargs):
@@ -615,8 +619,22 @@ def getFile(*args, **kwargs):
 	was made.
 	"""
 	wc = _getWild(*args)
-	return _getPath(dFileDialog, wildcard=wc, **kwargs)
+	return _getPath(dFileDialog, wildcard=wc, **kwargs)[0]
 
+
+def getFileAndType(*args, **kwargs):
+	"""Displays the file selection dialog for the platform.
+	Returns the path to the selected file, or None if no selection
+	was made, as well as the wildcard value selected by the user.
+	"""
+	wc = _getWild(*args)
+	pth, idx = _getPath(dFileDialog, wildcard=wc, **kwargs)
+	if idx is None:
+		ret = (pth, idx)
+	else:
+		ret = (pth, args[idx])
+	return ret
+	
 
 def getSaveAs(*args, **kwargs):
 	if not kwargs.has_key("message"):
@@ -625,7 +643,22 @@ def getSaveAs(*args, **kwargs):
 		args = list(args)
 		args.append(kwargs["wildcard"])
 	kwargs["wildcard"] = _getWild(*args)
-	return _getPath(dSaveDialog, **kwargs)
+	return _getPath(dSaveDialog, **kwargs)[0]
+
+
+def getSaveAsAndType(*args, **kwargs):
+	if not kwargs.has_key("message"):
+		kwargs["message"] = "Save to:"
+	if kwargs.has_key("wildcard"):
+		args = list(args)
+		args.append(kwargs["wildcard"])
+	kwargs["wildcard"] = _getWild(*args)
+	pth, idx = _getPath(dSaveDialog, **kwargs)
+	if idx is None:
+		ret = (pth, idx)
+	else:
+		ret = (pth, args[idx])
+	return ret
 
 
 def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
@@ -634,7 +667,7 @@ def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
 	was made.
 	"""
 	return _getPath(dFolderDialog, message=message, defaultPath=defaultPath, 
-			wildcard=wildcard)
+			wildcard=wildcard)[0]
 
 
 def _getWild(*args):
@@ -821,6 +854,49 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	if needToRelease:
 		wind.Destroy()
 	return ret
+
+
+def saveScreenShot(obj=None, imgType=None, pth=None):
+	"""Takes a screenshot of the specified and writes it to a file, converting
+	it to the requested image type. If no object is specified, the current
+	ActiveForm is used.
+	"""
+	if obj is None:
+		obj = dabo.dAppRef.ActiveForm
+	if obj is None:
+		# Nothing active!
+		stop(_("There is no active form to capture."), _("No Active Form"))
+		return		
+	bmp = obj.getCaptureBitmap()
+	knownTypes = ("png", "jpg", "bmp", "pcx")
+	if imgType is None:
+		imgType = knownTypes
+	else:
+		if imgType.lower() not in knownTypes:
+			imgType = knownTypes
+		else:
+			imgType = (imgType, )
+	wxTypeDict = {"png":  wx.BITMAP_TYPE_PNG, 
+			"jpg":  wx.BITMAP_TYPE_JPEG, 
+			"bmp":  wx.BITMAP_TYPE_BMP,
+			"pcx":  wx.BITMAP_TYPE_PCX}
+	if pth is None:
+		pth, typ = getSaveAsAndType(*imgType)
+	if pth is None:
+		# User canceled
+		return
+	# Make sure that the file has the correct extension
+	if not pth.lower().endswith(".%s" % typ):
+		if pth.endswith("."):
+			pth = "%s%s" % (pth, typ)
+		else:
+			pth = "%s.%s" % (pth, typ)
+	img = wx.ImageFromBitmap(bmp)
+	img.SaveFile(pth, wxTypeDict[typ])
+		
+	
+		
+	
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
