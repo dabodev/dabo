@@ -328,10 +328,11 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				ret = bizobj.getFieldVal(field, row)
 			else:
 				ret = ""
-		try:
-			ret = self.grid.DataSet[row][field]
-		except:
-			ret = ""
+		else:
+			try:
+				ret = self.grid.DataSet[row][field]
+			except:
+				ret = ""
 
 		if ret is None:
 			ret = self.grid.NoneDisplay
