@@ -1,5 +1,1189 @@
 See the Subversion log for all the details.
 
+Dabo 0.6 (2006-03-23) (Revision 2030):
+(for now, due to lack of time, I'm just echoing svn log. If someone wants to
+summarize the changes --today!-- that would be *very much* appreciated.)
+
+------------------------------------------------------------------------
+r1860 | ed | 2006-01-25 12:00:28 -0800 (Wed, 25 Jan 2006) | 2 lines
+
+Cleaned up some wierd wrapping, and made some minor changes.
+
+------------------------------------------------------------------------
+r1862 | ed | 2006-01-25 15:33:11 -0800 (Wed, 25 Jan 2006) | 2 lines
+
+Fixed the spurious exception that was being raised in dForm.refresh().
+
+------------------------------------------------------------------------
+r1863 | ed | 2006-01-25 18:41:44 -0800 (Wed, 25 Jan 2006) | 4 lines
+
+Fixed a problem when switching to the Browse page of the datanav grid without first running a query. Also, there was an error being thrown if a previous query had results, and a subsequent query had no results.
+
+Modified the code in _setCurrentRow() of dGrid so that it wasn't calling SetGridCursor() unless the position had actually changed. I had recorded up to 10 calls to this function, all with the exact same values each time I switched to the Browse page.
+
+------------------------------------------------------------------------
+r1864 | ed | 2006-01-26 09:34:20 -0800 (Thu, 26 Jan 2006) | 4 lines
+
+Removed the code that lower-cased field names, as it was preventing the code from working with case-sensitive backends and columns containing capital letters.
+
+Also fixed a problem where str values were not able to be properly converted to unicode.
+
+------------------------------------------------------------------------
+r1865 | ed | 2006-01-26 11:22:04 -0800 (Thu, 26 Jan 2006) | 2 lines
+
+Switched the editor for list items from my experimental class back to the default class.
+
+------------------------------------------------------------------------
+r1866 | ed | 2006-01-26 15:11:35 -0800 (Thu, 26 Jan 2006) | 2 lines
+
+Added a parameter to the promptForFileName() method to specify the default path for the dialog.
+
+------------------------------------------------------------------------
+r1867 | ed | 2006-01-26 17:36:12 -0800 (Thu, 26 Jan 2006) | 9 lines
+
+Added the TreeItemContextMenu event. This differs from the normal ContextMenuEvent in that it returns the itemID of the node that was right-clicked.
+
+Added code in the event data gathering code to store the tree item ID for these events in EventData.itemID.
+
+Changed all the names '_id' in the dTreeView.py file to the clearer 'itemID'.
+
+Fixed an oversight in the dSizerMixin that didn't remove the Box for a dBorderSizer when the sizer was released.
+
+
+------------------------------------------------------------------------
+r1868 | ed | 2006-01-26 18:03:12 -0800 (Thu, 26 Jan 2006) | 2 lines
+
+Made the sizer outlines wider on Windows, and delayed their drawing by adding the actual drawing to a callAfter(). Still, the LayoutPanels pretty much cover them up on Windows.
+
+------------------------------------------------------------------------
+r1869 | paul | 2006-01-26 18:07:39 -0800 (Thu, 26 Jan 2006) | 1 line
+
+Edited dPanel and dScrollPanel to not set the style if it was sent in the constructor. I need to set wx.WANTS_CHARS from my report designer scroll panel.
+------------------------------------------------------------------------
+r1870 | ed | 2006-01-26 19:40:40 -0800 (Thu, 26 Jan 2006) | 2 lines
+
+Added back the SetScrollbars() call that was just removed from dScrollPanel. Without it, pages don't seem to fill their pageframe unless you manually resize the pageframe to force a layout call. I don't know why this is, but the Editor was looking pretty funky every time I opened up a new file!
+
+------------------------------------------------------------------------
+r1871 | ed | 2006-01-26 21:48:31 -0800 (Thu, 26 Jan 2006) | 2 lines
+
+Cleaned up several small bugs and edge case problems with the GridSizer's removeRow() and removeCol() methods.
+
+------------------------------------------------------------------------
+r1872 | paul | 2006-01-27 08:01:09 -0800 (Fri, 27 Jan 2006) | 1 line
+
+The double-Activate on Windows is really getting in the way. I haven't heard anything from my bug report yet, so I added workaround code to ignore the first Activate.
+------------------------------------------------------------------------
+r1873 | ed | 2006-01-27 12:16:01 -0800 (Fri, 27 Jan 2006) | 2 lines
+
+Cleaned up the order of releasing child objects for sizers. Also fixed problem with releasing the box for border sizers.
+
+------------------------------------------------------------------------
+r1874 | ed | 2006-01-28 13:11:17 -0800 (Sat, 28 Jan 2006) | 2 lines
+
+Fixed a bug where self._curdir was referenced before it was defined.
+
+------------------------------------------------------------------------
+r1875 | ed | 2006-01-28 15:32:34 -0800 (Sat, 28 Jan 2006) | 2 lines
+
+Added getFunctionList() method to return a list of all 'class' and 'def' statements in the current file.
+
+------------------------------------------------------------------------
+r1876 | ed | 2006-01-29 12:50:27 -0800 (Sun, 29 Jan 2006) | 3 lines
+
+First pass at integrating the dTable class into the dabo.db framework. Right now, if this works at all, it only works for SQLite.
+
+
+------------------------------------------------------------------------
+r1877 | ed | 2006-01-29 19:45:26 -0800 (Sun, 29 Jan 2006) | 2 lines
+
+Fixed a bug wherein multiply-nested sizers might not release all of their content when release(True) is called.
+
+------------------------------------------------------------------------
+r1878 | ed | 2006-01-29 20:37:07 -0800 (Sun, 29 Jan 2006) | 2 lines
+
+Added a 'setInactive()' method that will hide the auto-complete popup if one is visible.
+
+------------------------------------------------------------------------
+r1879 | paul | 2006-01-30 08:13:18 -0800 (Mon, 30 Jan 2006) | 2 lines
+
+Fixed a few bugs in the report writer.
+
+------------------------------------------------------------------------
+r1880 | paul | 2006-01-30 17:28:06 -0800 (Mon, 30 Jan 2006) | 1 line
+
+Commented out a spurious self.SetFocus() call in the closing of forms, as it was resulting in an extra deactivate/activate cycle on Windows.
+------------------------------------------------------------------------
+r1881 | ed | 2006-01-30 17:36:27 -0800 (Mon, 30 Jan 2006) | 4 lines
+
+Improved edge case handling in dTreeView when there is no node selected.
+
+Fixed a problem in dSizerMixin if an item in a grid sizer is pasted into a box sizer. Some of the sizer attributes don't apply to the box sizer; these are now ignored.
+
+------------------------------------------------------------------------
+r1882 | paul | 2006-01-31 09:28:37 -0800 (Tue, 31 Jan 2006) | 1 line
+
+Disabled the fillGrid()'s setting of focus to the grid, as it causes problems with stealing focus away from another active form, at least on Windows. Also, it seems that such code really doesn't belong inside the function to build the grid, but perhaps we'll find it belongs somewhere else.
+------------------------------------------------------------------------
+r1883 | paul | 2006-01-31 11:58:23 -0800 (Tue, 31 Jan 2006) | 1 line
+
+The xml header wasn't being converted to native line endings. Fixed.
+------------------------------------------------------------------------
+r1884 | paul | 2006-01-31 16:09:18 -0800 (Tue, 31 Jan 2006) | 1 line
+
+No need to explicitly do the unicode conversion in the report fields, as that is done in the report writer.
+------------------------------------------------------------------------
+r1885 | ed | 2006-01-31 16:25:28 -0800 (Tue, 31 Jan 2006) | 12 lines
+
+Added a Refresh event. This is raised when dForm.refresh() is called. All dPemMixin classes will receive it, and fire their refresh() hook method.
+
+Added dynamic properties. Every property can be made dynamic by prefixing it with 'Dynamic'. Dynamic props are set to any callable function; when the object receives a Refresh event, the function's return value is used to set the value of the underlying property.
+
+Example: given a label and a function 'currTime()' in a form that returns the current time, issuing the following:
+
+	label.DynamicCaption = label.Form.currTime
+	
+will result in the label's Caption property being updated every time label.Form.refresh() is called with the value of the current time.
+
+Also added two methods to dabo.ui for converting image data back to bitmaps and images. These were necessary because I noticed that when Editor.py was called from locations other than its own directory, the image file for the function button was not found. The solution was to convert the .png file to a data stream using wx.tools.img2py.py, and store that in Editor.py.
+
+------------------------------------------------------------------------
+r1886 | ed | 2006-01-31 16:36:52 -0800 (Tue, 31 Jan 2006) | 2 lines
+
+Whoops! Left an old call in the event bindings.
+
+------------------------------------------------------------------------
+r1887 | ed | 2006-01-31 18:09:28 -0800 (Tue, 31 Jan 2006) | 4 lines
+
+Fixed the problem I introduced with __getattr__().
+
+Added back the call to Refresh() in the form's refresh() method.
+
+------------------------------------------------------------------------
+r1888 | ed | 2006-01-31 18:16:02 -0800 (Tue, 31 Jan 2006) | 2 lines
+
+OK, forgot about that old 'dead object' problem when using callAfter. This fixes that.
+
+------------------------------------------------------------------------
+r1889 | paul | 2006-02-01 16:23:51 -0800 (Wed, 01 Feb 2006) | 13 lines
+
+This commit lets you set dApp.UI=None, and setup() won't try to load a UI.
+You have to do it explicitly, though, such as:
+
+app = dabo.dApp()
+app.UI = None
+app.setup()
+
+--or--
+
+app = dabo.dApp(UI=None)
+app.setup()
+
+
+------------------------------------------------------------------------
+r1890 | ed | 2006-02-02 05:13:52 -0800 (Thu, 02 Feb 2006) | 10 lines
+
+Major revamping of the whole refresh/update/dynamic design.
+
+First, refresh() simply repaints the object and anything contained in it. It simply calls the wx.Refresh() method.
+
+There is now a method named 'update()' which will update any dynamic aspects of a control, such as its Dynamic* properties, or its data bindings, if any. If the object is a form, calling update triggers a ValueUpdate event that all data-aware controls will receive. All objects with children will raise an Update event in order to propagate the update message. You can call update() on a specific object, and only that object and its children will be updated.
+
+This clarifies the language we use: 'refresh' refers only to having the object repainted on the screen, while 'update' can change aspects of the object, such as its value or other properties.
+
+Updated all the classes that referred to these events and methods by their old names. 
+
+------------------------------------------------------------------------
+r1891 | ed | 2006-02-02 07:26:16 -0800 (Thu, 02 Feb 2006) | 2 lines
+
+Found another line that needs that deadObject wrapping...
+
+------------------------------------------------------------------------
+r1892 | ed | 2006-02-02 15:32:49 -0800 (Thu, 02 Feb 2006) | 3 lines
+
+First crack at creating a double-buffered drawing surface. The new class, 'dDrawPanel', is a subclass of dPanel, but has its repainting handled through the double-buffer techniques outlined on the wxPython wiki.
+
+
+------------------------------------------------------------------------
+r1893 | ed | 2006-02-03 06:43:17 -0800 (Fri, 03 Feb 2006) | 2 lines
+
+I think I located the problem with the double-buffered design. The regular idle-based calls to _redraw() were not using the buffered image. This should fix that.
+
+------------------------------------------------------------------------
+r1894 | ed | 2006-02-03 17:42:45 -0800 (Fri, 03 Feb 2006) | 4 lines
+
+Added bookmark support to dEditor.
+
+Fixed a bug in the default spacing in the sizer.
+
+------------------------------------------------------------------------
+r1895 | paul | 2006-02-04 10:50:38 -0800 (Sat, 04 Feb 2006) | 6 lines
+
+Attempting to figure out where the performance slowdowns are in the new
+update() mechanism, I got rid of the try blocks by checking once for
+dead object at top. Not sure, but I think this gained a very modest
+speed increase. 
+
+
+------------------------------------------------------------------------
+r1896 | paul | 2006-02-04 10:51:59 -0800 (Sat, 04 Feb 2006) | 5 lines
+
+Added a datanav.Form.SetFocusToBrowseGrid property. When True (the default),
+the browse grid will get focus when the browse page is activated. This is 
+how it always worked before my changes a few days ago, that took this out
+of the grid class where it didn't belong.
+
+------------------------------------------------------------------------
+r1897 | ed | 2006-02-04 14:03:39 -0800 (Sat, 04 Feb 2006) | 4 lines
+
+Bookmarks in dEditor now persist when you save the file. If you re-open a saved file with bookmarks, they are restored.
+
+Refactored dUserSettingProvider a little bit. Fixed a bug in getUserSettingKeys() that resulted in it always returning an empty list. Added deleteUserSetting() and deleteAllUserSettings(); these do just what you think they would.
+
+------------------------------------------------------------------------
+r1898 | ed | 2006-02-04 15:16:40 -0800 (Sat, 04 Feb 2006) | 2 lines
+
+Added calculation of left margin width: getMarginWidth()
+
+------------------------------------------------------------------------
+r1899 | ed | 2006-02-05 06:31:26 -0800 (Sun, 05 Feb 2006) | 2 lines
+
+When the Encoding is not correct, it tries either 'latin-1' or 'utf8' instead, and adds a message to the error log.
+
+------------------------------------------------------------------------
+r1900 | paul | 2006-02-05 17:59:49 -0800 (Sun, 05 Feb 2006) | 4 lines
+
+This code delays the refreshing and seems to make only one actual Refresh()
+called per object, greatly speeding up the refreshing again. My test was
+using the keyboard to scroll up and down in a datanav grid.
+
+------------------------------------------------------------------------
+r1901 | ed | 2006-02-06 06:56:56 -0800 (Mon, 06 Feb 2006) | 4 lines
+
+Fixed the recent changes to dPemMixin that would still result in dead object exceptions.
+
+Added a release() method to dColumn.
+
+------------------------------------------------------------------------
+r1902 | paul | 2006-02-06 08:32:50 -0800 (Mon, 06 Feb 2006) | 13 lines
+
+Simplified dPemMixin's __getattr__ and __setattr__ somewhat. I still believe it
+would be better to be explicit about dynamic properties, and will try to find
+some time to make that happen.
+
+Changed a couple exec() calls to setattr() calls instead, which may be safer 
+if not faster, but definitely more explicit and easier to understand.
+
+Added back a needed test for deadObject that I removed from the onUpdate
+callback, and changed the test in update() back to testing for the deadObject
+instead of putting it in a try block.
+
+
+
+------------------------------------------------------------------------
+r1903 | paul | 2006-02-06 11:22:53 -0800 (Mon, 06 Feb 2006) | 4 lines
+
+Turns out, one of my FutureCall changes ended up causing a recursion in the
+UpdateValue event handler. This fixes it, but also decreases performance
+somewhat as the event callbacks happen immediately.
+
+------------------------------------------------------------------------
+r1904 | paul | 2006-02-06 16:36:58 -0800 (Mon, 06 Feb 2006) | 54 lines
+
+Added makeDynamicProperty() function to dabo.ui, which creates a dynamic
+property definition for the passed normal property object. I wanted to put 
+this in propertyHelperMixin but it doesn't appear to me that dynamic 
+properties are really at all useful outside of a UI context (indeed, 
+everything else having to do with dynamic props is defined inside 
+dPemMixin...).
+
+Explicitly defined Dynamic properties for most of the existing properties
+defined in dPemMixin. Removed the automagical __getattr__/__setattr__ 
+overrides.
+
+This dynamism is really cool, and I'm sorry that we aren't seeing completely
+eye-to-eye on it. But here are some things that "just work" with my
+implementation:
+
+1) Run SimpleFormWithBizobj, and in the command window type:
+> def dfb(biz):
+>    return biz.ccity.strip() == "Arecibo"
+    
+> self.PageFrame.Pages[2].setAll("DynamicFontBold", (dfb, self.getBizobj()))
+
+Now, go to the edit page and scroll through. The setAll() call just worked without
+any changes needed. Something is keeping it working with the original implementation
+but I admit that I don't see why, at first glance.
+
+2) Notice when you are typing in the command window, that the dynamic properties
+show up in the list. This is really what I mean when I talk about things being
+documented.
+
+3) Passing dynamic props to the constructor is the same as defining them in the class
+txt = dabo.ui.dTextBox(self, DynamicEnabled=myFunc)
+txt.DynamicFontItalic = myFunc
+
+Both of the above calls work as usual WRT the Dabo Property Interface.
+
+Granted, there's more work involved when defining a new class (gotta remember to tell
+Python about the dynamic props). But after all is said, done, and considered, it is 
+my genuine hope and belief that this was the right way to go. But I am still sorry for 
+stepping on toes.
+
+I'll follow through with making other properties (those outside dPemMixin) dynamic as
+well. 
+
+There are things to consider in the future, such as:
+
++ Do we make a DynamicValue?
++ If so, does it override the value gotten from FieldSource, if set?
++ What bearing does this have on the dynamism already present in, e.g.,
+the setting of dynamic values from non-bizobj data bindings?
+
+Anyway, thanks for putting in the Dynamic stuff, Ed. Once we take care of the refresh
+overhead - perhaps by using the timer/observer-based approach I talked about this 
+morning - this is really going to be killer.
+
+------------------------------------------------------------------------
+r1905 | ed | 2006-02-06 17:21:40 -0800 (Mon, 06 Feb 2006) | 2 lines
+
+Added an option in dabo.settings to avoid the update delays, which were severely bogging down the Designer.
+
+------------------------------------------------------------------------
+r1906 | ed | 2006-02-06 17:27:51 -0800 (Mon, 06 Feb 2006) | 2 lines
+
+Correction to the last commit. I left the explicit 'settings' reference in the version I committed by mistake.
+
+------------------------------------------------------------------------
+r1907 | ed | 2006-02-07 07:32:34 -0800 (Tue, 07 Feb 2006) | 2 lines
+
+Implemented the handling of RowSpan/ColSpan for grid sizers.  Added a GridSizerSpanException class that is raised if an attempt to set the span to a location that is already occupied.
+
+------------------------------------------------------------------------
+r1908 | paul | 2006-02-07 08:08:52 -0800 (Tue, 07 Feb 2006) | 6 lines
+
+Fixed up a couple issues in test.py:
+
++ Changed 'object' to 'obj' because 'object' is a reserved word.
++ Added a SetScrollbars() call because a few weeks ago I took that
+  out of dScrollPanel. TODO: Further abstraction of dScrollPanel.
+
+------------------------------------------------------------------------
+r1909 | paul | 2006-02-07 12:43:44 -0800 (Tue, 07 Feb 2006) | 16 lines
+
+Sorted out some problems and redundancies in the update() cycle:
+
++ Removed the update delays, as they caused other problems.
+
++ Because of the recursive nature of the update() function, both ValueUpdate
+  and Update events were triggering the controls to update themselves. Removed
+  ValueUpdate event and consolidated into the update() cycle.
+
++ The Refresh() call inside update() was being called way too much. In testing
+  different ways to limit this refreshing, I discovered that for all the cases
+  I tested, the Refresh() wasn't needed at all. So I removed it. If you need
+	a refresh() you need to call that explicitly now. I think this may be better
+	anyway because they are different concepts.
+ 		
+Performance still isn't stellar, but it does seem much better now.
+
+------------------------------------------------------------------------
+r1910 | paul | 2006-02-08 13:43:05 -0800 (Wed, 08 Feb 2006) | 8 lines
+
+Fixed up documentation for bizobj's scan() function, adding a note mentioning
+the self.exitScan flag. 
+
+However, there's more to do. If the user is supposed to be able to manipulate
+the __scanReverse and __scanRestorePosition flags, they shouldn't be 
+underscored. If the user isn't supposed to be able to manipulate them,
+they shouldn't be mentioned in the docstring.
+
+------------------------------------------------------------------------
+r1911 | ed | 2006-02-08 14:39:33 -0800 (Wed, 08 Feb 2006) | 4 lines
+
+Added AutoCommit as a property.
+
+Cleaned up irregular spacing, and alphabetized the property get/set methods.
+
+------------------------------------------------------------------------
+r1912 | ed | 2006-02-08 14:44:41 -0800 (Wed, 08 Feb 2006) | 6 lines
+
+Revamped the entire flow for transactions. These changes have been tested on MySQL and SQLite, but still need to be tested with Firebird and PostgreSQL.
+
+Changed the default for bizobjs, cursors, etc., to not autocommit. The AutoCommit property of the bizobj is simply a pass-through to the cursor's AutoCommit property.
+
+Also cleaned up some inconsistent spacing and method ordering.
+
+------------------------------------------------------------------------
+r1913 | paul | 2006-02-09 08:27:15 -0800 (Thu, 09 Feb 2006) | 8 lines
+
+The automatic switching of encodings was resulting in a trial and a message
+for every single failing field. Modified to persist the changing of the
+encoding and to log just one message. 
+
+I'm wondering... this iterating of the fields in the resultset is adding
+a lot of overhead to every requery... do the various backends offer 
+conversion to unicode for us perhaps?
+
+------------------------------------------------------------------------
+r1914 | paul | 2006-02-09 08:42:10 -0800 (Thu, 09 Feb 2006) | 4 lines
+
+Removed the massaging of mxdatetimes to python datetimes: the MySQLdb
+adapter has been giving python datetimes priority for well over a year
+now, and we support mxDateTimes anyway so it shouldn't matter.
+
+------------------------------------------------------------------------
+r1915 | paul | 2006-02-09 09:00:49 -0800 (Thu, 09 Feb 2006) | 2 lines
+
+Oops.
+
+------------------------------------------------------------------------
+r1916 | paul | 2006-02-09 09:15:24 -0800 (Thu, 09 Feb 2006) | 3 lines
+
+Fixed typo in dGrid. Fixed minor issue in dPemMixin: only dForm has the
+getCurrentRecordText() function.
+
+------------------------------------------------------------------------
+r1917 | paul | 2006-02-09 11:48:33 -0800 (Thu, 09 Feb 2006) | 8 lines
+
+Modified datanav to allow for manual setups that don't use fieldSpecs or
+relationSpecs. I'll be committing a change to the AppWizard that allows
+for this option soon.
+
+Moved SelectPageClass, BrowsePageClass, and EditPageClass from PageFrame
+to Form, since that is a better central location for these properties.
+
+
+------------------------------------------------------------------------
+r1918 | paul | 2006-02-09 20:26:21 -0800 (Thu, 09 Feb 2006) | 5 lines
+
+I was sipping a Belgian Abbey Ale, entering my invoices and modifying some
+time entries, when imagine my surprise - I hit "save" and my app froze.
+Turns out, I got dropped into pdb! ;)
+
+
+------------------------------------------------------------------------
+r1919 | ed | 2006-02-09 21:17:46 -0800 (Thu, 09 Feb 2006) | 7 lines
+
+EXPERIMENTAL!
+Added a splash screen to the Dabo app startup. This is based on Andrea Gavana's AdvancedSplash class, and allows for cool shaped windows, etc.
+
+Right now on the Mac there is a noticeable delay from when the splash screen shaped frame appears and when the bitmap is drawn in the Paint event. I'm hoping to be able to figure out why, and also hope that this is just a Mac thing, as Andrea says he's tested this on WinXP and Gtk.
+
+If this works, we may want to consider better artwork for our default splash screen, but this transparent 'dabo' lettering will do for now.
+
+------------------------------------------------------------------------
+r1920 | ed | 2006-02-09 21:27:40 -0800 (Thu, 09 Feb 2006) | 2 lines
+
+Fixed some bugs with Gtk, but still looks bad and crashes, at least on FC2. Will try later with Windows and Ubuntu.
+
+------------------------------------------------------------------------
+r1921 | ed | 2006-02-10 05:59:45 -0800 (Fri, 10 Feb 2006) | 8 lines
+
+Fixed the crashing problem on Gtk. Improved the appearance of the splashscreen on Gtk and Windows without
+affecting OS X.
+
+There is still a 'border' around the image on Gtk; I don't know if this is
+the result of my poor graphic work, or something inherent in wxWidgets on
+Gtk.
+
+
+------------------------------------------------------------------------
+r1922 | ed | 2006-02-10 14:39:15 -0800 (Fri, 10 Feb 2006) | 7 lines
+
+Turned off the default for showing the splash screen. You can now pass the splash screen settings as parameters to the constructor of dApp, since that's the only practical way to override them.
+
+Changed the bulk of initialization to the constructor of uiApp. Previously the uiApp object was created, and then things like platform, app reference, etc., weren't established until setup(). dApp now passes a callback to uiApp that is used to continue the startup process once the uiApp has finished initializing.
+
+Many changes to the SplashScreen class. It now works decently on OS X and Windows, and still looks like crap on Gtk. 
+
+
+------------------------------------------------------------------------
+r1923 | ed | 2006-02-10 16:56:52 -0800 (Fri, 10 Feb 2006) | 2 lines
+
+Fixed a bug I introduced with the splash screen callback not firing under some conditions.
+
+------------------------------------------------------------------------
+r1924 | ed | 2006-02-10 18:23:33 -0800 (Fri, 10 Feb 2006) | 2 lines
+
+Added the ability to set the DataSource to an object, rather than just a string that can be eval'd to an object.
+
+------------------------------------------------------------------------
+r1925 | paul | 2006-02-11 08:33:26 -0800 (Sat, 11 Feb 2006) | 1 line
+
+On Windows, this callAfter is needed so that the form's geometry gets saved. This problem was manifesting in the Report Designer Object Tree and Properties forms.
+------------------------------------------------------------------------
+r1926 | ed | 2006-02-11 10:29:20 -0800 (Sat, 11 Feb 2006) | 4 lines
+
+Changed the 'getMaxRow/Col' methods to 'getHighRow/Col' in order to avoid confusion with the MaxRows/Cols props in dGridSizer.
+
+Modified both sizer classes to accept windows and not just SizerItems when setting/getting prop values.
+
+------------------------------------------------------------------------
+r1927 | ed | 2006-02-11 12:09:09 -0800 (Sat, 11 Feb 2006) | 2 lines
+
+Fixed a bug with the wx alignment constants. 
+
+------------------------------------------------------------------------
+r1928 | ed | 2006-02-11 17:34:06 -0800 (Sat, 11 Feb 2006) | 4 lines
+
+Changed the callAfter(self.Destroy) in dFormMixin to a call to safeDestroy() instead. This checks for the status of the object to see if it has already been destroyed elsewhere. This seems to be more of a problem on Windows, where I was getting errors with every form that closed.
+
+Updated dEditor to do a semi-smart sort for its getFunctionList() method. It sorts by class, and within class, by method. However, it is still fooled by things like class definitions nested within methods. But for now it works pretty well.
+
+------------------------------------------------------------------------
+r1929 | ed | 2006-02-12 07:12:14 -0800 (Sun, 12 Feb 2006) | 2 lines
+
+Added the movePage() method, which takes either a page reference or a page index, and moves the page to the specified position. The page is then selected, unless the third parameter 'selecting' is False.
+
+------------------------------------------------------------------------
+r1930 | ed | 2006-02-12 07:17:59 -0800 (Sun, 12 Feb 2006) | 2 lines
+
+Fixed a bug in the bindKey() method where it would only accept mod keys in lower case.
+
+------------------------------------------------------------------------
+r1931 | ed | 2006-02-12 11:59:16 -0800 (Sun, 12 Feb 2006) | 6 lines
+
+Changed all the HeaderBack/ForegroundColor props to HeaderBack/ForeColor. This makes it much more consistent with the other color properties in Dabo. 
+
+Fixed a ordering bug when adding columns in a batch.
+
+Fixed the getForm() method of dMessageBox, which wasn't returning anything.
+
+------------------------------------------------------------------------
+r1932 | ed | 2006-02-12 15:31:02 -0800 (Sun, 12 Feb 2006) | 5 lines
+
+Fixed possible problem with dApp referencing uiApp before it has been instantiated.
+
+Added attribute initialization for _oldVal in dDataControlMixinBase.
+
+
+------------------------------------------------------------------------
+r1933 | ed | 2006-02-12 15:36:46 -0800 (Sun, 12 Feb 2006) | 6 lines
+
+Added a getInt() method to dabo.ui.uiwx.
+
+Fixed the splashscreen display on Windows.
+
+Added the ability to set the font face and size for the editor.
+
+------------------------------------------------------------------------
+r1934 | ed | 2006-02-13 05:34:55 -0800 (Mon, 13 Feb 2006) | 4 lines
+
+Fixed the double-event problem on Windows. Also added color to the demos to make the panels more visible. 
+
+Modified the Orientation property of dSplitter so that it updates the physical appearance immediately, instead of requiring an unsplit/split first.
+
+------------------------------------------------------------------------
+r1935 | paul | 2006-02-13 06:47:17 -0800 (Mon, 13 Feb 2006) | 3 lines
+
+Fixed a bug that kept bands with no height set from being printed with the
+default band height.
+
+------------------------------------------------------------------------
+r1936 | paul | 2006-02-13 08:27:28 -0800 (Mon, 13 Feb 2006) | 4 lines
+
+Added a quick fix to make the about page look better after some sizer changes.
+Perhaps the original code was relying on a bug that has now been fixed.
+
+
+------------------------------------------------------------------------
+r1937 | ed | 2006-02-13 10:31:38 -0800 (Mon, 13 Feb 2006) | 4 lines
+
+Fixed a potential bug in dEditor if you go to set the font size/face and there are no defaults in place.
+
+Added a couple of convenience properties to dImage. BitmapWidth and BitmapHeight return the dimensions of the displayed bitmap, not the overall control.
+
+------------------------------------------------------------------------
+r1938 | ed | 2006-02-13 15:51:36 -0800 (Mon, 13 Feb 2006) | 4 lines
+
+Added the setCheck() method to dMenu. Given a caption, it will check any menus whose captions match. By default it will uncheck any that don't match; you can pass False as the second argument and leave non-matchers alone. Also added clearChecks() to uncheck all menu items in a menu.
+
+Exposed the FileName and FilePath properties in dEditor.
+
+------------------------------------------------------------------------
+r1939 | paul | 2006-02-13 16:32:28 -0800 (Mon, 13 Feb 2006) | 4 lines
+
+Added some syntax sugar for referring to fields and variables. Where you
+used to have to refer to self.Record["clientname"], you can now do
+self.clientname. Same with self.Variables.
+
+------------------------------------------------------------------------
+r1940 | ed | 2006-02-14 07:21:27 -0800 (Tue, 14 Feb 2006) | 4 lines
+
+Added the 'callEvery' function to dabo.ui. This function accepts an interval (in milliseconds), and callable reference, and optional arguments to that callable. It then creates a timer that fires the callable every <interval> milliseconds, passing along any optionally included arguments. The timer reference is then returned, where it can be controlled by calling stop(), start() or release().
+
+This is based on the dCallEvery class that Brandon Singer proposed. I made it a function in dabo.ui because I felt it was more consistent with the existing functions callAfter() and callAfterInterval().
+
+------------------------------------------------------------------------
+r1941 | ed | 2006-02-14 18:06:00 -0800 (Tue, 14 Feb 2006) | 2 lines
+
+Changed the default for forms to not automatically show "Record 1 of 0" or similar meaningless database information in the status bar. Set it back to True for the datanav Form class, so all datanav apps should remain unchanged. All of the apps in the demo and IDE directories that don't query data, though, no longer show that message.
+
+------------------------------------------------------------------------
+r1942 | ed | 2006-02-14 18:35:24 -0800 (Tue, 14 Feb 2006) | 2 lines
+
+Creating an instance of dApp doesn't automatically create an instance of uiApp. Instead, it now asks dabo.ui to get it a reference, and dabo.ui either returns the current instance if one already exists, or creates one if not. This allows you to run wxPython apps from within wxPython apps.
+
+------------------------------------------------------------------------
+r1943 | ed | 2006-02-15 14:13:29 -0800 (Wed, 15 Feb 2006) | 5 lines
+
+Added some rudimentary support for file drag/drop. Right now, you can call 'createFileDropTarget' on an object to make it able to respond to files dropped on it. Pass in an optional handler object reference; otherwise, the handler is set to the object itself. The drop event is passed on to the handler by calling its 'processDroppedFiles' method, which should be overridden in the handler object to do the specific processing of the files.
+
+Added a 'Column' property to dEditor; this represents the column position in the current line, and can be changed to move the cursor within the line.
+
+
+------------------------------------------------------------------------
+r1944 | ed | 2006-02-16 06:21:47 -0800 (Thu, 16 Feb 2006) | 2 lines
+
+Added option in getItemByRowCol() to return the sizer item in the given position instead of the object managed by that sizer item.
+
+------------------------------------------------------------------------
+r1945 | ed | 2006-02-16 07:32:33 -0800 (Thu, 16 Feb 2006) | 2 lines
+
+Added method 'isItemChecked()' to allow you to determine the checked status of any menu item.
+
+------------------------------------------------------------------------
+r1946 | paul | 2006-02-16 08:36:49 -0800 (Thu, 16 Feb 2006) | 4 lines
+
+Added dabo.ui.getMousePosition(), which returns the position of the mouse
+on the screen. This is in contrast to dPemMixin.getMousePosition(), which 
+gets the position of the mouse inside the client window.
+
+------------------------------------------------------------------------
+r1947 | paul | 2006-02-16 09:58:09 -0800 (Thu, 16 Feb 2006) | 3 lines
+
+Reworked the setting of tooltips, which works marginally better. Waiting for
+some guidance from Robin, however, WRT setting tooltips to a None value.
+
+------------------------------------------------------------------------
+r1948 | ed | 2006-02-16 12:14:25 -0800 (Thu, 16 Feb 2006) | 2 lines
+
+Added the Split property, which is a simple way to determine if the control is split, or to change its state.
+
+------------------------------------------------------------------------
+r1949 | paul | 2006-02-16 12:23:06 -0800 (Thu, 16 Feb 2006) | 8 lines
+
+Commented out all code that creates a list editor in the report prop sheet.
+This is because it effectively limits the possible values to just the 
+exact values in the list, but we want more flexibility. We need to add an
+editor to the propsheet that uses a combobox, so the editor doesn't blow
+away any custom expressions and so the user can type in whatever they want
+in addition to being able to select from the list.
+
+
+------------------------------------------------------------------------
+r1950 | paul | 2006-02-16 13:37:25 -0800 (Thu, 16 Feb 2006) | 1 line
+
+Fixed a couple errors having to do with variables being defined but not named yet.
+------------------------------------------------------------------------
+r1951 | ed | 2006-02-16 14:06:06 -0800 (Thu, 16 Feb 2006) | 4 lines
+
+Update to allow execution of SQL statements without affecting the current data set. The bizobj has a new pass-through method named 'execute()', which takes a statement understood by the backend database and passes it to its cursor's execute method.
+
+The cursor class has been modified to run all statements that don't begin with 'select' through its auxiliary cursor, thereby preserving its data set. Preliminary tests that I've run have confirmed that these are working correctly, but there should be a lot more testing done before I am confident that these changes are truly sound and can handle whatever we can toss at them.
+
+------------------------------------------------------------------------
+r1952 | paul | 2006-02-16 15:37:05 -0800 (Thu, 16 Feb 2006) | 3 lines
+
+Set the locale if not set yet. This lets expressions like 'locale.format()'
+work in reports.
+
+------------------------------------------------------------------------
+r1953 | paul | 2006-02-16 15:38:14 -0800 (Thu, 16 Feb 2006) | 1 line
+
+Fixed another problem with report variables.
+------------------------------------------------------------------------
+r1954 | ed | 2006-02-16 17:12:17 -0800 (Thu, 16 Feb 2006) | 2 lines
+
+You can now set the DataSource to an actual object, instead of having to set it to a string that could be resolved to an object. 
+
+------------------------------------------------------------------------
+r1955 | ed | 2006-02-16 17:13:57 -0800 (Thu, 16 Feb 2006) | 2 lines
+
+Doh! Left the debug stuff in by mistake. This removes the trace call.
+
+------------------------------------------------------------------------
+r1956 | paul | 2006-02-16 17:39:15 -0800 (Thu, 16 Feb 2006) | 1 line
+
+This fixes locale to actually pull from the Windows settings.
+------------------------------------------------------------------------
+r1957 | paul | 2006-02-17 13:47:54 -0800 (Fri, 17 Feb 2006) | 2 lines
+
+Changed the wxPython version requirements in the dabo docstring.
+
+------------------------------------------------------------------------
+r1958 | ed | 2006-02-17 18:13:28 -0800 (Fri, 17 Feb 2006) | 6 lines
+
+Added basic support for storing lists/tuples in the user settings. 
+
+Added a simple way of persisting MRU lists in applications. A new dApp property, '_persistentMRUs' is a dict that contains the name of the menu as the key for the entry, and the function to bind the items to as the value. The framework will then handle saving and restoring MRU lists upon app startup and closing.
+
+Modified the uiApp to accept just the menu caption as an identifier instead of requiring the actual menu. This is necessary to create MRU lists for context menus, or for restoring menus at app startup.
+
+------------------------------------------------------------------------
+r1959 | ed | 2006-02-18 12:55:23 -0800 (Sat, 18 Feb 2006) | 2 lines
+
+Updated the requirement that a bizobj be found for all data sources. SInce that was written, Dabo's use of data binding has expanded to lots of non-bizobj uses.
+
+------------------------------------------------------------------------
+r1960 | ed | 2006-02-19 19:09:48 -0800 (Sun, 19 Feb 2006) | 2 lines
+
+Fixed bad syntax. I'm surprised that this ever worked before!
+
+------------------------------------------------------------------------
+r1961 | ed | 2006-02-20 14:18:31 -0800 (Mon, 20 Feb 2006) | 2 lines
+
+Fixed a bug that was due to a change from 'Halign/Valign' to 'HAlign/VAlign'.
+
+------------------------------------------------------------------------
+r1962 | ed | 2006-02-20 14:22:40 -0800 (Mon, 20 Feb 2006) | 2 lines
+
+Completed the majority of the work needed to implement saved classes that can be used in other class designs; it was working from the Designer, but not when you ran the form. These changes implement the whole inheritance structure so that if you change the underlying class, any changes not explicitly overridden in the design that uses that class are reflected. This works for both property changes as well as code changes. 
+
+------------------------------------------------------------------------
+r1963 | ed | 2006-02-21 06:11:12 -0800 (Tue, 21 Feb 2006) | 8 lines
+
+Switched the default order of arguments in callAfterInterval(). It makes more sense to specify the interval first, followed by the function and its arguments. Sticking the interval between the function and its arguments seems very awkward. I added code to callAfterInterval() to check if it received a call in which the interval is the second argument (i.e., the original style) and switch them around in that event.
+
+Removed dDrawPanel as a class. Turns out that adding double-buffering to panels doesn't affect their performance noticeably, so it made sense to turn this on for all dPanel objects by default. However, if you run into a situation where this adversely affects your app, there is a new property named 'Buffered' that will turn this behavior off (i.e., make it work like it used to) when set to False.
+
+*IF YOU USED dDrawPanel IN YOUR CODE, THIS WILL BREAK IT!*
+
+You must update by changing all references to dDrawPanel to simply dPanel.
+
+------------------------------------------------------------------------
+r1964 | ed | 2006-02-21 11:05:01 -0800 (Tue, 21 Feb 2006) | 2 lines
+
+Changed the default for double buffering back to off. Seems that it wasn't as transparently simple as I thought.
+
+------------------------------------------------------------------------
+r1965 | ed | 2006-02-22 05:38:10 -0800 (Wed, 22 Feb 2006) | 2 lines
+
+Changed some of the defaults to behave better when typing values that don't appear in the auto-complete list. I got tired of the editor sticking a string in my code that I didn't want.
+
+------------------------------------------------------------------------
+r1966 | paul | 2006-02-23 18:23:39 -0800 (Thu, 23 Feb 2006) | 2 lines
+
+Updated the todo list. 
+
+------------------------------------------------------------------------
+r1967 | paul | 2006-02-23 18:26:07 -0800 (Thu, 23 Feb 2006) | 2 lines
+
+Added DesignerLock property to all report objects, not just bands.
+
+------------------------------------------------------------------------
+r1968 | ed | 2006-02-25 10:21:59 -0800 (Sat, 25 Feb 2006) | 2 lines
+
+Added some defensive code for instances where a DataSource object does not have a '_name' attribute.
+
+------------------------------------------------------------------------
+r1969 | ed | 2006-02-25 11:37:56 -0800 (Sat, 25 Feb 2006) | 2 lines
+
+Removed the old syntax for begin/commit/rollbackTransaction. The default for these actions in dBackendObject is to call the appropriate method on the connection, not to execute a command on the cursor.
+
+------------------------------------------------------------------------
+r1970 | paul | 2006-02-26 09:06:46 -0800 (Sun, 26 Feb 2006) | 3 lines
+
+Added dynamic properties for the rest of the UI classes.
+
+
+------------------------------------------------------------------------
+r1971 | ed | 2006-02-26 14:38:48 -0800 (Sun, 26 Feb 2006) | 2 lines
+
+Removed the call to cursor.connection.begin() in the beginTransaction() method. This does not seem to be needed for most backends; in fact, it is typically used to override autocommit to create temporary explicit transactions.
+
+------------------------------------------------------------------------
+r1972 | echo | 2006-02-28 10:51:19 -0800 (Tue, 28 Feb 2006) | 7 lines
+
+Table creation now works for MySQL also.
+
+The class dAutoBizobj is a bizobj that has a dTable.
+
+The function AutoCreateTables() will try to create all the tables that have been setup with dAutoBizobj objects. If it can't create the tables, a message pops up for the user and the db admin. The db admin can enter the username and password for access to create tables or the db admin can manualy execute the queries in the queries.sql.
+
+Also, having autotables for more than database or even more than one host does not messup or crash, it is handled.
+------------------------------------------------------------------------
+r1973 | ed | 2006-03-01 05:44:40 -0800 (Wed, 01 Mar 2006) | 6 lines
+
+Added protective code for the PageChanged event in the pageframe mixin.
+
+Corrected a one-off error in the grid sizer's getHighRow/Col methods.
+
+Added improved error logging when _setValue() fails in dDataControlMixin.
+
+------------------------------------------------------------------------
+r1974 | echo | 2006-03-01 06:01:53 -0800 (Wed, 01 Mar 2006) | 1 line
+
+forgot a file
+------------------------------------------------------------------------
+r1975 | ed | 2006-03-01 13:43:52 -0800 (Wed, 01 Mar 2006) | 9 lines
+
+Converted the dTimer from a bitmap to a non-visible control based directly on wx.Timer. This makes it fit in much better with dabo.ui.callEvery(), which is much more convenient to use in many cases.
+
+Fixed a problem in eventMixin whereby an object without a GetParent() method could cause an error.
+
+Began coding for the Hover property, which will allow for easier visual coding of MouseOver events. It isn't fully implemented yet, so don't try working with it.
+
+Fixed a bug in dPanel whereby Resize events were not propagated to subclasses when Buffered = True.
+
+
+------------------------------------------------------------------------
+r1976 | paul | 2006-03-01 14:37:28 -0800 (Wed, 01 Mar 2006) | 2 lines
+
+Fixed the callEvery to bind to the hit event and call the function.
+
+------------------------------------------------------------------------
+r1977 | ed | 2006-03-01 16:34:12 -0800 (Wed, 01 Mar 2006) | 2 lines
+
+Implemented the Hover property in dPemMixin. The reason for this rather than relying on MouseLeave to terminate the effect is that there are many time when it seems that the mouse leaves the area without triggering the MouseLeave event. The Hover mechanism employs a timer to check for mouse position, and fire the MouseLeave code if it detects that the mouse position is outside of the control.
+
+------------------------------------------------------------------------
+r1978 | ed | 2006-03-01 17:25:28 -0800 (Wed, 01 Mar 2006) | 2 lines
+
+Fixed a bug that prevented a new file from being saved.
+
+------------------------------------------------------------------------
+r1979 | ed | 2006-03-01 18:22:46 -0800 (Wed, 01 Mar 2006) | 2 lines
+
+Added a manual call to afterInit() in all objects added via custom classes. Since the code cannot be bound to the object until the object exists, it is too late for custom afterInit() code to be called, since _afterInit() fires during the object creation.
+
+------------------------------------------------------------------------
+r1980 | echo | 2006-03-03 08:04:20 -0800 (Fri, 03 Mar 2006) | 1 line
+
+bug fix
+------------------------------------------------------------------------
+r1981 | paul | 2006-03-03 09:53:18 -0800 (Fri, 03 Mar 2006) | 6 lines
+
+Added a CustomSQL property to the datanav form. If set, the settings in the 
+select page will be ignored and the contents of CustomSQL used instead.
+
+TODO: Add an "expert mode" to the select page, that lets the user hand-edit
+the SQL.
+
+------------------------------------------------------------------------
+r1982 | paul | 2006-03-03 13:51:12 -0800 (Fri, 03 Mar 2006) | 2 lines
+
+Added a user interface for overriding the sql.
+
+------------------------------------------------------------------------
+r1983 | ed | 2006-03-05 08:42:35 -0800 (Sun, 05 Mar 2006) | 15 lines
+
+Added defaults to dGrid.getValue(). If no row or col is specified, it defaults to the current row/column, respectively.
+
+Added fontMetricFromDrawObject() to dabo.ui. This enables simple calculation of the width/height of a drawn text object.
+
+Cleaned up the property methods and definitions of dTextBox to make them alphabetized, and to make the strings localized. Also relaxed the values accepted for the Alignment property.
+
+Added a fitToSizer() method to dPemMixin. This will resize the object to fit the size required by the sizer represented in its Sizer property. You can also pass in extraWidth and extraHeight values to adjust the size further.
+
+Added a call to flushValue() to the _setValue() method for data controls in the event that the value didn't change. I was running into cases where data binding properties were set up after the initial value was set, and there was no way to propagate the data binding without doing something silly like changing the value to something random and then changing it back.
+
+Added 'Alignment' to the pre-init properties of dCheckBox. Cleaned up the property methods and definitions to make them alphabetized, and to make the strings localized. Also relaxed the values accepted for the Alignment property.
+
+Added an option to dEditor.changeFontSize() to accept strings in the format "+n" or "-n". These will increment or decrement the font size by 'n' points.
+
+
+------------------------------------------------------------------------
+r1984 | ed | 2006-03-06 07:43:37 -0800 (Mon, 06 Mar 2006) | 2 lines
+
+Overrode the GetBestSize() method for dFoldPanelBar. This method takes into account the heights of the caption bars, as well as the height of the parent. Before this fix, the PropSheet would sometimes size itself too big for the other caption bars to fit; now all the caption bars remain visible.
+
+------------------------------------------------------------------------
+r1985 | ed | 2006-03-06 17:42:06 -0800 (Mon, 06 Mar 2006) | 2 lines
+
+Moved the _addCode() method out of dFormMixin, since it really is more generic than that. It now lives in dObject._addCodeAsMethod(), which takes a dict of method name/code pairs and adds them as methods of the object. dPemMixin now looks for a keyword argument called 'srcCode', and if found, adds it to the object.
+
+------------------------------------------------------------------------
+r1986 | ed | 2006-03-09 13:47:29 -0800 (Thu, 09 Mar 2006) | 6 lines
+
+This class handles the conversion of cdxml text to a class object. It has one main method: classFromXml(), which takes a cdxml file and returns the main class stored in that file. This class can then be instantiated as part of a live app.
+
+It is working for most simple classes. You can create layouts using sizers, panels, and add code to any object, and it will work. However, support for GRIDS and PAGEFRAMES is not completed yet. ANY SAVED DESIGN WITH GRIDS OR PAGEFRAMES WILL BE BROKEN NOW.
+
+This will, of course, be temporary, until I can add that logic to this class.
+
+------------------------------------------------------------------------
+r1987 | ed | 2006-03-09 13:49:16 -0800 (Thu, 09 Mar 2006) | 2 lines
+
+Updated dabo.ui to use the new cdxml converter in createForm().
+
+------------------------------------------------------------------------
+r1988 | ed | 2006-03-10 16:20:42 -0800 (Fri, 10 Mar 2006) | 4 lines
+
+Added support for grids and pageframes. These are now re-created as they appeared in the design.
+
+This is now ready for testing and bug reports.
+
+------------------------------------------------------------------------
+r1989 | ed | 2006-03-10 16:23:15 -0800 (Fri, 10 Mar 2006) | 7 lines
+
+Added support for passing the attProperties parameter to grid columns.
+
+Modified the appendPage() and insertPage() methods of dPageFrameMixin to accept either a page class, as it always has, or an already-instantiated page.
+
+Fixed an oversight in dSizerMixin that could sometimes result in the Parent property not always being set correctly.
+
+
+------------------------------------------------------------------------
+r1990 | paul | 2006-03-10 16:37:23 -0800 (Fri, 10 Mar 2006) | 2 lines
+
+Added full table.field qualification to the getWordMatchFormat() function.
+
+------------------------------------------------------------------------
+r1991 | ed | 2006-03-11 07:33:03 -0800 (Sat, 11 Mar 2006) | 2 lines
+
+Removed the old code for importing cdxml files.
+
+------------------------------------------------------------------------
+r1992 | ed | 2006-03-11 17:56:25 -0800 (Sat, 11 Mar 2006) | 2 lines
+
+You can now call addObject() and pass a cdxml file instead of a Dabo class reference, and the class defined in the cdxml will be added to the parent.
+
+------------------------------------------------------------------------
+r1993 | ed | 2006-03-12 17:12:02 -0800 (Sun, 12 Mar 2006) | 2 lines
+
+Modified the class to handle property definitions.
+
+------------------------------------------------------------------------
+r1994 | paul | 2006-03-13 08:08:08 -0800 (Mon, 13 Mar 2006) | 2 lines
+
+This should work around the double-scrollbar problem with the browse grid.
+
+------------------------------------------------------------------------
+r1995 | ed | 2006-03-13 16:46:49 -0800 (Mon, 13 Mar 2006) | 6 lines
+
+Refactored the call to the command window from dApp to uiApp.
+
+Fixed a bug in dGrid that would throw errors when a grid was either being created or destroyed, and the calls to paint the headers were out of sync with the current column count.
+
+Fixed a bug in dSizerMixin that would always report the BorderSides property of an object as ['All'], even when it was set to only be specific sides.
+
+------------------------------------------------------------------------
+r1996 | paul | 2006-03-14 13:11:54 -0800 (Tue, 14 Mar 2006) | 1 line
+
+Fixed a recursion problem with __getattr__ when running from the designer as opposed to runtime.
+------------------------------------------------------------------------
+r1997 | paul | 2006-03-14 14:42:02 -0800 (Tue, 14 Mar 2006) | 4 lines
+
+This fixes the problem with dShell that no longer lets pdb run.
+
+http://dabodev.com/tracker/0076 
+
+------------------------------------------------------------------------
+r1998 | ed | 2006-03-14 17:17:06 -0800 (Tue, 14 Mar 2006) | 4 lines
+
+Cleaned up the dynamic code creation routines in dObject and DesignerXmlConverter.
+
+Modified xmltodict to handle property declarations. After 0.6 is out, we really need to move to a more automatic way of doing this. I'd like to look into things such as cElementTree, which is supposed to be incorporated into the next verison of Python. Our files are not so huge that we couldn't parse them into DOM trees.
+
+------------------------------------------------------------------------
+r1999 | ed | 2006-03-15 04:29:28 -0800 (Wed, 15 Mar 2006) | 8 lines
+
+Added setAfter() and setAfterInterval() to dabo.ui. These work the same as callAfter() and callAfterInterval(), except you use them to set properties to particular values.
+
+Added the following properties to dGrid: MovableColumns, ResizableColumns, and ResizableRows. When any of these are set to False, the user cannot move/resize the column or row.
+
+Re-arranged the property definitions to be alphabetical. 
+
+Refactored all of the Dynamic* property calls to their own area after the property declarations. IMO, this makes the property definition section *much* easier to read, as it's easier to see each property defintion by itself, and find the one you want more quickly. If this is acceptable to you, Paul, I propose we adopt this as the standard in our property definition sections of code.
+
+------------------------------------------------------------------------
+r2000 | paul | 2006-03-16 08:38:35 -0800 (Thu, 16 Mar 2006) | 8 lines
+
+Fixed the overflowing column problem in dGrid, which was happening whenever
+the expression 'if fieldval' evaluated to False. IOW, None and empty strings.
+
+Also fixed the grid to display None values using the value of the grid's 
+NoneDisplay property. IMO NoneDisplay should default to 'None' instead of 
+'<null>', but what does everyone else think?
+
+
+------------------------------------------------------------------------
+r2001 | ed | 2006-03-16 12:10:19 -0800 (Thu, 16 Mar 2006) | 2 lines
+
+Reverted the IsEmptyCell() change, and added the overflow setting to the GetAttr() method, as per Robin's suggestion.
+
+------------------------------------------------------------------------
+r2002 | ed | 2006-03-16 12:14:52 -0800 (Thu, 16 Mar 2006) | 2 lines
+
+Whoops, didn't mean to commit this file. It had some experimental stuff that will break anyone else's installation.
+
+------------------------------------------------------------------------
+r2003 | paul | 2006-03-16 13:23:00 -0800 (Thu, 16 Mar 2006) | 12 lines
+
+Re-added the code to have the grid show None values using grid.NoneDisplay.
+
+Refactored NoneDisplay out of uiApp and into dApp, since there isn't any
+ui-specific code needed here. 
+
+Made dGrid's NoneDisplay settable, and if set it overrides the dApp value,
+otherwise it pulls dApp's value.
+
+Oh, and I changed the default NoneDisplay to "< None >", because that is
+my preference, but this doesn't really matter that much so if it really
+bugs, feel free to change it to something else.
+
+------------------------------------------------------------------------
+r2004 | ed | 2006-03-17 16:19:20 -0800 (Fri, 17 Mar 2006) | 5 lines
+
+Updated the class converter to properly handle nested class components. Components can be nested to any degree now, and inheritance will be preserved. 
+
+There is a bug in the Save routine in the Class Designer, but that will have to be fixed another time.
+
+
+------------------------------------------------------------------------
+r2005 | ed | 2006-03-20 07:41:03 -0800 (Mon, 20 Mar 2006) | 2 lines
+
+Removed the automatica clearing of self._types after every query. This reduces the number of error messages generated when queries that return zero records are run. If another query has already populated self._types, we can re-use that information. 
+
+------------------------------------------------------------------------
+r2006 | paul | 2006-03-20 10:13:34 -0800 (Mon, 20 Mar 2006) | 3 lines
+
+This fixes the setFocus() problem noticed in the fieldValidation demo on
+Mac.
+
+------------------------------------------------------------------------
+r2007 | paul | 2006-03-20 12:44:48 -0800 (Mon, 20 Mar 2006) | 22 lines
+
+Continued the project of getting font behaviors and definitions 
+encapsulated in dFont.
+
+Set up an event so that the dFont instance can notify any 
+controls that are using this font that the properties have changed.
+This is dEvents.FontPropertiesChanged.
+
+Modified the various font property getters/setters in dPemMixin,
+dTreeView, and dGrid to better define and use the dFont instances. 
+Previously, a new dFont instance was getting created simply by 
+querying any of the font properties. Now, we create and reuse the 
+dFont instance and use it as a full proxy to the wxFont object. 
+
+Removed the NativeObject property, as it isn't necessary for user
+code to access this directly. They can still get to it using the
+_nativeFont attribute, however.
+
+I'll commit this change and see if the dynamic prop demo works 
+correctly on Mac now. If not, I've got a better base from which to
+fix the problem now.
+
+
+------------------------------------------------------------------------
+r2008 | ed | 2006-03-20 14:26:38 -0800 (Mon, 20 Mar 2006) | 5 lines
+
+Ran into a problem with browsing a data set containing an mx.DateTime value. Since it
+wasn't one of the defined types in setColumns, it was being stored as a data
+type, not a string. Later on, code in fillTable() tried to lower() that
+value, throwing an error. This fixes this problem.
+
+------------------------------------------------------------------------
+r2009 | ed | 2006-03-20 14:33:52 -0800 (Mon, 20 Mar 2006) | 2 lines
+
+Corrects a problem introduced by the change to setFocus() earlier today. Occasionally, objects were being released after their setFocus() method had been called, and when the callAfter() happened, it threw a dead object error. This wraps that call in a check to make sure that the object is still live.
+
+------------------------------------------------------------------------
+r2010 | paul | 2006-03-20 14:44:54 -0800 (Mon, 20 Mar 2006) | 1 line
+
+I put together a wx sample that mirrors what dabo does when changing font properties. I'm going to test the behavior on Win and Linux and then post a query to wxPython-mac.
+------------------------------------------------------------------------
+r2011 | paul | 2006-03-20 14:49:55 -0800 (Mon, 20 Mar 2006) | 2 lines
+
+Tested on Linux, and it works as expected. Here are some minor improvements.
+
+------------------------------------------------------------------------
+r2012 | paul | 2006-03-21 07:53:58 -0800 (Tue, 21 Mar 2006) | 1 line
+
+Fixed the mac font problem. The dynamicProps demo now works as expected on all platforms.
+------------------------------------------------------------------------
+r2013 | paul | 2006-03-21 08:59:43 -0800 (Tue, 21 Mar 2006) | 1 line
+
+Changed the keyboard datanav navigation from Ctrl+, and Ctrl+. to Alt+LEFT and Alt+RIGHT. I've confirmed this works on Win and Gtk. Will test Mac next. The original configuration, in addition to being nonintuitive, didn't work on Windows.
+------------------------------------------------------------------------
+r2014 | paul | 2006-03-21 09:28:52 -0800 (Tue, 21 Mar 2006) | 1 line
+
+Added another macProblem script, this time showing that some arrow keys don't get properly bound.
+------------------------------------------------------------------------
+r2015 | paul | 2006-03-21 09:33:48 -0800 (Tue, 21 Mar 2006) | 1 line
+
+set native line endings.
+------------------------------------------------------------------------
+r2016 | paul | 2006-03-21 09:37:06 -0800 (Tue, 21 Mar 2006) | 1 line
+
+Argh, the test on Windows failed because evt.EventObject() returns the frame and not the menu like it does on Mac and Linux. This should do it.
+------------------------------------------------------------------------
+r2017 | paul | 2006-03-21 09:41:51 -0800 (Tue, 21 Mar 2006) | 1 line
+
+Changed the nav keys to Ctrl+LEFT/Ctrl+Right because Alt+arrow on Mac translates to the Option+Arrow which is used for keyboard navigation of text entry fields. Note that because of a separate problem, only forward keyboard navigation is possible on Mac currently.
+------------------------------------------------------------------------
+r2018 | paul | 2006-03-21 09:49:06 -0800 (Tue, 21 Mar 2006) | 4 lines
+
+Ok, using Ctrl+Arrow on Win and Lin causes the same problem that using
+Alt+Arrow causes on Mac. Therefore, I've added code to use the best alt
+key on the running platform.
+
+------------------------------------------------------------------------
+r2019 | paul | 2006-03-21 10:35:02 -0800 (Tue, 21 Mar 2006) | 4 lines
+
+I was getting errorLog messages for datatypes of "char", "decimal", "date", 
+and "datetime", as these types were as defined by the appWizard using 
+fieldSpecs. Fixed it by inserting these strings as keys in the dictionary.
+
+------------------------------------------------------------------------
+r2020 | echo | 2006-03-21 11:52:14 -0800 (Tue, 21 Mar 2006) | 2 lines
+
+lots of impovements for creating tables.
+using dAutoBizobj's make it much easyer now and do some automation of setting up the bizobj.
+------------------------------------------------------------------------
+r2021 | paul | 2006-03-21 12:36:29 -0800 (Tue, 21 Mar 2006) | 2 lines
+
+Reverted my change from before, and fixed the test expression.
+
+------------------------------------------------------------------------
+r2022 | paul | 2006-03-21 15:23:17 -0800 (Tue, 21 Mar 2006) | 2 lines
+
+Added the objects collection to report bands by default.
+
+------------------------------------------------------------------------
+r2023 | ed | 2006-03-21 17:41:20 -0800 (Tue, 21 Mar 2006) | 6 lines
+
+Added the ability to save screenshots in one of several graphics formats. While this was part of the Bubblet demo originally, it could have uses elsewhere. For example, combining this with dabo.ui.callAfterInterval() would enable timed screen shots.
+
+Screenshots can be of any object. If no object is specified, the active form is used.
+
+In order to detect which graphic format was selected, the various file dialog methods have been augmented with similarly-named methods that also return the type selected by the user. For example, calling getFile("jpg", "png") simply returns the path to the selected file. But calling getFileAndType("jpg", "png") returns a 2-tuple: the first element is the path, and the second would be either "jpg" or "png", depending on which of the wildcard types was selected by the user.
+
+------------------------------------------------------------------------
+r2024 | echo | 2006-03-21 22:06:57 -0800 (Tue, 21 Mar 2006) | 1 line
+
+forgot to uncomment some code during testing.
+------------------------------------------------------------------------
+r2025 | ed | 2006-03-22 07:13:13 -0800 (Wed, 22 Mar 2006) | 2 lines
+
+Turns out that some of the adjustments needed to properly capture a form were Mac-specific, and were not needed on Windows. This accounts for that difference. Next, on to test on Gtk!
+
+------------------------------------------------------------------------
+r2026 | paul | 2006-03-22 10:28:49 -0800 (Wed, 22 Mar 2006) | 5 lines
+
+Reverted commits 2024 and 2020. There are problems with saving that need to
+be explored. After 0.6 is tagged, Echo please re-commit your changes so that
+we can figure out what was wrong.
+
+
+------------------------------------------------------------------------
+r2027 | ed | 2006-03-22 11:18:56 -0800 (Wed, 22 Mar 2006) | 9 lines
+
+Fixed  a bug in dabo.ui.saveScreenShot() that only happened if you passed
+both the path and imgType.
+
+Hacked a bit to get getCaptureBitmap() to work well on GTTK, but it's still
+a bit of a mess. GTK doesn't capture the title bar, menu bar or frame
+decorations of a window, and I tried to compensate the sizing accordingly.
+Individual controls don't seem to work at all. I don't have more time to
+play around with this now, but this is hardly a show-stopper for release.
+
+------------------------------------------------------------------------
+
+
 Dabo 0.5.1 (2006-01-25) (Revision 1860):
 Additional MDI/SDI improvements and fixes. By default, dForm on Windows will be a MDI child.
 
