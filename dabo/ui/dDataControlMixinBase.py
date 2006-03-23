@@ -105,7 +105,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				#self.Enabled = False
 		else:
 			if self._srcIsInstanceMethod is None and self.Source is not None:
-				if isinstance(self.DataSource, basestring):
+				if isinstance(self.Source, basestring):
 					self._srcIsInstanceMethod = False
 				else:
 					self._srcIsInstanceMethod = eval("type(self.Source.%s)" % self.DataField) == type(self.update)
