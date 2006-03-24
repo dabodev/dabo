@@ -11,7 +11,9 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dabo.lib.xmltodict import xmltodict as xtd
-
+# Doesn't matter what platform we're on; Python needs 
+# newlines in its compiled code.
+LINESEP = "\n"
 
 
 class DesignerXmlConverter(dObject):
@@ -105,11 +107,11 @@ import dabo.dEvents as dEvents
 		
 		# Add any main class code
 		for cd in code.values():
-			self.classText += os.linesep + self.indentCode(cd, 1)
+			self.classText += LINESEP + self.indentCode(cd, 1)
 			
 		# Add any property definitions
 		for prop, propDef in propDefs.items():
-			self.classText += os.linesep + \
+			self.classText += LINESEP + \
 """		%s = property(%s, %s, %s, 
 				\"\"\"%s\"\"\")
 """ % (prop, propDef["getter"], propDef["setter"], propDef["deller"], 
@@ -117,7 +119,7 @@ import dabo.dEvents as dEvents
 		
 		# Add any contained class definitions.
 		if self.innerClassText:
-			innerTxt = (3 * os.linesep) + \
+			innerTxt = (3 * LINESEP) + \
 """	def getCustControlClass(self, clsName):
 		# Define the classes, and return the matching class
 %s
@@ -195,7 +197,7 @@ import dabo.dEvents as dEvents
 				prnt = ""
 				if isBorderSizer:
 					prnt = "currParent, "
-				self.classText += os.linesep + \
+				self.classText += LINESEP + \
 """		obj = dabo.ui.%s(%s%s)
 		if currSizer:
 			currSizer.append(obj%s)
@@ -211,7 +213,7 @@ import dabo.dEvents as dEvents
 				else:
 					moduleString = "dabo.ui."
 					attPropString = ", attProperties=%s" % cleanAtts
-				self.classText += os.linesep + \
+				self.classText += LINESEP + \
 """		obj = %s%s(currParent%s)
 		if currSizer:
 			currSizer.append(obj%s)
@@ -225,7 +227,7 @@ import dabo.dEvents as dEvents
 				if isSizer:
 					# We need to set the current sizer to this one, and push any
 					# existing sizer onto the stack.
-					self.classText += os.linesep + \
+					self.classText += LINESEP + \
 """		if currSizer:
 			sizerDict[currParent].append(currSizer)
 		currSizer = obj
@@ -238,7 +240,7 @@ import dabo.dEvents as dEvents
 					# classes.
 					if atts.has_key("ColumnCount") or atts.has_key("PageCount"):
 						# Grid or pageframe
-						self.classText += os.linesep + \
+						self.classText += LINESEP + \
 """		parentStack.append(currParent)
 """
 						isGrid = atts.has_key("ColumnCount")
@@ -249,14 +251,14 @@ import dabo.dEvents as dEvents
 							# reference will be trampled by the time the second page 
 							# is created.
 							pgfName = self.uniqname("pgf")
-							self.classText += os.linesep + \
+							self.classText += LINESEP + \
 """		# save a reference to the pageframe control
 		%s = obj
 """ % pgfName
 						for kid in kids:
 							kidCleanAtts = self.cleanAttributes(kid.get("attributes", {}))
 							if isGrid:
-								self.classText += os.linesep + \
+								self.classText += LINESEP + \
 """		col = dabo.ui.dColumn(obj, attProperties=%s)
 		obj.addColumn(col)
 		col.setPropertiesFromAtts(%s)
@@ -275,7 +277,7 @@ import dabo.dEvents as dEvents
 									moduleString = "dabo.ui."
 									attPropString = ", attProperties=%s" % kidCleanAtts
 				
-								self.classText += os.linesep + \
+								self.classText += LINESEP + \
 """		pg = %s%s(%s%s)
 		%s.appendPage(pg)
 		pg.setPropertiesFromAtts(%s)
@@ -296,7 +298,7 @@ import dabo.dEvents as dEvents
 						# the current sizer, since the most likely child will 
 						# be the sizer that governs the contained controls.
 						# Tell the class that we are dealing with a new parent object
-						self.classText += os.linesep + \
+						self.classText += LINESEP + \
 """		parentStack.append(currParent)
 		currParent = obj
 		currSizer = None
@@ -311,13 +313,13 @@ import dabo.dEvents as dEvents
 					
 				# Pop as needed off of the stacks.
 				if isSizer:
-					self.classText += os.linesep + \
+					self.classText += LINESEP + \
 """		if sizerDict[currParent]:
 			currSizer = sizerDict[currParent].pop()
 """
 				
 				else:
-					self.classText += os.linesep + \
+					self.classText += LINESEP + \
 """		currParent = parentStack.pop()
 		if not sizerDict.has_key("currParent"):
 			sizerDict[currParent] = []
@@ -339,19 +341,19 @@ import dabo.dEvents as dEvents
 		# Since the code will be part of this class, which is at the outer level
 		# of indentation, it needs to be indented one level.
 		for cd in code.values():
-			self.innerClassText += os.linesep + self.indentCode(cd, 1)
-			if not self.innerClassText.endswith(os.linesep):
-				self.innerClassText += os.linesep
+			self.innerClassText += LINESEP + self.indentCode(cd, 1)
+			if not self.innerClassText.endswith(LINESEP):
+				self.innerClassText += LINESEP
 # 			self.innerClassText += self.indentCode(cd, 1)
 		# Add any property definitions
 		for prop, propDef in propDefs.items():
-			self.innerClassText += os.linesep + \
+			self.innerClassText += LINESEP + \
 """	%s = property(%s, %s, %s, 
 			\"\"\"%s\"\"\")
 """ % (prop, propDef["getter"], propDef["setter"], propDef["deller"], 
 		propDef["comment"])
 		
-		self.innerClassText += (2 * os.linesep)
+		self.innerClassText += (2 * LINESEP)
 		return clsName
 	
 	
@@ -367,7 +369,7 @@ import dabo.dEvents as dEvents
 		xml = open(pth).read()
 		xmlDict = xtd(xml)
 		conv.createClassText(xmlDict, addImports=False, specList=specList)
-		self.innerClassText += conv.classText + (2 * os.linesep)
+		self.innerClassText += conv.classText + (2 * LINESEP)
 		self.innerClassNames.append(conv.mainClassName)
 		return conv.mainClassName
 		
