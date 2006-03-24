@@ -82,7 +82,7 @@ class dPage(dPanel.dScrollPanel):
 			
 	
 	def _getImage(self):
-		return self.Parent.getPageImg(self)
+		return self.Parent.getPageImage(self)
 
 	def _setImage(self, imgKey):
 		if self._constructed():
@@ -93,7 +93,6 @@ class dPage(dPanel.dScrollPanel):
 	
 	Caption = property(_getCaption, _setCaption, None, 
 			_("The text identifying this particular page.  (str)") )
-	DynamicCaption = makeDynamicProperty(Caption)
 
 	Image = property(_getImage, _setImage, None, 
 			_("""Sets the image that is displayed on the page tab. This is
@@ -101,5 +100,8 @@ class dPage(dPanel.dScrollPanel):
 			image already added to the parent pageframe.
 			When used to retrieve an image, it returns the index of the
 			page's image in the parent pageframe's image list.   (int)""") )
+
+
+	DynamicCaption = makeDynamicProperty(Caption)
 	DynamicImage = makeDynamicProperty(Image)
 
