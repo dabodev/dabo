@@ -377,7 +377,8 @@ import dabo.dEvents as dEvents
 		"""Takes code and indents it to the desired level"""
 		lns = cd.splitlines()
 		indent = "\t" * level
-		jn = os.linesep + indent
+		# Compiled code needs newlines, no matter what platform.
+		jn = "\n" + indent
 		ret = jn.join(lns)
 		if ret:
 			# Need to add the indent to the first line, too
