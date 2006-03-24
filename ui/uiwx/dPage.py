@@ -1,3 +1,4 @@
+import dabo
 import dPanel, dSizer
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -40,14 +41,15 @@ class dPage(dPanel.dScrollPanel):
 
 	def __onPageEnter(self, evt):
 		if not self.itemsCreated:
-			self.createItems()
-			self.itemsCreated = True
-			self.layout()
-			
-			# Needed on Linux to get the sizer to layout:
-			self.Size = (-1,-1)
+			dabo.ui.callAfter(self._createItems)
 
-						
+
+	def _createItems(self):
+		self.createItems()
+		self.itemsCreated = True
+		self.Sizer.FitInside(self)
+
+
 	def __onPageLeave(self, evt):
 		if hasattr(self, "Form"):
 			if hasattr(self.Form, "activeControlValid"):
