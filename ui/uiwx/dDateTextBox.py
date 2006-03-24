@@ -66,8 +66,8 @@ class dDateTextBox(dTextBox):
 		# Pattern for recognizing dates from databases
 		self.dbDTPat = re.compile("(\d{4})[-/\.](\d{1,2})[-/\.](\d{1,2}) (\d{1,2}):(\d{1,2}):([\d\.]+)")
 		self.dbDPat = re.compile("(\d{4})[-/\.](\d{1,2})[-/\.](\d{1,2})")
-		self.dbEuroDTPat = re.compile("(\d{1,2})[-/\.](\d{1,2})[-/\.](\d{4}) (\d{1,2}):(\d{1,2}):([\d\.]+)")
-		self.dbEuroDPat = re.compile("(\d{1,2})[-/\.](\d{1,2})[-/\.](\d{4})")
+		self.dbYearLastDTPat = re.compile("(\d{1,2})[-/\.](\d{1,2})[-/\.](\d{4}) (\d{1,2}):(\d{1,2}):([\d\.]+)")
+		self.dbYearLastDPat = re.compile("(\d{1,2})[-/\.](\d{1,2})[-/\.](\d{4})")
 
 		# Two-digit year value that is the cutoff in interpreting 
 		# dates as being either 19xx or 20xx.
@@ -85,6 +85,7 @@ class dDateTextBox(dTextBox):
 	
 	
 	def afterInit(self):
+		self._baseClass = dDateTextBox
 		if self.showCalButton:
 			# Create a button that will display the calendar
 			self.calButton = dButton(self.Parent, Size=(self.Height, self.Height),
@@ -177,14 +178,10 @@ C: Popup Calendar to Select
 		inappropriate characters.
 		"""
 		try:
-			keycode = evt.EventData["keyCode"]
+			key = evt.keyChar.lower()
 		except:
 			# spurious key event; ignore
 			return
-		if keycode < 0 or keycode > 255:
-			# Let it be handled higher up
-			return
-		key = chr(keycode).lower()
 		shortcutKeys = "t+-mhyrc[]"
 		dateEntryKeys = "0123456789/-"
 		
@@ -210,7 +207,7 @@ C: Popup Calendar to Select
 		elif key in dateEntryKeys:
 			# key can be used for date entry: allow
 			pass
-		elif keycode in range(32, 129):
+		elif evt.keycode in range(32, 129):
 			# key is in ascii range, but isn't one of the above
 			# allowed key sets. Disallow.
 			if not self.useWxEvents:
@@ -369,9 +366,12 @@ C: Popup Calendar to Select
 			year = int(year)
 			month = int(month)
 			day = int(day)
-		if self.dbEuroDTPat.match(val):
-			# DateTime pattern, Euro format
-			day, month, year, hr, mn, sec = self.dbEuroDTPat.match(val).groups()
+		if self.dbYearLastDTPat.match(val):
+			# DateTime pattern, YearLast format
+			if self.dateFormat == "American":
+				month, day, year, hr, mn, sec = self.dbYearLastDTPat.match(val).groups()
+			else:
+				day, month, year, hr, mn, sec = self.dbYearLastDTPat.match(val).groups()
 			# Convert to numeric
 			year = int(year)
 			month = int(month)
@@ -379,9 +379,12 @@ C: Popup Calendar to Select
 			hr = int(hr)
 			mn = int(mn)
 			sec = int(round(float(sec), 0) )
-		elif self.dbEuroDPat.match(val):
-			# Date-only pattern, Euro format
-			day, month, year = self.dbEuroDPat.match(val).groups()
+		elif self.dbYearLastDPat.match(val):
+			# Date-only pattern, YearLast format
+			if self.dateFormat == "American":
+				month, day, year = self.dbYearLastDPat.match(val).groups()
+			else:
+				day, month, year = self.dbYearLastDPat.match(val).groups()
 			hr = mn = sec = 0
 			# Convert to numeric
 			year = int(year)
