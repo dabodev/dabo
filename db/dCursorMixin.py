@@ -789,6 +789,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		for rec in recs:
 			try:
 				self.__saverow(rec)
+			except dException.DBQueryException, e:
+				# Error was raised. Exit and rollback the changes if
+				# this object started the transaction.
+				if useTransaction:
+					self.rollbackTransaction()
+				raise dException.DBQueryException, e
 			except StandardError, e:
 				if "connect" in str(e).lower():
 					raise dException.ConnectionLostException, e

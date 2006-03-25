@@ -281,6 +281,12 @@ class dBizobj(dObject):
 			self.scan(self._saveRowIfChanged, startTransaction=False, topLevel=False)
 		except dException.ConnectionLostException, e:
 			raise dException.ConnectionLostException, e
+		except dException.DBQueryException, e:
+			# Something failed; reset things.
+			if useTransact:
+				cursor.rollbackTransaction()
+			# Pass the exception to the UI
+			raise dException.DBQueryException, e
 		except dException.dException, e:
 			if useTransact:
 				cursor.rollbackTransaction()
@@ -301,12 +307,10 @@ class dBizobj(dObject):
 			
 
 	def save(self, startTransaction=False, topLevel=True):
-		""" Save any changes that have been made in the data set.
-		
-		If the save is successful, the save() of all child bizobjs will be
+		""" Save any changes that have been made in the data set. If the 
+		save is successful, the save() of all child bizobjs will be
 		called as well. 
 		"""
-		
 		cursor = self._CurrentCursor
 		errMsg = self.beforeSave()
 		if errMsg:
@@ -351,6 +355,13 @@ class dBizobj(dObject):
 		except dException.NoRecordsException, e:
 			# Nothing to roll back; just throw it back for the form to display
 			raise dException.NoRecordsException, e
+			
+		except dException.DBQueryException, e:
+			# Something failed; reset things.
+			if useTransact:
+				cursor.rollbackTransaction()
+			# Pass the exception to the UI
+			raise dException.DBQueryException, e
 			
 		except dException.dException, e:
 			# Something failed; reset things.

@@ -269,6 +269,12 @@ class BaseForm(fm.dFormMixin):
 			self.notifyUser(msg, severe=True)
 			return False
 
+		except dException.DBQueryException, e:
+			self.setStatusText(_("Save failed."))
+			msg = "%s:\n\n%s" % (_("Save Failed"), _( str(e) ))
+			self.notifyUser(msg, severe=True)
+			return False
+
 		self.afterSave()
 		return True
 	
@@ -360,15 +366,24 @@ class BaseForm(fm.dFormMixin):
 
 		except dException.MissingPKException, e:
 			self.notifyUser(str(e), title=_("Requery Failed"), severe=True)
+			self.StatusText = ""
 
 		except dException.ConnectionLostException, e:
 			msg = self._connectionLostMsg(str(e))
 			self.notifyUser(msg, title=_("Data Connection Lost"), severe=True)
+			self.StatusText = ""
 			sys.exit()
+
+		except dException.DBQueryException, e:
+			dabo.errorLog.write(_("Database Execution failed with response: %s") % str(e))
+			self.notifyUser(str(e), title=_("Database Action Failed"), severe=True)
+			self.StatusText = ""
 
 		except dException.dException, e:
 			dabo.errorLog.write(_("Requery failed with response: %s") % str(e))
 			self.notifyUser(str(e), title=_("Requery Not Allowed"), severe=True)
+			self.StatusText = ""
+
 		self.afterRequery()
 		return ret
 		
