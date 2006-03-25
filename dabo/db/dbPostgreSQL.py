@@ -164,4 +164,4 @@ class Postgres(dBackend):
 		""" Postgres requires an explicit commit in order to have changes
 		to the database written to disk.
 		"""
-		self.commitTransaction()
+		self.commitTransaction(cursor)
