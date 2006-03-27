@@ -1639,10 +1639,10 @@ class dPemMixin(dPemMixinBase):
 								and type(getattr(parent, candidate)) != wx._core._wxPyDeadObject \
 								and getattr(parent, candidate) != self
 						if not nameError:
-							for window in parent.GetChildren():
-								if window.GetName() == candidate and window != self:
-									nameError = True
-									break
+							badNames = [win for win in parent.GetChildren()
+									if win != self and win.GetName() == candidate]
+							if badNames:
+								nameError = True
 						if nameError:
 							i += 1
 						else:
