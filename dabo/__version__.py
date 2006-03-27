@@ -1,7 +1,7 @@
 import os
 import dabo
 
-_version = "0.6s"
+_version = "0.6.1s"
 
 # If dabo is a subversion working copy, we'll try to get the current revision 
 # using the svnversion command against that working copy. Otherwise, we'll get

@@ -1,5 +1,8 @@
 See the Subversion log for all the details.
 
+Dabo 0.6.1 (2006-03-27) (Revision 2051):
+BugFix: Double select-page entries in datanav apps.
+
 Dabo 0.6 (2006-03-27) (Revision 2043):
 (for now, due to lack of time, I'm just echoing svn log. If someone wants to
 summarize the changes --today!-- that would be *very much* appreciated.)
