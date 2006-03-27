@@ -72,6 +72,11 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 	
 				
 class Page(dabo.ui.dPage):
+	def _createItems(self):
+		Page.doDefault()
+		self.Sizer.FitInside(self)
+
+
 	def newRecord(self, ds=None):
 		""" Called by a browse grid when the user wants to add a new row. 
 		"""
