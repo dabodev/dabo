@@ -47,7 +47,6 @@ class dPage(dPanel.dScrollPanel):
 	def _createItems(self):
 		self.createItems()
 		self.itemsCreated = True
-		self.Sizer.FitInside(self)
 
 
 	def __onPageLeave(self, evt):
