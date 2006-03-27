@@ -112,7 +112,7 @@ class dNode(dObject):
 
 	
 	def _getFontInfo(self):
-		return self.Font.NativeObject.GetNativeFontInfoDesc()
+		return self.Font._nativeFont.GetNativeFontInfoDesc()
 
 		
 	def _getFontItalic(self):
