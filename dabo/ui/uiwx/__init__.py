@@ -587,7 +587,7 @@ def getFont(font=None):
 	if dlg.show() == kons.DLG_OK:
 		fnt = dlg.getFont()
 	dlg.release()
-	return dFont(font=fnt)
+	return dFont(_nativeFont=fnt)
 
 
 def getAvailableFonts():
