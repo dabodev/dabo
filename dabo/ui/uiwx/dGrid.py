@@ -2431,19 +2431,22 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def maxColOrder(self):
-		""" Return the highest value of Order for all columns."""
+		""" Returns the highest value of Order for all columns."""
 		ret = -1
 		if len(self.Columns) > 0:
 			ret = max([cc.Order for cc in self.Columns])
 		return ret
 		
 		
-	def addColumn(self, col=None, inBatch=False):
-		""" Adds a column to the grid. If no column is passed, a 
-		blank column is added, which can be customized later.
+	def addColumn(self, col=None, inBatch=False, *args, **kwargs):
+		""" Adds a column to the grid. 
+
+		If no column is passed, a blank dColumn is added, which can be customized 
+		later. Any extra keyword arguments are passed to the constructor of the
+		new dColumn.
 		"""
 		if col is None:
-			col = self.ColumnClass(self)
+			col = self.ColumnClass(self, *args, **kwargs)
 		else:
 			col.Parent = self
 		if col.Order == -1:
@@ -3875,10 +3878,9 @@ class _dGrid_test(dGrid):
 		col.HeaderVerticalAlignment = "Top"
 		col.HeaderHorizontalAlignment = "Left"
 
-		col = dColumn(self, Name="Age", Order=30, DataField="age",
+		self.addColumn(Name="Age", Order=30, DataField="age",
 				DataType="integer", Width=40, Caption="Age",
 				Sortable=True, Searchable=False, Editable=True)
-		self.addColumn(col)
 
 		col = dColumn(self, Name="Color", Order=40, DataField="color",
 				DataType="string", Width=40, Caption="Favorite Color",
