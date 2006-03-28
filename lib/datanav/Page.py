@@ -74,6 +74,12 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 class Page(dabo.ui.dPage):
 	def _createItems(self):
 		Page.doDefault()
+
+		## The following line is needed to get the Select page scrollbars to lay
+		## out without the user having to resize manually. I tried putting it in
+		## dPage but that caused problems with the Class Designer. We need to 
+		## figure out the best way to abstract this wx call, or find a different
+		## way to get the scrollbars.
 		self.Sizer.FitInside(self)
 
 
