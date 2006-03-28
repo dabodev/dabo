@@ -2877,7 +2877,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.onEscapeAction()
 				evt.stop()
 			elif char and (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
-				and (char.isalnum() or char.isspace() and not evt.hasModifiers):
+					and keyCode not in (9,) \
+					and (char.isalnum() or char.isspace()) and not evt.hasModifiers:
 				self.addToSearchStr(char)
 				# For some reason, without this the key happens twice
 				evt.stop()
