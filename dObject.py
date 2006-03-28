@@ -5,10 +5,12 @@ import dabo
 from dabo.lib.propertyHelperMixin import PropertyHelperMixin
 from dabo.lib.doDefaultMixin import DoDefaultMixin
 from dabo.lib.eventMixin import EventMixin
+from dabo.lib.autosuper import autosuper
 from dabo.dLocalize import _
 	
 
-class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
+class dObject(autosuper, DoDefaultMixin, PropertyHelperMixin, 
+		EventMixin):
 	""" The basic ancestor of all dabo objects.
 	"""
 	# Subclasses can set these to False, in which case they are responsible
