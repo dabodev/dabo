@@ -29,6 +29,12 @@ class dPage(dPanel.dScrollPanel):
 		self.Sizer = dSizer.dSizer("vertical")
 		
 
+	def _createItems(self):
+		self.createItems()
+		self.itemsCreated = True
+		self.layout()
+
+
 	def createItems(self):
 		""" Create the controls in the page.
 
@@ -40,12 +46,7 @@ class dPage(dPanel.dScrollPanel):
 
 	def __onPageEnter(self, evt):
 		if not self.itemsCreated:
-			self.createItems()
-			self.itemsCreated = True
-			self.layout()
-			
-			# Needed on Linux to get the sizer to layout:
-			self.Size = (-1,-1)
+			self._createItems()
 
 	
 	def __onPageLeave(self, evt):
