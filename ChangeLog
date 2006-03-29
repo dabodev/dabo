@@ -1,5 +1,9 @@
 See the Subversion log for all the details.
 
+Dabo 0.6.2 (2006-03-28) (Revision 2060):
+BugFix: Make scrollbar appear on datanav select page on init.
+BugFix: Make Tab/Shift+Tab work as nav keys in searchable dGrids.
+
 Dabo 0.6.1 (2006-03-27) (Revision 2051):
 BugFix: Double select-page entries in datanav apps.
 
