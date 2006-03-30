@@ -23,13 +23,20 @@ class Grid(dabo.ui.dGrid):
 		super(Grid, self)._beforeInit(pre)
 
 
-	def _initProperties(self):
-		super(Grid, self)._initProperties()
+	def _initEvents(self):
+		self.super()
 		self.bindEvent(dEvents.GridMouseLeftDoubleClick, self.onGridLeftDClick)
+		self.bindEvent(dEvents.KeyDown, self._onGridKeyDown)
 
 
 	def _afterInit(self):
 		super(Grid, self)._afterInit()
+
+		self.bindKey("f2", self._onSortKey)
+		self.bindKey("delete", self._onDeleteKey)
+		## enter/esc don't seem to work as bindKey's in grids:
+		#self.bindKey("enter", self._onEnterKey)
+		#self.bindKey("escape", self._onEscapeKey)
 
 		if hasattr(self.Form, "preview") and self.Form.preview:
 			self.DataSource = self.Form.previewDataSource
@@ -39,7 +46,6 @@ class Grid(dabo.ui.dGrid):
 		# Turn on alternate row coloring
 		self.AlternateRowColoring = True
 
-	
 	def populate(self):
 		ds = self.DataSource
 		if not ds:
@@ -69,10 +75,6 @@ class Grid(dabo.ui.dGrid):
 		bizobj.sort(self.sortedColumn, self.sortOrder, self.caseSensitiveSorting)
 		
 	
-#	def setBizobj(self, biz):
-#		self.DataSource = biz.DataSource
-
-
 	def onGridLeftDClick(self, evt): 
 		""" Occurs when the user double-clicks a cell in the grid. 
 		By default, this is interpreted as a request to edit the record.
@@ -90,19 +92,18 @@ class Grid(dabo.ui.dGrid):
 			pass
 
 
-	def processKeyPress(self, keyCode): 
-		""" This is called when a key that the grid doesn't already handle
-		gets pressed. We want to trap F2 and sort the column when it is
-		pressed.
-		"""
-		if keyCode == 343:    # F2
-			self.processSort()
-			return True
-		else:
-			return super(Grid, self).processKeyPress(keyCode)
+	def _onGridKeyDown(self, evt):
+		keyCode = evt.EventData["keyCode"]
+		hasModifiers = evt.EventData["hasModifiers"]
+		if keyCode == 13 and not hasModifiers:
+			self._onEnterKey()
+			evt.stop()
+		elif keyCode == 27 and not hasModifiers:
+			self._onEscapeKey()
+			evt.stop()
 
-
-	def onEnterKeyAction(self):
+	def _onEnterKey(self, evt=None):
+		print "enter"
 		try:
 			if self.Form.FormType == "PickList":
 				self.pickRecord()
@@ -111,7 +112,8 @@ class Grid(dabo.ui.dGrid):
 		except AttributeError:
 			pass
 
-	def onDeleteKeyAction(self):
+
+	def _onDeleteKey(self, evt):
 		try:
 			if self.Form.FormType != "PickList":
 				self.deleteRecord()
@@ -119,7 +121,12 @@ class Grid(dabo.ui.dGrid):
 			pass
 	
 
-	def onEscapeAction(self):
+	def _onSortKey(self, evt):
+		self.processSort()
+	
+
+	def _onEscapeKey(self, evt=None):
+		print "esc"
 		try:
 			if self.Form.FormType == "PickList":
 				self.Form.hide()

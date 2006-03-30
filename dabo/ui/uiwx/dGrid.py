@@ -2121,35 +2121,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return menu
 
 
-	def onEnterKeyAction(self):
-		"Customize in subclasses"
-		pass
-
-		
-	def onDeleteKeyAction(self):
-		"Customize in subclasses"
-		pass
-
-	
-	def onEscapeAction(self):
-		"Customize in subclasses"
-		pass
-
-	
-	def processKeyPress(self, char):
-		"""Hook method for classes that need to process 
-		keys in addition to Enter, Delete and Escape.
-		Example:
-			if keyCode == dKeys.keyStrings["f2"]:    # F2
-				self.processSort()
-		"""
-		# Return False to prevent the keypress from being 'eaten'
-		return False
-
 	##----------------------------------------------------------##
 	##                end: user hook methods                    ##
 	##----------------------------------------------------------##
-
 
 	def processSort(self, gridCol=None, toggleSort=True):
 		""" Sort the grid column.
@@ -2157,9 +2131,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		Toggle between ascending and descending. If the grid column index isn't 
 		passed, the currently active grid column will be sorted.
 		"""
-		if gridCol == None:
+		if gridCol is None:
 			gridCol = self.CurrentColumn
-			
+		
 		if isinstance(gridCol, dColumn):
 			colObj = gridCol
 			canSort = (self.Sortable and gridCol.Sortable)
@@ -2849,43 +2823,27 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def _onKeyDown(self, evt): 
-		""" Occurs when the user presses a key inside the grid. 
-		Default actions depend on the key being pressed:
-					Enter:  edit the record
-						Del:  delete the record
-						F2:  sort the current column
-				AlphaNumeric:  incremental search
-		"""
+		""" Occurs when the user presses a key inside the grid."""
 		if self.Editable and self.Columns[self.CurrentColumn].Editable:
 			# Can't search and edit at the same time
 			return
 
 		keyCode = evt.EventData["keyCode"]
+
 		try:
 			char = chr(keyCode)
-		except ValueError:       # keycode not in ascii range
-			char = None
+		except ValueError:
+			# keycode not in ascii range
+			return
 
-		if keyCode == dKeys.keyStrings["enter"]:           # Enter
-			self.onEnterKeyAction()
+		if char.isspace():
+			return
+
+		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
+				and char.isalnum() and not evt.hasModifiers:
+			self.addToSearchStr(char)
+			# For some reason, without this the key happens twice
 			evt.stop()
-		else:
-			if keyCode == dKeys.keyStrings["delete"]:      # Del
-				self.onDeleteKeyAction()
-				evt.stop()
-			elif keyCode == dKeys.keyStrings["escape"]:
-				self.onEscapeAction()
-				evt.stop()
-			elif char and (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
-					and keyCode not in (9,) \
-					and (char.isalnum() or char.isspace()) and not evt.hasModifiers:
-				self.addToSearchStr(char)
-				# For some reason, without this the key happens twice
-				evt.stop()
-			else:
-				if self.processKeyPress(keyCode):
-					# Key was handled
-					evt.stop()
 		
 	
 	##----------------------------------------------------------##
