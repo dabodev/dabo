@@ -180,7 +180,12 @@ except ImportError:
             # This should throw an AttributeError, but they could have modified
             # the base class
             super = object.__getattribute__(self, '_super__super')
-            method = getattr(super, method)
+            ## pkm: original code:
+            #method = getattr(super, method)
+            ## changed code:
+            method = getattr(super, method, None)
+            if method is None:
+              return
             object.__setattr__(self, '_super__method', method)
             return method(*p, **kw)
 

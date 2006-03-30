@@ -321,3 +321,105 @@ if __name__ == "__main__":
 	print d.Application
 	app = dabo.dApp()
 	print d.Application
+
+	print "Testing doDefault():"
+	class TestBase(list, dObject):
+		# No myMethod here
+		pass
+
+	class MyTest1(TestBase):
+		def myMethod(self):
+			print "MyTest1.myMethod called."
+			MyTest1.doDefault()
+		
+	class MyTest2(MyTest1): pass
+
+	class MyTest(MyTest2):
+		def myMethod(self):
+			print "MyTest.myMethod called."
+			MyTest.doDefault()
+
+	print "Test 1: simple test:"			
+	t = MyTest()
+	t.myMethod()
+
+	print "\nTest 2: diamond inheritence test:"
+
+	class A(dObject):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("A")
+
+	class B(A):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("B")
+			B.doDefault(arg)
+
+	class C(A):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("C")
+			C.doDefault(arg)
+
+	class D(B,C):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("D")
+			D.doDefault(arg)
+
+	t = D()
+	testList = []
+	t.meth(testList)
+	print testList
+
+	print "\n\nTesting super():"
+	class TestBase(list, dObject):
+		# No myMethod here
+		pass
+
+	class MyTest1(TestBase):
+		def myMethod(self):
+			print "MyTest1.myMethod called."
+			self.super()
+		
+	class MyTest2(MyTest1): pass
+
+	class MyTest(MyTest2):
+		def myMethod(self):
+			print "MyTest.myMethod called."
+			self.super()
+
+	print "Test 1: simple test:"			
+	t = MyTest()
+	t.myMethod()
+
+	print "\nTest 2: diamond inheritence test:"
+
+	class A(dObject):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("A")
+
+	class B(A):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("B")
+			self.super(arg)
+
+	class C(A):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("C")
+			self.super(arg)
+
+	class D(B,C):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("D")
+			self.super(arg)
+
+	t = D()
+	testList = []
+	t.meth(testList)
+	print testList
