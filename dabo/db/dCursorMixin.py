@@ -279,12 +279,14 @@ class dCursorMixin(dObject):
 		return True
 
 
-	def storeFieldTypes(self):
+	def storeFieldTypes(self, target=None):
 		"""Stores the data type for each column in the result set."""
+		if target is None:
+			target = self
 		if self.RowCount > 0:
 			rec = self._records[0]
 			for fname, fval in rec.items():
-				self._types[fname] = type(fval)
+				target._types[fname] = type(fval)
 		else:
 			# See if we already have the information from a prior query
 			if len(self._types.keys()) == 0:
@@ -1077,6 +1079,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# Either the data types have not yet been defined, or 
 				# it is a type that cannot be instantiated simply.
 				dabo.errorLog.write(_("Failed to create newval for field '%s'") % fldname)
+				dabo.errorLog.write("TYPES: %s" % self._types)
+				dabo.errorLog.write(str(e))
 				newval = ""
 			self._blank[fldname] = newval
 
@@ -1553,9 +1557,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def getStructureOnlySql(self):
 		"""Creates a SQL statement that will not return any records."""
 		holdWhere = self.sqlManager._whereClause
-		self.sqlManager.setWhereClause("1 = 0")
+		self.sqlManager.setWhereClause("")
+		holdLimit = self.sqlManager._limitClause
+		self.sqlManager.setLimitClause(1)
 		ret = self.sqlManager.getSQL()
 		self.sqlManager.setWhereClause(holdWhere)
+		self.sqlManager.setLimitClause(holdLimit)
 		return ret
 		
 

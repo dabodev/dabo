@@ -401,13 +401,13 @@ class dBackend(dObject):
 						tmpsql = cursor.sql + " where 1=0 "
 		auxCrs = cursor._getAuxCursor()
 		auxCrs.execute(tmpsql)
+		auxCrs.storeFieldTypes(cursor)
 		return auxCrs.FieldDescription
 	
 
 	##########		Created by Echo 	##############
 	def isExistingTable(self, table):
-		"""Returns weather or not the table exists.
-		"""
+		"""Returns whether or not the table exists."""
 		if isinstance(table, dTable):
 			return self._isExistingTable(table.name)
 		else:
