@@ -103,7 +103,6 @@ class Grid(dabo.ui.dGrid):
 			evt.stop()
 
 	def _onEnterKey(self, evt=None):
-		print "enter"
 		try:
 			if self.Form.FormType == "PickList":
 				self.pickRecord()
@@ -126,7 +125,6 @@ class Grid(dabo.ui.dGrid):
 	
 
 	def _onEscapeKey(self, evt=None):
-		print "esc"
 		try:
 			if self.Form.FormType == "PickList":
 				self.Form.hide()
