@@ -163,7 +163,7 @@ artConstants["info"] = artConstants.get("information")
 artConstants["file"] = artConstants.get("normalfile")
 
 
-def getUiApp(app, callback):
+def getUiApp(app, callback=None):
 	"""This returns an instance of uiApp. If one is already running, that
 	instance is returned. Otherwise, a new instance is created.
 	"""
