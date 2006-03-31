@@ -632,7 +632,24 @@ class dBizobj(dObject):
 			currPK = None
 
 		# run the requery
-		self._CurrentCursor.requery(params)
+		cursor = self._CurrentCursor 
+		try:
+			cursor.requery(params)
+			
+		except dException.ConnectionLostException, e:
+			raise dException.ConnectionLostException, e
+
+		except dException.DBQueryException, e:
+			# Something failed; reset things.
+			cursor.rollbackTransaction()
+			# Pass the exception to the UI
+			raise dException.DBQueryException, e
+			
+		except dException.dException, e:
+			# Something failed; reset things.
+			cursor.rollbackTransaction()
+			# Pass the exception to the UI
+			raise dException.dException, e
 
 		if self.RestorePositionOnRequery:
 			self._moveToPK(currPK)
