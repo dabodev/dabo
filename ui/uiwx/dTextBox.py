@@ -418,7 +418,7 @@ if __name__ == "__main__":
 	# This test sets up several textboxes, each editing different data types.	
 	class TestBase(dTextBox):
 		def initProperties(self):
-			TestBase.doDefault()
+			self.super()
 			self.LogEvents = ["ValueChanged",]
 			
 		def onValueChanged(self, evt):

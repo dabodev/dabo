@@ -112,11 +112,11 @@ class Login(dabo.ui.dOkCancelDialog):
 				
 	def onCancel(self, evt):
 		self.user, self.password = None, None
-		Login.doDefault(evt)
+		self.super(evt)
 		
 	def onOK(self, evt):
 		self.user, self.password = self.txtUserName.Value, self.txtPassword.Value
-		Login.doDefault(evt)
+		self.super(evt)
 		
 		
 if __name__ == '__main__':

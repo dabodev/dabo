@@ -22,7 +22,7 @@ ASC, DESC = (n_("asc"), n_("desc"))
 # Controls for the select page:
 class SelectControlMixin(dObject):
 	def initProperties(self):
-		SelectControlMixin.doDefault()
+		self.super()
 		self.SaveRestoreValue = True
 
 class SelectTextBox(SelectControlMixin, dabo.ui.dTextBox): pass
@@ -37,11 +37,11 @@ class SelectSpinner(SelectControlMixin, dabo.ui.dSpinner): pass
 
 class SelectionOpDropdown(dabo.ui.dDropdownList):
 	def initProperties(self):
-		SelectionOpDropdown.doDefault()
+		self.super()
 		self.SaveRestoreValue = True
 		
 	def initEvents(self):
-		SelectionOpDropdown.doDefault()
+		self.super()
 		self.bindEvent(dEvents.Hit, self.onChoiceMade)
 		self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
 		
@@ -73,7 +73,7 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 				
 class Page(dabo.ui.dPage):
 	def _createItems(self):
-		Page.doDefault()
+		self.super()
 
 		## The following line is needed to get the Select page scrollbars to lay
 		## out without the user having to resize manually. I tried putting it in

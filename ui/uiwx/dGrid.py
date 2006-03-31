@@ -3816,7 +3816,7 @@ class _dGrid_test(dGrid):
 
 
 	def afterInit(self):
-		_dGrid_test.doDefault()
+		self.super()
 
 		col = dColumn(self, Name="Geek", Order=10, DataField="coder",
 				DataType="bool", Width=60, Caption="Geek?", Sortable=False,
