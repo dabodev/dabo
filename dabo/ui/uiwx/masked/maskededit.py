@@ -129,11 +129,11 @@ if __name__ == "__main__":
 	# This test sets up several textboxes, each editing different data types.	
 	class TestBase(dObject):
 		def initProperties(self):
-			TestBase.doDefault()
+			self.super()
 			self.LogEvents = ["ValueChanged",]
 			
 		def initEvents(self):
-			TestBase.doDefault()
+			self.super()
 			self.bindEvent(dabo.dEvents.ValueChanged, self.onValueChanged)
 			
 		def onValueChanged(self, evt):

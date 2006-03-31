@@ -50,7 +50,7 @@ class Form(dabo.ui.dForm):
 
 	def _initEvents(self):
 		self.bindEvent(dEvents.Close, self._onClose)
-		Form.doDefault()
+		self.super()
 
 
 	def __init__(self, parent=None, previewMode=False, tbl="", *args, **kwargs):
@@ -97,26 +97,20 @@ class Form(dabo.ui.dForm):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
 				dataSource = self._mainTable
-		#return Form.doDefault(dataSource)
-		return super(Form, self).cancel(dataSource)
-	
+		return self.super(dataSource)
 	
 	def requery(self, dataSource=None):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
 				dataSource = self._mainTable
-		#return Form.doDefault(dataSource)
-		return super(Form, self).requery(dataSource)
-	
+		return self.super(dataSource)
 	
 	def confirmChanges(self):
 		if self.preview:
 			# Nothing to check
 			return True
 		else:
-			#return Form.doDefault()
-			return super(Form, self).confirmChanges()
-	
+			return self.super()
 	
 	def afterSetPrimaryBizobj(self):		
 		pass

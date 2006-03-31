@@ -13,7 +13,7 @@ from dabo.dObject import dObject
 class uiApp(dObject):
 	
 	def __init__(self):
-		uiApp.doDefault()
+		self.super()
 		self.Name = "uiApp"
 		
 	def setup(self, dApp):

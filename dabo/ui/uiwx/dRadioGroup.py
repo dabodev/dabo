@@ -112,7 +112,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 			
 	def _onWxHit(self, evt):
 		self.flushValue()
-		dRadioGroup.doDefault(evt)
+		self.super(evt)
 		
 	
 		

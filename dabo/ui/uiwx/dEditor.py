@@ -66,7 +66,7 @@ else:
 
 class StyleTimer(dTimer.dTimer):
 	def afterInit(self):
-		StyleTimer.doDefault()
+		self.super()
 		self.bindEvent(dEvents.Hit, self.onHit)
 		self.mode = "container"
 		

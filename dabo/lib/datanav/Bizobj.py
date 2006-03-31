@@ -22,7 +22,7 @@ class Bizobj(dabo.biz.dBizobj):
 		if alias is not None:
 			self.BackendTableFields[alias] = (table, field)
 
-		Bizobj.doDefault(fld)
+		self.super(fld)
 
 
 	def _getBackendTableFields(self):

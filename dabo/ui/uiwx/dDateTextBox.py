@@ -465,9 +465,7 @@ C: Popup Calendar to Select
 	def setFieldVal(self, val):
 		""" We need to convert this back to standard database format """
 		fmt = "%Y-%m-%d"
-		#return dDateTextBox.doDefault(self.date.Format(fmt) )
-		return super(dDateTextBox, self).setFieldVal(self.date.strftime(fmt))
-	
+		return self.super(self.date.Format(fmt))
 	
 	def strFromDate(self):
 		""" Returns the string representation of the date object
@@ -498,9 +496,7 @@ C: Popup Calendar to Select
 				self.date = parsedDate
 			else:
 				self.dateOK = False
-		#dDateTextBox.doDefault(self.strFromDate() )
-		super(dDateTextBox, self)._setValue(self.strFromDate())
-		
+		self.super(self.strFromDate())
 		
 	def _getValue(self):
 		return super(dDateTextBox, self)._getValue()
