@@ -5,6 +5,7 @@ from uiApp import uiApp
 dabo.infoLog.write("The Tkinter module is experimental only, and doesn't work. You've been warned.")
 uiType = {'shortName': 'tk', 'moduleName': 'uitk', 'longName': 'Tkinter'}
 
+_uiApp = None
 
 # Import dPemMixin first, and then manually put into dabo.ui module. This is
 # because dControlMixin, which is in dabo.ui, descends from dPemMixin, which 
@@ -103,3 +104,19 @@ def getEventData(uiEvent):
 	#ed["unicodeKey"] = wxEvt.GetUnicodeKey()
 	#ed["hasModifiers"] = wxEvt.HasModifiers()
 	return ed
+
+
+def getUiApp(app, callback=None):
+	"""This returns an instance of uiApp. If one is already running, that
+	instance is returned. Otherwise, a new instance is created.
+	"""
+	ret = _uiApp
+	if ret is None:
+		ret = uiApp(app, callback)
+	else:
+		# existing app; fire the callback, if any
+		if callback is not None:
+			callback()
+	return ret
+	
+
