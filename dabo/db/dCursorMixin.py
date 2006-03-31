@@ -1256,7 +1256,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if ret:
 				ret += ", "
 			
-			ret += tblPrefix + fld + " = " + formatForQuery(val)			
+			ret += tblPrefix + fld + " = " + self.formatForQuery(val)			
 		return ret
 
 
