@@ -1,9 +1,11 @@
 """ dabo.db.backend.py : abstractions for the various db api's """
 import sys
+import datetime
 from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.db import dTable
+from dabo.db import dNoEscQuoteStr
 
 
 class dBackend(dObject):
@@ -43,6 +45,20 @@ class dBackend(dObject):
 		return cursorClass(self._connection)
 	
 	
+	def formatForQuery(self, val):
+		if isinstance(val, (datetime.date, datetime.datetime)):
+			# Some databases have specific rules for formatting date values.
+			return self.formatDateTime(val)
+		elif isinstance(val, (int, long)):
+			return str(val)
+		elif isinstance(val, dNoEscQuoteStr):
+			return str(val)
+		elif val is None:
+			return self.formatNone()
+		else:
+			return str(self.escQuote(val))
+
+
 	def formatDateTime(self, val):
 		""" Properly format a datetime value to be included in an Update
 		or Insert statement. Each backend can have different requirements
@@ -385,13 +401,13 @@ class dBackend(dObject):
 						tmpsql = cursor.sql + " where 1=0 "
 		auxCrs = cursor._getAuxCursor()
 		auxCrs.execute(tmpsql)
+		auxCrs.storeFieldTypes(cursor)
 		return auxCrs.FieldDescription
 	
 
 	##########		Created by Echo 	##############
 	def isExistingTable(self, table):
-		"""Returns weather or not the table exists.
-		"""
+		"""Returns whether or not the table exists."""
 		if isinstance(table, dTable):
 			return self._isExistingTable(table.name)
 		else:
@@ -415,7 +431,7 @@ class dBackend(dObject):
 			createIndex=True):
 		"""Creates a table and/or indexes based on the dTable passed to it."""
 		# OVERRIDE IN SUBCLASSES!
-		pass
+		pass		
 	##########		END  - Created by Echo 	##############
 
 	
