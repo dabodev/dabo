@@ -5,7 +5,6 @@ from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.db import dTable
-from dabo.db import dNoEscQuoteStr
 
 
 class dBackend(dObject):
@@ -45,20 +44,6 @@ class dBackend(dObject):
 		return cursorClass(self._connection)
 	
 	
-	def formatForQuery(self, val):
-		if isinstance(val, (datetime.date, datetime.datetime)):
-			# Some databases have specific rules for formatting date values.
-			return self.formatDateTime(val)
-		elif isinstance(val, (int, long)):
-			return str(val)
-		elif isinstance(val, dNoEscQuoteStr):
-			return str(val)
-		elif val is None:
-			return self.formatNone()
-		else:
-			return str(self.escQuote(val))
-
-
 	def formatDateTime(self, val):
 		""" Properly format a datetime value to be included in an Update
 		or Insert statement. Each backend can have different requirements
