@@ -1274,6 +1274,8 @@ class dBizobj(dObject):
 
 	def _setAutoPopulatePK(self, val):
 		self._autoPopulatePK = bool(val)
+		if self._CurrentCursor:
+			self._CurrentCursor.AutoPopulatePK= val
 
 	
 	def _getAutoSQL(self):
