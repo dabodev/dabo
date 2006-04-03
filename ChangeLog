@@ -1,11 +1,24 @@
 See the Subversion log for all the details.
 
+Dabo 0.6.3 (2006-04-03) (Revision 2079):
+Added exception handling to requerying, with calls to rollbackTransaction() if an exception is encountered.
+
+Modified the process used to determine field types. Formerly we relied on an empty cursor supplying all of the information, but with the recent switch to depending on self._fieldTypes, if new() is run before a query that returns data is run, all the default values are set to empty strings. Now if there is no _fieldTypes for a cursor, the structure-only query returns a maximum of one record, and that is now used to set the _fieldTypes dict.
+
+Fixed a problem where setting AutoPopulatePK on the bizobj didn't propagate the setting to the cursor.
+
+Added Alt+Up and Alt+Down hotkeys for navigating AppWizard apps. These keys
+bring you to the first and last records in the dataset.
+
+
 Dabo 0.6.2 (2006-03-28) (Revision 2060):
 BugFix: Make scrollbar appear on datanav select page on init.
 BugFix: Make Tab/Shift+Tab work as nav keys in searchable dGrids.
 
+
 Dabo 0.6.1 (2006-03-27) (Revision 2051):
 BugFix: Double select-page entries in datanav apps.
+
 
 Dabo 0.6 (2006-03-27) (Revision 2043):
 (for now, due to lack of time, I'm just echoing svn log. If someone wants to
