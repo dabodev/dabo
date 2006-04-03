@@ -96,6 +96,7 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 		
 	
 	def _initEvents(self):
+		dSplitter.doDefault()
 		self.Bind(wx.EVT_SPLITTER_DCLICK, self._onSashDClick)
 		self.Bind(wx.EVT_SPLITTER_SASH_POS_CHANGED, self._onSashPos)
 
