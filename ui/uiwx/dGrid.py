@@ -1689,8 +1689,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.SetGridCursor(row, col)
 
 		
-#		self.SetColLabelAlignment(wx.ALIGN_CENTRE, wx.ALIGN_CENTRE)
-
 		if currFocus is not None:
 			# put the data binding back and re-set the focus:
 			try:
