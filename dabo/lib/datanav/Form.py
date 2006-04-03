@@ -217,16 +217,18 @@ class Form(dabo.ui.dForm):
 			if self.Application.Platform.lower() == "mac":
 				altKey = "Ctrl"
 
-			menu.append(_("Select First Record"), bindfunc=self.onFirst, 
-					bmp="leftArrows", help=_("Go to the first record in the set.")) 
+			menu.append(_("Select First Record")+"\t%s+UP" % altKey, 
+					bindfunc=self.onFirst, bmp="leftArrows", 
+					help=_("Go to the first record in the set.")) 
 			menu.append(_("Select Prior Record")+"\t%s+LEFT" % altKey, 
 					bindfunc=self.onPrior,bmp="leftArrow", 
 					help=_("Go to the prior record in the set."))	
 			menu.append(_("Select Next Record")+"\t%s+RIGHT" % altKey, 
 					bindfunc=self.onNext, bmp="rightArrow", 
 					help=_("Go to the next record in the set."))
-			menu.append(_("Select Last Record"), bindfunc=self.onLast, 
-					bmp="rightArrows", help=_("Go to the last record in the set."))
+			menu.append(_("Select Last Record")+"\t%s+DOWN" % altKey, 
+					bindfunc=self.onLast, bmp="rightArrows", 
+					help=_("Go to the last record in the set."))
 			menu.appendSeparator()
 		
 		if self.FormType == "Normal":
