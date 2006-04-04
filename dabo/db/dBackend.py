@@ -56,7 +56,11 @@ class dBackend(dObject):
 		elif val is None:
 			return self.formatNone()
 		else:
-			return str(self.escQuote(val))
+			## pkm 2006-04-04: Converting to str blows away unicode support.
+			##                 Was there a reason for this or was it just an
+			##                 oversight?
+			#return str(self.escQuote(val))
+ 			return self.escQuote(val)
 
 
 	def formatDateTime(self, val):
