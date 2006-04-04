@@ -179,8 +179,7 @@ class dUserSettingProvider(dObject):
 		if hasattr(self, "_settingsFileName"):
 			v = self._settingsFileName
 		else:
-			v = self._settingsFileName = "userSettings-%s.ini" \
-					% self.Application.getAppInfo("appShortName")
+			v = self._settingsFileName = "user.ini"
 		return v
 
 	def _setSettingsFileName(self, val):
