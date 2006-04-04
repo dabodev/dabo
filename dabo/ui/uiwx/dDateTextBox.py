@@ -495,7 +495,9 @@ C: Popup Calendar to Select
 				self.date = parsedDate
 			else:
 				self.dateOK = False
-		self.super(self.strFromDate())
+		# self.super() causes a recursion that we need to figure out.
+		#self.super(self.strFromDate())
+		super(dDateTextBox, self)._setValue(self.strFromDate())
 		
 	def _getValue(self):
 		return super(dDateTextBox, self)._getValue()
