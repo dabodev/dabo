@@ -28,6 +28,7 @@ autoIndent = True
 commentSequence = "#- "
 bufferedDraw = True
 edgeColumn = 79	 # if highlightCharsBeyondEdge
+encoding = "utf-8"
 fontAntiAlias = True
 #- fontMode = "proportional"	# 'mono' or 'proportional'
 fontMode = "mono"  # 'mono' or 'proportional'
@@ -1045,7 +1046,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				# user canceled in the prompt: don't continue
 				return None
 		
-		open(fname, "wb").write(self.GetText())
+		open(fname, "wb").write(self.GetText().encode(encoding))
 		# set self._fileName, in case it was changed with a Save As
 		self._fileName = fname
 		self._clearDocument(clearText=False)
@@ -1115,7 +1116,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 					return False
 			try:
 				f = open(fileSpec, "rb")
-				text = f.read()
+				text = f.read().decode(encoding)
 				f.close()
 			except:
 				if dabo.ui.areYouSure("File '%s' does not exist."
