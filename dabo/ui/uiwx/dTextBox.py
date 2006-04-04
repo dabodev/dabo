@@ -270,7 +270,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		try:
 			_value = self._value
 		except AttributeError:
-			_value = self._value = ""
+			_value = self._value = unicode("")
 		dataType = type(_value)
 		
 		# Get the string value as reported by wx, which is the up-to-date 
@@ -333,6 +333,8 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				
 		else:
 			# Other types can convert directly.
+			if dataType == str:
+				dataType = unicode
 			try:
 				retVal = dataType(strVal)
 			except:
