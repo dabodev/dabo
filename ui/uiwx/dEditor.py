@@ -111,6 +111,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
 		self.Bind(stc.EVT_STC_MODIFIED, self.OnModified)
 		self.Bind(stc.EVT_STC_STYLENEEDED, self.OnStyleNeeded)
+		self.Bind(stc.EVT_STC_NEEDSHOWN, self.OnNeedShown)
 		
 		if delay:
 			self.bindEvent(dEvents.Idle, self.onIdle)
@@ -306,6 +307,14 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			ret += self.GetMarginWidth(ii)
 		return ret
 		
+
+	def OnNeedShown(self, evt):
+	#	print evt.GetPosition(), evt.GetLength()
+		o = evt.GetEventObject()
+		line = o.LineFromPosition(evt.GetPosition())
+		o.Expand(line, True)
+#		o.EnsureVisible(o.LineFromPosition(evt.GetPosition() - evt.GetPosition()))
+	#	print dir(evt)
 		
 	def OnSBScroll(self, evt):
 		# redirect the scroll events from the dyn_sash's scrollbars to the STC
