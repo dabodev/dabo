@@ -309,12 +309,19 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		
 
 	def OnNeedShown(self, evt):
-	#	print evt.GetPosition(), evt.GetLength()
+		""" Called when the user deletes a hidden header line."""
+		# We expand the previously folded text, but it may be better
+		# to delete the text instead, since the user asked for it.
+		# There are two bits of information in the event: the position
+		# and the length. I think we could easily clear the text based
+		# on this information, but for now I'll keep it just displaying
+		# the previously hidden text. --pkm 2006-04-04.
 		o = evt.GetEventObject()
-		line = o.LineFromPosition(evt.GetPosition())
-		o.Expand(line, True)
-#		o.EnsureVisible(o.LineFromPosition(evt.GetPosition() - evt.GetPosition()))
-	#	print dir(evt)
+		position = evt.GetPosition()
+		length = evt.GetLength()
+		headerLine = o.LineFromPosition(position)
+		o.Expand(headerLine, True)
+
 		
 	def OnSBScroll(self, evt):
 		# redirect the scroll events from the dyn_sash's scrollbars to the STC
