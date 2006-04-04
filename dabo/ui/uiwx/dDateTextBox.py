@@ -207,11 +207,10 @@ C: Popup Calendar to Select
 		elif key in dateEntryKeys:
 			# key can be used for date entry: allow
 			pass
-		elif evt.keycode in range(32, 129):
+		elif evt.keyCode in range(32, 129):
 			# key is in ascii range, but isn't one of the above
 			# allowed key sets. Disallow.
-			if not self.useWxEvents:
-				evt.Continue = False
+			evt.stop()
 		else:
 			# Pass the key up the chain to process - perhaps a Tab, Enter, or Backspace...
 			pass
