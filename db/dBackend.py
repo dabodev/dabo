@@ -6,7 +6,10 @@ import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.db import dTable
 from dabo.db import dNoEscQuoteStr
-
+try:
+	import decimal
+except ImportError:
+	decimal = None
 
 class dBackend(dObject):
 	""" Abstract object: inherit from this to define new dabo db interfaces."""
@@ -51,15 +54,13 @@ class dBackend(dObject):
 			return self.formatDateTime(val)
 		elif isinstance(val, (int, long)):
 			return str(val)
-		elif isinstance(val, dNoEscQuoteStr):
+		elif decimal is not None and isinstance(val, decimal.Decimal):
 			return str(val)
+		elif isinstance(val, dNoEscQuoteStr):
+			return val
 		elif val is None:
 			return self.formatNone()
 		else:
-			## pkm 2006-04-04: Converting to str blows away unicode support.
-			##                 Was there a reason for this or was it just an
-			##                 oversight?
-			#return str(self.escQuote(val))
  			return self.escQuote(val)
 
 
