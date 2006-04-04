@@ -255,7 +255,7 @@ class SelectPage(Page):
 					matchVal = (opVal == CHOICE_TRUE)
 				else:
 					matchVal = ctrl.Value
-#				matchStr = str(matchVal)
+				matchStr = "%s" % matchVal
 				useStdFormat = True
 
 				if fldType in ("char", "memo"):
