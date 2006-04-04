@@ -30,6 +30,8 @@ class DesignerXmlConverter(dObject):
 			else:
 				xml = src
 		dct = xtd(xml)
+		# Added to ensure unique object names
+		self._generatedNames = []
 		# Parse the XML and create the class definition text
 		self.createClassText(dct)
 		
@@ -146,10 +148,6 @@ import dabo.dEvents as dEvents
 			nm = child.get("name")
 			atts = child.get("attributes", {})
 			clsID = atts.get("classID", "")
-			
-# 			if clsID == "46914000":
-# 				dabo.trace()
-
 			specChild = {}
 			specKids = []
 			specCode = {}
@@ -389,7 +387,11 @@ import dabo.dEvents as dEvents
 	
 	
 	def uniqname(self, nm):
-		return "%s_%s" % (nm, str(datetime.utcnow().__hash__()).replace("-", "9"))
+		ret = ""
+		while not ret or ret in self._generatedNames:
+			ret = "%s_%s" % (nm, str(datetime.utcnow().__hash__()).replace("-", "9"))
+		self._generatedNames.append(ret)
+		return ret
 	
 
 	def cleanAttributes(self, attDict):
