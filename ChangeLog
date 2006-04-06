@@ -1,5 +1,23 @@
 See the Subversion log for all the details.
 
+Dabo 0.6.4 (2006-04-06) (Revision 2099):
+
+Added the missing doDefault() call to dSplitter's _initEvents.
+
+Fixed the problem where entering a unicode character in a dTextBox
+set up with a str value doesn't stick. Tracker #0101.
+
+Added default encoding of "utf-8" to dEditor, and added encoding and
+decoding at the I/O boundaries of saveFile() and openFile(). Fixes 
+tracker # 0107.
+
+Fixed a couple bugs in dDateTextBox that would occur if you typed a regular key
+that isn't otherwise handled. It was basically an old-code problem.
+
+Fixed a problem where fast CPUs could generate identical names for objects.
+Tracker #0104
+
+
 Dabo 0.6.3 (2006-04-03) (Revision 2079):
 Added exception handling to requerying, with calls to rollbackTransaction() if an exception is encountered.
 
