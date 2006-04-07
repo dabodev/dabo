@@ -63,6 +63,9 @@ class BaseForm(fm.dFormMixin):
 	
 	
 	def showModal(self):
+		"""Shows the form in a modal fashion. Other forms can still be
+		activated, but all controls are disabled.
+		"""
 		self._shownModal = True
 		self.MakeModal(True)
 		self.Visible = True
@@ -79,8 +82,6 @@ class BaseForm(fm.dFormMixin):
 			ret = self.confirmChanges()
 		if ret:
 			ret = super(BaseForm, self)._beforeClose(evt)
-			if getattr(self, "_shownModal", False):
-				self.MakeModal(False)
 		return ret
 		
 		
