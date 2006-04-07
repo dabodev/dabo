@@ -43,6 +43,8 @@ class dFormMixin(pm.dPemMixin):
 
 		# Flag to skip updates when they aren't needed
 		self._isClosed = False
+		# Flag that indicates if the form was shown modally
+		self._isModal = False
 		# Sizer outline drawing flag
 		self.__needOutlineRedraw = False
 		# When in designer mode, we need to turn off various behaviors.
@@ -141,6 +143,7 @@ class dFormMixin(pm.dPemMixin):
 		
 		if self.Application is not None:
 			self.Application._setActiveForm(self)
+		
 	
 	def __onDeactivate(self, evt):
 #		self.saveSizeAndPosition()
@@ -191,6 +194,8 @@ class dFormMixin(pm.dPemMixin):
 		app = self.Application
 
 		self._isClosed = True
+		if self._isModal:
+			self.MakeModal(False)
 
 		# On the Mac, this next line prevents Bus Errors when closing a form.
 		self.Visible = False	
@@ -207,6 +212,11 @@ class dFormMixin(pm.dPemMixin):
 			except: pass
 	
 	
+	def showModal(self):
+		self.MakeModal(True)
+		self._isModal = self.Visible = True
+		
+		
 	def release(self):
 		""" Instead of just destroying the object, make sure that
 		we close it properly and clean up any references to it.
