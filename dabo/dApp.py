@@ -120,12 +120,6 @@ class dApp(dObject):
 			self.showMainFormOnStart = False
 			self.setup()
 
-		# If we are running frozen, let's reroute the error log:
-		if hasattr(sys, "frozen"):
-			dabo.errorLog.Caption = ""
-			dabo.errorLog.LogObject = open(os.path.join(app.HomeDirectory,
-					"error.log"), "a")
-
 		self._afterInit()
 		self.autoBindEvents()
 		
