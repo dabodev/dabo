@@ -18,7 +18,6 @@ class BaseForm(fm.dFormMixin):
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
 	like next(), last(), save(), and requery().
 	"""
-
 	def __init__(self, preClass, parent, properties, *args, **kwargs):
 		self.bizobjs = {}
 		self._primaryBizobj = None
@@ -62,15 +61,6 @@ class BaseForm(fm.dFormMixin):
 		super(BaseForm, self)._afterInit()
 	
 	
-	def showModal(self):
-		"""Shows the form in a modal fashion. Other forms can still be
-		activated, but all controls are disabled.
-		"""
-		self._shownModal = True
-		self.MakeModal(True)
-		self.Visible = True
-
-
 	def _beforeClose(self, evt=None):
 		""" See if there are any pending changes in the form, if the
 		form is set for checking for this. If everything's OK, call the 

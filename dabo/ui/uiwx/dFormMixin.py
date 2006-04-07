@@ -213,6 +213,9 @@ class dFormMixin(pm.dPemMixin):
 	
 	
 	def showModal(self):
+		"""Shows the form in a modal fashion. Other forms can still be
+		activated, but all controls are disabled.
+		"""
 		self.MakeModal(True)
 		self._isModal = self.Visible = True
 		
