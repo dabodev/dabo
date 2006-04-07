@@ -950,7 +950,7 @@ class dPemMixin(dPemMixinBase):
 		
 	def hide(self):
 		"""Make the object invisible."""
-		self.Show(False)
+		self.Visible = False
 		
 		
 	def fitToSizer(self):
@@ -1825,7 +1825,14 @@ class dPemMixin(dPemMixinBase):
 	
 	def _setVisible(self, val):
 		if self._constructed():
-			self.Show(bool(val))
+			val = bool(val)
+			self.Show(val)
+			if not val:
+				if getattr(self, "_shownModal", False):
+					## This is a form that was shown modally. Need to undo that
+					## when the form goes hidden.
+					self.MakeModal(False)
+					self._shownModal = False
 		else:
 			self._properties["Visible"] = val
 
