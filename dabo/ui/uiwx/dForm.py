@@ -63,10 +63,11 @@ class BaseForm(fm.dFormMixin):
 	
 	
 	def showModal(self):
+		self._shownModal = True
 		self.MakeModal(True)
 		self.Visible = True
-		
-		
+
+
 	def _beforeClose(self, evt=None):
 		""" See if there are any pending changes in the form, if the
 		form is set for checking for this. If everything's OK, call the 
@@ -78,6 +79,8 @@ class BaseForm(fm.dFormMixin):
 			ret = self.confirmChanges()
 		if ret:
 			ret = super(BaseForm, self)._beforeClose(evt)
+			if getattr(self, "_shownModal", False):
+				self.MakeModal(False)
 		return ret
 		
 		
