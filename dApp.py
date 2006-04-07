@@ -112,13 +112,20 @@ class dApp(dObject):
 		# the key for each entry to the menu caption, and the value to
 		# the bound function.
 		self._persistentMRUs = {}
-		
+
 		# For simple UI apps, this allows the app object to be created
 		# and started in one step. It also suppresses the display of
 		# the main form.
 		if selfStart:
 			self.showMainFormOnStart = False
 			self.setup()
+
+		# If we are running frozen, let's reroute the error log:
+		if hasattr(sys, "frozen"):
+			dabo.errorLog.Caption = ""
+			dabo.errorLog.LogObject = open(os.path.join(app.HomeDirectory,
+					"error.log"), "a")
+
 		self._afterInit()
 		self.autoBindEvents()
 		

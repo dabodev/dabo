@@ -26,9 +26,8 @@ class dCheckListBox(wx.CheckListBox, dcm.dControlItemMixin):
 	
 	
 	def GetSelections(self):
-		"""Need to overrid the native method, as this reports the 
-		line with focus, not the checked items.
-		"""
+		# Need to override the native method, as this reports the 
+		# line with focus, not the checked items.
 		ret = []
 		for cnt in xrange(self.Count):
 			if self.IsChecked(cnt):
@@ -56,7 +55,7 @@ class dCheckListBox(wx.CheckListBox, dcm.dControlItemMixin):
 
 
 	MultipleSelect = property(_getMultipleSelect, None, None,
-			_("Need to fake this so that the mixin reports values correctly  (bool)"))
+			_("MultipleSelect for dCheckListBox is always True."))
 	
 	
 	
