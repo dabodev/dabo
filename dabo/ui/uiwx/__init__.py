@@ -579,11 +579,15 @@ def getFont(font=None):
 	Font property.
 	"""
 	fnt = None
-	if not isinstance(font, dFont):
-		# This will help identify older code
-		dabo.errorLog.write("Invalid font class passed to getFont")
-		return None
-	dlg = dFontDialog(None, font._nativeFont)
+	if font is None:
+		param = None
+	else:
+		if not isinstance(font, dFont):
+			# This will help identify older code
+			dabo.errorLog.write("Invalid font class passed to getFont")
+			return None
+		param = font._nativeFont
+	dlg = dFontDialog(None, param)
 	if dlg.show() == kons.DLG_OK:
 		fnt = dlg.getFont()
 	dlg.release()
