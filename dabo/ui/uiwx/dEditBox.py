@@ -77,10 +77,10 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 							"'Left', 'Center', and 'Right'.")
 
 
-	def _getInsertionPostion(self):
+	def _getInsertionPosition(self):
 		return self.GetInsertionPoint()
 
-	def _setInsertionPostion(self, val):
+	def _setInsertionPosition(self, val):
 		self.SetInsertionPoint(val)
 
 
@@ -143,7 +143,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		Right
 		""")
 	
-	InsertionPostion = property(_getInsertionPostion, _setInsertionPostion, None,
+	InsertionPosition = property(_getInsertionPosition, _setInsertionPosition, None,
 			_("Position of the insertion point within the control  (int)"))
 	
 	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
@@ -154,21 +154,21 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 	
 	SelectionEnd = property(_getSelectionEnd, _setSelectionEnd, None,
 			_("""Position of the end of the selected text. If no text is
-			selected, returns the postion of the insertion cursor.  (int)"""))
+			selected, returns the Position of the insertion cursor.  (int)"""))
 	
 	SelectionLength = property(_getSelectionLength, _setSelectionLength, None,
 			_("Length of the selected text, or 0 if nothing is selected.  (int)"))
 	
 	SelectionStart = property(_getSelectionStart, _setSelectionStart, None,
 			_("""Position of the beginning of the selected text. If no text is
-			selected, returns the postion of the insertion cursor.  (int)"""))
+			selected, returns the Position of the insertion cursor.  (int)"""))
 	
 	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
 		"""Specifies whether all text gets selected upon receiving focus.""")
 
 
 	DynamicAlignment = makeDynamicProperty(Alignment)
-	DynamicInsertionPostion = makeDynamicProperty(InsertionPostion)
+	DynamicInsertionPosition = makeDynamicProperty(InsertionPosition)
 	DynamicReadOnly = makeDynamicProperty(ReadOnly)
 	DynamicSelectionEnd = makeDynamicProperty(SelectionEnd)
 	DynamicSelectionLength = makeDynamicProperty(SelectionLength)
