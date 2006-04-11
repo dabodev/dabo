@@ -19,8 +19,7 @@ from dabo.ui import makeDynamicProperty
 
 
 class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
-	"""Creates a text box for editing one line of string data.
-	"""
+	"""Creates a text box for editing one line of string data."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dTextBox
 
@@ -128,6 +127,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				break	
 		return ret
 
+
 	def _getDateRegex(self, format):
 		elements = {}
 		elements["year"] = "(?P<year>[0-9]{4,4})"              ## year 0000-9999
@@ -223,6 +223,13 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			raise ValueError, "The only possible values are 'Left', 'Center', and 'Right'"
 
 
+	def _getInsertionPostion(self):
+		return self.GetInsertionPoint()
+
+	def _setInsertionPostion(self, val):
+		self.SetInsertionPoint(val)
+
+
 	def _getPasswordEntry(self):
 		return self._hasWindowStyleFlag(wx.TE_PASSWORD)
 
@@ -241,6 +248,38 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			self.SetEditable(not bool(val))
 		else:
 			self._properties["ReadOnly"] = val
+
+
+	def _getSelectedText(self):
+		return self.GetStringSelection()
+
+
+	def _getSelectionEnd(self):
+		return self.GetSelection()[1]
+
+	def _setSelectionEnd(self, val):
+		start, end = self.GetSelection()
+		self.SetSelection(start, val)
+		self.refresh()
+
+
+	def _getSelectionLength(self):
+		start, end = self.GetSelection()
+		return end - start
+
+	def _setSelectionLength(self, val):
+		start = self.GetSelection()[0]
+		self.SetSelection(start, start + val)
+		self.refresh()
+
+
+	def _getSelectionStart(self):
+		return self.GetSelection()[0]
+
+	def _setSelectionStart(self, val):
+		start, end = self.GetSelection()
+		self.SetSelection(val, end)
+		self.refresh()
 
 
 	def _getSelectOnEntry(self):
@@ -344,7 +383,6 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				retVal = self._value
 		return retVal		
 	
-					
 	def _setValue(self, val):
 		if self._constructed():
 			# Must convert all to string for sending to wx, but our internal 
@@ -380,31 +418,53 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			   Left (default)
 			   Center
 			   Right"""))
-	DynamicAlignment = makeDynamicProperty(Alignment)
 
+	InsertionPostion = property(_getInsertionPostion, _setInsertionPostion, None,
+			_("Position of the insertion point within the control  (int)"))
+	
 	PasswordEntry = property(_getPasswordEntry, _setPasswordEntry, None,
 			_("Specifies whether plain-text or asterisks are echoed. (bool)"))
-	DynamicPasswordEntry = makeDynamicProperty(PasswordEntry)
 
 	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
 			_("Specifies whether or not the text can be edited. (bool)"))
-	DynamicReadOnly = makeDynamicProperty(ReadOnly)
+	
+	SelectedText = property(_getSelectedText, None, None,
+			_("Currently selected text. Returns the empty string if nothing is selected  (str)"))	
+	
+	SelectionEnd = property(_getSelectionEnd, _setSelectionEnd, None,
+			_("""Position of the end of the selected text. If no text is
+			selected, returns the postion of the insertion cursor.  (int)"""))
+	
+	SelectionLength = property(_getSelectionLength, _setSelectionLength, None,
+			_("Length of the selected text, or 0 if nothing is selected.  (int)"))
+	
+	SelectionStart = property(_getSelectionStart, _setSelectionStart, None,
+			_("""Position of the beginning of the selected text. If no text is
+			selected, returns the postion of the insertion cursor.  (int)"""))
 	
 	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
 			_("Specifies whether all text gets selected upon receiving focus. (bool)"))
-	DynamicSelectOnEntry = makeDynamicProperty(SelectOnEntry)
 
 	StrictDateEntry = property(_getStrictDateEntry, _setStrictDateEntry, None,
-			_("""Specifies whether date values must be entered in strict ISO8601 format.
+			_("""Specifies whether date values must be entered in strict ISO8601 format. Default=False.
 
 			If not strict, dates can be accepted in YYYYMMDD, YYMMDD, and MMDD format,
-			which will be coerced into sensible date values automatically.
-
-			Default is False."""))
-	DynamicStrictDateEntry = makeDynamicProperty(StrictDateEntry)
+			which will be coerced into sensible date values automatically."""))
 
 	Value = property(_getValue, _setValue, None,
 			_("Specifies the current state of the control (the value of the field). (varies)"))
+
+
+	# Dynamic property declarations
+	DynamicAlignment = makeDynamicProperty(Alignment)
+	DynamicInsertionPostion = makeDynamicProperty(InsertionPostion)
+	DynamicPasswordEntry = makeDynamicProperty(PasswordEntry)
+	DynamicReadOnly = makeDynamicProperty(ReadOnly)
+	DynamicSelectionEnd = makeDynamicProperty(SelectionEnd)
+	DynamicSelectionLength = makeDynamicProperty(SelectionLength)
+	DynamicSelectionStart = makeDynamicProperty(SelectionStart)
+	DynamicSelectOnEntry = makeDynamicProperty(SelectOnEntry)
+	DynamicStrictDateEntry = makeDynamicProperty(StrictDateEntry)
 	DynamicValue = makeDynamicProperty(Value)
 
 
