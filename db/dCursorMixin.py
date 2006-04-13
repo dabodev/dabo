@@ -54,6 +54,8 @@ class dCursorMixin(dObject):
 	def initProperties(self):
 		# Holds the dict used for adding new blank records
 		self._blank = {}
+		# Writable version of the dbapi 'description' attribute
+		self.descriptionClean = None
 		# Last executed sql params
 		self.lastParams = None
 		# Column on which the result set is sorted
@@ -199,7 +201,8 @@ class dCursorMixin(dObject):
 			if isinstance(self._records[0], tuple) or isinstance(self._records[0], list):
 				# Need to convert each row to a Dict
 				tmpRows = []
-				# First, get the description property and extract the field names from that
+				# First, get the descriptionClean attribute and extract 
+				# the field names from that
 				fldNames = []
 				for fld in self.FieldDescription:
 					### 2006.01.26: egl - Removed the lower() function, which was preventing
@@ -1304,7 +1307,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T'), or None.
 			2: boolean specifying whether this is a pk field, or None.
 		"""
-		return self.BackendObject.getFieldInfoFromDescription(self.description)
+		return self.BackendObject.getFieldInfoFromDescription(self.descriptionClean)
 
 
 	def getLastInsertID(self):

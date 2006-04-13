@@ -312,10 +312,10 @@ class dBackend(dObject):
 		'as' expression. 
 		
 		This is called after every execute() by the cursor, since the 
-		description field is updated each time. By default, we do 
-		nothing to the description.
+		description field is updated each time. By default, we simply
+		copy it to the 'descriptionClean' attribute.
 		"""
-		return
+		cursor.descriptionClean = cursor.description
 	
 	
 	def  getDescription(self, cursor):
@@ -326,10 +326,10 @@ class dBackend(dObject):
 		to deal with this. By default, though, just return the contents
 		of the description attribute.
 		"""
-		if cursor.description is None:
+		if cursor.descriptionClean is None:
 			return ()
 		else:
-			return cursor.description
+			return cursor.descriptionClean
 
 	
 	def pregenPK(self, cursor):
