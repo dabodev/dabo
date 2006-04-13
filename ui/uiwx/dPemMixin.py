@@ -330,20 +330,20 @@ class dPemMixin(dPemMixinBase):
 			if self._hoverTimer is None:
 				self._hoverTimer = dabo.ui.callEvery(100, self._checkMouseOver)
 			self._hoverTimer.start()
-			self.onHover()
+			self.onHover(evt)
 			
 	
 	def __onMouseLeave(self, evt):
 		if self._hover:
 			if self._hoverTimer:
 				self._hoverTimer.stop()
-			self.endHover()
+			self.endHover(evt)
 	
 	
 	# These are stub methods, to be coded in the classes that 
 	# need them.
-	def onHover(self): pass
-	def endHover(self): pass
+	def onHover(self, evt=None): pass
+	def endHover(self, evt=None): pass
 	
 	
 	def _checkMouseOver(self):
@@ -1858,13 +1858,11 @@ class dPemMixin(dPemMixinBase):
 	# Property definitions follow
 	BackColor = property(_getBackColor, _setBackColor, None,
 			_("Specifies the background color of the object. (tuple)"))
-	DynamicBackColor = makeDynamicProperty(BackColor)
 
 	BorderColor = property(_getBorderColor, _setBorderColor, None,
 			_("""Specifies the color of the border drawn around the control, if any. 
 
 			Default='black'  (str or color tuple)"""))
-	DynamicBorderColor = makeDynamicProperty(BorderColor)
 	
 	BorderLineStyle = property(_getBorderLineStyle, _setBorderLineStyle, None,
 			_("""Style of line for the border drawn around the control.
@@ -1876,7 +1874,6 @@ class dPemMixin(dPemMixinBase):
 				"DotDash"
 				"DashDot"
 			"""))
-	DynamicBorderLineStyle = makeDynamicProperty(BorderLineStyle)
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
 			_("""Specifies the type of border for this window. (int).
@@ -1887,78 +1884,61 @@ class dPemMixin(dPemMixinBase):
 					"Sunken" 
 					"Raised"
 			""") )
-	DynamicBorderStyle = makeDynamicProperty(BorderStyle)
 
 	BorderWidth = property(_getBorderWidth, _setBorderWidth, None,
 			_("""Width of the border drawn around the control, if any. (int)
 			
-				Default=0 (no border)
-			"""))
-	DynamicBorderWidth = makeDynamicProperty(BorderWidth)
+				Default=0 (no border)"""))
 
 	Caption = property(_getCaption, _setCaption, None, 
 			_("The caption of the object. (str)") )
-	DynamicCaption = makeDynamicProperty(Caption)
 
 	Children = property(_getChildren, None, None, 
 			_("""Returns a list of object references to the children of this object.
 
-			Only applies to containers. Children will be None for non-containers.
-			"""))
+			Only applies to containers. Children will be None for non-containers."""))
 	
 	ControllingSizer = property(_getCntrlSizer, None, None,
-			_("""Reference to the sizer that controls this control's layout.  (dSizer)
-			""") )
+			_("""Reference to the sizer that controls this control's layout.  (dSizer)""") )
 
 	ControllingSizerItem = property(_getCntrlSzItem, None, None,
 			_("""Reference to the sizer item that control's this control's layout.
 
 				This is useful for getting information about how the item is being 
-				sized, and for changing those settings.
-			"""))
+				sized, and for changing those settings."""))
 		
 	Enabled = property(_getEnabled, _setEnabled, None,
-			_("""Specifies whether the object and children can get user input. (bool)
-			""") )
-	DynamicEnabled = makeDynamicProperty(Enabled)
+			_("""Specifies whether the object and children can get user input. (bool)""") )
 
 	Font = property(_getFont, _setFont, None,
 			_("Specifies font object for this control. (dFont)") )
-	DynamicFont = makeDynamicProperty(Font)
 	
 	FontBold = property(_getFontBold, _setFontBold, None,
 			_("Specifies if the font is bold-faced. (bool)") )
-	DynamicFontBold = makeDynamicProperty(FontBold)
 	
 	FontDescription = property(_getFontDescription, None, None, 
 			_("Human-readable description of the current font settings. (str)") )
 	
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Specifies the font face. (str)") )
-	DynamicFontFace = makeDynamicProperty(FontFace)
 	
 	FontInfo = property(_getFontInfo, None, None,
 			_("Specifies the platform-native font info string. Read-only. (str)") )
 	
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
 			_("Specifies whether font is italicized. (bool)") )
-	DynamicFontItalic = makeDynamicProperty(FontItalic)
 	
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Specifies the point size of the font. (int)") )
-	DynamicFontSize = makeDynamicProperty(FontSize)
 	
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
 			_("Specifies whether text is underlined. (bool)") )
-	DynamicFontUnderline = makeDynamicProperty(FontUnderline)
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
 			_("Specifies the foreground color of the object. (tuple)") )
-	DynamicForeColor = makeDynamicProperty(ForeColor)
 
 	Height = property(_getHeight, _setHeight, None,
 			_("Specifies the height of the object. (int)") )
-	DynamicHeight = makeDynamicProperty(Height)
 	
 	HelpContextText = property(_getHelpContextText, _setHelpContextText, None,
 			_("""Specifies the context-sensitive help text associated with this 
@@ -1970,19 +1950,16 @@ class dPemMixin(dPemMixinBase):
 	
 	Left = property(_getLeft, _setLeft, None,
 			_("Specifies the left position of the object. (int)") )
-	DynamicLeft = makeDynamicProperty(Left)
 	
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
 			_("Specifies the shape of the mouse pointer when it enters this window. (obj)") )
-	DynamicMousePointer = makeDynamicProperty(MousePointer)
 	
 	Name = property(_getName, _setName, None, 
 			_("""Specifies the name of the object, which must be unique among siblings.
 			
 			If the specified name isn't unique, an exception will be raised. See also
 			NameBase, which let's you set a base name and Dabo will automatically append
-			integers to make it unique.
-			""") )
+			integers to make it unique.""") )
 	
 	NameBase = property(None, _setNameBase, None,
 			_("""Specifies the base name of the object.
@@ -1996,52 +1973,71 @@ class dPemMixin(dPemMixinBase):
 			and there is already a sibling object with that name, your object will end up
 			with Name = "txtAddress1".
 			
-			This property is write-only at runtime.
-			""") )
+			This property is write-only at runtime.""") )
 		
 	Parent = property(_getParent, _setParent, None,	
 			_("The containing object. (obj)") )
 
 	Position = property(_getPosition, _setPosition, None, 
 			_("The (x,y) position of the object. (tuple)") )
-	DynamicPosition = makeDynamicProperty(Position)
 
 	RegID = property(_getRegID, _setRegID, None, 
 			_("A unique identifier used for referencing by other objects. (str)") )
 
 	Size = property(_getSize, _setSize, None,
 			_("The size of the object. (tuple)") )
-	DynamicSize = makeDynamicProperty(Size)
 
 	Sizer = property(_getSizer, _setSizer, None, 
 			_("The sizer for the object.") )
 
 	StatusText = property(_getStatusText, _setStatusText, None,
 			_("Specifies the text that displays in the form's status bar, if any."))
-	DynamicStatusText = makeDynamicProperty(StatusText)
 
 	Tag = property(_getTag, _setTag, None,
 			_("A property that user code can safely use for specific purposes.") )
-	DynamicTag = makeDynamicProperty(Tag)
 		
 	ToolTipText = property(_getToolTipText, _setToolTipText, None,
 			_("Specifies the tooltip text associated with this window. (str)") )
-	DynamicToolTipText = makeDynamicProperty(ToolTipText)
 	
 	Top = property(_getTop, _setTop, None, 
 			_("The top position of the object. (int)") )
-	DynamicTop = makeDynamicProperty(Top)
 	
 	Visible = property(_getVisible, _setVisible, None,
 			_("Specifies whether the object is visible at runtime. (bool)") )                    
-	DynamicVisible = makeDynamicProperty(Visible)
 
 	Width = property(_getWidth, _setWidth, None,
 			_("The width of the object. (int)") )
-	DynamicWidth = makeDynamicProperty(Width)
 	
 	WindowHandle = property(_getWindowHandle, None, None,
 			_("The platform-specific handle for the window. Read-only. (long)") )
+
+
+	# Dynamic property declarations
+	DynamicBackColor = makeDynamicProperty(BackColor)
+	DynamicBorderColor = makeDynamicProperty(BorderColor)
+	DynamicBorderLineStyle = makeDynamicProperty(BorderLineStyle)
+	DynamicBorderStyle = makeDynamicProperty(BorderStyle)
+	DynamicBorderWidth = makeDynamicProperty(BorderWidth)
+	DynamicCaption = makeDynamicProperty(Caption)
+	DynamicEnabled = makeDynamicProperty(Enabled)
+	DynamicFont = makeDynamicProperty(Font)
+	DynamicFontBold = makeDynamicProperty(FontBold)
+	DynamicFontFace = makeDynamicProperty(FontFace)
+	DynamicFontItalic = makeDynamicProperty(FontItalic)
+	DynamicFontSize = makeDynamicProperty(FontSize)
+	DynamicFontUnderline = makeDynamicProperty(FontUnderline)
+	DynamicForeColor = makeDynamicProperty(ForeColor)
+	DynamicHeight = makeDynamicProperty(Height)
+	DynamicLeft = makeDynamicProperty(Left)
+	DynamicMousePointer = makeDynamicProperty(MousePointer)
+	DynamicPosition = makeDynamicProperty(Position)
+	DynamicSize = makeDynamicProperty(Size)
+	DynamicStatusText = makeDynamicProperty(StatusText)
+	DynamicTag = makeDynamicProperty(Tag)
+	DynamicToolTipText = makeDynamicProperty(ToolTipText)
+	DynamicTop = makeDynamicProperty(Top)
+	DynamicVisible = makeDynamicProperty(Visible)
+	DynamicWidth = makeDynamicProperty(Width)
 
 
 
