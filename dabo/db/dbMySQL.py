@@ -104,7 +104,7 @@ class MySQL(dBackend):
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("describe %s" % tableName)
 		rs = tempCursor.fetchall()
-		fldDesc = tempCursor.description
+		fldDesc = tempCursor.descriptionClean
 		# The field name is the first element of the tuple. Find the
 		# first entry with the field name 'Key'; that will be the 
 		# position for the PK flag

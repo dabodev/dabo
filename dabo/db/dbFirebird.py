@@ -197,9 +197,9 @@ class Firebird(dBackend):
 
 	def massageDescription(self, cursor):
 		"""Force all the field names to lower case."""
-		dd = cursor.description
+		dd = cursor.descriptionClean = cursor.description
 		if dd:
-			cursor.description = tuple([(elem[0].lower(), elem[1], elem[2], 
+			cursor.descriptionClean = tuple([(elem[0].lower(), elem[1], elem[2], 
 					elem[3], elem[4], elem[5], elem[6]) 
 					for elem in dd])
 	
