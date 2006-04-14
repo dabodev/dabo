@@ -286,7 +286,7 @@ class MySQL(dBackend):
 				if not fld.AllowNulls:
 					sql = sql + "NOT NULL "
 				if not fld.IsPK:
-					sql = sql + "DEFAULT " + self.formatForQuery(fld.Default) + ","
+					sql = "%sDEFAULT %s," % (sql, self.formatForQuery(fld.Default))
 				else:
 					sql = sql + ","
 				
