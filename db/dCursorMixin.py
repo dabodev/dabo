@@ -842,7 +842,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					flds += ", " + kk
 					
 					# add value to expression
-					vals += ", " + self.formatForQuery(vv)					
+					vals += ", %s" % (self.formatForQuery(vv),)
 				# Trim leading comma-space from the strings
 				flds = flds[2:]
 				vals = vals[2:]

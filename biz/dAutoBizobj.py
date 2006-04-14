@@ -195,6 +195,8 @@ class dAutoBizobj(dBizobj):
 			for fld in table.Fields:
 				self.addField("%s.%s as %s" % (table.Name, fld.Name, fld.Name))
 				
+				self.DefaultValues[fld.Name] = fld.Default
+				
 				if fld.DataType == "Numeric":
 					self._CurrentCursor._types[fld.Name] = type(int)
 				elif fld.DataType == "Float":
@@ -274,9 +276,9 @@ class dAutoBizobj(dBizobj):
 					self.save()
 				except dException.DBQueryException, e:
 					if g._toExc.has_key(self._conn):
-						g._toExc[self._conn] = g._toExc[self._conn] + e.sql
+						g._toExc[self._conn] = g._toExc[self._conn].append(e.sql)
 					else:
-						g._toExc[self._conn] = e.sql
+						g._toExc[self._conn] = [e.sql]
 
 
 	def _getTable(self):

@@ -247,7 +247,7 @@ class SQLite(dBackend):
 				
 				if not fld.AllowNulls:
 					sql = sql + "NOT NULL "
-				sql = sql + "DEFAULT " + self.formatForQuery(fld.Default) + ","
+				sql = "%sDEFAULT %s," % (sql, self.formatForQuery(fld.Default))
 			if sql[-1:] == ",":
 				sql = sql[:-1]
 			sql = sql + ")"

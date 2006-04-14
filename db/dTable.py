@@ -228,13 +228,7 @@ class dField(dObject):
 	def _setDefault(self, default):
 		self._default = default
 		
-	def _getDefault(self):
-		if self._default == None and self.IsPK:
-			if self.DataType == "Numeric":
-				self._default = '0'
-			else:
-				self._default = ''
-		
+	def _getDefault(self):		
 		return self._default
 		
 		
