@@ -28,8 +28,9 @@ from dabo.db import dTable
 
 
 class dCursorMixin(dObject):
+	_call_initProperties = False
 	def __init__(self, sql="", *args, **kwargs):
-		self.initProperties()
+		self._initProperties()
 		if sql and isinstance(sql, basestring) and len(sql) > 0:
 			self.UserSQL = sql
 
@@ -51,7 +52,7 @@ class dCursorMixin(dObject):
 					break
 
 
-	def initProperties(self):
+	def _initProperties(self):
 		# Holds the dict used for adding new blank records
 		self._blank = {}
 		# Writable version of the dbapi 'description' attribute
@@ -103,6 +104,8 @@ class dCursorMixin(dObject):
 		# props for building the auxiliary cursor
 		self._cursorFactoryFunc = None
 		self._cursorFactoryClass = None
+
+		self.initProperties()
 
 
 	def setCursorFactory(self, func, cls):
