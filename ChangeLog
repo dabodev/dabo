@@ -1,5 +1,16 @@
 See the Subversion log for all the details.
 
+Dabo 0.6.5 (2006-04-18) (Revision 2124):
+
+Fixed showModal() to reactivate the windows previously deactivated when the 
+modal window is closed or hidden.
+
+Fixed a bug where not passing a font to getFont() would cause the function to record an error and return None.
+
+dCursorMixin's initProperties() hook was being called twice. Fixed, and put
+our framework code in _initProperties() instead.
+
+
 Dabo 0.6.4 (2006-04-06) (Revision 2099):
 
 Added the missing doDefault() call to dSplitter's _initEvents.
