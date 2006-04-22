@@ -202,6 +202,14 @@ import dabo.dEvents as dEvents
 			currSizer.setItemProps(obj, %s)
 """ % (nm, prnt, ornt, rowColString, szInfo)
 			
+			elif clsname == "LayoutSpacerPanel":
+				# Insert a spacer
+				spc = atts.get("Spacing", "10")
+				self.classText += LINESEP + \
+"""		if currSizer:
+			itm = currSizer.appendSpacer(%s)
+			currSizer.setItemProps(itm, %s)
+""" % (spc, szInfo)
 			else:
 				# This isn't a sizer; it's a control
 				attPropString = ""
