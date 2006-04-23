@@ -440,8 +440,14 @@ def getMouseObject():
 	development when testing changes to classes 'in the wild' of a 
 	live application.
 	"""
-	return wx.FindWindowAtPoint(getMousePosition())
-
+	win = wx.FindWindowAtPoint(getMousePosition())
+	while not isinstance(win, dabo.ui.dPemMixin):
+		try:
+			win = win.GetParent()
+		except AttributeError:
+			break
+	return win
+	
 
 #### This will have to wait until I can figure out how to simulate a 
 #### modal form for the calendar.
