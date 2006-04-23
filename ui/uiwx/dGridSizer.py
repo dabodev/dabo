@@ -4,6 +4,7 @@ import dPemMixin
 import dSizerMixin
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
+import warnings
 
 
 class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
@@ -63,7 +64,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			if borderFlags is not None:
 				dabo.errorLog.write(_("Depracation warning: use 'borderSides' parameter instead."))
 				borderSides = borderFlags
-		(targetRow, targetCol) = self.determineAvailableCell(row, col)
+		(targetRow, targetCol) = self._determineAvailableCell(row, col)
 		if isinstance(item, (tuple, int)):
 			# spacer
 			if isinstance(item, int):
@@ -184,7 +185,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 				for column in c.keys():
 					self.setColExpand(expand, column, proportion)
 		else:
-			curr = self.isColGrowable(colNum)
+			curr = self.getColExpand(colNum)
 			if expand and not curr:
 				self.AddGrowableCol(colNum, proportion=proportion)
 			elif not expand and curr:
@@ -211,7 +212,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 				for row in r.keys():
 					self.setRowExpand(expand, row, proportion)
 		else:
-			curr = self.isRowGrowable(rowNum)
+			curr = self.getRowExpand(rowNum)
 			if expand and not curr:
 				self.AddGrowableRow(rowNum, proportion=proportion)
 			elif not expand and curr:
@@ -229,7 +230,20 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		self.setRowExpand(True, "all")
 		
 	
+	def setFullCollapse(self):
+		"""Convenience method for setting all columns and rows of the 
+		sizer to not be growable.
+		"""
+		self.setColExpand(False, "all")
+		self.setRowExpand(False, "all")
+		
+	
 	def isRowGrowable(self, row):
+		warnings.warn("Deprecated; use 'getRowExpand' instead.", DeprecationWarning)
+		return self.getRowExpand(row)
+	
+	
+	def getRowExpand(self, row):
 		"""Returns True if the specified row is growable."""
 		# If the row isn't growable, it will throw an error
 		ret = True
@@ -242,6 +256,11 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		
 		
 	def isColGrowable(self, col):
+		warnings.warn("Deprecated; use 'getColExpand' instead.", DeprecationWarning)
+		return self.getColExpand(col)
+
+
+	def getColExpand(self, col):
 		"""Returns True if the specified column is growable."""
 		# If the col isn't growable, it will throw an error
 		ret = True
@@ -274,7 +293,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			self.layout()
 		
 		
-	def determineAvailableCell(self, row, col):
+	def _determineAvailableCell(self, row, col):
 		(targetRow, targetCol) = (row, col)
 		if (row == -1) or (col == -1):
 			# Get the first available cell
@@ -446,9 +465,9 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		if lowprop == "border":
 			return itm.GetBorder()
 		elif lowprop == "rowexpand":
-			ret = self.isRowGrowable(row)
+			ret = self.getRowExpand(row)
 		elif lowprop == "colexpand":
-			ret = self.isColGrowable(col)
+			ret = self.getColExpand(col)
 		elif lowprop == "rowspan":
 			ret = self.GetItemSpan(chil).GetRowspan()
 		elif lowprop == "colspan":
@@ -495,7 +514,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		
 					
 	def copyGrid(self, oldGrid):
-		""" This method takes an existing GridSizer, and copies
+		""" This method takes an existing GridSizer, and moves
 		the contents to the current grid. The properties of each
 		cell's item are preserved, but row/column Expand settings 
 		must be handled separately.
@@ -604,32 +623,33 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	
 	HGap = property(_getHGap, _setHGap, None,
 			_("Horizontal gap between cells in the sizer  (int)"))
-	DynamicHGap = makeDynamicProperty(HGap)
 			
 	MaxRows = property(_getMaxRows, _setMaxRows, None,
 			_("When adding elements to the sizer, controls the max number "
 			"of rows to add before a new column is started. (int)") )
-	DynamicMaxRows = makeDynamicProperty(MaxRows)
 
 	MaxCols = property(_getMaxCols, _setMaxCols, None,
 			_("When adding elements to the sizer, controls the max number "
 			"of columns to add before a new row is started. (int)") )
-	DynamicMaxCols = makeDynamicProperty(MaxCols)
 
 	MaxDimension = property(_getMaxDimension, _setMaxDimension, None,
 			_("When adding elements to the sizer, this property determines "
 			" if we use rows or columns as the limiting value. (char: 'r' or 'c'(default) )") )
-	DynamicMaxDimension = makeDynamicProperty(MaxDimension)
 	
 	Orientation = property(_getMaxDimension, _setMaxDimension, None, 
 		"Alias for the MaxDimensions property.")
-	DynamicOrientation = makeDynamicProperty(Orientation)
 			
 	VGap = property(_getVGap, _setVGap, None,
 			_("Vertical gap between cells in the sizer  (int)"))
+	
+	
+	DynamicHGap = makeDynamicProperty(HGap)
+	DynamicMaxRows = makeDynamicProperty(MaxRows)
+	DynamicMaxCols = makeDynamicProperty(MaxCols)
+	DynamicMaxDimension = makeDynamicProperty(MaxDimension)
+	DynamicOrientation = makeDynamicProperty(Orientation)
 	DynamicVGap = makeDynamicProperty(VGap)
-	
-	
+
 
 if __name__ == "__main__":
 	s = dGridSizer()
