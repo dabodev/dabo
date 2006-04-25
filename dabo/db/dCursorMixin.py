@@ -360,15 +360,24 @@ class dCursorMixin(dObject):
 		preserve the unsorted order if we haven't done that yet; then we sort
 		the data according to the request.
 		"""
+		kf = self.KeyField
 		if not self.__unsortedRows:
 			# Record the PK values
 			for row in self._records:
-				self.__unsortedRows.append(row[self.KeyField])
+				if self._compoundKey:
+					key = tuple([row[k] for k in kf])
+					self.__unsortedRows.append(key)
+				else:
+					self.__unsortedRows.append(row[self.KeyField])
 
 		# First, preserve the PK of the current row so that we can reset
 		# the RowNumber property to point to the same row in the new order.
 		try:
-			currRowKey = self._records[self.RowNumber][self.KeyField]
+			if self._compoundKey:
+				currRow = self._records[self.RowNumber]
+				currRowKey = tuple([currRow[k] for k in kf])
+			else:
+				currRowKey = self._records[self.RowNumber][self.KeyField]
 		except IndexError:
 			# Row no longer exists, such as after a Requery that returns
 			# fewer rows.
@@ -378,7 +387,11 @@ class dCursorMixin(dObject):
 		if not ord:
 			# Restore the rows to their unsorted order
 			for row in self._records:
-				sortList.append([self.__unsortedRows.index(row[self.KeyField]), row])
+				if self._compoundKey:
+					key = tuple([row[k] for k in kf])
+					sortList.append([self.__unsortedRows.index(key, row])
+				else:
+					sortList.append([self.__unsortedRows.index(row[self.KeyField]), row])
 		else:
 			for row in self._records:
 				sortList.append([row[col], row])
@@ -427,7 +440,13 @@ class dCursorMixin(dObject):
 		# restore the RowNumber
 		if currRowKey:
 			for ii in range(0, self.RowCount):
-				if self._records[ii][self.KeyField] == currRowKey:
+				row = self._records[ii]
+				if self._compoundKey:
+					key = tuple([row[k] for k in kf])
+					found = (key == currRowKey)
+				else:
+					found = row[self.KeyField] == currRowKey
+				if found:
 					self.RowNumber = ii
 					break
 		else:
@@ -549,7 +568,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""
 		rec = self._records[self.RowNumber]
 		tmpPK = self._genTempPKVal()
-		rec[self.KeyField] = tmpPK
+		kf = self.KeyField
+		if isinstance(kf, tuple):
+			for key in kf:
+				rec[key] = tmpPK
+		else:
+			rec[kf] = tmpPK
 		rec[kons.CURSOR_TMPKEY_FIELD] = tmpPK
 		
 	
@@ -566,7 +590,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	
 	def getPK(self):
 		""" Returns the value of the PK field in the current record. If that record
-		is new an unsaved record, return the temp PK value
+		is new an unsaved record, return the temp PK value. If this is a compound 
+		PK, return a tuple containing each field's values.
 		"""
 		ret = None
 		if self.RowCount <= 0:
@@ -574,10 +599,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[self.RowNumber]
 		if rec.has_key(kons.CURSOR_NEWFLAG) and self.AutoPopulatePK:
 			# New, unsaved record
-			return rec[kons.CURSOR_TMPKEY_FIELD]
+			ret = rec[kons.CURSOR_TMPKEY_FIELD]
 		else:
-			return rec[self.KeyField]
-
+			kf = self.KeyField
+			if isinstance(kf, tuple):
+				ret = tuple([rec[k] for k in kf])
+			else:
+				ret = rec[kf]
+		return ret
+		
 
 	def getFieldVal(self, fld, row=None):
 		""" Return the value of the specified field in the current or specified row."""
@@ -833,10 +863,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if newrec:
 				flds = ""
 				vals = ""
+				kf = self.KeyField
 				for kk, vv in diff.items():
-					if self.AutoPopulatePK and (kk == self.KeyField):
-						# we don't want to include the PK in the insert
-						continue
+					if self.AutoPopulatePK:
+						if self._compoundKey:
+							skipIt = (kk in kf)
+						else:
+							skipIt = (kk == self.KeyField)
+						if skipIt:
+							# we don't want to include the PK in the insert
+							continue
 					if kk in self.getNonUpdateFields():
 						# Skip it.
 						continue
@@ -861,9 +897,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# Some backends do not provide a means to retrieve 
 				# auto-generated PKs; for those, we need to create the 
 				# PK before inserting the record so that we can pass it on
-				# to any linked child records.
+				# to any linked child records. NOTE: if you are using 
+				# compound PKs, this cannot be done.
 				newPKVal = self.pregenPK()
-				if newPKVal:
+				if newPKVal and not self._compoundKey:
 					self.setFieldVal(self.KeyField, newPKVal)
 				
 			#run the update
@@ -874,7 +911,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# Call the database backend-specific code to retrieve the
 				# most recently generated PK value.
 				newPKVal = aux.getLastInsertID()
-				if newPKVal:
+				if newPKVal and not self._compoundKey:
 					self.setFieldVal(self.KeyField, newPKVal)
 
 			if newrec:
@@ -937,13 +974,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		# Create a list of PKs for each 'eligible' row to cancel
 		cancelPKs = []
+		kf = self.KeyField
 		for rec in recs:
-			cancelPKs.append(rec[self.KeyField])
+			if self._compoundKey:
+				key = tuple([rec[k] for k in kf])
+				cancelPKs.append(key)
+			else:
+				cancelPKs.append(rec[kf])
 
 		for ii in range(self.RowCount-1, -1, -1):
 			rec = self._records[ii]
-
-			if rec[self.KeyField] in cancelPKs:
+			if self._compoundKey:
+				key = tuple([rec[k] for k in kf])
+			else:
+				key = rec[self.KeyField]
+				
+			if key in cancelPKs:
 				if not self.isRowChanged(rec):
 					# Nothing to cancel
 					continue
@@ -1100,9 +1146,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		If the record is not found, the position is set to the first record. 
 		"""
 		self.RowNumber = 0
+		kf = self.KeyField
 		for ii in range(0, len(self._records)):
 			rec = self._records[ii]
-			if rec[self.KeyField] == pk:
+			if self._compoundKey:
+				key = tuple(rec[k] for k in kf])
+			else:
+				key = rec[self.KeyField]
+			if key == pk:
 				self.RowNumber = ii
 				break
 
@@ -1651,8 +1702,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			return ""
 
 	def _setKeyField(self, kf):
-		self._keyField = str(kf)
-		self.AuxCursor._keyField = str(kf)
+		if (kf contains ","):
+			self._keyField = kf.replace(" ").split(",")
+			self._compoundKey = True
+		else:
+			self._keyField = str(kf)
+			self._compoundKey = False
+		self.AuxCursor._keyField = self._keyField
+		self.AuxCursor._compoundKey = self._compoundKey
 		self._keyFieldSet = True
 
 
