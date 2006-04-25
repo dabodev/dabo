@@ -1053,7 +1053,8 @@ class dBizobj(dObject):
 		""" Return the value of the PK field."""
 		if self.KeyField is None:
 			raise dException.dException, _("No key field defined for table: ") + self.DataSource
-		return self._CurrentCursor.getFieldVal(self.KeyField)
+		cc = self._CurrentCursor
+		return cc.getFieldVal(cc.KeyField)
 
 
 	def getParentPK(self):

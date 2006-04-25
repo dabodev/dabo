@@ -618,11 +618,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			row = self.RowNumber
 
 		rec = self._records[row]
-		if rec.has_key(fld):
-			ret = rec[fld]
+		if isinstance(fld, (tuple, list)):
+			ret = []
+			for xFld in fld:
+				ret.append(self.getFieldVal(xFld, row=row))
+			ret = tuple(ret)
 		else:
-			raise dException.dException, "%s '%s' %s" % (
-					_("Field"), fld, _("does not exist in the data set"))
+			if rec.has_key(fld):
+				ret = rec[fld]
+			else:
+				raise dException.dException, "%s '%s' %s" % (
+						_("Field"), fld, _("does not exist in the data set"))
 		return ret
 
 
@@ -1261,13 +1267,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def checkPK(self):
 		""" Verify that the field(s) specified in the KeyField prop exist."""
 		# First, make sure that there is *something* in the field
-		if not self.KeyField:
+		kf = self.KeyField
+		if not kf:
 			raise dException.dException, _("checkPK failed; no primary key specified")
 
-		aFields = self.KeyField.split(",")
+		if isinstance(kf, basestring):
+			kf = [kf]
 		# Make sure that there is a field with that name in the data set
 		try:
-			for fld in aFields:
+			for fld in kf:
 				self._records[0][fld]
 		except:
 			raise dException.dException, _("Primary key field does not exist in the data set: ") + fld
@@ -1281,7 +1289,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		tblPrefix = self.BackendObject.getWhereTablePrefix(self.Table)
 		if not rec:
 			rec = self._records[self.RowNumber]
-		aFields = self.KeyField.split(",")
+		if self._compoundKey:
+			keyFields = self.KeyField
+		else:
+			keyFields = [self.KeyField]
 
 		if kons.CURSOR_MEMENTO in rec:
 			mem = rec[kons.CURSOR_MEMENTO]
@@ -1290,12 +1301,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			getPkVal = lambda fld: rec[fld]
 			
 		ret = ""
-		for fld in aFields:
+		for fld in keyFields:
 			if ret:
 				ret += " AND "
 			pkVal = getPkVal(fld)
 			if isinstance(pkVal, basestring):
 				ret += tblPrefix + fld + "='" + pkVal.encode(self.Encoding) + "' "
+			elif isinstance(pkVal, (datetime.date, datetime.datetime)):
+				ret += tblPrefix + fld + "=" + self.formatDateTime(pkVal) + " "
 			else:
 				ret += tblPrefix + fld + "=" + str(pkVal) + " "
 		return ret
@@ -1703,7 +1716,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _setKeyField(self, kf):
 		if "," in kf:
-			self._keyField = kf.replace(" ").split(",")
+			self._keyField = kf.replace(" ", "").split(",")
 			self._compoundKey = True
 		else:
 			self._keyField = str(kf)
