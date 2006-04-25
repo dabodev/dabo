@@ -389,7 +389,7 @@ class dCursorMixin(dObject):
 			for row in self._records:
 				if self._compoundKey:
 					key = tuple([row[k] for k in kf])
-					sortList.append([self.__unsortedRows.index(key, row])
+					sortList.append([self.__unsortedRows.index(key), row])
 				else:
 					sortList.append([self.__unsortedRows.index(row[self.KeyField]), row])
 		else:
@@ -1150,7 +1150,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		for ii in range(0, len(self._records)):
 			rec = self._records[ii]
 			if self._compoundKey:
-				key = tuple(rec[k] for k in kf])
+				key = tuple([rec[k] for k in kf])
 			else:
 				key = rec[self.KeyField]
 			if key == pk:
@@ -1702,7 +1702,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			return ""
 
 	def _setKeyField(self, kf):
-		if (kf contains ","):
+		if "," in kf:
 			self._keyField = kf.replace(" ").split(",")
 			self._compoundKey = True
 		else:
