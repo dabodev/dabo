@@ -195,6 +195,7 @@ import dabo.dEvents as dEvents
 				prnt = ""
 				if isBorderSizer:
 					prnt = "currParent, "
+					ornt = "%s, Caption=\"%s\"" % (ornt, self._extractKey(atts, "Caption", ""))
 				self.classText += LINESEP + \
 """		obj = dabo.ui.%s(%s%s)
 		if currSizer:
