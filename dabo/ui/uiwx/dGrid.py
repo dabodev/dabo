@@ -2223,7 +2223,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			
 			sortfunc = None
 			if sortingStrings and not caseSensitive:
-				sortfunc = lambda x, y: cmp(x[0].lower(), y[0].lower())
+				def sortfunc(x, y):
+					if x[0] is None and y[0] is None:
+						return 0
+					elif x[0] is None:
+						return -1
+					elif y[0] is None:
+						return 1
+					else:
+						return cmp(x[0].lower(), y[0].lower())
 			elif dataType in ("date", "datetime"):
 				# can't compare NoneType to these types:
 				def datetimesort(v,w):
@@ -2858,6 +2866,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	def __onWxContextMenu(self, evt):
 		self.raiseEvent(dEvents.GridContextMenu, evt)
 		evt.Skip()
+		
 
 	def __onWxGridColSize(self, evt):
 		if not self.ResizableColumns:
@@ -2866,13 +2875,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		else:
 			self.raiseEvent(dEvents.GridColSize, evt)
 			evt.Skip()
+			
 	
 	def __onWxGridRangeSelect(self, evt):
 		self.raiseEvent(dEvents.GridRangeSelected, evt)
+		evt.Skip()
+		
 		
 	def __onWxGridEditorShown(self, evt):
 		self.raiseEvent(dEvents.GridCellEditBegin, evt)
 		evt.Skip()
+		
 
 	def __onWxGridEditorCreated(self, evt):
 		""" Bind the kill focus event to the newly instantiated cell editor """ 
@@ -2880,15 +2893,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		editor.Bind(wx.EVT_KILL_FOCUS, self.__onWxGridCellEditorKillFocus) 
 		evt.Skip()
 
+
 	def __onWxGridCellEditorKillFocus(self, evt):
 		# Cell editor's grandparent, the grid GridWindow's parent, is the grid. 
 		self.SaveEditControlValue() 
 		self.HideCellEditControl() 
 		evt.Skip() 
 	
+	
 	def __onWxGridCellChange(self, evt):
 		self.raiseEvent(dEvents.GridCellEdited, evt)
 		evt.Skip()
+
 
 	def __onWxGridRowSize(self, evt):
 		if not self.ResizableRows:
@@ -2901,9 +2917,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.raiseEvent(dEvents.GridRowSize, evt)
 			evt.Skip()
 
+
 	def __onWxGridSelectCell(self, evt):
 		self.raiseEvent(dEvents.GridCellSelected, evt)
-		evt.Skip()
 		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
 		try:
 			mode = self.GetSelectionMode()
@@ -2914,30 +2930,40 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		except wx._core.PyAssertionError:
 			# No table yet
 			pass
+		evt.Skip()
+
 
 	def __onWxHeaderContextMenu(self, evt):
 		self.raiseEvent(dEvents.GridHeaderContextMenu, evt)
 		evt.Skip()
 
+
 	def __onWxHeaderIdle(self, evt):
 		self.raiseEvent(dEvents.GridHeaderIdle, evt)
 		evt.Skip()
 
+
 	def __onWxHeaderMouseEnter(self, evt):
 		self.raiseEvent(dEvents.GridHeaderMouseEnter, evt)
+		evt.Skip()
+		
 		
 	def __onWxHeaderMouseLeave(self, evt):
 		self._headerMouseLeftDown, self._headerMouseRightDown = False, False
 		self.raiseEvent(dEvents.GridHeaderMouseLeave, evt)
+		evt.Skip()
+
 
 	def __onWxHeaderMouseLeftDoubleClick(self, evt):
 		self.raiseEvent(dEvents.GridHeaderMouseLeftDoubleClick, evt)
 		evt.Skip()
 
+
 	def __onWxHeaderMouseLeftDown(self, evt):
 		self.raiseEvent(dEvents.GridHeaderMouseLeftDown, evt)
 		self._headerMouseLeftDown = True
 		#evt.Skip() #- don't skip or all the rows will be selected.
+
 
 	def __onWxHeaderMouseLeftUp(self, evt):
 		self.raiseEvent(dEvents.GridHeaderMouseLeftUp, evt)
@@ -2947,14 +2973,17 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self._headerMouseLeftDown = False
 		evt.Skip()
 
+
 	def __onWxHeaderMouseMotion(self, evt):
 		self.raiseEvent(dEvents.GridHeaderMouseMove, evt)
 		evt.Skip()
+
 
 	def __onWxHeaderMouseRightDown(self, evt):
 		self.raiseEvent(dEvents.GridHeaderMouseRightDown, evt)
 		self._headerMouseRightDown = True
 		evt.Skip()
+
 
 	def __onWxHeaderMouseRightUp(self, evt):
 		self.raiseEvent(dEvents.GridHeaderMouseRightUp, evt)
@@ -2964,37 +2993,46 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self._headerMouseRightDown = False
 		evt.Skip()
 
+
 	def __onWxHeaderPaint(self, evt):
 		self.raiseEvent(dEvents.GridHeaderPaint, evt)
 		evt.Skip()
+
 
 	def __onWxMouseLeftDoubleClick(self, evt):
 		self.raiseEvent(dEvents.GridMouseLeftDoubleClick, evt)
 		evt.Skip()
 
+
 	def __onWxMouseLeftClick(self, evt):
 		self.raiseEvent(dEvents.GridMouseLeftClick, evt)
 		evt.Skip()
+
 
 	def __onWxMouseLeftDown(self, evt):
 		self.raiseEvent(dEvents.GridMouseLeftDown, evt)
 		evt.Skip()
 
+
 	def __onWxMouseLeftUp(self, evt):
 		self.raiseEvent(dEvents.GridMouseLeftUp, evt)
 		evt.Skip()
+
 
 	def __onWxMouseMotion(self, evt):
 		self.raiseEvent(dEvents.GridMouseMove, evt)
 		evt.Skip()
 
+
 	def __onWxMouseRightClick(self, evt):
 		self.raiseEvent(dEvents.GridMouseRightClick, evt)
 		evt.Skip()
 
+
 	def __onWxMouseRightDown(self, evt):
 		self.raiseEvent(dEvents.GridMouseRightDown, evt)
 		evt.Skip()
+
 
 	def __onWxMouseRightUp(self, evt):
 		self.raiseEvent(dEvents.GridMouseRightUp, evt)

@@ -114,7 +114,7 @@ class dSizerMixin(dObject):
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, halign, valign, borderSides, layout)
 			if border is None:
-				border = self.Border
+				border = self.DefaultBorder
 			# If there are objects in this sizer already, add the default spacer
 			addSpacer = ( len(self.GetChildren()) > 0)
 			ret = szItem = self.Insert(index, item, proportion=proportion, 
@@ -212,7 +212,7 @@ class dSizerMixin(dObject):
 		
 		
 	def addDefaultSpacer(self, pos=None):
-		spc = self.Spacing
+		spc = self.DefaultSpacing
 		if spc:
 			self.addSpacer(spc, pos)
 				
@@ -548,17 +548,17 @@ class dSizerMixin(dObject):
 			borderSides = (borderSides, )
 		if borderSides is None:
 			# Add any default borders. If no defaults set, set it to the default 'all'
-			if self.BorderBottom:
+			if self.DefaultBorderBottom:
 				_wxFlags = _wxFlags | self.borderBottomFlag
-			if self.BorderLeft:
+			if self.DefaultBorderLeft:
 				_wxFlags = _wxFlags | self.borderLeftFlag
-			if self.BorderRight:
+			if self.DefaultBorderRight:
 				_wxFlags = _wxFlags | self.borderRightFlag
-			if self.BorderTop:
+			if self.DefaultBorderTop:
 				_wxFlags = _wxFlags | self.borderTopFlag
 			# Should we set the default?
-			if not (self.BorderBottom or self.BorderLeft 
-					or self.BorderRight or self.BorderTop):
+			if not (self.DefaultBorderBottom or self.DefaultBorderLeft 
+					or self.DefaultBorderRight or self.DefaultBorderTop):
 				_wxFlags = _wxFlags | self.borderAllFlag
 		else:
 			for flag in [flag.lower() for flag in borderSides]:
@@ -581,79 +581,7 @@ class dSizerMixin(dObject):
 		return _wxFlags				
 
 
-	def _getBorder(self):
-		try:
-			return self._border
-		except:
-			return 0
-			
-	def _setBorder(self, val):
-		if isinstance(val, basestring):
-			val = int(val)
-		self._border = val
-		
-		
-	def _getBorderAll(self):
-		try:
-			return (self._borderBottom and self._borderTop
-					and self._borderLeft and self._borderRight )
-		except:
-			return False
-			
-	def _setBorderAll(self, val):
-		if isinstance(val, basestring):
-			val = (val.lower()[0] in ("t", "y"))
-		self._borderBottom = self._borderTop = self._borderLeft = self._borderRight = val
-		
-		
-	def _getBorderBottom(self):
-		try:
-			return self._borderBottom
-		except:
-			return False
-			
-	def _setBorderBottom(self, val):
-		if isinstance(val, basestring):
-			val = (val.lower()[0] in ("t", "y"))
-		self._borderBottom = val
-		
-		
-	def _getBorderLeft(self):
-		try:
-			return self._borderLeft
-		except:
-			return False
-			
-	def _setBorderLeft(self, val):
-		if isinstance(val, basestring):
-			val = (val.lower()[0] in ("t", "y"))
-		self._borderLeft = val
-		
-		
-	def _getBorderRight(self):
-		try:
-			return self._borderRight
-		except:
-			return False
-			
-	def _setBorderRight(self, val):
-		if isinstance(val, basestring):
-			val = (val.lower()[0] in ("t", "y"))
-		self._borderRight = val
-		
-		
-	def _getBorderTop(self):
-		try:
-			return self._borderTop
-		except:
-			return False
-			
-	def _setBorderTop(self, val):
-		if isinstance(val, basestring):
-			val = (val.lower()[0] in ("t", "y"))
-		self._borderTop = val
-	
-	
+
 	def _getChildren(self):
 		ret = self.GetChildren()
 		for itm in ret:
@@ -685,6 +613,93 @@ class dSizerMixin(dObject):
 		return ret
 		
 
+	def _getDefaultBorder(self):
+		try:
+			return self._defaultBorder
+		except:
+			return 0
+			
+	def _setDefaultBorder(self, val):
+		if isinstance(val, basestring):
+			val = int(val)
+		self._defaultBorder = val
+		
+		
+	def _getDefaultBorderAll(self):
+		try:
+			return (self._defaultBorderBottom and self._defaultBorderTop
+					and self._defaultBorderLeft and self._defaultBorderRight )
+		except:
+			return False
+			
+	def _setDefaultBorderAll(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
+		self._defaultBorderBottom = self._defaultBorderTop = \
+				self._defaultBorderLeft = self._defaultBorderRight = val
+		
+		
+	def _getDefaultBorderBottom(self):
+		try:
+			return self._defaultBorderBottom
+		except:
+			return False
+			
+	def _setDefaultBorderBottom(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
+		self._defaultBorderBottom = val
+		
+		
+	def _getDefaultBorderLeft(self):
+		try:
+			return self._defaultBorderLeft
+		except:
+			return False
+			
+	def _setDefaultBorderLeft(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
+		self._defaultBorderLeft = val
+		
+		
+	def _getDefaultBorderRight(self):
+		try:
+			return self._defaultBorderRight
+		except:
+			return False
+			
+	def _setDefaultBorderRight(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
+		self._defaultBorderRight = val
+		
+		
+	def _getDefaultBorderTop(self):
+		try:
+			return self._defaultBorderTop
+		except:
+			return False
+			
+	def _setDefaultBorderTop(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
+		self._defaultBorderTop = val
+	
+	
+	def _getDefaultSpacing(self):
+		try:
+			return self._defaultSpacing
+		except:
+			# Default to zero
+			return 0
+			
+	def _setDefaultSpacing(self, val):
+		if isinstance(val, basestring):
+			val = int(val)
+		self._defaultSpacing = val
+		
+			
 	def _getHt(self):
 		return self.GetSize()[1]
 		
@@ -725,19 +740,6 @@ class dSizerMixin(dObject):
 		self._parent = obj
 					
 		
-	def _getSpacing(self):
-		try:
-			return self._space
-		except:
-			# Default to zero
-			return 0
-			
-	def _setSpacing(self, val):
-		if isinstance(val, basestring):
-			val = int(val)
-		self._space = val
-		
-			
 	def _getVisible(self):
 		return self._visible
 		
@@ -752,24 +754,6 @@ class dSizerMixin(dObject):
 		return self.GetSize()[0]		
 		
 	
-	Border = property(_getBorder, _setBorder, None,
-			_("Sets the default border for the sizer.  (int)" ) )
-			
-	BorderAll = property(_getBorderAll, _setBorderAll, None,
-			_("By default, do we add the border to all sides?  (bool)" ) )
-			
-	BorderBottom = property(_getBorderBottom, _setBorderBottom, None,
-			_("By default, do we add the border to the bottom side?  (bool)" ) )
-			
-	BorderLeft = property(_getBorderLeft, _setBorderLeft, None,
-			_("By default, do we add the border to the left side?  (bool)" ) )
-			
-	BorderRight = property(_getBorderRight, _setBorderRight, None,
-			_("By default, do we add the border to the right side?  (bool)" ) )
-			
-	BorderTop = property(_getBorderTop, _setBorderTop, None,
-			_("By default, do we add the border to the top side?  (bool)" ) )
-
 	Children = property(_getChildren, None, None, 
 			_("List of all the sizer items managed by this sizer  (list of sizerItems" ) )
 	
@@ -784,6 +768,31 @@ class dSizerMixin(dObject):
 				This is useful for getting information about how the item is being 
 				sized, and for changing those settings."""))
 		
+	DefaultBorder = property(_getDefaultBorder, _setDefaultBorder, None,
+			_("Sets the default border for the sizer.  (int)" ) )
+			
+	DefaultBorderAll = property(_getDefaultBorderAll, _setDefaultBorderAll, None,
+			_("By default, do we add the border to all sides?  (bool)" ) )
+			
+	DefaultBorderBottom = property(_getDefaultBorderBottom, 
+			_setDefaultBorderBottom, None,
+			_("By default, do we add the border to the bottom side?  (bool)" ) )
+			
+	DefaultBorderLeft = property(_getDefaultBorderLeft, 
+			_setDefaultBorderLeft, None,
+			_("By default, do we add the border to the left side?  (bool)" ) )
+			
+	DefaultBorderRight = property(_getDefaultBorderRight, 
+			_setDefaultBorderRight, None,
+			_("By default, do we add the border to the right side?  (bool)" ) )
+			
+	DefaultBorderTop = property(_getDefaultBorderTop, 
+			_setDefaultBorderTop, None,
+			_("By default, do we add the border to the top side?  (bool)" ) )
+
+	DefaultSpacing = property(_getDefaultSpacing, _setDefaultSpacing, None, 
+			_("Amount of space automatically inserted between elements.  (int)" ) )
+			
 	Height = property(_getHt, None, None,
 			_("Height of the sizer  (int)") )
 			
@@ -794,9 +803,6 @@ class dSizerMixin(dObject):
 			_("""The object that contains this sizer. In the case of nested
 			sizers, it is the object that the outermost sizer belongs to. (obj)"""))
 	
-	Spacing = property(_getSpacing, _setSpacing, None, 
-			_("Amount of space automatically inserted between elements.  (int)" ) )
-			
 	Visible = property(_getVisible, _setVisible, None, 
 			_("Shows/hides the sizer and its contained items  (bool)" ) )
 
@@ -804,5 +810,5 @@ class dSizerMixin(dObject):
 			_("Width of this sizer  (int)") )
 
 
-	DynamicBorder = makeDynamicProperty(Border)
+	DynamicDefaultBorder = makeDynamicProperty(DefaultBorder)
 	DynamicVisible = makeDynamicProperty(Visible)

@@ -637,7 +637,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			" if we use rows or columns as the limiting value. (char: 'r' or 'c'(default) )") )
 	
 	Orientation = property(_getMaxDimension, _setMaxDimension, None, 
-		"Alias for the MaxDimensions property.")
+			_("Alias for the MaxDimensions property. (char: 'r' or 'c'(default) )") )
 			
 	VGap = property(_getVGap, _setVGap, None,
 			_("Vertical gap between cells in the sizer  (int)"))

@@ -23,15 +23,15 @@ class About(dabo.ui.dDialog):
 		pnlHead = dabo.ui.dPanel(pnlBack, BackColor="White")
 		pnlHead.Sizer = ps = dabo.ui.dSizer("h")
 
-		ps.Border = 0
+		ps.DefaultBorder = 0
 		lblHead = dabo.ui.dLabel(pnlHead, Caption="Dabo", FontSize=24, 
 								FontBold=True)
 
 		ps.append(lblHead, 3, "x", halign="left", valign="middle")
 
-		sz.Spacing = 20
-		sz.Border = 20
-		sz.BorderTop = sz.BorderLeft = sz.BorderRight = True
+		sz.DefaultSpacing = 20
+		sz.DefaultBorder = 20
+		sz.DefaultBorderTop = sz.DefaultBorderLeft = sz.DefaultBorderRight = True
 		sz.append(pnlHead, 0, "x")
 		
 		eg = dabo.ui.dGrid(pnlBack, DataSet=self.getInfoDataSet(), 
