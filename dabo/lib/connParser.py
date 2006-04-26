@@ -1,9 +1,10 @@
 import xml.sax
 from StringIO import StringIO
 import os.path
+from xmltodict import escQuote
+
 
 class connHandler(xml.sax.ContentHandler):
-	
 	def __init__(self):
 		self.connDict = {}
 		self.blankConn = {"name": "",
@@ -85,8 +86,10 @@ def genConnXML(d):
 			if not d["host"]:
 				d["host"] = "local"
 			d["name"] = "%s@%s" % (d["user"], d["host"])
-		ret = getConnTemplate() % (d["dbtype"], d["name"], d["host"], 
-				d["database"], d["user"], d["password"], d["port"])
+		ret = getConnTemplate() % (escQuote(d["dbtype"], noQuote=True), 
+				escQuote(d["name"], noQuote=True), escQuote(d["host"], noQuote=True), 
+				escQuote(d["database"], noQuote=True), escQuote(d["user"], noQuote=True), 
+				escQuote(d["password"], noQuote=True), d["port"])
 	except:
 		# Not a valid conn info dict
 		ret = ""
