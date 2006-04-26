@@ -221,6 +221,7 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 if __name__ == "__main__":
 	class ImgForm(dabo.ui.dForm):
 		def afterInit(self):
+			self.Caption = "dImage Demonstration"
 			# Sliders work differently on OS X
 			### egl - This has been fixed in more recent versions of wxPython
 			# self.reverseVert = (wx.PlatformInfo[0] == "__WXMAC__")
@@ -242,8 +243,8 @@ if __name__ == "__main__":
 			hsz.append(self.imgPanel, 1, "x")
 			hsz.appendSpacer(10)
 			hsz.append(self.VSlider, 0, "x")
-			self.Sizer.Border = 25
-			self.Sizer.BorderLeft = self.Sizer.BorderRight = 25
+			self.Sizer.DefaultBorder = 25
+			self.Sizer.DefaultBorderLeft = self.Sizer.DefaultBorderRight = 25
 			self.Sizer.appendSpacer(25)
 			self.Sizer.append(hsz, 1, "x")
 			self.Sizer.appendSpacer(10)
@@ -251,7 +252,7 @@ if __name__ == "__main__":
 			self.Sizer.appendSpacer(10)
 
 			hsz = dabo.ui.dSizer("H")
-			hsz.Spacing = 10
+			hsz.DefaultSpacing = 10
 			dabo.ui.dBitmapButton(self, RegID="btnRotateCW",
 					Picture="rotateCW")
 			dabo.ui.dBitmapButton(self, RegID="btnRotateCCW",

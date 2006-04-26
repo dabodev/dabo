@@ -178,9 +178,9 @@ class dOkCancelDialog(dDialog):
 	def _addControls(self):
 		# Set some default Sizer properties (user can easily override):
 		sz = self.Sizer
-		sz.Border = 20
-		sz.BorderLeft = sz.BorderRight = True
-		sz.append((0, sz.Border))
+		sz.DefaultBorder = 20
+		sz.DefaultBorderLeft = sz.DefaultBorderRight = True
+		sz.append((0, sz.DefaultBorder))
 
 		# Let the user add their controls
 		super(dOkCancelDialog, self)._addControls()
@@ -210,9 +210,9 @@ class dOkCancelDialog(dDialog):
 				buttons.append(win)
 		buttons[1].MoveAfterInTabOrder(buttons[0])
 
-		sz.append((0, sz.Border/2))
+		sz.append((0, sz.DefaultBorder/2))
 		sz.append(buttonSizer, "expand")
-		sz.append((0, sz.Border))
+		sz.append((0, sz.DefaultBorder))
 
 		self.layout()
 
