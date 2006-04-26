@@ -154,6 +154,26 @@ def xmltodict(xml, attsToSkip=[]):
 		return parser.Parse(xml)
 
 
+def escQuote(val, noEscape=False, noQuote=False):
+	"""Add surrounding quotes to the string, and escape
+	any illegal XML characters.
+	"""
+	if not isinstance(val, basestring):
+		val = str(val)
+	if noQuote:
+		qt = ''
+	else:
+		qt = '"'
+	slsh = "\\"
+	val = val.replace("<", "&lt;").replace(">", "&gt;").replace(slsh, slsh+slsh)
+	if not noEscape:
+		# First escape internal ampersands:
+		val = val.replace("&", "&amp;")
+		# Escape any internal quotes
+		val = val.replace('"', '&quot;').replace("'", "&apos;")
+	return "%s%s%s" % (qt, val, qt)
+
+
 def dicttoxml(dct, level=0, header=None, linesep=None):
 	"""Given a Python dictionary, return an xml string.
 
@@ -165,22 +185,6 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 	The linesep argument is a dictionary, with keys on levels, allowing the
 	developer to add extra whitespace depending on the level.
 	"""
-	def escQuote(val, noEscape):
-		"""Add surrounding quotes to the string, and escape
-		any illegal XML characters.
-		"""
-		if not isinstance(val, basestring):
-			val = str(val)
-		qt = '"'
-		slsh = "\\"
-		val = val.replace("<", "&lt;").replace(">", "&gt;").replace(slsh, slsh+slsh)
-		if not noEscape:
-			# First escape internal ampersands:
-			val = val.replace("&", "&amp;")
-			# Escape any internal quotes
-			val = val.replace('"', '&quot;').replace("'", "&apos;")
-		return "%s%s%s" % (qt, val, qt)
-
 	att = ""
 	ret = ""
 
