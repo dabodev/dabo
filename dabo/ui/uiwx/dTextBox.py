@@ -42,9 +42,13 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		
 	def flushValue(self):
 		# Call the wx SetValue() directly to reset the string value displayed to the user.
-		# This resets the value to the string representation as Python shows it.
+		# This resets the value to the string representation as Python shows it. Also, we
+		# must save and restore the InsertionPosition because wxGtk at least resets it to
+		# 0 upon SetValue().
+		insPos = self.InsertionPosition
 		self.SetValue(self._getStringValue(self.Value))
-			
+		self.InsertionPosition = insPos
+		
 		# Now that the dabo Value is set properly, the default behavior that flushes 
 		# the value to the bizobj can be called:
 		super(dTextBox, self).flushValue()
