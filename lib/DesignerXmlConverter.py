@@ -309,7 +309,7 @@ import dabo.dEvents as dEvents
 """		parentStack.append(currParent)
 		currParent = obj
 		currSizer = None
-		if not sizerDict.has_key("currParent"):
+		if not sizerDict.has_key(currParent):
 			sizerDict[currParent] = []
 """
 				if kids:
@@ -328,7 +328,7 @@ import dabo.dEvents as dEvents
 				else:
 					self.classText += LINESEP + \
 """		currParent = parentStack.pop()
-		if not sizerDict.has_key("currParent"):
+		if not sizerDict.has_key(currParent):
 			sizerDict[currParent] = []
 """
 		return				
