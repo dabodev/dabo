@@ -17,6 +17,11 @@ LINESEP = "\n"
 
 
 class DesignerXmlConverter(dObject):
+	def afterInit(self):
+		# Added to ensure unique object names
+		self._generatedNames = []
+		
+	
 	def classFromXml(self, src):
 		"""Given a cdxml file, returns a class object that that file 
 		represents. You can pass the cdxml as either a file path, 
@@ -30,8 +35,6 @@ class DesignerXmlConverter(dObject):
 			else:
 				xml = src
 		dct = xtd(xml)
-		# Added to ensure unique object names
-		self._generatedNames = []
 		# Parse the XML and create the class definition text
 		self.createClassText(dct)
 		
