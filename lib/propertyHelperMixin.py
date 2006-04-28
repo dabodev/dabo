@@ -197,15 +197,22 @@ class PropertyHelperMixin(object):
 					# ignore
 					continue
 				else:
-					raise AttributeError, "'%s' is not a property." % prop				
-			try:
-				exec("self.%s = %s" % (prop, val) )
-			except:
+					raise AttributeError, "'%s' is not a property." % prop
+			if isinstance(eval("self.%s" % prop), basestring):
 				# If this is property holds strings, we need to quote the value.
 				try:
 					exec("self.%s = '%s'" % (prop, val) )
 				except:
 					raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
+			else:
+				try:
+					exec("self.%s = %s" % (prop, val) )
+				except:
+					# Still could be a string, if the original value was None
+					try:
+						exec("self.%s = '%s'" % (prop, val) )
+					except:
+						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
 		
 			
 	def getPropertyList(cls, refresh=False):
