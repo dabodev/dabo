@@ -396,13 +396,46 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			raise dabo.ui.GridSizerSpanException, _("An item already exists in that location")
 	
 	
+	def _clearCells(self, obj, span, typ):
+		"""When enlarging the row/colspan of an item, this method makes sure
+		that any potentially spanned cells are either empty, or contain placeholder
+		objects that can be safely removed.
+		"""
+		isCol = (typ.lower() == "col")
+		currVal = self.getGridSpan(obj)[isCol]
+		diff = span - currVal
+		ret = True
+		if diff > 0:
+			for span in range(1, diff+1):
+				if isCol:
+					off = (0, span)
+				else:
+					off = (span, 0)
+				spannedItem = self.getItemAtOffset(obj, off)
+				if spannedItem is not None:
+					if hasattr(spannedItem, "_placeholder"):
+						spannedItem.release()
+					else:
+						ret = False
+						break
+		return ret	
+	
+	
 	def setRowSpan(self, obj, rowspan):
 		"""Sets the row span, keeping the col span the same."""
+		if rowspan > 1:
+			if not self._clearCells(obj, rowspan, "row"):
+				dabo.errorLog.write("Cannot set RowSpan for %s; remove objects in the way first." % itm.Name)
+				return
 		self.setGridSpan(obj, row=rowspan)
 		
 	
 	def setColSpan(self, obj, colspan):
 		"""Sets the col span, keeping the row span the same."""
+		if colspan > 1:
+			if not self._clearCells(obj, colspan, "col"):
+				dabo.errorLog.write("Cannot set ColSpan for %s; remove objects in the way first." % itm.Name)
+				return
 		self.setGridSpan(obj, col=colspan)
 		
 	
