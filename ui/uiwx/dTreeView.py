@@ -86,6 +86,16 @@ class dNode(dObject):
 		return self.tree.getDescendents(self)
 
 
+	def _getExpanded(self):
+		return self.tree.IsExpanded(self.itemID)
+
+	def _setExpanded(self, val):
+		if val:
+			self.tree.expand(self)
+		else:
+			self.tree.collapse(self)
+
+
 	def _getFont(self):
 		if hasattr(self, "_font"):
 			v = self._font
@@ -188,6 +198,9 @@ class dNode(dObject):
 	
 	Descendents = property(_getDescendents, None, None,
 			_("List of all nodes for which this node is a direct ancestor.  (list of dNodes)") )
+	
+	Expanded = property(_getExpanded, _setExpanded, None,
+			_("Represents whether the node is Expanded (True) or collapsed.  (bool)"))
 	
 	Font = property(_getFont, _setFont, None,
 			_("The font properties of the node. (obj)") )
