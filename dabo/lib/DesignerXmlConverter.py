@@ -62,6 +62,7 @@ import dabo.dEvents as dEvents
 	def __init__(self, parent=%s, attProperties=%s):
 		dabo.ui.%s.__init__(self, parent=parent, attProperties=attProperties)
 		self.Sizer = None
+%s		
 
 """
 		# Holds any required class definitions for contained objects
@@ -75,6 +76,7 @@ import dabo.dEvents as dEvents
 		nm = dct.get("name")
 		atts = dct.get("attributes", {})
 		code = dct.get("code", {})
+		propDefs = dct.get("properties", {})
 		kids = dct.get("children", [])
 		clsID = atts.get("classID", None)
 		rmv = []
@@ -92,14 +94,22 @@ import dabo.dEvents as dEvents
 		for rm in rmv:
 			specList.remove(rm)
 		cleanAtts = self.cleanAttributes(atts)
-		propDefs = eval(self._extractKey(atts, "propertyDefinitions", "{}"))
 		
 		# Create the main class definition
 		self.mainClassName = clsName = self.uniqname(nm)
 		# Leave the third %s in place. That will be replaced by any
 		# inner class definitions we create
+
+
+		propInit = ""
+		for prop, propDef in propDefs.items():
+			val = propDef["defaultValue"]
+			if propDef["defaultType"] == "string":
+				val = "\"" + val + "\""
+			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
+
 		self.classText += 	self.classTemplate  % (clsName, nm, 
-				self.currParent, cleanAtts, nm)
+				self.currParent, cleanAtts, nm, self.indentCode(propInit, 2))
 		self.classText += \
 """		parentStack = []
 		sizerDict = {}
@@ -113,12 +123,11 @@ import dabo.dEvents as dEvents
 		# Add any main class code
 		for cd in code.values():
 			self.classText += LINESEP + self.indentCode(cd, 1)
-			
 		# Add any property definitions
 		for prop, propDef in propDefs.items():
 			self.classText += LINESEP + \
-"""		%s = property(%s, %s, %s, 
-				\"\"\"%s\"\"\")
+"""	%s = property(%s, %s, %s, 
+			\"\"\"%s\"\"\")
 """ % (prop, propDef["getter"], propDef["setter"], propDef["deller"], 
 		propDef["comment"])
 		
@@ -170,6 +179,7 @@ import dabo.dEvents as dEvents
 				rowColString = ", row=%s, col=%s" % eval(rcPos)
 			kids = child.get("children", [])
 			code = child.get("code", {})
+			custProps = child.get("properties", {})
 			code.update(specCode)
 			isCustom = False
 			isInherited = False
@@ -183,8 +193,8 @@ import dabo.dEvents as dEvents
 				isCustom = True
 				isInherited = True
 			else:
-				if code:
-					nm = self.createInnerClass(nm, atts, code)
+				if code or custProps:
+					nm = self.createInnerClass(nm, atts, code, custProps)
 					isCustom = True
 
 			isSizer = (clsname in ("LayoutSizer", "LayoutGridSizer",
@@ -337,16 +347,22 @@ import dabo.dEvents as dEvents
 		return				
 
 	
-	def createInnerClass(self, nm, atts, code):
+	def createInnerClass(self, nm, atts, code, custProps):
 		"""Define a class that will be used to create an instance of
-		an object that contains its own method code.
+		an object that contains its own method code and/or Properties.
 		"""
 		clsName = self.uniqname(nm)
 		cleanAtts = self.cleanAttributes(atts)
-		propDefs = eval(self._extractKey(atts, "propertyDefinitions", "{}"))
+		propInit = ""
+		for prop, propDef in custProps.items():
+			val = propDef["defaultValue"]
+			if propDef["defaultType"] == "string":
+				val = "\"" + val + "\""
+			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
 		
 		self.innerClassText += self.classTemplate  % (clsName, nm, 
-				self.currParent, cleanAtts, nm)
+				self.currParent, cleanAtts, nm, self.indentCode(propInit, 2))
+
 		self.innerClassNames.append(clsName)
 		# Since the code will be part of this class, which is at the outer level
 		# of indentation, it needs to be indented one level.
@@ -356,7 +372,7 @@ import dabo.dEvents as dEvents
 				self.innerClassText += LINESEP
 # 			self.innerClassText += self.indentCode(cd, 1)
 		# Add any property definitions
-		for prop, propDef in propDefs.items():
+		for prop, propDef in custProps.items():
 			self.innerClassText += LINESEP + \
 """	%s = property(%s, %s, %s, 
 			\"\"\"%s\"\"\")
