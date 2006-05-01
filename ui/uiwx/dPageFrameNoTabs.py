@@ -18,6 +18,7 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 		self._pageClass = dPage.dPage
 		self._activePage = None
 		super(dPageFrameNoTabs, self).__init__(*args, **kwargs)
+		self._baseClass = dPageFrameNoTabs
 		
 		
 	def _afterInit(self):
@@ -100,6 +101,28 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 		except:
 			ret = None
 		return ret
+
+
+	#------------------------------------
+	# The following methods don't do anything except
+	# make this class compatible with dPage classes, which 
+	# expect their parent to have these methods.
+	#------------------------------------
+	def getPageImage(self, pg):
+		return None
+	
+	
+	def setPageImage(self, pg, img):
+		pass
+	
+	
+	def GetPageText(self, pg):
+		return ""
+		
+		
+	def SetPageText(self, pg, txt):
+		pass
+	#------------------------------------
 		
 		
 	def _getPgCls(self):
@@ -152,21 +175,23 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 	
 	PageClass = property(_getPgCls, _setPgCls, None,
 			_("The default class used when adding new pages.  (dPage)") )
-	DynamicPageClass = makeDynamicProperty(PageClass)
 
 	PageCount = property(_getPgCnt, _setPgCnt, None,
 			_("Returns the number of pages in this pageframe  (int)") )
-	DynamicPageCount = makeDynamicProperty(PageCount)
 	
 	Pages = property(_getPages, None, None,
 			_("List of all the pages.   (list)") )
 
 	SelectedPage = property(_getSel, _setSel, None,
 			_("Returns a reference to the currently displayed page  (dPage | dPanel)") )
-	DynamicSelectedPage = makeDynamicProperty(SelectedPage)
 
 	SelectedPageNumber = property(_getSelNum, _setSelNum, None,
 			_("Returns a reference to the index of the currently displayed page  (int)") )
+
+
+	DynamicPageClass = makeDynamicProperty(PageClass)
+	DynamicPageCount = makeDynamicProperty(PageCount)
+	DynamicSelectedPage = makeDynamicProperty(SelectedPage)
 	DynamicSelectedPageNumber = makeDynamicProperty(SelectedPageNumber)
 
 
