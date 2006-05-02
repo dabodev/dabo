@@ -17,7 +17,7 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 		self._choices = []
 		self._userVal = False
 		# Flag for appending items when the user presses 'Enter'
-		self.appendOnEnter = False
+		self._appendOnEnter = False
 		# Holds the text to be appended
 		self._textToAppend = ""
 
@@ -40,7 +40,7 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 	def __onTextBox(self, evt):
 		self._userVal = True
 		evt.Skip()
-		if self.appendOnEnter:
+		if self.AppendOnEnter:
 			txt = evt.GetString()
 			if txt not in self.Choices:
 				self._textToAppend = txt
@@ -53,7 +53,7 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 
 	def beforeAppendOnEnter(self):
 		"""Hook method that is called when user-defined text is entered
-		into the combo box and Enter is pressed (when self.appendOnEnter
+		into the combo box and Enter is pressed (when self.AppendOnEnter
 		is True). This gives the programmer the ability to interact with such
 		events, and optionally prevent them from happening. Returning 
 		False will prevent the append from happening.
@@ -78,6 +78,16 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
+	def _getAppendOnEnter(self):
+		return self._appendOnEnter
+
+	def _setAppendOnEnter(self, val):
+		if self._constructed():
+			self._appendOnEnter = val
+		else:
+			self._properties["AppendOnEnter"] = val
+
+
 	def _getUserValue(self):
 		if self._userVal:
 			return self.GetValue()
@@ -94,23 +104,29 @@ class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 			self._properties["UserValue"] = value
 	
 	
+	AppendOnEnter = property(_getAppendOnEnter, _setAppendOnEnter, None,
+			_("""Flag to determine if user-entered text is appended when they 
+			press 'Enter'  (bool)"""))
+	
 	UserValue = property(_getUserValue, _setUserValue, None,
-		"""Specifies the text displayed in the textbox portion of the ComboBox.
+			_("""Specifies the text displayed in the textbox portion of the ComboBox.
+			
+			String. Read-write at runtime.
+			
+			UserValue can differ from StringValue, which would mean that the user
+			has typed in arbitrary text. Unlike StringValue, PositionValue, and 
+			KeyValue, setting UserValue does not change the currently selected item
+			in the list portion of the ComboBox."""))
 		
-		String. Read-write at runtime.
 		
-		UserValue can differ from StringValue, which would mean that the user
-		has typed in arbitrary text. Unlike StringValue, PositionValue, and 
-		KeyValue, setting UserValue does not change the currently selected item
-		in the list portion of the ComboBox.
-		""")
 	DynamicUserValue = makeDynamicProperty(UserValue)
+
 
 
 class _dComboBox_test(dComboBox):
 	def initProperties(self):
 		self.setup()
-		self.appendOnEnter = True
+		self.AppendOnEnter = True
 		
 	def setup(self):
 		# Simulating a database:
