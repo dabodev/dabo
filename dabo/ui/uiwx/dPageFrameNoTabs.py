@@ -1,22 +1,23 @@
 import dabo
 dabo.ui.loadUI("wx")
-import dPage
-import dPanel
+from dPage import dPage
+from dPanel import dPanel
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dPageFrameNoTabs(dabo.ui.dPanel):
+class dPageFrameNoTabs(dPanel):
 	"""Creates a pageframe with no tabs.
 
 	Your code will have to programatically set the current page, because the
 	user will have no way to do this.
 	"""
 	def __init__(self, *args, **kwargs):
-		self._pageClass = dPage.dPage
+		self._pageClass = dPage
 		self._activePage = None
+		self._pages = []
 		super(dPageFrameNoTabs, self).__init__(*args, **kwargs)
 		self._baseClass = dPageFrameNoTabs
 		
@@ -43,8 +44,12 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 			pgCls = self.PageClass
 		if self.Sizer is None:
 			self.Sizer = dabo.ui.dSizer()
-		pg = pgCls(self)
+		if isinstance(pgCls, dPage):
+			pg = pgCls
+		else:
+			pg = pgCls(self)
 		self.Sizer.insert(pos, pg, 1, "x")
+		self._pages.insert(pos, pg)
 		self.layout()
 		if makeActive or (self.PageCount == 1):
 			self.showPage(pg)
@@ -53,8 +58,32 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 		return self.Pages[pos]
 
 
+	def removePage(self, pgOrPos, delPage=True):
+		"""Removes the specified page. You can specify a page by either
+		passing the page itself, or a position. If delPage is True (default),
+		the page is released, and None is returned. If delPage is
+		False, the page is returned.
+		"""
+		pos = pgOrPos
+		if isinstance(pgOrPos, int):
+			pg = self.Pages[pgOrPos]
+		else:
+			pg = pgOrPos
+			pos = self.Pages.index(pg)
+		self._pages.remove(pg)
+		if delPage:
+			pg.release()
+			ret = None
+		else:
+			self.Sizer.remove(pg)
+			ret = pg
+		return ret
+
+
 	def showPage(self, pg):
 		ap = self._activePage
+		if isinstance(pg, int):
+			pg = self.Pages[pg]
 		newPage = (pg is not ap)
 		if pg in self.Pages:
 			if newPage:
@@ -122,20 +151,22 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 		
 	def SetPageText(self, pg, txt):
 		pass
+		
+		
 	#------------------------------------
-		
-		
 	def _getPgCls(self):
 		return self._pageClass
+		
 	def _setPgCls(self, val):
-		if issubclass(val, (dPage.dPage, dPanel.dPanel)):
+		if issubclass(val, (dPage, dPanel)):
 			self._pageClass = val
 	
 	
 	def _getPgCnt(self):
-		return len(self.Children)
+		return len(self._pages)
+		
 	def _setPgCnt(self, val):
-		diff = (val - len(self.Children))
+		diff = (val - len(self._pages))
 		if diff > 0:
 			# Need to add pages
 			for ii in range(diff):
@@ -145,14 +176,18 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 			# of those being removed, set the active page to the
 			# last page.
 			currPg = self.SelectedPage
-			while len(self.Children) > val:
-				self.Children[-1].release()
-			if len(self.Children) < currPg:
-				self.SelectedPage = self.Children[-1]
+			while len(self._pages) > val:
+				delPg = self._pages[-1]
+				self._pages.remove(delPg)
+				if delPg:
+					# It may already have been released
+					delPg.release()
+			if len(self._pages) < currPg:
+				self.SelectedPage = self._pages[-1]
 	
 	
 	def _getPages(self):
-		return self.Children	
+		return self._pages	
 			
 	
 	def _getSel(self):
@@ -197,7 +232,7 @@ class dPageFrameNoTabs(dabo.ui.dPanel):
 
 
 import random
-class TestPage(dPage.dPage):
+class TestPage(dPage):
 	def afterInit(self):
 		self.lbl = dabo.ui.dLabel(self, FontSize=36)
 		color = random.choice(dColors.colorDict.keys())
