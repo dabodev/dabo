@@ -155,7 +155,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		else:
 			self.RemovePage(pos)
 			ret = pg
-		return pg
+		return ret
 	
 	
 	def movePage(self, oldPgOrPos, newPos, selecting=True):
