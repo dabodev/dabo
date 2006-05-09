@@ -262,6 +262,9 @@ import dabo.dEvents as dEvents
 						# Grid or pageframe
 						self.classText += LINESEP + \
 """		parentStack.append(currParent)
+		sizerDict[currParent].append(currSizer)
+		currParent = obj
+		sizerDict[currParent] = []
 """
 						isGrid = atts.has_key("ColumnCount")
 						if not isGrid:
@@ -284,6 +287,7 @@ import dabo.dEvents as dEvents
 		col.setPropertiesFromAtts(%s)
 """ % (kidCleanAtts, kidCleanAtts)
 							else:
+								# Paged control
 								nm = kid.get("name")
 								code = kid.get("code", {})
 								pgKids = kid.get("children")
@@ -303,12 +307,21 @@ import dabo.dEvents as dEvents
 		pg.setPropertiesFromAtts(%s)
 		currSizer = pg.Sizer = None
 		parentStack.append(currParent)
+		sizerDict[currParent].append(currSizer)
 		currParent = pg
 		sizerDict[currParent] = []
 """ % (moduleString, nm, pgfName, attPropString, pgfName, kidCleanAtts)
 
 								if pgKids:
-									self.createChildCode(pgKids)								
+									self.createChildCode(pgKids)
+									self.classText += LINESEP + \
+"""		currParent = parentStack.pop()
+		if sizerDict[currParent]:
+			currSizer = sizerDict[currParent].pop()
+		else:
+			currSizer = None
+"""
+
 						# We've already processed the child objects for these
 						# grid/page controls, so clear the kids list.
 						kids = []
@@ -320,6 +333,7 @@ import dabo.dEvents as dEvents
 						# Tell the class that we are dealing with a new parent object
 						self.classText += LINESEP + \
 """		parentStack.append(currParent)
+		sizerDict[currParent].append(currSizer)
 		currParent = obj
 		currSizer = None
 		if not sizerDict.has_key(currParent):
@@ -336,6 +350,8 @@ import dabo.dEvents as dEvents
 					self.classText += LINESEP + \
 """		if sizerDict[currParent]:
 			currSizer = sizerDict[currParent].pop()
+		else:
+			currSizer = None
 """
 				
 				else:
@@ -343,6 +359,9 @@ import dabo.dEvents as dEvents
 """		currParent = parentStack.pop()
 		if not sizerDict.has_key(currParent):
 			sizerDict[currParent] = []
+			currSizer = None
+		else:
+			currSizer = sizerDict[currParent].pop()
 """
 		return				
 
