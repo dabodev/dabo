@@ -7,6 +7,7 @@ from dabo.ui import makeDynamicProperty
 class dPage(dPanel.dScrollPanel):
 	"""Creates a page to appear as a tab in a pageframe."""
 	def __init__(self, *args, **kwargs):
+		self._caption = ""
 		super(dPage, self).__init__(*args, **kwargs)
 		self._baseClass = dPage	
 		self.SetScrollbars(10, 10, -1, -1)
@@ -74,6 +75,7 @@ class dPage(dPanel.dScrollPanel):
 		return ret
 
 	def _setCaption(self, val):
+		self._caption = val
 		if self._constructed():
 			pos = self._getPagePosition()
 			if pos > -1:
