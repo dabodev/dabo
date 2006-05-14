@@ -673,17 +673,24 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 							else:
 								val = unicode(val)
 						elif isinstance(rec[fld], int) and isinstance(val, bool):
-							# convert bool to int (original field val was int, but UI
+							# convert bool to int (original field val was bool, but UI
 							# changed to int. 
 							val = int(val)
+						elif isinstance(rec[fld], int) and isinstance(val, long):
+							# convert long to int (original field val was int, but UI
+							# changed to long. 
+							val = int(val)
+						elif isinstance(rec[fld], long) and isinstance(val, int):
+							# convert int to long (original field val was long, but UI
+							# changed to int. 
+							val = long(val)
+
 					if fldType != type(val):
 						ignore = False
 						# Date and DateTime types are handled as character, even if the 
 						# native field type is not. Ignore these. NOTE: we have to deal with the 
 						# string representation of these classes, as there is no primitive for either
 						# 'DateTime' or 'Date'.
-						
-						
 						dtStrings = ("<type 'DateTime'>", "<type 'Date'>", "<type 'datetime.datetime'>")
 						if str(fldType) in dtStrings and isinstance(val, basestring):
 								ignore = True
