@@ -107,6 +107,7 @@ from dMenu import dMenu
 from dMenuItem import *
 import dMessageBox
 from dRadioGroup import dRadioGroup
+from dRadioList import dRadioList
 from dPanel import dPanel
 from dPanel import dScrollPanel
 from dPageFrame import dPageFrame

@@ -62,7 +62,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		"""
 		if borderSides is None:
 			if borderFlags is not None:
-				dabo.errorLog.write(_("Depracation warning: use 'borderSides' parameter instead."))
+				warnings.warn(_("Deprecation warning: use 'borderSides' parameter instead."), DeprecationWarning)
 				borderSides = borderFlags
 		(targetRow, targetCol) = self._determineAvailableCell(row, col)
 		if isinstance(item, (tuple, int)):
@@ -239,7 +239,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		
 	
 	def isRowGrowable(self, row):
-		warnings.warn("Deprecated; use 'getRowExpand' instead.", DeprecationWarning)
+		warnings.warn(_("Deprecated; use 'getRowExpand' instead."), DeprecationWarning)
 		return self.getRowExpand(row)
 	
 	
@@ -256,7 +256,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		
 		
 	def isColGrowable(self, col):
-		warnings.warn("Deprecated; use 'getColExpand' instead.", DeprecationWarning)
+		warnings.warn(_("Deprecated; use 'getColExpand' instead."), DeprecationWarning)
 		return self.getColExpand(col)
 
 
