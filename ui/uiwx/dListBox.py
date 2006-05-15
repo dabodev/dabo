@@ -10,8 +10,7 @@ from dabo.ui import makeDynamicProperty
 
 
 class dListBox(wx.ListBox, dcm.dControlItemMixin):
-	"""Creates a listbox, allowing the user to choose one or more items.
-	"""
+	"""Creates a listbox, allowing the user to choose one or more items."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dListBox
 		self._choices = []
@@ -42,6 +41,8 @@ class dListBox(wx.ListBox, dcm.dControlItemMixin):
 
 	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
 			_("Can multiple items be selected at once?  (bool)") )
+			
+			
 	DynamicMultipleSelect = makeDynamicProperty(MultipleSelect)
 
 
