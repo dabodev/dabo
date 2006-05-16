@@ -1726,6 +1726,9 @@ class dPemMixin(dPemMixinBase):
 		return self._registryID
 
 	def _setRegID(self, val):
+		if not self._constructed():
+			self._properties["RegID"] = val
+			return
 		if self._registryID:
 			# These should be immutable once set
 			raise AttributeError, _("RegIDs cannot be changed once they are set")
