@@ -245,13 +245,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		#   3) have the grid autosize
 
 		self.grid.BeginBatch()
-		for idx, col in enumerate(self.colDefs):
-			fld = col.DataField
-			colName = "Column_%s" % fld
+		for idx, col in enumerate(self.grid.Columns):
 			gridCol = idx
-			fieldType = col.DataType.lower()
-			app = self.grid.Application
-			form = self.grid.Form
 
 			# 1) Try to get the column width from the saved user settings:
 			width = col._getUserSetting("Width")
@@ -265,7 +260,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				self.grid.autoSizeCol(gridCol)
 			else:
 				col.Width = width
-				#self.grid.SetColSize(gridCol, width)
 			
 		# Show the row labels, if any
 		for idx, label in enumerate(self.grid.RowLabels):
@@ -2444,6 +2438,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.Columns.append(col)
 		if not inBatch:
 			self._syncColumnCount()
+			self.fillGrid(force=True)
 
 		try:
 			## Set the Width property last, otherwise it won't stick:
