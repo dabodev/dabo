@@ -679,7 +679,15 @@ class dBizobj(dObject):
 					val = self.escQuote(self.Parent.getFieldVal(self.ParentLinkField))
 				else:
 					val = self.escQuote(self.getParentPK())
-				filtExpr = " %s.%s = %s " % (self.DataSource, self.LinkField, val)
+				linkFieldParts = self.LinkField.split(".")
+				if len(linkFieldParts) < 2:
+					dataSource = self.DataSource
+					linkField = self.LinkField
+				else:
+					# The source table was specified in the LinkField
+					dataSource = linkFieldParts[0]
+					linkField = linkFieldParts[1]
+				filtExpr = " %s.%s = %s " % (dataSource, linkField, val)
 			self._CurrentCursor.setChildFilterClause(filtExpr)
 					
 
