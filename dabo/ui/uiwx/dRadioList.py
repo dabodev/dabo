@@ -42,6 +42,9 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		# Tracks individual member radio buttons.
 		self._items = []
 		self._selpos = 0
+		# Default spacing between buttons. Can be changed with the
+		# 'ButtonSpacing' property.
+		self._buttonSpacing = 5
 
 		cim.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
@@ -156,6 +159,19 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
+	def _getButtonSpacing(self):
+		return self._buttonSpacing
+		
+	def _setButtonSpacing(self, val):
+		self._buttonSpacing = val
+		for itm in self.Sizer.ChildSpacers:
+			self.Sizer.setItemProp(itm, "Spacing", val)
+		try:
+			self.Parent.layout()
+		except:
+			self.layout()
+			
+			
 	def _getCaption(self):
 		ret = ""
 		if isinstance(self.Sizer, dabo.ui.dBorderSizer):
@@ -184,7 +200,12 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 			[itm.release() for itm in self._items]
 			self._choices = choices
 			self._items = []
+			first = True
 			for itm in choices:
+				if first:
+					first = False
+				else:
+					self.Sizer.appendSpacer(self._buttonSpacing)
 				btn = _dRadioButton(self, Caption=itm)
 				self.Sizer.append(btn)
 				self._items.append(btn)
@@ -246,6 +267,9 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 	
 	
 	# Property definitions:
+	ButtonSpacing = property(_getButtonSpacing, _setButtonSpacing, None,
+			_("Spacing in pixels between buttons in the control  (int)"))
+			
 	Caption = property(_getCaption, _setCaption, None,
 			_("String to display on the box surrounding the control  (str)"))
 	
