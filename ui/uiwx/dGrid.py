@@ -3519,6 +3519,52 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._searchDelay = val
 		
 
+	def _getSelection(self):
+		sm = self._selectionMode
+		tl = self.GetSelectionBlockTopLeft()
+		if tl:
+			tl = tl[0]
+		br = self.GetSelectionBlockBottomRight()
+		if br:
+			br = br[0]
+		if sm == "Row":
+			ret = self.GetSelectedRows()
+			if not ret:
+				# Try the block functions
+				if tl and br:
+					r1 = tl[0]
+					r2 = br[0]
+					ret = range(r1, r2+1)
+				else:
+					# Only a single cell selected
+					ret = [self.GetGridCursorRow()]
+		elif sm == "Col":
+			ret = self.GetSelectedCols()
+			if not ret:
+				# Try the block functions
+				if tl and br:
+					c1 = tl[1]
+					c2 = br[1]
+					ret = range(c1, c2+1)
+				else:
+					# Only a single cell selected
+					ret = [self.GetGridCursorCol()]
+		else:
+			# Cell selection mode
+			if tl and br:
+				ret = (tl, br)
+			else:
+				cell = (self.GetGridCursorRow(), self.GetGridCursorCol()) 
+				ret = (cell, cell)
+		return ret
+		
+# 	def _setSelection(self, val):
+# 		if self._constructed():
+# 			self._selection = val
+# 		else:
+# 			self._properties["Selection"] = val
+
+
 	def _getSelectionBackColor(self):
 		return self._selectionBackColor
 
@@ -3543,14 +3589,16 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return self._selectionMode
 
 	def _setSelectionMode(self, val):
-		self._selectionMode = val
 		val2 = val.lower().strip()[:2]
 		if val2 == "ro":
 			self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
+			self._selectionMode = "Row"
 		elif val2 == "co":
 			self.SetSelectionMode(wx.grid.Grid.wxGridSelectColumns)
+			self._selectionMode = "Col"
 		else:
 			self.SetSelectionMode(wx.grid.Grid.wxGridSelectCells)
+			self._selectionMode = "Cell"
 
 
 	def _getShowCellBorders(self):
@@ -3782,6 +3830,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 				If SearchDelay is set to None (the default), Application.SearchDelay will
 				be used.""") )
+	
+	Selection = property(_getSelection, None, None,
+			_("""Returns either a list of row/column numbers if SelectionMode is set to
+			either 'Row' or 'Column'. Returns a 2-tuple consisting of the (row,col) 2-tuples
+			for the top-left and bottom-right cells in the selection. If only a single cell is
+			selected, both values will be the same. (list)"""))
 	
 	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
 			_("BackColor of selected cells  (str or RGB tuple)"))
