@@ -142,18 +142,30 @@ class dCursorMixin(dObject):
 		return self.sortCase
 
 
-	def execute(self, sql, params=()):
+	def execute(self, sql, params=(), useAuxCursor=None):
 		"""The idea here is to let the super class do the actual work in 
 		retrieving the data. However, many cursor classes can only return 
 		row information as a list, not as a dictionary. This method will 
 		detect that, and convert the results to a dictionary.
+
+		The useAuxCursor argument specifies whether the sql will be executed
+		using the main cursor or an auxiliary cursor. The possible values 
+		are:
+			None (default): The method will automatically determine what to do.
+			True: An AuxCursor will be used
+			False: The main cursor will be used (could be dangerous)
 		"""
 		#### NOTE: NEEDS TO BE TESTED THOROUGHLY!!!!  ####
-		if sql.strip().split()[0].lower() == "select":
-			cursorToUse = self
-		else:
+		if useAuxCursor is None:
+			if sql.strip().split()[0].lower() == "select":
+				cursorToUse = self
+			else:
+				cursorToUse = self.AuxCursor
+				#cursorToUse.AutoCommit = self.AutoCommit
+		elif useAuxCursor:
 			cursorToUse = self.AuxCursor
-			#cursorToUse.AutoCommit = self.AutoCommit
+		else:
+			cursorToUse = self
 			
 		# Some backends, notably Firebird, require that fields be specially
 		# marked.
@@ -167,9 +179,9 @@ class dCursorMixin(dObject):
 		
 		try:
 			if params is None or len(params) == 0:
-				res = cursorToUse.superCursor.execute(self, sqlEX)
+				res = cursorToUse.superCursor.execute(cursorToUse, sqlEX)
 			else:
-				res = cursorToUse.superCursor.execute(self, sqlEX, params)
+				res = cursorToUse.superCursor.execute(cursorToUse, sqlEX, params)
 		except Exception, e:
 			# If this is due to a broken connection, let the user know.
 			# Different backends have different messages, but they
@@ -183,8 +195,11 @@ class dCursorMixin(dObject):
 		
 		if cursorToUse is not self:
 			# No need to manipulate the data
-			return res
-
+			try:
+				return DataSet(cursorToUse.fetchall())
+			except:
+				return res
+	
 		# Not all backends support 'fetchall' after executing a query
 		# that doesn't return records, such as an update.
 		try:

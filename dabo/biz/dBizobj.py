@@ -460,13 +460,29 @@ class dBizobj(dObject):
 			ret = self.delete(startTransaction)
 	
 	
-	def execute(self, expr):
+	def execute(self, expr, useAuxCursor=None):
 		"""Pass-through method that will take the 'expr' and pass
 		it to this bizobj's cursor for execution.
+
+		The useAuxCursor argument specifies whether the sql will be executed
+		using the main cursor or an auxiliary cursor. The possible values 
+		are:
+			None (default): The method will automatically determine what to do.
+			True: An AuxCursor will be used
+			False: The main cursor will be used (could be dangerous)
 		"""
-		self._CurrentCursor.execute(expr)
+		return self._CurrentCursor.execute(expr, useAuxCursor=useAuxCursor)
 	
-	
+
+	def executeSafe(self, expr):
+		"""Execute the passed SQL using an auxiliary cursor.
+
+		This is considered 'safe', because it won't harm the contents of the
+		main cursor.
+		"""
+		return self.execute(expr, useAuxCursor=True)
+
+
 	def getChangedRecordNumbers(self):
 		""" Returns a list of record numbers for which isChanged()
 		returns True. The changes may therefore not be in the record 
