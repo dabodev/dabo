@@ -1180,15 +1180,18 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
 	def _getWidth(self):
+		idx = self._GridColumnIndex
 		try:
 			v = self._width
 		except AttributeError:
-			v = self._width = -1
-		if self.Parent:
-			idx = self._GridColumnIndex
-			if idx >= 0:
-				# Make sure the grid is in sync:
-				self.Parent.SetColSize(idx, v)
+			if self.Parent and idx >= 0:
+				v = self.Parent.GetColSize(idx)
+			else:
+				v = -1
+			self._width = v
+		if self.Parent and idx >= 0:
+			# Make sure the grid is in sync:
+			self.Parent.SetColSize(idx, v)
 		return v
 
 	def _setWidth(self, val):
@@ -2007,7 +2010,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				else:
 					# Column is not sorted, so don't draw.
 					sortIndicator = False
-			
+
 			dc.SetFont(font)
 			ah = colObj.HeaderHorizontalAlignment
 			av = colObj.HeaderVerticalAlignment
