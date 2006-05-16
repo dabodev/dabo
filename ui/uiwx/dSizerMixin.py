@@ -178,17 +178,12 @@ class dSizerMixin(dObject):
 	def addSpacer(self, val, pos=None, proportion=0):
 		spacer = val
 		if isinstance(val, int):
-			if self.Orientation == "Vertical":
-				spacer = (1, val)
-			elif self.Orientation == "Horizontal":
-				spacer = (val, 1)
-			else:
-				# Something's up; bail out
-				return
+			spacer = (val, val)
 		if pos is None:
 			itm = self.Add(spacer, proportion=proportion, userData=self)
 		else:
 			itm = self.Insert(pos, spacer, proportion=proportion, userData=self)
+		itm.setSpacing = itm.SetSpacer
 		return itm
 	
 	
@@ -215,7 +210,7 @@ class dSizerMixin(dObject):
 		spc = self.DefaultSpacing
 		if spc:
 			self.addSpacer(spc, pos)
-				
+	
 	
 	def getItem(self, szItem):
 		"""Querying sizers for their contents returns sizer items, not
@@ -365,6 +360,13 @@ class dSizerMixin(dObject):
 			ret = self.setRowSpan(itm, val)
 		elif lowprop == "colspan" and isinstance(self, dabo.ui.dGridSizer):
 			ret = self.setColSpan(itm, val)
+		elif lowprop == "spacing":
+			if isinstance(val, int):
+				val = (val, val)
+			try:
+				ret = itm.SetSpacer(val)
+				ret = True
+			except: pass
 		elif lowprop in ("expand", "halign", "valign", "bordersides"):
 			ret = True
 			pd = {"left" : self.leftFlag, 
@@ -589,6 +591,21 @@ class dSizerMixin(dObject):
 		return ret
 	
 	
+	def _getChildSpacers(self):
+		itms = self.GetChildren()
+		ret = [itm for itm in itms
+				if itm.IsSpacer() ]
+		return ret
+	
+	
+	def _getChildSizers(self):
+		itms = self.GetChildren()
+		ret = [itm.GetSizer()
+				for itm in itms
+				if itm.IsSizer() ]
+		return ret
+	
+	
 	def _getChildWindows(self):
 		itms = self.GetChildren()
 		ret = [itm.GetWindow()
@@ -756,6 +773,12 @@ class dSizerMixin(dObject):
 	
 	Children = property(_getChildren, None, None, 
 			_("List of all the sizer items managed by this sizer  (list of sizerItems" ) )
+	
+	ChildSizers = property(_getChildSizers, None, None, 
+			_("List of all the sizers that are directly managed by this sizer  (list of sizers" ) )
+	
+	ChildSpacers = property(_getChildSpacers, None, None, 
+			_("List of all the spacer items that are directly managed by this sizer  (list of spacer items" ) )
 	
 	ChildWindows = property(_getChildWindows, None, None, 
 			_("List of all the windows that are directly managed by this sizer  (list of controls" ) )
