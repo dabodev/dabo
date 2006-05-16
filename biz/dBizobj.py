@@ -1051,7 +1051,7 @@ class dBizobj(dObject):
 		for child in self.__children:
 			# Let the child know the current dependent PK
 			child.setCurrentParent(pk)
-			if not child.isChanged():
+			if not child.isChanged() and child.RequeryWithParent:
 				child.requery()
 
 		self.afterChildRequery()
@@ -1490,6 +1490,16 @@ class dBizobj(dObject):
 		self._restorePositionOnRequery = bool(val)
 
 
+	def _getRequeryWithParent(self):
+		v = getattr(self, "_requeryWithParent", None)
+		if v is None:
+			v = self._requeryWithParent = True
+		return v
+
+	def _setRequeryWithParent(self, val):
+		self._requeryWithParent = bool(val)
+
+
 	def _getRowCount(self):
 		try:
 			ret = self._CurrentCursor.RowCount
@@ -1628,6 +1638,15 @@ class dBizobj(dObject):
 			_("""When true, the cursor object runs its query immediately. This 
 			is useful for lookup tables or fixed-size (small) tables. (bool)"""))
 	
+	RequeryWithParent = property(_getRequeryWithParent, _setRequeryWithParent, None,
+			_("""Specifies whether a child bizobj gets requeried automatically.
+
+				When True (the default) moving the record pointer or requerying the
+				parent bizobj will result in the child bizobj's getting requeried 
+				as well. When False, user code will have to manually call 
+				child.requery() at the appropriate time.
+				"""))
+
 	RestorePositionOnRequery = property(_getRestorePositionOnRequery, _setRestorePositionOnRequery, None,
 			_("After a requery, do we try to restore the record position to the same PK?"))
 				
