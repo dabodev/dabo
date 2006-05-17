@@ -361,8 +361,8 @@ class dApp(dObject):
 			self.UI = "wx"
 		else:
 			# Custom app code or the dabo.ui module already set this: don't touch
-			dabo.infoLog.write(_("User interface already set to '%s', so dApp didn't "
-				" touch it." % (self.UI,)))
+			dabo.infoLog.write(_("User interface already set to '%s', so dApp didn't touch it.") 
+					% self.UI)
 
 
 	def getConnectionByName(self, connName):
@@ -630,9 +630,9 @@ class dApp(dObject):
 				dabo.infoLog.write(_("User interface set set to None."))
 			elif dabo.ui.loadUI(uiType):
 				self._uiAlreadySet = True
-				dabo.infoLog.write(_("User interface set to '%s' by dApp.") % (uiType,))
+				dabo.infoLog.write(_("User interface set to '%s' by dApp.") % uiType)
 			else:
-				dabo.infoLog.write(_("Tried to set UI to '%s', but it failed." % (uiType,)))
+				dabo.infoLog.write(_("Tried to set UI to '%s', but it failed.") % uiType)
 		else:
 			raise RuntimeError, _("The UI cannot be reset once assigned.")
 
