@@ -166,6 +166,7 @@ def escQuote(val, noEscape=False, noQuote=False):
 		qt = '"'
 	slsh = "\\"
 	val = val.replace("<", "&lt;").replace(">", "&gt;").replace(slsh, slsh+slsh)
+#	val = val.replace("<", "&lt;").replace(">", "&gt;")
 	if not noEscape:
 		# First escape internal ampersands:
 		val = val.replace("&", "&amp;")
@@ -255,3 +256,12 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 		ret = header + ret
 
 	return ret
+
+if __name__ == "__main__":
+	test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name"}}
+	print "test_dict:", test_dict
+	xml = dicttoxml(test_dict)
+	print "xml:", xml
+	test_dict2 = xmltodict(xml)
+	print "test_dict2:", test_dict2
+	print "same?:", test_dict == test_dict2
