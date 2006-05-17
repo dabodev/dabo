@@ -195,10 +195,7 @@ class dCursorMixin(dObject):
 		
 		if cursorToUse is not self:
 			# No need to manipulate the data
-			try:
-				return DataSet(cursorToUse.fetchall())
-			except:
-				return res
+			return res
 	
 		# Not all backends support 'fetchall' after executing a query
 		# that doesn't return records, such as an update.
@@ -934,7 +931,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			#run the update
 			aux = self.AuxCursor
 			res = aux.execute(sql)
-			
+
 			if newrec and self.AutoPopulatePK and (newPKVal is None):
 				# Call the database backend-specific code to retrieve the
 				# most recently generated PK value.
