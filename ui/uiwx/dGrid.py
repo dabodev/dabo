@@ -2385,6 +2385,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			col = -1
 		return col
 
+	def getRowNumByY(self, y):
+		""" Given the y-coordinate, return the row number."""
+		row = self.YToRow(y + (self.GetViewStart()[1]*self.GetScrollPixelsPerUnit()[1]))
+		if row == wx.NOT_FOUND:
+			row = -1
+		return row
+
 
 	def getColByX(self, x):
 		""" Given the x-coordinate, return the column object."""
@@ -2997,8 +3004,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _getColRowForPosition(self, pos):
 		"""Used in the mouse event handlers to stuff the col, row into EventData."""
-		col = self.XToCol(pos[0])
-		row = self.YToRow(pos[1])
+		col = self.getColNumByX(pos[0])
+		row = self.getRowNumByY(pos[1])
 		if col < 0 or row < 0:
 			# click was outside grid cell area
 			col, row = None, None
@@ -3011,21 +3018,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		evt.Skip()
 
 
-	def __onWxMouseLeftClick(self, evt):
-		col, row = self._getColRowForPosition(evt.GetPosition())
-		self.raiseEvent(dEvents.GridMouseLeftClick, evt, col=col, row=row)
-		evt.Skip()
-
-
 	def __onWxMouseLeftDown(self, evt):
 		col, row = self._getColRowForPosition(evt.GetPosition())
 		self.raiseEvent(dEvents.GridMouseLeftDown, evt, col=col, row=row)
+		self._mouseLeftDown = (col, row)
 		evt.Skip()
 
 
 	def __onWxMouseLeftUp(self, evt):
 		col, row = self._getColRowForPosition(evt.GetPosition())
 		self.raiseEvent(dEvents.GridMouseLeftUp, evt, col=col, row=row)
+		if getattr(self, "_mouseLeftDown", (None, None)) == (col, row):
+			# mouse went down and up in this cell: send a click:
+			self.raiseEvent(dEvents.GridMouseLeftClick, evt, col=col, row=row)
+			self._mouseLeftDown = (None, None)
 		evt.Skip()
 
 
@@ -3035,21 +3041,20 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		evt.Skip()
 
 
-	def __onWxMouseRightClick(self, evt):
-		col, row = self._getColRowForPosition(evt.GetPosition())
-		self.raiseEvent(dEvents.GridMouseRightClick, evt, col=col, row=row)
-		evt.Skip()
-
-
 	def __onWxMouseRightDown(self, evt):
 		col, row = self._getColRowForPosition(evt.GetPosition())
 		self.raiseEvent(dEvents.GridMouseRightDown, evt, col=col, row=row)
+		self._mouseRightDown = (col, row)
 		evt.Skip()
 
 
 	def __onWxMouseRightUp(self, evt):
 		col, row = self._getColRowForPosition(evt.GetPosition())
 		self.raiseEvent(dEvents.GridMouseRightUp, evt, col=col, row=row)
+		if getattr(self, "_mouseRightDown", (None, None)) == (col, row):
+			# mouse went down and up in this cell: send a click:
+			self.raiseEvent(dEvents.GridMouseRightClick, evt, col=col, row=row)
+			self._mouseRightDown = (None, None)
 		evt.Skip()
 
 	##----------------------------------------------------------##
