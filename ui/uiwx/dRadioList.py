@@ -59,7 +59,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 				
 		
 	def _onWxButton(self, evt):
-		pos = evt.GetEventObject().getPositionInSizer()
+		pos = self._items.index(evt.GetEventObject())
 		self.PositionValue = pos
 		# This allows the event processing to properly 
 		# set the EventData["index"] properly.
