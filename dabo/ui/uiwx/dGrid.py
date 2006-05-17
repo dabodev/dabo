@@ -1178,11 +1178,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		try:
 			v = self._width
 		except AttributeError:
-			if self.Parent and idx >= 0:
-				v = self.Parent.GetColSize(idx)
-			else:
-				v = -1
-			self._width = v
+			v = self._width = 150
 		if self.Parent and idx >= 0:
 			# Make sure the grid is in sync:
 			self.Parent.SetColSize(idx, v)
