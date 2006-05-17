@@ -3585,16 +3585,28 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return self._selectionMode
 
 	def _setSelectionMode(self, val):
-		val2 = val.lower().strip()[:2]
-		if val2 == "ro":
-			self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
-			self._selectionMode = "Row"
-		elif val2 == "co":
-			self.SetSelectionMode(wx.grid.Grid.wxGridSelectColumns)
-			self._selectionMode = "Col"
+		if self._constructed():
+			val2 = val.lower().strip()[:2]
+			if val2 == "ro":
+				try:
+					self.SetSelectionMode(wx.grid.Grid.wxGridSelectRows)
+					self._selectionMode = "Row"
+				except:
+					dabo.ui.callAfter(self._setSelectionMode, val)
+			elif val2 == "co":
+				try:
+					self.SetSelectionMode(wx.grid.Grid.wxGridSelectColumns)
+					self._selectionMode = "Col"
+				except:
+					dabo.ui.callAfter(self._setSelectionMode, val)
+			else:
+				try:
+					self.SetSelectionMode(wx.grid.Grid.wxGridSelectCells)
+					self._selectionMode = "Cell"
+				except:
+					dabo.ui.callAfter(self._setSelectionMode, val)
 		else:
-			self.SetSelectionMode(wx.grid.Grid.wxGridSelectCells)
-			self._selectionMode = "Cell"
+			self._properties["SelectionMode"] = val
 
 
 	def _getShowCellBorders(self):
