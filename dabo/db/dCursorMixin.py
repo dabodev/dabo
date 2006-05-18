@@ -555,17 +555,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
-	def isNewUnsaved(self):
-		"""Return True if the current record is new and not yet saved.
-		Return False otherwise.
-		"""
-		try:
-			ret = self._records[self.RowNumber].has_key(kons.CURSOR_NEWFLAG)
-		except:
-			ret = False
-		return ret
-		
-		
 	def setMemento(self):
 		if self.RowCount > 0:
 			if (self.RowNumber >= 0) and (self.RowNumber < self.RowCount):
