@@ -427,31 +427,40 @@ class dBizobj(dObject):
 		if startTransaction:
 			cursor.beginTransaction()
 
-		cursor.delete()
-		if self.RowCount == 0:
-			# Hook method for handling the deletion of the last record in the cursor.
-			self.onDeleteLastRecord()
-		# Now cycle through any child bizobjs and fire their cancel() methods. This will
-		# ensure that any changed data they may have is reverted. They are then requeried to
-		# populate them with data for the current record in this bizobj.
-		for child in self.__children:
-			if self.deleteChildLogic == k.REFINTEG_CASCADE:
-				child.deleteAll(startTransaction=False)
-			else:
-				child.cancelAll()
-				child.requery()
+		try:
+			cursor.delete()
+			if self.RowCount == 0:
+				# Hook method for handling the deletion of the last record in the cursor.
+				self.onDeleteLastRecord()
+			# Now cycle through any child bizobjs and fire their cancel() methods. This will
+			# ensure that any changed data they may have is reverted. They are then requeried to
+			# populate them with data for the current record in this bizobj.
+			for child in self.__children:
+				if self.deleteChildLogic == k.REFINTEG_CASCADE:
+					child.deleteAll(startTransaction=False)
+				else:
+					child.cancelAll()
+					child.requery()
+					
+			if startTransaction:
+				cursor.commitTransaction()
 				
-		if startTransaction:
-			cursor.commitTransaction()
+			# Some backends (Firebird particularly) need to be told to write 
+			# their changes even if no explicit transaction was started.
+			cursor.flush()
 			
-		# Some backends (Firebird particularly) need to be told to write 
-		# their changes even if no explicit transaction was started.
-		cursor.flush()
-		
-		self.afterPointerMove()
-		self.afterChange()
-		self.afterDelete()
-
+			self.afterPointerMove()
+			self.afterChange()
+			self.afterDelete()
+		except dException.DBQueryException, e:
+			if startTransaction:
+				cursor.rollbackTransaction()
+			else:
+				raise dException.DBQueryException, e
+		except StandardError, e:
+			cursor.rollbackTransaction()
+			raise StandardError, e
+				
 
 	def deleteAll(self, startTransaction=False):
 		""" Delete all rows in the data set."""
