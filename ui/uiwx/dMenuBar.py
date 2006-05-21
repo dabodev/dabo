@@ -46,6 +46,7 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 
 	def insertMenu(self, pos, menu):
 		"""Inserts a dMenu in the dMenuBar at the specified position."""
+		pos = min(pos, self.GetMenuCount())
 		ret = self.Insert(pos, menu, menu.Caption)
 		if ret:
 			menu.Parent = self
