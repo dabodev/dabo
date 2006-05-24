@@ -608,6 +608,22 @@ class dPemMixin(dPemMixinBase):
 		self.Width += extraWidth
 		self.Height += extraHeight
 		self.layout()
+	
+	
+	def getSizerProp(self, prop):
+		"""Gets the current setting for the given property from the object's 
+		ControllingSizer. Returns None if object is not in a sizer.
+		"""
+		ret = None
+		if self.ControllingSizer:
+			ret = self.ControllingSizer.getItemProp(self, prop)
+		return ret
+		
+		
+	def setSizerProp(self, prop, val):
+		"""Tells the object's ControllingSizer to adjust the requested property."""
+		if self.ControllingSizer:
+			self.ControllingSizer.setItemProp(self, prop, val)
 		
 		
 	def createFileDropTarget(self, handler=None):
