@@ -45,6 +45,10 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		# Keep track of the highest numbered row/col that
 		# contains an item
 		self._highRow = self._highCol = -1
+		# Keep track of which rows/cols are set to expand.
+		self._rowExpandState = {}
+		self._colExpandState = {}
+		
 
 		for k,v in kwargs.items():
 			try:
@@ -186,6 +190,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 					self.setColExpand(expand, column, proportion)
 		else:
 			curr = self.getColExpand(colNum)
+			self._colExpandState[colNum] = expand
 			if expand and not curr:
 				self.AddGrowableCol(colNum, proportion=proportion)
 			elif not expand and curr:
@@ -213,6 +218,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 					self.setRowExpand(expand, row, proportion)
 		else:
 			curr = self.getRowExpand(rowNum)
+			self._rowExpandState[rowNum] = expand
 			if expand and not curr:
 				self.AddGrowableRow(rowNum, proportion=proportion)
 			elif not expand and curr:
@@ -245,14 +251,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	
 	def getRowExpand(self, row):
 		"""Returns True if the specified row is growable."""
-		# If the row isn't growable, it will throw an error
-		ret = True
-		try:
-			self.RemoveGrowableRow(row)
-			self.AddGrowableRow(row)
-		except:
-			ret = False
-		return ret
+		return bool(self._rowExpandState.get(row, 0))
 		
 		
 	def isColGrowable(self, col):
@@ -262,14 +261,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 
 	def getColExpand(self, col):
 		"""Returns True if the specified column is growable."""
-		# If the col isn't growable, it will throw an error
-		ret = True
-		try:
-			self.RemoveGrowableCol(col)
-			self.AddGrowableCol(col)
-		except:
-			ret = False
-		return ret
+		return bool(self._colExpandState.get(col, 0))
 		
 		
 	def moveCell(self, fromRow, fromCol, toRow, toCol, delay=False):
