@@ -1346,16 +1346,19 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		class IC(code.InteractiveConsole):
 			def write(self, string):
 				pass
-			
+		
 		ic = IC(self._namespaces)
 		for lineNum in range(self.LineNumber + 1):
 			line = self.GetLine(lineNum).rstrip()
-			ic.push(line)
+			try:
+				ic.push(line)
+			except StandardError, e: pass
 		sys.stderr, sys.stdout = stdErr, stdOut
-		
+
 
 	def _getColumn(self):
 		return self.GetColumn(self.GetCurrentPos())
+
 
 	def _setColumn(self, val):
 		val = max(0, val)
