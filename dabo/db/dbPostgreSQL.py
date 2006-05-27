@@ -107,8 +107,8 @@ class Postgres(dBackend):
 		if rs2==[]:
 			thePKFieldName = None
 		else:
-			thestr=rs2[0][3]
-			thePKFieldName=thestr[thestr.find('(')+1:thestr.find(')')]
+			thestr = rs2[0][3]
+			thePKFieldName = thestr[thestr.find("(") + 1: thestr.find(")")].split(", ")
 		
 		fields = []
 		for r in rs:
@@ -116,7 +116,7 @@ class Postgres(dBackend):
 			fldType =r[2]
 			pk = False
 			if thePKFieldName is not None:
-				pk = (name == thePKFieldName)
+				pk = (name in thePKFieldName)
 			if 'int' in fldType:
 				fldType = 'I'
 			elif 'char' in fldType :
