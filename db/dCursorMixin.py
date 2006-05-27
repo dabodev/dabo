@@ -578,7 +578,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec[kons.CURSOR_TMPKEY_FIELD] = tmpPK
 		
 	
-	
 	def _genTempPKVal(self):
 		""" Return the next available temp PK value. It will be a string, and 
 		postfixed with '-dabotmp' to avoid potential conflicts with actual PKs
@@ -1724,7 +1723,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _setKeyField(self, kf):
 		if "," in kf:
-			self._keyField = kf.replace(" ", "").split(",")
+			self._keyField = tuple(kf.replace(" ", "").split(","))
 			self._compoundKey = True
 		else:
 			self._keyField = str(kf)
