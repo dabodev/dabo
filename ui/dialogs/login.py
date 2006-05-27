@@ -38,7 +38,7 @@ class txtPass(txt):
 		
 class Login(dabo.ui.dOkCancelDialog):
 	def initProperties(self):
-		self.AutoSize = False
+		self.AutoSize = True
 		self.BorderResizable = True
 		if self.Application:
 			appName = self.Application.getAppInfo("appName")
@@ -83,14 +83,14 @@ class Login(dabo.ui.dOkCancelDialog):
 		bs = dabo.ui.dSizer("horizontal")
 		
 		bs.append(self.lblUserName)
-		bs.append(self.txtUserName, proportion=1)
 		bs.append((5,0))
+		bs.append(self.txtUserName, proportion=1)
 		vs.append(bs, "expand", 1)
 		
 		bs = dabo.ui.dSizer("horizontal")
 		bs.append(self.lblPassword)
-		bs.append(self.txtPassword, proportion=1)
 		bs.append((5,0))
+		bs.append(self.txtPassword, proportion=1)
 		vs.append(bs, "expand", 1)
 		
 		bs1.append(vs, proportion=1)
