@@ -25,14 +25,18 @@ class DesignerXmlConverter(dObject):
 		# Holds the text for the generated code file
 		self._codeFileName = getTempFile("py")
 		self._codeImportAs = "_daboCode"
-		self._codeFileText = """import dabo
-dabo.ui.loadUI("wx")
-
-"""
+		# Holds any import statements to apply to the class code.
+		self._import = ""
+		# RE pattern to extract the method signature.
 		self._codeDefExtract = re.compile("(\s*)def ([^\(]+)\(([^\)]*)\):")
 		# Counter for the suffix that is appended to each method. This is simpler
 		# than tracking each method name and only adding if there is a conflict.
 		self._methodNum = 0
+		# This is the text that will go into the temp .py file for executed code
+		self._codeFileText = """import dabo
+dabo.ui.loadUI("wx")
+
+"""
 		
 	
 	def classFromXml(self, src):
@@ -51,7 +55,10 @@ dabo.ui.loadUI("wx")
 		# Parse the XML and create the class definition text
 		self.createClassText(dct)
 		# Write the code file
-		open(self._codeFileName, "w").write(self._codeFileText)
+		txt = self._import + LINESEP + self._codeFileText
+		open(self._codeFileName, "w").write(txt)
+		# Add the imports to the main file, too.
+		self.classText = self.classText % (self._import + LINESEP,)
 		
 		## For debugging. This creates a copy of the generated code
 		## so that you can help determine any problems.
@@ -77,8 +84,9 @@ import sys
 if "%s" not in sys.path:
 	sys.path.append("%s")
 import %s as %s
+%s
 
-""" % (cdPath, cdPath, cdFileNoExt, self._codeImportAs)
+""" % (cdPath, cdPath, cdFileNoExt, self._codeImportAs, "%s")
 
 		# Standard class template
 		self.classTemplate = """class %s(dabo.ui.%s):
@@ -141,7 +149,10 @@ import %s as %s
 		self.createChildCode(kids, specKids)
 		
 		# Add any main class code
-		for cd in code.values():
+		for mthd, cd in code.items():
+			if mthd == "importStatements":
+				self._import += cd + LINESEP
+				continue
 			codeProx = self.createProxyCode(cd)
 			self.classText += LINESEP + self.indentCode(codeProx, 1)
 		# Add any property definitions
@@ -316,7 +327,7 @@ import %s as %s
 								moduleString = ""
 								# properties??
 								if code:
-									nm = self.createInnerClass(nm, atts, code)
+									nm = self.createInnerClass(nm, atts, code, {})
 									nm = "self.getCustControlClass('%s')" % nm
 								else:
 									moduleString = "dabo.ui."
@@ -406,10 +417,12 @@ import %s as %s
 		self.innerClassNames.append(clsName)
 		# Since the code will be part of this class, which is at the outer level
 		# of indentation, it needs to be indented one level.
-		for cd in code.values():
-			# Add to the code
+		for mthd, cd in code.items():
+			if mthd == "importStatements":
+				self._import += cd + LINESEP
+				continue
 			codeProx = self.createProxyCode(cd)
-			self.innerClassText += LINESEP + self.indentCode(codeProx, 1)
+			self.innerClassText += self.indentCode(codeProx, 1)
 			if not self.innerClassText.endswith(LINESEP):
 				self.innerClassText += LINESEP
 # 			self.innerClassText += self.indentCode(cd, 1)
