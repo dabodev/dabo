@@ -249,7 +249,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		elif issubclass(val, cm.dControlMixin):
 			self._pageClass = val
 		else:
-			raise TypeError, "PageClass must descend from a Dabo base class."
+			raise TypeError, _("PageClass must descend from a Dabo base class.")
 			
 			
 	def _getPageCount(self):
@@ -261,13 +261,13 @@ class dPageFrameMixin(cm.dControlMixin):
 			pageCount = self.GetPageCount()
 			pageClass = self.PageClass
 			if val < 0:
-				raise ValueError, "Cannot set PageCount to less than zero."
+				raise ValueError, _("Cannot set PageCount to less than zero.")
 		
 			if val > pageCount:
 				for i in range(pageCount, val):
 					pg = self.appendPage(pageClass)
 					if not pg.Caption:
-						pg.Caption = "Page %s" % (i+1,)
+						pg.Caption = _("Page %s") % (i+1,)
 			elif val < pageCount:
 				for i in range(pageCount, val, -1):
 					self.DeletePage(i-1)
@@ -333,8 +333,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		elif val == "Bottom":
 			self._addWindowStyleFlag(self._tabposBottom)
 		else:
-			raise ValueError, ("The only possible values are "
-						"'Top', 'Left', 'Right', and 'Bottom'")
+			raise ValueError, (_("The only possible values are 'Top', 'Left', 'Right', and 'Bottom'"))
 
 
 	# Property definitions:
