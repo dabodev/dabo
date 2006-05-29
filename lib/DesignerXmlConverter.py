@@ -5,12 +5,14 @@ later on to support other UI toolkits.
 """
 from datetime import datetime
 import os
+import re
 import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dabo.lib.xmltodict import xmltodict as xtd
+from dabo.lib.reportUtils import getTempFile
 # Doesn't matter what platform we're on; Python needs 
 # newlines in its compiled code.
 LINESEP = "\n"
@@ -20,6 +22,17 @@ class DesignerXmlConverter(dObject):
 	def afterInit(self):
 		# Added to ensure unique object names
 		self._generatedNames = []
+		# Holds the text for the generated code file
+		self._codeFileName = getTempFile("py")
+		self._codeImportAs = "_daboCode"
+		self._codeFileText = """import dabo
+dabo.ui.loadUI("wx")
+
+"""
+		self._codeDefExtract = re.compile("(\s*)def ([^\(]+)\(([^\)]*)\):")
+		# Counter for the suffix that is appended to each method. This is simpler
+		# than tracking each method name and only adding if there is a conflict.
+		self._methodNum = 0
 		
 	
 	def classFromXml(self, src):
@@ -37,6 +50,8 @@ class DesignerXmlConverter(dObject):
 		dct = xtd(xml)
 		# Parse the XML and create the class definition text
 		self.createClassText(dct)
+		# Write the code file
+		open(self._codeFileName, "w").write(self._codeFileText)
 		
 		## For debugging. This creates a copy of the generated code
 		## so that you can help determine any problems.
@@ -51,12 +66,20 @@ class DesignerXmlConverter(dObject):
 	def createClassText(self, dct, addImports=True, specList=[]):
 		# 'self.classText' will contain the generated code
 		self.classText = ""
+		cdPath, cdFile = os.path.split(self._codeFileName)
+		cdFileNoExt = os.path.splitext(cdFile)[0]
+		
 		if addImports:
 			self.classText += """import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
+import sys
+if "%s" not in sys.path:
+	sys.path.append("%s")
+import %s as %s
 
-"""
+""" % (cdPath, cdPath, cdFileNoExt, self._codeImportAs)
+
 		# Standard class template
 		self.classTemplate = """class %s(dabo.ui.%s):
 	def __init__(self, parent=%s, attProperties=%s):
@@ -99,15 +122,12 @@ import dabo.dEvents as dEvents
 		self.mainClassName = clsName = self.uniqname(nm)
 		# Leave the third %s in place. That will be replaced by any
 		# inner class definitions we create
-
-
 		propInit = ""
 		for prop, propDef in propDefs.items():
 			val = propDef["defaultValue"]
 			if propDef["defaultType"] == "string":
 				val = "\"" + val + "\""
 			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
-
 		self.classText += 	self.classTemplate  % (clsName, nm, 
 				self.currParent, cleanAtts, nm, self.indentCode(propInit, 2))
 		self.classText += \
@@ -122,7 +142,8 @@ import dabo.dEvents as dEvents
 		
 		# Add any main class code
 		for cd in code.values():
-			self.classText += LINESEP + self.indentCode(cd, 1)
+			codeProx = self.createProxyCode(cd)
+			self.classText += LINESEP + self.indentCode(codeProx, 1)
 		# Add any property definitions
 		for prop, propDef in propDefs.items():
 			self.classText += LINESEP + \
@@ -386,7 +407,9 @@ import dabo.dEvents as dEvents
 		# Since the code will be part of this class, which is at the outer level
 		# of indentation, it needs to be indented one level.
 		for cd in code.values():
-			self.innerClassText += LINESEP + self.indentCode(cd, 1)
+			# Add to the code
+			codeProx = self.createProxyCode(cd)
+			self.innerClassText += LINESEP + self.indentCode(codeProx, 1)
 			if not self.innerClassText.endswith(LINESEP):
 				self.innerClassText += LINESEP
 # 			self.innerClassText += self.indentCode(cd, 1)
@@ -402,7 +425,22 @@ import dabo.dEvents as dEvents
 		return clsName
 	
 	
-	
+	def createProxyCode(self, cd):
+		"""Creates the substitute method call that will call the actual method in the temp file."""
+		# Get the method name and params
+		indnt, mthd, prmText = self._codeDefExtract.search(cd).groups()
+		# Create the proxy method name
+		proxMthd = "%s_%s" % (mthd, self._methodNum)
+		self._methodNum += 1
+		# Create the proxy call
+		prox = "%sdef %s(%s):%s%s\treturn %s.%s(%s)" % (indnt, mthd, prmText, LINESEP, 
+				indnt, self._codeImportAs, proxMthd, prmText)
+		# Add the code to the output text
+		cdOut = cd.replace(mthd, proxMthd, 1)
+		self._codeFileText += cdOut + LINESEP + LINESEP
+		return prox
+
+
 	def createInheritedClass(self, pth, specList):
 		"""When a custom class is contained in a cdxml file, we need
 		to add that class separately, and inherit from that. We will 
