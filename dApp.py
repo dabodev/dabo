@@ -37,7 +37,11 @@
 
 		-- clean up and exit gracefully
 """
-import sys, os, warnings, glob
+import sys
+import os
+import warnings
+import glob
+import tempfile
 import ConfigParser
 import dabo, dabo.ui, dabo.db
 from dabo.lib.connParser import importConnections
@@ -52,7 +56,6 @@ class Collection(list):
 	""" Collection : Base class for the various collection
 	classes used in the app object.
 	"""
-
 	def __init__(self):
 		list.__init__(self)
 
@@ -72,6 +75,60 @@ class Collection(list):
 			del self[index]
 
 
+
+class TempFileHolder(object):
+	"""Utility class to get temporary file names and to make sure they are 
+	deleted when the Python session ends.
+	"""
+	def __init__(self):
+		self._tempFiles = []
+
+
+	def __del__(self):
+		self._eraseTempFiles()
+		
+		
+	def _eraseTempFiles(self):
+		# Try to erase all temp files created during life.
+		# Need to re-import the os module here for some reason.
+		print "HOLDERHOLDERHOLDERHOLDERHOLDER"
+		import os
+		for f in self._tempFiles:
+			try:
+				os.remove(f)
+			except StandardError, e:
+				print "Could not delete %s: %s" % (f, e)
+	
+	
+	def release(self):
+		self._eraseTempFiles()		
+
+
+	def append(self, f):
+		self._tempFiles.append(f)
+
+
+	def getTempFile(self, ext=None, badChars=None):
+		if ext is None:
+			ext = "py"
+		if badChars is None:
+			badChars = "-:"
+		fname = ""
+		suffix = ".%s" % ext
+		while not fname:
+			fd, tmpname = tempfile.mkstemp(suffix=suffix)
+			bad = [ch for ch in badChars if ch in tmpname]
+			if not bad:
+				fname = tmpname
+		os.close(fd)
+		self.append(fname)
+		if fname.endswith(".py"):
+			# Track the .pyc file, too.
+			self.append(fname + "c")
+		return fname
+
+
+
 class dApp(dObject):
 	"""The containing object for the entire application.
 
@@ -87,8 +144,8 @@ class dApp(dObject):
 	# be modified when run as the Designer. This flag will 
 	# distinguish between the two states.
 	isDesigner = False
-	
 
+	
 	def __init__(self, selfStart=False, properties=None, *args, **kwargs):
 		self._uiAlreadySet = False
 		dabo.dAppRef = self
@@ -112,6 +169,9 @@ class dApp(dObject):
 		# the key for each entry to the menu caption, and the value to
 		# the bound function.
 		self._persistentMRUs = {}
+		# Create the temp file handlers.
+		self._tempFileHolder = TempFileHolder()
+		self.getTempFile = self._tempFileHolder.getTempFile
 
 		# For simple UI apps, this allows the app object to be created
 		# and started in one step. It also suppresses the display of
@@ -122,6 +182,11 @@ class dApp(dObject):
 
 		self._afterInit()
 		self.autoBindEvents()
+		
+
+	def __del__(self):
+		"""Make sure that temp files are removed"""
+		self._tempFileHolder.release()
 		
 
 	def setup(self, initUI=True):
@@ -182,13 +247,14 @@ class dApp(dObject):
 			self._retrieveMRUs()
 			self.uiApp.start(self)
 		self.finish()
-
-
+	
+	
 	def finish(self):
 		"""Called when the application event loop has ended."""
 		self._persistMRU()
 		self.uiApp.finish()
 		self.closeConnections()
+		self._tempFileHolder.release()
 		dabo.infoLog.write(_("Application finished."))
 
 
