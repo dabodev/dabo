@@ -12,7 +12,6 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dabo.lib.xmltodict import xmltodict as xtd
-from dabo.lib.reportUtils import getTempFile
 # Doesn't matter what platform we're on; Python needs 
 # newlines in its compiled code.
 LINESEP = "\n"
@@ -23,7 +22,7 @@ class DesignerXmlConverter(dObject):
 		# Added to ensure unique object names
 		self._generatedNames = []
 		# Holds the text for the generated code file
-		self._codeFileName = getTempFile("py")
+		self._codeFileName = self.Application.getTempFile("py")
 		self._codeImportAs = "_daboCode"
 		# Holds any import statements to apply to the class code.
 		self._import = ""
