@@ -117,7 +117,7 @@ class TempFileHolder(object):
 		while not fname:
 			fd, tmpname = tempfile.mkstemp(suffix=suffix)
 			os.close(fd)
-			bad = [ch for ch in badChars if ch in tmpname]
+			bad = [ch for ch in badChars if ch in os.path.split(tmpname)[1]]
 			if not bad:
 				fname = tmpname
 		self.append(fname)
