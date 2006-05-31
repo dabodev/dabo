@@ -91,7 +91,6 @@ class TempFileHolder(object):
 	def _eraseTempFiles(self):
 		# Try to erase all temp files created during life.
 		# Need to re-import the os module here for some reason.
-		print "HOLDERHOLDERHOLDERHOLDERHOLDER"
 		import os
 		for f in self._tempFiles:
 			try:
@@ -117,10 +116,10 @@ class TempFileHolder(object):
 		suffix = ".%s" % ext
 		while not fname:
 			fd, tmpname = tempfile.mkstemp(suffix=suffix)
+			os.close(fd)
 			bad = [ch for ch in badChars if ch in tmpname]
 			if not bad:
 				fname = tmpname
-		os.close(fd)
 		self.append(fname)
 		if fname.endswith(".py"):
 			# Track the .pyc file, too.
