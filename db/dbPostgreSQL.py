@@ -121,6 +121,8 @@ class Postgres(dBackend):
 				fldType = 'I'
 			elif 'char' in fldType :
 				fldType = 'C'
+			elif 'bool' in fldType :
+				fldType = 'B'
 			elif 'text' in fldType:
 				fldType = 'M'
 			elif 'numeric' in fldType:
