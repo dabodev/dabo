@@ -80,8 +80,13 @@ dabo.ui.loadUI("wx")
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import sys
+# debugging!
+print "SYS.PATH:", sys.path
 if "%s" not in sys.path:
+	print "APPENDING TO SYS.PATH"
 	sys.path.append("%s")
+	print
+	print "NEW SYS.PATH:", sys.path
 import %s as %s
 %s
 
