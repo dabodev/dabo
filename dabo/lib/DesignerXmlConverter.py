@@ -73,20 +73,16 @@ dabo.ui.loadUI("wx")
 		# 'self.classText' will contain the generated code
 		self.classText = ""
 		cdPath, cdFile = os.path.split(self._codeFileName)
+		cdPath = cdPath.replace("\\", r"\\")
 		cdFileNoExt = os.path.splitext(cdFile)[0]
-		
 		if addImports:
 			self.classText += """import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import sys
 # debugging!
-print "SYS.PATH:", sys.path
 if "%s" not in sys.path:
-	print "APPENDING TO SYS.PATH"
 	sys.path.append("%s")
-	print
-	print "NEW SYS.PATH:", sys.path
 import %s as %s
 %s
 
