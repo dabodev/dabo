@@ -22,7 +22,6 @@ import dTimer
 ## testing load performance:
 delay = False
 
-## The following will eventually be properties:
 #- fontMode = "proportional"	# 'mono' or 'proportional'
 fontMode = "mono"  # 'mono' or 'proportional'
 
@@ -303,6 +302,26 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		return ret		
 		
 
+	def getLineFromPosition(self, pos):
+		"""Given a position within the text, returns the corresponding line 
+		number. If the position is invalid, returns -1.
+		"""
+		try:
+			ret = self.LineFromPosition(pos)
+		except:
+			ret = -1
+		return ret
+	
+	
+	def getPositionFromXY(self, x, y=None):
+		"""Given an x,y position, returns the position in the text if that point
+		is close to any text; if not, returns -1.
+		"""
+		if y is None and isinstance(x, (list, tuple)):
+			x, y = x
+		return self.PositionFromPointClose(x, y)
+		
+		
 	def getMarginWidth(self):
 		"""Returns the width of the non-editing area along the left side."""
 		ret = 0
@@ -723,14 +742,6 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self.AutoCompCancel()
 			
 		
-	def toggleSyntaxColoring(self):
-		"""Right now, just toggles between Python and none. In the future,
-		we will need to save the current lexer and toggle between that and
-		none.
-		"""
-		self.SyntaxColoring = not self.SyntaxColoring
-	
-	
 	def setSyntaxColoring(self, color=None):
 		"""Sets the appropriate lexer for syntax coloring."""
 		if color:
@@ -744,11 +755,6 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		else:
 			self.ClearDocumentStyle()
 			self.SetLexer(stc.STC_LEX_CONTAINER)		
-
-	
-	
-	def toggleWordWrap(self):
-		self.WordWrap = not self.WordWrap
 
 		
 	def OnModified(self, evt):

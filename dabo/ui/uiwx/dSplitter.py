@@ -12,8 +12,10 @@ from dabo.ui import makeDynamicProperty
 
 class SplitterPanel(dabo.ui.dPanel):
 	def __init__(self, parent):
+		self._showSplitMenu = True
 		super(SplitterPanel, self).__init__(parent)
-		self.bindEvent(dEvents.ContextMenu, self._onContextMenu)
+		if self.ShowSplitMenu:
+			self.bindEvent(dEvents.ContextMenu, self._onContextMenu)
 	
 	
 	def _onContextMenu(self, evt):
@@ -70,6 +72,26 @@ class SplitterPanel(dabo.ui.dPanel):
 	
 	def unsplit(self, win=None):
 		self.splitter.unsplit(win)
+	
+	
+	# Property definitions start here
+	def _getShowSplitMenu(self):
+		return self._showSplitMenu
+
+	def _setShowSplitMenu(self, val):
+		if self._constructed():
+			self._showSplitMenu = val
+			if val:
+				self.bindEvent(dEvents.ContextMenu, self._onContextMenu)
+			else:
+				self.unbindEvent(dEvents.ContextMenu)
+		else:
+			self._properties["ShowSplitMenu"] = val
+
+
+	ShowSplitMenu = property(_getShowSplitMenu, _setShowSplitMenu, None,
+			_("Determines if the Split/Unsplit context menu is shown (default=True)  (bool)"))
+	
 		
 
 		
@@ -89,6 +111,8 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 		self._orientation = "v"
 		self._sashPos = 100
 		self._minPanelSize = 0
+		# Default to showing the context menus on the panels
+		self._showPanelSplitMenu = None
 
 		preClass = wx.PreSplitterWindow
 		cm.dControlMixin.__init__(self, preClass, parent, properties, 
@@ -281,6 +305,18 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 			self._properties["SashPosition"] = val
 
 	
+	def _getShowPanelSplitMenu(self):
+		return self._showPanelSplitMenu
+
+	def _setShowPanelSplitMenu(self, val):
+		if self._constructed():
+			self._showPanelSplitMenu = val
+			self.Panel1.ShowSplitMenu = val
+			self.Panel2.ShowSplitMenu = val
+		else:
+			self._properties["ShowPanelSplitMenu"] = val
+
+
 	def _getSplit(self):
 		return self.IsSplit()
 
@@ -293,26 +329,32 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 
 	MinimumPanelSize = property(_getMinPanelSize, _setMinPanelSize, None,
 			_("Controls the minimum width/height of the panels.  (int)"))
-	DynamicMinimumPanelSize = makeDynamicProperty(MinimumPanelSize)
 
 	Orientation = property(_getOrientation, _setOrientation, None,
 			_("Determines if the window splits Horizontally or Vertically.  (string)"))
-	DynamicOrientation = makeDynamicProperty(Orientation)
 
 	Panel1 = property(_getPanel1, _setPanel1, None,
 			_("Returns the Top/Left panel.  (SplitterPanel)"))
-	DynamicPanel1 = makeDynamicProperty(Panel1)
 
 	Panel2 = property(_getPanel2, _setPanel2, None,
 			_("Returns the Bottom/Right panel.  (SplitterPanel)"))
-	DynamicPanel2 = makeDynamicProperty(Panel2)
 
 	SashPosition = property(_getSashPosition, _setSashPosition, None,
 			_("Position of the sash when the window is split.  (int)"))
-	DynamicSashPosition = makeDynamicProperty(SashPosition)
 
+	ShowPanelSplitMenu = property(_getShowPanelSplitMenu, _setShowPanelSplitMenu, None,
+			_("""Determines if the default context menu for split/unsplit is enabled 
+			for the panels (default=True)  (bool)"""))
+	
 	Split = property(_getSplit, _setSplit, None,
 			_("Returns the split status of the control  (bool)"))
+
+
+	DynamicMinimumPanelSize = makeDynamicProperty(MinimumPanelSize)
+	DynamicOrientation = makeDynamicProperty(Orientation)
+	DynamicPanel1 = makeDynamicProperty(Panel1)
+	DynamicPanel2 = makeDynamicProperty(Panel2)
+	DynamicSashPosition = makeDynamicProperty(SashPosition)
 	DynamicSplit = makeDynamicProperty(Split)
 	
 
