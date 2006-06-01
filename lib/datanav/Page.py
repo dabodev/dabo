@@ -72,17 +72,6 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 	
 				
 class Page(dabo.ui.dPage):
-	def _createItems(self):
-		self.super()
-
-		## The following line is needed to get the Select page scrollbars to lay
-		## out without the user having to resize manually. I tried putting it in
-		## dPage but that caused problems with the Class Designer. We need to 
-		## figure out the best way to abstract this wx call, or find a different
-		## way to get the scrollbars.
-		self.Sizer.FitInside(self)
-
-
 	def newRecord(self, ds=None):
 		""" Called by a browse grid when the user wants to add a new row. 
 		"""
@@ -127,6 +116,17 @@ class SortLabel(dabo.ui.dLabel):
 
 
 class SelectPage(Page):
+	def _createItems(self):
+		self.super()
+
+		## The following line is needed to get the Select page scrollbars to lay
+		## out without the user having to resize manually. I tried putting it in
+		## dPage but that caused problems with the Class Designer. We need to 
+		## figure out the best way to abstract this wx call, or find a different
+		## way to get the scrollbars.
+		self.Sizer.FitInside(self)
+
+
 	def afterInit(self):
 		super(SelectPage, self).afterInit()
 		# Holds info which will be used to create the dynamic
