@@ -23,28 +23,8 @@ import dTimer
 delay = False
 
 ## The following will eventually be properties:
-autoCompListType = "user"  # 'user' or 'auto'
-autoIndent = True
-commentSequence = "#- "
-bufferedDraw = True
-edgeColumn = 79	 # if highlightCharsBeyondEdge
-encoding = "utf-8"
-fontAntiAlias = True
 #- fontMode = "proportional"	# 'mono' or 'proportional'
 fontMode = "mono"  # 'mono' or 'proportional'
-highlightCharsBeyondEdge = False
-showCodeFoldingMargin = True
-showEOL = False
-showLineNumberMargin = True
-showWhiteSpace = False
-styleTimerInterval = 50  ## .5 second appears to be the best compromise
-tabWidth = 4  # this doesn't seem to correspond to actual spaces
-useStyleTimer = False  ## see styleTimerInterval: testing to try to improve performance.
-useCallTips = True
-useCodeCompletion = True
-useLexer = True	 # Turn off to see the change in performance
-useTabIndent = True
-useTab = True
 
 if wx.Platform == '__WXMSW__':
 	monoFont = "Courier New"
@@ -67,6 +47,8 @@ else:
 
 class StyleTimer(dTimer.dTimer):
 	def afterInit(self):
+		# Default timer interval
+		self.styleTimerInterval = 50
 		self.super()
 		self.bindEvent(dEvents.Hit, self.onHit)
 		self.mode = "container"
@@ -77,7 +59,7 @@ class StyleTimer(dTimer.dTimer):
 		if self.mode == "python":
 			self.Parent.SetLexer(stc.STC_LEX_PYTHON)
 			self.mode = "container"
-			self.Interval = styleTimerInterval
+			self.Interval = self.styleTimerInterval
 		else:
 			self.Parent.SetLexer(stc.STC_LEX_CONTAINER)
 
@@ -93,7 +75,29 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self._fileName = ""
 		self._beforeInit(None)
 		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-
+		# Declare the attributes that underly properties.
+		self._autoCompleteList = False
+		self._autoIndent = True
+		self._commentString = "#- "
+		self._bufferedDrawing = True
+		self._hiliteCharsBeyondLimit = False
+		self._hiliteLimitColumn = 79
+		self._encoding = "utf-8"
+		self._useAntiAliasing = True
+		self._codeFolding = True
+		self._showLineNumbers = True
+		self._showEOL = False
+		self._showWhiteSpace = False
+		self._useStyleTimer = False
+		self._tabWidth = 4
+		self._useTabs = True
+		self._showCallTips = True
+		self._codeCompletion = True
+		self._syntaxColoring = True
+		self._language = "Python"
+		self._keyWordsSet = False
+		
+		
 		stc.StyledTextCtrl.__init__(self, parent, -1, 
 				style = wx.NO_BORDER)
 		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
@@ -149,9 +153,8 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		else:
 			self._fontSize = self.GetFont().GetPointSize()
 
-		if useStyleTimer:
+		if self.UseStyleTimer:
 			self._styleTimer.mode = "container"
-			self._styleTimer.Interval = styleTimerInterval
 			self._styleTimer.start()
 		self._clearDocument()
 		self.setTitle()
@@ -337,7 +340,6 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		if not self._syntaxColoring:
 			return
 		self._styleTimer.mode = "python"
-		self._styleTimer.Interval = styleTimerInterval
 		self._styleTimer.start()
 		
 		
@@ -348,14 +350,14 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			
 
 	def setDocumentDefaults(self):
-		self.SetTabWidth(tabWidth)
-		self.SetIndent(tabWidth)
+		self.SetTabWidth(self.TabWidth)
+		self.SetIndent(self.TabWidth)
 		
 
 	def setDefaults(self):
 		self.UsePopUp(0)
-		self.SetUseTabs(useTab)
-		self.SetTabIndents(useTabIndent)
+		self.SetUseTabs(self.UseTabs)
+		self.SetTabIndents(True)
 
 		## Autocomplete settings:
 		self.AutoCompSetIgnoreCase(True)
@@ -365,25 +367,22 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		# This lets you go all the way back to the '.' without losing the AutoComplete
 		self.AutoCompSetCancelAtStart(False)
 
-		if useLexer:
-			self.SetLexer(stc.STC_LEX_PYTHON)
-			self.SetKeyWords(0, " ".join(keyword.kwlist))
-			
-			## Note: "tab.timmy.whinge.level" is a setting that determines how to
-			## indicate bad indentation.
-			## It shows up as a blue underscore when the indentation is:
-			##	   * 0 = ignore (default)
-			##	   * 1 = inconsistent
-			##	   * 2 = mixed spaces/tabs
-			##	   * 3 = spaces are bad
-			##	   * 4 = tabs are bad 
-			self.SetProperty("tab.timmy.whinge.level", "1")
+		## Note: "tab.timmy.whinge.level" is a setting that determines how to
+		## indicate bad indentation.
+		## It shows up as a blue underscore when the indentation is:
+		##	   * 0 = ignore (default)
+		##	   * 1 = inconsistent
+		##	   * 2 = mixed spaces/tabs
+		##	   * 3 = spaces are bad
+		##	   * 4 = tabs are bad 
+		self.SetProperty("tab.timmy.whinge.level", "1")
+		self.setSyntaxColoring(self.SyntaxColoring)
 		self.SetMargins(0,0)
 
-		self.SetViewWhiteSpace(showWhiteSpace)
-		self.SetBufferedDraw(bufferedDraw)
-		self.SetViewEOL(showEOL)
-		self.SetUseAntiAliasing(fontAntiAlias)
+		self.SetViewWhiteSpace(self.ShowWhiteSpace)
+		self.SetBufferedDraw(self.BufferedDrawing)
+		self.SetViewEOL(self.ShowEOL)
+		self.SetUseAntiAliasing(self.UseAntiAliasing)
 
 		## Seems that eolmode is CRLF on Mac by default... explicitly set it!
 		if wx.Platform == "__WXMSW__":
@@ -391,16 +390,49 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		else:
 			self.SetEOLMode(stc.STC_EOL_LF)
 
-		if highlightCharsBeyondEdge:
+		if self.HiliteCharsBeyondLimit:
 			self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
-			self.SetEdgeColumn(edgeColumn)
+			self.SetEdgeColumn(self.HiliteLimitColumn)
 
-		if showLineNumberMargin:
+		self._setLineNumberMarginVisibility()
+		self._setCodeFoldingMarginVisibility()
+
+		# Make some styles,	 The lexer defines what each style is used for, we
+		# just have to define what each style looks like.  This set is adapted from
+		# Scintilla sample property files.
+		self.setDefaultFont(fontFace, fontSize)
+		# Python styles
+		self.setPyFont(fontFace, fontSize)
+
+		self.SetCaretForeground("BLUE")
+
+		# Register some images for use in the AutoComplete box.
+		self.RegisterImage(1, dabo.ui.strToBmp("daboIcon016"))
+		self.RegisterImage(2, dabo.ui.strToBmp("property"))	#, setMask=False))
+		self.RegisterImage(3, dabo.ui.strToBmp("event"))		#, setMask=False))
+		self.RegisterImage(4, dabo.ui.strToBmp("method"))		#, setMask=False))
+		self.RegisterImage(5, dabo.ui.strToBmp("class"))		#, setMask=False))
+
+		self.CallTipSetBackground("yellow")
+		
+
+	def _setLineNumberMarginVisibility(self):
+		"""Sets the visibility of the line number margin."""
+		if self.ShowLineNumbers:
 			self.SetMarginType(1, stc.STC_MARGIN_NUMBER)
 			self.SetMarginSensitive(1, True)
 			self.SetMarginWidth(1, 36)
-
-		if showCodeFoldingMargin:
+		else:
+			self.SetMarginSensitive(1, False)
+			self.SetMarginWidth(1, 0)
+			
+		
+	def _setCodeFoldingMarginVisibility(self):
+		"""Sets the visibility of the code folding margin."""
+		if not self.ShowCodeFolding:
+			self.SetMarginSensitive(2, False)
+			self.SetMarginWidth(2, 0)
+		else:
 			# Setup a margin to hold fold markers
 			self.SetProperty("fold", "1")
 			self.SetMarginType(2, stc.STC_MARGIN_SYMBOL)
@@ -477,24 +509,6 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL,
 					stc.STC_MARK_TCORNER, "white", "#808080")
 
-		# Make some styles,	 The lexer defines what each style is used for, we
-		# just have to define what each style looks like.  This set is adapted from
-		# Scintilla sample property files.
-		self.setDefaultFont(fontFace, fontSize)
-		# Python styles
-		self.setPyFont(fontFace, fontSize)
-
-		self.SetCaretForeground("BLUE")
-
-		# Register some images for use in the AutoComplete box.
-		self.RegisterImage(1, dabo.ui.strToBmp("daboIcon016"))
-		self.RegisterImage(2, dabo.ui.strToBmp("property"))	#, setMask=False))
-		self.RegisterImage(3, dabo.ui.strToBmp("event"))		#, setMask=False))
-		self.RegisterImage(4, dabo.ui.strToBmp("method"))		#, setMask=False))
-		self.RegisterImage(5, dabo.ui.strToBmp("class"))		#, setMask=False))
-
-		self.CallTipSetBackground("yellow")
-		
 
 	def changeFontFace(self, fontFace):
 		if not self:
@@ -602,7 +616,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.BeginUndoAction()
 		for line in range(begLine, endLine+1):
 			pos = self.PositionFromLine(line)
-			self.InsertText(pos, commentSequence)
+			self.InsertText(pos, self.CommentString)
 		self.EndUndoAction()
 
 		self.SetSelection(self.PositionFromLine(begLine), 
@@ -618,8 +632,8 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		for line in range(begLine, endLine+1):
 			pos = self.PositionFromLine(line)
 			self.SetTargetStart(pos)
-			self.SetTargetEnd(pos + len(commentSequence))
-			if self.SearchInTarget(commentSequence) >= 0:
+			self.SetTargetEnd(pos + len(self.CommentString))
+			if self.SearchInTarget(self.CommentString) >= 0:
 				self.ReplaceTarget("")
 		self.EndUndoAction()
 
@@ -629,7 +643,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 	
 	def onKeyDown(self, evt):
 		keyCode = evt.EventData["keyCode"]
-		if keyCode == wx.WXK_RETURN and autoIndent and not self.AutoCompActive():
+		if keyCode == wx.WXK_RETURN and self.AutoIndent and not self.AutoCompActive():
 			## Insert auto indentation as necessary. This code was adapted from
 			## PythonCard - Thanks Kevin for suggesting I take a look at it.
 			evt.Continue = False
@@ -644,7 +658,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				indentLevel = self.GetLineIndentation(line) / self.GetIndent()
 			
 			# First, indent to the current level of indent:
-			if self.GetUseTabs():
+			if self.UseTabs:
 				padchar = "\t"
 			else:
 				padchar = " "
@@ -669,9 +683,9 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		
 		if keyChar == "(" and self.AutoCompActive():
 			self._insertChar = "("
-		elif keyChar == "(" and useCallTips and not self.AutoCompActive():
+		elif keyChar == "(" and self.ShowCallTips and not self.AutoCompActive():
 			self.callTip()
-		elif keyChar == "." and useCodeCompletion:
+		elif keyChar == "." and self.CodeCompletion:
 			if self.AutoCompActive():
 				# don't process the autocomplete, as it is 
 				# already being processed. However, set the flag
@@ -714,27 +728,23 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		we will need to save the current lexer and toggle between that and
 		none.
 		"""
-		self._syntaxColoring = not self._syntaxColoring
-		if self._syntaxColoring:
-			self.setSyntaxColoring("Python")
-		else:
-			self.setSyntaxColoring(None)
+		self.SyntaxColoring = not self.SyntaxColoring
 	
 	
-	def setSyntaxColoring(self, typ=None):
+	def setSyntaxColoring(self, color=None):
 		"""Sets the appropriate lexer for syntax coloring."""
-		if typ is None:
-			testTyp = "none"
-		else:
-			testTyp = typ.strip().lower()
-		if testTyp == "python":
-			self.SetLexer(stc.STC_LEX_PYTHON)		
+		if color:
+			lex = self.Language.lower()
+			if lex == "python":
+				self.SetLexer(stc.STC_LEX_PYTHON)
+				if not self._keyWordsSet:
+					self.SetKeyWords(0, " ".join(keyword.kwlist))
+					self._keyWordsSet = True
 			self.Colourise(-1, -1)
-		elif testTyp == "none":
+		else:
 			self.ClearDocumentStyle()
 			self.SetLexer(stc.STC_LEX_CONTAINER)		
-		else:
-			dabo.errorLog.write(_("Invalid syntax coloring type specified: %s") % typ)
+
 	
 	
 	def toggleWordWrap(self):
@@ -918,11 +928,11 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 					# Punt with the Dabo icon:
 					kw[i] = kw[i] + "?1"
 					
-			if autoCompListType == "user":
+			if self.AutoCompleteList:
+				wx.CallAfter(self.AutoCompShow,0, " ".join(kw))
+			else:
 				self.Bind(stc.EVT_STC_USERLISTSELECTION, self.onListSelection)
 				wx.CallAfter(self.UserListShow, 1, " ".join(kw))
-			else:
-				wx.CallAfter(self.AutoCompShow,0, " ".join(kw))
 
 
 	def FoldAll(self):
@@ -1062,7 +1072,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				# user canceled in the prompt: don't continue
 				return None
 		
-		open(fname, "wb").write(self.GetText().encode(encoding))
+		open(fname, "wb").write(self.GetText().encode(self.Encoding))
 		# set self._fileName, in case it was changed with a Save As
 		self._fileName = fname
 		self._clearDocument(clearText=False)
@@ -1132,7 +1142,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 					return False
 			try:
 				f = open(fileSpec, "rb")
-				text = f.read().decode(encoding)
+				text = f.read().decode(self.Encoding)
 				f.close()
 			except:
 				if dabo.ui.areYouSure("File '%s' does not exist."
@@ -1356,9 +1366,51 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		sys.stderr, sys.stdout = stdErr, stdOut
 
 
+	### Property definitions start here
+	
+	def _getAutoCompleteList(self):
+		return self._autoCompleteList
+
+	def _setAutoCompleteList(self, val):
+		if self._constructed():
+			self._autoCompleteList = val
+		else:
+			self._properties["AutoCompleteList"] = val
+
+
+	def _getAutoIndent(self):
+		return self._autoIndent
+
+	def _setAutoIndent(self, val):
+		if self._constructed():
+			self._autoIndent = val
+		else:
+			self._properties["AutoIndent"] = val
+
+
+	def _getBufferedDrawing(self):
+		return self._bufferedDrawing
+
+	def _setBufferedDrawing(self, val):
+		if self._constructed():
+			self._bufferedDrawing = val
+			self.SetBufferedDraw(val)
+		else:
+			self._properties["BufferedDrawing"] = val
+
+
+	def _getCodeCompletion(self):
+		return self._codeCompletion
+
+	def _setCodeCompletion(self, val):
+		if self._constructed():
+			self._codeCompletion = val
+		else:
+			self._properties["CodeCompletion"] = val
+
+
 	def _getColumn(self):
 		return self.GetColumn(self.GetCurrentPos())
-
 
 	def _setColumn(self, val):
 		val = max(0, val)
@@ -1371,12 +1423,70 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.GotoPos(newPos)
 
 
+	def _getCommentString(self):
+		return self._commentString
+
+	def _setCommentString(self, val):
+		if self._constructed():
+			self._commentString = val
+		else:
+			self._properties["CommentString"] = val
+
+
+	def _getEncoding(self):
+		return self._encoding
+
+	def _setEncoding(self, val):
+		if self._constructed():
+			self._encoding = val
+		else:
+			self._properties["Encoding"] = val
+
+
 	def _getFileName(self):
 		return os.path.split(self._fileName)[1]
 
 
 	def _getFilePath(self):
 		return self._fileName
+
+
+	def _getHiliteCharsBeyondLimit(self):
+		return self._hiliteCharsBeyondLimit
+
+	def _setHiliteCharsBeyondLimit(self, val):
+		if self._constructed():
+			self._hiliteCharsBeyondLimit = val
+		if val:
+			self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
+			self.SetEdgeColumn(self.HiliteLimitColumn)
+
+		else:
+			self._properties["HiliteCharsBeyondLimit"] = val
+
+
+	def _getHiliteLimitColumn(self):
+		return self._hiliteLimitColumn
+
+	def _setHiliteLimitColumn(self, val):
+		if self._constructed():
+			self._hiliteLimitColumn = val
+			self.SetEdgeColumn(val)
+		else:
+			self._properties["HiliteLimitColumn"] = val
+
+
+	def _getLanguage(self):
+		return self._language
+
+	def _setLanguage(self, val):
+		if self._constructed():
+			if val.lower() == "python":
+				self._language = val
+			else:
+				dabo.errorLog.write(_("Currently only Python language is supported"))
+		else:
+			self._properties["Language"] = val
 
 
 	def _getLineNumber(self):
@@ -1394,11 +1504,120 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		return self.GetModify()
 
 
+	def _getShowCallTips(self):
+		return self._showCallTips
+
+	def _setShowCallTips(self, val):
+		if self._constructed():
+			self._showCallTips = val
+		else:
+			self._properties["ShowCallTips"] = val
+
+
+	def _getShowCodeFolding(self):
+		return self._codeFolding
+
+	def _setShowCodeFolding(self, val):
+		if self._constructed():
+			self._codeFolding = val
+			self._setCodeFoldingMarginVisibility()
+		else:
+			self._properties["ShowCodeFolding"] = val
+
+
+	def _getShowEOL(self):
+		return self._showEOL
+
+	def _setShowEOL(self, val):
+		if self._constructed():
+			self._showEOL = val
+			self.SetViewEOL(val)
+		else:
+			self._properties["ShowEOL"] = val
+
+
+	def _getShowLineNumbers(self):
+		return self._showLineNumbers
+
+	def _setShowLineNumbers(self, val):
+		if self._constructed():
+			self._showLineNumbers = val
+			self._setLineNumberMarginVisibility()
+		else:
+			self._properties["ShowLineNumbers"] = val
+
+
+	def _getShowWhiteSpace(self):
+		return self._showWhiteSpace
+
+	def _setShowWhiteSpace(self, val):
+		if self._constructed():
+			self._showWhiteSpace = val
+			self.SetViewWhiteSpace(val)
+		else:
+			self._properties["ShowWhiteSpace"] = val
+
+
+	def _getSyntaxColoring(self):
+		return self._syntaxColoring
+
+	def _setSyntaxColoring(self, val):
+		if self._constructed():
+			self._syntaxColoring = val
+			self.setSyntaxColoring(val)
+		else:
+			self._properties["SyntaxColoring"] = val
+
+
+	def _getTabWidth(self):
+		return self._tabWidth
+
+	def _setTabWidth(self, val):
+		if self._constructed():
+			self._tabWidth = val
+			self.SetTabWidth(val)
+			self.SetIndent(val)
+		else:
+			self._properties["TabWidth"] = val
+
+
 	def _getText(self):
 		return self.GetText()
 
 	def _setText(self, val):
 		self.SetText(val)
+
+
+	def _getUseAntiAliasing(self):
+		return self._useAntiAliasing
+
+	def _setUseAntiAliasing(self, val):
+		if self._constructed():
+			self._useAntiAliasing = val
+			self.SetUseAntiAliasing(val)
+		else:
+			self._properties["UseAntiAliasing"] = val
+
+
+	def _getUseStyleTimer(self):
+		return self._useStyleTimer
+
+	def _setUseStyleTimer(self, val):
+		if self._constructed():
+			self._useStyleTimer = val
+		else:
+			self._properties["UseStyleTimer"] = val
+
+
+	def _getUseTabs(self):
+		return self._useTabs
+
+	def _setUseTabs(self, val):
+		if self._constructed():
+			self._useTabs = val
+			self.SetUseTabs(val)
+		else:
+			self._properties["UseTabs"] = val
 
 
 	def _getWordWrap(self):
@@ -1415,14 +1634,45 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.SetZoom(val)
 
 
+	AutoCompleteList = property(_getAutoCompleteList, _setAutoCompleteList, None,
+			_("""Controls if the user has to press 'Enter/Tab' to accept 
+			the AutoComplete entry  (bool)"""))
+	
+	AutoIndent = property(_getAutoIndent, _setAutoIndent, None,
+			_("Controls if a newline adds the previous line's indentation  (bool)"))
+	
+	BufferedDrawing = property(_getBufferedDrawing, _setBufferedDrawing, None,
+			_("Setting to True (default) reduces display flicker  (bool)"))
+	
+	CodeCompletion = property(_getCodeCompletion, _setCodeCompletion, None,
+			_("Determines if code completion is active (default=True)  (bool)"))
+	
 	Column = property(_getColumn, _setColumn, None,
-			_("Returns the current column position of the cursor in the file  (int)"))
+			_("""Returns the current column position of the cursor in the 
+			file  (int)"""))
+	
+	CommentString = property(_getCommentString, _setCommentString, None,
+			_("String used to prefix lines that are commented out  (str)"))
+	
+	Encoding = property(_getEncoding, _setEncoding, None,
+			_("Type of encoding to use. Default='utf-8'  (str)"))
 	
 	FileName = property(_getFileName, None, None,
 			_("Name of the file being edited (without path info)  (str)"))
 	
 	FilePath = property(_getFilePath, None, None,
 			_("Full path of the file being edited  (str)"))
+	
+	HiliteCharsBeyondLimit = property(_getHiliteCharsBeyondLimit, _setHiliteCharsBeyondLimit, None,
+			_("""When True, characters beyond the column set it 
+			self.HiliteLimitColumn are visibly hilited  (bool)"""))
+	
+	HiliteLimitColumn = property(_getHiliteLimitColumn, _setHiliteLimitColumn, None,
+			_("""If self.HiliteCharsBeyondLimit is True, specifies 
+			the limiting column  (int)"""))
+	
+	Language = property(_getLanguage, _setLanguage, None,
+			_("Determines which language is used for the syntax coloring  (str)"))
 	
 	LineNumber = property(_getLineNumber, _setLineNumber, None,
 			_("Returns the current line number being edited  (int)"))
@@ -1433,8 +1683,46 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 	Modified = property(_getModified, None, None,
 			_("Has the content of this editor been modified?  (bool)"))
 	
+	ShowCallTips = property(_getShowCallTips, _setShowCallTips, None,
+			_("Determines if call tips are shown (default=True)  (bool)"))
+	
+	ShowCodeFolding = property(_getShowCodeFolding, _setShowCodeFolding, None,
+			_("""Determines if the code folding symbols are displayed 
+			in the left margin (default=True)  (bool)"""))
+	
+	ShowEOL = property(_getShowEOL, _setShowEOL, None,
+			_("""Determines if end-of-line markers are visible 
+			(default=False)  (bool)"""))
+	
+	ShowLineNumbers = property(_getShowLineNumbers, _setShowLineNumbers, None,
+			_("""Determines if line numbers are shown in the left 
+			margin (default=True)  (bool)"""))
+	
+	ShowWhiteSpace = property(_getShowWhiteSpace, _setShowWhiteSpace, None,
+			_("""Determines if white space characters are displayed 
+			(default=True)  (bool)"""))
+	
+	SyntaxColoring = property(_getSyntaxColoring, _setSyntaxColoring, None,
+			_("Determines if syntax coloring is used (default=True)  (bool)"))
+	
+	TabWidth = property(_getTabWidth, _setTabWidth, None,
+			_("""Approximate number of spaces taken by each tab character 
+			(default=4)  (int)"""))
+	
 	Text = property(_getText, _setText, None,
 			_("Current contents of the editor  (str)"))
+	
+	UseAntiAliasing = property(_getUseAntiAliasing, _setUseAntiAliasing, None,
+			_("Controls whether fonts are anti-aliased (default=True)  (bool)"))
+	
+	UseStyleTimer = property(_getUseStyleTimer, _setUseStyleTimer, None,
+			_("""Syntax coloring can slow down sometimes. Set this to 
+			True to improve performance.  (bool)"""))
+	
+	UseTabs = property(_getUseTabs, _setUseTabs, None,
+			_("""Indentation will only use space characters if useTabs 
+			is False; if True, it will use a combination of tabs and 
+			spaces (default=True)  (bool)"""))
 	
 	WordWrap = property(_getWordWrap, _setWordWrap, None,
 			_("""Controls whether text lines that are wider than the window
