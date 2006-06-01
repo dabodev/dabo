@@ -201,7 +201,11 @@ class SelectPage(Page):
 			dabo.ui.callAfter(self.requery)
 			
 
+	def setFrom(self, biz):
+		"""Subclass hook."""
+		pass
 	
+
 	def setOrderBy(self, biz):
 		biz.setOrderByClause(self._orderByClause())
 
@@ -343,6 +347,7 @@ class SelectPage(Page):
 			else:
 				# CustomSQL is not defined. Get it from the select page settings:
 				bizobj.UserSQL = None
+				self.setFrom(bizobj)
 				self.setWhere(bizobj)
 				self.setOrderBy(bizobj)
 				self.setLimit(bizobj)
