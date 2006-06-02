@@ -843,16 +843,23 @@ class dPemMixin(dPemMixinBase):
 
 		form.setAll("FontBold", True, filt="BaseClass == dabo.ui.dButton")
 		"""
-		for chld in self.Children:
-			ok = hasattr(chld, prop)
+		if isinstance(self, dabo.ui.dGrid):
+			kids = self.Columns
+		elif isinstance(self, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
+				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs)):
+			kids = self.Pages
+		else:
+			kids = self.Children
+		for kid in kids:
+			ok = hasattr(kid, prop)
 			if ok:
 				if filt:
-					ok = eval("chld.%s" % filt)
+					ok = eval("kid.%s" % filt)
 			if ok:
-				setattr(chld, prop, val)
+				setattr(kid, prop, val)
 			if recurse:
-				if hasattr(chld, "setAll"):
-					chld.setAll(prop, val, recurse=recurse, filt=filt)
+				if hasattr(kid, "setAll"):
+					kid.setAll(prop, val, recurse=recurse, filt=filt)
 
 			
 	def recreate(self, child=None):
