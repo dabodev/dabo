@@ -95,11 +95,10 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self._syntaxColoring = True
 		self._language = "Python"
 		self._keyWordsSet = False
-		
-		
+				
 		stc.StyledTextCtrl.__init__(self, parent, -1, 
 				style = wx.NO_BORDER)
-		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
+		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName, *args, **kwargs)
 		self._afterInit()
 		
 		self._newFileName = _("< New File >")
