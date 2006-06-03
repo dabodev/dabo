@@ -555,6 +555,16 @@ class TreeItemContextMenu(TreeEvent):
 	pass
 
 
+class TreeBeginDrag(MouseEvent):
+	""" Occurs when a drag operation begins in a tree."""
+	pass
+
+
+class TreeEndDrag(MouseEvent):
+	""" Occurs when a drag operation ends in a tree."""
+	pass
+
+
 class GridContextMenu(GridEvent, MenuEvent):
 	"""Occurs when the context menu is requested in the grid region."""
 	pass
