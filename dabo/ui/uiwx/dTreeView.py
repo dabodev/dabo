@@ -279,12 +279,36 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		self.Bind(wx.EVT_TREE_ITEM_COLLAPSED, self.__onTreeItemCollapse)
 		self.Bind(wx.EVT_TREE_ITEM_EXPANDED, self.__onTreeItemExpand)
 		self.Bind(wx.EVT_TREE_ITEM_MENU, self.__onTreeItemContextMenu)
+		self.Bind(wx.EVT_TREE_BEGIN_DRAG, self.__onTreeBeginDrag)
+		self.Bind(wx.EVT_TREE_END_DRAG, self.__onTreeEndDrag)
 
 
 	def __onTreeItemContextMenu(self, evt):
 		self.raiseEvent(dEvents.TreeItemContextMenu, evt)
+	
+	
+	def __onTreeBeginDrag(self, evt):
+		if self._allowDrag(evt):
+			evt.Allow()
+		evt.Skip()
+		self.raiseEvent(dEvents.TreeBeginDrag, evt)
 
 	
+	def __onTreeEndDrag(self, evt):
+		evt.Skip()
+		self.raiseEvent(dEvents.TreeEndDrag, evt)
+
+	
+	def _allowDrag(self, evt):
+		nd = self.find(evt.GetItem())
+		return self.allowDrag(nd)
+	
+	
+	def allowDrag(self, node):
+		# Override in subclasses in needed.
+		return True
+		
+		
 	def _getInitPropertiesList(self):
 		additional = ["Editable", "MultipleSelect", "ShowRootNode", 
 				"ShowRootNodeLines", "ShowButtons"]
@@ -783,6 +807,13 @@ class _dTreeView_test(dTreeView):
 		itm = evt.itemID
 		node = self.find(itm)[0]
 		print "Context menu on item:", node.Caption
+	
+	def onTreeBeginDrag(self, evt):
+		print "Beginning drag for %s" % evt.selectedCaption
+		
+	def onTreeEndDrag(self, evt):
+		print "Ending drag for %s" % evt.selectedCaption
+		
 	
 			
 if __name__ == "__main__":
