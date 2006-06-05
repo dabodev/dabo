@@ -107,6 +107,7 @@ errorLog.Caption = "Dabo Error Log"
 errorLog.LogObject = sys.stderr
 
 from dApp import dApp
+from dPref import dPref
 
 from __version__ import version
 import dColors
