@@ -739,6 +739,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
+	def getCurrentRecord(self):
+		"""Returns the current record (as determined by self.RowNumber)
+		as a dict, or None if the RowNumber is not a valid record.
+		"""
+		try:
+			ret = self.getDataSet(rowStart=self.RowNumber, rows=1)[0]
+		except IndexError:
+			ret = None
+		return ret
+		
+		
 	def getDataSet(self, flds=(), rowStart=0, rows=None, 
 			returnInternals=False):
 		""" Get the entire data set encapsulated in a list. 
