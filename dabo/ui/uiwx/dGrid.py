@@ -422,6 +422,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def __init__(self, parent, properties=None, attProperties=None,
 				*args, **kwargs):
 		self._isConstructed = False
+		self._expand = False
 		self._beforeInit()
 		kwargs["Parent"] = parent
 		# dColumn maintains one attr object that the grid table will use:
@@ -788,6 +789,16 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		if v is None:
 			v = self.defaultEditors.get(self.DataType)
 		return v
+
+
+	def _getExpand(self):
+		return self._expand
+
+	def _setExpand(self, val):
+		if self._constructed():
+			self._expand = val
+		else:
+			self._properties["Expand"] = val
 
 
 	def _getDataField(self):
@@ -1254,6 +1265,10 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				will be self.CustomEditorClass if set, or the default editor for the 
 				datatype of the field.  (varies)"""))
 
+	Expand = property(_getExpand, _setExpand, None,
+			_("""Does this column expand/shrink as the grid width changes? 
+			Default=False  (bool)"""))
+	
 	DataField = property(_getDataField, _setDataField, None,
 			_("Field key in the data set to which this column is bound.  (str)") )
 
@@ -1498,6 +1513,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 		# Set the header props/events
 		self.initHeader()
+		# Make sure that the columns are sized properly
+		self._updateColumnWidths()
 
 
 	def initEvents(self):
@@ -1534,8 +1551,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		## wx.EVT_CONTEXT_MENU doesn't appear to be working for dGrid yet:
 #		self.bindEvent(dEvents.GridContextMenu, self._onContextMenu)
 		self.bindEvent(dEvents.GridMouseRightClick, self._onGridMouseRightClick)
-
-
+		self.bindEvent(dEvents.Resize, self._onGridResize)
+	
+	
 	def initHeader(self):
 		""" Initialize behavior for the grid header region."""
 		header = self._getWxHeader()
@@ -1871,6 +1889,35 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.autoSizeCol("all")
 		return True
 
+
+	def _onGridResize(self, evt):
+		dabo.ui.callAfter(self._updateColumnWidths)
+	
+	
+	def _updateColumnWidths(self):
+		"""See if there are any dynamically-sized columns, and resize them
+		accordingly.
+		"""
+		dynCols = [col for col in self.Columns 
+				if col.Expand]
+		if not dynCols:
+			return
+		dynColCnt = len(dynCols)
+		# Add up the current widths
+		wds = [col.Width for col in self.Columns]
+		wd = reduce(lambda x, y: x+y, wds)
+		diff = self.Width - wd
+		if not diff:
+			return
+		adj = diff/ dynColCnt
+		mod = diff % dynColCnt
+		for col in dynCols:
+			if mod:
+				col.Width += (adj+1)
+				mod -= 1
+			else:
+				col.Width += adj
+		
 
 	def autoSizeCol(self, colNum, persist=False):
 		"""Set the column to the minimum width necessary to display its data.
@@ -3950,7 +3997,7 @@ class _dGrid_test(dGrid):
 
 		col = dColumn(self, Name="Person", Order=20, DataField="name",
 				DataType="string", Width=200, Caption="Customer Name",
-				Sortable=True, Searchable=True, Editable=False)
+				Sortable=True, Searchable=True, Editable=False, Expand=True)
 		self.addColumn(col)
 		
 		col.HeaderFontItalic = True
@@ -3964,7 +4011,7 @@ class _dGrid_test(dGrid):
 
 		col = dColumn(self, Name="Color", Order=40, DataField="color",
 				DataType="string", Width=40, Caption="Favorite Color",
-				Sortable=True, Searchable=False, Editable=True)
+				Sortable=True, Searchable=False, Editable=True, Expand=True)
 		self.addColumn(col)
 
 		col.ListEditorChoices = ["green", "brown", "purple"]
