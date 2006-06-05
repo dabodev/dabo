@@ -9,7 +9,7 @@ except ImportError:
 	dabo.errorLog.write("This class requires SQLite")
 
 # We don't want to deal with these as preferences.
-regularAtts = ("_cache", "_parent", "_name", "_cursor", "_cxn", "_typeDict", "AutoPersist",
+regularAtts = ("_cache", "_parent", "_key", "_cursor", "_cxn", "_typeDict", "AutoPersist",
 		"_autoPersist", "__methods__", "__basicsize__", "__members__", "_getAttributeNames", 
 		"__itemsize__", "__base__", "__flags__", "__subclasses__", "__cmp__", "__bases__", 
 		"__dictoffset__", "__call__", "__name__", "__mro__", "__weakrefoffset__", "mro")
@@ -24,29 +24,30 @@ class dPref(object):
 	new dPref object named 'subPref' will be created, and can be referred to using 
 	'basePref.subPref'. 
 	
-	Normally you should specify the initial level for your prefs. This will ensure that 
+	Normally you should specify the initial key for your prefs. This will ensure that 
 	your preference names do not conflict with other dabo preferences. This is much like 
 	the approach to modules in the Python namespace. Failure to specify a base
-	level puts all of your prefs into the 'root' namespace, where collisions can more 
-	easily happen. 
+	key would put all of your prefs into the 'root' namespace, where collisions can more 
+	easily happen, and thus is not allowed. 
 	
 	All preference assignments are automatically persisted to the database unless 
-	the 'AutoPersist' propertyon this object or one of its 'ancestors' is set to False. 
+	the 'AutoPersist' property on this object or one of its 'ancestors' is set to False. 
 	When that is False, you must call the persist() method manually, or your settings 
 	will not be saved. Calling 'persist()' will write any values of that object and all of its
 	child objects to the database.
 	"""
-	def __init__(self, level=None, crs=None, cxn=None):
+	def __init__(self, key=None, crs=None, cxn=None):
+		if key is None:
+			self._key = ""
+		else:
+			self._key = key
 		self._cache = {}
 		self._autoPersist = True
 		super(dPref, self).__init__()
 		self._parent = None
-		if level is None:
-			self._name = ""
-		else:
-			self._name = level
 		self._typeDict = {int: "int", float: "float", long: "long", str: "str", unicode: "unicode",
-				bool: "bool", datetime.date: "date", datetime.datetime: "datetime"}
+				bool: "bool", list: "list", tuple: "tuple", datetime.date: "date", 
+				datetime.datetime: "datetime"}
 		if crs is None:
 			prefdir = utils.getUserDaboDirectory()
 			self._cxn = dabo.db.dConnection(connectInfo={"dbType": "SQLite",
@@ -85,7 +86,7 @@ class dPref(object):
 			else:
 				ret = dPref(crs=self._cursor, cxn = self._cxn)
 				ret._parent = self
-				ret._name = att
+				ret._key = att
 			self._cache[att] = ret
 		return ret
 
@@ -113,9 +114,9 @@ class dPref(object):
 		"""The key is a concatenation of this object's name and the names of its
 		ancestors, separated with periods.
 		"""
-		ret = self._name
+		ret = self._key
 		if not ret:
-			ret = "root"
+			ret = ""
 		else:
 			if self._parent is not None:
 				ret = ".".join((self._parent._getKey(), ret))
@@ -153,6 +154,8 @@ class dPref(object):
 			ret = long(val)
 		elif typ == "bool":
 			ret = (val == "True")
+		elif typ in ("list", "tuple"):
+			ret = eval(val)
 		elif typ == "date":
 			ret = eval("datetime.date%s" % val)
 		elif typ == "datetime":
@@ -162,7 +165,12 @@ class dPref(object):
 		
 	def _persist(self, att, val):
 		"""Writes the value of the particular att to the database with the proper key."""
-		key = "%s.%s" % (self._getKey(), att)
+		# Make sure that we have a valid key
+		baseKey = self._getKey()
+		if not baseKey:
+			dabo.errorLog.write(_("No base key set; preference will not be persisted."))
+			return
+		key = "%s.%s" % (baseKey, att)
 		crs = self._cursor
 		try:
 			typ = self._typeDict[type(val)]
@@ -249,7 +257,7 @@ class dPref(object):
 	
 	
 	def getPrefKeys(self):
-		"""Return a list of all preference keys for this level."""
+		"""Return a list of all preference keys for this key."""
 		crs = self._cursor
 		key = self._getKey()
 		keylen = len(key) + 1
@@ -267,7 +275,7 @@ class dPref(object):
 
 
 	def getSubPrefKeys(self):
-		"""Return a list of all 'child' keys for this level."""
+		"""Return a list of all 'child' keys for this key."""
 		crs = self._cursor
 		key = self._getKey()
 		keylen = len(key) + 1
@@ -303,7 +311,7 @@ class dPref(object):
 		
 
 if __name__ == "__main__":
-	a = dPref(level="TESTING")
+	a = dPref(key="TESTING")
 	a.testValue = "First Level"
 	a.anotherValue = "Another First"
 	a.b.testValue = "Second Level"
