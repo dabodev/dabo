@@ -44,6 +44,10 @@ class SQLite(dBackend):
 		'begin' even when not using autocommit, simply do nothing.
 		"""
 		pass
+	
+	
+	def flush(self, crs):
+		self._connection.commit()
 
 		
 	def formatDateTime(self, val):
