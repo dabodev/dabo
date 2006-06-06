@@ -25,9 +25,6 @@ class dObject(autosuper, DoDefaultMixin, PropertyHelperMixin,
 	_call_beforeInit, _call_afterInit, _call_initProperties = True, True, True
 
 	def __init__(self, properties=None, *args, **kwargs):
-		# Holds the base preference key
-		self._basePrefKey = ""
-		self._preferenceManager = None
 		self._properties = {}
 		if self._call_beforeInit:
 			self._beforeInit()
@@ -208,14 +205,19 @@ class dObject(autosuper, DoDefaultMixin, PropertyHelperMixin,
 
 		
 	def _getBasePrefKey(self):
-		return self._basePrefKey
+		try:
+			ret = self._basePrefKey
+		except AttributeError:
+			ret = self._basePrefKey = ""
+		return ret
 
 	def _setBasePrefKey(self, val):
 		if self._constructed():
 			self._basePrefKey = val
-			if self._preferenceManager is not None:
-				if not self._preferenceManager._key:
-					self._preferenceManager._key = val
+			pm = self.PreferenceManager
+			if pm is not None:
+				if not pm._key:
+					pm._key = val
 		else:
 			self._properties["BasePrefKey"] = val
 
@@ -278,9 +280,11 @@ class dObject(autosuper, DoDefaultMixin, PropertyHelperMixin,
 
 
 	def _getPreferenceManager(self):
-		if self._preferenceManager is None:
-			self._preferenceManager = dPref(key=self.BasePrefKey)
-		return self._preferenceManager
+		try:
+			ret = self._preferenceManager
+		except AttributeError:
+			ret = self._preferenceManager = dPref(key=self.BasePrefKey)
+		return ret
 
 	def _setPreferenceManager(self, val):
 		if self._constructed():
