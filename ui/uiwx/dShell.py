@@ -45,6 +45,14 @@ class dShell(dSplitForm):
 		cp.Sizer = dabo.ui.dSizer()
 		op.Sizer = dabo.ui.dSizer()
 		self.shell = wx.py.shell.Shell(self.CmdPanel)
+		# Configure the shell's behavior
+		self.shell.AutoCompSetIgnoreCase(True)
+		self.shell.AutoCompSetAutoHide(False)	 ## don't hide when the typed string no longer matches
+		self.shell.AutoCompStops(" ")  ## characters that will stop the autocomplete
+		self.shell.AutoCompSetFillUps(".(")
+		# This lets you go all the way back to the '.' without losing the AutoComplete
+		self.shell.AutoCompSetCancelAtStart(False)
+		
 		cp.Sizer.append1x(self.shell)
 		self.shell.Bind(wx.EVT_RIGHT_UP, self.shellRight)
 
