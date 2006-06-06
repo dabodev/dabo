@@ -720,7 +720,12 @@ class dPemMixin(dPemMixinBase):
 		"""Raise the passed Dabo event."""
 		# Call the Dabo-native raiseEvent(), passing along the wx.CallAfter
 		# function, so that the Dabo events can be processed at next idle.
-		
+	
+		if not self:
+			# Continuing isn't possible, as the wxPython object is already gone.
+			# Perhaps we should log this too?
+			return
+	
 		##- 2004/01/07: Problems with segfaults and illegal instructions in some cases
 		##-             with the wx.CallAfter. Revert back for now to calling in the
 		##-             callstack.

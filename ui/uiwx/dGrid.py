@@ -1898,6 +1898,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		"""See if there are any dynamically-sized columns, and resize them
 		accordingly.
 		"""
+		if not self:
+			# This can be called in a callAfter(), and perhaps we are already dead.
+			return
 		dynCols = [col for col in self.Columns 
 				if col.Expand]
 		if not dynCols:
