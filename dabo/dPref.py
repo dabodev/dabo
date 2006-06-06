@@ -1,12 +1,17 @@
 import os
+import warnings
 import datetime
 import dabo
 from dabo.dLocalize import _
 import dabo.lib.utils as utils
+
 try:
 	from pysqlite2 import dbapi2 as sqlite
 except ImportError:
-	dabo.errorLog.write("This class requires SQLite")
+	# pkm: We can't use the errorLog to warn of this problem, because errorLog
+	#      descends from dObject, which needs to load dPref.py first.
+	warnings.warn("Class dPref requires package 'pysqlite2'.")
+	#dabo.errorLog.write("This class requires SQLite")
 
 # We don't want to deal with these as preferences.
 regularAtts = ("_cache", "_parent", "_key", "_cursor", "_cxn", "_typeDict", "AutoPersist",
