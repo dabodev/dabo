@@ -334,6 +334,10 @@ def getEventData(wxEvt):
 		
 
 	if isinstance(wxEvt, wx.CommandEvent):
+		# It may have mouse information
+		try:
+			ed["mousePosition"] = wxEvt.GetPoint().Get()
+		except: pass
 		# See if it's a menu selection
 		obj = wxEvt.GetEventObject()
 		if isinstance(obj, dMenu):
