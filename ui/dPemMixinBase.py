@@ -15,16 +15,17 @@ class dPemMixinBase(dObject):
 		super(dPemMixinBase, self)._initEvents()
 		self.autoBindEvents()
 
+
 	def _initUI(self):
-		""" Abstract method: subclasses MUST override for UI-specifics.
-		"""
+		""" Abstract method: subclasses MUST override for UI-specifics."""
 		pass
+		
 	
 	def getPropertyInfo(cls, name):
-		""" Abstract method: subclasses MUST override for UI-specifics.
-		"""
+		""" Abstract method: subclasses MUST override for UI-specifics."""
 		return super(dPemMixinBase, cls).getPropertyInfo(name)
 	getPropertyInfo = classmethod(getPropertyInfo)
+	
 	
 	def addObject(self, classRef, name=None, *args, **kwargs):
 		""" Create an instance of classRef, and make it a child of self.
@@ -35,12 +36,12 @@ class dPemMixinBase(dObject):
 		
 
 	def reCreate(self, child=None):
-		""" Abstract method: subclasses MUST override for UI-specifics.
-		"""
+		""" Abstract method: subclasses MUST override for UI-specifics."""
+		pass
+	
 	
 	def clone(self, obj, name=None):
-		""" Abstract method: subclasses MUST override for UI-specifics.
-		"""
+		""" Abstract method: subclasses MUST override for UI-specifics."""
 		pass
 
 
@@ -74,15 +75,8 @@ class dPemMixinBase(dObject):
 		return name, _explicitName
 		
 
-
-	# Scroll to the bottom to see the property definitions.
-
 	# Property get/set/delete methods follow.
-	
-		
 	def _getForm(self):
-		""" Return a reference to the containing Form. 
-		"""
 		try:
 			return self._cachedForm
 		except AttributeError:
@@ -105,26 +99,31 @@ class dPemMixinBase(dObject):
 
 	def _getBottom(self):
 		return self.Top + self.Height
+		
 	def _setBottom(self, bottom):
 		self.Top = int(bottom) - self.Height
 
+
 	def _getRight(self):
 		return self.Left + self.Width
+		
 	def _setRight(self, right):
 		self.Left = int(right) - self.Width
 
 
-
-
-	# Property definitions follow
 	Bottom = property(_getBottom, _setBottom, None,
-					'The position of the bottom part of the object. (int)')
+			_("""The position of the bottom side of the object. This is a 
+			convenience property, and is equivalent to setting the Top property 
+			to this value minus the Height of the control.  (int)"""))
 	
 	Form = property(_getForm, None, None,
-					'Object reference to the dForm containing the object. (read only).')
+			_("Object reference to the dForm containing the object. Read-only. (dForm)."))
 	
 	Right = property(_getRight, _setRight, None,
-					'The position of the right part of the object. (int)')
+			_("""The position of the right side of the object. This is a 
+			convenience property, and is equivalent to setting the Left property 
+			to this value minus the Width of the control.  (int)"""))
+
 
 
 if __name__ == "__main__":
