@@ -25,6 +25,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 
 		self._dregex = {}
 		self._lastDataType = None
+		self._forceCase = None
 
 		preClass = wx.PreTextCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
@@ -202,6 +203,41 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		return re.compile(exps)
 
 
+	def __onKeyChar(self, evt):
+		"""This handles KeyChar events when ForceCase is set to a non-empty value."""
+		if evt.keyChar.isalnum() or evt.keyChar in """,./<>?;':%s[]\\{}|`~!@#$%%^&*()-_=+""" % '"':
+			dabo.ui.callAfter(self.__forceCase)
+		
+	
+	def __forceCase(self):
+		"""If the ForceCase property is set, casts the current value of the control
+		to the specified case.
+		"""
+		if not isinstance(self.Value, basestring):
+			# Don't bother if it isn't a string type
+			return
+		case = self.ForceCase
+		if not case:
+			return
+		insPos = self.InsertionPosition
+		selLen = self.SelectionLength
+		changed = False
+		if case == "upper":
+			self.Value = self.Value.upper()
+			changed = True
+		elif case == "lower":
+			self.Value = self.Value.lower()
+			changed = True
+		elif case == "title":
+			self.Value = self.Value.title()
+			changed = True
+		if changed:
+			#self.SelectionStart = selStart
+			self.InsertionPosition = insPos
+			self.SelectionLength = selLen
+			self.refresh()
+		
+
 	# property get/set functions
 	def _getAlignment(self):
 		if self._hasWindowStyleFlag(wx.TE_RIGHT):
@@ -225,6 +261,21 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			self._addWindowStyleFlag(wx.TE_RIGHT)
 		else:
 			raise ValueError, "The only possible values are 'Left', 'Center', and 'Right'"
+
+
+	def _getForceCase(self):
+		return self._forceCase
+
+	def _setForceCase(self, val):
+		if self._constructed():
+			valKey = val[0].upper()
+			self._forceCase = {"U": "upper", "L": "lower", "T": "title"}.get(valKey)
+			self.__forceCase()
+			self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
+			if self._forceCase:
+				self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
+		else:
+			self._properties["ForceCase"] = val
 
 
 	def _getInsertionPosition(self):
@@ -423,6 +474,14 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			   Center
 			   Right"""))
 
+	ForceCase = property(_getForceCase, _setForceCase, None,
+			_("""Determines if we change the case of entered text. Possible values are:
+				None, "" (empty string): No changes made (default)
+				"Upper": FORCE TO UPPER CASE
+				"Lower": force to lower case
+				"Title": Force To Title Case
+			These can be abbreviated to "u", "l" or "t"  (str)"""))
+	
 	InsertionPosition = property(_getInsertionPosition, _setInsertionPosition, None,
 			_("Position of the insertion point within the control  (int)"))
 	

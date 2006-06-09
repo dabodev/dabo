@@ -22,6 +22,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		preClass = wx.PreTextCtrl
 		kwargs["style"] = wx.TE_MULTILINE | wx.TE_WORDWRAP
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		self._forceCase = None
 
 
 	def _initEvents(self):
@@ -50,31 +51,79 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		self.SetInsertionPointEnd()
 		
 
+	def __onKeyChar(self, evt):
+		"""This handles KeyChar events when ForceCase is set to a non-empty value."""
+		if evt.keyChar.isalnum() or evt.keyChar in """,./<>?;':%s[]\\{}|`~!@#$%%^&*()-_=+""" % '"':
+			dabo.ui.callAfter(self.__forceCase)
+		
+	
+	def __forceCase(self):
+		"""If the ForceCase property is set, casts the current value of the control
+		to the specified case.
+		"""
+		if not isinstance(self.Value, basestring):
+			# Don't bother if it isn't a string type
+			return
+		case = self.ForceCase
+		if not case:
+			return
+		insPos = self.InsertionPosition
+		selLen = self.SelectionLength
+		changed = False
+		if case == "upper":
+			self.Value = self.Value.upper()
+			changed = True
+		elif case == "lower":
+			self.Value = self.Value.lower()
+			changed = True
+		elif case == "title":
+			self.Value = self.Value.title()
+			changed = True
+		if changed:
+			#self.SelectionStart = selStart
+			self.InsertionPosition = insPos
+			self.SelectionLength = selLen
+			self.refresh()
+		
+
 	# property get/set functions
 	def _getAlignment(self):
 		if self._hasWindowStyleFlag(wx.TE_RIGHT):
-			return 'Right'
+			return "Right"
 		elif self._hasWindowStyleFlag(wx.TE_CENTRE):
-			return 'Center'
+			return "Center"
 		else:
-			return 'Left'
+			return "Left"
 
-	def _setAlignment(self, value):
+	def _setAlignment(self, val):
+		# Note: alignment doesn't seem to work, at least on GTK2
 		self._delWindowStyleFlag(wx.TE_LEFT)
 		self._delWindowStyleFlag(wx.TE_CENTRE)
 		self._delWindowStyleFlag(wx.TE_RIGHT)
-
-		value = str(value).lower()
-
-		if value == 'left':
+		val = val[0].lower()
+		if val == "l":
 			self._addWindowStyleFlag(wx.TE_LEFT)
-		elif value == 'center':
+		elif val == "c":
 			self._addWindowStyleFlag(wx.TE_CENTRE)
-		elif value == 'right':
+		elif val == "r":
 			self._addWindowStyleFlag(wx.TE_RIGHT)
 		else:
-			raise ValueError, ("The only possible values are "
-							"'Left', 'Center', and 'Right'.")
+			raise ValueError, _("The only possible values are 'Left', 'Center', and 'Right'")
+
+
+	def _getForceCase(self):
+		return self._forceCase
+
+	def _setForceCase(self, val):
+		if self._constructed():
+			valKey = val[0].upper()
+			self._forceCase = {"U": "upper", "L": "lower", "T": "title"}.get(valKey)
+			self.__forceCase()
+			self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
+			if self._forceCase:
+				self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
+		else:
+			self._properties["ForceCase"] = val
 
 
 	def _getInsertionPosition(self):
@@ -133,21 +182,28 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 			return False
 	def _setSelectOnEntry(self, value):
 		self._SelectOnEntry = bool(value)
+		
 
 	# property definitions follow:
 	Alignment = property(_getAlignment, _setAlignment, None,
-		"""Specifies the alignment of the text.
-		
-		Left (default)
-		Center
-		Right
-		""")
+			_("""Specifies the alignment of the text. (str)
+			   Left (default)
+			   Center
+			   Right"""))
+
+	ForceCase = property(_getForceCase, _setForceCase, None,
+			_("""Determines if we change the case of entered text. Possible values are:
+				None, "" (empty string): No changes made (default)
+				"Upper": FORCE TO UPPER CASE
+				"Lower": force to lower case
+				"Title": Force To Title Case
+			These can be abbreviated to "u", "l" or "t"  (str)"""))
 	
 	InsertionPosition = property(_getInsertionPosition, _setInsertionPosition, None,
 			_("Position of the insertion point within the control  (int)"))
 	
 	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
-		"""Specifies whether or not the text can be edited.""")
+			_("Specifies whether or not the text can be edited. (bool)"))
 	
 	SelectedText = property(_getSelectedText, None, None,
 			_("Currently selected text. Returns the empty string if nothing is selected  (str)"))	
@@ -164,7 +220,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 			selected, returns the Position of the insertion cursor.  (int)"""))
 	
 	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
-		"""Specifies whether all text gets selected upon receiving focus.""")
+			_("Specifies whether all text gets selected upon receiving focus. (bool)"))
 
 
 	DynamicAlignment = makeDynamicProperty(Alignment)
@@ -208,6 +264,9 @@ Its love...
 Its the Love Boat
 Its the Love Boat 
 """
+		
+		self.ForceCase = "u"
+		self.__forceCase()
 
 if __name__ == "__main__":
 	import test
