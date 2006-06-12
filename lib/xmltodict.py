@@ -160,6 +160,8 @@ def escQuote(val, noEscape=False, noQuote=False):
 	"""
 	if not isinstance(val, basestring):
 		val = str(val)
+	if not isinstance(val, unicode):
+		val = unicode(val, "utf-8")
 	if noQuote:
 		qt = ''
 	else:
@@ -172,6 +174,14 @@ def escQuote(val, noEscape=False, noQuote=False):
 		val = val.replace("&", "&amp;")
 		# Escape any internal quotes
 		val = val.replace('"', '&quot;').replace("'", "&apos;")
+		# Escape any high-order characters
+		chars = []
+		for pos, char in enumerate(list(val)):
+			if ord(char) > 127:
+				chars.append("&#%s;" % ord(char))
+			else:
+					chars.append(char)
+		val = "".join(chars)
 	return "%s%s%s" % (qt, val, qt)
 
 
@@ -195,7 +205,6 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 			noEscape = key in ("sizerInfo",)
 			val = escQuote(val, noEscape)
 			att += " %s=%s" % (key, val)
-
 	ret += "%s<%s%s" % ("\t" * level, dct["name"], att)
 
 	if (not dct.has_key("cdata") and not dct.has_key("children") 
@@ -251,7 +260,7 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
 	if level == 0:
 		if header is None:
-			header = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>%s' \
+			header = '<?xml version="1.0" encoding="utf-8" standalone="no"?>%s' \
 					% eol 
 		ret = header + ret
 
