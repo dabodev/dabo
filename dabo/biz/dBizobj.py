@@ -141,6 +141,22 @@ class dBizobj(dObject):
 			super(dBizobj, self).__setattr__(att, val)
 
 
+	def getTempCursor(self):
+		"""Occasionally it is useful to be able to run ad-hoc queries against
+		the database. For these queries, where the results are not meant to
+		be managed as in regular bizobj/cursor relationships, a temp cursor
+		will allow you to run those queries, get the results, and then dispose
+		of the cursor.
+		"""
+		cn = self._conn
+		cursorClass = self._getCursorClass(self.dCursorMixinClass,
+				self.dbapiCursorClass)
+		crs = cn.getCursor(cursorClass)
+		crs.BackendObject = cn.getBackendObject()
+		crs.setCursorFactory(cn.getCursor, cursorClass)
+		return crs
+		
+
 	def createCursor(self, key=None):
 		""" Create the cursor that this bizobj will be using for data, and store it
 		in the dictionary for cursors, with the passed value of 'key' as its dict key. 
