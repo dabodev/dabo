@@ -6,6 +6,7 @@ import re
 import keyword
 import code
 import inspect
+import compiler
 import wx
 import wx.stc as stc
 import wx.gizmos as gizmos
@@ -81,7 +82,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self._bufferedDrawing = True
 		self._hiliteCharsBeyondLimit = False
 		self._hiliteLimitColumn = 79
-		self._encoding = "utf-8"
+		self._encoding = self.Application.Encoding
 		self._useAntiAliasing = True
 		self._codeFolding = True
 		self._showLineNumbers = True
@@ -267,9 +268,83 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		return self._bookmarks.keys()
 		
 		
-	def getFunctionList(self, sorted=False):
+	def getFunctionList(self):
 		"""Returns a list of all 'class' and 'def' statements, along
 		with their starting positions in the text.
+		"""
+		ret = []
+		def _lister(nd):
+			strNd = str(nd)
+			isClass = strNd.startswith("Class(")
+			isFunc = strNd.startswith("Function(")
+			kidlist = []
+			txt = ""
+			try:
+				kids = nd.getChildren()
+				if isClass or isFunc:
+					txt = "%s %s" % (("class", "def")[isFunc], kids[isFunc])
+			
+				for kid in kids:
+					if isinstance(kid, compiler.ast.Node):
+						kidStuff = _lister(kid)
+						if kidStuff:
+							if isinstance(kidStuff, list):
+								kidlist += kidStuff
+							else:
+								kidlist.append(kidStuff)
+				if txt:
+					return {txt: kidlist}
+				else:
+					return kidlist
+			except: pass
+	
+		needPosAdd = False
+		try:
+			prsTxt = compiler.parse(self.GetText())
+			needPosAdd = True
+		except SyntaxError:
+			# The text is not compilable.
+			ret = self._bruteForceFuncList()
+		if needPosAdd:
+			nmKids = []
+			for chNode in prsTxt:
+				chRet = _lister(chNode)
+				if chRet:
+					nmKids += _lister(chNode)
+			# OK, at this point we have a list of class/func names. Now we have to 
+			# convert that to a dict where each element has a 'pos' property that
+			# contains the offset from top of the file, and a 'children' prop that contains 
+			# any nested class/funcs.
+			self._classFuncPos = 0
+			ret = self._addPos(nmKids)
+			
+		return ret
+	
+	
+	def _addPos(self, lst):
+		"""Go through each entry, finding where that text occurs in the text.
+		Then add that to the return list.
+		"""
+		ret = []
+		for itm in lst:
+			# Find the pos in the text
+			key = itm.keys()[0]
+			pat = "^\s*%s" % key
+			mtch = re.search(pat, self.GetText()[self._classFuncPos:], re.S | re.M)
+			pos = mtch.start(0)
+			self._classFuncPos += pos
+			itmDict = {key: {"pos": self._classFuncPos}}
+			kids = itm[key]
+			itmDict[key]["children"] = self._addPos(kids)
+			ret.append(itmDict)
+		return ret
+		
+		
+	def _bruteForceFuncList(self, sorted=False):
+		"""Returns a list of all 'class' and 'def' statements, along
+		with their starting positions in the text. This is used
+		when the source cannot be compiled, and thus the 
+		compiler module is not usable.
 		"""
 		it = self._pat.finditer(self.GetText())
 		ret = [(m.groups()[0], m.start()) for m in it]
@@ -298,6 +373,10 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				mthds = dct[cls]
 				mthds.sort()
 				ret += mthds
+		
+		print "BRUTE"
+		print ret
+		print
 		return ret		
 		
 
@@ -1660,7 +1739,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			_("String used to prefix lines that are commented out  (str)"))
 	
 	Encoding = property(_getEncoding, _setEncoding, None,
-			_("Type of encoding to use. Default='utf-8'  (str)"))
+			_("Type of encoding to use. Defaults to the application's default encoding.  (str)"))
 	
 	FileName = property(_getFileName, None, None,
 			_("Name of the file being edited (without path info)  (str)"))

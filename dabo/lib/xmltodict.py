@@ -7,6 +7,17 @@ import os
 import string
 from xml.parsers import expat
 
+# If we're in Dabo, get the default encoding.
+import dabo
+app = dabo.dAppRef
+if app is not None:
+	default_encoding = app.Encoding
+else:
+		enc = locale.getlocale()[1]
+		if enc is None:
+			enc = "utf-8"
+		default_encoding = enc
+		
 # Python seems to need to compile code with \n linesep:
 code_linesep = "\n"
 eol = os.linesep
@@ -161,7 +172,7 @@ def escQuote(val, noEscape=False, noQuote=False):
 	if not isinstance(val, basestring):
 		val = str(val)
 	if not isinstance(val, unicode):
-		val = unicode(val, "utf-8")
+		val = unicode(val, default_encoding)
 	if noQuote:
 		qt = ''
 	else:
@@ -260,8 +271,8 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
 	if level == 0:
 		if header is None:
-			header = '<?xml version="1.0" encoding="utf-8" standalone="no"?>%s' \
-					% eol 
+			header = '<?xml version="1.0" encoding="%s" standalone="no"?>%s' \
+					% (default_encoding, eol)
 		ret = header + ret
 
 	return ret

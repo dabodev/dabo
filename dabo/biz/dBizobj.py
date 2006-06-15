@@ -1386,14 +1386,18 @@ class dBizobj(dObject):
 		
 
 	def _getEncoding(self):
-		ret = "utf-8"
+		ret = None
 		cursor = self._CurrentCursor
 		if cursor is not None:
 			ret = cursor.Encoding
+		if ret is None:
+			ret = self.Application.Encoding
 		return ret
 
 	def _setEncoding(self, val):
-		self._CurrentCursor.Encoding = val
+		cursor = self._CurrentCursor
+		if cursor is not None:
+			cursor.Encoding = val
 
 
 	def _getFillLinkFromParent(self):

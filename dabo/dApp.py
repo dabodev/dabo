@@ -39,6 +39,7 @@
 """
 import sys
 import os
+import locale
 import warnings
 import glob
 import tempfile
@@ -568,6 +569,13 @@ class dApp(dObject):
 		self.uiApp.DrawSizerOutlines = val
 	
 
+	def _getEncoding(self):
+		ret = locale.getlocale()[1]
+		if ret is None:
+			ret = "utf-8"
+		return ret
+		
+
 	def _getHomeDirectory(self):
 		try:
 			hd = self._homeDirectory
@@ -736,6 +744,9 @@ class dApp(dObject):
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
 			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)"))
 	
+	Encoding = property(_getEncoding, None, None,
+			_("Name of encoding to use for unicode  (str)") )
+			
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
 			_("""Specifies the application's home directory. (string)
 
