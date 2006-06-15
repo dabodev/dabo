@@ -95,6 +95,9 @@ Have fun in your exploration of Dabo.
 # Import global settings (do this first, as other imports may rely on it):
 from settings import *
 
+# dApp will change the following values upon its __init__:
+dAppRef = None
+
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
 import sys
@@ -106,9 +109,6 @@ errorLog = Log()
 errorLog.Caption = "Dabo Error Log"
 errorLog.LogObject = sys.stderr
 
-from dApp import dApp
-from dPref import dPref
-
 from __version__ import version
 import dColors
 import dEvents
@@ -117,5 +117,6 @@ from dBug import logPoint
 import pdb
 trace = pdb.set_trace
 
-# dApp will change the following values upon its __init__:
-dAppRef = None
+from dApp import dApp
+from dPref import dPref
+

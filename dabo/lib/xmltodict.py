@@ -5,6 +5,7 @@ This was copied and modified from John Bair's recipe at aspn.activestate.com:
 """
 import os
 import string
+import locale
 from xml.parsers import expat
 
 # If we're in Dabo, get the default encoding.
