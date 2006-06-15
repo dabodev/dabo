@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import datetime
 import locale
@@ -27,6 +28,7 @@ try:
 	from decimal import Decimal
 except ImportError:
 	_USE_DECIMAL = False
+
 
 
 class dGridDataTable(wx.grid.PyGridTableBase):
@@ -1620,7 +1622,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			row = self.CurrentRow
 		if col is None:
 			col = self.CurrentColumn
-		return self.GetValue(row, col)
+		ret = self.GetValue(row, col)
+		if isinstance(ret, str):
+			ret = ret.decode(self.Encoding)
+		return ret
 	def setValue(self, row, col, val):
 		return self.SetValue(row, col, val)
 
@@ -3322,11 +3327,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if bo is not None:
 			ret = bo.Encoding
 		else:
-			try:
-				ret = wx.GetDefaultPyEncoding()
-			except AttributeError:
-				# wx versions < 2.6 don't have the GetDefaultPyEncoding function
-				ret = "utf-8"
+			ret = self.Application.Encoding
 		return ret
 		
 
@@ -3976,7 +3977,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 class _dGrid_test(dGrid):
 	def initProperties(self):
-		self.DataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True, "color": "brown"},
+		self.DataSet = [{"name" : "Ed Lfe", "age" : 47, "coder" :  True, "color": "brown"},
 				{"name" : "Mike Leafe", "age" : 18, "coder" :  False, "color": "purple"},
 				{"name" : "Dan Leafe", "age" : 13, "coder" :  False, "color": "green"}]
 		self.Width = 360
@@ -4000,7 +4001,7 @@ class _dGrid_test(dGrid):
 
 		col = dColumn(self, Name="Person", Order=20, DataField="name",
 				DataType="string", Width=200, Caption="Customer Name",
-				Sortable=True, Searchable=True, Editable=False, Expand=True)
+				Sortable=True, Searchable=True, Editable=True, Expand=True)
 		self.addColumn(col)
 		
 		col.HeaderFontItalic = True

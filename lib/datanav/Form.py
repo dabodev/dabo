@@ -805,7 +805,7 @@ class Form(dabo.ui.dForm):
 		ep = self.PageFrame.Pages[2]
 		objects = self._getAllChildObjects(ep)
 
-		rfxml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+		rfxml = """<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 
 <report>
 	<title>"""
