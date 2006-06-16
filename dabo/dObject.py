@@ -212,14 +212,11 @@ class dObject(autosuper, DoDefaultMixin, PropertyHelperMixin,
 		return ret
 
 	def _setBasePrefKey(self, val):
-		if self._constructed():
-			self._basePrefKey = val
-			pm = self.PreferenceManager
-			if pm is not None:
-				if not pm._key:
-					pm._key = val
-		else:
-			self._properties["BasePrefKey"] = val
+		self._basePrefKey = val
+		pm = self.PreferenceManager
+		if pm is not None:
+			if not pm._key:
+				pm._key = val
 
 
 	def _getClass(self):
@@ -287,10 +284,7 @@ class dObject(autosuper, DoDefaultMixin, PropertyHelperMixin,
 		return ret
 
 	def _setPreferenceManager(self, val):
-		if self._constructed():
-			self._preferenceManager = val
-		else:
-			self._properties["PreferenceManager"] = val
+		self._preferenceManager = val
 
 
 	def _getSuperClass(self):
