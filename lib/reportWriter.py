@@ -1866,7 +1866,7 @@ class ReportWriter(object):
 		_("Specifies the python report form data dictionary."))
 	
 	ReportFormFile = property(_getReportFormFile, _setReportFormFile, None,
-		_("Specifies the path and filename of the report form spec file.")
+		_("Specifies the path and filename of the report form spec file."))
 		
 	ReportFormXML = property(_getReportFormXML, _setReportFormXML, None,
 		_("Specifies the report format xml."))
