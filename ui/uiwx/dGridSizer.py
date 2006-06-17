@@ -592,6 +592,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			ret = max(cols)
 		else:
 			ret = -1
+		return ret
 
 
 	def _getHighRow(self):
@@ -602,6 +603,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			ret = max(rows)
 		else:
 			ret = -1
+		return ret
 
 
 	def _getMaxRows(self):
