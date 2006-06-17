@@ -161,20 +161,28 @@ class dSizerMixin(dObject):
 			# The use of callAfter can sometimes result in destroyed
 			# objects being removed.
 			return
-			
-		self.Detach(item)
-		item._controllingSizer = None
-		item._controllingSizerItem = None
-		if destroy:
-			try:
-				if isinstance(item, dabo.ui.dSizerMixin):
-					item.release(True)
-				else:
-					item.release()
-			except:
-				item.Destroy()
+		if self.Detach(item):
+			item._controllingSizer = None
+			item._controllingSizerItem = None
+			if destroy:
+				try:
+					if isinstance(item, dabo.ui.dSizerMixin):
+						item.release(True)
+					else:
+						item.release()
+				except:
+					item.Destroy()
 	
 	
+	def clear(self, destroy=False):
+		"""This method is called to remove all items from the sizer. If the
+		optional 'destroy' parameter is set to True, any contained items
+		will be destroyed. Otherwise, they will remain as is, but no longer
+		under control of the sizer.
+		"""
+		self.Clear(destroy)
+		
+		
 	def addSpacer(self, val, pos=None, proportion=0):
 		spacer = val
 		if isinstance(val, int):

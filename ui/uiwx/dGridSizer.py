@@ -42,9 +42,6 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			# Rows were passed.
 			self.MaxRows = maxRows
 		self.SetFlexibleDirection(self.bothFlag)
-		# Keep track of the highest numbered row/col that
-		# contains an item
-		self._highRow = self._highCol = -1
 		# Keep track of which rows/cols are set to expand.
 		self._rowExpandState = {}
 		self._colExpandState = {}
@@ -88,9 +85,6 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			item._controllingSizer = self
 			item._controllingSizerItem = szItem
 			szItem.ControllingSizer = self
-			
-		self._highRow = max(self._highRow, targetRow)
-		self._highCol = max(self._highCol, targetCol)
 		return szItem
 		
 		
@@ -134,18 +128,17 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 				itm = szitm.GetSpacer()
 				self.remove(itm)
 		# OK, all items are removed. Now move all higher rows upward
-		for r in range(rowNum+1, self._highRow+1):
-			for c in range(self._highCol+1):
+		for r in range(rowNum+1, self.HighRow+1):
+			for c in range(self.HighCol+1):
 				self.moveCell(r, c, r-1, c, delay=True)
 		self.layout()
-		self._highRow -= 1
 		
 		
 	def removeCol(self, colNum):
 		""" Deletes any items contained in the specified column, and
 		then moves all items to the right of it up to fill the space.
 		"""
-		for r in range(self._highRow+1):
+		for r in range(self.HighRow+1):
 			szitm = self.FindItemAtPosition( (r, colNum) )
 			if not szitm:
 				continue
@@ -163,7 +156,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 				itm = szitm.GetSpacer()
 				self.remove(itm)
 		# OK, all items are removed. Now move all higher columns to the left
-		for r in range(self._highRow+1):
+		for r in range(self.HighRow+1):
 			for c in range(colNum+1, self._highCol+1):
 				self.moveCell(r, c, r, c-1, delay=True)
 		self.layout()
@@ -324,20 +317,6 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 						break
 				emptyCol += 1
 		return ret
-	
-	
-	def getHighRow(self):
-		"""Returns the highest row that contains an object."""
-		rows = [self.GetItemPosition(win)[0] + (self.GetItemSpan(win)[0]-1)
-				for win in self.ChildWindows]
-		return max(rows)
-	
-	
-	def getHighCol(self):
-		"""Returns the highest column that contains an object."""
-		cols = [self.GetItemPosition(win)[1] + (self.GetItemSpan(win)[1]-1)
-				for win in self.ChildWindows]
-		return max(cols)
 	
 	
 	def getGridPos(self, obj):
@@ -544,8 +523,8 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		cell's item are preserved, but row/column Expand settings 
 		must be handled separately.
 		"""
-		for r in range(oldGrid._highRow+1):
-			for c in range(oldGrid._highCol+1):
+		for r in range(oldGrid.HighRow+1):
+			for c in range(oldGrid.HighCol+1):
 				szitm = oldGrid.FindItemAtPosition( (r,c) )
 				itm = oldGrid.getItem(szitm)
 				if itm is None:
@@ -604,8 +583,27 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		if isinstance(val, basestring):
 			val = int(val)
 		self.SetHGap(val)
-		
-		
+
+	def _getHighCol(self):
+		itms = self.ChildWindows + self.ChildSizers
+		cols = [self.GetItemPosition(itm)[1] + (self.GetItemSpan(itm)[1]-1)
+				for itm in itms]
+		if cols:
+			ret = max(cols)
+		else:
+			ret = -1
+
+
+	def _getHighRow(self):
+		itms = self.ChildWindows + self.ChildSizers
+		rows = [self.GetItemPosition(itm)[0] + (self.GetItemSpan(itm)[0]-1)
+				for itm in itms]
+		if rows:
+			ret = max(rows)
+		else:
+			ret = -1
+
+
 	def _getMaxRows(self):
 		return self._maxRows
 	
@@ -649,6 +647,12 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	HGap = property(_getHGap, _setHGap, None,
 			_("Horizontal gap between cells in the sizer  (int)"))
 			
+	HighCol = property(_getHighCol, None, None,
+			_("Highest col position that contains any item. Read-only.  (int)"))
+	
+	HighRow = property(_getHighRow, None, None,
+			_("Highest row position that contains any item. Read-only.  (int)"))
+	
 	MaxRows = property(_getMaxRows, _setMaxRows, None,
 			_("When adding elements to the sizer, controls the max number "
 			"of rows to add before a new column is started. (int)") )
