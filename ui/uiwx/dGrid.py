@@ -1430,6 +1430,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 		# Internal flag to determine if the prior sort order needs to be restored:
 		self._sortRestored = False
+		# Internal flag to determine if refresh should be called after sorting.
+		self._refreshAfterSort = True
 		
 		# Used to provide 'data' when the DataSet is empty.
 		self.emptyRowsToAdd = 0
@@ -2313,7 +2315,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if biz:
 			self.CurrentRow = biz.RowNumber
 		
-		self.refresh()
+		if self._refreshAfterSort:
+			self.refresh()
 
 		self._setUserSetting("sortedColumn", columnToSort)
 		self._setUserSetting("sortOrder", sortOrder)
@@ -2562,7 +2565,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def refresh(self):
+		ref = self._refreshAfterSort
+		self._refreshAfterSort = False
 		self._restoreSort()
+		self._refreshAfterSort = ref
 		self._syncCurrentRow()
 		self._syncColumnCount()
 		self._syncRowCount()
