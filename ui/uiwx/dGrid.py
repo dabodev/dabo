@@ -2562,6 +2562,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def refresh(self):
+		self._restoreSort()
 		self._syncCurrentRow()
 		self._syncColumnCount()
 		self._syncRowCount()
