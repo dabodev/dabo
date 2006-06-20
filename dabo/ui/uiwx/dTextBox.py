@@ -82,6 +82,9 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			# Use the ISO 8601 datetime string format (with a " " separator
 			# instead of "T") 
 			strVal = value.isoformat(" ")
+		elif isinstance(value, datetime.time):
+			# Use the ISO 8601 time string format
+			strVal = value.isoformat()
 		else:
 			# convert all other data types to string:
 			strVal = str(value)   # (floats look like 25.55)
@@ -109,7 +112,6 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 				regex = self._dregex[format]
 			except KeyError:
 				regex = self._dregex[format] = self._getDateRegex(format)
-			
 			m = regex.match(strVal)
 			if m is not None:
 				groups = m.groupdict()
@@ -160,15 +162,13 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		try:
 			regex = self._dtregex
 		except AttributeError:
-			regex = self._dtregex = re.compile(self._getDateTimeRegex())
-			
+			regex = self._dtregex = self._getDateTimeRegex()
 		m = regex.match(strVal)
 		if m is not None:
 			groups = m.groupdict()
 			if len(groups["ms"]) == 0:
 				# no ms in the expression
 				groups["ms"] = 0
-		
 			try:		
 				return datetime.datetime(int(groups["year"]), 
 					int(groups["month"]),
@@ -196,10 +196,46 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		exp["second"] = "(?P<second>[0-5][0-9])"          ## second 00-59
 		exp["ms"] = "\.{0,1}(?P<ms>[0-9]{0,6})"           ## optional ms
 		exp["sep"] = "(?P<sep> |T)"
-		
-		exps = "^%s-%s-%s%s%s:%s:%s%s$" % (exp["year"], exp["month"],
-			exp["day"], exp["sep"], exp["hour"], exp["minute"], exp["second"], exp["ms"])
-		
+		exps = "^%(year)s-%(month)s-%(day)s%(sep)s%(hour)s:%(minute)s:%(second)s%(ms)s$" % exp
+		return re.compile(exps)
+
+
+	def _getTimeFromString(self, strVal):
+		"""Given a string in ISO 8601 time format, return a 
+		datetime.time object.
+		"""
+		try:
+			regex = self._tmregex
+		except AttributeError:
+			regex = self._tmregex = self._getTimeRegex()
+		m = regex.match(strVal)
+		if m is not None:
+			groups = m.groupdict()
+			if len(groups["ms"]) == 0:
+				# no ms in the expression
+				groups["ms"] = 0
+			try:		
+				return datetime.time(int(groups["hour"]),
+					int(groups["minute"]),
+					int(groups["second"]),
+					int(groups["ms"]))
+			except ValueError:
+				# Could be that the day was out of range for the particular month
+				# (Sept. only has 30 days but the regex will allow 31, etc.)
+				return None
+		else:
+			# The regex didn't match
+			return None
+	
+	
+	def _getTimeRegex(self):
+		exp = {}
+		exp["hour"] = "(?P<hour>[0-1][0-9]|2[0-3])"       ## hour 00-23
+		exp["minute"] = "(?P<minute>[0-5][0-9])"          ## minute 00-59
+		exp["second"] = "(?P<second>[0-5][0-9])"          ## second 00-59
+		exp["ms"] = "\.{0,1}(?P<ms>[0-9]{0,6})"           ## optional ms
+		exp["sep"] = "(?P<sep> |T)"
+		exps = "^%(hour)s:%(minute)s:%(second)s%(ms)s$" % exp
 		return re.compile(exps)
 
 
@@ -388,12 +424,14 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			else:
 				retVal = False
 
-		elif dataType in (datetime.date, datetime.datetime):
+		elif dataType in (datetime.date, datetime.datetime, datetime.time):
 			# We expect the string to be in ISO 8601 format.
 			if dataType == datetime.date:
 				retVal = self._getDateFromString(strVal)
 			elif dataType == datetime.datetime:
 				retVal = self._getDateTimeFromString(strVal)
+			elif dataType == datetime.time:
+				retVal = self._getTimeFromString(strVal)
 				
 			if retVal is None:
 				# String wasn't in ISO 8601 format... put it back to a valid
@@ -406,6 +444,14 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			try:
 				import mx.DateTime
 				retVal = mx.DateTime.DateTimeFrom(str(strVal))
+			except ImportError:
+				retVal = self._value
+		
+		elif str(dataType) == "<type 'DateTimeDelta'>":
+			# mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
+			try:
+				import mx.DateTime
+				retVal = mx.DateTime.TimeFrom(str(strVal))
 			except ImportError:
 				retVal = self._value
 		

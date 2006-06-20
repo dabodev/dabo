@@ -1103,10 +1103,12 @@ class dPemMixin(dPemMixinBase):
 		return obj
 	
 	
-	def drawBitmap(self, bmp, x=0, y=0, persist=True):
+	def drawBitmap(self, bmp, x=0, y=0, persist=True, transparent=True):
 		"""Draws a bitmap on the object at the specified position."""
-		obj = DrawObject(self, Bitmap=bmp,
-				Shape="bmp", Xpos=x, Ypos=y)
+		if isinstance(bmp, basestring):
+			bmp = dabo.ui.strToBmp(bmp)
+		obj = DrawObject(self, Bitmap=bmp, Shape="bmp", 
+				Xpos=x, Ypos=y, Transparent=transparent)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -2104,6 +2106,7 @@ class DrawObject(dObject):
 		self._backColor = None
 		self._text = None
 		self._angle = 0
+		self._transparent = True
 		super(DrawObject, self).__init__(*args, **kwargs)
 		self._inInit = False
 	
@@ -2125,7 +2128,7 @@ class DrawObject(dObject):
 			dc = wx.ClientDC(self.Parent)
 		
 		if self.Shape == "bmp":
-			dc.DrawBitmap(self._bitmap, self.Xpos, self.Ypos, False)
+			dc.DrawBitmap(self._bitmap, self.Xpos, self.Ypos, self._transparent)
 			return
 		
 		pw = self.PenWidth
