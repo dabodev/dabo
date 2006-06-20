@@ -21,7 +21,8 @@ class dBackend(dObject):
 		super(dBackend, self).__init__()
 		self.dbModuleName = None
 		self._connection = None
-		self._encoding = self.Application.Encoding
+		if self.Application:
+			self._encoding = self.Application.Encoding
 
 
 	def isValidModule(self):
