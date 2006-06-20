@@ -2265,7 +2265,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					dataType = "long"
 				elif isinstance(f, int):
 					dataType = "int"
-				elif _USE_DECIMAL and isinstance(f, decimal.Decimal):
+				elif _USE_DECIMAL and isinstance(f, Decimal):
 					dataType = "decimal"
 				else:
 					dataType = None
