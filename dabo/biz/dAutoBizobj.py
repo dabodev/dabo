@@ -235,12 +235,10 @@ class dAutoBizobj(dBizobj):
 
 	def initTable(self):
 		"""Return the data to be inserted into the table after it has been created.
-		Return a dictionary with the column name as the key and a turple of values
-		for the value.
+		Return a tuple in the format of ((column list), (lists to insert)).
 		Example:
 			def initTable(self):
-				return 	{"first_name":("Admin","Bob"),
-						"last_name":("","Joe")}
+				return 	(("firstname","lastname"), (("bob","smith"),("granny","smith"))
 		"""
 		#Override in subclass
 
@@ -265,19 +263,34 @@ class dAutoBizobj(dBizobj):
 		#Insert data
 		to_insert = self.initTable()
 		if to_insert:
-			#self.requery()
-			for i in range(0, len(to_insert[to_insert.keys()[0]])):
-				self.new()
-				for k in to_insert.keys():
-					self.setFieldVal(k, to_insert[k][i])
+			if to_insert is dict:
+				#in a dict where key is the column and value is a list of data for that column
+				for i in range(0, len(to_insert[to_insert.keys()[0]])):
+					self.new()
+					for k in to_insert.keys():
+						self.setFieldVal(k, to_insert[k][i])
 
-				try:
-					self.save()
-				except dException.DBQueryException, e:
-					if g._toExc.has_key(self._conn):
-						g._toExc[self._conn] = g._toExc[self._conn].append(e.sql)
-					else:
-						g._toExc[self._conn] = [e.sql]
+					try:
+						self.save()
+					except dException.DBQueryException, e:
+						if g._toExc.has_key(self._conn):
+							g._toExc[self._conn] = g._toExc[self._conn].append(e.sql)
+						else:
+							g._toExc[self._conn] = [e.sql]
+			else:
+				#tuple in the format of ((column list), (lists to insert))
+				for row in to_insert[1]:
+					self.new()
+					for col, val in zip(to_insert[0], row):
+						self.setFieldVal(col, val)
+					
+					try:
+						self.save()
+					except dException.DBQueryException, e:
+						if g._toExc.has_key(self._conn):
+							g._toExc[self._conn] = g._toExc[self._conn].append(e.sql)
+						else:
+							g._toExc[self._conn] = [e.sql]
 
 
 	def _getTable(self):
