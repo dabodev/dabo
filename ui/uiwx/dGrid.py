@@ -781,7 +781,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		if self._constructed():
 			self._gridColAttr.SetReadOnly(not val)
 			if self.Parent:
-				self.Parent.refresh()
+				self.Parent.refresh(sort=False)
 		else:
 			self._properties["Editable"] = val			
 
@@ -1205,7 +1205,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				if idx >= 0:
 					# Change the size in the wx grid:
 					self.Parent.SetColSize(idx, val)
-					self.Parent.refresh()
+					self.Parent.refresh(sort=False)
 		else:
 			self._properties["Width"] = val
 	
@@ -2564,11 +2564,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		return None
 
 
-	def refresh(self):
-		ref = self._refreshAfterSort
-		self._refreshAfterSort = False
-		self._restoreSort()
-		self._refreshAfterSort = ref
+	def refresh(self, sort=True):
+		if sort:
+			ref = self._refreshAfterSort
+			self._refreshAfterSort = False
+			self._restoreSort()
+			self._refreshAfterSort = ref
 		self._syncCurrentRow()
 		self._syncColumnCount()
 		self._syncRowCount()
@@ -3984,7 +3985,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 class _dGrid_test(dGrid):
 	def initProperties(self):
-		self.DataSet = [{"name" : "Ed Lfe", "age" : 47, "coder" :  True, "color": "brown"},
+		self.DataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True, "color": "brown"},
 				{"name" : "Mike Leafe", "age" : 18, "coder" :  False, "color": "purple"},
 				{"name" : "Dan Leafe", "age" : 13, "coder" :  False, "color": "green"}]
 		self.Width = 360
