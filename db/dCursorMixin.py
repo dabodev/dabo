@@ -373,6 +373,9 @@ class dCursorMixin(dObject):
 		the data according to the request.
 		"""
 		kf = self.KeyField
+		if not kf:
+			return
+			
 		if not self.__unsortedRows:
 			# Record the PK values
 			for row in self._records:
@@ -999,31 +1002,45 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		# Create a list of PKs for each 'eligible' row to cancel
 		cancelPKs = []
 		kf = self.KeyField
-		for rec in recs:
-			if self._compoundKey:
-				key = tuple([rec[k] for k in kf])
-				cancelPKs.append(key)
-			else:
-				cancelPKs.append(rec[kf])
-
-		for ii in range(self.RowCount-1, -1, -1):
-			rec = self._records[ii]
-			if self._compoundKey:
-				key = tuple([rec[k] for k in kf])
-			else:
-				key = rec[self.KeyField]
-				
-			if key in cancelPKs:
-				if not self.isRowChanged(rec):
-					# Nothing to cancel
-					continue
-
-				newrec =  rec.has_key(kons.CURSOR_NEWFLAG)
-				if newrec:
-					# Discard the record, and adjust the props
-					self.delete(ii)
+		if not kf:
+			delrecs = []
+			for rec in self._records:
+				if rec.has_key(kons.CURSOR_NEWFLAG):
+					delrecs.append(rec)
 				else:
 					self.__cancelRow(rec)
+			if delrecs:
+				recs = list(self._records)
+				for rec in delrecs:
+					idx = recs.index(rec)
+					del recs[idx]
+				self._records = tuple(recs)
+		else:
+			for rec in recs:
+				if self._compoundKey:
+					key = tuple([rec[k] for k in kf])
+					cancelPKs.append(key)
+				else:
+					cancelPKs.append(rec[kf])
+	
+			for ii in range(self.RowCount-1, -1, -1):
+				rec = self._records[ii]
+				if self._compoundKey:
+					key = tuple([rec[k] for k in kf])
+				else:
+					key = rec[self.KeyField]
+					
+				if key in cancelPKs:
+					if not self.isRowChanged(rec):
+						# Nothing to cancel
+						continue
+	
+					newrec =  rec.has_key(kons.CURSOR_NEWFLAG)
+					if newrec:
+						# Discard the record, and adjust the props
+						self.delete(ii)
+					else:
+						self.__cancelRow(rec)
 
 
 	def __cancelRow(self, rec):
@@ -1635,6 +1652,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			orderByClause = "order by " + orderByClause
 		if limitClause:
 			limitClause = "%s %s" % (self.sqlManager.getLimitWord(), limitClause)
+		elif limitClause is None:
+			# The limit clause was specifically disabled.
+			limitClause = ""
 		else:
 			limitClause = "%s %s" % (self.sqlManager.getLimitWord(), self.sqlManager._defaultLimit)
 
