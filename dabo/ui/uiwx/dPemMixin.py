@@ -2390,6 +2390,13 @@ class DrawObject(dObject):
 		self._text = val
 
 
+	def _getTransparent(self):
+		return self._transparent
+
+	def _setTransparent(self, val):
+		self._transparent = val
+
+
 	def _getVisible(self):
 		return self._visible
 		
@@ -2482,6 +2489,9 @@ class DrawObject(dObject):
 
 	Text = property(_getText, _setText, None,
 			_("Text to be drawn  (str)"))
+	
+	Transparent = property(_getTransparent, _setTransparent, None,
+			_("Should the bitmap be drawn transparently?  (bool)"))
 	
 	Visible = property(_getVisible, _setVisible, None,
 			_("Controls whether the shape is drawn.  (bool)"))
