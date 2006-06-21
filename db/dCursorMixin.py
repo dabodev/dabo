@@ -882,16 +882,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def __saverow(self, rec):
-	
-		print "SAVEROW", rec
 		newrec =  rec.has_key(kons.CURSOR_NEWFLAG)
 		mem = rec[kons.CURSOR_MEMENTO]
 		diff = self.makeUpdDiff(rec, newrec)
 
 		if diff:
-			
-			print "diff", diff
-			
 			if newrec:
 				flds = ""
 				vals = ""
@@ -921,16 +916,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 			else:
 				pkWhere = self.makePkWhere(rec)
-				
-				print "PKJWHERFE", pkWhere
 				updClause = self.makeUpdClause(diff)
-				
-				print "UPD", updClause
-				
 				sql = "update %s set %s where %s" % (self.Table, updClause, pkWhere)
-				
-				print "SQL", sql
-
 			newPKVal = None
 			if newrec and self.AutoPopulatePK:
 				# Some backends do not provide a means to retrieve 
@@ -1365,21 +1352,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Create the 'set field=val' section of the Update statement. """
 		ret = ""
 		tblPrefix = self.BackendObject.getUpdateTablePrefix(self.Table)
-		
-		print "IN MAKE UP", diff
-		
 		for fld, val in diff.items():
-		
-			print "WOW"
-			print "FLDVAL", fld, val
-			
 			# Skip the fields that are not to be updated.
 			if fld in self.getNonUpdateFields():
 				continue
 			if ret:
 				ret += ", "
-			
-			print "MAKEUP", ret, val
 			ret += tblPrefix + fld + " = " + self.formatForQuery(val)			
 		return ret
 
@@ -1443,9 +1421,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Format any value for the backend """
 		ret = val
 		if self.BackendObject:
-			print "BEFORE BACKEND"
 			ret = self.BackendObject.formatForQuery(val)
-			print "AFTER BACKEND"
 		return ret
 
 	
