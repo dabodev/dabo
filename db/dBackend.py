@@ -1,6 +1,7 @@
 """ dabo.db.backend.py : abstractions for the various db api's """
 import sys
 import datetime
+import dabo
 from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
