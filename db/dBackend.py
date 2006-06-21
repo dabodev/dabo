@@ -23,6 +23,8 @@ class dBackend(dObject):
 		self._connection = None
 		if self.Application:
 			self._encoding = self.Application.Encoding
+		else:
+			self._encoding = dabo.defaultEncoding
 
 
 	def isValidModule(self):

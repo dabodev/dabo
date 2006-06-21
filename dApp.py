@@ -572,7 +572,7 @@ class dApp(dObject):
 	def _getEncoding(self):
 		ret = locale.getlocale()[1]
 		if ret is None:
-			ret = "utf-8"
+			ret = dabo.defaultEncoding
 		return ret
 		
 

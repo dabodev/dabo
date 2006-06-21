@@ -93,6 +93,10 @@ dateFormat = "American"		# MM/DD/YYYY
 # Default font size when none other is specified
 defaultFontSize = 10
 
+# Default encoding to use when none is specified
+defaultEncoding = "utf-8"
+
+
 ### Settings - end
 
 # Do not copy/paste anything below this line into settings_override.py.
