@@ -16,7 +16,7 @@ if app is not None:
 else:
 		enc = locale.getlocale()[1]
 		if enc is None:
-			enc = "utf-8"
+			enc = dabo.defaultEncoding
 		default_encoding = enc
 		
 # Python seems to need to compile code with \n linesep:

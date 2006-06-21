@@ -113,7 +113,7 @@ def fileRef(ref=""):
 	
 	
 def getXMLWrapper():
-	return """<?xml version="1.0"?>
+	return """<?xml version="1.0" encoding="%s" standalone="yes"?>
 <connectiondefs xmlns="http://www.dabodev.com"
 xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
 xsi:schemaLocation="http://www.dabodev.com conn.xsd"
@@ -122,7 +122,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/conn.xsd">
 %s
 
 </connectiondefs>
-"""
+""" % (dabo.defaultEncoding, "%s")
 
 
 def getConnTemplate():

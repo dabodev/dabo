@@ -1398,7 +1398,10 @@ class dBizobj(dObject):
 		if cursor is not None:
 			ret = cursor.Encoding
 		if ret is None:
-			ret = self.Application.Encoding
+			if self.Application:
+				ret = self.Application.Encoding
+			else:
+				ret = dabo.defaultEncoding
 		return ret
 
 	def _setEncoding(self, val):

@@ -252,7 +252,7 @@ class dCursorMixin(dObject):
 							except UnicodeDecodeError, e:
 								# Try some common encodings:
 								ok = False
-								for enc in ("utf8", "latin-1"):
+								for enc in ("utf-8", "latin-1", "iso-8859-1"):
 									if enc != self.Encoding:
 										try:
 											row[fld]= unicode(val, enc)
@@ -882,11 +882,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def __saverow(self, rec):
+	
+		print "SAVEROW", rec
 		newrec =  rec.has_key(kons.CURSOR_NEWFLAG)
 		mem = rec[kons.CURSOR_MEMENTO]
 		diff = self.makeUpdDiff(rec, newrec)
 
 		if diff:
+			
+			print "diff", diff
+			
 			if newrec:
 				flds = ""
 				vals = ""
@@ -906,9 +911,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						
 					# Append the field and its value.
 					flds += ", " + kk
-					
 					# add value to expression
 					vals += ", %s" % (self.formatForQuery(vv),)
+					
 				# Trim leading comma-space from the strings
 				flds = flds[2:]
 				vals = vals[2:]
@@ -916,8 +921,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 			else:
 				pkWhere = self.makePkWhere(rec)
+				
+				print "PKJWHERFE", pkWhere
 				updClause = self.makeUpdClause(diff)
+				
+				print "UPD", updClause
+				
 				sql = "update %s set %s where %s" % (self.Table, updClause, pkWhere)
+				
+				print "SQL", sql
 
 			newPKVal = None
 			if newrec and self.AutoPopulatePK:
@@ -1354,13 +1366,20 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		ret = ""
 		tblPrefix = self.BackendObject.getUpdateTablePrefix(self.Table)
 		
+		print "IN MAKE UP", diff
+		
 		for fld, val in diff.items():
+		
+			print "WOW"
+			print "FLDVAL", fld, val
+			
 			# Skip the fields that are not to be updated.
 			if fld in self.getNonUpdateFields():
 				continue
 			if ret:
 				ret += ", "
 			
+			print "MAKEUP", ret, val
 			ret += tblPrefix + fld + " = " + self.formatForQuery(val)			
 		return ret
 
@@ -1424,7 +1443,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Format any value for the backend """
 		ret = val
 		if self.BackendObject:
+			print "BEFORE BACKEND"
 			ret = self.BackendObject.formatForQuery(val)
+			print "AFTER BACKEND"
 		return ret
 
 	
