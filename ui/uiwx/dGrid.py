@@ -1449,6 +1449,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._resizableColumns = True
 		self._resizableRows = True
 		
+		# Flag to indicate we are auto-sizing all columns
+		self._inAutoSizeLoop = False
+		
 		# These hold the values that affect row/col hiliting
 		self._selectionForeColor = "black"
 		self._selectionBackColor = "yellow"
@@ -1476,10 +1479,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# How many characters of strings do we display?
 		self.stringDisplayLen = 64
 		
-		# When calculating auto-size widths, we don't want to use
-		# the normal means of getting data sets.
-		self.inAutoSizeCalc = False
-
 		self.currSearchStr = ""
 		self.incSearchTimer = dabo.ui.dTimer(self)
 		self.incSearchTimer.bindEvent(dEvents.Hit, self.onIncSearchTimer)
@@ -1893,7 +1892,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Populate the grid
 		self.fillGrid(True)
 		if autoSizeCols:
-			self.autoSizeCol("all")
+			self.autoSizeCol("all", True)
 		return True
 
 
@@ -1935,12 +1934,18 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		Set colNum='all' to auto-size all columns. Set persist=True to persist the
 		new width to the user settings table.
 		"""	
+		if isinstance(colNum, str):
+			self.lockDisplay()
+			self._inAutoSizeLoop = True
+			for ii in range(len(self.Columns)):
+				self.autoSizeCol(ii, persist=persist)
+			self.unlockDisplay()
+			self._inAutoSizeLoop = False
+			return
 		maxWidth = 250  ## limit the width of the column to something reasonable
-		# lock the screen
-		self.lockDisplay()
-		# We also don't want the Table's call to grid.getDataSet()
-		# to wipe out our temporary changes.
-		self.inAutoSizeCalc = True
+		if not self._inAutoSizeLoop:
+			# lock the screen
+			self.lockDisplay()
 		# We need to account for header caption width, too. Add
 		# a row to the data set containing the header captions, and 
 		# then remove the row afterwards.
@@ -1950,47 +1955,32 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		## This function will get used in both if/elif below:
 		def _setColSize(idx):
-				## breathing room around header caption:
-				capBuffer = 5
-				## add additional room to account for possible sort indicator:
-				capBuffer += ((2*self.sortIndicatorSize) + (2*self.sortIndicatorBuffer))
-				colObj = self.Columns[idx]
-				autoWidth = self.GetColSize(idx)
-				
-				# Account for the width of the header caption:
-				cw = dabo.ui.fontMetricFromFont(colObj.Caption, 
-						colObj.HeaderFont._nativeFont)[0] + capBuffer
-				w = max(autoWidth, cw)
-				w = min(w, maxWidth)
-				colObj.Width = w
+			## breathing room around header caption:
+			capBuffer = 5
+			## add additional room to account for possible sort indicator:
+			capBuffer += ((2*self.sortIndicatorSize) + (2*self.sortIndicatorBuffer))
+			colObj = self.Columns[idx]
+			autoWidth = self.GetColSize(idx)
+			
+			# Account for the width of the header caption:
+			cw = dabo.ui.fontMetricFromFont(colObj.Caption, 
+					colObj.HeaderFont._nativeFont)[0] + capBuffer
+			w = max(autoWidth, cw)
+			w = min(w, maxWidth)
+			colObj.Width = w
 
-				if persist:
-					colObj._persist("Width")
-		
-		if isinstance(colNum, str):
-			## autosize all columns:
-			try:
-				self.AutoSizeColumns(setAsMin=False)
-			except:
-				# Having a problem with Unicode in the native function
-				pass
+			if persist:
+				colObj._persist("Width")
 
-			# Regardless of whether or not the native call worked, make sure that the
-			# column widths as wx has them are propagated to the column widths as
-			# dColumn has them:
-			for ii in range(len(self.Columns)):
-				_setColSize(ii)
-						
-		elif isinstance(colNum, (int, long)):
-			try:
-				self.AutoSizeColumn(colNum, setAsMin=False)
-			except:
-				pass
-			_setColSize(colNum)
+		try:
+			self.AutoSizeColumn(colNum, setAsMin=False)
+		except:
+			pass
+		_setColSize(colNum)
 
-		self.inAutoSizeCalc = False
-		self.refresh()
-		self.unlockDisplay()		
+		if not self._inAutoSizeLoop:
+			self.refresh()
+			self.unlockDisplay()		
 
 
 	def _paintHeader(self, col=None):
