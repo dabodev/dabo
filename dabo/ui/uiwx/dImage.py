@@ -4,11 +4,12 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-import dControlMixin as dcm
+#import dControlMixin as dcm
+import dDataControlMixin as dcm
 from dabo.ui import makeDynamicProperty
 
 
-class dImage(wx.StaticBitmap, dcm.dControlMixin):
+class dImage(wx.StaticBitmap, dcm.dDataControlMixin):
 	""" Create a simple bitmap to display images."""
 	def __init__(self, parent, properties=None, attProperties=None, 
 			*args, **kwargs):
@@ -26,7 +27,7 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		bmp = wx.EmptyBitmap(1, 1)
 		picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
 	
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
 				bitmap=bmp, *args, **kwargs)
 		
 		# Display the picture, if any. This will also initialize the 
@@ -184,6 +185,29 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 			dabo.errorLog.write(_("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'.") )
 
 
+	def _getValue(self):
+		return self.__image
+
+	def _setValue(self, val):
+		if self._constructed():
+			try:
+				isFile = os.path.exists(val)
+			except TypeError:
+				isFile = False
+			if not isFile:
+				# Probably an image stream
+				try:
+					img = dabo.ui.imageFromData(val)
+				except:
+					# No dice, so just bail
+					img = ""
+				self._setPic(img)
+			else:
+				self._setPic(val)
+		else:
+			self._properties["Value"] = val
+
+
 	def _getImg(self):
 		if self.__image is None:
 			self.__image = wx.NullImage
@@ -192,7 +216,6 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 	
 	Bitmap = property(_getBmp, _setBmp, None,
 			_("The bitmap representation of the displayed image.  (wx.Bitmap)") )
-	DynamicBitmap = makeDynamicProperty(Bitmap)
 
 	BitmapHeight = property(_getBitmapHeight, None, None,
 			_("Height of the actual displayed bitmap  (int)"))
@@ -202,7 +225,6 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 	
 	Picture = property(_getPic, _setPic, None,
 			_("The file used as the source for the displayed image.  (str)") )
-	DynamicPicture = makeDynamicProperty(Picture)
 			
 	ScaleMode = property(_getScaleMode, _setScaleMode, None,
 			_("""Determines how the image responds to sizing. Can be one
@@ -212,10 +234,17 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 					its original proportions. (default)
 				Stretch: the image resizes to the Height/Width of the control.
 			""") )
-	DynamicScaleMode = makeDynamicProperty(ScaleMode)
+	
+	Value = property(_getValue, _setValue, None,
+			_("Image content for this control  (binary img data)"))	
 
 	_Image = property(_getImg, None, None, 
 			_("Underlying image handler object  (wx.Image)") )
+
+
+	DynamicBitmap = makeDynamicProperty(Bitmap)
+	DynamicPicture = makeDynamicProperty(Picture)
+	DynamicScaleMode = makeDynamicProperty(ScaleMode)
 
 	
 if __name__ == "__main__":

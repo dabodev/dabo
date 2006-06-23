@@ -4,6 +4,7 @@ import inspect
 import random
 import sys
 import re
+import array
 # Make sure that the user's installation supports Decimal.
 _USE_DECIMAL = True
 try:
@@ -267,6 +268,9 @@ class dCursorMixin(dObject):
 											break
 								else:
 									raise UnicodeDecodeError, e
+						elif isinstance(val, array.array):
+							# Usually blob data
+							row[fld] = val.tostring()
 
 			# Convert to DataSet 
 			self._records = DataSet(self._records)
@@ -2386,9 +2390,6 @@ class DataSet(tuple):
 # 		print "FETCH", ft-et
 		return DataSet(tmpres)
 		
-# 		
-# 		dabo.trace()
-# 		
 # 		res = []
 # 		if tmpres:
 # 			# There will be no description if there are no records.
