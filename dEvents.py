@@ -15,7 +15,7 @@ class Event(dObject):
 	User code can define custom events by simply subclassing Event and then 
 	using self.bindEvent() and self.raiseEvent() in your objects.
 	"""		
-	def __init__(self, eventObject, uiEvent=None, *args, **kwargs):
+	def __init__(self, eventObject, uiEvent=None, eventData=None, *args, **kwargs):
 		# Event objects get instantiated with every single event, so try
 		# to keep code to a minimum here.
 		
@@ -30,6 +30,8 @@ class Event(dObject):
 		self._baseClass = Event
 		
 		self._insertEventData()
+		if eventData:
+			self._eventData.update(eventData)
 		
 		if dabo.eventLogging:
 			self._logEvent()
@@ -154,7 +156,6 @@ class GridEvent(Event):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dGrid)
 	appliesToClass = classmethod(appliesToClass)
-	
 	
 class KeyEvent(Event):
 	def appliesToClass(eventClass, objectClass):
@@ -702,6 +703,16 @@ class GridCellEdited(GridEvent):
 
 class GridColSize(GridEvent):
 	"""Occurs when the grid's columns are resized."""
+	pass
+
+
+class GridBeforeSort(GridEvent):
+	"""Occurs before the grid is sorted"""
+	pass
+
+
+class GridAfterSort(GridEvent):
+	"""Occurs after the grid is sorted"""
 	pass
 
 
