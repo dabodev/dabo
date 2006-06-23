@@ -2,6 +2,7 @@ import xml.sax
 from StringIO import StringIO
 import os.path
 from xmltodict import escQuote
+import dabo
 
 
 class connHandler(xml.sax.ContentHandler):
