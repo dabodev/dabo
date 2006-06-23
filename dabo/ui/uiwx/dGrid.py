@@ -2214,7 +2214,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			# Some columns, especially those with mixed values,
 			# should not be sorted.
 			return
-			
+		
 		sortOrder="ASC"
 		if columnToSort == self.sortedColumn:
 			sortOrder = self.sortOrder
@@ -2226,8 +2226,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.sortOrder = sortOrder
 		self.sortedColumn = columnToSort
 		
-		biz = self.getBizobj()
+		eventData = {"column": colObj, "sortOrder": sortOrder}
+		self.raiseEvent(dEvents.GridBeforeSort, eventObject=self,
+				eventData=eventData)
 
+		biz = self.getBizobj()
 		if self.customSort:
 			# Grids tied to bizobj cursors may want to use their own sorting.
 			self.sort()
@@ -2329,10 +2332,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			self.CurrentRow = biz.RowNumber
 		
 		if self._refreshAfterSort:
-			self.refresh()
+			self.refresh(sort=False)
 
 		self._setUserSetting("sortedColumn", columnToSort)
 		self._setUserSetting("sortOrder", sortOrder)
+		self.raiseEvent(dEvents.GridAfterSort, eventObject=self, 
+				eventData=eventData)
 
 
 	def runIncSearch(self):
@@ -4062,7 +4067,15 @@ if __name__ == '__main__':
 					DataSource="sampleGrid", DataField="Editable")
 			self.Sizer.append(chk, halign="Center")
 			chk.refresh()
+			
+			self.grid.bindEvent(dEvents.GridBeforeSort, self.beforeSort)
+			self.grid.bindEvent(dEvents.GridAfterSort, self.afterSort)
+		
+		def beforeSort(self, evt):
+			print "Before Sort Event", evt.EventData
 
+		def afterSort(self, evt):
+			print "After Sort Event", evt.EventData
 			
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
