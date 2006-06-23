@@ -78,7 +78,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		## handling the editor here.
 		r = dcol.getRendererClassForRow(row)
 		if r is not None:
-			attr.SetRenderer(r())
+			rnd = r()
+			attr.SetRenderer(rnd)
+			if r is dcol.floatRendererClass:
+				rnd.SetPrecision(dcol.Precision)
 		# Now check for alternate row coloration
 		if self.alternateRowColoring:
 			attr.SetBackgroundColour((self.rowColorEven, self.rowColorOdd)[row % 2])
@@ -425,6 +428,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				*args, **kwargs):
 		self._isConstructed = False
 		self._expand = False
+		# Default to 2 decimal places
+		self._precision = 2
+
 		self._beforeInit()
 		kwargs["Parent"] = parent
 		# dColumn maintains one attr object that the grid table will use:
@@ -516,8 +522,12 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			kwargs = {}
 			if edClass in (wx.grid.GridCellChoiceEditor,):
 				kwargs["choices"] = self.getListEditorChoicesForRow(row)
+			elif edClass in (wx.grid.GridCellFloatEditor,):
+				kwargs["precision"] = self.Precision
 			editor = edClass(**kwargs)
 			attr.SetEditor(editor)
+# 			if edClass is self.floatEditorClass:
+# 				editor.SetPrecision(self.Precision)
 		self._gridColAttr = attr
 
 
@@ -1110,13 +1120,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._properties["ListEditorChoices"] = val
 
 
-	def _getRendererClass(self):
-		v = self.CustomRendererClass
-		if v is None:
-			v = self.defaultRenderers.get(self.DataType)
-		return v
-
-
 	def _getOrder(self):
 		try:
 			v = self._order
@@ -1129,6 +1132,23 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._order = val
 		else:
 			self._properties["Order"] = val
+
+
+	def _getPrecision(self):
+		return self._precision
+
+	def _setPrecision(self, val):
+		if self._constructed():
+			self._precision = val
+		else:
+			self._properties["Precision"] = val
+
+
+	def _getRendererClass(self):
+		v = self.CustomRendererClass
+		if v is None:
+			v = self.defaultRenderers.get(self.DataType)
+		return v
 
 
 	def _getSearchable(self):
@@ -1353,6 +1373,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			_("""Order of this column. Columns in the grid are arranged according
 			to their relative Order. (int)""") )
 
+	Precision = property(_getPrecision, _setPrecision, None,
+			_("Number of decimal places to display for float values  (int)"))
+	
 	RendererClass = property(_getRendererClass, None, None,
 			_("""Returns the renderer class used for cells in the column. This will be 
 			self.CustomRendererClass if set, or the default renderer class for the 
