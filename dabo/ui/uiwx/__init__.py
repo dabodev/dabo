@@ -378,6 +378,7 @@ def getEventData(wxEvt):
 			ed["selectedCaption"] = tree.Selection.Caption
 		try:
 			ed["itemID"] = wxEvt.GetItem()
+			ed["itemNode"] = tree.find(ed["itemID"])[0]
 		except:
 			pass
 	
