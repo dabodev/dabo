@@ -37,9 +37,10 @@ class CalPanel(dPanel):
 		
 	def onCalSelection(self, evt):
 		if self.ctrl is not None:
-			self.ctrl.Value = self.cal.Date
+			self.ctrl.setDate(self.cal.Date)
 			self.ctrl.setFocus()
 		self.Visible = False
+		
 		
 
 class dDateTextBox(dTextBox):
@@ -60,6 +61,16 @@ class dDateTextBox(dTextBox):
 				"European": {"prompt": "European (DD.MM.YYYY)", 
 					"setting": "european", 
 					"format" : "%d.%m.%Y"} }
+		self.dateTimeFormats = {
+				"American": {"prompt": "American (MM/DD/YYYY)", 
+					"setting" : "American", 
+					"format" : "%m/%d/%Y %H:%M:%S"},
+				"YMD": {"prompt": "YMD (YYYY-MM-DD)", 
+					"setting": "YMD", 
+					"format" : "%Y-%m-%d %H:%M:%S"},
+				"European": {"prompt": "European (DD.MM.YYYY)", 
+					"setting": "european", 
+					"format" : "%d.%m.%Y %H:%M:%S"} }
 		# Default format; can be changed in settings_override.py
 		# or by using the RightClick menu.
 		self.dateFormat = dabo.settings.dateFormat
@@ -82,6 +93,8 @@ class dDateTextBox(dTextBox):
 		# Do we display a button on the right side for activating the calendar?
 		### TODO: still needs a lot of work to display properly.
 		self.showCalButton = False
+		# Do we display datetimes in 24-hour clock, or with AM/PM?
+		self.ampm = False
 	
 	
 	def afterInit(self):
@@ -179,12 +192,23 @@ C: Popup Calendar to Select
 		"""
 		try:
 			key = evt.keyChar.lower()
+			ctrl = evt.controlDown
+			shift = evt.shiftDown
+			
+			if ctrl:
+				if shift and self.Application.Platform == "GTK":
+					# Linux reads keys differently depending on the Shift key
+					key = {72: "h", 77: "m", 83: "s"}[evt.keyCode]
+				else:
+					key = {8: "h", 13: "m", 19: "s"}[evt.keyCode]
 		except:
 			# spurious key event; ignore
 			return
-		shortcutKeys = "t+-mhyrc[]"
-		dateEntryKeys = "0123456789/-"
-		
+		shortcutKeys = "t+-mhsyrc[]"
+		dateEntryKeys = "0123456789/- :"
+		if self.ampm:
+			dateEntryKeys + "apm"
+			
 		if key in shortcutKeys:
 			# There is a conflict if the key, such as '-', is used in both the 
 			# date formatting and as a shortcut. So let's check the text
@@ -202,7 +226,7 @@ C: Popup Calendar to Select
 				self.Value = val
 				evt.Continue = False
 			if adjust:
-				self.adjustDate(key)
+				self.adjustDate(key, ctrl, shift)
 	
 		elif key in dateEntryKeys:
 			# key can be used for date entry: allow
@@ -216,7 +240,7 @@ C: Popup Calendar to Select
 			pass
 
 
-	def adjustDate(self, key):
+	def adjustDate(self, key, ctrl=False, shift=False):
 		""" Modifies the current date value if the key is one of the 
 		shortcut keys.
 		"""
@@ -228,10 +252,17 @@ C: Popup Calendar to Select
 		self.dateOK = True
 		# Flag to indicate if we consider boundary conditions
 		checkBoundary = True
+		# Are we working with dates or datetimes
+		isDateTime = isinstance(self.date, datetime.datetime)
+		# Did the key move to a boundary?
+		toBoundary = False
 		
 		if key == "t":
 			# Today
-			self.date = datetime.date.today()
+			if isDateTime:
+				self.date = datetime.datetime.now()
+			else:
+				self.date = datetime.date.today()
 			self.Value = self.date
 		elif key == "@":
 			# DEV! For testing the handling of bad dates
@@ -244,23 +275,60 @@ C: Popup Calendar to Select
 			self.dayInterval(-1)
 			forward = False
 		elif key == "m":
-			# First day of month
-			self.date = self.date.replace(day=1)
-			self.Value = self.date
-			forward = False
+			if ctrl:
+				if isDateTime:
+					# Changing the minute value
+					amt = 1
+					if shift:
+						amt = -1
+						forward = False
+					self.minuteInterval(amt)
+				else:
+					return
+			else:
+				# First day of month
+				self.date = self.date.replace(day=1)
+				self.Value = self.date
+				forward = False
+				toBoundary = True
 		elif key == "h":
-			# Last day of month
-			self.setToLastMonthDay()
-			self.Value = self.date
+			if ctrl:
+				if isDateTime:
+					# Changing the hour value
+					amt = 1
+					if shift:
+						amt = -1
+						forward = False
+					self.hourInterval(amt)
+				else:
+					return
+			else:
+				# Last day of month
+				self.setToLastMonthDay()
+				self.Value = self.date
+				toBoundary = True
+		elif key == "s":
+			if ctrl:
+				if isDateTime:
+					# Changing the second value
+					amt = 1
+					if shift:
+						amt = -1
+						forward = False
+					self.secondInterval(amt)
+			else:
+				return
 		elif key == "y":
 			# First day of year
 			self.date = self.date.replace(month=1, day=1)
 			self.Value = self.date
 			forward = False
+			toBoundary = True
 		elif key == "r":
 			# Last day of year
 			self.date = self.date.replace(month=12, day=31)
 			self.Value = self.date
+			toBoundary = True
 		elif key == "[":
 			# Back one month
 			self.monthInterval(-1)
@@ -279,7 +347,7 @@ C: Popup Calendar to Select
 		
 		if not self.dateOK:
 			return
-		if checkBoundary and self.continueAtBoundary:
+		if toBoundary and checkBoundary and self.continueAtBoundary:
 			if self.date.toordinal() == orig:
 				# Date hasn't changed; means we're at the boundary
 				# (first or last of the chosen interval). Move 1 day in
@@ -291,8 +359,32 @@ C: Popup Calendar to Select
 				self.adjustDate(key)
 	
 	
+	def hourInterval(self, hours):
+		"""Adjusts the date by the given number of hours; negative
+		values move backwards.
+		"""
+		self.date += datetime.timedelta(hours=hours)
+		self.Value = self.date
+
+	
+	def minuteInterval(self, minutes):
+		"""Adjusts the date by the given number of minutes; negative
+		values move backwards.
+		"""
+		self.date += datetime.timedelta(minutes=minutes)
+		self.Value = self.date
+
+	
+	def secondInterval(self, seconds):
+		"""Adjusts the date by the given number of seconds; negative
+		values move backwards.
+		"""
+		self.date += datetime.timedelta(seconds=seconds)
+		self.Value = self.date
+
+	
 	def dayInterval(self, days):
-		"""Adjusts the date by the given number of 'days'; negative
+		"""Adjusts the date by the given number of days; negative
 		values move backwards.
 		"""
 		self.date += datetime.timedelta(days)
@@ -300,8 +392,8 @@ C: Popup Calendar to Select
 
 	
 	def monthInterval(self, months):
-		"""Adjusts the date by the given number of 'months'; 
-		negative values move backwards.
+		"""Adjusts the date by the given number of months; negative 
+		values move backwards.
 		"""
 		mn = self.date.month + months
 		yr = self.date.year
@@ -335,7 +427,18 @@ C: Popup Calendar to Select
 	def getDateTuple(self):
 		return (self.date.year, self.date.month, self.date.day )
 
-	
+
+	def setDate(self, dt):
+		"""Sets the Value to the passed date if this is holding a date value, or
+		sets the date portion of the Value if it is a datetime.
+		"""
+		val = self.date
+		if isinstance(val, datetime.datetime):
+			self.Value = val.replace(year=dt.year, month=dt.month, day=dt.day)
+		else:
+			self.Value = dt
+
+			
 	def strToDate(self, val, testing=False):
 		""" This routine parses the text representing a date, using the 
 		current format. It adjusts for years given with two digits, using 
@@ -344,11 +447,12 @@ C: Popup Calendar to Select
 		"""
 		val = str(val)
 		ret = None
-		
+		isDateTime = False
 		# See if it matches any standard pattern. Values retrieved
 		# from databases will always be in their own format
 		if self.dbDTPat.match(val):
 			# DateTime pattern
+			isDateTime = True
 			year, month, day, hr, mn, sec = self.dbDTPat.match(val).groups()
 			# Convert to numeric
 			year = int(year)
@@ -365,8 +469,9 @@ C: Popup Calendar to Select
 			year = int(year)
 			month = int(month)
 			day = int(day)
-		if self.dbYearLastDTPat.match(val):
+		elif self.dbYearLastDTPat.match(val):
 			# DateTime pattern, YearLast format
+			isDateTime = True
 			if self.dateFormat == "American":
 				month, day, year, hr, mn, sec = self.dbYearLastDTPat.match(val).groups()
 			else:
@@ -397,6 +502,7 @@ C: Popup Calendar to Select
 				hr = int(hr)
 				mn = int(mn)
 				sec = int(round(float(sec), 0) )
+				isDateTime = True
 			except:
 				dt = val
 				(hr, mn, sec) = (0, 0, 0)
@@ -450,14 +556,24 @@ C: Popup Calendar to Select
 						year += 2000
 			except:
 				return ret
-		try:
-			ret = datetime.date(year, month, day)
-		except:
-			if not testing:
-				# Don't fill up the logs with error messages from tests that 
-				# are expected to fail.
-				dabo.errorLog.write(_("Invalid date specified. Y,M,D, val = %s, %s, %s, %s" % (year, month, day, val) ))
-			ret = None
+		if isDateTime:
+			try:
+				ret = datetime.datetime(year, month, day, hr, mn, sec)
+			except:
+				if not testing:
+					# Don't fill up the logs with error messages from tests that 
+					# are expected to fail.
+					dabo.errorLog.write(_("Invalid datetime specified: %s") % val )
+				ret = None
+		else:
+			try:
+				ret = datetime.date(year, month, day)
+			except:
+				if not testing:
+					# Don't fill up the logs with error messages from tests that 
+					# are expected to fail.
+					dabo.errorLog.write(_("Invalid date specified: %s") % val )
+				ret = None
 		return ret
 	
 	
@@ -474,8 +590,11 @@ C: Popup Calendar to Select
 	
 	
 	def getCurrentFormat(self):
+		fmtSrc = self.formats
+		if isinstance(self.date, datetime.datetime):
+			fmtSrc = self.dateTimeFormats
 		fmt = [ f["format"]
-				for f in self.formats.values() 
+				for f in fmtSrc.values() 
 				if f["setting"] == self.dateFormat][0]
 		return fmt
 		
@@ -504,7 +623,10 @@ C: Popup Calendar to Select
 		
 		
 	Value = property(_getValue, _setValue, None,
-			"Specifies the current state of the control (the value of the field). (varies)" )
+			_("""Specifies the current state of the control (the value 
+			of the field). (datetime.date or datetime.datetime)""") )
+
+
 	DynamicValue = makeDynamicProperty(Value)
 	
 
