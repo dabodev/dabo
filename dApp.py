@@ -92,12 +92,16 @@ class TempFileHolder(object):
 	def _eraseTempFiles(self):
 		# Try to erase all temp files created during life.
 		# Need to re-import the os module here for some reason.
-		import os
-		for f in self._tempFiles:
-			try:
-				os.remove(f)
-			except StandardError, e:
-				print "Could not delete %s: %s" % (f, e)
+		try:
+			import os
+			for f in self._tempFiles:
+				try:
+					os.remove(f)
+				except StandardError, e:
+					print "Could not delete %s: %s" % (f, e)
+		except:
+			# In these rare cases, Python has already 'gone away', so just bail
+			pass
 	
 	
 	def release(self):
