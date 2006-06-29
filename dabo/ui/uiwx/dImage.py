@@ -1,25 +1,24 @@
-import wx, dabo
 import os
+import tempfile
+import wx
+import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 #import dControlMixin as dcm
 import dDataControlMixin as dcm
+import dImageMixin as dim
 from dabo.ui import makeDynamicProperty
 
 
-class dImage(wx.StaticBitmap, dcm.dDataControlMixin):
+class dImage(wx.StaticBitmap, dcm.dDataControlMixin, dim.dImageMixin):
 	""" Create a simple bitmap to display images."""
 	def __init__(self, parent, properties=None, attProperties=None, 
 			*args, **kwargs):
 		self._baseClass = dImage
 		preClass = wx.StaticBitmap
 
-		self._picture = ""
-		self._bmp = None
-		self._bitmapHeight = None
-		self._bitmapWidth = None
 		self._scaleMode = "Proportional"
 		self._imgProp = 1.0
 		self._rotation = 0
@@ -27,6 +26,7 @@ class dImage(wx.StaticBitmap, dcm.dDataControlMixin):
 		bmp = wx.EmptyBitmap(1, 1)
 		picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
 	
+		dim.dImageMixin.__init__(self)
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
 				bitmap=bmp, *args, **kwargs)
 		
@@ -56,6 +56,27 @@ class dImage(wx.StaticBitmap, dcm.dDataControlMixin):
 		if self._rotation == 4:
 			self._rotation = 0
 		self._showPic()
+	
+	
+	def getImgType(self):
+		data = self.__imageData
+		ret = (None, None)
+		if data:
+			ret = None
+			fname = self.Application.getTempFile(ext="")
+			open(fname, "wb").write(self.__imageData)
+			aux = wx.NullImage
+			hnds = aux.GetHandlers()
+			for hnd in hnds:
+				aux.RemoveHandler(hnd.GetName())
+			for hnd in hnds:
+				try:
+					if hnd.LoadFile(fname):
+						ret = (hnd.GetName(), hnd.GetExtension())
+						break
+				except StandardError, e:
+					print "ERROR", e
+		return ret
 
 
 	def _showPic(self):
@@ -125,23 +146,6 @@ class dImage(wx.StaticBitmap, dcm.dDataControlMixin):
 
 
 	# Property definitions
-	def _getBmp(self):
-		if self._bmp is None:
-			self._bmp = wx.EmptyBitmap(1, 1, 1)
-		return self._bmp
-		
-	def _setBmp(self, val):
-		self._bmp = val
-		
-		
-	def _getBitmapHeight(self):
-		return self._bitmapHeight
-
-
-	def _getBitmapWidth(self):
-		return self._bitmapWidth
-
-
 	def _getPic(self):
 		return self._picture
 		
@@ -169,8 +173,8 @@ class dImage(wx.StaticBitmap, dcm.dDataControlMixin):
 			self._Image.LoadFile(val)
 		self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
 		self._showPic()
-		
-	
+
+
 	def _getScaleMode(self):
 		return self._scaleMode
 		
@@ -186,7 +190,11 @@ class dImage(wx.StaticBitmap, dcm.dDataControlMixin):
 
 
 	def _getValue(self):
-		return self.__image
+		try:
+			ret = self.__imageData
+		except AttributeError:
+			ret = self.__imageData = ""
+		return ret
 
 	def _setValue(self, val):
 		if self._constructed():
@@ -204,6 +212,20 @@ class dImage(wx.StaticBitmap, dcm.dDataControlMixin):
 				self._setPic(img)
 			else:
 				self._setPic(val)
+			if (type(self.Value) != type(val) or self.Value != val):
+			
+				import datetime
+				print datetime.datetime.now()
+				
+				hnd, tfname = tempfile.mkstemp()
+				self.__image.SaveFile(tfname, wx.BITMAP_TYPE_BMP)
+				self.__imageData = open(tfname, "rb").read()
+				
+				print datetime.datetime.now()
+				
+
+				self._afterValueChanged()
+				self.flushValue()
 		else:
 			self._properties["Value"] = val
 
@@ -214,18 +236,9 @@ class dImage(wx.StaticBitmap, dcm.dDataControlMixin):
 		return self.__image
 
 	
-	Bitmap = property(_getBmp, _setBmp, None,
-			_("The bitmap representation of the displayed image.  (wx.Bitmap)") )
-
-	BitmapHeight = property(_getBitmapHeight, None, None,
-			_("Height of the actual displayed bitmap  (int)"))
-	
-	BitmapWidth = property(_getBitmapWidth, None, None,
-			_("Width of the actual displayed bitmap  (int)"))
-	
 	Picture = property(_getPic, _setPic, None,
 			_("The file used as the source for the displayed image.  (str)") )
-			
+
 	ScaleMode = property(_getScaleMode, _setScaleMode, None,
 			_("""Determines how the image responds to sizing. Can be one
 			of the following:
@@ -242,7 +255,6 @@ class dImage(wx.StaticBitmap, dcm.dDataControlMixin):
 			_("Underlying image handler object  (wx.Image)") )
 
 
-	DynamicBitmap = makeDynamicProperty(Bitmap)
 	DynamicPicture = makeDynamicProperty(Picture)
 	DynamicScaleMode = makeDynamicProperty(ScaleMode)
 

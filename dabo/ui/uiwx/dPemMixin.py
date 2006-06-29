@@ -130,6 +130,9 @@ class dPemMixin(dPemMixinBase):
 			del self._preInitProperties["style"]
 			# This is needed because these classes require a 'parent' param.
 			kwargs["parent"] = parent
+		elif issubclass(self._baseClass, dabo.ui.dToggleButton):
+			self._preInitProperties["ID"] = self._preInitProperties["id"]
+			del self._preInitProperties["id"]
 		# This is needed when running from a saved design file
 		self._extractKey(properties, "designerClass")
 		
