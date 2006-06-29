@@ -10,7 +10,7 @@ from dabo.dLocalize import _
 _failedLibs = []
 # note: may need wx.animate as well
 for lib in ("wx", "wx.stc", "wx.lib.foldpanelbar", "wx.gizmos", 
-		"wx.lib.calendar"):
+		"wx.lib.calendar", "wx.lib.masked", "wx.lib.buttons"):
 	try:
 		__import__(lib)
 	except ImportError:

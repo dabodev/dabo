@@ -265,7 +265,7 @@ class BaseForm(fm.dFormMixin):
 
 		except dException.DBQueryException, e:
 			self.setStatusText(_("Save failed."))
-			msg = "%s:\n\n%s" % (_("Save Failed"), _( str(e) ))
+			msg = "%s:\n\n%s" % (_("Save Failed"), e)
 			self.notifyUser(msg, severe=True)
 			return False
 
@@ -785,11 +785,29 @@ class dBorderlessForm(wx.Frame, BaseForm):
 	
 
 class _dForm_test(dForm):
+	def afterInit(self):
+		self.Caption = _("Regular Form")
 	def onActivate(self, evt):
-		print "Activate"
+		print _("Activate")
 	def onDeactivate(self, evt):
-		print "Deactivate"
+		print _("Deactivate")
+					
+class _dBorderlessForm_test(dBorderlessForm):
+	def afterInit(self):
+		self.btn = dabo.ui.dButton(self, Caption=_("Close Borderless Form"))
+		self.Sizer.append(self.btn, halign="Center", valign="middle")
+		self.layout()
+		self.btn.bindEvent(dEvents.Hit, self.close)
+		dabo.ui.callAfter(self.setSize)
+	
+	def setSize(self):
+		self.Width, self.Height = self.btn.Width+60, self.btn.Height+60
+		self.layout()
+		self.Centered = True
+		
+		
 					
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dForm_test)
+	test.Test().runTest(_dBorderlessForm_test)
