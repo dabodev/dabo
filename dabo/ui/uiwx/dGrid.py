@@ -3298,6 +3298,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				raise ValueError, "Cannot set DataSet: DataSource defined."
 			# We must make sure the grid's table is initialized first:
 			self._Table
+			if not isinstance(val, dabo.db.dDataSet):
+				val = dabo.db.dDataSet(val)
 			self._dataSet = val
 			self.fillGrid(True)
 			biz = self.getBizobj()
@@ -4003,9 +4005,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 class _dGrid_test(dGrid):
 	def initProperties(self):
-		self.DataSet = [{"name" : "Ed Leafe", "age" : 47, "coder" :  True, "color": "brown"},
-				{"name" : "Mike Leafe", "age" : 18, "coder" :  False, "color": "purple"},
-				{"name" : "Dan Leafe", "age" : 13, "coder" :  False, "color": "green"}]
+		self.DataSet = [{"name" : "Ed Leafe", "age" : 48, "coder" :  True, "color": "brown"},
+				{"name" : "Mike Leafe", "age" : 19, "coder" :  False, "color": "purple"},
+				{"name" : "Dan Leafe", "age" : 14, "coder" :  False, "color": "green"}]
 		self.Width = 360
 		self.Height = 150
 		self.Editable = True
@@ -4067,15 +4069,6 @@ if __name__ == '__main__':
 					DataSource="sampleGrid", DataField="Editable")
 			self.Sizer.append(chk, halign="Center")
 			chk.refresh()
-			
-			self.grid.bindEvent(dEvents.GridBeforeSort, self.beforeSort)
-			self.grid.bindEvent(dEvents.GridAfterSort, self.afterSort)
-		
-		def beforeSort(self, evt):
-			print "Before Sort Event", evt.EventData
-
-		def afterSort(self, evt):
-			print "After Sort Event", evt.EventData
 			
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
