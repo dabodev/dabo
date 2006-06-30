@@ -130,13 +130,20 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 		self.__p2 = None
 		# Create the panes
 		if self._createPanes:
-			self.__p1 = SplitterPanel(self)
-			self.__p2 = SplitterPanel(self)
-		
+			self.createPanes()
 		if self._splitOnInit:
 			self.split()
-
 		super(dSplitter, self)._afterInit()
+
+			
+	def createPanes(self):
+		self.__p1 = self.PanelClass(self)
+		self.__p2 = self.PanelClass(self)
+		if self.IsSplit():
+			self.unsplit()
+			self.split()
+		else:
+			self.initialize(self.Panel1)
 	
 	
 	def initialize(self, p1):
@@ -291,6 +298,17 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 			self._properties["Panel2"] = pnl
 			
 	
+	def _getPanelClass(self):
+		try:
+			ret = self._panelClass
+		except:
+			ret = self._panelClass = SplitterPanel
+		return ret
+		
+	def _setPanelClass(self, val):
+		self._panelClass = val
+		
+
 	def _getSashPosition(self):
 		if self.IsSplit():
 			self._sashPos = self.GetSashPosition()
@@ -334,11 +352,16 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 			_("Determines if the window splits Horizontally or Vertically.  (string)"))
 
 	Panel1 = property(_getPanel1, _setPanel1, None,
-			_("Returns the Top/Left panel.  (SplitterPanel)"))
+			_("Returns the Top/Left panel.  (dPanel)"))
 
 	Panel2 = property(_getPanel2, _setPanel2, None,
-			_("Returns the Bottom/Right panel.  (SplitterPanel)"))
+			_("Returns the Bottom/Right panel.  (dPanel)"))
 
+	PanelClass = property(_getPanelClass, _setPanelClass, None,
+			_("""Class used for creating panels. This must be set before the panels are
+			created; setting it afterward has no effect unless you destroy the panels
+			and re-create them.  Default=SplitterPanel  (dPanel)"""))
+			
 	SashPosition = property(_getSashPosition, _setSashPosition, None,
 			_("Position of the sash when the window is split.  (int)"))
 
