@@ -26,6 +26,10 @@ class dToggleButton(wxb.GenBitmapTextToggleButton, dcm.dDataControlMixin,
 		kwargs["bitmap"] = None
 		kwargs["label"] = ""
 		self._downPicture = None
+		bw = self._extractKey((properties, kwargs), "BezelWidth", 5)
+		kwargs["BezelWidth"] = bw
+		style = self._extractKey((properties, kwargs), "style", 0) | wx.BORDER_NONE
+		kwargs["style"] = style
 		dim.dImageMixin.__init__(self)
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
@@ -38,6 +42,16 @@ class dToggleButton(wxb.GenBitmapTextToggleButton, dcm.dDataControlMixin,
 	
 	def getBlankValue(self):
 		return False
+
+
+	def _getBezelWidth(self):
+		return self.GetBezelWidth()
+
+	def _setBezelWidth(self, val):
+		if self._constructed():
+			self.SetBezelWidth(val)
+		else:
+			self._properties["BezelWidth"] = val
 
 
 	def _getDownPicture(self):
@@ -74,6 +88,9 @@ class dToggleButton(wxb.GenBitmapTextToggleButton, dcm.dDataControlMixin,
 			self._properties["Picture"] = val
 
 
+	BezelWidth = property(_getBezelWidth, _setBezelWidth, None,
+			_("Width of the bezel on the sides of the button. Default=5  (int)"))
+	
 	DownPicture = property(_getDownPicture, _setDownPicture, None,
 			_("Picture displayed when the button is pressed  (str)"))
 	
