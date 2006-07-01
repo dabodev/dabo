@@ -143,7 +143,8 @@ class dDataSet(tuple):
 		stmnt = "select * from dataset order by %s %s %s"
 		stmnt = stmnt % (col, casecollate, ascdesc)
 		ret = self.execute(stmnt)
-		ret._sourceDataSet = self
+		# Sorting doesn't change the data, so preserve any source dataset.
+		ret._sourceDataSet = self._sourceDataSet
 		return ret
 	
 	
@@ -172,6 +173,9 @@ class dDataSet(tuple):
 			"beginswith": " LIKE ? ",
 			"endswith": " LIKE ? ",
 			"contains": " LIKE ? " }
+		if (expr in opDict) and (op not in opDict):
+			# They sent the params in reverse order
+			op, expr = expr, op		
 		clause = opDict.get(op.lower(), " = ?")
 		oplow = op.lower()
 		if oplow in ("startswith", "beginswith"):
@@ -185,7 +189,33 @@ class dDataSet(tuple):
 		stmnt = "select * from dataset where %s %s" % (fld, clause)
 		ret = self.execute(stmnt, params=param)
 		ret._sourceDataSet = self
-		return ret			
+		return ret
+	
+	
+	def filterByExpression(self, expr):
+		"""Allows you to filter by any expression that would make a 
+		valid 'where' clause in SQLite.
+		"""
+		stmnt = "select * from dataset where %s" % (expr)
+		ret = self.execute(stmnt)
+		ret._sourceDataSet = self
+		return ret
+	
+	
+	def removeFilter(self):
+		"""Remove the most recently applied filter."""
+		ret = self
+		if ret._sourceDataSet:
+			ret = ret._sourceDataSet
+		return ret
+	
+	
+	def removeFilters(self):
+		"""Remove all applied filters, going back to the original data set."""
+		ret = self
+		while ret._sourceDataSet:
+			ret = ret._sourceDataSet
+		return ret
 		
 
 	def _fldReplace(self, expr, dictName=None):
@@ -300,7 +330,7 @@ class dDataSet(tuple):
 
 		if self._connection is None:
 			self._connection = sqlite.connect(":memory:", 
-					detect_types=sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES,
+					detect_types=(sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES), 
 					isolation_level="EXCLUSIVE")
 		if self._cursor is None:
 			self._cursor = self._connection.cursor(factory=DictCursor)
