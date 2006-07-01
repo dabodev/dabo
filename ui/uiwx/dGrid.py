@@ -4053,7 +4053,7 @@ class _dGrid_test(dGrid):
 		col.HeaderHorizontalAlignment = "Right"
 		col.HeaderForeColor = "brown"
 
-		self.RowLabels = ["a", "b", "3"]
+		self.RowLabels = ["a", "b", "c", "d"]
 		#self.ShowRowLabels = True
 
 
@@ -4067,6 +4067,12 @@ if __name__ == '__main__':
 			
 			chk = dabo.ui.dCheckBox(self, Caption="Edit Table", RegID="geekEdit",
 					DataSource="sampleGrid", DataField="Editable")
+			self.Sizer.append(chk, halign="Center")
+			chk.refresh()
+			
+			chk = dabo.ui.dCheckBox(self, Caption="Show Row Labels", 
+					RegID="showRowLabels", DataSource="sampleGrid", 
+					DataField="ShowRowLabels")
 			self.Sizer.append(chk, halign="Center")
 			chk.refresh()
 			
