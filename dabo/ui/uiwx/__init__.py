@@ -291,7 +291,7 @@ def getEventData(wxEvt):
 	
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, wx.TreeEvent,
 			wx.CommandEvent, wx.CloseEvent, wx.grid.GridEvent,
-			wx.grid.GridSizeEvent) ):
+			wx.grid.GridSizeEvent, wx.SplitterEvent) ):
 		
 		if dabo.allNativeEventInfo:
 			# Cycle through all the attributes of the wx events, and evaluate them
@@ -313,6 +313,12 @@ def getEventData(wxEvt):
 			except:
 				pass
 		
+	if isinstance(wxEvt, (wx.SplitterEvent,) ):
+		try:
+			ed["mousePosition"] = (wxEvt.GetX(), wxEvt.GetY())
+		except:
+			ed["mousePosition"] = wx.GetMousePosition()
+
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent) ):
 		ed["mousePosition"] = wxEvt.GetPositionTuple()
 		ed["altDown"] = wxEvt.AltDown()
@@ -382,6 +388,15 @@ def getEventData(wxEvt):
 		except:
 			pass
 	
+	if isinstance(wxEvt, wx.SplitterEvent):
+		if hasattr(wxEvt, "GetSashPosition"):
+			ed["sashPosition"] = wxEvt.GetSashPosition()
+		if hasattr(wxEvt, "GetWindowBeingRemoved"):
+			try:
+				ed["windowRemoved"] = wxEvt.GetWindowBeingRemoved()
+			except:
+				ed["windowRemoved"] = None
+		
 	if hasattr(wxEvt, "GetId"):
 		ed["id"] = wxEvt.GetId()
 
