@@ -237,7 +237,7 @@ class dPemMixin(dPemMixinBase):
 	def _preInitUI(self, kwargs):
 		"""Subclass hook, for internal Dabo use. 
 
-		Some wx objects (RadioBox) need certain props forced if	they hadn't been 
+		Some wx objects (RadioBox) need certain props forced if they hadn't been 
 		set by the user either as a parm or in beforeInit().
 		"""
 		return kwargs
@@ -670,7 +670,7 @@ class dPemMixin(dPemMixinBase):
 		This can significantly improve performance when many items are being 
 		updated at once.
 
-		IMPORTANT: you must call unlockDisplay() when you are done,	or your 
+		IMPORTANT: you must call unlockDisplay() when you are done, or your 
 		object will never draw.
 
 		Note that lockDisplay currently doesn't do anything on GTK.
@@ -685,8 +685,8 @@ class dPemMixin(dPemMixinBase):
 		that would result in lengthy screen updates.
 		"""
 		self.Thaw()
-	
-	
+
+
 	def addObject(self, classRef, Name=None, *args, **kwargs):
 		""" Instantiate object as a child of self.
 		
@@ -808,7 +808,7 @@ class dPemMixin(dPemMixinBase):
 	def getPositionInSizer(self):
 		""" Returns the current position of this control in its containing sizer. 
 
-		This is useful for when a control needs to be re-created in	place. If the 
+		This is useful for when a control needs to be re-created in place. If the 
 		containing sizer is a box sizer, the integer position will be returned. 
 		If it is a grid sizer, a row,col tuple will be returned. If the object is 
 		not contained in a sizer, None will be returned.
@@ -845,8 +845,8 @@ class dPemMixin(dPemMixinBase):
 		If 'recurse' is True, setAll() will be called on each child as well.
 
 		If 'filt' is not empty, only children that match the expression in 'filt' 
-		will be affected. The expression will be evaluated assuming	the child 
-		object is prefixed to the expression. For example, if	you want to only 
+		will be affected. The expression will be evaluated assuming the child 
+		object is prefixed to the expression. For example, if you want to only 
 		affect objects that are instances of dButton, you'd call:
 
 		form.setAll("FontBold", True, filt="BaseClass == dabo.ui.dButton")
@@ -931,7 +931,7 @@ class dPemMixin(dPemMixinBase):
 
 
 	def __onUpdate(self, evt):
-		"""Update any dynamic properties, and then call	the refresh() hook."""
+		"""Update any dynamic properties, and then call the refresh() hook."""
 		if isinstance(self, dabo.ui.deadObject):
 			return
 		self.update()
@@ -1133,7 +1133,21 @@ class dPemMixin(dPemMixinBase):
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
-		
+	
+	
+	def drawGradient(self, orientation, x=0, y=0, width=None, height=None,
+			color1=None, color2=None, persist=True):
+		"""Draws a horizontal or vertical gradient on the control. Default
+		is to cover the entire control, although you can specify positions.
+		The gradient is drawn with 'color1' as the top/left color, and 'color2'
+		as the bottom/right color.
+		"""
+		obj = DrawObject(self, Shape="gradient", Orientation=orientation, 
+				Xpos=x, Ypos=y, Width=width, Height=height,
+				GradientColor1=color1, GradientColor2=color2)
+		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
 		
 		
 	def _addToDrawnObjects(self, obj, persist):
@@ -2011,7 +2025,7 @@ class dPemMixin(dPemMixinBase):
 			
 			This property is write-only at runtime.""") )
 		
-	Parent = property(_getParent, _setParent, None,	
+	Parent = property(_getParent, _setParent, None, 
 			_("The containing object. (obj)") )
 
 	Position = property(_getPosition, _setPosition, None, 
@@ -2039,8 +2053,8 @@ class dPemMixin(dPemMixinBase):
 			_("The top position of the object. (int)") )
 	
 	Visible = property(_getVisible, _setVisible, None,
-			_("Specifies whether the object is visible at runtime. (bool)") )                    
-
+			_("Specifies whether the object is visible at runtime.  (bool)") )
+	
 	Width = property(_getWidth, _setWidth, None,
 			_("The width of the object. (int)") )
 	
@@ -2109,6 +2123,9 @@ class DrawObject(dObject):
 		self._backColor = None
 		self._text = None
 		self._angle = 0
+		self._gradientColor1 = None
+		self._gradientColor2 = None
+		self._orientation = None
 		self._transparent = True
 		super(DrawObject, self).__init__(*args, **kwargs)
 		self._inInit = False
@@ -2176,6 +2193,8 @@ class DrawObject(dObject):
 			x1, y1 = self.Points[0]
 			x2, y2 = self.Points[1]
 			dc.DrawLine(x1, y1, x2, y2)
+		elif self.Shape == "gradient":
+			self._drawGradient(dc)
 		elif self.Shape == "text":
 			txt = self._text
 			if not txt:
@@ -2209,6 +2228,63 @@ class DrawObject(dObject):
 				dc.DrawRotatedText(txt, self.Xpos, self.Ypos, self._angle)
 					
 	
+	def _drawGradient(self, dc):
+		if self.GradientColor1 is None or self.GradientColor2 is None:
+			return
+		if self.Orientation is None:
+			return
+		if self.Width is None:
+			wd = self.Parent.Width
+		else:
+			wd = self.Width
+		if self.Xpos is None:
+			x1 = 0
+			x2 = wd
+		else:
+			x1 = self.Xpos
+			x2 = x1 + wd
+		if self.Height is None:
+			ht = self.Parent.Height
+		else:
+			ht = self.Height
+		if self.Ypos is None:
+			y1 = 0
+			y2 = ht
+		else:
+			y1 = self.Ypos
+			y2 = y1 + ht
+			
+		dc.SetPen(wx.TRANSPARENT_PEN)
+		r1, g1, b1 = self.GradientColor1
+		r2, g2, b2 = self.GradientColor2
+
+		if self.Orientation == "h":
+			flrect = float(wd)
+		else:
+			flrect = float(ht)
+		rstep = float((r2 - r1)) / flrect
+		gstep = float((g2 - g1)) / flrect
+		bstep = float((b2 - b1)) / flrect
+
+		rf, gf, bf = 0, 0, 0
+		if self.Orientation == "h":
+			for x in range(x1, x1 + wd):
+				currRow = (r1 + rf, g1 + gf, b1 + bf)					
+				dc.SetBrush(wx.Brush(currRow, wx.SOLID))
+				dc.DrawRectangle(x1 + (x - x1), y1, 1, ht)
+				rf = rf + rstep
+				gf = gf + gstep
+				bf = bf + bstep
+		else:
+			for y in range(y1, y1 + ht):
+				currCol = (r1 + rf, g1 + gf, b1 + bf)
+				dc.SetBrush(wx.Brush(currCol, wx.SOLID))
+				dc.DrawRectangle(x1, y1 + (y - y1), wd, ht)
+				rf = rf + rstep
+				gf = gf + gstep
+				bf = bf + bstep
+
+
 	def bringToFront(self):
 		self.Parent._bringDrawObjectToFront(self)
 		
@@ -2316,6 +2392,28 @@ class DrawObject(dObject):
 			self.update()
 
 
+	def _getGradientColor1(self):
+		return self._gradientColor1
+
+	def _setGradientColor1(self, val):
+		if isinstance(val, basestring):
+			val = dColors.colorTupleFromName(val)
+		if self._gradientColor1 != val:
+			self._gradientColor1 = val
+			self.update()
+
+
+	def _getGradientColor2(self):
+		return self._gradientColor2
+
+	def _setGradientColor2(self, val):
+		if isinstance(val, basestring):
+			val = dColors.colorTupleFromName(val)
+		if self._gradientColor2 != val:
+			self._gradientColor2 = val
+			self.update()
+
+
 	def _getHeight(self):
 		return self._height
 		
@@ -2335,6 +2433,16 @@ class DrawObject(dObject):
 			self._lineStyle = val
 			self.update()
 			
+
+	def _getOrientation(self):
+		return self._orientation
+
+	def _setOrientation(self, val):
+		val = val[0].lower()
+		if self._orientation != val:
+			self._orientation = val
+			self.update()
+
 
 	def _getParent(self):
 		return self._parent
@@ -2451,9 +2559,6 @@ class DrawObject(dObject):
 	FontBold = property(_getFontBold, _setFontBold, None,
 			_("Bold setting for text objects  (bool)"))
 	
-	ForeColor = property(_getForeColor, _setForeColor, None,
-			_("Color of text when using text objects  (str or tuple)"))
-	
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Face of the font used for text objects  (str)"))
 	
@@ -2466,11 +2571,23 @@ class DrawObject(dObject):
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
 			_("Underline setting for text objects  (bool)"))
 	
+	ForeColor = property(_getForeColor, _setForeColor, None,
+			_("Color of text when using text objects  (str or tuple)"))
+	
+	GradientColor1 = property(_getGradientColor1, _setGradientColor1, None,
+			_("Top/Left color for the gradient  (color: str or tuple)"))
+	
+	GradientColor2 = property(_getGradientColor2, _setGradientColor2, None,
+			_("Bottom/Right color for the gradient  (color: str or tuple)"))
+	
 	Height = property(_getHeight, _setHeight, None,
 			_("For rectangles, the height of the shape  (int)"))
 
 	LineStyle = property(_getLineStyle, _setLineStyle, None,
 			_("Line style (solid, dash, dot) drawn  (str)"))
+	
+	Orientation = property(_getOrientation, _setOrientation, None,
+			_("Direction of the drawn gradient ('v' or 'h')  (str)"))
 
 	Parent = property(_getParent, _setParent, None,
 			_("Reference to the object being drawn upon.  (object)"))
