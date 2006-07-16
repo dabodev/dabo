@@ -19,6 +19,10 @@ LINESEP = "\n"
 
 class DesignerXmlConverter(dObject):
 	def afterInit(self):
+		# Set the text definitions separately. Since they require special indentation to match the 
+		# generated code and not the code in this class, it is much cleaner to define them 
+		# separately.
+		self._defineTextBlocks()
 		# Added to ensure unique object names
 		self._generatedNames = []
 		# Holds the text for the generated code file
@@ -32,10 +36,7 @@ class DesignerXmlConverter(dObject):
 		# than tracking each method name and only adding if there is a conflict.
 		self._methodNum = 0
 		# This is the text that will go into the temp .py file for executed code
-		self._codeFileText = """import dabo
-dabo.ui.loadUI("wx")
-
-"""
+		self._codeFileText = self._hdrText
 		
 	
 	def classFromXml(self, src):
@@ -76,26 +77,8 @@ dabo.ui.loadUI("wx")
 		cdPath = cdPath.replace("\\", r"\\")
 		cdFileNoExt = os.path.splitext(cdFile)[0]
 		if addImports:
-			self.classText += """import dabo
-dabo.ui.loadUI("wx")
-import dabo.dEvents as dEvents
-import sys
-# debugging!
-if "%s" not in sys.path:
-	sys.path.append("%s")
-import %s as %s
-%s
+			self.classText += self._clsHdrText % (cdPath, cdPath, cdFileNoExt, self._codeImportAs, "%s")
 
-""" % (cdPath, cdPath, cdFileNoExt, self._codeImportAs, "%s")
-
-		# Standard class template
-		self.classTemplate = """class %s(dabo.ui.%s):
-	def __init__(self, parent=%s, attProperties=%s):
-		dabo.ui.%s.__init__(self, parent=parent, attProperties=attProperties)
-		self.Sizer = None
-%s		
-
-"""
 		# Holds any required class definitions for contained objects
 		self.innerClassText = ""
 		self.innerClassNames = []
@@ -138,13 +121,7 @@ import %s as %s
 			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
 		self.classText += 	self.classTemplate  % (clsName, nm, 
 				self.currParent, cleanAtts, nm, self.indentCode(propInit, 2))
-		self.classText += \
-"""		parentStack = []
-		sizerDict = {}
-		currParent = self
-		currSizer = None
-		sizerDict[currParent] = []
-"""	
+		self.classText += self._stackInitText
 		# Add the child code.
 		self.createChildCode(kids, specKids)
 		
@@ -157,19 +134,12 @@ import %s as %s
 			self.classText += LINESEP + self.indentCode(codeProx, 1)
 		# Add any property definitions
 		for prop, propDef in propDefs.items():
-			self.classText += LINESEP + \
-"""	%s = property(%s, %s, %s, 
-			\"\"\"%s\"\"\")
-""" % (prop, propDef["getter"], propDef["setter"], propDef["deller"], 
-		propDef["comment"])
+			self.classText += LINESEP + self._propDefText % (prop, propDef["getter"], 
+					propDef["setter"], propDef["deller"], propDef["comment"])
 		
 		# Add any contained class definitions.
 		if self.innerClassText:
-			innerTxt = (3 * LINESEP) + \
-"""	def getCustControlClass(self, clsName):
-		# Define the classes, and return the matching class
-%s
-		return eval(clsName)"""
+			innerTxt = (3 * LINESEP) + self._innerClsDefText
 			# Add in the class definition text
 			innerTxt = innerTxt % self.indentCode(self.innerClassText, 2)
 			self.classText += innerTxt
@@ -215,6 +185,8 @@ import %s as %s
 			code.update(specCode)
 			isCustom = False
 			isInherited = False
+			# Do we need to pop the containership/sizer stacks?
+			needPop = True
 			
 			clsname = self._extractKey(atts, "designerClass", "")
 			if os.path.exists(clsname) and atts.has_key("classID"):
@@ -231,6 +203,8 @@ import %s as %s
 
 			isSizer = (clsname in ("LayoutSizer", "LayoutGridSizer",
 					"LayoutBorderSizer")) or (nm in ("dSizer", "dBorderSizer", "dGridSizer"))
+			# This will get set to True if we process a splitter control
+			isSplitter = False
 			if isSizer:
 				isGridSizer = clsname == "LayoutGridSizer"
 				isBorderSizer = clsname == "LayoutBorderSizer"
@@ -241,36 +215,32 @@ import %s as %s
 				if isBorderSizer:
 					prnt = "currParent, "
 					ornt = "%s, Caption=\"%s\"" % (ornt, self._extractKey(atts, "Caption", ""))
-				self.classText += LINESEP + \
-"""		obj = dabo.ui.%s(%s%s)
-		if currSizer:
-			currSizer.append(obj%s)
-			currSizer.setItemProps(obj, %s)
-""" % (nm, prnt, ornt, rowColString, szInfo)
+				self.classText += LINESEP + self._szText % (nm, prnt, ornt, rowColString, szInfo)
 			
 			elif clsname == "LayoutSpacerPanel":
 				# Insert a spacer
 				spc = atts.get("Spacing", "10")
-				self.classText += LINESEP + \
-"""		if currSizer:
-			itm = currSizer.appendSpacer(%s)
-			currSizer.setItemProps(itm, %s)
-""" % (spc, szInfo)
+				self.classText += LINESEP + self._spcText % (spc, szInfo)
 			else:
 				# This isn't a sizer; it's a control
 				attPropString = ""
 				moduleString = ""
+				isSplitter = atts.has_key("SashPosition")
+				splitterString = ""
+				if isSplitter:
+					pos = self._extractKey(cleanAtts, "SashPosition")
+					ornt = self._extractKey(cleanAtts, "Orientation")
+					splt = self._extractKey(cleanAtts, "Split")
+					cleanAtts["Split"] = "False"
+					cleanAtts["ShowPanelSplitMenu"] = "False"
+					splitterString = self._spltText % locals()
 				if isCustom:
 					nm = "self.getCustControlClass('%s')" % nm
 				else:
 					moduleString = "dabo.ui."
 					attPropString = ", attProperties=%s" % cleanAtts
-				self.classText += LINESEP + \
-"""		obj = %s%s(currParent%s)
-		if currSizer:
-			currSizer.append(obj%s)
-			currSizer.setItemProps(obj, %s)
-""" % (moduleString, nm, attPropString, rowColString, szInfo)
+
+				self.classText += LINESEP + self._createControlText % locals()
 			
 			# If this item has child objects, push the appropriate objects
 			# on their stacks, and add the push statements to the code.
@@ -279,45 +249,76 @@ import %s as %s
 				if isSizer:
 					# We need to set the current sizer to this one, and push any
 					# existing sizer onto the stack.
+					self.classText += LINESEP + self._kidSzText
+
+				elif isSplitter:
+					# Create the two panels as custom classes, and add them to the 
+					# splitter as those classes
 					self.classText += LINESEP + \
-"""		if currSizer:
-			sizerDict[currParent].append(currSizer)
-		currSizer = obj
-		if not currParent.Sizer:
-			currParent.Sizer = obj
-"""
+							"""		splt = obj"""
+					kid = kids[0]
+					kidCleanAtts = self.cleanAttributes(kid.get("attributes", {}))
+					nm = kid.get("name")
+					code = kid.get("code", {})
+					grandkids1 = kid.get("children")
+					p1nm = self.createInnerClass(nm, kidCleanAtts, code, custProps)
+					self.classText += LINESEP + \
+							"""		splt.createPanes(self.getCustControlClass('%(p1nm)s'), pane=1)""" % locals()
+					kid = kids[1]
+					kidCleanAtts = self.cleanAttributes(kid.get("attributes", {}))
+					nm = kid.get("name")
+					code = kid.get("code", {})
+					grandkids2 = kid.get("children")
+					p2nm = self.createInnerClass(nm, kidCleanAtts, code, custProps)
+					self.classText += LINESEP + \
+							"""		splt.createPanes(self.getCustControlClass('%(p2nm)s'), pane=2)""" % locals()
+					hasGK = grandkids1 or grandkids2
+					if hasGK:
+						self.classText += LINESEP + self._childPushText
+
+					# Clear the 'kids' value
+					kids = []
+					# We'll do our own stack popping here.
+					needPop = False
+					# Now create the panel kids, if any.
+					if grandkids1:
+						self.classText += LINESEP + self._gk1Text
+						# Call the create method recursively. When execution
+						# returns to this level, all the children for this object will
+						# have been added.
+						self.createChildCode(grandkids1, specKids)
+
+					if grandkids2:
+						self.classText += LINESEP + self._gk2Text
+						# Call the create method recursively. When execution
+						# returns to this level, all the children for this object will
+						# have been added.
+						self.createChildCode(grandkids2, specKids)
+					
+					if hasGK:
+						self.classText += LINESEP + self._gkPopText
+					
 				else:
 					# We need to handle Grids and PageFrames separately,
 					# since these 'children' are not random objects, but specific
 					# classes.
-					if atts.has_key("ColumnCount") or atts.has_key("PageCount"):
+					if (atts.has_key("ColumnCount") or atts.has_key("PageCount")):
 						# Grid or pageframe
-						self.classText += LINESEP + \
-"""		parentStack.append(currParent)
-		sizerDict[currParent].append(currSizer)
-		currParent = obj
-		sizerDict[currParent] = []
-"""
+						self.classText += LINESEP + self._grdPgfText
 						isGrid = atts.has_key("ColumnCount")
 						if not isGrid:
-							# We need to set up a unique name for the pageframe
-							# so that all of the pages can reference their parent. Since
-							# pages can contain lots of other stuff, the default 'obj'
-							# reference will be trampled by the time the second page 
-							# is created.
-							pgfName = self.uniqname("pgf")
-							self.classText += LINESEP + \
-"""		# save a reference to the pageframe control
-		%s = obj
-""" % pgfName
+							# We need to set up a unique name for the control so
+							# that all of the pages/panels can reference their
+							# parent. Since these child containers can contain
+							# lots of other stuff, the default 'obj' reference
+							# will be trampled by the time the second child is
+							# created.
+							prntName = self.uniqname("pgf")
+							self.classText += LINESEP + self._grdPgdRefText % prntName
 						for kid in kids:
 							kidCleanAtts = self.cleanAttributes(kid.get("attributes", {}))
 							if isGrid:
-								self.classText += LINESEP + \
-"""		col = dabo.ui.dColumn(obj, attProperties=%s)
-		obj.addColumn(col)
-		col.setPropertiesFromAtts(%s)
-""" % (kidCleanAtts, kidCleanAtts)
+								self.classText += LINESEP + self._grdColText % (kidCleanAtts, kidCleanAtts)
 							else:
 								# Paged control
 								nm = kid.get("name")
@@ -325,34 +326,18 @@ import %s as %s
 								pgKids = kid.get("children")
 								attPropString = ""
 								moduleString = ""
-								# properties??
 								if code:
-									nm = self.createInnerClass(nm, atts, code, {})
+									nm = self.createInnerClass(nm, kidCleanAtts, code, {})
 									nm = "self.getCustControlClass('%s')" % nm
 								else:
 									moduleString = "dabo.ui."
 									attPropString = ", attProperties=%s" % kidCleanAtts
-				
-								self.classText += LINESEP + \
-"""		pg = %s%s(%s%s)
-		%s.appendPage(pg)
-		pg.setPropertiesFromAtts(%s)
-		currSizer = pg.Sizer = None
-		parentStack.append(currParent)
-		sizerDict[currParent].append(currSizer)
-		currParent = pg
-		sizerDict[currParent] = []
-""" % (moduleString, nm, pgfName, attPropString, pgfName, kidCleanAtts)
+									kidCleanAtts = {}
+								self.classText += LINESEP + self._pgfPageText % locals()
 
 								if pgKids:
 									self.createChildCode(pgKids)
-									self.classText += LINESEP + \
-"""		currParent = parentStack.pop()
-		if sizerDict[currParent]:
-			currSizer = sizerDict[currParent].pop()
-		else:
-			currSizer = None
-"""
+									self.classText += LINESEP + self._pgfKidsText
 
 						# We've already processed the child objects for these
 						# grid/page controls, so clear the kids list.
@@ -363,14 +348,7 @@ import %s as %s
 						# the current sizer, since the most likely child will 
 						# be the sizer that governs the contained controls.
 						# Tell the class that we are dealing with a new parent object
-						self.classText += LINESEP + \
-"""		parentStack.append(currParent)
-		sizerDict[currParent].append(currSizer)
-		currParent = obj
-		currSizer = None
-		if not sizerDict.has_key(currParent):
-			sizerDict[currParent] = []
-"""
+						self.classText += LINESEP + self._childPushText
 				if kids:
 					# Call the create method recursively. When execution
 					# returns to this level, all the children for this object will
@@ -378,23 +356,11 @@ import %s as %s
 					self.createChildCode(kids, specKids)
 					
 				# Pop as needed off of the stacks.
-				if isSizer:
-					self.classText += LINESEP + \
-"""		if sizerDict[currParent]:
-			currSizer = sizerDict[currParent].pop()
-		else:
-			currSizer = None
-"""
-				
-				else:
-					self.classText += LINESEP + \
-"""		currParent = parentStack.pop()
-		if not sizerDict.has_key(currParent):
-			sizerDict[currParent] = []
-			currSizer = None
-		else:
-			currSizer = sizerDict[currParent].pop()
-"""
+				if needPop:
+					if isSizer:
+						self.classText += LINESEP + self._szPopText
+					else:
+						self.classText += LINESEP + self._ctlPopText
 		return				
 
 	
@@ -428,12 +394,8 @@ import %s as %s
 # 			self.innerClassText += self.indentCode(cd, 1)
 		# Add any property definitions
 		for prop, propDef in custProps.items():
-			self.innerClassText += LINESEP + \
-"""	%s = property(%s, %s, %s, 
-			\"\"\"%s\"\"\")
-""" % (prop, propDef["getter"], propDef["setter"], propDef["deller"], 
-		propDef["comment"])
-		
+			self.innerClassText += LINESEP + self._innerPropText % (prop, propDef["getter"], 
+					propDef["setter"], propDef["deller"], propDef["comment"])		
 		self.innerClassText += (2 * LINESEP)
 		return clsName
 	
@@ -509,3 +471,141 @@ import %s as %s
 					ret[key] = val
 		return ret
 		
+	
+	def _defineTextBlocks(self):
+		# Standard class template
+		self.classTemplate = """class %s(dabo.ui.%s):
+	def __init__(self, parent=%s, attProperties=%s):
+		dabo.ui.%s.__init__(self, parent=parent, attProperties=attProperties)
+		self.Sizer = None
+%s		
+
+"""
+		self._hdrText = """import dabo
+dabo.ui.loadUI("wx")
+
+"""
+		self._clsHdrText = """import dabo
+dabo.ui.loadUI("wx")
+import dabo.dEvents as dEvents
+import sys
+# debugging!
+if "%s" not in sys.path:
+	sys.path.append("%s")
+import %s as %s
+%s
+
+"""
+		self._stackInitText = """		parentStack = []
+		sizerDict = {}
+		currParent = self
+		currSizer = None
+		sizerDict[currParent] = []
+"""	
+		self._propDefText = """	%s = property(%s, %s, %s, 
+			\"\"\"%s\"\"\")
+"""
+		self._innerClsDefText = """	def getCustControlClass(self, clsName):
+		# Define the classes, and return the matching class
+%s
+		return eval(clsName)"""
+		self._szText = """		obj = dabo.ui.%s(%s%s)
+		if currSizer:
+			currSizer.append(obj%s)
+			currSizer.setItemProps(obj, %s)
+"""
+		self._spcText = """		if currSizer:
+			itm = currSizer.appendSpacer(%s)
+			currSizer.setItemProps(itm, %s)
+"""
+		self._spltText = """
+		dabo.ui.setAfter(obj, "Orientation", "%(ornt)s")
+		dabo.ui.setAfter(obj, "Split", %(splt)s)
+		dabo.ui.setAfter(obj, "SashPosition", %(pos)s)
+"""
+		self._createControlText = """		obj = %(moduleString)s%(nm)s(currParent%(attPropString)s)%(splitterString)s
+		if currSizer:
+			currSizer.append(obj%(rowColString)s)
+			currSizer.setItemProps(obj, %(szInfo)s)
+"""
+		self._kidSzText = """		if currSizer:
+			sizerDict[currParent].append(currSizer)
+		currSizer = obj
+		if not currParent.Sizer:
+			currParent.Sizer = obj
+"""
+		self._gk1Text = """		currParent = splt.Panel1
+		currSizer = None
+		if not sizerDict.has_key(currParent):
+			sizerDict[currParent] = []
+"""
+		self._gk2Text = """		currParent = splt.Panel2
+		currSizer = None
+		if not sizerDict.has_key(currParent):
+			sizerDict[currParent] = []
+"""
+		self._gkPopText = """		currParent = parentStack.pop()
+		if not sizerDict.has_key(currParent):
+			sizerDict[currParent] = []
+			currSizer = None
+		else:
+			try:
+				currSizer = sizerDict[currParent].pop()
+			except: pass
+"""
+		self._grdPgfText = """		parentStack.append(currParent)
+		sizerDict[currParent].append(currSizer)
+		currParent = obj
+		sizerDict[currParent] = []
+"""
+		self._grdPgdRefText = """		# save a reference to the parent control
+		%s = obj
+"""
+		self._grdColText = """		col = dabo.ui.dColumn(obj, attProperties=%s)
+		obj.addColumn(col)
+		col.setPropertiesFromAtts(%s)
+"""
+		self._pgfPageText = """		pg = %(moduleString)s%(nm)s(%(prntName)s%(attPropString)s)
+		%(prntName)s.appendPage(pg)
+#		pg.setPropertiesFromAtts(%(kidCleanAtts)s)
+		currSizer = pg.Sizer = None
+		parentStack.append(currParent)
+		sizerDict[currParent].append(currSizer)
+		currParent = pg
+		sizerDict[currParent] = []
+"""
+		self._pgfKidsText = """		currParent = parentStack.pop()
+		if sizerDict[currParent]:
+			try:
+				currSizer = sizerDict[currParent].pop()
+			except: pass
+		else:
+			currSizer = None
+"""
+		self._childPushText = """		parentStack.append(currParent)
+		sizerDict[currParent].append(currSizer)
+		currParent = obj
+		currSizer = None
+		if not sizerDict.has_key(currParent):
+			sizerDict[currParent] = []
+"""
+		self._szPopText = """		if sizerDict[currParent]:
+			try:
+				currSizer = sizerDict[currParent].pop()
+			except: pass
+		else:
+			currSizer = None
+"""
+		self._ctlPopText = """		currParent = parentStack.pop()
+		if not sizerDict.has_key(currParent):
+			sizerDict[currParent] = []
+			currSizer = None
+		else:
+			try:
+				currSizer = sizerDict[currParent].pop()
+			except: pass
+"""
+		self._innerPropText = """	%s = property(%s, %s, %s, 
+			\"\"\"%s\"\"\")
+"""
+
