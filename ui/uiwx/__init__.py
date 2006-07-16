@@ -389,8 +389,10 @@ def getEventData(wxEvt):
 			pass
 	
 	if isinstance(wxEvt, wx.SplitterEvent):
-		if hasattr(wxEvt, "GetSashPosition"):
+		try:
 			ed["sashPosition"] = wxEvt.GetSashPosition()
+		except:
+			ed["sashPosition"] = wxEvt.GetEventObject().SashPosition
 		if hasattr(wxEvt, "GetWindowBeingRemoved"):
 			try:
 				ed["windowRemoved"] = wxEvt.GetWindowBeingRemoved()
