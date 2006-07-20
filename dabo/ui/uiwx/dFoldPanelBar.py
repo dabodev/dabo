@@ -67,8 +67,11 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 			capHt = self.CaptionHeight * (sibCount-1)
 			if ret.GetWidth() > pWd:
 				ret.SetWidth(pWd)
-			if ret.GetHeight() > pHt - capHt:
-				ret.SetHeight(pHt - capHt)
+			if not self.IsExpanded():
+				ret.SetHeight(self.CaptionHeight)
+			else:
+				if ret.GetHeight() > pHt - capHt:
+					ret.SetHeight(pHt - capHt)
 		return ret
 		
 		
@@ -183,42 +186,44 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 
 	BarColor1 = property(_getBarColor1, _setBarColor1, None,
 			_("Main color for the caption bar  (dColor)"))
-	DynamicBarColor1 = makeDynamicProperty(BarColor1)
 	
 	BarColor2 = property(_getBarColor2, _setBarColor2, None,
 			_("Secondary color for the caption bar. Only used in gradients  (dColor)"))
-	DynamicBarColor2 = makeDynamicProperty(BarColor2)
 	
 	BarStyle = property(_getBarStyle, _setBarStyle, None,
 			_(""""Determines how the bar containing the caption 
 			for this panel is drawn. (str)
 			
 			Can be one of the following:
-			  	Borderless		(no border, just a plain fill color; default)
+				Borderless		(no border, just a plain fill color; default)
 				BorderOnly		(simple border, no fill color)
 				FilledBorder	(combination of the two above)
 				VerticalFill		(vertical gradient fill, using the two caption colors)
 				HorizontalFill		(horizontal gradient fill, using the two caption colors)
 			"""))
-	DynamicBarStyle = makeDynamicProperty(BarStyle)
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption displayed on the panel bar  (str)"))
-	DynamicCaption = makeDynamicProperty(Caption)
 	
 	CaptionForeColor = property(_getCaptionForeColor, _setCaptionForeColor, None,
 			_("Text color of the caption bar  (str or tuple)"))
-	DynamicCaptionForeColor = makeDynamicProperty(CaptionForeColor)
 	
 	CaptionHeight = property(_getCaptionHeight, None, None,
 			_("Height of the caption bar. Read-only  (int)"))
 	
 	Collapsed = property(_getCollapsed, _setCollapsed, None,
 			_("Is the panel's contents hidden?  (bool)"))
-	DynamicCollapsed = makeDynamicProperty(Collapsed)
 	
 	Expanded = property(_getExpanded, _setExpanded, None,
 			_("Is the panel's contents visible?  (bool)"))
+
+
+	DynamicBarColor1 = makeDynamicProperty(BarColor1)
+	DynamicBarColor2 = makeDynamicProperty(BarColor2)
+	DynamicBarStyle = makeDynamicProperty(BarStyle)
+	DynamicCaption = makeDynamicProperty(Caption)
+	DynamicCaptionForeColor = makeDynamicProperty(CaptionForeColor)
+	DynamicCollapsed = makeDynamicProperty(Collapsed)
 	DynamicExpanded = makeDynamicProperty(Expanded)
 
 
@@ -321,6 +326,9 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 
 	def layout(self):
 		""" Wrap the wx version of the call, if possible. """
+		if not self:
+			# The object may have already been released.
+			return
 		self.Layout()
 		try:
 			# Call the Dabo version, if present
@@ -330,8 +338,7 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 
 	
 	def onResize(self, evt):
-		if self.Singleton:
-			self.sizePanelHeights()
+		self.sizePanelHeights()
 
 
 	def _setInitialOpenPanel(self):
@@ -365,6 +372,7 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 		when the control is in Singleton mode.
 		"""
 		if not self.Singleton:
+			self.sizePanelHeights(force=True)
 			return
 		if self.__inSingletonProcess:
 			# The panel is changing due to this method, so ignore
@@ -399,17 +407,32 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 		self.__inSingletonProcess = False
 
 	
-	def sizePanelHeights(self):
-		if not self.Singleton:
-			return
+	def sizePanelHeights(self, force=False):
+		"""Control the heights of the panels. Originally I thought we only needed
+		this when running in Singleton mode, but now it seems better to run this
+		in all modes.
+		"""
+#- 		if not self.Singleton and not force:
+#- 			return
 		# Size the open panel to fill the space
-		for pnl in self._panels:
+		top = 0
+		pnlList = self._panels[:]
+		if self.CollapseToBottom:
+			# Sort so that the first panel is the expanded one.
+			pnlList.sort(lambda x, y: cmp(x.Collapsed, y.Collapsed))
+		fp = pnlList[0]		
+		fp.Reposition(0)
+		self.RefreshPanelsFrom(fp)
+		for pnl in pnlList:
 			if not pnl.Expanded:
-				continue
-			# Make the panel that big, plus the height of the caption
-			capHt = pnl.CaptionHeight * (len(self._panels) -1)
-			pnl.Height = self.Height - capHt
+				pnl.Height = pnl.CaptionHeight
+			else:
+				# Make the panel that big, plus the height of the caption
+				capHt = pnl.CaptionHeight * (len(self._panels) -1)
+				pnl.Height = self.Height - capHt
+			pnl.Top = top
 			pnl.layout()
+			top += pnl.Height
 		dabo.ui.callAfter(self.layout)
 
 
@@ -430,6 +453,8 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 			fp = self._panels[0]
 			fp.Reposition(0)
 			self.RefreshPanelsFrom(fp)
+			self.sizePanelHeights(force=True)
+			self.layout()
 			
 
 	def _getSingleClick(self):
@@ -453,15 +478,17 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 			
 	CollapseToBottom = property(_getCollapseToBottom, _setCollapseToBottom, None,
 			_("When True, all collapsed panels are displayed at the bottom  (bool)"))
-	DynamicCollapseToBottom = makeDynamicProperty(CollapseToBottom)
 	
 	SingleClick = property(_getSingleClick, _setSingleClick, None,
 			_("""When True, a single click on the caption bar toggles the 
 			expanded/collapsed state  (bool)"""))
-	DynamicSingleClick = makeDynamicProperty(SingleClick)
 	
 	Singleton = property(_getSingleton, _setSingleton, None,
 			_("When True, one and only one panel at a time will be expanded  (bool)"))
+
+
+	DynamicCollapseToBottom = makeDynamicProperty(CollapseToBottom)
+	DynamicSingleClick = makeDynamicProperty(SingleClick)
 	DynamicSingleton = makeDynamicProperty(Singleton)
 
 
@@ -478,7 +505,13 @@ if __name__ == "__main__":
 			self.p3 = dabo.ui.dFoldPanel(self.FoldBar, Caption="Third",
 					BarStyle="BorderOnly", BackColor="bisque")
 			
-			btn = dabo.ui.dButton(self.p1, Caption="Change Bar 1 Style")
+			pnl = dabo.ui.dPanel(self.p1)
+			self.p1.Sizer = dabo.ui.dSizer("v")
+			self.p1.Sizer.appendSpacer(self.p1.CaptionHeight)
+			self.p1.Sizer.append1x(pnl)
+			pnl.Sizer = dabo.ui.dSizer("v")
+			btn = dabo.ui.dButton(pnl, Caption="Change Bar 1 Style")
+			pnl.Sizer.append(btn)
 			btn.bindEvent(dEvents.Hit, self.onBtn)
 			dabo.ui.dLabel(self.p2, Caption="Two Step", FontItalic=True,
 					FontSize=24)
@@ -508,14 +541,19 @@ if __name__ == "__main__":
 			self.Sizer.append(hsz, 0, halign="center", border=10)
 			self.layout()
 
+
 		def onBtn(self, evt):
 			self.p1.BarStyle = "HorizontalFill"
 			self.p1.BarColor1 = "yellow"
 			self.p1.BarColor2 = "red"
-			evt.EventObject.Enabled = False
+			obj = evt.EventObject
+			obj.Enabled = False
 			self.p1.appendSeparator("white")
-			dabo.ui.dLabel(self.p1, Caption="Changed!", FontItalic=True,
-					FontSize=48)
+			
+			lbl = dabo.ui.dLabel(obj.Parent, Caption="Changed!", 
+					FontItalic=True, FontSize=48)
+			obj.Parent.Sizer.append(lbl)
+			obj.Parent.layout()
 			
 
 		def onCollapseAll(self, evt):
