@@ -56,7 +56,7 @@ class dBackend(dObject):
 		if isinstance(val, (datetime.date, datetime.datetime)):
 			# Some databases have specific rules for formatting date values.
 			return self.formatDateTime(val)
-		elif isinstance(val, (int, long)):
+		elif isinstance(val, (int, long, float)):
 			return str(val)
 		elif decimal is not None and isinstance(val, decimal.Decimal):
 			return str(val)
