@@ -3523,7 +3523,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _setRowHeight(self, val):
 		if self._constructed():
-			if val != self._rowHeight:
+			try:
+				rh = self._rowHeight
+			except AttributeError:
+				rh = self._rowHeight = self.GetDefaultRowSize()
+			if val != rh:
 				self._rowHeight = val
 				self.SetDefaultRowSize(val, True)
 				self.ForceRefresh()
