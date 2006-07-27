@@ -430,6 +430,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._expand = False
 		# Default to 2 decimal places
 		self._precision = 2
+		# Do text columns wrap their long text?
+		self._wordWrap = False
 
 		self._beforeInit()
 		kwargs["Parent"] = parent
@@ -446,6 +448,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		# Define the cell renderer and editor classes
 		import gridRenderers
 		self.stringRendererClass = wx.grid.GridCellStringRenderer
+		self.wrapStringRendererClass = wx.grid.GridCellAutoWrapStringRenderer
 		self.boolRendererClass = gridRenderers.BoolRenderer
 		self.intRendererClass = wx.grid.GridCellNumberRenderer
 		self.longRendererClass = wx.grid.GridCellNumberRenderer
@@ -1230,6 +1233,21 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._properties["Width"] = val
 	
 
+	def _getWordWrap(self):
+		return self._wordWrap
+
+	def _setWordWrap(self, val):
+		if self._constructed():
+			self._wordWrap = val
+			if val:
+				self.defaultRenderers["str"] = self.defaultRenderers["string"] = self.wrapStringRendererClass
+			else:
+				self.defaultRenderers["str"] = self.defaultRenderers["string"] = self.stringRendererClass
+			self._refreshGrid()
+		else:
+			self._properties["WordWrap"] = val
+
+
 	BackColor = property(_getBackColor, _setBackColor, None,
 			_("Color for the background of each cell in the column."))
 
@@ -1396,6 +1414,10 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	Width = property(_getWidth, _setWidth, None,
 			_("Width of this column  (int)") )
+	
+	WordWrap = property(_getWordWrap, _setWordWrap, None,
+			_("When True, text longer than the column width will wrap to the next line  (bool)"))
+	
 	
 	_GridColumnIndex = property(_getGridColumnIndex)
 
@@ -2916,6 +2938,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		""" Occurs when the user presses a key inside the grid."""
 		if self.Editable and self.Columns[self.CurrentColumn].Editable:
 			# Can't search and edit at the same time
+# 			print "KEY EDITING!"
 			return
 
 		keyCode = evt.EventData["keyCode"]
@@ -4079,6 +4102,13 @@ if __name__ == '__main__':
 					DataField="ShowRowLabels")
 			self.Sizer.append(chk, halign="Center")
 			chk.refresh()
+			
+			btn = dabo.ui.dButton(self, Caption="Default", DefaultButton=True)
+			btn.bindEvent(dEvents.Hit, self.onBtn)
+			self.Sizer.append(btn, halign="Center")
+		
+		def onBtn(self, evt):
+			dabo.ui.stop("Ouch")
 			
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
