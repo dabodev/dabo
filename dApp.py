@@ -481,6 +481,17 @@ class dApp(dObject):
 		"""Accepts a cnxml file path, and reads in the connections
 		defined in it, adding them to self.dbConnectionDefs.
 		"""
+		if not os.path.exists(connFile):
+			homeFile = os.path.join(self.HomeDirectory, connFile)
+			if os.path.exists(homeFile):
+				connFile = homeFile
+		if not os.path.exists(connFile):
+			# Search sys.path for the file.
+			for sp in sys.path:
+				sysFile = os.path.join(sp, connFile)
+				if os.path.exists(sysFile):
+					connFile = sysFile
+					break
 		if os.path.exists(connFile):
 			connDefs = importConnections(connFile)
 			# For each connection definition, add an entry to 
