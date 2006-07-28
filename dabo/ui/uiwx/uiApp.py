@@ -299,12 +299,22 @@ class uiApp(wx.App, dObject):
 				if hasattr(win, "cut"):
 					handled = (win.cut() is not None)
 				if not handled:
+					# See if the control is inside a grid
+					grd = self._getContainingGrid(win)
+					if grd and hasattr(grd, "cut"):
+						handled = (grd.cut() is not None)
+				if not handled:
 					if hasattr(win, "Cut"):
 						win.Cut()
 						handled = True
 			else:
 				if hasattr(win, "copy"):
 					handled = (win.copy() is not None)
+				if not handled:
+					# See if the control is inside a grid
+					grd = self._getContainingGrid(win)
+					if grd and hasattr(grd, "copy"):
+						handled = (grd.copy() is not None)
 				if not handled:
 					if hasattr(win, "Copy"):
 						win.Copy()
@@ -339,6 +349,12 @@ class uiApp(wx.App, dObject):
 			if hasattr(win, "paste"):
 				handled = (win.paste() is not None)
 			if not handled:
+				# See if the control is inside a grid
+				grd = self._getContainingGrid(win)
+				if grd and hasattr(grd, "paste"):
+					handled = (grd.paste() is not None)
+			if not handled:
+				# See if it has a wx-level Paste() method
 				if hasattr(win, "Paste"):
 					win.Paste()
 					handled = True
@@ -348,7 +364,6 @@ class uiApp(wx.App, dObject):
 					selection = win.GetSelection()
 				except AttributeError:
 					selection = None
-	
 				if selection != None:
 					data = wx.TextDataObject()
 					cb = wx.TheClipboard
@@ -359,6 +374,22 @@ class uiApp(wx.App, dObject):
 						win.Replace(selection[0], selection[1], data.GetText())
 		
 
+	def _getContainingGrid(self, win):
+		"""Returns the grid that contains the specified window, or None
+		if the window is not contained in a grid.
+		"""
+		ret = None
+		while win:
+			if isinstance(win, wx.grid.Grid):
+				ret = win
+				break
+			try:
+				win = win.GetParent()
+			except AttributeError:
+				win = None
+		return ret
+		
+		
 	def onEditPreferences(self, evt):
 		dabo.infoLog.write(_("Stub: uiApp.onEditPreferences()"))
 
