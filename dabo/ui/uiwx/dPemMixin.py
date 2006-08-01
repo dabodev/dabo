@@ -135,6 +135,8 @@ class dPemMixin(dPemMixinBase):
 			del self._preInitProperties["id"]
 		# This is needed when running from a saved design file
 		self._extractKey(properties, "designerClass")
+		# This attribute is used when saving code with a design file
+		self._extractKey(properties, "code-ID")
 		
 		# The user's subclass code has had a chance to tweak the init properties.
 		# Insert any of those into the arguments to send to the wx constructor:
