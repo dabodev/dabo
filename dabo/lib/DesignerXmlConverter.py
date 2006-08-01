@@ -11,7 +11,8 @@ dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.dObject import dObject
-from dabo.lib.xmltodict import xmltodict as xtd
+import dabo.lib.xmltodict as xtd
+import dabo.lib.DesignerUtils as desUtil
 # Doesn't matter what platform we're on; Python needs 
 # newlines in its compiled code.
 LINESEP = "\n"
@@ -51,7 +52,15 @@ class DesignerXmlConverter(dObject):
 				xml = open(src).read()
 			else:
 				xml = src
-		dct = xtd(xml)
+		dct = xtd.xmltodict(xml)
+
+		codePth = "%s-code.py" % os.path.splitext(src)[0]
+		try:
+			codeDict = desUtil.parseCodeFile(open(codePth).read())
+			desUtil.addCodeToClassDict(dct, codeDict)
+		except StandardError, e:
+			print "Failed to parse code file:", e
+
 		# Parse the XML and create the class definition text
 		self.createClassText(dct)
 		# Write the code file
@@ -425,7 +434,7 @@ class DesignerXmlConverter(dObject):
 		"""
 		conv = DesignerXmlConverter()
 		xml = open(pth).read()
-		xmlDict = xtd(xml)
+		xmlDict = xtd.xmltodict(xml)
 		conv.createClassText(xmlDict, addImports=False, specList=specList)
 		self.innerClassText += conv.classText + (2 * LINESEP)
 		self.innerClassNames.append(conv.mainClassName)
