@@ -21,7 +21,12 @@ class dFormMixin(pm.dPemMixin):
 		self._skipActivate = (sys.platform[:3] == "win")
 
 		# Extract the connection name, if any
-		self._cxnName = self._extractKey(kwargs, "CxnName", "")
+		self._cxnFile = self._extractKey((properties, attProperties, kwargs), 
+				"CxnFile", "")
+		self._cxnName = self._extractKey((properties, attProperties, kwargs), 
+				"CxnName", "")
+		if self._cxnFile == "None":
+			self._cxnFile = ""
 		if self._cxnName == "None":
 			self._cxnName = ""
 		self._connection = None
@@ -84,6 +89,8 @@ class dFormMixin(pm.dPemMixin):
 		self._normLeft = self.Left
 		self._normTop = self.Top
 
+		if self._cxnFile:
+			self.Application.addConnectFile(self._cxnFile)
 		if self._cxnName:
 			self.Connection = self.Application.getConnectionByName(self._cxnName)
 			if self.Connection is None:
@@ -809,31 +816,24 @@ class dFormMixin(pm.dPemMixin):
 	
 	AutoUpdateStatusText = property(_getAutoUpdateStatusText, _setAutoUpdateStatusText, None,
 			_("Does this form update the status text with the current record position?  (bool)"))
-	DynamicAutoUpdateStatusText = makeDynamicProperty(AutoUpdateStatusText)
 
 	BorderResizable = property(_getBorderResizable, _setBorderResizable, None,
 			_("Specifies whether the user can resize this form.  (bool)."))
-	DynamicBorderResizable = makeDynamicProperty(BorderResizable)
 
 	Centered = property(_getCentered, _setCentered, None, 
 			_("Centers the form on the screen when set to True.  (bool)"))
-	DynamicCentered = makeDynamicProperty(Centered)
 
 	Connection = property(_getConnection, _setConnection, None,
 			_("The connection to the database used by this form  (dConnection)"))
-	DynamicConnection = makeDynamicProperty(Connection)
 
 	FloatOnParent = property(_getFloatOnParent, _setFloatOnParent, None,
 			_("Specifies whether the form stays on top of the parent or not."))
-	DynamicFloatOnParent = makeDynamicProperty(FloatOnParent)
 	
 	Icon = property(_getIcon, _setIcon, None, 
 			_("Specifies the icon for the form. (wxIcon)"))
-	DynamicIcon = makeDynamicProperty(Icon)
 
 	IconBundle = property(_getIconBundle, _setIconBundle, None,
 			_("Specifies the set of icons for the form. (wxIconBundle)"))
-	DynamicIconBundle = makeDynamicProperty(IconBundle)
 
 	MDI = property(_getMDI, None, None,
 			_("""Returns True if this is a MDI (Multiple Document Interface) form.  (bool)
@@ -846,7 +846,6 @@ class dFormMixin(pm.dPemMixin):
 
 	MenuBar = property(_getMenuBar, _setMenuBar, None,
 			_("Specifies the menu bar instance for the form."))
-	DynamicMenuBar = makeDynamicProperty(MenuBar)
 
 	MenuBarClass = property(_getMenuBarClass, _setMenuBarClass, None,
 			_("Specifies the menu bar class to use for the form, or None."))
@@ -859,7 +858,6 @@ class dFormMixin(pm.dPemMixin):
 		
 	ShowCaption = property(_getShowCaption, _setShowCaption, None,
 			_("Specifies whether the caption is displayed in the title bar. (bool)."))
-	DynamicShowCaption = makeDynamicProperty(ShowCaption)
 
 	ShowCloseButton = property(_getShowCloseButton, _setShowCloseButton, None,
 			_("Specifies whether a close button is displayed in the title bar. (bool)."))
@@ -878,7 +876,6 @@ class dFormMixin(pm.dPemMixin):
 
 	ShowStatusBar = property(_getShowStatusBar, _setShowStatusBar, None,
 			_("Specifies whether the status bar gets automatically created."))
-	DynamicShowStatusBar = makeDynamicProperty(ShowStatusBar)
 
 	ShowSystemMenu = property(_getShowSystemMenu, _setShowSystemMenu, None,
 			_("Specifies whether a system menu is displayed in the title bar. (bool)."))
@@ -888,11 +885,9 @@ class dFormMixin(pm.dPemMixin):
 
 	StatusBar = property(_getStatusBar, None, None,
 			_("Status bar for this form. (dStatusBar)"))
-	DynamicStatusBar = makeDynamicProperty(StatusBar)
 
 	StatusText = property(_getStatusText, _setStatusText, None,
 			_("Text displayed in the form's status bar. (string)"))
-	DynamicStatusText = makeDynamicProperty(StatusText)
 
 	StayOnTop = property(_getStayOnTop, _setStayOnTop, None,
 			_("Keeps the form on top of all other forms. (bool)"))
@@ -902,7 +897,6 @@ class dFormMixin(pm.dPemMixin):
 
 	ToolBar = property(_getToolBar, _setToolBar, None,
 			_("Tool bar for this form. (dToolBar)"))
-	DynamicToolBar = makeDynamicProperty(ToolBar)
 
 	WindowState = property(_getWindowState, _setWindowState, None,
 			_("""Specifies the current state of the form. (int)
@@ -911,5 +905,19 @@ class dFormMixin(pm.dPemMixin):
 					Minimized
 					Maximized
 					FullScreen"""))
-	DynamicWindowState = makeDynamicProperty(WindowState)
 
+
+	DynamicAutoUpdateStatusText = makeDynamicProperty(AutoUpdateStatusText)
+	DynamicBorderResizable = makeDynamicProperty(BorderResizable)
+	DynamicCentered = makeDynamicProperty(Centered)
+	DynamicConnection = makeDynamicProperty(Connection)
+	DynamicFloatOnParent = makeDynamicProperty(FloatOnParent)
+	DynamicIcon = makeDynamicProperty(Icon)
+	DynamicIconBundle = makeDynamicProperty(IconBundle)
+	DynamicMenuBar = makeDynamicProperty(MenuBar)
+	DynamicShowCaption = makeDynamicProperty(ShowCaption)
+	DynamicShowStatusBar = makeDynamicProperty(ShowStatusBar)
+	DynamicStatusBar = makeDynamicProperty(StatusBar)
+	DynamicStatusText = makeDynamicProperty(StatusText)
+	DynamicToolBar = makeDynamicProperty(ToolBar)
+	DynamicWindowState = makeDynamicProperty(WindowState)

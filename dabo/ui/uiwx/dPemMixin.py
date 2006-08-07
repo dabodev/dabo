@@ -167,7 +167,7 @@ class dPemMixin(dPemMixinBase):
 			self._initName(name, _explicitName=_explicitName)
 
 		# Set the properties *before* calling the afterInit hook
-		self.setProperties(properties)
+		self._setProperties(properties)
 		
 		# _initEvents() will call the initEvents() user hook
 		self._initEvents()
@@ -185,6 +185,20 @@ class dPemMixin(dPemMixinBase):
 		self.raiseEvent(dEvents.Create)
 
 
+	def _setProperties(self, properties):
+		"""Provides pre- and post- hooks for the setProperties() method.
+		Typically used to remove Designer props that don't appear in
+		runtime classes.
+		"""
+		if self.beforeSetProperties(properties) is False:
+			return
+		self.setProperties(properties)
+		self.afterSetProperties()
+	
+	def beforeSetProperties(self, properties): pass
+	def afterSetProperties(self): pass
+	
+	
 	def _constructed(self):
 		"""Returns True if the ui object has been fully created yet, False otherwise."""
 		try:
@@ -757,6 +771,11 @@ class dPemMixin(dPemMixinBase):
 	def absoluteCoordinates(self, pos):
 		"""Translates a position value for a control to absolute screen position."""
 		return self.ClientToScreen(pos)
+	
+	
+	def relativeCoordinates(self, pos):
+		"""Translates an absolute screen position to position value for a control."""
+		return self.ScreenToClient(pos)
 	
 	
 	def showContextMenu(self, menu, pos=None, release=True):
