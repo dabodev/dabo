@@ -457,13 +457,33 @@ def getMousePosition():
 	return wx.GetMousePosition()
 
 
+def getFormMousePosition():
+	"""Returns the position of the mouse relative to the top left
+	corner of the form.
+	"""
+	actwin = dabo.dAppRef.ActiveForm
+	return actwin.relativeCoordinates(wx.GetMousePosition())
+	
+
 def getMouseObject():
 	"""Returns a reference to the object below the mouse pointer
 	at the moment the command is issued. Useful for interactive 
 	development when testing changes to classes 'in the wild' of a 
 	live application.
 	"""
-	win = wx.FindWindowAtPoint(getMousePosition())
+# 	print "MOUSE POS:", getMousePosition()
+# 	win = wx.FindWindowAtPoint(getMousePosition())
+	actwin = dabo.dAppRef.ActiveForm
+	print "ACTWIN", actwin
+	if isinstance(actwin, dabo.ui.dShell.dShell):
+		actwin.lockDisplay()
+		actwin.sendToBack()	
+	else:
+		actwin = None
+	win = wx.FindWindowAtPointer()
+	if actwin is not None:
+		actwin.bringToFront()
+		actwin.unlockDisplay()
 	while not isinstance(win, dabo.ui.dPemMixin):
 		try:
 			win = win.GetParent()

@@ -50,6 +50,10 @@ class BaseForm(fm.dFormMixin):
 		self._holdStatusText = ""
 
 
+	def beforeSetProperties(self, props):
+		if "UseSizers" in props and not hasattr(self, "UseSizers"):
+			del props["UseSizers"]
+		
 		
 	def _afterInit(self):
 		self.Sizer = dSizer.dSizer("vertical")
@@ -752,7 +756,6 @@ class dForm(wx.Frame, BaseForm):
 			self._mdi = False
 		## (Note that it is necessary to run the above block each time, because
 		##  we are modifying the dForm class definition globally.)
-
 		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
