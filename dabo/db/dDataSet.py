@@ -1,3 +1,4 @@
+import dabo
 from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
 import datetime
@@ -635,3 +636,16 @@ class dDataSet(tuple):
 # 		if where or orderBy:
 # 			resultSet = resultSet.select(where=where, orderBy=orderBy)
 # 		return resultSet
+
+
+if __name__ == "__main__":
+	data = [{"name" : "Ed Leafe", "age" : 48, "coder" :  True, "color": "brown"},
+				{"name" : "Mike Leafe", "age" : 19, "coder" :  False, "color": "purple"},
+				{"name" : "Dan Leafe", "age" : 14, "coder" :  False, "color": "green"},
+				{"name" : "Paul McNett", "age" : 38, "coder" :  True, "color": "red"}]
+	ds = dDataSet(data)
+	
+	newDS = ds.execute("select name, age from dataset where age > 30")
+	print "Over 30:"
+	for rec in newDS:
+		print "\tName: %(name)s, Age: %(age)s" % rec
