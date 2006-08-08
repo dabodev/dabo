@@ -86,7 +86,7 @@ class dPemMixin(dPemMixinBase):
 					# If this is property holds strings, we need to quote the value.
 					escVal = val.replace('"', '\\"').replace("'", "\\'")
 					try:
-						exec "properties['%s'] = '%s'" % (prop, escVal)
+						exec "properties['%s'] = u'%s'" % (prop, escVal)
 					except:
 						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
 
