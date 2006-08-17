@@ -189,7 +189,7 @@ class SQLite(dBackend):
 		if not ret:
 			# Get the standard fields in the table
 			auxCrs = cursor._getAuxCursor()
-			auxCrs.execute("pragma table_info('%s')" % cursor.Table)
+			auxCrs.execute("pragma table_info('%s')" % cursor.Table, useAuxCursor=False)
 			rs = auxCrs._records
 			fields = []
 			for rec in rs:
