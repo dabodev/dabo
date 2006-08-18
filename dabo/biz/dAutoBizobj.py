@@ -198,26 +198,26 @@ class dAutoBizobj(dBizobj):
 				self.DefaultValues[fld.Name] = fld.Default
 
 				if fld.DataType == "Numeric":
-					self._CurrentCursor._types[fld.Name] = type(int)
+					self._CurrentCursor._types[fld.Name] = int
 				elif fld.DataType == "Float":
-					self._CurrentCursor._types[fld.Name] = type(float)
+					self._CurrentCursor._types[fld.Name] = float
 				elif fld.DataType == "Decimal":
 					if _USE_DECIMAL:
-						self._CurrentCursor._types[fld.Name] = type(Decimal)
+						self._CurrentCursor._types[fld.Name] = Decimal
 					else:
 						pass
 				elif fld.DataType == "String":
-					self._CurrentCursor._types[fld.Name] = type(str)
+					self._CurrentCursor._types[fld.Name] = str
 				elif fld.DataType == "Date":
-					self._CurrentCursor._types[fld.Name] = type(datetime.date)
+					self._CurrentCursor._types[fld.Name] = datetime.date
 				elif fld.DataType == "Time":
-					self._CurrentCursor._types[fld.Name] = type(datetime.time)
+					self._CurrentCursor._types[fld.Name] = datetime.time
 				elif fld.DataType == "DateTime":
-					self._CurrentCursor._types[fld.Name] = type(datetime.datetime)
+					self._CurrentCursor._types[fld.Name] = datetime.datetime
 				elif fld.DataType == "Stamp":
-					self._CurrentCursor._types[fld.Name] = type(datetime.datetime)
+					self._CurrentCursor._types[fld.Name] = datetime.datetime
 				elif fld.DataType == "Binary":
-					self._CurrentCursor._types[fld.Name] = type(str)
+					self._CurrentCursor._types[fld.Name] = str
 
 				if fld.IsAutoIncrement:
 					self.AutoPopulatePK = True
@@ -287,6 +287,7 @@ class dAutoBizobj(dBizobj):
 					try:
 						self.save()
 					except dException.DBQueryException, e:
+						print 'failed'
 						if g._toExc.has_key(self._conn):
 							g._toExc[self._conn] = g._toExc[self._conn].append(e.sql)
 						else:
