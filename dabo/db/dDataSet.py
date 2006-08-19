@@ -1,3 +1,4 @@
+import sys
 import dabo
 from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
