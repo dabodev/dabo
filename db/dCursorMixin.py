@@ -175,9 +175,9 @@ class dCursorMixin(dObject):
 		
 		try:
 			if params is None or len(params) == 0:
-				res = cursorToUse.superCursor.execute(cursorToUse, sqlEX)
+				res = cursorToUse.superCursor.execute(self, sqlEX)
 			else:
-				res = cursorToUse.superCursor.execute(cursorToUse, sqlEX, params)
+				res = cursorToUse.superCursor.execute(self, sqlEX, params)
 		except Exception, e:
 			# If this is due to a broken connection, let the user know.
 			# Different backends have different messages, but they
