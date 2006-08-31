@@ -756,7 +756,7 @@ class dApp(dObject):
 		self._userSettingProviderClass = val
 
 
-	ActiveForm = property(_getActiveForm, None, None, 
+	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
 			_("Returns the form that currently has focus, or None.  (dForm)" ) )
 	
 	Crypto = property(_getCrypto, _setCrypto, None, 

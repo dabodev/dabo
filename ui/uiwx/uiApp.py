@@ -756,10 +756,6 @@ class uiApp(wx.App, dObject):
 				v = self._activeForm
 			except AttributeError:
 				v = self._activeForm = None
-		if v:
-			print "ACTIVE WINDOW", v.Caption
-		else:
-			print "NO ACTIVE"
 		return v
 
 	def _setActiveForm(self, frm):
