@@ -81,7 +81,11 @@ class About(dabo.ui.dDialog):
 
 		ds.append({"name": "UI Version:", "value": "%s on %s" % (dabo.ui.uiType["version"], 
 				dabo.ui.uiType["platform"])})
-
+		
+		if app:
+			appSpecific = app.addToAbout()
+			if appSpecific:
+				ds.append(appSpecific)
 		return ds
 
 
