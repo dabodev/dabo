@@ -17,8 +17,8 @@ class dFormMixin(pm.dPemMixin):
 			src=None, attProperties=None, *args, **kwargs):
 
 		# Windows sends two Activate events, and one of them is too early.
-		# Skip the first one.
-		self._skipActivate = (sys.platform[:3] == "win")
+		# Skip the first one
+		self._skipActivate = (self.Application.Platform == "Win")
 
 		# Extract the connection name, if any
 		self._cxnFile = self._extractKey((properties, attProperties, kwargs), 
@@ -41,7 +41,7 @@ class dFormMixin(pm.dPemMixin):
 			style = self._extractKey(kwargs, "style", 0)
 			if not style:
 				# No style was explicitly set
-				style = wx.DEFAULT_FRAME_STYLE	
+				style = wx.DEFAULT_FRAME_STYLE
 		kwargs["style"] = style
 
 		self._objectRegistry = {}
@@ -120,16 +120,17 @@ class dFormMixin(pm.dPemMixin):
 		
 		
 	def __onWxActivate(self, evt):
-		""" Raise the Dabo Activate or Deactivate appropriately.
-		"""
+		""" Raise the Dabo Activate or Deactivate appropriately."""
 		if bool(evt.GetActive()):
 			if self._skipActivate:
 				# Skip the first activate (Windows)
 				self._skipActivate = False
 			else:
 				self.raiseEvent(dEvents.Activate, evt)
+				self._skipActivate = True
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
+		evt.Skip()
 			
 			
 	def __onActivate(self, evt): 
@@ -149,13 +150,14 @@ class dFormMixin(pm.dPemMixin):
 		tb = self.ToolBar
 		
 		if self.Application is not None:
-			self.Application._setActiveForm(self)
+			if self.Application.Platform != "Win":
+				self.Application.ActiveForm = self
 		
 	
 	def __onDeactivate(self, evt):
 #		self.saveSizeAndPosition()
 		if self.Application is not None and self.Application.ActiveForm == self:
-			self.Application._setActiveForm(None)
+			self.Application.clearActiveForm(self)
 	
 
 	def __onMove(self, evt):
