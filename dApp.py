@@ -554,6 +554,12 @@ class dApp(dObject):
 		dlg.show()
 	
 	
+	def addToAbout(self):
+		"""Adds additional app-specific information to the About form.
+		This is just a stub method; override in subclasses if needed."""
+		pass
+	
+	
 	def clearActiveForm(self, frm):
 		"""Called by the form when it is deactivated."""
 		if frm is self.ActiveForm:
