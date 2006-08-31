@@ -552,6 +552,12 @@ class dApp(dObject):
 		import dabo.ui.dialogs.about as about
 		dlg = about.About(self.MainForm)
 		dlg.show()
+	
+	
+	def clearActiveForm(self, frm):
+		"""Called by the form when it is deactivated."""
+		if frm is self.ActiveForm:
+			self.uiApp.ActiveForm = None
 
 
 	def _getActiveForm(self):

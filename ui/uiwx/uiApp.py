@@ -749,10 +749,17 @@ class uiApp(wx.App, dObject):
 	
 	
 	def _getActiveForm(self):
-		try:
-			v = self._activeForm
-		except AttributeError:
-			v = self._activeForm = None
+		if self._platform == "Win":
+			v = wx.GetActiveWindow()
+		else:
+			try:
+				v = self._activeForm
+			except AttributeError:
+				v = self._activeForm = None
+		if v:
+			print "ACTIVE WINDOW", v.Caption
+		else:
+			print "NO ACTIVE"
 		return v
 
 	def _setActiveForm(self, frm):
@@ -766,8 +773,7 @@ class uiApp(wx.App, dObject):
 		self._drawSizerOutlines = val
 	
 	
-	
-	ActiveForm = property(_getActiveForm, None, None, 
+	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
 			_("Returns the form that currently has focus, or None.	(dForm)" ) )
 
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
