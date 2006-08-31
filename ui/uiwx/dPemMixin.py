@@ -1060,7 +1060,7 @@ class dPemMixin(dPemMixinBase):
 
 
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
-			fillColor=None, lineStyle=None, persist=True):
+			fillColor=None, lineStyle=None, mode=None, persist=True):
 		"""Draws a circle of the specified radius around the specified point.
 
 		You can set the color and thickness of the line, as well as the 
@@ -1075,14 +1075,15 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle, 
-				Shape="circle", Xpos=xPos, Ypos=yPos)
+				Shape="circle", Xpos=xPos, Ypos=yPos, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 	
 	
 	def drawRectangle(self, xPos, yPos, width, height, penColor="black", 
-			penWidth=1, fillColor=None, lineStyle=None, persist=True):
+			penWidth=1, fillColor=None, lineStyle=None, mode=None, 
+			persist=True):
 		"""Draws a rectangle of the specified size beginning at the specified 
 		point. 
 
@@ -1090,14 +1091,15 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, Shape="rect", 
-				Xpos=xPos, Ypos=yPos, Width=width, Height=height)
+				Xpos=xPos, Ypos=yPos, Width=width, Height=height, 
+				DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawPolygon(self, points, penColor="black", penWidth=1, 
-			fillColor=None, lineStyle=None, persist=True):
+			fillColor=None, lineStyle=None, mode=None, persist=True):
 		"""Draws a polygon defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the 
@@ -1107,32 +1109,33 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, 
-				Shape="polygon", Points=points)
+				Shape="polygon", Points=points, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawLine(self, x1, y1, x2, y2, penColor="black", penWidth=1, 
-			fillColor=None, lineStyle=None, persist=True):
+			fillColor=None, lineStyle=None, mode=None, persist=True):
 		"""Draws a line between (x1,y1) and (x2, y2). 
 
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, LineStyle=lineStyle, 
+				PenWidth=penWidth, LineStyle=lineStyle, DrawMode=mode, 
 				Shape="line", Points=((x1,y1), (x2,y2)) )
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 	
 	
-	def drawBitmap(self, bmp, x=0, y=0, persist=True, transparent=True):
+	def drawBitmap(self, bmp, x=0, y=0, mode=None, persist=True, 
+			transparent=True):
 		"""Draws a bitmap on the object at the specified position."""
 		if isinstance(bmp, basestring):
 			bmp = dabo.ui.strToBmp(bmp)
 		obj = DrawObject(self, Bitmap=bmp, Shape="bmp", 
-				Xpos=x, Ypos=y, Transparent=transparent)
+				Xpos=x, Ypos=y, Transparent=transparent, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1140,8 +1143,8 @@ class dPemMixin(dPemMixinBase):
 
 	def drawText(self, text, x=0, y=0, angle=0, fontFace=None,
 			fontSize=None, fontBold=None, fontItalic=None,
-			fontUnderline=None, foreColor=None, backColor=None,
-			persist=True):
+			fontUnderline=None, foreColor=None, backColor=None, 
+			mode=None, persist=True):
 		"""Draws text on the object at the specified position 
 		using the specified characteristics. Any characteristics
 		not specified will be set to the system default.
@@ -1150,14 +1153,14 @@ class dPemMixin(dPemMixinBase):
 				Angle=angle, FontFace=fontFace, FontSize=fontSize, 
 				FontBold=fontBold, FontItalic=fontItalic, 
 				FontUnderline=fontUnderline, ForeColor=foreColor,
-				BackColor=backColor)
+				BackColor=backColor, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 	
 	
 	def drawGradient(self, orientation, x=0, y=0, width=None, height=None,
-			color1=None, color2=None, persist=True):
+			color1=None, color2=None, mode=None, persist=True):
 		"""Draws a horizontal or vertical gradient on the control. Default
 		is to cover the entire control, although you can specify positions.
 		The gradient is drawn with 'color1' as the top/left color, and 'color2'
@@ -1165,7 +1168,7 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, Shape="gradient", Orientation=orientation, 
 				Xpos=x, Ypos=y, Width=width, Height=height,
-				GradientColor1=color1, GradientColor2=color2)
+				GradientColor1=color1, GradientColor2=color2, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -2148,6 +2151,7 @@ class DrawObject(dObject):
 		self._gradientColor2 = None
 		self._orientation = None
 		self._transparent = True
+		self._drawMode = None
 		super(DrawObject, self).__init__(*args, **kwargs)
 		self._inInit = False
 	
@@ -2204,6 +2208,42 @@ class DrawObject(dObject):
 				fill = dColors.colorTupleFromName(fill)
 			brush = wx.Brush(fill)
 		dc.SetBrush(brush)
+		
+		mode = self.DrawMode
+		if mode is None:
+			logic = wx.COPY
+		elif mode == "invert":
+			logic = wx.INVERT
+		elif mode == "and":
+			logic = wx.AND
+		elif mode == "and_invert":
+			logic = wx.AND_INVERT
+		elif mode == "and_reverse":
+			logic = wx.AND_REVERSE
+		elif mode == "clear":
+			logic = wx.CLEAR
+		elif mode == "equiv":
+			logic = wx.EQUIV
+		elif mode == "nand":
+			logic = wx.NAND
+		elif mode == "nor":
+			logic = wx.NOR
+		elif mode == "no_op":
+			logic = wx.NO_OP
+		elif mode == "or":
+			logic = wx.OR
+		elif mode == "or_invert":
+			logic = wx.OR_INVERT
+		elif mode == "or_reverse":
+			logic = wx.OR_REVERSE
+		elif mode == "set":
+			logic = wx.SET
+		elif mode == "src_invert":
+			logic = wx.SRC_INVERT
+		elif mode == "xor":
+			logic = wx.XOR
+		dc.SetLogicalFunction(logic)
+		
 		if self.Shape == "circle":
 			dc.DrawCircle(self.Xpos, self.Ypos, self.Radius)
 		elif self.Shape == "rect":
@@ -2348,6 +2388,19 @@ class DrawObject(dObject):
 		if self._bitmap != val:
 			self._bitmap = val
 			self.update()
+
+
+	def _getDrawMode(self):
+		return self._drawMode
+
+	def _setDrawMode(self, val):
+		if val is None:
+			self._drawMode = None
+		else:
+			val = val.lower()
+			if val != self._drawMode:
+				self._drawMode = val
+				self.update()
 
 
 	def _getFillColor(self):
@@ -2573,6 +2626,9 @@ class DrawObject(dObject):
 	
 	Bitmap = property(_getBitmap, _setBitmap, None,
 			_("Bitmap to be drawn on the object  (dBitmap)"))
+	
+	DrawMode = property(_getDrawMode, _setDrawMode, None,
+			_("docstring  (type)"))
 	
 	FillColor = property(_getFillColor, _setFillColor, None,
 			_("Background color for the shape  (color)"))
