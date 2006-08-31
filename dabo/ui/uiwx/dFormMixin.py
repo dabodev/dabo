@@ -127,7 +127,7 @@ class dFormMixin(pm.dPemMixin):
 				self._skipActivate = False
 			else:
 				self.raiseEvent(dEvents.Activate, evt)
-				self._skipActivate = True
+				self._skipActivate = (self.Application.Platform == "Win")
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
 		evt.Skip()
