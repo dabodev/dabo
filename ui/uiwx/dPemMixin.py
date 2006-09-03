@@ -758,14 +758,20 @@ class dPemMixin(dPemMixinBase):
 					uiCallAfterFunc=wx.CallAfter, *args, **kwargs)
 	
 	
-	def formCoordinates(self, pos):
+	def formCoordinates(self, pos=None):
 		"""Given a position relative to this control, return a position relative
-		to the containing form.
+		to the containing form. If no position is passed, returns the position
+		of this control relative to the form.
 		"""
-		ret = self.absoluteCoordinates(pos)
-		if hasattr(self, "Form") and self.Form is not None:
-			ret = self.Form.ScreenToClient(ret)
-		return ret
+		if pos is None:
+			pos = self.Position
+		l, t = pos
+		p = self
+		while (p is not None) and not isinstance(p, dabo.ui.dFormMixin):
+			l += p.Left
+			t += p.Top
+			p = p.Parent
+ 		return (l, t)
 	
 	
 	def absoluteCoordinates(self, pos):
