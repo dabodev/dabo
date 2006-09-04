@@ -22,13 +22,17 @@ def parseCodeFile(txt):
 	codeObjs = txt.split(codeObjectSep)[1:]
 	for codeObj in codeObjs:
 		cd = {}
+		impt = ""
 		# The first line in the code-ID, the rest is the code for
 		# that object
 		codeID, mthds = codeObj.split("\n", 1)
 		mthdList = pat.split(mthds)
-		# Element 0 is empty; the methods appear is groups of 
-		# three elements each: the 'def' line, followed by the method
+		# Element 0 is either empty or an import statement; the methods appear is
+		# groups of three elements each: the 'def' line, followed by the method
 		# name, followed by the method body.
+		impt = mthdList[0]
+		if impt:
+			cd["importStatements"] = impt
 		mthdList = mthdList[1:]
 		while mthdList:
 			cd[mthdList[1]] = "\n".join((mthdList[0], mthdList[2]))
