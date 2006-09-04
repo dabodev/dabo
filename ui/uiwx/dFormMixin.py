@@ -388,16 +388,6 @@ class dFormMixin(pm.dPemMixin):
 		except: pass
 	
 	
-	def bringToFront(self):
-		"""Makes this window topmost"""
-		self.Raise()
-	
-	
-	def sendToBack(self):
-		"""Places this window behind all others."""
-		self.Lower()
-	
-	
 	def registerObject(self, obj):
 		"""Stores a reference to the passed object using the RegID key
 		property of the object for later retrieval. You may reference the 

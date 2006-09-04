@@ -703,6 +703,16 @@ class dPemMixin(dPemMixinBase):
 		self.Thaw()
 
 
+	def bringToFront(self):
+		"""Makes this object topmost"""
+		self.Raise()
+	
+	
+	def sendToBack(self):
+		"""Places this object behind all others."""
+		self.Lower()
+	
+	
 	def addObject(self, classRef, Name=None, *args, **kwargs):
 		""" Instantiate object as a child of self.
 		
@@ -765,7 +775,9 @@ class dPemMixin(dPemMixinBase):
 		"""
 		if pos is None:
 			pos = self.Position
-		l, t = pos
+			l, t = 0, 0
+		else:
+			l, t = pos
 		p = self
 		while (p is not None) and not isinstance(p, dabo.ui.dFormMixin):
 			l += p.Left
