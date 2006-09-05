@@ -85,7 +85,8 @@ class dMenu(wx.Menu, pm.dPemMixin):
 			except:
 				de = None
 			if de is not None:
-				item.Enabled = de()
+				if callable(de):
+					item.Enabled = de()
 
 
 	def __onWxMenuHighlight(self, evt):
@@ -128,7 +129,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 	def insertMenu(self, pos, menu):
 		"""Insert a dMenu before the specified position in the menu."""
-		wxMenuItem = self.InsertMenu(-1, pos, menu.Caption, menu, help=menu.HelpText)
+		wxMenuItem = self.InsertMenu(pos, -1, menu.Caption, menu, help=menu.HelpText)
 		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
 		self._daboChildren[wxMenuItem.GetId()] = menu

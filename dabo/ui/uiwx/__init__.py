@@ -490,7 +490,23 @@ def getMouseObject():
 		except AttributeError:
 			break
 	return win
-	
+
+
+def isControlDown():
+	return wx.GetMouseState().controlDown
+
+
+def isCommandDown():
+	return wx.GetMouseState().cmdDown
+
+
+def isShiftDown():
+	return wx.GetMouseState().shiftDown
+
+
+def isAltDown():
+	return wx.GetMouseState().altDown
+
 
 #### This will have to wait until I can figure out how to simulate a 
 #### modal form for the calendar.
