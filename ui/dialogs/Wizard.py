@@ -252,9 +252,9 @@ class Wizard(dabo.ui.dDialog):
 
 	# Property methods
 	def _getImage(self):
-		return self.wizardIcon.Bitmap
+		return self.wizardIcon.Picture
 	def _setImage(self, val):
-		self.wizardIcon.Bitmap = val
+		self.wizardIcon.Picture = val
 		self.layout()
 	
 	def _getPageCount(self):
