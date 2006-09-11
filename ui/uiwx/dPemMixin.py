@@ -773,16 +773,38 @@ class dPemMixin(dPemMixinBase):
 		to the containing form. If no position is passed, returns the position
 		of this control relative to the form.
 		"""
+		return self.containerCoordinates(self.Form, pos)
+
+
+	def containerCoordinates(self, cnt, pos=None):
+		"""Given a position relative to this control, return a position relative
+		to the specified container. If no position is passed, returns the position
+		of this control relative to the container.
+		"""
 		if pos is None:
 			pos = self.Position
 			l, t = 0, 0
 		else:
 			l, t = pos
 		p = self
-		while (p is not None) and not isinstance(p, dabo.ui.dFormMixin):
+		found = False
+		while (p is not None):
+			lastPar = p
+			if p is cnt:
+				found = True
+				break
 			l += p.Left
 			t += p.Top
 			p = p.Parent
+		# If we didn't find the container, that means that the object
+		# is not contained by the container. This can happen when 
+		# dragging past the edge of the container.
+		if not found:
+			# Convert to form coordinates
+			cntX, cntY = cnt.formCoordinates()
+			posX, posY = self.formCoordinates(pos)
+			l = posX - cntX
+			t = posY - cntY
  		return (l, t)
 	
 	
