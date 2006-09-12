@@ -8,7 +8,12 @@ import dabo.dEvents as dEvents
 class dControlMixinBase(dabo.ui.dPemMixin):
 	""" Provide common functionality for all controls.
 	"""
-	pass
+	def _initEvents(self):
+		super(dControlMixinBase, self)._initEvents()
+		
+		self.bindEvent(dEvents.GotFocus, self.__onGotFocus)
 
-
+	def __onGotFocus(self, evt):
+		if self.Form:
+			self.Form._activeControl = self
 
