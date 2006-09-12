@@ -434,7 +434,12 @@ class dFormMixin(pm.dPemMixin):
 
 	# property get/set/del functions follow:
 	def _getActiveControl(self):
-		return self.FindFocus()
+		# Can't use FindFocus: it returns whatever control has the keyboard focus,
+		# whether or not it is a member of this form.
+		return getattr(self, "_activeControl", None)
+		
+	def _setActiveControl(self, val):
+		val.setFocus()
 
 	
 	def _getAutoUpdateStatusText(self):
@@ -803,7 +808,7 @@ class dFormMixin(pm.dPemMixin):
 
 
 	# property definitions follow:
-	ActiveControl = property(_getActiveControl, None, None, 
+	ActiveControl = property(_getActiveControl, _setActiveControl, None, 
 			_("Contains a reference to the active control on the form, or None."))
 	
 	AutoUpdateStatusText = property(_getAutoUpdateStatusText, _setAutoUpdateStatusText, None,
