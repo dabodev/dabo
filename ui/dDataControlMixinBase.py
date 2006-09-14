@@ -56,19 +56,19 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	
 	
 	def __onLostFocus(self, evt):
+		ok = True
 		if self._oldVal != self.Value:
 			# Call the field-level validation if indicated.
-			ok = True
 			if hasattr(self.Form, "validateField"):
 				ok = self.Form.validateField(self)
-			if not ok:
-				# If validation fails, don't write the value to the source. Also,
-				# flag this field so that the gotFocus() doesn't set _oldVal
-				# to the invalid value.
-				self._inFldValid = True
-			else:
-				# Everything's hunky dory; push the value to the DataSource.
-				self.flushValue()
+		if not ok:
+			# If validation fails, don't write the value to the source. Also,
+			# flag this field so that the gotFocus() doesn't set _oldVal
+			# to the invalid value.
+			self._inFldValid = True
+		else:
+			# Everything's hunky dory; push the value to the DataSource.
+			self.flushValue()
 		try:
 			if self.SelectOnEntry:
 				self.selectNone()
