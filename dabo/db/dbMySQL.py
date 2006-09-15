@@ -267,7 +267,7 @@ class MySQL(dBackend):
 					fld.Default = dNoEQ("CURRENT_TIMESTAMP")
 				elif fld.DataType == "Binary":
 					if fld.Size <= 255:
-						sql = sql + "TIMYBLOB "
+						sql = sql + "TINYBLOB "
 					elif fld.Size <= 65535:
 						sql = sql + "BLOB "
 					elif fld.Size <= 16777215:
