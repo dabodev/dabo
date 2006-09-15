@@ -3,6 +3,7 @@ import os
 
 # The _version line is the only thing you should change in this file.
 # Everything else is boilerplate copied also to other dabo repositories.
+package_name = "dabo"
 _version = "0.7a"
 
 
@@ -12,7 +13,6 @@ _version = "0.7a"
 # repository updated by a svn post-commit hook on the server. 
 
 cwd_split = os.path.split(os.getcwd())
-package_name = cwd_split[-1]
 package_path = ''.join(cwd_split[:-1])
 
 _revision = None
