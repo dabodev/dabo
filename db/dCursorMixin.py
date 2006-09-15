@@ -313,7 +313,15 @@ class dCursorMixin(dObject):
 		else:
 			# See if we already have the information from a prior query
 			if len(self._types.keys()) == 0:
-				dabo.errorLog.write(_("RowCount is %s, so storeFieldTypes() can't run as implemented.") % self.RowCount)
+				# Try to get it from the description
+				dsc = self.BackendObject.getStructureDescription(self)
+				if dsc:
+					typDict = {"I": int, "C": unicode, "L": bool, "T": datetime.datetime, "D": datetime.date,
+							"M": unicode, "N": float}
+					for fld, typ, junk in dsc:
+						target._types[fld] = typDict[typ]
+				else:
+					dabo.errorLog.write(_("RowCount is %s, so storeFieldTypes() can't run as implemented.") % self.RowCount)
 
 	
 	def sort(self, col, dir=None, caseSensitive=True):
