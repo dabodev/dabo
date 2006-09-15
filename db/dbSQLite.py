@@ -49,7 +49,7 @@ class SQLite(dBackend):
 	def flush(self, crs):
 		self._connection.commit()
 
-		
+
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
@@ -147,7 +147,7 @@ class SQLite(dBackend):
 		auxCrs = cursor._getAuxCursor()
 		auxCrs.execute("pragma table_info('%s')" % cursor.Table)
 		rs = auxCrs._records
-		
+
 		stdFlds = [ff["name"] for ff in rs]
 		# Get all the fields that are not in the table.
 		cursor.__nonUpdateFields = [d[0] for d in descFlds 
@@ -189,7 +189,7 @@ class SQLite(dBackend):
 		if not ret:
 			# Get the standard fields in the table
 			auxCrs = cursor._getAuxCursor()
-			auxCrs.execute("pragma table_info('%s')" % cursor.Table, useAuxCursor=False)
+			auxCrs.execute("pragma table_info('%s')" % cursor.Table)
 			rs = auxCrs._records
 			fields = []
 			for rec in rs:
@@ -201,8 +201,8 @@ class SQLite(dBackend):
 				else:
 					# SQLite treats everything else as text
 					fldType = "C"
-				# We don't care about PKs here, so just make it False
-				fields.append( (rec["name"], fldType, False))
+				pk = bool(rec["pk"])
+				fields.append( (rec["name"], fldType, pk))
 			ret = tuple(fields)
 		return ret
 		

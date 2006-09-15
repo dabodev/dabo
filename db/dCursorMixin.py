@@ -138,33 +138,16 @@ class dCursorMixin(dObject):
 		return self.sortCase
 
 
-	def execute(self, sql, params=(), useAuxCursor=None):
-		"""The idea here is to let the super class do the actual work in 
-		retrieving the data. However, many cursor classes can only return 
-		row information as a list, not as a dictionary. This method will 
-		detect that, and convert the results to a dictionary.
+	def execute(self, sql, params=()):
+		""" Execute the sql, and populate the DataSet if it is a select statement."""
+		# The idea here is to let the super class do the actual work in 
+		# retrieving the data. However, many cursor classes can only return 
+		# row information as a list, not as a dictionary. This method will 
+		# detect that, and convert the results to a dictionary.
 
-		The useAuxCursor argument specifies whether the sql will be executed
-		using the main cursor or an auxiliary cursor. The possible values 
-		are:
-			None (default): The method will automatically determine what to do.
-			True: An AuxCursor will be used
-			False: The main cursor will be used (could be dangerous)
-		"""
 		#### NOTE: NEEDS TO BE TESTED THOROUGHLY!!!!  ####
-		if useAuxCursor is None:
-			if sql.strip().split()[0].lower() == "select":
-				cursorToUse = self
-			else:
-				cursorToUse = self.AuxCursor
-				#cursorToUse.AutoCommit = self.AutoCommit
-		elif useAuxCursor:
-			cursorToUse = self.AuxCursor
-		else:
-			cursorToUse = self
-			
-		# Some backends, notably Firebird, require that fields be specially
-		# marked.
+
+		# Some backends, notably Firebird, require that fields be specially marked.
 		sql = self.processFields(sql)
 		
 		# Make sure all Unicode characters are properly encoded.
@@ -175,9 +158,9 @@ class dCursorMixin(dObject):
 		
 		try:
 			if params is None or len(params) == 0:
-				res = cursorToUse.superCursor.execute(self, sqlEX)
+				res = self.superCursor.execute(self, sqlEX)
 			else:
-				res = cursorToUse.superCursor.execute(self, sqlEX, params)
+				res = self.superCursor.execute(self, sqlEX, params)
 		except Exception, e:
 			# If this is due to a broken connection, let the user know.
 			# Different backends have different messages, but they
@@ -188,18 +171,16 @@ class dCursorMixin(dObject):
 				raise dException.DBNoAccessException(e)
 			else:
 				raise dException.DBQueryException(e, sql)
-		
-		if cursorToUse is not self:
-			# No need to manipulate the data
-			return res
-	
-		# Not all backends support 'fetchall' after executing a query
-		# that doesn't return records, such as an update.
+
 		try:
 			self._records = dDataSet(self.fetchall())
 		except:
-			pass
-		
+			self._records = dDataSet(tuple())
+
+		if sql.strip().split()[0].lower() not in  ("select", "pragma"):
+			# No need to massage the data for DML commands
+			return res
+
 		# Some backend programs do odd things to the description
 		# This allows each backend to handle these quirks individually.
 		self.BackendObject.massageDescription(self)
@@ -271,6 +252,15 @@ class dCursorMixin(dObject):
 			self._records = dDataSet(self._records)
 		return res
 	
+
+	def executeSafe(self, sql):
+		"""Execute the passed SQL using an auxiliary cursor.
+
+		This is considered 'safe', because it won't harm the contents of the
+		main cursor.
+		"""
+		return self.AuxCursor.execute(sql)
+
 	
 	def requery(self, params=None):
 		self._lastSQL = self.CurrentSQL
@@ -280,11 +270,14 @@ class dCursorMixin(dObject):
 		
 		# Store the data types for each field
 		self.storeFieldTypes()
+
 		# Add mementos to each row of the result set
 		self.addMemento(-1)
+
 		# Check for any derived fields that should not be included in 
 		# any updates.
 		self.__setNonUpdateFields()
+
 		# Clear the unsorted list, and then apply the current sort
 		self.__unsortedRows = []
 		if self.sortColumn:
@@ -300,6 +293,19 @@ class dCursorMixin(dObject):
 		"""Stores the data type for each column in the result set."""
 		if target is None:
 			target = self
+
+		dataStructure = getattr(self, "_dataStructure", None)
+		if dataStructure is not None:
+			# An explicit data structure has been set. Use it, no matter what the 
+			# backend db may say. 
+			target._types = {}
+			for field in dataStructure:
+				field_alias, field_type = field[0], field[1]
+				target._types[field_alias] = dabo.db.getPythonType(field_type)
+			return
+
+		# Explicit data structure not set, so we must glean the information from 
+		# the first record of the resultset, which really shouldn't be relied on.
 		if self.RowCount > 0:
 			rec = self._records[0]
 			for fname, fval in rec.items():
@@ -521,12 +527,24 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	
 	
 	def getNonUpdateFields(self):
-		return self.nonUpdateFields + self.__nonUpdateFields
+		return list(set(self.nonUpdateFields + self.__nonUpdateFields))
 		
 		
 	def __setNonUpdateFields(self):
-		"""Delegate this to the backend object."""
-		self.BackendObject.setNonUpdateFields(self)
+		"""Automatically set the non-update fields."""
+		dataStructure = getattr(self, "_dataStructure", None)
+		if dataStructure is not None:
+			# Use the explicitly-set DataStructure to find the NonUpdateFields.
+			nonUpdateFieldAliases = []
+			for field in dataStructure:
+				field_alias = field[0]
+				table_name = field[3]
+				if table_name != self.Table:
+					nonUpdateFieldAliases.append(field_alias)
+			self.__nonUpdateFields = nonUpdateFieldAliases
+		else:
+			# Delegate to the backend object to figure it out.
+			self.BackendObject.setNonUpdateFields(self)
 	
 
 	def isChanged(self, allRows=True):
@@ -1143,20 +1161,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def __setStructure(self):
-		"""Get the empty description from the backend object, 
-		as different backends handle empty recordsets differently.
-		"""
-		dscrp = self.BackendObject.getStructureDescription(self)
-		for fld in dscrp:
-			fldname = fld[0]
+		"""Set the structure of a newly-added record."""
+		for field in self.DataStructure:
+			field_alias = field[0]
+			field_type = field[1]
+			field_ispk = field[2]
+			table_name = field[3]
+			field_name = field[4]
+			field_scale = field[5]
 			try:
-				typ = self._types[fldname]
+				typ = self._types[field_alias]
 				# Handle the non-standard cases
 				if _USE_DECIMAL and typ is Decimal:
 					newval = Decimal()
 					# If the backend reports a decimal scale, use it. Scale refers to the
 					# number of decimal places.
-					scale = fld[5]
+					scale = field_scale
 					if scale is not None:
 						ex = "0.%s" % ("0"*scale)
 						newval = newval.quantize(Decimal(ex))
@@ -1169,11 +1189,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			except StandardError, e:
 				# Either the data types have not yet been defined, or 
 				# it is a type that cannot be instantiated simply.
-				dabo.errorLog.write(_("Failed to create newval for field '%s'") % fldname)
+				dabo.errorLog.write(_("Failed to create newval for field '%s'") % field_alias)
 				dabo.errorLog.write("TYPES: %s" % self._types)
 				dabo.errorLog.write(str(e))
 				newval = ""
-			self._blank[fldname] = newval
+			self._blank[field_alias] = newval
 
 		# Mark the calculated and derived fields.
 		self.__setNonUpdateFields()
@@ -1729,6 +1749,50 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def _getDescrip(self):
 		return self.__backend.getDescription(self)
 		
+
+	def _getDataStructure(self):
+		val = getattr(self, "_dataStructure", None)
+		if val is None:
+			# Get the information from the backend. Note that elements 3 and 4 get
+			# guessed-at values.
+			val = []
+			ds = self.BackendObject.getStructureDescription(self)
+			for field in ds:
+				field_name, field_type, pk = field[0], field[1], field[2]
+				try:
+					field_scale = field[5]
+				except IndexError:
+					field_scale = None
+				val.append((field_name, field_type, pk, self.Table, field_name, field_scale))
+			val = tuple(val)
+		return val
+
+	def _setDataStructure(self, val):
+		# Go through the sequence, raising exceptions or adding default values as
+		# appropriate.
+		val = list(val)
+		for idx, field in enumerate(val):
+			field_alias = field[0]
+			field_type = field[1]
+			try:
+				field_pk = field[2]
+			except IndexError:
+				field_pk = False
+			try:
+				table_name = field[3]
+			except IndexError:
+				table_name = self.Table
+			try:
+				field_name = field[4]
+			except IndexError:
+				field_name = field_alias
+			try:
+				field_scale = field[5]
+			except IndexError:
+				field_scale = None
+			val[idx] = (field_alias, field_type, field_pk, table_name, field_name, field_scale)
+		self._dataStructure = tuple(val)
+
 			
 	def _getEncoding(self):
 		return self.BackendObject.Encoding
@@ -1831,6 +1895,20 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	
 	CurrentSQL = property(_getCurrentSQL, None, None,
 			_("Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."))
+
+	DataStructure = property(_getDataStructure, _setDataStructure, None,
+			_("""Returns the structure of the cursor in a tuple of 6-tuples.
+
+				0: field alias (str)
+				1: data type code (str)
+				2: pk field (bool)
+				3: table name (str)
+				4: field name (str)
+				5: field scale (int or None)
+
+				This information will try to come from a few places, in order:
+				1) The explicitly-set DataStructure property
+				2) The backend table method"""))
 
 	Encoding = property(_getEncoding, _setEncoding, None,
 			_("Encoding type used by the Backend  (string)") )

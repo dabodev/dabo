@@ -485,27 +485,18 @@ class dBizobj(dObject):
 			ret = self.delete(startTransaction)
 
 
-	def execute(self, expr, useAuxCursor=None):
-		"""Pass-through method that will take the 'expr' and pass
-		it to this bizobj's cursor for execution.
-
-		The useAuxCursor argument specifies whether the sql will be executed
-		using the main cursor or an auxiliary cursor. The possible values
-		are:
-			None (default): The method will automatically determine what to do.
-			True: An AuxCursor will be used
-			False: The main cursor will be used (could be dangerous)
-		"""
-		return self._CurrentCursor.execute(expr, useAuxCursor=useAuxCursor)
+	def execute(self, sql):
+		"""Execute the sql on the cursor. Dangerous. Use executeSafe instead."""
+		return self._CurrentCursor.execute(sql)
 
 
-	def executeSafe(self, expr):
+	def executeSafe(self, sql):
 		"""Execute the passed SQL using an auxiliary cursor.
 
 		This is considered 'safe', because it won't harm the contents of the
 		main cursor.
 		"""
-		return self.execute(expr, useAuxCursor=True)
+		return self._CurrentCursor.executeSafe(sql)
 
 
 	def getChangedRecordNumbers(self):
@@ -1385,6 +1376,13 @@ class dBizobj(dObject):
 			cursor.Table = val
 
 
+	def _getDataStructure(self):
+		return self._CurrentCursor.DataStructure
+
+	def _setDataStructure(self, val):
+		self._CurrentCursor.DataStructure = val
+
+
 	def _getDefaultValues(self):
 		return self._defaultValues
 
@@ -1636,6 +1634,20 @@ class dBizobj(dObject):
 	DataSource = property(_getDataSource, _setDataSource, None,
 			_("The title of the cursor. Used in resolving DataSource references. (str)"))
 
+	DataStructure = property(_getDataStructure, _setDataStructure, None,
+			_("""Returns the structure of the cursor in a tuple of 6-tuples.
+
+				0: field alias (str)
+				1: data type code (str)
+				2: pk field (bool)
+				3: table name (str)
+				4: field name (str)
+				5: field scale (int or None)
+
+				This information will try to come from a few places, in order:
+				1) The explicitly-set DataStructure property
+				2) The backend table method"""))
+     
 	DefaultValues = property(_getDefaultValues, _setDefaultValues, None,
 			_("""A dictionary specifying default values for fields when a new record is added.
 
