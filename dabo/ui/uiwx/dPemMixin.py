@@ -2363,6 +2363,7 @@ class DrawObject(dObject):
 			flrect = float(wd)
 		else:
 			flrect = float(ht)
+		flrect = max(1, flrect)
 		rstep = float((r2 - r1)) / flrect
 		gstep = float((g2 - g1)) / flrect
 		bstep = float((b2 - b1)) / flrect

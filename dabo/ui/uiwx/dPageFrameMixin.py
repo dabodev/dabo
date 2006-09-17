@@ -216,6 +216,8 @@ class dPageFrameMixin(cm.dControlMixin):
 			self.Sizer.layout()
 		except:
 			pass
+		for pg in self.Pages:
+			pg.layout()
 
 		
 	def _getPageIndex(self, pg):

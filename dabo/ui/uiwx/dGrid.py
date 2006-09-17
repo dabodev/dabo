@@ -2209,6 +2209,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	##----------------------------------------------------------##
 	##                end: user hook methods                    ##
 	##----------------------------------------------------------##
+	
+	def sort(self):
+		"""Hook method used in subclasses for custom sorting."""
+		pass
+		
 
 	def processSort(self, gridCol=None, toggleSort=True):
 		""" Sort the grid column.
@@ -2831,8 +2836,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Fill the default menu item(s):
 		def _autosizeColumn(evt):
 			self.autoSizeCol(self.getColNumByX(self._headerMousePosition[0]), persist=True)
+		def _autosizeAllColumns(evt):
+			self.autoSizeCol("All")
 		menu.append(_("&Autosize Column"), bindfunc=_autosizeColumn, 
 				help=_("Autosize the column based on the data in the column."))
+		menu.append(_("&Autosize All Columns"), bindfunc=_autosizeAllColumns, 
+				help=_("Autosize all columns in the grid."))
 
 		menu = self.fillHeaderContextMenu(menu)
 
