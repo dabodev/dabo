@@ -431,14 +431,12 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 
 	HorizontalRules = property(_getHorizontalRules, _setHorizontalRules, None,
 			_("Specifies whether light rules are drawn between rows."))
-	DynamicHorizontalRules = makeDynamicProperty(HorizontalRules)
 
 	LastSelectedIndex = property(_getLastSelectedIndex, None, None,
 			_("Returns the index of the last selected item."))
 
 	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
 			_("Specifies whether multiple rows can be selected in the list."))
-	DynamicMultipleSelect = makeDynamicProperty(MultipleSelect)
 
 	RowCount = property(_getRowCount, None, None, 
 			_("Number of rows in the control (read-only).  (int)") )
@@ -448,19 +446,23 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 	
 	Value = property(_getValue, _setValue, None,
 			_("Returns current value (str)" ) )
-	DynamicValue = makeDynamicProperty(Value)
 		
 	Values = property(_getValues, None, None,
 			_("Returns a list containing the Value of all selected rows  (list of str)" ) )
 
 	ValueColumn = property(_getValCol, _setValCol, None,
 			_("The column whose text is reflected in Value (default=0).  (int)") )
-	DynamicValueColumn = makeDynamicProperty(ValueColumn)
 			
 	VerticalRules = property(_getVerticalRules, _setVerticalRules, None,
 			_("Specifies whether light rules are drawn between rows."))
-	DynamicVerticalRules = makeDynamicProperty(VerticalRules)
 
+
+
+	DynamicHorizontalRules = makeDynamicProperty(HorizontalRules)
+	DynamicMultipleSelect = makeDynamicProperty(MultipleSelect)
+	DynamicValue = makeDynamicProperty(Value)
+	DynamicValueColumn = makeDynamicProperty(ValueColumn)
+	DynamicVerticalRules = makeDynamicProperty(VerticalRules)
 	
 
 class _dListControl_test(dListControl):

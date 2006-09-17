@@ -96,6 +96,9 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self._syntaxColoring = True
 		self._language = "Python"
 		self._keyWordsSet = False
+		self._defaultsSet = False
+		self._fontFace = None
+		self._fontSize = None
 				
 		stc.StyledTextCtrl.__init__(self, parent, -1, 
 				style = wx.NO_BORDER)
@@ -104,7 +107,6 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		
 		self._newFileName = _("< New File >")
 		self._curdir = os.getcwd()
-		self._defaultsSet = False
 		self._registerFunc = None
 		self._unRegisterFunc = None
 		# Used for parsing class and method names
@@ -122,25 +124,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self.setDefaults()
 			self._defaultsSet = True
 
-		self._syntaxColoring = True
-		self._styleTimer = StyleTimer()
-		self._styleTimer.stop()
-		
 		app = self.Application
-		# Set the marker used for bookmarks
-		self._bmkPos = 5
-		self.MarkerDefine(self._bmkPos, 
-				stc.STC_MARK_CIRCLE, "gray", "cyan")
-		justFname = os.path.split(self._fileName)[1]
-		svd = app.getUserSetting("bookmarks.%s", justFname, "{}")
-		if svd:
-			self._bookmarks = eval(svd)
-		else:
-			self._bookmarks = {}
-
-#- 		zoom = app.getUserSetting("editor.zoom")
-#- 		if zoom:
-#- 			self.SetZoom(zoom)
 		self._fontFace = app.getUserSetting("editor.fontface")
 		self._fontSize = app.getUserSetting("editor.fontsize")
 		if self._fontFace:
@@ -151,6 +135,21 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			dabo.ui.callAfter(self.changeFontSize, self._fontSize)
 		else:
 			self._fontSize = self.GetFont().GetPointSize()
+
+		self._syntaxColoring = True
+		self._styleTimer = StyleTimer()
+		self._styleTimer.stop()
+		
+		# Set the marker used for bookmarks
+		self._bmkPos = 5
+		self.MarkerDefine(self._bmkPos, 
+				stc.STC_MARK_CIRCLE, "gray", "cyan")
+		justFname = os.path.split(self._fileName)[1]
+		svd = app.getUserSetting("bookmarks.%s", justFname, "{}")
+		if svd:
+			self._bookmarks = eval(svd)
+		else:
+			self._bookmarks = {}
 
 		if self.UseStyleTimer:
 			self._styleTimer.mode = "container"
