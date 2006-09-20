@@ -21,7 +21,7 @@ class _dRadioButton(wx.RadioButton, dcm.dDataControlMixin):
 		
 
 	def _initEvents(self):
-		self.Bind(wx.EVT_RADIOBUTTON, self.Parent._onWxButton)
+		self.Bind(wx.EVT_RADIOBUTTON, self.Parent._onWxHit)
 
 	
 
@@ -48,23 +48,21 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 
 		cim.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-	
-	def setProperties(self, properties):
-		"""Need to add the sizer here before properties that need it, such
-		as Orientation or Choices, are set.
-		"""
+
+	def _checkSizer(self):
+		"""Makes sure the sizer is created before setting props that need it."""
 		if self.Sizer is None:
 			self.Sizer = dabo.ui.dBorderSizer(self, "v")
-		super(dRadioList, self).setProperties(properties)
-				
-		
-	def _onWxButton(self, evt):
+
+	
+	def _onWxHit(self, evt):
 		pos = self._items.index(evt.GetEventObject())
 		self.PositionValue = pos
 		# This allows the event processing to properly 
 		# set the EventData["index"] properly.
 		evt.SetInt(pos)
-		self.raiseEvent(dEvents.Hit, evt)
+		self.flushValue()
+		self.super(evt)
 		
 		
 	def layout(self):
@@ -85,18 +83,18 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 			itm.SetValue(pos==val)
 		
 
-	def enableByKey(self, item, val=True):
+	def enableKey(self, item, val=True):
 		"""Enables or disables an individual button, referenced by key value."""
 		index = self.Keys[item]
 		self._items[index].Enabled = val
 	
 
-	def enableByPosition(self, item, val=True):
+	def enablePosition(self, item, val=True):
 		"""Enables or disables an individual button, referenced by position (index)."""
 		self._items[item].Enabled = val
 		
 
-	def enableByString(self, item, val=True):
+	def enableString(self, item, val=True):
 		"""Enables or disables an individual button, referenced by string display value."""
 		index = self.FindString(item)
 		self._items[index].Enabled = val
@@ -195,6 +193,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		
 	def _setChoices(self, choices):
 		if self._constructed():
+			self._checkSizer()
 			# Save the current values for possible re-setting afterwards.
 			sv = (self.StringValue, self.KeyValue, self.PositionValue)
 			[itm.release() for itm in self._items]
@@ -227,11 +226,16 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 	
 	
 	def _getOrientation(self):
+		self._checkSizer()
 		return self.Sizer.Orientation
 	
 	def _setOrientation(self, val):
-		self.Sizer.Orientation = val
-		self.layout()
+		if self._constructed():
+			self._checkSizer()
+			self.Sizer.Orientation = val
+			self.layout()
+		else:
+			self._properties["Orientation"] = val
 			
 		
 	def _getPositionValue(self):
@@ -281,7 +285,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 
 	Orientation = property(_getOrientation, _setOrientation, None,
 			_("""Specifies whether this is a vertical or horizontal RadioList.		
-			String. Read-only at runtime. Possible values:
+			String. Possible values:
 				'None'
 				'Row'
 				'Column'"""))
