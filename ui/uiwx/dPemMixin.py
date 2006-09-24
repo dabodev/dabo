@@ -216,7 +216,7 @@ class dPemMixin(dPemMixinBase):
 		# no, but if you have problems with drawings leaving behind unwanted 
 		# debris, set this to True
 		self._autoClearDrawings = False
-		self._borderColor = "black"
+		self._borderColor = dColors.colorTupleFromName("black")
 		self._borderWidth = 0
 		self._borderLineStyle = "Solid"
 		# Reference to the border-drawing object
