@@ -644,7 +644,6 @@ Database error message: %s""") %	err
 		BusinessRuleViolation exception will be raised, and the form
 		can then respond to this.
 		"""
-		
 		ds = ctrl.DataSource
 		df = ctrl.DataField
 		val = ctrl.Value
@@ -685,16 +684,20 @@ Database error message: %s""") %	err
 			return self._AskToSave
 		except AttributeError:
 			return True
+			
 	def _setAskToSave(self, value):
 		self._AskToSave = bool(value)
+		
 
 	def _getSaveAllRows(self):
 		try:
 			return self._SaveAllRows
 		except AttributeError:
 			return True
+			
 	def _setSaveAllRows(self, value):
 		self._SaveAllRows = bool(value)
+
 
 	def _getPrimaryBizobj(self):
 		"""The attribute '_primaryBizobj' should be a bizobj, but due
@@ -711,6 +714,7 @@ Database error message: %s""") %	err
 				# Update to bizobj reference
 				self._primaryBizobj = bo
 		return bo
+		
 	def _setPrimaryBizobj(self, bizOrDataSource):
 		if isinstance(bizOrDataSource, dabo.biz.dBizobj):
 			self._primaryBizobj = bizOrDataSource
@@ -724,7 +728,6 @@ Database error message: %s""") %	err
 				self.afterSetPrimaryBizobj()
 			else:
 				dabo.infoLog.write(_("bizobj for data source %s does not exist.") % bizOrDataSource)
-
 
 
 	# Property definitions:

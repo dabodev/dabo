@@ -305,7 +305,8 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 	def _setForceCase(self, val):
 		if self._constructed():
 			valKey = val[0].upper()
-			self._forceCase = {"U": "upper", "L": "lower", "T": "title"}.get(valKey)
+			self._forceCase = {"U": "upper", "L": "lower", "T": "title", None: None,
+					"None": None}.get(valKey)
 			self.__forceCase()
 			self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
 			if self._forceCase:
