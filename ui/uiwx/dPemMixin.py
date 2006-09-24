@@ -2298,11 +2298,16 @@ class DrawObject(dObject):
 		elif mode == "xor":
 			logic = wx.XOR
 		dc.SetLogicalFunction(logic)
+		srcObj = self.Parent
+		if self.Application.Platform == "GTK" and not (isinstance(srcObj, (dabo.ui.dPanel, dabo.ui.dPage))):
+			x, y = self.Parent.containerCoordinates(srcObj.Parent, (self.Xpos, self.Ypos))
+		else:
+			x, y = self.Xpos, self.Ypos
 		
 		if self.Shape == "circle":
-			dc.DrawCircle(self.Xpos, self.Ypos, self.Radius)
+			dc.DrawCircle(x, y, self.Radius)
 		elif self.Shape == "rect":
-			dc.DrawRectangle(self.Xpos, self.Ypos, self.Width, self.Height)
+			dc.DrawRectangle(x, y, self.Width, self.Height)
 		elif self.Shape == "polygon":
 			dc.DrawPolygon(self.Points)
 		elif self.Shape == "line":
@@ -2310,7 +2315,7 @@ class DrawObject(dObject):
 			x2, y2 = self.Points[1]
 			dc.DrawLine(x1, y1, x2, y2)
 		elif self.Shape == "gradient":
-			self._drawGradient(dc)
+			self._drawGradient(dc, x, y)
 		elif self.Shape == "text":
 			txt = self._text
 			if not txt:
@@ -2339,12 +2344,12 @@ class DrawObject(dObject):
 			
 			dc.SetFont(fnt)
 			if self._angle == 0:
-				dc.DrawText(txt, self.Xpos, self.Ypos)
+				dc.DrawText(txt, x, y)
 			else:
-				dc.DrawRotatedText(txt, self.Xpos, self.Ypos, self._angle)
+				dc.DrawRotatedText(txt, x, y, self._angle)
 					
-	
-	def _drawGradient(self, dc):
+	                        
+	def _drawGradient(self, dc, xpos, ypos):
 		if self.GradientColor1 is None or self.GradientColor2 is None:
 			return
 		if self.Orientation is None:
@@ -2353,21 +2358,21 @@ class DrawObject(dObject):
 			wd = self.Parent.Width
 		else:
 			wd = self.Width
-		if self.Xpos is None:
+		if xpos is None:
 			x1 = 0
 			x2 = wd
 		else:
-			x1 = self.Xpos
+			x1 = xpos
 			x2 = x1 + wd
 		if self.Height is None:
 			ht = self.Parent.Height
 		else:
 			ht = self.Height
-		if self.Ypos is None:
+		if ypos is None:
 			y1 = 0
 			y2 = ht
 		else:
-			y1 = self.Ypos
+			y1 = ypos
 			y2 = y1 + ht
 			
 		dc.SetPen(wx.TRANSPARENT_PEN)

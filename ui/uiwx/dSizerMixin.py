@@ -444,6 +444,21 @@ class dSizerMixin(dObject):
 			self.setItemProp(itm, prop, val)
 	
 
+	def isContainedBy(self, obj):
+		"""Returns True if this the containership hierarchy for this control
+		includes obj.
+		"""
+		ret = False
+		p = self.Parent
+		while p is not None:
+			if p is obj:
+				ret = True
+				break
+			else:
+				p = p.Parent
+		return ret
+	
+	
 	def drawOutline(self, win, recurse=False):
 		""" There are some cases where being able to see the sizer
 		is helpful, such as at design time. This method can be called
