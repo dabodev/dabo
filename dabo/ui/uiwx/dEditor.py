@@ -17,7 +17,7 @@ if __name__ == "__main__":
 
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-import dControlMixin as cm
+import dDataControlMixin as dcm
 import dTimer
 
 ## testing load performance:
@@ -64,7 +64,7 @@ class StyleTimer(dTimer.dTimer):
 			self.Parent.SetLexer(stc.STC_LEX_CONTAINER)
 
 
-class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
+class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 	# The Editor is copied from the wxPython demo, StyledTextCtrl_2.py, 
 	# and modified. Thanks to Robin Dunn and everyone that contributed to 
 	# that demo to get us going!
@@ -102,7 +102,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				
 		stc.StyledTextCtrl.__init__(self, parent, -1, 
 				style = wx.NO_BORDER)
-		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName, *args, **kwargs)
 		self._afterInit()
 		
 		self._newFileName = _("< New File >")
@@ -1703,6 +1703,23 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self._properties["UseTabs"] = val
 
 
+	def _getValue(self):
+		return self.Text
+		
+	def _setValue(self, val):
+		if self._constructed():
+			if self.Text != val:
+				try:
+					self.Text = val
+				except TypeError, e:
+					dabo.errorLog.write(_("Could not set value of %s to %s. Error message: %s")
+							% (self._name, val, e))
+				self._afterValueChanged()
+			self.flushValue()
+		else:
+			self._properties["Value"] = val
+
+		
 	def _getWordWrap(self):
 		return self.GetWrapMode()
 
@@ -1807,6 +1824,9 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			is False; if True, it will use a combination of tabs and 
 			spaces (default=True)  (bool)"""))
 	
+	Value = property(_getValue, _setValue, None,
+		_("""Specifies the current contents of the editor.  (basestring)"""))
+				
 	WordWrap = property(_getWordWrap, _setWordWrap, None,
 			_("""Controls whether text lines that are wider than the window
 			are soft-wrapped or clipped. (bool)"""))
@@ -1814,7 +1834,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 	ZoomLevel = property(_getZoomLevel, _setZoomLevel, None,
 			_("Point increase/decrease from normal viewing size  (int)"))
 	
-	
+
 	
 class _dEditor_test(dEditor): pass
 
