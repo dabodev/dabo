@@ -818,6 +818,21 @@ class dPemMixin(dPemMixinBase):
 		return self.ScreenToClient(pos)
 	
 	
+	def isContainedBy(self, obj):
+		"""Returns True if this the containership hierarchy for this control
+		includes obj.
+		"""
+		ret = False
+		p = self.Parent
+		while p is not None:
+			if p is obj:
+				ret = True
+				break
+			else:
+				p = p.Parent
+		return ret
+	
+	
 	def showContextMenu(self, menu, pos=None, release=True):
 		"""Display a context menu (popup) at the specified position.
 
