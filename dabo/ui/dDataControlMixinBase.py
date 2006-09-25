@@ -19,7 +19,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		super(dDataControlMixinBase, self).__init__(*args, **kwargs)
 			
 		self._value = self.Value
-		self.enabled = True
+		self._enabled = True
 		# Initialize runtime properties
 		
 	
@@ -98,7 +98,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		if self.Source and self._srcIsBizobj:
 			try:
 				self.Value = self.Source.getFieldVal(self.DataField)
-				self.Enabled = self.enabled
+				self.Enabled = self._enabled
 			except (TypeError, dException.NoRecordsException):
 				self.Value = self.getBlankValue()
 				# Do we need to disable the control?
