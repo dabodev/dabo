@@ -1170,6 +1170,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def __setStructure(self):
 		"""Set the structure of a newly-added record."""
+		noneType = type(None)
 		for field in self.DataStructure:
 			field_alias = field[0]
 			field_type = field[1]
@@ -1188,6 +1189,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					if scale is not None:
 						ex = "0.%s" % ("0"*scale)
 						newval = newval.quantize(Decimal(ex))
+				elif typ is noneType:
+					newval = None
 				elif typ is datetime.datetime:
 					newval = datetime.datetime.min
 				elif typ is datetime.date:
