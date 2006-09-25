@@ -322,7 +322,7 @@ class dBackend(dObject):
 		cursor.descriptionClean = cursor.description
 
 
-	def  getDescription(self, cursor):
+	def getDescription(self, cursor):
 		"""Normally, cursors should always be able to report their
 		description properly. However, some backends such as
 		SQLite will not report a description if there is no data in the
