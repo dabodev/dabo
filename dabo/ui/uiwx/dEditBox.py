@@ -23,6 +23,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		kwargs["style"] = wx.TE_MULTILINE | wx.TE_WORDWRAP
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		self._forceCase = None
+		self._inForceCase = False
 
 
 	def _initEvents(self):
@@ -70,6 +71,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		insPos = self.InsertionPosition
 		selLen = self.SelectionLength
 		changed = False
+		self._inForceCase = True
 		if case == "upper":
 			self.Value = self.Value.upper()
 			changed = True
@@ -84,6 +86,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 			self.InsertionPosition = insPos
 			self.SelectionLength = selLen
 			self.refresh()
+		self._inForceCase = False
 		
 
 	# property get/set functions
@@ -184,6 +187,22 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 		self._SelectOnEntry = bool(value)
 		
 
+	def _getValue(self):
+		return super(dEditBox, self)._getValue()
+	
+	def _setValue(self, val):
+		if self._constructed():
+			if self._inForceCase:
+				# Value is changing internally. Don't update the oldval
+				# setting or change the type; just set the value.
+				self.SetValue(val)
+				return
+			else:
+				return super(dEditBox, self)._setValue(val)
+		else:
+			self._properties["Value"] = val
+
+		
 	# property definitions follow:
 	Alignment = property(_getAlignment, _setAlignment, None,
 			_("""Specifies the alignment of the text. (str)
@@ -222,6 +241,9 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 	SelectOnEntry = property(_getSelectOnEntry, _setSelectOnEntry, None, 
 			_("Specifies whether all text gets selected upon receiving focus. (bool)"))
 
+	Value = property(_getValue, _setValue, None,
+			_("Specifies the current state of the control (the value of the field). (varies)"))
+
 
 	DynamicAlignment = makeDynamicProperty(Alignment)
 	DynamicInsertionPosition = makeDynamicProperty(InsertionPosition)
@@ -230,6 +252,7 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 	DynamicSelectionLength = makeDynamicProperty(SelectionLength)
 	DynamicSelectionStart = makeDynamicProperty(SelectionStart)
 	DynamicSelectOnEntry = makeDynamicProperty(SelectOnEntry)
+	DynamicValue = makeDynamicProperty(Value)
 
 
 

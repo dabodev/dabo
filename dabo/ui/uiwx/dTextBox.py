@@ -26,6 +26,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		self._dregex = {}
 		self._lastDataType = None
 		self._forceCase = None
+		self._inForceCase = False
 
 		preClass = wx.PreTextCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
@@ -258,6 +259,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		insPos = self.InsertionPosition
 		selLen = self.SelectionLength
 		changed = False
+		self._inForceCase = True
 		if case == "upper":
 			self.Value = self.Value.upper()
 			changed = True
@@ -272,6 +274,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			self.InsertionPosition = insPos
 			self.SelectionLength = selLen
 			self.refresh()
+		self._inForceCase = False
 		
 
 	# property get/set functions
@@ -493,6 +496,12 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			# Todo: set up validators based on the type of data we are editing,
 			# so the user can't, for example, enter a letter "p" in a textbox
 			# that is currently showing numeric data.
+			
+			if self._inForceCase:
+				# Value is changing internally. Don't update the oldval
+				# setting or change the type; just set the value.
+				self.SetValue(val)
+				return
 		
 			strVal = self._getStringValue(val)
 			_oldVal = self._oldVal = self.Value
