@@ -806,6 +806,23 @@ class dPemMixin(dPemMixinBase):
 			l = posX - cntX
 			t = posY - cntY
  		return (l, t)
+ 	
+ 	
+	def objectCoordinates(self, cnt, pos=None):
+		"""Given a position relative to the form, return a position relative
+		to this object. If no position is passed, returns the position
+		of this control relative to the form.
+		"""
+		if pos is None:
+			pos = self.Position
+		x, y = pos
+		prnt = self.Parent
+		while prnt is not None and prnt is not self.Form:
+			offX, offY = prnt.Position
+			x += offX
+			y += offY
+			prnt = prnt.Parent
+		return (x, y)
 	
 	
 	def absoluteCoordinates(self, pos):
