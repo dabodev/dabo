@@ -128,4 +128,31 @@ def dictStringify(dct):
 			ret[kk] = vv
 	return ret
 		
+
+def relativePathList(toLoc, fromLoc=None):
+	"""Given two paths, returns a list that, when joined with 
+	os.path.sep, gives the relative path from 'fromLoc' to
+	"toLoc'. If 'fromLoc' is not specified, the current directory
+	is assumed.
+	"""
+	if fromLoc is None:
+		fromLoc = os.getcwd()
+	fromList = fromLoc.split(os.path.sep)
+	toList = toLoc.split(os.path.sep)
+	
+	lev = 0
+	
+	while (len(fromList) > lev) and (len(toList) > lev) and \
+			(fromList[lev] == toList[lev]):
+		lev += 1
+		
+	# 'lev' now contains the first level where they differ
+	fromDiff = fromList[lev:]
+	toDiff = toList[lev:]
+	return [".."] * len(fromDiff) + toDiff
+
+
+def relativePath(toLoc, fromLoc=None):
+	"""Given two paths, returns a relative path from fromLoc to toLoc."""
+	return os.path.sep.join(relativePathList(toLoc, fromLoc))
 	
