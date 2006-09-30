@@ -28,7 +28,7 @@ if os.path.exists(os.path.join(package_path, ".svn")):
 
 if _revision is None:
 	from lib._daborevs import _revs
-	_revision = _revs[package_name]
+	_revision = _revs.get(package_name, "")
 
 version = {"version": _version,
 		"revision": _revision}
