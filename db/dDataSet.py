@@ -55,6 +55,7 @@ class dDataSet(tuple):
 		# When filtering datasets, we need a reference to the dataset
 		# this dataset was derived from.
 		self._sourceDataSet = None
+		self._encoding = "utf8"
 		
 		# Register the converters
 		sqlite.register_converter("memento", self._convert_memento)
@@ -334,6 +335,8 @@ class dDataSet(tuple):
 			self._connection = sqlite.connect(":memory:", 
 					detect_types=(sqlite.PARSE_DECLTYPES|sqlite.PARSE_COLNAMES), 
 					isolation_level="EXCLUSIVE")
+			# Set to default encoding
+			self.Encoding = self._encoding
 		if self._cursor is None:
 			self._cursor = self._connection.cursor(factory=DictCursor)
 		
@@ -385,7 +388,23 @@ class dDataSet(tuple):
 # 		
 # 		dt = time.clock()
 # 		print "CONVERTED", dt-ft
-		
+
+
+	def _getEncoding(self):
+		return self._encoding
+	
+	def _setEncoding(self, encoding):
+		self._encoding = encoding
+		try:
+			self._connection.text_factory = lambda s:unicode(s, self._encoding, "replace")
+		except AttributeError:
+			# The connection has not yet been set, but it will once
+			# queries is executed
+			pass
+	
+	Encoding = property(_getEncoding, _setEncoding, None,
+			""" Gets or sets the encoding """)
+
 
 
 
