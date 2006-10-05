@@ -47,11 +47,14 @@ class DesignerXmlConverter(dObject):
 		"""
 		if isinstance(src, file):
 			xml = src.read()
+			self._srcFile = src.name
 		else:
 			if os.path.exists(src):
 				xml = open(src).read()
+				self._srcFile = src
 			else:
 				xml = src
+				self._srcFile = None
 		dct = xtd.xmltodict(xml)
 
 		codePth = "%s-code.py" % os.path.splitext(src)[0]
@@ -478,6 +481,7 @@ class DesignerXmlConverter(dObject):
 					ret["NameBase"] = val
 				else:
 					ret[key] = val
+		dabo.lib.utils.resolveAttributePathing(ret, self._srcFile)
 		return ret
 		
 	
