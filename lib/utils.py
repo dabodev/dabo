@@ -183,7 +183,7 @@ def resolveAttributePathing(atts, pth=None):
 	"""
 	prfx = getPathAttributePrefix()
 	pathsToConvert = [(kk, vv) for kk, vv in atts.items()
-			if vv.startswith(prfx)]
+			if isinstance(vv, basestring) and vv.startswith(prfx)]
 	for convKey, convVal in pathsToConvert:
 		# Strip the path designator
 		convVal = convVal.replace(prfx, "")
