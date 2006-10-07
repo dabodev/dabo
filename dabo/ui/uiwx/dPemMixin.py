@@ -539,7 +539,7 @@ class dPemMixin(dPemMixinBase):
 		self.raiseEvent(dEvents.Resize, evt)
 
 
-	def bindKey(self, keyCombo, callback):
+	def bindKey(self, keyCombo, callback, **kwargs):
 		"""Bind a key combination such as "ctrl+c" to a callback function.
 
 		See dKeys.keyStrings for the valid string key codes.
@@ -591,6 +591,7 @@ class dPemMixin(dPemMixinBase):
 		ed["controlDown"] = "CTRL" in upMods 
 		ed["metaDown"] = "META" in upMods
 		ed["shiftDown"] = "SHIFT" in upMods
+		ed.update(kwargs)
 		bnd = {"callback" : callback, "eventData" : ed}
 		self._keyBindings[anId] = bnd
 		self.Bind(wx.EVT_MENU, self._keyCallback, id=anId)

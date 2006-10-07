@@ -22,8 +22,50 @@ class _dRadioButton(wx.RadioButton, dcm.dDataControlMixin):
 
 	def _initEvents(self):
 		self.Bind(wx.EVT_RADIOBUTTON, self.Parent._onWxHit)
+		if False:
+			## Failed attempt to get arrow-key navigation of the buttons working on 
+			## Gtk. The PositionValue changes but as soon as the Hit happens, the 
+			## selection goes back to what it was before the keyboard navigation.
+			self.bindKey("down", self._onArrow, arrowKey="down")
+			self.bindKey("up", self._onArrow, arrowKey="up")
+			self.bindKey("left", self._onArrow, arrowKey="left")
+			self.bindKey("right", self._onArrow, arrowKey="right")
 
-	
+
+	def _onArrow(self, evt):
+		## Failed attempt to get arrow-key navigation of the buttons working on Gtk.
+		## This code will never be called, but I'll leave it in just in case I have
+		## time to come back to it someday.
+		arrowKey = evt.EventData["arrowKey"]
+		if arrowKey in ("down", "right"):
+			forward = True
+		else:
+			forward = False
+
+		choiceCount = len(self.Parent.Choices)
+		positionValue = self.Parent.PositionValue
+
+		canMove = False
+		while True:
+			if forward:
+				if choiceCount > (positionValue + 1):
+					positionValue += 1
+				else:
+					break
+			else:
+				if positionValue > 0:
+					positionValue -= 1
+				else:
+					break
+			button = self.Parent._items[positionValue]
+			if button.Visible and button.Enabled:
+				canMove = True
+				break
+					
+		if canMove:
+			#self.Parent.setSelection(positionValue)
+			self.Parent.PositionValue = positionValue
+
 
 class dRadioList(wx.Panel, cim.dControlItemMixin):
 	"""Creates a group of radio buttons, allowing mutually-exclusive choices.
@@ -44,7 +86,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		self._selpos = 0
 		# Default spacing between buttons. Can be changed with the
 		# 'ButtonSpacing' property.
-		self._buttonSpacing = 5
+		self._buttonSpacing = 0
 
 		cim.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
@@ -199,12 +241,15 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 			[itm.release() for itm in self._items]
 			self._choices = choices
 			self._items = []
-			first = True
-			for itm in choices:
-				if first:
-					first = False
+			for idx, itm in enumerate(choices):
+				if idx == 0:
+					if len(choices) == 1:
+						style = wx.RB_SINGLE
+					else:
+						style = wx.RB_GROUP
 				else:
 					self.Sizer.appendSpacer(self._buttonSpacing)
+					style = 0
 				btn = _dRadioButton(self, Caption=itm)
 				self.Sizer.append(btn)
 				self._items.append(btn)
