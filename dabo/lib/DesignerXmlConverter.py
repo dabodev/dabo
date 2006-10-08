@@ -45,25 +45,8 @@ class DesignerXmlConverter(dObject):
 		represents. You can pass the cdxml as either a file path, 
 		a file object, or xml text.
 		"""
-		if isinstance(src, file):
-			xml = src.read()
-			self._srcFile = src.name
-		else:
-			if os.path.exists(src):
-				xml = open(src).read()
-				self._srcFile = src
-			else:
-				xml = src
-				self._srcFile = None
-		dct = xtd.xmltodict(xml)
-
-		codePth = "%s-code.py" % os.path.splitext(src)[0]
-		try:
-			codeDict = desUtil.parseCodeFile(open(codePth).read())
-			desUtil.addCodeToClassDict(dct, codeDict)
-		except StandardError, e:
-			print "Failed to parse code file:", e
-
+		# Import the XML source
+		dct = self.importSrc(src)	
 		# Parse the XML and create the class definition text
 		self.createClassText(dct)
 		# Write the code file
@@ -82,6 +65,32 @@ class DesignerXmlConverter(dObject):
 		return nmSpace[self.mainClassName]
 
 	
+	def importSrc(self, src):
+		"""This will read in an XML source. The parameter can be a 
+		file path, an open file object, or the raw XML. It will look for
+		a matching code file and, if found, import that code.
+		"""
+		if isinstance(src, file):
+			xml = src.read()
+			self._srcFile = src.name
+		else:
+			if os.path.exists(src):
+				xml = open(src).read()
+				self._srcFile = src
+			else:
+				xml = src
+				self._srcFile = os.getcwd()
+		dct = xtd.xmltodict(xml)
+
+		codePth = "%s-code.py" % os.path.splitext(src)[0]
+		try:
+			codeDict = desUtil.parseCodeFile(open(codePth).read())
+			desUtil.addCodeToClassDict(dct, codeDict)
+		except StandardError, e:
+			print "Failed to parse code file:", e
+		return dct
+
+
 	def createClassText(self, dct, addImports=True, specList=[]):
 		# 'self.classText' will contain the generated code
 		self.classText = ""
@@ -436,8 +445,7 @@ class DesignerXmlConverter(dObject):
 		for this class. 
 		"""
 		conv = DesignerXmlConverter()
-		xml = open(pth).read()
-		xmlDict = xtd.xmltodict(xml)
+		xmlDict = conv.importSrc(pth)
 		conv.createClassText(xmlDict, addImports=False, specList=specList)
 		self.innerClassText += conv.classText + (2 * LINESEP)
 		self.innerClassNames.append(conv.mainClassName)
