@@ -787,6 +787,10 @@ class dPemMixin(dPemMixinBase):
 			l, t = 0, 0
 		else:
 			l, t = pos
+		# If the container is a page, we need to use its containing 
+		# pageframe/pagelist, etc.
+		if isinstance(cnt, dabo.ui.dPage):
+			cnt = cnt.Parent
 		p = self
 		found = False
 		while (p is not None):
@@ -809,7 +813,7 @@ class dPemMixin(dPemMixinBase):
  		return (l, t)
  	
  	
-	def objectCoordinates(self, cnt, pos=None):
+	def objectCoordinates(self, pos=None):
 		"""Given a position relative to the form, return a position relative
 		to this object. If no position is passed, returns the position
 		of this control relative to the form.
@@ -826,13 +830,17 @@ class dPemMixin(dPemMixinBase):
 		return (x, y)
 	
 	
-	def absoluteCoordinates(self, pos):
+	def absoluteCoordinates(self, pos=None):
 		"""Translates a position value for a control to absolute screen position."""
+		if pos is None:
+			pos = self.Position
 		return self.ClientToScreen(pos)
 	
 	
-	def relativeCoordinates(self, pos):
+	def relativeCoordinates(self, pos=None):
 		"""Translates an absolute screen position to position value for a control."""
+		if pos is None:
+			pos = self.Position
 		return self.ScreenToClient(pos)
 	
 	

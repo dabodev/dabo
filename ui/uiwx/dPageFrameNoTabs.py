@@ -16,6 +16,7 @@ class dPageFrameNoTabs(dPanel):
 	"""
 	def __init__(self, *args, **kwargs):
 		self._pageClass = dPage
+		self._pageSizerClass = dabo.ui.dSizer
 		self._activePage = None
 		self._pages = []
 		super(dPageFrameNoTabs, self).__init__(*args, **kwargs)
@@ -200,6 +201,16 @@ class dPageFrameNoTabs(dPanel):
 		return self._pages	
 			
 	
+	def _getPageSizerClass(self):
+		return self._pageSizerClass
+
+	def _setPageSizerClass(self, val):
+		if self._constructed():
+			self._pageSizerClass = val
+		else:
+			self._properties["PageSizerClass"] = val
+
+
 	def _getSel(self):
 		try:
 			return self._activePage
@@ -227,6 +238,11 @@ class dPageFrameNoTabs(dPanel):
 	Pages = property(_getPages, None, None,
 			_("List of all the pages.   (list)") )
 
+	PageSizerClass = property(_getPageSizerClass, _setPageSizerClass, None,
+			_("""Default sizer class for pages added automatically to this control. Set
+			this to None to prevent sizers from being automatically added to child
+			pages. (dSizer or None)"""))
+		
 	SelectedPage = property(_getSel, _setSel, None,
 			_("Returns a reference to the currently displayed page  (dPage | dPanel)") )
 

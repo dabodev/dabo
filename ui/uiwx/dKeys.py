@@ -1,4 +1,5 @@
 import wx
+import dabo
 
 key_Alt = wx.WXK_ALT
 key_Back = wx.WXK_BACK
@@ -22,10 +23,16 @@ key_Prior = wx.WXK_PRIOR
 key_Next = wx.WXK_NEXT
 key_End = wx.WXK_END
 key_Home = wx.WXK_HOME
-key_Left = wx.WXK_LEFT
-key_Up = wx.WXK_UP
-key_Right = wx.WXK_RIGHT
-key_Down = wx.WXK_DOWN
+if wx.Platform == "__WXMAC__":
+	key_Left = 28
+	key_Up = 30
+	key_Right = 29
+	key_Down = 31
+else:
+	key_Left = wx.WXK_LEFT
+	key_Up = wx.WXK_UP
+	key_Right = wx.WXK_RIGHT
+	key_Down = wx.WXK_DOWN
 key_Select = wx.WXK_SELECT
 key_Print = wx.WXK_PRINT
 key_Execute = wx.WXK_EXECUTE

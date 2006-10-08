@@ -14,6 +14,7 @@ from dabo.ui import makeDynamicProperty
 class dPageFrameMixin(cm.dControlMixin):
 	"""Creates a container for an unlimited number of pages."""
 	def _initEvents(self):
+		self._pageSizerClass = dabo.ui.dSizer
 		super(dPageFrameMixin, self)._initEvents()
 		self.Bind(self._evtPageChanged, self.__onPageChanged)
 		self.bindEvent(dEvents.Create, self.__onCreate)
@@ -284,6 +285,16 @@ class dPageFrameMixin(cm.dControlMixin):
 		return [self.GetPage(pg) for pg in range(self.PageCount)]
 
 
+	def _getPageSizerClass(self):
+		return self._pageSizerClass
+
+	def _setPageSizerClass(self, val):
+		if self._constructed():
+			self._pageSizerClass = val
+		else:
+			self._properties["PageSizerClass"] = val
+
+
 	def _getSelectedPage(self):
 		try:
 			ret = self.GetPage(self.GetSelection())
@@ -353,6 +364,11 @@ class dPageFrameMixin(cm.dControlMixin):
 	Pages = property(_getPgs, None, None,
 			_("Returns a list of the contained pages.  (list)") )
 	
+	PageSizerClass = property(_getPageSizerClass, _setPageSizerClass, None,
+			_("""Default sizer class for pages added automatically to this control. Set
+			this to None to prevent sizers from being automatically added to child
+			pages. (dSizer or None)"""))
+		
 	SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
 			_("References the current frontmost page.  (dPage)") )
 						
