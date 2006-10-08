@@ -242,6 +242,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 			self._choices = choices
 			self._items = []
 			for idx, itm in enumerate(choices):
+				style = 0
 				if idx == 0:
 					if len(choices) == 1:
 						style = wx.RB_SINGLE
@@ -249,8 +250,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 						style = wx.RB_GROUP
 				else:
 					self.Sizer.appendSpacer(self._buttonSpacing)
-					style = 0
-				btn = _dRadioButton(self, Caption=itm)
+				btn = _dRadioButton(self, Caption=itm, style=style)
 				self.Sizer.append(btn)
 				self._items.append(btn)
 			# Try each saved value
