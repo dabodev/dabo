@@ -121,6 +121,15 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 			pass
 			
 
+	def _getChildren(self):
+		ret = super(dScrollPanel, self)._getChildren()
+		return [kid for kid in ret
+				if isinstance(kid, dabo.ui.dPemMixinBase.dPemMixinBase)]
+
+	def _setChildren(self, val):
+		super(dScrollPanel, self)._setChildren(val)
+
+
 	def _getHorizontalScroll(self):
 		return self._horizontalScroll
 
@@ -137,12 +146,18 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 		self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
 		
 
+	Children = property(_getChildren, _setChildren, None,
+			_("""Child controls of this panel. This excludes the wx-specific 
+			scroll bars  (list of objects)"""))
+	
 	HorizontalScroll = property(_getHorizontalScroll, _setHorizontalScroll, None,
 			_("Controls whether this object will scroll horizontally (default=True)  (bool)"))
-	DynamicHorizontalScroll = makeDynamicProperty(HorizontalScroll)
 	
 	VerticalScroll = property(_getVerticalScroll, _setVerticalScroll, None,
 			_("Controls whether this object will scroll vertically (default=True)  (bool)"))
+
+
+	DynamicHorizontalScroll = makeDynamicProperty(HorizontalScroll)
 	DynamicVerticalScroll = makeDynamicProperty(VerticalScroll)
 	
 

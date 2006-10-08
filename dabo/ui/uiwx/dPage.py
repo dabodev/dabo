@@ -27,7 +27,9 @@ class dPage(dPanel.dScrollPanel):
 
 	def initSizer(self):
 		""" Set up the default vertical box sizer for the page."""
-		self.Sizer = dSizer.dSizer("vertical")
+		szCls = self.Parent.PageSizerClass
+		if szCls is not None:
+			self.Sizer = szCls("vertical")
 		
 
 	def _createItems(self):
