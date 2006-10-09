@@ -63,7 +63,6 @@ class _dRadioButton(wx.RadioButton, dcm.dDataControlMixin):
 				break
 					
 		if canMove:
-			#self.Parent.setSelection(positionValue)
 			self.Parent.PositionValue = positionValue
 
 
@@ -116,8 +115,8 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		except:
 			pass
 	
-	
-	def setSelection(self, val):
+
+	def _setSelection(self, val):
 		"""Set the selected state of the buttons to match this
 		control's Value.
 		"""
@@ -237,6 +236,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		if self._constructed():
 			self._checkSizer()
 			# Save the current values for possible re-setting afterwards.
+			old_length = len(self.Choices)
 			sv = (self.StringValue, self.KeyValue, self.PositionValue)
 			[itm.release() for itm in self._items]
 			self._choices = choices
@@ -253,15 +253,20 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 				btn = _dRadioButton(self, Caption=itm, style=style)
 				self.Sizer.append(btn)
 				self._items.append(btn)
-			# Try each saved value
-			self.StringValue = sv[0]
-			if self.StringValue != sv[0]:
-				self.KeyValue = sv[1]
-				if self.KeyValue != sv[1]:
-					self.PositionValue = sv[2]
-					if self.PositionValue != sv[2]:
-						# Bail!
-						self.PositionValue = 0
+
+			if old_length:
+				# Try each saved value
+				self.StringValue = sv[0]
+				if self.StringValue != sv[0]:
+					self.KeyValue = sv[1]
+					if self.KeyValue != sv[1]:
+						self.PositionValue = sv[2]
+						if self.PositionValue != sv[2]:
+							# Bail!
+							self.PositionValue = 0
+			else:
+				self.PositionValue = 0
+
 			try:
 				self.Parent.layout()
 			except:
@@ -289,7 +294,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 	def _setPositionValue(self, val):
 		if self._constructed():
 			self._selpos = val
-			self.setSelection(val)
+			self._setSelection(val)
 		else:
 			self._properties["PositionValue"] = val
 
@@ -305,8 +310,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		if self._constructed():
 			try:
 				itm = [btn for btn in self._items if btn.Caption == val][0]
-				self._selpos = self._items.index(itm)
-				self.setSelection(self._selpos)
+				self.PositionValue = itm
 			except IndexError:
 				if val is not None:
 					# No such string.

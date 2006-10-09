@@ -55,6 +55,12 @@ class dControlItemMixin(dDataControlMixin):
 		
 
 	def setSelection(self, index):
+		"""Same as setting property PositionValue."""
+		self.PositionValue = index
+
+
+	def _setSelection(self, index):
+		"""Backend UI wrapper."""
 		if self.Count > index:
 			self.SetSelection(index)
 		else:
@@ -228,7 +234,7 @@ class dControlItemMixin(dDataControlMixin):
 				if index is None:
 					continue
 				try:
-					self.setSelection(index)
+					self._setSelection(index)
 				except: pass
 			self._afterValueChanged()
 		else:
