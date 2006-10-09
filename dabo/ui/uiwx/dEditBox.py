@@ -19,11 +19,11 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dEditBox
+		self._forceCase = None
+		self._inForceCase = False
 		preClass = wx.PreTextCtrl
 		kwargs["style"] = wx.TE_MULTILINE | wx.TE_WORDWRAP
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-		self._forceCase = None
-		self._inForceCase = False
 
 
 	def _initEvents(self):
