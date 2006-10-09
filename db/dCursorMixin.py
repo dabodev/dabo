@@ -314,7 +314,8 @@ class dCursorMixin(dObject):
 			# See if we already have the information from a prior query
 			if len(self._types.keys()) == 0:
 				# Try to get it from the description
-				dsc = self.BackendObject.getStructureDescription(self)
+				dsc = self.BackendObject.getFieldInfoFromDescription(self.FieldDescription)
+					
 				if dsc:
 					typDict = {"I": int, "C": unicode, "L": bool, "T": datetime.datetime, "D": datetime.date,
 							"M": unicode, "N": float}
