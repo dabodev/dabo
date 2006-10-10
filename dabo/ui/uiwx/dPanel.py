@@ -104,6 +104,7 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 		if "style" not in kwargs:
 			kwargs["style"] = wx.TAB_TRAVERSAL
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		self.SetScrollRate(10, 10)
 #		self.SetScrollbars(10, 10, -1, -1)
 	
 
@@ -136,6 +137,8 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 	def _setHorizontalScroll(self, val):
 		self._horizontalScroll = val
 		self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
+		rt = self.GetScrollPixelsPerUnit()
+		self.SetScrollRate({True:rt[0], False:0}[val], rt[1])
 		
 
 	def _getVerticalScroll(self):
@@ -144,6 +147,8 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 	def _setVerticalScroll(self, val):
 		self._verticalScroll = val
 		self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
+		rt = self.GetScrollPixelsPerUnit()
+		self.SetScrollRate(rt[0], {True:rt[1], False:0}[val])
 		
 
 	Children = property(_getChildren, _setChildren, None,
