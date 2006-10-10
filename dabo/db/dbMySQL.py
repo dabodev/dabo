@@ -133,6 +133,8 @@ class MySQL(dBackend):
 				ft = "C"
 			elif "text" in ft:
 				ft = "M"
+			elif "blob" in ft:
+				ft = "L"
 			elif "decimal" in ft or "float" in ft:
 				ft = "N"
 			elif "datetime" in ft:

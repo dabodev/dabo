@@ -153,8 +153,9 @@ class Firebird(dBackend):
 				ft = "C"
 			elif ftype == "timestamp":
 				ft = "T"
+			elif ftype == "blob":
+				ft = "L"
 			else:
-				# BLOB
 				ft = "?"
 			
 			if pkField is None:
