@@ -1,3 +1,4 @@
+import sys
 import wx
 import dabo
 if __name__ == "__main__":
@@ -85,7 +86,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		self._selpos = 0
 		# Default spacing between buttons. Can be changed with the
 		# 'ButtonSpacing' property.
-		self._buttonSpacing = 0
+		self._buttonSpacing = 5
 
 		cim.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
@@ -195,7 +196,15 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		elif self.ValueMode == "key":
 			self.showKey(item, val)
 		
-		
+
+	def _getFudgedButtonSpacing(self):
+		val = self._buttonSpacing		
+		if "linux" in sys.platform:
+			# Buttons too widely spaced on Linux. Fudge it down...
+			val -= 9
+		return val
+
+
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getButtonSpacing(self):
@@ -203,8 +212,9 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		
 	def _setButtonSpacing(self, val):
 		self._buttonSpacing = val
+
 		for itm in self.Sizer.ChildSpacers:
-			self.Sizer.setItemProp(itm, "Spacing", val)
+			self.Sizer.setItemProp(itm, "Spacing", self._getFudgedButtonSpacing())
 		try:
 			self.Parent.layout()
 		except:
@@ -249,7 +259,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 					else:
 						style = wx.RB_GROUP
 				else:
-					self.Sizer.appendSpacer(self._buttonSpacing)
+					self.Sizer.appendSpacer(self._getFudgedButtonSpacing())
 				btn = _dRadioButton(self, Caption=itm, style=style)
 				self.Sizer.append(btn)
 				self._items.append(btn)
