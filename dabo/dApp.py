@@ -379,7 +379,8 @@ class dApp(dObject):
 		self.uiResources = {}
 
 		# Initialize DB collections
-		self.dbConnectionDefs = {} 
+		self.dbConnectionDefs = {}
+		self.dbConnectionNameToFiles = {}
 		self.dbConnections = {}
 
 		self._appInfo = {}
@@ -399,12 +400,18 @@ class dApp(dObject):
 			if os.path.exists(dbDir) and os.path.isdir(dbDir):
 				files = glob.glob(os.path.join(dbDir, "*.cnxml"))
 				for f in files:
-					connDefs.update(importConnections(f))
+					cn = importConnections(f)
+					connDefs.update(cn)
+					for kk in cn.keys():
+						self.dbConnectionNameToFiles[kk] = f
 		
 		# Import any python code connection definitions (the "old" way).
 		try:
 			import dbConnectionDefs
-			connDefs.update(dbConnectionDefs.getDefs())
+			defs = dbConnectionDefs.getDefs()
+			connDefs.update(defs)
+			for kk in defs.keys():
+				self.dbConnectionNameToFiles[kk] = os.abspath("dbConnectionDefs.py")
 		except:
 			pass
 		
@@ -475,6 +482,7 @@ class dApp(dObject):
 				# Use a default name
 				name = "%s@%s" % (ci.User, ci.Host)
 		self.dbConnectionDefs[name] = ci
+		self.dbConnectionNameToFiles[name] = None
 	
 
 	def addConnectFile(self, connFile):
@@ -501,6 +509,7 @@ class dApp(dObject):
 				ci = dabo.db.dConnectInfo()
 				ci.setConnInfo(v)
 				self.dbConnectionDefs[k] = ci
+				self.dbConnectionNameToFiles[k] = connFile
 	
 
 	########################
