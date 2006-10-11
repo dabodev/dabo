@@ -1152,7 +1152,7 @@ class ReportWriter(object):
 		if len(self.Cursor) > 0:
 			self.Record = self.Cursor[0]
 
-		def processVariables():
+		def processVariables(forceReset=False):
 			"""Apply the user's expressions to the current value of all the report vars.
 
 			This is called once per record iteration, before the detail for the current
@@ -1169,7 +1169,8 @@ class ReportWriter(object):
 				if resetAt != curReset:
 					# resetAt tripped: value to initial value
 					self.Variables[varName] = variable.getProp("InitialValue")
-				vv["curReset"] = resetAt
+				if not forceReset:
+					vv["curReset"] = resetAt
 
 				# run the variable expression to get the current value:
 				#vv["value"] = eval(variable["expr"])
@@ -1325,7 +1326,7 @@ class ReportWriter(object):
 
 		# Need to process the variables before the first beginPage() in case
 		# any of the static bands reference the variables.
-		processVariables()
+		processVariables(forceReset=True)
 		beginPage()
 
 		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
