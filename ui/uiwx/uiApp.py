@@ -186,8 +186,12 @@ class uiApp(wx.App, dObject):
 		except:
 			pass
 		self.SetTopWindow(val)
+		# For performance, block all event bindings until after the form is shown.
+		eb = val._EventBindings[:]
+		val._EventBindings = []
 		val.Show(self.dApp.showMainFormOnStart)
-		
+		val._EventBindings = eb
+
 
 	def start(self, dApp):
 		# Manually raise Activate, as wx doesn't do that automatically
