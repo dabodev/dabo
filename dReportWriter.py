@@ -1,14 +1,43 @@
+from dabo.dLocalize import _
 from dabo.lib.reportWriter import ReportWriter
 from dabo.dObject import dObject
 
 
 # dReportWriter is simply a raw ReportWriter/dObject mixin:
 class dReportWriter(dObject, ReportWriter):
-	def _afterInit(self):
-		app = self.Application
-		if app is not None:
-			self.home_dir = app.HomeDirectory
-		super(dReportWriter, self)._afterInit()
+	def _getEncoding(self):
+		try:
+			v = self._encoding
+		except AttributeError:
+			v = self._encoding = self.Application.Encoding
+		return v
+
+	def _setEncoding(self, val):
+		self._encoding = val
+
+
+	def _getHomeDirectory(self):
+		try:
+			v = self._homeDirectory
+		except AttributeError:
+			v = self._homeDirectory = self.Application.HomeDirectory
+		return v
+
+	def _setHomeDirectory(self, val):
+		self._homeDirectory = val
+
+
+	Encoding = property(_getEncoding, _setEncoding, None,
+		_("Specifies the encoding for unicode strings.  (str)"))
+
+	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
+		_("""Specifies the home directory for the report.
+
+		Resources on disk (image files, etc.) will be looked for relative to the
+		HomeDirectory if specified with relative pathing. The HomeDirectory should
+		be the directory that contains the report form file. If you set 
+		self.ReportFormFile, HomeDirectory will be set for you automatically.
+		Otherwise, it will get set to self.Application.HomeDirectory."""))
 
 
 if __name__ == "__main__":
