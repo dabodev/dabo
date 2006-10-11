@@ -1323,6 +1323,9 @@ class ReportWriter(object):
 		
 			return y
 
+		# Need to process the variables before the first beginPage() in case
+		# any of the static bands reference the variables.
+		processVariables()
 		beginPage()
 
 		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
@@ -1677,7 +1680,7 @@ class ReportWriter(object):
 		try:
 			v = self._encoding
 		except AttributeError:
-			v = self._encoding =self.Application.Encoding
+			v = self._encoding = "utf-8"
 		return v
 
 	def _setEncoding(self, val):
@@ -1688,7 +1691,7 @@ class ReportWriter(object):
 		try:
 			v = self._homeDirectory
 		except AttributeError:
-			v = self._homeDirectory = self.Application.HomeDirectory
+			v = self._homeDirectory = os.getcwd()
 		return v
 
 	def _setHomeDirectory(self, val):
@@ -1844,8 +1847,7 @@ class ReportWriter(object):
 		Resources on disk (image files, etc.) will be looked for relative to the
 		HomeDirectory if specified with relative pathing. The HomeDirectory should
 		be the directory that contains the report form file. If you set 
-		self.ReportFormFile, HomeDirectory will be set for you automatically. 
-		Otherwise, HomeDirectory will be set to self.Application.HomeDirectory."""))
+		self.ReportFormFile, HomeDirectory will be set for you automatically."""))
 
 	OutputFile = property(_getOutputFile, _setOutputFile, None,
 		_("Specifies the output PDF file (name or file object)."))
