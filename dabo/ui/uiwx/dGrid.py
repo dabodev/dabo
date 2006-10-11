@@ -2248,6 +2248,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			if toggleSort:
 				if sortOrder == "ASC":
 					sortOrder = "DESC"
+				elif sortOrder == "DESC":
+					columnToSort = None
+					sortOrder = "ASC"
 				else:
 					sortOrder = "ASC"
 		self.sortOrder = sortOrder
@@ -2258,102 +2261,103 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				eventData=eventData)
 
 		biz = self.getBizobj()
-		if self.customSort:
-			# Grids tied to bizobj cursors may want to use their own sorting.
-			self.sort()
-		elif biz:
-			# Use the default sort() in the bizobj:
-			try:
-				biz.sort(columnToSort, sortOrder, self.caseSensitiveSorting)
-			except dException.NoRecordsException:
-				# no records to sort: who cares.
-				pass
-		else:
-			# Create the list to hold the rows for sorting
-			caseSensitive = self.caseSensitiveSorting
-			sortList = []
-			rowNum = 0
-			rowlabels = self.RowLabels
-			if self.DataSet:
-				for row in self.DataSet:
-					if rowlabels:
-						sortList.append([row[columnToSort], row, rowlabels[rowNum]])
-						rowNum += 1
-					else:
-						sortList.append([row[columnToSort], row])
-			# At this point we have a list consisting of lists. Each of these member
-			# lists contain the sort value in the zeroth element, and the row as
-			# the first element.
-			# First, see if we are comparing strings
-			if dataType is None:
-				f = sortList[0][0]
-				if f is None:
-					# We are just poking around, trying to glean the datatype, which is prone
-					# to error. The record we just checked is None, so try the last record and
-					# then give up.
-					f = sortList[-1][0]
-				#pkm: I think grid column DataType properties should store raw python
-				#     types, not string renditions of them. But for now, convert to
-				#     string renditions. I also think that this codeblock should be 
-				#     obsolete once all dabo grids use dColumn objects.
-				if isinstance(f, datetime.date):
-					dataType = "date"
-				elif isinstance(f, datetime.datetime):
-					dataType = "datetime"
-				elif isinstance(f, unicode):
-					dataType = "unicode"
-				elif isinstance(f, str):
-					dataType = "string"
-				elif isinstance(f, long):
-					dataType = "long"
-				elif isinstance(f, int):
-					dataType = "int"
-				elif _USE_DECIMAL and isinstance(f, Decimal):
-					dataType = "decimal"
-				else:
-					dataType = None
-				sortingStrings = isinstance(sortList[0][0], basestring)
+		if columnToSort is not None:
+			if self.customSort:
+				# Grids tied to bizobj cursors may want to use their own sorting.
+				self.sort()
+			elif biz:
+				# Use the default sort() in the bizobj:
+				try:
+					biz.sort(columnToSort, sortOrder, self.caseSensitiveSorting)
+				except dException.NoRecordsException:
+					# no records to sort: who cares.
+					pass
 			else:
-				sortingStrings = dataType in ("unicode", "string")
-			
-			sortfunc = None
-			if sortingStrings and not caseSensitive:
-				def sortfunc(x, y):
-					if x[0] is None and y[0] is None:
-						return 0
-					elif x[0] is None:
-						return -1
-					elif y[0] is None:
-						return 1
+				# Create the list to hold the rows for sorting
+				caseSensitive = self.caseSensitiveSorting
+				sortList = []
+				rowNum = 0
+				rowlabels = self.RowLabels
+				if self.DataSet:
+					for row in self.DataSet:
+						if rowlabels:
+							sortList.append([row[columnToSort], row, rowlabels[rowNum]])
+							rowNum += 1
+						else:
+							sortList.append([row[columnToSort], row])
+				# At this point we have a list consisting of lists. Each of these member
+				# lists contain the sort value in the zeroth element, and the row as
+				# the first element.
+				# First, see if we are comparing strings
+				if dataType is None:
+					f = sortList[0][0]
+					if f is None:
+						# We are just poking around, trying to glean the datatype, which is prone
+						# to error. The record we just checked is None, so try the last record and
+						# then give up.
+						f = sortList[-1][0]
+					#pkm: I think grid column DataType properties should store raw python
+					#     types, not string renditions of them. But for now, convert to
+					#     string renditions. I also think that this codeblock should be 
+					#     obsolete once all dabo grids use dColumn objects.
+					if isinstance(f, datetime.date):
+						dataType = "date"
+					elif isinstance(f, datetime.datetime):
+						dataType = "datetime"
+					elif isinstance(f, unicode):
+						dataType = "unicode"
+					elif isinstance(f, str):
+						dataType = "string"
+					elif isinstance(f, long):
+						dataType = "long"
+					elif isinstance(f, int):
+						dataType = "int"
+					elif _USE_DECIMAL and isinstance(f, Decimal):
+						dataType = "decimal"
 					else:
-						return cmp(x[0].lower(), y[0].lower())
-			elif dataType in ("date", "datetime"):
-				# can't compare NoneType to these types:
-				def datetimesort(v,w):
-					x, y = v[0], w[0]
-					if x is None and y is None:
-						return 0
-					elif x is None and y is not None:
-						return -1
-					elif x is not None and y is None:
-						return 1
-					else:
-						return cmp(x,y)
-				sortfunc = datetimesort	
-			sortList.sort(sortfunc)
-			
-			# Unless DESC was specified as the sort order, we're done sorting
-			if sortOrder == "DESC":
-				sortList.reverse()
-			# Extract the rows into a new list, then set the dataSet to the new list
-			newRows = []
-			newLabels = []
-			for elem in sortList:
-				newRows.append(elem[1])
-				if self.RowLabels:
-					newLabels.append(elem[2])
-			self.RowLabels = newLabels
-			self.DataSet = newRows
+						dataType = None
+					sortingStrings = isinstance(sortList[0][0], basestring)
+				else:
+					sortingStrings = dataType in ("unicode", "string")
+				
+				sortfunc = None
+				if sortingStrings and not caseSensitive:
+					def sortfunc(x, y):
+						if x[0] is None and y[0] is None:
+							return 0
+						elif x[0] is None:
+							return -1
+						elif y[0] is None:
+							return 1
+						else:
+							return cmp(x[0].lower(), y[0].lower())
+				elif dataType in ("date", "datetime"):
+					# can't compare NoneType to these types:
+					def datetimesort(v,w):
+						x, y = v[0], w[0]
+						if x is None and y is None:
+							return 0
+						elif x is None and y is not None:
+							return -1
+						elif x is not None and y is None:
+							return 1
+						else:
+							return cmp(x,y)
+					sortfunc = datetimesort	
+				sortList.sort(sortfunc)
+				
+				# Unless DESC was specified as the sort order, we're done sorting
+				if sortOrder == "DESC":
+					sortList.reverse()
+				# Extract the rows into a new list, then set the dataSet to the new list
+				newRows = []
+				newLabels = []
+				for elem in sortList:
+					newRows.append(elem[1])
+					if self.RowLabels:
+						newLabels.append(elem[2])
+				self.RowLabels = newLabels
+				self.DataSet = newRows
 
 		if biz:
 			self.CurrentRow = biz.RowNumber
