@@ -25,7 +25,7 @@ logEvents = ["All", "Idle", "MouseMove"]
 class Test(object):
 	def __init__(self):
 		self.app = dabo.dApp()
-		self.app.MainFormClass=None
+		self.app.MainFormClass = None
 		self.app.setup()
 
 	def runTest(self, classRefs, *args, **kwargs):
@@ -39,16 +39,18 @@ class Test(object):
 			isDialog = (issubclass(classRefs[0], wx.Dialog))
 		else:
 			frame = ui.dForm(Name="formTest")
-			frame.Sizer = ui.dSizer("Vertical")
+			panel = frame.addObject(ui.dPanel, Name="panelTest")
+			panel.Sizer = ui.dSizer("Vertical")
+			frame.Sizer.append(panel, 1, "expand")
 			frame.testObjects = []
 			for class_ in classRefs:
-				obj = class_(parent=frame, LogEvents=logEvents, *args, **kwargs)
+				obj = class_(parent=panel, LogEvents=logEvents, *args, **kwargs)
 				obj.Width = 300
-				frame.Sizer.append(obj, 1, "expand")
+				panel.Sizer.append(obj, 1, "expand")
 				frame.testObjects.append(obj)
 
 			# This will get a good approximation of the required size
-			w,h = frame.Sizer.GetMinSize()
+			w,h = panel.Sizer.GetMinSize()
 			# Some controls don't report sizing correctly, so set a minimum
 			w = max(w, 100)
 			h = max(h, 50)
