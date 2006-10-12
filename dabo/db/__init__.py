@@ -39,7 +39,7 @@ from dTable import dTable
 from dNoEscQuoteStr import dNoEscQuoteStr
 from dDataSet import dDataSet
 
-daboTypeCodes = {
+daboTypes = {
 		"C": unicode,
 		"M": unicode,
 		"I": int,
@@ -48,6 +48,13 @@ daboTypeCodes = {
 		"T": datetime.datetime,
 		"N": Decimal}
 
-def getPythonType(daboTypeCode):
+pythonTypes = dict([[v,k] for k,v in daboTypes.iteritems()])
+
+
+def getPythonType(daboType):
 	"""Given a char type code like "I" or "C", return the associated Python type."""
-	return daboTypeCodes.get(daboTypeCode, None)
+	return daboTypes.get(daboType, None)
+
+def getDaboType(pythonType):
+	"""Given a python data type, return the associated Dabo type code."""
+	return pythonTypes.get(pythonType, "?")

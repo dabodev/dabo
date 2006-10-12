@@ -317,10 +317,8 @@ class dCursorMixin(dObject):
 				dsc = self.BackendObject.getFieldInfoFromDescription(self.FieldDescription)
 					
 				if dsc:
-					typDict = {"I": int, "C": unicode, "L": bool, "T": datetime.datetime, "D": datetime.date,
-							"M": unicode, "N": float}
 					for fld, typ, junk in dsc:
-						target._types[fld] = typDict[typ]
+						target._types[fld] = dabo.db.getPythonType(typ)
 				else:
 					dabo.errorLog.write(_("RowCount is %s, so storeFieldTypes() can't run as implemented.") % self.RowCount)
 
