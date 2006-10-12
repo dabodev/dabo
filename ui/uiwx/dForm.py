@@ -649,7 +649,7 @@ Database error message: %s""") %	err
 		val = ctrl.Value
 		if not ds or not df:
 			# DataSource/Field is missing; nothing to validate.
-			return
+			return True
 		biz = self.getBizobj(ds)
 		if not biz:
 			# Now that DataSources are not always bizobjs, just return
