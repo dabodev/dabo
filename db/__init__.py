@@ -43,7 +43,7 @@ daboTypeCodes = {
 		"C": unicode,
 		"M": unicode,
 		"I": int,
-		"L": bool,
+		"B": bool,
 		"D": datetime.date,
 		"T": datetime.datetime,
 		"N": Decimal}
