@@ -1,6 +1,7 @@
 import re
 import datetime
 import wx
+import dabo.lib.dates
 
 try:
 	import decimal
@@ -31,7 +32,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		preClass = wx.PreTextCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
 				*args, **kwargs)
-		
+
 		# Keep passwords, etc., from being written to disk
 		if self.PasswordEntry:
 			self.IsSecret = True
@@ -75,14 +76,14 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		if isinstance(value, basestring):
 			# keep it unicode instead of converting to str
 			strVal = value
-		elif isinstance(value, datetime.date):
-			# Use the ISO 8601 date string format so we can convert
-			# back from a known quantity later...
-			strVal = value.isoformat()
 		elif isinstance(value, datetime.datetime):
 			# Use the ISO 8601 datetime string format (with a " " separator
 			# instead of "T") 
 			strVal = value.isoformat(" ")
+		elif isinstance(value, datetime.date):
+			# Use the ISO 8601 date string format so we can convert
+			# back from a known quantity later...
+			strVal = value.isoformat()
 		elif isinstance(value, datetime.time):
 			# Use the ISO 8601 time string format
 			strVal = value.isoformat()
@@ -97,147 +98,39 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		"""Given a string in an accepted date format, return a 
 		datetime.date object, or None.
 		"""
-		ret = None
 		formats = ["ISO8601"]
 		if not self.StrictDateEntry:
 			# Add some less strict date-entry formats:
 			formats.append("YYYYMMDD")
 			formats.append("YYMMDD")
 			formats.append("MMDD")
-			# (define more formats in _getDateRegex, and enter them above
-			#  in more explicit -> less explicit order.)
-
-		# Try each format in order:
-		for format in formats:
-			try:
-				regex = self._dregex[format]
-			except KeyError:
-				regex = self._dregex[format] = self._getDateRegex(format)
-			m = regex.match(strVal)
-			if m is not None:
-				groups = m.groupdict()
-				if not groups.has_key("year"):
-					curYear = datetime.date.today().year
-					if groups.has_key("shortyear"):
-						groups["year"] = int("%s%s" % (str(curYear)[:2], 
-								groups["shortyear"]))
-					else:
-						groups["year"] = curYear
-				try:		
-					ret = datetime.date(int(groups["year"]), 
-						int(groups["month"]),
-						int(groups["day"]))
-				except ValueError:
-					# Could be that the day was out of range for the particular month
-					# (Sept. only has 30 days but the regex will allow 31, etc.)
-					pass
-			if ret is not None:
-				break	
-		return ret
+			# (define more formats in dabo.lib.dates._getDateRegex, and enter 
+			# them above in more explicit -> less explicit order.)
+		return dabo.lib.dates.getDateFromString(strVal, formats)
 
 
-	def _getDateRegex(self, format):
-		elements = {}
-		elements["year"] = "(?P<year>[0-9]{4,4})"              ## year 0000-9999
-		elements["shortyear"] = "(?P<shortyear>[0-9]{2,2})"    ## year 00-99
-		elements["month"] = "(?P<month>0[1-9]|1[012])"         ## month 01-12
-		elements["day"] = "(?P<day>0[1-9]|[1-2][0-9]|3[0-1])"  ## day 01-31
-		
-		if format == "ISO8601":
-			exp = "^%(year)s-%(month)s-%(day)s$"
-		elif format == "YYYYMMDD":
-			exp = "^%(year)s%(month)s%(day)s$"
-		elif format == "YYMMDD":
-			exp = "^%(shortyear)s%(month)s%(day)s$"
-		elif format == "MMDD":
-			exp = "^%(month)s%(day)s$"
-		else:
-			return None
-		return re.compile(exp % elements)
-
-			
 	def _getDateTimeFromString(self, strVal):
 		"""Given a string in ISO 8601 datetime format, return a 
 		datetime.datetime object.
 		"""
-		try:
-			regex = self._dtregex
-		except AttributeError:
-			regex = self._dtregex = self._getDateTimeRegex()
-		m = regex.match(strVal)
-		if m is not None:
-			groups = m.groupdict()
-			if len(groups["ms"]) == 0:
-				# no ms in the expression
-				groups["ms"] = 0
-			try:		
-				return datetime.datetime(int(groups["year"]), 
-					int(groups["month"]),
-					int(groups["day"]),
-					int(groups["hour"]),
-					int(groups["minute"]),
-					int(groups["second"]),
-					int(groups["ms"]))
-			except ValueError:
-				# Could be that the day was out of range for the particular month
-				# (Sept. only has 30 days but the regex will allow 31, etc.)
-				return None
-		else:
-			# The regex didn't match
-			return None
-	
-	
-	def _getDateTimeRegex(self):
-		exp = {}
-		exp["year"] = "(?P<year>[0-9]{4,4})"              ## year 0000-9999
-		exp["month"] = "(?P<month>0[1-9]|1[012])"         ## month 01-12
-		exp["day"] = "(?P<day>0[1-9]|[1-2][0-9]|3[0-1])"  ## day 01-31
-		exp["hour"] = "(?P<hour>[0-1][0-9]|2[0-3])"       ## hour 00-23
-		exp["minute"] = "(?P<minute>[0-5][0-9])"          ## minute 00-59
-		exp["second"] = "(?P<second>[0-5][0-9])"          ## second 00-59
-		exp["ms"] = "\.{0,1}(?P<ms>[0-9]{0,6})"           ## optional ms
-		exp["sep"] = "(?P<sep> |T)"
-		exps = "^%(year)s-%(month)s-%(day)s%(sep)s%(hour)s:%(minute)s:%(second)s%(ms)s$" % exp
-		return re.compile(exps)
+		formats = ["ISO8601"]
+		if not self.StrictDateEntry:
+			# Add some less strict date-entry formats:
+			formats.append("YYYYMMDDHHMMSS")
+			formats.append("YYMMDDHHMMSS")
+			formats.append("YYYYMMDD")
+			formats.append("YYMMDD")
+			# (define more formats in dabo.lib.dates._getDateTimeRegex, and enter 
+			# them above in more explicit -> less explicit order.)
+		return dabo.lib.dates.getDateTimeFromString(strVal, formats)
 
 
 	def _getTimeFromString(self, strVal):
 		"""Given a string in ISO 8601 time format, return a 
 		datetime.time object.
 		"""
-		try:
-			regex = self._tmregex
-		except AttributeError:
-			regex = self._tmregex = self._getTimeRegex()
-		m = regex.match(strVal)
-		if m is not None:
-			groups = m.groupdict()
-			if len(groups["ms"]) == 0:
-				# no ms in the expression
-				groups["ms"] = 0
-			try:		
-				return datetime.time(int(groups["hour"]),
-					int(groups["minute"]),
-					int(groups["second"]),
-					int(groups["ms"]))
-			except ValueError:
-				# Could be that the day was out of range for the particular month
-				# (Sept. only has 30 days but the regex will allow 31, etc.)
-				return None
-		else:
-			# The regex didn't match
-			return None
-	
-	
-	def _getTimeRegex(self):
-		exp = {}
-		exp["hour"] = "(?P<hour>[0-1][0-9]|2[0-3])"       ## hour 00-23
-		exp["minute"] = "(?P<minute>[0-5][0-9])"          ## minute 00-59
-		exp["second"] = "(?P<second>[0-5][0-9])"          ## second 00-59
-		exp["ms"] = "\.{0,1}(?P<ms>[0-9]{0,6})"           ## optional ms
-		exp["sep"] = "(?P<sep> |T)"
-		exps = "^%(hour)s:%(minute)s:%(second)s%(ms)s$" % exp
-		return re.compile(exps)
+		formats = ["ISO8601"]
+		return dabo.lib.dates.getTimeFromString(strVal, formats)
 
 
 	def __onKeyChar(self, evt):
@@ -275,7 +168,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			self.SelectionLength = selLen
 			self.refresh()
 		self._inForceCase = False
-		
+
 
 	# property get/set functions
 	def _getAlignment(self):
@@ -496,7 +389,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 			# Todo: set up validators based on the type of data we are editing,
 			# so the user can't, for example, enter a letter "p" in a textbox
 			# that is currently showing numeric data.
-			
+
 			if self._inForceCase:
 				# Value is changing internally. Don't update the oldval
 				# setting or change the type; just set the value.
