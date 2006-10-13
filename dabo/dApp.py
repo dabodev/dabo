@@ -531,6 +531,8 @@ class dApp(dObject):
 		self.uiApp.onEditCopy(evt)
 	def onEditPaste(self, evt):
 		self.uiApp.onEditPaste(evt)
+	def onEditSelectAll(self, evt):
+		self.uiApp.onEditSelectAll(evt)
 	def onEditFind(self, evt):
 		self.uiApp.onEditFind(evt)
 	def onEditFindAlone(self, evt):
