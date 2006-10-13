@@ -26,6 +26,17 @@ The Dabo Report Writer has dependencies on libraries you
 don't appear to have installed. You still need:
 
 	%s
+
+PIL is the Python Imaging Library available from
+http://www.pythonware.com/products/pil
+
+reportlab is the ReportLab toolkit available from
+http://www.reportlab.org
+
+If you are on a Debian Linux system, just issue:
+sudo apt-get install python-reportlab
+sudo apt-get install python-imaging
+.
 	""" % "\n\t".join(_failedLibs)
 
 	sys.exit(msg)
