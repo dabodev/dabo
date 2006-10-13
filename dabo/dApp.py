@@ -559,7 +559,10 @@ class dApp(dObject):
 
 	def onHelpAbout(self, evt):
 		import dabo.ui.dialogs.about as about
-		dlg = about.About(self.MainForm)
+		frm = self.ActiveForm
+		if frm is None:
+			frm = self.MainForm
+		dlg = about.About(frm)
 		dlg.show()
 	
 	
