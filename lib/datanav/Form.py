@@ -175,32 +175,41 @@ class Form(dabo.ui.dForm):
 		menu = super(Form, self).getMenu()
 		menu.Caption = _("&Actions")
 
-		menu.append(_("Set Selection Criteria")+"\tAlt+1", 
+		menu.append(_("Set Selection &Criteria")+"\tAlt+1", 
 				bindfunc=self.onSetSelectionCriteria, bmp="checkMark",
 				help=_("Set the selection criteria for the recordset."))
 
-		menu.append(_("Browse Records")+"\tAlt+2", 
+		menu.append(_("&Browse Records")+"\tAlt+2", 
 				bindfunc=self.onBrowseRecords, bmp="browse",
 				help=_("Browse the records in the current recordset."))
 
 		# Add one edit menu item for every edit page (every page past the second)
 		if self.FormType != "PickList":
 			for index in range(2, self.pageFrame.PageCount):
-				title = "%s\tAlt+%d" % (_(self.pageFrame.Pages[index].Caption),
-						index+1)
+
+				if index == 2:
+
+					title = "&%s\tAlt+3" % (_(self.pageFrame.Pages[index].Caption))
+
+				else:
+
+					title = "%s\tAlt+%d" % (_(self.pageFrame.Pages[index].Caption),
+
+							index+1)
+
 				menu.append(title, bindfunc=self.onEditCurrentRecord, bmp="edit",
 						help=_("Edit the fields of the currently selected record."),
 						Tag=self.pageFrame.Pages[index].DataSource)
 				menu.appendSeparator()
 
 		if self.FormType != "Edit":
-			menu.append(_("Requery")+"\tCtrl+R", bindfunc=self.onRequery, bmp="requery",
+			menu.append(_("&Requery")+"\tCtrl+R", bindfunc=self.onRequery, bmp="requery",
 					help=_("Get a new recordset from the backend."), menutype="check")		
 	
 		if self.FormType != "PickList":
-			menu.append(_("Save Changes")+"\tCtrl+S", bindfunc=self.onSave, bmp="save",
+			menu.append(_("&Save Changes")+"\tCtrl+S", bindfunc=self.onSave, bmp="save",
 					help=_("Save any changes made to the records."))	
-			menu.append(_("Cancel Changes"), bindfunc=self.onCancel, bmp="revert",
+			menu.append(_("&Cancel Changes"), bindfunc=self.onCancel, bmp="revert",
 					help=_("Cancel any changes made to the records."))
 			menu.appendSeparator()
 		
@@ -211,32 +220,32 @@ class Form(dabo.ui.dForm):
 			if self.Application.Platform.lower() == "mac":
 				altKey = "Ctrl"
 
-			menu.append(_("Select First Record")+"\t%s+UP" % altKey, 
+			menu.append(_("Select &First Record")+"\t%s+UP" % altKey, 
 					bindfunc=self.onFirst, bmp="leftArrows", 
 					help=_("Go to the first record in the set.")) 
-			menu.append(_("Select Prior Record")+"\t%s+LEFT" % altKey, 
+			menu.append(_("Select &Prior Record")+"\t%s+LEFT" % altKey, 
 					bindfunc=self.onPrior,bmp="leftArrow", 
 					help=_("Go to the prior record in the set."))	
-			menu.append(_("Select Next Record")+"\t%s+RIGHT" % altKey, 
+			menu.append(_("Select Ne&xt Record")+"\t%s+RIGHT" % altKey, 
 					bindfunc=self.onNext, bmp="rightArrow", 
 					help=_("Go to the next record in the set."))
-			menu.append(_("Select Last Record")+"\t%s+DOWN" % altKey, 
+			menu.append(_("Select &Last Record")+"\t%s+DOWN" % altKey, 
 					bindfunc=self.onLast, bmp="rightArrows", 
 					help=_("Go to the last record in the set."))
 			menu.appendSeparator()
 		
 		if self.FormType == "Normal":
-			menu.append(_("New Record")+"\tCtrl+N", bindfunc=self.onNew, bmp="blank",
+			menu.append(_("&New Record")+"\tCtrl+N", bindfunc=self.onNew, bmp="blank",
 					help=_("Add a new record to the dataset."))
-			menu.append(_("Delete Current Record"), bindfunc=self.onDelete, bmp="delete",
+			menu.append(_("&Delete Current Record"), bindfunc=self.onDelete, bmp="delete",
 					help=_("Delete the current record from the dataset."))
 			menu.appendSeparator()
 
 		if self.FormType != "Edit":
-			menu.append(_("Show SQL"), bindfunc=self.onShowSQL, bmp="zoomNormal")
+			menu.append(_("Show S&QL"), bindfunc=self.onShowSQL, bmp="zoomNormal")
 
 		if self.FormType == "Normal":
-			menu.append(_("Quick Report"), bindfunc=self.onQuickReport, bmp="print",
+			menu.append(_("Quick &Report"), bindfunc=self.onQuickReport, bmp="print",
 					DynamicEnabled=self.enableQuickReport)
 
 		return menu
