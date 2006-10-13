@@ -378,6 +378,15 @@ class uiApp(wx.App, dObject):
 						win.Replace(selection[0], selection[1], data.GetText())
 		
 
+	def onEditSelectAll(self, evt):
+		if self.ActiveForm:
+			win = self.ActiveForm.ActiveControl
+			if win:
+				try:
+					win.SetSelection(-1, -1)
+				except: pass			
+
+			
 	def _getContainingGrid(self, win):
 		"""Returns the grid that contains the specified window, or None
 		if the window is not contained in a grid.

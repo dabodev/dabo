@@ -68,6 +68,9 @@ class EditMenu(dMenu):
 		self.append(_("&Paste") + "\tCtrl+V", bindfunc=app.onEditPaste, bmp="paste",
 				help=_("Paste text from clipboard") )
 
+		self.append(_("Select &All") + "\tCtrl+A", bindfunc=app.onEditSelectAll,
+				help=_("Select all text") )
+
 		self.appendSeparator()
 
 		# By default, the Find and Replace functions use a single dialog. The
