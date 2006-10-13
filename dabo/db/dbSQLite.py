@@ -8,7 +8,10 @@ class SQLite(dBackend):
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "pysqlite2"
-		from pysqlite2 import dbapi2 as dbapi
+		try:
+			from pysqlite2 import dbapi2 as dbapi
+		except ImportError:
+			import sqlite3 as dbapi
 		self.dbapi = dbapi
 		
 

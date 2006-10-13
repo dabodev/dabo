@@ -51,7 +51,8 @@ To run Dabo, and apps based on Dabo, you need:
 	+ SQLite3: this is used internally for managing preferences, as 
 		well as for cursor management.
 	
-	+	pysqlite2: The Python dbapi module for SQLite.
+	+	pysqlite2: The Python dbapi module for SQLite. (Not needed in 
+			Python 2.5 and higher)
 
 	+ Windows 98SE or higher
 	+ Macintosh OSX 10.2 or higher (*much* nicer in Tiger - 10.4)
@@ -102,7 +103,10 @@ import sys
 try:
 	import pysqlite2
 except ImportError:
-	msg = """
+	try:
+		import sqlite3
+	except ImportError:
+		msg = """
 
 Dabo requires SQLite 3 and the pysqlite2 module. You will have to install these
 free products before running Dabo. You can get them from the following locations:
@@ -111,7 +115,7 @@ SQLite: http://www.sqlite.org/download.html
 pysqlite2: http://initd.org/tracker/pysqlite
 
 """	
-	sys.exit(msg)
+		sys.exit(msg)
 
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
