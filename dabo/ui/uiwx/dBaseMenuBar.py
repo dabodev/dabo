@@ -28,7 +28,7 @@ class FileMenu(dMenu):
 		self.Caption = _("&File")
 
 		if self.Application.ShowCommandWindowMenu:
-			self.append(_("Command Window") + "\tCtrl+D", bindfunc=app.onCmdWin, 
+			self.append(_("Command Win&dow") + "\tCtrl+D", bindfunc=app.onCmdWin, 
 					help=_("Open up a command window for debugging") )
 		
 		prmpt = _("Close Windo&w") + "\tCtrl+W"
@@ -51,15 +51,15 @@ class EditMenu(dMenu):
 		app = self.Application
 		self.Caption = _("&Edit")
 
-		self.append(_("Undo") + "\tCtrl+Z", bindfunc=app.onEditUndo, bmp="undo",
+		self.append(_("&Undo") + "\tCtrl+Z", bindfunc=app.onEditUndo, bmp="undo",
 				help=_("Undo last action") )
 
-		self.append(_("Redo") + "\tCtrl+R", bindfunc=app.onEditRedo, bmp="redo",
+		self.append(_("&Redo") + "\tCtrl+R", bindfunc=app.onEditRedo, bmp="redo",
 				help=_("Undo last undo") )
 
 		self.appendSeparator()
 
-		self.append(_("Cut") + "\tCtrl+X", bindfunc=app.onEditCut, bmp="cut",
+		self.append(_("Cu&t") + "\tCtrl+X", bindfunc=app.onEditCut, bmp="cut",
 				help=_("Cut selected text") )
 
 		self.append(_("&Copy") + "\tCtrl+C", bindfunc=app.onEditCopy, bmp="copy",
@@ -78,12 +78,12 @@ class EditMenu(dMenu):
 # 		self.append(_("Find") + "\tShift+Ctrl+F", bindfunc=app.onEditFindAlone, 
 # 				bmp="find", help=_("Find text in the active window") )
 
-		self.append(_("Find Again") + "\tCtrl+G", bindfunc=app.onEditFindAgain, bmp="",
+		self.append(_("Find A&gain") + "\tCtrl+G", bindfunc=app.onEditFindAgain, bmp="",
 				help=_("Repeat the last search") )
 
 		self.appendSeparator()
 
-		itm = self.append(_("Preferences"), bindfunc=app.onEditPreferences, bmp="configure",
+		itm = self.append(_("&Preferences"), bindfunc=app.onEditPreferences, bmp="configure",
 				help=_("Set user preferences") )
 		# Put the prefs item in the App Menu on Mac
 		wx.App_SetMacPreferencesMenuItemId(itm.GetId())
@@ -96,7 +96,7 @@ class ViewMenu(dMenu):
 		app = self.Application
 		self.Caption = _("&View")
 		
-		itm = self.append(_("Show/Hide Sizer Lines")+"\tCtrl+L",	
+		itm = self.append(_("Show/Hide Sizer &Lines")+"\tCtrl+L",	
 				bindfunc=app.onShowSizerLines, menutype="check",
 				help=_("Cool sizer visualizing feature; check it out!"))
 
