@@ -13,7 +13,10 @@ except ImportError:
 try:
 	from pysqlite2 import dbapi2 as sqlite
 except ImportError:
-	msg = """
+	try:
+		import sqlite3 as sqlite
+	except ImportError:
+		msg = """
 
 Dabo requires SQLite 3 and the pysqlite2 module. You will have to install these
 free products before running Dabo. You can get them from the following locations:
@@ -22,7 +25,7 @@ SQLite: http://www.sqlite.org/download.html
 pysqlite2: http://initd.org/tracker/pysqlite
 
 """	
-	sys.exit(msg)
+		sys.exit(msg)
 
 
 
