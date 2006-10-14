@@ -28,7 +28,13 @@ class dFormMainBase(fm.dFormMixin):
 		
 		# Set up the Dabo icon
 		self.bitmap = self.drawBitmap("dabo_lettering_250x100", x=10, y=0)
-		self.bitmap.DynamicYpos = lambda: self.Height - 150
+		plat = self.Application.Platform.lower()
+		off = 150
+		if plat == "win":
+			off = 180
+		elif plat == "gtk":
+			off = 160
+		self.bitmap.DynamicYpos = lambda: self.Height - off
 		self.autoClearDrawings = True
 		self.bindEvent(dEvents.Resize, self.__onResize)
 	
