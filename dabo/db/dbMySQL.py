@@ -135,8 +135,10 @@ class MySQL(dBackend):
 				ft = "M"
 			elif "blob" in ft:
 				ft = "L"
-			elif "decimal" in ft or "float" in ft:
+			elif "decimal" in ft:
 				ft = "N"
+			elif "float" in ft:
+				ft = "F"
 			elif "datetime" in ft:
 				ft = "T"
 			elif "date" in ft:
@@ -164,14 +166,14 @@ class MySQL(dBackend):
 				"DATE": "D",
 				"DATETIME": "T",
 				"DECIMAL": "N",
-				"DOUBLE": "I",
+				"DOUBLE": "G",
 				"ENUM": "C",
-				"FLOAT": "N",
+				"FLOAT": "F",
 				"GEOMETRY": "?",
 				"INT24": "I",
 				"INTERVAL": "?",
-				"LONG": "I",
-				"LONGLONG": "I",
+				"LONG": "G",
+				"LONGLONG": "G",
 				"LONG_BLOB": "M",
 				"MEDIUM_BLOB": "M",
 				"NEWDATE": "?",

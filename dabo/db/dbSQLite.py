@@ -203,6 +203,8 @@ class SQLite(dBackend):
 					fldType = "I"
 				elif typ == "real":
 					fldType = "N"
+				elif typ == "blob":
+					fldType = "L"
 				else:
 					# SQLite treats everything else as text
 					fldType = "C"

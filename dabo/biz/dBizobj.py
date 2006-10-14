@@ -20,10 +20,18 @@ class dBizobj(dObject):
 
 	def __init__(self, conn, properties=None, *args, **kwargs):
 		""" User code should override beforeInit() and/or afterInit() instead."""
+		self.__att_try_setFieldVal = False
+		# Collection of cursor objects. MUST be defined first.
+		self.__cursors = {}
+		# PK of the currently-selected cursor
+		self.__currentCursorKey = None
+
+		# Dictionary holding any default values to apply when a new record is created. This is
+		# now the DefaultValues property (used to be self.defaultValues attribute)
+		self._defaultValues = {}
+
 		self._beforeInit()
 		self._conn = conn
-		# Do we use autocommit for transactions?
-		self._autoCommit = False
 
 		super(dBizobj, self).__init__(properties=properties, *args, **kwargs)
 
@@ -36,22 +44,15 @@ class dBizobj(dObject):
 			# exception will be raised in that method.
 			self.createCursor()
 
+
 		# We need to make sure the cursor is created *before* the call to
 		# initProperties()
 		self._initProperties()
 		self._afterInit()
+		self.__att_try_setFieldVal = True
 
 
 	def _beforeInit(self):
-		# Collection of cursor objects. MUST be defined first.
-		self.__cursors = {}
-		# PK of the currently-selected cursor
-		self.__currentCursorKey = None
-
-		# Dictionary holding any default values to apply when a new record is created. This is
-		# now the DefaultValues property (used to be self.defaultValues attribute)
-		self._defaultValues = {}
-
 		# Cursor to manage SQL Builder info.
 		self._sqlMgrCursor = None
 		self._conn = None
@@ -132,11 +133,9 @@ class dBizobj(dObject):
 		cursor field will be affected, not the built-in attribute.
 		"""
 		isFld = False
-		if att != '_dBizobj__cursors' and self.__cursors is not {}:
-			try:
-				isFld = self.setFieldVal(att, val)
-			except:
-				isFld = None
+		if att not in ('_dBizobj__att_try_setFieldVal',) \
+				and self.__att_try_setFieldVal and self.__cursors:
+			isFld = self.setFieldVal(att, val)
 		if not isFld:
 			super(dBizobj, self).__setattr__(att, val)
 
@@ -1115,13 +1114,17 @@ class dBizobj(dObject):
 		""" Set the value of the specified field in the current row."""
 		cursor = self._CurrentCursor
 		if cursor is not None:
-			try:
-				cursor.setFieldVal(fld, val)
-				return True
-			except:
-				return False
-		else:
-			return None
+			if fld in [f[0] for f in self.DataStructure]:
+				try:
+					return cursor.setFieldVal(fld, val)
+				except dException.NoRecordsException:
+					return False
+		# If the field doesn't exist in the datastructure, or if there isn't a
+		# CurrentCursor, return False to let __setattr__ know that the attribute
+		# should get set to the instance. Note: we should get rid of the 
+		# __getattr__ and __setattr__ way for resolving db fields, as it is really
+		# hard to debug and doesn't perform particularly well.
+		return False
 
 
 	def getDataSet(self, flds=(), rowStart=0, rows=None):
@@ -1346,7 +1349,7 @@ class dBizobj(dObject):
 	def _getCurrentCursor(self):
 		try:
 			return self.__cursors[self.__currentCursorKey]
-		except KeyError:
+		except (KeyError, AttributeError):
 			# There is no current cursor. Try creating one.
 			self.createCursor()
 			try:

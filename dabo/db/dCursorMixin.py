@@ -26,6 +26,7 @@ from dabo.db.dDataSet import dDataSet
 class dCursorMixin(dObject):
 	_call_initProperties = False
 	def __init__(self, sql="", *args, **kwargs):
+		self._convertStrToUnicode = True
 		self._initProperties()
 		if sql and isinstance(sql, basestring) and len(sql) > 0:
 			self.UserSQL = sql
@@ -138,7 +139,58 @@ class dCursorMixin(dObject):
 		return self.sortCase
 
 
-	def execute(self, sql, params=()):
+	def correctFieldType(self, field_val, field_name, _fromRequery=False):
+		"""Correct the type of the passed field_val, based on self.DataStructure.
+
+		This is called by self.execute(), and contains code to convert all strings 
+		to unicode, as well as to correct any datatypes that don't match what 
+		self.DataStructure reports. The latter can happen with SQLite, for example,
+		which only knows about a quite limited number of types.
+		"""
+		ret = field_val
+		if _fromRequery:
+			pythonType = self._types[field_name]
+			daboType = dabo.db.getDaboType(pythonType)
+
+			if pythonType is not type(None) and not isinstance(field_val, pythonType):
+				if pythonType in (datetime.datetime, datetime.date):
+					pass
+				elif pythonType in (unicode,):
+					# unicode conversion happens below.
+					pass
+				else:
+					ret = pythonType(field_val)
+
+		# Do the unicode conversion last:
+		if isinstance(field_val, str) and self._convertStrToUnicode:
+			try:
+				ret = unicode(field_val, self.Encoding)
+			except UnicodeDecodeError, e:
+				# Try some common encodings:
+				ok = False
+				for enc in ("utf-8", "latin-1", "iso-8859-1"):
+					if enc != self.Encoding:
+						try:
+							ret = unicode(field_val, enc)
+							ok = True
+						except UnicodeDecodeError:
+							continue
+						if ok:
+							# change self.Encoding and log the message
+							self.Encoding = enc
+							dabo.errorLog.write(_("Incorrect unicode encoding set; using '%s' instead")
+									% enc)
+							break
+				else:
+					raise UnicodeDecodeError, e
+		elif isinstance(field_val, array.array):
+			# Usually blob data
+			ret = val.tostring()
+
+		return ret
+
+
+	def execute(self, sql, params=(), _fromRequery=False):
 		""" Execute the sql, and populate the DataSet if it is a select statement."""
 		# The idea here is to let the super class do the actual work in 
 		# retrieving the data. However, many cursor classes can only return 
@@ -189,6 +241,9 @@ class dCursorMixin(dObject):
 			maxrow = max(0, (self.RowCount-1) )
 			self.RowNumber = min(self.RowNumber, maxrow)
 
+		if _fromRequery:
+			self.storeFieldTypes()
+
 		if self._records:
 			if isinstance(self._records[0], tuple) or isinstance(self._records[0], list):
 				# Need to convert each row to a Dict
@@ -210,43 +265,16 @@ class dCursorMixin(dObject):
 				for row in self._records:
 					dic= {}
 					for i in range(0, fldcount):
-						if isinstance(row[i], str):
-							# String; convert it to unicode
-							dic[fldNames[i]] = unicode(row[i], self.Encoding)
-						else:
-							dic[fldNames[i]] = row[i]
+						dic[fldNames[i]] = self.correctFieldType(field_val=row[i], 
+								field_name=fldNames[i], _fromRequery=_fromRequery)
 					tmpRows.append(dic)
 				self._records = dDataSet(tmpRows)
 			else:
 				# Make all string values into unicode
 				for row in self._records:
-					for fld in row.keys():
-						val = row[fld]
-						if isinstance(val, str):	
-							# String; convert it to unicode
-							try:
-								row[fld]= unicode(val, self.Encoding)
-							except UnicodeDecodeError, e:
-								# Try some common encodings:
-								ok = False
-								for enc in ("utf-8", "latin-1", "iso-8859-1"):
-									if enc != self.Encoding:
-										try:
-											row[fld]= unicode(val, enc)
-											ok = True
-										except UnicodeDecodeError:
-											continue
-										if ok:
-											# change self.Encoding and log the message
-											self.Encoding = enc
-											dabo.errorLog.write(_("Incorrect unicode encoding set; using '%s' instead")
-											% enc)
-											break
-								else:
-									raise UnicodeDecodeError, e
-						elif isinstance(val, array.array):
-							# Usually blob data
-							row[fld] = val.tostring()
+					for fld, val in row.items():
+						row[fld] = self.correctFieldType(field_val=val, field_name=fld,
+								_fromRequery=_fromRequery)
 
 			# Convert to dDataSet 
 			self._records = dDataSet(self._records)
@@ -265,12 +293,10 @@ class dCursorMixin(dObject):
 	def requery(self, params=None):
 		self._lastSQL = self.CurrentSQL
 		self.lastParams = params
-		
-		self.execute(self.CurrentSQL, params)
-		
-		# Store the data types for each field
-		self.storeFieldTypes()
+		self._savedStructureDescription = []
 
+		self.execute(self.CurrentSQL, params, _fromRequery=True)
+		
 		# Add mementos to each row of the result set
 		self.addMemento(-1)
 
@@ -293,7 +319,6 @@ class dCursorMixin(dObject):
 		"""Stores the data type for each column in the result set."""
 		if target is None:
 			target = self
-
 		dataStructure = getattr(self, "_dataStructure", None)
 		if dataStructure is not None:
 			# An explicit data structure has been set. Use it, no matter what the 
@@ -307,15 +332,28 @@ class dCursorMixin(dObject):
 		# Explicit data structure not set, so we must glean the information from 
 		# the first record of the resultset, which really shouldn't be relied on.
 		if self.RowCount > 0:
+			def storeType(fname, fval):
+				typ = type(fval)
+				if typ is str and self._convertStrToUnicode:
+					typ = unicode
+				target._types[fname] = typ
+
 			rec = self._records[0]
-			for fname, fval in rec.items():
-				target._types[fname] = type(fval)
+			if isinstance(rec, tuple) or isinstance(rec, list):
+				# hasn't been converted to dict yet.
+				for idx, fdesc in enumerate(self.FieldDescription):
+					fname = fdesc[0]
+					fval = rec[idx]
+					storeType(fname, fval)
+			else:
+				for fname, fval in rec.items():
+					storeType(fname, fval)
+
 		else:
 			# See if we already have the information from a prior query
-			if len(self._types.keys()) == 0:
+			if not self._types:
 				# Try to get it from the description
 				dsc = self.BackendObject.getFieldInfoFromDescription(self.FieldDescription)
-					
 				if dsc:
 					for fld, typ, junk in dsc:
 						target._types[fld] = dabo.db.getPythonType(typ)
@@ -683,7 +721,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def setFieldVal(self, fld, val):
 		""" Set the value of the specified field. """
 		if self.RowCount <= 0:
-			raise dException.dException, _("No records in the data set")
+			raise dException.NoRecordsException, _("No records in the data set")
 		else:
 			rec = self._records[self.RowNumber]
 			if rec.has_key(fld):
@@ -727,6 +765,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						elif isinstance(val, dNoEscQuoteStr.dNoEscQuoteStr):
 							# Sometimes you want to set it to a sql function, equation, ect.
 							ignore = True
+						elif fld in self.getNonUpdateFields():
+							# don't worry so much if this is just a calculated field.
+							ignore = True
 						else:
 							# This can also happen with a new record, since we just stuff the
 							# fields full of empty strings.
@@ -740,7 +781,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 			else:
 				ss = _("Field '%s' does not exist in the data set.") % (fld,)
-				raise dException.dException, ss
+				raise dException.FieldNotFoundException, ss
 
 
 	def getRecordStatus(self, rownum=None):
@@ -1169,7 +1210,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def __setStructure(self):
 		"""Set the structure of a newly-added record."""
-		noneType = type(None)
 		for field in self.DataStructure:
 			field_alias = field[0]
 			field_type = field[1]
@@ -1188,8 +1228,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					if scale is not None:
 						ex = "0.%s" % ("0"*scale)
 						newval = newval.quantize(Decimal(ex))
-				elif typ is noneType:
-					newval = None
 				elif typ is datetime.datetime:
 					newval = datetime.datetime.min
 				elif typ is datetime.date:
@@ -1739,6 +1777,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					self.__auxCursor = self._cursorFactoryFunc(self._cursorFactoryClass)
 		if not self.__auxCursor:
 			self.__auxCursor = self.BackendObject.getCursor(self.__class__)
+		self.__auxCursor.BackendObject = self.BackendObject
 		return self.__auxCursor
 	
 
@@ -1747,7 +1786,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _setBackendObject(self, obj):
 		self.__backend = obj
-		self.AuxCursor.__backend = obj
+#		self.AuxCursor.__backend = obj
 	
 		
 	def _getCurrentSQL(self):
@@ -1765,17 +1804,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if val is None:
 			# Get the information from the backend. Note that elements 3 and 4 get
 			# guessed-at values.
-			val = []
-			ds = self.BackendObject.getStructureDescription(self)
-			for field in ds:
-				field_name, field_type, pk = field[0], field[1], field[2]
-				try:
-					field_scale = field[5]
-				except IndexError:
-					field_scale = None
-				val.append((field_name, field_type, pk, self.Table, field_name, field_scale))
-			val = tuple(val)
-		return val
+			val = getattr(self, "_savedStructureDescription", [])
+			if not val:
+				if self.BackendObject is None:
+					# Nothing we can do. We are probably an AuxCursor
+					pass
+				else:
+					ds = self.BackendObject.getStructureDescription(self)
+					for field in ds:
+						field_name, field_type, pk = field[0], field[1], field[2]
+						try:
+							field_scale = field[5]
+						except IndexError:
+							field_scale = None
+						val.append((field_name, field_type, pk, self.Table, field_name, field_scale))
+				self._savedStructureDescription = val
+		return tuple(val)
 
 	def _setDataStructure(self, val):
 		# Go through the sequence, raising exceptions or adding default values as
