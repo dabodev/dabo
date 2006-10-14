@@ -70,7 +70,37 @@ class dPageList(wx.Listbook, dPageFrameMixin):
 		# Dictionary for tracking images by key value
 		self._imageList = {}
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		self.Bind(wx.EVT_LIST_ITEM_MIDDLE_CLICK, self.__onWxMiddleClick)
+		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.__onWxRightClick)
 
+	
+	def __onWxMiddleClick(self, evt):
+		self.raiseEvent(dEvents.MouseMiddleClick, evt)
+	
+
+	def __onWxRightClick(self, evt):
+		self.raiseEvent(dEvents.MouseRightClick, evt)
+
+
+	def SetPageText(self, pos, val):
+		super(dPageList, self).SetPageText(pos, val)
+		# Force the list to re-align the spacing
+		self.ListSpacing = self.ListSpacing
+		
+		
+	def _getListSpacing(self):
+		return self.GetChildren()[0].GetItemSpacing()[0]
+
+	def _setListSpacing(self, val):
+		if self._constructed():
+			self.GetChildren()[0].SetItemSpacing(val)
+		else:
+			self._properties["ListSpacing"] = val
+
+
+	ListSpacing = property(_getListSpacing, _setListSpacing, None,
+			_("Controls the spacing of the items in the controlling list  (int)"))
+	
 
 
 class dPageSelect(wx.Choicebook, dPageFrameMixin):
