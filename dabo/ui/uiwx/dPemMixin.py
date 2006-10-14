@@ -215,7 +215,7 @@ class dPemMixin(dPemMixinBase):
 		# Do we need to clear the background before redrawing? Most cases will be 
 		# no, but if you have problems with drawings leaving behind unwanted 
 		# debris, set this to True
-		self._autoClearDrawings = False
+		self.autoClearDrawings = False
 		self._borderColor = dColors.colorTupleFromName("black")
 		self._borderWidth = 0
 		self._borderLineStyle = "Solid"
@@ -1057,13 +1057,19 @@ class dPemMixin(dPemMixinBase):
 		
 	def __updateDynamicProps(self):
 		"""Updates the object's dynamic properties."""
-		for prop, func in self._dynamic.items():
+		self.__updateObjectDynamicProps(self)
+		for obj in self._drawnObjects:
+			self.__updateObjectDynamicProps(obj)
+	
+	
+	def __updateObjectDynamicProps(self, obj):
+		for prop, func in obj._dynamic.items():
 			if isinstance(func, tuple):
 				args = func[1:]
 				func = func[0]
 			else:
 				args = ()
-			setattr(self, prop, func(*args))
+			setattr(obj, prop, func(*args))
 	
 	
 	def refresh(self, fromRefresh=False):
@@ -1275,7 +1281,7 @@ class dPemMixin(dPemMixinBase):
 		"""
 		if dc is None:
 			# First, clear any old drawing if requested
-			if self._autoClearDrawings:
+			if self.autoClearDrawings:
 				self.ClearBackground()
 			
 		# Draw any shapes
@@ -2204,6 +2210,7 @@ class DrawObject(dObject):
 	"""
 	def __init__(self, parent, *args, **kwargs):
 		self._inInit = True
+		self._dynamic = {}
 		# Initialize property atts
 		self._parent = parent
 		self._bitmap = None
@@ -2715,7 +2722,24 @@ class DrawObject(dObject):
 			_("Bitmap to be drawn on the object  (dBitmap)"))
 	
 	DrawMode = property(_getDrawMode, _setDrawMode, None,
-			_("docstring  (type)"))
+			_("""Logical operation for how the drawing is done. Can be one of:  (str)
+				copy (or None) - default
+				invert
+				and
+				and_invert
+				and_reverse
+				clear
+				equiv
+				nand
+				nor
+				no_op
+				or
+				or_invert
+				or_reverse
+				set
+				src_invert
+				xor
+			"""))
 	
 	FillColor = property(_getFillColor, _setFillColor, None,
 			_("Background color for the shape  (color)"))
@@ -2791,6 +2815,35 @@ class DrawObject(dObject):
 			_("""For circles, the y position of the center. For rectangles, 
 			the y position of the top left corner. (int)"""))
 
+
+	DynamicAngle = makeDynamicProperty(Angle)
+	DynamicBackColor = makeDynamicProperty(BackColor)
+	DynamicBitmap = makeDynamicProperty(Bitmap)
+	DynamicDrawMode = makeDynamicProperty(DrawMode)
+	DynamicFillColor = makeDynamicProperty(FillColor)
+	DynamicFontBold = makeDynamicProperty(FontBold)
+	DynamicFontFace = makeDynamicProperty(FontFace)
+	DynamicFontItalic = makeDynamicProperty(FontItalic)
+	DynamicFontSize = makeDynamicProperty(FontSize)
+	DynamicFontUnderline = makeDynamicProperty(FontUnderline)
+	DynamicForeColor = makeDynamicProperty(ForeColor)
+	DynamicGradientColor1 = makeDynamicProperty(GradientColor1)
+	DynamicGradientColor2 = makeDynamicProperty(GradientColor2)
+	DynamicHeight = makeDynamicProperty(Height)
+	DynamicLineStyle = makeDynamicProperty(LineStyle)
+	DynamicOrientation = makeDynamicProperty(Orientation)
+	DynamicParent = makeDynamicProperty(Parent)
+	DynamicPenColor = makeDynamicProperty(PenColor)
+	DynamicPenWidth = makeDynamicProperty(PenWidth)
+	DynamicPoints = makeDynamicProperty(Points)
+	DynamicRadius = makeDynamicProperty(Radius)
+	DynamicShape = makeDynamicProperty(Shape)
+	DynamicText = makeDynamicProperty(Text)
+	DynamicTransparent = makeDynamicProperty(Transparent)
+	DynamicVisible = makeDynamicProperty(Visible)
+	DynamicWidth = makeDynamicProperty(Width)
+	DynamicXpos = makeDynamicProperty(Xpos)
+	DynamicYpos = makeDynamicProperty(Ypos)
 	
 
 
