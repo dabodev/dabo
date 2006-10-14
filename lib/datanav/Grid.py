@@ -42,7 +42,7 @@ class Grid(dabo.ui.dGrid):
 			self.DataSource = self.Form.previewDataSource
 		
 		# Highlight the selected row for the grid
-		self._selectionMode = "Row"
+		self.SelectionMode = "Row"
 		# Limit selection to a single row
 		self._multipleSelection = False
 		# Turn on alternate row coloring
