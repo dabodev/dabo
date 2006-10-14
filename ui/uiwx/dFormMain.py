@@ -1,9 +1,9 @@
+import time
 import wx
+import dabo
+import dabo.dEvents as dEvents
 import dFormMixin as fm
 import dPanel, dIcons, dSizer
-import dabo
-
-import time
 
 
 class dFormMainBase(fm.dFormMixin):
@@ -27,12 +27,14 @@ class dFormMainBase(fm.dFormMixin):
 		self.BackColor = "White"
 		
 		# Set up the Dabo icon
-		self.bitmap = dIcons.getIconBitmap("dabo_lettering_250x100")
-		self.needRedraw = False
-		self.szTimer = wx.StopWatch()
-		self.bindEvent(dabo.dEvents.Paint, self.__onPaint)
-		self.bindEvent(dabo.dEvents.Idle, self.__onIdle)
-		self.bindEvent(dabo.dEvents.Resize, self.__onResize)
+		self.bitmap = self.drawBitmap("dabo_lettering_250x100", x=10, y=0)
+		self.bitmap.DynamicYpos = lambda: self.Height - 150
+		self.autoClearDrawings = True
+		self.bindEvent(dEvents.Resize, self.__onResize)
+	
+	
+	def __onResize(self, evt):
+		self.update()		
 
 	
 	def _beforeClose(self, evt=None):
@@ -52,26 +54,6 @@ class dFormMainBase(fm.dFormMixin):
 				forms2close.remove(frm)
 
 	
-	def __onPaint(self, evt):
-		dc = wx.PaintDC(self)
-		self.draw(dc)
-
-	def __onResize(self, evt):
-		self.needRedraw = True
-		self.szTimer.Start()
-	
-	def __onIdle(self, evt):
-		if self.needRedraw:
-			if self.szTimer.Time() < 100:
-				return
-			self.szTimer.Pause()
-			dc = wx.ClientDC(self)
-			self.draw(dc)
-			self.needRedraw = False
-
-	def draw(self, dc):
-		wd,ht = dc.GetSize()
-		dc.DrawBitmap(self.bitmap, 10, (ht - 110))
 
 
 class dFormMain(wx.Frame, dFormMainBase):
