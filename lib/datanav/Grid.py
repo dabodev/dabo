@@ -43,8 +43,11 @@ class Grid(dabo.ui.dGrid):
 		
 		# Highlight the selected row for the grid
 		self._selectionMode = "Row"
+		# Limit selection to a single row
+		self._multipleSelection = False
 		# Turn on alternate row coloring
 		self.AlternateRowColoring = True
+
 
 	def populate(self):
 		ds = self.DataSource
