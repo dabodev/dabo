@@ -13,8 +13,12 @@ from dabo.ui import makeDynamicProperty
 
 class dPageFrameMixin(cm.dControlMixin):
 	"""Creates a container for an unlimited number of pages."""
-	def _initEvents(self):
+	def _beforeInit(self, pre):
 		self._pageSizerClass = dabo.ui.dSizer
+		super(dPageFrameMixin, self)._beforeInit(pre)
+		
+		
+	def _initEvents(self):
 		super(dPageFrameMixin, self)._initEvents()
 		self.Bind(self._evtPageChanged, self.__onPageChanged)
 		self.bindEvent(dEvents.Create, self.__onCreate)
