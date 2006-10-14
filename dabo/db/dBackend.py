@@ -410,7 +410,7 @@ class dBackend(dObject):
 						tmpsql = cursor.sql + " where 1=0 "
 		auxCrs = cursor._getAuxCursor()
 		auxCrs.execute(tmpsql)
-		auxCrs.storeFieldTypes(cursor)
+		auxCrs.storeFieldTypes()
 		return auxCrs.FieldDescription
 
 
