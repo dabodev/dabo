@@ -43,12 +43,15 @@ daboTypes = {
 		"C": unicode,
 		"M": unicode,
 		"I": int,
+		"G": long,
+		"F": float,
 		"B": bool,
 		"D": datetime.date,
 		"T": datetime.datetime,
 		"N": Decimal}
 
 pythonTypes = dict([[v,k] for k,v in daboTypes.iteritems()])
+pythonTypes[str] = "C"
 
 
 def getPythonType(daboType):

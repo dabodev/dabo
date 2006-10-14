@@ -29,6 +29,9 @@ class MissingPKException(dException):
 class ConnectionLostException(dException):
 	pass
 
+class FieldNotFoundException(dException):
+	pass
+
 class DataBaseException(dException):
 	pass
 
@@ -37,6 +40,7 @@ class DBNoAccessException(DataBaseException):
 	
 class DBNoDBOnHostException(DataBaseException):
 	pass
+
 
 class DBQueryException(DataBaseException):
 	def __init__(self, err, sql):
