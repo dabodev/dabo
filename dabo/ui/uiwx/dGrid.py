@@ -1502,6 +1502,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._selectionBackColor = "yellow"
 		self._selectionMode = "cell"
 		self._modeSet = False
+		self._multipleSelection = True
 		# Track the last row and col selected
 		self._lastRow = self._lastCol = None
 		self._alternateRowColoring = False
@@ -2999,6 +3000,45 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 	
 	def __onWxGridRangeSelect(self, evt):
 		self.raiseEvent(dEvents.GridRangeSelected, evt)
+		if not self.MultipleSelection and evt.Selecting():
+			origRow, origCol = self._lastRow, self._lastCol
+			try:
+				mode = self.GetSelectionMode()
+				top, bott = evt.GetTopRow(), evt.GetBottomRow()
+				left, right = evt.GetLeftCol(), evt.GetRightCol()
+				if mode == wx.grid.Grid.wxGridSelectRows:
+					if top != bott:
+						# Attempting to select a range
+						if top == origRow:
+							row = bott
+						else:
+							row = top
+						self.SetGridCursor(row, self._lastCol)
+				elif mode == wx.grid.Grid.wxGridSelectColumns:
+					if left != right:
+						# Attempting to select a range
+						if left == origCol:
+							col = right
+						else:
+							col = left
+						self.SetGridCursor(self._lastRow, col)
+				else:
+					# Cells
+					row, col = origRow, origCol
+					if top != bott:
+						if top == origRow:
+							row = bott
+						else:
+							row = top
+					if left != right:
+						if left == origCol:
+							col = right
+						else:
+							col = left
+					if (row, col) != (origRow, origCol):
+						self.SetGridCursor(row, col)
+						self.SelectBlock(row, col, row, col)
+			except: pass				
 		evt.Skip()
 		
 		
@@ -3492,6 +3532,16 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._movableColumns = val
 
 
+	def _getMultipleSelection(self):
+		return self._multipleSelection
+
+	def _setMultipleSelection(self, val):
+		if self._constructed():
+			self._multipleSelection = val
+		else:
+			self._properties["MultipleSelection"] = val
+
+
 	def _getNoneDisplay(self):
 		if hasattr(self, "_noneDisplay"):
 			# overridden in this class; use it
@@ -3906,6 +3956,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	MovableColumns = property(_getMovableColumns, _setMovableColumns, None,
 			_("When False, the user cannot re-order the columns by dragging the headers  (bool)"))
+	
+	MultipleSelection = property(_getMultipleSelection, _setMultipleSelection, None,
+			_("When True (default), more than one cell/row/col can be selected at once  (bool)"))
 	
 	NoneDisplay = property(_getNoneDisplay, _setNoneDisplay, None, 
 			_("Text to display for null (None) values.  (str)") )
