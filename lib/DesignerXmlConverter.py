@@ -70,6 +70,7 @@ class DesignerXmlConverter(dObject):
 		file path, an open file object, or the raw XML. It will look for
 		a matching code file and, if found, import that code.
 		"""
+		parseCode = True
 		if isinstance(src, file):
 			xml = src.read()
 			self._srcFile = src.name
@@ -79,15 +80,17 @@ class DesignerXmlConverter(dObject):
 				self._srcFile = src
 			else:
 				xml = src
+				parseCode = False
 				self._srcFile = os.getcwd()
 		dct = xtd.xmltodict(xml)
 
-		codePth = "%s-code.py" % os.path.splitext(src)[0]
-		try:
-			codeDict = desUtil.parseCodeFile(open(codePth).read())
-			desUtil.addCodeToClassDict(dct, codeDict)
-		except StandardError, e:
-			print "Failed to parse code file:", e
+		if parseCode:
+			codePth = "%s-code.py" % os.path.splitext(src)[0]
+			try:
+				codeDict = desUtil.parseCodeFile(open(codePth).read())
+				desUtil.addCodeToClassDict(dct, codeDict)
+			except StandardError, e:
+				print "Failed to parse code file:", e
 		return dct
 
 
