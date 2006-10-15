@@ -195,8 +195,10 @@ class uiApp(wx.App, dObject):
 
 	def start(self, dApp):
 		# Manually raise Activate, as wx doesn't do that automatically
-
-		self.raiseEvent(dEvents.Activate)
+		try:
+			self.dApp.MainForm.raiseEvent(dEvents.Activate)
+		except:
+			self.raiseEvent(dEvents.Activate)
 		self.MainLoop()
 
 	
