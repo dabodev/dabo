@@ -9,18 +9,7 @@ import dabo
 
 
 def getForm():
-		mainForm = wx.GetApp().GetTopWindow()
-		if mainForm:
-			activeForm = mainForm.FindFocus()
-			if activeForm:
-				form = activeForm
-			else:
-				form = mainForm
-		else:
-			form = mainForm
-		if form is None:
-			form = dabo.dAppRef.ActiveForm
-		return form
+	return dabo.dAppRef.ActiveForm
 
 
 class dMessageBox(wx.MessageDialog):
