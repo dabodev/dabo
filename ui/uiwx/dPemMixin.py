@@ -1092,12 +1092,6 @@ class dPemMixin(dPemMixinBase):
 		self.Visible = False
 		
 		
-	def fitToSizer(self):
-		"""Sets the size of the object to the size of the sizer."""
-		if self.Sizer:
-			self.Fit()
-
-
 	def _getWxColour(self, val):
 		"""Convert Dabo colors to wx.Colour objects"""
 		ret = None

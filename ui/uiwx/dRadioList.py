@@ -229,8 +229,8 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		
 	def _setCaption(self, val):
 		if self._constructed():
-			if isinstance(self.Sizer, dabo.ui.dBorderSizer):
-				self.Sizer.Caption = val
+			self._checkSizer()
+			self.Sizer.Caption = val
 		else:
 			self._properties["Caption"] = val
 
@@ -261,6 +261,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 				else:
 					self.Sizer.appendSpacer(self._getFudgedButtonSpacing())
 				btn = _dRadioButton(self, Caption=itm, style=style)
+				btn._index = idx
 				self.Sizer.append(btn)
 				self._items.append(btn)
 
@@ -319,8 +320,8 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 	def _setStringValue(self, val):
 		if self._constructed():
 			try:
-				itm = [btn for btn in self._items if btn.Caption == val][0]
-				self.PositionValue = itm
+				idx = [btn._index for btn in self._items if btn.Caption == val][0]
+				self.PositionValue = idx
 			except IndexError:
 				if val is not None:
 					# No such string.

@@ -2948,6 +2948,21 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			dabo.ui.callAfter(self.Form.update)
 
 
+	def _checkSelectionType(self):
+		"""When the SelectionMode or MultipleSelection properties change, 
+		we want to make sure that the selection reflects those settings.
+		"""
+		mode = self.SelectionMode
+		if mode == "Row":
+			self.SelectRow(self.CurrentRow)
+		elif mode == "Col":
+			self.SelectCol(self.CurrentColumn)
+		else:
+			self.SelectBlock(self.CurrentRow, self.CurrentColumn, 
+					self.CurrentRow, self.CurrentColumn)
+		self.refresh()
+		
+
 	def _onKeyDown(self, evt): 
 		""" Occurs when the user presses a key inside the grid."""
 		if self.Editable and self.Columns[self.CurrentColumn].Editable:
@@ -3537,7 +3552,9 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _setMultipleSelection(self, val):
 		if self._constructed():
-			self._multipleSelection = val
+			if val != self._multipleSelection:
+				self._multipleSelection = val
+				self._checkSelectionType()
 		else:
 			self._properties["MultipleSelection"] = val
 
@@ -3755,6 +3772,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 	def _setSelectionMode(self, val):
 		if self._constructed():
+			orig = self._selectionMode
 			val2 = val.lower().strip()[:2]
 			if val2 == "ro":
 				try:
@@ -3774,6 +3792,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 					self._selectionMode = "Cell"
 				except:
 					dabo.ui.callAfter(self._setSelectionMode, val)
+			if self._selectionMode != orig:
+				self._checkSelectionType()
 		else:
 			self._properties["SelectionMode"] = val
 
@@ -4158,23 +4178,37 @@ if __name__ == '__main__':
 			self.Sizer.append(g, 1, "x", border=40, borderSides="all")
 			self.Sizer.appendSpacer(10)
 			
+			gsz = dabo.ui.dGridSizer(HGap=50)
+			
 			chk = dabo.ui.dCheckBox(self, Caption="Edit Table", RegID="geekEdit",
 					DataSource="sampleGrid", DataField="Editable")
-			self.Sizer.append(chk, halign="Center")
 			chk.refresh()
+			gsz.append(chk, row=0, col=0)
 			
 			chk = dabo.ui.dCheckBox(self, Caption="Show Row Labels", 
 					RegID="showRowLabels", DataSource="sampleGrid", 
 					DataField="ShowRowLabels")
-			self.Sizer.append(chk, halign="Center")
+			gsz.append(chk, row=1, col=0)
 			chk.refresh()
 			
-			btn = dabo.ui.dButton(self, Caption="Default", DefaultButton=True)
-			btn.bindEvent(dEvents.Hit, self.onBtn)
-			self.Sizer.append(btn, halign="Center")
-		
-		def onBtn(self, evt):
-			dabo.ui.stop("Ouch")
+			chk = dabo.ui.dCheckBox(self, Caption="Allow Multiple Selection", 
+					RegID="multiSelect", DataSource="sampleGrid", 
+					DataField="MultipleSelection")
+			chk.refresh()
+			gsz.append(chk, row=2, col=0)
+
+			radSelect = dabo.ui.dRadioList(self, Choices=["Row", "Col", "Cell"],
+					ValueMode="string", Caption="Sel Mode",
+					DataSource="sampleGrid", DataField="SelectionMode")
+			radSelect.refresh()
+			gsz.append(radSelect, row=0, col=1, rowSpan=3)
+			
+			self.Sizer.append(gsz, halign="Center", border=10)
+			gsz.setColExpand(True, 1)
+			self.layout()
+			
+			self.fitToSizer(20,20)
+			
 			
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
