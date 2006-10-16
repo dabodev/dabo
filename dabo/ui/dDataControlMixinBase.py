@@ -195,7 +195,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 									nm = str(self.DataSource)
 								dabo.errorLog.write("Could not bind to '%s.%s'" % (nm, self.DataField) )
 
-			self._afterValueChanged()
+			self._afterValueChanged(_from_flushValue=True)
 		
 		# In most controls, self._oldVal is set upon GotFocus. Some controls
 		# like dCheckBox and dDropdownList don't emit focus events, so
@@ -256,7 +256,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return "?"
 			
 			
-	def _afterValueChanged(self):
+	def _afterValueChanged(self, _from_flushValue=False):
 		"""Called after the control's value has changed.
 		
 		This is defined as one of:
@@ -265,7 +265,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			
 		User code shouldn't need to access or override this.
 		"""
-		
+
 		# Maintain an internal copy of the value, separate from the
 		# property, so that we still have the value regardless of whether
 		# or not the underlying ui object still exists (in wx at least,
@@ -277,6 +277,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		# Raise an event so that user code can react if needed:
 		self.raiseEvent(dabo.dEvents.ValueChanged)
 
+		if not _from_flushValue and self.Form.ActiveControl != self:
+			# Value was changed programatically - flushValue won't be called 
+			# automatically so do it explicitly now.
+			self.flushValue()
 			
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
