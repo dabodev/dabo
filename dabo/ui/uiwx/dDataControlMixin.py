@@ -41,7 +41,8 @@ class dDataControlMixin(dDataControlMixinBase):
 			if isinstance(oldType, str):
 				val = str(val)
 			else:
-				val = unicode(val, self.Application.Encoding)
+				if not isinstance(val, unicode):
+					val = unicode(val, self.Application.Encoding)
 		elif isinstance(oldval, int) and isinstance(val, basestring):
 			if val:
 				val = int(val)
