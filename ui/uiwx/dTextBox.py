@@ -25,7 +25,7 @@ class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
 		self._baseClass = dTextBox
 
 		self._dregex = {}
-		self._lastDataType = None
+		self._lastDataType = unicode
 		self._forceCase = None
 		self._inForceCase = False
 
