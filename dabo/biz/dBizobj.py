@@ -848,6 +848,8 @@ class dBizobj(dObject):
 
 		If runRequery is True, and the record pointer is moved, all child bizobjs
 		will be requeried, and the afterPointerMove() hook method will fire.
+
+		Returns the RowNumber of the found record, or -1 if no match found.
 		"""
 		ret = self._CurrentCursor.seek(val, fld, caseSensitive, near)
 		if ret != -1:
@@ -1119,6 +1121,11 @@ class dBizobj(dObject):
 					return cursor.setFieldVal(fld, val)
 				except dException.NoRecordsException:
 					return False
+			else:
+				## Can't do the line below like I'd like because setFieldVal() runs from
+				## __setattr__() and we could be processing fld's with values like "UserSQL"...
+				#raise dException.FieldNotFoundException, "Field %s not defined in the DataStructure" % fld
+				pass
 		# If the field doesn't exist in the datastructure, or if there isn't a
 		# CurrentCursor, return False to let __setattr__ know that the attribute
 		# should get set to the instance. Note: we should get rid of the 
