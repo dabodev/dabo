@@ -389,6 +389,7 @@ class dBackend(dObject):
 		#Try using the no-records version of the SQL statement.
 		try:
 			tmpsql = cursor.getStructureOnlySql()
+			print 1
 		except AttributeError:
 			# We need to parse the sql property to get what we need.
 			import re
@@ -408,6 +409,8 @@ class dBackend(dObject):
 					else:
 						# Nothing. So just tack it on the end.
 						tmpsql = cursor.sql + " where 1=0 "
+			print 2
+		print tmpsql
 		auxCrs = cursor._getAuxCursor()
 		auxCrs.execute(tmpsql)
 		auxCrs.storeFieldTypes()
