@@ -154,12 +154,19 @@ class dCursorMixin(dObject):
 
 			if pythonType is not type(None) and not isinstance(field_val, pythonType):
 				if pythonType in (datetime.datetime, datetime.date):
+					# Conversion happens elsewhere.
 					pass
 				elif pythonType in (unicode,):
-					# unicode conversion happens below.
+					# Unicode conversion happens below.
+					pass
+				elif field_val is None:
+					# Fields of any type can be None (NULL).
 					pass
 				else:
-					ret = pythonType(field_val)
+					try:
+						ret = pythonType(field_val)
+					except Exception, e:
+						print "%s couldn't be converted to %s (field %s)" % (field_val, pythonType, field_name)
 
 		# Do the unicode conversion last:
 		if isinstance(field_val, str) and self._convertStrToUnicode:
