@@ -1285,7 +1285,10 @@ class dPemMixin(dPemMixinBase):
 		self.redraw(dc)
 		# Clear the idle flag.
 		self._needRedraw = False
-
+#- 		if self.Application.Platform == "Win":
+#- 			print "REFRESH", time.time()
+#- 			dabo.ui.callAfterInterval(300, self.refresh)
+			
 
 	def redraw(self, dc): 
 		"""Called when the object is (re)drawn.
@@ -1391,7 +1394,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _onFontPropsChanged(self, evt):
 		# Sent by the dFont object when any props changed. Wx needs to be notified:
-		if wx.Platform == "__WXMAC__":
+		if self.Application.Platform == "Mac":
 			# Mac bug: need to clear the font from the control first 
 			# (Thanks Peter Damoc):
 			self.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL))
@@ -2374,8 +2377,8 @@ class DrawObject(dObject):
 				dc.DrawText(txt, x, y)
 			else:
 				dc.DrawRotatedText(txt, x, y, self._angle)
-					
-	                        
+
+
 	def _drawGradient(self, dc, xpos, ypos):
 		if self.GradientColor1 is None or self.GradientColor2 is None:
 			return

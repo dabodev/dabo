@@ -115,6 +115,8 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 			self.Sizer.layout()
 		except:
 			pass
+		if self.Application.Platform == "Win":
+			self.refresh()
 	
 
 	def _setSelection(self, val):
