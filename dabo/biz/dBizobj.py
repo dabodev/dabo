@@ -26,6 +26,8 @@ class dBizobj(dObject):
 		# PK of the currently-selected cursor
 		self.__currentCursorKey = None
 
+		self._dataStructure = None
+
 		# Dictionary holding any default values to apply when a new record is created. This is
 		# now the DefaultValues property (used to be self.defaultValues attribute)
 		self._defaultValues = {}
@@ -166,6 +168,11 @@ class dBizobj(dObject):
 		from beforeCreateCursor() will prevent the rest of this method from
 		executing.
 		"""
+		if self.__cursors:
+			_dataStructure = getattr(self.__cursors[self.__cursors.keys()[0]], "_dataStructure", None)
+		else:
+			# The first cursor is being created, before DataStructure is assigned.
+			_dataStructure = None
 		errMsg = self.beforeCreateCursor()
 		if errMsg:
 			raise dException.dException, errMsg
@@ -181,6 +188,8 @@ class dBizobj(dObject):
 		self.__cursors[key].setCursorFactory(cn.getCursor, cursorClass)
 
 		crs = self.__cursors[key]
+		if _dataStructure is not None:
+			crs._dataStructure = _dataStructure
 		crs.KeyField = self.KeyField
 		crs.Table = self.DataSource
 		crs.AutoPopulatePK = self.AutoPopulatePK
@@ -1387,11 +1396,17 @@ class dBizobj(dObject):
 
 
 	def _getDataStructure(self):
+		# We need to save the explicitly-assigned DataStructure here in the bizobj,
+		# so that we are able to propagate it to any future-assigned child cursors.
+		_ds = self._dataStructure
+		if _ds is not None:
+			return _ds
 		return self._CurrentCursor.DataStructure
 
 	def _setDataStructure(self, val):
-		self._CurrentCursor.DataStructure = val
-
+		for key, cursor in self.__cursors.items():
+			cursor.DataStructure = val
+		self._dataStructure = val
 
 	def _getDefaultValues(self):
 		return self._defaultValues
