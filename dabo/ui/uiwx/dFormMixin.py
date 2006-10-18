@@ -386,6 +386,8 @@ class dFormMixin(pm.dPemMixin):
 			# Call the Dabo version, if present
 			self.Sizer.layout()
 		except: pass
+		if self.Application.Platform == "Win":
+			self.refresh()
 	
 	
 	def registerObject(self, obj):

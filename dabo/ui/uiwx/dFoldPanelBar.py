@@ -98,6 +98,8 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 			self.Sizer.layout()
 		except:
 			pass
+		if self.Application.Platform == "Win":
+			self.refresh()
 
 
 	def __onWxCaptionClick(self, evt):

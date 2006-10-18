@@ -223,6 +223,8 @@ class dPageFrameMixin(cm.dControlMixin):
 			pass
 		for pg in self.Pages:
 			pg.layout()
+		if self.Application.Platform == "Win":
+			self.refresh()
 
 		
 	def _getPageIndex(self, pg):

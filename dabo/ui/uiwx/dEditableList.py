@@ -54,6 +54,8 @@ class dEditableList(wx.gizmos.EditableListBox,
 		"""
 		self.Layout()
 		self._Panel.Layout()
+		if self.Application.Platform == "Win":
+			self.refresh()
 		
 
 	## property get/set methods follow ##

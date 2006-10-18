@@ -36,7 +36,9 @@ class dPanel(wx.Panel, cm.dControlMixin):
 			self.Sizer.layout()
 		except:
 			pass
-	
+		if self.Application.Platform == "Win":
+			self.refresh()
+			
 	
 	def _onPaintBuffer(self, evt):
 		dc = wx.BufferedPaintDC(self, self._buffer)
