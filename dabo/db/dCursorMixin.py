@@ -152,7 +152,9 @@ class dCursorMixin(dObject):
 			pythonType = self._types[field_name]
 			daboType = dabo.db.getDaboType(pythonType)
 
-			if pythonType is not type(None) and not isinstance(field_val, pythonType):
+			print field_val, pythonType
+			print type(field_val), type(pythonType)
+			if pythonType not in (type(None), None) and not isinstance(field_val, pythonType):
 				if pythonType in (datetime.datetime, datetime.date):
 					# Conversion happens elsewhere.
 					pass
@@ -326,7 +328,7 @@ class dCursorMixin(dObject):
 		"""Stores the data type for each column in the result set."""
 		if target is None:
 			target = self
-		dataStructure = getattr(self, "_dataStructure", None)
+		dataStructure = getattr(target, "_dataStructure", None)
 		if dataStructure is not None:
 			# An explicit data structure has been set. Use it, no matter what the 
 			# backend db may say. 
@@ -1239,6 +1241,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					newval = datetime.datetime.min
 				elif typ is datetime.date:
 					newval = datetime.date.min
+				elif typ is None:
+					newval = None
 				else:
 					newval = typ()
 			except StandardError, e:
