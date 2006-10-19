@@ -166,7 +166,7 @@ class dFormMixin(pm.dPemMixin):
 		except:
 			restoredSP = False
 		if restoredSP:		
-			self.saveSizeAndPosition()
+			dabo.ui.callAfterInterval(800, self.saveSizeAndPosition)
 	
 	
 	def __onResize(self, evt):
@@ -174,9 +174,9 @@ class dFormMixin(pm.dPemMixin):
 			restoredSP = self.restoredSP
 		except:
 			restoredSP = False
-		if restoredSP:		
-			self.saveSizeAndPosition()
-	
+		if restoredSP:
+			dabo.ui.callAfterInterval(800, self.saveSizeAndPosition)
+			
 	
 	def __onPaint(self, evt):
 		if self.Application:
@@ -372,7 +372,7 @@ class dFormMixin(pm.dPemMixin):
 					self.Application.setUserSetting("%s.top" % name, pos[1])
 					self.Application.setUserSetting("%s.width" % name, size[0])
 					self.Application.setUserSetting("%s.height" % name, size[1])
-
+				
 
 	def setStatusText(self, *args):
 		"""Moved functionality to the StatusText property setter."""

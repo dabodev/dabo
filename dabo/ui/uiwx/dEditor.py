@@ -145,7 +145,7 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 		self.MarkerDefine(self._bmkPos, 
 				stc.STC_MARK_CIRCLE, "gray", "cyan")
 		justFname = os.path.split(self._fileName)[1]
-		svd = app.getUserSetting("bookmarks.%s", justFname, "{}")
+		svd = app.getUserSetting("bookmarks.%s" % justFname, "{}")
 		if svd:
 			self._bookmarks = eval(svd)
 		else:
