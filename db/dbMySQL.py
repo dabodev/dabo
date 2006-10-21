@@ -195,16 +195,6 @@ class MySQL(dBackend):
 		return """ match (%(table)s.%(field)s) against ("%(value)s") """
 
 
-	def beginTransaction(self, cursor):
-		""" Begin a SQL transaction."""
-		if not cursor.AutoCommit:
-			if hasattr(cursor.connection, "begin"):
-				cursor.connection.begin()
-			else:
-				cursor.execute("BEGIN")
-				
-
-		
 	def createTableAndIndexes(self, tabledef, cursor, createTable=True, 
 			createIndexes=True):
 		if not tabledef.Name:
