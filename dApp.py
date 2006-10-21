@@ -308,34 +308,48 @@ class dApp(dObject):
 			
 		The return value would be ["pkm", "egl"]
 		"""
-		if self.UserSettingProvider:
-			return self.UserSettingProvider.getUserSettingKeys(spec)
+		usp = self.UserSettingProvider
+		if usp:
+			return usp.getUserSettingKeys(spec)
 		return None
 
 
-	def getUserSetting(self, item, default=None, user="*", system="*"):
+	def getUserSetting(self, item, default=None):
 		"""Return the value of the item in the user settings table."""
-		if self.UserSettingProvider:
-			return self.UserSettingProvider.getUserSetting(item, default, user, system)
+		usp = self.UserSettingProvider
+		if usp:
+			return usp.getUserSetting(item, default)
 		return None
 
 
 	def setUserSetting(self, item, value):
 		"""Persist a value to the user settings file."""
-		if self.UserSettingProvider:
-			self.UserSettingProvider.setUserSetting(item, value)
+		usp = self.UserSettingProvider
+		if usp:
+			usp.setUserSetting(item, value)
+	
+	
+	def setUserSettings(self, setDict):
+		"""Convenience method for setting several settings with one
+		call. Pass a dict containing {settingName: settingValue} pairs.
+		"""
+		usp = self.UserSettingProvider
+		if usp:
+			usp.setUserSettings(setDict)
 	
 	
 	def deleteUserSetting(self, item):
 		"""Removes the given item from the user settings file."""
-		if self.UserSettingProvider:
-			self.UserSettingProvider.deleteUserSetting(item)
+		usp = self.UserSettingProvider
+		if usp:
+			usp.deleteUserSetting(item)
 	
 	
 	def deleteAllUserSettings(self, spec):
 		"""Deletes all settings that begin with the supplied spec."""
-		if self.UserSettingProvider:
-			self.UserSettingProvider.deleteAllUserSettings(spec)
+		usp = self.UserSettingProvider
+		if usp:
+			usp.deleteAllUserSettings(spec)
 		
 		
 	def getUserCaption(self):
@@ -593,6 +607,25 @@ class dApp(dObject):
 			dabo.errorLog.write(_("Can't set ActiveForm: no uiApp."))
 	
 
+	def _getBasePrefKey(self):
+		try:
+			ret = self._basePrefKey
+		except AttributeError:
+			ret = self._basePrefKey = ""
+		if not ret:
+			try:
+				ret = self.ActiveForm.BasePrefKey
+			except: pass
+		if not ret:
+			try:
+				ret = self.MainForm.BasePrefKey
+			except: pass			
+		return ret
+
+	def _setBasePrefKey(self, val):
+		super(dApp, self)._setBasePrefKey(val)
+
+
 	def _getCrypto(self):
 		if self._cryptoProvider is None:
 			# Use the default crypto
@@ -756,7 +789,8 @@ class dApp(dObject):
 			ret = self._userSettingProvider
 		except AttributeError:
 			if self.UserSettingProviderClass is not None:
-				ret = self._userSettingProvider = self.UserSettingProviderClass()
+				ret = self._userSettingProvider = \
+						self.UserSettingProviderClass()
 			else:
 				ret = self._userSettingProvider = None
 		return ret
@@ -769,7 +803,8 @@ class dApp(dObject):
 		try:
 			ret = self._userSettingProviderClass
 		except AttributeError:
-			ret = self._userSettingProviderClass = dUserSettingProvider.dUserSettingProvider
+			ret = self._userSettingProviderClass = \
+					dUserSettingProvider.dUserSettingProvider
 		return ret
 
 	def _setUserSettingProviderClass(self, val):
@@ -778,6 +813,12 @@ class dApp(dObject):
 
 	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
 			_("Returns the form that currently has focus, or None.  (dForm)" ) )
+	
+	BasePrefKey = property(_getBasePrefKey, _setBasePrefKey, None,
+			_("""Base key used when saving/restoring preferences. This differs
+			from the default definition of this property in that if it is empty, it 
+			will return the ActiveForm's BasePrefKey or the MainForm's BasePrefKey
+			in that order. (str)"""))
 	
 	Crypto = property(_getCrypto, _setCrypto, None, 
 			_("Reference to the object that provides cryptographic services.  (varies)" ) )
