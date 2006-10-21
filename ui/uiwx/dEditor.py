@@ -150,6 +150,13 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 			self._bookmarks = eval(svd)
 		else:
 			self._bookmarks = {}
+		# This holds the last saved bookmark status
+		self._lastBookmarks = []
+		# Create a timer to regularly flush the bookmarks
+		self._bookmarkTimer = bmt = dTimer.dTimer()
+		bmt.Interval = 20000		# 20 sec.
+		bmt.bindEvent(dEvents.Hit, self._saveBookmarks)
+		bmt.start()		
 
 		if self.UseStyleTimer:
 			self._styleTimer.mode = "container"
@@ -163,6 +170,7 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 
 
 	def __del__(self):
+		self._saveBookmarks()
 		self._unRegisterFunc(self)
 		super(dEditor, self).__del__()
 	
@@ -180,6 +188,7 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 			self.clearBookmark(nm)
 		hnd = self.MarkerAdd(line, self._bmkPos)
 		self._bookmarks[nm] = hnd
+		self._saveBookmarks()
 	
 	
 	def findBookmark(self, nm):
@@ -207,12 +216,14 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 			del self._bookmarks[nm]
 		except KeyError:
 			pass
+		self._saveBookmarks()
 
 
 	def clearAllBookmarks(self):
 		"""Removes all bookmarks."""
 		self.MarkerDeleteAll(self._bmkPos)
 		self._bookmarks.clear()
+		self._saveBookmarks()
 	
 	
 	def goNextBookMark(self, line=None):
@@ -1159,20 +1170,36 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 		# set self._fileName, in case it was changed with a Save As
 		self._fileName = fname
 		self._clearDocument(clearText=False)
-
-		# Save the bookmarks
-		app = self.Application
-		justFname = os.path.split(fname)[1]
-		base = ".".join(("bookmark", justFname))
-		# Clear any existing settings.
-		app.deleteAllUserSettings(base)
-		for nm, hnd in self._bookmarks.items():
-			ln = self.MarkerLineFromHandle(hnd)
-			setName = ".".join((base, nm))
-			app.setUserSetting(setName, ln)
 		# Save the appearance settings
+		app = self.Application
 		app.setUserSetting("editor.fontsize", self._fontSize)
 		app.setUserSetting("editor.fontface", self._fontFace)
+		# Save the bookmarks
+		self._saveBookmarks()
+	
+	
+	def _saveBookmarks(self, evt=None):
+		app = self.Application
+		fname = self._fileName
+		if not fname:
+			return
+		# Get the current status of bookmarks
+		currBmks = [(nm, self.MarkerLineFromHandle(hnd))
+				for nm, hnd in self._bookmarks.items()]
+		if currBmks != self._lastBookmarks:
+			# Save them
+			self._lastBookmarks = currBmks
+			justFname = os.path.split(fname)[1]
+			base = ".".join(("bookmark", justFname))
+			# Clear any existing settings.
+			app.deleteAllUserSettings(base)
+			newsettings = {}
+			for nm, hnd in self._bookmarks.items():
+				ln = self.MarkerLineFromHandle(hnd)
+				setName = ".".join((base, nm))
+				newsettings[setName] = ln
+			if newsettings:
+				app.setUserSettings(newsettings)
 		
 		
 	def checkChangesAndContinue(self):
