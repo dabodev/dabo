@@ -17,12 +17,11 @@ except ImportError:
 		#dabo.errorLog.write("This class requires SQLite")
 
 # We don't want to deal with these as preferences.
-regularAtts = ("_cache", "_parent", "_key", "_cursor", "_cxn", "_typeDict", 
-		"AutoPersist", "_noneType", "_autoPersist", "__methods__", "__basicsize__", 
-		"__members__", "_getAttributeNames", "__itemsize__", "__base__", "__flags__", 
-		"__subclasses__", "__cmp__", "__bases__", "__dictoffset__", "__call__", 
-		"__name__", "__mro__", "__weakrefoffset__", "mro")
-
+regularAtts = ("AutoPersist", "__base__", "__bases__", "__basicsize__", "__call__", 
+		"__cmp__", "_deletionCache", "__dictoffset__", "__flags__", "__itemsize__", 
+		"__members__", "__methods__", "__mro__", "__name__", "__subclasses__", 
+		"__weakrefoffset__", "_autoPersist", "_cache", "_cursor", "_cxn", 
+		"_getAttributeNames", "_key", "_noneType", "_parent", "_persistAll", "_typeDict", "mro")
 
 
 class dPref(object):
@@ -51,7 +50,12 @@ class dPref(object):
 		else:
 			self._key = key
 		self._cache = {}
+		self._deletionCache = {}
 		self._autoPersist = True
+		# Do we save even without a base key? This should only
+		# be changed by framework tools designed to access the
+		# the preference database.
+		self._persistAll = False
 		super(dPref, self).__init__()
 		self._parent = None
 		self._noneType = type(None)
@@ -69,6 +73,8 @@ class dPref(object):
 		else:
 			self._cursor = crs
 			self._cxn = cxn
+		if self._cursor:
+			self._cursor.AutoCommit = True
 		
 		
 	def __getattr__(self, att):
@@ -187,9 +193,13 @@ class dPref(object):
 		# Make sure that we have a valid key
 		baseKey = self._getKey()
 		if not baseKey:
-			dabo.errorLog.write(_("No base key set; preference will not be persisted."))
-			return
-		key = "%s.%s" % (baseKey, att)
+			if not self._persistAll:
+				dabo.errorLog.write(_("No base key set; preference will not be persisted."))
+				return
+			else:
+				key = att
+		else:
+			key = "%s.%s" % (baseKey, att)
 		crs = self._cursor
 		try:
 			typ = self._typeDict[type(val)]
@@ -211,7 +221,6 @@ class dPref(object):
 			sql = "insert into daboprefs (ckey, ctype, cvalue) values (?, ?, ?)"
 			prm = (key, typ, val)
 		crs.execute(sql, prm)
-		crs.flush()
 	
 	
 	def persist(self):
@@ -222,6 +231,10 @@ class dPref(object):
 				val.persist()
 			else:
 				self._persist(key, val)
+		# Handle the cached deletions
+		for key in self._deletionCache.keys():
+			self._cursor.execute("delete from daboprefs where ckey like ? ", (key, ))
+		self._deletionCache = {}
 	
 	
 	def deletePref(self, att, nested=False):
@@ -229,29 +242,47 @@ class dPref(object):
 		and the cache. If 'nested' is True, and the att is a node containing
 		sub-prefs, that node and all its children will be deleted.
 		"""
-		key = "%s.%s" % (self._getKey(), att)
+		basekey = self._getKey()
+		if basekey:
+			key = "%s.%s" % (basekey, att)
+		else:
+			key = att
 		crs = self._cursor
 		if nested:
 			key += "%"
-			crs.execute("delete from daboprefs where ckey like ? ", (key, ))
+		if self._autoPersist:
+			if nested:
+				crs.execute("delete from daboprefs where ckey like ? ", (key, ))
+			else:
+				crs.execute("delete from daboprefs where ckey = ? ", (key, ))
+			if self._cache.has_key(att):
+				del self._cache[att]
 		else:
-			crs.execute("delete from daboprefs where ckey = ? ", (key, ))
-		if self._cache.has_key(att):
-			del self._cache[att]
-	
+			self._deletionCache[key] = None
+			if self._cache.has_key(att):
+				del self._cache[att]
+			
 	
 	def deleteAllPrefs(self):
 		"""Deletes all preferences for this object, and all sub-prefs as well."""
-		key = "%s.%%" % self._getKey()
-		crs = self._cursor
-		crs.execute("delete from daboprefs where ckey like ? ", (key, ))
-		for key, val in self._cache.items():
-			if isinstance(val, dPref):
-				# In case there are any other references to it hanging around,
-				# clear its cache.
-				val.flushCache()
-		self._cache = {}		
-	
+		basekey = self._getKey()
+		if not basekey:
+			return
+		key = "%s.%%" % basekey
+		if self._autoPersist:
+			crs = self._cursor
+			crs.execute("delete from daboprefs where ckey like ? ", (key, ))
+			for key, val in self._cache.items():
+				if isinstance(val, dPref):
+					# In case there are any other references to it hanging around,
+					# clear its cache.
+					val.flushCache()
+			self._cache = {}		
+		else:
+			# Update the caches
+			self._cache = {}
+			self._deletionCache[key] = None
+			
 	
 	def flushCache(self):
 		"""Clear the cache, forcing fresh reads from the database."""
@@ -332,6 +363,11 @@ class dPref(object):
 		if isinstance(ret, dPref):
 			ret = None
 		return ret
+	
+	
+	def setValue(self, key, val):
+		"""Given a key and value, sets the preference to that value."""
+		self.__setattr__(key, val)
 	
 	
 	def getPrefTree(self, spec=None):
