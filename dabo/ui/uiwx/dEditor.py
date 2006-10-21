@@ -99,6 +99,7 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 		self._defaultsSet = False
 		self._fontFace = None
 		self._fontSize = None
+		self._useBookmarks = False
 				
 		stc.StyledTextCtrl.__init__(self, parent, -1, 
 				style = wx.NO_BORDER)
@@ -137,7 +138,7 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 			self._fontSize = self.GetFont().GetPointSize()
 
 		self._syntaxColoring = True
-		self._styleTimer = StyleTimer()
+		self._styleTimer = StyleTimer(self)
 		self._styleTimer.stop()
 		
 		# Set the marker used for bookmarks
@@ -153,7 +154,7 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 		# This holds the last saved bookmark status
 		self._lastBookmarks = []
 		# Create a timer to regularly flush the bookmarks
-		self._bookmarkTimer = bmt = dTimer.dTimer()
+		self._bookmarkTimer = bmt = dTimer.dTimer(self)
 		bmt.Interval = 20000		# 20 sec.
 		bmt.bindEvent(dEvents.Hit, self._saveBookmarks)
 		bmt.start()		
@@ -1179,6 +1180,8 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 	
 	
 	def _saveBookmarks(self, evt=None):
+		if not self._useBookmarks:
+			self._bookmarkTimer.stop()
 		app = self.Application
 		fname = self._fileName
 		if not fname:
@@ -1709,6 +1712,20 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 			self._properties["UseAntiAliasing"] = val
 
 
+	def _getUseBookmarks(self):
+		return self._useBookmarks
+
+	def _setUseBookmarks(self, val):
+		if self._constructed():
+			self._useBookmarks = val
+			if val:
+				self._bookmarkTimer.start()
+			else:
+				self._bookmarkTimer.stop()
+		else:
+			self._properties["UseBookmarks"] = val
+
+
 	def _getUseStyleTimer(self):
 		return self._useStyleTimer
 
@@ -1841,6 +1858,9 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 	
 	UseAntiAliasing = property(_getUseAntiAliasing, _setUseAntiAliasing, None,
 			_("Controls whether fonts are anti-aliased (default=True)  (bool)"))
+	
+	UseBookmarks = property(_getUseBookmarks, _setUseBookmarks, None,
+			_("Are we tracking bookmarks in the editor? Default=False  (bool)"))
 	
 	UseStyleTimer = property(_getUseStyleTimer, _setUseStyleTimer, None,
 			_("""Syntax coloring can slow down sometimes. Set this to 

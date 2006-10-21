@@ -77,6 +77,8 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dRadioList
+		self._sizerClass = dabo.ui.dBorderSizer
+		self._buttonClass = _dRadioButton
 		preClass = wx.PrePanel
 		style = self._extractKey((properties, kwargs), "style", 0)
 		style = style | wx.TAB_TRAVERSAL
@@ -91,10 +93,15 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		cim.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
+	def getBaseButtonClass(cls):
+		return _dRadioButton
+	getBaseButtonClass = classmethod(getBaseButtonClass)
+	
+	
 	def _checkSizer(self):
 		"""Makes sure the sizer is created before setting props that need it."""
 		if self.Sizer is None:
-			self.Sizer = dabo.ui.dBorderSizer(self, "v")
+			self.Sizer = self.SizerClass(self, orientation="v")
 
 	
 	def _onWxHit(self, evt):
@@ -209,6 +216,16 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
+	def _getButtonClass(self):
+		return self._buttonClass
+
+	def _setButtonClass(self, val):
+		if self._constructed():
+			self._buttonClass = val
+		else:
+			self._properties["ButtonClass"] = val
+
+
 	def _getButtonSpacing(self):
 		return self._buttonSpacing
 		
@@ -262,7 +279,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 						style = wx.RB_GROUP
 				else:
 					self.Sizer.appendSpacer(self._getFudgedButtonSpacing())
-				btn = _dRadioButton(self, Caption=itm, style=style)
+				btn = self.ButtonClass(self, Caption=itm, style=style)
 				btn._index = idx
 				self.Sizer.append(btn)
 				self._items.append(btn)
@@ -312,6 +329,16 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 			self._properties["PositionValue"] = val
 
 
+	def _getSizerClass(self):
+		return self._sizerClass
+
+	def _setSizerClass(self, val):
+		if self._constructed():
+			self._sizerClass = val
+		else:
+			self._properties["SizerClass"] = val
+
+
 	def _getStringValue(self):
 		try:
 			ret = self._items[self._selpos].Caption
@@ -333,6 +360,9 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 	
 	
 	# Property definitions:
+	ButtonClass = property(_getButtonClass, _setButtonClass, None,
+			_("Class to use for the radio buttons. Default=_dRadioButton  (dRadioButton)"))
+	
 	ButtonSpacing = property(_getButtonSpacing, _setButtonSpacing, None,
 			_("Spacing in pixels between buttons in the control  (int)"))
 			
@@ -357,6 +387,9 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 			Integer. Read-write at runtime.
 			Returns the current position, or sets the current position."""))
 
+	SizerClass = property(_getSizerClass, _setSizerClass, None,
+			_("Class to use for the border sizer. Default=dabo.ui.dBorderSizer  (dSizer)"))
+	
 	StringValue = property(_getStringValue, _setStringValue, None,
 			_("""Specifies the text of the selected button.
 			String. Read-write at runtime.		
