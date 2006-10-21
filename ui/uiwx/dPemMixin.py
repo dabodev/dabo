@@ -181,6 +181,14 @@ class dPemMixin(dPemMixinBase):
 			# with fastNameSet on, that never happened. Call it manually:
 			self.autoBindEvents()
 
+		# Create a method that gets called after all the other objects that are being
+		# added have completed. A good use of this is when you want to call code in the
+		# afterInit() of a form, but the controls it needs to work with haven't yet been
+		# created. This method will be called after all the form objects have finished 
+		# instantiating. The framework-level _afterInitAll() will call the user-customizable
+		# hook method afterInitAll().
+		dabo.ui.callAfter(self._afterInitAll)
+		
 		# Finally, at the end of the init cycle, raise the Create event
 		self.raiseEvent(dEvents.Create)
 
@@ -249,7 +257,15 @@ class dPemMixin(dPemMixinBase):
 
 		self.afterInit()
 
-		
+	
+	def _afterInitAll(self):
+		"""This is the framework-level hook. It calls the developer-specific method."""
+		if not self:
+			return
+		self.afterInitAll()
+	def afterInitAll(self): pass
+	
+	
 	def _preInitUI(self, kwargs):
 		"""Subclass hook, for internal Dabo use. 
 
