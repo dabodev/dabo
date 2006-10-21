@@ -347,7 +347,12 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 	
 	
 	def appendNode(self, node, txt):
-		itemID = self.AppendItem(node.itemID, txt)
+		if node is None:
+			# Get the root node
+			ndid = self.GetRootItem()
+		else:
+			ndid = node.itemID
+		itemID = self.AppendItem(ndid, txt)
 		ret = dNode(self, itemID, node)
 		self.nodes.append(ret)
 		return ret
@@ -657,17 +662,61 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 		os.path.walk(dirPath, sortNode, None)
 
 
+	def treeFromStructure(self, stru, topNode=None):
+		"""Given a sequence of items with a standard format, 
+		this will construct a tree structure and append it to 
+		the specified 'topNode'. If 'topNode' is None, the tree 
+		will be cleared, and a new structure containing only the 
+		passed info will be created. The info should be passed 
+		as a sequence of either lists or tuples, with the first 
+		element being the text to be displayed, and, if there are
+		to be child nodes, the second being the child node
+		information. If there are no children for that node, either
+		do not include the second element, or set it to None. 
+		If there are child nodes, the child information will be 
+		recursively parsed.
+		"""
+		if topNode is None:
+			self.DeleteAllItems()
+		if isinstance(stru[0], basestring):
+			# We're at the end of the recursion. Just append the node
+			self.appendNode(topNode, stru[0])
+		else:
+			for nodes in stru:
+				txt = nodes[0]
+				nd = self.appendNode(topNode, txt)
+				try:
+					kids = nodes[1]
+				except IndexError:
+					kids = None
+				if kids:
+					self.treeFromStructure(kids, nd)
+		
+		
 	def addDummyData(self):
 		""" For testing purposes! """
-		self.DeleteAllItems()
-		r = self.setRootNode("This is the root")
-		c1 = r.appendChild("First Child")
-		c2 = r.appendChild("Second Child")
-		c3 = r.appendChild("Third Child")
-		c21 = c2.appendChild("Grandkid #1")
-		c22 = c2.appendChild("Grandkid #2")
-		c23 = c2.appendChild("Grandkid #3")
-		c221 = c22.appendChild("Great-Grandkid #1")
+		root = ["This is the root"]
+		kid1 = ["First Child"]
+		kid2 = ["Second Child"]
+		kid3 = ["Third Child"]
+		gk1 = ["Grandkid #1"]
+		gk2 = ["Grandkid #2"]
+		gk3 = ["Grandkid #3"]
+		ggk1 = ["Great-Grandkid #1"]
+		root.append([kid1, kid2, kid3])
+		kid2.append([gk1, gk2, gk3])
+		gk2.append(ggk1)
+		self.treeFromStructure([root])
+		### NOTE: This will also work		
+		# 		self.DeleteAllItems()
+		# 		r = self.setRootNode("This is the root")
+		# 		c1 = r.appendChild("First Child")
+		# 		c2 = r.appendChild("Second Child")
+		# 		c3 = r.appendChild("Third Child")
+		# 		c21 = c2.appendChild("Grandkid #1")
+		# 		c22 = c2.appendChild("Grandkid #2")
+		# 		c23 = c2.appendChild("Grandkid #3")
+		# 		c221 = c22.appendChild("Great-Grandkid #1")
 		
 
 	# Event-handling code
@@ -861,9 +910,9 @@ class _dTreeView_test(dTreeView):
 		
 	def onTreeEndDrag(self, evt):
 		print "Ending drag for %s" % evt.selectedCaption
-		
-	
-			
+
+
+
 if __name__ == "__main__":
 	import test
 	
