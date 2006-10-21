@@ -231,15 +231,26 @@ class DesignerXmlConverter(dObject):
 			isSplitter = False
 			if isSizer:
 				isGridSizer = clsname == "LayoutGridSizer"
+				if isGridSizer:
+					propString = ""
+					propsToSend = []
+					for att, val in atts.items():
+						if att in ("HGap", "MaxRows", "MaxCols", "VGap"):
+							propsToSend.append("%s=%s" % (att, val))
+						elif att == "MaxDimension":
+							propsToSend.append("%s='%s'" % (att, val))
+					if propsToSend:
+						propString = ", ".join(propsToSend)
 				isBorderSizer = clsname == "LayoutBorderSizer"
 				ornt = ""
 				if not isGridSizer:
-					ornt = "Orientation='%s'" % self._extractKey(atts, "Orientation", "H")
+					propString = "Orientation='%s'" % self._extractKey(atts, "Orientation", "H")
 				prnt = ""
 				if isBorderSizer:
 					prnt = "currParent, "
-					ornt = "%s, Caption=\"%s\"" % (ornt, self._extractKey(atts, "Caption", ""))
-				self.classText += LINESEP + self._szText % (nm, prnt, ornt, rowColString, szInfo)
+					propString = "%s, Caption=\"%s\"" % (self._extractKey(atts, "Orientation", "H"), 
+							self._extractKey(atts, "Caption", ""))
+				self.classText += LINESEP + self._szText % (nm, prnt, propString, rowColString, szInfo)
 			
 			elif clsname == "LayoutSpacerPanel":
 				# Insert a spacer

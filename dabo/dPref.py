@@ -17,10 +17,11 @@ except ImportError:
 		#dabo.errorLog.write("This class requires SQLite")
 
 # We don't want to deal with these as preferences.
-regularAtts = ("_cache", "_parent", "_key", "_cursor", "_cxn", "_typeDict", "AutoPersist",
-		"_autoPersist", "__methods__", "__basicsize__", "__members__", "_getAttributeNames", 
-		"__itemsize__", "__base__", "__flags__", "__subclasses__", "__cmp__", "__bases__", 
-		"__dictoffset__", "__call__", "__name__", "__mro__", "__weakrefoffset__", "mro")
+regularAtts = ("_cache", "_parent", "_key", "_cursor", "_cxn", "_typeDict", 
+		"AutoPersist", "_noneType", "_autoPersist", "__methods__", "__basicsize__", 
+		"__members__", "_getAttributeNames", "__itemsize__", "__base__", "__flags__", 
+		"__subclasses__", "__cmp__", "__bases__", "__dictoffset__", "__call__", 
+		"__name__", "__mro__", "__weakrefoffset__", "mro")
 
 
 
@@ -53,9 +54,10 @@ class dPref(object):
 		self._autoPersist = True
 		super(dPref, self).__init__()
 		self._parent = None
+		self._noneType = type(None)
 		self._typeDict = {int: "int", float: "float", long: "long", str: "str", unicode: "unicode",
 				bool: "bool", list: "list", tuple: "tuple", datetime.date: "date", 
-				datetime.datetime: "datetime"}
+				datetime.datetime: "datetime", self._noneType: "none"}
 		if crs is None:
 			prefdir = utils.getUserDaboDirectory()
 			self._cxn = dabo.db.dConnection(connectInfo={"dbType": "SQLite",
@@ -81,10 +83,14 @@ class dPref(object):
 			ret = self._cache[att]
 		else:
 			# See if it's in the database
-			key = "%s.%s" % (self._getKey(), att)
+			key = self._getKey()
+			if key:
+				param = "%s.%s" % (key, att)
+			else:
+				param = att
 			crs = self._cursor
 			try:
-				crs.execute("select ctype, cvalue from daboprefs where ckey = ? ", (key, ))
+				crs.execute("select ctype, cvalue from daboprefs where ckey = ? ", (param, ))
 				rec = crs.getCurrentRecord()
 			except StandardError, e:
 				print "QUERY ERR", e
@@ -152,6 +158,7 @@ class dPref(object):
 		"""
 		val = rec["cvalue"]
 		typ = rec["ctype"]
+		ret = None
 		if typ in ("str", "unicode"):
 			ret = val
 		elif typ == "int":
@@ -168,6 +175,10 @@ class dPref(object):
 			ret = eval("datetime.date%s" % val)
 		elif typ == "datetime":
 			ret = eval("datetime.datetime%s" % val)
+		elif typ == "none":
+			ret = None
+		if ret is None:
+			print "NONE", rec
 		return ret
 
 		
@@ -213,11 +224,18 @@ class dPref(object):
 				self._persist(key, val)
 	
 	
-	def deletePref(self, att):
-		"""Deletes a particular preference from both the database and the cache."""
+	def deletePref(self, att, nested=False):
+		"""Deletes a particular preference from both the database 
+		and the cache. If 'nested' is True, and the att is a node containing
+		sub-prefs, that node and all its children will be deleted.
+		"""
 		key = "%s.%s" % (self._getKey(), att)
 		crs = self._cursor
-		crs.execute("delete from daboprefs where ckey = ? ", (key, ))
+		if nested:
+			key += "%"
+			crs.execute("delete from daboprefs where ckey like ? ", (key, ))
+		else:
+			crs.execute("delete from daboprefs where ckey = ? ", (key, ))
 		if self._cache.has_key(att):
 			del self._cache[att]
 	
@@ -244,12 +262,13 @@ class dPref(object):
 				del self._cache[key]
 	
 	
-	def getPrefs(self, returnNested=False):
+	def getPrefs(self, returnNested=False, key=None):
 		"""Returns all the preferences set for this object. If returnNested is True,
 		returns any sub-preferences too.
 		"""
 		crs = self._cursor
-		key = self._getKey()
+		if key is None:
+			key = self._getKey()
 		sql = "select * from daboprefs where ckey like ?"
 		crs.execute(sql, ("%s.%%" % key, ))
 		ds = crs.getDataSet()
@@ -264,10 +283,12 @@ class dPref(object):
 		return ret
 	
 	
-	def getPrefKeys(self):
+	def getPrefKeys(self, spec=None):
 		"""Return a list of all preference keys for this key."""
 		crs = self._cursor
 		key = self._getKey()
+		if spec is not None:
+			key = ".".join((key, spec))
 		keylen = len(key) + 1
 		keydots = len(key.split("."))
 		sql = "select ckey from daboprefs where ckey like ?"
@@ -277,15 +298,17 @@ class dPref(object):
 				if len(rec["ckey"].split(".")) == keydots+1]
 		# Now add any cached entries
 		addl = [kk for kk in self._cache.keys()
-			if kk not in ret and not isinstance(kk, dPref)]
+			if kk not in ret and kk.startswith(key) and not isinstance(kk, dPref)]
 		ret += addl
 		return ret
 
 
-	def getSubPrefKeys(self):
+	def getSubPrefKeys(self, spec=None):
 		"""Return a list of all 'child' keys for this key."""
 		crs = self._cursor
 		key = self._getKey()
+		if spec is not None:
+			key = ".".join((key, spec))
 		keylen = len(key) + 1
 		keydots = len(key.split("."))
 		sql = "select ckey from daboprefs where ckey like ?"
@@ -298,7 +321,61 @@ class dPref(object):
 			tmp[itm] = None
 		ret = tmp.keys()
 		return ret
+	
+	
+	def getValue(self, key):
+		"""Given a key, returns the corresponding value, or a 
+		dPref object if it exists as a sub key. If there is no match
+		for 'key', None is returned.
+		"""
+		ret = self.__getattr__(key)
+		if isinstance(ret, dPref):
+			ret = None
+		return ret
+	
+	
+	def getPrefTree(self, spec=None):
+		"""Returns a tree-like series of nested preference keys."""
+		crs = self._cursor
+		key = self._getKey()
+		if spec is not None:
+			key = ".".join((key, spec))
+		keylen = len(key) + 1
+		keydots = len(key.split("."))
+		sql = "select ckey from daboprefs where ckey like ? order by ckey"
+		if key:
+			param = "%s.%%" % key
+		else:
+			param = "%"
+		crs.execute(sql, param)
+		rs = crs.getDataSet()
+		vs = [itm.values()[0] for itm in rs]
 
+		def uniqKeys(dct, val):
+			dct[val] = None
+		
+		def mkTree(vals):
+			ret = []
+			# Get all the first-tier keys
+			# get all the first level values
+			lev0 = [val.split(".", 1)  for val in vals]
+			lev0keys = [itm[0] for itm in lev0]
+			keys = {}
+			[uniqKeys(keys, itm[0]) for itm in lev0]
+			for key in keys:
+				keylist = [key]
+				try:
+					kids = [itm[1] for itm in lev0
+							if itm[0] == key]
+				except IndexError:
+					kids = None
+				if kids:
+					keylist.append(mkTree(kids))
+				ret.append(keylist)
+			return ret
+		
+		return mkTree(vs)
+		
 	
 	# Property definitions start here
 	def _getAutoPersist(self):
@@ -315,6 +392,8 @@ class dPref(object):
 	AutoPersist = property(_getAutoPersist, _setAutoPersist, None,
 			_("Do property assignments automatically save themselves? Default=True  (bool)"))
 	
+
+
 			
 		
 
@@ -324,6 +403,13 @@ if __name__ == "__main__":
 	a.anotherValue = "Another First"
 	a.b.testValue = "Second Level"
 	a.b.anotherValue = "Another Second"
+	a.b.c.CrazyMan = "Ed"
+
+
+	a.deletePref("b.c")
+	print a.getPrefs(True)
+	a.deletePref("b.c", True)
+	print a.getPrefs(True)
 	
 	print "Just 'a' prefs:"
 	print a.getPrefs()

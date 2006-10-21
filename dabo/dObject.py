@@ -309,13 +309,13 @@ class dObject(autosuper, DoDefaultMixin, PropertyHelperMixin,
 	
 	LogEvents = property(_getLogEvents, _setLogEvents, None, 
 			_("""Specifies which events to log.  (list of strings)
-
-		If the first element is 'All', all events except the following listed events 
-		will be logged. 
-		Event logging is resource-intensive, so in addition to setting this LogEvents
-		property, you also need to make the following call:
-		>>> dabo.eventLogging = True
-		"""))
+			
+			If the first element is 'All', all events except the following listed events 
+			will be logged. 
+			Event logging is resource-intensive, so in addition to setting this LogEvents
+			property, you also need to make the following call:
+			>>> dabo.eventLogging = True
+			"""))
 					
 	Name = property(_getName, _setName, None, 
 			_("The name of the object.  (str)"))
