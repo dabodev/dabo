@@ -208,19 +208,16 @@ class dPref(object):
 			typ = "?"
 		# Convert it to a string that can be properly converted back
 		val = self._encodeType(val, typ)
-		try:
-			crs.execute("select ckey from daboprefs where ckey = ? ", (key, ))
-			res = crs.RowCount
-		except StandardError, e:
-			print "UPD ERR", e
-			res = -1
-		if res > 0:
-			sql = "update daboprefs set ctype = ?, cvalue = ? where ckey = ? "
-			prm = (typ, val, key)
-		else:
+
+		sql = "update daboprefs set ctype = ?, cvalue = ? where ckey = ? "
+		prm = (typ, val, key)
+		crs.execute(sql, prm)
+		# Use the dbapi-level 'rowcount' attribute to get the number
+		# of affected rows.
+		if not crs.rowcount:
 			sql = "insert into daboprefs (ckey, ctype, cvalue) values (?, ?, ?)"
 			prm = (key, typ, val)
-		crs.execute(sql, prm)
+			crs.execute(sql, prm)
 	
 	
 	def persist(self):

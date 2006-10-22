@@ -44,6 +44,7 @@ import warnings
 import glob
 import tempfile
 import ConfigParser
+import inspect
 import dabo, dabo.ui, dabo.db
 from dabo.lib.connParser import importConnections
 import dSecurityManager
@@ -619,7 +620,15 @@ class dApp(dObject):
 		if not ret:
 			try:
 				ret = self.MainForm.BasePrefKey
-			except: pass			
+			except: pass
+		if not ret:
+			st = inspect.stack()[-1][0]
+			f = st.f_locals["__file__"]
+			pth = os.path.abspath(f)
+			if pth.endswith(".py"):
+				pth = pth[:-3]
+			pthList = pth.strip(os.sep).split(os.sep)
+			ret = ".".join(pthList)
 		return ret
 
 	def _setBasePrefKey(self, val):
