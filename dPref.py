@@ -363,6 +363,14 @@ class dPref(object):
 		if isinstance(ret, dPref):
 			ret = None
 		return ret
+
+
+	def addKey(self, key, typ, val):
+		"""Adds a new key to the base key."""
+		newTyp = self._typeDict[typ]
+		sql = "insert into daboprefs (ckey, ctype, cvalue) values (?, ?, ?)"
+		prm = (key, newTyp, val)
+		self._cursor.execute(sql, prm)
 	
 	
 	def setValue(self, key, val):
