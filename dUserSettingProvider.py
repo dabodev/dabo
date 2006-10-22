@@ -41,7 +41,7 @@ class dUserSettingProvider(dPref):
 		while len(parsedItem) > 1:
 			prf = prf.__getattr__(parsedItem.pop(0))
 		key = parsedItem[0]
-		prf.__setattr__(key, val)
+		prf.setValue(key, val)
 	
 	
 	def setUserSettings(self, dct):
