@@ -1895,6 +1895,36 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return v
 		
 			
+	def _getRecord(self):
+		try:
+			ret = self._cursorRecord
+		except AttributeError:
+			class CursorRecord(object):
+				def __init__(self):
+					self.cursor = None
+					super(CursorRecord, self).__init__()
+				
+				def __getattr__(self, att):
+					err = False
+					try:
+						ret = self.cursor.getFieldVal(att)
+					except (dException.dException, dException.NoRecordsException):
+						err = True
+					if err:
+						raise AttributeError, _(" '%s' object has no attribute '%s' ") % (self.cursor.DataSource, att)
+					return ret
+			
+				def __setattr__(self, att, val):
+					if att in ("cursor", ):
+						super(CursorRecord, self).__setattr__(att, val)
+					else:
+						self.cursor.setFieldVal(att, val)
+			
+			ret = self._cursorRecord = CursorRecord()
+			self._cursorRecord.cursor = self
+		return ret
+
+
 	def _getRowNumber(self):
 		try:
 			return self.__rownumber
@@ -1988,6 +2018,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	KeyField = property(_getKeyField, _setKeyField, None,
 			_("Name of field that is the PK. If multiple fields make up the key, "
 			"separate the fields with commas. (str)"))
+	
+	Record = property(_getRecord, None, None,
+			_("""Represents a record in the data set. You can address individual
+			columns by referring to 'self.Record.fieldName' (read-only) (no type)"""))
 	
 	RowNumber = property(_getRowNumber, _setRowNumber, None,
 			_("Current row in the recordset."))
