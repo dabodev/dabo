@@ -105,43 +105,6 @@ class dBizobj(dObject):
 		self.beforeInit()
 
 
-	def __getattr__(self, att):
-		"""
-		Allows for directly accessing the field values of the cursor without having
-		to use self.getFieldVal(fld). If there is a field whose name is the same as
-		a built-in attribute of this object, the built-in value will always be returned.
-		If there is no object attribute named 'att', and no field in the cursor by that
-		name, an AttributeError is raised.
-		"""
-		err = False
-		if len(self.__cursors) > 0:
-			if self.useFieldProps:
-				try:
-					ret = self.getFieldVal(att)
-				except (dException.dException, dException.NoRecordsException):
-					err = True
-		else:
-			err = True
-		if err:
-			raise AttributeError, _(" '%s' object has no attribute '%s' ") % (self.__class__.__name__, att)
-		return ret
-
-
-	def __setattr__(self, att, val):
-		"""
-		Allows for directly setting field values as if they were attributes of the
-		bizobj, rather than calling setFieldVal() for each field. If there is a field in
-		the cursor with the same name as a built-in attribute of this object, the
-		cursor field will be affected, not the built-in attribute.
-		"""
-		isFld = False
-		if att not in ('_dBizobj__att_try_setFieldVal',) \
-				and self.__att_try_setFieldVal and self.__cursors:
-			isFld = self.setFieldVal(att, val)
-		if not isFld:
-			super(dBizobj, self).__setattr__(att, val)
-
-
 	def getTempCursor(self):
 		"""Occasionally it is useful to be able to run ad-hoc queries against
 		the database. For these queries, where the results are not meant to
@@ -1530,6 +1493,10 @@ class dBizobj(dObject):
 		self._parentLinkField = str(val)
 
 
+	def _getRecord(self):
+		return self._CurrentCursor.Record
+
+
 	def _getRequeryChildOnSave(self):
 		try:
 			return self._requeryChildOnSave
@@ -1716,6 +1683,10 @@ class dBizobj(dObject):
 			_("""Name of the field in the parent table that is used to determine child
 			records. If empty, it is assumed that the parent's PK is used  (str)"""))
 
+	Record = property(_getRecord, None, None,
+			_("""Represents a record in the data set. You can address individual
+			columns by referring to 'self.Record.fieldName' (read-only) (no type)"""))
+	
 	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
 			_("Do we requery child bizobjs after a Save()? (bool)"))
 
