@@ -22,7 +22,8 @@ class _dRadioButton(wx.RadioButton, dcm.dDataControlMixin):
 		
 
 	def _initEvents(self):
-		self.Bind(wx.EVT_RADIOBUTTON, self.Parent._onWxHit)
+		if isinstance(self.Parent, dRadioList):
+			self.Bind(wx.EVT_RADIOBUTTON, self.Parent._onWxHit)
 		if False:
 			## Failed attempt to get arrow-key navigation of the buttons working on 
 			## Gtk. The PositionValue changes but as soon as the Hit happens, the 
@@ -220,10 +221,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		return self._buttonClass
 
 	def _setButtonClass(self, val):
-		if self._constructed():
-			self._buttonClass = val
-		else:
-			self._properties["ButtonClass"] = val
+		self._buttonClass = val
 
 
 	def _getButtonSpacing(self):
@@ -234,10 +232,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 
 		for itm in self.Sizer.ChildSpacers:
 			self.Sizer.setItemProp(itm, "Spacing", self._getFudgedButtonSpacing())
-		try:
-			self.Parent.layout()
-		except:
-			self.layout()
+		self.layout()
 			
 			
 	def _getCaption(self):
@@ -297,10 +292,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 			else:
 				self.PositionValue = 0
 
-			try:
-				self.Parent.layout()
-			except:
-				self.layout()
+			self.layout()
 		else:
 			self._choices = self._properties["Choices"] = choices
 	
@@ -333,10 +325,7 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 		return self._sizerClass
 
 	def _setSizerClass(self, val):
-		if self._constructed():
-			self._sizerClass = val
-		else:
-			self._properties["SizerClass"] = val
+		self._sizerClass = val
 
 
 	def _getStringValue(self):
