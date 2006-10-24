@@ -12,8 +12,6 @@ class dBizobj(dObject):
 	""" The middle tier, where the business logic resides."""
 	# Class to instantiate for the cursor object
 	dCursorMixinClass = dCursorMixin
-	# Need to set this here
-	useFieldProps = False
 	# Tell dObject that we'll call before and afterInit manually:
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, False
 
@@ -65,7 +63,6 @@ class dBizobj(dObject):
 		# Next two are used by the scan() method.
 		self.__scanRestorePosition = True
 		self.__scanReverse = False
-		self.useFieldProps = True		# Do we look to getFieldVal for values?
 		# Used by the LinkField property
 		self._linkField = ""
 		self._parentLinkField = ""
