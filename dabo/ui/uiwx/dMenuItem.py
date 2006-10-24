@@ -95,7 +95,8 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 			# will look really funky, but Linux can't have this line or
 			# the underlined hotkeys will get messed up. I don't know about
 			# Mac so I'll leave that alone for now:
-			if self.Application.Platform in ("Win",):
+			if wx.PlatformInfo[0] == "__WXMSW__":
+#			if self.Application.Platform in ("Win",):
 				self.Caption = self.Caption
 		else:
 			self._properties["Icon"] = val
