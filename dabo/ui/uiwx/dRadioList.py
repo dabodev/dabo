@@ -24,6 +24,22 @@ class _dRadioButton(wx.RadioButton, dcm.dDataControlMixin):
 	def _initEvents(self):
 		if isinstance(self.Parent, dRadioList):
 			self.Bind(wx.EVT_RADIOBUTTON, self.Parent._onWxHit)
+			# For some reason, these isn't happening via dPemMixin.
+			self.Bind(wx.EVT_LEFT_DOWN, self.__onWxMouseLeftDown)
+			self.Bind(wx.EVT_LEFT_UP, self.__onWxMouseLeftUp)
+			self.Bind(wx.EVT_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
+			self.Bind(wx.EVT_RIGHT_DOWN, self.__onWxMouseRightDown)
+			self.Bind(wx.EVT_RIGHT_UP, self.__onWxMouseRightUp)
+			self.Bind(wx.EVT_RIGHT_DCLICK, self.__onWxMouseRightDoubleClick)
+			self.Bind(wx.EVT_MIDDLE_DOWN, self.__onWxMouseMiddleDown)
+			self.Bind(wx.EVT_MIDDLE_UP, self.__onWxMouseMiddleUp)
+			self.Bind(wx.EVT_MIDDLE_DCLICK, self.__onWxMouseMiddleDoubleClick)
+			self.Bind(wx.EVT_ENTER_WINDOW, self.__onWxMouseEnter)
+			self.Bind(wx.EVT_LEAVE_WINDOW, self.__onWxMouseLeave)
+			self.Bind(wx.EVT_MOTION, self.__onWxMouseMove)
+			self.Bind(wx.EVT_MOUSEWHEEL, self.__onWxMouseWheel)
+			self.Bind(wx.EVT_CONTEXT_MENU, self.__onWxContextMenu)
+		
 		if False:
 			## Failed attempt to get arrow-key navigation of the buttons working on 
 			## Gtk. The PositionValue changes but as soon as the Hit happens, the 
@@ -33,6 +49,38 @@ class _dRadioButton(wx.RadioButton, dcm.dDataControlMixin):
 			self.bindKey("left", self._onArrow, arrowKey="left")
 			self.bindKey("right", self._onArrow, arrowKey="right")
 
+
+	def __onWxMouseLeftDown(self, evt):
+		self.raiseEvent(dEvents.MouseLeftDown, evt)
+	def __onWxMouseLeftUp(self, evt):
+		self.raiseEvent(dEvents.MouseLeftUp, evt)
+	def __onWxMouseLeftDoubleClick(self, evt):
+		self.raiseEvent(dEvents.MouseLeftDoubleClick, evt)
+	def __onWxMouseRightDown(self, evt):
+		self.raiseEvent(dEvents.MouseRightDown, evt)
+	def __onWxMouseRightUp(self, evt):
+		self.raiseEvent(dEvents.MouseRightUp, evt)
+	def __onWxMouseRightDoubleClick(self, evt):
+		self.raiseEvent(dEvents.MouseRightDoubleClick, evt)
+	def __onWxMouseMiddleDown(self, evt):
+		self.raiseEvent(dEvents.MouseMiddleDown, evt)
+	def __onWxMouseMiddleUp(self, evt):
+		self.raiseEvent(dEvents.MouseMiddleUp, evt)
+	def __onWxMouseMiddleDoubleClick(self, evt):
+		self.raiseEvent(dEvents.MouseMiddleDoubleClick, evt)
+	def __onWxMouseEnter(self, evt):
+		self.raiseEvent(dEvents.MouseEnter, evt)
+	def __onWxMouseLeave(self, evt):
+		self.raiseEvent(dEvents.MouseLeave, evt)
+	def __onWxMouseMove(self, evt):
+		self.raiseEvent(dEvents.MouseMove, evt)
+	def __onWxMouseWheel(self, evt):
+		self.raiseEvent(dEvents.MouseWheel, evt)
+	def __onWxContextMenu(self, evt):
+		self.raiseEvent(dEvents.ContextMenu, evt)
+	def __onWxMouseMove(self, evt):
+		self.raiseEvent(dEvents.MouseMove, evt)
+		
 
 	def _onArrow(self, evt):
 		## Failed attempt to get arrow-key navigation of the buttons working on Gtk.
