@@ -29,8 +29,13 @@ class dMenu(wx.Menu, pm.dPemMixin):
 		##      maps the id of the wxMenuItem to the dMenuItem object.
 		self._daboChildren = {}
 		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-		self.Application.uiApp.Bind(wx.EVT_MENU_OPEN, self.__onWxMenuOpen)
-		self.Application.uiApp.Bind(wx.EVT_MENU_CLOSE, self.__onWxMenuClose)
+
+		# Could be that we are used without a Dabo app object (not recommended,
+		# but should be possible). So use the wx-method for getting the uiApp ref,
+		# instead of the Dabo way of self.Application.uiApp
+		uiApp = wx.GetApp()
+		uiApp.Bind(wx.EVT_MENU_OPEN, self.__onWxMenuOpen)
+		uiApp.Bind(wx.EVT_MENU_CLOSE, self.__onWxMenuClose)
 		if self._useMRU:
 			self.bindEvent(dEvents.MenuOpen, self._onMenuOpenMRU)
 
@@ -60,7 +65,8 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 
 	def _onMenuOpenMRU(self, evt):
-		self.Application.onMenuOpenMRU(self)
+		if self.Application:
+			self.Application.onMenuOpenMRU(self)
 	
 	
 	def _initEvents(self):
@@ -297,15 +303,16 @@ class dMenu(wx.Menu, pm.dPemMixin):
 	def _getItemType(self, typ):
 		typ = str(typ).lower()[:3]
 		ret = NormalItemType
-		# This is to work around a bug in Gtk 
-		if self.Application.Platform != "GTK":
-			if typ in ("che", "chk"):
-				ret = CheckItemType
-			elif typ == "rad":
-				# Currently only implemented under Windows and GTK, 
-				# use #if wxHAS_RADIO_MENU_ITEMS to test for 
-				# availability of this feature.
-				ret = RadioItemType
+		if self.Application:
+			# This is to work around a bug in Gtk 
+			if self.Application.Platform != "GTK":
+				if typ in ("che", "chk"):
+					ret = CheckItemType
+				elif typ == "rad":
+					# Currently only implemented under Windows and GTK, 
+					# use #if wxHAS_RADIO_MENU_ITEMS to test for 
+					# availability of this feature.
+					ret = RadioItemType
 		return ret
 
 
