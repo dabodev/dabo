@@ -281,9 +281,9 @@ class dPemMixin(dPemMixinBase):
 		Some properties of wx objects are only settable by sending to the 
 		constructor. This tells Dabo which properties to specially handle.
 		"""
-		return ("Alignment", "BorderStyle", "MultipleSelect", "Orientation", 
-				"PasswordEntry", "ShowLabels", "TabPosition")
-
+		return ("Alignment", "BorderStyle", "ButtonClass", "MultipleSelect", 
+				"Orientation", "PasswordEntry", "ShowLabels", "SizerClass", "TabPosition")
+		
 
 	def _setInitProperties(self, **_properties):
 		# Called before the wx object is fully instantiated. Allows for sending
