@@ -6,12 +6,17 @@ from dCursorMixin import dCursorMixin
 
 class dConnection(dObject):
 	""" Hold a connection to a backend database. """
-	def __init__(self, connectInfo, parent=None):
+	def __init__(self, connectInfo=None, parent=None, **kwargs):
 		self._baseClass = dConnection
 		super(dConnection, self).__init__()
 		# Store a reference to the parent object (bizobj maybe; app 
 		# object connection collection most likely)
 		self.Parent = parent
+
+		if connectInfo is None:
+			# Fill it in from any kwargs (will get converted to a dConnectInfo 
+			# object in the block below).
+			connectInfo = kwargs
 
 		if isinstance(connectInfo, dConnectInfo):
 			self._connectInfo = connectInfo
