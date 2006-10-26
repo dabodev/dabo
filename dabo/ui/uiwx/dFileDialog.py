@@ -72,7 +72,7 @@ class OsDialogMixin(object):
 
 
 
-class dFileDialog(wx.FileDialog, OsDialogMixin):
+class dFileDialog(OsDialogMixin, wx.FileDialog):
 	"""Creates a file dialog, which asks the user to choose a file."""
 	_exposeFiles = True
 	
@@ -89,7 +89,7 @@ class dFileDialog(wx.FileDialog, OsDialogMixin):
 				wildcard=wildcard, style=style)
 
 	
-class dFolderDialog(wx.DirDialog, OsDialogMixin):
+class dFolderDialog(OsDialogMixin, wx.DirDialog):
 	"""Creates a folder dialog, which asks the user to choose a folder."""
 	_exposeFiles = False
 	

@@ -97,7 +97,7 @@ class SplashScreen(wx.Frame):
 
 
 
-class uiApp(wx.App, dObject):
+class uiApp(dObject, wx.App):
 	def __init__(self, app, callback=None, *args):
 		self.dApp = app
 		self.callback = callback

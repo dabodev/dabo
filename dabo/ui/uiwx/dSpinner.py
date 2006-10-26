@@ -9,7 +9,7 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
+class dSpinner(dcm.dDataControlMixin, wx.SpinCtrl):
 	"""Creates a spinner, which is a textbox with clickable up/down arrows.
 
 	Use this to edit integer values. You can set the maximum and minimum

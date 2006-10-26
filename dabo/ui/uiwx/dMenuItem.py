@@ -8,7 +8,7 @@ import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 
 
-class dMenuItem(wx.MenuItem, pm.dPemMixin):
+class dMenuItem(pm.dPemMixin, wx.MenuItem):
 	"""Creates a menu item, which is usually represented as a string."""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dMenuItem

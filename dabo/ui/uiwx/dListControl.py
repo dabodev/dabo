@@ -9,8 +9,8 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dListControl(wx.ListCtrl, dcm.dControlItemMixin, 
-		ListMixin.ListCtrlAutoWidthMixin):
+class dListControl(dcm.dControlItemMixin, 
+		ListMixin.ListCtrlAutoWidthMixin, wx.ListCtrl):
 	"""Creates a list control, which is a flexible, virtual list box.
 
 	The List Control is ideal for visually dealing with data sets where each 

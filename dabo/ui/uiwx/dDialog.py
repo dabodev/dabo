@@ -9,7 +9,7 @@ import dFormMixin as fm
 from dabo.ui import makeDynamicProperty
 
 
-class dDialog(wx.Dialog, fm.dFormMixin):
+class dDialog(fm.dFormMixin, wx.Dialog):
 	"""Creates a dialog, which is a lightweight form.
 
 	Dialogs are like forms, but typically are modal and are requesting a very
@@ -274,14 +274,14 @@ class dOkCancelDialog(dDialog):
 		self._accepted = val
 	
 
-	def _getLastPostionInSizer(self):
+	def _getLastPositionInSizer(self):
 		return self.btnSizer.getPositionInSizer()
 
 
 	Accepted = property(_getAccepted, _setAccepted, None,
 			_("Specifies whether the user accepted the dialog, or canceled."))
 	
-	LastPostionInSizer = property(_getLastPostionInSizer, None, None,
+	LastPositionInSizer = property(_getLastPositionInSizer, None, None,
 			_("""If you want to add controls after the dialog has been created,
 			use this as the argument to the sizer.insert() call. It returns 
 			the position in the sizer before the OK/Cancel buttons and the 

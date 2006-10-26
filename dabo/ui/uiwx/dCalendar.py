@@ -11,7 +11,7 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class BaseCalendar(wxcal.CalendarCtrl, dcm.dControlMixin):
+class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 	"""This is the base wrapper of the wx calendar control. Do not
 	use this directly; instead, use either the 'dCalendar' or the 
 	'dExtendedCalendar' subclasses.

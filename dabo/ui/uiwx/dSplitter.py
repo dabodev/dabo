@@ -97,7 +97,7 @@ class SplitterPanelMixin:
 		
 
 		
-class dSplitter(wx.SplitterWindow, cm.dControlMixin):
+class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 	""" Main class for handling split windows. It will contain two
 	panels (subclass of SplitterPanelMixin), each of which can further 
 	split itself in two.
