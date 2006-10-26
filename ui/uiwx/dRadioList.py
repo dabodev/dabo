@@ -497,9 +497,8 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 	Orientation = property(_getOrientation, _setOrientation, None,
 			_("""Specifies whether this is a vertical or horizontal RadioList.		
 			String. Possible values:
-				'None'
-				'Row'
-				'Column'"""))
+				'Vertical' (the default)
+				'Horizontal'"""))
 				
 	PositionValue = property(_getPositionValue, _setPositionValue, None,
 			_("""Specifies the position (index) of the selected button.
