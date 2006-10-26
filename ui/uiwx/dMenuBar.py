@@ -6,7 +6,7 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
 
-class dMenuBar(pm.dPemMixin, wx.MenuBar):
+class dMenuBar(wx.MenuBar, pm.dPemMixin):
 	"""Creates a menu bar, which can contain dMenus.
 
 	You probably don't want to use this directly. Instead, see dBaseMenuBar

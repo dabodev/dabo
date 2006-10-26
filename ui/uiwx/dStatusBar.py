@@ -8,7 +8,7 @@ from dabo.dLocalize import _, n_
 import dControlMixin as dcm
 
 
-class dStatusBar(dcm.dControlMixin, wx.StatusBar):
+class dStatusBar(wx.StatusBar, dcm.dControlMixin):
 	"""Creates a status bar, which displays information to the user.
 
 	The status bar is displayed at the bottom of the form. Add the status bar

@@ -13,7 +13,7 @@ CheckItemType =  wx.ITEM_CHECK
 RadioItemType = wx.ITEM_RADIO
 
 
-class dMenu(pm.dPemMixin, wx.Menu):
+class dMenu(wx.Menu, pm.dPemMixin):
 	"""Creates a menu, which can contain submenus, menu items, 
 	and separators.
 	"""

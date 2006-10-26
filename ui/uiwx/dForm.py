@@ -743,18 +743,18 @@ Database error message: %s""") %	err
 
 
 
-class dForm(BaseForm, wx.Frame):
+class dForm(wx.Frame, BaseForm):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dForm
 
 		if dabo.settings.MDI and isinstance(parent, wx.MDIParentFrame):
 			# Hack this into an MDI Child:
-			dForm.__bases__ = (BaseForm, wx.MDIChildFrame)
+			dForm.__bases__ = (wx.MDIChildFrame, BaseForm)
 			preClass = wx.PreMDIChildFrame
 			self._mdi = True
 		else:
 			# This is a normal SDI form:
-			dForm.__bases__ = (BaseForm, wx.Frame)
+			dForm.__bases__ = (wx.Frame, BaseForm)
 			preClass = wx.PreFrame
 			self._mdi = False
 		## (Note that it is necessary to run the above block each time, because
@@ -767,7 +767,7 @@ class dForm(BaseForm, wx.Frame):
 		wx.CallAfter(self.update)
 
 
-class dToolForm(BaseForm, wx.MiniFrame):
+class dToolForm(wx.MiniFrame, BaseForm):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dToolForm
 		preClass = wx.PreMiniFrame
@@ -778,7 +778,7 @@ class dToolForm(BaseForm, wx.MiniFrame):
 		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
-class dBorderlessForm(BaseForm, wx.Frame):
+class dBorderlessForm(wx.Frame, BaseForm):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dBorderlessForm
 		style = kwargs.get("style", 0)

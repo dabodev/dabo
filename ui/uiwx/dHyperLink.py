@@ -10,7 +10,7 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
+class dHyperLink(hyperlink.HyperLinkCtrl, dcm.dControlMixin):
 	"""Creates a hyperlink that, when clicked, launches the specified
 	URL in the user's default browser.
 	"""

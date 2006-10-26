@@ -7,7 +7,7 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
+class dComboBox(wx.ComboBox, dcm.dControlItemMixin):
 	"""Creates a combobox, which combines a dropdown list with a textbox.
 	
 	The user can choose an item in the dropdown, or enter freeform text.

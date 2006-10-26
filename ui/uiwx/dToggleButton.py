@@ -11,8 +11,8 @@ import dImageMixin as dim
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
-class dToggleButton(dcm.dDataControlMixin, dim.dImageMixin,
-		wxb.GenBitmapTextToggleButton):
+class dToggleButton(wxb.GenBitmapTextToggleButton, dcm.dDataControlMixin,
+		dim.dImageMixin):
 	"""Creates a button that toggles on and off, for editing boolean values.
 
 	This is functionally equivilent to a dCheckbox, but visually much different.

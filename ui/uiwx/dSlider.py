@@ -9,7 +9,7 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dSlider(dcm.dDataControlMixin, wx.Slider):
+class dSlider(wx.Slider, dcm.dDataControlMixin):
 	"""Creates a slider control, allowing editing integer values.
 	
 	Unlike dSpinner, dSlider does not allow entering a value with the keyboard.

@@ -10,7 +10,7 @@ from dabo.ui import makeDynamicProperty
 import dPanel
 
 
-class dTimer(cm.dControlMixin, wx.Timer):
+class dTimer(wx.Timer, cm.dControlMixin):
 	"""Creates a timer, for causing something to happen at regular intervals."""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dTimer

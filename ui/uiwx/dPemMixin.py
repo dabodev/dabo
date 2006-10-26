@@ -1570,12 +1570,7 @@ class dPemMixin(dPemMixinBase):
 
 			# Frames have a Title separate from Label, but I can't think
 			# of a reason why that would be necessary... can you? 
-			try:
-				self.SetTitle(val)
-			except AttributeError:
-				# wxPython 2.7.x started not having this attribute for labels
-				# at least.
-				pass
+			self.SetTitle(val)
 		else:
 			self._properties["Caption"] = val
 

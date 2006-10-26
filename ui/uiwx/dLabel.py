@@ -9,7 +9,7 @@ import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
 
 
-class dLabel(cm.dControlMixin, wx.StaticText):
+class dLabel(wx.StaticText, cm.dControlMixin):
 	"""Creates a static label, to make a caption for another control, for example."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dLabel
