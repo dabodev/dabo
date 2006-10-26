@@ -10,7 +10,7 @@ from dabo.ui import makeDynamicProperty
 import warnings
 
 
-class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
+class dRadioGroup(dcm.dDataControlMixin, wx.RadioBox):
 	"""Creates a group of radio buttons, allowing mutually-exclusive choices.
 
 	Like a dDropdownList, use this to present the user with multiple choices and

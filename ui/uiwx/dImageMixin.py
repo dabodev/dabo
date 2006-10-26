@@ -6,7 +6,7 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dImageMixin:
+class dImageMixin(object):
 	def __init__(self):
 		self._picture = ""
 		self._bmp = None

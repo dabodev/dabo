@@ -11,7 +11,7 @@ import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 
 
-class dButton(wx.Button, cm.dControlMixin):
+class dButton(cm.dControlMixin, wx.Button):
 	"""Creates a button that can be pressed by the user to trigger an action.
 
 	Example:

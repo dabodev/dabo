@@ -12,7 +12,7 @@ from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 
 
-class dToolBar(wx.ToolBar, cm.dControlMixin):
+class dToolBar(cm.dControlMixin, wx.ToolBar):
 	"""Creates a toolbar, which is a menu-like collection of icons.
 
 	You may also add items to a toolbar such as separators and real Dabo

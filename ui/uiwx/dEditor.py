@@ -64,7 +64,7 @@ class StyleTimer(dTimer.dTimer):
 			self.Parent.SetLexer(stc.STC_LEX_CONTAINER)
 
 
-class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
+class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	# The Editor is copied from the wxPython demo, StyledTextCtrl_2.py, 
 	# and modified. Thanks to Robin Dunn and everyone that contributed to 
 	# that demo to get us going!

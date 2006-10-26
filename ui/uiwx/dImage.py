@@ -12,7 +12,7 @@ import dImageMixin as dim
 from dabo.ui import makeDynamicProperty
 
 
-class dImage(wx.StaticBitmap, dcm.dDataControlMixin, dim.dImageMixin):
+class dImage(dcm.dDataControlMixin, dim.dImageMixin, wx.StaticBitmap):
 	""" Create a simple bitmap to display images."""
 	def __init__(self, parent, properties=None, attProperties=None, 
 			*args, **kwargs):
