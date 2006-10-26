@@ -376,6 +376,8 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 	def _setOrientation(self, val):
 		if self._constructed():
 			self._checkSizer()
+			if val[0].lower() not in "hv":
+				val = "vertical"
 			self.Sizer.Orientation = val
 			self.layout()
 		else:
