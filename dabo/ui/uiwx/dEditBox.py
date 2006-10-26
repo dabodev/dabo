@@ -54,7 +54,9 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 
 	def __onKeyChar(self, evt):
 		"""This handles KeyChar events when ForceCase is set to a non-empty value."""
-		if evt.keyChar.isalnum() or evt.keyChar in """,./<>?;':%s[]\\{}|`~!@#$%%^&*()-_=+""" % '"':
+		keyChar = evt.keyChar
+		if keyChar is not None and (keyChar.isalnum() 
+				or keyChar in """,./<>?;':"[]\\{}|`~!@#$%%^&*()-_=+"""):
 			dabo.ui.callAfter(self.__forceCase)
 		
 	
@@ -198,7 +200,9 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 				self.SetValue(val)
 				return
 			else:
-				return super(dEditBox, self)._setValue(val)
+				ret = super(dEditBox, self)._setValue(val)
+				self.__forceCase()
+				return ret
 		else:
 			self._properties["Value"] = val
 
@@ -289,7 +293,7 @@ Its the Love Boat
 """
 		
 		self.ForceCase = "u"
-		self.__forceCase()
+
 
 if __name__ == "__main__":
 	import test

@@ -135,7 +135,9 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 
 	def __onKeyChar(self, evt):
 		"""This handles KeyChar events when ForceCase is set to a non-empty value."""
-		if evt.keyChar.isalnum() or evt.keyChar in """,./<>?;':%s[]\\{}|`~!@#$%%^&*()-_=+""" % '"':
+		keyChar = evt.keyChar
+		if keyChar is not None and (keyChar.isalnum() 
+				or keyChar in """,./<>?;':"[]\\{}|`~!@#$%%^&*()-_=+"""):
 			dabo.ui.callAfter(self.__forceCase)
 		
 	
@@ -398,6 +400,8 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 				# setting or change the type; just set the value.
 				self.SetValue(val)
 				return
+			else:
+				dabo.ui.callAfter(self.__forceCase)
 		
 			strVal = self._getStringValue(val)
 			_oldVal = self._oldVal = self.Value
