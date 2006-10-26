@@ -128,6 +128,8 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		self._baseClass = dRadioList
 		self._sizerClass = dabo.ui.dBorderSizer
 		self._buttonClass = _dRadioButton
+		self._showBox = True
+		self._caption = ""
 		preClass = wx.PrePanel
 		style = self._extractKey((properties, kwargs), "style", 0)
 		style = style | wx.TAB_TRAVERSAL
@@ -142,6 +144,17 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		cim.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
+	def _getInitPropertiesList(self):
+		"""We want to remove 'Orientation' from this list, as it needs to be set
+		after the control is instantiated.
+		"""
+		ret = super(dRadioList, self)._getInitPropertiesList()
+		if isinstance(ret, tuple):
+			ret = list(ret)
+		ret.remove("Orientation")
+		return ret
+		
+		
 	def getBaseButtonClass(cls):
 		return _dRadioButton
 	getBaseButtonClass = classmethod(getBaseButtonClass)
@@ -196,8 +209,15 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 
 	def enableString(self, item, val=True):
 		"""Enables or disables an individual button, referenced by string display value."""
-		index = self.FindString(item)
-		self._items[index].Enabled = val
+		mtch = [btn for btn in self.Children
+				if isinstance(btn, _dRadioButton)
+				and btn.Caption == item]
+		try:
+			itm = mtch[0]
+			idx = self._items.index(itm)
+			self._items[idx].Enabled = val
+		except IndexError:
+			dabo.errorLog.write(_("Could not find a button with Caption of '%s'") % item)
 		
 
 	def enable(self, item, val=True):
@@ -284,15 +304,19 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			
 			
 	def _getCaption(self):
-		ret = ""
+		ret = self._caption
 		if isinstance(self.Sizer, dabo.ui.dBorderSizer):
-			ret = self.Sizer.Caption
+			ret = self._caption = self.Sizer.Caption
 		return ret
 		
 	def _setCaption(self, val):
 		if self._constructed():
 			self._checkSizer()
-			self.Sizer.Caption = val
+			self._caption = val
+			try:
+				self.Sizer.Caption = val
+			except AttributeError:
+				pass
 		else:
 			self._properties["Caption"] = val
 
@@ -356,6 +380,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			self.layout()
 		else:
 			self._properties["Orientation"] = val
+
 			
 		
 	def _getPositionValue(self):
@@ -367,6 +392,61 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			self._setSelection(val)
 		else:
 			self._properties["PositionValue"] = val
+
+
+	def _getShowBox(self):
+		return self._showBox
+
+	def _setShowBox(self, val):
+		if self._constructed():
+			if val != self._showBox:
+				self._showBox = val
+				fromSz = self.Sizer
+				parent = fromSz.Parent
+				isInSizer = fromSz.ControllingSizer is not None
+				if isInSizer:
+					csz = fromSz.ControllingSizer
+					pos = fromSz.getPositionInSizer()
+					szProps = csz.getItemProps(fromSz)
+				if isinstance(fromSz, dabo.ui.dBorderSizer):
+					toCls = fromSz.getNonBorderedClass()
+					toSz = toCls()
+				else:
+					toCls = fromSz.getBorderedClass()
+					toSz = toCls(parent)
+					toSz.Caption = self._caption
+				toSz.Orientation = fromSz.Orientation
+				memberItems = fromSz.Children
+				members = [fromSz.getItem(mem) for mem in memberItems]
+				memberProps = dict.fromkeys(members)
+				szProps = ("Border", "Proportion", "Expand", "HAlign", "VAlign", "BorderSides")
+				for pos, member in enumerate(members):
+					pd = {}
+					for sp in szProps:
+						pd[sp] = fromSz.getItemProp(memberItems[pos], sp)
+					memberProps[member] = pd
+				for member in members[::-1]:
+					try:
+						fromSz.remove(member)
+					except:
+						# probably a spacer
+						pass
+				setSizer = (parent is not None) and (parent.Sizer is fromSz)
+				if setSizer:
+					parent.Sizer = None
+				# Delete the old sizer. 
+				fromSz.release()
+				if setSizer:
+					parent.Sizer = toSz
+				if isInSizer:
+					itm = csz.insert(pos, toSz)
+					csz.setItemProps(itm, szProps)
+				for member in members:
+					itm = toSz.append(member)
+					toSz.setItemProps(itm, memberProps[member])
+				self.layout()
+		else:
+			self._properties["ShowBox"] = val
 
 
 	def _getSizerClass(self):
@@ -424,6 +504,9 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 			Integer. Read-write at runtime.
 			Returns the current position, or sets the current position."""))
 
+	ShowBox = property(_getShowBox, _setShowBox, None,
+			_("Is the surrounding box visible?  (bool)"))
+	
 	SizerClass = property(_getSizerClass, _setSizerClass, None,
 			_("Class to use for the border sizer. Default=dabo.ui.dBorderSizer  (dSizer)"))
 	

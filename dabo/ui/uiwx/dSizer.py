@@ -34,6 +34,11 @@ class dSizer(dSizerMixin.dSizerMixin, wx.BoxSizer):
 
 	def afterInit(self): pass	
 	
+	
+	def getBorderedClass(self):
+		"""Return the class that is the border sizer version of this class."""
+		return dabo.ui.dBorderSizer
+	
 		
 if __name__ == "__main__":
 	s = dSizer()
