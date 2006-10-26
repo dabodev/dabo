@@ -9,7 +9,7 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 	
-class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
+class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 	"""Creates a checkbox, allowing editing boolean values."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dCheckBox

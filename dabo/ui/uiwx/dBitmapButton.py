@@ -11,7 +11,7 @@ from dabo.ui import makeDynamicProperty
 import dImageMixin as dim
 
 
-class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):
+class dBitmapButton(wx.BitmapButton, cm.dControlMixin, dim.dImageMixin):
 	"""Creates a button with a picture.
 
 	The button can have up to three pictures associated with it: 

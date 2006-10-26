@@ -5,7 +5,7 @@ if __name__ == "__main__":
 
 import dControlMixin as cm
 
-class dBox(cm.dControlMixin, wx.StaticBox):
+class dBox(wx.StaticBox, cm.dControlMixin):
 	"""Creates a box for visually grouping objects on your form.
 	"""
 	## pkm: I'm not sure of the utility of this class, since you can draw

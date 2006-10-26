@@ -62,18 +62,18 @@ class dFormMainBase(fm.dFormMixin):
 	
 
 
-class dFormMain(dFormMainBase, wx.Frame):
+class dFormMain(wx.Frame, dFormMainBase):
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dFormMain
 
 		if dabo.settings.MDI:
 			# Hack this into an MDI Parent:
-			dFormMain.__bases__ = (dFormMainBase, wx.MDIParentFrame)
+			dFormMain.__bases__ = (wx.MDIParentFrame, dFormMainBase)
 			preClass = wx.PreMDIParentFrame
 			self._mdi = True
 		else:
 			# This is a normal SDI form:
-			dFormMain.__bases__ = (dFormMainBase, wx.Frame)
+			dFormMain.__bases__ = (wx.Frame, dFormMainBase)
 			preClass = wx.PreFrame
 			self._mdi = False
 		## (Note that it is necessary to run the above block each time, because

@@ -18,7 +18,7 @@ def readonly(value):
 	return property(lambda self: value)
 
 
-class dPageFrame(dPageFrameMixin, wx.Notebook):
+class dPageFrame(wx.Notebook, dPageFrameMixin):
 	"""Creates a pageframe, which can contain an unlimited number of pages.
 
 	Typically, your pages will descend from dPage, but they can in fact be any
@@ -58,7 +58,7 @@ class _dPageFrame_test(dPageFrame):
 		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
 
 
-class dPageList(dPageFrameMixin, wx.Listbook):
+class dPageList(wx.Listbook, dPageFrameMixin):
 	_evtPageChanged = readonly(wx.EVT_LISTBOOK_PAGE_CHANGED)
 	_tabposBottom = readonly(wx.LB_BOTTOM)
 	_tabposRight = readonly(wx.LB_RIGHT)
@@ -103,7 +103,7 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 	
 
 
-class dPageSelect(dPageFrameMixin, wx.Choicebook):
+class dPageSelect(wx.Choicebook, dPageFrameMixin):
 	_evtPageChanged = readonly(wx.EVT_CHOICEBOOK_PAGE_CHANGED)
 	_tabposBottom = readonly(wx.CHB_BOTTOM)
 	_tabposRight = readonly(wx.CHB_RIGHT)

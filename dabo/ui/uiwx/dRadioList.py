@@ -11,7 +11,7 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class _dRadioButton(dcm.dDataControlMixin, wx.RadioButton):
+class _dRadioButton(wx.RadioButton, dcm.dDataControlMixin):
 	"""Subclass of wx.RadioButton. Not meant to be used individually, but
 	only in the context of a parent dRadioList control.
 	"""
@@ -116,7 +116,7 @@ class _dRadioButton(dcm.dDataControlMixin, wx.RadioButton):
 			self.Parent.PositionValue = positionValue
 
 
-class dRadioList(cim.dControlItemMixin, wx.Panel):
+class dRadioList(wx.Panel, cim.dControlItemMixin):
 	"""Creates a group of radio buttons, allowing mutually-exclusive choices.
 
 	Like a dDropdownList, use this to present the user with multiple choices and

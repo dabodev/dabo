@@ -7,7 +7,7 @@ import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
 
 
-class dLine(cm.dControlMixin, wx.StaticLine):
+class dLine(wx.StaticLine, cm.dControlMixin):
 	"""Creates a horizontal or vertical line.
 
 	If Orientation is "Vertical", Height refers to the length of the line. 

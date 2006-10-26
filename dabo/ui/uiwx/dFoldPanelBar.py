@@ -10,7 +10,7 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
+class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 	def __init__(self, parent, caption=None, collapsed=None, 
 			properties=None, *args, **kwargs):
 		
@@ -231,7 +231,7 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 
 	
-class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
+class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 	"""Creates a control consisting of several panels that can be 
 	hidden or revealed by clicking on their 'caption bar'.
 	

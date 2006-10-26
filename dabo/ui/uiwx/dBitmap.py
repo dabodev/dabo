@@ -12,7 +12,7 @@ import dIcons
 from dabo.ui import makeDynamicProperty
 
 
-class dBitmap(cm.dControlMixin, dim.dImageMixin, wx.StaticBitmap):
+class dBitmap(wx.StaticBitmap, cm.dControlMixin, dim.dImageMixin):
 	"""Creates a simple bitmap control to display images on your forms."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dBitmap

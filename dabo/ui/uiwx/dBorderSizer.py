@@ -7,7 +7,7 @@ from dabo.ui import makeDynamicProperty
 dabo.ui.loadUI("wx")
 
 
-class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
+class dBorderSizer(wx.StaticBoxSizer, dabo.ui.dSizerMixin):
 	"""A BorderSizer is a regular box sizer, but with a visible box around
 	the perimiter. You must either create the box first and pass it to the 
 	dBorderSizer's constructor, or pass a parent object, and the box
