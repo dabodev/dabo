@@ -57,11 +57,13 @@ class StyleTimer(dTimer.dTimer):
 		#self.Interval = 0
 		self.stop()
 		if self.mode == "python":
-			self.Parent.SetLexer(stc.STC_LEX_PYTHON)
+			if self.Parent:
+				self.Parent.SetLexer(stc.STC_LEX_PYTHON)
 			self.mode = "container"
 			self.Interval = self.styleTimerInterval
 		else:
-			self.Parent.SetLexer(stc.STC_LEX_CONTAINER)
+			if self.Parent:
+				self.Parent.SetLexer(stc.STC_LEX_CONTAINER)
 
 
 class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):

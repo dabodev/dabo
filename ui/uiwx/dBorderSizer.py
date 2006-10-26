@@ -54,6 +54,11 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 
 
 	def afterInit(self): pass	
+
+
+	def getNonBorderedClass(self):
+		"""Return the class that is the non-border sizer version of this class."""
+		return dabo.ui.dSizer
 	
 
 	def _getBackColor(self):

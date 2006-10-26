@@ -768,9 +768,9 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			itemID = self.GetSelection()
 			if itemID:
 				ret = [ n for n in self.nodes
-						if n.itemID == itemID]
+						if n.itemID == itemID][0]
 			else:
-				ret = []
+				ret = None
 		return ret
 
 	def _setSelection(self, node):
@@ -890,6 +890,12 @@ class _dTreeView_test(dTreeView):
 		##      keyboarding through the tree. I'm wondering about mapping 
 		##      TreeSelection instead... thoughts?
 		print "Hit!"
+	
+	def onContextMenu(self, evt):
+		print "Context menu on tree"
+
+	def onMouseRightClick(self, evt):
+		print "Mouse Right Click on tree"
 
 	def onTreeSelection(self, evt):
 		print "Selected node caption:", evt.EventData["selectedCaption"]
