@@ -351,7 +351,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	DynamicValueMode = makeDynamicProperty(ValueMode)
 	
 
-class _dRadioGroup_test(dRadioGroup):
+class _dRadioGroup_test_deprecated(dRadioGroup):
 	def initProperties(self):
 		self.ForeColor = "darkblue"
 		self.BackColor = "wheat"
@@ -383,4 +383,4 @@ class _dRadioGroup_test(dRadioGroup):
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(_dRadioGroup_test)
+	test.Test().runTest(_dRadioGroup_test_deprecated)
