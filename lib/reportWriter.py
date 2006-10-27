@@ -55,6 +55,18 @@ from dabo.lib.xmltodict import dicttoxml
 from dabo.dLocalize import _
 from dabo.lib.caselessDict import CaselessDict
 
+# The below block tried to use the experimental para.Paragraph which
+# handles more html tags, including hyperlinks. However, I couldn't 
+# get it to work... among other things, para doesn't accept None as
+# the availableHeight argument to wrap().
+if False:
+	try:
+		from reportlab.platypus.para import Paragraph as ParaClass
+	except ImportError:
+		print "No Para class, using Paragraph."
+		ParaClass = platypus.Paragraph
+else:
+	ParaClass = platypus.Paragraph
 
 # Pretty sure we want to do this way earlier in Dabo, 
 # but this gets it working for me:
@@ -958,7 +970,7 @@ class ReportWriter(object):
 
 				if fobject.has_key("spaceAfter"):
 					s.spaceAfter = fobject.getProp("spaceAfter")
-
+	
 				if fobject.has_key("spaceBefore"):
 					s.spaceBefore = fobject.getProp("spaceBefore")
 
@@ -985,7 +997,7 @@ class ReportWriter(object):
 									words[idx] = word
 								return " ".join(words)
 							para = escapePara(para)
-							p = platypus.Paragraph(para, s)
+							p = ParaClass(para, s)
 						story.append(p)
 						objNeededHeight += p.wrap(columnWidth-padLeft-padRight, None)[1]
 
