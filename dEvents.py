@@ -738,6 +738,11 @@ class TitleChanged(EditorEvent):
 	pass
 
 
+class ContentChanged(EditorEvent):
+	"""Occurs when the contents of the Editor are modified."""
+	pass
+	
+
 class ValueChanged(Event):
 	"""Occurs when the control's value has changed, whether
 	programmatically or interactively.
