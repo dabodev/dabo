@@ -399,7 +399,10 @@ class dFormMixin(pm.dPemMixin):
 		if hasattr(obj, "RegID"):
 			id = obj.RegID
 			if self._objectRegistry.has_key(id):
-				raise KeyError, _("Duplicate RegID '%s' found") % id
+				if not isinstance(self._objectRegistry[id], dabo.ui.deadObject):
+					raise KeyError, _("Duplicate RegID '%s' found") % id
+				else:
+					del self.__dict__[id]
 			self._objectRegistry[id] = obj
 			if hasattr(self, id) or self.__dict__.has_key(id):
 				dabo.errorLog.write(_("RegID '%s' conflicts with existing name") % id)
