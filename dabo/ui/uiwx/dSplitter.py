@@ -17,6 +17,8 @@ class SplitterPanelMixin:
 	
 	
 	def _onMixinContextMenu(self, evt):
+		if not self.Parent.ShowPanelSplitMenu:
+			return
 		evt.stop()
 		sm = dabo.ui.dMenu(self)
 		sm.append("Split this pane", bindfunc=self.onSplit)
@@ -116,8 +118,8 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 		self._orientation = "v"
 		self._sashPos = 100
 		self._p1 = self._p2 = None
-		# Default to showing the context menus on the panels
-		self._showPanelSplitMenu = True
+		# Default to not showing the context menus on the panels
+		self._showPanelSplitMenu = False
 
 		preClass = wx.PreSplitterWindow
 		cm.dControlMixin.__init__(self, preClass, parent, properties, 
@@ -400,7 +402,7 @@ class dSplitter(wx.SplitterWindow, cm.dControlMixin):
 
 	ShowPanelSplitMenu = property(_getShowPanelSplitMenu, _setShowPanelSplitMenu, None,
 			_("""Determines if the default context menu for split/unsplit is enabled 
-			for the panels (default=True)  (bool)"""))
+			for the panels (default=False)  (bool)"""))
 	
 	Split = property(_getSplit, _setSplit, None,
 			_("Returns the split status of the control  (bool)"))
@@ -424,6 +426,7 @@ class _dSplitter_test(dSplitter):
 		self.Width = 250
 		self.Height = 200
 		self.MinimumPanelSize = 20
+		self.ShowPanelSplitMenu = True
 
 	def afterInit(self):
 		self.Panel1.BackColor = random.choice(dColors.colorDict.values())
