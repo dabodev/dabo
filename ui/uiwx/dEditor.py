@@ -115,6 +115,9 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 		# Used for parsing class and method names
 		self._pat = re.compile("^[ \t]*((?:(?:class)|(?:def)) [^\(]+)\(", re.M)
 
+		self.modifiedEventMask = (stc.STC_MOD_INSERTTEXT | stc.STC_MOD_DELETETEXT |
+				stc.STC_PERFORMED_USER | stc.STC_PERFORMED_UNDO | stc.STC_PERFORMED_REDO)
+		self.SetModEventMask(self.modifiedEventMask)
 		self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
 		self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
 		self.Bind(stc.EVT_STC_MODIFIED, self.OnModified)
@@ -851,8 +854,14 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 	def OnModified(self, evt):
 		if not self._syntaxColoring:
 			return
+
+		mt = evt.GetModificationType()
+		if not mt & self.modifiedEventMask == mt:
+			# For some reason the event masking doesn't always work
+			return
 		evt.Skip()
 		self.setTitle()
+		self.raiseEvent(dEvents.ContentChanged, evt)
 
 
 	def OnUpdateUI(self, evt):
