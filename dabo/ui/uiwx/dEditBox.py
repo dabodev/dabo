@@ -45,11 +45,15 @@ class dEditBox(wx.TextCtrl, dcm.dDataControlMixin):
 	def scrollToBeginning(self):
 		"""Moves the insertion point to the beginning of the text"""
 		self.SetInsertionPoint(0)
+		self.ShowPosition(0)
+		self.Refresh()
 		
 
 	def scrollToEnd(self):
 		"""Moves the insertion point to the end of the text"""
 		self.SetInsertionPointEnd()
+		self.ShowPosition(self.GetLastPosition())
+		self.Refresh()
 		
 
 	def __onKeyChar(self, evt):
