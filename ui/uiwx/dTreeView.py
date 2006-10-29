@@ -800,6 +800,11 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			self._addWindowStyleFlag(wx.TR_HAS_BUTTONS)
 		else:
 			self._addWindowStyleFlag(wx.TR_NO_BUTTONS)
+		try:
+			self.refresh()
+		except:
+			# Control may not be constructed yet
+			pass
 			
 
 	def _getShowLines(self):
