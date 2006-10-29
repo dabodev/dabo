@@ -386,8 +386,10 @@ def getEventData(wxEvt):
 		ed["selectedNode"] = sel
 		if isinstance(sel, list):
 			ed["selectedCaption"] = ", ".join([ss.Caption for ss in sel])
-		else:
+		elif tree.Selection is not None:
 			ed["selectedCaption"] = tree.Selection.Caption
+		else:
+			ed["selectedCaption"] = ""
 		try:
 			ed["itemID"] = wxEvt.GetItem()
 			ed["itemNode"] = tree.find(ed["itemID"])[0]

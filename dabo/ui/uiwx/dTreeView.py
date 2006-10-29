@@ -753,7 +753,12 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 			self._addWindowStyleFlag(wx.TR_MULTIPLE)
 			self._addWindowStyleFlag(wx.TR_EXTENDED)
 		else:
+			self.lockDisplay()
+			sel = self.Selection
+			self.UnselectAll()
 			self._addWindowStyleFlag(wx.TR_SINGLE)
+			self.Selection = sel
+			self.unlockDisplay()
 			
 
 	def _getSelection(self):
