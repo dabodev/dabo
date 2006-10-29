@@ -93,6 +93,7 @@ from dGauge import dGauge
 from dGrid import dGrid
 from dGrid import dColumn
 from dGridSizer import dGridSizer
+from dHtmlBox import dHtmlBox
 from dHyperLink import dHyperLink
 import dIcons
 from dImage import dImage
