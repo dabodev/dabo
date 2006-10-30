@@ -5,12 +5,26 @@ _version = "0.7a"
 
 
 import os
-from lib._daborevs import _revs
+import lib
 
-# We'll get the revision as saved in _daborevs, which is an external svn 
-# repository updated by a svn post-commit hook on the server. 
+_revision = None
+# First, try to get the revisionfrom svninfo, which lets the developer go back 
+# and forth through revisions and the version information will still reflect
+# reality.
+package_path = os.path.split(os.path.split(lib.__file__)[0])[0]
+if os.path.exists(os.path.join(package_path, ".svn")):
+	try:
+		_revision = os.popen("svnversion %s" % package_path).read().strip()
+	except:
+		pass
 
-_revision = _revs.get(package_name, "")
+if _revision is None:
+	# Okay, svninfo not available, which probably means svn isn't present, which
+	# means the version information in lib._daborevs will likely be correct. That
+	# revision information reflects the current revision at the time the 
+	# distribution was rolled up.
+	from lib._daborevs import _revs
+	_revision = _revs.get(package_name, "")
 
 version = {"version": _version,
 		"revision": _revision}
