@@ -59,8 +59,12 @@ class PageFrameMixin(object):
 	def addEditPage(self, ds=None, title=_("Edit"), pageClass=None):
 		if pageClass is None:
 			pageClass = self.Form.EditPageClass
-		edPg = self.appendPage(pageClass, caption=title, imgKey="edit")
+		edPg = self.appendPage(pageClass, caption="", imgKey="edit")
 		edPg.DataSource = ds
+		if not edPg.Caption:
+			# If the edit page class defined its own caption, don't override it with
+			# the automatically generated caption.
+			edPg.Caption = title
 		# The page number will be the PageCount minus one.
 		self.dsEditPages[ds] = self.PageCount - 1
 	
