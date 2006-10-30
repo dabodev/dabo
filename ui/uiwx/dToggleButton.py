@@ -50,6 +50,7 @@ class dToggleButton(wxb.GenBitmapTextToggleButton, dcm.dDataControlMixin,
 	def _setBezelWidth(self, val):
 		if self._constructed():
 			self.SetBezelWidth(val)
+			self.Refresh()
 		else:
 			self._properties["BezelWidth"] = val
 
