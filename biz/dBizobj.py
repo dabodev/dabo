@@ -1077,30 +1077,16 @@ class dBizobj(dObject):
 		cursor = self._CurrentCursor
 		if cursor is not None:
 			return cursor.getFieldVal(fld, row)
-		else:
-			return None
 
 
 	def setFieldVal(self, fld, val):
 		""" Set the value of the specified field in the current row."""
 		cursor = self._CurrentCursor
 		if cursor is not None:
-			if fld in [f[0] for f in self.DataStructure]:
-				try:
-					return cursor.setFieldVal(fld, val)
-				except dException.NoRecordsException:
-					return False
-			else:
-				## Can't do the line below like I'd like because setFieldVal() runs from
-				## __setattr__() and we could be processing fld's with values like "UserSQL"...
-				#raise dException.FieldNotFoundException, "Field %s not defined in the DataStructure" % fld
-				pass
-		# If the field doesn't exist in the datastructure, or if there isn't a
-		# CurrentCursor, return False to let __setattr__ know that the attribute
-		# should get set to the instance. Note: we should get rid of the 
-		# __getattr__ and __setattr__ way for resolving db fields, as it is really
-		# hard to debug and doesn't perform particularly well.
-		return False
+			try:
+				return cursor.setFieldVal(fld, val)
+			except dException.NoRecordsException:
+				return False
 
 
 	def getDataSet(self, flds=(), rowStart=0, rows=None):
