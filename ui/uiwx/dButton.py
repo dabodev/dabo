@@ -66,8 +66,9 @@ class dButton(wx.Button, cm.dControlMixin):
 			##      I'm making the decision to bind it to self.Form, even though
 			##      self.Parent is also a valid choice.
 			### egl: changed the binding on OS X to the form. Parent just doesn't work.
+			### pkm: followed suit with GTK (we should test Win too).
 			target = self.Parent
-			if self.Application.Platform == "Mac":
+			if self.Application.Platform in ("Mac", "GTK"):
 				target = self.Form
 			if val:
 				target.bindKey("esc", self.__onCancelButton)
