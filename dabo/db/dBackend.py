@@ -226,27 +226,37 @@ class dBackend(dObject):
 
 	def addField(self, clause, exp):
 		""" Add a field to the field clause."""
-		return self.addWithSep(clause, exp)
+		#indent = "\t"
+		indent = len("select ") * " "
+		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
 
 	def addFrom(self, clause, exp):
 		""" Add a table to the sql statement."""
-		return self.addWithSep(clause, exp)
+		#indent = "\t"
+		indent = len("select ") * " "
+		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
 
 	def addWhere(self, clause, exp, comp="and"):
 		""" Add an expression to the where clause."""
-		return self.addWithSep(clause, exp, sep=" %s " % comp)
+		#indent = "\t"
+		indent = (len("select ") - len(comp)) * " "
+		return self.addWithSep(clause, exp, sep="\n%s%s " % (indent, comp))
 
 
 	def addGroupBy(self, clause, exp):
 		""" Add an expression to the group-by clause."""
-		return self.addWithSep(clause, exp)
+		#indent = "\t"
+		indent = len("select ") * " "
+		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
 
 	def addOrderBy(self, clause, exp):
 		""" Add an expression to the order-by clause."""
-		return self.addWithSep(clause, exp)
+		#indent = "\t"
+		indent = len("select ") * " "
+		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
 
 	def getLimitWord(self):

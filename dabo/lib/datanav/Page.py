@@ -519,7 +519,7 @@ class SelectPage(Page):
 				sql = bizobj.getSQL()
 
 			dlg = dabo.ui.dDialog(self, Caption=_("Set Custom SQL"))
-			eb = dlg.addObject(dabo.ui.dEditBox, Value=sql, Size=(400, 400))
+			eb = dlg.addObject(dabo.ui.dEditBox, Value=sql, Size=(400, 400), FontFace="Monospace")
 			dlg.Sizer.append1x(eb)
 			dlg.show()
 			self.Form.CustomSQL = eb.Value

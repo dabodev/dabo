@@ -1714,22 +1714,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			whereClause = childFilterClause + " " + whereClause
 
 		if fromClause: 
-			fromClause = "from " + fromClause
+			fromClause = "  from " + fromClause
 		else:
-			fromClause = "from " + self.sqlManager.Table
+			fromClause = "  from " + self.sqlManager.Table
 		if whereClause:
-			whereClause = "where " + whereClause
+			whereClause = " where " + whereClause
 		if groupByClause:
-			groupByClause = "group by " + groupByClause
+			groupByClause = " group by " + groupByClause
 		if orderByClause:
-			orderByClause = "order by " + orderByClause
+			orderByClause = " order by " + orderByClause
 		if limitClause:
-			limitClause = "%s %s" % (self.sqlManager.getLimitWord(), limitClause)
+			limitClause = " %s %s" % (self.sqlManager.getLimitWord(), limitClause)
 		elif limitClause is None:
 			# The limit clause was specifically disabled.
 			limitClause = ""
 		else:
-			limitClause = "%s %s" % (self.sqlManager.getLimitWord(), self.sqlManager._defaultLimit)
+			limitClause = " %s %s" % (self.sqlManager.getLimitWord(), self.sqlManager._defaultLimit)
 
 		return self.sqlManager.BackendObject.formSQL(fieldClause, fromClause, 
 				whereClause, groupByClause, orderByClause, limitClause)
