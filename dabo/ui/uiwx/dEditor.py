@@ -424,6 +424,11 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 		return ret
 		
 
+	def showCurrentLine(self):
+		"""Scrolls the editor so that the current position is visible."""
+		self.EnsureCaretVisible()
+		
+		
 	def OnNeedShown(self, evt):
 		""" Called when the user deletes a hidden header line."""
 		# We expand the previously folded text, but it may be better
@@ -1618,6 +1623,7 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 
 	def _setLineNumber(self, val):
 		self.GotoLine(val)
+		self.EnsureCaretVisible()
 
 
 	def _getLineCount(self):

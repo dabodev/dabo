@@ -730,6 +730,17 @@ class dPemMixin(dPemMixinBase):
 		self.Lower()
 	
 	
+	def showContainingPage(self):
+		"""If this object is inside of any paged control, it will force all containing
+		paged controls to switch to the page that contains this object.
+		"""
+		cntnr = self
+		while cntnr and not isinstance(cntnr, dabo.ui.dForm):
+			if isinstance(cntnr, dabo.ui.dPage):
+				cntnr.Parent.SelectedPage = cntnr
+			cntnr = cntnr.Parent
+	
+	
 	def addObject(self, classRef, Name=None, *args, **kwargs):
 		""" Instantiate object as a child of self.
 		
