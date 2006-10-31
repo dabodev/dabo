@@ -366,7 +366,8 @@ class Form(dabo.ui.dForm):
 		if sql is None:
 			sql = "-Nothing executed yet-"
 		dlg = dabo.ui.dDialog(self, Caption=_("Last SQL"))
-		eb = dlg.addObject(dabo.ui.dEditBox, ReadOnly=True, Value=sql, Size=(400, 400))
+		eb = dlg.addObject(dabo.ui.dEditBox, ReadOnly=True, Value=sql, 
+				FontFace="Monospace", Size=(400, 400))
 		dlg.Sizer.append1x(eb)
 		dlg.show()
 		dlg.release()
