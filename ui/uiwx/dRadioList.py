@@ -404,6 +404,9 @@ class dRadioList(wx.Panel, cim.dControlItemMixin):
 			if val != self._showBox:
 				self._showBox = val
 				fromSz = self.Sizer
+				if fromSz is None:
+					# Control hasn't been constructed yet
+					return
 				parent = fromSz.Parent
 				isInSizer = fromSz.ControllingSizer is not None
 				if isInSizer:
