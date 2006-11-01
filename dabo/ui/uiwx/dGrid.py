@@ -1496,6 +1496,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		
 		# Flag to indicate we are auto-sizing all columns
 		self._inAutoSizeLoop = False
+		# Flag to indicate we are in a range selection event
+		self._inRangeSelect = False
 		
 		# These hold the values that affect row/col hiliting
 		self._selectionForeColor = "black"
@@ -3014,15 +3016,19 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			
 	
 	def __onWxGridRangeSelect(self, evt):
+		if self._inRangeSelect:
+			# avoid recursive events
+			return
+		self._inRangeSelect = True
 		self.raiseEvent(dEvents.GridRangeSelected, evt)
 		if not self.MultipleSelection and evt.Selecting():
-			origRow, origCol = self._lastRow, self._lastCol
+			origRow, origCol = self.CurrentRow, self.CurrentColumn
 			try:
 				mode = self.GetSelectionMode()
 				top, bott = evt.GetTopRow(), evt.GetBottomRow()
 				left, right = evt.GetLeftCol(), evt.GetRightCol()
 				if mode == wx.grid.Grid.wxGridSelectRows:
-					if top != bott:
+					if (top != bott) or (top != origCol):
 						# Attempting to select a range
 						if top == origRow:
 							row = bott
@@ -3030,7 +3036,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 							row = top
 						self.SetGridCursor(row, self._lastCol)
 				elif mode == wx.grid.Grid.wxGridSelectColumns:
-					if left != right:
+					if (left != right) or (left != origCol):
 						# Attempting to select a range
 						if left == origCol:
 							col = right
@@ -3039,22 +3045,34 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 						self.SetGridCursor(self._lastRow, col)
 				else:
 					# Cells
+					chg = False
 					row, col = origRow, origCol
 					if top != bott:
+						chg = True
 						if top == origRow:
 							row = bott
 						else:
 							row = top
+					elif top != origRow:
+						# New row
+						chg = True
+						row = top
 					if left != right:
+						chg = True
 						if left == origCol:
 							col = right
 						else:
 							col = left
-					if (row, col) != (origRow, origCol):
+					elif left != origCol:
+						# New col
+						chg = True
+						col = left
+					if chg:
 						self.SetGridCursor(row, col)
 						self.SelectBlock(row, col, row, col)
 			except: pass				
 		evt.Skip()
+		self._inRangeSelect = False
 		
 		
 	def __onWxGridEditorShown(self, evt):
