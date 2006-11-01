@@ -781,6 +781,8 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 	def _setSelection(self, node):
 		if self._constructed():
 			self.UnselectAll()
+			if node is None:
+				return
 			if isinstance(node, (list, tuple)):
 				for itm in node:
 					self.SelectItem(itm.itemID, True)
@@ -892,8 +894,6 @@ class dTreeView(wx.TreeCtrl, dcm.dControlMixin):
 class _dTreeView_test(dTreeView):
 	def afterInit(self): 
 		self.addDummyData()
-		self.Width = 240
-		self.Height = 140
 
 	def onHit(self, evt):
 		## pkm: currently, Hit happens on left mouse up, which totally ignores
