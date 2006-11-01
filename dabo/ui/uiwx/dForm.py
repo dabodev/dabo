@@ -528,7 +528,8 @@ Database error message: %s""") %	err
 		if not parentBizobj and self.bizobjs.has_key(dataSource):
 			return self.bizobjs[dataSource]
 			
-		if dataSource.lower() == "form":
+		if isinstance(dataSource, basestring) and \
+				dataSource.lower() == "form":
 			# The form isn't using bizobjs, but locally-bound data
 			# controls
 			return self
