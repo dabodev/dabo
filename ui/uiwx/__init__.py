@@ -1015,9 +1015,11 @@ def strToBmp(val, scale=None, width=None, height=None):
 				for pth in dabo.icons.__path__]
 		dabopaths = [os.path.join(pth, val) 
 				for pth in dabo.__path__]
+		localpaths = [os.path.join(os.getcwd(), pth, val)
+				for pth in ("icons", "resources")]
 		# Create a list of the places to search for the image, with
 		# the most likely choices first.
-		paths = [val] + iconpaths + dabopaths
+		paths = [val] + iconpaths + dabopaths + localpaths
 		# See if it's a standard icon
 		for pth in paths:
 			ret = dIcons.getIconBitmap(pth, noEmptyBmp=True)

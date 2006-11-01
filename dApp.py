@@ -622,8 +622,7 @@ class dApp(dObject):
 				ret = self.MainForm.BasePrefKey
 			except: pass
 		if not ret:
-			st = inspect.stack()[-1][0]
-			f = st.f_locals["__file__"]
+			f = inspect.stack()[-1][1]
 			pth = os.path.abspath(f)
 			if pth.endswith(".py"):
 				pth = pth[:-3]
