@@ -60,6 +60,9 @@ class Form(dabo.ui.dForm):
 		# We will need to set these separated if in Preview mode.
 		self.rowNumber = 0
 		self.rowCount = 0
+		# Set a default size
+		self.Size = (640, 480)
+
 
 	def _afterInit(self):
 		super(Form, self)._afterInit()
