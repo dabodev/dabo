@@ -46,6 +46,8 @@ class Form(dabo.ui.dForm):
 		self._autoUpdateStatusText = True
 		# The list of _tempfiles will be deleted when the form is destroyed:
 		self._tempFiles = []
+		# Do we automatically add edit pages for child bizobjs?
+		self._addChildEditPages = True
 	
 
 	def _initEvents(self):
@@ -331,7 +333,7 @@ class Form(dabo.ui.dForm):
 		else:
 			title = _("Edit")
 		self.addEditPage(ds, title)
-		if biz:
+		if biz and self.AddChildEditPages:
 			for child in biz.getChildren():
 				self.addEditPages(child.DataSource)
 
@@ -936,6 +938,17 @@ class Form(dabo.ui.dForm):
 		return rfxml
 
 
+	## Property get/set code below
+	def _getAddChildEditPages(self):
+		return self._addChildEditPages
+
+	def _setAddChildEditPages(self, val):
+		if self._constructed():
+			self._addChildEditPages = val
+		else:
+			self._properties["AddChildEditPages"] = val
+
+
 	def _getBrowseGridClass(self):
 		try:
 			val = self._browseGridClass
@@ -1046,6 +1059,10 @@ class Form(dabo.ui.dForm):
 
 
 	# Property definitions:
+	AddChildEditPages = property(_getAddChildEditPages, _setAddChildEditPages, None,
+			_("""Should the form automatically add edit pages for 
+			child bizobjs? (default=True)  (bool)"""))
+	
 	BrowseGridClass = property(_getBrowseGridClass, _setBrowseGridClass, None,
 			_("""Specifies the class to use for the browse grid."""))
 
