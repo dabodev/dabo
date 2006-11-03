@@ -1,7 +1,24 @@
 See the Subversion log for all the details.
 
-Dabo 0.6.5 (2006-04-18) (Revision 2124):
 
+----------------------------------------
+Dabo 0.6.6 (2006-11-03) (Revision 2420):
+----------------------------------------
+Don't get too excited, there are only a couple minor fixes here that
+likely will not affect you in any way. Do get excited about the 
+impending Dabo-0.7 release though, as there are many new features.
+
+Anyway, here's what has changed between 0.6.5 and 0.6.6:
+
++ Fixed dMenu and dMenuItem to work without a Dabo Application object.
++ Fixed dGrid to not generate double mouse-click events.
+
+I hereby name this the "Basil Shubin Edition". :)
+
+
+----------------------------------------
+Dabo 0.6.5 (2006-04-18) (Revision 2124):
+----------------------------------------
 Fixed showModal() to reactivate the windows previously deactivated when the 
 modal window is closed or hidden.
 
