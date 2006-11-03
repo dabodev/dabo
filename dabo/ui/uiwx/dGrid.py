@@ -3918,6 +3918,7 @@ class _dGrid_test(dGrid):
 
 
 if __name__ == '__main__':
+	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
 			self.BackColor = "khaki"
 			g = self.grid = _dGrid_test(self, RegID="sampleGrid")
