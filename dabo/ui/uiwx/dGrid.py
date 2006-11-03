@@ -1508,12 +1508,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def initEvents(self):
-		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__onWxMouseLeftDoubleClick)
+		## pkm: Don't do the grid_cell mouse events, because we handle it manually and it
+		##      would result in doubling up the events.
+		#self.Bind(wx.grid.EVT_GRID_CELL_LEFT_DCLICK, self.__onWxGridCellMouseLeftDoubleClick)
+		#self.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.__onWxGridCellMouseLeftClick)
+		#self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.__onWxGridCellMouseRightClick)
 		self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.__onWxGridRowSize)
 		self.Bind(wx.grid.EVT_GRID_SELECT_CELL, self.__onWxGridSelectCell)
 		self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.__onWxGridColSize)
-		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.__onWxMouseLeftClick)
-		self.Bind(wx.grid.EVT_GRID_CELL_RIGHT_CLICK, self.__onWxMouseRightClick)
 		self.Bind(wx.grid.EVT_GRID_EDITOR_SHOWN, self.__onWxGridEditorShown)
 		self.Bind(wx.grid.EVT_GRID_EDITOR_CREATED, self.__onWxGridEditorCreated)
 		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxGridCellChange)
@@ -3009,36 +3011,54 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.raiseEvent(dEvents.GridHeaderPaint, evt)
 		evt.Skip()
 
+	def _getColRowForPosition(self, pos):
+		"""Used in the mouse event handlers to stuff the col, row into EventData."""
+		col = self.XToCol(pos[0])
+		row = self.YToRow(pos[1])
+		if col < 0 or row < 0:
+			# click was outside grid cell area
+			col, row = None, None
+		return col, row
+
+
 	def __onWxMouseLeftDoubleClick(self, evt):
-		self.raiseEvent(dEvents.GridMouseLeftDoubleClick, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridMouseLeftDoubleClick, evt, col=col, row=row)
 		evt.Skip()
 
 	def __onWxMouseLeftClick(self, evt):
-		self.raiseEvent(dEvents.GridMouseLeftClick, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridMouseLeftClick, evt, col=col, row=row)
 		evt.Skip()
 
 	def __onWxMouseLeftDown(self, evt):
-		self.raiseEvent(dEvents.GridMouseLeftDown, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridMouseLeftDown, evt, col=col, row=row)
 		evt.Skip()
 
 	def __onWxMouseLeftUp(self, evt):
-		self.raiseEvent(dEvents.GridMouseLeftUp, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridMouseLeftUp, evt, col=col, row=row)
 		evt.Skip()
 
 	def __onWxMouseMotion(self, evt):
-		self.raiseEvent(dEvents.GridMouseMove, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridMouseMove, evt, col=col, row=row)
 		evt.Skip()
 
 	def __onWxMouseRightClick(self, evt):
-		self.raiseEvent(dEvents.GridMouseRightClick, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridMouseRightClick, evt, col=col, row=row)
 		evt.Skip()
 
 	def __onWxMouseRightDown(self, evt):
-		self.raiseEvent(dEvents.GridMouseRightDown, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridMouseRightDown, evt, col=col, row=row)
 		evt.Skip()
 
 	def __onWxMouseRightUp(self, evt):
-		self.raiseEvent(dEvents.GridMouseRightUp, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridMouseRightUp, evt, col=col, row=row)
 		evt.Skip()
 
 	##----------------------------------------------------------##
@@ -3896,8 +3916,8 @@ class _dGrid_test(dGrid):
 		self.RowLabels = ["a", "b", "3"]
 		#self.ShowRowLabels = True
 
+
 if __name__ == '__main__':
-	class TestForm(dabo.ui.dForm):
 		def afterInit(self):
 			self.BackColor = "khaki"
 			g = self.grid = _dGrid_test(self, RegID="sampleGrid")
