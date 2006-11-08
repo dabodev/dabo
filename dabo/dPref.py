@@ -322,8 +322,10 @@ class dPref(object):
 		sql = "select ckey from daboprefs where ckey like ?"
 		crs.execute(sql, ("%s.%%" % key, ))
 		rs = crs.getDataSet()
-		ret = [rec["ckey"][keylen:] for rec in rs
-				if len(rec["ckey"].split(".")) == keydots+1]
+		tmpDict = {}
+		for rec in rs:
+			tmpDict[rec["ckey"][keylen:keylen+len(rec["ckey"].split(".")[keydots])]] = None
+		ret = tmpDict.keys()
 		# Now add any cached entries
 		addl = [kk for kk in self._cache.keys()
 			if kk not in ret and kk.startswith(key) and not isinstance(kk, dPref)]
@@ -446,6 +448,9 @@ if __name__ == "__main__":
 	a.b.anotherValue = "Another Second"
 	a.b.c.CrazyMan = "Ed"
 
+	print a.getPrefKeys()
+	print a.b.getPrefKeys()
+	print a.b.c.getPrefKeys()
 
 	a.deletePref("b.c")
 	print a.getPrefs(True)
@@ -461,6 +466,8 @@ if __name__ == "__main__":
 
 	zz=a.getSubPrefKeys()
 	print "SUB PREFS", zz
+	zz = a.getPrefKeys()
+	print "PREF KEYS", zz
 	
 	a.AutoPersist = False
 	a.b.shouldntStay = "XXXXXXXXXX"
