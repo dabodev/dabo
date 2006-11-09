@@ -16,6 +16,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dabo.dEvents as dEvents
+import dabo.dColors as dColors
 from dabo.dLocalize import _
 import dDataControlMixin as dcm
 import dTimer
@@ -102,6 +103,8 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 		self._fontFace = None
 		self._fontSize = None
 		self._useBookmarks = False
+		self._selectionBackColor = None
+		self._selectionForeColor = None		
 				
 		stc.StyledTextCtrl.__init__(self, parent, -1, 
 				style = wx.NO_BORDER)
@@ -532,6 +535,8 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 		self.RegisterImage(5, dabo.ui.strToBmp("class"))		#, setMask=False))
 
 		self.CallTipSetBackground("yellow")
+		self.SelectionBackColor = "yellow"
+		self.SelectionForeColor = "black"
 		
 
 	def _setLineNumberMarginVisibility(self):
@@ -1634,6 +1639,36 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 		return self.GetModify()
 
 
+	def _getSelectionBackColor(self):
+		return self._selectionBackColor
+
+	def _setSelectionBackColor(self, val):
+		if self._constructed():
+			self._selectionBackColor = val
+			if isinstance(val, basestring):
+				try:
+					val = dColors.colorTupleFromName(val)
+				except: pass
+			self.SetSelBackground(1, val)
+		else:
+			self._properties["SelectionBackColor"] = val
+
+
+	def _getSelectionForeColor(self):
+		return self._selectionForeColor
+
+	def _setSelectionForeColor(self, val):
+		if self._constructed():
+			self._selectionForeColor = val
+			if isinstance(val, basestring):
+				try:
+					val = dColors.colorTupleFromName(val)
+				except: pass
+			self.SetSelForeground(1, val)
+		else:
+			self._properties["SelectionForeColor"] = val
+
+
 	def _getShowCallTips(self):
 		return self._showCallTips
 
@@ -1843,6 +1878,12 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 	
 	Modified = property(_getModified, None, None,
 			_("Has the content of this editor been modified?  (bool)"))
+	
+	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
+			_("Background color of selected text. Default=yellow  (str or tuple)"))
+	
+	SelectionForeColor = property(_getSelectionForeColor, _setSelectionForeColor, None,
+			_("Forecolor of the selected text. Default=black  (str or tuple)"))
 	
 	ShowCallTips = property(_getShowCallTips, _setShowCallTips, None,
 			_("Determines if call tips are shown (default=True)  (bool)"))
