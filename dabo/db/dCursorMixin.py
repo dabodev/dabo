@@ -1828,6 +1828,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 							field_scale = None
 						val.append((field_name, field_type, pk, self.Table, field_name, field_scale))
 				self._savedStructureDescription = val
+			self._dataStructure = val
 		return tuple(val)
 
 	def _setDataStructure(self, val):
