@@ -248,7 +248,7 @@ class DesignerXmlConverter(dObject):
 				prnt = ""
 				if isBorderSizer:
 					prnt = "currParent, "
-					propString = "%s, Caption=\"%s\"" % (self._extractKey(atts, "Orientation", "H"), 
+					propString = "'%s', Caption=\"%s\"" % (self._extractKey(atts, "Orientation", "H"), 
 							self._extractKey(atts, "Caption", ""))
 				self.classText += LINESEP + self._szText % (nm, prnt, propString, rowColString, szInfo)
 			

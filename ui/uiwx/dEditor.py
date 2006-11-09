@@ -636,10 +636,7 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 	def changeFontFace(self, fontFace):
 		if not self:
 			return
-		self._fontFace = fontFace
-		self.setDefaultFont(self._fontFace, self._fontSize)
-		self.setPyFont(self._fontFace, self._fontSize)
-		self.Application.setUserSetting("editor.fontface", self._fontFace)
+		self.FontFace = fontFace
 		
 	
 	def changeFontSize(self, fontSize):
@@ -657,11 +654,9 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 				except:
 					dabo.errorLog.write(_("Invalid value passed to changeFontSize: %s") % fontSize)
 					return
-			fontSize = newSize
-		self._fontSize = fontSize 
-		self.setDefaultFont(self._fontFace, self._fontSize)
-		self.setPyFont(self._fontFace, self._fontSize)
-		self.Application.setUserSetting("editor.fontsize", self._fontSize)
+		else:
+			newSize = fontSize
+		self.FontSize = newSize
 		
 		
 	def setDefaultFont(self, fontFace, fontSize):
@@ -1585,6 +1580,32 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 		return self._fileName
 
 
+	def _getFontSize(self):
+		return self._fontSize
+
+	def _setFontSize(self, val):
+		if self._constructed():
+			self._fontSize = val
+			self.setDefaultFont(self._fontFace, self._fontSize)
+			self.setPyFont(self._fontFace, self._fontSize)
+			self.Application.setUserSetting("editor.fontsize", self._fontSize)
+		else:
+			self._properties["FontSize"] = val
+
+
+	def _getFontFace(self):
+		return self._fontFace
+
+	def _setFontFace(self, val):
+		if self._constructed():
+			self._fontFace = val
+			self.setDefaultFont(self._fontFace, self._fontSize)
+			self.setPyFont(self._fontFace, self._fontSize)
+			self.Application.setUserSetting("editor.fontface", self._fontFace)
+		else:
+			self._properties["FontFace"] = val
+
+
 	def _getHiliteCharsBeyondLimit(self):
 		return self._hiliteCharsBeyondLimit
 
@@ -1858,6 +1879,12 @@ class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 	
 	FilePath = property(_getFilePath, None, None,
 			_("Full path of the file being edited  (str)"))
+	
+	FontFace = property(_getFontFace, _setFontFace, None,
+			_("Name of the font face used in the editor  (str)"))
+	
+	FontSize = property(_getFontSize, _setFontSize, None,
+			_("Size of the font used in the editor  (int)"))
 	
 	HiliteCharsBeyondLimit = property(_getHiliteCharsBeyondLimit, _setHiliteCharsBeyondLimit, None,
 			_("""When True, characters beyond the column set it 
