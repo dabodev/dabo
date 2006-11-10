@@ -25,5 +25,10 @@ daboNames.sort()
 wxNames = dict([[v,k] for k,v in dabo_to_wx.iteritems()]).items()
 wxNames.sort()
 
-print daboNames
-print wxNames
+for eachItem in daboNames:
+	print "%s = %s" % (eachItem[0], eachItem[1])
+
+print "\n\n"
+
+for eachItem in wxNames:
+	print "%s = %s" % (eachItem[0], eachItem[1])
