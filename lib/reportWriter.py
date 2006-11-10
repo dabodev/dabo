@@ -1443,10 +1443,13 @@ class ReportWriter(object):
 		page = _form["page"]
 		pageSize = page.getProp("size")
 
-		# reportlab expects the pageSize to be upper case:
-		pageSize = pageSize.upper()
-		# convert to the reportlab pageSize value (tuple(width,height)):
-		pageSize = eval("pagesizes.%s" % pageSize)
+		if isinstance(pageSize, basestring):
+			# reportlab expects the pageSize to be upper case:
+			pageSize = pageSize.upper()
+			# convert to the reportlab pageSize value (tuple(width,height)):
+			pageSize = eval("pagesizes.%s" % pageSize)
+		else:
+			pageSize = (self.getPt(pageSize[0]), self.getPt(pageSize[1]))
 		# run it through the portrait/landscape filter:
 		orientation = page.getProp("orientation").lower()
 		func = eval("pagesizes.%s" % orientation)
