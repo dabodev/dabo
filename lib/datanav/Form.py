@@ -1,5 +1,6 @@
 import os
 import random
+import traceback
 import wx
 import dabo.dEvents as dEvents
 import dabo.ui
@@ -469,7 +470,19 @@ class Form(dabo.ui.dForm):
 					ReportFormXML=rfxml, 
 					Cursor=cursor,
 					Encoding=biz.Encoding)
-			rw.write()
+			try:
+				rw.write()
+			except (UnicodeDecodeError,), e:
+				#error_string = traceback.format_exc()
+				error_string = str(e)
+				row_number = rw.RecordNumber
+				dabo.ui.stop("There was a problem having to do with the Unicode encoding "
+						"of your table, and ReportLab's inability to deal with any encoding "
+						"other than UTF-8. Sorry, but currently we don't have a resolution to "
+						"the problem, other than to recommend that you convert your data to "
+						"UTF-8 encoding. Here's the exact error message received:\n\n%s" 
+						"\n\nThis occurred in Record %s of your cursor." % (str(e), row_number))
+				return 
 
 			# Now, preview using the platform's default pdf viewer:
 			reportUtils.previewPDF(outputfile)
