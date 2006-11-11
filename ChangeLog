@@ -45,18 +45,18 @@ Bug Fixes:
 + dSpinner doesn't work correctly unless initialized to '0'. Fixed.
 + dForm.ActiveControl would return controls in other forms, if they were the
   current active control with keyboard focus, when clearly we want the active
-	control of *this* form. Fixed.
+  control of *this* form. Fixed.
 + Fixed function in dbSQLite to find and set the pk field.
 + Fixed __version__.py to work outside the expected directory naming
   structure.
 + Report writer wasn't initializing report variables before starting the 
   iteration of the cursor, resulting in errors if you referred to the
-	variables from inside the page header, for example. Fixed.
+  variables from inside the page header, for example. Fixed.
 + Setting the Value of a data-bound control programatically wasn't propagating 
   to the underlying bizobj. Fixed.
 + New reportlab can only handle utf-8, causing errors otherwise. Added a
   friendly message in case this happens to you when running the Quick Report
-	option in AppWizard-generated apps.
+  option in AppWizard-generated apps.
 
 Enhancements:
 + Can now send kwargs to grid.addColumn(), which get sent to the column's
@@ -66,12 +66,12 @@ Enhancements:
   transaction will be rolled back.
 + Enhanced the process used to determine field types. In addition to better
   automatic deduction of types, you can now explicitly set the DataStructure
-	property of dBizobj and Dabo will respect that.
+  property of dBizobj and Dabo will respect that.
 + Added Alt+Up and Alt+Down to AppWizard Apps, which bring you to first and
   last records, respectively.
 + Added properties for getting/setting the selection and insertion point for
   text controls. These are InsertionPosition, SelectedText, SelectionEnd,
-	SelectionLength, and SelectionStart.
+  SelectionLength, and SelectionStart.
 + Compound primary keys can now be used.
 + Dabo icon now has an alpha channel and looks much better. Thanks to Kenneth 
   Ismert for doing a great job of this.
@@ -90,8 +90,8 @@ Enhancements:
 + Added getCurrentRecord() that returns the actual record data.
 + Added dPref for managing application preferences, and switched the default
   way to save/restore settings to use this class. Your application can define
-	whatever hierarchy you see fit. See also the new BasePrefKey and 
-	PreferenceManager properties of dObject.
+  whatever hierarchy you see fit. See also the new BasePrefKey and 
+  PreferenceManager properties of dObject.
 + Added ForceCase property to dTextBox and dEditBox. Forces to upper, lower,
   or title case as the user types.
 + Added getTempCursor() to facilitate ad-hoc data queries.
@@ -117,7 +117,7 @@ Enhancements:
 + Added ability for About dialog subclasses to add their own version info.
 + Added helper functions to dabo.ui: isControlDown(), isShiftDown(), 
   isAltDown(), and isCommandDown() which will return True/False depending 
-	on whether the key is down while the call is made.
+  on whether the key is down while the call is made.
 + Added containerCoordinates() and formCoordinates() method, to get the 
   current mouse position relative to the container or form.
 + Added objectCoordinates(), which is relative to the object.
@@ -135,12 +135,12 @@ Enhancements:
   Edit menu.
 + Added dabo/ui/uiwx/concordance.py, which shows a listing of all the Dabo
   ui classes, and the wx Class from which they descend. Then, it shows the
-	wx classes, and the list of Dabo classes that descend from it. Should help
-	people with questions like "where is wx.TextCtrl in Dabo? (dTextBox).
+  wx classes, and the list of Dabo classes that descend from it. Should help
+  people with questions like "where is wx.TextCtrl in Dabo? (dTextBox).
 + Added MultipleSelection property to dGrid.
 + Improved dPageList, allowing setting the spacing of the list items with
   ListSpacing, and catching right-clicks smartly (the correct item gets 
-	referenced).
+  referenced).
 + Added function dabo.lib.getRandomUUID(). Thanks to Ka-Ping Yee.
 + Added method afterInitAll(), which gets called after all child objects have 
   been initialized and are live.
@@ -161,7 +161,8 @@ Enhancements:
   stop getting the annoying edit pages for the child bizobjs.
 + Previously, you could only set page sizes in reports to strings like 
   "letter", "a4", etc. Now, you can also set explicit sizes such as
-	(100, 75) or ("1.75 in", "1 in").
+  (100, 75) or ("1.75 in", "1 in").
+
 
 ========================================================================
 Dabo 0.6 (2006-03-27) (Revision 2043):
