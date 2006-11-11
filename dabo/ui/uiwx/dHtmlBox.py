@@ -1,6 +1,7 @@
 import wx.html
 import os
 import types
+import urllib2
 import dabo
 from dabo.dLocalize import _
 
@@ -23,6 +24,7 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 			kwargs["style"] = wx.TAB_TRAVERSAL
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		self.SetScrollRate(10, 10)
+		self._Source = self._Page = ""
 	#		self.SetScrollbars(10, 10, -1, -1)
 
 
@@ -60,16 +62,38 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 
 
 	def _getPage(self):
-		return self.GetOpenedPage()
+		return self._Page
 
 	def _setPage(self, val):
 		if isinstance(val, types.StringType):
-			if val[:7] == "http://":
+			try:
+				if os.path.exists(val):
+					file = open(val, 'r')
+					self._Source = file.read()
+					super(dHtmlBox, self).LoadFile(val)
+					self._Page = val
+					return
+				elif not val[:7] == "http://":
+					val = "http://" + val
+	
+				url = urllib2.urlopen(val)
+				self._Source = url.read()
 				super(dHtmlBox, self).LoadPage(val)
-			elif os.path.exists(val):
-				super(dHtmlBox, self).LoadFile(val)
-			else:
-				super(dHtmlBox, self).SetPage(val)
+				self._Page = val
+			except:
+				self._Source = "<html><body>Cannot Open URL %s</body><html>" % (val,)
+				self._Page = ""
+				super(dHtmlBox, self).SetPage(self._Source)
+
+	
+	def _getSource(self):
+		return self._Source
+
+	def _setSource(self, val):
+		if isinstance(val, types.StringType):
+			self._Source = val
+			self._Page = ""
+			super(dHtmlBox, self).SetPage(val)
 
 
 	def _getVerticalScroll(self):
@@ -90,7 +114,10 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 			_("Controls whether this object will scroll horizontally (default=True)  (bool)"))
 
 	Page = property(_getPage, _setPage, None,
-			_("URL, file path, or html text of the current page being displayed (default='')  (string)"))
+			_("URL or file path of the current page being displayed. (default='')  (string)"))
+
+	Source = property(_getSource, _setSource, None,
+			_("Html source of the current page being display. (default='')  (string)"))
 
 	VerticalScroll = property(_getVerticalScroll, _setVerticalScroll, None,
 			_("Controls whether this object will scroll vertically (default=True)  (bool)"))
@@ -106,7 +133,7 @@ class _dHtmlBox_test(dHtmlBox):
 	def afterInit(self):
 		self.SetScrollbars(10,10,100,100)
 	##		self.Page = "http://dabodev.com/"
-		self.Page = self.PageData()
+		self.Source = self.PageData()
 
 	def PageData(self):
 		return """<html>
