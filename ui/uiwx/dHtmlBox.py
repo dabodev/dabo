@@ -65,7 +65,7 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 		return self._Page
 
 	def _setPage(self, val):
-		if isinstance(val, types.StringType):
+		if isinstance(val, types.StringTypes):
 			try:
 				if os.path.exists(val):
 					file = open(val, 'r')
@@ -75,7 +75,7 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 					return
 				elif not val[:7] == "http://":
 					val = "http://" + val
-	
+
 				url = urllib2.urlopen(val)
 				self._Source = url.read()
 				super(dHtmlBox, self).LoadPage(val)
@@ -85,12 +85,12 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 				self._Page = ""
 				super(dHtmlBox, self).SetPage(self._Source)
 
-	
+
 	def _getSource(self):
 		return self._Source
 
 	def _setSource(self, val):
-		if isinstance(val, types.StringType):
+		if isinstance(val, types.StringTypes):
 			self._Source = val
 			self._Page = ""
 			super(dHtmlBox, self).SetPage(val)

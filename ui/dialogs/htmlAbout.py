@@ -18,20 +18,11 @@ class HtmlAbout(dabo.ui.dDialog):
 		self.bindKey("enter", self.onClear)
 
 	def addControls(self):
-		pnlBack = dabo.ui.dPanel(self, BackColor=dabo.dColors.colorTupleFromHex("#DEDEF5"))
-		self.Sizer.append(pnlBack, 1, "x")
+		pnlBack = dabo.ui.dPanel(self, BackColor="#DEDEF5")
+		self.Sizer.append1x(pnlBack)
 		pnlBack.Sizer = sz = dabo.ui.dSizer("v")
 
-		basepath = os.path.split(dabo.__file__)[0]
-		if self.Application.Platform == "Win":
-			self.Dabopath = "%s\\ui\\dialogs\\AboutData\\about.html" % (basepath,)
-		else:
-			self.Dabopath = "%s/ui/dialogs/AboutData/about.html" % (basepath,)
-
-		self.writeHtmlPage()
-
 		self.htmlBox = dabo.ui.dHtmlBox(self)
-		self.htmlBox.Page = self.Dabopath
 		self.htmlBox.Size = (400,300)
 		sz.append1x(self.htmlBox, halign="center", valign="center")
 
@@ -45,29 +36,11 @@ class HtmlAbout(dabo.ui.dDialog):
 		self.Layout()
 		pnlBack.Fit()
 
+		self.htmlBox.Source = self.writeHtmlPage()
 
-	def PageData(self):
-		return """<html>
-			<body bgcolor="#DEDEF5">
-				<img src="dabo_lettering_250x100.gif" alt="Dabo image" width="250" height="100">
-				</center>
-				<p>
-				[AppInfo]
-				</p>
-
-				<p>
-				[DocString]
-				</p>
-			</body>
-		</html>
-		"""
 
 	def writeHtmlPage(self):
-		file = open(self.Dabopath, 'w')
-		self.text = string.replace(self.PageData(), "[AppInfo]", self.getInfoString())
-		self.text = string.replace(self.text, "[DocString]", self.getAppSpecificString())
-		file.write(self.text)
-		file.close()
+		return self.pageData().replace("[DocString]", self.getAppSpecificString()).replace("[AppInfo]", self.getInfoString())
 
 
 	def getInfoDataSet(self):
@@ -103,7 +76,7 @@ class HtmlAbout(dabo.ui.dDialog):
 		for r in ds:
 			lines.append("%s %s" % (r["name"], r["value"]))
 
-			eol = "<br>\n"
+		eol = "<br>\n"
 
 		return eol.join(lines)
 
@@ -122,10 +95,28 @@ class HtmlAbout(dabo.ui.dDialog):
 
 
 	def onClear(self, evt):
-		self.Close()
+		self.release()
 
 	def onClose(self, evt=None):
 		self.release()
+
+	def pageData(self):
+		"""Basic Template structure of the About box."""
+		return """<html>
+	<body bgcolor="#DEDEF5">
+		<h1>
+		<b>Dabo</b>
+		</h1>
+
+		<p>
+		[AppInfo]
+		</p>
+
+		<p>
+		[DocString]
+		</p>
+	</body>
+</html>"""
 
 
 def main():
