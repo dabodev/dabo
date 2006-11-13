@@ -96,7 +96,9 @@ class dFormMixin(pm.dPemMixin):
 			if self.Connection is None:
 				dabo.infoLog.write(_("Could not establish connection '%s'") %
 						self._cxnName)
-		
+		# If code to create bizobjs is present, run it.
+		self.createBizobjs()
+			
 		super(dFormMixin, self)._afterInit()
 	
 	
@@ -221,6 +223,14 @@ class dFormMixin(pm.dPemMixin):
 			except: pass
 	
 	
+	def createBizobjs(self):
+		"""Can be overridden in instances to create the bizobjs this form needs.
+		It is provided so that tools such as the Class Designer can create skeleton
+		code that the user can later enhance.
+		"""
+		pass
+		
+		
 	def showModal(self):
 		"""Shows the form in a modal fashion. Other forms can still be
 		activated, but all controls are disabled.
@@ -418,10 +428,11 @@ class dFormMixin(pm.dPemMixin):
 			return self._objectRegistry[id]
 		else:
 			return None
-			
-			
+	
+	
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
 		menu.append(caption, bindfunc=function, bmp=bitmap)
+
 
 	def appendToolBarButton(self, name, pic, bindfunc=None, toggle=False, tip="", help=""):
 		self.ToolBar.appendButton(name, pic, bindfunc=bindfunc, toggle=toggle, 
