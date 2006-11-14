@@ -1,7 +1,7 @@
 See the Subversion log for all the details.
 
 ========================================================================
-Dabo 0.7 (2006-11-xx) (Revision 22xx):
+Dabo 0.7 (2006-11-14) (Revision 2448):
 
 It has sure been a while, but we haven't been resting. Lots of new stuff
 as we move one step forward to Dabo 1.0. Here are the most important
@@ -162,7 +162,10 @@ Enhancements:
 + Previously, you could only set page sizes in reports to strings like 
   "letter", "a4", etc. Now, you can also set explicit sizes such as
   (100, 75) or ("1.75 in", "1 in").
-
++ Added preliminary support for Microsoft SQL Server. This isn't usable yet 
+  for any but the most tenacious developers, and likely quite buggy. If you 
+  want to try it out or help develop it, please post a message to the dabo
+  developer's list (dabo-dev@leafe.com). 
 
 ========================================================================
 Dabo 0.6 (2006-03-27) (Revision 2043):
