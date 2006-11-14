@@ -163,17 +163,24 @@ class PropertyHelperMixin(object):
 		self.setProperties({"FontBold": True}, ForeColor="Red")
 		"""
 		def _setProps(_propDict):
+			delayedSetter, delayedValue = None, None
 			for prop in _propDict.keys():
 				propRef = eval("self.__class__.%s" % prop)
 				if type(propRef) == property:
 					setter = propRef.fset
 					if setter is not None:
-						setter(self, _propDict[prop])
+						if prop == "Value":	
+							# We need to delay setting this to last
+							delayedSetter, delayedValue = setter, _propDict[prop]
+						else:
+							setter(self, _propDict[prop])
 					else:
 						if not ignoreErrors:
 							raise ValueError, "Property '%s' is read-only." % prop
 				else:
 					raise AttributeError, "'%s' is not a property." % prop
+			if delayedSetter is not None:
+				delayedSetter(self, delayedValue)
 					
 		# Set the props specified in the passed propDict dictionary:
 		_setProps(propDict)
@@ -197,15 +204,22 @@ class PropertyHelperMixin(object):
 					# ignore
 					continue
 				else:
-					raise AttributeError, "'%s' is not a property." % prop				
-			try:
-				exec("self.%s = %s" % (prop, val) )
-			except:
+					raise AttributeError, "'%s' is not a property." % prop
+			if isinstance(eval("self.%s" % prop), basestring):
 				# If this is property holds strings, we need to quote the value.
 				try:
 					exec("self.%s = '%s'" % (prop, val) )
 				except:
 					raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
+			else:
+				try:
+					exec("self.%s = %s" % (prop, val) )
+				except:
+					# Still could be a string, if the original value was None
+					try:
+						exec("self.%s = '%s'" % (prop, val) )
+					except:
+						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
 		
 			
 	def getPropertyList(cls, refresh=False):

@@ -17,11 +17,16 @@ class dFormMixin(pm.dPemMixin):
 			src=None, attProperties=None, *args, **kwargs):
 
 		# Windows sends two Activate events, and one of them is too early.
-		# Skip the first one.
-		self._skipActivate = (sys.platform[:3] == "win")
+		# Skip the first one
+		self._skipActivate = (self.Application.Platform == "Win")
 
 		# Extract the connection name, if any
-		self._cxnName = self._extractKey(kwargs, "CxnName", "")
+		self._cxnFile = self._extractKey((properties, attProperties, kwargs), 
+				"CxnFile", "")
+		self._cxnName = self._extractKey((properties, attProperties, kwargs), 
+				"CxnName", "")
+		if self._cxnFile == "None":
+			self._cxnFile = ""
 		if self._cxnName == "None":
 			self._cxnName = ""
 		self._connection = None
@@ -36,13 +41,15 @@ class dFormMixin(pm.dPemMixin):
 			style = self._extractKey(kwargs, "style", 0)
 			if not style:
 				# No style was explicitly set
-				style = wx.DEFAULT_FRAME_STYLE	
+				style = wx.DEFAULT_FRAME_STYLE
 		kwargs["style"] = style
 
 		self._objectRegistry = {}
 
 		# Flag to skip updates when they aren't needed
 		self._isClosed = False
+		# Flag that indicates if the form was shown modally
+		self._isModal = False
 		# Sizer outline drawing flag
 		self.__needOutlineRedraw = False
 		# When in designer mode, we need to turn off various behaviors.
@@ -82,12 +89,16 @@ class dFormMixin(pm.dPemMixin):
 		self._normLeft = self.Left
 		self._normTop = self.Top
 
+		if self._cxnFile:
+			self.Application.addConnectFile(self._cxnFile)
 		if self._cxnName:
 			self.Connection = self.Application.getConnectionByName(self._cxnName)
 			if self.Connection is None:
 				dabo.infoLog.write(_("Could not establish connection '%s'") %
 						self._cxnName)
-		
+		# If code to create bizobjs is present, run it.
+		self.createBizobjs()
+			
 		super(dFormMixin, self)._afterInit()
 	
 	
@@ -111,16 +122,17 @@ class dFormMixin(pm.dPemMixin):
 		
 		
 	def __onWxActivate(self, evt):
-		""" Raise the Dabo Activate or Deactivate appropriately.
-		"""
+		""" Raise the Dabo Activate or Deactivate appropriately."""
 		if bool(evt.GetActive()):
 			if self._skipActivate:
 				# Skip the first activate (Windows)
 				self._skipActivate = False
 			else:
 				self.raiseEvent(dEvents.Activate, evt)
+				self._skipActivate = (self.Application.Platform == "Win")
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
+		evt.Skip()
 			
 			
 	def __onActivate(self, evt): 
@@ -140,12 +152,14 @@ class dFormMixin(pm.dPemMixin):
 		tb = self.ToolBar
 		
 		if self.Application is not None:
-			self.Application._setActiveForm(self)
+			if self.Application.Platform != "Win":
+				self.Application.ActiveForm = self
+		
 	
 	def __onDeactivate(self, evt):
 #		self.saveSizeAndPosition()
 		if self.Application is not None and self.Application.ActiveForm == self:
-			self.Application._setActiveForm(None)
+			self.Application.clearActiveForm(self)
 	
 
 	def __onMove(self, evt):
@@ -154,7 +168,7 @@ class dFormMixin(pm.dPemMixin):
 		except:
 			restoredSP = False
 		if restoredSP:		
-			self.saveSizeAndPosition()
+			dabo.ui.callAfterInterval(800, self.saveSizeAndPosition)
 	
 	
 	def __onResize(self, evt):
@@ -162,9 +176,9 @@ class dFormMixin(pm.dPemMixin):
 			restoredSP = self.restoredSP
 		except:
 			restoredSP = False
-		if restoredSP:		
-			self.saveSizeAndPosition()
-	
+		if restoredSP:
+			dabo.ui.callAfterInterval(800, self.saveSizeAndPosition)
+			
 	
 	def __onPaint(self, evt):
 		if self.Application:
@@ -191,6 +205,8 @@ class dFormMixin(pm.dPemMixin):
 		app = self.Application
 
 		self._isClosed = True
+		if self._isModal:
+			self.MakeModal(False)
 
 		# On the Mac, this next line prevents Bus Errors when closing a form.
 		self.Visible = False	
@@ -207,6 +223,22 @@ class dFormMixin(pm.dPemMixin):
 			except: pass
 	
 	
+	def createBizobjs(self):
+		"""Can be overridden in instances to create the bizobjs this form needs.
+		It is provided so that tools such as the Class Designer can create skeleton
+		code that the user can later enhance.
+		"""
+		pass
+		
+		
+	def showModal(self):
+		"""Shows the form in a modal fashion. Other forms can still be
+		activated, but all controls are disabled.
+		"""
+		self.MakeModal(True)
+		self._isModal = self.Visible = True
+		
+		
 	def release(self):
 		""" Instead of just destroying the object, make sure that
 		we close it properly and clean up any references to it.
@@ -350,7 +382,7 @@ class dFormMixin(pm.dPemMixin):
 					self.Application.setUserSetting("%s.top" % name, pos[1])
 					self.Application.setUserSetting("%s.width" % name, size[0])
 					self.Application.setUserSetting("%s.height" % name, size[1])
-
+				
 
 	def setStatusText(self, *args):
 		"""Moved functionality to the StatusText property setter."""
@@ -364,16 +396,8 @@ class dFormMixin(pm.dPemMixin):
 			# Call the Dabo version, if present
 			self.Sizer.layout()
 		except: pass
-	
-	
-	def bringToFront(self):
-		"""Makes this window topmost"""
-		self.Raise()
-	
-	
-	def sendToBack(self):
-		"""Places this window behind all others."""
-		self.Lower()
+		if self.Application.Platform == "Win":
+			self.refresh()
 	
 	
 	def registerObject(self, obj):
@@ -385,7 +409,10 @@ class dFormMixin(pm.dPemMixin):
 		if hasattr(obj, "RegID"):
 			id = obj.RegID
 			if self._objectRegistry.has_key(id):
-				raise KeyError, _("Duplicate RegID '%s' found") % id
+				if not isinstance(self._objectRegistry[id], dabo.ui.deadObject):
+					raise KeyError, _("Duplicate RegID '%s' found") % id
+				else:
+					del self.__dict__[id]
 			self._objectRegistry[id] = obj
 			if hasattr(self, id) or self.__dict__.has_key(id):
 				dabo.errorLog.write(_("RegID '%s' conflicts with existing name") % id)
@@ -401,10 +428,11 @@ class dFormMixin(pm.dPemMixin):
 			return self._objectRegistry[id]
 		else:
 			return None
-			
-			
+	
+	
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
 		menu.append(caption, bindfunc=function, bmp=bitmap)
+
 
 	def appendToolBarButton(self, name, pic, bindfunc=None, toggle=False, tip="", help=""):
 		self.ToolBar.appendButton(name, pic, bindfunc=bindfunc, toggle=toggle, 
@@ -422,7 +450,12 @@ class dFormMixin(pm.dPemMixin):
 
 	# property get/set/del functions follow:
 	def _getActiveControl(self):
-		return self.FindFocus()
+		# Can't use FindFocus: it returns whatever control has the keyboard focus,
+		# whether or not it is a member of this form.
+		return getattr(self, "_activeControl", None)
+		
+	def _setActiveControl(self, val):
+		val.setFocus()
 
 	
 	def _getAutoUpdateStatusText(self):
@@ -791,36 +824,29 @@ class dFormMixin(pm.dPemMixin):
 
 
 	# property definitions follow:
-	ActiveControl = property(_getActiveControl, None, None, 
+	ActiveControl = property(_getActiveControl, _setActiveControl, None, 
 			_("Contains a reference to the active control on the form, or None."))
 	
 	AutoUpdateStatusText = property(_getAutoUpdateStatusText, _setAutoUpdateStatusText, None,
 			_("Does this form update the status text with the current record position?  (bool)"))
-	DynamicAutoUpdateStatusText = makeDynamicProperty(AutoUpdateStatusText)
 
 	BorderResizable = property(_getBorderResizable, _setBorderResizable, None,
 			_("Specifies whether the user can resize this form.  (bool)."))
-	DynamicBorderResizable = makeDynamicProperty(BorderResizable)
 
 	Centered = property(_getCentered, _setCentered, None, 
 			_("Centers the form on the screen when set to True.  (bool)"))
-	DynamicCentered = makeDynamicProperty(Centered)
 
 	Connection = property(_getConnection, _setConnection, None,
 			_("The connection to the database used by this form  (dConnection)"))
-	DynamicConnection = makeDynamicProperty(Connection)
 
 	FloatOnParent = property(_getFloatOnParent, _setFloatOnParent, None,
 			_("Specifies whether the form stays on top of the parent or not."))
-	DynamicFloatOnParent = makeDynamicProperty(FloatOnParent)
 	
 	Icon = property(_getIcon, _setIcon, None, 
 			_("Specifies the icon for the form. (wxIcon)"))
-	DynamicIcon = makeDynamicProperty(Icon)
 
 	IconBundle = property(_getIconBundle, _setIconBundle, None,
 			_("Specifies the set of icons for the form. (wxIconBundle)"))
-	DynamicIconBundle = makeDynamicProperty(IconBundle)
 
 	MDI = property(_getMDI, None, None,
 			_("""Returns True if this is a MDI (Multiple Document Interface) form.  (bool)
@@ -833,7 +859,6 @@ class dFormMixin(pm.dPemMixin):
 
 	MenuBar = property(_getMenuBar, _setMenuBar, None,
 			_("Specifies the menu bar instance for the form."))
-	DynamicMenuBar = makeDynamicProperty(MenuBar)
 
 	MenuBarClass = property(_getMenuBarClass, _setMenuBarClass, None,
 			_("Specifies the menu bar class to use for the form, or None."))
@@ -846,7 +871,6 @@ class dFormMixin(pm.dPemMixin):
 		
 	ShowCaption = property(_getShowCaption, _setShowCaption, None,
 			_("Specifies whether the caption is displayed in the title bar. (bool)."))
-	DynamicShowCaption = makeDynamicProperty(ShowCaption)
 
 	ShowCloseButton = property(_getShowCloseButton, _setShowCloseButton, None,
 			_("Specifies whether a close button is displayed in the title bar. (bool)."))
@@ -865,7 +889,6 @@ class dFormMixin(pm.dPemMixin):
 
 	ShowStatusBar = property(_getShowStatusBar, _setShowStatusBar, None,
 			_("Specifies whether the status bar gets automatically created."))
-	DynamicShowStatusBar = makeDynamicProperty(ShowStatusBar)
 
 	ShowSystemMenu = property(_getShowSystemMenu, _setShowSystemMenu, None,
 			_("Specifies whether a system menu is displayed in the title bar. (bool)."))
@@ -875,11 +898,9 @@ class dFormMixin(pm.dPemMixin):
 
 	StatusBar = property(_getStatusBar, None, None,
 			_("Status bar for this form. (dStatusBar)"))
-	DynamicStatusBar = makeDynamicProperty(StatusBar)
 
 	StatusText = property(_getStatusText, _setStatusText, None,
 			_("Text displayed in the form's status bar. (string)"))
-	DynamicStatusText = makeDynamicProperty(StatusText)
 
 	StayOnTop = property(_getStayOnTop, _setStayOnTop, None,
 			_("Keeps the form on top of all other forms. (bool)"))
@@ -889,7 +910,6 @@ class dFormMixin(pm.dPemMixin):
 
 	ToolBar = property(_getToolBar, _setToolBar, None,
 			_("Tool bar for this form. (dToolBar)"))
-	DynamicToolBar = makeDynamicProperty(ToolBar)
 
 	WindowState = property(_getWindowState, _setWindowState, None,
 			_("""Specifies the current state of the form. (int)
@@ -898,5 +918,19 @@ class dFormMixin(pm.dPemMixin):
 					Minimized
 					Maximized
 					FullScreen"""))
-	DynamicWindowState = makeDynamicProperty(WindowState)
 
+
+	DynamicAutoUpdateStatusText = makeDynamicProperty(AutoUpdateStatusText)
+	DynamicBorderResizable = makeDynamicProperty(BorderResizable)
+	DynamicCentered = makeDynamicProperty(Centered)
+	DynamicConnection = makeDynamicProperty(Connection)
+	DynamicFloatOnParent = makeDynamicProperty(FloatOnParent)
+	DynamicIcon = makeDynamicProperty(Icon)
+	DynamicIconBundle = makeDynamicProperty(IconBundle)
+	DynamicMenuBar = makeDynamicProperty(MenuBar)
+	DynamicShowCaption = makeDynamicProperty(ShowCaption)
+	DynamicShowStatusBar = makeDynamicProperty(ShowStatusBar)
+	DynamicStatusBar = makeDynamicProperty(StatusBar)
+	DynamicStatusText = makeDynamicProperty(StatusText)
+	DynamicToolBar = makeDynamicProperty(ToolBar)
+	DynamicWindowState = makeDynamicProperty(WindowState)

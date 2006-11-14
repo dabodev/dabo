@@ -98,7 +98,7 @@ class SplashScreen(wx.Frame):
 
 
 class uiApp(wx.App, dObject):
-	def __init__(self, app, callback, *args):
+	def __init__(self, app, callback=None, *args):
 		self.dApp = app
 		self.callback = callback
 		wx.App.__init__(self, 0, *args)
@@ -186,13 +186,19 @@ class uiApp(wx.App, dObject):
 		except:
 			pass
 		self.SetTopWindow(val)
+		# For performance, block all event bindings until after the form is shown.
+		eb = val._EventBindings[:]
+		val._EventBindings = []
 		val.Show(self.dApp.showMainFormOnStart)
-		
+		val._EventBindings = eb
+
 
 	def start(self, dApp):
 		# Manually raise Activate, as wx doesn't do that automatically
-
-		self.raiseEvent(dEvents.Activate)
+		try:
+			self.dApp.MainForm.raiseEvent(dEvents.Activate)
+		except:
+			self.raiseEvent(dEvents.Activate)
 		self.MainLoop()
 
 	
@@ -299,12 +305,22 @@ class uiApp(wx.App, dObject):
 				if hasattr(win, "cut"):
 					handled = (win.cut() is not None)
 				if not handled:
+					# See if the control is inside a grid
+					grd = self._getContainingGrid(win)
+					if grd and hasattr(grd, "cut"):
+						handled = (grd.cut() is not None)
+				if not handled:
 					if hasattr(win, "Cut"):
 						win.Cut()
 						handled = True
 			else:
 				if hasattr(win, "copy"):
 					handled = (win.copy() is not None)
+				if not handled:
+					# See if the control is inside a grid
+					grd = self._getContainingGrid(win)
+					if grd and hasattr(grd, "copy"):
+						handled = (grd.copy() is not None)
 				if not handled:
 					if hasattr(win, "Copy"):
 						win.Copy()
@@ -339,6 +355,12 @@ class uiApp(wx.App, dObject):
 			if hasattr(win, "paste"):
 				handled = (win.paste() is not None)
 			if not handled:
+				# See if the control is inside a grid
+				grd = self._getContainingGrid(win)
+				if grd and hasattr(grd, "paste"):
+					handled = (grd.paste() is not None)
+			if not handled:
+				# See if it has a wx-level Paste() method
 				if hasattr(win, "Paste"):
 					win.Paste()
 					handled = True
@@ -348,7 +370,6 @@ class uiApp(wx.App, dObject):
 					selection = win.GetSelection()
 				except AttributeError:
 					selection = None
-	
 				if selection != None:
 					data = wx.TextDataObject()
 					cb = wx.TheClipboard
@@ -359,6 +380,31 @@ class uiApp(wx.App, dObject):
 						win.Replace(selection[0], selection[1], data.GetText())
 		
 
+	def onEditSelectAll(self, evt):
+		if self.ActiveForm:
+			win = self.ActiveForm.ActiveControl
+			if win:
+				try:
+					win.SetSelection(-1, -1)
+				except: pass			
+
+			
+	def _getContainingGrid(self, win):
+		"""Returns the grid that contains the specified window, or None
+		if the window is not contained in a grid.
+		"""
+		ret = None
+		while win:
+			if isinstance(win, wx.grid.Grid):
+				ret = win
+				break
+			try:
+				win = win.GetParent()
+			except AttributeError:
+				win = None
+		return ret
+		
+		
 	def onEditPreferences(self, evt):
 		dabo.infoLog.write(_("Stub: uiApp.onEditPreferences()"))
 
@@ -718,10 +764,13 @@ class uiApp(wx.App, dObject):
 	
 	
 	def _getActiveForm(self):
-		try:
-			v = self._activeForm
-		except AttributeError:
-			v = self._activeForm = None
+		if self._platform == "Win":
+			v = wx.GetActiveWindow()
+		else:
+			try:
+				v = self._activeForm
+			except AttributeError:
+				v = self._activeForm = None
 		return v
 
 	def _setActiveForm(self, frm):
@@ -735,8 +784,7 @@ class uiApp(wx.App, dObject):
 		self._drawSizerOutlines = val
 	
 	
-	
-	ActiveForm = property(_getActiveForm, None, None, 
+	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
 			_("Returns the form that currently has focus, or None.	(dForm)" ) )
 
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,

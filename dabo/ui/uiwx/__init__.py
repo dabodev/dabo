@@ -10,7 +10,7 @@ from dabo.dLocalize import _
 _failedLibs = []
 # note: may need wx.animate as well
 for lib in ("wx", "wx.stc", "wx.lib.foldpanelbar", "wx.gizmos", 
-		"wx.lib.calendar"):
+		"wx.lib.calendar", "wx.lib.masked", "wx.lib.buttons"):
 	try:
 		__import__(lib)
 	except ImportError:
@@ -93,6 +93,7 @@ from dGauge import dGauge
 from dGrid import dGrid
 from dGrid import dColumn
 from dGridSizer import dGridSizer
+from dHtmlBox import dHtmlBox
 from dHyperLink import dHyperLink
 import dIcons
 from dImage import dImage
@@ -107,6 +108,7 @@ from dMenu import dMenu
 from dMenuItem import *
 import dMessageBox
 from dRadioGroup import dRadioGroup
+from dRadioList import dRadioList
 from dPanel import dPanel
 from dPanel import dScrollPanel
 from dPageFrame import dPageFrame
@@ -163,7 +165,7 @@ artConstants["info"] = artConstants.get("information")
 artConstants["file"] = artConstants.get("normalfile")
 
 
-def getUiApp(app, callback):
+def getUiApp(app, callback=None):
 	"""This returns an instance of uiApp. If one is already running, that
 	instance is returned. Otherwise, a new instance is created.
 	"""
@@ -290,7 +292,7 @@ def getEventData(wxEvt):
 	
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, wx.TreeEvent,
 			wx.CommandEvent, wx.CloseEvent, wx.grid.GridEvent,
-			wx.grid.GridSizeEvent) ):
+			wx.grid.GridSizeEvent, wx.SplitterEvent) ):
 		
 		if dabo.allNativeEventInfo:
 			# Cycle through all the attributes of the wx events, and evaluate them
@@ -311,7 +313,13 @@ def getEventData(wxEvt):
 						pass
 			except:
 				pass
-		
+	
+	if isinstance(wxEvt, (wx.SplitterEvent,) ):
+		try:
+			ed["mousePosition"] = (wxEvt.GetX(), wxEvt.GetY())
+		except:
+			ed["mousePosition"] = wx.GetMousePosition()
+
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent) ):
 		ed["mousePosition"] = wxEvt.GetPositionTuple()
 		ed["altDown"] = wxEvt.AltDown()
@@ -321,6 +329,12 @@ def getEventData(wxEvt):
 		ed["shiftDown"] = wxEvt.ShiftDown()
 		if isinstance(wxEvt, wx.MouseEvent):
 			ed["mouseDown"] = ed["dragging"] = wxEvt.Dragging()
+
+	if isinstance(wxEvt, wx.ListEvent):
+		pos = wxEvt.GetPosition()
+		obj = wxEvt.GetEventObject()
+		idx, flg = obj.HitTest(pos)
+		ed["listIndex"] = idx
 
 	if isinstance(wxEvt, wx.MenuEvent):
 		menu = wxEvt.GetMenu()
@@ -333,6 +347,10 @@ def getEventData(wxEvt):
 		
 
 	if isinstance(wxEvt, wx.CommandEvent):
+		# It may have mouse information
+		try:
+			ed["mousePosition"] = wxEvt.GetPoint().Get()
+		except: pass
 		# See if it's a menu selection
 		obj = wxEvt.GetEventObject()
 		if isinstance(obj, dMenu):
@@ -369,13 +387,27 @@ def getEventData(wxEvt):
 		ed["selectedNode"] = sel
 		if isinstance(sel, list):
 			ed["selectedCaption"] = ", ".join([ss.Caption for ss in sel])
-		else:
+		elif tree.Selection is not None:
 			ed["selectedCaption"] = tree.Selection.Caption
+		else:
+			ed["selectedCaption"] = ""
 		try:
 			ed["itemID"] = wxEvt.GetItem()
+			ed["itemNode"] = tree.find(ed["itemID"])[0]
 		except:
 			pass
 	
+	if isinstance(wxEvt, wx.SplitterEvent):
+		try:
+			ed["sashPosition"] = wxEvt.GetSashPosition()
+		except:
+			ed["sashPosition"] = wxEvt.GetEventObject().SashPosition
+		if hasattr(wxEvt, "GetWindowBeingRemoved"):
+			try:
+				ed["windowRemoved"] = wxEvt.GetWindowBeingRemoved()
+			except:
+				ed["windowRemoved"] = None
+		
 	if hasattr(wxEvt, "GetId"):
 		ed["id"] = wxEvt.GetId()
 
@@ -434,13 +466,55 @@ def getMousePosition():
 	return wx.GetMousePosition()
 
 
+def getFormMousePosition():
+	"""Returns the position of the mouse relative to the top left
+	corner of the form.
+	"""
+	actwin = dabo.dAppRef.ActiveForm
+	return actwin.relativeCoordinates(wx.GetMousePosition())
+	
+
 def getMouseObject():
 	"""Returns a reference to the object below the mouse pointer
 	at the moment the command is issued. Useful for interactive 
 	development when testing changes to classes 'in the wild' of a 
 	live application.
 	"""
-	return wx.FindWindowAtPoint(getMousePosition())
+# 	print "MOUSE POS:", getMousePosition()
+# 	win = wx.FindWindowAtPoint(getMousePosition())
+	actwin = dabo.dAppRef.ActiveForm
+# 	print "ACTWIN", actwin
+	if isinstance(actwin, dabo.ui.dShell.dShell):
+		actwin.lockDisplay()
+		actwin.sendToBack()	
+	else:
+		actwin = None
+	win = wx.FindWindowAtPointer()
+	if actwin is not None:
+		actwin.bringToFront()
+		actwin.unlockDisplay()
+	while not isinstance(win, dabo.ui.dPemMixin):
+		try:
+			win = win.GetParent()
+		except AttributeError:
+			break
+	return win
+
+
+def isControlDown():
+	return wx.GetMouseState().controlDown
+
+
+def isCommandDown():
+	return wx.GetMouseState().cmdDown
+
+
+def isShiftDown():
+	return wx.GetMouseState().shiftDown
+
+
+def isAltDown():
+	return wx.GetMouseState().altDown
 
 
 #### This will have to wait until I can figure out how to simulate a 
@@ -941,9 +1015,11 @@ def strToBmp(val, scale=None, width=None, height=None):
 				for pth in dabo.icons.__path__]
 		dabopaths = [os.path.join(pth, val) 
 				for pth in dabo.__path__]
+		localpaths = [os.path.join(os.getcwd(), pth, val)
+				for pth in ("icons", "resources")]
 		# Create a list of the places to search for the image, with
 		# the most likely choices first.
-		paths = [val] + iconpaths + dabopaths
+		paths = [val] + iconpaths + dabopaths + localpaths
 		# See if it's a standard icon
 		for pth in paths:
 			ret = dIcons.getIconBitmap(pth, noEmptyBmp=True)

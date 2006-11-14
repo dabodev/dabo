@@ -4,6 +4,7 @@ import dPemMixin
 import dSizerMixin
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
+import warnings
 
 
 class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
@@ -22,11 +23,6 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		"""
 		self._baseClass = dGridSizer
 		self._parent = None
-		# Save these values, as there is no easy way to determine them
-		# later
-		self.hgap = hgap
-		self.vgap = vgap
-		
 		wx.GridBagSizer.__init__(self, vgap=vgap, hgap=hgap)
 		
 		self._maxRows = 0
@@ -41,9 +37,10 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			# Rows were passed.
 			self.MaxRows = maxRows
 		self.SetFlexibleDirection(self.bothFlag)
-		# Keep track of the highest numbered row/col that
-		# contains an item
-		self._highRow = self._highCol = -1
+		# Keep track of which rows/cols are set to expand.
+		self._rowExpandState = {}
+		self._colExpandState = {}
+		
 
 		for k,v in kwargs.items():
 			try:
@@ -61,9 +58,9 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		"""
 		if borderSides is None:
 			if borderFlags is not None:
-				dabo.errorLog.write(_("Depracation warning: use 'borderSides' parameter instead."))
+				warnings.warn(_("Deprecation warning: use 'borderSides' parameter instead."), DeprecationWarning)
 				borderSides = borderFlags
-		(targetRow, targetCol) = self.determineAvailableCell(row, col)
+		(targetRow, targetCol) = self._determineAvailableCell(row, col)
 		if isinstance(item, (tuple, int)):
 			# spacer
 			if isinstance(item, int):
@@ -83,9 +80,6 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			item._controllingSizer = self
 			item._controllingSizerItem = szItem
 			szItem.ControllingSizer = self
-			
-		self._highRow = max(self._highRow, targetRow)
-		self._highCol = max(self._highCol, targetCol)
 		return szItem
 		
 		
@@ -129,18 +123,17 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 				itm = szitm.GetSpacer()
 				self.remove(itm)
 		# OK, all items are removed. Now move all higher rows upward
-		for r in range(rowNum+1, self._highRow+1):
-			for c in range(self._highCol+1):
+		for r in range(rowNum+1, self.HighRow+1):
+			for c in range(self.HighCol+1):
 				self.moveCell(r, c, r-1, c, delay=True)
 		self.layout()
-		self._highRow -= 1
 		
 		
 	def removeCol(self, colNum):
 		""" Deletes any items contained in the specified column, and
 		then moves all items to the right of it up to fill the space.
 		"""
-		for r in range(self._highRow+1):
+		for r in range(self.HighRow+1):
 			szitm = self.FindItemAtPosition( (r, colNum) )
 			if not szitm:
 				continue
@@ -158,7 +151,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 				itm = szitm.GetSpacer()
 				self.remove(itm)
 		# OK, all items are removed. Now move all higher columns to the left
-		for r in range(self._highRow+1):
+		for r in range(self.HighRow+1):
 			for c in range(colNum+1, self._highCol+1):
 				self.moveCell(r, c, r, c-1, delay=True)
 		self.layout()
@@ -184,7 +177,8 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 				for column in c.keys():
 					self.setColExpand(expand, column, proportion)
 		else:
-			curr = self.isColGrowable(colNum)
+			curr = self.getColExpand(colNum)
+			self._colExpandState[colNum] = expand
 			if expand and not curr:
 				self.AddGrowableCol(colNum, proportion=proportion)
 			elif not expand and curr:
@@ -211,7 +205,8 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 				for row in r.keys():
 					self.setRowExpand(expand, row, proportion)
 		else:
-			curr = self.isRowGrowable(rowNum)
+			curr = self.getRowExpand(rowNum)
+			self._rowExpandState[rowNum] = expand
 			if expand and not curr:
 				self.AddGrowableRow(rowNum, proportion=proportion)
 			elif not expand and curr:
@@ -229,28 +224,32 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		self.setRowExpand(True, "all")
 		
 	
+	def setFullCollapse(self):
+		"""Convenience method for setting all columns and rows of the 
+		sizer to not be growable.
+		"""
+		self.setColExpand(False, "all")
+		self.setRowExpand(False, "all")
+		
+	
 	def isRowGrowable(self, row):
+		warnings.warn(_("Deprecated; use 'getRowExpand' instead."), DeprecationWarning)
+		return self.getRowExpand(row)
+	
+	
+	def getRowExpand(self, row):
 		"""Returns True if the specified row is growable."""
-		# If the row isn't growable, it will throw an error
-		ret = True
-		try:
-			self.RemoveGrowableRow(row)
-			self.AddGrowableRow(row)
-		except:
-			ret = False
-		return ret
+		return bool(self._rowExpandState.get(row, 0))
 		
 		
 	def isColGrowable(self, col):
+		warnings.warn(_("Deprecated; use 'getColExpand' instead."), DeprecationWarning)
+		return self.getColExpand(col)
+
+
+	def getColExpand(self, col):
 		"""Returns True if the specified column is growable."""
-		# If the col isn't growable, it will throw an error
-		ret = True
-		try:
-			self.RemoveGrowableCol(col)
-			self.AddGrowableCol(col)
-		except:
-			ret = False
-		return ret
+		return bool(self._colExpandState.get(col, 0))
 		
 		
 	def moveCell(self, fromRow, fromCol, toRow, toCol, delay=False):
@@ -274,7 +273,7 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			self.layout()
 		
 		
-	def determineAvailableCell(self, row, col):
+	def _determineAvailableCell(self, row, col):
 		(targetRow, targetCol) = (row, col)
 		if (row == -1) or (col == -1):
 			# Get the first available cell
@@ -313,20 +312,6 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 						break
 				emptyCol += 1
 		return ret
-	
-	
-	def getHighRow(self):
-		"""Returns the highest row that contains an object."""
-		rows = [self.GetItemPosition(win)[0] + (self.GetItemSpan(win)[0]-1)
-				for win in self.ChildWindows]
-		return max(rows)
-	
-	
-	def getHighCol(self):
-		"""Returns the highest column that contains an object."""
-		cols = [self.GetItemPosition(win)[1] + (self.GetItemSpan(win)[1]-1)
-				for win in self.ChildWindows]
-		return max(cols)
 	
 	
 	def getGridPos(self, obj):
@@ -377,13 +362,46 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 			raise dabo.ui.GridSizerSpanException, _("An item already exists in that location")
 	
 	
+	def _clearCells(self, obj, span, typ):
+		"""When enlarging the row/colspan of an item, this method makes sure
+		that any potentially spanned cells are either empty, or contain placeholder
+		objects that can be safely removed.
+		"""
+		isCol = (typ.lower() == "col")
+		currVal = self.getGridSpan(obj)[isCol]
+		diff = span - currVal
+		ret = True
+		if diff > 0:
+			for span in range(1, diff+1):
+				if isCol:
+					off = (0, span)
+				else:
+					off = (span, 0)
+				spannedItem = self.getItemAtOffset(obj, off)
+				if spannedItem is not None:
+					if hasattr(spannedItem, "_placeholder"):
+						spannedItem.release()
+					else:
+						ret = False
+						break
+		return ret	
+	
+	
 	def setRowSpan(self, obj, rowspan):
 		"""Sets the row span, keeping the col span the same."""
+		if rowspan > 1:
+			if not self._clearCells(obj, rowspan, "row"):
+				dabo.errorLog.write("Cannot set RowSpan for %s; remove objects in the way first." % itm.Name)
+				return
 		self.setGridSpan(obj, row=rowspan)
 		
 	
 	def setColSpan(self, obj, colspan):
 		"""Sets the col span, keeping the row span the same."""
+		if colspan > 1:
+			if not self._clearCells(obj, colspan, "col"):
+				dabo.errorLog.write("Cannot set ColSpan for %s; remove objects in the way first." % itm.Name)
+				return
 		self.setGridSpan(obj, col=colspan)
 		
 	
@@ -446,9 +464,9 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		if lowprop == "border":
 			return itm.GetBorder()
 		elif lowprop == "rowexpand":
-			ret = self.isRowGrowable(row)
+			ret = self.getRowExpand(row)
 		elif lowprop == "colexpand":
-			ret = self.isColGrowable(col)
+			ret = self.getColExpand(col)
 		elif lowprop == "rowspan":
 			ret = self.GetItemSpan(chil).GetRowspan()
 		elif lowprop == "colspan":
@@ -495,13 +513,13 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		
 					
 	def copyGrid(self, oldGrid):
-		""" This method takes an existing GridSizer, and copies
+		""" This method takes an existing GridSizer, and moves
 		the contents to the current grid. The properties of each
 		cell's item are preserved, but row/column Expand settings 
 		must be handled separately.
 		"""
-		for r in range(oldGrid._highRow+1):
-			for c in range(oldGrid._highCol+1):
+		for r in range(oldGrid.HighRow+1):
+			for c in range(oldGrid.HighCol+1):
 				szitm = oldGrid.FindItemAtPosition( (r,c) )
 				itm = oldGrid.getItem(szitm)
 				if itm is None:
@@ -560,8 +578,29 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 		if isinstance(val, basestring):
 			val = int(val)
 		self.SetHGap(val)
-		
-		
+
+	def _getHighCol(self):
+		itms = self.ChildWindows + self.ChildSizers
+		cols = [self.GetItemPosition(itm)[1] + (self.GetItemSpan(itm)[1]-1)
+				for itm in itms]
+		if cols:
+			ret = max(cols)
+		else:
+			ret = -1
+		return ret
+
+
+	def _getHighRow(self):
+		itms = self.ChildWindows + self.ChildSizers
+		rows = [self.GetItemPosition(itm)[0] + (self.GetItemSpan(itm)[0]-1)
+				for itm in itms]
+		if rows:
+			ret = max(rows)
+		else:
+			ret = -1
+		return ret
+
+
 	def _getMaxRows(self):
 		return self._maxRows
 	
@@ -604,32 +643,39 @@ class dGridSizer(wx.GridBagSizer, dSizerMixin.dSizerMixin):
 	
 	HGap = property(_getHGap, _setHGap, None,
 			_("Horizontal gap between cells in the sizer  (int)"))
-	DynamicHGap = makeDynamicProperty(HGap)
 			
+	HighCol = property(_getHighCol, None, None,
+			_("Highest col position that contains any item. Read-only.  (int)"))
+	
+	HighRow = property(_getHighRow, None, None,
+			_("Highest row position that contains any item. Read-only.  (int)"))
+	
 	MaxRows = property(_getMaxRows, _setMaxRows, None,
 			_("When adding elements to the sizer, controls the max number "
 			"of rows to add before a new column is started. (int)") )
-	DynamicMaxRows = makeDynamicProperty(MaxRows)
 
 	MaxCols = property(_getMaxCols, _setMaxCols, None,
 			_("When adding elements to the sizer, controls the max number "
 			"of columns to add before a new row is started. (int)") )
-	DynamicMaxCols = makeDynamicProperty(MaxCols)
 
 	MaxDimension = property(_getMaxDimension, _setMaxDimension, None,
 			_("When adding elements to the sizer, this property determines "
 			" if we use rows or columns as the limiting value. (char: 'r' or 'c'(default) )") )
-	DynamicMaxDimension = makeDynamicProperty(MaxDimension)
 	
 	Orientation = property(_getMaxDimension, _setMaxDimension, None, 
-		"Alias for the MaxDimensions property.")
-	DynamicOrientation = makeDynamicProperty(Orientation)
+			_("Alias for the MaxDimensions property. (char: 'r' or 'c'(default) )") )
 			
 	VGap = property(_getVGap, _setVGap, None,
 			_("Vertical gap between cells in the sizer  (int)"))
+	
+	
+	DynamicHGap = makeDynamicProperty(HGap)
+	DynamicMaxRows = makeDynamicProperty(MaxRows)
+	DynamicMaxCols = makeDynamicProperty(MaxCols)
+	DynamicMaxDimension = makeDynamicProperty(MaxDimension)
+	DynamicOrientation = makeDynamicProperty(Orientation)
 	DynamicVGap = makeDynamicProperty(VGap)
-	
-	
+
 
 if __name__ == "__main__":
 	s = dGridSizer()

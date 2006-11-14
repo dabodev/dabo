@@ -45,12 +45,19 @@ class dButton(wx.Button, cm.dControlMixin):
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getCancelButton(self):
+# 		try:
+# 			return self.Parent._acceleratorTable["esc"] == self.__onCancelButton
+# 		except KeyError:
+# 			return False
 		try:
-			return self.Parent._acceleratorTable["esc"] == self.__onCancelButton
-		except KeyError:
-			return False
+			v = self._cancelButton
+		except AttributeError:
+			v = self._cancelButton = False
+		return v
+
 
 	def _setCancelButton(self, val):
+		if self._constructed():
 			## pkm: We can bind the key to self, Parent, or Form (or any object).
 			##      If bound to self, the <esc> keypress will only fire the Hit
 			##      when self has the focus. If bound to self.Parent, Hit will 
@@ -58,10 +65,18 @@ class dButton(wx.Button, cm.dControlMixin):
 			##      If bound to self.Form, Hit will fire whenever <esc> is pressed.
 			##      I'm making the decision to bind it to self.Form, even though
 			##      self.Parent is also a valid choice.
+			### egl: changed the binding on OS X to the form. Parent just doesn't work.
+			### pkm: followed suit with GTK (we should test Win too).
+			target = self.Parent
+			if self.Application.Platform in ("Mac", "GTK"):
+				target = self.Form
 			if val:
-				self.Parent.bindKey("esc", self.__onCancelButton)
+				target.bindKey("esc", self.__onCancelButton)
 			else:
-				self.Parent.unbindKey("esc")
+				target.unbindKey("esc")
+			self._cancelButton = val
+		else:
+			self._properties["CancelButton"] = value
 
 
 	def _getDefaultButton(self):
@@ -73,34 +88,41 @@ class dButton(wx.Button, cm.dControlMixin):
 
 	def _setDefaultButton(self, value):
 		if self._constructed():
-			self._defaultButton = value
 			if value:
-				self.SetDefault()
 				# Need to unset default from any other buttons:
 				for child in self.Parent.Children:
+					if child is self:
+						continue
 					try:
 						db = child.DefaultButton
 					except:
 						db = False
 					if db:
 						child.DefaultButton = False
+				# Now set it for this button
+				self.SetDefault()
 			else:
 				# No wx-way to unset default button. Probably a rare need, anyway.
 				# One idea would be to create a hidden button, set default to it,
 				# and then destroy it.
 				pass
+			self._defaultButton = value
 		else:
 			self._properties["DefaultButton"] = value
 
 
 	# Property definitions:
 	CancelButton = property(_getCancelButton, _setCancelButton, None,
-		_("Specifies whether this command button gets clicked on -Escape-."))
-	DynamicCancelButton = makeDynamicProperty(CancelButton)
+			_("Specifies whether this command button gets clicked on -Escape-."))
 						
 	DefaultButton = property(_getDefaultButton, _setDefaultButton, None, 
-		_("Specifies whether this command button gets clicked on -Enter-."))
+			_("Specifies whether this command button gets clicked on -Enter-."))
+		
+		
+	DynamicCancelButton = makeDynamicProperty(CancelButton)
 	DynamicDefaultButton = makeDynamicProperty(DefaultButton)
+
+
 
 class _dButton_test(dButton):
 	def initProperties(self):

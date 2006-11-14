@@ -12,7 +12,7 @@ class dControlItemMixin(dDataControlMixin):
 	def __init__(self, *args, **kwargs):
 		self._keys = []
 		self._invertedKeys = []
-		self._valueMode = "string"
+		self._valueMode = "s"
 		super(dControlItemMixin, self).__init__(*args, **kwargs)
 
 		
@@ -55,6 +55,12 @@ class dControlItemMixin(dDataControlMixin):
 		
 
 	def setSelection(self, index):
+		"""Same as setting property PositionValue."""
+		self.PositionValue = index
+
+
+	def _setSelection(self, index):
+		"""Backend UI wrapper."""
 		if self.Count > index:
 			self.SetSelection(index)
 		else:
@@ -228,7 +234,7 @@ class dControlItemMixin(dDataControlMixin):
 				if index is None:
 					continue
 				try:
-					self.setSelection(index)
+					self._setSelection(index)
 				except: pass
 			self._afterValueChanged()
 		else:
@@ -311,84 +317,77 @@ class dControlItemMixin(dDataControlMixin):
 
 	def _getValueMode(self):
 		try:
-			vm = self._valueMode
+			vm = {"p": "position", "s": "string", "k": "key"}[self._valueMode]
 		except AttributeError:	
 			vm = self._valueMode = "string"
 		return vm
 		
 		
 	def _setValueMode(self, val):
-		val = str(val).lower()
-		if val in ("position", "string", "key"):
+		val = str(val).lower()[0]
+		if val in ("p", "s", "k"):
 			self._valueMode = val
 			
 		
 	# Property definitions:
 	Choices = property(_getChoices, _setChoices, None,
-		_("""Specifies the string choices to display in the list.
-		-> List of strings. Read-write at runtime.
-		The list index becomes the PositionValue, and the string becomes the
-		StringValue.
-		""") )
+			_("""Specifies the string choices to display in the list.
+			-> List of strings. Read-write at runtime.
+			The list index becomes the PositionValue, and the string 
+			becomes the StringValue.""") )
 	
 	Count = property(_getCount, None, None,
-		_("""Number of items in the control.
-		-> Integer. Read-only.
-		""") )
+			_("""Number of items in the control.
+			-> Integer. Read-only.""") )
 
 	Keys = property(_getKeys, _setKeys, None,
-		_("""Specifies a mapping between arbitrary values and item positions.
-		-> Dictionary. Read-write at runtime.
-		The Keys property is a dictionary, where each key resolves into a 
-		list index (position). If using keys, you should update the Keys
-		property whenever you update the Choices property, to make sure they
-		are in sync.
-		-> Optionally, Keys can be a list/tuple that is a 1:1 mapping of the 
-		Choices property. So if your 3rd Choices entry is selected, KeyValue
-		will return the 3rd entry in the Keys property.		
-		""") )
+			_("""Specifies a mapping between arbitrary values and item positions.
+			-> Dictionary. Read-write at runtime.
+			The Keys property is a dictionary, where each key resolves into a 
+			list index (position). If using keys, you should update the Keys
+			property whenever you update the Choices property, to make sure they
+			are in sync.
+			-> Optionally, Keys can be a list/tuple that is a 1:1 mapping of the 
+			Choices property. So if your 3rd Choices entry is selected, KeyValue
+			will return the 3rd entry in the Keys property.""") )
 		
 	KeyValue = property(_getKeyValue, _setKeyValue, None,
-		_("""Specifies the key value or values of the selected item or items.
-		-> Type can vary. Read-write at runtime.
-		Returns the key value or values of the selected item(s), or selects 
-		the item(s) with the specified KeyValue(s).	An exception will be 
-		raised if the Keys property hasn't been set up to accomodate.
-		""") )
-	DynamicKeyValue = makeDynamicProperty(KeyValue)
+			_("""Specifies the key value or values of the selected item or items.
+			-> Type can vary. Read-write at runtime.
+			Returns the key value or values of the selected item(s), or selects 
+			the item(s) with the specified KeyValue(s).	An exception will be 
+			raised if the Keys property hasn't been set up to accomodate.""") )
 		
 	PositionValue = property(_getPositionValue, _setPositionValue, None,
-		_("""Specifies the position (index) of the selected item(s).
-		-> Integer or tuple of integers. Read-write at runtime.
-		Returns the current position(s), or sets the current position(s).
-		""") )
-	DynamicPositionValue = makeDynamicProperty(PositionValue)
+			_("""Specifies the position (index) of the selected item(s).
+			-> Integer or tuple of integers. Read-write at runtime.
+			Returns the current position(s), or sets the current position(s).""") )
 
 	StringValue = property(_getStringValue, _setStringValue, None,
-		_("""Specifies the text of the selected item.
-		-> String or tuple of strings. Read-write at runtime.
-		Returns the text of the selected item(s), or selects the item(s) 
-		with the specified text. An exception is raised if there is no 
-		position with matching text.
-		""") )
-	DynamicStringValue = makeDynamicProperty(StringValue)
+			_("""Specifies the text of the selected item.
+			-> String or tuple of strings. Read-write at runtime.
+			Returns the text of the selected item(s), or selects the item(s) 
+			with the specified text. An exception is raised if there is no 
+			position with matching text.""") )
 
 	Value = property(_getValue, _setValue, None,
-		_("""Specifies which item is currently selected in the list.
-		-> Type can vary. Read-write at runtime.
-		Value refers to one of the following, depending on the setting of ValueMode:
-			+ ValueMode="Position" : the index of the selected item(s) (integer)
-			+ ValueMode="String"   : the displayed string of the selected item(s) (string)
-			+ ValueMode="Key"      : the key of the selected item(s) (can vary)
-		""") )
-	DynamicValue = makeDynamicProperty(Value)
+			_("""Specifies which item is currently selected in the list.
+			-> Type can vary. Read-write at runtime.
+			Value refers to one of the following, depending on the setting of ValueMode:
+				+ ValueMode="Position" : the index of the selected item(s) (integer)
+				+ ValueMode="String"   : the displayed string of the selected item(s) (string)
+				+ ValueMode="Key"      : the key of the selected item(s) (can vary)""") )
 	
 	ValueMode = property(_getValueMode, _setValueMode, None,
-		_("""Specifies the information that the Value property refers to.
-		-> String. Read-write at runtime.
-		'Position' : Value refers to the position in the choices (integer).
-		'String'   : Value refers to the displayed string for the selection (default) (string).
-		'Key'      : Value refers to a separate key, set using the Keys property (can vary).
-		""") )
-	DynamicValueMode = makeDynamicProperty(ValueMode)
+			_("""Specifies the information that the Value property refers to.
+			-> String. Read-write at runtime.
+			'Position' : Value refers to the position in the choices (integer).
+			'String'   : Value refers to the displayed string for the selection (default) (string).
+			'Key'      : Value refers to a separate key, set using the Keys property (can vary).""") )
 
+
+	DynamicKeyValue = makeDynamicProperty(KeyValue)
+	DynamicPositionValue = makeDynamicProperty(PositionValue)
+	DynamicStringValue = makeDynamicProperty(StringValue)
+	DynamicValue = makeDynamicProperty(Value)
+	DynamicValueMode = makeDynamicProperty(ValueMode)

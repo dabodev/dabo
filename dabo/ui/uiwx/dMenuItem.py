@@ -9,8 +9,7 @@ from dabo.ui import makeDynamicProperty
 
 
 class dMenuItem(wx.MenuItem, pm.dPemMixin):
-	"""Creates a menu item, which is usually represented as a string.
-	"""
+	"""Creates a menu item, which is usually represented as a string."""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		self._baseClass = dMenuItem
 		preClass = wx.MenuItem
@@ -113,37 +112,37 @@ class dMenuItem(wx.MenuItem, pm.dPemMixin):
 		self._parent = val
 		
 
-
 	Caption = property(_getCaption, _setCaption, None,
 			_("Specifies the text of the menu item."))
-	DynamicCaption = makeDynamicProperty(Caption)
 
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("Specifies whether the menu item can be interacted with."))
-	DynamicEnabled = makeDynamicProperty(Enabled)
 
 	Icon = property(_getIcon, _setIcon, None,
 			_("Specifies the icon for the menu item."))
-	DynamicIcon = makeDynamicProperty(Icon)
 
 	Form = property(_getForm, None, None,
 			_("Specifies the containing form."))
 
 	HelpText = property(_getHelpText, _setHelpText, None,
 			_("Specifies the help text associated with this menu. (str)"))
-	DynamicHelpText = makeDynamicProperty(HelpText)
 
 	Parent = property(_getParent, _setParent, None, 
 			_("Specifies the parent menu."))
 
 
+	DynamicCaption = makeDynamicProperty(Caption)
+	DynamicEnabled = makeDynamicProperty(Enabled)
+	DynamicIcon = makeDynamicProperty(Icon)
+	DynamicHelpText = makeDynamicProperty(HelpText)
+
+
+
 class dCheckMenuItem(dMenuItem):
-	"""Creates a checkbox-like item in a menu.
-	"""
+	"""Creates a checkbox-like item in a menu."""
 	pass
 
 
 class dRadioMenuItem(dMenuItem):
-	"""Creates a radiobox-like item in a menu.
-	"""
+	"""Creates a radiobox-like item in a menu."""
 	pass

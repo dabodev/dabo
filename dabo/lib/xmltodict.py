@@ -5,8 +5,20 @@ This was copied and modified from John Bair's recipe at aspn.activestate.com:
 """
 import os
 import string
+import locale
 from xml.parsers import expat
 
+# If we're in Dabo, get the default encoding.
+import dabo
+app = dabo.dAppRef
+if app is not None:
+	default_encoding = app.Encoding
+else:
+		enc = locale.getlocale()[1]
+		if enc is None:
+			enc = dabo.defaultEncoding
+		default_encoding = enc
+		
 # Python seems to need to compile code with \n linesep:
 code_linesep = "\n"
 eol = os.linesep
@@ -154,6 +166,37 @@ def xmltodict(xml, attsToSkip=[]):
 		return parser.Parse(xml)
 
 
+def escQuote(val, noEscape=False, noQuote=False):
+	"""Add surrounding quotes to the string, and escape
+	any illegal XML characters.
+	"""
+	if not isinstance(val, basestring):
+		val = str(val)
+	if not isinstance(val, unicode):
+		val = unicode(val, default_encoding)
+	if noQuote:
+		qt = ''
+	else:
+		qt = '"'
+	slsh = "\\"
+	val = val.replace("<", "&lt;").replace(">", "&gt;").replace(slsh, slsh+slsh)
+#	val = val.replace("<", "&lt;").replace(">", "&gt;")
+	if not noEscape:
+		# First escape internal ampersands:
+		val = val.replace("&", "&amp;")
+		# Escape any internal quotes
+		val = val.replace('"', '&quot;').replace("'", "&apos;")
+		# Escape any high-order characters
+		chars = []
+		for pos, char in enumerate(list(val)):
+			if ord(char) > 127:
+				chars.append("&#%s;" % ord(char))
+			else:
+					chars.append(char)
+		val = "".join(chars)
+	return "%s%s%s" % (qt, val, qt)
+
+
 def dicttoxml(dct, level=0, header=None, linesep=None):
 	"""Given a Python dictionary, return an xml string.
 
@@ -165,22 +208,6 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 	The linesep argument is a dictionary, with keys on levels, allowing the
 	developer to add extra whitespace depending on the level.
 	"""
-	def escQuote(val, noEscape):
-		"""Add surrounding quotes to the string, and escape
-		any illegal XML characters.
-		"""
-		if not isinstance(val, basestring):
-			val = str(val)
-		qt = '"'
-		slsh = "\\"
-		val = val.replace("<", "&lt;").replace(">", "&gt;").replace(slsh, slsh+slsh)
-		if not noEscape:
-			# First escape internal ampersands:
-			val = val.replace("&", "&amp;")
-			# Escape any internal quotes
-			val = val.replace('"', '&quot;').replace("'", "&apos;")
-		return "%s%s%s" % (qt, val, qt)
-
 	att = ""
 	ret = ""
 
@@ -190,7 +217,6 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 			noEscape = key in ("sizerInfo",)
 			val = escQuote(val, noEscape)
 			att += " %s=%s" % (key, val)
-
 	ret += "%s<%s%s" % ("\t" * level, dct["name"], att)
 
 	if (not dct.has_key("cdata") and not dct.has_key("children") 
@@ -246,8 +272,17 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
 	if level == 0:
 		if header is None:
-			header = '<?xml version="1.0" encoding="UTF-8" standalone="no"?>%s' \
-					% eol 
+			header = '<?xml version="1.0" encoding="%s" standalone="no"?>%s' \
+					% (default_encoding, eol)
 		ret = header + ret
 
 	return ret
+
+if __name__ == "__main__":
+	test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name"}}
+	print "test_dict:", test_dict
+	xml = dicttoxml(test_dict)
+	print "xml:", xml
+	test_dict2 = xmltodict(xml)
+	print "test_dict2:", test_dict2
+	print "same?:", test_dict == test_dict2

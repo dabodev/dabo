@@ -1,5 +1,6 @@
 import os
 import random
+import traceback
 import wx
 import dabo.dEvents as dEvents
 import dabo.ui
@@ -46,11 +47,13 @@ class Form(dabo.ui.dForm):
 		self._autoUpdateStatusText = True
 		# The list of _tempfiles will be deleted when the form is destroyed:
 		self._tempFiles = []
+		# Do we automatically add edit pages for child bizobjs?
+		self._addChildEditPages = True
 	
 
 	def _initEvents(self):
 		self.bindEvent(dEvents.Close, self._onClose)
-		Form.doDefault()
+		self.super()
 
 
 	def __init__(self, parent=None, previewMode=False, tbl="", *args, **kwargs):
@@ -60,6 +63,9 @@ class Form(dabo.ui.dForm):
 		# We will need to set these separated if in Preview mode.
 		self.rowNumber = 0
 		self.rowCount = 0
+		# Set a default size
+		self.Size = (640, 480)
+
 
 	def _afterInit(self):
 		super(Form, self)._afterInit()
@@ -97,26 +103,20 @@ class Form(dabo.ui.dForm):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
 				dataSource = self._mainTable
-		#return Form.doDefault(dataSource)
-		return super(Form, self).cancel(dataSource)
-	
+		return self.super(dataSource)
 	
 	def requery(self, dataSource=None):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
 				dataSource = self._mainTable
-		#return Form.doDefault(dataSource)
-		return super(Form, self).requery(dataSource)
-	
+		return self.super(dataSource)
 	
 	def confirmChanges(self):
 		if self.preview:
 			# Nothing to check
 			return True
 		else:
-			#return Form.doDefault()
-			return super(Form, self).confirmChanges()
-	
+			return self.super()
 	
 	def afterSetPrimaryBizobj(self):		
 		pass
@@ -181,32 +181,41 @@ class Form(dabo.ui.dForm):
 		menu = super(Form, self).getMenu()
 		menu.Caption = _("&Actions")
 
-		menu.append(_("Set Selection Criteria")+"\tAlt+1", 
+		menu.append(_("Set Selection &Criteria")+"\tAlt+1", 
 				bindfunc=self.onSetSelectionCriteria, bmp="checkMark",
 				help=_("Set the selection criteria for the recordset."))
 
-		menu.append(_("Browse Records")+"\tAlt+2", 
+		menu.append(_("&Browse Records")+"\tAlt+2", 
 				bindfunc=self.onBrowseRecords, bmp="browse",
 				help=_("Browse the records in the current recordset."))
 
 		# Add one edit menu item for every edit page (every page past the second)
 		if self.FormType != "PickList":
 			for index in range(2, self.pageFrame.PageCount):
-				title = "%s\tAlt+%d" % (_(self.pageFrame.Pages[index].Caption),
-						index+1)
+
+				if index == 2:
+
+					title = "&%s\tAlt+3" % (_(self.pageFrame.Pages[index].Caption))
+
+				else:
+
+					title = "%s\tAlt+%d" % (_(self.pageFrame.Pages[index].Caption),
+
+							index+1)
+
 				menu.append(title, bindfunc=self.onEditCurrentRecord, bmp="edit",
 						help=_("Edit the fields of the currently selected record."),
 						Tag=self.pageFrame.Pages[index].DataSource)
 				menu.appendSeparator()
 
 		if self.FormType != "Edit":
-			menu.append(_("Requery")+"\tCtrl+R", bindfunc=self.onRequery, bmp="requery",
+			menu.append(_("&Requery")+"\tCtrl+R", bindfunc=self.onRequery, bmp="requery",
 					help=_("Get a new recordset from the backend."), menutype="check")		
 	
 		if self.FormType != "PickList":
-			menu.append(_("Save Changes")+"\tCtrl+S", bindfunc=self.onSave, bmp="save",
+			menu.append(_("&Save Changes")+"\tCtrl+S", bindfunc=self.onSave, bmp="save",
 					help=_("Save any changes made to the records."))	
-			menu.append(_("Cancel Changes"), bindfunc=self.onCancel, bmp="revert",
+			menu.append(_("&Cancel Changes"), bindfunc=self.onCancel, bmp="revert",
 					help=_("Cancel any changes made to the records."))
 			menu.appendSeparator()
 		
@@ -217,32 +226,32 @@ class Form(dabo.ui.dForm):
 			if self.Application.Platform.lower() == "mac":
 				altKey = "Ctrl"
 
-			menu.append(_("Select First Record")+"\t%s+UP" % altKey, 
+			menu.append(_("Select &First Record")+"\t%s+UP" % altKey, 
 					bindfunc=self.onFirst, bmp="leftArrows", 
 					help=_("Go to the first record in the set.")) 
-			menu.append(_("Select Prior Record")+"\t%s+LEFT" % altKey, 
+			menu.append(_("Select &Prior Record")+"\t%s+LEFT" % altKey, 
 					bindfunc=self.onPrior,bmp="leftArrow", 
 					help=_("Go to the prior record in the set."))	
-			menu.append(_("Select Next Record")+"\t%s+RIGHT" % altKey, 
+			menu.append(_("Select Ne&xt Record")+"\t%s+RIGHT" % altKey, 
 					bindfunc=self.onNext, bmp="rightArrow", 
 					help=_("Go to the next record in the set."))
-			menu.append(_("Select Last Record")+"\t%s+DOWN" % altKey, 
+			menu.append(_("Select &Last Record")+"\t%s+DOWN" % altKey, 
 					bindfunc=self.onLast, bmp="rightArrows", 
 					help=_("Go to the last record in the set."))
 			menu.appendSeparator()
 		
 		if self.FormType == "Normal":
-			menu.append(_("New Record")+"\tCtrl+N", bindfunc=self.onNew, bmp="blank",
+			menu.append(_("&New Record")+"\tCtrl+N", bindfunc=self.onNew, bmp="blank",
 					help=_("Add a new record to the dataset."))
-			menu.append(_("Delete Current Record"), bindfunc=self.onDelete, bmp="delete",
+			menu.append(_("&Delete Current Record"), bindfunc=self.onDelete, bmp="delete",
 					help=_("Delete the current record from the dataset."))
 			menu.appendSeparator()
 
 		if self.FormType != "Edit":
-			menu.append(_("Show SQL"), bindfunc=self.onShowSQL, bmp="zoomNormal")
+			menu.append(_("Show S&QL"), bindfunc=self.onShowSQL, bmp="zoomNormal")
 
 		if self.FormType == "Normal":
-			menu.append(_("Quick Report"), bindfunc=self.onQuickReport, bmp="print",
+			menu.append(_("Quick &Report"), bindfunc=self.onQuickReport, bmp="print",
 					DynamicEnabled=self.enableQuickReport)
 
 		return menu
@@ -325,7 +334,7 @@ class Form(dabo.ui.dForm):
 		else:
 			title = _("Edit")
 		self.addEditPage(ds, title)
-		if biz:
+		if biz and self.AddChildEditPages:
 			for child in biz.getChildren():
 				self.addEditPages(child.DataSource)
 
@@ -363,7 +372,8 @@ class Form(dabo.ui.dForm):
 		if sql is None:
 			sql = "-Nothing executed yet-"
 		dlg = dabo.ui.dDialog(self, Caption=_("Last SQL"))
-		eb = dlg.addObject(dabo.ui.dEditBox, ReadOnly=True, Value=sql, Size=(400, 400))
+		eb = dlg.addObject(dabo.ui.dEditBox, ReadOnly=True, Value=sql, 
+				FontFace="Monospace", Size=(400, 400))
 		dlg.Sizer.append1x(eb)
 		dlg.show()
 		dlg.release()
@@ -460,7 +470,19 @@ class Form(dabo.ui.dForm):
 					ReportFormXML=rfxml, 
 					Cursor=cursor,
 					Encoding=biz.Encoding)
-			rw.write()
+			try:
+				rw.write()
+			except (UnicodeDecodeError,), e:
+				#error_string = traceback.format_exc()
+				error_string = str(e)
+				row_number = rw.RecordNumber
+				dabo.ui.stop("There was a problem having to do with the Unicode encoding "
+						"of your table, and ReportLab's inability to deal with any encoding "
+						"other than UTF-8. Sorry, but currently we don't have a resolution to "
+						"the problem, other than to recommend that you convert your data to "
+						"UTF-8 encoding. Here's the exact error message received:\n\n%s" 
+						"\n\nThis occurred in Record %s of your cursor." % (str(e), row_number))
+				return 
 
 			# Now, preview using the platform's default pdf viewer:
 			reportUtils.previewPDF(outputfile)
@@ -811,7 +833,7 @@ class Form(dabo.ui.dForm):
 		ep = self.PageFrame.Pages[2]
 		objects = self._getAllChildObjects(ep)
 
-		rfxml = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+		rfxml = """<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 
 <report>
 	<title>"""
@@ -929,6 +951,17 @@ class Form(dabo.ui.dForm):
 		return rfxml
 
 
+	## Property get/set code below
+	def _getAddChildEditPages(self):
+		return self._addChildEditPages
+
+	def _setAddChildEditPages(self, val):
+		if self._constructed():
+			self._addChildEditPages = val
+		else:
+			self._properties["AddChildEditPages"] = val
+
+
 	def _getBrowseGridClass(self):
 		try:
 			val = self._browseGridClass
@@ -1039,6 +1072,10 @@ class Form(dabo.ui.dForm):
 
 
 	# Property definitions:
+	AddChildEditPages = property(_getAddChildEditPages, _setAddChildEditPages, None,
+			_("""Should the form automatically add edit pages for 
+			child bizobjs? (default=True)  (bool)"""))
+	
 	BrowseGridClass = property(_getBrowseGridClass, _setBrowseGridClass, None,
 			_("""Specifies the class to use for the browse grid."""))
 

@@ -91,7 +91,8 @@ class dMenu(wx.Menu, pm.dPemMixin):
 			except:
 				de = None
 			if de is not None:
-				item.Enabled = de()
+				if callable(de):
+					item.Enabled = de()
 
 
 	def __onWxMenuHighlight(self, evt):
@@ -134,7 +135,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 	def insertMenu(self, pos, menu):
 		"""Insert a dMenu before the specified position in the menu."""
-		wxMenuItem = self.InsertMenu(-1, pos, menu.Caption, menu, help=menu.HelpText)
+		wxMenuItem = self.InsertMenu(pos, -1, menu.Caption, menu, help=menu.HelpText)
 		menu._setId(wxMenuItem.GetId())
 		menu.Parent = self
 		self._daboChildren[wxMenuItem.GetId()] = menu
@@ -278,7 +279,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 	def _getItem(self, bindfunc, help, icon, menutype, **kwargs):
 		itmtyp = self._getItemType(menutype)
 		itmid = self._getItemID(menutype)
-		if itmid <> wx.ID_DEFAULT:
+		if itmid != wx.ID_DEFAULT:
 			kwargs["id"] = itmid
 		itm = dMenuItem.dMenuItem(self, HelpText=help, Icon=icon, 
 				kind=itmtyp, **kwargs)
@@ -312,7 +313,7 @@ class dMenu(wx.Menu, pm.dPemMixin):
 					# use #if wxHAS_RADIO_MENU_ITEMS to test for 
 					# availability of this feature.
 					ret = RadioItemType
-			return ret
+		return ret
 
 
 	def _setId(self, id_):
@@ -329,7 +330,8 @@ class dMenu(wx.Menu, pm.dPemMixin):
 			# limitations.
 			self.Application.uiApp.Bind(wx.EVT_MENU_HIGHLIGHT,
 					self.__onWxMenuHighlight, id=id_)
-		
+	
+	
 	def _isPopupMenu(self):
 		## TODO: Make dMenu work as a submenu, a child of dMenuBar, or as a popup.
 		return False
@@ -430,19 +432,22 @@ class dMenu(wx.Menu, pm.dPemMixin):
 
 		
 	Caption = property(_getCaption, _setCaption, None,
-		_("Specifies the text of the menu."))
-	DynamicCaption = makeDynamicProperty(Caption)
+			_("Specifies the text of the menu."))
 
 	Enabled = property(_getEnabled, _setEnabled, None,
-		_("Specifies whether the menu can be interacted with."))
-	DynamicEnabled = makeDynamicProperty(Enabled)
+			_("Specifies whether the menu can be interacted with."))
 
 	Form = property(_getForm, None, None,
-		_("Specifies the form that contains the menu."))
+			_("Specifies the form that contains the menu."))
 
 	HelpText = property(_getHelpText, _setHelpText, None,
-		_("Specifies the help text associated with this menu. (str)"))
-	DynamicHelpText = makeDynamicProperty(HelpText)
+			_("Specifies the help text associated with this menu. (str)"))
 
 	Parent = property(_getParent, _setParent, None, 
-		_("Specifies the parent menu or menubar."))
+			_("Specifies the parent menu or menubar."))
+
+
+	DynamicCaption = makeDynamicProperty(Caption)
+	DynamicEnabled = makeDynamicProperty(Enabled)
+	DynamicHelpText = makeDynamicProperty(HelpText)
+

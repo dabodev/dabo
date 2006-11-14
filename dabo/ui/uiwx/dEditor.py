@@ -6,6 +6,7 @@ import re
 import keyword
 import code
 import inspect
+import compiler
 import wx
 import wx.stc as stc
 import wx.gizmos as gizmos
@@ -15,36 +16,16 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dabo.dEvents as dEvents
+import dabo.dColors as dColors
 from dabo.dLocalize import _
-import dControlMixin as cm
+import dDataControlMixin as dcm
 import dTimer
 
 ## testing load performance:
 delay = False
 
-## The following will eventually be properties:
-autoCompListType = "user"  # 'user' or 'auto'
-autoIndent = True
-commentSequence = "#- "
-bufferedDraw = True
-edgeColumn = 79	 # if highlightCharsBeyondEdge
-encoding = "utf-8"
-fontAntiAlias = True
 #- fontMode = "proportional"	# 'mono' or 'proportional'
 fontMode = "mono"  # 'mono' or 'proportional'
-highlightCharsBeyondEdge = False
-showCodeFoldingMargin = True
-showEOL = False
-showLineNumberMargin = True
-showWhiteSpace = False
-styleTimerInterval = 50  ## .5 second appears to be the best compromise
-tabWidth = 4  # this doesn't seem to correspond to actual spaces
-useStyleTimer = False  ## see styleTimerInterval: testing to try to improve performance.
-useCallTips = True
-useCodeCompletion = True
-useLexer = True	 # Turn off to see the change in performance
-useTabIndent = True
-useTab = True
 
 if wx.Platform == '__WXMSW__':
 	monoFont = "Courier New"
@@ -67,7 +48,9 @@ else:
 
 class StyleTimer(dTimer.dTimer):
 	def afterInit(self):
-		StyleTimer.doDefault()
+		# Default timer interval
+		self.styleTimerInterval = 50
+		self.super()
 		self.bindEvent(dEvents.Hit, self.onHit)
 		self.mode = "container"
 		
@@ -75,14 +58,16 @@ class StyleTimer(dTimer.dTimer):
 		#self.Interval = 0
 		self.stop()
 		if self.mode == "python":
-			self.Parent.SetLexer(stc.STC_LEX_PYTHON)
+			if self.Parent:
+				self.Parent.SetLexer(stc.STC_LEX_PYTHON)
 			self.mode = "container"
-			self.Interval = styleTimerInterval
+			self.Interval = self.styleTimerInterval
 		else:
-			self.Parent.SetLexer(stc.STC_LEX_CONTAINER)
+			if self.Parent:
+				self.Parent.SetLexer(stc.STC_LEX_CONTAINER)
 
 
-class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
+class dEditor(stc.StyledTextCtrl, dcm.dDataControlMixin):
 	# The Editor is copied from the wxPython demo, StyledTextCtrl_2.py, 
 	# and modified. Thanks to Robin Dunn and everyone that contributed to 
 	# that demo to get us going!
@@ -93,24 +78,54 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self._fileName = ""
 		self._beforeInit(None)
 		name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-
+		# Declare the attributes that underly properties.
+		self._autoCompleteList = False
+		self._autoIndent = True
+		self._commentString = "#- "
+		self._bufferedDrawing = True
+		self._hiliteCharsBeyondLimit = False
+		self._hiliteLimitColumn = 79
+		self._encoding = self.Application.Encoding
+		self._useAntiAliasing = True
+		self._codeFolding = True
+		self._showLineNumbers = True
+		self._showEOL = False
+		self._showWhiteSpace = False
+		self._useStyleTimer = False
+		self._tabWidth = 4
+		self._useTabs = True
+		self._showCallTips = True
+		self._codeCompletion = True
+		self._syntaxColoring = True
+		self._language = "Python"
+		self._keyWordsSet = False
+		self._defaultsSet = False
+		self._fontFace = None
+		self._fontSize = None
+		self._useBookmarks = False
+		self._selectionBackColor = None
+		self._selectionForeColor = None		
+				
 		stc.StyledTextCtrl.__init__(self, parent, -1, 
 				style = wx.NO_BORDER)
-		cm.dControlMixin.__init__(self, name, _explicitName=_explicitName)
+		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName, *args, **kwargs)
 		self._afterInit()
 		
 		self._newFileName = _("< New File >")
 		self._curdir = os.getcwd()
-		self._defaultsSet = False
 		self._registerFunc = None
 		self._unRegisterFunc = None
 		# Used for parsing class and method names
 		self._pat = re.compile("^[ \t]*((?:(?:class)|(?:def)) [^\(]+)\(", re.M)
 
+		self.modifiedEventMask = (stc.STC_MOD_INSERTTEXT | stc.STC_MOD_DELETETEXT |
+				stc.STC_PERFORMED_USER | stc.STC_PERFORMED_UNDO | stc.STC_PERFORMED_REDO)
+		self.SetModEventMask(self.modifiedEventMask)
 		self.Bind(stc.EVT_STC_UPDATEUI, self.OnUpdateUI)
 		self.Bind(stc.EVT_STC_MARGINCLICK, self.OnMarginClick)
 		self.Bind(stc.EVT_STC_MODIFIED, self.OnModified)
 		self.Bind(stc.EVT_STC_STYLENEEDED, self.OnStyleNeeded)
+		self.Bind(stc.EVT_STC_NEEDSHOWN, self.OnNeedShown)
 		
 		if delay:
 			self.bindEvent(dEvents.Idle, self.onIdle)
@@ -118,25 +133,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self.setDefaults()
 			self._defaultsSet = True
 
-		self._syntaxColoring = True
-		self._styleTimer = StyleTimer()
-		self._styleTimer.stop()
-		
 		app = self.Application
-		# Set the marker used for bookmarks
-		self._bmkPos = 5
-		self.MarkerDefine(self._bmkPos, 
-				stc.STC_MARK_CIRCLE, "gray", "cyan")
-		justFname = os.path.split(self._fileName)[1]
-		svd = app.getUserSetting("bookmarks.%s", justFname, "{}")
-		if svd:
-			self._bookmarks = eval(svd)
-		else:
-			self._bookmarks = {}
-
-#- 		zoom = app.getUserSetting("editor.zoom")
-#- 		if zoom:
-#- 			self.SetZoom(zoom)
 		self._fontFace = app.getUserSetting("editor.fontface")
 		self._fontSize = app.getUserSetting("editor.fontsize")
 		if self._fontFace:
@@ -148,9 +145,30 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		else:
 			self._fontSize = self.GetFont().GetPointSize()
 
-		if useStyleTimer:
+		self._syntaxColoring = True
+		self._styleTimer = StyleTimer(self)
+		self._styleTimer.stop()
+		
+		# Set the marker used for bookmarks
+		self._bmkPos = 5
+		self.MarkerDefine(self._bmkPos, 
+				stc.STC_MARK_CIRCLE, "gray", "cyan")
+		justFname = os.path.split(self._fileName)[1]
+		svd = app.getUserSetting("bookmarks.%s" % justFname, "{}")
+		if svd:
+			self._bookmarks = eval(svd)
+		else:
+			self._bookmarks = {}
+		# This holds the last saved bookmark status
+		self._lastBookmarks = []
+		# Create a timer to regularly flush the bookmarks
+		self._bookmarkTimer = bmt = dTimer.dTimer(self)
+		bmt.Interval = 20000		# 20 sec.
+		bmt.bindEvent(dEvents.Hit, self._saveBookmarks)
+		bmt.start()		
+
+		if self.UseStyleTimer:
 			self._styleTimer.mode = "container"
-			self._styleTimer.Interval = styleTimerInterval
 			self._styleTimer.start()
 		self._clearDocument()
 		self.setTitle()
@@ -161,6 +179,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 
 
 	def __del__(self):
+		self._saveBookmarks()
 		self._unRegisterFunc(self)
 		super(dEditor, self).__del__()
 	
@@ -178,6 +197,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self.clearBookmark(nm)
 		hnd = self.MarkerAdd(line, self._bmkPos)
 		self._bookmarks[nm] = hnd
+		self._saveBookmarks()
 	
 	
 	def findBookmark(self, nm):
@@ -205,12 +225,14 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			del self._bookmarks[nm]
 		except KeyError:
 			pass
+		self._saveBookmarks()
 
 
 	def clearAllBookmarks(self):
 		"""Removes all bookmarks."""
 		self.MarkerDeleteAll(self._bmkPos)
 		self._bookmarks.clear()
+		self._saveBookmarks()
 	
 	
 	def goNextBookMark(self, line=None):
@@ -265,9 +287,83 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		return self._bookmarks.keys()
 		
 		
-	def getFunctionList(self, sorted=False):
+	def getFunctionList(self):
 		"""Returns a list of all 'class' and 'def' statements, along
 		with their starting positions in the text.
+		"""
+		ret = []
+		def _lister(nd):
+			strNd = str(nd)
+			isClass = strNd.startswith("Class(")
+			isFunc = strNd.startswith("Function(")
+			kidlist = []
+			txt = ""
+			try:
+				kids = nd.getChildren()
+				if isClass or isFunc:
+					txt = "%s %s" % (("class", "def")[isFunc], kids[isFunc])
+			
+				for kid in kids:
+					if isinstance(kid, compiler.ast.Node):
+						kidStuff = _lister(kid)
+						if kidStuff:
+							if isinstance(kidStuff, list):
+								kidlist += kidStuff
+							else:
+								kidlist.append(kidStuff)
+				if txt:
+					return {txt: kidlist}
+				else:
+					return kidlist
+			except: pass
+	
+		needPosAdd = False
+		try:
+			prsTxt = compiler.parse(self.GetText())
+			needPosAdd = True
+		except SyntaxError:
+			# The text is not compilable.
+			ret = self._bruteForceFuncList()
+		if needPosAdd:
+			nmKids = []
+			for chNode in prsTxt:
+				chRet = _lister(chNode)
+				if chRet:
+					nmKids += _lister(chNode)
+			# OK, at this point we have a list of class/func names. Now we have to 
+			# convert that to a dict where each element has a 'pos' property that
+			# contains the offset from top of the file, and a 'children' prop that contains 
+			# any nested class/funcs.
+			self._classFuncPos = 0
+			ret = self._addPos(nmKids)
+			
+		return ret
+	
+	
+	def _addPos(self, lst):
+		"""Go through each entry, finding where that text occurs in the text.
+		Then add that to the return list.
+		"""
+		ret = []
+		for itm in lst:
+			# Find the pos in the text
+			key = itm.keys()[0]
+			pat = "^\s*%s" % key
+			mtch = re.search(pat, self.GetText()[self._classFuncPos:], re.S | re.M)
+			pos = mtch.start(0)
+			self._classFuncPos += pos
+			itmDict = {key: {"pos": self._classFuncPos}}
+			kids = itm[key]
+			itmDict[key]["children"] = self._addPos(kids)
+			ret.append(itmDict)
+		return ret
+		
+		
+	def _bruteForceFuncList(self, sorted=False):
+		"""Returns a list of all 'class' and 'def' statements, along
+		with their starting positions in the text. This is used
+		when the source cannot be compiled, and thus the 
+		compiler module is not usable.
 		"""
 		it = self._pat.finditer(self.GetText())
 		ret = [(m.groups()[0], m.start()) for m in it]
@@ -296,9 +392,33 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				mthds = dct[cls]
 				mthds.sort()
 				ret += mthds
+		
+		print "BRUTE"
+		print ret
+		print
 		return ret		
 		
 
+	def getLineFromPosition(self, pos):
+		"""Given a position within the text, returns the corresponding line 
+		number. If the position is invalid, returns -1.
+		"""
+		try:
+			ret = self.LineFromPosition(pos)
+		except:
+			ret = -1
+		return ret
+	
+	
+	def getPositionFromXY(self, x, y=None):
+		"""Given an x,y position, returns the position in the text if that point
+		is close to any text; if not, returns -1.
+		"""
+		if y is None and isinstance(x, (list, tuple)):
+			x, y = x
+		return self.PositionFromPointClose(x, y)
+		
+		
 	def getMarginWidth(self):
 		"""Returns the width of the non-editing area along the left side."""
 		ret = 0
@@ -306,6 +426,26 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			ret += self.GetMarginWidth(ii)
 		return ret
 		
+
+	def showCurrentLine(self):
+		"""Scrolls the editor so that the current position is visible."""
+		self.EnsureCaretVisible()
+		
+		
+	def OnNeedShown(self, evt):
+		""" Called when the user deletes a hidden header line."""
+		# We expand the previously folded text, but it may be better
+		# to delete the text instead, since the user asked for it.
+		# There are two bits of information in the event: the position
+		# and the length. I think we could easily clear the text based
+		# on this information, but for now I'll keep it just displaying
+		# the previously hidden text. --pkm 2006-04-04.
+		o = evt.GetEventObject()
+		position = evt.GetPosition()
+		length = evt.GetLength()
+		headerLine = o.LineFromPosition(position)
+		o.Expand(headerLine, True)
+
 		
 	def OnSBScroll(self, evt):
 		# redirect the scroll events from the dyn_sash's scrollbars to the STC
@@ -321,7 +461,6 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		if not self._syntaxColoring:
 			return
 		self._styleTimer.mode = "python"
-		self._styleTimer.Interval = styleTimerInterval
 		self._styleTimer.start()
 		
 		
@@ -332,14 +471,14 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			
 
 	def setDocumentDefaults(self):
-		self.SetTabWidth(tabWidth)
-		self.SetIndent(tabWidth)
+		self.SetTabWidth(self.TabWidth)
+		self.SetIndent(self.TabWidth)
 		
 
 	def setDefaults(self):
 		self.UsePopUp(0)
-		self.SetUseTabs(useTab)
-		self.SetTabIndents(useTabIndent)
+		self.SetUseTabs(self.UseTabs)
+		self.SetTabIndents(True)
 
 		## Autocomplete settings:
 		self.AutoCompSetIgnoreCase(True)
@@ -349,25 +488,22 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		# This lets you go all the way back to the '.' without losing the AutoComplete
 		self.AutoCompSetCancelAtStart(False)
 
-		if useLexer:
-			self.SetLexer(stc.STC_LEX_PYTHON)
-			self.SetKeyWords(0, " ".join(keyword.kwlist))
-			
-			## Note: "tab.timmy.whinge.level" is a setting that determines how to
-			## indicate bad indentation.
-			## It shows up as a blue underscore when the indentation is:
-			##	   * 0 = ignore (default)
-			##	   * 1 = inconsistent
-			##	   * 2 = mixed spaces/tabs
-			##	   * 3 = spaces are bad
-			##	   * 4 = tabs are bad 
-			self.SetProperty("tab.timmy.whinge.level", "1")
+		## Note: "tab.timmy.whinge.level" is a setting that determines how to
+		## indicate bad indentation.
+		## It shows up as a blue underscore when the indentation is:
+		##	   * 0 = ignore (default)
+		##	   * 1 = inconsistent
+		##	   * 2 = mixed spaces/tabs
+		##	   * 3 = spaces are bad
+		##	   * 4 = tabs are bad 
+		self.SetProperty("tab.timmy.whinge.level", "1")
+		self.setSyntaxColoring(self.SyntaxColoring)
 		self.SetMargins(0,0)
 
-		self.SetViewWhiteSpace(showWhiteSpace)
-		self.SetBufferedDraw(bufferedDraw)
-		self.SetViewEOL(showEOL)
-		self.SetUseAntiAliasing(fontAntiAlias)
+		self.SetViewWhiteSpace(self.ShowWhiteSpace)
+		self.SetBufferedDraw(self.BufferedDrawing)
+		self.SetViewEOL(self.ShowEOL)
+		self.SetUseAntiAliasing(self.UseAntiAliasing)
 
 		## Seems that eolmode is CRLF on Mac by default... explicitly set it!
 		if wx.Platform == "__WXMSW__":
@@ -375,16 +511,51 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		else:
 			self.SetEOLMode(stc.STC_EOL_LF)
 
-		if highlightCharsBeyondEdge:
+		if self.HiliteCharsBeyondLimit:
 			self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
-			self.SetEdgeColumn(edgeColumn)
+			self.SetEdgeColumn(self.HiliteLimitColumn)
 
-		if showLineNumberMargin:
+		self._setLineNumberMarginVisibility()
+		self._setCodeFoldingMarginVisibility()
+
+		# Make some styles,	 The lexer defines what each style is used for, we
+		# just have to define what each style looks like.  This set is adapted from
+		# Scintilla sample property files.
+		self.setDefaultFont(fontFace, fontSize)
+		# Python styles
+		self.setPyFont(fontFace, fontSize)
+
+		self.SetCaretForeground("BLUE")
+
+		# Register some images for use in the AutoComplete box.
+		self.RegisterImage(1, dabo.ui.strToBmp("daboIcon016"))
+		self.RegisterImage(2, dabo.ui.strToBmp("property"))	#, setMask=False))
+		self.RegisterImage(3, dabo.ui.strToBmp("event"))		#, setMask=False))
+		self.RegisterImage(4, dabo.ui.strToBmp("method"))		#, setMask=False))
+		self.RegisterImage(5, dabo.ui.strToBmp("class"))		#, setMask=False))
+
+		self.CallTipSetBackground("yellow")
+		self.SelectionBackColor = "yellow"
+		self.SelectionForeColor = "black"
+		
+
+	def _setLineNumberMarginVisibility(self):
+		"""Sets the visibility of the line number margin."""
+		if self.ShowLineNumbers:
 			self.SetMarginType(1, stc.STC_MARGIN_NUMBER)
 			self.SetMarginSensitive(1, True)
 			self.SetMarginWidth(1, 36)
-
-		if showCodeFoldingMargin:
+		else:
+			self.SetMarginSensitive(1, False)
+			self.SetMarginWidth(1, 0)
+			
+		
+	def _setCodeFoldingMarginVisibility(self):
+		"""Sets the visibility of the code folding margin."""
+		if not self.ShowCodeFolding:
+			self.SetMarginSensitive(2, False)
+			self.SetMarginWidth(2, 0)
+		else:
 			# Setup a margin to hold fold markers
 			self.SetProperty("fold", "1")
 			self.SetMarginType(2, stc.STC_MARGIN_SYMBOL)
@@ -461,32 +632,11 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				self.MarkerDefine(stc.STC_MARKNUM_FOLDERMIDTAIL,
 					stc.STC_MARK_TCORNER, "white", "#808080")
 
-		# Make some styles,	 The lexer defines what each style is used for, we
-		# just have to define what each style looks like.  This set is adapted from
-		# Scintilla sample property files.
-		self.setDefaultFont(fontFace, fontSize)
-		# Python styles
-		self.setPyFont(fontFace, fontSize)
-
-		self.SetCaretForeground("BLUE")
-
-		# Register some images for use in the AutoComplete box.
-		self.RegisterImage(1, dabo.ui.strToBmp("daboIcon016"))
-		self.RegisterImage(2, dabo.ui.strToBmp("property"))	#, setMask=False))
-		self.RegisterImage(3, dabo.ui.strToBmp("event"))		#, setMask=False))
-		self.RegisterImage(4, dabo.ui.strToBmp("method"))		#, setMask=False))
-		self.RegisterImage(5, dabo.ui.strToBmp("class"))		#, setMask=False))
-
-		self.CallTipSetBackground("yellow")
-		
 
 	def changeFontFace(self, fontFace):
 		if not self:
 			return
-		self._fontFace = fontFace
-		self.setDefaultFont(self._fontFace, self._fontSize)
-		self.setPyFont(self._fontFace, self._fontSize)
-		self.Application.setUserSetting("editor.fontface", self._fontFace)
+		self.FontFace = fontFace
 		
 	
 	def changeFontSize(self, fontSize):
@@ -504,11 +654,9 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				except:
 					dabo.errorLog.write(_("Invalid value passed to changeFontSize: %s") % fontSize)
 					return
-			fontSize = newSize
-		self._fontSize = fontSize 
-		self.setDefaultFont(self._fontFace, self._fontSize)
-		self.setPyFont(self._fontFace, self._fontSize)
-		self.Application.setUserSetting("editor.fontsize", self._fontSize)
+		else:
+			newSize = fontSize
+		self.FontSize = newSize
 		
 		
 	def setDefaultFont(self, fontFace, fontSize):
@@ -586,7 +734,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.BeginUndoAction()
 		for line in range(begLine, endLine+1):
 			pos = self.PositionFromLine(line)
-			self.InsertText(pos, commentSequence)
+			self.InsertText(pos, self.CommentString)
 		self.EndUndoAction()
 
 		self.SetSelection(self.PositionFromLine(begLine), 
@@ -602,8 +750,8 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		for line in range(begLine, endLine+1):
 			pos = self.PositionFromLine(line)
 			self.SetTargetStart(pos)
-			self.SetTargetEnd(pos + len(commentSequence))
-			if self.SearchInTarget(commentSequence) >= 0:
+			self.SetTargetEnd(pos + len(self.CommentString))
+			if self.SearchInTarget(self.CommentString) >= 0:
 				self.ReplaceTarget("")
 		self.EndUndoAction()
 
@@ -613,7 +761,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 	
 	def onKeyDown(self, evt):
 		keyCode = evt.EventData["keyCode"]
-		if keyCode == wx.WXK_RETURN and autoIndent and not self.AutoCompActive():
+		if keyCode == wx.WXK_RETURN and self.AutoIndent and not self.AutoCompActive():
 			## Insert auto indentation as necessary. This code was adapted from
 			## PythonCard - Thanks Kevin for suggesting I take a look at it.
 			evt.Continue = False
@@ -628,7 +776,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				indentLevel = self.GetLineIndentation(line) / self.GetIndent()
 			
 			# First, indent to the current level of indent:
-			if self.GetUseTabs():
+			if self.UseTabs:
 				padchar = "\t"
 			else:
 				padchar = " "
@@ -653,9 +801,9 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		
 		if keyChar == "(" and self.AutoCompActive():
 			self._insertChar = "("
-		elif keyChar == "(" and useCallTips and not self.AutoCompActive():
+		elif keyChar == "(" and self.ShowCallTips and not self.AutoCompActive():
 			self.callTip()
-		elif keyChar == "." and useCodeCompletion:
+		elif keyChar == "." and self.CodeCompletion:
 			if self.AutoCompActive():
 				# don't process the autocomplete, as it is 
 				# already being processed. However, set the flag
@@ -693,43 +841,32 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 			self.AutoCompCancel()
 			
 		
-	def toggleSyntaxColoring(self):
-		"""Right now, just toggles between Python and none. In the future,
-		we will need to save the current lexer and toggle between that and
-		none.
-		"""
-		self._syntaxColoring = not self._syntaxColoring
-		if self._syntaxColoring:
-			self.setSyntaxColoring("Python")
-		else:
-			self.setSyntaxColoring(None)
-	
-	
-	def setSyntaxColoring(self, typ=None):
+	def setSyntaxColoring(self, color=None):
 		"""Sets the appropriate lexer for syntax coloring."""
-		if typ is None:
-			testTyp = "none"
-		else:
-			testTyp = typ.strip().lower()
-		if testTyp == "python":
-			self.SetLexer(stc.STC_LEX_PYTHON)		
+		if color:
+			lex = self.Language.lower()
+			if lex == "python":
+				self.SetLexer(stc.STC_LEX_PYTHON)
+				if not self._keyWordsSet:
+					self.SetKeyWords(0, " ".join(keyword.kwlist))
+					self._keyWordsSet = True
 			self.Colourise(-1, -1)
-		elif testTyp == "none":
+		else:
 			self.ClearDocumentStyle()
 			self.SetLexer(stc.STC_LEX_CONTAINER)		
-		else:
-			dabo.errorLog.write(_("Invalid syntax coloring type specified: %s") % typ)
-	
-	
-	def toggleWordWrap(self):
-		self.WordWrap = not self.WordWrap
 
 		
 	def OnModified(self, evt):
 		if not self._syntaxColoring:
 			return
+
+		mt = evt.GetModificationType()
+		if not mt & self.modifiedEventMask == mt:
+			# For some reason the event masking doesn't always work
+			return
 		evt.Skip()
 		self.setTitle()
+		self.raiseEvent(dEvents.ContentChanged, evt)
 
 
 	def OnUpdateUI(self, evt):
@@ -902,11 +1039,11 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 					# Punt with the Dabo icon:
 					kw[i] = kw[i] + "?1"
 					
-			if autoCompListType == "user":
+			if self.AutoCompleteList:
+				wx.CallAfter(self.AutoCompShow,0, " ".join(kw))
+			else:
 				self.Bind(stc.EVT_STC_USERLISTSELECTION, self.onListSelection)
 				wx.CallAfter(self.UserListShow, 1, " ".join(kw))
-			else:
-				wx.CallAfter(self.AutoCompShow,0, " ".join(kw))
 
 
 	def FoldAll(self):
@@ -1046,24 +1183,42 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 				# user canceled in the prompt: don't continue
 				return None
 		
-		open(fname, "wb").write(self.GetText().encode(encoding))
+		open(fname, "wb").write(self.GetText().encode(self.Encoding))
 		# set self._fileName, in case it was changed with a Save As
 		self._fileName = fname
 		self._clearDocument(clearText=False)
-
-		# Save the bookmarks
-		app = self.Application
-		justFname = os.path.split(fname)[1]
-		base = ".".join(("bookmark", justFname))
-		# Clear any existing settings.
-		app.deleteAllUserSettings(base)
-		for nm, hnd in self._bookmarks.items():
-			ln = self.MarkerLineFromHandle(hnd)
-			setName = ".".join((base, nm))
-			app.setUserSetting(setName, ln)
 		# Save the appearance settings
+		app = self.Application
 		app.setUserSetting("editor.fontsize", self._fontSize)
 		app.setUserSetting("editor.fontface", self._fontFace)
+		# Save the bookmarks
+		self._saveBookmarks()
+	
+	
+	def _saveBookmarks(self, evt=None):
+		if not self._useBookmarks:
+			self._bookmarkTimer.stop()
+		app = self.Application
+		fname = self._fileName
+		if not fname:
+			return
+		# Get the current status of bookmarks
+		currBmks = [(nm, self.MarkerLineFromHandle(hnd))
+				for nm, hnd in self._bookmarks.items()]
+		if currBmks != self._lastBookmarks:
+			# Save them
+			self._lastBookmarks = currBmks
+			justFname = os.path.split(fname)[1]
+			base = ".".join(("bookmark", justFname))
+			# Clear any existing settings.
+			app.deleteAllUserSettings(base)
+			newsettings = {}
+			for nm, hnd in self._bookmarks.items():
+				ln = self.MarkerLineFromHandle(hnd)
+				setName = ".".join((base, nm))
+				newsettings[setName] = ln
+			if newsettings:
+				app.setUserSettings(newsettings)
 		
 		
 	def checkChangesAndContinue(self):
@@ -1116,7 +1271,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 					return False
 			try:
 				f = open(fileSpec, "rb")
-				text = f.read().decode(encoding)
+				text = f.read().decode(self.Encoding)
 				f.close()
 			except:
 				if dabo.ui.areYouSure("File '%s' does not exist."
@@ -1330,13 +1485,58 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		class IC(code.InteractiveConsole):
 			def write(self, string):
 				pass
-			
+		
 		ic = IC(self._namespaces)
 		for lineNum in range(self.LineNumber + 1):
 			line = self.GetLine(lineNum).rstrip()
-			ic.push(line)
+			try:
+				ic.push(line)
+			except StandardError, e: pass
 		sys.stderr, sys.stdout = stdErr, stdOut
-		
+
+
+	### Property definitions start here
+	
+	def _getAutoCompleteList(self):
+		return self._autoCompleteList
+
+	def _setAutoCompleteList(self, val):
+		if self._constructed():
+			self._autoCompleteList = val
+		else:
+			self._properties["AutoCompleteList"] = val
+
+
+	def _getAutoIndent(self):
+		return self._autoIndent
+
+	def _setAutoIndent(self, val):
+		if self._constructed():
+			self._autoIndent = val
+		else:
+			self._properties["AutoIndent"] = val
+
+
+	def _getBufferedDrawing(self):
+		return self._bufferedDrawing
+
+	def _setBufferedDrawing(self, val):
+		if self._constructed():
+			self._bufferedDrawing = val
+			self.SetBufferedDraw(val)
+		else:
+			self._properties["BufferedDrawing"] = val
+
+
+	def _getCodeCompletion(self):
+		return self._codeCompletion
+
+	def _setCodeCompletion(self, val):
+		if self._constructed():
+			self._codeCompletion = val
+		else:
+			self._properties["CodeCompletion"] = val
+
 
 	def _getColumn(self):
 		return self.GetColumn(self.GetCurrentPos())
@@ -1352,6 +1552,26 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.GotoPos(newPos)
 
 
+	def _getCommentString(self):
+		return self._commentString
+
+	def _setCommentString(self, val):
+		if self._constructed():
+			self._commentString = val
+		else:
+			self._properties["CommentString"] = val
+
+
+	def _getEncoding(self):
+		return self._encoding
+
+	def _setEncoding(self, val):
+		if self._constructed():
+			self._encoding = val
+		else:
+			self._properties["Encoding"] = val
+
+
 	def _getFileName(self):
 		return os.path.split(self._fileName)[1]
 
@@ -1360,11 +1580,76 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		return self._fileName
 
 
+	def _getFontSize(self):
+		return self._fontSize
+
+	def _setFontSize(self, val):
+		if self._constructed():
+			self._fontSize = val
+			self.setDefaultFont(self._fontFace, self._fontSize)
+			self.setPyFont(self._fontFace, self._fontSize)
+			self.Application.setUserSetting("editor.fontsize", self._fontSize)
+		else:
+			self._properties["FontSize"] = val
+
+
+	def _getFontFace(self):
+		return self._fontFace
+
+	def _setFontFace(self, val):
+		if self._constructed():
+			self._fontFace = val
+			self.setDefaultFont(self._fontFace, self._fontSize)
+			self.setPyFont(self._fontFace, self._fontSize)
+			self.Application.setUserSetting("editor.fontface", self._fontFace)
+		else:
+			self._properties["FontFace"] = val
+
+
+	def _getHiliteCharsBeyondLimit(self):
+		return self._hiliteCharsBeyondLimit
+
+	def _setHiliteCharsBeyondLimit(self, val):
+		if self._constructed():
+			self._hiliteCharsBeyondLimit = val
+		if val:
+			self.SetEdgeMode(stc.STC_EDGE_BACKGROUND)
+			self.SetEdgeColumn(self.HiliteLimitColumn)
+
+		else:
+			self._properties["HiliteCharsBeyondLimit"] = val
+
+
+	def _getHiliteLimitColumn(self):
+		return self._hiliteLimitColumn
+
+	def _setHiliteLimitColumn(self, val):
+		if self._constructed():
+			self._hiliteLimitColumn = val
+			self.SetEdgeColumn(val)
+		else:
+			self._properties["HiliteLimitColumn"] = val
+
+
+	def _getLanguage(self):
+		return self._language
+
+	def _setLanguage(self, val):
+		if self._constructed():
+			if val.lower() == "python":
+				self._language = val
+			else:
+				dabo.errorLog.write(_("Currently only Python language is supported"))
+		else:
+			self._properties["Language"] = val
+
+
 	def _getLineNumber(self):
 		return self.GetCurrentLine()
 
 	def _setLineNumber(self, val):
 		self.GotoLine(val)
+		self.EnsureCaretVisible()
 
 
 	def _getLineCount(self):
@@ -1375,6 +1660,113 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		return self.GetModify()
 
 
+	def _getSelectionBackColor(self):
+		return self._selectionBackColor
+
+	def _setSelectionBackColor(self, val):
+		if self._constructed():
+			self._selectionBackColor = val
+			if isinstance(val, basestring):
+				try:
+					val = dColors.colorTupleFromName(val)
+				except: pass
+			self.SetSelBackground(1, val)
+		else:
+			self._properties["SelectionBackColor"] = val
+
+
+	def _getSelectionForeColor(self):
+		return self._selectionForeColor
+
+	def _setSelectionForeColor(self, val):
+		if self._constructed():
+			self._selectionForeColor = val
+			if isinstance(val, basestring):
+				try:
+					val = dColors.colorTupleFromName(val)
+				except: pass
+			self.SetSelForeground(1, val)
+		else:
+			self._properties["SelectionForeColor"] = val
+
+
+	def _getShowCallTips(self):
+		return self._showCallTips
+
+	def _setShowCallTips(self, val):
+		if self._constructed():
+			self._showCallTips = val
+		else:
+			self._properties["ShowCallTips"] = val
+
+
+	def _getShowCodeFolding(self):
+		return self._codeFolding
+
+	def _setShowCodeFolding(self, val):
+		if self._constructed():
+			self._codeFolding = val
+			self._setCodeFoldingMarginVisibility()
+		else:
+			self._properties["ShowCodeFolding"] = val
+
+
+	def _getShowEOL(self):
+		return self._showEOL
+
+	def _setShowEOL(self, val):
+		if self._constructed():
+			self._showEOL = val
+			self.SetViewEOL(val)
+		else:
+			self._properties["ShowEOL"] = val
+
+
+	def _getShowLineNumbers(self):
+		return self._showLineNumbers
+
+	def _setShowLineNumbers(self, val):
+		if self._constructed():
+			self._showLineNumbers = val
+			self._setLineNumberMarginVisibility()
+		else:
+			self._properties["ShowLineNumbers"] = val
+
+
+	def _getShowWhiteSpace(self):
+		return self._showWhiteSpace
+
+	def _setShowWhiteSpace(self, val):
+		if self._constructed():
+			self._showWhiteSpace = val
+			self.SetViewWhiteSpace(val)
+		else:
+			self._properties["ShowWhiteSpace"] = val
+
+
+	def _getSyntaxColoring(self):
+		return self._syntaxColoring
+
+	def _setSyntaxColoring(self, val):
+		if self._constructed():
+			self._syntaxColoring = val
+			self.setSyntaxColoring(val)
+		else:
+			self._properties["SyntaxColoring"] = val
+
+
+	def _getTabWidth(self):
+		return self._tabWidth
+
+	def _setTabWidth(self, val):
+		if self._constructed():
+			self._tabWidth = val
+			self.SetTabWidth(val)
+			self.SetIndent(val)
+		else:
+			self._properties["TabWidth"] = val
+
+
 	def _getText(self):
 		return self.GetText()
 
@@ -1382,6 +1774,69 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.SetText(val)
 
 
+	def _getUseAntiAliasing(self):
+		return self._useAntiAliasing
+
+	def _setUseAntiAliasing(self, val):
+		if self._constructed():
+			self._useAntiAliasing = val
+			self.SetUseAntiAliasing(val)
+		else:
+			self._properties["UseAntiAliasing"] = val
+
+
+	def _getUseBookmarks(self):
+		return self._useBookmarks
+
+	def _setUseBookmarks(self, val):
+		if self._constructed():
+			self._useBookmarks = val
+			if val:
+				self._bookmarkTimer.start()
+			else:
+				self._bookmarkTimer.stop()
+		else:
+			self._properties["UseBookmarks"] = val
+
+
+	def _getUseStyleTimer(self):
+		return self._useStyleTimer
+
+	def _setUseStyleTimer(self, val):
+		if self._constructed():
+			self._useStyleTimer = val
+		else:
+			self._properties["UseStyleTimer"] = val
+
+
+	def _getUseTabs(self):
+		return self._useTabs
+
+	def _setUseTabs(self, val):
+		if self._constructed():
+			self._useTabs = val
+			self.SetUseTabs(val)
+		else:
+			self._properties["UseTabs"] = val
+
+
+	def _getValue(self):
+		return self.Text
+		
+	def _setValue(self, val):
+		if self._constructed():
+			if self.Text != val:
+				try:
+					self.Text = val
+				except TypeError, e:
+					dabo.errorLog.write(_("Could not set value of %s to %s. Error message: %s")
+							% (self._name, val, e))
+				self._afterValueChanged()
+			self.flushValue()
+		else:
+			self._properties["Value"] = val
+
+		
 	def _getWordWrap(self):
 		return self.GetWrapMode()
 
@@ -1396,14 +1851,51 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 		self.SetZoom(val)
 
 
+	AutoCompleteList = property(_getAutoCompleteList, _setAutoCompleteList, None,
+			_("""Controls if the user has to press 'Enter/Tab' to accept 
+			the AutoComplete entry  (bool)"""))
+	
+	AutoIndent = property(_getAutoIndent, _setAutoIndent, None,
+			_("Controls if a newline adds the previous line's indentation  (bool)"))
+	
+	BufferedDrawing = property(_getBufferedDrawing, _setBufferedDrawing, None,
+			_("Setting to True (default) reduces display flicker  (bool)"))
+	
+	CodeCompletion = property(_getCodeCompletion, _setCodeCompletion, None,
+			_("Determines if code completion is active (default=True)  (bool)"))
+	
 	Column = property(_getColumn, _setColumn, None,
-			_("Returns the current column position of the cursor in the file  (int)"))
+			_("""Returns the current column position of the cursor in the 
+			file  (int)"""))
+	
+	CommentString = property(_getCommentString, _setCommentString, None,
+			_("String used to prefix lines that are commented out  (str)"))
+	
+	Encoding = property(_getEncoding, _setEncoding, None,
+			_("Type of encoding to use. Defaults to the application's default encoding.  (str)"))
 	
 	FileName = property(_getFileName, None, None,
 			_("Name of the file being edited (without path info)  (str)"))
 	
 	FilePath = property(_getFilePath, None, None,
 			_("Full path of the file being edited  (str)"))
+	
+	FontFace = property(_getFontFace, _setFontFace, None,
+			_("Name of the font face used in the editor  (str)"))
+	
+	FontSize = property(_getFontSize, _setFontSize, None,
+			_("Size of the font used in the editor  (int)"))
+	
+	HiliteCharsBeyondLimit = property(_getHiliteCharsBeyondLimit, _setHiliteCharsBeyondLimit, None,
+			_("""When True, characters beyond the column set it 
+			self.HiliteLimitColumn are visibly hilited  (bool)"""))
+	
+	HiliteLimitColumn = property(_getHiliteLimitColumn, _setHiliteLimitColumn, None,
+			_("""If self.HiliteCharsBeyondLimit is True, specifies 
+			the limiting column  (int)"""))
+	
+	Language = property(_getLanguage, _setLanguage, None,
+			_("Determines which language is used for the syntax coloring  (str)"))
 	
 	LineNumber = property(_getLineNumber, _setLineNumber, None,
 			_("Returns the current line number being edited  (int)"))
@@ -1414,9 +1906,59 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 	Modified = property(_getModified, None, None,
 			_("Has the content of this editor been modified?  (bool)"))
 	
+	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
+			_("Background color of selected text. Default=yellow  (str or tuple)"))
+	
+	SelectionForeColor = property(_getSelectionForeColor, _setSelectionForeColor, None,
+			_("Forecolor of the selected text. Default=black  (str or tuple)"))
+	
+	ShowCallTips = property(_getShowCallTips, _setShowCallTips, None,
+			_("Determines if call tips are shown (default=True)  (bool)"))
+	
+	ShowCodeFolding = property(_getShowCodeFolding, _setShowCodeFolding, None,
+			_("""Determines if the code folding symbols are displayed 
+			in the left margin (default=True)  (bool)"""))
+	
+	ShowEOL = property(_getShowEOL, _setShowEOL, None,
+			_("""Determines if end-of-line markers are visible 
+			(default=False)  (bool)"""))
+	
+	ShowLineNumbers = property(_getShowLineNumbers, _setShowLineNumbers, None,
+			_("""Determines if line numbers are shown in the left 
+			margin (default=True)  (bool)"""))
+	
+	ShowWhiteSpace = property(_getShowWhiteSpace, _setShowWhiteSpace, None,
+			_("""Determines if white space characters are displayed 
+			(default=True)  (bool)"""))
+	
+	SyntaxColoring = property(_getSyntaxColoring, _setSyntaxColoring, None,
+			_("Determines if syntax coloring is used (default=True)  (bool)"))
+	
+	TabWidth = property(_getTabWidth, _setTabWidth, None,
+			_("""Approximate number of spaces taken by each tab character 
+			(default=4)  (int)"""))
+	
 	Text = property(_getText, _setText, None,
 			_("Current contents of the editor  (str)"))
 	
+	UseAntiAliasing = property(_getUseAntiAliasing, _setUseAntiAliasing, None,
+			_("Controls whether fonts are anti-aliased (default=True)  (bool)"))
+	
+	UseBookmarks = property(_getUseBookmarks, _setUseBookmarks, None,
+			_("Are we tracking bookmarks in the editor? Default=False  (bool)"))
+	
+	UseStyleTimer = property(_getUseStyleTimer, _setUseStyleTimer, None,
+			_("""Syntax coloring can slow down sometimes. Set this to 
+			True to improve performance.  (bool)"""))
+	
+	UseTabs = property(_getUseTabs, _setUseTabs, None,
+			_("""Indentation will only use space characters if useTabs 
+			is False; if True, it will use a combination of tabs and 
+			spaces (default=True)  (bool)"""))
+	
+	Value = property(_getValue, _setValue, None,
+		_("""Specifies the current contents of the editor.  (basestring)"""))
+				
 	WordWrap = property(_getWordWrap, _setWordWrap, None,
 			_("""Controls whether text lines that are wider than the window
 			are soft-wrapped or clipped. (bool)"""))
@@ -1424,7 +1966,7 @@ class dEditor(stc.StyledTextCtrl, cm.dControlMixin):
 	ZoomLevel = property(_getZoomLevel, _setZoomLevel, None,
 			_("Point increase/decrease from normal viewing size  (int)"))
 	
-	
+
 	
 class _dEditor_test(dEditor): pass
 

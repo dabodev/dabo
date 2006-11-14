@@ -18,9 +18,11 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 		preClass = wx.MenuBar
 		pm.dPemMixin.__init__(self, preClass, None, properties, *args, **kwargs)
 
+
 	def _initEvents(self):
 		self.Application.uiApp.Bind(wx.EVT_MENU_OPEN,
 				self.__onWxMenuOpen, self.Form)
+
 
 	def __onWxMenuOpen(self, evt):
 		## pkm: EVT_OPEN only applies to the top-level menus: those in the menubar.
@@ -43,13 +45,16 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 		if ret:
 			menu.Parent = self
 		return ret
+		
 
 	def insertMenu(self, pos, menu):
 		"""Inserts a dMenu in the dMenuBar at the specified position."""
+		pos = min(pos, self.GetMenuCount())
 		ret = self.Insert(pos, menu, menu.Caption)
 		if ret:
 			menu.Parent = self
 		return ret
+
 
 	def prependMenu(self, menu):
 		"""Inserts a dMenu at the beginning of the dMenuBar."""
@@ -143,6 +148,11 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 		return children
 
 
+	## property definitions begin here.
+	def _getCount(self):
+		return self.GetMenuCount()
+
+
 	def _getForm(self):
 		return self.GetFrame()
 
@@ -154,5 +164,9 @@ class dMenuBar(wx.MenuBar, pm.dPemMixin):
 		else:
 			self._properties["Form"] = val
 
+
+	Count = property(_getCount, None, None,
+			_("Returns the number of child menus. Read-only.  (int)"))
+	
 	Form = property(_getForm, _setForm, None,
-		_("Specifies the form that we are a member of."))
+			_("Specifies the form that we are a member of.  (dabo.ui.dForm)"))

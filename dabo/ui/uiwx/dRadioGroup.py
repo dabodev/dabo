@@ -7,6 +7,7 @@ import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
+import warnings
 
 
 class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
@@ -18,6 +19,8 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	really only suitable for lists of one to a dozen at most.
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
+		warnings.warn(_("Deprecated; use the dabo.ui.dRadioList control instead."), 
+				DeprecationWarning, 1)
 		self._baseClass = dRadioGroup
 		preClass = wx.PreRadioBox
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
@@ -95,8 +98,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 
 	def _preInitUI(self, kwargs):
 		if kwargs.has_key("choices"):
-			import warnings
-			warnings.warn("Change the 'choices' argument to 'Choices'", DeprecationWarning)
+			warnings.warn(_("Change the 'choices' argument to 'Choices'"), DeprecationWarning)
 		if not kwargs.has_key("choices"):
 			# wx requires the choices=[] argument, but Dabo's spelling is Choices.
 			kwargs["choices"] = self.Choices
@@ -112,7 +114,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 			
 	def _onWxHit(self, evt):
 		self.flushValue()
-		dRadioGroup.doDefault(evt)
+		self.super(evt)
 		
 	
 		
@@ -349,7 +351,7 @@ class dRadioGroup(wx.RadioBox, dcm.dDataControlMixin):
 	DynamicValueMode = makeDynamicProperty(ValueMode)
 	
 
-class _dRadioGroup_test(dRadioGroup):
+class _dRadioGroup_test_deprecated(dRadioGroup):
 	def initProperties(self):
 		self.ForeColor = "darkblue"
 		self.BackColor = "wheat"
@@ -381,4 +383,4 @@ class _dRadioGroup_test(dRadioGroup):
 
 if __name__ == "__main__":
 	import test
-	test.Test().runTest(_dRadioGroup_test)
+	test.Test().runTest(_dRadioGroup_test_deprecated)

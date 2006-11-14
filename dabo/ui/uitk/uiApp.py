@@ -12,15 +12,16 @@ from dabo.dObject import dObject
 # It doesn't look like Tkinter has an application object, just a mainloop() method.
 class uiApp(dObject):
 	
-	def __init__(self):
-		uiApp.doDefault()
+	def __init__(self, app, callback=None, *args):
 		self.Name = "uiApp"
-		
-	def setup(self, dApp):
-		self.dApp = dApp
+		self.dApp = app
+		self.callback = callback
+		self.super()
 
-		if dApp.MainFormClass is not None:
-			dApp.MainForm = dApp.MainFormClass()
+	def setup(self):
+
+		if self.dApp.MainFormClass is not None:
+			self.dApp.MainForm = self.dApp.MainFormClass()
 
 	def start(self, dApp):
 		self.raiseEvent(dEvents.Activate)
@@ -184,3 +185,13 @@ class uiApp(dObject):
 		user, password = dlg.user, dlg.password
 		dlg.Destroy()
 		return user, password
+
+	def setMainForm(self, val):
+		pass
+#		try:
+#			self.dApp.MainForm.Destroy()
+##		except:
+#			pass
+#		self.SetTopWindow(val)
+#		val.Show(self.dApp.showMainFormOnStart)
+		

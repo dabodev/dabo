@@ -24,11 +24,7 @@ class Postgres(dBackend):
 			port = "5432"
 				
 		DSN = "host=%s port=%s dbname=%s user=%s password=%s" % (connectInfo.Host,
-			port,
-			connectInfo.Database,
-			connectInfo.User,
-			connectInfo.revealPW())
-			
+			port, connectInfo.Database, connectInfo.User, connectInfo.revealPW())
 		self._connection = dbapi.connect(DSN)
 		return self._connection
 
@@ -91,24 +87,25 @@ class Postgres(dBackend):
 		# jfcs 11/01/04 Below sucks but works with 7.3.x and 7.4.x (don't know anything
 		# about 8.0.x) 
 		# Ok get the 'field name', 'field type'
-		tempCursor.execute("Select c.oid,a.attname, t.typname \
-		from pg_class c inner join pg_attribute a \
-		on a.attrelid = c.oid inner join pg_type t on a.atttypid = t.oid \
-		where c.relname = '%s' and a.attnum > 0 " % tableName)
+		tempCursor.execute("""select c.oid,a.attname, t.typname 
+				from pg_class c inner join pg_attribute a 
+				on a.attrelid = c.oid inner join pg_type t on a.atttypid = t.oid 
+				where c.relname = '%s' and a.attnum > 0 """ % tableName)
 		rs = tempCursor.fetchall()
 		myoid=rs[0][0]
 		## get the PK 
-		tempCursor.execute("SELECT c2.relname, i.indisprimary, i.indisunique, pg_catalog.pg_get_indexdef(i.indexrelid) \
-		FROM pg_catalog.pg_class c, pg_catalog.pg_class c2, pg_catalog.pg_index i \
-		WHERE c.oid = %s AND c.oid = i.indrelid AND i.indexrelid = c2.oid \
-		AND i.indisprimary =TRUE \
-		ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname" % myoid)	
+		tempCursor.execute("""select c2.relname, i.indisprimary, i.indisunique, 
+				pg_catalog.pg_get_indexdef(i.indexrelid) 
+				FROM pg_catalog.pg_class c, pg_catalog.pg_class c2, pg_catalog.pg_index i 
+				WHERE c.oid = %s AND c.oid = i.indrelid AND i.indexrelid = c2.oid 
+				AND i.indisprimary =TRUE 
+				ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname""" % myoid)	
 		rs2=tempCursor.fetchall()
 		if rs2==[]:
 			thePKFieldName = None
 		else:
-			thestr=rs2[0][3]
-			thePKFieldName=thestr[thestr.find('(')+1:thestr.find(')')]
+			thestr = rs2[0][3]
+			thePKFieldName = thestr[thestr.find("(") + 1: thestr.find(")")].split(", ")
 		
 		fields = []
 		for r in rs:
@@ -116,19 +113,23 @@ class Postgres(dBackend):
 			fldType =r[2]
 			pk = False
 			if thePKFieldName is not None:
-				pk = (name == thePKFieldName)
-			if 'int' in fldType:
-				fldType = 'I'
-			elif 'char' in fldType :
-				fldType = 'C'
-			elif 'text' in fldType:
-				fldType = 'M'
-			elif 'numeric' in fldType:
-				fldType = 'N'
-			elif 'datetime' in fldType:
-				fldType = 'T'
-			elif 'date' in fldType:
-				fldType = 'D'
+				pk = (name in thePKFieldName)
+			if "int" in fldType:
+				fldType = "I"
+			elif "char" in fldType :
+				fldType = "C"
+			elif "bool" in fldType :
+				fldType = "B"
+			elif "text" in fldType:
+				fldType = "M"
+			elif "numeric" in fldType:
+				fldType = "N"
+			elif "datetime" in fldType:
+				fldType = "T"
+			elif "date" in fldType:
+				fldType = "D"
+			elif "blob" in fldType:
+				fldType = "L"
 			else:
 				fldType = "?"
 			fields.append((name.strip(), fldType, pk))

@@ -61,17 +61,17 @@ class Wizard(dabo.ui.dDialog):
 		if self.setPageColor:
 			mp.BackColor = self.BackColor
 		mpsz = mp.Sizer
-		mpsz.Spacing = 10
-		mpsz.Border = 12
-		mpsz.BorderLeft = mpsz.BorderRight = True
+		mpsz.DefaultSpacing = 10
+		mpsz.DefaultBorder = 12
+		mpsz.DefaultBorderLeft = mpsz.DefaultBorderRight = True
 		# Add a top border
-		mpsz.appendSpacer(mpsz.Border)
+		mpsz.appendSpacer(mpsz.DefaultBorder)
 		
 		if not self.iconName:
 			self.iconName = "empty"
 		self.wizardIcon = dabo.ui.dBitmap(mp, Picture=self.iconName)
 		hsz = dabo.ui.dSizer("h")
-		hsz.Spacing = 20
+		hsz.DefaultSpacing = 20
 		hsz.append(self.wizardIcon, 0)
 		
 		# This is the panel that will contain the various pages
@@ -89,7 +89,7 @@ class Wizard(dabo.ui.dDialog):
 		
 		# Buttons
 		hsz = dabo.ui.dSizer("h")
-		hsz.Spacing = 5
+		hsz.DefaultSpacing = 5
 		self.btnBack = dabo.ui.dButton(mp, Caption=_("< Back") )	
 		self.btnNext = dabo.ui.dButton(mp, Caption=_("Next >") )	
 		self.btnCancel = dabo.ui.dButton(mp, Caption=_("Cancel") )
@@ -103,8 +103,8 @@ class Wizard(dabo.ui.dDialog):
 		mpsz.append(hsz, 0, alignment=("right", "bottom") )
 		
 		# Add the top and bottom borders
-		mpsz.prependSpacer(mpsz.Border)
-		mpsz.appendSpacer(mpsz.Border)
+		mpsz.prependSpacer(mpsz.DefaultBorder)
+		mpsz.appendSpacer(mpsz.DefaultBorder)
 		
 
 	def onBack(self, evt):
@@ -252,9 +252,9 @@ class Wizard(dabo.ui.dDialog):
 
 	# Property methods
 	def _getImage(self):
-		return self.wizardIcon.Bitmap
+		return self.wizardIcon.Picture
 	def _setImage(self, val):
-		self.wizardIcon.Bitmap = val
+		self.wizardIcon.Picture = val
 		self.layout()
 	
 	def _getPageCount(self):

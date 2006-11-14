@@ -1,24 +1,24 @@
-import wx, dabo
 import os
+import tempfile
+import wx
+import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
-import dControlMixin as dcm
+#import dControlMixin as dcm
+import dDataControlMixin as dcm
+import dImageMixin as dim
 from dabo.ui import makeDynamicProperty
 
 
-class dImage(wx.StaticBitmap, dcm.dControlMixin):
+class dImage(wx.StaticBitmap, dcm.dDataControlMixin, dim.dImageMixin):
 	""" Create a simple bitmap to display images."""
 	def __init__(self, parent, properties=None, attProperties=None, 
 			*args, **kwargs):
 		self._baseClass = dImage
 		preClass = wx.StaticBitmap
 
-		self._picture = ""
-		self._bmp = None
-		self._bitmapHeight = None
-		self._bitmapWidth = None
 		self._scaleMode = "Proportional"
 		self._imgProp = 1.0
 		self._rotation = 0
@@ -26,7 +26,8 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		bmp = wx.EmptyBitmap(1, 1)
 		picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
 	
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
+		dim.dImageMixin.__init__(self)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
 				bitmap=bmp, *args, **kwargs)
 		
 		# Display the picture, if any. This will also initialize the 
@@ -55,6 +56,27 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 		if self._rotation == 4:
 			self._rotation = 0
 		self._showPic()
+	
+	
+	def getImgType(self):
+		data = self.__imageData
+		ret = (None, None)
+		if data:
+			ret = None
+			fname = self.Application.getTempFile(ext="")
+			open(fname, "wb").write(self.__imageData)
+			aux = wx.NullImage
+			hnds = aux.GetHandlers()
+			for hnd in hnds:
+				aux.RemoveHandler(hnd.GetName())
+			for hnd in hnds:
+				try:
+					if hnd.LoadFile(fname):
+						ret = (hnd.GetName(), hnd.GetExtension())
+						break
+				except StandardError, e:
+					print "ERROR", e
+		return ret
 
 
 	def _showPic(self):
@@ -124,23 +146,6 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 
 
 	# Property definitions
-	def _getBmp(self):
-		if self._bmp is None:
-			self._bmp = wx.EmptyBitmap(1, 1, 1)
-		return self._bmp
-		
-	def _setBmp(self, val):
-		self._bmp = val
-		
-		
-	def _getBitmapHeight(self):
-		return self._bitmapHeight
-
-
-	def _getBitmapWidth(self):
-		return self._bitmapWidth
-
-
 	def _getPic(self):
 		return self._picture
 		
@@ -168,8 +173,8 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 			self._Image.LoadFile(val)
 		self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
 		self._showPic()
-		
-	
+
+
 	def _getScaleMode(self):
 		return self._scaleMode
 		
@@ -184,26 +189,56 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 			dabo.errorLog.write(_("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'.") )
 
 
+	def _getValue(self):
+		try:
+			ret = self.__imageData
+		except AttributeError:
+			ret = self.__imageData = ""
+		return ret
+
+	def _setValue(self, val):
+		if self._constructed():
+			try:
+				isFile = os.path.exists(val)
+			except TypeError:
+				isFile = False
+			if not isFile:
+				# Probably an image stream
+				try:
+					img = dabo.ui.imageFromData(val)
+				except:
+					# No dice, so just bail
+					img = ""
+				self._setPic(img)
+			else:
+				self._setPic(val)
+			if (type(self.Value) != type(val) or self.Value != val):
+			
+				import datetime
+				print datetime.datetime.now()
+				
+				hnd, tfname = tempfile.mkstemp()
+				self.__image.SaveFile(tfname, wx.BITMAP_TYPE_BMP)
+				self.__imageData = open(tfname, "rb").read()
+				
+				print datetime.datetime.now()
+				
+
+				self._afterValueChanged()
+				self.flushValue()
+		else:
+			self._properties["Value"] = val
+
+
 	def _getImg(self):
 		if self.__image is None:
 			self.__image = wx.NullImage
 		return self.__image
 
 	
-	Bitmap = property(_getBmp, _setBmp, None,
-			_("The bitmap representation of the displayed image.  (wx.Bitmap)") )
-	DynamicBitmap = makeDynamicProperty(Bitmap)
-
-	BitmapHeight = property(_getBitmapHeight, None, None,
-			_("Height of the actual displayed bitmap  (int)"))
-	
-	BitmapWidth = property(_getBitmapWidth, None, None,
-			_("Width of the actual displayed bitmap  (int)"))
-	
 	Picture = property(_getPic, _setPic, None,
 			_("The file used as the source for the displayed image.  (str)") )
-	DynamicPicture = makeDynamicProperty(Picture)
-			
+
 	ScaleMode = property(_getScaleMode, _setScaleMode, None,
 			_("""Determines how the image responds to sizing. Can be one
 			of the following:
@@ -212,15 +247,22 @@ class dImage(wx.StaticBitmap, dcm.dControlMixin):
 					its original proportions. (default)
 				Stretch: the image resizes to the Height/Width of the control.
 			""") )
-	DynamicScaleMode = makeDynamicProperty(ScaleMode)
+	
+	Value = property(_getValue, _setValue, None,
+			_("Image content for this control  (binary img data)"))	
 
 	_Image = property(_getImg, None, None, 
 			_("Underlying image handler object  (wx.Image)") )
+
+
+	DynamicPicture = makeDynamicProperty(Picture)
+	DynamicScaleMode = makeDynamicProperty(ScaleMode)
 
 	
 if __name__ == "__main__":
 	class ImgForm(dabo.ui.dForm):
 		def afterInit(self):
+			self.Caption = "dImage Demonstration"
 			# Sliders work differently on OS X
 			### egl - This has been fixed in more recent versions of wxPython
 			# self.reverseVert = (wx.PlatformInfo[0] == "__WXMAC__")
@@ -242,8 +284,8 @@ if __name__ == "__main__":
 			hsz.append(self.imgPanel, 1, "x")
 			hsz.appendSpacer(10)
 			hsz.append(self.VSlider, 0, "x")
-			self.Sizer.Border = 25
-			self.Sizer.BorderLeft = self.Sizer.BorderRight = 25
+			self.Sizer.DefaultBorder = 25
+			self.Sizer.DefaultBorderLeft = self.Sizer.DefaultBorderRight = 25
 			self.Sizer.appendSpacer(25)
 			self.Sizer.append(hsz, 1, "x")
 			self.Sizer.appendSpacer(10)
@@ -251,7 +293,7 @@ if __name__ == "__main__":
 			self.Sizer.appendSpacer(10)
 
 			hsz = dabo.ui.dSizer("H")
-			hsz.Spacing = 10
+			hsz.DefaultSpacing = 10
 			dabo.ui.dBitmapButton(self, RegID="btnRotateCW",
 					Picture="rotateCW")
 			dabo.ui.dBitmapButton(self, RegID="btnRotateCCW",

@@ -22,7 +22,7 @@ ASC, DESC = (n_("asc"), n_("desc"))
 # Controls for the select page:
 class SelectControlMixin(dObject):
 	def initProperties(self):
-		SelectControlMixin.doDefault()
+		self.super()
 		self.SaveRestoreValue = True
 
 class SelectTextBox(SelectControlMixin, dabo.ui.dTextBox): pass
@@ -37,11 +37,11 @@ class SelectSpinner(SelectControlMixin, dabo.ui.dSpinner): pass
 
 class SelectionOpDropdown(dabo.ui.dDropdownList):
 	def initProperties(self):
-		SelectionOpDropdown.doDefault()
+		self.super()
 		self.SaveRestoreValue = True
 		
 	def initEvents(self):
-		SelectionOpDropdown.doDefault()
+		self.super()
 		self.bindEvent(dEvents.Hit, self.onChoiceMade)
 		self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
 		
@@ -72,17 +72,6 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 	
 				
 class Page(dabo.ui.dPage):
-	def _createItems(self):
-		Page.doDefault()
-
-		## The following line is needed to get the Select page scrollbars to lay
-		## out without the user having to resize manually. I tried putting it in
-		## dPage but that caused problems with the Class Designer. We need to 
-		## figure out the best way to abstract this wx call, or find a different
-		## way to get the scrollbars.
-		self.Sizer.FitInside(self)
-
-
 	def newRecord(self, ds=None):
 		""" Called by a browse grid when the user wants to add a new row. 
 		"""
@@ -127,6 +116,17 @@ class SortLabel(dabo.ui.dLabel):
 
 
 class SelectPage(Page):
+	def _createItems(self):
+		self.super()
+
+		## The following line is needed to get the Select page scrollbars to lay
+		## out without the user having to resize manually. I tried putting it in
+		## dPage but that caused problems with the Class Designer. We need to 
+		## figure out the best way to abstract this wx call, or find a different
+		## way to get the scrollbars.
+		self.Sizer.FitInside(self)
+
+
 	def afterInit(self):
 		super(SelectPage, self).afterInit()
 		# Holds info which will be used to create the dynamic
@@ -201,7 +201,11 @@ class SelectPage(Page):
 			dabo.ui.callAfter(self.requery)
 			
 
+	def setFrom(self, biz):
+		"""Subclass hook."""
+		pass
 	
+
 	def setOrderBy(self, biz):
 		biz.setOrderByClause(self._orderByClause())
 
@@ -343,6 +347,7 @@ class SelectPage(Page):
 			else:
 				# CustomSQL is not defined. Get it from the select page settings:
 				bizobj.UserSQL = None
+				self.setFrom(bizobj)
 				self.setWhere(bizobj)
 				self.setOrderBy(bizobj)
 				self.setLimit(bizobj)
@@ -471,19 +476,19 @@ class SelectPage(Page):
 		if len(limTxt.Value) == 0:
 			limTxt.Value = "1000"
 		self.selectFields["limit"] = {"ctrl" : limTxt	}
+		gsz.append(lbl, alignment="right")
+		gsz.append(limTxt)
 
+		# Custom SQL checkbox:
 		chkCustomSQL = panel.addObject(dabo.ui.dCheckBox, Caption="Use Custom SQL")
-		chkCustomSQL.bindEvent(dEvents.Hit, self._onCustomSQL)
+		chkCustomSQL.bindEvent(dEvents.Hit, self.onCustomSQL)
+		gsz.append(chkCustomSQL)
 
+		# Requery button:
 		requeryButton = dabo.ui.dButton(panel)
 		requeryButton.Caption =  _("&Requery")
 		requeryButton.DefaultButton = True
 		requeryButton.bindEvent(dEvents.Hit, self.onRequery)
-		
-		gsz.append(lbl, alignment="right")
-		gsz.append(limTxt)
-		gsz.append(chkCustomSQL)
-
 		btnRow = gsz.findFirstEmptyCell()[0] + 1
 		gsz.append(requeryButton, "expand", row=btnRow, col=1, 
 				halign="right")
@@ -498,7 +503,7 @@ class SelectPage(Page):
 		return panel
 
 
-	def _onCustomSQL(self, evt):
+	def onCustomSQL(self, evt):
 		cb = evt.EventObject
 		bizobj = self.Form.getBizobj()
 		if cb.Value:
@@ -514,7 +519,7 @@ class SelectPage(Page):
 				sql = bizobj.getSQL()
 
 			dlg = dabo.ui.dDialog(self, Caption=_("Set Custom SQL"))
-			eb = dlg.addObject(dabo.ui.dEditBox, Value=sql, Size=(400, 400))
+			eb = dlg.addObject(dabo.ui.dEditBox, Value=sql, Size=(400, 400), FontFace="Monospace")
 			dlg.Sizer.append1x(eb)
 			dlg.show()
 			self.Form.CustomSQL = eb.Value

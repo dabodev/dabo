@@ -13,6 +13,11 @@ from dabo.ui import makeDynamicProperty
 
 class dPageFrameMixin(cm.dControlMixin):
 	"""Creates a container for an unlimited number of pages."""
+	def _beforeInit(self, pre):
+		self._pageSizerClass = dabo.ui.dSizer
+		super(dPageFrameMixin, self)._beforeInit(pre)
+		
+		
 	def _initEvents(self):
 		super(dPageFrameMixin, self)._initEvents()
 		self.Bind(self._evtPageChanged, self.__onPageChanged)
@@ -128,7 +133,16 @@ class dPageFrameMixin(cm.dControlMixin):
 		if isinstance(pgCls, dPage):
 			pg = pgCls
 		else:
+			# See if the 'pgCls' is either some XML or the path of an XML file
+			if isinstance(pgCls, basestring):
+				xml = pgCls
+				from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+				conv = DesignerXmlConverter()
+				pgCls = conv.classFromXml(xml)
 			pg = pgCls(self)
+		if not caption:
+			# Page could have its own default caption
+			caption = pg._caption
 		if imgKey:
 			idx = self._imageList[imgKey]
 			self.InsertPage(pos, pg, text=caption, imageId=idx)
@@ -155,7 +169,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		else:
 			self.RemovePage(pos)
 			ret = pg
-		return pg
+		return ret
 	
 	
 	def movePage(self, oldPgOrPos, newPos, selecting=True):
@@ -207,6 +221,10 @@ class dPageFrameMixin(cm.dControlMixin):
 			self.Sizer.layout()
 		except:
 			pass
+		for pg in self.Pages:
+			pg.layout()
+		if self.Application.Platform == "Win":
+			self.refresh()
 
 		
 	def _getPageIndex(self, pg):
@@ -232,32 +250,38 @@ class dPageFrameMixin(cm.dControlMixin):
 		except AttributeError:
 			return dPage
 			
-	def _setPageClass(self, value):
-		if issubclass(value, cm.dControlMixin):
-			self._pageClass = value
+	def _setPageClass(self, val):
+		if isinstance(val, basestring):
+			from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+			conv = DesignerXmlConverter()
+			self._pageClass = conv.classFromXml(val)
+		elif issubclass(val, cm.dControlMixin):
+			self._pageClass = val
 		else:
-			raise TypeError, "PageClass must descend from a Dabo base class."
+			raise TypeError, _("PageClass must descend from a Dabo base class.")
 			
 			
 	def _getPageCount(self):
 		return int(self.GetPageCount())
 		
-	def _setPageCount(self, value):
+	def _setPageCount(self, val):
 		if self._constructed():
-			value = int(value)
+			val = int(val)
 			pageCount = self.GetPageCount()
 			pageClass = self.PageClass
-			if value < 0:
-				raise ValueError, "Cannot set PageCount to less than zero."
+			if val < 0:
+				raise ValueError, _("Cannot set PageCount to less than zero.")
 		
-			if value > pageCount:
-				for i in range(pageCount, value):
-					self.appendPage(pageClass, caption="Page %s" % (i+1,))
-			elif value < pageCount:
-				for i in range(pageCount, value, -1):
+			if val > pageCount:
+				for i in range(pageCount, val):
+					pg = self.appendPage(pageClass)
+					if not pg.Caption:
+						pg.Caption = _("Page %s") % (i+1,)
+			elif val < pageCount:
+				for i in range(pageCount, val, -1):
 					self.DeletePage(i-1)
 		else:
-			self._properties["PageCount"] = value
+			self._properties["PageCount"] = val
 	
 	def _getPgs(self):
 		## pkm: It is possible for pages to not be instances of dPage
@@ -265,6 +289,16 @@ class dPageFrameMixin(cm.dControlMixin):
 		##      if using the commented code below. 
 		#return [pg for pg in self.Children	if isinstance(pg, dabo.ui.dPage) ]
 		return [self.GetPage(pg) for pg in range(self.PageCount)]
+
+
+	def _getPageSizerClass(self):
+		return self._pageSizerClass
+
+	def _setPageSizerClass(self, val):
+		if self._constructed():
+			self._pageSizerClass = val
+		else:
+			self._properties["PageSizerClass"] = val
 
 
 	def _getSelectedPage(self):
@@ -302,24 +336,23 @@ class dPageFrameMixin(cm.dControlMixin):
 		else:
 			return "Top"
 
-	def _setTabPosition(self, value):
-		value = str(value)
+	def _setTabPosition(self, val):
+		val = str(val)
 
 		self._delWindowStyleFlag(self._tabposBottom)
 		self._delWindowStyleFlag(self._tabposRight)
 		self._delWindowStyleFlag(self._tabposLeft)
 
-		if value == "Top":
+		if val == "Top":
 			pass
-		elif value == "Left":
+		elif val == "Left":
 			self._addWindowStyleFlag(self._tabposLeft)
-		elif value == "Right":
+		elif val == "Right":
 			self._addWindowStyleFlag(self._tabposRight)
-		elif value == "Bottom":
+		elif val == "Bottom":
 			self._addWindowStyleFlag(self._tabposBottom)
 		else:
-			raise ValueError, ("The only possible values are "
-						"'Top', 'Left', 'Right', and 'Bottom'")
+			raise ValueError, (_("The only possible values are 'Top', 'Left', 'Right', and 'Bottom'"))
 
 
 	# Property definitions:
@@ -337,6 +370,11 @@ class dPageFrameMixin(cm.dControlMixin):
 	Pages = property(_getPgs, None, None,
 			_("Returns a list of the contained pages.  (list)") )
 	
+	PageSizerClass = property(_getPageSizerClass, _setPageSizerClass, None,
+			_("""Default sizer class for pages added automatically to this control. Set
+			this to None to prevent sizers from being automatically added to child
+			pages. (dSizer or None)"""))
+		
 	SelectedPage = property(_getSelectedPage, _setSelectedPage, None,
 			_("References the current frontmost page.  (dPage)") )
 						

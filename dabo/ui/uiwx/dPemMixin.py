@@ -86,7 +86,7 @@ class dPemMixin(dPemMixinBase):
 					# If this is property holds strings, we need to quote the value.
 					escVal = val.replace('"', '\\"').replace("'", "\\'")
 					try:
-						exec "properties['%s'] = '%s'" % (prop, escVal)
+						exec "properties['%s'] = u'%s'" % (prop, escVal)
 					except:
 						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
 
@@ -130,8 +130,13 @@ class dPemMixin(dPemMixinBase):
 			del self._preInitProperties["style"]
 			# This is needed because these classes require a 'parent' param.
 			kwargs["parent"] = parent
+		elif issubclass(self._baseClass, dabo.ui.dToggleButton):
+			self._preInitProperties["ID"] = self._preInitProperties["id"]
+			del self._preInitProperties["id"]
 		# This is needed when running from a saved design file
 		self._extractKey(properties, "designerClass")
+		# This attribute is used when saving code with a design file
+		self._extractKey(properties, "code-ID")
 		
 		# The user's subclass code has had a chance to tweak the init properties.
 		# Insert any of those into the arguments to send to the wx constructor:
@@ -162,7 +167,7 @@ class dPemMixin(dPemMixinBase):
 			self._initName(name, _explicitName=_explicitName)
 
 		# Set the properties *before* calling the afterInit hook
-		self.setProperties(properties)
+		self._setProperties(properties)
 		
 		# _initEvents() will call the initEvents() user hook
 		self._initEvents()
@@ -176,10 +181,32 @@ class dPemMixin(dPemMixinBase):
 			# with fastNameSet on, that never happened. Call it manually:
 			self.autoBindEvents()
 
+		# Create a method that gets called after all the other objects that are being
+		# added have completed. A good use of this is when you want to call code in the
+		# afterInit() of a form, but the controls it needs to work with haven't yet been
+		# created. This method will be called after all the form objects have finished 
+		# instantiating. The framework-level _afterInitAll() will call the user-customizable
+		# hook method afterInitAll().
+		dabo.ui.callAfter(self._afterInitAll)
+		
 		# Finally, at the end of the init cycle, raise the Create event
 		self.raiseEvent(dEvents.Create)
 
 
+	def _setProperties(self, properties):
+		"""Provides pre- and post- hooks for the setProperties() method.
+		Typically used to remove Designer props that don't appear in
+		runtime classes.
+		"""
+		if self.beforeSetProperties(properties) is False:
+			return
+		self.setProperties(properties)
+		self.afterSetProperties()
+	
+	def beforeSetProperties(self, properties): pass
+	def afterSetProperties(self): pass
+	
+	
 	def _constructed(self):
 		"""Returns True if the ui object has been fully created yet, False otherwise."""
 		try:
@@ -196,8 +223,8 @@ class dPemMixin(dPemMixinBase):
 		# Do we need to clear the background before redrawing? Most cases will be 
 		# no, but if you have problems with drawings leaving behind unwanted 
 		# debris, set this to True
-		self._autoClearDrawings = False
-		self._borderColor = "black"
+		self.autoClearDrawings = False
+		self._borderColor = dColors.colorTupleFromName("black")
 		self._borderWidth = 0
 		self._borderLineStyle = "Solid"
 		# Reference to the border-drawing object
@@ -230,11 +257,19 @@ class dPemMixin(dPemMixinBase):
 
 		self.afterInit()
 
-		
+	
+	def _afterInitAll(self):
+		"""This is the framework-level hook. It calls the developer-specific method."""
+		if not self:
+			return
+		self.afterInitAll()
+	def afterInitAll(self): pass
+	
+	
 	def _preInitUI(self, kwargs):
 		"""Subclass hook, for internal Dabo use. 
 
-		Some wx objects (RadioBox) need certain props forced if	they hadn't been 
+		Some wx objects (RadioBox) need certain props forced if they hadn't been 
 		set by the user either as a parm or in beforeInit().
 		"""
 		return kwargs
@@ -246,9 +281,9 @@ class dPemMixin(dPemMixinBase):
 		Some properties of wx objects are only settable by sending to the 
 		constructor. This tells Dabo which properties to specially handle.
 		"""
-		return ("Alignment", "BorderStyle", "MultipleSelect", "Orientation", 
-				"PasswordEntry", "ShowLabels", "TabPosition")
-
+		return ("Alignment", "BorderStyle", "ButtonClass", "MultipleSelect", 
+				"Orientation", "PasswordEntry", "ShowLabels", "SizerClass", "TabPosition")
+		
 
 	def _setInitProperties(self, **_properties):
 		# Called before the wx object is fully instantiated. Allows for sending
@@ -330,20 +365,20 @@ class dPemMixin(dPemMixinBase):
 			if self._hoverTimer is None:
 				self._hoverTimer = dabo.ui.callEvery(100, self._checkMouseOver)
 			self._hoverTimer.start()
-			self.onHover()
+			self.onHover(evt)
 			
 	
 	def __onMouseLeave(self, evt):
 		if self._hover:
 			if self._hoverTimer:
 				self._hoverTimer.stop()
-			self.endHover()
+			self.endHover(evt)
 	
 	
 	# These are stub methods, to be coded in the classes that 
 	# need them.
-	def onHover(self): pass
-	def endHover(self): pass
+	def onHover(self, evt=None): pass
+	def endHover(self, evt=None): pass
 	
 	
 	def _checkMouseOver(self):
@@ -520,7 +555,7 @@ class dPemMixin(dPemMixinBase):
 		self.raiseEvent(dEvents.Resize, evt)
 
 
-	def bindKey(self, keyCombo, callback):
+	def bindKey(self, keyCombo, callback, **kwargs):
 		"""Bind a key combination such as "ctrl+c" to a callback function.
 
 		See dKeys.keyStrings for the valid string key codes.
@@ -572,6 +607,7 @@ class dPemMixin(dPemMixinBase):
 		ed["controlDown"] = "CTRL" in upMods 
 		ed["metaDown"] = "META" in upMods
 		ed["shiftDown"] = "SHIFT" in upMods
+		ed.update(kwargs)
 		bnd = {"callback" : callback, "eventData" : ed}
 		self._keyBindings[anId] = bnd
 		self.Bind(wx.EVT_MENU, self._keyCallback, id=anId)
@@ -608,6 +644,22 @@ class dPemMixin(dPemMixinBase):
 		self.Width += extraWidth
 		self.Height += extraHeight
 		self.layout()
+	
+	
+	def getSizerProp(self, prop):
+		"""Gets the current setting for the given property from the object's 
+		ControllingSizer. Returns None if object is not in a sizer.
+		"""
+		ret = None
+		if self.ControllingSizer:
+			ret = self.ControllingSizer.getItemProp(self, prop)
+		return ret
+		
+		
+	def setSizerProp(self, prop, val):
+		"""Tells the object's ControllingSizer to adjust the requested property."""
+		if self.ControllingSizer:
+			self.ControllingSizer.setItemProp(self, prop, val)
 		
 		
 	def createFileDropTarget(self, handler=None):
@@ -651,7 +703,7 @@ class dPemMixin(dPemMixinBase):
 		This can significantly improve performance when many items are being 
 		updated at once.
 
-		IMPORTANT: you must call unlockDisplay() when you are done,	or your 
+		IMPORTANT: you must call unlockDisplay() when you are done, or your 
 		object will never draw.
 
 		Note that lockDisplay currently doesn't do anything on GTK.
@@ -666,6 +718,27 @@ class dPemMixin(dPemMixinBase):
 		that would result in lengthy screen updates.
 		"""
 		self.Thaw()
+
+
+	def bringToFront(self):
+		"""Makes this object topmost"""
+		self.Raise()
+	
+	
+	def sendToBack(self):
+		"""Places this object behind all others."""
+		self.Lower()
+	
+	
+	def showContainingPage(self):
+		"""If this object is inside of any paged control, it will force all containing
+		paged controls to switch to the page that contains this object.
+		"""
+		cntnr = self
+		while cntnr and not isinstance(cntnr, dabo.ui.dForm):
+			if isinstance(cntnr, dabo.ui.dPage):
+				cntnr.Parent.SelectedPage = cntnr
+			cntnr = cntnr.Parent
 	
 	
 	def addObject(self, classRef, Name=None, *args, **kwargs):
@@ -704,7 +777,12 @@ class dPemMixin(dPemMixinBase):
 		"""Raise the passed Dabo event."""
 		# Call the Dabo-native raiseEvent(), passing along the wx.CallAfter
 		# function, so that the Dabo events can be processed at next idle.
-		
+	
+		if not self:
+			# Continuing isn't possible, as the wxPython object is already gone.
+			# Perhaps we should log this too?
+			return
+	
 		##- 2004/01/07: Problems with segfaults and illegal instructions in some cases
 		##-             with the wx.CallAfter. Revert back for now to calling in the
 		##-             callstack.
@@ -718,19 +796,94 @@ class dPemMixin(dPemMixinBase):
 					uiCallAfterFunc=wx.CallAfter, *args, **kwargs)
 	
 	
-	def formCoordinates(self, pos):
+	def formCoordinates(self, pos=None):
 		"""Given a position relative to this control, return a position relative
-		to the containing form.
+		to the containing form. If no position is passed, returns the position
+		of this control relative to the form.
 		"""
-		ret = self.absoluteCoordinates(pos)
-		if hasattr(self, "Form") and self.Form is not None:
-			ret = self.Form.ScreenToClient(ret)
-		return ret
+		return self.containerCoordinates(self.Form, pos)
+
+
+	def containerCoordinates(self, cnt, pos=None):
+		"""Given a position relative to this control, return a position relative
+		to the specified container. If no position is passed, returns the position
+		of this control relative to the container.
+		"""
+		if pos is None:
+			pos = self.Position
+			l, t = 0, 0
+		else:
+			l, t = pos
+		# If the container is a page, we need to use its containing 
+		# pageframe/pagelist, etc.
+		if isinstance(cnt, dabo.ui.dPage):
+			cnt = cnt.Parent
+		p = self
+		found = False
+		while (p is not None):
+			lastPar = p
+			if p is cnt:
+				found = True
+				break
+			l += p.Left
+			t += p.Top
+			p = p.Parent
+		# If we didn't find the container, that means that the object
+		# is not contained by the container. This can happen when 
+		# dragging past the edge of the container.
+		if not found:
+			# Convert to form coordinates
+			cntX, cntY = cnt.formCoordinates()
+			posX, posY = self.formCoordinates(pos)
+			l = posX - cntX
+			t = posY - cntY
+ 		return (l, t)
+ 	
+ 	
+	def objectCoordinates(self, pos=None):
+		"""Given a position relative to the form, return a position relative
+		to this object. If no position is passed, returns the position
+		of this control relative to the form.
+		"""
+		if pos is None:
+			pos = self.Position
+		x, y = pos
+		prnt = self.Parent
+		while prnt is not None and prnt is not self.Form:
+			offX, offY = prnt.Position
+			x += offX
+			y += offY
+			prnt = prnt.Parent
+		return (x, y)
 	
 	
-	def absoluteCoordinates(self, pos):
+	def absoluteCoordinates(self, pos=None):
 		"""Translates a position value for a control to absolute screen position."""
+		if pos is None:
+			pos = self.Position
 		return self.ClientToScreen(pos)
+	
+	
+	def relativeCoordinates(self, pos=None):
+		"""Translates an absolute screen position to position value for a control."""
+		if pos is None:
+			pos = self.Position
+		return self.ScreenToClient(pos)
+	
+	
+	def isContainedBy(self, obj):
+		"""Returns True if this the containership hierarchy for this control
+		includes obj.
+		"""
+		ret = False
+		p = self.Parent
+		while p is not None:
+			if p is obj:
+				ret = True
+				break
+			else:
+				p = p.Parent
+		return ret
 	
 	
 	def showContextMenu(self, menu, pos=None, release=True):
@@ -784,7 +937,7 @@ class dPemMixin(dPemMixinBase):
 	def getPositionInSizer(self):
 		""" Returns the current position of this control in its containing sizer. 
 
-		This is useful for when a control needs to be re-created in	place. If the 
+		This is useful for when a control needs to be re-created in place. If the 
 		containing sizer is a box sizer, the integer position will be returned. 
 		If it is a grid sizer, a row,col tuple will be returned. If the object is 
 		not contained in a sizer, None will be returned.
@@ -821,22 +974,29 @@ class dPemMixin(dPemMixinBase):
 		If 'recurse' is True, setAll() will be called on each child as well.
 
 		If 'filt' is not empty, only children that match the expression in 'filt' 
-		will be affected. The expression will be evaluated assuming	the child 
-		object is prefixed to the expression. For example, if	you want to only 
+		will be affected. The expression will be evaluated assuming the child 
+		object is prefixed to the expression. For example, if you want to only 
 		affect objects that are instances of dButton, you'd call:
 
 		form.setAll("FontBold", True, filt="BaseClass == dabo.ui.dButton")
 		"""
-		for chld in self.Children:
-			ok = hasattr(chld, prop)
+		if isinstance(self, dabo.ui.dGrid):
+			kids = self.Columns
+		elif isinstance(self, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
+				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs)):
+			kids = self.Pages
+		else:
+			kids = self.Children
+		for kid in kids:
+			ok = hasattr(kid, prop)
 			if ok:
 				if filt:
-					ok = eval("chld.%s" % filt)
+					ok = eval("kid.%s" % filt)
 			if ok:
-				setattr(chld, prop, val)
+				setattr(kid, prop, val)
 			if recurse:
-				if hasattr(chld, "setAll"):
-					chld.setAll(prop, val, recurse=recurse, filt=filt)
+				if hasattr(kid, "setAll"):
+					kid.setAll(prop, val, recurse=recurse, filt=filt)
 
 			
 	def recreate(self, child=None):
@@ -900,7 +1060,7 @@ class dPemMixin(dPemMixinBase):
 
 
 	def __onUpdate(self, evt):
-		"""Update any dynamic properties, and then call	the refresh() hook."""
+		"""Update any dynamic properties, and then call the refresh() hook."""
 		if isinstance(self, dabo.ui.deadObject):
 			return
 		self.update()
@@ -924,13 +1084,19 @@ class dPemMixin(dPemMixinBase):
 		
 	def __updateDynamicProps(self):
 		"""Updates the object's dynamic properties."""
-		for prop, func in self._dynamic.items():
+		self.__updateObjectDynamicProps(self)
+		for obj in self._drawnObjects:
+			self.__updateObjectDynamicProps(obj)
+	
+	
+	def __updateObjectDynamicProps(self, obj):
+		for prop, func in obj._dynamic.items():
 			if isinstance(func, tuple):
 				args = func[1:]
 				func = func[0]
 			else:
 				args = ()
-			setattr(self, prop, func(*args))
+			setattr(obj, prop, func(*args))
 	
 	
 	def refresh(self, fromRefresh=False):
@@ -953,12 +1119,6 @@ class dPemMixin(dPemMixinBase):
 		self.Visible = False
 		
 		
-	def fitToSizer(self):
-		"""Sets the size of the object to the size of the sizer."""
-		if self.Sizer:
-			self.Fit()
-
-
 	def _getWxColour(self, val):
 		"""Convert Dabo colors to wx.Colour objects"""
 		ret = None
@@ -1008,7 +1168,7 @@ class dPemMixin(dPemMixinBase):
 
 
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
-			fillColor=None, lineStyle=None, persist=True):
+			fillColor=None, lineStyle=None, mode=None, persist=True):
 		"""Draws a circle of the specified radius around the specified point.
 
 		You can set the color and thickness of the line, as well as the 
@@ -1023,14 +1183,15 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle, 
-				Shape="circle", Xpos=xPos, Ypos=yPos)
+				Shape="circle", Xpos=xPos, Ypos=yPos, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 	
 	
 	def drawRectangle(self, xPos, yPos, width, height, penColor="black", 
-			penWidth=1, fillColor=None, lineStyle=None, persist=True):
+			penWidth=1, fillColor=None, lineStyle=None, mode=None, 
+			persist=True):
 		"""Draws a rectangle of the specified size beginning at the specified 
 		point. 
 
@@ -1038,14 +1199,15 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, Shape="rect", 
-				Xpos=xPos, Ypos=yPos, Width=width, Height=height)
+				Xpos=xPos, Ypos=yPos, Width=width, Height=height, 
+				DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawPolygon(self, points, penColor="black", penWidth=1, 
-			fillColor=None, lineStyle=None, persist=True):
+			fillColor=None, lineStyle=None, mode=None, persist=True):
 		"""Draws a polygon defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the 
@@ -1055,30 +1217,33 @@ class dPemMixin(dPemMixinBase):
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, 
-				Shape="polygon", Points=points)
+				Shape="polygon", Points=points, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
 	def drawLine(self, x1, y1, x2, y2, penColor="black", penWidth=1, 
-			fillColor=None, lineStyle=None, persist=True):
+			fillColor=None, lineStyle=None, mode=None, persist=True):
 		"""Draws a line between (x1,y1) and (x2, y2). 
 
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, LineStyle=lineStyle, 
+				PenWidth=penWidth, LineStyle=lineStyle, DrawMode=mode, 
 				Shape="line", Points=((x1,y1), (x2,y2)) )
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 	
 	
-	def drawBitmap(self, bmp, x=0, y=0, persist=True):
+	def drawBitmap(self, bmp, x=0, y=0, mode=None, persist=True, 
+			transparent=True):
 		"""Draws a bitmap on the object at the specified position."""
-		obj = DrawObject(self, Bitmap=bmp,
-				Shape="bmp", Xpos=x, Ypos=y)
+		if isinstance(bmp, basestring):
+			bmp = dabo.ui.strToBmp(bmp)
+		obj = DrawObject(self, Bitmap=bmp, Shape="bmp", 
+				Xpos=x, Ypos=y, Transparent=transparent, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -1086,8 +1251,8 @@ class dPemMixin(dPemMixinBase):
 
 	def drawText(self, text, x=0, y=0, angle=0, fontFace=None,
 			fontSize=None, fontBold=None, fontItalic=None,
-			fontUnderline=None, foreColor=None, backColor=None,
-			persist=True):
+			fontUnderline=None, foreColor=None, backColor=None, 
+			mode=None, persist=True):
 		"""Draws text on the object at the specified position 
 		using the specified characteristics. Any characteristics
 		not specified will be set to the system default.
@@ -1096,11 +1261,25 @@ class dPemMixin(dPemMixinBase):
 				Angle=angle, FontFace=fontFace, FontSize=fontSize, 
 				FontBold=fontBold, FontItalic=fontItalic, 
 				FontUnderline=fontUnderline, ForeColor=foreColor,
-				BackColor=backColor)
+				BackColor=backColor, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
-		
+	
+	
+	def drawGradient(self, orientation, x=0, y=0, width=None, height=None,
+			color1=None, color2=None, mode=None, persist=True):
+		"""Draws a horizontal or vertical gradient on the control. Default
+		is to cover the entire control, although you can specify positions.
+		The gradient is drawn with 'color1' as the top/left color, and 'color2'
+		as the bottom/right color.
+		"""
+		obj = DrawObject(self, Shape="gradient", Orientation=orientation, 
+				Xpos=x, Ypos=y, Width=width, Height=height,
+				GradientColor1=color1, GradientColor2=color2, DrawMode=mode)
+		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
 		
 		
 	def _addToDrawnObjects(self, obj, persist):
@@ -1123,7 +1302,7 @@ class dPemMixin(dPemMixinBase):
 		"""
 		if dc is None:
 			# First, clear any old drawing if requested
-			if self._autoClearDrawings:
+			if self.autoClearDrawings:
 				self.ClearBackground()
 			
 		# Draw any shapes
@@ -1133,7 +1312,10 @@ class dPemMixin(dPemMixinBase):
 		self.redraw(dc)
 		# Clear the idle flag.
 		self._needRedraw = False
-
+#- 		if self.Application.Platform == "Win":
+#- 			print "REFRESH", time.time()
+#- 			dabo.ui.callAfterInterval(300, self.refresh)
+			
 
 	def redraw(self, dc): 
 		"""Called when the object is (re)drawn.
@@ -1239,7 +1421,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _onFontPropsChanged(self, evt):
 		# Sent by the dFont object when any props changed. Wx needs to be notified:
-		if wx.Platform == "__WXMAC__":
+		if self.Application.Platform == "Mac":
 			# Mac bug: need to clear the font from the control first 
 			# (Thanks Peter Damoc):
 			self.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL))
@@ -1726,6 +1908,9 @@ class dPemMixin(dPemMixinBase):
 		return self._registryID
 
 	def _setRegID(self, val):
+		if not self._constructed():
+			self._properties["RegID"] = val
+			return
 		if self._registryID:
 			# These should be immutable once set
 			raise AttributeError, _("RegIDs cannot be changed once they are set")
@@ -1858,13 +2043,11 @@ class dPemMixin(dPemMixinBase):
 	# Property definitions follow
 	BackColor = property(_getBackColor, _setBackColor, None,
 			_("Specifies the background color of the object. (tuple)"))
-	DynamicBackColor = makeDynamicProperty(BackColor)
 
 	BorderColor = property(_getBorderColor, _setBorderColor, None,
 			_("""Specifies the color of the border drawn around the control, if any. 
 
 			Default='black'  (str or color tuple)"""))
-	DynamicBorderColor = makeDynamicProperty(BorderColor)
 	
 	BorderLineStyle = property(_getBorderLineStyle, _setBorderLineStyle, None,
 			_("""Style of line for the border drawn around the control.
@@ -1876,7 +2059,6 @@ class dPemMixin(dPemMixinBase):
 				"DotDash"
 				"DashDot"
 			"""))
-	DynamicBorderLineStyle = makeDynamicProperty(BorderLineStyle)
 
 	BorderStyle = property(_getBorderStyle, _setBorderStyle, None,
 			_("""Specifies the type of border for this window. (int).
@@ -1887,78 +2069,61 @@ class dPemMixin(dPemMixinBase):
 					"Sunken" 
 					"Raised"
 			""") )
-	DynamicBorderStyle = makeDynamicProperty(BorderStyle)
 
 	BorderWidth = property(_getBorderWidth, _setBorderWidth, None,
 			_("""Width of the border drawn around the control, if any. (int)
 			
-				Default=0 (no border)
-			"""))
-	DynamicBorderWidth = makeDynamicProperty(BorderWidth)
+				Default=0 (no border)"""))
 
 	Caption = property(_getCaption, _setCaption, None, 
 			_("The caption of the object. (str)") )
-	DynamicCaption = makeDynamicProperty(Caption)
 
 	Children = property(_getChildren, None, None, 
 			_("""Returns a list of object references to the children of this object.
 
-			Only applies to containers. Children will be None for non-containers.
-			"""))
+			Only applies to containers. Children will be None for non-containers."""))
 	
 	ControllingSizer = property(_getCntrlSizer, None, None,
-			_("""Reference to the sizer that controls this control's layout.  (dSizer)
-			""") )
+			_("""Reference to the sizer that controls this control's layout.  (dSizer)""") )
 
 	ControllingSizerItem = property(_getCntrlSzItem, None, None,
 			_("""Reference to the sizer item that control's this control's layout.
 
 				This is useful for getting information about how the item is being 
-				sized, and for changing those settings.
-			"""))
+				sized, and for changing those settings."""))
 		
 	Enabled = property(_getEnabled, _setEnabled, None,
-			_("""Specifies whether the object and children can get user input. (bool)
-			""") )
-	DynamicEnabled = makeDynamicProperty(Enabled)
+			_("""Specifies whether the object and children can get user input. (bool)""") )
 
 	Font = property(_getFont, _setFont, None,
 			_("Specifies font object for this control. (dFont)") )
-	DynamicFont = makeDynamicProperty(Font)
 	
 	FontBold = property(_getFontBold, _setFontBold, None,
 			_("Specifies if the font is bold-faced. (bool)") )
-	DynamicFontBold = makeDynamicProperty(FontBold)
 	
 	FontDescription = property(_getFontDescription, None, None, 
 			_("Human-readable description of the current font settings. (str)") )
 	
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Specifies the font face. (str)") )
-	DynamicFontFace = makeDynamicProperty(FontFace)
 	
 	FontInfo = property(_getFontInfo, None, None,
 			_("Specifies the platform-native font info string. Read-only. (str)") )
 	
 	FontItalic = property(_getFontItalic, _setFontItalic, None,
 			_("Specifies whether font is italicized. (bool)") )
-	DynamicFontItalic = makeDynamicProperty(FontItalic)
 	
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Specifies the point size of the font. (int)") )
-	DynamicFontSize = makeDynamicProperty(FontSize)
 	
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
 			_("Specifies whether text is underlined. (bool)") )
-	DynamicFontUnderline = makeDynamicProperty(FontUnderline)
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
 			_("Specifies the foreground color of the object. (tuple)") )
-	DynamicForeColor = makeDynamicProperty(ForeColor)
 
 	Height = property(_getHeight, _setHeight, None,
 			_("Specifies the height of the object. (int)") )
-	DynamicHeight = makeDynamicProperty(Height)
 	
 	HelpContextText = property(_getHelpContextText, _setHelpContextText, None,
 			_("""Specifies the context-sensitive help text associated with this 
@@ -1970,19 +2135,16 @@ class dPemMixin(dPemMixinBase):
 	
 	Left = property(_getLeft, _setLeft, None,
 			_("Specifies the left position of the object. (int)") )
-	DynamicLeft = makeDynamicProperty(Left)
 	
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
 			_("Specifies the shape of the mouse pointer when it enters this window. (obj)") )
-	DynamicMousePointer = makeDynamicProperty(MousePointer)
 	
 	Name = property(_getName, _setName, None, 
 			_("""Specifies the name of the object, which must be unique among siblings.
 			
 			If the specified name isn't unique, an exception will be raised. See also
 			NameBase, which let's you set a base name and Dabo will automatically append
-			integers to make it unique.
-			""") )
+			integers to make it unique.""") )
 	
 	NameBase = property(None, _setNameBase, None,
 			_("""Specifies the base name of the object.
@@ -1996,52 +2158,71 @@ class dPemMixin(dPemMixinBase):
 			and there is already a sibling object with that name, your object will end up
 			with Name = "txtAddress1".
 			
-			This property is write-only at runtime.
-			""") )
+			This property is write-only at runtime.""") )
 		
-	Parent = property(_getParent, _setParent, None,	
+	Parent = property(_getParent, _setParent, None, 
 			_("The containing object. (obj)") )
 
 	Position = property(_getPosition, _setPosition, None, 
 			_("The (x,y) position of the object. (tuple)") )
-	DynamicPosition = makeDynamicProperty(Position)
 
 	RegID = property(_getRegID, _setRegID, None, 
 			_("A unique identifier used for referencing by other objects. (str)") )
 
 	Size = property(_getSize, _setSize, None,
 			_("The size of the object. (tuple)") )
-	DynamicSize = makeDynamicProperty(Size)
 
 	Sizer = property(_getSizer, _setSizer, None, 
 			_("The sizer for the object.") )
 
 	StatusText = property(_getStatusText, _setStatusText, None,
 			_("Specifies the text that displays in the form's status bar, if any."))
-	DynamicStatusText = makeDynamicProperty(StatusText)
 
 	Tag = property(_getTag, _setTag, None,
 			_("A property that user code can safely use for specific purposes.") )
-	DynamicTag = makeDynamicProperty(Tag)
 		
 	ToolTipText = property(_getToolTipText, _setToolTipText, None,
 			_("Specifies the tooltip text associated with this window. (str)") )
-	DynamicToolTipText = makeDynamicProperty(ToolTipText)
 	
 	Top = property(_getTop, _setTop, None, 
 			_("The top position of the object. (int)") )
-	DynamicTop = makeDynamicProperty(Top)
 	
 	Visible = property(_getVisible, _setVisible, None,
-			_("Specifies whether the object is visible at runtime. (bool)") )                    
-	DynamicVisible = makeDynamicProperty(Visible)
-
+			_("Specifies whether the object is visible at runtime.  (bool)") )
+	
 	Width = property(_getWidth, _setWidth, None,
 			_("The width of the object. (int)") )
-	DynamicWidth = makeDynamicProperty(Width)
 	
 	WindowHandle = property(_getWindowHandle, None, None,
 			_("The platform-specific handle for the window. Read-only. (long)") )
+
+
+	# Dynamic property declarations
+	DynamicBackColor = makeDynamicProperty(BackColor)
+	DynamicBorderColor = makeDynamicProperty(BorderColor)
+	DynamicBorderLineStyle = makeDynamicProperty(BorderLineStyle)
+	DynamicBorderStyle = makeDynamicProperty(BorderStyle)
+	DynamicBorderWidth = makeDynamicProperty(BorderWidth)
+	DynamicCaption = makeDynamicProperty(Caption)
+	DynamicEnabled = makeDynamicProperty(Enabled)
+	DynamicFont = makeDynamicProperty(Font)
+	DynamicFontBold = makeDynamicProperty(FontBold)
+	DynamicFontFace = makeDynamicProperty(FontFace)
+	DynamicFontItalic = makeDynamicProperty(FontItalic)
+	DynamicFontSize = makeDynamicProperty(FontSize)
+	DynamicFontUnderline = makeDynamicProperty(FontUnderline)
+	DynamicForeColor = makeDynamicProperty(ForeColor)
+	DynamicHeight = makeDynamicProperty(Height)
+	DynamicLeft = makeDynamicProperty(Left)
+	DynamicMousePointer = makeDynamicProperty(MousePointer)
+	DynamicPosition = makeDynamicProperty(Position)
+	DynamicSize = makeDynamicProperty(Size)
+	DynamicStatusText = makeDynamicProperty(StatusText)
+	DynamicTag = makeDynamicProperty(Tag)
+	DynamicToolTipText = makeDynamicProperty(ToolTipText)
+	DynamicTop = makeDynamicProperty(Top)
+	DynamicVisible = makeDynamicProperty(Visible)
+	DynamicWidth = makeDynamicProperty(Width)
 
 
 
@@ -2053,6 +2234,7 @@ class DrawObject(dObject):
 	"""
 	def __init__(self, parent, *args, **kwargs):
 		self._inInit = True
+		self._dynamic = {}
 		# Initialize property atts
 		self._parent = parent
 		self._bitmap = None
@@ -2077,6 +2259,11 @@ class DrawObject(dObject):
 		self._backColor = None
 		self._text = None
 		self._angle = 0
+		self._gradientColor1 = None
+		self._gradientColor2 = None
+		self._orientation = None
+		self._transparent = True
+		self._drawMode = None
 		super(DrawObject, self).__init__(*args, **kwargs)
 		self._inInit = False
 	
@@ -2098,7 +2285,7 @@ class DrawObject(dObject):
 			dc = wx.ClientDC(self.Parent)
 		
 		if self.Shape == "bmp":
-			dc.DrawBitmap(self._bitmap, self.Xpos, self.Ypos, False)
+			dc.DrawBitmap(self._bitmap, self.Xpos, self.Ypos, self._transparent)
 			return
 		
 		pw = self.PenWidth
@@ -2133,16 +2320,59 @@ class DrawObject(dObject):
 				fill = dColors.colorTupleFromName(fill)
 			brush = wx.Brush(fill)
 		dc.SetBrush(brush)
+		
+		mode = self.DrawMode
+		if mode is None:
+			logic = wx.COPY
+		elif mode == "invert":
+			logic = wx.INVERT
+		elif mode == "and":
+			logic = wx.AND
+		elif mode == "and_invert":
+			logic = wx.AND_INVERT
+		elif mode == "and_reverse":
+			logic = wx.AND_REVERSE
+		elif mode == "clear":
+			logic = wx.CLEAR
+		elif mode == "equiv":
+			logic = wx.EQUIV
+		elif mode == "nand":
+			logic = wx.NAND
+		elif mode == "nor":
+			logic = wx.NOR
+		elif mode == "no_op":
+			logic = wx.NO_OP
+		elif mode == "or":
+			logic = wx.OR
+		elif mode == "or_invert":
+			logic = wx.OR_INVERT
+		elif mode == "or_reverse":
+			logic = wx.OR_REVERSE
+		elif mode == "set":
+			logic = wx.SET
+		elif mode == "src_invert":
+			logic = wx.SRC_INVERT
+		elif mode == "xor":
+			logic = wx.XOR
+		dc.SetLogicalFunction(logic)
+		srcObj = self.Parent
+		if self.Application.Platform == "GTK" and not (isinstance(srcObj, (dabo.ui.dPanel, dabo.ui.dPage))):
+			x, y = self.Parent.containerCoordinates(srcObj.Parent, (self.Xpos, self.Ypos))
+		else:
+			x, y = self.Xpos, self.Ypos
+		
 		if self.Shape == "circle":
-			dc.DrawCircle(self.Xpos, self.Ypos, self.Radius)
+			dc.DrawCircle(x, y, self.Radius)
 		elif self.Shape == "rect":
-			dc.DrawRectangle(self.Xpos, self.Ypos, self.Width, self.Height)
+			dc.DrawRectangle(x, y, self.Width, self.Height)
 		elif self.Shape == "polygon":
 			dc.DrawPolygon(self.Points)
 		elif self.Shape == "line":
 			x1, y1 = self.Points[0]
 			x2, y2 = self.Points[1]
 			dc.DrawLine(x1, y1, x2, y2)
+		elif self.Shape == "gradient":
+			self._drawGradient(dc, x, y)
 		elif self.Shape == "text":
 			txt = self._text
 			if not txt:
@@ -2171,11 +2401,69 @@ class DrawObject(dObject):
 			
 			dc.SetFont(fnt)
 			if self._angle == 0:
-				dc.DrawText(txt, self.Xpos, self.Ypos)
+				dc.DrawText(txt, x, y)
 			else:
-				dc.DrawRotatedText(txt, self.Xpos, self.Ypos, self._angle)
-					
-	
+				dc.DrawRotatedText(txt, x, y, self._angle)
+
+
+	def _drawGradient(self, dc, xpos, ypos):
+		if self.GradientColor1 is None or self.GradientColor2 is None:
+			return
+		if self.Orientation is None:
+			return
+		if self.Width is None:
+			wd = self.Parent.Width
+		else:
+			wd = self.Width
+		if xpos is None:
+			x1 = 0
+			x2 = wd
+		else:
+			x1 = xpos
+			x2 = x1 + wd
+		if self.Height is None:
+			ht = self.Parent.Height
+		else:
+			ht = self.Height
+		if ypos is None:
+			y1 = 0
+			y2 = ht
+		else:
+			y1 = ypos
+			y2 = y1 + ht
+			
+		dc.SetPen(wx.TRANSPARENT_PEN)
+		r1, g1, b1 = self.GradientColor1
+		r2, g2, b2 = self.GradientColor2
+
+		if self.Orientation == "h":
+			flrect = float(wd)
+		else:
+			flrect = float(ht)
+		flrect = max(1, flrect)
+		rstep = float((r2 - r1)) / flrect
+		gstep = float((g2 - g1)) / flrect
+		bstep = float((b2 - b1)) / flrect
+
+		rf, gf, bf = 0, 0, 0
+		if self.Orientation == "h":
+			for x in range(x1, x1 + wd):
+				currRow = (r1 + rf, g1 + gf, b1 + bf)					
+				dc.SetBrush(wx.Brush(currRow, wx.SOLID))
+				dc.DrawRectangle(x1 + (x - x1), y1, 1, ht)
+				rf = rf + rstep
+				gf = gf + gstep
+				bf = bf + bstep
+		else:
+			for y in range(y1, y1 + ht):
+				currCol = (r1 + rf, g1 + gf, b1 + bf)
+				dc.SetBrush(wx.Brush(currCol, wx.SOLID))
+				dc.DrawRectangle(x1, y1 + (y - y1), wd, ht)
+				rf = rf + rstep
+				gf = gf + gstep
+				bf = bf + bstep
+
+
 	def bringToFront(self):
 		self.Parent._bringDrawObjectToFront(self)
 		
@@ -2218,6 +2506,19 @@ class DrawObject(dObject):
 		if self._bitmap != val:
 			self._bitmap = val
 			self.update()
+
+
+	def _getDrawMode(self):
+		return self._drawMode
+
+	def _setDrawMode(self, val):
+		if val is None:
+			self._drawMode = None
+		else:
+			val = val.lower()
+			if val != self._drawMode:
+				self._drawMode = val
+				self.update()
 
 
 	def _getFillColor(self):
@@ -2283,6 +2584,28 @@ class DrawObject(dObject):
 			self.update()
 
 
+	def _getGradientColor1(self):
+		return self._gradientColor1
+
+	def _setGradientColor1(self, val):
+		if isinstance(val, basestring):
+			val = dColors.colorTupleFromName(val)
+		if self._gradientColor1 != val:
+			self._gradientColor1 = val
+			self.update()
+
+
+	def _getGradientColor2(self):
+		return self._gradientColor2
+
+	def _setGradientColor2(self, val):
+		if isinstance(val, basestring):
+			val = dColors.colorTupleFromName(val)
+		if self._gradientColor2 != val:
+			self._gradientColor2 = val
+			self.update()
+
+
 	def _getHeight(self):
 		return self._height
 		
@@ -2302,6 +2625,16 @@ class DrawObject(dObject):
 			self._lineStyle = val
 			self.update()
 			
+
+	def _getOrientation(self):
+		return self._orientation
+
+	def _setOrientation(self, val):
+		val = val[0].lower()
+		if self._orientation != val:
+			self._orientation = val
+			self.update()
+
 
 	def _getParent(self):
 		return self._parent
@@ -2360,6 +2693,13 @@ class DrawObject(dObject):
 		self._text = val
 
 
+	def _getTransparent(self):
+		return self._transparent
+
+	def _setTransparent(self, val):
+		self._transparent = val
+
+
 	def _getVisible(self):
 		return self._visible
 		
@@ -2405,14 +2745,31 @@ class DrawObject(dObject):
 	Bitmap = property(_getBitmap, _setBitmap, None,
 			_("Bitmap to be drawn on the object  (dBitmap)"))
 	
+	DrawMode = property(_getDrawMode, _setDrawMode, None,
+			_("""Logical operation for how the drawing is done. Can be one of:  (str)
+				copy (or None) - default
+				invert
+				and
+				and_invert
+				and_reverse
+				clear
+				equiv
+				nand
+				nor
+				no_op
+				or
+				or_invert
+				or_reverse
+				set
+				src_invert
+				xor
+			"""))
+	
 	FillColor = property(_getFillColor, _setFillColor, None,
 			_("Background color for the shape  (color)"))
 
 	FontBold = property(_getFontBold, _setFontBold, None,
 			_("Bold setting for text objects  (bool)"))
-	
-	ForeColor = property(_getForeColor, _setForeColor, None,
-			_("Color of text when using text objects  (str or tuple)"))
 	
 	FontFace = property(_getFontFace, _setFontFace, None,
 			_("Face of the font used for text objects  (str)"))
@@ -2426,11 +2783,23 @@ class DrawObject(dObject):
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
 			_("Underline setting for text objects  (bool)"))
 	
+	ForeColor = property(_getForeColor, _setForeColor, None,
+			_("Color of text when using text objects  (str or tuple)"))
+	
+	GradientColor1 = property(_getGradientColor1, _setGradientColor1, None,
+			_("Top/Left color for the gradient  (color: str or tuple)"))
+	
+	GradientColor2 = property(_getGradientColor2, _setGradientColor2, None,
+			_("Bottom/Right color for the gradient  (color: str or tuple)"))
+	
 	Height = property(_getHeight, _setHeight, None,
 			_("For rectangles, the height of the shape  (int)"))
 
 	LineStyle = property(_getLineStyle, _setLineStyle, None,
 			_("Line style (solid, dash, dot) drawn  (str)"))
+	
+	Orientation = property(_getOrientation, _setOrientation, None,
+			_("Direction of the drawn gradient ('v' or 'h')  (str)"))
 
 	Parent = property(_getParent, _setParent, None,
 			_("Reference to the object being drawn upon.  (object)"))
@@ -2453,6 +2822,9 @@ class DrawObject(dObject):
 	Text = property(_getText, _setText, None,
 			_("Text to be drawn  (str)"))
 	
+	Transparent = property(_getTransparent, _setTransparent, None,
+			_("Should the bitmap be drawn transparently?  (bool)"))
+	
 	Visible = property(_getVisible, _setVisible, None,
 			_("Controls whether the shape is drawn.  (bool)"))
 
@@ -2467,6 +2839,35 @@ class DrawObject(dObject):
 			_("""For circles, the y position of the center. For rectangles, 
 			the y position of the top left corner. (int)"""))
 
+
+	DynamicAngle = makeDynamicProperty(Angle)
+	DynamicBackColor = makeDynamicProperty(BackColor)
+	DynamicBitmap = makeDynamicProperty(Bitmap)
+	DynamicDrawMode = makeDynamicProperty(DrawMode)
+	DynamicFillColor = makeDynamicProperty(FillColor)
+	DynamicFontBold = makeDynamicProperty(FontBold)
+	DynamicFontFace = makeDynamicProperty(FontFace)
+	DynamicFontItalic = makeDynamicProperty(FontItalic)
+	DynamicFontSize = makeDynamicProperty(FontSize)
+	DynamicFontUnderline = makeDynamicProperty(FontUnderline)
+	DynamicForeColor = makeDynamicProperty(ForeColor)
+	DynamicGradientColor1 = makeDynamicProperty(GradientColor1)
+	DynamicGradientColor2 = makeDynamicProperty(GradientColor2)
+	DynamicHeight = makeDynamicProperty(Height)
+	DynamicLineStyle = makeDynamicProperty(LineStyle)
+	DynamicOrientation = makeDynamicProperty(Orientation)
+	DynamicParent = makeDynamicProperty(Parent)
+	DynamicPenColor = makeDynamicProperty(PenColor)
+	DynamicPenWidth = makeDynamicProperty(PenWidth)
+	DynamicPoints = makeDynamicProperty(Points)
+	DynamicRadius = makeDynamicProperty(Radius)
+	DynamicShape = makeDynamicProperty(Shape)
+	DynamicText = makeDynamicProperty(Text)
+	DynamicTransparent = makeDynamicProperty(Transparent)
+	DynamicVisible = makeDynamicProperty(Visible)
+	DynamicWidth = makeDynamicProperty(Width)
+	DynamicXpos = makeDynamicProperty(Xpos)
+	DynamicYpos = makeDynamicProperty(Ypos)
 	
 
 

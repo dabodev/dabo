@@ -114,7 +114,7 @@ class dSizerMixin(dObject):
 			# item is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, halign, valign, borderSides, layout)
 			if border is None:
-				border = self.Border
+				border = self.DefaultBorder
 			# If there are objects in this sizer already, add the default spacer
 			addSpacer = ( len(self.GetChildren()) > 0)
 			ret = szItem = self.Insert(index, item, proportion=proportion, 
@@ -161,34 +161,37 @@ class dSizerMixin(dObject):
 			# The use of callAfter can sometimes result in destroyed
 			# objects being removed.
 			return
-			
-		self.Detach(item)
-		item._controllingSizer = None
-		item._controllingSizerItem = None
-		if destroy:
-			try:
-				if isinstance(item, dabo.ui.dSizerMixin):
-					item.release(True)
-				else:
-					item.release()
-			except:
-				item.Destroy()
+		if self.Detach(item):
+			item._controllingSizer = None
+			item._controllingSizerItem = None
+			if destroy:
+				try:
+					if isinstance(item, dabo.ui.dSizerMixin):
+						item.release(True)
+					else:
+						item.release()
+				except:
+					item.Destroy()
 	
 	
+	def clear(self, destroy=False):
+		"""This method is called to remove all items from the sizer. If the
+		optional 'destroy' parameter is set to True, any contained items
+		will be destroyed. Otherwise, they will remain as is, but no longer
+		under control of the sizer.
+		"""
+		self.Clear(destroy)
+		
+		
 	def addSpacer(self, val, pos=None, proportion=0):
 		spacer = val
 		if isinstance(val, int):
-			if self.Orientation == "Vertical":
-				spacer = (1, val)
-			elif self.Orientation == "Horizontal":
-				spacer = (val, 1)
-			else:
-				# Something's up; bail out
-				return
+			spacer = (val, val)
 		if pos is None:
 			itm = self.Add(spacer, proportion=proportion, userData=self)
 		else:
 			itm = self.Insert(pos, spacer, proportion=proportion, userData=self)
+		itm.setSpacing = itm.SetSpacer
 		return itm
 	
 	
@@ -212,10 +215,10 @@ class dSizerMixin(dObject):
 		
 		
 	def addDefaultSpacer(self, pos=None):
-		spc = self.Spacing
+		spc = self.DefaultSpacing
 		if spc:
 			self.addSpacer(spc, pos)
-				
+	
 	
 	def getItem(self, szItem):
 		"""Querying sizers for their contents returns sizer items, not
@@ -365,6 +368,13 @@ class dSizerMixin(dObject):
 			ret = self.setRowSpan(itm, val)
 		elif lowprop == "colspan" and isinstance(self, dabo.ui.dGridSizer):
 			ret = self.setColSpan(itm, val)
+		elif lowprop == "spacing":
+			if isinstance(val, int):
+				val = (val, val)
+			try:
+				ret = itm.SetSpacer(val)
+				ret = True
+			except: pass
 		elif lowprop in ("expand", "halign", "valign", "bordersides"):
 			ret = True
 			pd = {"left" : self.leftFlag, 
@@ -434,6 +444,21 @@ class dSizerMixin(dObject):
 			self.setItemProp(itm, prop, val)
 	
 
+	def isContainedBy(self, obj):
+		"""Returns True if this the containership hierarchy for this control
+		includes obj.
+		"""
+		ret = False
+		p = self.Parent
+		while p is not None:
+			if p is obj:
+				ret = True
+				break
+			else:
+				p = p.Parent
+		return ret
+	
+	
 	def drawOutline(self, win, recurse=False):
 		""" There are some cases where being able to see the sizer
 		is helpful, such as at design time. This method can be called
@@ -548,17 +573,17 @@ class dSizerMixin(dObject):
 			borderSides = (borderSides, )
 		if borderSides is None:
 			# Add any default borders. If no defaults set, set it to the default 'all'
-			if self.BorderBottom:
+			if self.DefaultBorderBottom:
 				_wxFlags = _wxFlags | self.borderBottomFlag
-			if self.BorderLeft:
+			if self.DefaultBorderLeft:
 				_wxFlags = _wxFlags | self.borderLeftFlag
-			if self.BorderRight:
+			if self.DefaultBorderRight:
 				_wxFlags = _wxFlags | self.borderRightFlag
-			if self.BorderTop:
+			if self.DefaultBorderTop:
 				_wxFlags = _wxFlags | self.borderTopFlag
 			# Should we set the default?
-			if not (self.BorderBottom or self.BorderLeft 
-					or self.BorderRight or self.BorderTop):
+			if not (self.DefaultBorderBottom or self.DefaultBorderLeft 
+					or self.DefaultBorderRight or self.DefaultBorderTop):
 				_wxFlags = _wxFlags | self.borderAllFlag
 		else:
 			for flag in [flag.lower() for flag in borderSides]:
@@ -581,83 +606,26 @@ class dSizerMixin(dObject):
 		return _wxFlags				
 
 
-	def _getBorder(self):
-		try:
-			return self._border
-		except:
-			return 0
-			
-	def _setBorder(self, val):
-		if isinstance(val, basestring):
-			val = int(val)
-		self._border = val
-		
-		
-	def _getBorderAll(self):
-		try:
-			return (self._borderBottom and self._borderTop
-					and self._borderLeft and self._borderRight )
-		except:
-			return False
-			
-	def _setBorderAll(self, val):
-		if isinstance(val, basestring):
-			val = (val.lower()[0] in ("t", "y"))
-		self._borderBottom = self._borderTop = self._borderLeft = self._borderRight = val
-		
-		
-	def _getBorderBottom(self):
-		try:
-			return self._borderBottom
-		except:
-			return False
-			
-	def _setBorderBottom(self, val):
-		if isinstance(val, basestring):
-			val = (val.lower()[0] in ("t", "y"))
-		self._borderBottom = val
-		
-		
-	def _getBorderLeft(self):
-		try:
-			return self._borderLeft
-		except:
-			return False
-			
-	def _setBorderLeft(self, val):
-		if isinstance(val, basestring):
-			val = (val.lower()[0] in ("t", "y"))
-		self._borderLeft = val
-		
-		
-	def _getBorderRight(self):
-		try:
-			return self._borderRight
-		except:
-			return False
-			
-	def _setBorderRight(self, val):
-		if isinstance(val, basestring):
-			val = (val.lower()[0] in ("t", "y"))
-		self._borderRight = val
-		
-		
-	def _getBorderTop(self):
-		try:
-			return self._borderTop
-		except:
-			return False
-			
-	def _setBorderTop(self, val):
-		if isinstance(val, basestring):
-			val = (val.lower()[0] in ("t", "y"))
-		self._borderTop = val
-	
-	
+
 	def _getChildren(self):
 		ret = self.GetChildren()
 		for itm in ret:
 			itm.ControllingSizer = self
+		return ret
+	
+	
+	def _getChildSpacers(self):
+		itms = self.GetChildren()
+		ret = [itm for itm in itms
+				if itm.IsSpacer() ]
+		return ret
+	
+	
+	def _getChildSizers(self):
+		itms = self.GetChildren()
+		ret = [itm.GetSizer()
+				for itm in itms
+				if itm.IsSizer() ]
 		return ret
 	
 	
@@ -685,6 +653,93 @@ class dSizerMixin(dObject):
 		return ret
 		
 
+	def _getDefaultBorder(self):
+		try:
+			return self._defaultBorder
+		except:
+			return 0
+			
+	def _setDefaultBorder(self, val):
+		if isinstance(val, basestring):
+			val = int(val)
+		self._defaultBorder = val
+		
+		
+	def _getDefaultBorderAll(self):
+		try:
+			return (self._defaultBorderBottom and self._defaultBorderTop
+					and self._defaultBorderLeft and self._defaultBorderRight )
+		except:
+			return False
+			
+	def _setDefaultBorderAll(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
+		self._defaultBorderBottom = self._defaultBorderTop = \
+				self._defaultBorderLeft = self._defaultBorderRight = val
+		
+		
+	def _getDefaultBorderBottom(self):
+		try:
+			return self._defaultBorderBottom
+		except:
+			return False
+			
+	def _setDefaultBorderBottom(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
+		self._defaultBorderBottom = val
+		
+		
+	def _getDefaultBorderLeft(self):
+		try:
+			return self._defaultBorderLeft
+		except:
+			return False
+			
+	def _setDefaultBorderLeft(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
+		self._defaultBorderLeft = val
+		
+		
+	def _getDefaultBorderRight(self):
+		try:
+			return self._defaultBorderRight
+		except:
+			return False
+			
+	def _setDefaultBorderRight(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
+		self._defaultBorderRight = val
+		
+		
+	def _getDefaultBorderTop(self):
+		try:
+			return self._defaultBorderTop
+		except:
+			return False
+			
+	def _setDefaultBorderTop(self, val):
+		if isinstance(val, basestring):
+			val = (val.lower()[0] in ("t", "y"))
+		self._defaultBorderTop = val
+	
+	
+	def _getDefaultSpacing(self):
+		try:
+			return self._defaultSpacing
+		except:
+			# Default to zero
+			return 0
+			
+	def _setDefaultSpacing(self, val):
+		if isinstance(val, basestring):
+			val = int(val)
+		self._defaultSpacing = val
+		
+			
 	def _getHt(self):
 		return self.GetSize()[1]
 		
@@ -725,19 +780,6 @@ class dSizerMixin(dObject):
 		self._parent = obj
 					
 		
-	def _getSpacing(self):
-		try:
-			return self._space
-		except:
-			# Default to zero
-			return 0
-			
-	def _setSpacing(self, val):
-		if isinstance(val, basestring):
-			val = int(val)
-		self._space = val
-		
-			
 	def _getVisible(self):
 		return self._visible
 		
@@ -752,27 +794,14 @@ class dSizerMixin(dObject):
 		return self.GetSize()[0]		
 		
 	
-	Border = property(_getBorder, _setBorder, None,
-			_("Sets the default border for the sizer.  (int)" ) )
-	DynamicBorder = makeDynamicProperty(Border)
-			
-	BorderAll = property(_getBorderAll, _setBorderAll, None,
-			_("By default, do we add the border to all sides?  (bool)" ) )
-			
-	BorderBottom = property(_getBorderBottom, _setBorderBottom, None,
-			_("By default, do we add the border to the bottom side?  (bool)" ) )
-			
-	BorderLeft = property(_getBorderLeft, _setBorderLeft, None,
-			_("By default, do we add the border to the left side?  (bool)" ) )
-			
-	BorderRight = property(_getBorderRight, _setBorderRight, None,
-			_("By default, do we add the border to the right side?  (bool)" ) )
-			
-	BorderTop = property(_getBorderTop, _setBorderTop, None,
-			_("By default, do we add the border to the top side?  (bool)" ) )
-
 	Children = property(_getChildren, None, None, 
 			_("List of all the sizer items managed by this sizer  (list of sizerItems" ) )
+	
+	ChildSizers = property(_getChildSizers, None, None, 
+			_("List of all the sizers that are directly managed by this sizer  (list of sizers" ) )
+	
+	ChildSpacers = property(_getChildSpacers, None, None, 
+			_("List of all the spacer items that are directly managed by this sizer  (list of spacer items" ) )
 	
 	ChildWindows = property(_getChildWindows, None, None, 
 			_("List of all the windows that are directly managed by this sizer  (list of controls" ) )
@@ -785,6 +814,31 @@ class dSizerMixin(dObject):
 				This is useful for getting information about how the item is being 
 				sized, and for changing those settings."""))
 		
+	DefaultBorder = property(_getDefaultBorder, _setDefaultBorder, None,
+			_("Sets the default border for the sizer.  (int)" ) )
+			
+	DefaultBorderAll = property(_getDefaultBorderAll, _setDefaultBorderAll, None,
+			_("By default, do we add the border to all sides?  (bool)" ) )
+			
+	DefaultBorderBottom = property(_getDefaultBorderBottom, 
+			_setDefaultBorderBottom, None,
+			_("By default, do we add the border to the bottom side?  (bool)" ) )
+			
+	DefaultBorderLeft = property(_getDefaultBorderLeft, 
+			_setDefaultBorderLeft, None,
+			_("By default, do we add the border to the left side?  (bool)" ) )
+			
+	DefaultBorderRight = property(_getDefaultBorderRight, 
+			_setDefaultBorderRight, None,
+			_("By default, do we add the border to the right side?  (bool)" ) )
+			
+	DefaultBorderTop = property(_getDefaultBorderTop, 
+			_setDefaultBorderTop, None,
+			_("By default, do we add the border to the top side?  (bool)" ) )
+
+	DefaultSpacing = property(_getDefaultSpacing, _setDefaultSpacing, None, 
+			_("Amount of space automatically inserted between elements.  (int)" ) )
+			
 	Height = property(_getHt, None, None,
 			_("Height of the sizer  (int)") )
 			
@@ -795,13 +849,12 @@ class dSizerMixin(dObject):
 			_("""The object that contains this sizer. In the case of nested
 			sizers, it is the object that the outermost sizer belongs to. (obj)"""))
 	
-	Spacing = property(_getSpacing, _setSpacing, None, 
-			_("Amount of space automatically inserted between elements.  (int)" ) )
-			
 	Visible = property(_getVisible, _setVisible, None, 
 			_("Shows/hides the sizer and its contained items  (bool)" ) )
-	DynamicVisible = makeDynamicProperty(Visible)
 
 	Width = property(_getWd, None, None,
 			_("Width of this sizer  (int)") )
 
+
+	DynamicDefaultBorder = makeDynamicProperty(DefaultBorder)
+	DynamicVisible = makeDynamicProperty(Visible)

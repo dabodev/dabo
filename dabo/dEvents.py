@@ -15,7 +15,7 @@ class Event(dObject):
 	User code can define custom events by simply subclassing Event and then 
 	using self.bindEvent() and self.raiseEvent() in your objects.
 	"""		
-	def __init__(self, eventObject, uiEvent=None, *args, **kwargs):
+	def __init__(self, eventObject, uiEvent=None, eventData=None, *args, **kwargs):
 		# Event objects get instantiated with every single event, so try
 		# to keep code to a minimum here.
 		
@@ -30,6 +30,8 @@ class Event(dObject):
 		self._baseClass = Event
 		
 		self._insertEventData()
+		if eventData:
+			self._eventData.update(eventData)
 		
 		if dabo.eventLogging:
 			self._logEvent()
@@ -154,7 +156,6 @@ class GridEvent(Event):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dGrid)
 	appliesToClass = classmethod(appliesToClass)
-	
 	
 class KeyEvent(Event):
 	def appliesToClass(eventClass, objectClass):
@@ -555,6 +556,16 @@ class TreeItemContextMenu(TreeEvent):
 	pass
 
 
+class TreeBeginDrag(MouseEvent):
+	""" Occurs when a drag operation begins in a tree."""
+	pass
+
+
+class TreeEndDrag(MouseEvent):
+	""" Occurs when a drag operation ends in a tree."""
+	pass
+
+
 class GridContextMenu(GridEvent, MenuEvent):
 	"""Occurs when the context menu is requested in the grid region."""
 	pass
@@ -695,6 +706,16 @@ class GridColSize(GridEvent):
 	pass
 
 
+class GridBeforeSort(GridEvent):
+	"""Occurs before the grid is sorted"""
+	pass
+
+
+class GridAfterSort(GridEvent):
+	"""Occurs after the grid is sorted"""
+	pass
+
+
 class DocumentationHint(EditorEvent):
 	"""Occurs when the editor wants documentation information to change.
 	
@@ -716,6 +737,11 @@ class TitleChanged(EditorEvent):
 	"""Occurs when the editor's title changes."""
 	pass
 
+
+class ContentChanged(EditorEvent):
+	"""Occurs when the contents of the Editor are modified."""
+	pass
+	
 
 class ValueChanged(Event):
 	"""Occurs when the control's value has changed, whether

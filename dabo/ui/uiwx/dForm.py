@@ -18,7 +18,6 @@ class BaseForm(fm.dFormMixin):
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
 	like next(), last(), save(), and requery().
 	"""
-
 	def __init__(self, preClass, parent, properties, *args, **kwargs):
 		self.bizobjs = {}
 		self._primaryBizobj = None
@@ -51,6 +50,10 @@ class BaseForm(fm.dFormMixin):
 		self._holdStatusText = ""
 
 
+	def beforeSetProperties(self, props):
+		if "UseSizers" in props and not hasattr(self, "UseSizers"):
+			del props["UseSizers"]
+		
 		
 	def _afterInit(self):
 		self.Sizer = dSizer.dSizer("vertical")
@@ -62,12 +65,6 @@ class BaseForm(fm.dFormMixin):
 		super(BaseForm, self)._afterInit()
 	
 	
-	def showModal(self):
-		self._shownModal = True
-		self.MakeModal(True)
-		self.Visible = True
-
-
 	def _beforeClose(self, evt=None):
 		""" See if there are any pending changes in the form, if the
 		form is set for checking for this. If everything's OK, call the 
@@ -79,8 +76,6 @@ class BaseForm(fm.dFormMixin):
 			ret = self.confirmChanges()
 		if ret:
 			ret = super(BaseForm, self)._beforeClose(evt)
-			if getattr(self, "_shownModal", False):
-				self.MakeModal(False)
 		return ret
 		
 		
@@ -274,7 +269,7 @@ class BaseForm(fm.dFormMixin):
 
 		except dException.DBQueryException, e:
 			self.setStatusText(_("Save failed."))
-			msg = "%s:\n\n%s" % (_("Save Failed"), _( str(e) ))
+			msg = "%s:\n\n%s" % (_("Save Failed"), e)
 			self.notifyUser(msg, severe=True)
 			return False
 
@@ -533,7 +528,8 @@ Database error message: %s""") %	err
 		if not parentBizobj and self.bizobjs.has_key(dataSource):
 			return self.bizobjs[dataSource]
 			
-		if dataSource.lower() == "form":
+		if isinstance(dataSource, basestring) and \
+				dataSource.lower() == "form":
 			# The form isn't using bizobjs, but locally-bound data
 			# controls
 			return self
@@ -649,13 +645,12 @@ Database error message: %s""") %	err
 		BusinessRuleViolation exception will be raised, and the form
 		can then respond to this.
 		"""
-		
 		ds = ctrl.DataSource
 		df = ctrl.DataField
 		val = ctrl.Value
 		if not ds or not df:
 			# DataSource/Field is missing; nothing to validate.
-			return
+			return True
 		biz = self.getBizobj(ds)
 		if not biz:
 			# Now that DataSources are not always bizobjs, just return
@@ -690,16 +685,20 @@ Database error message: %s""") %	err
 			return self._AskToSave
 		except AttributeError:
 			return True
+			
 	def _setAskToSave(self, value):
 		self._AskToSave = bool(value)
+		
 
 	def _getSaveAllRows(self):
 		try:
 			return self._SaveAllRows
 		except AttributeError:
 			return True
+			
 	def _setSaveAllRows(self, value):
 		self._SaveAllRows = bool(value)
+
 
 	def _getPrimaryBizobj(self):
 		"""The attribute '_primaryBizobj' should be a bizobj, but due
@@ -716,6 +715,7 @@ Database error message: %s""") %	err
 				# Update to bizobj reference
 				self._primaryBizobj = bo
 		return bo
+		
 	def _setPrimaryBizobj(self, bizOrDataSource):
 		if isinstance(bizOrDataSource, dabo.biz.dBizobj):
 			self._primaryBizobj = bizOrDataSource
@@ -729,7 +729,6 @@ Database error message: %s""") %	err
 				self.afterSetPrimaryBizobj()
 			else:
 				dabo.infoLog.write(_("bizobj for data source %s does not exist.") % bizOrDataSource)
-
 
 
 	# Property definitions:
@@ -761,7 +760,6 @@ class dForm(wx.Frame, BaseForm):
 			self._mdi = False
 		## (Note that it is necessary to run the above block each time, because
 		##  we are modifying the dForm class definition globally.)
-
 		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
@@ -794,11 +792,29 @@ class dBorderlessForm(wx.Frame, BaseForm):
 	
 
 class _dForm_test(dForm):
+	def afterInit(self):
+		self.Caption = _("Regular Form")
 	def onActivate(self, evt):
-		print "Activate"
+		print _("Activate")
 	def onDeactivate(self, evt):
-		print "Deactivate"
+		print _("Deactivate")
+					
+class _dBorderlessForm_test(dBorderlessForm):
+	def afterInit(self):
+		self.btn = dabo.ui.dButton(self, Caption=_("Close Borderless Form"))
+		self.Sizer.append(self.btn, halign="Center", valign="middle")
+		self.layout()
+		self.btn.bindEvent(dEvents.Hit, self.close)
+		dabo.ui.callAfter(self.setSize)
+	
+	def setSize(self):
+		self.Width, self.Height = self.btn.Width+60, self.btn.Height+60
+		self.layout()
+		self.Centered = True
+		
+		
 					
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dForm_test)
+	test.Test().runTest(_dBorderlessForm_test)

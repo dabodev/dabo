@@ -7,6 +7,7 @@ from dabo.ui import makeDynamicProperty
 class dPage(dPanel.dScrollPanel):
 	"""Creates a page to appear as a tab in a pageframe."""
 	def __init__(self, *args, **kwargs):
+		self._caption = ""
 		super(dPage, self).__init__(*args, **kwargs)
 		self._baseClass = dPage	
 		self.SetScrollbars(10, 10, -1, -1)
@@ -26,7 +27,9 @@ class dPage(dPanel.dScrollPanel):
 
 	def initSizer(self):
 		""" Set up the default vertical box sizer for the page."""
-		self.Sizer = dSizer.dSizer("vertical")
+		szCls = self.Parent.PageSizerClass
+		if szCls is not None:
+			self.Sizer = szCls("vertical")
 		
 
 	def _createItems(self):
@@ -74,6 +77,7 @@ class dPage(dPanel.dScrollPanel):
 		return ret
 
 	def _setCaption(self, val):
+		self._caption = val
 		if self._constructed():
 			pos = self._getPagePosition()
 			if pos > -1:

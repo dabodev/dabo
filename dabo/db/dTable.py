@@ -41,7 +41,7 @@ class dTable(dObject):
 		self._fields = []
 		self._indexes = []
 		self._pk = None
-		dTable.doDefault(*args, **kwargs)
+		self.super(*args, **kwargs)
 		
 		
 	def __str__(self):
@@ -139,7 +139,7 @@ class dIndex(dObject):
 		self._baseClass = dIndex
 		self._name = ""
 		self._fields = None
-		dIndex.doDefault(*args, **kwargs)
+		self.super(*args, **kwargs)
 		
 		
 	def __str__(self):
@@ -188,7 +188,7 @@ class dField(dObject):
 		self._default = None
 		self._autoincrement = False
 		self._isPK = False
-		dField.doDefault(*args, **kwargs)
+		self.super(*args, **kwargs)
 		
 		
 	def __str__(self):
@@ -228,13 +228,7 @@ class dField(dObject):
 	def _setDefault(self, default):
 		self._default = default
 		
-	def _getDefault(self):
-		if self._default == None and self.IsPK:
-			if self.DataType == "Numeric":
-				self._default = '0'
-			else:
-				self._default = ''
-		
+	def _getDefault(self):		
 		return self._default
 		
 		
@@ -332,7 +326,7 @@ class fType(dObject):
 		self._size = 1
 		self._total_dp = 0
 		self._right_dp = 0
-		fType.doDefault(*args, **kwargs)
+		self.super(*args, **kwargs)
 
 		
 	def _setDataType(self, datatype):

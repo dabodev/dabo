@@ -168,6 +168,9 @@ class dConnectInfo(dObject):
 				elif nm == "postgresql":
 					import dbPostgreSQL
 					self._backendObject = dbPostgreSQL.Postgres()
+				elif nm == "mssql":
+					import dbMsSQL
+					self._backendObject = dbMsSQL.MSSQL()
 				else:
 					raise ValueError, "Invalid database type: %s." % nm
 			except ImportError:

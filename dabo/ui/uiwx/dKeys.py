@@ -1,4 +1,5 @@
 import wx
+import dabo
 
 key_Alt = wx.WXK_ALT
 key_Back = wx.WXK_BACK
@@ -22,10 +23,16 @@ key_Prior = wx.WXK_PRIOR
 key_Next = wx.WXK_NEXT
 key_End = wx.WXK_END
 key_Home = wx.WXK_HOME
-key_Left = wx.WXK_LEFT
-key_Up = wx.WXK_UP
-key_Right = wx.WXK_RIGHT
-key_Down = wx.WXK_DOWN
+if wx.Platform == "__WXMAC__":
+	key_Left = 28
+	key_Up = 30
+	key_Right = 29
+	key_Down = 31
+else:
+	key_Left = wx.WXK_LEFT
+	key_Up = wx.WXK_UP
+	key_Right = wx.WXK_RIGHT
+	key_Down = wx.WXK_DOWN
 key_Select = wx.WXK_SELECT
 key_Print = wx.WXK_PRINT
 key_Execute = wx.WXK_EXECUTE
@@ -174,4 +181,41 @@ keyStrings = {
 	"f12": key_F12,
 	"numlock": key_Numlock,
 	"scroll": key_Scroll,
+	"numpad_0": key_Numpad0, 
+	"numpad_1": key_Numpad1, 
+	"numpad_2": key_Numpad2, 
+	"numpad_3": key_Numpad3, 
+	"numpad_4": key_Numpad4, 
+	"numpad_5": key_Numpad5, 
+	"numpad_6": key_Numpad6, 
+	"numpad_7": key_Numpad7, 
+	"numpad_8": key_Numpad8, 
+	"numpad_9": key_Numpad9, 
+	"numpad_space": key_Numpad_space, 
+	"numpad_tab": key_Numpad_tab, 
+	"numpad_enter": key_Numpad_enter, 
+	"numpad_f1": key_Numpad_f1, 
+	"numpad_f2": key_Numpad_f2, 
+	"numpad_f3": key_Numpad_f3, 
+	"numpad_f4": key_Numpad_f4, 
+	"numpad_home": key_Numpad_home, 
+	"numpad_left": key_Numpad_left, 
+	"numpad_up": key_Numpad_up, 
+	"numpad_right": key_Numpad_right, 
+	"numpad_down": key_Numpad_down, 
+	"numpad_prior": key_Numpad_prior, 
+	"numpad_pageup": key_Numpad_pageup, 
+	"numpad_next": key_Numpad_next, 
+	"numpad_pagedown": key_Numpad_pagedown, 
+	"numpad_end": key_Numpad_end, 
+	"numpad_begin": key_Numpad_begin, 
+	"numpad_insert": key_Numpad_insert, 
+	"numpad_delete": key_Numpad_delete, 
+	"numpad_equal": key_Numpad_equal, 
+	"numpad_multiply": key_Numpad_multiply, 
+	"numpad_add": key_Numpad_add, 
+	"numpad_separator": key_Numpad_separator, 
+	"numpad_subtract": key_Numpad_subtract, 
+	"numpad_decimal": key_Numpad_decimal, 
+	"numpad_divide": key_Numpad_divide, 
 }

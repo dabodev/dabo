@@ -128,4 +128,68 @@ def dictStringify(dct):
 			ret[kk] = vv
 	return ret
 		
+
+def relativePathList(toLoc, fromLoc=None):
+	"""Given two paths, returns a list that, when joined with 
+	os.path.sep, gives the relative path from 'fromLoc' to
+	"toLoc'. If 'fromLoc' is not specified, the current directory
+	is assumed.
+	"""
+	if fromLoc is None:
+		fromLoc = os.getcwd()
+	toLoc = os.path.abspath(toLoc)
+	fromLoc = os.path.abspath(fromLoc)
+	if os.path.isfile(fromLoc):
+		fromLoc = os.path.split(fromLoc)[0]
+	fromList = fromLoc.split(os.path.sep)
+	toList = toLoc.split(os.path.sep)	
+	# There can be empty strings from the split
+	while len(fromList) > 0 and not fromList[0]:
+		fromList.pop(0)
+	while len(toList) > 0 and not toList[0]:
+		toList.pop(0)
+	lev = 0
+	while (len(fromList) > lev) and (len(toList) > lev) and \
+			(fromList[lev] == toList[lev]):
+		lev += 1
+		
+	# 'lev' now contains the first level where they differ
+	fromDiff = fromList[lev:]
+	toDiff = toList[lev:]
+	return [".."] * len(fromDiff) + toDiff
+
+
+def relativePath(toLoc, fromLoc=None):
+	"""Given two paths, returns a relative path from fromLoc to toLoc."""
+	return os.path.sep.join(relativePathList(toLoc, fromLoc))
+
+
+def getPathAttributePrefix():
+	return "path://"
+
+
+def resolveAttributePathing(atts, pth=None):
+	"""Dabo design files store their information in XML, which means
+	when they are 'read' the values come back in a dictionary of 
+	attributes, which are then used to restore the designed object to its
+	intended state. Path values will be stored in a relative path format,
+	with the value preceeded by the string returned by 
+	getPathAttributePrefix(); i.e., 'path://'.
 	
+	This method finds all values that begin with the 'path://' label, 
+	strips off that label, converts the paths back to values that
+	can be used by the object, and then updates the attribute dict with
+	those new values.
+	"""
+	prfx = getPathAttributePrefix()
+	pathsToConvert = [(kk, vv) for kk, vv in atts.items()
+			if isinstance(vv, basestring) and vv.startswith(prfx)]
+	for convKey, convVal in pathsToConvert:
+		# Strip the path designator
+		convVal = convVal.replace(prfx, "")
+		# Convert to relative path
+		relPath = relativePath(convVal, pth)
+		# Update the atts
+		atts[convKey] = relPath
+
+

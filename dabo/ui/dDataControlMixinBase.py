@@ -19,7 +19,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		super(dDataControlMixinBase, self).__init__(*args, **kwargs)
 			
 		self._value = self.Value
-		self.enabled = True
+		self._enabled = True
 		# Initialize runtime properties
 		
 	
@@ -57,8 +57,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	
 	def __onLostFocus(self, evt):
 		ok = True
-		# Call the field-level validation if indicated.
 		if self._oldVal != self.Value:
+			# Call the field-level validation if indicated.
 			if hasattr(self.Form, "validateField"):
 				ok = self.Form.validateField(self)
 		if not ok:
@@ -96,9 +96,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return
 
 		if self.Source and self._srcIsBizobj:
+			self._enabled = self.Enabled
 			try:
 				self.Value = self.Source.getFieldVal(self.DataField)
-				self.Enabled = self.enabled
+				self.Enabled = self._enabled
 			except (TypeError, dException.NoRecordsException):
 				self.Value = self.getBlankValue()
 				# Do we need to disable the control?
@@ -154,7 +155,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			oldVal = self._oldVal
 		except AttributeError:
 			oldVal = None
-		
 		if curVal is None or curVal != oldVal:
 			if not self._DesignerMode:
 				if self.DataSource and self.DataField:
@@ -195,7 +195,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 									nm = str(self.DataSource)
 								dabo.errorLog.write("Could not bind to '%s.%s'" % (nm, self.DataField) )
 
-			self._afterValueChanged()
+			self._afterValueChanged(_from_flushValue=True)
 		
 		# In most controls, self._oldVal is set upon GotFocus. Some controls
 		# like dCheckBox and dDropdownList don't emit focus events, so
@@ -256,7 +256,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return "?"
 			
 			
-	def _afterValueChanged(self):
+	def _afterValueChanged(self, _from_flushValue=False):
 		"""Called after the control's value has changed.
 		
 		This is defined as one of:
@@ -265,7 +265,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			
 		User code shouldn't need to access or override this.
 		"""
-		
+
 		# Maintain an internal copy of the value, separate from the
 		# property, so that we still have the value regardless of whether
 		# or not the underlying ui object still exists (in wx at least,
@@ -277,6 +277,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		# Raise an event so that user code can react if needed:
 		self.raiseEvent(dabo.dEvents.ValueChanged)
 
+		if not _from_flushValue and self.Form.ActiveControl != self:
+			# Value was changed programatically - flushValue won't be called 
+			# automatically so do it explicitly now.
+			self.flushValue()
 			
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.

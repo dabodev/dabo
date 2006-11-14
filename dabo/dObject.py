@@ -5,12 +5,14 @@ import dabo
 from dabo.lib.propertyHelperMixin import PropertyHelperMixin
 from dabo.lib.doDefaultMixin import DoDefaultMixin
 from dabo.lib.eventMixin import EventMixin
+from dabo.lib.autosuper import autosuper
+from dabo.dPref import dPref
 from dabo.dLocalize import _
 	
 
-class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
-	""" The basic ancestor of all dabo objects.
-	"""
+class dObject(autosuper, DoDefaultMixin, PropertyHelperMixin, 
+		EventMixin):
+	""" The basic ancestor of all dabo objects."""
 	# Subclasses can set these to False, in which case they are responsible
 	# for maintaining the following call order:
 	#   self._beforeInit()
@@ -44,7 +46,7 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 		properties = self._extractKeywordProperties(kwargs, self._properties)
 		if kwargs:
 			# Some kwargs haven't been handled.
-			raise TypeError, "__init__() got an unexpected keyword argument '%s'" % kwargs.keys()[0]
+			raise TypeError, _("__init__() got an unexpected keyword argument '%s'") % kwargs.keys()[0]
 		if self._call_afterInit:
 			self._afterInit()
 		self.setProperties(properties)
@@ -55,10 +57,7 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 
 
 	def beforeInit(self, *args, **kwargs):
-		""" Subclass hook.
-		
-		Called before the object is fully instantiated.
-
+		""" Subclass hook. Called before the object is fully instantiated.
 		Usually, user code should override afterInit() instead, but there may be
 		cases where you need to set an attribute before the init stage is fully
 		underway.
@@ -67,10 +66,7 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 		
 
 	def afterInit(self):
-		""" Subclass hook.
-		
-		Called after the object's __init__ has run fully.
-
+		""" Subclass hook. Called after the object's __init__ has run fully.
 		Subclasses should place their __init__ code here in this hook, instead of 
 		overriding __init__ directly, to avoid conflicting with base Dabo behavior.
 		"""
@@ -78,9 +74,8 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 		
 
 	def initProperties(self):
-		""" Hook for subclasses.
-
-		User subclasses should set properties here, such as:
+		""" Hook for subclasses. User subclasses should set properties 
+		here, such as:
 			self.Name = "MyTextBox"
 			self.BackColor = (192,192,192)
 		"""
@@ -88,35 +83,30 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 
 		
 	def initEvents(self):
-		""" Hook for subclasses.
-		
-		User code should do custom event binding here, such as:
+		""" Hook for subclasses. User code should do custom event binding 
+		here, such as:
 			self.bindEvent(dEvents.GotFocus, self.customGotFocusHandler)
 		"""
 		pass
 		
 			
 	def _beforeInit(self):
-		"""Framework subclass hook.
-		"""
+		"""Framework subclass hook."""
 		self.beforeInit()
 
 
 	def _initProperties(self):
-		"""Framework subclass hook.
-		"""
+		"""Framework subclass hook."""
 		self.initProperties()
 
 
 	def _afterInit(self):
-		"""Framework subclass hook.
-		"""
+		"""Framework subclass hook."""
 		self.afterInit()
 
 
 	def getAbsoluteName(self):
-		"""Return the fully qualified name of the object.
-		"""
+		"""Return the fully qualified name of the object."""
 		names = [self.Name, ]
 		object = self
 		while True:
@@ -135,7 +125,7 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 			else:
 				break
 		names.reverse()
-		return '.'.join(names)
+		return ".".join(names)
 
 		
 	def getMethodList(cls, refresh=False):
@@ -195,6 +185,12 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 			setattr(self, nm, newMethod)
 			
 
+	# Property definitions begin here
+	def _getApplication(self):
+		# dApp saves a ref to itself inside the dabo module object.
+		return dabo.dAppRef
+	
+	
 	def _getBaseClass(self):
 		# Every Dabo baseclass must set self._baseClass explicitly, to itself. For instance:
 		# 	class dBackend(object)
@@ -208,11 +204,21 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 			return None
 
 		
-	def _getApplication(self):
-		# dApp saves a ref to itself inside the dabo module object.
-		return dabo.dAppRef
-	
-	
+	def _getBasePrefKey(self):
+		try:
+			ret = self._basePrefKey
+		except AttributeError:
+			ret = self._basePrefKey = ""
+		return ret
+
+	def _setBasePrefKey(self, val):
+		self._basePrefKey = val
+		pm = self.PreferenceManager
+		if pm is not None:
+			if not pm._key:
+				pm._key = val
+
+
 	def _getClass(self):
 		try:
 			return self.__class__
@@ -236,14 +242,11 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 					parent = None
 				else:
 					parent = self.Application
-				
 			try:
 				le = parent.LogEvents
 			except AttributeError:
 				le = []
-				
 		return le
-		
 			
 	def _setLogEvents(self, val):
 		self._logEvents = list(val)
@@ -254,7 +257,6 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 			return self._name
 		except AttributeError:
 			return "?"
-			
 	
 	def _setName(self, value):
 		self._name = str(value)
@@ -269,12 +271,22 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 		except AttributeError:
 			return None
 		
-		
 	def _setParent(self, obj):
 		# Subclasses must override as necessary.
 		self._parent = obj
-					
-		
+
+
+	def _getPreferenceManager(self):
+		try:
+			ret = self._preferenceManager
+		except AttributeError:
+			ret = self._preferenceManager = dPref(key=self.BasePrefKey)
+		return ret
+
+	def _setPreferenceManager(self, val):
+		self._preferenceManager = val
+
+
 	def _getSuperClass(self):
 		if self.BaseClass == self.Class:
 			# The superclass is lower down than Dabo, and useless to the user.
@@ -284,34 +296,38 @@ class dObject(DoDefaultMixin, PropertyHelperMixin, EventMixin):
 	
 
 	Application = property(_getApplication, None, None, 
-			_("""Object reference to the Dabo Application object. (read only)."""))
+			_("Read-only object reference to the Dabo Application object.  (dApp)."))
 	
 	BaseClass = property(_getBaseClass, None, None, 
-			_("""The base Dabo class of the object. Read-only. (class)"""))
+			_("The base Dabo class of the object. Read-only.  (class)"))
+	
+	BasePrefKey = property(_getBasePrefKey, _setBasePrefKey, None,
+			_("Base key used when saving/restoring preferences  (str)"))
 	
 	Class = property(_getClass, None, None,
-			_("""The class the object is based on. Read-only. (class)"""))
+			_("The class the object is based on. Read-only.  (class)"))
 	
 	LogEvents = property(_getLogEvents, _setLogEvents, None, 
-			_("""Specifies which events to log. (list of strings)
-
-		If the first element is 'All', all events except the following listed events 
-		will be logged. 
-
-		Event logging is resource-intensive, so in addition to setting this LogEvents
-		property, you also need to make the following call:
-
-		>>> dabo.eventLogging = True
-		"""))
+			_("""Specifies which events to log.  (list of strings)
+			
+			If the first element is 'All', all events except the following listed events 
+			will be logged. 
+			Event logging is resource-intensive, so in addition to setting this LogEvents
+			property, you also need to make the following call:
+			>>> dabo.eventLogging = True
+			"""))
 					
 	Name = property(_getName, _setName, None, 
-			_("""The name of the object. (str)"""))
+			_("The name of the object.  (str)"))
 	
 	Parent = property(_getParent, _setParent, None,	
-			_("""The containing object. (obj)"""))
+			_("The containing object.  (obj)"))
+	
+	PreferenceManager = property(_getPreferenceManager, _setPreferenceManager, None,
+			_("Reference to the Preference Management object  (dPref)"))
 	
 	SuperClass = property(_getSuperClass, None, None, 
-			_("""The parent class of the object. Read-only. (class)"""))
+			_("The super class of the object. Read-only.  (class)"))
 
 
 if __name__ == "__main__":
@@ -319,3 +335,105 @@ if __name__ == "__main__":
 	print d.Application
 	app = dabo.dApp()
 	print d.Application
+
+	print _("Testing doDefault():")
+	class TestBase(list, dObject):
+		# No myMethod here
+		pass
+
+	class MyTest1(TestBase):
+		def myMethod(self):
+			print _("MyTest1.myMethod called.")
+			MyTest1.doDefault()
+		
+	class MyTest2(MyTest1): pass
+
+	class MyTest(MyTest2):
+		def myMethod(self):
+			print _("MyTest.myMethod called.")
+			MyTest.doDefault()
+
+	print _("Test 1: simple test:")			
+	t = MyTest()
+	t.myMethod()
+
+	print _("\nTest 2: diamond inheritence test:")
+
+	class A(dObject):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("A")
+
+	class B(A):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("B")
+			B.doDefault(arg)
+
+	class C(A):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("C")
+			C.doDefault(arg)
+
+	class D(B,C):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("D")
+			D.doDefault(arg)
+
+	t = D()
+	testList = []
+	t.meth(testList)
+	print testList
+
+	print _("\n\nTesting super():")
+	class TestBase(list, dObject):
+		# No myMethod here
+		pass
+
+	class MyTest1(TestBase):
+		def myMethod(self):
+			print _("MyTest1.myMethod called.")
+			self.super()
+		
+	class MyTest2(MyTest1): pass
+
+	class MyTest(MyTest2):
+		def myMethod(self):
+			print _("MyTest.myMethod called.")
+			self.super()
+
+	print _("Test 1: simple test:")			
+	t = MyTest()
+	t.myMethod()
+
+	print _("\nTest 2: diamond inheritence test:")
+
+	class A(dObject):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("A")
+
+	class B(A):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("B")
+			self.super(arg)
+
+	class C(A):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("C")
+			self.super(arg)
+
+	class D(B,C):
+		def meth(self, arg):
+			print self.__class__
+			arg.append("D")
+			self.super(arg)
+
+	t = D()
+	testList = []
+	t.meth(testList)
+	print testList

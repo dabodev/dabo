@@ -66,8 +66,18 @@ class EventMixin(object):
 			return None
 		else:
 			self.__raisedEvents.append(eventSig)
-			
-		event = eventClass(self, uiEvent, *args, **kwargs)
+		
+		eventData = None
+		if kwargs.has_key("eventData"):
+			eventData = kwargs["eventData"]
+			del kwargs["eventData"]
+		evtObject = self
+		if kwargs.has_key("eventObject"):
+			evtObject = kwargs["eventObject"]
+			del kwargs["eventObject"]
+		
+		event = eventClass(evtObject, uiEvent=uiEvent, 
+				eventData=eventData, *args, **kwargs)
 		
 		# Now iterate the bindings, and execute the callbacks:
 		for binding in self._EventBindings:

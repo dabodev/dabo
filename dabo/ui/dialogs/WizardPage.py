@@ -55,9 +55,9 @@ class WizardPage(dabo.ui.dScrollPanel):
 		if specific sizer configurations are needed.
 		"""
 		sz = self.Sizer = dabo.ui.dSizer("v")
-		sz.Spacing = 5
-		sz.Border = 12
-		sz.BorderLeft = sz.BorderRight = True
+		sz.DefaultSpacing = 5
+		sz.DefaultBorder = 12
+		sz.DefaultBorderLeft = sz.DefaultBorderRight = True
 
 
 	def onLeavePage(self, direction):

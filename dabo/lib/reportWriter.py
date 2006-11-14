@@ -26,6 +26,17 @@ The Dabo Report Writer has dependencies on libraries you
 don't appear to have installed. You still need:
 
 	%s
+
+PIL is the Python Imaging Library available from
+http://www.pythonware.com/products/pil
+
+reportlab is the ReportLab toolkit available from
+http://www.reportlab.org
+
+If you are on a Debian Linux system, just issue:
+sudo apt-get install python-reportlab
+sudo apt-get install python-imaging
+.
 	""" % "\n\t".join(_failedLibs)
 
 	sys.exit(msg)
@@ -44,6 +55,18 @@ from dabo.lib.xmltodict import dicttoxml
 from dabo.dLocalize import _
 from dabo.lib.caselessDict import CaselessDict
 
+# The below block tried to use the experimental para.Paragraph which
+# handles more html tags, including hyperlinks. However, I couldn't 
+# get it to work... among other things, para doesn't accept None as
+# the availableHeight argument to wrap().
+if False:
+	try:
+		from reportlab.platypus.para import Paragraph as ParaClass
+	except ImportError:
+		print "No Para class, using Paragraph."
+		ParaClass = platypus.Paragraph
+else:
+	ParaClass = platypus.Paragraph
 
 # Pretty sure we want to do this way earlier in Dabo, 
 # but this gets it working for me:
@@ -947,7 +970,7 @@ class ReportWriter(object):
 
 				if fobject.has_key("spaceAfter"):
 					s.spaceAfter = fobject.getProp("spaceAfter")
-
+	
 				if fobject.has_key("spaceBefore"):
 					s.spaceBefore = fobject.getProp("spaceBefore")
 
@@ -974,7 +997,7 @@ class ReportWriter(object):
 									words[idx] = word
 								return " ".join(words)
 							para = escapePara(para)
-							p = platypus.Paragraph(para, s)
+							p = ParaClass(para, s)
 						story.append(p)
 						objNeededHeight += p.wrap(columnWidth-padLeft-padRight, None)[1]
 
@@ -1152,7 +1175,7 @@ class ReportWriter(object):
 		if len(self.Cursor) > 0:
 			self.Record = self.Cursor[0]
 
-		def processVariables():
+		def processVariables(forceReset=False):
 			"""Apply the user's expressions to the current value of all the report vars.
 
 			This is called once per record iteration, before the detail for the current
@@ -1169,7 +1192,8 @@ class ReportWriter(object):
 				if resetAt != curReset:
 					# resetAt tripped: value to initial value
 					self.Variables[varName] = variable.getProp("InitialValue")
-				vv["curReset"] = resetAt
+				if not forceReset:
+					vv["curReset"] = resetAt
 
 				# run the variable expression to get the current value:
 				#vv["value"] = eval(variable["expr"])
@@ -1323,6 +1347,9 @@ class ReportWriter(object):
 		
 			return y
 
+		# Need to process the variables before the first beginPage() in case
+		# any of the static bands reference the variables.
+		processVariables(forceReset=True)
 		beginPage()
 
 		# Print the dynamic bands (Detail, GroupHeader, GroupFooter):
@@ -1416,10 +1443,13 @@ class ReportWriter(object):
 		page = _form["page"]
 		pageSize = page.getProp("size")
 
-		# reportlab expects the pageSize to be upper case:
-		pageSize = pageSize.upper()
-		# convert to the reportlab pageSize value (tuple(width,height)):
-		pageSize = eval("pagesizes.%s" % pageSize)
+		if isinstance(pageSize, basestring):
+			# reportlab expects the pageSize to be upper case:
+			pageSize = pageSize.upper()
+			# convert to the reportlab pageSize value (tuple(width,height)):
+			pageSize = eval("pagesizes.%s" % pageSize)
+		else:
+			pageSize = (self.getPt(pageSize[0]), self.getPt(pageSize[1]))
 		# run it through the portrait/landscape filter:
 		orientation = page.getProp("orientation").lower()
 		func = eval("pagesizes.%s" % orientation)
@@ -1539,7 +1569,7 @@ class ReportWriter(object):
 
 	def _getXmlHeader(self):
 		"""Returns the XML header for the rfxml document."""
-		header = """<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+		header = """<?xml version="1.0" encoding="utf-8" standalone="yes"?>
 
 <!-- 
 		This is a Dabo report form xml (rfxml) document, describing a
@@ -1639,9 +1669,6 @@ class ReportWriter(object):
 			v = self._bands = {}
 		return v
 
-	Bands = property(_getBands, None, None,
-		"""Provides runtime access to bands of the currently running report.""")
-
 
 	def _getCanvas(self):
 		try:
@@ -1649,9 +1676,6 @@ class ReportWriter(object):
 		except AttributeError:
 			v = self._canvas = None
 		return v
-
-	Canvas = property(_getCanvas, None, None,
-		"""Returns a reference to the reportlab canvas object.""")	
 
 
 	def _getCursor(self):
@@ -1678,44 +1702,27 @@ class ReportWriter(object):
 		self._cursor = val
 		self.UseTestCursor = False
 		
-	Cursor = property(_getCursor, _setCursor, None, 
-		"""Specifies the data cursor that the report runs against.""")
-
 
 	def _getEncoding(self):
 		try:
 			v = self._encoding
 		except AttributeError:
 			v = self._encoding = "utf-8"
-			#v = self._encoding = sys.getdefaultencoding()
 		return v
 
 	def _setEncoding(self, val):
 		self._encoding = val
-
-	Encoding = property(_getEncoding, _setEncoding, None,
-		"""Specifies the encoding for unicode strings.""")
 
 
 	def _getHomeDirectory(self):
 		try:
 			v = self._homeDirectory
 		except AttributeError:
-			v = self._homeDirectory = self.Application.HomeDirectory
+			v = self._homeDirectory = os.getcwd()
 		return v
 
 	def _setHomeDirectory(self, val):
 		self._homeDirectory = val
-
-	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
-		"""Specifies the home directory for the report.
-
-		Resources on disk (image files, etc.) will be looked for relative to the
-		HomeDirectory if specified with relative pathing. The HomeDirectory should
-		be the directory that contains the report form file. If you set 
-		self.ReportFormFile, HomeDirectory will be set for you automatically. 
-		Otherwise, HomeDirectory will be set to self.Application.HomeDirectory.
-		""")
 
 
 	def _getOutputFile(self):
@@ -1735,9 +1742,6 @@ class ReportWriter(object):
 			else:
 				raise ValueError, "Path '%s' doesn't exist." % s[0]
 
-	OutputFile = property(_getOutputFile, _setOutputFile, None,
-		"""Specifies the output PDF file (name or file object).""")
-
 
 	def _getRecord(self):
 		try:
@@ -1752,15 +1756,6 @@ class ReportWriter(object):
 			# allow access from the live report object:
 			self.ReportForm._liveRecord = val
 
-	Record = property(_getRecord, _setRecord, None,
-		"""Specifies the dictionary that represents the current record.
-
-		The report writer will automatically fill this in during the running 
-		of the report. Allows expressions in the report form like:
-
-			self.Record['cFirst']
-		""")
-
 
 	def _getRecordNumber(self):
 		try:
@@ -1768,9 +1763,6 @@ class ReportWriter(object):
 		except AttributeError:
 			v = self._recordNumber = None
 		return v
-
-	RecordNumber = property(_getRecordNumber, None, None,
-		"""Returns the current record number of Cursor.""")
 
 
 	def _getReportForm(self):
@@ -1786,9 +1778,6 @@ class ReportWriter(object):
 		self._reportFormXML = None
 		self._reportFormFile = None
 		
-	ReportForm = property(_getReportForm, _setReportForm, None,
-		"""Specifies the python report form data dictionary.""")
-	
 
 	def _getReportFormFile(self):
 		try:
@@ -1829,9 +1818,6 @@ class ReportWriter(object):
 		else:
 			raise ValueError, "Specified file does not exist."
 		
-	ReportFormFile = property(_getReportFormFile, _setReportFormFile, None,
-		"""Specifies the path and filename of the report form spec file.""")
-		
 
 	def _getReportFormXML(self):
 		try:
@@ -1846,9 +1832,6 @@ class ReportWriter(object):
 		self._reportForm = self._getFormFromXML(self._reportFormXML)
 		self._setMemento()
 		
-	ReportFormXML = property(_getReportFormXML, _setReportFormXML, None,
-		"""Specifies the report format xml.""")
-
 
 	def _getShowBandOutlines(self):
 		try:
@@ -1860,12 +1843,6 @@ class ReportWriter(object):
 	def _setShowBandOutlines(self, val):
 		self._showBandOutlines = bool(val)
 
-
-	ShowBandOutlines = property(_getShowBandOutlines, _setShowBandOutlines, None,
-		"""Specifies whether the report bands are printed with outlines for
-		debugging and informational purposes. In addition to the band, there is also
-		a caption with the band name at the x,y origin point for the band.""")
-		
 
 	def _getUseTestCursor(self):
 		try:
@@ -1879,8 +1856,57 @@ class ReportWriter(object):
 		if val:
 			self._cursor = None
 
+	Bands = property(_getBands, None, None,
+		_("Provides runtime access to bands of the currently running report."))
+
+	Canvas = property(_getCanvas, None, None,
+		_("Returns a reference to the reportlab canvas object."))
+
+	Cursor = property(_getCursor, _setCursor, None, 
+		_("Specifies the data cursor that the report runs against."))
+
+	Encoding = property(_getEncoding, _setEncoding, None,
+		_("Specifies the encoding for unicode strings.  (str)"))
+
+	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
+		_("""Specifies the home directory for the report.
+
+		Resources on disk (image files, etc.) will be looked for relative to the
+		HomeDirectory if specified with relative pathing. The HomeDirectory should
+		be the directory that contains the report form file. If you set 
+		self.ReportFormFile, HomeDirectory will be set for you automatically."""))
+
+	OutputFile = property(_getOutputFile, _setOutputFile, None,
+		_("Specifies the output PDF file (name or file object)."))
+
+	Record = property(_getRecord, _setRecord, None,
+		_("""Specifies the dictionary that represents the current record.
+
+		The report writer will automatically fill this in during the running 
+		of the report. Allows expressions in the report form like:
+
+			self.Record["cFirst"]
+		"""))
+
+	RecordNumber = property(_getRecordNumber, None, None,
+		_("Returns the current record number of Cursor."))
+
+	ReportForm = property(_getReportForm, _setReportForm, None,
+		_("Specifies the python report form data dictionary."))
+	
+	ReportFormFile = property(_getReportFormFile, _setReportFormFile, None,
+		_("Specifies the path and filename of the report form spec file."))
+		
+	ReportFormXML = property(_getReportFormXML, _setReportFormXML, None,
+		_("Specifies the report format xml."))
+
+	ShowBandOutlines = property(_getShowBandOutlines, _setShowBandOutlines, None,
+		_("""Specifies whether the report bands are printed with outlines for
+		debugging and informational purposes. In addition to the band, there is also
+		a caption with the band name at the x,y origin point for the band."""))
+		
 	UseTestCursor = property(_getUseTestCursor, _setUseTestCursor, None, 
-		"""Specifies whether the TestCursor in the spec file is used.""")
+		_("Specifies whether the TestCursor in the spec file is used."))
 			
 			
 if __name__ == "__main__":

@@ -11,6 +11,7 @@ class Firebird(dBackend):
 		self.dbModuleName = "kinterbasdb"
 		self.fieldPat = re.compile("([A-Za-z_][A-Za-z0-9-_]+)\.([A-Za-z_][A-Za-z0-9-_]+)")
 		import kinterbasdb
+		kinterbasdb.init(type_conv=200)
 		self.dbapi = kinterbasdb
 
 
@@ -152,8 +153,9 @@ class Firebird(dBackend):
 				ft = "C"
 			elif ftype == "timestamp":
 				ft = "T"
+			elif ftype == "blob":
+				ft = "L"
 			else:
-				# BLOB
 				ft = "?"
 			
 			if pkField is None:
@@ -197,9 +199,9 @@ class Firebird(dBackend):
 
 	def massageDescription(self, cursor):
 		"""Force all the field names to lower case."""
-		dd = cursor.description
+		dd = cursor.descriptionClean = cursor.description
 		if dd:
-			cursor.description = tuple([(elem[0].lower(), elem[1], elem[2], 
+			cursor.descriptionClean = tuple([(elem[0].lower(), elem[1], elem[2], 
 					elem[3], elem[4], elem[5], elem[6]) 
 					for elem in dd])
 	

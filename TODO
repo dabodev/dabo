@@ -2,7 +2,7 @@ See:
 
 http://dabodev.com/wiki/ReleaseRoadmap
 http://dabodev.com/wiki/DeveloperRoadmap
-
+http://dabodev.com/tracker
 
 ##pkm: Here are some open items:
 
@@ -24,8 +24,6 @@ AttributeError: 'XmlEditor' object has no attribute 'ReplaceSelection'
 	+ Get a keyboard shortcut (Alt+1, Alt+2, ...) to switch between pages.
 
 	+ Ed, show me how to jump to a bookmark. Also, it doesn't appear to be saving.
-
-+ Add dynamic props for all classes.
 
 + Report Designer:
 	+ Implement rulers

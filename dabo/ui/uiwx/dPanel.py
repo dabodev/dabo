@@ -36,7 +36,9 @@ class dPanel(wx.Panel, cm.dControlMixin):
 			self.Sizer.layout()
 		except:
 			pass
-	
+		if self.Application.Platform == "Win":
+			self.refresh()
+			
 	
 	def _onPaintBuffer(self, evt):
 		dc = wx.BufferedPaintDC(self, self._buffer)
@@ -104,6 +106,7 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 		if "style" not in kwargs:
 			kwargs["style"] = wx.TAB_TRAVERSAL
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		self.SetScrollRate(10, 10)
 #		self.SetScrollbars(10, 10, -1, -1)
 	
 
@@ -121,12 +124,23 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 			pass
 			
 
+	def _getChildren(self):
+		ret = super(dScrollPanel, self)._getChildren()
+		return [kid for kid in ret
+				if isinstance(kid, dabo.ui.dPemMixinBase.dPemMixinBase)]
+
+	def _setChildren(self, val):
+		super(dScrollPanel, self)._setChildren(val)
+
+
 	def _getHorizontalScroll(self):
 		return self._horizontalScroll
 
 	def _setHorizontalScroll(self, val):
 		self._horizontalScroll = val
 		self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
+		rt = self.GetScrollPixelsPerUnit()
+		self.SetScrollRate({True:rt[0], False:0}[val], rt[1])
 		
 
 	def _getVerticalScroll(self):
@@ -135,14 +149,22 @@ class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
 	def _setVerticalScroll(self, val):
 		self._verticalScroll = val
 		self.EnableScrolling(self._horizontalScroll, self._verticalScroll)
+		rt = self.GetScrollPixelsPerUnit()
+		self.SetScrollRate(rt[0], {True:rt[1], False:0}[val])
 		
 
+	Children = property(_getChildren, _setChildren, None,
+			_("""Child controls of this panel. This excludes the wx-specific 
+			scroll bars  (list of objects)"""))
+	
 	HorizontalScroll = property(_getHorizontalScroll, _setHorizontalScroll, None,
 			_("Controls whether this object will scroll horizontally (default=True)  (bool)"))
-	DynamicHorizontalScroll = makeDynamicProperty(HorizontalScroll)
 	
 	VerticalScroll = property(_getVerticalScroll, _setVerticalScroll, None,
 			_("Controls whether this object will scroll vertically (default=True)  (bool)"))
+
+
+	DynamicHorizontalScroll = makeDynamicProperty(HorizontalScroll)
 	DynamicVerticalScroll = makeDynamicProperty(VerticalScroll)
 	
 

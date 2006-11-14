@@ -94,18 +94,18 @@ class dTimer(wx.Timer, cm.dControlMixin):
 	
 class _dTimer_test(dPanel.dPanel):
 	def afterInit(self):
-		self.boundTimer = dTimer(self, Interval=1000)
-		self.boundTimer.bindEvent(dEvents.Hit, self.onBoundTimerHit)
-		self.unboundTimer = dTimer(Interval=850)
-		self.unboundTimer.bindEvent(dEvents.Hit, self.onUnboundTimerHit)
-		self.boundTimer.start()
-		self.unboundTimer.start()
+		self.fastTimer = dTimer(self, Interval=500)
+		self.fastTimer.bindEvent(dEvents.Hit, self.onFastTimerHit)
+		self.slowTimer = dTimer(Interval=2000)
+		self.slowTimer.bindEvent(dEvents.Hit, self.onSlowTimerHit)
+		self.fastTimer.start()
+		self.slowTimer.start()
 
-	def onBoundTimerHit(self, evt):
-		print "bound timer fired!"
+	def onFastTimerHit(self, evt):
+		print "fast timer fired!"
 		
-	def onUnboundTimerHit(self, evt):
-		print "unbound timer fired!"
+	def onSlowTimerHit(self, evt):
+		print "slow timer fired!"
 		
 
 if __name__ == "__main__":

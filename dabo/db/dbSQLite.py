@@ -2,12 +2,16 @@ import os
 import re
 from dabo.dLocalize import _
 from dBackend import dBackend
+from dabo.db import dNoEscQuoteStr as dNoEQ
 
 class SQLite(dBackend):
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "pysqlite2"
-		from pysqlite2 import dbapi2 as dbapi
+		try:
+			from pysqlite2 import dbapi2 as dbapi
+		except ImportError:
+			import sqlite3 as dbapi
 		self.dbapi = dbapi
 		
 
@@ -21,12 +25,7 @@ class SQLite(dBackend):
 		return self.dbapi.Cursor
 		
 
-	def escQuote(self, val):
-		if val is None:
-			return self.formatNone()
-		if isinstance(val, int) or isinstance(val, long):
-			return val
-			
+	def escQuote(self, val):			
 		sl = "\\"
 		qt = "\'"
 		return qt + str(val).replace(sl, sl+sl).replace(qt, qt+qt) + qt
@@ -48,8 +47,12 @@ class SQLite(dBackend):
 		'begin' even when not using autocommit, simply do nothing.
 		"""
 		pass
+	
+	
+	def flush(self, crs):
+		self._connection.commit()
 
-		
+
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
@@ -122,6 +125,8 @@ class SQLite(dBackend):
 				fldType = "I"
 			elif typ == "real":
 				fldType = "N"
+			elif typ == "blob":
+				fldType = "L"
 			else:
 				# SQLite treats everything else as text
 				fldType = "C"
@@ -147,7 +152,7 @@ class SQLite(dBackend):
 		auxCrs = cursor._getAuxCursor()
 		auxCrs.execute("pragma table_info('%s')" % cursor.Table)
 		rs = auxCrs._records
-		
+
 		stdFlds = [ff["name"] for ff in rs]
 		# Get all the fields that are not in the table.
 		cursor.__nonUpdateFields = [d[0] for d in descFlds 
@@ -198,11 +203,13 @@ class SQLite(dBackend):
 					fldType = "I"
 				elif typ == "real":
 					fldType = "N"
+				elif typ == "blob":
+					fldType = "L"
 				else:
 					# SQLite treats everything else as text
 					fldType = "C"
-				# We don't care about PKs here, so just make it False
-				fields.append( (rec["name"], fldType, False))
+				pk = bool(rec["pk"])
+				fields.append( (rec["name"], fldType, pk))
 			ret = tuple(fields)
 		return ret
 		
@@ -225,11 +232,7 @@ class SQLite(dBackend):
 				sql = sql + fld.Name + " "
 				
 				if fld.DataType == "Numeric":
-					sql = sql + "INTEGER "
-					if fld.IsPK:
-						sql = sql + "PRIMARY KEY "
-						if fld.IsAutoIncrement:
-							sql = sql + "AUTOINCREMENT "
+					sql = sql + "INTEGER "					
 				elif fld.DataType == "Float":
 					sql = sql + "REAL "
 				elif fld.DataType == "Decimal":
@@ -244,15 +247,18 @@ class SQLite(dBackend):
 					sql = sql + "TEXT "
 				elif fld.DataType == "Stamp":
 					sql = sql + "TEXT "
-					fld.Default = "CURRENT_TIMESTAMP"
-					dont_esc = True
+					fld.Default = dNoEQ("CURRENT_TIMESTAMP")
 				elif fld.DataType == "Binary":
 					sql = sql + "BLOB "
-					
+				
+				if fld.IsPK:
+					sql = sql + "PRIMARY KEY "
+					if fld.IsAutoIncrement:
+						sql = sql + "AUTOINCREMENT "
+				
 				if not fld.AllowNulls:
 					sql = sql + "NOT NULL "
-				if not dont_esc:
-					sql = sql + "DEFAULT " + str(self.escQuote(fld.Default)) + ","
+				sql = "%sDEFAULT %s," % (sql, self.formatForQuery(fld.Default))
 			if sql[-1:] == ",":
 				sql = sql[:-1]
 			sql = sql + ")"

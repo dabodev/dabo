@@ -116,7 +116,29 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 	
 	def setColumnWidth(self, col, wd):
 		"""Sets the width of the specified column."""
-		self.SetColumnWidth(col, wd)
+		if isinstance(wd, basestring):
+			self.autoSizeColumn(col)
+		else:
+			self.SetColumnWidth(col, wd)
+	
+	
+	def autoSizeColumn(self, col):
+		"""Auto-sizes the specified column."""
+		self.lockDisplay()
+		self.SetColumnWidth(col, wx.LIST_AUTOSIZE)
+		wd = self.GetColumnWidth(col)
+		self.SetColumnWidth(col, wx.LIST_AUTOSIZE_USEHEADER)
+		if self.GetColumnWidth(col) < wd:
+			self.SetColumnWidth(col, wd)
+		self.unlockDisplay()
+		
+
+	def autoSizeColumns(self, colList=None):
+		"""Auto-sizes all the columns."""
+		if colList is None:
+			colList = range(self.ColumnCount)
+		for col in colList:
+			self.autoSizeColumn(col)
 
 
 	def append(self, tx, col=0, row=None):
@@ -208,10 +230,12 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 	def setItemData(self, item, data):
 		""" Associate some data with the item. """
 		return self.SetItemData(item, data)
-
+		
+		
 	def getItemData(self, item):
 		""" Retrieve the data associated with the item. """
 		return self.GetItemData(item)
+		
 
 	# Image-handling function
 	def addImage(self, img, key=None):
@@ -261,6 +285,18 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 		else:
 			color = val
 		self.SetItemBackgroundColour(itm, color)
+		
+	
+	def getItemForeColor(self, itm):
+		return self.GetItemTextColour(itm)
+
+
+	def setItemForeColor(self, itm, val):
+		if isinstance(val, basestring):
+			color = dabo.dColors.colorTupleFromName(val)
+		else:
+			color = val
+		self.SetItemTextColour(itm, color)
 		
 	
 	def __onActivation(self, evt):
@@ -418,27 +454,22 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 			_("Number of columns in the control (read-only).  (int)") )
 
 	Count = property(_getRowCount, None, None, 
-			_("""Number of rows in the control (read-only).  (int)
-
-				This is an alias for RowCount."""))
+			_("Number of rows in the control (read-only). Alias for RowCount  (int)"))
 
 	HeaderVisible = property(_getHeaderVisible, _setHeaderVisible, None, 
 			_("Specifies whether the header is shown or not."))
-	DynamicHeaderVisible = makeDynamicProperty(HeaderVisible)
 
 	HitIndex = property(_getHitIndex, None, None,
 			_("Returns the index of the last hit item."))
 
 	HorizontalRules = property(_getHorizontalRules, _setHorizontalRules, None,
 			_("Specifies whether light rules are drawn between rows."))
-	DynamicHorizontalRules = makeDynamicProperty(HorizontalRules)
 
 	LastSelectedIndex = property(_getLastSelectedIndex, None, None,
 			_("Returns the index of the last selected item."))
 
 	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
 			_("Specifies whether multiple rows can be selected in the list."))
-	DynamicMultipleSelect = makeDynamicProperty(MultipleSelect)
 
 	RowCount = property(_getRowCount, None, None, 
 			_("Number of rows in the control (read-only).  (int)") )
@@ -448,19 +479,23 @@ class dListControl(wx.ListCtrl, dcm.dControlItemMixin,
 	
 	Value = property(_getValue, _setValue, None,
 			_("Returns current value (str)" ) )
-	DynamicValue = makeDynamicProperty(Value)
 		
 	Values = property(_getValues, None, None,
 			_("Returns a list containing the Value of all selected rows  (list of str)" ) )
 
 	ValueColumn = property(_getValCol, _setValCol, None,
 			_("The column whose text is reflected in Value (default=0).  (int)") )
-	DynamicValueColumn = makeDynamicProperty(ValueColumn)
 			
 	VerticalRules = property(_getVerticalRules, _setVerticalRules, None,
 			_("Specifies whether light rules are drawn between rows."))
-	DynamicVerticalRules = makeDynamicProperty(VerticalRules)
 
+
+	DynamicHeaderVisible = makeDynamicProperty(HeaderVisible)
+	DynamicHorizontalRules = makeDynamicProperty(HorizontalRules)
+	DynamicMultipleSelect = makeDynamicProperty(MultipleSelect)
+	DynamicValue = makeDynamicProperty(Value)
+	DynamicValueColumn = makeDynamicProperty(ValueColumn)
+	DynamicVerticalRules = makeDynamicProperty(VerticalRules)
 	
 
 class _dListControl_test(dListControl):

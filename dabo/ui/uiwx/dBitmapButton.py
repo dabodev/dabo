@@ -8,9 +8,10 @@ import dPemMixin as pm
 from dabo.dLocalize import _
 from dIcons import getIconBitmap
 from dabo.ui import makeDynamicProperty
+import dImageMixin as dim
 
 
-class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
+class dBitmapButton(wx.BitmapButton, cm.dControlMixin, dim.dImageMixin):
 	"""Creates a button with a picture.
 
 	The button can have up to three pictures associated with it: 
@@ -34,6 +35,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		# around the bitmap image in order for it to appear correctly
 		self._bmpBorder = 10
 		
+		dim.dImageMixin.__init__(self)
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		
 
@@ -42,7 +44,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		self.Bind(wx.EVT_BUTTON, self._onWxHit)
 		
 
-	def __sizeToBitmap(self):
+	def _sizeToBitmap(self):
 		if self.Picture:
 			bmp = self.Bitmap
 			self.Size = (bmp.GetWidth() + self._bmpBorder, 
@@ -65,7 +67,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	def _setBmpBorder(self, val):
 		self._bmpBorder = val
 		if self._autoSize:
-			self.__sizeToBitmap()
+			self._sizeToBitmap()
 			
 		
 	def _getCancelButton(self):
@@ -73,7 +75,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 		return False
 		
 	def _setCancelButton(self, val):
-		warnings.warn("CancelButton isn't implemented yet.", Warning)	
+		warnings.warn(_("CancelButton isn't implemented yet."), Warning)	
 	
 
 	def _getDefaultButton(self):
@@ -135,38 +137,6 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 			self._properties["FocusPicture"] = val
 
 
-	def _getImgHt(self):
-		return self._imgHt
-
-	def _setImgHt(self, val):
-		self._imgHt = val
-		if self._autoSize:
-			self.Picture = self.Picture
-			self.__sizeToBitmap()
-	
-	
-	def _getImgScale(self):
-		return self._imgScale
-	
-	def _setImgScale(self, val):
-		self._imgScale = val
-		if self._autoSize:
-			pic = self.Picture
-			if pic:
-				self.Picture = pic
-			self.__sizeToBitmap()
-	
-	
-	def _getImgWd(self):
-		return self._imgWd
-	
-	def _setImgWd(self, val):
-		self._imgWd = val
-		if self._autoSize:
-			self.Picture = self.Picture
-			self.__sizeToBitmap()
-		
-		
 	def _getNormalBitmap(self):
 		return self.GetBitmapLabel()
 	
@@ -188,7 +158,7 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 			if not self._focusPicture:
 				self.SetBitmapFocus(bmp)
 			if self._autoSize:
-				self.__sizeToBitmap()
+				self._sizeToBitmap()
 		else:
 			self._properties["Picture"] = val
 	
@@ -196,61 +166,49 @@ class dBitmapButton(wx.BitmapButton, cm.dControlMixin):
 	# Property definitions:
 	AutoSize = property(_getAutoSize, _setAutoSize, None,
 		_("Controls whether the button resizes when the Picture changes. (bool)") )
-	DynamicAutoSize = makeDynamicProperty(AutoSize)
 		
 	Bitmap = property(_getNormalBitmap, None, None,
 		_("""The bitmap normally displayed on the button.  (wx.Bitmap)"""))
-	DynamicBitmap = makeDynamicProperty(Bitmap)
 
 	BitmapBorder = property(_getBmpBorder, _setBmpBorder, None,
 		_("""Extra space around the bitmap, used when auto-sizing.  (int)"""))
-	DynamicBitmapBorder = makeDynamicProperty(BitmapBorder)
 
 	CancelButton = property(_getCancelButton, _setCancelButton, None,
 		_("Specifies whether this Bitmap button gets clicked on -Escape-."))
-	DynamicCancelButton = makeDynamicProperty(CancelButton)
 						
 	DefaultButton = property(_getDefaultButton, _setDefaultButton, None, 
 		_("Specifies whether this Bitmap button gets clicked on -Enter-."))
-	DynamicDefaultButton = makeDynamicProperty(DefaultButton)
 
 	DownBitmap = property(_getDownBitmap, None, None,
 		_("The bitmap displayed on the button when it is depressed.  (wx.Bitmap)"))
-	DynamicDownBitmap = makeDynamicProperty(DownBitmap)
 
 	DownPicture = property(_getDownPicture, _setDownPicture, None,
 		_("Specifies the image displayed on the button when it is depressed.  (str)"))
-	DynamicDownPicture = makeDynamicProperty(DownPicture)
 
 	FocusBitmap = property(_getFocusBitmap, None, None,
 		_("The bitmap displayed on the button when it receives focus.  (wx.Bitmap)"))
-	DynamicFocusBitmap = makeDynamicProperty(FocusBitmap)
 
 	FocusPicture = property(_getFocusPicture, _setFocusPicture, None,
 		_("Specifies the image displayed on the button when it receives focus.  (str)"))
-	DynamicFocusPicture = makeDynamicProperty(FocusPicture)
-
-	ImageHeight = property(_getImgHt, _setImgHt, None,
-		_("""When set, sets the height of all images shown on this control. 
-		Default=None, which performs no resizing.  (int)""") )
-	DynamicImageHeight = makeDynamicProperty(ImageHeight)
-
-	ImageScale = property(_getImgScale, _setImgScale, None,
-		_("""When set, scales all images shown on this control. The value is
-		a decimal, not a percent, so 1.0 is normal size, 0.5 is half size, etc.
-		Default=None, which performs no scaling  (float)""") )
-	DynamicImageScale = makeDynamicProperty(ImageScale)
-
-	ImageWidth = property(_getImgWd, _setImgWd, None,
-		_("""When set, sets the width of all images shown on this control. 
-		Default=None, which performs no resizing.  (int)""") )
-	DynamicImageWidth = makeDynamicProperty(ImageWidth)
 
 	Picture = property(_getNormalPicture, _setNormalPicture, None,
 		_("""Specifies the image normally displayed on the button.  This is the 
 		default if none of the other Picture properties are 
 		specified.  (str)"""))
+
+
+	DynamicAutoSize = makeDynamicProperty(AutoSize)
+	DynamicBitmap = makeDynamicProperty(Bitmap)
+	DynamicBitmapBorder = makeDynamicProperty(BitmapBorder)
+	DynamicCancelButton = makeDynamicProperty(CancelButton)
+	DynamicDefaultButton = makeDynamicProperty(DefaultButton)
+	DynamicDownBitmap = makeDynamicProperty(DownBitmap)
+	DynamicDownPicture = makeDynamicProperty(DownPicture)
+	DynamicFocusBitmap = makeDynamicProperty(FocusBitmap)
+	DynamicFocusPicture = makeDynamicProperty(FocusPicture)
 	DynamicPicture = makeDynamicProperty(Picture)	
+
+
 
 
 class _dBitmapButton_test(dBitmapButton):

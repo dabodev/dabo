@@ -143,21 +143,24 @@ class dDialog(wx.Dialog, fm.dFormMixin):
 
 	AutoSize = property(_getAutoSize, _setAutoSize, None,
 			"When True, the dialog resizes to fit the added controls.  (bool)")
-	DynamicAutoSize = makeDynamicProperty(AutoSize)
 
 	Caption = property(_getCaption, _setCaption, None,
 			"The text that appears in the dialog's title bar  (str)" )
-	DynamicCaption = makeDynamicProperty(Caption)
 
 	Centered = property(_getCentered, _setCentered, None,
 			"Determines if the dialog is displayed centered on the screen.  (bool)")
-	DynamicCentered = makeDynamicProperty(Centered)
 
 	Modal = property(_getModal, _setModal, None,
 			"Determines if the dialog is shown modal (default) or modeless.  (bool)")
 	
 	ReleaseOnEscape = property(_getReleaseOnEscape, _setReleaseOnEscape, None,
 			"Determines if the <Esc> key releases the dialog (the default).")
+
+
+	DynamicAutoSize = makeDynamicProperty(AutoSize)
+	DynamicCaption = makeDynamicProperty(Caption)
+	DynamicCentered = makeDynamicProperty(Centered)
+
 
 
 class dOkCancelDialog(dDialog):
@@ -178,9 +181,9 @@ class dOkCancelDialog(dDialog):
 	def _addControls(self):
 		# Set some default Sizer properties (user can easily override):
 		sz = self.Sizer
-		sz.Border = 20
-		sz.BorderLeft = sz.BorderRight = True
-		sz.append((0, sz.Border))
+		sz.DefaultBorder = 20
+		sz.DefaultBorderLeft = sz.DefaultBorderRight = True
+		sz.append((0, sz.DefaultBorder))
 
 		# Let the user add their controls
 		super(dOkCancelDialog, self)._addControls()
@@ -210,10 +213,12 @@ class dOkCancelDialog(dDialog):
 				buttons.append(win)
 		buttons[1].MoveAfterInTabOrder(buttons[0])
 
-		sz.append((0, sz.Border/2))
-		sz.append(buttonSizer, "expand")
-		sz.append((0, sz.Border))
-
+		self.btnSizer = bs = dabo.ui.dSizer("v")
+		bs.append((0, sz.DefaultBorder/2))
+		bs.append(buttonSizer, "x")
+		bs.append((0, sz.DefaultBorder))
+		sz.append(bs, "x")
+		
 		self.layout()
 
 	
@@ -224,6 +229,34 @@ class dOkCancelDialog(dDialog):
 		appear at the bottom of the dialog.
 		"""
 		pass
+	
+	
+	def addControlSequence(self, seq):
+		"""This takes a sequence of 3-tuples or 3-lists, and adds controls 
+		to the dialog as a grid of labels and data controls. The first element of
+		the list/tuple is the prompt, the second is the data type, and the third
+		is the RegID used to retrieve the entered value.
+		"""
+		gs = dabo.ui.dGridSizer(HGap=5, VGap=8, MaxCols=2)
+		for prmpt, typ, rid in seq:
+			chc = None
+			gs.append(dabo.ui.dLabel(self, Caption=prmpt), halign="right")
+			if typ in (int, long):
+				cls = dabo.ui.dSpinner
+			elif typ is bool:
+				cls = dabo.ui.dCheckBox
+			elif isinstance(typ, list):
+				cls = dabo.ui.dDropdownList
+				chc = typ
+			else:
+				cls = dabo.ui.dTextBox
+			ctl = cls(self, RegID=rid)
+			gs.append(ctl)
+			if chc:
+				ctl.Choices = chc
+		gs.setColExpand(True, 1)
+		self.Sizer.insert(self.LastPositionInSizer, gs, "x")
+		self.layout()
 		
 		
 	def onOK(self, evt):
@@ -240,8 +273,20 @@ class dOkCancelDialog(dDialog):
 	def _setAccepted(self, val):
 		self._accepted = val
 	
+
+	def _getLastPositionInSizer(self):
+		return self.btnSizer.getPositionInSizer()
+
+
 	Accepted = property(_getAccepted, _setAccepted, None,
 			_("Specifies whether the user accepted the dialog, or canceled."))
+	
+	LastPositionInSizer = property(_getLastPositionInSizer, None, None,
+			_("""If you want to add controls after the dialog has been created,
+			use this as the argument to the sizer.insert() call. It returns 
+			the position in the sizer before the OK/Cancel buttons and the 
+			preceeding spacer.  (int)"""))
+	
 
 
 if __name__ == "__main__":

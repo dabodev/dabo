@@ -17,11 +17,10 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		# code.
 
 		# self.properties can be set in the userland beforeInit() hook.
-		self.properties = {}
+		self._properties = {}
 		
 		# This will implicitly call the following user hooks:
 		#    beforeInit()
-		#    initStyleProperties()
 		self._beforeInit()
 		
 		# The keyword properties can come from either, both, or none of:
@@ -32,8 +31,8 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		if properties is not None:
 			# Override the class values
 			for k,v in properties.items():
-				self.properties[k] = v
-		properties = self._extractKeywordProperties(kwargs, self.properties)
+				self._properties[k] = v
+		properties = self._extractKeywordProperties(kwargs, self._properties)
 		
 		# If a Name isn't given, a default name will be used, and it'll 
 		# autonegotiate by adding an integer until it is a unique name.
@@ -47,7 +46,11 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._initName(name, _explicitName=_explicitName)
 		
 		self._afterInit()
-		self.setProperties(properties)
+		print properties
+		try:
+			self.setProperties(properties)
+		except:
+			pass
 	
 
 	def __getattr__(self, att):
@@ -74,7 +77,6 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	
 	def _beforeInit(self):
 		self._name = '?'
-		self.initStyleProperties()
 		
 		# Call the subclass hook:
 		self.beforeInit()
@@ -84,7 +86,6 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.debug = False
 		
 		self.initProperties()
-		self.initChildObjects()
 		self.afterInit()
 		
 		self._mouseLeftDown, self._mouseRightDown = False, False
@@ -177,12 +178,14 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def raiseEvent(self, eventClass, nativeEvent=None, *args, **kwargs):
 		# Call the Dabo-native raiseEvent(), passing along the Tkinter after_idle
 		# function, so that the Dabo events can be processed at next idle.
-		return dPemMixin.doDefault(eventClass, nativeEvent, callAfterFunc=self.after_idle, 
-			*args, **kwargs)
+#		return self.super(eventClass, nativeEvent, callAfterFunc=self.after_idle, 
+#			*args, **kwargs)
+		super(dPemMixin, self).raiseEvent(eventClass, nativeEvent, callAfterFunc=self.after_idle,
+				*args, **kwargs)
 	
 		
 	def getPropertyInfo(self, name):
-		d = dPemMixin.doDefault(name)   # the property helper does most of the work
+		d = self.super(name)   # the property helper does most of the work
 		
 		# Hide some wx-specific props in the designer:
 		d['showInDesigner'] = not name in ('Size', 'Position', 'WindowHandle', 'TypeID')
@@ -375,7 +378,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _setName(self, val, _userExplicit=False):
 		# Can't set tk name after initialized. However, we should try to implement
 		# our own Dabo name which we can refer to and set/reset as we please.
-		self._initProperties["name"] = val			
+		self._properties["name"] = val			
 		# Also, see ui/uiwx/dPemMixin._setName(), where we enforce a unique name
 		# among siblings. That code should be refactored into dPemMixinBase...
 

@@ -36,7 +36,7 @@ class dCheckBox(wx.CheckBox, dcm.dDataControlMixin):
 			
 	def _onWxHit(self, evt):
 		self.flushValue()
-		dCheckBox.doDefault(evt)
+		self.super(evt)
 
 	
 	def getBlankValue(self):

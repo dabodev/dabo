@@ -6,6 +6,7 @@ except ImportError:
 from dabo.dLocalize import _
 from dBackend import dBackend
 import dabo.dException as dException
+from dabo.db import dNoEscQuoteStr as dNoEQ
 
 class MySQL(dBackend):
 	def __init__(self):
@@ -58,10 +59,6 @@ class MySQL(dBackend):
 	def escQuote(self, val):
 		# escape backslashes and single quotes, and
 		# wrap the result in single quotes
-		if val is None:
-			return self.formatNone()
-		if isinstance(val, int) or isinstance(val, long):
-			return val
 		
 		sl = "\\"
 		qt = "\'"
@@ -136,8 +133,12 @@ class MySQL(dBackend):
 				ft = "C"
 			elif "text" in ft:
 				ft = "M"
-			elif "decimal" in ft or "float" in ft:
+			elif "blob" in ft:
+				ft = "L"
+			elif "decimal" in ft:
 				ft = "N"
+			elif "float" in ft:
+				ft = "F"
 			elif "datetime" in ft:
 				ft = "T"
 			elif "date" in ft:
@@ -165,14 +166,14 @@ class MySQL(dBackend):
 				"DATE": "D",
 				"DATETIME": "T",
 				"DECIMAL": "N",
-				"DOUBLE": "I",
+				"DOUBLE": "G",
 				"ENUM": "C",
-				"FLOAT": "N",
+				"FLOAT": "F",
 				"GEOMETRY": "?",
 				"INT24": "I",
 				"INTERVAL": "?",
-				"LONG": "I",
-				"LONGLONG": "I",
+				"LONG": "G",
+				"LONGLONG": "G",
 				"LONG_BLOB": "M",
 				"MEDIUM_BLOB": "M",
 				"NEWDATE": "?",
@@ -194,16 +195,6 @@ class MySQL(dBackend):
 		return """ match (%(table)s.%(field)s) against ("%(value)s") """
 
 
-	def beginTransaction(self, cursor):
-		""" Begin a SQL transaction."""
-		if not cursor.AutoCommit:
-			if hasattr(cursor.connection, "begin"):
-				cursor.connection.begin()
-			else:
-				cursor.execute("BEGIN")
-				
-
-		
 	def createTableAndIndexes(self, tabledef, cursor, createTable=True, 
 			createIndexes=True):
 		if not tabledef.Name:
@@ -212,7 +203,8 @@ class MySQL(dBackend):
 		toExc = []
 		
 		#Create the table
-		if createTable:
+		if createTable:			
+			
 			if not tabledef.IsTemp:
 				sql = "CREATE TABLE "
 			else:
@@ -221,7 +213,7 @@ class MySQL(dBackend):
 			sql = sql + tabledef.Name + " ("
 			
 			for fld in tabledef.Fields:
-				dont_esc = False
+				pks = []
 				sql = sql + fld.Name + " "
 				
 				if fld.DataType == "Numeric":
@@ -237,11 +229,7 @@ class MySQL(dBackend):
 						sql = sql + "BIGINT "
 					else:
 						raise #what should happen?
-						
-					if fld.IsPK:
-						sql = sql + "PRIMARY KEY "
-						if fld.IsAutoIncrement:
-							sql = sql + "AUTO_INCREMENT "
+											
 				elif fld.DataType == "Float":
 					if fld.Size in (0,1,2,3,4):
 						sql = sql + "FLOAT(" + str(fld.TotalDP) + "," + str(fld.RightDP) + ") "
@@ -269,12 +257,11 @@ class MySQL(dBackend):
 				elif fld.DataType == "DateTime":
 					sql = sql + "DATETIME "
 				elif fld.DataType == "Stamp":
-					sql = sql + "STAMP "
-					fld.Default = "CURRENT_TIMESTAMP"
-					dont_esc = True
+					sql = sql + "TIMESTAMP "
+					fld.Default = dNoEQ("CURRENT_TIMESTAMP")
 				elif fld.DataType == "Binary":
 					if fld.Size <= 255:
-						sql = sql + "TIMYBLOB "
+						sql = sql + "TINYBLOB "
 					elif fld.Size <= 65535:
 						sql = sql + "BLOB "
 					elif fld.Size <= 16777215:
@@ -283,18 +270,30 @@ class MySQL(dBackend):
 						sql = sql + "LONGBLOB "
 					else:
 						raise #what should happen?
-					
+				
+				if fld.IsPK:
+					sql = sql + "PRIMARY KEY "
+					pks.append(fld.Name)
+					if fld.IsAutoIncrement:
+						sql = sql + "AUTO_INCREMENT "
+				
 				if not fld.AllowNulls:
 					sql = sql + "NOT NULL "
-				if not dont_esc:
-					sql = sql + "DEFAULT " + str(self.escQuote(fld.Default)) + ","
+				if not fld.IsPK:
+					sql = "%sDEFAULT %s," % (sql, self.formatForQuery(fld.Default))
+				else:
+					sql = sql + ","
+				
+				if sql.count("PRIMARY KEY ") > 1:
+					sql = sql.replace("PRIMARY KEY ","") + "PRIMARY KEY(" + ",".join(pks) + "),"
+				
 			if sql[-1:] == ",":
 				sql = sql[:-1]
 			sql = sql + ")"
 			
 			try:
 				cursor.execute(sql)
-			except: #TODO Make this handle only an access error
+			except dException.DBNoAccessException:
 				toExc.append(sql)
 	
 		if createIndexes:
@@ -313,7 +312,7 @@ class MySQL(dBackend):
 				if toExc == []:
 					try:
 						cursor.execute(sql)
-					except: #TODO Make this handle only an access error
+					except dException.DBNoAccessException:
 						toExc.append(sql)
 				else:
 					toExc.append(sql)

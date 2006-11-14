@@ -37,8 +37,14 @@
 
 		-- clean up and exit gracefully
 """
-import sys, os, warnings, glob
+import sys
+import os
+import locale
+import warnings
+import glob
+import tempfile
 import ConfigParser
+import inspect
 import dabo, dabo.ui, dabo.db
 from dabo.lib.connParser import importConnections
 import dSecurityManager
@@ -52,7 +58,6 @@ class Collection(list):
 	""" Collection : Base class for the various collection
 	classes used in the app object.
 	"""
-
 	def __init__(self):
 		list.__init__(self)
 
@@ -72,6 +77,63 @@ class Collection(list):
 			del self[index]
 
 
+
+class TempFileHolder(object):
+	"""Utility class to get temporary file names and to make sure they are 
+	deleted when the Python session ends.
+	"""
+	def __init__(self):
+		self._tempFiles = []
+
+
+	def __del__(self):
+		self._eraseTempFiles()
+		
+		
+	def _eraseTempFiles(self):
+		# Try to erase all temp files created during life.
+		# Need to re-import the os module here for some reason.
+		try:
+			import os
+			for f in self._tempFiles:
+				try:
+					os.remove(f)
+				except StandardError, e:
+					print "Could not delete %s: %s" % (f, e)
+		except:
+			# In these rare cases, Python has already 'gone away', so just bail
+			pass
+	
+	
+	def release(self):
+		self._eraseTempFiles()		
+
+
+	def append(self, f):
+		self._tempFiles.append(f)
+
+
+	def getTempFile(self, ext=None, badChars=None):
+		if ext is None:
+			ext = "py"
+		if badChars is None:
+			badChars = "-:"
+		fname = ""
+		suffix = ".%s" % ext
+		while not fname:
+			fd, tmpname = tempfile.mkstemp(suffix=suffix)
+			os.close(fd)
+			bad = [ch for ch in badChars if ch in os.path.split(tmpname)[1]]
+			if not bad:
+				fname = tmpname
+		self.append(fname)
+		if fname.endswith(".py"):
+			# Track the .pyc file, too.
+			self.append(fname + "c")
+		return fname
+
+
+
 class dApp(dObject):
 	"""The containing object for the entire application.
 
@@ -87,8 +149,8 @@ class dApp(dObject):
 	# be modified when run as the Designer. This flag will 
 	# distinguish between the two states.
 	isDesigner = False
-	
 
+	
 	def __init__(self, selfStart=False, properties=None, *args, **kwargs):
 		self._uiAlreadySet = False
 		dabo.dAppRef = self
@@ -112,6 +174,9 @@ class dApp(dObject):
 		# the key for each entry to the menu caption, and the value to
 		# the bound function.
 		self._persistentMRUs = {}
+		# Create the temp file handlers.
+		self._tempFileHolder = TempFileHolder()
+		self.getTempFile = self._tempFileHolder.getTempFile
 
 		# For simple UI apps, this allows the app object to be created
 		# and started in one step. It also suppresses the display of
@@ -122,6 +187,11 @@ class dApp(dObject):
 
 		self._afterInit()
 		self.autoBindEvents()
+		
+
+	def __del__(self):
+		"""Make sure that temp files are removed"""
+		self._tempFileHolder.release()
 		
 
 	def setup(self, initUI=True):
@@ -182,13 +252,14 @@ class dApp(dObject):
 			self._retrieveMRUs()
 			self.uiApp.start(self)
 		self.finish()
-
-
+	
+	
 	def finish(self):
 		"""Called when the application event loop has ended."""
 		self._persistMRU()
 		self.uiApp.finish()
 		self.closeConnections()
+		self._tempFileHolder.release()
 		dabo.infoLog.write(_("Application finished."))
 
 
@@ -238,34 +309,48 @@ class dApp(dObject):
 			
 		The return value would be ["pkm", "egl"]
 		"""
-		if self.UserSettingProvider:
-			return self.UserSettingProvider.getUserSettingKeys(spec)
+		usp = self.UserSettingProvider
+		if usp:
+			return usp.getUserSettingKeys(spec)
 		return None
 
 
-	def getUserSetting(self, item, default=None, user="*", system="*"):
+	def getUserSetting(self, item, default=None):
 		"""Return the value of the item in the user settings table."""
-		if self.UserSettingProvider:
-			return self.UserSettingProvider.getUserSetting(item, default, user, system)
+		usp = self.UserSettingProvider
+		if usp:
+			return usp.getUserSetting(item, default)
 		return None
 
 
 	def setUserSetting(self, item, value):
 		"""Persist a value to the user settings file."""
-		if self.UserSettingProvider:
-			self.UserSettingProvider.setUserSetting(item, value)
+		usp = self.UserSettingProvider
+		if usp:
+			usp.setUserSetting(item, value)
+	
+	
+	def setUserSettings(self, setDict):
+		"""Convenience method for setting several settings with one
+		call. Pass a dict containing {settingName: settingValue} pairs.
+		"""
+		usp = self.UserSettingProvider
+		if usp:
+			usp.setUserSettings(setDict)
 	
 	
 	def deleteUserSetting(self, item):
 		"""Removes the given item from the user settings file."""
-		if self.UserSettingProvider:
-			self.UserSettingProvider.deleteUserSetting(item)
+		usp = self.UserSettingProvider
+		if usp:
+			usp.deleteUserSetting(item)
 	
 	
 	def deleteAllUserSettings(self, spec):
 		"""Deletes all settings that begin with the supplied spec."""
-		if self.UserSettingProvider:
-			self.UserSettingProvider.deleteAllUserSettings(spec)
+		usp = self.UserSettingProvider
+		if usp:
+			usp.deleteAllUserSettings(spec)
 		
 		
 	def getUserCaption(self):
@@ -309,7 +394,8 @@ class dApp(dObject):
 		self.uiResources = {}
 
 		# Initialize DB collections
-		self.dbConnectionDefs = {} 
+		self.dbConnectionDefs = {}
+		self.dbConnectionNameToFiles = {}
 		self.dbConnections = {}
 
 		self._appInfo = {}
@@ -329,12 +415,18 @@ class dApp(dObject):
 			if os.path.exists(dbDir) and os.path.isdir(dbDir):
 				files = glob.glob(os.path.join(dbDir, "*.cnxml"))
 				for f in files:
-					connDefs.update(importConnections(f))
+					cn = importConnections(f)
+					connDefs.update(cn)
+					for kk in cn.keys():
+						self.dbConnectionNameToFiles[kk] = f
 		
 		# Import any python code connection definitions (the "old" way).
 		try:
 			import dbConnectionDefs
-			connDefs.update(dbConnectionDefs.getDefs())
+			defs = dbConnectionDefs.getDefs()
+			connDefs.update(defs)
+			for kk in defs.keys():
+				self.dbConnectionNameToFiles[kk] = os.abspath("dbConnectionDefs.py")
 		except:
 			pass
 		
@@ -361,8 +453,8 @@ class dApp(dObject):
 			self.UI = "wx"
 		else:
 			# Custom app code or the dabo.ui module already set this: don't touch
-			dabo.infoLog.write(_("User interface already set to '%s', so dApp didn't "
-				" touch it." % (self.UI,)))
+			dabo.infoLog.write(_("User interface already set to '%s', so dApp didn't touch it.") 
+					% self.UI)
 
 
 	def getConnectionByName(self, connName):
@@ -405,12 +497,24 @@ class dApp(dObject):
 				# Use a default name
 				name = "%s@%s" % (ci.User, ci.Host)
 		self.dbConnectionDefs[name] = ci
+		self.dbConnectionNameToFiles[name] = None
 	
 
 	def addConnectFile(self, connFile):
 		"""Accepts a cnxml file path, and reads in the connections
 		defined in it, adding them to self.dbConnectionDefs.
 		"""
+		if not os.path.exists(connFile):
+			homeFile = os.path.join(self.HomeDirectory, connFile)
+			if os.path.exists(homeFile):
+				connFile = homeFile
+		if not os.path.exists(connFile):
+			# Search sys.path for the file.
+			for sp in sys.path:
+				sysFile = os.path.join(sp, connFile)
+				if os.path.exists(sysFile):
+					connFile = sysFile
+					break
 		if os.path.exists(connFile):
 			connDefs = importConnections(connFile)
 			# For each connection definition, add an entry to 
@@ -420,6 +524,7 @@ class dApp(dObject):
 				ci = dabo.db.dConnectInfo()
 				ci.setConnInfo(v)
 				self.dbConnectionDefs[k] = ci
+				self.dbConnectionNameToFiles[k] = connFile
 	
 
 	########################
@@ -441,6 +546,8 @@ class dApp(dObject):
 		self.uiApp.onEditCopy(evt)
 	def onEditPaste(self, evt):
 		self.uiApp.onEditPaste(evt)
+	def onEditSelectAll(self, evt):
+		self.uiApp.onEditSelectAll(evt)
 	def onEditFind(self, evt):
 		self.uiApp.onEditFind(evt)
 	def onEditFindAlone(self, evt):
@@ -469,8 +576,23 @@ class dApp(dObject):
 
 	def onHelpAbout(self, evt):
 		import dabo.ui.dialogs.about as about
-		dlg = about.About(self.MainForm)
+		frm = self.ActiveForm
+		if frm is None:
+			frm = self.MainForm
+		dlg = about.About(frm)
 		dlg.show()
+	
+	
+	def addToAbout(self):
+		"""Adds additional app-specific information to the About form.
+		This is just a stub method; override in subclasses if needed."""
+		pass
+	
+	
+	def clearActiveForm(self, frm):
+		"""Called by the form when it is deactivated."""
+		if frm is self.ActiveForm:
+			self.uiApp.ActiveForm = None
 
 
 	def _getActiveForm(self):
@@ -485,6 +607,32 @@ class dApp(dObject):
 		else:
 			dabo.errorLog.write(_("Can't set ActiveForm: no uiApp."))
 	
+
+	def _getBasePrefKey(self):
+		try:
+			ret = self._basePrefKey
+		except AttributeError:
+			ret = self._basePrefKey = ""
+		if not ret:
+			try:
+				ret = self.ActiveForm.BasePrefKey
+			except: pass
+		if not ret:
+			try:
+				ret = self.MainForm.BasePrefKey
+			except: pass
+		if not ret:
+			f = inspect.stack()[-1][1]
+			pth = os.path.abspath(f)
+			if pth.endswith(".py"):
+				pth = pth[:-3]
+			pthList = pth.strip(os.sep).split(os.sep)
+			ret = ".".join(pthList)
+		return ret
+
+	def _setBasePrefKey(self, val):
+		super(dApp, self)._setBasePrefKey(val)
+
 
 	def _getCrypto(self):
 		if self._cryptoProvider is None:
@@ -502,6 +650,13 @@ class dApp(dObject):
 	def _setDrawSizerOutlines(self, val):
 		self.uiApp.DrawSizerOutlines = val
 	
+
+	def _getEncoding(self):
+		ret = locale.getlocale()[1]
+		if ret is None:
+			ret = dabo.defaultEncoding
+		return ret
+		
 
 	def _getHomeDirectory(self):
 		try:
@@ -630,9 +785,9 @@ class dApp(dObject):
 				dabo.infoLog.write(_("User interface set set to None."))
 			elif dabo.ui.loadUI(uiType):
 				self._uiAlreadySet = True
-				dabo.infoLog.write(_("User interface set to '%s' by dApp.") % (uiType,))
+				dabo.infoLog.write(_("User interface set to '%s' by dApp.") % uiType)
 			else:
-				dabo.infoLog.write(_("Tried to set UI to '%s', but it failed." % (uiType,)))
+				dabo.infoLog.write(_("Tried to set UI to '%s', but it failed.") % uiType)
 		else:
 			raise RuntimeError, _("The UI cannot be reset once assigned.")
 
@@ -642,7 +797,8 @@ class dApp(dObject):
 			ret = self._userSettingProvider
 		except AttributeError:
 			if self.UserSettingProviderClass is not None:
-				ret = self._userSettingProvider = self.UserSettingProviderClass()
+				ret = self._userSettingProvider = \
+						self.UserSettingProviderClass()
 			else:
 				ret = self._userSettingProvider = None
 		return ret
@@ -655,15 +811,22 @@ class dApp(dObject):
 		try:
 			ret = self._userSettingProviderClass
 		except AttributeError:
-			ret = self._userSettingProviderClass = dUserSettingProvider.dUserSettingProvider
+			ret = self._userSettingProviderClass = \
+					dUserSettingProvider.dUserSettingProvider
 		return ret
 
 	def _setUserSettingProviderClass(self, val):
 		self._userSettingProviderClass = val
 
 
-	ActiveForm = property(_getActiveForm, None, None, 
+	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
 			_("Returns the form that currently has focus, or None.  (dForm)" ) )
+	
+	BasePrefKey = property(_getBasePrefKey, _setBasePrefKey, None,
+			_("""Base key used when saving/restoring preferences. This differs
+			from the default definition of this property in that if it is empty, it 
+			will return the ActiveForm's BasePrefKey or the MainForm's BasePrefKey
+			in that order. (str)"""))
 	
 	Crypto = property(_getCrypto, _setCrypto, None, 
 			_("Reference to the object that provides cryptographic services.  (varies)" ) )
@@ -671,6 +834,9 @@ class dApp(dObject):
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
 			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)"))
 	
+	Encoding = property(_getEncoding, None, None,
+			_("Name of encoding to use for unicode  (str)") )
+			
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
 			_("""Specifies the application's home directory. (string)
 

@@ -47,10 +47,16 @@ To run Dabo, and apps based on Dabo, you need:
 		nature of Dabo's design, it is possible to use just the
 		db layer, or the db layer in conjunction with the biz
 		layer, with no ui at all.)
+	
+	+ SQLite3: this is used internally for managing preferences, as 
+		well as for cursor management.
+	
+	+	pysqlite2: The Python dbapi module for SQLite. (Not needed in 
+			Python 2.5 and higher)
 
 	+ Windows 98SE or higher
 	+ Macintosh OSX 10.2 or higher (*much* nicer in Tiger - 10.4)
-	+ Linux 2.4 with X11 running
+	+ Linux 2.4 with X11 running and Gtk2
 
 	+ Access to some sort of database server, along with the 
 	appropriate Python driver(s) installed. For example, for
@@ -92,12 +98,27 @@ the command window.
 
 Have fun in your exploration of Dabo. 
 """
-# Import global settings (do this first, as other imports may rely on it):
-from settings import *
+
+import sys
+try:
+	import pysqlite2
+except ImportError:
+	try:
+		import sqlite3
+	except ImportError:
+		msg = """
+
+Dabo requires SQLite 3 and the pysqlite2 module. You will have to install these
+free products before running Dabo. You can get them from the following locations:
+
+SQLite: http://www.sqlite.org/download.html
+pysqlite2: http://initd.org/tracker/pysqlite
+
+"""	
+		sys.exit(msg)
 
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
-import sys
 from dabo.lib.logger import Log
 infoLog = Log()
 infoLog.Caption = "Dabo Info Log"
@@ -106,7 +127,11 @@ errorLog = Log()
 errorLog.Caption = "Dabo Error Log"
 errorLog.LogObject = sys.stderr
 
-from dApp import dApp
+# Import global settings (do this first, as other imports may rely on it):
+from settings import *
+
+# dApp will change the following values upon its __init__:
+dAppRef = None
 
 from __version__ import version
 import dColors
@@ -116,5 +141,6 @@ from dBug import logPoint
 import pdb
 trace = pdb.set_trace
 
-# dApp will change the following values upon its __init__:
-dAppRef = None
+from dApp import dApp
+from dPref import dPref
+

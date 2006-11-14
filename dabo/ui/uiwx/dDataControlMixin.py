@@ -32,30 +32,60 @@ class dDataControlMixin(dDataControlMixinBase):
 		except AttributeError:
 			# Only works for text controls
 			pass
+	
+	
+	def _coerceValue(self, val, oldval):
+		convTypes = (str, unicode, int, float, long, complex)
+		oldType = type(oldval)
+		if isinstance(val, convTypes) and isinstance(oldval, basestring):
+			if isinstance(oldType, str):
+				val = str(val)
+			else:
+				if not isinstance(val, unicode):
+					val = unicode(val, self.Application.Encoding)
+		elif isinstance(oldval, int) and isinstance(val, basestring):
+			if val:
+				val = int(val)
+			else:
+				val = 0
+		elif isinstance(oldval, int) and isinstance(val, bool):
+			# convert bool to int (original field val was bool, but UI
+			# changed to int. 
+			val = int(val)
+		elif isinstance(oldval, int) and isinstance(val, long):
+			# convert long to int (original field val was int, but UI
+			# changed to long. 
+			val = int(val)
+		elif isinstance(oldval, long) and isinstance(val, int):
+			# convert int to long (original field val was long, but UI
+			# changed to int. 
+			val = long(val)
+		return val
 			
 
 	def _getValue(self):
 		return self.GetValue()
 		
-	def _setValue(self, value):
+	def _setValue(self, val):
 		if self._constructed():
-			if (type(self.Value) != type(value) or self.Value != value):
+			if type(self.Value) != type(val):
+				val = self._coerceValue(val, self.Value)
+			if (type(self.Value) != type(val) or self.Value != val):
 				try:
-					self.SetValue(value)
+					self.SetValue(val)
 				except TypeError, e:
 					dabo.errorLog.write(_("Could not set value of %s to %s. Error message: %s")
-							% (self._name, value, e))
+							% (self._name, val, e))
 				self._afterValueChanged()
-			else:
-				# Call flushValue() anyway. Data binding properties may have
-				# changed since the value was last set.
-				self.flushValue()
+			self.flushValue()
 		else:
-			self._properties["Value"] = value
+			self._properties["Value"] = val
 
 		
 	Value = property(_getValue, _setValue, None,
 		_("""Specifies the current state of the control (the value of the 
 				field).  (varies)"""))
+				
+				
 	DynamicValue = makeDynamicProperty(Value)
 
