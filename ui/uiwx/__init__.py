@@ -1,5 +1,6 @@
 import sys
 import os
+import glob
 import datetime
 import time
 import cStringIO
@@ -1088,6 +1089,38 @@ def getCommonBitmap(name):
 	if const:
 		return wx.ArtProvider.GetBitmap(const)
 	return None
+
+
+def getImagePath(nm, url=False):
+	"""Given the name of an image in either the Dabo common directory, or the 
+	current directory, returns the full path to the image. If 'url' is true, returns
+	the path in a 'file:///image.ext' format.
+	"""
+	ret = dabo.icons.getIconFileName(nm)
+	if ret is None:
+		# Not found in Dabo directories; try app HomeDirectory
+		try:
+			ret = glob.glob(os.path.join(dabo.dAppRef.HomeDirectory, nm))[0]
+		except IndexError:
+			pass
+	if ret is None:
+		# Not found yet; try current dir
+		try:
+			ret = glob.glob(os.path.join(os.getcwd(), nm))[0]
+		except IndexError:
+			pass
+	if ret is None:
+		# try all the sys.path directories
+		for pth in sys.path:
+			try:
+				ret = glob.glob(os.path.join(pth, nm))[0]
+				break
+			except IndexError:
+				pass
+	if ret and url:
+		ret = "file://%s" % ret
+	return ret
+		
 
 
 def setdFormClass(typ):
