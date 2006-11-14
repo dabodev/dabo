@@ -15,6 +15,8 @@ package_path = os.path.split(os.path.split(lib.__file__)[0])[0]
 if os.path.exists(os.path.join(package_path, ".svn")):
 	try:
 		_revision = os.popen("svnversion %s" % package_path).read().strip()
+		if not _revision[0].isdigit():
+			_revision = None
 	except:
 		pass
 
