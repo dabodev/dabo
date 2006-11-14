@@ -1,5 +1,6 @@
 import wx.html
 import os
+import re
 import types
 import urllib2
 import dabo
@@ -24,7 +25,7 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 			kwargs["style"] = wx.TAB_TRAVERSAL
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		self.SetScrollRate(10, 10)
-		self._Source = self._Page = ""
+		self._source = self._page = ""
 	#		self.SetScrollbars(10, 10, -1, -1)
 
 
@@ -40,6 +41,31 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 			self.Sizer.layout()
 		except:
 			pass
+	
+	
+	def setImageURLs(self, val):
+		"""Replace standard image file names with 'file:///img.pth' references"""
+		pat = re.compile(r"""<img (.*)\bsrc=(['"]?)([^'">]+)(['"]?)([^>]*)>""")
+		ret = ""
+		while True:
+			mtch = pat.search(val)
+			if mtch:
+				beg, end = mtch.span()
+				befSrc, qt1, src, qt2, aftSrc = mtch.groups()
+				if "file://" in src:
+					url = src
+				else:
+					url = dabo.ui.getImagePath(src, True)
+					if url is None:
+						# Use the original
+						url = src
+				ret = ret + val[:beg] + "<img %(befSrc)ssrc=%(qt1)s%(url)s%(qt2)s%(aftSrc)s>" % locals()
+				val = val[end:]
+			else:
+				# No match; add the remaining val to ret
+				ret += val
+				break
+		return ret			
 
 
 	def _getChildren(self):
@@ -62,38 +88,39 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 
 
 	def _getPage(self):
-		return self._Page
+		return self._page
 
 	def _setPage(self, val):
 		if isinstance(val, types.StringTypes):
 			try:
 				if os.path.exists(val):
 					file = open(val, 'r')
-					self._Source = file.read()
-					super(dHtmlBox, self).LoadFile(val)
-					self._Page = val
+					self._source = file.read()
+					self.LoadFile(val)
+					self._page = val
 					return
 				elif not val[:7] == "http://":
 					val = "http://" + val
 
 				url = urllib2.urlopen(val)
-				self._Source = url.read()
-				super(dHtmlBox, self).LoadPage(val)
-				self._Page = val
+				self._source = url.read()
+				self.LoadPage(val)
+				self._page = val
 			except:
-				self._Source = "<html><body>Cannot Open URL %s</body><html>" % (val,)
-				self._Page = ""
-				super(dHtmlBox, self).SetPage(self._Source)
+				self._source = "<html><body>Cannot Open URL %s</body><html>" % (val,)
+				self._page = ""
+				self.SetPage(self._source)
 
 
 	def _getSource(self):
-		return self._Source
+		return self._source
 
 	def _setSource(self, val):
 		if isinstance(val, types.StringTypes):
-			self._Source = val
-			self._Page = ""
-			super(dHtmlBox, self).SetPage(val)
+			val = self.setImageURLs(val)
+			self._source = val
+			self._page = ""
+			self.SetPage(val)
 
 
 	def _getVerticalScroll(self):
@@ -125,6 +152,8 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 
 	DynamicHorizontalScroll = makeDynamicProperty(HorizontalScroll)
 	DynamicVerticalScroll = makeDynamicProperty(VerticalScroll)
+
+
 
 class _dHtmlBox_test(dHtmlBox):
 	def initProperties(self):
