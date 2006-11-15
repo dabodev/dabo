@@ -17,6 +17,10 @@ Notable things:
   no longer works. You need to change all such code to read:
 	  fname = biz.Record.first_name
 
+Known Issues:
++ FireBird Requery problem (see http://dabodev.com/tracker/0229)
+
+
 Bug Fixes:
 + Double select page on Mac and Win. Fixed.
 + Datanav select page scrollbar doesn't show. Fixed.
