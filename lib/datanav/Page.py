@@ -490,8 +490,8 @@ class SelectPage(Page):
 		requeryButton.DefaultButton = True
 		requeryButton.bindEvent(dEvents.Hit, self.onRequery)
 		btnRow = gsz.findFirstEmptyCell()[0] + 1
-		gsz.append(requeryButton, "expand", row=btnRow, col=1, 
-				halign="right")
+		gsz.append(requeryButton, row=btnRow, col=1, 
+				halign="right", border=3)
 		
 		# Make the last column growable
 		gsz.setColExpand(True, 2)
