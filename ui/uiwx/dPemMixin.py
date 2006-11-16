@@ -987,6 +987,8 @@ class dPemMixin(dPemMixinBase):
 			kids = self.Pages
 		else:
 			kids = self.Children
+		if not kids:
+			return
 		for kid in kids:
 			ok = hasattr(kid, prop)
 			if ok:
