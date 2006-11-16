@@ -2500,7 +2500,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if self.Form is not None:
 			# Add a '.' to the status bar to signify that the search is
 			# done, and clear the search string for next time.
-			self.Form.setStatusText("Search: %s." % origSrchStr)
+			currAutoUpdate = self.Form.AutoUpdateStatusText
+			self.Form.AutoUpdateStatusText = False
+			if currAutoUpdate:
+				dabo.ui.setAfterInterval(1000, self.Form, "AutoUpdateStatusText", True)
+			self.Form.setStatusText("Search: '%s'." % origSrchStr)
 		self.currSearchStr = ""
 
 
@@ -2517,12 +2521,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				searchDelay = self.Application.SearchDelay
 			else:
 				# use a default
-				searchDelay = 300
+				searchDelay = 500
 
 		self.incSearchTimer.stop()
 		self.currSearchStr = "".join((self.currSearchStr, key))
+		
 		if self.Form is not None:
-			self.Form.setStatusText("Search: %s" % self.currSearchStr)
+			self.Form.setStatusText("Search: '%s'" % self.currSearchStr)
 		self.incSearchTimer.start(searchDelay)
 
 
@@ -2532,6 +2537,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if col == wx.NOT_FOUND:
 			col = -1
 		return col
+		
 
 	def getRowNumByY(self, y):
 		""" Given the y-coordinate, return the row number."""
@@ -3005,13 +3011,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		""" Occurs when the user presses a key inside the grid."""
 		if self.Editable and self.Columns[self.CurrentColumn].Editable:
 			# Can't search and edit at the same time
-# 			print "KEY EDITING!"
 			return
 
-		keyCode = evt.EventData["keyCode"]
-
+#		keyCode = evt.EventData["keyCode"]
+		keyCode = evt.EventData["unicodeKey"]
 		try:
-			char = chr(keyCode)
+			char = unichr(keyCode)
 		except ValueError:
 			# keycode not in ascii range
 			return
@@ -3019,8 +3024,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if char.isspace():
 			return
 
+# 		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
+# 				and char.isalnum() and not evt.hasModifiers:
 		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
-				and char.isalnum() and not evt.hasModifiers:
+				and char.isalnum():
 			self.addToSearchStr(char)
 			# For some reason, without this the key happens twice
 			evt.stop()

@@ -55,6 +55,10 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getChildren(self):
+		"""Need to override this to return None, since the native GetChildren()
+		function will return the text box and spin buttons that make up this
+		composite control.
+		"""
 		return None
 	
 	
@@ -92,9 +96,10 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 
 	# Property definitions:
 	Children = property(_getChildren, None, None, 
-			_("""Need to override this to return None, since the text box and spin
-			buttons are not  Dabo children.  (None)"""))
-			
+			_("""Returns a list of object references to the children of 
+			this object. Only applies to containers. Children will be None for 
+			non-containers.  (list or None)"""))
+	
 	Max = property(_getMax, _setMax, None, 
 			_("Specifies the highest possible value for the spinner. (int)"))
 
