@@ -29,20 +29,6 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 	#		self.SetScrollbars(10, 10, -1, -1)
 
 
-	def layout(self):
-		""" Wrap the wx version of the call, if possible. """
-		self.Layout()
-		for child in self.Children:
-			try:
-				child.layout()
-			except: pass
-		try:
-			# Call the Dabo version, if present
-			self.Sizer.layout()
-		except:
-			pass
-	
-	
 	def setImageURLs(self, val):
 		"""Replace standard image file names with 'file:///img.pth' references"""
 		pat = re.compile(r"""<img (.*)\bsrc=(['"]?)([^'">]+)(['"]?)([^>]*)>""")
@@ -66,15 +52,6 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 				ret += val
 				break
 		return ret			
-
-
-	def _getChildren(self):
-		ret = super(dHtmlBox, self)._getChildren()
-		return [kid for kid in ret
-				if isinstance(kid, dabo.ui.dPemMixinBase.dPemMixinBase)]
-
-	def _setChildren(self, val):
-		super(dHtmlBox, self)._setChildren(val)
 
 
 	def _getHorizontalScroll(self):
@@ -117,9 +94,9 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 
 	def _setSource(self, val):
 		if isinstance(val, types.StringTypes):
-			val = self.setImageURLs(val)
 			self._source = val
 			self._page = ""
+			val = self.setImageURLs(val)
 			self.SetPage(val)
 
 
@@ -132,10 +109,6 @@ class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
 		rt = self.GetScrollPixelsPerUnit()
 		self.SetScrollRate(rt[0], {True:rt[1], False:0}[val])
 
-
-	Children = property(_getChildren, _setChildren, None,
-			_("""Child controls of this panel. This excludes the wx-specific
-			scroll bars  (list of objects)"""))
 
 	HorizontalScroll = property(_getHorizontalScroll, _setHorizontalScroll, None,
 			_("Controls whether this object will scroll horizontally (default=True)  (bool)"))
@@ -167,20 +140,26 @@ class _dHtmlBox_test(dHtmlBox):
 	def PageData(self):
 		return """<html>
 		<body bgcolor="#ACAA60">
-		<center><table bgcolor="#455481" width="100%" cellspacing="0" cellpadding="0" border="1">
-		<tr>
-			<td align="center"><h1>dHtmlBox</h1></td>
-		</tr>
-		</table>
+		<center>
+			<table bgcolor="#455481" width="100%" cellspacing="0" cellpadding="0" 
+					border="1">
+				<tr>
+					<td align="center"><h1>dHtmlBox</h1></td>
+				</tr>
+			</table>
 		</center>
-		<p><b>dHtmlBox</b> is a Dabo UI widget object that wraps a WxPython
-		html window.  The widget is designed to display html text.  Be careful
-		though, because the widget doesn't support advanced functions like Javascript
-		parsing.
-		</p>
+		<p><b><font size="160%" color="#FFFFFF">dHtmlBox</font></b> is a Dabo UI widget that is designed to display html text. 
+		Be careful, though, because the widget doesn't support advanced functions like 
+		Javascript parsing.</p>
+		<p>It's better to think of it as a way to display <b>rich text</b> using 
+		<font size="+1" color="#993300">HTML markup</font>, rather
+		than a web browser replacement.</p>
+		
+		<p>&nbsp;</p>
+		<div align="center"><img src="daboIcon.ico"></div>
 
-		<p><b>Dabo</b> is brought to you by <b>Ed Leafe</b>, <b>Paul Mcnett</b>,
-		and others in the open source community, Copyright &copy; 2006.
+		<p align="center"><b>Dabo</b> is brought to you by <b>Ed Leafe</b>, <b>Paul McNett</b>,
+		and others in the open source community. Copyright &copy; 2006
 		</p>
 		</body>
 		</html>
