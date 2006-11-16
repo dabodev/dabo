@@ -63,6 +63,8 @@ class BaseForm(fm.dFormMixin):
 			self.Sizer.append(mp, 1, "x")
 			mp.Sizer = dabo.ui.dSizer(self.Sizer.Orientation)
 		super(BaseForm, self)._afterInit()
+		if self.RequeryOnLoad:
+			dabo.ui.callAfter(self.requery)
 	
 	
 	def _beforeClose(self, evt=None):
@@ -690,16 +692,6 @@ Database error message: %s""") %	err
 		self._AskToSave = bool(value)
 		
 
-	def _getSaveAllRows(self):
-		try:
-			return self._SaveAllRows
-		except AttributeError:
-			return True
-			
-	def _setSaveAllRows(self, value):
-		self._SaveAllRows = bool(value)
-
-
 	def _getPrimaryBizobj(self):
 		"""The attribute '_primaryBizobj' should be a bizobj, but due
 		to old code design, might be a data source name. These methods
@@ -731,6 +723,26 @@ Database error message: %s""") %	err
 				dabo.infoLog.write(_("bizobj for data source %s does not exist.") % bizOrDataSource)
 
 
+	def _getRequeryOnLoad(self):
+		try:
+			return self._requeryOnLoad
+		except AttributeError:
+			return False
+
+	def _setRequeryOnLoad(self, value):
+		self._requeryOnLoad = bool(value)
+
+
+	def _getSaveAllRows(self):
+		try:
+			return self._SaveAllRows
+		except AttributeError:
+			return True
+			
+	def _setSaveAllRows(self, value):
+		self._SaveAllRows = bool(value)
+
+
 	# Property definitions:
 	AskToSave = property(_getAskToSave, _setAskToSave, None, 
 			_("""Specifies whether a save prompt appears before the data
@@ -738,6 +750,10 @@ Database error message: %s""") %	err
 
 	PrimaryBizobj = property(_getPrimaryBizobj, _setPrimaryBizobj, None, 
 			_("Reference to the primary bizobj for this form  (dBizobj)") )
+
+	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
+			_("""Specifies whether an automatic requery happens when the 
+			form is loaded.  (bool)"""))
 
 	SaveAllRows = property(_getSaveAllRows, _setSaveAllRows, None, 
 			_("Specifies whether dataset is row- or table-buffered. (bool)") )
