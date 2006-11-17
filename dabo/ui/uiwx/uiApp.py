@@ -624,6 +624,7 @@ class uiApp(wx.App, dObject):
 				return ret
 				
 			else:
+				# Regular text control
 				try: 
 					value = win.GetValue()
 				except AttributeError:
@@ -636,7 +637,8 @@ class uiApp(wx.App, dObject):
 					# If we have a selection, replace it.
 					selectPos = win.GetSelection()
 					if selectPos[1] - selectPos[0] > 0:
-						win.ReplaceSelection(replaceString)
+						win.Replace(selectPos[0], selectPos[1], replaceString)
+						ret = True
 
 				selectPos = win.GetSelection()
 				if downwardSearch:
@@ -663,6 +665,7 @@ class uiApp(wx.App, dObject):
 					win.ShowPosition(win.GetSelection()[1])
 				else:
 					dabo.infoLog.write(_("Not found"))
+				return ret
 				
 
 	def addToMRU(self, menu, prompt, bindfunc=None):

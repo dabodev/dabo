@@ -738,7 +738,9 @@ class dApp(dObject):
 			return self._searchDelay
 		except AttributeError:
 			## I've found that a value of 300 isn't too fast nor too slow:
-			return 300
+			# egl: 2006-11-16 - based on feedback from others, I'm 
+			# 	lengthening this to 500 ms.
+			return 500
 			
 	def _setSearchDelay(self, value):
 		self._searchDelay = int(value)			

@@ -54,6 +54,14 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
+	def _getChildren(self):
+		"""Need to override this to return None, since the native GetChildren()
+		function will return the text box and spin buttons that make up this
+		composite control.
+		"""
+		return None
+	
+	
 	def _getMax(self):
 		return self.GetMax()
 
@@ -87,17 +95,25 @@ class dSpinner(wx.SpinCtrl, dcm.dDataControlMixin):
 
 
 	# Property definitions:
-	Min = property(_getMin, _setMin, None, 
-		"Specifies the lowest possible value for the spinner. (int)")
-	DynamicMin = makeDynamicProperty(Min)
-
+	Children = property(_getChildren, None, None, 
+			_("""Returns a list of object references to the children of 
+			this object. Only applies to containers. Children will be None for 
+			non-containers.  (list or None)"""))
+	
 	Max = property(_getMax, _setMax, None, 
-		"Specifies the highest possible value for the spinner. (int)")
-	DynamicMax = makeDynamicProperty(Max)
+			_("Specifies the highest possible value for the spinner. (int)"))
+
+	Min = property(_getMin, _setMin, None, 
+			_("Specifies the lowest possible value for the spinner. (int)"))
 
 	SpinnerWrap = property(_getSpinnerWrap, _setSpinnerWrap, None,
-		"Specifies whether the spinner value wraps at the high/low value. (bool)")
+			_("Specifies whether the spinner value wraps at the high/low value. (bool)"))
+
+
+	DynamicMax = makeDynamicProperty(Max)
+	DynamicMin = makeDynamicProperty(Min)
 	DynamicSpinnerWrap = makeDynamicProperty(SpinnerWrap)
+
 
 
 class _dSpinner_test(dSpinner):

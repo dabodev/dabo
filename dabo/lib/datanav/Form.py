@@ -1050,16 +1050,6 @@ class Form(dabo.ui.dForm):
 		self._relationSpecs = val
 		
 
-	def _getRequeryOnLoad(self):
-		try:
-			return self._requeryOnLoad
-		except AttributeError:
-			return False
-
-	def _setRequeryOnLoad(self, value):
-		self._requeryOnLoad = bool(value)
-
-
 	def _getSetFocusToBrowseGrid(self):
 		if hasattr(self, "_setFocusToBrowseGrid"):
 			v = self._setFocusToBrowseGrid
@@ -1109,9 +1099,6 @@ The type of form determines the runtime behavior. FormType can be one of:
 
 	RelationSpecs = property(_getRelationSpecs, _setRelationSpecs, None, 
 			_("""Reference to the dictionary containing table relation specs"""))
-
-	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
-			_("""Specifies whether an automatic requery happens when the form is loaded."""))
 
 	SelectPageClass = property(_getSelectPageClass, _setSelectPageClass, None,
 			_("""Specifies the class to use for the select page."""))
