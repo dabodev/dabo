@@ -1110,7 +1110,8 @@ Phwew! All that in 7 weeks.
 ===============================================================================
 Dabo-0.4.2 (2005-10-07) (Revision 1418):
 
-Added PrimaryBizobj property to dForm, which can replace calls to getPrimaryBizobj().
+Added PrimaryBizobj property to dForm, which can replace calls to 
+getPrimaryBizobj().
 
 Added Accepted property to dOkCancelDialog, which gets set automatically if the
 user pressed "OK".
@@ -1125,7 +1126,11 @@ Added DefaultValues property to bizobj.
 
 Added ListSelection and ListDeselection events to dListControl. Added properties
 MultipleSelect, HitIndex, LastSelectedIndex, HeaderVisible, HorizontalRules,
-and VerticalRules. Changed the behavior of both dListControl and dListBox so that merely selecting an item doesn't raise the Hit event; instead, it raises a ListSelection event, and if another item had been previously selected, it raises a ListDeselection event. Hit is only raised from double-clicking on an item, or by pressing Enter.
+and VerticalRules. Changed the behavior of both dListControl and dListBox so 
+that merely selecting an item doesn't raise the Hit event; instead, it raises a 
+ListSelection event, and if another item had been previously selected, it raises
+ a ListDeselection event. Hit is only raised from double-clicking on an item, or
+ by pressing Enter.
 
 Added new property to dTextBox: StrictDateEntry. Changed the code for
 interpreting dates entered by the user to allow for some less explicit
@@ -1387,17 +1392,19 @@ appWizard: added support for parent/child/grandchild/... relationships;
 improved FieldSpecEditor.
 
 appWizard/dDataNav* classes:
-    changed all wx.Sizers to dSizers
-    added "-ignore-" to visually indicate search criteria that will not be used
-    added save/restore of values on search page.
-    added 'Matches Words' option for fulltext searches
-    fixed bugs with searches for boolean values
+    + changed all wx.Sizers to dSizers
+    + added "-ignore-" to visually indicate search criteria to ignore
+    + added save/restore of values on search page.
+    + added 'Matches Words' option for fulltext searches
+    + fixed bugs with searches for boolean values
 
 Controls:
-    Now auto-name themselves. Unique name enforcement added.
-    Added _IsContainer attribute to distinguish controls that can add other controls to themselves.
-    Added support for setting colors by name instead of RGB tuple.
-    Fixed resizing bug that would not allow a resized object to be made smaller.
+    + Now auto-name themselves. Unique name enforcement added.
+    + Added _IsContainer attribute to distinguish controls that can add other 
+      controls to themselves.
+    + Added support for setting colors by name instead of RGB tuple.
+    + Fixed resizing bug that would not allow a resized object to be made 
+      smaller.
 
 
 ===============================================================================
@@ -1416,8 +1423,8 @@ Added some new controls, such as a better date control and a combo box.
 
 Brought in some Foxpro string functions from the openfox project.
 
-New event model, greatly simplifying the binding of events, the raising of events,
-and the subclassing of events to define new events.
+New event model, greatly simplifying the binding of events, the raising of 
+events, and the subclassing of events to define new events.
 
 Added preliminary unicode support to the cursor level. 
 	
