@@ -987,6 +987,8 @@ class dPemMixin(dPemMixinBase):
 			kids = self.Pages
 		else:
 			kids = self.Children
+		if not kids:
+			return
 		for kid in kids:
 			ok = hasattr(kid, prop)
 			if ok:
@@ -2079,9 +2081,9 @@ class dPemMixin(dPemMixinBase):
 			_("The caption of the object. (str)") )
 
 	Children = property(_getChildren, None, None, 
-			_("""Returns a list of object references to the children of this object.
-
-			Only applies to containers. Children will be None for non-containers."""))
+			_("""Returns a list of object references to the children of 
+			this object. Only applies to containers. Children will be None for 
+			non-containers.  (list or None)"""))
 	
 	ControllingSizer = property(_getCntrlSizer, None, None,
 			_("""Reference to the sizer that controls this control's layout.  (dSizer)""") )
@@ -2090,7 +2092,7 @@ class dPemMixin(dPemMixinBase):
 			_("""Reference to the sizer item that control's this control's layout.
 
 				This is useful for getting information about how the item is being 
-				sized, and for changing those settings."""))
+				sized, and for changing those settings.  (SizerItem)"""))
 		
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("""Specifies whether the object and children can get user input. (bool)""") )

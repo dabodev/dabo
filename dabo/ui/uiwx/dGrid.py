@@ -432,6 +432,8 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._precision = 2
 		# Do text columns wrap their long text?
 		self._wordWrap = False
+		# Is the column shown?
+		self._visible = True
 
 		self._beforeInit()
 		kwargs["Parent"] = parent
@@ -1209,6 +1211,18 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._properties["VerticalAlignment"] = val
 
 
+	def _getVisible(self):
+		return self._visible
+
+	def _setVisible(self, val):
+		if self._constructed():
+			self._visible = val
+			if self.Parent:
+				self.Parent.showColumn(self, val)
+		else:
+			self._properties["Visible"] = val
+
+
 	def _getWidth(self):
 		idx = self._GridColumnIndex
 		try:
@@ -1217,7 +1231,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			v = self._width = 150
 		if self.Parent and idx >= 0:
 			# Make sure the grid is in sync:
-			self.Parent.SetColSize(idx, v)
+			try:
+				self.Parent.SetColSize(idx, v)
+			except:
+				# The grid may still be in the process of being created, so pass.
+				pass
 		return v
 
 	def _setWidth(self, val):
@@ -1412,6 +1430,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			_("""Vertical alignment for all cells in this column. Acceptable values 
 			are 'Top', 'Center', and 'Bottom'.  (str)"""))
 
+	Visible = property(_getVisible, _setVisible, None,
+			_("Controls whether the column is shown or not  (bool)"))
+	
 	Width = property(_getWidth, _setWidth, None,
 			_("Width of this column  (int)") )
 	
@@ -1456,6 +1477,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	DynamicSearchable = makeDynamicProperty(Searchable)
 	DynamicSortable = makeDynamicProperty(Sortable)
 	DynamicVerticalAlignment = makeDynamicProperty(VerticalAlignment)
+	DynamicVisible = makeDynamicProperty(Visible)
 	DynamicWidth = makeDynamicProperty(Width)
 
 
@@ -1613,7 +1635,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self._headerMousePosition = (0,0)
 		self._headerMouseLeftDown, self._headerMouseRightDown = False, False
 
-
 		header.Bind(wx.EVT_LEFT_DCLICK, self.__onWxHeaderMouseLeftDoubleClick)
 		header.Bind(wx.EVT_LEFT_DOWN, self.__onWxHeaderMouseLeftDown)
 		header.Bind(wx.EVT_LEFT_UP, self.__onWxHeaderMouseLeftUp)
@@ -1625,7 +1646,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		header.Bind(wx.EVT_ENTER_WINDOW, self.__onWxHeaderMouseEnter)
 		header.Bind(wx.EVT_LEAVE_WINDOW, self.__onWxHeaderMouseLeave)
 		header.Bind(wx.EVT_IDLE, self.__onWxHeaderIdle)
-
 
 		self.bindEvent(dEvents.GridHeaderMouseLeftDown, self._onGridHeaderMouseLeftDown)
 		self.bindEvent(dEvents.GridHeaderMouseMove, self._onGridHeaderMouseMove)
@@ -1641,12 +1661,14 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			ret = super(dGrid, self).GetCellValue(row, col)
 		return ret
 
+
 	def GetValue(self, row, col):
 		try:
 			ret = self._Table.GetValue(row, col)
 		except:
 			ret = super(dGrid, self).GetValue(row, col)
 		return ret
+
 
 	def SetValue(self, row, col, val):
 		try:
@@ -1665,6 +1687,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		except StandardError, e:
 			dabo.errorLog.write("Cannot update data set: %s" % e)
 
+
 	# Wrapper methods to Dabo-ize these calls.
 	def getValue(self, row=None, col=None):
 		if row is None:
@@ -1675,6 +1698,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if isinstance(ret, str):
 			ret = ret.decode(self.Encoding)
 		return ret
+		
 	def setValue(self, row, col, val):
 		return self.SetValue(row, col, val)
 
@@ -1691,6 +1715,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		dcol = self.Columns[col]
 		dcol.CustomEditors[row] = edt
 		#self.SetCellEditor(row, col, edt)
+		
 
 	def setRendererForCell(self, row, col, rnd):
 		## dColumn maintains a dict of overriding renderer mappings, but keep this
@@ -1712,7 +1737,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# Save the focus, if any
 		currFocus = self.FindFocus()
 		currDataField = None
-	
 		# if the current focus is data-aware, we must temporarily remove it's binding
 		# or the value of the control will flow to other records in the bizobj, but
 		# I admit that I'm not entirely sure why. 
@@ -1732,10 +1756,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if self.emptyRowsToAdd and self.Columns:
 			# Used for display purposes when no data is present.
 			self._addEmptyRows()
-		
 		tbl.setColumns(self.Columns)
 		tbl.fillTable(force)
-
 
 		## pkm: I've disabled the following block, because setting the focus
 		##      can steal focus from the active form. It also doesn't seem 
@@ -1754,7 +1776,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				self.MakeCellVisible(row, col)
 				self.MakeCellVisible(row, col)
 			self.SetGridCursor(row, col)
-
 		
 		if currFocus is not None:
 			# put the data binding back and re-set the focus:
@@ -2016,10 +2037,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			w = max(autoWidth, cw)
 			w = min(w, maxWidth)
 			colObj.Width = w
-
 			if persist:
 				colObj._persist("Width")
-
 		try:
 			self.AutoSizeColumn(colNum, setAsMin=False)
 		except:
@@ -2041,7 +2060,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 		for col in cols:
 			sortIndicator = False
-
 			try:
 				colObj = self.Columns[col]
 			except IndexError:
@@ -2138,6 +2156,26 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			dc.DestroyClippingRegion()
 
 
+	def showColumn(self, col, visible):
+		"""If the column is not shown and visible=True, show it. Likewise
+		but opposite if visible=False.
+		"""
+		if isinstance(col, (int, long)):
+			if col < self.ColumnCount:
+				col = self.Columns[col]
+			else:
+				dabo.errorLog.write(_("Invalid column number passed to 'showColumn()'."))
+				return
+		if visible:
+			if col in self.Columns:
+				# already shown
+				return
+			self.addColumn(col)
+		else:
+			if col in self.Columns:
+				self.removeColumn(col)
+			
+		
 	def moveColumn(self, colNum, toNum):
 		""" Move the column to a new position."""
 		oldCol = self.Columns[colNum]
@@ -2462,7 +2500,11 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if self.Form is not None:
 			# Add a '.' to the status bar to signify that the search is
 			# done, and clear the search string for next time.
-			self.Form.setStatusText("Search: %s." % origSrchStr)
+			currAutoUpdate = self.Form.AutoUpdateStatusText
+			self.Form.AutoUpdateStatusText = False
+			if currAutoUpdate:
+				dabo.ui.setAfterInterval(1000, self.Form, "AutoUpdateStatusText", True)
+			self.Form.setStatusText("Search: '%s'." % origSrchStr)
 		self.currSearchStr = ""
 
 
@@ -2479,12 +2521,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 				searchDelay = self.Application.SearchDelay
 			else:
 				# use a default
-				searchDelay = 300
+				searchDelay = 500
 
 		self.incSearchTimer.stop()
 		self.currSearchStr = "".join((self.currSearchStr, key))
+		
 		if self.Form is not None:
-			self.Form.setStatusText("Search: %s" % self.currSearchStr)
+			self.Form.setStatusText("Search: '%s'" % self.currSearchStr)
 		self.incSearchTimer.start(searchDelay)
 
 
@@ -2494,6 +2537,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if col == wx.NOT_FOUND:
 			col = -1
 		return col
+		
 
 	def getRowNumByY(self, y):
 		""" Given the y-coordinate, return the row number."""
@@ -2541,6 +2585,7 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			col = self.ColumnClass(self, *args, **kwargs)
 		else:
 			col.Parent = self
+
 		if col.Order == -1:
 			maxOrd = self.maxColOrder()
 			if maxOrd < 0:
@@ -2552,7 +2597,6 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if not inBatch:
 			self._syncColumnCount()
 			self.fillGrid(force=True)
-
 		try:
 			## Set the Width property last, otherwise it won't stick:
 			if not col.Width:
@@ -2654,12 +2698,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			msg = wx.grid.GridTableMessage(self._Table,
 					wx.grid.GRIDTABLE_NOTIFY_COLS_DELETED,
 					0, abs(diff))
-
 		elif diff > 0:
 			msg = wx.grid.GridTableMessage(self._Table,
 					wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
 					diff)
-
 		if msg:
 			self.ProcessTableMessage(msg)
 		self.EndBatch()
@@ -2969,13 +3011,12 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		""" Occurs when the user presses a key inside the grid."""
 		if self.Editable and self.Columns[self.CurrentColumn].Editable:
 			# Can't search and edit at the same time
-# 			print "KEY EDITING!"
 			return
 
-		keyCode = evt.EventData["keyCode"]
-
+#		keyCode = evt.EventData["keyCode"]
+		keyCode = evt.EventData["unicodeKey"]
 		try:
-			char = chr(keyCode)
+			char = unichr(keyCode)
 		except ValueError:
 			# keycode not in ascii range
 			return
@@ -2983,8 +3024,10 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		if char.isspace():
 			return
 
+# 		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
+# 				and char.isalnum() and not evt.hasModifiers:
 		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
-				and char.isalnum() and not evt.hasModifiers:
+				and char.isalnum():
 			self.addToSearchStr(char)
 			# For some reason, without this the key happens twice
 			evt.stop()
@@ -3127,7 +3170,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def __onWxHeaderContextMenu(self, evt):
-		self.raiseEvent(dEvents.GridHeaderContextMenu, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridHeaderContextMenu, evt, col=col)
 		evt.Skip()
 
 
@@ -3137,49 +3181,57 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 
 	def __onWxHeaderMouseEnter(self, evt):
-		self.raiseEvent(dEvents.GridHeaderMouseEnter, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridHeaderMouseEnter, evt, col=col)
 		evt.Skip()
 		
 		
 	def __onWxHeaderMouseLeave(self, evt):
+		col, row = self._getColRowForPosition(evt.GetPosition())
 		self._headerMouseLeftDown, self._headerMouseRightDown = False, False
-		self.raiseEvent(dEvents.GridHeaderMouseLeave, evt)
+		self.raiseEvent(dEvents.GridHeaderMouseLeave, evt, col=col)
 		evt.Skip()
 
 
 	def __onWxHeaderMouseLeftDoubleClick(self, evt):
-		self.raiseEvent(dEvents.GridHeaderMouseLeftDoubleClick, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridHeaderMouseLeftDoubleClick, evt, col=col)
 		evt.Skip()
 
 
 	def __onWxHeaderMouseLeftDown(self, evt):
-		self.raiseEvent(dEvents.GridHeaderMouseLeftDown, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridHeaderMouseLeftDown, evt, col=col)
 		self._headerMouseLeftDown = True
 		#evt.Skip() #- don't skip or all the rows will be selected.
 
 
 	def __onWxHeaderMouseLeftUp(self, evt):
-		self.raiseEvent(dEvents.GridHeaderMouseLeftUp, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridHeaderMouseLeftUp, evt, col=col)
 		if self._headerMouseLeftDown:
 			# mouse went down and up in the header: send a click:
-			self.raiseEvent(dEvents.GridHeaderMouseLeftClick, evt)
+			self.raiseEvent(dEvents.GridHeaderMouseLeftClick, evt, col=col)
 			self._headerMouseLeftDown = False
 		evt.Skip()
 
 
 	def __onWxHeaderMouseMotion(self, evt):
-		self.raiseEvent(dEvents.GridHeaderMouseMove, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridHeaderMouseMove, evt, col=col)
 		evt.Skip()
 
 
 	def __onWxHeaderMouseRightDown(self, evt):
-		self.raiseEvent(dEvents.GridHeaderMouseRightDown, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridHeaderMouseRightDown, evt, col=col)
 		self._headerMouseRightDown = True
 		evt.Skip()
 
 
 	def __onWxHeaderMouseRightUp(self, evt):
-		self.raiseEvent(dEvents.GridHeaderMouseRightUp, evt)
+		col, row = self._getColRowForPosition(evt.GetPosition())
+		self.raiseEvent(dEvents.GridHeaderMouseRightUp, evt, col=col)
 		if self._headerMouseRightDown:
 			# mouse went down and up in the header: send a click:
 			self.raiseEvent(dEvents.GridHeaderMouseRightClick, evt)
@@ -4186,7 +4238,6 @@ class _dGrid_test(dGrid):
 
 		self.RowLabels = ["a", "b", "c", "d"]
 		#self.ShowRowLabels = True
-
 
 if __name__ == '__main__':
 	class TestForm(dabo.ui.dForm):

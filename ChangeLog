@@ -1,7 +1,7 @@
 See the Subversion log for all the details.
 
 ========================================================================
-Dabo 0.7 (2006-11-14) (Revision 2448):
+Dabo 0.7 (2006-11-16) (Revision 2464):
 
 It has sure been a while, but we haven't been resting. Lots of new stuff
 as we move one step forward to Dabo 1.0. Here are the most important
@@ -22,6 +22,8 @@ Known Issues:
 
 
 Bug Fixes:
++ Replace function in dTextBox and dEditBox causing traceback. Fixed.
++ Incremental search in dGrid now works with unicode data.
 + Double select page on Mac and Win. Fixed.
 + Datanav select page scrollbar doesn't show. Fixed.
 + Ignore Tab and Shift+Tab in grid searching, so they can navigate.
@@ -63,6 +65,9 @@ Bug Fixes:
   option in AppWizard-generated apps.
 
 Enhancements:
++ Added Visible property to grid dColumns.
++ Added column information to the EventData of grid events.
++ Removed RequeryOnLoad property from datanav.Form to dabo.ui.dForm.
 + Can now send kwargs to grid.addColumn(), which get sent to the column's
   constructor.
 + Added self.super() to replace cls.doDefault, thanks to Timothy Delaney.
