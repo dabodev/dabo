@@ -174,7 +174,7 @@ class dPemMixin(dPemMixinBase):
 		# _afterInit() will call the afterInit() user hook
 		self._afterInit()
 
-		super(dPemMixin, self).__init__()
+		dPemMixinBase.__init__(self)  ## don't use super(), or wx init called 2x.
 
 		if dabo.fastNameSet:
 			# Event AutoBinding is set to happen when the Name property changes, but
