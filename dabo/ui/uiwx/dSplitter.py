@@ -434,7 +434,7 @@ class _dSplitter_test(dSplitter):
 		
 
 	def onSashDoubleClick(self, evt):
-		if not dabo.ui.areYouSure("Remove the sash?"):
+		if not dabo.ui.areYouSure("Remove the sash?", cancelButton=False):
 			evt.stop()
 
 
