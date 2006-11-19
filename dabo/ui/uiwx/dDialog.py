@@ -255,7 +255,7 @@ class dOkCancelDialog(dDialog):
 			if chc:
 				ctl.Choices = chc
 		gs.setColExpand(True, 1)
-		self.Sizer.insert(self.LastPostionInSizer, gs, "x")
+		self.Sizer.insert(self.LastPositionInSizer, gs, "x")
 		self.layout()
 		
 		
