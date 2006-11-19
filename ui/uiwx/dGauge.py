@@ -9,7 +9,7 @@ import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
 
 
-class dGauge(wx.Gauge, cm.dControlMixin):
+class dGauge(cm.dControlMixin, wx.Gauge):
 	"""Creates a gauge, which can be used as a progress bar."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dGauge

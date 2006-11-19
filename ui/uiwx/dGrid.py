@@ -1482,7 +1482,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
 
-class dGrid(wx.grid.Grid, cm.dControlMixin):
+class dGrid(cm.dControlMixin, wx.grid.Grid):
 	"""Creates a grid, with rows and columns to represent records and fields.
 
 	Grids are powerful controls for allowing reading and writing of data. A 

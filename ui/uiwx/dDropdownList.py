@@ -6,7 +6,7 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 
-class dDropdownList(wx.Choice, dcm.dControlItemMixin):
+class dDropdownList(dcm.dControlItemMixin, wx.Choice):
 	"""Creates a dropdown list, which allows the user to select one item.
 
 	This is a very simple control, suitable for choosing from one of a handful

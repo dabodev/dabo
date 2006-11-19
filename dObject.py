@@ -8,9 +8,17 @@ from dabo.lib.eventMixin import EventMixin
 from dabo.lib.autosuper import autosuper
 from dabo.dPref import dPref
 from dabo.dLocalize import _
-	
 
-class dObject(autosuper, DoDefaultMixin, PropertyHelperMixin, 
+class Dummy(object):
+	# Much thanks to Robin Dunn for a workaround to a nasty problem that reared
+	# its head starting with wxPython 2.7, when we had to switch around the order
+	# of base classes so that wxPython's properties didn't trump Dabo's. Neither
+	# of us really understand what is happening, but it is at the Python level,
+	# and suffice it to say making dObject first inherit from this Dummy class
+	# fixes the issue, which was ultimately caused by autosuper's __slots__.
+	pass
+
+class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin, 
 		EventMixin):
 	""" The basic ancestor of all dabo objects."""
 	# Subclasses can set these to False, in which case they are responsible

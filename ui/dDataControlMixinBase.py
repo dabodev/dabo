@@ -16,7 +16,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self._designerMode = None
 		self._oldVal = None
 
-		super(dDataControlMixinBase, self).__init__(*args, **kwargs)
+		dabo.ui.dControlMixin.__init__(self, *args, **kwargs)
 			
 		self._value = self.Value
 		self._enabled = True
