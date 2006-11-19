@@ -403,7 +403,7 @@ def getEventData(wxEvt):
 			ed["sashPosition"] = wxEvt.GetSashPosition()
 		except:
 			ed["sashPosition"] = wxEvt.GetEventObject().SashPosition
-		if hasattr(wxEvt, "GetWindowBeingRemoved"):
+		if wxEvt.GetEventType() == wx.EVT_SPLITTER_UNSPLIT.evtType[0]:
 			try:
 				ed["windowRemoved"] = wxEvt.GetWindowBeingRemoved()
 			except:
