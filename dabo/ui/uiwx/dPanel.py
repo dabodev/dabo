@@ -9,7 +9,7 @@ import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
 
 
-class dPanel(wx.Panel, cm.dControlMixin):
+class dPanel(cm.dControlMixin, wx.Panel):
 	"""Creates a panel, a basic container for controls.
 
 	Panels can contain subpanels to unlimited depth, making them quite
@@ -92,7 +92,7 @@ class dPanel(wx.Panel, cm.dControlMixin):
 	
 		
 
-class dScrollPanel(wx.ScrolledWindow, cm.dControlMixin):
+class dScrollPanel(cm.dControlMixin, wx.ScrolledWindow):
 	""" This is a basic container for controls that allows scrolling.
 
 	Panels can contain subpanels to unlimited depth, making them quite

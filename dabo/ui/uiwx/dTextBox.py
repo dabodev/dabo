@@ -19,7 +19,7 @@ import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 
 
-class dTextBox(wx.TextCtrl, dcm.dDataControlMixin):
+class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 	"""Creates a text box for editing one line of string data."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dTextBox

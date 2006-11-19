@@ -362,7 +362,7 @@ def getEventData(wxEvt):
 				ed["menuItem"] = itm
 
 	if isinstance(wxEvt, wx.KeyEvent):
-		ed["keyCode"] = wxEvt.KeyCode()
+		ed["keyCode"] = wxEvt.GetKeyCode()
 		ed["rawKeyCode"] = wxEvt.GetRawKeyCode()
 		ed["rawKeyFlags"] = wxEvt.GetRawKeyFlags()
 		ed["unicodeChar"] = wxEvt.GetUniChar()

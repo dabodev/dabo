@@ -9,7 +9,7 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dListBox(wx.ListBox, dcm.dControlItemMixin):
+class dListBox(dcm.dControlItemMixin, wx.ListBox):
 	"""Creates a listbox, allowing the user to choose one or more items."""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dListBox

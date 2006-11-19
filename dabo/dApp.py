@@ -575,11 +575,11 @@ class dApp(dObject):
 		
 
 	def onHelpAbout(self, evt):
-		import dabo.ui.dialogs.about as about
+		from dabo.ui.dialogs.htmlAbout import HtmlAbout as about
 		frm = self.ActiveForm
 		if frm is None:
 			frm = self.MainForm
-		dlg = about.About(frm)
+		dlg = about(frm)
 		dlg.show()
 	
 	

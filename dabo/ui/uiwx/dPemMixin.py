@@ -131,8 +131,13 @@ class dPemMixin(dPemMixinBase):
 			# This is needed because these classes require a 'parent' param.
 			kwargs["parent"] = parent
 		elif issubclass(self._baseClass, dabo.ui.dToggleButton):
-			self._preInitProperties["ID"] = self._preInitProperties["id"]
-			del self._preInitProperties["id"]
+			version = wx.VERSION
+			major = version[0]
+			minor = version[1]
+			if major == 2 and minor < 7:
+				# versions prior to 2.7 had the id parameter as ID, unfortunately.
+				self._preInitProperties["ID"] = self._preInitProperties["id"]
+				del self._preInitProperties["id"]
 		# This is needed when running from a saved design file
 		self._extractKey(properties, "designerClass")
 		# This attribute is used when saving code with a design file
@@ -1063,7 +1068,7 @@ class dPemMixin(dPemMixinBase):
 
 	def __onUpdate(self, evt):
 		"""Update any dynamic properties, and then call the refresh() hook."""
-		if isinstance(self, dabo.ui.deadObject):
+		if isinstance(self, dabo.ui.deadObject) or not self._constructed():
 			return
 		self.update()
 			
@@ -1583,7 +1588,12 @@ class dPemMixin(dPemMixinBase):
 
 			# Frames have a Title separate from Label, but I can't think
 			# of a reason why that would be necessary... can you? 
-			self.SetTitle(val)
+			try:
+				self.SetTitle(val)
+			except AttributeError:
+				# wxPython 2.7.x started not having this attribute for labels
+				# at least.
+				pass
 		else:
 			self._properties["Caption"] = val
 

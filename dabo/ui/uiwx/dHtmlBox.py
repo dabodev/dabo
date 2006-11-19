@@ -12,7 +12,7 @@ if __name__ == "__main__":
 import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
 
-class dHtmlBox(wx.html.HtmlWindow, cm.dControlMixin):
+class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 	"""Creates a scrolled panel that can load and display html pages
 
 	The Html Window can load any html text, file, or url that is fed to it.
