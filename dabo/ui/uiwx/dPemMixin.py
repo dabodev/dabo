@@ -234,6 +234,8 @@ class dPemMixin(dPemMixinBase):
 		self._borderLineStyle = "Solid"
 		# Reference to the border-drawing object
 		self._border = None
+		# Store the caption internally
+		self._caption = ""
 		# Flag that gets set to True when the object is being Destroyed
 		self._finito = False
 		# Dict to hold key bindings
@@ -1580,6 +1582,7 @@ class dPemMixin(dPemMixinBase):
 		# Force the value to string
 		val = "%s" % val
 		if self._constructed():
+			self._caption = val
 			## 2/23/2005: there is a bug in wxGTK that resets the font when the 
 			##            caption changes. So this is a workaround:
 			font = self.Font
