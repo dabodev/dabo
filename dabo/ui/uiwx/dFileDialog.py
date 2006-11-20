@@ -3,8 +3,10 @@ import dabo.dConstants as k
 
 
 class OsDialogMixin(object):
-	def __init__(self):
+	def _beforeInit(self):
 		self._dir = self._fname = self._msg = self._path = self._wildcard = ""
+		super(OsDialogMixin, self)._beforeInit()
+
 
 	def show(self):
 		self._dir = self._fname = self._path = ""
