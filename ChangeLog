@@ -1,5 +1,13 @@
 See the Subversion log for all the details.
 
+===============================================================================
+Dabo 0.7.1 (2006-11-21) (Revision 2490):
+
+Bugfixes:
++ Segfault in dSplitter when dragging the sash. Fixed.
++ __init__() of the wx classes happening twice. Fixed.
++ Setting Caption sometimes required a subsequent refresh(). Fixed.
+
 
 ===============================================================================
 Dabo 0.7 (2006-11-16) (Revision 2464):
