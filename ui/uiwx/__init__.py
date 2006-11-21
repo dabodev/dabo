@@ -918,8 +918,8 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 		fnt.SetWeight(wx.BOLD)
 	if italic is not None:
 		fnt.SetStyle(wx.ITALIC)
-	
-	if not isinstance(wind, dabo.ui.dForm):
+
+	if not isinstance(wind, (dabo.ui.dForm, wx.Frame)):
 		try:
 			wind = wind.Form
 		except:
