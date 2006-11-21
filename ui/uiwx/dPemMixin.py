@@ -1588,6 +1588,7 @@ class dPemMixin(dPemMixinBase):
 			font = self.Font
 			self.SetLabel(val)
 			self.Font = font
+			self.refresh()
 
 			# Frames have a Title separate from Label, but I can't think
 			# of a reason why that would be necessary... can you? 
