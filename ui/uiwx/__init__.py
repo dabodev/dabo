@@ -2,6 +2,7 @@ import sys
 import os
 import re
 import glob
+import urllib
 import datetime
 import time
 import cStringIO
