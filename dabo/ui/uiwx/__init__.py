@@ -1,6 +1,8 @@
 import sys
 import os
+import re
 import glob
+import urllib
 import datetime
 import time
 import cStringIO
@@ -1118,7 +1120,11 @@ def getImagePath(nm, url=False):
 			except IndexError:
 				pass
 	if ret and url:
-		ret = "file://%s" % ret
+		if wx.Platform == "__WXMSW__":
+			ret = "file:%s" % urllib.pathname2url(ret).replace("|", ":")
+			ret = re.sub(r"([A-Z])\|/", r"\1/", ret, re.I)
+		else:
+			ret = "file://%s" % ret
 	return ret
 		
 
