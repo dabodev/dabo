@@ -1600,7 +1600,6 @@ class dPemMixin(dPemMixinBase):
 				pass
 		else:
 			self._properties["Caption"] = val
-		self.refresh()
 
 
 	def _getChildren(self):
