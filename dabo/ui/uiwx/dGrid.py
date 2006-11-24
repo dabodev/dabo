@@ -3013,7 +3013,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# Can't search and edit at the same time
 			return
 
-#		keyCode = evt.EventData["keyCode"]
 		keyCode = evt.EventData["unicodeKey"]
 		try:
 			char = unichr(keyCode)
@@ -3021,11 +3020,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# keycode not in ascii range
 			return
 
-		if char.isspace():
+		if char.isspace() or keyCode in (dKeys.key_Left, dKeys.key_Right,
+				dKeys.key_Up, dKeys.key_Down, dKeys.key_Pageup, dKeys.key_Pagedown,
+				dKeys.key_Home, dKeys.key_End, dKeys.key_Prior, dKeys.key_Next) \
+				or evt.EventData["hasModifiers"]:
+			# Enter, Tab, Space and Arrow Keys shouldn't be searched on.
 			return
 
-# 		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
-# 				and char.isalnum() and not evt.hasModifiers:
 		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
 				and char.isalnum():
 			self.addToSearchStr(char)
