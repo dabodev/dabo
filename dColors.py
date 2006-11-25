@@ -151,6 +151,8 @@ colorDict = {"aliceblue" : (240, 248, 255),
 		"yellowgreen" : (154, 205, 50)
 		}
 
+colors = colorDict.keys()
+
 
 def hexToDec(hx):
 	# Define a dict of char-value pairs
