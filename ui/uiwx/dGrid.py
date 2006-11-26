@@ -1614,7 +1614,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		gridWindow.Bind(wx.EVT_RIGHT_UP, self.__onWxMouseRightUp)
 		gridWindow.Bind(wx.EVT_CONTEXT_MENU, self.__onWxContextMenu)
 
-		self.bindEvent(dEvents.KeyDown, self._onKeyDown)
+#		self.bindEvent(dEvents.KeyDown, self._onKeyDown)
+		self.bindEvent(dEvents.KeyChar, self._onKeyChar)
 		self.bindEvent(dEvents.GridRowSize, self._onGridRowSize)
 		self.bindEvent(dEvents.GridCellSelected, self._onGridCellSelected)
 		self.bindEvent(dEvents.GridColSize, self._onGridColSize)
@@ -3007,7 +3008,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.refresh()
 		
 
-	def _onKeyDown(self, evt): 
+	def _onKeyChar(self, evt):
+	#def _onKeyDown(self, evt):
 		""" Occurs when the user presses a key inside the grid."""
 		if self.Editable and self.Columns[self.CurrentColumn].Editable:
 			# Can't search and edit at the same time
