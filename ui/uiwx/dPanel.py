@@ -9,28 +9,24 @@ import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
 
 
-class dPanel(cm.dControlMixin, wx.Panel):
-	"""Creates a panel, a basic container for controls.
-
-	Panels can contain subpanels to unlimited depth, making them quite
-	flexible for many uses. Consider laying out your forms on panels
-	instead, and then adding the panel to the form.
-	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
-		self._baseClass = dPanel
+class _PanelMixin(cm.dControlMixin):
+	def __init__(self, preClass, parent, properties=None, *args, **kwargs):
 		self._buffered = None
-		preClass = wx.PrePanel
+		buff = self._extractKey((properties, kwargs), "Buffered", False)
+		kwargs["Buffered"] = buff
 		style = self._extractKey((properties, kwargs), "style", 0)
 		style = style | wx.TAB_TRAVERSAL
 		kwargs["style"] = style
-		buff = self._extractKey((properties, kwargs), "Buffered", False)
-		kwargs["Buffered"] = buff
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-
+	
 
 	def layout(self):
 		""" Wrap the wx version of the call, if possible. """
 		self.Layout()
+		for child in self.Children:
+			try:
+				child.layout()
+			except: pass
 		try:
 			# Call the Dabo version, if present
 			self.Sizer.layout()
@@ -38,8 +34,8 @@ class dPanel(cm.dControlMixin, wx.Panel):
 			pass
 		if self.Application.Platform == "Win":
 			self.refresh()
-			
-	
+
+
 	def _onPaintBuffer(self, evt):
 		dc = wx.BufferedPaintDC(self, self._buffer)
 	
@@ -67,7 +63,7 @@ class dPanel(cm.dControlMixin, wx.Panel):
 			if dc is None:
 				dc = wx.BufferedDC(wx.ClientDC(self), self._buffer)
 				dc.Clear() # make sure you clear the bitmap! 
-		super(dPanel, self)._redraw(dc)
+		super(_PanelMixin, self)._redraw(dc)
 
 
 	def _getBuffered(self):
@@ -89,10 +85,24 @@ class dPanel(cm.dControlMixin, wx.Panel):
 
 	Buffered = property(_getBuffered, _setBuffered, None,
 			_("Does this panel use double-buffering to create smooth redrawing?  (bool)"))
+
+
+
+class dPanel(_PanelMixin, wx.Panel):
+	"""Creates a panel, a basic container for controls.
+
+	Panels can contain subpanels to unlimited depth, making them quite
+	flexible for many uses. Consider laying out your forms on panels
+	instead, and then adding the panel to the form.
+	"""
+	def __init__(self, parent, properties=None, *args, **kwargs):
+		self._baseClass = dPanel
+		preClass = wx.PrePanel
+		_PanelMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 	
 		
 
-class dScrollPanel(cm.dControlMixin, wx.ScrolledWindow):
+class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 	""" This is a basic container for controls that allows scrolling.
 
 	Panels can contain subpanels to unlimited depth, making them quite
@@ -103,25 +113,9 @@ class dScrollPanel(cm.dControlMixin, wx.ScrolledWindow):
 		self._horizontalScroll = self._verticalScroll = True
 		self._baseClass = dScrollPanel
 		preClass = wx.PreScrolledWindow
-		if "style" not in kwargs:
-			kwargs["style"] = wx.TAB_TRAVERSAL
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		_PanelMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 		self.SetScrollRate(10, 10)
 #		self.SetScrollbars(10, 10, -1, -1)
-	
-
-	def layout(self):
-		""" Wrap the wx version of the call, if possible. """
-		self.Layout()
-		for child in self.Children:
-			try:
-				child.layout()
-			except: pass
-		try:
-			# Call the Dabo version, if present
-			self.Sizer.layout()
-		except:
-			pass
 			
 
 	def _getChildren(self):
@@ -176,11 +170,11 @@ class _dPanel_test(dPanel):
 	def afterInit(self):
 		self.addObject(dPanel, BackColor = "green")
 
-	def onHover(self):
+	def onHover(self, evt):
 		self._normBack = self.BackColor
-		self.BackColor = "yellow"
+		self.BackColor = dabo.dColors.randomColor()
 	
-	def endHover(self):
+	def endHover(self, evt):
 		self.BackColor = self._normBack
 
 	def onMouseLeftDown(self, evt):
