@@ -220,32 +220,46 @@ class dPemMixin(dPemMixinBase):
 		self._name = "?"
 		self._pemObject = pre
 		self._needRedraw = True
+		self._borderColor = dColors.colorTupleFromName("black")
+		self._borderWidth = 0
+		self._borderLineStyle = "Solid"
+
 		# Do we need to clear the background before redrawing? Most cases will be 
 		# no, but if you have problems with drawings leaving behind unwanted 
 		# debris, set this to True
 		self.autoClearDrawings = False
-		self._borderColor = dColors.colorTupleFromName("black")
-		self._borderWidth = 0
-		self._borderLineStyle = "Solid"
+
 		# Reference to the border-drawing object
 		self._border = None
+
 		# Flag that gets set to True when the object is being Destroyed
 		self._finito = False
+
 		# Dict to hold key bindings
 		self._keyBindings = {}
+
 		# Unique identifier attribute, if needed
 		self._registryID = ""
+
 		# List of all drawn objects
 		self._drawnObjects = []
+
 		# Mouse click events rely on these:
-		self._mouseLeftDown, self._mouseRightDown = False, False
+		self._mouseLeftDown = False
+		self._mouseRightDown = False
+		self._mouseMiddleDown = False
+
 		# Does this control fire its onHover() method when the mouse enters?
 		self._hover = False
 		self._hoverTimer = None
+
 		# _beforeInit hook for Class Designer code
 		self._beforeInitDesignerHook()
+
 		# Call the user hook
 		self.beforeInit()
+
+
 	def _beforeInitDesignerHook(self): pass
 
 	
