@@ -94,6 +94,9 @@ class dCursorMixin(dObject):
 		# Reference to the object with backend-specific behaviors
 		self.__backend = None
 		
+		# Reference to the bizobj that 'owns' this cursor, if any,
+		self._bizobj = None
+		
 		# set properties for the SQL Builder functions
 		self.clearSQL()
 		self.hasSqlBuilder = True
@@ -875,6 +878,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		beginning with '='. Literals can be of any type. 
 		"""
 		if isinstance(self._records, dDataSet):
+			# Make sure that the data set object has any necessary references
+			self._records.Cursor = self
+			self._records.Bizobj = self._bizobj			
 			self._records.replace(field, valOrExpr, scope=scope)
 			
 

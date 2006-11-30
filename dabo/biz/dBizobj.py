@@ -156,6 +156,7 @@ class dBizobj(dObject):
 		crs.BackendObject = cn.getBackendObject()
 		crs.sqlManager = self.SqlManager
 		crs.AutoCommit = self.AutoCommit
+		crs._bizobj = self
 		crs.setSQL(self.SQL)
 		if self.RequeryOnLoad:
 			crs.requery()
