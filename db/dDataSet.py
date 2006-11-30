@@ -1,4 +1,5 @@
 import sys
+import re
 import dabo
 from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
@@ -44,6 +45,7 @@ class dDataSet(tuple):
 		super(dDataSet, self).__init__(*args, **kwargs)
 		self._connection = None
 		self._cursor = None
+		self._bizobj = None
 		self._populated = False
 		# We may need to encode fields that are not legal names.
 		self.fieldAliases = {}
@@ -393,6 +395,20 @@ class dDataSet(tuple):
 # 		print "CONVERTED", dt-ft
 
 
+	def _getBizobj(self):
+		return self._bizobj
+
+	def _setBizobj(self, val):
+		self._bizobj = val
+
+
+	def _getCursor(self):
+		return self._cursor
+
+	def _setCursor(self, val):
+		self._cursor = val
+
+
 	def _getEncoding(self):
 		return self._encoding
 	
@@ -405,8 +421,15 @@ class dDataSet(tuple):
 			# queries is executed
 			pass
 	
+	
+	Bizobj = property(_getBizobj, _setBizobj, None,
+			_("Reference to the bizobj that 'owns' this data set. Default=None  (bizobj)"))
+	
+	Cursor = property(_getCursor, _setCursor, None,
+			_("Reference to the bizobj that 'owns' this data set. Default=None  (dCursorMixin)"))
+	
 	Encoding = property(_getEncoding, _setEncoding, None,
-			""" Gets or sets the encoding """)
+			_(" The encoding used for data in the dataset.  (str)"))
 
 
 
