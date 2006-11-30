@@ -1614,7 +1614,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		gridWindow.Bind(wx.EVT_RIGHT_UP, self.__onWxMouseRightUp)
 		gridWindow.Bind(wx.EVT_CONTEXT_MENU, self.__onWxContextMenu)
 
-		self.bindEvent(dEvents.KeyDown, self._onKeyDown)
+#		self.bindEvent(dEvents.KeyDown, self._onKeyDown)
+		self.bindEvent(dEvents.KeyChar, self._onKeyChar)
 		self.bindEvent(dEvents.GridRowSize, self._onGridRowSize)
 		self.bindEvent(dEvents.GridCellSelected, self._onGridCellSelected)
 		self.bindEvent(dEvents.GridColSize, self._onGridColSize)
@@ -2472,8 +2473,8 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		# there are more efficient search algorithms, but for this purpose, we'll
 		# just use brute force
 		for fldval, row in sortList:
-			if not isinstance(fldval, basestring):
-				fldval = str(fldval)
+# 			if not isinstance(fldval, basestring):
+# 				fldval = str(fldval)
 			if not compString or caseSensitive:
 				match = (fldval == srchStr)
 			else:
@@ -3007,13 +3008,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 		self.refresh()
 		
 
-	def _onKeyDown(self, evt): 
+	def _onKeyChar(self, evt):
+	#def _onKeyDown(self, evt):
 		""" Occurs when the user presses a key inside the grid."""
 		if self.Editable and self.Columns[self.CurrentColumn].Editable:
 			# Can't search and edit at the same time
 			return
 
-#		keyCode = evt.EventData["keyCode"]
 		keyCode = evt.EventData["unicodeKey"]
 		try:
 			char = unichr(keyCode)
@@ -3021,11 +3022,13 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 			# keycode not in ascii range
 			return
 
-		if char.isspace():
+		if char.isspace() or keyCode in (dKeys.key_Left, dKeys.key_Right,
+				dKeys.key_Up, dKeys.key_Down, dKeys.key_Pageup, dKeys.key_Pagedown,
+				dKeys.key_Home, dKeys.key_End, dKeys.key_Prior, dKeys.key_Next) \
+				or evt.EventData["hasModifiers"]:
+			# Enter, Tab, Space and Arrow Keys shouldn't be searched on.
 			return
 
-# 		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
-# 				and char.isalnum() and not evt.hasModifiers:
 		if (self.Searchable and self.Columns[self.CurrentColumn].Searchable) \
 				and char.isalnum():
 			self.addToSearchStr(char)
@@ -4188,9 +4191,15 @@ class dGrid(wx.grid.Grid, cm.dControlMixin):
 
 class _dGrid_test(dGrid):
 	def initProperties(self):
-		self.DataSet = [{"name" : "Ed Leafe", "age" : 48, "coder" :  True, "color": "brown"},
-				{"name" : "Mike Leafe", "age" : 19, "coder" :  False, "color": "purple"},
-				{"name" : "Dan Leafe", "age" : 14, "coder" :  False, "color": "green"}]
+		self.DataSet = [
+				{"name" : "Ed Leafe", "age" : 49, "coder" :  True, "color": "cornsilk"},
+				{"name" : "Paul McNett", "age" : 37, "coder" :  True, "color": "wheat"},
+				{"name" : "Ted Roche", "age" : 48, "coder" :  True, "color": "goldenrod"},
+				{"name" : "Derek Jeter", "age": 32 , "coder" :  False, "color": "white"},
+				{"name" : "Halle Berry", "age" : 38, "coder" :  False, "color": "orange"},
+				{"name" : "Steve Wozniak", "age" : 56, "coder" :  True, "color": "yellow"},
+				{"name" : "LeBron James", "age" : 22, "coder" :  False, "color": "gold"},
+				{"name" : "Madeline Albright", "age" : 69, "coder" :  False, "color": "red"}]
 		self.Width = 360
 		self.Height = 150
 		self.Editable = True
@@ -4211,7 +4220,7 @@ class _dGrid_test(dGrid):
 		col.HeaderFontBold = False
 
 		col = dColumn(self, Name="Person", Order=20, DataField="name",
-				DataType="string", Width=200, Caption="Customer Name",
+				DataType="string", Width=200, Caption="Celebrity Name",
 				Sortable=True, Searchable=True, Editable=True, Expand=True)
 		self.addColumn(col)
 		
@@ -4222,21 +4231,21 @@ class _dGrid_test(dGrid):
 
 		self.addColumn(Name="Age", Order=30, DataField="age",
 				DataType="integer", Width=40, Caption="Age",
-				Sortable=True, Searchable=False, Editable=True)
+				Sortable=True, Searchable=True, Editable=True)
 
 		col = dColumn(self, Name="Color", Order=40, DataField="color",
 				DataType="string", Width=40, Caption="Favorite Color",
-				Sortable=True, Searchable=False, Editable=True, Expand=True)
+				Sortable=True, Searchable=True, Editable=True, Expand=True)
 		self.addColumn(col)
 
-		col.ListEditorChoices = ["green", "brown", "purple"]
+		col.ListEditorChoices = dabo.dColors.colors
 		col.CustomEditorClass = col.listEditorClass
 
 		col.HeaderVerticalAlignment = "Bottom"
 		col.HeaderHorizontalAlignment = "Right"
 		col.HeaderForeColor = "brown"
 
-		self.RowLabels = ["a", "b", "c", "d"]
+		self.RowLabels = ["a", "b", "c", "d", "e", "f", "g", "h", "i", "j"]
 		#self.ShowRowLabels = True
 
 if __name__ == '__main__':
@@ -4245,8 +4254,7 @@ if __name__ == '__main__':
 			self.BackColor = "khaki"
 			g = self.grid = _dGrid_test(self, RegID="sampleGrid")
 			self.Sizer.append(g, 1, "x", border=40, borderSides="all")
-			self.Sizer.appendSpacer(10)
-			
+			self.Sizer.appendSpacer(10)			
 			gsz = dabo.ui.dGridSizer(HGap=50)
 			
 			chk = dabo.ui.dCheckBox(self, Caption="Edit Table", RegID="geekEdit",
