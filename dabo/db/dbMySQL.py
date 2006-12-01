@@ -182,7 +182,7 @@ class MySQL(dBackend):
 				"SHORT": "I",
 				"STRING": "C",
 				"TIME": "?",
-				"TIMESTAMP": "?",
+				"TIMESTAMP": "T",
 				"TINY": "I",
 				"TINY_BLOB": "M",
 				"VAR_STRING": "C",
