@@ -362,10 +362,9 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		
 		
 	def _getInitPropertiesList(self):
-		additional = ["Editable", "MultipleSelect", "ShowRootNode", 
-				"ShowRootNodeLines", "ShowButtons"]
 		original = list(super(dTreeView, self)._getInitPropertiesList())
-		return tuple(original + additional)
+		original.remove("MultipleSelect")
+		return tuple(original)
 
 		
 	def clear(self):

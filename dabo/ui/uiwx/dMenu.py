@@ -166,8 +166,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		return self.PrependSeparator()
 	
 
-	def append(self, caption, bindfunc=None, help="", bmp=None, menutype="", 
-				**kwargs):
+	def append(self, caption, bindfunc=None, help="", bmp=None, picture=None,
+			menutype="", **kwargs):
 		"""Append a dMenuItem with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
@@ -177,13 +177,16 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(bindfunc, help, bmp, menutype, **kwargs)
+		if picture is None:
+			picture = bmp
+		item = self._getItem(bindfunc, help, picture, menutype, **kwargs)
 		self.appendItem(item)
 		item.Caption = caption
 		return item
 		
 	
-	def insert(self, pos, caption, bindfunc=None, help="", bmp=None, menutype=""):
+	def insert(self, pos, caption, bindfunc=None, help="", bmp=None, picture=None,
+			menutype=""):
 		"""Insert a dMenuItem at the given position with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
@@ -193,13 +196,16 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(bindfunc, help, bmp, menutype)
+		if picture is None:
+			picture = bmp
+		item = self._getItem(bindfunc, help, picture, menutype)
 		self.insertItem(pos, item)
 		item.Caption = caption
 		return item
 		
 
-	def prepend(self, caption, bindfunc=None, help="", bmp=None, menutype=""):
+	def prepend(self, caption, bindfunc=None, help="", bmp=None, picture=None,
+			menutype=""):
 		"""Prepend a dMenuItem with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
@@ -209,7 +215,9 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(bindfunc, help, bmp, menutype)
+		if picture is None:
+			picture = bmp
+		item = self._getItem(bindfunc, help, picture, menutype)
 		self.prependItem(item)
 		item.Caption = caption
 		return item
