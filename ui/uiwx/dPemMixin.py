@@ -1750,6 +1750,8 @@ class dPemMixin(dPemMixinBase):
 			if isinstance(self, (wx.Frame, wx.Dialog) ):
 				self.SetSize(newSize)
 			else:
+				if isinstance(self, wx.Panel):
+					self.SetMinSize((-1, 10))
 				self.SetBestFittingSize(newSize)
 		else:
 			self._properties["Height"] = val
@@ -1963,6 +1965,8 @@ class dPemMixin(dPemMixinBase):
 			if isinstance(self, (wx.Frame, wx.Dialog) ):
 				self.SetSize(val)
 			else:
+				if isinstance(self, wx.Panel):
+					self.SetMinSize(val)
 				self.SetBestFittingSize(val)
 		else:
 			self._properties["Size"] = val
@@ -2062,6 +2066,8 @@ class dPemMixin(dPemMixinBase):
 			if isinstance(self, (wx.Frame, wx.Dialog) ):
 				self.SetSize(newSize)
 			else:
+				if isinstance(self, wx.Panel):
+					self.SetMinSize((10, -1))
 				self.SetBestFittingSize(newSize)
 		else:
 			self._properties["Width"] = val
@@ -2317,6 +2323,8 @@ class DrawObject(dObject):
 		
 		if self.Shape == "bmp":
 			dc.DrawBitmap(self._bitmap, self.Xpos, self.Ypos, self._transparent)
+			self._width = self._bitmap.GetWidth()
+			self._height = self._bitmap.GetHeight()
 			return
 		
 		pw = self.PenWidth
