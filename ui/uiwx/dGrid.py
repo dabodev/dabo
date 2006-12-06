@@ -3040,39 +3040,27 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	##        end: dEvent callbacks for internal use            ##
 	##----------------------------------------------------------##
 
-
-	##----------------------------------------------------------##
-	##      begin: wx callbacks to re-route to dEvents          ##
-	##----------------------------------------------------------##
 	
-	## dGrid has to reimplement all of this to augment what dPemMixin does,
-	## to offer separate events in the grid versus the header region.
-	def __onWxContextMenu(self, evt):
-		self.raiseEvent(dEvents.GridContextMenu, evt)
-		evt.Skip()
-		
-
-	def __onWxGridColSize(self, evt):
-		if not self.ResizableColumns:
-			evt.Veto()
-			self._paintHeader()
-		else:
-			self.raiseEvent(dEvents.GridColSize, evt)
-			evt.Skip()
-			
 	
-	def __onWxGridRangeSelect(self, evt):
-		if self._inRangeSelect:
-			# avoid recursive events
-			return
-		self._inRangeSelect = True
-		self.raiseEvent(dEvents.GridRangeSelected, evt)
-		if not self.MultipleSelection and evt.Selecting():
-			origRow, origCol = self.CurrentRow, self.CurrentColumn
+	def _updateWxSelection(self, evt):
+		"""This method gets around some of the limitations in the native
+		wx grid when making discontinuous selections. By explilcitly setting
+		the selection here, the code that returns the current selection will
+		correctly identify all selected rows/cols/cells, whether they are
+		contiguous or not.
+		"""
+		origRow, origCol = self.CurrentRow, self.CurrentColumn
+		mode = self.GetSelectionMode()
+		try:
+			top, bott = evt.GetTopRow(), evt.GetBottomRow()
+		except AttributeError:
+			top = bott = evt.GetRow()
+		try:
+			left, right = evt.GetLeftCol(), evt.GetRightCol()
+		except AttributeError:
+			left = right = evt.GetCol()
+		if not self.MultipleSelection:
 			try:
-				mode = self.GetSelectionMode()
-				top, bott = evt.GetTopRow(), evt.GetBottomRow()
-				left, right = evt.GetLeftCol(), evt.GetRightCol()
 				if mode == wx.grid.Grid.wxGridSelectRows:
 					if (top != bott) or (top != origCol):
 						# Attempting to select a range
@@ -3116,7 +3104,48 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					if chg:
 						self.SetGridCursor(row, col)
 						self.SelectBlock(row, col, row, col)
-			except: pass				
+			except: pass
+		else:
+			if mode == wx.grid.Grid.wxGridSelectRows:
+				for row in range(top, bott+1):
+					self.SelectRow(row, True)
+			elif mode == wx.grid.Grid.wxGridSelectColumns:
+				for col in range(left, right+1):
+					self.SelectCol(row, True)
+			else:
+				self.SelectBlock(top, left, bott, right, True)
+
+
+	##----------------------------------------------------------##
+	##      begin: wx callbacks to re-route to dEvents          ##
+	##----------------------------------------------------------##
+	
+	## dGrid has to reimplement all of this to augment what dPemMixin does,
+	## to offer separate events in the grid versus the header region.
+	def __onWxContextMenu(self, evt):
+		self.raiseEvent(dEvents.GridContextMenu, evt)
+		evt.Skip()
+		
+
+	def __onWxGridColSize(self, evt):
+		if not self.ResizableColumns:
+			evt.Veto()
+			self._paintHeader()
+		else:
+			self.raiseEvent(dEvents.GridColSize, evt)
+			evt.Skip()
+			
+	
+	def __onWxGridRangeSelect(self, evt):
+		if self._inRangeSelect:
+			# avoid recursive events
+			return
+		self._inRangeSelect = True
+		self.raiseEvent(dEvents.GridRangeSelected, evt)
+		if evt.Selecting():
+			self._updateWxSelection(evt)
+		else:
+			self.ClearSelection()
 		evt.Skip()
 		self._inRangeSelect = False
 		
@@ -3160,15 +3189,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def __onWxGridSelectCell(self, evt):
 		self.raiseEvent(dEvents.GridCellSelected, evt)
 		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
-		try:
-			mode = self.GetSelectionMode()
-			if mode == wx.grid.Grid.wxGridSelectRows:
-				self.SelectRow(evt.GetRow())
-			elif mode == wx.grid.Grid.wxGridSelectColumns:
-				self.SelectCol(evt.GetCol())
-		except wx._core.PyAssertionError:
-			# No table yet
-			pass
+		if evt.Selecting():
+			self._updateWxSelection(evt)
+		else:
+			self.ClearSelection()
 		evt.Skip()
 
 
@@ -3777,11 +3801,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _getSelection(self):
 		sm = self._selectionMode
 		tl = self.GetSelectionBlockTopLeft()
-		if tl:
-			tl = tl[0]
 		br = self.GetSelectionBlockBottomRight()
-		if br:
-			br = br[0]
 		if sm == "Row":
 			ret = self.GetSelectedRows()
 			if not ret:
@@ -3793,10 +3813,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				else:
 					# Only a single cell selected
 					ret = [self.GetGridCursorRow()]
+
 		elif sm == "Col":
 			ret = self.GetSelectedCols()
 			if not ret:
-				# Try the block functions
+			# Try the block functions
 				if tl and br:
 					c1 = tl[1]
 					c2 = br[1]
@@ -3807,18 +3828,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		else:
 			# Cell selection mode
 			if tl and br:
-				ret = (tl, br)
+				ret = zip(tl, br)
 			else:
 				cell = (self.GetGridCursorRow(), self.GetGridCursorCol()) 
-				ret = (cell, cell)
+				ret = [(cell, cell)]
 		return ret
 		
-# 	def _setSelection(self, val):
-# 		if self._constructed():
-# 			self._selection = val
-# 		else:
-# 			self._properties["Selection"] = val
-
 
 	def _getSelectionBackColor(self):
 		return self._selectionBackColor
@@ -4105,11 +4120,15 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				be used.""") )
 	
 	Selection = property(_getSelection, None, None,
-			_("""Returns either a list of row/column numbers if SelectionMode is set to
-			either 'Row' or 'Column'. Returns a 2-tuple consisting of the (row,col) 2-tuples
-			for the top-left and bottom-right cells in the selection. If only a single cell is
-			selected, both values will be the same. (list)"""))
-	
+			_("""Returns either a list of row/column numbers if SelectionMode is set to 
+			either 'Row' or 'Column'. If SelectionMode is 'Cell', returns a list of 2-tuples, 
+			where each 2-tuple represents a selected range of cells: the top-left and 
+			bottom-right coordinates for a given range. If only a single cell is selected, 
+			there will be only one 2-tuple in the list, with both values being the same. 
+			If a continuous block of cells is selected, there will be only one 2-tuple in the 
+			list, but the values will differ. If more than one discontinuous range is selected, 
+			there will be as many 2-tuples as there are range blocks.  (list)"""))
+				
 	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
 			_("BackColor of selected cells  (str or RGB tuple)"))
 	
