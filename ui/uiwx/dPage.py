@@ -27,7 +27,11 @@ class dPage(dPanel.dScrollPanel):
 
 	def initSizer(self):
 		""" Set up the default vertical box sizer for the page."""
-		szCls = self.Parent.PageSizerClass
+		try:
+			szCls = self.Parent.PageSizerClass
+		except:
+			# Not part of a paged control
+			return
 		if szCls is not None:
 			self.Sizer = szCls("vertical")
 		
