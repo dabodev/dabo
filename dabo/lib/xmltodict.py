@@ -179,11 +179,11 @@ def escQuote(val, noEscape=False, noQuote=False):
 	else:
 		qt = '"'
 	slsh = "\\"
-	val = val.replace("<", "&lt;").replace(">", "&gt;").replace(slsh, slsh+slsh)
-#	val = val.replace("<", "&lt;").replace(">", "&gt;")
+# 	val = val.replace(slsh, slsh+slsh)
 	if not noEscape:
-		# First escape internal ampersands:
-		val = val.replace("&", "&amp;")
+		# First escape internal ampersands. We need to double them up due to a 
+		# quirk in wxPython and the way it displays this character.
+		val = val.replace("&", "&amp;&amp;")
 		# Escape any internal quotes
 		val = val.replace('"', '&quot;').replace("'", "&apos;")
 		# Escape any high-order characters
@@ -194,6 +194,7 @@ def escQuote(val, noEscape=False, noQuote=False):
 			else:
 					chars.append(char)
 		val = "".join(chars)
+	val = val.replace("<", "&#060;").replace(">", "&#062;")
 	return "%s%s%s" % (qt, val, qt)
 
 
@@ -279,7 +280,8 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 	return ret
 
 if __name__ == "__main__":
-	test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name"}}
+	test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name",
+			"problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode("latin-1")}}
 	print "test_dict:", test_dict
 	xml = dicttoxml(test_dict)
 	print "xml:", xml
