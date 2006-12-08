@@ -20,6 +20,8 @@ class dNode(dObject):
 		# by wx to work with separate nodes.
 		self.itemID = itemID
 		self.parent = parent
+		# Nodes can have objects associated with them
+		self._object = None
 		# Add minimal Dabo functionality
 		self.afterInit()
 	
@@ -205,6 +207,16 @@ class dNode(dObject):
 		return ret
 			
 
+	def _getObject(self):
+		return self._object
+
+	def _setObject(self, val):
+		if self._constructed():
+			self._object = val
+		else:
+			self._properties["Object"] = val
+
+
 	def _getSel(self):
 		sel = self.tree.Selection
 		if isinstance(sel, list):	
@@ -273,6 +285,9 @@ class dNode(dObject):
 	IsRootNode = property(_getIsRootNode, None, None,
 			_("Returns True if this is the root node (read-only) (bool)"))
 			
+	Object = property(_getObject, _setObject, None,
+			_("Optional object associated with this node. Default=None  (object)"))
+	
 	Selected = property(_getSel, _setSel, None,
 			_("Is this node selected?.  (bool)") )
 	
@@ -469,7 +484,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		"""Given an object, returns the corresponding node."""
 		try:
 			ret = [nd for nd in self.nodes
-					if nd._obj is obj][0]
+					if nd._object is obj][0]
 		except:
 			ret = None
 		return ret
@@ -590,7 +605,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 					# Empty list
 					return None
 		try:
-			ret = self.getChildren(nd)[0]._obj
+			ret = self.getChildren(nd)[0]._object
 		except:
 			ret = None
 		if ret is None:
@@ -622,7 +637,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		ret = self._getRelative(nd, self.GetPrevSibling)
 		if ret is None:
 			try:
-				ret = self.getParentNode(nd)._obj
+				ret = self.getParentNode(nd)._object
 			except: pass
 		else:
 			# Find the last child of the last child of the last child...
@@ -631,7 +646,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			while kids:
 				nd = kids[-1]
 				kids = self.getChildren(nd)
-			ret = nd._obj
+			ret = nd._object
 		return ret
 
 
@@ -649,7 +664,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 				return None
 		try:
 			itemID = func(nd.itemID)
-			ret = [nod._obj for nod in self.nodes
+			ret = [nod._object for nod in self.nodes
 					if nod.itemID == itemID][0]
 		except:
 			ret = None
