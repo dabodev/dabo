@@ -837,7 +837,7 @@ def createForm(srcFile, show=False):
 	return frm
 
 
-def createMenu(srcFile):
+def createMenuBar(srcFile):
 	"""Pass in an .mnxml file saved from the Menu Designer, 
 	and this will instantiate a MenuBar from that spec. Returns 
 	a reference to the newly-created MenuBar.
