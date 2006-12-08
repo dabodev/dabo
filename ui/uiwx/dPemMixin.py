@@ -1967,7 +1967,12 @@ class dPemMixin(dPemMixinBase):
 			else:
 				if isinstance(self, wx.Panel):
 					self.SetMinSize(val)
-				self.SetBestFittingSize(val)
+				if hasattr(self, "SetInitialSize"):
+					# wxPython 2.7.x:
+					self.SetInitialSize(val)
+				else:
+					# prior to wxPython 2.7.s:
+					self.SetBestFittingSize(val)
 		else:
 			self._properties["Size"] = val
 	
