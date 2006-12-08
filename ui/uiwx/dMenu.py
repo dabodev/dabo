@@ -236,7 +236,13 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			del self._daboChildren[id_]
 		self.RemoveItem(item)
 		if release:
-			item.Destroy()
+			if wx.VERSION[0] == 2 and wx.VERSION[1] >= 7:
+				# segfault when destroying menu items for wx2.7. I've reported it and
+				# it will probably be fixed soon. For now, don't destroy it but return
+				# None to the caller.
+				item = None
+			else:
+				item.Destroy()
 		return item
 
 
