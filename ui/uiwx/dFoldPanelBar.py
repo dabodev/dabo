@@ -186,6 +186,10 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 			self._bar.Collapse(self)
 
 
+	def _getParent(self):
+		return self._bar
+
+
 	BarColor1 = property(_getBarColor1, _setBarColor1, None,
 			_("Main color for the caption bar  (dColor)"))
 	
@@ -219,6 +223,8 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 	Expanded = property(_getExpanded, _setExpanded, None,
 			_("Is the panel's contents visible?  (bool)"))
 
+	Parent = property(_getParent, None, None, 
+			_("Reference to the containing dFoldPanelBar."))
 
 	DynamicBarColor1 = makeDynamicProperty(BarColor1)
 	DynamicBarColor2 = makeDynamicProperty(BarColor2)
@@ -252,13 +258,6 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-		# We need this 'trick' so that the object crawling routines work
-		## pkm: changed Parent to _parent for wx2.7 compatibility, as _foldPanel is
-		##      a raw wxPanel, and now has a Parent property which is read-only. I'm
-		##      not sure what bad things may happen, but the demo appears to run the
-		##      same regardless, so I think it's okay. What are the 'object crawling
-		##      routines' referred to above?
-		self._foldPanel._parent = self
 		self._setInitialOpenPanel()
 		self.bindEvent(dEvents.FoldPanelChange, self.__onFoldPanelChange)
 	
