@@ -3044,7 +3044,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	
 	def _updateWxSelection(self, evt):
 		"""This method gets around some of the limitations in the native
-		wx grid when making discontinuous selections. By explilcitly setting
+		wx grid when making discontinuous selections. By explicitly setting
 		the selection here, the code that returns the current selection will
 		correctly identify all selected rows/cols/cells, whether they are
 		contiguous or not.
@@ -3187,6 +3187,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxGridSelectCell(self, evt):
+		if getattr(self, "_inSelect", False):
+			# Avoid recursion
+			return
+		self._inSelect = True
 		self.raiseEvent(dEvents.GridCellSelected, evt)
 		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
 		if evt.Selecting():
@@ -3194,6 +3198,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		else:
 			self.ClearSelection()
 		evt.Skip()
+		self._inSelect = False
 
 
 	def __onWxHeaderContextMenu(self, evt):
