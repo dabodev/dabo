@@ -253,7 +253,12 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 		# We need this 'trick' so that the object crawling routines work
-		self._foldPanel.Parent = self
+		## pkm: changed Parent to _parent for wx2.7 compatibility, as _foldPanel is
+		##      a raw wxPanel, and now has a Parent property which is read-only. I'm
+		##      not sure what bad things may happen, but the demo appears to run the
+		##      same regardless, so I think it's okay. What are the 'object crawling
+		##      routines' referred to above?
+		self._foldPanel._parent = self
 		self._setInitialOpenPanel()
 		self.bindEvent(dEvents.FoldPanelChange, self.__onFoldPanelChange)
 	
