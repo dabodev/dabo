@@ -8,7 +8,9 @@ Typical usage would be to subclass this class, and then use the
 append() methods of the menubar and menus to add the specific 
 menu items that your app needs.
 """
-import wx, os
+import os
+import wx
+import dabo
 from dMenu import dMenu
 from dMenuBar import dMenuBar
 import dIcons
@@ -136,3 +138,10 @@ class dBaseMenuBar(dMenuBar):
 		self.appendMenu(EditMenu(self))
 		self.appendMenu(ViewMenu(self))
 		self.appendMenu(HelpMenu(self))
+
+if __name__ == "__main__":
+	app = dabo.dApp()
+	app.setup()
+	app.MainForm.MenuBar = None
+#	app.MainForm.MenuBar = dBaseMenuBar()
+	app.start()
