@@ -835,6 +835,46 @@ def createForm(srcFile, show=False):
 	if show:
 		frm.show()
 	return frm
+
+
+def createMenu(srcFile):
+	"""Pass in an .mnxml file saved from the Menu Designer, 
+	and this will instantiate a MenuBar from that spec. Returns 
+	a reference to the newly-created MenuBar.
+	"""
+	def addMenu(mb, menuDict):
+		menu = dabo.ui.dMenu(mb)
+		atts = menuDict["attributes"]
+		menu.Caption = atts["Caption"]
+		menu.MRU = atts["MRU"]
+		menu.HelpText = atts["HelpText"]
+		mb.appendMenu(menu)
+		try:
+			items = menuDict["children"]
+		except KeyError:
+			# No children defined for this menu
+			return
+		for itm in items:	
+			if "Separator" in itm["name"]:
+				menu.appendSeparator()
+			else:
+				itmatts = itm["attributes"]
+				cap = itmatts["Caption"]
+				hk = itmatts["HotKey"]
+				if hk:
+					cap += "\t%s" % hk
+				try:
+					binding = itmatts["Function"]
+				except:
+					binding = None
+				help = itmatts["HelpText"]
+				menu.append(cap, bindfunc=binding, help=help)		
+	
+	mnd = dabo.lib.xmltodict.xmltodict(srcFile)
+	mb = dabo.ui.dMenuBar()
+	for mn in mnd["children"]:
+		addMenu(mb, mn)
+	return mb
 	
 	
 def browse(dataSource, parent=None):
