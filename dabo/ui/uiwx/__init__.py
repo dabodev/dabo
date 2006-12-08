@@ -837,12 +837,19 @@ def createForm(srcFile, show=False):
 	return frm
 
 
-def createMenuBar(srcFile):
+def createMenuBar(srcFile, form=None, previewFunc=None):
 	"""Pass in an .mnxml file saved from the Menu Designer, 
 	and this will instantiate a MenuBar from that spec. Returns 
-	a reference to the newly-created MenuBar.
+	a reference to the newly-created MenuBar. You can optionally
+	pass in a reference to the form to which this menu is
+	associated, so that you can enter strings that represent 
+	form functions in the Designer, such as 'form.close', which 
+	will call the associated form's close() method. If 'previewFunc'
+	is passed, the menu command that would have been eval'd 
+	and executed on a live menu will instead be passed back as
+	a parameter to that function.
 	"""
-	def addMenu(mb, menuDict):
+	def addMenu(mb, menuDict, form, previewFunc):
 		menu = dabo.ui.dMenu(mb)
 		atts = menuDict["attributes"]
 		menu.Caption = atts["Caption"]
@@ -854,6 +861,7 @@ def createMenuBar(srcFile):
 		except KeyError:
 			# No children defined for this menu
 			return
+		app = dabo.dAppRef
 		for itm in items:	
 			if "Separator" in itm["name"]:
 				menu.appendSeparator()
@@ -863,17 +871,22 @@ def createMenuBar(srcFile):
 				hk = itmatts["HotKey"]
 				if hk:
 					cap += "\t%s" % hk
-				try:
-					binding = itmatts["Function"]
-				except:
-					binding = None
+				txt = cap
+				binding = previewFunc
+				fnc = ""
+				useFunc = ("Function" in itmatts) and (itmatts["Function"])
+				if useFunc:
+					fnc = itmatts["Function"]
+				if (binding is None) and fnc:
+					binding = eval(fnc)
 				help = itmatts["HelpText"]
-				menu.append(cap, bindfunc=binding, help=help)		
+				menuItem = menu.append(cap, bindfunc=binding, help=help)	
+				menuItem._bindingText = fnc
 	
 	mnd = dabo.lib.xmltodict.xmltodict(srcFile)
 	mb = dabo.ui.dMenuBar()
 	for mn in mnd["children"]:
-		addMenu(mb, mn)
+		addMenu(mb, mn, form, previewFunc)
 	return mb
 	
 	

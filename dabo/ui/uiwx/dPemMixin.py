@@ -2299,7 +2299,7 @@ class DrawObject(dObject):
 		self._radius = None
 		self._shape = None
 		self._visible = True
-		self._width = None
+		self._width = 0
 		self._xPos = None
 		self._yPos = None
 		self._fontFace = None
@@ -2418,7 +2418,13 @@ class DrawObject(dObject):
 		if self.Shape == "circle":
 			dc.DrawCircle(x, y, self.Radius)
 		elif self.Shape == "rect":
-			dc.DrawRectangle(x, y, self.Width, self.Height)
+			w, h = self.Width, self.Height
+			# If any of these values is -1, use the parent object's size
+			if w < 0:
+				w = self.Parent.Width
+			if h < 0:
+				h = self.Parent.Height
+			dc.DrawRectangle(x, y, w, h)
 		elif self.Shape == "polygon":
 			dc.DrawPolygon(self.Points)
 		elif self.Shape == "line":
