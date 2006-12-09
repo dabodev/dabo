@@ -10,7 +10,7 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
+class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 	def __init__(self, parent, caption=None, collapsed=None, 
 			properties=None, *args, **kwargs):
 		
@@ -186,6 +186,10 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 			self._bar.Collapse(self)
 
 
+	def _getParent(self):
+		return self._bar
+
+
 	BarColor1 = property(_getBarColor1, _setBarColor1, None,
 			_("Main color for the caption bar  (dColor)"))
 	
@@ -219,6 +223,8 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 	Expanded = property(_getExpanded, _setExpanded, None,
 			_("Is the panel's contents visible?  (bool)"))
 
+	Parent = property(_getParent, None, None, 
+			_("Reference to the containing dFoldPanelBar."))
 
 	DynamicBarColor1 = makeDynamicProperty(BarColor1)
 	DynamicBarColor2 = makeDynamicProperty(BarColor2)
@@ -231,7 +237,7 @@ class dFoldPanel(fpb.FoldPanelItem, dcm.dControlMixin):
 
 
 	
-class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
+class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 	"""Creates a control consisting of several panels that can be 
 	hidden or revealed by clicking on their 'caption bar'.
 	
@@ -252,8 +258,6 @@ class dFoldPanelBar(wx.lib.foldpanelbar.FoldPanelBar, dcm.dControlMixin):
 		
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
-		# We need this 'trick' so that the object crawling routines work
-		self._foldPanel.Parent = self
 		self._setInitialOpenPanel()
 		self.bindEvent(dEvents.FoldPanelChange, self.__onFoldPanelChange)
 	

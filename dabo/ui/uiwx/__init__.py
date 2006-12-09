@@ -364,7 +364,7 @@ def getEventData(wxEvt):
 				ed["menuItem"] = itm
 
 	if isinstance(wxEvt, wx.KeyEvent):
-		ed["keyCode"] = wxEvt.KeyCode()
+		ed["keyCode"] = wxEvt.GetKeyCode()
 		ed["rawKeyCode"] = wxEvt.GetRawKeyCode()
 		ed["rawKeyFlags"] = wxEvt.GetRawKeyFlags()
 		ed["unicodeChar"] = wxEvt.GetUniChar()
@@ -920,8 +920,8 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 		fnt.SetWeight(wx.BOLD)
 	if italic is not None:
 		fnt.SetStyle(wx.ITALIC)
-	
-	if not isinstance(wind, dabo.ui.dForm):
+
+	if not isinstance(wind, (dabo.ui.dForm, wx.Frame)):
 		try:
 			wind = wind.Form
 		except:

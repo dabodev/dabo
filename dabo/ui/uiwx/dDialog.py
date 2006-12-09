@@ -9,7 +9,7 @@ import dFormMixin as fm
 from dabo.ui import makeDynamicProperty
 
 
-class dDialog(wx.Dialog, fm.dFormMixin):
+class dDialog(fm.dFormMixin, wx.Dialog):
 	"""Creates a dialog, which is a lightweight form.
 
 	Dialogs are like forms, but typically are modal and are requesting a very

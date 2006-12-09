@@ -8,8 +8,7 @@ from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
-class dEditableList(wx.gizmos.EditableListBox, 
-		dcm.dControlMixin):
+class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 	"""Creates an editable list box, complete with buttons to control
 	editing, adding/deleting items, and re-ordering them.
 	"""	

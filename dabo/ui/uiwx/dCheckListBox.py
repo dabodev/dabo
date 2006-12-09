@@ -8,7 +8,7 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
 
-class dCheckListBox(wx.CheckListBox, dcm.dControlItemMixin):
+class dCheckListBox(dcm.dControlItemMixin, wx.CheckListBox):
 	"""Creates a listbox, allowing the user to choose one or more items
 	by checking/unchecking each one
 	"""

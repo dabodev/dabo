@@ -3,8 +3,10 @@ import dabo.dConstants as k
 
 
 class OsDialogMixin(object):
-	def __init__(self):
+	def _beforeInit(self):
 		self._dir = self._fname = self._msg = self._path = self._wildcard = ""
+		super(OsDialogMixin, self)._beforeInit()
+
 
 	def show(self):
 		self._dir = self._fname = self._path = ""
@@ -72,7 +74,7 @@ class OsDialogMixin(object):
 
 
 
-class dFileDialog(wx.FileDialog, OsDialogMixin):
+class dFileDialog(OsDialogMixin, wx.FileDialog):
 	"""Creates a file dialog, which asks the user to choose a file."""
 	_exposeFiles = True
 	
@@ -89,7 +91,7 @@ class dFileDialog(wx.FileDialog, OsDialogMixin):
 				wildcard=wildcard, style=style)
 
 	
-class dFolderDialog(wx.DirDialog, OsDialogMixin):
+class dFolderDialog(OsDialogMixin, wx.DirDialog):
 	"""Creates a folder dialog, which asks the user to choose a folder."""
 	_exposeFiles = False
 	
