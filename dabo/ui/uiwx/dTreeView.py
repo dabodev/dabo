@@ -718,7 +718,10 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		# 		c23 = c2.appendChild("Grandkid #3")
 		# 		c221 = c22.appendChild("Great-Grandkid #1")
 		
-
+	def getBaseNodeClass(cls):
+		return dNode
+	getBaseNodeClass = classmethod(getBaseNodeClass)
+	
 	# Event-handling code
 	def __onTreeSel(self, evt):
 		self.raiseEvent(dEvents.TreeSelection, evt)
