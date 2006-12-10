@@ -2438,6 +2438,12 @@ class DrawObject(dObject):
 			if not txt:
 				return
 			fnt = dc.GetFont()
+			# If the following call fails, the font has not been initialized, and can look 
+			# pretty ugly. In this case, initialize it to the system-default font.	
+			try:
+				fnt.GetFaceName()
+			except:
+				fnt = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
 			if self._fontFace is not None:
 				fnt.SetFaceName(self._fontFace)
 			if self._fontSize is not None:
