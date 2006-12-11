@@ -143,7 +143,7 @@ class DesignerXmlConverter(dObject):
 			if propDef["defaultType"] == "string":
 				val = "\"" + val + "\""
 			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
-		self.classText += 	self.classTemplate  % (clsName, nm, 
+		self.classText += 	self.containerClassTemplate  % (clsName, nm, 
 				self.currParent, cleanAtts, nm, self.indentCode(propInit, 2))
 		self.classText += self._stackInitText
 		# Add the child code.
@@ -411,7 +411,6 @@ class DesignerXmlConverter(dObject):
 			if propDef["defaultType"] == "string":
 				val = "\"" + val + "\""
 			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
-		
 		self.innerClassText += self.classTemplate  % (clsName, nm, 
 				self.currParent, cleanAtts, nm, self.indentCode(propInit, 2))
 
@@ -509,10 +508,16 @@ class DesignerXmlConverter(dObject):
 	
 	def _defineTextBlocks(self):
 		# Standard class template
-		self.classTemplate = """class %s(dabo.ui.%s):
+		self.containerClassTemplate = """class %s(dabo.ui.%s):
 	def __init__(self, parent=%s, attProperties=%s):
 		dabo.ui.%s.__init__(self, parent=parent, attProperties=attProperties)
 		self.Sizer = None
+%s		
+
+"""
+		self.classTemplate = """class %s(dabo.ui.%s):
+	def __init__(self, parent=%s, attProperties=%s):
+		dabo.ui.%s.__init__(self, parent=parent, attProperties=attProperties)
 %s		
 
 """
