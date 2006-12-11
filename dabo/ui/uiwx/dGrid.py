@@ -3111,7 +3111,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					self.SelectRow(row, True)
 			elif mode == wx.grid.Grid.wxGridSelectColumns:
 				for col in range(left, right+1):
-					self.SelectCol(row, True)
+					self.SelectCol(col, True)
 			else:
 				self.SelectBlock(top, left, bott, right, True)
 
