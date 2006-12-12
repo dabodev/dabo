@@ -155,6 +155,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			oldVal = self._oldVal
 		except AttributeError:
 			oldVal = None
+		if isinstance(self, (dabo.ui.dToggleButton,)):
+			# These classes change their value before the GotFocus event
+			# can store the oldval, so always flush 'em.
+			oldVal = None
 		if curVal is None or curVal != oldVal:
 			if not self._DesignerMode:
 				if self.DataSource and self.DataField:

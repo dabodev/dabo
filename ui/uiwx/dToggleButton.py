@@ -32,11 +32,11 @@ class dToggleButton(dcm.dDataControlMixin, dim.dImageMixin,
 		kwargs["style"] = style
 		dim.dImageMixin.__init__(self)
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
-		
 		self.Bind(wx.EVT_BUTTON, self.__onButton)
 	
 	
 	def __onButton(self, evt):
+		self.flushValue()
 		self.raiseEvent(dEvents.Hit, evt)
 
 	
