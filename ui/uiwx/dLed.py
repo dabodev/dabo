@@ -1,115 +1,114 @@
 import wx
 import dabo
 import dabo.ui
-
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-
 from dabo.dLocalize import _
-from dPemMixin import DrawObject
+
 
 class dLed(dabo.ui.dPanel):
 	def afterInit(self):
 		self._offColor = "darkred"
 		self._onColor = "green"
 		self._on = False
-		self.Size = (200, 200)
-		self.drawRectangle(0,0,2,2)		#NWL: This is here so the led can be redrawn during resize
-										#I needed at least one object in the draw objects list....
+		self.Buffered = True
+		self.led = self.drawCircle(1,1,1)
+		self.led.DynamicXpos = self.setXPos
+		self.led.DynamicYpos = self.setYPos
+		self.led.DynamicRadius = self.setRadius
+		self.led.DynamicFillColor = self.setFillColor
+		self.update()
 	
-	def callAfterInit(self):
-		self._redraw()
-	
-	def redraw(self, dc):
-		self.ClearBackground()
+
+	def onResize(self, evt):
+		"""Update the size of the LED."""
+		self.update()
+
 		
-		if self.On:
-			fillColor = self.OnColor
-		else:
-			fillColor = self.OffColor
+	# Methods for the dynamic properties
+	def setXPos(self):
+		return self.Width /2
+	def setYPos(self):
+		return self.Height /2
+	def setRadius(self):
+		return (min(self.Width, self.Height)) /2
+	def setFillColor(self):
+		return self.Color
 		
-		obj = DrawObject(self, FillColor=fillColor, PenColor="black",
-				PenWidth=1, Radius= min(self.Size[0], self.Size[1])/2, LineStyle=None, 
-				Shape="circle", Xpos=self.Size[0]/2, Ypos=self.Size[1]/2, DrawMode=None)
-		
-		obj.draw(dc)
-		
+
 	# Getters and Setters
+	def _getColor(self):
+		if self._on:
+			return self._onColor
+		else:
+			return self._offColor
+			
 	def _getOffColor(self):
 		return self._offColor
 	
 	def _setOffColor(self, val):
 		self._offColor = val
-		if not self.On:
-			self._redraw()
+		self.update()
 	
 	def _getOn(self):
 		return self._on
 	
 	def _setOn(self, val):
-		if val:
-			self._on = True
-		else:
-			self._on = False
-		
-		self._redraw()
+		self._on = val
+		self.update()
 	
 	def _getOnColor(self):
 		return self._onColor
 	
 	def _setOnColor(self, val):
 		self._onColor = val
-		if self.On:
-			self._redraw()
+		self.update()
 	
 	
 	# Property Definitions
+	Color = property(_getColor, None, None,
+		_("The color of the LED (color)"))
+
 	OffColor = property(_getOffColor, _setOffColor, None,
-		_("The color of the LED when it is off. (default = 'darkred')"))
+		_("The color of the LED when it is off.  (color)"))
 	
 	On = property(_getOn, _setOn, None,
-		_("Boolean on wether or not the LED is on. (default = False)"))
+		_("Is the LED is on? Default=False  (bool)"))
 	
 	OnColor = property(_getOnColor, _setOnColor, None,
-		_("The color of the LED when it is on. (default = 'green')"))
+		_("The color of the LED when it is on.  (color)"))
+
 
 
 class TestForm(dabo.ui.dForm):
 	def afterInit(self):
-		self.Sizer = dabo.ui.dSizer(orientation="horizontal")
+		mp = dabo.ui.dPanel(self)
+		self.Sizer.append1x(mp)
+		mp.Sizer = dabo.ui.dSizer("h")
+		mp.Sizer.append1x(dLed(self, RegID="LED"))
 		
-		self.Sizer.append1x(dLed(self, RegID="LED"))
+		vs = dabo.ui.dSizer("v", DefaultBorder=20)
+		vs.appendSpacer(20)
+		vs.DefaultBorderLeft = vs.DefaultBorderRight = True
+		btn = dabo.ui.dToggleButton(mp, Caption="Toggle LED",
+				DataSource=self.LED, DataField="On", Value=False)
+		vs.append(btn)
+		vs.appendSpacer(12)
+		vs.append(dabo.ui.dLabel(mp, Caption="On Color:"))
+		dd = dabo.ui.dDropdownList(mp, Choices=dabo.dColors.colors,
+				DataSource=self.LED, DataField="OnColor", Value="green")
+		vs.append(dd)
+		vs.appendSpacer(12)
+		vs.append(dabo.ui.dLabel(mp, Caption="Off Color:"))
+		dd = dabo.ui.dDropdownList(mp, Choices=dabo.dColors.colors,
+				DataSource=self.LED, DataField="OffColor", Value="darkred")
+		vs.append(dd)
+		mp.Sizer.append(vs)
 		
-		vs = dabo.ui.dSizer(orientation="vertical", DefaultBorder=10, DefaultBorderAll=True, DefaultSpacing=5)
-		vs.append(dabo.ui.dButton(self, Caption="Toggle LED", RegID="button"), "normal")
-		vs.append(dabo.ui.dLabel(self, Caption="On Color:"), "normal")
-		vs.append(dabo.ui.dDropdownList(self, RegID="onColor", Choices=dabo.dColors.colorDict.keys()),"normal")
-		vs.append(dabo.ui.dLabel(self, Caption="Off Color:"), "normal")
-		vs.append(dabo.ui.dDropdownList(self, RegID="offColor", Choices=dabo.dColors.colorDict.keys()),"normal")
+		self.LED.On = True
 		
-		self.Sizer.append(vs, "normal")
-		self.Sizer.layout()
+		self.layout()
 		
-		self.onColor.Value = "green"
-		self.offColor.Value = "darkred"
-	
-	def onHit_button(self, evt):
-		if self.LED.On:
-			self.LED.On = False
-		else:
-			self.LED.On = True
-	
-	def onHit_onColor(self, evt):
-		pass
-	
-	def onHit_offColor(self, evt):
-		pass
-	
-	def onValueChanged_onColor(self, evt):
-		self.LED.OnColor = self.onColor.Value
-	
-	def onValueChanged_offColor(self, evt):
-		self.LED.OffColor = self.offColor.Value
 
 if __name__ == '__main__':
 	app = dabo.dApp()
