@@ -1316,8 +1316,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		except AttributeError:
 			_oldTitle = ""
 		try:
-			fileName = os.path.split(self._fileName)
-			fileName = fileName[len(fileName)-1]
+			fileName = os.path.split(self._fileName)[-1]
 		except AttributeError:
 			fileName = ""
 		if not fileName:
@@ -1353,8 +1352,79 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def moveToEnd(self):
 		self.SetSelection(-1, -1)
 		self.EnsureCaretVisible()
+
+
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+	# Auto-completion code, used mostly unchanged from SPE
+	# Copyright www.stani.be
+	def autoComplete(self,object=0):
+		word	= self.getWord()
+		if not word: 
+			if object:
+				self.AddText('.')
+			return
+		if object:
+			self.AddText('.')
+			word+='.'
+		words	= self.getWords(word=word)
+		if word[-1] == '.':
+			try:
+				obj = self.getWordObject(word[:-1])
+				if obj:
+					for attr in dir(obj):
+						attr = '%s%s'%(word,attr)
+						if attr not in words: words.append(attr)
+			except:
+				pass
+		if words:
+			words.sort()
+			try:
+				self.AutoCompShow(len(word), " ".join(words))
+			except:
+				pass
+	
+	def getWord(self,whole=None):
+		for delta in (0,-1,1):
+			word	= self._getWord(whole=whole,delta=delta)
+			if word: return word
+		return ''
+
+	def _getWord(self,whole=None,delta=0):
+		pos = self.GetCurrentPos()+delta
+		line = self.GetCurrentLine()
+		linePos = self.PositionFromLine(line)
+		txt = self.GetLine(line)
+		start = self.WordStartPosition(pos,1)
+		if whole:
+			end = self.WordEndPosition(pos,1)
+		else:
+			end = pos
+		return txt[start-linePos:end-linePos]
+
+	def getWords(self,word=None,whole=None):
+		if not word: word = self.getWord(whole=whole)
+		if not word:
+			return []
+		else:
+			if self.AutoCompGetIgnoreCase:
+				flag = re.I
+			else:
+				flag = 0
+			retAll = ([x for x in re.findall(r"\b" + word + r"\w+\b", self.GetText(), flag)
+				if x.find(',')==-1 and x[0]!= ' '])
+			ret = dict.fromkeys(retAll).keys()
+			return ret
 		
-		
+	def getWordObject(self,word=None,whole=None):
+		if not word: word=self.getWord(whole=whole)
+		try:
+			obj = self.evaluate(word)
+			return obj
+		except:
+			return None
+	# End of auto-completion code
+	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
+
 	def _getRuntimeObjectName(self):
 		"""Go backwards from the current position and get the runtime object name
 		that the user is currently editing. For example, if they entered a '.' after
