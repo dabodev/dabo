@@ -3041,81 +3041,49 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	##----------------------------------------------------------##
 
 	
-	
-	def _updateWxSelection(self, evt):
-		"""This method gets around some of the limitations in the native
-		wx grid when making discontinuous selections. By explicitly setting
-		the selection here, the code that returns the current selection will
-		correctly identify all selected rows/cols/cells, whether they are
-		contiguous or not.
-		"""
-		origRow, origCol = self.CurrentRow, self.CurrentColumn
-		mode = self.GetSelectionMode()
-		try:
-			top, bott = evt.GetTopRow(), evt.GetBottomRow()
-		except AttributeError:
-			top = bott = evt.GetRow()
-		try:
-			left, right = evt.GetLeftCol(), evt.GetRightCol()
-		except AttributeError:
-			left = right = evt.GetCol()
-		if not self.MultipleSelection:
-			try:
-				if mode == wx.grid.Grid.wxGridSelectRows:
-					if (top != bott) or (top != origCol):
-						# Attempting to select a range
-						if top == origRow:
-							row = bott
-						else:
-							row = top
-						self.SetGridCursor(row, self._lastCol)
-				elif mode == wx.grid.Grid.wxGridSelectColumns:
-					if (left != right) or (left != origCol):
-						# Attempting to select a range
-						if left == origCol:
-							col = right
-						else:
-							col = left
-						self.SetGridCursor(self._lastRow, col)
-				else:
-					# Cells
-					chg = False
-					row, col = origRow, origCol
-					if top != bott:
-						chg = True
-						if top == origRow:
-							row = bott
-						else:
-							row = top
-					elif top != origRow:
-						# New row
-						chg = True
-						row = top
-					if left != right:
-						chg = True
-						if left == origCol:
-							col = right
-						else:
-							col = left
-					elif left != origCol:
-						# New col
-						chg = True
-						col = left
-					if chg:
-						self.SetGridCursor(row, col)
-						self.SelectBlock(row, col, row, col)
-			except: pass
-		else:
-			if mode == wx.grid.Grid.wxGridSelectRows:
-				for row in range(top, bott+1):
-					self.SelectRow(row, True)
-			elif mode == wx.grid.Grid.wxGridSelectColumns:
-				for col in range(left, right+1):
-					self.SelectCol(col, True)
+	def _calcRanges(self, seq, rowOrCol):
+		startPoints = []
+		nextVal = -1
+		maxIdx = len(seq)-1
+		for idx,pt in enumerate(seq):
+			if idx == 0:
+				startPoints.append(pt)
+				nextVal = pt+1
 			else:
-				self.SelectBlock(top, left, bott, right, True)
-
-
+				if pt == nextVal:
+					nextVal += 1
+				else:
+					startPoints.append(pt)
+					nextVal = pt+1
+		
+		endPoints = []
+		for pt in startPoints:
+			idx = seq.index(pt)
+			if idx == maxIdx:
+				endPoints.append(pt)
+			else:
+				found = False
+				while idx < maxIdx:
+					if seq[idx+1] == pt + 1:
+						idx += 1
+						pt += 1
+					else:
+						endPoints.append(pt)
+						found = True
+						break
+				if not found:
+					endPoints.append(pt)
+		
+		if rowOrCol.lower()[0] == "r":
+			cols = self.ColumnCount
+			rangeStart = [(r, 0) for r in startPoints]
+			rangeEnd = [(r, cols) for r in endPoints]
+		else:
+			rows = self.RowCount
+			rangeStart = [(0, c) for c in startPoints]
+			rangeEnd = [(rows, c) for c in endPoints]
+		return zip(rangeStart, rangeEnd)
+	
 	##----------------------------------------------------------##
 	##      begin: wx callbacks to re-route to dEvents          ##
 	##----------------------------------------------------------##
@@ -3142,10 +3110,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			return
 		self._inRangeSelect = True
 		self.raiseEvent(dEvents.GridRangeSelected, evt)
-		if evt.Selecting():
-			self._updateWxSelection(evt)
-		else:
-			self.ClearSelection()
 		evt.Skip()
 		self._inRangeSelect = False
 		
@@ -3193,10 +3157,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._inSelect = True
 		self.raiseEvent(dEvents.GridCellSelected, evt)
 		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
-		if evt.Selecting():
-			self._updateWxSelection(evt)
-		else:
-			self.ClearSelection()
 		evt.Skip()
 		self._inSelect = False
 
@@ -3804,39 +3764,53 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		
 
 	def _getSelection(self):
+		ret = []
 		sm = self._selectionMode
 		tl = self.GetSelectionBlockTopLeft()
 		br = self.GetSelectionBlockBottomRight()
+		cols = self.GetSelectedCols()
+		rows = self.GetSelectedRows()
+		cells = self.GetSelectedCells()
+		
 		if sm == "Row":
-			ret = self.GetSelectedRows()
+			ret = rows
+			# See if anything is returned by the block functions
+			if tl and br:
+				for tlz, brz in zip(tl, br):
+					r1 = tlz[0]
+					r2 = brz[0]
+					ret += range(r1, r2+1)
 			if not ret:
-				# Try the block functions
-				if tl and br:
-					r1 = tl[0]
-					r2 = br[0]
-					ret = range(r1, r2+1)
-				else:
-					# Only a single cell selected
-					ret = [self.GetGridCursorRow()]
+				# Only a single cell selected
+				ret = [self.GetGridCursorRow()]
 
 		elif sm == "Col":
-			ret = self.GetSelectedCols()
+			ret = cols
+			# See if anything is returned by the block functions
+			if tl and br:
+				for tlz, brz in zip(tl, br):
+					c1 = tlz[1]
+					c2 = brz[1]
+					ret += range(c1, c2+1)
 			if not ret:
-			# Try the block functions
-				if tl and br:
-					c1 = tl[1]
-					c2 = br[1]
-					ret = range(c1, c2+1)
-				else:
-					# Only a single cell selected
-					ret = [self.GetGridCursorCol()]
+				# Only a single cell selected
+				ret = [self.GetGridCursorCol()]
+
 		else:
 			# Cell selection mode
 			if tl and br:
 				ret = zip(tl, br)
-			else:
+			# Add any selected rows
+			if rows:
+				ret += self._calcRanges(rows, "Rows")
+			# Add any selected columns
+			if cols:
+				ret += self._calcRanges(cols, "Cols")
+			
+			if not ret:
 				cell = (self.GetGridCursorRow(), self.GetGridCursorCol()) 
 				ret = [(cell, cell)]
+		ret.sort()
 		return ret
 		
 
