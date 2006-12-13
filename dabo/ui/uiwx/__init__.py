@@ -132,8 +132,14 @@ from dToolBar import dToolBar
 from dToolBar import dToolBarItem
 from dToggleButton import dToggleButton
 from dTreeView import dTreeView
+from dLed import dLed
 import dUICursors as dUICursors
 import dShell
+
+try:
+	from dGlWindow import dGlWindow
+except ImportError:
+	dabo.infoLog.write(_("PyOpenGL not present, so dGlWindow is not loaded."))
 
 
 artConstants = {}
