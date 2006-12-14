@@ -148,7 +148,7 @@ class Grid(dabo.ui.dGrid):
 	def deleteRecord(self, evt=None):
 		""" Request that the current row be deleted."""
 		self.Parent.deleteRecord(self.DataSource)
-		self.fillGrid()
+		self.fillGrid(True)
 
 
 	def pickRecord(self, evt=None):

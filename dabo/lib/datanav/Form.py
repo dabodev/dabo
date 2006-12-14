@@ -257,6 +257,12 @@ class Form(dabo.ui.dForm):
 		return menu
 
 
+	def onDelete(self, evt):
+		super(Form, self).onDelete(evt)
+		# Make sure that the grid is properly updated.
+		self.PageFrame.Pages[1].BrowseGrid.refresh()
+
+
 	def enableQuickReport(self):
 		## Can't enable quick report unless the dataset has been requeried once and
 		## the browse grid exists (because it gets the layout from the browse grid).
