@@ -83,7 +83,7 @@ class Page(dabo.ui.dPage):
 	
 		
 	def deleteRecord(self, ds=None):
-		""" Called by a browse grid when the user wants to edit the current row. 
+		""" Called by a browse grid when the user wants to delete the current row. 
 		"""
 		if ds is None:
 			self.Form.delete()
