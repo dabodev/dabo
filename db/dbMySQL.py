@@ -161,7 +161,8 @@ class MySQL(dBackend):
 				v = getattr(ftypes, i)
 				typeMapping[v] = i
 		
-		daboMapping = {"BLOB": "M",
+		daboMapping = {"BIT": "I",
+				"BLOB": "M",
 				"CHAR": "C",
 				"DATE": "D",
 				"DATETIME": "T",
