@@ -554,6 +554,10 @@ class BrowsePage(Page):
 
 
 	def __onPageEnter(self, evt):
+		if self.Form.PrimaryBizobj.RowCount == 0:
+			self.Parent.SelectedPageNumber = 0
+			self.Form.StatusText = "No records available"
+			return
 		self.updateGrid()
 		if not self._doneLayout:
 			self._doneLayout = True
@@ -632,6 +636,11 @@ class EditPage(Page):
 	
 	
 	def __onPageEnter(self, evt):
+		ds = self.Form.getBizobj(self.DataSource)
+		if ds.RowCount == 0:
+			self.Parent.SelectedPageNumber = 0
+			self.Form.StatusText = "No records available"
+			return
 		self.Form.PrimaryBizobj = self.DataSource
 		focusToControl = self._focusToControl
 		if focusToControl is not None:
