@@ -21,8 +21,28 @@ class dPageFrameMixin(cm.dControlMixin):
 	def _initEvents(self):
 		super(dPageFrameMixin, self)._initEvents()
 		self.Bind(self._evtPageChanged, self.__onPageChanged)
+		self.Bind(self._evtPageChanging, self.__onPageChanging)
 		self.bindEvent(dEvents.Create, self.__onCreate)
 
+	
+	def __onPageChanging(self, evt):
+		"""The page has not yet been changed, so we can veto it if conditions call for it."""
+		oldPageNum = evt.GetOldSelection()
+		newPageNum = evt.GetSelection()
+		if self._beforePageChange(oldPageNum, newPageNum) is False:
+			evt.Veto()
+		self.raiseEvent(dEvents.PageChanging, oldPageNum=oldPageNum, 
+				newPageNum=newPageNum)
+				
+	
+	def _beforePageChange(self, old, new):
+		return self.beforePageChange(old, new)
+	
+	
+	def beforePageChange(self, fromPage, toPage):
+		"""Return False from this method to prevent the page from changing."""
+		pass
+		
 		
 	def __onCreate(self, evt):
 		# Make sure the PageEnter fires for the current page on 
