@@ -118,7 +118,7 @@ class MySQL(dBackend):
 		for r in rs:
 			name = r[0]
 			ft = r[1]
-			if ft.split()[0] == "tinyint(1)":
+			if ft.split()[0] == "tinyint(1)" or "bit" in ft:
 				ft = "B"
 			elif "int" in ft or ft == "long":
 				ft = "I"
