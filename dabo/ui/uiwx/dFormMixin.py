@@ -339,7 +339,8 @@ class dFormMixin(pm.dPemMixin):
 		""" Restore the saved window geometry for this form.
 
 		Ask dApp for the last saved setting of height, width, left, and top, 
-		and set those properties on this form.
+		and set those properties on this form. Also, if there was a font zoom
+		defined for this form, restore it.
 		"""
 		if self.Application and self.SaveRestorePosition:
 			name = self.getAbsoluteName()
@@ -348,6 +349,7 @@ class dFormMixin(pm.dPemMixin):
 			width = self.Application.getUserSetting("%s.width" % name)
 			height = self.Application.getUserSetting("%s.height" % name)
 			state = self.Application.getUserSetting("%s.windowstate" % name)
+			zoom = self.Application.getUserSetting("%s.zoomlevel" % name)
 
 			if isinstance(left, int) and isinstance(top, int):
 				self.Position = (left,top)
@@ -358,6 +360,9 @@ class dFormMixin(pm.dPemMixin):
 				if state == "Minimized":
 					state = "Normal"
 				self.WindowState = state
+				
+			if zoom:
+				dabo.ui.callAfter(self.iterateCall, "_changeFontSize", zoom)
 			self.restoredSP = True
 
 

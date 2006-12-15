@@ -2,6 +2,7 @@ import sys
 import time
 import types
 import wx
+from wx._core import PyAssertionError
 import dabo
 from dabo.dLocalize import _
 from dabo.ui.dPemMixinBase import dPemMixinBase
@@ -1048,12 +1049,12 @@ class dPemMixin(dPemMixinBase):
 	def increaseFontSize(self, val=None):
 		if val is None:
 			val = 1
-		self.__changeFontSize(val)
+		self._changeFontSize(val)
 	def decreaseFontSize(self, val=None):
 		if val is None:
 			val = -1
-		self.__changeFontSize(val)
-	def __changeFontSize(self, val):
+		self._changeFontSize(val)
+	def _changeFontSize(self, val):
 		try:
 			self.FontSize += val
 			self.refresh()
