@@ -1022,7 +1022,47 @@ class dPemMixin(dPemMixinBase):
 				if hasattr(kid, "setAll"):
 					kid.setAll(prop, val, recurse=recurse, filt=filt)
 
-			
+	
+	def iterateCall(self, funcName, *args, **kwargs):
+		"""Call the given function on this object and all of its Children. If
+		any object does not have the given function, no error is raised; it
+		is simply ignored. 
+		"""
+		ok = True
+		try:
+			fnc = eval("self.%s" % funcName)
+		except AttributeError:
+			ok = False
+		if ok:
+			fnc(*args, **kwargs)
+		if isinstance(self, dabo.ui.dGrid):
+			kids = self.Columns
+		else:
+			kids = self.Children
+		for kid in kids:
+			if hasattr(kid, "iterateCall"):
+				kid.iterateCall(funcName, *args, **kwargs)
+
+	
+	# These three functions are essentially a single unit that provides for font size mods.
+	def increaseFontSize(self, val=None):
+		if val is None:
+			val = 1
+		self.__changeFontSize(val)
+	def decreaseFontSize(self, val=None):
+		if val is None:
+			val = -1
+		self.__changeFontSize(val)
+	def __changeFontSize(self, val):
+		try:
+			self.FontSize += val
+		except PyAssertionError:
+			# This catches invalid point sizes
+			pass
+		if self.Form is not None:
+			dabo.ui.callAfterInterval(200, self.Form.layout)
+	
+	
 	def recreate(self, child=None):
 		"""Recreate the object. 
 

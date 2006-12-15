@@ -515,6 +515,63 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			pass
 
 
+	def iterateCall(self, funcName, *args, **kwargs):
+		"""Call the given function on this object and all of its Children. If
+		any object does not have the given function, no error is raised; it
+		is simply ignored. This is copied from dPemMixin, since dColumn
+		doesn't inherit from dPemMixin, and it is needed for the iterations
+		to work across grids.
+		"""
+		ok = True
+		try:
+			fnc = eval("self.%s" % funcName)
+		except AttributeError:
+			ok = False
+		if ok:
+			fnc(*args, **kwargs)
+	
+
+	def increaseFontSize(self, val=None):
+		"""Increase the font size by the specified amount for both the column
+		and its header.
+		"""
+		if val is None:
+			val = 1
+		self.__changeFontSize(val)
+	def decreaseFontSize(self, val=None):
+		if val is None:
+			val = -1
+		self.__changeFontSize(val)
+	def __changeFontSize(self, val):
+		try:
+			self.FontSize += val
+		except PyAssertionError:
+			# This catches invalid point sizes
+			pass
+		try:
+			self.HeaderFontSize += val
+		except PyAssertionError:
+			# This catches invalid point sizes
+			pass
+		if self.Form is not None:
+			dabo.ui.callAfterInterval(200, self.Form.layout)
+
+
+
+		try:
+			self.FontSize += val
+		except PyAssertionError:
+			# This catches invalid point sizes
+			pass
+		try:
+			self.HeaderFontSize += val
+		except PyAssertionError:
+			# This catches invalid point sizes
+			pass
+		if self.Form is not None:
+			dabo.ui.callAfterInterval(200, self.Form.layout)
+
+
 	def _setEditor(self, row):
 		"""Set the editor for the entire column based on the editor for this row.
 

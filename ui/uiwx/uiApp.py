@@ -160,8 +160,41 @@ class uiApp(dObject, wx.App):
 		if self.callback is not None:
 			wx.CallAfter(self.callback)
 		del self.callback
+		self.Bind(wx.EVT_KEY_DOWN, self._onKeyPress)
 		return True
-
+	
+	
+	def _onKeyPress(self, evt):
+		if not self.ActiveForm:
+			evt.Skip()
+			return
+		alt = evt.AltDown()
+		ctl = evt.ControlDown()
+		kcd = evt.GetKeyCode()
+		uch = evt.GetUniChar()
+		uk = evt.GetUnicodeKey()
+		met = evt.MetaDown()
+		sh = evt.ShiftDown()
+		if alt or met or not ctl:
+			evt.Skip()
+			return
+		try:
+			if wx.Platform == "__WXMAC__":
+				char = chr(evt.GetKeyCode())
+			else:	
+				char = chr(evt.GetRawKeyCode())
+		except (ValueError, OverflowError):
+			char = None
+		plus = (char == "=") or (char == "+") or (kcd == wx.WXK_NUMPAD_ADD)
+		minus = (char == "-") or (kcd == wx.WXK_NUMPAD_SUBTRACT)
+		if not (plus or minus):
+			evt.Skip()
+			return
+		if plus:
+			self.ActiveForm.iterateCall("increaseFontSize")
+		else:
+			self.ActiveForm.iterateCall("decreaseFontSize")
+		
 
 	def setup(self):
 		frm = self.dApp.MainForm
