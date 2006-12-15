@@ -192,10 +192,15 @@ class uiApp(dObject, wx.App):
 		if not (plus or minus):
 			evt.Skip()
 			return
+		settingName = "%s.zoomlevel" % self.ActiveForm.Name
+		currZoom = self.dApp.getUserSetting(settingName, 0)
 		if plus:
 			self.ActiveForm.iterateCall("increaseFontSize")
+			currZoom += 1
 		else:
 			self.ActiveForm.iterateCall("decreaseFontSize")
+			currZoom -= 1
+		self.dApp.setUserSetting(settingName, currZoom)
 		
 
 	def setup(self):

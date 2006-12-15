@@ -5,6 +5,7 @@ import locale
 import operator
 import wx
 import wx.grid
+from wx._core import PyAssertionError
 import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -542,22 +543,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		if val is None:
 			val = -1
 		self.__changeFontSize(val)
-	def __changeFontSize(self, val):
-		try:
-			self.FontSize += val
-		except PyAssertionError:
-			# This catches invalid point sizes
-			pass
-		try:
-			self.HeaderFontSize += val
-		except PyAssertionError:
-			# This catches invalid point sizes
-			pass
-		if self.Form is not None:
-			dabo.ui.callAfterInterval(200, self.Form.layout)
-
-
-
+	def _changeFontSize(self, val):
 		try:
 			self.FontSize += val
 		except PyAssertionError:
