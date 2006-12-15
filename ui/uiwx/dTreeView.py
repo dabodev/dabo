@@ -1024,47 +1024,50 @@ if __name__ == "__main__":
 	
 	class TreeViewTestForm(dabo.ui.dForm):
 		def afterInit(self):
-			tree = self.tree = _dTreeView_test(self)
-			self.Sizer.append1x(tree, border=12)
-			self.Sizer.DefaultBorder = 7
-			self.Sizer.DefaultBorderLeft = self.Sizer.DefaultBorderTop = True
+			mp = dabo.ui.dPanel(self)
+			self.Sizer.append1x(mp)
+			sz = mp.Sizer = dabo.ui.dSizer("v")
+			tree = self.tree = _dTreeView_test(mp)
+			sz.append1x(tree, border=12)
+			sz.DefaultBorder = 7
+			sz.DefaultBorderLeft = sz.DefaultBorderTop = True
 			
-			chk = dabo.ui.dCheckBox(self, Caption="Editable", 
+			chk = dabo.ui.dCheckBox(mp, Caption="Editable", 
 					DataSource=tree, DataField="Editable")
-			self.Sizer.append(chk, halign="Left")
+			sz.append(chk, halign="Left")
 
-			chk = dabo.ui.dCheckBox(self, Caption="MultipleSelect", 
+			chk = dabo.ui.dCheckBox(mp, Caption="MultipleSelect", 
 					DataSource=tree, DataField="MultipleSelect")
-			self.Sizer.append(chk, halign="Left")
+			sz.append(chk, halign="Left")
 
-			chk = dabo.ui.dCheckBox(self, Caption="ShowButtons", 
+			chk = dabo.ui.dCheckBox(mp, Caption="ShowButtons", 
 					DataSource=tree, DataField="ShowButtons")
-			self.Sizer.append(chk, halign="Left")
+			sz.append(chk, halign="Left")
 
-			chk = dabo.ui.dCheckBox(self, Caption="ShowLines", 
+			chk = dabo.ui.dCheckBox(mp, Caption="ShowLines", 
 					DataSource=tree, DataField="ShowLines")
-			self.Sizer.append(chk, halign="Left")
+			sz.append(chk, halign="Left")
 
-			chk = dabo.ui.dCheckBox(self, Caption="ShowRootNode", 
+			chk = dabo.ui.dCheckBox(mp, Caption="ShowRootNode", 
 					DataSource=tree, DataField="ShowRootNode")
-			self.Sizer.append(chk, halign="Left")
+			sz.append(chk, halign="Left")
 
-			chk = dabo.ui.dCheckBox(self, Caption="ShowRootNodeLines", 
+			chk = dabo.ui.dCheckBox(mp, Caption="ShowRootNodeLines", 
 					DataSource=tree, DataField="ShowRootNodeLines")
-			self.Sizer.append(chk, halign="Left")
+			sz.append(chk, halign="Left")
 			
 			self.update()
 			
-			btnEx = dabo.ui.dButton(self, Caption="Expand All")
+			btnEx = dabo.ui.dButton(mp, Caption="Expand All")
 			btnEx.bindEvent(dEvents.Hit, self.onExpandAll)
-			btnCl = dabo.ui.dButton(self, Caption="Collapse All")
+			btnCl = dabo.ui.dButton(mp, Caption="Collapse All")
 			btnCl.bindEvent(dEvents.Hit, self.onCollapseAll)
 			hsz = dabo.ui.dSizer("H")
 			hsz.append(btnEx)
 			hsz.appendSpacer(5)
 			hsz.append(btnCl)
-			self.Sizer.append(hsz)
-			self.Sizer.appendSpacer(10)
+			sz.append(hsz)
+			sz.appendSpacer(10)
 		
 		
 		def onExpandAll(self, evt):
