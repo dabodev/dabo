@@ -175,7 +175,8 @@ class uiApp(dObject, wx.App):
 		uk = evt.GetUnicodeKey()
 		met = evt.MetaDown()
 		sh = evt.ShiftDown()
-		if alt or met or not ctl:
+#		if alt or met or not ctl:
+		if alt or not ctl:
 			evt.Skip()
 			return
 		try:
