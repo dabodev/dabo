@@ -27,7 +27,12 @@ class dUserSettingProvider(dPref):
 		""" Return the value of the user settings table that 
 		corresponds to the preference key passed.
 		"""
-		ret = self.getValue(item.lower())
+		prf = self
+		parsedItem = item.lower().split(".")
+		while len(parsedItem) > 1:
+			prf = prf.__getattr__(parsedItem.pop(0))
+		key = parsedItem[0]
+		ret = prf.getValue(key)
 		if ret is None:
 			# No such pref key. Return the default
 			ret = default
