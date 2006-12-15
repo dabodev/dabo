@@ -1056,6 +1056,7 @@ class dPemMixin(dPemMixinBase):
 	def __changeFontSize(self, val):
 		try:
 			self.FontSize += val
+			self.refresh()
 		except PyAssertionError:
 			# This catches invalid point sizes
 			pass

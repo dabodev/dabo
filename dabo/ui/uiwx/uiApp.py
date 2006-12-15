@@ -179,10 +179,11 @@ class uiApp(dObject, wx.App):
 			evt.Skip()
 			return
 		try:
-			if wx.Platform == "__WXMAC__":
-				char = chr(evt.GetKeyCode())
-			else:	
-				char = chr(evt.GetRawKeyCode())
+			char = chr(evt.GetKeyCode())
+#- 			if wx.Platform == "__WXMAC__":
+#- 				char = chr(evt.GetKeyCode())
+#- 			else:	
+#- 				char = chr(evt.GetRawKeyCode())
 		except (ValueError, OverflowError):
 			char = None
 		plus = (char == "=") or (char == "+") or (kcd == wx.WXK_NUMPAD_ADD)
