@@ -86,11 +86,12 @@ class DesignerXmlConverter(dObject):
 
 		if parseCode:
 			codePth = "%s-code.py" % os.path.splitext(src)[0]
-			try:
-				codeDict = desUtil.parseCodeFile(open(codePth).read())
-				desUtil.addCodeToClassDict(dct, codeDict)
-			except StandardError, e:
-				print "Failed to parse code file:", e
+			if os.path.exists(codePth):
+				try:
+					codeDict = desUtil.parseCodeFile(open(codePth).read())
+					desUtil.addCodeToClassDict(dct, codeDict)
+				except StandardError, e:
+					print "Failed to parse code file:", e
 		return dct
 
 
