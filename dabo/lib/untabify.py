@@ -23,7 +23,7 @@ def main():
 	for filename in args:
 		process(filename, tabsize)
 
-def process(filename, tabsize):
+def process(filename, tabsize, saveBackup=True):
 	try:
 		f = open(filename)
 		text = f.read()
@@ -34,19 +34,20 @@ def process(filename, tabsize):
 	newtext = text.expandtabs(tabsize)
 	if newtext == text:
 		return
-	backup = filename + "~"
-	try:
-		os.unlink(backup)
-	except os.error:
-		pass
-	try:
-		os.rename(filename, backup)
-	except os.error:
-		pass
+	if saveBackup:
+		backup = filename + "~"
+		try:
+			os.unlink(backup)
+		except os.error:
+			pass
+		try:
+			os.rename(filename, backup)
+		except os.error:
+			pass
 	f = open(filename, "w")
 	f.write(newtext)
 	f.close()
-	print filename
+# 	print filename
 
 if __name__ == '__main__':
 	main()
