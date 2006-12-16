@@ -312,10 +312,12 @@ class dBizobj(dObject):
 			# Tell the cursor to begin a transaction, if needed.
 			cursor.beginTransaction()
 
-		# OK, this actually does the saving to the database
+		# Save to the Database, but first save the IsAdding flag as the save() call
+		# will reset it to False:
+		isAdding = self.IsAdding
 		try:
 			cursor.save()
-			if self.IsAdding:
+			if isAdding:
 				# Call the hook method for saving new records.
 				self._onSaveNew()
 
