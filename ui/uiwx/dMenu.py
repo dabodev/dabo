@@ -252,22 +252,34 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			self.remove(0)
 	
 	
-	def setCheck(self, cap, unCheckOthers=True):
-		"""When using checkmark-type menus, passing the
-		caption of the item you want checked to this method 
+	def setItemCheck(self, itm, val):
+		"""Pass a menu item and a boolean value, and the checked
+		state of that menu item will be set accordingly.
+		"""
+		itm.Check(val)
+		
+		
+		
+	def setCheck(self, capOrItem, unCheckOthers=True):
+		"""When using checkmark-type menus, passing the item or
+		the caption of the item you want checked to this method 
 		will check that item. If unCheckOthers is True, non-
 		matching items will be unchecked.
 		"""
+		if isinstance(capOrItem, basestring):
+			target = self.getItem(capOrItem)
+		else:
+			target = capOrItem
 		for itm in self.Children:
-			if itm.GetText() == cap:
+			if itm is target:
 				try:
-					itm.Check(True)
+					itm.Checked =True
 				except:
 					pass
 			else:
 				if unCheckOthers:
 					try:
-						itm.Check(False)
+						itm.Checked = False
 					except:
 						pass
 	
@@ -284,7 +296,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		else:
 			itm = capOrItem
 		if itm is not None and itm.IsCheckable():
-			ret = itm.IsChecked()
+			ret = itm.Checked
 		else:
 			ret = None
 		return ret
@@ -295,7 +307,10 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		itmid = self._getItemID(menutype)
 		if itmid != wx.ID_DEFAULT:
 			kwargs["id"] = itmid
-		itm = dMenuItem.dMenuItem(self, HelpText=help, Icon=icon, 
+		cls = {NormalItemType: dMenuItem.dMenuItem,
+				CheckItemType: dMenuItem.dCheckMenuItem,
+				RadioItemType: dMenuItem.dRadioMenuItem}[itmtyp]
+		itm = cls(self, HelpText=help, Icon=icon, 
 				kind=itmtyp, **kwargs)
 		if bindfunc:
 			itm.bindEvent(dEvents.Hit, bindfunc)
