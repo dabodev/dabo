@@ -106,12 +106,15 @@ class BaseForm(fm.dFormMixin):
 			if changed:
 				response = dabo.ui.areYouSure(_("Do you wish to save your changes?"),
 						cancelButton=True)
-				if response == None:    # cancel
-					# They canceled, so don't let the form close
+				if response == None:     ## cancel
+					# Don't let the form close
 					return False
-				elif response == True:  # yes
+				elif response == True:   ## yes
 					for biz in bizList:
 						self.save(dataSource=biz.DataSource)
+				elif response == False:  ## no
+					for biz in bizList:
+						self.cancel(dataSource=biz.DataSource)
 		return True
 	
 	
