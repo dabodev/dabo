@@ -96,7 +96,11 @@ class Form(dabo.ui.dForm):
 		if dataSource is None:
 			if self.saveCancelRequeryAll:
 				dataSource = self._mainTable
-		return super(Form, self).save(dataSource)
+		## The bizobj may have made some changes to the data during the save, so 
+		## make sure it is reflected on screen by calling update() afterwards.
+		ret = super(Form, self).save(dataSource)
+		self.update()
+		return ret
 	
 	
 	def cancel(self, dataSource=None):
