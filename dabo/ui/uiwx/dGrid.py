@@ -538,11 +538,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		"""
 		if val is None:
 			val = 1
-		self.__changeFontSize(val)
+		self._changeFontSize(val)
 	def decreaseFontSize(self, val=None):
 		if val is None:
 			val = -1
-		self.__changeFontSize(val)
+		self._changeFontSize(val)
 	def _changeFontSize(self, val):
 		try:
 			self.FontSize += val
