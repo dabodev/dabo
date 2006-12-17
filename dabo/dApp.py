@@ -178,6 +178,11 @@ class dApp(dObject):
 		self._tempFileHolder = TempFileHolder()
 		self.getTempFile = self._tempFileHolder.getTempFile
 
+		# List of form classes to open on App Startup
+		self.formsToOpen = []  
+		# Form to open if no forms were passed as a parameter
+		self.default_form = None
+
 		# For simple UI apps, this allows the app object to be created
 		# and started in one step. It also suppresses the display of
 		# the main form.
@@ -226,6 +231,24 @@ class dApp(dObject):
 		# Flip the flag
 		self._wasSetup = True
 
+	def startupForms(self):
+				
+		# Open one or more of the defined forms. 
+		# A default one is specified in .default_form.
+		# If form names were 
+		# passed on the command line, they will be opened instead of the default one
+		# as long as they exist.
+
+		form_names = [class_name[3:] for class_name in dir(self.ui) if class_name[:3] == "Frm"]
+		for arg in sys.argv[1:]:
+			arg = arg.lower()
+			for form_name in form_names:
+				if arg == form_name.lower():
+					self.formsToOpen.append(getattr(self.ui, "Frm%s" % form_name))
+		if not self.formsToOpen:
+			self.formsToOpen.append(self.default_form)
+		for frm in self.formsToOpen:
+			frm(self.MainForm).show()
 
 	def initUIApp(self):
 		"""Callback from the initial app setup. Used to allow the 
