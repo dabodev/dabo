@@ -160,7 +160,8 @@ class MySQL(dBackend):
 			if i[0] != "_":
 				v = getattr(ftypes, i)
 				typeMapping[v] = i
-		
+		# typeMapping[16]='BIT'
+
 		daboMapping = {"BIT": "I",
 				"BLOB": "M",
 				"CHAR": "C",
