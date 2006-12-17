@@ -199,14 +199,15 @@ class dApp(dObject):
 		# dabo is going to want to import various things from the Home Directory
 		if self.HomeDirectory not in sys.path:
 			sys.path.append(self.HomeDirectory)
-		if not self.getAppInfo("appName"):
-			self.setAppInfo("appName", "Dabo Application")
-		if not self.getAppInfo("appShortName"):
-			self.setAppInfo("appShortName", self.getAppInfo("appName").replace(" ", ""))
-		if not self.getAppInfo("appVersion"):
-				self.setAppInfo("appVersion", "")
-		if not self.getAppInfo("vendorName"):
-			self.setAppInfo("vendorName", "")
+		
+		def initAppInfo(item, default):
+			if not self.getAppInfo(item):
+				self.setAppInfo(item, default)
+
+		initAppInfo("appName", "Dabo Application")
+		initAppInfo("appShortName", self.getAppInfo("appName").replace(" ", ""))
+		initAppInfo("appVersion", "")
+		initAppInfo("vendorName", "")
 
 		self._initDB()
 		
