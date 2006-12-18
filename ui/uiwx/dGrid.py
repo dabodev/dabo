@@ -2714,6 +2714,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._syncColumnCount()
 		self._syncRowCount()
 		super(dGrid, self).refresh()
+	
+	
+	def update(self):
+		super(dGrid, self).update()
+		self.fillGrid()
 
 
 	def _getWxHeader(self):
@@ -3147,16 +3152,94 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			evt.Skip()
 			
 	
+	def __onWxGridSelectCell(self, evt):
+		if getattr(self, "_inSelect", False):
+			# Avoid recursion
+			return
+		self._inSelect = True
+		if evt.Selecting():
+			self._updateWxSelection(evt)
+		self.raiseEvent(dEvents.GridCellSelected, evt)
+		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
+		evt.Skip()
+		self._inSelect = False
+
+
 	def __onWxGridRangeSelect(self, evt):
 		if self._inRangeSelect:
 			# avoid recursive events
 			return
 		self._inRangeSelect = True
+		if evt.Selecting():
+			self._updateWxSelection(evt)
 		self.raiseEvent(dEvents.GridRangeSelected, evt)
 		evt.Skip()
 		self._inRangeSelect = False
 		
-		
+	
+	def _updateWxSelection(self, evt):
+		if self.MultipleSelection:
+			# Nothing to do
+			return
+		origRow, origCol = self.CurrentRow, self.CurrentColumn
+		mode = self.GetSelectionMode()
+		try:
+			top, bott = evt.GetTopRow(), evt.GetBottomRow()
+		except AttributeError:
+			top = bott = evt.GetRow()
+		try:
+			left, right = evt.GetLeftCol(), evt.GetRightCol()
+		except AttributeError:
+			left = right = evt.GetCol()
+		try:
+			if mode == wx.grid.Grid.wxGridSelectRows:
+				if (top != bott) or (top != origCol):
+					# Attempting to select a range
+					if top == origRow:
+						row = bott
+					else:
+						row = top
+					self.SetGridCursor(row, self._lastCol)
+					self.SelectRow(row)
+			elif mode == wx.grid.Grid.wxGridSelectColumns:
+				if (left != right) or (left != origCol):
+					# Attempting to select a range
+					if left == origCol:
+						col = right
+					else:
+						col = left
+					self.SetGridCursor(self._lastRow, col)
+					self.SelectCol(col)
+			else:
+				# Cells
+				chg = False
+				row, col = origRow, origCol
+				if top != bott:
+					chg = True
+					if top == origRow:
+						row = bott
+					else:
+						row = top
+				elif top != origRow:
+					# New row
+					chg = True
+					row = top
+				if left != right:
+					chg = True
+					if left == origCol:
+						col = right
+					else:
+						col = left
+				elif left != origCol:
+					# New col
+					chg = True
+					col = left
+				if chg:
+					self.SetGridCursor(row, col)
+					self.SelectBlock(row, col, row, col)
+		except: pass
+
+
 	def __onWxGridEditorShown(self, evt):
 		self.raiseEvent(dEvents.GridCellEditBegin, evt)
 		evt.Skip()
@@ -3191,17 +3274,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		else:
 			self.raiseEvent(dEvents.GridRowSize, evt)
 			evt.Skip()
-
-
-	def __onWxGridSelectCell(self, evt):
-		if getattr(self, "_inSelect", False):
-			# Avoid recursion
-			return
-		self._inSelect = True
-		self.raiseEvent(dEvents.GridCellSelected, evt)
-		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
-		evt.Skip()
-		self._inSelect = False
 
 
 	def __onWxHeaderContextMenu(self, evt):
