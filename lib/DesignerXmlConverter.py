@@ -19,6 +19,11 @@ LINESEP = "\n"
 
 
 class DesignerXmlConverter(dObject):
+	def __init__(self, *args, **kwargs):
+		self._createDesignerControls = False
+		super(DesignerXmlConverter, self).__init__(*args, **kwargs)
+		
+
 	def afterInit(self):
 		# Set the text definitions separately. Since they require special indentation to match the 
 		# generated code and not the code in this class, it is much cleaner to define them 
@@ -103,6 +108,8 @@ class DesignerXmlConverter(dObject):
 		cdFileNoExt = os.path.splitext(cdFile)[0]
 		if addImports:
 			self.classText += self._clsHdrText % (cdPath, cdPath, cdFileNoExt, self._codeImportAs, "%s")
+		if self.CreateDesignerControls:
+			self.classText += self._designerClassGenText
 
 		# Holds any required class definitions for contained objects
 		self.innerClassText = ""
@@ -144,8 +151,13 @@ class DesignerXmlConverter(dObject):
 			if propDef["defaultType"] == "string":
 				val = "\"" + val + "\""
 			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
-		self.classText += 	self.containerClassTemplate  % (clsName, nm, 
-				self.currParent, cleanAtts, nm, self.indentCode(propInit, 2))
+		if self.CreateDesignerControls:
+			superName = "getControlClass(dabo.ui.%s)" % nm
+		else:
+			superName = "dabo.ui.%s" % nm
+		prnt = self.currParent
+		indCode = self.indentCode(propInit, 2)
+		self.classText += 	self.containerClassTemplate  % locals()
 		self.classText += self._stackInitText
 		# Add the child code.
 		self.createChildCode(kids, specKids)
@@ -165,8 +177,14 @@ class DesignerXmlConverter(dObject):
 		# Add any contained class definitions.
 		if self.innerClassText:
 			innerTxt = (3 * LINESEP) + self._innerClsDefText
+			
+			if self.CreateDesignerControls:
+				superEval = "getControlClass(eval(clsName))"
+			else:
+				superEval = "eval(clsName)"
 			# Add in the class definition text
-			innerTxt = innerTxt % self.indentCode(self.innerClassText, 2)
+			indCode = self.indentCode(self.innerClassText, 2)
+			innerTxt = innerTxt % locals()
 			self.classText += innerTxt
 		
 		# We're done!
@@ -251,12 +269,21 @@ class DesignerXmlConverter(dObject):
 					prnt = "currParent, "
 					propString = "'%s', Caption=\"%s\"" % (self._extractKey(atts, "Orientation", "H"), 
 							self._extractKey(atts, "Caption", ""))
-				self.classText += LINESEP + self._szText % (nm, prnt, propString, rowColString, szInfo)
+				if self.CreateDesignerControls:
+					superName = clsname
+				else:
+					superName = "dabo.ui.%s" % nm
+				self.classText += LINESEP + self._szText % locals()
 			
 			elif clsname == "LayoutSpacerPanel":
+				if self.CreateDesignerControls:
+					spcObjDef = "currSizer.append(LayoutSpacerPanel(currParent, Spacing=%(spc)s))"
+				else:
+					spcObjDef = "currSizer.appendSpacer(%(spc)s)"
 				# Insert a spacer
 				spc = atts.get("Spacing", "10")
-				self.classText += LINESEP + self._spcText % (spc, szInfo)
+				spcObjDef = spcObjDef % locals()
+				self.classText += LINESEP + self._spcText % locals()
 			else:
 				# This isn't a sizer; it's a control
 				attPropString = ""
@@ -271,11 +298,13 @@ class DesignerXmlConverter(dObject):
 					cleanAtts["ShowPanelSplitMenu"] = "False"
 					splitterString = self._spltText % locals()
 				if isCustom:
-					nm = "self.getCustControlClass('%s')" % nm
+					superName = "self.getCustControlClass('%s')" % nm
 				else:
-					moduleString = "dabo.ui."
+					if self.CreateDesignerControls:
+						superName = "getControlClass(dabo.ui.%s)" % nm
+					else:
+						superName = "dabo.ui.%s" % nm
 					attPropString = ", attProperties=%s" % cleanAtts
-
 				self.classText += LINESEP + self._createControlText % locals()
 			
 			# If this item has child objects, push the appropriate objects
@@ -505,15 +534,28 @@ class DesignerXmlConverter(dObject):
 					ret[key] = val
 		dabo.lib.utils.resolveAttributePathing(ret, self._srcFile)
 		return ret
-		
 	
+
+	def _getCreateDesignerControls(self):
+		return self._createDesignerControls
+
+	def _setCreateDesignerControls(self, val):
+		self._createDesignerControls = val
+
+
+	CreateDesignerControls = property(_getCreateDesignerControls, _setCreateDesignerControls, None,
+			_("When True, classes are mixed-in with the DesignerControlMixin  (bool)"))
+	
+		
+	### Text block definitions follow. They're going after the prop defs ###
+	### so as not to clutter the rest of the code visually.  ###
 	def _defineTextBlocks(self):
 		# Standard class template
-		self.containerClassTemplate = """class %s(dabo.ui.%s):
-	def __init__(self, parent=%s, attProperties=%s):
-		dabo.ui.%s.__init__(self, parent=parent, attProperties=attProperties)
+		self.containerClassTemplate = """class %(clsName)s(%(superName)s):
+	def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s):
+		super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties)
 		self.Sizer = None
-%s		
+%(indCode)s
 
 """
 		self.classTemplate = """class %s(dabo.ui.%s):
@@ -548,23 +590,24 @@ import %s as %s
 """
 		self._innerClsDefText = """	def getCustControlClass(self, clsName):
 		# Define the classes, and return the matching class
-%s
-		return eval(clsName)"""
-		self._szText = """		obj = dabo.ui.%s(%s%s)
+%(indCode)s
+		return %(superEval)s"""
+		
+		self._szText = """		obj = %(superName)s(%(prnt)s%(propString)s)
 		if currSizer:
-			currSizer.append(obj%s)
-			currSizer.setItemProps(obj, %s)
+			currSizer.append(obj%(rowColString)s)
+			currSizer.setItemProps(obj, %(szInfo)s)
 """
 		self._spcText = """		if currSizer:
-			itm = currSizer.appendSpacer(%s)
-			currSizer.setItemProps(itm, %s)
+			itm = %(spcObjDef)s
+			currSizer.setItemProps(itm, %(szInfo)s)
 """
 		self._spltText = """
 		dabo.ui.setAfter(obj, "Orientation", "%(ornt)s")
 		dabo.ui.setAfter(obj, "Split", %(splt)s)
 		dabo.ui.setAfter(obj, "SashPosition", %(pos)s)
 """
-		self._createControlText = """		obj = %(moduleString)s%(nm)s(currParent%(attPropString)s)%(splitterString)s
+		self._createControlText = """		obj = %(superName)s(currParent%(attPropString)s)%(splitterString)s
 		if currSizer:
 			currSizer.append(obj%(rowColString)s)
 			currSizer.setItemProps(obj, %(szInfo)s)
@@ -649,4 +692,29 @@ import %s as %s
 		self._innerPropText = """	%s = property(%s, %s, %s, 
 			\"\"\"%s\"\"\")
 """
+		self._designerClassGenText = """from ClassDesignerControlMixin import ClassDesignerControlMixin as cmix
+from ClassDesignerComponents import LayoutPanel
+from ClassDesignerComponents import LayoutBasePanel
+from ClassDesignerComponents import LayoutSpacerPanel
+from ClassDesignerComponents import LayoutSizer
+from ClassDesignerComponents import LayoutBorderSizer
+from ClassDesignerComponents import LayoutGridSizer
+from ClassDesignerComponents import LayoutSaverMixin
+from ClassDesignerComponents import NoSizerBasePanel
 
+def getControlClass(base):
+	# Create a pref key that is the Designer key plus the name of the control
+	prefkey = str(base).split(".")[-1].split("'")[0]
+	class controlMix(cmix, base):
+		superControl = base
+		superMixin = cmix
+		def __init__(self, *args, **kwargs):
+			if hasattr(base, "__init__"):
+				apply(base.__init__,(self,) + args, kwargs)
+			parent = self._extractKey(kwargs, "parent")
+			cmix.__init__(self, parent, **kwargs)
+			self.NameBase = str(self._baseClass).split(".")[-1].split("'")[0]
+			self.BasePrefKey = prefkey
+	return controlMix
+
+"""
