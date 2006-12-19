@@ -100,29 +100,38 @@ class BaseForm(fm.dFormMixin):
 			# Don't bother checking
 			return True
 		bizList = self.getBizobjsToCheck()
+		changedBizList = []
 		
-		if bizList:
-			changed = False
-			for biz in bizList:
-				if biz:
-					# Forms can return None in the list, so skip those
-					changed = changed or biz.isAnyChanged()
+		for biz in bizList:
+			if biz and biz.isAnyChanged():
+				changedBizList.append(biz)
 			
-			if changed:
-				response = dabo.ui.areYouSure(_("Do you wish to save your changes?"),
-						cancelButton=True)
-				if response == None:     ## cancel
-					# Don't let the form close, or requery happen
-					return False
-				elif response == True:   ## yes
-					for biz in bizList:
-						self.save(dataSource=biz.DataSource)
-				elif response == False:  ## no
-					for biz in bizList:
-						self.cancel(dataSource=biz.DataSource)
+		if changedBizList:
+			queryMessage = self.getConfirmChangesQueryMessage(changedBizList)
+			response = dabo.ui.areYouSure(queryMessage,	cancelButton=True)
+			if response == None:     ## cancel
+				# Don't let the form close, or requery happen
+				return False
+			elif response == True:   ## yes
+				for biz in bizList:
+					self.save(dataSource=biz.DataSource)
+			elif response == False:  ## no
+				for biz in bizList:
+					self.cancel(dataSource=biz.DataSource)
 		return True
 	
-	
+
+	def getConfirmChangesQueryMessage(self, changedBizList):
+		"""Return the "Save Changes?" message for use in the query dialog.
+
+		The default is to return "Do you wish to save your changes?". Subclasses
+		can override with whatever message they want, possibly iterating the 
+		changed bizobj list to introspect the exact changes made to construct the
+		message.
+		"""
+		return _("Do you wish to save your changes?")
+
+
 	def getBizobjsToCheck(self):
 		"""Return the list of bizobj's to check for changes during confirmChanges().
 
