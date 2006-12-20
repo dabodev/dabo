@@ -113,10 +113,10 @@ class BaseForm(fm.dFormMixin):
 				# Don't let the form close, or requery happen
 				return False
 			elif response == True:   ## yes
-				for biz in bizList:
+				for biz in changedBizList:
 					self.save(dataSource=biz.DataSource)
 			elif response == False:  ## no
-				for biz in bizList:
+				for biz in changedBizList:
 					self.cancel(dataSource=biz.DataSource)
 		return True
 	
