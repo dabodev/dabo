@@ -28,7 +28,7 @@ class dImage(dcm.dDataControlMixin, dim.dImageMixin, wx.StaticBitmap):
 	
 		dim.dImageMixin.__init__(self)
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
-				bitmap=bmp, *args, **kwargs)
+				attProperties, bitmap=bmp, *args, **kwargs)
 		
 		# Display the picture, if any. This will also initialize the 
 		# self._picture attribute
