@@ -442,7 +442,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		att = self._gridColAttr = parent._defaultGridColAttr.Clone()
 		att.SetFont(self._getDefaultFont()._nativeFont)
 
-		super(dColumn, self).__init__(properties, *args, **kwargs)
+		super(dColumn, self).__init__(properties, attProperties, *args, **kwargs)
 		self._baseClass = dColumn
 
 

@@ -353,16 +353,18 @@ class BaseForm(fm.dFormMixin):
 			# A False from confirmChanges means "don't proceed"
 			return
 
-		self.setStatusText(_("Please wait... requerying dataset..."))
+#		self.setStatusText(_("Please wait... requerying dataset..."))
 		
 		try:
+			busy = dabo.ui.busyInfo(_("Please wait... requerying dataset..."))
 			self.stopWatch.Start()
-			response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
-#			response = bizobj.requery()
+#			response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
+			response = bizobj.requery()
 			self.stopWatch.Pause()
 			elapsed = round(self.stopWatch.Time()/1000.0, 3)
 			
 			self.update()
+			del busy
 
 			# Notify listeners that the row number changed:
 			self.raiseEvent(dEvents.RowNumChanged)
