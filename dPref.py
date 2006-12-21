@@ -183,8 +183,8 @@ class dPref(object):
 			ret = eval("datetime.datetime%s" % val)
 		elif typ == "none":
 			ret = None
-		if ret is None:
-			print "NONE", rec
+# 		if ret is None:
+# 			print "NONE", rec
 		return ret
 
 		
