@@ -163,15 +163,15 @@ class PropertyHelperMixin(object):
 		self.setProperties({"FontBold": True}, ForeColor="Red")
 		"""
 		def _setProps(_propDict):
-			delayedSetter, delayedValue = None, None
+			delayedSettings = {}
 			for prop in _propDict.keys():
 				propRef = eval("self.__class__.%s" % prop)
 				if type(propRef) == property:
 					setter = propRef.fset
 					if setter is not None:
-						if prop == "Value":	
+						if prop in ("Value", "Picture"):
 							# We need to delay setting this to last
-							delayedSetter, delayedValue = setter, _propDict[prop]
+							delayedSettings[setter] = _propDict[prop]
 						else:
 							setter(self, _propDict[prop])
 					else:
@@ -179,8 +179,9 @@ class PropertyHelperMixin(object):
 							raise ValueError, "Property '%s' is read-only." % prop
 				else:
 					raise AttributeError, "'%s' is not a property." % prop
-			if delayedSetter is not None:
-				delayedSetter(self, delayedValue)
+			if delayedSettings is not None:
+				for setter, val in delayedSettings.items():
+					setter(self, val)
 					
 		# Set the props specified in the passed propDict dictionary:
 		_setProps(propDict)
