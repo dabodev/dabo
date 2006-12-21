@@ -193,9 +193,9 @@ class dCursorMixin(dObject):
 							break
 				else:
 					raise UnicodeDecodeError, e
-		elif isinstance(field_val, array.array):
-			# Usually blob data
-			ret = val.tostring()
+# 		elif isinstance(field_val, array.array):
+# 			# Usually blob data
+# 			ret = field_val.tostring()
 
 		return ret
 
@@ -210,13 +210,16 @@ class dCursorMixin(dObject):
 		#### NOTE: NEEDS TO BE TESTED THOROUGHLY!!!!  ####
 
 		# Some backends, notably Firebird, require that fields be specially marked.
+		if not isinstance(sql, unicode):
+			sql = unicode(sql, self.Encoding)
 		sql = self.processFields(sql)
 		
 		# Make sure all Unicode characters are properly encoded.
-		if isinstance(sql, unicode):
-			sqlEX = sql.encode(self.Encoding)
-		else:
-			sqlEX = sql
+# 		if isinstance(sql, unicode):
+# 			sqlEX = sql.encode(self.Encoding)
+# 		else:
+# 			sqlEX = sql
+		sqlEX = sql
 		
 		try:
 			if params is None or len(params) == 0:
