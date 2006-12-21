@@ -1918,7 +1918,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					except (dException.dException, dException.NoRecordsException):
 						err = True
 					if err:
-						raise AttributeError, _(" '%s' object has no attribute '%s' ") % (self.cursor.DataSource, att)
+						raise AttributeError, _("Record has no field '%s'") % att
 					return ret
 			
 				def __setattr__(self, att, val):
