@@ -3564,7 +3564,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if self._constructed():
 			self.SetColLabelSize(val)
 		else:
-			self._properties["HeaderHeight"]
+			self._properties["HeaderHeight"] = val
 	
 	
 	def _getHeaderHorizontalAlignment(self):
