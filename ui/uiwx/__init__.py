@@ -268,7 +268,9 @@ def busyInfo(msg="Please wait...", *args, **kwargs):
 		pass
 	bi = None
 	"""
-	return wx.BusyInfo(msg, *args, **kwargs)
+	bi = wx.BusyInfo(msg, *args, **kwargs)
+	wx.Yield()
+	return bi
 
 
 def continueEvent(evt):
