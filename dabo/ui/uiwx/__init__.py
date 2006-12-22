@@ -260,8 +260,8 @@ def yieldUI(*args, **kwargs):
 def busyInfo(msg="Please wait...", *args, **kwargs):
 	"""Display a message that the system is busy.
 
-	To use this, assign the return value to a local object. but note that the 
-	message will stay until the object is explicitly unbound. For example:
+	Assign the return value to a local object, and the message will stay until the 
+	object is explicitly unbound. For example:
 
 	bi = dabo.ui.busyInfo("Please wait while I count to 10000...")
 	for i in range(10000):
