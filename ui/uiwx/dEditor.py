@@ -1020,18 +1020,26 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			for k in dir(obj):
 				if k[0] != "_":
 					kw.append(k)
-					
+			
 			# Sort upper case:
 			kw.sort(lambda a,b: cmp(a.upper(), b.upper()))
-
 			# Images are specified with a appended "?type"
 			for i in range(len(kw)):
-				obj_ = eval("obj.%s" % kw[i])
+				try:
+					obj_ = eval("obj.%s" % kw[i])
+				except (AttributeError, TypeError):
+					continue
+				isEvent = False
+				if inspect.isclass(obj_):
+					try:
+						isEvent = issubclass(obj_, dEvents.Event)
+					except TypeError:
+						pass				
 				if type(obj_) == type(property()):
 					kw[i] = kw[i] + "?2"
 				elif inspect.isfunction(obj_) or inspect.ismethod(obj_):
 					kw[i] = kw[i] + "?4"
-				elif inspect.isclass(obj_) and issubclass(obj_, dEvents.Event):
+				elif isEvent:
 					kw[i] = kw[i] + "?3"
 				elif inspect.isclass(obj_):
 					kw[i] = kw[i] + "?5"
@@ -1357,8 +1365,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# Auto-completion code, used mostly unchanged from SPE
 	# Copyright www.stani.be
-	def autoComplete(self,object=0):
+	def autoComplete(self, object=0):
 		word	= self.getWord()
+		if isinstance(object, dEvents.KeyEvent):
+			object = 0
 		if not word: 
 			if object:
 				self.AddText('.')
