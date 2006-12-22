@@ -234,7 +234,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			else:
 				self._setPic(val)
 			if ((type(self.__imageData) != type(val)) or (self.__imageData != val)):
-				hnd, tfname = tempfile.mkstemp()
+				tfname = self.Application.getTempFile(ext="")
 				try:
 					self.__image.SaveFile(tfname, wx.BITMAP_TYPE_BMP)
 					self.__imageData = open(tfname, "rb").read()
