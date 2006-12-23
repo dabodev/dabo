@@ -142,12 +142,21 @@ class dPageFrameMixin(cm.dControlMixin):
 		return self.insertPage(self.GetPageCount(), pgCls, caption, imgKey)
 		
 	
-	def insertPage(self, pos, pgCls=None, caption="", imgKey=None):
+	def insertPage(self, pos, pgCls=None, caption="", imgKey=None,
+			ignoreOverride=False):
 		""" Insert the page into the pageframe at the specified position, 
 		and optionally sets the page caption and image. The image 
 		should have already been added to the pageframe if it is 
 		going to be set here.
 		"""
+		# Allow subclasses to potentially override this behavior. This will
+		# enable them to handle page creation in their own way. If overridden,
+		# the method will return the new page.
+		ret = None
+		if not ignoreOverride:
+			ret = self._insertPageOverride(pos, pgCls, caption, imgKey)
+		if ret:
+			return ret			
 		if pgCls is None:
 			pgCls = self.PageClass
 		if isinstance(pgCls, dPage):
@@ -169,6 +178,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		else:
 			self.InsertPage(pos, pg, text=caption)
 		return self.Pages[pos]
+	def _insertPageOverride(self, pos, pgCls, caption, imgKey): pass
 
 
 	def removePage(self, pgOrPos, delPage=True):
@@ -271,14 +281,15 @@ class dPageFrameMixin(cm.dControlMixin):
 			return dPage
 			
 	def _setPageClass(self, val):
-		if isinstance(val, basestring):
-			from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
-			conv = DesignerXmlConverter()
-			self._pageClass = conv.classFromXml(val)
-		elif issubclass(val, cm.dControlMixin):
-			self._pageClass = val
-		else:
-			raise TypeError, _("PageClass must descend from a Dabo base class.")
+		self._pageClass = val
+# 		if isinstance(val, basestring):
+# 			from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+# 			conv = DesignerXmlConverter()
+# 			self._pageClass = conv.classFromXml(val)
+# 		elif issubclass(val, cm.dControlMixin):
+# 			self._pageClass = val
+# 		else:
+# 			raise TypeError, _("PageClass must descend from a Dabo base class.")
 			
 			
 	def _getPageCount(self):
