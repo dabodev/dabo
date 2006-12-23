@@ -204,12 +204,14 @@ class dBackend(dObject):
 	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
 		if not cursor.AutoCommit:
-			cursor.connection.commit()
+# 			cursor.connection.commit()
+			self._connection.commit()
 
 
 	def rollbackTransaction(self, cursor):
 		""" Roll back (revert) a SQL transaction."""
-		cursor.connection.rollback()
+# 		cursor.connection.rollback()
+		self._connection.rollback()
 
 
 	def addWithSep(self, base, new, sep=",\n\t"):
