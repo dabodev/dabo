@@ -1106,7 +1106,9 @@ class dPemMixin(dPemMixinBase):
 	
 	def release(self):
 		"""Destroys the object."""
-		self.Destroy()
+		if self:
+			# Make sure something else hasn't already destroyed it.
+			self.Destroy()
 	
 	
 	def setFocus(self):
