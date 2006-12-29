@@ -8,38 +8,38 @@ class MSSQL(dBackend):
 		#- jfcs 11/06/06 first try getting Microsoft SQL 2000 server working
 		# MSSQL requires the installation of FreeTDS.  FreeTDS can be downloaded from 
 		# http://www.freetds.org/ 
-		# and the MSSQL module can be download from 
-		# http://www.object-craft.com.au/
-		# current version is 0.90
-		self.dbModuleName = "MSSQL"
+		self.dbModuleName = "pymssql"
 		self.useTransactions = True  # this does not appear to be required
+		import pymssql 
 
 
 	def getConnection(self, connectInfo):
-		"""The MSSQL module requires the connection be created for the FreeTDS libraries first.  Therefore, the 
+		"""The pymssql module requires the connection be created for the FreeTDS libraries first.  Therefore, the 
 		DSN is really the name of the connection for FreeTDS
 		  __init__(self, dsn, user, passwd, database = None, strip = 0)"""
-		import MSSQL 
-		#from MSSQL as dbapi
+		import pymssql 
 		
-		#- jfcs 11/01/06 port needs to be a string
-		# But really the FreeTDS sets the port....
 		port = str(connectInfo.Port)
 		if not port or port == "None":
-			port = "1433"
+			port = 1433
+		host = "%s:%s" % (connectInfo.Host, port)
+		user = connectInfo.User
+		password = connectInfo.revealPW()
+		database = connectInfo.Database
 				
-				
-		#jfcs the MSSQL.py is looking for a simple set of strings
-		#don't forget the connectInfo.Host is really the connection label from FreeTDS.
-		self._connection = MSSQL.connect(connectInfo.Host,connectInfo.User,connectInfo.revealPW(),connectInfo.Database)
-		#self._connection = dbapi.connect('MyServer2k','vamlogin','go','dean')
+		self._connection = pymssql.connect(host=host, user=user,password=password, database=database)
 		return self._connection
 
 
 	def getDictCursorClass(self):
 		"""Currently this is not working completely"""
-		import MSSQL as cursors
-		return cursors.Cursor
+		import pymssql
+		class conCursor(pymssql.pymssqlCursor):
+			def _getconn(self):
+				return self.__source
+			# pymssql doesn't supply this optional dbapi attribute, so create it here.
+			connection = property(_getconn, None, None)
+		return conCursor
 		#return cursors.Connection.cursor
 		
 
@@ -76,9 +76,6 @@ class MSSQL(dBackend):
 
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
-		
-		
- 
 		# Ok get the 'field name', 'field type'
 		tempCursor.execute("""SELECT table_name=sysobjects.name,
 				column_name=syscolumns.name,
@@ -175,7 +172,6 @@ class MSSQL(dBackend):
 
 	
 	def flush(self, cursor):
-		"""JFCS this is not working correctly"""
 		self.commitTransaction(cursor)
 		#self.commitTransaction()
 		
