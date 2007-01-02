@@ -1740,6 +1740,16 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		return self.GetModify()
 
 
+	def _getReadOnly(self):
+		return self.GetReadOnly()
+		
+	def _setReadOnly(self, val):
+		if self._constructed():
+			self.SetReadOnly(val)
+		else:
+			self._properties["ReadOnly"] = val
+
+
 	def _getSelectionBackColor(self):
 		return self._selectionBackColor
 
@@ -1985,6 +1995,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	
 	Modified = property(_getModified, None, None,
 			_("Has the content of this editor been modified?  (bool)"))
+	
+	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
+			_("Specifies whether or not the text can be edited. (bool)"))
 	
 	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
 			_("Background color of selected text. Default=yellow  (str or tuple)"))
