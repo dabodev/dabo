@@ -998,11 +998,20 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	return ret
 
 
-def saveScreenShot(obj=None, imgType=None, pth=None):
+def saveScreenShot(obj=None, imgType=None, pth=None, delaySeconds=None):
 	"""Takes a screenshot of the specified and writes it to a file, converting
 	it to the requested image type. If no object is specified, the current
-	ActiveForm is used.
+	ActiveForm is used. You can add an optional delaySeconds setting that 
+	will let you set things up as needed before the image is taken; if not specified,
+	the image is taken immediately.
 	"""
+	if delaySeconds is None:
+		_saveScreenShot(obj=obj, imgType=imgType, pth=pth)
+	else:
+		millisecs = delaySeconds * 1000
+		callAfterInterval(millisecs, _saveScreenShot, obj=obj, imgType=imgType, pth=pth)
+
+def _saveScreenShot(obj, imgType, pth):
 	if obj is None:
 		obj = dabo.dAppRef.ActiveForm
 	if obj is None:
