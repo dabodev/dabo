@@ -338,6 +338,28 @@ def flattenClassDict(cd, retDict=None):
 	return retDict
 
 
+def addInheritedInfo(src, super, updateCode=False):
+	"""Called recursively on the class container structure, modifying 
+	the attributes to incorporate superclass information. When the 
+	'updateCode' parameter is True, superclass code is added to the 
+	object's code
+	"""
+	atts = src.get("attributes", {})
+	kids = src.get("children", [])
+	code = src.get("code", {})
+	classID = atts.get("classID", "")
+	if classID:
+		superInfo = super.get(classID, {"attributes": {}, "code": {}})
+		src["attributes"] = superInfo["attributes"].copy()
+		src["attributes"].update(atts)
+		if updateCode:
+			src["code"] = superInfo["code"].copy()
+			src["code"].update(code)
+	if kids:
+		for kid in kids:
+			addInheritedInfo(kid, super, updateCode)
+
+
 
 if __name__ == "__main__":
 	test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name",
