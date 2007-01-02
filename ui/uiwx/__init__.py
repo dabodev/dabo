@@ -257,6 +257,10 @@ def yieldUI(*args, **kwargs):
 	wx.Yield(*args, **kwargs)	
 
 
+def beep():
+	wx.Bell()
+	
+
 def busyInfo(msg="Please wait...", *args, **kwargs):
 	"""Display a message that the system is busy.
 
