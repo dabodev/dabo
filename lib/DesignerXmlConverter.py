@@ -87,16 +87,13 @@ class DesignerXmlConverter(dObject):
 				xml = src
 				parseCode = False
 				self._srcFile = os.getcwd()
-		dct = xtd.xmltodict(xml)
+		dct = xtd.xmltodict(xml, addCodeFile=True)
+		# Traverse the dct, looking for superclass information
+		super = xtd.flattenClassDict(dct)
+		if super:
+			# We need to modify the info to incorporate the superclass info
+			xtd.addInheritedInfo(dct, super, updateCode=True)
 
-		if parseCode:
-			codePth = "%s-code.py" % os.path.splitext(src)[0]
-			if os.path.exists(codePth):
-				try:
-					codeDict = desUtil.parseCodeFile(open(codePth).read())
-					desUtil.addCodeToClassDict(dct, codeDict)
-				except StandardError, e:
-					print "Failed to parse code file:", e
 		return dct
 
 
