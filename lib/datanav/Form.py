@@ -390,6 +390,10 @@ class Form(dabo.ui.dForm):
 
 
 	def onQuickReport(self, evt):
+		# May not have records if called via toolbar button
+		if not self.enableQuickReport():
+			dabo.ui.exclaim(_("Sorry, there are no records to report on."), title=_("No Records"))
+			return
 		if self.preview:
 			# Just previewing 
 			dabo.ui.info(message="Not available in preview mode", 
