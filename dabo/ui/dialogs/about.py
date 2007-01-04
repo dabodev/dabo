@@ -65,7 +65,11 @@ class About(dabo.ui.dDialog):
 		app = self.Application
 
 		ds = []
-		ds.append({"name": "Platform:", "value": app.Platform})
+		if app:
+			plat = app.Platform
+		else:
+			plat = sys.platform
+		ds.append({"name": "Platform:", "value": plat})
 		ds.append({"name": "Python Version:", "value": "%s on %s" 
 				% (sys.version.split()[0], sys.platform)})
 		if app:
