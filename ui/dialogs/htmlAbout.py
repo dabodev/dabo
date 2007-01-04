@@ -53,7 +53,11 @@ class HtmlAbout(dabo.ui.dDialog):
 		app = self.Application
 
 		ds = []
-		ds.append({"name": "Platform:", "value": app.Platform})
+		if app:
+			plat = app.Platform
+		else:
+			plat = sys.platform
+		ds.append({"name": "Platform:", "value": plat})
 		ds.append({"name": "Python Version:", "value": "%s on %s"
 				% (sys.version.split()[0], sys.platform)})
 		if app:
@@ -73,14 +77,14 @@ class HtmlAbout(dabo.ui.dDialog):
 		return ds
 
 
-	def getInfoString(self):
+	def getInfoString(self, useHTML=True):
 		"""Return app information as a string."""
 		ds = self.getInfoDataSet()
 		lines = []
 		for r in ds:
 			lines.append("%s %s" % (r["name"], r["value"]))
 
-		eol = "<br>\n"
+		eol = {True: "<br>\n", False: "\n"}[useHTML]
 
 		return eol.join(lines)
 
@@ -95,8 +99,7 @@ class HtmlAbout(dabo.ui.dDialog):
 
 	def onCopyInfo(self, evt):
 		"""Copy the system information to the Clipboard"""
-#		self.Application.copyToClipboard(self.htmlBox.Source)
-		self.Application.copyToClipboard(self.getInfoString())
+		self.Application.copyToClipboard(self.getInfoString(useHTML=False))
 
 
 	def onClear(self, evt):
