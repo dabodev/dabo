@@ -439,7 +439,7 @@ class Form(dabo.ui.dForm):
 						"'yes', you'll be able to modify the file and it will be used "
 						"as the Quick Report from now on (it will no longer be auto-"
 						"generated). The file will be generated when you click 'OK'."
-						"\n\nGenerate the report form file?"):
+						"\n\nGenerate the report form file?", cancelButton=False):
 					self.saveNamedReportForm = True
 
 			def onOK(self, evt):
