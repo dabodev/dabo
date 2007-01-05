@@ -438,7 +438,7 @@ class Form(dabo.ui.dForm):
 						"(rfxml) to your application's reports directory? If you say "
 						"'yes', you'll be able to modify the file and it will be used "
 						"as the Quick Report from now on (it will no longer be auto-"
-						"generated). The file will be generated when you click 'OK'."
+						"generated). The file will be generated when you click 'Yes'."
 						"\n\nGenerate the report form file?", cancelButton=False):
 					self.saveNamedReportForm = True
 
