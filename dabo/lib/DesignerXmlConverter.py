@@ -80,11 +80,10 @@ class DesignerXmlConverter(dObject):
 			xml = src.read()
 			self._srcFile = src.name
 		else:
+			xml = src
 			if os.path.exists(src):
-				xml = open(src).read()
 				self._srcFile = src
 			else:
-				xml = src
 				parseCode = False
 				self._srcFile = os.getcwd()
 		dct = xtd.xmltodict(xml, addCodeFile=True)
