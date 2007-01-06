@@ -812,7 +812,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				self._insertChar = "."
 			else:
 				self._posBeforeCompList = self.GetCurrentPos() + 1
-				self.codeComplete()
+				dabo.ui.callAfter(self.codeComplete)
+		elif self.AutoAutoComplete:
+			dabo.ui.callAfter(self.autoComplete, minWordLen=3)
 
 
 	def onListSelection(self, evt):
@@ -1365,7 +1367,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	# Auto-completion code, used mostly unchanged from SPE
 	# Copyright www.stani.be
-	def autoComplete(self, object=0):
+	def autoComplete(self, object=0, minWordLen=0):
 		word	= self.getWord()
 		if isinstance(object, dEvents.KeyEvent):
 			object = 0
@@ -1376,6 +1378,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if object:
 			self.AddText('.')
 			word+='.'
+		if word and len(word) < minWordLen:
+			return
 		words	= self.getWords(word=word)
 		if word[-1] == '.':
 			try:
@@ -1387,7 +1391,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			except:
 				pass
 		if words:
-			words.sort()
+			words.sort(lambda a,b: cmp(a.upper(), b.upper()))
+
 			try:
 				self.AutoCompShow(len(word), " ".join(words))
 			except:
@@ -1577,6 +1582,30 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 	### Property definitions start here
 	
+	def _getAutoAutoComplete(self):
+		try:
+			return self._autoAutoComplete
+		except AttributeError:
+			ret = self._autoAutoComplete = self.Application.getUserSetting("AutoAutoComplete", False)
+			return ret
+	
+	def _setAutoAutoComplete(self, val):
+		self._autoAutoComplete = val
+		self.Application.setUserSetting("AutoAutoComplete", val)
+
+
+	def _getAutoAutoCompleteMinLen(self):
+		try:
+			return self._autoAutoCompleteMinLen
+		except AttributeError:
+			ret = self._autoAutoCompleteMinLen = self.Application.getUserSetting("AutoAutoCompleteMinLen", False)
+			return ret
+	
+	def _setAutoAutoCompleteMinLen(self, val):
+		self._autoAutoCompleteMinLen = val
+		self.Application.setUserSetting("AutoAutoCompleteMinLen", val)
+
+
 	def _getAutoCompleteList(self):
 		return self._autoCompleteList
 
@@ -1941,6 +1970,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.SetZoom(val)
 
 
+	AutoAutoComplete = property(_getAutoAutoComplete, _setAutoAutoComplete, None,
+			_("Determines if auto-completion pops up without a special trigger key  (bool)"))
+			
+	AutoAutoCompleteMinLen = property(_getAutoAutoCompleteMinLen, _setAutoAutoCompleteMinLen, None,
+			_("""When AutoAutoComplete is True, sets the minimum # of chars required
+			before the autocomplete popup appears. Default=3  (int)"""))
+			
 	AutoCompleteList = property(_getAutoCompleteList, _setAutoCompleteList, None,
 			_("""Controls if the user has to press 'Enter/Tab' to accept 
 			the AutoComplete entry  (bool)"""))
