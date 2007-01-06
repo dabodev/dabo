@@ -668,6 +668,7 @@ def getFont(font=None):
 	Font property.
 	"""
 	fnt = None
+	ret = None
 	if font is None:
 		param = None
 	else:
@@ -680,7 +681,9 @@ def getFont(font=None):
 	if dlg.show() == kons.DLG_OK:
 		fnt = dlg.getFont()
 	dlg.release()
-	return dFont(_nativeFont=fnt)
+	if fnt is not None:
+		ret = dFont(_nativeFont=fnt)
+	return ret
 
 
 def getAvailableFonts():
