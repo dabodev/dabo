@@ -814,7 +814,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				self._posBeforeCompList = self.GetCurrentPos() + 1
 				dabo.ui.callAfter(self.codeComplete)
 		elif self.AutoAutoComplete:
-			dabo.ui.callAfter(self.autoComplete, minWordLen=3)
+			dabo.ui.callAfter(self.autoComplete, minWordLen=self.AutoAutoCompleteMinLen)
 
 
 	def onListSelection(self, evt):
