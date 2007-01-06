@@ -1598,7 +1598,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		try:
 			return self._autoAutoCompleteMinLen
 		except AttributeError:
-			ret = self._autoAutoCompleteMinLen = self.Application.getUserSetting("AutoAutoCompleteMinLen", False)
+			ret = self._autoAutoCompleteMinLen = self.Application.getUserSetting("AutoAutoCompleteMinLen", 3)
 			return ret
 	
 	def _setAutoAutoCompleteMinLen(self, val):
