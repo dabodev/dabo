@@ -838,7 +838,7 @@ def sortList(chc, Caption="", ListCaption=""):
 	return ret
 
 
-def createForm(srcFile, show=False):
+def createForm(srcFile, show=False, *args, **kwargs):
 	"""Pass in a .cdxml file from the Designer, and this will
 	instantiate a form from that spec. Returns a reference
 	to the newly-created form.
@@ -846,7 +846,7 @@ def createForm(srcFile, show=False):
 	from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
 	conv = DesignerXmlConverter()
 	cls = conv.classFromXml(srcFile)
-	frm = cls()
+	frm = cls(*args, **kwargs)
 	if show:
 		frm.show()
 	return frm

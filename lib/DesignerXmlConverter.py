@@ -548,15 +548,15 @@ class DesignerXmlConverter(dObject):
 	def _defineTextBlocks(self):
 		# Standard class template
 		self.containerClassTemplate = """class %(clsName)s(%(superName)s):
-	def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s):
-		super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties)
+	def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
+		super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
 		self.Sizer = None
 %(indCode)s
 
 """
 		self.classTemplate = """class %s(dabo.ui.%s):
-	def __init__(self, parent=%s, attProperties=%s):
-		dabo.ui.%s.__init__(self, parent=parent, attProperties=attProperties)
+	def __init__(self, parent=%s, attProperties=%s, *args, **kwargs):
+		dabo.ui.%s.__init__(self, parent=parent, attProperties=attProperties, *args, **kwargs)
 %s		
 
 """
