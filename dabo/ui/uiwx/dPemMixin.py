@@ -11,6 +11,8 @@ import dabo.dColors as dColors
 import dKeys
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
+from dabo.lib.utils import dictStringify
+
 
 
 class dPemMixin(dPemMixinBase):
@@ -81,15 +83,24 @@ class dPemMixin(dPemMixinBase):
 		# Convert these to the properties dict.
 		if attProperties:
 			for prop, val in attProperties.items():
+				if prop in properties:
+					# attProperties has lower precedence, so skip it
+					continue
 				try:
-					exec "properties['%s'] = %s" % (prop, val)
+					attVal = eval(val)
 				except:
-					# If this is property holds strings, we need to quote the value.
-					escVal = val.replace('"', '\\"').replace("'", "\\'")
-					try:
-						exec "properties['%s'] = u'%s'" % (prop, escVal)
-					except:
-						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
+					attVal = val
+				properties[prop] = attVal
+		properties = dictStringify(properties)
+# 				try:
+# 					exec "properties['%s'] = %s" % (prop, val)
+# 				except:
+# 					# If this is property holds strings, we need to quote the value.
+# 					escVal = val.replace('"', '\\"').replace("'", "\\'")
+# 					try:
+# 						exec "properties['%s'] = u'%s'" % (prop, escVal)
+# 					except:
+# 						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
 
 		if kwargs.has_key("style"):
 			# If wx style parm sent, keep it as-is.
