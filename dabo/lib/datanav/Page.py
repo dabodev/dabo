@@ -543,8 +543,10 @@ class SelectPage(Page):
 	
 	
 class BrowsePage(Page):
-	def __init__(self, parent):
-		super(BrowsePage, self).__init__(parent, Name="pageBrowse")
+	def __init__(self, parent, Name=None, *args, **kwargs):
+		if Name is None:
+			Name = "pageBrowse"
+		super(BrowsePage, self).__init__(parent, Name=Name, *args, **kwargs)
 		self._doneLayout = False
 
 
@@ -597,8 +599,8 @@ class BrowsePage(Page):
 		
 
 class EditPage(Page):
-	def __init__(self, parent, ds=None):
-		super(EditPage, self).__init__(parent)		#, Name="pageEdit")
+	def __init__(self, parent, ds=None, *args, **kwargs):
+		super(EditPage, self).__init__(parent, *args, **kwargs)
 		self._focusToControl = None
 		self.itemsCreated = False
 		self._dataSource = ds
