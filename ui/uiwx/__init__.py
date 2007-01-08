@@ -383,7 +383,7 @@ def getEventData(wxEvt):
 		ed["unicodeKey"] = wxEvt.GetUnicodeKey()
 		ed["hasModifiers"] = wxEvt.HasModifiers()
 		try:
-			if wx.Platform == "__WXMAC__":
+			if wx.Platform in ("__WXMAC__", "__WXGTK__"):
 				ed["keyChar"] = chr(wxEvt.GetKeyCode())
 			else:	
 				ed["keyChar"] = chr(wxEvt.GetRawKeyCode())
