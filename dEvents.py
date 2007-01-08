@@ -2,7 +2,6 @@ import time
 import dabo
 from dabo.dObject import dObject
 import dabo.ui as ui
-import dabo.biz.dBizobj as dBizobj
 from dabo.dLocalize import _
 
 
