@@ -28,7 +28,10 @@ class dPemMixin(dPemMixinBase):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
+		# Holds the properties passed in the constructor
 		self._properties = {}
+		# Holds the keyword event bindings passed in the constructor
+		self._kwEvents = {}
 		
 		# Lots of useful wx props are actually only settable before the
 		# object is fully constructed. The self._preInitProperties dict keeps
@@ -78,6 +81,8 @@ class dPemMixin(dPemMixinBase):
 			for k,v in properties.items():
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
+		
+		kwEvents = self._extractKeyWordEventBindings(kwargs, self._kwEvents)
 		# Objects created from XML files will have their props passed
 		# in the 'attProperties' parameter, in which all values are strings.
 		# Convert these to the properties dict.
@@ -185,6 +190,9 @@ class dPemMixin(dPemMixinBase):
 
 		# Set the properties *before* calling the afterInit hook
 		self._setProperties(properties)
+		
+		# Set any passed event bindings
+		self._setKwEventBindings(self._kwEvents)
 		
 		# _initEvents() will call the initEvents() user hook
 		self._initEvents()
