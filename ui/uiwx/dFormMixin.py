@@ -436,21 +436,13 @@ class dFormMixin(pm.dPemMixin):
 	
 	
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
-		menu.append(caption, bindfunc=function, bmp=bitmap)
+		menu.append(caption, OnHit=function, bmp=bitmap)
 
 
-	def appendToolBarButton(self, name, pic, bindfunc=None, toggle=False, tip="", help=""):
+	def appendToolBarButton(self, name, pic, bindfunc=None, toggle=False, 
+			tip="", help="", *args, **kwargs):
 		self.ToolBar.appendButton(name, pic, bindfunc=bindfunc, toggle=toggle, 
-				tip=tip, help=help)
-# 	def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):
-# 		toolId = wx.NewId()
-# 		toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
-# 
-# 		if isinstance(self, wx.MDIChildFrame):
-# 			controllingFrame = self.Application.MainForm
-# 		else:
-# 			controllingFrame = self
-# 		wx.EVT_MENU(controllingFrame, toolId, function)
+				tip=tip, help=help, *args, **kwargs)
 
 
 	# property get/set/del functions follow:

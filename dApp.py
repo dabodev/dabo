@@ -586,8 +586,8 @@ class dApp(dObject):
 		except:
 			self.uiApp.onEditPreferences(evt)
 	# These handle MRU menu requests
-	def addToMRU(self, menu, prmpt, bindfunc=None):
-		self.uiApp.addToMRU(menu, prmpt, bindfunc)
+	def addToMRU(self, menu, prmpt, bindfunc=None, *args, **kwargs):
+		self.uiApp.addToMRU(menu, prmpt, bindfunc, *args, **kwargs)
 	def onMenuOpenMRU(self, menu):
 		self.uiApp.onMenuOpenMRU(menu)
 	############################	

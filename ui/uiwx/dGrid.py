@@ -2936,9 +2936,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.autoSizeCol(self.getColNumByX(self._headerMousePosition[0]), persist=True)
 		def _autosizeAllColumns(evt):
 			self.autoSizeCol("All")
-		menu.append(_("&Autosize Column"), bindfunc=_autosizeColumn, 
+		menu.append(_("&Autosize Column"), OnHit=_autosizeColumn, 
 				help=_("Autosize the column based on the data in the column."))
-		menu.append(_("&Autosize All Columns"), bindfunc=_autosizeAllColumns, 
+		menu.append(_("&Autosize All Columns"), OnHit=_autosizeAllColumns, 
 				help=_("Autosize all columns in the grid."))
 
 		menu = self.fillHeaderContextMenu(menu)

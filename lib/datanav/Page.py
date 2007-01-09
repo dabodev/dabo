@@ -142,13 +142,13 @@ class SelectPage(Page):
 		self.sortCap = obj.Caption
 		mn = dabo.ui.dMenu()
 		if self.sortFields:
-			mn.append(_("Show sort order"), bindfunc=self.handleSortOrder)
+			mn.append(_("Show sort order"), OnHit=self.handleSortOrder)
 		if self.sortFields.has_key(self.sortDS):
 			mn.append(_("Remove sort on ") + self.sortCap, 
-					bindfunc=self.handleSortRemove)
+					OnHit=self.handleSortRemove)
 
-		mn.append(_("Sort Ascending"), bindfunc=self.handleSortAsc)
-		mn.append(_("Sort Descending"), bindfunc=self.handleSortDesc)
+		mn.append(_("Sort Ascending"), OnHit=self.handleSortAsc)
+		mn.append(_("Sort Descending"), OnHit=self.handleSortDesc)
 		self.PopupMenu(mn, obj.formCoordinates(evt.EventData["mousePosition"]) )
 		mn.release()
 

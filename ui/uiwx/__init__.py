@@ -895,7 +895,7 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 				if (binding is None) and fnc:
 					binding = eval(fnc)
 				help = itmatts["HelpText"]
-				menuItem = menu.append(cap, bindfunc=binding, help=help)	
+				menuItem = menu.append(cap, OnHit=binding, help=help)	
 				menuItem._bindingText = fnc
 	
 	mnd = dabo.lib.xmltodict.xmltodict(srcFile)
