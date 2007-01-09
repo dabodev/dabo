@@ -26,6 +26,9 @@ class MSSQL(dBackend):
 		user = connectInfo.User
 		password = connectInfo.revealPW()
 		database = connectInfo.Database
+		
+		# hack to make this work.  I am sure there is a better way.
+		self.database = database
 				
 		self._connection = pymssql.connect(host=host, user=user,password=password, database=database)
 		return self._connection
@@ -60,91 +63,128 @@ class MSSQL(dBackend):
 	def getTables(self, includeSystemTables=False):
 		tempCursor = self._connection.cursor()
 		# jfcs 11/01/06 assumed public schema
-		tempCursor.execute("select name from sysobjects where xtype = 'U' order by name")
+		# cfk: this worries me: how does it know what db is being used?
+		# tempCursor.execute("select name from sysobjects where xtype = 'U' order by name")
+		
+		dbName = self.database
+		tempCursor.execute("select table_name"
+			" from INFORMATION_SCHEMA.TABLES"
+			" where table_catalog = '%(db)s'"
+			" and table_type = 'BASE TABLE'"
+			" order by table_name"
+			% {'db':dbName} )
 		rs = tempCursor.fetchall()
-		tables = []
-		for record in rs:
-			tables.append(record[0])
+		tables = [x[0] for x in rs]
 		return tuple(tables)
 
 	
 	def getTableRecordCount(self, tableName):
 		tempCursor = self._connection.cursor()
-		tempCursor.execute("select count(*) as ncount from %s" % tableName)
+		tempCursor.execute("select count(*) as ncount from '%(tablename)'" % tableName)
 		return tempCursor.fetchall()[0][0]
 
+	def _fieldTypeNativeToDabo(self, nativeType):
+		""" converts the results of 
+		select DATA_TYPE from INFORMATION_SCHEMA.COLUMNS
+		to a dabo datatype.
+		"""
+		
+		# todo: break out the dict into a constant defined somewhere
+		# todo: make a formal definition of the dabo datatypes.  
+		# (at least document them)
+		
+		try:
+			ret = {
+			"BINARY": "I",
+			"BIT": "I",
+			"BIGINT": "I",
+			"BLOB": "M",
+			"CHAR": "C",
+			"DATE": "D",
+			"DATETIME": "T",
+			"DECIMAL": "N",
+			"DOUBLE": "G",
+			"ENUM": "C",
+			"FLOAT": "F",
+			"GEOMETRY": "?",
+			"INT": "I",
+			"IMAGE": "?",
+			"INTERVAL": "?",
+			"LONG": "G",
+			"LONGBLOB": "M",
+			"LONGTEXT": "M",
+			"MEDIUMBLOB": "M",
+			"MEDIUMINT": "I",
+			"MEDIUMTEXT": "M",
+			"MONEY": "F",
+			"NEWDATE": "?",
+			"NCHAR": "C",
+			"NTEXT": "M",
+			"NUMERIC": "N",
+			"NVARCHAR": "C",
+			"NULL": "?",
+			"SET": "?",
+			"SHORT": "I",
+			"SMALLINT": "I",
+			"STRING": "C",
+			"TEXT": "M",
+			"TIME": "?",
+			"TIMESTAMP": "T",
+			"TINY": "I",
+			"TINYINT": "I",
+			"TINYBLOB": "M",
+			"TINYTEXT": "M",
+			"UNIQUEIDENTIFIER": "?",
+			"VARBINARY": "I",
+			"VARCHAR": "C",
+			"VAR_STRING": "C",
+			"YEAR": "?"}[nativeType.upper()]
+		except KeyError:
+			print 'KeyError:', nativeType
+			ret = '?'
+		return ret
 
 	def getFields(self, tableName):
+		""" Returns the list of fields of the passed table
+			field: ( fieldname, dabo data type, key )
+			"""
 		tempCursor = self._connection.cursor()
-		# Ok get the 'field name', 'field type'
-		tempCursor.execute("""SELECT table_name=sysobjects.name,
-				column_name=syscolumns.name,
-			        datatype=systypes.name,
-			        length=syscolumns.length
-				FROM sysobjects 
-				JOIN syscolumns ON sysobjects.id = syscolumns.id
-				JOIN systypes ON syscolumns.xtype=systypes.xtype
-				WHERE sysobjects.xtype='U' and sysobjects.name = '%s'
-				ORDER BY sysobjects.name,syscolumns.colid
- """ % tableName)
-		notcleanRS = tempCursor.fetchall()
-		#jfcs 11/09/06 added below to remove dup-records that contain the field type as 'sysname'
-		# the funny things is the above sql statements works in MS enterprize manager and the
-		# record do not contain the 'sysname' record?????
-		rs=[]
-		for cleanrow in notcleanRS:
-			if 'sysname' not in cleanrow:
-				rs.append(cleanrow)
-		
-		## get the PK 
-		tempCursor.execute("""select c.name from sysindexes i
-				join sysobjects o ON i.id = o.id
-				join sysobjects pk ON i.name = pk.name
-				AND pk.parent_obj = i.id
-				AND pk.xtype = 'PK'
-				join sysindexkeys ik on i.id = ik.id
-				and i.indid = ik.indid
-				join syscolumns c ON ik.id = c.id
-				AND ik.colid = c.colid
-				where o.name = '%s'
-				order by ik.keyno""" % tableName)	
-		rs2=tempCursor.fetchall()
+		# fairly standard way of getting column settings
+		# this may be standard wnough to put in the super class
 
-		if rs2==[]:
-			thePKFieldName = None
-		else:
-			#thestr = rs2[0][0]
-			#thePKFieldName = thestr[thestr.find("(") + 1: thestr.find(")")].split(", ")
-			thePKFieldName = rs2[0][0]
+		dbName = self.database
 		
+		tempCursor.execute(
+			"select COLUMN_NAME, DATA_TYPE" 
+			" from INFORMATION_SCHEMA.COLUMNS"
+			" where table_catalog = '%(db)s'"
+			" and table_name = '%(table)s'"
+			" order by ORDINAL_POSITION"
+			% {'table':tableName, 'db':dbName} )
+		fieldDefs = tempCursor.fetchall()
+
+		tempCursor.execute(
+			"select COLUMN_NAME "
+			" from information_schema.Constraint_Column_Usage CCU"
+			" join information_schema.TABLE_CONSTRAINTS TC"
+			" on CCU.CONSTRAINT_NAME = TC.CONSTRAINT_NAME"
+			" where"
+			" CONSTRAINT_TYPE = 'PRIMARY KEY'"
+			" and TC.CONSTRAINT_CATALOG = '%(db)s'" 
+			" and TC.Table_Name = '%(table)s'"
+			% {'table':tableName, 'db':dbName} )
+		pkFields = tempCursor.fetchall()
+
 		fields = []
-		for r in rs:
-			name = r[1]
-			fldType =r[2]
-			pk = False
-			if thePKFieldName is not None:
-				pk = (name in thePKFieldName)
-			if "int" in fldType:
-				fldType = "I"
-			elif "char" in fldType :
-				fldType = "C"
-			elif "bool" in fldType :
-				fldType = "B"
-			elif "text" in fldType:
-				fldType = "M"
-			elif "numeric" in fldType:
-				fldType = "N"
-			elif "datetime" in fldType:
-				fldType = "T"
-			elif "money" in fldType :
-				fldType = "N"
-			elif "bit" in fldType :
-				fldType = "I"
-			else:
-				fldType = "?"
-			fields.append((name.strip(), fldType, pk))
+		for r in fieldDefs:
+			name = r[0]
+			ft = self._fieldTypeNativeToDabo(r[1])
+			# pk = (r[2] == "PRI")
+			pk = (name,) in pkFields
+			# if pk:
+			# 	print r[0]
+			fields.append((name, ft, pk))
 		return tuple(fields)
-		
 
 	#def getUpdateTablePrefix(self, tbl):
 		#""" By default, the update SQL statement will be in the form of
