@@ -771,7 +771,7 @@ class uiApp(dObject, wx.App):
 			lnks = {}
 			fncs = self._mruMenuFuncs.get(cap, {})
 			for pos, txt in enumerate(mnPrm):
-				itm = menu.append(tmplt % (pos+1, txt), bindfunc=fncs.get(txt, None))
+				itm = menu.append(tmplt % (pos+1, txt), OnHit=fncs.get(txt, None))
 				lnks[itm.GetId()] = itm
 			self._mruMenuLinks[menu] = lnks
 	
