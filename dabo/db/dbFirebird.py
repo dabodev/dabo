@@ -11,7 +11,8 @@ class Firebird(dBackend):
 		self.dbModuleName = "kinterbasdb"
 		self.fieldPat = re.compile("([A-Za-z_][A-Za-z0-9-_]+)\.([A-Za-z_][A-Za-z0-9-_]+)")
 		import kinterbasdb
-		kinterbasdb.init(type_conv=200)
+		if not kinterbasdb.initialized:
+			kinterbasdb.init(type_conv=200)
 		self.dbapi = kinterbasdb
 
 
