@@ -1305,10 +1305,7 @@ class dBizobj(dObject):
 
 
 	def _getCurrentSQL(self):
-		try:
-			v = self._CurrentCursor.CurrentSQL
-		except AttributeError:
-			return None
+		return self._CurrentCursor.CurrentSQL
 
 
 	def _getCurrentCursor(self):
