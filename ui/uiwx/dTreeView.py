@@ -766,6 +766,46 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		# 		c23 = c2.appendChild("Grandkid #3")
 		# 		c221 = c22.appendChild("Great-Grandkid #1")
 
+		
+	def getNodeForID(self, idval):
+		"""Given a wx item ID, returns the corresponding node, or None."""
+		try:
+			ret = [nd for nd in self.nodes
+					if nd.itemID == idval][0]
+		except IndexError:
+			ret = None
+		return ret
+		
+
+	def getNodeUnderMouse(self, includeSpace=False):
+		"""Returns the node directly under the mouse, or None if the mouse is not 
+		over a node. If 'includeSpace' is True, the empty space to the right of the node
+		is counted as part of the node. Otherwise, it is considered to not be over 
+		any node. 
+		"""
+		# The following wxPython constants are available:
+		# 	wx.TREE_HITTEST_ABOVE: Above the client area.
+		# 	wx.TREE_HITTEST_BELOW: Below the client area.
+		# 	wx.TREE_HITTEST_NOWHERE: In the client area but below the last item.
+		# 	wx.TREE_HITTEST_ONITEMBUTTON: On the button associated with an item.
+		# 	wx.TREE_HITTEST_ONITEMICON: On the bitmap associated with an item.
+		# 	wx.TREE_HITTEST_ONITEMINDENT: In the indentation associated with an item.
+		# 	wx.TREE_HITTEST_ONITEMLABEL: On the label (string) associated with an item.
+		# 	wx.TREE_HITTEST_ONITEMRIGHT: In the area to the right of an item.
+		# 	wx.TREE_HITTEST_ONITEMSTATEICON: On the state icon for a tree view item that is in a user-defined state.
+		# 	wx.TREE_HITTEST_TOLEFT: To the right of the client area.
+		# 	wx.TREE_HITTEST_TORIGHT: To the left of the client area.
+		ret = None
+		mp = self.getMousePosition()
+		idval, flag = self.HitTest(mp)
+		overFlags = (wx.TREE_HITTEST_ONITEMBUTTON | wx.TREE_HITTEST_ONITEMICON | 
+				wx.TREE_HITTEST_ONITEMINDENT | wx.TREE_HITTEST_ONITEMLABEL)
+		if includeSpace:
+			overFlags = overFlags | wx.TREE_HITTEST_ONITEMRIGHT
+		if idval and (flag & overFlags):
+			ret = self.getNodeForID(idval)
+		return ret
+
 
 	def getBaseNodeClass(cls):
 		return dNode
@@ -984,6 +1024,14 @@ class _dTreeView_test(dTreeView):
 		self.NodeClass = TestNode
 		self.addDummyData()
 		self.expandAll()
+		self.Hover = True
+	
+	def onMouseMove(self, evt):
+		nd = self.getNodeUnderMouse()
+		if nd:
+			self.ToolTipText = nd.Caption
+		else:
+			self.ToolTipText = ""
 
 	def onHit(self, evt):
 		## pkm: currently, Hit happens on left mouse up, which totally ignores
