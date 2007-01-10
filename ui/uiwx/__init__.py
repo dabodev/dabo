@@ -643,7 +643,7 @@ def getDate(dt=None):
 		dabo.errorLog.write(_("Invalid date value passed to getDate(): %s") % dt)
 		return None
 	try:
-		prnt = self.Application.ActiveForm
+		prnt = dabo.dAppRef.ActiveForm
 	except:
 		prnt = None
 	dlg = wx.lib.calendar.CalenDlg(prnt, mm, dd, yy)
@@ -865,6 +865,8 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 	a parameter to that function.
 	"""
 	def addMenu(mb, menuDict, form, previewFunc):
+		if form is None:
+			form = dabo.dAppRef.ActiveForm
 		menu = dabo.ui.dMenu(mb)
 		atts = menuDict["attributes"]
 		menu.Caption = atts["Caption"]
@@ -884,19 +886,20 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 				itmatts = itm["attributes"]
 				cap = itmatts["Caption"]
 				hk = itmatts["HotKey"]
+				pic = itmatts["Picture"]
 				if hk:
 					cap += "\t%s" % hk
 				txt = cap
 				binding = previewFunc
 				fnc = ""
-				useFunc = ("Function" in itmatts) and (itmatts["Function"])
+				useFunc = ("Action" in itmatts) and (itmatts["Action"])
 				if useFunc:
-					fnc = itmatts["Function"]
+					fnc = itmatts["Action"]
 				if (binding is None) and fnc:
 					binding = eval(fnc)
 				help = itmatts["HelpText"]
-				menuItem = menu.append(cap, OnHit=binding, help=help)	
-				menuItem._bindingText = fnc
+				menuItem = menu.append(cap, OnHit=binding, help=help,
+						picture=pic)	
 	
 	mnd = dabo.lib.xmltodict.xmltodict(srcFile)
 	mb = dabo.ui.dMenuBar()

@@ -30,6 +30,11 @@ class dFormMixin(pm.dPemMixin):
 		if self._cxnName == "None":
 			self._cxnName = ""
 		self._connection = None
+		# Extract the menu definition file, if any
+		self._menuBarFile = self._extractKey((properties, attProperties, kwargs), 
+				"MenuBarFile", "")
+		if self._menuBarFile:
+			self._menuBarClass = self._menuBarFile
 		
 		if False and parent:
 			## pkm 3/10/05: I like it better now without the float on parent option
@@ -71,8 +76,12 @@ class dFormMixin(pm.dPemMixin):
 		
 
 	def _afterInit(self):
-		if self.Application and self.MenuBarClass and self.ShowMenuBar:
-			self.MenuBar = self.MenuBarClass()
+		mbc = self.MenuBarClass
+		if self.Application and mbc and self.ShowMenuBar:
+			if isinstance(mbc, basestring):
+				self.MenuBar = dabo.ui.createMenuBar(mbc, self)
+			else:
+				self.MenuBar = mbc()
 			self.afterSetMenuBar()
 
 		if not self.Icon:
@@ -595,6 +604,16 @@ class dFormMixin(pm.dPemMixin):
 		self._menuBarClass = val
 		
 
+	def _getMenuBarFile(self):
+		return self._menuBarFile
+
+	def _setMenuBarFile(self, val):
+		if self._constructed():
+			self._menuBarFile = self._menuBarClass = val
+		else:
+			self._properties["MenuBarFile"] = val
+
+
 	def _getSaveRestorePosition(self):
 		try:
 			val = self._saveRestorePosition
@@ -860,6 +879,9 @@ class dFormMixin(pm.dPemMixin):
 	MenuBarClass = property(_getMenuBarClass, _setMenuBarClass, None,
 			_("Specifies the menu bar class to use for the form, or None."))
 
+	MenuBarFile = property(_getMenuBarFile, _setMenuBarFile, None,
+			_("Path to the .mnxml file that defines this form's menu bar  (str)"))
+	
 	SaveRestorePosition = property(_getSaveRestorePosition, 
 			_setSaveRestorePosition, None,
 			_("""Specifies whether the form's position and size as set by the user
