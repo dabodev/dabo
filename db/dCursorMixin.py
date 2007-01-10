@@ -706,7 +706,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if rec.has_key(fld):
 				ret = rec[fld]
 			else:
-				raise dException.dException, "%s '%s' %s" % (
+				raise dException.FieldNotFoundException, "%s '%s' %s" % (
 						_("Field"), fld, _("does not exist in the data set"))
 		return ret
 
@@ -1916,14 +1916,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					super(CursorRecord, self).__init__()
 				
 				def __getattr__(self, att):
-					err = False
-					try:
-						ret = self.cursor.getFieldVal(att)
-					except (dException.dException, dException.NoRecordsException):
-						err = True
-					if err:
-						raise AttributeError, _("Record has no field '%s'") % att
-					return ret
+					return self.cursor.getFieldVal(att)
 			
 				def __setattr__(self, att, val):
 					if att in ("cursor", ):
