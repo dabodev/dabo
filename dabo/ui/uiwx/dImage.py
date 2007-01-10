@@ -84,6 +84,14 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				except StandardError, e:
 					print "ERROR", e
 		return ret
+	
+	
+	def getOriginalImgSize(self):
+		"""Since the image can be scaled, this returns the size of
+		the unscaled image.
+		"""
+		img = self._Image
+		return (img.GetWidth(), img.GetHeight())
 
 
 	def _showPic(self):
@@ -168,19 +176,28 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self.__image = val
 			self._picture = "(stream)"
 		else:
-			# Don't allow built-in graphics to be displayed here
-			if not os.path.exists(val):
-				if val:
-					# They passed a non-existent image file
-					raise IOError, "No file named '%s' exists." % val
-				else:
-					# Empty string passed; clear any current image
-					self._picture = ""
-					self._rotation = 0
-					self._bmp = wx.EmptyBitmap(1, 1, 1)
-					self.__image = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
-					self._showPic()
-					return
+###	I don't remember or understand why I added this restriction,
+###	but it isn't needed.
+# 
+# 			# Don't allow built-in graphics to be displayed here
+# 			if not os.path.exists(val):
+# 				if val:
+# 					# They passed a non-existent image file
+# 					raise IOError, "No file named '%s' exists." % val
+			if not val:
+				# Empty string passed; clear any current image
+				self._picture = ""
+				self._rotation = 0
+				self._bmp = wx.EmptyBitmap(1, 1, 1)
+				self.__image = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
+				self._showPic()
+				return
+			elif not os.path.exists(val):
+				origVal = val
+				val = dabo.ui.getImagePath(val)
+				if not os.path.exists(val):
+					# Bad image reference
+					raise IOError, "No file named '%s' exists." % origVal
 			self._picture = val
 			self._rotation = 0
 			self._Image.LoadFile(val)
