@@ -1,3 +1,5 @@
+# dabo/db/dCursorMixin
+
 import types
 import datetime
 import inspect
@@ -188,8 +190,8 @@ class dCursorMixin(dObject):
 						if ok:
 							# change self.Encoding and log the message
 							self.Encoding = enc
-							dabo.errorLog.write(_("Incorrect unicode encoding set; using '%s' instead")
-									% enc)
+							dabo.errorLog.write(_("Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead")
+								% {'fname':field_name, 'enc':enc} )
 							break
 				else:
 					raise UnicodeDecodeError, e
@@ -616,8 +618,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			else:
 				recs = (self._records[self.RowNumber],)
 
-			for ii in range(len(recs)):
-				rec = recs[ii]
+			for rec in recs:
 				if self.isRowChanged(rec):
 					ret = True
 					break
