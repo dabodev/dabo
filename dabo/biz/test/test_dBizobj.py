@@ -3,6 +3,22 @@ import dabo
 from dabo.lib import getRandomUUID
 
 
+# Testing anything other than sqlite requires network access. So set these
+# flags so that only the db's you want to test against are True.
+test_sqlite = True
+test_mysql = True
+
+if test_sqlite:
+	sqlite_unittest = unittest.TestCase
+else:
+	sqlite_unittest = object
+
+if test_mysql:
+	mysql_unittest = unittest.TestCase
+else:
+	mysql_unittest = object
+
+
 class Test_dBizobj(object):
 	def setUp(self):
 		biz = self.biz
@@ -122,7 +138,7 @@ class Test_dBizobj(object):
 	## - End property unit tests -
 
 
-class Test_dBizobj_sqlite(Test_dBizobj, unittest.TestCase):
+class Test_dBizobj_sqlite(Test_dBizobj, sqlite_unittest):
 	def setUp(self):
 		con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
 		self.biz = dabo.biz.dBizobj(con)
@@ -139,7 +155,7 @@ insert into %s (cField, iField, nField) values ("Carl Karsten", 10223, 23032.76)
 """ % (tableName, tableName, tableName, tableName, ))
 
 
-class Test_dBizobj_mysql(Test_dBizobj):
+class Test_dBizobj_mysql(Test_dBizobj, mysql_unittest):
 	def setUp(self):
 		con = dabo.db.dConnection(DbType="MySQL", User="dabo_unittest", 
 				password="T30T35DB4K30Z45I67N60", Database="dabo_unittest",
