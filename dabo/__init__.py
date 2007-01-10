@@ -144,3 +144,7 @@ trace = pdb.set_trace
 from dApp import dApp
 from dPref import dPref
 
+# Make sure dabo.db, dabo.biz, and dabo.ui are imported:
+import dabo.db
+import dabo.biz
+import dabo.ui
