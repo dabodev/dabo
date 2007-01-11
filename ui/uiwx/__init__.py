@@ -710,13 +710,22 @@ def _getPath(cls, wildcard, **kwargs):
 
 
 def getFile(*args, **kwargs):
-	"""Displays the file selection dialog for the platform.
-	Returns the path to the selected file, or None if no selection
-	was made.
+	"""Display the file selection dialog for the platform, and return selection(s).
+
+	Send an optional multiple=True for the user to pick more than one file. In 
+	that case, the return value will be a sequence of unicode strings.
+
+	Returns the path to the selected file or files, or None if no selection	was 
+	made. Only file may be selected if multiple is False.
+
+	Optionally, you may send wildcard arguments to limit the displayed files by
+	file type. For example:
+		getFile("py", "txt")
+		getFile("py", "txt", multiple=True)
 	"""
 	wc = _getWild(*args)
 	return _getPath(dFileDialog, wildcard=wc, **kwargs)[0]
-
+		
 
 def getFileAndType(*args, **kwargs):
 	"""Displays the file selection dialog for the platform.
