@@ -2099,7 +2099,15 @@ class dPemMixin(dPemMixinBase):
 				self.SetToolTip(wx.ToolTip(""))
 				self.SetToolTip(None)
 			else:
-				self.SetToolTip(wx.ToolTip(val))
+				curr = self.GetToolTip()
+				if curr is not None:
+					currTip = curr.GetTip()
+				else:
+					currTip = ""
+				if currTip != val:
+					newtip = wx.ToolTip(val)
+					self.SetToolTip(None)
+					self.SetToolTip(newtip)
 		self._toolTipText = val
 
 
