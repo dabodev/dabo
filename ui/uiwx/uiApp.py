@@ -175,21 +175,17 @@ class uiApp(dObject, wx.App):
 		uk = evt.GetUnicodeKey()
 		met = evt.MetaDown()
 		sh = evt.ShiftDown()
-#		if alt or met or not ctl:
 		if alt or not ctl:
 			evt.Skip()
 			return
 		try:
 			char = chr(evt.GetKeyCode())
-#- 			if wx.Platform == "__WXMAC__":
-#- 				char = chr(evt.GetKeyCode())
-#- 			else:	
-#- 				char = chr(evt.GetRawKeyCode())
 		except (ValueError, OverflowError):
 			char = None
 		plus = (char == "=") or (char == "+") or (kcd == wx.WXK_NUMPAD_ADD)
 		minus = (char == "-") or (kcd == wx.WXK_NUMPAD_SUBTRACT)
-		if not (plus or minus):
+		zero = (char == "0") or (kcd == wx.WXK_NUMPAD0)
+		if not (plus or minus or zero):
 			evt.Skip()
 			return
 		settingName = "%s.zoomlevel" % self.ActiveForm.Name
@@ -197,11 +193,15 @@ class uiApp(dObject, wx.App):
 		if plus:
 			self.ActiveForm.iterateCall("increaseFontSize")
 			currZoom += 1
-		else:
+		elif minus:
 			self.ActiveForm.iterateCall("decreaseFontSize")
 			currZoom -= 1
+		else:
+			# Set back to zero zoom
+			self.ActiveForm.iterateCall("decreaseFontSize", currZoom)
+			currZoom = 0
 		self.dApp.setUserSetting(settingName, currZoom)
-		
+
 
 	def setup(self):
 		frm = self.dApp.MainForm
