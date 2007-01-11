@@ -22,7 +22,9 @@ else:
 class Test_dBizobj(object):
 	def setUp(self):
 		biz = self.biz
-		self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-20:]
+		uniqueName = getRandomUUID().replace("-", "")[-20:]
+		self.temp_table_name = "unittest%s" % uniqueName
+		self.temp_child_table_name = "ut_child%s" % uniqueName
 		self.createSchema()
 		biz.UserSQL = "select * from %s" % self.temp_table_name
 		biz.KeyField = "pk"
@@ -137,30 +139,130 @@ class Test_dBizobj(object):
 
 	## - End property unit tests -
 
+	def testChildren(self):
+		bizMain = self.biz
+		bizChild = dabo.biz.dBizobj(self.con)
+		bizChild.UserSQL = "select * from %s" % self.temp_child_table_name
+		bizChild.KeyField = "pk"
+		bizChild.DataSource = self.temp_child_table_name
+		bizChild.LinkField = "parent_fk"
+		
+		bizMain.addChild(bizChild)
+		bizMain.requery()
+
+		# At this point bizMain should be at row 0, and bizChild should have
+		# two records, and be on row 0
+		self.assertEqual(bizMain.Record.pk, 1)
+		self.assertEqual(bizMain.RowNumber, 0)
+		self.assertEqual(bizChild.RowCount, 2)
+		self.assertEqual(bizChild.RowNumber, 0)
+		self.assertEqual(bizChild.Record.pk, 1)
+		self.assertEqual(bizChild.Record.parent_fk, 1)
+
+		bizMain.next()
+		
+		# At this point bizMain should be at row 1, and bizChild should have
+		# zero records.
+		self.assertEqual(bizMain.Record.pk, 2)
+		self.assertEqual(bizMain.RowNumber, 1)
+		self.assertEqual(bizChild.RowCount, 0)
+		self.assertEqual(bizChild.RowNumber, 0)
+		
+		# Trying to get the field value from the nonexistent record should raise
+		# dException.NoRecordsException:
+		def testGetField():
+			return bizChild.Record.pk
+		def testSetField():
+			bizChild.Record.pk = 23
+		self.assertRaises(dabo.dException.NoRecordsException, testGetField)
+		self.assertRaises(dabo.dException.NoRecordsException, testSetField)
+
+		bizMain.next()
+
+		# At this point bizMain should be at row 2, and bizChild should have
+		# one record, and be on row 0.
+		self.assertEqual(bizMain.Record.pk, 3)
+		self.assertEqual(bizMain.RowNumber, 2)
+		self.assertEqual(bizChild.RowCount, 1)
+		self.assertEqual(bizChild.RowNumber, 0)
+		self.assertEqual(bizChild.Record.pk, 3)
+		self.assertEqual(bizChild.Record.parent_fk, 3)
+		
+		# Try a delete, which takes effect immediately without need to save:
+		bizChild.delete()
+		self.assertEqual(bizMain.RowNumber, 2)
+		self.assertEqual(bizChild.RowCount, 0)
+		self.assertEqual(bizChild.isAnyChanged(), False)
+		self.assertEqual(bizMain.isAnyChanged(), False)
+		bizMain.prior()
+		self.assertEqual(bizChild.RowCount, 0)
+		bizMain.next()
+		self.assertEqual(bizChild.RowCount, 0)
+
+		# Add a new child record:
+		self.assertEqual(bizChild.IsAdding, False)
+		bizChild.new()
+		self.assertEqual(bizChild.IsAdding, True)
+		self.assertEqual(bizChild.RowCount, 1)
+		self.assertEqual(bizChild.isAnyChanged(), True)
+		self.assertEqual(bizChild.isChanged(), True)
+		self.assertEqual(bizMain.isAnyChanged(), True)
+		self.assertEqual(bizMain.isChanged(), True)
+		bizChild.Record.cInvNum = "IN99991"
+
+		bizMain.prior()
+		self.assertEqual(bizChild.IsAdding, False)
+		bizMain.next()
+		self.assertEqual(bizChild.IsAdding, True)
+
+		self.assertEqual(bizChild.RowCount, 1)
+		self.assertEqual(bizChild.isAnyChanged(), True)
+		self.assertEqual(bizChild.isChanged(), True)
+		self.assertEqual(bizMain.isAnyChanged(), True)
+		self.assertEqual(bizMain.isChanged(), True)
+		self.assertEqual(bizChild.Record.cInvNum, "IN99991")
+
+		bizMain.saveAll()
+		bizMain.requery()
+		self.assertEqual(bizMain.RowCount, 3)
+		self.assertEqual(bizMain.RowNumber, 2)
+		self.assertEqual(bizChild.RowCount, 1)
+		self.assertEqual(bizChild.Record.cInvNum, "IN99991")
+		bizMain.prior()
+		bizMain.next()
+		self.assertEqual(bizChild.RowCount, 1)
+		self.assertEqual(bizChild.Record.cInvNum, "IN99991")
+
 
 class Test_dBizobj_sqlite(Test_dBizobj, sqlite_unittest):
 	def setUp(self):
-		con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
-		self.biz = dabo.biz.dBizobj(con)
+		self.con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
+		self.biz = dabo.biz.dBizobj(self.con)
 		super(Test_dBizobj_sqlite, self).setUp()
 
 	def createSchema(self):
 		biz = self.biz
 		tableName = self.temp_table_name
+		childTableName = self.temp_child_table_name
 		biz._CurrentCursor.executescript("""
-create table %s (pk INTEGER PRIMARY KEY AUTOINCREMENT, cField CHAR, iField INT, nField DECIMAL (8,2));
-insert into %s (cField, iField, nField) values ("Paul Keith McNett", 23, 23.23);
-insert into %s (cField, iField, nField) values ("Edward Leafe", 42, 42.42);
-insert into %s (cField, iField, nField) values ("Carl Karsten", 10223, 23032.76);
-""" % (tableName, tableName, tableName, tableName, ))
+create table %(tableName)s (pk INTEGER PRIMARY KEY AUTOINCREMENT, cField CHAR, iField INT, nField DECIMAL (8,2));
+insert into %(tableName)s (cField, iField, nField) values ("Paul Keith McNett", 23, 23.23);
+insert into %(tableName)s (cField, iField, nField) values ("Edward Leafe", 42, 42.42);
+insert into %(tableName)s (cField, iField, nField) values ("Carl Karsten", 10223, 23032.76);
+
+create table %(childTableName)s (pk INTEGER PRIMARY KEY AUTOINCREMENT, parent_fk INT, cInvNum CHAR);
+insert into %(childTableName)s (parent_fk, cInvNum) values (1, "IN00023");
+insert into %(childTableName)s (parent_fk, cInvNum) values (1, "IN00455");
+insert into %(childTableName)s (parent_fk, cInvNum) values (3, "IN00024");
+""" % locals())
 
 
 class Test_dBizobj_mysql(Test_dBizobj, mysql_unittest):
 	def setUp(self):
-		con = dabo.db.dConnection(DbType="MySQL", User="dabo_unittest", 
+		self.con = dabo.db.dConnection(DbType="MySQL", User="dabo_unittest", 
 				password="T30T35DB4K30Z45I67N60", Database="dabo_unittest",
 				Host="paulmcnett.com")
-		self.biz = dabo.biz.dBizobj(con)
+		self.biz = dabo.biz.dBizobj(self.con)
 		super(Test_dBizobj_mysql, self).setUp()
 
 	def tearDown(self):
@@ -170,18 +272,33 @@ class Test_dBizobj_mysql(Test_dBizobj, mysql_unittest):
 	def createSchema(self):
 		biz = self.biz
 		cur = biz._CurrentCursor
+		tableName = self.temp_table_name
+		childTableName = self.temp_child_table_name
 		cur.execute("""
 create table %s (pk INTEGER PRIMARY KEY AUTO_INCREMENT, cField CHAR (32), iField INT, nField DECIMAL (8,2))
-""" % self.temp_table_name)
+""" % tableName)
 		cur.execute("""		
 insert into %s (cField, iField, nField) values ("Paul Keith McNett", 23, 23.23)
-""" % self.temp_table_name)
+""" % tableName)
 		cur.execute("""		
 insert into %s (cField, iField, nField) values ("Edward Leafe", 42, 42.42)
-""" % self.temp_table_name)
+""" % tableName)
 		cur.execute("""		
 insert into %s (cField, iField, nField) values ("Carl Karsten", 10223, 23032.76)
-""" % self.temp_table_name)
+""" % tableName)
+
+		cur.execute("""
+create table %s (pk INTEGER PRIMARY KEY AUTO_INCREMENT, parent_fk INT, cInvNum CHAR (16))
+""" % childTableName)
+		cur.execute("""
+insert into %s (parent_fk, cInvNum) values (1, "IN00023")
+""" % childTableName)
+		cur.execute("""
+insert into %s (parent_fk, cInvNum) values (1, "IN00455")
+""" % childTableName)
+		cur.execute("""
+insert into %s (parent_fk, cInvNum) values (3, "IN00024")
+""" % childTableName)
 
 
 if __name__ == "__main__":
