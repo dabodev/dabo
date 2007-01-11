@@ -2,26 +2,13 @@ import unittest
 import dabo
 from dabo.lib import getRandomUUID
 
+## Only tests against sqlite, as we already test dCursorMixin against the
+## various backends. 
 
-# Testing anything other than sqlite requires network access. So set these
-# flags so that only the db's you want to test against are True.
-test_sqlite = True
-test_mysql = True
-
-if test_sqlite:
-	sqlite_unittest = unittest.TestCase
-else:
-	sqlite_unittest = object
-
-if test_mysql:
-	mysql_unittest = unittest.TestCase
-else:
-	mysql_unittest = object
-
-
-class Test_dBizobj(object):
+class Test_dBizobj(unittest.TestCase):
 	def setUp(self):
-		biz = self.biz
+		self.con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
+		biz = self.biz = dabo.biz.dBizobj(self.con)
 		uniqueName = getRandomUUID().replace("-", "")[-20:]
 		self.temp_table_name = "unittest%s" % uniqueName
 		self.temp_child_table_name = "ut_child%s" % uniqueName
@@ -35,8 +22,20 @@ class Test_dBizobj(object):
 		self.biz = None
 
 	def createSchema(self):
-		"""Create the test schema. Override in subclasses."""
-		pass
+		biz = self.biz
+		tableName = self.temp_table_name
+		childTableName = self.temp_child_table_name
+		biz._CurrentCursor.executescript("""
+create table %(tableName)s (pk INTEGER PRIMARY KEY AUTOINCREMENT, cField CHAR, iField INT, nField DECIMAL (8,2));
+insert into %(tableName)s (cField, iField, nField) values ("Paul Keith McNett", 23, 23.23);
+insert into %(tableName)s (cField, iField, nField) values ("Edward Leafe", 42, 42.42);
+insert into %(tableName)s (cField, iField, nField) values ("Carl Karsten", 10223, 23032.76);
+
+create table %(childTableName)s (pk INTEGER PRIMARY KEY AUTOINCREMENT, parent_fk INT, cInvNum CHAR);
+insert into %(childTableName)s (parent_fk, cInvNum) values (1, "IN00023");
+insert into %(childTableName)s (parent_fk, cInvNum) values (1, "IN00455");
+insert into %(childTableName)s (parent_fk, cInvNum) values (3, "IN00024");
+""" % locals())
 
 
 	## - Begin property unit tests -
@@ -101,11 +100,14 @@ class Test_dBizobj(object):
 		self.assertEqual(biz.Record.cField, "Paul Keith McNett")
 		biz.Record.cField = "Denise McNett"
 		self.assertEqual(biz.Record.cField, "Denise McNett")
+		self.assertEqual(cur._mementos[biz.Record.pk]["cField"], "Paul Keith McNett")
 		biz.Record.cField = "Alison Anton"
 		self.assertEqual(biz.Record.cField, "Alison Anton")
+		self.assertEqual(cur._mementos[biz.Record.pk]["cField"], "Paul Keith McNett")
 		biz.setFieldVal("iField", 80)
 		self.assertEqual(biz.Record.iField, 80)
 		self.assertTrue(isinstance(biz.Record.iField, (int, long)))
+		self.assertEqual(cur._mementos[self.biz.Record.pk]["iField"], 23)
 
 	def test_RowCount(self):
 		biz = self.biz
@@ -139,6 +141,57 @@ class Test_dBizobj(object):
 
 	## - End property unit tests -
 
+
+	def testMementos(self):
+		biz = self.biz
+		cur = biz._CurrentCursor
+
+		priorVal = biz.Record.cField
+
+		# Make a change that is the same as the prior value:
+		biz.Record.cField = priorVal
+		self.assertEqual(priorVal, biz.Record.cField)
+
+		# Make a change that is different:
+		biz.Record.cField = "New test value"
+		self.assertEqual(cur._mementos, {biz.Record.pk: {"cField": priorVal}})
+		self.assertEqual(biz.isChanged(), True)
+
+		# Change it back:
+		biz.Record.cField = priorVal
+		self.assertEqual(cur._mementos, {})
+		self.assertEqual(biz.isChanged(), False)
+
+		# Make a change that is different and cancel:
+		biz.Record.cField = "New test value"
+		biz.cancel()
+		self.assertEqual(cur._mementos, {})
+		self.assertEqual(biz.isChanged(), False)
+
+		# Add a record:
+		biz.new()
+		
+		self.assertEqual(biz.RowCount, 4)
+		self.assertEqual(biz.RowNumber, 3)
+		self.assertEqual(cur._newRecords, {"-1-dabotmp": None})
+		self.assertEqual(biz.isChanged(), True)
+		self.assertEqual(cur.Record.pk, "-1-dabotmp")
+		self.assertEqual(biz.Record.cField, "")
+		self.assertEqual(biz.Record.iField, 0)
+		self.assertEqual(biz.Record.nField, 0)
+		biz.save()
+		biz.requery()
+		self.assertEqual(biz.RowCount, 4)
+		self.assertEqual(biz.RowNumber, 3)
+		self.assertEqual(cur._newRecords, {})
+		self.assertEqual(biz.isChanged(), False)
+		self.assertEqual(biz.Record.pk, 4)
+
+		# The new fields should be NULL, since we didn't explicitly set them:
+		self.assertEqual(biz.Record.cField, None)
+		self.assertEqual(biz.Record.iField, None)
+		self.assertEqual(biz.Record.nField, None)
+
 	def testChildren(self):
 		bizMain = self.biz
 		bizChild = dabo.biz.dBizobj(self.con)
@@ -146,6 +199,7 @@ class Test_dBizobj(object):
 		bizChild.KeyField = "pk"
 		bizChild.DataSource = self.temp_child_table_name
 		bizChild.LinkField = "parent_fk"
+		bizChild.FillLinkFromParent = True
 		
 		bizMain.addChild(bizChild)
 		bizMain.requery()
@@ -223,6 +277,12 @@ class Test_dBizobj(object):
 		self.assertEqual(bizChild.Record.cInvNum, "IN99991")
 
 		bizMain.saveAll()
+
+		self.assertEqual(bizMain.RowCount, 3)
+		self.assertEqual(bizMain.RowNumber, 2)
+		self.assertEqual(bizChild.RowCount, 1)
+		self.assertEqual(bizChild.Record.cInvNum, "IN99991")
+		self.assertEqual(bizChild.IsAdding, False)
 		bizMain.requery()
 		self.assertEqual(bizMain.RowCount, 3)
 		self.assertEqual(bizMain.RowNumber, 2)
@@ -232,74 +292,7 @@ class Test_dBizobj(object):
 		bizMain.next()
 		self.assertEqual(bizChild.RowCount, 1)
 		self.assertEqual(bizChild.Record.cInvNum, "IN99991")
-
-
-class Test_dBizobj_sqlite(Test_dBizobj, sqlite_unittest):
-	def setUp(self):
-		self.con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
-		self.biz = dabo.biz.dBizobj(self.con)
-		super(Test_dBizobj_sqlite, self).setUp()
-
-	def createSchema(self):
-		biz = self.biz
-		tableName = self.temp_table_name
-		childTableName = self.temp_child_table_name
-		biz._CurrentCursor.executescript("""
-create table %(tableName)s (pk INTEGER PRIMARY KEY AUTOINCREMENT, cField CHAR, iField INT, nField DECIMAL (8,2));
-insert into %(tableName)s (cField, iField, nField) values ("Paul Keith McNett", 23, 23.23);
-insert into %(tableName)s (cField, iField, nField) values ("Edward Leafe", 42, 42.42);
-insert into %(tableName)s (cField, iField, nField) values ("Carl Karsten", 10223, 23032.76);
-
-create table %(childTableName)s (pk INTEGER PRIMARY KEY AUTOINCREMENT, parent_fk INT, cInvNum CHAR);
-insert into %(childTableName)s (parent_fk, cInvNum) values (1, "IN00023");
-insert into %(childTableName)s (parent_fk, cInvNum) values (1, "IN00455");
-insert into %(childTableName)s (parent_fk, cInvNum) values (3, "IN00024");
-""" % locals())
-
-
-class Test_dBizobj_mysql(Test_dBizobj, mysql_unittest):
-	def setUp(self):
-		self.con = dabo.db.dConnection(DbType="MySQL", User="dabo_unittest", 
-				password="T30T35DB4K30Z45I67N60", Database="dabo_unittest",
-				Host="paulmcnett.com")
-		self.biz = dabo.biz.dBizobj(self.con)
-		super(Test_dBizobj_mysql, self).setUp()
-
-	def tearDown(self):
-		self.biz._CurrentCursor.execute("drop table %s" % self.temp_table_name)
-		super(Test_dBizobj_mysql, self).tearDown()
-
-	def createSchema(self):
-		biz = self.biz
-		cur = biz._CurrentCursor
-		tableName = self.temp_table_name
-		childTableName = self.temp_child_table_name
-		cur.execute("""
-create table %s (pk INTEGER PRIMARY KEY AUTO_INCREMENT, cField CHAR (32), iField INT, nField DECIMAL (8,2))
-""" % tableName)
-		cur.execute("""		
-insert into %s (cField, iField, nField) values ("Paul Keith McNett", 23, 23.23)
-""" % tableName)
-		cur.execute("""		
-insert into %s (cField, iField, nField) values ("Edward Leafe", 42, 42.42)
-""" % tableName)
-		cur.execute("""		
-insert into %s (cField, iField, nField) values ("Carl Karsten", 10223, 23032.76)
-""" % tableName)
-
-		cur.execute("""
-create table %s (pk INTEGER PRIMARY KEY AUTO_INCREMENT, parent_fk INT, cInvNum CHAR (16))
-""" % childTableName)
-		cur.execute("""
-insert into %s (parent_fk, cInvNum) values (1, "IN00023")
-""" % childTableName)
-		cur.execute("""
-insert into %s (parent_fk, cInvNum) values (1, "IN00455")
-""" % childTableName)
-		cur.execute("""
-insert into %s (parent_fk, cInvNum) values (3, "IN00024")
-""" % childTableName)
-
+		
 
 if __name__ == "__main__":
 	unittest.main()

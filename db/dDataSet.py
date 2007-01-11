@@ -1,7 +1,6 @@
 import sys
 import re
 import dabo
-from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
 import datetime
 
@@ -49,12 +48,7 @@ class dDataSet(tuple):
 		self._populated = False
 		# We may need to encode fields that are not legal names.
 		self.fieldAliases = {}
-		# Pickling mementos is slow. This dict will hold them
-		# instead
-		self._mementoHold = {}
-		self._mementoSequence = 0
-		# Register the adapters
-		sqlite.register_adapter(dMemento, self._adapt_memento)
+
 		if _USE_DECIMAL:
 			sqlite.register_adapter(Decimal, self._adapt_decimal)
 		# When filtering datasets, we need a reference to the dataset
@@ -63,13 +57,12 @@ class dDataSet(tuple):
 		self._encoding = "utf8"
 
 		# Register the converters
-		sqlite.register_converter("memento", self._convert_memento)
 		if _USE_DECIMAL:
 			sqlite.register_converter("decimal", self._convert_decimal)
 
 		self._typeDict = {int: "integer", long: "integer", str: "text",
 				unicode: "text", float: "real", datetime.date: "date",
-				datetime.datetime: "timestamp", dMemento : "memento"}
+				datetime.datetime: "timestamp"}
 		if _USE_DECIMAL:
 			self._typeDict[Decimal] = "decimal"
 
@@ -98,18 +91,12 @@ class dDataSet(tuple):
 		return ret
 
 
-	def _adapt_memento(self, mem):
-		"""Substitutes a sequence for the memento for storage"""
-		pos = self._mementoSequence
-		self._mementoSequence += 1
-		self._mementoHold[pos] = mem
-		return str(pos)
-
-
-	def _convert_memento(self, strval):
-		"""Replaces the placeholder sequence with the actual memento."""
-		pos = int(strval)
-		return self._mementoHold[pos]
+	def _index(self, rec):
+		"""Returns the index of the record object, or None."""
+		for idx, item in enumerate(self):
+			if item == rec:
+				return idx
+		return None
 
 
 	def replace(self, field, Expr, scope=None):
