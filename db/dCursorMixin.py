@@ -1877,6 +1877,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	
 	def _getIsAdding(self):
 		""" Return True if the current record is a new record."""
+		if self.RowCount <= 0:
+			return False
 		return self._records[self.RowNumber].has_key(kons.CURSOR_NEWFLAG)
 		
 	
