@@ -434,7 +434,7 @@ class Form(dabo.ui.dForm):
 				self.btnAdvanced.bindEvent(dEvents.Hit, self.onAdvanced)
 
 			def onAdvanced(self, evt):
- 				if dabo.ui.areYouSure("Would you like to save the report form xml "
+				if dabo.ui.areYouSure("Would you like to save the report form xml "
 						"(rfxml) to your application's reports directory? If you say "
 						"'yes', you'll be able to modify the file and it will be used "
 						"as the Quick Report from now on (it will no longer be auto-"

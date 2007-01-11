@@ -1659,7 +1659,7 @@ class dBizobj(dObject):
 				This information will try to come from a few places, in order:
 				1) The explicitly-set DataStructure property
 				2) The backend table method"""))
-     
+ 
 	DefaultValues = property(_getDefaultValues, _setDefaultValues, None,
 			_("""A dictionary specifying default values for fields when a new record is added.
 

@@ -100,13 +100,13 @@ class dDataSet(tuple):
 
 
 	def replace(self, field, Expr, scope=None):
-		"""Replaces the value of the specified field
-        with the given expression.
+		"""Replaces the value of the specified field with the given expression.
 
-        All records matching the scope are affected; if
-		no scope is specified, all records are affected.
+		All records matching the scope are affected; if	no scope is specified, 
+		all records are affected.
 
-		Scope is a boolean expression. """
+		Scope is a boolean expression.
+		"""
 
 		if scope is None:
 			scope = "True"

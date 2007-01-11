@@ -122,7 +122,7 @@ class MySQL(dBackend):
 				ft = "B"
 			elif "int" in ft:
 				ft = "I"
- 			elif ft == "long":
+			elif ft == "long":
 				ft = "G"
 			elif "varchar" in ft:
 				# will be followed by length

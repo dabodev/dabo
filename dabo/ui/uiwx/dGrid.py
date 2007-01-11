@@ -464,7 +464,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.longEditorClass = wx.grid.GridCellNumberEditor
 		self.decimalEditorClass = wx.grid.GridCellNumberEditor
 		self.floatEditorClass = wx.grid.GridCellFloatEditor
- 		self.listEditorClass = wx.grid.GridCellChoiceEditor		
+		self.listEditorClass = wx.grid.GridCellChoiceEditor		
 #		self.listEditorClass = GridListEditor
 		
 		self.defaultRenderers = {
