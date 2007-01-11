@@ -374,12 +374,19 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	def __onTreeBeginDrag(self, evt):
 		if self._allowDrag(evt):
 			evt.Allow()
+		# We need to select the item being dragged
+		# so we don't try to drag an old selected item
+		self.SelectItem(evt.GetItem())
 		evt.Skip()
 		self.raiseEvent(dEvents.TreeBeginDrag, evt)
 
 	
 	def __onTreeEndDrag(self, evt):
 		evt.Skip()
+		# We need to select only our destination node
+		if self.MultipleSelect:
+			self.UnselectAll()
+		self.SelectItem(evt.GetItem())
 		self.raiseEvent(dEvents.TreeEndDrag, evt)
 
 	
@@ -653,6 +660,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		of the flattened tree structure. Sometimes referred to as 'flatdown'
 		navigation.
 		"""
+		if not isinstance(nd, dNode):
+			nd = self.nodeForObject(nd)
 		if nd is None:
 			nd = self.Selection
 			if isinstance(nd, list):
@@ -683,6 +692,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		are no prior siblings, returns the parent. Sometimes 
 		referred to as 'flatup' navigation.
 		"""
+		if not isinstance(nd, dNode):
+			nd = self.nodeForObject(nd)
 		if nd is None:
 			nd = self.Selection
 			if isinstance(nd, list):
@@ -698,7 +709,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			except: pass
 		else:
 			# Find the last child of the last child of the last child...
-			nd = self.nodeForObject(ret)
+			nd = ret
 			kids = self.getChildren(nd)
 			while kids:
 				nd = kids[-1]
