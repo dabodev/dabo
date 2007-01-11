@@ -1072,6 +1072,8 @@ class dPemMixin(dPemMixinBase):
 	def decreaseFontSize(self, val=None):
 		if val is None:
 			val = -1
+		else:
+			val = -1 * val
 		self._changeFontSize(val)
 	def _changeFontSize(self, val):
 		try:
