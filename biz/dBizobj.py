@@ -368,7 +368,7 @@ class dBizobj(dObject):
 
 	def cancelAll(self):
 		"""Cancel all changes made to the current dataset, including all children."""
-		self.scanChangedRows(self.cancel, allCursors=True)
+		self.scanChangedRows(self.cancel, allCursors=False)
 
 
 	def cancel(self):
@@ -561,12 +561,16 @@ class dBizobj(dObject):
 		"""
 		self.exitScan = False
 		old_currentCursorKey = self.__currentCursorKey
-		old_pk = getattr(self.Record, self.KeyField, None)
+		try:
+			old_pk = getattr(self.Record, self.KeyField, None)
+		except dException.NoRecordsException:
+			# no rows to scan
+			return
 
 		if allCursors:
 			cursors = self.__cursors
 		else:
-			cursors = [{None: self._CurrentCursor}]
+			cursors = {None: self._CurrentCursor}
 
 		for key, cursor in cursors.iteritems():
 			self._CurrentCursor = key
