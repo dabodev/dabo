@@ -184,8 +184,8 @@ class uiApp(dObject, wx.App):
 			char = None
 		plus = (char == "=") or (char == "+") or (kcd == wx.WXK_NUMPAD_ADD)
 		minus = (char == "-") or (kcd == wx.WXK_NUMPAD_SUBTRACT)
-		zero = (char == "0") or (kcd == wx.WXK_NUMPAD0)
-		if not (plus or minus or zero):
+		slash = (char == "/") or (kcd == wx.WXK_NUMPAD_DIVIDE)
+		if not (plus or minus or slash):
 			evt.Skip()
 			return
 		settingName = "%s.zoomlevel" % self.ActiveForm.Name
