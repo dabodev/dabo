@@ -306,7 +306,7 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, db_tests["firebird"]):
 create table %s (pk INTEGER NOT NULL, cField CHAR (32), iField INT,
 nField DECIMAL (8,2), PRIMARY KEY (pk))
 """ % self.temp_table_name)
-                cur.execute("""
+		cur.execute("""
 create generator gen_%s
 """ % self.temp_table_name)
 		cur.execute("""

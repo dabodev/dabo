@@ -501,10 +501,10 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		
 	
 	def setNodeImg(self, node, imgKey, which="normal"):
- 		""" Sets the specified node's image to the image corresponding
- 		to the specified key. May also optionally pass the index of the 
- 		image in the ImageList rather than the key.
-		Which is the state of the node.
+		"""Sets the specified node's image to the image corresponding	to the 
+		specified key. May also optionally pass the index of the image in the 
+		ImageList rather than the key, which is the state of the node.
+
 		Valid states are:
 			'normal'
 			'expanded'
@@ -517,10 +517,10 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			"selectedexpanded": wx.TreeItemIcon_SelectedExpanded}
 		if which.lower() not in whichdict.keys():
 			raise ValueError, _("Invalid Node State: %s") % which
- 		if isinstance(imgKey, int):
- 			imgIdx = imgKey
- 		else:
- 			imgIdx = self.__imageList[imgKey]
+		if isinstance(imgKey, int):
+			imgIdx = imgKey
+		else:
+			imgIdx = self.__imageList[imgKey]
 		self.SetItemImage(node.itemID, imgIdx, whichdict[which.lower()])
 
 	
@@ -730,12 +730,12 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			else:
 				# Empty list
 				return None
- 		try:
- 			itemID = func(nd.itemID)
+		try:
+			itemID = func(nd.itemID)
 			ret = [nod for nod in self.nodes
- 					if nod.itemID == itemID][0]
- 		except:
- 			ret = None
+					if nod.itemID == itemID][0]
+		except:
+			ret = None
 		return ret
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
 	

@@ -879,7 +879,7 @@ class dPemMixin(dPemMixinBase):
 			posX, posY = self.formCoordinates(pos)
 			l = posX - cntX
 			t = posY - cntY
- 		return (l, t)
+		return (l, t)
  	
  	
 	def objectCoordinates(self, pos=None):
