@@ -181,6 +181,7 @@ class MySQL(dBackend):
 				"LONG_BLOB": "M",
 				"MEDIUM_BLOB": "M",
 				"NEWDATE": "?",
+				"NEWDECIMAL": "N",
 				"NULL": "?",
 				"SET": "?",
 				"SHORT": "I",
