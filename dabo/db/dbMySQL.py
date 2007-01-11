@@ -120,8 +120,10 @@ class MySQL(dBackend):
 			ft = r[1]
 			if ft.split()[0] == "tinyint(1)" or "bit" in ft:
 				ft = "B"
-			elif "int" in ft or ft == "long":
+			elif "int" in ft:
 				ft = "I"
+ 			elif ft == "long":
+				ft = "G"
 			elif "varchar" in ft:
 				# will be followed by length
 				ln = int(ft.split("(")[1].split(")")[0])
