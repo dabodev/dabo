@@ -128,7 +128,7 @@ class Postgres(dBackend):
 				fldType = "T"
 			elif "date" in fldType:
 				fldType = "D"
-			elif "blob" in fldType:
+			elif "bytea" in fldType:
 				fldType = "L"
 			else:
 				fldType = "?"
