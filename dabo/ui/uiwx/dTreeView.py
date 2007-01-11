@@ -115,6 +115,7 @@ class dNode(dObject):
 		self._font = val
 		self.tree.SetItemFont(self.itemID, val._nativeFont)
 		val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
 	
 	def _getFontBold(self):
@@ -125,6 +126,7 @@ class dNode(dObject):
 	
 	def _setFontBold(self, val):
 		self.Font.Bold = val
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
 
 	def _getFontDescription(self):
@@ -149,6 +151,7 @@ class dNode(dObject):
 	
 	def _setFontItalic(self, val):
 		self.Font.Italic = val
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
 	
 	def _getFontFace(self):
@@ -159,6 +162,7 @@ class dNode(dObject):
 
 	def _setFontFace(self, val):
 		self.Font.Face = val
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
 	
 	def _getFontSize(self):
@@ -169,6 +173,7 @@ class dNode(dObject):
 	
 	def _setFontSize(self, val):
 		self.Font.Size = val
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 	
 	
 	def _getFontUnderline(self):
@@ -179,6 +184,7 @@ class dNode(dObject):
 	
 	def _setFontUnderline(self, val):
 		self.Font.Underline = val
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
 
 	def _getForeColor(self):
@@ -197,6 +203,7 @@ class dNode(dObject):
 		
 	def _setImg(self, key):
 		return self.tree.setNodeImg(self, key)
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 		
 		
 	def _getIsRootNode(self):
@@ -321,7 +328,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		# Class to use for creating nodes
 		self._nodeClass = dNode
 		
-		style = self._extractKey((properties, kwargs), "style", 0)
+		style = self._extractKey((properties, kwargs), "style", 0) | wx.TR_HAS_VARIABLE_ROW_HEIGHT
 		# Default to showing buttons
 		val = self._extractKey((properties, kwargs), "ShowButtons", True)
 		if val:
@@ -395,6 +402,18 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	def clear(self):
 		self.DeleteAllItems()
 		self.nodes = []
+	
+	
+	def refreshDisplay(self):
+		"""Changing some node appearance properties requires that the tree be 
+		collapsed and re-opened in order to update any sizing issues.
+		"""
+		self.lockDisplay()
+		ndExp = [(nd, nd.Expanded) for nd in self.nodes]
+		self.collapseAll()
+		for nd, exp in ndExp:
+			nd.Expanded = exp
+		self.unlockDisplay()
 
 	
 	def getRootNode(self):
@@ -746,6 +765,28 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			self.SortChildren(self._pathNode[currDir].itemID)
 		os.path.walk(dirPath, addNode, showHidden)
 		os.path.walk(dirPath, sortNode, None)
+
+
+	def increaseFontSize(self, val=None):
+		"""Increase the font size by the specified amount for all nodes."""
+		if val is None:
+			val = 1
+		self._changeFontSize(val)
+	def decreaseFontSize(self, val=None):
+		if val is None:
+			val = -1
+		else:
+			val = -1 * val
+		self._changeFontSize(val)
+	def _changeFontSize(self, val):
+		for nd in self.nodes:
+			try:
+				nd.FontSize += val
+			except PyAssertionError:
+				# This catches invalid point sizes
+				pass
+		if self.Form is not None:
+			dabo.ui.callAfterInterval(200, self.Form.layout)
 
 
 	def treeFromStructure(self, stru, topNode=None):
