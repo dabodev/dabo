@@ -1342,7 +1342,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Find the record with the passed primary key; return (row, record)."""
 		for idx, rec in enumerate(self._records):
 			if self._compoundKey:
-				key = tuple([rec[k] for k in kf])
+				key = tuple([rec[k] for k in self.KeyField])
 			else:
 				key = rec[self.KeyField]
 			if key == pk:
