@@ -22,7 +22,7 @@ class dBackend(dObject):
 	functionPat = re.compile(r".*\([^\)]+\)")
 	# When enclosing table or field names that contain spaces, what
 	# character is used? Default to double quote.
-	spaceEnclosureChar = ""
+	spaceEnclosureChar = '"'
 
 	def __init__(self):
 		self._baseClass = dBackend
