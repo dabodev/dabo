@@ -39,19 +39,22 @@ from dNoEscQuoteStr import dNoEscQuoteStr
 from dDataSet import dDataSet
 
 daboTypes = {
-		"C": unicode,
-		"M": unicode,
-		"I": int,
-		"G": long,
-		"F": float,
-		"B": bool,
-		"D": datetime.date,
-		"T": datetime.datetime,
-		"N": Decimal}
+		"C": unicode,             ## text
+		"M": unicode,             ## memo (longtext) 
+		"I": int,                 ## integer
+		"G": long,                ## long integer
+		"F": float,               ## float
+		"B": bool,                ## boolean (logical)
+		"D": datetime.date,       ## date
+		"T": datetime.datetime,   ## datetime
+		"N": Decimal,             ## decimal (numeric)
+		"L": str,                 ## BLOB
+		}
 
 pythonTypes = dict([[v,k] for k,v in daboTypes.iteritems()])
 pythonTypes[str] = "C"
-
+pythonTypes[unicode] = "C"
+del k, v, Decimal
 
 def getPythonType(daboType):
 	"""Given a char type code like "I" or "C", return the associated Python type."""
