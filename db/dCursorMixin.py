@@ -1049,9 +1049,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					if kk in self.getNonUpdateFields():
 						# Skip it.
 						continue
-						
 					# Append the field and its value.
-					flds += ", " + kk
+					flds += ", " + self.BackendObject.encloseSpaces(kk)
 					# add value to expression
 					vals += ", %s" % (self.formatForQuery(vv[1]),)
 					
@@ -1064,12 +1063,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					# NULL as the PK Value:
 					flds = self.KeyField
 					vals = "NULL"
-				sql = "insert into %s (%s) values (%s) " % (self.Table, flds, vals)
+				sql = "insert into %s (%s) values (%s) " % (
+						self.BackendObject.encloseSpaces(self.Table), flds, vals)
 
 			else:
 				pkWhere = self.makePkWhere(row)
 				updClause = self.makeUpdClause(diff)
-				sql = "update %s set %s where %s" % (self.Table, updClause, pkWhere)
+				sql = "update %s set %s where %s" % (self.BackendObject.encloseSpaces(self.Table), 
+						updClause, pkWhere)
 			oldPKVal = rec[self.KeyField]
 			newPKVal = None
 			if newrec and self.AutoPopulatePK:
@@ -1488,15 +1489,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		Optionally pass in a row number, otherwise use the current record.
 		"""
-		tblPrefix = self.BackendObject.getWhereTablePrefix(self.Table)
+		bo = self.BackendObject
+		tblPrefix = bo.getWhereTablePrefix(bo.encloseSpaces(self.Table))
 		if not row:
 			row = self.RowNumber
 		rec = self._records[row]
+		
 		if self._compoundKey:
-			keyFields = self.KeyField
+			keyFields = [fld for fld in self.KeyField]
 		else:
 			keyFields = [self.KeyField]
-
 		mem = self._mementos.get(rec[self.KeyField], {})
 
 		def getPkVal(fld):
@@ -1507,22 +1509,24 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			
 		ret = ""
 		for fld in keyFields:
+			fldSafe = bo.encloseSpaces(fld)
 			if ret:
 				ret += " AND "
 			pkVal = getPkVal(fld)
 			if isinstance(pkVal, basestring):
-				ret += tblPrefix + fld + "='" + pkVal.encode(self.Encoding) + "' "
+				ret += tblPrefix + fldSafe + "='" + pkVal.encode(self.Encoding) + "' "
 			elif isinstance(pkVal, (datetime.date, datetime.datetime)):
-				ret += tblPrefix + fld + "=" + self.formatDateTime(pkVal) + " "
+				ret += tblPrefix + fldSafe + "=" + self.formatDateTime(pkVal) + " "
 			else:
-				ret += tblPrefix + fld + "=" + str(pkVal) + " "
+				ret += tblPrefix + fldSafe + "=" + str(pkVal) + " "
 		return ret
 
 
 	def makeUpdClause(self, diff):
 		""" Create the 'set field=val' section of the Update statement. """
 		ret = ""
-		tblPrefix = self.BackendObject.getUpdateTablePrefix(self.Table)
+		bo = self.BackendObject
+		tblPrefix = bo.getUpdateTablePrefix(bo.encloseSpaces(self.Table))
 		for fld, val in diff.items():
 			old_val, new_val = val
 			# Skip the fields that are not to be updated.
@@ -1530,7 +1534,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				continue
 			if ret:
 				ret += ", "
-			ret += tblPrefix + fld + " = " + self.formatForQuery(new_val)
+			ret += tblPrefix + bo.encloseSpaces(fld) + " = " + self.formatForQuery(new_val)
 		return ret
 
 
@@ -1663,11 +1667,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self.sqlManager._fieldClause = self.sqlManager.BackendObject.setFieldClause(clause)
 
 
-	def addField(self, exp):
+	def addField(self, exp, alias=None):
 		""" Add a field to the field clause."""
-		if self.sqlManager.BackendObject:
-			self.sqlManager._fieldClause = self.sqlManager.BackendObject.addField(self.sqlManager._fieldClause, exp)
-		return self.sqlManager._fieldClause
+		sm = self.sqlManager
+		beo = sm.BackendObject
+		if beo:
+			sm._fieldClause = beo.addField(sm._fieldClause, exp, alias)
+		return sm._fieldClause
 
 
 	def getFromClause(self):
@@ -1976,7 +1982,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _setKeyField(self, kf):
 		if "," in kf:
-			self._keyField = tuple(kf.replace(" ", "").split(","))
+			flds = [f.strip() for f in kf.split(",")]
+			self._keyField = tuple(flds)
 			self._compoundKey = True
 		else:
 			self._keyField = str(kf)

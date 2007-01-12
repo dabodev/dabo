@@ -1243,8 +1243,8 @@ class dBizobj(dObject):
 
 
 	########## SQL Builder interface section ##############
-	def addField(self, exp):
-		return self._CurrentCursor.addField(exp)
+	def addField(self, exp, alias=None):
+		return self._CurrentCursor.addField(exp, alias)
 	def addFrom(self, exp):
 		return self._CurrentCursor.addFrom(exp)
 	def addGroupBy(self, exp):
