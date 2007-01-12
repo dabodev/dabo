@@ -1,5 +1,6 @@
 """ dabo.db.backend.py : abstractions for the various db api's """
 import sys
+import re
 import datetime
 import dabo
 from dabo.dLocalize import _
@@ -12,8 +13,17 @@ try:
 except ImportError:
 	decimal = None
 
+
+
 class dBackend(dObject):
 	""" Abstract object: inherit from this to define new dabo db interfaces."""
+
+	# Pattern for determining if a function is present in a string
+	functionPat = re.compile(r".*\([^\)]+\)")
+	# When enclosing table or field names that contain spaces, what
+	# character is used? Default to double quote.
+	spaceEnclosureChar = ""
+
 	def __init__(self):
 		self._baseClass = dBackend
 		self._autoCommit = False
@@ -152,8 +162,7 @@ class dBackend(dObject):
 
 
 	def getTableRecordCount(self, tableName):
-		""" Return the number of records in the backend table.
-		"""
+		""" Return the number of records in the backend table."""
 		return -1
 
 
@@ -204,13 +213,11 @@ class dBackend(dObject):
 	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
 		if not cursor.AutoCommit:
-# 			cursor.connection.commit()
 			self._connection.commit()
 
 
 	def rollbackTransaction(self, cursor):
 		""" Roll back (revert) a SQL transaction."""
-# 		cursor.connection.rollback()
 		self._connection.rollback()
 
 
@@ -226,37 +233,66 @@ class dBackend(dObject):
 		return ret
 
 
-	def addField(self, clause, exp):
+	def encloseSpaces(self, exp):
+		"""When table/field names contain spaces, this will safely enclose them
+		in quotes or whatever delimiter is appropriate for the backend.
+		"""
+		ret = exp
+		if " " in exp:
+			delim = self.spaceEnclosureChar
+			if not ret.startswith(delim):
+				ret = "%(delim)s%(ret)s" % locals()
+			if not ret.endswith(delim):
+				ret = "%(ret)s%(delim)s" % locals()
+		return ret
+	
+	
+	def addField(self, clause, exp, alias=None):
 		""" Add a field to the field clause."""
-		#indent = "\t"
+		if alias is None:
+			# Backwards compatibility: see if the 'as' clause is present
+			asPos = exp.lower().find(" as ")
+			if asPos > -1:
+				alias = exp[asPos+4:]
+				exp = exp[:asPos]	
+		# If exp is a function, don't do anything special about spaces.
+		if not self.functionPat.match(exp):
+			# See if it's in tbl.field format
+			try:
+				tbl, fld = exp.strip().split(".")
+				exp = "%s.%s" % (self.encloseSpaces(tbl), self.encloseSpaces(fld))
+			except ValueError:
+				exp = self.encloseSpaces(exp)
+		if alias:
+			alias = self.encloseSpaces(alias)
+			exp = "%(exp)s as %(alias)s" % locals()
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
 
 	def addFrom(self, clause, exp):
 		""" Add a table to the sql statement."""
-		#indent = "\t"
+		exp = self.encloseSpaces(exp)
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
 
 	def addWhere(self, clause, exp, comp="and"):
 		""" Add an expression to the where clause."""
-		#indent = "\t"
 		indent = (len("select ") - len(comp)) * " "
 		return self.addWithSep(clause, exp, sep="\n%s%s " % (indent, comp))
 
 
 	def addGroupBy(self, clause, exp):
 		""" Add an expression to the group-by clause."""
-		#indent = "\t"
+		exp = self.encloseSpaces(exp)
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
 
 	def addOrderBy(self, clause, exp):
 		""" Add an expression to the order-by clause."""
-		#indent = "\t"
+		exp = self.encloseSpaces(exp)
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
@@ -306,6 +342,7 @@ class dBackend(dObject):
 		this method to return an empty string, or whatever should
 		preceed the field name in an update statement.
 		"""
+		tbl = self.encloseSpaces(tbl)
 		return tbl + "."
 
 
@@ -318,6 +355,7 @@ class dBackend(dObject):
 		preceed the field name in a comparison in the WHERE clause
 		of an SQL statement.
 		"""
+		tbl = self.encloseSpaces(tbl)
 		return tbl + "."
 
 
@@ -374,7 +412,7 @@ class dBackend(dObject):
 			cursor._whereClause = holdWhere
 		descFlds = cursor.FieldDescription
 		# Get the raw version of the table
-		sql = "select * from %s where 1=0 " % cursor.Table
+		sql = "select * from %s where 1=0 " % self.encloseSpaces(cursor.Table)
 		auxCrs = cursor._getAuxCursor()
 		auxCrs.execute( sql )
 		# This is the clean version of the table.
@@ -494,6 +532,7 @@ class dBackend(dObject):
 	def _getEncoding(self):
 		""" Get backend encoding."""
 		return self._encoding
+
 
 	Encoding = property(_getEncoding, _setEncoding, None,
 			_("Backend encoding  (str)"))
