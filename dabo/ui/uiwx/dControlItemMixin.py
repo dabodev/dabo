@@ -1,7 +1,8 @@
-from dDataControlMixin import dDataControlMixin
-from dabo.dLocalize import _
 import wx
 import dabo
+import dabo.dEvents as dEvents
+from dDataControlMixin import dDataControlMixin
+from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 
@@ -18,6 +19,15 @@ class dControlItemMixin(dDataControlMixin):
 		super(dControlItemMixin, self).__init__(*args, **kwargs)
 
 		
+	def _initEvents(self):
+		super(dControlItemMixin, self)._initEvents()
+		self.bindEvent(dEvents.Hit, self.__flush)
+	
+	
+	def __flush(self, evt):
+		self.flushValue()
+	
+	
 	def appendItem(self, txt, select=False):
 		""" Adds a new item to the end of the list """
 		chc = self._choices
