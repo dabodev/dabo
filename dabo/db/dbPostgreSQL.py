@@ -142,7 +142,7 @@ class Postgres(dBackend):
 				fldType = "C"
 			elif "lseg" in fldType:
 				fldType = "C"
-			elif "ploygon" in fldType:
+			elif "polygon" in fldType:
 				fldType = "C"
 			elif "path" in fldType:
 				fldType = "C"
