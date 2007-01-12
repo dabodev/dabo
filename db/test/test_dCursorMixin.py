@@ -26,7 +26,6 @@ for k, v in db_tests.iteritems():
 class Test_dCursorMixin(object):
 	def setUp(self):
 		cur = self.cur
-		self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
 		self.createSchema()
 		cur.UserSQL = "select * from %s" % self.temp_table_name
 		cur.KeyField = "pk"
@@ -176,13 +175,11 @@ class Test_dCursorMixin(object):
 
 	def testMementos(self):
 		cur = self.cur
-
 		# With a new requery, mementos and new records should be empty.
 		self.assertEqual(cur._mementos, {})
 		self.assertEqual(cur._newRecords, {})
 	
 		priorVal = cur.Record.cField
-
 		# Make a change that is the same as the prior value:
 		cur.Record.cField = priorVal
 		self.assertEqual(priorVal, cur.Record.cField)
@@ -243,6 +240,7 @@ class Test_dCursorMixin_sqlite(Test_dCursorMixin, db_tests["sqlite"]):
 	def setUp(self):
 		con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
 		self.cur = con.getDaboCursor()
+		self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
 		super(Test_dCursorMixin_sqlite, self).setUp()
 
 	def createSchema(self):
@@ -262,6 +260,7 @@ class Test_dCursorMixin_mysql(Test_dCursorMixin, db_tests["mysql"]):
 				password="T30T35DB4K30Z45I67N60", Database="dabo_unittest",
 				Host="paulmcnett.com")
 		self.cur = con.getDaboCursor()
+		self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
 		super(Test_dCursorMixin_mysql, self).setUp()
 
 	def tearDown(self):
@@ -294,44 +293,36 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, db_tests["firebird"]):
 				password="T30T35DB4K30Z45I67N60", Database="dabo_unittest",
 				Host="paulmcnett.com")
 		self.cur = con.getDaboCursor()
+		self.temp_table_name = "dabo_unittest_tbl"
+		self.jobid = self.get_jobid()
 		super(Test_dCursorMixin_firebird, self).setUp()
+
+	def get_jobid(self):
+		ret = None
+		self.cur.execute("select gen_id(gen_jobid, 1) as nextval from rdb$database")
+		ret = self.cur.getFieldVal("nextval")
+		return ret
 
 	def tearDown(self):
 		self.cur.execute("commit")
-		self.cur.execute("drop table %s" % self.temp_table_name)
+		self.cur.execute("delete from %s where jobid = %f" % (self.temp_table_name, self.jobid))
 		self.cur.execute("commit")
 		super(Test_dCursorMixin_firebird, self).tearDown()
 
 	def createSchema(self):
 		cur = self.cur
 		tableName = self.temp_table_name
-		cur.execute("""
-create table %s (pk INTEGER NOT NULL, cField CHAR (32), iField INT,
-nField DECIMAL (8,2), PRIMARY KEY (pk))
-""" % tableName)
-		cur.execute("commit")
-		cur.execute("""
-create generator gen_%s
-""" % tableName)
-		cur.execute("""
-create trigger bi_%s for %s active
-before insert position 0
-as
-begin
-    if (new.pk is null) then
-    new.pk = gen_id(GEN_%s, 1);
-end
-""" % (tableName, tableName, tableName))
+
 		cur.execute("commit")
 		cur.execute("""		
-insert into %s (cField, iField, nField) values ('Paul Keith McNett', 23, 23.23)
-""" % tableName)
+insert into %s (jobid, cField, iField, nField) values (%f, 'Paul Keith McNett', 23, 23.23)
+""" % (tableName, self.jobid))
 		cur.execute("""		
-insert into %s (cField, iField, nField) values ('Edward Leafe', 42, 42.42)
-""" % tableName)
+insert into %s (jobid, cField, iField, nField) values (%f, 'Edward Leafe', 42, 42.42)
+""" % (tableName, self.jobid))
 		cur.execute("""		
-insert into %s (cField, iField, nField) values ('Carl Karsten', 10223, 23032.76)
-""" % tableName)
+insert into %s (jobid, cField, iField, nField) values (%f, 'Carl Karsten', 10223, 23032.76)
+""" % (tableName, self.jobid))
 		cur.execute("commit")
 
 	def test_AutoSQL(self):
