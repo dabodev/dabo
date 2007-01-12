@@ -836,7 +836,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						self._mementos[keyFieldValue] = old_mem
 						del self._mementos[old_val]
 				else:
-					keyFieldValue = rec[keyField]
+					if self._compoundKey:
+						keyFieldValue = tuple([rec[k] for k in keyField])
+					else:
+						keyFieldValue = rec[keyField]
 				mem = self._mementos.get(keyFieldValue, {})
 				if mem.has_key(fld) or fld in nonUpdateFields:
 					# Memento is already there, or it isn't updateable.
