@@ -115,7 +115,11 @@ class Postgres(dBackend):
 			if thePKFieldName is not None:
 				pk = (name in thePKFieldName)
 			if "int" in fldType:
-				fldType = "I"
+				fldType = "G"
+			elif "real" in fldType:
+				fldType = "F"
+			elif "double" in fldType:
+				fldType = "F"
 			elif "char" in fldType :
 				fldType = "C"
 			elif "bool" in fldType :
@@ -130,6 +134,20 @@ class Postgres(dBackend):
 				fldType = "D"
 			elif "bytea" in fldType:
 				fldType = "L"
+			elif "point" in fldType:
+				fldType = "C"
+			elif "box" in fldType:
+				fldType = "C"
+			elif "circle" in fldType:
+				fldType = "C"
+			elif "lseg" in fldType:
+				fldType = "C"
+			elif "ploygon" in fldType:
+				fldType = "C"
+			elif "path" in fldType:
+				fldType = "C"
+			elif "oid" in fldType:
+				fldType = "I"
 			else:
 				fldType = "?"
 			fields.append((name.strip(), fldType, pk))
