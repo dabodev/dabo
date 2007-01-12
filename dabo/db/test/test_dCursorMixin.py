@@ -26,7 +26,7 @@ for k, v in db_tests.iteritems():
 class Test_dCursorMixin(object):
 	def setUp(self):
 		cur = self.cur
-		self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-20:]
+		self.temp_table_name = "unittest%s" % getRandomUUID().replace("-", "")[-17:]
 		self.createSchema()
 		cur.UserSQL = "select * from %s" % self.temp_table_name
 		cur.KeyField = "pk"
@@ -297,27 +297,42 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, db_tests["firebird"]):
 		super(Test_dCursorMixin_firebird, self).setUp()
 
 	def tearDown(self):
+		self.cur.execute("commit")
 		self.cur.execute("drop table %s" % self.temp_table_name)
+		self.cur.execute("commit")
 		super(Test_dCursorMixin_firebird, self).tearDown()
 
 	def createSchema(self):
 		cur = self.cur
+		tableName = self.temp_table_name
 		cur.execute("""
 create table %s (pk INTEGER NOT NULL, cField CHAR (32), iField INT,
 nField DECIMAL (8,2), PRIMARY KEY (pk))
-""" % self.temp_table_name)
+""" % tableName)
+		cur.execute("commit")
 		cur.execute("""
 create generator gen_%s
-""" % self.temp_table_name)
+""" % tableName)
 		cur.execute("""
-create trigger set_%s_pk for %s active
+create trigger bi_%s for %s active
 before insert position 0
 as
 begin
     if (new.pk is null) then
-    new.pk = gen_id(gen_%s, 1);
+    new.pk = gen_id(GEN_%s, 1);
 end
-""" % self.temp_table_name, self.temp_table_name, self.temp_table_name)
+""" % (tableName, tableName, tableName))
+		cur.execute("commit")
+		cur.execute("""		
+insert into %s (cField, iField, nField) values ('Paul Keith McNett', 23, 23.23)
+""" % tableName)
+		cur.execute("""		
+insert into %s (cField, iField, nField) values ('Edward Leafe', 42, 42.42)
+""" % tableName)
+		cur.execute("""		
+insert into %s (cField, iField, nField) values ('Carl Karsten', 10223, 23032.76)
+""" % tableName)
+		cur.execute("commit")
 
 	def test_AutoSQL(self):
 		cur = self.cur
