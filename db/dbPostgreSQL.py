@@ -115,11 +115,7 @@ class Postgres(dBackend):
 			if thePKFieldName is not None:
 				pk = (name in thePKFieldName)
 			if "int" in fldType:
-				fldType = "G"
-			elif "real" in fldType:
-				fldType = "F"
-			elif "double" in fldType:
-				fldType = "F"
+				fldType = "I"
 			elif "char" in fldType :
 				fldType = "C"
 			elif "bool" in fldType :
@@ -147,7 +143,7 @@ class Postgres(dBackend):
 			elif "path" in fldType:
 				fldType = "C"
 			elif "oid" in fldType:
-				fldType = "I"
+				fldType = "G"
 			else:
 				fldType = "?"
 			fields.append((name.strip(), fldType, pk))
