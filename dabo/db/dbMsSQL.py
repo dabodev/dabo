@@ -69,13 +69,14 @@ class MSSQL(dBackend):
 		dbName = self.database
 		tempCursor.execute("select table_name"
 			" from INFORMATION_SCHEMA.TABLES"
-			" where table_catalog = '%(db)s'"
+			" where table_catalog = %(db)s"
 			" and table_type = 'BASE TABLE'"
-			" order by table_name"
-			% {'db':dbName} )
+			" order by table_name",
+			 {'db':dbName} )
 		rs = tempCursor.fetchall()
 		tables = [x[0] for x in rs]
-		return tuple(tables)
+		tables = tuple(tables)
+		return tables
 
 	
 	def getTableRecordCount(self, tableName):
@@ -150,17 +151,17 @@ class MSSQL(dBackend):
 			"""
 		tempCursor = self._connection.cursor()
 		# fairly standard way of getting column settings
-		# this may be standard wnough to put in the super class
+		# this may be standard enough to put in the super class
 
 		dbName = self.database
 		
 		tempCursor.execute(
 			"select COLUMN_NAME, DATA_TYPE" 
 			" from INFORMATION_SCHEMA.COLUMNS"
-			" where table_catalog = '%(db)s'"
-			" and table_name = '%(table)s'"
-			" order by ORDINAL_POSITION"
-			% {'table':tableName, 'db':dbName} )
+			" where table_catalog = %(db)s"
+			" and table_name = %(table)s"
+			" order by ORDINAL_POSITION",
+			 {'table':tableName, 'db':dbName} )
 		fieldDefs = tempCursor.fetchall()
 
 		tempCursor.execute(
@@ -170,31 +171,19 @@ class MSSQL(dBackend):
 			" on CCU.CONSTRAINT_NAME = TC.CONSTRAINT_NAME"
 			" where"
 			" CONSTRAINT_TYPE = 'PRIMARY KEY'"
-			" and TC.CONSTRAINT_CATALOG = '%(db)s'" 
-			" and TC.Table_Name = '%(table)s'"
-			% {'table':tableName, 'db':dbName} )
+			" and TC.CONSTRAINT_CATALOG = %(db)s" 
+			" and TC.Table_Name = %(table)s",
+			 {'table':tableName, 'db':dbName} )
 		pkFields = tempCursor.fetchall()
 
 		fields = []
 		for r in fieldDefs:
 			name = r[0]
 			ft = self._fieldTypeNativeToDabo(r[1])
-			# pk = (r[2] == "PRI")
 			pk = (name,) in pkFields
-			# if pk:
-			# 	print r[0]
 			fields.append((name, ft, pk))
 		return tuple(fields)
 
-	#def getUpdateTablePrefix(self, tbl):
-		#""" By default, the update SQL statement will be in the form of
-					#tablename.fieldname
-		#but Postgres does not accept this syntax. If not, change
-		#this method to return an empty string, or whatever should 
-		#preceed the field name in an update statement.
-		 #Postgres needs to return an empty string."""
-		#return ""
-		
 		
 	def noResultsOnSave(self):
 		""" Most backends will return a non-zero number if there are updates.
@@ -213,10 +202,8 @@ class MSSQL(dBackend):
 	
 	def flush(self, cursor):
 		self.commitTransaction(cursor)
-		#self.commitTransaction()
 		
 	def getLimitWord(self):
-		""" JFCS Override the default 'limit', since MS SQL doesn't use that. """
 		return "TOP"
 	
 	def formSQL(self, fieldClause, fromClause, 
@@ -224,11 +211,3 @@ class MSSQL(dBackend):
 		""" MS SQL wants the limit clause before the field clause.	"""
 		return "\n".join( ("SELECT ", limitClause, fieldClause, fromClause, 
 				whereClause, groupByClause, orderByClause) )
-	#def convertDateTime(self,mydate):
-		#months={'Jan':1,'Feb':2,'Mar':3,'Apr':4,'May':5,'Jun':6,'Jul':7,'Aug':8,'Sep':9,'Oct':10,'Nov':11,'Dec':12}
-		#mymonth=mydate[0:3]
-		#myday = int(mydate[4:6])
-		#myyear= int(mydate[7:11])
-		#myhour = int(mydate[12:14])
-		#theIntMonth=months.get(mymonth)
-		#return datetime.datetime(myyear,theInMonth,myday,myhour)
