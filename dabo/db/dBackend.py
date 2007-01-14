@@ -267,9 +267,11 @@ class dBackend(dObject):
 			alias = self.encloseSpaces(alias)
 			exp = "%(exp)s as %(alias)s" % locals()
 		indent = len("select ") * " "
+		# Give the backend-specific code a chance to update the format
+		exp = self.processFields(exp)
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
-
+	
 	def addFrom(self, clause, exp):
 		""" Add a table to the sql statement."""
 		exp = self.encloseSpaces(exp)
@@ -280,6 +282,7 @@ class dBackend(dObject):
 	def addWhere(self, clause, exp, comp="and"):
 		""" Add an expression to the where clause."""
 		indent = (len("select ") - len(comp)) * " "
+		exp = self.processFields(exp)
 		return self.addWithSep(clause, exp, sep="\n%s%s " % (indent, comp))
 
 
