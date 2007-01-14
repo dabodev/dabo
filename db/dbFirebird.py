@@ -187,6 +187,11 @@ class Firebird(dBackend):
 		return "\n".join( ("SELECT ", limitClause, fieldClause, fromClause, 
 				whereClause, groupByClause, orderByClause) )
 
+
+	def addField(self, clause, exp):
+		quoted = self.dblQuoteField(exp)
+		return self.addWithSep(clause, quoted)
+
 	
 	def addWhere(self, clause, exp, comp="and"):
 		quoted = self.dblQuoteField(exp)
