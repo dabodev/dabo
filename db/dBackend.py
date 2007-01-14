@@ -523,6 +523,12 @@ class dBackend(dObject):
 		return clause
 	###########################################
 
+	def dblQuoteField(self, txt):
+		""" Default is to return the string unchanged. Override
+		in cases where the str needs processing.
+		"""		
+		return txt
+	
 	def _setEncoding(self, enc):
 		""" Set backend encoding. Must be overridden in the subclass
 		to notify database about proper charset conversion.
