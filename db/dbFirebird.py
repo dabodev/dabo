@@ -188,17 +188,6 @@ class Firebird(dBackend):
 				whereClause, groupByClause, orderByClause) )
 
 
-	def addField(self, clause, exp, alias=None):
-		# we ignore the alias for now
-		quoted = self.dblQuoteField(exp)
-		return self.addWithSep(clause, quoted)
-
-	
-	def addWhere(self, clause, exp, comp="and"):
-		quoted = self.dblQuoteField(exp)
-		return self.addWithSep(clause, quoted, sep=" %s " % comp)
-
-
 	def massageDescription(self, cursor):
 		"""Force all the field names to lower case."""
 		dd = cursor.descriptionClean = cursor.description
@@ -246,7 +235,8 @@ class Firebird(dBackend):
 		return self.dblQuoteField(clause)
 	def setOrderByClause(self, clause):
 		return self.dblQuoteField(clause)
-		
+
+
 	def dblQuoteField(self, txt):
 		""" Takes a string and returns the same string with
 		all occurrences of xx.yy replaced with xx."YY".
@@ -258,4 +248,14 @@ class Firebird(dBackend):
 			fld = mtch.groups()[1].upper()
 			return "%s.\"%s\"" % (tbl, fld)
 		return self.fieldPat.sub(qtField, txt)
-		
+
+
+# Test method for all the different field structures, just 
+# like dblQuoteField().
+# def q(txt):
+# 	def qtField(mtch):
+# 		tbl = mtch.groups()[0]
+# 		fld = mtch.groups()[1].upper()
+# 		return "%s.\"%s\"" % (tbl, fld)
+# 	return pat.sub(qtField, txt)
+# 		
