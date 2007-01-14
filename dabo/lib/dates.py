@@ -66,7 +66,7 @@ def _getTimeRegex(format):
 	elements["sep"] = "(?P<sep> |T)"
 
 	if format == "ISO8601":
-		exp = "^%(hour)s:%(minute)s:%(second)s%(ms)s$" % exp
+		exp = "^%(hour)s:%(minute)s:%(second)s%(ms)s$"
 	else:
 		return None
 	return re.compile(exp % elements)
