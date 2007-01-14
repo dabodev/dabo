@@ -188,7 +188,8 @@ class Firebird(dBackend):
 				whereClause, groupByClause, orderByClause) )
 
 
-	def addField(self, clause, exp):
+	def addField(self, clause, exp, alias=None):
+		# we ignore the alias for now
 		quoted = self.dblQuoteField(exp)
 		return self.addWithSep(clause, quoted)
 
