@@ -266,7 +266,8 @@ class uiApp(dObject, wx.App):
 					frms.remove(frm)
 			# Now we can work with the rest
 			orphans = [frm for frm in frms
-					if frm.Parent is not self.dApp.MainForm]
+					if frm.Parent is not self.dApp.MainForm
+					and frm is not self.dApp.MainForm]
 			for orphan in orphans:
 				orphan.close()
 			# Now close the main form. It will close any of its children.

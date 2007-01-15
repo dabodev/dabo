@@ -14,6 +14,13 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		self._baseClass = dMenuItem
 		preClass = wx.MenuItem
 		self.Parent = parent
+		
+		## see comments in _setCaption for explanation of below:
+		text = kwargs.get("text", "")
+		if not text:
+			text = "dMenuItem"
+		kwargs["text"] = text
+		
 		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
 
@@ -47,8 +54,11 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 	def _setCaption(self, val):
 		if self._constructed():
 			## Win32 seems to need to clear the caption first, or funkiness
-			## can arise.
-			self.SetText("")
+			## can arise. And win32 in wx2.8 needs for the caption to never be
+			## an empty string, or you'll get an invalid stock id assertion.
+			self.SetText(" ")
+			if val == "":
+				val = " "
 			self.SetText(val)
 		else:
 			self._properties["Caption"] = val

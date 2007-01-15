@@ -384,6 +384,10 @@ class Form(dabo.ui.dForm):
 
 
 	def onQuickReport(self, evt):
+		# May not have records if called via toolbar button
+		if not self.enableQuickReport():
+			dabo.ui.exclaim(_("Sorry, there are no records to report on."), title=_("No Records"))
+			return
 		if self.preview:
 			# Just previewing 
 			dabo.ui.info(message="Not available in preview mode", 
@@ -398,7 +402,7 @@ class Form(dabo.ui.dForm):
 				self.saveNamedReportForm = False
 
 			def addControls(self):
-				self.addObject(dabo.ui.dRadioGroup, RegID="radMode", 
+				self.addObject(dabo.ui.dRadioList, RegID="radMode", 
 						Caption="Mode",
 						Orientation="Row", 
 						Choices=["List Format", "Expanded Format"],
@@ -406,8 +410,9 @@ class Form(dabo.ui.dForm):
 						Keys={"list":0, "expanded":1},
 						SaveRestoreValue=True)
 				self.Sizer.append1x(self.radMode)
+				self.Sizer.appendSpacer(12)
 
-				self.addObject(dabo.ui.dRadioGroup, RegID="radRecords", 
+				self.addObject(dabo.ui.dRadioList, RegID="radRecords", 
 						Caption="Report On",
 						Orientation="Row", 
 						Choices=["All records in dataset", 
@@ -416,9 +421,10 @@ class Form(dabo.ui.dForm):
 						Keys={"all":0, "one":1},
 						SaveRestoreValue=True)
 				self.Sizer.append1x(self.radRecords)
+				self.Sizer.appendSpacer(12)
 
 				self.addObject(dabo.ui.dButton, RegID="btnAdvanced", Caption="Advanced")
-				self.Sizer.append(self.btnAdvanced)
+				self.Sizer.append(self.btnAdvanced, halign="center")
 				self.btnAdvanced.bindEvent(dEvents.Hit, self.onAdvanced)
 
 			def onAdvanced(self, evt):
@@ -426,8 +432,8 @@ class Form(dabo.ui.dForm):
 						"(rfxml) to your application's reports directory? If you say "
 						"'yes', you'll be able to modify the file and it will be used "
 						"as the Quick Report from now on (it will no longer be auto-"
-						"generated). The file will be generated when you click 'OK'."
-						"\n\nGenerate the report form file?"):
+						"generated). The file will be generated when you click 'Yes'."
+						"\n\nGenerate the report form file?", cancelButton=False):
 					self.saveNamedReportForm = True
 
 			def onOK(self, evt):

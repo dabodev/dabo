@@ -271,21 +271,30 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		self.__imageList = {}	
 		self.nodes = []
 		
+		style = self._extractKey((properties, kwargs), "style", 0)
 		# Default to showing buttons
 		val = self._extractKey((properties, kwargs), "ShowButtons", True)
+		if val:
+			style = style | wx.TR_HAS_BUTTONS
 		kwargs["ShowButtons"] = val
 		# Default to showing lines
 		val = self._extractKey((properties, kwargs), "ShowLines", True)
 		kwargs["ShowLines"] = val
+		if not val:
+			style = style | wx.TR_NO_LINES
 		# Default to showing root node
 		val = self._extractKey((properties, kwargs), "ShowRootNode", True)
 		kwargs["ShowRootNode"] = val
+		if not val:
+			style = style | wx.TR_HIDE_ROOT
 		# Default to showing root node lines
 		val = self._extractKey((properties, kwargs), "ShowRootNodeLines", True)
 		kwargs["ShowRootNodeLines"] = val
+		if val:
+			style = style | wx.TR_LINES_AT_ROOT
 
 		preClass = wx.PreTreeCtrl
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
+		dcm.dControlMixin.__init__(self, preClass, parent, properties, style=style,
 				*args, **kwargs)
 		
 		
