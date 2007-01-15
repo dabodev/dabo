@@ -13,8 +13,7 @@ class SQLite(dBackend):
 		except ImportError:
 			import sqlite3 as dbapi
 		self.dbapi = dbapi
-		# self.paramstyle = self.dbapi.paramstyle
-		self.paramstyle = 'named'
+		
 
 	def getConnection(self, connectInfo):
 		pth = os.path.expanduser(connectInfo.Database)

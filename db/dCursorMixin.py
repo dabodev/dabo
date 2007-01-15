@@ -38,7 +38,7 @@ class dCursorMixin(dObject):
 		##      call dObject's __init__, otherwise the cursor object with
 		##      which we are mixed-in will take the __init__.
 		dObject.__init__(self, *args, **kwargs)
-
+		
 		# Just in case this is used outside of the context of a bizobj
 		if not hasattr(self, "superCursor") or self.superCursor is None:
 			myBases = self.__class__.__bases__
@@ -1031,47 +1031,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			self.commitTransaction()
 
 
-	def mkParam(self, parmName):
-		# hack alert:
-		# SQLite uses 'named' too, so I am using that in place of ?
-		# because it means the parameter values can be a dict.
-		# and I havn't coded that part yet.  may never need to.
-		# and mysql says 'format' but uses py!
-		# so instead of using what dbapi.paramstyle returns,
-		# each dabo backend has it's own prop to override it.
-		# I hope noone is using 'numeric', 
-		# because I am not sure when to reset the counter.
-		marker = {
-			'qmark': '?',
-			'named': ":"+parmName,
-			'format': "%s",
-			'pyformat': "%("+parmName+")s"
-			}[self.__backend.paramstyle]
-		return marker
-	
-	def appeParm(self, parmName, parmValue, parmList):
-		# hack allert (see mkParam())
-		# this func not called, 
-		# so more untested code:
-		if self.cursor.paramstyle == 'qmark':
-			if not parmList:
-				parmList=()
-		elif self.cursor.paramstyle == 'pyformat':
-			if not parmList:
-				parmList={}
-			self.cursor.paramstyle == "%("+parmName+")s"
-		return parmList
-
-
 	def __saverow(self, row):
 		rec = self._records[row]
 		newrec = self._newRecords.has_key(rec[self.KeyField])
 		diff = self.getRecordStatus(row)
 		if diff or newrec:
 			if newrec:
-				flds = []
-				valKeys = []
-				valVals = {}
+				flds = ""
+				vals = ""
 				kf = self.KeyField
 				for kk, vv in diff.items():
 					if self.AutoPopulatePK:
@@ -1086,41 +1053,27 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						# Skip it.
 						continue
 					# Append the field and its value.
-					flds.append( self.BackendObject.encloseSpaces(kk) )
-					key = self.BackendObject.encloseSpaces(kk)
-					marker = self.mkParam(key)
-					valKeys.append( marker )
-					valVals[key] = vv[1]
+					flds += ", " + self.BackendObject.encloseSpaces(kk)
+					# add value to expression
+					vals += ", %s" % (self.formatForQuery(vv[1]),)
 					
+				# Trim leading comma-space from the strings
+				flds = flds[2:]
+				vals = vals[2:]
 				if not flds:
 					# Some backends (sqlite) require non-empty field clauses. We already
 					# know that we are expecting the backend to generate the PK, so send
 					# NULL as the PK Value:
-					flds = (self.KeyField,)
-					marker = self.mkParam('KeyField')
-					valKeys.append( marker )
-					valVals = {'KeyField':None}
-
-				table=self.BackendObject.encloseSpaces(self.Table)
-				fields=', '.join( flds )
-				keys=', '.join(valKeys)
-				sql = "insert into %(t)s (%(f)s) values (%(v)s)" \
-					% {'t':table, 'f':fields, 'v':keys }
+					flds = self.KeyField
+					vals = "NULL"
+				sql = "insert into %s (%s) values (%s) " % (
+						self.BackendObject.encloseSpaces(self.Table), flds, vals)
 
 			else:
-				pkWhere = self.makePkWhere(row)  # return {'where':exprs, 'parms':vals }
-				updClause = self.makeUpdClause(diff)  # return {'sets':sets,'parms':vals}
-
-				# make a dict from the updates vals and the pkWhere vals
-				valVals = updClause['parms']
-				valVals.update(pkWhere['parms'])
-				
-				table=self.BackendObject.encloseSpaces(self.Table)
-				sql = "update %(table)s set %(updClause)s where %(w)s" \
-					% {'table':table, 'updClause':updClause['sets'], 'w':pkWhere['where'] }
-
-				# sql = "update %s set %s where %s" % (self.BackendObject.encloseSpaces(self.Table), 
-				#		updClause, pkWhere)
+				pkWhere = self.makePkWhere(row)
+				updClause = self.makeUpdClause(diff)
+				sql = "update %s set %s where %s" % (self.BackendObject.encloseSpaces(self.Table), 
+						updClause, pkWhere)
 			oldPKVal = rec[self.KeyField]
 			newPKVal = None
 			if newrec and self.AutoPopulatePK:
@@ -1135,7 +1088,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				
 			#run the update
 			aux = self.AuxCursor
-			res = aux.execute(sql,valVals)
+			res = aux.execute(sql)
 
 			if newrec and self.AutoPopulatePK and (newPKVal is None):
 				# Call the database backend-specific code to retrieve the
@@ -1271,19 +1224,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if self._newRecords.has_key(rec[self.KeyField]):
 			res = True
 		else:
-			aux = self.AuxCursor
-			table=self.BackendObject.encloseSpaces(self.Table)
-			pkWhere = self.makePkWhere()  # return {'where':exprs, 'parms':vals }
+			pkWhere = self.makePkWhere()
 			# some backends(PostgreSQL) don't return information about number of deleted rows
 			# try to fetch it before
-			sql = "select count(*) as cnt from %(table)s where %(w)s" \
-				% {'table':table, 'w':pkWhere['where'] }
-			aux.execute(sql, pkWhere['parms'])
+			sql = "select count(*) as cnt from %s where %s" % (self.Table, pkWhere)
+			aux = self.AuxCursor
+			aux.execute(sql)
 			res = aux.getFieldVal('cnt')
 			if res:
-				sql = "delete from %(table)s where %(w)s" \
-					 % {'table':table, 'w':pkWhere['where'] }
-				aux.execute(sql, pkWhere['parms'])
+				sql = "delete from %s where %s" % (self.Table, pkWhere)
+				aux.execute(sql)
+
 
 		if not res:
 			# Nothing was deleted
@@ -1518,6 +1469,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			self.RowNumber = ret
 		return ret
 
+
 	def checkPK(self):
 		""" Verify that the field(s) specified in the KeyField prop exist."""
 		# First, make sure that there is *something* in the field
@@ -1533,6 +1485,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				self._records[0][fld]
 		except:
 			raise dException.MissingPKException, _("Primary key field does not exist in the data set: ") + fld
+
 
 	def makePkWhere(self, row=None):
 		""" Create the WHERE clause used for updates, based on the pk field. 
@@ -1557,22 +1510,24 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			else:
 				return rec[fld]
 			
-		exprs = []
-		vals = {}
+		ret = ""
 		for fld in keyFields:
 			fldSafe = bo.encloseSpaces(fld)
-			marker =  self.mkParam(fldSafe)
+			if ret:
+				ret += " AND "
 			pkVal = getPkVal(fld)
-			exprs.append( tblPrefix + fldSafe + "=" + marker ) 
-			vals[fldSafe]=pkVal
-		exprs = " AND ".join(exprs)
+			if isinstance(pkVal, basestring):
+				ret += tblPrefix + fldSafe + "='" + pkVal.encode(self.Encoding) + "' "
+			elif isinstance(pkVal, (datetime.date, datetime.datetime)):
+				ret += tblPrefix + fldSafe + "=" + self.formatDateTime(pkVal) + " "
+			else:
+				ret += tblPrefix + fldSafe + "=" + str(pkVal) + " "
+		return ret
 
-		return {'where':exprs, 'parms':vals }
 
 	def makeUpdClause(self, diff):
 		""" Create the 'set field=val' section of the Update statement. """
-		sets = []
-		vals = {}
+		ret = ""
 		bo = self.BackendObject
 		tblPrefix = bo.getUpdateTablePrefix(bo.encloseSpaces(self.Table))
 		for fld, val in diff.items():
@@ -1580,14 +1535,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			# Skip the fields that are not to be updated.
 			if fld in self.getNonUpdateFields():
 				continue
-			fldSafe = bo.encloseSpaces(fld)
-			sets.append( tblPrefix + bo.encloseSpaces(fld) + " = %("+fldSafe+")s" )
-			vals[fldSafe] = new_val
-		
-		sets = ", ".join(sets)
-
-		return {'sets':sets,'parms':vals}
-
+			if ret:
+				ret += ", "
+			ret += tblPrefix + bo.encloseSpaces(fld) + " = " + self.formatForQuery(new_val)
+		return ret
 
 
 	def processFields(self, txt):
@@ -2034,7 +1985,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _setKeyField(self, kf):
 		if "," in kf:
-		# if True:
 			flds = [f.strip() for f in kf.split(",")]
 			self._keyField = tuple(flds)
 			self._compoundKey = True
