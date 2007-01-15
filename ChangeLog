@@ -1,6 +1,40 @@
 See the Subversion log for all the details.
 
 ===============================================================================
+Dabo 0.7.2 (2007-01-15) (Revision 2683):
+
+Additions, all minor, backported to stable only to keep compatibility with the 
+stable versions of daboide and/or dabodemo:
++ Enhanced the getImagePath() function to work better with Windows pathing.
++ Refactored dPanel into a common mixin class.
++ Added getBaseNodeClass() function to dTreeView.
+
+Bug Fixes:
++ Fixed the stable branch to work with wxPython 2.7 and 2.8, which was a fairly
+  large backport of relevant changes from the development trunk.
++ Fixed incremental search in dGrid, which was broken by earlier unicode fixes.
++ dBizobj.onSaveNew() user hook never being called. Fixed.
++ Fixed but in dUserSettingProvider if setting/retrieving nested settings.
++ dForm not updating field values after a save(), which is sometimes needed.
+  Fixed.
++ Fixed dForm to explicitly cancel bizobj changes if the user answers "no" to
+  the "do you wish to save?" message. Otherwise, the application would never
+  finish.
++ Fixed dGrid and dImage's attProperties.
++ Fixed bug in dGrid.HeaderHeight resulting in a traceback if you tried to set
+  it in initProperties() or as a kwarg to the constructor.
++ Fixed dabo.ui.busyInfo() to actually show the specified text instead of just
+  an ugly grey box on Gtk.
++ Fixed a bug in dbFirebird that was caused by initializing more than once.
++ Fixed a problem with the date textbox in the datanav select page adding 1
+  to each month, resulting in an incorrect select statement.
++ Fixed some minor wording and behavior problems with the Quick Report option
+  in AppWizard apps, thanks to Ted Roche.
++ Fixed htmlAbout to not return the html tags to the clipboard.
++ Fixed dToggleButton to always flush its data, not just on LostFocus.
+
+
+===============================================================================
 Dabo 0.7.1 (2006-11-21) (Revision 2490):
 
 Bugfixes:
