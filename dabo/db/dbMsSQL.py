@@ -10,7 +10,8 @@ class MSSQL(dBackend):
 		# http://www.freetds.org/ 
 		self.dbModuleName = "pymssql"
 		self.useTransactions = True  # this does not appear to be required
-		import pymssql 
+		import pymssql
+		self.paramstyle = pymssql.paramstyle
 
 
 	def getConnection(self, connectInfo):
