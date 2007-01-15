@@ -174,8 +174,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
 		
-		NOTE: use of the bindfunc parameter is deprecated as of Jan 2007 (version
-		0.7.1). It will be removed in version 0.8. Use the OnHit parameter instead
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
@@ -196,8 +196,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
 
-		NOTE: use of the bindfunc parameter is deprecated as of Jan 2007 (version
-		0.7.1). It will be removed in version 0.8. Use the OnHit parameter instead
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
@@ -218,8 +218,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
 
-		NOTE: use of the bindfunc parameter is deprecated as of Jan 2007 (version
-		0.7.1). It will be removed in version 0.8. Use the OnHit parameter instead
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take

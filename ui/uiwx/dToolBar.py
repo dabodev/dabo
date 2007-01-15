@@ -92,8 +92,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		function you want to be called when this button is clicked in an 
 		'OnHit' param.
 
-		NOTE: use of the bindfunc parameter is deprecated as of Jan 2007 (version
-		0.7.1). It will be removed in version 0.8. Use the OnHit parameter instead
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 		"""
 		return self._appendInsertButton(None, caption, pic, bindfunc, 
 				toggle,	tip, help, *args, **kwargs)
@@ -109,8 +109,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		function you want to be called when this button is clicked in an 
 		'OnHit' param.
 
-		NOTE: use of the bindfunc parameter is deprecated as of Jan 2007 (version
-		0.7.1). It will be removed in version 0.8. Use the OnHit parameter instead
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 		"""
 		return self._appendInsertButton(pos, caption, pic, bindfunc, 
 				toggle,	tip, help, *args, **kwargs)
@@ -126,8 +126,8 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		function you want to be called when this button is clicked in an 
 		'OnHit' param.
 
-		NOTE: use of the bindfunc parameter is deprecated as of Jan 2007 (version
-		0.7.1). It will be removed in version 0.8. Use the OnHit parameter instead
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 		"""
 		return self.insertButton(0, caption, pic, bindfunc, toggle,	tip, help, *args, **kwargs)
 
