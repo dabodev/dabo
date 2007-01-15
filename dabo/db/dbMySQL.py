@@ -20,10 +20,7 @@ class MySQL(dBackend):
 
 	def getConnection(self, connectInfo):
 		import MySQLdb as dbapi
-		self.dbapi = dbapi
-		# self.paramstyle = self.dbapi.paramstyle
-		self.paramstyle = 'pyformat' 
-		
+
 		port = connectInfo.Port
 		if not port:
 			port = 3306
