@@ -137,7 +137,7 @@ class dFormMixin(pm.dPemMixin):
 				# Skip the first activate (Windows)
 				self._skipActivate = False
 			else:
-				self.raiseEvent(dEvents.Activate, evt)
+				dabo.ui.callAfter(self.raiseEvent, dEvents.Activate, evt)
 				self._skipActivate = (self.Application.Platform == "Win")
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
