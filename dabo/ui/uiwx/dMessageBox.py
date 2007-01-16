@@ -92,7 +92,9 @@ def getDefaultTitle():
 	
 
 if __name__ == "__main__":
-	app = wx.PySimpleApp()
+	app = dabo.dApp()
+	app.showMainFormOnStart = False
+	app.setup()
 	print areYouSure("Are you happy?")
 	print areYouSure("Are you sure?", cancelButton=True)
 	print areYouSure("So you aren\'t sad?", defaultNo=True)
