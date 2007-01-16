@@ -256,8 +256,8 @@ class dBizobj(dObject):
 		"""Saves all changes to the bizobj and children."""
 
 		useTransact = startTransaction or topLevel
-		old_pk = getattr(self.Record, self.KeyField, None)
 		cursor = self._CurrentCursor
+		old_pk = cursor.getPK()
 
 		if useTransact:
 			# Tell the cursor to begin a transaction, if needed.
@@ -562,7 +562,7 @@ class dBizobj(dObject):
 		self.exitScan = False
 		old_currentCursorKey = self.__currentCursorKey
 		try:
-			old_pk = getattr(self.Record, self.KeyField, None)
+			old_pk = self._CurrentCursor.getPK()
 		except dException.NoRecordsException:
 			# no rows to scan
 			return
