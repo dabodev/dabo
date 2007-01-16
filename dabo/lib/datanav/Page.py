@@ -205,6 +205,10 @@ class SelectPage(Page):
 		"""Subclass hook."""
 		pass
 	
+	def setGroupBy(self, biz):
+		"""Subclass hook."""
+		pass
+
 
 	def setOrderBy(self, biz):
 		biz.setOrderByClause(self._orderByClause())
@@ -350,6 +354,7 @@ class SelectPage(Page):
 				self.setFrom(bizobj)
 				self.setWhere(bizobj)
 				self.setOrderBy(bizobj)
+				self.setGroupBy(bizobj)
 				self.setLimit(bizobj)
 			
 				sql = bizobj.getSQL()
