@@ -1780,18 +1780,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		
 	def fillGrid(self, force=False):
 		""" Refresh the grid to match the data in the data set."""
-		# Save the focus, if any
-		currFocus = self.FindFocus()
-		currDataField = None
-		# if the current focus is data-aware, we must temporarily remove it's binding
-		# or the value of the control will flow to other records in the bizobj, but
-		# I admit that I'm not entirely sure why. 
-		if currFocus:
-			try:
-				currDataField = currFocus.DataField
-				currFocus.DataField = ""
-			except AttributeError:
-				pass
 
 		# Get the default row size from dApp's user settings
 		rowSize = self._getUserSetting("RowSize")
@@ -1804,32 +1792,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._addEmptyRows()
 		tbl.setColumns(self.Columns)
 		tbl.fillTable(force)
-
-		## pkm: I've disabled the following block, because setting the focus
-		##      can steal focus from the active form. It also doesn't seem 
-		##      right to have this code here...
-		if False and force:
-			row = max(0, self.CurrentRow)
-			col = max(0, self.CurrentColumn)
-			if "linux" in sys.platform:
-				# Needed on Linux to get the grid to have the focus,
-				# but on windows this is deadly:
-				for window in self.Children:
-					window.SetFocus()
-			# Needed on win and mac to get the grid to have the focus:
-			self.GetGridWindow().SetFocus()
-			if  not self.IsVisible(row, col):
-				self.MakeCellVisible(row, col)
-				self.MakeCellVisible(row, col)
-			self.SetGridCursor(row, col)
-		
-		if currFocus is not None:
-			# put the data binding back and re-set the focus:
-			try:
-				currFocus.setFocus()
-				currFocus.DataField = currDataField
-				currFocus.refresh()
-			except: pass
 
 		if not self._sortRestored:	
 			dabo.ui.callAfter(self._restoreSort)
