@@ -133,8 +133,60 @@ class dPageSelect(dPageFrameMixin, wx.Choicebook):
 		dd.AppendItems(choices)
 		dd.SetSelection(pos)
 		
+
+import random
+class _dPageFrame_test(dPageFrame):
+	def initProperties(self):
+		self.Width = 400
+		self.Height = 175
+		self.TabPosition = random.choice(("Top", "Bottom", "Left", "Right"))
+	
+	def afterInit(self):
+		self.appendPage(caption="Introduction")
+		self.appendPage(caption="Chapter I")
+		self.Pages[0].BackColor = "darkred"
+		self.Pages[1].BackColor = "darkblue"
+	
+	def onPageChanged(self, evt):
+		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
+
+
+class _dPageList_test(dPageList):
+	def initProperties(self):
+		self.Width = 400
+		self.Height = 175
+		self.TabPosition = random.choice(("Top", "Bottom", "Left", "Right"))
+	
+	def afterInit(self):
+		self.appendPage(caption="Introduction")
+		self.appendPage(caption="Chapter I")
+		self.Pages[0].BackColor = "darkred"
+		self.Pages[1].BackColor = "darkblue"
+	
+	def onPageChanged(self, evt):
+		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
+
+
+class _dPageSelect_test(dPageSelect):
+	def initProperties(self):
+		self.Width = 400
+		self.Height = 175
+		self.TabPosition = random.choice(("Top", "Bottom", "Left", "Right"))
+	
+	def afterInit(self):
+		self.appendPage(caption="Introduction")
+		self.appendPage(caption="Chapter I")
+		self.Pages[0].BackColor = "darkred"
+		self.Pages[1].BackColor = "darkblue"
+	
+	def onPageChanged(self, evt):
+		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
+
+
 		
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dPageFrame_test)
+	test.Test().runTest(_dPageList_test)
+	test.Test().runTest(_dPageSelect_test)
 
