@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import copy
 import sys
 import datetime
 import locale
@@ -108,14 +109,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			
 	def setColumns(self, colDefs):
 		"""Create columns based on passed list of column definitions."""
-		# Column order should already be in the definition. If there is a custom
-		# setting by the user, override it.
-
-		# See if the defs have changed. If not, update any column info,
-		# and return. If so, clear the data to force a re-draw of the table.
 		if colDefs == self.colDefs:
-			self.setColumnInfo()
+			# Already done, no need to take the time.
 			return
+
+		app = self.grid.Application
+		form = self.grid.Form
 
 		for idx, col in enumerate(colDefs):
 			nm = col.DataField
@@ -125,8 +124,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				if nm in colDefs:
 					nm = ""
 			colName = "Column_%s" % nm
-			app = self.grid.Application
-			form = self.grid.Form
 
 			pos = col._getUserSetting("Order")
 			if pos is not None:
@@ -166,17 +163,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			if col.Order < 0:
 				col.Order = num
 		colDefs.sort(self.orderSort)
-		self.colDefs = colDefs
-		self.setColumnInfo()
+		self.colDefs = copy.copy(colDefs)
 	
 	def orderSort(self, col1, col2):
 		return cmp(col1.Order, col2.Order)
 		
 		
-	def setColumnInfo(self):
-		self.colDefs.sort(self.orderSort)
-
-
 	def convertType(self, typ):
 		"""Convert common types, names and abbreviations for 
 		data types into the constants needed by the wx.grid.
