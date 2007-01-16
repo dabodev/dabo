@@ -45,18 +45,6 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 		super(dPageFrame, self)._afterInit()
 
 
-class _dPageFrame_test(dPageFrame):
-	def initProperties(self):
-		self.Width = 400
-		self.Height = 175
-	
-	def afterInit(self):
-		self.appendPage(caption="Introduction")
-		self.appendPage(caption="Chapter I")
-	
-	def onPageChanged(self, evt):
-		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
-
 
 class dPageList(dPageFrameMixin, wx.Listbook):
 	_evtPageChanged = readonly(wx.EVT_LISTBOOK_PAGE_CHANGED)
