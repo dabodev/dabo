@@ -327,7 +327,8 @@ class dBizobj(dObject):
 			for child in self.__children:
 				# No need to start another transaction. And since this is a child bizobj,
 				# we need to save all rows that have changed.
-				child.saveAll(startTransaction=False, topLevel=False)
+				if child.RowCount > 0:
+					child.saveAll(startTransaction=False, topLevel=False)
 
 			# Finish the transaction, and requery the children if needed.
 			if useTransact:
@@ -336,11 +337,10 @@ class dBizobj(dObject):
 				self.requeryAllChildren()
 
 		except dException.ConnectionLostException, e:
-			raise dException.ConnectionLostException, e
+			raise 
 
 		except dException.NoRecordsException, e:
-			# Nothing to roll back; just throw it back for the form to display
-			raise dException.NoRecordsException, e
+			raise
 
 		except dException.DBQueryException, e:
 			# Something failed; reset things.

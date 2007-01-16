@@ -292,7 +292,15 @@ insert into %(childTableName)s (parent_fk, cInvNum) values (3, "IN00024");
 		bizMain.next()
 		self.assertEqual(bizChild.RowCount, 1)
 		self.assertEqual(bizChild.Record.cInvNum, "IN99991")
-		
+
+		# Test the case where you add a new parent record but no new children:
+		bizMain.new()
+		self.assertEqual(bizMain.RowCount, 4)
+		bizMain.saveAll()
+		self.assertEqual(bizMain.RowCount, 4)
+		bizMain.requery()		
+		self.assertEqual(bizMain.RowCount, 4)
+
 
 if __name__ == "__main__":
 	unittest.main()
