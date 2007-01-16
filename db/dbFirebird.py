@@ -11,8 +11,14 @@ class Firebird(dBackend):
 		self.dbModuleName = "kinterbasdb"
 		self.fieldPat = re.compile("([A-Za-z_][A-Za-z0-9-_]+)\.([A-Za-z_][A-Za-z0-9-_]+)")
 		import kinterbasdb
-		if not kinterbasdb.initialized:
+		initialized = getattr(kinterbasdb, "initialized", None):
+		if not initialized:
 			kinterbasdb.init(type_conv=200)
+			if initialized is None:
+				# Older versions of kinterbasedb didn't have this attribute, so we write
+				# it ourselves:
+				kinterbasdb.initialized = True
+		
 		self.dbapi = kinterbasdb
 
 
