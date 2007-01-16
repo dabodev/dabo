@@ -1,5 +1,5 @@
 #!/usr/bin/env python
-""" dRefactorMixin.py
+""" EasyDialogBuilder.py
 
 Author:		Nathan Lowrie
 
@@ -18,7 +18,7 @@ if not dabo.ui.loadUI(ui):
 	dabo.errorLog.write("Could not load ui '%s'." % ui)
 
 
-class dRefactorMixin:
+class EasyDialogBuilder(object):
 	def makePageFrame(self, parent, pageData, properties=None):
 		"""makePageFrame(parent, pageData, properties=None) -> dabo.ui.dPageFrame
 		
@@ -204,7 +204,7 @@ class fileButton(dabo.ui.dButton):
 
 
 if __name__ == "__main__":
-	class TestForm(dabo.ui.dForm, dRefactorMixin):
+	class TestForm(dabo.ui.dForm, EasyDialogBuilder):
 		def afterInit(self):
 			self.Caption = "Simple Form with Controls"
 			self.instantiateControls()
@@ -221,7 +221,7 @@ if __name__ == "__main__":
 			self.Sizer.layout()
 			self.fitToSizer()
 	
-	class controlBoxPage(dabo.ui.dScrollPanel, dRefactorMixin):
+	class controlBoxPage(dabo.ui.dScrollPanel, EasyDialogBuilder):
 		def afterInit(self):
 			self.Sizer = self.setupStandardSizer()
 			
@@ -240,7 +240,7 @@ if __name__ == "__main__":
 	
 			self.Sizer.append1x(box)
 	
-	class makeSizerTestPage(dabo.ui.dScrollPanel, dRefactorMixin):
+	class makeSizerTestPage(dabo.ui.dScrollPanel, EasyDialogBuilder):
 		def afterInit(self):
 			self.Sizer = self.setupStandardSizer()
 			
