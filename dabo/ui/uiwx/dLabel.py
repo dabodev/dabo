@@ -41,13 +41,13 @@ class dLabel(cm.dControlMixin, wx.StaticText):
 		self._delWindowStyleFlag(wx.ALIGN_LEFT)
 		self._delWindowStyleFlag(wx.ALIGN_CENTRE)
 		self._delWindowStyleFlag(wx.ALIGN_RIGHT)
-		value = str(value)
+		value = str(value).lower()
 
-		if value == "Left":
+		if value == "left":
 			self._addWindowStyleFlag(wx.ALIGN_LEFT)
-		elif value == "Center":
+		elif value == "center":
 			self._addWindowStyleFlag(wx.ALIGN_CENTRE)
-		elif value == "Right":
+		elif value == "right":
 			self._addWindowStyleFlag(wx.ALIGN_RIGHT)
 		else:
 			raise ValueError, ("The only possible values are "
