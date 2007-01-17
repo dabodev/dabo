@@ -186,7 +186,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		self._CurrentCursor.first()
 		self.requeryAllChildren()
@@ -205,7 +205,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		self._CurrentCursor.prior()
 		self.requeryAllChildren()
@@ -224,7 +224,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		self._CurrentCursor.next()
 		self.requeryAllChildren()
@@ -243,7 +243,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		self._CurrentCursor.last()
 		self.requeryAllChildren()
@@ -300,10 +300,10 @@ class dBizobj(dObject):
 		cursor = self._CurrentCursor
 		errMsg = self.beforeSave()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		if self.KeyField is None:
-			raise dException.dException, _("No key field defined for table: ") + self.DataSource
+			raise dException.MissingPKException, _("No key field defined for table: ") + self.DataSource
 
 		# Validate any changes to the data. If there is data that fails
 		# validation, an Exception will be raised.
@@ -380,7 +380,7 @@ class dBizobj(dObject):
 		"""
 		errMsg = self.beforeCancel()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		# Tell the cursor and all children to cancel themselves:
 		self._CurrentCursor.cancel()
@@ -397,7 +397,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		if self.KeyField is None:
 			raise dException.dException, _("No key field defined for table: ") + self.DataSource
@@ -617,7 +617,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		self._CurrentCursor.new()
 		self._onNew()
@@ -662,7 +662,7 @@ class dBizobj(dObject):
 		"""
 		errMsg = self.beforeRequery()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 		if self.KeyField is None:
 			errMsg = _("No Primary Key defined in the Bizobj for %s") % self.DataSource
 			raise dException.MissingPKException, errMsg
@@ -1091,7 +1091,7 @@ class dBizobj(dObject):
 
 		errMsg = self.beforeChildRequery()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		pk = self.getPK()
 		for child in self.__children:
@@ -1578,7 +1578,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 		self._moveToRowNum(rownum)
 		self.requeryAllChildren()
 		self.afterPointerMove()
