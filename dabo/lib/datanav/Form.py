@@ -193,24 +193,25 @@ class Form(dabo.ui.dForm):
 				OnHit=self.onBrowseRecords, bmp="browse",
 				help=_("Browse the records in the current recordset."))
 
-		# Add one edit menu item for every edit page (every page past the second)
+		def onActivatePage(evt):
+			self.pageFrame.SelectedPage = evt.EventObject.Tag
+
+		# Add an edit menu item, and an activation menu for every subsequent page
 		if self.FormType != "PickList":
 			for index in range(2, self.pageFrame.PageCount):
-
 				if index == 2:
-
 					title = "&%s\tAlt+3" % (_(self.pageFrame.Pages[index].Caption))
-
+					onHit = self.onEditCurrentRecord
+					tag = self.pageFrame.Pages[index].DataSource
+					help = _("Edit the fields of the currently selected record.")
 				else:
-
-					title = "%s\tAlt+%d" % (_(self.pageFrame.Pages[index].Caption),
-
-							index+1)
-
-				menu.append(title, OnHit=self.onEditCurrentRecord, bmp="edit",
-						help=_("Edit the fields of the currently selected record."),
-						Tag=self.pageFrame.Pages[index].DataSource)
-				menu.appendSeparator()
+					title = "%s\tAlt+%d" % (_(self.pageFrame.Pages[index].Caption), index + 1)
+					onHit = onActivatePage
+					tag = self.pageFrame.Pages[index]
+					help = ""
+					
+				menu.append(title, OnHit=onHit, bmp="edit",	help=help, Tag=tag)
+			menu.appendSeparator()
 
 		if self.FormType != "Edit":
 			menu.append(_("&Requery")+"\tCtrl+R", OnHit=self.onRequery, bmp="requery",
