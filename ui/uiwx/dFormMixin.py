@@ -137,7 +137,17 @@ class dFormMixin(pm.dPemMixin):
 				# Skip the first activate (Windows)
 				self._skipActivate = False
 			else:
-				dabo.ui.callAfter(self.raiseEvent, dEvents.Activate, evt)
+				# Restore the saved size and position, which can't happen 
+				# in __init__ because we may not have our name yet.
+				try:
+					restoredSP = self.restoredSP
+				except:
+					restoredSP = False
+				if not restoredSP:
+					if self.SaveRestorePosition:
+						self.restoreSizeAndPosition()
+				
+				self.raiseEvent(dEvents.Activate, evt)
 				self._skipActivate = (self.Application.Platform == "Win")
 		else:
 			self.raiseEvent(dEvents.Deactivate, evt)
@@ -145,16 +155,6 @@ class dFormMixin(pm.dPemMixin):
 			
 			
 	def __onActivate(self, evt): 
-		# Restore the saved size and position, which can't happen 
-		# in __init__ because we may not have our name yet.
-		try:
-			restoredSP = self.restoredSP
-		except:
-			restoredSP = False
-		if not restoredSP:
-			if self.SaveRestorePosition:
-				self.restoreSizeAndPosition()
-		
 		# If the ShowStatusBar property was set to True, this will create it
 		sb = self.StatusBar
 		# If the ShowToolBar property was set to True, this will create it
