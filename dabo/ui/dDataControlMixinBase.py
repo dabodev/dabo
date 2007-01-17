@@ -159,7 +159,16 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			# These classes change their value before the GotFocus event
 			# can store the oldval, so always flush 'em.
 			oldVal = None
-		if curVal is None or curVal != oldVal:
+		if curVal is None:
+			isChanged = True
+		else:
+			if isinstance(curVal, float) and isinstance(oldVal, float):
+				# If it is a float, make sure that it has changed by more than the 
+				# rounding error.
+				isChanged = (abs(curVal - oldVal) > 0.0000001)
+			else:
+				isChanged = (curVal != oldVal)
+		if isChanged:
 			if not self._DesignerMode:
 				if self.DataSource and self.DataField:
 					src = self.Source
