@@ -3,7 +3,8 @@ from dabo.dLocalize import _
 
 
 class PropertyHelperMixin(object):
-	""" Helper functions for getting information on class properties."""
+	""" Helper functions for getting information on class properties.
+	"""
 
 	def _expandPropStringValue(self, value, propList):
 		""" Called from various property setters: expand value into one of the
@@ -59,22 +60,6 @@ class PropertyHelperMixin(object):
 				propdict[arg] = kwdict[arg]
 				del kwdict[arg]
 		return propdict
-	
-	
-	def _extractKeyWordEventBindings(self, kwdict, evtdict):
-		""" Called from __init__: puts any On* event keyword arguments into
-		the event dictionary.
-		"""
-		if evtdict is None:
-			evtdict = {}
-		evts = self.getEventList()
-		onKWs = [(kw, kw[2:]) for kw in kwdict.keys()
-				if kw.startswith("On")]
-		for kw, evtName in onKWs:			
-			if evtName in evts:
-				evtdict[evtName] = kwdict[kw]
-				del kwdict[kw]
-		return evtdict
 	
 	
 	def _extractKey(self, kwdict, key, defaultVal=None):
@@ -178,15 +163,15 @@ class PropertyHelperMixin(object):
 		self.setProperties({"FontBold": True}, ForeColor="Red")
 		"""
 		def _setProps(_propDict):
-			delayedSettings = {}
+			delayedSetter, delayedValue = None, None
 			for prop in _propDict.keys():
 				propRef = eval("self.__class__.%s" % prop)
 				if type(propRef) == property:
 					setter = propRef.fset
 					if setter is not None:
-						if prop in ("Value", "Picture"):
+						if prop == "Value":	
 							# We need to delay setting this to last
-							delayedSettings[setter] = _propDict[prop]
+							delayedSetter, delayedValue = setter, _propDict[prop]
 						else:
 							setter(self, _propDict[prop])
 					else:
@@ -194,9 +179,8 @@ class PropertyHelperMixin(object):
 							raise ValueError, "Property '%s' is read-only." % prop
 				else:
 					raise AttributeError, "'%s' is not a property." % prop
-			if delayedSettings is not None:
-				for setter, val in delayedSettings.items():
-					setter(self, val)
+			if delayedSetter is not None:
+				delayedSetter(self, delayedValue)
 					
 		# Set the props specified in the passed propDict dictionary:
 		_setProps(propDict)
@@ -237,19 +221,10 @@ class PropertyHelperMixin(object):
 					except:
 						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
 		
-	
-	def _setKwEventBindings(self, kwEvtDict):
-		"""This method takes a dict of event names and method to which they are
-		to be bound, and binds the corresponding event to that method.
-		"""
-		for evtName, mthd in kwEvtDict.items():
-			from dabo import dEvents
-			evt = dEvents.__dict__[evtName]
-			self.bindEvent(evt, mthd)
-
-		
+			
 	def getPropertyList(cls, refresh=False):
-		""" Returns the list of properties for this object (class or instance)."""
+		""" Returns the list of properties for this object (class or instance).
+		"""
 		try:
 			propLists = cls._propLists
 		except:
@@ -284,7 +259,8 @@ class PropertyHelperMixin(object):
 
 
 	def getPropertyInfo(cls, name):
-		""" Returns a dictionary of information about the passed property name."""
+		""" Returns a dictionary of information about the passed property name.
+		"""
 		# cls can be either a class or self
 		classRef = cls
 		try:
@@ -333,9 +309,3 @@ class PropertyHelperMixin(object):
 			raise AttributeError, "%s is not a property." % name
 	getPropertyInfo = classmethod(getPropertyInfo)
 	
-	
-	def getEventList(cls):
-		"""Returns a list of all defined events."""
-		from dabo import dEvents
-		return dEvents.__dict__.keys()
-	getEventList = classmethod(getEventList)

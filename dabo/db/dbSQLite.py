@@ -91,19 +91,42 @@ class SQLite(dBackend):
 
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
+# 		Get the name of the PK, if any
+# 		pkName = ""
+# 		try:
+# 			If any of these statements fail, there is no valid
+# 			PK defined for this table.
+# 			tempCursor.execute("""select * from sqlite_master 
+# 					where tbl_name = '%s'""" 	% tableName)
+# 			The SQL CREATE code is in position 4 of the tuple
+# 			tblSQL = tempCursor.fetchall()[0][4].lower()
+# 			Remove the CREATE...
+# 			parenPos = tblSQL.find("(")
+# 			tblSQL = tblSQL[parenPos+1:]
+# 			pkPos = tblSQL.find("primary key")
+# 			tblSQL = tblSQL[:pkPos]
+# 			The PK field name is the first word of the last
+# 			field def in that string
+# 			commaPos = tblSQL.find(",")
+# 			while commaPos > -1:
+# 				tblSQL = tblSQL[commaPos:]
+# 				commaPos = tblSQL.find(",")
+# 			pkName = tblSQL.strip().split(" ")[0]
+# 		except:
+# 			pass
+
+		# Now get the field info
 		tempCursor.execute("pragma table_info('%s')" % tableName)
 		rs = tempCursor.fetchall()
 		fields = []
 		for rec in rs:
 			typ = rec[2].lower()
-			if typ[:3] == "int":	
+			if typ == "integer":	
 				fldType = "I"
-			elif typ[:3] == "dec" or typ[:4] == "real":
+			elif typ == "real":
 				fldType = "N"
 			elif typ == "blob":
 				fldType = "L"
-			elif typ[:4] == "clob" or typ[:8] == "longtext":
-				fldType = "M"
 			else:
 				# SQLite treats everything else as text
 				fldType = "C"
@@ -151,6 +174,46 @@ class SQLite(dBackend):
 		pass
 		
 		
+	def getStructureDescription(self, cursor):
+		""" Return an empty cursor description. """
+		ret = ()
+		# First, get the SQL
+		try:
+			sql = cursor.sql
+		except:
+			sql = ""
+		if sql:
+			mtch = re.search("select\s(.+)\sfrom\s*.*", sql, re.I | re.M | re.S)
+			if mtch:
+				fldDescrip = []
+				fldText = mtch.groups()[0].replace("\n", " ")
+				flds = fldText.split(",")
+				for fld in flds:
+					fldDescrip.append( (fld.split(" ")[-1], "", False))
+				ret = tuple(fldDescrip)
+		if not ret:
+			# Get the standard fields in the table
+			auxCrs = cursor._getAuxCursor()
+			auxCrs.execute("pragma table_info('%s')" % cursor.Table)
+			rs = auxCrs._records
+			fields = []
+			for rec in rs:
+				typ = rec["type"].lower()
+				if typ == "integer":	
+					fldType = "I"
+				elif typ == "real":
+					fldType = "N"
+				elif typ == "blob":
+					fldType = "L"
+				else:
+					# SQLite treats everything else as text
+					fldType = "C"
+				pk = bool(rec["pk"])
+				fields.append( (rec["name"], fldType, pk))
+			ret = tuple(fields)
+		return ret
+		
+
 	def createTableAndIndexes(self, tabledef, cursor, createTable=True, 
 			createIndexes=True):
 		if not tabledef.Name:

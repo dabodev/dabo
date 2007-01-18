@@ -7,7 +7,6 @@ if __name__ == "__main__":
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 
-
 class HtmlAbout(dabo.ui.dDialog):
 	def initProperties(self):
 		self.AutoSize = True
@@ -19,14 +18,13 @@ class HtmlAbout(dabo.ui.dDialog):
 		self.bindKey("enter", self.onClear)
 
 	def addControls(self):
-		pnlBack = dabo.ui.dPanel(self, BackColor="cornflowerblue")
+		pnlBack = dabo.ui.dPanel(self, BackColor="#DEDEF5")
 		self.Sizer.append1x(pnlBack)
 		pnlBack.Sizer = sz = dabo.ui.dSizer("v")
 
 		self.htmlBox = dabo.ui.dHtmlBox(self)
 		self.htmlBox.Size = (400,300)
-		sz.append1x(self.htmlBox, halign="center", valign="center",
-				border=30)
+		sz.append1x(self.htmlBox, halign="center", valign="center")
 
 		# Copy info
 		btnCopy = dabo.ui.dButton(pnlBack, Caption=_("Copy Info"))
@@ -42,9 +40,7 @@ class HtmlAbout(dabo.ui.dDialog):
 
 
 	def writeHtmlPage(self):
-		appinfo = self.getInfoString()
-		docstring = self.getAppSpecificString()
-		return self.getPageData() % locals()
+		return self.pageData().replace("[DocString]", self.getAppSpecificString()).replace("[AppInfo]", self.getInfoString())
 
 
 	def getInfoDataSet(self):
@@ -108,17 +104,23 @@ class HtmlAbout(dabo.ui.dDialog):
 	def onClose(self, evt=None):
 		self.release()
 
-	def getPageData(self):
+	def pageData(self):
 		"""Basic Template structure of the About box."""
-		return """
-<html>
-	<body bgcolor="#DDDDFF">
-		<h1 align="center"><b>Dabo</b></h1>
-		<p>%(appinfo)s</p>
-		<p>%(docstring)s</p>
+		return """<html>
+	<body bgcolor="#DEDEF5">
+		<h1>
+		<b>Dabo</b>
+		</h1>
+
+		<p>
+		[AppInfo]
+		</p>
+
+		<p>
+		[DocString]
+		</p>
 	</body>
-</html>
-"""
+</html>"""
 
 
 def main():

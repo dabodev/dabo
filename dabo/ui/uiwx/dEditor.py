@@ -291,22 +291,113 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		"""Returns a list of all 'class' and 'def' statements, along
 		with their starting positions in the text.
 		"""
-		pat = re.compile(r"^([ \t]*(?:def )|(?:class ))([^\(]+)\(", re.M)
 		ret = []
-		mtch = 1
-		pos = 0
-		txt = self.GetText()
-		while mtch:
-			mtch = pat.search(txt)
-			if mtch:
-				key, nm = mtch.groups()
-				pos += mtch.start(0)				
-				ret.append((nm, pos, (key.strip() == "class")))
-				keyOffset = len(key)
-				txt = txt[mtch.start(0) + keyOffset:]
-				pos += keyOffset
+		def _lister(nd):
+			strNd = str(nd)
+			isClass = strNd.startswith("Class(")
+			isFunc = strNd.startswith("Function(")
+			kidlist = []
+			txt = ""
+			try:
+				kids = nd.getChildren()
+				if isClass or isFunc:
+					txt = "%s %s" % (("class", "def")[isFunc], kids[isFunc])
+			
+				for kid in kids:
+					if isinstance(kid, compiler.ast.Node):
+						kidStuff = _lister(kid)
+						if kidStuff:
+							if isinstance(kidStuff, list):
+								kidlist += kidStuff
+							else:
+								kidlist.append(kidStuff)
+				if txt:
+					return {txt: kidlist}
+				else:
+					return kidlist
+			except: pass
+	
+		needPosAdd = False
+		try:
+			prsTxt = compiler.parse(self.GetText())
+			needPosAdd = True
+		except SyntaxError:
+			# The text is not compilable.
+			ret = self._bruteForceFuncList()
+		if needPosAdd:
+			nmKids = []
+			for chNode in prsTxt:
+				chRet = _lister(chNode)
+				if chRet:
+					nmKids += _lister(chNode)
+			# OK, at this point we have a list of class/func names. Now we have to 
+			# convert that to a dict where each element has a 'pos' property that
+			# contains the offset from top of the file, and a 'children' prop that contains 
+			# any nested class/funcs.
+			self._classFuncPos = 0
+			ret = self._addPos(nmKids)
+			
 		return ret
-
+	
+	
+	def _addPos(self, lst):
+		"""Go through each entry, finding where that text occurs in the text.
+		Then add that to the return list.
+		"""
+		ret = []
+		for itm in lst:
+			# Find the pos in the text
+			key = itm.keys()[0]
+			pat = "^\s*%s" % key
+			mtch = re.search(pat, self.GetText()[self._classFuncPos:], re.S | re.M)
+			pos = mtch.start(0)
+			self._classFuncPos += pos
+			itmDict = {key: {"pos": self._classFuncPos}}
+			kids = itm[key]
+			itmDict[key]["children"] = self._addPos(kids)
+			ret.append(itmDict)
+		return ret
+		
+		
+	def _bruteForceFuncList(self, sorted=False):
+		"""Returns a list of all 'class' and 'def' statements, along
+		with their starting positions in the text. This is used
+		when the source cannot be compiled, and thus the 
+		compiler module is not usable.
+		"""
+		it = self._pat.finditer(self.GetText())
+		ret = [(m.groups()[0], m.start()) for m in it]
+		if sorted:
+			cls = ""
+			dct = {}
+			mthdList = []
+			clsList = []
+			for itms in ret:
+				itm = itms[0]
+				if itm.startswith("class"):
+					if mthdList:
+						dct[cls] = mthdList
+					cls = itm
+					clsList.append(itm)
+					mthdList = [itms]
+				else:
+					mthdList.append(itms)
+			if mthdList:
+				dct[cls] = mthdList
+			# We need to sort by class, and then within class, by method
+			ret = []
+			classes = dct.keys()
+			classes.sort()
+			for cls in classes:
+				mthds = dct[cls]
+				mthds.sort()
+				ret += mthds
+		
+		print "BRUTE"
+		print ret
+		print
+		return ret		
+		
 
 	def getLineFromPosition(self, pos):
 		"""Given a position within the text, returns the corresponding line 
@@ -319,16 +410,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		return ret
 	
 	
-	def getPositionFromLine(self, linenum):
-		"""Given a line number, returns the position of the start of that line.
-		If the line number is invalid, returns -1."""
-		try:
-			ret = self.PositionFromLine(linenum)
-		except:
-			ret = -1
-		return ret
-
-
 	def getPositionFromXY(self, x, y=None):
 		"""Given an x,y position, returns the position in the text if that point
 		is close to any text; if not, returns -1.
@@ -731,12 +812,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				self._insertChar = "."
 			else:
 				self._posBeforeCompList = self.GetCurrentPos() + 1
-				dabo.ui.callAfter(self.codeComplete)
-		elif self.AutoAutoComplete:
-			if keyChar in " ()[]{}.-":
-				self.AutoCompCancel()
-				return
-			dabo.ui.callAfter(self.autoComplete, minWordLen=self.AutoAutoCompleteMinLen)
+				self.codeComplete()
 
 
 	def onListSelection(self, evt):
@@ -944,26 +1020,18 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			for k in dir(obj):
 				if k[0] != "_":
 					kw.append(k)
-			
+					
 			# Sort upper case:
 			kw.sort(lambda a,b: cmp(a.upper(), b.upper()))
+
 			# Images are specified with a appended "?type"
 			for i in range(len(kw)):
-				try:
-					obj_ = eval("obj.%s" % kw[i])
-				except (AttributeError, TypeError):
-					continue
-				isEvent = False
-				if inspect.isclass(obj_):
-					try:
-						isEvent = issubclass(obj_, dEvents.Event)
-					except TypeError:
-						pass				
+				obj_ = eval("obj.%s" % kw[i])
 				if type(obj_) == type(property()):
 					kw[i] = kw[i] + "?2"
 				elif inspect.isfunction(obj_) or inspect.ismethod(obj_):
 					kw[i] = kw[i] + "?4"
-				elif isEvent:
+				elif inspect.isclass(obj_) and issubclass(obj_, dEvents.Event):
 					kw[i] = kw[i] + "?3"
 				elif inspect.isclass(obj_):
 					kw[i] = kw[i] + "?5"
@@ -1248,7 +1316,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		except AttributeError:
 			_oldTitle = ""
 		try:
-			fileName = os.path.split(self._fileName)[-1]
+			fileName = os.path.split(self._fileName)
+			fileName = fileName[len(fileName)-1]
 		except AttributeError:
 			fileName = ""
 		if not fileName:
@@ -1284,87 +1353,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def moveToEnd(self):
 		self.SetSelection(-1, -1)
 		self.EnsureCaretVisible()
-
-
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-	# Auto-completion code, used mostly unchanged from SPE
-	# Copyright www.stani.be
-	def autoComplete(self, object=0, minWordLen=0):
-		word	= self.getWord()
-		if isinstance(object, dEvents.KeyEvent):
-			object = 0
-		if not word: 
-			if object:
-				self.AddText('.')
-			return
-		if object:
-			self.AddText('.')
-			word+='.'
-		if word and len(word) < minWordLen:
-			return
-		words	= self.getWords(word=word)
-		if word[-1] == '.':
-			try:
-				obj = self.getWordObject(word[:-1])
-				if obj:
-					for attr in dir(obj):
-						attr = '%s%s'%(word,attr)
-						if attr not in words: words.append(attr)
-			except:
-				pass
-		elif word[-1] in " ()[]{}":
-			self.AutoCompCancel()
-			return
-		if words:
-			words.sort(lambda a,b: cmp(a.upper(), b.upper()))
-			try:
-				self.AutoCompShow(len(word), " ".join(words))
-			except:
-				pass
-
-	
-	def getWord(self,whole=None):
-		for delta in (0,-1,1):
-			word	= self._getWord(whole=whole,delta=delta)
-			if word: return word
-		return ''
-
-	def _getWord(self,whole=None,delta=0):
-		pos = self.GetCurrentPos()+delta
-		line = self.GetCurrentLine()
-		linePos = self.PositionFromLine(line)
-		txt = self.GetLine(line)
-		start = self.WordStartPosition(pos,1)
-		if whole:
-			end = self.WordEndPosition(pos,1)
-		else:
-			end = pos
-		return txt[start-linePos:end-linePos]
-
-	def getWords(self,word=None,whole=None):
-		if not word: word = self.getWord(whole=whole)
-		if not word:
-			return []
-		else:
-			if self.AutoCompGetIgnoreCase:
-				flag = re.I
-			else:
-				flag = 0
-			retAll = ([x for x in re.findall(r"\b" + word + r"\w+\b", self.GetText(), flag)
-				if x.find(',')==-1 and x[0]!= ' '])
-			ret = dict.fromkeys(retAll).keys()
-			return ret
 		
-	def getWordObject(self,word=None,whole=None):
-		if not word: word=self.getWord(whole=whole)
-		try:
-			obj = self.evaluate(word)
-			return obj
-		except:
-			return None
-	# End of auto-completion code
-	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
-
+		
 	def _getRuntimeObjectName(self):
 		"""Go backwards from the current position and get the runtime object name
 		that the user is currently editing. For example, if they entered a '.' after
@@ -1507,30 +1497,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 	### Property definitions start here
 	
-	def _getAutoAutoComplete(self):
-		try:
-			return self._autoAutoComplete
-		except AttributeError:
-			ret = self._autoAutoComplete = self.Application.getUserSetting("AutoAutoComplete", False)
-			return ret
-	
-	def _setAutoAutoComplete(self, val):
-		self._autoAutoComplete = val
-		self.Application.setUserSetting("AutoAutoComplete", val)
-
-
-	def _getAutoAutoCompleteMinLen(self):
-		try:
-			return self._autoAutoCompleteMinLen
-		except AttributeError:
-			ret = self._autoAutoCompleteMinLen = self.Application.getUserSetting("AutoAutoCompleteMinLen", 3)
-			return ret
-	
-	def _setAutoAutoCompleteMinLen(self, val):
-		self._autoAutoCompleteMinLen = val
-		self.Application.setUserSetting("AutoAutoCompleteMinLen", val)
-
-
 	def _getAutoCompleteList(self):
 		return self._autoCompleteList
 
@@ -1694,16 +1660,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		return self.GetModify()
 
 
-	def _getReadOnly(self):
-		return self.GetReadOnly()
-		
-	def _setReadOnly(self, val):
-		if self._constructed():
-			self.SetReadOnly(val)
-		else:
-			self._properties["ReadOnly"] = val
-
-
 	def _getSelectionBackColor(self):
 		return self._selectionBackColor
 
@@ -1719,16 +1675,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self._properties["SelectionBackColor"] = val
 
 
-	def _getSelectionEnd(self):
-		return self.GetSelectionEnd()
-
-	def _setSelectionEnd(self, val):
-		if self._constructed():
-			self.SetSelectionEnd(val)
-		else:
-			self._properties["SelectionEnd"] = val
-
-
 	def _getSelectionForeColor(self):
 		return self._selectionForeColor
 
@@ -1742,30 +1688,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self.SetSelForeground(1, val)
 		else:
 			self._properties["SelectionForeColor"] = val
-
-
-	def _getSelectionPosition(self):
-		return self.GetSelection()
-
-	def _setSelectionPosition(self, val):
-		if self._constructed():
-			self.SetSelection(*val)
-		else:
-			self._properties["SelectionPosition"] = val
-
-
-	def _getSelection(self):
-		return self.GetSelectedText()
-
-
-	def _getSelectionStart(self):
-		return self.GetSelectionStart()
-
-	def _setSelectionStart(self, val):
-		if self._constructed():
-			self.SetSelectionStart(val)
-		else:
-			self._properties["SelectionStart"] = val
 
 
 	def _getShowCallTips(self):
@@ -1929,13 +1851,6 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self.SetZoom(val)
 
 
-	AutoAutoComplete = property(_getAutoAutoComplete, _setAutoAutoComplete, None,
-			_("Determines if auto-completion pops up without a special trigger key  (bool)"))
-			
-	AutoAutoCompleteMinLen = property(_getAutoAutoCompleteMinLen, _setAutoAutoCompleteMinLen, None,
-			_("""When AutoAutoComplete is True, sets the minimum # of chars required
-			before the autocomplete popup appears. Default=3  (int)"""))
-			
 	AutoCompleteList = property(_getAutoCompleteList, _setAutoCompleteList, None,
 			_("""Controls if the user has to press 'Enter/Tab' to accept 
 			the AutoComplete entry  (bool)"""))
@@ -1991,26 +1906,11 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	Modified = property(_getModified, None, None,
 			_("Has the content of this editor been modified?  (bool)"))
 	
-	ReadOnly = property(_getReadOnly, _setReadOnly, None, 
-			_("Specifies whether or not the text can be edited. (bool)"))
-	
 	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
 			_("Background color of selected text. Default=yellow  (str or tuple)"))
 	
-	SelectionEnd = property(_getSelectionEnd, _setSelectionEnd, None,
-			_("Position of the end of the selected text  (int)"))
-	
 	SelectionForeColor = property(_getSelectionForeColor, _setSelectionForeColor, None,
 			_("Forecolor of the selected text. Default=black  (str or tuple)"))
-	
-	Selection = property(_getSelection, None, None,
-			_("Selected text. (read-only) (str)"))
-	
-	SelectionPosition = property(_getSelectionPosition, _setSelectionPosition, None,
-			_("Tuple containing the start/end positions of the selected text.  (2-tuple of int)"))
-	
-	SelectionStart = property(_getSelectionStart, _setSelectionStart, None,
-			_("Position of the start of the selected text  (int)"))
 	
 	ShowCallTips = property(_getShowCallTips, _setShowCallTips, None,
 			_("Determines if call tips are shown (default=True)  (bool)"))

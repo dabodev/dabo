@@ -1,5 +1,3 @@
-# dabo/db/dCursorMixin
-
 import types
 import datetime
 import inspect
@@ -16,6 +14,7 @@ except ImportError:
 
 import dabo
 import dabo.dConstants as kons
+from dabo.db.dMemento import dMemento
 from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
@@ -95,9 +94,6 @@ class dCursorMixin(dObject):
 		# Reference to the object with backend-specific behaviors
 		self.__backend = None
 		
-		# Reference to the bizobj that 'owns' this cursor, if any,
-		self._bizobj = None
-		
 		# set properties for the SQL Builder functions
 		self.clearSQL()
 		self.hasSqlBuilder = True
@@ -105,10 +101,6 @@ class dCursorMixin(dObject):
 		# props for building the auxiliary cursor
 		self._cursorFactoryFunc = None
 		self._cursorFactoryClass = None
-
-		# mementos and new records, keyed on record object ids:
-		self._mementos = {}
-		self._newRecords = {}
 
 		self.initProperties()
 
@@ -145,17 +137,7 @@ class dCursorMixin(dObject):
 
 	def getSortCase(self):
 		return self.sortCase
-	
-	
-	def pkExpression(self):
-		"""Returns the current PK expression."""
-		rec = self._records[self.RowNumber]
-		if isinstance(self.KeyField, tuple):
-			pk = tuple([rec[kk] for kk in self.KeyField])
-		else:
-			pk = rec[self.KeyField]
-		return pk
-		
+
 
 	def correctFieldType(self, field_val, field_name, _fromRequery=False):
 		"""Correct the type of the passed field_val, based on self.DataStructure.
@@ -180,9 +162,6 @@ class dCursorMixin(dObject):
 				elif field_val is None:
 					# Fields of any type can be None (NULL).
 					pass
-				elif _USE_DECIMAL and type(field_val) in (float,) \
-						and pythonType in (Decimal,):
-					ret = pythonType(str(field_val))
 				else:
 					try:
 						ret = pythonType(field_val)
@@ -206,14 +185,14 @@ class dCursorMixin(dObject):
 						if ok:
 							# change self.Encoding and log the message
 							self.Encoding = enc
-							dabo.errorLog.write(_("Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead")
-								% {'fname':field_name, 'enc':enc} )
+							dabo.errorLog.write(_("Incorrect unicode encoding set; using '%s' instead")
+									% enc)
 							break
 				else:
 					raise UnicodeDecodeError, e
-# 		elif isinstance(field_val, array.array):
-# 			# Usually blob data
-# 			ret = field_val.tostring()
+		elif isinstance(field_val, array.array):
+			# Usually blob data
+			ret = val.tostring()
 
 		return ret
 
@@ -228,16 +207,13 @@ class dCursorMixin(dObject):
 		#### NOTE: NEEDS TO BE TESTED THOROUGHLY!!!!  ####
 
 		# Some backends, notably Firebird, require that fields be specially marked.
-		if not isinstance(sql, unicode):
-			sql = unicode(sql, self.Encoding)
 		sql = self.processFields(sql)
 		
 		# Make sure all Unicode characters are properly encoded.
-# 		if isinstance(sql, unicode):
-# 			sqlEX = sql.encode(self.Encoding)
-# 		else:
-# 			sqlEX = sql
-		sqlEX = sql
+		if isinstance(sql, unicode):
+			sqlEX = sql.encode(self.Encoding)
+		else:
+			sqlEX = sql
 		
 		try:
 			if params is None or len(params) == 0:
@@ -307,6 +283,8 @@ class dCursorMixin(dObject):
 						row[fld] = self.correctFieldType(field_val=val, field_name=fld,
 								_fromRequery=_fromRequery)
 
+			# Convert to dDataSet 
+			self._records = dDataSet(self._records)
 		return res
 	
 
@@ -326,9 +304,8 @@ class dCursorMixin(dObject):
 
 		self.execute(self.CurrentSQL, params, _fromRequery=True)
 		
-		# clear mementos and new record flags:
-		self._mementos = {}
-		self._newRecords = {}
+		# Add mementos to each row of the result set
+		self.addMemento(-1)
 
 		# Check for any derived fields that should not be included in 
 		# any updates.
@@ -572,7 +549,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rowXML = ""
 		for rec in self._records:
 			recInfo = [ colTemplate % (k, self.getType(v), self.escape(v)) 
-					for k,v in rec.items() ]
+					for k,v in rec.items() 
+					if k != "dabo-memento"]
 			rowXML += rowTemplate % "\n".join(recInfo)
 		return base % (self.Encoding, self.AutoPopulatePK, self.KeyField, 
 				self.Table, rowXML)
@@ -622,44 +600,39 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	
 
 	def isChanged(self, allRows=True):
-		"""Return True if there are any changes to the local field values.
-
-		If allRows is True (the default), all records in the recordset will be 
-		considered. Otherwise, only the current record will be checked.
+		"""Scan all the records and compare them with their mementos. 
+		Returns True if any differ, False otherwise.
 		"""
-		if allRows:
-			return len(self._mementos) > 0 or len(self._newRecords) > 0
-		else:
-			row = self.RowNumber
+		ret = False
+		if self.RowCount > 0:
+			if allRows:
+				recs = self._records
+			else:
+				recs = (self._records[self.RowNumber],)
 
-			try:
-				rec = self._records[row]
-			except IndexError:
-				# self.RowNumber doesn't exist (init phase?) Nothing's changed:
-				return False
-			recKey = self.pkExpression()
-			memento = self._mementos.get(recKey, None)
-			new_rec = self._newRecords.has_key(recKey)
-
-			return not (memento is None and not new_rec)
+			for ii in range(len(recs)):
+				rec = recs[ii]
+				if self.isRowChanged(rec):
+					ret = True
+					break
+		return ret
 
 
-	def setNewFlag(self):
-		"""Set the current record to be flagged as a new record.
-
-		dBizobj will automatically call this method as appropriate, but if you are
-		using dCursor without a proxy dBizobj, you'll need to manually call this 
-		method after cursor.new(), and (if applicable) after cursor.genTempAutoPK().
-		For example:
-			cursor.new()
-			cursor.genTempAutoPK()
-			cursor.setNewFlag()
-		"""	
-		if self.KeyField:
-			rec = self._records[self.RowNumber]
-			self._newRecords[rec[self.KeyField]] = None
+	def isRowChanged(self, rec):
+		ret = False
+		if rec.has_key(kons.CURSOR_MEMENTO):
+			mem = rec[kons.CURSOR_MEMENTO]
+			newrec = rec.has_key(kons.CURSOR_NEWFLAG)
+			ret = newrec or mem.isChanged(rec)
+		return ret
 
 
+	def setMemento(self):
+		if self.RowCount > 0:
+			if (self.RowNumber >= 0) and (self.RowNumber < self.RowCount):
+				self.addMemento(self.RowNumber)
+	
+	
 	def genTempAutoPK(self):
 		""" Create a temporary PK for a new record. Set the key field to this
 		value, and also create a temp field to hold it so that when saving the
@@ -696,8 +669,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set.")
 		rec = self._records[self.RowNumber]
-		recKey = self.pkExpression()
-		if self._newRecords.has_key(recKey) and self.AutoPopulatePK:
+		if rec.has_key(kons.CURSOR_NEWFLAG) and self.AutoPopulatePK:
 			# New, unsaved record
 			ret = rec[kons.CURSOR_TMPKEY_FIELD]
 		else:
@@ -727,7 +699,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if rec.has_key(fld):
 				ret = rec[fld]
 			else:
-				raise dException.FieldNotFoundException, "%s '%s' %s" % (
+				raise dException.dException, "%s '%s' %s" % (
 						_("Field"), fld, _("does not exist in the data set"))
 		return ret
 
@@ -746,149 +718,99 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			typ = None
 		if typ:
 			try:
-				ret = {"C": unicode, "D": datetime.date, "B": bool, "G": long,
-					"N": float, "M": unicode, "I": int, "T": datetime.datetime}[typ]
+				ret = {"C" : str, "D" : datetime.date, "B" : bool, 
+					"N" : float, "M" : str, "I" : int, "T" : datetime.datetime}[typ]
 			except KeyError:
 				ret = None
 		return ret
 		
 
-	def _hasValidKeyField(self):
-		"""Return True if the KeyField exists and names valid fields."""
-		try:
-			self.checkPK()
-		except dException.MissingPKException:
-			return False
-		return True
-
-
-	def setFieldVal(self, fld, val, row=None):
-		"""Set the value of the specified field."""
+	def setFieldVal(self, fld, val):
+		""" Set the value of the specified field. """
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set")
-
-		if row is None:
-			row = self.RowNumber
-
-		rec = self._records[row]
-		valid_pk = self._hasValidKeyField()
-		keyField = self.KeyField
-
-		if not rec.has_key(fld):
-			ss = _("Field '%s' does not exist in the data set.") % (fld,)
-			raise dException.FieldNotFoundException, ss
-
-		if self._types.has_key(fld):
-			fldType = self._types[fld]
 		else:
-			fldType = self._fldTypeFromDB(fld)
-		if fldType is not None:
-			if fldType != type(val):
-				convTypes = (str, unicode, int, float, long, complex)
-				if isinstance(val, convTypes) and isinstance(rec[fld], basestring):
-					if isinstance(fldType, str):
-						val = str(val)
-					else:
-						val = unicode(val)
-				elif isinstance(rec[fld], int) and isinstance(val, bool):
-					# convert bool to int (original field val was bool, but UI
-					# changed to int. 
-					val = int(val)
-				elif isinstance(rec[fld], int) and isinstance(val, long):
-					# convert long to int (original field val was int, but UI
-					# changed to long. 
-					val = int(val)
-				elif isinstance(rec[fld], long) and isinstance(val, int):
-					# convert int to long (original field val was long, but UI
-					# changed to int. 
-					val = long(val)
-
-			if fldType != type(val):
-				ignore = False
-				# Date and DateTime types are handled as character, even if the 
-				# native field type is not. Ignore these. NOTE: we have to deal with the 
-				# string representation of these classes, as there is no primitive for either
-				# 'DateTime' or 'Date'.
-				dtStrings = ("<type 'DateTime'>", "<type 'Date'>", "<type 'datetime.datetime'>")
-				if str(fldType) in dtStrings and isinstance(val, basestring):
-					ignore = True
-				elif val is None or fldType is type(None):
-					# Any field type can potentially hold None values (NULL). Ignore these.
-					ignore = True
-				elif isinstance(val, dNoEscQuoteStr.dNoEscQuoteStr):
-					# Sometimes you want to set it to a sql function, equation, ect.
-					ignore = True
-				elif fld in self.getNonUpdateFields():
-					# don't worry so much if this is just a calculated field.
-					ignore = True
+			rec = self._records[self.RowNumber]
+			if rec.has_key(fld):
+				if self._types.has_key(fld):
+					fldType = self._types[fld]
 				else:
-					# This can also happen with a new record, since we just stuff the
-					# fields full of empty strings.
-					ignore = self._newRecords.has_key(rec[keyField])
+					fldType = self._fldTypeFromDB(fld)
+				if fldType is not None:
+					if fldType != type(val):
+						convTypes = (str, unicode, int, float, long, complex)
+						if isinstance(val, convTypes) and isinstance(rec[fld], basestring):
+							if isinstance(fldType, str):
+								val = str(val)
+							else:
+								val = unicode(val)
+						elif isinstance(rec[fld], int) and isinstance(val, bool):
+							# convert bool to int (original field val was bool, but UI
+							# changed to int. 
+							val = int(val)
+						elif isinstance(rec[fld], int) and isinstance(val, long):
+							# convert long to int (original field val was int, but UI
+							# changed to long. 
+							val = int(val)
+						elif isinstance(rec[fld], long) and isinstance(val, int):
+							# convert int to long (original field val was long, but UI
+							# changed to int. 
+							val = long(val)
+
+					if fldType != type(val):
+						ignore = False
+						# Date and DateTime types are handled as character, even if the 
+						# native field type is not. Ignore these. NOTE: we have to deal with the 
+						# string representation of these classes, as there is no primitive for either
+						# 'DateTime' or 'Date'.
+						dtStrings = ("<type 'DateTime'>", "<type 'Date'>", "<type 'datetime.datetime'>")
+						if str(fldType) in dtStrings and isinstance(val, basestring):
+								ignore = True
+						elif val is None or fldType is type(None):
+							# Any field type can potentially hold None values (NULL). Ignore these.
+							ignore = True
+						elif isinstance(val, dNoEscQuoteStr.dNoEscQuoteStr):
+							# Sometimes you want to set it to a sql function, equation, ect.
+							ignore = True
+						elif fld in self.getNonUpdateFields():
+							# don't worry so much if this is just a calculated field.
+							ignore = True
+						else:
+							# This can also happen with a new record, since we just stuff the
+							# fields full of empty strings.
+							ignore = self._records[self.RowNumber].has_key(kons.CURSOR_NEWFLAG)
 						
-				if not ignore:
-					msg = _("!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s") \
-							% (fld, str(fldType), str(type(val)))
-					dabo.errorLog.write(msg)
+						if not ignore:
+							msg = _("!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s") \
+									% (fld, str(fldType), str(type(val)))
+							dabo.errorLog.write(msg)
+				rec[fld] = val
 
-		# If the new value is different from the current value, change it and also
-		# update the mementos if necessary.
-		old_val = rec[fld]
-		nonUpdateFields = self.getNonUpdateFields()
-		if old_val != val:
-			if valid_pk:
-				if fld == keyField:
-					# Changing the key field value, need to key the mementos on the new
-					# value, not the old. Additionally, need to copy the mementos from the
-					# old key value to the new one.
-					keyFieldValue = val
-					old_mem = self._mementos.get(old_val, None)
-					if old_mem is not None:
-						self._mementos[keyFieldValue] = old_mem
-						del self._mementos[old_val]
-				else:
-					if self._compoundKey:
-						keyFieldValue = tuple([rec[k] for k in keyField])
-					else:
-						keyFieldValue = rec[keyField]
-				mem = self._mementos.get(keyFieldValue, {})
-				if mem.has_key(fld) or fld in nonUpdateFields:
-					# Memento is already there, or it isn't updateable.
-					pass
-				else:
-					# Save the memento for this field.
-					mem[fld] = old_val
-				if mem.has_key(fld) and mem[fld] == val:
-					# Value changed back to the original memento value; delete the memento.
-					del mem[fld]
-				if mem:
-					self._mementos[keyFieldValue] = mem
-				else:
-					self._clearMemento(row)
 			else:
-				dabo.infoLog.write("Field value changed, but the memento can't be saved, because there is no valid KeyField.")
-
-			# Finally, save the new value to the field:
-			rec[fld] = val
+				ss = _("Field '%s' does not exist in the data set.") % (fld,)
+				raise dException.FieldNotFoundException, ss
 
 
-	def getRecordStatus(self, row=None):
+	def getRecordStatus(self, rownum=None):
 		""" Returns a dictionary containing an element for each changed 
 		field in the specified record (or the current record if none is specified).
 		The field name is the key for each element; the value is a 2-element
 		tuple, with the first element being the original value, and the second 
 		being the current value.
 		"""
+		if rownum is None:
+			rownum = self.RowNumber
+		try:
+			row = self._records[RowNumber]
+			mem = row[kons.CURSOR_MEMENTO]
+		except:
+			# Either there isn't any such row number, or it doesn't have a 
+			# memento. Either way, return an empty dict
+			return {}
+		diff = mem.makeDiff(row, isNewRecord=row.has_key(kons.CURSOR_NEWFLAG))
 		ret = {}
-		if row is None:
-			row = self.RowNumber
-
-		rec = self._records[row]
-		recKey = self.pkExpression()
-		mem = self._mementos.get(recKey, {})
-		
-		for k, v in mem.items():
-			ret[k] = (v, rec[k])
+		for kk, vv in diff:
+			ret[kk] = (mem.getOrigVal(kk), vv)
 		return ret
 
 
@@ -924,7 +846,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			# return empty dataset
 			return dDataSet()
 
-		internals = (kons.CURSOR_TMPKEY_FIELD,)
+		internals = (kons.CURSOR_MEMENTO, kons.CURSOR_NEWFLAG, 
+				kons.CURSOR_TMPKEY_FIELD)
 
 		for rec in ret:
 			if not flds and not returnInternals:
@@ -952,9 +875,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		beginning with '='. Literals can be of any type. 
 		"""
 		if isinstance(self._records, dDataSet):
-			# Make sure that the data set object has any necessary references
-			self._records.Cursor = self
-			self._records.Bizobj = self._bizobj			
 			self._records.replace(field, valOrExpr, scope=scope)
 			
 
@@ -996,17 +916,24 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			raise dException.NoRecordsException, _("No records in data set")
 
 
-	def save(self, allRows=False, useTransaction=False):
+	def save(self, allrows=False, useTransaction=False):
 		""" Save any changes to the data back to the data store."""
 		# Make sure that there is data to save
 		if self.RowCount <= 0:
-			raise dException.NoRecordsException, _("No data to save")
+			raise dException.dException, _("No data to save")
 		# Make sure that there is a PK
 		self.checkPK()
+		if allrows:
+			recs = self._records
+		else:
+			recs = (self._records[self.RowNumber],)
 
-		def saverow(row):
+		if useTransaction:
+			self.beginTransaction()
+
+		for rec in recs:
 			try:
-				self.__saverow(row)
+				self.__saverow(rec)
 			except dException.DBQueryException, e:
 				# Error was raised. Exit and rollback the changes if
 				# this object started the transaction.
@@ -1021,34 +948,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					# this object started the transaction.
 					if useTransaction:
 						self.rollbackTransaction()
-					raise
-	
-		if useTransaction:
-			self.beginTransaction()
-
-		# Faster to deal with 2 specific cases: all rows or just current row
-		if allRows:
-			pks_to_save = self._mementos.keys()
-			pks_to_save.extend(self._newRecords.keys())
-			pks_to_save = list(set(pks_to_save))
-			for pk_id in pks_to_save:
-				row, rec = self._getRecordByPk(pk_id)
-				saverow(row)
-		else:
-			pk = self.pkExpression()
-			if pk in self._mementos.keys() or pk in self._newRecords.keys():
-				saverow(self.RowNumber)
-		
+					raise dException.QueryException, e
 		if useTransaction:
 			self.commitTransaction()
 
 
-	def __saverow(self, row):
-		rec = self._records[row]
-		recKey = self.pkExpression()
-		newrec = self._newRecords.has_key(recKey)
-		diff = self.getRecordStatus(row)
-		if diff or newrec:
+	def __saverow(self, rec):
+		newrec =  rec.has_key(kons.CURSOR_NEWFLAG)
+		mem = rec[kons.CURSOR_MEMENTO]
+		diff = self.makeUpdDiff(rec, newrec)
+
+		if diff:
 			if newrec:
 				flds = ""
 				vals = ""
@@ -1065,29 +975,21 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					if kk in self.getNonUpdateFields():
 						# Skip it.
 						continue
+						
 					# Append the field and its value.
-					flds += ", " + self.BackendObject.encloseSpaces(kk)
+					flds += ", " + kk
 					# add value to expression
-					vals += ", %s" % (self.formatForQuery(vv[1]),)
+					vals += ", %s" % (self.formatForQuery(vv),)
 					
 				# Trim leading comma-space from the strings
 				flds = flds[2:]
 				vals = vals[2:]
-				if not flds:
-					# Some backends (sqlite) require non-empty field clauses. We already
-					# know that we are expecting the backend to generate the PK, so send
-					# NULL as the PK Value:
-					flds = self.KeyField
-					vals = "NULL"
-				sql = "insert into %s (%s) values (%s) " % (
-						self.BackendObject.encloseSpaces(self.Table), flds, vals)
+				sql = "insert into %s (%s) values (%s) " % (self.Table, flds, vals)
 
 			else:
-				pkWhere = self.makePkWhere(row)
+				pkWhere = self.makePkWhere(rec)
 				updClause = self.makeUpdClause(diff)
-				sql = "update %s set %s where %s" % (self.BackendObject.encloseSpaces(self.Table), 
-						updClause, pkWhere)
-			oldPKVal = self.pkExpression()
+				sql = "update %s set %s where %s" % (self.Table, updClause, pkWhere)
 			newPKVal = None
 			if newrec and self.AutoPopulatePK:
 				# Some backends do not provide a means to retrieve 
@@ -1097,8 +999,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# compound PKs, this cannot be done.
 				newPKVal = self.pregenPK()
 				if newPKVal and not self._compoundKey:
-					self.setFieldVal(self.KeyField, newPKVal, row)
-			
+					self.setFieldVal(self.KeyField, newPKVal)
+				
 			#run the update
 			aux = self.AuxCursor
 			res = aux.execute(sql)
@@ -1108,55 +1010,19 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# most recently generated PK value.
 				newPKVal = aux.getLastInsertID()
 				if newPKVal and not self._compoundKey:
-					self.setFieldVal(self.KeyField, newPKVal, row)
+					self.setFieldVal(self.KeyField, newPKVal)
 
-			self._clearMemento(row)
 			if newrec:
-				self._clearNewRecord(row=row, pkVal=oldPKVal)
+				# Need to remove the new flag
+				del rec[kons.CURSOR_NEWFLAG]
 			else:
 				if not res:
 					# Different backends may cause res to be None
 					# even if the save is successful.
 					self.BackendObject.noResultsOnSave()
+			rec[kons.CURSOR_MEMENTO].setMemento(rec)
 
-
-	def _clearMemento(self, row=None):
-		"""Erase the memento for the passed row, or current row if none passed."""
-		if row is None:
-			row = self.RowNumber
-		rec = self._records[row]
-
-		try:
-			del self._mementos[rec[self.KeyField]]
-		except KeyError:
-			# didn't exist
-			pass
-
-
-	def _clearNewRecord(self, row=None, pkVal=None):
-		"""Erase the new record flag for the passed row, or current row if none passed."""
-
-		# If pkVal passed, delete that reference:
-		if pkVal is not None:
-			try:
-				del self._newRecords[pkVal]
-				if row is None:
-					# We deleted based on pk, don't delete flag for the current row.
-					return				
-			except:
-				pass
-
-		if row is None:
-			row = self.RowNumber
-		rec = self._records[row]
-
-		try:
-			del self._newRecords[rec[self.KeyField]]
-		except KeyError:
-			# didn't exist
-			pass
-
-
+	
 	def pregenPK(self):
 		"""Various backend databases require that you manually 
 		generate new PKs if you need to refer to their values afterward.
@@ -1167,66 +1033,99 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self.BackendObject.pregenPK(self.AuxCursor)
 		
 		
+	def makeUpdDiff(self, rec, isnew=False):
+		"""Returns only those fields that have changed."""
+		mem = rec[kons.CURSOR_MEMENTO]
+		ret = mem.makeDiff(rec, isnew)
+		for fld in self.getNonUpdateFields():
+			if ret.has_key(fld):
+				del ret[fld]
+		return ret		
+		
+
 	def new(self):
-		"""Add a new record to the data set."""
+		""" Add a new record to the data set."""
 		if not self._blank:
 			self.__setStructure()
-		blank = self._blank.copy()
-		self._records += dDataSet((blank,))
+		# Copy the _blank dict to the _records, and adjust everything accordingly
+		tmprows = list(self._records)
+		tmprows.append(self._blank.copy())
+		self._records = dDataSet(tmprows)
 		# Adjust the RowCount and position
 		self.RowNumber = self.RowCount - 1
+		# Add the 'new record' flag to the last record (the one we just added)
+		self._records[self.RowNumber][kons.CURSOR_NEWFLAG] = True
+		# Add the memento
+		self.addMemento(self.RowNumber)
 
 
-	def cancel(self, allRows=False):
+	def cancel(self, allrows=False):
 		""" Revert any changes to the data set back to the original values."""
+		# Make sure that there is data to save
 		if not self.RowCount > 0:
-			raise dException.NoRecordsException, _("No data to cancel.")
+			raise dException.dException, _("No data to cancel")
 
-		# Faster to deal with 2 specific cases: all rows or just current row
-		if allRows:
+		if allrows:
 			recs = self._records
-
-			if self._newRecords:
-				recs = list(recs)
-				delrecs_ids = self._newRecords.keys()
-				delrecs_idx = []
-				for rec_id in delrecs_ids:
-					row, rec = self._getRecordByPk(rec_id)
-					delrecs_idx.append(self._records._index(rec))
-				delrecs_idx.sort(reverse=True)
-				for idx in delrecs_idx:
-					del recs[idx]
-				self._newRecords = {}
-				recs = dDataSet(recs)
-
-			for rec_pk, mem in self._mementos.items():
-				row, rec = self._getRecordByPk(rec_pk)
-				for fld, val in mem.items():
-					self._records[row][fld] = val
-			self._mementos = {}
-		
 		else:
-			row = self.RowNumber
-			rec = self._records[row]
-			recKey = self.pkExpression()
-			if self._newRecords.has_key(recKey):
-				# We simply need to remove the row, and clear the memento and newrec flag.
-				self._clearMemento(row)
-				self._clearNewRecord(row)
+			recs = (self._records[self.RowNumber],)
+
+		# Create a list of PKs for each 'eligible' row to cancel
+		cancelPKs = []
+		kf = self.KeyField
+		if not kf:
+			delrecs = []
+			for rec in self._records:
+				if rec.has_key(kons.CURSOR_NEWFLAG):
+					delrecs.append(rec)
+				else:
+					self.__cancelRow(rec)
+			if delrecs:
 				recs = list(self._records)
-				del recs[recs.index(rec)]
-				self._records = dDataSet(recs)
-				return
-			
-			# Not a new record: need to manually replace the old values:
-			mem = self._mementos.get(recKey, {})
-			for fld, val in mem.items():
-				self._records[row][fld] = val
-			self._clearMemento(row)
-			
+				for rec in delrecs:
+					idx = recs.index(rec)
+					del recs[idx]
+				self._records = tuple(recs)
+		else:
+			for rec in recs:
+				if self._compoundKey:
+					key = tuple([rec[k] for k in kf])
+					cancelPKs.append(key)
+				else:
+					cancelPKs.append(rec[kf])
 	
+			for ii in range(self.RowCount-1, -1, -1):
+				rec = self._records[ii]
+				if self._compoundKey:
+					key = tuple([rec[k] for k in kf])
+				else:
+					key = rec[self.KeyField]
+					
+				if key in cancelPKs:
+					if not self.isRowChanged(rec):
+						# Nothing to cancel
+						continue
+	
+					newrec =  rec.has_key(kons.CURSOR_NEWFLAG)
+					if newrec:
+						# Discard the record, and adjust the props
+						self.delete(ii)
+					else:
+						self.__cancelRow(rec)
+
+
+	def __cancelRow(self, rec):
+		mem = rec[kons.CURSOR_MEMENTO]
+		diff = mem.makeDiff(rec)
+		if diff:
+			for fld, val in diff.items():
+				rec[fld] = mem.getOrigVal(fld)
+
+
 	def delete(self, delRowNum=None):
-		"""Delete the specified row, or the currently active row."""
+		""" Delete the specified row. If no row specified, 
+		delete the currently active row.
+		"""
 		if self.RowNumber < 0 or self.RowCount == 0:
 			# No query has been run yet
 			raise dException.NoRecordsException, _("No record to delete")
@@ -1235,7 +1134,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			delRowNum = self.RowNumber
 
 		rec = self._records[delRowNum]
-		if self._newRecords.has_key(self.pkExpression()):
+		newrec =  rec.has_key(kons.CURSOR_NEWFLAG)
+		if newrec:
 			res = True
 		else:
 			pkWhere = self.makePkWhere()
@@ -1281,29 +1181,38 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		The 'vals' parameter is a dictionary of fields and their default values.
 		"""
-		rec = self._records[self.RowNumber]
-		keyField = self.KeyField
-		keyFieldSet = False
-
-		def setDefault(field, val):
-			if rec.has_key(field):
-				# If it is a function, execute it to get the value, else use literal.
-				if hasattr(val, "__call__"):
-					val = val()
-				self.setFieldVal(field, val)
+		# The memento must be updated afterwards, since these should not count
+		# as changes to the original values. 
+		row = self._records[self.RowNumber]
+		for kk, vv in vals.items():
+			if row.has_key(kk):
+				# try to execute it as a function, else assume it is a literal value:
+				try:
+					vv = vv()
+				except:
+					pass
+				row[kk] = vv
 			else:
-				raise dException.FieldNotFoundException, _("Can't set default value for nonexistent field '%s'.") % field
+				# We probably shouldn't add an erroneous field name to the row
+				raise ValueError, "Can't set default value for nonexistent field '%s'." % kk
+		row[kons.CURSOR_MEMENTO].setMemento(row)
 
-		if keyField in vals.keys():
-			# Must set the pk default value first, for mementos to be filled in
-			# correctly.
-			setDefault(keyField, vals[keyField])
-			keyFieldSet = True
-			
-		for field, val in vals.items():
-			if field == keyField and keyFieldSet:
-				continue
-			setDefault(field, val)
+
+	def addMemento(self, rownum=-1):
+		""" Add a memento to the specified row. If the rownum is -1, 
+		a memento will be added to all rows. 
+		"""
+		if rownum == -1:
+			# Make sure that there are rows to process
+			if self.RowCount < 1:
+				return
+			for ii in range(0, self.RowCount):
+				self.addMemento(ii)
+		row = self._records[rownum]
+		if not row.has_key(kons.CURSOR_MEMENTO):
+			row[kons.CURSOR_MEMENTO] = dMemento()
+		# Take the snapshot of the current values
+		row[kons.CURSOR_MEMENTO].setMemento(row, skipFields=self.getNonUpdateFields())
 
 
 	def __setStructure(self):
@@ -1347,41 +1256,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self.__setNonUpdateFields()
 
 
-	def getChangedRows(self):
-		"""Returns a list of rows with changes."""
-		pks = self._mementos.keys()
-		pks.extend(self._newRecords.keys())
-		pks = list(set(pks))
-		return map(self._getRowByPk, pks)
-		
-
-	def _getRecordByPk(self, pk):
-		"""Find the record with the passed primary key; return (row, record)."""
-		for idx, rec in enumerate(self._records):
-			if self._compoundKey:
-				key = tuple([rec[k] for k in self.KeyField])
-			else:
-				key = rec[self.KeyField]
-			if key == pk:
-				return (idx, rec)
-		return (None, None)
-
-
-	def _getRowByPk(self, pk):
-		"""Find the record with the passed primary key value; return row number."""
-		row, rec = self._getRecordByPk(pk)
-		return row
-
-
 	def moveToPK(self, pk):
 		""" Find the record with the passed primary key, and make it active.
 
 		If the record is not found, the position is set to the first record. 
 		"""
-		row, rec = self._getRecordByPk(pk)
-		if row is None:
-			row = 0
-		self.RowNumber = row
+		self.RowNumber = 0
+		kf = self.KeyField
+		for ii in range(0, len(self._records)):
+			rec = self._records[ii]
+			if self._compoundKey:
+				key = tuple([rec[k] for k in kf])
+			else:
+				key = rec[self.KeyField]
+			if key == pk:
+				self.RowNumber = ii
+				break
 
 
 	def moveToRowNum(self, rownum):
@@ -1489,7 +1379,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		# First, make sure that there is *something* in the field
 		kf = self.KeyField
 		if not kf:
-			raise dException.MissingPKException, _("checkPK failed; no primary key specified")
+			raise dException.dException, _("checkPK failed; no primary key specified")
 
 		if isinstance(kf, basestring):
 			kf = [kf]
@@ -1498,62 +1388,53 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			for fld in kf:
 				self._records[0][fld]
 		except:
-			raise dException.MissingPKException, _("Primary key field does not exist in the data set: ") + fld
+			raise dException.dException, _("Primary key field does not exist in the data set: ") + fld
 
 
-	def makePkWhere(self, row=None):
+	def makePkWhere(self, rec=None):
 		""" Create the WHERE clause used for updates, based on the pk field. 
 
-		Optionally pass in a row number, otherwise use the current record.
+		Optionally pass in a record object, otherwise use the current record.
 		"""
-		bo = self.BackendObject
-		tblPrefix = bo.getWhereTablePrefix(bo.encloseSpaces(self.Table))
-		if not row:
-			row = self.RowNumber
-		rec = self._records[row]
-		recKey = self.pkExpression()
-		
+		tblPrefix = self.BackendObject.getWhereTablePrefix(self.Table)
+		if not rec:
+			rec = self._records[self.RowNumber]
 		if self._compoundKey:
-			keyFields = [fld for fld in self.KeyField]
+			keyFields = self.KeyField
 		else:
 			keyFields = [self.KeyField]
-		recKey = self.pkExpression()
-		mem = self._mementos.get(recKey, {})
 
-		def getPkVal(fld):
-			if mem.has_key(fld):
-				return mem[fld]
-			else:
-				return rec[fld]
+		if kons.CURSOR_MEMENTO in rec:
+			mem = rec[kons.CURSOR_MEMENTO]
+			getPkVal = lambda fld: mem.getOrigVal(fld)
+		else:
+			getPkVal = lambda fld: rec[fld]
 			
 		ret = ""
 		for fld in keyFields:
-			fldSafe = bo.encloseSpaces(fld)
 			if ret:
 				ret += " AND "
 			pkVal = getPkVal(fld)
 			if isinstance(pkVal, basestring):
-				ret += tblPrefix + fldSafe + "='" + pkVal.encode(self.Encoding) + "' "
+				ret += tblPrefix + fld + "='" + pkVal.encode(self.Encoding) + "' "
 			elif isinstance(pkVal, (datetime.date, datetime.datetime)):
-				ret += tblPrefix + fldSafe + "=" + self.formatDateTime(pkVal) + " "
+				ret += tblPrefix + fld + "=" + self.formatDateTime(pkVal) + " "
 			else:
-				ret += tblPrefix + fldSafe + "=" + str(pkVal) + " "
+				ret += tblPrefix + fld + "=" + str(pkVal) + " "
 		return ret
 
 
 	def makeUpdClause(self, diff):
 		""" Create the 'set field=val' section of the Update statement. """
 		ret = ""
-		bo = self.BackendObject
-		tblPrefix = bo.getUpdateTablePrefix(bo.encloseSpaces(self.Table))
+		tblPrefix = self.BackendObject.getUpdateTablePrefix(self.Table)
 		for fld, val in diff.items():
-			old_val, new_val = val
 			# Skip the fields that are not to be updated.
 			if fld in self.getNonUpdateFields():
 				continue
 			if ret:
 				ret += ", "
-			ret += tblPrefix + bo.encloseSpaces(fld) + " = " + self.formatForQuery(new_val)
+			ret += tblPrefix + fld + " = " + self.formatForQuery(val)			
 		return ret
 
 
@@ -1686,13 +1567,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self.sqlManager._fieldClause = self.sqlManager.BackendObject.setFieldClause(clause)
 
 
-	def addField(self, exp, alias=None):
+	def addField(self, exp):
 		""" Add a field to the field clause."""
-		sm = self.sqlManager
-		beo = sm.BackendObject
-		if beo:
-			sm._fieldClause = beo.addField(sm._fieldClause, exp, alias)
-		return sm._fieldClause
+		if self.sqlManager.BackendObject:
+			self.sqlManager._fieldClause = self.sqlManager.BackendObject.addField(self.sqlManager._fieldClause, exp)
+		return self.sqlManager._fieldClause
 
 
 	def getFromClause(self):
@@ -1988,12 +1867,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	
 	def _getIsAdding(self):
 		""" Return True if the current record is a new record."""
-		if self.RowCount <= 0:
-			return False
-		recKey = self.pkExpression()
-		return self._newRecords.has_key(recKey)
+		return self._records[self.RowNumber].has_key(kons.CURSOR_NEWFLAG)
+		
 	
-
 	def _getKeyField(self):
 		try:
 			return self._keyField
@@ -2002,8 +1878,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _setKeyField(self, kf):
 		if "," in kf:
-			flds = [f.strip() for f in kf.split(",")]
-			self._keyField = tuple(flds)
+			self._keyField = tuple(kf.replace(" ", "").split(","))
 			self._compoundKey = True
 		else:
 			self._keyField = str(kf)
@@ -2031,7 +1906,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					super(CursorRecord, self).__init__()
 				
 				def __getattr__(self, att):
-					return self.cursor.getFieldVal(att)
+					err = False
+					try:
+						ret = self.cursor.getFieldVal(att)
+					except (dException.dException, dException.NoRecordsException):
+						err = True
+					if err:
+						raise AttributeError, _(" '%s' object has no attribute '%s' ") % (self.cursor.DataSource, att)
+					return ret
 			
 				def __setattr__(self, att, val):
 					if att in ("cursor", ):

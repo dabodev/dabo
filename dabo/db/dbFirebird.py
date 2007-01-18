@@ -11,20 +11,8 @@ class Firebird(dBackend):
 		self.dbModuleName = "kinterbasdb"
 		self.fieldPat = re.compile("([A-Za-z_][A-Za-z0-9-_]+)\.([A-Za-z_][A-Za-z0-9-_]+)")
 		import kinterbasdb
-		initialized = getattr(kinterbasdb, "initialized", None)
-		if not initialized:
-			if initialized is None:
-				# type_conv=200 KeyError with the older versions. User will need 
-				# mxDateTime installed as well:
-				kinterbasdb.init()
-			else:
-				# Use Python's Decimal and datetime types:
-				kinterbasdb.init(type_conv=200)
-			if initialized is None:
-				# Older versions of kinterbasedb didn't have this attribute, so we write
-				# it ourselves:
-				kinterbasdb.initialized = True
-		
+		if not kinterbasdb.initialized:
+			kinterbasdb.init(type_conv=200)
 		self.dbapi = kinterbasdb
 
 
@@ -200,6 +188,16 @@ class Firebird(dBackend):
 				whereClause, groupByClause, orderByClause) )
 
 
+	def addField(self, clause, exp):
+		quoted = self.dblQuoteField(exp)
+		return self.addWithSep(clause, quoted)
+
+	
+	def addWhere(self, clause, exp, comp="and"):
+		quoted = self.dblQuoteField(exp)
+		return self.addWithSep(clause, quoted, sep=" %s " % comp)
+
+
 	def massageDescription(self, cursor):
 		"""Force all the field names to lower case."""
 		dd = cursor.descriptionClean = cursor.description
@@ -247,8 +245,7 @@ class Firebird(dBackend):
 		return self.dblQuoteField(clause)
 	def setOrderByClause(self, clause):
 		return self.dblQuoteField(clause)
-
-
+		
 	def dblQuoteField(self, txt):
 		""" Takes a string and returns the same string with
 		all occurrences of xx.yy replaced with xx."YY".
@@ -260,14 +257,4 @@ class Firebird(dBackend):
 			fld = mtch.groups()[1].upper()
 			return "%s.\"%s\"" % (tbl, fld)
 		return self.fieldPat.sub(qtField, txt)
-
-
-# Test method for all the different field structures, just 
-# like dblQuoteField().
-# def q(txt):
-# 	def qtField(mtch):
-# 		tbl = mtch.groups()[0]
-# 		fld = mtch.groups()[1].upper()
-# 		return "%s.\"%s\"" % (tbl, fld)
-# 	return pat.sub(qtField, txt)
-# 		
+		

@@ -1,7 +1,6 @@
-import os.path
-import warnings
 import wx
 import dabo, dabo.ui
+import os.path
 
 dabo.ui.loadUI("wx")
 
@@ -83,61 +82,49 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 
 	def appendButton(self, caption, pic, bindfunc=None, toggle=False, 
-			tip="", help="", *args, **kwargs):
+			tip="", help=""):
 		"""Adds a tool (button) to the toolbar. 
 
 		You must pass a caption and an image for the button. The picture can be a 
 		wx.Bitmap, or a path to an image file of any supported type. If you pass 
 		toggle=True, the button will exist in an up and down state. Pass the 
-		function you want to be called when this button is clicked in an 
-		'OnHit' param.
-
-		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
-		removed	in version 0.9. Send an OnHit parameter instead.
+		function you want to be called when this button is clicked in the 
+		'bindfunc' param.
 		"""
 		return self._appendInsertButton(None, caption, pic, bindfunc, 
-				toggle,	tip, help, *args, **kwargs)
+				toggle,	tip, help)
 
 
 	def insertButton(self, pos, caption, pic, bindfunc=None, toggle=False, 
-			tip="", help="", *args, **kwargs):
+			tip="", help=""):
 		"""Inserts a tool (button) to the toolbar at the specified position. 
 
 		You must pass a caption and an image for the button. The picture can be a 
 		wx.Bitmap, or a path to an image file of any supported type. If you pass 
 		toggle=True, the button will exist in an up and down state. Pass the 
-		function you want to be called when this button is clicked in an 
-		'OnHit' param.
-
-		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
-		removed	in version 0.9. Send an OnHit parameter instead.
+		function you want to be called when this button is clicked in the 
+		'bindfunc' param.
 		"""
 		return self._appendInsertButton(pos, caption, pic, bindfunc, 
-				toggle,	tip, help, *args, **kwargs)
+				toggle,	tip, help)
 
 
 	def prependButton(self, caption, pic, bindfunc=None, toggle=False, 
-			tip="", help="", *args, **kwargs):
+			tip="", help=""):
 		"""Inserts a tool (button) to the beginning of the toolbar. 
 
 		You must pass a caption and an image for the button. The picture can be a 
 		wx.Bitmap, or a path to an image file of any supported type. If you pass 
 		toggle=True, the button will exist in an up and down state. Pass the 
-		function you want to be called when this button is clicked in an 
-		'OnHit' param.
-
-		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
-		removed	in version 0.9. Send an OnHit parameter instead.
+		function you want to be called when this button is clicked in the 
+		'bindfunc' param.
 		"""
-		return self.insertButton(0, caption, pic, bindfunc, toggle,	tip, help, *args, **kwargs)
+		return self.insertButton(0, caption, pic, bindfunc, toggle,	tip, help)
 
 
 	def _appendInsertButton(self, pos, caption, pic, bindfunc, toggle, 
-			tip, help, *args, **kwargs):
+			tip, help):
 		"""Common code for the append|insert|prependButton() functions."""
-		if bindfunc is not None:
-			warnings.warn(_("Deprecated; use 'OnHit=<func>' instead."), 
-					DeprecationWarning, 1)
 		if isinstance(pic, basestring):
 			# path was passed
 			picBmp = dabo.ui.strToBmp(pic)
@@ -160,11 +147,11 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		if pos is None:
 			# append
 			butt = dToolBarItem(self.DoAddTool(id_, caption, picBmp, 
-					shortHelp=tip, longHelp=help), *args, **kwargs)
+					shortHelp=tip, longHelp=help))
 		else:
 			# insert
 			butt = dToolBarItem(self.DoInsertTool(pos, id_, caption, picBmp, 
-				shortHelp=tip, longHelp=help), *args, **kwargs)
+				shortHelp=tip, longHelp=help))
 			
 		try:
 			self.SetToggle(id_, toggle)
@@ -457,7 +444,7 @@ class dToolBarItem(dObject):
 	## constructor. Therefore, I've made this wrapper class to decorate the
 	## wx.ToolBarToolBase instance that comes back from the DoAddTool()
 	## function.
-	def __init__(self, wxItem=None, OnHit=None, *args, **kwargs):
+	def __init__(self, wxItem=None):
 		if wxItem is None:
 			wxItem = self._getWxToolBarItem()
 		self._wxToolBarItem = wxItem
@@ -465,10 +452,7 @@ class dToolBarItem(dObject):
 		self._parent = None
 		if self.Application:
 			self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, wxItem)
-		super(dToolBarItem, self).__init__(*args, **kwargs)
-		if OnHit is not None:
-			self.bindEvent(dEvents.Hit, OnHit)
-			
+
 
 	def __getattr__(self, attr):
 		"""Exposes the underlying wx functions and attributes."""
@@ -573,10 +557,10 @@ class _dToolBar_test(dToolBar):
 		self.MaxHeight = 20
 
 	def afterInit(self):
-		self.appendButton("Copy", pic="copy", toggle=False, OnHit=self.onCopy, 
+		self.appendButton("Copy", pic="copy", toggle=False, bindfunc=self.onCopy, 
 				tip="Copy", help="Much Longer Copy Help Text")
 
-		self.appendButton("Timer", pic="dTimer", toggle=True, OnHit=self.onTimer,
+		self.appendButton("Timer", pic="dTimer", toggle=True, bindfunc=self.onTimer,
 				tip="Timer Toggle", help="Timer Help Text")
 
 		self.appendButton("Dabo", pic="daboIcon128", toggle=True, tip="Dabo! Dabo! Dabo!", 
@@ -584,7 +568,7 @@ class _dToolBar_test(dToolBar):
 
 		self.appendSeparator()
 
-		self.appendButton("Exit", pic="close", toggle=True, OnHit=self.onExit, 
+		self.appendButton("Exit", pic="close", toggle=True, bindfunc=self.onExit, 
 				tip="Exit", help="Quit the application")
 
 	def onCopy(self, evt):

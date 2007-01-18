@@ -150,19 +150,7 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 
 class dCheckMenuItem(dMenuItem):
 	"""Creates a checkbox-like item in a menu."""
-	def _getChecked(self):
-		return self.IsChecked()
-
-	def _setChecked(self, val):
-		if self._constructed():
-			self.Check(val)
-		else:
-			self._properties["Checked"] = val
-
-
-	Checked = property(_getChecked, _setChecked, None,
-			_("Is this menu item checked?  (bool)"))
-	
+	pass
 
 
 class dRadioMenuItem(dMenuItem):

@@ -32,9 +32,9 @@ class BaseForm(fm.dFormMixin):
 		self.stopWatch = wx.StopWatch()
 		self.stopWatch.Pause()
 
-		# Determines if the user is prompted to save changes when the form is closed
-		# or a requery is about to happen.
-		self._checkForChanges = True
+		# Determines if the user is prompted to save changes
+		# when the form is closed.
+		self.checkForChanges = True
 		
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
@@ -82,63 +82,47 @@ class BaseForm(fm.dFormMixin):
 		
 		
 	def confirmChanges(self):
-		"""Ask the user if they want to save changes, discard changes, or cancel.
-
-		The user will be queried if the form's CheckForChanges property is True, and
-		if there are any pending changes on the form's bizobjs as specified in the
-		return value of getBizobjsToCheck().
-
-		If all the above are True, the dialog will be presented. "Yes" will cause
-		all changes to be saved. "No" will discard any changes before proceeding 
-		with the operation that caused confirmChanges() to be called in the first
-		place (e.g. a requery() or the form being closed). "Cancel" will not save
-		any changes, but also cancel the requery or form close.
+		""" If the form's checkForChanges property is true,
+		see if there are any pending changes on the form's bizobjs.
+		If so, ask the user if they want to save/discard/cancel.
 		
-		See also: getBizobjsToCheck() method, CheckForChanges property.
+		Subclasses may have their own bizobj management schemes,
+		so we can't rely on simplyreferring to PrimaryBizobj here.
+		Instead, we'll call a special method that will return a list
+		of bizobjs to act upon.
 		"""
-		if not self.CheckForChanges:
+		if not self.checkForChanges:
 			# Don't bother checking
 			return True
 		bizList = self.getBizobjsToCheck()
-		changedBizList = []
 		
-		for biz in bizList:
-			if biz and biz.isAnyChanged():
-				changedBizList.append(biz)
+		if bizList:
+			changed = False
+			for biz in bizList:
+				if biz:
+					# Forms can return None in the list, so skip those
+					changed = changed or biz.isAnyChanged()
 			
-		if changedBizList:
-			queryMessage = self.getConfirmChangesQueryMessage(changedBizList)
-			response = dabo.ui.areYouSure(queryMessage,	cancelButton=True)
-			if response == None:     ## cancel
-				# Don't let the form close, or requery happen
-				return False
-			elif response == True:   ## yes
-				for biz in changedBizList:
-					self.save(dataSource=biz.DataSource)
-			elif response == False:  ## no
-				for biz in changedBizList:
-					self.cancel(dataSource=biz.DataSource)
+			if changed:
+				response = dabo.ui.areYouSure(_("Do you wish to save your changes?"),
+						cancelButton=True)
+				if response == None:     ## cancel
+					# Don't let the form close
+					return False
+				elif response == True:   ## yes
+					for biz in bizList:
+						self.save(dataSource=biz.DataSource)
+				elif response == False:  ## no
+					for biz in bizList:
+						self.cancel(dataSource=biz.DataSource)
 		return True
 	
-
-	def getConfirmChangesQueryMessage(self, changedBizList):
-		"""Return the "Save Changes?" message for use in the query dialog.
-
-		The default is to return "Do you wish to save your changes?". Subclasses
-		can override with whatever message they want, possibly iterating the 
-		changed bizobj list to introspect the exact changes made to construct the
-		message.
-		"""
-		return _("Do you wish to save your changes?")
-
-
+	
 	def getBizobjsToCheck(self):
-		"""Return the list of bizobj's to check for changes during confirmChanges().
-
-		The default behavior is to simply check the primary bizobj, however there 
-		may be cases in subclasses where a different bizobj may be checked, or even 
-		several. In those cases, override	this method and return a list of the 
-		required bizobjs.
+		""" Default behavior is to simply check the primary bizobj.
+		However, there may be cases in subclasses where a different
+		bizobj may be checked, or even several. In those cases, override
+		this method and return a list of the required bizobjs.
 		"""
 		return [self.PrimaryBizobj]
 		
@@ -348,23 +332,27 @@ class BaseForm(fm.dFormMixin):
 		if err:
 			self.notifyUser(err)
 			return
-		
-		if not self.confirmChanges():
-			# A False from confirmChanges means "don't proceed"
-			return
+		if bizobj.isAnyChanged() and self.AskToSave:
+			response = dabo.ui.areYouSure(_("Do you wish to save your changes?"),
+								cancelButton=True)
 
-#		self.setStatusText(_("Please wait... requerying dataset..."))
+			if response == None:    # cancel
+				return
+			elif response == True:  # yes
+				if not self.save(dataSource=dataSource):
+					# The save failed, so don't continue with the requery
+					return
+
+		self.setStatusText(_("Please wait... requerying dataset..."))
 		
 		try:
-			busy = dabo.ui.busyInfo(_("Please wait... requerying dataset..."))
 			self.stopWatch.Start()
-#			response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
-			response = bizobj.requery()
+			response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
+#			response = bizobj.requery()
 			self.stopWatch.Pause()
 			elapsed = round(self.stopWatch.Time()/1000.0, 3)
 			
 			self.update()
-			del busy
 
 			# Notify listeners that the row number changed:
 			self.raiseEvent(dEvents.RowNumChanged)
@@ -697,11 +685,14 @@ Database error message: %s""") %	err
 		
 	
 	# Property get/set/del functions follow.
-	def _getCheckForChanges(self):
-		return self._checkForChanges
+	def _getAskToSave(self):
+		try:
+			return self._AskToSave
+		except AttributeError:
+			return True
 			
-	def _setCheckForChanges(self, value):
-		self._checkForChanges = bool(value)
+	def _setAskToSave(self, value):
+		self._AskToSave = bool(value)
 		
 
 	def _getPrimaryBizobj(self):
@@ -756,13 +747,9 @@ Database error message: %s""") %	err
 
 
 	# Property definitions:
-	CheckForChanges = property(_getCheckForChanges, _setCheckForChanges, None, 
-			_("""Specifies whether the user is prompted to save or discard changes. (bool)
-
-			If True (the default), when operations such as requery() or the closing
-			of the form are about to occur, the user will be presented with a dialog
-			box asking whether to save changes, discard changes, or cancel the 
-			operation that led to the dialog being presented.""") )
+	AskToSave = property(_getAskToSave, _setAskToSave, None, 
+			_("""Specifies whether a save prompt appears before the data
+			is requeried. (bool)""") )
 
 	PrimaryBizobj = property(_getPrimaryBizobj, _setPrimaryBizobj, None, 
 			_("Reference to the primary bizobj for this form  (dBizobj)") )

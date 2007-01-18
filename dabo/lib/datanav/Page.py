@@ -83,7 +83,7 @@ class Page(dabo.ui.dPage):
 	
 		
 	def deleteRecord(self, ds=None):
-		""" Called by a browse grid when the user wants to delete the current row. 
+		""" Called by a browse grid when the user wants to edit the current row. 
 		"""
 		if ds is None:
 			self.Form.delete()
@@ -142,13 +142,13 @@ class SelectPage(Page):
 		self.sortCap = obj.Caption
 		mn = dabo.ui.dMenu()
 		if self.sortFields:
-			mn.append(_("Show sort order"), OnHit=self.handleSortOrder)
+			mn.append(_("Show sort order"), bindfunc=self.handleSortOrder)
 		if self.sortFields.has_key(self.sortDS):
 			mn.append(_("Remove sort on ") + self.sortCap, 
-					OnHit=self.handleSortRemove)
+					bindfunc=self.handleSortRemove)
 
-		mn.append(_("Sort Ascending"), OnHit=self.handleSortAsc)
-		mn.append(_("Sort Descending"), OnHit=self.handleSortDesc)
+		mn.append(_("Sort Ascending"), bindfunc=self.handleSortAsc)
+		mn.append(_("Sort Descending"), bindfunc=self.handleSortDesc)
 		self.PopupMenu(mn, obj.formCoordinates(evt.EventData["mousePosition"]) )
 		mn.release()
 
@@ -205,10 +205,6 @@ class SelectPage(Page):
 		"""Subclass hook."""
 		pass
 	
-	def setGroupBy(self, biz):
-		"""Subclass hook."""
-		pass
-
 
 	def setOrderBy(self, biz):
 		biz.setOrderByClause(self._orderByClause())
@@ -354,7 +350,6 @@ class SelectPage(Page):
 				self.setFrom(bizobj)
 				self.setWhere(bizobj)
 				self.setOrderBy(bizobj)
-				self.setGroupBy(bizobj)
 				self.setLimit(bizobj)
 			
 				sql = bizobj.getSQL()
@@ -548,10 +543,8 @@ class SelectPage(Page):
 	
 	
 class BrowsePage(Page):
-	def __init__(self, parent, Name=None, *args, **kwargs):
-		if Name is None:
-			Name = "pageBrowse"
-		super(BrowsePage, self).__init__(parent, Name=Name, *args, **kwargs)
+	def __init__(self, parent):
+		super(BrowsePage, self).__init__(parent, Name="pageBrowse")
 		self._doneLayout = False
 
 
@@ -604,8 +597,8 @@ class BrowsePage(Page):
 		
 
 class EditPage(Page):
-	def __init__(self, parent, ds=None, *args, **kwargs):
-		super(EditPage, self).__init__(parent, *args, **kwargs)
+	def __init__(self, parent, ds=None):
+		super(EditPage, self).__init__(parent)		#, Name="pageEdit")
 		self._focusToControl = None
 		self.itemsCreated = False
 		self._dataSource = ds

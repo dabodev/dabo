@@ -7,12 +7,12 @@ if __name__ == "__main__":
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 #import dControlMixin as dcm
-from dDataControlMixin import dDataControlMixin as dcm
+import dDataControlMixin as dcm
 import dImageMixin as dim
 from dabo.ui import makeDynamicProperty
 
 
-class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
+class dImage(dcm.dDataControlMixin, dim.dImageMixin, wx.StaticBitmap):
 	""" Create a simple bitmap to display images."""
 	def __init__(self, parent, properties=None, attProperties=None, 
 			*args, **kwargs):
@@ -23,15 +23,12 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		self._imgProp = 1.0
 		self._rotation = 0
 		self.__image = None
-		self._inShowPic = False
-		self.__val = None
-		self.__imageData = None
 		bmp = wx.EmptyBitmap(1, 1)
 		picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
 	
 		dim.dImageMixin.__init__(self)
-		dcm.__init__(self, preClass, parent, properties, attProperties, 
-				bitmap=bmp, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
+				attProperties, bitmap=bmp, *args, **kwargs)
 		
 		# Display the picture, if any. This will also initialize the 
 		# self._picture attribute
@@ -45,10 +42,6 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 	
 	def _onResize(self, evt):
 		self._showPic()
-		
-	
-	def update(self):
-		dabo.ui.callAfterInterval(100, super(dImage, self).update)
 	
 	
 	def rotateCounterClockwise(self):
@@ -84,25 +77,13 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				except StandardError, e:
 					print "ERROR", e
 		return ret
-	
-	
-	def getOriginalImgSize(self):
-		"""Since the image can be scaled, this returns the size of
-		the unscaled image.
-		"""
-		img = self._Image
-		return (img.GetWidth(), img.GetHeight())
 
 
 	def _showPic(self):
 		"""Displays the picture according to the ScaleMode and image size."""
-		if self._inShowPic:
-			return
 		if not self._Image.Ok():
 			# No image to display
-			self.Bitmap = wx.EmptyBitmap(1, 1)
-			self.SetBitmap(self.Bitmap)
-			return
+				return
 
 		img = self._Image.Copy()
 		switchProportions = False
@@ -153,7 +134,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			# Stretch; just use the control size
 			img = img.Scale(w, h)
 		
-		# We have the adjusted image; now generate the bitmap
+		# We have the adjusted image; now generate the bitmap			
 		self.Bitmap = img.ConvertToBitmap()
 		self._bitmapHeight = self.Bitmap.GetHeight()
 		self._bitmapWidth = self.Bitmap.GetWidth()
@@ -161,10 +142,8 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		try:
 			self.SetBitmap(self.Bitmap)
 		except TypeError, e: pass
-		self._inShowPic = True
 		self.SetSize((origW, origH))
-		self._inShowPic = False
-		
+
 
 	# Property definitions
 	def _getPic(self):
@@ -176,35 +155,23 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self.__image = val
 			self._picture = "(stream)"
 		else:
-###	I don't remember or understand why I added this restriction,
-###	but it isn't needed.
-# 
-# 			# Don't allow built-in graphics to be displayed here
-# 			if not os.path.exists(val):
-# 				if val:
-# 					# They passed a non-existent image file
-# 					raise IOError, "No file named '%s' exists." % val
-			if not val:
-				# Empty string passed; clear any current image
-				self._picture = ""
-				self._rotation = 0
-				self._bmp = wx.EmptyBitmap(1, 1, 1)
-				self.__image = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
-				self._showPic()
-				return
-			elif not os.path.exists(val):
-				origVal = val
-				val = dabo.ui.getImagePath(val)
-				if not os.path.exists(val):
-					# Bad image reference
-					raise IOError, "No file named '%s' exists." % origVal
+			# Don't allow built-in graphics to be displayed here
+			if not os.path.exists(val):
+				if val:
+					# They passed a non-existent image file
+					raise IOError, "No file named '%s' exists." % val
+				else:
+					# Empty string passed; clear any current image
+					self._picture = ""
+					self._rotation = 0
+					self._bmp = wx.EmptyBitmap(1, 1, 1)
+					self.__image = self._bmp.ConvertToImage()
+					self._showPic()
+					return
 			self._picture = val
 			self._rotation = 0
 			self._Image.LoadFile(val)
-		if self._Image.Ok():
-			self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
-		else:
-			self._imgProp = 1.0
+		self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
 		self._showPic()
 
 
@@ -223,18 +190,14 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 
 
 	def _getValue(self):
-		return self.__val
 		try:
 			ret = self.__imageData
 		except AttributeError:
-			ret = self.__imageData = u""
+			ret = self.__imageData = ""
 		return ret
 
 	def _setValue(self, val):
 		if self._constructed():
-			if self.__val == val:
-				return
-			self.__val = val
 			try:
 				isFile = os.path.exists(val)
 			except TypeError:
@@ -242,23 +205,27 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			if not isFile:
 				# Probably an image stream
 				try:
-					log = wx.LogNull()
 					img = dabo.ui.imageFromData(val)
 				except:
 					# No dice, so just bail
-					img = wx.EmptyImage(1, 1)
+					img = ""
 				self._setPic(img)
 			else:
 				self._setPic(val)
-			if ((type(self.__imageData) != type(val)) or (self.__imageData != val)):
-				tfname = self.Application.getTempFile(ext="")
-				try:
-					self.__image.SaveFile(tfname, wx.BITMAP_TYPE_BMP)
-					self.__imageData = open(tfname, "rb").read()
-				except StandardError,e:
-					self.__imageData = u""
+			if (type(self.Value) != type(val) or self.Value != val):
+			
+				import datetime
+				print datetime.datetime.now()
+				
+				hnd, tfname = tempfile.mkstemp()
+				self.__image.SaveFile(tfname, wx.BITMAP_TYPE_BMP)
+				self.__imageData = open(tfname, "rb").read()
+				
+				print datetime.datetime.now()
+				
+
 				self._afterValueChanged()
-			self.flushValue()
+				self.flushValue()
 		else:
 			self._properties["Value"] = val
 

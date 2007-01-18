@@ -168,7 +168,7 @@ C: Popup Calendar to Select
 		""" Display a context menu for selecting the desired date format """
 		menu = dabo.ui.dMenu()
 		for nm, format in self.formats.items():
-			itm = menu.append(format["prompt"], OnHit=self.onRClickMenu)
+			itm = menu.append(format["prompt"], bindfunc=self.onRClickMenu)
 			format["id"] = itm.GetId()
 		self.showContextMenu(menu)
 		evt.Continue = False  # otherwise, a GTK unicode menu will appear

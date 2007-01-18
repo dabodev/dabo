@@ -19,11 +19,6 @@ LINESEP = "\n"
 
 
 class DesignerXmlConverter(dObject):
-	def __init__(self, *args, **kwargs):
-		self._createDesignerControls = False
-		super(DesignerXmlConverter, self).__init__(*args, **kwargs)
-		
-
 	def afterInit(self):
 		# Set the text definitions separately. Since they require special indentation to match the 
 		# generated code and not the code in this class, it is much cleaner to define them 
@@ -80,19 +75,22 @@ class DesignerXmlConverter(dObject):
 			xml = src.read()
 			self._srcFile = src.name
 		else:
-			xml = src
 			if os.path.exists(src):
+				xml = open(src).read()
 				self._srcFile = src
 			else:
+				xml = src
 				parseCode = False
 				self._srcFile = os.getcwd()
-		dct = xtd.xmltodict(xml, addCodeFile=True)
-		# Traverse the dct, looking for superclass information
-		super = xtd.flattenClassDict(dct)
-		if super:
-			# We need to modify the info to incorporate the superclass info
-			xtd.addInheritedInfo(dct, super, updateCode=True)
+		dct = xtd.xmltodict(xml)
 
+		if parseCode:
+			codePth = "%s-code.py" % os.path.splitext(src)[0]
+			try:
+				codeDict = desUtil.parseCodeFile(open(codePth).read())
+				desUtil.addCodeToClassDict(dct, codeDict)
+			except StandardError, e:
+				print "Failed to parse code file:", e
 		return dct
 
 
@@ -104,8 +102,6 @@ class DesignerXmlConverter(dObject):
 		cdFileNoExt = os.path.splitext(cdFile)[0]
 		if addImports:
 			self.classText += self._clsHdrText % (cdPath, cdPath, cdFileNoExt, self._codeImportAs, "%s")
-		if self.CreateDesignerControls:
-			self.classText += self._designerClassGenText
 
 		# Holds any required class definitions for contained objects
 		self.innerClassText = ""
@@ -147,13 +143,8 @@ class DesignerXmlConverter(dObject):
 			if propDef["defaultType"] == "string":
 				val = "\"" + val + "\""
 			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
-		if self.CreateDesignerControls:
-			superName = "getControlClass(dabo.ui.%s)" % nm
-		else:
-			superName = "dabo.ui.%s" % nm
-		prnt = self.currParent
-		indCode = self.indentCode(propInit, 2)
-		self.classText += 	self.containerClassTemplate  % locals()
+		self.classText += 	self.classTemplate  % (clsName, nm, 
+				self.currParent, cleanAtts, nm, self.indentCode(propInit, 2))
 		self.classText += self._stackInitText
 		# Add the child code.
 		self.createChildCode(kids, specKids)
@@ -173,14 +164,8 @@ class DesignerXmlConverter(dObject):
 		# Add any contained class definitions.
 		if self.innerClassText:
 			innerTxt = (3 * LINESEP) + self._innerClsDefText
-			
-			if self.CreateDesignerControls:
-				superEval = "getControlClass(eval(clsName))"
-			else:
-				superEval = "eval(clsName)"
 			# Add in the class definition text
-			indCode = self.indentCode(self.innerClassText, 2)
-			innerTxt = innerTxt % locals()
+			innerTxt = innerTxt % self.indentCode(self.innerClassText, 2)
 			self.classText += innerTxt
 		
 		# We're done!
@@ -265,21 +250,12 @@ class DesignerXmlConverter(dObject):
 					prnt = "currParent, "
 					propString = "'%s', Caption=\"%s\"" % (self._extractKey(atts, "Orientation", "H"), 
 							self._extractKey(atts, "Caption", ""))
-				if self.CreateDesignerControls:
-					superName = clsname
-				else:
-					superName = "dabo.ui.%s" % nm
-				self.classText += LINESEP + self._szText % locals()
+				self.classText += LINESEP + self._szText % (nm, prnt, propString, rowColString, szInfo)
 			
 			elif clsname == "LayoutSpacerPanel":
-				if self.CreateDesignerControls:
-					spcObjDef = "currSizer.append(LayoutSpacerPanel(currParent, Spacing=%(spc)s))"
-				else:
-					spcObjDef = "currSizer.appendSpacer(%(spc)s)"
 				# Insert a spacer
 				spc = atts.get("Spacing", "10")
-				spcObjDef = spcObjDef % locals()
-				self.classText += LINESEP + self._spcText % locals()
+				self.classText += LINESEP + self._spcText % (spc, szInfo)
 			else:
 				# This isn't a sizer; it's a control
 				attPropString = ""
@@ -294,13 +270,11 @@ class DesignerXmlConverter(dObject):
 					cleanAtts["ShowPanelSplitMenu"] = "False"
 					splitterString = self._spltText % locals()
 				if isCustom:
-					superName = "self.getCustControlClass('%s')" % nm
+					nm = "self.getCustControlClass('%s')" % nm
 				else:
-					if self.CreateDesignerControls:
-						superName = "getControlClass(dabo.ui.%s)" % nm
-					else:
-						superName = "dabo.ui.%s" % nm
+					moduleString = "dabo.ui."
 					attPropString = ", attProperties=%s" % cleanAtts
+
 				self.classText += LINESEP + self._createControlText % locals()
 			
 			# If this item has child objects, push the appropriate objects
@@ -437,6 +411,7 @@ class DesignerXmlConverter(dObject):
 			if propDef["defaultType"] == "string":
 				val = "\"" + val + "\""
 			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
+		
 		self.innerClassText += self.classTemplate  % (clsName, nm, 
 				self.currParent, cleanAtts, nm, self.indentCode(propInit, 2))
 
@@ -530,33 +505,14 @@ class DesignerXmlConverter(dObject):
 					ret[key] = val
 		dabo.lib.utils.resolveAttributePathing(ret, self._srcFile)
 		return ret
-	
-
-	def _getCreateDesignerControls(self):
-		return self._createDesignerControls
-
-	def _setCreateDesignerControls(self, val):
-		self._createDesignerControls = val
-
-
-	CreateDesignerControls = property(_getCreateDesignerControls, _setCreateDesignerControls, None,
-			_("When True, classes are mixed-in with the DesignerControlMixin  (bool)"))
-	
 		
-	### Text block definitions follow. They're going after the prop defs ###
-	### so as not to clutter the rest of the code visually.  ###
+	
 	def _defineTextBlocks(self):
 		# Standard class template
-		self.containerClassTemplate = """class %(clsName)s(%(superName)s):
-	def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
-		super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
-		self.Sizer = None
-%(indCode)s
-
-"""
 		self.classTemplate = """class %s(dabo.ui.%s):
-	def __init__(self, parent=%s, attProperties=%s, *args, **kwargs):
-		dabo.ui.%s.__init__(self, parent=parent, attProperties=attProperties, *args, **kwargs)
+	def __init__(self, parent=%s, attProperties=%s):
+		dabo.ui.%s.__init__(self, parent=parent, attProperties=attProperties)
+		self.Sizer = None
 %s		
 
 """
@@ -586,24 +542,23 @@ import %s as %s
 """
 		self._innerClsDefText = """	def getCustControlClass(self, clsName):
 		# Define the classes, and return the matching class
-%(indCode)s
-		return %(superEval)s"""
-		
-		self._szText = """		obj = %(superName)s(%(prnt)s%(propString)s)
+%s
+		return eval(clsName)"""
+		self._szText = """		obj = dabo.ui.%s(%s%s)
 		if currSizer:
-			currSizer.append(obj%(rowColString)s)
-			currSizer.setItemProps(obj, %(szInfo)s)
+			currSizer.append(obj%s)
+			currSizer.setItemProps(obj, %s)
 """
 		self._spcText = """		if currSizer:
-			itm = %(spcObjDef)s
-			currSizer.setItemProps(itm, %(szInfo)s)
+			itm = currSizer.appendSpacer(%s)
+			currSizer.setItemProps(itm, %s)
 """
 		self._spltText = """
 		dabo.ui.setAfter(obj, "Orientation", "%(ornt)s")
 		dabo.ui.setAfter(obj, "Split", %(splt)s)
 		dabo.ui.setAfter(obj, "SashPosition", %(pos)s)
 """
-		self._createControlText = """		obj = %(superName)s(currParent%(attPropString)s)%(splitterString)s
+		self._createControlText = """		obj = %(moduleString)s%(nm)s(currParent%(attPropString)s)%(splitterString)s
 		if currSizer:
 			currSizer.append(obj%(rowColString)s)
 			currSizer.setItemProps(obj, %(szInfo)s)
@@ -688,29 +643,4 @@ import %s as %s
 		self._innerPropText = """	%s = property(%s, %s, %s, 
 			\"\"\"%s\"\"\")
 """
-		self._designerClassGenText = """from ClassDesignerControlMixin import ClassDesignerControlMixin as cmix
-from ClassDesignerComponents import LayoutPanel
-from ClassDesignerComponents import LayoutBasePanel
-from ClassDesignerComponents import LayoutSpacerPanel
-from ClassDesignerComponents import LayoutSizer
-from ClassDesignerComponents import LayoutBorderSizer
-from ClassDesignerComponents import LayoutGridSizer
-from ClassDesignerComponents import LayoutSaverMixin
-from ClassDesignerComponents import NoSizerBasePanel
 
-def getControlClass(base):
-	# Create a pref key that is the Designer key plus the name of the control
-	prefkey = str(base).split(".")[-1].split("'")[0]
-	class controlMix(cmix, base):
-		superControl = base
-		superMixin = cmix
-		def __init__(self, *args, **kwargs):
-			if hasattr(base, "__init__"):
-				apply(base.__init__,(self,) + args, kwargs)
-			parent = self._extractKey(kwargs, "parent")
-			cmix.__init__(self, parent, **kwargs)
-			self.NameBase = str(self._baseClass).split(".")[-1].split("'")[0]
-			self.BasePrefKey = prefkey
-	return controlMix
-
-"""

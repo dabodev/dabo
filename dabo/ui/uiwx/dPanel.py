@@ -17,17 +17,11 @@ class _PanelMixin(cm.dControlMixin):
 		style = self._extractKey((properties, kwargs), "style", 0)
 		style = style | wx.TAB_TRAVERSAL
 		kwargs["style"] = style
-		# For performance, store this at init
-		self._platformIsWindows = (self.Application.Platform == "Win")
 		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 	
 
-	def layout(self, resetMin=False):
+	def layout(self):
 		""" Wrap the wx version of the call, if possible. """
-		if resetMin:
-			# Set the panel's minimum size back to zero. This is sometimes
-			# necessary when the items in the panel have reduced in size.
-			self.SetMinSize((0, 0))
 		self.Layout()
 		for child in self.Children:
 			try:
@@ -38,7 +32,7 @@ class _PanelMixin(cm.dControlMixin):
 			self.Sizer.layout()
 		except:
 			pass
-		if self._platformIsWindows:
+		if self.Application.Platform == "Win":
 			self.refresh()
 
 

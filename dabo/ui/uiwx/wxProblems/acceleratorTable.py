@@ -12,8 +12,8 @@ wxPython 2.6.2.1 I'm seeing:
 	- ALT skipped
 	- PgDn prints WXK_END
 	- End is skipped
-	- UpArrow prints WXK_RIGHT
-	- LeftArrow, RightArrow skipped (DownArrow correctly prints WXK_DOWN)
+  - UpArrow prints WXK_RIGHT
+  - LeftArrow, RightArrow skipped (DownArrow correctly prints WXK_DOWN)
 
 	Additional testing in a different app reveals that if F1 isn't in the
 	accelerator table, and F2 is, that pressing F2 is skipped but pressing

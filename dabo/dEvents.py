@@ -2,6 +2,7 @@ import time
 import dabo
 from dabo.dObject import dObject
 import dabo.ui as ui
+import dabo.biz.dBizobj as dBizobj
 from dabo.dLocalize import _
 
 
@@ -444,14 +445,6 @@ class Paint(Event):
 
 class PageChanged(Event):
 	"""Occurs when a page in a pageframe-like control changes"""
-	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
-				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))
-	appliesToClass = classmethod(appliesToClass)
-	
-
-class PageChanging(Event):
-	"""Occurs when the current page in a pageframe-like control is about to change"""
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, (dabo.ui.dPageFrame, dabo.ui.dPageList, 
 				dabo.ui.dPageSelect, dabo.ui.dPageFrameNoTabs))

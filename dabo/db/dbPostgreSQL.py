@@ -128,22 +128,8 @@ class Postgres(dBackend):
 				fldType = "T"
 			elif "date" in fldType:
 				fldType = "D"
-			elif "bytea" in fldType:
+			elif "blob" in fldType:
 				fldType = "L"
-			elif "point" in fldType:
-				fldType = "C"
-			elif "box" in fldType:
-				fldType = "C"
-			elif "circle" in fldType:
-				fldType = "C"
-			elif "lseg" in fldType:
-				fldType = "C"
-			elif "polygon" in fldType:
-				fldType = "C"
-			elif "path" in fldType:
-				fldType = "C"
-			elif "oid" in fldType:
-				fldType = "G"
 			else:
 				fldType = "?"
 			fields.append((name.strip(), fldType, pk))

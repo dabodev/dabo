@@ -2,7 +2,6 @@ import sys
 import time
 import types
 import wx
-from wx._core import PyAssertionError
 import dabo
 from dabo.dLocalize import _
 from dabo.ui.dPemMixinBase import dPemMixinBase
@@ -11,8 +10,6 @@ import dabo.dColors as dColors
 import dKeys
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
-from dabo.lib.utils import dictStringify
-
 
 
 class dPemMixin(dPemMixinBase):
@@ -28,10 +25,7 @@ class dPemMixin(dPemMixinBase):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
-		# Holds the properties passed in the constructor
 		self._properties = {}
-		# Holds the keyword event bindings passed in the constructor
-		self._kwEvents = {}
 		
 		# Lots of useful wx props are actually only settable before the
 		# object is fully constructed. The self._preInitProperties dict keeps
@@ -81,31 +75,20 @@ class dPemMixin(dPemMixinBase):
 			for k,v in properties.items():
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
-		
-		kwEvents = self._extractKeyWordEventBindings(kwargs, self._kwEvents)
 		# Objects created from XML files will have their props passed
 		# in the 'attProperties' parameter, in which all values are strings.
 		# Convert these to the properties dict.
 		if attProperties:
 			for prop, val in attProperties.items():
-				if prop in properties:
-					# attProperties has lower precedence, so skip it
-					continue
 				try:
-					attVal = eval(val)
+					exec "properties['%s'] = %s" % (prop, val)
 				except:
-					attVal = val
-				properties[prop] = attVal
-		properties = dictStringify(properties)
-# 				try:
-# 					exec "properties['%s'] = %s" % (prop, val)
-# 				except:
-# 					# If this is property holds strings, we need to quote the value.
-# 					escVal = val.replace('"', '\\"').replace("'", "\\'")
-# 					try:
-# 						exec "properties['%s'] = u'%s'" % (prop, escVal)
-# 					except:
-# 						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
+					# If this is property holds strings, we need to quote the value.
+					escVal = val.replace('"', '\\"').replace("'", "\\'")
+					try:
+						exec "properties['%s'] = u'%s'" % (prop, escVal)
+					except:
+						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
 
 		if kwargs.has_key("style"):
 			# If wx style parm sent, keep it as-is.
@@ -191,9 +174,6 @@ class dPemMixin(dPemMixinBase):
 		# Set the properties *before* calling the afterInit hook
 		self._setProperties(properties)
 		
-		# Set any passed event bindings
-		self._setKwEventBindings(self._kwEvents)
-		
 		# _initEvents() will call the initEvents() user hook
 		self._initEvents()
 		# _afterInit() will call the afterInit() user hook
@@ -256,9 +236,6 @@ class dPemMixin(dPemMixinBase):
 
 		# Reference to the border-drawing object
 		self._border = None
-
-		# Store the caption internally
-		self._caption = ""
 
 		# Flag that gets set to True when the object is being Destroyed
 		self._finito = False
@@ -879,7 +856,7 @@ class dPemMixin(dPemMixinBase):
 			posX, posY = self.formCoordinates(pos)
 			l = posX - cntX
 			t = posY - cntY
-		return (l, t)
+ 		return (l, t)
  	
  	
 	def objectCoordinates(self, pos=None):
@@ -1042,50 +1019,7 @@ class dPemMixin(dPemMixinBase):
 				if hasattr(kid, "setAll"):
 					kid.setAll(prop, val, recurse=recurse, filt=filt)
 
-	
-	def iterateCall(self, funcName, *args, **kwargs):
-		"""Call the given function on this object and all of its Children. If
-		any object does not have the given function, no error is raised; it
-		is simply ignored. 
-		"""
-		ok = True
-		try:
-			fnc = eval("self.%s" % funcName)
-		except AttributeError:
-			ok = False
-		if ok:
-			fnc(*args, **kwargs)
-		if isinstance(self, dabo.ui.dGrid):
-			kids = self.Columns
-		else:
-			kids = self.Children
-		for kid in kids:
-			if hasattr(kid, "iterateCall"):
-				kid.iterateCall(funcName, *args, **kwargs)
-
-	
-	# These three functions are essentially a single unit that provides for font size mods.
-	def increaseFontSize(self, val=None):
-		if val is None:
-			val = 1
-		self._changeFontSize(val)
-	def decreaseFontSize(self, val=None):
-		if val is None:
-			val = -1
-		else:
-			val = -1 * val
-		self._changeFontSize(val)
-	def _changeFontSize(self, val):
-		try:
-			self.FontSize += val
-			self.refresh()
-		except PyAssertionError:
-			# This catches invalid point sizes
-			pass
-		if self.Form is not None:
-			dabo.ui.callAfterInterval(200, self.Form.layout)
-	
-	
+			
 	def recreate(self, child=None):
 		"""Recreate the object. 
 
@@ -1127,9 +1061,7 @@ class dPemMixin(dPemMixinBase):
 	
 	def release(self):
 		"""Destroys the object."""
-		if self:
-			# Make sure something else hasn't already destroyed it.
-			self.Destroy()
+		self.Destroy()
 	
 	
 	def setFocus(self):
@@ -1662,7 +1594,6 @@ class dPemMixin(dPemMixinBase):
 		# Force the value to string
 		val = "%s" % val
 		if self._constructed():
-			self._caption = val
 			## 2/23/2005: there is a bug in wxGTK that resets the font when the 
 			##            caption changes. So this is a workaround:
 			font = self.Font
@@ -1815,8 +1746,6 @@ class dPemMixin(dPemMixinBase):
 			if isinstance(self, (wx.Frame, wx.Dialog) ):
 				self.SetSize(newSize)
 			else:
-				if isinstance(self, wx.Panel):
-					self.SetMinSize((-1, 10))
 				if hasattr(self, "SetInitialSize"):
 					# wxPython 2.7.x:
 					self.SetInitialSize(newSize)
@@ -2035,8 +1964,6 @@ class dPemMixin(dPemMixinBase):
 			if isinstance(self, (wx.Frame, wx.Dialog) ):
 				self.SetSize(val)
 			else:
-				if isinstance(self, wx.Panel):
-					self.SetMinSize(val)
 				if hasattr(self, "SetInitialSize"):
 					# wxPython 2.7.x:
 					self.SetInitialSize(val)
@@ -2101,15 +2028,7 @@ class dPemMixin(dPemMixinBase):
 				self.SetToolTip(wx.ToolTip(""))
 				self.SetToolTip(None)
 			else:
-				curr = self.GetToolTip()
-				if curr is not None:
-					currTip = curr.GetTip()
-				else:
-					currTip = ""
-				if currTip != val:
-					newtip = wx.ToolTip(val)
-					self.SetToolTip(None)
-					self.SetToolTip(newtip)
+				self.SetToolTip(wx.ToolTip(val))
 		self._toolTipText = val
 
 
@@ -2149,8 +2068,6 @@ class dPemMixin(dPemMixinBase):
 			if isinstance(self, (wx.Frame, wx.Dialog) ):
 				self.SetSize(newSize)
 			else:
-				if isinstance(self, wx.Panel):
-					self.SetMinSize((10, -1))
 				if hasattr(self, "SetInitialSize"):
 					# wxPython 2.7.x:
 					self.SetInitialSize(newSize)
@@ -2372,7 +2289,7 @@ class DrawObject(dObject):
 		self._radius = None
 		self._shape = None
 		self._visible = True
-		self._width = 0
+		self._width = None
 		self._xPos = None
 		self._yPos = None
 		self._fontFace = None
@@ -2411,8 +2328,6 @@ class DrawObject(dObject):
 		
 		if self.Shape == "bmp":
 			dc.DrawBitmap(self._bitmap, self.Xpos, self.Ypos, self._transparent)
-			self._width = self._bitmap.GetWidth()
-			self._height = self._bitmap.GetHeight()
 			return
 		
 		pw = self.PenWidth
@@ -2491,13 +2406,7 @@ class DrawObject(dObject):
 		if self.Shape == "circle":
 			dc.DrawCircle(x, y, self.Radius)
 		elif self.Shape == "rect":
-			w, h = self.Width, self.Height
-			# If any of these values is -1, use the parent object's size
-			if w < 0:
-				w = self.Parent.Width
-			if h < 0:
-				h = self.Parent.Height
-			dc.DrawRectangle(x, y, w, h)
+			dc.DrawRectangle(x, y, self.Width, self.Height)
 		elif self.Shape == "polygon":
 			dc.DrawPolygon(self.Points)
 		elif self.Shape == "line":
@@ -2511,12 +2420,6 @@ class DrawObject(dObject):
 			if not txt:
 				return
 			fnt = dc.GetFont()
-			# If the following call fails, the font has not been initialized, and can look 
-			# pretty ugly. In this case, initialize it to the system-default font.	
-			try:
-				fnt.GetFaceName()
-			except:
-				fnt = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
 			if self._fontFace is not None:
 				fnt.SetFaceName(self._fontFace)
 			if self._fontSize is not None:

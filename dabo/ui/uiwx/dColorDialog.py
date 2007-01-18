@@ -1,6 +1,5 @@
 import wx
-import dabo
-import dabo.dConstants as kons
+import dabo.dConstants as k
 import dabo.dColors as dColors
 
 
@@ -20,19 +19,16 @@ class dColorDialog(wx.ColourDialog):
 				except: pass
 			elif isinstance(color, tuple):
 				dat.SetColour(color)
-		
-		if parent is None:
-			parent = dabo.dAppRef.ActiveForm
 		super(dColorDialog, self).__init__(parent, data=dat)
 		self._selColor = None
 	
 
 	def show(self):
 		self._selColor = None
-		ret = kons.DLG_CANCEL
+		ret = k.DLG_CANCEL
 		res = self.ShowModal()
 		if res ==  wx.ID_OK:
-			ret = kons.DLG_OK
+			ret = k.DLG_OK
 			col = self.GetColourData().GetColour()
 			self._selColor = col.Red(), col.Green(), col.Blue()
 		return ret

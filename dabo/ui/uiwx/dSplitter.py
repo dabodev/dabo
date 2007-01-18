@@ -21,11 +21,11 @@ class SplitterPanelMixin:
 			return
 		evt.stop()
 		sm = dabo.ui.dMenu(self)
-		sm.append("Split this pane", OnHit=self.onSplit)
+		sm.append("Split this pane", bindfunc=self.onSplit)
 		if self.Parent.canRemove(self):
-			sm.append("Remove this pane", OnHit=self.onRemove)
+			sm.append("Remove this pane", bindfunc=self.onRemove)
 		if self.Parent.IsSplit():
-			sm.append("Switch Orientation", OnHit=self.onFlipParent)
+			sm.append("Switch Orientation", bindfunc=self.onFlipParent)
 		self.showContextMenu(sm)
 		
 

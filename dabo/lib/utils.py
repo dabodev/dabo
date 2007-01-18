@@ -193,14 +193,3 @@ def resolveAttributePathing(atts, pth=None):
 		atts[convKey] = relPath
 
 
-def resolvePath(val, pth=None):
-	"""Takes a single string value in the format Dabo uses to store pathing
-	in XML, and returns the original path relative to the specified path (or the
-	current directory, if no pth is specified).
-	"""
-	prfx = getPathAttributePrefix()
-	# Strip the path designator
-	val = val.replace(prfx, "")
-	# Convert to relative path
-	return relativePath(val, pth)
-

@@ -1,7 +1,8 @@
-import wx
-import dabo
+import wx, dabo, dabo.ui
+
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
+
 import dControlItemMixin as dcm
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -9,11 +10,12 @@ from dabo.dLocalize import _
 
 class dCheckListBox(dcm.dControlItemMixin, wx.CheckListBox):
 	"""Creates a listbox, allowing the user to choose one or more items
-	by checking/unchecking each one.
+	by checking/unchecking each one
 	"""
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dCheckListBox
 		self._choices = []
+
 		preClass = wx.PreCheckListBox
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
@@ -34,23 +36,10 @@ class dCheckListBox(dcm.dControlItemMixin, wx.CheckListBox):
 		
 		
 	def clearSelections(self):
-		"""Set all items to unchecked."""
+		"""Need to override for this control"""
 		for cnt in xrange(self.Count):
 			self.Check(cnt, False)
 
-
-	def selectAll(self):
-		"""Set all items to checked."""
-		for cnt in xrange(self.Count):
-			self.Check(cnt, True)
-
-
-	def invertSelections(self):
-		"""Switch all the items from False to True, and vice-versa."""
-		for cnt in xrange(self.Count):
-			self.Check(cnt, not self.IsChecked(cnt))
-		
-	
 
 	def setSelection(self, index):
 		if self.Count > index:
@@ -60,7 +49,6 @@ class dCheckListBox(dcm.dControlItemMixin, wx.CheckListBox):
 			##      and it is getting set before the Choice property has been applied.
 			##      If this is the case, callAfter is the ticket.
 			dabo.ui.callAfter(self.Check, index, True)
-	
 	
 	def _getMultipleSelect(self):
 		return True
@@ -85,6 +73,7 @@ class _dCheckListBox_test(dCheckListBox):
 			choices.append("%s %s" % (actor['fname'], actor['lname']))
 			keys[actor["iid"]] = len(choices) - 1
 
+#		self.MultipleSelect = True
 		self.Choices = choices
 		self.Keys = keys
 		self.ValueMode = 'Key'

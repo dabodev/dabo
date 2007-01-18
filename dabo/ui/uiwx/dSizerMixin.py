@@ -344,8 +344,6 @@ class dSizerMixin(dObject):
 		"""Given a sizer item, a property and a value, sets things as you
 		would expect. 
 		"""
-		if not itm:
-			return
 		if not isinstance(itm, (self.SizerItem, self.GridSizerItem)):
 			itm = itm.ControllingSizerItem
 		if val is None:
@@ -358,8 +356,7 @@ class dSizerMixin(dObject):
 			itm.SetProportion(int(val))
 			ret = True
 		elif lowprop == "border":
-			if itm.GetBorder() != int(val):
-				itm.SetBorder(int(val))
+			itm.SetBorder(int(val))
 			ret = True
 		elif lowprop == "rowexpand" and isinstance(self, dabo.ui.dGridSizer):
 			self.setRowExpand(val, row)
@@ -433,10 +430,9 @@ class dSizerMixin(dObject):
 			itm.SetFlag(flg)
 
 		try:
-			itm = self.Parent
+			self.Parent.layout()
 		except:
-			itm = self
-		dabo.ui.callAfterInterval(50, self._safeLayout, itm)
+			self.layout()
 		return ret
 	
 
@@ -445,17 +441,8 @@ class dSizerMixin(dObject):
 		applies them to the specified sizer item.
 		"""
 		for prop, val in props.items():
-			if itm:
-				self.setItemProp(itm, prop, val)
+			self.setItemProp(itm, prop, val)
 	
-	
-	def _safeLayout(self, itm):
-		if not itm:
-			return
-		try:
-			itm.layout()
-		except: pass
-		
 
 	def isContainedBy(self, obj):
 		"""Returns True if this the containership hierarchy for this control

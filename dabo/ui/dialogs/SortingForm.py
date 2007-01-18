@@ -66,6 +66,6 @@ if __name__ == "__main__":
 			dabo.ui.callAfter(self.release)
 	
 	app = dabo.dApp()
-	app.MainFormClass = DummyForm
+ 	app.MainFormClass = DummyForm
 	app.start()
 	

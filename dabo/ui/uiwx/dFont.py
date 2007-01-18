@@ -79,23 +79,19 @@ class dFont(dObject):
 
 	Bold = property(_getBold, _setBold, None,
 			_("Bold setting for this font  (bool)"))
-	FontBold = Bold
 	
 	Description = property(_getDescription, None, None,
 			_("Read-only plain text description of the font  (str)"))
 	
 	Face = property(_getFace, _setFace, None,
 			_("Name of the font face  (str)"))
-	FontFace = Face
 	
 	Italic = property(_getItalic, _setItalic, None,
 			_("Italic setting for this font  (bool)"))
-	FontItalic = Italic
 	
 	Size = property(_getSize, _setSize, None,
 			_("Size in points for this font  (int)"))
-	FontSize = Size
 	
 	Underline = property(_getUnderline, _setUnderline, None,
 			_("Underline setting for this font  (bool)"))
-	FontUnderline = Underline
+	

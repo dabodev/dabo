@@ -160,47 +160,7 @@ class uiApp(dObject, wx.App):
 		if self.callback is not None:
 			wx.CallAfter(self.callback)
 		del self.callback
-		self.Bind(wx.EVT_KEY_DOWN, self._onKeyPress)
 		return True
-	
-	
-	def _onKeyPress(self, evt):
-		if not self.ActiveForm:
-			evt.Skip()
-			return
-		alt = evt.AltDown()
-		ctl = evt.ControlDown()
-		kcd = evt.GetKeyCode()
-		uch = evt.GetUniChar()
-		uk = evt.GetUnicodeKey()
-		met = evt.MetaDown()
-		sh = evt.ShiftDown()
-		if alt or not ctl:
-			evt.Skip()
-			return
-		try:
-			char = chr(evt.GetKeyCode())
-		except (ValueError, OverflowError):
-			char = None
-		plus = (char == "=") or (char == "+") or (kcd == wx.WXK_NUMPAD_ADD)
-		minus = (char == "-") or (kcd == wx.WXK_NUMPAD_SUBTRACT)
-		slash = (char == "/") or (kcd == wx.WXK_NUMPAD_DIVIDE)
-		if not (plus or minus or slash):
-			evt.Skip()
-			return
-		settingName = "%s.zoomlevel" % self.ActiveForm.Name
-		currZoom = self.dApp.getUserSetting(settingName, 0)
-		if plus:
-			self.ActiveForm.iterateCall("increaseFontSize")
-			currZoom += 1
-		elif minus:
-			self.ActiveForm.iterateCall("decreaseFontSize")
-			currZoom -= 1
-		else:
-			# Set back to zero zoom
-			self.ActiveForm.iterateCall("decreaseFontSize", currZoom)
-			currZoom = 0
-		self.dApp.setUserSetting(settingName, currZoom)
 
 
 	def setup(self):
@@ -771,7 +731,7 @@ class uiApp(dObject, wx.App):
 			lnks = {}
 			fncs = self._mruMenuFuncs.get(cap, {})
 			for pos, txt in enumerate(mnPrm):
-				itm = menu.append(tmplt % (pos+1, txt), OnHit=fncs.get(txt, None))
+				itm = menu.append(tmplt % (pos+1, txt), bindfunc=fncs.get(txt, None))
 				lnks[itm.GetId()] = itm
 			self._mruMenuLinks[menu] = lnks
 	

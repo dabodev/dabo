@@ -25,7 +25,6 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 	Dabo visual control, such as a dPanel, dEditBox, etc.
 	"""
 	_evtPageChanged = readonly(wx.EVT_NOTEBOOK_PAGE_CHANGED)
-	_evtPageChanging = readonly(wx.EVT_NOTEBOOK_PAGE_CHANGING)
 	_tabposBottom = readonly(wx.NB_BOTTOM)
 	_tabposRight = readonly(wx.NB_RIGHT)
 	_tabposLeft = readonly(wx.NB_LEFT)
@@ -49,7 +48,6 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 
 class dPageList(dPageFrameMixin, wx.Listbook):
 	_evtPageChanged = readonly(wx.EVT_LISTBOOK_PAGE_CHANGED)
-	_evtPageChanging = readonly(wx.EVT_LISTBOOK_PAGE_CHANGING)
 	_tabposBottom = readonly(wx.LB_BOTTOM)
 	_tabposRight = readonly(wx.LB_RIGHT)
 	_tabposLeft = readonly(wx.LB_LEFT)
@@ -95,7 +93,6 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 
 class dPageSelect(dPageFrameMixin, wx.Choicebook):
 	_evtPageChanged = readonly(wx.EVT_CHOICEBOOK_PAGE_CHANGED)
-	_evtPageChanging = readonly(wx.EVT_CHOICEBOOK_PAGE_CHANGING)
 	_tabposBottom = readonly(wx.CHB_BOTTOM)
 	_tabposRight = readonly(wx.CHB_RIGHT)
 	_tabposLeft = readonly(wx.CHB_LEFT)

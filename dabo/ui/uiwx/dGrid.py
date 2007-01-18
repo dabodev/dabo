@@ -1,12 +1,10 @@
 # -*- coding: utf-8 -*-
-import copy
 import sys
 import datetime
 import locale
 import operator
 import wx
 import wx.grid
-from wx._core import PyAssertionError
 import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -109,12 +107,14 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			
 	def setColumns(self, colDefs):
 		"""Create columns based on passed list of column definitions."""
-		if colDefs == self.colDefs:
-			# Already done, no need to take the time.
-			return
+		# Column order should already be in the definition. If there is a custom
+		# setting by the user, override it.
 
-		app = self.grid.Application
-		form = self.grid.Form
+		# See if the defs have changed. If not, update any column info,
+		# and return. If so, clear the data to force a re-draw of the table.
+		if colDefs == self.colDefs:
+			self.setColumnInfo()
+			return
 
 		for idx, col in enumerate(colDefs):
 			nm = col.DataField
@@ -124,6 +124,8 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				if nm in colDefs:
 					nm = ""
 			colName = "Column_%s" % nm
+			app = self.grid.Application
+			form = self.grid.Form
 
 			pos = col._getUserSetting("Order")
 			if pos is not None:
@@ -163,12 +165,17 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			if col.Order < 0:
 				col.Order = num
 		colDefs.sort(self.orderSort)
-		self.colDefs = copy.copy(colDefs)
+		self.colDefs = colDefs
+		self.setColumnInfo()
 	
 	def orderSort(self, col1, col2):
 		return cmp(col1.Order, col2.Order)
 		
 		
+	def setColumnInfo(self):
+		self.colDefs.sort(self.orderSort)
+
+
 	def convertType(self, typ):
 		"""Convert common types, names and abbreviations for 
 		data types into the constants needed by the wx.grid.
@@ -456,7 +463,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.longEditorClass = wx.grid.GridCellNumberEditor
 		self.decimalEditorClass = wx.grid.GridCellNumberEditor
 		self.floatEditorClass = wx.grid.GridCellFloatEditor
-		self.listEditorClass = wx.grid.GridCellChoiceEditor		
+ 		self.listEditorClass = wx.grid.GridCellChoiceEditor		
 #		self.listEditorClass = GridListEditor
 		
 		self.defaultRenderers = {
@@ -506,50 +513,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self.Parent.removeColumn(self)
 		except:
 			pass
-
-
-	def iterateCall(self, funcName, *args, **kwargs):
-		"""Call the given function on this object and all of its Children. If
-		any object does not have the given function, no error is raised; it
-		is simply ignored. This is copied from dPemMixin, since dColumn
-		doesn't inherit from dPemMixin, and it is needed for the iterations
-		to work across grids.
-		"""
-		ok = True
-		try:
-			fnc = eval("self.%s" % funcName)
-		except AttributeError:
-			ok = False
-		if ok:
-			fnc(*args, **kwargs)
-	
-
-	def increaseFontSize(self, val=None):
-		"""Increase the font size by the specified amount for both the column
-		and its header.
-		"""
-		if val is None:
-			val = 1
-		self._changeFontSize(val)
-	def decreaseFontSize(self, val=None):
-		if val is None:
-			val = -1
-		else:
-			val = -1 * val
-		self._changeFontSize(val)
-	def _changeFontSize(self, val):
-		try:
-			self.FontSize += val
-		except PyAssertionError:
-			# This catches invalid point sizes
-			pass
-		try:
-			self.HeaderFontSize += val
-		except PyAssertionError:
-			# This catches invalid point sizes
-			pass
-		if self.Form is not None:
-			dabo.ui.callAfterInterval(200, self.Form.layout)
 
 
 	def _setEditor(self, row):
@@ -1772,6 +1735,18 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		
 	def fillGrid(self, force=False):
 		""" Refresh the grid to match the data in the data set."""
+		# Save the focus, if any
+		currFocus = self.FindFocus()
+		currDataField = None
+		# if the current focus is data-aware, we must temporarily remove it's binding
+		# or the value of the control will flow to other records in the bizobj, but
+		# I admit that I'm not entirely sure why. 
+		if currFocus:
+			try:
+				currDataField = currFocus.DataField
+				currFocus.DataField = ""
+			except AttributeError:
+				pass
 
 		# Get the default row size from dApp's user settings
 		rowSize = self._getUserSetting("RowSize")
@@ -1784,6 +1759,32 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._addEmptyRows()
 		tbl.setColumns(self.Columns)
 		tbl.fillTable(force)
+
+		## pkm: I've disabled the following block, because setting the focus
+		##      can steal focus from the active form. It also doesn't seem 
+		##      right to have this code here...
+		if False and force:
+			row = max(0, self.CurrentRow)
+			col = max(0, self.CurrentColumn)
+			if "linux" in sys.platform:
+				# Needed on Linux to get the grid to have the focus,
+				# but on windows this is deadly:
+				for window in self.Children:
+					window.SetFocus()
+			# Needed on win and mac to get the grid to have the focus:
+			self.GetGridWindow().SetFocus()
+			if  not self.IsVisible(row, col):
+				self.MakeCellVisible(row, col)
+				self.MakeCellVisible(row, col)
+			self.SetGridCursor(row, col)
+		
+		if currFocus is not None:
+			# put the data binding back and re-set the focus:
+			try:
+				currFocus.setFocus()
+				currFocus.DataField = currDataField
+				currFocus.refresh()
+			except: pass
 
 		if not self._sortRestored:	
 			dabo.ui.callAfter(self._restoreSort)
@@ -2670,11 +2671,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._syncColumnCount()
 		self._syncRowCount()
 		super(dGrid, self).refresh()
-	
-	
-	def update(self):
-		super(dGrid, self).update()
-		self.fillGrid()
 
 
 	def _getWxHeader(self):
@@ -2892,9 +2888,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.autoSizeCol(self.getColNumByX(self._headerMousePosition[0]), persist=True)
 		def _autosizeAllColumns(evt):
 			self.autoSizeCol("All")
-		menu.append(_("&Autosize Column"), OnHit=_autosizeColumn, 
+		menu.append(_("&Autosize Column"), bindfunc=_autosizeColumn, 
 				help=_("Autosize the column based on the data in the column."))
-		menu.append(_("&Autosize All Columns"), OnHit=_autosizeAllColumns, 
+		menu.append(_("&Autosize All Columns"), bindfunc=_autosizeAllColumns, 
 				help=_("Autosize all columns in the grid."))
 
 		menu = self.fillHeaderContextMenu(menu)
@@ -3044,50 +3040,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	##        end: dEvent callbacks for internal use            ##
 	##----------------------------------------------------------##
 
-	
-	def _calcRanges(self, seq, rowOrCol):
-		startPoints = []
-		nextVal = -1
-		maxIdx = len(seq)-1
-		for idx,pt in enumerate(seq):
-			if idx == 0:
-				startPoints.append(pt)
-				nextVal = pt+1
-			else:
-				if pt == nextVal:
-					nextVal += 1
-				else:
-					startPoints.append(pt)
-					nextVal = pt+1
-		
-		endPoints = []
-		for pt in startPoints:
-			idx = seq.index(pt)
-			if idx == maxIdx:
-				endPoints.append(pt)
-			else:
-				found = False
-				while idx < maxIdx:
-					if seq[idx+1] == pt + 1:
-						idx += 1
-						pt += 1
-					else:
-						endPoints.append(pt)
-						found = True
-						break
-				if not found:
-					endPoints.append(pt)
-		
-		if rowOrCol.lower()[0] == "r":
-			cols = self.ColumnCount
-			rangeStart = [(r, 0) for r in startPoints]
-			rangeEnd = [(r, cols) for r in endPoints]
-		else:
-			rows = self.RowCount
-			rangeStart = [(0, c) for c in startPoints]
-			rangeEnd = [(rows, c) for c in endPoints]
-		return zip(rangeStart, rangeEnd)
-	
+
 	##----------------------------------------------------------##
 	##      begin: wx callbacks to re-route to dEvents          ##
 	##----------------------------------------------------------##
@@ -3108,94 +3061,66 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			evt.Skip()
 			
 	
-	def __onWxGridSelectCell(self, evt):
-		if getattr(self, "_inSelect", False):
-			# Avoid recursion
-			return
-		self._inSelect = True
-		if evt.Selecting():
-			self._updateWxSelection(evt)
-		self.raiseEvent(dEvents.GridCellSelected, evt)
-		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
-		evt.Skip()
-		self._inSelect = False
-
-
 	def __onWxGridRangeSelect(self, evt):
 		if self._inRangeSelect:
 			# avoid recursive events
 			return
 		self._inRangeSelect = True
-		if evt.Selecting():
-			self._updateWxSelection(evt)
 		self.raiseEvent(dEvents.GridRangeSelected, evt)
+		if not self.MultipleSelection and evt.Selecting():
+			origRow, origCol = self.CurrentRow, self.CurrentColumn
+			try:
+				mode = self.GetSelectionMode()
+				top, bott = evt.GetTopRow(), evt.GetBottomRow()
+				left, right = evt.GetLeftCol(), evt.GetRightCol()
+				if mode == wx.grid.Grid.wxGridSelectRows:
+					if (top != bott) or (top != origCol):
+						# Attempting to select a range
+						if top == origRow:
+							row = bott
+						else:
+							row = top
+						self.SetGridCursor(row, self._lastCol)
+				elif mode == wx.grid.Grid.wxGridSelectColumns:
+					if (left != right) or (left != origCol):
+						# Attempting to select a range
+						if left == origCol:
+							col = right
+						else:
+							col = left
+						self.SetGridCursor(self._lastRow, col)
+				else:
+					# Cells
+					chg = False
+					row, col = origRow, origCol
+					if top != bott:
+						chg = True
+						if top == origRow:
+							row = bott
+						else:
+							row = top
+					elif top != origRow:
+						# New row
+						chg = True
+						row = top
+					if left != right:
+						chg = True
+						if left == origCol:
+							col = right
+						else:
+							col = left
+					elif left != origCol:
+						# New col
+						chg = True
+						col = left
+					if chg:
+						self.SetGridCursor(row, col)
+						self.SelectBlock(row, col, row, col)
+			except: pass				
 		evt.Skip()
 		self._inRangeSelect = False
 		
-	
-	def _updateWxSelection(self, evt):
-		if self.MultipleSelection:
-			# Nothing to do
-			return
-		origRow, origCol = self.CurrentRow, self.CurrentColumn
-		mode = self.GetSelectionMode()
-		try:
-			top, bott = evt.GetTopRow(), evt.GetBottomRow()
-		except AttributeError:
-			top = bott = evt.GetRow()
-		try:
-			left, right = evt.GetLeftCol(), evt.GetRightCol()
-		except AttributeError:
-			left = right = evt.GetCol()
-		try:
-			if mode == wx.grid.Grid.wxGridSelectRows:
-				if (top != bott) or (top != origCol):
-					# Attempting to select a range
-					if top == origRow:
-						row = bott
-					else:
-						row = top
-					self.SetGridCursor(row, self._lastCol)
-					self.SelectRow(row)
-			elif mode == wx.grid.Grid.wxGridSelectColumns:
-				if (left != right) or (left != origCol):
-					# Attempting to select a range
-					if left == origCol:
-						col = right
-					else:
-						col = left
-					self.SetGridCursor(self._lastRow, col)
-					self.SelectCol(col)
-			else:
-				# Cells
-				chg = False
-				row, col = origRow, origCol
-				if top != bott:
-					chg = True
-					if top == origRow:
-						row = bott
-					else:
-						row = top
-				elif top != origRow:
-					# New row
-					chg = True
-					row = top
-				if left != right:
-					chg = True
-					if left == origCol:
-						col = right
-					else:
-						col = left
-				elif left != origCol:
-					# New col
-					chg = True
-					col = left
-				if chg:
-					self.SetGridCursor(row, col)
-					self.SelectBlock(row, col, row, col)
-		except: pass
-
-
+		
 	def __onWxGridEditorShown(self, evt):
 		self.raiseEvent(dEvents.GridCellEditBegin, evt)
 		evt.Skip()
@@ -3230,6 +3155,21 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		else:
 			self.raiseEvent(dEvents.GridRowSize, evt)
 			evt.Skip()
+
+
+	def __onWxGridSelectCell(self, evt):
+		self.raiseEvent(dEvents.GridCellSelected, evt)
+		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
+		try:
+			mode = self.GetSelectionMode()
+			if mode == wx.grid.Grid.wxGridSelectRows:
+				self.SelectRow(evt.GetRow())
+			elif mode == wx.grid.Grid.wxGridSelectColumns:
+				self.SelectCol(evt.GetCol())
+		except wx._core.PyAssertionError:
+			# No table yet
+			pass
+		evt.Skip()
 
 
 	def __onWxHeaderContextMenu(self, evt):
@@ -3388,7 +3328,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _setAlternateRowColoring(self, val):
 		self._alternateRowColoring = val
 		self.setTableAttributes(self._Table)
-		self.Refresh()
 
 
 	def _getCellHighlightWidth(self):
@@ -3836,55 +3775,50 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		
 
 	def _getSelection(self):
-		ret = []
 		sm = self._selectionMode
 		tl = self.GetSelectionBlockTopLeft()
+		if tl:
+			tl = tl[0]
 		br = self.GetSelectionBlockBottomRight()
-		cols = self.GetSelectedCols()
-		rows = self.GetSelectedRows()
-		cells = self.GetSelectedCells()
-		
+		if br:
+			br = br[0]
 		if sm == "Row":
-			ret = rows
-			# See if anything is returned by the block functions
-			if tl and br:
-				for tlz, brz in zip(tl, br):
-					r1 = tlz[0]
-					r2 = brz[0]
-					ret += range(r1, r2+1)
+			ret = self.GetSelectedRows()
 			if not ret:
-				# Only a single cell selected
-				ret = [self.GetGridCursorRow()]
-
+				# Try the block functions
+				if tl and br:
+					r1 = tl[0]
+					r2 = br[0]
+					ret = range(r1, r2+1)
+				else:
+					# Only a single cell selected
+					ret = [self.GetGridCursorRow()]
 		elif sm == "Col":
-			ret = cols
-			# See if anything is returned by the block functions
-			if tl and br:
-				for tlz, brz in zip(tl, br):
-					c1 = tlz[1]
-					c2 = brz[1]
-					ret += range(c1, c2+1)
+			ret = self.GetSelectedCols()
 			if not ret:
-				# Only a single cell selected
-				ret = [self.GetGridCursorCol()]
-
+				# Try the block functions
+				if tl and br:
+					c1 = tl[1]
+					c2 = br[1]
+					ret = range(c1, c2+1)
+				else:
+					# Only a single cell selected
+					ret = [self.GetGridCursorCol()]
 		else:
 			# Cell selection mode
 			if tl and br:
-				ret = zip(tl, br)
-			# Add any selected rows
-			if rows:
-				ret += self._calcRanges(rows, "Rows")
-			# Add any selected columns
-			if cols:
-				ret += self._calcRanges(cols, "Cols")
-			
-			if not ret:
+				ret = (tl, br)
+			else:
 				cell = (self.GetGridCursorRow(), self.GetGridCursorCol()) 
-				ret = [(cell, cell)]
-		ret.sort()
+				ret = (cell, cell)
 		return ret
 		
+# 	def _setSelection(self, val):
+# 		if self._constructed():
+# 			self._selection = val
+# 		else:
+# 			self._properties["Selection"] = val
+
 
 	def _getSelectionBackColor(self):
 		return self._selectionBackColor
@@ -4171,15 +4105,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				be used.""") )
 	
 	Selection = property(_getSelection, None, None,
-			_("""Returns either a list of row/column numbers if SelectionMode is set to 
-			either 'Row' or 'Column'. If SelectionMode is 'Cell', returns a list of 2-tuples, 
-			where each 2-tuple represents a selected range of cells: the top-left and 
-			bottom-right coordinates for a given range. If only a single cell is selected, 
-			there will be only one 2-tuple in the list, with both values being the same. 
-			If a continuous block of cells is selected, there will be only one 2-tuple in the 
-			list, but the values will differ. If more than one discontinuous range is selected, 
-			there will be as many 2-tuples as there are range blocks.  (list)"""))
-				
+			_("""Returns either a list of row/column numbers if SelectionMode is set to
+			either 'Row' or 'Column'. Returns a 2-tuple consisting of the (row,col) 2-tuples
+			for the top-left and bottom-right cells in the selection. If only a single cell is
+			selected, both values will be the same. (list)"""))
+	
 	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
 			_("BackColor of selected cells  (str or RGB tuple)"))
 	
