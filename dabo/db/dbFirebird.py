@@ -88,7 +88,7 @@ class Firebird(dBackend):
 		if includeSystemTables:
 			whereClause = ''
 		else:
-			whereClause = "where rdb$relation_name not like 'RDB$%' "
+			whereClause = "where rdb$relation_name not starting with 'RDB$' "
 			
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("select rdb$relation_name from rdb$relations "
