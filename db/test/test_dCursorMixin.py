@@ -289,9 +289,9 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, db_tests["firebird"]):
 	##       I intend to set up a test server, but don't know when it will 
 	##       actually occur.
 	def setUp(self):
-		con = dabo.db.dConnection(DbType="Firebird", User="dabo_unittest", 
-				password="T30T35DB4K30Z45I67N60", Database="dabo_unittest",
-				Host="paulmcnett.com")
+		con = dabo.db.dConnection(DbType="Firebird", User="dabotester", 
+				password="Y57W8EN6CB06KBCCDCX01D6B", Database="dabo_unittest",
+				Host="dabodev.com")
 		self.cur = con.getDaboCursor()
 		self.temp_table_name = "dabo_unittest_tbl"
 		self.jobid = self.get_jobid()
