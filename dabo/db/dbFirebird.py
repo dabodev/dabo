@@ -13,7 +13,13 @@ class Firebird(dBackend):
 		import kinterbasdb
 		initialized = getattr(kinterbasdb, "initialized", None)
 		if not initialized:
-			kinterbasdb.init(type_conv=200)
+			if initialized is None:
+				# type_conv=200 KeyError with the older versions. User will need 
+				# mxDateTime installed as well:
+				kinterbasdb.init()
+			else:
+				# Use Python's Decimal and datetime types:
+				kinterbasdb.init(type_conv=200)
 			if initialized is None:
 				# Older versions of kinterbasedb didn't have this attribute, so we write
 				# it ourselves:
