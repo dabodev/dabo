@@ -1,7 +1,7 @@
 See the Subversion log for all the details.
 
 ===============================================================================
-Dabo 0.7.2 (2007-01-15) (Revision 2683):
+Dabo 0.7.2 (2007-01-18) (Revision 2716):
 
 Additions, all minor, backported to stable only to keep compatibility with the 
 stable versions of daboide and/or dabodemo:
@@ -12,6 +12,8 @@ stable versions of daboide and/or dabodemo:
 Bug Fixes:
 + Fixed the stable branch to work with wxPython 2.7 and 2.8, which was a fairly
   large backport of relevant changes from the development trunk.
++ Fixed a form activation problem that would happen in some cases on Windows, 
+  particularly with the Class Designer.
 + Fixed incremental search in dGrid, which was broken by earlier unicode fixes.
 + dBizobj.onSaveNew() user hook never being called. Fixed.
 + Fixed but in dUserSettingProvider if setting/retrieving nested settings.

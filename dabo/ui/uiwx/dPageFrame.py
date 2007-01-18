@@ -25,6 +25,7 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 	Dabo visual control, such as a dPanel, dEditBox, etc.
 	"""
 	_evtPageChanged = readonly(wx.EVT_NOTEBOOK_PAGE_CHANGED)
+	_evtPageChanging = readonly(wx.EVT_NOTEBOOK_PAGE_CHANGING)
 	_tabposBottom = readonly(wx.NB_BOTTOM)
 	_tabposRight = readonly(wx.NB_RIGHT)
 	_tabposLeft = readonly(wx.NB_LEFT)
@@ -45,21 +46,10 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 		super(dPageFrame, self)._afterInit()
 
 
-class _dPageFrame_test(dPageFrame):
-	def initProperties(self):
-		self.Width = 400
-		self.Height = 175
-	
-	def afterInit(self):
-		self.appendPage(caption="Introduction")
-		self.appendPage(caption="Chapter I")
-	
-	def onPageChanged(self, evt):
-		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
-
 
 class dPageList(dPageFrameMixin, wx.Listbook):
 	_evtPageChanged = readonly(wx.EVT_LISTBOOK_PAGE_CHANGED)
+	_evtPageChanging = readonly(wx.EVT_LISTBOOK_PAGE_CHANGING)
 	_tabposBottom = readonly(wx.LB_BOTTOM)
 	_tabposRight = readonly(wx.LB_RIGHT)
 	_tabposLeft = readonly(wx.LB_LEFT)
@@ -105,6 +95,7 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 
 class dPageSelect(dPageFrameMixin, wx.Choicebook):
 	_evtPageChanged = readonly(wx.EVT_CHOICEBOOK_PAGE_CHANGED)
+	_evtPageChanging = readonly(wx.EVT_CHOICEBOOK_PAGE_CHANGING)
 	_tabposBottom = readonly(wx.CHB_BOTTOM)
 	_tabposRight = readonly(wx.CHB_RIGHT)
 	_tabposLeft = readonly(wx.CHB_LEFT)
@@ -133,8 +124,60 @@ class dPageSelect(dPageFrameMixin, wx.Choicebook):
 		dd.AppendItems(choices)
 		dd.SetSelection(pos)
 		
+
+import random
+class _dPageFrame_test(dPageFrame):
+	def initProperties(self):
+		self.Width = 400
+		self.Height = 175
+		self.TabPosition = random.choice(("Top", "Bottom", "Left", "Right"))
+	
+	def afterInit(self):
+		self.appendPage(caption="Introduction")
+		self.appendPage(caption="Chapter I")
+		self.Pages[0].BackColor = "darkred"
+		self.Pages[1].BackColor = "darkblue"
+	
+	def onPageChanged(self, evt):
+		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
+
+
+class _dPageList_test(dPageList):
+	def initProperties(self):
+		self.Width = 400
+		self.Height = 175
+		self.TabPosition = random.choice(("Top", "Bottom", "Left", "Right"))
+	
+	def afterInit(self):
+		self.appendPage(caption="Introduction")
+		self.appendPage(caption="Chapter I")
+		self.Pages[0].BackColor = "darkred"
+		self.Pages[1].BackColor = "darkblue"
+	
+	def onPageChanged(self, evt):
+		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
+
+
+class _dPageSelect_test(dPageSelect):
+	def initProperties(self):
+		self.Width = 400
+		self.Height = 175
+		self.TabPosition = random.choice(("Top", "Bottom", "Left", "Right"))
+	
+	def afterInit(self):
+		self.appendPage(caption="Introduction")
+		self.appendPage(caption="Chapter I")
+		self.Pages[0].BackColor = "darkred"
+		self.Pages[1].BackColor = "darkblue"
+	
+	def onPageChanged(self, evt):
+		print "Page number changed from %s to %s" % (evt.oldPageNum, evt.newPageNum)
+
+
 		
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dPageFrame_test)
+	test.Test().runTest(_dPageList_test)
+	test.Test().runTest(_dPageSelect_test)
 

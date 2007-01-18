@@ -117,6 +117,9 @@ pysqlite2: http://initd.org/tracker/pysqlite
 """	
 		sys.exit(msg)
 
+# dApp will change the following values upon its __init__:
+dAppRef = None
+
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
 from dabo.lib.logger import Log
@@ -130,9 +133,6 @@ errorLog.LogObject = sys.stderr
 # Import global settings (do this first, as other imports may rely on it):
 from settings import *
 
-# dApp will change the following values upon its __init__:
-dAppRef = None
-
 from __version__ import version
 import dColors
 import dEvents
@@ -144,3 +144,7 @@ trace = pdb.set_trace
 from dApp import dApp
 from dPref import dPref
 
+# Make sure dabo.db, dabo.biz, and dabo.ui are imported:
+import dabo.db
+import dabo.biz
+import dabo.ui

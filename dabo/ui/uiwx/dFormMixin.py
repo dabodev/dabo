@@ -30,6 +30,11 @@ class dFormMixin(pm.dPemMixin):
 		if self._cxnName == "None":
 			self._cxnName = ""
 		self._connection = None
+		# Extract the menu definition file, if any
+		self._menuBarFile = self._extractKey((properties, attProperties, kwargs), 
+				"MenuBarFile", "")
+		if self._menuBarFile:
+			self._menuBarClass = self._menuBarFile
 		
 		if False and parent:
 			## pkm 3/10/05: I like it better now without the float on parent option
@@ -71,8 +76,12 @@ class dFormMixin(pm.dPemMixin):
 		
 
 	def _afterInit(self):
-		if self.Application and self.MenuBarClass and self.ShowMenuBar:
-			self.MenuBar = self.MenuBarClass()
+		mbc = self.MenuBarClass
+		if self.Application and mbc and self.ShowMenuBar:
+			if isinstance(mbc, basestring):
+				self.MenuBar = dabo.ui.createMenuBar(mbc, self)
+			else:
+				self.MenuBar = mbc()
 			self.afterSetMenuBar()
 
 		if not self.Icon:
@@ -128,6 +137,16 @@ class dFormMixin(pm.dPemMixin):
 				# Skip the first activate (Windows)
 				self._skipActivate = False
 			else:
+				# Restore the saved size and position, which can't happen 
+				# in __init__ because we may not have our name yet.
+				try:
+					restoredSP = self.restoredSP
+				except:
+					restoredSP = False
+				if not restoredSP:
+					if self.SaveRestorePosition:
+						self.restoreSizeAndPosition()
+				
 				self.raiseEvent(dEvents.Activate, evt)
 				self._skipActivate = (self.Application.Platform == "Win")
 		else:
@@ -136,16 +155,6 @@ class dFormMixin(pm.dPemMixin):
 			
 			
 	def __onActivate(self, evt): 
-		# Restore the saved size and position, which can't happen 
-		# in __init__ because we may not have our name yet.
-		try:
-			restoredSP = self.restoredSP
-		except:
-			restoredSP = False
-		if not restoredSP:
-			if self.SaveRestorePosition:
-				self.restoreSizeAndPosition()
-		
 		# If the ShowStatusBar property was set to True, this will create it
 		sb = self.StatusBar
 		# If the ShowToolBar property was set to True, this will create it
@@ -339,7 +348,8 @@ class dFormMixin(pm.dPemMixin):
 		""" Restore the saved window geometry for this form.
 
 		Ask dApp for the last saved setting of height, width, left, and top, 
-		and set those properties on this form.
+		and set those properties on this form. Also, if there was a font zoom
+		defined for this form, restore it.
 		"""
 		if self.Application and self.SaveRestorePosition:
 			name = self.getAbsoluteName()
@@ -348,6 +358,7 @@ class dFormMixin(pm.dPemMixin):
 			width = self.Application.getUserSetting("%s.width" % name)
 			height = self.Application.getUserSetting("%s.height" % name)
 			state = self.Application.getUserSetting("%s.windowstate" % name)
+			zoom = self.Application.getUserSetting("%s.zoomlevel" % name)
 
 			if isinstance(left, int) and isinstance(top, int):
 				self.Position = (left,top)
@@ -358,6 +369,9 @@ class dFormMixin(pm.dPemMixin):
 				if state == "Minimized":
 					state = "Normal"
 				self.WindowState = state
+				
+			if zoom:
+				dabo.ui.callAfter(self.iterateCall, "_changeFontSize", zoom)
 			self.restoredSP = True
 
 
@@ -431,21 +445,13 @@ class dFormMixin(pm.dPemMixin):
 	
 	
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
-		menu.append(caption, bindfunc=function, bmp=bitmap)
+		menu.append(caption, OnHit=function, bmp=bitmap)
 
 
-	def appendToolBarButton(self, name, pic, bindfunc=None, toggle=False, tip="", help=""):
+	def appendToolBarButton(self, name, pic, bindfunc=None, toggle=False, 
+			tip="", help="", *args, **kwargs):
 		self.ToolBar.appendButton(name, pic, bindfunc=bindfunc, toggle=toggle, 
-				tip=tip, help=help)
-# 	def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):
-# 		toolId = wx.NewId()
-# 		toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
-# 
-# 		if isinstance(self, wx.MDIChildFrame):
-# 			controllingFrame = self.Application.MainForm
-# 		else:
-# 			controllingFrame = self
-# 		wx.EVT_MENU(controllingFrame, toolId, function)
+				tip=tip, help=help, *args, **kwargs)
 
 
 	# property get/set/del functions follow:
@@ -597,6 +603,16 @@ class dFormMixin(pm.dPemMixin):
 	def _setMenuBarClass(self, val):
 		self._menuBarClass = val
 		
+
+	def _getMenuBarFile(self):
+		return self._menuBarFile
+
+	def _setMenuBarFile(self, val):
+		if self._constructed():
+			self._menuBarFile = self._menuBarClass = val
+		else:
+			self._properties["MenuBarFile"] = val
+
 
 	def _getSaveRestorePosition(self):
 		try:
@@ -863,6 +879,9 @@ class dFormMixin(pm.dPemMixin):
 	MenuBarClass = property(_getMenuBarClass, _setMenuBarClass, None,
 			_("Specifies the menu bar class to use for the form, or None."))
 
+	MenuBarFile = property(_getMenuBarFile, _setMenuBarFile, None,
+			_("Path to the .mnxml file that defines this form's menu bar  (str)"))
+	
 	SaveRestorePosition = property(_getSaveRestorePosition, 
 			_setSaveRestorePosition, None,
 			_("""Specifies whether the form's position and size as set by the user

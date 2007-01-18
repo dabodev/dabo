@@ -1,3 +1,4 @@
+import warnings
 import wx
 import dPemMixin as pm
 import dMenuItem
@@ -166,50 +167,67 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		return self.PrependSeparator()
 	
 
-	def append(self, caption, bindfunc=None, help="", bmp=None, menutype="", 
-				**kwargs):
+	def append(self, caption, bindfunc=None, help="", bmp=None, picture=None,
+			menutype="", *args, **kwargs):
 		"""Append a dMenuItem with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
+		
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(bindfunc, help, bmp, menutype, **kwargs)
+		if picture is None:
+			picture = bmp
+		item = self._getItem(bindfunc, help, picture, menutype, *args, **kwargs)
 		self.appendItem(item)
 		item.Caption = caption
 		return item
 		
 	
-	def insert(self, pos, caption, bindfunc=None, help="", bmp=None, menutype=""):
+	def insert(self, pos, caption, bindfunc=None, help="", bmp=None, picture=None,
+			menutype="", *args, **kwargs):
 		"""Insert a dMenuItem at the given position with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
 
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
+
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(bindfunc, help, bmp, menutype)
+		if picture is None:
+			picture = bmp
+		item = self._getItem(bindfunc, help, picture, menutype, *args, **kwargs)
 		self.insertItem(pos, item)
 		item.Caption = caption
 		return item
 		
 
-	def prepend(self, caption, bindfunc=None, help="", bmp=None, menutype=""):
+	def prepend(self, caption, bindfunc=None, help="", bmp=None, picture=None,
+			menutype="", *args, **kwargs):
 		"""Prepend a dMenuItem with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
 
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
+
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(bindfunc, help, bmp, menutype)
+		if picture is None:
+			picture = bmp
+		item = self._getItem(bindfunc, help, picture, menutype, *args, **kwargs)
 		self.prependItem(item)
 		item.Caption = caption
 		return item
@@ -244,22 +262,34 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			self.remove(0)
 	
 	
-	def setCheck(self, cap, unCheckOthers=True):
-		"""When using checkmark-type menus, passing the
-		caption of the item you want checked to this method 
+	def setItemCheck(self, itm, val):
+		"""Pass a menu item and a boolean value, and the checked
+		state of that menu item will be set accordingly.
+		"""
+		itm.Check(val)
+		
+		
+		
+	def setCheck(self, capOrItem, unCheckOthers=True):
+		"""When using checkmark-type menus, passing the item or
+		the caption of the item you want checked to this method 
 		will check that item. If unCheckOthers is True, non-
 		matching items will be unchecked.
 		"""
+		if isinstance(capOrItem, basestring):
+			target = self.getItem(capOrItem)
+		else:
+			target = capOrItem
 		for itm in self.Children:
-			if itm.GetText() == cap:
+			if itm is target:
 				try:
-					itm.Check(True)
+					itm.Checked =True
 				except:
 					pass
 			else:
 				if unCheckOthers:
 					try:
-						itm.Check(False)
+						itm.Checked = False
 					except:
 						pass
 	
@@ -276,19 +306,24 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		else:
 			itm = capOrItem
 		if itm is not None and itm.IsCheckable():
-			ret = itm.IsChecked()
+			ret = itm.Checked
 		else:
 			ret = None
 		return ret
 		
 			
-	def _getItem(self, bindfunc, help, icon, menutype, **kwargs):
+	def _getItem(self, bindfunc, help, icon, menutype, *args, **kwargs):
+		if bindfunc is not None:
+			warnings.warn(_("Deprecated; use 'OnHit=<func>' instead."), 
+					DeprecationWarning, 1)
 		itmtyp = self._getItemType(menutype)
 		itmid = self._getItemID(menutype)
 		if itmid != wx.ID_DEFAULT:
 			kwargs["id"] = itmid
-		itm = dMenuItem.dMenuItem(self, HelpText=help, Icon=icon, 
-				kind=itmtyp, **kwargs)
+		cls = {NormalItemType: dMenuItem.dMenuItem,
+				CheckItemType: dMenuItem.dCheckMenuItem,
+				RadioItemType: dMenuItem.dRadioMenuItem}[itmtyp]
+		itm = cls(self, HelpText=help, Icon=icon, kind=itmtyp, *args, **kwargs)
 		if bindfunc:
 			itm.bindEvent(dEvents.Hit, bindfunc)
 		return itm

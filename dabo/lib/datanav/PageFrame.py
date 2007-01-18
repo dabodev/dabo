@@ -30,6 +30,15 @@ class PageFrameMixin(object):
 		#super(self.__class__, self).initProperties()
 		self._pageStyleClass.initProperties(self)
 		
+	
+	def beforePageChange(self, fromPage, toPage):
+		"""If there are no records, don't let them go to Pages 1 or 2."""
+		if toPage != 0:
+			if self.Form.PrimaryBizobj.RowCount == 0:
+				self.SelectedPageNumber = 0
+				self.Form.StatusText = "No records available"
+				return False		
+		
 		
 	def addDefaultPages(self):
 		""" Add the standard pages to the pageframe.

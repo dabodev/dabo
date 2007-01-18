@@ -214,9 +214,10 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 	# property definitions follow:
 	Alignment = property(_getAlignment, _setAlignment, None,
 			_("""Specifies the alignment of the text. (str)
-			   Left (default)
-			   Center
-			   Right"""))
+
+			Left (default)
+			Center
+			Right"""))
 
 	ForceCase = property(_getForceCase, _setForceCase, None,
 			_("""Determines if we change the case of entered text. Possible values are:

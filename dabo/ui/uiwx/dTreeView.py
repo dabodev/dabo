@@ -14,11 +14,18 @@ from dabo.ui import makeDynamicProperty
 class dNode(dObject):
 	"""Wrapper class for the tree nodes."""
 	def __init__(self, tree, itemID, parent):
+		self._baseClass = dNode
 		self.tree = tree
 		# The 'itemID' in this case is a wxPython wx.TreeItemID object used
 		# by wx to work with separate nodes.
 		self.itemID = itemID
 		self.parent = parent
+		# Nodes can have objects associated with them
+		self._object = None
+		# Add minimal Dabo functionality
+		self.afterInit()
+	
+	def afterInit(self): pass
 	
 	
 	def expand(self):
@@ -53,7 +60,13 @@ class dNode(dObject):
 		# Sent by the dFont object when any props changed. Wx needs to be notified:
 		self.tree.SetItemFont(self.itemID, self.Font._nativeFont)
 
+	
+	def _constructed(self):
+		# For compatibility with mixin props.
+		return True
+		
 
+	# Property definition code begins here
 	def _getBackColor(self):
 		return self.tree.GetItemBackgroundColour(self.itemID)
 
@@ -102,49 +115,76 @@ class dNode(dObject):
 		self._font = val
 		self.tree.SetItemFont(self.itemID, val._nativeFont)
 		val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
 	
 	def _getFontBold(self):
-		return self.Font.Bold
+		try:
+			return self.Font.Bold
+		except:
+			return False
 	
 	def _setFontBold(self, val):
 		self.Font.Bold = val
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
 
 	def _getFontDescription(self):
-		return self.Font.Description
+		try:
+			return self.Font.Description
+		except:
+			return ""
 
 	
 	def _getFontInfo(self):
-		return self.Font._nativeFont.GetNativeFontInfoDesc()
+		try:
+			return self.Font._nativeFont.GetNativeFontInfoDesc()
+		except:
+			return ""
 
 		
 	def _getFontItalic(self):
-		return self.Font.Italic
+		try:
+			return self.Font.Italic
+		except:
+			return False
 	
 	def _setFontItalic(self, val):
 		self.Font.Italic = val
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
 	
 	def _getFontFace(self):
-		return self.Font.Face
+		try:
+			return self.Font.Face
+		except:
+			return ""
 
 	def _setFontFace(self, val):
 		self.Font.Face = val
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
 	
 	def _getFontSize(self):
-		return self.Font.Size
+		try:
+			return self.Font.Size
+		except:
+			return 10
 	
 	def _setFontSize(self, val):
 		self.Font.Size = val
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 	
 	
 	def _getFontUnderline(self):
-		return self.Font.Underline
+		try:
+			return self.Font.Underline
+		except:
+			return False
 	
 	def _setFontUnderline(self, val):
 		self.Font.Underline = val
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 
 
 	def _getForeColor(self):
@@ -163,6 +203,7 @@ class dNode(dObject):
 		
 	def _setImg(self, key):
 		return self.tree.setNodeImg(self, key)
+		dabo.ui.callAfterInterval(100, self.tree.refreshDisplay)
 		
 		
 	def _getIsRootNode(self):
@@ -172,6 +213,16 @@ class dNode(dObject):
 			ret = self._isRootNode = (self.tree.GetRootItem() == self.itemID)
 		return ret
 			
+
+	def _getObject(self):
+		return self._object
+
+	def _setObject(self, val):
+		if self._constructed():
+			self._object = val
+		else:
+			self._properties["Object"] = val
+
 
 	def _getSel(self):
 		sel = self.tree.Selection
@@ -241,6 +292,9 @@ class dNode(dObject):
 	IsRootNode = property(_getIsRootNode, None, None,
 			_("Returns True if this is the root node (read-only) (bool)"))
 			
+	Object = property(_getObject, _setObject, None,
+			_("Optional object associated with this node. Default=None  (object)"))
+	
 	Selected = property(_getSel, _setSel, None,
 			_("Is this node selected?.  (bool)") )
 	
@@ -270,8 +324,11 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		# Dictionary for tracking images by key value
 		self.__imageList = {}	
 		self.nodes = []
+		self._rootNode = None
+		# Class to use for creating nodes
+		self._nodeClass = dNode
 		
-		style = self._extractKey((properties, kwargs), "style", 0)
+		style = self._extractKey((properties, kwargs), "style", 0) | wx.TR_HAS_VARIABLE_ROW_HEIGHT
 		# Default to showing buttons
 		val = self._extractKey((properties, kwargs), "ShowButtons", True)
 		if val:
@@ -317,12 +374,19 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	def __onTreeBeginDrag(self, evt):
 		if self._allowDrag(evt):
 			evt.Allow()
+		# We need to select the item being dragged
+		# so we don't try to drag an old selected item
+		self.SelectItem(evt.GetItem())
 		evt.Skip()
 		self.raiseEvent(dEvents.TreeBeginDrag, evt)
 
 	
 	def __onTreeEndDrag(self, evt):
 		evt.Skip()
+		# We need to select only our destination node
+		if self.MultipleSelect:
+			self.UnselectAll()
+		self.SelectItem(evt.GetItem())
 		self.raiseEvent(dEvents.TreeEndDrag, evt)
 
 	
@@ -337,20 +401,35 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		
 		
 	def _getInitPropertiesList(self):
-		additional = ["Editable", "MultipleSelect", "ShowRootNode", 
-				"ShowRootNodeLines", "ShowButtons"]
 		original = list(super(dTreeView, self)._getInitPropertiesList())
-		return tuple(original + additional)
+		original.remove("MultipleSelect")
+		return tuple(original)
 
 		
 	def clear(self):
 		self.DeleteAllItems()
 		self.nodes = []
+	
+	
+	def refreshDisplay(self):
+		"""Changing some node appearance properties requires that the tree be 
+		collapsed and re-opened in order to update any sizing issues.
+		"""
+		self.lockDisplay()
+		ndExp = [(nd, nd.Expanded) for nd in self.nodes]
+		self.collapseAll()
+		for nd, exp in ndExp:
+			nd.Expanded = exp
+		self.unlockDisplay()
 
 	
+	def getRootNode(self):
+		return self._rootNode
+ 	
+
 	def setRootNode(self, txt):
 		itemID = self.AddRoot(txt)
-		ret = dNode(self, itemID, None)
+		ret = self._rootNode = self.NodeClass(self, itemID, None)
 		self.nodes.append(ret)
 		return ret
 	
@@ -362,7 +441,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		else:
 			ndid = node.itemID
 		itemID = self.AppendItem(ndid, txt)
-		ret = dNode(self, itemID, node)
+		ret = self.NodeClass(self, itemID, node)
 		self.nodes.append(ret)
 		return ret
 
@@ -421,23 +500,47 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		self.__imageList[key] = idx
 		
 	
-	def setNodeImg(self, node, imgKey):
-		""" Sets the specified node's image to the image corresponding
-		to the specified key. May also optionally pass the index of the 
-		image in the ImageList rather than the key.
+	def setNodeImg(self, node, imgKey, which="normal"):
+		"""Sets the specified node's image to the image corresponding	to the 
+		specified key. May also optionally pass the index of the image in the 
+		ImageList rather than the key, which is the state of the node.
+
+		Valid states are:
+			'normal'
+			'expanded'
+			'selected'
+			'selectedexpanded'
 		"""
+		whichdict = {"normal": wx.TreeItemIcon_Normal,
+			"expanded": wx.TreeItemIcon_Expanded,
+			"selected": wx.TreeItemIcon_Selected,
+			"selectedexpanded": wx.TreeItemIcon_SelectedExpanded}
+		if which.lower() not in whichdict.keys():
+			raise ValueError, _("Invalid Node State: %s") % which
 		if isinstance(imgKey, int):
 			imgIdx = imgKey
 		else:
 			imgIdx = self.__imageList[imgKey]
-		self.SetItemImage(node.itemID, imgIdx)
+		self.SetItemImage(node.itemID, imgIdx, whichdict[which.lower()])
 
 	
-	def getNodeImg(self, node):
+	def getNodeImg(self, node, which='normal'):
 		""" Returns the index of the specified node's image in the 
 		current image list, or -1 if no image is set for the node.
+		Which is the state of the node.
+		Valid states are:
+			'normal'
+			'expanded'
+			'selected'
+			'selectedexpanded'
 		"""
-		ret = self.GetItemImage(node.itemID)
+		whichdict = {"normal": wx.TreeItemIcon_Normal,
+			"expanded": wx.TreeItemIcon_Expanded,
+			"selected": wx.TreeItemIcon_Selected,
+			"selectedexpanded": wx.TreeItemIcon_SelectedExpanded}
+		if not which in whichdict.keys():
+			raise ValueError, _("Invalid Node State: %s") % which
+		ret = self.GetItemImage(node.itemID, whichdict[which.lower()])
 		return ret		
 	
 	
@@ -445,7 +548,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		"""Given an object, returns the corresponding node."""
 		try:
 			ret = [nd for nd in self.nodes
-					if nd._obj is obj][0]
+					if nd._object is obj][0]
 		except:
 			ret = None
 		return ret
@@ -557,6 +660,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		of the flattened tree structure. Sometimes referred to as 'flatdown'
 		navigation.
 		"""
+		if not isinstance(nd, dNode):
+			nd = self.nodeForObject(nd)
 		if nd is None:
 			nd = self.Selection
 			if isinstance(nd, list):
@@ -566,7 +671,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 					# Empty list
 					return None
 		try:
-			ret = self.getChildren(nd)[0]._obj
+			ret = self.getChildren(nd)[0]
 		except:
 			ret = None
 		if ret is None:
@@ -587,6 +692,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		are no prior siblings, returns the parent. Sometimes 
 		referred to as 'flatup' navigation.
 		"""
+		if not isinstance(nd, dNode):
+			nd = self.nodeForObject(nd)
 		if nd is None:
 			nd = self.Selection
 			if isinstance(nd, list):
@@ -598,16 +705,16 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		ret = self._getRelative(nd, self.GetPrevSibling)
 		if ret is None:
 			try:
-				ret = self.getParentNode(nd)._obj
+				ret = self.getParentNode(nd)
 			except: pass
 		else:
 			# Find the last child of the last child of the last child...
-			nd = self.nodeForObject(ret)
+			nd = ret
 			kids = self.getChildren(nd)
 			while kids:
 				nd = kids[-1]
 				kids = self.getChildren(nd)
-			ret = nd._obj
+			ret = nd
 		return ret
 
 
@@ -625,7 +732,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 				return None
 		try:
 			itemID = func(nd.itemID)
-			ret = [nod._obj for nod in self.nodes
+			ret = [nod for nod in self.nodes
 					if nod.itemID == itemID][0]
 		except:
 			ret = None
@@ -669,6 +776,28 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			self.SortChildren(self._pathNode[currDir].itemID)
 		os.path.walk(dirPath, addNode, showHidden)
 		os.path.walk(dirPath, sortNode, None)
+
+
+	def increaseFontSize(self, val=None):
+		"""Increase the font size by the specified amount for all nodes."""
+		if val is None:
+			val = 1
+		self._changeFontSize(val)
+	def decreaseFontSize(self, val=None):
+		if val is None:
+			val = -1
+		else:
+			val = -1 * val
+		self._changeFontSize(val)
+	def _changeFontSize(self, val):
+		for nd in self.nodes:
+			try:
+				nd.FontSize += val
+			except PyAssertionError:
+				# This catches invalid point sizes
+				pass
+		if self.Form is not None:
+			dabo.ui.callAfterInterval(200, self.Form.layout)
 
 
 	def treeFromStructure(self, stru, topNode=None):
@@ -726,23 +855,75 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		# 		c22 = c2.appendChild("Grandkid #2")
 		# 		c23 = c2.appendChild("Grandkid #3")
 		# 		c221 = c22.appendChild("Great-Grandkid #1")
+
 		
+	def getNodeForID(self, idval):
+		"""Given a wx item ID, returns the corresponding node, or None."""
+		try:
+			ret = [nd for nd in self.nodes
+					if nd.itemID == idval][0]
+		except IndexError:
+			ret = None
+		return ret
+		
+
+	def getNodeUnderMouse(self, includeSpace=False):
+		"""Returns the node directly under the mouse, or None if the mouse is not 
+		over a node. If 'includeSpace' is True, the empty space to the right of the node
+		is counted as part of the node. Otherwise, it is considered to not be over 
+		any node. 
+		"""
+		# The following wxPython constants are available:
+		# 	wx.TREE_HITTEST_ABOVE: Above the client area.
+		# 	wx.TREE_HITTEST_BELOW: Below the client area.
+		# 	wx.TREE_HITTEST_NOWHERE: In the client area but below the last item.
+		# 	wx.TREE_HITTEST_ONITEMBUTTON: On the button associated with an item.
+		# 	wx.TREE_HITTEST_ONITEMICON: On the bitmap associated with an item.
+		# 	wx.TREE_HITTEST_ONITEMINDENT: In the indentation associated with an item.
+		# 	wx.TREE_HITTEST_ONITEMLABEL: On the label (string) associated with an item.
+		# 	wx.TREE_HITTEST_ONITEMRIGHT: In the area to the right of an item.
+		# 	wx.TREE_HITTEST_ONITEMSTATEICON: On the state icon for a tree view item that is in a user-defined state.
+		# 	wx.TREE_HITTEST_TOLEFT: To the right of the client area.
+		# 	wx.TREE_HITTEST_TORIGHT: To the left of the client area.
+		ret = None
+		mp = self.getMousePosition()
+		idval, flag = self.HitTest(mp)
+		overFlags = (wx.TREE_HITTEST_ONITEMBUTTON | wx.TREE_HITTEST_ONITEMICON | 
+				wx.TREE_HITTEST_ONITEMINDENT | wx.TREE_HITTEST_ONITEMLABEL)
+		if includeSpace:
+			overFlags = overFlags | wx.TREE_HITTEST_ONITEMRIGHT
+		if idval and (flag & overFlags):
+			ret = self.getNodeForID(idval)
+		return ret
+
+
 	def getBaseNodeClass(cls):
 		return dNode
 	getBaseNodeClass = classmethod(getBaseNodeClass)
-	
+
+
 	# Event-handling code
 	def __onTreeSel(self, evt):
 		self.raiseEvent(dEvents.TreeSelection, evt)
 	def __onKeyUp(self, evt):
 		evt.Skip()
-# 		return
 		if evt.GetKeyCode() in (316, 317, 318, 319):
 			self._onWxHit(evt)
 	def __onTreeItemCollapse(self, evt):
 		self.raiseEvent(dEvents.TreeItemCollapse, evt)
 	def __onTreeItemExpand(self, evt):
 		self.raiseEvent(dEvents.TreeItemExpand, evt)
+
+
+	def _getBaseNodes(self):
+		if self.ShowRootNode:
+			ndlist = [nd for nd in self.nodes
+					if nd.IsRootNode]
+			return ndlist
+		else:
+			return [nd for nd in self.nodes
+					if nd.parent is not None
+					and nd.parent.IsRootNode]			
 
 
 	def _getEditable(self):
@@ -772,6 +953,16 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			self.Selection = sel
 			self.unlockDisplay()
 			
+
+	def _getNodeClass(self):
+		return self._nodeClass
+
+	def _setNodeClass(self, val):
+		if self._constructed():
+			self._nodeClass = val
+		else:
+			self._properties["NodeClass"] = val
+
 
 	def _getSelection(self):
 		if self.MultipleSelect:
@@ -863,11 +1054,19 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 			pass
 			
 
+	BaseNodes = property(_getBaseNodes, None, None,
+			_("""Returns the root node if ShowRootNode is True; otherwise,
+			returns all the nodes who are not children of other nodes 
+			(read-only) (list of nodes)"""))
+	
 	Editable = property(_getEditable, _setEditable, None,
 		_("""Specifies whether the tree labels can be edited by the user."""))
 
 	MultipleSelect = property(_getMultipleSelect, _setMultipleSelect, None,
 		_("""Specifies whether more than one node may be selected at once."""))
+	
+	NodeClass = property(_getNodeClass, _setNodeClass, None,
+			_("Class to use when creating nodes  (dNode)"))
 	
 	Selection = property(_getSelection, _setSelection, None,
 		_("""Specifies which node or nodes are selected.
@@ -903,9 +1102,26 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 
+class TestNode(dNode):
+	def afterInit(self):
+		self.ForeColor = "darkred"
+		self.FontItalic = True
+		self.FontSize += 3
+
+
 class _dTreeView_test(dTreeView):
 	def afterInit(self): 
+		self.NodeClass = TestNode
 		self.addDummyData()
+		self.expandAll()
+		self.Hover = True
+	
+	def onMouseMove(self, evt):
+		nd = self.getNodeUnderMouse()
+		if nd:
+			self.ToolTipText = nd.Caption
+		else:
+			self.ToolTipText = ""
 
 	def onHit(self, evt):
 		## pkm: currently, Hit happens on left mouse up, which totally ignores
@@ -946,47 +1162,50 @@ if __name__ == "__main__":
 	
 	class TreeViewTestForm(dabo.ui.dForm):
 		def afterInit(self):
-			tree = self.tree = _dTreeView_test(self)
-			self.Sizer.append1x(tree)
-			self.Sizer.DefaultBorder = 7
-			self.Sizer.DefaultBorderLeft = self.Sizer.DefaultBorderTop = True
+			mp = dabo.ui.dPanel(self)
+			self.Sizer.append1x(mp)
+			sz = mp.Sizer = dabo.ui.dSizer("v")
+			tree = self.tree = _dTreeView_test(mp)
+			sz.append1x(tree, border=12)
+			sz.DefaultBorder = 7
+			sz.DefaultBorderLeft = sz.DefaultBorderTop = True
 			
-			chk = dabo.ui.dCheckBox(self, Caption="Editable", 
+			chk = dabo.ui.dCheckBox(mp, Caption="Editable", 
 					DataSource=tree, DataField="Editable")
-			self.Sizer.append(chk, halign="Left")
+			sz.append(chk, halign="Left")
 
-			chk = dabo.ui.dCheckBox(self, Caption="MultipleSelect", 
+			chk = dabo.ui.dCheckBox(mp, Caption="MultipleSelect", 
 					DataSource=tree, DataField="MultipleSelect")
-			self.Sizer.append(chk, halign="Left")
+			sz.append(chk, halign="Left")
 
-			chk = dabo.ui.dCheckBox(self, Caption="ShowButtons", 
+			chk = dabo.ui.dCheckBox(mp, Caption="ShowButtons", 
 					DataSource=tree, DataField="ShowButtons")
-			self.Sizer.append(chk, halign="Left")
+			sz.append(chk, halign="Left")
 
-			chk = dabo.ui.dCheckBox(self, Caption="ShowLines", 
+			chk = dabo.ui.dCheckBox(mp, Caption="ShowLines", 
 					DataSource=tree, DataField="ShowLines")
-			self.Sizer.append(chk, halign="Left")
+			sz.append(chk, halign="Left")
 
-			chk = dabo.ui.dCheckBox(self, Caption="ShowRootNode", 
+			chk = dabo.ui.dCheckBox(mp, Caption="ShowRootNode", 
 					DataSource=tree, DataField="ShowRootNode")
-			self.Sizer.append(chk, halign="Left")
+			sz.append(chk, halign="Left")
 
-			chk = dabo.ui.dCheckBox(self, Caption="ShowRootNodeLines", 
+			chk = dabo.ui.dCheckBox(mp, Caption="ShowRootNodeLines", 
 					DataSource=tree, DataField="ShowRootNodeLines")
-			self.Sizer.append(chk, halign="Left")
+			sz.append(chk, halign="Left")
 			
 			self.update()
 			
-			btnEx = dabo.ui.dButton(self, Caption="Expand All")
+			btnEx = dabo.ui.dButton(mp, Caption="Expand All")
 			btnEx.bindEvent(dEvents.Hit, self.onExpandAll)
-			btnCl = dabo.ui.dButton(self, Caption="Collapse All")
+			btnCl = dabo.ui.dButton(mp, Caption="Collapse All")
 			btnCl.bindEvent(dEvents.Hit, self.onCollapseAll)
 			hsz = dabo.ui.dSizer("H")
 			hsz.append(btnEx)
 			hsz.appendSpacer(5)
 			hsz.append(btnCl)
-			self.Sizer.append(hsz)
-			self.Sizer.appendSpacer(10)
+			sz.append(hsz)
+			sz.appendSpacer(10)
 		
 		
 		def onExpandAll(self, evt):

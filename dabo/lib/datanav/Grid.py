@@ -148,7 +148,7 @@ class Grid(dabo.ui.dGrid):
 	def deleteRecord(self, evt=None):
 		""" Request that the current row be deleted."""
 		self.Parent.deleteRecord(self.DataSource)
-		self.fillGrid()
+		self.fillGrid(True)
 
 
 	def pickRecord(self, evt=None):
@@ -163,14 +163,14 @@ class Grid(dabo.ui.dGrid):
 		"""
 		try:
 			if self.Form.FormType == 'PickList':
-				menu.append(_("&Pick"), bindfunc=self.pickRecord, bmp="edit",
+				menu.append(_("&Pick"), OnHit=self.pickRecord, bmp="edit",
 						help=_("Pick this record"))
 			else:
-				menu.append(_("&New"), bindfunc=self.newRecord, bmp="blank",
+				menu.append(_("&New"), OnHit=self.newRecord, bmp="blank",
 						help=_("Add a new record"))
-				menu.append("&Edit", bindfunc=self.editRecord, bmp="edit",
+				menu.append("&Edit", OnHit=self.editRecord, bmp="edit",
 						help=_("Edit this record"))
-				menu.append("&Delete", bindfunc=self.deleteRecord, bmp="delete",
+				menu.append("&Delete", OnHit=self.deleteRecord, bmp="delete",
 						help=_("Delete this record"))
 			return menu
 		except AttributeError:

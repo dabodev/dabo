@@ -9,6 +9,10 @@ import dabo.dException as dException
 from dabo.db import dNoEscQuoteStr as dNoEQ
 
 class MySQL(dBackend):
+
+	# MySQL uses the backtick to enclose names with spaces.
+	spaceEnclosureChar = "`"
+
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "MySQLdb"
@@ -73,12 +77,11 @@ class MySQL(dBackend):
 	
 	def _isExistingTable(self, tablename):
 		tempCursor = self._connection.cursor()
-		tempCursor.execute("SHOW TABLES LIKE %s" % self.escQuote(tablename))
+		tbl = self.encloseSpaces(self.escQuote(tablename))
+		tempCursor.execute("SHOW TABLES LIKE %s" % tbl)
 		rs = tempCursor.fetchall()
-		if not rs:
-			return False
-		else:
-			return True
+		return bool(rs)
+			
 	
 	def getTables(self, includeSystemTables=False):
 		# MySQL doesn't have system tables, in the traditional sense, as 
@@ -94,7 +97,7 @@ class MySQL(dBackend):
 		
 	def getTableRecordCount(self, tableName):
 		tempCursor = self._connection.cursor()
-		tempCursor.execute("select count(*) as ncount from %s" % tableName)
+		tempCursor.execute("select count(*) as ncount from %s" % self.encloseSpaces(tableName))
 		return tempCursor.fetchall()[0][0]
 
 
@@ -102,7 +105,7 @@ class MySQL(dBackend):
 		if not tableName:
 			return tuple()
 		tempCursor = self._connection.cursor()
-		tempCursor.execute("describe %s" % tableName)
+		tempCursor.execute("describe %s" % self.encloseSpaces(tableName))
 		rs = tempCursor.fetchall()
 		fldDesc = tempCursor.description
 		# The field name is the first element of the tuple. Find the
@@ -118,10 +121,12 @@ class MySQL(dBackend):
 		for r in rs:
 			name = r[0]
 			ft = r[1]
-			if ft.split()[0] == "tinyint(1)":
+			if ft.split()[0] == "tinyint(1)" or "bit" in ft:
 				ft = "B"
-			elif "int" in ft or ft == "long":
+			elif "int" in ft:
 				ft = "I"
+			elif ft == "long":
+				ft = "G"
 			elif "varchar" in ft:
 				# will be followed by length
 				ln = int(ft.split("(")[1].split(")")[0])
@@ -160,8 +165,10 @@ class MySQL(dBackend):
 			if i[0] != "_":
 				v = getattr(ftypes, i)
 				typeMapping[v] = i
-		
-		daboMapping = {"BLOB": "M",
+		# typeMapping[16]='BIT'
+
+		daboMapping = {"BIT": "I",
+				"BLOB": "M",
 				"CHAR": "C",
 				"DATE": "D",
 				"DATETIME": "T",
@@ -177,12 +184,13 @@ class MySQL(dBackend):
 				"LONG_BLOB": "M",
 				"MEDIUM_BLOB": "M",
 				"NEWDATE": "?",
+				"NEWDECIMAL": "N",
 				"NULL": "?",
 				"SET": "?",
 				"SHORT": "I",
 				"STRING": "C",
 				"TIME": "?",
-				"TIMESTAMP": "?",
+				"TIMESTAMP": "T",
 				"TINY": "I",
 				"TINY_BLOB": "M",
 				"VAR_STRING": "C",
@@ -192,7 +200,7 @@ class MySQL(dBackend):
 
 	def getWordMatchFormat(self):
 		""" MySQL's fulltext search expression"""
-		return """ match (%(table)s.%(field)s) against ("%(value)s") """
+		return """ match (`%(table)s`.`%(field)s`) against ("%(value)s") """
 
 
 	def createTableAndIndexes(self, tabledef, cursor, createTable=True, 

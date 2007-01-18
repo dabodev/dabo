@@ -132,8 +132,14 @@ from dToolBar import dToolBar
 from dToolBar import dToolBarItem
 from dToggleButton import dToggleButton
 from dTreeView import dTreeView
+from dLed import dLed
 import dUICursors as dUICursors
 import dShell
+
+try:
+	from dGlWindow import dGlWindow
+except ImportError:
+	dabo.infoLog.write(_("PyOpenGL not present, so dGlWindow is not loaded."))
 
 
 artConstants = {}
@@ -251,11 +257,15 @@ def yieldUI(*args, **kwargs):
 	wx.Yield(*args, **kwargs)	
 
 
+def beep():
+	wx.Bell()
+	
+
 def busyInfo(msg="Please wait...", *args, **kwargs):
 	"""Display a message that the system is busy.
 
-	To use this, assign the return value to a local object. but note that the 
-	message will stay until the object is explicitly unbound. For example:
+	Assign the return value to a local object, and the message will stay until the 
+	object is explicitly unbound. For example:
 
 	bi = dabo.ui.busyInfo("Please wait while I count to 10000...")
 	for i in range(10000):
@@ -373,7 +383,7 @@ def getEventData(wxEvt):
 		ed["unicodeKey"] = wxEvt.GetUnicodeKey()
 		ed["hasModifiers"] = wxEvt.HasModifiers()
 		try:
-			if wx.Platform == "__WXMAC__":
+			if wx.Platform in ("__WXMAC__", "__WXGTK__"):
 				ed["keyChar"] = chr(wxEvt.GetKeyCode())
 			else:	
 				ed["keyChar"] = chr(wxEvt.GetRawKeyCode())
@@ -633,7 +643,7 @@ def getDate(dt=None):
 		dabo.errorLog.write(_("Invalid date value passed to getDate(): %s") % dt)
 		return None
 	try:
-		prnt = self.Application.ActiveForm
+		prnt = dabo.dAppRef.ActiveForm
 	except:
 		prnt = None
 	dlg = wx.lib.calendar.CalenDlg(prnt, mm, dd, yy)
@@ -658,6 +668,7 @@ def getFont(font=None):
 	Font property.
 	"""
 	fnt = None
+	ret = None
 	if font is None:
 		param = None
 	else:
@@ -670,7 +681,9 @@ def getFont(font=None):
 	if dlg.show() == kons.DLG_OK:
 		fnt = dlg.getFont()
 	dlg.release()
-	return dFont(_nativeFont=fnt)
+	if fnt is not None:
+		ret = dFont(_nativeFont=fnt)
+	return ret
 
 
 def getAvailableFonts():
@@ -697,13 +710,22 @@ def _getPath(cls, wildcard, **kwargs):
 
 
 def getFile(*args, **kwargs):
-	"""Displays the file selection dialog for the platform.
-	Returns the path to the selected file, or None if no selection
-	was made.
+	"""Display the file selection dialog for the platform, and return selection(s).
+
+	Send an optional multiple=True for the user to pick more than one file. In 
+	that case, the return value will be a sequence of unicode strings.
+
+	Returns the path to the selected file or files, or None if no selection	was 
+	made. Only file may be selected if multiple is False.
+
+	Optionally, you may send wildcard arguments to limit the displayed files by
+	file type. For example:
+		getFile("py", "txt")
+		getFile("py", "txt", multiple=True)
 	"""
 	wc = _getWild(*args)
 	return _getPath(dFileDialog, wildcard=wc, **kwargs)[0]
-
+		
 
 def getFileAndType(*args, **kwargs):
 	"""Displays the file selection dialog for the platform.
@@ -825,7 +847,7 @@ def sortList(chc, Caption="", ListCaption=""):
 	return ret
 
 
-def createForm(srcFile, show=False):
+def createForm(srcFile, show=False, *args, **kwargs):
 	"""Pass in a .cdxml file from the Designer, and this will
 	instantiate a form from that spec. Returns a reference
 	to the newly-created form.
@@ -833,10 +855,66 @@ def createForm(srcFile, show=False):
 	from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
 	conv = DesignerXmlConverter()
 	cls = conv.classFromXml(srcFile)
-	frm = cls()
+	frm = cls(*args, **kwargs)
 	if show:
 		frm.show()
 	return frm
+
+
+def createMenuBar(srcFile, form=None, previewFunc=None):
+	"""Pass in an .mnxml file saved from the Menu Designer, 
+	and this will instantiate a MenuBar from that spec. Returns 
+	a reference to the newly-created MenuBar. You can optionally
+	pass in a reference to the form to which this menu is
+	associated, so that you can enter strings that represent 
+	form functions in the Designer, such as 'form.close', which 
+	will call the associated form's close() method. If 'previewFunc'
+	is passed, the menu command that would have been eval'd 
+	and executed on a live menu will instead be passed back as
+	a parameter to that function.
+	"""
+	def addMenu(mb, menuDict, form, previewFunc):
+		if form is None:
+			form = dabo.dAppRef.ActiveForm
+		menu = dabo.ui.dMenu(mb)
+		atts = menuDict["attributes"]
+		menu.Caption = atts["Caption"]
+		menu.MRU = atts["MRU"]
+		menu.HelpText = atts["HelpText"]
+		mb.appendMenu(menu)
+		try:
+			items = menuDict["children"]
+		except KeyError:
+			# No children defined for this menu
+			return
+		app = dabo.dAppRef
+		for itm in items:	
+			if "Separator" in itm["name"]:
+				menu.appendSeparator()
+			else:
+				itmatts = itm["attributes"]
+				cap = itmatts["Caption"]
+				hk = itmatts["HotKey"]
+				pic = itmatts["Picture"]
+				if hk:
+					cap += "\t%s" % hk
+				txt = cap
+				binding = previewFunc
+				fnc = ""
+				useFunc = ("Action" in itmatts) and (itmatts["Action"])
+				if useFunc:
+					fnc = itmatts["Action"]
+				if (binding is None) and fnc:
+					binding = eval(fnc)
+				help = itmatts["HelpText"]
+				menuItem = menu.append(cap, OnHit=binding, help=help,
+						picture=pic)	
+	
+	mnd = dabo.lib.xmltodict.xmltodict(srcFile)
+	mb = dabo.ui.dMenuBar()
+	for mn in mnd["children"]:
+		addMenu(mb, mn, form, previewFunc)
+	return mb
 	
 	
 def browse(dataSource, parent=None):
@@ -939,11 +1017,20 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	return ret
 
 
-def saveScreenShot(obj=None, imgType=None, pth=None):
+def saveScreenShot(obj=None, imgType=None, pth=None, delaySeconds=None):
 	"""Takes a screenshot of the specified and writes it to a file, converting
 	it to the requested image type. If no object is specified, the current
-	ActiveForm is used.
+	ActiveForm is used. You can add an optional delaySeconds setting that 
+	will let you set things up as needed before the image is taken; if not specified,
+	the image is taken immediately.
 	"""
+	if delaySeconds is None:
+		_saveScreenShot(obj=obj, imgType=imgType, pth=pth)
+	else:
+		millisecs = delaySeconds * 1000
+		callAfterInterval(millisecs, _saveScreenShot, obj=obj, imgType=imgType, pth=pth)
+
+def _saveScreenShot(obj, imgType, pth):
 	if obj is None:
 		obj = dabo.dAppRef.ActiveForm
 	if obj is None:

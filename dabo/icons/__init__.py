@@ -1,5 +1,6 @@
 import sys
 import os
+import glob
 
 defaultExtension = "png"
 
@@ -31,4 +32,16 @@ def getIconFileName(iconName):
 			if os.path.exists(icn):
 				ret = icn
 				break	
+	return ret
+
+
+def getAvailableIcons():
+	"""Returns a list of all available icon names."""
+	ret = []
+	pth = __path__[0]
+	defExt = ".%s" % defaultExtension
+	exts = ["png", "jpg", "gif", "bmp"]
+	for ext in exts:
+		ics = glob.glob("%s/*.%s" % (pth, ext))
+		ret += [os.path.split(ic)[-1].replace(defExt, "") for ic in ics]
 	return ret

@@ -178,6 +178,11 @@ class dApp(dObject):
 		self._tempFileHolder = TempFileHolder()
 		self.getTempFile = self._tempFileHolder.getTempFile
 
+		# List of form classes to open on App Startup
+		self.formsToOpen = []  
+		# Form to open if no forms were passed as a parameter
+		self.default_form = None
+
 		# For simple UI apps, this allows the app object to be created
 		# and started in one step. It also suppresses the display of
 		# the main form.
@@ -199,14 +204,15 @@ class dApp(dObject):
 		# dabo is going to want to import various things from the Home Directory
 		if self.HomeDirectory not in sys.path:
 			sys.path.append(self.HomeDirectory)
-		if not self.getAppInfo("appName"):
-			self.setAppInfo("appName", "Dabo Application")
-		if not self.getAppInfo("appShortName"):
-			self.setAppInfo("appShortName", self.getAppInfo("appName").replace(" ", ""))
-		if not self.getAppInfo("appVersion"):
-				self.setAppInfo("appVersion", "")
-		if not self.getAppInfo("vendorName"):
-			self.setAppInfo("vendorName", "")
+		
+		def initAppInfo(item, default):
+			if not self.getAppInfo(item):
+				self.setAppInfo(item, default)
+
+		initAppInfo("appName", "Dabo Application")
+		initAppInfo("appShortName", self.getAppInfo("appName").replace(" ", ""))
+		initAppInfo("appVersion", "")
+		initAppInfo("vendorName", "")
 
 		self._initDB()
 		
@@ -225,6 +231,24 @@ class dApp(dObject):
 		# Flip the flag
 		self._wasSetup = True
 
+	def startupForms(self):
+				
+		# Open one or more of the defined forms. 
+		# A default one is specified in .default_form.
+		# If form names were 
+		# passed on the command line, they will be opened instead of the default one
+		# as long as they exist.
+
+		form_names = [class_name[3:] for class_name in dir(self.ui) if class_name[:3] == "Frm"]
+		for arg in sys.argv[1:]:
+			arg = arg.lower()
+			for form_name in form_names:
+				if arg == form_name.lower():
+					self.formsToOpen.append(getattr(self.ui, "Frm%s" % form_name))
+		if not self.formsToOpen:
+			self.formsToOpen.append(self.default_form)
+		for frm in self.formsToOpen:
+			frm(self.MainForm).show()
 
 	def initUIApp(self):
 		"""Callback from the initial app setup. Used to allow the 
@@ -562,8 +586,8 @@ class dApp(dObject):
 		except:
 			self.uiApp.onEditPreferences(evt)
 	# These handle MRU menu requests
-	def addToMRU(self, menu, prmpt, bindfunc=None):
-		self.uiApp.addToMRU(menu, prmpt, bindfunc)
+	def addToMRU(self, menu, prmpt, bindfunc=None, *args, **kwargs):
+		self.uiApp.addToMRU(menu, prmpt, bindfunc, *args, **kwargs)
 	def onMenuOpenMRU(self, menu):
 		self.uiApp.onMenuOpenMRU(menu)
 	############################	
@@ -575,11 +599,11 @@ class dApp(dObject):
 		
 
 	def onHelpAbout(self, evt):
-		import dabo.ui.dialogs.about as about
+		from dabo.ui.dialogs.htmlAbout import HtmlAbout as about
 		frm = self.ActiveForm
 		if frm is None:
 			frm = self.MainForm
-		dlg = about.About(frm)
+		dlg = about(frm)
 		dlg.show()
 	
 	

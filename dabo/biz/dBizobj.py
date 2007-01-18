@@ -156,6 +156,7 @@ class dBizobj(dObject):
 		crs.BackendObject = cn.getBackendObject()
 		crs.sqlManager = self.SqlManager
 		crs.AutoCommit = self.AutoCommit
+		crs._bizobj = self
 		crs.setSQL(self.SQL)
 		if self.RequeryOnLoad:
 			crs.requery()
@@ -185,7 +186,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		self._CurrentCursor.first()
 		self.requeryAllChildren()
@@ -204,7 +205,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		self._CurrentCursor.prior()
 		self.requeryAllChildren()
@@ -223,7 +224,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		self._CurrentCursor.next()
 		self.requeryAllChildren()
@@ -242,7 +243,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		self._CurrentCursor.last()
 		self.requeryAllChildren()
@@ -252,56 +253,57 @@ class dBizobj(dObject):
 
 
 	def saveAll(self, startTransaction=False, topLevel=True):
-		""" Iterates through all the records of the bizobj, and calls save()
-		for any record that has pending changes.
-		"""
-		cursor = self._CurrentCursor
+		"""Saves all changes to the bizobj and children."""
+
 		useTransact = startTransaction or topLevel
+		cursor = self._CurrentCursor
+		old_pk = cursor.getPK()
+
 		if useTransact:
 			# Tell the cursor to begin a transaction, if needed.
 			cursor.beginTransaction()
-
-		try:
-			self.scan(self._saveRowIfChanged, startTransaction=False, topLevel=False)
-		except dException.ConnectionLostException, e:
-			raise dException.ConnectionLostException, e
-		except dException.DBQueryException, e:
-			# Something failed; reset things.
-			if useTransact:
-				cursor.rollbackTransaction()
-			# Pass the exception to the UI
-			raise dException.DBQueryException, e
-		except dException.dException, e:
-			if useTransact:
-				cursor.rollbackTransaction()
-			raise dException.dException, e
+		
+		changed_rows = self.getChangedRows()
+		for row in changed_rows:
+			self._moveToRowNum(row)
+			try:
+				self.save(startTransaction=False, topLevel=False)
+			except dException.ConnectionLostException, e:
+				self._moveToPK(old_pk)
+				raise dException.ConnectionLostException, e
+			except dException.DBQueryException, e:
+				# Something failed; reset things.
+				if useTransact:
+					cursor.rollbackTransaction()
+				# Pass the exception to the UI
+				self._moveToPK(old_pk)
+				raise dException.DBQueryException, e
+			except dException.dException, e:
+				if useTransact:
+					cursor.rollbackTransaction()
+				self._moveToPK(old_pk)
+				raise
 
 		if useTransact:
 			cursor.commitTransaction()
 
-
-	def _saveRowIfChanged(self, startTransaction, topLevel):
-		""" Meant to be called as part of a scan loop. That means that we can
-		assume that the current record is the one we want to act on. Also, we
-		can pass False for the two parameters, since they will have already been
-		accounted for in the calling method.
-		"""
-		if self.isChanged():
-			self.save(startTransaction, topLevel)
+		if old_pk is not None:
+			self._moveToPK(old_pk)
 
 
 	def save(self, startTransaction=False, topLevel=True):
-		""" Save any changes that have been made in the data set. If the
-		save is successful, the save() of all child bizobjs will be
+		"""Save any changes that have been made in the current row.
+
+		If the save is successful, the saveAll() of all child bizobjs will be
 		called as well.
 		"""
 		cursor = self._CurrentCursor
 		errMsg = self.beforeSave()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		if self.KeyField is None:
-			raise dException.dException, _("No key field defined for table: ") + self.DataSource
+			raise dException.MissingPKException, _("No key field defined for table: ") + self.DataSource
 
 		# Validate any changes to the data. If there is data that fails
 		# validation, an Exception will be raised.
@@ -325,7 +327,8 @@ class dBizobj(dObject):
 			for child in self.__children:
 				# No need to start another transaction. And since this is a child bizobj,
 				# we need to save all rows that have changed.
-				child.saveAll(startTransaction=False, topLevel=False)
+				if child.RowCount > 0:
+					child.saveAll(startTransaction=False, topLevel=False)
 
 			# Finish the transaction, and requery the children if needed.
 			if useTransact:
@@ -333,14 +336,11 @@ class dBizobj(dObject):
 			if self.RequeryChildOnSave:
 				self.requeryAllChildren()
 
-			self.setMemento()
-
 		except dException.ConnectionLostException, e:
-			raise dException.ConnectionLostException, e
+			raise 
 
 		except dException.NoRecordsException, e:
-			# Nothing to roll back; just throw it back for the form to display
-			raise dException.NoRecordsException, e
+			raise
 
 		except dException.DBQueryException, e:
 			# Something failed; reset things.
@@ -354,7 +354,7 @@ class dBizobj(dObject):
 			if useTransact:
 				cursor.rollbackTransaction()
 			# Pass the exception to the UI
-			raise dException.dException, e
+			raise
 
 		# Some backends (Firebird particularly) need to be told to write
 		# their changes even if no explicit transaction was started.
@@ -367,39 +367,37 @@ class dBizobj(dObject):
 
 
 	def cancelAll(self):
-		""" Iterates through all the records, canceling each in turn. """
-		self.scan(self.cancel)
+		"""Cancel all changes made to the current dataset, including all children."""
+		self.scanChangedRows(self.cancel, allCursors=False)
 
 
 	def cancel(self):
-		""" Cancel any changes to the current record, reverting the fields
-		back to their original values.
+		"""Cancel all changes to the current record and all children.
+
+		Two hook methods will be called: beforeCancel() and afterCancel(). The
+		former, if it returns an error message, will raise an exception and not
+		continue cancelling the record.
 		"""
 		errMsg = self.beforeCancel()
-		if not errMsg:
-			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
-		# Tell the cursor to cancel any changes
+		# Tell the cursor and all children to cancel themselves:
 		self._CurrentCursor.cancel()
-		# Tell each child to cancel themselves
 		for child in self.__children:
 			child.cancelAll()
-			child.requery()
 
-		self.setMemento()
 		self.afterCancel()
 
 
 	def delete(self, startTransaction=False):
-		""" Delete the current row of the data set."""
+		"""Delete the current row of the data set."""
 		cursor = self._CurrentCursor
 		errMsg = self.beforeDelete()
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		if self.KeyField is None:
 			raise dException.dException, _("No key field defined for table: ") + self.DataSource
@@ -469,22 +467,27 @@ class dBizobj(dObject):
 		return self._CurrentCursor.executeSafe(sql)
 
 
-	def getChangedRecordNumbers(self):
-		""" Returns a list of record numbers for which isChanged()
-		returns True. The changes may therefore not be in the record
-		itself, but in a dependent child record.
+	def getChangedRows(self):
+		""" Returns a list of row numbers for which isChanged()	returns True. The 
+		changes may therefore not be in the record itself, but in a dependent child 
+		record.
 		"""
-		self.__changedRecordNumbers = []
-		self.scan(self._listChangedRecordNumbers)
-		return self.__changedRecordNumbers
+		if self.__children:
+			# Must iterate all records to find potential changes in children:
+			self.__changedRows = []
+			self.scan(self._listChangedRows)
+			return self.__changedRows
+		else:
+			# Can use the much faster cursor.getChangedRows():
+			return self._CurrentCursor.getChangedRows()
 
 
-	def _listChangedRecordNumbers(self):
+	def _listChangedRows(self):
 		""" Called from a scan loop. If the current record is changed,
 		append the RowNumber to the list.
 		"""
 		if self.isChanged():
-			self.__changedRecordNumbers.append(self.RowNumber)
+			self.__changedRows.append(self.RowNumber)
 
 
 	def getRecordStatus(self, rownum=None):
@@ -508,20 +511,23 @@ class dBizobj(dObject):
 		record in the recordset is restored after the iteration. If
 		self.__scanReverse is true, the records are processed in reverse order.
 		"""
-		if self.RowCount <= 0:
-			# Nothing to scan!
-			return
+		self.scanRows(func, range(self.RowCount), *args, **kwargs)
 
+
+	def scanRows(self, func, rows, *args, **kwargs):
+		"""Iterate over the specified rows and apply the passed function to each.
+
+		Set self.exitScan to True to exit the scan on the next iteration.
+		"""
 		# Flag that the function can set to prematurely exit the scan
 		self.exitScan = False
+		rows = list(rows)
 		if self.__scanRestorePosition:
 			currRow = self.RowNumber
 		try:
 			if self.__scanReverse:
-				recRange = range(self.RowCount-1, -1, -1)
-			else:
-				recRange = range(self.RowCount)
-			for i in recRange:
+				rows.reverse()
+			for i in rows:
 				self._moveToRowNum(i)
 				func(*args, **kwargs)
 				if self.exitScan:
@@ -540,6 +546,48 @@ class dBizobj(dObject):
 				row = self.RowCount  - 1
 				if row >= 0:
 					self.RowNumber = row
+
+
+	def scanChangedRows(self, func, allCursors=False, *args, **kwargs):
+		"""Move the record pointer to each changed row, and call func.
+
+		If allCursors is True, all other cursors for different parent records will 
+		be iterated as well. 
+
+		If you want to end the scan on the next iteration, set self.exitScan=True.
+
+		Records are scanned in arbitrary order. Any exception raised by calling
+		func() will be passed	up to the caller.
+		"""
+		self.exitScan = False
+		old_currentCursorKey = self.__currentCursorKey
+		try:
+			old_pk = self._CurrentCursor.getPK()
+		except dException.NoRecordsException:
+			# no rows to scan
+			return
+
+		if allCursors:
+			cursors = self.__cursors
+		else:
+			cursors = {None: self._CurrentCursor}
+
+		for key, cursor in cursors.iteritems():
+			self._CurrentCursor = key
+			changed_keys = list(set(cursor._mementos.keys() + cursor._newRecords.keys()))
+			for pk in changed_keys:
+				self._moveToPK(pk)
+				try:
+					func(*args, **kwargs)
+				except:
+					# Reset things and bail:
+					self._CurrentCursor = old_currentCursorKey
+					self._moveToPK(old_pk)
+					raise
+		
+		self._CurrentCursor = old_currentCursorKey
+		if old_pk is not None:
+			self._moveToPK(old_pk)
 
 
 	def getFieldNames(self):
@@ -569,10 +617,9 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		self._CurrentCursor.new()
-		# Hook method for things to do after a new record is created.
 		self._onNew()
 
 		# Update all child bizobjs
@@ -584,7 +631,6 @@ class dBizobj(dObject):
 				if child.NewRecordOnNewParent:
 					child.new()
 
-		self.setMemento()
 		self.afterPointerMove()
 		self.afterNew()
 
@@ -616,7 +662,7 @@ class dBizobj(dObject):
 		"""
 		errMsg = self.beforeRequery()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 		if self.KeyField is None:
 			errMsg = _("No Primary Key defined in the Bizobj for %s") % self.DataSource
 			raise dException.MissingPKException, errMsg
@@ -660,7 +706,6 @@ class dBizobj(dObject):
 			self.requeryAllChildren()
 		except dException.NoRecordsException:
 			pass
-		self.setMemento()
 		self.afterRequery()
 
 
@@ -830,23 +875,25 @@ class dBizobj(dObject):
 		return ret
 
 
-	def isAnyChanged(self):
-		""" Returns True if any record in the current record set has been
-		changed.
-		"""
-		self.__areThereAnyChanges = False
-		self.scan(self._checkForChanges)
-		return self.__areThereAnyChanges
+	def isAnyChanged(self, _topLevel=True):
+		"""Returns True if any record in the current record set has been changed."""
 
-
-	def _checkForChanges(self):
-		""" Designed to be called from the scan iteration over the records
-		for this bizobj. Once one changed record is found, set the scan's
-		exit flag, since we only need to know if anything has changed.
-		"""
-		if self.isChanged():
-			self.__areThereAnyChanges = True
-			self.exitScan = True
+		if _topLevel:
+			# Only check the _CurrentCursor:
+			if self._CurrentCursor.isChanged(allRows=True):
+				return True
+		else:
+			# Need to check all cached cursors:
+			for cursor in self.__cursors.values():
+				if cursor.isChanged(allRows=True):
+					return True
+	
+		# Nothing's changed in the top level, so we need to recurse the children:
+		for child in self.__children:
+			if child.isAnyChanged(_topLevel=False):
+				return True
+		
+		return False
 
 
 	def isChanged(self):
@@ -862,7 +909,7 @@ class dBizobj(dObject):
 		if cc is None:
 			# No cursor, no changes.
 			return False
-		ret = cc.isChanged(allRows = False)
+		ret = cc.isChanged(allRows=False)
 
 		if not ret:
 			# see if any child bizobjs have changed
@@ -901,7 +948,6 @@ class dBizobj(dObject):
 		User subclasses should leave this alone and instead override onNew().
 		"""
 		cursor = self._CurrentCursor
-		cursor.setDefaults(self.DefaultValues)
 		if self.AutoPopulatePK:
 			# Provide a temporary PK so that any linked children can be properly
 			# identified until the record is saved and a permanent PK is obtained.
@@ -909,6 +955,9 @@ class dBizobj(dObject):
 		# Fill in the link to the parent record
 		if self.Parent and self.FillLinkFromParent and self.LinkField:
 			self.setParentFK()
+		cursor.setDefaults(self.DefaultValues)
+		cursor.setNewFlag()
+
 		# Call the custom hook method
 		self.onNew()
 
@@ -1042,15 +1091,16 @@ class dBizobj(dObject):
 
 		errMsg = self.beforeChildRequery()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 
 		pk = self.getPK()
 		for child in self.__children:
 			# Let the child know the current dependent PK
 			child.setCurrentParent(pk)
-			if not child.isChanged() and child.RequeryWithParent:
-				child.requery()
-
+			if child.RequeryWithParent:
+				if not child.isChanged():
+					child.requery()
+	
 		self.afterChildRequery()
 
 
@@ -1140,18 +1190,6 @@ class dBizobj(dObject):
 		return self.__params
 
 
-	def setMemento(self):
-		""" Take a snapshot of the data in the cursor.
-
-		Tell the cursor to take a snapshot of the current state of the
-		data. This snapshot will be used to determine what, if anything, has
-		changed later on.
-
-		User code should not normally call this method.
-		"""
-		self._CurrentCursor.setMemento()
-
-
 	def getChildren(self):
 		""" Return a tuple of the child bizobjs."""
 		ret = []
@@ -1205,8 +1243,8 @@ class dBizobj(dObject):
 
 
 	########## SQL Builder interface section ##############
-	def addField(self, exp):
-		return self._CurrentCursor.addField(exp)
+	def addField(self, exp, alias=None):
+		return self._CurrentCursor.addField(exp, alias)
 	def addFrom(self, exp):
 		return self._CurrentCursor.addFrom(exp)
 	def addGroupBy(self, exp):
@@ -1304,10 +1342,7 @@ class dBizobj(dObject):
 
 
 	def _getCurrentSQL(self):
-		try:
-			v = self._CurrentCursor.CurrentSQL
-		except AttributeError:
-			return None
+		return self._CurrentCursor.CurrentSQL
 
 
 	def _getCurrentCursor(self):
@@ -1543,7 +1578,7 @@ class dBizobj(dObject):
 		if not errMsg:
 			errMsg = self.beforePointerMove()
 		if errMsg:
-			raise dException.dException, errMsg
+			raise dException.BusinessRuleViolation, errMsg
 		self._moveToRowNum(rownum)
 		self.requeryAllChildren()
 		self.afterPointerMove()
@@ -1624,7 +1659,7 @@ class dBizobj(dObject):
 				This information will try to come from a few places, in order:
 				1) The explicitly-set DataStructure property
 				2) The backend table method"""))
-     
+ 
 	DefaultValues = property(_getDefaultValues, _setDefaultValues, None,
 			_("""A dictionary specifying default values for fields when a new record is added.
 
