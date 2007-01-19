@@ -877,7 +877,13 @@ class dBizobj(dObject):
 
 	def isAnyChanged(self, _topLevel=True):
 		"""Returns True if any record in the current record set has been changed."""
-
+		try:
+			cc = self._CurrentCursor
+		except:
+			cc = None
+		if cc is None:
+			# No cursor, no changes.
+			return False
 		if _topLevel:
 			# Only check the _CurrentCursor:
 			if self._CurrentCursor.isChanged(allRows=True):
