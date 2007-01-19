@@ -124,6 +124,10 @@ class Postgres(dBackend):
 				fldType = "M"
 			elif "numeric" in fldType:
 				fldType = "N"
+			elif "double" in fldType:
+				fldType = "F"
+			elif "real" in fldType:
+				fldType = "F"
 			elif "datetime" in fldType:
 				fldType = "T"
 			elif "date" in fldType:
