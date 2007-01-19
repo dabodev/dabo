@@ -128,6 +128,8 @@ class Postgres(dBackend):
 				fldType = "F"
 			elif "real" in fldType:
 				fldType = "F"
+			elif "float" in fldType:
+				fldType = "F"
 			elif "datetime" in fldType:
 				fldType = "T"
 			elif "date" in fldType:
