@@ -215,14 +215,6 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		return item
 		
 		
-	def RemoveItem_28(self, item):
-		# Needed to keep dPemMixin mixed-in in wxPython 2.8
-		val = wx.Menu.RemoveItem(self, item)
-		item.this.own(val.this.own())
-		val.this.disown()
-		return item
-	
-
 	def remove(self, index, release=True):
 		"""Removes the item at the specified index from the menu.
 
@@ -236,7 +228,10 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			del self._daboChildren[id_]
 
 		if wx.VERSION[0] == 2 and wx.VERSION[1] >= 7:
-			item = self.RemoveItem_28(item)
+			# Needed to keep dPemMixin mixed-in in wxPython 2.8
+			val = wx.Menu.RemoveItem(self, item)
+			item.this.own(val.this.own())
+			val.this.disown()
 		else:
 			self.RemoveItem(item)
 
