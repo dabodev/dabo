@@ -35,15 +35,20 @@ class EasyDialogBuilder(object):
 			if page.get("image"):
 				page["imgKey"]=str(pageFrame.PageCount)
 				pageFrame.addImage(page["image"], imgKey=page["imgKey"])
+			elif not page.get("caption"):
+				caption = "Page%i" % (pageFrame.PageCount,) 
 			
 			pageFrame.appendPage(pgCls=page.get("page"), caption=page.get("caption"), imgKey=page.get("imgKey"))
 		
 		return pageFrame
 
-	def makeControlBox(self, parent, caption, controlFields, border=5, spacing=5):
-		"""makeControlBox(parent, controlFields, border=5, spacing=5) -> dabo.ui.dBorderSizer
+	def makeControlBox(self, parent, caption, controlFields, border=5, spacing=5, grid=True):
+		"""makeControlBox(parent, controlFields, border=5, spacing=5, grid=True) -> dabo.ui.dBorderSizer
 		
 		parent -> dabo object that is the parent of the controls, normally a panel or form
+		grid -> Boolean.  When true all objects are put into a grid sizer for even controlfield alignment.
+			When false, all objects are put into boxSizers so the control fields line up with the end
+			of their labels.
 		controlFields -> Tuple of tuples in form of:
 			((control, RegID, label Title, Properties),.....)
 			control -> dabo control or string "file" (produces a textbox with a button to get a file)
@@ -62,24 +67,17 @@ class EasyDialogBuilder(object):
 		box.DefaultBorder = border
 		box.DefaultBorderAll = True
 		
-		for obj in controlFields:
-			if len(obj)==4 and isinstance(obj[3], types.DictionaryType):
-				Properties = obj[3]
-			else:
-				Properties = {}
-			bs = self.makeControlField(parent, obj[0], obj[1], obj[2], Properties)
-			
-			if obj[0] is dabo.ui.dEditBox:
-				box.append(bs, "expand", 1)
-			else:
-				box.append(bs, "expand")
+		box.append1x(self.makeControlSizer(parent, controlFields, grid=grid))
 		
 		return box
 	
-	def makeControlSizer(self, parent, controlFields, border=5, spacing=5):
-		"""makeControlSizer(parent, controlFields, border=5, spacing=5) -> dabo.ui.dSizer
+	def makeControlSizer(self, parent, controlFields, border=5, spacing=5, grid=True):
+		"""makeControlSizer(parent, controlFields, border=5, spacing=5, grid=True) -> dabo.ui.dSizer
 		
 		parent -> dabo object that is the parent of the controls, normally a panel or form
+		grid -> Boolean.  When true all objects are put into a grid sizer for even controlfield alignment.
+			When false, all objects are put into boxSizers so the control fields line up with the end
+			of their labels.
 		controlFields -> Tuple of tuples in form of:
 			((control, RegID, label Title, Properties),.....)
 			control -> dabo control or string "file" (produces a textbox with a button to get a file)
@@ -91,35 +89,65 @@ class EasyDialogBuilder(object):
 			"directory" = True will cause the control to browse for a directory
 			"format" = string will cause the control to only allow the user to select that file type
 		"""
-		vs = dabo.ui.dSizer("vertical")
-		vs.DefaultSpacing = spacing
-		vs.DefaultBorder = border
-		vs.DefaultBorderAll = True
+		if grid:
+			Sizer = dabo.ui.dGridSizer(MaxCols=3)
+			Sizer.setColExpand(True, 1)
+		else:
+			Sizer = dabo.ui.dSizer("vertical")
+		
+		Sizer.DefaultSpacing = spacing
+		Sizer.DefaultBorder = border
+		Sizer.DefaultBorderAll = True
 		
 		for obj in controlFields:
 			if len(obj)==4 and isinstance(obj[3], types.DictionaryType):
 				Properties = obj[3]
 			else:
 				Properties = {}
-			bs = self.makeControlField(parent, obj[0], obj[1], obj[2], Properties)
 			
-			if obj[0] is dabo.ui.dEditBox:
-				vs.append(bs, "expand", 1)
+			controls = self.makeControlField(parent, obj[0], obj[1], obj[2], Properties)
+			
+			if grid:
+				lbl = Sizer.append(controls[0], halign="right")
+				if len(controls) > 2:
+					Sizer.append(controls[1], "expand")
+					Sizer.append(controls[2])
+				else:
+					szItem = Sizer.append(controls[1], "expand", colSpan=2)
+				
+				if obj[0] is dabo.ui.dEditBox:
+					Sizer.setRowExpand(True, Sizer.getGridPos(szItem)[0])
+					Sizer.setItemProp(lbl, "valign", "top")
 			else:
-				vs.append(bs, "expand")
+				bs = dabo.ui.dSizer("h")
+				bs.append(controls[0], halign="right")
+				bs.append(controls[1], "expand",1)
+				
+				if len(controls) > 2:
+					bs.append(controls[2])
+				
+				if obj[0] is dabo.ui.dEditBox:
+					Sizer.append(bs, "expand", 1)
+				else:
+					Sizer.append(bs, "expand")
 		
-		return vs
+		return Sizer
 	
-	def makeControlField(self, parent, control, regId, labelTitle, Properties):
-		"""makeControlField(parent, control, regId, labelTitle, Properties) -> dabo.ui.dSizer
+	def makeControlField(self, parent, control, regId, labelTitle, Properties, Sizer=None):
+		"""makeControlField(parent, control, regId, labelTitle, Properties) -> List of Dabo Controls
 		
 		parent -> dabo object that is parent, normally a panel or form
 		control -> the dabo class of the control that you want in the form.  Note, class not instansiated object
 		regId -> string that is the regId of the control
 		labelTitle -> string that is the title of the label next to the control
 		Properties -> dictionary of any properties that are supposed to go with the control
+		Sizer -> Optional Sizer object.  Used so we can insert objects directly into Grid Sizers
 		"""
-		bs = dabo.ui.dSizer("horizontal")
+		
+		if not Sizer:
+			Sizer = dabo.ui.dSizer("horizontal")
+		
+		controlList = []
 		
 		if control == "File":
 			if not Properties.get("format"):
@@ -134,12 +162,11 @@ class EasyDialogBuilder(object):
 				directory = Properties["directory"]
 				del Properties["directory"]
 			
+			labelTitle += ":"
 			
-			bs.append(dabo.ui.dLabel(parent, RegID="%s_label" % (regId,), Caption="%s:" % (labelTitle,)), "normal")
 			target = dabo.ui.dTextBox(parent, RegID=regId, ReadOnly=True, properties=Properties)
-			bs.append(target, "normal", 1)
-			bs.appendSpacer(5)
-			bs.append(fileButton(parent, format, "%s_button" % (regId,), directory, target), "normal")
+			controlList.append(target)
+			controlList.append(fileButton(parent, format, "%s_button" % (regId,), directory, target))
 		else:
 			if issubclass(control, (dabo.ui.dCheckBox, dabo.ui.dButton)):
 				controlCaption = labelTitle
@@ -147,16 +174,11 @@ class EasyDialogBuilder(object):
 			else:
 				controlCaption = ""
 				labelTitle += ":"
-			bs.append(dabo.ui.dLabel(parent, RegID="%s_label" % (regId,), Caption=labelTitle), "normal")
 			
-			if control is dabo.ui.dEditBox:
-				layout = "expand"
-			else:
-				layout = "normal"
-			
-			bs.append(control(parent, RegID=regId, Caption=controlCaption, properties=Properties), layout, 1)
+			controlList.append(control(parent, RegID=regId, Caption=controlCaption, properties=Properties))
 		
-		return bs
+		controlList.insert(0, dabo.ui.dLabel(parent, RegID="%s_label" % (regId,), Caption=labelTitle))
+		return controlList
 	
 	def makeButtonBar(self, buttonData, orientation="horizontal"):
 		"""makeButtonBar(self, tuple buttonData) -> dabo.ui.dSizer
