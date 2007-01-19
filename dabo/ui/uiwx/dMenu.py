@@ -215,26 +215,34 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		return item
 		
 		
+	def RemoveItem_28(self, item):
+		# Needed to keep dPemMixin mixed-in in wxPython 2.8
+		val = wx.Menu.RemoveItem(self, item)
+		item.this.own(val.this.own())
+		val.this.disown()
+		return item
+	
+
 	def remove(self, index, release=True):
 		"""Removes the item at the specified index from the menu.
 
 		If release is True (the default), the item is deleted as well. If release 
-		is False, a reference to the  object will be returned, and the caller 
+		is False, a reference to the object will be returned, and the caller 
 		is responsible for deleting it.
 		"""
 		item = self.Children[index]
 		id_ = item.GetId()
 		if self._daboChildren.has_key(id_):
 			del self._daboChildren[id_]
-		self.RemoveItem(item)
+
+		if wx.VERSION[0] == 2 and wx.VERSION[1] >= 7:
+			item = self.RemoveItem_28(item)
+		else:
+			self.RemoveItem(item)
+
 		if release:
-			if wx.VERSION[0] == 2 and wx.VERSION[1] >= 7:
-				# segfault when destroying menu items for wx2.7. I've reported it and
-				# it will probably be fixed soon. For now, don't destroy it but return
-				# None to the caller.
-				item = None
-			else:
-				item.Destroy()
+			item.Destroy()
+			item = None
 		return item
 
 
