@@ -245,7 +245,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		if self._daboChildren.has_key(id_):
 			del self._daboChildren[id_]
 
-		if wx.VERSION[0] == 2 and wx.VERSION[1] >= 7:
+		if wx.VERSION >= (2,7):
 			# Needed to keep dPemMixin mixed-in in wxPython 2.8
 			val = wx.Menu.RemoveItem(self, item)
 			item.this.own(val.this.own())
