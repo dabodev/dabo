@@ -345,7 +345,7 @@ insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Carl Karsten', 10223
 
 	def test_AutoSQL(self):
 		cur = self.cur
-		self.assertEqual(cur.AutoSQL, "select first 1000 skip 0 *\n  from %s"
+		self.assertEqual(cur.AutoSQL, "SELECT \n first 1000\n*\n  from %s\n\n\n"
 				% self.temp_table_name)
 
 
