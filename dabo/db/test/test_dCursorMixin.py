@@ -24,13 +24,14 @@ for k, v in db_tests.iteritems():
 
 
 class Test_dCursorMixin(object):
-	def setUp(self):
+	def setUp(self, _doRequery=True):
 		cur = self.cur
 		self.createSchema()
 		cur.UserSQL = "select * from %s" % self.temp_table_name
 		cur.KeyField = "pk"
 		cur.Table = self.temp_table_name
-		cur.requery()
+		if _doRequery:
+			cur.requery()
 
 	def tearDown(self):
 		self.cur = None
@@ -39,13 +40,19 @@ class Test_dCursorMixin(object):
 		"""Create the test schema. Override in subclasses."""
 		cur = self.cur
 
+	def getAdditionalWhere(self):
+		return ""
 
 	## - Begin property unit tests -
 	def test_AutoCommit(self):
 		cur = self.cur
 		self.assertEqual(cur.AutoCommit, False)
-		cur.AutoCommit = True
-		self.assertEqual(cur.AutoCommit, True)
+		try:
+			cur.AutoCommit = True
+			self.assertEqual(cur.AutoCommit, True)
+		except ValueError:
+			# Okay; this db didn't allow the setting of AutoCommit.
+			self.assertEqual(cur.AutoCommit, False)
 
 	def test_AutoSQL(self):
 		cur = self.cur
@@ -73,10 +80,10 @@ class Test_dCursorMixin(object):
 		ds = self.cur.DataStructure
 		self.assertTrue(ds[0] == ("pk", "I", True, self.temp_table_name, "pk", None)
 				or ds[0] == ("pk", "G", True, self.temp_table_name, "pk", None))
-		self.assertEqual(ds[1], ("cField", "C", False, self.temp_table_name, "cField", None))
-		self.assertTrue(ds[2] == ("iField", "I", False, self.temp_table_name, "iField", None)
-				or ds[2] == ("iField", "G", False, self.temp_table_name, "iField", None))
-		self.assertEqual(ds[3], ("nField", "N", False, self.temp_table_name, "nField", None))
+		self.assertEqual(ds[1], ("cfield", "C", False, self.temp_table_name, "cfield", None))
+		self.assertTrue(ds[2] == ("ifield", "I", False, self.temp_table_name, "ifield", None)
+				or ds[2] == ("ifield", "G", False, self.temp_table_name, "ifield", None))
+		self.assertEqual(ds[3], ("nfield", "N", False, self.temp_table_name, "nfield", None))
 
 	def test_Encoding(self):
 		cur = self.cur
@@ -90,9 +97,9 @@ class Test_dCursorMixin(object):
 		# as the first element.
 		cur = self.cur
 		self.assertEqual(cur.FieldDescription[0][0], "pk")
-		self.assertEqual(cur.FieldDescription[1][0], "cField")
-		self.assertEqual(cur.FieldDescription[2][0], "iField")
-		self.assertEqual(cur.FieldDescription[3][0], "nField")
+		self.assertEqual(cur.FieldDescription[1][0], "cfield")
+		self.assertEqual(cur.FieldDescription[2][0], "ifield")
+		self.assertEqual(cur.FieldDescription[3][0], "nfield")
 
 	def test_IsAdding(self):
 		cur = self.cur
@@ -106,7 +113,10 @@ class Test_dCursorMixin(object):
 
 	def test_LastSQL(self):
 		cur = self.cur
-		self.assertEqual(cur.LastSQL, cur.UserSQL)
+		current_sql = cur.UserSQL
+		cur.UserSQL = "select blah from temp"
+		self.assertEqual(cur.UserSQL, "select blah from temp")
+		self.assertEqual(cur.LastSQL, current_sql)
 
 	def test_KeyField(self):
 		cur = self.cur
@@ -114,17 +124,17 @@ class Test_dCursorMixin(object):
 
 	def test_Record(self):
 		cur = self.cur
-		self.assertEqual(cur.Record.cField, "Paul Keith McNett")
-		cur.Record.cField = "Denise McNett"
-		self.assertEqual(cur.Record.cField, "Denise McNett")
-		self.assertEqual(cur._mementos[cur.Record.pk]["cField"], "Paul Keith McNett")
-		cur.Record.cField = "Alison Anton"
-		self.assertEqual(cur.Record.cField, "Alison Anton")
-		self.assertEqual(cur._mementos[cur.Record.pk]["cField"], "Paul Keith McNett")
-		cur.setFieldVal("iField", 80)
-		self.assertEqual(cur.Record.iField, 80)
-		self.assertTrue(isinstance(cur.Record.iField, (int, long)))
-		self.assertEqual(cur._mementos[self.cur.Record.pk]["iField"], 23)
+		self.assertEqual(cur.Record.cfield.rstrip(), "Paul Keith McNett")
+		cur.Record.cfield = "Denise McNett"
+		self.assertEqual(cur.Record.cfield, "Denise McNett")
+		self.assertEqual(cur._mementos[cur.Record.pk]["cfield"].rstrip(), "Paul Keith McNett")
+		cur.Record.cfield = "Alison Anton"
+		self.assertEqual(cur.Record.cfield, "Alison Anton")
+		self.assertEqual(cur._mementos[cur.Record.pk]["cfield"].rstrip(), "Paul Keith McNett")
+		cur.setFieldVal("ifield", 80)
+		self.assertEqual(cur.Record.ifield, 80)
+		self.assertTrue(isinstance(cur.Record.ifield, (int, long)))
+		self.assertEqual(cur._mementos[self.cur.Record.pk]["ifield"], 23)
 
 		# Querying or setting a field that doesn't exist should raise
 		# dException.FieldNotFoundException:
@@ -161,14 +171,17 @@ class Test_dCursorMixin(object):
 
 	def test_UserSQL(self):
 		cur = self.cur
-		testSQL = "select * from %s where nField = 23.23" % self.temp_table_name
+		testSQL = "select * from %s where nfield = 23.23" % self.temp_table_name
+		addWhere = self.getAdditionalWhere()
+		if addWhere:	
+			testSQL += " AND %s" % addWhere
 		cur.UserSQL = testSQL
 		cur.requery()
 		self.assertEqual(cur.LastSQL, cur.UserSQL)
 		self.assertEqual(cur.UserSQL, testSQL)
 		self.assertEqual(cur.RowCount, 1)
 		self.assertEqual(cur.RowNumber, 0)
-		self.assertEqual(cur.Record.cField, "Paul Keith McNett")
+		self.assertEqual(cur.Record.cfield.rstrip(), "Paul Keith McNett")
 
 	## - End property unit tests -
 
@@ -179,27 +192,27 @@ class Test_dCursorMixin(object):
 		self.assertEqual(cur._mementos, {})
 		self.assertEqual(cur._newRecords, {})
 	
-		priorVal = cur.Record.cField
+		priorVal = cur.Record.cfield
 		# Make a change that is the same as the prior value:
-		cur.Record.cField = priorVal
-		self.assertEqual(priorVal, cur.Record.cField)
+		cur.Record.cfield = priorVal
+		self.assertEqual(priorVal, cur.Record.cfield)
 		self.assertEqual(cur._mementos, {})
 		self.assertEqual(cur._newRecords, {})
 
 		# Make a change that is different:
-		cur.Record.cField = "New test value"
-		self.assertEqual(cur._mementos, {cur.Record.pk: {"cField": priorVal}})
+		cur.Record.cfield = "New test value"
+		self.assertEqual(cur._mementos, {cur.Record.pk: {"cfield": priorVal}})
 		self.assertEqual(cur.isChanged(), True)
 		self.assertEqual(cur.isChanged(allRows=False), True)
 
 		# Change it back:
-		cur.Record.cField = priorVal
+		cur.Record.cfield = priorVal
 		self.assertEqual(cur._mementos, {})
 		self.assertEqual(cur.isChanged(), False)
 		self.assertEqual(cur.isChanged(allRows=False), False)
 
 		# Make a change that is different and cancel:
-		cur.Record.cField = "New test value"
+		cur.Record.cfield = "New test value"
 		cur.cancel()
 		self.assertEqual(cur._mementos, {})
 		self.assertEqual(cur.isChanged(), False)
@@ -218,9 +231,9 @@ class Test_dCursorMixin(object):
 		self.assertEqual(cur.isChanged(), True)
 		self.assertEqual(cur.isChanged(allRows=False), True)
 		self.assertEqual(cur.Record.pk, "-1-dabotmp")
-		self.assertEqual(cur.Record.cField, "")
-		self.assertEqual(cur.Record.iField, 0)
-		self.assertEqual(cur.Record.nField, 0)
+		self.assertEqual(cur.Record.cfield, "")
+		self.assertEqual(cur.Record.ifield, 0)
+		self.assertEqual(cur.Record.nfield, 0)
 		cur.save()
 		cur.requery()
 		self.assertEqual(cur.RowCount, 4)
@@ -231,9 +244,9 @@ class Test_dCursorMixin(object):
 		self.assertEqual(cur.Record.pk, 4)
 
 		# The new fields should be NULL, since we didn't explicitly set them:
-		self.assertEqual(cur.Record.cField, None)
-		self.assertEqual(cur.Record.iField, None)
-		self.assertEqual(cur.Record.nField, None)
+		self.assertEqual(cur.Record.cfield, None)
+		self.assertEqual(cur.Record.ifield, None)
+		self.assertEqual(cur.Record.nfield, None)
 
 
 class Test_dCursorMixin_sqlite(Test_dCursorMixin, db_tests["sqlite"]):
@@ -247,10 +260,10 @@ class Test_dCursorMixin_sqlite(Test_dCursorMixin, db_tests["sqlite"]):
 		cur = self.cur
 		tableName = self.temp_table_name
 		cur.executescript("""
-create table %s (pk INTEGER PRIMARY KEY AUTOINCREMENT, cField CHAR, iField INT, nField DECIMAL (8,2));
-insert into %s (cField, iField, nField) values ("Paul Keith McNett", 23, 23.23);
-insert into %s (cField, iField, nField) values ("Edward Leafe", 42, 42.42);
-insert into %s (cField, iField, nField) values ("Carl Karsten", 10223, 23032.76);
+create table %s (pk INTEGER PRIMARY KEY AUTOINCREMENT, cfield CHAR, ifield INT, nfield DECIMAL (8,2));
+insert into %s (cfield, ifield, nfield) values ("Paul Keith McNett", 23, 23.23);
+insert into %s (cfield, ifield, nfield) values ("Edward Leafe", 42, 42.42);
+insert into %s (cfield, ifield, nfield) values ("Carl Karsten", 10223, 23032.76);
 """ % (tableName, tableName, tableName, tableName, ))
 
 
@@ -270,16 +283,16 @@ class Test_dCursorMixin_mysql(Test_dCursorMixin, db_tests["mysql"]):
 	def createSchema(self):
 		cur = self.cur
 		cur.execute("""
-create table %s (pk INTEGER PRIMARY KEY AUTO_INCREMENT, cField CHAR (32), iField INT, nField DECIMAL (8,2))
+create table %s (pk INTEGER PRIMARY KEY AUTO_INCREMENT, cfield CHAR (32), ifield INT, nfield DECIMAL (8,2))
 """ % self.temp_table_name)
 		cur.execute("""		
-insert into %s (cField, iField, nField) values ("Paul Keith McNett", 23, 23.23)
+insert into %s (cfield, ifield, nfield) values ("Paul Keith McNett", 23, 23.23)
 """ % self.temp_table_name)
 		cur.execute("""		
-insert into %s (cField, iField, nField) values ("Edward Leafe", 42, 42.42)
+insert into %s (cfield, ifield, nfield) values ("Edward Leafe", 42, 42.42)
 """ % self.temp_table_name)
 		cur.execute("""		
-insert into %s (cField, iField, nField) values ("Carl Karsten", 10223, 23032.76)
+insert into %s (cfield, ifield, nfield) values ("Carl Karsten", 10223, 23032.76)
 """ % self.temp_table_name)
 
 
@@ -292,10 +305,12 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, db_tests["firebird"]):
 		con = dabo.db.dConnection(DbType="Firebird", User="dabotester", 
 				password="Y57W8EN6CB06KBCCDCX01D6B", Database="dabo_unittest",
 				Host="dabodev.com")
-		self.cur = con.getDaboCursor()
+		cur = self.cur = con.getDaboCursor()
 		self.temp_table_name = "dabo_unittest_tbl"
 		self.jobid = self.get_jobid()
-		super(Test_dCursorMixin_firebird, self).setUp()
+		super(Test_dCursorMixin_firebird, self).setUp(_doRequery=False)
+		cur.UserSQL = "select * from %s where jobid = %s" % (self.temp_table_name, self.jobid)
+		cur.requery()
 
 	def get_jobid(self):
 		ret = None
@@ -309,19 +324,22 @@ class Test_dCursorMixin_firebird(Test_dCursorMixin, db_tests["firebird"]):
 		self.cur.execute("commit")
 		super(Test_dCursorMixin_firebird, self).tearDown()
 
+	def getAdditionalWhere(self):
+		return "jobid = %f" % self.jobid
+
 	def createSchema(self):
 		cur = self.cur
 		tableName = self.temp_table_name
 
 		cur.execute("commit")
 		cur.execute("""		
-insert into %s (jobid, cField, iField, nField) values (%f, 'Paul Keith McNett', 23, 23.23)
+insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Paul Keith McNett', 23, 23.23)
 """ % (tableName, self.jobid))
 		cur.execute("""		
-insert into %s (jobid, cField, iField, nField) values (%f, 'Edward Leafe', 42, 42.42)
+insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Edward Leafe', 42, 42.42)
 """ % (tableName, self.jobid))
 		cur.execute("""		
-insert into %s (jobid, cField, iField, nField) values (%f, 'Carl Karsten', 10223, 23032.76)
+insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Carl Karsten', 10223, 23032.76)
 """ % (tableName, self.jobid))
 		cur.execute("commit")
 
@@ -329,6 +347,7 @@ insert into %s (jobid, cField, iField, nField) values (%f, 'Carl Karsten', 10223
 		cur = self.cur
 		self.assertEqual(cur.AutoSQL, "select first 1000 skip 0 *\n  from %s"
 				% self.temp_table_name)
+
 
 if __name__ == "__main__":
 	unittest.main()

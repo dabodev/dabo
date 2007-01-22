@@ -200,9 +200,10 @@ class dBackend(dObject):
 			self._connection.autocommit(val)
 			self._autoCommit = val
 		else:
-			# Without an autocommit method, assume
-			# no autocommit.
+			# Without an autocommit method, assume no autocommit.
 			self._autoCommit = False
+			if val:
+				raise ValueError, "Can't set AutoCommit to True for this backend."
 
 
 	def beginTransaction(self, cursor):
