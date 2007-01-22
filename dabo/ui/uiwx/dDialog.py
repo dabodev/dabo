@@ -35,6 +35,9 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		# Hook method, so that we add the buttons last
 		self._addControls()
 
+		# Needed starting with wx 2.7, for the first control to have the focus:
+		self.setFocus()
+
 
 	def _afterInit(self):
 		self.MenuBarClass = None
