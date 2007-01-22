@@ -296,10 +296,13 @@ insert into %(childTableName)s (parent_fk, cInvNum) values (3, "IN00024");
 		# Test the case where you add a new parent record but no new children:
 		bizMain.new()
 		self.assertEqual(bizMain.RowCount, 4)
+		self.assertEqual(bizMain.RowNumber, 3)
 		bizMain.saveAll()
 		self.assertEqual(bizMain.RowCount, 4)
+		self.assertEqual(bizMain.RowNumber, 3)
 		bizMain.requery()		
 		self.assertEqual(bizMain.RowCount, 4)
+		self.assertEqual(bizMain.RowNumber, 3)
 
 
 if __name__ == "__main__":

@@ -257,7 +257,7 @@ class dBizobj(dObject):
 
 		useTransact = startTransaction or topLevel
 		cursor = self._CurrentCursor
-		old_pk = cursor.getPK()
+		current_row = self.RowNumber
 
 		if useTransact:
 			# Tell the cursor to begin a transaction, if needed.
@@ -287,8 +287,7 @@ class dBizobj(dObject):
 		if useTransact:
 			cursor.commitTransaction()
 
-		if old_pk is not None:
-			self._moveToPK(old_pk)
+		self.RowNumber = current_row
 
 
 	def save(self, startTransaction=False, topLevel=True):
