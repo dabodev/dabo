@@ -334,7 +334,11 @@ class dPageFrameMixin(cm.dControlMixin):
 
 	def _getSelectedPage(self):
 		try:
-			ret = self.GetPage(self.GetSelection())
+			sel = self.GetSelection()
+			if sel < 0:
+				ret = None
+			else:
+				ret = self.GetPage(sel)
 		except:
 			ret = None
 		return ret		
