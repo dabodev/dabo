@@ -1284,6 +1284,12 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def moveToEnd(self):
 		self.SetSelection(-1, -1)
 		self.EnsureCaretVisible()
+	
+	
+	def ensureLineVisible(self, line):
+		self.EnsureVisible(line)
+		self.LineNumber = line
+		self.EnsureCaretVisible()
 
 
 	# - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
