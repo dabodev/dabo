@@ -12,12 +12,13 @@ class Postgres(dBackend):
 		#self.dbModuleName = "PgSQL"
 		self.dbModuleName = "psycopg"
 		self.useTransactions = True  # this does not appear to be required
+		self.conn_user = ''
 
 
 	def getConnection(self, connectInfo):
 		import psycopg2 as dbapi
 		#from pyPgSQL import PgSQL as dbapi
-		
+		self.conn_user = connectInfo.User
 		#- jfcs 11/01/04 port needs to be a string
 		port = str(connectInfo.Port)
 		if not port or port == "None":
@@ -52,8 +53,19 @@ class Postgres(dBackend):
 	def getTables(self, includeSystemTables=False):
 		tempCursor = self._connection.cursor()
 		# jfcs 11/01/04 assumed public schema
-		tempCursor.execute("select tablename from pg_tables where schemaname = 'public'")
+		#tempCursor.execute("select tablename from pg_tables where schemaname = 'public'")
+		# jfcs 01/22/07 added below to support schema 
+		# thanks to Phillip J. Allen who provided a Select state that filtered for the user name
+		if includeSystemTables:
+			sqltablestr = (("SELECT schemaname || '.' || tablename AS tablename FROM pg_tables WHERE has_table_privilege('%s', schemaname || '.' || tablename, 'SELECT')") % self.conn_user)
+	
+		else:
+			sqltablestr = (("SELECT schemaname || '.' || tablename AS tablename FROM pg_tables WHERE (schemaname not like 'pg_%s' and schemaname not like 'information%s') and has_table_privilege('%s', schemaname || '.' || tablename, 'SELECT')") % ('%','%',self.conn_user))
+						
+		tempCursor.execute(sqltablestr)
 		rs = tempCursor.fetchall()
+		
+		
 		tables = []
 		for record in rs:
 			tables.append(record[0])
@@ -75,6 +87,9 @@ class Postgres(dBackend):
 		#comment it if your working with 7.3.x
 		# make sure you uncomment the other code out
 		
+		# jfcs 01/22/07 actually I'm not sure Dabo is still able to support 7.1 - 7.4
+		# should you attempt to Dabo with 7.4 or below please let us know.
+		
 		#tempCursor.execute("select c.column_name as fielname, c.data_type as fieldtyp, \
 		#i.indisprimary AS is_pkey \
 		#FROM information_schema.columns c \
@@ -84,13 +99,18 @@ class Postgres(dBackend):
 		#LEFT JOIN pg_index i ON(cl.oid= i.indrelid) WHERE c.table_name= '%s'" % tableName)
 		#rs=tempCursor.fetchall()
 		
-		# jfcs 11/01/04 Below sucks but works with 7.3.x and 7.4.x (don't know anything
-		# about 8.0.x) 
+		
 		# Ok get the 'field name', 'field type'
-		tempCursor.execute("""select c.oid,a.attname, t.typname 
-				from pg_class c inner join pg_attribute a 
-				on a.attrelid = c.oid inner join pg_type t on a.atttypid = t.oid 
-				where c.relname = '%s' and a.attnum > 0 """ % tableName)
+		#tempCursor.execute("""select c.oid,a.attname, t.typname 
+				#from pg_class c inner join pg_attribute a 
+				#on a.attrelid = c.oid inner join pg_type t on a.atttypid = t.oid 
+				#where c.relname = '%s' and a.attnum > 0 """ % tableName)
+		# JFCS 01/22/07 Added support for schema 
+		tempCursor.execute("""select c.oid,a.attname, t.typname, b.schemaname from pg_class c 
+inner join pg_attribute a on a.attrelid = c.oid 
+inner join pg_type t on a.atttypid = t.oid 
+inner join pg_tables b on b.tablename=c.relname
+where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName)
 		rs = tempCursor.fetchall()
 		myoid=rs[0][0]
 		## get the PK 
