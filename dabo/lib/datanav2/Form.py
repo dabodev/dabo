@@ -22,6 +22,7 @@ class Form(dabo.ui.dForm):
 			+ Edit	 : Edit the current record in the result set.
 	"""
 	def initProperties(self):
+		self.AutoUpdateStatusText = True
 		self.ShowToolBar = True
 		self.Size = (640, 480)
 	
