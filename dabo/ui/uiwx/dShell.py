@@ -1,5 +1,6 @@
 import __builtin__
 import wx
+import wx.stc as stc
 import wx.py
 from wx.py import pseudo
 import dabo
@@ -7,16 +8,140 @@ import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dSplitForm import dSplitForm
 from dabo.ui import makeDynamicProperty
+from dPemMixin import dPemMixin
 
 dabo.ui.loadUI("wx")
+
+
+class _Shell(dPemMixin, wx.py.shell.Shell):
+	def __init__(self, parent, properties=None, attProperties=None,
+				*args, **kwargs):
+		self._isConstructed = False
+		self._fontSize = 10
+		self._fontFace = ""
+		self._baseClass = _Shell
+		preClass = wx.py.shell.Shell
+		dPemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+	
+	
+	def _afterInit(self):
+		super(_Shell, self)._afterInit()
+		# Set some font defaults
+		plat = wx.Platform
+		if plat == "__WXGTK__":
+			self.FontFace = "Monospace"
+			self.FontSize = 10
+		elif plat == "__WXMAC__":
+			self.FontFace = "Monaco"
+			self.FontSize = 12
+		if plat == "__WXMSW__":
+			self.FontFace = "Courier New"
+			self.FontSize = 10	
+
+
+	def setDefaultFont(self, fontFace, fontSize):
+		# Global default styles for all languages
+		self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize))
+		self.StyleClearAll()  # Reset all to be like the default
+
+		# Global default styles for all languages
+		self.StyleSetSpec(stc.STC_STYLE_DEFAULT,
+			"face:%s,size:%d" % (self._fontFace, fontSize))
+		self.StyleSetSpec(stc.STC_STYLE_LINENUMBER,
+			"back:#C0C0C0,face:%s,size:%d" % (self._fontFace, 8))
+		self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR,
+			"face:%s" % fontFace)
+		self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT,
+			"fore:#000000,back:#00FF00,bold")
+		self.StyleSetSpec(stc.STC_STYLE_BRACEBAD,
+			"fore:#000000,back:#FF0000,bold")
+
+
+	def setPyFont(self, fontFace, fontSize):
+		# Python-specific styles
+		self.StyleSetSpec(stc.STC_P_DEFAULT,
+			"fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
+		# Comments
+		self.StyleSetSpec(stc.STC_P_COMMENTLINE,
+			"fore:#007F00,face:%s,size:%d,italic" % (fontFace, fontSize))
+		# Number
+		self.StyleSetSpec(stc.STC_P_NUMBER,
+			"fore:#007F7F,size:%d" % fontSize)
+		# String
+		self.StyleSetSpec(stc.STC_P_STRING,
+			"fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
+		# Single quoted string
+		self.StyleSetSpec(stc.STC_P_CHARACTER,
+			"fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
+		# Keyword
+		self.StyleSetSpec(stc.STC_P_WORD,
+			"fore:#00007F,bold,size:%d" % fontSize)
+		# Triple quotes
+		self.StyleSetSpec(stc.STC_P_TRIPLE,
+			"fore:#7F0000,size:%d,italic" % fontSize)
+		# Triple double quotes
+		self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE,
+			"fore:#7F0000,size:%d,italic" % fontSize)
+		# Class name definition
+		self.StyleSetSpec(stc.STC_P_CLASSNAME,
+			"fore:#0000FF,bold,underline,size:%d" % fontSize)
+		# Function or method name definition
+		self.StyleSetSpec(stc.STC_P_DEFNAME,
+			"fore:#007F7F,bold,size:%d" % fontSize)
+		# Operators
+		self.StyleSetSpec(stc.STC_P_OPERATOR,
+			"bold,size:%d" % fontSize)
+		# Identifiers
+		self.StyleSetSpec(stc.STC_P_IDENTIFIER,
+			"fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
+		# Comment-blocks
+		self.StyleSetSpec(stc.STC_P_COMMENTBLOCK,
+			"fore:#7F7F7F,size:%d,italic" % fontSize)
+		# End of line where string is not closed
+		self.StyleSetSpec(stc.STC_P_STRINGEOL,
+			"fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize))
+	
+
+	def _getFontSize(self):
+		return self._fontSize
+
+	def _setFontSize(self, val):
+		if self._constructed():
+			self._fontSize = val
+			self.setDefaultFont(self._fontFace, self._fontSize)
+			self.setPyFont(self._fontFace, self._fontSize)
+			self.Application.setUserSetting("shell.fontsize", self._fontSize)
+		else:
+			self._properties["FontSize"] = val
+
+
+	def _getFontFace(self):
+		return self._fontFace
+
+	def _setFontFace(self, val):
+		if self._constructed():
+			self._fontFace = val
+			self.setDefaultFont(self._fontFace, self._fontSize)
+			self.setPyFont(self._fontFace, self._fontSize)
+			self.Application.setUserSetting("shell.fontface", self._fontFace)
+		else:
+			self._properties["FontFace"] = val
+
+
+	FontFace = property(_getFontFace, _setFontFace, None,
+			_("Name of the font face used in the shell  (str)"))
+	
+	FontSize = property(_getFontSize, _setFontSize, None,
+			_("Size of the font used in the shell  (int)"))
+	
+
+
 
 class dShell(dSplitForm):
 	def _onDestroy(self, evt):
 		__builtin__.raw_input = self._oldRawInput
 
 	def _afterInit(self):
-		self._sashPct = 0.6
-
 		super(dShell, self)._afterInit()
 
 		# PyShell sets the raw_input function to a function of PyShell,
@@ -44,7 +169,7 @@ class dShell(dSplitForm):
 		
 		cp.Sizer = dabo.ui.dSizer()
 		op.Sizer = dabo.ui.dSizer()
-		self.shell = wx.py.shell.Shell(self.CmdPanel)
+		self.shell = _Shell(self.CmdPanel)
 		# Configure the shell's behavior
 		self.shell.AutoCompSetIgnoreCase(True)
 		self.shell.AutoCompSetAutoHide(False)	 ## don't hide when the typed string no longer matches
@@ -69,7 +194,6 @@ class dShell(dSplitForm):
 		self._pseudoErr = pseudo.PseudoFileOut(write=self.appendOut)
 		self.SplitState = True
 		
-		
 		# Make 'self' refer to the calling form, or this form if no calling form.
 		if self.Parent is None:
 			ns = self
@@ -80,6 +204,8 @@ class dShell(dSplitForm):
 		self.Caption = _("dShell: self is %s") % ns.Name
 		self.setStatusText(_("Use this shell to interact with the runtime environment"))
 		self.fillMenu()
+		# Set the sash
+		self._sashPct = 0.6
 		self.shell.SetFocus()
 		
 	
@@ -154,12 +280,14 @@ class dShell(dSplitForm):
 	def onViewZoomIn(self, evt):
 		self.shell.SetZoom(self.shell.GetZoom()+1)
 
+
 	def onViewZoomNormal(self, evt):
 		self.shell.SetZoom(0)
 
+
 	def onViewZoomOut(self, evt):
 		self.shell.SetZoom(self.shell.GetZoom()-1)
-	
+
 
 	def _getSplitState(self):
 		return self._splitState
@@ -177,9 +305,37 @@ class dShell(dSplitForm):
 				self.shell.interp.stderr = self._stdErr
 			
 
+	def _getFontSize(self):
+		return self.shell.FontSize
+
+	def _setFontSize(self, val):
+		if self._constructed():
+			self.shell.FontSize = val
+		else:
+			self._properties["FontSize"] = val
+
+
+	def _getFontFace(self):
+		return self.shell.FontFace
+
+	def _setFontFace(self, val):
+		if self._constructed():
+			self.shell.FontFace = val
+		else:
+			self._properties["FontFace"] = val
+
+
+	FontFace = property(_getFontFace, _setFontFace, None,
+			_("Name of the font face used in the shell  (str)"))
+	
+	FontSize = property(_getFontSize, _setFontSize, None,
+			_("Size of the font used in the shell  (int)"))
+
 	SplitState = property(_getSplitState, _setSplitState, None,
 			_("""Controls whether the output is in a separate pane (default) 
 			or intermixed with the commands.  (bool)"""))
+			
+			
 	DynamicSplitState = makeDynamicProperty(SplitState)
 	
 		
