@@ -451,6 +451,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.floatRendererClass = wx.grid.GridCellFloatRenderer
 		self.listRendererClass = wx.grid.GridCellStringRenderer
 		self.stringEditorClass = wx.grid.GridCellTextEditor
+		self.wrapStringEditorClass = wx.grid.GridCellAutoWrapStringEditor
 		self.boolEditorClass = wx.grid.GridCellBoolEditor
 		self.intEditorClass = wx.grid.GridCellNumberEditor
 		self.longEditorClass = wx.grid.GridCellNumberEditor
@@ -1296,8 +1297,10 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._wordWrap = val
 			if val:
 				self.defaultRenderers["str"] = self.defaultRenderers["string"] = self.wrapStringRendererClass
+				self.defaultEditors["str"] = self.defaultEditors["string"] = self.wrapStringEditorClass
 			else:
 				self.defaultRenderers["str"] = self.defaultRenderers["string"] = self.stringRendererClass
+				self.defaultEditors["str"] = self.defaultEditors["string"] = self.stringEditorClass
 			self._refreshGrid()
 		else:
 			self._properties["WordWrap"] = val
@@ -4285,13 +4288,13 @@ class _dGrid_test(dGrid):
 				Searchable=False, Editable=True)
 		self.addColumn(col)
 
-		col.CustomRenderers[1] = col.stringRendererClass
-		col.CustomEditors[1] = col.stringEditorClass
+# 		col.CustomRenderers[1] = col.stringRendererClass
+# 		col.CustomEditors[1] = col.stringEditorClass
 		col.HeaderFontBold = False
 
 		col = dColumn(self, Name="Person", Order=20, DataField="name",
 				DataType="string", Width=200, Caption="Celebrity Name",
-				Sortable=True, Searchable=True, Editable=True, Expand=True)
+				Sortable=True, Searchable=True, Editable=True, Expand=False)
 		self.addColumn(col)
 		
 		col.HeaderFontItalic = True
@@ -4305,7 +4308,7 @@ class _dGrid_test(dGrid):
 
 		col = dColumn(self, Name="Color", Order=40, DataField="color",
 				DataType="string", Width=40, Caption="Favorite Color",
-				Sortable=True, Searchable=True, Editable=True, Expand=True)
+				Sortable=True, Searchable=True, Editable=True, Expand=False)
 		self.addColumn(col)
 
 		col.ListEditorChoices = dabo.dColors.colors
