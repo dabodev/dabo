@@ -144,6 +144,8 @@ class DesignerXmlConverter(dObject):
 		propInit = ""
 		for prop, propDef in propDefs.items():
 			val = propDef["defaultValue"]
+			if not val:
+				continue
 			if propDef["defaultType"] == "string":
 				val = "\"" + val + "\""
 			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
