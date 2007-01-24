@@ -145,7 +145,7 @@ class dFormMixin(pm.dPemMixin):
 					restoredSP = False
 				if not restoredSP:
 					if self.SaveRestorePosition:
-						self.restoreSizeAndPosition()
+						dabo.ui.callAfter(self.restoreSizeAndPosition)
 				
 				self.raiseEvent(dEvents.Activate, evt)
 				self._skipActivate = (self.Application.Platform == "Win")
