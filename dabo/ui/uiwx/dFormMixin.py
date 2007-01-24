@@ -17,8 +17,9 @@ class dFormMixin(pm.dPemMixin):
 			src=None, attProperties=None, *args, **kwargs):
 
 		# Windows sends two Activate events, and one of them is too early.
-		# Skip the first one
-		self._skipActivate = (self.Application.Platform == "Win")
+		# Skip the first one. Update: apparently on wx27 and above the 
+		# double-activation is no longer an issue.
+		self._skipActivate = (wx.VERSION < (2,7) and self.Application.Platform == "Win")
 
 		# Extract the connection name, if any
 		self._cxnFile = self._extractKey((properties, attProperties, kwargs), 
