@@ -269,19 +269,19 @@ class dBizobj(dObject):
 			try:
 				self.save(startTransaction=False, topLevel=False)
 			except dException.ConnectionLostException, e:
-				self._moveToPK(old_pk)
+				self.RowNumber = current_row
 				raise dException.ConnectionLostException, e
 			except dException.DBQueryException, e:
 				# Something failed; reset things.
 				if useTransact:
 					cursor.rollbackTransaction()
 				# Pass the exception to the UI
-				self._moveToPK(old_pk)
+				self.RowNumber = current_row
 				raise dException.DBQueryException, e
 			except dException.dException, e:
 				if useTransact:
 					cursor.rollbackTransaction()
-				self._moveToPK(old_pk)
+				self.RowNumber = current_row
 				raise
 
 		if useTransact:
