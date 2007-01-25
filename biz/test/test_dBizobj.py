@@ -146,12 +146,20 @@ insert into %(childTableName)s (parent_fk, cInvNum) values (3, "IN00024");
 		biz.delete()
 		biz.new()
 		biz.save()
+		self.assertEqual(biz.RowCount, 3)
+		self.assertEqual(biz.RowNumber, 2)
 
-	def testDeleteNewSaveAll(self):
-		biz = self.biz
-		biz.delete()
+		biz.deleteAll()
+		self.assertEqual(biz.RowCount, 0)
+
+		self.assertRaises(dabo.dException.NoRecordsException, biz.save)
+		self.assertRaises(dabo.dException.NoRecordsException, biz.delete)
+
 		biz.new()
-		biz.saveAll()
+		biz.save()
+		self.assertEqual(biz.RowCount, 1)
+		self.assertEqual(biz.RowNumber, 0)
+
 
 	def testMementos(self):
 		biz = self.biz
