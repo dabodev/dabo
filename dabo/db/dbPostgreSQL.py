@@ -80,6 +80,9 @@ class Postgres(dBackend):
 
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
+		tableNameBreak=tableName.split('.',1)
+		localSchemaName = tableNameBreak[0]
+		localTableName = tableNameBreak[1]
 		#jfcs 11/01/04 works great from psql (but does not work with the psycopg
 		#module) and only with postgres 7.4.x and later.  Too bad, the statement
 		#does everything in one shot.
@@ -112,20 +115,27 @@ inner join pg_type t on a.atttypid = t.oid
 inner join pg_tables b on b.tablename=c.relname
 where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName)
 		rs = tempCursor.fetchall()
-		myoid=rs[0][0]
-		## get the PK 
-		tempCursor.execute("""select c2.relname, i.indisprimary, i.indisunique, 
-				pg_catalog.pg_get_indexdef(i.indexrelid) 
-				FROM pg_catalog.pg_class c, pg_catalog.pg_class c2, pg_catalog.pg_index i 
-				WHERE c.oid = %s AND c.oid = i.indrelid AND i.indexrelid = c2.oid 
-				AND i.indisprimary =TRUE 
-				ORDER BY i.indisprimary DESC, i.indisunique DESC, c2.relname""" % myoid)	
+
+		## get the PK the code should work well with 7.4 - 8.2 versions
+		
+		sqlstr = """SELECT n.nspname AS schema_name, c.relname AS table_name,
+           c.oid AS table_oid, a.attname AS column_name, idx.n + 1 AS ordinal_position
+      FROM pg_class c, pg_attribute a, pg_index i, pg_namespace n, generate_series(0, 31) idx(n)
+     WHERE c.oid = a.attrelid AND c.oid = i.indrelid AND i.indisprimary AND a.attnum = i.indkey[idx.n]
+       AND NOT a.attisdropped
+       AND has_schema_privilege(n.oid, 'USAGE'::text)
+       AND n.nspname NOT LIKE 'pg!_%s' ESCAPE '!'
+       AND has_table_privilege(c.oid, 'SELECT'::text)
+       AND c.relnamespace = n.oid and c.relname = '%s' and n.nspname = '%s' """ % ('%',localTableName,localSchemaName)
+		
+		tempCursor.execute(sqlstr)
 		rs2=tempCursor.fetchall()
 		if rs2==[]:
 			thePKFieldName = None
 		else:
-			thestr = rs2[0][3]
-			thePKFieldName = thestr[thestr.find("(") + 1: thestr.find(")")].split(", ")
+			#thestr = rs2[0][3]
+			#thePKFieldName = thestr[thestr.find("(") + 1: thestr.find(")")].split(", ")
+			thePKFieldName = rs2[0][3]
 		
 		fields = []
 		for r in rs:
