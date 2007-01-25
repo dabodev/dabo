@@ -141,6 +141,17 @@ insert into %(childTableName)s (parent_fk, cInvNum) values (3, "IN00024");
 
 	## - End property unit tests -
 
+	def testDeleteNewSave(self):
+		biz = self.biz
+		biz.delete()
+		biz.new()
+		biz.save()
+
+	def testDeleteNewSaveAll(self):
+		biz = self.biz
+		biz.delete()
+		biz.new()
+		biz.saveAll()
 
 	def testMementos(self):
 		biz = self.biz
