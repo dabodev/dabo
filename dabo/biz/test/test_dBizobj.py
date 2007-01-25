@@ -156,6 +156,12 @@ insert into %(childTableName)s (parent_fk, cInvNum) values (3, "IN00024");
 		self.assertRaises(dabo.dException.NoRecordsException, biz.delete)
 
 		biz.new()
+		self.assertEqual(biz.RowCount, 1)
+		biz.delete()
+		self.assertEqual(biz.RowCount, 0)
+		self.assertRaises(dabo.dException.NoRecordsException, biz.save)
+
+		biz.new()
 		biz.save()
 		self.assertEqual(biz.RowCount, 1)
 		self.assertEqual(biz.RowNumber, 0)
