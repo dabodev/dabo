@@ -183,6 +183,19 @@ class dCursorMixin(dObject):
 				elif _USE_DECIMAL and type(field_val) in (float,) \
 						and pythonType in (Decimal,):
 					ret = pythonType(str(field_val))
+				elif _USE_DECIMAL and pythonType in (Decimal,):
+					# Need to convert to the correct scale:
+					ds = self.DataStructure
+					ret = None
+					for s in ds:
+						if s[0] == field_name:
+							if len(s) > 5:
+								scale = s[5]
+								if scale is not None:
+									ret = Decimal(field_val).quantize(Decimal("0.%s" % (scale * "0",)))
+
+					if ret is None:
+						ret = pythonType(field_val)
 				else:
 					try:
 						ret = pythonType(field_val)
