@@ -334,7 +334,8 @@ class SelectPage(Page):
 	
 	
 	def setLimit(self, biz):
-		biz.setLimitClause(self.selectFields["limit"]["ctrl"].Value)
+		if self.selectFields.has_key("limit"):
+			biz.setLimitClause(self.selectFields["limit"]["ctrl"].Value)
 		
 
 	def requery(self):
