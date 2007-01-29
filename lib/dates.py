@@ -4,6 +4,7 @@ For example, getting a date from a string in various formats.
 """
 import datetime
 import re
+import time
 
 _dregex = {}
 _dtregex = {}
@@ -188,6 +189,15 @@ def getTimeFromString(strVal, formats=None):
 		if ret is not None:
 			break	
 	return ret
+
+
+def goDate(date_exp, days):
+	"""Given a datetime.date expression, return the date that is <days> away."""
+	now = time.time()
+	one_day = 60*60*24
+	offset = (one_day * days)
+	new_time = time.localtime(now + offset)
+	return datetime.date(new_time[0], new_time[1], new_time[2])
 
 
 if __name__ == "__main__":
