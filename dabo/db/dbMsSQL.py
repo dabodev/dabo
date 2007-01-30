@@ -203,11 +203,15 @@ class MSSQL(dBackend):
 	def flush(self, cursor):
 		self.commitTransaction(cursor)
 		
+		
 	def getLimitWord(self):
 		return "TOP"
 	
-	def formSQL(self, fieldClause, fromClause, 
+	
+	def formSQL(self, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause, limitClause):
 		""" MS SQL wants the limit clause before the field clause.	"""
-		return "\n".join( ("SELECT ", limitClause, fieldClause, fromClause, 
-				whereClause, groupByClause, orderByClause) )
+		clauses =  (limitClause, fieldClause, fromClause, joinClause, 
+				whereClause, groupByClause, orderByClause)
+		sql = "SELECT " + "\n".join( [clause for clause in clauses if clause] )
+		return sql
