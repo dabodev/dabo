@@ -778,6 +778,15 @@ def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
 def _getWild(*args):
 	ret = "*"
 	if args:
+		# Split any args passed in the format of "gif | jpg | png"
+		expanded = []
+		for arg in args:
+			try:
+				argSp = [aa.strip() for aa in arg.split("|")]
+			except AttributeError:
+				argSp = [arg]
+			expanded += argSp
+		args = expanded
 		arglist = []
 		tmplt = "%s Files (*.%s)|*.%s"
 		fileDict = {"html" : "HTML", 
@@ -803,6 +812,8 @@ def _getWild(*args):
 				fDesc = "Dabo Report Format Files (*.rfxml)|*.rfxml"
 			elif a == "cdxml":
 				fDesc = "Dabo Class Designer Files (*.cdxml)|*.cdxml"
+			elif a == "mnxml":
+				fDesc = "Dabo Menu Designer Files (*.mnxml)|*.mnxml"
 			else:
 				if a in fileDict:
 					fDesc = tmplt % (fileDict[a], a, a)
