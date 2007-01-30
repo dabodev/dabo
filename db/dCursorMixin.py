@@ -127,6 +127,7 @@ class dCursorMixin(dObject):
 	def clearSQL(self):
 		self._fieldClause = ""
 		self._fromClause = ""
+		self._joinClause = ""
 		self._whereClause = ""
 		self._childFilterClause = ""
 		self._groupByClause = ""
@@ -1729,6 +1730,25 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self.sqlManager._fromClause
 
 
+	def getJoinClause(self):
+		""" Get the join clause of the sql statement."""
+		return self.sqlManager._joinClause
+
+
+	def setJoinClause(self, clause):
+		""" Set the join clause of the sql statement."""
+		self.sqlManager._joinClause = self.sqlManager.BackendObject.setJoinClause(clause)
+
+
+	def addJoin(self, tbl, joinCondition, joinType=None):
+		""" Add a joined table to the sql statement."""
+		if self.sqlManager.BackendObject:
+			self.sqlManager._joinClause = self.sqlManager.BackendObject.addJoin(tbl, 
+					joinCondition, self.sqlManager._joinClause, joinType)
+		return self.sqlManager._joinClause
+		
+
+
 	def getWhereClause(self):
 		""" Get the where clause of the sql statement."""
 		return self.sqlManager._whereClause
@@ -1829,6 +1849,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Get the complete SQL statement from all the parts."""
 		fieldClause = self.sqlManager._fieldClause
 		fromClause = self.sqlManager._fromClause
+		joinClause = self.sqlManager._joinClause
 		whereClause = self.sqlManager._whereClause
 		childFilterClause = self.sqlManager._childFilterClause
 		groupByClause = self.sqlManager._groupByClause
@@ -1851,6 +1872,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			fromClause = "  from " + fromClause
 		else:
 			fromClause = "  from " + self.sqlManager.Table
+		if joinClause:
+			joinClause = " " + joinClause
 		if whereClause:
 			whereClause = " where " + whereClause
 		if groupByClause:
@@ -1865,7 +1888,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		else:
 			limitClause = " %s %s" % (self.sqlManager.getLimitWord(), self.sqlManager._defaultLimit)
 
-		return self.sqlManager.BackendObject.formSQL(fieldClause, fromClause, 
+		return self.sqlManager.BackendObject.formSQL(fieldClause, fromClause, joinClause, 
 				whereClause, groupByClause, orderByClause, limitClause)
 		
 

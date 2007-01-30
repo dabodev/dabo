@@ -278,6 +278,15 @@ class dBackend(dObject):
 		exp = self.encloseSpaces(exp)
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
+	
+	
+	def addJoin(self, tbl, joinCondition, exp, joinType=None):
+		""" Add a joined table to the sql statement."""
+		tbl = self.encloseSpaces(tbl)
+		joinType = self.formatJoinType(joinType)
+		indent = len("select ") * " "
+		clause = "%(joinType)s join %(tbl)s on %(joinCondition)s" % locals()
+		return self.addWithSep(clause, exp, sep="\n%s" % indent)
 
 
 	def addWhere(self, clause, exp, comp="and"):
@@ -308,13 +317,13 @@ class dBackend(dObject):
 		return "limit"
 
 
-	def formSQL(self, fieldClause, fromClause,
+	def formSQL(self, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause, limitClause):
 		""" Creates the appropriate SQL for the backend, given all
 		the required clauses. Some backends order these differently, so
 		they should override this method with their own ordering.
 		"""
-		clauses =  (fieldClause, fromClause, whereClause, groupByClause,
+		clauses =  (fieldClause, fromClause, joinClause, whereClause, groupByClause,
 				orderByClause, limitClause)
 		sql = "select " + "\n".join( [clause for clause in clauses if clause] )
 		return sql
@@ -325,6 +334,16 @@ class dBackend(dObject):
 		for specific backends.
 		"""
 		return clause
+	
+	
+	def formatJoinType(self, jt):
+		"""Default formatting for jointype keywords. Override in subclasses if needed."""
+		if jt is None:
+			jt = "inner"
+		else:
+			# Default to trimmed lower-case
+			jt = jt.lower().strip()
+		return jt
 
 
 	def getWordMatchFormat(self):
@@ -516,6 +535,8 @@ class dBackend(dObject):
 	def setFieldClause(self, clause):
 		return clause
 	def setFromClause(self, clause):
+		return clause
+	def setJoinClause(self, clause):
 		return clause
 	def setWhereClause(self, clause):
 		return clause

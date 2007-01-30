@@ -1252,6 +1252,8 @@ class dBizobj(dObject):
 		return self._CurrentCursor.addField(exp, alias)
 	def addFrom(self, exp):
 		return self._CurrentCursor.addFrom(exp)
+	def addJoin(self, tbl, exp, joinType=None):
+		return self._CurrentCursor.addJoin(tbl, exp, joinType)
 	def addGroupBy(self, exp):
 		return self._CurrentCursor.addGroupBy(exp)
 	def addOrderBy(self, exp):
@@ -1264,6 +1266,8 @@ class dBizobj(dObject):
 		return self._CurrentCursor.setFieldClause(clause)
 	def setFromClause(self, clause):
 		return self._CurrentCursor.setFromClause(clause)
+	def setJoinClause(self, clause):
+		return self._CurrentCursor.setJoinClause(clause)
 	def setGroupByClause(self, clause):
 		return self._CurrentCursor.setGroupByClause(clause)
 	def setLimitClause(self, clause):
