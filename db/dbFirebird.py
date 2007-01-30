@@ -193,11 +193,13 @@ class Firebird(dBackend):
 		return "first"
 		
 
-	def formSQL(self, fieldClause, fromClause, 
+	def formSQL(self, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause, limitClause):
 		""" Firebird wants the limit clause before the field clause.	"""
-		return "\n".join( ("SELECT ", limitClause, fieldClause, fromClause, 
-				whereClause, groupByClause, orderByClause) )
+		clauses =  (limitClause, fieldClause, fromClause, joinClause, 
+				whereClause, groupByClause, orderByClause)
+		sql = "SELECT " + "\n".join( [clause for clause in clauses if clause] )
+		return sql
 
 
 	def massageDescription(self, cursor):
