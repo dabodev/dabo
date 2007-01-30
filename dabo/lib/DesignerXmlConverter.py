@@ -29,6 +29,8 @@ class DesignerXmlConverter(dObject):
 		# generated code and not the code in this class, it is much cleaner to define them 
 		# separately.
 		self._defineTextBlocks()
+		# Expression for substituing default parameters
+		self.prmDefPat = re.compile(r"([^=]+)=?.*")
 		# Added to ensure unique object names
 		self._generatedNames = []
 		# Holds the text for the generated code file
@@ -466,12 +468,15 @@ class DesignerXmlConverter(dObject):
 		"""Creates the substitute method call that will call the actual method in the temp file."""
 		# Get the method name and params
 		indnt, mthd, prmText = self._codeDefExtract.search(cd).groups()
+		# Clean up the default values from the params.
+		nonDefPrmText = ", ".join([self.prmDefPat.sub(r"\1", pp).strip() for pp in prmText.split(",")])
 		# Create the proxy method name
 		proxMthd = "%s_%s" % (mthd, self._methodNum)
 		self._methodNum += 1
 		# Create the proxy call
-		prox = "%sdef %s(%s):%s%s\treturn %s.%s(%s)" % (indnt, mthd, prmText, LINESEP, 
-				indnt, self._codeImportAs, proxMthd, prmText)
+		sep = LINESEP
+		scia = self._codeImportAs
+		prox = "%(indnt)sdef %(mthd)s(%(prmText)s):%(sep)s%(indnt)s\treturn %(scia)s.%(proxMthd)s(%(nonDefPrmText)s)" % locals()
 		# Add the code to the output text
 		cdOut = cd.replace(mthd, proxMthd, 1)
 		self._codeFileText += cdOut + LINESEP + LINESEP
