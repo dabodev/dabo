@@ -1369,6 +1369,10 @@ class dPemMixin(dPemMixinBase):
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
+	
+	
+	def clear(self):
+		self.ClearBackground()
 		
 		
 	def _addToDrawnObjects(self, obj, persist):
@@ -1379,8 +1383,8 @@ class dPemMixin(dPemMixinBase):
 			obj = None
 		return obj
 		
-		
-	def _removeFromDrawnObjects(self, obj):
+	
+	def removeDrawnObject(self, obj):
 		self._drawnObjects.remove(obj)
 		
 		
@@ -2395,6 +2399,10 @@ class DrawObject(dObject):
 	
 	def update(self):
 		self.Parent._needRedraw = True
+	
+	
+	def release(self):
+		self._parent.removeDrawnObject(self)
 		
 		
 	def draw(self, dc=None):
