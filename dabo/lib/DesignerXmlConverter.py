@@ -66,7 +66,8 @@ class DesignerXmlConverter(dObject):
 		## so that you can help determine any problems.
 		open("CLASSTEXT.py", "w").write(self.classText)
 
-		compClass = compile(self.classText, "", "exec")
+		# jfcs added self._codeFileName to below
+		compClass = compile(self.classText, self._codeFileName, "exec")
 		nmSpace = {}
 		exec compClass in nmSpace
 		return nmSpace[self.mainClassName]
