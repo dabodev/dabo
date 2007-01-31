@@ -15,6 +15,9 @@ def getForm():
 class dMessageBox(wx.MessageDialog):
 	def __init__(self, message, title, style):
 		form = getForm()
+		# Force the message and title to strings
+		message = "%s" % message
+		title = "%s" % title
 		wx.MessageDialog.__init__(self, form, message, title, style)
 
 
