@@ -340,9 +340,9 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(biz.RowCount, 4)
 		biz.last()
 		self.assertEqual(biz.RowNumber, 3)
-		self.assertTrue("biz.Record.cField is None")
-		self.assertTrue("biz.Record.iField is None")
-		self.assertTrue("biz.Record.nField is None")
+		self.assertEqual(biz.Record.cField, None)
+		self.assertEqual(biz.Record.iField, None)
+		self.assertEqual(biz.Record.nField, None)
 
 if __name__ == "__main__":
 	unittest.main()
