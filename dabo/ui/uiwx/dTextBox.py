@@ -87,6 +87,8 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		elif isinstance(value, datetime.time):
 			# Use the ISO 8601 time string format
 			strVal = value.isoformat()
+		elif value is None:
+			strVal = self.Application.NoneDisplay
 		else:
 			# convert all other data types to string:
 			strVal = str(value)   # (floats look like 25.55)
@@ -308,82 +310,87 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		# Get the string value as reported by wx, which is the up-to-date 
 		# string value of the control:
 		strVal = self.GetValue()
-		
-		if dataType == type(None):
-			# The current datatype of the control is NoneType, but more likely it's
-			# just that there happened to be a value of None for this field in one of
-			# the records. We've saved the last used non-None datatype, so we'll 
-			# assume that is the real type to use.
-			dataType = self._lastDataType
 
 		# Convert the current string value of the control, as entered by the 
 		# user, into the proper data type.
-		if dataType == bool:
-			# Bools can't convert from string representations, because a zero-
-			# length denotes False, and anything else denotes True.
-			if strVal == "True":
-				retVal = True
+		skipConversion = False
+		if _value is None:
+			if strVal == self.Application.NoneDisplay:
+				# Keep the value None
+				retVal = None
+				skipConversion = True
 			else:
-				retVal = False
+				# User changed the None value to something else, convert to the last
+				# known real datatype.
+				dataType = self._lastDataType
 
-		elif dataType in (datetime.date, datetime.datetime, datetime.time):
-			# We expect the string to be in ISO 8601 format.
-			if dataType == datetime.date:
-				retVal = self._getDateFromString(strVal)
-			elif dataType == datetime.datetime:
-				retVal = self._getDateTimeFromString(strVal)
-			elif dataType == datetime.time:
-				retVal = self._getTimeFromString(strVal)
-				
-			if retVal is None:
-				# String wasn't in ISO 8601 format... put it back to a valid
-				# string with the previous value and the user will have to 
-				# try again.
-				retVal = self._value
-				
-		elif str(dataType) == "<type 'DateTime'>":
-			# mx DateTime type. MySQLdb will use this if mx is installed.
-			try:
-				import mx.DateTime
-				retVal = mx.DateTime.DateTimeFrom(str(strVal))
-			except ImportError:
-				retVal = self._value
-		
-		elif str(dataType) == "<type 'DateTimeDelta'>":
-			# mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
-			try:
-				import mx.DateTime
-				retVal = mx.DateTime.TimeFrom(str(strVal))
-			except ImportError:
-				retVal = self._value
-		
-		elif (decimal is not None and dataType == decimal.Decimal):
-			try:
-				_oldVal = self._oldVal
-			except:
-				_oldVal = None
-
-			try:
-				if type(_oldVal) == decimal.Decimal:
-					# Enforce the precision as previously set programatically
-					strVal, _oldVal
-					retVal = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
+		if not skipConversion:		
+			if dataType == bool:
+				# Bools can't convert from string representations, because a zero-
+				# length denotes False, and anything else denotes True.
+				if strVal == "True":
+					retVal = True
 				else:
-					retVal = decimal.Decimal(strVal)
-			except:
-				retVal = self._value
+					retVal = False
+
+			elif dataType in (datetime.date, datetime.datetime, datetime.time):
+				# We expect the string to be in ISO 8601 format.
+				if dataType == datetime.date:
+					retVal = self._getDateFromString(strVal)
+				elif dataType == datetime.datetime:
+					retVal = self._getDateTimeFromString(strVal)
+				elif dataType == datetime.time:
+					retVal = self._getTimeFromString(strVal)
 				
-		else:
-			# Other types can convert directly.
-			if dataType == str:
-				dataType = unicode
-			try:
-				retVal = dataType(strVal)
-			except:
-				# The Python object couldn't convert it. Our validator, once 
-				# implemented, won't let the user get this far. Just keep the 
-				# old value.
-				retVal = self._value
+				if retVal is None:
+					# String wasn't in ISO 8601 format... put it back to a valid
+					# string with the previous value and the user will have to 
+					# try again.
+					retVal = self._value
+				
+			elif str(dataType) == "<type 'DateTime'>":
+				# mx DateTime type. MySQLdb will use this if mx is installed.
+				try:
+					import mx.DateTime
+					retVal = mx.DateTime.DateTimeFrom(str(strVal))
+				except ImportError:
+					retVal = self._value
+		
+			elif str(dataType) == "<type 'DateTimeDelta'>":
+				# mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
+				try:
+					import mx.DateTime
+					retVal = mx.DateTime.TimeFrom(str(strVal))
+				except ImportError:
+					retVal = self._value
+		
+			elif (decimal is not None and dataType == decimal.Decimal):
+				try:
+					_oldVal = self._oldVal
+				except:
+					_oldVal = None
+
+				try:
+					if type(_oldVal) == decimal.Decimal:
+						# Enforce the precision as previously set programatically
+						strVal, _oldVal
+						retVal = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
+					else:
+						retVal = decimal.Decimal(strVal)
+				except:
+					retVal = self._value
+
+			else:
+				# Other types can convert directly.
+				if dataType == str:
+					dataType = unicode
+				try:
+					retVal = dataType(strVal)
+				except:
+					# The Python object couldn't convert it. Our validator, once 
+					# implemented, won't let the user get this far. Just keep the 
+					# old value.
+					retVal = self._value
 		return retVal		
 	
 	def _setValue(self, val):
