@@ -32,6 +32,8 @@ class Test_dTextBox(unittest.TestCase):
 		self.assertEqual(txt.Value, "23")
 		txt.Value = None
 		self.assertEqual(txt.Value, None)
+		self.mockUserInput("hi there")
+		self.assertEqual(txt.Value, "hi there")
 
 	def testFloatValue(self):
 		txt = self.txt
@@ -43,6 +45,11 @@ class Test_dTextBox(unittest.TestCase):
 		self.assertEqual(txt.Value, 23)
 		txt.Value = None
 		self.assertEqual(txt.Value, None)
+		self.mockUserInput("hi there")
+		self.assertEqual(txt.Value, None)
+		self.mockUserInput("42")
+		self.assertEqual(txt.Value, 42)
+		self.assertTrue(isinstance(txt.Value, float))
 
 
 	def testIntValue(self):
@@ -55,6 +62,11 @@ class Test_dTextBox(unittest.TestCase):
 		self.assertEqual(txt.Value, 23)
 		txt.Value = None
 		self.assertEqual(txt.Value, None)
+		self.mockUserInput("hi there")
+		self.assertEqual(txt.Value, None)
+		self.mockUserInput("42")
+		self.assertEqual(txt.Value, 42)
+		self.assertTrue(isinstance(txt.Value, int))
 
 	def testDateValue(self):
 		txt = self.txt
@@ -66,6 +78,10 @@ class Test_dTextBox(unittest.TestCase):
 		self.assertEqual(txt.Value, datetime.date(2006,5,3))
 		txt.Value = None
 		self.assertEqual(txt.Value, None)
+		self.mockUserInput("hi there")
+		self.assertEqual(txt.Value, None)
+		self.mockUserInput("2006-05-03")
+		self.assertEqual(txt.Value, datetime.date(2006,5,3))
 
 	def testDateTimeValue(self):
 		txt = self.txt
@@ -88,6 +104,11 @@ class Test_dTextBox(unittest.TestCase):
 		self.assertEqual(txt.Value, decimal.Decimal("1.23"))
 		txt.Value = None
 		self.assertEqual(txt.Value, None)
+		self.mockUserInput("hi there")
+		self.assertEqual(txt.Value, None)
+		self.mockUserInput("42.23")
+		self.assertEqual(txt.Value, decimal.Decimal("42.23"))
+		self.assertTrue(isinstance(txt.Value, decimal.Decimal))
 
 		
 if __name__ == "__main__":
