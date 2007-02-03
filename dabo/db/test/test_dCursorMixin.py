@@ -248,6 +248,17 @@ class Test_dCursorMixin(object):
 		self.assertEqual(cur.Record.ifield, None)
 		self.assertEqual(cur.Record.nfield, None)
 
+	def testNullRecord(self):
+		cur = self.cur
+		self.createNullRecord()
+		cur.requery()
+		self.assertEqual(cur.RowCount, 4)
+		cur.last()
+		self.assertEqual(cur.RowNumber, 3)
+		self.assertTrue("cur.Record.cfield is None")
+		self.assertTrue("cur.Record.ifield is None")
+		self.assertTrue("cur.Record.nfield is None")
+
 
 class Test_dCursorMixin_sqlite(Test_dCursorMixin, db_tests["sqlite"]):
 	def setUp(self):
@@ -265,6 +276,11 @@ insert into %s (cfield, ifield, nfield) values ("Paul Keith McNett", 23, 23.23);
 insert into %s (cfield, ifield, nfield) values ("Edward Leafe", 42, 42.42);
 insert into %s (cfield, ifield, nfield) values ("Carl Karsten", 10223, 23032.76);
 """ % (tableName, tableName, tableName, tableName, ))
+
+	def createNullRecord(self):
+		self.cur.AuxCursor.execute("""		
+insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
+""" % self.temp_table_name)
 
 
 class Test_dCursorMixin_mysql(Test_dCursorMixin, db_tests["mysql"]):
@@ -293,6 +309,11 @@ insert into %s (cfield, ifield, nfield) values ("Edward Leafe", 42, 42.42)
 """ % self.temp_table_name)
 		cur.execute("""		
 insert into %s (cfield, ifield, nfield) values ("Carl Karsten", 10223, 23032.76)
+""" % self.temp_table_name)
+
+	def createNullRecord(self):
+		self.cur.AuxCursor.execute("""		
+insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 """ % self.temp_table_name)
 
 
@@ -342,6 +363,11 @@ insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Edward Leafe', 42, 4
 insert into %s (jobid, cfield, ifield, nfield) values (%f, 'Carl Karsten', 10223, 23032.76)
 """ % (tableName, self.jobid))
 		cur.execute("commit")
+
+	def createNullRecord(self):
+		self.cur.AuxCursor.execute("""		
+insert into %s (jobid, cfield, ifield, nfield) values (%f, NULL, NULL, NULL)
+""" % (self.temp_table_name, self.jobid))
 
 	def test_AutoSQL(self):
 		cur = self.cur

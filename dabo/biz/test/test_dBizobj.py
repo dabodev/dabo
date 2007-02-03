@@ -37,6 +37,10 @@ insert into %(childTableName)s (parent_fk, cInvNum) values (1, "IN00455");
 insert into %(childTableName)s (parent_fk, cInvNum) values (3, "IN00024");
 """ % locals())
 
+	def createNullRecord(self):
+		self.biz._CurrentCursor.AuxCursor.execute("""		
+insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
+""" % self.temp_table_name)
 
 	## - Begin property unit tests -
 	def test_AutoCommit(self):
@@ -329,6 +333,16 @@ insert into %(childTableName)s (parent_fk, cInvNum) values (3, "IN00024");
 		self.assertEqual(bizMain.RowCount, 4)
 		self.assertEqual(bizMain.RowNumber, 3)
 
+	def testNullRecord(self):
+		biz = self.biz
+		self.createNullRecord()
+		biz.requery()
+		self.assertEqual(biz.RowCount, 4)
+		biz.last()
+		self.assertEqual(biz.RowNumber, 3)
+		self.assertTrue("biz.Record.cField is None")
+		self.assertTrue("biz.Record.iField is None")
+		self.assertTrue("biz.Record.nField is None")
 
 if __name__ == "__main__":
 	unittest.main()
