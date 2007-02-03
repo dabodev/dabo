@@ -43,6 +43,14 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	
 	
 	def __onGotFocus(self, evt):
+		self._gotFocus()
+
+
+	def __onLostFocus(self, evt):
+		self._lostFocus()
+
+
+	def _gotFocus(self):
 		# self._oldVal will be compared to self.Value in flushValue()
 		if not self._inFldValid:
 			self._oldVal = self.Value
@@ -55,7 +63,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			pass
 	
 	
-	def __onLostFocus(self, evt):
+	def _lostFocus(self):
 		ok = True
 		if self._oldVal != self.Value:
 			# Call the field-level validation if indicated.
@@ -76,7 +84,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			# only text controls have SelectOnEntry
 			pass
 
-			
 
 	def getBlankValue(self):
 		""" Return the empty value of the control."""
