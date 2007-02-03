@@ -345,4 +345,5 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(biz.Record.nField, None)
 
 if __name__ == "__main__":
-	unittest.main()
+	suite = unittest.TestLoader().loadTestsFromTestCase(Test_dBizobj)
+	unittest.TextTestRunner(verbosity=2).run(suite)

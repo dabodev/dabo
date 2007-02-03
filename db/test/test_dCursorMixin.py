@@ -15,11 +15,11 @@ db_tests = {"sqlite": True,
 
 # Convert the flags into class references. Setting to object will keep the tests
 # for that backend from running.
-for k, v in db_tests.iteritems():
-	if v:
-		db_tests[k] = unittest.TestCase
-	else:
-		db_tests[k] = object
+#for k, v in db_tests.iteritems():
+#	if v:
+#		db_tests[k] = unittest.TestCase
+#	else:
+#		db_tests[k] = object
 
 
 
@@ -260,7 +260,7 @@ class Test_dCursorMixin(object):
 		self.assertTrue("cur.Record.nfield is None")
 
 
-class Test_dCursorMixin_sqlite(Test_dCursorMixin, db_tests["sqlite"]):
+class Test_dCursorMixin_sqlite(Test_dCursorMixin, unittest.TestCase):
 	def setUp(self):
 		con = dabo.db.dConnection(DbType="SQLite", Database=":memory:")
 		self.cur = con.getDaboCursor()
@@ -283,7 +283,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 """ % self.temp_table_name)
 
 
-class Test_dCursorMixin_mysql(Test_dCursorMixin, db_tests["mysql"]):
+class Test_dCursorMixin_mysql(Test_dCursorMixin, unittest.TestCase):
 	def setUp(self):
 		con = dabo.db.dConnection(DbType="MySQL", User="dabo_unittest", 
 				password="T30T35DB4K30Z45I67N60", Database="dabo_unittest",
@@ -317,7 +317,7 @@ insert into %s (cfield, ifield, nfield) values (NULL, NULL, NULL)
 """ % self.temp_table_name)
 
 
-class Test_dCursorMixin_firebird(Test_dCursorMixin, db_tests["firebird"]):
+class Test_dCursorMixin_firebird(Test_dCursorMixin, unittest.TestCase):
 	## NOTE: Firebird not set up completely yet. What is here is courtesy Uwe
 	##       Grauer. We need insert statements, and we need a firebird server.
 	##       I intend to set up a test server, but don't know when it will 
@@ -376,4 +376,13 @@ insert into %s (jobid, cfield, ifield, nfield) values (%f, NULL, NULL, NULL)
 
 
 if __name__ == "__main__":
-	unittest.main()
+	testClasses = []
+	mapping = {"sqlite": Test_dCursorMixin_sqlite,
+			"mysql": Test_dCursorMixin_mysql,
+			"firebird": Test_dCursorMixin_firebird}
+	for k, v in db_tests.items():
+		if v:
+			testClasses.append(mapping[k])
+	for t in testClasses:
+		suite = unittest.TestLoader().loadTestsFromTestCase(t)
+		unittest.TextTestRunner(verbosity=2).run(suite)

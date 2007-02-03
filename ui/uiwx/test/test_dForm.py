@@ -89,4 +89,5 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
 
 if __name__ == "__main__":
-	unittest.main()
+	suite = unittest.TestLoader().loadTestsFromTestCase(Test_dForm)
+	unittest.TextTestRunner(verbosity=2).run(suite)
