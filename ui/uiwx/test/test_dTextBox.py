@@ -31,7 +31,6 @@ class Test_dTextBox(unittest.TestCase):
 		self.assertTrue(isinstance(txt.Value, basestring))
 		self.assertEqual(txt.Value, "23")
 		txt.Value = None
-		self.assertTrue(isinstance(txt.Value, basestring))
 		self.assertEqual(txt.Value, None)
 
 	def testFloatValue(self):
@@ -43,7 +42,6 @@ class Test_dTextBox(unittest.TestCase):
 		self.assertTrue(isinstance(txt.Value, float))
 		self.assertEqual(txt.Value, 23)
 		txt.Value = None
-		self.assertTrue(isinstance(txt.Value, float))
 		self.assertEqual(txt.Value, None)
 
 
@@ -56,7 +54,6 @@ class Test_dTextBox(unittest.TestCase):
 		self.assertTrue(isinstance(txt.Value, int))
 		self.assertEqual(txt.Value, 23)
 		txt.Value = None
-		self.assertTrue(isinstance(txt.Value, int))
 		self.assertEqual(txt.Value, None)
 
 	def testDateValue(self):
@@ -68,7 +65,6 @@ class Test_dTextBox(unittest.TestCase):
 		self.assertTrue(isinstance(txt.Value, datetime.date))
 		self.assertEqual(txt.Value, datetime.date(2006,5,3))
 		txt.Value = None
-		self.assertTrue(isinstance(txt.Value, datetime.date))
 		self.assertEqual(txt.Value, None)
 
 	def testDateTimeValue(self):
@@ -80,7 +76,6 @@ class Test_dTextBox(unittest.TestCase):
 		self.assertTrue(isinstance(txt.Value, datetime.datetime))
 		self.assertEqual(txt.Value, val)
 		txt.Value = None
-		self.assertTrue(isinstance(txt.Value, datetime.datetime))
 		self.assertEqual(txt.Value, None)
 
 	def testDecimalValue(self):
@@ -92,7 +87,6 @@ class Test_dTextBox(unittest.TestCase):
 		self.assertTrue(isinstance(txt.Value, decimal.Decimal))
 		self.assertEqual(txt.Value, decimal.Decimal("1.23"))
 		txt.Value = None
-		self.assertTrue(isinstance(txt.Value, decimal.Decimal))
 		self.assertEqual(txt.Value, None)
 
 		
