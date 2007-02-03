@@ -259,6 +259,13 @@ class Test_dCursorMixin(object):
 		self.assertTrue("cur.Record.ifield is None")
 		self.assertTrue("cur.Record.nfield is None")
 
+	def test_new(self):
+		cur = self.cur
+		cur.new()
+		self.assertEqual(cur.Record.cfield, "")
+		self.assertEqual(cur.Record.ifield, 0)
+		self.assertEqual(cur.Record.nfield, 0)
+
 
 class Test_dCursorMixin_sqlite(Test_dCursorMixin, unittest.TestCase):
 	def setUp(self):

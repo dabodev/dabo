@@ -363,46 +363,10 @@ class dCursorMixin(dObject):
 		"""Stores the data type for each column in the result set."""
 		if target is None:
 			target = self
-		dataStructure = getattr(target, "_dataStructure", None)
-		if dataStructure is not None:
-			# An explicit data structure has been set. Use it, no matter what the 
-			# backend db may say. 
-			target._types = {}
-			for field in dataStructure:
-				field_alias, field_type = field[0], field[1]
-				target._types[field_alias] = dabo.db.getPythonType(field_type)
-			return
-
-		# Explicit data structure not set, so we must glean the information from 
-		# the first record of the resultset, which really shouldn't be relied on.
-		if self.RowCount > 0:
-			def storeType(fname, fval):
-				typ = type(fval)
-				if typ is str and self._convertStrToUnicode:
-					typ = unicode
-				target._types[fname] = typ
-
-			rec = self._records[0]
-			if isinstance(rec, tuple) or isinstance(rec, list):
-				# hasn't been converted to dict yet.
-				for idx, fdesc in enumerate(self.FieldDescription):
-					fname = fdesc[0]
-					fval = rec[idx]
-					storeType(fname, fval)
-			else:
-				for fname, fval in rec.items():
-					storeType(fname, fval)
-
-		else:
-			# See if we already have the information from a prior query
-			if not self._types:
-				# Try to get it from the description
-				dsc = self.BackendObject.getFieldInfoFromDescription(self.FieldDescription)
-				if dsc:
-					for fld, typ, junk in dsc:
-						target._types[fld] = dabo.db.getPythonType(typ)
-				else:
-					dabo.errorLog.write(_("RowCount is %s, so storeFieldTypes() can't run as implemented.") % self.RowCount)
+		target._types = {}
+		for field in self.DataStructure:
+			field_alias, field_type = field[0], field[1]
+			target._types[field_alias] = dabo.db.getPythonType(field_type)
 
 	
 	def sort(self, col, dir=None, caseSensitive=True):
@@ -1329,32 +1293,31 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			table_name = field[3]
 			field_name = field[4]
 			field_scale = field[5]
-			try:
-				typ = self._types[field_alias]
-				# Handle the non-standard cases
-				if _USE_DECIMAL and typ is Decimal:
-					newval = Decimal()
-					# If the backend reports a decimal scale, use it. Scale refers to the
-					# number of decimal places.
-					scale = field_scale
-					if scale is not None:
-						ex = "0.%s" % ("0"*scale)
-						newval = newval.quantize(Decimal(ex))
-				elif typ is datetime.datetime:
-					newval = datetime.datetime.min
-				elif typ is datetime.date:
-					newval = datetime.date.min
-				elif typ is None:
-					newval = None
-				else:
+
+			typ = dabo.db.getPythonType(field_type)
+			# Handle the non-standard cases
+			if _USE_DECIMAL and typ is Decimal:
+				newval = Decimal()
+				# If the backend reports a decimal scale, use it. Scale refers to the
+				# number of decimal places.
+				scale = field_scale
+				if scale is not None:
+					ex = "0.%s" % ("0"*scale)
+					newval = newval.quantize(Decimal(ex))
+			elif typ is datetime.datetime:
+				newval = datetime.datetime.min
+			elif typ is datetime.date:
+				newval = datetime.date.min
+			elif typ is None:
+				newval = None
+			else:
+				try:
 					newval = typ()
-			except StandardError, e:
-				# Either the data types have not yet been defined, or 
-				# it is a type that cannot be instantiated simply.
-				dabo.errorLog.write(_("Failed to create newval for field '%s'") % field_alias)
-				dabo.errorLog.write("TYPES: %s" % self._types)
-				dabo.errorLog.write(str(e))
-				newval = ""
+				except Exception, e:
+					dabo.errorLog.write(_("Failed to create newval for field '%s'") % field_alias)
+					dabo.errorLog.write(str(e))
+					newval = u""
+
 			self._blank[field_alias] = newval
 
 		# Mark the calculated and derived fields.
