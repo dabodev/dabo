@@ -411,6 +411,9 @@ class BaseForm(fm.dFormMixin):
 			return
 
 		ds = bizobj.DataSource
+		biz_caption = bizobj.Caption
+		if not biz_caption:
+			biz_caption = ds
 
 		self.activeControlValid()
 		
@@ -425,7 +428,7 @@ class BaseForm(fm.dFormMixin):
 			return
 		if message is None:
 			message = _("This will delete the current record from %s, and cannot "
-					"be canceled.\n\n Are you sure you want to do this?") % ds
+					"be canceled.\n\n Are you sure you want to do this?") % biz_caption
 		if not prompt or dabo.ui.areYouSure(message, defaultNo=True):
 			try:
 				bizobj.delete()
