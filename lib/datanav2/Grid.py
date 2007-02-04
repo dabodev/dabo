@@ -108,23 +108,35 @@ class Grid(dabo.ui.dGrid):
 			pass
 
 
-	def newRecord(self, evt=None):
+	def _onNewRecord(self, evt=None):
+		self.newRecord()
+
+	def newRecord(self):
 		""" Request that a new row be added."""
 		self.Parent.newRecord(self.DataSource)
 
 
-	def editRecord(self, evt=None):
+	def _onEditRecord(self, evt=None):
+		self.editRecord()
+
+	def editRecord(self):
 		""" Request that the current row be edited."""
 		self.Parent.editRecord(self.DataSource)
 
 
-	def deleteRecord(self, evt=None):
+	def _onDeleteRecord(self, evt=None):
+		self.deleteRecord()
+
+	def deleteRecord(self):
 		""" Request that the current row be deleted."""
 		self.Parent.deleteRecord(self.DataSource)
 		self.fillGrid(True)
 
 
-	def pickRecord(self, evt=None):
+	def _onPickRecord(self, evt=None):
+		self.pickRecord()
+
+	def pickRecord(self):
 		""" The form is a picklist, and the user picked a record."""
 		self.Form.pickRecord()
 		
@@ -136,14 +148,14 @@ class Grid(dabo.ui.dGrid):
 		"""
 		try:
 			if self.Form.FormType == 'PickList':
-				menu.append(_("&Pick"), OnHit=self.pickRecord, bmp="edit",
+				menu.append(_("&Pick"), OnHit=self._onPickRecord, bmp="edit",
 						help=_("Pick this record"))
 			else:
-				menu.append(_("&New"), OnHit=self.newRecord, bmp="blank",
+				menu.append(_("&New"), OnHit=self._onNewRecord, bmp="blank",
 						help=_("Add a new record"))
-				menu.append("&Edit", OnHit=self.editRecord, bmp="edit",
+				menu.append("&Edit", OnHit=self._onEditRecord, bmp="edit",
 						help=_("Edit this record"))
-				menu.append("&Delete", OnHit=self.deleteRecord, bmp="delete",
+				menu.append("&Delete", OnHit=self._onDeleteRecord, bmp="delete",
 						help=_("Delete this record"))
 			return menu
 		except AttributeError:
