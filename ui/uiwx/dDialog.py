@@ -48,7 +48,21 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		super(dDialog, self)._afterInit()
 		self.bindKey("esc", self._onEscape)
 
-		
+
+	def showModal(self):
+		"""Show the dialog modally."""
+		## pkm: We had to override this, because the default in dPemMixin doesn't 
+		##      actually result in a modal dialog.
+		self.Modal = True
+		self.show()
+
+
+	def showModeless(self):
+		"""Show the dialog non-modally."""
+		self.Modal = False
+		self.show()
+
+
 	def show(self):
 		if self.AutoSize:
 			self.Fit()
