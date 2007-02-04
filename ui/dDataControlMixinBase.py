@@ -383,10 +383,15 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 						except:
 							self.__src = None
 						if self.__src is None:
-							try:
-								# It's a bizobj reference; get it from the Form.
-								self.__src = self.Form.getBizobj(ds)
-							except: pass
+							# It's a bizobj reference; get it from the Form. Note that we could
+							# be a control in a dialog, which is in a form.
+							form = self.Form
+							while form is not None:
+								try:
+									self.__src = form.getBizobj(ds)
+									break
+								except AttributeError:
+									form = form.Form
 							if self.__src:
 								self._srcIsBizobj = True
 		return self.__src
