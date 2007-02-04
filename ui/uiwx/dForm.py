@@ -429,7 +429,7 @@ class BaseForm(fm.dFormMixin):
 		if message is None:
 			message = _("This will delete the current record from %s, and cannot "
 					"be canceled.\n\n Are you sure you want to do this?") % biz_caption
-		if not prompt or dabo.ui.areYouSure(message, defaultNo=True):
+		if not prompt or dabo.ui.areYouSure(message, defaultNo=True, cancelButton=False):
 			try:
 				bizobj.delete()
 				self.setStatusText(_("Record Deleted."))
