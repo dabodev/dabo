@@ -442,7 +442,7 @@ class BaseForm(fm.dFormMixin):
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
-		self.afterDelete()
+			self.afterDelete()
 		self.update()
 		
 
