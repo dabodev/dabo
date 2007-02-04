@@ -194,7 +194,20 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 		
 
 	def _getValue(self):
-		return super(dEditBox, self)._getValue()
+		try:
+			_value = self._value
+		except AttributeError:
+			_value = self._value = unicode("")
+		
+		# Get the string value as reported by wx, which is the up-to-date 
+		# string value of the control:
+		strVal = self.GetValue()
+
+		if _value is None:
+			if strVal == self.Application.NoneDisplay:
+				# Keep the value None
+				return None
+		return strVal
 	
 	def _setValue(self, val):
 		if self._constructed():
@@ -204,9 +217,22 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 				self.SetValue(val)
 				return
 			else:
-				ret = super(dEditBox, self)._setValue(val)
-				self.__forceCase()
-				return ret
+				dabo.ui.callAfter(self.__forceCase)
+		
+			if val is None:
+				strVal = self.Application.NoneDisplay
+			else:
+				strVal = val
+			_oldVal = self._oldVal = self.Value
+				
+			# save the actual value for return by _getValue:
+			self._value = val
+
+			# Update the display no matter what:
+			self.SetValue(strVal)
+		
+			if type(_oldVal) != type(val) or _oldVal != val:
+				self._afterValueChanged()
 		else:
 			self._properties["Value"] = val
 
