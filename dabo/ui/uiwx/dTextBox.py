@@ -49,7 +49,7 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		# must save and restore the InsertionPosition because wxGtk at least resets it to
 		# 0 upon SetValue().
 		insPos = self.InsertionPosition
-		self.SetValue(self._getStringValue(self.Value))
+		self.SetValue(self.getStringValue(self.Value))
 		self.InsertionPosition = insPos
 		
 		# Now that the dabo Value is set properly, the default behavior that flushes 
@@ -67,11 +67,83 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 	def getBlankValue(self):
 		return ""
 
+	
+	def convertStringValueToDataType(self, strVal, dataType):
+		"""Given a string value and a type, return an appropriate value of that type.
+
+		If the value can't be converted, a ValueError will be raised.
+		"""		
+		if dataType == bool:
+			# Bools can't convert from string representations, because a zero-
+			# length denotes False, and anything else denotes True.
+			if strVal == "True":
+				retVal = True
+			else:
+				retVal = False
+
+		elif dataType in (datetime.date, datetime.datetime, datetime.time):
+			# We expect the string to be in ISO 8601 format.
+			if dataType == datetime.date:
+				retVal = self._getDateFromString(strVal)
+			elif dataType == datetime.datetime:
+				retVal = self._getDateTimeFromString(strVal)
+			elif dataType == datetime.time:
+				retVal = self._getTimeFromString(strVal)
+				
+			if retVal is None:
+				raise ValueError, "String not in ISO 8601 format."
+				
+		elif str(dataType) == "<type 'DateTime'>":
+			# mx DateTime type. MySQLdb will use this if mx is installed.
+			try:
+				import mx.DateTime
+				retVal = mx.DateTime.DateTimeFrom(str(strVal))
+			except ImportError:
+				raise ValueError, "Can't import mx.DateTime"
 		
-	def _getStringValue(self, value):
+		elif str(dataType) == "<type 'DateTimeDelta'>":
+			# mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
+			try:
+				import mx.DateTime
+				retVal = mx.DateTime.TimeFrom(str(strVal))
+			except ImportError:
+				raise ValueError, "Can't import mx.DateTime"
+		
+		elif (decimal is not None and dataType == decimal.Decimal):
+			try:
+				_oldVal = self._oldVal
+			except:
+				_oldVal = None
+
+			try:
+				if type(_oldVal) == decimal.Decimal:
+					# Enforce the precision as previously set programatically
+					retVal = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
+				else:
+					retVal = decimal.Decimal(strVal)
+			except:
+				raise ValueError, "Can't convert to decimal."
+
+		else:
+			# Other types can convert directly.
+			if dataType == str:
+				dataType = unicode
+			try:
+				retVal = dataType(strVal)
+			except:
+				# The Python object couldn't convert it. Our validator, once 
+				# implemented, won't let the user get this far. Just keep the 
+				# old value.
+				raise ValueError, "Can't convert."
+		return retVal
+
+
+	def getStringValue(self, value):
 		"""Given a value of any data type, return a string rendition.
 		
-		Used internally by _setValue and flushValue.
+		Used internally by _setValue and flushValue, but also exposed to subclasses
+		in case they need specialized behavior. The value returned from this 
+		function will be what is displayed in the UI textbox.
 		"""
 		if isinstance(value, basestring):
 			# keep it unicode instead of converting to str
@@ -317,81 +389,20 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		if _value is None:
 			if strVal == self.Application.NoneDisplay:
 				# Keep the value None
-				retVal = None
+				convertedVal = None
 				skipConversion = True
 			else:
 				# User changed the None value to something else, convert to the last
 				# known real datatype.
 				dataType = self._lastDataType
 
-		if not skipConversion:		
-			if dataType == bool:
-				# Bools can't convert from string representations, because a zero-
-				# length denotes False, and anything else denotes True.
-				if strVal == "True":
-					retVal = True
-				else:
-					retVal = False
-
-			elif dataType in (datetime.date, datetime.datetime, datetime.time):
-				# We expect the string to be in ISO 8601 format.
-				if dataType == datetime.date:
-					retVal = self._getDateFromString(strVal)
-				elif dataType == datetime.datetime:
-					retVal = self._getDateTimeFromString(strVal)
-				elif dataType == datetime.time:
-					retVal = self._getTimeFromString(strVal)
-				
-				if retVal is None:
-					# String wasn't in ISO 8601 format... put it back to a valid
-					# string with the previous value and the user will have to 
-					# try again.
-					retVal = self._value
-				
-			elif str(dataType) == "<type 'DateTime'>":
-				# mx DateTime type. MySQLdb will use this if mx is installed.
-				try:
-					import mx.DateTime
-					retVal = mx.DateTime.DateTimeFrom(str(strVal))
-				except ImportError:
-					retVal = self._value
-		
-			elif str(dataType) == "<type 'DateTimeDelta'>":
-				# mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
-				try:
-					import mx.DateTime
-					retVal = mx.DateTime.TimeFrom(str(strVal))
-				except ImportError:
-					retVal = self._value
-		
-			elif (decimal is not None and dataType == decimal.Decimal):
-				try:
-					_oldVal = self._oldVal
-				except:
-					_oldVal = None
-
-				try:
-					if type(_oldVal) == decimal.Decimal:
-						# Enforce the precision as previously set programatically
-						strVal, _oldVal
-						retVal = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
-					else:
-						retVal = decimal.Decimal(strVal)
-				except:
-					retVal = self._value
-
-			else:
-				# Other types can convert directly.
-				if dataType == str:
-					dataType = unicode
-				try:
-					retVal = dataType(strVal)
-				except:
-					# The Python object couldn't convert it. Our validator, once 
-					# implemented, won't let the user get this far. Just keep the 
-					# old value.
-					retVal = self._value
-		return retVal		
+		if not skipConversion:
+			try:
+				convertedVal = self.convertStringValueToDataType(strVal, dataType)
+			except ValueError:
+				# It couldn't convert; return the previous value.
+				convertedVal = self._value
+		return convertedVal
 	
 	def _setValue(self, val):
 		if self._constructed():
@@ -410,7 +421,7 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 			else:
 				dabo.ui.callAfter(self.__forceCase)
 		
-			strVal = self._getStringValue(val)
+			strVal = self.getStringValue(val)
 			_oldVal = self._oldVal = self.Value
 				
 			# save the actual value for return by _getValue:
