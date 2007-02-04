@@ -67,7 +67,7 @@ class PropertyHelperMixin(object):
 		"""
 		if evtdict is None:
 			evtdict = {}
-		evts = self.getEventList()
+		evts = self.getEventList()  ## gotten from eventMixin
 		onKWs = [(kw, kw[2:]) for kw in kwdict.keys()
 				if kw.startswith("On")]
 		for kw, evtName in onKWs:			
@@ -334,8 +334,3 @@ class PropertyHelperMixin(object):
 	getPropertyInfo = classmethod(getPropertyInfo)
 	
 	
-	def getEventList(cls):
-		"""Returns a list of all defined events."""
-		from dabo import dEvents
-		return dEvents.__dict__.keys()
-	getEventList = classmethod(getEventList)
