@@ -148,9 +148,10 @@ class dCursorMixin(dObject):
 		return self.sortCase
 	
 	
-	def pkExpression(self):
-		"""Returns the current PK expression."""
-		rec = self._records[self.RowNumber]
+	def pkExpression(self, rec=None):
+		"""Returns the PK expression for the passed record."""
+		if rec is None:
+			rec = self._records[self.RowNumber]
 		if isinstance(self.KeyField, tuple):
 			pk = tuple([rec[kk] for kk in self.KeyField])
 		else:
@@ -615,7 +616,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			except IndexError:
 				# self.RowNumber doesn't exist (init phase?) Nothing's changed:
 				return False
-			recKey = self.pkExpression()
+			recKey = self.pkExpression(rec)
 			memento = self._mementos.get(recKey, None)
 			new_rec = self._newRecords.has_key(recKey)
 
@@ -862,7 +863,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			row = self.RowNumber
 
 		rec = self._records[row]
-		recKey = self.pkExpression()
+		recKey = self.pkExpression(rec)
 		mem = self._mementos.get(recKey, {})
 		
 		for k, v in mem.items():
@@ -1023,7 +1024,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def __saverow(self, row):
 		rec = self._records[row]
-		recKey = self.pkExpression()
+		recKey = self.pkExpression(rec)
 		newrec = self._newRecords.has_key(recKey)
 		diff = self.getRecordStatus(row)
 		if diff or newrec:
@@ -1065,7 +1066,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				updClause = self.makeUpdClause(diff)
 				sql = "update %s set %s where %s" % (self.BackendObject.encloseSpaces(self.Table), 
 						updClause, pkWhere)
-			oldPKVal = self.pkExpression()
+			oldPKVal = self.pkExpression(rec)
 			newPKVal = None
 			if newrec and self.AutoPopulatePK:
 				# Some backends do not provide a means to retrieve 
@@ -1186,7 +1187,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		else:
 			row = self.RowNumber
 			rec = self._records[row]
-			recKey = self.pkExpression()
+			recKey = self.pkExpression(rec)
 			if self._newRecords.has_key(recKey):
 				# We simply need to remove the row, and clear the memento and newrec flag.
 				self._clearMemento(row)
@@ -1213,8 +1214,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			delRowNum = self.RowNumber
 
 		rec = self._records[delRowNum]
-		if self._newRecords.has_key(self.pkExpression()):
+		pk = self.pkExpression(rec)
+		if self._newRecords.has_key(pk):
 			res = True
+			del self._newRecords[pk]
+			if self._mementos.has_key(pk):
+				del self._mementos[pk]
 		else:
 			pkWhere = self.makePkWhere()
 			# some backends(PostgreSQL) don't return information about number of deleted rows
@@ -1233,15 +1238,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			self.BackendObject.noResultsOnDelete()
 		else:
 			# Delete the record from the current dataset
-			self.removeRow(delRowNum)
+			self._removeRow(delRowNum)
 	
 	
-	def removeRow(self, rr):
-		""" Since record sets are tuples and thus immutable, we
-		need to do this little dance to remove a row.
-		"""
+	def _removeRow(self, row):
+		## Since record sets are tuples and thus immutable, we need to do this 
+		## little dance to remove a row.
 		lRec = list(self._records)
-		del lRec[rr]
+		del lRec[row]
 		self._records = dDataSet(lRec)
 		self.RowNumber = min(self.RowNumber, self.RowCount-1)
 	
@@ -1488,13 +1492,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if not row:
 			row = self.RowNumber
 		rec = self._records[row]
-		recKey = self.pkExpression()
 		
 		if self._compoundKey:
 			keyFields = [fld for fld in self.KeyField]
 		else:
 			keyFields = [self.KeyField]
-		recKey = self.pkExpression()
+		recKey = self.pkExpression(rec)
 		mem = self._mementos.get(recKey, {})
 
 		def getPkVal(fld):
