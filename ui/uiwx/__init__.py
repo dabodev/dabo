@@ -389,6 +389,17 @@ def getEventData(wxEvt):
 				ed["keyChar"] = chr(wxEvt.GetRawKeyCode())
 		except (ValueError, OverflowError):
 			ed["keyChar"] = None
+		if not ed["keyChar"]:
+			# See if it is one of the keypad keys
+			numpadKeys = { wx.WXK_NUMPAD0: "0", wx.WXK_NUMPAD1: "1", 
+					wx.WXK_NUMPAD2: "2", wx.WXK_NUMPAD3: "3", wx.WXK_NUMPAD4: "4", 
+					wx.WXK_NUMPAD5: "5", wx.WXK_NUMPAD6: "6", wx.WXK_NUMPAD7: "7", 
+					wx.WXK_NUMPAD8: "8", wx.WXK_NUMPAD9: "9", wx.WXK_NUMPAD_SPACE: " ",
+					wx.WXK_NUMPAD_TAB: "\t", wx.WXK_NUMPAD_ENTER: "\r", 
+					wx.WXK_NUMPAD_EQUAL: "=", wx.WXK_NUMPAD_MULTIPLY: "*", 
+					wx.WXK_NUMPAD_ADD: "+", wx.WXK_NUMPAD_SUBTRACT: "-", 
+					wx.WXK_NUMPAD_DECIMAL: ".", wx.WXK_NUMPAD_DIVIDE: "/"}
+			ed["keyChar"] = numpadKeys.get(ed["keyCode"], None)
 	
 	if isinstance(wxEvt, wx.ContextMenuEvent):
 		ed["mousePosition"] = wxEvt.GetPosition()

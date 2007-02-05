@@ -17,13 +17,13 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 
 	The Html Window can load any html text, file, or url that is fed to it.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._horizontalScroll = self._verticalScroll = True
 		self._baseClass = dHtmlBox
 		preClass = wx.html.PreHtmlWindow
 		if "style" not in kwargs:
 			kwargs["style"] = wx.TAB_TRAVERSAL
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		self.SetScrollRate(10, 10)
 		self._source = self._page = ""
 	#		self.SetScrollbars(10, 10, -1, -1)

@@ -16,13 +16,14 @@ class dSpinner(dcm.dDataControlMixin, wx.SpinCtrl):
 	allowable values, as well as the increment when the user clicks the 
 	arrows.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dSpinner
 		preClass = wx.PreSpinCtrl
 		if not "value" in kwargs:
 			# This has to be initialized to a string value, for some odd reason
 			kwargs["value"] = "0"			
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+				*args, **kwargs)
 
 	
 	def _initEvents(self):

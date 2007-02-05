@@ -12,12 +12,12 @@ from dabo.ui import makeDynamicProperty
 
 class dLabel(cm.dControlMixin, wx.StaticText):
 	"""Creates a static label, to make a caption for another control, for example."""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dLabel
 		self._wordWrap = False
 		preClass = wx.PreStaticText
-		cm.dControlMixin.__init__(self, preClass, parent, 
-				properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+				*args, **kwargs)
 				
 	
 	def __onResize(self, evt):

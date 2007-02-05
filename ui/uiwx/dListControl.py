@@ -22,7 +22,7 @@ class dListControl(dcm.dControlItemMixin,
 	# The ListMixin allows the rightmost column to expand as the 
 	# control is resized. There is no way to turn that off as of now.	
 
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dListControl
 		
 		self._lastSelectedIndex = None
@@ -34,7 +34,8 @@ class dListControl(dcm.dControlItemMixin,
 		except:
 			style = wx.LC_REPORT
 		preClass = wx.PreListCtrl
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, style=style, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, 
+				style=style, *args, **kwargs)
 		ListMixin.ListCtrlAutoWidthMixin.__init__(self)
 		# Dictionary for tracking images by key value
 		self.__imageList = {}	

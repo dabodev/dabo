@@ -104,14 +104,26 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 	panels (subclass of SplitterPanelMixin), each of which can further 
 	split itself in two.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dSplitter
 		baseStyle = wx.SP_3D | wx.SP_PERMIT_UNSPLIT
-		style = self._extractKey((kwargs, properties), "style", baseStyle)
-		self._createPanes = self._extractKey((kwargs, properties), "createPanes", False)
-		self._splitOnInit = self._extractKey((kwargs, properties), "splitOnInit", self._createPanes)
+		style = self._extractKey((kwargs, properties, attProperties), "style", baseStyle)
+		self._createPanes = self._extractKey(attProperties, "createPanes", None)
+		if self._createPanes is not None:
+			self._createPanes = (self._createPanes == "True")
+		else:
+			self._createPanes = self._extractKey((kwargs, properties), "createPanes", False)
+		self._splitOnInit = self._extractKey(attProperties, "splitOnInit", None)
+		if self._splitOnInit is not None:
+			self._splitOnInit = (self._splitOnInit == "True")
+		else:
+			self._splitOnInit = self._extractKey((kwargs, properties), "splitOnInit", self._createPanes)
 		# Default to a decent minimum panel size if none is specified
-		mp = self._extractKey((kwargs, properties), "MinimumPanelSize", 20)
+		mp = self._extractKey(attProperties, "MinimumPanelSize", None)
+		if mp is not None:
+			mp = int(mp)
+		else:
+			mp = self._extractKey((kwargs, properties, attProperties), "MinimumPanelSize", 20)
 		kwargs["MinimumPanelSize"] = mp
 			
 		# Default to vertical split
@@ -122,7 +134,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		self._showPanelSplitMenu = False
 
 		preClass = wx.PreSplitterWindow
-		cm.dControlMixin.__init__(self, preClass, parent, properties, 
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
 				style=style, *args, **kwargs)
 		
 	

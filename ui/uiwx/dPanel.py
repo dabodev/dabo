@@ -10,16 +10,22 @@ from dabo.ui import makeDynamicProperty
 
 
 class _PanelMixin(cm.dControlMixin):
-	def __init__(self, preClass, parent, properties=None, *args, **kwargs):
+	def __init__(self, preClass, parent, properties=None, attProperties=None, 
+			*args, **kwargs):
 		self._buffered = None
-		buff = self._extractKey((properties, kwargs), "Buffered", False)
+		buff = self._extractKey(attProperties, "Buffered", None)
+		if buff is not None:
+			buff = (buff == "True")
+		else:
+			buff = self._extractKey((properties, kwargs), "Buffered", False)
 		kwargs["Buffered"] = buff
 		style = self._extractKey((properties, kwargs), "style", 0)
 		style = style | wx.TAB_TRAVERSAL
 		kwargs["style"] = style
 		# For performance, store this at init
 		self._platformIsWindows = (self.Application.Platform == "Win")
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+				*args, **kwargs)
 	
 
 	def layout(self, resetMin=False):
@@ -101,10 +107,10 @@ class dPanel(_PanelMixin, wx.Panel):
 	flexible for many uses. Consider laying out your forms on panels
 	instead, and then adding the panel to the form.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPanel
 		preClass = wx.PrePanel
-		_PanelMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		_PanelMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 	
 		
 
@@ -115,11 +121,11 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 	flexible for many uses. Consider laying out your forms on panels
 	instead, and then adding the panel to the form.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._horizontalScroll = self._verticalScroll = True
 		self._baseClass = dScrollPanel
 		preClass = wx.PreScrolledWindow
-		_PanelMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		_PanelMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		self.SetScrollRate(10, 10)
 #		self.SetScrollbars(10, 10, -1, -1)
 			

@@ -12,7 +12,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 	
 	The user can choose an item in the dropdown, or enter freeform text.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dComboBox
 		self._choices = []
 		self._userVal = False
@@ -22,7 +22,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		self._textToAppend = ""
 
 		preClass = wx.PreComboBox
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 	def _initEvents(self):

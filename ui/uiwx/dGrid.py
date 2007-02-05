@@ -1531,7 +1531,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	be accessed efficiently: only the data that needs to be shown on the current 
 	screen is copied and displayed.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dGrid
 		preClass = wx.grid.Grid
 		
@@ -1573,7 +1573,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._rowColorEven = "white"
 		self._rowColorOdd = (212, 255, 212)		# very light green
 
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+				*args, **kwargs)
 		
 		# Need to sync the size reported by wx to the size reported by Dabo:
 		self.RowHeight = self.RowHeight

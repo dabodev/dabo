@@ -11,10 +11,10 @@ from dabo.ui import makeDynamicProperty
 
 class dGauge(cm.dControlMixin, wx.Gauge):
 	"""Creates a gauge, which can be used as a progress bar."""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dGauge
 		preClass = wx.PreGauge
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 	def _initEvents(self):
@@ -102,6 +102,8 @@ class _dGauge_test(dGauge):
 		self.Width = 300
 			
 	def onTimer(self, evt):
+		if not self:
+			return
 		if self.Value < self.Range:
 			self.Value += 1
 		else:

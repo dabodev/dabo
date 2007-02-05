@@ -318,7 +318,7 @@ class dNode(dObject):
 
 class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	"""Creates a treeview, which allows display of hierarchical data."""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dTreeView
 
 		# Dictionary for tracking images by key value
@@ -328,30 +328,45 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		# Class to use for creating nodes
 		self._nodeClass = dNode
 		
-		style = self._extractKey((properties, kwargs), "style", 0) | wx.TR_HAS_VARIABLE_ROW_HEIGHT
+		style = self._extractKey((properties, attProperties, kwargs), "style", 0) | wx.TR_HAS_VARIABLE_ROW_HEIGHT
 		# Default to showing buttons
-		val = self._extractKey((properties, kwargs), "ShowButtons", True)
+		val = self._extractKey(attProperties, "ShowButtons", None)
+		if val is not None:
+			val = (val == "True")
+		else:
+			val = self._extractKey((properties, kwargs), "ShowButtons", True)
 		if val:
 			style = style | wx.TR_HAS_BUTTONS
-		kwargs["ShowButtons"] = val
+
 		# Default to showing lines
-		val = self._extractKey((properties, kwargs), "ShowLines", True)
-		kwargs["ShowLines"] = val
+		val = self._extractKey(attProperties, "ShowLines", None)
+		if val is not None:
+			val = (val == "True")
+		else:
+			val = self._extractKey((properties, kwargs), "ShowLines", True)
 		if not val:
 			style = style | wx.TR_NO_LINES
+		
 		# Default to showing root node
-		val = self._extractKey((properties, kwargs), "ShowRootNode", True)
-		kwargs["ShowRootNode"] = val
+		val = self._extractKey(attProperties, "ShowRootNode", None)
+		if val is not None:
+			val = (val == "True")
+		else:
+			val = self._extractKey((properties, kwargs), "ShowRootNode", True)
 		if not val:
 			style = style | wx.TR_HIDE_ROOT
+
 		# Default to showing root node lines
-		val = self._extractKey((properties, kwargs), "ShowRootNodeLines", True)
-		kwargs["ShowRootNodeLines"] = val
+		val = self._extractKey(attProperties, "ShowRootNodeLines", None)
+		if val is not None:
+			val = (val == "True")
+		else:
+			val = self._extractKey((properties, kwargs), "ShowRootNodeLines", True)
 		if val:
 			style = style | wx.TR_LINES_AT_ROOT
 
 		preClass = wx.PreTreeCtrl
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, style=style,
+		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, style=style,
 				*args, **kwargs)
 		
 		
@@ -1214,6 +1229,7 @@ if __name__ == "__main__":
 		
 		def onCollapseAll(self, evt):
 			self.tree.collapseAll()
+
 
 	
 	app = dabo.dApp()
