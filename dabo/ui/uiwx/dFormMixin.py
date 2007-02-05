@@ -233,6 +233,22 @@ class dFormMixin(pm.dPemMixin):
 			except: pass
 	
 	
+	def activeControlValid(self):
+		""" Force the control-with-focus to fire its KillFocus code.
+
+		The bizobj will only get its field updated during the control's 
+		KillFocus code. This function effectively commands that update to
+		happen before it would have otherwise occurred.
+		"""
+		ac = self.ActiveControl
+		if ac is not None:
+			try:
+				ac.flushValue()
+			except AttributeError:
+				# active control may not be data-aware
+				pass
+				
+	
 	def createBizobjs(self):
 		"""Can be overridden in instances to create the bizobjs this form needs.
 		It is provided so that tools such as the Class Designer can create skeleton

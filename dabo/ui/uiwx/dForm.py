@@ -643,22 +643,6 @@ Database error message: %s""") %	err
 		return _("Record %s/%s" % (rowNumber, rowCount))
 
 
-	def activeControlValid(self):
-		""" Force the control-with-focus to fire its KillFocus code.
-
-		The bizobj will only get its field updated during the control's 
-		KillFocus code. This function effectively commands that update to
-		happen before it would have otherwise occurred.
-		"""
-		ac = self.ActiveControl
-		if ac is not None:
-			try:
-				ac.flushValue()
-			except AttributeError:
-				# active control may not be data-aware
-				pass
-				
-	
 	def validateField(self, ctrl):
 		"""Call the bizobj for the control's DataSource. If the control's 
 		value is rejected for field validation reasons, a 
