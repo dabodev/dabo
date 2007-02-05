@@ -13,15 +13,15 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 	"""Creates a slider control, allowing editing integer values. Unlike dSpinner, 
 	dSlider does not allow entering a value with the keyboard.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dSlider		
-		style = self._extractKey((kwargs, properties), "style")
+		style = self._extractKey((kwargs, properties, attProperties), "style")
 		if style is None:
 			kwargs["style"] = wx.SL_AUTOTICKS
 		else:
 			kwargs["style"] = style | wx.SL_AUTOTICKS		
 		preClass = wx.PreSlider
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 	
 	def _initEvents(self):

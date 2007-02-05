@@ -11,11 +11,12 @@ class dCheckListBox(dcm.dControlItemMixin, wx.CheckListBox):
 	"""Creates a listbox, allowing the user to choose one or more items
 	by checking/unchecking each one.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dCheckListBox
 		self._choices = []
 		preClass = wx.PreCheckListBox
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, 
+				attProperties, *args, **kwargs)
 
 			
 	def _initEvents(self):

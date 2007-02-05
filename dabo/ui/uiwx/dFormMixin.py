@@ -13,8 +13,8 @@ from dabo.ui import makeDynamicProperty
 
 
 class dFormMixin(pm.dPemMixin):
-	def __init__(self, preClass, parent=None, properties=None, 
-			src=None, attProperties=None, *args, **kwargs):
+	def __init__(self, preClass, parent=None, properties=None, attProperties=None, 
+			src=None, *args, **kwargs):
 
 		# Windows sends two Activate events, and one of them is too early.
 		# Skip the first one. Update: apparently on wx27 and above the 

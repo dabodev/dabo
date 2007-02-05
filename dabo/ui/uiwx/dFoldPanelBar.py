@@ -11,17 +11,21 @@ from dabo.ui import makeDynamicProperty
 
 
 class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
-	def __init__(self, parent, caption=None, collapsed=None, 
-			properties=None, *args, **kwargs):
+	def __init__(self, parent, caption=None, collapsed=None, properties=None, 
+			attProperties=None, *args, **kwargs):
 		
 		self._baseClass = dFoldPanel
 		preClass = fpb.FoldPanelItem
 
 		# This needs to be set *after* the panel is added to its parent
-		collapsed = self._extractKey((kwargs, properties), "Collapsed", None)
-		if collapsed is None:
-			# They might have passed it as 'Expanded'
-			collapsed = not self._extractKey((kwargs, properties), "Expanded", True)
+		collapsed = self._extractKey(attProperties, "Collapsed", None)
+		if collapsed is not None:
+			collapsed = (collapsed == "True")
+		else:
+			collapsed = self._extractKey((kwargs, properties), "Collapsed", None)
+			if collapsed is None:
+				# They might have passed it as 'Expanded'
+				collapsed = not self._extractKey((kwargs, properties), "Expanded", True)
 		
 		cbstyle = self._extractKey((kwargs, properties), "cbstyle", None)
 		if cbstyle is None:
@@ -47,7 +51,7 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 				"borderonly" : fpb.CAPTIONBAR_RECTANGLE,
 				"filledborder" : fpb.CAPTIONBAR_FILLED_RECTANGLE}
 
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 		self._bar.append(self)
 		self._bar.RedisplayFoldPanelItems()
@@ -244,7 +248,7 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 	This allows you to collapse each panel down to its caption bar,
 	which either remains in place or drops to the bottom.
 	"""	
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dFoldPanelBar
 		preClass = fpb.FoldPanelBar
 		self._singleClick = False
@@ -256,7 +260,7 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		# Flag to track the currently expanded panel in Singleton format.
 		self.__openPanel = None
 		
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 		self._setInitialOpenPanel()
 		self.bindEvent(dEvents.FoldPanelChange, self.__onFoldPanelChange)

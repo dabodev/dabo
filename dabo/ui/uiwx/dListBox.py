@@ -11,12 +11,12 @@ from dabo.ui import makeDynamicProperty
 
 class dListBox(dcm.dControlItemMixin, wx.ListBox):
 	"""Creates a listbox, allowing the user to choose one or more items."""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dListBox
 		self._choices = []
 
 		preClass = wx.PreListBox
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 			
 	def _initEvents(self):

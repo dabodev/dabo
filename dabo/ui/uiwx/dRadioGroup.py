@@ -18,12 +18,12 @@ class dRadioGroup(dcm.dDataControlMixin, wx.RadioBox):
 	suitable for lists of one to a couple hundred choices, a dRadioGroup is 
 	really only suitable for lists of one to a dozen at most.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		warnings.warn(_("Deprecated; use the dabo.ui.dRadioList control instead."), 
 				DeprecationWarning, 1)
 		self._baseClass = dRadioGroup
 		preClass = wx.PreRadioBox
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 	def enableKey(self, item, val=True):

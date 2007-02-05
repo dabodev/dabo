@@ -18,18 +18,22 @@ class dMenu(pm.dPemMixin, wx.Menu):
 	"""Creates a menu, which can contain submenus, menu items, 
 	and separators.
 	"""
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
+	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dMenu
 		preClass = wx.Menu
 		self.Parent = parent
-		self._useMRU = self._extractKey((properties, kwargs), "MRU", False)
+		self._useMRU = self._extractKey(attProperties, "MRU", None)
+		if self._useMRU is not None:
+			self._useMRU = (self._useMRU == "True")
+		else:
+			self._useMRU = self._extractKey((properties, kwargs), "MRU", False)
 		self._mruSeparator = None
 		## pkm: When a dMenuItem is added to a dMenu, the wx functions only
 		##      add the C++ portion, not the mixed-in dabo dMenuItem object.
 		##      To work around this, we maintain an internal dictionary that
 		##      maps the id of the wxMenuItem to the dMenuItem object.
 		self._daboChildren = {}
-		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		pm.dPemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 		# Could be that we are used without a Dabo app object (not recommended,
 		# but should be possible). So use the wx-method for getting the uiApp ref,

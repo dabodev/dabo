@@ -73,7 +73,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	# that demo to get us going!
 	fold_symbols = 3
 
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dEditor
 		self._fileName = ""
 		self._beforeInit(None)
@@ -108,7 +108,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				
 		stc.StyledTextCtrl.__init__(self, parent, -1, 
 				style = wx.NO_BORDER)
-		dcm.dDataControlMixin.__init__(self, name, _explicitName=_explicitName, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, name, properties, attProperties, 
+				_explicitName=_explicitName, *args, **kwargs)
 		self._afterInit()
 		
 		self._newFileName = _("< New File >")

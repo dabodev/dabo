@@ -14,12 +14,12 @@ class dDropdownList(dcm.dControlItemMixin, wx.Choice):
 	control for all kinds of lists is dListControl, but dDropdownList does
 	suffice for simple needs.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dDropdownList
 		self._choices = []
 
 		preClass = wx.PreChoice
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 	def _initEvents(self):

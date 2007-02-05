@@ -30,11 +30,11 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 	_tabposRight = readonly(wx.NB_RIGHT)
 	_tabposLeft = readonly(wx.NB_LEFT)
 	
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageFrame
 		preClass = wx.PreNotebook
 		
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		# Dictionary for tracking images by key value
 		self._imageList = {}
 
@@ -54,12 +54,12 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 	_tabposRight = readonly(wx.LB_RIGHT)
 	_tabposLeft = readonly(wx.LB_LEFT)
 	
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageList
 		preClass = wx.PreListbook
 		# Dictionary for tracking images by key value
 		self._imageList = {}
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		self.Bind(wx.EVT_LIST_ITEM_MIDDLE_CLICK, self.__onWxMiddleClick)
 		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.__onWxRightClick)
 
@@ -101,10 +101,10 @@ class dPageSelect(dPageFrameMixin, wx.Choicebook):
 	_tabposLeft = readonly(wx.CHB_LEFT)
 	
 	
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageSelect
 		preClass = wx.PreChoicebook
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		# Dictionary for tracking images by key value
 		self._imageList = {}
 

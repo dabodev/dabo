@@ -16,12 +16,12 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 	use this directly; instead, use either the 'dCalendar' or the 
 	'dExtendedCalendar' subclasses.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dCalendar
 		preClass = wxcal.PreCalendarCtrl
 		
 		style = kwargs.get("style", 0)
-		dow = self._firstDayOfWeek = self._extractKey((kwargs, properties), 
+		dow = self._firstDayOfWeek = self._extractKey((kwargs, properties, attProperties), 
 				"FirstDayOfWeek", "Sunday")
 		if dow.lower().strip()[0] == "m":
 			style = style | wxcal.CAL_MONDAY_FIRST
@@ -38,7 +38,7 @@ class BaseCalendar(dcm.dControlMixin, wxcal.CalendarCtrl):
 		self._currentMonth = None
 		self._currentYear = None
 
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		
 		# Store some event types in case we need to raise them
 		self._setCalEventTypes()

@@ -18,14 +18,18 @@ class BaseForm(fm.dFormMixin):
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
 	like next(), last(), save(), and requery().
 	"""
-	def __init__(self, preClass, parent, properties, *args, **kwargs):
+	def __init__(self, preClass, parent, properties, attProperties, *args, **kwargs):
 		self.bizobjs = {}
 		self._primaryBizobj = None
 		
 		# If this is True, a panel will be automatically added to the
 		# form and sized to fill the form.
 		self.mainPanel = None
-		self.mkPanel = self._extractKey((kwargs, properties), "panel", False)
+		self.mkPanel = self._extractKey(attProperties, "panel", False)
+		if self.mkPanel is not False:
+			self.mkPanel = (self.mkPanel == "True")
+		else:
+			self.mkPanel = self._extractKey((kwargs, properties), "panel", False)
 		
 		# Use this for timing queries and other long-
 		# running events
@@ -36,7 +40,7 @@ class BaseForm(fm.dFormMixin):
 		# or a requery is about to happen.
 		self._checkForChanges = True
 		
-		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		fm.dFormMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 # 		if self.mainPanel:
 # 			# Can't do this in the _afterInit, as properties haven't been
@@ -764,7 +768,7 @@ Database error message: %s""") %	err
 
 
 class dForm(BaseForm, wx.Frame):
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
+	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dForm
 
 		if dabo.settings.MDI and isinstance(parent, wx.MDIParentFrame):
@@ -779,7 +783,7 @@ class dForm(BaseForm, wx.Frame):
 			self._mdi = False
 		## (Note that it is necessary to run the above block each time, because
 		##  we are modifying the dForm class definition globally.)
-		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
+		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 	def Layout(self):
@@ -788,18 +792,18 @@ class dForm(BaseForm, wx.Frame):
 
 
 class dToolForm(BaseForm, wx.MiniFrame):
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
+	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dToolForm
 		preClass = wx.PreMiniFrame
 		self._mdi = False
 		kwargs["TinyTitleBar"] = True
 		kwargs["ShowStatusBar"] = False
 		kwargs["ShowToolBar"] = False
-		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
+		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 class dBorderlessForm(BaseForm, wx.Frame):
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
+	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dBorderlessForm
 		style = kwargs.get("style", 0)
 		kwargs["style"] = style | wx.NO_BORDER
@@ -807,7 +811,7 @@ class dBorderlessForm(BaseForm, wx.Frame):
 		kwargs["ShowSystemMenu"] = False
 		kwargs["MenuBarClass"] = None
 		preClass = wx.PreFrame
-		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
+		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 	
 
 class _dForm_test(dForm):

@@ -11,11 +11,14 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 
-from OpenGL.GL import *
-from OpenGL.GLUT import *
+try:
+	from OpenGL.GL import *
+	from OpenGL.GLUT import *
+except ImportError:
+	dabo.infoLog.write(_("PyOpenGL not present, so dGlWindow is not loaded."))
 
 class dGlWindow(cm.dControlMixin, glcanvas.GLCanvas):
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self.init = False
 		self._rotate = self._pan = False
 		
@@ -26,7 +29,7 @@ class dGlWindow(cm.dControlMixin, glcanvas.GLCanvas):
 		
 		self._baseClass = dGlWindow
 		preClass = glcanvas.GLCanvas
-		cm.dControlMixin.__init__(self, preClass, parent, properties, 
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
 	
 	def initGL(self):

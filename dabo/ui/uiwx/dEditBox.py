@@ -17,13 +17,13 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 	The editbox will create scrollbars as necessary, and can edit string or 
 	unicode data.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dEditBox
 		self._forceCase = None
 		self._inForceCase = False
 		preClass = wx.PreTextCtrl
 		kwargs["style"] = wx.TE_MULTILINE | wx.TE_WORDWRAP
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 	def _initEvents(self):

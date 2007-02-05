@@ -21,7 +21,7 @@ from dabo.ui import makeDynamicProperty
 
 class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 	"""Creates a text box for editing one line of string data."""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dTextBox
 
 		self._dregex = {}
@@ -30,7 +30,7 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		self._inForceCase = False
 
 		preClass = wx.PreTextCtrl
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
 
 		# Keep passwords, etc., from being written to disk
@@ -416,7 +416,7 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 			if self._inForceCase:
 				# Value is changing internally. Don't update the oldval
 				# setting or change the type; just set the value.
-				self.SetValue(val)
+				self.ChangeValue(val)
 				return
 			else:
 				dabo.ui.callAfter(self.__forceCase)
@@ -433,7 +433,7 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 				self._lastDataType = type(val)
 
 			# Update the display no matter what:
-			self.SetValue(strVal)
+			self.ChangeValue(strVal)
 		
 			if type(_oldVal) != type(val) or _oldVal != val:
 				self._afterValueChanged()
