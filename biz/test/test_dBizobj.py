@@ -344,6 +344,19 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(biz.Record.iField, None)
 		self.assertEqual(biz.Record.nField, None)
 
+	def test_cancel(self):
+		biz = self.biz
+		biz.Record.cField = "pkm"
+		biz.cancel()
+		self.assertEqual(biz.Record.cField, "Paul Keith McNett")
+		biz.new()
+		self.assertEqual(biz.RowCount, 4)
+		self.assertEqual(biz.RowNumber, 3)
+		biz.cancel()
+		self.assertEqual(biz.RowCount, 3)
+		self.assertEqual(biz.RowNumber, 2)
+
+
 if __name__ == "__main__":
 	suite = unittest.TestLoader().loadTestsFromTestCase(Test_dBizobj)
 	unittest.TextTestRunner(verbosity=2).run(suite)
