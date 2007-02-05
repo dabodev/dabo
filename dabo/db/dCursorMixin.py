@@ -1170,13 +1170,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				delrecs_ids = self._newRecords.keys()
 				delrecs_idx = []
 				for rec_id in delrecs_ids:
+					# Remove any memento associated with the canceled new record, and 
+					# append to the list of indexes to delete.
 					row, rec = self._getRecordByPk(rec_id)
+					self._clearMemento(row)
 					delrecs_idx.append(self._records._index(rec))
 				delrecs_idx.sort(reverse=True)
 				for idx in delrecs_idx:
 					del recs[idx]
 				self._newRecords = {}
 				recs = dDataSet(recs)
+				if self.RowNumber >= self.RowCount:
+					self.RowNumber = self.RowCount - 1
 
 			for rec_pk, mem in self._mementos.items():
 				row, rec = self._getRecordByPk(rec_pk)
@@ -1195,6 +1200,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				recs = list(self._records)
 				del recs[recs.index(rec)]
 				self._records = dDataSet(recs)
+				if self.RowNumber >= self.RowCount:
+					self.RowNumber = self.RowCount - 1
 				return
 			
 			# Not a new record: need to manually replace the old values:
