@@ -103,14 +103,15 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return
 
 		if self.Source and self._srcIsBizobj:
-			self._enabled = self.Enabled
-			try:
-				self.Value = self.Source.getFieldVal(self.DataField)
-				self.Enabled = self._enabled
-			except (TypeError, dException.NoRecordsException):
-				self.Value = self.getBlankValue()
-				# Do we need to disable the control?
-				#self.Enabled = False
+			# First see if DataField refers to a method of the bizobj:
+			method = getattr(self.Source, self.DataField, None)
+			if method is not None:
+				self.Value = method()
+			else:
+				try:
+					self.Value = self.Source.getFieldVal(self.DataField)
+				except (TypeError, dException.NoRecordsException):
+					self.Value = self.getBlankValue()
 		else:
 			if self._srcIsInstanceMethod is None and self.Source is not None:
 				if isinstance(self.Source, basestring):
@@ -180,16 +181,20 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				if self.DataSource and self.DataField:
 					src = self.Source
 					if self._srcIsBizobj:
-						try:
-							ret = src.setFieldVal(self.DataField, curVal)
-						except AttributeError:
-							# Eventually, we'll want our global error handler be the one to write
-							# to the errorLog, at which point we should reraise the exception as 
-							# commented below. However, raising the exception here without a global
-							# handler results in some ugly GTK messages and a segfault, so for now
-							# let's just log the problem and let the app continue on.
-							#raise AttributeError, "No source object found for datasource '%s'" % self.DataSource
-							dabo.errorLog.write("No source object found for datasource '%s'" % self.DataSource)
+						# First see if DataField refers to a method of the bizobj, in which
+						# case do not try to assign to it:
+						method = getattr(self.Source, self.DataField, None)
+						if method is None:
+							try:
+								ret = src.setFieldVal(self.DataField, curVal)
+							except AttributeError:
+								# Eventually, we'll want our global error handler be the one to write
+								# to the errorLog, at which point we should reraise the exception as 
+								# commented below. However, raising the exception here without a global
+								# handler results in some ugly GTK messages and a segfault, so for now
+								# let's just log the problem and let the app continue on.
+								#raise AttributeError, "No source object found for datasource '%s'" % self.DataSource
+								dabo.errorLog.write("No source object found for datasource '%s'" % self.DataSource)
 					else:	
 						# If the binding is to a method, do not try to assign to that method.
 						if self._srcIsInstanceMethod is None:
