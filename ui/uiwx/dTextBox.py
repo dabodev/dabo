@@ -416,7 +416,7 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 			if self._inForceCase:
 				# Value is changing internally. Don't update the oldval
 				# setting or change the type; just set the value.
-				self.ChangeValue(val)
+				self.SetValue(val)
 				return
 			else:
 				dabo.ui.callAfter(self.__forceCase)
@@ -433,7 +433,7 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 				self._lastDataType = type(val)
 
 			# Update the display no matter what:
-			self.ChangeValue(strVal)
+			self.SetValue(strVal)
 		
 			if type(_oldVal) != type(val) or _oldVal != val:
 				self._afterValueChanged()
