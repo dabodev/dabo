@@ -138,11 +138,16 @@ def relativePathList(toLoc, fromLoc=None):
 	if fromLoc is None:
 		fromLoc = os.getcwd()
 	toLoc = os.path.abspath(toLoc)
+	if os.path.isfile(toLoc):
+		toDir, toFile = os.path.split(toLoc)
+	else:
+		toDir = toLoc
+		toFile = ""
 	fromLoc = os.path.abspath(fromLoc)
 	if os.path.isfile(fromLoc):
 		fromLoc = os.path.split(fromLoc)[0]
 	fromList = fromLoc.split(os.path.sep)
-	toList = toLoc.split(os.path.sep)	
+	toList = toDir.split(os.path.sep)	
 	# There can be empty strings from the split
 	while len(fromList) > 0 and not fromList[0]:
 		fromList.pop(0)
@@ -152,11 +157,14 @@ def relativePathList(toLoc, fromLoc=None):
 	while (len(fromList) > lev) and (len(toList) > lev) and \
 			(fromList[lev] == toList[lev]):
 		lev += 1
-		
+	
 	# 'lev' now contains the first level where they differ
 	fromDiff = fromList[lev:]
 	toDiff = toList[lev:]
-	return [".."] * len(fromDiff) + toDiff
+	ret = [".."] * len(fromDiff) + toDiff
+	if toFile:
+		ret += [toFile]
+	return ret
 
 
 def relativePath(toLoc, fromLoc=None):
