@@ -68,6 +68,7 @@ class DesignerXmlConverter(dObject):
 
 		# jfcs added self._codeFileName to below
 		compClass = compile(self.classText, self._codeFileName, "exec")
+#		compClass = compile(self.classText, "", "exec")
 		nmSpace = {}
 		exec compClass in nmSpace
 		return nmSpace[self.mainClassName]

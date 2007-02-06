@@ -646,8 +646,13 @@ class dApp(dObject):
 				ret = self.MainForm.BasePrefKey
 			except: pass
 		if not ret:
-			f = inspect.stack()[-1][1]
-			pth = os.path.abspath(f)
+			dabo.infoLog.write(_("WARNING: No BasePrefKey has been set for this application."))
+			try:
+				f = inspect.stack()[-1][1]
+				pth = os.path.abspath(f)
+			except IndexError:
+				# This happens in some Class Designer forms
+				pth = os.path.join(os.getcwd(), sys.argv[0])
 			if pth.endswith(".py"):
 				pth = pth[:-3]
 			pthList = pth.strip(os.sep).split(os.sep)
