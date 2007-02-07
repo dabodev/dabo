@@ -1580,6 +1580,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.RowHeight = self.RowHeight
 		self.ShowRowLabels = self.ShowRowLabels
 
+		# Set reasonable minimum size, as the default of (-1,-1) results in something
+		# in wx calculating the effective minsize based on how much space we need to
+		# show all the rows:
+		self.SetMinSize((100, 100))
+
 
 	def _afterInit(self):
 		# When doing an incremental search, do we stop
