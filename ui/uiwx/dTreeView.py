@@ -97,11 +97,16 @@ class dNode(dObject):
 		return self.tree.IsExpanded(self.itemID)
 
 	def _setExpanded(self, val):
-		if val:
-			self.tree.expand(self)
-		else:
-			self.tree.collapse(self)
-
+		try:
+			if val:
+				self.tree.expand(self)
+			else:
+				self.tree.collapse(self)
+		except wx._core.PyAssertionError:
+			# Happens when expandAll() is called and the root node is hidden
+			# especially from dTreeView.refreshDisplay()
+			pass			
+			
 
 	def _getFont(self):
 		if hasattr(self, "_font"):
