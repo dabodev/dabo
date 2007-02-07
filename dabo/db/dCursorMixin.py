@@ -22,6 +22,7 @@ from dabo.dObject import dObject
 from dabo.db import dNoEscQuoteStr
 from dabo.db import dTable
 from dabo.db.dDataSet import dDataSet
+from dabo.lib import dates
 
 
 class dCursorMixin(dObject):
@@ -118,12 +119,6 @@ class dCursorMixin(dObject):
 		self._cursorFactoryClass = cls
 		
 	
-	def setSQL(self, sql):
-		pass
-		# This function isn't needed anymore
-		#self.sql = self.BackendObject.setSQL(sql)
-
-
 	def clearSQL(self):
 		self._fieldClause = ""
 		self._fromClause = ""
@@ -168,14 +163,22 @@ class dCursorMixin(dObject):
 		which only knows about a quite limited number of types.
 		"""
 		ret = field_val
+		showError = False
 		if _fromRequery:
 			pythonType = self._types[field_name]
 			daboType = dabo.db.getDaboType(pythonType)
 
 			if pythonType not in (type(None), None) and not isinstance(field_val, pythonType):
-				if pythonType in (datetime.datetime, datetime.date):
-					# Conversion happens elsewhere.
-					pass
+				if pythonType in (datetime.datetime, ) and isinstance(field_val, basestring):
+					ret = dates.getDateTimeFromString(field_val)
+					if ret is None:
+						ret = field_val
+						showError = True
+				elif pythonType in (datetime.date,) and isinstance(field_val, basestring):
+					ret = dates.getDateFromString(field_val)
+					if ret is None:
+						ret = field_val
+						showError = True
 				elif pythonType in (unicode,):
 					# Unicode conversion happens below.
 					pass
@@ -202,7 +205,7 @@ class dCursorMixin(dObject):
 					try:
 						ret = pythonType(field_val)
 					except Exception, e:
-						print "%s couldn't be converted to %s (field %s)" % (field_val, pythonType, field_name)
+						showError = True
 
 		# Do the unicode conversion last:
 		if isinstance(field_val, str) and self._convertStrToUnicode:
@@ -230,6 +233,8 @@ class dCursorMixin(dObject):
 # 			# Usually blob data
 # 			ret = field_val.tostring()
 
+		if showError:
+			dabo.errorLog.write(_("%s couldn't be converted to %s (field %s)")) % (field_val, pythonType, field_name)
 		return ret
 
 
@@ -690,7 +695,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def getFieldVal(self, fld, row=None):
 		""" Return the value of the specified field in the current or specified row."""
-		ret = None
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set.")
 		if row is None:
@@ -701,14 +705,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			ret = []
 			for xFld in fld:
 				ret.append(self.getFieldVal(xFld, row=row))
-			ret = tuple(ret)
+			return tuple(ret)
 		else:
 			if rec.has_key(fld):
-				ret = rec[fld]
+				return rec[fld]
 			else:
-				raise dException.FieldNotFoundException, "%s '%s' %s" % (
-						_("Field"), fld, _("does not exist in the data set"))
-		return ret
+				if self.VirtualFields.has_key(fld):
+					# Move to specified row if necessary, and then call the VirtualFields
+					# function, which expects to be on the correct row.
+					_oldrow = self.RowNumber
+					self.RowNumber = row
+					ret = self.VirtualFields[fld]()
+					self.RowNumber = _oldrow
+					return ret
+				else:
+					raise dException.FieldNotFoundException, "%s '%s' %s" % (
+							_("Field"), fld, _("does not exist in the data set"))
 
 
 	def _fldTypeFromDB(self, fld):
@@ -754,6 +766,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		keyField = self.KeyField
 
 		if not rec.has_key(fld):
+			if self.VirtualFields.has_key(fld):
+				# ignore
+				return
 			ss = _("Field '%s' does not exist in the data set.") % (fld,)
 			raise dException.FieldNotFoundException, ss
 
@@ -882,43 +897,35 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 		
 		
-	def getDataSet(self, flds=(), rowStart=0, rows=None, 
-			returnInternals=False):
-		""" Get the entire data set encapsulated in a list. 
+	def getDataSet(self, flds=(), rowStart=0, rows=None, returnInternals=False):
+		""" Get the entire data set encapsulated in a dDataSet object. 
 
 		If the optional	'flds' parameter is given, the result set will be filtered 
 		to only include the specified fields. rowStart specifies the starting row
 		to include, and rows is the number of rows to return. 
 		"""
-		try:
-			if rows is not None:
-				tmp = self._records[rowStart:rowStart+rows]
-			else:
-				tmp = self._records[rowStart:]
-			# The dicts in the returned dat set need to be copied; 
-			# otherwise, modifying the data set will modify this 
-			# cursor's records!
-			ret = [tmprec.copy() for tmprec in tmp]
-		except AttributeError:
-			# return empty dataset
-			return dDataSet()
-
+		ds = []
 		internals = (kons.CURSOR_TMPKEY_FIELD,)
 
-		for rec in ret:
-			if not flds and not returnInternals:
-				# user didn't specify explicit fields and doesn't want internals
-				for internal in internals:
-					if rec.has_key(internal):
-						del rec[internal]
-			if flds:
-				# user specified specific fields - get rid of all others
-				for k in rec.keys():
-					if k not in flds:
-						del rec[k]
-
-		ret = dDataSet(ret)
-		return ret
+		if rows is None:
+			rows = self.RowCount
+		for row, rec in enumerate(self._records):
+			if row >= rowStart and row < (rowStart+rows):
+				tmprec = rec.copy()
+				for k, v in self.VirtualFields.items():
+					tmprec.update({k: self.getFieldVal(k, row)})
+				if flds:
+					# user specified specific fields - get rid of all others
+					for k in tmprec.keys():
+						if k not in flds:
+							del tmprec[k]
+				if not flds and not returnInternals:
+					# user didn't specify explicit fields and doesn't want internals
+					for internal in internals:
+						if tmprec.has_key(internal):
+							del tmprec[internal]
+				ds.append(tmprec)
+		return dDataSet(ds)
 
 	
 	def replace(self, field, valOrExpr, scope=None):
@@ -2098,6 +2105,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self._userSQL = val
 
 
+	def _getVirtualFields(self):
+		return getattr(self, "_virtualFields", {})
+
+	def _setVirtualFields(self, val):
+		assert isinstance(val, dict)
+		self._virtualFields = val
+
+
 	AutoCommit = property(_getAutoCommit, _setAutoCommit, None,
 			_("Do we need explicit begin/commit/rollback commands for transactions?  (bool)"))
 	
@@ -2162,3 +2177,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			
 	UserSQL = property(_getUserSQL, _setUserSQL, None,
 			_("SQL statement to run. If set, the automatic SQL builder will not be used."))
+
+	VirtualFields = property(_getVirtualFields, _setVirtualFields, None,
+			_("""A dictionary mapping virtual_field_name to a function to call.
+
+			The specified function will be called when getFieldVal() is called on 
+			the specified field name."""))
+

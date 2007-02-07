@@ -130,9 +130,11 @@ class dBizobj(dObject):
 		"""
 		if self.__cursors:
 			_dataStructure = getattr(self.__cursors[self.__cursors.keys()[0]], "_dataStructure", None)
+			_virtualFields = getattr(self.__cursors[self.__cursors.keys()[0]], "_virtualFields", {})
 		else:
 			# The first cursor is being created, before DataStructure is assigned.
 			_dataStructure = None
+			_virtualFields = {}
 		errMsg = self.beforeCreateCursor()
 		if errMsg:
 			raise dException.dException, errMsg
@@ -150,6 +152,7 @@ class dBizobj(dObject):
 		crs = self.__cursors[key]
 		if _dataStructure is not None:
 			crs._dataStructure = _dataStructure
+		crs._virtualFields = _virtualFields
 		crs.KeyField = self.KeyField
 		crs.Table = self.DataSource
 		crs.AutoPopulatePK = self.AutoPopulatePK
@@ -157,7 +160,6 @@ class dBizobj(dObject):
 		crs.sqlManager = self.SqlManager
 		crs.AutoCommit = self.AutoCommit
 		crs._bizobj = self
-		crs.setSQL(self.SQL)
 		if self.RequeryOnLoad:
 			crs.requery()
 			self.first()
@@ -649,8 +651,6 @@ class dBizobj(dObject):
 		else:
 			# sql passed; set it explicitly
 			self.SQL = sql
-		# propagate the SQL downward:
-		self._CurrentCursor.setSQL(self.SQL)
 
 
 	def requery(self):
@@ -1407,6 +1407,20 @@ class dBizobj(dObject):
 		self._defaultValues = val
 
 
+	def _getVirtualFields(self):
+		# We need to save the explicitly-assigned VirtualFields here in the bizobj,
+		# so that we are able to propagate it to any future-assigned child cursors.
+		_df = getattr(self, "_virtualFields", None)
+		if _df is not None:
+			return _df
+		return self._CurrentCursor.VirtualFields
+
+	def _setVirtualFields(self, val):
+		for key, cursor in self.__cursors.items():
+			cursor.VirtualFields = val
+		self._virtualFields = val
+
+
 	def _getEncoding(self):
 		ret = None
 		cursor = self._CurrentCursor
@@ -1602,9 +1616,6 @@ class dBizobj(dObject):
 
 	def _setSQL(self, val):
 		self._SQL = val
-		cursor = self._CurrentCursor
-		if cursor is not None:
-			cursor.setSQL(val)
 
 
 	def _getSqlMgr(self):
@@ -1750,3 +1761,10 @@ class dBizobj(dObject):
 
 	UserSQL = property(_getUserSQL, _setUserSQL, None,
 			_("SQL statement to run. If set, the automatic SQL builder will not be used."))
+
+	VirtualFields = property(_getVirtualFields, _setVirtualFields, None,
+			_("""A dictionary mapping virtual_field_name to function to call.
+
+			The specified function will be called when getFieldVal() is called on 
+			the specified virtual field name."""))
+

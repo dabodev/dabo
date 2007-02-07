@@ -76,6 +76,20 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 				or ds[2] == ("iField", "G", False, self.temp_table_name, "iField", None))
 		self.assertEqual(ds[3], ("nField", "N", False, self.temp_table_name, "nField", None))
 
+	def testVirtualFields(self):
+		biz = self.biz
+		def getCombinedName():
+			return "%s:%s" % (biz.Record.cField.replace(" ", ""), biz.Record.iField)
+		biz.VirtualFields["combined_name"] = getCombinedName
+
+		def testBogus():
+			return biz.Record.bogus_field_name
+
+		self.assertRaises(dabo.dException.FieldNotFoundException, testBogus)
+		self.assertEqual(biz.Record.combined_name, "PaulKeithMcNett:23")
+		biz.Record.combined_name = "shouldn't be able to set this"
+		self.assertEqual(biz.Record.combined_name, "PaulKeithMcNett:23")
+
 	def test_Encoding(self):
 		biz = self.biz
 		self.assertEqual(biz.Encoding, "utf-8")
@@ -355,7 +369,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		biz.cancel()
 		self.assertEqual(biz.RowCount, 3)
 		self.assertEqual(biz.RowNumber, 2)
-
 
 if __name__ == "__main__":
 	suite = unittest.TestLoader().loadTestsFromTestCase(Test_dBizobj)
