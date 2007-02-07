@@ -54,6 +54,7 @@ class Form(dabo.ui.dForm):
 		## make sure it is reflected on screen by calling update() afterwards.
 		ret = super(Form, self).save(dataSource)
 		self.update()
+		self.refresh()
 		return ret
 	
 	
