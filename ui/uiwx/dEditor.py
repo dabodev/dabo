@@ -1357,10 +1357,15 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				flag = re.I
 			else:
 				flag = 0
-			retAll = ([x for x in re.findall(r"\b" + word + r"\w+\b", self.GetText(), flag)
+			retAll = ([x for x in re.findall(r"\b" + word + r"\w+\b", self._getTextSource(), flag)
 				if x.find(',')==-1 and x[0]!= ' '])
 			ret = dict.fromkeys(retAll).keys()
 			return ret
+	
+	def _getTextSource(self):
+		"""Override to include other sources."""
+		return self.GetText()
+		
 		
 	def getWordObject(self,word=None,whole=None):
 		if not word: word=self.getWord(whole=whole)
