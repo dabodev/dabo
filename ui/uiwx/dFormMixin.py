@@ -241,12 +241,9 @@ class dFormMixin(pm.dPemMixin):
 		happen before it would have otherwise occurred.
 		"""
 		ac = self.ActiveControl
-		if ac is not None:
-			try:
+		if ac is not None and isinstance(ac, dabo.ui.dDataControlMixinBase.dDataControlMixinBase):
+			if not hasattr(ac, "_oldVal") or ac._oldVal != ac.Value:
 				ac.flushValue()
-			except AttributeError:
-				# active control may not be data-aware
-				pass
 				
 	
 	def createBizobjs(self):
