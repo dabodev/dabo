@@ -203,6 +203,13 @@ class dNode(dObject):
 		self.tree.SetItemTextColour(self.itemID, val)
 	
 	
+	def _getFullCaption(self):
+		ret = self.Caption
+		if self.parent:
+			ret = "%s.%s" % (self.parent._getFullCaption(), ret)
+		return ret
+
+
 	def _getImg(self):
 		return self.tree.getNodeImg(self)
 		
@@ -286,6 +293,9 @@ class dNode(dObject):
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
 			_("Foreground (text) color of this node  (wx.Colour)") )
+	
+	FullCaption = property(_getFullCaption, None, None,
+			_("Full dot-separated string of the captions of this node and its ancestors (read-only) (str)"))
 			
 	Image = property(_getImg, _setImg, None,
 			_("""Sets the image that is displayed on the node. This is
