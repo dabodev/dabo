@@ -133,7 +133,7 @@ class EasyDialogBuilder(object):
 		
 		return Sizer
 	
-	def makeControlField(self, parent, control, regId, labelTitle, Properties, Sizer=None):
+	def makeControlField(self, parent, control, regId, labelTitle, Properties):
 		"""makeControlField(parent, control, regId, labelTitle, Properties) -> List of Dabo Controls
 		
 		parent -> dabo object that is parent, normally a panel or form
@@ -141,11 +141,7 @@ class EasyDialogBuilder(object):
 		regId -> string that is the regId of the control
 		labelTitle -> string that is the title of the label next to the control
 		Properties -> dictionary of any properties that are supposed to go with the control
-		Sizer -> Optional Sizer object.  Used so we can insert objects directly into Grid Sizers
 		"""
-		
-		if not Sizer:
-			Sizer = dabo.ui.dSizer("horizontal")
 		
 		controlList = []
 		
@@ -164,9 +160,10 @@ class EasyDialogBuilder(object):
 			
 			labelTitle += ":"
 			
-			target = dabo.ui.dTextBox(parent, RegID=regId, ReadOnly=True, properties=Properties)
-			controlList.append(target)
-			controlList.append(fileButton(parent, format, "%s_button" % (regId,), directory, target))
+			exec("self.%s = dabo.ui.dTextBox(parent, RegID=regId, ReadOnly=True, properties=Properties)" % (regId,))
+			exec("controlList.append(self.%s)" % (regId,))
+			exec("self.%s_button = fileButton(parent, format, %s_button, directory, target)" % (regId,regId))
+			exec("controlList.append(self.%s_button)" % (regId,))
 		else:
 			if issubclass(control, (dabo.ui.dCheckBox, dabo.ui.dButton)):
 				controlCaption = labelTitle
@@ -175,7 +172,8 @@ class EasyDialogBuilder(object):
 				controlCaption = ""
 				labelTitle += ":"
 			
-			controlList.append(control(parent, RegID=regId, Caption=controlCaption, properties=Properties))
+			exec("self.%s =control(parent, RegID=regId, Caption=controlCaption, properties=Properties)" % (regId,))
+			exec("controlList.append(self.%s)" % (regId,))
 		
 		controlList.insert(0, dabo.ui.dLabel(parent, RegID="%s_label" % (regId,), Caption=labelTitle))
 		return controlList
