@@ -162,7 +162,7 @@ class EasyDialogBuilder(object):
 			
 			exec("self.%s = dabo.ui.dTextBox(parent, RegID=regId, ReadOnly=True, properties=Properties)" % (regId,))
 			exec("controlList.append(self.%s)" % (regId,))
-			exec("self.%s_button = fileButton(parent, format, %s_button, directory, target)" % (regId,regId))
+			exec("self.%s_button = fileButton(parent, format, \"%s_button\", directory, self.%s)" % (regId,regId,regId))
 			exec("controlList.append(self.%s_button)" % (regId,))
 		else:
 			if issubclass(control, (dabo.ui.dCheckBox, dabo.ui.dButton)):
