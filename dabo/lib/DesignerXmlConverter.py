@@ -35,6 +35,8 @@ class DesignerXmlConverter(dObject):
 		self._generatedNames = []
 		# Holds the text for the generated code file
 		self._codeFileName = self.Application.getTempFile("py")
+		# Holds the class file we will create in order to aid introspection
+		self._classFileName = self.Application.getTempFile("py")
 		self._codeImportAs = "_daboCode"
 		# Holds any import statements to apply to the class code.
 		self._import = ""
@@ -64,10 +66,15 @@ class DesignerXmlConverter(dObject):
 		
 		## For debugging. This creates a copy of the generated code
 		## so that you can help determine any problems.
-		open("CLASSTEXT.py", "w").write(self.classText)
+		## egl: removed 2007-02-10. If you want to see the output, 
+		##   just uncomment the next line.
+# 		open("CLASSTEXT.py", "w").write(self.classText)
 
 		# jfcs added self._codeFileName to below
-		compClass = compile(self.classText, self._codeFileName, "exec")
+# 		compClass = compile(self.classText, self._codeFileName, "exec")
+		# egl - created a tmp file for the main class code that we can use 
+		#   for compiling. This allows for full Python introspection.
+		compClass = compile(self.classText, self._classFileName, "exec")
 #		compClass = compile(self.classText, "", "exec")
 		nmSpace = {}
 		exec compClass in nmSpace
