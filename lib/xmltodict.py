@@ -102,7 +102,7 @@ class Xml2Obj:
 				self._codeDict = None
 			else:
 				# End of an individual method
-				self._codeDict[self._mthdName] = self._mthdCode
+				self._codeDict[self._mthdName] = self._mthdCode.lstrip()
 				self._mthdName = ""
 				self._mthdCode = ""
 		elif self._inProp:
@@ -123,12 +123,12 @@ class Xml2Obj:
 
 	def CharacterData(self, data):
 		"""SAX character data event handler"""
-		if data.strip():
+		if self._inCode or data.strip():
 			data = data.replace("&lt;", "<")
 			data = data.encode()
 			if self._inCode:
 				if self._mthdCode:
-					self._mthdCode += "%s%s" % (code_linesep, data)
+					self._mthdCode += data
 				else:
 					self._mthdCode = data
 			elif self._inProp:
