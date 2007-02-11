@@ -1803,6 +1803,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def setLimitClause(self, clause):
 		""" Set the limit clause of the sql statement."""
 		self.sqlManager._limitClause = clause
+	
+	# For simplicity's sake, create aliases
+	setLimit, getLimit = setLimitClause, getLimitClause
+
 
 
 	def getLimitWord(self):
