@@ -2988,11 +2988,17 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			bizobj = self.getBizobj()
 			if bizobj:
 				if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
-					try:
-						bizobj.RowNumber = newRow
-					except dException.BusinessRuleViolation, e:
-						self.notifyUser(e)
-						dabo.ui.callAfter(self.refresh)
+					if isinstance(self.Form, dabo.ui.dForm):
+						# run it through the form:
+						if not self.Form.moveToRowNumber(newRow):
+							dabo.ui.callAfter(self.refresh)
+					else:
+						# run it through the bizobj directly:
+						try:
+							bizobj.RowNumber = newRow
+						except dException.BusinessRuleViolation, e:
+							dabo.ui.stop(e)
+							dabo.ui.callAfter(self.refresh)
 				else:
 					# We are probably trying to select row 0 when there are no records
 					# in the bizobj.
