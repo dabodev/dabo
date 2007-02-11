@@ -85,6 +85,17 @@ class BaseForm(fm.dFormMixin):
 		return ret
 		
 		
+	def notifyUser(self, msg, title="Notice", severe=False):
+		""" Displays an alert messagebox for the user. You can customize
+		this in your own classes if you prefer a different display.
+		"""
+		if severe:
+			func = dabo.ui.stop
+		else:
+			func = dabo.ui.info
+		func(message=msg, title=title)
+
+
 	def confirmChanges(self):
 		"""Ask the user if they want to save changes, discard changes, or cancel.
 
@@ -170,7 +181,7 @@ class BaseForm(fm.dFormMixin):
 		if bizobj is None:
 			# Running in preview or some other non-live mode
 			return
-		self._moveRecordPointer(bizobj.moveToRowNumber, dataSource, rowNumber)
+		return self._moveRecordPointer(bizobj.moveToRowNumber, dataSource, rowNumber)
 
 
 	def _moveRecordPointer(self, func, dataSource=None, *args, **kwargs):
@@ -183,23 +194,28 @@ class BaseForm(fm.dFormMixin):
 		err = self.beforePointerMove()
 		if err:
 			self.notifyUser(err)
-			return
+			return False
 		try:
 			response = func(*args, **kwargs)
 		except dException.NoRecordsException:
 			self.setStatusText(_("No records in dataset."))
+			return False
 		except dException.BeginningOfFileException:
 			self.setStatusText(self.getCurrentRecordText(dataSource) + " (BOF)")
+			return False
 		except dException.EndOfFileException:
 			self.setStatusText(self.getCurrentRecordText(dataSource) + " (EOF)")
+			return False
 		except dException.dException, e:
 			self.notifyUser(str(e))
+			return False
 		else:
 			if biz.RowNumber != oldRowNum:
 				# Notify listeners that the row number changed:
 				dabo.ui.callAfter(self.raiseEvent, dEvents.RowNumChanged)
 			self.update()
 		self.afterPointerMove()
+		return True
 
 
 	def first(self, dataSource=None):
