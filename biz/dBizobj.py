@@ -289,7 +289,10 @@ class dBizobj(dObject):
 		if useTransact:
 			cursor.commitTransaction()
 
-		self.RowNumber = current_row
+		if current_row >= 0:
+			try:
+				self.RowNumber = current_row
+			except: pass
 
 
 	def save(self, startTransaction=False, topLevel=True):
@@ -758,6 +761,8 @@ class dBizobj(dObject):
 		Accepts a tuple that will be merged with the sql statement using the
 		cursor's standard method for merging.
 		"""
+		if not isinstance(params, tuple):
+			params = (params, )
 		self.__params = params
 
 
@@ -1270,8 +1275,12 @@ class dBizobj(dObject):
 		return self._CurrentCursor.setJoinClause(clause)
 	def setGroupByClause(self, clause):
 		return self._CurrentCursor.setGroupByClause(clause)
+	def getLimitClause(self):
+		return self._CurrentCursor.getLimitClause()
 	def setLimitClause(self, clause):
 		return self._CurrentCursor.setLimitClause(clause)
+	# For simplicity's sake, create aliases
+	setLimit, getLimit = setLimitClause, getLimitClause
 	def setOrderByClause(self, clause):
 		return self._CurrentCursor.setOrderByClause(clause)
 	def setWhereClause(self, clause):
@@ -1692,7 +1701,7 @@ class dBizobj(dObject):
 
 	FillLinkFromParent = property(_getFillLinkFromParent, _setFillLinkFromParent, None,
 			_("""In the onNew() method, do we fill in the linkField with the value returned
-			by calling the parent bizobj\'s GetKeyValue() method? (bool)"""))
+			by calling the parent bizobj's GetKeyValue() method? (bool)"""))
 
 	IsAdding = property(_isAdding, None, None,
 			_("Returns True if the current record is new and unsaved."))
@@ -1711,7 +1720,7 @@ class dBizobj(dObject):
 			_("Should new child records be added when a new parent record is added? (bool)"))
 
 	NewRecordOnNewParent = property(_getNewRecordOnNewParent, _setNewRecordOnNewParent, None,
-			_("If this bizobj\'s parent has NewChildOnNew==True, do we create a record here? (bool)"))
+			_("If this bizobj's parent has NewChildOnNew==True, do we create a record here? (bool)"))
 
 	NonUpdateFields = property(_getNonUpdateFields, _setNonUpdateFields, None,
 			_("Fields in the cursor to be ignored during updates"))
@@ -1754,7 +1763,7 @@ class dBizobj(dObject):
 			_("The current position of the record pointer in the result set. (int)"))
 
 	SQL = property(_getSQL, _setSQL, None,
-			_("SQL statement used to create the cursor\'s data. (str)"))
+			_("SQL statement used to create the cursor's data. (str)"))
 
 	SqlManager = property(_getSqlMgr, None, None,
 			_("Reference to the cursor that handles SQL Builder information (cursor)") )
