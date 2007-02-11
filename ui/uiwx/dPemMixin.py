@@ -597,6 +597,17 @@ class dPemMixin(dPemMixinBase):
 		self.raiseEvent(dEvents.Resize, evt)
 
 
+	def notifyUser(self, msg, title="Notice", severe=False):
+		""" Displays an alert messagebox for the user. You can customize
+		this in your own classes if you prefer a different display.
+		"""
+		if severe:
+			func = dabo.ui.stop
+		else:
+			func = dabo.ui.info
+		func(message=msg, title=title)
+
+
 	def bindKey(self, keyCombo, callback, **kwargs):
 		"""Bind a key combination such as "ctrl+c" to a callback function.
 

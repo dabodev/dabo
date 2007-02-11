@@ -523,17 +523,6 @@ class BaseForm(fm.dFormMixin):
 		""" Set the SQL for the bizobj."""
 		self.getBizobj(dataSource).setSQL(sql)
 		
-	
-	def notifyUser(self, msg, title="Notice", severe=False):
-		""" Displays an alert messagebox for the user. You can customize
-		this in your own classes if you prefer a different display.
-		"""
-		if severe:
-			func = dabo.ui.stop
-		else:
-			func = dabo.ui.info
-		func(message=msg, title=title)
-
 
 	def _connectionLostMsg(self, err):
 		return _("""The connection to the database has closed for unknown reasons.

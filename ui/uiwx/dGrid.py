@@ -2962,7 +2962,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def _onGridCellSelected(self, evt):
 		""" Occurs when the grid's cell focus has changed."""
-
 		## pkm 2005-09-28: This works around a nasty segfault:
 		self.HideCellEditControl()
 		## but periodically test it. My current version: 2.6.1.1pre
@@ -2988,13 +2987,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if oldRow != newRow:
 			bizobj = self.getBizobj()
 			if bizobj:
-				if bizobj.RowCount > newRow:
-					# First attempt to go through the form.
-					if self.Form and hasattr(self.Form, "moveToRowNumber"):
-							self.Form.moveToRowNumber(newRow, dataSource=bizobj.DataSource)
-					else:
-						# set the RowNumber on the bizobj directly
+				if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
+					try:
 						bizobj.RowNumber = newRow
+					except dException.BusinessRuleViolation, e:
+						self.notifyUser(e)
+						dabo.ui.callAfter(self.refresh)
 				else:
 					# We are probably trying to select row 0 when there are no records
 					# in the bizobj.
@@ -3002,8 +3000,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					##     unneccesary.
 					#self.SetGridCursor(0,0)
 					pass
-		if self.Form is not None:
-			dabo.ui.callAfter(self.Form.update)
+			if self.Form is not None:
+				dabo.ui.callAfter(self.Form.update)
 
 
 	def _checkSelectionType(self):
