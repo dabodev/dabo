@@ -2990,7 +2990,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
 					if isinstance(self.Form, dabo.ui.dForm):
 						# run it through the form:
-						if not self.Form.moveToRowNumber(newRow):
+						if not self.Form.moveToRowNumber(newRow, bizobj.DataSource):
 							dabo.ui.callAfter(self.refresh)
 					else:
 						# run it through the bizobj directly:
