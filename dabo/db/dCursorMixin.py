@@ -154,7 +154,7 @@ class dCursorMixin(dObject):
 		return pk
 		
 
-	def correctFieldType(self, field_val, field_name, _fromRequery=False):
+	def _correctFieldType(self, field_val, field_name, _fromRequery=False):
 		"""Correct the type of the passed field_val, based on self.DataStructure.
 
 		This is called by self.execute(), and contains code to convert all strings 
@@ -185,22 +185,22 @@ class dCursorMixin(dObject):
 				elif field_val is None:
 					# Fields of any type can be None (NULL).
 					pass
-				elif _USE_DECIMAL and type(field_val) in (float,) \
-						and pythonType in (Decimal,):
-					ret = pythonType(str(field_val))
 				elif _USE_DECIMAL and pythonType in (Decimal,):
-					# Need to convert to the correct scale:
 					ds = self.DataStructure
 					ret = None
+					_field_val = field_val
+					if type(field_val) in (float,):
+						# Can't convert to decimal directly from float
+						_field_val = str(_field_val)
+					# Need to convert to the correct scale:
+					scale = None
 					for s in ds:
 						if s[0] == field_name:
 							if len(s) > 5:
 								scale = s[5]
-								if scale is not None:
-									ret = Decimal(field_val).quantize(Decimal("0.%s" % (scale * "0",)))
-
-					if ret is None:
-						ret = pythonType(field_val)
+					if scale is None:
+						scale = 2
+					ret = Decimal(_field_val).quantize(Decimal("0.%s" % (scale * "0",)))
 				else:
 					try:
 						ret = pythonType(field_val)
@@ -293,42 +293,29 @@ class dCursorMixin(dObject):
 			self.RowNumber = min(self.RowNumber, maxrow)
 
 		if _fromRequery:
-			self.storeFieldTypes()
+			self._storeFieldTypes()
 
 		if self._records:
-			if isinstance(self._records[0], tuple) or isinstance(self._records[0], list):
-				# Need to convert each row to a Dict
+			if isinstance(self._records[0], (tuple, list)):
+				# Need to convert each row to a Dict, since the backend didn't do it.
 				tmpRows = []
-				# First, get the descriptionClean attribute and extract 
-				# the field names from that
-				fldNames = []
-				for fld in self.FieldDescription:
-					### 2006.01.26: egl - Removed the lower() function, which was preventing
-					### this from working with case-sensitive backends. I can't recall why it was 
-					### ever added, so I'm leaving it here commented out in case we run into
-					### something that explains the need for this.
-					#fldNames.append(fld[0].lower())
-					fldNames.append(fld[0])
-				fldcount = len(fldNames)
-				# Now go through each row, and convert it to a dictionary. We will then
-				# add that dictionary to the tmpRows list. When all is done, we will replace 
-				# the _records property with that list of dictionaries
+				fldNames = [f[0] for f in self.FieldDescription]
 				for row in self._records:
-					dic= {}
-					for i in range(0, fldcount):
-						dic[fldNames[i]] = self.correctFieldType(field_val=row[i], 
-								field_name=fldNames[i], _fromRequery=_fromRequery)
+					dic = {}
+					for idx, fldName in enumerate(fldNames):
+						dic[fldName] = self._correctFieldType(field_val=row[idx], 
+								field_name=fldName, _fromRequery=_fromRequery)
 					tmpRows.append(dic)
 				self._records = dDataSet(tmpRows)
 			else:
-				# Make all string values into unicode
+				# Already a DictCursor, but we still need to correct the field types.
 				for row in self._records:
 					for fld, val in row.items():
-						row[fld] = self.correctFieldType(field_val=val, field_name=fld,
+						row[fld] = self._correctFieldType(field_val=val, field_name=fld,
 								_fromRequery=_fromRequery)
 
 		return res
-	
+
 
 	def executeSafe(self, sql):
 		"""Execute the passed SQL using an auxiliary cursor.
@@ -365,7 +352,7 @@ class dCursorMixin(dObject):
 		return True
 
 
-	def storeFieldTypes(self, target=None):
+	def _storeFieldTypes(self, target=None):
 		"""Stores the data type for each column in the result set."""
 		if target is None:
 			target = self
@@ -1319,9 +1306,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# If the backend reports a decimal scale, use it. Scale refers to the
 				# number of decimal places.
 				scale = field_scale
-				if scale is not None:
-					ex = "0.%s" % ("0"*scale)
-					newval = newval.quantize(Decimal(ex))
+				if scale is None:
+					scale = 2
+				ex = "0.%s" % ("0"*scale)
+				newval = newval.quantize(Decimal(ex))
 			elif typ is datetime.datetime:
 				newval = datetime.datetime.min
 			elif typ is datetime.date:
