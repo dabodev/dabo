@@ -110,6 +110,9 @@ class dCursorMixin(dObject):
 		# mementos and new records, keyed on record object ids:
 		self._mementos = {}
 		self._newRecords = {}
+		
+		# Flag preference cursors so that they don't fill up the logs
+		self._isPrefCursor = False
 
 		self.initProperties()
 
@@ -253,18 +256,15 @@ class dCursorMixin(dObject):
 			sql = unicode(sql, self.Encoding)
 		sql = self.processFields(sql)
 		
-		# Make sure all Unicode characters are properly encoded.
-# 		if isinstance(sql, unicode):
-# 			sqlEX = sql.encode(self.Encoding)
-# 		else:
-# 			sqlEX = sql
-		sqlEX = sql
-		
 		try:
 			if params is None or len(params) == 0:
-				res = self.superCursor.execute(self, sqlEX)
+				res = self.superCursor.execute(self, sql)
+				if not self.IsPrefCursor:
+					dabo.dbActivityLog.write("SQL: %s" % sql.replace("\n", " "))
 			else:
-				res = self.superCursor.execute(self, sqlEX, params)
+				res = self.superCursor.execute(self, sql, params)
+				if not self.IsPrefCursor:
+					dabo.dbActivityLog.write("SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(params)))
 		except Exception, e:
 			# If this is due to a broken connection, let the user know.
 			# Different backends have different messages, but they
@@ -2003,6 +2003,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self._newRecords.has_key(recKey)
 	
 
+	def _getIsPrefCursor(self):
+		return self._isPrefCursor
+
+	def _setIsPrefCursor(self, val):
+		self._isPrefCursor = val
+
+
 	def _getKeyField(self):
 		try:
 			return self._keyField
@@ -2148,6 +2155,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	IsAdding = property(_getIsAdding, None, None,
 			_("Returns True if the current record is new and unsaved"))
 			
+	IsPrefCursor = property(_getIsPrefCursor, _setIsPrefCursor, None,
+			_("""Returns True if this cursor is used for managing internal 
+			Dabo preferences and settings. Default=False.  (bool)"""))
+	
 	LastSQL = property(_getLastSQL, None, None,
 			_("Returns the last executed SQL statement."))
 

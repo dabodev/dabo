@@ -129,6 +129,11 @@ infoLog.LogObject = sys.stdout
 errorLog = Log()
 errorLog.Caption = "Dabo Error Log"
 errorLog.LogObject = sys.stderr
+# This log is set to None by default. It must be manually activated 
+# via the Application object.
+dbActivityLog = Log()
+dbActivityLog.Caption = "Database Activity Log"
+dbActivityLog.LogObject = None
 
 # Import global settings (do this first, as other imports may rely on it):
 from settings import *
