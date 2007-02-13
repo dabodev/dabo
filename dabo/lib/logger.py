@@ -29,6 +29,9 @@ class Log(dObject):
 	
 	def write(self, message):
 		"""Writes the passed message to the log."""
+		if self.LogObject is None:
+			# Send messages to the bit bucket...
+			return
 		if self.LogTimeStamp:
 			timestamp = "%s: " % time.asctime()
 		else:

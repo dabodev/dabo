@@ -673,6 +673,21 @@ class dApp(dObject):
 		self._cryptoProvider = val
 
 
+	def _getDatabaseActivityLog(self):
+		return dabo.dbActivityLog.LogObject
+
+	def _setDatabaseActivityLog(self, val):
+		if isinstance(val, basestring):
+			try:
+				f = open(val, "a")
+			except:
+				dabo.errorLog.write(_("Could not open file: '%s'") % val)
+				return
+		else:
+			f = val
+		dabo.dbActivityLog.LogObject = f
+
+
 	def _getDrawSizerOutlines(self):
 		return self.uiApp.DrawSizerOutlines
 	
@@ -861,6 +876,10 @@ class dApp(dObject):
 	
 	Crypto = property(_getCrypto, _setCrypto, None, 
 			_("Reference to the object that provides cryptographic services.  (varies)" ) )
+	
+	DatabaseActivityLog = property(_getDatabaseActivityLog, _setDatabaseActivityLog, None,
+			_("""Path to the file (or file-like object) to be used for logging all database 
+			activity. Default=None, which means no log is kept.   (file or str)"""))
 	
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
 			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)"))
