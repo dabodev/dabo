@@ -41,6 +41,11 @@ class Log(dObject):
 		else:
 			caption = ""
 		self.LogObject.write("%s%s%s%s" % (caption, timestamp, message, os.linesep))
+		# Flush the log entry to the file
+		try:
+			self.LogObject.flush()
+		except AttributeError:
+			pass
 		
 	
 	def _getCaption(self):

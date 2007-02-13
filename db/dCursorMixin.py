@@ -266,6 +266,7 @@ class dCursorMixin(dObject):
 				if not self.IsPrefCursor:
 					dabo.dbActivityLog.write("SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(params)))
 		except Exception, e:
+			dabo.dbActivityLog.write("FAILED SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(params)))
 			# If this is due to a broken connection, let the user know.
 			# Different backends have different messages, but they
 			# should all contain the string 'connect' in them.
