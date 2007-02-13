@@ -234,7 +234,8 @@ class dCursorMixin(dObject):
 # 			ret = field_val.tostring()
 
 		if showError:
-			dabo.errorLog.write(_("%s couldn't be converted to %s (field %s)")) % (field_val, pythonType, field_name)
+			dabo.errorLog.write(_("%s couldn't be converted to %s (field %s)") 
+					% (repr(field_val), pythonType, field_name))
 		return ret
 
 
