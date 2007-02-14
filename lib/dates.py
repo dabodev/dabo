@@ -192,12 +192,16 @@ def getTimeFromString(strVal, formats=None):
 
 
 def goDate(date_exp, days):
-	"""Given a datetime.date expression, return the date that is <days> away."""
+	"""Given a date or datetime, return the date or datetime that is <days> away."""
 	now = time.time()
 	one_day = 60*60*24
 	offset = (one_day * days)
 	new_time = time.localtime(now + offset)
-	return datetime.date(new_time[0], new_time[1], new_time[2])
+	if isinstance(date_exp, datetime.datetime):
+		return datetime.datetime(new_time[0], new_time[1], new_time[2], date_exp.hour, date_exp.minute, date_exp.second)
+	if isinstance(date_exp, datetime.date):
+		return datetime.date(new_time[0], new_time[1], new_time[2])
+
 
 
 if __name__ == "__main__":
@@ -207,3 +211,8 @@ if __name__ == "__main__":
 	for test in tests:
 		for format in formats:
 			print "%s (%s) -> %s" % (test, format, repr(getDateFromString(test, [format])))
+
+	dt = datetime.datetime.now()
+	print goDate(dt, -30)
+	d = datetime.date.today()
+	print goDate(d, -30)
