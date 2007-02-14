@@ -33,8 +33,6 @@ class DesignerXmlConverter(dObject):
 		self.prmDefPat = re.compile(r"([^=]+)=?.*")
 		# Added to ensure unique object names
 		self._generatedNames = []
-		# Holds the text for the generated code file
-		self._codeFileName = self.Application.getTempFile("py")
 		# Holds the class file we will create in order to aid introspection
 		self._classFileName = self.Application.getTempFile("py")
 		self._codeImportAs = "_daboCode"
@@ -58,11 +56,6 @@ class DesignerXmlConverter(dObject):
 		dct = self.importSrc(src)	
 		# Parse the XML and create the class definition text
 		self.createClassText(dct)
-		# Write the code file
-		txt = self._import + LINESEP + self._codeFileText
-		open(self._codeFileName, "w").write(txt)
-		# Add the imports to the main file, too.
-		self.classText = self.classText % (self._import + LINESEP,)
 		
 		## For debugging. This creates a copy of the generated code
 		## so that you can help determine any problems.
@@ -71,11 +64,9 @@ class DesignerXmlConverter(dObject):
 # 		open("CLASSTEXT.py", "w").write(self.classText)
 
 		# jfcs added self._codeFileName to below
-# 		compClass = compile(self.classText, self._codeFileName, "exec")
 		# egl - created a tmp file for the main class code that we can use 
 		#   for compiling. This allows for full Python introspection.
 		compClass = compile(self.classText, self._classFileName, "exec")
-#		compClass = compile(self.classText, "", "exec")
 		nmSpace = {}
 		exec compClass in nmSpace
 		return nmSpace[self.mainClassName]
@@ -110,11 +101,7 @@ class DesignerXmlConverter(dObject):
 	def createClassText(self, dct, addImports=True, specList=[]):
 		# 'self.classText' will contain the generated code
 		self.classText = ""
-		cdPath, cdFile = os.path.split(self._codeFileName)
-		cdPath = cdPath.replace("\\", r"\\")
-		cdFileNoExt = os.path.splitext(cdFile)[0]
-		if addImports:
-			self.classText += self._clsHdrText % (cdPath, cdPath, cdFileNoExt, self._codeImportAs, "%s")
+		self.classText += self._clsHdrText
 		if self.CreateDesignerControls:
 			self.classText += self._designerClassGenText
 
@@ -176,8 +163,7 @@ class DesignerXmlConverter(dObject):
 			if mthd == "importStatements":
 				self._import += cd + LINESEP
 				continue
-			codeProx = self.createProxyCode(cd)
-			self.classText += LINESEP + self.indentCode(codeProx, 1)
+			self.classText += LINESEP + self.indentCode(cd, 1)
 		# Add any property definitions
 		for prop, propDef in propDefs.items():
 			self.classText += LINESEP + self._propDefText % (prop, propDef["getter"], 
@@ -195,6 +181,13 @@ class DesignerXmlConverter(dObject):
 			indCode = self.indentCode(self.innerClassText, 2)
 			innerTxt = innerTxt % locals()
 			self.classText += innerTxt
+		
+		# Add any import statements
+		if addImports:
+			impt = self._import
+		else:
+			impt = ""
+		self.classText = self.classText.replace("|classImportStatements|", impt)
 		
 		# We're done!
 		return
@@ -460,11 +453,9 @@ class DesignerXmlConverter(dObject):
 			if mthd == "importStatements":
 				self._import += cd + LINESEP
 				continue
-			codeProx = self.createProxyCode(cd)
-			self.innerClassText += self.indentCode(codeProx, 1)
+			self.innerClassText += self.indentCode(cd, 1)
 			if not self.innerClassText.endswith(LINESEP):
 				self.innerClassText += LINESEP
-# 			self.innerClassText += self.indentCode(cd, 1)
 		# Add any property definitions
 		for prop, propDef in custProps.items():
 			self.innerClassText += LINESEP + self._innerPropText % (prop, propDef["getter"], 
@@ -473,25 +464,6 @@ class DesignerXmlConverter(dObject):
 		return clsName
 	
 	
-	def createProxyCode(self, cd):
-		"""Creates the substitute method call that will call the actual method in the temp file."""
-		# Get the method name and params
-		indnt, mthd, prmText = self._codeDefExtract.search(cd).groups()
-		# Clean up the default values from the params.
-		nonDefPrmText = ", ".join([self.prmDefPat.sub(r"\1", pp).strip() for pp in prmText.split(",")])
-		# Create the proxy method name
-		proxMthd = "%s_%s" % (mthd, self._methodNum)
-		self._methodNum += 1
-		# Create the proxy call
-		sep = LINESEP
-		scia = self._codeImportAs
-		prox = "%(indnt)sdef %(mthd)s(%(prmText)s):%(sep)s%(indnt)s\treturn %(scia)s.%(proxMthd)s(%(nonDefPrmText)s)" % locals()
-		# Add the code to the output text
-		cdOut = cd.replace(mthd, proxMthd, 1)
-		self._codeFileText += cdOut + LINESEP + LINESEP
-		return prox
-
-
 	def createInheritedClass(self, pth, specList):
 		"""When a custom class is contained in a cdxml file, we need
 		to add that class separately, and inherit from that. We will 
@@ -584,11 +556,7 @@ dabo.ui.loadUI("wx")
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import sys
-# debugging!
-if "%s" not in sys.path:
-	sys.path.append("%s")
-import %s as %s
-%s
+|classImportStatements|
 
 """
 		self._stackInitText = """		parentStack = []
@@ -663,7 +631,6 @@ import %s as %s
 """
 		self._pgfPageText = """		pg = %(moduleString)s%(nm)s(%(prntName)s%(attPropString)s)
 		%(prntName)s.appendPage(pg)
-#		pg.setPropertiesFromAtts(%(kidCleanAtts)s)
 		currSizer = pg.Sizer = None
 		parentStack.append(currParent)
 		sizerDict[currParent].append(currSizer)
