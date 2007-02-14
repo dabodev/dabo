@@ -22,7 +22,7 @@ class dBackend(dObject):
 	functionPat = re.compile(r".*\([^\)]+\)")
 	# When enclosing table or field names that contain spaces, what
 	# character is used? Default to double quote.
-	spaceEnclosureChar = '"'
+	nameEnclosureChar = '"'
 
 	def __init__(self):
 		self._baseClass = dBackend
@@ -240,13 +240,13 @@ class dBackend(dObject):
 		return ret
 
 
-	def encloseSpaces(self, exp):
+	def encloseNames(self, exp):
 		"""When table/field names contain spaces, this will safely enclose them
 		in quotes or whatever delimiter is appropriate for the backend.
 		"""
 		ret = exp
-		if " " in exp:
-			delim = self.spaceEnclosureChar
+		if True: #" " in exp:
+			delim = self.nameEnclosureChar
 			if not ret.startswith(delim):
 				ret = "%(delim)s%(ret)s" % locals()
 			if not ret.endswith(delim):
@@ -267,11 +267,11 @@ class dBackend(dObject):
 			# See if it's in tbl.field format
 			try:
 				tbl, fld = exp.strip().split(".")
-				exp = "%s.%s" % (self.encloseSpaces(tbl), self.encloseSpaces(fld))
+				exp = "%s.%s" % (self.encloseNames(tbl), self.encloseNames(fld))
 			except ValueError:
-				exp = self.encloseSpaces(exp)
+				exp = self.encloseNames(exp)
 		if alias:
-			alias = self.encloseSpaces(alias)
+			alias = self.encloseNames(alias)
 			exp = "%(exp)s as %(alias)s" % locals()
 		indent = len("select ") * " "
 		# Give the backend-specific code a chance to update the format
@@ -281,14 +281,14 @@ class dBackend(dObject):
 	
 	def addFrom(self, clause, exp):
 		""" Add a table to the sql statement."""
-		exp = self.encloseSpaces(exp)
+		exp = self.encloseNames(exp)
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 	
 	
 	def addJoin(self, tbl, joinCondition, exp, joinType=None):
 		""" Add a joined table to the sql statement."""
-		tbl = self.encloseSpaces(tbl)
+		tbl = self.encloseNames(tbl)
 		joinType = self.formatJoinType(joinType)
 		indent = len("select ") * " "
 		clause = "%(joinType)s join %(tbl)s on %(joinCondition)s" % locals()
@@ -304,14 +304,14 @@ class dBackend(dObject):
 
 	def addGroupBy(self, clause, exp):
 		""" Add an expression to the group-by clause."""
-		exp = self.encloseSpaces(exp)
+		exp = self.encloseNames(exp)
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
 
 	def addOrderBy(self, clause, exp):
 		""" Add an expression to the order-by clause."""
-		exp = self.encloseSpaces(exp)
+		exp = self.encloseNames(exp)
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
@@ -371,7 +371,7 @@ class dBackend(dObject):
 		this method to return an empty string, or whatever should
 		preceed the field name in an update statement.
 		"""
-		tbl = self.encloseSpaces(tbl)
+		tbl = self.encloseNames(tbl)
 		return tbl + "."
 
 
@@ -384,7 +384,7 @@ class dBackend(dObject):
 		preceed the field name in a comparison in the WHERE clause
 		of an SQL statement.
 		"""
-		tbl = self.encloseSpaces(tbl)
+		tbl = self.encloseNames(tbl)
 		return tbl + "."
 
 
@@ -441,7 +441,7 @@ class dBackend(dObject):
 			cursor._whereClause = holdWhere
 		descFlds = cursor.FieldDescription
 		# Get the raw version of the table
-		sql = "select * from %s where 1=0 " % self.encloseSpaces(cursor.Table)
+		sql = "select * from %s where 1=0 " % self.encloseNames(cursor.Table)
 		auxCrs = cursor._getAuxCursor()
 		auxCrs.execute( sql )
 		# This is the clean version of the table.
