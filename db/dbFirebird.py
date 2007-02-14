@@ -6,6 +6,13 @@ from dCursorMixin import dCursorMixin
 
 
 class Firebird(dBackend):
+
+	# Firebird treats quotes names differently than unquoted names. This
+	# will turn off the effect of automatically quoting all entities in Firebird; 
+	# if you need quotes for spaces and bad names, you'll have to supply 
+	# them yourself.
+	nameEnclosureChar = ""
+
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "kinterbasdb"
