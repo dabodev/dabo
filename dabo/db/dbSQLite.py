@@ -3,6 +3,7 @@ import re
 from dabo.dLocalize import _
 from dBackend import dBackend
 from dabo.db import dNoEscQuoteStr as dNoEQ
+from dCursorMixin import dCursorMixin
 
 
 class SQLite(dBackend):
@@ -14,6 +15,7 @@ class SQLite(dBackend):
 		except ImportError:
 			import sqlite3 as dbapi
 		self.dbapi = dbapi
+		self._alreadyCorrectedFieldTypes = True
 		
 
 	def getConnection(self, connectInfo):
@@ -22,15 +24,20 @@ class SQLite(dBackend):
 		dbapi = self.dbapi
 
 		def dict_factory(cursor, row):
+			_types = getattr(cursor, "_types", {})
 			ret = {}
-			for idx, col in enumerate(cursor.description):
-				ret[col[0]] = row[idx]
+			fieldNames = (fld[0] for fld in cursor.description)
+			for idx, field_name in enumerate(fieldNames):
+				if _types:
+					ret[field_name] = cursor._correctFieldType(row[idx], field_name, _fromRequery=True)
+				else:
+					ret[field_name] = row[idx]
 			return ret
 
 		class DictCursor(self.dbapi.Cursor):
 			def __init__(self, *args, **kwargs):
 				dbapi.Cursor.__init__(self, *args, **kwargs)
-				self.row_factory = lambda cur, row: dict_factory(self, row)
+				self.row_factory = dict_factory
 
 		class DictConnection(self.dbapi.Connection):
 			def __init__(self, *args, **kwargs):
