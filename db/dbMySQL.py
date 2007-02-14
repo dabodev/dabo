@@ -11,7 +11,7 @@ from dabo.db import dNoEscQuoteStr as dNoEQ
 class MySQL(dBackend):
 
 	# MySQL uses the backtick to enclose names with spaces.
-	spaceEnclosureChar = "`"
+	nameEnclosureChar = "`"
 
 	def __init__(self):
 		dBackend.__init__(self)
@@ -77,7 +77,7 @@ class MySQL(dBackend):
 	
 	def _isExistingTable(self, tablename):
 		tempCursor = self._connection.cursor()
-		tbl = self.encloseSpaces(self.escQuote(tablename))
+		tbl = self.encloseNames(self.escQuote(tablename))
 		tempCursor.execute("SHOW TABLES LIKE %s" % tbl)
 		rs = tempCursor.fetchall()
 		return bool(rs)
@@ -97,7 +97,7 @@ class MySQL(dBackend):
 		
 	def getTableRecordCount(self, tableName):
 		tempCursor = self._connection.cursor()
-		tempCursor.execute("select count(*) as ncount from %s" % self.encloseSpaces(tableName))
+		tempCursor.execute("select count(*) as ncount from %s" % self.encloseNames(tableName))
 		return tempCursor.fetchall()[0][0]
 
 
@@ -105,7 +105,7 @@ class MySQL(dBackend):
 		if not tableName:
 			return tuple()
 		tempCursor = self._connection.cursor()
-		tempCursor.execute("describe %s" % self.encloseSpaces(tableName))
+		tempCursor.execute("describe %s" % self.encloseNames(tableName))
 		rs = tempCursor.fetchall()
 		fldDesc = tempCursor.description
 		# The field name is the first element of the tuple. Find the

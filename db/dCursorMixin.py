@@ -1049,7 +1049,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						# Skip it.
 						continue
 					# Append the field and its value.
-					flds += ", " + self.BackendObject.encloseSpaces(kk)
+					flds += ", " + self.BackendObject.encloseNames(kk)
 					# add value to expression
 					vals += ", %s" % (self.formatForQuery(vv[1]),)
 					
@@ -1063,12 +1063,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					flds = self.KeyField
 					vals = "NULL"
 				sql = "insert into %s (%s) values (%s) " % (
-						self.BackendObject.encloseSpaces(self.Table), flds, vals)
+						self.BackendObject.encloseNames(self.Table), flds, vals)
 
 			else:
 				pkWhere = self.makePkWhere(row)
 				updClause = self.makeUpdClause(diff)
-				sql = "update %s set %s where %s" % (self.BackendObject.encloseSpaces(self.Table), 
+				sql = "update %s set %s where %s" % (self.BackendObject.encloseNames(self.Table), 
 						updClause, pkWhere)
 			oldPKVal = self.pkExpression(rec)
 			newPKVal = None
@@ -1500,7 +1500,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		Optionally pass in a row number, otherwise use the current record.
 		"""
 		bo = self.BackendObject
-		tblPrefix = bo.getWhereTablePrefix(bo.encloseSpaces(self.Table))
+		tblPrefix = bo.getWhereTablePrefix(bo.encloseNames(self.Table))
 		if not row:
 			row = self.RowNumber
 		rec = self._records[row]
@@ -1520,7 +1520,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			
 		ret = ""
 		for fld in keyFields:
-			fldSafe = bo.encloseSpaces(fld)
+			fldSafe = bo.encloseNames(fld)
 			if ret:
 				ret += " AND "
 			pkVal = getPkVal(fld)
@@ -1537,7 +1537,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Create the 'set field=val' section of the Update statement. """
 		ret = ""
 		bo = self.BackendObject
-		tblPrefix = bo.getUpdateTablePrefix(bo.encloseSpaces(self.Table))
+		tblPrefix = bo.getUpdateTablePrefix(bo.encloseNames(self.Table))
 		for fld, val in diff.items():
 			old_val, new_val = val
 			# Skip the fields that are not to be updated.
@@ -1545,7 +1545,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				continue
 			if ret:
 				ret += ", "
-			ret += tblPrefix + bo.encloseSpaces(fld) + " = " + self.formatForQuery(new_val)
+			ret += tblPrefix + bo.encloseNames(fld) + " = " + self.formatForQuery(new_val)
 		return ret
 
 
