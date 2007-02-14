@@ -171,49 +171,54 @@ class dCursorMixin(dObject):
 			pythonType = self._types[field_name]
 			daboType = dabo.db.getDaboType(pythonType)
 
-			if pythonType not in (type(None), None) and not isinstance(field_val, pythonType):
-				if pythonType in (datetime.datetime, ) and isinstance(field_val, basestring):
-					ret = dates.getDateTimeFromString(field_val)
-					if ret is None:
-						ret = field_val
-						showError = True
-				elif pythonType in (datetime.date,) and isinstance(field_val, basestring):
-					ret = dates.getDateFromString(field_val)
-					if ret is None:
-						ret = field_val
-						showError = True
-				elif pythonType in (unicode,):
-					# Unicode conversion happens below.
-					pass
-				elif field_val is None:
-					# Fields of any type can be None (NULL).
-					pass
-				elif _USE_DECIMAL and pythonType in (Decimal,):
-					ds = self.DataStructure
-					ret = None
-					_field_val = field_val
-					if type(field_val) in (float,):
-						# Can't convert to decimal directly from float
-						_field_val = str(_field_val)
-					# Need to convert to the correct scale:
-					scale = None
-					for s in ds:
-						if s[0] == field_name:
-							if len(s) > 5:
-								scale = s[5]
-					if scale is None:
-						scale = 2
-					ret = Decimal(_field_val).quantize(Decimal("0.%s" % (scale * "0",)))
+			if pythonType in (type(None), None) or isinstance(field_val, pythonType):
+				# No conversion needed.
+				return ret
+
+			if pythonType in (unicode,):
+				# Unicode conversion happens below.
+				pass
+			elif field_val is None:
+				# Fields of any type can be None (NULL).
+				return field_val
+			elif pythonType in (datetime.datetime, ) and isinstance(field_val, basestring):
+				ret = dates.getDateTimeFromString(field_val)
+				if ret is None:
+					ret = field_val
 				else:
-					try:
-						ret = pythonType(field_val)
-					except Exception, e:
-						showError = True
+					return ret
+			elif pythonType in (datetime.date,) and isinstance(field_val, basestring):
+				ret = dates.getDateFromString(field_val)
+				if ret is None:
+					ret = field_val
+				else:
+					return ret
+			elif _USE_DECIMAL and pythonType in (Decimal,):
+				ds = self.DataStructure
+				ret = None
+				_field_val = field_val
+				if type(field_val) in (float,):
+					# Can't convert to decimal directly from float
+					_field_val = str(_field_val)
+				# Need to convert to the correct scale:
+				scale = None
+				for s in ds:
+					if s[0] == field_name:
+						if len(s) > 5:
+							scale = s[5]
+				if scale is None:
+					scale = 2
+				return Decimal(_field_val).quantize(Decimal("0.%s" % (scale * "0",)))
+			else:
+				try:
+					return pythonType(field_val)
+				except Exception, e:
+					pass
 
 		# Do the unicode conversion last:
 		if isinstance(field_val, str) and self._convertStrToUnicode:
 			try:
-				ret = unicode(field_val, self.Encoding)
+				return unicode(field_val, self.Encoding)
 			except UnicodeDecodeError, e:
 				# Try some common encodings:
 				ok = False
@@ -229,6 +234,7 @@ class dCursorMixin(dObject):
 							self.Encoding = enc
 							dabo.errorLog.write(_("Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead")
 								% {'fname':field_name, 'enc':enc} )
+							return ret
 							break
 				else:
 					raise UnicodeDecodeError, e
@@ -236,7 +242,6 @@ class dCursorMixin(dObject):
 # 			# Usually blob data
 # 			ret = field_val.tostring()
 
-		if showError:
 			dabo.errorLog.write(_("%s couldn't be converted to %s (field %s)") 
 					% (repr(field_val), pythonType, field_name))
 		return ret
@@ -277,44 +282,47 @@ class dCursorMixin(dObject):
 			else:
 				raise dException.DBQueryException(e, sql)
 
+		# Some backend programs do odd things to the description
+		# This allows each backend to handle these quirks individually.
+		self.BackendObject.massageDescription(self)
+
+		if _fromRequery:
+			self._storeFieldTypes()
+
 		try:
-			self._records = dDataSet(self.fetchall())
+			_records = self.fetchall()
 		except:
-			self._records = dDataSet(tuple())
+			_records = tuple()
 
 		if sql.strip().split()[0].lower() not in  ("select", "pragma"):
 			# No need to massage the data for DML commands
 			return res
 
-		# Some backend programs do odd things to the description
-		# This allows each backend to handle these quirks individually.
-		self.BackendObject.massageDescription(self)
-		if self.RowCount > 0:
-			self.RowNumber = max(0, self.RowNumber)
-			maxrow = max(0, (self.RowCount-1) )
-			self.RowNumber = min(self.RowNumber, maxrow)
-
-		if _fromRequery:
-			self._storeFieldTypes()
-
-		if self._records:
-			if isinstance(self._records[0], (tuple, list)):
+		if _records and not self.BackendObject._alreadyCorrectedFieldTypes:
+			if isinstance(_records[0], (tuple, list)):
 				# Need to convert each row to a Dict, since the backend didn't do it.
 				tmpRows = []
 				fldNames = [f[0] for f in self.FieldDescription]
-				for row in self._records:
+				for row in _records:
 					dic = {}
 					for idx, fldName in enumerate(fldNames):
 						dic[fldName] = self._correctFieldType(field_val=row[idx], 
 								field_name=fldName, _fromRequery=_fromRequery)
 					tmpRows.append(dic)
-				self._records = dDataSet(tmpRows)
+				_records = tmpRows
 			else:
 				# Already a DictCursor, but we still need to correct the field types.
-				for row in self._records:
+				for row in _records:
 					for fld, val in row.items():
 						row[fld] = self._correctFieldType(field_val=val, field_name=fld,
 								_fromRequery=_fromRequery)
+
+		self._records = dDataSet(_records)
+
+		if self.RowCount > 0:
+			self.RowNumber = max(0, self.RowNumber)
+			maxrow = max(0, (self.RowCount-1) )
+			self.RowNumber = min(self.RowNumber, maxrow)
 
 		return res
 
