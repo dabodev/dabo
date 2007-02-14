@@ -256,8 +256,8 @@ class dBackend(dObject):
 			# Backwards compatibility: see if the 'as' clause is present
 			asPos = exp.lower().find(" as ")
 			if asPos > -1:
-				alias = exp[asPos+4:]
-				exp = exp[:asPos]	
+				alias = exp[asPos+4:].strip()
+				exp = exp[:asPos]	.strip()
 		# If exp is a function, don't do anything special about spaces.
 		if not self.functionPat.match(exp):
 			exp = self.encloseNames(exp)
