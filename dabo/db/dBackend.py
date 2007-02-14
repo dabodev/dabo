@@ -245,13 +245,9 @@ class dBackend(dObject):
 		in quotes or whatever delimiter is appropriate for the backend.
 		"""
 		ret = exp
-		if True: #" " in exp:
-			delim = self.nameEnclosureChar
-			if not ret.startswith(delim):
-				ret = "%(delim)s%(ret)s" % locals()
-			if not ret.endswith(delim):
-				ret = "%(ret)s%(delim)s" % locals()
-		return ret
+		delim = self.nameEnclosureChar
+		qtd = [delim + pt + delim for pt in exp.split(".") if pt]
+		return ".".join(qtd)
 	
 	
 	def addField(self, clause, exp, alias=None):
@@ -264,12 +260,7 @@ class dBackend(dObject):
 				exp = exp[:asPos]	
 		# If exp is a function, don't do anything special about spaces.
 		if not self.functionPat.match(exp):
-			# See if it's in tbl.field format
-			try:
-				tbl, fld = exp.strip().split(".")
-				exp = "%s.%s" % (self.encloseNames(tbl), self.encloseNames(fld))
-			except ValueError:
-				exp = self.encloseNames(exp)
+			exp = self.encloseNames(exp)
 		if alias:
 			alias = self.encloseNames(alias)
 			exp = "%(exp)s as %(alias)s" % locals()
