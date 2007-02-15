@@ -162,12 +162,12 @@ class SQLite(dBackend):
 				if d[0] not in [s[0] for s in stdFlds] ]
 		
 		
-	def getUpdateTablePrefix(self, table):
+	def getUpdateTablePrefix(self, table, autoQuote=True):
 		"""Table name prefixes are not allowed."""
 		return ""
 		
 		
-	def getWhereTablePrefix(self, table):
+	def getWhereTablePrefix(self, table, autoQuote=True):
 		"""Table name prefixes are not allowed."""
 		return ""
 
