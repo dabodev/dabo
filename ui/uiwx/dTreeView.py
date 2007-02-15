@@ -38,6 +38,10 @@ class dNode(dObject):
 	
 	def show(self):
 		self.tree.showNode(self)
+	
+	
+	def release(self):
+		self.tree.removeNode(self)
 		
 	
 	def appendChild(self, txt):
@@ -68,7 +72,7 @@ class dNode(dObject):
 
 	# Property definition code begins here
 	def _getBackColor(self):
-		return self.tree.GetItemBackgroundColour(self.itemID)
+		return self.tree.GetItemBackgroundColour(self.itemID).Get()
 
 	def _setBackColor(self, val):
 		if isinstance(val, basestring):
@@ -193,7 +197,7 @@ class dNode(dObject):
 
 
 	def _getForeColor(self):
-		return self.tree.GetItemTextColour(self.itemID)
+		return self.tree.GetItemTextColour(self.itemID).Get()
 
 	def _setForeColor(self, val):
 		if isinstance(val, basestring):
@@ -844,7 +848,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		If there are child nodes, the child information will be 
 		recursively parsed.
 		"""
-		if topNode is None:
+		addRoot = (topNode is None)
+		if addRoot:
 			self.DeleteAllItems()
 		if isinstance(stru[0], basestring):
 			# We're at the end of the recursion. Just append the node
@@ -852,7 +857,11 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		else:
 			for nodes in stru:
 				txt = nodes[0]
-				nd = self.appendNode(topNode, txt)
+				if addRoot:
+					nd = self.setRootNode(txt)
+					addRoot = False
+				else:
+					nd = self.appendNode(topNode, txt)
 				try:
 					kids = nodes[1]
 				except IndexError:
@@ -897,11 +906,12 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		return ret
 		
 
-	def getNodeUnderMouse(self, includeSpace=False):
+	def getNodeUnderMouse(self, includeSpace=False, includeButton=True):
 		"""Returns the node directly under the mouse, or None if the mouse is not 
 		over a node. If 'includeSpace' is True, the empty space to the right of the node
-		is counted as part of the node. Otherwise, it is considered to not be over 
-		any node. 
+		is counted as part of the node. Likewise, if 'includeButton' is True, the 
+		area for the expanding/collapsing button is considered part of the node.
+		Otherwise, it is considered to not be over any node. 
 		"""
 		# The following wxPython constants are available:
 		# 	wx.TREE_HITTEST_ABOVE: Above the client area.
@@ -918,10 +928,12 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		ret = None
 		mp = self.getMousePosition()
 		idval, flag = self.HitTest(mp)
-		overFlags = (wx.TREE_HITTEST_ONITEMBUTTON | wx.TREE_HITTEST_ONITEMICON | 
+		overFlags = (wx.TREE_HITTEST_ONITEMICON | 
 				wx.TREE_HITTEST_ONITEMINDENT | wx.TREE_HITTEST_ONITEMLABEL)
 		if includeSpace:
 			overFlags = overFlags | wx.TREE_HITTEST_ONITEMRIGHT
+		if includeButton:
+			overFlags = overFlags | wx.TREE_HITTEST_ONITEMBUTTON
 		if idval and (flag & overFlags):
 			ret = self.getNodeForID(idval)
 		return ret
@@ -947,9 +959,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 	def _getBaseNodes(self):
 		if self.ShowRootNode:
-			ndlist = [nd for nd in self.nodes
-					if nd.IsRootNode]
-			return ndlist
+			return [self._rootNode]
 		else:
 			return [nd for nd in self.nodes
 					if nd.parent is not None
