@@ -1500,7 +1500,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		Optionally pass in a row number, otherwise use the current record.
 		"""
 		bo = self.BackendObject
-		tblPrefix = bo.getWhereTablePrefix(bo.encloseNames(self.Table))
+		tblPrefix = bo.getWhereTablePrefix(self.Table)
 		if not row:
 			row = self.RowNumber
 		rec = self._records[row]
