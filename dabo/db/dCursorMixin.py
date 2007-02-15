@@ -82,6 +82,9 @@ class dCursorMixin(dObject):
 		# Attribute that holds the current row number
 		self.__rownumber = -1
 
+		self._autoPopulatePK = True
+		self._autoQuoteNames = True
+
 		self._blank = {}
 		self.__unsortedRows = []
 		self.nonUpdateFields = []
@@ -1031,6 +1034,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		recKey = self.pkExpression(rec)
 		newrec = self._newRecords.has_key(recKey)
 		diff = self.getRecordStatus(row)
+		aq = self.AutoQuoteNames
 		if diff or newrec:
 			if newrec:
 				flds = ""
@@ -1049,7 +1053,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						# Skip it.
 						continue
 					# Append the field and its value.
-					flds += ", " + self.BackendObject.encloseNames(kk)
+					flds += ", " + self.BackendObject.encloseNames(kk, aq)
 					# add value to expression
 					vals += ", %s" % (self.formatForQuery(vv[1]),)
 					
@@ -1063,12 +1067,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					flds = self.KeyField
 					vals = "NULL"
 				sql = "insert into %s (%s) values (%s) " % (
-						self.BackendObject.encloseNames(self.Table), flds, vals)
+						self.BackendObject.encloseNames(self.Table, aq), flds, vals)
 
 			else:
 				pkWhere = self.makePkWhere(row)
 				updClause = self.makeUpdClause(diff)
-				sql = "update %s set %s where %s" % (self.BackendObject.encloseNames(self.Table), 
+				sql = "update %s set %s where %s" % (self.BackendObject.encloseNames(self.Table, aq), 
 						updClause, pkWhere)
 			oldPKVal = self.pkExpression(rec)
 			newPKVal = None
@@ -1500,7 +1504,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		Optionally pass in a row number, otherwise use the current record.
 		"""
 		bo = self.BackendObject
-		tblPrefix = bo.getWhereTablePrefix(self.Table)
+		tblPrefix = bo.getWhereTablePrefix(self.Table, 
+					autoQuote=self.AutoQuoteNames)
 		if not row:
 			row = self.RowNumber
 		rec = self._records[row]
@@ -1520,7 +1525,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			
 		ret = ""
 		for fld in keyFields:
-			fldSafe = bo.encloseNames(fld)
+			fldSafe = bo.encloseNames(fld, self.AutoQuoteNames)
 			if ret:
 				ret += " AND "
 			pkVal = getPkVal(fld)
@@ -1537,7 +1542,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Create the 'set field=val' section of the Update statement. """
 		ret = ""
 		bo = self.BackendObject
-		tblPrefix = bo.getUpdateTablePrefix(bo.encloseNames(self.Table))
+		aq = self.AutoQuoteNames
+		tblPrefix = bo.getUpdateTablePrefix(self.Table, autoQuote=aq)
 		for fld, val in diff.items():
 			old_val, new_val = val
 			# Skip the fields that are not to be updated.
@@ -1545,7 +1551,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				continue
 			if ret:
 				ret += ", "
-			ret += tblPrefix + bo.encloseNames(fld) + " = " + self.formatForQuery(new_val)
+			ret += tblPrefix + bo.encloseNames(fld, aq) + " = " + self.formatForQuery(new_val)
 		return ret
 
 
@@ -1683,7 +1689,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		sm = self.sqlManager
 		beo = sm.BackendObject
 		if beo:
-			sm._fieldClause = beo.addField(sm._fieldClause, exp, alias)
+			sm._fieldClause = beo.addField(sm._fieldClause, exp, alias, 
+					autoQuote=self.AutoQuoteNames)
 		return sm._fieldClause
 
 
@@ -1694,17 +1701,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def setFromClause(self, clause):
 		""" Set the from clause of the sql statement."""
-		self.sqlManager._fromClause = self.sqlManager.BackendObject.setFromClause(clause)
+		self.sqlManager._fromClause = self.sqlManager.BackendObject.setFromClause(clause, 
+					autoQuote=self.AutoQuoteNames)
 
 
 	def addFrom(self, exp):
-		""" Add a table to the sql statement.
-
-		For joins, use setFromClause() to set the entire from clause
-		explicitly.
+		""" Add a table to the sql statement. For joins, use 
+		the addJoin() method.
 		"""
 		if self.sqlManager.BackendObject:
-			self.sqlManager._fromClause = self.sqlManager.BackendObject.addFrom(self.sqlManager._fromClause, exp)
+			self.sqlManager._fromClause = self.sqlManager.BackendObject.addFrom(self.sqlManager._fromClause, exp, 
+					autoQuote=self.AutoQuoteNames)
 		return self.sqlManager._fromClause
 
 
@@ -1715,14 +1722,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def setJoinClause(self, clause):
 		""" Set the join clause of the sql statement."""
-		self.sqlManager._joinClause = self.sqlManager.BackendObject.setJoinClause(clause)
+		self.sqlManager._joinClause = self.sqlManager.BackendObject.setJoinClause(clause, 
+					autoQuote=self.AutoQuoteNames)
 
 
 	def addJoin(self, tbl, joinCondition, joinType=None):
 		""" Add a joined table to the sql statement."""
 		if self.sqlManager.BackendObject:
 			self.sqlManager._joinClause = self.sqlManager.BackendObject.addJoin(tbl, 
-					joinCondition, self.sqlManager._joinClause, joinType)
+					joinCondition, self.sqlManager._joinClause, joinType, 
+					autoQuote=self.AutoQuoteNames)
 		return self.sqlManager._joinClause
 		
 
@@ -1734,19 +1743,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def setWhereClause(self, clause):
 		""" Set the where clause of the sql statement."""
-		self.sqlManager._whereClause = self.sqlManager.BackendObject.setWhereClause(clause)
+		self.sqlManager._whereClause = self.sqlManager.BackendObject.setWhereClause(clause, 
+					autoQuote=self.AutoQuoteNames)
 
 
 	def addWhere(self, exp, comp="and"):
 		""" Add an expression to the where clause."""
 		if self.sqlManager.BackendObject:
-			self.sqlManager._whereClause = self.sqlManager.BackendObject.addWhere(self.sqlManager._whereClause, exp, comp)
+			self.sqlManager._whereClause = self.sqlManager.BackendObject.addWhere(self.sqlManager._whereClause, exp, comp, 
+					autoQuote=self.AutoQuoteNames)
 		return self.sqlManager._whereClause
 
 
 	def prepareWhere(self, clause):
 		""" Modifies WHERE clauses as needed for each backend. """
-		return self.sqlManager.BackendObject.prepareWhere(clause)
+		return self.sqlManager.BackendObject.prepareWhere(clause, 
+					autoQuote=self.AutoQuoteNames)
 		
 		
 	def getChildFilterClause(self):
@@ -1772,7 +1784,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def addGroupBy(self, exp):
 		""" Add an expression to the group-by clause."""
 		if self.sqlManager.BackendObject:
-			self.sqlManager._groupByClause = self.sqlManager.BackendObject.addGroupBy(self.sqlManager._groupByClause, exp)
+			self.sqlManager._groupByClause = self.sqlManager.BackendObject.addGroupBy(self.sqlManager._groupByClause,
+					exp, autoQuote=self.AutoQuoteNames)
 		return self.sqlManager._groupByClause
 
 
@@ -1789,7 +1802,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def addOrderBy(self, exp):
 		""" Add an expression to the order-by clause."""
 		if self.sqlManager.BackendObject:
-			self.sqlManager._orderByClause = self.sqlManager.BackendObject.addOrderBy(self.sqlManager._orderByClause, exp)
+			self.sqlManager._orderByClause = self.sqlManager.BackendObject.addOrderBy(self.sqlManager._orderByClause, 
+					exp, autoQuote=self.AutoQuoteNames)
 		return self.sqlManager._orderByClause
 
 
@@ -1916,6 +1930,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			
 	def _setAutoPopulatePK(self, autopop):
 		self._autoPopulatePK = bool(autopop)
+
+
+	def _getAutoQuoteNames(self):
+		return self._autoQuoteNames
+
+	def _setAutoQuoteNames(self, val):
+		self._autoQuoteNames = val
 
 
 	def _getAuxCursor(self):
@@ -2125,12 +2146,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	AutoCommit = property(_getAutoCommit, _setAutoCommit, None,
 			_("Do we need explicit begin/commit/rollback commands for transactions?  (bool)"))
 	
-	AutoSQL = property(_getAutoSQL, None, None,
-			_("Returns the SQL statement automatically generated by the sql manager."))
-
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None,
 			_("When inserting a new record, does the backend populate the PK field?")) 
 	
+	AutoQuoteNames = property(_getAutoQuoteNames, _setAutoQuoteNames, None,
+			_("""When True (default), table and column names are enclosed with 
+			quotes during SQL creation.  (bool)"""))
+	
+	AutoSQL = property(_getAutoSQL, None, None,
+			_("Returns the SQL statement automatically generated by the sql manager."))
+
 	AuxCursor = property(_getAuxCursor, None, None,
 			_("""Auxiliary cursor object that handles queries that would otherwise
 			affect the main cursor's data set.  (dCursorMixin subclass)""")) 
