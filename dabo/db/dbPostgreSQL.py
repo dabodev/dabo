@@ -186,7 +186,7 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 		return tuple(fields)
 		
 
-	def getUpdateTablePrefix(self, tbl):
+	def getUpdateTablePrefix(self, tbl, autoQuote=True):
 		""" By default, the update SQL statement will be in the form of
 					tablename.fieldname
 		but Postgres does not accept this syntax. If not, change
