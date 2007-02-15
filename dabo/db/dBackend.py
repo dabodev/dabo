@@ -244,7 +244,6 @@ class dBackend(dObject):
 		"""When table/field names contain spaces, this will safely enclose them
 		in quotes or whatever delimiter is appropriate for the backend.
 		"""
-		ret = exp
 		delim = self.nameEnclosureChar
 		qtd = [delim + pt + delim for pt in exp.split(".") if pt]
 		return ".".join(qtd)
