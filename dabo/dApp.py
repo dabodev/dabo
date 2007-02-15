@@ -96,10 +96,13 @@ class TempFileHolder(object):
 		try:
 			import os
 			for f in self._tempFiles:
+				os.remove(f)
 				try:
 					os.remove(f)
-				except StandardError, e:
-					print "Could not delete %s: %s" % (f, e)
+				except OSError, e:
+					if not f.endswith(".pyc"):
+						# Don't worry about the .pyc files, since they may not be there
+						print "Could not delete %s: %s" % (f, e)
 		except:
 			# In these rare cases, Python has already 'gone away', so just bail
 			pass
