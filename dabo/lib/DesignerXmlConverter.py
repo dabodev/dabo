@@ -53,7 +53,7 @@ class DesignerXmlConverter(dObject):
 		a file object, or xml text.
 		"""
 		# Import the XML source
-		dct = self.importSrc(src)	
+		dct = self.importSrc(src)
 		# Parse the XML and create the class definition text
 		self.createClassText(dct)
 		
@@ -248,6 +248,7 @@ class DesignerXmlConverter(dObject):
 
 			isSizer = (clsname in ("LayoutSizer", "LayoutGridSizer",
 					"LayoutBorderSizer")) or (nm in ("dSizer", "dBorderSizer", "dGridSizer"))
+			isTree = (nm == "dTreeView")
 			# This will get set to True if we process a splitter control
 			isSplitter = False
 			if isSizer:
@@ -364,6 +365,12 @@ class DesignerXmlConverter(dObject):
 					
 					if hasGK:
 						self.classText += LINESEP + self._gkPopText
+				
+				elif isTree:
+					self.classText += LINESEP + self._treeNodeText
+					self.classText += LINESEP + (self._treeRootText % kids[0])
+					needPop = False
+					kids = []
 					
 				else:
 					# We need to handle Grids and PageFrames separately,
@@ -644,6 +651,32 @@ import sys
 			except: pass
 		else:
 			currSizer = None
+"""
+		self._treeNodeText = """		def _addDesTreeNode(_nodeParent, _nodeAtts, _kidNodes):
+			_nodeCaption = self._extractKey(_nodeAtts, "Caption", "")
+			if _nodeParent is None:
+				obj.clear()
+				_currNode = obj.setRootNode(_nodeCaption)
+			else:
+				_currNode = _nodeParent.appendChild(_nodeCaption)
+			# Remove the name and designerClass atts
+			self._extractKey(_nodeAtts, "name")
+			self._extractKey(_nodeAtts, "designerClass")
+			for _nodeProp, _nodeVal in _nodeAtts.items():
+				try:
+					exec "_currNode.%s = %s" % (_nodeProp, _nodeVal) in locals()
+				except (SyntaxError, NameError):
+					exec "_currNode.%s = \'%s\'" % (_nodeProp, _nodeVal) in locals()
+			for _kidNode in _kidNodes:
+				_kidAtts = _kidNode.get("attributes", {})
+				_kidKids = _kidNode.get("children", {})
+				_addDesTreeNode(_currNode, _kidAtts, _kidKids)
+"""
+		self._treeRootText = """		# Set the root
+		_rootNode = %s
+		_rootNodeAtts = _rootNode.get("attributes", {})
+		_rootNodeKids = _rootNode.get("children", {})
+		_addDesTreeNode(None, _rootNodeAtts, _rootNodeKids)
 """
 		self._childPushText = """		parentStack.append(currParent)
 		sizerDict[currParent].append(currSizer)
