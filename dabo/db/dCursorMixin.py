@@ -171,7 +171,7 @@ class dCursorMixin(dObject):
 		ret = field_val
 		showError = False
 		if _fromRequery:
-			pythonType = self._types[field_name]
+			pythonType = self._types.get(field_name, type(field_val))
 			daboType = dabo.db.getDaboType(pythonType)
 
 			if pythonType in (type(None), None) or isinstance(field_val, pythonType):
@@ -294,8 +294,9 @@ class dCursorMixin(dObject):
 
 		try:
 			_records = self.fetchall()
-		except:
+		except Exception, e:
 			_records = tuple()
+			dabo.errorLog.write("Error fetching records:", e)
 
 		if sql.strip().split()[0].lower() not in  ("select", "pragma"):
 			# No need to massage the data for DML commands
