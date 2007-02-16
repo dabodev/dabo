@@ -390,7 +390,7 @@ class dCursorMixin(dObject):
 			raise dException.NoRecordsException, _("No rows to sort.")
 
 		# Make sure that the specified column is a column in the result set
-		if not self._records[0].has_key(col):
+		if not self._records[0].has_key(col) and not self.VirtualFields.has_key(col):
 			raise dException.dException, _("Invalid column specified for sort: ") + col
 
 		newCol = col
@@ -472,8 +472,8 @@ class dCursorMixin(dObject):
 				else:
 					sortList.append([self.__unsortedRows.index(row[self.KeyField]), row])
 		else:
-			for row in self._records:
-				sortList.append([row[col], row])
+			for row, rec in enumerate(self._records):
+				sortList.append([self.getFieldVal(col, row), rec])
 		# At this point we have a list consisting of lists. Each of these member
 		# lists contain the sort value in the zeroth element, and the row as
 		# the first element.
