@@ -234,6 +234,11 @@ class DesignerXmlConverter(dObject):
 			needPop = True
 			
 			clsname = self._extractKey(atts, "designerClass", "")
+			isSizer = (clsname in ("LayoutSizer", "LayoutGridSizer",
+					"LayoutBorderSizer")) or (nm in ("dSizer", "dBorderSizer", "dGridSizer"))
+			isTree = (nm == "dTreeView")
+			# This will get set to True if we process a splitter control
+			isSplitter = False
 			if os.path.exists(clsname) and atts.has_key("classID"):
 				chldList = [[child]] + specChildList[:]
 				nm = self.createInheritedClass(clsname, chldList)
@@ -246,11 +251,6 @@ class DesignerXmlConverter(dObject):
 					nm = self.createInnerClass(nm, atts, code, custProps)
 					isCustom = True
 
-			isSizer = (clsname in ("LayoutSizer", "LayoutGridSizer",
-					"LayoutBorderSizer")) or (nm in ("dSizer", "dBorderSizer", "dGridSizer"))
-			isTree = (nm == "dTreeView")
-			# This will get set to True if we process a splitter control
-			isSplitter = False
 			if isSizer:
 				isGridSizer = clsname == "LayoutGridSizer"
 				if isGridSizer:
