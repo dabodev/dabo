@@ -1253,6 +1253,9 @@ class dBizobj(dObject):
 		return self._CurrentCursor.getWordMatchFormat()
 
 
+	def oldVal(self, fieldName, row=None):
+		return self._CurrentCursor.oldVal(fieldName, row)
+
 
 	########## SQL Builder interface section ##############
 	def addField(self, exp, alias=None):

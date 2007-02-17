@@ -1910,6 +1910,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self.sqlManager.BackendObject.getWordMatchFormat()
 		
 
+	def oldVal(self, fieldName, row=None):
+		"""Returns the value of the field as it existed after the last requery."""
+		if row is None:
+			row = self.RowNumber
+		rec = self._records[row]
+		pk = self.pkExpression(rec)
+		mem = self._mementos.get(pk, None)
+		if mem and mem.has_key(fieldName):
+			return mem[fieldName]
+		return self.getFieldVal(fieldName, row)
+
+
 	## Property getter/setter methods ##
 	def _getAutoCommit(self):
 		return self.BackendObject.getAutoCommitStatus(self)
