@@ -296,7 +296,7 @@ class dCursorMixin(dObject):
 			_records = self.fetchall()
 		except Exception, e:
 			_records = tuple()
-			dabo.errorLog.write("Error fetching records:", e)
+			dabo.errorLog.write("Error fetching records: %s" % e)
 
 		if sql.strip().split()[0].lower() not in  ("select", "pragma"):
 			# No need to massage the data for DML commands
