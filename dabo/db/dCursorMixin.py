@@ -292,15 +292,16 @@ class dCursorMixin(dObject):
 		if _fromRequery:
 			self._storeFieldTypes()
 
+		if sql.strip().split()[0].lower() not in  ("select", "pragma"):
+			# No need to massage the data for DML commands
+			self._records = dDataSet(tuple())
+			return res
+
 		try:
 			_records = self.fetchall()
 		except Exception, e:
 			_records = tuple()
 			dabo.errorLog.write("Error fetching records: %s" % e)
-
-		if sql.strip().split()[0].lower() not in  ("select", "pragma"):
-			# No need to massage the data for DML commands
-			return res
 
 		if _records and not self.BackendObject._alreadyCorrectedFieldTypes:
 			if isinstance(_records[0], (tuple, list)):
