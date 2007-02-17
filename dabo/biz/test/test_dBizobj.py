@@ -159,6 +159,21 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
 	## - End property unit tests -
 
+	## - Begin method unit tests -
+
+	def test_oldVal(self):
+		biz = self.biz
+		self.assertEqual(biz.oldVal("cField"), biz.Record.cField)
+		self.assertEqual(biz.oldVal("cField", 1), biz.getFieldVal("cField", 1))
+		oldVal = biz.Record.cField 
+		newVal = "pkm23"
+		biz.Record.cField = newVal
+		self.assertEqual(biz.oldVal("cField"), oldVal)
+		self.assertEqual(biz.Record.cField, newVal)
+		self.assertRaises(dabo.dException.FieldNotFoundException, biz.oldVal, "bogusField")
+
+	## - End method unit tests -
+
 	def testDeleteNewSave(self):
 		biz = self.biz
 		biz.delete()

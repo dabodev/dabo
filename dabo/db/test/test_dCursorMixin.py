@@ -185,6 +185,20 @@ class Test_dCursorMixin(object):
 
 	## - End property unit tests -
 
+	## - Begin method unit tests -
+
+	def test_oldVal(self):
+		cur = self.cur
+		self.assertEqual(cur.oldVal("cfield"), cur.Record.cfield)
+		self.assertEqual(cur.oldVal("cfield", 1), cur.getFieldVal("cfield", 1))
+		oldVal = cur.Record.cfield 
+		newVal = "pkm23"
+		cur.Record.cfield = newVal
+		self.assertEqual(cur.oldVal("cfield"), oldVal)
+		self.assertEqual(cur.Record.cfield, newVal)
+		self.assertRaises(dabo.dException.FieldNotFoundException, cur.oldVal, "bogusField")
+
+	## - End method unit tests -
 
 	def testMementos(self):
 		cur = self.cur
