@@ -176,14 +176,6 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self.__image = val
 			self._picture = "(stream)"
 		else:
-###	I don't remember or understand why I added this restriction,
-###	but it isn't needed.
-# 
-# 			# Don't allow built-in graphics to be displayed here
-# 			if not os.path.exists(val):
-# 				if val:
-# 					# They passed a non-existent image file
-# 					raise IOError, "No file named '%s' exists." % val
 			if not val:
 				# Empty string passed; clear any current image
 				self._picture = ""
@@ -296,41 +288,35 @@ if __name__ == "__main__":
 	class ImgForm(dabo.ui.dForm):
 		def afterInit(self):
 			self.Caption = "dImage Demonstration"
-			# Sliders work differently on OS X
-			### egl - This has been fixed in more recent versions of wxPython
-			# self.reverseVert = (wx.PlatformInfo[0] == "__WXMAC__")
-			self.reverseVert = False
 			# Create a panel with horiz. and vert.  sliders
 			self.imgPanel = dabo.ui.dPanel(self)
-			self.VSlider = dabo.ui.dSlider(self, Orientation="V", Min=1, Max=100)
-			self.HSlider = dabo.ui.dSlider(self, Orientation="H", Min=1, Max=100)
-			if self.reverseVert:
-				self.VSlider.Value = 0
-			else:
-				self.VSlider.Value = 100
-			self.HSlider.Value = 100
-			self.VSlider.bindEvent(dEvents.Hit, self.onSlider)
-			self.HSlider.bindEvent(dEvents.Hit, self.onSlider)
+			self.VSlider = dabo.ui.dSlider(self, Orientation="V", Min=1, Max=100,
+				Value=100, OnHit=self.onSlider)
+			self.HSlider = dabo.ui.dSlider(self, Orientation="H", Min=1, Max=100,
+				Value=100, OnHit=self.onSlider)
 			
 			psz = self.imgPanel.Sizer = dabo.ui.dSizer("V")
 			hsz = dabo.ui.dSizer("H")
-			hsz.append(self.imgPanel, 1, "x")
+			hsz.append1x(self.imgPanel)
 			hsz.appendSpacer(10)
 			hsz.append(self.VSlider, 0, "x")
 			self.Sizer.DefaultBorder = 25
-			self.Sizer.DefaultBorderLeft = self.Sizer.DefaultBorderRight = 25
+			self.Sizer.DefaultBorderLeft = self.Sizer.DefaultBorderRight = True
 			self.Sizer.appendSpacer(25)
 			self.Sizer.append(hsz, 1, "x")
 			self.Sizer.appendSpacer(10)
 			self.Sizer.append(self.HSlider, 0, "x")
 			self.Sizer.appendSpacer(10)
 
+			# Create the image control
+			self.img = dImage(self.imgPanel)
+			
 			hsz = dabo.ui.dSizer("H")
 			hsz.DefaultSpacing = 10
 			dabo.ui.dBitmapButton(self, RegID="btnRotateCW",
-					Picture="rotateCW")
+					Picture="rotateCW", OnHit=self.rotateCW)
 			dabo.ui.dBitmapButton(self, RegID="btnRotateCCW",
-					Picture="rotateCCW")
+					Picture="rotateCCW", OnHit=self.rotateCCW)
 			hsz.append(self.btnRotateCW)
 			hsz.append(self.btnRotateCCW)			
 			self.ddScale = dabo.ui.dDropdownList(self, 
@@ -338,33 +324,24 @@ if __name__ == "__main__":
 					DataSource = "self.Form.img",
 					DataField = "ScaleMode")
 			self.ddScale.PositionValue = 0
-			btn = dabo.ui.dButton(self, Caption="Load Image")
-			btn.bindEvent(dEvents.Hit, self.onLoadImage)
-			btnOK = dabo.ui.dButton(self, Caption="Done")
-			btnOK.bindEvent(dEvents.Hit, self.close)
+			btn = dabo.ui.dButton(self, Caption="Load Image", 
+					OnHit=self.onLoadImage)
+			btnOK = dabo.ui.dButton(self, Caption="Done", OnHit=self.close)
 			hsz.append(self.ddScale, 0, "x")
 			hsz.append(btn, 0, "x")
 			hsz.append(btnOK, 0, "x")
 			self.Sizer.append(hsz, 0, alignment="right")
 			self.Sizer.appendSpacer(25)
 			
-			# Create the image control
-			self.img = dImage(self.imgPanel)
-			
-			# Make sure that resizing the form updates the image
-			self.bindEvent(dEvents.Resize, self.onResize)
-			# Since lots of resize events fire when the window is
-			# dragged, only do the updates on Idle
-			self.bindEvent(dEvents.Idle, self.onIdle)
 			# Set the idle update flage
 			self.needUpdate = False
 
 
-		def onHit_btnRotateCW(self, evt):
+		def rotateCW(self, evt):
 			self.img.rotateClockwise()
 
 
-		def onHit_btnRotateCCW(self, evt):
+		def rotateCCW(self, evt):
 			self.img.rotateCounterClockwise()
 
 
@@ -377,8 +354,6 @@ if __name__ == "__main__":
 				# Change the width of the image
 				self.img.Width = (self.imgPanel.Width * val)
 			else:
-				if self.reverseVert:
-					val = 1.01 - val
 				self.img.Height = (self.imgPanel.Height * val)
 			
 			
@@ -386,8 +361,6 @@ if __name__ == "__main__":
 			f = dabo.ui.getFile("jpg", "png", "gif", "bmp", "*")
 			if f:
 				self.img.Picture = f
-			# Prevent occasional double-events on Windows
-			evt.stop()
 		
 		
 		def onResize(self, evt):
@@ -398,10 +371,7 @@ if __name__ == "__main__":
 			if self.needUpdate:
 				self.needUpdate = False
 				wd = self.HSlider.Value * 0.01 * self.imgPanel.Width
-				if self.reverseVert:
-					ht = (101 - self.VSlider.Value) * 0.01 * self.imgPanel.Height
-				else:
-					ht = self.VSlider.Value * 0.01 * self.imgPanel.Height
+				ht = self.VSlider.Value * 0.01 * self.imgPanel.Height
 				self.img.Size = (wd, ht)
 						
 
