@@ -967,7 +967,7 @@ def browse(dataSource, parent=None):
 		parent = dabo.ui.dForm(None, Caption=cap)
 		parentPassed = False
 
-	grd = dGrid(parent)
+	grd = dGrid(parent, AlternateRowColoring=True)
 	grd.buildFromDataSet(dataSet)
 
 	parent.Sizer.append(grd, 1, "x")
