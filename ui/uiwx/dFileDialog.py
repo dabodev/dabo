@@ -96,7 +96,7 @@ class dFileDialog(OsDialogMixin, wx.FileDialog):
 			defaultFile="", wildcard="*.*", multiple=False, style=wx.OPEN):
 		self._baseClass = dFileDialog
 		if multiple:
-			style = style | wx.MULTIPLE
+			style = style | wx.FD_MULTIPLE
 			self._multiple = True
 		else:
 			self._multiple = False
