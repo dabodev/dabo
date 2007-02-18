@@ -727,7 +727,7 @@ class dPemMixin(dPemMixinBase):
 		self.SetDropTarget(FileDropTarget(handler, self))
 		
 
-	def processDroppedFiles(obj, xpos, ypos, filelist):
+	def processDroppedFiles(self, obj, xpos, ypos, filelist):
 		"""Handler for files dropped on the control. Override in your
 		subclass/instance for your needs .
 		"""
