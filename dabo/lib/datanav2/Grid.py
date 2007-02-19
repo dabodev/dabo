@@ -55,37 +55,30 @@ class Grid(dabo.ui.dGrid):
 		""" Occurs when the user double-clicks a cell in the grid. 
 		By default, this is interpreted as a request to edit the record.
 		"""
-		try:
-			if self.Form.FormType == "PickList":
-				self.pickRecord()
-			else:
-				self.editRecord()
+		self.processEditRecord()
 
-		except AttributeError:
-			## FormType is a prop of datanav forms. Even though we expect Grid to be 
-			## part of a datanav form, let's try to make it work even out of that
-			## context
-			pass
+	def processEditRecord(self):
+		## FormType is a prop of datanav forms. Even though we expect Grid to be 
+		## part of a datanav form, let's try to make it work even out of that
+		## context
+		ft = getattr(self.Form, "FormType", None)
+		if ft is None:
+			return
+		if ft == "PickList":
+			self.pickRecord()
+		else:
+			self.editRecord()
 
 
 	def _onGridKeyDown(self, evt):
 		keyCode = evt.EventData["keyCode"]
 		hasModifiers = evt.EventData["hasModifiers"]
 		if keyCode == 13 and not hasModifiers:
-			self._onEnterKey()
+			self.processEditRecord()
 			evt.stop()
 		elif keyCode == 27 and not hasModifiers:
 			self._onEscapeKey()
 			evt.stop()
-
-	def _onEnterKey(self, evt=None):
-		try:
-			if self.Form.FormType == "PickList":
-				self.pickRecord()
-			else:
-				self.editRecord()
-		except AttributeError:
-			pass
 
 
 	def _onDeleteKey(self, evt):
