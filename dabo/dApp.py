@@ -734,6 +734,13 @@ class dApp(dObject):
 		else:
 			raise ValueError, _("%s: Path does not exist.") % val
 
+
+	def _getIcon(self):
+		return getattr(self, "_icon", "daboIcon.ico")
+
+	def _setIcon(self, val):
+		self._icon = val
+
 				
 	def _getMainForm(self):
 		try:
@@ -898,6 +905,9 @@ class dApp(dObject):
 			current directory will be on a given system, but HomeDirectory will always
 			get you to your files."""))
 		
+	Icon = property(_getIcon, _setIcon, None,
+			_("""Specifies the icon to use on all forms and dialogs by default."""))
+
 	MainForm = property(_getMainForm, _setMainForm, None,
 			_("""The object reference to the main form of the application, or None.
 

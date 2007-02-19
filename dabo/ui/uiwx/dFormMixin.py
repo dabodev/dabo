@@ -77,8 +77,9 @@ class dFormMixin(pm.dPemMixin):
 		
 
 	def _afterInit(self):
+		app = self.Application
 		mbc = self.MenuBarClass
-		if self.Application and mbc and self.ShowMenuBar:
+		if app and mbc and self.ShowMenuBar:
 			if isinstance(mbc, basestring):
 				self.MenuBar = dabo.ui.createMenuBar(mbc, self)
 			else:
@@ -86,23 +87,26 @@ class dFormMixin(pm.dPemMixin):
 			self.afterSetMenuBar()
 
 		if not self.Icon:
-			self.Icon = "daboIcon.ico"
+			if app:
+				self.Icon = app.Icon
+			else:
+				self.Icon = "daboIcon.ico"
 
 		self.debugText = ""
 		self.useOldDebugDialog = False
 		self.restoredSP = False
 		self._holdStatusText = ""
-		if self.Application is not None:
-			self.Application.uiForms.add(self)
+		if app is not None:
+			app.uiForms.add(self)
 		
 		# Centering information
 		self._normLeft = self.Left
 		self._normTop = self.Top
 
 		if self._cxnFile:
-			self.Application.addConnectFile(self._cxnFile)
+			app.addConnectFile(self._cxnFile)
 		if self._cxnName:
-			self.Connection = self.Application.getConnectionByName(self._cxnName)
+			self.Connection = app.getConnectionByName(self._cxnName)
 			if self.Connection is None:
 				dabo.infoLog.write(_("Could not establish connection '%s'") %
 						self._cxnName)
