@@ -583,12 +583,18 @@ def isAltDown():
 # 	ret = calForm.cal.Date
 # 	calForm.release()
 # 	return ret
+
 	
+def _getActiveForm():
+	app = dabo.dAppRef
+	if app is not None:
+		return app.ActiveForm
+	return None
 
 
 def getString(message="Please enter a string:", caption="Dabo",	defaultValue=""):
 	"""Simple dialog for returning a small bit of text from the user."""
-	dlg = wx.TextEntryDialog(None, message, caption, defaultValue)
+	dlg = wx.TextEntryDialog(_getActiveForm(), message, caption, defaultValue)
 	retVal = dlg.ShowModal()
 	if retVal in (wx.ID_YES, wx.ID_OK):
 		val = dlg.GetValue()
@@ -611,7 +617,7 @@ def getInt(message="Enter an integer value:", caption="Dabo",	defaultValue=0):
 			hs.append(self.spnVal)
 			self.Sizer.append(hs)
 			
-	dlg = IntDialog()
+	dlg = IntDialog(_getActiveForm())
 	dlg.show()
 	if dlg.Accepted:
 		val = dlg.spnVal.Value
@@ -635,7 +641,7 @@ def getColor(color=None):
 	no selection was made.
 	"""
 	ret = None
-	dlg = dColorDialog(None, color)
+	dlg = dColorDialog(_getActiveForm(), color)
 	if dlg.show() == kons.DLG_OK:
 		ret = dlg.getColor()
 	dlg.release()
@@ -654,11 +660,7 @@ def getDate(dt=None):
 	except:
 		dabo.errorLog.write(_("Invalid date value passed to getDate(): %s") % dt)
 		return None
-	try:
-		prnt = dabo.dAppRef.ActiveForm
-	except:
-		prnt = None
-	dlg = wx.lib.calendar.CalenDlg(prnt, mm, dd, yy)
+	dlg = wx.lib.calendar.CalenDlg(_getActiveForm(), mm, dd, yy)
 	dlg.Centre()
 	if dlg.ShowModal() == wx.ID_OK:
 		result = dlg.result
@@ -689,7 +691,7 @@ def getFont(font=None):
 			dabo.errorLog.write("Invalid font class passed to getFont")
 			return None
 		param = font._nativeFont
-	dlg = dFontDialog(None, param)
+	dlg = dFontDialog(_getActiveForm(), param)
 	if dlg.show() == kons.DLG_OK:
 		fnt = dlg.getFont()
 	dlg.release()
@@ -710,7 +712,7 @@ def getAvailableFonts():
 def _getPath(cls, wildcard, **kwargs):
 	pth = None
 	idx = None
-	fd = cls(parent=None, wildcard=wildcard, **kwargs)
+	fd = cls(parent=_getActiveForm(), wildcard=wildcard, **kwargs)
 	if fd.show() == kons.DLG_OK:
 		pth = fd.Path
 		try:
