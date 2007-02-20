@@ -56,6 +56,7 @@ class DesignerXmlConverter(dObject):
 		dct = self.importSrc(src)
 		# Parse the XML and create the class definition text
 		self.createClassText(dct)
+		open(self._classFileName, "w").write(self.classText)
 		
 		## For debugging. This creates a copy of the generated code
 		## so that you can help determine any problems.
