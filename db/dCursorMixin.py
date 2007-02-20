@@ -1215,8 +1215,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				return
 			
 			# Not a new record: need to manually replace the old values:
-			mem = self._mementos.get(recKey, {})
-			for fld, val in mem.items():
+			for fld, val in self._mementos.get(recKey, {}).items():
 				self._records[row][fld] = val
 			self._clearMemento(row)
 			
