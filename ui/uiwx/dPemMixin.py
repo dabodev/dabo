@@ -280,6 +280,10 @@ class dPemMixin(dPemMixinBase):
 		# Does this control fire its onHover() method when the mouse enters?
 		self._hover = False
 		self._hoverTimer = None
+		
+		# Handlers for drag/drop
+		self._droppedFileHandler = None
+		self._droppedTextHandler = None
 
 		# _beforeInit hook for Class Designer code
 		self._beforeInitDesignerHook()
@@ -704,31 +708,15 @@ class dPemMixin(dPemMixinBase):
 			self.ControllingSizer.setItemProp(self, prop, val)
 		
 		
-	def createFileDropTarget(self, handler=None):
-		"""Sets up this control to accept files dropped on it."""
-		class FileDropTarget(wx.FileDropTarget):
-			def __init__(self, hnd, obj):
-				"""'hnd' is the object that handles the drop action. 'obj'
-				is the object that this target is associated with.
-				"""
-				wx.FileDropTarget.__init__(self)
-				self.handler = hnd
-				self.obj = obj
-			def OnDropFiles(self, xpos, ypos, filelist):
-				if self.handler:
-					self.handler.processDroppedFiles(self.obj, xpos, ypos, filelist)
-				return True
-			def OnDragOver(self, xpos, ypos, result):
-				return wx.DragLink
-				
-		if handler is None:
-			# Default to self
-			handler = self
-		self.SetDropTarget(FileDropTarget(handler, self))
-		
-
-	def processDroppedFiles(self, obj, xpos, ypos, filelist):
+	def processDroppedFiles(self, filelist):
 		"""Handler for files dropped on the control. Override in your
+		subclass/instance for your needs .
+		"""
+		pass
+		
+		
+	def processDroppedText(self, txt):
+		"""Handler for text dropped on the control. Override in your
 		subclass/instance for your needs .
 		"""
 		pass
@@ -1709,6 +1697,50 @@ class dPemMixin(dPemMixinBase):
 		return ret
 
 
+	def _getDroppedFileHandler(self):
+		return self._droppedFileHandler
+
+	def _setDroppedFileHandler(self, val):
+		if self._constructed():
+			self._droppedFileHandler = val
+			class FileDropTarget(wx.FileDropTarget):
+				def __init__(self):
+					wx.FileDropTarget.__init__(self)
+					self.handler = val
+				def OnDropFiles(self, xpos, ypos, filelist):
+					if self.handler:
+						self.handler.processDroppedFiles(filelist)
+					return True
+				def OnDragOver(self, xpos, ypos, result):
+					return wx.DragLink
+			self.SetDropTarget(FileDropTarget())
+			self.SetDropTarget(FileDropTarget())
+		else:
+			self._properties["DroppedFileHandler"] = val
+
+
+	def _getDroppedTextHandler(self):
+		return self._droppedTextHandler
+
+	def _setDroppedTextHandler(self, val):
+		if self._constructed():
+			self._droppedTextHandler = val
+
+			class TextDropTarget(wx.TextDropTarget):
+				def __init__(self):
+					wx.TextDropTarget.__init__(self)
+					self.handler = val
+				def OnDropText(self, xpos, ypos, txt):
+					if self.handler:
+						self.handler.processDroppedText(txt)
+					return True
+				def OnDragOver(self, xpos, ypos, result):
+					return wx.DragLink
+			self.SetDropTarget(TextDropTarget())
+		else:
+			self._properties["DroppedTextHandler"] = val
+
+
 	def _getEnabled(self):
 		return self.IsEnabled()
 	
@@ -2220,7 +2252,17 @@ class dPemMixin(dPemMixinBase):
 
 				This is useful for getting information about how the item is being 
 				sized, and for changing those settings.  (SizerItem)"""))
-		
+	
+	DroppedFileHandler = property(_getDroppedFileHandler, _setDroppedFileHandler, None,
+			_("""Reference to the object that will handle files dropped on this control.
+			When files are dropped, a list of them will be passed to this object's 
+			'processDroppedFiles()' method. Default=None  (object or None)"""))
+	
+	DroppedTextHandler = property(_getDroppedTextHandler, _setDroppedTextHandler, None,
+			_("""Reference to the object that will handle text dropped on this control.
+			When text is dropped, that text will be passed to this object's 
+			'processDroppedText()' method. Default=None  (object or None)"""))
+	
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("""Specifies whether the object and children can get user input. (bool)""") )
 
