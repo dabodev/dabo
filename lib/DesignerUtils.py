@@ -35,9 +35,9 @@ def parseCodeFile(txt):
 			cd["importStatements"] = impt
 		mthdList = mthdList[1:]
 		while mthdList:
-			cd[mthdList[1]] = "\n".join((mthdList[0], mthdList[2]))
+			cd[mthdList[1]] = "\n".join((mthdList[0], mthdList[2].rstrip()))
 			mthdList = mthdList[3:]
-		ret[codeID] = cd.strip()
+		ret[codeID] = cd
 	return ret
 		
 	
