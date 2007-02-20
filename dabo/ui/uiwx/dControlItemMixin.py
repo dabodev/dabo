@@ -115,7 +115,8 @@ class dControlItemMixin(dDataControlMixin):
 				try:
 					self.Value = oldVal
 				except ValueError:
-					self.PositionValue = 0
+					if self._choices:
+						self.PositionValue = 0
 		else:
 			self._properties["Choices"] = choices
 
