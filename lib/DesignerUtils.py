@@ -37,7 +37,7 @@ def parseCodeFile(txt):
 		while mthdList:
 			cd[mthdList[1]] = "\n".join((mthdList[0], mthdList[2]))
 			mthdList = mthdList[3:]
-		ret[codeID] = cd		
+		ret[codeID] = cd.strip()
 	return ret
 		
 	
