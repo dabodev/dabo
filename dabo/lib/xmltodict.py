@@ -102,7 +102,10 @@ class Xml2Obj:
 				self._codeDict = None
 			else:
 				# End of an individual method
-				self._codeDict[self._mthdName] = self._mthdCode.lstrip()
+				mth = self._mthdCode.strip()
+				if not mth.endswith("\n"):
+					mth += "\n"
+				self._codeDict[self._mthdName] = mth
 				self._mthdName = ""
 				self._mthdCode = ""
 		elif self._inProp:
