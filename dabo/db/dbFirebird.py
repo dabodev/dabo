@@ -244,17 +244,17 @@ class Firebird(dBackend):
 
 	def setSQL(self, sql):
 		return self.dblQuoteField(sql)
-	def setFieldClause(self, clause):
+	def setFieldClause(self, clause, autoQuote=True):
 		return self.dblQuoteField(clause)
-	def setFromClause(self, clause):
+	def setFromClause(self, clause, autoQuote=True):
 		return self.dblQuoteField(clause)
-	def setWhereClause(self, clause):
+	def setWhereClause(self, clause, autoQuote=True):
 		return self.dblQuoteField(clause)
-	def setChildFilterClause(self, clause):
+	def setChildFilterClause(self, clause, autoQuote=True):
 		return self.dblQuoteField(clause)
-	def setGroupByClause(self, clause):
+	def setGroupByClause(self, clause, autoQuote=True):
 		return self.dblQuoteField(clause)
-	def setOrderByClause(self, clause):
+	def setOrderByClause(self, clause, autoQuote=True):
 		return self.dblQuoteField(clause)
 
 
