@@ -46,7 +46,7 @@ class dConnectInfo(dObject):
 		self._backendObject = None
 		self._host = self._user = self._password = self._dbType = self._database = self._port = self._name = ""
 		super(dConnectInfo, self).__init__(**kwargs)
-		if connInfo:	
+		if connInfo:
 			self.setConnInfo(connInfo)
 
 	
@@ -80,27 +80,17 @@ class dConnectInfo(dObject):
 				nm = cd.keys()[0]
 				connDict = cd[nm]
 		
-		# They passed a dictionary containing the connection settings
-		if connDict.has_key("name"):
-			self.Name = connDict["name"]
-		if connDict.has_key("dbtype"):
-			self.DbType = connDict["dbtype"]
-		if connDict.has_key("host"):
-			self.Host = connDict["host"]
-		if connDict.has_key("user"):
-			self.User = connDict["user"]
-		if connDict.has_key("password"):
-			self.Password = connDict["password"]
-		if connDict.has_key("plaintextpassword"):
-			self.PlainTextPassword = connDict["plaintextpassword"]
-		if connDict.has_key("database"):
-			self.Database = connDict["database"]
-		if connDict.has_key("port"):
-			try:
-				self.Port = int(connDict["port"])
-			except ValueError:
-				# No valid port given
-				self.Port = None
+		# Run through the connDict, and set the appropriate properties. If it isn't
+		# a valid property name, raise TypeError.
+		mapping = {"name": "Name", "dbtype": "DbType", "host": "Host",
+				"user": "User", "password": "Password", "database": "Database", 
+				"plaintextpassword": "PlainTextPassword", "port": "Port"}
+		for k, v in connDict.items():
+			prop = mapping.get(k, None)
+			if prop:
+				setattr(self, prop, v)
+			else:
+				raise TypeError, "Property '%s' invalid." % k				
 	
 	
 	def getConnection(self):
@@ -225,8 +215,11 @@ class dConnectInfo(dObject):
 	def _getPort(self): 
 		return self._port
 		
-	def _setPort(self, port): 
-		self._port = port
+	def _setPort(self, port):
+		try:
+			self._port = int(port)
+		except:
+			self._port = None		
 
 
 	DbType = property(_getDbType, _setDbType, None,

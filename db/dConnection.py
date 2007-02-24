@@ -20,11 +20,13 @@ class dConnection(dObject):
 
 		if isinstance(connectInfo, dConnectInfo):
 			self._connectInfo = connectInfo
-		else:
-			# If they passed a cnxml file, or a dict containing 
-			# valid connection info, this will work fine. Otherwise,
-			# an error will be raised in the dConnectInfo class.
+		elif connectInfo:
+			# If they passed a cnxml file, or a dict containing valid connection info, 
+			# this will work fine. Otherwise, an error will be raised in the 
+			# dConnectInfo class.
 			self._connectInfo = dConnectInfo(connInfo=connectInfo)
+		else:
+			raise TypeError, "dConnectInfo instance or kwargs not sent."
 		self._connection = self._openConnection()
 		
 		
