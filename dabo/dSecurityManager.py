@@ -17,7 +17,7 @@ class dSecurityManager(dObject):
 			if attempt > 0:
 				message = _("Login incorrect, please try again. (%s/%s)") % (
 						attempt+1, self.LoginAttemptsAllowed)
-			user, password = self.Application.uiApp.getLoginInfo(message)
+			user, password = self.Application.getLoginInfo(message)
 
 			if user is None:
 				# login form canceled.

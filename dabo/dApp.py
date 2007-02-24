@@ -290,6 +290,23 @@ class dApp(dObject):
 		dabo.infoLog.write(_("Application finished."))
 
 
+	def getLoginInfo(self, message=None):
+		"""Return the user/password to dSecurityManager.login().
+
+		The default is to display the standard login dialog, and return the 
+		user/password as entered by the user, but subclasses can override to get
+		the information from whereever is appropriate.
+
+		Return a tuple of (user, pass).
+		"""
+		import dabo.ui.dialogs.login as login
+		ld = login.Login(self.MainForm)
+		ld.setMessage(message)
+		ld.show()
+		user, password = ld.user, ld.password
+		return user, password
+	
+	
 	def _persistMRU(self):
 		"""Persist any MRU lists to disk."""
 		base = "MRU.%s" % self.getAppInfo("appName")
