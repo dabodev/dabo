@@ -33,8 +33,6 @@ class dBizobj(dObject):
 		self._beforeInit()
 		self._conn = conn
 
-		super(dBizobj, self).__init__(properties=properties, *args, **kwargs)
-
 		cn = self._conn
 		if cn:
 			# Base cursor class : the cursor class from the db api
@@ -44,10 +42,10 @@ class dBizobj(dObject):
 			# exception will be raised in that method.
 			self.createCursor()
 
-
 		# We need to make sure the cursor is created *before* the call to
 		# initProperties()
 		self._initProperties()
+		super(dBizobj, self).__init__(properties=properties, *args, **kwargs)
 		self._afterInit()
 		self.__att_try_setFieldVal = True
 
@@ -720,7 +718,7 @@ class dBizobj(dObject):
 		there cannot be any child records saved yet, so an empty query
 		is built.
 		"""
-		if self.DataSource and self.LinkField:
+		if self.DataSource and self.LinkField and self.Parent:
 			if self.Parent.IsAdding:
 				# Parent is new and not yet saved, so we cannot have child records yet.
 				filtExpr = " 1 = 0 "

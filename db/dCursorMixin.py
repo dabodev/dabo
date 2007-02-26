@@ -1912,6 +1912,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def oldVal(self, fieldName, row=None):
 		"""Returns the value of the field as it existed after the last requery."""
+		if self.RowCount < 1:
+			raise dabo.dException.NoRecordsException
 		if row is None:
 			row = self.RowNumber
 		rec = self._records[row]
