@@ -12,7 +12,7 @@ from dabo.ui import makeDynamicProperty
 class _PanelMixin(cm.dControlMixin):
 	def __init__(self, preClass, parent, properties=None, attProperties=None, 
 			*args, **kwargs):
-		self._minSizerHeight = 10
+		self._minSizerWidth = 10
 		self._minSizerHeight = 10
 		self._buffered = None
 		buff = self._extractKey(attProperties, "Buffered", None)
