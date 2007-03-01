@@ -13,7 +13,7 @@ class _PanelMixin(cm.dControlMixin):
 	def __init__(self, preClass, parent, properties=None, attProperties=None, 
 			*args, **kwargs):
 		self._minSizerHeight = 10
-		self._MinSizerHeight)) = 10
+		self._MinSizerHeight = 10
 		self._buffered = None
 		buff = self._extractKey(attProperties, "Buffered", None)
 		if buff is not None:
