@@ -12,6 +12,8 @@ from dabo.ui import makeDynamicProperty
 class _PanelMixin(cm.dControlMixin):
 	def __init__(self, preClass, parent, properties=None, attProperties=None, 
 			*args, **kwargs):
+		self._minSizerHeight = 10
+		self._MinSizerHeight)) = 10
 		self._buffered = None
 		buff = self._extractKey(attProperties, "Buffered", None)
 		if buff is not None:
@@ -33,7 +35,7 @@ class _PanelMixin(cm.dControlMixin):
 		if resetMin:
 			# Set the panel's minimum size back to zero. This is sometimes
 			# necessary when the items in the panel have reduced in size.
-			self.SetMinSize((0, 0))
+			self.SetMinSize((self.MinSizerWidth, self.MinSizerHeight))
 		self.Layout()
 		for child in self.Children:
 			try:
@@ -95,9 +97,36 @@ class _PanelMixin(cm.dControlMixin):
 			self.Unbind(wx.EVT_SIZE)
 		
 
+	def _getMinSizerHeight(self):
+		return self._minSizerHeight
+
+	def _setMinSizerHeight(self, val):
+		if self._constructed():
+			self._minSizerHeight = val
+		else:
+			self._properties["MinSizerHeight"] = val
+
+
+	def _getMinSizerWidth(self):
+		return self._minSizerWidth
+
+	def _setMinSizerWidth(self, val):
+		if self._constructed():
+			self._minSizerWidth = val
+		else:
+			self._properties["MinSizerWidth"] = val
+
+
 	Buffered = property(_getBuffered, _setBuffered, None,
 			_("Does this panel use double-buffering to create smooth redrawing?  (bool)"))
 
+	MinSizerHeight = property(_getMinSizerHeight, _setMinSizerHeight, None,
+			_("Minimum height for the panel. Default=10px  (int)"))
+	
+	MinSizerWidth = property(_getMinSizerWidth, _setMinSizerWidth, None,
+			_("Minimum width for the panel. Default=10px  (int)"))
+	
+	
 
 
 class dPanel(_PanelMixin, wx.Panel):
