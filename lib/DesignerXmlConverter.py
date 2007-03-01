@@ -266,13 +266,14 @@ class DesignerXmlConverter(dObject):
 						propString = ", ".join(propsToSend)
 				isBorderSizer = clsname == "LayoutBorderSizer"
 				ornt = ""
-				if not isGridSizer:
-					propString = "Orientation='%s'" % self._extractKey(atts, "Orientation", "H")
 				prnt = ""
-				if isBorderSizer:
-					prnt = "currParent, "
-					propString = "'%s', Caption=\"%s\"" % (self._extractKey(atts, "Orientation", "H"), 
-							self._extractKey(atts, "Caption", ""))
+				if not isGridSizer:
+					if isBorderSizer:
+						prnt = "currParent, "
+						propString = "'%s', Caption=\"%s\"" % (self._extractKey(atts, "Orientation", "H"), 
+								self._extractKey(atts, "Caption", ""))
+					else:
+						propString = "Orientation='%s'" % self._extractKey(atts, "Orientation", "H")
 				if self.CreateDesignerControls:
 					superName = clsname
 				else:
