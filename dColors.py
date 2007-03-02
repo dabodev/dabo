@@ -1,5 +1,14 @@
 import re
 
+class HexError(Exception): pass
+class InvalidCharError(HexError): pass
+class TypeError(HexError): pass
+
+class ColorTupleError(Exception): pass
+class RgbValueError(ColorTupleError): pass
+class LengthError(ColorTupleError): pass
+class IntegerTypeError(ColorTupleError): pass
+
 colorDict = {"aliceblue" : (240, 248, 255), 
 		"antiquewhite" : (250, 235, 215), 
 		"aqua" : (0, 255, 255), 
