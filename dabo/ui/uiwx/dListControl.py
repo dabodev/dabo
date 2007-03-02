@@ -61,6 +61,15 @@ class dListControl(dcm.dControlItemMixin,
 		self.InsertColumn(pos, caption)
 	
 	
+	def removeColumn(self, pos=None):
+		"""Removes the specified column, or the last column if
+		no column number is passed.
+		"""
+		if pos is None:
+			pos = self.GetColumnCount() -1
+		self.DeleteColumn(pos)
+	
+	
 	def setColumns(self, colList):
 		""" Accepts a list/tuple of column headings, removes any
 		existing columns, and creates new columns, one for each 
@@ -345,8 +354,21 @@ class dListControl(dcm.dControlItemMixin,
 			self._properties["SelectedIndices"] = selList
 			
 
-	def _getColCount(self):
+	def _getColumnCount(self):
 		return self.GetColumnCount()
+
+	def _setColumnCount(self, val):
+		if self._constructed():
+			cc = self.GetColumnCount()
+			if val < cc:
+				# Remove rightmost columns
+				while val < self.GetColumnCount():
+					self.removeColumn()
+			elif val > cc:
+				while val > self.GetColumnCount():
+					self.addColumn(_("Column %s") % self.GetColumnCount())				
+		else:
+			self._properties["ColumnCount"] = val
 		
 		
 	def _getRowCount(self):
@@ -451,8 +473,8 @@ class dListControl(dcm.dControlItemMixin,
 			self._delWindowStyleFlag(wx.LC_VRULES)
 
 
-	ColumnCount = property(_getColCount, None, None, 
-			_("Number of columns in the control (read-only).  (int)") )
+	ColumnCount = property(_getColumnCount, _setColumnCount, None,
+			_("Number of columns in the control  (int)"))
 
 	Count = property(_getRowCount, None, None, 
 			_("Number of rows in the control (read-only). Alias for RowCount  (int)"))
