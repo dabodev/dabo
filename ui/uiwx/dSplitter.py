@@ -67,7 +67,7 @@ class SplitterPanelMixin:
 		win.split()
 		self.Sizer.append(win, 1, "expand")
 		self.splitter = win
-		self.Layout()
+		self.layout()
 		
 	
 	def unsplit(self, win=None):
@@ -127,7 +127,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		kwargs["MinimumPanelSize"] = mp
 			
 		# Default to vertical split
-		self._orientation = "v"
+		self._orientation = self._extractKey((kwargs, properties, attProperties), "Orientation", "v")
 		self._sashPos = 100
 		self._p1 = self._p2 = None
 		# Default to not showing the context menus on the panels
@@ -188,6 +188,11 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		self.Initialize(pnl)
 	
 	
+	def layout(self):
+		self.Panel1.layout()
+		self.Panel2.layout()
+		
+	
 	def _onSashDClick(self, evt):
 		""" Handle the double-clicking of the sash. This will call
 		the user-customizable onSashDClick() method.
@@ -225,7 +230,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 			self.SplitHorizontally(self.Panel1, self.Panel2, pos)
 		else:
 			self.SplitVertically(self.Panel1, self.Panel2, pos)
-		self.Layout()
+		self.layout()
 	
 	
 	def unsplit(self, win=None):
@@ -233,7 +238,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 			# Save the sash position
 			self._getSashPosition()
 			self.Unsplit(win)
-			self.Layout()
+			self.layout()
 			
 	
 	def canRemove(self, pnl):

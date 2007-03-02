@@ -311,7 +311,9 @@ class uiApp(dObject, wx.App):
 			for orphan in orphans:
 				orphan.close()
 			# Now close the main form. It will close any of its children.
-			self.dApp.MainForm.close()
+			mf = self.dApp.MainForm
+			if not mf._finito:
+				mf.close()
 		else:
 			while frms:
 				frm = frms[0]
