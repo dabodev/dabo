@@ -15,5 +15,10 @@ import ui
 
 suiteList = [db.suite(), biz.suite(), lib.suite(), ui.suite()]
 
+#import any tests for the main dabo folder
+import Test_dColors
+suiteList.append(unittest.TestLoader().loadTestsFromModule(Test_dColors))
+
+
 allTiersTestSuite = unittest.TestSuite(suiteList)
 unittest.TextTestRunner(verbosity=2).run(allTiersTestSuite)
