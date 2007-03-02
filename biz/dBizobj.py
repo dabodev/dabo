@@ -1290,7 +1290,19 @@ class dBizobj(dObject):
 		return self._CurrentCursor.setWhereClause(clause)
 	def prepareWhere(self, clause):
 		return self._CurrentCursor.prepareWhere(clause)
-
+	def getFieldClause(self):
+		return self._CurrentCursor.getFieldClause()
+	def getFromClause(self):
+		return self._CurrentCursor.getFromClause()
+	def getJoinClause(self):
+		return self._CurrentCursor.getJoinClause()
+	def getWhereClause(self):
+		return self._CurrentCursor.getWhereClause()
+	def getGroupByClause(self):
+		return self._CurrentCursor.getGroupByClause()
+	def getOrderByClause(self):
+		return self._CurrentCursor.getOrderByClause()
+	########## END - SQL Builder interface section ##############
 
 
 
