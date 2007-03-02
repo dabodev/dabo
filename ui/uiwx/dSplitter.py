@@ -106,7 +106,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dSplitter
-		baseStyle = wx.SP_3D | wx.SP_PERMIT_UNSPLIT
+		baseStyle = wx.SP_3D | wx.SP_LIVE_UPDATE | wx.SP_PERMIT_UNSPLIT
 		style = self._extractKey((kwargs, properties, attProperties), "style", baseStyle)
 		self._createPanes = self._extractKey(attProperties, "createPanes", None)
 		if self._createPanes is not None:
