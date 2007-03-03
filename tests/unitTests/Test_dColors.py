@@ -13,6 +13,7 @@ If this file is run standalone, it will automatically run all of the test cases 
 
 import unittest
 from dabo import dColors
+import random
 
 
 class TestHexToDec(unittest.TestCase):
@@ -86,7 +87,7 @@ class TestTupleHexConversion(unittest.TestCase):
 	
 	knownValues = (("#000000",(0,0,0)), ("#000001",(0,0,1)), ("#000101",(0,1,1)), ("#010101",(1,1,1)),
 				  ("#898989",(137,137,137)), ("#FFFFFF",(255,255,255)), ("#AAAAAA",(170,170,170)), 
-				  ("#A9A9A9",(169,169,169)), ("#A0A0A0",(10,10,10)), ("#090909",(9,9,9)),
+				  ("#A9A9A9",(169,169,169)), ("#0A0A0A",(10,10,10)), ("#090909",(9,9,9)),
 				  ("#1A2BF3",(26,43,243)), ("#3F029E",(63,02,158)), ("#707070",(112,112,112)),
 				  ("#6F6F6F",(111,111,111)), ("#8A8A8A",(138,138,138)), ("#00FF80",(0,255,128)),
 				  ("#1F575E",(31,87,94)), ("#89092B",(137,9,43)))
@@ -99,17 +100,17 @@ class TestTupleHexConversion(unittest.TestCase):
 			self.assertEqual(result, hex)
 	
 	def testKnownValuesHexToTuple(self):
-		"""tupleToHex should give known result with known input"""
+		"""colorTupleFromHex should give known result with known input"""
 		for hex, tuple in self.knownValues:
 			result = dColors.colorTupleFromHex(hex)
 			self.assertEqual(result, tuple)
 	
 	def testSanity(self):
-		"""tuple = tupleToHex(colorTupleFromHex(tuple)) for all valid input values"""
-		for a in range(256):
-			for b in range(256):
-				for c in range(256):
-					self.assertEqual((a,b,c), dColors.colorTupleFromHex(dColors.tupleToHex((a,b,c))))
+		"""tuple = tupleToHex(colorTupleFromHex(tuple)) for range of valid input values"""
+		#All inputs was way too many
+		for run in range(1000):
+			a, b, c = random.choice(range(256)), random.choice(range(256)), random.choice(range(256))
+			self.assertEqual((a,b,c), dColors.colorTupleFromHex(dColors.tupleToHex((a,b,c))))
 	
 	#Test Errors
 	def testTupleToHexNegativeInput(self):
@@ -141,7 +142,7 @@ class TestTupleHexConversion(unittest.TestCase):
 	#misc. tests
 	def testHexToTupleLeadingZeros(self):
 		"""testing colorTupleFromHex(number) = colorTupleFromHex('00'+number)"""
-		number = "FF"
+		number = "0A0CFF"
 		result = dColors.colorTupleFromHex(number)
 		zeroResult = dColors.colorTupleFromHex("000" + number)
 		self.assertEqual(result, zeroResult)
