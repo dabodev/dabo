@@ -148,10 +148,104 @@ class TestTupleHexConversion(unittest.TestCase):
 		self.assertEqual(result, zeroResult)
 
 class TestColorTupleFromName(unittest.TestCase):
-	pass
+	"""
+	Rules for class functionality:
+		- color names are strings predefined in a dictionary
+		- if a name is not in the dictionary, treat it as a hex string or color tuple string
+	
+	Class Requirements for proper behavior go here:
+		- colorTupleFromName should return a valid color tuple for all valid color name inputs
+		- colorTupleFromName should return a valid color tuple for all valid hex string inputs
+		- colorTupleFromName should return a valid color tuple for all valid color tuple string inputs
+		- colorTupleFromName should fail when recieving an input that is not a valid color name,
+		  hex string input, or color tuple string
+	"""
+	
+	#happy path tests
+	def testKnownColorValues(self):
+		"""colorTupleFromName should return a known value for a known color name input"""
+		for name in dColors.colorDict.keys():
+			result = dColors.colorTupleFromName(name)
+			self.assertEqual(result, dColors.colorDict[name])
+	
+	#need to refactor these next 2.  Test smells for repeated code tests
+	def testKnownHexStringValues(self):
+		"""colorTupleFromName should return a known value for a known hex string input"""
+		self.assertEqual(dColors.colorTupleFromName("#010101"), (1, 1, 1))
+	
+	def testKnownColorTupleStringValues(self):
+		"""colorTupleFromName should return a known value for a known color tuple string input"""
+		self.assertEqual(dColors.colorTupleFromName("(1, 1, 1)"), (1, 1, 1))
+	
+	#error tests
+	def testColorNameError(self):
+		"""colorTupleFromName should fail when given a string that is not a valid color name, hex string,
+		or color tuple string"""
+		self.assertRaises(KeyError, dColors.colorTupleFromName, "Some Invalid Color Name")
 
 class TestColorTupleFromString(unittest.TestCase):
-	pass
+	"""
+	Rules for class functionality:
+		- tuple strings are in form of "(int, int, int)"
+		- Color tuples must have three integers
+		- Integers must be between 0-255
+	
+	Class Requirements for proper behavior go here:
+		- colorTupleFromString should return a valid tuple for all valid results
+		- colorTupleFromString should fail when recieving an improperly formatted string
+		- colorTupleFromString should fail when there are not three elements in tuple representation of string
+		- colorTupleFromString should fail when elements in the string are not integers
+		- colorTupleFromString should fail when integer elements are not in range 0-255
+	"""
+	
+	#happy path tests
+	def testKnownValues(self):
+		"""colorTupleFromString should return known results for known values"""
+		for a in range(256):
+			test = "(%i, %i, %i)" % (a, 255-a, a)
+			result = dColors.colorTupleFromString(test)
+			self.assertEqual((a, 255-a, a), result)
+			
+			test = "(%i, %i, %i)" % (a, a, a)
+			result = dColors.colorTupleFromString(test)
+			self.assertEqual((a, a, a), result)
+	
+	#Error Path Tests
+	def testMissingCommas(self):
+		"""colorTupleFromString should fail with a lack of commas between integer values"""
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1 1, 1)")
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1 1)")
+	
+	def testMissingParentheses(self):
+		"""colorTupleFromString should fail with a lack of parentheses surrounding the tuple"""
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "1, 1, 1)")
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, 1")
+	
+	def testTupleTooSmall(self):
+		"""colorTupleFromString should fail when the number of integer elements in the string is below 3"""
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1)")
+	
+	def testTupleTooLarge(self):
+		"""colorTupleFromString should fail when the number of integer elements in the string is above 3"""
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, 1, 1)")
+	
+	def testTupleNonInteger(self):
+		"""colorTupleFromString should fail when one or more of the numbers are non-integers"""
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1.5, 1, 1)")
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1.5, 1)")
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, 1.5)")
+	
+	def testIntegerTooLarge(self):
+		"""colorTupleFromTest should fail when one or more of the integers is above 255"""
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(256, 1, 1)")
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 256, 1)")
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, 256)")
+	
+	def testIntegerTooSmall(self):
+		"""colorTupleFromTest should fail when one or more of the integers is below 0"""
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(-1, 1, 1)")
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, -1, 1)")
+		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, -1)")
 
 
 #used for running this module bare without the test suite

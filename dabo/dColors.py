@@ -241,6 +241,9 @@ def colorTupleFromString(color):
 	if mtch:
 		grps = mtch.groups()
 		ret = (int(grps[0]), int(grps[1]), int(grps[2]))
+		for val in ret:
+			if not 0 <= val <= 255:
+				raise KeyError, "Color tuple integer must range from 0-255"
 	else:
 		raise KeyError, "Color '%s' is not defined." % color
 	return ret
