@@ -592,7 +592,7 @@ def _getActiveForm():
 	return None
 
 
-def getString(message="Please enter a string:", caption="Dabo",	defaultValue=""):
+def getString(message=_("Please enter a string:"), caption="Dabo",	defaultValue=""):
 	"""Simple dialog for returning a small bit of text from the user."""
 	dlg = wx.TextEntryDialog(_getActiveForm(), message, caption, defaultValue)
 	retVal = dlg.ShowModal()
@@ -604,7 +604,7 @@ def getString(message="Please enter a string:", caption="Dabo",	defaultValue="")
 	return val
 
 
-def getInt(message="Enter an integer value:", caption="Dabo",	defaultValue=0):
+def getInt(message=_("Enter an integer value:"), caption="Dabo", defaultValue=0):
 	"""Simple dialog for returning an integer value from the user."""
 	class IntDialog(dabo.ui.dOkCancelDialog):
 		def addControls(self):
@@ -625,6 +625,31 @@ def getInt(message="Enter an integer value:", caption="Dabo",	defaultValue=0):
 		val = None
 	dlg.Destroy()
 	return val
+
+
+def getChoice(choices, message=_("Please make your selection:"), caption="Dabo",
+		defaultPos=None):
+	"""Simple dialog for presenting the user with a list of choices."""
+	if defaultPos is None:
+		defaultPos = 0
+	class ChoiceDialog(dabo.ui.dOkCancelDialog):
+		def addControls(self):
+			self.Caption = caption
+			lbl = dabo.ui.dLabel(self, Caption=message)
+			self.lst = dabo.ui.dListBox(self, Choices=choices, PositionValue=defaultPos)
+			sz = self.Sizer
+			sz.append(lbl, halign="center")
+			sz.appendSpacer(5)
+			sz.append(self.lst, 1)
+			
+	dlg = ChoiceDialog(_getActiveForm())
+	dlg.show()
+	if dlg.Accepted:
+		val = dlg.lst.StringValue
+	else:
+		val = None
+	dlg.release()
+	return val			
 
 
 # For convenience, make it so one can call dabo.ui.stop("Can't do that")
@@ -780,7 +805,7 @@ def getSaveAsAndType(*args, **kwargs):
 	return ret
 
 
-def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
+def getFolder(message=_("Choose a folder"), defaultPath="", wildcard="*"):
 	"""Displays the folder selection dialog for the platform.
 	Returns the path to the selected folder, or None if no selection
 	was made.
