@@ -99,7 +99,9 @@ class HtmlAbout(dabo.ui.dDialog):
 
 	def onCopyInfo(self, evt):
 		"""Copy the system information to the Clipboard"""
-		self.Application.copyToClipboard(self.getInfoString(useHTML=False))
+		info = self.getInfoString(useHTML=False)
+		appdoc = self.getAppSpecificString()
+		self.Application.copyToClipboard("\n\n".join((info, appdoc)))
 
 
 	def onClear(self, evt):
