@@ -392,6 +392,34 @@ class dBizobj(dObject):
 			child.cancelAll()
 
 		self.afterCancel()
+		
+	
+	def deleteAllChildren(self, startTransaction=False):
+		"""Delete all children associated with the current record without
+		deleting the current record in this bizobj.
+		"""
+		cursor = self._CurrentCursor
+		errMsg = self.beforeDeleteAllChildren()
+		if errMsg:
+			raise dException.BusinessRuleViolation, errMsg
+
+		if startTransaction:
+			cursor.beginTransaction()
+
+		try:
+			for child in self.__children:
+				child.deleteAll(startTransaction=False)
+			if startTransaction:
+				cursor.commitTransaction()
+
+		except dException.DBQueryException, e:
+			if startTransaction:
+				cursor.rollbackTransaction()
+			raise dException.DBQueryException, e
+		except StandardError, e:
+			if startTransaction:
+				cursor.rollbackTransaction()
+			raise StandardError, e
 
 
 	def delete(self, startTransaction=False):
@@ -443,10 +471,10 @@ class dBizobj(dObject):
 		except dException.DBQueryException, e:
 			if startTransaction:
 				cursor.rollbackTransaction()
-			else:
-				raise dException.DBQueryException, e
+			raise dException.DBQueryException, e
 		except StandardError, e:
-			cursor.rollbackTransaction()
+			if startTransaction:
+				cursor.rollbackTransaction()
 			raise StandardError, e
 
 
