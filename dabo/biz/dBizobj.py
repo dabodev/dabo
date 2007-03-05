@@ -1338,6 +1338,7 @@ class dBizobj(dObject):
 	########## Pre-hook interface section ##############
 	def beforeNew(self): return ""
 	def beforeDelete(self): return ""
+	def beforeDeleteAllChildren(self): return ""
 	def beforeFirst(self): return ""
 	def beforePrior(self): return ""
 	def beforeNext(self): return ""
