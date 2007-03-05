@@ -411,6 +411,7 @@ class dBizobj(dObject):
 				child.deleteAll(startTransaction=False)
 			if startTransaction:
 				cursor.commitTransaction()
+			self.afterDeleteAllChildren()
 
 		except dException.DBQueryException, e:
 			if startTransaction:
@@ -1353,6 +1354,7 @@ class dBizobj(dObject):
 	########## Post-hook interface section ##############
 	def afterNew(self): pass
 	def afterDelete(self): pass
+	def afterDeleteAllChildren(self): return ""
 	def afterFirst(self): pass
 	def afterPrior(self): pass
 	def afterNext(self): pass
