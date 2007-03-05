@@ -625,18 +625,39 @@ def getInt(message=_("Enter an integer value:"), caption="Dabo", defaultValue=0)
 		val = None
 	dlg.Destroy()
 	return val
+	
+
+# The next two methods prompt the user to select from a list. The first allows
+# a single selection, while the second allows for multiple selections.
+def getChoice(choices, message=None, caption=None, defaultPos=None):
+	"""Simple dialog for presenting the user with a list of choices from which
+	they can select one item.
+	"""
+	return _getChoiceDialog(choices, message, caption, defaultPos, False)
 
 
-def getChoice(choices, message=_("Please make your selection:"), caption="Dabo",
-		defaultPos=None):
-	"""Simple dialog for presenting the user with a list of choices."""
+def getChoices(choices, message=None, caption=None, defaultPos=None):
+	"""Simple dialog for presenting the user with a list of choices from which
+	they can select one or more items. Returns a tuple containing the selections.
+	"""
+	return _getChoiceDialog(choices, message, caption, defaultPos, True)
+
+
+def _getChoiceDialog(choices, message, caption, defaultPos, mult):
+	if message is None:
+		message = _("Please make your selection:")
+	if caption is None:
+		caption = "Dabo"
 	if defaultPos is None:
 		defaultPos = 0
+	if mult is None:
+		mult = False
 	class ChoiceDialog(dabo.ui.dOkCancelDialog):
 		def addControls(self):
 			self.Caption = caption
 			lbl = dabo.ui.dLabel(self, Caption=message)
-			self.lst = dabo.ui.dListBox(self, Choices=choices, PositionValue=defaultPos)
+			self.lst = dabo.ui.dListBox(self, Choices=choices, 
+					PositionValue=defaultPos, MultipleSelect=mult)
 			sz = self.Sizer
 			sz.append(lbl, halign="center")
 			sz.appendSpacer(5)
