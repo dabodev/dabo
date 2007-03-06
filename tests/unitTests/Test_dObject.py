@@ -21,10 +21,6 @@ class BaseTestdObject(unittest.TestCase):
 
 class TestApplicationProperty(BaseTestdObject):
 	"""
-	Rules for functionality:
-		- The property is read only
-		- dObjects should not be able to change the dApp but need to reference it
-	
 	Test List:
 		- Setting dObject.Application should fail
 		- Getting dObject.Application should return a known application
@@ -45,11 +41,11 @@ class TestApplicationProperty(BaseTestdObject):
 class TestBaseClassProperty(BaseTestdObject):
 	"""
 	Test List:
-		- Setting dObject.BaseClass should fail
+		- Setting dObject.BaseClass should fail for all inputs
 		- Getting dObject.BaseClass should return None when not subclassed
 	"""
 	def testSetBaseClass(self):
-		"""Setting dObject.BaseClass should fail"""
+		"""Setting dObject.BaseClass should fail for all inputs"""
 		def setBaseClass(self):
 			self.dObject.BaseClass = 42
 		self.assertRaises(AttributeError, setBaseClass, 42)
@@ -57,6 +53,54 @@ class TestBaseClassProperty(BaseTestdObject):
 	def testGetBaseClassNoSubclass(self):
 		"""Getting dObject.BaseClass should return None when not subclassed"""
 		self.assertEqual(None, self.dObject.BaseClass)
+
+class TestBasePrefKeyProperty(BaseTestdObject):
+	"""
+	Test List:
+		- (setting/getting) dObject.BasePrefKey should yield the original value
+		- dObject.BasePrefKey should return '' if not set
+		- setting dObject.BasePrefKey should fail if value is not a string
+	"""
+	def testRoundTripBasePrefKey(self):
+		"""(setting/getting) dObject.BasePrefKey should yield the original value"""
+		test = "original value"
+		self.dObject.BasePrefKey = test
+		self.assertEqual(test, self.dObject.BasePrefKey)
+	
+	def testBasePrefKeyNotSet(self):
+		"""dObject.BasePrefKey should return '' if not set"""
+		self.assertEqual('', self.dObject.BasePrefKey)
+	
+	def testBasePrefFailOnNonString(self):
+		"""setting dObject.BasePrefKey should fail if value is not a string"""
+		def setBasePrefKey(val):
+			self.dObject.BasePrefKey = val
+		self.assertRaises(TypeError, setBasePrefKey, 42)
+
+class TestClassProperty(BaseTestdObject):
+	"""
+	Test List:
+		- setting dObject.Class should fail for all inputs
+		- dObject.Class should return the dObject class when instansiated
+		- dObject.Class should return A when A subclasses dObject and is instansiated
+	"""
+	
+	def testSetClassShouldFail(self):
+		"""setting dObject.Class should fail for all inputs"""
+		def setClass(val):
+			self.dObject.Class = val
+		self.assertRaises(AttributeError, setClass, 42)
+	
+	def testGetClassNoSubclass(self):
+		"""dObject.Class should return the dObject class when instansiated"""
+		self.assertEqual(dObject, self.dObject.Class)
+	
+	def testGetClassWithSubclass(self):
+		"""dObject.Class should return A when A subclasses dObject and is instansiated"""
+		class a(dObject):
+			pass
+		obj = a()
+		self.assertEqual(a, obj.Class)
 
 
 #used for running this module bare without the test suite

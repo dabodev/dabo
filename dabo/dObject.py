@@ -220,6 +220,8 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		return ret
 
 	def _setBasePrefKey(self, val):
+		if not isinstance(val, types.StringTypes):
+			raise TypeError, 'BasePrefKey must be a string.'
 		self._basePrefKey = val
 		pm = self.PreferenceManager
 		if pm is not None:
