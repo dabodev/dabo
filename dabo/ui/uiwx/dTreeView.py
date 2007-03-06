@@ -450,7 +450,9 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		collapsed and re-opened in order to update any sizing issues.
 		"""
 		self.lockDisplay()
-		ndExp = [(nd, nd.Expanded) for nd in self.nodes]
+		ndExp = [(nd, nd.Expanded) for nd in self.nodes
+
+				if ((not nd.IsRootNode) or self.ShowRootNode)]
 		self.collapseAll()
 		for nd, exp in ndExp:
 			nd.Expanded = exp
@@ -459,7 +461,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	
 	def getRootNode(self):
 		return self._rootNode
- 	
+
 
 	def setRootNode(self, txt):
 		itemID = self.AddRoot(txt)
@@ -1256,7 +1258,6 @@ if __name__ == "__main__":
 			self.tree.collapseAll()
 
 
-	
 	app = dabo.dApp()
 	app.MainFormClass = TreeViewTestForm
 	app.setup()
