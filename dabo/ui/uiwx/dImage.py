@@ -101,7 +101,9 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		if not self._Image.Ok():
 			# No image to display
 			self.Bitmap = wx.EmptyBitmap(1, 1)
+			self.Freeze()
 			self.SetBitmap(self.Bitmap)
+			self.Thaw()
 			return
 
 		img = self._Image.Copy()
@@ -158,9 +160,11 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		self._bitmapHeight = self.Bitmap.GetHeight()
 		self._bitmapWidth = self.Bitmap.GetWidth()
 		
+		self.Freeze()
 		try:
 			self.SetBitmap(self.Bitmap)
 		except TypeError, e: pass
+		self.Thaw()
 		self._inShowPic = True
 		self.SetSize((origW, origH))
 		self._inShowPic = False
@@ -288,11 +292,15 @@ if __name__ == "__main__":
 	class ImgForm(dabo.ui.dForm):
 		def afterInit(self):
 			self.Caption = "dImage Demonstration"
+			self.mainPanel = mp = dabo.ui.dPanel(self)
+			self.Sizer.append1x(mp)
+			sz = dabo.ui.dSizer("v")
+			mp.Sizer = sz
 			# Create a panel with horiz. and vert.  sliders
-			self.imgPanel = dabo.ui.dPanel(self)
-			self.VSlider = dabo.ui.dSlider(self, Orientation="V", Min=1, Max=100,
+			self.imgPanel = dabo.ui.dPanel(mp)
+			self.VSlider = dabo.ui.dSlider(mp, Orientation="V", Min=1, Max=100,
 				Value=100, OnHit=self.onSlider)
-			self.HSlider = dabo.ui.dSlider(self, Orientation="H", Min=1, Max=100,
+			self.HSlider = dabo.ui.dSlider(mp, Orientation="H", Min=1, Max=100,
 				Value=100, OnHit=self.onSlider)
 			
 			psz = self.imgPanel.Sizer = dabo.ui.dSizer("V")
@@ -300,38 +308,38 @@ if __name__ == "__main__":
 			hsz.append1x(self.imgPanel)
 			hsz.appendSpacer(10)
 			hsz.append(self.VSlider, 0, "x")
-			self.Sizer.DefaultBorder = 25
-			self.Sizer.DefaultBorderLeft = self.Sizer.DefaultBorderRight = True
-			self.Sizer.appendSpacer(25)
-			self.Sizer.append(hsz, 1, "x")
-			self.Sizer.appendSpacer(10)
-			self.Sizer.append(self.HSlider, 0, "x")
-			self.Sizer.appendSpacer(10)
+			sz.DefaultBorder = 25
+			sz.DefaultBorderLeft = sz.DefaultBorderRight = True
+			sz.appendSpacer(25)
+			sz.append(hsz, 1, "x")
+			sz.appendSpacer(10)
+			sz.append(self.HSlider, 0, "x")
+			sz.appendSpacer(10)
 
 			# Create the image control
 			self.img = dImage(self.imgPanel)
 			
 			hsz = dabo.ui.dSizer("H")
 			hsz.DefaultSpacing = 10
-			dabo.ui.dBitmapButton(self, RegID="btnRotateCW",
+			dabo.ui.dBitmapButton(mp, RegID="btnRotateCW",
 					Picture="rotateCW", OnHit=self.rotateCW)
-			dabo.ui.dBitmapButton(self, RegID="btnRotateCCW",
+			dabo.ui.dBitmapButton(mp, RegID="btnRotateCCW",
 					Picture="rotateCCW", OnHit=self.rotateCCW)
 			hsz.append(self.btnRotateCW)
 			hsz.append(self.btnRotateCCW)			
-			self.ddScale = dabo.ui.dDropdownList(self, 
+			self.ddScale = dabo.ui.dDropdownList(mp, 
 					Choices=["Proportional", "Stretch", "Clip"],
 					DataSource = "self.Form.img",
 					DataField = "ScaleMode")
 			self.ddScale.PositionValue = 0
-			btn = dabo.ui.dButton(self, Caption="Load Image", 
+			btn = dabo.ui.dButton(mp, Caption="Load Image", 
 					OnHit=self.onLoadImage)
-			btnOK = dabo.ui.dButton(self, Caption="Done", OnHit=self.close)
+			btnOK = dabo.ui.dButton(mp, Caption="Done", OnHit=self.close)
 			hsz.append(self.ddScale, 0, "x")
 			hsz.append(btn, 0, "x")
 			hsz.append(btnOK, 0, "x")
-			self.Sizer.append(hsz, 0, alignment="right")
-			self.Sizer.appendSpacer(25)
+			sz.append(hsz, 0, alignment="right")
+			sz.appendSpacer(25)
 			
 			# Set the idle update flage
 			self.needUpdate = False
