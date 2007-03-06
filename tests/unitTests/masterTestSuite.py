@@ -7,7 +7,13 @@ for more information.
 """
 
 import unittest
+import coverage
+import sys
 
+coverage.erase()
+coverage.start()
+
+import dabo
 import db
 import biz
 import lib
@@ -24,3 +30,6 @@ suiteList.append(unittest.TestLoader().loadTestsFromModule(Test_dObject))
 
 allTiersTestSuite = unittest.TestSuite(suiteList)
 unittest.TextTestRunner(verbosity=2).run(allTiersTestSuite)
+
+coverage.stop()
+coverage.report([dabo.dColors, dabo.dObject])
