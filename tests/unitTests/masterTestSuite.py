@@ -18,6 +18,8 @@ suiteList = [db.suite(), biz.suite(), lib.suite(), ui.suite()]
 #import any tests for the main dabo folder
 import Test_dColors
 suiteList.append(unittest.TestLoader().loadTestsFromModule(Test_dColors))
+import Test_dObject
+suiteList.append(unittest.TestLoader().loadTestsFromModule(Test_dObject))
 
 
 allTiersTestSuite = unittest.TestSuite(suiteList)
