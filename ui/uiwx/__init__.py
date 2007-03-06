@@ -657,11 +657,35 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 			self.Caption = caption
 			lbl = dabo.ui.dLabel(self, Caption=message)
 			self.lst = dabo.ui.dListBox(self, Choices=choices, 
-					PositionValue=defaultPos, MultipleSelect=mult)
+					PositionValue=defaultPos, MultipleSelect=mult, 
+					OnMouseLeftDoubleClick=self.onOK)
 			sz = self.Sizer
+			sz.appendSpacer(25)
 			sz.append(lbl, halign="center")
 			sz.appendSpacer(5)
-			sz.append(self.lst, 1)
+			sz.append(self.lst, 4, halign="center")
+			if mult:
+				hsz = dabo.ui.dSizer("h")
+				btnAll = dabo.ui.dButton(self, Caption=_("Select All"),
+						OnHit=self.selectAll)
+				btnNone = dabo.ui.dButton(self, Caption=_("Unselect All"),
+						OnHit=self.unselectAll)
+				hsz.append(btnAll)
+				hsz.appendSpacer(8)
+				hsz.append(btnNone)
+				sz.appendSpacer(16)
+				sz.append(hsz, halign="center", border=20)
+				sz.appendSpacer(8)
+				sz.append(dabo.ui.dLine(self), "x", border=44,
+						borderSides=("left", "right"))
+			sz.appendSpacer(24)
+		
+		def selectAll(self, evt):
+			self.lst.selectAll()
+		
+		def unselectAll(self, evt):
+			self.lst.invertSelections()
+			
 			
 	dlg = ChoiceDialog(_getActiveForm())
 	dlg.show()
