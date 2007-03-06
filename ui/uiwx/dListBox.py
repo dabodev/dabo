@@ -27,8 +27,27 @@ class dListBox(dcm.dControlItemMixin, wx.ListBox):
 	def clearSelections(self):
 		for elem in self.GetSelections():
 			self.SetSelection(elem, False)
+	
+	
+	def selectAll(self):
+		if self.MultipleSelect:
+			for ii in xrange(self.Count):
+				self.SetSelection(ii)
+	
+	
+	def unselectAll(self):
+		self.clearSelections()
 
 		
+	def invertSelections(self):
+		"""Switch all the items from False to True, and vice-versa."""
+		for ii in xrange(self.Count):
+			if self.IsSelected(ii):
+				self.Deselect(ii)
+			else:
+				self.SetSelection(ii)
+		
+	
 	def _getMultipleSelect(self):
 		return self._hasWindowStyleFlag(wx.LB_EXTENDED)
 	def _setMultipleSelect(self, val):
