@@ -670,9 +670,13 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 						OnHit=self.selectAll)
 				btnNone = dabo.ui.dButton(self, Caption=_("Unselect All"),
 						OnHit=self.unselectAll)
+				btnInvert = dabo.ui.dButton(self, Caption=_("Invert Selection"),
+						OnHit=self.invertSelection)
 				hsz.append(btnAll)
 				hsz.appendSpacer(8)
 				hsz.append(btnNone)
+				hsz.appendSpacer(8)
+				hsz.append(btnInvert)
 				sz.appendSpacer(16)
 				sz.append(hsz, halign="center", border=20)
 				sz.appendSpacer(8)
@@ -684,8 +688,10 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 			self.lst.selectAll()
 		
 		def unselectAll(self, evt):
+			self.lst.unselectAll()
+		
+		def invertSelection(self, evt):
 			self.lst.invertSelections()
-			
 			
 	dlg = ChoiceDialog(_getActiveForm())
 	dlg.show()
