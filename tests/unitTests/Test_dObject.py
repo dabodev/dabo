@@ -18,6 +18,10 @@ class BaseTestdObject(unittest.TestCase):
 	"""Provides setup methods for the dObject TestCases"""
 	def setUp(self):
 		self.dObject = dObject()
+	
+	def setProperty(self, propertyInfo):
+		"""setProperty(self, (object.property, val))"""
+		exec("%s = %s" % propertyInfo)
 
 class TestApplicationProperty(BaseTestdObject):
 	"""
@@ -28,9 +32,7 @@ class TestApplicationProperty(BaseTestdObject):
 	
 	def testSetApplication(self):
 		"""Setting dObject.Application should fail"""
-		def setApplication(app):
-			self.dObject.Application = app
-		self.assertRaises(AttributeError, setApplication, 42)
+		self.assertRaises(AttributeError, self.setProperty, ("self.dObject.Application", "42"))
 	
 	def testGetApplication(self):
 		"""Getting dObject.Application should return a known application"""
@@ -46,9 +48,7 @@ class TestBaseClassProperty(BaseTestdObject):
 	"""
 	def testSetBaseClass(self):
 		"""Setting dObject.BaseClass should fail for all inputs"""
-		def setBaseClass(self):
-			self.dObject.BaseClass = 42
-		self.assertRaises(AttributeError, setBaseClass, 42)
+		self.assertRaises(AttributeError, self.setProperty, ("self.dObject.BaseClass", "42"))
 	
 	def testGetBaseClassNoSubclass(self):
 		"""Getting dObject.BaseClass should return None when not subclassed"""
@@ -73,9 +73,7 @@ class TestBasePrefKeyProperty(BaseTestdObject):
 	
 	def testBasePrefFailOnNonString(self):
 		"""setting dObject.BasePrefKey should fail if value is not a string"""
-		def setBasePrefKey(val):
-			self.dObject.BasePrefKey = val
-		self.assertRaises(TypeError, setBasePrefKey, 42)
+		self.assertRaises(TypeError, self.setProperty, ("self.dObject.BasePrefKey", "42"))
 
 class TestClassProperty(BaseTestdObject):
 	"""
@@ -87,9 +85,7 @@ class TestClassProperty(BaseTestdObject):
 	
 	def testSetClassShouldFail(self):
 		"""setting dObject.Class should fail for all inputs"""
-		def setClass(val):
-			self.dObject.Class = val
-		self.assertRaises(AttributeError, setClass, 42)
+		self.assertRaises(AttributeError, self.setProperty, ("self.dObject.Class", "42"))
 	
 	def testGetClassNoSubclass(self):
 		"""dObject.Class should return the dObject class when instansiated"""
@@ -108,12 +104,13 @@ class TestNameProperty(BaseTestdObject):
 		- Set dObject.Name to n.  dObject.Name should be equal to n. (round trip test)
 		- dObject.Name should return '?' if no name is assigned
 		- dObject.Name should fail when given a non-string input
+		- dObject.Name should fail when given an input with spaces
 	"""
 	
 	def testRoundTrip(self):
 		"""Set dObject.Name to n.  dObject.Name should be equal to n. (round trip test)"""
-		self.dObject.Name = "Test Name"
-		self.assertEqual("Test Name", self.dObject.Name)
+		self.dObject.Name = "TestName"
+		self.assertEqual("TestName", self.dObject.Name)
 	
 	def testNoNameSet(self):
 		"""dObject.Name should return '?' if no name is assigned"""
@@ -121,9 +118,11 @@ class TestNameProperty(BaseTestdObject):
 	
 	def testFailOnNonStringInput(self):
 		"""dObject.Name should fail when given a non-string input"""
-		def setName(val):
-			self.dObject.Name = val
-		self.assertRaises(TypeError, setName, 42)
+		self.assertRaises(TypeError, self.setProperty, ("self.dObject.Name", '42'))
+	
+	def testFailOnSpaceInput(self):
+		"""dObject.Name should fail when given an input with spaces"""
+		self.assertRaises(KeyError, self.setProperty, ("self.dObject.Name", '"Name With Spaces"'))
 
 class TestParentProperty(BaseTestdObject):
 	"""
@@ -159,12 +158,32 @@ class TestPreferenceManagerProperty(BaseTestdObject):
 	
 	def testSetFailOnNondPrefValue(self):
 		"""dObject.PreferenceManager should fail when set to an object not of type dPref"""
-		def setPreferenceManager(val):
-			self.dObject.PreferenceManager = val
-		self.assertRaises(TypeError, setPreferenceManager, 42)
+		self.assertRaises(TypeError, self.setProperty, ("self.dObject.PreferenceManager", "42"))
 	
 	#TODO: NEED A TEST HERE FOR INITIAL CONDITION
 
+class TestGetAbsoluteName(BaseTestdObject):
+	"""
+	Test List:
+		- When Parent is set to None, dObject.getAbsoluteName = dObject.Name
+		- dObject.getAbsoluteName should correctly add Parents to the dObject Name.
+	"""
+
+	def testParentIsNone(self):
+		"""When Parent is set to None, dObject.getAbsoluteName = dObject.Name"""
+		self.dObject.Name = "SomeName"
+		self.assertEqual(self.dObject.Name, self.dObject.getAbsoluteName())
+	
+	def testParentTree(self):
+		"""dObject.getAbsoluteName should correctly add Parents to the dObject Name."""
+		objectList = []
+		for x in range(10):
+			objectList.append(dObject())
+			objectList[x].Name = "Object%s" % (x,)
+			if x > 0:
+				objectList[x].Parent = objectList[x-1]
+		result = ".".join([object.Name for object in objectList])
+		self.assertEqual(result, objectList[-1].getAbsoluteName())
 
 #used for running this module bare without the test suite
 if __name__ == "__main__":
