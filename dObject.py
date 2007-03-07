@@ -296,14 +296,6 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		if not isinstance(val, dPref):
 			raise TypeError, 'PreferenceManager must be a dPref object'
 		self._preferenceManager = val
-
-
-	def _getSuperClass(self):
-		if self.BaseClass == self.Class:
-			# The superclass is lower down than Dabo, and useless to the user.
-			return None
-		else:
-			return self.__class__.__base__
 	
 
 	Application = property(_getApplication, None, None, 
@@ -337,9 +329,6 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 	PreferenceManager = property(_getPreferenceManager, _setPreferenceManager, None,
 			_("Reference to the Preference Management object  (dPref)"))
 	
-	SuperClass = property(_getSuperClass, None, None, 
-			_("The super class of the object. Read-only.  (class)"))
-
 
 if __name__ == "__main__":
 	d = dObject()
