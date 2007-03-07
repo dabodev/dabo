@@ -268,6 +268,8 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 	def _setName(self, val):
 		if not isinstance(val, types.StringTypes):
 			raise TypeError, 'Name must be a string.'
+		if not len(val.split()) == 1:
+			raise KeyError, 'Name must not contain any spaces'
 		self._name = val
 		
 		
