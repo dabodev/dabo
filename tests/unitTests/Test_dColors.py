@@ -129,6 +129,12 @@ class TestTupleHexConversion(unittest.TestCase):
 		"""tupleToHex should fail with more than 3 elements in the tuple"""
 		self.assertRaises(dColors.LengthError, dColors.tupleToHex, (1,1,1,1))
 	
+	def testTupleToHexNonIntegerInput(self):
+		"""tupleToHex should fail if anyone of the elements is a non-integer"""
+		self.assertRaises(dColors.IntegerTypeError, dColors.tupleToHex, ("string", 1, 1))
+		self.assertRaises(dColors.IntegerTypeError, dColors.tupleToHex, (1, "string", 1))
+		self.assertRaises(dColors.IntegerTypeError, dColors.tupleToHex, (1, 1, "string"))
+	
 	def testHexToTupleBadHexInput(self):
 		"""colorTupleFromHex should fail when a non-hex character is entered"""
 		self.assertRaises(dColors.InvalidCharError, dColors.colorTupleFromHex, "#$%uidkxb")
@@ -246,6 +252,7 @@ class TestColorTupleFromString(unittest.TestCase):
 		self.assertRaises(KeyError, dColors.colorTupleFromString, "(-1, 1, 1)")
 		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, -1, 1)")
 		self.assertRaises(KeyError, dColors.colorTupleFromString, "(1, 1, -1)")
+
 
 
 #used for running this module bare without the test suite

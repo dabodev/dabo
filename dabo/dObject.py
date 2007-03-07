@@ -230,10 +230,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 
 
 	def _getClass(self):
-		try:
-			return self.__class__
-		except AttributeError:
-			return None
+		return self.__class__
 
 
 	def _getLogEvents(self):
@@ -268,8 +265,10 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		except AttributeError:
 			return "?"
 	
-	def _setName(self, value):
-		self._name = str(value)
+	def _setName(self, val):
+		if not isinstance(val, types.StringTypes):
+			raise TypeError, 'Name must be a string.'
+		self._name = val
 		
 		
 	def _getParent(self):
@@ -294,6 +293,8 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		return ret
 
 	def _setPreferenceManager(self, val):
+		if not isinstance(val, dPref):
+			raise TypeError, 'PreferenceManager must be a dPref object'
 		self._preferenceManager = val
 
 

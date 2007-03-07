@@ -13,6 +13,8 @@ import sys
 coverage.erase()
 coverage.start()
 
+coverage.exclude('if __name__ == "__main__":')
+
 import dabo
 import db
 import biz
@@ -32,4 +34,4 @@ allTiersTestSuite = unittest.TestSuite(suiteList)
 unittest.TextTestRunner(verbosity=2).run(allTiersTestSuite)
 
 coverage.stop()
-coverage.report([dabo.dColors, dabo.dObject])
+coverage.report([dabo.dColors, dabo.dObject, dabo])

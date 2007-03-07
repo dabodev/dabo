@@ -102,6 +102,98 @@ class TestClassProperty(BaseTestdObject):
 		obj = a()
 		self.assertEqual(a, obj.Class)
 
+class TestNameProperty(BaseTestdObject):
+	"""
+	Test List:
+		- Set dObject.Name to n.  dObject.Name should be equal to n. (round trip test)
+		- dObject.Name should return '?' if no name is assigned
+		- dObject.Name should fail when given a non-string input
+	"""
+	
+	def testRoundTrip(self):
+		"""Set dObject.Name to n.  dObject.Name should be equal to n. (round trip test)"""
+		self.dObject.Name = "Test Name"
+		self.assertEqual("Test Name", self.dObject.Name)
+	
+	def testNoNameSet(self):
+		"""dObject.Name should return '?' if no name is assigned"""
+		self.assertEqual('?', self.dObject.Name)
+	
+	def testFailOnNonStringInput(self):
+		"""dObject.Name should fail when given a non-string input"""
+		def setName(val):
+			self.dObject.Name = val
+		self.assertRaises(TypeError, setName, 42)
+
+class TestParentProperty(BaseTestdObject):
+	"""
+	Test List:
+		- Set dObject.Parent to n. dObject.Parent should be equal to n. (round trip test)
+		- dObject.Parent should return None if there is no parent
+	"""
+	
+	def testRoundTrip(self):
+		"""Set dObject.Parent to n. dObject.Parent should be equal to n. (round trip test)"""
+		test = dObject()
+		test.Parent = self.dObject
+		self.assertEqual(test.Parent, self.dObject)
+	
+	def testNoParentSet(self):
+		"""dObject.Parent should return None if there is no parent"""
+		self.assertEqual(self.dObject.Parent, None)
+
+class TestPreferenceManagerProperty(BaseTestdObject):
+	"""
+	Test List:
+		- Set dObject.PreferenceManager to n. dObject.PreferenceManagier should be equal to n. (round trip test)
+		- dObject.PreferenceManager should fail when set to an object not of type dPref
+		- initial conditon test???
+	"""
+	
+	def testRoundTrip(self):
+		"""Set dObject.PreferenceManager to n. dObject.PreferenceManagier should be equal to n. (round trip test)"""
+		from dabo.dPref import dPref
+		testDPref = dPref()
+		self.dObject.PreferenceManager = testDPref
+		self.assertEqual(testDPref, self.dObject.PreferenceManager)
+	
+	def testSetFailOnNondPrefValue(self):
+		"""dObject.PreferenceManager should fail when set to an object not of type dPref"""
+		def setPreferenceManager(val):
+			self.dObject.PreferenceManager = val
+		self.assertRaises(TypeError, setPreferenceManager, 42)
+	
+	#TODO: NEED A TEST HERE FOR INITIAL CONDITION
+
+class TestSuperClassProperty(BaseTestdObject):
+	"""
+	Test List:
+		- Set dObject.SuperClass should fail with any input
+		- a.SuperClass should return class Dummy when a = dObject()
+		- a.SuperClass should return class dObject when a = someObject and someObject subclasses dObject
+	"""
+	
+	def testSetAlwaysFails(self):
+		"""Set dObject.SuperClass should fail with any input"""
+		def setSuperClass(val):
+			self.dObject.SuperClass = val
+		self.assertRaises(AttributeError, setSuperClass, 42)
+		self.assertRaises(AttributeError, setSuperClass, "string")
+		self.assertRaises(AttributeError, setSuperClass, ("tuple", 12, 23))
+		self.assertRaises(AttributeError, setSuperClass, dObject)
+		self.assertRaises(AttributeError, setSuperClass, Dummy)
+	
+	def testGetNoSubclass(self):
+		"""a.SuperClass should return class Dummy when a = dObject()"""
+		self.assertEqual(Dummy, self.dObject.SuperClass)
+	
+	def testGetWithSubclass(self):
+		"""a.SuperClass should return class dObject when a = someObject and someObject subclasses dObject"""
+		class someObject(dObject):
+			pass
+		a = someObject()
+		self.assertEqual(dObject, a.SuperClass)
+
 
 #used for running this module bare without the test suite
 if __name__ == "__main__":
