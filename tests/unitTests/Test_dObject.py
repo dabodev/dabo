@@ -165,35 +165,6 @@ class TestPreferenceManagerProperty(BaseTestdObject):
 	
 	#TODO: NEED A TEST HERE FOR INITIAL CONDITION
 
-class TestSuperClassProperty(BaseTestdObject):
-	"""
-	Test List:
-		- Set dObject.SuperClass should fail with any input
-		- a.SuperClass should return class Dummy when a = dObject()
-		- a.SuperClass should return class dObject when a = someObject and someObject subclasses dObject
-	"""
-	
-	def testSetAlwaysFails(self):
-		"""Set dObject.SuperClass should fail with any input"""
-		def setSuperClass(val):
-			self.dObject.SuperClass = val
-		self.assertRaises(AttributeError, setSuperClass, 42)
-		self.assertRaises(AttributeError, setSuperClass, "string")
-		self.assertRaises(AttributeError, setSuperClass, ("tuple", 12, 23))
-		self.assertRaises(AttributeError, setSuperClass, dObject)
-		self.assertRaises(AttributeError, setSuperClass, Dummy)
-	
-	def testGetNoSubclass(self):
-		"""a.SuperClass should return class Dummy when a = dObject()"""
-		self.assertEqual(Dummy, self.dObject.SuperClass)
-	
-	def testGetWithSubclass(self):
-		"""a.SuperClass should return class dObject when a = someObject and someObject subclasses dObject"""
-		class someObject(dObject):
-			pass
-		a = someObject()
-		self.assertEqual(dObject, a.SuperClass)
-
 
 #used for running this module bare without the test suite
 if __name__ == "__main__":
