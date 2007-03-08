@@ -1,4 +1,3 @@
-
 class dException(StandardError):
 	"""	Base class in the framework for passing exceptions."""
 	
@@ -20,6 +19,14 @@ class QueryException(dException):
 
 
 class BusinessRuleViolation(dException):
+	pass
+	
+
+class FeatureNotImplementedException(dException):
+	pass
+	
+
+class FeatureNotSupportedException(dException):
 	pass
 
 
