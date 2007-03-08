@@ -1801,7 +1801,14 @@ class dPemMixin(dPemMixinBase):
 
 	def _setFontFace(self, val):
 		if self._constructed():
-			self.Font.Face = val
+			if val in dabo.ui.getAvailableFonts():
+				try:
+					self.Font.Face = val
+				except dabo.ui.assertionException:
+					dabo.errorLog.write(_("Could not set the FontFace for %s to '%s'.") % (self.Name, val))
+			else:
+				dabo.errorLog.write(_("The FontFace '%s' does not exist on this system.") % val)
+
 		else:
 			self._properties["FontFace"] = val
 
