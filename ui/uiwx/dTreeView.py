@@ -83,7 +83,11 @@ class dNode(dObject):
 	
 
 	def _getCap(self):
-		return self.tree.GetItemText(self.itemID)
+		try:
+			ret = self.tree.GetItemText(self.itemID)
+		except dabo.ui.assertionException:
+			ret = ""
+		return ret
 		
 	def _setCap(self, val):
 		self.tree.SetItemText(self.itemID, val)
