@@ -7,6 +7,7 @@ import dMenu
 import dabo.icons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
+import dabo.dException as dException
 from dabo.lib.xmltodict import xmltodict as XTD
 from dabo.lib.utils import dictStringify
 from dabo.ui import makeDynamicProperty
@@ -63,6 +64,8 @@ class dFormMixin(pm.dPemMixin):
 		# Default behavior used to be for the form to set the status bar text with the 
 		# current record position. Now we only turn it on for data apps.
 		self._autoUpdateStatusText = False
+		# Flag to denote temporary forms
+		self._tempForm = False
 
 		super(dFormMixin, self).__init__(preClass, parent, properties, 
 				attProperties, *args, **kwargs)
@@ -261,9 +264,13 @@ class dFormMixin(pm.dPemMixin):
 	def showModal(self):
 		"""Shows the form in a modal fashion. Other forms can still be
 		activated, but all controls are disabled.
+		NOTE: wxPython does not currently support this. DO NOT USE 
+		this method.
 		"""
-		self.MakeModal(True)
-		self._isModal = self.Visible = True
+		raise dException.FeatureNotSupportedException, \
+				_("The underlying UI toolkit does not support modal forms. Use a dDialog instead.")
+		#self.MakeModal(True)
+		#self._isModal = self.Visible = True
 		
 		
 	def release(self):
@@ -397,7 +404,7 @@ class dFormMixin(pm.dPemMixin):
 		""" Save the current size and position of this form.
 		"""
 		if self.Application:
-			if self.SaveRestorePosition:
+			if self.SaveRestorePosition and not self.TempForm:
 				name = self.getAbsoluteName()
 				state = self.WindowState
 				self.Application.setUserSetting("%s.windowstate" % name, state)
@@ -791,6 +798,16 @@ class dFormMixin(pm.dPemMixin):
 			self._addWindowStyleFlag(wx.STAY_ON_TOP)
 
 
+	def _getTempForm(self):
+		return self._tempForm
+
+	def _setTempForm(self, val):
+		if self._constructed():
+			self._tempForm = val
+		else:
+			self._properties["TempForm"] = val
+
+
 	def _getTinyTitleBar(self):
 		return self._hasWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
 		
@@ -942,6 +959,10 @@ class dFormMixin(pm.dPemMixin):
 	StayOnTop = property(_getStayOnTop, _setStayOnTop, None,
 			_("Keeps the form on top of all other forms. (bool)"))
 
+	TempForm = property(_getTempForm, _setTempForm, None,
+			_("""Used to indicate that this is a temporary form, and that its settings
+			should not be persisted. Default=False  (bool)"""))
+	
 	TinyTitleBar = property(_getTinyTitleBar, _setTinyTitleBar, None,
 			_("Specifies whether the title bar is small, like a tool window. (bool)."))
 
