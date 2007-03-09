@@ -20,7 +20,7 @@ class dFormMainBase(fm.dFormMixin):
 
 	def _beforeClose(self, evt=None):
 		forms2close = [frm for frm in self.Application.uiForms
-				if frm is not self]
+				if frm is not self and not isinstance(frm, dabo.ui.deadObject)]
 		while forms2close:
 			frm = forms2close[0]
 			# This will allow forms to veto closing (i.e., user doesn't
