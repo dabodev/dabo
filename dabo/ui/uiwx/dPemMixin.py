@@ -1907,7 +1907,33 @@ class dPemMixin(dPemMixinBase):
 	
 	def _setMousePointer(self, val):
 		if self._constructed():
-			self.SetCursor(val)
+			if isinstance(val, basestring):
+				# Name of a cursor. This can be either the full names, such
+				# as 'Cursor_Bullseye', or just 'Bullseye'. It could also be a sizing
+				# direction, such as 'NWSE'.
+				uic = dabo.ui.dUICursors
+				try:
+					crsName = eval("uic.%s" % val)
+				except AttributeError:
+					# Try prepending the appropriate string
+					if val.upper() in ("NWSE", "NESW", "NS", "WE"):
+						prfx = "Cursor_Size_"
+					else:
+						prfx = "Cursor_"
+					try:
+						crsName = eval("uic.%s%s" % (prfx, val))
+					except AttributeError:
+						# Try munging the case
+						valTitle = "_".join([pt.title() for pt in val.split("_")])
+						try:
+							crsName = eval("uic.%s%s" % (prfx, valTitle))
+						except AttributeError:
+							dabo.errorLog.write(_("Invalid MousePointer value: '%s'") % val)
+							return
+				crs = uic.getStockCursor(crsName)
+			else:
+				crs = val						
+			self.SetCursor(crs)
 		else:
 			self._properties["MousePointer"] = val
 
