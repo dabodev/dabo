@@ -7,6 +7,7 @@ import dabo
 from dabo.dLocalize import _
 from dabo.ui.dPemMixinBase import dPemMixinBase
 import dabo.dEvents as dEvents
+import dabo.dException as dException
 import dabo.dColors as dColors
 import dKeys
 from dabo.dObject import dObject
@@ -588,16 +589,14 @@ class dPemMixin(dPemMixinBase):
 	def __onWxPaint(self, evt):
 		if self._finito:
 			return
-		elif len(self._drawnObjects) > 0:
-			self._needRedraw = True
+		self._needRedraw = bool(self._drawnObjects)
 		self.raiseEvent(dEvents.Paint, evt)
 	
 
 	def __onWxResize(self, evt):
 		if self._finito:
 			return
-		elif len(self._drawnObjects) > 0:
-			self._needRedraw = True
+		self._needRedraw = bool(self._drawnObjects)
 		self.raiseEvent(dEvents.Resize, evt)
 
 
@@ -1042,14 +1041,20 @@ class dPemMixin(dPemMixinBase):
 		except AttributeError:
 			ok = False
 		if ok:
-			fnc(*args, **kwargs)
-		if isinstance(self, dabo.ui.dGrid):
-			kids = self.Columns
-		else:
-			kids = self.Children
-		for kid in kids:
-			if hasattr(kid, "iterateCall"):
-				kid.iterateCall(funcName, *args, **kwargs)
+			try:
+				fnc(*args, **kwargs)
+			except dException.StopIterationException:
+				# This is raised when the object does not want to pass
+				# the iteration on through its Children.
+				ok = False
+		if ok:
+			if isinstance(self, dabo.ui.dGrid):
+				kids = self.Columns
+			else:
+				kids = self.Children
+			for kid in kids:
+				if hasattr(kid, "iterateCall"):
+					kid.iterateCall(funcName, *args, **kwargs)
 
 	
 	# These three functions are essentially a single unit that provides for font size mods.
