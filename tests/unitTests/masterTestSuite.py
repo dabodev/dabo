@@ -16,6 +16,8 @@ coverage.start()
 coverage.exclude('if __name__ == "__main__":')
 
 import dabo
+dabo.ui.loadUI('wx')
+
 import db
 import biz
 import lib
@@ -34,4 +36,6 @@ allTiersTestSuite = unittest.TestSuite(suiteList)
 unittest.TextTestRunner(verbosity=2).run(allTiersTestSuite)
 
 coverage.stop()
-coverage.report([dabo.dColors, dabo.dObject, dabo])
+#You can uncomment this to get test coverage on a particular module, but if you want to
+#see the entire report for dabo, run "python CoverageReport.py".  I would pipe it to a file though
+#coverage.report([dabo.dColors, dabo.dObject, dabo])

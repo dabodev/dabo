@@ -15,9 +15,5 @@ import unittest
 class TestCaseSample(unittest.TestCase):
 	pass
 
-def suite():
-	classList = [TestCaseSample]
-	return unittest.TestSuite(classList)
-
 if __name__ == "__main__":
 	unittest.main()
