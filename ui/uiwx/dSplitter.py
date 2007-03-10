@@ -355,6 +355,24 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		self._panelClass = val
 		
 
+	def _getSashPercent(self):
+		pos = self._getSashPosition()
+		sz = {"V": self.Width, "H": self.Height}[self.Orientation[0]]
+		if sz:
+			ret = 100 * (float(pos) / float(sz))
+		else:
+			ret = 0
+		return ret
+
+	def _setSashPercent(self, val):
+		if self._constructed():
+			if 0 <= val <= 100:
+				sz = {"V": self.Width, "H": self.Height}[self.Orientation[0]]
+				self._setSashPosition(sz * (val/100.0))
+		else:
+			self._properties["SashPercent"] = val
+
+
 	def _getSashPosition(self):
 		if self.IsSplit():
 			self._sashPos = self.GetSashPosition()
@@ -414,6 +432,9 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 			no effect unless you destroy the panels and re-create them.  
 			Default=dPanel  (dPanel)"""))
 			
+	SashPercent = property(_getSashPercent, _setSashPercent, None,
+			_("Percentage of the split window given to Panel1. Range=0-100  (float)"))
+	
 	SashPosition = property(_getSashPosition, _setSashPosition, None,
 			_("Position of the sash when the window is split.  (int)"))
 
