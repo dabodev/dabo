@@ -28,6 +28,8 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		self._lastDataType = unicode
 		self._forceCase = None
 		self._inForceCase = False
+		self._textLength = None
+		self._inTextLength = False
 
 		preClass = wx.PreTextCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, 
@@ -213,7 +215,29 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		if keyChar is not None and (keyChar.isalnum() 
 				or keyChar in """,./<>?;':"[]\\{}|`~!@#$%%^&*()-_=+"""):
 			dabo.ui.callAfter(self.__forceCase)
+			dabo.ui.callAfter(self.__textLength)
+	
+	def __textLength(self):
+		"""If the TextLength property is set, checks the current value of the control
+		and truncates it if too long"""
+		if not isinstance(self.Value, basestring):
+			#Don't bother if it isn't a string type
+			return
+		length = self.TextLength
+		if not length:
+			return
 		
+		insPos = self.InsertionPosition
+		
+		self._inTextLength = True
+		if len(self.Value) > length:
+			self.Value = self.Value[:length]
+			if insPos > length:
+				self.InsertionPosition = length
+			else:
+				self.InsertionPosition = insPos
+			self.refresh()
+		self._inTextLength = False
 	
 	def __forceCase(self):
 		"""If the ForceCase property is set, casts the current value of the control
@@ -284,7 +308,7 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 					"None": None}.get(valKey)
 			self.__forceCase()
 			self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
-			if self._forceCase:
+			if self._forceCase or self._textLength:
 				self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
 		else:
 			self._properties["ForceCase"] = val
@@ -370,6 +394,24 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		self._strictDateEntry = bool(val)
 
 
+	def _getTextLength(self):
+		return self._textLength
+
+	def _setTextLength(self, val):
+		if val == None:
+			self._textLength = None
+		else:
+			val = int(val)
+			if val < 1:
+				raise ValueError, 'TextLength must be a positve Integer'
+			self._textLength = val
+		self.__textLength()
+		
+		self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
+		if self._forceCase or self._textLength:
+			self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
+
+
 	def _getValue(self):
 		# Return the value as reported by wx, but convert it to the data type as
 		# reported by self._value.
@@ -420,7 +462,7 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 				return
 			else:
 				dabo.ui.callAfter(self.__forceCase)
-		
+			
 			strVal = self.getStringValue(val)
 			_oldVal = self._oldVal = self.Value
 				
@@ -439,6 +481,8 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 				self._afterValueChanged()
 		else:
 			self._properties["Value"] = val
+		
+		self.__textLength()
 
 		
 	# Property definitions:
@@ -487,6 +531,9 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 
 			If not strict, dates can be accepted in YYYYMMDD, YYMMDD, and MMDD format,
 			which will be coerced into sensible date values automatically."""))
+	
+	TextLength = property(_getTextLength, _setTextLength, None,
+			_("""The maximum length the entered text can be. (int)"""))
 
 	Value = property(_getValue, _setValue, None,
 			_("Specifies the current state of the control (the value of the field). (varies)"))
