@@ -307,6 +307,7 @@ def flattenClassDict(cd, retDict=None):
 	if retDict is None:
 		retDict = {}
 	atts = cd.get("attributes", {})
+	props = cd.get("properties", {})
 	kids = cd.get("children", [])
 	code = cd.get("code", {})
 	classID = atts.get("classID", "")
@@ -322,10 +323,12 @@ def flattenClassDict(cd, retDict=None):
 			# Get the class info
 			classCD = xmltodict(classFile, addCodeFile=True)
 			classAtts = classCD.get("attributes", {})
+			classProps = classCD.get("properties", {})
 			classCode = classCD.get("code", {})
 			classKids = classCD.get("children", [])
 			currDict = retDict.get(classID, {})
-			retDict[classID] = {"attributes": classAtts, "code": classCode}
+			retDict[classID] = {"attributes": classAtts, "code": classCode, 
+					"properties": classProps}
 			retDict[classID].update(currDict)
 			# Now update the child objects in the dict
 			for kid in classKids:
@@ -333,7 +336,8 @@ def flattenClassDict(cd, retDict=None):
 		else:
 			# Not a file; most likely just a component in another class
 			currDict = retDict.get(classID, {})
-			retDict[classID] = {"attributes": atts, "code": code}
+			retDict[classID] = {"attributes": atts, "code": code, 
+					"properties": props}
 			retDict[classID].update(currDict)
 	if kids:
 		for kid in kids:
@@ -348,13 +352,16 @@ def addInheritedInfo(src, super, updateCode=False):
 	object's code
 	"""
 	atts = src.get("attributes", {})
+	props = src.get("properties", {})
 	kids = src.get("children", [])
 	code = src.get("code", {})
 	classID = atts.get("classID", "")
 	if classID:
-		superInfo = super.get(classID, {"attributes": {}, "code": {}})
+		superInfo = super.get(classID, {"attributes": {}, "code": {}, "properties": {}})
 		src["attributes"] = superInfo["attributes"].copy()
 		src["attributes"].update(atts)
+		src["properties"] = superInfo.get("properties", {}).copy()
+		src["properties"].update(props)
 		if updateCode:
 			src["code"] = superInfo["code"].copy()
 			src["code"].update(code)
