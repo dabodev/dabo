@@ -25,6 +25,7 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 			try:
 				prnt = box
 				box = dabo.ui.dBox(prnt)
+				box.sendToBack()
 			except:
 				raise dException.dException, "Must pass an instance of dBox or a parent object to dBorderSizer"
 		# Convert Dabo orientation to wx orientation
