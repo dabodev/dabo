@@ -520,7 +520,7 @@ class Form(dabo.ui.dForm):
 		self.RelationSpecs = self.parseXML(xml, "Relation")
 		primaryBizobj = self.PrimaryBizobj
 		# This will make sure all relations and sub-relations are set.
-		newBizobjs = primaryBizobj.addChildByRelationDict(self.RelationSpecs, 
+		newBizobjs = primaryBizobj._addChildByRelationDict(self.RelationSpecs, 
 				bizModule)
 		# If we added any bizobjs, add them to the form's collection, too
 		for biz in newBizobjs:

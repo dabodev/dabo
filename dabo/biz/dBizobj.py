@@ -64,7 +64,7 @@ class dBizobj(dObject):
 		# Used by the LinkField property
 		self._linkField = ""
 		self._parentLinkField = ""
-		# Used the the addChildByRelationDict() method to eliminate infinite loops
+		# Used the the _addChildByRelationDict() method to eliminate infinite loops
 		self.__relationDictSet = False
 		# Do we try to same on the same record during a requery?
 		self._restorePositionOnRequery = True
@@ -1044,16 +1044,8 @@ class dBizobj(dObject):
 			child.Parent = self
 
 
-	def addChildByRelationDict(self, dict, bizModule):
-		""" Accepts a dictionary containing relationship information
-		If any of the entries pertain to this bizobj, it will check to make
-		sure that the child bizobj is already added, or add it and set the
-		relationship if it isn't. It then passes the dict on to the child to
-		allow the child to set up its relationships.
-
-		Returns a list containing all added child bizobjs. The list will
-		be empty if none were added.
-		"""
+	def _addChildByRelationDict(self, dict, bizModule):
+		""" Deprecated; used in old datanav framework."""
 		addedChildren = []
 		if self.__relationDictSet:
 			# already done this...
