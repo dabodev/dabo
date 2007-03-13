@@ -31,12 +31,10 @@ class dBizobj(dObject):
 		self._defaultValues = {}
 
 		self._beforeInit()
-		self._conn = conn
-
-		cn = self._conn
-		if cn:
+		cf = self._cursorFactory = conn
+		if cf:
 			# Base cursor class : the cursor class from the db api
-			self.dbapiCursorClass = cn.getDictCursorClass()
+			self.dbapiCursorClass = cf.getDictCursorClass()
 
 			# If there are any problems in the createCursor process, an
 			# exception will be raised in that method.
@@ -53,7 +51,7 @@ class dBizobj(dObject):
 	def _beforeInit(self):
 		# Cursor to manage SQL Builder info.
 		self._sqlMgrCursor = None
-		self._conn = None
+		self._cursorFactory = None
 		self.__params = ()		# tuple of params to be merged with the sql in the cursor
 		self.__children = []		# Collection of child bizobjs
 		self._baseClass = dBizobj
@@ -108,12 +106,12 @@ class dBizobj(dObject):
 		will allow you to run those queries, get the results, and then dispose
 		of the cursor.
 		"""
-		cn = self._conn
+		cf = self._cursorFactory
 		cursorClass = self._getCursorClass(self.dCursorMixinClass,
 				self.dbapiCursorClass)
-		crs = cn.getCursor(cursorClass)
-		crs.BackendObject = cn.getBackendObject()
-		crs.setCursorFactory(cn.getCursor, cursorClass)
+		crs = cf.getCursor(cursorClass)
+		crs.BackendObject = cf.getBackendObject()
+		crs.setCursorFactory(cf.getCursor, cursorClass)
 		return crs
 		
 
@@ -144,9 +142,9 @@ class dBizobj(dObject):
 		if key is None:
 			key = self.__currentCursorKey
 
-		cn = self._conn
-		self.__cursors[key] = cn.getCursor(cursorClass)
-		self.__cursors[key].setCursorFactory(cn.getCursor, cursorClass)
+		cf = self._cursorFactory
+		self.__cursors[key] = cf.getCursor(cursorClass)
+		self.__cursors[key].setCursorFactory(cf.getCursor, cursorClass)
 
 		crs = self.__cursors[key]
 		if _dataStructure is not None:
@@ -156,7 +154,7 @@ class dBizobj(dObject):
 		crs.Table = self.DataSource
 		crs.AutoPopulatePK = self.AutoPopulatePK
 		crs.AutoQuoteNames = self.AutoQuoteNames
-		crs.BackendObject = cn.getBackendObject()
+		crs.BackendObject = cf.getBackendObject()
 		crs.sqlManager = self.SqlManager
 		crs.AutoCommit = self.AutoCommit
 		crs._bizobj = self
@@ -1081,11 +1079,11 @@ class dBizobj(dObject):
 					childBizClass = None
 					for candidate, candidateClass in bizModule.__dict__.items():
 						if type(candidateClass) == type:
-							candidateInstance = candidateClass(self._conn)
+							candidateInstance = candidateClass(self._cursorFactory)
 							if candidateInstance.DataSource.lower() == target.lower():
 								childBizClass = candidateClass
 
-					childBiz = childBizClass(self._conn)
+					childBiz = childBizClass(self._cursorFactory)
 					self.addChild(childBiz)
 					addedChildren.append(childBiz)
 					childBiz.LinkField = targetField
@@ -1678,14 +1676,14 @@ class dBizobj(dObject):
 		if self._sqlMgrCursor is None:
 			cursorClass = self._getCursorClass(self.dCursorMixinClass,
 					self.dbapiCursorClass)
-			cn = self._conn
-			crs = self._sqlMgrCursor = cn.getCursor(cursorClass)
-			crs.setCursorFactory(cn.getCursor, cursorClass)
+			cf = self._cursorFactory
+			crs = self._sqlMgrCursor = cf.getCursor(cursorClass)
+			crs.setCursorFactory(cf.getCursor, cursorClass)
 			crs.KeyField = self.KeyField
 			crs.Table = self.DataSource
 			crs.AutoPopulatePK = self.AutoPopulatePK
 			crs.AutoQuoteNames = self.AutoQuoteNames
-			crs.BackendObject = cn.getBackendObject()
+			crs.BackendObject = cf.getBackendObject()
 		return self._sqlMgrCursor
 
 
