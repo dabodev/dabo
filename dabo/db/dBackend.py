@@ -14,15 +14,9 @@ except ImportError:
 	decimal = None
 
 
-_matchFieldClause = re.compile("^(?P<whitespace_before>[ |\t]*)" \
-		"(?P<table_name>[a-zA-Z0-9_]*)\.(?P<field_name>[a-zA-Z0-9_]*)" \
-		"(?P<whitespace_before_as>[ |\t]*)[aA][sS](?P<whitespace_before_alias>[ |\t]*)" \
-		"(?P<alias>[a-zA-Z0-9_]*)")
-
 
 class dBackend(dObject):
 	""" Abstract object: inherit from this to define new dabo db interfaces."""
-
 	# Pattern for determining if a function is present in a string
 	functionPat = re.compile(r".*\([^\)]+\)")
 	# When enclosing table or field names that contain spaces, what
@@ -251,38 +245,25 @@ class dBackend(dObject):
 		autoQuote is False, in which case it leaves things untouched.
 		"""
 		if autoQuote:
+			# First separate any alias structures, e.g., 'foo as bar'.
+			parts = re.split(r"\s+as\s+", exp)
 			delim = self.nameEnclosureChar
-			qtd = [delim + pt + delim for pt in exp.split(".") if pt]
-			return ".".join(qtd)
+			def encPart(part):
+				qtd = [delim + pt + delim for pt in part.split(".") if pt]
+				return ".".join(qtd)
+			exp = " as ".join([encPart(pt) for pt in parts])
 		return exp
 	
 	
 	def addField(self, clause, exp, alias=None, autoQuote=True):
 		""" Add a field to the field clause."""
-
 		indent = len("select ") * " "
-		whitespace_before_as = " "
-		whitespace_before_alias = " "
-
-		if alias is None:
-			# Caller sent the exp but not the alias. Alias could be part of exp. 
-			# Preserve the spacing if possible. Currently the regex will only match 
-			# clauses like "customers.name as customer_name" (full table, field, alias).
-			m = _matchFieldClause.match(exp)
-			if m:
-				sectionDict = m.groupdict()
-				alias = sectionDict["alias"]
-				exp = "%(table_name)s.%(field_name)s" % sectionDict
-				indent = sectionDict["whitespace_before"] + indent
-				whitespace_before_as = sectionDict["whitespace_before_as"]
-				whitespace_before_alias = sectionDict["whitespace_before_alias"]
-
 		# If exp is a function, don't do anything special about spaces.
 		if not self.functionPat.match(exp):
 			exp = self.encloseNames(exp, autoQuote=autoQuote)
 		if alias:
 			alias = self.encloseNames(alias, autoQuote=autoQuote)
-			exp = "%(exp)s%(whitespace_before_as)sas%(whitespace_before_alias)s%(alias)s" % locals()
+			exp = "%(exp)s as %(alias)s" % locals()
 		# Give the backend-specific code a chance to update the format
 		exp = self.processFields(exp)
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
