@@ -28,6 +28,10 @@ class dSizer(dSizerMixin.dSizerMixin, wx.BoxSizer):
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
 		self.setProperties(properties)
+		
+		if kwargs:
+			bad = ", ".join(kwargs.keys())
+			dabo.errorLog.write(("Invalid keyword arguments passed to dSizer: %s") % bad)
 
 		self.afterInit()
 

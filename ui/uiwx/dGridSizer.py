@@ -40,12 +40,12 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		# Keep track of which rows/cols are set to expand.
 		self._rowExpandState = {}
 		self._colExpandState = {}
-		
 
 		for k,v in kwargs.items():
 			try:
 				exec("self.%s = %s" % (k,v))
-			except: pass
+			except:
+				dabo.errorLog.write(("Invalid keyword argument passed to dGridSizer: %s") % k)
 
 
 	def append(self, item, layout="normal", row=-1, col=-1, 
