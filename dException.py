@@ -24,6 +24,10 @@ class BusinessRuleViolation(dException):
 
 class FeatureNotImplementedException(dException):
 	pass
+
+
+class StopIterationException(dException):
+	pass
 	
 
 class FeatureNotSupportedException(dException):
