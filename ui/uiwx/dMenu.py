@@ -454,7 +454,9 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def _getForm(self):
-		return self.Parent.Form
+		if self.Parent:
+			return self.Parent.Form
+		return None
 
 
 	def _getHelpText(self):
