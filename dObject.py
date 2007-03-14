@@ -58,7 +58,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		if kwargs:
 			# Some kwargs haven't been handled.
 			bad = ", ".join(["'%s'" % kk for kk in kwargs.keys()])
-			raise TypeError, ("Invalid keyword arguments passed to %s: %s") % (self.BaseClassDisplay, bad)
+			raise TypeError, ("Invalid keyword arguments passed to %s: %s") % (self.__repr__(), bad)
 
 		if self._call_afterInit:
 			self._afterInit()
