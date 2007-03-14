@@ -48,6 +48,9 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 		properties = self._extractKeywordProperties(kwargs, self._properties)
 		self.setProperties(properties)
 		
+		if kwargs:
+			dabo.errorLog.write(("Invalid keyword arguments passed to dBorderSizer: %s") % kwargs)
+		
 		# Mark the box as part of the sizer
 		self.Box._belongsToBorderSizer = True
 
