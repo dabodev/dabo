@@ -297,7 +297,7 @@ class Form(dabo.ui.dForm):
 		sql = self.PrimaryBizobj.LastSQL
 		if sql is None:
 			sql = "-Nothing executed yet-"
-		dlg = dabo.ui.dDialog(self, Caption=_("Last SQL"))
+		dlg = dabo.ui.dDialog(self, Caption=_("Last SQL"), SaveRestorePosition=True)
 		eb = dlg.addObject(dabo.ui.dEditBox, ReadOnly=True, Value=sql, 
 				Size=(400, 400))
 		for ff in ["Monospace", "Monaco", "Courier New"]:
