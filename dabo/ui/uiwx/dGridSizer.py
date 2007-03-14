@@ -45,7 +45,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 			try:
 				exec("self.%s = %s" % (k,v))
 			except:
-				dabo.errorLog.write(("Invalid keyword argument passed to dGridSizer: %s") % k)
+				raise TypeError, ("Invalid keyword argument passed to dGridSizer: %s") % k
 
 
 	def append(self, item, layout="normal", row=-1, col=-1, 
