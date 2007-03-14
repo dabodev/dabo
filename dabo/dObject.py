@@ -33,6 +33,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 	_call_beforeInit, _call_afterInit, _call_initProperties = True, True, True
 
 	def __init__(self, properties=None, *args, **kwargs):
+		self._baseClassDisplay = None
 		self._properties = {}
 		if self._call_beforeInit:
 			self._beforeInit()
@@ -52,9 +53,14 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 			for k,v in properties.items():
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
+# 		if kwargs:
+# 			# Some kwargs haven't been handled.
+# 			raise TypeError, _("__init__() got an unexpected keyword argument '%s'") % kwargs.keys()[0]
 		if kwargs:
 			# Some kwargs haven't been handled.
-			raise TypeError, _("__init__() got an unexpected keyword argument '%s'") % kwargs.keys()[0]
+			bad = ", ".join(["'%s'" % kk for kk in kwargs.keys()])
+			raise TypeError, ("Invalid keyword arguments passed to %s: %s") % (self.BaseClassDisplay, bad)
+
 		if self._call_afterInit:
 			self._afterInit()
 		self.setProperties(properties)
@@ -64,6 +70,15 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		EventMixin.__init__(self)		
 
 
+	def __repr__(self):
+		classname = self._getBaseClassDisplay()
+		try:
+			ret = "%s (%s)" % (self.Name, classname)
+		except:
+			ret = classname
+		return ret
+		
+		
 	def beforeInit(self, *args, **kwargs):
 		""" Subclass hook. Called before the object is fully instantiated.
 		Usually, user code should override afterInit() instead, but there may be
@@ -212,6 +227,20 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 			return None
 
 		
+	def _getBaseClassDisplay(self):
+		"""If the underlying _baseClassDisplay attribute is not set, 
+		parse the string representation of the BaseClass to get the
+		appropriate string.
+		"""
+		if self._baseClassDisplay is None:
+			bc = self.BaseClass
+			if bc is None:
+				bc = self.__class__
+			strval = "%s" % bc
+			self._baseClassDisplay = strval.split("'")[1]
+		return self._baseClassDisplay
+
+		
 	def _getBasePrefKey(self):
 		try:
 			ret = self._basePrefKey
@@ -305,6 +334,9 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 	
 	BaseClass = property(_getBaseClass, None, None, 
 			_("The base Dabo class of the object. Read-only.  (class)"))
+	
+	BaseClassDisplay = property(_getBaseClassDisplay, None, None, 
+			_("The human-readable string representing the BaseClass. Read-only.  (str)"))
 	
 	BasePrefKey = property(_getBasePrefKey, _setBasePrefKey, None,
 			_("Base key used when saving/restoring preferences  (str)"))
