@@ -33,7 +33,6 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 	_call_beforeInit, _call_afterInit, _call_initProperties = True, True, True
 
 	def __init__(self, properties=None, *args, **kwargs):
-		self._baseClassDisplay = None
 		self._properties = {}
 		if self._call_beforeInit:
 			self._beforeInit()
@@ -71,14 +70,18 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 
 
 	def __repr__(self):
-		classname = self._getBaseClassDisplay()
+		bc = self.BaseClass
+		if bc is None:
+			bc = self.__class__
+		strval = "%s" % bc
+		classname = strval.split("'")[1]
 		try:
 			ret = "%s (%s)" % (self.Name, classname)
 		except:
 			ret = classname
 		return ret
-		
-		
+
+
 	def beforeInit(self, *args, **kwargs):
 		""" Subclass hook. Called before the object is fully instantiated.
 		Usually, user code should override afterInit() instead, but there may be
@@ -227,20 +230,6 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 			return None
 
 		
-	def _getBaseClassDisplay(self):
-		"""If the underlying _baseClassDisplay attribute is not set, 
-		parse the string representation of the BaseClass to get the
-		appropriate string.
-		"""
-		if self._baseClassDisplay is None:
-			bc = self.BaseClass
-			if bc is None:
-				bc = self.__class__
-			strval = "%s" % bc
-			self._baseClassDisplay = strval.split("'")[1]
-		return self._baseClassDisplay
-
-		
 	def _getBasePrefKey(self):
 		try:
 			ret = self._basePrefKey
@@ -334,9 +323,6 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 	
 	BaseClass = property(_getBaseClass, None, None, 
 			_("The base Dabo class of the object. Read-only.  (class)"))
-	
-	BaseClassDisplay = property(_getBaseClassDisplay, None, None, 
-			_("The human-readable string representing the BaseClass. Read-only.  (str)"))
 	
 	BasePrefKey = property(_getBasePrefKey, _setBasePrefKey, None,
 			_("Base key used when saving/restoring preferences  (str)"))
