@@ -477,9 +477,9 @@ class dFormMixin(pm.dPemMixin):
 
 	def _setAbsoluteFontZoom(self, amt):
 		# Let the default behavior run, but then save the font zoom level to 
-    # the user preferences file. The loading of the saved pref happens in 
-    # the individual control (dPemMixinBase) so that the restoration of the 
-    # control's font zoom isn't dependent on the control being created at 
+		# the user preferences file. The loading of the saved pref happens in 
+		# the individual control (dPemMixinBase) so that the restoration of the 
+		# control's font zoom isn't dependent on the control being created at 
 		# form load time.
 		self.super(amt)
 		if self.Application and self.SaveRestorePosition:
