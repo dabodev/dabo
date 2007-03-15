@@ -1779,7 +1779,7 @@ class dPemMixin(dPemMixinBase):
 	
 	def _setFontSize(self, val):
 		if self._constructed():
-			self.Font.Size = val		
+			self.Font.Size = val
 		else:
 			self._properties["FontSize"] = val
 	
