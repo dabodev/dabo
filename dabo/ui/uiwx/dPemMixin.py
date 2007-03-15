@@ -1460,6 +1460,12 @@ class dPemMixin(dPemMixinBase):
 		"""
 		return None
 
+	def _jiggleFontSize(self):
+		"""Force refresh the control by tweaking the font size.""" 
+		self.Freeze()
+		self.FontSize += 1
+		self.FontSize -= 1
+		self.Thaw()
 
 	def _onFontPropsChanged(self, evt):
 		# Sent by the dFont object when any props changed. Wx needs to be notified:
@@ -1804,8 +1810,10 @@ class dPemMixin(dPemMixinBase):
 				try:
 					val = dColors.colorTupleFromName(val)
 				except: pass
-			if val != self.GetForegroundColour().Get():
-				self.SetForegroundColour(val)
+			self.SetForegroundColour(val)
+			# Need to jiggle the font size to force the color change to take
+			# effect, at least for dEditBox on Gtk.
+			dabo.ui.callAfterInterval(200, self._jiggleFontSize)
 		else:
 			self._properties["ForeColor"] = val
 
