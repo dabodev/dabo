@@ -1,19 +1,25 @@
-"""Master test control for the test suite.  Tests for all Tiers plus the lib section of Dabo are imported and run from here.
+"""Master test control for the test suite.  
 
-This will import the DB, Biz, Lib, and UI Tiers for the test.  We will add the test files manually in the __init__.py files
-in each module.  The init files and every Test Case file must provide a function suite() which will return a unittest.TestSuite
-object that encompasses the all of the test cases and suite within that file or module.  See the sample init and testCase files
-for more information.
+This will import the DB, Biz, Lib, and UI Tiers for the test.  We will add 
+the test files manually in the __init__.py files in each module.  The init 
+files and every Test Case file must provide a function suite() which will 
+return a unittest.TestSuite object that encompasses the all of the test 
+cases and suite within that file or module.  See the sample init and 
+testCase files for more information.
 """
 
 import unittest
-import coverage
+try:
+	import coverage
+except ImportError:
+	coverage = None
 import sys
 
-coverage.erase()
-coverage.start()
+if coverage:
+	coverage.erase()
+	coverage.start()
 
-coverage.exclude('if __name__ == "__main__":')
+	coverage.exclude('if __name__ == "__main__":')
 
 import dabo
 dabo.ui.loadUI('wx')
@@ -35,7 +41,8 @@ suiteList.append(unittest.TestLoader().loadTestsFromModule(Test_dObject))
 allTiersTestSuite = unittest.TestSuite(suiteList)
 unittest.TextTestRunner(verbosity=2).run(allTiersTestSuite)
 
-coverage.stop()
-#You can uncomment this to get test coverage on a particular module, but if you want to
-#see the entire report for dabo, run "python CoverageReport.py".  I would pipe it to a file though
-#coverage.report([dabo.dColors, dabo.dObject, dabo])
+if coverage:
+	coverage.stop()
+	#You can uncomment this to get test coverage on a particular module, but if you want to
+	#see the entire report for dabo, run "python CoverageReport.py".  I would pipe it to a file though
+	#coverage.report([dabo.dColors, dabo.dObject, dabo])
