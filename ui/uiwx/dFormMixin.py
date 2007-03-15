@@ -373,8 +373,7 @@ class dFormMixin(pm.dPemMixin):
 		""" Restore the saved window geometry for this form.
 
 		Ask dApp for the last saved setting of height, width, left, and top, 
-		and set those properties on this form. Also, if there was a font zoom
-		defined for this form, restore it.
+		and set those properties on this form.
 		"""
 		if self.Application and self.SaveRestorePosition:
 			name = self.getAbsoluteName()
@@ -383,7 +382,6 @@ class dFormMixin(pm.dPemMixin):
 			width = self.Application.getUserSetting("%s.width" % name)
 			height = self.Application.getUserSetting("%s.height" % name)
 			state = self.Application.getUserSetting("%s.windowstate" % name)
-			zoom = self.Application.getUserSetting("%s.zoomlevel" % name)
 
 			if isinstance(left, int) and isinstance(top, int):
 				self.Position = (left,top)
@@ -395,8 +393,6 @@ class dFormMixin(pm.dPemMixin):
 					state = "Normal"
 				self.WindowState = state
 				
-			if zoom:
-				dabo.ui.callAfter(self.iterateCall, "_changeFontSize", zoom)
 			self.restoredSP = True
 
 
@@ -477,6 +473,23 @@ class dFormMixin(pm.dPemMixin):
 			tip="", help="", *args, **kwargs):
 		self.ToolBar.appendButton(name, pic, bindfunc=bindfunc, toggle=toggle, 
 				tip=tip, help=help, *args, **kwargs)
+
+
+	def _setAbsoluteFontZoom(self, amt):
+		# Let the default behavior run, but then save the font zoom level to 
+    # the user preferences file. The loading of the saved pref happens in 
+    # the individual control (dPemMixinBase) so that the restoration of the 
+    # control's font zoom isn't dependent on the control being created at 
+		# form load time.
+		self.super(amt)
+		if self.Application and self.SaveRestorePosition:
+			self.Application.setUserSetting("%s.fontzoom" 
+					% self.getAbsoluteName(), self._currFontZoom)
+
+	def _restoreFontZoom(self):
+		if self.Application:
+			self._currFontZoom = self.Application.getUserSetting("%s.fontzoom" 
+					% self.getAbsoluteName(), 0)
 
 
 	# property get/set/del functions follow:
