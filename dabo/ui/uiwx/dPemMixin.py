@@ -304,6 +304,9 @@ class dPemMixin(dPemMixinBase):
 
 		self.afterInit()
 
+		if self.Form and self.Form.SaveRestorePosition:
+			self._restoreFontZoom()
+
 	
 	def _afterInitAll(self):
 		"""This is the framework-level hook. It calls the developer-specific method."""
@@ -315,7 +318,6 @@ class dPemMixin(dPemMixinBase):
 	
 	def _preInitUI(self, kwargs):
 		"""Subclass hook, for internal Dabo use. 
-
 		Some wx objects (RadioBox) need certain props forced if they hadn't been 
 		set by the user either as a parm or in beforeInit().
 		"""
@@ -1030,55 +1032,6 @@ class dPemMixin(dPemMixinBase):
 					kid.setAll(prop, val, recurse=recurse, filt=filt)
 
 	
-	def iterateCall(self, funcName, *args, **kwargs):
-		"""Call the given function on this object and all of its Children. If
-		any object does not have the given function, no error is raised; it
-		is simply ignored. 
-		"""
-		ok = True
-		try:
-			fnc = eval("self.%s" % funcName)
-		except AttributeError:
-			ok = False
-		if ok:
-			try:
-				fnc(*args, **kwargs)
-			except dException.StopIterationException:
-				# This is raised when the object does not want to pass
-				# the iteration on through its Children.
-				ok = False
-		if ok:
-			if isinstance(self, dabo.ui.dGrid):
-				kids = self.Columns
-			else:
-				kids = self.Children
-			for kid in kids:
-				if hasattr(kid, "iterateCall"):
-					kid.iterateCall(funcName, *args, **kwargs)
-
-	
-	# These three functions are essentially a single unit that provides for font size mods.
-	def increaseFontSize(self, val=None):
-		if val is None:
-			val = 1
-		self._changeFontSize(val)
-	def decreaseFontSize(self, val=None):
-		if val is None:
-			val = -1
-		else:
-			val = -1 * val
-		self._changeFontSize(val)
-	def _changeFontSize(self, val):
-		try:
-			self.FontSize += val
-			self.refresh()
-		except PyAssertionError:
-			# This catches invalid point sizes
-			pass
-		if self.Form is not None:
-			dabo.ui.callAfterInterval(200, self.Form.layout)
-	
-	
 	def recreate(self, child=None):
 		"""Recreate the object. 
 
@@ -1188,6 +1141,9 @@ class dPemMixin(dPemMixinBase):
 		except dabo.ui.deadObjectException:
 			# This can happen if an object is released when there is a 
 			# pending callAfter() refresh.
+			pass
+		except AttributeError:
+			# Menus don't have a Refresh() method.
 			pass
 
 	
@@ -1823,7 +1779,7 @@ class dPemMixin(dPemMixinBase):
 	
 	def _setFontSize(self, val):
 		if self._constructed():
-			self.Font.Size = val
+			self.Font.Size = val		
 		else:
 			self._properties["FontSize"] = val
 	

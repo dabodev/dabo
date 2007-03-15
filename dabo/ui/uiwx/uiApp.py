@@ -165,9 +165,7 @@ class uiApp(dObject, wx.App):
 	
 	
 	def _onKeyPress(self, evt):
-		if not self.ActiveForm:
-			evt.Skip()
-			return
+		## Zoom In / Out / Normal:
 		alt = evt.AltDown()
 		ctl = evt.ControlDown()
 		kcd = evt.GetKeyCode()
@@ -175,7 +173,7 @@ class uiApp(dObject, wx.App):
 		uk = evt.GetUnicodeKey()
 		met = evt.MetaDown()
 		sh = evt.ShiftDown()
-		if alt or not ctl:
+		if not self.ActiveForm or alt or not ctl:
 			evt.Skip()
 			return
 		try:
@@ -185,22 +183,14 @@ class uiApp(dObject, wx.App):
 		plus = (char == "=") or (char == "+") or (kcd == wx.WXK_NUMPAD_ADD)
 		minus = (char == "-") or (kcd == wx.WXK_NUMPAD_SUBTRACT)
 		slash = (char == "/") or (kcd == wx.WXK_NUMPAD_DIVIDE)
-		if not (plus or minus or slash):
-			evt.Skip()
-			return
-		settingName = "%s.zoomlevel" % self.ActiveForm.Name
-		currZoom = self.dApp.getUserSetting(settingName, 0)
 		if plus:
-			self.ActiveForm.iterateCall("increaseFontSize")
-			currZoom += 1
+			self.ActiveForm.iterateCall("fontZoomIn")
 		elif minus:
-			self.ActiveForm.iterateCall("decreaseFontSize")
-			currZoom -= 1
+			self.ActiveForm.iterateCall("fontZoomOut")
+		elif slash:
+			self.ActiveForm.iterateCall("fontZoomNormal")
 		else:
-			# Set back to zero zoom
-			self.ActiveForm.iterateCall("decreaseFontSize", currZoom)
-			currZoom = 0
-		self.dApp.setUserSetting(settingName, currZoom)
+			evt.Skip()
 
 
 	def setup(self):
@@ -798,14 +788,10 @@ class uiApp(dObject, wx.App):
 		
 	
 	def _getActiveForm(self):
-		if self._platform == "Win":
-			v = wx.GetActiveWindow()
-		else:
-			try:
-				v = self._activeForm
-			except AttributeError:
-				v = self._activeForm = None
-		return v
+		af = getattr(self, "_activeForm", None)
+		if af is None:
+			af = wx.GetActiveWindow()
+		return af
 
 	def _setActiveForm(self, frm):
 		self._activeForm = frm

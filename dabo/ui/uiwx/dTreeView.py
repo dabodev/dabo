@@ -818,24 +818,14 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		os.path.walk(dirPath, sortNode, None)
 
 
-	def increaseFontSize(self, val=None):
-		"""Increase the font size by the specified amount for all nodes."""
-		if val is None:
-			val = 1
-		self._changeFontSize(val)
-	def decreaseFontSize(self, val=None):
-		if val is None:
-			val = -1
-		else:
-			val = -1 * val
-		self._changeFontSize(val)
-	def _changeFontSize(self, val):
-		for nd in self.nodes:
-			try:
-				nd.FontSize += val
-			except PyAssertionError:
-				# This catches invalid point sizes
-				pass
+	def _setAbsoluteFontZoom(self, newZoom):
+		for node in self.nodes:
+			origFontSize = node._origFontSize = getattr(self, "_origFontSize", node.FontSize)
+			fontSize = origFontSize + newZoom
+			node._currFontZoom = newZoom
+			if fontSize > 1:
+				node.FontSize = fontSize
+
 		if self.Form is not None:
 			dabo.ui.callAfterInterval(200, self.Form.layout)
 

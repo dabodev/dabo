@@ -415,7 +415,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	they provide a way to interact with the underlying grid table in a more
 	straightforward manner.
 	"""
-	_call_beforeInit, _call_afterInit, _call_initProperties = False, True, True
+	_call_beforeInit, _call_afterInit, _call_initProperties = False, True, False
 
 	def __init__(self, parent, properties=None, attProperties=None,
 				*args, **kwargs):
@@ -436,6 +436,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 		super(dColumn, self).__init__(properties, attProperties, *args, **kwargs)
 		self._baseClass = dColumn
+		self._afterInit()
 
 
 	def _beforeInit(self):
@@ -483,7 +484,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _afterInit(self):
 		self._isConstructed = True
 		super(dColumn, self)._afterInit()
-		
+		if self.Form and self.Form.SaveRestorePosition:
+			self._restoreFontZoom()
+	
 
 	def _getDefaultFont(self):
 		ret = dabo.ui.dFont(Size=10, Bold=False, Italic=False, 
@@ -507,48 +510,18 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self.Parent.removeColumn(self)
 		except:
 			pass
-
-
-	def iterateCall(self, funcName, *args, **kwargs):
-		"""Call the given function on this object and all of its Children. If
-		any object does not have the given function, no error is raised; it
-		is simply ignored. This is copied from dPemMixin, since dColumn
-		doesn't inherit from dPemMixin, and it is needed for the iterations
-		to work across grids.
-		"""
-		ok = True
-		try:
-			fnc = eval("self.%s" % funcName)
-		except AttributeError:
-			ok = False
-		if ok:
-			fnc(*args, **kwargs)
 	
+	def _setAbsoluteFontZoom(self, newZoom):
+		origFontSize = self._origFontSize = getattr(self, "_origFontSize", self.FontSize)
+		origHeaderFontSize = self._origHeaderFontSize = getattr(self, "_origHeaderFontSize", self.HeaderFontSize)
+		fontSize = origFontSize + newZoom
+		headerFontSize = origHeaderFontSize + newZoom
+		self._currFontZoom = newZoom
+		if fontSize > 1:
+			self.FontSize = fontSize
+		if headerFontSize > 1:
+			self.HeaderFontSize = headerFontSize
 
-	def increaseFontSize(self, val=None):
-		"""Increase the font size by the specified amount for both the column
-		and its header.
-		"""
-		if val is None:
-			val = 1
-		self._changeFontSize(val)
-	def decreaseFontSize(self, val=None):
-		if val is None:
-			val = -1
-		else:
-			val = -1 * val
-		self._changeFontSize(val)
-	def _changeFontSize(self, val):
-		try:
-			self.FontSize += val
-		except PyAssertionError:
-			# This catches invalid point sizes
-			pass
-		try:
-			self.HeaderFontSize += val
-		except PyAssertionError:
-			# This catches invalid point sizes
-			pass
 		if self.Form is not None:
 			dabo.ui.callAfterInterval(200, self.Form.layout)
 
@@ -4046,6 +4019,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	CellHighlightWidth = property(_getCellHighlightWidth, _setCellHighlightWidth, None,
 			_("Specifies the width of the cell highlight box."))
 
+	Children = property(_getColumns, None, None, 
+			_("List of dColumns, same as self.Columns.  (list)"))
+
 	Columns = property(_getColumns, None, None,
 			_("List of dColumns.  (list)"))
 
@@ -4293,14 +4269,9 @@ class _dGrid_test(dGrid):
 	def afterInit(self):
 		self.super()
 
-		col = dColumn(self, Name="Geek", Order=10, DataField="coder",
-				DataType="bool", Width=60, Caption="Geek?", Sortable=False,
-				Searchable=False, Editable=True)
-		self.addColumn(col)
-
-# 		col.CustomRenderers[1] = col.stringRendererClass
-# 		col.CustomEditors[1] = col.stringEditorClass
-		col.HeaderFontBold = False
+		self.addColumn(Name="Geek", DataField="coder", Caption="Geek?", 
+				Order=10, DataType="bool", Width=60, Sortable=False,
+				Searchable=False, Editable=True, HeaderFontBold=False)
 
 		col = dColumn(self, Name="Person", Order=20, DataField="name",
 				DataType="string", Width=200, Caption="Celebrity Name",
@@ -4358,8 +4329,8 @@ if __name__ == '__main__':
 			gsz.append(chk, row=2, col=0)
 
 			radSelect = dabo.ui.dRadioList(self, Choices=["Row", "Col", "Cell"],
-					ValueMode="string", Caption="Sel Mode",
-					DataSource="sampleGrid", DataField="SelectionMode")
+					ValueMode="string", Caption="Sel Mode", BackColor=self.BackColor,
+					DataSource="sampleGrid", DataField="SelectionMode", RegID="radSelect")
 			radSelect.refresh()
 			gsz.append(radSelect, row=0, col=1, rowSpan=3)
 			
@@ -4368,9 +4339,9 @@ if __name__ == '__main__':
 			self.layout()
 			
 			self.fitToSizer(20,20)
+
 			
-			
-	app = dabo.dApp()
-	app.MainFormClass = TestForm
+	app = dabo.dApp(MainFormClass=TestForm)
 	app.setup()
+	app.MainForm.radSelect.setFocus()
 	app.start()

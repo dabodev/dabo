@@ -2,6 +2,7 @@
 import dabo
 import types
 from dabo.dObject import dObject
+import dabo.dException as dException
 from dabo.dLocalize import _
 
 
@@ -14,7 +15,6 @@ class dPemMixinBase(dObject):
 	def _initEvents(self):
 		super(dPemMixinBase, self)._initEvents()
 		self.autoBindEvents()
-
 
 	def _initUI(self):
 		""" Abstract method: subclasses MUST override for UI-specifics."""
@@ -42,6 +42,10 @@ class dPemMixinBase(dObject):
 	
 	def clone(self, obj, name=None):
 		""" Abstract method: subclasses MUST override for UI-specifics."""
+		pass
+
+	def refresh(self):
+		""" Abstract method."""
 		pass
 
 
@@ -75,7 +79,73 @@ class dPemMixinBase(dObject):
 		return name, _explicitName
 		
 
+	def iterateCall(self, funcName, *args, **kwargs):
+		"""Call the given function on this object and all of its Children. If
+		any object does not have the given function, no error is raised; it
+		is simply ignored. 
+		"""
+		func = getattr(self, funcName, None)
+		if func:
+			try:
+				func(*args, **kwargs)
+			except dException.StopIterationException:
+				# This is raised when the object does not want to pass
+				# the iteration on through its Children.
+				func = None
+		if func:
+			for child in self.Children:
+				if hasattr(child, "iterateCall"):
+					child.iterateCall(funcName, *args, **kwargs)
+
+
+	# These five functions are essentially a single unit that provides font zooming.
+	def fontZoomIn(self, amt=1):
+		"""Zoom in on the font, by setting a higher point size."""
+		self._setRelativeFontZoom(amt)
+
+	def fontZoomOut(self, amt=1):
+		"""Zoom out on the font, by setting a lower point size."""
+		self._setRelativeFontZoom(-amt)
+
+	def fontZoomNormal(self):
+		"""Reset the font zoom back to zero."""
+		self._setAbsoluteFontZoom(0)
+
+	def _setRelativeFontZoom(self, amt):
+		abs_zoom = getattr(self, "_currFontZoom", 0) + amt
+		self._setAbsoluteFontZoom(abs_zoom)
+
+	def _setAbsoluteFontZoom(self, newZoom):
+		if not hasattr(self, "FontSize"):
+			# Menus, for instance
+			return
+		origFontSize = self._origFontSize = getattr(self, "_origFontSize", self.FontSize)
+		fontSize = origFontSize + newZoom
+		self._currFontZoom = newZoom
+		if fontSize > 1:
+			self.FontSize = fontSize
+		dabo.ui.callAfterInterval(200, self.refresh)
+
+		if isinstance(self, dabo.ui.dFormMixin):
+			frm = self
+		else:
+			frm = self.Form
+		if frm is not None:
+			dabo.ui.callAfterInterval(200, frm.layout)
+	
+	def _restoreFontZoom(self):
+		"""Called when object is instantiated: restore the zoom based on the form."""
+		if not hasattr(self.Form, "_currFontZoom"):
+			self.Form._restoreFontZoom()
+		zoom = getattr(self.Form, "_currFontZoom", 0)
+		if zoom and not isinstance(self, (dabo.ui.dPanel, dabo.ui.dScrollPanel)):
+			dabo.ui.callAfter(self._setAbsoluteFontZoom, zoom)
+
+	 		
 	# Property get/set/delete methods follow.
+	def _getChildren(self):
+		return []
+
 	def _getForm(self):
 		try:
 			return self._cachedForm
@@ -115,6 +185,9 @@ class dPemMixinBase(dObject):
 			_("""The position of the bottom side of the object. This is a 
 			convenience property, and is equivalent to setting the Top property 
 			to this value minus the Height of the control.  (int)"""))
+
+	Children = property(_getChildren, None, None,
+			_("""List of child objects."""))
 	
 	Form = property(_getForm, None, None,
 			_("Object reference to the dForm containing the object. Read-only. (dForm)."))
