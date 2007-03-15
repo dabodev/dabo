@@ -75,11 +75,26 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 			bc = self.__class__
 		strval = "%s" % bc
 		classname = strval.split("'")[1]
+		classparts = classname.split(".")
+		if ".ui.ui" in classname:
+			# Simplify the different UI toolkits
+			pos = classparts.index("ui")
+			classparts.pop(pos+1)
+		# Remove the duplicate class name that happens
+		# when the class name is the same as the file.
+		while classparts[-1] == classparts[-2]:
+			classparts.pop()
+		classname = ".".join(classparts)
+		spc = " "
 		try:
-			ret = "%s (%s)" % (self.Name, classname)
-		except:
-			ret = classname
-		return ret
+			nm = self.Name
+		except AttributeError:
+			nm = ""
+		if (not nm) or (nm == "?"):
+			# No name
+			nm = spc = ""
+		return "<%(nm)s%(spc)s(class %(classname)s)>" % locals()
+		
 
 
 	def beforeInit(self, *args, **kwargs):
