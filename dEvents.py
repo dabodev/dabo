@@ -262,7 +262,7 @@ class Destroy(Event):
 class FontPropertiesChanged(Event):
 	"""Occurs when the properties of a dFont have changed."""
 	def appliesToClass(eventClass, objectClass):
-		return issubclass(objectClass, dabo.ui.dFont)
+		return issubclass(objectClass, dabo.ui.dPemMixin)
 	appliesToClass = classmethod(appliesToClass)
 
 
