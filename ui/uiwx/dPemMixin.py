@@ -249,6 +249,10 @@ class dPemMixin(dPemMixinBase):
 		self._borderColor = dColors.colorTupleFromName("black")
 		self._borderWidth = 0
 		self._borderLineStyle = "Solid"
+		self._minimumHeight = 0
+		self._minimumWidth = 0
+		self._maximumHeight = -1
+		self._maximumWidth = -1
 
 		# Do we need to clear the background before redrawing? Most cases will be 
 		# no, but if you have problems with drawings leaving behind unwanted 
@@ -1474,6 +1478,8 @@ class dPemMixin(dPemMixinBase):
 			# (Thanks Peter Damoc):
 			self.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		self.SetFont(self.Font._nativeFont)
+		# Re-raise it so that the object can respond to the event.
+		self.raiseEvent(dEvents.FontPropertiesChanged)
 
 
 	# The following 3 flag functions are used in some of the property
@@ -1810,10 +1816,11 @@ class dPemMixin(dPemMixinBase):
 				try:
 					val = dColors.colorTupleFromName(val)
 				except: pass
-			self.SetForegroundColour(val)
-			# Need to jiggle the font size to force the color change to take
-			# effect, at least for dEditBox on Gtk.
-			dabo.ui.callAfterInterval(200, self._jiggleFontSize)
+			if val != self.GetForegroundColour().Get():
+				self.SetForegroundColour(val)
+				# Need to jiggle the font size to force the color change to take
+				# effect, at least for dEditBox on Gtk.
+				dabo.ui.callAfterInterval(100, self._jiggleFontSize)
 		else:
 			self._properties["ForeColor"] = val
 
@@ -1866,6 +1873,82 @@ class dPemMixin(dPemMixinBase):
 			self._properties["Left"] = val
 
 		
+	def _getMaximumHeight(self):
+		return self._maximumHeight
+
+	def _setMaximumHeight(self, val):
+		if self._constructed():
+			if val is None:
+				val = -1
+			self._maximumHeight = val
+			self.SetMaxSize((self._maximumWidth, self._maximumHeight))
+		else:
+			self._properties["MaximumHeight"] = val
+
+
+	def _getMaximumSize(self):
+		return (self._maximumWidth, self._maximumHeight)
+
+	def _setMaximumSize(self, val):
+		if self._constructed():
+			if val is None:
+				self._maximumWidth = self._maximumHeight = -1
+			self._maximumWidth, self._maximumHeight = val
+			if self._maximumWidth is None:
+				self._maximumWidth = -1
+			if self._maximumHeight is None:
+				self._maximumHeight = -1
+			self.SetMaxSize((self._maximumWidth, self._maximumHeight))
+		else:
+			self._properties["MaximumSize"] = val
+
+
+	def _getMaximumWidth(self):
+		return self._maximumWidth
+
+	def _setMaximumWidth(self, val):
+		if self._constructed():
+			if val is None:
+				val = -1
+			self._maximumWidth = val
+			self.SetMaxSize((self._maximumWidth, self._maximumHeight))
+		else:
+			self._properties["MaximumWidth"] = val
+
+
+	def _getMinimumHeight(self):
+		return self._minimumHeight
+
+	def _setMinimumHeight(self, val):
+		if self._constructed():
+			self._minimumHeight = val
+			self.SetMinSize((self._minimumWidth, val))
+		else:
+			self._properties["MinimumHeight"] = val
+
+
+	def _getMinimumSize(self):
+		return (self._minimumWidth, self._minimumHeight)
+
+	def _setMinimumSize(self, val):
+		if self._constructed():
+			self._minimumWidth, self._minimumHeight = val
+			self.SetMinSize(val)
+		else:
+			self._properties["MinimumSize"] = val
+
+
+	def _getMinimumWidth(self):
+		return self._minimumWidth
+
+	def _setMinimumWidth(self, val):
+		if self._constructed():
+			self._minimumWidth = val
+			self.SetMinSize((val, self._minimumHeight))
+		else:
+			self._properties["MinimumWidth"] = val
+
+
 	def _getMousePointer(self):
 		return self.GetCursor()
 	
@@ -2308,6 +2391,24 @@ class dPemMixin(dPemMixinBase):
 	
 	Left = property(_getLeft, _setLeft, None,
 			_("Specifies the left position of the object. (int)") )
+	
+	MaximumHeight = property(_getMaximumHeight, _setMaximumHeight, None,
+			_("Maximum allowable height for the control in pixels.  (int)"))
+	
+	MaximumSize = property(_getMaximumSize, _setMaximumSize, None,
+			_("Maximum allowable size for the control in pixels.  (2-tuple of int)"))
+	
+	MaximumWidth = property(_getMaximumWidth, _setMaximumWidth, None,
+			_("Maximum allowable width for the control in pixels.  (int)"))
+	
+	MinimumHeight = property(_getMinimumHeight, _setMinimumHeight, None,
+			_("Minimum allowable height for the control in pixels.  (int)"))
+	
+	MinimumSize = property(_getMinimumSize, _setMinimumSize, None,
+			_("Minimum allowable size for the control in pixels.  (2-tuple of int)"))
+	
+	MinimumWidth = property(_getMinimumWidth, _setMinimumWidth, None,
+			_("Minimum allowable width for the control in pixels.  (int)"))
 	
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
 			_("Specifies the shape of the mouse pointer when it enters this window. (obj)") )
