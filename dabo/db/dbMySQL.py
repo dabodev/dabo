@@ -51,7 +51,7 @@ class MySQL(dBackend):
 			if "access denied" in str(e).lower():
 				raise dException.DBNoAccessException(e)
 			else:
-				raise dException.DataBaseException(e)
+				raise dException.DatabaseException(e)
 		return self._connection
 
 
