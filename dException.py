@@ -43,17 +43,16 @@ class ConnectionLostException(dException):
 class FieldNotFoundException(dException):
 	pass
 
-class DataBaseException(dException):
+class DatabaseException(dException):
 	pass
 
-class DBNoAccessException(DataBaseException):
+class DBNoAccessException(DatabaseException):
 	pass
 	
-class DBNoDBOnHostException(DataBaseException):
+class DBNoDBOnHostException(DatabaseException):
 	pass
 
-
-class DBQueryException(DataBaseException):
+class DBQueryException(DatabaseException):
 	def __init__(self, err, sql):
 		self.sql = sql
 		self.err_desc = str(err)
