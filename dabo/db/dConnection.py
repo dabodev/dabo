@@ -73,7 +73,14 @@ class dConnection(dObject):
 	def _getConnInfo(self):
 		return self._connectInfo
 
+	def _getName(self):
+		try:
+			return self.ConnectInfo.Name
+		except:
+			return "?"
+
 	ConnectInfo = property(_getConnInfo, None, None, _("The connectInfo for the connection.  (class)"))
+	Name = property(_getName, None, None, _("The name of the connection."))
 
 if __name__ == "__main__":
 	from dConnectInfo import dConnectInfo
