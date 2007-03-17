@@ -1830,7 +1830,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setHeight(self, val):
 		if self._constructed():
-			newSize = self.GetSize()[0], int(val)
+			newSize = (-1, int(val))
 			if isinstance(self, (wx.Frame, wx.Dialog) ):
 				self.SetSize(newSize)
 			else:
@@ -2266,7 +2266,7 @@ class dPemMixin(dPemMixinBase):
 
 	def _setWidth(self, val):
 		if self._constructed():
-			newSize = int(val), self.GetSize()[1]
+			newSize = (int(val), -1)
 			if isinstance(self, (wx.Frame, wx.Dialog) ):
 				self.SetSize(newSize)
 			else:
