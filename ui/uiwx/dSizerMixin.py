@@ -5,74 +5,12 @@ from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 
-
 class dSizerMixin(dObject):
-	"""Provides the interface for interacting with Sizers in Dabo.
-	Many of the methods for adding objects to sizers take the 
-	following parameters:
-		layout: 
-			"expand": The object will expand to fill in the extra space
-				(may also use "ex" or simply "x" to mean the same thing)
-			"fixed": The object will not be resized
-			"normal": The sizer will determine how to lay out the object. (default)
-		proportion: The relative space this object should get in relation to the 
-			other objects. Default has all objects getting 0, equal share.
-		halign, valign: Allows you to specify Horizontal and Vertical alignment
-			independently. Alternately, you can specify both with a tuple passed
-			to the 'alignment' parameter.
-		alignment: The horizontal and vertical alignment of the object in the sizer.
-			This is a tuple: set it like ("left", "top") or ("center", "middle"). In most
-			cases, though, passing the separate halign and valign parameters
-			is preferable.
-		border: The width of the border. Default is 0, no border.
-		borderSides: A tuple containing the locations to draw the border, such as
-			("all") or ("top", "left", "bottom"). Default is ("all").
-		index: The index of the existing sizer item before which you want
-			the object inserted.
-		For the most common usage of adding an object to the sizer, just do:
-			sizer.append(object)
-				or
-			sizer.append(object, "x")
-	"""
-	# First, let's wrap some of the wx constants for those cases where
-	# we need to work with them directly.
-	horizontalFlag = wx.HORIZONTAL
-	verticalFlag = wx.VERTICAL
-	bothFlag = wx.BOTH
-	leftFlag = wx.ALIGN_LEFT 
-	rightFlag = wx.ALIGN_RIGHT
-	centerFlag = wx.ALIGN_CENTER_HORIZONTAL
-	centreFlag = wx.ALIGN_CENTER_HORIZONTAL
-	topFlag = wx.ALIGN_TOP 
-	bottomFlag = wx.ALIGN_BOTTOM 
-	middleFlag = wx.ALIGN_CENTER_VERTICAL
-	borderBottomFlag = wx.BOTTOM
-	borderLeftFlag = wx.LEFT
-	borderRightFlag = wx.RIGHT 
-	borderTopFlag = wx.TOP 
-	borderAllFlag = wx.ALL 
-	expandFlag = wx.EXPAND
-	growFlag = wx.EXPAND
-	fixedFlag = wx.FIXED_MINSIZE 
-	# Also provide Dabo names for the sizer item classes
-	SizerItem = wx.SizerItem
-	GridSizerItem = wx.GBSizerItem
+	"""Provides the interface for interacting with Sizers in Dabo."""
+	# Additional documentation for several of the contained methods:
+	_doc_additions = """
 
-	
-	def appendItems(self, items, *args, **kwargs):
-		"""Append each item to the sizer."""
-		ret = []
-		for item in items:
-			ret.append(self.append(item, *args, **kwargs))
-		return ret
-		
-			
-	def append(self, obj, layout="normal", proportion=0, alignment=None,
-			halign="left", valign="top", border=None, borderSides=None,
-			borderFlags=None):
-		"""Adds the passed object to the end of the sizer layout.
-
-		Arguments:
+		Additional arguments:
 		      layout: Specifies how the object expands in the opposite dimension
 		              of the sizer. If "normal" (the default), no expansion takes
 		              place. If "expand" (a common setting), the item will expand
@@ -105,8 +43,47 @@ class dSizerMixin(dObject):
 		 borderSides: Specifies the sides around the object to place the border
 		              specified in the border argument or the DefaultBorder
 		              property. This should be a tuple that contains at least
-		              some of the values ("left", "right", "top", "bottom").
-		"""
+		              some of the values ("left", "right", "top", "bottom")
+"""
+
+	# First, let's wrap some of the wx constants for those cases where
+	# we need to work with them directly.
+	horizontalFlag = wx.HORIZONTAL
+	verticalFlag = wx.VERTICAL
+	bothFlag = wx.BOTH
+	leftFlag = wx.ALIGN_LEFT 
+	rightFlag = wx.ALIGN_RIGHT
+	centerFlag = wx.ALIGN_CENTER_HORIZONTAL
+	centreFlag = wx.ALIGN_CENTER_HORIZONTAL
+	topFlag = wx.ALIGN_TOP 
+	bottomFlag = wx.ALIGN_BOTTOM 
+	middleFlag = wx.ALIGN_CENTER_VERTICAL
+	borderBottomFlag = wx.BOTTOM
+	borderLeftFlag = wx.LEFT
+	borderRightFlag = wx.RIGHT 
+	borderTopFlag = wx.TOP 
+	borderAllFlag = wx.ALL 
+	expandFlag = wx.EXPAND
+	growFlag = wx.EXPAND
+	fixedFlag = wx.FIXED_MINSIZE 
+	# Also provide Dabo names for the sizer item classes
+	SizerItem = wx.SizerItem
+	GridSizerItem = wx.GBSizerItem
+
+	
+	def appendItems(self, items, *args, **kwargs):
+		"""Append each item to the sizer."""
+		ret = []
+		for item in items:
+			ret.append(self.append(item, *args, **kwargs))
+		return ret
+	appendItems.__doc__ += _doc_additions	
+			
+	def append(self, obj, layout="normal", proportion=0, alignment=None,
+			halign="left", valign="top", border=None, borderSides=None,
+			borderFlags=None):
+		"""Adds the passed object to the end of the sizer layout."""
+
 		if borderSides is None:
 			if borderFlags is not None:
 				dabo.errorLog.write(_("Depracation warning: use 'borderSides' parameter instead."))
@@ -114,7 +91,7 @@ class dSizerMixin(dObject):
 		return self.insert(len(self.Children), obj, layout=layout, proportion=proportion, 
 				alignment=alignment, halign=halign, valign=valign, border=border, 
 				borderSides=borderSides)
-		
+	append.__doc__ += _doc_additions
 
 	def append1x(self, obj, **kwargs):
 		"""Shorthand for sizer.append(obj, 1, "expand"). """
@@ -126,13 +103,10 @@ class dSizerMixin(dObject):
 	def insert(self, index, obj, layout="normal", proportion=0, alignment=None,
 			halign="left", valign="top", border=None, borderSides=None, 
 			borderFlags=None):
-		"""Inserts the passed object into the sizer layout at the specified position.
-
-		For an explanation of all the arguments, see append().
-		"""
+		"""Inserts the passed object into the sizer layout at the specified position."""
 		if borderSides is None:
 			if borderFlags is not None:
-				dabo.errorLog.write(_("Depracation warning: use 'borderSides' parameter instead."))
+				dabo.errorLog.write(_("Deprecation warning: use 'borderSides' parameter instead."))
 				borderSides = borderFlags
 		if isinstance(layout, int):
 			# proportion was passed first
@@ -159,9 +133,8 @@ class dSizerMixin(dObject):
 			obj._controllingSizerItem = szItem
 			if ret.IsSizer():
 				obj._parent = self._parent
-
 		return ret
-		
+	insert.__doc__ += _doc_additions		
 	
 	def layout(self):
 		"""Layout the items in the sizer.
@@ -182,14 +155,11 @@ class dSizerMixin(dObject):
 	def prepend(self, obj, layout="normal", proportion=0, alignment=None,
 			halign="left", valign="top", border=None, borderSides=None, 
 			borderFlags=None):
-		"""Insert the object at the beginning of the sizer layout.
-
-		For an explanation of all the arguments, see append().
-		"""
+		"""Insert the object at the beginning of the sizer layout."""
 		return self.insert(0, obj, layout=layout, proportion=proportion,
 				alignment=alignment, halign=halign, valign=valign, border=border,
 				borderSides=None, borderFlags=None)			
-	
+	prepend.__doc__ += _doc_additions
 	
 	def remove(self, item, destroy=None):
 		"""This will remove the item from the sizer. It will not cause
@@ -766,7 +736,7 @@ class dSizerMixin(dObject):
 			
 	def _setDefaultBorderRight(self, val):
 		if isinstance(val, basestring):
-			val = (val.lower()[0] in ("t", "y"))
+			val = (val.lower()[0] in ("t"	, "y"))
 		self._defaultBorderRight = val
 		
 		
