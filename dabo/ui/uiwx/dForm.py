@@ -801,6 +801,9 @@ class dToolForm(BaseForm, wx.MiniFrame):
 		self._baseClass = dToolForm
 		preClass = wx.PreMiniFrame
 		self._mdi = False
+		style = kwargs.get("style", 0)
+		kwargs["style"] = style | wx.RESIZE_BORDER | wx.CAPTION | wx.MINIMIZE_BOX | \
+				wx.MAXIMIZE_BOX | wx.CLOSE_BOX		
 		kwargs["TinyTitleBar"] = True
 		kwargs["ShowStatusBar"] = False
 		kwargs["ShowToolBar"] = False
@@ -846,3 +849,4 @@ if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dForm_test)
 	test.Test().runTest(_dBorderlessForm_test)
+
