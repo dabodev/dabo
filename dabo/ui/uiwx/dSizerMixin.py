@@ -736,7 +736,7 @@ class dSizerMixin(dObject):
 			
 	def _setDefaultBorderRight(self, val):
 		if isinstance(val, basestring):
-			val = (val.lower()[0] in ("t"	, "y"))
+			val = (val.lower()[0] in ("t", "y"))
 		self._defaultBorderRight = val
 		
 		
