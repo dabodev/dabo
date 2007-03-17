@@ -67,34 +67,68 @@ class dSizerMixin(dObject):
 		return ret
 		
 			
-	def append(self, item, layout="normal", proportion=0, alignment=None,
+	def append(self, obj, layout="normal", proportion=0, alignment=None,
 			halign="left", valign="top", border=None, borderSides=None,
 			borderFlags=None):
-		"""Adds the passed object to the end of the list of items controlled
-		by the sizer.
+		"""Adds the passed object to the end of the sizer layout.
+
+		Arguments:
+		      layout: Specifies how the object expands in the opposite dimension
+		              of the sizer. If "normal" (the default), no expansion takes
+		              place. If "expand" (a common setting), the item will expand
+		              to fill up otherwise unoccupied space in the sizer. 
+
+		  proportion: Specifies the proportional amount of space that the object
+		              can grow to in the same dimension as this sizer. If 0 (the
+		              default), the object will maintain its size. If > 0, the
+		              object will get a spacing in the sizer proportional to 
+		              other objects in the sizer with proportions > 0. So if this
+		              is a horizontal sizer, and the proportion for the object is 
+		              set to 1, and no other objects in the sizer have proportion
+		              set, the object will fill up all extra horizontal space.
+
+		   alignment: Possible values are "top", "middle", and "bottom" for 
+		              horizontal sizers, and "left", "center", and "right" for 
+		              vertical sizers. Specifies where the object appears within
+		              the available area in the sizer.
+
+		      hAlign: Only used if the alignment property not set.
+
+		      vAlign: Only used if the alignment property not set.
+
+		      border: Specifies the number of pixels to put around the object in
+		              the sizer, on the sides specified by the borderSides
+		              argument, or by the value of the DefaultBorderLeft, 
+		              DefaultBorderRight, DefaultBorderTop, and DefaultBorderBottom
+		              boolean properties.
+
+		 borderSides: Specifies the sides around the object to place the border
+		              specified in the border argument or the DefaultBorder
+		              property. This should be a tuple that contains at least
+		              some of the values ("left", "right", "top", "bottom").
 		"""
 		if borderSides is None:
 			if borderFlags is not None:
 				dabo.errorLog.write(_("Depracation warning: use 'borderSides' parameter instead."))
 				borderSides = borderFlags
-		return self.insert(len(self.Children), item, layout=layout, proportion=proportion, 
+		return self.insert(len(self.Children), obj, layout=layout, proportion=proportion, 
 				alignment=alignment, halign=halign, valign=valign, border=border, 
 				borderSides=borderSides)
 		
 
-	def append1x(self, item, **kwargs):
-		"""Shorthand for sizer.append(item, 1, "x"). """
+	def append1x(self, obj, **kwargs):
+		"""Shorthand for sizer.append(obj, 1, "expand"). """
 		kwargs["layout"] = "expand"
 		kwargs["proportion"] = 1
-		return self.append(item, **kwargs)
+		return self.append(obj, **kwargs)
 		
 
-	def insert(self, index, item, layout="normal", proportion=0, alignment=None,
+	def insert(self, index, obj, layout="normal", proportion=0, alignment=None,
 			halign="left", valign="top", border=None, borderSides=None, 
 			borderFlags=None):
-		"""Inserts an object into the list of items controlled by the sizer at 
-		the specified position. Sets that object's _controllingSizer and 
-		_controllingSizerItem attributes.
+		"""Inserts the passed object into the sizer layout at the specified position.
+
+		For an explanation of all the arguments, see append().
 		"""
 		if borderSides is None:
 			if borderFlags is not None:
@@ -107,30 +141,31 @@ class dSizerMixin(dObject):
 			if isinstance(layout, int):
 				layout = "normal"
 		
-		if isinstance(item, (int, tuple)):
-			# spacer
-			ret = self.addSpacer(item, pos=index, proportion=proportion)
+		if isinstance(obj, (int, tuple)):
+			# obj is a spacer
+			ret = self.addSpacer(obj, pos=index, proportion=proportion)
 		else:
-			# item is the window to add to the sizer
+			# obj is the window to add to the sizer
 			_wxFlags = self._getWxFlags(alignment, halign, valign, borderSides, layout)
 			if border is None:
 				border = self.DefaultBorder
 			# If there are objects in this sizer already, add the default spacer
 			addSpacer = ( len(self.GetChildren()) > 0)
-			ret = szItem = self.Insert(index, item, proportion=proportion, 
+			ret = szItem = self.Insert(index, obj, proportion=proportion, 
 					flag=_wxFlags, border=border, userData=self)
 			if addSpacer:
 				self.addDefaultSpacer(index)
-			item._controllingSizer = self
-			item._controllingSizerItem = szItem
+			obj._controllingSizer = self
+			obj._controllingSizerItem = szItem
 			if ret.IsSizer():
-				item._parent = self._parent
+				obj._parent = self._parent
 
 		return ret
 		
 	
 	def layout(self):
 		"""Layout the items in the sizer.
+
 		This is handled automatically when the sizer is resized, but you'll have
 		to call it manually after you are done adding items to the sizer.
 		"""
@@ -144,9 +179,16 @@ class dSizerMixin(dObject):
 				except: pass
 	
 	
-	def prepend(self, *args, **kwargs):
-		"""Insert the item at the beginning of the sizer layout."""
-		return self.insert(0, *args, **kwargs)			
+	def prepend(self, obj, layout="normal", proportion=0, alignment=None,
+			halign="left", valign="top", border=None, borderSides=None, 
+			borderFlags=None):
+		"""Insert the object at the beginning of the sizer layout.
+
+		For an explanation of all the arguments, see append().
+		"""
+		return self.insert(0, obj, layout=layout, proportion=proportion,
+				alignment=alignment, halign=halign, valign=valign, border=border,
+				borderSides=None, borderFlags=None)			
 	
 	
 	def remove(self, item, destroy=None):
