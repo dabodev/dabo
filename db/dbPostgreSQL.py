@@ -162,6 +162,8 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 				fldType = "F"
 			elif "datetime" in fldType:
 				fldType = "T"
+			elif "timestamp" in fldType:
+				fldType = "T"
 			elif "date" in fldType:
 				fldType = "D"
 			elif "bytea" in fldType:
