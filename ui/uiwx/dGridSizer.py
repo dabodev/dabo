@@ -41,11 +41,13 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		self._rowExpandState = {}
 		self._colExpandState = {}
 
-		for k,v in kwargs.items():
-			try:
-				exec("self.%s = %s" % (k,v))
-			except:
-				raise TypeError, ("Invalid keyword argument passed to dGridSizer: %s") % k
+		properties = self._extractKeywordProperties(kwargs, {})
+		self.setProperties(properties)
+		
+		if kwargs:
+			# Some kwargs haven't been handled.
+			bad = ", ".join(kwargs.keys())
+			raise TypeError, ("Invalid keyword arguments passed to dGridSizer: %s") % bad
 
 
 	def append(self, item, layout="normal", row=-1, col=-1, 
