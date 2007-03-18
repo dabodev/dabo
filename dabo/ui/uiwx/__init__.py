@@ -592,12 +592,34 @@ def _getActiveForm():
 	return None
 
 
-def getString(message=_("Please enter a string:"), caption="Dabo",	defaultValue=""):
-	"""Simple dialog for returning a small bit of text from the user."""
-	dlg = wx.TextEntryDialog(_getActiveForm(), message, caption, defaultValue)
-	retVal = dlg.ShowModal()
-	if retVal in (wx.ID_YES, wx.ID_OK):
-		val = dlg.GetValue()
+def getString(message=_("Please enter a string:"), caption="Dabo", **kwargs):
+	"""Simple dialog for returning a small bit of text from the user.
+
+	Any additional keyword arguments are passed along to the dTextBox when it
+	is instantiated. Some useful examples:
+
+	# Give the textbox a default value:
+	txt = dabo.ui.getString(Value="initial string value")
+	
+	# Password Entry (*'s instead of the actual text)
+	txt = dabo.ui.getString(PasswordEntry=True)
+	"""
+	class StringDialog(dabo.ui.dOkCancelDialog):
+		def addControls(self):
+			self.Caption = caption
+			lbl = dabo.ui.dLabel(self, Caption=message)
+			self.strVal = dabo.ui.dTextBox(self, **kwargs)
+			hs = dabo.ui.dSizer("h")
+			hs.append(lbl, halign="Right")
+			hs.appendSpacer(5)
+			hs.append(self.strVal, 1)
+			self.Sizer.append(hs, "expand")
+			dabo.ui.callAfter(self.strVal.setFocus)
+			
+	dlg = StringDialog(_getActiveForm())
+	dlg.show()
+	if dlg.Accepted:
+		val = dlg.strVal.Value
 	else:
 		val = None
 	dlg.Destroy()
@@ -616,6 +638,7 @@ def getInt(message=_("Enter an integer value:"), caption="Dabo", defaultValue=0)
 			hs.appendSpacer(5)
 			hs.append(self.spnVal)
 			self.Sizer.append(hs)
+			dabo.ui.callAfter(self.spnVal.setFocus)
 			
 	dlg = IntDialog(_getActiveForm())
 	dlg.show()
