@@ -184,14 +184,21 @@ class uiApp(dObject, wx.App):
 		minus = (char == "-") or (kcd == wx.WXK_NUMPAD_SUBTRACT)
 		slash = (char == "/") or (kcd == wx.WXK_NUMPAD_DIVIDE)
 		if plus:
-			self.ActiveForm.iterateCall("fontZoomIn")
+			self.fontZoomIn()
 		elif minus:
-			self.ActiveForm.iterateCall("fontZoomOut")
+			self.fontZoomOut()
 		elif slash:
-			self.ActiveForm.iterateCall("fontZoomNormal")
+			self.fontZoomNormal()
 		else:
 			evt.Skip()
 
+
+	def fontZoomIn(self):
+		self.ActiveForm.iterateCall("fontZoomIn")
+	def fontZoomOut(self):
+		self.ActiveForm.iterateCall("fontZoomOut")
+	def fontZoomNormal(self):
+		self.ActiveForm.iterateCall("fontZoomNormal")
 
 	def setup(self):
 		frm = self.dApp.MainForm
