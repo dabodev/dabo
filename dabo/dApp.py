@@ -570,6 +570,18 @@ class dApp(dObject):
 				self.dbConnectionDefs[k] = ci
 				self.dbConnectionNameToFiles[k] = connFile
 	
+	def showCommandWindow(self, context=None):
+		"""Shows a command window with a full Python interpreter.
+
+		This is great for debugging during development, but you should turn off
+		app.ShowCommandWindowMenu in production, perhaps leaving backdoor 
+		access to this function.
+
+		The context argument tells dShell what object becomes 'self'. If not
+		passed, context will be app.ActiveForm.
+		"""
+		self.uiApp.showCommandWindow(context)
+
 
 	########################
 	# This next section simply passes menu events to the UI
