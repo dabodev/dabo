@@ -583,6 +583,19 @@ class dApp(dObject):
 		self.uiApp.showCommandWindow(context)
 
 
+	def fontZoomIn(self, evt=None):
+		"""Increase the font size on the active form."""
+		self.uiApp.fontZoomIn()
+
+	def fontZoomOut(self, evt=None):
+		"""Decrease the font size on the active form."""
+		self.uiApp.fontZoomOut()
+
+	def fontZoomNormal(self, evt=None):
+		"""Reset the font size to normal on the active form."""
+		self.uiApp.fontZoomNormal()
+
+
 	########################
 	# This next section simply passes menu events to the UI
 	# layer to be handled there.
@@ -854,6 +867,17 @@ class dApp(dObject):
 	def _setShowCommandWindowMenu(self, val):
 		self._showCommandWindowMenu = bool(val)
 			
+
+	def _getShowSizerLinesMenu(self):
+		try:
+			v = self._showSizerLinesMenu
+		except AttributeError:
+			v = self._showSizerLinesMenu = True
+		return v
+			
+	def _setShowSizerLinesMenu(self, val):
+		self._showSizerLinesMenu = bool(val)
+
 			
 	def _getUI(self):
 		try:
@@ -996,6 +1020,13 @@ class dApp(dObject):
 			If True (the default), there will be a File|Command Window option
 			available in the base menu. If False, your code can still start the 
 			command window by calling app.showCommandWindow() directly.""") )
+
+	ShowSizerLinesMenu = property(_getShowSizerLinesMenu,
+			_setShowSizerLinesMenu, None, 
+			_("""Specifies whether the "Show Sizer Lines" option is shown in the menu.
+
+			If True (the default), there will be a View|Show Sizer Lines option
+			available in the base menu.""") )
 
 	UI = property(_getUI, _setUI, None, 
 			_("""Specifies the user interface to load, or None. (str)

@@ -100,10 +100,16 @@ class ViewMenu(dMenu):
 		super(ViewMenu, self)._afterInit()
 		app = self.Application
 		self.Caption = _("&View")
-		
-		itm = self.append(_("Show/Hide Sizer &Lines")+"\tCtrl+L",	
-				OnHit=app.onShowSizerLines, menutype="check",
-				help=_("Cool sizer visualizing feature; check it out!"))
+	
+		self.append(_("Increase Font Size") + "\tCtrl++", OnHit=app.fontZoomIn)
+		self.append(_("Decrease Font Size") + "\tCtrl+-", OnHit=app.fontZoomOut)
+		self.append(_("Normal Font Size") + "\tCtrl+/", OnHit=app.fontZoomNormal)
+	
+		if app.ShowSizerLinesMenu:
+			self.appendSeparator()
+			self.append(_("Show/Hide Sizer &Lines")+"\tCtrl+L",	
+					OnHit=app.onShowSizerLines, menutype="check",
+					help=_("Cool sizer visualizing feature; check it out!"))
 
 
 class HelpMenu(dMenu):
