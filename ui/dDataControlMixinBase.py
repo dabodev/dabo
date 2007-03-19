@@ -159,17 +159,16 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		""" Save any changes to the underlying source field."""
 		curVal = self.Value
 		ret = None
-		try:
-			oldVal = self._oldVal
-		except AttributeError:
-			oldVal = None
+		isChanged = False
+		oldVal = self._oldVal
+		if oldVal is None and curVal is None:
+			# Could be changed and we just don't know it...
+			isChanged = True
 		if isinstance(self, (dabo.ui.dToggleButton,)):
 			# These classes change their value before the GotFocus event
 			# can store the oldval, so always flush 'em.
 			oldVal = None
-		if curVal is None:
-			isChanged = True
-		else:
+		if not isChanged:
 			if isinstance(curVal, float) and isinstance(oldVal, float):
 				# If it is a float, make sure that it has changed by more than the 
 				# rounding error.
@@ -219,16 +218,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 								else:
 									nm = str(self.DataSource)
 								dabo.errorLog.write("Could not bind to '%s.%s'" % (nm, self.DataField) )
-
+				self._oldVal = curVal
 			self._afterValueChanged(_from_flushValue=True)
-		
-		# In most controls, self._oldVal is set upon GotFocus. Some controls
-		# like dCheckBox and dDropdownList don't emit focus events, so
-		# flushValue must stand alone (those controls call flushValue() upon
-		# every Hit, while other controls call flushValue() upon LostFocus. 
-		# Setting _oldVal to None here ensures that any changes will get saved
-		# no matter what type of control we are...
-		self._oldVal = None
 		return ret
 
 
@@ -300,7 +291,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self._value = self.Value
 		
 		# Raise an event so that user code can react if needed:
-		self.raiseEvent(dabo.dEvents.ValueChanged)
+		dabo.ui.callAfterInterval(200, self.raiseEvent, dabo.dEvents.ValueChanged)
 
 		if not _from_flushValue and self.Form.ActiveControl != self:
 			# Value was changed programatically - flushValue won't be called 
