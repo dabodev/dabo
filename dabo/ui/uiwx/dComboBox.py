@@ -34,7 +34,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 	def __onComboBox(self, evt):
 		self._userVal = False
 		evt.Skip()
-		self.raiseEvent(dabo.dEvents.Hit, evt)
+		self._onWxHit(evt)
 		
 		
 	def __onTextBox(self, evt):

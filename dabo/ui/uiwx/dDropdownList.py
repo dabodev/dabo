@@ -27,14 +27,6 @@ class dDropdownList(dcm.dControlItemMixin, wx.Choice):
 		self.Bind(wx.EVT_CHOICE, self._onWxHit)
 
 	
-	def _onWxHit(self, evt):
-		# wx.Choice doesn't seem to emit lostfocus and gotfocus events. Therefore,
-		# flush the value on every hit.
-		self.flushValue()
-		super(dDropdownList, self)._onWxHit(evt)
-		
-
-
 class _dDropdownList_test(dDropdownList):
 	def initProperties(self):
 		# Simulating a database

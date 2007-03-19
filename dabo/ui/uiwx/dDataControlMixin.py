@@ -76,7 +76,6 @@ class dDataControlMixin(dDataControlMixinBase):
 				except TypeError, e:
 					dabo.errorLog.write(_("Could not set value of %s to %s. Error message: %s")
 							% (self._name, val, e))
-				self._afterValueChanged()
 			self.flushValue()
 		else:
 			self._properties["Value"] = val

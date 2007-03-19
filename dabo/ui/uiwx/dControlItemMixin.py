@@ -21,12 +21,13 @@ class dControlItemMixin(dDataControlMixin):
 		
 	def _initEvents(self):
 		super(dControlItemMixin, self)._initEvents()
-		self.bindEvent(dEvents.Hit, self.__flush)
+
 	
-	
-	def __flush(self, evt):
+	def _onWxHit(self, evt):
+		# Flush value on every hit:
 		self.flushValue()
-	
+		super(dControlItemMixin, self)._onWxHit(evt)
+
 	
 	def appendItem(self, txt, select=False):
 		""" Adds a new item to the end of the list """

@@ -172,7 +172,6 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		# This allows the event processing to properly 
 		# set the EventData["index"] properly.
 		evt.SetInt(pos)
-		self.flushValue()
 		self.super(evt)
 		
 		
