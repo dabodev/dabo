@@ -32,6 +32,9 @@ class dConnection(dObject):
 		
 	def getConnection(self):
 		return self._connection
+	
+	def close(self):
+		self._connection.close()
 
 	def getDictCursorClass(self):
 		return self._connectInfo.getDictCursorClass()
