@@ -1,14 +1,9 @@
 import dabo
-from dabo.dPref import dPref
+from dabo.dObject import dObject
 from dabo.dLocalize import _
 
 
-class dUserSettingProvider(dPref):
-	def __init__(self, *args, **kwargs):
-		kwargs["key"] = dabo.dAppRef.BasePrefKey
-		super(dUserSettingProvider, self).__init__(*args, **kwargs)
-		
-		
+class dUserSettingProvider(dObject):
 	def getUserSettingKeys(self, spec):
 		"""Return a list of all keys underneath <spec>.
 		
@@ -20,14 +15,14 @@ class dUserSettingProvider(dPref):
 			
 		The return value would be ["pkm", "egl"]
 		"""
-		return self.getPrefKeys(spec.lower())
+		return self.PreferenceManager.getPrefKeys(spec.lower())
 
 
 	def getUserSetting(self, item, default=None):
 		""" Return the value of the user settings table that 
 		corresponds to the preference key passed.
 		"""
-		prf = self
+		prf = self.PreferenceManager
 		parsedItem = item.lower().split(".")
 		while len(parsedItem) > 1:
 			prf = prf.__getattr__(parsedItem.pop(0))
@@ -41,7 +36,7 @@ class dUserSettingProvider(dPref):
 
 	def setUserSetting(self, item, val):
 		"""Persist a value to the user settings file."""
-		prf = self
+		prf = self.PreferenceManager
 		parsedItem = item.lower().split(".")
 		while len(parsedItem) > 1:
 			prf = prf.__getattr__(parsedItem.pop(0))
@@ -57,7 +52,7 @@ class dUserSettingProvider(dPref):
 
 	def deleteUserSetting(self, item):
 		"""Removes the specified item from the settings file."""
-		self.deletePref(item.lower(), False)
+		self.PreferenceManager.deletePref(item.lower(), False)
 
 
 	def deleteAllUserSettings(self, spec):
@@ -65,5 +60,5 @@ class dUserSettingProvider(dPref):
 		See the docs for getUserSettingKeys() for an explanation
 		on key matching.
 		"""
-		self.deletePref(spec.lower(), True)
+		self.PreferenceManager.deletePref(spec.lower(), True)
 

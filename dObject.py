@@ -324,7 +324,13 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		try:
 			ret = self._preferenceManager
 		except AttributeError:
-			ret = self._preferenceManager = dPref(key=self.BasePrefKey)
+			ret = None
+			if self.Application is not self:
+				try:
+					ret = self._preferenceManager = self.Application.PreferenceManager
+				except AttributeError: pass
+			if ret is None:
+				ret = self._preferenceManager = dPref(key=self.BasePrefKey)
 		return ret
 
 	def _setPreferenceManager(self, val):
