@@ -756,7 +756,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return True
 
 
-	def setFieldVal(self, fld, val, row=None, _resetMemento=False):
+	def setFieldVal(self, fld, val, row=None):
 		"""Set the value of the specified field."""
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set")
@@ -849,13 +849,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					else:
 						keyFieldValue = rec[keyField]
 				mem = self._mementos.get(keyFieldValue, {})
-				if _resetMemento:
-					# Set the memento to the new value. This is used when adding
-					# default values to brand new records. Note that we are setting
-					# the memento here, for it only to get completely removed in the
-					# block below, which effectively means "this field hasn't been 
-					# changed".
-					mem[fld] = val 
 				if mem.has_key(fld) or fld in nonUpdateFields:
 					# Memento is already there, or it isn't updateable.
 					pass
@@ -890,9 +883,29 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 		recKey = self.pkExpression(rec)
 		mem = self._mementos.get(recKey, {})
-		
+	
 		for k, v in mem.items():
 			ret[k] = (v, rec[k])
+		return ret
+
+
+	def _getNewRecordDiff(self, row=None):
+		""" Returns a dictionary containing an element for each field 
+		in the specified record (or the current record if none is specified).
+		The field name is the key for each element; the value is a 2-element
+		tuple, with the first element being the original value, and the second 
+		being the current value.
+
+		This is used internally in __saverow, and only applies to new records.
+		"""
+		ret = {}
+		if row is None:
+			row = self.RowNumber
+
+		rec = self._records[row]
+		for k, v in rec.items():
+			if k not in (kons.CURSOR_TMPKEY_FIELD,):
+				ret[k] = (None, v)
 		return ret
 
 
@@ -1025,14 +1038,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		# Faster to deal with 2 specific cases: all rows or just current row
 		if allRows:
 			pks_to_save = self._mementos.keys()
-			pks_to_save.extend(self._newRecords.keys())
-			pks_to_save = list(set(pks_to_save))
 			for pk_id in pks_to_save:
 				row, rec = self._getRecordByPk(pk_id)
 				saverow(row)
 		else:
 			pk = self.pkExpression()
-			if pk in self._mementos.keys() or pk in self._newRecords.keys():
+			if pk in self._mementos.keys():
 				saverow(self.RowNumber)
 		
 		if useTransaction:
@@ -1043,9 +1054,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 		recKey = self.pkExpression(rec)
 		newrec = self._newRecords.has_key(recKey)
-		diff = self.getRecordStatus(row)
+		if newrec:
+			diff = self._getNewRecordDiff(row)
+		else:
+			diff = self.getRecordStatus(row)
 		aq = self.AutoQuoteNames
-		if diff or newrec:
+		if diff:
 			if newrec:
 				flds = ""
 				vals = ""
@@ -1296,7 +1310,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# If it is a function, execute it to get the value, else use literal.
 				if hasattr(val, "__call__"):
 					val = val()
-				self.setFieldVal(field, val, _resetMemento=True)
+				self.setFieldVal(field, val)
 			else:
 				raise dException.FieldNotFoundException, _("Can't set default value for nonexistent field '%s'.") % field
 

@@ -249,18 +249,14 @@ class Test_dCursorMixin(object):
 		self.assertEqual(cur.Record.ifield, 0)
 		self.assertEqual(cur.Record.nfield, 0)
 		cur.save()
-		cur.requery()
 		self.assertEqual(cur.RowCount, 4)
-		self.assertEqual(cur.RowNumber, 3)
+		cur.requery()
+		self.assertEqual(cur.RowCount, 3)
+		self.assertEqual(cur.RowNumber, 2)
 		self.assertEqual(cur._newRecords, {})
 		self.assertEqual(cur.isChanged(), False)
 		self.assertEqual(cur.isChanged(allRows=False), False)
-		self.assertEqual(cur.Record.pk, 4)
 
-		# The new fields should be NULL, since we didn't explicitly set them:
-		self.assertEqual(cur.Record.cfield, None)
-		self.assertEqual(cur.Record.ifield, None)
-		self.assertEqual(cur.Record.nfield, None)
 
 	def testNullRecord(self):
 		cur = self.cur

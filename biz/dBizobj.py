@@ -998,6 +998,10 @@ class dBizobj(dObject):
 		# Call the custom hook method
 		self.onNew()
 
+		# Remove the memento for the new record, as we want to only record
+		# changes made after this point.
+		cursor._clearMemento()
+
 
 	def onNew(self):
 		""" Hook method called after the default values have been set in onNew()."""

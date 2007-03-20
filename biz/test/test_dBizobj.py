@@ -274,17 +274,16 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(biz.Record.iField, 0)
 		self.assertEqual(biz.Record.nField, 0)
 		biz.save()
+		self.assertEqual(biz.RowCount, 4)  ## still have 4 rows, even though the last one wasn't saved
 		biz.requery()
-		self.assertEqual(biz.RowCount, 4)
-		self.assertEqual(biz.RowNumber, 3)
+		# We only have 3 rows, because one of the prior 4 rows was new with no changed fields:
+		self.assertEqual(biz.RowCount, 3)
+		# ...and RowNumber went to 0, because the previous row number (3) doesn't exist anymore:
+		self.assertEqual(biz.RowNumber, 0)
 		self.assertEqual(cur._newRecords, {})
 		self.assertEqual(biz.isChanged(), False)
-		self.assertEqual(biz.Record.pk, 4)
+		self.assertEqual(biz.Record.pk, 1)
 
-		# The new fields should be NULL, since we didn't explicitly set them:
-		self.assertEqual(biz.Record.cField, None)
-		self.assertEqual(biz.Record.iField, None)
-		self.assertEqual(biz.Record.nField, None)
 
 	def testChildren(self):
 		bizMain = self.biz
@@ -357,11 +356,15 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		bizChild.new()
 		self.assertEqual(bizChild.IsAdding, True)
 		self.assertEqual(bizChild.RowCount, 1)
-		self.assertEqual(bizChild.isAnyChanged(), True)
-		self.assertEqual(bizChild.isChanged(), True)
-		self.assertEqual(bizMain.isAnyChanged(), True)
-		self.assertEqual(bizMain.isChanged(), True)
+		self.assertEqual(bizChild.isAnyChanged(), False)
+		self.assertEqual(bizChild.isChanged(), False)
+		self.assertEqual(bizMain.isAnyChanged(), False)
+		self.assertEqual(bizMain.isChanged(), False)
 		bizChild.Record.cInvNum = "IN99991"
+		self.assertEqual(bizMain.isChanged(), True)
+		self.assertEqual(bizMain.isAnyChanged(), True)
+		self.assertEqual(bizChild.isChanged(), True)
+		self.assertEqual(bizChild.isAnyChanged(), True)
 
 		bizMain.prior()
 		self.assertEqual(bizChild.IsAdding, False)
