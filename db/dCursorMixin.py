@@ -1315,7 +1315,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					fnc = val[0]
 					prms = val[1:]
 					val = fnc(*prms)
-				elif
 				self.setFieldVal(field, val)
 			else:
 				raise dException.FieldNotFoundException, _("Can't set default value for nonexistent field '%s'.") % field
