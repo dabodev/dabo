@@ -614,7 +614,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		considered. Otherwise, only the current record will be checked.
 		"""
 		if allRows:
-			return len(self._mementos) > 0 or len(self._newRecords) > 0
+			#return len(self._mementos) > 0 or len(self._newRecords) > 0
+			return len(self._mementos) > 0
 		else:
 			row = self.RowNumber
 
@@ -625,9 +626,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				return False
 			recKey = self.pkExpression(rec)
 			memento = self._mementos.get(recKey, None)
-			new_rec = self._newRecords.has_key(recKey)
-
-			return not (memento is None and not new_rec)
+			#new_rec = self._newRecords.has_key(recKey)
+			#return not (memento is None and not new_rec)
+			return not (not memento)
 
 
 	def setNewFlag(self):
@@ -755,7 +756,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return True
 
 
-	def setFieldVal(self, fld, val, row=None):
+	def setFieldVal(self, fld, val, row=None, _resetMemento=False):
 		"""Set the value of the specified field."""
 		if self.RowCount <= 0:
 			raise dException.NoRecordsException, _("No records in the data set")
@@ -848,6 +849,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					else:
 						keyFieldValue = rec[keyField]
 				mem = self._mementos.get(keyFieldValue, {})
+				if _resetMemento:
+					# Set the memento to the new value. This is used when adding
+					# default values to brand new records. Note that we are setting
+					# the memento here, for it only to get completely removed in the
+					# block below, which effectively means "this field hasn't been 
+					# changed".
+					mem[fld] = val 
 				if mem.has_key(fld) or fld in nonUpdateFields:
 					# Memento is already there, or it isn't updateable.
 					pass
@@ -1288,7 +1296,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# If it is a function, execute it to get the value, else use literal.
 				if hasattr(val, "__call__"):
 					val = val()
-				self.setFieldVal(field, val)
+				self.setFieldVal(field, val, _resetMemento=True)
 			else:
 				raise dException.FieldNotFoundException, _("Can't set default value for nonexistent field '%s'.") % field
 
