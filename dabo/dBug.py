@@ -2,6 +2,9 @@ import inspect
 from cStringIO import StringIO
 
 def logPoint(msg="", levels=None):
+	if levels is None:
+		# Default to 6, which works in most cases
+		levels = 6
 	stack = inspect.stack()
 	# get rid of logPoint's part of the stack:
 	stack = stack[1:]
@@ -10,10 +13,7 @@ def logPoint(msg="", levels=None):
 	if msg:
 		output.write(str(msg) + "\n")
 	
-	if levels is None:
-		stackSection = stack
-	else:
-		stackSection = stack[-1*levels:]
+	stackSection = stack[-1*levels:]
 	for stackLine in stackSection:
 		frame, filename, line, funcname, lines, unknown = stackLine
 		if filename.endswith("/unittest.py"):
