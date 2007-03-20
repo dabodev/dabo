@@ -299,13 +299,18 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		bizMain.requery()
 
 		# At this point bizMain should be at row 0, and bizChild should have
-		# two records, and be on row 0
+		# two records, and be on row 0, and isChanged() should be False, since
+		# no fields have been updated.
 		self.assertEqual(bizMain.Record.pk, 1)
 		self.assertEqual(bizMain.RowNumber, 0)
 		self.assertEqual(bizChild.RowCount, 2)
 		self.assertEqual(bizChild.RowNumber, 0)
 		self.assertEqual(bizChild.Record.pk, 1)
 		self.assertEqual(bizChild.Record.parent_fk, 1)
+		self.assertEqual(bizMain.isChanged(), False)
+		self.assertEqual(bizChild.isChanged(), False)
+		self.assertEqual(bizMain.isAnyChanged(), False)
+		self.assertEqual(bizChild.isAnyChanged(), False)
 
 		bizMain.next()
 		
