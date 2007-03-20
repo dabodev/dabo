@@ -8,7 +8,7 @@ import warnings
 
 
 class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
-	def __init__(self, vgap=3, hgap=3, maxRows=0, maxCols=0, **kwargs):
+	def __init__(self, **kwargs):
 		"""dGridSizer is a sizer that can lay out items in a virtual grid arrangement.
 		Items can be placed is specific row/column positions if that position is
 		unoccupied. You can specify either MaxCols or MaxRows, and then append
@@ -23,25 +23,35 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		"""
 		self._baseClass = dGridSizer
 		self._parent = None
-		wx.GridBagSizer.__init__(self, vgap=vgap, hgap=hgap)
+		wx.GridBagSizer.__init__(self)	##, vgap=vgap, hgap=hgap)
 		
 		self._maxRows = 0
 		self._maxCols = 0
 		self._maxDimension = "c"
-		if not maxRows and not maxCols:
-			# No max settings were passed, so default to 2 columns
-			self.MaxCols = 2
-		elif maxCols:
-			self.MaxCols = maxCols
-		else:
-			# Rows were passed.
-			self.MaxRows = maxRows
 		self.SetFlexibleDirection(self.bothFlag)
 		# Keep track of which rows/cols are set to expand.
 		self._rowExpandState = {}
 		self._colExpandState = {}
 
 		properties = self._extractKeywordProperties(kwargs, {})
+		if kwargs:
+			# Clean up the deprecated old parameters
+			delKeys = []
+			oldNewMap = {"vgap": "VGap", "hgap": "HGap", "maxRows": "MaxRows", "maxCols": "MaxCols"}
+			oldParams = oldNewMap.keys()
+			for k,v in kwargs.items():
+				if k in oldParams:
+					newProp = oldNewMap[k]
+					warnmsg = _("Deprecated parameter '%(k)s' used. Use the '%(newProp)s' property instead.") % locals()
+					warnings.warn(warnmsg, DeprecationWarning, stacklevel=2)
+					delKeys.append(k)
+					properties[oldNewMap[k]] = v
+			for k in delKeys:
+				del kwargs[k]
+		
+		if not ("MaxCols" in properties) and not ("MaxRows" in properties):
+			# Default to 2 columns if nothing else specified
+			properties["MaxCols"] = 2
 		self.setProperties(properties)
 		
 		if kwargs:
@@ -60,7 +70,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		"""
 		if borderSides is None:
 			if borderFlags is not None:
-				warnings.warn(_("Deprecation warning: use 'borderSides' parameter instead."), DeprecationWarning)
+				warnings.warn(_("Deprecation warning: use 'borderSides' parameter instead."), DeprecationWarning, stacklevel=2)
 				borderSides = borderFlags
 		(targetRow, targetCol) = self._determineAvailableCell(row, col)
 		if isinstance(item, (tuple, int)):
@@ -235,7 +245,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		
 	
 	def isRowGrowable(self, row):
-		warnings.warn(_("Deprecated; use 'getRowExpand' instead."), DeprecationWarning)
+		warnings.warn(_("Deprecated; use 'getRowExpand' instead."), DeprecationWarning, stacklevel=2)
 		return self.getRowExpand(row)
 	
 	
@@ -245,7 +255,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		
 		
 	def isColGrowable(self, col):
-		warnings.warn(_("Deprecated; use 'getColExpand' instead."), DeprecationWarning)
+		warnings.warn(_("Deprecated; use 'getColExpand' instead."), DeprecationWarning, stacklevel=2)
 		return self.getColExpand(col)
 
 
