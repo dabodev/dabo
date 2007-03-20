@@ -1004,8 +1004,14 @@ class dBizobj(dObject):
 
 
 	def onNew(self):
-		""" Hook method called after the default values have been set in onNew()."""
-		pass
+		"""Called when a new record is added. 
+
+		Use this hook to add additional default field values, or anything else 
+		you need. If you change field values here, the memento system will not
+		catch it (the record will not be marked 'dirty'). Use afterNew() if you
+		instead want the memento system to record the changes.
+		"""
+	pass
 
 
 	def setParentFK(self, val=None):
@@ -1346,7 +1352,15 @@ class dBizobj(dObject):
 	def beforeChildRequery(self): return ""
 	def beforeCreateCursor(self): return ""
 	########## Post-hook interface section ##############
-	def afterNew(self): pass
+	def afterNew(self): 
+		"""Called after a new record is added. 
+
+		Use this hook to change field values, or anything else you need. If you
+		change field values here, the memento system will catch it. If you want
+		to change field values and not trigger the memento system, use onNew()
+		instead.
+		"""
+		pass
 	def afterDelete(self): pass
 	def afterDeleteAllChildren(self): return ""
 	def afterFirst(self): pass
