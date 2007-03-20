@@ -1308,8 +1308,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		def setDefault(field, val):
 			if rec.has_key(field):
 				# If it is a function, execute it to get the value, else use literal.
-				if hasattr(val, "__call__"):
+				if callable(val):
 					val = val()
+				elif isinstance(val, tuple) and val and callable(val[0]):
+					# This is a tuple consisting of a function and zero to many parameters
+					fnc = val[0]
+					prms = val[1:]
+					val = fnc(*prms)
+				elif
 				self.setFieldVal(field, val)
 			else:
 				raise dException.FieldNotFoundException, _("Can't set default value for nonexistent field '%s'.") % field
