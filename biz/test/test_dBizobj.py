@@ -76,6 +76,14 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 				or ds[2] == ("iField", "G", False, self.temp_table_name, "iField", None))
 		self.assertEqual(ds[3], ("nField", "N", False, self.temp_table_name, "nField", None))
 
+
+	def test_DefaultValues(self):
+		biz = self.biz
+		biz.DefaultValues["iField"] = 2342
+		biz.new()
+		self.assertEqual(biz.Record.iField, 2342)
+		self.assertEqual(biz.isChanged(), False)		
+
 	def testVirtualFields(self):
 		biz = self.biz
 		def getCombinedName():
@@ -161,6 +169,34 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
 	## - Begin method unit tests -
 
+	def test_cancel(self):
+		biz = self.biz
+		biz.Record.cField = "pkm"
+		biz.cancel()
+		self.assertEqual(biz.Record.cField, "Paul Keith McNett")
+		biz.new()
+		self.assertEqual(biz.RowCount, 4)
+		self.assertEqual(biz.RowNumber, 3)
+		biz.cancel()
+		self.assertEqual(biz.RowCount, 3)
+		self.assertEqual(biz.RowNumber, 2)
+
+	def test_isChanged(self):
+		biz = self.biz
+		self.assertEqual(biz.isChanged(), False)
+		biz.Record.cField = "The Magnificent Seven"
+		self.assertEqual(biz.isChanged(), True)
+		biz.cancel()
+		self.assertEqual(biz.isChanged(), False)
+
+		# isChanged()	should be False for new records that haven't had any field
+		# value changes.	
+		biz.new()
+		self.assertEqual(biz.isChanged(), False)
+		biz.Record.cField = "Hitsville U.K."
+		self.assertEqual(biz.isChanged(), True)
+
+
 	def test_oldVal(self):
 		biz = self.biz
 		self.assertEqual(biz.oldVal("cField"), biz.Record.cField)
@@ -232,7 +268,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(biz.RowCount, 4)
 		self.assertEqual(biz.RowNumber, 3)
 		self.assertEqual(cur._newRecords, {"-1-dabotmp": None})
-		self.assertEqual(biz.isChanged(), True)
+		self.assertEqual(biz.isChanged(), False)  ## (because no field changed in new record)
 		self.assertEqual(cur.Record.pk, "-1-dabotmp")
 		self.assertEqual(biz.Record.cField, "")
 		self.assertEqual(biz.Record.iField, 0)
@@ -353,6 +389,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
 		# Test the case where you add a new parent record but no new children:
 		bizMain.new()
+		bizMain.Record.cField = "Junco Pardner"
 		self.assertEqual(bizMain.RowCount, 4)
 		self.assertEqual(bizMain.RowNumber, 3)
 		bizMain.saveAll()
@@ -373,17 +410,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(biz.Record.iField, None)
 		self.assertEqual(biz.Record.nField, None)
 
-	def test_cancel(self):
-		biz = self.biz
-		biz.Record.cField = "pkm"
-		biz.cancel()
-		self.assertEqual(biz.Record.cField, "Paul Keith McNett")
-		biz.new()
-		self.assertEqual(biz.RowCount, 4)
-		self.assertEqual(biz.RowNumber, 3)
-		biz.cancel()
-		self.assertEqual(biz.RowCount, 3)
-		self.assertEqual(biz.RowNumber, 2)
 
 if __name__ == "__main__":
 	suite = unittest.TestLoader().loadTestsFromTestCase(Test_dBizobj)
