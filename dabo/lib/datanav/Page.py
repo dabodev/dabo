@@ -410,7 +410,7 @@ class SelectPage(Page):
 			dataSource = self.Form.previewDataSource
 		fs = self.Form.FieldSpecs
 		panel = dPanel(self)
-		gsz = dabo.ui.dGridSizer(vgap=5, hgap=10)
+		gsz = dabo.ui.dGridSizer(VGap=5, HGap=10)
 		gsz.MaxCols = 3
 		label = dabo.ui.dLabel(panel)
 		label.Caption = _("Please enter your record selection criteria:")
@@ -660,7 +660,7 @@ class EditPage(Page):
 		showEdit.sort(lambda x, y: cmp(x[1], y[1]))
 		mainSizer = self.GetSizer()
 		firstControl = None
-		gs = dabo.ui.dGridSizer(vgap=5, maxCols=3)
+		gs = dabo.ui.dGridSizer(VGap=5, MaxCols=3)
 		
 		for fld in showEdit:
 			fieldName = fld[0]
