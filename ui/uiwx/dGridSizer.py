@@ -62,16 +62,11 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 
 	def append(self, item, layout="normal", row=-1, col=-1, 
 			rowSpan=1, colSpan=1, alignment=None, halign="left", 
-			valign="middle", border=0, borderSides=("all",), 
-			borderFlags=("all",), flag=None):
+			valign="middle", border=0, borderSides=("all",), flag=None):
 		""" Inserts the passed item at the specified position in the grid. If no
 		position is specified, the item is inserted at the first available open 
 		cell as specified by the Max* properties.		
 		"""
-		if borderSides is None:
-			if borderFlags is not None:
-				warnings.warn(_("Deprecation warning: use 'borderSides' parameter instead."), DeprecationWarning, stacklevel=2)
-				borderSides = borderFlags
 		(targetRow, targetCol) = self._determineAvailableCell(row, col)
 		if isinstance(item, (tuple, int)):
 			# spacer
@@ -244,21 +239,11 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		self.setRowExpand(False, "all")
 		
 	
-	def isRowGrowable(self, row):
-		warnings.warn(_("Deprecated; use 'getRowExpand' instead."), DeprecationWarning, stacklevel=2)
-		return self.getRowExpand(row)
-	
-	
 	def getRowExpand(self, row):
 		"""Returns True if the specified row is growable."""
 		return bool(self._rowExpandState.get(row, 0))
 		
 		
-	def isColGrowable(self, col):
-		warnings.warn(_("Deprecated; use 'getColExpand' instead."), DeprecationWarning, stacklevel=2)
-		return self.getColExpand(col)
-
-
 	def getColExpand(self, col):
 		"""Returns True if the specified column is growable."""
 		return bool(self._colExpandState.get(col, 0))

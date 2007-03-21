@@ -111,7 +111,6 @@ from dMenuBar import dMenuBar
 from dMenu import dMenu
 from dMenuItem import *
 import dMessageBox
-from dRadioGroup import dRadioGroup
 from dRadioList import dRadioList
 from dPanel import dPanel
 from dPanel import dScrollPanel
@@ -1082,6 +1081,8 @@ def browse(dataSource, parent=None):
 
 
 def fontMetricFromFont(txt, font):
+	if isinstance(font, dabo.ui.dFont):
+		font = font._nativeFont
 	wind = wx.Frame(None)
 	dc = wx.ClientDC(wind)
 	dc.SetFont(font)

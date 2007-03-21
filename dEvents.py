@@ -273,7 +273,7 @@ class Hit(Event):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, (ui.dBitmapButton, ui.dButton,
 				ui.dCheckBox, ui.dComboBox, ui.dDropdownList, ui.dEditBox,
-				ui.dListBox, ui.dRadioGroup, ui.dSlider, ui.dSpinner, ui.dTextBox,
+				ui.dListBox, ui.dRadioList, ui.dSlider, ui.dSpinner, ui.dTextBox,
 				ui.dTimer, ui.dToggleButton, ui.dMenuItem))
 	appliesToClass = classmethod(appliesToClass)
 	
