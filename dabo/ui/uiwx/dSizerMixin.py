@@ -80,14 +80,8 @@ class dSizerMixin(dObject):
 	appendItems.__doc__ += _doc_additions	
 			
 	def append(self, obj, layout="normal", proportion=0, alignment=None,
-			halign="left", valign="top", border=None, borderSides=None,
-			borderFlags=None):
+			halign="left", valign="top", border=None, borderSides=None):
 		"""Adds the passed object to the end of the sizer layout."""
-
-		if borderSides is None:
-			if borderFlags is not None:
-				dabo.errorLog.write(_("Depracation warning: use 'borderSides' parameter instead."))
-				borderSides = borderFlags
 		return self.insert(len(self.Children), obj, layout=layout, proportion=proportion, 
 				alignment=alignment, halign=halign, valign=valign, border=border, 
 				borderSides=borderSides)
@@ -101,13 +95,8 @@ class dSizerMixin(dObject):
 		
 
 	def insert(self, index, obj, layout="normal", proportion=0, alignment=None,
-			halign="left", valign="top", border=None, borderSides=None, 
-			borderFlags=None):
+			halign="left", valign="top", border=None, borderSides=None):
 		"""Inserts the passed object into the sizer layout at the specified position."""
-		if borderSides is None:
-			if borderFlags is not None:
-				dabo.errorLog.write(_("Deprecation warning: use 'borderSides' parameter instead."))
-				borderSides = borderFlags
 		if isinstance(layout, int):
 			# proportion was passed first
 			layout, proportion = proportion, layout
@@ -153,12 +142,11 @@ class dSizerMixin(dObject):
 	
 	
 	def prepend(self, obj, layout="normal", proportion=0, alignment=None,
-			halign="left", valign="top", border=None, borderSides=None, 
-			borderFlags=None):
+			halign="left", valign="top", border=None, borderSides=None):
 		"""Insert the object at the beginning of the sizer layout."""
 		return self.insert(0, obj, layout=layout, proportion=proportion,
 				alignment=alignment, halign=halign, valign=valign, border=border,
-				borderSides=None, borderFlags=None)			
+				borderSides=None)
 	prepend.__doc__ += _doc_additions
 	
 	def remove(self, item, destroy=None):
@@ -625,6 +613,8 @@ class dSizerMixin(dObject):
 
 		if layout.lower() in ("expand", "ex", "exp", "x", "grow"):
 			_wxFlags = _wxFlags | self.expandFlag
+		elif layout.lower() == "shaped":
+			_wxFlags = _wxFlags | wx.SHAPED
 		elif layout.lower() == "fixed":
 			_wxFlags = _wxFlags | self.fixedFlag
 
