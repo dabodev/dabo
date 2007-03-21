@@ -65,6 +65,7 @@ class dSizerMixin(dObject):
 	borderAllFlag = wx.ALL 
 	expandFlag = wx.EXPAND
 	growFlag = wx.EXPAND
+	shapedFlag = wx.SHAPED
 	fixedFlag = wx.FIXED_MINSIZE 
 	# Also provide Dabo names for the sizer item classes
 	SizerItem = wx.SizerItem
@@ -614,7 +615,7 @@ class dSizerMixin(dObject):
 		if layout.lower() in ("expand", "ex", "exp", "x", "grow"):
 			_wxFlags = _wxFlags | self.expandFlag
 		elif layout.lower() == "shaped":
-			_wxFlags = _wxFlags | wx.SHAPED
+			_wxFlags = _wxFlags | self.shapedFlag
 		elif layout.lower() == "fixed":
 			_wxFlags = _wxFlags | self.fixedFlag
 
