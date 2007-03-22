@@ -1,14 +1,13 @@
+import sys
+import time
 import wx
 import dabo
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dFormMixin as fm
 import dabo.dException as dException
-import dabo.dConstants as k
-import dProgressDialog
-import dSizer
 from dabo.dLocalize import _
-import time
-import sys
 from dabo.ui import makeDynamicProperty
 
 
@@ -60,7 +59,7 @@ class BaseForm(fm.dFormMixin):
 		
 		
 	def _afterInit(self):
-		self.Sizer = dSizer.dSizer("vertical")
+		self.Sizer = dabo.ui.dSizer("vertical")
 		self.Sizer.layout()
 		if self.mkPanel:
 			mp = self.mainPanel = dabo.ui.dPanel(self)
