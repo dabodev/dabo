@@ -1,12 +1,13 @@
 import warnings
 import wx
+import dabo
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 import dPemMixin as pm
-import dMenuItem
 import dIcons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
-
 
 # wx constants for styles
 NormalItemType = wx.ITEM_NORMAL
@@ -327,9 +328,9 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		itmid = self._getItemID(menutype)
 		if itmid != wx.ID_DEFAULT:
 			kwargs["id"] = itmid
-		cls = {NormalItemType: dMenuItem.dMenuItem,
-				CheckItemType: dMenuItem.dCheckMenuItem,
-				RadioItemType: dMenuItem.dRadioMenuItem}[itmtyp]
+		cls = {NormalItemType: dabo.ui.dMenuItem,
+				CheckItemType: dabo.ui.dCheckMenuItem,
+				RadioItemType: dabo.ui.dRadioMenuItem}[itmtyp]
 		itm = cls(self, HelpText=help, Icon=icon, kind=itmtyp, *args, **kwargs)
 		if bindfunc:
 			itm.bindEvent(dEvents.Hit, bindfunc)

@@ -109,7 +109,9 @@ from dListControl import dListControl
 from dBaseMenuBar import dBaseMenuBar
 from dMenuBar import dMenuBar
 from dMenu import dMenu
-from dMenuItem import *
+from dMenuItem import dMenuItem
+from dMenuItem import dCheckMenuItem
+from dMenuItem import dRadioMenuItem
 import dMessageBox
 from dRadioList import dRadioList
 from dPanel import dPanel
