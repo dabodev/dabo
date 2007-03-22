@@ -191,17 +191,17 @@ def getTimeFromString(strVal, formats=None):
 	return ret
 
 
-def goDate(date_exp, days):
+def goDate(date_datetime_exp, days):
 	"""Given a date or datetime, return the date or datetime that is <days> away."""
-	now = time.time()
+	tt = date_datetime_exp.timetuple()
+	seconds = time.mktime(tt)
 	one_day = 60*60*24
 	offset = (one_day * days)
-	new_time = time.localtime(now + offset)
-	if isinstance(date_exp, datetime.datetime):
-		return datetime.datetime(new_time[0], new_time[1], new_time[2], date_exp.hour, date_exp.minute, date_exp.second)
-	if isinstance(date_exp, datetime.date):
-		return datetime.date(new_time[0], new_time[1], new_time[2])
-
+	new_time = list(time.localtime(seconds + offset))
+	new_time = tuple(new_time[:-3])
+	if isinstance(date_datetime_exp, datetime.datetime):
+		return datetime.datetime(*new_time)
+	return datetime.date(new_time[0], new_time[1], new_time[2])
 
 
 if __name__ == "__main__":

@@ -23,6 +23,15 @@ class Test_Dates(unittest.TestCase):
 			self.assertEqual(dates.getDateFromString(test[1], test[0]), test[2])
 
 
+	def test_goDate(self):
+		self.assertEqual(dates.goDate(datetime.date(2006, 05, 03), 10), datetime.date(2006, 05, 13))
+		self.assertEqual(dates.goDate(datetime.datetime(2006, 05, 03, 12, 15, 23), 10), datetime.datetime(2006, 05, 13, 12, 15, 23))
+		self.assertEqual(dates.goDate(datetime.datetime(2006, 05, 03, 12, 15, 00), 10), datetime.datetime(2006, 05, 13, 12, 15, 00))
+		self.assertEqual(dates.goDate(datetime.date(2006, 05, 03), -2), datetime.date(2006, 05, 01))
+		self.assertEqual(dates.goDate(datetime.datetime(2006, 05, 03, 12, 15, 23), -2), datetime.datetime(2006, 05, 01, 12, 15, 23))
+		self.assertEqual(dates.goDate(datetime.datetime(2006, 05, 03, 12, 15, 00), -2), datetime.datetime(2006, 05, 01, 12, 15, 00))
+		
+
 if __name__ == "__main__":
 	suite = unittest.TestLoader().loadTestsFromTestCase(Test_Dates)
 	unittest.TextTestRunner(verbosity=2).run(suite)
