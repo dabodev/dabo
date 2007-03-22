@@ -34,17 +34,6 @@ class dPemMixin(dPemMixinBase):
 		# Holds the keyword event bindings passed in the constructor
 		self._kwEvents = {}
 		
-		# Lots of useful wx props are actually only settable before the
-		# object is fully constructed. The self._preInitProperties dict keeps
-		# track of those during the pre-init phase, to finally send the 
-		# contents of it to the wx constructor. Our property setters know
-		# if we are in pre-init or not, and instead of trying to modify 
-		# the prop will instead add the appropriate entry to the _preInitProperties
-		# dict. Additionally, there are certain wx properties that are required,
-		# and we include those in the _preInitProperties dict as well so they may
-		# be modified by our pre-init method hooks if needed:
-		self._preInitProperties = {"style": 0}
-
 		# There are a few controls that don't yet support 3-way inits (grid, for 
 		# one). These controls will send the wx classref as the preClass argument, 
 		# and we'll call __init__ on it when ready. We can tell if we are in a 
@@ -64,9 +53,24 @@ class dPemMixin(dPemMixinBase):
 		if srcCode:
 			self._addCodeAsMethod(srcCode)
 		
-		# _beforeInit() will call the beforeInit() user hook
 		self._beforeInit(pre)
-		# _initProperties() will call the initProperties() user hook
+		# Lots of useful wx props are actually only settable before the
+		# object is fully constructed. The self._preInitProperties dict keeps
+		# track of those during the pre-init phase, to finally send the 
+		# contents of it to the wx constructor. Our property setters know
+		# if we are in pre-init or not, and instead of trying to modify 
+		# the prop will instead add the appropriate entry to the _preInitProperties
+		# dict. Additionally, there are certain wx properties that are required,
+		# and we include those in the _preInitProperties dict as well so they may
+		# be modified by our pre-init method hooks if needed:
+		self._preInitProperties = {"parent": parent}
+		for arg, default in (("style", 0), ("id", -1)):
+			if kwargs.has_key(arg):
+				self._preInitProperties[arg] = kwargs[arg]
+				del kwargs[arg]
+			else:
+				self._preInitProperties[arg] = default
+
 		self._initProperties()
 		
 		# Now that user code has had an opportunity to set the properties, we can 
@@ -98,33 +102,7 @@ class dPemMixin(dPemMixinBase):
 					attVal = val
 				properties[prop] = attVal
 		properties = dictStringify(properties)
-# 				try:
-# 					exec "properties['%s'] = %s" % (prop, val)
-# 				except:
-# 					# If this is property holds strings, we need to quote the value.
-# 					escVal = val.replace('"', '\\"').replace("'", "\\'")
-# 					try:
-# 						exec "properties['%s'] = u'%s'" % (prop, escVal)
-# 					except:
-# 						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
 
-		if kwargs.has_key("style"):
-			# If wx style parm sent, keep it as-is.
-			style = kwargs["style"]
-		else:
-			style = 0
-		if kwargs.has_key("id"):
-			# If wx id parm sent, keep it as-is.
-			id_ = kwargs["id"]
-		else:
-			id_ = -1
-
-		if self._preInitProperties.has_key("style"):
-			self._preInitProperties["style"] = self._preInitProperties["style"] | style
-		else:
-			self._preInitProperties["style"] = style
-		self._preInitProperties["parent"] = parent
-		self._preInitProperties["id"] = id_
 
 		# Hacks to fix up various things:
 		import dMenuBar, dMenuItem, dMenu, dFoldPanelBar
@@ -195,9 +173,7 @@ class dPemMixin(dPemMixinBase):
 		# Set any passed event bindings
 		self._setKwEventBindings(self._kwEvents)
 		
-		# _initEvents() will call the initEvents() user hook
 		self._initEvents()
-		# _afterInit() will call the afterInit() user hook
 		self._afterInit()
 
 		dPemMixinBase.__init__(self)  ## don't use super(), or wx init called 2x.
@@ -220,10 +196,10 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _setProperties(self, properties):
-		"""Provides pre- and post- hooks for the setProperties() method.
-		Typically used to remove Designer props that don't appear in
-		runtime classes.
-		"""
+		"""Provides pre- and post- hooks for the setProperties() method."""
+
+		## Typically used to remove Designer props that don't appear in
+		## runtime classes.
 		if self.beforeSetProperties(properties) is False:
 			return
 		self.setProperties(properties)
