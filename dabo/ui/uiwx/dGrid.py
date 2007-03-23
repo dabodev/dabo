@@ -1754,7 +1754,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		
 	def fillGrid(self, force=False):
 		""" Refresh the grid to match the data in the data set."""
-
 		# Get the default row size from dApp's user settings
 		rowSize = self._getUserSetting("RowSize")
 		if rowSize:
@@ -1776,6 +1775,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if not self._modeSet:
 			self._modeSet = True
 			self.SelectionMode = self.SelectionMode
+
+		# And just to make sure (sometimes on Windows, the grid isn't refreshed
+		# otherwise, and perhaps this is true elsewhere, too.):
+		dabo.ui.callAfterInterval(200, self.refresh)
 
 
 	def _restoreSort(self):
@@ -2653,11 +2656,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._syncRowCount()
 		super(dGrid, self).refresh()
 	
-	
 	def update(self):
+		self.Freeze()
 		super(dGrid, self).update()
 		self.fillGrid()
-
+		self.Thaw()
 
 	def _getWxHeader(self):
 		"""Return the wx grid header window."""
