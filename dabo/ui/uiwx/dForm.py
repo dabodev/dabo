@@ -789,6 +789,9 @@ class dForm(BaseForm, wx.Frame):
 		##  we are modifying the dForm class definition globally.)
 		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
+	def Show(self, show, *args, **kwargs):
+		self._gtk_show_fix(show)
+		dForm.__bases__[-1].Show(self, show, *args, **kwargs)
 
 	def Layout(self):
 		super(dForm, self).Layout()
@@ -808,6 +811,11 @@ class dToolForm(BaseForm, wx.MiniFrame):
 		kwargs["ShowToolBar"] = False
 		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
+	def Show(self, show, *args, **kwargs):
+		self._gtk_show_fix(show)
+		wx.MiniFrame.Show(self, show, *args, **kwargs)
+
+
 
 class dBorderlessForm(BaseForm, wx.Frame):
 	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
@@ -820,6 +828,10 @@ class dBorderlessForm(BaseForm, wx.Frame):
 		preClass = wx.PreFrame
 		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 	
+	def Show(self, show, *args, **kwargs):
+		self._gtk_show_fix(show)
+		wx.Frame.Show(self, show, *args, **kwargs)
+
 
 class _dForm_test(dForm):
 	def afterInit(self):
