@@ -1,6 +1,7 @@
 import os
 import sys
-import wx, dabo
+import wx
+import dabo
 import dPemMixin as pm
 import dBaseMenuBar as mnb
 import dMenu
