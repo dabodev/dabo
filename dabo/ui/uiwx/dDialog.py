@@ -22,7 +22,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		self._centered = True
 		self._fit = True
 
-		defaultStyle = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
+		defaultStyle = wx.DEFAULT_DIALOG_STYLE
 		try:
 			kwargs["style"] = kwargs["style"] | defaultStyle
 		except KeyError:

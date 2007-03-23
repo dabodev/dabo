@@ -910,7 +910,9 @@ class dFormMixin(pm.dPemMixin):
 			_("Does this form update the status text with the current record position?  (bool)"))
 
 	BorderResizable = property(_getBorderResizable, _setBorderResizable, None,
-			_("Specifies whether the user can resize this form.  (bool)."))
+			_("""Specifies whether the user can resize this form.  (bool).
+
+			The default is True for dForm and False for dDialog."""))
 
 	Centered = property(_getCentered, _setCentered, None, 
 			_("Centers the form on the screen when set to True.  (bool)"))
