@@ -261,7 +261,21 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		pass
 		
-		
+	
+	def _gtk_show_fix(self, show=True):
+		# On Gtk, in wxPython 2.8.1.1 at least, the form will get re-shown at its
+		# initial position, instead of the position the user last put it at.
+		if not show and "linux" in sys.platform:
+			self._gtk_bug_position = self.Position
+		else:
+			pos = getattr(self, "_gtk_bug_position", None)
+			if pos is not None:
+				# position needs to be jiggled, not merely set:
+				x,y = pos
+				self.Position = (x, y+1)
+				self.Position = (x, y)
+
+
 	def showModal(self):
 		"""Shows the form in a modal fashion. Other forms can still be
 		activated, but all controls are disabled.

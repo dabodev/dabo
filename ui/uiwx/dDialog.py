@@ -49,6 +49,15 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		self.bindKey("esc", self._onEscape)
 
 
+	def Show(self, show, *args, **kwargs):
+		self._gtk_show_fix(show)
+		wx.Dialog.Show(self, show, *args, **kwargs)
+
+	def ShowModal(self, *args, **kwargs):
+		self._gtk_show_fix(True)
+		wx.Dialog.ShowModal(self, *args, **kwargs)
+
+
 	def showModal(self):
 		"""Show the dialog modally."""
 		## pkm: We had to override this, because the default in dPemMixin doesn't 
