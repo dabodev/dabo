@@ -14,7 +14,7 @@ def onClick(evt):
 
 app = wx.App()
 frm = wx.Frame(None)
-frm.Bind(wx.EVT_LEFT_UP, onClick)
+frm.Bind(wx.EVT_LEFT_DOWN, onClick)
 
 frm.Show()
 app.MainLoop()
