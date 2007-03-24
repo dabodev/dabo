@@ -26,6 +26,7 @@ from dabo.lib import dates
 
 
 class dCursorMixin(dObject):
+	"""Dabo's cursor class, representing the lowest tier."""
 	_call_initProperties = False
 	def __init__(self, sql="", *args, **kwargs):
 		self._convertStrToUnicode = True

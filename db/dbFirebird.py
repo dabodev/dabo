@@ -6,6 +6,7 @@ from dCursorMixin import dCursorMixin
 
 
 class Firebird(dBackend):
+	"""Class providing Firebird connectivity. Uses kinterbasdb."""
 
 	# Firebird treats quotes names differently than unquoted names. This
 	# will turn off the effect of automatically quoting all entities in Firebird; 

@@ -3,6 +3,7 @@ from dabo.dLocalize import _
 from dBackend import dBackend
 
 class MSSQL(dBackend):
+	"""Class providing Microsoft SQL Server connectivity. Uses pymssql."""
 	def __init__(self):
 		dBackend.__init__(self)
 		#- jfcs 11/06/06 first try getting Microsoft SQL 2000 server working

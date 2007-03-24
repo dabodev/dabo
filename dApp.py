@@ -1,42 +1,3 @@
-""" 
-	dApp.py : The application object for Dabo.
-
-
-	This object gets instantiated from the client app's main.py,
-	and lives through the life of the application.
-
-		-- set up an empty data connections object which holds 
-		-- connectInfo objects connected to pretty names. If there 
-		-- is a file named 'default.cnxml' present, it will import the
-		-- connection definitions contained in that. If no file of that
-		-- name exists, it will import any .cnxml file it finds. If there
-		-- are no such files, it will then revert to the old behavior
-		-- of importing a file in the current directory called 
-		-- 'dbConnectionDefs.py', which contains connection
-		-- definitions in python code format instead of XML.
-
-		-- Set up a DB Connection manager, that is basically a dictionary
-		-- of dConnection objects. This allows connections to be shared
-		-- application-wide.
-
-		-- decide which ui to use (wx) and gets that ball rolling
-
-		-- make a system menu bar, based on a combination
-		-- of dabo defaults and user resource files.
-
-		-- ditto for toolbar(s)
-
-		-- look for a mainFrame ui resource file in an expected 
-		-- place, otherwise uses default dabo mainFrame, and 
-		-- instantiate that. 
-
-		-- maintain a forms collection and provide interfaces for
-		-- opening dForms, closing them, and iterating through them.
-
-		-- start the main app event loop.
-
-		-- clean up and exit gracefully
-"""
 import sys
 import os
 import locale
@@ -146,6 +107,36 @@ class dApp(dObject):
 	>>> import dabo
 	>>> app = dabo.dApp
 	>>> app.start()
+
+	Normally, dApp gets instantiated from the client app's main Python script,
+	and lives through the life of the application.
+
+		-- set up an empty data connections object which holds 
+		-- connectInfo objects connected to pretty names. If there 
+		-- is a file named 'default.cnxml' present, it will import the
+		-- connection definitions contained in that. If no file of that
+		-- name exists, it will import any .cnxml file it finds. If there
+		-- are no such files, it will then revert to the old behavior
+		-- of importing a file in the current directory called 
+		-- 'dbConnectionDefs.py', which contains connection
+		-- definitions in python code format instead of XML.
+
+		-- Set up a DB Connection manager, that is basically a dictionary
+		-- of dConnection objects. This allows connections to be shared
+		-- application-wide.
+
+		-- decide which ui to use (wx) and gets that ball rolling
+
+		-- look for a MainForm in an expected place, otherwise use default dabo 
+		-- dMainForm, and instantiate that. 
+
+		-- maintain a forms collection and provide interfaces for
+		-- opening dForms, closing them, and iterating through them.
+
+		-- start the main app event loop.
+
+		-- clean up and exit gracefully
+
 	"""
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, True
 	# Behaviors which are normal in the framework may need to

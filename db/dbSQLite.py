@@ -7,6 +7,7 @@ from dCursorMixin import dCursorMixin
 
 
 class SQLite(dBackend):
+	"""Class providing SQLite connectivity. Uses sqlite3 or pysqlite2 package."""
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "pysqlite2"

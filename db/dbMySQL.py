@@ -9,6 +9,7 @@ import dabo.dException as dException
 from dabo.db import dNoEscQuoteStr as dNoEQ
 
 class MySQL(dBackend):
+	"""Class providing MySQL connectivity. Uses MySQLdb."""
 
 	# MySQL uses the backtick to enclose names with spaces.
 	nameEnclosureChar = "`"
