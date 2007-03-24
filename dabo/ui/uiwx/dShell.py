@@ -141,6 +141,13 @@ class dShell(dSplitForm):
 	def _onDestroy(self, evt):
 		__builtin__.raw_input = self._oldRawInput
 
+	
+	def _beforeInit(self, pre):
+		# Set the sash
+		self._sashPct = 0.6
+		super(dShell, self)._beforeInit(pre)
+		
+
 	def _afterInit(self):
 		super(dShell, self)._afterInit()
 
@@ -204,8 +211,6 @@ class dShell(dSplitForm):
 		self.Caption = _("dShell: self is %s") % ns.Name
 		self.setStatusText(_("Use this shell to interact with the runtime environment"))
 		self.fillMenu()
-		# Set the sash
-		self._sashPct = 0.6
 		self.shell.SetFocus()
 		
 	
