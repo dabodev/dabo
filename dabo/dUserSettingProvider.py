@@ -4,6 +4,9 @@ from dabo.dLocalize import _
 
 
 class dUserSettingProvider(dObject):
+	"""Class that manages saving and restoring user settings, such as form
+	size and position.
+	"""
 	def getUserSettingKeys(self, spec):
 		"""Return a list of all keys underneath <spec>.
 		

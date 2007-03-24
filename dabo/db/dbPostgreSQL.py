@@ -3,6 +3,7 @@ from dabo.dLocalize import _
 from dBackend import dBackend
 
 class Postgres(dBackend):
+	"""Class providing PostgreSQL connectivity. Uses psycopg."""
 	def __init__(self):
 		dBackend.__init__(self)
 		#- jfcs 11/01/04 I have to use alpha/beta of psycopg (currently 1.99.10)

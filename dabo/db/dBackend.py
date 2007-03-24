@@ -1,4 +1,3 @@
-""" dabo.db.backend.py : abstractions for the various db api's """
 import sys
 import re
 import datetime
@@ -16,7 +15,7 @@ except ImportError:
 
 
 class dBackend(dObject):
-	""" Abstract object: inherit from this to define new dabo db interfaces."""
+	"""Abstract class inherited by the specific Dabo database connectors."""
 	# Pattern for determining if a function is present in a string
 	functionPat = re.compile(r".*\([^\)]+\)")
 	# When enclosing table or field names that contain spaces, what

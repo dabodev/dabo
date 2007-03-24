@@ -4,7 +4,9 @@ from dLocalize import _
 
 
 class dSecurityManager(dObject):
-	
+	"""Class providing security services for Dabo applications, such as the
+	user logging in.
+	"""	
 	def login(self):
 		"""Ask the ui to display the login form to the user.
 		
