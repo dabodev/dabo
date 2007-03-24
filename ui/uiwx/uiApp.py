@@ -278,7 +278,7 @@ class uiApp(dObject, wx.App):
 		if context is None:
 			context = self.ActiveForm
 		dlg = dabo.ui.dShell.dShell(context)
-		dlg.Show()
+		dlg.show()
 
 	
 	def onWinClose(self, evt):
