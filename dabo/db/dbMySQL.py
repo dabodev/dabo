@@ -6,7 +6,7 @@ except ImportError:
 from dabo.dLocalize import _
 from dBackend import dBackend
 import dabo.dException as dException
-from dabo.db import dNoEscQuoteStr as dNoEQ
+from dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 
 class MySQL(dBackend):
 	"""Class providing MySQL connectivity. Uses MySQLdb."""
