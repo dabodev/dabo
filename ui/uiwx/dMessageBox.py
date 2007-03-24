@@ -13,16 +13,18 @@ def getForm():
 
 
 class dMessageBox(wx.MessageDialog):
-	def __init__(self, message, title, style):
-		form = getForm()
+	def __init__(self, message, title, style, parent=None):
+		if not parent:
+			parent = getForm()
 		# Force the message and title to strings
 		message = "%s" % message
 		title = "%s" % title
-		wx.MessageDialog.__init__(self, form, message, title, style)
+		wx.MessageDialog.__init__(self, parent, message, title, style)
 
 
-def areYouSure(message="Are you sure?", title=None,
-			defaultNo=False, cancelButton=True):
+def areYouSure(message="Are you sure?", title=None, defaultNo=False, 
+		cancelButton=True, parent=None):
+	"""Display a message dialog asking the user to answer Yes, No to a question."""	
 	if title is None:
 		title = getDefaultTitle()
 	style = wx.YES_NO|wx.ICON_QUESTION
@@ -31,7 +33,7 @@ def areYouSure(message="Are you sure?", title=None,
 	if defaultNo:
 		style = style|wx.NO_DEFAULT
 
-	dlg = dMessageBox(message, title, style)
+	dlg = dMessageBox(message, title, style, parent=parent)
 	retval = dlg.ShowModal()
 	dlg.Destroy()
 
@@ -43,38 +45,38 @@ def areYouSure(message="Are you sure?", title=None,
 		return None
 
 
-def stop(message="Stop", title=None):
+def stop(message="Stop", title=None, parent=None):
 	if title is None:
 		title = getDefaultTitle()
 	icon = wx.ICON_HAND
-	showMessageBox(message=message, title=title, icon=icon)
+	showMessageBox(message=message, title=title, icon=icon, parent=parent)
 
-def info(message="Information", title=None):
+def info(message="Information", title=None, parent=None):
 	if title is None:
 		title = getDefaultTitle()
 	icon = wx.ICON_INFORMATION
-	showMessageBox(message=message, title=title, icon=icon)
+	showMessageBox(message=message, title=title, icon=icon, parent=parent)
 
-def exclaim(message="Important!", title=None):
+def exclaim(message="Important!", title=None, parent=None):
 	if title is None:
 		title = getDefaultTitle()
 	icon = wx.ICON_EXCLAMATION
-	showMessageBox(message=message, title=title, icon=icon)
+	showMessageBox(message=message, title=title, icon=icon, parent=parent)
 
-def showMessageBox(message, title, icon):
+def showMessageBox(message, title, icon, parent=None):
 	style = wx.OK | icon
-	dlg = dMessageBox(message, title, style)
+	dlg = dMessageBox(message, title, style, parent=parent)
 	dlg.CenterOnParent()
 	retval = dlg.ShowModal()
 	dlg.Destroy()
 	return None
 
 
-def info(message="Information", title=None):
+def info(message="Information", title=None, parent=None):
 	if title is None:
 		title = getDefaultTitle()
 	style = wx.OK|wx.ICON_INFORMATION
-	dlg = dMessageBox(message, title, style)
+	dlg = dMessageBox(message, title, style, parent=parent)
 	retval = dlg.ShowModal()
 	dlg.Destroy()
 	return None
