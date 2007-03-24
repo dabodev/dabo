@@ -138,7 +138,9 @@ class dEvent(dObject):
 	EventData = property(_getEventData, _setEventData, None,
 			_("""Dictionary of data name/value pairs associated 
 			with the event.  (dict)"""))
-		
+
+# Eventually deprecate Event		
+Event=dEvent
 
 class DataEvent(dEvent):
 	def appliesToClass(eventClass, objectClass):
