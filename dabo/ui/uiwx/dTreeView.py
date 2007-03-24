@@ -819,10 +819,10 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 
 
 	def _setAbsoluteFontZoom(self, newZoom):
+		self._currFontZoom = newZoom
 		for node in self.nodes:
-			origFontSize = node._origFontSize = getattr(self, "_origFontSize", node.FontSize)
+			origFontSize = node._origFontSize = getattr(node, "_origFontSize", node.FontSize)
 			fontSize = origFontSize + newZoom
-			node._currFontZoom = newZoom
 			if fontSize > 1:
 				node.FontSize = fontSize
 
