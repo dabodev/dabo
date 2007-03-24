@@ -6,7 +6,7 @@ from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.db import dTable
-from dabo.db import dNoEscQuoteStr
+from dNoEscQuoteStr import dNoEscQuoteStr
 try:
 	import decimal
 except ImportError:
