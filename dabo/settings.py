@@ -85,7 +85,7 @@ MDI = False
 # of automatic conversion in OS X. 8pt fonts on Mac are barely even readable.
 # Set macFontScaling to True to make your fonts appear the same size on all 
 # platforms.
-macFontScaling = False  ## will default to True once tested.
+macFontScaling = True
  
 # When doing date calculations, displaying calendars, etc., this determines whether
 # 'Sunday' or 'Monday' is considered the beginning of the week
