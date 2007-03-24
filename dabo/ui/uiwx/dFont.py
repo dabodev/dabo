@@ -65,6 +65,8 @@ class dFont(dObject):
 		return self._nativeFont.GetPointSize()
 
 	def _setSize(self, val):
+		if wx.Platform == "__WXMAC__" and dabo.settings.macFontScaling:
+			val = round(val / .75)
 		self._nativeFont.SetPointSize(val)
 		self._propsChanged()
 
