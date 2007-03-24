@@ -80,6 +80,13 @@ MDI = False
 #        on Windows though, because it seems to be the arrangement most users
 #        expect.)
 
+# macFontScaling: If you set a font to 10 pt it'll look medium-small on most
+# Windows and Linux screens. However, it will look very small on Mac because
+# of automatic conversion in OS X. 8pt fonts on Mac are barely even readable.
+# Set macFontScaling to True to make your fonts appear the same size on all 
+# platforms.
+macFontScaling = False  ## will default to True once tested.
+ 
 # When doing date calculations, displaying calendars, etc., this determines whether
 # 'Sunday' or 'Monday' is considered the beginning of the week
 firstDayOfWeek = "Sunday"
