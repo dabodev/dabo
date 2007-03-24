@@ -49,7 +49,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		self.bindKey("esc", self._onEscape)
 
 
-	def Show(self, show, *args, **kwargs):
+	def Show(self, show=True, *args, **kwargs):
 		self._gtk_show_fix(show)
 		wx.Dialog.Show(self, show, *args, **kwargs)
 
