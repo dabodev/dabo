@@ -16,6 +16,7 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 		
 		self._baseClass = dFoldPanel
 		preClass = fpb.FoldPanelItem
+		self._widthAlreadySet = self._heightAlreadySet = True
 
 		# This needs to be set *after* the panel is added to its parent
 		collapsed = self._extractKey(attProperties, "Collapsed", None)
@@ -74,8 +75,11 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 			if not self.IsExpanded():
 				ret.SetHeight(self.CaptionHeight)
 			else:
-				if ret.GetHeight() > pHt - capHt:
+				if self.Parent.Singleton:
 					ret.SetHeight(pHt - capHt)
+				else:
+					if ret.GetHeight() > pHt - capHt:
+						ret.SetHeight(pHt - capHt)
 		return ret
 		
 		
@@ -340,16 +344,11 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			# The object may have already been released.
 			return
 		self.Layout()
-		try:
-			# Call the Dabo version, if present
-			self.Sizer.layout()
-		except:
-			pass
 
 	
 	def onResize(self, evt):
 		self.sizePanelHeights()
-
+		
 
 	def _setInitialOpenPanel(self):
 		"""When self.Singleton is true, ensures that one panel is
@@ -444,7 +443,7 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			pnl.layout()
 			top += pnl.Height
 		dabo.ui.callAfter(self.layout)
-
+		
 
 	def _getChildren(self):
 		return self._panels
