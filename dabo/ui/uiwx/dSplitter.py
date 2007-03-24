@@ -129,6 +129,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		# Default to vertical split
 		self._orientation = self._extractKey((kwargs, properties, attProperties), "Orientation", "v")
 		self._sashPos = 100
+		self._sashPercent = 1
 		self._p1 = self._p2 = None
 		# Default to not showing the context menus on the panels
 		self._showPanelSplitMenu = False
@@ -211,6 +212,11 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		evt.Skip()
 		# Update the internal sash position attribute.
 		self._getSashPosition()
+		sz = {"V": self.Width, "H": self.Height}[self.Orientation[0]] * 1.0
+		if sz:
+			pct = self.SashPosition / sz
+			self._sashPercent = pct
+			self.SetSashGravity(pct)
 		# Raise a dEvent for other code to bind to,
 		self.raiseEvent(dEvents.SashPositionChanged, evt)
 	
@@ -368,7 +374,9 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		if self._constructed():
 			if 0 <= val <= 100:
 				sz = {"V": self.Width, "H": self.Height}[self.Orientation[0]]
-				self._setSashPosition(sz * (val/100.0))
+				pct = val / 100.0
+				self._setSashPosition(sz * pct)
+				self.SetSashGravity(pct)
 		else:
 			self._properties["SashPercent"] = val
 
