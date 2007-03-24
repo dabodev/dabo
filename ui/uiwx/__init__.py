@@ -284,7 +284,7 @@ def continueEvent(evt):
 		evt.Skip()
 	except AttributeError, e:
 		# Event could be a Dabo event, not a wx event
-		if isinstance(evt, dabo.dEvents.Event):
+		if isinstance(evt, dabo.dEvents.dEvent):
 			pass
 		else:
 			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
@@ -296,7 +296,7 @@ def discontinueEvent(evt):
 		evt.Skip(False)
 	except AttributeError, e:
 		# Event could be a Dabo event, not a wx event
-		if isinstance(evt, dabo.dEvents.Event):
+		if isinstance(evt, dabo.dEvents.dEvent):
 			pass
 		else:
 			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
