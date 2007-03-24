@@ -19,5 +19,10 @@ for fontSize in fontSizes:
 	but.SetFont(font)
 	offset = (offset[0]+10, offset[1]+30)
 
+	# Print out the font's size and extent:
+	dc = wx.ClientDC(frm)
+	print fontSize, dc.GetFullTextExtent(but.GetLabel(), font)
+	del dc
+
 frm.Show()
 app.MainLoop()
