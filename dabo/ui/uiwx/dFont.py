@@ -1,4 +1,5 @@
 import wx
+import decimal
 import dabo
 from dabo.dObject import dObject
 from dabo.dLocalize import _
@@ -62,13 +63,22 @@ class dFont(dObject):
 
 
 	def _getSize(self):
-		return self._nativeFont.GetPointSize()
+		if self._useMacFontScaling():
+			multiplier = .75
+		else:
+			multiplier = 1		
+		return multiplier * self._nativeFont.GetPointSize()
 
 	def _setSize(self, val):
-		if wx.Platform == "__WXMAC__" and dabo.settings.macFontScaling:
-			val = round(val / .75)
+		if self._useMacFontScaling():
+			self._macNonScaledSize = val
+			val = val / .75
 		self._nativeFont.SetPointSize(val)
 		self._propsChanged()
+
+
+	def _useMacFontScaling(self):
+		return wx.Platform == "__WXMAC__" and dabo.settings.macFontScaling
 
 
 	def _getUnderline(self):
