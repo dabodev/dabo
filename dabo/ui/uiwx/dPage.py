@@ -8,6 +8,7 @@ class dPage(dPanel.dScrollPanel):
 	"""Creates a page to appear as a tab in a pageframe."""
 	def __init__(self, *args, **kwargs):
 		self._caption = ""
+		kwargs["AlwaysResetSizer"] = self._extractKey(kwargs, "AlwaysResetSizer", True)
 		super(dPage, self).__init__(*args, **kwargs)
 		self._baseClass = dPage	
 		self.SetScrollbars(10, 10, -1, -1)

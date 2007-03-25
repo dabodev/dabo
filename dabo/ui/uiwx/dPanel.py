@@ -14,6 +14,7 @@ class _PanelMixin(cm.dControlMixin):
 			*args, **kwargs):
 		self._minSizerWidth = 10
 		self._minSizerHeight = 10
+		self._alwaysResetSizer = False
 		self._buffered = None
 		buff = self._extractKey(attProperties, "Buffered", None)
 		if buff is not None:
@@ -32,7 +33,7 @@ class _PanelMixin(cm.dControlMixin):
 
 	def layout(self, resetMin=False):
 		""" Wrap the wx version of the call, if possible. """
-		if resetMin:
+		if resetMin or self._alwaysResetSizer:
 			# Set the panel's minimum size back to zero. This is sometimes
 			# necessary when the items in the panel have reduced in size.
 			self.SetMinSize((self.MinSizerWidth, self.MinSizerHeight))
@@ -80,6 +81,16 @@ class _PanelMixin(cm.dControlMixin):
 		super(_PanelMixin, self)._redraw(dc)
 
 
+	def _getAlwaysResetSizer(self):
+		return self._alwaysResetSizer
+
+	def _setAlwaysResetSizer(self, val):
+		if self._constructed():
+			self._alwaysResetSizer = val
+		else:
+			self._properties["AlwaysResetSizer"] = val
+
+
 	def _getBuffered(self):
 		return self._buffered
 
@@ -117,6 +128,10 @@ class _PanelMixin(cm.dControlMixin):
 			self._properties["MinSizerWidth"] = val
 
 
+	AlwaysResetSizer = property(_getAlwaysResetSizer, _setAlwaysResetSizer, None,
+			_("""When True, the sizer settings are always cleared before a layout() is called.
+			This may be necessary when a panel needs to reduce its size. Default=False   (bool)"""))
+	
 	Buffered = property(_getBuffered, _setBuffered, None,
 			_("Does this panel use double-buffering to create smooth redrawing?  (bool)"))
 

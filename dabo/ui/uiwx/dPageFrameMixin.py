@@ -282,14 +282,6 @@ class dPageFrameMixin(cm.dControlMixin):
 			
 	def _setPageClass(self, val):
 		self._pageClass = val
-# 		if isinstance(val, basestring):
-# 			from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
-# 			conv = DesignerXmlConverter()
-# 			self._pageClass = conv.classFromXml(val)
-# 		elif issubclass(val, cm.dControlMixin):
-# 			self._pageClass = val
-# 		else:
-# 			raise TypeError, _("PageClass must descend from a Dabo base class.")
 			
 			
 	def _getPageCount(self):
