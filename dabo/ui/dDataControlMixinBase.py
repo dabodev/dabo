@@ -206,18 +206,18 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 						if isinstance(src, basestring):
 							try:
 								exec ("src.%s = curVal" % self.DataField)
-							except:
-								dabo.errorLog.write("Could not bind to '%s.%s'" % (self.DataSource, self.DataField) )
+							except StandardError, e:
+								dabo.errorLog.write("Could not bind to '%s.%s'\nReason: %s" % (self.DataSource, self.DataField, e) )
 						else:
 							# The source is a direct object reference
 							try:
 								src.__setattr__(self.DataField, curVal)
-							except:
+							except StandardError, e:
 								if hasattr(self.DataSource, "_name"):
 									nm = self.DataSource._name
 								else:
 									nm = str(self.DataSource)
-								dabo.errorLog.write("Could not bind to '%s.%s'" % (nm, self.DataField) )
+								dabo.errorLog.write("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e) )
 				self._oldVal = curVal
 			self._afterValueChanged(_from_flushValue=True)
 		return ret
