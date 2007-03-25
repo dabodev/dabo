@@ -73,9 +73,8 @@ class dFormMixin(pm.dPemMixin):
 		
 
 	def _getInitPropertiesList(self):
-		additional = ["ShowCloseButton", "ShowMinButton", "ShowMaxButton", 
-				"ShowSystemMenu", "TinyTitleBar", "FloatOnParent", "ShowInTaskBar", 
-				"StayOnTop"]
+		additional = ["BorderResizable", "FloatOnParent", "ShowCloseButton", "ShowInTaskBar", 
+				"ShowMaxButton", "ShowMinButton", "ShowSystemMenu", "StayOnTop", "TinyTitleBar"]
 		original = list(super(dFormMixin, self)._getInitPropertiesList())
 		return tuple(original + additional)
 		
