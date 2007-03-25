@@ -37,6 +37,26 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 				
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
+	def _getContinuous(self):
+		try:
+			ret = self._continuous
+		except AttributeError:
+			ret = self._continuous = False
+		return ret
+
+	def _setContinuous(self, val):
+		if self._constructed():
+			self._continuous = val
+			self.Unbind(wx.EVT_SCROLL)
+			self.Unbind(wx.EVT_SCROLL_THUMBRELEASE)
+			if val:
+				self.Bind(wx.EVT_SCROLL, self._onWxHit)
+			else:
+				self.Bind(wx.EVT_SCROLL_THUMBRELEASE, self._onWxHit)
+		else:
+			self._properties["Continuous"] = val
+
+
 	def _getMax(self):
 		return self.GetMax()
 
@@ -88,6 +108,10 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 
 
 	# Property definitions:
+	Continuous = property(_getContinuous, _setContinuous, None,
+			_("""When True, the Hit event is raised as the slider moves. When False (default),
+			it is only raised when the thumb control is released.  (bool)"""))
+	
 	Max = property(_getMax, _setMax, None, 
 			_("Specifies the maximum value for the Slider. Default=100  (int)"))
 
