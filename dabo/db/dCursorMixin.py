@@ -813,7 +813,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				elif val is None or fldType is type(None):
 					# Any field type can potentially hold None values (NULL). Ignore these.
 					ignore = True
-				elif isinstance(val, dNoEscQuoteStr.dNoEscQuoteStr):
+				elif isinstance(val, dNoEscQuoteStr):
 					# Sometimes you want to set it to a sql function, equation, ect.
 					ignore = True
 				elif fld in self.getNonUpdateFields():
