@@ -73,7 +73,10 @@ class dFont(dObject):
 		if self._useMacFontScaling():
 			self._macNonScaledSize = val
 			val = val / .75
-		self._nativeFont.SetPointSize(val)
+		try:
+			self._nativeFont.SetPointSize(val)
+		except:
+			dabo.errorLog.write(_("Setting FontSize to %s failed") % val)
 		self._propsChanged()
 
 

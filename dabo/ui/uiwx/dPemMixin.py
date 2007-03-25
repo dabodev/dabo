@@ -379,6 +379,7 @@ class dPemMixin(dPemMixinBase):
 		
 		try:
 			self.Parent.bindEvent(dEvents.Update, self.__onUpdate)
+			self.Parent.bindEvent(dEvents.Resize, self.__onResize)
 		except:
 			## pkm: I don't think we want to bind this to self, because then you
 			##      will have recursion in the event handling. We are either a form
@@ -1075,10 +1076,17 @@ class dPemMixin(dPemMixinBase):
 
 
 	def __onUpdate(self, evt):
-		"""Update any dynamic properties, and then call the refresh() hook."""
+		"""Update any dynamic properties, and then call the update() hook."""
 		if isinstance(self, dabo.ui.deadObject) or not self._constructed():
 			return
 		self.update()
+			
+		
+	def __onResize(self, evt):
+		"""Update any dynamic properties."""
+		if not self or not self._constructed():
+			return
+		self.__updateDynamicProps()
 			
 		
 	def update(self):
