@@ -44,9 +44,9 @@ class Log(dObject):
 		# Flush the log entry to the file
 		try:
 			self.LogObject.flush()
-		except AttributeError:
+		except (AttributeError, IOError):
 			pass
-		
+			
 	
 	def _getCaption(self):
 		try:
