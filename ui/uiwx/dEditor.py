@@ -401,7 +401,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 		## Autocomplete settings:
 		self.AutoCompSetIgnoreCase(True)
-		self.AutoCompSetAutoHide(True)	 ## don't hide when the typed string no longer matches
+		self.AutoCompSetAutoHide(True)	 ## hide when the typed string no longer matches
 		self.AutoCompStops(" ")  ## characters that will stop the autocomplete
 		self.AutoCompSetFillUps(".(")
 		# This lets you go all the way back to the '.' without losing the AutoComplete
@@ -1330,7 +1330,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if words:
 			words.sort(lambda a,b: cmp(a.upper(), b.upper()))
 			try:
-				self.AutoCompShow(len(word), " ".join(words))
+				# For some reason, the STC editor in Windows likes to add icons
+				# even if they aren't requested. This explicitly removes them.
+				wds = ["%s?0" % wd for wd in words]				
+				self.AutoCompShow(len(word), " ".join(wds))
 			except:
 				pass
 
