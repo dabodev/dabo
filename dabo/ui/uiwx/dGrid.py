@@ -1792,7 +1792,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					sortCol = idx
 					break
 			if sortCol is not None:
-				self.CurrentColumn = sortCol
 				if self.RowCount > 0:
 					self.processSort(sortCol, toggleSort=False)
 
