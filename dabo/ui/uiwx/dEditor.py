@@ -9,7 +9,6 @@ import inspect
 import compiler
 import wx
 import wx.stc as stc
-import wx.gizmos as gizmos
 import dabo
 
 if __name__ == "__main__":
@@ -402,7 +401,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 		## Autocomplete settings:
 		self.AutoCompSetIgnoreCase(True)
-		self.AutoCompSetAutoHide(False)	 ## don't hide when the typed string no longer matches
+		self.AutoCompSetAutoHide(True)	 ## don't hide when the typed string no longer matches
 		self.AutoCompStops(" ")  ## characters that will stop the autocomplete
 		self.AutoCompSetFillUps(".(")
 		# This lets you go all the way back to the '.' without losing the AutoComplete
@@ -730,6 +729,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				# so that onListSelection() knows to call 
 				# autocomplete on the new item:
 				self._insertChar = "."
+				dabo.ui.callAfter(self._onPeriodActive)
 			else:
 				self._posBeforeCompList = self.GetCurrentPos() + 1
 				dabo.ui.callAfter(self.codeComplete)
@@ -738,6 +738,11 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				self.AutoCompCancel()
 				return
 			dabo.ui.callAfter(self.autoComplete, minWordLen=self.AutoAutoCompleteMinLen)
+
+
+	def _onPeriodActive(self):
+		self._posBeforeCompList = self.GetCurrentPos()
+		dabo.ui.callAfter(self.codeComplete)
 
 
 	def onListSelection(self, evt):
