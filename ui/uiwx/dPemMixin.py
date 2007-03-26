@@ -1605,7 +1605,7 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def _getCaption(self):
-		return self.GetLabel()
+		return getattr(self, "_caption", self.GetLabel())
 	
 	def _setCaption(self, val):
 		# Force the value to string
