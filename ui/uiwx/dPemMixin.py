@@ -91,15 +91,22 @@ class dPemMixin(dPemMixinBase):
 		# Objects created from XML files will have their props passed
 		# in the 'attProperties' parameter, in which all values are strings.
 		# Convert these to the properties dict.
+		builtinNames = __builtins__.keys()
 		if attProperties:
 			for prop, val in attProperties.items():
 				if prop in properties:
 					# attProperties has lower precedence, so skip it
 					continue
-				try:
-					attVal = eval(val)
-				except:
+				# Note: we may need to add more string props here.
+				if (val in builtinNames) and (prop in ("Caption", 
+						"FontFace", "Picture", "RegID", "ToolTipText")):
+					# It's a string that happens to be the same as a built-in name
 					attVal = val
+				else:
+					try:
+						attVal = eval(val)
+					except:
+						attVal = val
 				properties[prop] = attVal
 		properties = dictStringify(properties)
 
@@ -2283,12 +2290,12 @@ class dPemMixin(dPemMixinBase):
 
 	# Property definitions follow
 	BackColor = property(_getBackColor, _setBackColor, None,
-			_("Specifies the background color of the object. (tuple)"))
+			_("Specifies the background color of the object. (str, 3-tuple, or wx.Colour)"))
 
 	BorderColor = property(_getBorderColor, _setBorderColor, None,
 			_("""Specifies the color of the border drawn around the control, if any. 
 
-			Default='black'  (str or color tuple)"""))
+			Default='black'  (str, 3-tuple, or wx.Colour)"""))
 	
 	BorderLineStyle = property(_getBorderLineStyle, _setBorderLineStyle, None,
 			_("""Style of line for the border drawn around the control.
@@ -2371,7 +2378,7 @@ class dPemMixin(dPemMixinBase):
 			_("Specifies whether text is underlined. (bool)") )
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
-			_("Specifies the foreground color of the object. (tuple)") )
+			_("Specifies the foreground color of the object. (str, 3-tuple, or wx.Colour)") )
 
 	Height = property(_getHeight, _setHeight, None,
 			_("Specifies the height of the object. (int)") )
