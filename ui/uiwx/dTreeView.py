@@ -261,7 +261,7 @@ class dNode(dObject):
 
 	
 	BackColor = property(_getBackColor, _setBackColor, None,
-			_("Background color of this node  (wx.Colour)") )
+			_("Background color of this node  (str, 3-tuple, or wx.Colour)") )
 			
 	Caption = property(_getCap, _setCap, None,
 			_("Returns/sets the text of this node.  (str)") )
@@ -300,7 +300,7 @@ class dNode(dObject):
 			_("Specifies whether node text is underlined. (bool)") )
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
-			_("Foreground (text) color of this node  (wx.Colour)") )
+			_("Foreground (text) color of this node  (str, 3-tuple, or wx.Colour)") )
 	
 	FullCaption = property(_getFullCaption, None, None,
 			_("Full dot-separated string of the captions of this node and its ancestors (read-only) (str)"))
@@ -454,12 +454,13 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		collapsed and re-opened in order to update any sizing issues.
 		"""
 		self.lockDisplay()
+		sel = self.Selection
 		ndExp = [(nd, nd.Expanded) for nd in self.nodes
-
 				if ((not nd.IsRootNode) or self.ShowRootNode)]
 		self.collapseAll()
 		for nd, exp in ndExp:
 			nd.Expanded = exp
+		self.Selection = sel
 		self.unlockDisplay()
 
 	
