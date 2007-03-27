@@ -455,8 +455,8 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 		"""
 		self.lockDisplay()
 		sel = self.Selection
-		ndExp = [(nd, nd.Expanded) for nd in self.nodes
-				if ((not nd.IsRootNode) or self.ShowRootNode)]
+		ndExp = ((nd, nd.Expanded) for nd in self.nodes
+				if ((not nd.IsRootNode) or self.ShowRootNode))
 		self.collapseAll()
 		for nd, exp in ndExp:
 			nd.Expanded = exp
