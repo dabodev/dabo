@@ -34,23 +34,24 @@ class dCheckListBox(dcm.dControlItemMixin, wx.CheckListBox):
 		return ret
 		
 		
-	def clearSelections(self):
-		"""Set all items to unchecked."""
-		for cnt in xrange(self.Count):
-			self.Check(cnt, False)
-
-
 	def selectAll(self):
 		"""Set all items to checked."""
 		for cnt in xrange(self.Count):
 			self.Check(cnt, True)
 
 
+	def clearSelections(self):
+		"""Set all items to unchecked."""
+		for cnt in xrange(self.Count):
+			self.Check(cnt, False)
+	# Just to keep the naming consistent
+	selectNone = clearSelections
+
+
 	def invertSelections(self):
 		"""Switch all the items from False to True, and vice-versa."""
 		for cnt in xrange(self.Count):
 			self.Check(cnt, not self.IsChecked(cnt))
-		
 	
 
 	def setSelection(self, index):
