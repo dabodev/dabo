@@ -346,7 +346,7 @@ class dShell(dSplitForm):
 		
 
 def main():
-	app = dabo.dApp()
+	app = dabo.dApp(BasePrefKey="dabo.ui.dShell")
 	app.MainFormClass = dShell
 	app.setup()
 	app.start()

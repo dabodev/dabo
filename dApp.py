@@ -225,14 +225,12 @@ class dApp(dObject):
 		# Flip the flag
 		self._wasSetup = True
 
-	def startupForms(self):
-				
-		# Open one or more of the defined forms. 
-		# A default one is specified in .default_form.
-		# If form names were 
-		# passed on the command line, they will be opened instead of the default one
-		# as long as they exist.
 
+	def startupForms(self):
+		"""Open one or more of the defined forms. The default one is specified 
+		in .default_form. If form names were passed on the command line, 
+		they will be opened instead of the default one as long as they exist.
+		"""
 		form_names = [class_name[3:] for class_name in dir(self.ui) if class_name[:3] == "Frm"]
 		for arg in sys.argv[1:]:
 			arg = arg.lower()

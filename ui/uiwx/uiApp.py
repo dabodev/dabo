@@ -28,6 +28,7 @@ class SplashScreen(wx.Frame):
 		style = wx.FRAME_NO_TASKBAR | wx.FRAME_SHAPED | wx.STAY_ON_TOP
 		wx.Frame.__init__(self, None, -1, style=style)
 		
+		self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
 		if isinstance(bitmap, basestring):
 			# Convert it
 			self._bmp = dabo.ui.pathToBmp(bitmap)
@@ -73,6 +74,7 @@ class SplashScreen(wx.Frame):
 	def _disappear(self):
 		try:
 			self.fc.Stop()
+			self.fc.Destroy()
 		except:
 			pass
 		self.Close()
@@ -193,12 +195,20 @@ class uiApp(dObject, wx.App):
 			evt.Skip()
 
 
+	# The following three functions handle font zooming
 	def fontZoomIn(self):
-		self.ActiveForm.iterateCall("fontZoomIn")
+		af = self.ActiveForm
+		if af:
+			af.iterateCall("fontZoomIn")
 	def fontZoomOut(self):
-		self.ActiveForm.iterateCall("fontZoomOut")
+		af = self.ActiveForm
+		if af:
+			af.iterateCall("fontZoomOut")
 	def fontZoomNormal(self):
-		self.ActiveForm.iterateCall("fontZoomNormal")
+		af = self.ActiveForm
+		if af:
+			af.iterateCall("fontZoomNormal")
+
 
 	def setup(self):
 		frm = self.dApp.MainForm
