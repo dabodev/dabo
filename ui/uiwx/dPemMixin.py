@@ -112,7 +112,7 @@ class dPemMixin(dPemMixinBase):
 
 
 		# Hacks to fix up various things:
-		import dMenuBar, dMenuItem, dMenu, dFoldPanelBar
+		import dMenuBar, dMenuItem, dMenu, dFoldPanelBar, dToggleButton
 		if isinstance(self, dMenuItem.dMenuItem):
 			# Hack: wx.MenuItem doesn't take a style arg,
 			# and the parent arg is parentMenu.
@@ -133,7 +133,7 @@ class dPemMixin(dPemMixinBase):
 			del self._preInitProperties["style"]
 			# This is needed because these classes require a 'parent' param.
 			kwargs["parent"] = parent
-		elif issubclass(self._baseClass, dabo.ui.dToggleButton):
+		elif isinstance(self, dToggleButton.dToggleButton):
 			version = wx.VERSION
 			major = version[0]
 			minor = version[1]
