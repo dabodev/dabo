@@ -21,6 +21,8 @@ class QueryException(dException):
 class BusinessRuleViolation(dException):
 	pass
 	
+class RowNotFoundException(dException):
+	pass
 
 class FeatureNotImplementedException(dException):
 	pass

@@ -880,6 +880,11 @@ class dBizobj(dObject):
 				# Let the child know the current dependent PK
 				child.setCurrentParent(pk)
 
+	def moveToPK(self, pk):
+		"""Move to the row with the specified pk value, or raise RowNotFoundException."""
+		row = self.seek(pk, self.KeyField, caseSensitive=True, runRequery=True)
+		if row == -1:
+			raise dabo.dException.RowNotFoundException, "PK Value %s not found in the dataset" % pk
 
 	def seek(self, val, fld=None, caseSensitive=False,
 			near=False, runRequery=False):
