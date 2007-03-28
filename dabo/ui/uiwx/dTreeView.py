@@ -544,7 +544,7 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	def setNodeImg(self, node, imgKey, which="normal"):
 		"""Sets the specified node's image to the image corresponding	to the 
 		specified key. May also optionally pass the index of the image in the 
-		ImageList rather than the key, which is the state of the node.
+		image list rather than the key, which is the state of the node.
 
 		Valid states are:
 			'normal'
