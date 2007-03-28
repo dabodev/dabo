@@ -607,18 +607,18 @@ class dBizobj(dObject):
 			self._CurrentCursor = key
 			changed_keys = list(set(cursor._mementos.keys() + cursor._newRecords.keys()))
 			for pk in changed_keys:
-				self._moveToPK(pk)
+				self._positionUsingPK(pk)
 				try:
 					func(*args, **kwargs)
 				except:
 					# Reset things and bail:
 					self._CurrentCursor = old_currentCursorKey
-					self._moveToPK(old_pk)
+					self._positionUsingPK(old_pk)
 					raise
 		
 		self._CurrentCursor = old_currentCursorKey
 		if old_pk is not None:
-			self._moveToPK(old_pk)
+			self._positionUsingPK(old_pk)
 
 
 	def getFieldNames(self):
@@ -729,7 +729,7 @@ class dBizobj(dObject):
 			raise dException.dException, e
 
 		if self.RestorePositionOnRequery:
-			self._moveToPK(currPK)
+			self._positionUsingPK(currPK)
 
 		try:
 			self.requeryAllChildren()
@@ -869,7 +869,7 @@ class dBizobj(dObject):
 				child.setCurrentParent(pk)
 
 
-	def _moveToPK(self, pk, updateChildren=True):
+	def _positionUsingPK(self, pk, updateChildren=True):
 		""" For internal use only! Should never be called from a developer's code.
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
@@ -880,11 +880,14 @@ class dBizobj(dObject):
 				# Let the child know the current dependent PK
 				child.setCurrentParent(pk)
 
+
 	def moveToPK(self, pk):
 		"""Move to the row with the specified pk value, or raise RowNotFoundException."""
-		row = self.seek(pk, self.KeyField, caseSensitive=True, runRequery=True)
+		row = self.seek(pk, self.KeyField, caseSensitive=True, near=False,
+				runRequery=True)
 		if row == -1:
-			raise dabo.dException.RowNotFoundException, "PK Value %s not found in the dataset" % pk
+			raise dabo.dException.RowNotFoundException, _("PK Value %s not found in the dataset") % pk
+
 
 	def seek(self, val, fld=None, caseSensitive=False,
 			near=False, runRequery=False):
