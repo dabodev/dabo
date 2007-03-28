@@ -593,14 +593,15 @@ def _getActiveForm():
 	return None
 
 
-def getString(message=_("Please enter a string:"), caption="Dabo", **kwargs):
+def getString(message=_("Please enter a string:"), caption="Dabo", 
+		defaultValue="", **kwargs):
 	"""Simple dialog for returning a small bit of text from the user.
 
 	Any additional keyword arguments are passed along to the dTextBox when it
 	is instantiated. Some useful examples:
 
 	# Give the textbox a default value:
-	txt = dabo.ui.getString(Value="initial string value")
+	txt = dabo.ui.getString(defaultValue="initial string value")
 	
 	# Password Entry (*'s instead of the actual text)
 	txt = dabo.ui.getString(PasswordEntry=True)
@@ -616,7 +617,9 @@ def getString(message=_("Please enter a string:"), caption="Dabo", **kwargs):
 			hs.append(self.strVal, 1)
 			self.Sizer.append(hs, "expand")
 			dabo.ui.callAfter(self.strVal.setFocus)
-			
+	
+	if defaultValue:
+		kwargs["Value"] = defaultValue
 	dlg = StringDialog(_getActiveForm())
 	dlg.show()
 	if dlg.Accepted:
@@ -627,13 +630,14 @@ def getString(message=_("Please enter a string:"), caption="Dabo", **kwargs):
 	return val
 
 
-def getInt(message=_("Enter an integer value:"), caption="Dabo", defaultValue=0):
+def getInt(message=_("Enter an integer value:"), caption="Dabo", 
+		defaultValue=0, **kwargs):
 	"""Simple dialog for returning an integer value from the user."""
 	class IntDialog(dabo.ui.dOkCancelDialog):
 		def addControls(self):
 			self.Caption = caption
 			lbl = dabo.ui.dLabel(self, Caption=message)
-			self.spnVal = dabo.ui.dSpinner(self, Value=defaultValue)
+			self.spnVal = dabo.ui.dSpinner(self, **kwargs)
 			hs = dabo.ui.dSizer("h")
 			hs.append(lbl, halign="Right")
 			hs.appendSpacer(5)
@@ -641,6 +645,8 @@ def getInt(message=_("Enter an integer value:"), caption="Dabo", defaultValue=0)
 			self.Sizer.append(hs)
 			dabo.ui.callAfter(self.spnVal.setFocus)
 			
+	if defaultValue:
+		kwargs["Value"] = defaultValue
 	dlg = IntDialog(_getActiveForm())
 	dlg.show()
 	if dlg.Accepted:
