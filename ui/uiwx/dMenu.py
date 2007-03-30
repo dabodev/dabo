@@ -237,15 +237,27 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		item.Caption = caption
 		return item
 		
-		
-	def remove(self, index, release=True):
-		"""Removes the item at the specified index from the menu.
 
-		If release is True (the default), the item is deleted as well. If release 
-		is False, a reference to the object will be returned, and the caller 
-		is responsible for deleting it.
+	def _resolveItem(self, capIdxOrItem):
+		"""Returns the menu item specified by either its index or caption. In the
+		case that an actual menu item is passed, simply returns that item.
 		"""
-		item = self.Children[index]
+		if isinstance(capIdxOrItem, basestring):
+			ret = self.getItem(capIdxOrItem)
+		elif isinstance(capIdxOrItem, int):
+			ret = self.Children[index]
+		else:
+			ret = capOrItem
+		return ret
+		
+
+	def remove(self, capIdxOrItem, release=True):
+		"""Removes the specified item from the menu. You may specify the item by
+		passing its index, its Caption, or by passing the item itself. If release is 
+		True (the default), the item is destroyed as well. If release is False, a reference 
+		to the object will be returned, and the caller is responsible for destroying it.
+		"""
+		item = self._resolveItem(capIdxOrItem)
 		id_ = item.GetId()
 		if self._daboChildren.has_key(id_):
 			del self._daboChildren[id_]
@@ -277,17 +289,13 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		itm.Check(val)
 		
 		
-		
-	def setCheck(self, capOrItem, unCheckOthers=True):
-		"""When using checkmark-type menus, passing the item or
-		the caption of the item you want checked to this method 
-		will check that item. If unCheckOthers is True, non-
+	def setCheck(self, capIdxOrItem, unCheckOthers=True):
+		"""When using checkmark-type menus, passing either the item
+		itself, or the index or caption of the item you want checked to 
+		this method will check that item. If unCheckOthers is True, non-
 		matching items will be unchecked.
 		"""
-		if isinstance(capOrItem, basestring):
-			target = self.getItem(capOrItem)
-		else:
-			target = capOrItem
+		target = self._resolveItem(capIdxOrItem)
 		for itm in self.Children:
 			if itm is target:
 				try:
@@ -307,12 +315,8 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		self.setCheck(None)
 	
 	
-	def isItemChecked(self, capOrItem):
-		if isinstance(capOrItem, basestring):
-			# Get the matching item
-			itm = self.getItem(capOrItem)
-		else:
-			itm = capOrItem
+	def isItemChecked(self, capIdxOrItem):
+		itm = self._resolveItem(capIdxOrItem)
 		if itm is not None and itm.IsCheckable():
 			ret = itm.Checked
 		else:
