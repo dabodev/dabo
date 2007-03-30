@@ -245,9 +245,9 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		if isinstance(capIdxOrItem, basestring):
 			ret = self.getItem(capIdxOrItem)
 		elif isinstance(capIdxOrItem, int):
-			ret = self.Children[index]
+			ret = self.Children[capIdxOrItem]
 		else:
-			ret = capOrItem
+			ret = capIdxOrItem
 		return ret
 		
 
