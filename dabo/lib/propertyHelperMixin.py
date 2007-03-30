@@ -67,13 +67,11 @@ class PropertyHelperMixin(object):
 		"""
 		if evtdict is None:
 			evtdict = {}
-		evts = self.getEventList()  ## gotten from eventMixin
 		onKWs = [(kw, kw[2:]) for kw in kwdict.keys()
 				if kw.startswith("On")]
 		for kw, evtName in onKWs:			
-			if evtName in evts:
-				evtdict[evtName] = kwdict[kw]
-				del kwdict[kw]
+			evtdict[evtName] = kwdict[kw]
+			del kwdict[kw]
 		return evtdict
 	
 	
