@@ -85,15 +85,14 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		while classparts[-1] == classparts[-2]:
 			classparts.pop()
 		classname = ".".join(classparts)
-		spc = " "
 		try:
 			nm = self.Name
 		except AttributeError:
 			nm = ""
 		if (not nm) or (nm == "?"):
-			# No name
-			nm = spc = ""
-		return "<%(nm)s%(spc)s(class %(classname)s)>" % locals()
+			# No name; use module.classname
+			nm = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+		return "<%(nm)s (baseclass %(classname)s)>" % locals()
 		
 
 
