@@ -420,7 +420,8 @@ class SelectPage(Page):
 			
 				sql = bizobj.getSQL()
 
-			dlg = dabo.ui.dDialog(self, Caption=_("Set Custom SQL"))
+			dlg = dabo.ui.dDialog(self, Caption=_("Set Custom SQL"), 
+					SaveRestorePosition=True, BorderResizable=True)
 			eb = dlg.addObject(dabo.ui.dEditBox, Value=sql, Size=(400, 400))
 			for ff in ["Monospace", "Monaco", "Courier New"]:
 				try:
