@@ -545,6 +545,18 @@ def isAltDown():
 	return wx.GetMouseState().altDown
 
 
+def isMouseLeftDown():
+	return wx.GetMouseState().leftDown
+
+
+def isMouseRightDown():
+	return wx.GetMouseState().rightDown
+
+
+def isMouseMiddleDown():
+	return wx.GetMouseState().middleDown
+
+
 #### This will have to wait until I can figure out how to simulate a 
 #### modal form for the calendar.
 # def popupCalendar(dt=None, x=None, y=None, pos="topleft"):
