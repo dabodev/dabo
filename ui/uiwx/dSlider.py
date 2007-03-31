@@ -14,7 +14,8 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 	dSlider does not allow entering a value with the keyboard.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
-		self._baseClass = dSlider		
+		self._baseClass = dSlider
+		self._continuous = False
 		style = self._extractKey((kwargs, properties, attProperties), "style")
 		if style is None:
 			kwargs["style"] = wx.SL_AUTOTICKS
@@ -27,12 +28,12 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 	def _initEvents(self):
 		super(dSlider, self)._initEvents()
 		self.Bind(wx.EVT_SCROLL, self._onWxHit)
-# 		self.Bind(wx.EVT_SCROLL_THUMBRELEASE, self._onWxHit)
 
 
 	def _onWxHit(self, evt):
-		self.flushValue()
-		super(dSlider, self)._onWxHit(evt)
+		if self._continuous or not dabo.ui.isMouseLeftDown():
+			self.flushValue()
+			super(dSlider, self)._onWxHit(evt)
 
 				
 	# Property get/set/del methods follow. Scroll to bottom to see the property
@@ -47,12 +48,6 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 	def _setContinuous(self, val):
 		if self._constructed():
 			self._continuous = val
-			self.Unbind(wx.EVT_SCROLL)
-			self.Unbind(wx.EVT_SCROLL_THUMBRELEASE)
-			if val:
-				self.Bind(wx.EVT_SCROLL, self._onWxHit)
-			else:
-				self.Bind(wx.EVT_SCROLL_THUMBRELEASE, self._onWxHit)
 		else:
 			self._properties["Continuous"] = val
 
@@ -142,6 +137,9 @@ class _dSlider_test(dSlider):
 		self.Value = 75
 		self.ShowLabels = True
 		self.Orientation = "Horizontal"
+	
+	def onHit(self, evt):
+		print "Hit! Value =", self.Value
 
 
 if __name__ == "__main__":
