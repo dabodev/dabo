@@ -26,8 +26,8 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 	
 	def _initEvents(self):
 		super(dSlider, self)._initEvents()
-#		self.Bind(wx.EVT_SCROLL, self._onWxHit)
-		self.Bind(wx.EVT_SCROLL_THUMBRELEASE, self._onWxHit)
+		self.Bind(wx.EVT_SCROLL, self._onWxHit)
+# 		self.Bind(wx.EVT_SCROLL_THUMBRELEASE, self._onWxHit)
 
 
 	def _onWxHit(self, evt):
@@ -41,7 +41,7 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 		try:
 			ret = self._continuous
 		except AttributeError:
-			ret = self._continuous = False
+			ret = self._continuous = True
 		return ret
 
 	def _setContinuous(self, val):
