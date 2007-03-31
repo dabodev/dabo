@@ -1,5 +1,6 @@
 import datetime
 import re
+import dabo
 from dabo.dLocalize import _
 from dBackend import dBackend
 from dCursorMixin import dCursorMixin
@@ -50,11 +51,11 @@ class Firebird(dBackend):
 				password=password, database=database)
 		return self._connection
 		
-		
+
 	def getDictCursorClass(self):
 		return self.dbapi.Cursor
 		
-	
+
 	def noResultsOnSave(self):
 		""" Firebird does not return the number of records updated, so
 		we just have to ignore this, since we can't tell a failed save apart 
@@ -189,11 +190,19 @@ class Firebird(dBackend):
 		return tuple(fields)
 
 	
+	def beginTransaction(self, cursor):
+		""" Begin a SQL transaction."""
+		if not cursor.connection._has_transaction():
+			cursor.connection.begin()
+			dabo.dbActivityLog.write("SQL: begin")
+
+		
 	def flush(self, cursor):
 		""" Firebird requires an explicit commit in order to have changes
 		to the database written to disk.
 		"""
 		cursor.connection.commit()
+		dabo.dbActivityLog.write("SQL: commit")
 
 	
 	def getLimitWord(self):

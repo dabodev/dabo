@@ -219,11 +219,13 @@ class dBackend(dObject):
 		""" Commit a SQL transaction."""
 		if not cursor.AutoCommit:
 			self._connection.commit()
+			dabo.dbActivityLog.write("SQL: commit")
 
 
 	def rollbackTransaction(self, cursor):
 		""" Roll back (revert) a SQL transaction."""
 		self._connection.rollback()
+		dabo.dbActivityLog.write("SQL: rollback")
 
 
 	def addWithSep(self, base, new, sep=",\n\t"):
