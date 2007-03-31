@@ -4,39 +4,71 @@ See the Subversion log for all the details.
 Dabo 0.8 (2007-04-01) (Revision 3010):
 
 Enhancements:
-+ dbFirebird - Minor improvements by Uwe Grauer.
 
-+ dbPostgreSQL - Improvements by John Fabiani, including some missing data
-  types and support for schemas.
-
-+ EasyDialogBuilder - minor improvements by Nate Lowrie.
-
-+ Added ensureLineVisible() method in dEditor, which even unfolds if needed.
-
+	===== General Stuff =====
 + Added datanav2; deprecated datanav. datanav2 no longer supports fieldSpecs,
   relationSpecs, and other things. The general theme is that the generated
   code is meant to be taken as boilerplate to be edited by the developer to
   achieve the desired results.
 
++ Began work on new unit testing harness, with Nate Lowrie at the helm.
+
++ Added/enhanced unit tests for dCursor, dBizobj, dTextBox, and dForm.
+
++ Big fixes and enhancements, as always, to runtime cdxml instantiation, 
+  including much better inheritance of properties.
+
++ General move away from accepting specific keyword arguments to class 
+  constructors, in favor of accepting property values instead.
+
+	===== UI Tier =====
++ EasyDialogBuilder - minor improvements by Nate Lowrie.
+
++ Added ensureLineVisible() method in dEditor, which even unfolds if needed.
+
 + Added WordWrap to dGrid columns while in edit mode.
 
 + Enhanced dShell to have Dabo property access, including Font properties.
-
-+ Added support for SQL-JOIN clauses in the sql builder.
 
 + Improved dDateTextBox.
 
 + Coerce dMessageBox messages into strings, which is convenient.
 
-+ Added/enhanced unit tests for dCursor, dBizobj, dTextBox, and dForm.
-
-+ Improved data binding to bizobjs on a parent form.
-
-+ Added the concept of VirtualFields to dBizobj, which provides a simple,
-  flexible interface to reference calculated fields on the fly.
-
 + dGrid's navigation now traps and responds to business rule violations, with
   mediation by the form if possible. 
+
++ dTreeView supported in ClassDesigner-designed files.
+
++ Added Icon property to dApp, which will become the default Icon for all
+  forms and dialogs, if not overridden at the form level.
+
++ Simplified drag/drop in dabo.ui.
+
++ Added dabo.ui.getChoice() and getChoices(), which present a list of choices
+  to the user, and return the user's selection(s).
+
++ Added TextLength property to dTextBox, to limit the number of characters
+  that can be typed in by the user. Courtesy Nate Lowrie.
+
++ Improved font zooming. Improved handling of resizing fonts for different
+  platforms (Mac), so that you have cross-platform consistency. Thanks to
+  Dj Gilcrease for help in working this out.
+
++ Added Continuous property to dSlider, which determines whether Hit is 
+  raised while the slider is being changed, or only after the user has
+  finished sliding.
+
++ Improved autocompletion in dEditor.
+
++ Added AutoAutoCompletion option to dEditor.
+
+	===== Data Tier =====
++ dbFirebird - Minor improvements by Uwe Grauer.
+
++ dbPostgreSQL - Improvements by John Fabiani, including some missing data
+  types and support for schemas.
+
++ Added support for SQL-JOIN clauses in the sql builder.
 
 + Added database logging, an optional feature.
 
@@ -47,43 +79,21 @@ Enhancements:
   spaces in field names. Control whether quoting happens automatically using
   the dBizobj.AutoQuoteNames property.
 
-+ dTreeView supported in ClassDesigner-designed files.
+	===== Bizobj Tier =====
++ Added the concept of VirtualFields to dBizobj, which provides a simple,
+  flexible interface to reference calculated fields on the fly.
+
++ Improved data binding to bizobjs on a parent form.
+
++ Added dBizobj.deleteAllChildren()
+
++ Added ability to set parameters to pass to default values in dBizobj.
 
 + Added oldVal() method to dBizobj, which takes a field name and returns the
   value of the field at the time of the last requery.
 
-+ Added Icon property to dApp, which will become the default Icon for all
-  forms and dialogs, if not overridden at the form level.
++ Added moveToPK() method in dBizobj
 
-+ Simplified drag/drop in dabo.ui.
-
-+ Began work on new unit testing harness, with Nate Lowrie at the helm.
-
-+ Added dabo.ui.getChoice() and getChoices(), which present a list of choices
-  to the user, and return the user's selection(s).
-
-+ Added dBizobj.deleteAllChildren()
-
-+ Added TextLength property to dTextBox, to limit the number of characters
-  that can be typed in by the user. Courtesy Nate Lowrie.
-
-+ Big fixes and enhancements, as always, to runtime cdxml instantiation, 
-  including much better inheritance of properties.
-
-+ Improved font zooming. Improved handling of resizing fonts for different
-  platforms (Mac), so that you have cross-platform consistency. Thanks to
-  Dj Gilcrease for help in working this out.
-
-+ Added ability to set parameters to pass to default values in dBizobj.
-
-+ General move away from accepting specific keyword arguments to class 
-  constructors, in favor of accepting property values instead.
-
-+ Added Continuous property to dSlider, which determines whether Hit is 
-  raised while the slider is being changed, or only after the user has
-  finished sliding.
-
-+ Improved autocompletion in dEditor.
 
 Bug Fixes:
 + dRadioList.ButtonSpacing wasn't able to be set from initProperties() or
@@ -97,7 +107,7 @@ Bug Fixes:
 + Fixed dConnection and dConnectInfo to raise exceptions if improper
   arguments are passed. Ditto for dSizer*.
 
-+ Fixed dBorderSizer to stay in back of the controls contained within it.
++ Fixed dBorderSizer's box to stay in back of the controls contained within it.
 
 + Fixed ForeColor to work immediately on Gtk.
 
@@ -112,8 +122,6 @@ Bug Fixes:
   activate the form that it applied to first. Fixed.
 
 + Fixed rapid flashing in a sorted dGrid when an editable column was selected.
-
-+ Added moveToPK() method in dBizobj
 
 
 ===============================================================================
