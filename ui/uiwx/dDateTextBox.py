@@ -127,19 +127,21 @@ C: Popup Calendar to Select
 			self.calPanel.cal.Date = self.Value
 		except:
 			self.calPanel = CalPanel(self.Parent, dt=self.Value, ctrl=self)
-		self.calPanel.Position = (self.Left, self.Bottom)
-		if self.Bottom + self.calPanel.Height > self.Parent.Bottom:
+		cp = self.calPanel
+		cp.Position = (self.Left, self.Bottom)
+		if self.Bottom + cp.Height > self.Parent.Bottom:
 			# Maybe we should move it above
-			if self.calPanel.Height <= self.Top:
-				self.calPanel.Bottom = self.Top
+			if cp.Height <= self.Top:
+				cp.Bottom = self.Top
 			else:
 				# We can't fit it cleanly, so try to fit as much as possible
-				self.calPanel.Top = max(0, (self.Parent.Height - self.calPanel.Height) )
-		if self.Left + self.calPanel.Width > self.Parent.Right:
+				cp.Top = max(0, (self.Parent.Height - cp.Height) )
+		if self.Left + cp.Width > self.Parent.Right:
 			# Try moving it to the left
-			self.calPanel.Left = max(0, (self.Parent.Width - self.calPanel.Width) )
-		self.calPanel.Visible = True
-		self.calPanel.setFocus()
+			cp.Left = max(0, (self.Parent.Width - cp.Width) )
+		cp.Visible = True
+		cp.bringToFront()
+		cp.setFocus()
 		
 	
 	def __onChar(self, evt):
