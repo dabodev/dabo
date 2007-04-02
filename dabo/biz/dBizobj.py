@@ -1788,8 +1788,9 @@ class dBizobj(dObject):
 			_("Name of encoding to use for unicode  (str)") )
 
 	FillLinkFromParent = property(_getFillLinkFromParent, _setFillLinkFromParent, None,
-			_("""In the onNew() method, do we fill in the linkField with the value returned
-			by calling the parent bizobj's GetKeyValue() method? (bool)"""))
+			_("""In the onNew() method, do we fill in the foreign key field specified by the
+			LinkField property with the value returned by calling the bizobj's 	getParentPK() 
+			method? (bool)"""))
 
 	IsAdding = property(_isAdding, None, None,
 			_("Returns True if the current record is new and unsaved."))
