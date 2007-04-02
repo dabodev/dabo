@@ -254,7 +254,6 @@ class dBizobj(dObject):
 
 	def saveAll(self, startTransaction=False, topLevel=True):
 		"""Saves all changes to the bizobj and children."""
-
 		useTransact = startTransaction or topLevel
 		cursor = self._CurrentCursor
 		current_row = self.RowNumber
@@ -554,7 +553,13 @@ class dBizobj(dObject):
 		self.exitScan = False
 		rows = list(rows)
 		if self.__scanRestorePosition:
-			currRow = self.RowNumber
+			try:
+				currPK = self.getPK()
+				currRow = None
+			except:
+				# No PK defined
+				currPK = None
+				currRow = self.RowNumber
 		try:
 			if self.__scanReverse:
 				rows.reverse()
@@ -569,15 +574,18 @@ class dBizobj(dObject):
 			raise dException.dException, e
 
 		if self.__scanRestorePosition:
-			try:
-				self.RowNumber = currRow
-			except:
-				# Perhaps the row was deleted; at any rate, leave the pointer
-				# at the end of the data set
-				row = self.RowCount  - 1
-				if row >= 0:
-					self.RowNumber = row
-
+			if currPK is not None:
+				self._positionUsingPK(currPK, updateChildren=False)
+			else:
+				try:
+					self.RowNumber = currRow
+				except StandardError, e:
+					# Perhaps the row was deleted; at any rate, leave the pointer
+					# at the end of the data set
+					row = self.RowCount  - 1
+					if row >= 0:
+						self.RowNumber = row
+		
 
 	def scanChangedRows(self, func, allCursors=False, *args, **kwargs):
 		"""Move the record pointer to each changed row, and call func.
@@ -1035,12 +1043,12 @@ class dBizobj(dObject):
 		self.setFieldVal(self.LinkField, val)
 
 
-	def setCurrentParent(self, val=None):
+	def setCurrentParent(self, val=None, fromChildRequery=None):
 		""" Lets dependent child bizobjs know the current value of their parent
 		record.
 		"""
 		if self.LinkField:
-			if val is None:
+			if val is None and not fromChildRequery:
 				val = self.getParentPK()
 			# Update the key value for the cursor
 			self.__currentCursorKey = val
@@ -1140,14 +1148,16 @@ class dBizobj(dObject):
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
 
-		pk = self.getPK()
+		if self.IsAdding:
+			pk = None
+		else:
+			pk = self.getPK()
 		for child in self.__children:
 			# Let the child know the current dependent PK
-			child.setCurrentParent(pk)
 			if child.RequeryWithParent:
+				child.setCurrentParent(pk, fromChildRequery=True)
 				if not child.isChanged():
 					child.requery()
-	
 		self.afterChildRequery()
 
 
@@ -1183,9 +1193,10 @@ class dBizobj(dObject):
 		cursor = self._CurrentCursor
 		if cursor is not None:
 			try:
-				return cursor.setFieldVal(fld, val)
+				ret = cursor.setFieldVal(fld, val)
 			except dException.NoRecordsException:
-				return False
+				ret = False
+		return ret	
 
 
 	def getDataSet(self, flds=(), rowStart=0, rows=None):

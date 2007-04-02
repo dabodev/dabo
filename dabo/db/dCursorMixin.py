@@ -768,7 +768,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 		valid_pk = self._hasValidKeyField()
 		keyField = self.KeyField
-
 		if not rec.has_key(fld):
 			if self.VirtualFields.has_key(fld):
 				# ignore
@@ -2073,7 +2072,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if self.RowCount <= 0:
 			return False
 		recKey = self.pkExpression()
-		return self._newRecords.has_key(recKey)
+		ret = self._newRecords.has_key(recKey)
+		return ret
 	
 
 	def _getIsPrefCursor(self):
@@ -2133,22 +2133,25 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return ret
 
 
+	def _getRowCount(self):
+		try:
+			ret = len(self._records)
+		except AttributeError:
+			ret = -1
+		return ret
+		
+
 	def _getRowNumber(self):
 		try:
-			return self.__rownumber
+			ret = self.__rownumber
 		except AttributeError:
-			return -1
+			ret = -1
+		return ret
+
 	
 	def _setRowNumber(self, num):
 		self.__rownumber = num
 	
-
-	def _getRowCount(self):
-		try:
-			return len(self._records)
-		except AttributeError:
-			return -1
-			
 
 	def _getTable(self):
 		try:
