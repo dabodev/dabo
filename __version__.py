@@ -18,7 +18,7 @@ if os.path.exists(os.path.join(package_path, ".svn")):
 		if not _revision[0].isdigit():
 			_revision = None
 	except:
-		pass
+		_revision = None
 
 if _revision is None:
 	# Okay, svninfo not available, which probably means svn isn't present, which
