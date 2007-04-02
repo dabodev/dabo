@@ -756,6 +756,7 @@ class dBizobj(dObject):
 		if self.DataSource and self.LinkField and self.Parent:
 			if self.Parent.IsAdding:
 				# Parent is new and not yet saved, so we cannot have child records yet.
+				self.setWhereClause("")
 				filtExpr = " 1 = 0 "
 			else:
 				if self.ParentLinkField:
