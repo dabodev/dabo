@@ -1374,10 +1374,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def getChangedRows(self):
 		"""Returns a list of rows with changes."""
-		pks = self._mementos.keys()
-		pks.extend(self._newRecords.keys())
-		pks = list(set(pks))
-		return map(self._getRowByPk, pks)
+		return map(self._getRowByPk, self._mementos.keys())
 		
 
 	def _getRecordByPk(self, pk):
