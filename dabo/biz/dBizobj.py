@@ -1149,7 +1149,7 @@ class dBizobj(dObject):
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
 
-		if self.IsAdding:
+		if self.IsAdding and self.AutoPopulatePK:
 			pk = None
 		else:
 			pk = self.getPK()
