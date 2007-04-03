@@ -30,6 +30,7 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		self._inForceCase = False
 		self._textLength = None
 		self._inTextLength = False
+		self._flushOnLostFocus = True  ## see dabo.ui.dDataControlMixinBase::flushValue()
 
 		preClass = wx.PreTextCtrl
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, 

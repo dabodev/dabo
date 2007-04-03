@@ -21,6 +21,8 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 		self._baseClass = dEditBox
 		self._forceCase = None
 		self._inForceCase = False
+		self._flushOnLostFocus = True  ## see dabo.ui.dDataControlMixinBase::flushValue()
+
 		preClass = wx.PreTextCtrl
 		kwargs["style"] = wx.TE_MULTILINE | wx.TE_WORDWRAP
 		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
