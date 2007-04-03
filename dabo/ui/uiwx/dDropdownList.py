@@ -44,7 +44,7 @@ class _dDropdownList_test(dDropdownList):
 		self.ValueMode = "key"
 		
 
-	def onHit(self, evt):
+	def onValueChanged(self, evt):
 		print "KeyValue: ", self.KeyValue
 		print "PositionValue: ", self.PositionValue
 		print "StringValue: ", self.StringValue

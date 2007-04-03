@@ -220,6 +220,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 								dabo.errorLog.write("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e) )
 				self._oldVal = curVal
 			self._afterValueChanged(_from_flushValue=True)
+
+			# Raise an event so that user code can react if needed:
+			dabo.ui.callAfterInterval(200, self.raiseEvent, dabo.dEvents.ValueChanged)
+
 		return ret
 
 
@@ -290,12 +294,12 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		# upon Destroy (saveValue, for instance)):
 		self._value = self.Value
 		
-		# Raise an event so that user code can react if needed:
-		dabo.ui.callAfterInterval(200, self.raiseEvent, dabo.dEvents.ValueChanged)
-
-		if not _from_flushValue and self.Form.ActiveControl != self:
-			# Value was changed programatically - flushValue won't be called 
-			# automatically so do it explicitly now.
+		if not _from_flushValue and (self.Form.ActiveControl != self 
+				or not getattr(self, "_flushOnLostFocus", False)):
+			# Value was changed programatically, and flushValue won't ever be 
+			# called automatically (either the control won't flush itself upon
+			# LostFocus, or the control isn't the active control so the GotFocus/
+			# LostFocus mechanism won't recognize the change), so do it now.
 			self.flushValue()
 			
 	# Property get/set/del methods follow. Scroll to bottom to see the property
