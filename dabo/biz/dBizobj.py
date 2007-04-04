@@ -967,7 +967,7 @@ class dBizobj(dObject):
 		if not ret:
 			# see if any child bizobjs have changed
 			for child in self.__children:
-				ret = child.isAnyChanged()
+				ret = child.isAnyChanged(_topLevel=False)
 				if ret:
 					break
 		return ret
@@ -1005,9 +1005,11 @@ class dBizobj(dObject):
 		if self.AutoPopulatePK:
 			# Provide a temporary PK so that any linked children can be properly
 			# identified until the record is saved and a permanent PK is obtained.
-			self.__currentCursorKey = cursor.genTempAutoPK()
-			del self.__cursors[currKey]
-			self.__cursors[self.__currentCursorKey] = cursor
+			tmpKey = cursor.genTempAutoPK()
+			if currKey is None:
+				self.__currentCursorKey = tmpKey
+				del self.__cursors[currKey]
+				self.__cursors[tmpKey] = cursor
 		# Fill in the link to the parent record
 		if self.Parent and self.FillLinkFromParent and self.LinkField:
 			self.setParentFK()
