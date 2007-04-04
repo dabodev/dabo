@@ -655,24 +655,36 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		with the actual PK value.
 		"""
 		rec = self._records[self.RowNumber]
-		tmpPK = self._genTempPKVal()
 		kf = self.KeyField
+		try:
+			if isinstance(kf, tuple):
+				pkVal = rec[kf[0]]
+			else:
+				pkVal = rec[kf]
+		except IndexError:
+			# No records; default to string
+			pkVal = ""
+		
+		tmpPK = self._genTempPKVal(pkVal)
 		if isinstance(kf, tuple):
 			for key in kf:
 				rec[key] = tmpPK
 		else:
 			rec[kf] = tmpPK
 		rec[kons.CURSOR_TMPKEY_FIELD] = tmpPK
+		return tmpPK
 		
 	
-	def _genTempPKVal(self):
+	def _genTempPKVal(self, pkValue):
 		""" Return the next available temp PK value. It will be a string, and 
 		postfixed with '-dabotmp' to avoid potential conflicts with actual PKs
 		"""
-		tmp = self.__tmpPK
+		ret = self.__tmpPK
 		# Decrement the temp PK value
 		self.__tmpPK -= 1
-		return str(tmp) + "-dabotmp"
+		if isinstance(pkValue, basestring):
+			ret = "%s-dabotmp" % ret
+		return ret
 	
 	
 	def getPK(self):
