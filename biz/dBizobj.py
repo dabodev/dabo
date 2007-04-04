@@ -368,9 +368,6 @@ class dBizobj(dObject):
 
 	def cancelAll(self):
 		"""Cancel all changes made to the current dataset, including all children."""
-		
-		dabo.trace()
-
 		self.scanChangedRows(self.cancel, allCursors=False)
 
 
