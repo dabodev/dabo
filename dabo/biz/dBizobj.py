@@ -368,6 +368,9 @@ class dBizobj(dObject):
 
 	def cancelAll(self):
 		"""Cancel all changes made to the current dataset, including all children."""
+		
+		dabo.trace()
+
 		self.scanChangedRows(self.cancel, allCursors=False)
 
 
@@ -608,7 +611,7 @@ class dBizobj(dObject):
 		if allCursors:
 			cursors = self.__cursors
 		else:
-			cursors = {None: self._CurrentCursor}
+			cursors = {old_pk: self._CurrentCursor}
 
 		for key, cursor in cursors.iteritems():
 			self._CurrentCursor = key
