@@ -23,7 +23,6 @@ class dBizobj(dObject):
 		self.__cursors = {}
 		# PK of the currently-selected cursor
 		self.__currentCursorKey = None
-
 		self._dataStructure = None
 
 		# Dictionary holding any default values to apply when a new record is created. This is
@@ -1002,10 +1001,13 @@ class dBizobj(dObject):
 		User subclasses should leave this alone and instead override onNew().
 		"""
 		cursor = self._CurrentCursor
+		currKey = self.__currentCursorKey
 		if self.AutoPopulatePK:
 			# Provide a temporary PK so that any linked children can be properly
 			# identified until the record is saved and a permanent PK is obtained.
-			cursor.genTempAutoPK()
+			self.__currentCursorKey = cursor.genTempAutoPK()
+			del self.__cursors[currKey]
+			self.__cursors[self.__currentCursorKey] = cursor
 		# Fill in the link to the parent record
 		if self.Parent and self.FillLinkFromParent and self.LinkField:
 			self.setParentFK()
@@ -1241,10 +1243,10 @@ class dBizobj(dObject):
 		""" Return the parameters to send to the cursor's execute method.
 
 		This is the place to define the parameters to be used to modify
-		the SQL statement used to produce the record set. If the cursor for
-		this bizobj does not need parameters, leave this as is. Otherwise,
-		override this method to return a tuple to be passed to the cursor, where
-		it will be used to modify the query using standard printf syntax.
+		the SQL statement used to produce the record set. Normally if you have
+		known parameters, you would simply call setParams(<param tuple>).
+		But in cases where the parameter values need to be dynamically calculated,
+		override this method in your subclass to determine the tuple to return.
 		"""
 		return self.__params
 
