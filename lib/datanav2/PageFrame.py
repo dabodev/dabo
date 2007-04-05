@@ -8,9 +8,10 @@ class PageFrameMixin(object):
 	def __init__(self, parent, Name="PageFrame", *args, **kwargs):
 		self._pageStyleClass.__init__(self, parent, Name=Name, *args, **kwargs)
 		# Add the images for the various pages.
-		self.addImage("checkMark")
-		self.addImage("browse")
-		self.addImage("edit")
+		iconPath = "themes/tango/16x16"
+		self.addImage("%s/actions/system-search.png" % iconPath, key="select")
+		self.addImage("%s/actions/format-justify-fill.png" % iconPath, key="browse")
+		self.addImage("%s/apps/accessories-text-editor.png" % iconPath, key="edit")
 		self.addImage("childview")
 
 		self.dsEditPages = {}
@@ -35,7 +36,7 @@ class PageFrameMixin(object):
 		
 
 	def addSelectPage(self, caption=_("Select")):
-		self.addPage(self.Form.SelectPageClass, caption, "checkMark")
+		self.addPage(self.Form.SelectPageClass, caption, "select")
 
 	def addBrowsePage(self, caption=_("Browse")):
 		self.addPage(self.Form.BrowsePageClass, caption, "browse")
