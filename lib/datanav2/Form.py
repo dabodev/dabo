@@ -64,7 +64,8 @@ class Form(dabo.ui.dForm):
 			# It's already been set up
 			return
 	
-		iconPath = "themes/tango/22x22"	
+		iconPath = "themes/tango/22x22"
+		tb.SetToolBitmapSize((22,22))  ## need to abstract in dToolBar!	
 		if self.FormType != 'Edit':
 			self.appendToolBarButton("First", "%s/actions/go-first.png" % iconPath, OnHit=self.onFirst, 
 					tip=_("First"), help=_("Go to the first record"))
