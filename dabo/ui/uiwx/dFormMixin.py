@@ -283,8 +283,6 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		raise dException.FeatureNotSupportedException, \
 				_("The underlying UI toolkit does not support modal forms. Use a dDialog instead.")
-		#self.MakeModal(True)
-		#self._isModal = self.Visible = True
 		
 		
 	def release(self):
@@ -945,7 +943,7 @@ class dFormMixin(pm.dPemMixin):
 
 	MenuBarFile = property(_getMenuBarFile, _setMenuBarFile, None,
 			_("Path to the .mnxml file that defines this form's menu bar  (str)"))
-	
+
 	SaveRestorePosition = property(_getSaveRestorePosition, 
 			_setSaveRestorePosition, None,
 			_("""Specifies whether the form's position and size as set by the user

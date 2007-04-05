@@ -775,17 +775,25 @@ class dForm(BaseForm, wx.Frame):
 	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dForm
 
-		if dabo.settings.MDI and isinstance(parent, wx.MDIParentFrame):
-			# Hack this into an MDI Child:
-			dForm.__bases__ = (BaseForm, wx.MDIChildFrame)
-			preClass = wx.PreMDIChildFrame
-			self._mdi = True
+		if kwargs.pop("Modal", False):
+			# Hack this into a wx.Dialog, for true modality
+			dForm.__bases__ = (BaseForm, wx.Dialog)
+			preClass = wx.PreDialog
+			self._modal = True
 		else:
-			# This is a normal SDI form:
-			dForm.__bases__ = (BaseForm, wx.Frame)
-			preClass = wx.PreFrame
-			self._mdi = False
-		## (Note that it is necessary to run the above block each time, because
+			# Normal dForm
+			if dabo.settings.MDI and isinstance(parent, wx.MDIParentFrame):
+				# Hack this into an MDI Child:
+				dForm.__bases__ = (BaseForm, wx.MDIChildFrame)
+				preClass = wx.PreMDIChildFrame
+				self._mdi = True
+			else:
+				# This is a normal SDI form:
+				dForm.__bases__ = (BaseForm, wx.Frame)
+				preClass = wx.PreFrame
+				self._mdi = False
+
+		## (Note that it is necessary to run the above blocks each time, because
 		##  we are modifying the dForm class definition globally.)
 		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
@@ -797,6 +805,39 @@ class dForm(BaseForm, wx.Frame):
 		super(dForm, self).Layout()
 		wx.CallAfter(self.update)
 
+	def _getModal(self):
+		return getattr(self, "_modal", False)
+
+	def _getVisible(self):
+		return self.IsShown()
+	
+	def _setVisible(self, val):
+		if self._constructed():
+			val = bool(val)
+			if val and self.Modal:
+				self.ShowModal()
+			else:
+				self.Show(val)
+		else:
+			self._properties["Visible"] = val
+
+	Modal = property(_getModal, None, None,
+			_("""Specifies whether this dForm is modal or not  (bool)
+
+			A modal dForm runs its own event loop, blocking program flow until the
+			form is hidden or closed, exactly like a dDialog does it. This property
+			may only be sent to the constructor, and once instantiated you may not
+			change the modality of a form. For example,
+					frm = dabo.ui.dForm(Modal=True)
+			will create a modal form.
+
+			Note that a modal dForm is actually a dDialog, and as such does not
+			have the ability to contain MenuBars, StatusBars, or ToolBars."""))
+
+	Visible = property(_getVisible, _setVisible, None,
+			_("Specifies whether the form is shown or hidden.  (bool)") )
+
+	
 
 class dToolForm(BaseForm, wx.MiniFrame):
 	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):

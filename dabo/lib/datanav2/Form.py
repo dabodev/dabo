@@ -44,7 +44,7 @@ class Form(dabo.ui.dForm):
 		# Create the various elements:
 		self.setupPageFrame()
 
-		if not self.Testing:
+		if not self.Testing and not self.Modal:
 			self.setupToolBar()
 			self.setupMenu()
 
