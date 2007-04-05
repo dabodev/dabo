@@ -67,30 +67,30 @@ class Form(dabo.ui.dForm):
 		iconPath = "themes/tango/22x22"
 		tb.SetToolBitmapSize((22,22))  ## need to abstract in dToolBar!	
 		if self.FormType != 'Edit':
-			self.appendToolBarButton("First", "%s/actions/go-first.png" % iconPath, OnHit=self.onFirst, 
-					tip=_("First"), help=_("Go to the first record"))
-			self.appendToolBarButton("Prior", "%s/actions/go-previous.png" % iconPath, OnHit=self.onPrior, 
-					tip=_("Prior"), help=_("Go to the prior record"))
-			self.appendToolBarButton("Requery", "%s/actions/view-refresh.png" % iconPath, OnHit=self.onRequery, 
-					tip=_("Requery"), help=_("Requery dataset"))
-			self.appendToolBarButton("Next", "%s/actions/go-next.png" % iconPath, OnHit=self.onNext, 
-					tip=_("Next"), help=_("Go to the next record"))
-			self.appendToolBarButton("Last", "%s/actions/go-last.png" % iconPath, OnHit=self.onLast, 
-					tip=_("Last"), help=_("Go to the last record"))
+			self.appendToolBarButton("First", "%s/actions/go-first.png" % iconPath, 
+					OnHit=self.onFirst,	tip=_("First"), help=_("Go to the first record"))
+			self.appendToolBarButton("Prior", "%s/actions/go-previous.png" % iconPath, 
+					OnHit=self.onPrior,	tip=_("Prior"), help=_("Go to the prior record"))
+			self.appendToolBarButton("Requery", "%s/actions/view-refresh.png" % iconPath, 
+					OnHit=self.onRequery,	tip=_("Requery"), help=_("Requery dataset"))
+			self.appendToolBarButton("Next", "%s/actions/go-next.png" % iconPath, 
+					OnHit=self.onNext, tip=_("Next"), help=_("Go to the next record"))
+			self.appendToolBarButton("Last", "%s/actions/go-last.png" % iconPath, 
+					OnHit=self.onLast, tip=_("Last"), help=_("Go to the last record"))
 			tb.appendSeparator()
 
 		if self.FormType == 'Normal':
-			self.appendToolBarButton("New", "%s/actions/document-new.png" % iconPath, OnHit=self.onNew, 
-					tip=_("New"), help=_("Add a new record"))
-			self.appendToolBarButton("Delete", "%s/actions/edit-delete.png" % iconPath, OnHit=self.onDelete, 
-					tip=_("Delete"), help=_("Delete this record"))
+			self.appendToolBarButton("New", "%s/actions/document-new.png" % iconPath, 
+					OnHit=self.onNew,	tip=_("New"), help=_("Add a new record"))
+			self.appendToolBarButton("Delete", "%s/actions/edit-delete.png" % iconPath, 
+					OnHit=self.onDelete, tip=_("Delete"), help=_("Delete this record"))
 			tb.appendSeparator()
 
 		if self.FormType != 'PickList':
-			self.appendToolBarButton("Save", "%s/actions/document-save.png" % iconPath, OnHit=self.onSave, 
-					tip=_("Save"), help=_("Save changes"))
-			self.appendToolBarButton("Cancel", "%s/actions/edit-undo.png" % iconPath, OnHit=self.onCancel, 
-					tip=_("Cancel"), help=_("Cancel changes"))
+			self.appendToolBarButton("Save", "%s/actions/document-save.png" % iconPath, 
+					OnHit=self.onSave, tip=_("Save"), help=_("Save changes"))
+			self.appendToolBarButton("Cancel", "%s/actions/edit-undo.png" % iconPath, 
+					OnHit=self.onCancel, tip=_("Cancel"), help=_("Cancel changes"))
 			tb.appendSeparator()
 
 		if self.FormType == "Normal":
@@ -105,11 +105,11 @@ class Form(dabo.ui.dForm):
 		menu.Caption = _("&Actions")
 
 		menu.append(_("Set Selection &Criteria")+"\tAlt+1", 
-				OnHit=self.onSetSelectionCriteria, bmp="checkMark",
+				OnHit=self.onSetSelectionCriteria, bmp="%s/actions/system-search.png" % iconPath,
 				help=_("Set the selection criteria for the recordset."))
 
 		menu.append(_("&Browse Records")+"\tAlt+2", 
-				OnHit=self.onBrowseRecords, bmp="browse",
+				OnHit=self.onBrowseRecords, bmp="%s/actions/format-justify-fill.png" % iconPath,
 				help=_("Browse the records in the current recordset."))
 
 		def onActivatePage(evt):
@@ -129,17 +129,21 @@ class Form(dabo.ui.dForm):
 					tag = self.pageFrame.Pages[index]
 					help = ""
 					
-				menu.append(title, OnHit=onHit, bmp="%s/apps/accessories-text-editor.png" % iconPath,	help=help, Tag=tag)
+				menu.append(title, OnHit=onHit, bmp="%s/apps/accessories-text-editor.png" % iconPath,	
+						help=help, Tag=tag)
 			menu.appendSeparator()
 
 		if self.FormType != "Edit":
-			menu.append(_("&Requery")+"\tCtrl+R", OnHit=self.onRequery, bmp="%s/actions/view-refresh.png" % iconPath,
+			menu.append(_("&Requery")+"\tCtrl+R", OnHit=self.onRequery, 
+					bmp="%s/actions/view-refresh.png" % iconPath,
 					help=_("Get a new recordset from the backend."), menutype="check")		
 	
 		if self.FormType != "PickList":
-			menu.append(_("&Save Changes")+"\tCtrl+S", OnHit=self.onSave, bmp="%s/actions/document-save.png" % iconPath,
+			menu.append(_("&Save Changes")+"\tCtrl+S", OnHit=self.onSave, 
+					bmp="%s/actions/document-save.png" % iconPath,
 					help=_("Save any changes made to the records."))	
-			menu.append(_("&Cancel Changes"), OnHit=self.onCancel, bmp="%s/actions/edit-undo.png" % iconPath,
+			menu.append(_("&Cancel Changes"), OnHit=self.onCancel, 
+					bmp="%s/actions/edit-undo.png" % iconPath,
 					help=_("Cancel any changes made to the records."))
 			menu.appendSeparator()
 		
@@ -165,9 +169,11 @@ class Form(dabo.ui.dForm):
 			menu.appendSeparator()
 		
 		if self.FormType == "Normal":
-			menu.append(_("&New Record")+"\tCtrl+N", OnHit=self.onNew, bmp="%s/actions/document-new.png" % iconPath,
+			menu.append(_("&New Record")+"\tCtrl+N", OnHit=self.onNew, 
+					bmp="%s/actions/document-new.png" % iconPath,
 					help=_("Add a new record to the dataset."))
-			menu.append(_("&Delete Current Record"), OnHit=self.onDelete, bmp="%s/actions/edit-delete" % iconPath,
+			menu.append(_("&Delete Current Record"), OnHit=self.onDelete, 
+					bmp="%s/actions/edit-delete" % iconPath,
 					help=_("Delete the current record from the dataset."))
 			menu.appendSeparator()
 
@@ -175,7 +181,8 @@ class Form(dabo.ui.dForm):
 			menu.append(_("Show S&QL"), OnHit=self.onShowSQL)
 
 		if self.FormType == "Normal":
-			menu.append(_("Quick &Report"), OnHit=self.onQuickReport, bmp="%s/actions/document-print-preview.png" % iconPath,
+			menu.append(_("Quick &Report"), OnHit=self.onQuickReport, 
+					bmp="%s/actions/document-print-preview.png" % iconPath,
 					DynamicEnabled=self.enableQuickReport)
 
 		return menu
@@ -294,7 +301,8 @@ class Form(dabo.ui.dForm):
 		sql = self.PrimaryBizobj.LastSQL
 		if sql is None:
 			sql = "-Nothing executed yet-"
-		dlg = dabo.ui.dDialog(self, Caption=_("Last SQL"), SaveRestorePosition=True, BorderResizable=True)
+		dlg = dabo.ui.dDialog(self, Caption=_("Last SQL"), 
+				SaveRestorePosition=True, BorderResizable=True)
 		eb = dlg.addObject(dabo.ui.dEditBox, ReadOnly=True, Value=sql, 
 				Size=(400, 400))
 		for ff in ["Monospace", "Monaco", "Courier New"]:
@@ -311,7 +319,8 @@ class Form(dabo.ui.dForm):
 	def onQuickReport(self, evt):
 		# May not have records if called via toolbar button
 		if not self.enableQuickReport():
-			dabo.ui.exclaim(_("Sorry, there are no records to report on."), title=_("No Records"))
+			dabo.ui.exclaim(_("Sorry, there are no records to report on."), 
+					title=_("No Records"))
 			return
 
 		class ReportFormatDialog(dabo.ui.dOkCancelDialog):
