@@ -107,8 +107,8 @@ class _dToggleButton_test(dToggleButton):
 	def afterInit(self):
 		self.Caption = "Toggle me!"
 		self.Size = (100, 31)
-		self.Picture = "uparrow"
-		self.DownPicture = "downarrow"
+		self.Picture = "themes/tango/22x22/apps/accessories-text-editor.png"
+		self.DownPicture = "themes/tango/22x22/apps/help-browser.png"
 
 	def onHit(self, evt):
 		if self.Value:
