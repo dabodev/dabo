@@ -64,8 +64,15 @@ class Form(dabo.ui.dForm):
 			# It's already been set up
 			return
 	
-		iconPath = "themes/tango/22x22"
-		tb.SetToolBitmapSize((22,22))  ## need to abstract in dToolBar!	
+		if self.Application.Platform == "Mac":
+			# Toolbar looks better with larger icons on Mac. In fact, I believe HIG
+			# recommends 32x32 for Mac Toolbars.
+			iconSize = (32, 32)
+		else:
+			iconSize = (22, 22)
+		tb.SetToolBitmapSize(iconSize)  ## need to abstract in dToolBar!
+		iconPath = "themes/tango/%sx%s" % iconSize
+	
 		if self.FormType != 'Edit':
 			self.appendToolBarButton("First", "%s/actions/go-first.png" % iconPath, 
 					OnHit=self.onFirst,	tip=_("First"), help=_("Go to the first record"))
