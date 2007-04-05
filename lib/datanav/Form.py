@@ -141,56 +141,60 @@ class Form(dabo.ui.dForm):
 		if tb.Children:
 			# It's already been set up
 			return
-		tb.MaxWidth = 16
-		tb.MaxHeight = 16
 		
+		if self.Application.Platform == "Mac":
+			# Toolbar looks better with larger icons on Mac. In fact, I believe HIG
+			# recommends 32x32 for Mac Toolbars.
+			iconSize = (32, 32)
+		else:
+			iconSize = (22, 22)
+		tb.SetToolBitmapSize(iconSize)  ## need to abstract in dToolBar!
+		iconPath = "themes/tango/%sx%s" % iconSize
+
 		if self.FormType != 'Edit':
-			self.appendToolBarButton("First", "leftArrows", OnHit=self.onFirst, 
-					tip=_("First"), help=_("Go to the first record"))
-			self.appendToolBarButton("Prior", "leftArrow", OnHit=self.onPrior, 
-					tip=_("Prior"), help=_("Go to the prior record"))
-			self.appendToolBarButton("Requery", "requery", OnHit=self.onRequery, 
-					tip=_("Requery"), help=_("Requery dataset"))
-			self.appendToolBarButton("Next", "rightArrow", OnHit=self.onNext, 
-					tip=_("Next"), help=_("Go to the next record"))
-			self.appendToolBarButton("Last", "rightArrows", OnHit=self.onLast, 
-					tip=_("Last"), help=_("Go to the last record"))
+			self.appendToolBarButton("First", "%s/actions/go-first.png" % iconPath, 
+					OnHit=self.onFirst,	tip=_("First"), help=_("Go to the first record"))
+			self.appendToolBarButton("Prior", "%s/actions/go-previous.png" % iconPath, 
+					OnHit=self.onPrior,	tip=_("Prior"), help=_("Go to the prior record"))
+			self.appendToolBarButton("Requery", "%s/actions/view-refresh.png" % iconPath, 
+					OnHit=self.onRequery,	tip=_("Requery"), help=_("Requery dataset"))
+			self.appendToolBarButton("Next", "%s/actions/go-next.png" % iconPath, 
+					OnHit=self.onNext, tip=_("Next"), help=_("Go to the next record"))
+			self.appendToolBarButton("Last", "%s/actions/go-last.png" % iconPath, 
+					OnHit=self.onLast, tip=_("Last"), help=_("Go to the last record"))
 			tb.appendSeparator()
 
 		if self.FormType == 'Normal':
-			self.appendToolBarButton("New", "blank", OnHit=self.onNew, 
-					tip=_("New"), help=_("Add a new record"))
-			self.appendToolBarButton("Delete", "delete", OnHit=self.onDelete, 
-					tip=_("Delete"), help=_("Delete this record"))
+			self.appendToolBarButton("New", "%s/actions/document-new.png" % iconPath, 
+					OnHit=self.onNew,	tip=_("New"), help=_("Add a new record"))
+			self.appendToolBarButton("Delete", "%s/actions/edit-delete.png" % iconPath, 
+					OnHit=self.onDelete, tip=_("Delete"), help=_("Delete this record"))
 			tb.appendSeparator()
 
 		if self.FormType != 'PickList':
-			self.appendToolBarButton("Save", "save", OnHit=self.onSave, 
-					tip=_("Save"), help=_("Save changes"))
-			self.appendToolBarButton("Cancel", "revert", OnHit=self.onCancel, 
-					tip=_("Cancel"), help=_("Cancel changes"))
+			self.appendToolBarButton("Save", "%s/actions/document-save.png" % iconPath, 
+					OnHit=self.onSave, tip=_("Save"), help=_("Save changes"))
+			self.appendToolBarButton("Cancel", "%s/actions/edit-undo.png" % iconPath, 
+					OnHit=self.onCancel, tip=_("Cancel"), help=_("Cancel changes"))
 			tb.appendSeparator()
 
-		if self.FormType != "Edit":
-			self.appendToolBarButton("SQL", "zoomNormal", OnHit=self.onShowSQL, 
-					tip=_("Show SQL"), help=_("Show the last executed SQL statement"))
-
 		if self.FormType == "Normal":
-			self.appendToolBarButton(_("Quick Report"), "print",
+			self.appendToolBarButton(_("Quick Report"), "%s/actions/document-print-preview.png" % iconPath,
 					OnHit=self.onQuickReport, tip=_("Quick Report"),
 					help=_("Run a Quick Report on the current dataset"))
 
 
 	def getMenu(self):
+		iconPath = "themes/tango/16x16"	
 		menu = super(Form, self).getMenu()
 		menu.Caption = _("&Actions")
 
 		menu.append(_("Set Selection &Criteria")+"\tAlt+1", 
-				OnHit=self.onSetSelectionCriteria, bmp="checkMark",
+				OnHit=self.onSetSelectionCriteria, bmp="%s/actions/system-search.png" % iconPath,
 				help=_("Set the selection criteria for the recordset."))
 
 		menu.append(_("&Browse Records")+"\tAlt+2", 
-				OnHit=self.onBrowseRecords, bmp="browse",
+				OnHit=self.onBrowseRecords, bmp="%s/actions/format-justify-fill.png" % iconPath,
 				help=_("Browse the records in the current recordset."))
 
 		def onActivatePage(evt):
@@ -210,17 +214,21 @@ class Form(dabo.ui.dForm):
 					tag = self.pageFrame.Pages[index]
 					help = ""
 					
-				menu.append(title, OnHit=onHit, bmp="edit",	help=help, Tag=tag)
+				menu.append(title, OnHit=onHit, bmp="%s/apps/accessories-text-editor.png" % iconPath,	
+						help=help, Tag=tag)
 			menu.appendSeparator()
 
 		if self.FormType != "Edit":
-			menu.append(_("&Requery")+"\tCtrl+R", OnHit=self.onRequery, bmp="requery",
+			menu.append(_("&Requery")+"\tCtrl+R", OnHit=self.onRequery, 
+					bmp="%s/actions/view-refresh.png" % iconPath,
 					help=_("Get a new recordset from the backend."), menutype="check")		
 	
 		if self.FormType != "PickList":
-			menu.append(_("&Save Changes")+"\tCtrl+S", OnHit=self.onSave, bmp="save",
+			menu.append(_("&Save Changes")+"\tCtrl+S", OnHit=self.onSave, 
+					bmp="%s/actions/document-save.png" % iconPath,
 					help=_("Save any changes made to the records."))	
-			menu.append(_("&Cancel Changes"), OnHit=self.onCancel, bmp="revert",
+			menu.append(_("&Cancel Changes"), OnHit=self.onCancel, 
+					bmp="%s/actions/edit-undo.png" % iconPath,
 					help=_("Cancel any changes made to the records."))
 			menu.appendSeparator()
 		
@@ -232,31 +240,34 @@ class Form(dabo.ui.dForm):
 				altKey = "Ctrl"
 
 			menu.append(_("Select &First Record")+"\t%s+UP" % altKey, 
-					OnHit=self.onFirst, bmp="leftArrows", 
+					OnHit=self.onFirst, bmp="%s/actions/go-first.png" % iconPath, 
 					help=_("Go to the first record in the set.")) 
 			menu.append(_("Select &Prior Record")+"\t%s+LEFT" % altKey, 
-					OnHit=self.onPrior,bmp="leftArrow", 
+					OnHit=self.onPrior, bmp="%s/actions/go-previous.png" % iconPath, 
 					help=_("Go to the prior record in the set."))	
 			menu.append(_("Select Ne&xt Record")+"\t%s+RIGHT" % altKey, 
-					OnHit=self.onNext, bmp="rightArrow", 
+					OnHit=self.onNext, bmp="%s/actions/go-next.png" % iconPath, 
 					help=_("Go to the next record in the set."))
 			menu.append(_("Select &Last Record")+"\t%s+DOWN" % altKey, 
-					OnHit=self.onLast, bmp="rightArrows", 
+					OnHit=self.onLast, bmp="%s/actions/go-last.png" % iconPath, 
 					help=_("Go to the last record in the set."))
 			menu.appendSeparator()
 		
 		if self.FormType == "Normal":
-			menu.append(_("&New Record")+"\tCtrl+N", OnHit=self.onNew, bmp="blank",
+			menu.append(_("&New Record")+"\tCtrl+N", OnHit=self.onNew, 
+					bmp="%s/actions/document-new.png" % iconPath,
 					help=_("Add a new record to the dataset."))
-			menu.append(_("&Delete Current Record"), OnHit=self.onDelete, bmp="delete",
+			menu.append(_("&Delete Current Record"), OnHit=self.onDelete, 
+					bmp="%s/actions/edit-delete" % iconPath,
 					help=_("Delete the current record from the dataset."))
 			menu.appendSeparator()
 
 		if self.FormType != "Edit":
-			menu.append(_("Show S&QL"), OnHit=self.onShowSQL, bmp="zoomNormal")
+			menu.append(_("Show S&QL"), OnHit=self.onShowSQL)
 
 		if self.FormType == "Normal":
-			menu.append(_("Quick &Report"), OnHit=self.onQuickReport, bmp="print",
+			menu.append(_("Quick &Report"), OnHit=self.onQuickReport, 
+					bmp="%s/actions/document-print-preview.png" % iconPath,
 					DynamicEnabled=self.enableQuickReport)
 
 		return menu
