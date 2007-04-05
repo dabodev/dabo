@@ -922,30 +922,33 @@ class dBizobj(dObject):
 		return ret
 
 
-	def isAnyChanged(self, _topLevel=True):
+	def isAnyChanged(self, parentPK=None):
 		"""Returns True if any record in the current record set has been changed."""
-		try:
-			cc = self._CurrentCursor
-		except:
-			cc = None
+		if parentPK is None:
+			try:
+				cc = self._CurrentCursor
+			except:
+				cc = None
+		else:
+			cc = self.__cursors.get(parentPK, None)
 		if cc is None:
 			# No cursor, no changes.
 			return False
-		if _topLevel:
-			# Only check the _CurrentCursor:
-			if self._CurrentCursor.isChanged(allRows=True):
-				return True
-		else:
-			# Need to check all cached cursors:
-			for cursor in self.__cursors.values():
-				if cursor.isChanged(allRows=True):
-					return True
+		
+		if cc.isChanged(allRows=True):
+			return True
 	
 		# Nothing's changed in the top level, so we need to recurse the children:
+		try:
+			pk = self.getPK()
+		except dException.NoRecordsException:
+			# If there are no records, there can be no changes
+			return False
+			
 		for child in self.__children:
-			if child.isAnyChanged(_topLevel=False):
+			if child.isAnyChanged(parentPK=pk):
 				return True
-		
+		# If we made it to here, there are no changes.
 		return False
 
 
@@ -966,8 +969,13 @@ class dBizobj(dObject):
 
 		if not ret:
 			# see if any child bizobjs have changed
+			try:
+				pk = self.getPK()
+			except dException.NoRecordsException:
+				# If there are no records, there can be no changes
+				return False
 			for child in self.__children:
-				ret = child.isAnyChanged(_topLevel=False)
+				ret = child.isAnyChanged(parentPK=pk)
 				if ret:
 					break
 		return ret
