@@ -12,7 +12,6 @@ class PageFrameMixin(object):
 		self.addImage("%s/actions/system-search.png" % iconPath, key="select")
 		self.addImage("%s/actions/format-justify-fill.png" % iconPath, key="browse")
 		self.addImage("%s/apps/accessories-text-editor.png" % iconPath, key="edit")
-		self.addImage("childview")
 
 		self.dsEditPages = {}
 

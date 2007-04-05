@@ -14,10 +14,10 @@ class PageFrameMixin(object):
 		#super(self.__class__, self).__init__(parent, Name=Name)
 		self._pageStyleClass.__init__(self, parent, Name=Name, *args, **kwargs)
 		# Add the images for the various pages.
-		self.addImage("checkMark")
-		self.addImage("browse")
-		self.addImage("edit")
-		self.addImage("childview")
+		iconPath = "themes/tango/16x16"
+		self.addImage("%s/actions/system-search.png" % iconPath, key="select")
+		self.addImage("%s/actions/format-justify-fill.png" % iconPath, key="browse")
+		self.addImage("%s/apps/accessories-text-editor.png" % iconPath, key="edit")
 
 
 	def initProperties(self):
@@ -56,11 +56,11 @@ class PageFrameMixin(object):
 				bizobj = self.Parent.getBizobj()
 				for child in bizobj.getChildren():
 					self.appendPage(self.ChildPageClass(self, child.DataSource), 
-							child.Caption, imgKey="childview")
+							child.Caption)
 
 
 	def addSelectPage(self, title=_("Select")):
-		self.appendPage(self.Form.SelectPageClass, caption=title, imgKey="checkMark")
+		self.appendPage(self.Form.SelectPageClass, caption=title, imgKey="select")
 	
 	def addBrowsePage(self, title=_("Browse")):
 		self.appendPage(self.Form.BrowsePageClass, caption=title, imgKey="browse")
