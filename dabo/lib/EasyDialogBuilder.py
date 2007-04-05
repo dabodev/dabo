@@ -11,6 +11,8 @@ targeted and Forms, Dialogs, and Panels.
 import dabo
 import types
 
+import dabo.dEvents as dEvents
+
 # For now, 'wx' is the only valid UI. In the future, though, try changing
 # this to 'tk' or 'qt'...
 ui = "wx"
@@ -42,17 +44,21 @@ class EasyDialogBuilder(object):
 		
 		return pageFrame
 
-	def makeControlBox(self, parent, caption, controlFields, border=5, spacing=5, grid=True):
-		"""makeControlBox(parent, controlFields, border=5, spacing=5, grid=True) -> dabo.ui.dBorderSizer
+	def makeControlBox(self, parent, caption, controlFields, border=5, spacing=5, grid=True, hasRegIDs=True, bindHitEvents=False):
+		"""makeControlBox(parent, controlFields, border=5, spacing=5, grid=True, hasRegIDs=True, bindHitEvents=False) -> dabo.ui.dBorderSizer
 		
 		parent -> dabo object that is the parent of the controls, normally a panel or form
 		grid -> Boolean.  When true all objects are put into a grid sizer for even controlfield alignment.
 			When false, all objects are put into boxSizers so the control fields line up with the end
 			of their labels.
+		hasRegIDs -> Boolean.  When true, all objects will be assigned regIDs.  When false, all objects 
+			will not be assigned regIDs.
+		bindHitEvents -> Boolean.  When true, all of the control objects hit events with be bound to 
+			functions in the form of onHit_controlName.  When false, no binding occurs.
 		controlFields -> Tuple of tuples in form of:
 			((control, RegID, label Title, Properties),.....)
 			control -> dabo control or string "file" (produces a textbox with a button to get a file)
-			RegID -> string of the regID for this particular control
+			name -> string of the name for this particular control
 			label Title -> string that appears on the label
 			Properties -> optional dictionary of Properties for the control
 		
@@ -67,21 +73,25 @@ class EasyDialogBuilder(object):
 		box.DefaultBorder = border
 		box.DefaultBorderAll = True
 		
-		box.append1x(self.makeControlSizer(parent, controlFields, grid=grid))
+		box.append1x(self.makeControlSizer(parent, controlFields, 5, 5, grid, hasRegIDs, bindHitEvents))
 		
 		return box
 	
-	def makeControlSizer(self, parent, controlFields, border=5, spacing=5, grid=True):
-		"""makeControlSizer(parent, controlFields, border=5, spacing=5, grid=True) -> dabo.ui.dSizer
+	def makeControlSizer(self, parent, controlFields, border=5, spacing=5, grid=True, hasRegIDs=True, bindHitEvents=False):
+		"""makeControlSizer(parent, controlFields, border=5, spacing=5, grid=True, hasRegIDs=True, bindHitEvents=False) -> dabo.ui.dSizer
 		
 		parent -> dabo object that is the parent of the controls, normally a panel or form
 		grid -> Boolean.  When true all objects are put into a grid sizer for even controlfield alignment.
 			When false, all objects are put into boxSizers so the control fields line up with the end
 			of their labels.
+		hasRegIDs -> Boolean.  When true, all objects will be assigned regIDs.  When false, all objects 
+			will not be assigned regIDs.
+		bindHitEvents -> Boolean.  When true, all of the control objects hit events with be bound to 
+			functions in the form of onHit_controlName.  When false, no binding occurs.
 		controlFields -> Tuple of tuples in form of:
 			((control, RegID, label Title, Properties),.....)
 			control -> dabo control or string "file" (produces a textbox with a button to get a file)
-			RegID -> string of the regID for this particular control
+			name -> string of the name for this particular control
 			label Title -> string that appears on the label
 			Properties -> optional dictionary of Properties for the control
 		
@@ -105,7 +115,7 @@ class EasyDialogBuilder(object):
 			else:
 				Properties = {}
 			
-			controls = self.makeControlField(parent, obj[0], obj[1], obj[2], Properties)
+			controls = self.makeControlField(parent, obj[0], obj[1], obj[2], Properties, hasRegIDs, bindHitEvents)
 			
 			if grid:
 				lbl = Sizer.append(controls[0], halign="right")
@@ -133,14 +143,17 @@ class EasyDialogBuilder(object):
 		
 		return Sizer
 	
-	def makeControlField(self, parent, control, regId, labelTitle, Properties):
-		"""makeControlField(parent, control, regId, labelTitle, Properties) -> List of Dabo Controls
+	def makeControlField(self, parent, control, name, labelTitle, Properties, hasRegIDs=True, bindHitEvents=False):
+		"""makeControlField(parent, control, regId, labelTitle, Properties, hasRegIDs=True, bindHitEvents=False) -> List of Dabo Controls
 		
 		parent -> dabo object that is parent, normally a panel or form
 		control -> the dabo class of the control that you want in the form.  Note, class not instansiated object
-		regId -> string that is the regId of the control
+		name -> string that is the name of the control
 		labelTitle -> string that is the title of the label next to the control
 		Properties -> dictionary of any properties that are supposed to go with the control
+		hasRegID -> Boolean that detirmines whether or not the control has regIDs
+		bindHitEvents -> Boolean.  When true, all of the control objects hit events with be bound to 
+			functions in the form of onHit_controlName.  When false, no binding occurs.
 		"""
 		
 		controlList = []
@@ -160,10 +173,15 @@ class EasyDialogBuilder(object):
 			
 			labelTitle += ":"
 			
-			exec("self.%s = dabo.ui.dTextBox(parent, RegID=regId, ReadOnly=True, properties=Properties)" % (regId,))
-			exec("controlList.append(self.%s)" % (regId,))
-			exec("self.%s_button = fileButton(parent, format, \"%s_button\", directory, self.%s)" % (regId,regId,regId))
-			exec("controlList.append(self.%s_button)" % (regId,))
+			if hasRegID:
+				buttonProperties = {"RegID":"%s_button"%(name,)}
+			else:
+				buttonProperties = {}
+			
+			exec("self.%s = dabo.ui.dTextBox(parent, ReadOnly=True, properties=Properties)" % (name,))
+			exec("controlList.append(self.%s)" % (name,))
+			exec("self.%s_button = fileButton(parent, format, directory, self.%s, buttonProperties" % (name, name))
+			exec("controlList.append(self.%s_button)" % (name,))
 		else:
 			if issubclass(control, (dabo.ui.dCheckBox, dabo.ui.dButton)):
 				controlCaption = labelTitle
@@ -172,10 +190,13 @@ class EasyDialogBuilder(object):
 				controlCaption = ""
 				labelTitle += ":"
 			
-			exec("self.%s =control(parent, RegID=regId, Caption=controlCaption, properties=Properties)" % (regId,))
-			exec("controlList.append(self.%s)" % (regId,))
+			exec("self.%s = control(parent, Caption=controlCaption, properties=Properties)" % (name,))
+			exec("controlList.append(self.%s)" % (name,))
 		
-		controlList.insert(0, dabo.ui.dLabel(parent, RegID="%s_label" % (regId,), Caption=labelTitle))
+		if bindHitEvents:
+			exec("self.%s.bindEvent(dEvents.Hit, self.onHit_%s)" % (name, name))
+		
+		controlList.insert(0, dabo.ui.dLabel(parent, Caption=labelTitle))
 		return controlList
 	
 	def makeButtonBar(self, buttonData, orientation="horizontal"):
@@ -207,11 +228,11 @@ class EasyDialogBuilder(object):
 
 
 class fileButton(dabo.ui.dButton):
-	def __init__(self, parent, format, regId, directory, target):
+	def __init__(self, parent, format, directory, target, Properties):
 		self.format = format
 		self.directory = directory
 		self.target = target
-		dabo.ui.dButton.__init__(self, parent, RegID=regId)
+		dabo.ui.dButton.__init__(self, parent, properties=Properties)
 	
 	def afterInit(self):
 		self.Caption = "Browse..."
