@@ -2644,7 +2644,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return None
 
 
-	def refresh(self, sort=True):
+	def refresh(self, sort=False):
 		if sort:
 			ref = self._refreshAfterSort
 			self._refreshAfterSort = False
@@ -2654,12 +2654,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._syncColumnCount()
 		self._syncRowCount()
 		super(dGrid, self).refresh()
-	
+
+
 	def update(self):
 		self.Freeze()
 		super(dGrid, self).update()
 		self.fillGrid()
 		self.Thaw()
+
 
 	def _getWxHeader(self):
 		"""Return the wx grid header window."""
