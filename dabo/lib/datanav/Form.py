@@ -115,14 +115,14 @@ class Form(dabo.ui.dForm):
 				dataSource = self._mainTable
 		return self.super(dataSource)
 	
-	def confirmChanges(self):
+	def confirmChanges(self, bizobjs=None):
 		if self.preview:
 			# Nothing to check
 			return True
 		else:
-			return self.super()
+			return self.super(bizobjs)
 	
-	def afterSetPrimaryBizobj(self):		
+	def afterSetPrimaryBizobj(self):
 		pass
 		
 		
