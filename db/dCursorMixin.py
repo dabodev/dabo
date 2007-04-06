@@ -629,7 +629,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			memento = self._mementos.get(recKey, None)
 			#new_rec = self._newRecords.has_key(recKey)
 			#return not (memento is None and not new_rec)
-			return not (not memento)
+			return bool(memento)
 
 
 	def setNewFlag(self):
@@ -1200,11 +1200,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self.RowNumber = self.RowCount - 1
 
 
-	def cancel(self, allRows=False):
+	def cancel(self, allRows=False, ignoreNoRecords=None):
 		""" Revert any changes to the data set back to the original values."""
-		if not self.RowCount > 0:
-			raise dException.NoRecordsException, _("No data to cancel.")
-
+		if ignoreNoRecords is None:
+			ignoreNoRecords = True
+		if self.RowCount == 0:
+			if ignoreNoRecords:
+				# Nothing to do!
+				return
+			else:
+				raise dException.NoRecordsException, _("No data to cancel.")
+		
 		# Faster to deal with 2 specific cases: all rows or just current row
 		if allRows:
 			recs = self._records

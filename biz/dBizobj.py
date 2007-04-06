@@ -366,12 +366,12 @@ class dBizobj(dObject):
 		self.afterSave()
 
 
-	def cancelAll(self):
+	def cancelAll(self, ignoreNoRecords=None):
 		"""Cancel all changes made to the current dataset, including all children."""
-		self.scanChangedRows(self.cancel, allCursors=False)
+		self.scanChangedRows(self.cancel, allCursors=False, ignoreNoRecords=ignoreNoRecords)
 
 
-	def cancel(self):
+	def cancel(self, ignoreNoRecords=None):
 		"""Cancel all changes to the current record and all children.
 
 		Two hook methods will be called: beforeCancel() and afterCancel(). The
@@ -381,11 +381,15 @@ class dBizobj(dObject):
 		errMsg = self.beforeCancel()
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
+		if ignoreNoRecords is None:
+			# Canceling changes when there are no records should 
+			# normally not be a problem.
+			ignoreNoRecords = True
 
 		# Tell the cursor and all children to cancel themselves:
-		self._CurrentCursor.cancel()
+		self._CurrentCursor.cancel(ignoreNoRecords=ignoreNoRecords)
 		for child in self.__children:
-			child.cancelAll()
+			child.cancelAll(ignoreNoRecords=ignoreNoRecords)
 
 		self.afterCancel()
 		
