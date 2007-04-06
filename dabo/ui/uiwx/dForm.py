@@ -143,8 +143,6 @@ class BaseForm(fm.dFormMixin):
 		if changedBizList:
 			queryMessage = self.getConfirmChangesQueryMessage(changedBizList)
 			response = dabo.ui.areYouSure(queryMessage, parent=self)
-			
-			print "RESP", response
 			if response == None:     ## cancel
 				# Don't let the form close, or requery happen
 				return False
