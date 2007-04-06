@@ -95,12 +95,27 @@ class BaseForm(fm.dFormMixin):
 		func(message=msg, title=title)
 
 
-	def confirmChanges(self):
+	def refresh(self):
+		"""For performance reasons, cache repeated calls."""
+		dabo.ui.callAfterInterval(100, self.__refresh)
+	def __refresh(self):
+		super(BaseForm, self).refresh()
+		
+		
+	def update(self):
+		"""For performance reasons, cache repeated calls."""
+		dabo.ui.callAfterInterval(100, self.__update)
+	def __update(self):
+		super(BaseForm, self).update()
+		
+		
+	def confirmChanges(self, bizobjs=None):
 		"""Ask the user if they want to save changes, discard changes, or cancel.
 
 		The user will be queried if the form's CheckForChanges property is True, and
-		if there are any pending changes on the form's bizobjs as specified in the
-		return value of getBizobjsToCheck().
+		if there are any pending changes on the form's bizobjs as specified in either
+		the 'bizobjs' parameter, or, if no parameter is sent, the return value of 
+		getBizobjsToCheck().
 
 		If all the above are True, the dialog will be presented. "Yes" will cause
 		all changes to be saved. "No" will discard any changes before proceeding 
@@ -113,7 +128,12 @@ class BaseForm(fm.dFormMixin):
 		if not self.CheckForChanges:
 			# Don't bother checking
 			return True
-		bizList = self.getBizobjsToCheck()
+		if bizobjs is None:
+			bizobjs = self.getBizobjsToCheck()
+		if not isinstance(bizobjs, (list, tuple)):
+			bizList = (bizobjs, )
+		else:
+			bizList = bizobjs
 		changedBizList = []
 		
 		for biz in bizList:
@@ -123,6 +143,8 @@ class BaseForm(fm.dFormMixin):
 		if changedBizList:
 			queryMessage = self.getConfirmChangesQueryMessage(changedBizList)
 			response = dabo.ui.areYouSure(queryMessage, parent=self)
+			
+			print "RESP", response
 			if response == None:     ## cancel
 				# Don't let the form close, or requery happen
 				return False
@@ -131,7 +153,8 @@ class BaseForm(fm.dFormMixin):
 					self.save(dataSource=biz.DataSource)
 			elif response == False:  ## no
 				for biz in changedBizList:
-					self.cancel(dataSource=biz.DataSource)
+					if biz.RowCount:
+						self.cancel(dataSource=biz.DataSource)
 		return True
 	
 
@@ -154,7 +177,7 @@ class BaseForm(fm.dFormMixin):
 		several. In those cases, override	this method and return a list of the 
 		required bizobjs.
 		"""
-		return [self.PrimaryBizobj]
+		return (self.PrimaryBizobj, )
 		
 		
 	def addBizobj(self, bizobj):
@@ -214,6 +237,7 @@ class BaseForm(fm.dFormMixin):
 				dabo.ui.callAfter(self.raiseEvent, dEvents.RowNumChanged)
 			self.update()
 		self.afterPointerMove()
+		self.refresh()
 		return True
 
 
@@ -314,10 +338,11 @@ class BaseForm(fm.dFormMixin):
 			return False
 
 		self.afterSave()
+		self.refresh()
 		return True
 	
 	
-	def cancel(self, dataSource=None):
+	def cancel(self, dataSource=None, ignoreNoRecords=None):
 		""" Ask the bizobj to cancel its changes.
 
 		This will revert back to the state of the records when they were last
@@ -328,6 +353,8 @@ class BaseForm(fm.dFormMixin):
 			# Running in preview or some other non-live mode
 			return
 		self.activeControlValid()
+		if ignoreNoRecords is None:
+			ignoreNoRecords = True
 
 		err = self.beforeCancel()
 		if err:
@@ -335,16 +362,19 @@ class BaseForm(fm.dFormMixin):
 			return
 		try:
 			if self.SaveAllRows:
-				bizobj.cancelAll()
+				bizobj.cancelAll(ignoreNoRecords=ignoreNoRecords)
 			else:
-				bizobj.cancel()
+				bizobj.cancel(ignoreNoRecords=ignoreNoRecords)
 			self.setStatusText(_("Changes to %s canceled.") % (
 					self.SaveAllRows and "all records" or "current record",))
 			self.update()
+		except dException.NoRecordsException, e:
+			dabo.errorLog.write(_("Cancel failed; no records to cancel."))
 		except dException.dException, e:
 			dabo.errorLog.write(_("Cancel failed with response: %s") % str(e))
 			self.notifyUser(str(e), title=_("Cancel Not Allowed") )
 		self.afterCancel()
+		self.refresh()
 
 
 	def onRequery(self, evt):
@@ -367,13 +397,10 @@ class BaseForm(fm.dFormMixin):
 		if err:
 			self.notifyUser(err)
 			return
-		
-		if not self.confirmChanges():
+		if not self.confirmChanges(bizobjs=bizobj):
 			# A False from confirmChanges means "don't proceed"
 			return
 
-#		self.setStatusText(_("Please wait... requerying dataset..."))
-		
 		try:
 			busy = dabo.ui.busyInfo(_("Please wait... requerying dataset..."))
 			self.stopWatch.Start()
@@ -387,7 +414,6 @@ class BaseForm(fm.dFormMixin):
 
 			# Notify listeners that the row number changed:
 			self.raiseEvent(dEvents.RowNumChanged)
-			
 			# We made it through without errors
 			ret = True
 		
@@ -419,6 +445,7 @@ class BaseForm(fm.dFormMixin):
 			self.StatusText = ""
 
 		self.afterRequery()
+		self.refresh()
 		return ret
 		
 
@@ -463,7 +490,8 @@ class BaseForm(fm.dFormMixin):
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
 			self.afterDelete()
 		self.update()
-		
+		self.refresh()
+
 
 	def deleteAll(self, dataSource=None, message=None):
 		""" Ask the primary bizobj to delete all records from the recordset."""
@@ -495,6 +523,7 @@ class BaseForm(fm.dFormMixin):
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
 		self.afterDeleteAll()
 		self.update()
+		self.refresh()
 		
 
 	def new(self, dataSource=None):
@@ -524,6 +553,7 @@ class BaseForm(fm.dFormMixin):
 
 		self.afterNew()
 		self.update()
+		self.refresh()
 		
 
 	def afterNew(self): pass
