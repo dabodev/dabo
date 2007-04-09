@@ -628,9 +628,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			recKey = self.pkExpression(rec)
 			memento = self._mementos.get(recKey, None)
 			
-			print "ISCHANGED", self.Table, "MEMENTO", memento
-			#new_rec = self._newRecords.has_key(recKey)
-			#return not (memento is None and not new_rec)
 			return bool(memento)
 
 
