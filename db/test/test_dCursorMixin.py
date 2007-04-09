@@ -241,10 +241,10 @@ class Test_dCursorMixin(object):
 
 		self.assertEqual(cur.RowCount, 4)
 		self.assertEqual(cur.RowNumber, 3)
-		self.assertEqual(cur._newRecords, {"-1-dabotmp": None})
+		self.assertEqual(cur._newRecords, {-1: None})
 		self.assertEqual(cur.isChanged(), False)  ## (because no field changed in new record)
 		self.assertEqual(cur.isChanged(allRows=False), False)
-		self.assertEqual(cur.Record.pk, "-1-dabotmp")
+		self.assertEqual(cur.Record.pk, -1)
 		self.assertEqual(cur.Record.cfield, "")
 		self.assertEqual(cur.Record.ifield, 0)
 		self.assertEqual(cur.Record.nfield, 0)
