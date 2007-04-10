@@ -54,7 +54,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		# self._oldVal will be compared to self.Value in flushValue()
 		if not self._inFldValid:
 			self._oldVal = self.Value
-		self._inFldValid = False
 		try:
 			if self.SelectOnEntry:
 				self.selectAll()
@@ -65,7 +64,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	
 	def _lostFocus(self):
 		ok = True
-		if self._oldVal != self.Value:
+		if self._inFldValid or (self._oldVal != self.Value):
 			# Call the field-level validation if indicated.
 			if hasattr(self.Form, "validateField"):
 				ok = self.Form.validateField(self)
@@ -77,6 +76,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		else:
 			# Everything's hunky dory; push the value to the DataSource.
 			self.flushValue()
+			self._inFldValid = False
 		try:
 			if self.SelectOnEntry:
 				self.selectNone()
