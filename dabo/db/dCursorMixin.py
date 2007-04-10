@@ -627,7 +627,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				return False
 			recKey = self.pkExpression(rec)
 			memento = self._mementos.get(recKey, None)
-			
 			return bool(memento)
 
 

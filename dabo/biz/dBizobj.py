@@ -1,7 +1,7 @@
 import types
 import re
 import dabo
-import dabo.dConstants as k
+import dabo.dConstants as kons
 from dabo.db.dCursorMixin import dCursorMixin
 from dabo.dLocalize import _
 import dabo.dException as dException
@@ -88,10 +88,10 @@ class dBizobj(dObject):
 		### IGNORE - don't worry about the presence of child records
 		### RESTRICT - don't allow action if there are child records
 		### CASCADE - changes to the parent are cascaded to the children
-		self.deleteChildLogic = k.REFINTEG_CASCADE  # child records will be deleted
-		self.updateChildLogic = k.REFINTEG_IGNORE   # parent keys can be changed w/o
+		self.deleteChildLogic = kons.REFINTEG_CASCADE  # child records will be deleted
+		self.updateChildLogic = kons.REFINTEG_IGNORE   # parent keys can be changed w/o
 		                                            # affecting children
-		self.insertChildLogic = k.REFINTEG_IGNORE   # child records can be inserted
+		self.insertChildLogic = kons.REFINTEG_IGNORE   # child records can be inserted
 		                                            # even if no parent record exists.
 		##########################################
 
@@ -435,7 +435,7 @@ class dBizobj(dObject):
 		if self.KeyField is None:
 			raise dException.dException, _("No key field defined for table: ") + self.DataSource
 
-		if self.deleteChildLogic == k.REFINTEG_RESTRICT:
+		if self.deleteChildLogic == kons.REFINTEG_RESTRICT:
 			# See if there are any child records
 			for child in self.__children:
 				if child.RowCount > 0:
@@ -453,7 +453,7 @@ class dBizobj(dObject):
 			# ensure that any changed data they may have is reverted. They are then requeried to
 			# populate them with data for the current record in this bizobj.
 			for child in self.__children:
-				if self.deleteChildLogic == k.REFINTEG_CASCADE:
+				if self.deleteChildLogic == kons.REFINTEG_CASCADE:
 					child.deleteAll(startTransaction=False)
 				else:
 					child.cancelAll()
@@ -851,10 +851,17 @@ class dBizobj(dObject):
 		"""
 		errMsg = ""
 		message = self.validateField(fld, val)
+		if message == kons.BIZ_DEFAULT_FIELD_VALID:
+			# No validation was done
+			print "DEFAULT VALID"
+			return
 		if message:
 			errMsg += message
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
+		else:
+			print "BIZ RULE PASSED"
+			raise dException.BusinessRulePassed
 
 
 	def validateField(self, fld, val):
@@ -865,7 +872,7 @@ class dBizobj(dObject):
 		return value from this method will prevent the control's value
 		from being changed.
 		"""
-		pass
+		return kons.BIZ_DEFAULT_FIELD_VALID
 
 
 	def _moveToRowNum(self, rownum, updateChildren=True):

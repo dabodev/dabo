@@ -707,6 +707,9 @@ Database error message: %s""") %	err
 			ret = True
 		except dException.BusinessRuleViolation, e:
 			self.onFieldValidationFailed(ctrl, ds, df, val, e)
+		except dException.BusinessRulePassed:
+			self.onFieldValidationPassed(ctrl, ds, df, val)
+			ret = True
 		return ret
 
 
@@ -715,8 +718,16 @@ Database error message: %s""") %	err
 		override it with your own code to handle this failure 
 		appropriately for your application.
 		"""
-		self.setStatusText(_("Validation failed for %s: %s") % (df, err))
+		self.StatusText = _("Validation failed for %s: %s") % (df, err)
 		dabo.ui.callAfter(ctrl.setFocus)
+		
+	
+	def onFieldValidationPassed(self, ctrl, ds, df, val):
+		"""Basic handling when field-level validation succeeds. 
+		You should override it with your own code to handle this event 
+		appropriately for your application.
+		"""
+		self.StatusText = ""
 		
 	
 	# Property get/set/del functions follow.
