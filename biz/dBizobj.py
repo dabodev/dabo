@@ -853,14 +853,12 @@ class dBizobj(dObject):
 		message = self.validateField(fld, val)
 		if message == kons.BIZ_DEFAULT_FIELD_VALID:
 			# No validation was done
-			print "DEFAULT VALID"
 			return
 		if message:
 			errMsg += message
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
 		else:
-			print "BIZ RULE PASSED"
 			raise dException.BusinessRulePassed
 
 
