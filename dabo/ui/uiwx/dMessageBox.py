@@ -9,7 +9,11 @@ import dabo
 
 
 def getForm():
-	return dabo.dAppRef.ActiveForm
+	ret = dabo.dAppRef.ActiveForm
+	if not ret:
+		# Could be a dead object
+		ret = None
+	return ret
 
 
 class dMessageBox(wx.MessageDialog):
