@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is Dabo's user interface layer which is the topmost layer.
 
 There are submodules for all supported UI libraries. As of this writing,

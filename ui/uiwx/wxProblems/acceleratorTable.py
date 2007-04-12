@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This test shows some oddities with wx.AcceleratorTable. On GTK,
 wxPython 2.6.2.1 I'm seeing:

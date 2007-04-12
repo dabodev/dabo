@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import dabo.ui
 import dabo.dEvents as dEvents

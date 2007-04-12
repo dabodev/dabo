@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dMessageBox.py
 
 Common message box dialog classes, such as "Are you sure?"

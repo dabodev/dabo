@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dDataControlMixin.py: Provide behavior common to all 
 	data-aware dControls.
 """

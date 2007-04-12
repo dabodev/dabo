@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 
 def importClass(clsName):
 	components = clsName.split('.')

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This serves as a catch-all script for common utilities that may be used
 # in lots of places throughout Dabo. Typically, to use a function 'foo()' in
 # this file, add the following import statement to your script:

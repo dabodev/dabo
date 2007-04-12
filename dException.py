@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class dException(StandardError):
 	"""	Base class in the framework for passing exceptions."""
 	

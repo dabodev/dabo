@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ External libraries that can be loaded into Daboized applications.
 """
 

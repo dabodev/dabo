@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents

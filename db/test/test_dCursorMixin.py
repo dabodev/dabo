@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 import dabo
 from dabo.lib import getRandomUUID

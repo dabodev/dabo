@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dControlMixin.py: Provide behavior common to all dControls """
 
 import dabo

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import xml.sax
 from StringIO import StringIO
 import os.path

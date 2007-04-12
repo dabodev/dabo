@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys, os, wx
 import dabo
 import dabo.ui as ui

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ test.py
 
 A simple reusable unit testing framework, used by the base class files when run

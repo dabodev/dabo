@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dConstants.py """
 
 # Return values for most operations

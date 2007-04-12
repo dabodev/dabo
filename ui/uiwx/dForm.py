@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import time
 import wx
@@ -718,7 +719,7 @@ Database error message: %s""") %	err
 		override it with your own code to handle this failure 
 		appropriately for your application.
 		"""
-		self.StatusText = _("Validation failed for %s: %s") % (df, err)
+		self.StatusText = _(u"Validation failed for %s: %s") % (df, err)
 		dabo.ui.callAfter(ctrl.setFocus)
 		
 	

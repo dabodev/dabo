@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import dabo
 import re, os, glob
 import wx

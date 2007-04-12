@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import os
 import locale
@@ -392,7 +393,34 @@ class dApp(dObject):
 			return self.SecurityManager.UserCaption
 		else:
 			return None
-			
+
+
+	def str2Unicode(self, strVal):
+		"""Given a string, this method will try to return a properly decoded
+		unicode value. It will first try the default Encoding, and then try the
+		more common encoding types.
+		"""
+		if not isinstance(strVal, basestring):
+			strVal = strVal.__str__()
+		if isinstance(strVal, unicode):
+			return strVal
+		ret = None
+		try:
+			ret = unicode(strVal, self.Encoding)
+		except UnicodeDecodeError, e:
+			# Try some common encodings:
+			for enc in ("utf-8", "latin-1", "iso-8859-1"):
+				if enc != self.Encoding:
+					try:
+						ret = unicode(strVal, enc)
+						break
+					except UnicodeDecodeError:
+						continue
+		if ret is None:
+			# All attempts failed
+			raise UnicodeDecodeError, e
+		return ret
+
 
 	# These two methods pass encryption/decryption requests
 	# to the Crypto object

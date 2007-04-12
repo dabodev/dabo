@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import dabo
 from dabo.ui.dDataControlMixinBase import dDataControlMixinBase
 from dabo.dLocalize import _

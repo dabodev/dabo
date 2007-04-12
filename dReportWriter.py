@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from dabo.dLocalize import _
 from dabo.lib.reportWriter import ReportWriter
 from dabo.dObject import dObject

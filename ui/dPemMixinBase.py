@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dPemMixin.py: Provide common PEM functionality """
 import dabo
 import types

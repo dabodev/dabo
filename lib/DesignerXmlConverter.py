@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """This is a class designed to take the XML in a Class Designer .cdxml file
 and return the class object represented by that XML. Right now it's wxPython-
 specific, since we only support wxPython, but I suppose that it could be updated

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import dabo
 import dabo.ui
 import dabo.dException as dException

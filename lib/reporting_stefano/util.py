@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import reportlab.lib.units as units
 
 def dictunion(lhs, rhs):

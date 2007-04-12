@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dBaseMenuBar.py
 
 This module contains the class definitions and logic to build

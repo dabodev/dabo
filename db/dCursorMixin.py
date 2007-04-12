@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # dabo/db/dCursorMixin
 
 import types

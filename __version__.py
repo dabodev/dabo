@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # The following 2 lines are the only thing you should change in this file.
 # Everything else is boilerplate copied also to other dabo repositories.
 package_name = "dabo"

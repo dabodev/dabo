@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # pkm TODO: serialization lib shouldn't have to rely on reporting lib's, or, 
 #           if serialization lib is specific to reporting, it should be moved
 #           to dabo.lib.reporting.serialization. Stefano, thoughts?
