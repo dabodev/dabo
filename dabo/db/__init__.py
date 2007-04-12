@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dabo.db is the lowest tier, db access. 
 
 This is where the communication to and from the backend database happens, and

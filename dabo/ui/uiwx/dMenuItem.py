@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import types
 import wx
 import dPemMixin as pm

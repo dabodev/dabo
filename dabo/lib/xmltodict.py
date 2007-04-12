@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ xmltodict(): convert xml into tree of Python dicts.
 
 This was copied and modified from John Bair's recipe at aspn.activestate.com:

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 
 Cursor_Arrow = wx.CURSOR_ARROW

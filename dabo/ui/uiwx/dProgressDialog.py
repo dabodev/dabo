@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dProgressDialog
 
 (Barely started - don't use)

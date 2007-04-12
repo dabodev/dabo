@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """Contains helper functions for dealing with dates and datetimes.
 
 For example, getting a date from a string in various formats.

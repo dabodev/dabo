@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Grid.py
 
 This is a grid designed to browse records of a bizobj. It is part of the 

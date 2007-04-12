@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from wx import glcanvas
 import wx
 import dabo

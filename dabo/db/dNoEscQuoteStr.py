@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from dabo.dObject import dObject
 
 class dNoEscQuoteStr(dObject):

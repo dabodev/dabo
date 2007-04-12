@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from about import About
 from login import Login
 from SortingForm import SortingForm

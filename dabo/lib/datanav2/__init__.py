@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from Form import Form
 from Grid import Grid
 from Page import Page, SelectPage, EditPage, BrowsePage, SortLabel

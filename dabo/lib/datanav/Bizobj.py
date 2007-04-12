@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import dabo.biz
 
 class Bizobj(dabo.biz.dBizobj):

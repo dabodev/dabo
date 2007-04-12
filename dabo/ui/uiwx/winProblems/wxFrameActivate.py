@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 
 print "On Windows, note the double Activate events..."

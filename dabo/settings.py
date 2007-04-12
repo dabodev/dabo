@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Dabo Global Settings
 
 # Do not modify this file directly. Instead, create a file called 

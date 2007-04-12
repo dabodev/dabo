@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import __builtin__
 import wx
 import wx.stc as stc

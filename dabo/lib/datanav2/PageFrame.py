@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import dabo.ui
 import dabo.dEvents as dEvents
 import Page as pag

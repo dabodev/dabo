@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dFormMixin.py """
 import dPemMixin as pm
 from dabo.dLocalize import _

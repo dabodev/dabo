@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """These are routines that are used to work with Class Designer code that has
 been separated from the design. 
 """
