@@ -2106,7 +2106,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	
 
 	
-class _dEditor_test(dEditor): pass
+class _dEditor_test(dEditor):
+	def afterInit(self):
+		self.Language = "Python"
 
 if __name__ == '__main__':
 	import test
