@@ -62,6 +62,11 @@ class StyleTimer(dTimer.dTimer):
 				self.Parent.SetLexer(stc.STC_LEX_PYTHON)
 			self.mode = "container"
 			self.Interval = self.styleTimerInterval
+		elif self.mode == "xml":
+			if self.Parent:
+				self.Parent.SetLexer(stc.STC_LEX_XML)
+			self.mode = "container"
+			self.Interval = self.styleTimerInterval
 		else:
 			if self.Parent:
 				self.Parent.SetLexer(stc.STC_LEX_CONTAINER)
@@ -97,14 +102,15 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._showCallTips = True
 		self._codeCompletion = True
 		self._syntaxColoring = True
-		self._language = "Python"
+		self._language = ""
 		self._keyWordsSet = False
 		self._defaultsSet = False
 		self._fontFace = None
 		self._fontSize = None
 		self._useBookmarks = False
 		self._selectionBackColor = None
-		self._selectionForeColor = None		
+		self._selectionForeColor = None
+		self._title = ""
 				
 		stc.StyledTextCtrl.__init__(self, parent, -1, 
 				style = wx.NO_BORDER)
@@ -380,7 +386,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def OnStyleNeeded(self, evt):
 		if not self._syntaxColoring:
 			return
-		self._styleTimer.mode = "python"
+		self._styleTimer.mode = self.Language.lower()
 		self._styleTimer.start()
 		
 		
@@ -774,14 +780,16 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		
 	def setSyntaxColoring(self, color=None):
 		"""Sets the appropriate lexer for syntax coloring."""
-		if color:
-			lex = self.Language.lower()
+		lex = self.Language.lower()
+		if color and lex:
 			if lex == "python":
 				self.SetLexer(stc.STC_LEX_PYTHON)
 				if not self._keyWordsSet:
 					self.SetKeyWords(0, " ".join(keyword.kwlist))
 					self._keyWordsSet = True
-			self.Colourise(-1, -1)
+				self.Colourise(-1, -1)
+			elif lex == "xml":
+				self.SetLexer(stc.STC_LEX_XML)
 		else:
 			self.ClearDocumentStyle()
 			self.SetLexer(stc.STC_LEX_CONTAINER)		
@@ -1074,7 +1082,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			func = dabo.ui.getSaveAs
 		else:
 			func = dabo.ui.getFile
-		fname = func("py", "*", message=prompt, defaultPath=drct)
+		fname = func("py", "cdxml", "cnxml", "mnxml", "rfxml", "*", message=prompt, defaultPath=drct)
 		return fname
 	
 		
@@ -1219,7 +1227,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				else:
 					return False
 			self._fileName = fileSpec
-			self._curdir = os.path.split(fileSpec)[0]
+			pth, fname = os.path.split(fileSpec)
+			fext = os.path.splitext(fname)[1]
+			if fext == ".py":
+				self.Language = "Python"
+			elif fext.endswith("xml"):
+				self.Language = "XML"
+			self._curdir = pth
 			self.SetText(text)
 			self._clearDocument(clearText=False)
 			ret = True
@@ -1691,10 +1705,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 
 	def _setLanguage(self, val):
 		if self._constructed():
-			if val.lower() == "python":
-				self._language = val
-			else:
-				dabo.errorLog.write(_("Currently only Python language is supported"))
+			if val != self._language:
+				if val.lower() in ("python", "xml"):
+					self._language = val
+				else:
+					dabo.errorLog.write(_("Currently only Python and XML are supported"))
+				# This forces a refresh of the coloring
+				self.SyntaxColoring = self.SyntaxColoring
 		else:
 			self._properties["Language"] = val
 
