@@ -308,37 +308,32 @@ class uiApp(dObject, wx.App):
 			# First close all non-child forms. Some may be 'dead'
 			# already, so let's find those first.
 			for frm in frms:
-				try:
-					junk = frm.Visible
-				except dabo.ui.deadObjectException:
+				if not frm:
 					frms.remove(frm)
 			# Now we can work with the rest
 			orphans = [frm for frm in frms
 					if frm.Parent is not self.dApp.MainForm
 					and frm is not self.dApp.MainForm]
 			for orphan in orphans:
-				orphan.close()
+				if orphan:
+					orphan.close()
 			# Now close the main form. It will close any of its children.
 			mf = self.dApp.MainForm
-			if not mf._finito:
+			if mf and not mf._finito:
 				mf.close()
 		else:
 			while frms:
 				frm = frms[0]
 				# This will allow forms to veto closing (i.e., user doesn't
 				# want to save pending changes). 
-				try:
+				if frm:
 					if frm.close() == False:
 						# The form stopped the closing process. The user
 						# must deal with this form (save changes, etc.) 
 						# before the app can exit.
 						frm.bringToFront()
 						return False
-					else:
-						frms.remove(frm)
-				except:
-					# Object is already deleted
-					frms.remove(frm)
+				frms.remove(frm)
 		
 
 	def onEditCut(self, evt):
