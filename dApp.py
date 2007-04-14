@@ -976,7 +976,13 @@ class dApp(dObject):
 			get you to your files."""))
 		
 	Icon = property(_getIcon, _setIcon, None,
-			_("""Specifies the icon to use on all forms and dialogs by default."""))
+			_("""Specifies the icon to use on all forms and dialogs by default.
+
+			The value passed can be a binary icon bitmap, a filename, or a
+			sequence of filenames. Providing a sequence of filenames pointing to
+			icons at expected dimensions like 16, 22, and 32 px means that the
+			system will not have to scale the icon, resulting in a much better
+			appearance."""))
 
 	MainForm = property(_getMainForm, _setMainForm, None,
 			_("""The object reference to the main form of the application, or None.

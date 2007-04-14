@@ -572,54 +572,46 @@ class dFormMixin(pm.dPemMixin):
 
 	def _getIcon(self):
 		try:
-			return self._Icon
+			return self._icon
 		except AttributeError:
 			return None
 
 	def _setIcon(self, val):
 		if self._constructed():
+			setIconFunc = self.SetIcon
 			if val is None:
 				ico = wx.NullIcon
 			elif isinstance(val, wx.Icon):
 				ico = val
 			else:
-				iconPath = dabo.icons.getIconFileName(val)
-				if iconPath and os.path.exists(iconPath):
-					ext = os.path.splitext(iconPath)[1].lower()
-					if ext == ".png":
-						bitmapType = wx.BITMAP_TYPE_PNG
-					elif ext == ".ico":
-						bitmapType = wx.BITMAP_TYPE_ICO
-					else:
-						# punt, but only ico will work on Windows
-						bitmapType = wx.BITMAP_TYPE_ANY
-					ico = wx.Icon(iconPath, bitmapType)
+				setIconFunc = self.SetIcons
+				if isinstance(val, basestring):
+					icon_strs = (val,)
 				else:
-					val = None
-					ico = wx.NullIcon
-#					raise ValueError, "Invalid icon specified."
-
+					icon_strs = val
+				ico = wx.IconBundle()
+				for icon_str in icon_strs:
+					iconPath = dabo.icons.getIconFileName(icon_str)
+					if iconPath and os.path.exists(iconPath):
+						ext = os.path.splitext(iconPath)[1].lower()
+						if ext == ".png":
+							bitmapType = wx.BITMAP_TYPE_PNG
+						elif ext == ".ico":
+							bitmapType = wx.BITMAP_TYPE_ICO
+						else:
+							# punt:
+							bitmapType = wx.BITMAP_TYPE_ANY
+						single_ico = wx.Icon(iconPath, bitmapType)
+					else:
+						single_ico = wx.NullIcon
+					ico.AddIcon(single_ico)
 			# wx doesn't provide GetIcon()
-			self._Icon = val
-			self.SetIcon(ico)
+			self._icon = val
+			setIconFunc(ico)
 
 		else:
 			self._properties["Icon"] = val
 
-
-	def _getIconBundle(self):
-		try:
-			return self._Icons
-		except:
-			return None
-			
-	def _setIconBundle(self, val):
-		if self._constructed():
-			self.SetIcons(val)
-			self._Icons = val       # wx doesn't provide GetIcons()
-		else:
-			self._properties["Icons"] = val
-			
 
 	def _getMDI(self):
 		## self._mdi defined in dForm.py/dFormMain.py:
@@ -922,10 +914,13 @@ class dFormMixin(pm.dPemMixin):
 			_("Specifies whether the form stays on top of the parent or not."))
 	
 	Icon = property(_getIcon, _setIcon, None, 
-			_("Specifies the icon for the form. (wxIcon)"))
+			_("""Specifies the icon for the form.
 
-	IconBundle = property(_getIconBundle, _setIconBundle, None,
-			_("Specifies the set of icons for the form. (wxIconBundle)"))
+			The value passed can be a binary icon bitmap, a filename, or a
+			sequence of filenames. Providing a sequence of filenames pointing to
+			icons at expected dimensions like 16, 22, and 32 px means that the
+			system will not have to scale the icon, resulting in a much better
+			appearance."""))
 
 	MDI = property(_getMDI, None, None,
 			_("""Returns True if this is a MDI (Multiple Document Interface) form.  (bool)
@@ -1012,7 +1007,6 @@ class dFormMixin(pm.dPemMixin):
 	DynamicConnection = makeDynamicProperty(Connection)
 	DynamicFloatOnParent = makeDynamicProperty(FloatOnParent)
 	DynamicIcon = makeDynamicProperty(Icon)
-	DynamicIconBundle = makeDynamicProperty(IconBundle)
 	DynamicMenuBar = makeDynamicProperty(MenuBar)
 	DynamicShowCaption = makeDynamicProperty(ShowCaption)
 	DynamicShowStatusBar = makeDynamicProperty(ShowStatusBar)
