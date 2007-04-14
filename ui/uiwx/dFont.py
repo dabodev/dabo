@@ -48,7 +48,33 @@ class dFont(dObject):
 		return self._nativeFont.GetFaceName()
 
 	def _setFace(self, val):
-		self._nativeFont.SetFaceName(val)
+		if not self._nativeFont.SetFaceName(val):
+			# The font wasn't found on the user's system. Try to set it
+			# automatically based on some common-case mappings.
+			automatic_face = None
+			if val.lower() in ("courier", "courier new", "monospace", "mono"):
+				for trial in ("Courier New", "Courier", "Monaco", "Monospace", "Mono"):
+					if self._nativeFont.SetFaceName(trial):
+						automatic_face = trial
+						break
+			elif val.lower() in ("arial", "helvetica", "geneva", "sans"):
+				for trial in ("Arial", "Helvetica", "Geneva", "Sans Serif", "Sans"):
+					if self._nativeFont.SetFaceName(trial):
+						automatic_face = trial
+						break
+			elif val.lower() in ("times", "times new roman", "Georgia", "serif"):
+				for trial in ("Times New Roman", "Times", "Georgia", "Serif"):
+					if self._nativeFont.SetFaceName(trial):
+						automatic_face = trial
+						break
+
+			if automatic_face:
+				dabo.infoLog.write(_("The font '%s' doesn't exist on the system. Used '%s' instead.") 
+						% (val, automatic_face))
+			else:
+				dabo.errorLog.write(_("The font '%s' doesn't exist on the system.")
+						% val)
+ 
 		self._propsChanged()
 
 
