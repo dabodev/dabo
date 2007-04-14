@@ -240,6 +240,16 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 			self._properties["Value"] = val
 
 		
+	def _getWordWrap(self):
+		return not self._hasWindowStyleFlag(wx.HSCROLL)
+
+	def _setWordWrap(self, val):
+		fontSize = self.GetFont().GetPointSize()
+		self._delWindowStyleFlag(wx.HSCROLL)
+		if not val:
+			self._addWindowStyleFlag(wx.HSCROLL)
+		dabo.ui.callAfter(self._setFontSize, fontSize)
+
 	# property definitions follow:
 	Alignment = property(_getAlignment, _setAlignment, None,
 			_("""Specifies the alignment of the text. (str)
@@ -282,6 +292,11 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 	Value = property(_getValue, _setValue, None,
 			_("Specifies the current state of the control (the value of the field). (varies)"))
 
+	WordWrap = property(_getWordWrap, _setWordWrap, None,
+			_("""Specifies whether words get wrapped (the default). (bool)
+
+			If False, a horizontal scrollbar will appear when a line is too long
+			to fit in the horizontal space."""))
 
 	DynamicAlignment = makeDynamicProperty(Alignment)
 	DynamicInsertionPosition = makeDynamicProperty(InsertionPosition)
