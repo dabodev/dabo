@@ -1,7 +1,7 @@
 See the Subversion log for all the details.
 
 ===============================================================================
-Dabo 0.8 (2007-04-01) (Revision 3010):
+Dabo 0.8 (2007-04-16) (Revision 3066):
 
 Enhancements:
 
@@ -61,6 +61,24 @@ Enhancements:
 + Improved autocompletion in dEditor.
 
 + Added AutoAutoCompletion option to dEditor.
+
++ Added methods to dabo.ui: isMouseLeftDown(), isMouseRightDown(), 
+  and isMouseMiddleDown().
+
++ Added tango icon theme and changed our toolbars/menus to reference the new
+  icons. (Ticket # 1037)
+
++ Added Modal property to dForm, settable only by sending the property to the
+  constructor. When Modal, a dialog instead of a form will be instantiated.
+
++ dEditor now properly syntax-colors dabo-based xml files such as .cdxml
+  and .rfxml. Previously, it displayed these files using Python coloring.
+
++ Removed IconBundle property from dFormMixin. Added the ability to set Form.Icon
+  to a sequence of filenames which Dabo will convert to a wx.IconBundle
+  automatically.
+
++ Added property WordWrap to dEditBox. Default is True.
 
 	===== Data Tier =====
 + dbFirebird - Minor improvements by Uwe Grauer.
@@ -122,6 +140,34 @@ Bug Fixes:
   activate the form that it applied to first. Fixed.
 
 + Fixed rapid flashing in a sorted dGrid when an editable column was selected.
+
++ Fixed bug that prevented adding new records when child bizobjs existed.
+  (Ticket #1027). Thanks to Larry Long and John Fabiani for continued
+  assistance in tracking these problems down.
+
++ setWhereClause() method missing in dBizobj. Fixed.
+
++ Fixed dCursor.getChangedRows() to not take into account new records that
+  have no changes.
+
++ Fixed the dBizobj.save() process to not scan all child bizobj's repeatedly.
+  This fixes some problems, and speeds up save() considerably.
+
++ Fixed a problem where canceling a bizobj that had no records caused an 
+  exception that was being displayed with notifyUser(). Normally, a bizobj 
+  with no records does not need canceling, so raising such an error is not 
+  appropriate. You can still have the old behavior by calling cancel() with 
+  'ignoreNoRecords = False'.
+
++ Fixed a bug reported by Larry Long and John Fabiani that involved requerying
+  one bizobj resulted in checking for pending changes in other bizobjs that 
+  were not involved in the requery.
+
++ Descending sorts created infinite loop with duplicate values. Fixed.
+  (Ticket #1041). Thanks Jussi.
+
++ Fixed status text to clear the old field validation failed message when the
+  user fixes the value and the field now passes validation.
 
 
 ===============================================================================
