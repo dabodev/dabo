@@ -1452,15 +1452,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			return ret
 		# Make sure that this is a valid field
 		if not fld:
-			raise dException.dException, _("No field specified for seek()")
-		if not fld or not self._records[0].has_key(fld):
-			raise dException.dException, _("Non-existent field")
+			raise dException.FieldNotFoundException, _("No field specified for seek()")
+		if not self._records[0].has_key(fld) and not self.VirtualFields.has_key(fld):
+			raise dException.FieldNotFoundException, _("Non-existent field '%s'" % fld)
 
 		# Copy the specified field vals and their row numbers to a list, and 
 		# add those lists to the sort list
 		sortList = []
-		for ii in range(0, self.RowCount):
-			sortList.append( [self._records[ii][fld], ii] )
+		for row in range(0, self.RowCount):
+			sortList.append([self.getFieldVal(fld, row=row), row])
 
 		# Determine if we are seeking string values
 		compString = isinstance(sortList[0][0], basestring)
@@ -1510,7 +1510,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# If we are doing a near search, see if the row is less than the
 				# requested matching value. If so, update the value of 'ret'. If not,
 				# we have passed the matching value, so there's no point in 
-				# continuing the search, but we mu
+				# continuing the search.
 				if compString and not caseSensitive:
 					toofar = fldval.lower() > val.lower()
 				else:
