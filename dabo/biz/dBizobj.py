@@ -262,26 +262,23 @@ class dBizobj(dObject):
 			# Tell the cursor to begin a transaction, if needed.
 			cursor.beginTransaction()
 		
-		changed_rows = self.getChangedRows()
-		for row in changed_rows:
-			self._moveToRowNum(row)
-			try:
-				self.save(startTransaction=False, topLevel=False)
-			except dException.ConnectionLostException, e:
-				self.RowNumber = current_row
-				raise dException.ConnectionLostException, e
-			except dException.DBQueryException, e:
-				# Something failed; reset things.
-				if useTransact:
-					cursor.rollbackTransaction()
-				# Pass the exception to the UI
-				self.RowNumber = current_row
-				raise dException.DBQueryException, e
-			except dException.dException, e:
-				if useTransact:
-					cursor.rollbackTransaction()
-				self.RowNumber = current_row
-				raise
+		try:
+			self.scanChangedRows(self.save, startTransaction=False, topLevel=False)
+		except dException.ConnectionLostException, e:
+			self.RowNumber = current_row
+			raise dException.ConnectionLostException, e
+		except dException.DBQueryException, e:
+			# Something failed; reset things.
+			if useTransact:
+				cursor.rollbackTransaction()
+			# Pass the exception to the UI
+			self.RowNumber = current_row
+			raise dException.DBQueryException, e
+		except dException.dException, e:
+			if useTransact:
+				cursor.rollbackTransaction()
+			self.RowNumber = current_row
+			raise
 
 		if useTransact:
 			cursor.commitTransaction()
@@ -386,12 +383,10 @@ class dBizobj(dObject):
 			# Canceling changes when there are no records should 
 			# normally not be a problem.
 			ignoreNoRecords = True
-
 		# Tell the cursor and all children to cancel themselves:
 		self._CurrentCursor.cancel(ignoreNoRecords=ignoreNoRecords)
 		for child in self.__children:
 			child.cancelAll(ignoreNoRecords=ignoreNoRecords)
-
 		self.afterCancel()
 		
 	
@@ -618,9 +613,9 @@ class dBizobj(dObject):
 
 		for key, cursor in cursors.iteritems():
 			self._CurrentCursor = key
-			changed_keys = list(set(cursor._mementos.keys() + cursor._newRecords.keys()))
-			for pk in changed_keys:
-				self._positionUsingPK(pk)
+			changedRows = self.getChangedRows()
+			for row in changedRows:
+				self._moveToRowNum(row)
 				try:
 					func(*args, **kwargs)
 				except:
