@@ -603,9 +603,10 @@ class dBizobj(dObject):
 		func() will be passed	up to the caller.
 		"""
 		self.exitScan = False
+		currCursor = self._CurrentCursor
 		old_currentCursorKey = self.__currentCursorKey
 		try:
-			old_pk = self._CurrentCursor.getPK()
+			old_pk = currCursor.getPK()
 		except dException.NoRecordsException:
 			# no rows to scan
 			return
@@ -613,7 +614,7 @@ class dBizobj(dObject):
 		if allCursors:
 			cursors = self.__cursors
 		else:
-			cursors = {old_pk: self._CurrentCursor}
+			cursors = {old_currentCursorKey: currCursor}
 
 		for key, cursor in cursors.iteritems():
 			self._CurrentCursor = key
