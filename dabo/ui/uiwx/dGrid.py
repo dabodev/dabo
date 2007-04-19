@@ -2639,7 +2639,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def getBizobj(self):
 		ds = self.DataSource
-		if isinstance(ds, basestring) and self.Form is not None:
+		if isinstance(ds, basestring) and self.Form is not None and hasattr(self.Form, "getBizobj"):
 			return self.Form.getBizobj(ds)
 		return None
 
