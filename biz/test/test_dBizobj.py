@@ -182,6 +182,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(biz.RowCount, 3)
 		self.assertEqual(biz.RowNumber, 2)
 
+		
 	def test_isChanged(self):
 		biz = self.biz
 		self.assertEqual(biz.isChanged(), False)
@@ -407,6 +408,27 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		bizMain.requery()		
 		self.assertEqual(bizMain.RowCount, 4)
 		self.assertEqual(bizMain.RowNumber, 3)
+
+
+	def testChildren_cancel(self):
+		bizMain = self.biz
+		bizChild = dabo.biz.dBizobj(self.con)
+		bizChild.UserSQL = "select * from %s" % self.temp_child_table_name
+		bizChild.KeyField = "pk"
+		bizChild.DataSource = self.temp_child_table_name
+		bizChild.LinkField = "parent_fk"
+		bizChild.FillLinkFromParent = True
+		
+		bizMain.addChild(bizChild)
+		bizMain.requery()
+
+		# Test the case where you add a new child record, then cancel the parent:
+		self.assertEqual(bizChild.RowCount, 2)
+		bizChild.new()
+		self.assertEqual(bizChild.RowCount, 3)
+		bizMain.cancel()
+		self.assertEqual(bizChild.RowCount, 2)
+			
 
 	def testNullRecord(self):
 		biz = self.biz
