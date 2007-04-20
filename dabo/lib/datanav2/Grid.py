@@ -63,8 +63,6 @@ class Grid(dabo.ui.dGrid):
 		## part of a datanav form, let's try to make it work even out of that
 		## context
 		ft = getattr(self.Form, "FormType", None)
-		if ft is None:
-			return
 		if ft == "PickList":
 			self.pickRecord()
 		else:
@@ -78,29 +76,21 @@ class Grid(dabo.ui.dGrid):
 			self.processEditRecord()
 			evt.stop()
 		elif keyCode == 27 and not hasModifiers:
-			self._onEscapeKey()
-			evt.stop()
+			ft = getattr(self.Form, "FormType", None)
+			if ft == "PickList":
+				self.Form.hide()
+				evt.stop()
 
 
 	def _onDeleteKey(self, evt):
-		try:
-			if self.Form.FormType != "PickList":
-				self.deleteRecord()
-		except AttributeError:
-			pass
+		ft = getattr(self.Form, "FormType", None)
+		if ft != "PickList":
+			self.deleteRecord()
 	
 
 	def _onSortKey(self, evt):
 		self.processSort()
 	
-
-	def _onEscapeKey(self, evt=None):
-		try:
-			if self.Form.FormType == "PickList":
-				self.Form.hide()
-		except AttributeError:
-			pass
-
 
 	def _onNewRecord(self, evt=None):
 		self.newRecord()
