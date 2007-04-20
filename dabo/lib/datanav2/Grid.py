@@ -76,11 +76,12 @@ class Grid(dabo.ui.dGrid):
 			self.processEditRecord()
 			evt.stop()
 		elif keyCode == 27 and not hasModifiers:
-			ft = getattr(self.Form, "FormType", None)
-			if ft == "PickList":
-				self.Form.hide()
-				evt.stop()
+			self.processEsc()
 
+	def processEsc(self):
+		ft = getattr(self.Form, "FormType", None)
+		if ft == "PickList":
+			self.Form.hide()
 
 	def _onDeleteKey(self, evt):
 		ft = getattr(self.Form, "FormType", None)
