@@ -2639,10 +2639,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def getBizobj(self):
 		ds = self.DataSource
-		if isinstance(ds, basestring) and self.Form is not None and hasattr(self.Form, "getBizobj"):
-			return self.Form.getBizobj(ds)
+		if isinstance(ds, basestring) and self.Form is not None:
+			form = self.Form
+			while form is not None:
+				if hasattr(form, "getBizobj"):
+					return form.getBizobj(ds)
+				form = form.Form
 		return None
-
+	
 
 	def refresh(self, sort=False):
 		if sort:
