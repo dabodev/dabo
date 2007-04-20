@@ -399,7 +399,8 @@ class dFormMixin(pm.dPemMixin):
 			if isinstance(left, int) and isinstance(top, int):
 				self.Position = (left,top)
 			if isinstance(width, int) and isinstance(height, int):
-				self.Size = (width,height)
+				if self.BorderResizable:
+					self.Size = (width,height)
 
 			if state is not None:
 				if state == "Minimized":
