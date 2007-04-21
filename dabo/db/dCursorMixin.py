@@ -609,15 +609,21 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			self.BackendObject.setNonUpdateFields(self)
 	
 
-	def isChanged(self, allRows=True):
+	def isChanged(self, allRows=True, includeNewUnchanged=False):
 		"""Return True if there are any changes to the local field values.
 
 		If allRows is True (the default), all records in the recordset will be 
 		considered. Otherwise, only the current record will be checked.
+		
+		If includeNewUnchanged is True, new records that have not been
+		modified from their default values, which normally are not 
+		considered 'changed', will be counted as 'changed'.
 		"""
 		if allRows:
-			#return len(self._mementos) > 0 or len(self._newRecords) > 0
-			return len(self._mementos) > 0
+			if includeNewUnchanged:
+				return (len(self._mementos) > 0) or (len(self._newRecords) > 0)
+			else:
+				return len(self._mementos) > 0
 		else:
 			row = self.RowNumber
 
@@ -627,8 +633,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				# self.RowNumber doesn't exist (init phase?) Nothing's changed:
 				return False
 			recKey = self.pkExpression(rec)
-			memento = self._mementos.get(recKey, None)
-			return bool(memento)
+			modrec = self._mementos.get(recKey, None)
+			if not modrec and includeNewUnchanged:
+				modrec = self._newRecords.get(recKey, None)
+			return bool(modrec)
 
 
 	def setNewFlag(self):
@@ -1389,9 +1397,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self.__setNonUpdateFields()
 
 
-	def getChangedRows(self):
+	def getChangedRows(self, includeNewUnchanged=False):
 		"""Returns a list of rows with changes."""
-		return map(self._getRowByPk, self._mementos.keys())
+		chKeys = self._mementos.keys()
+		if includeNewUnchanged:
+			# We need to also count all new records
+			chKeys = dict.fromkeys(chKeys + self._newRecords.keys()).keys()
+		return map(self._getRowByPk, chKeys)
 		
 
 	def _getRecordByPk(self, pk):
