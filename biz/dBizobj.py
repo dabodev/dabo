@@ -263,7 +263,8 @@ class dBizobj(dObject):
 			cursor.beginTransaction()
 		
 		try:
-			self.scanChangedRows(self.save, startTransaction=False, topLevel=False)
+			self.scanChangedRows(self.save, includeNewUnchanged=self.SaveNewUnchanged,
+					startTransaction=False, topLevel=False)
 		except dException.ConnectionLostException, e:
 			self.RowNumber = current_row
 			raise dException.ConnectionLostException, e
@@ -365,8 +366,11 @@ class dBizobj(dObject):
 
 
 	def cancelAll(self, ignoreNoRecords=None):
-		"""Cancel all changes made to the current dataset, including all children."""
-		self.scanChangedRows(self.cancel, allCursors=False, ignoreNoRecords=ignoreNoRecords)
+		"""Cancel all changes made to the current dataset, including all children
+		and all new, unmodified records.
+		"""
+		self.scanChangedRows(self.cancel, allCursors=False, includeNewUnchanged=True,
+				ignoreNoRecords=ignoreNoRecords)
 
 
 	def cancel(self, ignoreNoRecords=None):
@@ -496,10 +500,12 @@ class dBizobj(dObject):
 		return self._CurrentCursor.executeSafe(sql)
 
 
-	def getChangedRows(self):
-		""" Returns a list of row numbers for which isChanged()	returns True. The 
+	def getChangedRows(self, includeNewUnchanged=False):
+		""" Returns a list of row numbers for which isChanged() returns True. The 
 		changes may therefore not be in the record itself, but in a dependent child 
-		record.
+		record. If includeNewUnchanged is True, the presence of a new unsaved
+		record that has not been modified from its defaults will suffice to mark the
+		record as changed.
 		"""
 		if self.__children:
 			# Must iterate all records to find potential changes in children:
@@ -508,7 +514,7 @@ class dBizobj(dObject):
 			return self.__changedRows
 		else:
 			# Can use the much faster cursor.getChangedRows():
-			return self._CurrentCursor.getChangedRows()
+			return self._CurrentCursor.getChangedRows(includeNewUnchanged)
 
 
 	def _listChangedRows(self):
@@ -586,11 +592,15 @@ class dBizobj(dObject):
 						self.RowNumber = row
 		
 
-	def scanChangedRows(self, func, allCursors=False, *args, **kwargs):
+	def scanChangedRows(self, func, allCursors=False, includeNewUnchanged=False,
+			*args, **kwargs):
 		"""Move the record pointer to each changed row, and call func.
 
 		If allCursors is True, all other cursors for different parent records will 
-		be iterated as well. 
+		be iterated as well.
+		
+		If includeNewUnchanged is True, new unsaved records that have not been
+		edited from their default values will be counted as 'changed'.
 
 		If you want to end the scan on the next iteration, set self.exitScan=True.
 
@@ -613,7 +623,7 @@ class dBizobj(dObject):
 
 		for key, cursor in cursors.iteritems():
 			self._CurrentCursor = key
-			changedRows = self.getChangedRows()
+			changedRows = self.getChangedRows(includeNewUnchanged)
 			for row in changedRows:
 				self._moveToRowNum(row)
 				try:
@@ -941,7 +951,7 @@ class dBizobj(dObject):
 			# No cursor, no changes.
 			return False
 		
-		if cc.isChanged(allRows=True):
+		if cc.isChanged(allRows=True, includeNewUnchanged=self.SaveNewUnchanged):
 			return True
 	
 		# Nothing's changed in the top level, so we need to recurse the children:
@@ -971,7 +981,7 @@ class dBizobj(dObject):
 		if cc is None:
 			# No cursor, no changes.
 			return False
-		ret = cc.isChanged(allRows=False)
+		ret = cc.isChanged(allRows=False, includeNewUnchanged=self.SaveNewUnchanged)
 
 		if not ret:
 			# see if any child bizobjs have changed
@@ -1718,6 +1728,17 @@ class dBizobj(dObject):
 		self.afterSetRowNumber()
 
 
+	def _getSaveNewUnchanged(self):
+		try:
+			ret = self._saveNewUnchanged
+		except AttributeError:
+			ret = self._saveNewUnchanged = False
+		return ret
+
+	def _setSaveNewUnchanged(self, val):
+		self._saveNewUnchanged = val
+
+
 	def _getSQL(self):
 		try:
 			return self._SQL
@@ -1869,6 +1890,10 @@ class dBizobj(dObject):
 	RowNumber = property(_getRowNumber, _setRowNumber, None,
 			_("The current position of the record pointer in the result set. (int)"))
 
+	SaveNewUnchanged = property(_getSaveNewUnchanged, _setSaveNewUnchanged, None,
+			_("""Normally new, unmodified records are not saved. If you need 
+			this behavior, set this to True.  (bool)"""))
+	
 	SQL = property(_getSQL, _setSQL, None,
 			_("SQL statement used to create the cursor's data. (str)"))
 
