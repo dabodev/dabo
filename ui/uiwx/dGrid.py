@@ -3380,9 +3380,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return self._alternateRowColoring
 
 	def _setAlternateRowColoring(self, val):
-		self._alternateRowColoring = val
-		self.setTableAttributes(self._Table)
-		self.Refresh()
+		if self._constructed():
+			self._alternateRowColoring = val
+			self.setTableAttributes(self._Table)
+			self.Refresh()
+		else:
+			self._properties["AlternateRowColoring"] = val
 
 
 	def _getCellHighlightWidth(self):
