@@ -415,7 +415,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	they provide a way to interact with the underlying grid table in a more
 	straightforward manner.
 	"""
-	_call_beforeInit, _call_afterInit, _call_initProperties = False, True, False
+	_call_beforeInit, _call_afterInit, _call_initProperties = False, True, True
 
 	def __init__(self, parent, properties=None, attProperties=None,
 				*args, **kwargs):
@@ -436,7 +436,6 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 		super(dColumn, self).__init__(properties, attProperties, *args, **kwargs)
 		self._baseClass = dColumn
-		self._afterInit()
 
 
 	def _beforeInit(self):
@@ -484,9 +483,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _afterInit(self):
 		self._isConstructed = True
 		super(dColumn, self)._afterInit()
-		if self.Form and self.Form.SaveRestorePosition:
-			self._restoreFontZoom()
+		dabo.ui.callAfter(self._restoreFontZoom)
 	
+	def _restoreFontZoom(self):
+		if self.Form and self.Form.SaveRestorePosition:
+			self.super()
 
 	def _getDefaultFont(self):
 		ret = dabo.ui.dFont(Size=10, Bold=False, Italic=False, 
