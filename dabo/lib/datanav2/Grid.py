@@ -17,6 +17,17 @@ class Grid(dabo.ui.dGrid):
 		self.bindEvent(dEvents.GridMouseLeftDoubleClick, self.onGridLeftDClick)
 		self.bindEvent(dEvents.KeyDown, self._onGridKeyDown)
 
+	
+	def _initProperties(self):
+		# Highlight the selected row for the grid
+		self.SelectionMode = "Row"
+		# Limit selection to a single row
+		self._multipleSelection = False
+		# Turn on alternate row coloring
+		self.AlternateRowColoring = True
+
+		super(Grid, self)._initProperties()
+
 
 	def _afterInit(self):
 		super(Grid, self)._afterInit()
@@ -27,13 +38,6 @@ class Grid(dabo.ui.dGrid):
 		if hasattr(self.Form, "preview") and self.Form.preview:
 			self.DataSource = self.Form.previewDataSource
 		
-		# Highlight the selected row for the grid
-		self.SelectionMode = "Row"
-		# Limit selection to a single row
-		self._multipleSelection = False
-		# Turn on alternate row coloring
-		self.AlternateRowColoring = True
-
 
 	def populate(self):
 		ds = self.DataSource
