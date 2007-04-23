@@ -64,9 +64,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 #			dabo.infoLog.write("dGrid.Table.GetAttr:: kind is not 0, it is %s." % kind)
 
 		## The column attr object is maintained in dColumn:
+
 		try:
 			dcol = self.grid.Columns[col]
-			attr = dcol._gridColAttr.Clone()
 		except IndexError:
 			# Something is out of order in the setting up of the grid: the grid table
 			# has columns, but self.grid.Columns doesn't know about it yet. Just return
@@ -74,6 +74,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			return self.grid._defaultGridColAttr.Clone()
 			# (further testing reveals that this really isn't a problem: the grid is 
 			#  just empty - no columns or rows added yet)
+
+		# If a cell attr is set up, use it. Else, use the one set up for the column.
+		attr = dcol._gridCellAttrs.get(row, dcol._gridColAttr).Clone()
 
 		## Now, override with a custom renderer for this row/col if applicable.
 		## Note that only the renderer is handled here, as we are segfaulting when
@@ -87,6 +90,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		# Now check for alternate row coloration
 		if self.alternateRowColoring:
 			attr.SetBackgroundColour((self.rowColorEven, self.rowColorOdd)[row % 2])
+
 		# Prevents overwriting when a long cell has None in the one next to it.
 		attr.SetOverflow(False)
 		return attr
@@ -310,10 +314,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def GetValue(self, row, col):
 		if row >= self.grid.RowCount:
 			return ""
-		
 
 		bizobj = self.grid.getBizobj()
-		field = self.grid.Columns[col].DataField
+		col_obj = self.grid.Columns[col]
+		field = col_obj.DataField
+
+		dabo.ui.callAfterInterval(200, col_obj._updateDynamicProps)
+		dabo.ui.callAfterInterval(200, col_obj._updateCellDynamicProps, row)
 		
 		if bizobj:
 			if field:
@@ -420,6 +427,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def __init__(self, parent, properties=None, attProperties=None,
 				*args, **kwargs):
 		self._isConstructed = False
+		self._dynamic = {}
 		self._expand = False
 		# Default to 2 decimal places
 		self._precision = 2
@@ -430,9 +438,12 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 		self._beforeInit()
 		kwargs["Parent"] = parent
-		# dColumn maintains one attr object that the grid table will use:
+		# dColumn maintains one attr object that the grid table will use for
+		# setting properties such as ForeColor and Font on the entire column.
 		att = self._gridColAttr = parent._defaultGridColAttr.Clone()
 		att.SetFont(self._getDefaultFont()._nativeFont)
+
+		self._gridCellAttrs = {}
 
 		super(dColumn, self).__init__(properties, attProperties, *args, **kwargs)
 		self._baseClass = dColumn
@@ -484,7 +495,33 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._isConstructed = True
 		super(dColumn, self)._afterInit()
 		dabo.ui.callAfter(self._restoreFontZoom)
+
+
+	def _updateDynamicProps(self):
+		for prop, func in self._dynamic.items():
+			if prop[:4] != "Cell":
+				if isinstance(func, tuple):
+					args = func[1:]
+					func = func[0]
+				else:
+					args = ()
+				setattr(self, prop, func(*args))
 	
+
+	def _updateCellDynamicProps(self, row):
+		kwargs = {"row": row}
+		self._cellDynamicRow = row
+		for prop, func in self._dynamic.items():
+			if prop[:4] == "Cell":
+				if isinstance(func, tuple):
+					args = func[1:]
+					func = func[0]
+				else:
+					args = ()
+				setattr(self, prop, func(*args, **kwargs))
+		dabo.ui.callAfterInterval(200, self._refreshGrid)
+		del self._cellDynamicRow
+
 	def _restoreFontZoom(self):
 		if self.Form and self.Form.SaveRestorePosition:
 			self.super()
@@ -692,6 +729,15 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._refreshHeader()
 
 
+	def _setCellProp(self, wxPropName, *args, **kwargs):
+		"""Called from all of the Cell property setters."""
+		## dynamic prop uses cellDynamicRow; reg prop uses self.CurrentRow
+		row = getattr(self, "_cellDynamicRow", self.Parent.CurrentRow)
+		cellAttr = self._gridCellAttrs.get(row, self._gridColAttr.Clone())
+		getattr(cellAttr, wxPropName)(*args, **kwargs)
+		self._gridCellAttrs[row] = cellAttr
+		
+
 	def _getBackColor(self):
 		return self._gridColAttr.GetBackgroundColour()
 
@@ -718,6 +764,22 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._refreshHeader()
 		else:
 			self._properties["Caption"] = val
+
+
+	def _getCellForeColor(self):
+		row = self.Parent.CurrentRow
+		cellAttr = self._gridCellAttrs.get(row, False)
+		if cellAttr:
+			return cellAttr.GetTextColour()
+		return self.ForeColor
+
+	def _setCellForeColor(self, val):
+		if self._constructed():
+			if isinstance(val, basestring):
+				val = dColors.colorTupleFromName(val)
+			self._setCellProp("SetTextColour", val)
+		else:
+			self._properties["CellForeColor"] = val
 
 
 	def _getCustomEditorClass(self):
@@ -1286,6 +1348,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption displayed in this column's header  (str)") )
 
+	CellForeColor = property(_getCellForeColor, _setCellForeColor, None,
+			_("Color for the foreground (text) of the current cell in the column."))
+
 	CustomEditorClass = property(_getCustomEditorClass, 
 			_setCustomEditorClass, None,
 			_("""Custom Editor class for this column. Default: None. 
@@ -1460,6 +1525,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	# Dynamic Property Declarations
 	DynamicBackColor = makeDynamicProperty(BackColor)
 	DynamicCaption = makeDynamicProperty(Caption)
+	DynamicCellForeColor = makeDynamicProperty(CellForeColor)
 	DynamicCustomEditorClass = makeDynamicProperty(CustomEditorClass)
 	DynamicCustomEditors = makeDynamicProperty(CustomEditors)
 	DynamicCustomListEditorChoices = makeDynamicProperty(CustomListEditorChoices)
