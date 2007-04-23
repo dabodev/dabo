@@ -1587,6 +1587,9 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _setBorderStyle(self, val):
+		if val is None:
+			# XML stores the string and null 'None' identically
+			val = "None"
 		style = self._expandPropStringValue(val, ("None", "Simple", "Sunken", 
 				"Raised", "Double", "Static", "Default"))
 		self._delWindowStyleFlag(wx.NO_BORDER)
