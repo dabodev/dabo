@@ -496,13 +496,13 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 						"Left" : self.borderLeftFlag,
 						"Right" : self.borderRightFlag, 
 						"Top" : self.borderTopFlag}
-				if flag & self.borderAllFlag:
+				if flag & self.borderAllFlag == self.borderAllFlag:
 					ret = ["All"]
 				else:
 					ret = []
 					for side, val in pdBorder.items():
-						if flag and val:
-							ret.append(key)
+						if (flag & val == val):
+							ret.append(side)
 					if not ret:
 						ret = ["None"]
 		if ret is None:
