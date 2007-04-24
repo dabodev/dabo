@@ -17,7 +17,7 @@ class connHandler(xml.sax.ContentHandler):
 				"database" : "",
 				"user" : "",
 				"password" : "",
-				"port" : 3306
+				"port" : ""
 				}
 		self.currDict = self.blankConn.copy()
 		self.element = None
@@ -34,6 +34,8 @@ class connHandler(xml.sax.ContentHandler):
 	def characters(self, content):
 		if self.element:
 			if self.currDict.has_key(self.element):
+				print "ADDING CONTENT", content
+				print "\tto:", self.currDict[self.element]
 				self.currDict[self.element] += content
 			
 	
