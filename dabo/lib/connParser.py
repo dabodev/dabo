@@ -4,18 +4,21 @@ from StringIO import StringIO
 import os.path
 from xmltodict import escQuote
 import dabo
+import dabo.lib.utils as utils
 
 
 class connHandler(xml.sax.ContentHandler):
 	def __init__(self):
 		self.connDict = {}
-		self.blankConn = {"name": "",
+		self.blankConn = {
+				"name": "",
 				"dbtype" : "",
 				"host" : "",
 				"database" : "",
 				"user" : "",
 				"password" : "",
-				"port" : ""		}
+				"port" : 3306
+				}
 		self.currDict = self.blankConn.copy()
 		self.element = None
 				
@@ -52,13 +55,22 @@ class connHandler(xml.sax.ContentHandler):
 		return self.connDict
 	
 
-def importConnections(file=None):
-	if file is None:
+def importConnections(pth=None):
+	if pth is None:
 		return None
-	file = fileRef(file)
+	f = fileRef(pth)
 	ch = connHandler()
-	xml.sax.parse(file, ch)
+	xml.sax.parse(f, ch)
 	ret = ch.getConnectionDict()
+	
+	for cxn, data in ret.items():
+		for key, val in data.items():
+			if key=="database":
+				osp = os.path
+				relpath = utils.resolvePath(val, pth, abspath=False)
+				abspath = osp.abspath(osp.join(osp.split(pth)[0], relpath))
+				if osp.exists(abspath):
+					ret[cxn][key] = abspath	
 	return ret
 
 
