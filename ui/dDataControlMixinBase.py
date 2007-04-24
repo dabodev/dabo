@@ -362,11 +362,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			ds = self.DataSource
 			self._srcIsBizobj = False
 			if ds:
-				# First see if it's an actual object reference
-				if isinstance(ds, dObject):
-					self.__src = ds
-					self._srcIsInstanceMethod = False
-				else:
+				# First, see if it's a string
+				if isinstance(ds, basestring):
 					# Source can be a bizobj, which we get from the form, or
 					# another object.
 					if ds.lower() == "form":
@@ -395,6 +392,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 									form = form.Form
 							if self.__src:
 								self._srcIsBizobj = True
+				else:
+					# It's an object reference
+					self.__src = ds
+					self._srcIsInstanceMethod = False
+					if not isinstance(ds, dObject):
+						# Warn about possible unsupported behavior.
+						dabo.infoLog.write("DataSource '%s' does not inherit from dObject. This may result in unsupported problems.")
 		return self.__src
 
 	
