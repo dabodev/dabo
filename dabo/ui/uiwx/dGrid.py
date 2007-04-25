@@ -511,6 +511,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _updateCellDynamicProps(self, row):
 		kwargs = {"row": row}
 		self._cellDynamicRow = row
+		needRefresh = False
 		for prop, func in self._dynamic.items():
 			if prop[:4] == "Cell":
 				if isinstance(func, tuple):
@@ -519,12 +520,16 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 				else:
 					args = ()
 				setattr(self, prop, func(*args, **kwargs))
-		dabo.ui.callAfterInterval(200, self._refreshGrid)
+				needRefresh = True
+		if needRefresh:
+			dabo.ui.callAfterInterval(200, self._refreshGrid)
 		del self._cellDynamicRow
+		
 
 	def _restoreFontZoom(self):
 		if self.Form and self.Form.SaveRestorePosition:
 			self.super()
+			
 
 	def _getDefaultFont(self):
 		ret = dabo.ui.dFont(Size=10, Bold=False, Italic=False, 
@@ -645,8 +650,10 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _refreshGrid(self):
 		"""Refresh the grid region, not the header region."""
 		if self.Parent:
+			self.Parent.Freeze()
 			gw = self.Parent.GetGridWindow()
 			gw.Refresh()
+			self.Parent.Thaw()
 
 
 	def _persist(self, prop):
