@@ -58,7 +58,8 @@ class TempFileHolder(object):
 		try:
 			import os
 			for f in self._tempFiles:
-				os.remove(f)
+				if not os.path.exists(f):
+					continue
 				try:
 					os.remove(f)
 				except OSError, e:
