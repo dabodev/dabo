@@ -96,30 +96,48 @@ class BaseForm(fm.dFormMixin):
 		func(message=msg, title=title)
 
 
-	def refresh(self, force=False):
+	def refresh(self, interval=None):
 		"""Repaints the form and all contained objects.
 
-		When force is False, repeated calls to refresh() will be cached for
-		performance reasons. Send force=True to force an immediate refresh.
+		This method is called repeatedly from many different places during
+		a single change in the UI, so by default the actual execution is cached
+		using callAfterInterval(). The default interval is 100 milliseconds. You
+		can change that to suit your app needs by passing a different interval
+		in milliseconds.
+		
+		Sometimes, though, you want to force immediate execution of the 
+		refresh. In these cases, pass an interval of 0 to this method, which
+		means don't wait; execute now.
 		"""
-		if force:
+		if interval is None:
+			interval = 100
+		if interval == 0:
 			self.__refresh()
 		else:
-			dabo.ui.callAfterInterval(100, self.__refresh)
+			dabo.ui.callAfterInterval(interval, self.__refresh)
 	def __refresh(self):
 		super(BaseForm, self).refresh()
 		
 		
-	def update(self, force=False):
+	def update(self, interval=None):
 		"""Updates the contained controls with current values from the source. 
 
-		When force is False, repeated calls to update() will be cached for
-		performance reasons. Send force=True to force an immediate update.
+		This method is called repeatedly from many different places during
+		a single change in the UI, so by default the actual execution is cached
+		using callAfterInterval(). The default interval is 100 milliseconds. You
+		can change that to suit your app needs by passing a different interval
+		in milliseconds.
+		
+		Sometimes, though, you want to force immediate execution of the 
+		update. In these cases, pass an interval of 0 to this method, which
+		means don't wait; execute now.
 		"""
-		if force:
+		if interval is None:
+			interval = 100
+		if interval == 0:
 			self.__update()
 		else:
-			dabo.ui.callAfterInterval(100, self.__update)
+			dabo.ui.callAfterInterval(interval, self.__update)
 	def __update(self):
 		super(BaseForm, self).update()
 		
