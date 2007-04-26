@@ -137,8 +137,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if delay:
 			self.bindEvent(dEvents.Idle, self.onIdle)
 		else:
-			self.setDefaults()
-			self._defaultsSet = True
+			pass
+# 			self.setDefaults()
+# 			self._defaultsSet = True
 
 		app = self.Application
 		self._fontFace = app.getUserSetting("editor.fontface")
@@ -391,7 +392,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		
 		
 	def onIdle(self, evt):
-		if not self._defaultsSet:
+		if not self._defaultsSet and self.Language:
 			self.setDefaults()
 			self._defaultsSet = True
 			
@@ -1710,6 +1711,9 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 					self._language = val
 				else:
 					dabo.errorLog.write(_("Currently only Python and XML are supported"))
+				self.setDefaults()
+				self._defaultsSet = True
+
 				# This forces a refresh of the coloring
 				self.SyntaxColoring = self.SyntaxColoring
 		else:
