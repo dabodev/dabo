@@ -96,16 +96,30 @@ class BaseForm(fm.dFormMixin):
 		func(message=msg, title=title)
 
 
-	def refresh(self):
-		"""For performance reasons, cache repeated calls."""
-		dabo.ui.callAfterInterval(100, self.__refresh)
+	def refresh(self, force=False):
+		"""Repaints the form and all contained objects.
+
+		When force is False, repeated calls to refresh() will be cached for
+		performance reasons. Send force=True to force an immediate refresh.
+		"""
+		if force:
+			self.__refresh()
+		else:
+			dabo.ui.callAfterInterval(100, self.__refresh)
 	def __refresh(self):
 		super(BaseForm, self).refresh()
 		
 		
-	def update(self):
-		"""For performance reasons, cache repeated calls."""
-		dabo.ui.callAfterInterval(100, self.__update)
+	def update(self, force=False):
+		"""Updates the contained controls with current values from the source. 
+
+		When force is False, repeated calls to update() will be cached for
+		performance reasons. Send force=True to force an immediate update.
+		"""
+		if force:
+			self.__update()
+		else:
+			dabo.ui.callAfterInterval(100, self.__update)
 	def __update(self):
 		super(BaseForm, self).update()
 		
