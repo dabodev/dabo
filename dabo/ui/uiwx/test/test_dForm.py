@@ -33,7 +33,7 @@ class Test_dForm(unittest.TestCase):
 
 		## force the frm to get the first record:
 		frm.first()
-
+		frm.update(True)  ## need to force the update here because it is delayed by default, which doesn't work for scripted tests.
 
 	def tearDown(self):
 		self.biz = None
@@ -66,6 +66,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		biz = frm.getBizobj()
 		self.assertEqual(frm.cField.Value, "Paul Keith McNett")
 		frm.next()
+		frm.update(True)  ## Need to force the update here which would otherwise happen 100 ms in the future.
 		self.assertEqual(biz.RowNumber, 1)
 		self.assertEqual(frm.cField.Value, "Edward Leafe")
 
@@ -79,6 +80,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		frm.requery()
 		self.assertEqual(biz.RowCount, 4)
 		frm.last()
+		frm.update(True)  ## Need to force the update here, otherwise it won't happen until 100 ms in the future.
 		self.assertEqual(biz.RowNumber, 3)
 		self.assertEqual(biz.Record.cField, None)
 		self.assertEqual(biz.Record.iField, None)
