@@ -138,6 +138,7 @@ from dTreeView import dTreeView
 from dLed import dLed
 import dUICursors as dUICursors
 import dShell
+from dDockForm import dDockForm
 
 try:
 	from dGlWindow import dGlWindow
