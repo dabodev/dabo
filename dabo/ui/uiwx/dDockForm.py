@@ -73,6 +73,20 @@ class _dDockPanel(dabo.ui.dPanel):
 			self._floatingSize = self.GetParent().GetSize().Get()
 	
 	
+	def _beforeSetProperties(self, props):
+		"""Some properties of Floating panels cannot be set at the usual 
+		point in the process, since the panel will still be docked, and you
+		can't change dimensions/location of a docked panel. So extract 
+		them now, and then set them afterwards.
+		"""
+		self._propDelayDict = {}
+		for delayed in ("Left", "Right", "Top", "Bottom", "Width", "Height"):
+			val = self._extractKey(props, delayed)
+			if val:
+				self._propDelayDict[delayed] = val
+		return super(_dDockPanel, self)._beforeSetProperties(props)
+		
+		
 	def _setProperties(self, props):
 		frm = self.Form
 		self.__pi = frm._mgr.addPane(self, name=props["NameBase"],
@@ -80,10 +94,45 @@ class _dDockPanel(dabo.ui.dPanel):
 		del self._paramType
 		self.__pi.MinSize((50,50))
 		super(_dDockPanel, self)._setProperties(props)
+
+
+	def _afterSetProperties(self):
+		if self._propDelayDict:
+			self.setProperties(self._propDelayDict)
+		del self._propDelayDict
 		
 		
+	def __getPosition(self):
+		if self.Floating:
+			obj = self.GetParent()
+		else:
+			obj = self
+		return obj.GetPosition().Get()
+		
+
+	def __getSize(self):
+		if self.Floating:
+			obj = self.GetParent()
+		else:
+			obj = self
+		return obj.GetSize().Get()
+		
+
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
+	def _getBottom(self):
+		return self.__getPosition()[1] + self.__getSize()[1]
+
+	def _setBottom(self, val):
+		if self._constructed():
+			if self.Floating:
+				self.FloatingBottom = val
+			else:
+				dabo.errorLog.write(_("Cannot set the position of a docked panel"))
+		else:
+			self._properties["Bottom"] = val
+
+
 	def _getBottomDockable(self):
 		return self._bottomDockable
 
@@ -182,6 +231,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if chg:
 				self.Form._refreshState()
 		else:
+			print dir(self)
 			self._properties["Floating"] = val
 
 
@@ -193,7 +243,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			ht = self.FloatingSize[1]
 			self._floatingPosition = (self.FloatingPosition[0], val - ht)
 			self.__pi.FloatingPosition(self._floatingPosition)
-			self.Form._refreshState()
+			self.Form._refreshState(0)
 		else:
 			self._properties["FloatingBottom"] = val
 
@@ -208,7 +258,7 @@ class _dDockPanel(dabo.ui.dPanel):
 				self.GetParent().SetSize(self._floatingSize)
 			else:
 				self.__pi.FloatingSize(self._floatingSize)
-			self.Form._refreshState()
+			self.Form._refreshState(0)
 		else:
 			self._properties["FloatingHeight"] = val
 
@@ -220,7 +270,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._floatingPosition = (val, self.FloatingPosition[1])
 			self.__pi.FloatingPosition(self._floatingPosition)
-			self.Form._refreshState()
+			self.Form._refreshState(0)
 		else:
 			self._properties["FloatingLeft"] = val
 
@@ -236,7 +286,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._floatingPosition = val
 			self.__pi.FloatingPosition(val)
-			self.Form._refreshState()
+			self.Form._refreshState(0)
 		else:
 			self._properties["FloatingPosition"] = val
 
@@ -249,7 +299,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			wd = self.FloatingSize[0]
 			self._floatingPosition = (val - wd, self.FloatingPosition[1])
 			self.__pi.FloatingPosition(self._floatingPosition)
-			self.Form._refreshState()
+			self.Form._refreshState(0)
 		else:
 			self._properties["FloatingRight"] = val
 
@@ -268,7 +318,7 @@ class _dDockPanel(dabo.ui.dPanel):
 				self.GetParent().SetSize(self._floatingSize)
 			else:
 				self.__pi.FloatingSize(self._floatingSize)
-			self.Form._refreshState()
+			self.Form._refreshState(0)
 		else:
 			self._properties["FloatingSize"] = val
 
@@ -280,7 +330,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._floatingPosition = (self.FloatingPosition[0], val)
 			self.__pi.FloatingPosition(self._floatingPosition)
-			self.Form._refreshState()
+			self.Form._refreshState(0)
 		else:
 			self._properties["FloatingTop"] = val
 
@@ -295,9 +345,35 @@ class _dDockPanel(dabo.ui.dPanel):
 				self.GetParent().SetSize(self._floatingSize)
 			else:
 				self.__pi.FloatingSize(self._floatingSize)
-			self.Form._refreshState()
+			self.Form._refreshState(0)
 		else:
 			self._properties["FloatingWidth"] = val
+
+
+	def _getHeight(self):
+		return self.__getSize()[1]
+
+	def _setHeight(self, val):
+		if self._constructed():
+			if self.Floating:
+				self.FloatingHeight = val
+			else:
+				dabo.errorLog.write(_("Cannot set the Size of a docked panel"))
+		else:
+			self._properties["Height"] = val
+
+
+	def _getLeft(self):
+		return self.__getPosition()[0]
+
+	def _setLeft(self, val):
+		if self._constructed():
+			if self.Floating:
+				self.FloatingLeft = val
+			else:
+				dabo.errorLog.write(_("Cannot set the position of a docked panel"))
+		else:
+			self._properties["Left"] = val
 
 
 	def _getLeftDockable(self):
@@ -333,6 +409,19 @@ class _dDockPanel(dabo.ui.dPanel):
 			self.Form._refreshState()
 		else:
 			self._properties["Resizable"] = val
+
+
+	def _getRight(self):
+		return self.__getPosition()[0] + self.__getSize()[0]
+
+	def _setRight(self, val):
+		if self._constructed():
+			if self.Floating:
+				self.FloatingRight = val
+			else:
+				dabo.errorLog.write(_("Cannot set the position of a docked panel"))
+		else:
+			self._properties["Right"] = val
 
 
 	def _getRightDockable(self):
@@ -430,6 +519,19 @@ class _dDockPanel(dabo.ui.dPanel):
 			self._properties["ShowPinButton"] = val
 
 
+	def _getTop(self):
+		return self.__getPosition()[1]
+
+	def _setTop(self, val):
+		if self._constructed():
+			if self.Floating:
+				self.FloatingTop = val
+			else:
+				dabo.errorLog.write(_("Cannot set the position of a docked panel"))
+		else:
+			self._properties["Top"] = val
+
+
 	def _getTopDockable(self):
 		return self._topDockable
 
@@ -451,6 +553,22 @@ class _dDockPanel(dabo.ui.dPanel):
 		else:
 			self._properties["Visible"] = val
 
+
+	def _getWidth(self):
+		return self.__getSize()[0]
+
+	def _setWidth(self, val):
+		if self._constructed():
+			if self.Floating:
+				self.FloatingWidth = val
+			else:
+				dabo.errorLog.write(_("Cannot set the Size of a docked panel"))
+		else:
+			self._properties["Width"] = val
+
+
+	Bottom = property(_getBottom, _setBottom, None,
+			_("Position in pixels of the bottom side of the panel. Read-only when docked; read-write when floating  (int)"))
 
 	BottomDockable = property(_getBottomDockable, _setBottomDockable, None,
 			_("Can the panel be docked to the bottom edge of the form? Default=True  (bool)"))
@@ -497,6 +615,12 @@ class _dDockPanel(dabo.ui.dPanel):
 	FloatingWidth = property(_getFloatingWidth, _setFloatingWidth, None,
 			_("Width of the panel when floating  (int)"))
 
+	Height = property(_getHeight, _setHeight, None,
+			_("Position in pixels of the height of the panel. Read-only when docked; read-write when floating  (int)"))
+
+	Left = property(_getLeft, _setLeft, None,
+			_("Position in pixels of the left side of the panel. Read-only when docked; read-write when floating  (int)"))
+
 	LeftDockable = property(_getLeftDockable, _setLeftDockable, None,
 			_("Can the panel be docked to the left edge of the form? Default=True  (bool)"))
 
@@ -505,6 +629,9 @@ class _dDockPanel(dabo.ui.dPanel):
 
 	Resizable = property(_getResizable, _setResizable, None,
 			_("Can the panel be resized? Default=True  (bool)"))
+
+	Right = property(_getRight, _setRight, None,
+			_("Position in pixels of the right side of the panel. Read-only when docked; read-write when floating  (int)"))
 
 	RightDockable = property(_getRightDockable, _setRightDockable, None,
 			_("Can the panel be docked to the right edge of the form? Default=True  (bool)"))
@@ -530,12 +657,19 @@ class _dDockPanel(dabo.ui.dPanel):
 	ShowPinButton = property(_getShowPinButton, _setShowPinButton, None,
 			_("Does the panel display a pin button when floating? Default=False  (bool)"))
 
+	Top = property(_getTop, _setTop, None,
+			_("Position in pixels of the top side of the panel. Read-only when docked; read-write when floating  (int)"))
+
 	TopDockable = property(_getTopDockable, _setTopDockable, None,
 			_("Can the panel be docked to the top edge of the form? Default=True  (bool)"))
 
 	Visible = property(_getVisible, _setVisible, None,
 			_("Is the panel shown?  (bool)"))
 
+	Width = property(_getWidth, _setWidth, None,
+			_("Position in pixels of the width of the panel. Read-only when docked; read-write when floating  (int)"))
+
+	
 		
 
 class dDockForm(dabo.ui.dForm):
@@ -562,8 +696,13 @@ class dDockForm(dabo.ui.dForm):
 		self._centerPanel.addObject(classRef, Name=Name, *args, **kwargs)
 	
 	
-	def _refreshState(self):
-		dabo.ui.callAfterInterval(100, self._mgr.Update)		
+	def _refreshState(self, interval=None):
+		if interval is None:
+			interval = 100
+		if interval == 0:
+			self._mgr.Update()
+		else:
+			dabo.ui.callAfterInterval(interval, self._mgr.Update)		
 
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
@@ -581,11 +720,11 @@ class dDockForm(dabo.ui.dForm):
 
 class _dDockForm_test(dDockForm):
 	def afterInit(self):
-		self.fp = _dDockPanel(self, Floating=True, BackColor="orange", Top=100,
-				Caption="I'm Floating!")
+		self.fp = _dDockPanel(self, Floating=True, BackColor="orange",
+				Caption="I'm Floating!", Top=70, Left=100)
 		self.dp = _dDockPanel(self, Floating=False, BackColor="slateblue", 
 				ShowCaption=False, ShowPinButton=True, ShowCloseButton=False,
-				ShowGripper=True, Movable=False, Resizable=False)
+				ShowGripper=True)
 		btn = dabo.ui.dButton(self._centerPanel, Caption="Test Orange", OnHit=self.onTestFP)
 		self._centerPanel.Sizer.append(btn)
 		btn = dabo.ui.dButton(self._centerPanel, Caption="Test Blue", OnHit=self.onTestDP)
@@ -625,6 +764,7 @@ class _dDockForm_test(dDockForm):
 		print nm + ".ShowPinButton:", obj.ShowPinButton
 		print nm + ".TopDockable:", obj.TopDockable
 		print nm + ".Visible:", obj.Visible
+
 
 
 if __name__ == "__main__":
