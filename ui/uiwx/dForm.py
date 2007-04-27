@@ -54,7 +54,7 @@ class BaseForm(fm.dFormMixin):
 		self._holdStatusText = ""
 
 
-	def beforeSetProperties(self, props):
+	def _beforeSetProperties(self, props):
 		if "UseSizers" in props and not hasattr(self, "UseSizers"):
 			del props["UseSizers"]
 		

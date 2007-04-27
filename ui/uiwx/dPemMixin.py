@@ -208,11 +208,17 @@ class dPemMixin(dPemMixinBase):
 
 		## Typically used to remove Designer props that don't appear in
 		## runtime classes.
-		if self.beforeSetProperties(properties) is False:
+		if self._beforeSetProperties(properties) is False:
 			return
 		self.setProperties(properties)
-		self.afterSetProperties()
+		self._afterSetProperties()
 	
+	def _beforeSetProperties(self, properties):
+		# By default, just call the hook
+		return self.beforeSetProperties(properties)
+	def _afterSetProperties(self):
+		# By default, just call the hook
+		self.afterSetProperties()
 	def beforeSetProperties(self, properties): pass
 	def afterSetProperties(self): pass
 	
