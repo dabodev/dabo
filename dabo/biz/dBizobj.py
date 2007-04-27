@@ -17,7 +17,7 @@ class dBizobj(dObject):
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, False
 
 
-	def __init__(self, conn, properties=None, *args, **kwargs):
+	def __init__(self, conn=None, properties=None, *args, **kwargs):
 		""" User code should override beforeInit() and/or afterInit() instead."""
 		self.__att_try_setFieldVal = False
 		# Collection of cursor objects. MUST be defined first.
@@ -31,15 +31,7 @@ class dBizobj(dObject):
 		self._defaultValues = {}
 
 		self._beforeInit()
-		cf = self._cursorFactory = conn
-		if cf:
-			# Base cursor class : the cursor class from the db api
-			self.dbapiCursorClass = cf.getDictCursorClass()
-
-			# If there are any problems in the createCursor process, an
-			# exception will be raised in that method.
-			self.createCursor()
-
+		self.setConnection(conn)
 		# We need to make sure the cursor is created *before* the call to
 		# initProperties()
 		self._initProperties()
@@ -97,6 +89,20 @@ class dBizobj(dObject):
 		##########################################
 
 		self.beforeInit()
+
+
+	def setConnection(self, conn):
+		"""Normally connections are established before bizobj creation, but 
+		for those cases where connections are created later, use this method to 
+		establish the connection used by the bizobj.
+		"""
+		self._cursorFactory = conn
+		if conn:
+			# Base cursor class : the cursor class from the db api
+			self.dbapiCursorClass = self._cursorFactory.getDictCursorClass()
+			# If there are any problems in the createCursor process, an
+			# exception will be raised in that method.
+			self.createCursor()
 
 
 	def getTempCursor(self):
