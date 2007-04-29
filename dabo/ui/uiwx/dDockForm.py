@@ -73,6 +73,32 @@ class _dDockPanel(dabo.ui.dPanel):
 			self._floatingSize = self.GetParent().GetSize().Get()
 	
 	
+	def float(self):
+		"""Float the panel if it isn't already floating."""
+		if self.Floating or not self.Floatable:
+			return
+		self.__pi.Float()
+		self.Form._refreshState()
+		
+		
+	def dock(self, side=None):
+		"""Dock the panel. If side is specified, it is docked on that side of the
+		form. If no side is specified, it is docked in its default location.
+		"""
+		if self.Docked or not self.Dockable:
+			return
+		inf = self.__pi
+		if side is not None:
+			s = side[0].lower()
+			func = {"l": inf.Left, "r": inf.Right, "t": inf.Top, "b": inf.Bottom}.get(s, None)
+			if func:
+				func()
+			else:	
+				dabo.errorLog.write(_("Invalid dock position: '%s'.") % side)
+		inf.Dock()
+		self.Form._refreshState()
+			
+		
 	def _beforeSetProperties(self, props):
 		"""Some properties of Floating panels cannot be set at the usual 
 		point in the process, since the panel will still be docked, and you
@@ -203,6 +229,18 @@ class _dDockPanel(dabo.ui.dPanel):
 			self._properties["Docked"] = val
 
 
+	def _getDockSide(self):
+		return {1: "Top", 2: "Right", 3: "Bottom", 4: "Left"}[self.__pi.dock_direction]
+
+	def _setDockSide(self, val):
+		if self._constructed():
+			vUp = val[0].upper()
+			self.__pi.dock_direction = {"T": 1, "R": 2, "B": 3, "L": 4}[vUp]
+			self.Form._refreshState()
+		else:
+			self._properties["DockSide"] = val
+
+
 	def _getFloatable(self):
 		return self._floatable
 
@@ -276,15 +314,10 @@ class _dDockPanel(dabo.ui.dPanel):
 
 
 	def _getFloatingPosition(self):
-		if self.__pi.IsFloating():
-			ret = self.GetParent().GetPosition().Get()
-		else:
-			ret = self._floatingPosition
-		return ret
+		return self.__pi.floating_pos.Get()
 
 	def _setFloatingPosition(self, val):
 		if self._constructed():
-			self._floatingPosition = val
 			self.__pi.FloatingPosition(val)
 			self.Form._refreshState(0)
 		else:
@@ -305,19 +338,11 @@ class _dDockPanel(dabo.ui.dPanel):
 
 
 	def _getFloatingSize(self):
-		if self.__pi.IsFloating():
-			ret = self.GetParent().GetSize().Get()
-		else:
-			ret = self._floatingSize
-		return ret
+		return self.__pi.floating_size.Get()
 
 	def _setFloatingSize(self, val):
 		if self._constructed():
-			self._floatingSize = val
-			if self.__pi.IsFloating():
-				self.GetParent().SetSize(self._floatingSize)
-			else:
-				self.__pi.FloatingSize(self._floatingSize)
+			self.__pi.FloatingSize(val)
 			self.Form._refreshState(0)
 		else:
 			self._properties["FloatingSize"] = val
@@ -466,7 +491,11 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._constructed():
 			self._showCloseButton = val
 			self.__pi.CloseButton(val)
-			self.Form._refreshState()
+			self.Form._refreshState(0)
+			self.Form.lockDisplay()
+			self.Docked = not self.Docked
+			dabo.ui.setAfterInterval(100, self, "Docked", not self.Docked)
+			dabo.ui.callAfterInterval(150, self.Form.unlockDisplay)
 		else:
 			self._properties["ShowCloseButton"] = val
 
@@ -584,6 +613,11 @@ class _dDockPanel(dabo.ui.dPanel):
 
 	Docked = property(_getDocked, _setDocked, None,
 			_("Determines whether the pane is floating (False) or docked (True)  (bool)"))
+	
+	DockSide = property(_getDockSide, _setDockSide, None,
+			_("""Side of the form that the panel is either currently docked to, 
+			or would be if dock() were to be called. Possible values are 
+			'Left', 'Right', 'Top' and 'Bottom'.  (str)"""))	
 			
 	Floatable = property(_getFloatable, _setFloatable, None,
 			_("Can the panel be undocked from the form and float independently? Default=True  (bool)"))
@@ -640,7 +674,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			_("Should the panel's border be shown when floating?  (bool)"))
 
 	ShowCaption = property(_getShowCaption, _setShowCaption, None,
-			_("Should the panel's Caption be shown? Default=True  (bool)"))
+			_("Should the panel's Caption be shown when it is docked? Default=True  (bool)"))
 
 	ShowCloseButton = property(_getShowCloseButton, _setShowCloseButton, None,
 			_("Does the panel display a close button when floating? Default=True  (bool)"))
@@ -694,6 +728,12 @@ class dDockForm(dabo.ui.dForm):
 		
 	def addObject(self, classRef, Name=None, *args, **kwargs):
 		self._centerPanel.addObject(classRef, Name=Name, *args, **kwargs)
+		
+	
+	def addPanel(self, *args, **kwargs):
+		pnl = _dDockPanel(self, *args, **kwargs)
+		self._refreshState()
+		return pnl
 	
 	
 	def _refreshState(self, interval=None):
