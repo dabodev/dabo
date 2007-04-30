@@ -138,19 +138,20 @@ from dTreeView import dTreeView
 from dLed import dLed
 import dUICursors as dUICursors
 import dShell
-from dDockForm import dDockForm
 
 try:
 	from dGlWindow import dGlWindow
 except ImportError:
 	dabo.infoLog.write(_("PyOpenGL not present, so dGlWindow is not loaded."))
 
+# dDockForm is not available with wxPython < 2.7
+if wx.VERSION >= (2, 7):
+	from dDockForm import dDockForm
 
 artConstants = {}
-for item in dir(wx):
-	if item[:4] == "ART_":
-		daboConstant = item[4:].lower().replace("_", "")
-		artConstants[daboConstant] = getattr(wx, item)
+for item in (it for it in dir(wx) if it.startswith("ART_")):
+	daboConstant = item[4:].lower().replace("_", "")
+	artConstants[daboConstant] = getattr(wx, item)
 
 # artConstant aliases:
 artConstants["cd"] = artConstants.get("cdrom")
