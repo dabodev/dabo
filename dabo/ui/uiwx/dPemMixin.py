@@ -1015,11 +1015,19 @@ class dPemMixin(dPemMixinBase):
 			kids = self.Children
 		if not kids:
 			return
+		if isinstance(filt, basestring):
+			filt = (filt, )
 		for kid in kids:
 			ok = hasattr(kid, prop)
 			if ok:
 				if filt:
-					ok = eval("kid.%s" % filt)
+					for ff in filt:
+						try:
+							ok = eval("kid.%s" % ff)
+						except AttributeError:
+							ok = False
+						if not ok:
+							break							
 			if ok:
 				setattr(kid, prop, val)
 			if recurse:
