@@ -4,14 +4,16 @@ import os
 import re
 import types
 import urllib2
+import urlparse
+import datetime
 import dabo
 from dabo.dLocalize import _
-
+import dabo.dEvents as dEvents
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-
 import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
+
 
 class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 	"""Creates a scrolled panel that can load and display html pages
@@ -24,10 +26,22 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		preClass = wx.html.PreHtmlWindow
 		if "style" not in kwargs:
 			kwargs["style"] = wx.TAB_TRAVERSAL
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
-		self.SetScrollRate(10, 10)
 		self._source = self._page = ""
-	#		self.SetScrollbars(10, 10, -1, -1)
+		self._respondToLinks = True
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+				*args, **kwargs)
+		self.SetScrollRate(10, 10)
+		self.Bind(wx.html.EVT_HTML_LINK_CLICKED, self.__onWxLinkClicked)
+		self.bindEvent(dEvents.HtmlLinkClicked, self.__onLinkClicked)
+
+
+	def __onWxLinkClicked(self, evt):
+		self.raiseEvent(dEvents.HtmlLinkClicked, href=evt.GetLinkInfo().GetHref())
+
+
+	def __onLinkClicked(self, evt):
+		if self.RespondToLinks:
+			self.Page = evt.href
 
 
 	def setImageURLs(self, val):
@@ -69,17 +83,22 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		return self._page
 
 	def _setPage(self, val):
-		if isinstance(val, types.StringTypes):
+		if isinstance(val, basestring):
 			try:
 				if os.path.exists(val):
-					file = open(val, 'r')
+					file = open(val, "r")
 					self._source = file.read()
 					self.LoadFile(val)
 					self._page = val
 					return
-				elif not val[:7] == "http://":
-					val = "http://" + val
-
+				elif not val.startswith("http://"):
+					# See if the current page starts with it
+					if self._page.startswith("http://"):
+						# Join it to the current URL
+						val = urlparse.urljoin(self._page, val)
+					else:
+						# Assume that it's an HTTP request
+						val = "http://" + val
 				url = urllib2.urlopen(val)
 				self._source = url.read()
 				self.LoadPage(val)
@@ -89,6 +108,13 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 				self._page = ""
 				self.SetPage(self._source)
 
+
+	def _getRespondToLinks(self):
+		return self._respondToLinks
+
+	def _setRespondToLinks(self, val):
+		self._respondToLinks = val
+		
 
 	def _getSource(self):
 		return self._source
@@ -117,6 +143,9 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 	Page = property(_getPage, _setPage, None,
 			_("URL or file path of the current page being displayed. (default='')  (string)"))
 
+	RespondToLinks = property(_getRespondToLinks, _setRespondToLinks, None,
+			_("When True (default), clicking a link will attempt to load that linked page.  (bool)"))
+
 	Source = property(_getSource, _setSource, None,
 			_("Html source of the current page being display. (default='')  (string)"))
 
@@ -134,22 +163,21 @@ class _dHtmlBox_test(dHtmlBox):
 		self.Size = (300,200)
 
 	def afterInit(self):
-		self.SetScrollbars(10,10,100,100)
-	##		self.Page = "http://dabodev.com/"
 		self.Source = self.PageData()
-
+		
+	
 	def PageData(self):
 		return """<html>
 		<body bgcolor="#ACAA60">
 		<center>
-			<table bgcolor="#455481" width="100%" cellspacing="0" cellpadding="0" 
+			<table bgcolor="#455481" width="100%%" cellspacing="0" cellpadding="0" 
 					border="1">
 				<tr>
 					<td align="center"><h1>dHtmlBox</h1></td>
 				</tr>
 			</table>
 		</center>
-		<p><b><font size="160%" color="#FFFFFF">dHtmlBox</font></b> is a Dabo UI widget that is designed to display html text. 
+		<p><b><font size="160%%" color="#FFFFFF">dHtmlBox</font></b> is a Dabo UI widget that is designed to display html text. 
 		Be careful, though, because the widget doesn't support advanced functions like 
 		Javascript parsing.</p>
 		<p>It's better to think of it as a way to display <b>rich text</b> using 
@@ -159,22 +187,19 @@ class _dHtmlBox_test(dHtmlBox):
 		<p>&nbsp;</p>
 		<div align="center"><img src="daboIcon.ico"></div>
 
-		<p align="center"><b>Dabo</b> is brought to you by <b>Ed Leafe</b>, <b>Paul McNett</b>,
-		and others in the open source community. Copyright &copy; 2006
+		<p align="center"><b><a href="http://dabodev.com">Dabo</a></b> is brought to you by <b>Ed Leafe</b>, <b>Paul McNett</b>,
+		and others in the open source community. Copyright &copy; 2004-%s
 		</p>
 		</body>
 		</html>
-		"""
+		""" % datetime.date.today().year
 
 	def onMouseLeftDown(self, evt):
 		print "mousedown"
 		self.SetFocusIgnoringChildren()
 
-	def onPaint(self, evt):
-		print "paint"
-
 	def onKeyDown(self, evt):
-		print evt.EventData["keyCode"]
+		print "Key Code:", evt.EventData["keyCode"]
 
 
 

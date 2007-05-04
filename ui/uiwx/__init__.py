@@ -489,6 +489,9 @@ def getEventData(wxEvt):
 		ed["collapsed"] = not ed["expanded"]
 		ed["panel"] = wxEvt.GetEventObject().GetParent()
 		
+	if isinstance(wxEvt, wx.html.HtmlLinkEvent):
+		ed["href"] = wxEvt.href
+		
 	return ed
 	
 
