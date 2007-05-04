@@ -768,3 +768,9 @@ class Update(dEvent):
 		return issubclass(objectClass, dabo.ui.dPemMixin)
 	appliesToClass = classmethod(appliesToClass)
 
+
+class HtmlLinkClicked(dEvent):
+	"""Occurs when a link in a dHtmlBox control is clicked."""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dHtmlBox)
+	appliesToClass = classmethod(appliesToClass)
