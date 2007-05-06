@@ -489,8 +489,12 @@ def getEventData(wxEvt):
 		ed["collapsed"] = not ed["expanded"]
 		ed["panel"] = wxEvt.GetEventObject().GetParent()
 		
-	if isinstance(wxEvt, wx.html.HtmlLinkEvent):
-		ed["href"] = wxEvt.href
+	try:
+		if isinstance(wxEvt, wx.html.HtmlLinkEvent):
+			ed["href"] = wxEvt.href
+	except:
+		# wxPython 2.6 and earlier doesn't seem to have this event
+		pass
 		
 	return ed
 	
