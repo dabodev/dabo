@@ -31,9 +31,17 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
 		self.SetScrollRate(10, 10)
-		self.Bind(wx.html.EVT_HTML_LINK_CLICKED, self.__onWxLinkClicked)
+		if wx.VERSION >= (2, 7):
+			self.Bind(wx.html.EVT_HTML_LINK_CLICKED, self.__onWxLinkClicked)
+		else:
+			# no such event, so we need to override the OnCellClicked event
+			self.OnCellClicked = self.__OnCellClicked
 		self.bindEvent(dEvents.HtmlLinkClicked, self.__onLinkClicked)
 
+
+	def __OnCellClicked(self, cell, x, y, evt):
+		self.raiseEvent(dEvents.HtmlLinkClicked, href=cell.GetLink().GetHref())
+		
 
 	def __onWxLinkClicked(self, evt):
 		self.raiseEvent(dEvents.HtmlLinkClicked, href=evt.GetLinkInfo().GetHref())
