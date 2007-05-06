@@ -1216,13 +1216,14 @@ class dPemMixin(dPemMixinBase):
 
 
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
-			fillColor=None, lineStyle=None, mode=None, persist=True):
+			fillColor=None, lineStyle=None, hatchStyle=None, mode=None, 
+			persist=True):
 		"""Draws a circle of the specified radius around the specified point.
 
 		You can set the color and thickness of the line, as well as the 
-		color of the fill. Normally, when persist=True, the circle will be 
-		re-drawn on paint events, but if you pass False, it will be drawn 
-		once only. 
+		color and hatching style of the fill. Normally, when persist=True, 
+		the circle will be re-drawn on paint events, but if you pass False, 
+		it will be drawn once only.
 		
 		A drawing object is returned, or None if persist=False. You can 
 		'remove' the drawing by setting the Visible property of the 
@@ -1230,7 +1231,7 @@ class dPemMixin(dPemMixinBase):
 		color, and fill by changing the various properties of the object.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle, 
+				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="circle", Xpos=xPos, Ypos=yPos, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
@@ -1238,16 +1239,16 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def drawRectangle(self, xPos, yPos, width, height, penColor="black", 
-			penWidth=1, fillColor=None, lineStyle=None, mode=None, 
-			persist=True):
+			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
+			mode=None, persist=True):
 		"""Draws a rectangle of the specified size beginning at the specified 
 		point. 
 
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, LineStyle=lineStyle, Shape="rect", 
-				Xpos=xPos, Ypos=yPos, Width=width, Height=height, 
+				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle, 
+				Shape="rect", Xpos=xPos, Ypos=yPos, Width=width, Height=height, 
 				DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
@@ -1255,7 +1256,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def drawPolygon(self, points, penColor="black", penWidth=1, 
-			fillColor=None, lineStyle=None, mode=None, persist=True):
+			fillColor=None, lineStyle=None, hatchStyle=None, 
+			mode=None, persist=True):
 		"""Draws a polygon defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the 
@@ -1264,7 +1266,7 @@ class dPemMixin(dPemMixinBase):
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, LineStyle=lineStyle, 
+				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="polygon", Points=points, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
@@ -2521,6 +2523,7 @@ class DrawObject(dObject):
 		self._fillColor = None
 		self._height = None
 		self._lineStyle = None
+		self._hatchStyle = None
 		self._penColor = None
 		self._penWidth = None
 		self._points = None
@@ -2544,6 +2547,10 @@ class DrawObject(dObject):
 		self._orientation = None
 		self._transparent = True
 		self._drawMode = None
+		self._hatchStyleDict = {"transparent": wx.TRANSPARENT, "solid": wx.SOLID, 
+				"cross": wx.CROSS_HATCH, "reversediagonal": wx.BDIAGONAL_HATCH, 
+				"crossdiagonal": wx.CROSSDIAG_HATCH, "diagonal": wx.FDIAGONAL_HATCH, 
+				"horizontal": wx.HORIZONTAL_HATCH, "vertical": wx.VERTICAL_HATCH}
 		super(DrawObject, self).__init__(*args, **kwargs)
 		self._inInit = False
 	
@@ -2599,12 +2606,17 @@ class DrawObject(dObject):
 		dc.SetPen(pen)
 
 		fill = self.FillColor
+		hatch = self.HatchStyle
+		if hatch is None:
+			sty = wx.SOLID
+		else:
+			sty = self._hatchStyleDict.get(hatch.lower(), wx.SOLID)
 		if fill is None:
 			brush = wx.TRANSPARENT_BRUSH
 		else:
 			if isinstance(fill, basestring):
 				fill = dColors.colorTupleFromName(fill)
-			brush = wx.Brush(fill)
+			brush = wx.Brush(fill, style=sty)
 		dc.SetBrush(brush)
 		
 		mode = self.DrawMode
@@ -2904,6 +2916,17 @@ class DrawObject(dObject):
 			self.update()
 
 
+	def _getHatchStyle(self):
+		return self._hatchStyle
+	
+	def _setHatchStyle(self, val):
+		if isinstance(val, basestring):
+			val = val.lower()
+		if self._hatchStyle != val:
+			self._hatchStyle = val
+			self.update()
+			
+
 	def _getHeight(self):
 		return self._height
 		
@@ -3090,6 +3113,19 @@ class DrawObject(dObject):
 	GradientColor2 = property(_getGradientColor2, _setGradientColor2, None,
 			_("Bottom/Right color for the gradient  (color: str or tuple)"))
 	
+	HatchStyle = property(_getHatchStyle, _setHatchStyle, None,
+			_("""Hatching style for the fill.  (str)
+					Options are:
+						Solid (default)
+						Transparent
+						Cross
+						Horizontal
+						Vertical
+						Diagonal
+						ReverseDiagonal
+						CrossDiagonal
+					"""))
+
 	Height = property(_getHeight, _setHeight, None,
 			_("For rectangles, the height of the shape  (int)"))
 
