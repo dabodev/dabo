@@ -33,15 +33,12 @@ class Form(dabo.ui.dForm):
 			# The form is a picklist, which pops up so the user can choose a record,
 			# and then hides itself afterwards. In addition, the picklist should hide
 			# itself when other certain conditions are met.
+	
 			def _onHide(evt):
 				dabo.ui.callAfter(self.hide)
-
 			# Pressing Esc hides the form
 			self.bindKey("esc", _onHide)
 	
-			# Deactivating hides the form
-			self.bindEvent(dEvents.Deactivate, _onHide)
-
 		# Create the various elements:
 		self.setupPageFrame()
 
