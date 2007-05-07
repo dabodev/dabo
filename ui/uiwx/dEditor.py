@@ -742,10 +742,12 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				self._posBeforeCompList = self.GetCurrentPos() + 1
 				dabo.ui.callAfter(self.codeComplete)
 		elif self.AutoAutoComplete:
-			if keyChar in " ()[]{}.-":
-				self.AutoCompCancel()
-				return
-			dabo.ui.callAfter(self.autoComplete, minWordLen=self.AutoAutoCompleteMinLen)
+			if self.AutoCompActive():
+				if keyChar in " ()[]{}.-":
+					self.AutoCompCancel()
+					return
+			else:
+				dabo.ui.callAfter(self.autoComplete, minWordLen=self.AutoAutoCompleteMinLen)
 
 
 	def _onPeriodActive(self):
