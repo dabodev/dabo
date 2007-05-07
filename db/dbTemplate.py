@@ -35,7 +35,7 @@ class NEWDATABASE(dBackend):
 		self.dbModuleName = "???"
 
 
-	def getConnection(self, connectInfo):
+	def getConnection(self, connectInfo, **kwargs):
 		#### TODO: replace 'ZZZ' with dbapi module name
 		import ZZZ as dbapi
 
@@ -46,10 +46,8 @@ class NEWDATABASE(dBackend):
 				
 		#### TODO: Customize to make correct connect string
 		self._connection = dbapi.connect(host=connectInfo.Host, 
-				user = connectInfo.User,
-				passwd = connectInfo.revealPW(),
-				db=connectInfo.Database,
-				port=port)
+				user=connectInfo.User, passwd=connectInfo.revealPW(),
+				db=connectInfo.Database, port=port, **kwargs)
 
 		return self._connection
 

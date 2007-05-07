@@ -17,7 +17,7 @@ class Postgres(dBackend):
 		self.conn_user = ''
 
 
-	def getConnection(self, connectInfo):
+	def getConnection(self, connectInfo, **kwargs):
 		import psycopg2 as dbapi
 		#from pyPgSQL import PgSQL as dbapi
 		self.conn_user = connectInfo.User
@@ -28,6 +28,8 @@ class Postgres(dBackend):
 				
 		DSN = "host=%s port=%s dbname=%s user=%s password=%s" % (connectInfo.Host,
 			port, connectInfo.Database, connectInfo.User, connectInfo.revealPW())
+		for kw, val in kwargs:
+			DSN += " %s=%s" % (kw, val)
 		self._connection = dbapi.connect(DSN)
 		return self._connection
 

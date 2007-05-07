@@ -20,7 +20,7 @@ class MySQL(dBackend):
 		self.dbModuleName = "MySQLdb"
 
 
-	def getConnection(self, connectInfo):
+	def getConnection(self, connectInfo, **kwargs):
 		import MySQLdb as dbapi
 
 		port = connectInfo.Port
@@ -45,10 +45,8 @@ class MySQL(dBackend):
 
 		try:
 			self._connection = dbapi.connect(host=connectInfo.Host, 
-					user = connectInfo.User,
-					passwd = connectInfo.revealPW(),
-					db=connectInfo.Database,
-					port=port, **kwargs)
+					user = connectInfo.User, passwd = connectInfo.revealPW(),
+					db=connectInfo.Database, port=port, **kwargs)
 		except Exception, e:			
 			if "access denied" in str(e).lower():
 				raise dException.DBNoAccessException(e)

@@ -52,7 +52,7 @@ class dBackend(dObject):
 			return False
 
 
-	def getConnection(self, connectInfo):
+	def getConnection(self, connectInfo, **kwargs):
 		""" override in subclasses """
 		return None
 
