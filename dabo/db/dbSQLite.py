@@ -20,7 +20,7 @@ class SQLite(dBackend):
 		self._alreadyCorrectedFieldTypes = True
 		
 
-	def getConnection(self, connectInfo):
+	def getConnection(self, connectInfo, **kwargs):
 		## Mods to sqlite to return DictCursors by default, so that dCursor doesn't
 		## need to do the conversion:
 		dbapi = self.dbapi

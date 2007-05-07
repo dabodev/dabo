@@ -94,8 +94,8 @@ class dConnectInfo(dObject):
 				raise TypeError, "Property '%s' invalid." % k				
 	
 	
-	def getConnection(self):
-		return self._backendObject.getConnection(self)
+	def getConnection(self, **kwargs):
+		return self._backendObject.getConnection(self, **kwargs)
 
 
 	def getDictCursorClass(self):

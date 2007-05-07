@@ -38,7 +38,7 @@ class Firebird(dBackend):
 		self.dbapi = kinterbasdb
 
 
-	def getConnection(self, connectInfo):
+	def getConnection(self, connectInfo, **kwargs):
 		port = connectInfo.Port
 		if not port:
 			port = 3050
@@ -49,7 +49,7 @@ class Firebird(dBackend):
 		database = str(connectInfo.Database)
 		
 		self._connection = self.dbapi.connect(host=host, user=user, 
-				password=password, database=database)
+				password=password, database=database, **kwargs)
 		return self._connection
 		
 
