@@ -48,9 +48,6 @@ class dBizobj(dObject):
 		self.__children = []		# Collection of child bizobjs
 		self._baseClass = dBizobj
 		self.__areThereAnyChanges = False	# Used by the isChanged() method.
-		# Next two are used by the scan() method.
-		self.__scanRestorePosition = True
-		self.__scanReverse = False
 		# Used by the LinkField property
 		self._linkField = ""
 		self._parentLinkField = ""
@@ -62,6 +59,7 @@ class dBizobj(dObject):
 		# Various attributes used for Properties
 		self._caption = ""
 		self._dataSource = ""
+		self._scanRestorePosition = None
 		self._SQL = ""
 		self._requeryOnLoad = False
 		self._parent  = None
@@ -543,19 +541,19 @@ class dBizobj(dObject):
 		return self._CurrentCursor.getRecordStatus(rownum)
 
 
-	def scan(self, func, *args, **kwargs):
+	def scan(self, func, reverse=False, *args, **kwargs):
 		"""Iterate over all records and apply the passed function to each.
 
 		Set self.exitScan to True to exit the scan on the next iteration.
 
-		If self.__scanRestorePosition is True, the position of the current
-		record in the recordset is restored after the iteration. If
-		self.__scanReverse is true, the records are processed in reverse order.
+		If self.ScanRestorePosition is True, the position of the current
+		record in the recordset is restored after the iteration. If the 'reverse'
+		parameter is True, the records are processed in reverse order.
 		"""
-		self.scanRows(func, range(self.RowCount), *args, **kwargs)
+		self.scanRows(func, range(self.RowCount), reverse=reverse, *args, **kwargs)
 
 
-	def scanRows(self, func, rows, *args, **kwargs):
+	def scanRows(self, func, rows, reverse=False, *args, **kwargs):
 		"""Iterate over the specified rows and apply the passed function to each.
 
 		Set self.exitScan to True to exit the scan on the next iteration.
@@ -563,7 +561,7 @@ class dBizobj(dObject):
 		# Flag that the function can set to prematurely exit the scan
 		self.exitScan = False
 		rows = list(rows)
-		if self.__scanRestorePosition:
+		if self.ScanRestorePosition:
 			try:
 				currPK = self.getPK()
 				currRow = None
@@ -572,7 +570,7 @@ class dBizobj(dObject):
 				currPK = None
 				currRow = self.RowNumber
 		try:
-			if self.__scanReverse:
+			if reverse:
 				rows.reverse()
 			for i in rows:
 				self._moveToRowNum(i)
@@ -580,11 +578,11 @@ class dBizobj(dObject):
 				if self.exitScan:
 					break
 		except dException.dException, e:
-			if self.__scanRestorePosition:
+			if self.ScanRestorePosition:
 				self.RowNumber = currRow
 			raise dException.dException, e
 
-		if self.__scanRestorePosition:
+		if self.ScanRestorePosition:
 			if currPK is not None:
 				self._positionUsingPK(currPK, updateChildren=False)
 			else:
@@ -1745,6 +1743,13 @@ class dBizobj(dObject):
 		self._saveNewUnchanged = val
 
 
+	def _getScanRestorePosition(self):
+		return self._scanRestorePosition
+
+	def _setScanRestorePosition(self, val):
+		self._scanRestorePosition = val
+
+
 	def _getSQL(self):
 		try:
 			return self._SQL
@@ -1874,7 +1879,7 @@ class dBizobj(dObject):
 			_("Do we requery child bizobjs after a Save()? (bool)"))
 
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
-			_("""When true, the cursor object runs its query immediately. This
+			_("""When True, the cursor object runs its query immediately. This
 			is useful for lookup tables or fixed-size (small) tables. (bool)"""))
 
 	RequeryWithParent = property(_getRequeryWithParent, _setRequeryWithParent, None,
@@ -1900,6 +1905,11 @@ class dBizobj(dObject):
 			_("""Normally new, unmodified records are not saved. If you need 
 			this behavior, set this to True.  (bool)"""))
 	
+	ScanRestorePosition = property(_getScanRestorePosition, _setScanRestorePosition, None,
+			_("""After running a scan, do we attempt to restore the record position to 
+			where it was before the scan (True, default), or do we leave the pointer 
+			at the end of the recordset (False). (bool)"""))
+	
 	SQL = property(_getSQL, _setSQL, None,
 			_("SQL statement used to create the cursor's data. (str)"))
 
@@ -1914,4 +1924,3 @@ class dBizobj(dObject):
 
 			The specified function will be called when getFieldVal() is called on 
 			the specified virtual field name."""))
-
