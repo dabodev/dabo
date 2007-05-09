@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import wx.lib.hyperlink as hyperlink
 import dabo
@@ -26,8 +27,12 @@ class dHyperLink(dcm.dControlMixin, hyperlink.HyperLinkCtrl):
 		self._visitedUnderline = None
 		
 		# Make the rollover effect the default, unless it was specified as False.
-		self._showHover = self._extractKey((kwargs, properties), 
-				"ShowHover", True)
+		self._showHover = self._extractKey(attProperties, "ShowHover", None)
+		if self._showHover is not None:
+			self._showHover = (self._showHover == "True")
+		else:
+			self._showHover = self._extractKey((kwargs, properties, attProperties), 
+					"ShowHover", True)
 		kwargs["ShowHover"] = self._showHover
 
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, 

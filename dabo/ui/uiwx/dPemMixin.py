@@ -1,15 +1,20 @@
+# -*- coding: utf-8 -*-
 import sys
 import time
 import types
 import wx
+from wx._core import PyAssertionError
 import dabo
 from dabo.dLocalize import _
 from dabo.ui.dPemMixinBase import dPemMixinBase
 import dabo.dEvents as dEvents
+import dabo.dException as dException
 import dabo.dColors as dColors
 import dKeys
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
+from dabo.lib.utils import dictStringify
+
 
 
 class dPemMixin(dPemMixinBase):
@@ -25,19 +30,11 @@ class dPemMixin(dPemMixinBase):
 		# This is the major, common constructor code for all the dabo/ui/uiwx 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
+		# Holds the properties passed in the constructor
 		self._properties = {}
+		# Holds the keyword event bindings passed in the constructor
+		self._kwEvents = {}
 		
-		# Lots of useful wx props are actually only settable before the
-		# object is fully constructed. The self._preInitProperties dict keeps
-		# track of those during the pre-init phase, to finally send the 
-		# contents of it to the wx constructor. Our property setters know
-		# if we are in pre-init or not, and instead of trying to modify 
-		# the prop will instead add the appropriate entry to the _preInitProperties
-		# dict. Additionally, there are certain wx properties that are required,
-		# and we include those in the _preInitProperties dict as well so they may
-		# be modified by our pre-init method hooks if needed:
-		self._preInitProperties = {"style": 0}
-
 		# There are a few controls that don't yet support 3-way inits (grid, for 
 		# one). These controls will send the wx classref as the preClass argument, 
 		# and we'll call __init__ on it when ready. We can tell if we are in a 
@@ -57,9 +54,24 @@ class dPemMixin(dPemMixinBase):
 		if srcCode:
 			self._addCodeAsMethod(srcCode)
 		
-		# _beforeInit() will call the beforeInit() user hook
 		self._beforeInit(pre)
-		# _initProperties() will call the initProperties() user hook
+		# Lots of useful wx props are actually only settable before the
+		# object is fully constructed. The self._preInitProperties dict keeps
+		# track of those during the pre-init phase, to finally send the 
+		# contents of it to the wx constructor. Our property setters know
+		# if we are in pre-init or not, and instead of trying to modify 
+		# the prop will instead add the appropriate entry to the _preInitProperties
+		# dict. Additionally, there are certain wx properties that are required,
+		# and we include those in the _preInitProperties dict as well so they may
+		# be modified by our pre-init method hooks if needed:
+		self._preInitProperties = {"parent": parent}
+		for arg, default in (("style", 0), ("id", -1)):
+			if kwargs.has_key(arg):
+				self._preInitProperties[arg] = kwargs[arg]
+				del kwargs[arg]
+			else:
+				self._preInitProperties[arg] = default
+
 		self._initProperties()
 		
 		# Now that user code has had an opportunity to set the properties, we can 
@@ -75,41 +87,33 @@ class dPemMixin(dPemMixinBase):
 			for k,v in properties.items():
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
+		
+		kwEvents = self._extractKeyWordEventBindings(kwargs, self._kwEvents)
 		# Objects created from XML files will have their props passed
 		# in the 'attProperties' parameter, in which all values are strings.
 		# Convert these to the properties dict.
+		builtinNames = __builtins__.keys()
 		if attProperties:
 			for prop, val in attProperties.items():
-				try:
-					exec "properties['%s'] = %s" % (prop, val)
-				except:
-					# If this is property holds strings, we need to quote the value.
-					escVal = val.replace('"', '\\"').replace("'", "\\'")
+				if prop in properties:
+					# attProperties has lower precedence, so skip it
+					continue
+				# Note: we may need to add more string props here.
+				if (val in builtinNames) and (prop in ("Caption", 
+						"FontFace", "Picture", "RegID", "ToolTipText")):
+					# It's a string that happens to be the same as a built-in name
+					attVal = val
+				else:
 					try:
-						exec "properties['%s'] = u'%s'" % (prop, escVal)
+						attVal = eval(val)
 					except:
-						raise ValueError, "Could not set property '%s' to value: %s" % (prop, val)
+						attVal = val
+				properties[prop] = attVal
+		properties = dictStringify(properties)
 
-		if kwargs.has_key("style"):
-			# If wx style parm sent, keep it as-is.
-			style = kwargs["style"]
-		else:
-			style = 0
-		if kwargs.has_key("id"):
-			# If wx id parm sent, keep it as-is.
-			id_ = kwargs["id"]
-		else:
-			id_ = -1
-
-		if self._preInitProperties.has_key("style"):
-			self._preInitProperties["style"] = self._preInitProperties["style"] | style
-		else:
-			self._preInitProperties["style"] = style
-		self._preInitProperties["parent"] = parent
-		self._preInitProperties["id"] = id_
 
 		# Hacks to fix up various things:
-		import dMenuBar, dMenuItem, dMenu, dFoldPanelBar
+		import dMenuBar, dMenuItem, dMenu, dFoldPanelBar, dToggleButton
 		if isinstance(self, dMenuItem.dMenuItem):
 			# Hack: wx.MenuItem doesn't take a style arg,
 			# and the parent arg is parentMenu.
@@ -130,7 +134,7 @@ class dPemMixin(dPemMixinBase):
 			del self._preInitProperties["style"]
 			# This is needed because these classes require a 'parent' param.
 			kwargs["parent"] = parent
-		elif issubclass(self._baseClass, dabo.ui.dToggleButton):
+		elif isinstance(self, dToggleButton.dToggleButton):
 			version = wx.VERSION
 			major = version[0]
 			minor = version[1]
@@ -174,9 +178,10 @@ class dPemMixin(dPemMixinBase):
 		# Set the properties *before* calling the afterInit hook
 		self._setProperties(properties)
 		
-		# _initEvents() will call the initEvents() user hook
+		# Set any passed event bindings
+		self._setKwEventBindings(self._kwEvents)
+		
 		self._initEvents()
-		# _afterInit() will call the afterInit() user hook
 		self._afterInit()
 
 		dPemMixinBase.__init__(self)  ## don't use super(), or wx init called 2x.
@@ -199,15 +204,21 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _setProperties(self, properties):
-		"""Provides pre- and post- hooks for the setProperties() method.
-		Typically used to remove Designer props that don't appear in
-		runtime classes.
-		"""
-		if self.beforeSetProperties(properties) is False:
+		"""Provides pre- and post- hooks for the setProperties() method."""
+
+		## Typically used to remove Designer props that don't appear in
+		## runtime classes.
+		if self._beforeSetProperties(properties) is False:
 			return
 		self.setProperties(properties)
-		self.afterSetProperties()
+		self._afterSetProperties()
 	
+	def _beforeSetProperties(self, properties):
+		# By default, just call the hook
+		return self.beforeSetProperties(properties)
+	def _afterSetProperties(self):
+		# By default, just call the hook
+		self.afterSetProperties()
 	def beforeSetProperties(self, properties): pass
 	def afterSetProperties(self): pass
 	
@@ -228,6 +239,10 @@ class dPemMixin(dPemMixinBase):
 		self._borderColor = dColors.colorTupleFromName("black")
 		self._borderWidth = 0
 		self._borderLineStyle = "Solid"
+		self._minimumHeight = 0
+		self._minimumWidth = 0
+		self._maximumHeight = -1
+		self._maximumWidth = -1
 
 		# Do we need to clear the background before redrawing? Most cases will be 
 		# no, but if you have problems with drawings leaving behind unwanted 
@@ -236,6 +251,9 @@ class dPemMixin(dPemMixinBase):
 
 		# Reference to the border-drawing object
 		self._border = None
+
+		# Store the caption internally
+		self._caption = ""
 
 		# Flag that gets set to True when the object is being Destroyed
 		self._finito = False
@@ -257,6 +275,10 @@ class dPemMixin(dPemMixinBase):
 		# Does this control fire its onHover() method when the mouse enters?
 		self._hover = False
 		self._hoverTimer = None
+		
+		# Handlers for drag/drop
+		self._droppedFileHandler = None
+		self._droppedTextHandler = None
 
 		# _beforeInit hook for Class Designer code
 		self._beforeInitDesignerHook()
@@ -276,6 +298,9 @@ class dPemMixin(dPemMixinBase):
 
 		self.afterInit()
 
+		if self.Form and self.Form.SaveRestorePosition:
+			self._restoreFontZoom()
+
 	
 	def _afterInitAll(self):
 		"""This is the framework-level hook. It calls the developer-specific method."""
@@ -287,7 +312,6 @@ class dPemMixin(dPemMixinBase):
 	
 	def _preInitUI(self, kwargs):
 		"""Subclass hook, for internal Dabo use. 
-
 		Some wx objects (RadioBox) need certain props forced if they hadn't been 
 		set by the user either as a parm or in beforeInit().
 		"""
@@ -369,6 +393,7 @@ class dPemMixin(dPemMixinBase):
 		
 		try:
 			self.Parent.bindEvent(dEvents.Update, self.__onUpdate)
+			self.Parent.bindEvent(dEvents.Resize, self.__onResize)
 		except:
 			## pkm: I don't think we want to bind this to self, because then you
 			##      will have recursion in the event handling. We are either a form
@@ -561,16 +586,14 @@ class dPemMixin(dPemMixinBase):
 	def __onWxPaint(self, evt):
 		if self._finito:
 			return
-		elif len(self._drawnObjects) > 0:
-			self._needRedraw = True
+		self._needRedraw = bool(self._drawnObjects)
 		self.raiseEvent(dEvents.Paint, evt)
 	
 
 	def __onWxResize(self, evt):
 		if self._finito:
 			return
-		elif len(self._drawnObjects) > 0:
-			self._needRedraw = True
+		self._needRedraw = bool(self._drawnObjects)
 		self.raiseEvent(dEvents.Resize, evt)
 
 
@@ -681,31 +704,15 @@ class dPemMixin(dPemMixinBase):
 			self.ControllingSizer.setItemProp(self, prop, val)
 		
 		
-	def createFileDropTarget(self, handler=None):
-		"""Sets up this control to accept files dropped on it."""
-		class FileDropTarget(wx.FileDropTarget):
-			def __init__(self, hnd, obj):
-				"""'hnd' is the object that handles the drop action. 'obj'
-				is the object that this target is associated with.
-				"""
-				wx.FileDropTarget.__init__(self)
-				self.handler = hnd
-				self.obj = obj
-			def OnDropFiles(self, xpos, ypos, filelist):
-				if self.handler:
-					self.handler.processDroppedFiles(self.obj, xpos, ypos, filelist)
-				return True
-			def OnDragOver(self, xpos, ypos, result):
-				return wx.DragLink
-				
-		if handler is None:
-			# Default to self
-			handler = self
-		self.SetDropTarget(FileDropTarget(handler, self))
-		
-
-	def processDroppedFiles(obj, xpos, ypos, filelist):
+	def processDroppedFiles(self, filelist):
 		"""Handler for files dropped on the control. Override in your
+		subclass/instance for your needs .
+		"""
+		pass
+		
+		
+	def processDroppedText(self, txt):
+		"""Handler for text dropped on the control. Override in your
 		subclass/instance for your needs .
 		"""
 		pass
@@ -856,7 +863,7 @@ class dPemMixin(dPemMixinBase):
 			posX, posY = self.formCoordinates(pos)
 			l = posX - cntX
 			t = posY - cntY
- 		return (l, t)
+		return (l, t)
  	
  	
 	def objectCoordinates(self, pos=None):
@@ -1008,18 +1015,26 @@ class dPemMixin(dPemMixinBase):
 			kids = self.Children
 		if not kids:
 			return
+		if isinstance(filt, basestring):
+			filt = (filt, )
 		for kid in kids:
 			ok = hasattr(kid, prop)
 			if ok:
 				if filt:
-					ok = eval("kid.%s" % filt)
+					for ff in filt:
+						try:
+							ok = eval("kid.%s" % ff)
+						except AttributeError:
+							ok = False
+						if not ok:
+							break							
 			if ok:
 				setattr(kid, prop, val)
 			if recurse:
 				if hasattr(kid, "setAll"):
 					kid.setAll(prop, val, recurse=recurse, filt=filt)
 
-			
+	
 	def recreate(self, child=None):
 		"""Recreate the object. 
 
@@ -1061,7 +1076,9 @@ class dPemMixin(dPemMixinBase):
 	
 	def release(self):
 		"""Destroys the object."""
-		self.Destroy()
+		if self:
+			# Make sure something else hasn't already destroyed it.
+			self.Destroy()
 	
 	
 	def setFocus(self):
@@ -1081,10 +1098,17 @@ class dPemMixin(dPemMixinBase):
 
 
 	def __onUpdate(self, evt):
-		"""Update any dynamic properties, and then call the refresh() hook."""
+		"""Update any dynamic properties, and then call the update() hook."""
 		if isinstance(self, dabo.ui.deadObject) or not self._constructed():
 			return
 		self.update()
+			
+		
+	def __onResize(self, evt):
+		"""Update any dynamic properties."""
+		if not self or not self._constructed():
+			return
+		self.__updateDynamicProps()
 			
 		
 	def update(self):
@@ -1128,11 +1152,14 @@ class dPemMixin(dPemMixinBase):
 			# This can happen if an object is released when there is a 
 			# pending callAfter() refresh.
 			pass
+		except AttributeError:
+			# Menus don't have a Refresh() method.
+			pass
 
 	
 	def show(self):
 		"""Make the object visible."""
-		self.Show(True)
+		self.Visible = True
 		
 		
 	def hide(self):
@@ -1189,13 +1216,14 @@ class dPemMixin(dPemMixinBase):
 
 
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
-			fillColor=None, lineStyle=None, mode=None, persist=True):
+			fillColor=None, lineStyle=None, hatchStyle=None, mode=None, 
+			persist=True):
 		"""Draws a circle of the specified radius around the specified point.
 
 		You can set the color and thickness of the line, as well as the 
-		color of the fill. Normally, when persist=True, the circle will be 
-		re-drawn on paint events, but if you pass False, it will be drawn 
-		once only. 
+		color and hatching style of the fill. Normally, when persist=True, 
+		the circle will be re-drawn on paint events, but if you pass False, 
+		it will be drawn once only.
 		
 		A drawing object is returned, or None if persist=False. You can 
 		'remove' the drawing by setting the Visible property of the 
@@ -1203,7 +1231,7 @@ class dPemMixin(dPemMixinBase):
 		color, and fill by changing the various properties of the object.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle, 
+				PenWidth=penWidth, Radius=rad, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="circle", Xpos=xPos, Ypos=yPos, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
@@ -1211,16 +1239,16 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def drawRectangle(self, xPos, yPos, width, height, penColor="black", 
-			penWidth=1, fillColor=None, lineStyle=None, mode=None, 
-			persist=True):
+			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
+			mode=None, persist=True):
 		"""Draws a rectangle of the specified size beginning at the specified 
 		point. 
 
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, LineStyle=lineStyle, Shape="rect", 
-				Xpos=xPos, Ypos=yPos, Width=width, Height=height, 
+				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle, 
+				Shape="rect", Xpos=xPos, Ypos=yPos, Width=width, Height=height, 
 				DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
@@ -1228,7 +1256,8 @@ class dPemMixin(dPemMixinBase):
 
 
 	def drawPolygon(self, points, penColor="black", penWidth=1, 
-			fillColor=None, lineStyle=None, mode=None, persist=True):
+			fillColor=None, lineStyle=None, hatchStyle=None, 
+			mode=None, persist=True):
 		"""Draws a polygon defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the 
@@ -1237,7 +1266,7 @@ class dPemMixin(dPemMixinBase):
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, LineStyle=lineStyle, 
+				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="polygon", Points=points, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
@@ -1301,6 +1330,10 @@ class dPemMixin(dPemMixinBase):
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
+	
+	
+	def clear(self):
+		self.ClearBackground()
 		
 		
 	def _addToDrawnObjects(self, obj, persist):
@@ -1311,8 +1344,8 @@ class dPemMixin(dPemMixinBase):
 			obj = None
 		return obj
 		
-		
-	def _removeFromDrawnObjects(self, obj):
+	
+	def removeDrawnObject(self, obj):
 		self._drawnObjects.remove(obj)
 		
 		
@@ -1439,6 +1472,12 @@ class dPemMixin(dPemMixinBase):
 		"""
 		return None
 
+	def _jiggleFontSize(self):
+		"""Force refresh the control by tweaking the font size.""" 
+		self.Freeze()
+		self.FontSize += 1
+		self.FontSize -= 1
+		self.Thaw()
 
 	def _onFontPropsChanged(self, evt):
 		# Sent by the dFont object when any props changed. Wx needs to be notified:
@@ -1447,6 +1486,8 @@ class dPemMixin(dPemMixinBase):
 			# (Thanks Peter Damoc):
 			self.SetFont(wx.Font(12, wx.SWISS, wx.NORMAL, wx.NORMAL))
 		self.SetFont(self.Font._nativeFont)
+		# Re-raise it so that the object can respond to the event.
+		self.raiseEvent(dEvents.FontPropertiesChanged)
 
 
 	# The following 3 flag functions are used in some of the property
@@ -1562,6 +1603,9 @@ class dPemMixin(dPemMixinBase):
 
 
 	def _setBorderStyle(self, val):
+		if val is None:
+			# XML stores the string and null 'None' identically
+			val = "None"
 		style = self._expandPropStringValue(val, ("None", "Simple", "Sunken", 
 				"Raised", "Double", "Static", "Default"))
 		self._delWindowStyleFlag(wx.NO_BORDER)
@@ -1588,12 +1632,13 @@ class dPemMixin(dPemMixinBase):
 	
 	
 	def _getCaption(self):
-		return self.GetLabel()
+		return getattr(self, "_caption", self.GetLabel())
 	
 	def _setCaption(self, val):
 		# Force the value to string
 		val = "%s" % val
 		if self._constructed():
+			self._caption = val
 			## 2/23/2005: there is a bug in wxGTK that resets the font when the 
 			##            caption changes. So this is a workaround:
 			font = self.Font
@@ -1634,6 +1679,50 @@ class dPemMixin(dPemMixinBase):
 		except:
 			ret = self._controllingSizerItem = None
 		return ret
+
+
+	def _getDroppedFileHandler(self):
+		return self._droppedFileHandler
+
+	def _setDroppedFileHandler(self, val):
+		if self._constructed():
+			self._droppedFileHandler = val
+			class FileDropTarget(wx.FileDropTarget):
+				def __init__(self):
+					wx.FileDropTarget.__init__(self)
+					self.handler = val
+				def OnDropFiles(self, xpos, ypos, filelist):
+					if self.handler:
+						self.handler.processDroppedFiles(filelist)
+					return True
+				def OnDragOver(self, xpos, ypos, result):
+					return wx.DragLink
+			self.SetDropTarget(FileDropTarget())
+			self.SetDropTarget(FileDropTarget())
+		else:
+			self._properties["DroppedFileHandler"] = val
+
+
+	def _getDroppedTextHandler(self):
+		return self._droppedTextHandler
+
+	def _setDroppedTextHandler(self, val):
+		if self._constructed():
+			self._droppedTextHandler = val
+
+			class TextDropTarget(wx.TextDropTarget):
+				def __init__(self):
+					wx.TextDropTarget.__init__(self)
+					self.handler = val
+				def OnDropText(self, xpos, ypos, txt):
+					if self.handler:
+						self.handler.processDroppedText(txt)
+					return True
+				def OnDragOver(self, xpos, ypos, result):
+					return wx.DragLink
+			self.SetDropTarget(TextDropTarget())
+		else:
+			self._properties["DroppedTextHandler"] = val
 
 
 	def _getEnabled(self):
@@ -1733,6 +1822,9 @@ class dPemMixin(dPemMixinBase):
 				except: pass
 			if val != self.GetForegroundColour().Get():
 				self.SetForegroundColour(val)
+				# Need to jiggle the font size to force the color change to take
+				# effect, at least for dEditBox on Gtk.
+				dabo.ui.callAfterInterval(100, self._jiggleFontSize)
 		else:
 			self._properties["ForeColor"] = val
 
@@ -1742,10 +1834,17 @@ class dPemMixin(dPemMixinBase):
 
 	def _setHeight(self, val):
 		if self._constructed():
-			newSize = self.GetSize()[0], int(val)
+			if getattr(self, "_widthAlreadySet", False):
+				width = self.Width
+			else:
+				width = -1
+			newSize = (width, int(val))
+			self._heightAlreadySet = True
 			if isinstance(self, (wx.Frame, wx.Dialog) ):
 				self.SetSize(newSize)
 			else:
+				if isinstance(self, wx.Panel):
+					self.SetMinSize((-1, 10))
 				if hasattr(self, "SetInitialSize"):
 					# wxPython 2.7.x:
 					self.SetInitialSize(newSize)
@@ -1783,12 +1882,114 @@ class dPemMixin(dPemMixinBase):
 			self._properties["Left"] = val
 
 		
+	def _getMaximumHeight(self):
+		return self._maximumHeight
+
+	def _setMaximumHeight(self, val):
+		if self._constructed():
+			if val is None:
+				val = -1
+			self._maximumHeight = val
+			self.SetMaxSize((self._maximumWidth, self._maximumHeight))
+		else:
+			self._properties["MaximumHeight"] = val
+
+
+	def _getMaximumSize(self):
+		return (self._maximumWidth, self._maximumHeight)
+
+	def _setMaximumSize(self, val):
+		if self._constructed():
+			if val is None:
+				self._maximumWidth = self._maximumHeight = -1
+			self._maximumWidth, self._maximumHeight = val
+			if self._maximumWidth is None:
+				self._maximumWidth = -1
+			if self._maximumHeight is None:
+				self._maximumHeight = -1
+			self.SetMaxSize((self._maximumWidth, self._maximumHeight))
+		else:
+			self._properties["MaximumSize"] = val
+
+
+	def _getMaximumWidth(self):
+		return self._maximumWidth
+
+	def _setMaximumWidth(self, val):
+		if self._constructed():
+			if val is None:
+				val = -1
+			self._maximumWidth = val
+			self.SetMaxSize((self._maximumWidth, self._maximumHeight))
+		else:
+			self._properties["MaximumWidth"] = val
+
+
+	def _getMinimumHeight(self):
+		return self._minimumHeight
+
+	def _setMinimumHeight(self, val):
+		if self._constructed():
+			self._minimumHeight = val
+			self.SetMinSize((self._minimumWidth, val))
+		else:
+			self._properties["MinimumHeight"] = val
+
+
+	def _getMinimumSize(self):
+		return (self._minimumWidth, self._minimumHeight)
+
+	def _setMinimumSize(self, val):
+		if self._constructed():
+			self._minimumWidth, self._minimumHeight = val
+			self.SetMinSize(val)
+		else:
+			self._properties["MinimumSize"] = val
+
+
+	def _getMinimumWidth(self):
+		return self._minimumWidth
+
+	def _setMinimumWidth(self, val):
+		if self._constructed():
+			self._minimumWidth = val
+			self.SetMinSize((val, self._minimumHeight))
+		else:
+			self._properties["MinimumWidth"] = val
+
+
 	def _getMousePointer(self):
 		return self.GetCursor()
 	
 	def _setMousePointer(self, val):
 		if self._constructed():
-			self.SetCursor(val)
+			if isinstance(val, basestring):
+				# Name of a cursor. This can be either the full names, such
+				# as 'Cursor_Bullseye', or just 'Bullseye'. It could also be a sizing
+				# direction, such as 'NWSE'.
+				uic = dabo.ui.dUICursors
+				try:
+					crsName = eval("uic.%s" % val)
+				except AttributeError:
+					# Try prepending the appropriate string
+					if val.upper() in ("NWSE", "NESW", "NS", "WE"):
+						prfx = "Cursor_Size_"
+					else:
+						prfx = "Cursor_"
+					try:
+						crsName = eval("uic.%s%s" % (prfx, val))
+					except AttributeError:
+						# Try munging the case
+						valTitle = "_".join([pt.title() for pt in val.split("_")])
+						try:
+							crsName = eval("uic.%s%s" % (prfx, valTitle))
+						except AttributeError:
+							dabo.errorLog.write(_("Invalid MousePointer value: '%s'") % val)
+							return
+				crs = uic.getStockCursor(crsName)
+			else:
+				crs = val						
+			self.SetCursor(crs)
 		else:
 			self._properties["MousePointer"] = val
 
@@ -1961,9 +2162,12 @@ class dPemMixin(dPemMixinBase):
 
 	def _setSize(self, val):
 		if self._constructed():
+			self._widthAlreadySet = self._heightAlreadySet = True
 			if isinstance(self, (wx.Frame, wx.Dialog) ):
 				self.SetSize(val)
 			else:
+				if isinstance(self, wx.Panel):
+					self.SetMinSize(val)
 				if hasattr(self, "SetInitialSize"):
 					# wxPython 2.7.x:
 					self.SetInitialSize(val)
@@ -2028,7 +2232,15 @@ class dPemMixin(dPemMixinBase):
 				self.SetToolTip(wx.ToolTip(""))
 				self.SetToolTip(None)
 			else:
-				self.SetToolTip(wx.ToolTip(val))
+				curr = self.GetToolTip()
+				if curr is not None:
+					currTip = curr.GetTip()
+				else:
+					currTip = ""
+				if currTip != val:
+					newtip = wx.ToolTip(val)
+					self.SetToolTip(None)
+					self.SetToolTip(newtip)
 		self._toolTipText = val
 
 
@@ -2047,14 +2259,7 @@ class dPemMixin(dPemMixinBase):
 	
 	def _setVisible(self, val):
 		if self._constructed():
-			val = bool(val)
-			self.Show(val)
-			if not val:
-				if getattr(self, "_shownModal", False):
-					## This is a form that was shown modally. Need to undo that
-					## when the form goes hidden.
-					self.MakeModal(False)
-					self._shownModal = False
+			self.Show(bool(val))
 		else:
 			self._properties["Visible"] = val
 
@@ -2064,10 +2269,17 @@ class dPemMixin(dPemMixinBase):
 
 	def _setWidth(self, val):
 		if self._constructed():
-			newSize = int(val), self.GetSize()[1]
+			if getattr(self, "_heightAlreadySet", False):
+				height = self.Height
+			else:
+				height = -1
+			newSize = (int(val), height)
+			self._widthAlreadySet = True
 			if isinstance(self, (wx.Frame, wx.Dialog) ):
 				self.SetSize(newSize)
 			else:
+				if isinstance(self, wx.Panel):
+					self.SetMinSize((10, -1))
 				if hasattr(self, "SetInitialSize"):
 					# wxPython 2.7.x:
 					self.SetInitialSize(newSize)
@@ -2084,12 +2296,12 @@ class dPemMixin(dPemMixinBase):
 
 	# Property definitions follow
 	BackColor = property(_getBackColor, _setBackColor, None,
-			_("Specifies the background color of the object. (tuple)"))
+			_("Specifies the background color of the object. (str, 3-tuple, or wx.Colour)"))
 
 	BorderColor = property(_getBorderColor, _setBorderColor, None,
 			_("""Specifies the color of the border drawn around the control, if any. 
 
-			Default='black'  (str or color tuple)"""))
+			Default='black'  (str, 3-tuple, or wx.Colour)"""))
 	
 	BorderLineStyle = property(_getBorderLineStyle, _setBorderLineStyle, None,
 			_("""Style of line for the border drawn around the control.
@@ -2133,7 +2345,17 @@ class dPemMixin(dPemMixinBase):
 
 				This is useful for getting information about how the item is being 
 				sized, and for changing those settings.  (SizerItem)"""))
-		
+	
+	DroppedFileHandler = property(_getDroppedFileHandler, _setDroppedFileHandler, None,
+			_("""Reference to the object that will handle files dropped on this control.
+			When files are dropped, a list of them will be passed to this object's 
+			'processDroppedFiles()' method. Default=None  (object or None)"""))
+	
+	DroppedTextHandler = property(_getDroppedTextHandler, _setDroppedTextHandler, None,
+			_("""Reference to the object that will handle text dropped on this control.
+			When text is dropped, that text will be passed to this object's 
+			'processDroppedText()' method. Default=None  (object or None)"""))
+	
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("""Specifies whether the object and children can get user input. (bool)""") )
 
@@ -2162,7 +2384,7 @@ class dPemMixin(dPemMixinBase):
 			_("Specifies whether text is underlined. (bool)") )
 
 	ForeColor = property(_getForeColor, _setForeColor, None,
-			_("Specifies the foreground color of the object. (tuple)") )
+			_("Specifies the foreground color of the object. (str, 3-tuple, or wx.Colour)") )
 
 	Height = property(_getHeight, _setHeight, None,
 			_("Specifies the height of the object. (int)") )
@@ -2177,6 +2399,24 @@ class dPemMixin(dPemMixinBase):
 	
 	Left = property(_getLeft, _setLeft, None,
 			_("Specifies the left position of the object. (int)") )
+	
+	MaximumHeight = property(_getMaximumHeight, _setMaximumHeight, None,
+			_("Maximum allowable height for the control in pixels.  (int)"))
+	
+	MaximumSize = property(_getMaximumSize, _setMaximumSize, None,
+			_("Maximum allowable size for the control in pixels.  (2-tuple of int)"))
+	
+	MaximumWidth = property(_getMaximumWidth, _setMaximumWidth, None,
+			_("Maximum allowable width for the control in pixels.  (int)"))
+	
+	MinimumHeight = property(_getMinimumHeight, _setMinimumHeight, None,
+			_("Minimum allowable height for the control in pixels.  (int)"))
+	
+	MinimumSize = property(_getMinimumSize, _setMinimumSize, None,
+			_("Minimum allowable size for the control in pixels.  (2-tuple of int)"))
+	
+	MinimumWidth = property(_getMinimumWidth, _setMinimumWidth, None,
+			_("Minimum allowable width for the control in pixels.  (int)"))
 	
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
 			_("Specifies the shape of the mouse pointer when it enters this window. (obj)") )
@@ -2283,13 +2523,14 @@ class DrawObject(dObject):
 		self._fillColor = None
 		self._height = None
 		self._lineStyle = None
+		self._hatchStyle = None
 		self._penColor = None
 		self._penWidth = None
 		self._points = None
 		self._radius = None
 		self._shape = None
 		self._visible = True
-		self._width = None
+		self._width = 0
 		self._xPos = None
 		self._yPos = None
 		self._fontFace = None
@@ -2306,12 +2547,20 @@ class DrawObject(dObject):
 		self._orientation = None
 		self._transparent = True
 		self._drawMode = None
+		self._hatchStyleDict = {"transparent": wx.TRANSPARENT, "solid": wx.SOLID, 
+				"cross": wx.CROSS_HATCH, "reversediagonal": wx.BDIAGONAL_HATCH, 
+				"crossdiagonal": wx.CROSSDIAG_HATCH, "diagonal": wx.FDIAGONAL_HATCH, 
+				"horizontal": wx.HORIZONTAL_HATCH, "vertical": wx.VERTICAL_HATCH}
 		super(DrawObject, self).__init__(*args, **kwargs)
 		self._inInit = False
 	
 	
 	def update(self):
 		self.Parent._needRedraw = True
+	
+	
+	def release(self):
+		self._parent.removeDrawnObject(self)
 		
 		
 	def draw(self, dc=None):
@@ -2328,6 +2577,8 @@ class DrawObject(dObject):
 		
 		if self.Shape == "bmp":
 			dc.DrawBitmap(self._bitmap, self.Xpos, self.Ypos, self._transparent)
+			self._width = self._bitmap.GetWidth()
+			self._height = self._bitmap.GetHeight()
 			return
 		
 		pw = self.PenWidth
@@ -2355,12 +2606,17 @@ class DrawObject(dObject):
 		dc.SetPen(pen)
 
 		fill = self.FillColor
+		hatch = self.HatchStyle
+		if hatch is None:
+			sty = wx.SOLID
+		else:
+			sty = self._hatchStyleDict.get(hatch.lower(), wx.SOLID)
 		if fill is None:
 			brush = wx.TRANSPARENT_BRUSH
 		else:
 			if isinstance(fill, basestring):
 				fill = dColors.colorTupleFromName(fill)
-			brush = wx.Brush(fill)
+			brush = wx.Brush(fill, style=sty)
 		dc.SetBrush(brush)
 		
 		mode = self.DrawMode
@@ -2406,7 +2662,13 @@ class DrawObject(dObject):
 		if self.Shape == "circle":
 			dc.DrawCircle(x, y, self.Radius)
 		elif self.Shape == "rect":
-			dc.DrawRectangle(x, y, self.Width, self.Height)
+			w, h = self.Width, self.Height
+			# If any of these values is -1, use the parent object's size
+			if w < 0:
+				w = self.Parent.Width
+			if h < 0:
+				h = self.Parent.Height
+			dc.DrawRectangle(x, y, w, h)
 		elif self.Shape == "polygon":
 			dc.DrawPolygon(self.Points)
 		elif self.Shape == "line":
@@ -2420,6 +2682,12 @@ class DrawObject(dObject):
 			if not txt:
 				return
 			fnt = dc.GetFont()
+			# If the following call fails, the font has not been initialized, and can look 
+			# pretty ugly. In this case, initialize it to the system-default font.	
+			try:
+				fnt.GetFaceName()
+			except:
+				fnt = wx.SystemSettings_GetFont(wx.SYS_DEFAULT_GUI_FONT)
 			if self._fontFace is not None:
 				fnt.SetFaceName(self._fontFace)
 			if self._fontSize is not None:
@@ -2648,6 +2916,17 @@ class DrawObject(dObject):
 			self.update()
 
 
+	def _getHatchStyle(self):
+		return self._hatchStyle
+	
+	def _setHatchStyle(self, val):
+		if isinstance(val, basestring):
+			val = val.lower()
+		if self._hatchStyle != val:
+			self._hatchStyle = val
+			self.update()
+			
+
 	def _getHeight(self):
 		return self._height
 		
@@ -2834,6 +3113,19 @@ class DrawObject(dObject):
 	GradientColor2 = property(_getGradientColor2, _setGradientColor2, None,
 			_("Bottom/Right color for the gradient  (color: str or tuple)"))
 	
+	HatchStyle = property(_getHatchStyle, _setHatchStyle, None,
+			_("""Hatching style for the fill.  (str)
+					Options are:
+						Solid (default)
+						Transparent
+						Cross
+						Horizontal
+						Vertical
+						Diagonal
+						ReverseDiagonal
+						CrossDiagonal
+					"""))
+
 	Height = property(_getHeight, _setHeight, None,
 			_("For rectangles, the height of the shape  (int)"))
 

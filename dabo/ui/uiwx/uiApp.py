@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys, os, wx
 import dabo
 import dabo.ui as ui
@@ -28,6 +29,7 @@ class SplashScreen(wx.Frame):
 		style = wx.FRAME_NO_TASKBAR | wx.FRAME_SHAPED | wx.STAY_ON_TOP
 		wx.Frame.__init__(self, None, -1, style=style)
 		
+		self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
 		if isinstance(bitmap, basestring):
 			# Convert it
 			self._bmp = dabo.ui.pathToBmp(bitmap)
@@ -73,6 +75,7 @@ class SplashScreen(wx.Frame):
 	def _disappear(self):
 		try:
 			self.fc.Stop()
+			self.fc.Destroy()
 		except:
 			pass
 		self.Close()
@@ -160,7 +163,52 @@ class uiApp(dObject, wx.App):
 		if self.callback is not None:
 			wx.CallAfter(self.callback)
 		del self.callback
+		self.Bind(wx.EVT_KEY_DOWN, self._onKeyPress)
 		return True
+	
+	
+	def _onKeyPress(self, evt):
+		## Zoom In / Out / Normal:
+		alt = evt.AltDown()
+		ctl = evt.ControlDown()
+		kcd = evt.GetKeyCode()
+		uch = evt.GetUniChar()
+		uk = evt.GetUnicodeKey()
+		met = evt.MetaDown()
+		sh = evt.ShiftDown()
+		if not self.ActiveForm or alt or not ctl:
+			evt.Skip()
+			return
+		try:
+			char = chr(evt.GetKeyCode())
+		except (ValueError, OverflowError):
+			char = None
+		plus = (char == "=") or (char == "+") or (kcd == wx.WXK_NUMPAD_ADD)
+		minus = (char == "-") or (kcd == wx.WXK_NUMPAD_SUBTRACT)
+		slash = (char == "/") or (kcd == wx.WXK_NUMPAD_DIVIDE)
+		if plus:
+			self.fontZoomIn()
+		elif minus:
+			self.fontZoomOut()
+		elif slash:
+			self.fontZoomNormal()
+		else:
+			evt.Skip()
+
+
+	# The following three functions handle font zooming
+	def fontZoomIn(self):
+		af = self.ActiveForm
+		if af:
+			af.iterateCall("fontZoomIn")
+	def fontZoomOut(self):
+		af = self.ActiveForm
+		if af:
+			af.iterateCall("fontZoomOut")
+	def fontZoomNormal(self):
+		af = self.ActiveForm
+		if af:
+			af.iterateCall("fontZoomNormal")
 
 
 	def setup(self):
@@ -241,7 +289,7 @@ class uiApp(dObject, wx.App):
 		if context is None:
 			context = self.ActiveForm
 		dlg = dabo.ui.dShell.dShell(context)
-		dlg.Show()
+		dlg.show()
 
 	
 	def onWinClose(self, evt):
@@ -260,35 +308,32 @@ class uiApp(dObject, wx.App):
 			# First close all non-child forms. Some may be 'dead'
 			# already, so let's find those first.
 			for frm in frms:
-				try:
-					junk = frm.Visible
-				except dabo.ui.deadObjectException:
+				if not frm:
 					frms.remove(frm)
 			# Now we can work with the rest
 			orphans = [frm for frm in frms
 					if frm.Parent is not self.dApp.MainForm
 					and frm is not self.dApp.MainForm]
 			for orphan in orphans:
-				orphan.close()
+				if orphan:
+					orphan.close()
 			# Now close the main form. It will close any of its children.
-			self.dApp.MainForm.close()
+			mf = self.dApp.MainForm
+			if mf and not mf._finito:
+				mf.close()
 		else:
 			while frms:
 				frm = frms[0]
 				# This will allow forms to veto closing (i.e., user doesn't
 				# want to save pending changes). 
-				try:
+				if frm:
 					if frm.close() == False:
 						# The form stopped the closing process. The user
 						# must deal with this form (save changes, etc.) 
 						# before the app can exit.
 						frm.bringToFront()
 						return False
-					else:
-						frms.remove(frm)
-				except:
-					# Object is already deleted
-					frms.remove(frm)
+				frms.remove(frm)
 		
 
 	def onEditCut(self, evt):
@@ -731,7 +776,7 @@ class uiApp(dObject, wx.App):
 			lnks = {}
 			fncs = self._mruMenuFuncs.get(cap, {})
 			for pos, txt in enumerate(mnPrm):
-				itm = menu.append(tmplt % (pos+1, txt), bindfunc=fncs.get(txt, None))
+				itm = menu.append(tmplt % (pos+1, txt), OnHit=fncs.get(txt, None))
 				lnks[itm.GetId()] = itm
 			self._mruMenuLinks[menu] = lnks
 	
@@ -755,27 +800,11 @@ class uiApp(dObject, wx.App):
 			self.ActiveForm.refresh()
 		
 	
-	def getLoginInfo(self, message=None):
-		""" Display the login form, and return the user/password 
-		as entered by the user.
-		"""
-		import dabo.ui.dialogs.login as login
-		ld = login.Login(self.dApp.MainForm)
-		ld.setMessage(message)
-		ld.show()
-		user, password = ld.user, ld.password
-		return user, password
-	
-	
 	def _getActiveForm(self):
-		if self._platform == "Win":
-			v = wx.GetActiveWindow()
-		else:
-			try:
-				v = self._activeForm
-			except AttributeError:
-				v = self._activeForm = None
-		return v
+		af = getattr(self, "_activeForm", None)
+		if af is None:
+			af = wx.GetActiveWindow()
+		return af
 
 	def _setActiveForm(self, frm):
 		self._activeForm = frm

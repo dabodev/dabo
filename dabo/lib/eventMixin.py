@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import string
 import types
 import traceback
@@ -305,7 +306,7 @@ class EventMixin(object):
 		validEvents = []
 		events = [e.__dict__[evt] for evt in dir(e)]
 		for evt in events:
-			if type(evt) == type and issubclass(evt, e.Event):
+			if type(evt) == type and issubclass(evt, e.dEvent):
 				if evt.appliesToClass(classRef):
 					validEvents.append(evt)
 		return validEvents

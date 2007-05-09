@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dDataControlMixin.py: Provide behavior common to all 
 	data-aware dControls.
 """
@@ -43,10 +44,17 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 	
 	
 	def __onGotFocus(self, evt):
+		self._gotFocus()
+
+
+	def __onLostFocus(self, evt):
+		self._lostFocus()
+
+
+	def _gotFocus(self):
 		# self._oldVal will be compared to self.Value in flushValue()
 		if not self._inFldValid:
 			self._oldVal = self.Value
-		self._inFldValid = False
 		try:
 			if self.SelectOnEntry:
 				self.selectAll()
@@ -55,9 +63,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			pass
 	
 	
-	def __onLostFocus(self, evt):
+	def _lostFocus(self):
 		ok = True
-		if self._oldVal != self.Value:
+		if self._inFldValid or (self._oldVal != self.Value):
 			# Call the field-level validation if indicated.
 			if hasattr(self.Form, "validateField"):
 				ok = self.Form.validateField(self)
@@ -69,6 +77,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		else:
 			# Everything's hunky dory; push the value to the DataSource.
 			self.flushValue()
+			self._inFldValid = False
 		try:
 			if self.SelectOnEntry:
 				self.selectNone()
@@ -76,7 +85,6 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			# only text controls have SelectOnEntry
 			pass
 
-			
 
 	def getBlankValue(self):
 		""" Return the empty value of the control."""
@@ -96,14 +104,15 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return
 
 		if self.Source and self._srcIsBizobj:
-			self._enabled = self.Enabled
-			try:
-				self.Value = self.Source.getFieldVal(self.DataField)
-				self.Enabled = self._enabled
-			except (TypeError, dException.NoRecordsException):
-				self.Value = self.getBlankValue()
-				# Do we need to disable the control?
-				#self.Enabled = False
+			# First see if DataField refers to a method of the bizobj:
+			method = getattr(self.Source, self.DataField, None)
+			if method is not None:
+				self.Value = method()
+			else:
+				try:
+					self.Value = self.Source.getFieldVal(self.DataField)
+				except (TypeError, dException.NoRecordsException):
+					self.Value = self.getBlankValue()
 		else:
 			if self._srcIsInstanceMethod is None and self.Source is not None:
 				if isinstance(self.Source, basestring):
@@ -151,29 +160,41 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		""" Save any changes to the underlying source field."""
 		curVal = self.Value
 		ret = None
-		try:
-			oldVal = self._oldVal
-		except AttributeError:
-			oldVal = None
+		isChanged = False
+		oldVal = self._oldVal
+		if oldVal is None and curVal is None:
+			# Could be changed and we just don't know it...
+			isChanged = True
 		if isinstance(self, (dabo.ui.dToggleButton,)):
 			# These classes change their value before the GotFocus event
 			# can store the oldval, so always flush 'em.
 			oldVal = None
-		if curVal is None or curVal != oldVal:
+		if not isChanged:
+			if isinstance(curVal, float) and isinstance(oldVal, float):
+				# If it is a float, make sure that it has changed by more than the 
+				# rounding error.
+				isChanged = (abs(curVal - oldVal) > 0.0000001)
+			else:
+				isChanged = (curVal != oldVal)
+		if isChanged:
 			if not self._DesignerMode:
 				if self.DataSource and self.DataField:
 					src = self.Source
 					if self._srcIsBizobj:
-						try:
-							ret = src.setFieldVal(self.DataField, curVal)
-						except AttributeError:
-							# Eventually, we'll want our global error handler be the one to write
-							# to the errorLog, at which point we should reraise the exception as 
-							# commented below. However, raising the exception here without a global
-							# handler results in some ugly GTK messages and a segfault, so for now
-							# let's just log the problem and let the app continue on.
-							#raise AttributeError, "No source object found for datasource '%s'" % self.DataSource
-							dabo.errorLog.write("No source object found for datasource '%s'" % self.DataSource)
+						# First see if DataField refers to a method of the bizobj, in which
+						# case do not try to assign to it:
+						method = getattr(self.Source, self.DataField, None)
+						if method is None:
+							try:
+								ret = src.setFieldVal(self.DataField, curVal)
+							except AttributeError:
+								# Eventually, we'll want our global error handler be the one to write
+								# to the errorLog, at which point we should reraise the exception as 
+								# commented below. However, raising the exception here without a global
+								# handler results in some ugly GTK messages and a segfault, so for now
+								# let's just log the problem and let the app continue on.
+								#raise AttributeError, "No source object found for datasource '%s'" % self.DataSource
+								dabo.errorLog.write("No source object found for datasource '%s'" % self.DataSource)
 					else:	
 						# If the binding is to a method, do not try to assign to that method.
 						if self._srcIsInstanceMethod is None:
@@ -186,28 +207,24 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 						if isinstance(src, basestring):
 							try:
 								exec ("src.%s = curVal" % self.DataField)
-							except:
-								dabo.errorLog.write("Could not bind to '%s.%s'" % (self.DataSource, self.DataField) )
+							except StandardError, e:
+								dabo.errorLog.write("Could not bind to '%s.%s'\nReason: %s" % (self.DataSource, self.DataField, e) )
 						else:
 							# The source is a direct object reference
 							try:
 								src.__setattr__(self.DataField, curVal)
-							except:
+							except StandardError, e:
 								if hasattr(self.DataSource, "_name"):
 									nm = self.DataSource._name
 								else:
 									nm = str(self.DataSource)
-								dabo.errorLog.write("Could not bind to '%s.%s'" % (nm, self.DataField) )
-
+								dabo.errorLog.write("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e) )
+				self._oldVal = curVal
 			self._afterValueChanged(_from_flushValue=True)
-		
-		# In most controls, self._oldVal is set upon GotFocus. Some controls
-		# like dCheckBox and dDropdownList don't emit focus events, so
-		# flushValue must stand alone (those controls call flushValue() upon
-		# every Hit, while other controls call flushValue() upon LostFocus. 
-		# Setting _oldVal to None here ensures that any changes will get saved
-		# no matter what type of control we are...
-		self._oldVal = None
+
+			# Raise an event so that user code can react if needed:
+			dabo.ui.callAfterInterval(200, self.raiseEvent, dabo.dEvents.ValueChanged)
+
 		return ret
 
 
@@ -278,12 +295,12 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		# upon Destroy (saveValue, for instance)):
 		self._value = self.Value
 		
-		# Raise an event so that user code can react if needed:
-		self.raiseEvent(dabo.dEvents.ValueChanged)
-
-		if not _from_flushValue and self.Form.ActiveControl != self:
-			# Value was changed programatically - flushValue won't be called 
-			# automatically so do it explicitly now.
+		if not _from_flushValue and (self.Form.ActiveControl != self 
+				or not getattr(self, "_flushOnLostFocus", False)):
+			# Value was changed programatically, and flushValue won't ever be 
+			# called automatically (either the control won't flush itself upon
+			# LostFocus, or the control isn't the active control so the GotFocus/
+			# LostFocus mechanism won't recognize the change), so do it now.
 			self.flushValue()
 			
 	# Property get/set/del methods follow. Scroll to bottom to see the property
@@ -345,11 +362,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			ds = self.DataSource
 			self._srcIsBizobj = False
 			if ds:
-				# First see if it's an actual object reference
-				if isinstance(ds, dObject):
-					self.__src = ds
-					self._srcIsInstanceMethod = False
-				else:
+				# First, see if it's a string
+				if isinstance(ds, basestring):
 					# Source can be a bizobj, which we get from the form, or
 					# another object.
 					if ds.lower() == "form":
@@ -367,12 +381,24 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 						except:
 							self.__src = None
 						if self.__src is None:
-							try:
-								# It's a bizobj reference; get it from the Form.
-								self.__src = self.Form.getBizobj(ds)
-							except: pass
+							# It's a bizobj reference; get it from the Form. Note that we could
+							# be a control in a dialog, which is in a form.
+							form = self.Form
+							while form is not None:
+								try:
+									self.__src = form.getBizobj(ds)
+									break
+								except AttributeError:
+									form = form.Form
 							if self.__src:
 								self._srcIsBizobj = True
+				else:
+					# It's an object reference
+					self.__src = ds
+					self._srcIsInstanceMethod = False
+					if not isinstance(ds, dObject):
+						# Warn about possible unsupported behavior.
+						dabo.infoLog.write(_("DataSource '%s' does not inherit from dObject. This may result in unsupported problems.") % ds)
 		return self.__src
 
 	

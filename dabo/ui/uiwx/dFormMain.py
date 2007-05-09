@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import time
 import wx
 import dabo
@@ -12,40 +13,15 @@ class dFormMainBase(fm.dFormMixin):
 	def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
 		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 	
-		self.Size = (640, 480)
-		self.Position = (-1, -1)
+#		self.Size = (640, 480)
+#		self.Position = (-1, -1)
 
 		if wx.Platform != '__WXMAC__':
 			self.CreateStatusBar()
 
-		
-	def _afterInit(self):
-		super(dFormMainBase, self)._afterInit()
-		
-		# This is to accomodate the Dabo icon, which has a white background.
-		# We should set the white as transparent and set a mask, though.
-		self.BackColor = "White"
-		
-		# Set up the Dabo icon
-		self.bitmap = self.drawBitmap("dabo_lettering_250x100", x=10, y=0)
-		plat = self.Application.Platform.lower()
-		off = 150
-		if plat == "win":
-			off = 180
-		elif plat == "gtk":
-			off = 160
-		self.bitmap.DynamicYpos = lambda: self.Height - off
-		self.autoClearDrawings = True
-		self.bindEvent(dEvents.Resize, self.__onResize)
-	
-	
-	def __onResize(self, evt):
-		self.update()		
-
-	
 	def _beforeClose(self, evt=None):
 		forms2close = [frm for frm in self.Application.uiForms
-				if frm is not self]
+				if frm is not self and not isinstance(frm, dabo.ui.deadObject)]
 		while forms2close:
 			frm = forms2close[0]
 			# This will allow forms to veto closing (i.e., user doesn't
@@ -81,6 +57,9 @@ class dFormMain(dFormMainBase, wx.Frame):
 
 		dFormMainBase.__init__(self, preClass, parent, properties, *args, **kwargs)
 
+	def Show(self, show=True, *args, **kwargs):
+		self._gtk_show_fix(show)
+		dFormMain.__bases__[-1].Show(self, show, *args, **kwargs)
 
 
 

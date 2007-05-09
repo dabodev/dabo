@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 class CaselessDict(dict):
 	"""This is a normal Python dictionary that operates in a case-insensitive way."""
 

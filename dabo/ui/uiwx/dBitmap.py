@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import dabo
 
@@ -14,13 +15,14 @@ from dabo.ui import makeDynamicProperty
 
 class dBitmap(cm.dControlMixin, dim.dImageMixin, wx.StaticBitmap):
 	"""Creates a simple bitmap control to display images on your forms."""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dBitmap
 		preClass = wx.StaticBitmap
-		picName = self._extractKey((kwargs, properties), "Picture", "")
+		picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
 		
 		dim.dImageMixin.__init__(self)
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+				*args, **kwargs)
 		
 		if picName:
 			self.Picture = picName

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """
 This module contains "drawable objects", i.e. objects that can be draw on the page,
 like rectangles, lines and text. These objects are contained inside bands, that are

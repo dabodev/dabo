@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import datetime
 import dabo
 from dabo.dLocalize import _
@@ -168,7 +169,7 @@ def _WriteQueriesToFile(queries):
 		for query in queries[k]:
 			f.write("%s;\n" % (query))
 
-	f.close
+	f.close()
 
 class dAutoBizobj(dBizobj):
 	"""This class is just like bBizobj but is supports the auto creation of

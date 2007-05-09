@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
@@ -66,6 +67,6 @@ if __name__ == "__main__":
 			dabo.ui.callAfter(self.release)
 	
 	app = dabo.dApp()
- 	app.MainFormClass = DummyForm
+	app.MainFormClass = DummyForm
 	app.start()
 	

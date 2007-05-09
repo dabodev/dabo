@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import wx
 import dabo
@@ -25,15 +26,16 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 	Dabo visual control, such as a dPanel, dEditBox, etc.
 	"""
 	_evtPageChanged = readonly(wx.EVT_NOTEBOOK_PAGE_CHANGED)
+	_evtPageChanging = readonly(wx.EVT_NOTEBOOK_PAGE_CHANGING)
 	_tabposBottom = readonly(wx.NB_BOTTOM)
 	_tabposRight = readonly(wx.NB_RIGHT)
 	_tabposLeft = readonly(wx.NB_LEFT)
 	
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageFrame
 		preClass = wx.PreNotebook
 		
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		# Dictionary for tracking images by key value
 		self._imageList = {}
 
@@ -48,16 +50,17 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 
 class dPageList(dPageFrameMixin, wx.Listbook):
 	_evtPageChanged = readonly(wx.EVT_LISTBOOK_PAGE_CHANGED)
+	_evtPageChanging = readonly(wx.EVT_LISTBOOK_PAGE_CHANGING)
 	_tabposBottom = readonly(wx.LB_BOTTOM)
 	_tabposRight = readonly(wx.LB_RIGHT)
 	_tabposLeft = readonly(wx.LB_LEFT)
 	
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageList
 		preClass = wx.PreListbook
 		# Dictionary for tracking images by key value
 		self._imageList = {}
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		self.Bind(wx.EVT_LIST_ITEM_MIDDLE_CLICK, self.__onWxMiddleClick)
 		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.__onWxRightClick)
 
@@ -93,15 +96,16 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 
 class dPageSelect(dPageFrameMixin, wx.Choicebook):
 	_evtPageChanged = readonly(wx.EVT_CHOICEBOOK_PAGE_CHANGED)
+	_evtPageChanging = readonly(wx.EVT_CHOICEBOOK_PAGE_CHANGING)
 	_tabposBottom = readonly(wx.CHB_BOTTOM)
 	_tabposRight = readonly(wx.CHB_RIGHT)
 	_tabposLeft = readonly(wx.CHB_LEFT)
 	
 	
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageSelect
 		preClass = wx.PreChoicebook
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		# Dictionary for tracking images by key value
 		self._imageList = {}
 

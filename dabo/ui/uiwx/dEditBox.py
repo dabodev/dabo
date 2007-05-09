@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx, dabo, dabo.ui
 
 if __name__ == "__main__":
@@ -17,13 +18,15 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 	The editbox will create scrollbars as necessary, and can edit string or 
 	unicode data.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dEditBox
 		self._forceCase = None
 		self._inForceCase = False
+		self._flushOnLostFocus = True  ## see dabo.ui.dDataControlMixinBase::flushValue()
+
 		preClass = wx.PreTextCtrl
 		kwargs["style"] = wx.TE_MULTILINE | wx.TE_WORDWRAP
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 	def _initEvents(self):
@@ -194,7 +197,20 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 		
 
 	def _getValue(self):
-		return super(dEditBox, self)._getValue()
+		try:
+			_value = self._value
+		except AttributeError:
+			_value = self._value = unicode("")
+		
+		# Get the string value as reported by wx, which is the up-to-date 
+		# string value of the control:
+		strVal = self.GetValue()
+
+		if _value is None:
+			if strVal == self.Application.NoneDisplay:
+				# Keep the value None
+				return None
+		return strVal
 	
 	def _setValue(self, val):
 		if self._constructed():
@@ -204,19 +220,43 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 				self.SetValue(val)
 				return
 			else:
-				ret = super(dEditBox, self)._setValue(val)
-				self.__forceCase()
-				return ret
+				dabo.ui.callAfter(self.__forceCase)
+		
+			if val is None:
+				strVal = self.Application.NoneDisplay
+			else:
+				strVal = val
+			_oldVal = self._oldVal = self.Value
+				
+			# save the actual value for return by _getValue:
+			self._value = val
+
+			# Update the display no matter what:
+			self.SetValue(strVal)
+		
+			if type(_oldVal) != type(val) or _oldVal != val:
+				self._afterValueChanged()
 		else:
 			self._properties["Value"] = val
 
 		
+	def _getWordWrap(self):
+		return not self._hasWindowStyleFlag(wx.HSCROLL)
+
+	def _setWordWrap(self, val):
+		fontSize = self.GetFont().GetPointSize()
+		self._delWindowStyleFlag(wx.HSCROLL)
+		if not val:
+			self._addWindowStyleFlag(wx.HSCROLL)
+		dabo.ui.callAfter(self._setFontSize, fontSize)
+
 	# property definitions follow:
 	Alignment = property(_getAlignment, _setAlignment, None,
 			_("""Specifies the alignment of the text. (str)
-			   Left (default)
-			   Center
-			   Right"""))
+
+			Left (default)
+			Center
+			Right"""))
 
 	ForceCase = property(_getForceCase, _setForceCase, None,
 			_("""Determines if we change the case of entered text. Possible values are:
@@ -252,6 +292,11 @@ class dEditBox(dcm.dDataControlMixin, wx.TextCtrl):
 	Value = property(_getValue, _setValue, None,
 			_("Specifies the current state of the control (the value of the field). (varies)"))
 
+	WordWrap = property(_getWordWrap, _setWordWrap, None,
+			_("""Specifies whether words get wrapped (the default). (bool)
+
+			If False, a horizontal scrollbar will appear when a line is too long
+			to fit in the horizontal space."""))
 
 	DynamicAlignment = makeDynamicProperty(Alignment)
 	DynamicInsertionPosition = makeDynamicProperty(InsertionPosition)

@@ -1,22 +1,44 @@
+# -*- coding: utf-8 -*-
 import datetime
 import re
+import dabo
 from dabo.dLocalize import _
 from dBackend import dBackend
 from dCursorMixin import dCursorMixin
 
 
 class Firebird(dBackend):
+	"""Class providing Firebird connectivity. Uses kinterbasdb."""
+
+	# Firebird treats quotes names differently than unquoted names. This
+	# will turn off the effect of automatically quoting all entities in Firebird; 
+	# if you need quotes for spaces and bad names, you'll have to supply 
+	# them yourself.
+	nameEnclosureChar = ""
+
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "kinterbasdb"
 		self.fieldPat = re.compile("([A-Za-z_][A-Za-z0-9-_]+)\.([A-Za-z_][A-Za-z0-9-_]+)")
 		import kinterbasdb
-		if not kinterbasdb.initialized:
-			kinterbasdb.init(type_conv=200)
+		initialized = getattr(kinterbasdb, "initialized", None)
+		if not initialized:
+			if initialized is None:
+				# type_conv=200 KeyError with the older versions. User will need 
+				# mxDateTime installed as well:
+				kinterbasdb.init()
+			else:
+				# Use Python's Decimal and datetime types:
+				kinterbasdb.init(type_conv=200)
+			if initialized is None:
+				# Older versions of kinterbasedb didn't have this attribute, so we write
+				# it ourselves:
+				kinterbasdb.initialized = True
+		
 		self.dbapi = kinterbasdb
 
 
-	def getConnection(self, connectInfo):
+	def getConnection(self, connectInfo, **kwargs):
 		port = connectInfo.Port
 		if not port:
 			port = 3050
@@ -27,14 +49,14 @@ class Firebird(dBackend):
 		database = str(connectInfo.Database)
 		
 		self._connection = self.dbapi.connect(host=host, user=user, 
-				password=password, database=database)
+				password=password, database=database, **kwargs)
 		return self._connection
 		
-		
+
 	def getDictCursorClass(self):
 		return self.dbapi.Cursor
 		
-	
+
 	def noResultsOnSave(self):
 		""" Firebird does not return the number of records updated, so
 		we just have to ignore this, since we can't tell a failed save apart 
@@ -76,7 +98,7 @@ class Firebird(dBackend):
 		if includeSystemTables:
 			whereClause = ''
 		else:
-			whereClause = "where rdb$relation_name not like 'RDB$%' "
+			whereClause = "where rdb$relation_name not starting with 'RDB$' "
 			
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("select rdb$relation_name from rdb$relations "
@@ -169,11 +191,19 @@ class Firebird(dBackend):
 		return tuple(fields)
 
 	
+	def beginTransaction(self, cursor):
+		""" Begin a SQL transaction."""
+		if not cursor.connection._has_transaction():
+			cursor.connection.begin()
+			dabo.dbActivityLog.write("SQL: begin")
+
+		
 	def flush(self, cursor):
 		""" Firebird requires an explicit commit in order to have changes
 		to the database written to disk.
 		"""
 		cursor.connection.commit()
+		dabo.dbActivityLog.write("SQL: commit")
 
 	
 	def getLimitWord(self):
@@ -181,21 +211,13 @@ class Firebird(dBackend):
 		return "first"
 		
 
-	def formSQL(self, fieldClause, fromClause, 
+	def formSQL(self, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause, limitClause):
 		""" Firebird wants the limit clause before the field clause.	"""
-		return "\n".join( ("SELECT ", limitClause, fieldClause, fromClause, 
-				whereClause, groupByClause, orderByClause) )
-
-
-	def addField(self, clause, exp):
-		quoted = self.dblQuoteField(exp)
-		return self.addWithSep(clause, quoted)
-
-	
-	def addWhere(self, clause, exp, comp="and"):
-		quoted = self.dblQuoteField(exp)
-		return self.addWithSep(clause, quoted, sep=" %s " % comp)
+		clauses =  (limitClause, fieldClause, fromClause, joinClause, 
+				whereClause, groupByClause, orderByClause)
+		sql = "SELECT " + "\n".join( [clause for clause in clauses if clause] )
+		return sql
 
 
 	def massageDescription(self, cursor):
@@ -233,19 +255,32 @@ class Firebird(dBackend):
 
 	def setSQL(self, sql):
 		return self.dblQuoteField(sql)
-	def setFieldClause(self, clause):
-		return self.dblQuoteField(clause)
-	def setFromClause(self, clause):
-		return self.dblQuoteField(clause)
-	def setWhereClause(self, clause):
-		return self.dblQuoteField(clause)
-	def setChildFilterClause(self, clause):
-		return self.dblQuoteField(clause)
-	def setGroupByClause(self, clause):
-		return self.dblQuoteField(clause)
-	def setOrderByClause(self, clause):
-		return self.dblQuoteField(clause)
-		
+	def setFieldClause(self, clause, autoQuote=True):
+		if autoQuote:
+			clause = self.dblQuoteField(clause)
+		return clause
+	def setFromClause(self, clause, autoQuote=True):
+		if autoQuote:
+			clause = self.dblQuoteField(clause)
+		return clause
+	def setWhereClause(self, clause, autoQuote=True):
+		if autoQuote:
+			clause = self.dblQuoteField(clause)
+		return clause
+	def setChildFilterClause(self, clause, autoQuote=True):
+		if autoQuote:
+			clause = self.dblQuoteField(clause)
+		return clause
+	def setGroupByClause(self, clause, autoQuote=True):
+		if autoQuote:
+			clause = self.dblQuoteField(clause)
+		return clause
+	def setOrderByClause(self, clause, autoQuote=True):
+		if autoQuote:
+			clause = self.dblQuoteField(clause)
+		return clause
+
+
 	def dblQuoteField(self, txt):
 		""" Takes a string and returns the same string with
 		all occurrences of xx.yy replaced with xx."YY".
@@ -257,4 +292,14 @@ class Firebird(dBackend):
 			fld = mtch.groups()[1].upper()
 			return "%s.\"%s\"" % (tbl, fld)
 		return self.fieldPat.sub(qtField, txt)
-		
+
+
+# Test method for all the different field structures, just 
+# like dblQuoteField().
+# def q(txt):
+# 	def qtField(mtch):
+# 		tbl = mtch.groups()[0]
+# 		fld = mtch.groups()[1].upper()
+# 		return "%s.\"%s\"" % (tbl, fld)
+# 	return pat.sub(qtField, txt)
+# 		

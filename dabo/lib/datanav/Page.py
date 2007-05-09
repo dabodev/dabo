@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
 import wx
@@ -83,7 +84,7 @@ class Page(dabo.ui.dPage):
 	
 		
 	def deleteRecord(self, ds=None):
-		""" Called by a browse grid when the user wants to edit the current row. 
+		""" Called by a browse grid when the user wants to delete the current row. 
 		"""
 		if ds is None:
 			self.Form.delete()
@@ -142,13 +143,13 @@ class SelectPage(Page):
 		self.sortCap = obj.Caption
 		mn = dabo.ui.dMenu()
 		if self.sortFields:
-			mn.append(_("Show sort order"), bindfunc=self.handleSortOrder)
+			mn.append(_("Show sort order"), OnHit=self.handleSortOrder)
 		if self.sortFields.has_key(self.sortDS):
 			mn.append(_("Remove sort on ") + self.sortCap, 
-					bindfunc=self.handleSortRemove)
+					OnHit=self.handleSortRemove)
 
-		mn.append(_("Sort Ascending"), bindfunc=self.handleSortAsc)
-		mn.append(_("Sort Descending"), bindfunc=self.handleSortDesc)
+		mn.append(_("Sort Ascending"), OnHit=self.handleSortAsc)
+		mn.append(_("Sort Descending"), OnHit=self.handleSortDesc)
 		self.PopupMenu(mn, obj.formCoordinates(evt.EventData["mousePosition"]) )
 		mn.release()
 
@@ -205,6 +206,10 @@ class SelectPage(Page):
 		"""Subclass hook."""
 		pass
 	
+	def setGroupBy(self, biz):
+		"""Subclass hook."""
+		pass
+
 
 	def setOrderBy(self, biz):
 		biz.setOrderByClause(self._orderByClause())
@@ -350,6 +355,7 @@ class SelectPage(Page):
 				self.setFrom(bizobj)
 				self.setWhere(bizobj)
 				self.setOrderBy(bizobj)
+				self.setGroupBy(bizobj)
 				self.setLimit(bizobj)
 			
 				sql = bizobj.getSQL()
@@ -405,7 +411,7 @@ class SelectPage(Page):
 			dataSource = self.Form.previewDataSource
 		fs = self.Form.FieldSpecs
 		panel = dPanel(self)
-		gsz = dabo.ui.dGridSizer(vgap=5, hgap=10)
+		gsz = dabo.ui.dGridSizer(VGap=5, HGap=10)
 		gsz.MaxCols = 3
 		label = dabo.ui.dLabel(panel)
 		label.Caption = _("Please enter your record selection criteria:")
@@ -543,8 +549,10 @@ class SelectPage(Page):
 	
 	
 class BrowsePage(Page):
-	def __init__(self, parent):
-		super(BrowsePage, self).__init__(parent, Name="pageBrowse")
+	def __init__(self, parent, Name=None, *args, **kwargs):
+		if Name is None:
+			Name = "pageBrowse"
+		super(BrowsePage, self).__init__(parent, Name=Name, *args, **kwargs)
 		self._doneLayout = False
 
 
@@ -597,8 +605,8 @@ class BrowsePage(Page):
 		
 
 class EditPage(Page):
-	def __init__(self, parent, ds=None):
-		super(EditPage, self).__init__(parent)		#, Name="pageEdit")
+	def __init__(self, parent, ds=None, *args, **kwargs):
+		super(EditPage, self).__init__(parent, *args, **kwargs)
 		self._focusToControl = None
 		self.itemsCreated = False
 		self._dataSource = ds
@@ -653,7 +661,7 @@ class EditPage(Page):
 		showEdit.sort(lambda x, y: cmp(x[1], y[1]))
 		mainSizer = self.GetSizer()
 		firstControl = None
-		gs = dabo.ui.dGridSizer(vgap=5, maxCols=3)
+		gs = dabo.ui.dGridSizer(VGap=5, MaxCols=3)
 		
 		for fld in showEdit:
 			fieldName = fld[0]

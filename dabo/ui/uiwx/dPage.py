@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import dPanel, dSizer
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -8,6 +9,7 @@ class dPage(dPanel.dScrollPanel):
 	"""Creates a page to appear as a tab in a pageframe."""
 	def __init__(self, *args, **kwargs):
 		self._caption = ""
+		kwargs["AlwaysResetSizer"] = self._extractKey(kwargs, "AlwaysResetSizer", True)
 		super(dPage, self).__init__(*args, **kwargs)
 		self._baseClass = dPage	
 		self.SetScrollbars(10, 10, -1, -1)
@@ -27,7 +29,11 @@ class dPage(dPanel.dScrollPanel):
 
 	def initSizer(self):
 		""" Set up the default vertical box sizer for the page."""
-		szCls = self.Parent.PageSizerClass
+		try:
+			szCls = self.Parent.PageSizerClass
+		except:
+			# Not part of a paged control
+			return
 		if szCls is not None:
 			self.Sizer = szCls("vertical")
 		

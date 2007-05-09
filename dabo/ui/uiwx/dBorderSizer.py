@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import dabo
 from dabo.dLocalize import _
@@ -25,6 +26,7 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 			try:
 				prnt = box
 				box = dabo.ui.dBox(prnt)
+				box.sendToBack()
 			except:
 				raise dException.dException, "Must pass an instance of dBox or a parent object to dBorderSizer"
 		# Convert Dabo orientation to wx orientation
@@ -46,6 +48,11 @@ class dBorderSizer(dabo.ui.dSizerMixin, wx.StaticBoxSizer):
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
 		self.setProperties(properties)
+		
+		if kwargs:
+			# Some kwargs haven't been handled.
+			bad = ", ".join(kwargs.keys())
+			raise TypeError, ("Invalid keyword arguments passed to dBorderSizer: %s") % kwargs
 		
 		# Mark the box as part of the sizer
 		self.Box._belongsToBorderSizer = True

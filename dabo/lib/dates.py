@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 """Contains helper functions for dealing with dates and datetimes.
 
 For example, getting a date from a string in various formats.
 """
 import datetime
 import re
+import time
 
 _dregex = {}
 _dtregex = {}
@@ -66,7 +68,7 @@ def _getTimeRegex(format):
 	elements["sep"] = "(?P<sep> |T)"
 
 	if format == "ISO8601":
-		exp = "^%(hour)s:%(minute)s:%(second)s%(ms)s$" % exp
+		exp = "^%(hour)s:%(minute)s:%(second)s%(ms)s$"
 	else:
 		return None
 	return re.compile(exp % elements)
@@ -190,6 +192,19 @@ def getTimeFromString(strVal, formats=None):
 	return ret
 
 
+def goDate(date_datetime_exp, days):
+	"""Given a date or datetime, return the date or datetime that is <days> away."""
+	tt = date_datetime_exp.timetuple()
+	seconds = time.mktime(tt)
+	one_day = 60*60*24
+	offset = (one_day * days)
+	new_time = list(time.localtime(seconds + offset))
+	new_time = tuple(new_time[:-3])
+	if isinstance(date_datetime_exp, datetime.datetime):
+		return datetime.datetime(*new_time)
+	return datetime.date(new_time[0], new_time[1], new_time[2])
+
+
 if __name__ == "__main__":
 	print "testing converting strings to dates:"
 	formats = ["ISO8601", "YYYYMMDD", "YYMMDD", "MMDD"]
@@ -197,3 +212,8 @@ if __name__ == "__main__":
 	for test in tests:
 		for format in formats:
 			print "%s (%s) -> %s" % (test, format, repr(getDateFromString(test, [format])))
+
+	dt = datetime.datetime.now()
+	print goDate(dt, -30)
+	d = datetime.date.today()
+	print goDate(d, -30)

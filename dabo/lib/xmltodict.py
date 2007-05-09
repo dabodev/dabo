@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ xmltodict(): convert xml into tree of Python dicts.
 
 This was copied and modified from John Bair's recipe at aspn.activestate.com:
@@ -10,6 +11,8 @@ from xml.parsers import expat
 
 # If we're in Dabo, get the default encoding.
 import dabo
+import dabo.lib.DesignerUtils as desUtil
+from dabo.lib.utils import resolvePath
 app = dabo.dAppRef
 if app is not None:
 	default_encoding = app.Encoding
@@ -100,7 +103,10 @@ class Xml2Obj:
 				self._codeDict = None
 			else:
 				# End of an individual method
-				self._codeDict[self._mthdName] = self._mthdCode
+				mth = self._mthdCode.strip()
+				if not mth.endswith("\n"):
+					mth += "\n"
+				self._codeDict[self._mthdName] = mth
 				self._mthdName = ""
 				self._mthdCode = ""
 		elif self._inProp:
@@ -121,12 +127,12 @@ class Xml2Obj:
 
 	def CharacterData(self, data):
 		"""SAX character data event handler"""
-		if data.strip():
+		if self._inCode or data.strip():
 			data = data.replace("&lt;", "<")
 			data = data.encode()
 			if self._inCode:
 				if self._mthdCode:
-					self._mthdCode += "%s%s" % (code_linesep, data)
+					self._mthdCode += data
 				else:
 					self._mthdCode = data
 			elif self._inProp:
@@ -154,16 +160,27 @@ class Xml2Obj:
 		return self.Parse(open(filename,"r").read())
 
 
-def xmltodict(xml, attsToSkip=[]):
+def xmltodict(xml, attsToSkip=[], addCodeFile=False):
 	"""Given an xml string or file, return a Python dictionary."""
 	parser = Xml2Obj()
 	parser.attsToSkip = attsToSkip
-	if eol not in xml and os.path.exists(xml):
+	isPath = os.path.exists(xml)
+	if eol not in xml and isPath:
 		# argument was a file
-		return parser.ParseFromFile(xml)
+		ret = parser.ParseFromFile(xml)
 	else:
 		# argument must have been raw xml:
-		return parser.Parse(xml)
+		ret = parser.Parse(xml)
+	if addCodeFile and isPath:
+		# Get the associated code file, if any
+		codePth = "%s-code.py" % os.path.splitext(xml)[0]
+		if os.path.exists(codePth):
+			try:
+				codeDict = desUtil.parseCodeFile(open(codePth).read())
+				desUtil.addCodeToClassDict(ret, codeDict)
+			except StandardError, e:
+				print "Failed to parse code file:", e
+	return ret
 
 
 def escQuote(val, noEscape=False, noQuote=False):
@@ -179,11 +196,11 @@ def escQuote(val, noEscape=False, noQuote=False):
 	else:
 		qt = '"'
 	slsh = "\\"
-	val = val.replace("<", "&lt;").replace(">", "&gt;").replace(slsh, slsh+slsh)
-#	val = val.replace("<", "&lt;").replace(">", "&gt;")
+# 	val = val.replace(slsh, slsh+slsh)
 	if not noEscape:
-		# First escape internal ampersands:
-		val = val.replace("&", "&amp;")
+		# First escape internal ampersands. We need to double them up due to a 
+		# quirk in wxPython and the way it displays this character.
+		val = val.replace("&", "&amp;&amp;")
 		# Escape any internal quotes
 		val = val.replace('"', '&quot;').replace("'", "&apos;")
 		# Escape any high-order characters
@@ -194,6 +211,7 @@ def escQuote(val, noEscape=False, noQuote=False):
 			else:
 					chars.append(char)
 		val = "".join(chars)
+	val = val.replace("<", "&#060;").replace(">", "&#062;")
 	return "%s%s%s" % (qt, val, qt)
 
 
@@ -278,8 +296,85 @@ def dicttoxml(dct, level=0, header=None, linesep=None):
 
 	return ret
 
+
+def flattenClassDict(cd, retDict=None):
+	"""Given a dict containing a series of nested objects such as would
+	be created by restoring from a cdxml file, returns a dict with all classIDs
+	as keys, and a dict as the corresponding value. The dict value will have 
+	keys for the attributes and/or code, depending on what was in the original
+	dict. The end result is to take a nested dict structure and return a flattened
+	dict with all objects at the top level.
+	"""
+	if retDict is None:
+		retDict = {}
+	atts = cd.get("attributes", {})
+	props = cd.get("properties", {})
+	kids = cd.get("children", [])
+	code = cd.get("code", {})
+	classID = atts.get("classID", "")
+	classFile = resolvePath(atts.get("designerClass", ""))
+	superclass = resolvePath(atts.get("superclass", ""))
+	superclassID = atts.get("superclassID", "")
+	if superclassID and os.path.exists(superclass):
+		# Get the superclass info
+		superCD = xmltodict(superclass, addCodeFile=True)
+		flattenClassDict(superCD, retDict)
+	if classID:
+		if os.path.exists(classFile):
+			# Get the class info
+			classCD = xmltodict(classFile, addCodeFile=True)
+			classAtts = classCD.get("attributes", {})
+			classProps = classCD.get("properties", {})
+			classCode = classCD.get("code", {})
+			classKids = classCD.get("children", [])
+			currDict = retDict.get(classID, {})
+			retDict[classID] = {"attributes": classAtts, "code": classCode, 
+					"properties": classProps}
+			retDict[classID].update(currDict)
+			# Now update the child objects in the dict
+			for kid in classKids:
+				flattenClassDict(kid, retDict)
+		else:
+			# Not a file; most likely just a component in another class
+			currDict = retDict.get(classID, {})
+			retDict[classID] = {"attributes": atts, "code": code, 
+					"properties": props}
+			retDict[classID].update(currDict)
+	if kids:
+		for kid in kids:
+			flattenClassDict(kid, retDict)
+	return retDict
+
+
+def addInheritedInfo(src, super, updateCode=False):
+	"""Called recursively on the class container structure, modifying 
+	the attributes to incorporate superclass information. When the 
+	'updateCode' parameter is True, superclass code is added to the 
+	object's code
+	"""
+	atts = src.get("attributes", {})
+	props = src.get("properties", {})
+	kids = src.get("children", [])
+	code = src.get("code", {})
+	classID = atts.get("classID", "")
+	if classID:
+		superInfo = super.get(classID, {"attributes": {}, "code": {}, "properties": {}})
+		src["attributes"] = superInfo["attributes"].copy()
+		src["attributes"].update(atts)
+		src["properties"] = superInfo.get("properties", {}).copy()
+		src["properties"].update(props)
+		if updateCode:
+			src["code"] = superInfo["code"].copy()
+			src["code"].update(code)
+	if kids:
+		for kid in kids:
+			addInheritedInfo(kid, super, updateCode)
+
+
+
 if __name__ == "__main__":
-	test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name"}}
+	test_dict = {"name": "test", "attributes":{"path": "c:\\temp\\name",
+			"problemChars": "Welcome to <Jos\xc3\xa9's \ Stuff!>\xc2\xae".decode("latin-1")}}
 	print "test_dict:", test_dict
 	xml = dicttoxml(test_dict)
 	print "xml:", xml

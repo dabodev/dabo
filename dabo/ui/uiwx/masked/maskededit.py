@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re, datetime
 import wx, dabo, dabo.ui
 import wx.lib.masked

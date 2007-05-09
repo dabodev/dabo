@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dFormMain.py """
 import Tkinter
 import dFormMixin as fm

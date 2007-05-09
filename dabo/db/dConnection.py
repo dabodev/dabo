@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dConnectInfo import dConnectInfo
@@ -20,22 +21,31 @@ class dConnection(dObject):
 
 		if isinstance(connectInfo, dConnectInfo):
 			self._connectInfo = connectInfo
-		else:
-			# If they passed a cnxml file, or a dict containing 
-			# valid connection info, this will work fine. Otherwise,
-			# an error will be raised in the dConnectInfo class.
+		elif connectInfo:
+			# If they passed a cnxml file, or a dict containing valid connection info, 
+			# this will work fine. Otherwise, an error will be raised in the 
+			# dConnectInfo class.
 			self._connectInfo = dConnectInfo(connInfo=connectInfo)
-		self._connection = self._openConnection()
+		else:
+			raise TypeError, "dConnectInfo instance or kwargs not sent."
+		self._connection = self._openConnection(**kwargs)
 		
 		
 	def getConnection(self):
 		return self._connection
+		
+	
+	def close(self):
+		self._connection.close()
+		
 
 	def getDictCursorClass(self):
 		return self._connectInfo.getDictCursorClass()
 		
+		
 	def getCursor(self, cursorClass):
 		return self.getBackendObject().getCursor(cursorClass)
+		
 	
 	def getDaboCursor(self, cursorClass=None):
 		""" Accepts a backend-specific cursor class, mixes in the Dabo
@@ -58,9 +68,10 @@ class dConnection(dObject):
 		return crs
 
 
-	def _openConnection(self):
+	def _openConnection(self, **kwargs):
 		""" Open a connection to the database and store it for future use. """
-		return self._connectInfo.getConnection()
+		return self._connectInfo.getConnection(**kwargs)
+		
 	
 	def getBackendObject(self):
 		""" Return a reference to the connectInfo's backend-specific
@@ -68,10 +79,25 @@ class dConnection(dObject):
 		"""
 		return self._connectInfo.getBackendObject()
 		
+		
 	def _getConnInfo(self):
 		return self._connectInfo
+		
 
-	ConnectInfo = property(_getConnInfo, None, None, _("The connectInfo for the connection.  (class)"))
+	def _getName(self):
+		try:
+			return self.ConnectInfo.Name
+		except:
+			return "?"
+			
+
+	ConnectInfo = property(_getConnInfo, None, None, 
+			_("The connectInfo for the connection.  (dConnectInfo)"))
+			
+	Name = property(_getName, None, None, 
+			_("The name of the connection.  (str)"))
+
+
 
 if __name__ == "__main__":
 	from dConnectInfo import dConnectInfo

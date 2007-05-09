@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import dabo
 if __name__ == "__main__":
@@ -12,14 +13,20 @@ class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 	"""Creates an editable list box, complete with buttons to control
 	editing, adding/deleting items, and re-ordering them.
 	"""	
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dEditableList
 		preClass = wx.gizmos.EditableListBox
-		self._canAdd = self._extractKey((kwargs, properties), "CanAdd", True)
-		self._canDelete = self._extractKey((kwargs, properties), "CanDelete", True)
-		self._canOrder = self._extractKey((kwargs, properties), "CanOrder", True)
-		self._editable = self._extractKey((kwargs, properties), "Editable", True)
-		style = self._extractKey((kwargs, properties), "style", 0)
+		self._canAdd = self._extractKey((kwargs, properties, attProperties), "CanAdd", True)
+		if isinstance(self._canAdd, basestring):
+			self._canAdd = (self._canAdd == "True")
+		self._canDelete = self._extractKey((kwargs, properties, attProperties), "CanDelete", True)
+		if isinstance(self._canDelete, basestring):
+			self._canDelete = (self._canDelete == "True")
+		self._canOrder = self._extractKey((kwargs, properties, attProperties), "CanOrder", True)
+		if isinstance(self._canOrder, basestring):
+			self._canOrder = (self._canOrder == "True")
+		self._editable = self._extractKey((kwargs, properties, attProperties), "Editable", True)
+		style = self._extractKey((kwargs, properties, attProperties), "style", 0)
 		if self._canAdd:
 			style = style  | wx.gizmos.EL_ALLOW_NEW
 		if self._editable:
@@ -35,7 +42,7 @@ class dEditableList(dcm.dControlMixin, wx.gizmos.EditableListBox):
 		self._upButton = None
 		self._panel = None
 
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
+		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
 
 

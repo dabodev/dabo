@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dabo.biz : Dabo Business Objects (bizobjs)
 
 Ed Leafe writes:

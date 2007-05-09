@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import string
 import types
 import new
@@ -52,9 +53,14 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 			for k,v in properties.items():
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
+# 		if kwargs:
+# 			# Some kwargs haven't been handled.
+# 			raise TypeError, _("__init__() got an unexpected keyword argument '%s'") % kwargs.keys()[0]
 		if kwargs:
 			# Some kwargs haven't been handled.
-			raise TypeError, _("__init__() got an unexpected keyword argument '%s'") % kwargs.keys()[0]
+			bad = ", ".join(["'%s'" % kk for kk in kwargs.keys()])
+			raise TypeError, ("Invalid keyword arguments passed to %s: %s") % (self.__repr__(), bad)
+
 		if self._call_afterInit:
 			self._afterInit()
 		self.setProperties(properties)
@@ -62,6 +68,33 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		DoDefaultMixin.__init__(self)		
 		PropertyHelperMixin.__init__(self)		
 		EventMixin.__init__(self)		
+
+
+	def __repr__(self):
+		bc = self.BaseClass
+		if bc is None:
+			bc = self.__class__
+		strval = "%s" % bc
+		classname = strval.split("'")[1]
+		classparts = classname.split(".")
+		if ".ui.ui" in classname:
+			# Simplify the different UI toolkits
+			pos = classparts.index("ui")
+			classparts.pop(pos+1)
+		# Remove the duplicate class name that happens
+		# when the class name is the same as the file.
+		while classparts[-1] == classparts[-2]:
+			classparts.pop()
+		classname = ".".join(classparts)
+		try:
+			nm = self.Name
+		except AttributeError:
+			nm = ""
+		if (not nm) or (nm == "?"):
+			# No name; use module.classname
+			nm = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
+		return "<%(nm)s (baseclass %(classname)s)>" % locals()
+		
 
 
 	def beforeInit(self, *args, **kwargs):
@@ -220,6 +253,8 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		return ret
 
 	def _setBasePrefKey(self, val):
+		if not isinstance(val, types.StringTypes):
+			raise TypeError, 'BasePrefKey must be a string.'
 		self._basePrefKey = val
 		pm = self.PreferenceManager
 		if pm is not None:
@@ -228,10 +263,7 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 
 
 	def _getClass(self):
-		try:
-			return self.__class__
-		except AttributeError:
-			return None
+		return self.__class__
 
 
 	def _getLogEvents(self):
@@ -266,8 +298,12 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		except AttributeError:
 			return "?"
 	
-	def _setName(self, value):
-		self._name = str(value)
+	def _setName(self, val):
+		if not isinstance(val, types.StringTypes):
+			raise TypeError, 'Name must be a string.'
+		if not len(val.split()) == 1:
+			raise KeyError, 'Name must not contain any spaces'
+		self._name = val
 		
 		
 	def _getParent(self):
@@ -288,19 +324,19 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		try:
 			ret = self._preferenceManager
 		except AttributeError:
-			ret = self._preferenceManager = dPref(key=self.BasePrefKey)
+			ret = None
+			if self.Application is not self:
+				try:
+					ret = self._preferenceManager = self.Application.PreferenceManager
+				except AttributeError: pass
+			if ret is None:
+				ret = self._preferenceManager = dPref(key=self.BasePrefKey)
 		return ret
 
 	def _setPreferenceManager(self, val):
+		if not isinstance(val, dPref):
+			raise TypeError, 'PreferenceManager must be a dPref object'
 		self._preferenceManager = val
-
-
-	def _getSuperClass(self):
-		if self.BaseClass == self.Class:
-			# The superclass is lower down than Dabo, and useless to the user.
-			return None
-		else:
-			return self.__class__.__base__
 	
 
 	Application = property(_getApplication, None, None, 
@@ -334,9 +370,6 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 	PreferenceManager = property(_getPreferenceManager, _setPreferenceManager, None,
 			_("Reference to the Preference Management object  (dPref)"))
 	
-	SuperClass = property(_getSuperClass, None, None, 
-			_("The super class of the object. Read-only.  (class)"))
-
 
 if __name__ == "__main__":
 	d = dObject()

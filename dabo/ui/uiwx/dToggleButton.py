@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import  wx.lib.buttons as wxb
 import warnings
@@ -19,19 +20,23 @@ class dToggleButton(dcm.dDataControlMixin, dim.dImageMixin,
 	Also, it implies that pushing it will cause some sort of immediate action to
 	take place, like you get with a normal button.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dabo.ui.dToggleButton
 		preClass = wxb.GenBitmapTextToggleButton
 		# These are required arguments
 		kwargs["bitmap"] = None
 		kwargs["label"] = ""
 		self._downPicture = None
-		bw = self._extractKey((properties, kwargs), "BezelWidth", 5)
+		bw = self._extractKey(attProperties, "BezelWidth", None)
+		if bw is not None:
+			bw = int(bw)
+		else:
+			bw = self._extractKey((properties, kwargs), "BezelWidth", 5)
 		kwargs["BezelWidth"] = bw
-		style = self._extractKey((properties, kwargs), "style", 0) | wx.BORDER_NONE
+		style = self._extractKey((properties, attProperties, kwargs), "style", 0) | wx.BORDER_NONE
 		kwargs["style"] = style
 		dim.dImageMixin.__init__(self)
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		self.Bind(wx.EVT_BUTTON, self.__onButton)
 	
 	
@@ -103,8 +108,8 @@ class _dToggleButton_test(dToggleButton):
 	def afterInit(self):
 		self.Caption = "Toggle me!"
 		self.Size = (100, 31)
-		self.Picture = "uparrow"
-		self.DownPicture = "downarrow"
+		self.Picture = "themes/tango/22x22/apps/accessories-text-editor.png"
+		self.DownPicture = "themes/tango/22x22/apps/help-browser.png"
 
 	def onHit(self, evt):
 		if self.Value:

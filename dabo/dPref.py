@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import warnings
 import datetime
@@ -67,6 +68,7 @@ class dPref(object):
 			self._cxn = dabo.db.dConnection(connectInfo={"dbType": "SQLite",
 					"database": os.path.join(prefdir, "DaboPreferences.db")})
 			self._cursor = self._cxn.getDaboCursor()
+			self._cursor.IsPrefCursor = True
 			# Make sure that the table exists
 			if not  "daboprefs" in self._cursor.getTables():
 				self._cursor.execute("create table daboprefs (ckey text not null, ctype text not null, cvalue text not null)")
@@ -183,8 +185,8 @@ class dPref(object):
 			ret = eval("datetime.datetime%s" % val)
 		elif typ == "none":
 			ret = None
-		if ret is None:
-			print "NONE", rec
+# 		if ret is None:
+# 			print "NONE", rec
 		return ret
 
 		
@@ -290,21 +292,25 @@ class dPref(object):
 				del self._cache[key]
 	
 	
-	def getPrefs(self, returnNested=False, key=None):
+	def getPrefs(self, returnNested=False, key=None, asDataSet=False):
 		"""Returns all the preferences set for this object. If returnNested is True,
 		returns any sub-preferences too.
 		"""
 		crs = self._cursor
 		if key is None:
 			key = self._getKey()
-		sql = "select * from daboprefs where ckey like ?"
-		crs.execute(sql, ("%s.%%" % key, ))
+		key = key.replace("_", r"\_")
+		param = "%(key)s%%" % locals()
+		sql = "select * from daboprefs where ckey like ? escape '\\' "
+		crs.execute(sql, (param, ))
 		ds = crs.getDataSet()
 		if not returnNested:
 			# Filter out all the results that are not first-level prefs
 			keylen = len(key)+1
 			ds = [rec for rec in ds
 					if len(rec["ckey"][keylen:].split(".")) == 1]
+		if asDataSet:
+			return ds
 		ret = {}
 		for rec in ds:
 			ret[rec["ckey"]] = self._decodeType(rec)

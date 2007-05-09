@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 from dabo.dLocalize import _
 from dabo.lib.reportWriter import ReportWriter
 from dabo.dObject import dObject
@@ -5,6 +6,20 @@ from dabo.dObject import dObject
 
 # dReportWriter is simply a raw ReportWriter/dObject mixin:
 class dReportWriter(dObject, ReportWriter):
+	"""The Dabo Report Writer Engine, which mixes a data cursor and a report
+	format file (.rfxml) to output a PDF.
+
+	For each row in the Cursor, a detail band is printed. For each page in the
+	report, the pageBackground, pageHeader, pageFooter, and pageForeground 
+	bands are printed. For each defined grouping, the groupHeader and groupFooter
+	bands are printed.
+
+	Report variables can be defined as accumulators, or for any purpose you
+	need. All properties of the report form are evaluated at runtime, so that
+	you can achieve full flexibility and ultimate control.
+
+	There is also a pure-python interface available.
+	"""
 	def _getEncoding(self):
 		try:
 			v = self._encoding

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # Improved version of Python Cookbook recipe
 # http://aspn.activestate.com/ASPN/Cookbook/Python/Recipe/286195
 

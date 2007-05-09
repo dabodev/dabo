@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -12,7 +13,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 	
 	The user can choose an item in the dropdown, or enter freeform text.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dComboBox
 		self._choices = []
 		self._userVal = False
@@ -22,7 +23,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		self._textToAppend = ""
 
 		preClass = wx.PreComboBox
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 	def _initEvents(self):
@@ -34,7 +35,7 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 	def __onComboBox(self, evt):
 		self._userVal = False
 		evt.Skip()
-		self.raiseEvent(dabo.dEvents.Hit, evt)
+		self._onWxHit(evt)
 		
 		
 	def __onTextBox(self, evt):

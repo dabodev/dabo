@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ dConstants.py """
 
 # Return values for most operations
@@ -27,3 +28,6 @@ CURSOR_TMPKEY_FIELD = "dabo-tmpKeyField"
 
 DLG_OK = 0
 DLG_CANCEL = -1
+
+# Flag to indicate that field validation was skipped
+BIZ_DEFAULT_FIELD_VALID = "Dabo default field validation".split(" ")

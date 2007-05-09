@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import dabo
 import dPemMixin
@@ -8,7 +9,7 @@ import warnings
 
 
 class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
-	def __init__(self, vgap=3, hgap=3, maxRows=0, maxCols=0, **kwargs):
+	def __init__(self, **kwargs):
 		"""dGridSizer is a sizer that can lay out items in a virtual grid arrangement.
 		Items can be placed is specific row/column positions if that position is
 		unoccupied. You can specify either MaxCols or MaxRows, and then append
@@ -23,43 +24,50 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		"""
 		self._baseClass = dGridSizer
 		self._parent = None
-		wx.GridBagSizer.__init__(self, vgap=vgap, hgap=hgap)
+		wx.GridBagSizer.__init__(self)	##, vgap=vgap, hgap=hgap)
 		
 		self._maxRows = 0
 		self._maxCols = 0
 		self._maxDimension = "c"
-		if not maxRows and not maxCols:
-			# No max settings were passed, so default to 2 columns
-			self.MaxCols = 2
-		elif maxCols:
-			self.MaxCols = maxCols
-		else:
-			# Rows were passed.
-			self.MaxRows = maxRows
 		self.SetFlexibleDirection(self.bothFlag)
 		# Keep track of which rows/cols are set to expand.
 		self._rowExpandState = {}
 		self._colExpandState = {}
-		
 
-		for k,v in kwargs.items():
-			try:
-				exec("self.%s = %s" % (k,v))
-			except: pass
+		properties = self._extractKeywordProperties(kwargs, {})
+		if kwargs:
+			# Clean up the deprecated old parameters
+			delKeys = []
+			oldNewMap = {"vgap": "VGap", "hgap": "HGap", "maxRows": "MaxRows", "maxCols": "MaxCols"}
+			oldParams = oldNewMap.keys()
+			for k,v in kwargs.items():
+				if k in oldParams:
+					newProp = oldNewMap[k]
+					warnmsg = _("Deprecated parameter '%(k)s' used. Use the '%(newProp)s' property instead.") % locals()
+					warnings.warn(warnmsg, DeprecationWarning, stacklevel=2)
+					delKeys.append(k)
+					properties[oldNewMap[k]] = v
+			for k in delKeys:
+				del kwargs[k]
+		
+		if not ("MaxCols" in properties) and not ("MaxRows" in properties):
+			# Default to 2 columns if nothing else specified
+			properties["MaxCols"] = 2
+		self.setProperties(properties)
+		
+		if kwargs:
+			# Some kwargs haven't been handled.
+			bad = ", ".join(kwargs.keys())
+			raise TypeError, ("Invalid keyword arguments passed to dGridSizer: %s") % bad
 
 
 	def append(self, item, layout="normal", row=-1, col=-1, 
 			rowSpan=1, colSpan=1, alignment=None, halign="left", 
-			valign="middle", border=0, borderSides=("all",), 
-			borderFlags=("all",), flag=None):
+			valign="middle", border=0, borderSides=("all",), flag=None):
 		""" Inserts the passed item at the specified position in the grid. If no
 		position is specified, the item is inserted at the first available open 
 		cell as specified by the Max* properties.		
 		"""
-		if borderSides is None:
-			if borderFlags is not None:
-				warnings.warn(_("Deprecation warning: use 'borderSides' parameter instead."), DeprecationWarning)
-				borderSides = borderFlags
 		(targetRow, targetCol) = self._determineAvailableCell(row, col)
 		if isinstance(item, (tuple, int)):
 			# spacer
@@ -232,21 +240,11 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		self.setRowExpand(False, "all")
 		
 	
-	def isRowGrowable(self, row):
-		warnings.warn(_("Deprecated; use 'getRowExpand' instead."), DeprecationWarning)
-		return self.getRowExpand(row)
-	
-	
 	def getRowExpand(self, row):
 		"""Returns True if the specified row is growable."""
 		return bool(self._rowExpandState.get(row, 0))
 		
 		
-	def isColGrowable(self, col):
-		warnings.warn(_("Deprecated; use 'getColExpand' instead."), DeprecationWarning)
-		return self.getColExpand(col)
-
-
 	def getColExpand(self, col):
 		"""Returns True if the specified column is growable."""
 		return bool(self._colExpandState.get(col, 0))
@@ -498,13 +496,13 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 						"Left" : self.borderLeftFlag,
 						"Right" : self.borderRightFlag, 
 						"Top" : self.borderTopFlag}
-				if flag & self.borderAllFlag:
+				if flag & self.borderAllFlag == self.borderAllFlag:
 					ret = ["All"]
 				else:
 					ret = []
 					for side, val in pdBorder.items():
-						if flag and val:
-							ret.append(key)
+						if (flag & val == val):
+							ret.append(side)
 					if not ret:
 						ret = ["None"]
 		if ret is None:

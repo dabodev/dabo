@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx, dabo, dabo.ui
 
 if __name__ == "__main__":
@@ -11,12 +12,12 @@ from dabo.ui import makeDynamicProperty
 
 class dListBox(dcm.dControlItemMixin, wx.ListBox):
 	"""Creates a listbox, allowing the user to choose one or more items."""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dListBox
 		self._choices = []
 
 		preClass = wx.PreListBox
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 			
 	def _initEvents(self):
@@ -27,8 +28,27 @@ class dListBox(dcm.dControlItemMixin, wx.ListBox):
 	def clearSelections(self):
 		for elem in self.GetSelections():
 			self.SetSelection(elem, False)
+	
+	
+	def selectAll(self):
+		if self.MultipleSelect:
+			for ii in xrange(self.Count):
+				self.SetSelection(ii)
+	
+	
+	def unselectAll(self):
+		self.clearSelections()
 
 		
+	def invertSelections(self):
+		"""Switch all the items from False to True, and vice-versa."""
+		for ii in xrange(self.Count):
+			if self.IsSelected(ii):
+				self.Deselect(ii)
+			else:
+				self.SetSelection(ii)
+		
+	
 	def _getMultipleSelect(self):
 		return self._hasWindowStyleFlag(wx.LB_EXTENDED)
 	def _setMultipleSelect(self, val):

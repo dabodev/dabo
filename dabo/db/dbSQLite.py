@@ -1,10 +1,14 @@
+# -*- coding: utf-8 -*-
 import os
 import re
 from dabo.dLocalize import _
 from dBackend import dBackend
-from dabo.db import dNoEscQuoteStr as dNoEQ
+from dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
+from dCursorMixin import dCursorMixin
+
 
 class SQLite(dBackend):
+	"""Class providing SQLite connectivity. Uses sqlite3 or pysqlite2 package."""
 	def __init__(self):
 		dBackend.__init__(self)
 		self.dbModuleName = "pysqlite2"
@@ -13,16 +17,45 @@ class SQLite(dBackend):
 		except ImportError:
 			import sqlite3 as dbapi
 		self.dbapi = dbapi
+		self._alreadyCorrectedFieldTypes = True
 		
 
-	def getConnection(self, connectInfo):
+	def getConnection(self, connectInfo, **kwargs):
+		## Mods to sqlite to return DictCursors by default, so that dCursor doesn't
+		## need to do the conversion:
+		dbapi = self.dbapi
+
+		def dict_factory(cursor, row):
+			_types = getattr(cursor, "_types", {})
+			ret = {}
+			fieldNames = (fld[0] for fld in cursor.description)
+			for idx, field_name in enumerate(fieldNames):
+				if _types:
+					ret[field_name] = cursor._correctFieldType(row[idx], field_name, _fromRequery=True)
+				else:
+					ret[field_name] = row[idx]
+			return ret
+
+		class DictCursor(self.dbapi.Cursor):
+			def __init__(self, *args, **kwargs):
+				dbapi.Cursor.__init__(self, *args, **kwargs)
+				self.row_factory = dict_factory
+
+		class DictConnection(self.dbapi.Connection):
+			def __init__(self, *args, **kwargs):
+				dbapi.Connection.__init__(self, *args, **kwargs)
+
+			def cursor(self):
+				return DictCursor(self)
+
+		self._dictCursorClass = DictCursor
 		pth = os.path.expanduser(connectInfo.Database)
-		self._connection = self.dbapi.connect(pth)
+		self._connection = self.dbapi.connect(pth, factory=DictConnection)
 		return self._connection
 		
 
 	def getDictCursorClass(self):
-		return self.dbapi.Cursor
+		return self._dictCursorClass
 		
 
 	def escQuote(self, val):			
@@ -63,10 +96,7 @@ class SQLite(dBackend):
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=%s" % self.escQuote(tablename))
 		rs = tempCursor.fetchall()
-		if rs == []:
-			return False
-		else:
-			return True
+		return len(rs) > 0
 	
 	
 	def getTables(self, includeSystemTables=False):
@@ -74,75 +104,50 @@ class SQLite(dBackend):
 		tempCursor.execute("select * from sqlite_master")
 		rs = tempCursor.fetchall()
 		if includeSystemTables:
-			tables = [rec[1] for rec in rs 
-					if rec[0] == "table"]
+			tables = [rec["name"] for rec in rs 
+					if rec["type"] == "table"]
 		else:
-			tables = [rec[1] for rec in rs
-					if rec[0] == "table"
-					and not rec[1].startswith("sqlite_")]
+			tables = [rec["name"] for rec in rs
+					if rec["type"] == "table"
+					and not rec["name"].startswith("sqlite_")]
 		return tuple(tables)
 		
 		
 	def getTableRecordCount(self, tableName):
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("select count(*) as ncount from %s" % tableName)
-		return tempCursor.fetchall()[0][0]
+		return tempCursor.fetchall()[0]["ncount"]
 
 
 	def getFields(self, tableName):
 		tempCursor = self._connection.cursor()
-# 		Get the name of the PK, if any
-# 		pkName = ""
-# 		try:
-# 			If any of these statements fail, there is no valid
-# 			PK defined for this table.
-# 			tempCursor.execute("""select * from sqlite_master 
-# 					where tbl_name = '%s'""" 	% tableName)
-# 			The SQL CREATE code is in position 4 of the tuple
-# 			tblSQL = tempCursor.fetchall()[0][4].lower()
-# 			Remove the CREATE...
-# 			parenPos = tblSQL.find("(")
-# 			tblSQL = tblSQL[parenPos+1:]
-# 			pkPos = tblSQL.find("primary key")
-# 			tblSQL = tblSQL[:pkPos]
-# 			The PK field name is the first word of the last
-# 			field def in that string
-# 			commaPos = tblSQL.find(",")
-# 			while commaPos > -1:
-# 				tblSQL = tblSQL[commaPos:]
-# 				commaPos = tblSQL.find(",")
-# 			pkName = tblSQL.strip().split(" ")[0]
-# 		except:
-# 			pass
-
-		# Now get the field info
 		tempCursor.execute("pragma table_info('%s')" % tableName)
 		rs = tempCursor.fetchall()
 		fields = []
 		for rec in rs:
-			typ = rec[2].lower()
-			if typ == "integer":	
+			typ = rec["type"].lower()
+			if typ[:3] == "int":	
 				fldType = "I"
-			elif typ == "real":
+			elif typ[:3] == "dec" or typ[:4] == "real":
 				fldType = "N"
 			elif typ == "blob":
 				fldType = "L"
+			elif typ[:4] == "clob" or typ[:8] == "longtext":
+				fldType = "M"
 			else:
 				# SQLite treats everything else as text
 				fldType = "C"
-			# Adi J. Sieker pointed out that the sixth column of the pragma command
+			# Adi J. Sieker pointed out that the 'pk' column of the pragma command
 			# returns a value indicating whether the field is the PK or not. This simplifies 
 			# the routine over having to parse the CREATE TABLE code.
-			fields.append( (rec[1], fldType, bool(rec[5])) )
+			fields.append( (rec["name"], fldType, bool(rec['pk'])) )
 		return tuple(fields)
 
 
 	def setNonUpdateFields(self, cursor):
-		"""Use an alternative, since grabbing an empty cursor, 
-		as is done in the default method, doesn't provide a 
-		description. Assume that any field with the same name 
-		as the fields in the base table will be updatable.
-		"""
+		# Use an alternative, since grabbing an empty cursor, as is done in the 
+		# default method, doesn't provide a  description. Assume that any field with 
+		# the same name as the fields in the base table will be updatable.
 		if not cursor.Table:
 			# No table specified, so no update checking is possible
 			return
@@ -159,12 +164,12 @@ class SQLite(dBackend):
 				if d[0] not in [s[0] for s in stdFlds] ]
 		
 		
-	def getUpdateTablePrefix(self, table):
+	def getUpdateTablePrefix(self, table, autoQuote=True):
 		"""Table name prefixes are not allowed."""
 		return ""
 		
 		
-	def getWhereTablePrefix(self, table):
+	def getWhereTablePrefix(self, table, autoQuote=True):
 		"""Table name prefixes are not allowed."""
 		return ""
 
@@ -174,46 +179,6 @@ class SQLite(dBackend):
 		pass
 		
 		
-	def getStructureDescription(self, cursor):
-		""" Return an empty cursor description. """
-		ret = ()
-		# First, get the SQL
-		try:
-			sql = cursor.sql
-		except:
-			sql = ""
-		if sql:
-			mtch = re.search("select\s(.+)\sfrom\s*.*", sql, re.I | re.M | re.S)
-			if mtch:
-				fldDescrip = []
-				fldText = mtch.groups()[0].replace("\n", " ")
-				flds = fldText.split(",")
-				for fld in flds:
-					fldDescrip.append( (fld.split(" ")[-1], "", False))
-				ret = tuple(fldDescrip)
-		if not ret:
-			# Get the standard fields in the table
-			auxCrs = cursor._getAuxCursor()
-			auxCrs.execute("pragma table_info('%s')" % cursor.Table)
-			rs = auxCrs._records
-			fields = []
-			for rec in rs:
-				typ = rec["type"].lower()
-				if typ == "integer":	
-					fldType = "I"
-				elif typ == "real":
-					fldType = "N"
-				elif typ == "blob":
-					fldType = "L"
-				else:
-					# SQLite treats everything else as text
-					fldType = "C"
-				pk = bool(rec["pk"])
-				fields.append( (rec["name"], fldType, pk))
-			ret = tuple(fields)
-		return ret
-		
-
 	def createTableAndIndexes(self, tabledef, cursor, createTable=True, 
 			createIndexes=True):
 		if not tabledef.Name:

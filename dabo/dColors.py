@@ -1,4 +1,14 @@
-import re
+# -*- coding: utf-8 -*-
+import re, types
+
+class HexError(Exception): pass
+class InvalidCharError(HexError): pass
+class TypeError(HexError): pass
+
+class ColorTupleError(Exception): pass
+class RgbValueError(ColorTupleError): pass
+class LengthError(ColorTupleError): pass
+class IntegerTypeError(ColorTupleError): pass
 
 colorDict = {"aliceblue" : (240, 248, 255), 
 		"antiquewhite" : (250, 235, 215), 
@@ -72,7 +82,8 @@ colorDict = {"aliceblue" : (240, 248, 255),
 		"lightcoral" : (240, 128, 128), 
 		"lightcyan" : (224, 255, 255), 
 		"lightgoldenrodyellow" : (250, 250, 210), 
-		"lightgrey" : (211, 211, 211), 
+		"lightgray" : (211, 211, 211), 
+		"lightgrey" : (211, 211, 211),
 		"lightgreen" : (144, 238, 144), 
 		"lightpink" : (255, 182, 193), 
 		"lightsalmon" : (255, 160, 122), 
@@ -80,7 +91,7 @@ colorDict = {"aliceblue" : (240, 248, 255),
 		"lightskyblue" : (135, 206, 250), 
 		"lightslateblue" : (132, 112, 255), 
 		"lightslategray" : (119, 136, 153), 
-		"lightslategrey" : (119, 136, 153), 
+		"lightslategrey" : (119, 136, 153),
 		"lightsteelblue" : (176, 196, 222), 
 		"lightyellow" : (255, 255, 224), 
 		"lime" : (0, 255, 0), 
@@ -155,6 +166,8 @@ colors = colorDict.keys()
 
 
 def hexToDec(hx):
+	if not isinstance(hx, types.StringTypes):
+		raise TypeError, "Input must be a string"
 	# Define a dict of char-value pairs
 	hex = {"0": 0, "1": 1, "2": 2, "3": 3, "4": 4, "5": 5, "6": 6, "7": 7, "8": 8, 
 			"9": 9, "A": 10, "B": 11, "C": 12, "D": 13, "E": 14, "F": 15}
@@ -163,6 +176,8 @@ def hexToDec(hx):
 	ret = 0
 	pos = 1
 	for c in rev:
+		if hex.get(c) == None:
+			raise InvalidCharError, "%s is an invalid hex character" % (c, )
 		ret += (hex[c] * pos)
 		pos = pos * 16
 	return ret
@@ -170,11 +185,21 @@ def hexToDec(hx):
 
 def tupleToHex(t, includeHash=True):
 	"""Convert a color tuple into an HTML hex format."""
+	if not len(t) == 3:
+		raise LengthError, "Color tuple needs to contain 3 elements"
+	for rgb in t:
+		if not isinstance(rgb, types.IntType):
+			raise IntegerTypeError, "Tuple elements should be all integers."
+		if not 0 <= rgb <= 255:
+			raise RgbValueError, "Rgb Value must be in the range 0-255"
 	rx, gx, bx = hex(t[0]), hex(t[1]), hex(t[2])
 	# Each is in the format '0x00'.
 	r = rx[2:].upper()
 	g = gx[2:].upper()
 	b= bx[2:].upper()
+	if len(r) == 1: r = '0' + r
+	if len(g) == 1: g = '0' + g
+	if len(b) == 1: b = '0' + b
 	ret = ""
 	if includeHash:
 		ret = "#"
@@ -185,6 +210,8 @@ def tupleToHex(t, includeHash=True):
 def colorTupleFromHex(hx):
 	# Strip the pound sign, if any
 	hx = hx.replace("#", "")
+	hx = hx.lstrip('0')
+	if len(hx) < 6: hx = '0'*(6-len(hx)) + hx
 	red = hexToDec(hx[:2])
 	green = hexToDec(hx[2:4])
 	blue = hexToDec(hx[4:])
@@ -216,6 +243,9 @@ def colorTupleFromString(color):
 	if mtch:
 		grps = mtch.groups()
 		ret = (int(grps[0]), int(grps[1]), int(grps[2]))
+		for val in ret:
+			if not 0 <= val <= 255:
+				raise KeyError, "Color tuple integer must range from 0-255"
 	else:
 		raise KeyError, "Color '%s' is not defined." % color
 	return ret

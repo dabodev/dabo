@@ -1,4 +1,4 @@
-
+# -*- coding: utf-8 -*-
 class dException(StandardError):
 	"""	Base class in the framework for passing exceptions."""
 	
@@ -21,6 +21,23 @@ class QueryException(dException):
 
 class BusinessRuleViolation(dException):
 	pass
+	
+class BusinessRulePassed(dException):
+	pass
+	
+class RowNotFoundException(dException):
+	pass
+
+class FeatureNotImplementedException(dException):
+	pass
+
+
+class StopIterationException(dException):
+	pass
+	
+
+class FeatureNotSupportedException(dException):
+	pass
 
 
 class MissingPKException(dException):
@@ -32,17 +49,16 @@ class ConnectionLostException(dException):
 class FieldNotFoundException(dException):
 	pass
 
-class DataBaseException(dException):
+class DatabaseException(dException):
 	pass
 
-class DBNoAccessException(DataBaseException):
+class DBNoAccessException(DatabaseException):
 	pass
 	
-class DBNoDBOnHostException(DataBaseException):
+class DBNoDBOnHostException(DatabaseException):
 	pass
 
-
-class DBQueryException(DataBaseException):
+class DBQueryException(DatabaseException):
 	def __init__(self, err, sql):
 		self.sql = sql
 		self.err_desc = str(err)

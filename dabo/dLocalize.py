@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import gettext, os
 import dabo
 from dabo.__version__ import version
@@ -6,8 +7,7 @@ __domain = "dabo"
 __localedir = "locale"
 
 def __translation(domain, version=None, dirs=[]):
-	""" Try to find 
-	"""
+	""" Try to find """
 	dirs = [os.path.join(d, __localedir) for d in dirs]
 	dirs.append(None) # tell to search in system dirs also
 	domains = [domain]
@@ -59,8 +59,15 @@ def _(s):
 	"""
 	# application initialized, try to install messages
 	if not __app_initialized:
-		__add_apptrans()	
-	return __trans.ugettext(str(s))
+		__add_apptrans()
+	
+	app = dabo.dAppRef
+	if isinstance(s, str) and app is not None:
+		ss = app.str2Unicode(s)
+	else:
+		ss = s
+
+	return __trans.ugettext(ss)
 
 	
 def n_(s):

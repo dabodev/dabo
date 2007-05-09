@@ -1,19 +1,28 @@
-""" dabo.db.backend.py : abstractions for the various db api's """
+# -*- coding: utf-8 -*-
 import sys
+import re
 import datetime
 import dabo
 from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.db import dTable
-from dabo.db import dNoEscQuoteStr
+from dNoEscQuoteStr import dNoEscQuoteStr
 try:
 	import decimal
 except ImportError:
 	decimal = None
 
+
+
 class dBackend(dObject):
-	""" Abstract object: inherit from this to define new dabo db interfaces."""
+	"""Abstract class inherited by the specific Dabo database connectors."""
+	# Pattern for determining if a function is present in a string
+	functionPat = re.compile(r".*\([^\)]+\)")
+	# When enclosing table or field names that contain spaces, what
+	# character is used? Default to double quote.
+	nameEnclosureChar = '"'
+
 	def __init__(self):
 		self._baseClass = dBackend
 		self._autoCommit = False
@@ -26,6 +35,12 @@ class dBackend(dObject):
 			self._encoding = self.Application.Encoding
 		else:
 			self._encoding = dabo.defaultEncoding
+		# If the db module is set to hook into dCursor to correct the field
+		# types and convert the records to dict inline, then dCursorMixin doesn't
+		# have to reiterate the records to do those tasks. Set the following to
+		# True in the given db module to tell dCursorMixin not to bother. As of this
+		# writing, only dbSQLite is set up for this.
+		self._alreadyCorrectedFieldTypes = False
 
 
 	def isValidModule(self):
@@ -37,7 +52,7 @@ class dBackend(dObject):
 			return False
 
 
-	def getConnection(self, connectInfo):
+	def getConnection(self, connectInfo, **kwargs):
 		""" override in subclasses """
 		return None
 
@@ -152,8 +167,7 @@ class dBackend(dObject):
 
 
 	def getTableRecordCount(self, tableName):
-		""" Return the number of records in the backend table.
-		"""
+		""" Return the number of records in the backend table."""
 		return -1
 
 
@@ -191,9 +205,10 @@ class dBackend(dObject):
 			self._connection.autocommit(val)
 			self._autoCommit = val
 		else:
-			# Without an autocommit method, assume
-			# no autocommit.
+			# Without an autocommit method, assume no autocommit.
 			self._autoCommit = False
+			if val:
+				raise ValueError, "Can't set AutoCommit to True for this backend."
 
 
 	def beginTransaction(self, cursor):
@@ -204,12 +219,14 @@ class dBackend(dObject):
 	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
 		if not cursor.AutoCommit:
-			cursor.connection.commit()
+			self._connection.commit()
+			dabo.dbActivityLog.write("SQL: commit")
 
 
 	def rollbackTransaction(self, cursor):
 		""" Roll back (revert) a SQL transaction."""
-		cursor.connection.rollback()
+		self._connection.rollback()
+		dabo.dbActivityLog.write("SQL: rollback")
 
 
 	def addWithSep(self, base, new, sep=",\n\t"):
@@ -224,37 +241,69 @@ class dBackend(dObject):
 		return ret
 
 
-	def addField(self, clause, exp):
+	def encloseNames(self, exp, autoQuote=True):
+		"""When table/field names contain spaces, this will safely enclose them
+		in quotes or whatever delimiter is appropriate for the backend, unless
+		autoQuote is False, in which case it leaves things untouched.
+		"""
+		if autoQuote:
+			# First separate any alias structures, e.g., 'foo as bar'.
+			parts = re.split(r"\s+as\s+", exp)
+			delim = self.nameEnclosureChar
+			def encPart(part):
+				qtd = [delim + pt + delim for pt in part.split(".") if pt]
+				return ".".join(qtd)
+			exp = " as ".join([encPart(pt) for pt in parts])
+		return exp
+	
+	
+	def addField(self, clause, exp, alias=None, autoQuote=True):
 		""" Add a field to the field clause."""
-		#indent = "\t"
 		indent = len("select ") * " "
+		# If exp is a function, don't do anything special about spaces.
+		if not self.functionPat.match(exp):
+			exp = self.encloseNames(exp, autoQuote=autoQuote)
+		if alias:
+			alias = self.encloseNames(alias, autoQuote=autoQuote)
+			exp = "%(exp)s as %(alias)s" % locals()
+		# Give the backend-specific code a chance to update the format
+		exp = self.processFields(exp)
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
-
-	def addFrom(self, clause, exp):
+	
+	def addFrom(self, clause, exp, autoQuote=True):
 		""" Add a table to the sql statement."""
-		#indent = "\t"
+		exp = self.encloseNames(exp, autoQuote=autoQuote)
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
+	
+	
+	def addJoin(self, tbl, joinCondition, exp, joinType=None, autoQuote=True):
+		""" Add a joined table to the sql statement."""
+		tbl = self.encloseNames(tbl, autoQuote=autoQuote)
+		joinType = self.formatJoinType(joinType)
+		indent = len("select ") * " "
+		clause = "%(joinType)s join %(tbl)s on %(joinCondition)s" % locals()
+		return self.addWithSep(clause, exp, sep="\n%s" % indent)
 
 
-	def addWhere(self, clause, exp, comp="and"):
+	def addWhere(self, clause, exp, comp="and", autoQuote=True):
 		""" Add an expression to the where clause."""
-		#indent = "\t"
 		indent = (len("select ") - len(comp)) * " "
+		exp = self.processFields(exp)
 		return self.addWithSep(clause, exp, sep="\n%s%s " % (indent, comp))
 
 
-	def addGroupBy(self, clause, exp):
+	def addGroupBy(self, clause, exp, autoQuote=True):
 		""" Add an expression to the group-by clause."""
-		#indent = "\t"
+		exp = self.encloseNames(exp, autoQuote=autoQuote)
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
 
-	def addOrderBy(self, clause, exp):
+	def addOrderBy(self, clause, exp, autoQuote=True):
 		""" Add an expression to the order-by clause."""
-		#indent = "\t"
+		exp = self.encloseNames(exp, autoQuote=autoQuote)
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
@@ -266,23 +315,33 @@ class dBackend(dObject):
 		return "limit"
 
 
-	def formSQL(self, fieldClause, fromClause,
+	def formSQL(self, fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause, limitClause):
 		""" Creates the appropriate SQL for the backend, given all
 		the required clauses. Some backends order these differently, so
 		they should override this method with their own ordering.
 		"""
-		clauses =  (fieldClause, fromClause, whereClause, groupByClause,
+		clauses =  (fieldClause, fromClause, joinClause, whereClause, groupByClause,
 				orderByClause, limitClause)
 		sql = "select " + "\n".join( [clause for clause in clauses if clause] )
 		return sql
 
 
-	def prepareWhere(self, clause):
+	def prepareWhere(self, clause, autoQuote=True):
 		""" Normally, just return the original. Can be overridden as needed
 		for specific backends.
 		"""
 		return clause
+	
+	
+	def formatJoinType(self, jt):
+		"""Default formatting for jointype keywords. Override in subclasses if needed."""
+		if jt is None:
+			jt = "inner"
+		else:
+			# Default to trimmed lower-case
+			jt = jt.lower().strip()
+		return jt
 
 
 	def getWordMatchFormat(self):
@@ -297,17 +356,18 @@ class dBackend(dObject):
 		return " %(table)s.%(field)s = %(value)s "
 
 
-	def getUpdateTablePrefix(self, tbl):
+	def getUpdateTablePrefix(self, tbl, autoQuote=True):
 		""" By default, the update SQL statement will be in the form of
 					tablename.fieldname
 		but some backends do no accept this syntax. If not, change
 		this method to return an empty string, or whatever should
 		preceed the field name in an update statement.
 		"""
+		tbl = self.encloseNames(tbl, autoQuote=autoQuote)
 		return tbl + "."
 
 
-	def getWhereTablePrefix(self, tbl):
+	def getWhereTablePrefix(self, tbl, autoQuote=True):
 		""" By default, the comparisons in the WHERE clauses of
 		SQL statements will be in the form of
 					tablename.fieldname
@@ -316,6 +376,7 @@ class dBackend(dObject):
 		preceed the field name in a comparison in the WHERE clause
 		of an SQL statement.
 		"""
+		tbl = self.encloseNames(tbl, autoQuote=autoQuote)
 		return tbl + "."
 
 
@@ -354,7 +415,7 @@ class dBackend(dObject):
 		return None
 
 
-	def setNonUpdateFields(self, cursor):
+	def setNonUpdateFields(self, cursor, autoQuote=True):
 		"""Normally, this routine should work for all backends. But
 		in the case of SQLite, the routine that grabs an empty cursor
 		doesn't fill in the description, so that backend has to use
@@ -372,7 +433,8 @@ class dBackend(dObject):
 			cursor._whereClause = holdWhere
 		descFlds = cursor.FieldDescription
 		# Get the raw version of the table
-		sql = "select * from %s where 1=0 " % cursor.Table
+		sql = "select * from %s where 1=0 " % self.encloseNames(cursor.Table, 
+				autoQuote=autoQuote)
 		auxCrs = cursor._getAuxCursor()
 		auxCrs.execute( sql )
 		# This is the clean version of the table.
@@ -393,37 +455,44 @@ class dBackend(dObject):
 
 
 	def getStructureDescription(self, cursor):
-		"""This will work for most backends. However, SQLite doesn't
-		properly return the structure when no records are returned.
-		"""
-		#Try using the no-records version of the SQL statement.
-		try:
-			tmpsql = cursor.getStructureOnlySql()
-		except AttributeError:
-			# We need to parse the sql property to get what we need.
-			import re
-			pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:where\s(.*))+)\s*", re.I | re.M | re.S)
-			if pat.search(cursor.sql):
-				# There is a WHERE clause. Add the NODATA clause
-				tmpsql = pat.sub("\\1 where 1=0 ", cursor.sql)
-			else:
-				# no WHERE clause. See if it has GROUP BY or ORDER BY clauses
-				pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:group\s*by\s(.*))+)\s*", re.I | re.M | re.S)
-				if pat.search(cursor.sql):
-					tmpsql = pat.sub("\\1 where 1=0 ", cursor.sql)
-				else:
-					pat = re.compile("(\s*select\s*.*\s*from\s*.*\s*)((?:order\s*by\s(.*))+)\s*", re.I | re.M | re.S)
-					if pat.search(cursor.sql):
-						tmpsql = pat.sub("\\1 where 1=0 ", cursor.sql)
-					else:
-						# Nothing. So just tack it on the end.
-						tmpsql = cursor.sql + " where 1=0 "
-		#print tmpsql
-		auxCrs = cursor._getAuxCursor()
-		auxCrs.execute(tmpsql)
-		auxCrs.storeFieldTypes()
-		return auxCrs.FieldDescription
+		"""Return the basic field structure."""
+		field_structure = {}
+		field_names = []
 
+		field_description = cursor.FieldDescription
+		if not field_description:
+			# No query run yet: execute the structure-only sql:
+			structure_only_sql = cursor.getStructureOnlySql()
+			aux = cursor.AuxCursor
+			aux.execute(structure_only_sql)
+			field_description = aux.FieldDescription
+
+		for field_info in field_description:
+			field_name = field_info[0]
+			field_type = self.getDaboFieldType(field_info[1])
+			field_names.append(field_name)
+			field_structure[field_name] = (field_type, False)
+
+		standard_fields = cursor.getFields()
+		for field_name, field_type, pk in standard_fields:
+			if field_name in field_names or not field_names:
+				# We only use the info for the standard field in one of two cases:
+				#   1) There aren't any fields in the FieldDescription, which would be
+				#      the case if we haven't set the SQL or requeried yet.
+				#   2) The field exists in the FieldDescription, and FieldDescription
+				#      didn't provide good type information.
+				if field_structure[field_name][0] == "?":
+					# Only override what was in FieldStructure if getFields() gave better info.
+					field_structure[field_name] = (field_type, pk)
+				if pk is True:
+					# FieldStructure doesn't provide pk information:
+					field_structure[field_name] = (field_structure[field_name][0], pk)
+
+		ret = []
+		for field in field_names:
+			ret.append( (field, field_structure[field][0], field_structure[field][1]) )
+		return tuple(ret)
+		
 
 	##########		Created by Echo 	##############
 	def isExistingTable(self, table):
@@ -462,17 +531,19 @@ class dBackend(dObject):
 	# that subclass should override these.
 	def setSQL(self, sql):
 		return sql
-	def setFieldClause(self, clause):
+	def setFieldClause(self, clause, autoQuote=True):
 		return clause
-	def setFromClause(self, clause):
+	def setFromClause(self, clause, autoQuote=True):
 		return clause
-	def setWhereClause(self, clause):
+	def setJoinClause(self, clause, autoQuote=True):
 		return clause
-	def setChildFilterClause(self, clause):
+	def setWhereClause(self, clause, autoQuote=True):
 		return clause
-	def setGroupByClause(self, clause):
+	def setChildFilterClause(self, clause, autoQuote=True):
 		return clause
-	def setOrderByClause(self, clause):
+	def setGroupByClause(self, clause, autoQuote=True):
+		return clause
+	def setOrderByClause(self, clause, autoQuote=True):
 		return clause
 	###########################################
 
@@ -485,6 +556,7 @@ class dBackend(dObject):
 	def _getEncoding(self):
 		""" Get backend encoding."""
 		return self._encoding
+
 
 	Encoding = property(_getEncoding, _setEncoding, None,
 			_("Backend encoding  (str)"))

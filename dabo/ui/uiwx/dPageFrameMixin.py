@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import time
 import wx
 import dabo
@@ -21,8 +22,28 @@ class dPageFrameMixin(cm.dControlMixin):
 	def _initEvents(self):
 		super(dPageFrameMixin, self)._initEvents()
 		self.Bind(self._evtPageChanged, self.__onPageChanged)
+		self.Bind(self._evtPageChanging, self.__onPageChanging)
 		self.bindEvent(dEvents.Create, self.__onCreate)
 
+	
+	def __onPageChanging(self, evt):
+		"""The page has not yet been changed, so we can veto it if conditions call for it."""
+		oldPageNum = evt.GetOldSelection()
+		newPageNum = evt.GetSelection()
+		if self._beforePageChange(oldPageNum, newPageNum) is False:
+			evt.Veto()
+		self.raiseEvent(dEvents.PageChanging, oldPageNum=oldPageNum, 
+				newPageNum=newPageNum)
+				
+	
+	def _beforePageChange(self, old, new):
+		return self.beforePageChange(old, new)
+	
+	
+	def beforePageChange(self, fromPage, toPage):
+		"""Return False from this method to prevent the page from changing."""
+		pass
+		
 		
 	def __onCreate(self, evt):
 		# Make sure the PageEnter fires for the current page on 
@@ -122,12 +143,21 @@ class dPageFrameMixin(cm.dControlMixin):
 		return self.insertPage(self.GetPageCount(), pgCls, caption, imgKey)
 		
 	
-	def insertPage(self, pos, pgCls=None, caption="", imgKey=None):
+	def insertPage(self, pos, pgCls=None, caption="", imgKey=None,
+			ignoreOverride=False):
 		""" Insert the page into the pageframe at the specified position, 
 		and optionally sets the page caption and image. The image 
 		should have already been added to the pageframe if it is 
 		going to be set here.
 		"""
+		# Allow subclasses to potentially override this behavior. This will
+		# enable them to handle page creation in their own way. If overridden,
+		# the method will return the new page.
+		ret = None
+		if not ignoreOverride:
+			ret = self._insertPageOverride(pos, pgCls, caption, imgKey)
+		if ret:
+			return ret			
 		if pgCls is None:
 			pgCls = self.PageClass
 		if isinstance(pgCls, dPage):
@@ -149,6 +179,7 @@ class dPageFrameMixin(cm.dControlMixin):
 		else:
 			self.InsertPage(pos, pg, text=caption)
 		return self.Pages[pos]
+	def _insertPageOverride(self, pos, pgCls, caption, imgKey): pass
 
 
 	def removePage(self, pgOrPos, delPage=True):
@@ -251,14 +282,7 @@ class dPageFrameMixin(cm.dControlMixin):
 			return dPage
 			
 	def _setPageClass(self, val):
-		if isinstance(val, basestring):
-			from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
-			conv = DesignerXmlConverter()
-			self._pageClass = conv.classFromXml(val)
-		elif issubclass(val, cm.dControlMixin):
-			self._pageClass = val
-		else:
-			raise TypeError, _("PageClass must descend from a Dabo base class.")
+		self._pageClass = val
 			
 			
 	def _getPageCount(self):
@@ -303,7 +327,11 @@ class dPageFrameMixin(cm.dControlMixin):
 
 	def _getSelectedPage(self):
 		try:
-			ret = self.GetPage(self.GetSelection())
+			sel = self.GetSelection()
+			if sel < 0:
+				ret = None
+			else:
+				ret = self.GetPage(sel)
 		except:
 			ret = None
 		return ret		

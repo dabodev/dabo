@@ -1,42 +1,4 @@
-""" 
-	dApp.py : The application object for Dabo.
-
-
-	This object gets instantiated from the client app's main.py,
-	and lives through the life of the application.
-
-		-- set up an empty data connections object which holds 
-		-- connectInfo objects connected to pretty names. If there 
-		-- is a file named 'default.cnxml' present, it will import the
-		-- connection definitions contained in that. If no file of that
-		-- name exists, it will import any .cnxml file it finds. If there
-		-- are no such files, it will then revert to the old behavior
-		-- of importing a file in the current directory called 
-		-- 'dbConnectionDefs.py', which contains connection
-		-- definitions in python code format instead of XML.
-
-		-- Set up a DB Connection manager, that is basically a dictionary
-		-- of dConnection objects. This allows connections to be shared
-		-- application-wide.
-
-		-- decide which ui to use (wx) and gets that ball rolling
-
-		-- make a system menu bar, based on a combination
-		-- of dabo defaults and user resource files.
-
-		-- ditto for toolbar(s)
-
-		-- look for a mainFrame ui resource file in an expected 
-		-- place, otherwise uses default dabo mainFrame, and 
-		-- instantiate that. 
-
-		-- maintain a forms collection and provide interfaces for
-		-- opening dForms, closing them, and iterating through them.
-
-		-- start the main app event loop.
-
-		-- clean up and exit gracefully
-"""
+# -*- coding: utf-8 -*-
 import sys
 import os
 import locale
@@ -96,10 +58,14 @@ class TempFileHolder(object):
 		try:
 			import os
 			for f in self._tempFiles:
+				if not os.path.exists(f):
+					continue
 				try:
 					os.remove(f)
-				except StandardError, e:
-					print "Could not delete %s: %s" % (f, e)
+				except OSError, e:
+					if not f.endswith(".pyc"):
+						# Don't worry about the .pyc files, since they may not be there
+						print "Could not delete %s: %s" % (f, e)
 		except:
 			# In these rare cases, Python has already 'gone away', so just bail
 			pass
@@ -143,6 +109,36 @@ class dApp(dObject):
 	>>> import dabo
 	>>> app = dabo.dApp
 	>>> app.start()
+
+	Normally, dApp gets instantiated from the client app's main Python script,
+	and lives through the life of the application.
+
+		-- set up an empty data connections object which holds 
+		-- connectInfo objects connected to pretty names. If there 
+		-- is a file named 'default.cnxml' present, it will import the
+		-- connection definitions contained in that. If no file of that
+		-- name exists, it will import any .cnxml file it finds. If there
+		-- are no such files, it will then revert to the old behavior
+		-- of importing a file in the current directory called 
+		-- 'dbConnectionDefs.py', which contains connection
+		-- definitions in python code format instead of XML.
+
+		-- Set up a DB Connection manager, that is basically a dictionary
+		-- of dConnection objects. This allows connections to be shared
+		-- application-wide.
+
+		-- decide which ui to use (wx) and gets that ball rolling
+
+		-- look for a MainForm in an expected place, otherwise use default dabo 
+		-- dMainForm, and instantiate that. 
+
+		-- maintain a forms collection and provide interfaces for
+		-- opening dForms, closing them, and iterating through them.
+
+		-- start the main app event loop.
+
+		-- clean up and exit gracefully
+
 	"""
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, True
 	# Behaviors which are normal in the framework may need to
@@ -178,6 +174,11 @@ class dApp(dObject):
 		self._tempFileHolder = TempFileHolder()
 		self.getTempFile = self._tempFileHolder.getTempFile
 
+		# List of form classes to open on App Startup
+		self.formsToOpen = []  
+		# Form to open if no forms were passed as a parameter
+		self.default_form = None
+
 		# For simple UI apps, this allows the app object to be created
 		# and started in one step. It also suppresses the display of
 		# the main form.
@@ -199,14 +200,15 @@ class dApp(dObject):
 		# dabo is going to want to import various things from the Home Directory
 		if self.HomeDirectory not in sys.path:
 			sys.path.append(self.HomeDirectory)
-		if not self.getAppInfo("appName"):
-			self.setAppInfo("appName", "Dabo Application")
-		if not self.getAppInfo("appShortName"):
-			self.setAppInfo("appShortName", self.getAppInfo("appName").replace(" ", ""))
-		if not self.getAppInfo("appVersion"):
-				self.setAppInfo("appVersion", "")
-		if not self.getAppInfo("vendorName"):
-			self.setAppInfo("vendorName", "")
+		
+		def initAppInfo(item, default):
+			if not self.getAppInfo(item):
+				self.setAppInfo(item, default)
+
+		initAppInfo("appName", "Dabo Application")
+		initAppInfo("appShortName", self.getAppInfo("appName").replace(" ", ""))
+		initAppInfo("appVersion", "")
+		initAppInfo("vendorName", "")
 
 		self._initDB()
 		
@@ -225,6 +227,22 @@ class dApp(dObject):
 		# Flip the flag
 		self._wasSetup = True
 
+
+	def startupForms(self):
+		"""Open one or more of the defined forms. The default one is specified 
+		in .default_form. If form names were passed on the command line, 
+		they will be opened instead of the default one as long as they exist.
+		"""
+		form_names = [class_name[3:] for class_name in dir(self.ui) if class_name[:3] == "Frm"]
+		for arg in sys.argv[1:]:
+			arg = arg.lower()
+			for form_name in form_names:
+				if arg == form_name.lower():
+					self.formsToOpen.append(getattr(self.ui, "Frm%s" % form_name))
+		if not self.formsToOpen:
+			self.formsToOpen.append(self.default_form)
+		for frm in self.formsToOpen:
+			frm(self.MainForm).show()
 
 	def initUIApp(self):
 		"""Callback from the initial app setup. Used to allow the 
@@ -263,6 +281,23 @@ class dApp(dObject):
 		dabo.infoLog.write(_("Application finished."))
 
 
+	def getLoginInfo(self, message=None):
+		"""Return the user/password to dSecurityManager.login().
+
+		The default is to display the standard login dialog, and return the 
+		user/password as entered by the user, but subclasses can override to get
+		the information from whereever is appropriate.
+
+		Return a tuple of (user, pass).
+		"""
+		import dabo.ui.dialogs.login as login
+		ld = login.Login(self.MainForm)
+		ld.setMessage(message)
+		ld.show()
+		user, password = ld.user, ld.password
+		return user, password
+	
+	
 	def _persistMRU(self):
 		"""Persist any MRU lists to disk."""
 		base = "MRU.%s" % self.getAppInfo("appName")
@@ -359,7 +394,34 @@ class dApp(dObject):
 			return self.SecurityManager.UserCaption
 		else:
 			return None
-			
+
+
+	def str2Unicode(self, strVal):
+		"""Given a string, this method will try to return a properly decoded
+		unicode value. It will first try the default Encoding, and then try the
+		more common encoding types.
+		"""
+		if not isinstance(strVal, basestring):
+			strVal = strVal.__str__()
+		if isinstance(strVal, unicode):
+			return strVal
+		ret = None
+		try:
+			ret = unicode(strVal, self.Encoding)
+		except UnicodeDecodeError, e:
+			# Try some common encodings:
+			for enc in ("utf-8", "latin-1", "iso-8859-1"):
+				if enc != self.Encoding:
+					try:
+						ret = unicode(strVal, enc)
+						break
+					except UnicodeDecodeError:
+						continue
+		if ret is None:
+			# All attempts failed
+			raise UnicodeDecodeError, e
+		return ret
+
 
 	# These two methods pass encryption/decryption requests
 	# to the Crypto object
@@ -526,6 +588,31 @@ class dApp(dObject):
 				self.dbConnectionDefs[k] = ci
 				self.dbConnectionNameToFiles[k] = connFile
 	
+	def showCommandWindow(self, context=None):
+		"""Shows a command window with a full Python interpreter.
+
+		This is great for debugging during development, but you should turn off
+		app.ShowCommandWindowMenu in production, perhaps leaving backdoor 
+		access to this function.
+
+		The context argument tells dShell what object becomes 'self'. If not
+		passed, context will be app.ActiveForm.
+		"""
+		self.uiApp.showCommandWindow(context)
+
+
+	def fontZoomIn(self, evt=None):
+		"""Increase the font size on the active form."""
+		self.uiApp.fontZoomIn()
+
+	def fontZoomOut(self, evt=None):
+		"""Decrease the font size on the active form."""
+		self.uiApp.fontZoomOut()
+
+	def fontZoomNormal(self, evt=None):
+		"""Reset the font size to normal on the active form."""
+		self.uiApp.fontZoomNormal()
+
 
 	########################
 	# This next section simply passes menu events to the UI
@@ -562,8 +649,8 @@ class dApp(dObject):
 		except:
 			self.uiApp.onEditPreferences(evt)
 	# These handle MRU menu requests
-	def addToMRU(self, menu, prmpt, bindfunc=None):
-		self.uiApp.addToMRU(menu, prmpt, bindfunc)
+	def addToMRU(self, menu, prmpt, bindfunc=None, *args, **kwargs):
+		self.uiApp.addToMRU(menu, prmpt, bindfunc, *args, **kwargs)
 	def onMenuOpenMRU(self, menu):
 		self.uiApp.onMenuOpenMRU(menu)
 	############################	
@@ -575,11 +662,11 @@ class dApp(dObject):
 		
 
 	def onHelpAbout(self, evt):
-		import dabo.ui.dialogs.about as about
+		from dabo.ui.dialogs.htmlAbout import HtmlAbout as about
 		frm = self.ActiveForm
 		if frm is None:
 			frm = self.MainForm
-		dlg = about.About(frm)
+		dlg = about(frm)
 		dlg.show()
 	
 	
@@ -622,8 +709,13 @@ class dApp(dObject):
 				ret = self.MainForm.BasePrefKey
 			except: pass
 		if not ret:
-			f = inspect.stack()[-1][1]
-			pth = os.path.abspath(f)
+			dabo.infoLog.write(_("WARNING: No BasePrefKey has been set for this application."))
+			try:
+				f = inspect.stack()[-1][1]
+				pth = os.path.abspath(f)
+			except IndexError:
+				# This happens in some Class Designer forms
+				pth = os.path.join(os.getcwd(), sys.argv[0])
 			if pth.endswith(".py"):
 				pth = pth[:-3]
 			pthList = pth.strip(os.sep).split(os.sep)
@@ -642,6 +734,21 @@ class dApp(dObject):
 
 	def _setCrypto(self, val):
 		self._cryptoProvider = val
+
+
+	def _getDatabaseActivityLog(self):
+		return dabo.dbActivityLog.LogObject
+
+	def _setDatabaseActivityLog(self, val):
+		if isinstance(val, basestring):
+			try:
+				f = open(val, "a")
+			except:
+				dabo.errorLog.write(_("Could not open file: '%s'") % val)
+				return
+		else:
+			f = val
+		dabo.dbActivityLog.LogObject = f
 
 
 	def _getDrawSizerOutlines(self):
@@ -686,6 +793,13 @@ class dApp(dObject):
 			self._homeDirectory = os.path.abspath(val)
 		else:
 			raise ValueError, _("%s: Path does not exist.") % val
+
+
+	def _getIcon(self):
+		return getattr(self, "_icon", "daboIcon.ico")
+
+	def _setIcon(self, val):
+		self._icon = val
 
 				
 	def _getMainForm(self):
@@ -771,6 +885,17 @@ class dApp(dObject):
 	def _setShowCommandWindowMenu(self, val):
 		self._showCommandWindowMenu = bool(val)
 			
+
+	def _getShowSizerLinesMenu(self):
+		try:
+			v = self._showSizerLinesMenu
+		except AttributeError:
+			v = self._showSizerLinesMenu = True
+		return v
+			
+	def _setShowSizerLinesMenu(self, val):
+		self._showSizerLinesMenu = bool(val)
+
 			
 	def _getUI(self):
 		try:
@@ -833,6 +958,10 @@ class dApp(dObject):
 	Crypto = property(_getCrypto, _setCrypto, None, 
 			_("Reference to the object that provides cryptographic services.  (varies)" ) )
 	
+	DatabaseActivityLog = property(_getDatabaseActivityLog, _setDatabaseActivityLog, None,
+			_("""Path to the file (or file-like object) to be used for logging all database 
+			activity. Default=None, which means no log is kept.   (file or str)"""))
+	
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
 			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)"))
 	
@@ -847,6 +976,15 @@ class dApp(dObject):
 			current directory will be on a given system, but HomeDirectory will always
 			get you to your files."""))
 		
+	Icon = property(_getIcon, _setIcon, None,
+			_("""Specifies the icon to use on all forms and dialogs by default.
+
+			The value passed can be a binary icon bitmap, a filename, or a
+			sequence of filenames. Providing a sequence of filenames pointing to
+			icons at expected dimensions like 16, 22, and 32 px means that the
+			system will not have to scale the icon, resulting in a much better
+			appearance."""))
+
 	MainForm = property(_getMainForm, _setMainForm, None,
 			_("""The object reference to the main form of the application, or None.
 
@@ -906,6 +1044,13 @@ class dApp(dObject):
 			If True (the default), there will be a File|Command Window option
 			available in the base menu. If False, your code can still start the 
 			command window by calling app.showCommandWindow() directly.""") )
+
+	ShowSizerLinesMenu = property(_getShowSizerLinesMenu,
+			_setShowSizerLinesMenu, None, 
+			_("""Specifies whether the "Show Sizer Lines" option is shown in the menu.
+
+			If True (the default), there will be a View|Show Sizer Lines option
+			available in the base menu.""") )
 
 	UI = property(_getUI, _setUI, None, 
 			_("""Specifies the user interface to load, or None. (str)

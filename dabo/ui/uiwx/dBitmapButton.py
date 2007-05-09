@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import warnings
 import wx, dabo, dabo.ui
 if __name__ == "__main__":
@@ -21,7 +22,7 @@ class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):
 
 	Otherwise, dBitmapButton behaves the same as a normal dButton.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dBitmapButton
 		preClass = wx.PreBitmapButton
 		# Initialize the self._*picture attributes
@@ -36,7 +37,7 @@ class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):
 		self._bmpBorder = 10
 		
 		dim.dImageMixin.__init__(self)
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		
 
 	def _initEvents(self):
@@ -214,9 +215,9 @@ class dBitmapButton(cm.dControlMixin, dim.dImageMixin, wx.BitmapButton):
 class _dBitmapButton_test(dBitmapButton):
 	def afterInit(self):
 		# Demonstrate that the Picture props are working.
-		self.Picture = "save"
-		self.DownPicture = "browse"
-		self.FocusPicture = "edit"
+		self.Picture = "themes/tango/16x16/apps/accessories-text-editor.png"
+		self.DownPicture = "themes/tango/16x16/apps/help-browser.png"
+		self.FocusPicture = "themes/tango/16x16/apps/utilities-terminal.png"
 		self.Width = 100
 		self.Height = 25
 

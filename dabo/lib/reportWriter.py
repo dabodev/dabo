@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import copy
 import datetime
 
@@ -1286,7 +1287,6 @@ class ReportWriter(object):
 					if self._currentColumn >= columnCount-1:
 						endPage()
 						beginPage()
-						self._currentColumn = 0
 					else:
 						self._currentColumn += 1
 					y = pageHeaderOrigin[1]
@@ -1334,6 +1334,7 @@ class ReportWriter(object):
 			self._brandNewPage = True
 
 		def endPage():
+			self._currentColumn = 0
 			printBand("pageForeground")
 			self.Canvas.showPage()
 		

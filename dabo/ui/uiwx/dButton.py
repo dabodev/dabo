@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import dabo
 import dabo.ui
@@ -24,10 +25,10 @@ class dButton(cm.dControlMixin, wx.Button):
 			self.Caption = "Press Me one more time"
 
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dButton
 		preClass = wx.PreButton
-		cm.dControlMixin.__init__(self, preClass, parent, properties, 
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties,  
 				*args, **kwargs)
 
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 # This serves as a catch-all script for common utilities that may be used
 # in lots of places throughout Dabo. Typically, to use a function 'foo()' in
 # this file, add the following import statement to your script:
@@ -137,12 +138,19 @@ def relativePathList(toLoc, fromLoc=None):
 	"""
 	if fromLoc is None:
 		fromLoc = os.getcwd()
+	if toLoc.startswith(".."):
+		toLoc = os.path.join(os.path.split(fromLoc)[0], toLoc)
 	toLoc = os.path.abspath(toLoc)
+	if os.path.isfile(toLoc):
+		toDir, toFile = os.path.split(toLoc)
+	else:
+		toDir = toLoc
+		toFile = ""
 	fromLoc = os.path.abspath(fromLoc)
 	if os.path.isfile(fromLoc):
 		fromLoc = os.path.split(fromLoc)[0]
 	fromList = fromLoc.split(os.path.sep)
-	toList = toLoc.split(os.path.sep)	
+	toList = toDir.split(os.path.sep)
 	# There can be empty strings from the split
 	while len(fromList) > 0 and not fromList[0]:
 		fromList.pop(0)
@@ -152,11 +160,14 @@ def relativePathList(toLoc, fromLoc=None):
 	while (len(fromList) > lev) and (len(toList) > lev) and \
 			(fromList[lev] == toList[lev]):
 		lev += 1
-		
+	
 	# 'lev' now contains the first level where they differ
 	fromDiff = fromList[lev:]
 	toDiff = toList[lev:]
-	return [".."] * len(fromDiff) + toDiff
+	ret = [".."] * len(fromDiff) + toDiff
+	if toFile:
+		ret += [toFile]
+	return ret
 
 
 def relativePath(toLoc, fromLoc=None):
@@ -192,4 +203,19 @@ def resolveAttributePathing(atts, pth=None):
 		# Update the atts
 		atts[convKey] = relPath
 
+
+def resolvePath(val, pth=None, abspath=False):
+	"""Takes a single string value in the format Dabo uses to store pathing
+	in XML, and returns the original path relative to the specified path (or the
+	current directory, if no pth is specified). If 'abspath' is True, returns an
+	absolute path instead of the default relative path.
+	"""
+	prfx = getPathAttributePrefix()
+	# Strip the path designator
+	val = val.replace(prfx, "")
+	# Convert to relative path
+	ret = relativePath(val, pth)
+	if abspath:
+		ret = os.path.abspath(ret)
+	return ret
 

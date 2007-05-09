@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
+import os.path
+import warnings
 import wx
 import dabo, dabo.ui
-import os.path
 
 dabo.ui.loadUI("wx")
 
@@ -21,11 +23,11 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 	The toolbar can be detached into a floating toolbar, and reattached by the
 	user at will.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dToolBar
 		preClass = wx.PreToolBar
 		
-		style = self._extractKey((kwargs, properties), "style", 0)
+		style = self._extractKey((kwargs, properties, attProperties), "style", 0)
 		# Note: need to set the TB_TEXT flag, in order for that to be toggleable
 		#       after instantiation. Because most toolbars will want to have icons
 		#       only, there is code in _initProperties to turn it off by default.
@@ -39,7 +41,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		# Need this to load/convert image files to bitmaps
 		self._image = wx.NullImage
 
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 	def _initProperties(self):
@@ -57,12 +59,24 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		return tuple(original + additional)
 
 
+	def _realize(self):
+		"""There seems to be a bug in wxPython Mac since 2.8. There is an error
+		thrown, but it doesn't seem to affect the behavior of the toolbar, so just
+		let it pass.
+		"""
+		try:
+			self.Realize()
+		except wx._core.PyAssertionError, e:
+			# Only happens on the Mac
+			pass
+
+
 	def appendItem(self, item):
 		"""Insert a dToolBarItem at the end of the toolbar."""
 		wxItem = self.AddToolItem(item._wxToolBarItem)
 		self._daboChildren.append(item)
 		item._parent = self
-		self.Realize()
+		self._realize()
 		return item
 
 
@@ -71,7 +85,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		wxItem = self.InsertToolItem(pos, item._wxToolBarItem)
 		self._daboChildren.insert(pos, item)
 		item._parent = self
-		self.Realize()
+		self._realize()
 		return item
 		
 
@@ -82,48 +96,57 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 
 
 	def appendButton(self, caption, pic, bindfunc=None, toggle=False, 
-			tip="", help=""):
+			tip="", help="", *args, **kwargs):
 		"""Adds a tool (button) to the toolbar. 
 
 		You must pass a caption and an image for the button. The picture can be a 
 		wx.Bitmap, or a path to an image file of any supported type. If you pass 
 		toggle=True, the button will exist in an up and down state. Pass the 
-		function you want to be called when this button is clicked in the 
-		'bindfunc' param.
+		function you want to be called when this button is clicked in an 
+		'OnHit' param.
+
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 		"""
 		return self._appendInsertButton(None, caption, pic, bindfunc, 
-				toggle,	tip, help)
+				toggle,	tip, help, *args, **kwargs)
 
 
 	def insertButton(self, pos, caption, pic, bindfunc=None, toggle=False, 
-			tip="", help=""):
+			tip="", help="", *args, **kwargs):
 		"""Inserts a tool (button) to the toolbar at the specified position. 
 
 		You must pass a caption and an image for the button. The picture can be a 
 		wx.Bitmap, or a path to an image file of any supported type. If you pass 
 		toggle=True, the button will exist in an up and down state. Pass the 
-		function you want to be called when this button is clicked in the 
-		'bindfunc' param.
+		function you want to be called when this button is clicked in an 
+		'OnHit' param.
+
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 		"""
 		return self._appendInsertButton(pos, caption, pic, bindfunc, 
-				toggle,	tip, help)
+				toggle,	tip, help, *args, **kwargs)
 
 
 	def prependButton(self, caption, pic, bindfunc=None, toggle=False, 
-			tip="", help=""):
+			tip="", help="", *args, **kwargs):
 		"""Inserts a tool (button) to the beginning of the toolbar. 
 
 		You must pass a caption and an image for the button. The picture can be a 
 		wx.Bitmap, or a path to an image file of any supported type. If you pass 
 		toggle=True, the button will exist in an up and down state. Pass the 
-		function you want to be called when this button is clicked in the 
-		'bindfunc' param.
+		function you want to be called when this button is clicked in an 
+		'OnHit' param.
+
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 		"""
-		return self.insertButton(0, caption, pic, bindfunc, toggle,	tip, help)
+		return self.insertButton(0, caption, pic, bindfunc, toggle,	tip, help, *args, **kwargs)
 
 
 	def _appendInsertButton(self, pos, caption, pic, bindfunc, toggle, 
-			tip, help):
+			tip, help, *args, **kwargs):
 		"""Common code for the append|insert|prependButton() functions."""
 		if isinstance(pic, basestring):
 			# path was passed
@@ -142,17 +165,22 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 			needScale = True
 		if needScale:
 			picBmp = self._resizeBmp(picBmp, wd, ht)
-	
+
+		if toggle:
+			kind = wx.ITEM_CHECK
+		else:
+			kind = wx.ITEM_NORMAL
 		id_ = wx.NewId()
 		if pos is None:
 			# append
-			butt = dToolBarItem(self.DoAddTool(id_, caption, picBmp, 
-					shortHelp=tip, longHelp=help))
+			tool = self.DoAddTool(id_, caption, picBmp, shortHelp=tip, longHelp=help,
+					kind=kind)
 		else:
 			# insert
-			butt = dToolBarItem(self.DoInsertTool(pos, id_, caption, picBmp, 
-				shortHelp=tip, longHelp=help))
-			
+			tool = self.InsertTool(pos, id_, caption, picBmp, shortHelpString=tip, longHelpString=help,
+					isToggle=toggle)
+		butt = dToolBarItem(tool, *args, **kwargs)
+		
 		try:
 			self.SetToggle(id_, toggle)
 		except wx._core.PyAssertionError:
@@ -160,9 +188,11 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 			## SetToggle() obviously is implemented, because it does work.
 			pass
 
-		if bindfunc:
+		if bindfunc is not None:
+			warnings.warn(_("Deprecated; use 'OnHit=<func>' instead."), 
+					DeprecationWarning, 1)
 			butt.bindEvent(dEvents.Hit, bindfunc)
-		self.Realize()
+		self._realize()
 		
 		# Store the button reference
 		if pos is None:
@@ -184,7 +214,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		butt.SetLabel(control.Caption)
 		if bindfunc:
 			control.bindEvent(dEvents.Hit, bindfunc)
-		self.Realize()
+		self._realize()
 		
 		# Store the control reference:
 		self._daboChildren.append(control)
@@ -202,7 +232,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		butt.SetLabel(control.Caption)
 		if bindfunc:
 			control.bindEvent(dEvents.Hit, bindfunc)
-		self.Realize()
+		self._realize()
 		
 		# Store the control reference:
 		self._daboChildren.insert(0, control)
@@ -224,7 +254,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		sep = dToolBarItem(self.AddSeparator())
 		self._daboChildren.append(sep)
 		sep._parent = self
-		self.Realize()
+		self._realize()
 		return sep
 		
 
@@ -233,7 +263,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		sep = dToolBarItem(self.InsertSeparator(pos))
 		self._daboChildren.insert(pos, sep)
 		sep._parent = self
-		self.Realize()
+		self._realize()
 		return sep
 
 
@@ -383,7 +413,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 			self._delWindowStyleFlag(wx.TB_TEXT)
 			if val:
 				self._addWindowStyleFlag(wx.TB_TEXT)
-			self.Realize()
+			self._realize()
 		else:
 			self._properties["ShowCaptions"] = val
 		
@@ -396,7 +426,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 			self._delWindowStyleFlag(wx.TB_NOICONS)
 			if not val:
 				self._addWindowStyleFlag(wx.TB_NOICONS)
-			self.Realize()
+			self._realize()
 		else:
 			self._properties["ShowIcons"] = val
 		
@@ -424,17 +454,17 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		_("""Specifies whether the text captions are shown in the toolbar.  (bool)
 
 		Default is False."""))
-	DynamicShowCaptions = makeDynamicProperty(ShowCaptions)
-
 
 	ShowIcons = property(_getShowIcons, _setShowIcons, None,
 		_("""Specifies whether the icons are shown in the toolbar.  (bool)
 
 		Note that you can set both ShowCaptions and ShowIcons to False, but in 
-		that case, the icons will still show.
+		that case, the icons will still show. Default is True."""))
 
-		Default is True."""))
+
+	DynamicShowCaptions = makeDynamicProperty(ShowCaptions)
 	DynamicShowIcons = makeDynamicProperty(ShowIcons)
+
 
 
 class dToolBarItem(dObject):
@@ -444,7 +474,7 @@ class dToolBarItem(dObject):
 	## constructor. Therefore, I've made this wrapper class to decorate the
 	## wx.ToolBarToolBase instance that comes back from the DoAddTool()
 	## function.
-	def __init__(self, wxItem=None):
+	def __init__(self, wxItem=None, OnHit=None, *args, **kwargs):
 		if wxItem is None:
 			wxItem = self._getWxToolBarItem()
 		self._wxToolBarItem = wxItem
@@ -452,7 +482,10 @@ class dToolBarItem(dObject):
 		self._parent = None
 		if self.Application:
 			self.Application.uiApp.Bind(wx.EVT_MENU, self.__onWxHit, wxItem)
-
+		super(dToolBarItem, self).__init__(*args, **kwargs)
+		if OnHit is not None:
+			self.bindEvent(dEvents.Hit, OnHit)
+			
 
 	def __getattr__(self, attr):
 		"""Exposes the underlying wx functions and attributes."""
@@ -534,11 +567,9 @@ class dToolBarItem(dObject):
 
 			You will only see the caption if dToolBar.ShowCaptions is set to True.
 			"""))
-	DynamicCaption = makeDynamicProperty(Caption)
 
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("""Specifies whether the user may interact with the button."""))
-	DynamicEnabled = makeDynamicProperty(Enabled)
 
 	Parent = property(_getParent, None, None,
 			_("""Contains an object reference to the containing toolbar."""))
@@ -551,30 +582,37 @@ class dToolBarItem(dObject):
 			None."""))
 
 
+	DynamicCaption = makeDynamicProperty(Caption)
+	DynamicEnabled = makeDynamicProperty(Enabled)
+
+
+
 class _dToolBar_test(dToolBar):
 	def initProperties(self):
-		self.MaxWidth = 20
-		self.MaxHeight = 20
+		self.MaxWidth = 22
+		self.MaxHeight = 22
 
 	def afterInit(self):
-		self.appendButton("Copy", pic="copy", toggle=False, bindfunc=self.onCopy, 
+		iconPath = "themes/tango/22x22"
+		self.appendButton("Copy", pic="%s/actions/edit-copy.png" % iconPath, 
+				toggle=False, OnHit=self.onCopy, 
 				tip="Copy", help="Much Longer Copy Help Text")
 
-		self.appendButton("Timer", pic="dTimer", toggle=True, bindfunc=self.onTimer,
-				tip="Timer Toggle", help="Timer Help Text")
+		self.appendButton("Toggle", pic="%s/actions/system-shutdown.png" % iconPath, 
+				toggle=True, OnHit=self.onToggle,	tip="Toggle me", help="Toggle me")
 
 		self.appendButton("Dabo", pic="daboIcon128", toggle=True, tip="Dabo! Dabo! Dabo!", 
 				help="Large icon resized to fit in the max dimensions")
 
 		self.appendSeparator()
 
-		self.appendButton("Exit", pic="close", toggle=True, bindfunc=self.onExit, 
+		self.appendButton("Exit", pic="%s/actions/system-log-out.png" % iconPath, toggle=True, OnHit=self.onExit, 
 				tip="Exit", help="Quit the application")
 
 	def onCopy(self, evt):
 		dabo.ui.info("Copy Clicked!")
 
-	def onTimer(self, evt):
+	def onToggle(self, evt):
 		item = evt.EventObject
 		dabo.ui.info("CHECKED: %s, ID: %s" % (item.Value, item.GetId()))
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx, dabo, dabo.ui
 
 if __name__ == "__main__":
@@ -10,10 +11,10 @@ class dBox(cm.dControlMixin, wx.StaticBox):
 	"""
 	## pkm: I'm not sure of the utility of this class, since you can draw
 	##      borders around panels and direct draw on any object. Opinions?
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dBox
 		preClass = wx.PreStaticBox
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 	
 	def _initEvents(self):

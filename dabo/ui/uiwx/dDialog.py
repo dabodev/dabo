@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import dabo
 if __name__ == "__main__":
@@ -22,7 +23,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		self._centered = True
 		self._fit = True
 
-		defaultStyle = wx.DEFAULT_DIALOG_STYLE | wx.RESIZE_BORDER
+		defaultStyle = wx.DEFAULT_DIALOG_STYLE
 		try:
 			kwargs["style"] = kwargs["style"] | defaultStyle
 		except KeyError:
@@ -35,6 +36,9 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		# Hook method, so that we add the buttons last
 		self._addControls()
 
+		# Needed starting with wx 2.7, for the first control to have the focus:
+		self.setFocus()
+
 
 	def _afterInit(self):
 		self.MenuBarClass = None
@@ -45,7 +49,30 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		super(dDialog, self)._afterInit()
 		self.bindKey("esc", self._onEscape)
 
-		
+
+	def Show(self, show=True, *args, **kwargs):
+		self._gtk_show_fix(show)
+		wx.Dialog.Show(self, show, *args, **kwargs)
+
+	def ShowModal(self, *args, **kwargs):
+		self._gtk_show_fix(True)
+		wx.Dialog.ShowModal(self, *args, **kwargs)
+
+
+	def showModal(self):
+		"""Show the dialog modally."""
+		## pkm: We had to override this, because the default in dPemMixin doesn't 
+		##      actually result in a modal dialog.
+		self.Modal = True
+		self.show()
+
+
+	def showModeless(self):
+		"""Show the dialog non-modally."""
+		self.Modal = False
+		self.show()
+
+
 	def show(self):
 		if self.AutoSize:
 			self.Fit()
@@ -185,18 +212,19 @@ class dOkCancelDialog(dDialog):
 		sz.DefaultBorderLeft = sz.DefaultBorderRight = True
 		sz.append((0, sz.DefaultBorder))
 
+		# Define Ok/Cancel, and tell wx that we want stock buttons.
+		# We are creating them now, so that the user code can access them if needed.
+		self.btnOK = dabo.ui.dButton(self, id=wx.ID_OK, DefaultButton=True)
+		self.btnOK.bindEvent(dEvents.Hit, self.onOK)
+		self.btnCancel = dabo.ui.dButton(self, id=wx.ID_CANCEL, CancelButton=True)
+		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
+		
 		# Let the user add their controls
 		super(dOkCancelDialog, self)._addControls()
 
 		# Just in case user changed Self.Sizer, update our reference:
 		sz = self.Sizer
 
-		# Define Ok/Cancel, and tell wx that we want stock buttons:
-		self.btnOK = dabo.ui.dButton(self, id=wx.ID_OK, DefaultButton=True)
-		self.btnOK.bindEvent(dEvents.Hit, self.onOK)
-		self.btnCancel = dabo.ui.dButton(self, id=wx.ID_CANCEL, CancelButton=True)
-		self.btnCancel.bindEvent(dEvents.Hit, self.onCancel)
-		
 		# Put the buttons in a StdDialogButtonSizer, so they get positioned/sized
 		# per the native platform conventions, and add that sizer to self.Sizer:
 		buttonSizer = wx.StdDialogButtonSizer()
@@ -267,25 +295,41 @@ class dOkCancelDialog(dDialog):
 		self.Accepted = False
 		self.EndModal(kons.DLG_CANCEL)
 
+
 	def _getAccepted(self):
 		return self._accepted		
 
 	def _setAccepted(self, val):
 		self._accepted = val
 	
+	
+	def _getCancelButton(self):
+		return self.btnCancel
+		
 
 	def _getLastPositionInSizer(self):
 		return self.btnSizer.getPositionInSizer()
 
 
+	def _getOKButton(self):
+		return self.btnOK
+		
+
 	Accepted = property(_getAccepted, _setAccepted, None,
-			_("Specifies whether the user accepted the dialog, or canceled."))
+			_("Specifies whether the user accepted the dialog, or canceled.  (bool)"))
+	
+	CancelButton = property(_getCancelButton, None, None,
+			_("Reference to the Cancel button on the form  (dButton)."))
 	
 	LastPositionInSizer = property(_getLastPositionInSizer, None, None,
 			_("""If you want to add controls after the dialog has been created,
 			use this as the argument to the sizer.insert() call. It returns 
 			the position in the sizer before the OK/Cancel buttons and the 
 			preceeding spacer.  (int)"""))
+
+	OKButton = property(_getOKButton, None, None,
+			_("Reference to the OK button on the form  (dButton)."))
+	
 	
 
 

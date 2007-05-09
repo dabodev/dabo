@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import dabo
 if __name__ == "__main__":
@@ -14,9 +15,25 @@ class dStatusBar(dcm.dControlMixin, wx.StatusBar):
 	The status bar is displayed at the bottom of the form. Add the status bar
 	to your form using form.StatusBar=dStatusBar().
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dStatusBar
 		preClass = wx.PreStatusBar
-		dcm.dControlMixin.__init__(self, preClass, parent, properties, 
+		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
 
+
+	def layout(self):
+		""" Wrap the wx version of the call, if possible. """
+		self.Layout()
+		for child in self.Children:
+			try:
+				child.layout()
+			except: pass
+		try:
+			# Call the Dabo version, if present
+			self.Sizer.layout()
+		except:
+			pass
+		if self._platformIsWindows:
+			self.refresh()
+		

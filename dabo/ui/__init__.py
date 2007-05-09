@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ This is Dabo's user interface layer which is the topmost layer.
 
 There are submodules for all supported UI libraries. As of this writing,
@@ -42,7 +43,7 @@ def loadUI(uiType):
 		try:
 			exec("from %s import *" % mods[typ], globals())
 			retVal = True
-		except ImportError, e:
+		except Exception, e:
 			retVal = False
 			# Record the actual problem
 			#dabo.errorLog.write("Error Loading UI: %s" % e)

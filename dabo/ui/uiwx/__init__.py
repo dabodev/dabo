@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import os
 import re
@@ -46,6 +47,7 @@ uiType["platform"] = _platform
 # Add these to the dabo.ui namespace
 deadObjectException = wx._core.PyDeadObjectError
 deadObject = wx._core._wxPyDeadObject
+assertionException = wx._core.PyAssertionError
 nativeScrollBar = wx.ScrollBar
 
 # Import dPemMixin first, and then manually put into dabo.ui module. This is
@@ -108,9 +110,10 @@ from dListControl import dListControl
 from dBaseMenuBar import dBaseMenuBar
 from dMenuBar import dMenuBar
 from dMenu import dMenu
-from dMenuItem import *
+from dMenuItem import dMenuItem
+from dMenuItem import dCheckMenuItem
+from dMenuItem import dRadioMenuItem
 import dMessageBox
-from dRadioGroup import dRadioGroup
 from dRadioList import dRadioList
 from dPanel import dPanel
 from dPanel import dScrollPanel
@@ -132,15 +135,23 @@ from dToolBar import dToolBar
 from dToolBar import dToolBarItem
 from dToggleButton import dToggleButton
 from dTreeView import dTreeView
+from dLed import dLed
 import dUICursors as dUICursors
 import dShell
 
+try:
+	from dGlWindow import dGlWindow
+except ImportError:
+	dabo.infoLog.write(_("PyOpenGL not present, so dGlWindow is not loaded."))
+
+# dDockForm is not available with wxPython < 2.7
+if wx.VERSION >= (2, 7):
+	from dDockForm import dDockForm
 
 artConstants = {}
-for item in dir(wx):
-	if item[:4] == "ART_":
-		daboConstant = item[4:].lower().replace("_", "")
-		artConstants[daboConstant] = getattr(wx, item)
+for item in (it for it in dir(wx) if it.startswith("ART_")):
+	daboConstant = item[4:].lower().replace("_", "")
+	artConstants[daboConstant] = getattr(wx, item)
 
 # artConstant aliases:
 artConstants["cd"] = artConstants.get("cdrom")
@@ -251,11 +262,15 @@ def yieldUI(*args, **kwargs):
 	wx.Yield(*args, **kwargs)	
 
 
+def beep():
+	wx.Bell()
+	
+
 def busyInfo(msg="Please wait...", *args, **kwargs):
 	"""Display a message that the system is busy.
 
-	To use this, assign the return value to a local object. but note that the 
-	message will stay until the object is explicitly unbound. For example:
+	Assign the return value to a local object, and the message will stay until the 
+	object is explicitly unbound. For example:
 
 	bi = dabo.ui.busyInfo("Please wait while I count to 10000...")
 	for i in range(10000):
@@ -272,7 +287,7 @@ def continueEvent(evt):
 		evt.Skip()
 	except AttributeError, e:
 		# Event could be a Dabo event, not a wx event
-		if isinstance(evt, dabo.dEvents.Event):
+		if isinstance(evt, dabo.dEvents.dEvent):
 			pass
 		else:
 			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
@@ -284,7 +299,7 @@ def discontinueEvent(evt):
 		evt.Skip(False)
 	except AttributeError, e:
 		# Event could be a Dabo event, not a wx event
-		if isinstance(evt, dabo.dEvents.Event):
+		if isinstance(evt, dabo.dEvents.dEvent):
 			pass
 		else:
 			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
@@ -379,6 +394,17 @@ def getEventData(wxEvt):
 				ed["keyChar"] = chr(wxEvt.GetRawKeyCode())
 		except (ValueError, OverflowError):
 			ed["keyChar"] = None
+		if not ed["keyChar"]:
+			# See if it is one of the keypad keys
+			numpadKeys = { wx.WXK_NUMPAD0: "0", wx.WXK_NUMPAD1: "1", 
+					wx.WXK_NUMPAD2: "2", wx.WXK_NUMPAD3: "3", wx.WXK_NUMPAD4: "4", 
+					wx.WXK_NUMPAD5: "5", wx.WXK_NUMPAD6: "6", wx.WXK_NUMPAD7: "7", 
+					wx.WXK_NUMPAD8: "8", wx.WXK_NUMPAD9: "9", wx.WXK_NUMPAD_SPACE: " ",
+					wx.WXK_NUMPAD_TAB: "\t", wx.WXK_NUMPAD_ENTER: "\r", 
+					wx.WXK_NUMPAD_EQUAL: "=", wx.WXK_NUMPAD_MULTIPLY: "*", 
+					wx.WXK_NUMPAD_ADD: "+", wx.WXK_NUMPAD_SUBTRACT: "-", 
+					wx.WXK_NUMPAD_DECIMAL: ".", wx.WXK_NUMPAD_DIVIDE: "/"}
+			ed["keyChar"] = numpadKeys.get(ed["keyCode"], None)
 	
 	if isinstance(wxEvt, wx.ContextMenuEvent):
 		ed["mousePosition"] = wxEvt.GetPosition()
@@ -463,6 +489,13 @@ def getEventData(wxEvt):
 		ed["collapsed"] = not ed["expanded"]
 		ed["panel"] = wxEvt.GetEventObject().GetParent()
 		
+	try:
+		if isinstance(wxEvt, wx.html.HtmlLinkEvent):
+			ed["href"] = wxEvt.href
+	except:
+		# wxPython 2.6 and earlier doesn't seem to have this event
+		pass
+		
 	return ed
 	
 
@@ -522,6 +555,18 @@ def isAltDown():
 	return wx.GetMouseState().altDown
 
 
+def isMouseLeftDown():
+	return wx.GetMouseState().leftDown
+
+
+def isMouseRightDown():
+	return wx.GetMouseState().rightDown
+
+
+def isMouseMiddleDown():
+	return wx.GetMouseState().middleDown
+
+
 #### This will have to wait until I can figure out how to simulate a 
 #### modal form for the calendar.
 # def popupCalendar(dt=None, x=None, y=None, pos="topleft"):
@@ -561,35 +606,70 @@ def isAltDown():
 # 	ret = calForm.cal.Date
 # 	calForm.release()
 # 	return ret
+
 	
+def _getActiveForm():
+	app = dabo.dAppRef
+	if app is not None:
+		return app.ActiveForm
+	return None
 
 
-def getString(message="Please enter a string:", caption="Dabo",	defaultValue=""):
-	"""Simple dialog for returning a small bit of text from the user."""
-	dlg = wx.TextEntryDialog(None, message, caption, defaultValue)
-	retVal = dlg.ShowModal()
-	if retVal in (wx.ID_YES, wx.ID_OK):
-		val = dlg.GetValue()
+def getString(message=_("Please enter a string:"), caption="Dabo", 
+		defaultValue="", **kwargs):
+	"""Simple dialog for returning a small bit of text from the user.
+
+	Any additional keyword arguments are passed along to the dTextBox when it
+	is instantiated. Some useful examples:
+
+	# Give the textbox a default value:
+	txt = dabo.ui.getString(defaultValue="initial string value")
+	
+	# Password Entry (*'s instead of the actual text)
+	txt = dabo.ui.getString(PasswordEntry=True)
+	"""
+	class StringDialog(dabo.ui.dOkCancelDialog):
+		def addControls(self):
+			self.Caption = caption
+			lbl = dabo.ui.dLabel(self, Caption=message)
+			self.strVal = dabo.ui.dTextBox(self, **kwargs)
+			hs = dabo.ui.dSizer("h")
+			hs.append(lbl, halign="Right")
+			hs.appendSpacer(5)
+			hs.append(self.strVal, 1)
+			self.Sizer.append(hs, "expand")
+			dabo.ui.callAfter(self.strVal.setFocus)
+	
+	if defaultValue:
+		kwargs["Value"] = defaultValue
+	dlg = StringDialog(_getActiveForm())
+	dlg.show()
+	if dlg.Accepted:
+		val = dlg.strVal.Value
 	else:
 		val = None
 	dlg.Destroy()
 	return val
 
 
-def getInt(message="Enter an integer value:", caption="Dabo",	defaultValue=0):
+def getInt(message=_("Enter an integer value:"), caption="Dabo", 
+		defaultValue=0, **kwargs):
 	"""Simple dialog for returning an integer value from the user."""
 	class IntDialog(dabo.ui.dOkCancelDialog):
 		def addControls(self):
 			self.Caption = caption
 			lbl = dabo.ui.dLabel(self, Caption=message)
-			self.spnVal = dabo.ui.dSpinner(self, Value=defaultValue)
+			self.spnVal = dabo.ui.dSpinner(self, **kwargs)
 			hs = dabo.ui.dSizer("h")
 			hs.append(lbl, halign="Right")
 			hs.appendSpacer(5)
 			hs.append(self.spnVal)
 			self.Sizer.append(hs)
+			dabo.ui.callAfter(self.spnVal.setFocus)
 			
-	dlg = IntDialog()
+	if defaultValue:
+		kwargs["Value"] = defaultValue
+	dlg = IntDialog(_getActiveForm())
 	dlg.show()
 	if dlg.Accepted:
 		val = dlg.spnVal.Value
@@ -597,6 +677,82 @@ def getInt(message="Enter an integer value:", caption="Dabo",	defaultValue=0):
 		val = None
 	dlg.Destroy()
 	return val
+	
+
+# The next two methods prompt the user to select from a list. The first allows
+# a single selection, while the second allows for multiple selections.
+def getChoice(choices, message=None, caption=None, defaultPos=None):
+	"""Simple dialog for presenting the user with a list of choices from which
+	they can select one item.
+	"""
+	return _getChoiceDialog(choices, message, caption, defaultPos, False)
+
+
+def getChoices(choices, message=None, caption=None, defaultPos=None):
+	"""Simple dialog for presenting the user with a list of choices from which
+	they can select one or more items. Returns a tuple containing the selections.
+	"""
+	return _getChoiceDialog(choices, message, caption, defaultPos, True)
+
+
+def _getChoiceDialog(choices, message, caption, defaultPos, mult):
+	if message is None:
+		message = _("Please make your selection:")
+	if caption is None:
+		caption = "Dabo"
+	if defaultPos is None:
+		defaultPos = 0
+	if mult is None:
+		mult = False
+	class ChoiceDialog(dabo.ui.dOkCancelDialog):
+		def addControls(self):
+			self.Caption = caption
+			lbl = dabo.ui.dLabel(self, Caption=message)
+			self.lst = dabo.ui.dListBox(self, Choices=choices, 
+					PositionValue=defaultPos, MultipleSelect=mult, 
+					OnMouseLeftDoubleClick=self.onOK)
+			sz = self.Sizer
+			sz.appendSpacer(25)
+			sz.append(lbl, halign="center")
+			sz.appendSpacer(5)
+			sz.append(self.lst, 4, halign="center")
+			if mult:
+				hsz = dabo.ui.dSizer("h")
+				btnAll = dabo.ui.dButton(self, Caption=_("Select All"),
+						OnHit=self.selectAll)
+				btnNone = dabo.ui.dButton(self, Caption=_("Unselect All"),
+						OnHit=self.unselectAll)
+				btnInvert = dabo.ui.dButton(self, Caption=_("Invert Selection"),
+						OnHit=self.invertSelection)
+				hsz.append(btnAll)
+				hsz.appendSpacer(8)
+				hsz.append(btnNone)
+				hsz.appendSpacer(8)
+				hsz.append(btnInvert)
+				sz.appendSpacer(16)
+				sz.append(hsz, halign="center", border=20)
+				sz.appendSpacer(8)
+				sz.append(dabo.ui.dLine(self), "x", border=44,
+						borderSides=("left", "right"))
+			sz.appendSpacer(24)
+		
+		def selectAll(self, evt):
+			self.lst.selectAll()
+		
+		def unselectAll(self, evt):
+			self.lst.unselectAll()
+		
+		def invertSelection(self, evt):
+			self.lst.invertSelections()
+			
+	dlg = ChoiceDialog(_getActiveForm())
+	dlg.show()
+	if dlg.Accepted:
+		val = dlg.lst.StringValue
+	else:
+		val = None
+	dlg.release()
+	return val			
 
 
 # For convenience, make it so one can call dabo.ui.stop("Can't do that")
@@ -613,7 +769,7 @@ def getColor(color=None):
 	no selection was made.
 	"""
 	ret = None
-	dlg = dColorDialog(None, color)
+	dlg = dColorDialog(_getActiveForm(), color)
 	if dlg.show() == kons.DLG_OK:
 		ret = dlg.getColor()
 	dlg.release()
@@ -632,11 +788,7 @@ def getDate(dt=None):
 	except:
 		dabo.errorLog.write(_("Invalid date value passed to getDate(): %s") % dt)
 		return None
-	try:
-		prnt = self.Application.ActiveForm
-	except:
-		prnt = None
-	dlg = wx.lib.calendar.CalenDlg(prnt, mm, dd, yy)
+	dlg = wx.lib.calendar.CalenDlg(_getActiveForm(), mm, dd, yy)
 	dlg.Centre()
 	if dlg.ShowModal() == wx.ID_OK:
 		result = dlg.result
@@ -658,6 +810,7 @@ def getFont(font=None):
 	Font property.
 	"""
 	fnt = None
+	ret = None
 	if font is None:
 		param = None
 	else:
@@ -666,11 +819,13 @@ def getFont(font=None):
 			dabo.errorLog.write("Invalid font class passed to getFont")
 			return None
 		param = font._nativeFont
-	dlg = dFontDialog(None, param)
+	dlg = dFontDialog(_getActiveForm(), param)
 	if dlg.show() == kons.DLG_OK:
 		fnt = dlg.getFont()
 	dlg.release()
-	return dFont(_nativeFont=fnt)
+	if fnt is not None:
+		ret = dFont(_nativeFont=fnt)
+	return ret
 
 
 def getAvailableFonts():
@@ -685,7 +840,7 @@ def getAvailableFonts():
 def _getPath(cls, wildcard, **kwargs):
 	pth = None
 	idx = None
-	fd = cls(parent=None, wildcard=wildcard, **kwargs)
+	fd = cls(parent=_getActiveForm(), wildcard=wildcard, **kwargs)
 	if fd.show() == kons.DLG_OK:
 		pth = fd.Path
 		try:
@@ -697,13 +852,22 @@ def _getPath(cls, wildcard, **kwargs):
 
 
 def getFile(*args, **kwargs):
-	"""Displays the file selection dialog for the platform.
-	Returns the path to the selected file, or None if no selection
-	was made.
+	"""Display the file selection dialog for the platform, and return selection(s).
+
+	Send an optional multiple=True for the user to pick more than one file. In 
+	that case, the return value will be a sequence of unicode strings.
+
+	Returns the path to the selected file or files, or None if no selection	was 
+	made. Only file may be selected if multiple is False.
+
+	Optionally, you may send wildcard arguments to limit the displayed files by
+	file type. For example:
+		getFile("py", "txt")
+		getFile("py", "txt", multiple=True)
 	"""
 	wc = _getWild(*args)
 	return _getPath(dFileDialog, wildcard=wc, **kwargs)[0]
-
+		
 
 def getFileAndType(*args, **kwargs):
 	"""Displays the file selection dialog for the platform.
@@ -744,7 +908,7 @@ def getSaveAsAndType(*args, **kwargs):
 	return ret
 
 
-def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
+def getFolder(message=_("Choose a folder"), defaultPath="", wildcard="*"):
 	"""Displays the folder selection dialog for the platform.
 	Returns the path to the selected folder, or None if no selection
 	was made.
@@ -756,6 +920,15 @@ def getFolder(message="Choose a folder", defaultPath="", wildcard="*"):
 def _getWild(*args):
 	ret = "*"
 	if args:
+		# Split any args passed in the format of "gif | jpg | png"
+		expanded = []
+		for arg in args:
+			try:
+				argSp = [aa.strip() for aa in arg.split("|")]
+			except AttributeError:
+				argSp = [arg]
+			expanded += argSp
+		args = expanded
 		arglist = []
 		tmplt = "%s Files (*.%s)|*.%s"
 		fileDict = {"html" : "HTML", 
@@ -781,6 +954,8 @@ def _getWild(*args):
 				fDesc = "Dabo Report Format Files (*.rfxml)|*.rfxml"
 			elif a == "cdxml":
 				fDesc = "Dabo Class Designer Files (*.cdxml)|*.cdxml"
+			elif a == "mnxml":
+				fDesc = "Dabo Menu Designer Files (*.mnxml)|*.mnxml"
 			else:
 				if a in fileDict:
 					fDesc = tmplt % (fileDict[a], a, a)
@@ -825,7 +1000,7 @@ def sortList(chc, Caption="", ListCaption=""):
 	return ret
 
 
-def createForm(srcFile, show=False):
+def createForm(srcFile, show=False, *args, **kwargs):
 	"""Pass in a .cdxml file from the Designer, and this will
 	instantiate a form from that spec. Returns a reference
 	to the newly-created form.
@@ -833,10 +1008,66 @@ def createForm(srcFile, show=False):
 	from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
 	conv = DesignerXmlConverter()
 	cls = conv.classFromXml(srcFile)
-	frm = cls()
+	frm = cls(*args, **kwargs)
 	if show:
 		frm.show()
 	return frm
+
+
+def createMenuBar(srcFile, form=None, previewFunc=None):
+	"""Pass in an .mnxml file saved from the Menu Designer, 
+	and this will instantiate a MenuBar from that spec. Returns 
+	a reference to the newly-created MenuBar. You can optionally
+	pass in a reference to the form to which this menu is
+	associated, so that you can enter strings that represent 
+	form functions in the Designer, such as 'form.close', which 
+	will call the associated form's close() method. If 'previewFunc'
+	is passed, the menu command that would have been eval'd 
+	and executed on a live menu will instead be passed back as
+	a parameter to that function.
+	"""
+	def addMenu(mb, menuDict, form, previewFunc):
+		if form is None:
+			form = dabo.dAppRef.ActiveForm
+		menu = dabo.ui.dMenu(mb)
+		atts = menuDict["attributes"]
+		menu.Caption = atts["Caption"]
+		menu.MRU = atts["MRU"]
+		menu.HelpText = atts["HelpText"]
+		mb.appendMenu(menu)
+		try:
+			items = menuDict["children"]
+		except KeyError:
+			# No children defined for this menu
+			return
+		app = dabo.dAppRef
+		for itm in items:	
+			if "Separator" in itm["name"]:
+				menu.appendSeparator()
+			else:
+				itmatts = itm["attributes"]
+				cap = itmatts["Caption"]
+				hk = itmatts["HotKey"]
+				pic = itmatts["Picture"]
+				if hk:
+					cap += "\t%s" % hk
+				txt = cap
+				binding = previewFunc
+				fnc = ""
+				useFunc = ("Action" in itmatts) and (itmatts["Action"])
+				if useFunc:
+					fnc = itmatts["Action"]
+				if (binding is None) and fnc:
+					binding = eval(fnc)
+				help = itmatts["HelpText"]
+				menuItem = menu.append(cap, OnHit=binding, help=help,
+						picture=pic)	
+	
+	mnd = dabo.lib.xmltodict.xmltodict(srcFile)
+	mb = dabo.ui.dMenuBar()
+	for mn in mnd["children"]:
+		addMenu(mb, mn, form, previewFunc)
+	return mb
 	
 	
 def browse(dataSource, parent=None):
@@ -866,7 +1097,7 @@ def browse(dataSource, parent=None):
 		parent = dabo.ui.dForm(None, Caption=cap)
 		parentPassed = False
 
-	grd = dGrid(parent)
+	grd = dGrid(parent, AlternateRowColoring=True)
 	grd.buildFromDataSet(dataSet)
 
 	parent.Sizer.append(grd, 1, "x")
@@ -880,6 +1111,8 @@ def browse(dataSource, parent=None):
 
 
 def fontMetricFromFont(txt, font):
+	if isinstance(font, dabo.ui.dFont):
+		font = font._nativeFont
 	wind = wx.Frame(None)
 	dc = wx.ClientDC(wind)
 	dc.SetFont(font)
@@ -939,11 +1172,20 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 	return ret
 
 
-def saveScreenShot(obj=None, imgType=None, pth=None):
+def saveScreenShot(obj=None, imgType=None, pth=None, delaySeconds=None):
 	"""Takes a screenshot of the specified and writes it to a file, converting
 	it to the requested image type. If no object is specified, the current
-	ActiveForm is used.
+	ActiveForm is used. You can add an optional delaySeconds setting that 
+	will let you set things up as needed before the image is taken; if not specified,
+	the image is taken immediately.
 	"""
+	if delaySeconds is None:
+		_saveScreenShot(obj=obj, imgType=imgType, pth=pth)
+	else:
+		millisecs = delaySeconds * 1000
+		callAfterInterval(millisecs, _saveScreenShot, obj=obj, imgType=imgType, pth=pth)
+
+def _saveScreenShot(obj, imgType, pth):
 	if obj is None:
 		obj = dabo.dAppRef.ActiveForm
 	if obj is None:

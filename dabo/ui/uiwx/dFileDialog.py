@@ -1,5 +1,8 @@
+# -*- coding: utf-8 -*-
 import wx
-import dabo.dConstants as k
+import dabo
+import dabo.dConstants as kons
+from dabo.dLocalize import _
 
 
 class OsDialogMixin(object):
@@ -10,10 +13,10 @@ class OsDialogMixin(object):
 
 	def show(self):
 		self._dir = self._fname = self._path = ""
-		ret = k.DLG_CANCEL
+		ret = kons.DLG_CANCEL
 		res = self.ShowModal()
 		if res ==  wx.ID_OK:
-			ret = k.DLG_OK
+			ret = kons.DLG_OK
 			if self._multiple:
 				self._path = self.GetPaths()
 			else:
@@ -25,52 +28,64 @@ class OsDialogMixin(object):
 				else:
 					self._fname = self.GetFilename()
 		return ret
+		
 	
 	def release(self):
 		self.Destroy()
+		
 
 	def _getDir(self):
 		return self._dir
+		
 	def _setDir(self, dir):
 		if self._exposeFiles:
 			self.SetDirectory(dir)
 	
+	
 	def _getFileName(self):
 		return self._fname
+		
 	def _setFileName(self, fn):
 		if self._exposeFiles:
 			self.SetFilename(fn)
 	
+	
 	def _getMessage(self):
 		return self._msg
+	
 	def _setMessage(self, msg):
 		self.SetMessage(msg)
 	
+	
 	def _getPath(self):
 		return self._path
+	
 	def _setPath(self, pth):
 		self.SetPath(pth)
 	
+	
 	def _getWildcard(self):
 		return self._wildcard
+	
 	def _setWildcard(self, txt):
 		if self._exposeFiles:
 			self.SetWildcard(txt)
 	
+	
 	Directory = property(_getDir, _setDir, None, 
-			"The directory of the selected file or files (str)")
+			_("The directory of the selected file or files (str)"))
 	
 	FileName = property(_getFileName, _setFileName, None, 
-			"The name of the selected file (str) or files (tuple of strs)")
+			_("The name of the selected file (str) or files (tuple of strs)"))
 	
 	Message = property(_getMessage, _setMessage, None, 
-			"The prompt displayed to the user.  (str)")
+			_("The prompt displayed to the user.  (str)"))
 
 	Path = property(_getPath, _setPath, None, 
-			"The full path of the selected file (str)  or files (tuple of strs)")
+			_("The full path of the selected file (str)  or files (tuple of strs)"))
 
 	Wildcard = property(_getWildcard, _setWildcard, None, 
-			"The wildcard that will limit the files displayed in the dialog.  (str)")
+			_("The wildcard that will limit the files displayed in the dialog.  (str)"))
 
 
 
@@ -78,14 +93,16 @@ class dFileDialog(OsDialogMixin, wx.FileDialog):
 	"""Creates a file dialog, which asks the user to choose a file."""
 	_exposeFiles = True
 	
-	def __init__(self, parent=None, message="Choose a file", defaultPath="", 
+	def __init__(self, parent=None, message=_("Choose a file"), defaultPath="", 
 			defaultFile="", wildcard="*.*", multiple=False, style=wx.OPEN):
 		self._baseClass = dFileDialog
 		if multiple:
-			style = style | wx.MULTIPLE
+			style = style | wx.FD_MULTIPLE
 			self._multiple = True
 		else:
 			self._multiple = False
+		if parent is None:
+			parent = dabo.dAppRef.ActiveForm
 		super(dFileDialog, self).__init__(parent=parent, message=message, 
 				defaultDir=defaultPath, defaultFile=defaultFile, 
 				wildcard=wildcard, style=style)
@@ -95,23 +112,29 @@ class dFolderDialog(OsDialogMixin, wx.DirDialog):
 	"""Creates a folder dialog, which asks the user to choose a folder."""
 	_exposeFiles = False
 	
-	def __init__(self, parent=None, message="Choose a folder", 
+	
+	def __init__(self, parent=None, message=_("Choose a folder"), 
 			defaultPath="", wildcard="*.*"):
 		self._multiple = False
 		self._baseClass = dFolderDialog
+		if parent is None:
+			parent = dabo.dAppRef.ActiveForm
 		super(dFolderDialog, self).__init__(parent=parent, message=message, 
 				defaultPath=defaultPath, style=wx.DD_NEW_DIR_BUTTON)
 
 
 class dSaveDialog(dFileDialog):
 	"""Creates a save dialog, which asks the user to specify a file to save to."""
-	def __init__(self, parent=None, message="Save to:", defaultPath="", 
+	def __init__(self, parent=None, message=_("Save to:"), defaultPath="", 
 			defaultFile="", wildcard="*.*", style=wx.SAVE):
 		self._baseClass = dSaveDialog
+		if parent is None:
+			parent = dabo.dAppRef.ActiveForm
 		super(dSaveDialog, self).__init__(parent=parent, message=message, 
 				defaultPath=defaultPath, defaultFile=defaultFile, 
 				wildcard=wildcard, style=style)
-#		self._dir = self._fname = self._msg = self._path = self._wildcard = ""
+
+
 
 if __name__ == "__main__":
 	import test

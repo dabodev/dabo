@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx, dabo, dabo.ui
 
 if __name__ == "__main__":
@@ -16,13 +17,14 @@ class dSpinner(dcm.dDataControlMixin, wx.SpinCtrl):
 	allowable values, as well as the increment when the user clicks the 
 	arrows.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dSpinner
 		preClass = wx.PreSpinCtrl
 		if not "value" in kwargs:
 			# This has to be initialized to a string value, for some odd reason
 			kwargs["value"] = "0"			
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+				*args, **kwargs)
 
 	
 	def _initEvents(self):
@@ -55,11 +57,9 @@ class dSpinner(dcm.dDataControlMixin, wx.SpinCtrl):
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getChildren(self):
-		"""Need to override this to return None, since the native GetChildren()
-		function will return the text box and spin buttons that make up this
-		composite control.
-		"""
-		return None
+		# The native wx control will return the items that make up this composite
+		# control, which our user doesn't want.
+		return []
 	
 	
 	def _getMax(self):

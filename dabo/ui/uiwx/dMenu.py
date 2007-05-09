@@ -1,11 +1,14 @@
+# -*- coding: utf-8 -*-
+import warnings
 import wx
+import dabo
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 import dPemMixin as pm
-import dMenuItem
 import dIcons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
-
 
 # wx constants for styles
 NormalItemType = wx.ITEM_NORMAL
@@ -17,18 +20,22 @@ class dMenu(pm.dPemMixin, wx.Menu):
 	"""Creates a menu, which can contain submenus, menu items, 
 	and separators.
 	"""
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
+	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dMenu
 		preClass = wx.Menu
 		self.Parent = parent
-		self._useMRU = self._extractKey((properties, kwargs), "MRU", False)
+		self._useMRU = self._extractKey(attProperties, "MRU", None)
+		if self._useMRU is not None:
+			self._useMRU = (self._useMRU == "True")
+		else:
+			self._useMRU = self._extractKey((properties, kwargs), "MRU", False)
 		self._mruSeparator = None
 		## pkm: When a dMenuItem is added to a dMenu, the wx functions only
 		##      add the C++ portion, not the mixed-in dabo dMenuItem object.
 		##      To work around this, we maintain an internal dictionary that
 		##      maps the id of the wxMenuItem to the dMenuItem object.
 		self._daboChildren = {}
-		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		pm.dPemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 		# Could be that we are used without a Dabo app object (not recommended,
 		# but should be possible). So use the wx-method for getting the uiApp ref,
@@ -166,68 +173,97 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		return self.PrependSeparator()
 	
 
-	def append(self, caption, bindfunc=None, help="", bmp=None, menutype="", 
-				**kwargs):
+	def append(self, caption, bindfunc=None, help="", bmp=None, picture=None,
+			menutype="", *args, **kwargs):
 		"""Append a dMenuItem with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
+		
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
 
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(bindfunc, help, bmp, menutype, **kwargs)
+		if picture is None:
+			picture = bmp
+		item = self._getItem(bindfunc, help, picture, menutype, *args, **kwargs)
 		self.appendItem(item)
 		item.Caption = caption
 		return item
 		
 	
-	def insert(self, pos, caption, bindfunc=None, help="", bmp=None, menutype=""):
+	def insert(self, pos, caption, bindfunc=None, help="", bmp=None, picture=None,
+			menutype="", *args, **kwargs):
 		"""Insert a dMenuItem at the given position with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
 
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
+
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(bindfunc, help, bmp, menutype)
+		if picture is None:
+			picture = bmp
+		item = self._getItem(bindfunc, help, picture, menutype, *args, **kwargs)
 		self.insertItem(pos, item)
 		item.Caption = caption
 		return item
 		
 
-	def prepend(self, caption, bindfunc=None, help="", bmp=None, menutype=""):
+	def prepend(self, caption, bindfunc=None, help="", bmp=None, picture=None,
+			menutype="", *args, **kwargs):
 		"""Prepend a dMenuItem with the specified properties.
 
 		This is a convenient way to add a dMenuItem to a dMenu, give it a caption,
 		help string, bitmap, and also bind it to a function, all in one call.
 
+		NOTE: use of the bindfunc parameter is deprecated in version 0.8 and will be
+		removed	in version 0.9. Send an OnHit parameter instead.
+
 		Any additional keyword arguments passed will be interpreted as properties
 		of the dMenuItem: if valid property names/values, the dMenuItem will take
 		them on; if not valid, an exception will be raised.
 		"""
-		item = self._getItem(bindfunc, help, bmp, menutype)
+		if picture is None:
+			picture = bmp
+		item = self._getItem(bindfunc, help, picture, menutype, *args, **kwargs)
 		self.prependItem(item)
 		item.Caption = caption
 		return item
 		
-		
-	def remove(self, index, release=True):
-		"""Removes the item at the specified index from the menu.
 
-		If release is True (the default), the item is deleted as well. If release 
-		is False, a reference to the object will be returned, and the caller 
-		is responsible for deleting it.
+	def _resolveItem(self, capIdxOrItem):
+		"""Returns the menu item specified by either its index or caption. In the
+		case that an actual menu item is passed, simply returns that item.
 		"""
-		item = self.Children[index]
+		if isinstance(capIdxOrItem, basestring):
+			ret = self.getItem(capIdxOrItem)
+		elif isinstance(capIdxOrItem, int):
+			ret = self.Children[capIdxOrItem]
+		else:
+			ret = capIdxOrItem
+		return ret
+		
+
+	def remove(self, capIdxOrItem, release=True):
+		"""Removes the specified item from the menu. You may specify the item by
+		passing its index, its Caption, or by passing the item itself. If release is 
+		True (the default), the item is destroyed as well. If release is False, a reference 
+		to the object will be returned, and the caller is responsible for destroying it.
+		"""
+		item = self._resolveItem(capIdxOrItem)
 		id_ = item.GetId()
 		if self._daboChildren.has_key(id_):
 			del self._daboChildren[id_]
 
-		if wx.VERSION[0] == 2 and wx.VERSION[1] >= 7:
+		if wx.VERSION >= (2,7):
 			# Needed to keep dPemMixin mixed-in in wxPython 2.8
 			val = wx.Menu.RemoveItem(self, item)
 			item.this.own(val.this.own())
@@ -247,22 +283,30 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			self.remove(0)
 	
 	
-	def setCheck(self, cap, unCheckOthers=True):
-		"""When using checkmark-type menus, passing the
-		caption of the item you want checked to this method 
-		will check that item. If unCheckOthers is True, non-
+	def setItemCheck(self, itm, val):
+		"""Pass a menu item and a boolean value, and the checked
+		state of that menu item will be set accordingly.
+		"""
+		itm.Check(val)
+		
+		
+	def setCheck(self, capIdxOrItem, unCheckOthers=True):
+		"""When using checkmark-type menus, passing either the item
+		itself, or the index or caption of the item you want checked to 
+		this method will check that item. If unCheckOthers is True, non-
 		matching items will be unchecked.
 		"""
+		target = self._resolveItem(capIdxOrItem)
 		for itm in self.Children:
-			if itm.GetText() == cap:
+			if itm is target:
 				try:
-					itm.Check(True)
+					itm.Checked =True
 				except:
 					pass
 			else:
 				if unCheckOthers:
 					try:
-						itm.Check(False)
+						itm.Checked = False
 					except:
 						pass
 	
@@ -272,26 +316,27 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		self.setCheck(None)
 	
 	
-	def isItemChecked(self, capOrItem):
-		if isinstance(capOrItem, basestring):
-			# Get the matching item
-			itm = self.getItem(capOrItem)
-		else:
-			itm = capOrItem
+	def isItemChecked(self, capIdxOrItem):
+		itm = self._resolveItem(capIdxOrItem)
 		if itm is not None and itm.IsCheckable():
-			ret = itm.IsChecked()
+			ret = itm.Checked
 		else:
 			ret = None
 		return ret
 		
 			
-	def _getItem(self, bindfunc, help, icon, menutype, **kwargs):
+	def _getItem(self, bindfunc, help, icon, menutype, *args, **kwargs):
+		if bindfunc is not None:
+			warnings.warn(_("Deprecated; use 'OnHit=<func>' instead."), 
+					DeprecationWarning, 1)
 		itmtyp = self._getItemType(menutype)
 		itmid = self._getItemID(menutype)
 		if itmid != wx.ID_DEFAULT:
 			kwargs["id"] = itmid
-		itm = dMenuItem.dMenuItem(self, HelpText=help, Icon=icon, 
-				kind=itmtyp, **kwargs)
+		cls = {NormalItemType: dabo.ui.dMenuItem,
+				CheckItemType: dabo.ui.dCheckMenuItem,
+				RadioItemType: dabo.ui.dRadioMenuItem}[itmtyp]
+		itm = cls(self, HelpText=help, Icon=icon, kind=itmtyp, *args, **kwargs)
 		if bindfunc:
 			itm.bindEvent(dEvents.Hit, bindfunc)
 		return itm
@@ -415,7 +460,9 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def _getForm(self):
-		return self.Parent.Form
+		if self.Parent:
+			return self.Parent.Form
+		return None
 
 
 	def _getHelpText(self):

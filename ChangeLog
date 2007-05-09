@@ -1,6 +1,235 @@
 See the Subversion log for all the details.
 
 ===============================================================================
+Dabo 0.8 (2007-05-09) (Revision 3111):
+
+Enhancements:
+
+	===== General Stuff =====
++ Improved a lot of the handling of paths. It is now possible to correctly 
+  resolve a relative path when the source file and the contained file are in 
+  different directories, while the app is running from a third directory.
+
++ Added datanav2; deprecated datanav. datanav2 no longer supports fieldSpecs,
+  relationSpecs, and other things. The general theme is that the generated
+  code is meant to be taken as boilerplate to be edited by the developer to
+  achieve the desired results.
+
++ Began work on new unit testing harness, with Nate Lowrie at the helm.
+
++ Added/enhanced unit tests for dCursor, dBizobj, dTextBox, and dForm.
+
++ Big fixes and enhancements, as always, to runtime cdxml instantiation, 
+  including much better inheritance of properties.
+
++ General move away from accepting specific keyword arguments to class 
+  constructors, in favor of accepting property values instead.
+
+	===== UI Tier =====
++ Began work getting grid cell properties set up. IOW, being able to set the
+  ForeColor of a specific row in a column (a single cell), including
+  dynamic cell properties. Currently, it works, but the only property
+  I've added yet is CellForeColor and DynamicCellForeColor.
+
++ Removed the requirement that objects used as DataSources have to inherit 
+  from dObject. Thanks Carl for pointing out the limitation.
+
++ Added dDockForm to the main trunk, which is Dabo's wrapper for wxAUI. 
+
++ Added the option of passing complex filter expressions to setAll(). This 
+  function now accepts a tuple of filter expressions of the format 
+  'att comp val', which will be eval'd with the child objects inn order to 
+  determine if the filter applies. Each expression in the tuple is ANDed 
+  with the others; all the tuple elements must evaluate to True for the 
+  value to be set.
+
++ Added the dHtmlBox.HtmlLinkClicked event.
+
++ Added the HatchStyle property to draw objects. This gives you the option 
+  of specifying that the fill for drawn objects can be one of the following 
+  hatch patterns:
+
+    Solid (default)
+    Transparent
+    Cross
+    Horizontal
+    Vertical
+    Diagonal
+    ReverseDiagonal
+    CrossDiagonal
+
++ EasyDialogBuilder - minor improvements by Nate Lowrie.
+
++ Added ensureLineVisible() method in dEditor, which even unfolds if needed.
+
++ Added WordWrap to dGrid columns while in edit mode.
+
++ Enhanced dShell to have Dabo property access, including Font properties.
+
++ Improved dDateTextBox.
+
++ Coerce dMessageBox messages into strings, which is convenient.
+
++ dGrid's navigation now traps and responds to business rule violations, with
+  mediation by the form if possible. 
+
++ dTreeView supported in ClassDesigner-designed files.
+
++ Added Icon property to dApp, which will become the default Icon for all
+  forms and dialogs, if not overridden at the form level.
+
++ Simplified drag/drop in dabo.ui.
+
++ Added dabo.ui.getChoice() and getChoices(), which present a list of choices
+  to the user, and return the user's selection(s).
+
++ Added TextLength property to dTextBox, to limit the number of characters
+  that can be typed in by the user. Courtesy Nate Lowrie.
+
++ Improved font zooming. Improved handling of resizing fonts for different
+  platforms (Mac), so that you have cross-platform consistency. Thanks to
+  Dj Gilcrease for help in working this out.
+
++ Added Continuous property to dSlider, which determines whether Hit is 
+  raised while the slider is being changed, or only after the user has
+  finished sliding.
+
++ Improved autocompletion in dEditor.
+
++ Added AutoAutoCompletion option to dEditor.
+
++ Added methods to dabo.ui: isMouseLeftDown(), isMouseRightDown(), 
+  and isMouseMiddleDown().
+
++ Added tango icon theme and changed our toolbars/menus to reference the new
+  icons. (Ticket # 1037)
+
++ Added Modal property to dForm, settable only by sending the property to the
+  constructor. When Modal, a dialog instead of a form will be instantiated.
+
++ dEditor now properly syntax-colors dabo-based xml files such as .cdxml
+  and .rfxml. Previously, it displayed these files using Python coloring.
+
++ Removed IconBundle property from dFormMixin. Added the ability to set Form.Icon
+  to a sequence of filenames which Dabo will convert to a wx.IconBundle
+  automatically.
+
++ Added property WordWrap to dEditBox. Default is True.
+
+	===== Data Tier =====
++ Added the option of passing additional keyword arguments to db.dConnection.
+  Thanks Uwe for noting the limitation.
+
++ dbFirebird - Minor improvements by Uwe Grauer.
+
++ dbPostgreSQL - Improvements by John Fabiani, including some missing data
+  types and support for schemas.
+
++ Added support for SQL-JOIN clauses in the sql builder.
+
++ Added database logging, an optional feature.
+
++ Improved SQLite by providing DictCursors.
+
++ Added enclosing of table, field, and other names in the appropriate quote
+  character for the database backend in use. This allows for cases such as
+  spaces in field names. Control whether quoting happens automatically using
+  the dBizobj.AutoQuoteNames property.
+
+	===== Bizobj Tier =====
++ Added the concept of VirtualFields to dBizobj, which provides a simple,
+  flexible interface to reference calculated fields on the fly.
+
++ Added the 'SaveNewUnchanged' property to dBizobj. When this is True, new 
+  records that have not been modified from their defaults are saved; the 
+  default remains to not insert such records. 
+
++ Improved data binding to bizobjs on a parent form.
+
++ Added dBizobj.deleteAllChildren()
+
++ Added ability to set parameters to pass to default values in dBizobj.
+
++ Added oldVal() method to dBizobj, which takes a field name and returns the
+  value of the field at the time of the last requery.
+
++ Added moveToPK() method in dBizobj
+
+
+Bug Fixes:
++ dRadioList.ButtonSpacing wasn't able to be set from initProperties() or
+  as an argument to the constructor. Fixed.
+
++ Starting in wxPython 2.7, our dialogs weren't giving focus to the first
+  control. Fixed.
+
++ More wxPython 2.8 bugfixes in dMenu, dPageFrame
+
++ Fixed dConnection and dConnectInfo to raise exceptions if improper
+  arguments are passed. Ditto for dSizer*.
+
++ Fixed dBorderSizer's box to stay in back of the controls contained within it.
+
++ Fixed ForeColor to work immediately on Gtk.
+
++ Controls were flushing their value, and raising ValueChanged events, too
+  many times. Fixed.
+
++ Dialogs and forms weren't able to set things like whether they have a 
+  close box, from within initProperties. Fixed.
+
++ Message dialogs invoked like dabo.ui.areYouSure() weren't getting attached
+  to the appropriate parent form, so that the message displayed wouldn't 
+  activate the form that it applied to first. Fixed.
+
++ Fixed rapid flashing in a sorted dGrid when an editable column was selected.
+
++ Fixed bug that prevented adding new records when child bizobjs existed.
+  (Ticket #1027). Thanks to Larry Long and John Fabiani for continued
+  assistance in tracking these problems down.
+
++ setWhereClause() method missing in dBizobj. Fixed.
+
++ Fixed dCursor.getChangedRows() to not take into account new records that
+  have no changes.
+
++ Fixed the dBizobj.save() process to not scan all child bizobj's repeatedly.
+  This fixes some problems, and speeds up save() considerably.
+
++ Fixed a problem where canceling a bizobj that had no records caused an 
+  exception that was being displayed with notifyUser(). Normally, a bizobj 
+  with no records does not need canceling, so raising such an error is not 
+  appropriate. You can still have the old behavior by calling cancel() with 
+  'ignoreNoRecords = False'.
+
++ Fixed a bug reported by Larry Long and John Fabiani that involved requerying
+  one bizobj resulted in checking for pending changes in other bizobjs that 
+  were not involved in the requery.
+
++ Descending sorts created infinite loop with duplicate values. Fixed.
+  (Ticket #1041). Thanks Jussi.
+
++ Fixed status text to clear the old field validation failed message when the
+  user fixes the value and the field now passes validation.
+
++ Fixed the geometry persistence to only restore the size of the form from 
+  user settings if BorderResizable is set to True. 
+
++ Fixed dGrid's AlternateRowColoring to be settable from the constructor
+  or initProperties (previously, it was only settable in afterInit() or
+  later). 
+
++ Dynamic props on dColumn were not working: fixed.
+
++ Fixed a bug that confused the string 'None' with the null value None when 
+  setting BorderStyle from a cdxml. Thanks to Miguel for catching this one.
+
++ Fixed a couple of bugs related to the dSizer.BorderSides property. 
+  Previously it was not retrieving that property correctly from the internal 
+  wx flag.
+
+
+===============================================================================
 Dabo 0.7.2 (2007-01-18) (Revision 2716):
 
 Additions, all minor, backported to stable only to keep compatibility with the 

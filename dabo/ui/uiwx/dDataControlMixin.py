@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import dabo
 from dabo.ui.dDataControlMixinBase import dDataControlMixinBase
 from dabo.dLocalize import _
@@ -76,7 +77,6 @@ class dDataControlMixin(dDataControlMixinBase):
 				except TypeError, e:
 					dabo.errorLog.write(_("Could not set value of %s to %s. Error message: %s")
 							% (self._name, val, e))
-				self._afterValueChanged()
 			self.flushValue()
 		else:
 			self._properties["Value"] = val

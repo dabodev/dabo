@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 import datetime
 import wx
@@ -21,16 +22,19 @@ from dabo.ui import makeDynamicProperty
 
 class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 	"""Creates a text box for editing one line of string data."""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dTextBox
 
 		self._dregex = {}
 		self._lastDataType = unicode
 		self._forceCase = None
 		self._inForceCase = False
+		self._textLength = None
+		self._inTextLength = False
+		self._flushOnLostFocus = True  ## see dabo.ui.dDataControlMixinBase::flushValue()
 
 		preClass = wx.PreTextCtrl
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
 
 		# Keep passwords, etc., from being written to disk
@@ -49,7 +53,7 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		# must save and restore the InsertionPosition because wxGtk at least resets it to
 		# 0 upon SetValue().
 		insPos = self.InsertionPosition
-		self.SetValue(self._getStringValue(self.Value))
+		self.SetValue(self.getStringValue(self.Value))
 		self.InsertionPosition = insPos
 		
 		# Now that the dabo Value is set properly, the default behavior that flushes 
@@ -67,11 +71,83 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 	def getBlankValue(self):
 		return ""
 
+	
+	def convertStringValueToDataType(self, strVal, dataType):
+		"""Given a string value and a type, return an appropriate value of that type.
+
+		If the value can't be converted, a ValueError will be raised.
+		"""		
+		if dataType == bool:
+			# Bools can't convert from string representations, because a zero-
+			# length denotes False, and anything else denotes True.
+			if strVal == "True":
+				retVal = True
+			else:
+				retVal = False
+
+		elif dataType in (datetime.date, datetime.datetime, datetime.time):
+			# We expect the string to be in ISO 8601 format.
+			if dataType == datetime.date:
+				retVal = self._getDateFromString(strVal)
+			elif dataType == datetime.datetime:
+				retVal = self._getDateTimeFromString(strVal)
+			elif dataType == datetime.time:
+				retVal = self._getTimeFromString(strVal)
+				
+			if retVal is None:
+				raise ValueError, "String not in ISO 8601 format."
+				
+		elif str(dataType) == "<type 'DateTime'>":
+			# mx DateTime type. MySQLdb will use this if mx is installed.
+			try:
+				import mx.DateTime
+				retVal = mx.DateTime.DateTimeFrom(str(strVal))
+			except ImportError:
+				raise ValueError, "Can't import mx.DateTime"
 		
-	def _getStringValue(self, value):
+		elif str(dataType) == "<type 'DateTimeDelta'>":
+			# mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
+			try:
+				import mx.DateTime
+				retVal = mx.DateTime.TimeFrom(str(strVal))
+			except ImportError:
+				raise ValueError, "Can't import mx.DateTime"
+		
+		elif (decimal is not None and dataType == decimal.Decimal):
+			try:
+				_oldVal = self._oldVal
+			except:
+				_oldVal = None
+
+			try:
+				if type(_oldVal) == decimal.Decimal:
+					# Enforce the precision as previously set programatically
+					retVal = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
+				else:
+					retVal = decimal.Decimal(strVal)
+			except:
+				raise ValueError, "Can't convert to decimal."
+
+		else:
+			# Other types can convert directly.
+			if dataType == str:
+				dataType = unicode
+			try:
+				retVal = dataType(strVal)
+			except:
+				# The Python object couldn't convert it. Our validator, once 
+				# implemented, won't let the user get this far. Just keep the 
+				# old value.
+				raise ValueError, "Can't convert."
+		return retVal
+
+
+	def getStringValue(self, value):
 		"""Given a value of any data type, return a string rendition.
 		
-		Used internally by _setValue and flushValue.
+		Used internally by _setValue and flushValue, but also exposed to subclasses
+		in case they need specialized behavior. The value returned from this 
+		function will be what is displayed in the UI textbox.
 		"""
 		if isinstance(value, basestring):
 			# keep it unicode instead of converting to str
@@ -87,6 +163,8 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		elif isinstance(value, datetime.time):
 			# Use the ISO 8601 time string format
 			strVal = value.isoformat()
+		elif value is None:
+			strVal = self.Application.NoneDisplay
 		else:
 			# convert all other data types to string:
 			strVal = str(value)   # (floats look like 25.55)
@@ -139,7 +217,29 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		if keyChar is not None and (keyChar.isalnum() 
 				or keyChar in """,./<>?;':"[]\\{}|`~!@#$%%^&*()-_=+"""):
 			dabo.ui.callAfter(self.__forceCase)
+			dabo.ui.callAfter(self.__textLength)
+	
+	def __textLength(self):
+		"""If the TextLength property is set, checks the current value of the control
+		and truncates it if too long"""
+		if not isinstance(self.Value, basestring):
+			#Don't bother if it isn't a string type
+			return
+		length = self.TextLength
+		if not length:
+			return
 		
+		insPos = self.InsertionPosition
+		
+		self._inTextLength = True
+		if len(self.Value) > length:
+			self.Value = self.Value[:length]
+			if insPos > length:
+				self.InsertionPosition = length
+			else:
+				self.InsertionPosition = insPos
+			self.refresh()
+		self._inTextLength = False
 	
 	def __forceCase(self):
 		"""If the ForceCase property is set, casts the current value of the control
@@ -210,7 +310,7 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 					"None": None}.get(valKey)
 			self.__forceCase()
 			self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
-			if self._forceCase:
+			if self._forceCase or self._textLength:
 				self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
 		else:
 			self._properties["ForceCase"] = val
@@ -296,6 +396,24 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		self._strictDateEntry = bool(val)
 
 
+	def _getTextLength(self):
+		return self._textLength
+
+	def _setTextLength(self, val):
+		if val == None:
+			self._textLength = None
+		else:
+			val = int(val)
+			if val < 1:
+				raise ValueError, 'TextLength must be a positve Integer'
+			self._textLength = val
+		self.__textLength()
+		
+		self.unbindEvent(dEvents.KeyChar, self.__onKeyChar)
+		if self._forceCase or self._textLength:
+			self.bindEvent(dEvents.KeyChar, self.__onKeyChar)
+
+
 	def _getValue(self):
 		# Return the value as reported by wx, but convert it to the data type as
 		# reported by self._value.
@@ -308,83 +426,27 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 		# Get the string value as reported by wx, which is the up-to-date 
 		# string value of the control:
 		strVal = self.GetValue()
-		
-		if dataType == type(None):
-			# The current datatype of the control is NoneType, but more likely it's
-			# just that there happened to be a value of None for this field in one of
-			# the records. We've saved the last used non-None datatype, so we'll 
-			# assume that is the real type to use.
-			dataType = self._lastDataType
 
 		# Convert the current string value of the control, as entered by the 
 		# user, into the proper data type.
-		if dataType == bool:
-			# Bools can't convert from string representations, because a zero-
-			# length denotes False, and anything else denotes True.
-			if strVal == "True":
-				retVal = True
+		skipConversion = False
+		if _value is None:
+			if strVal == self.Application.NoneDisplay:
+				# Keep the value None
+				convertedVal = None
+				skipConversion = True
 			else:
-				retVal = False
+				# User changed the None value to something else, convert to the last
+				# known real datatype.
+				dataType = self._lastDataType
 
-		elif dataType in (datetime.date, datetime.datetime, datetime.time):
-			# We expect the string to be in ISO 8601 format.
-			if dataType == datetime.date:
-				retVal = self._getDateFromString(strVal)
-			elif dataType == datetime.datetime:
-				retVal = self._getDateTimeFromString(strVal)
-			elif dataType == datetime.time:
-				retVal = self._getTimeFromString(strVal)
-				
-			if retVal is None:
-				# String wasn't in ISO 8601 format... put it back to a valid
-				# string with the previous value and the user will have to 
-				# try again.
-				retVal = self._value
-				
-		elif str(dataType) == "<type 'DateTime'>":
-			# mx DateTime type. MySQLdb will use this if mx is installed.
+		if not skipConversion:
 			try:
-				import mx.DateTime
-				retVal = mx.DateTime.DateTimeFrom(str(strVal))
-			except ImportError:
-				retVal = self._value
-		
-		elif str(dataType) == "<type 'DateTimeDelta'>":
-			# mx TimeDelta type. MySQLdb will use this for Time columns if mx is installed.
-			try:
-				import mx.DateTime
-				retVal = mx.DateTime.TimeFrom(str(strVal))
-			except ImportError:
-				retVal = self._value
-		
-		elif (decimal is not None and dataType == decimal.Decimal):
-			try:
-				_oldVal = self._oldVal
-			except:
-				_oldVal = None
-
-			try:
-				if type(_oldVal) == decimal.Decimal:
-					# Enforce the precision as previously set programatically
-					strVal, _oldVal
-					retVal = decimal.DefaultContext.quantize(decimal.Decimal(strVal), _oldVal)
-				else:
-					retVal = decimal.Decimal(strVal)
-			except:
-				retVal = self._value
-				
-		else:
-			# Other types can convert directly.
-			if dataType == str:
-				dataType = unicode
-			try:
-				retVal = dataType(strVal)
-			except:
-				# The Python object couldn't convert it. Our validator, once 
-				# implemented, won't let the user get this far. Just keep the 
-				# old value.
-				retVal = self._value
-		return retVal		
+				convertedVal = self.convertStringValueToDataType(strVal, dataType)
+			except ValueError:
+				# It couldn't convert; return the previous value.
+				convertedVal = self._value
+		return convertedVal
 	
 	def _setValue(self, val):
 		if self._constructed():
@@ -402,8 +464,8 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 				return
 			else:
 				dabo.ui.callAfter(self.__forceCase)
-		
-			strVal = self._getStringValue(val)
+			
+			strVal = self.getStringValue(val)
 			_oldVal = self._oldVal = self.Value
 				
 			# save the actual value for return by _getValue:
@@ -421,6 +483,8 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 				self._afterValueChanged()
 		else:
 			self._properties["Value"] = val
+		
+		self.__textLength()
 
 		
 	# Property definitions:
@@ -469,6 +533,9 @@ class dTextBox(dcm.dDataControlMixin, wx.TextCtrl):
 
 			If not strict, dates can be accepted in YYYYMMDD, YYMMDD, and MMDD format,
 			which will be coerced into sensible date values automatically."""))
+	
+	TextLength = property(_getTextLength, _setTextLength, None,
+			_("""The maximum length the entered text can be. (int)"""))
 
 	Value = property(_getValue, _setValue, None,
 			_("Specifies the current state of the control (the value of the field). (varies)"))

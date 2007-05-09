@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import dabo
 import dabo.dEvents as dEvents
@@ -14,17 +15,20 @@ class dControlItemMixin(dDataControlMixin):
 		self._keys = []
 		self._invertedKeys = []
 		self._valueMode = "s"
+		self._sorted = False
+		self._sortFunction = None
 		super(dControlItemMixin, self).__init__(*args, **kwargs)
 
 		
 	def _initEvents(self):
 		super(dControlItemMixin, self)._initEvents()
-		self.bindEvent(dEvents.Hit, self.__flush)
+
 	
-	
-	def __flush(self, evt):
+	def _onWxHit(self, evt):
+		# Flush value on every hit:
 		self.flushValue()
-	
+		super(dControlItemMixin, self)._onWxHit(evt)
+
 	
 	def appendItem(self, txt, select=False):
 		""" Adds a new item to the end of the list """
@@ -105,13 +109,16 @@ class dControlItemMixin(dDataControlMixin):
 			oldVal = self.Value
 			self.Clear()
 			self._choices = list(choices)
+			if self._sorted:
+				self._choices.sort(self._sortFunction)
 			self.AppendItems(self._choices)
 			if oldVal is not None:
 				# Try to get back to the same row:
 				try:
 					self.Value = oldVal
 				except ValueError:
-					self.PositionValue = 0
+					if self._choices:
+						self.PositionValue = 0
 		else:
 			self._properties["Choices"] = choices
 
@@ -251,6 +258,35 @@ class dControlItemMixin(dDataControlMixin):
 			self._properties["PositionValue"] = value
 
 	
+	def _getSorted(self):
+		return self._sorted
+
+	def _setSorted(self, val):
+		if self._constructed():
+			if self._sorted != val:
+				self._sorted = val
+				if val:
+					# Force a re-ordering
+					self._setChoices(self._choices)
+		else:
+			self._properties["Sorted"] = val
+
+
+	def _getSortFunction(self):
+		return self._sortFunction
+
+	def _setSortFunction(self, val):
+		if self._constructed():
+			if callable(val):
+				self._sortFunction = val
+				# Force a re-ordering
+				self._setChoices(self._choices)
+			else:
+				raise TypeError, _("SortFunction must be callable")
+		else:
+			self._properties["SortFunction"] = val
+
+
 	def _getStringValue(self):
 		selections = self.PositionValue
 		if not self._isMultiSelect():
@@ -373,6 +409,16 @@ class dControlItemMixin(dDataControlMixin):
 			-> Integer or tuple of integers. Read-write at runtime.
 			Returns the current position(s), or sets the current position(s).""") )
 
+	Sorted = property(_getSorted, _setSorted, None,
+			_("""Are the items in the control automatically sorted? Default=False.
+			If True, whenever the Choices property is changed, the resulting list
+			will be first sorted using the SortFunction property, which defaults to 
+			None, giving a default sort order.  (bool)"""))
+	
+	SortFunction = property(_getSortFunction, _setSortFunction, None,
+			_("""Function used to sort list items when Sorted=True. Default=None, 
+			which gives the default sorting  (callable or None)"""))
+	
 	StringValue = property(_getStringValue, _setStringValue, None,
 			_("""Specifies the text of the selected item.
 			-> String or tuple of strings. Read-write at runtime.

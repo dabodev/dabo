@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 
 def getIconBitmap(fileName, setMask=True):

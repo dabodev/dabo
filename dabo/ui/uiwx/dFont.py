@@ -1,4 +1,6 @@
+# -*- coding: utf-8 -*-
 import wx
+import decimal
 import dabo
 from dabo.dObject import dObject
 from dabo.dLocalize import _
@@ -46,7 +48,42 @@ class dFont(dObject):
 		return self._nativeFont.GetFaceName()
 
 	def _setFace(self, val):
-		self._nativeFont.SetFaceName(val)
+		availableFonts = dabo.ui.getAvailableFonts()
+		def trySetFont(val):
+			if val in availableFonts:
+				try:
+					return self._nativeFont.SetFaceName(val)
+				except:
+					return False
+			return False
+				
+		if not trySetFont(val):
+			# The font wasn't found on the user's system. Try to set it
+			# automatically based on some common-case mappings.
+			automatic_face = None
+			if val.lower() in ("courier", "courier new", "monospace", "mono"):
+				for trial in ("Courier New", "Courier", "Monaco", "Monospace", "Mono"):
+					if trySetFont(trial):
+						automatic_face = trial
+						break
+			elif val.lower() in ("arial", "helvetica", "geneva", "sans"):
+				for trial in ("Arial", "Helvetica", "Geneva", "Sans Serif", "Sans"):
+					if trySetFont(trial):
+						automatic_face = trial
+						break
+			elif val.lower() in ("times", "times new roman", "Georgia", "serif"):
+				for trial in ("Times New Roman", "Times", "Georgia", "Serif"):
+					if trySetFont(trial):
+						automatic_face = trial
+						break
+
+			if automatic_face:
+				dabo.infoLog.write(_("The font '%s' doesn't exist on the system. Used '%s' instead.") 
+						% (val, automatic_face))
+			else:
+				dabo.errorLog.write(_("The font '%s' doesn't exist on the system.")
+						% val)
+ 
 		self._propsChanged()
 
 
@@ -62,11 +99,25 @@ class dFont(dObject):
 
 
 	def _getSize(self):
-		return self._nativeFont.GetPointSize()
+		if self._useMacFontScaling():
+			multiplier = .75
+		else:
+			multiplier = 1		
+		return multiplier * self._nativeFont.GetPointSize()
 
 	def _setSize(self, val):
-		self._nativeFont.SetPointSize(val)
+		if self._useMacFontScaling():
+			self._macNonScaledSize = val
+			val = val / .75
+		try:
+			self._nativeFont.SetPointSize(val)
+		except:
+			dabo.errorLog.write(_("Setting FontSize to %s failed") % val)
 		self._propsChanged()
+
+
+	def _useMacFontScaling(self):
+		return wx.Platform == "__WXMAC__" and dabo.settings.macFontScaling
 
 
 	def _getUnderline(self):
@@ -79,19 +130,23 @@ class dFont(dObject):
 
 	Bold = property(_getBold, _setBold, None,
 			_("Bold setting for this font  (bool)"))
+	FontBold = Bold
 	
 	Description = property(_getDescription, None, None,
 			_("Read-only plain text description of the font  (str)"))
 	
 	Face = property(_getFace, _setFace, None,
 			_("Name of the font face  (str)"))
+	FontFace = Face
 	
 	Italic = property(_getItalic, _setItalic, None,
 			_("Italic setting for this font  (bool)"))
+	FontItalic = Italic
 	
 	Size = property(_getSize, _setSize, None,
 			_("Size in points for this font  (int)"))
+	FontSize = Size
 	
 	Underline = property(_getUnderline, _setUnderline, None,
 			_("Underline setting for this font  (bool)"))
-	
+	FontUnderline = Underline

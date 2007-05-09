@@ -1,10 +1,13 @@
+# -*- coding: utf-8 -*-
 import time
 from dabo.dObject import dObject
 from dLocalize import _
 
 
 class dSecurityManager(dObject):
-	
+	"""Class providing security services for Dabo applications, such as the
+	user logging in.
+	"""	
 	def login(self):
 		"""Ask the ui to display the login form to the user.
 		
@@ -17,7 +20,7 @@ class dSecurityManager(dObject):
 			if attempt > 0:
 				message = _("Login incorrect, please try again. (%s/%s)") % (
 						attempt+1, self.LoginAttemptsAllowed)
-			user, password = self.Application.uiApp.getLoginInfo(message)
+			user, password = self.Application.getLoginInfo(message)
 
 			if user is None:
 				# login form canceled.

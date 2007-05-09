@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import dabo
 if __name__ == "__main__":
@@ -22,7 +23,7 @@ class dListControl(dcm.dControlItemMixin,
 	# The ListMixin allows the rightmost column to expand as the 
 	# control is resized. There is no way to turn that off as of now.	
 
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dListControl
 		
 		self._lastSelectedIndex = None
@@ -34,7 +35,8 @@ class dListControl(dcm.dControlItemMixin,
 		except:
 			style = wx.LC_REPORT
 		preClass = wx.PreListCtrl
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, style=style, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, 
+				style=style, *args, **kwargs)
 		ListMixin.ListCtrlAutoWidthMixin.__init__(self)
 		# Dictionary for tracking images by key value
 		self.__imageList = {}	
@@ -58,6 +60,15 @@ class dListControl(dcm.dControlItemMixin,
 		""" Inserts a column at the specified position
 		with the selected caption. """
 		self.InsertColumn(pos, caption)
+	
+	
+	def removeColumn(self, pos=None):
+		"""Removes the specified column, or the last column if
+		no column number is passed.
+		"""
+		if pos is None:
+			pos = self.GetColumnCount() -1
+		self.DeleteColumn(pos)
 	
 	
 	def setColumns(self, colList):
@@ -344,8 +355,21 @@ class dListControl(dcm.dControlItemMixin,
 			self._properties["SelectedIndices"] = selList
 			
 
-	def _getColCount(self):
+	def _getColumnCount(self):
 		return self.GetColumnCount()
+
+	def _setColumnCount(self, val):
+		if self._constructed():
+			cc = self.GetColumnCount()
+			if val < cc:
+				# Remove rightmost columns
+				while val < self.GetColumnCount():
+					self.removeColumn()
+			elif val > cc:
+				while val > self.GetColumnCount():
+					self.addColumn(_("Column %s") % self.GetColumnCount())				
+		else:
+			self._properties["ColumnCount"] = val
 		
 		
 	def _getRowCount(self):
@@ -450,8 +474,8 @@ class dListControl(dcm.dControlItemMixin,
 			self._delWindowStyleFlag(wx.LC_VRULES)
 
 
-	ColumnCount = property(_getColCount, None, None, 
-			_("Number of columns in the control (read-only).  (int)") )
+	ColumnCount = property(_getColumnCount, _setColumnCount, None,
+			_("Number of columns in the control  (int)"))
 
 	Count = property(_getRowCount, None, None, 
 			_("Number of rows in the control (read-only). Alias for RowCount  (int)"))

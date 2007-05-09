@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import os
 import wx
 import dabo
@@ -90,7 +91,9 @@ class dImageMixin(object):
 				bmp = val
 			else:
 				bmp = dabo.ui.strToBmp(val, self._imgScale, self._imgWd, self._imgHt)
+			self.Freeze()
 			self.SetBitmap(bmp)
+			self.Thaw()
 		else:
 			self._properties["Picture"] = val
 	

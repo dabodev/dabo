@@ -1,14 +1,14 @@
+# -*- coding: utf-8 -*-
+import sys
+import time
 import wx
 import dabo
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dFormMixin as fm
 import dabo.dException as dException
-import dabo.dConstants as k
-import dProgressDialog
-import dSizer
 from dabo.dLocalize import _
-import time
-import sys
 from dabo.ui import makeDynamicProperty
 
 
@@ -18,25 +18,29 @@ class BaseForm(fm.dFormMixin):
 	dForm knows how to handle one or more dBizobjs, providing proxy methods 
 	like next(), last(), save(), and requery().
 	"""
-	def __init__(self, preClass, parent, properties, *args, **kwargs):
+	def __init__(self, preClass, parent, properties, attProperties, *args, **kwargs):
 		self.bizobjs = {}
 		self._primaryBizobj = None
 		
 		# If this is True, a panel will be automatically added to the
 		# form and sized to fill the form.
 		self.mainPanel = None
-		self.mkPanel = self._extractKey((kwargs, properties), "panel", False)
+		self.mkPanel = self._extractKey(attProperties, "panel", False)
+		if self.mkPanel is not False:
+			self.mkPanel = (self.mkPanel == "True")
+		else:
+			self.mkPanel = self._extractKey((kwargs, properties), "panel", False)
 		
 		# Use this for timing queries and other long-
 		# running events
 		self.stopWatch = wx.StopWatch()
 		self.stopWatch.Pause()
 
-		# Determines if the user is prompted to save changes
-		# when the form is closed.
-		self.checkForChanges = True
+		# Determines if the user is prompted to save changes when the form is closed
+		# or a requery is about to happen.
+		self._checkForChanges = True
 		
-		fm.dFormMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		fm.dFormMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 # 		if self.mainPanel:
 # 			# Can't do this in the _afterInit, as properties haven't been
@@ -50,13 +54,13 @@ class BaseForm(fm.dFormMixin):
 		self._holdStatusText = ""
 
 
-	def beforeSetProperties(self, props):
+	def _beforeSetProperties(self, props):
 		if "UseSizers" in props and not hasattr(self, "UseSizers"):
 			del props["UseSizers"]
 		
 		
 	def _afterInit(self):
-		self.Sizer = dSizer.dSizer("vertical")
+		self.Sizer = dabo.ui.dSizer("vertical")
 		self.Sizer.layout()
 		if self.mkPanel:
 			mp = self.mainPanel = dabo.ui.dPanel(self)
@@ -81,50 +85,130 @@ class BaseForm(fm.dFormMixin):
 		return ret
 		
 		
-	def confirmChanges(self):
-		""" If the form's checkForChanges property is true,
-		see if there are any pending changes on the form's bizobjs.
-		If so, ask the user if they want to save/discard/cancel.
-		
-		Subclasses may have their own bizobj management schemes,
-		so we can't rely on simplyreferring to PrimaryBizobj here.
-		Instead, we'll call a special method that will return a list
-		of bizobjs to act upon.
+	def notifyUser(self, msg, title="Notice", severe=False):
+		""" Displays an alert messagebox for the user. You can customize
+		this in your own classes if you prefer a different display.
 		"""
-		if not self.checkForChanges:
+		if severe:
+			func = dabo.ui.stop
+		else:
+			func = dabo.ui.info
+		func(message=msg, title=title)
+
+
+	def refresh(self, interval=None):
+		"""Repaints the form and all contained objects.
+
+		This method is called repeatedly from many different places during
+		a single change in the UI, so by default the actual execution is cached
+		using callAfterInterval(). The default interval is 100 milliseconds. You
+		can change that to suit your app needs by passing a different interval
+		in milliseconds.
+		
+		Sometimes, though, you want to force immediate execution of the 
+		refresh. In these cases, pass an interval of 0 to this method, which
+		means don't wait; execute now.
+		"""
+		if interval is None:
+			interval = 100
+		if interval == 0:
+			self.__refresh()
+		else:
+			dabo.ui.callAfterInterval(interval, self.__refresh)
+	def __refresh(self):
+		super(BaseForm, self).refresh()
+		
+		
+	def update(self, interval=None):
+		"""Updates the contained controls with current values from the source. 
+
+		This method is called repeatedly from many different places during
+		a single change in the UI, so by default the actual execution is cached
+		using callAfterInterval(). The default interval is 100 milliseconds. You
+		can change that to suit your app needs by passing a different interval
+		in milliseconds.
+		
+		Sometimes, though, you want to force immediate execution of the 
+		update. In these cases, pass an interval of 0 to this method, which
+		means don't wait; execute now.
+		"""
+		if interval is None:
+			interval = 100
+		if interval == 0:
+			self.__update()
+		else:
+			dabo.ui.callAfterInterval(interval, self.__update)
+	def __update(self):
+		super(BaseForm, self).update()
+		
+		
+	def confirmChanges(self, bizobjs=None):
+		"""Ask the user if they want to save changes, discard changes, or cancel.
+
+		The user will be queried if the form's CheckForChanges property is True, and
+		if there are any pending changes on the form's bizobjs as specified in either
+		the 'bizobjs' parameter, or, if no parameter is sent, the return value of 
+		getBizobjsToCheck().
+
+		If all the above are True, the dialog will be presented. "Yes" will cause
+		all changes to be saved. "No" will discard any changes before proceeding 
+		with the operation that caused confirmChanges() to be called in the first
+		place (e.g. a requery() or the form being closed). "Cancel" will not save
+		any changes, but also cancel the requery or form close.
+		
+		See also: getBizobjsToCheck() method, CheckForChanges property.
+		"""
+		if not self.CheckForChanges:
 			# Don't bother checking
 			return True
-		bizList = self.getBizobjsToCheck()
+		if bizobjs is None:
+			bizobjs = self.getBizobjsToCheck()
+		if not isinstance(bizobjs, (list, tuple)):
+			bizList = (bizobjs, )
+		else:
+			bizList = bizobjs
+		changedBizList = []
 		
-		if bizList:
-			changed = False
-			for biz in bizList:
-				if biz:
-					# Forms can return None in the list, so skip those
-					changed = changed or biz.isAnyChanged()
+		for biz in bizList:
+			if biz and biz.isAnyChanged():
+				changedBizList.append(biz)
 			
-			if changed:
-				response = dabo.ui.areYouSure(_("Do you wish to save your changes?"),
-						cancelButton=True)
-				if response == None:     ## cancel
-					# Don't let the form close
-					return False
-				elif response == True:   ## yes
-					for biz in bizList:
-						self.save(dataSource=biz.DataSource)
-				elif response == False:  ## no
-					for biz in bizList:
+		if changedBizList:
+			queryMessage = self.getConfirmChangesQueryMessage(changedBizList)
+			response = dabo.ui.areYouSure(queryMessage, parent=self)
+			if response == None:     ## cancel
+				# Don't let the form close, or requery happen
+				return False
+			elif response == True:   ## yes
+				for biz in changedBizList:
+					self.save(dataSource=biz.DataSource)
+			elif response == False:  ## no
+				for biz in changedBizList:
+					if biz.RowCount:
 						self.cancel(dataSource=biz.DataSource)
 		return True
 	
-	
-	def getBizobjsToCheck(self):
-		""" Default behavior is to simply check the primary bizobj.
-		However, there may be cases in subclasses where a different
-		bizobj may be checked, or even several. In those cases, override
-		this method and return a list of the required bizobjs.
+
+	def getConfirmChangesQueryMessage(self, changedBizList):
+		"""Return the "Save Changes?" message for use in the query dialog.
+
+		The default is to return "Do you wish to save your changes?". Subclasses
+		can override with whatever message they want, possibly iterating the 
+		changed bizobj list to introspect the exact changes made to construct the
+		message.
 		"""
-		return [self.PrimaryBizobj]
+		return _("Do you wish to save your changes?")
+
+
+	def getBizobjsToCheck(self):
+		"""Return the list of bizobj's to check for changes during confirmChanges().
+
+		The default behavior is to simply check the primary bizobj, however there 
+		may be cases in subclasses where a different bizobj may be checked, or even 
+		several. In those cases, override	this method and return a list of the 
+		required bizobjs.
+		"""
+		return (self.PrimaryBizobj, )
 		
 		
 	def addBizobj(self, bizobj):
@@ -150,7 +234,7 @@ class BaseForm(fm.dFormMixin):
 		if bizobj is None:
 			# Running in preview or some other non-live mode
 			return
-		self._moveRecordPointer(bizobj.moveToRowNumber, dataSource, rowNumber)
+		return self._moveRecordPointer(bizobj.moveToRowNumber, dataSource, rowNumber)
 
 
 	def _moveRecordPointer(self, func, dataSource=None, *args, **kwargs):
@@ -163,23 +247,29 @@ class BaseForm(fm.dFormMixin):
 		err = self.beforePointerMove()
 		if err:
 			self.notifyUser(err)
-			return
+			return False
 		try:
 			response = func(*args, **kwargs)
 		except dException.NoRecordsException:
 			self.setStatusText(_("No records in dataset."))
+			return False
 		except dException.BeginningOfFileException:
 			self.setStatusText(self.getCurrentRecordText(dataSource) + " (BOF)")
+			return False
 		except dException.EndOfFileException:
 			self.setStatusText(self.getCurrentRecordText(dataSource) + " (EOF)")
+			return False
 		except dException.dException, e:
 			self.notifyUser(str(e))
+			return False
 		else:
 			if biz.RowNumber != oldRowNum:
 				# Notify listeners that the row number changed:
 				dabo.ui.callAfter(self.raiseEvent, dEvents.RowNumChanged)
 			self.update()
 		self.afterPointerMove()
+		self.refresh()
+		return True
 
 
 	def first(self, dataSource=None):
@@ -279,10 +369,11 @@ class BaseForm(fm.dFormMixin):
 			return False
 
 		self.afterSave()
+		self.refresh()
 		return True
 	
 	
-	def cancel(self, dataSource=None):
+	def cancel(self, dataSource=None, ignoreNoRecords=None):
 		""" Ask the bizobj to cancel its changes.
 
 		This will revert back to the state of the records when they were last
@@ -293,6 +384,8 @@ class BaseForm(fm.dFormMixin):
 			# Running in preview or some other non-live mode
 			return
 		self.activeControlValid()
+		if ignoreNoRecords is None:
+			ignoreNoRecords = True
 
 		err = self.beforeCancel()
 		if err:
@@ -300,16 +393,19 @@ class BaseForm(fm.dFormMixin):
 			return
 		try:
 			if self.SaveAllRows:
-				bizobj.cancelAll()
+				bizobj.cancelAll(ignoreNoRecords=ignoreNoRecords)
 			else:
-				bizobj.cancel()
+				bizobj.cancel(ignoreNoRecords=ignoreNoRecords)
 			self.setStatusText(_("Changes to %s canceled.") % (
 					self.SaveAllRows and "all records" or "current record",))
 			self.update()
+		except dException.NoRecordsException, e:
+			dabo.errorLog.write(_("Cancel failed; no records to cancel."))
 		except dException.dException, e:
 			dabo.errorLog.write(_("Cancel failed with response: %s") % str(e))
 			self.notifyUser(str(e), title=_("Cancel Not Allowed") )
 		self.afterCancel()
+		self.refresh()
 
 
 	def onRequery(self, evt):
@@ -332,31 +428,23 @@ class BaseForm(fm.dFormMixin):
 		if err:
 			self.notifyUser(err)
 			return
-		if bizobj.isAnyChanged() and self.AskToSave:
-			response = dabo.ui.areYouSure(_("Do you wish to save your changes?"),
-								cancelButton=True)
+		if not self.confirmChanges(bizobjs=bizobj):
+			# A False from confirmChanges means "don't proceed"
+			return
 
-			if response == None:    # cancel
-				return
-			elif response == True:  # yes
-				if not self.save(dataSource=dataSource):
-					# The save failed, so don't continue with the requery
-					return
-
-		self.setStatusText(_("Please wait... requerying dataset..."))
-		
 		try:
+			busy = dabo.ui.busyInfo(_("Please wait... requerying dataset..."))
 			self.stopWatch.Start()
-			response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
-#			response = bizobj.requery()
+#			response = dProgressDialog.displayAfterWait(self, 2, bizobj.requery)
+			response = bizobj.requery()
 			self.stopWatch.Pause()
 			elapsed = round(self.stopWatch.Time()/1000.0, 3)
 			
 			self.update()
+			del busy
 
 			# Notify listeners that the row number changed:
 			self.raiseEvent(dEvents.RowNumChanged)
-			
 			# We made it through without errors
 			ret = True
 		
@@ -388,10 +476,11 @@ class BaseForm(fm.dFormMixin):
 			self.StatusText = ""
 
 		self.afterRequery()
+		self.refresh()
 		return ret
 		
 
-	def delete(self, dataSource=None, message=None):
+	def delete(self, dataSource=None, message=None, prompt=True):
 		""" Ask the bizobj to delete the current record."""
 		bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
@@ -399,6 +488,9 @@ class BaseForm(fm.dFormMixin):
 			return
 
 		ds = bizobj.DataSource
+		biz_caption = bizobj.Caption
+		if not biz_caption:
+			biz_caption = ds
 
 		self.activeControlValid()
 		
@@ -413,8 +505,8 @@ class BaseForm(fm.dFormMixin):
 			return
 		if message is None:
 			message = _("This will delete the current record from %s, and cannot "
-					"be canceled.\n\n Are you sure you want to do this?") % ds
-		if dabo.ui.areYouSure(message, defaultNo=True):
+					"be canceled.\n\n Are you sure you want to do this?") % biz_caption
+		if not prompt or dabo.ui.areYouSure(message, defaultNo=True, cancelButton=False):
 			try:
 				bizobj.delete()
 				self.setStatusText(_("Record Deleted."))
@@ -427,9 +519,10 @@ class BaseForm(fm.dFormMixin):
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
-		self.afterDelete()
+			self.afterDelete()
 		self.update()
-		
+		self.refresh()
+
 
 	def deleteAll(self, dataSource=None, message=None):
 		""" Ask the primary bizobj to delete all records from the recordset."""
@@ -461,6 +554,7 @@ class BaseForm(fm.dFormMixin):
 				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
 		self.afterDeleteAll()
 		self.update()
+		self.refresh()
 		
 
 	def new(self, dataSource=None):
@@ -490,6 +584,7 @@ class BaseForm(fm.dFormMixin):
 
 		self.afterNew()
 		self.update()
+		self.refresh()
 		
 
 	def afterNew(self): pass
@@ -504,17 +599,6 @@ class BaseForm(fm.dFormMixin):
 		""" Set the SQL for the bizobj."""
 		self.getBizobj(dataSource).setSQL(sql)
 		
-	
-	def notifyUser(self, msg, title="Notice", severe=False):
-		""" Displays an alert messagebox for the user. You can customize
-		this in your own classes if you prefer a different display.
-		"""
-		if severe:
-			func = dabo.ui.stop
-		else:
-			func = dabo.ui.info
-		func(message=msg, title=title)
-
 
 	def _connectionLostMsg(self, err):
 		return _("""The connection to the database has closed for unknown reasons.
@@ -628,22 +712,6 @@ Database error message: %s""") %	err
 		return _("Record %s/%s" % (rowNumber, rowCount))
 
 
-	def activeControlValid(self):
-		""" Force the control-with-focus to fire its KillFocus code.
-
-		The bizobj will only get its field updated during the control's 
-		KillFocus code. This function effectively commands that update to
-		happen before it would have otherwise occurred.
-		"""
-		ac = self.ActiveControl
-		if ac is not None:
-			try:
-				ac.flushValue()
-			except AttributeError:
-				# active control may not be data-aware
-				pass
-				
-	
 	def validateField(self, ctrl):
 		"""Call the bizobj for the control's DataSource. If the control's 
 		value is rejected for field validation reasons, a 
@@ -672,6 +740,9 @@ Database error message: %s""") %	err
 			ret = True
 		except dException.BusinessRuleViolation, e:
 			self.onFieldValidationFailed(ctrl, ds, df, val, e)
+		except dException.BusinessRulePassed:
+			self.onFieldValidationPassed(ctrl, ds, df, val)
+			ret = True
 		return ret
 
 
@@ -680,19 +751,24 @@ Database error message: %s""") %	err
 		override it with your own code to handle this failure 
 		appropriately for your application.
 		"""
-		self.setStatusText(_("Validation failed for %s: %s") % (df, err))
+		self.StatusText = _(u"Validation failed for %s: %s") % (df, err)
 		dabo.ui.callAfter(ctrl.setFocus)
 		
 	
+	def onFieldValidationPassed(self, ctrl, ds, df, val):
+		"""Basic handling when field-level validation succeeds. 
+		You should override it with your own code to handle this event 
+		appropriately for your application.
+		"""
+		self.StatusText = ""
+		
+	
 	# Property get/set/del functions follow.
-	def _getAskToSave(self):
-		try:
-			return self._AskToSave
-		except AttributeError:
-			return True
+	def _getCheckForChanges(self):
+		return self._checkForChanges
 			
-	def _setAskToSave(self, value):
-		self._AskToSave = bool(value)
+	def _setCheckForChanges(self, value):
+		self._checkForChanges = bool(value)
 		
 
 	def _getPrimaryBizobj(self):
@@ -747,9 +823,13 @@ Database error message: %s""") %	err
 
 
 	# Property definitions:
-	AskToSave = property(_getAskToSave, _setAskToSave, None, 
-			_("""Specifies whether a save prompt appears before the data
-			is requeried. (bool)""") )
+	CheckForChanges = property(_getCheckForChanges, _setCheckForChanges, None, 
+			_("""Specifies whether the user is prompted to save or discard changes. (bool)
+
+			If True (the default), when operations such as requery() or the closing
+			of the form are about to occur, the user will be presented with a dialog
+			box asking whether to save changes, discard changes, or cancel the 
+			operation that led to the dialog being presented.""") )
 
 	PrimaryBizobj = property(_getPrimaryBizobj, _setPrimaryBizobj, None, 
 			_("Reference to the primary bizobj for this form  (dBizobj)") )
@@ -764,42 +844,94 @@ Database error message: %s""") %	err
 
 
 class dForm(BaseForm, wx.Frame):
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
+	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dForm
 
-		if dabo.settings.MDI and isinstance(parent, wx.MDIParentFrame):
-			# Hack this into an MDI Child:
-			dForm.__bases__ = (BaseForm, wx.MDIChildFrame)
-			preClass = wx.PreMDIChildFrame
-			self._mdi = True
+		if kwargs.pop("Modal", False):
+			# Hack this into a wx.Dialog, for true modality
+			dForm.__bases__ = (BaseForm, wx.Dialog)
+			preClass = wx.PreDialog
+			self._modal = True
 		else:
-			# This is a normal SDI form:
-			dForm.__bases__ = (BaseForm, wx.Frame)
-			preClass = wx.PreFrame
-			self._mdi = False
-		## (Note that it is necessary to run the above block each time, because
-		##  we are modifying the dForm class definition globally.)
-		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
+			# Normal dForm
+			if dabo.settings.MDI and isinstance(parent, wx.MDIParentFrame):
+				# Hack this into an MDI Child:
+				dForm.__bases__ = (BaseForm, wx.MDIChildFrame)
+				preClass = wx.PreMDIChildFrame
+				self._mdi = True
+			else:
+				# This is a normal SDI form:
+				dForm.__bases__ = (BaseForm, wx.Frame)
+				preClass = wx.PreFrame
+				self._mdi = False
 
+		## (Note that it is necessary to run the above blocks each time, because
+		##  we are modifying the dForm class definition globally.)
+		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+
+	def Show(self, show=True, *args, **kwargs):
+		self._gtk_show_fix(show)
+		dForm.__bases__[-1].Show(self, show, *args, **kwargs)
 
 	def Layout(self):
 		super(dForm, self).Layout()
 		wx.CallAfter(self.update)
 
+	def _getModal(self):
+		return getattr(self, "_modal", False)
+
+	def _getVisible(self):
+		return self.IsShown()
+	
+	def _setVisible(self, val):
+		if self._constructed():
+			val = bool(val)
+			if val and self.Modal:
+				self.ShowModal()
+			else:
+				self.Show(val)
+		else:
+			self._properties["Visible"] = val
+
+	Modal = property(_getModal, None, None,
+			_("""Specifies whether this dForm is modal or not  (bool)
+
+			A modal dForm runs its own event loop, blocking program flow until the
+			form is hidden or closed, exactly like a dDialog does it. This property
+			may only be sent to the constructor, and once instantiated you may not
+			change the modality of a form. For example,
+					frm = dabo.ui.dForm(Modal=True)
+			will create a modal form.
+
+			Note that a modal dForm is actually a dDialog, and as such does not
+			have the ability to contain MenuBars, StatusBars, or ToolBars."""))
+
+	Visible = property(_getVisible, _setVisible, None,
+			_("Specifies whether the form is shown or hidden.  (bool)") )
+
+	
 
 class dToolForm(BaseForm, wx.MiniFrame):
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
+	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dToolForm
 		preClass = wx.PreMiniFrame
 		self._mdi = False
+		style = kwargs.get("style", 0)
+		kwargs["style"] = style | wx.RESIZE_BORDER | wx.CAPTION | wx.MINIMIZE_BOX | \
+				wx.MAXIMIZE_BOX | wx.CLOSE_BOX		
 		kwargs["TinyTitleBar"] = True
 		kwargs["ShowStatusBar"] = False
 		kwargs["ShowToolBar"] = False
-		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
+		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+
+	def Show(self, show=True, *args, **kwargs):
+		self._gtk_show_fix(show)
+		wx.MiniFrame.Show(self, show, *args, **kwargs)
+
 
 
 class dBorderlessForm(BaseForm, wx.Frame):
-	def __init__(self, parent=None, properties=None, *args, **kwargs):
+	def __init__(self, parent=None, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dBorderlessForm
 		style = kwargs.get("style", 0)
 		kwargs["style"] = style | wx.NO_BORDER
@@ -807,8 +939,12 @@ class dBorderlessForm(BaseForm, wx.Frame):
 		kwargs["ShowSystemMenu"] = False
 		kwargs["MenuBarClass"] = None
 		preClass = wx.PreFrame
-		BaseForm.__init__(self, preClass, parent, properties, *args, **kwargs)
+		BaseForm.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 	
+	def Show(self, show=True, *args, **kwargs):
+		self._gtk_show_fix(show)
+		wx.Frame.Show(self, show, *args, **kwargs)
+
 
 class _dForm_test(dForm):
 	def afterInit(self):
@@ -837,3 +973,4 @@ if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dForm_test)
 	test.Test().runTest(_dBorderlessForm_test)
+

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import wx
 import dabo
@@ -15,10 +16,10 @@ class _dRadioButton(dcm.dDataControlMixin, wx.RadioButton):
 	"""Subclass of wx.RadioButton. Not meant to be used individually, but
 	only in the context of a parent dRadioList control.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = _dRadioButton
 		preClass = wx.PreRadioButton
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		
 
 	def _initEvents(self):
@@ -124,14 +125,14 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 	suitable for lists of one to a couple hundred choices, a dRadioList is 
 	really only suitable for lists of one to a dozen at most.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dRadioList
 		self._sizerClass = dabo.ui.dBorderSizer
 		self._buttonClass = _dRadioButton
 		self._showBox = True
 		self._caption = ""
 		preClass = wx.PrePanel
-		style = self._extractKey((properties, kwargs), "style", 0)
+		style = self._extractKey((properties, attProperties, kwargs), "style", 0)
 		style = style | wx.TAB_TRAVERSAL
 		kwargs["style"] = style
 		# Tracks individual member radio buttons.
@@ -141,7 +142,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		# 'ButtonSpacing' property.
 		self._buttonSpacing = 5
 
-		cim.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cim.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 	def _getInitPropertiesList(self):
@@ -172,7 +173,6 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		# This allows the event processing to properly 
 		# set the EventData["index"] properly.
 		evt.SetInt(pos)
-		self.flushValue()
 		self.super(evt)
 		
 		
@@ -296,11 +296,14 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 		return self._buttonSpacing
 		
 	def _setButtonSpacing(self, val):
-		self._buttonSpacing = val
+		if self._constructed():
+			self._buttonSpacing = val
 
-		for itm in self.Sizer.ChildSpacers:
-			self.Sizer.setItemProp(itm, "Spacing", self._getFudgedButtonSpacing())
-		self.layout()
+			for itm in self.Sizer.ChildSpacers:
+				self.Sizer.setItemProp(itm, "Spacing", self._getFudgedButtonSpacing())
+			self.layout()
+		else:
+			self._properties["ButtonSpacing"] = val
 			
 			
 	def _getCaption(self):

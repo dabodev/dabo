@@ -1,24 +1,28 @@
+# -*- coding: utf-8 -*-
 import os
 import sys
-import wx, dabo
+import wx
+import dabo
 import dPemMixin as pm
 import dBaseMenuBar as mnb
 import dMenu
 import dabo.icons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
+import dabo.dException as dException
 from dabo.lib.xmltodict import xmltodict as XTD
 from dabo.lib.utils import dictStringify
 from dabo.ui import makeDynamicProperty
 
 
 class dFormMixin(pm.dPemMixin):
-	def __init__(self, preClass, parent=None, properties=None, 
-			src=None, attProperties=None, *args, **kwargs):
+	def __init__(self, preClass, parent=None, properties=None, attProperties=None, 
+			src=None, *args, **kwargs):
 
 		# Windows sends two Activate events, and one of them is too early.
-		# Skip the first one
-		self._skipActivate = (self.Application.Platform == "Win")
+		# Skip the first one. Update: apparently on wx27 and above the 
+		# double-activation is no longer an issue.
+		self._skipActivate = (wx.VERSION < (2,7) and self.Application.Platform == "Win")
 
 		# Extract the connection name, if any
 		self._cxnFile = self._extractKey((properties, attProperties, kwargs), 
@@ -30,6 +34,11 @@ class dFormMixin(pm.dPemMixin):
 		if self._cxnName == "None":
 			self._cxnName = ""
 		self._connection = None
+		# Extract the menu definition file, if any
+		self._menuBarFile = self._extractKey((properties, attProperties, kwargs), 
+				"MenuBarFile", "")
+		if self._menuBarFile:
+			self._menuBarClass = self._menuBarFile
 		
 		if False and parent:
 			## pkm 3/10/05: I like it better now without the float on parent option
@@ -57,42 +66,51 @@ class dFormMixin(pm.dPemMixin):
 		# Default behavior used to be for the form to set the status bar text with the 
 		# current record position. Now we only turn it on for data apps.
 		self._autoUpdateStatusText = False
+		# Flag to denote temporary forms
+		self._tempForm = False
 
 		super(dFormMixin, self).__init__(preClass, parent, properties, 
 				attProperties, *args, **kwargs)
 		
 
 	def _getInitPropertiesList(self):
-		additional = ["ShowCloseButton", "ShowMinButton", "ShowMaxButton", 
-				"ShowSystemMenu", "TinyTitleBar", "FloatOnParent", "ShowInTaskBar", 
-				"StayOnTop"]
+		additional = ["BorderResizable", "FloatOnParent", "ShowCloseButton", "ShowInTaskBar", 
+				"ShowMaxButton", "ShowMinButton", "ShowSystemMenu", "StayOnTop", "TinyTitleBar"]
 		original = list(super(dFormMixin, self)._getInitPropertiesList())
 		return tuple(original + additional)
 		
 
 	def _afterInit(self):
-		if self.Application and self.MenuBarClass and self.ShowMenuBar:
-			self.MenuBar = self.MenuBarClass()
+		app = self.Application
+		mbc = self.MenuBarClass
+		if app and mbc and self.ShowMenuBar:
+			if isinstance(mbc, basestring):
+				self.MenuBar = dabo.ui.createMenuBar(mbc, self)
+			else:
+				self.MenuBar = mbc()
 			self.afterSetMenuBar()
 
 		if not self.Icon:
-			self.Icon = "daboIcon.ico"
+			if app:
+				self.Icon = app.Icon
+			else:
+				self.Icon = "daboIcon.ico"
 
 		self.debugText = ""
 		self.useOldDebugDialog = False
 		self.restoredSP = False
 		self._holdStatusText = ""
-		if self.Application is not None:
-			self.Application.uiForms.add(self)
+		if app is not None:
+			app.uiForms.add(self)
 		
 		# Centering information
 		self._normLeft = self.Left
 		self._normTop = self.Top
 
 		if self._cxnFile:
-			self.Application.addConnectFile(self._cxnFile)
+			app.addConnectFile(self._cxnFile)
 		if self._cxnName:
-			self.Connection = self.Application.getConnectionByName(self._cxnName)
+			self.Connection = app.getConnectionByName(self._cxnName)
 			if self.Connection is None:
 				dabo.infoLog.write(_("Could not establish connection '%s'") %
 						self._cxnName)
@@ -136,7 +154,7 @@ class dFormMixin(pm.dPemMixin):
 					restoredSP = False
 				if not restoredSP:
 					if self.SaveRestorePosition:
-						self.restoreSizeAndPosition()
+						dabo.ui.callAfter(self.restoreSizeAndPosition)
 				
 				self.raiseEvent(dEvents.Activate, evt)
 				self._skipActivate = (self.Application.Platform == "Win")
@@ -223,6 +241,19 @@ class dFormMixin(pm.dPemMixin):
 			except: pass
 	
 	
+	def activeControlValid(self):
+		""" Force the control-with-focus to fire its KillFocus code.
+
+		The bizobj will only get its field updated during the control's 
+		KillFocus code. This function effectively commands that update to
+		happen before it would have otherwise occurred.
+		"""
+		ac = self.ActiveControl
+		if ac is not None and isinstance(ac, dabo.ui.dDataControlMixinBase.dDataControlMixinBase):
+			if not hasattr(ac, "_oldVal") or ac._oldVal != ac.Value:
+				ac.flushValue()
+				
+	
 	def createBizobjs(self):
 		"""Can be overridden in instances to create the bizobjs this form needs.
 		It is provided so that tools such as the Class Designer can create skeleton
@@ -230,13 +261,29 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		pass
 		
-		
+	
+	def _gtk_show_fix(self, show=True):
+		# On Gtk, in wxPython 2.8.1.1 at least, the form will get re-shown at its
+		# initial position, instead of the position the user last put it at.
+		if not show and "linux" in sys.platform:
+			self._gtk_bug_position = self.Position
+		else:
+			pos = getattr(self, "_gtk_bug_position", None)
+			if pos is not None:
+				# position needs to be jiggled, not merely set:
+				x,y = pos
+				self.Position = (x, y+1)
+				self.Position = (x, y)
+
+
 	def showModal(self):
 		"""Shows the form in a modal fashion. Other forms can still be
 		activated, but all controls are disabled.
+		NOTE: wxPython does not currently support this. DO NOT USE 
+		this method.
 		"""
-		self.MakeModal(True)
-		self._isModal = self.Visible = True
+		raise dException.FeatureNotSupportedException, \
+				_("The underlying UI toolkit does not support modal forms. Use a dDialog instead.")
 		
 		
 	def release(self):
@@ -352,12 +399,14 @@ class dFormMixin(pm.dPemMixin):
 			if isinstance(left, int) and isinstance(top, int):
 				self.Position = (left,top)
 			if isinstance(width, int) and isinstance(height, int):
-				self.Size = (width,height)
+				if self.BorderResizable:
+					self.Size = (width,height)
 
 			if state is not None:
 				if state == "Minimized":
 					state = "Normal"
 				self.WindowState = state
+				
 			self.restoredSP = True
 
 
@@ -365,7 +414,7 @@ class dFormMixin(pm.dPemMixin):
 		""" Save the current size and position of this form.
 		"""
 		if self.Application:
-			if self.SaveRestorePosition:
+			if self.SaveRestorePosition and not self.TempForm:
 				name = self.getAbsoluteName()
 				state = self.WindowState
 				self.Application.setUserSetting("%s.windowstate" % name, state)
@@ -431,21 +480,30 @@ class dFormMixin(pm.dPemMixin):
 	
 	
 	def _appendToMenu(self, menu, caption, function, bitmap=wx.NullBitmap, menuId=-1):
-		menu.append(caption, bindfunc=function, bmp=bitmap)
+		menu.append(caption, OnHit=function, bmp=bitmap)
 
 
-	def appendToolBarButton(self, name, pic, bindfunc=None, toggle=False, tip="", help=""):
+	def appendToolBarButton(self, name, pic, bindfunc=None, toggle=False, 
+			tip="", help="", *args, **kwargs):
 		self.ToolBar.appendButton(name, pic, bindfunc=bindfunc, toggle=toggle, 
-				tip=tip, help=help)
-# 	def _appendToToolBar(self, toolBar, caption, bitmap, function, statusText=""):
-# 		toolId = wx.NewId()
-# 		toolBar.AddSimpleTool(toolId, bitmap, caption, statusText)
-# 
-# 		if isinstance(self, wx.MDIChildFrame):
-# 			controllingFrame = self.Application.MainForm
-# 		else:
-# 			controllingFrame = self
-# 		wx.EVT_MENU(controllingFrame, toolId, function)
+				tip=tip, help=help, *args, **kwargs)
+
+
+	def _setAbsoluteFontZoom(self, amt):
+		# Let the default behavior run, but then save the font zoom level to 
+		# the user preferences file. The loading of the saved pref happens in 
+		# the individual control (dPemMixinBase) so that the restoration of the 
+		# control's font zoom isn't dependent on the control being created at 
+		# form load time.
+		self.super(amt)
+		if self.Application and self.SaveRestorePosition:
+			self.Application.setUserSetting("%s.fontzoom" 
+					% self.getAbsoluteName(), self._currFontZoom)
+
+	def _restoreFontZoom(self):
+		if self.Application:
+			self._currFontZoom = self.Application.getUserSetting("%s.fontzoom" 
+					% self.getAbsoluteName(), 0)
 
 
 	# property get/set/del functions follow:
@@ -515,54 +573,46 @@ class dFormMixin(pm.dPemMixin):
 
 	def _getIcon(self):
 		try:
-			return self._Icon
+			return self._icon
 		except AttributeError:
 			return None
 
 	def _setIcon(self, val):
 		if self._constructed():
+			setIconFunc = self.SetIcon
 			if val is None:
 				ico = wx.NullIcon
 			elif isinstance(val, wx.Icon):
 				ico = val
 			else:
-				iconPath = dabo.icons.getIconFileName(val)
-				if iconPath and os.path.exists(iconPath):
-					ext = os.path.splitext(iconPath)[1].lower()
-					if ext == ".png":
-						bitmapType = wx.BITMAP_TYPE_PNG
-					elif ext == ".ico":
-						bitmapType = wx.BITMAP_TYPE_ICO
-					else:
-						# punt, but only ico will work on Windows
-						bitmapType = wx.BITMAP_TYPE_ANY
-					ico = wx.Icon(iconPath, bitmapType)
+				setIconFunc = self.SetIcons
+				if isinstance(val, basestring):
+					icon_strs = (val,)
 				else:
-					val = None
-					ico = wx.NullIcon
-#					raise ValueError, "Invalid icon specified."
-
+					icon_strs = val
+				ico = wx.IconBundle()
+				for icon_str in icon_strs:
+					iconPath = dabo.icons.getIconFileName(icon_str)
+					if iconPath and os.path.exists(iconPath):
+						ext = os.path.splitext(iconPath)[1].lower()
+						if ext == ".png":
+							bitmapType = wx.BITMAP_TYPE_PNG
+						elif ext == ".ico":
+							bitmapType = wx.BITMAP_TYPE_ICO
+						else:
+							# punt:
+							bitmapType = wx.BITMAP_TYPE_ANY
+						single_ico = wx.Icon(iconPath, bitmapType)
+					else:
+						single_ico = wx.NullIcon
+					ico.AddIcon(single_ico)
 			# wx doesn't provide GetIcon()
-			self._Icon = val
-			self.SetIcon(ico)
+			self._icon = val
+			setIconFunc(ico)
 
 		else:
 			self._properties["Icon"] = val
 
-
-	def _getIconBundle(self):
-		try:
-			return self._Icons
-		except:
-			return None
-			
-	def _setIconBundle(self, val):
-		if self._constructed():
-			self.SetIcons(val)
-			self._Icons = val       # wx doesn't provide GetIcons()
-		else:
-			self._properties["Icons"] = val
-			
 
 	def _getMDI(self):
 		## self._mdi defined in dForm.py/dFormMain.py:
@@ -597,6 +647,16 @@ class dFormMixin(pm.dPemMixin):
 	def _setMenuBarClass(self, val):
 		self._menuBarClass = val
 		
+
+	def _getMenuBarFile(self):
+		return self._menuBarFile
+
+	def _setMenuBarFile(self, val):
+		if self._constructed():
+			self._menuBarFile = self._menuBarClass = val
+		else:
+			self._properties["MenuBarFile"] = val
+
 
 	def _getSaveRestorePosition(self):
 		try:
@@ -757,6 +817,16 @@ class dFormMixin(pm.dPemMixin):
 			self._addWindowStyleFlag(wx.STAY_ON_TOP)
 
 
+	def _getTempForm(self):
+		return self._tempForm
+
+	def _setTempForm(self, val):
+		if self._constructed():
+			self._tempForm = val
+		else:
+			self._properties["TempForm"] = val
+
+
 	def _getTinyTitleBar(self):
 		return self._hasWindowStyleFlag(wx.FRAME_TOOL_WINDOW)
 		
@@ -831,7 +901,9 @@ class dFormMixin(pm.dPemMixin):
 			_("Does this form update the status text with the current record position?  (bool)"))
 
 	BorderResizable = property(_getBorderResizable, _setBorderResizable, None,
-			_("Specifies whether the user can resize this form.  (bool)."))
+			_("""Specifies whether the user can resize this form.  (bool).
+
+			The default is True for dForm and False for dDialog."""))
 
 	Centered = property(_getCentered, _setCentered, None, 
 			_("Centers the form on the screen when set to True.  (bool)"))
@@ -843,10 +915,13 @@ class dFormMixin(pm.dPemMixin):
 			_("Specifies whether the form stays on top of the parent or not."))
 	
 	Icon = property(_getIcon, _setIcon, None, 
-			_("Specifies the icon for the form. (wxIcon)"))
+			_("""Specifies the icon for the form.
 
-	IconBundle = property(_getIconBundle, _setIconBundle, None,
-			_("Specifies the set of icons for the form. (wxIconBundle)"))
+			The value passed can be a binary icon bitmap, a filename, or a
+			sequence of filenames. Providing a sequence of filenames pointing to
+			icons at expected dimensions like 16, 22, and 32 px means that the
+			system will not have to scale the icon, resulting in a much better
+			appearance."""))
 
 	MDI = property(_getMDI, None, None,
 			_("""Returns True if this is a MDI (Multiple Document Interface) form.  (bool)
@@ -862,6 +937,9 @@ class dFormMixin(pm.dPemMixin):
 
 	MenuBarClass = property(_getMenuBarClass, _setMenuBarClass, None,
 			_("Specifies the menu bar class to use for the form, or None."))
+
+	MenuBarFile = property(_getMenuBarFile, _setMenuBarFile, None,
+			_("Path to the .mnxml file that defines this form's menu bar  (str)"))
 
 	SaveRestorePosition = property(_getSaveRestorePosition, 
 			_setSaveRestorePosition, None,
@@ -905,6 +983,10 @@ class dFormMixin(pm.dPemMixin):
 	StayOnTop = property(_getStayOnTop, _setStayOnTop, None,
 			_("Keeps the form on top of all other forms. (bool)"))
 
+	TempForm = property(_getTempForm, _setTempForm, None,
+			_("""Used to indicate that this is a temporary form, and that its settings
+			should not be persisted. Default=False  (bool)"""))
+	
 	TinyTitleBar = property(_getTinyTitleBar, _setTinyTitleBar, None,
 			_("Specifies whether the title bar is small, like a tool window. (bool)."))
 
@@ -926,7 +1008,6 @@ class dFormMixin(pm.dPemMixin):
 	DynamicConnection = makeDynamicProperty(Connection)
 	DynamicFloatOnParent = makeDynamicProperty(FloatOnParent)
 	DynamicIcon = makeDynamicProperty(Icon)
-	DynamicIconBundle = makeDynamicProperty(IconBundle)
 	DynamicMenuBar = makeDynamicProperty(MenuBar)
 	DynamicShowCaption = makeDynamicProperty(ShowCaption)
 	DynamicShowStatusBar = makeDynamicProperty(ShowStatusBar)

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx, dabo, dabo.ui
 
 if __name__ == "__main__":
@@ -10,21 +11,19 @@ from dabo.ui import makeDynamicProperty
 
 
 class dSlider(dcm.dDataControlMixin, wx.Slider):
-	"""Creates a slider control, allowing editing integer values.
-	
-	Unlike dSpinner, dSlider does not allow entering a value with the keyboard.
+	"""Creates a slider control, allowing editing integer values. Unlike dSpinner, 
+	dSlider does not allow entering a value with the keyboard.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dSlider
-		
-		style = self._extractKey((kwargs, properties), "style")
+		self._continuous = False
+		style = self._extractKey((kwargs, properties, attProperties), "style")
 		if style is None:
 			kwargs["style"] = wx.SL_AUTOTICKS
 		else:
-			kwargs["style"] = style | wx.SL_AUTOTICKS
-		
+			kwargs["style"] = style | wx.SL_AUTOTICKS		
 		preClass = wx.PreSlider
-		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 	
 	def _initEvents(self):
@@ -33,30 +32,51 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 
 
 	def _onWxHit(self, evt):
-		self.flushValue()
-		super(dSlider, self)._onWxHit(evt)
+		if self._continuous or not dabo.ui.isMouseLeftDown():
+			self.flushValue()
+			super(dSlider, self)._onWxHit(evt)
 
 				
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
-	def _getMin(self):
-		return self.GetMin()
+	def _getContinuous(self):
+		try:
+			ret = self._continuous
+		except AttributeError:
+			ret = self._continuous = True
+		return ret
 
-	def _setMin(self, value):
+	def _setContinuous(self, val):
 		if self._constructed():
-			self.SetMin(value)
+			self._continuous = val
 		else:
-			self._properties["Min"] = value
-		
+			self._properties["Continuous"] = val
+
 
 	def _getMax(self):
 		return self.GetMax()
 
-	def _setMax(self, value):
+	def _setMax(self, val):
 		if self._constructed():
-			self.SetMax(value)
+			currmin = self.GetMin()
+			currval = min(self.GetValue(), val)
+			self.SetRange(currmin, val)
+			self.SetValue(currval)
 		else:
-			self._properties["Max"] = value
+			self._properties["Max"] = val
+		
+
+	def _getMin(self):
+		return self.GetMin()
+
+	def _setMin(self, val):
+		if self._constructed():
+			currmax = self.GetMax()
+			currval = max(self.GetValue(), val)
+			self.SetRange(val, currmax)
+			self.SetValue(currval)
+		else:
+			self._properties["Min"] = val
 		
 
 	def _getOrientation(self):
@@ -65,52 +85,51 @@ class dSlider(dcm.dDataControlMixin, wx.Slider):
 		else:
 			return "Horizontal"
 			
-	def _setOrientation(self, value):
+	def _setOrientation(self, val):
 		self._delWindowStyleFlag(wx.SL_HORIZONTAL)
 		self._delWindowStyleFlag(wx.SL_VERTICAL)
-		if value.lower()[:1] == "h":
+		if val.lower()[:1] == "h":
 			self._addWindowStyleFlag(wx.SL_HORIZONTAL)
 		else:
 			self._addWindowStyleFlag(wx.SL_VERTICAL)
 
 
-	def _getLineSize(self):
-		return self.GetLineSize()
-
-	def _setLineSize(self, value):
-		if self._constructed():
-			return self.SetLineSize(value)
-		else:
-			self._properties["LineSize"] = value
-
-
 	def _getShowLabels(self):
 		return (self.GetWindowStyle() & wx.SL_LABELS > 0)
 			
-	def _setShowLabels(self, value):
+	def _setShowLabels(self, val):
 		self._delWindowStyleFlag(wx.SL_LABELS)
-		if value:
+		if val:
 			self._addWindowStyleFlag(wx.SL_LABELS)
 
 
 	# Property definitions:
-	Orientation = property(_getOrientation, _setOrientation, None, 
-			"Specifies whether the Slider is displayed as Horizontal or Vertical.")
-	DynamicOrientation = makeDynamicProperty(Orientation)
+	Continuous = property(_getContinuous, _setContinuous, None,
+			_("""When True, the Hit event is raised as the slider moves. When False (default),
+			it is only raised when the thumb control is released.  (bool)"""))
+	
+	Max = property(_getMax, _setMax, None, 
+			_("Specifies the maximum value for the Slider. Default=100  (int)"))
 
 	Min = property(_getMin, _setMin, None, 
-			"Specifies the minimum value for the Slider.")
-	DynamicMin = makeDynamicProperty(Min)
+			_("Specifies the minimum value for the Slider. Default=0  (int)"))
 
-	Max = property(_getMax, _setMax, None, 
-			"Specifies the maximum value for the Slider.")
-	DynamicMax = makeDynamicProperty(Max)
+	Orientation = property(_getOrientation, _setOrientation, None, 
+			_("""Specifies whether the Slider is displayed as Horizontal or Vertical. Must be set
+			when the object is created; setting it afterwards has no effect. Default='Horizontal'  (str)"""))
 
 	ShowLabels = property(_getShowLabels, _setShowLabels, None, 
-			"Specifies if the labels are shown on the slider.")
+			_("""Specifies if the labels are shown on the slider. Must be set
+			when the object is created; setting it afterwards has no effect. Default=True  (bool)"""))
+
+
+	DynamicOrientation = makeDynamicProperty(Orientation)
+	DynamicMax = makeDynamicProperty(Max)
+	DynamicMin = makeDynamicProperty(Min)
 	DynamicShowLabels = makeDynamicProperty(ShowLabels)
 
 
+ 
 class _dSlider_test(dSlider):
 	def initProperties(self):
 		self.Size = (200, 40)
@@ -119,6 +138,10 @@ class _dSlider_test(dSlider):
 		self.Value = 75
 		self.ShowLabels = True
 		self.Orientation = "Horizontal"
+	
+	def onHit(self, evt):
+		print "Hit! Value =", self.Value
+
 
 if __name__ == "__main__":
 	import test

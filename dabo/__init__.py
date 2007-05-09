@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """ Dabo: A Framework for developing data-driven business applications
 
 Dabo is for developing multi-platform database business applications -
@@ -117,6 +118,9 @@ pysqlite2: http://initd.org/tracker/pysqlite
 """	
 		sys.exit(msg)
 
+# dApp will change the following values upon its __init__:
+dAppRef = None
+
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
 from dabo.lib.logger import Log
@@ -126,12 +130,14 @@ infoLog.LogObject = sys.stdout
 errorLog = Log()
 errorLog.Caption = "Dabo Error Log"
 errorLog.LogObject = sys.stderr
+# This log is set to None by default. It must be manually activated 
+# via the Application object.
+dbActivityLog = Log()
+dbActivityLog.Caption = "Database Activity Log"
+dbActivityLog.LogObject = None
 
 # Import global settings (do this first, as other imports may rely on it):
 from settings import *
-
-# dApp will change the following values upon its __init__:
-dAppRef = None
 
 from __version__ import version
 import dColors
@@ -144,3 +150,7 @@ trace = pdb.set_trace
 from dApp import dApp
 from dPref import dPref
 
+# Make sure dabo.db, dabo.biz, and dabo.ui are imported:
+import dabo.db
+import dabo.biz
+import dabo.ui

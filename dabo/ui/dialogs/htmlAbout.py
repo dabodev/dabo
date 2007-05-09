@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys
 import os
 import string
@@ -6,6 +7,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
+
 
 class HtmlAbout(dabo.ui.dDialog):
 	def initProperties(self):
@@ -18,13 +20,14 @@ class HtmlAbout(dabo.ui.dDialog):
 		self.bindKey("enter", self.onClear)
 
 	def addControls(self):
-		pnlBack = dabo.ui.dPanel(self, BackColor="#DEDEF5")
+		pnlBack = dabo.ui.dPanel(self, BackColor="cornflowerblue")
 		self.Sizer.append1x(pnlBack)
 		pnlBack.Sizer = sz = dabo.ui.dSizer("v")
 
 		self.htmlBox = dabo.ui.dHtmlBox(self)
 		self.htmlBox.Size = (400,300)
-		sz.append1x(self.htmlBox, halign="center", valign="center")
+		sz.append1x(self.htmlBox, halign="center", valign="center",
+				border=30)
 
 		# Copy info
 		btnCopy = dabo.ui.dButton(pnlBack, Caption=_("Copy Info"))
@@ -40,7 +43,9 @@ class HtmlAbout(dabo.ui.dDialog):
 
 
 	def writeHtmlPage(self):
-		return self.pageData().replace("[DocString]", self.getAppSpecificString()).replace("[AppInfo]", self.getInfoString())
+		appinfo = self.getInfoString()
+		docstring = self.getAppSpecificString()
+		return self.getPageData() % locals()
 
 
 	def getInfoDataSet(self):
@@ -95,7 +100,9 @@ class HtmlAbout(dabo.ui.dDialog):
 
 	def onCopyInfo(self, evt):
 		"""Copy the system information to the Clipboard"""
-		self.Application.copyToClipboard(self.getInfoString(useHTML=False))
+		info = self.getInfoString(useHTML=False)
+		appdoc = self.getAppSpecificString()
+		self.Application.copyToClipboard("\n\n".join((info, appdoc)))
 
 
 	def onClear(self, evt):
@@ -104,23 +111,17 @@ class HtmlAbout(dabo.ui.dDialog):
 	def onClose(self, evt=None):
 		self.release()
 
-	def pageData(self):
+	def getPageData(self):
 		"""Basic Template structure of the About box."""
-		return """<html>
-	<body bgcolor="#DEDEF5">
-		<h1>
-		<b>Dabo</b>
-		</h1>
-
-		<p>
-		[AppInfo]
-		</p>
-
-		<p>
-		[DocString]
-		</p>
+		return """
+<html>
+	<body bgcolor="#DDDDFF">
+		<h1 align="center"><b>Dabo</b></h1>
+		<p>%(appinfo)s</p>
+		<p>%(docstring)s</p>
 	</body>
-</html>"""
+</html>
+"""
 
 
 def main():

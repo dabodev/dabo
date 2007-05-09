@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import dabo
 dabo.ui.loadUI("wx")
 from dPage import dPage

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx, dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -14,12 +15,12 @@ class dDropdownList(dcm.dControlItemMixin, wx.Choice):
 	control for all kinds of lists is dListControl, but dDropdownList does
 	suffice for simple needs.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dDropdownList
 		self._choices = []
 
 		preClass = wx.PreChoice
-		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 	def _initEvents(self):
@@ -27,14 +28,6 @@ class dDropdownList(dcm.dControlItemMixin, wx.Choice):
 		self.Bind(wx.EVT_CHOICE, self._onWxHit)
 
 	
-	def _onWxHit(self, evt):
-		# wx.Choice doesn't seem to emit lostfocus and gotfocus events. Therefore,
-		# flush the value on every hit.
-		self.flushValue()
-		super(dDropdownList, self)._onWxHit(evt)
-		
-
-
 class _dDropdownList_test(dDropdownList):
 	def initProperties(self):
 		# Simulating a database
@@ -52,7 +45,7 @@ class _dDropdownList_test(dDropdownList):
 		self.ValueMode = "key"
 		
 
-	def onHit(self, evt):
+	def onValueChanged(self, evt):
 		print "KeyValue: ", self.KeyValue
 		print "PositionValue: ", self.PositionValue
 		print "StringValue: ", self.StringValue

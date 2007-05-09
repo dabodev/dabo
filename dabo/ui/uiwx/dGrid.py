@@ -1,10 +1,12 @@
 # -*- coding: utf-8 -*-
+import copy
 import sys
 import datetime
 import locale
 import operator
 import wx
 import wx.grid
+from wx._core import PyAssertionError
 import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -62,9 +64,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 #			dabo.infoLog.write("dGrid.Table.GetAttr:: kind is not 0, it is %s." % kind)
 
 		## The column attr object is maintained in dColumn:
+
 		try:
 			dcol = self.grid.Columns[col]
-			attr = dcol._gridColAttr.Clone()
 		except IndexError:
 			# Something is out of order in the setting up of the grid: the grid table
 			# has columns, but self.grid.Columns doesn't know about it yet. Just return
@@ -72,6 +74,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			return self.grid._defaultGridColAttr.Clone()
 			# (further testing reveals that this really isn't a problem: the grid is 
 			#  just empty - no columns or rows added yet)
+
+		# If a cell attr is set up, use it. Else, use the one set up for the column.
+		attr = dcol._gridCellAttrs.get(row, dcol._gridColAttr).Clone()
 
 		## Now, override with a custom renderer for this row/col if applicable.
 		## Note that only the renderer is handled here, as we are segfaulting when
@@ -85,6 +90,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		# Now check for alternate row coloration
 		if self.alternateRowColoring:
 			attr.SetBackgroundColour((self.rowColorEven, self.rowColorOdd)[row % 2])
+
 		# Prevents overwriting when a long cell has None in the one next to it.
 		attr.SetOverflow(False)
 		return attr
@@ -107,14 +113,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			
 	def setColumns(self, colDefs):
 		"""Create columns based on passed list of column definitions."""
-		# Column order should already be in the definition. If there is a custom
-		# setting by the user, override it.
-
-		# See if the defs have changed. If not, update any column info,
-		# and return. If so, clear the data to force a re-draw of the table.
 		if colDefs == self.colDefs:
-			self.setColumnInfo()
+			# Already done, no need to take the time.
 			return
+
+		app = self.grid.Application
+		form = self.grid.Form
 
 		for idx, col in enumerate(colDefs):
 			nm = col.DataField
@@ -124,8 +128,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				if nm in colDefs:
 					nm = ""
 			colName = "Column_%s" % nm
-			app = self.grid.Application
-			form = self.grid.Form
 
 			pos = col._getUserSetting("Order")
 			if pos is not None:
@@ -165,17 +167,12 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			if col.Order < 0:
 				col.Order = num
 		colDefs.sort(self.orderSort)
-		self.colDefs = colDefs
-		self.setColumnInfo()
+		self.colDefs = copy.copy(colDefs)
 	
 	def orderSort(self, col1, col2):
 		return cmp(col1.Order, col2.Order)
 		
 		
-	def setColumnInfo(self):
-		self.colDefs.sort(self.orderSort)
-
-
 	def convertType(self, typ):
 		"""Convert common types, names and abbreviations for 
 		data types into the constants needed by the wx.grid.
@@ -317,10 +314,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def GetValue(self, row, col):
 		if row >= self.grid.RowCount:
 			return ""
-		
 
 		bizobj = self.grid.getBizobj()
-		field = self.grid.Columns[col].DataField
+		col_obj = self.grid.Columns[col]
+		field = col_obj.DataField
+
+		dabo.ui.callAfterInterval(200, col_obj._updateDynamicProps)
+		dabo.ui.callAfterInterval(200, col_obj._updateCellDynamicProps, row)
 		
 		if bizobj:
 			if field:
@@ -427,6 +427,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def __init__(self, parent, properties=None, attProperties=None,
 				*args, **kwargs):
 		self._isConstructed = False
+		self._dynamic = {}
 		self._expand = False
 		# Default to 2 decimal places
 		self._precision = 2
@@ -437,9 +438,12 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 		self._beforeInit()
 		kwargs["Parent"] = parent
-		# dColumn maintains one attr object that the grid table will use:
+		# dColumn maintains one attr object that the grid table will use for
+		# setting properties such as ForeColor and Font on the entire column.
 		att = self._gridColAttr = parent._defaultGridColAttr.Clone()
 		att.SetFont(self._getDefaultFont()._nativeFont)
+
+		self._gridCellAttrs = {}
 
 		super(dColumn, self).__init__(properties, attProperties, *args, **kwargs)
 		self._baseClass = dColumn
@@ -458,12 +462,13 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self.floatRendererClass = wx.grid.GridCellFloatRenderer
 		self.listRendererClass = wx.grid.GridCellStringRenderer
 		self.stringEditorClass = wx.grid.GridCellTextEditor
+		self.wrapStringEditorClass = wx.grid.GridCellAutoWrapStringEditor
 		self.boolEditorClass = wx.grid.GridCellBoolEditor
 		self.intEditorClass = wx.grid.GridCellNumberEditor
 		self.longEditorClass = wx.grid.GridCellNumberEditor
 		self.decimalEditorClass = wx.grid.GridCellNumberEditor
 		self.floatEditorClass = wx.grid.GridCellFloatEditor
- 		self.listEditorClass = wx.grid.GridCellChoiceEditor		
+		self.listEditorClass = wx.grid.GridCellChoiceEditor		
 #		self.listEditorClass = GridListEditor
 		
 		self.defaultRenderers = {
@@ -489,7 +494,42 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _afterInit(self):
 		self._isConstructed = True
 		super(dColumn, self)._afterInit()
+		dabo.ui.callAfter(self._restoreFontZoom)
+
+
+	def _updateDynamicProps(self):
+		for prop, func in self._dynamic.items():
+			if prop[:4] != "Cell":
+				if isinstance(func, tuple):
+					args = func[1:]
+					func = func[0]
+				else:
+					args = ()
+				setattr(self, prop, func(*args))
+	
+
+	def _updateCellDynamicProps(self, row):
+		kwargs = {"row": row}
+		self._cellDynamicRow = row
+		needRefresh = False
+		for prop, func in self._dynamic.items():
+			if prop[:4] == "Cell":
+				if isinstance(func, tuple):
+					args = func[1:]
+					func = func[0]
+				else:
+					args = ()
+				setattr(self, prop, func(*args, **kwargs))
+				needRefresh = True
+		if needRefresh:
+			dabo.ui.callAfterInterval(200, self._refreshGrid)
+		del self._cellDynamicRow
 		
+
+	def _restoreFontZoom(self):
+		if self.Form and self.Form.SaveRestorePosition:
+			self.super()
+			
 
 	def _getDefaultFont(self):
 		ret = dabo.ui.dFont(Size=10, Bold=False, Italic=False, 
@@ -513,6 +553,20 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self.Parent.removeColumn(self)
 		except:
 			pass
+	
+	def _setAbsoluteFontZoom(self, newZoom):
+		origFontSize = self._origFontSize = getattr(self, "_origFontSize", self.FontSize)
+		origHeaderFontSize = self._origHeaderFontSize = getattr(self, "_origHeaderFontSize", self.HeaderFontSize)
+		fontSize = origFontSize + newZoom
+		headerFontSize = origHeaderFontSize + newZoom
+		self._currFontZoom = newZoom
+		if fontSize > 1:
+			self.FontSize = fontSize
+		if headerFontSize > 1:
+			self.HeaderFontSize = headerFontSize
+
+		if self.Form is not None:
+			dabo.ui.callAfterInterval(200, self.Form.layout)
 
 
 	def _setEditor(self, row):
@@ -596,8 +650,10 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _refreshGrid(self):
 		"""Refresh the grid region, not the header region."""
 		if self.Parent:
+			self.Parent.Freeze()
 			gw = self.Parent.GetGridWindow()
 			gw.Refresh()
+			self.Parent.Thaw()
 
 
 	def _persist(self, prop):
@@ -680,6 +736,15 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._refreshHeader()
 
 
+	def _setCellProp(self, wxPropName, *args, **kwargs):
+		"""Called from all of the Cell property setters."""
+		## dynamic prop uses cellDynamicRow; reg prop uses self.CurrentRow
+		row = getattr(self, "_cellDynamicRow", self.Parent.CurrentRow)
+		cellAttr = self._gridCellAttrs.get(row, self._gridColAttr.Clone())
+		getattr(cellAttr, wxPropName)(*args, **kwargs)
+		self._gridCellAttrs[row] = cellAttr
+		
+
 	def _getBackColor(self):
 		return self._gridColAttr.GetBackgroundColour()
 
@@ -706,6 +771,22 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._refreshHeader()
 		else:
 			self._properties["Caption"] = val
+
+
+	def _getCellForeColor(self):
+		row = self.Parent.CurrentRow
+		cellAttr = self._gridCellAttrs.get(row, False)
+		if cellAttr:
+			return cellAttr.GetTextColour()
+		return self.ForeColor
+
+	def _setCellForeColor(self, val):
+		if self._constructed():
+			if isinstance(val, basestring):
+				val = dColors.colorTupleFromName(val)
+			self._setCellProp("SetTextColour", val)
+		else:
+			self._properties["CellForeColor"] = val
 
 
 	def _getCustomEditorClass(self):
@@ -1259,8 +1340,10 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self._wordWrap = val
 			if val:
 				self.defaultRenderers["str"] = self.defaultRenderers["string"] = self.wrapStringRendererClass
+				self.defaultEditors["str"] = self.defaultEditors["string"] = self.wrapStringEditorClass
 			else:
 				self.defaultRenderers["str"] = self.defaultRenderers["string"] = self.stringRendererClass
+				self.defaultEditors["str"] = self.defaultEditors["string"] = self.stringEditorClass
 			self._refreshGrid()
 		else:
 			self._properties["WordWrap"] = val
@@ -1271,6 +1354,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption displayed in this column's header  (str)") )
+
+	CellForeColor = property(_getCellForeColor, _setCellForeColor, None,
+			_("Color for the foreground (text) of the current cell in the column."))
 
 	CustomEditorClass = property(_getCustomEditorClass, 
 			_setCustomEditorClass, None,
@@ -1446,6 +1532,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 	# Dynamic Property Declarations
 	DynamicBackColor = makeDynamicProperty(BackColor)
 	DynamicCaption = makeDynamicProperty(Caption)
+	DynamicCellForeColor = makeDynamicProperty(CellForeColor)
 	DynamicCustomEditorClass = makeDynamicProperty(CustomEditorClass)
 	DynamicCustomEditors = makeDynamicProperty(CustomEditors)
 	DynamicCustomListEditorChoices = makeDynamicProperty(CustomListEditorChoices)
@@ -1491,7 +1578,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	be accessed efficiently: only the data that needs to be shown on the current 
 	screen is copied and displayed.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dGrid
 		preClass = wx.grid.Grid
 		
@@ -1533,11 +1620,17 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._rowColorEven = "white"
 		self._rowColorOdd = (212, 255, 212)		# very light green
 
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+				*args, **kwargs)
 		
 		# Need to sync the size reported by wx to the size reported by Dabo:
 		self.RowHeight = self.RowHeight
 		self.ShowRowLabels = self.ShowRowLabels
+
+		# Set reasonable minimum size, as the default of (-1,-1) results in something
+		# in wx calculating the effective minsize based on how much space we need to
+		# show all the rows:
+		self.SetMinSize((100, 100))
 
 
 	def _afterInit(self):
@@ -1735,19 +1828,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		
 	def fillGrid(self, force=False):
 		""" Refresh the grid to match the data in the data set."""
-		# Save the focus, if any
-		currFocus = self.FindFocus()
-		currDataField = None
-		# if the current focus is data-aware, we must temporarily remove it's binding
-		# or the value of the control will flow to other records in the bizobj, but
-		# I admit that I'm not entirely sure why. 
-		if currFocus:
-			try:
-				currDataField = currFocus.DataField
-				currFocus.DataField = ""
-			except AttributeError:
-				pass
-
 		# Get the default row size from dApp's user settings
 		rowSize = self._getUserSetting("RowSize")
 		if rowSize:
@@ -1760,32 +1840,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		tbl.setColumns(self.Columns)
 		tbl.fillTable(force)
 
-		## pkm: I've disabled the following block, because setting the focus
-		##      can steal focus from the active form. It also doesn't seem 
-		##      right to have this code here...
-		if False and force:
-			row = max(0, self.CurrentRow)
-			col = max(0, self.CurrentColumn)
-			if "linux" in sys.platform:
-				# Needed on Linux to get the grid to have the focus,
-				# but on windows this is deadly:
-				for window in self.Children:
-					window.SetFocus()
-			# Needed on win and mac to get the grid to have the focus:
-			self.GetGridWindow().SetFocus()
-			if  not self.IsVisible(row, col):
-				self.MakeCellVisible(row, col)
-				self.MakeCellVisible(row, col)
-			self.SetGridCursor(row, col)
-		
-		if currFocus is not None:
-			# put the data binding back and re-set the focus:
-			try:
-				currFocus.setFocus()
-				currFocus.DataField = currDataField
-				currFocus.refresh()
-			except: pass
-
 		if not self._sortRestored:	
 			dabo.ui.callAfter(self._restoreSort)
 			self._sortRestored = True
@@ -1795,6 +1849,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if not self._modeSet:
 			self._modeSet = True
 			self.SelectionMode = self.SelectionMode
+
+		# And just to make sure (sometimes on Windows, the grid isn't refreshed
+		# otherwise, and perhaps this is true elsewhere, too.):
+		dabo.ui.callAfterInterval(200, self.refresh)
 
 
 	def _restoreSort(self):
@@ -1808,7 +1866,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					sortCol = idx
 					break
 			if sortCol is not None:
-				self.CurrentColumn = sortCol
 				if self.RowCount > 0:
 					self.processSort(sortCol, toggleSort=False)
 
@@ -2657,11 +2714,15 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def getBizobj(self):
 		ds = self.DataSource
 		if isinstance(ds, basestring) and self.Form is not None:
-			return self.Form.getBizobj(ds)
+			form = self.Form
+			while form is not None:
+				if hasattr(form, "getBizobj"):
+					return form.getBizobj(ds)
+				form = form.Form
 		return None
+	
 
-
-	def refresh(self, sort=True):
+	def refresh(self, sort=False):
 		if sort:
 			ref = self._refreshAfterSort
 			self._refreshAfterSort = False
@@ -2671,6 +2732,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._syncColumnCount()
 		self._syncRowCount()
 		super(dGrid, self).refresh()
+
+
+	def update(self):
+		self.Freeze()
+		super(dGrid, self).update()
+		self.fillGrid()
+		self.Thaw()
 
 
 	def _getWxHeader(self):
@@ -2888,9 +2956,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.autoSizeCol(self.getColNumByX(self._headerMousePosition[0]), persist=True)
 		def _autosizeAllColumns(evt):
 			self.autoSizeCol("All")
-		menu.append(_("&Autosize Column"), bindfunc=_autosizeColumn, 
+		menu.append(_("&Autosize Column"), OnHit=_autosizeColumn, 
 				help=_("Autosize the column based on the data in the column."))
-		menu.append(_("&Autosize All Columns"), bindfunc=_autosizeAllColumns, 
+		menu.append(_("&Autosize All Columns"), OnHit=_autosizeAllColumns, 
 				help=_("Autosize all columns in the grid."))
 
 		menu = self.fillHeaderContextMenu(menu)
@@ -2949,7 +3017,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def _onGridCellSelected(self, evt):
 		""" Occurs when the grid's cell focus has changed."""
-
 		## pkm 2005-09-28: This works around a nasty segfault:
 		self.HideCellEditControl()
 		## but periodically test it. My current version: 2.6.1.1pre
@@ -2975,13 +3042,18 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if oldRow != newRow:
 			bizobj = self.getBizobj()
 			if bizobj:
-				if bizobj.RowCount > newRow:
-					# First attempt to go through the form.
-					if self.Form and hasattr(self.Form, "moveToRowNumber"):
-							self.Form.moveToRowNumber(newRow, dataSource=bizobj.DataSource)
+				if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
+					if isinstance(self.Form, dabo.ui.dForm):
+						# run it through the form:
+						if not self.Form.moveToRowNumber(newRow, bizobj.DataSource):
+							dabo.ui.callAfter(self.refresh)
 					else:
-						# set the RowNumber on the bizobj directly
-						bizobj.RowNumber = newRow
+						# run it through the bizobj directly:
+						try:
+							bizobj.RowNumber = newRow
+						except dException.BusinessRuleViolation, e:
+							dabo.ui.stop(e)
+							dabo.ui.callAfter(self.refresh)
 				else:
 					# We are probably trying to select row 0 when there are no records
 					# in the bizobj.
@@ -2989,8 +3061,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					##     unneccesary.
 					#self.SetGridCursor(0,0)
 					pass
-		if self.Form is not None:
-			dabo.ui.callAfter(self.Form.update)
+			if self.Form is not None:
+				dabo.ui.callAfter(self.Form.update)
 
 
 	def _checkSelectionType(self):
@@ -3040,7 +3112,50 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	##        end: dEvent callbacks for internal use            ##
 	##----------------------------------------------------------##
 
-
+	
+	def _calcRanges(self, seq, rowOrCol):
+		startPoints = []
+		nextVal = -1
+		maxIdx = len(seq)-1
+		for idx,pt in enumerate(seq):
+			if idx == 0:
+				startPoints.append(pt)
+				nextVal = pt+1
+			else:
+				if pt == nextVal:
+					nextVal += 1
+				else:
+					startPoints.append(pt)
+					nextVal = pt+1
+		
+		endPoints = []
+		for pt in startPoints:
+			idx = seq.index(pt)
+			if idx == maxIdx:
+				endPoints.append(pt)
+			else:
+				found = False
+				while idx < maxIdx:
+					if seq[idx+1] == pt + 1:
+						idx += 1
+						pt += 1
+					else:
+						endPoints.append(pt)
+						found = True
+						break
+				if not found:
+					endPoints.append(pt)
+		
+		if rowOrCol.lower()[0] == "r":
+			cols = self.ColumnCount
+			rangeStart = [(r, 0) for r in startPoints]
+			rangeEnd = [(r, cols) for r in endPoints]
+		else:
+			rows = self.RowCount
+			rangeStart = [(0, c) for c in startPoints]
+			rangeEnd = [(rows, c) for c in endPoints]
+		return zip(rangeStart, rangeEnd)
+	
 	##----------------------------------------------------------##
 	##      begin: wx callbacks to re-route to dEvents          ##
 	##----------------------------------------------------------##
@@ -3061,66 +3176,94 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			evt.Skip()
 			
 	
+	def __onWxGridSelectCell(self, evt):
+		if getattr(self, "_inSelect", False):
+			# Avoid recursion
+			return
+		self._inSelect = True
+		if evt.Selecting():
+			self._updateWxSelection(evt)
+		self.raiseEvent(dEvents.GridCellSelected, evt)
+		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
+		evt.Skip()
+		self._inSelect = False
+
+
 	def __onWxGridRangeSelect(self, evt):
 		if self._inRangeSelect:
 			# avoid recursive events
 			return
 		self._inRangeSelect = True
+		if evt.Selecting():
+			self._updateWxSelection(evt)
 		self.raiseEvent(dEvents.GridRangeSelected, evt)
-		if not self.MultipleSelection and evt.Selecting():
-			origRow, origCol = self.CurrentRow, self.CurrentColumn
-			try:
-				mode = self.GetSelectionMode()
-				top, bott = evt.GetTopRow(), evt.GetBottomRow()
-				left, right = evt.GetLeftCol(), evt.GetRightCol()
-				if mode == wx.grid.Grid.wxGridSelectRows:
-					if (top != bott) or (top != origCol):
-						# Attempting to select a range
-						if top == origRow:
-							row = bott
-						else:
-							row = top
-						self.SetGridCursor(row, self._lastCol)
-				elif mode == wx.grid.Grid.wxGridSelectColumns:
-					if (left != right) or (left != origCol):
-						# Attempting to select a range
-						if left == origCol:
-							col = right
-						else:
-							col = left
-						self.SetGridCursor(self._lastRow, col)
-				else:
-					# Cells
-					chg = False
-					row, col = origRow, origCol
-					if top != bott:
-						chg = True
-						if top == origRow:
-							row = bott
-						else:
-							row = top
-					elif top != origRow:
-						# New row
-						chg = True
-						row = top
-					if left != right:
-						chg = True
-						if left == origCol:
-							col = right
-						else:
-							col = left
-					elif left != origCol:
-						# New col
-						chg = True
-						col = left
-					if chg:
-						self.SetGridCursor(row, col)
-						self.SelectBlock(row, col, row, col)
-			except: pass				
 		evt.Skip()
 		self._inRangeSelect = False
 		
-		
+	
+	def _updateWxSelection(self, evt):
+		if self.MultipleSelection:
+			# Nothing to do
+			return
+		origRow, origCol = self.CurrentRow, self.CurrentColumn
+		mode = self.GetSelectionMode()
+		try:
+			top, bott = evt.GetTopRow(), evt.GetBottomRow()
+		except AttributeError:
+			top = bott = evt.GetRow()
+		try:
+			left, right = evt.GetLeftCol(), evt.GetRightCol()
+		except AttributeError:
+			left = right = evt.GetCol()
+		try:
+			if mode == wx.grid.Grid.wxGridSelectRows:
+				if (top != bott) or (top != origCol):
+					# Attempting to select a range
+					if top == origRow:
+						row = bott
+					else:
+						row = top
+					self.SetGridCursor(row, self._lastCol)
+					self.SelectRow(row)
+			elif mode == wx.grid.Grid.wxGridSelectColumns:
+				if (left != right) or (left != origCol):
+					# Attempting to select a range
+					if left == origCol:
+						col = right
+					else:
+						col = left
+					self.SetGridCursor(self._lastRow, col)
+					self.SelectCol(col)
+			else:
+				# Cells
+				chg = False
+				row, col = origRow, origCol
+				if top != bott:
+					chg = True
+					if top == origRow:
+						row = bott
+					else:
+						row = top
+				elif top != origRow:
+					# New row
+					chg = True
+					row = top
+				if left != right:
+					chg = True
+					if left == origCol:
+						col = right
+					else:
+						col = left
+				elif left != origCol:
+					# New col
+					chg = True
+					col = left
+				if chg:
+					self.SetGridCursor(row, col)
+					self.SelectBlock(row, col, row, col)
+		except: pass
+
+
 	def __onWxGridEditorShown(self, evt):
 		self.raiseEvent(dEvents.GridCellEditBegin, evt)
 		evt.Skip()
@@ -3155,21 +3298,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		else:
 			self.raiseEvent(dEvents.GridRowSize, evt)
 			evt.Skip()
-
-
-	def __onWxGridSelectCell(self, evt):
-		self.raiseEvent(dEvents.GridCellSelected, evt)
-		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
-		try:
-			mode = self.GetSelectionMode()
-			if mode == wx.grid.Grid.wxGridSelectRows:
-				self.SelectRow(evt.GetRow())
-			elif mode == wx.grid.Grid.wxGridSelectColumns:
-				self.SelectCol(evt.GetCol())
-		except wx._core.PyAssertionError:
-			# No table yet
-			pass
-		evt.Skip()
 
 
 	def __onWxHeaderContextMenu(self, evt):
@@ -3326,8 +3454,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		return self._alternateRowColoring
 
 	def _setAlternateRowColoring(self, val):
-		self._alternateRowColoring = val
-		self.setTableAttributes(self._Table)
+		if self._constructed():
+			self._alternateRowColoring = val
+			self.setTableAttributes(self._Table)
+			self.Refresh()
+		else:
+			self._properties["AlternateRowColoring"] = val
 
 
 	def _getCellHighlightWidth(self):
@@ -3775,50 +3907,55 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		
 
 	def _getSelection(self):
+		ret = []
 		sm = self._selectionMode
 		tl = self.GetSelectionBlockTopLeft()
-		if tl:
-			tl = tl[0]
 		br = self.GetSelectionBlockBottomRight()
-		if br:
-			br = br[0]
+		cols = self.GetSelectedCols()
+		rows = self.GetSelectedRows()
+		cells = self.GetSelectedCells()
+		
 		if sm == "Row":
-			ret = self.GetSelectedRows()
+			ret = rows
+			# See if anything is returned by the block functions
+			if tl and br:
+				for tlz, brz in zip(tl, br):
+					r1 = tlz[0]
+					r2 = brz[0]
+					ret += range(r1, r2+1)
 			if not ret:
-				# Try the block functions
-				if tl and br:
-					r1 = tl[0]
-					r2 = br[0]
-					ret = range(r1, r2+1)
-				else:
-					# Only a single cell selected
-					ret = [self.GetGridCursorRow()]
+				# Only a single cell selected
+				ret = [self.GetGridCursorRow()]
+
 		elif sm == "Col":
-			ret = self.GetSelectedCols()
+			ret = cols
+			# See if anything is returned by the block functions
+			if tl and br:
+				for tlz, brz in zip(tl, br):
+					c1 = tlz[1]
+					c2 = brz[1]
+					ret += range(c1, c2+1)
 			if not ret:
-				# Try the block functions
-				if tl and br:
-					c1 = tl[1]
-					c2 = br[1]
-					ret = range(c1, c2+1)
-				else:
-					# Only a single cell selected
-					ret = [self.GetGridCursorCol()]
+				# Only a single cell selected
+				ret = [self.GetGridCursorCol()]
+
 		else:
 			# Cell selection mode
 			if tl and br:
-				ret = (tl, br)
-			else:
+				ret = zip(tl, br)
+			# Add any selected rows
+			if rows:
+				ret += self._calcRanges(rows, "Rows")
+			# Add any selected columns
+			if cols:
+				ret += self._calcRanges(cols, "Cols")
+			
+			if not ret:
 				cell = (self.GetGridCursorRow(), self.GetGridCursorCol()) 
-				ret = (cell, cell)
+				ret = [(cell, cell)]
+		ret.sort()
 		return ret
 		
-# 	def _setSelection(self, val):
-# 		if self._constructed():
-# 			self._selection = val
-# 		else:
-# 			self._properties["Selection"] = val
-
 
 	def _getSelectionBackColor(self):
 		return self._selectionBackColor
@@ -3967,6 +4104,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	CellHighlightWidth = property(_getCellHighlightWidth, _setCellHighlightWidth, None,
 			_("Specifies the width of the cell highlight box."))
 
+	Children = property(_getColumns, None, None, 
+			_("List of dColumns, same as self.Columns.  (list)"))
+
 	Columns = property(_getColumns, None, None,
 			_("List of dColumns.  (list)"))
 
@@ -4105,11 +4245,15 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				be used.""") )
 	
 	Selection = property(_getSelection, None, None,
-			_("""Returns either a list of row/column numbers if SelectionMode is set to
-			either 'Row' or 'Column'. Returns a 2-tuple consisting of the (row,col) 2-tuples
-			for the top-left and bottom-right cells in the selection. If only a single cell is
-			selected, both values will be the same. (list)"""))
-	
+			_("""Returns either a list of row/column numbers if SelectionMode is set to 
+			either 'Row' or 'Column'. If SelectionMode is 'Cell', returns a list of 2-tuples, 
+			where each 2-tuple represents a selected range of cells: the top-left and 
+			bottom-right coordinates for a given range. If only a single cell is selected, 
+			there will be only one 2-tuple in the list, with both values being the same. 
+			If a continuous block of cells is selected, there will be only one 2-tuple in the 
+			list, but the values will differ. If more than one discontinuous range is selected, 
+			there will be as many 2-tuples as there are range blocks.  (list)"""))
+				
 	SelectionBackColor = property(_getSelectionBackColor, _setSelectionBackColor, None,
 			_("BackColor of selected cells  (str or RGB tuple)"))
 	
@@ -4210,18 +4354,13 @@ class _dGrid_test(dGrid):
 	def afterInit(self):
 		self.super()
 
-		col = dColumn(self, Name="Geek", Order=10, DataField="coder",
-				DataType="bool", Width=60, Caption="Geek?", Sortable=False,
-				Searchable=False, Editable=True)
-		self.addColumn(col)
-
-		col.CustomRenderers[1] = col.stringRendererClass
-		col.CustomEditors[1] = col.stringEditorClass
-		col.HeaderFontBold = False
+		self.addColumn(Name="Geek", DataField="coder", Caption="Geek?", 
+				Order=10, DataType="bool", Width=60, Sortable=False,
+				Searchable=False, Editable=True, HeaderFontBold=False)
 
 		col = dColumn(self, Name="Person", Order=20, DataField="name",
 				DataType="string", Width=200, Caption="Celebrity Name",
-				Sortable=True, Searchable=True, Editable=True, Expand=True)
+				Sortable=True, Searchable=True, Editable=True, Expand=False)
 		self.addColumn(col)
 		
 		col.HeaderFontItalic = True
@@ -4235,7 +4374,7 @@ class _dGrid_test(dGrid):
 
 		col = dColumn(self, Name="Color", Order=40, DataField="color",
 				DataType="string", Width=40, Caption="Favorite Color",
-				Sortable=True, Searchable=True, Editable=True, Expand=True)
+				Sortable=True, Searchable=True, Editable=True, Expand=False)
 		self.addColumn(col)
 
 		col.ListEditorChoices = dabo.dColors.colors
@@ -4275,8 +4414,8 @@ if __name__ == '__main__':
 			gsz.append(chk, row=2, col=0)
 
 			radSelect = dabo.ui.dRadioList(self, Choices=["Row", "Col", "Cell"],
-					ValueMode="string", Caption="Sel Mode",
-					DataSource="sampleGrid", DataField="SelectionMode")
+					ValueMode="string", Caption="Sel Mode", BackColor=self.BackColor,
+					DataSource="sampleGrid", DataField="SelectionMode", RegID="radSelect")
 			radSelect.refresh()
 			gsz.append(radSelect, row=0, col=1, rowSpan=3)
 			
@@ -4285,9 +4424,9 @@ if __name__ == '__main__':
 			self.layout()
 			
 			self.fitToSizer(20,20)
+
 			
-			
-	app = dabo.dApp()
-	app.MainFormClass = TestForm
+	app = dabo.dApp(MainFormClass=TestForm)
 	app.setup()
+	app.MainForm.radSelect.setFocus()
 	app.start()

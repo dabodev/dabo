@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import sys, os, time
 from dabo.dObject import dObject
 from dabo.dLocalize import _
@@ -29,6 +30,9 @@ class Log(dObject):
 	
 	def write(self, message):
 		"""Writes the passed message to the log."""
+		if self.LogObject is None:
+			# Send messages to the bit bucket...
+			return
 		if self.LogTimeStamp:
 			timestamp = "%s: " % time.asctime()
 		else:
@@ -38,7 +42,12 @@ class Log(dObject):
 		else:
 			caption = ""
 		self.LogObject.write("%s%s%s%s" % (caption, timestamp, message, os.linesep))
-		
+		# Flush the log entry to the file
+		try:
+			self.LogObject.flush()
+		except (AttributeError, IOError):
+			pass
+			
 	
 	def _getCaption(self):
 		try:

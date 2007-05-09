@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 # The following 2 lines are the only thing you should change in this file.
 # Everything else is boilerplate copied also to other dabo repositories.
 package_name = "dabo"
-_version = "0.7.2s"
+_version = "0.8s"
 
 
 import os
@@ -18,7 +19,7 @@ if os.path.exists(os.path.join(package_path, ".svn")):
 		if not _revision[0].isdigit():
 			_revision = None
 	except:
-		pass
+		_revision = None
 
 if _revision is None:
 	# Okay, svninfo not available, which probably means svn isn't present, which

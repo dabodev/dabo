@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re, string, copy, itertools, datetime
 import wx.lib.masked as masked
 from wx.lib.masked import controlTypes

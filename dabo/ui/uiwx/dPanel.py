@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import dabo
 from dabo.dLocalize import _
@@ -10,18 +11,33 @@ from dabo.ui import makeDynamicProperty
 
 
 class _PanelMixin(cm.dControlMixin):
-	def __init__(self, preClass, parent, properties=None, *args, **kwargs):
+	def __init__(self, preClass, parent, properties=None, attProperties=None, 
+			*args, **kwargs):
+		self._minSizerWidth = 10
+		self._minSizerHeight = 10
+		self._alwaysResetSizer = False
 		self._buffered = None
-		buff = self._extractKey((properties, kwargs), "Buffered", False)
+		buff = self._extractKey(attProperties, "Buffered", None)
+		if buff is not None:
+			buff = (buff == "True")
+		else:
+			buff = self._extractKey((properties, kwargs), "Buffered", False)
 		kwargs["Buffered"] = buff
 		style = self._extractKey((properties, kwargs), "style", 0)
 		style = style | wx.TAB_TRAVERSAL
 		kwargs["style"] = style
-		cm.dControlMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		# For performance, store this at init
+		self._platformIsWindows = (self.Application.Platform == "Win")
+		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+				*args, **kwargs)
 	
 
-	def layout(self):
+	def layout(self, resetMin=False):
 		""" Wrap the wx version of the call, if possible. """
+		if resetMin or self._alwaysResetSizer:
+			# Set the panel's minimum size back to zero. This is sometimes
+			# necessary when the items in the panel have reduced in size.
+			self.SetMinSize((self.MinSizerWidth, self.MinSizerHeight))
 		self.Layout()
 		for child in self.Children:
 			try:
@@ -32,7 +48,7 @@ class _PanelMixin(cm.dControlMixin):
 			self.Sizer.layout()
 		except:
 			pass
-		if self.Application.Platform == "Win":
+		if self._platformIsWindows:
 			self.refresh()
 
 
@@ -66,6 +82,16 @@ class _PanelMixin(cm.dControlMixin):
 		super(_PanelMixin, self)._redraw(dc)
 
 
+	def _getAlwaysResetSizer(self):
+		return self._alwaysResetSizer
+
+	def _setAlwaysResetSizer(self, val):
+		if self._constructed():
+			self._alwaysResetSizer = val
+		else:
+			self._properties["AlwaysResetSizer"] = val
+
+
 	def _getBuffered(self):
 		return self._buffered
 
@@ -83,9 +109,40 @@ class _PanelMixin(cm.dControlMixin):
 			self.Unbind(wx.EVT_SIZE)
 		
 
+	def _getMinSizerHeight(self):
+		return self._minSizerHeight
+
+	def _setMinSizerHeight(self, val):
+		if self._constructed():
+			self._minSizerHeight = val
+		else:
+			self._properties["MinSizerHeight"] = val
+
+
+	def _getMinSizerWidth(self):
+		return self._minSizerWidth
+
+	def _setMinSizerWidth(self, val):
+		if self._constructed():
+			self._minSizerWidth = val
+		else:
+			self._properties["MinSizerWidth"] = val
+
+
+	AlwaysResetSizer = property(_getAlwaysResetSizer, _setAlwaysResetSizer, None,
+			_("""When True, the sizer settings are always cleared before a layout() is called.
+			This may be necessary when a panel needs to reduce its size. Default=False   (bool)"""))
+	
 	Buffered = property(_getBuffered, _setBuffered, None,
 			_("Does this panel use double-buffering to create smooth redrawing?  (bool)"))
 
+	MinSizerHeight = property(_getMinSizerHeight, _setMinSizerHeight, None,
+			_("Minimum height for the panel. Default=10px  (int)"))
+	
+	MinSizerWidth = property(_getMinSizerWidth, _setMinSizerWidth, None,
+			_("Minimum width for the panel. Default=10px  (int)"))
+	
+	
 
 
 class dPanel(_PanelMixin, wx.Panel):
@@ -95,10 +152,10 @@ class dPanel(_PanelMixin, wx.Panel):
 	flexible for many uses. Consider laying out your forms on panels
 	instead, and then adding the panel to the form.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPanel
 		preClass = wx.PrePanel
-		_PanelMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		_PanelMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 	
 		
 
@@ -109,11 +166,11 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 	flexible for many uses. Consider laying out your forms on panels
 	instead, and then adding the panel to the form.
 	"""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._horizontalScroll = self._verticalScroll = True
 		self._baseClass = dScrollPanel
 		preClass = wx.PreScrolledWindow
-		_PanelMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
+		_PanelMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		self.SetScrollRate(10, 10)
 #		self.SetScrollbars(10, 10, -1, -1)
 			

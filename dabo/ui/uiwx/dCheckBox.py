@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 import dabo
 if __name__ == "__main__":
@@ -11,11 +12,11 @@ from dabo.ui import makeDynamicProperty
 	
 class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 	"""Creates a checkbox, allowing editing boolean values."""
-	def __init__(self, parent, properties=None, *args, **kwargs):
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dCheckBox
 		preClass = wx.PreCheckBox
-		dcm.dDataControlMixin.__init__(self, preClass, parent, 
-				properties, *args, **kwargs)
+		dcm.dDataControlMixin.__init__(self, preClass, parent, properties, 
+				attProperties, *args, **kwargs)
 
 	
 	def _initEvents(self):
@@ -99,29 +100,28 @@ class dCheckBox(dcm.dDataControlMixin, wx.CheckBox):
 	Alignment = property(_getAlignment, _setAlignment, None,
 			_("""Specifies the alignment of the text.
 				
-			Left  : Checkbox to left of text (default)
-			Right : Checkbox to right of text"""))
-	DynamicAlignment = makeDynamicProperty(Alignment)
-
+				Left  : Checkbox to left of text (default)
+				Right : Checkbox to right of text"""))
 
 	ThreeState = property(_getThreeState, _setThreeState, None,
 			_("""Specifies wether the checkbox support 3 states.
 				
-			True  : Checkbox supports 3 states
-			False : Checkbox supports 2 states (default)"""))
-	DynamicThreeState = makeDynamicProperty(ThreeState)
-
+				True  : Checkbox supports 3 states
+				False : Checkbox supports 2 states (default)"""))
 
 	UserThreeState = property(_getUserThreeState, _setUserThreeState, None,
 			_("""Specifies whether the user is allowed to set the third state.
 				
-			True  : User is allowed to set the third state.
-			False : User isn't allowed to set the third state.(default)"""))
-	DynamicUserThreeState = makeDynamicProperty(UserThreeState)
-
+				True  : User is allowed to set the third state.
+				False : User isn't allowed to set the third state.(default)"""))
 
 	Value = property(_getValue, _setValue, None,
 			_("Specifies the current state of the control (the value of the field). (varies)"))
+
+
+	DynamicAlignment = makeDynamicProperty(Alignment)
+	DynamicThreeState = makeDynamicProperty(ThreeState)
+	DynamicUserThreeState = makeDynamicProperty(UserThreeState)
 	DynamicValue = makeDynamicProperty(Value)
 
 
@@ -130,7 +130,6 @@ class _dCheckBox_test(dCheckBox):
 	def initProperties(self):
 		self.Caption = _("Do you wish to pass?")
 				
-
 if __name__ == "__main__":
 	import test
 	test.Test().runTest(_dCheckBox_test)

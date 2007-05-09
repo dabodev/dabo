@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 """These are routines that are used to work with Class Designer code that has
 been separated from the design. 
 """
@@ -35,9 +36,9 @@ def parseCodeFile(txt):
 			cd["importStatements"] = impt
 		mthdList = mthdList[1:]
 		while mthdList:
-			cd[mthdList[1]] = "\n".join((mthdList[0], mthdList[2]))
+			cd[mthdList[1]] = "\n".join((mthdList[0], mthdList[2].rstrip()))
 			mthdList = mthdList[3:]
-		ret[codeID] = cd		
+		ret[codeID] = cd
 	return ret
 		
 	
