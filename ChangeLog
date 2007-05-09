@@ -1,11 +1,15 @@
 See the Subversion log for all the details.
 
 ===============================================================================
-Dabo 0.8 (2007-04-16) (Revision 3066):
+Dabo 0.8 (2007-05-09) (Revision 3111):
 
 Enhancements:
 
 	===== General Stuff =====
++ Improved a lot of the handling of paths. It is now possible to correctly 
+  resolve a relative path when the source file and the contained file are in 
+  different directories, while the app is running from a third directory.
+
 + Added datanav2; deprecated datanav. datanav2 no longer supports fieldSpecs,
   relationSpecs, and other things. The general theme is that the generated
   code is meant to be taken as boilerplate to be edited by the developer to
@@ -22,6 +26,38 @@ Enhancements:
   constructors, in favor of accepting property values instead.
 
 	===== UI Tier =====
++ Began work getting grid cell properties set up. IOW, being able to set the
+  ForeColor of a specific row in a column (a single cell), including
+  dynamic cell properties. Currently, it works, but the only property
+  I've added yet is CellForeColor and DynamicCellForeColor.
+
++ Removed the requirement that objects used as DataSources have to inherit 
+  from dObject. Thanks Carl for pointing out the limitation.
+
++ Added dDockForm to the main trunk, which is Dabo's wrapper for wxAUI. 
+
++ Added the option of passing complex filter expressions to setAll(). This 
+  function now accepts a tuple of filter expressions of the format 
+  'att comp val', which will be eval'd with the child objects inn order to 
+  determine if the filter applies. Each expression in the tuple is ANDed 
+  with the others; all the tuple elements must evaluate to True for the 
+  value to be set.
+
++ Added the dHtmlBox.HtmlLinkClicked event.
+
++ Added the HatchStyle property to draw objects. This gives you the option 
+  of specifying that the fill for drawn objects can be one of the following 
+  hatch patterns:
+
+    Solid (default)
+    Transparent
+    Cross
+    Horizontal
+    Vertical
+    Diagonal
+    ReverseDiagonal
+    CrossDiagonal
+
 + EasyDialogBuilder - minor improvements by Nate Lowrie.
 
 + Added ensureLineVisible() method in dEditor, which even unfolds if needed.
@@ -81,6 +117,9 @@ Enhancements:
 + Added property WordWrap to dEditBox. Default is True.
 
 	===== Data Tier =====
++ Added the option of passing additional keyword arguments to db.dConnection.
+  Thanks Uwe for noting the limitation.
+
 + dbFirebird - Minor improvements by Uwe Grauer.
 
 + dbPostgreSQL - Improvements by John Fabiani, including some missing data
@@ -100,6 +139,10 @@ Enhancements:
 	===== Bizobj Tier =====
 + Added the concept of VirtualFields to dBizobj, which provides a simple,
   flexible interface to reference calculated fields on the fly.
+
++ Added the 'SaveNewUnchanged' property to dBizobj. When this is True, new 
+  records that have not been modified from their defaults are saved; the 
+  default remains to not insert such records. 
 
 + Improved data binding to bizobjs on a parent form.
 
@@ -168,6 +211,22 @@ Bug Fixes:
 
 + Fixed status text to clear the old field validation failed message when the
   user fixes the value and the field now passes validation.
+
++ Fixed the geometry persistence to only restore the size of the form from 
+  user settings if BorderResizable is set to True. 
+
++ Fixed dGrid's AlternateRowColoring to be settable from the constructor
+  or initProperties (previously, it was only settable in afterInit() or
+  later). 
+
++ Dynamic props on dColumn were not working: fixed.
+
++ Fixed a bug that confused the string 'None' with the null value None when 
+  setting BorderStyle from a cdxml. Thanks to Miguel for catching this one.
+
++ Fixed a couple of bugs related to the dSizer.BorderSides property. 
+  Previously it was not retrieving that property correctly from the internal 
+  wx flag.
 
 
 ===============================================================================
