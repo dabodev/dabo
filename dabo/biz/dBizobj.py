@@ -541,6 +541,21 @@ class dBizobj(dObject):
 		return self._CurrentCursor.getRecordStatus(rownum)
 
 
+	def bizIterator(self):
+		""" EXPERIMENTAL!! """
+		while True:
+			try:
+				firstTime
+				try:
+					self.next()
+				except dException.EndOfFileException:
+					raise StopIteration
+			except NameError:
+				self.first()
+				firstTime = False
+			yield self.RowNumber
+		
+		
 	def scan(self, func, reverse=False, *args, **kwargs):
 		"""Iterate over all records and apply the passed function to each.
 
