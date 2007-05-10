@@ -1070,7 +1070,7 @@ class dBizobj(dObject):
 		if self.LinkField:
 			if val is None:
 				val = self.getParentPK()
-			self.scan(self._setParentFK, val)
+			self.scan(self._setParentFK, val=val)
 
 	def _setParentFK(self, val):
 		self.setFieldVal(self.LinkField, val)
