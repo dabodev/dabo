@@ -268,6 +268,9 @@ class PropertyHelperMixin(object):
 
 		propList = []
 		for c in cls.__mro__:
+			if c is PropertyHelperMixin:
+				# Don't list properties lower down (e.g., from wxPython):
+				break
 			for item in dir(c):
 				if item[0] in string.uppercase:
 					if c.__dict__.has_key(item):
