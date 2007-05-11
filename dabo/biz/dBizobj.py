@@ -59,7 +59,8 @@ class dBizobj(dObject):
 		# Various attributes used for Properties
 		self._caption = ""
 		self._dataSource = ""
-		self._scanRestorePosition = None
+		self._scanRestorePosition = True
+		self._scanReverse = False
 		self._SQL = ""
 		self._requeryOnLoad = False
 		self._parent  = None
@@ -556,59 +557,61 @@ class dBizobj(dObject):
 			yield self.RowNumber
 		
 		
-	def scan(self, func, reverse=False, *args, **kwargs):
+	def scan(self, func, *args, **kwargs):
 		"""Iterate over all records and apply the passed function to each.
 
 		Set self.exitScan to True to exit the scan on the next iteration.
 
 		If self.ScanRestorePosition is True, the position of the current
-		record in the recordset is restored after the iteration. If the 'reverse'
-		parameter is True, the records are processed in reverse order.
+		record in the recordset is restored after the iteration. If 
+		self.ScanReverse is True, the records are processed in reverse order.
 		"""
-		self.scanRows(func, range(self.RowCount), reverse=reverse, *args, **kwargs)
+		self.scanRows(func, range(self.RowCount), *args, **kwargs)
 
 
-	def scanRows(self, func, rows, reverse=False, *args, **kwargs):
+	def scanRows(self, func, rows, *args, **kwargs):
 		"""Iterate over the specified rows and apply the passed function to each.
 
 		Set self.exitScan to True to exit the scan on the next iteration.
 		"""
+
 		# Flag that the function can set to prematurely exit the scan
 		self.exitScan = False
 		rows = list(rows)
-		if self.ScanRestorePosition:
-			try:
-				currPK = self.getPK()
-				currRow = None
-			except:
-				# No PK defined
-				currPK = None
-				currRow = self.RowNumber
 		try:
-			if reverse:
+			currPK = self.getPK()
+			currRow = None
+		except:
+			# No PK defined
+			currPK = None
+			currRow = self.RowNumber
+
+		def restorePosition():
+			if self.ScanRestorePosition:
+				if currPK is not None:
+					self._positionUsingPK(currPK, updateChildren=False)
+				else:
+					try:
+						self.RowNumber = currRow
+					except StandardError, e:
+						# Perhaps the row was deleted; at any rate, leave the pointer
+						# at the end of the data set
+						row = self.RowCount  - 1
+						if row >= 0:
+							self.RowNumber = row
+				
+		try:
+			if self.ScanReverse:
 				rows.reverse()
 			for i in rows:
 				self._moveToRowNum(i)
 				func(*args, **kwargs)
 				if self.exitScan:
 					break
-		except dException.dException, e:
-			if self.ScanRestorePosition:
-				self.RowNumber = currRow
-			raise dException.dException, e
-
-		if self.ScanRestorePosition:
-			if currPK is not None:
-				self._positionUsingPK(currPK, updateChildren=False)
-			else:
-				try:
-					self.RowNumber = currRow
-				except StandardError, e:
-					# Perhaps the row was deleted; at any rate, leave the pointer
-					# at the end of the data set
-					row = self.RowCount  - 1
-					if row >= 0:
-						self.RowNumber = row
+		except Exception, e:
+			restorePosition()
+			raise
+		restorePosition()
 		
 
 	def scanChangedRows(self, func, allCursors=False, includeNewUnchanged=False,
@@ -1085,7 +1088,7 @@ class dBizobj(dObject):
 		if self.LinkField:
 			if val is None:
 				val = self.getParentPK()
-			self.scan(self._setParentFK, val=val)
+			self.scan(self._setParentFK, val)
 
 	def _setParentFK(self, val):
 		self.setFieldVal(self.LinkField, val)
@@ -1765,6 +1768,13 @@ class dBizobj(dObject):
 		self._scanRestorePosition = val
 
 
+	def _getScanReverse(self):
+		return self._scanReverse
+
+	def _setScanReverse(self, val):
+		self._scanReverse = val
+
+
 	def _getSQL(self):
 		try:
 			return self._SQL
@@ -1925,6 +1935,9 @@ class dBizobj(dObject):
 			where it was before the scan (True, default), or do we leave the pointer 
 			at the end of the recordset (False). (bool)"""))
 	
+	ScanReverse = property(_getScanReverse, _setScanReverse, None,
+			_("""Do we scan the records in reverse order? (Default: False) (bool)"""))
+
 	SQL = property(_getSQL, _setSQL, None,
 			_("SQL statement used to create the cursor's data. (str)"))
 
