@@ -38,8 +38,25 @@ class dEditBox(tbm.dTextBoxMixinBase, wx.TextCtrl):
 		self.SetInsertionPointEnd()
 		self.ShowPosition(self.GetLastPosition())
 		self.Refresh()
-		
+	
+	
+	#Property getters and setters
+	def _getWordWrap(self):
+		return not self._hasWindowStyleFlag(wx.HSCROLL)
+	
+	def _setWordWrap(self, val):
+		fontSize = self.GetFont().GetPointSize()
+		self._delWindowStyleFlag(wx.HSCROLL)
+		if not val:
+			self._addWindowStyleFlag(wx.HSCROLL)
+		dabo.ui.callAfter(self._setFontSize, fontSize)
+	
+	# property definitions follow:
+	WordWrap = property(_getWordWrap, _setWordWrap, None,
+			_("""Specifies whether words get wrapped (the default). (bool)
 
+			If False, a horizontal scrollbar will appear when a line is too long
+			to fit in the horizontal space."""))
 
 
 
