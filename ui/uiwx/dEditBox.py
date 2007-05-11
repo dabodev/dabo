@@ -49,7 +49,8 @@ class dEditBox(tbm.dTextBoxMixinBase, wx.TextCtrl):
 		self._delWindowStyleFlag(wx.HSCROLL)
 		if not val:
 			self._addWindowStyleFlag(wx.HSCROLL)
-		dabo.ui.callAfter(self._setFontSize, fontSize)
+			if self._constructed():
+				self.FontSize = fontSize
 	
 	# property definitions follow:
 	WordWrap = property(_getWordWrap, _setWordWrap, None,
