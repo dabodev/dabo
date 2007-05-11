@@ -543,21 +543,15 @@ class dBizobj(dObject):
 
 
 	def bizIterator(self):
-		""" EXPERIMENTAL!! """
-		while True:
-			try:
-				firstTime
-				try:
-					self.next()
-				except dException.EndOfFileException:
-					raise StopIteration
-			except NameError:
-				self.first()
-				firstTime = False
-			yield self.RowNumber
+		"""Returns an iterator that moves the bizobj's record pointer from
+		the first record to the last. You may call the iterator's reverse() method
+		before beginning iteration in order to iterate from the last record
+		back to the first.
+		"""
+		return _bizIterator(self)
 		
 		
-	def scan(self, func, *args, **kwargs):
+	def scan(self, func, reverse=False, *args, **kwargs):
 		"""Iterate over all records and apply the passed function to each.
 
 		Set self.exitScan to True to exit the scan on the next iteration.
@@ -574,7 +568,6 @@ class dBizobj(dObject):
 
 		Set self.exitScan to True to exit the scan on the next iteration.
 		"""
-
 		# Flag that the function can set to prematurely exit the scan
 		self.exitScan = False
 		rows = list(rows)
@@ -1952,3 +1945,57 @@ class dBizobj(dObject):
 
 			The specified function will be called when getFieldVal() is called on 
 			the specified virtual field name."""))
+
+
+
+class _bizIterator(object):
+	def __init__(self, obj):
+		self.obj = obj
+		self.__firstpass = True
+		self.__nextfunc = self._next
+
+	def reverse(self):
+		if not self.__firstpass:
+			raise RuntimeError, _("Cannot reverse in the middle of iteration.")
+		self.__nextfunc = self._prior
+		return self
+		
+
+	def _prior(self):
+		if self.__firstpass:
+			try:
+				self.obj.last()
+				self.__firstpass = False
+			except dException.NoRecordsException:
+				raise StopIteration
+		else:
+			try:
+				self.obj.prior()
+			except dException.BeginningOfFileException:
+				raise StopIteration
+		return self.obj.RowNumber
+				
+
+	def _next(self):
+		if self.__firstpass:
+			try:
+				self.obj.first()
+				self.__firstpass = False
+			except dException.NoRecordsException:
+				raise StopIteration
+		else:
+			try:
+				self.obj.next()
+			except dException.EndOfFileException:
+				raise StopIteration
+		return self.obj.RowNumber
+	
+	
+	def next(self):
+		return self.__nextfunc()
+		
+
+	def __iter__(self):
+		self.__firstpass = True
+		return self
+
