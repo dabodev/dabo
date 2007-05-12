@@ -551,7 +551,7 @@ class dBizobj(dObject):
 		return _bizIterator(self)
 		
 		
-	def scan(self, func, reverse=False, *args, **kwargs):
+	def scan(self, func, *args, **kwargs):
 		"""Iterate over all records and apply the passed function to each.
 
 		Set self.exitScan to True to exit the scan on the next iteration.
