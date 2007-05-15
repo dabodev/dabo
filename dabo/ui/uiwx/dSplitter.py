@@ -217,7 +217,7 @@ class dSplitter(cm.dControlMixin, wx.SplitterWindow):
 		if sz:
 			pct = self.SashPosition / sz
 			self._sashPercent = max(0, min(1, pct))
-			self.SetSashGravity(pct)
+			self.SetSashGravity(self._sashPercent)
 		# Raise a dEvent for other code to bind to,
 		self.raiseEvent(dEvents.SashPositionChanged, evt)
 	
