@@ -247,28 +247,25 @@ class PropertyHelperMixin(object):
 			self.bindEvent(evt, mthd)
 
 		
-	def getPropertyList(cls, refresh=False):
-		""" Returns the list of properties for this object (class or instance)."""
-		try:
-			propLists = cls._propLists
-		except:
-			propLists = None
+	def getPropertyList(cls, refresh=False, onlyDabo=False):
+		""" Returns the list of properties for this object (class or instance).
 
-		try:
-			propList = cls._propLists[cls]
-		except:
-			propList = None
+		If refresh is passed, the cached property list (if any) will be rebuilt.
+		If onlyDabo is passed, we won't list the properties underneath the 
+		__mro__ of dObject.
+		"""
+		propLists = getattr(cls, "_propLists", {})
+		propList = propLists.get((cls, onlyDabo), [])
 
 		if refresh:
-			propList = None
+			propList = []
 
-		if isinstance(propList, list):
+		if propList:
 			## A prior call has already generated the propList
 			return propList
 
-		propList = []
 		for c in cls.__mro__:
-			if c is PropertyHelperMixin:
+			if onlyDabo and c is PropertyHelperMixin:
 				# Don't list properties lower down (e.g., from wxPython):
 				break
 			for item in dir(c):
@@ -280,7 +277,7 @@ class PropertyHelperMixin(object):
 		propList.sort()
 		if not hasattr(cls, "_propLists"):
 			cls._propLists = {}
-		cls._propLists[cls] = propList
+		cls._propLists[(cls, onlyDabo)] = propList
 		return propList
 	getPropertyList = classmethod(getPropertyList)
 
