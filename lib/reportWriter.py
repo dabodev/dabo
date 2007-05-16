@@ -635,9 +635,6 @@ class Frameset(Drawable):
 		self.AvailableProps["ColumnCount"] = toPropDict(int, 1, 
 				"""Specifies the number of columns in the frame.""")
 
-		self.AvailableProps["calculatedHeight"] = toPropDict(float, 0, 
-				"""(to remove)""")
-
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the frameset."""
 		self.setdefault("Objects", Objects(self))
@@ -726,13 +723,13 @@ class ReportWriter(object):
 	_clearMemento = True
 
 
-	def draw(self, obj, origin, getNeededHeight=False):
+	def draw(self, obj, origin, _getNeededHeight=False):
 		"""Draw the given object on the Canvas.
 
 		The object is a dictionary containing properties, and	origin is the (x,y)
-		tuple where the object will be drawn. 
+		tuple where the object will be drawn.
 		"""
-		neededHeight = 0
+		_neededHeight = 0
 
 		## (Can't get x,y directly from object because it may have been modified 
 		## by the calling program to adjust for	band position, and draw() 
@@ -748,15 +745,16 @@ class ReportWriter(object):
 
 		## These properties can apply to all objects:
 		width = self.getPt(obj.getProp("width"))
-	
-		try:
-			height = obj.getProp("calculatedHeight")
-		except ValueError:
-			height = None
-		if height is not None:
-			height = self.getPt(height)
+		height = obj.getProp("height")
+		if height is None:
+			# Only valid for framesets at this time: specifies that the height
+			# of the frameset will be whatever is necessary to fit the content.
+			try:
+				height = obj._calculatedHeight
+			except:
+				height = 0
 		else:
-			height = self.getPt(obj.getProp("Height"))
+			height = self.getPt(height)
 	
 		rotation = obj.getProp("rotation")
 		hAnchor = obj.getProp("hAnchor").lower()
@@ -926,9 +924,9 @@ class ReportWriter(object):
 			padRight = self.getPt(obj.getProp("padRight"))
 			padTop = self.getPt(obj.getProp("padTop"))
 			padBottom = self.getPt(obj.getProp("padBottom"))
-			columnCount = obj.getProp("columnCount")
+			frameColumnCount = obj.getProp("columnCount")
 	
-			columnWidth = width/columnCount
+			columnWidth = width / frameColumnCount
 
 			## Set canvas props based on our props:
 			c.translate(x, y)
@@ -1002,16 +1000,19 @@ class ReportWriter(object):
 						story.append(p)
 						objNeededHeight += p.wrap(columnWidth-padLeft-padRight, None)[1]
 
-				neededHeight = max(neededHeight, objNeededHeight) + padTop + padBottom
+				_neededHeight = max(objNeededHeight, _neededHeight) + padTop + padBottom
 
-			for columnIndex in range(columnCount):
+			for columnIndex in range(frameColumnCount):
 				f = platypus.Frame(columnIndex*columnWidth, 0, columnWidth, height, leftPadding=padLeft,
 						rightPadding=padRight, topPadding=padTop,
 						bottomPadding=padBottom, id=frameId, 
 						showBoundary=boundary)
-				if getNeededHeight:
-					obj["calculatedHeight"] = "%s" % neededHeight
+				if _getNeededHeight:
+					# Stuff in the calculated height for use during the next (actual)
+					# draw cycle.
+					obj._calculatedHeight = _neededHeight
 				else:
+					# This is the actual draw cycle:
 					f.addFromList(story, c)
 	
 		elif objType == "Image":
@@ -1054,7 +1055,8 @@ class ReportWriter(object):
 		## rotating, scaling, etc. are cumulative, not absolute and we don't want
 		## to start with a canvas in an unknown state.)
 		c.restoreState()
-		return neededHeight
+		if _getNeededHeight:
+			return _neededHeight
 
 
 	def getColorTupleFromReportLab(self, val):
@@ -1433,7 +1435,10 @@ class ReportWriter(object):
 
 		
 	def calculateObjectHeight(self, obj):
-		neededHeight = self.draw(obj, (0,0), getNeededHeight=True)
+		"""Only called for objects with None for height, and setting None for 
+		object height is only supported	for FrameSets at this time.
+		"""
+		neededHeight = self.draw(obj, (0,0), _getNeededHeight=True)
 		return neededHeight
 
 
