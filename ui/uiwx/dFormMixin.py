@@ -540,19 +540,22 @@ class dFormMixin(pm.dPemMixin):
 		return v
 		
 	def _setCentered(self, val):
-		oldCentered = self.Centered
-		self._centered = val
-		if val:
-			if not oldCentered:
-				# Save the old position
-				self._normLeft = self.Left
-				self._normTop = self.Top
-			# Center it!
-			self.CenterOnScreen(wx.BOTH)
+		if self._constructed():
+			oldCentered = self.Centered
+			self._centered = val
+			if val:
+				if not oldCentered:
+					# Save the old position
+					self._normLeft = self.Left
+					self._normTop = self.Top
+				# Center it!
+				self.CenterOnScreen(wx.BOTH)
+			else:
+				# restore the old position
+				self.Left = self._normLeft
+				self.Top = self._normTop
 		else:
-			# restore the old position
-			self.Left = self._normLeft
-			self.Top = self._normTop
+			self._properties["Centered"] = val
 
 
 	def _getConnection(self):
