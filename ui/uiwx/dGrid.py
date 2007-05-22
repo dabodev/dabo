@@ -519,8 +519,13 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 					func = func[0]
 				else:
 					args = ()
+				try:
+					oldVal = getattr(self, prop)
+				except:
+					needRefresh = True
 				setattr(self, prop, func(*args, **kwargs))
-				needRefresh = True
+				if needRefresh or oldVal != getattr(self, prop):
+					needRefresh = True
 		if needRefresh:
 			dabo.ui.callAfterInterval(200, self._refreshGrid)
 		del self._cellDynamicRow
