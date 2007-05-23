@@ -7,6 +7,12 @@
 #	from dabo.lib.ListSorter import ListSorter
 #	import dabo.lib.ofFunctions as oFox
 
-from uuid import uuid4
+import uuid
+
+
 def getRandomUUID():
-	return str(uuid4())
+	return str(uuid.uuid4())
+
+
+def getMachineUUID():
+	return str(uuid.uuid1())
