@@ -129,7 +129,12 @@ class HelpMenu(dMenu):
 		app = self.Application
 		self.Caption = _("&Help")
 
-		itm = self.append(_("&About"), id=wx.ID_ABOUT, 
+		appName = app.getAppInfo("appShortName")
+		caption = _("&About")
+		if appName:
+			caption += " %s" % appName
+
+		itm = self.append(caption, id=wx.ID_ABOUT, 
 				OnHit=app.onHelpAbout,
 				help=_("About this application") )
 		# Put the about menu in the App Menu on Mac
