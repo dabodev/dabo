@@ -36,8 +36,10 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		else:
 			# no such event, so we need to override the OnCellClicked event
 			self.OnCellClicked = self.__OnCellClicked
-		self.bindEvent(dEvents.HtmlLinkClicked, self.__onLinkClicked)
 
+	def _initEvents(self):
+		self.bindEvent(dEvents.HtmlLinkClicked, self.__onLinkClicked)
+		self.super()
 
 	def __OnCellClicked(self, cell, x, y, evt):
 		self.raiseEvent(dEvents.HtmlLinkClicked, href=cell.GetLink().GetHref())
@@ -135,6 +137,17 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 			self.SetPage(val)
 
 
+	def _getShowScrollBars(self):
+		return not self._hasWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
+	
+	def _setShowScrollBars(self, val):
+		if bool(val):
+			self._delWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
+			self._addWindowStyleFlag(wx.html.HW_SCROLLBAR_AUTO)
+		else:
+			self._delWindowStyleFlag(wx.html.HW_SCROLLBAR_AUTO)
+			self._addWindowStyleFlag(wx.html.HW_SCROLLBAR_NEVER)
+
 	def _getVerticalScroll(self):
 		return self._verticalScroll
 
@@ -144,7 +157,6 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 		rt = self.GetScrollPixelsPerUnit()
 		self.SetScrollRate(rt[0], {True:rt[1], False:0}[val])
 
-
 	HorizontalScroll = property(_getHorizontalScroll, _setHorizontalScroll, None,
 			_("Controls whether this object will scroll horizontally (default=True)  (bool)"))
 
@@ -153,6 +165,9 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 
 	RespondToLinks = property(_getRespondToLinks, _setRespondToLinks, None,
 			_("When True (default), clicking a link will attempt to load that linked page.  (bool)"))
+
+	ShowScrollBars = property(_getShowScrollBars, _setShowScrollBars, None,
+			_("When Tru (default), scrollbars will be shown as needed.  (bool)"))
 
 	Source = property(_getSource, _setSource, None,
 			_("Html source of the current page being display. (default='')  (string)"))
