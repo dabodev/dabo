@@ -662,7 +662,9 @@ class dApp(dObject):
 		
 
 	def onHelpAbout(self, evt):
-		from dabo.ui.dialogs.htmlAbout import HtmlAbout as about
+		about = self.AboutFormClass
+		if about is None:
+			from dabo.ui.dialogs.htmlAbout import HtmlAbout as about
 		frm = self.ActiveForm
 		if frm is None:
 			frm = self.MainForm
@@ -680,6 +682,13 @@ class dApp(dObject):
 		"""Called by the form when it is deactivated."""
 		if frm is self.ActiveForm:
 			self.uiApp.ActiveForm = None
+
+	
+	def _getAboutFormClass(self):
+		return getattr(self, "_aboutFormClass", None)
+
+	def _setAboutFormClass(self, val):
+		self._aboutFormClass = val
 
 
 	def _getActiveForm(self):
@@ -945,6 +954,9 @@ class dApp(dObject):
 	def _setUserSettingProviderClass(self, val):
 		self._userSettingProviderClass = val
 
+
+	AboutFormClass = property(_getAboutFormClass, _setAboutFormClass, None,
+			_("Specifies the form class to use for the application's About screen."))
 
 	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
 			_("Returns the form that currently has focus, or None.  (dForm)" ) )
