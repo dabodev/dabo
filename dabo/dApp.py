@@ -668,6 +668,10 @@ class dApp(dObject):
 		frm = self.ActiveForm
 		if frm is None:
 			frm = self.MainForm
+		if frm.MDI:
+			# Strange big sizing of the about form happens on Windows
+			# when the parent form is MDI.
+			frm = None
 		dlg = about(frm)
 		dlg.show()
 	
