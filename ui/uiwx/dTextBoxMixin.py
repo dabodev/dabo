@@ -18,6 +18,7 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 
+
 class dTextBoxMixinBase(dcm.dDataControlMixin):
 	def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._forceCase = None
@@ -46,6 +47,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		# Now that the dabo Value is set properly, the default behavior that flushes 
 		# the value to the bizobj can be called:
 		super(dTextBoxMixinBase, self).flushValue()
+		
 	
 	def getStringValue(self, val):
 		"""Hook function if you want to implement dataTypes other than str"""
@@ -65,15 +67,22 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 	
 	def __onKeyChar(self, evt):
 		"""This handles KeyChar events when ForceCase is set to a non-empty value."""
+		if not self:
+			# The control is being destroyed
+			return
 		keyChar = evt.keyChar
 		if keyChar is not None and (keyChar.isalnum() 
 				or keyChar in """,./<>?;':"[]\\{}|`~!@#$%%^&*()-_=+"""):
 			dabo.ui.callAfter(self._checkForceCase)
 			dabo.ui.callAfter(self._checkTextLength)
+			
 	
 	def _checkTextLength(self):
 		"""If the TextLength property is set, checks the current value of the control
 		and truncates it if too long"""
+		if not self:
+			# The control is being destroyed
+			return
 		if not isinstance(self.Value, basestring):
 			#Don't bother if it isn't a string type
 			return
@@ -82,7 +91,6 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			return
 		
 		insPos = self.InsertionPosition
-		
 		self._inTextLength = True
 		if len(self.Value) > length:
 			self.Value = self.Value[:length]
@@ -93,10 +101,14 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			self.refresh()
 		self._inTextLength = False
 	
+
 	def _checkForceCase(self):
 		"""If the ForceCase property is set, casts the current value of the control
 		to the specified case.
 		"""
+		if not self:
+			# The control is being destroyed
+			return
 		if not isinstance(self.Value, basestring):
 			# Don't bother if it isn't a string type
 			return
@@ -625,3 +637,4 @@ class dTextBoxMixin(dTextBoxMixinBase):
 	DynamicPasswordEntry = makeDynamicProperty(PasswordEntry)
 	DynamicStrictDateEntry = makeDynamicProperty(StrictDateEntry)
 	DynamicValue = makeDynamicProperty(Value)
+	
