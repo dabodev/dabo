@@ -63,7 +63,7 @@ class DesignerXmlConverter(dObject):
 		## so that you can help determine any problems.
 		## egl: removed 2007-02-10. If you want to see the output, 
 		##   just uncomment the next line.
-# 		open("CLASSTEXT.py", "w").write(self.classText)
+#  		open("CLASSTEXT.py", "w").write(self.classText)
 
 		# jfcs added self._codeFileName to below
 		# egl - created a tmp file for the main class code that we can use 
@@ -155,8 +155,15 @@ class DesignerXmlConverter(dObject):
 			superName = "dabo.ui.%s" % nm
 		prnt = self.currParent
 		indCode = self.indentCode(propInit, 2)
-		self.classText += 	self.containerClassTemplate  % locals()
-		self.classText += self._stackInitText
+		
+		if nm == "dOkCancelDialog":
+			template = self.okCancelDialogClassTemplate
+			stackinit = self._okCancelStackInitText
+		else:
+			template = self.containerClassTemplate
+			stackinit = self._stackInitText
+		self.classText += 	template  % locals()
+		self.classText += stackinit
 		# Add the child code.
 		self.createChildCode(kids, specKids)
 		
@@ -558,6 +565,12 @@ class DesignerXmlConverter(dObject):
 %s		
 
 """
+		# OK/Cancel dialog class template
+		self.okCancelDialogClassTemplate = """class %(clsName)s(%(superName)s):
+	def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
+		super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
+%(indCode)s
+"""
 		self._hdrText = """import dabo
 dabo.ui.loadUI("wx")
 
@@ -573,6 +586,13 @@ import sys
 		sizerDict = {}
 		currParent = self
 		currSizer = None
+		sizerDict[currParent] = []
+"""	
+		self._okCancelStackInitText = """	def addControls(self):
+		parentStack = []
+		sizerDict = {}
+		currParent = self
+		currSizer = self.Sizer
 		sizerDict[currParent] = []
 """	
 		self._propDefText = """	%s = property(%s, %s, %s, 
