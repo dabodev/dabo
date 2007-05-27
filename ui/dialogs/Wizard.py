@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import warnings
 import dabo
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
@@ -16,13 +17,16 @@ class Wizard(dabo.ui.dDialog):
 	
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
 		pgs = self._extractKey(kwargs, "Pages")
-		self.iconName = self._extractKey(kwargs, "image")
-		kwargs["BorderResizable"] = False
-		kwargs["ShowMaxButton"] = False
-		kwargs["ShowMinButton"] = False
-		kwargs["ShowCloseButton"] = False
-# 		kwargs["ShowStatusBar"] = False
-				
+		# Backwards compatibility; deprecated in 0.9
+		img = self._extractKey(kwargs, "image")
+		if img:
+			warnmsg = _("Deprecated parameter 'image' used in wizard. Use the 'Picture' property instead.")
+			warnings.warn(warnmsg, DeprecationWarning, stacklevel=2)
+			kwargs["Picture"] = img
+		kwargs["BorderResizable"] = kwargs.get("BorderResizable", False)
+		kwargs["ShowMaxButton"] = kwargs.get("ShowMaxButton", False)
+		kwargs["ShowMinButton"] = kwargs.get("ShowMinButton", False)
+		kwargs["ShowCloseButton"] = kwargs.get("ShowCloseButton", False)
 		super(Wizard, self).__init__(parent=parent, 
 				properties=properties, *args, **kwargs)
 		
@@ -68,9 +72,10 @@ class Wizard(dabo.ui.dDialog):
 		# Add a top border
 		mpsz.appendSpacer(mpsz.DefaultBorder)
 		
-		if not self.iconName:
-			self.iconName = "empty"
-		self.wizardIcon = dabo.ui.dBitmap(mp, Picture=self.iconName)
+		if not self.Picture:
+			self.Picture = "daboIcon096"
+		self.wizardIcon = dabo.ui.dImage(mp, ScaleMode="Clip", 
+				Picture=self.Picture)
 		hsz = dabo.ui.dSizer("h")
 		hsz.DefaultSpacing = 20
 		hsz.append(self.wizardIcon, 0)
@@ -165,27 +170,30 @@ class Wizard(dabo.ui.dDialog):
 	
 	def append(self, pg):
 		if isinstance(pg, (list, tuple)):
+			ret = []
 			for p in pg:
-				self.append(p)
+				ret.append(self.append(p))
 		else:
-			page = pg(self.pagePanel)
-			page.wizard = self
-			page.Size = self.pagePanel.Size
-			self._pages.append(page)
-			page.Visible = False
+			return self.insert(len(self._pages), pg)
 	
 	
 	def insert(self, pos, pg):
 		if isinstance(pg, (list, tuple)):
 			pg.reverse()
+			ret = []
 			for p in pg:
-				self.insert(pos, p)
+				ret.append(self.insert(pos, p))
 		else:
-			page = pg(self.pagePanel)
-			page.Size = self.pagePanel.Size
-			self._pages.insert(pos, page)
-			page.Visible = False
-			
+			# Give subclasses a chance to override 
+			page = self._insertWizardPageOverride(pos, pg)
+			if page is None:
+				page = pg(self.pagePanel)
+				page.Size = self.pagePanel.Size
+				self._pages.insert(pos, page)
+				page.Visible = False
+			return page
+	def _insertWizardPageOverride(self, pos, pg): pass
+	
 	
 	def getPageByClass(self, pgClass):
 		"""Returns the first page that is an instance of the passed class"""
@@ -222,8 +230,12 @@ class Wizard(dabo.ui.dDialog):
 				if idx == (self.PageCount-1):
 					cap = _("Finish")
 				self.btnNext.Caption = cap
+				if page.Picture is not None:
+					self.wizardIcon.Picture = page.Picture
+				else:
+					self.wizardIcon.Picture = self.Picture
 			else:
-				self._pages[idx].Visible = False
+				page.Visible = False
 		self.layout()
 	
 	
@@ -252,17 +264,9 @@ class Wizard(dabo.ui.dDialog):
 		
 
 	# Property methods
-	def _getImage(self):
-		return self.wizardIcon.Picture
-	def _setImage(self, val):
-		self.wizardIcon.Picture = val
-		self.layout()
-	
-	def _getPageCount(self):
-		return len(self._pages)
-	
 	def _getCurrPage(self):
 		return self._currentPage
+		
 	def _setCurrPage(self, val):
 		if self.PageCount == 0:
 			self.showBlankPage()
@@ -288,15 +292,38 @@ class Wizard(dabo.ui.dDialog):
 		self.showPage()
 		
 
-	Image = property(_getImage, _setImage, None,
-			_("Sets the visible icon for the wizard") )
+	def _getPicture(self):
+		try:
+			ret = self.wizardIcon.Picture
+		except AttributeError:
+			ret = ""
+		return ret
+		
+	def _setPicture(self, val):
+		if self._constructed():
+			try:
+				self.wizardIcon.Picture = val
+			except AttributeError:
+				# wizard icon hasn't been constructed yet.
+				dabo.ui.setAfter(self, "Picture", val)
+			self.layout()
+		else:
+			self._properties["Picture"] = val
+
 	
-	PageCount = property(_getPageCount, None, None,
-			_("Number of pages in this wizard  (int)") )
-			
+	def _getPageCount(self):
+		return len(self._pages)
+		
+	
 	CurrentPage = property(_getCurrPage, _setCurrPage, None,
 			_("Index of the current page in the wizard  (WizardPage)") )
 
+	PageCount = property(_getPageCount, None, None,
+			_("Number of pages in this wizard  (int)") )
+	
+	Picture = property(_getPicture, _setPicture, None,
+			_("Sets the visible icon for the wizard.  (str/path)") )
+	
 
 
 if __name__ == "__main__":
@@ -346,6 +373,7 @@ the box on Page Two.
 	class WizPageFour(WizardPage):
 		def createBody(self):
 			self.Title = _("This is the fourth page")
+			self.Picture = "cards/small/s1.png"
 			lbl = dabo.ui.dLabel(self, Caption=_(
 """Did the skipping work OK?
 """) )
@@ -355,6 +383,10 @@ the box on Page Two.
 					"You cannot move forward if this textbox is empty") )
 			self.Sizer.appendSpacer(16)
 			self.Sizer.append(self.txt, alignment="center")
+			self.Sizer.append(lbl, alignment="center")
+			lbl = dabo.ui.dLabel(self, Caption=_(
+					"Also note that this page has a different icon!") )
+			self.Sizer.appendSpacer(5)
 			self.Sizer.append(lbl, alignment="center")
 			
 

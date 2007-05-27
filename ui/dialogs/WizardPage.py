@@ -10,30 +10,29 @@ import dabo.dConstants as k
 class WizardPage(dabo.ui.dScrollPanel):
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = WizardPage
-		self._titleCaption = self._extractKey(kwargs, "Title")
+		self._titleLabel = None
+		self._caption = _("Wizard Page")
+		self._titleFontFace = ""
+		self._titleFontSize = 18
+		self._picture = None
 		
 		super(WizardPage, self).__init__(parent=parent, 
 				properties=properties, *args, **kwargs)
 		
 		self._wizard = None
 		self._nextPage = self._prevPage = None
-		self._title = None
-		self._titleFontFace = self.FontFace
-		self._titleFontSize = 18
 		self.setup()
 		self.layout()
 		
 
 	def setup(self):
 		self.makeSizer()
-		if self.Title is None:
-			self.Title = ""
-		self._title = dabo.ui.dLabel(self, Caption=self.Title, FontSize=self.TitleSize,
+		self._titleLabel = dabo.ui.dLabel(self, Caption=self.Caption, FontSize=self.TitleSize,
 				FontFace=self.TitleFace)
 		ln = dabo.ui.dLine(self)
 		self.Sizer.prepend(ln, "x")
 		self.Sizer.prependSpacer(16)
-		self.Sizer.prepend(self._title, alignment="center")
+		self.Sizer.prepend(self._titleLabel, alignment="center")
 		self._createBody()
 		
 	
@@ -102,23 +101,40 @@ class WizardPage(dabo.ui.dScrollPanel):
 		
 
 	# Property definitions.
-	def _getTitle(self):
-		return self._titleCaption
+	def _getCaption(self):
+		return self._caption
 
-	def _setTitle(self, val):
-		self._titleCaption = val
-		if self._title:
-			self._title.Caption = val
-			self.layout()
+	def _setCaption(self, val):
+		if self._constructed():
+			self._caption = val
+			if self._titleLabel:
+				self._titleLabel.Caption = val
+				self.layout()
+		else:
+			self._properties["Caption"] = val
+
+
+	def _getPicture(self):
+		return self._picture
+
+	def _setPicture(self, val):
+		if self._constructed():
+			self._picture = val
+		else:
+			self._properties["Picture"] = val
 
 
 	def _getTitleFace(self):
-		return self._titleFontFace
+		try:
+			return self._titleFontFace
+		except AttributeError:
+			self._titleFontFace = self.FontFace
+			return self._titleFontFace
 
 	def _setTitleFace(self, val):
 		self._titleFontFace = val
-		if self._title:
-			self._title.FontFace = val
+		if self._titleLabel:
+			self._titleLabel.FontFace = val
 			self.layout()
 
 
@@ -127,8 +143,8 @@ class WizardPage(dabo.ui.dScrollPanel):
 
 	def _setTitleSize(self, val):
 		self._titleFontSize = val
-		if self._title:
-			self._title.FontSize = val
+		if self._titleLabel:
+			self._titleLabel.FontSize = val
 			self.layout()
 
 
@@ -143,9 +159,13 @@ class WizardPage(dabo.ui.dScrollPanel):
 	
 
 
-	Title = property(_getTitle, _setTitle, None,
-			_("Displays a title at the top of the page.  (string)") )
-
+	Caption = property(_getCaption, _setCaption, None,
+			_("The text that appears as the title of the page  (str)"))
+	
+	Picture = property(_getPicture, _setPicture, None,
+			_("""Normally None, but you can set it to some other image to have the wizard display
+			a different picture for this page  (None or image path)"""))
+	
 	TitleFace = property(_getTitleFace, _setTitleFace, None,
 			_("Name of the font face used for the Title.  (string)") )
 
