@@ -45,7 +45,8 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 	
 	
 	def _onResize(self, evt):
-		self._showPic()
+		if not self._inShowPic:
+			self._showPic()
 		
 	
 	def update(self):
@@ -107,6 +108,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self.Thaw()
 			return
 
+		self._inShowPic = True
 		img = self._Image.Copy()
 		switchProportions = False
 		if self._rotation:
@@ -166,7 +168,6 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self.SetBitmap(self.Bitmap)
 		except TypeError, e: pass
 		self.Thaw()
-		self._inShowPic = True
 		self.SetSize((origW, origH))
 		self._inShowPic = False
 		
@@ -181,6 +182,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self.__image = val
 			self._picture = "(stream)"
 		else:
+			pathExists = os.path.exists(val)
 			if not val:
 				# Empty string passed; clear any current image
 				self._picture = ""
@@ -189,7 +191,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				self.__image = wx.EmptyImage(1, 1)		# self._bmp.ConvertToImage()
 				self._showPic()
 				return
-			elif not os.path.exists(val):
+			elif not pathExists:
 				origVal = val
 				val = dabo.ui.getImagePath(val)
 				if not os.path.exists(val):
