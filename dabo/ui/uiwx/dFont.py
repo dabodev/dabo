@@ -48,6 +48,8 @@ class dFont(dObject):
 		return self._nativeFont.GetFaceName()
 
 	def _setFace(self, val):
+		if not val:
+			return
 		availableFonts = dabo.ui.getAvailableFonts()
 		def trySetFont(val):
 			if val in availableFonts:
