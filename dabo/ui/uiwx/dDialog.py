@@ -43,9 +43,6 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 	def _afterInit(self):
 		self.MenuBarClass = None
 		self.Sizer = dabo.ui.dSizer("V")
-# 		self.mainPanel = mp = dabo.ui.dPanel(self)
-# 		self.Sizer.append1x(mp)
-# 		mp.Sizer = dabo.ui.dSizer("V")
 		super(dDialog, self)._afterInit()
 		self.bindKey("esc", self._onEscape)
 
@@ -181,7 +178,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 			"Determines if the dialog is shown modal (default) or modeless.  (bool)")
 	
 	ReleaseOnEscape = property(_getReleaseOnEscape, _setReleaseOnEscape, None,
-			"Determines if the <Esc> key releases the dialog (the default).")
+			"Determines if the <Esc> key releases the dialog. Default=True.  (bool)")
 
 
 	DynamicAutoSize = makeDynamicProperty(AutoSize)
@@ -200,9 +197,9 @@ class dOkCancelDialog(dDialog):
 	pressed "OK" or not.
 	"""
 	def __init__(self, parent=None, properties=None, *args, **kwargs):
+		super(dOkCancelDialog, self).__init__(parent=parent, properties=properties, *args, **kwargs)
 		self._baseClass = dOkCancelDialog
 		self._accepted = False
-		super(dOkCancelDialog, self).__init__(parent=parent, properties=properties, *args, **kwargs)
 
 
 	def _addControls(self):
