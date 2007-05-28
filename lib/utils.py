@@ -98,6 +98,8 @@ def getUserDaboDirectory(appName="Dabo"):
 			dd = os.path.join(dd, appName)
 
 	if dd is None:
+		# On Unix, change appname to lower and don't allow spaces:
+		appName = appName.lower().replace(" ", "_")
 		dd = getUserHomeDirectory()
 
 		if dd is not None:
