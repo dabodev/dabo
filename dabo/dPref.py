@@ -45,7 +45,7 @@ class dPref(object):
 	will not be saved. Calling 'persist()' will write any values of that object and all of its
 	child objects to the database.
 	"""
-	def __init__(self, key=None, crs=None, cxn=None):
+	def __init__(self, key=None, crs=None, cxn=None, appName="Dabo"):
 		if key is None:
 			self._key = ""
 		else:
@@ -64,7 +64,7 @@ class dPref(object):
 				bool: "bool", list: "list", tuple: "tuple", datetime.date: "date", 
 				datetime.datetime: "datetime", self._noneType: "none"}
 		if crs is None:
-			prefdir = utils.getUserDaboDirectory()
+			prefdir = utils.getUserDaboDirectory(appName)
 			self._cxn = dabo.db.dConnection(connectInfo={"dbType": "SQLite",
 					"database": os.path.join(prefdir, "DaboPreferences.db")})
 			self._cursor = self._cxn.getDaboCursor()
