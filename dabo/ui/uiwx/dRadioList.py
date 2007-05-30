@@ -298,7 +298,7 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 	def _setButtonSpacing(self, val):
 		if self._constructed():
 			self._buttonSpacing = val
-
+			self._checkSizer()
 			for itm in self.Sizer.ChildSpacers:
 				self.Sizer.setItemProp(itm, "Spacing", self._getFudgedButtonSpacing())
 			self.layout()
