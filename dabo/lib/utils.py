@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+
 # This serves as a catch-all script for common utilities that may be used
 # in lots of places throughout Dabo. Typically, to use a function 'foo()' in
 # this file, add the following import statement to your script:
@@ -111,18 +112,16 @@ def getUserAppDataDirectory(appName="Dabo"):
 	# First, on Windows, try the Windows API function:
 	if shell and shellcon:
 		dd = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
-		print "!", dd
+	
 	if dd is None and sys.platform == "win32":
 		# We are on Windows, but win32com wasn't installed. Look for the APPDATA
 		# environmental variable:
 		dd = os.environ.get("APPDATA")
 
-
 	if dd is None:
 		# We are either not on Windows, or we couldn't locate the directory for 
 		# whatever reason. Try going off the home directory:
 		dd = getUserHomeDirectory()
-
 
 	if dd is not None:
 		dd = os.path.join(dd, appName)
