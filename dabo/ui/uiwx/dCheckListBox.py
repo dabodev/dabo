@@ -102,7 +102,7 @@ class _dCheckListBox_test(dCheckListBox):
 		print "\tCount: ", self.Count
 	
 	def onMouseLeftDoubleClick(self, evt):
-		print "double click at position %s" % self.PositionValue
+		print "double click"
 
 	def onMouseLeftDown(self, evt):
 		print "mousedown"	
