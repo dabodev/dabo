@@ -12,6 +12,11 @@
 import os
 import sys
 
+try:
+	from win32com.shell import shell, shellcon
+except ImportError:
+	shell, shellcon = None, None
+
 
 def reverseText(tx):
 	"""Takes a string and returns it reversed. Example:
@@ -53,9 +58,15 @@ def getUserHomeDirectory():
 
 	If the home directory cannot be determined, return None.
 	"""
+	hd = None
+
+	# If we are on Windows and win32com is available, get the user home
+	# directory using the Windows API:
+	if shell and shellcon:
+		return shell.SHGetFolderPath(0, shellcon.CSIDL_PROFILE, 0, 0)
+
 	# os.path.expanduser should work on all posix systems (*nix, Mac, and some
 	# Windows NT setups):
-	hd = None
 	try:
 		hd = os.path.expanduser("~")
 	except:
@@ -76,7 +87,7 @@ def getUserHomeDirectory():
 	return hd
 
 
-def getUserDaboDirectory(appName="Dabo"):
+def getUserAppDataDirectory(appName="Dabo"):
 	"""Return the directory where Dabo can save user preference and setting information.
 
 	On *nix, this will be something like /home/pmcnett/.dabo
@@ -92,27 +103,36 @@ def getUserDaboDirectory(appName="Dabo"):
 	creation of the directory fails, the return value will revert to None.
 	"""
 	dd = None
-	if sys.platform in ("win32", ):
+
+	if sys.platform not in ("win32",):
+		# On Unix, change appname to lower, don't allow spaces, and prepend a ".":
+		appName = ".%s" % appNameappName.lower().replace(" ", "_")
+
+	# First, on Windows, try the Windows API function:
+	if shell and shellcon:
+		dd = shell.SHGetFolderPath(0, shellcon.CSIDL_APPDATA, 0, 0)
+		print "!", dd
+	if dd is None and sys.platform == "win32":
+		# We are on Windows, but win32com wasn't installed. Look for the APPDATA
+		# environmental variable:
 		dd = os.environ.get("APPDATA")
-		if dd is not None:
-			dd = os.path.join(dd, appName)
+
 
 	if dd is None:
-		# On Unix, change appname to lower and don't allow spaces:
-		appName = appName.lower().replace(" ", "_")
+		# We are either not on Windows, or we couldn't locate the directory for 
+		# whatever reason. Try going off the home directory:
 		dd = getUserHomeDirectory()
 
-		if dd is not None:
-			dd = os.path.join(dd, ".%s" % appName.lower())
 
-	if not os.path.exists(dd):
-		# try to create the dabo directory:
-		try:
-			os.makedirs(dd)
-		except:
-			print "Couldn't create the user setting directory (%s)." % dd
-			dd = None
-
+	if dd is not None:
+		dd = os.path.join(dd, appName)
+		if not os.path.exists(dd):
+			# try to create the dabo directory:
+			try:
+				os.makedirs(dd)
+			except:
+				sys.stderr.write("Couldn't create the user setting directory (%s)." % dd)
+				dd = None
 	return dd
 	
 	
