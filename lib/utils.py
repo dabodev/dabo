@@ -106,7 +106,7 @@ def getUserAppDataDirectory(appName="Dabo"):
 
 	if sys.platform not in ("win32",):
 		# On Unix, change appname to lower, don't allow spaces, and prepend a ".":
-		appName = ".%s" % appNameappName.lower().replace(" ", "_")
+		appName = ".%s" % appName.lower().replace(" ", "_")
 
 	# First, on Windows, try the Windows API function:
 	if shell and shellcon:
