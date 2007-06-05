@@ -1824,8 +1824,17 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		#self.SetCellRenderer(row, col, rnd)
 				
 	
-	def setTableAttributes(self, tbl):
+	def setTableAttributes(self, tbl=None):
 		"""Set the attributes for table display"""
+		if tbl is None:
+			try:
+				tbl = self._Table
+			except TypeError:
+				tbl = None
+			if tbl is None:
+				# Still not fully constructed
+				dabo.ui.callAfter(self.setTableAttributes)
+				return
 		tbl.alternateRowColoring = self.AlternateRowColoring
 		tbl.rowColorOdd = self._getWxColour(self.RowColorOdd)
 		tbl.rowColorEven = self._getWxColour(self.RowColorEven)
@@ -4087,8 +4096,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		except:
 			tbl = None
 		if not tbl:
-			tbl = dGridDataTable(self)
-			self.SetTable(tbl, False)
+			try:
+				tbl = dGridDataTable(self)
+				self.SetTable(tbl, False)
+			except TypeError:
+				tbl = None
 		return tbl	
 
 	def _setTable(self, tbl):
