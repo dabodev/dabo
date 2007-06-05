@@ -73,8 +73,10 @@ class dButton(cm.dControlMixin, wx.Button):
 				target = self.Form
 			if val:
 				target.bindKey("esc", self.__onCancelButton)
+				self.SetId(wx.ID_CANCEL)
 			else:
 				target.unbindKey("esc")
+				self.SetId(wx.NewId())
 			self._cancelButton = val
 		else:
 			self._properties["CancelButton"] = value
