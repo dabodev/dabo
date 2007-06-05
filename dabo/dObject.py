@@ -93,7 +93,11 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		if (not nm) or (nm == "?"):
 			# No name; use module.classname
 			nm = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
-		return "<%(nm)s (baseclass %(classname)s)>" % locals()
+		try:
+			_id = self.GetId()
+		except:
+			_id = "?"
+		return "<%(nm)s (baseclass %(classname)s, id:%(_id)s)>" % locals()
 		
 
 
