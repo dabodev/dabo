@@ -328,6 +328,9 @@ class Form(dabo.ui.dForm):
 					title=_("No Records"))
 			return
 
+		showAdvancedQuickReport = self.ShowAdvancedQuickReport
+		showExpandedQuickReport = self.ShowExpandedQuickReport
+
 		class ReportFormatDialog(dabo.ui.dOkCancelDialog):
 			def initProperties(self):
 				self.Caption = "Quick Report"
@@ -346,6 +349,10 @@ class Form(dabo.ui.dForm):
 				self.Sizer.append1x(self.radMode)
 				self.Sizer.appendSpacer(12)
 
+				if not showExpandedQuickReport:
+					self.radMode.enableKey("expanded", False)
+					self.radMode.Value = "list"  ## in case the setting was saved at 'expanded' previously.
+
 				self.addObject(dabo.ui.dRadioList, RegID="radRecords", 
 						Caption="Report On",
 						Orientation="Row", 
@@ -357,9 +364,10 @@ class Form(dabo.ui.dForm):
 				self.Sizer.append1x(self.radRecords)
 				self.Sizer.appendSpacer(12)
 
-				self.addObject(dabo.ui.dButton, RegID="btnAdvanced", Caption="Advanced")
-				self.Sizer.append(self.btnAdvanced, halign="center")
-				self.btnAdvanced.bindEvent(dEvents.Hit, self.onAdvanced)
+				if showAdvancedQuickReport:
+					self.addObject(dabo.ui.dButton, RegID="btnAdvanced", Caption="Advanced")
+					self.Sizer.append(self.btnAdvanced, halign="center")
+					self.btnAdvanced.bindEvent(dEvents.Hit, self.onAdvanced)
 
 			def onAdvanced(self, evt):
 				if dabo.ui.areYouSure("Would you like to save the report form xml "
@@ -678,7 +686,7 @@ class Form(dabo.ui.dForm):
 				objects = self._getAllChildObjects(c, objects, c.Top)
 				continue
 			try:
-				c.Alignment
+				c.DataField
 			except:
 				continue
 			objects.append(((c.Left, c.Top + currentY), c))
@@ -730,6 +738,7 @@ class Form(dabo.ui.dForm):
 		maxX = 0
 		for obj in objects:
 			o = obj[1]
+			alignment = o.Alignment
 			maxX = max(maxX, (obj[0][0]+o.Width))
 			obDict = {"Height": o.Height,
 					"Alignment": o.Alignment.lower(),
@@ -927,6 +936,20 @@ class Form(dabo.ui.dForm):
 		self._setFocusToBrowseGrid = bool(val)
 
 
+	def _getShowAdvancedQuickReport(self):
+		return getattr(self, "_showAdvancedQuickReport", True)
+
+	def _setShowAdvancedQuickReport(self, val):
+		self._showAdvancedQuickReport = bool(val)
+
+
+	def _getShowExpandedQuickReport(self):
+		return getattr(self, "_showExpandedQuickReport", True)
+
+	def _setShowExpandedQuickReport(self, val):
+		self._showExpandedQuickReport = bool(val)
+
+
 	def _getTesting(self):
 		return getattr(self, "_testing", False)
 
@@ -993,6 +1016,14 @@ class Form(dabo.ui.dForm):
 			_setSetFocusToBrowseGrid, None,
 			_("""Does the focus go to the browse grid when the browse page is entered?"""))
 		
+	ShowAdvancedQuickReport = property(_getShowAdvancedQuickReport,
+			_setShowAdvancedQuickReport, None,
+			_("""Does the 'Advanced' button appear in the Quick Report dialog?"""))
+
+	ShowExpandedQuickReport = property(_getShowExpandedQuickReport,
+			_setShowExpandedQuickReport, None,
+			_("""Can the user choose the 'expanded' quick report?"""))
+
 	Testing = property(_getTesting, _setTesting, None, 
 			"Flag for use when testing elements of the form.")
 
