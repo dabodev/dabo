@@ -679,6 +679,11 @@ class dPemMixin(dPemMixinBase):
 			self.SetAcceleratorTable(wx.AcceleratorTable(table.values()))
 
 
+	def _getID(self):
+		"""Override the default behavior to return the wxPython ID."""
+		return self.GetId()
+
+
 	def fitToSizer(self, extraWidth=0, extraHeight=0):
 		"""Resize the control to fit the size required by its sizer."""
 		self.layout()
@@ -760,10 +765,19 @@ class dPemMixin(dPemMixinBase):
 		"""If this object is inside of any paged control, it will force all containing
 		paged controls to switch to the page that contains this object.
 		"""
+		try:
+			frm = self.Form
+		except:
+			frm = None
 		cntnr = self
+		iswiz = isinstance(frm, dabo.ui.dialogs.Wizard)
+		mtch = {True: dabo.ui.dialogs.WizardPage, False: dabo.ui.dPage}[iswiz]
 		while cntnr and not isinstance(cntnr, dabo.ui.dForm):
-			if isinstance(cntnr, dabo.ui.dPage):
-				cntnr.Parent.SelectedPage = cntnr
+			if isinstance(cntnr, mtch):
+				if iswiz:
+					frm.CurrentPage = cntnr
+				else:
+					cntnr.Parent.SelectedPage = cntnr
 			cntnr = cntnr.Parent
 	
 	
@@ -1354,6 +1368,8 @@ class dPemMixin(dPemMixinBase):
 		method is where they go. Subclasses should place code in the 
 		redraw() hook method.
 		"""
+		# Clear the idle flag.
+		self._needRedraw = False
 		if dc is None:
 			# First, clear any old drawing if requested
 			if self.autoClearDrawings:
@@ -1364,8 +1380,6 @@ class dPemMixin(dPemMixinBase):
 			obj.draw(dc)
 		# Call the hook
 		self.redraw(dc)
-		# Clear the idle flag.
-		self._needRedraw = False
 #- 		if self.Application.Platform == "Win":
 #- 			print "REFRESH", time.time()
 #- 			dabo.ui.callAfterInterval(300, self.refresh)
@@ -1471,6 +1485,7 @@ class dPemMixin(dPemMixinBase):
 		operation has been handled.
 		"""
 		return None
+		
 
 	def _jiggleFontSize(self):
 		"""Force refresh the control by tweaking the font size.""" 
@@ -1478,6 +1493,7 @@ class dPemMixin(dPemMixinBase):
 		self.FontSize += 1
 		self.FontSize -= 1
 		self.Thaw()
+		
 
 	def _onFontPropsChanged(self, evt):
 		# Sent by the dFont object when any props changed. Wx needs to be notified:

@@ -93,12 +93,15 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		if (not nm) or (nm == "?"):
 			# No name; use module.classname
 			nm = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)
-		try:
-			_id = self.GetId()
-		except:
-			_id = "?"
+		_id = self._getID()
 		return "<%(nm)s (baseclass %(classname)s, id:%(_id)s)>" % locals()
-		
+
+
+	def _getID(self):
+		"""Defaults to the Python id() function. Objects in sub-modules, such as the various
+		UI toolkits, can override to substitute something more relevant to them.
+		"""
+		return id(self)
 
 
 	def beforeInit(self, *args, **kwargs):
