@@ -9,7 +9,6 @@ import dabo.dConstants as k
 
 class WizardPage(dabo.ui.dScrollPanel):
 	def __init__(self, parent, properties=None, *args, **kwargs):
-		self._baseClass = WizardPage
 		self._titleLabel = None
 		self._caption = _("Wizard Page")
 		self._titleFontFace = ""
@@ -19,6 +18,7 @@ class WizardPage(dabo.ui.dScrollPanel):
 		super(WizardPage, self).__init__(parent=parent, 
 				properties=properties, *args, **kwargs)
 		
+		self._baseClass = WizardPage
 		self._wizard = None
 		self._nextPage = self._prevPage = None
 		self.setup()
@@ -30,9 +30,11 @@ class WizardPage(dabo.ui.dScrollPanel):
 		self._titleLabel = dabo.ui.dLabel(self, Caption=self.Caption, FontSize=self.TitleSize,
 				FontFace=self.TitleFace)
 		ln = dabo.ui.dLine(self)
-		self.Sizer.prepend(ln, "x")
-		self.Sizer.prependSpacer(16)
-		self.Sizer.prepend(self._titleLabel, alignment="center")
+		sz = self.Sizer
+		sz.prepend(ln, "x")
+		sz.prependSpacer(16)
+		sz.prepend(self._titleLabel, alignment="center")
+		sz.DefaultSpacing = 0
 		self._createBody()
 		
 	
@@ -124,6 +126,20 @@ class WizardPage(dabo.ui.dScrollPanel):
 			self._properties["Picture"] = val
 
 
+	def _getTitleBold(self):
+		try:
+			return self._titleFontBold
+		except AttributeError:
+			self._titleFontBold = self.FontBold
+			return self._titleFontBold
+
+	def _setTitleBold(self, val):
+		self._titleFontBold = val
+		if self._titleLabel:
+			self._titleLabel.FontBold = val
+			self.layout()
+
+
 	def _getTitleFace(self):
 		try:
 			return self._titleFontFace
@@ -135,6 +151,20 @@ class WizardPage(dabo.ui.dScrollPanel):
 		self._titleFontFace = val
 		if self._titleLabel:
 			self._titleLabel.FontFace = val
+			self.layout()
+
+
+	def _getTitleItalic(self):
+		try:
+			return self._titleFontItalic
+		except AttributeError:
+			self._titleFontItalic = self.FontItalic
+			return self._titleFontItalic
+
+	def _setTitleItalic(self, val):
+		self._titleFontItalic = val
+		if self._titleLabel:
+			self._titleLabel.FontItalic = val
 			self.layout()
 
 
@@ -166,8 +196,14 @@ class WizardPage(dabo.ui.dScrollPanel):
 			_("""Normally None, but you can set it to some other image to have the wizard display
 			a different picture for this page  (None or image path)"""))
 	
+	TitleBold = property(_getTitleBold, _setTitleBold, None,
+			_("Controls whether the title text is bold.  (bool)") )
+
 	TitleFace = property(_getTitleFace, _setTitleFace, None,
 			_("Name of the font face used for the Title.  (string)") )
+
+	TitleItalic = property(_getTitleItalic, _setTitleItalic, None,
+			_("Controls whether the title text is italic.  (bool)") )
 
 	TitleSize = property(_getTitleSize, _setTitleSize, None,
 			_("Size in points for the Title (default=18).  (int)") )

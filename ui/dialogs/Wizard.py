@@ -27,6 +27,10 @@ class Wizard(dabo.ui.dDialog):
 		kwargs["ShowMaxButton"] = kwargs.get("ShowMaxButton", False)
 		kwargs["ShowMinButton"] = kwargs.get("ShowMinButton", False)
 		kwargs["ShowCloseButton"] = kwargs.get("ShowCloseButton", False)
+		self._pages = []
+		self._currentPage = -1
+		self._blankPage = None
+		self.wizardIcon = None
 		super(Wizard, self).__init__(parent=parent, 
 				properties=properties, *args, **kwargs)
 		
@@ -34,10 +38,6 @@ class Wizard(dabo.ui.dDialog):
 		mp = self.mainPanel = dabo.ui.dPanel(self)
 		self.Sizer.append(mp, 1, "x")
 		mp.Sizer = dabo.ui.dSizer(self.Sizer.Orientation)
-
-		self._pages = []
-		self._currentPage = -1
-		self._blankPage = None
 		
 		# Experimental!
 		# Automatically sets the page to match the form's BackColor. Set
@@ -72,10 +72,10 @@ class Wizard(dabo.ui.dDialog):
 		# Add a top border
 		mpsz.appendSpacer(mpsz.DefaultBorder)
 		
+		self.wizardIcon = dabo.ui.dImage(mp, ScaleMode="Proportional")
 		if not self.Picture:
+			self.PictureHeight = self.PictureWidth = 96
 			self.Picture = "daboIcon096"
-		self.wizardIcon = dabo.ui.dImage(mp, ScaleMode="Clip", 
-				Picture=self.Picture)
 		hsz = dabo.ui.dSizer("h")
 		hsz.DefaultSpacing = 20
 		hsz.append(self.wizardIcon, 0)
@@ -174,8 +174,9 @@ class Wizard(dabo.ui.dDialog):
 			for p in pg:
 				ret.append(self.append(p))
 		else:
-			return self.insert(len(self._pages), pg)
-	
+			ret = self.insert(len(self._pages), pg)
+		return ret
+		
 	
 	def insert(self, pos, pg):
 		if isinstance(pg, (list, tuple)):
@@ -187,11 +188,24 @@ class Wizard(dabo.ui.dDialog):
 			# Give subclasses a chance to override 
 			page = self._insertWizardPageOverride(pos, pg)
 			if page is None:
-				page = pg(self.pagePanel)
+				if isinstance(pg, WizardPage):
+					# Already instantiated. First make sure it is a child of 
+					# the page panel
+					if pg.Parent is not self.pagePanel:
+						pg.changeParent(self.pagePanel)
+					page = pg
+				else:
+					if isinstance(pg, basestring):
+						xml = pg
+						from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+						conv = DesignerXmlConverter()
+						pg = conv.classFromXml(xml)
+					page = pg(self.pagePanel)
 				page.Size = self.pagePanel.Size
 				self._pages.insert(pos, page)
 				page.Visible = False
-			return page
+			ret = page
+		return ret
 	def _insertWizardPageOverride(self, pos, pg): pass
 	
 	
@@ -268,10 +282,17 @@ class Wizard(dabo.ui.dDialog):
 		return self._currentPage
 		
 	def _setCurrPage(self, val):
+		if isinstance(val, WizardPage):
+			val = self._pages.index(val)
 		if self.PageCount == 0:
 			self.showBlankPage()
 			return
 		val = min(val, self.PageCount-1)
+		if val == self._currentPage:
+			# No change
+			return
+		self.raiseEvent(dEvents.PageChanging, oldPageNum=self._currentPage, 
+				newPageNum=val)
 		if self._currentPage < 0:
 			direction = "forward"
 		else:
@@ -287,11 +308,19 @@ class Wizard(dabo.ui.dDialog):
 			# We're done
 			self.release()
 			return
+		oldPg = self._currentPage
+		newPg = val
 		self._currentPage = val
 		self._pages[self._currentPage].onEnterPage(direction)
 		self.showPage()
+		dabo.ui.callAfter(self.raiseEvent, dEvents.PageChanged, 
+				oldPageNum=oldPg, newPageNum=newPg)
 		
 
+	def _getPageCount(self):
+		return len(self._pages)
+		
+	
 	def _getPicture(self):
 		try:
 			ret = self.wizardIcon.Picture
@@ -303,6 +332,7 @@ class Wizard(dabo.ui.dDialog):
 		if self._constructed():
 			try:
 				self.wizardIcon.Picture = val
+				self.wizardIcon.Size = (self.PictureWidth, self.PictureHeight)
 			except AttributeError:
 				# wizard icon hasn't been constructed yet.
 				dabo.ui.setAfter(self, "Picture", val)
@@ -311,10 +341,36 @@ class Wizard(dabo.ui.dDialog):
 			self._properties["Picture"] = val
 
 	
-	def _getPageCount(self):
-		return len(self._pages)
-		
-	
+	def _getPictureHeight(self):
+		return self.wizardIcon.Height
+
+	def _setPictureHeight(self, val):
+		if self._constructed():
+			try:
+				self.wizardIcon.Height = val
+			except AttributeError:
+				# wizard icon hasn't been constructed yet.
+				dabo.ui.setAfter(self, "PictureHeight", val)
+			self.layout()
+		else:
+			self._properties["PictureHeight"] = val
+
+
+	def _getPictureWidth(self):
+		return self.wizardIcon.Width
+
+	def _setPictureWidth(self, val):
+		if self._constructed():
+			try:
+				self.wizardIcon.Width = val
+			except AttributeError:
+				# wizard icon hasn't been constructed yet.
+				dabo.ui.setAfter(self, "PictureWidth", val)
+			self.layout()
+		else:
+			self._properties["PictureWidth"] = val
+
+
 	CurrentPage = property(_getCurrPage, _setCurrPage, None,
 			_("Index of the current page in the wizard  (WizardPage)") )
 
@@ -323,6 +379,14 @@ class Wizard(dabo.ui.dDialog):
 	
 	Picture = property(_getPicture, _setPicture, None,
 			_("Sets the visible icon for the wizard.  (str/path)") )
+	
+	PictureHeight = property(_getPictureHeight, _setPictureHeight, None,
+			_("Height of the wizard icon in pixels  (int)"))
+	
+	PictureWidth = property(_getPictureWidth, _setPictureWidth, None,
+			_("Width of the wizard icon in pixels  (int)"))
+	
+	
 	
 
 
