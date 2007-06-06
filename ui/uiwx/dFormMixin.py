@@ -24,15 +24,8 @@ class dFormMixin(pm.dPemMixin):
 		# double-activation is no longer an issue.
 		self._skipActivate = (wx.VERSION < (2,7) and self.Application.Platform == "Win")
 
-		# Extract the connection name, if any
-		self._cxnFile = self._extractKey((properties, attProperties, kwargs), 
-				"CxnFile", "")
-		self._cxnName = self._extractKey((properties, attProperties, kwargs), 
-				"CxnName", "")
-		if self._cxnFile == "None":
-			self._cxnFile = ""
-		if self._cxnName == "None":
-			self._cxnName = ""
+		self._cxnFile = ""
+		self._cxnName = ""
 		self._connection = None
 		# Extract the menu definition file, if any
 		self._menuBarFile = self._extractKey((properties, attProperties, kwargs), 
@@ -565,6 +558,20 @@ class dFormMixin(pm.dPemMixin):
 		self._connection = val
 
 
+	def _getCxnFile(self):
+		return self._cxnFile
+
+	def _setCxnFile(self, val):
+		self._cxnFile = val
+
+
+	def _getCxnName(self):
+		return self._cxnName
+
+	def _setCxnName(self, val):
+		self._cxnName = val
+
+
 	def _getFloatOnParent(self):
 		return self._hasWindowStyleFlag(wx.FRAME_FLOAT_ON_PARENT)
 
@@ -914,6 +921,12 @@ class dFormMixin(pm.dPemMixin):
 	Connection = property(_getConnection, _setConnection, None,
 			_("The connection to the database used by this form  (dConnection)"))
 
+	CxnFile = property(_getCxnFile, _setCxnFile, None,
+			_("Path to the connection file used for data access  (str)"))
+	
+	CxnName = property(_getCxnName, _setCxnName, None,
+			_("Name of the connection used for data access  (str)"))
+	
 	FloatOnParent = property(_getFloatOnParent, _setFloatOnParent, None,
 			_("Specifies whether the form stays on top of the parent or not."))
 	
