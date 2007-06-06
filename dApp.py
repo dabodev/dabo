@@ -79,7 +79,7 @@ class TempFileHolder(object):
 		self._tempFiles.append(f)
 
 
-	def getTempFile(self, ext=None, badChars=None):
+	def getTempFile(self, ext=None, badChars=None, directory=None):
 		if ext is None:
 			ext = "py"
 		if badChars is None:
@@ -87,7 +87,10 @@ class TempFileHolder(object):
 		fname = ""
 		suffix = ".%s" % ext
 		while not fname:
-			fd, tmpname = tempfile.mkstemp(suffix=suffix)
+			if directory is None:
+				fd, tmpname = tempfile.mkstemp(suffix=suffix)
+			else:
+				fd, tmpname = tempfile.mkstemp(suffix=suffix, dir=directory)
 			os.close(fd)
 			bad = [ch for ch in badChars if ch in os.path.split(tmpname)[1]]
 			if not bad:
