@@ -84,3 +84,45 @@ class BoolRenderer(wx.grid.PyGridCellRenderer):
 		"""Destroy the clipping rectangle""" 
 		dc.DestroyClippingRegion( ) 
 
+
+
+
+
+class YesNoBoolRenderer(wx.grid.PyGridCellRenderer): 
+	def Draw(self, grid, attr, dc, rect, row, col, isSelected): 
+		"""Customisation Point: Draw the data from grid in the rectangle with attributes using the dc""" 
+		self.clip(dc, rect) 
+
+		# We use our custom attr, not the one wx passes:
+		attr = grid._Table.GetAttr(row, col)
+		try: 
+			txt = self.getValueText(grid, row, col) 
+			return self.drawText(txt, attr, dc, rect) 
+		finally: 
+			self.unclip(dc) 
+
+
+	def getValueText( self, grid, row, col ): 
+		value = grid._Table.GetValue(row, col)
+		if value:
+			return "YES"
+		return "NO"
+
+
+	def drawText( self, txt, attr, dc, rect):
+		if txt == "NO":
+			dc.SetTextForeground((128, 0, 0))
+		else:
+			dc.SetTextForeground((0, 128, 0))
+		dc.DrawText(txt, rect.x, rect.y) 
+
+
+	def clip( self, dc, rect ): 
+		"""Setup the clipping rectangle""" 
+		dc.SetClippingRegion( rect.x, rect.y, rect.width, rect.height ) 
+
+
+	def unclip( self, dc ): 
+		"""Destroy the clipping rectangle""" 
+		dc.DestroyClippingRegion( ) 
+
