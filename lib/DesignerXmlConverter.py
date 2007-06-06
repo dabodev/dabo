@@ -12,6 +12,7 @@ dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
 from dabo.dObject import dObject
+import dabo.ui.dialogs as dlgs
 import dabo.lib.xmltodict as xtd
 import dabo.lib.DesignerUtils as desUtil
 # Doesn't matter what platform we're on; Python needs 
@@ -63,7 +64,7 @@ class DesignerXmlConverter(dObject):
 		## so that you can help determine any problems.
 		## egl: removed 2007-02-10. If you want to see the output, 
 		##   just uncomment the next line.
-#  		open("CLASSTEXT.py", "w").write(self.classText)
+ 		open("CLASSTEXT.py", "w").write(self.classText)
 
 		# jfcs added self._codeFileName to below
 		# egl - created a tmp file for the main class code that we can use 
@@ -137,8 +138,24 @@ class DesignerXmlConverter(dObject):
 			specList.remove(rm)
 		cleanAtts = self.cleanAttributes(atts)
 		
-		# Create the main class definition
-		self.mainClassName = clsName = self.uniqname(nm)
+		# Create the main class definition. Split off any module pathing first.
+		try:
+			modpath, shortClsName = nm.rsplit(".", 1)
+		except ValueError:
+			# Default to the dabo.ui module
+			modpath = "dabo.ui"
+			shortClsName = nm
+		self.mainClassName = clsName = self.uniqename(shortClsName)
+		
+		# Wizards are constructed differently than other top-level classes.
+		tmpSpace = {}
+		stmnt = "from %s import %s" % (modpath, shortClsName)
+		try:
+			exec stmnt in tmpSpace
+		except (ImportError, ValueError):
+			pass
+		isWiz = issubclass(tmpSpace.get(shortClsName), dlgs.Wizard)
+		
 		# Leave the third %s in place. That will be replaced by any
 		# inner class definitions we create
 		propInit = ""
@@ -150,22 +167,29 @@ class DesignerXmlConverter(dObject):
 				val = "\"" + val + "\""
 			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
 		if self.CreateDesignerControls:
-			superName = "getControlClass(dabo.ui.%s)" % nm
+			superName = "getControlClass(%s.%s)" % (modpath, shortClsName)
 		else:
-			superName = "dabo.ui.%s" % nm
+			superName = "%s.%s" % (modpath, shortClsName)
 		prnt = self.currParent
 		indCode = self.indentCode(propInit, 2)
 		
 		if nm == "dOkCancelDialog":
 			template = self.okCancelDialogClassTemplate
 			stackinit = self._okCancelStackInitText
+		elif isWiz:
+			template = self.wizardClassTemplate
+			stackinit = self._stackInitText
 		else:
 			template = self.containerClassTemplate
 			stackinit = self._stackInitText
 		self.classText += 	template  % locals()
 		self.classText += stackinit
-		# Add the child code.
-		self.createChildCode(kids, specKids)
+		
+		if isWiz:
+			self.createWizardPages(kids, specKids)
+		else:
+			# Add the child code.
+			self.createChildCode(kids, specKids)
 		
 		# Add any main class code
 		for mthd, cd in code.items():
@@ -175,8 +199,11 @@ class DesignerXmlConverter(dObject):
 			self.classText += LINESEP + self.indentCode(cd, 1)
 		# Add any property definitions
 		for prop, propDef in propDefs.items():
-			self.classText += LINESEP + self._propDefText % (prop, propDef["getter"], 
-					propDef["setter"], propDef["deller"], propDef["comment"])
+			pdg = propDef["getter"]
+			pds = propDef["setter"]
+			pdd = propDef["deller"]
+			pdc = propDef["comment"]
+			self.classText += LINESEP + self._propDefText % locals
 		
 		# Add any contained class definitions.
 		if self.innerClassText:
@@ -202,6 +229,38 @@ class DesignerXmlConverter(dObject):
 		return
 	
 	
+	def createWizardPages(self, pgList, specPgList=[]):
+		"""Takes a list of wizard page dicts, and adds their code to the 
+		generated class text.
+		"""
+		for pg in pgList:
+			pgNm = pg["name"]
+			pgAtts = pg["attributes"]
+			pgKids = pg.get("children", [])
+			pgCode = pg.get("code", {})
+			pgProps = pg.get("properties", {})
+			szKids = pgKids[0]["children"]
+
+			try:
+				pgMod, pgShortName = pgNm.rsplit(".", 1)
+			except ValueError:
+				pgMod = ""
+				pgShortName = pgNm
+
+			if pgCode or pgProps:
+				custPgNm = self.createInnerClass(pgNm, pgAtts, pgCode, pgProps)
+				txt = self._custWizardPageTemplate % locals()
+			else:
+				txt = self._wizardPageTemplate % locals()
+			self.classText += LINESEP + txt
+			
+			# The page should only have one child: its main sizer. It will
+			# already have been created when the page was appended, so
+			# we just need to add its children to it.
+			self.createChildCode(szKids)
+
+
+
 	def createChildCode(self, childList, specChildList=[]):
 		"""Takes a list of child object dicts, and adds their code to the 
 		generated class text.
@@ -214,6 +273,14 @@ class DesignerXmlConverter(dObject):
 			specChildList = [specChildList]
 		for child in childList:
 			nm = child.get("name")
+
+			try:
+				modpath, shortClsName = nm.rsplit(".", 1)
+			except ValueError:
+				# Default to the dabo.ui module
+				modpath = "dabo.ui"
+				shortClsName = nm
+	
 			atts = child.get("attributes", {})
 			clsID = atts.get("classID", "")
 			specChild = {}
@@ -314,9 +381,9 @@ class DesignerXmlConverter(dObject):
 					superName = "self.getCustControlClass('%s')" % nm
 				else:
 					if self.CreateDesignerControls:
-						superName = "getControlClass(dabo.ui.%s)" % nm
+						superName = "getControlClass(%s.%s)" % (modpath, shortClsName)
 					else:
-						superName = "dabo.ui.%s" % nm
+						superName = "%s.%s" % (modpath, shortClsName)
 					attPropString = ", attProperties=%s" % cleanAtts
 				self.classText += LINESEP + self._createControlText % locals()
 			
@@ -397,12 +464,12 @@ class DesignerXmlConverter(dObject):
 							# lots of other stuff, the default 'obj' reference
 							# will be trampled by the time the second child is
 							# created.
-							prntName = self.uniqname("pgf")
-							self.classText += LINESEP + self._grdPgdRefText % prntName
+							prntName = self.uniqename("pgf")
+							self.classText += LINESEP + self._grdPgdRefText % locals()
 						for kid in kids:
 							kidCleanAtts = self.cleanAttributes(kid.get("attributes", {}))
 							if isGrid:
-								self.classText += LINESEP + self._grdColText % (kidCleanAtts, kidCleanAtts)
+								self.classText += LINESEP + self._grdColText % locals()
 							else:
 								# Paged control
 								nm = kid.get("name")
@@ -452,7 +519,14 @@ class DesignerXmlConverter(dObject):
 		"""Define a class that will be used to create an instance of
 		an object that contains its own method code and/or Properties.
 		"""
-		clsName = self.uniqname(nm)
+
+		try:
+			modpath, shortClsName = nm.rsplit(".", 1)
+		except ValueError:
+			# Default to the dabo.ui module
+			modpath = "dabo.ui"
+			shortClsName = nm
+		clsName = self.uniqename(shortClsName)
 		cleanAtts = self.cleanAttributes(atts)
 		propInit = ""
 		for prop, propDef in custProps.items():
@@ -460,8 +534,9 @@ class DesignerXmlConverter(dObject):
 			if propDef["defaultType"] == "string":
 				val = "\"" + val + "\""
 			propInit += "self._%s%s = %s" % (prop[0].lower(), prop[1:], val) + LINESEP
-		self.innerClassText += self.classTemplate  % (clsName, nm, 
-				self.currParent, cleanAtts, nm, self.indentCode(propInit, 2))
+		prnt = self.currParent
+		indCode = self.indentCode(propInit, 2)
+		self.innerClassText += self.classTemplate % locals()
 
 		self.innerClassNames.append(clsName)
 		# Since the code will be part of this class, which is at the outer level
@@ -475,8 +550,11 @@ class DesignerXmlConverter(dObject):
 				self.innerClassText += LINESEP
 		# Add any property definitions
 		for prop, propDef in custProps.items():
-			self.innerClassText += LINESEP + self._innerPropText % (prop, propDef["getter"], 
-					propDef["setter"], propDef["deller"], propDef["comment"])		
+			pdg = propDef["getter"]
+			pds = propDef["setter"]
+			pdd = propDef["deller"]
+			pdc = propDef["comment"]
+			self.innerClassText += LINESEP + self._innerPropText % locals()
 		self.innerClassText += (2 * LINESEP)
 		return clsName
 	
@@ -510,7 +588,7 @@ class DesignerXmlConverter(dObject):
 		return ret
 	
 	
-	def uniqname(self, nm):
+	def uniqename(self, nm):
 		ret = ""
 		while not ret or ret in self._generatedNames:
 			ret = "%s_%s" % (nm, str(datetime.utcnow().__hash__()).replace("-", "9"))
@@ -559,10 +637,17 @@ class DesignerXmlConverter(dObject):
 %(indCode)s
 
 """
-		self.classTemplate = """class %s(dabo.ui.%s):
-	def __init__(self, parent=%s, attProperties=%s, *args, **kwargs):
-		dabo.ui.%s.__init__(self, parent=parent, attProperties=attProperties, *args, **kwargs)
-%s		
+		# Standard template for wizards
+		self.wizardClassTemplate = """class %(clsName)s(%(superName)s):
+	def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
+		super(%(clsName)s, self).__init__(parent=parent, attProperties=attProperties, *args, **kwargs)
+%(indCode)s
+
+"""
+		self.classTemplate = """class %(clsName)s(%(modpath)s.%(shortClsName)s):
+	def __init__(self, parent=%(prnt)s, attProperties=%(cleanAtts)s, *args, **kwargs):
+		%(modpath)s.%(shortClsName)s.__init__(self, parent=parent, attProperties=attProperties, *args, **kwargs)
+%(indCode)s		
 
 """
 		# OK/Cancel dialog class template
@@ -595,8 +680,8 @@ import sys
 		currSizer = self.Sizer
 		sizerDict[currParent] = []
 """	
-		self._propDefText = """	%s = property(%s, %s, %s, 
-			\"\"\"%s\"\"\")
+		self._propDefText = """	%(prop)s = property(%(pdg)s, %(pds)s, %(pdd)s, 
+			\"\"\"%(pdc)s\"\"\")
 """
 		self._innerClsDefText = """	def getCustControlClass(self, clsName):
 		# Define the classes, and return the matching class
@@ -653,11 +738,11 @@ import sys
 		sizerDict[currParent] = []
 """
 		self._grdPgdRefText = """		# save a reference to the parent control
-		%s = obj
+		%(prntName)s = obj
 """
-		self._grdColText = """		col = dabo.ui.dColumn(obj, attProperties=%s)
+		self._grdColText = """		col = dabo.ui.dColumn(obj, attProperties=%(kidCleanAtts)s)
 		obj.addColumn(col)
-		col.setPropertiesFromAtts(%s)
+		col.setPropertiesFromAtts(%(kidCleanAtts)s)
 """
 		self._pgfPageText = """		pg = %(moduleString)s%(nm)s(%(prntName)s%(attPropString)s)
 		%(prntName)s.appendPage(pg)
@@ -724,8 +809,8 @@ import sys
 				currSizer = sizerDict[currParent].pop()
 			except: pass
 """
-		self._innerPropText = """	%s = property(%s, %s, %s, 
-			\"\"\"%s\"\"\")
+		self._innerPropText = """	%(prop)s = property(%(pdg)s, %(pds)s, %(pdd)s, 
+			\"\"\"%(pdc)s\"\"\")
 """
 		self._designerClassGenText = """from ClassDesignerControlMixin import ClassDesignerControlMixin as cmix
 from ClassDesignerComponents import LayoutPanel
@@ -752,4 +837,17 @@ def getControlClass(base):
 			self.BasePrefKey = prefkey
 	return controlMix
 
+"""
+		self._wizardPageTemplate = """		pg = self.append(%(pgMod)s.%(pgShortName)s)
+		pg.setPropertiesFromAtts(%(pgAtts)s)
+		currParent = pg
+		sizerDict[currParent] = []
+		currSizer = pg.Sizer
+"""
+		self._custWizardPageTemplate = """		pgCls = self.getCustControlClass('%(custPgNm)s')
+		pg = self.append(pgCls)
+		pg.setPropertiesFromAtts(%(pgAtts)s)
+		currParent = pg
+		sizerDict[currParent] = []
+		currSizer = pg.Sizer
 """
