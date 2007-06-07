@@ -1702,6 +1702,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxGridCellChange)
 		self.Bind(wx.grid.EVT_GRID_RANGE_SELECT, self.__onWxGridRangeSelect)
 
+		# Testing bool cell renderer/editor single-click-toggle:
+		self.Bind(wx.grid.EVT_GRID_CELL_LEFT_CLICK, self.__onGridCellLeftClick_toggleCB)
+
 		gridWindow = self.GetGridWindow()
 
 		gridWindow.Bind(wx.EVT_MOTION, self.__onWxMouseMotion)
@@ -3194,6 +3197,12 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if getattr(self, "_inSelect", False):
 			# Avoid recursion
 			return
+
+		col = self.Columns[evt.Col]
+		if col.Editable and col.RendererClass == col.boolRendererClass:
+			# user is clicking on a checkbox
+			wx.CallAfter(self.EnableCellEditControl)
+
 		self._inSelect = True
 		if evt.Selecting():
 			self._updateWxSelection(evt)
@@ -3281,12 +3290,50 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def __onWxGridEditorShown(self, evt):
 		self.raiseEvent(dEvents.GridCellEditBegin, evt)
 		evt.Skip()
+
+	def _toggleCheckBox(self):
+		ed = getattr(self, "_activeEditorControl", None)
+		print "-> toggle", ed
+		if ed:
+			ed.Value = not ed.Value
 		
+	def __onGridCellLeftClick_toggleCB(self, evt):
+		col = self.Columns[evt.Col]
+		if col.RendererClass == col.boolRendererClass:
+			wx.CallLater(100, self._toggleCheckBox) 
+		evt.Skip()
 
 	def __onWxGridEditorCreated(self, evt):
 		""" Bind the kill focus event to the newly instantiated cell editor """ 
 		editor = evt.GetControl() 
 		editor.Bind(wx.EVT_KILL_FOCUS, self.__onWxGridCellEditorKillFocus) 
+
+		col = self.Columns[evt.Col]
+		if col.RendererClass == col.boolRendererClass:
+			def onKeyDown(evt):
+				if evt.KeyCode == wx.WXK_UP:
+					if self.GridCursorRow > 0:
+						self.DisableCellEditControl()
+						self.MoveCursorUp(False)
+				elif evt.KeyCode == wx.WXK_DOWN:
+					if self.GridCursorRow < (self.NumberRows-1):
+						self.DisableCellEditControl()
+						self.MoveCursorDown(False)
+				elif evt.KeyCode == wx.WXK_LEFT:
+					if self.GridCursorCol > 0:
+						self.DisableCellEditControl()
+						self.MoveCursorLeft(False)
+				elif evt.KeyCode == wx.WXK_RIGHT:
+					if self.GridCursorCol < (self.NumberCols-1):
+						self.DisableCellEditControl()
+						self.MoveCursorRight(False)
+				else:
+					evt.Skip()
+
+			ed = self._activeEditorControl = evt.Control
+			ed.WindowStyle |= wx.WANTS_CHARS
+			ed.Bind(wx.EVT_KEY_DOWN, onKeyDown)
+
 		evt.Skip()
 
 
