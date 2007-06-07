@@ -3293,7 +3293,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def _toggleCheckBox(self):
 		ed = getattr(self, "_activeEditorControl", None)
-		print "-> toggle", ed
 		if ed:
 			ed.Value = not ed.Value
 		
