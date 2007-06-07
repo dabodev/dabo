@@ -204,7 +204,7 @@ class DesignerXmlConverter(dObject):
 			pds = propDef["setter"]
 			pdd = propDef["deller"]
 			pdc = propDef["comment"]
-			self.classText += LINESEP + self._propDefText % locals
+			self.classText += LINESEP + self._propDefText % locals()
 		
 		# Add any contained class definitions.
 		if self.innerClassText:
