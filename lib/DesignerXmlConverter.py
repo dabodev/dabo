@@ -173,7 +173,8 @@ class DesignerXmlConverter(dObject):
 		prnt = self.currParent
 		indCode = self.indentCode(propInit, 2)
 		
-		if nm == "dOkCancelDialog":
+		isOkDlg = (nm == "dOkCancelDialog")
+		if isOkDlg:
 			template = self.okCancelDialogClassTemplate
 			stackinit = self._okCancelStackInitText
 		elif isWiz:
@@ -189,7 +190,7 @@ class DesignerXmlConverter(dObject):
 			self.createWizardPages(kids, specKids)
 		else:
 			# Add the child code.
-			self.createChildCode(kids, specKids)
+			self.createChildCode(kids, specKids, isOkDlg)
 		
 		# Add any main class code
 		for mthd, cd in code.items():
@@ -261,7 +262,7 @@ class DesignerXmlConverter(dObject):
 
 
 
-	def createChildCode(self, childList, specChildList=[]):
+	def createChildCode(self, childList, specChildList=[], force1x=False):
 		"""Takes a list of child object dicts, and adds their code to the 
 		generated class text.
 		"""
@@ -296,6 +297,9 @@ class DesignerXmlConverter(dObject):
 					specCode.update(specChild.get("code", {}))
 			cleanAtts = self.cleanAttributes(atts)
 			szInfo = self._extractKey(atts, "sizerInfo", {})
+			if force1x:
+				szInfo["Expand"] = True
+				szInfo["Proportion"] = 1
 			rcPos = self._extractKey(atts, "rowColPos")
 			rowColString = ""
 			if rcPos:
