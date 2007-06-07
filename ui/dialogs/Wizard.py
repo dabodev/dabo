@@ -30,6 +30,7 @@ class Wizard(dabo.ui.dDialog):
 		self._pages = []
 		self._currentPage = -1
 		self._blankPage = None
+		self._defaultPicture = ""
 		self.wizardIcon = None
 		super(Wizard, self).__init__(parent=parent, 
 				properties=properties, *args, **kwargs)
@@ -323,7 +324,7 @@ class Wizard(dabo.ui.dDialog):
 	
 	def _getPicture(self):
 		try:
-			ret = self.wizardIcon.Picture
+			ret = self._defaultPicture
 		except AttributeError:
 			ret = ""
 		return ret
@@ -333,6 +334,7 @@ class Wizard(dabo.ui.dDialog):
 			try:
 				self.wizardIcon.Picture = val
 				self.wizardIcon.Size = (self.PictureWidth, self.PictureHeight)
+				self._defaultPicture = val
 			except AttributeError:
 				# wizard icon hasn't been constructed yet.
 				dabo.ui.setAfter(self, "Picture", val)
@@ -394,7 +396,7 @@ if __name__ == "__main__":
 
 	class WizPageOne(WizardPage):
 		def createBody(self):
-			self.Title = _("This is the first page")
+			self.Caption = _("This is the first page")
 			lbl = dabo.ui.dLabel(self, Caption=_(
 """Are you getting excited yet???
 
@@ -404,7 +406,7 @@ I know that I am!!""") )
 			
 	class WizPageTwo(WizardPage):
 		def createBody(self):
-			self.Title = _("This is the second page")
+			self.Caption = _("This is the second page")
 			lbl = dabo.ui.dLabel(self, Caption=_(
 """This will demonstrate condtional skipping of 
 pages. If the checkbox below is checked, clicking 
@@ -427,7 +429,7 @@ pages. If the checkbox below is checked, clicking
 
 	class WizPageThree(WizardPage):
 		def createBody(self):
-			self.Title = _("This is the third page")
+			self.Caption = _("This is the third page")
 			lbl = dabo.ui.dLabel(self, Caption=_(
 """You should only see this if you did not check 
 the box on Page Two.
@@ -436,7 +438,7 @@ the box on Page Two.
 
 	class WizPageFour(WizardPage):
 		def createBody(self):
-			self.Title = _("This is the fourth page")
+			self.Caption = _("This is the fourth page")
 			self.Picture = "cards/small/s1.png"
 			lbl = dabo.ui.dLabel(self, Caption=_(
 """Did the skipping work OK?
@@ -477,7 +479,7 @@ the box on Page Two.
 
 	class WizPageFive(WizardPage):
 		def createBody(self):
-			self.Title = _("This is the fifth (and last) page")
+			self.Caption = _("This is the fifth (and last) page")
 			lbl = dabo.ui.dLabel(self, Caption=_(
 """This is the last page. Note that the 'Next' button 
 now reads 'Finish'. Click that to exit, or click 'Back'
@@ -491,7 +493,7 @@ to play some more.
 	app.setup()
 	# OK, we've defined all of our pages. Now let's define
 	# the wizard itself.
-	wiz = Wizard(image="daboIcon096", Height=450, Width=530,
+	wiz = Wizard(Picture="daboIcon096", Height=450, Width=530,
 			Pages=(WizPageOne, WizPageTwo, WizPageThree, WizPageFour,
 			WizPageFive) )
 	
