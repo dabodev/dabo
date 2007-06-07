@@ -85,6 +85,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		
 
 	def _onEscape(self, evt):
+		evt.stop()
 		if self.ReleaseOnEscape:
 			self.release()
 			self.Close()
@@ -115,6 +116,11 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 				self.Application.uiForms.remove(self)
 			except: pass
 		super(dDialog, self).release()
+	
+	
+	def _setEscapeBehavior(self):
+		"""Allow subclasses to respond to changes in the ReleaseOnEscape property."""
+		pass
 		
 
 	def _getAutoSize(self):
@@ -157,6 +163,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 	def _setReleaseOnEscape(self, val):
 		self._releaseOnEscape = bool(val)
+		self._setEscapeBehavior()
 
 
 	def _getShowStat(self):
@@ -255,6 +262,19 @@ class dOkCancelDialog(dDialog):
 		"""
 		pass
 	
+	
+	def _setEscapeBehavior(self):
+		"""Bind/unbind the Cancel button to the escape key."""
+		try:
+			self.btnCancel.CancelButton = self.ReleaseOnEscape
+			if self.ReleaseOnEscape:
+				self.SetEscapeId(wx.ID_ANY)
+			else:
+				self.SetEscapeId(wx.ID_NONE)
+		except AttributeError:
+			# Button hasn't been added yet
+			dabo.ui.callAfter(self._setEscapeBehavior)
+
 	
 	def addControlSequence(self, seq):
 		"""This takes a sequence of 3-tuples or 3-lists, and adds controls 
