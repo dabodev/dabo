@@ -3198,7 +3198,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# Avoid recursion
 			return
 
-		col = self.Columns[evt.Col]
+		col = self.Columns[evt.GetCol()]
 		if col.Editable and col.RendererClass == col.boolRendererClass:
 			# user is clicking on a checkbox
 			wx.CallAfter(self.EnableCellEditControl)
@@ -3294,10 +3294,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _toggleCheckBox(self):
 		ed = getattr(self, "_activeEditorControl", None)
 		if ed:
-			ed.Value = not ed.Value
+			ed.SetValue(not ed.GetValue())
 		
 	def __onGridCellLeftClick_toggleCB(self, evt):
-		col = self.Columns[evt.Col]
+		col = self.Columns[evt.GetCol()]
 		if col.RendererClass == col.boolRendererClass:
 			wx.CallLater(100, self._toggleCheckBox) 
 		evt.Skip()
@@ -3307,23 +3307,23 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		editor = evt.GetControl() 
 		editor.Bind(wx.EVT_KILL_FOCUS, self.__onWxGridCellEditorKillFocus) 
 
-		col = self.Columns[evt.Col]
+		col = self.Columns[evt.GetCol()]
 		if col.RendererClass == col.boolRendererClass:
 			def onKeyDown(evt):
 				if evt.KeyCode == wx.WXK_UP:
-					if self.GridCursorRow > 0:
+					if self.GetGridCursorRow() > 0:
 						self.DisableCellEditControl()
 						self.MoveCursorUp(False)
 				elif evt.KeyCode == wx.WXK_DOWN:
-					if self.GridCursorRow < (self.NumberRows-1):
+					if self.GetGridCursorRow() < (self.GetNumberRows() - 1):
 						self.DisableCellEditControl()
 						self.MoveCursorDown(False)
 				elif evt.KeyCode == wx.WXK_LEFT:
-					if self.GridCursorCol > 0:
+					if self.GetGridCursorCol() > 0:
 						self.DisableCellEditControl()
 						self.MoveCursorLeft(False)
 				elif evt.KeyCode == wx.WXK_RIGHT:
-					if self.GridCursorCol < (self.NumberCols-1):
+					if self.GetGridCursorCol() < (self.GetNumberCols() - 1):
 						self.DisableCellEditControl()
 						self.MoveCursorRight(False)
 				else:
