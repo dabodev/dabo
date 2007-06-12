@@ -3299,7 +3299,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def __onGridCellLeftClick_toggleCB(self, evt):
 		col = self.Columns[evt.GetCol()]
 		if col.RendererClass == col.boolRendererClass:
-			wx.CallLater(100, self._toggleCheckBox) 
+			dabo.ui.callAfterInterval(100, self._toggleCheckBox) 
 		evt.Skip()
 
 	def __onWxGridEditorCreated(self, evt):
