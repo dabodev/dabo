@@ -22,10 +22,15 @@ class dEditBox(tbm.dTextBoxMixinBase, wx.TextCtrl):
 		self._baseClass = dEditBox
 		
 		preClass = wx.PreTextCtrl
-		kwargs["style"] = wx.TE_MULTILINE | wx.TE_WORDWRAP
+		kwargs["style"] = wx.TE_MULTILINE
 		tbm.dTextBoxMixinBase.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 	
 	
+	def _getInitPropertiesList(self):
+		additional = ["WordWrap",]
+		original = list(super(dEditBox, self)._getInitPropertiesList())
+		return tuple(original + additional)
+
 	def scrollToBeginning(self):
 		"""Moves the insertion point to the beginning of the text"""
 		self.SetInsertionPoint(0)
@@ -42,15 +47,20 @@ class dEditBox(tbm.dTextBoxMixinBase, wx.TextCtrl):
 	
 	#Property getters and setters
 	def _getWordWrap(self):
-		return not self._hasWindowStyleFlag(wx.HSCROLL)
+		return self._hasWindowStyleFlag(wx.TE_BESTWRAP)
 	
 	def _setWordWrap(self, val):
-		fontSize = self.GetFont().GetPointSize()
-		self._delWindowStyleFlag(wx.HSCROLL)
-		if not val:
-			self._addWindowStyleFlag(wx.HSCROLL)
-			if self._constructed():
-				self.FontSize = fontSize
+		if self._constructed():
+			fontSize = self.GetFont().GetPointSize()
+		self._delWindowStyleFlag(wx.TE_DONTWRAP)
+		self._delWindowStyleFlag(wx.TE_WORDWRAP)
+		self._delWindowStyleFlag(wx.TE_BESTWRAP)
+		if val:
+			self._addWindowStyleFlag(wx.TE_BESTWRAP)
+		else:
+			self._addWindowStyleFlag(wx.TE_DONTWRAP)
+		if self._constructed():
+			self.FontSize = fontSize
 	
 	# property definitions follow:
 	WordWrap = property(_getWordWrap, _setWordWrap, None,
