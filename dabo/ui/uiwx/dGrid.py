@@ -3657,6 +3657,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			if not isinstance(val, dabo.db.dDataSet):
 				val = dabo.db.dDataSet(val)
 			self._dataSet = val
+			dabo.ui.callAfter(self.refresh)
 			biz = self.getBizobj()
 			if biz:
 				## I think I want to have the bizobj raise the RowNumChanged event,
