@@ -117,9 +117,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			# Already done, no need to take the time.
 			return
 
-		app = self.grid.Application
-		form = self.grid.Form
-
 		for idx, col in enumerate(colDefs):
 			nm = col.DataField
 			while not nm:
@@ -2730,6 +2727,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def getBizobj(self):
 		ds = self.DataSource
+		if isinstance(ds, dabo.biz.dBizobj):
+			return ds
 		if isinstance(ds, basestring) and self.Form is not None:
 			form = self.Form
 			while form is not None:
@@ -3060,7 +3059,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			bizobj = self.getBizobj()
 			if bizobj:
 				if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
-					if isinstance(self.Form, dabo.ui.dForm):
+					if isinstance(self.Form, dabo.ui.dForm) and not isinstance(self.DataSource, dabo.biz.dBizobj):
 						# run it through the form:
 						if not self.Form.moveToRowNumber(newRow, bizobj.DataSource):
 							dabo.ui.callAfter(self.refresh)
