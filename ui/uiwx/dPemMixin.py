@@ -16,7 +16,6 @@ from dabo.ui import makeDynamicProperty
 from dabo.lib.utils import dictStringify
 
 
-
 class dPemMixin(dPemMixinBase):
 	""" Provides Property/Event/Method interfaces for dForms and dControls.
 
@@ -765,6 +764,7 @@ class dPemMixin(dPemMixinBase):
 		"""If this object is inside of any paged control, it will force all containing
 		paged controls to switch to the page that contains this object.
 		"""
+		import dabo.ui.dialogs
 		try:
 			frm = self.Form
 		except:
