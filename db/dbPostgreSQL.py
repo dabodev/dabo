@@ -222,3 +222,49 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 		to the database written to disk.
 		"""
 		self.commitTransaction(cursor)
+		
+	def getLastInsertID(self, cursor):
+		""" Return the ID of the last inserted row, or None.
+		
+		When inserting a new record in a table that auto-generates a PK (such 
+		as a serial data type) value, different databases have their own way of retrieving that value.
+		With Postgres a sequence is created.  The SQL statement determines the sequence name 
+		('table_pkid_seq') and needs three parameters the schema name, table name, and the primary
+		key field for the table.
+		cursor.KeyField = primary field
+		cursor.Table = returns 'schema.table' for the cursor
+		
+		Postgres uses 'currval(sequence_name)' to determine the last value of the session.
+		If two different sessions are open (two users accessing the same table for example)
+		currval() will return the correct value for each session.
+		
+		"""
+		tableNameBreak=cursor.Table.split('.',1)
+		localSchemaName = tableNameBreak[0]
+		localTableName = tableNameBreak[1]
+		
+		tempCursor = self._connection.cursor()
+		sqltablestr = """SELECT seq.relname::text
+		FROM pg_class src, pg_class seq, pg_namespace, pg_attribute,
+		pg_depend
+		WHERE
+		pg_depend.refobjsubid = pg_attribute.attnum AND
+		pg_depend.refobjid = src.oid AND
+		seq.oid = pg_depend.objid AND
+		src.relnamespace = pg_namespace.oid AND
+		pg_attribute.attrelid = src.oid AND
+		pg_namespace.nspname = '%s' AND
+		src.relname = '%s' AND
+		pg_attribute.attname = '%s'""" % (localSchemaName,localTableName,cursor.KeyField)
+		
+		
+		tempCursor.execute(sqltablestr)
+		rs = tempCursor.fetchall()
+		sqlWithseq_name="""select currval('%s') as curval""" % (rs[0][0],)
+		tempCursor.execute(sqlWithseq_name) 
+		rs = tempCursor.fetchall()
+		if rs[0][0]:
+			return rs[0][0]
+		else:
+			raise AttributeError, "Unable to determine the sequence used or the sequence return a strange value."
+
