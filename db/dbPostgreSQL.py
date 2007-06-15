@@ -263,7 +263,7 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 		sqlWithseq_name="""select currval('%s') as curval""" % (rs[0][0],)
 		tempCursor.execute(sqlWithseq_name) 
 		rs = tempCursor.fetchall()
-		if rs[0][0]:
+		if not rs[0][0] is None:
 			return rs[0][0]
 		else:
 			raise AttributeError, "Unable to determine the sequence used or the sequence return a strange value."
