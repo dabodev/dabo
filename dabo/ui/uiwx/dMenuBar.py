@@ -106,13 +106,23 @@ class dMenuBar(pm.dPemMixin, wx.MenuBar):
 		return dMenu.dMenu(self, Caption=caption)
 		
 
-	def remove(self, index, release=True):
-		"""Removes the menu at the specified index from the menu bar.
+	def remove(self, indexOrMenu, release=True):
+		"""Removes the menu at the specified index from the menu bar. You may
+		also pass a reference to the menu, or the menu's Caption, and it will
+		find the associated index.
 
 		If release is True (the default), the menu is deleted as well. If release 
 		is False, a reference to the menu object will be returned, and the caller 
 		is responsible for deleting it.
 		"""
+		if isinstance(indexOrMenu, dabo.ui.dMenu):
+			index = self.getMenuIndex(indexOrMenu.Caption)
+		elif isinstance(indexOrMenu, basestring):
+			# They passed a caption
+			index = self.getMenuIndex(indexOrMenu)
+		else:
+			# An index was passed.
+			index = indexOrMenu
 		menu = self.Remove(index)
 		if release:
 			menu.release()
