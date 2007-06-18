@@ -680,7 +680,12 @@ class dPemMixin(dPemMixinBase):
 
 	def _getID(self):
 		"""Override the default behavior to return the wxPython ID."""
-		return self.GetId()
+		try:
+			ret = self.GetId()
+		except AttributeError:
+			# Object doesn't support GetID()
+			ret = super(dPemMixin, self)._getID()
+		return ret
 
 
 	def fitToSizer(self, extraWidth=0, extraHeight=0):
@@ -2271,11 +2276,18 @@ class dPemMixin(dPemMixinBase):
 
 	
 	def _getVisible(self):
-		return self.IsShown()
+		try:
+			return self.IsShown()
+		except AttributeError:
+			dabo.errorLog.write(_("The object %s does not support the Visible property.") % self)
+			return None
 	
 	def _setVisible(self, val):
 		if self._constructed():
-			self.Show(bool(val))
+			try:
+				self.Show(bool(val))
+			except AttributeError:
+				dabo.errorLog.write(_("The object %s does not support the Visible property.") % self)
 		else:
 			self._properties["Visible"] = val
 
