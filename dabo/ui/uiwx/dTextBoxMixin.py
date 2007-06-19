@@ -41,7 +41,10 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		# must save and restore the InsertionPosition because wxGtk at least resets it to
 		# 0 upon SetValue().
 		insPos = self.InsertionPosition
-		self.SetValue(self.getStringValue(self.Value))
+		setter = self.SetValue
+		if hasattr(self, "ChangeValue"):
+			setter = self.ChangeValue
+		setter(self.getStringValue(self.Value))
 		self.InsertionPosition = insPos
 		
 		# Now that the dabo Value is set properly, the default behavior that flushes 
@@ -278,10 +281,13 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 	
 	def _setValue(self, val):
 		if self._constructed():
+			setter = self.SetValue
+			if hasattr(self, "ChangeValue"):
+				setter = self.ChangeValue
 			if self._inForceCase:
 				# Value is changing internally. Don't update the oldval
 				# setting or change the type; just set the value.
-				self.SetValue(val)
+				setter(val)
 				return
 			else:
 				dabo.ui.callAfter(self._checkForceCase)
@@ -289,7 +295,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			if self._inTextLength:
 				# Value is changing internally. Don't update the oldval
 				# setting or change the type; just set the value.
-				self.SetValue(val)
+				setter(val)
 				return
 			else:
 				dabo.ui.callAfter(self._checkTextLength)
@@ -304,7 +310,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 			self._value = val
 
 			# Update the display no matter what:
-			self.SetValue(strVal)
+			setter(strVal)
 		
 			if type(_oldVal) != type(val) or _oldVal != val:
 				self._afterValueChanged()		
@@ -579,6 +585,12 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			# Must convert all to string for sending to wx, but our internal 
 			# _value will always retain the correct type.
 			
+			# TextCtrls in wxPython since 2.7 have a ChangeValue() method that is to 
+			# be used instead of the old SetValue().
+			setter = self.SetValue
+			if hasattr(self, "ChangeValue"):
+				setter = self.ChangeValue
+
 			# Todo: set up validators based on the type of data we are editing,
 			# so the user can't, for example, enter a letter "p" in a textbox
 			# that is currently showing numeric data.
@@ -586,7 +598,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			if self._inForceCase:
 				# Value is changing internally. Don't update the oldval
 				# setting or change the type; just set the value.
-				self.SetValue(val)
+				setter(val)
 				return
 			else:
 				dabo.ui.callAfter(self._checkForceCase)
@@ -594,7 +606,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 			if self._inTextLength:
 				# Value is changing internally. Don't update the oldval
 				# setting or change the type; just set the value.
-				self.SetValue(val)
+				setter(val)
 				return
 			else:
 				dabo.ui.callAfter(self._checkTextLength)
@@ -611,7 +623,7 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				self._lastDataType = type(val)
 
 			# Update the display no matter what:
-			self.SetValue(strVal)
+			setter(strVal)
 		
 			if type(_oldVal) != type(val) or _oldVal != val:
 				self._afterValueChanged()
