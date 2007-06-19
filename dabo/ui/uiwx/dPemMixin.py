@@ -752,7 +752,12 @@ class dPemMixin(dPemMixinBase):
 		Use in conjunction with lockDisplay(), when you are doing lots of things 
 		that would result in lengthy screen updates.
 		"""
-		self.Thaw()
+		try:
+			self.Thaw()
+		except dabo.ui.assertionException:
+			# Too many 'unlockDisplay' calls to the same object were made. Log
+			# the mistake, but don't throw a Python error.
+			dabo.errorLog.write(_("Extra call to unlockDisplay() for object %s") % self)
 
 
 	def bringToFront(self):
