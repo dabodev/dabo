@@ -72,8 +72,11 @@ class dDataControlMixin(dDataControlMixinBase):
 			if type(self.Value) != type(val):
 				val = self._coerceValue(val, self.Value)
 			if (type(self.Value) != type(val) or self.Value != val):
+				setter = self.SetValue
+				if hasattr(self, "ChangeValue"):
+					setter = self.ChangeValue
 				try:
-					self.SetValue(val)
+					setter(val)
 				except TypeError, e:
 					dabo.errorLog.write(_("Could not set value of %s to %s. Error message: %s")
 							% (self._name, val, e))
