@@ -344,7 +344,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			bizobj.setFieldVal(field, value)
 		else:
 			self.grid.DataSet[row][field] = value
-
+		self.grid.afterCellEdit(row, col)
 
 
 
@@ -1694,8 +1694,8 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self.Bind(wx.grid.EVT_GRID_ROW_SIZE, self.__onWxGridRowSize)
 		self.Bind(wx.grid.EVT_GRID_SELECT_CELL, self.__onWxGridSelectCell)
 		self.Bind(wx.grid.EVT_GRID_COL_SIZE, self.__onWxGridColSize)
-		self.Bind(wx.grid.EVT_GRID_EDITOR_SHOWN, self.__onWxGridEditorShown)
 		self.Bind(wx.grid.EVT_GRID_EDITOR_CREATED, self.__onWxGridEditorCreated)
+		self.Bind(wx.grid.EVT_GRID_EDITOR_SHOWN, self.__onWxGridEditorShown)
 		self.Bind(wx.grid.EVT_GRID_CELL_CHANGE, self.__onWxGridCellChange)
 		self.Bind(wx.grid.EVT_GRID_RANGE_SELECT, self.__onWxGridRangeSelect)
 
@@ -1839,6 +1839,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		tbl.rowColorOdd = self._getWxColour(self.RowColorOdd)
 		tbl.rowColorEven = self._getWxColour(self.RowColorEven)
 		
+
+	def afterCellEdit(self, row, col):
+		"""Called after a cell has been edited by the user."""
+		pass
+
 		
 	def fillGrid(self, force=False):
 		""" Refresh the grid to match the data in the data set."""
@@ -3331,7 +3336,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			ed = self._activeEditorControl = evt.Control
 			ed.WindowStyle |= wx.WANTS_CHARS
 			ed.Bind(wx.EVT_KEY_DOWN, onKeyDown)
-
 		evt.Skip()
 
 
