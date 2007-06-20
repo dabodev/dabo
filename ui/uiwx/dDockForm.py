@@ -33,6 +33,13 @@ class _dDockManager(aui.AuiManager):
 		ret = self.GetAllPanes()[-1]
 		dabo.ui.callAfterInterval(100, self.Update)
 		return ret
+
+
+	def runUpdate(self):
+		win = self.GetManagedWindow()
+		if not win or win._finito:
+			return
+		self.Update()
 		
 
 
@@ -709,11 +716,16 @@ class _dDockPanel(dabo.ui.dPanel):
 class dDockForm(dabo.ui.dForm):
 	def _afterInit(self):
 		self._mgr = mgr = _dDockManager(self)
-		self._centerPanel = _dDockPanel(self, BackColor="lavender", 
-				name="CenterPanel", typ="center")
+		pc = self.getBasePanelClass()
+		self._centerPanel = pc(self, name="CenterPanel", typ="center")
 		self._centerPanel.Sizer = dabo.ui.dSizer("v")
 		super(dDockForm, self)._afterInit()
+		self.bindEvent(dEvents.Destroy, self.__onDestroy)
 	
+	
+	def __onDestroy(self, evt):
+		if self._finito:
+			self._mgr.UnInit()
 	
 	def getBasePanelClass(cls):
 		return _dDockPanel
@@ -721,7 +733,7 @@ class dDockForm(dabo.ui.dForm):
 
 
 	def onChildBorn(self, evt):
-		ok = (_dDockPanel, dabo.ui.dStatusBar, dabo.ui.dShell)
+		ok = isinstance(evt.child, (_dDockPanel, dabo.ui.dStatusBar, dabo.ui.dShell))
 		if not ok:
 			print "BORN:", evt.child
 		
@@ -737,12 +749,14 @@ class dDockForm(dabo.ui.dForm):
 	
 	
 	def _refreshState(self, interval=None):
+		if self._finito:
+				return
 		if interval is None:
 			interval = 100
 		if interval == 0:
 			self._mgr.Update()
 		else:
-			dabo.ui.callAfterInterval(interval, self._mgr.Update)		
+			dabo.ui.callAfterInterval(interval, self._mgr.runUpdate)		
 
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
@@ -769,6 +783,15 @@ class _dDockForm_test(dDockForm):
 		self._centerPanel.Sizer.append(btn)
 		btn = dabo.ui.dButton(self._centerPanel, Caption="Test Blue", OnHit=self.onTestDP)
 		self._centerPanel.Sizer.append(btn)
+		self.fp.DynamicCaption = self.capForOrange
+
+
+	def capForOrange(self):
+		state = "Floating"
+		if self.fp.Docked:
+			state = "Docked"
+		return "I'm %s!" % state
+		
 	
 	def onTestFP(self, evt):
 		self.printTest(self.fp)
