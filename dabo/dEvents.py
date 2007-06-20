@@ -709,6 +709,14 @@ class GridCellEdited(GridEvent):
 	pass
 
 
+class GridCellEditorHit(GridEvent):
+	"""Occurs when the user changes the value in the grid cell editor.
+
+	For a checkbox, this occurs when the user toggles the checkmark.
+	This event is not implemented for other grid cell editors, yet.
+	"""
+
+
 class GridColSize(GridEvent):
 	"""Occurs when the grid's columns are resized."""
 	pass
