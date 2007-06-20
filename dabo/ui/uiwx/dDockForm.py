@@ -733,7 +733,7 @@ class dDockForm(dabo.ui.dForm):
 
 
 	def onChildBorn(self, evt):
-		ok = isinstance(evt.child, (_dDockPanel, dabo.ui.dStatusBar, dabo.ui.dShell))
+		ok = isinstance(evt.child, (_dDockPanel, dabo.ui.dStatusBar, dabo.ui.dShell.dShell))
 		if not ok:
 			print "BORN:", evt.child
 		
