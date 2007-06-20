@@ -3299,7 +3299,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		ed = getattr(self, "_activeEditorControl", None)
 		if ed:
 			ed.SetValue(not ed.GetValue())
+			self._checkBoxToggled(ed)
 		
+	def _checkBoxToggled(self, obj):
+		# Force the flushing of the value immediately, instead of waiting for the
+		# editor to lose focus (where the flush will happen a second time).
+		self._Table.SetValue(self.CurrentRow, self.CurrentColumn, obj.GetValue())
+		self.raiseEvent(dabo.dEvents.GridCellEditorHit)
+
 	def __onGridCellLeftClick_toggleCB(self, evt):
 		col = self.Columns[evt.GetCol()]
 		if col.RendererClass == col.boolRendererClass:
@@ -3333,9 +3340,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				else:
 					evt.Skip()
 
+			def onHit(evt):
+				self._checkBoxToggled(editor)
+
 			ed = self._activeEditorControl = evt.Control
 			ed.WindowStyle |= wx.WANTS_CHARS
 			ed.Bind(wx.EVT_KEY_DOWN, onKeyDown)
+			ed.Bind(wx.EVT_CHECKBOX, onHit)
 		evt.Skip()
 
 
