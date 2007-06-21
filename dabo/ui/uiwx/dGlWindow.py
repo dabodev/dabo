@@ -15,11 +15,15 @@ from dabo.ui import makeDynamicProperty
 try:
 	from OpenGL.GL import *
 	from OpenGL.GLUT import *
+	openGL = True
 except ImportError:
-	dabo.infoLog.write(_("PyOpenGL not present, so dGlWindow is not loaded."))
+	openGL = False
 
 class dGlWindow(cm.dControlMixin, glcanvas.GLCanvas):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
+		if not openGL:
+			raise ImportError, "PyOpenGL is not present, so dGlWindow cannot instantiate."
+
 		self.init = False
 		self._rotate = self._pan = False
 		
