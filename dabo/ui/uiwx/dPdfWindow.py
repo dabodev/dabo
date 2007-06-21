@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import os
 import wx
 import dabo
 
@@ -36,7 +37,11 @@ class dPdfWindow(cm.dControlMixin, PDFWindow):
 
 
 class _dPdfWindow_test(dPdfWindow):
-	pass
+	def afterInit(self):
+		# Run the dReportWriter test, which will output a test 
+		# pdf in this directory, and load that into the dPdfWindow:
+		os.system("python ../../dReportWriter.py")
+		self.LoadFile(os.path.abspath("dRW-test.pdf"))
 
 
 if __name__ == "__main__":
