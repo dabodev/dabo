@@ -95,6 +95,7 @@ from dForm import dToolForm
 from dForm import dBorderlessForm
 from dFormMain import dFormMain
 from dGauge import dGauge
+from dGlWindow import dGlWindow
 from dGrid import dGrid
 from dGrid import dColumn
 from dGridSizer import dGridSizer
@@ -122,6 +123,7 @@ from dPageFrame import dPageList
 from dPageFrame import dPageSelect
 from dPageFrameNoTabs import dPageFrameNoTabs
 from dPage import dPage
+from dPdfWindow import dPdfWindow
 from dSizer import dSizer
 from dBorderSizer import dBorderSizer
 from dSlider import dSlider
@@ -138,11 +140,6 @@ from dTreeView import dTreeView
 from dLed import dLed
 import dUICursors as dUICursors
 import dShell
-
-try:
-	from dGlWindow import dGlWindow
-except ImportError:
-	dabo.infoLog.write(_("PyOpenGL not present, so dGlWindow is not loaded."))
 
 # dDockForm is not available with wxPython < 2.7
 if wx.VERSION >= (2, 7):
