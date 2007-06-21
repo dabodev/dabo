@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import wx
 
 import dabo, dabo.ui
