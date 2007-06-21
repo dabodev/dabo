@@ -24,7 +24,11 @@ class dReportWriter(dObject, ReportWriter):
 		try:
 			v = self._encoding
 		except AttributeError:
-			v = self._encoding = self.Application.Encoding
+			if self.Application:
+				v = self.Application.Encoding
+			else:
+				v = "utf-8"
+			self._encoding = v
 		return v
 
 	def _setEncoding(self, val):
@@ -66,10 +70,10 @@ if __name__ == "__main__":
 	<title>Test Report from dReportWriter</title>
 
 	<testcursor iid="int" cArtist="str">
-		<record iid="1" cArtist="The Clash" />
-		<record iid="2" cArtist="Queen" />
-		<record iid="3" cArtist="Metallica" />
-		<record iid="3" cArtist="The Boomtown Rats" />
+		<record iid="1" cArtist='"The Clash"' />
+		<record iid="2" cArtist='"Queen"' />
+		<record iid="3" cArtist='"Metallica"' />
+		<record iid="3" cArtist='"The Boomtown Rats"' />
 	</testcursor>
 
 	<page>
