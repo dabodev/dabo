@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import re
 import datetime
 import wx
@@ -649,4 +650,4 @@ class dTextBoxMixin(dTextBoxMixinBase):
 	DynamicPasswordEntry = makeDynamicProperty(PasswordEntry)
 	DynamicStrictDateEntry = makeDynamicProperty(StrictDateEntry)
 	DynamicValue = makeDynamicProperty(Value)
-	
+
