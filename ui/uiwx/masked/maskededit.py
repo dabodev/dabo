@@ -30,12 +30,12 @@ def _add_properties(parent_name, param_names):
 		ret.extend([setter_def, prop_def])
 
 	return tuple(ret)
-	
+
 class dMaskedTextBox(textctrl.TextCtrl, dTextBox):
 	""" Allows editing one line of string or unicode data	using text mask.	"""
 	for p in _add_properties('textctrl.TextCtrl', textctrl.TextCtrl.exposed_basectrl_params):
 		exec(p)
-	
+
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dMaskedTextBox
 		self._formatter = format.TextFormat(**kwargs)
@@ -45,7 +45,7 @@ class dMaskedTextBox(textctrl.TextCtrl, dTextBox):
 	# dPemMixin clashes with textctrl.TextCtrl
 	# fortunately they have different number of arguments
 	def _setFont(self, *argv):
-		if argv: dTextBox._setFont(self, *argv) 
+		if argv: dTextBox._setFont(self, *argv)
 		else: textctrl.TextCtrl._setFont(self)
 
 	def _getValue(self):
@@ -53,7 +53,7 @@ class dMaskedTextBox(textctrl.TextCtrl, dTextBox):
 			_value = self._value
 		except AttributeError:
 			_value = self._value = ""
-			
+
 		dataType = type(_value)
 		if self._formatter.FormatType in ('date', 'time'):
 			strVal = self.GetValue()
@@ -62,7 +62,7 @@ class dMaskedTextBox(textctrl.TextCtrl, dTextBox):
 
 		value = self._formatter.fromstr(strVal, dataType)
 		if value is None:
-			dabo.errorLog.write("Couldn't convert literal '%s' to %s."
+			dabo.logError("Couldn't convert literal '%s' to %s."
 					% (strVal, dataType))
 			value = self._value
 		return value
@@ -73,11 +73,11 @@ class dMaskedTextBox(textctrl.TextCtrl, dTextBox):
 		self._value = value
 
 		self.SetValue(strVal)
-		
+
 		if type(_oldVal) != type(value) or _oldVal != value:
 			self._afterValueChanged()
 
-		
+
 	def _getStringValue(self, value):
 		return self._formatter.format(value)
 
@@ -91,7 +91,7 @@ class dMaskedNumBox(numctrl.NumCtrl, dTextBox):
 			numctrl.NumCtrl.exposed_basectrl_params + \
 			tuple(numctrl.NumCtrl.valid_ctrl_params.keys())):
 		exec(p)
-	
+
 	def __init__(self, parent, properties=None, *args, **kwargs):
 		self._baseClass = dMaskedNumBox
 		self._formatter = format.NumFormat(**kwargs)
@@ -101,7 +101,7 @@ class dMaskedNumBox(numctrl.NumCtrl, dTextBox):
 	def flushValue(self):
 		self.SetValue(self.Value)
 		super(numctrl.NumCtrl, self).flushValue()
-		
+
 	def _setFont(self, *argv):
 		if argv: dTextBox._setFont(self, *argv)
 		else: numctrl.NumCtrl._setFont(self)
@@ -113,11 +113,11 @@ class dMaskedNumBox(numctrl.NumCtrl, dTextBox):
 		_oldVal = self.Value
 		self._value = value
 		self.SetValue(value)
-		
+
 		if type(_oldVal) != type(value) or _oldVal != value:
 			self._afterValueChanged()
 
-		
+
 	def _getStringValue(self, value):
 		return self._formatter.format(value)
 
@@ -127,24 +127,24 @@ class dMaskedNumBox(numctrl.NumCtrl, dTextBox):
 if __name__ == "__main__":
 	import dabo.ui.uiwx.test as test
 
-	# This test sets up several textboxes, each editing different data types.	
+	# This test sets up several textboxes, each editing different data types.
 	class TestBase(dObject):
 		def initProperties(self):
 			self.super()
 			self.LogEvents = ["ValueChanged",]
-			
+
 		def initEvents(self):
 			self.super()
 			self.bindEvent(dabo.dEvents.ValueChanged, self.onValueChanged)
-			
+
 		def onValueChanged(self, evt):
 			print "%s.onValueChanged:" % self.Name, self.Value, type(self.Value)
-			
+
 	class DateText(TestBase, dMaskedTextBox):
 		def afterInit(self):
 			self.Autoformat = 'EUDATE24HRTIMEDDMMYYYY.HHMMSS'
 			self.Value = datetime.date.today()
-	
+
 	class DateTimeText(TestBase, dMaskedTextBox):
 		def afterInit(self):
 			self.Autoformat = 'EUDATE24HRTIMEDDMMYYYY/HHMM'
@@ -153,25 +153,25 @@ if __name__ == "__main__":
 	class IntText(TestBase, dMaskedNumBox):
 		def afterInit(self):
 			self.Value = 23
-		
+
 	class FloatText(TestBase, dMaskedNumBox):
 		def afterInit(self):
 			self.FractionWidth = 2
 			self.IntegerWidth = 5
 			self.Value = 23.5
-			
+
 	class BoolText(TestBase, dMaskedTextBox):
 		def afterInit(self):
 			self.Value = False
-	
+
 	class StrText(TestBase, dMaskedTextBox):
 		def afterInit(self):
 			self.Formatcodes="F"
 			self.Mask = "XXX-XXXXXXXXXXXXXXXXXXXXXXXXXx"
 			self.Value = "Lunchtime"
-	
-	testParms = [IntText, FloatText, StrText, BoolText, DateText, DateTimeText]			
-	
+
+	testParms = [IntText, FloatText, StrText, BoolText, DateText, DateTimeText]
+
 	try:
 		import mx.DateTime
 		class MxDateTimeText(dMaskedTextBox, TestBase):
@@ -179,10 +179,10 @@ if __name__ == "__main__":
 				self.Autoformat = 'EUDATE24HRTIMEDDMMYYYY.HHMMSS'
 				self.Value = mx.DateTime.now()
 
-				
+
 		testParms.append(MxDateTimeText)
 	except:
 		# skip it: mx may not be available
 		pass
-		
+
 	test.Test().runTest(testParms)

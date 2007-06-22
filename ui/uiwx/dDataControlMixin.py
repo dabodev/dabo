@@ -14,18 +14,18 @@ class dDataControlMixin(dDataControlMixinBase):
 		except AttributeError:
 			# Only works for text controls
 			pass
-			
-			
+
+
 	def selectAll(self):
 		""" Select all text in the control."""
-		try:	
+		try:
 			self.SetInsertionPoint(1)   # Best of all worlds (really)
 			self.SetSelection(-1,-1)    # select all text
 		except AttributeError:
 			# Only works for text controls
 			pass
-			
-			
+
+
 	def selectNone(self):
 		""" Select no text in the control."""
 		try:
@@ -33,8 +33,8 @@ class dDataControlMixin(dDataControlMixinBase):
 		except AttributeError:
 			# Only works for text controls
 			pass
-	
-	
+
+
 	def _coerceValue(self, val, oldval):
 		convTypes = (str, unicode, int, float, long, complex)
 		oldType = type(oldval)
@@ -51,22 +51,22 @@ class dDataControlMixin(dDataControlMixinBase):
 				val = 0
 		elif isinstance(oldval, int) and isinstance(val, bool):
 			# convert bool to int (original field val was bool, but UI
-			# changed to int. 
+			# changed to int.
 			val = int(val)
 		elif isinstance(oldval, int) and isinstance(val, long):
 			# convert long to int (original field val was int, but UI
-			# changed to long. 
+			# changed to long.
 			val = int(val)
 		elif isinstance(oldval, long) and isinstance(val, int):
 			# convert int to long (original field val was long, but UI
-			# changed to int. 
+			# changed to int.
 			val = long(val)
 		return val
-			
+
 
 	def _getValue(self):
 		return self.GetValue()
-		
+
 	def _setValue(self, val):
 		if self._constructed():
 			if type(self.Value) != type(val):
@@ -78,17 +78,17 @@ class dDataControlMixin(dDataControlMixinBase):
 				try:
 					setter(val)
 				except TypeError, e:
-					dabo.errorLog.write(_("Could not set value of %s to %s. Error message: %s")
+					dabo.logError(_("Could not set value of %s to %s. Error message: %s")
 							% (self._name, val, e))
 			self.flushValue()
 		else:
 			self._properties["Value"] = val
 
-		
+
 	Value = property(_getValue, _setValue, None,
-		_("""Specifies the current state of the control (the value of the 
+		_("""Specifies the current state of the control (the value of the
 				field).  (varies)"""))
-				
-				
+
+
 	DynamicValue = makeDynamicProperty(Value)
 

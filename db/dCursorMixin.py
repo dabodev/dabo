@@ -41,7 +41,7 @@ class dCursorMixin(dObject):
 		##      call dObject's __init__, otherwise the cursor object with
 		##      which we are mixed-in will take the __init__.
 		dObject.__init__(self, *args, **kwargs)
-		
+
 		# Just in case this is used outside of the context of a bizobj
 		if not hasattr(self, "superCursor") or self.superCursor is None:
 			myBases = self.__class__.__bases__
@@ -75,8 +75,8 @@ class dCursorMixin(dObject):
 		self.nonUpdateFields = []
 		# Flag that is set when the user explicitly sets the Key Field
 		self._keyFieldSet = False
-		# Cursor that manages this cursor's SQL. Default to self; 
-		# in some cases, such as a single bizobj managing several cursors, 
+		# Cursor that manages this cursor's SQL. Default to self;
+		# in some cases, such as a single bizobj managing several cursors,
 		# it will be a separate object.
 		self.sqlManager = self
 		# Attribute that holds the data of the cursor
@@ -93,21 +93,21 @@ class dCursorMixin(dObject):
 		self.__tmpPK = -1		# temp PK value for new records.
 		# Holds the data types for each field
 		self._types = {}
-		
+
 		# Holds reference to auxiliary cursor that handles queries that
 		# are not supposed to affect the record set.
 		self.__auxCursor = None
 
 		# Reference to the object with backend-specific behaviors
 		self.__backend = None
-		
+
 		# Reference to the bizobj that 'owns' this cursor, if any,
 		self._bizobj = None
-		
+
 		# set properties for the SQL Builder functions
 		self.clearSQL()
 		self.hasSqlBuilder = True
-		
+
 		# props for building the auxiliary cursor
 		self._cursorFactoryFunc = None
 		self._cursorFactoryClass = None
@@ -115,7 +115,7 @@ class dCursorMixin(dObject):
 		# mementos and new records, keyed on record object ids:
 		self._mementos = {}
 		self._newRecords = {}
-		
+
 		# Flag preference cursors so that they don't fill up the logs
 		self._isPrefCursor = False
 
@@ -125,8 +125,8 @@ class dCursorMixin(dObject):
 	def setCursorFactory(self, func, cls):
 		self._cursorFactoryFunc = func
 		self._cursorFactoryClass = cls
-		
-	
+
+
 	def clearSQL(self):
 		self._fieldClause = ""
 		self._fromClause = ""
@@ -138,7 +138,7 @@ class dCursorMixin(dObject):
 		self._limitClause = ""
 		self._defaultLimit = 1000
 
-		
+
 	def getSortColumn(self):
 		return self.sortColumn
 
@@ -149,8 +149,8 @@ class dCursorMixin(dObject):
 
 	def getSortCase(self):
 		return self.sortCase
-	
-	
+
+
 	def pkExpression(self, rec=None):
 		"""Returns the PK expression for the passed record."""
 		if rec is None:
@@ -160,13 +160,13 @@ class dCursorMixin(dObject):
 		else:
 			pk = rec[self.KeyField]
 		return pk
-		
+
 
 	def _correctFieldType(self, field_val, field_name, _fromRequery=False):
 		"""Correct the type of the passed field_val, based on self.DataStructure.
 
-		This is called by self.execute(), and contains code to convert all strings 
-		to unicode, as well as to correct any datatypes that don't match what 
+		This is called by self.execute(), and contains code to convert all strings
+		to unicode, as well as to correct any datatypes that don't match what
 		self.DataStructure reports. The latter can happen with SQLite, for example,
 		which only knows about a quite limited number of types.
 		"""
@@ -237,7 +237,7 @@ class dCursorMixin(dObject):
 						if ok:
 							# change self.Encoding and log the message
 							self.Encoding = enc
-							dabo.errorLog.write(_("Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead")
+							dabo.logError(_("Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead")
 								% {'fname':field_name, 'enc':enc} )
 							return ret
 							break
@@ -247,16 +247,16 @@ class dCursorMixin(dObject):
 # 			# Usually blob data
 # 			ret = field_val.tostring()
 
-			dabo.errorLog.write(_("%s couldn't be converted to %s (field %s)") 
+			dabo.logError(_("%s couldn't be converted to %s (field %s)")
 					% (repr(field_val), pythonType, field_name))
 		return ret
 
 
 	def execute(self, sql, params=(), _fromRequery=False):
 		""" Execute the sql, and populate the DataSet if it is a select statement."""
-		# The idea here is to let the super class do the actual work in 
-		# retrieving the data. However, many cursor classes can only return 
-		# row information as a list, not as a dictionary. This method will 
+		# The idea here is to let the super class do the actual work in
+		# retrieving the data. However, many cursor classes can only return
+		# row information as a list, not as a dictionary. This method will
 		# detect that, and convert the results to a dictionary.
 
 		#### NOTE: NEEDS TO BE TESTED THOROUGHLY!!!!  ####
@@ -265,18 +265,18 @@ class dCursorMixin(dObject):
 		if not isinstance(sql, unicode):
 			sql = unicode(sql, self.Encoding)
 		sql = self.processFields(sql)
-		
+
 		try:
 			if params is None or len(params) == 0:
 				res = self.superCursor.execute(self, sql)
 				if not self.IsPrefCursor:
-					dabo.dbActivityLog.write("SQL: %s" % sql.replace("\n", " "))
+					dabo.logDBActivity("SQL: %s" % sql.replace("\n", " "))
 			else:
 				res = self.superCursor.execute(self, sql, params)
 				if not self.IsPrefCursor:
-					dabo.dbActivityLog.write("SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(params)))
+					dabo.logDBActivity("SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(params)))
 		except Exception, e:
-			dabo.dbActivityLog.write("FAILED SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(params)))
+			dabo.logDBActivity("FAILED SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(params)))
 			# If this is due to a broken connection, let the user know.
 			# Different backends have different messages, but they
 			# should all contain the string 'connect' in them.
@@ -303,7 +303,7 @@ class dCursorMixin(dObject):
 			_records = self.fetchall()
 		except Exception, e:
 			_records = tuple()
-			dabo.errorLog.write("Error fetching records: %s" % e)
+			dabo.logError("Error fetching records: %s" % e)
 
 		if _records and not self.BackendObject._alreadyCorrectedFieldTypes:
 			if isinstance(_records[0], (tuple, list)):
@@ -313,7 +313,7 @@ class dCursorMixin(dObject):
 				for row in _records:
 					dic = {}
 					for idx, fldName in enumerate(fldNames):
-						dic[fldName] = self._correctFieldType(field_val=row[idx], 
+						dic[fldName] = self._correctFieldType(field_val=row[idx],
 								field_name=fldName, _fromRequery=_fromRequery)
 					tmpRows.append(dic)
 				_records = tmpRows
@@ -342,19 +342,19 @@ class dCursorMixin(dObject):
 		"""
 		return self.AuxCursor.execute(sql)
 
-	
+
 	def requery(self, params=None):
 		self._lastSQL = self.CurrentSQL
 		self.lastParams = params
 		self._savedStructureDescription = []
 
 		self.execute(self.CurrentSQL, params, _fromRequery=True)
-		
+
 		# clear mementos and new record flags:
 		self._mementos = {}
 		self._newRecords = {}
 
-		# Check for any derived fields that should not be included in 
+		# Check for any derived fields that should not be included in
 		# any updates.
 		self.__setNonUpdateFields()
 
@@ -378,11 +378,11 @@ class dCursorMixin(dObject):
 			field_alias, field_type = field[0], field[1]
 			target._types[field_alias] = dabo.db.getPythonType(field_type)
 
-	
+
 	def sort(self, col, dir=None, caseSensitive=True):
 		""" Sort the result set on the specified column in the specified order.
 
-		If the sort direction is not specified, sort() cycles among Ascending, 
+		If the sort direction is not specified, sort() cycles among Ascending,
 		Descending and no sort order.
 		"""
 		currCol = self.sortColumn
@@ -399,7 +399,7 @@ class dCursorMixin(dObject):
 
 		newCol = col
 		if col == currCol:
-			# Not changing the column; most likely they are flipping 
+			# Not changing the column; most likely they are flipping
 			# the sort order.
 			if (dir is None) or not dir:
 				# They didn't specify the sort. Cycle through the sort orders
@@ -425,7 +425,7 @@ class dCursorMixin(dObject):
 					newOrd = dir.upper()
 				else:
 					raise dException.dException, _("Invalid Sort direction specified: ") + dir
-		
+
 		self.__sortRows(newCol, newOrd, caseSensitive)
 		# Save the current sort values
 		self.sortColumn = newCol
@@ -436,14 +436,14 @@ class dCursorMixin(dObject):
 	def __sortRows(self, col, ord, caseSensitive):
 		""" Sort the rows of the cursor.
 
-		At this point, we know we have a valid column and order. We need to 
+		At this point, we know we have a valid column and order. We need to
 		preserve the unsorted order if we haven't done that yet; then we sort
 		the data according to the request.
 		"""
 		kf = self.KeyField
 		if not kf:
 			return
-			
+
 		if not self.__unsortedRows:
 			# Record the PK values
 			for row in self._records:
@@ -508,9 +508,9 @@ class dCursorMixin(dObject):
 		if compString and not caseSensitive:
 			sortfunc = caseInsensitiveSort
 		else:
-			sortfunc = noneSort	
+			sortfunc = noneSort
 		sortList.sort(sortfunc)
-			
+
 		# Unless DESC was specified as the sort order, we're done sorting
 		if ord == "DESC":
 			sortList.reverse()
@@ -534,10 +534,10 @@ class dCursorMixin(dObject):
 					break
 		else:
 			self.RowNumber = 0
-	
-	
+
+
 	def cursorToXML(self):
-		""" Returns an XML string containing the information necessary to 
+		""" Returns an XML string containing the information necessary to
 		re-create this cursor.
 		"""
 		base = """<?xml version="1.0" encoding="%s"?>
@@ -554,26 +554,26 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 %s
 		</row>
 """
-		
+
 		colTemplate = """			<column name="%s" type="%s">%s</column>"""
 
 		rowXML = ""
 		for rec in self._records:
-			recInfo = [ colTemplate % (k, self.getType(v), self.escape(v)) 
+			recInfo = [ colTemplate % (k, self.getType(v), self.escape(v))
 					for k,v in rec.items() ]
 			rowXML += rowTemplate % "\n".join(recInfo)
-		return base % (self.Encoding, self.AutoPopulatePK, self.KeyField, 
+		return base % (self.Encoding, self.AutoPopulatePK, self.KeyField,
 				self.Table, rowXML)
 
-	
+
 	def getType(self, val):
 		try:
 			ret = re.search("type '([^']+)'", str(type(val))).groups()[0]
 		except:
 			ret = "-unknown-"
 		return ret
-	
-	
+
+
 	def escape(self, val):
 		""" Provides the proper escaping of values in XML output """
 		ret = val
@@ -586,12 +586,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if fldList is None:
 			fldList = []
 		self.nonUpdateFields = fldList
-	
-	
+
+
 	def getNonUpdateFields(self):
 		return list(set(self.nonUpdateFields + self.__nonUpdateFields))
-		
-		
+
+
 	def __setNonUpdateFields(self):
 		"""Automatically set the non-update fields."""
 		dataStructure = getattr(self, "_dataStructure", None)
@@ -607,16 +607,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		else:
 			# Delegate to the backend object to figure it out.
 			self.BackendObject.setNonUpdateFields(self)
-	
+
 
 	def isChanged(self, allRows=True, includeNewUnchanged=False):
 		"""Return True if there are any changes to the local field values.
 
-		If allRows is True (the default), all records in the recordset will be 
+		If allRows is True (the default), all records in the recordset will be
 		considered. Otherwise, only the current record will be checked.
-		
+
 		If includeNewUnchanged is True, new records that have not been
-		modified from their default values, which normally are not 
+		modified from their default values, which normally are not
 		considered 'changed', will be counted as 'changed'.
 		"""
 		if allRows:
@@ -643,13 +643,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		"""Set the current record to be flagged as a new record.
 
 		dBizobj will automatically call this method as appropriate, but if you are
-		using dCursor without a proxy dBizobj, you'll need to manually call this 
+		using dCursor without a proxy dBizobj, you'll need to manually call this
 		method after cursor.new(), and (if applicable) after cursor.genTempAutoPK().
 		For example:
 			cursor.new()
 			cursor.genTempAutoPK()
 			cursor.setNewFlag()
-		"""	
+		"""
 		if self.KeyField:
 			rec = self._records[self.RowNumber]
 			self._newRecords[rec[self.KeyField]] = None
@@ -671,7 +671,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		except IndexError:
 			# No records; default to string
 			pkVal = ""
-		
+
 		tmpPK = self._genTempPKVal(pkVal)
 		if isinstance(kf, tuple):
 			for key in kf:
@@ -680,10 +680,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			rec[kf] = tmpPK
 		rec[kons.CURSOR_TMPKEY_FIELD] = tmpPK
 		return tmpPK
-		
-	
+
+
 	def _genTempPKVal(self, pkValue):
-		""" Return the next available temp PK value. It will be a string, and 
+		""" Return the next available temp PK value. It will be a string, and
 		postfixed with '-dabotmp' to avoid potential conflicts with actual PKs
 		"""
 		ret = self.__tmpPK
@@ -692,11 +692,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if isinstance(pkValue, basestring):
 			ret = "%s-dabotmp" % ret
 		return ret
-	
-	
+
+
 	def getPK(self):
 		""" Returns the value of the PK field in the current record. If that record
-		is new an unsaved record, return the temp PK value. If this is a compound 
+		is new an unsaved record, return the temp PK value. If this is a compound
 		PK, return a tuple containing each field's values.
 		"""
 		ret = None
@@ -714,7 +714,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			else:
 				ret = rec[kf]
 		return ret
-		
+
 
 	def getFieldVal(self, fld, row=None):
 		""" Return the value of the specified field in the current or specified row."""
@@ -755,7 +755,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		try:
 			typ = [ff[1] for ff in flds if ff[0] == fld][0]
 		except IndexError:
-			# This 'fld' value is not a native field, so no way to 
+			# This 'fld' value is not a native field, so no way to
 			# determine its type
 			typ = None
 		if typ:
@@ -765,7 +765,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			except KeyError:
 				ret = None
 		return ret
-		
+
 
 	def _hasValidKeyField(self):
 		"""Return True if the KeyField exists and names valid fields."""
@@ -808,21 +808,21 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						val = unicode(val)
 				elif isinstance(rec[fld], int) and isinstance(val, bool):
 					# convert bool to int (original field val was bool, but UI
-					# changed to int. 
+					# changed to int.
 					val = int(val)
 				elif isinstance(rec[fld], int) and isinstance(val, long):
 					# convert long to int (original field val was int, but UI
-					# changed to long. 
+					# changed to long.
 					val = int(val)
 				elif isinstance(rec[fld], long) and isinstance(val, int):
 					# convert int to long (original field val was long, but UI
-					# changed to int. 
+					# changed to int.
 					val = long(val)
 
 			if fldType != type(val):
 				ignore = False
-				# Date and DateTime types are handled as character, even if the 
-				# native field type is not. Ignore these. NOTE: we have to deal with the 
+				# Date and DateTime types are handled as character, even if the
+				# native field type is not. Ignore these. NOTE: we have to deal with the
 				# string representation of these classes, as there is no primitive for either
 				# 'DateTime' or 'Date'.
 				dtStrings = ("<type 'DateTime'>", "<type 'Date'>", "<type 'datetime.datetime'>")
@@ -841,11 +841,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					# This can also happen with a new record, since we just stuff the
 					# fields full of empty strings.
 					ignore = self._newRecords.has_key(rec[keyField])
-						
+
 				if not ignore:
 					msg = _("!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s") \
 							% (fld, str(fldType), str(type(val)))
-					dabo.errorLog.write(msg)
+					dabo.logError(msg)
 
 		# If the new value is different from the current value, change it and also
 		# update the mementos if necessary.
@@ -882,17 +882,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				else:
 					self._clearMemento(row)
 			else:
-				dabo.infoLog.write("Field value changed, but the memento can't be saved, because there is no valid KeyField.")
+				dabo.logInfo("Field value changed, but the memento can't be saved, because there is no valid KeyField.")
 
 			# Finally, save the new value to the field:
 			rec[fld] = val
 
 
 	def getRecordStatus(self, row=None):
-		""" Returns a dictionary containing an element for each changed 
+		""" Returns a dictionary containing an element for each changed
 		field in the specified record (or the current record if none is specified).
 		The field name is the key for each element; the value is a 2-element
-		tuple, with the first element being the original value, and the second 
+		tuple, with the first element being the original value, and the second
 		being the current value.
 		"""
 		ret = {}
@@ -902,17 +902,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 		recKey = self.pkExpression(rec)
 		mem = self._mementos.get(recKey, {})
-	
+
 		for k, v in mem.items():
 			ret[k] = (v, rec[k])
 		return ret
 
 
 	def _getNewRecordDiff(self, row=None):
-		""" Returns a dictionary containing an element for each field 
+		""" Returns a dictionary containing an element for each field
 		in the specified record (or the current record if none is specified).
 		The field name is the key for each element; the value is a 2-element
-		tuple, with the first element being the original value, and the second 
+		tuple, with the first element being the original value, and the second
 		being the current value.
 
 		This is used internally in __saverow, and only applies to new records.
@@ -937,14 +937,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		except IndexError:
 			ret = None
 		return ret
-		
-		
-	def getDataSet(self, flds=(), rowStart=0, rows=None, returnInternals=False):
-		""" Get the entire data set encapsulated in a dDataSet object. 
 
-		If the optional	'flds' parameter is given, the result set will be filtered 
+
+	def getDataSet(self, flds=(), rowStart=0, rows=None, returnInternals=False):
+		""" Get the entire data set encapsulated in a dDataSet object.
+
+		If the optional	'flds' parameter is given, the result set will be filtered
 		to only include the specified fields. rowStart specifies the starting row
-		to include, and rows is the number of rows to return. 
+		to include, and rows is the number of rows to return.
 		"""
 		ds = []
 		internals = (kons.CURSOR_TMPKEY_FIELD,)
@@ -969,22 +969,22 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				ds.append(tmprec)
 		return dDataSet(ds)
 
-	
+
 	def replace(self, field, valOrExpr, scope=None):
 		"""Replaces the value of the specified field with the given value
 		or expression. All records matching the scope are affected; if
 		no scope is specified, all records are affected.
-		
+
 		'valOrExpr' will be treated as a literal value, unless it is prefixed
-		with an equals sign. All expressions will therefore be a string 
-		beginning with '='. Literals can be of any type. 
+		with an equals sign. All expressions will therefore be a string
+		beginning with '='. Literals can be of any type.
 		"""
 		if isinstance(self._records, dDataSet):
 			# Make sure that the data set object has any necessary references
 			self._records.Cursor = self
-			self._records.Bizobj = self._bizobj			
+			self._records.Bizobj = self._bizobj
 			self._records.replace(field, valOrExpr, scope=scope)
-			
+
 
 	def first(self):
 		""" Move the record pointer to the first record of the data set."""
@@ -1050,7 +1050,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					if useTransaction:
 						self.rollbackTransaction()
 					raise
-	
+
 		if useTransaction:
 			self.beginTransaction()
 
@@ -1064,7 +1064,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			pk = self.pkExpression()
 			if pk in self._mementos.keys():
 				saverow(self.RowNumber)
-		
+
 		if useTransaction:
 			self.commitTransaction()
 
@@ -1099,7 +1099,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					flds += ", " + self.BackendObject.encloseNames(kk, aq)
 					# add value to expression
 					vals += ", %s" % (self.formatForQuery(vv[1]),)
-					
+
 				# Trim leading comma-space from the strings
 				flds = flds[2:]
 				vals = vals[2:]
@@ -1115,20 +1115,20 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			else:
 				pkWhere = self.makePkWhere(row)
 				updClause = self.makeUpdClause(diff)
-				sql = "update %s set %s where %s" % (self.BackendObject.encloseNames(self.Table, aq), 
+				sql = "update %s set %s where %s" % (self.BackendObject.encloseNames(self.Table, aq),
 						updClause, pkWhere)
 			oldPKVal = self.pkExpression(rec)
 			newPKVal = None
 			if newrec and self.AutoPopulatePK:
-				# Some backends do not provide a means to retrieve 
-				# auto-generated PKs; for those, we need to create the 
+				# Some backends do not provide a means to retrieve
+				# auto-generated PKs; for those, we need to create the
 				# PK before inserting the record so that we can pass it on
-				# to any linked child records. NOTE: if you are using 
+				# to any linked child records. NOTE: if you are using
 				# compound PKs, this cannot be done.
 				newPKVal = self.pregenPK()
 				if newPKVal and not self._compoundKey:
 					self.setFieldVal(self.KeyField, newPKVal, row)
-			
+
 			#run the update
 			aux = self.AuxCursor
 			res = aux.execute(sql)
@@ -1172,7 +1172,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				del self._newRecords[pkVal]
 				if row is None:
 					# We deleted based on pk, don't delete flag for the current row.
-					return				
+					return
 			except:
 				pass
 
@@ -1188,15 +1188,15 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def pregenPK(self):
-		"""Various backend databases require that you manually 
+		"""Various backend databases require that you manually
 		generate new PKs if you need to refer to their values afterward.
-		This method will call the backend to generate and 
-		retrieve a new PK if the backend supports this. We use the 
+		This method will call the backend to generate and
+		retrieve a new PK if the backend supports this. We use the
 		auxiliary cursor so as not to alter the current data.
 		"""
 		return self.BackendObject.pregenPK(self.AuxCursor)
-		
-		
+
+
 	def new(self):
 		"""Add a new record to the data set."""
 		if not self._blank:
@@ -1217,7 +1217,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				return
 			else:
 				raise dException.NoRecordsException, _("No data to cancel.")
-		
+
 		# Faster to deal with 2 specific cases: all rows or just current row
 		if allRows:
 			recs = self._records
@@ -1227,7 +1227,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				delrecs_ids = self._newRecords.keys()
 				delrecs_idx = []
 				for rec_id in delrecs_ids:
-					# Remove any memento associated with the canceled new record, and 
+					# Remove any memento associated with the canceled new record, and
 					# append to the list of indexes to delete.
 					row, rec = self._getRecordByPk(rec_id)
 					self._clearMemento(row)
@@ -1245,7 +1245,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				for fld, val in mem.items():
 					self._records[row][fld] = val
 			self._mementos = {}
-		
+
 		else:
 			row = self.RowNumber
 			rec = self._records[row]
@@ -1260,13 +1260,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				if self.RowNumber >= self.RowCount:
 					self.RowNumber = self.RowCount - 1
 				return
-			
+
 			# Not a new record: need to manually replace the old values:
 			for fld, val in self._mementos.get(recKey, {}).items():
 				self._records[row][fld] = val
 			self._clearMemento(row)
-			
-	
+
+
 	def delete(self, delRowNum=None):
 		"""Delete the specified row, or the currently active row."""
 		if self.RowNumber < 0 or self.RowCount == 0:
@@ -1302,17 +1302,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		else:
 			# Delete the record from the current dataset
 			self._removeRow(delRowNum)
-	
-	
+
+
 	def _removeRow(self, row):
-		## Since record sets are tuples and thus immutable, we need to do this 
+		## Since record sets are tuples and thus immutable, we need to do this
 		## little dance to remove a row.
 		lRec = list(self._records)
 		del lRec[row]
 		self._records = dDataSet(lRec)
 		self.RowNumber = min(self.RowNumber, self.RowCount-1)
-	
-	
+
+
 	def flush(self):
 		""" Some backends need to be prompted to flush changes
 		to disk even without starting a transaction. This is the method
@@ -1349,7 +1349,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			# correctly.
 			setDefault(keyField, vals[keyField])
 			keyFieldSet = True
-			
+
 		for field, val in vals.items():
 			if field == keyField and keyFieldSet:
 				continue
@@ -1387,8 +1387,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				try:
 					newval = typ()
 				except Exception, e:
-					dabo.errorLog.write(_("Failed to create newval for field '%s'") % field_alias)
-					dabo.errorLog.write(str(e))
+					dabo.logError(_("Failed to create newval for field '%s'") % field_alias)
+					dabo.logError(str(e))
 					newval = u""
 
 			self._blank[field_alias] = newval
@@ -1404,7 +1404,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			# We need to also count all new records
 			chKeys = dict.fromkeys(chKeys + self._newRecords.keys()).keys()
 		return sorted(map(self._getRowByPk, chKeys), reverse=True)
-		
+
 
 	def _getRecordByPk(self, pk):
 		"""Find the record with the passed primary key; return (row, record)."""
@@ -1427,7 +1427,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def moveToPK(self, pk):
 		""" Find the record with the passed primary key, and make it active.
 
-		If the record is not found, the position is set to the first record. 
+		If the record is not found, the position is set to the first record.
 		"""
 		row, rec = self._getRecordByPk(pk)
 		if row is None:
@@ -1438,7 +1438,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def moveToRowNum(self, rownum):
 		""" Move the record pointer to the specified row number.
 
-		If the specified row does not exist, the pointer remains where it is, 
+		If the specified row does not exist, the pointer remains where it is,
 		and an exception is raised.
 		"""
 		if (rownum >= self.RowCount) or (rownum < 0):
@@ -1468,7 +1468,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if not self._records[0].has_key(fld) and not self.VirtualFields.has_key(fld):
 			raise dException.FieldNotFoundException, _("Non-existent field '%s'" % fld)
 
-		# Copy the specified field vals and their row numbers to a list, and 
+		# Copy the specified field vals and their row numbers to a list, and
 		# add those lists to the sort list
 		sortList = []
 		for row in range(0, self.RowCount):
@@ -1503,7 +1503,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		else:
 			sortList.sort()
 
-		# Now iterate through the list to find the matching value. I know that 
+		# Now iterate through the list to find the matching value. I know that
 		# there are more efficient search algorithms, but for this purpose, we'll
 		# just use brute force
 		for fldval, row in sortList:
@@ -1521,7 +1521,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					ret = row
 				# If we are doing a near search, see if the row is less than the
 				# requested matching value. If so, update the value of 'ret'. If not,
-				# we have passed the matching value, so there's no point in 
+				# we have passed the matching value, so there's no point in
 				# continuing the search.
 				if compString and not caseSensitive:
 					toofar = fldval.lower() > val.lower()
@@ -1553,17 +1553,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def makePkWhere(self, row=None):
-		""" Create the WHERE clause used for updates, based on the pk field. 
+		""" Create the WHERE clause used for updates, based on the pk field.
 
 		Optionally pass in a row number, otherwise use the current record.
 		"""
 		bo = self.BackendObject
-		tblPrefix = bo.getWhereTablePrefix(self.Table, 
+		tblPrefix = bo.getWhereTablePrefix(self.Table,
 					autoQuote=self.AutoQuoteNames)
 		if not row:
 			row = self.RowNumber
 		rec = self._records[row]
-		
+
 		if self._compoundKey:
 			keyFields = [fld for fld in self.KeyField]
 		else:
@@ -1576,7 +1576,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				return mem[fld]
 			else:
 				return rec[fld]
-			
+
 		ret = ""
 		for fld in keyFields:
 			fldSafe = bo.encloseNames(fld, self.AutoQuoteNames)
@@ -1611,29 +1611,29 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def processFields(self, txt):
 		return self.BackendObject.processFields(txt)
-		
-	
+
+
 	def escQuote(self, val):
 		""" Escape special characters in SQL strings. """
 		ret = val
 		if isinstance(val, basestring):
 			ret = self.BackendObject.escQuote(val)
-		return ret          
+		return ret
 
 
 	def getTables(self, includeSystemTables=False):
 		""" Return a tuple of tables in the current database."""
 		return self.BackendObject.getTables(includeSystemTables)
-		
-		
+
+
 	def getTableRecordCount(self, tableName):
 		""" Get the number of records in the backend table."""
 		return self.BackendObject.getTableRecordCount(tableName)
-		
-		
+
+
 	def getFields(self, tableName=None):
 		""" Get field information about the backend table.
-		
+
 		Returns a list of 3-tuples, where the 3-tuple's elements are:
 			0: the field name (string)
 			1: the field type ('I', 'N', 'C', 'M', 'B', 'D', 'T')
@@ -1643,7 +1643,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			# Use the default
 			tableName = self.Table
 		return self.BackendObject.getFields(tableName)
-	
+
 
 	def getFieldInfoFromDescription(self):
 		""" Get field information from the cursor description.
@@ -1663,7 +1663,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			ret = self.BackendObject.getLastInsertID(self)
 		return ret
 
-	
+
 	def formatForQuery(self, val):
 		""" Format any value for the backend """
 		ret = val
@@ -1671,7 +1671,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			ret = self.BackendObject.formatForQuery(val)
 		return ret
 
-	
+
 	def formatDateTime(self, val):
 		""" Format DateTime values for the backend """
 		ret = val
@@ -1710,18 +1710,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if self.BackendObject:
 			ret = self.BackendObject.rollbackTransaction(self.AuxCursor)
 		return ret
-	
+
 
 	def createTable(self, tabledef):
 		"""Create a table based on the table definition."""
 		self.BackendObject.createJustTable(tabledef, self)
-		
-		
+
+
 	def createIndexes(self, tabledef):
 		"""Create indexes based on the table definition."""
 		self.BackendObject.createJustIndexes(tabledef, self)
-		
-		
+
+
 	def createTableAndIndexes(self, tabledef):
 		"""Create a table and its indexes based on the table definition."""
 		self.BackendObject.createTableAndIndexes(tabledef, self)
@@ -1743,7 +1743,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		sm = self.sqlManager
 		beo = sm.BackendObject
 		if beo:
-			sm._fieldClause = beo.addField(sm._fieldClause, exp, alias, 
+			sm._fieldClause = beo.addField(sm._fieldClause, exp, alias,
 					autoQuote=self.AutoQuoteNames)
 		return sm._fieldClause
 
@@ -1755,16 +1755,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def setFromClause(self, clause):
 		""" Set the from clause of the sql statement."""
-		self.sqlManager._fromClause = self.sqlManager.BackendObject.setFromClause(clause, 
+		self.sqlManager._fromClause = self.sqlManager.BackendObject.setFromClause(clause,
 					autoQuote=self.AutoQuoteNames)
 
 
 	def addFrom(self, exp):
-		""" Add a table to the sql statement. For joins, use 
+		""" Add a table to the sql statement. For joins, use
 		the addJoin() method.
 		"""
 		if self.sqlManager.BackendObject:
-			self.sqlManager._fromClause = self.sqlManager.BackendObject.addFrom(self.sqlManager._fromClause, exp, 
+			self.sqlManager._fromClause = self.sqlManager.BackendObject.addFrom(self.sqlManager._fromClause, exp,
 					autoQuote=self.AutoQuoteNames)
 		return self.sqlManager._fromClause
 
@@ -1776,18 +1776,18 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def setJoinClause(self, clause):
 		""" Set the join clause of the sql statement."""
-		self.sqlManager._joinClause = self.sqlManager.BackendObject.setJoinClause(clause, 
+		self.sqlManager._joinClause = self.sqlManager.BackendObject.setJoinClause(clause,
 					autoQuote=self.AutoQuoteNames)
 
 
 	def addJoin(self, tbl, joinCondition, joinType=None):
 		""" Add a joined table to the sql statement."""
 		if self.sqlManager.BackendObject:
-			self.sqlManager._joinClause = self.sqlManager.BackendObject.addJoin(tbl, 
-					joinCondition, self.sqlManager._joinClause, joinType, 
+			self.sqlManager._joinClause = self.sqlManager.BackendObject.addJoin(tbl,
+					joinCondition, self.sqlManager._joinClause, joinType,
 					autoQuote=self.AutoQuoteNames)
 		return self.sqlManager._joinClause
-		
+
 
 
 	def getWhereClause(self):
@@ -1797,24 +1797,24 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def setWhereClause(self, clause):
 		""" Set the where clause of the sql statement."""
-		self.sqlManager._whereClause = self.sqlManager.BackendObject.setWhereClause(clause, 
+		self.sqlManager._whereClause = self.sqlManager.BackendObject.setWhereClause(clause,
 					autoQuote=self.AutoQuoteNames)
 
 
 	def addWhere(self, exp, comp="and"):
 		""" Add an expression to the where clause."""
 		if self.sqlManager.BackendObject:
-			self.sqlManager._whereClause = self.sqlManager.BackendObject.addWhere(self.sqlManager._whereClause, exp, comp, 
+			self.sqlManager._whereClause = self.sqlManager.BackendObject.addWhere(self.sqlManager._whereClause, exp, comp,
 					autoQuote=self.AutoQuoteNames)
 		return self.sqlManager._whereClause
 
 
 	def prepareWhere(self, clause):
 		""" Modifies WHERE clauses as needed for each backend. """
-		return self.sqlManager.BackendObject.prepareWhere(clause, 
+		return self.sqlManager.BackendObject.prepareWhere(clause,
 					autoQuote=self.AutoQuoteNames)
-		
-		
+
+
 	def getChildFilterClause(self):
 		""" Get the child filter part of the sql statement."""
 		return self.sqlManager._childFilterClause
@@ -1846,7 +1846,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def getOrderByClause(self):
 		""" Get the order-by clause of the sql statement."""
 		return self.sqlManager._orderByClause
-		
+
 
 	def setOrderByClause(self, clause):
 		""" Set the order-by clause of the sql statement."""
@@ -1856,7 +1856,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def addOrderBy(self, exp):
 		""" Add an expression to the order-by clause."""
 		if self.sqlManager.BackendObject:
-			self.sqlManager._orderByClause = self.sqlManager.BackendObject.addOrderBy(self.sqlManager._orderByClause, 
+			self.sqlManager._orderByClause = self.sqlManager.BackendObject.addOrderBy(self.sqlManager._orderByClause,
 					exp, autoQuote=self.AutoQuoteNames)
 		return self.sqlManager._orderByClause
 
@@ -1864,12 +1864,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def getLimitClause(self):
 		""" Get the limit clause of the sql statement."""
 		return self.sqlManager._limitClause
-		
+
 
 	def setLimitClause(self, clause):
 		""" Set the limit clause of the sql statement."""
 		self.sqlManager._limitClause = clause
-	
+
 	# For simplicity's sake, create aliases
 	setLimit, getLimit = setLimitClause, getLimitClause
 
@@ -1881,11 +1881,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if self.sqlManager.BackendObject:
 			ret = self.sqlManager.BackendObject.getLimitWord()
 		return ret
-		
-			
+
+
 	def getLimitPosition(self):
 		""" Return the position to place the limit clause.
-		
+
 		For currently-supported dbapi's, the return values of 'top' or 'bottom'
 		are sufficient.
 		"""
@@ -1893,8 +1893,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if self.sqlManager.BackendObject:
 			ret = self.sqlManager.BackendObject.getLimitPosition()
 		return ret
-		
-			
+
+
 	def getSQL(self):
 		""" Get the complete SQL statement from all the parts."""
 		fieldClause = self.sqlManager._fieldClause
@@ -1908,17 +1908,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		if not fieldClause:
 			fieldClause = "*"
-		
+
 		if not fromClause:
 			fromClause = self.Table
-		
+
 		if childFilterClause:
 			# Prepend it to the where clause
 			if whereClause:
 				childFilterClause += "\nand "
 			whereClause = childFilterClause + " " + whereClause
 
-		if fromClause: 
+		if fromClause:
 			fromClause = "  from " + fromClause
 		else:
 			fromClause = "  from " + self.sqlManager.Table
@@ -1938,9 +1938,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		else:
 			limitClause = " %s %s" % (self.sqlManager.getLimitWord(), self.sqlManager._defaultLimit)
 
-		return self.sqlManager.BackendObject.formSQL(fieldClause, fromClause, joinClause, 
+		return self.sqlManager.BackendObject.formSQL(fieldClause, fromClause, joinClause,
 				whereClause, groupByClause, orderByClause, limitClause)
-		
+
 
 	def getStructureOnlySql(self):
 		"""Creates a SQL statement that will not return any records."""
@@ -1952,16 +1952,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		self.sqlManager.setWhereClause(holdWhere)
 		self.sqlManager.setLimitClause(holdLimit)
 		return ret
-		
+
 
 	def executeSQL(self, *args, **kwargs):
 		self.sqlManager.execute(self.sqlManager.getSQL(), *args, **kwargs)
 	###     end - SQL Builder methods     ########
-	
-	
+
+
 	def getWordMatchFormat(self):
 		return self.sqlManager.BackendObject.getWordMatchFormat()
-		
+
 
 	def oldVal(self, fieldName, row=None):
 		"""Returns the value of the field as it existed after the last requery."""
@@ -1980,7 +1980,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	## Property getter/setter methods ##
 	def _getAutoCommit(self):
 		return self.BackendObject.getAutoCommitStatus(self)
-		
+
 
 	def _setAutoCommit(self, val):
 		self.BackendObject.setAutoCommitStatus(self, val)
@@ -1988,14 +1988,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _getAutoSQL(self):
 		return self.getSQL()
-		
+
 
 	def _getAutoPopulatePK(self):
 		try:
 			return self._autoPopulatePK
 		except AttributeError:
 			return True
-			
+
 	def _setAutoPopulatePK(self, autopop):
 		self._autoPopulatePK = bool(autopop)
 
@@ -2016,7 +2016,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			self.__auxCursor = self.BackendObject.getCursor(self.__class__)
 		self.__auxCursor.BackendObject = self.BackendObject
 		return self.__auxCursor
-	
+
 
 	def _getBackendObject(self):
 		return self.__backend
@@ -2024,17 +2024,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 	def _setBackendObject(self, obj):
 		self.__backend = obj
 #		self.AuxCursor.__backend = obj
-	
-		
+
+
 	def _getCurrentSQL(self):
 		if self.UserSQL is not None:
 			return self.UserSQL
 		return self.AutoSQL
-		
+
 
 	def _getDescrip(self):
 		return self.__backend.getDescription(self)
-		
+
 
 	def _getDataStructure(self):
 		val = getattr(self, "_dataStructure", None)
@@ -2085,14 +2085,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			val[idx] = (field_alias, field_type, field_pk, table_name, field_name, field_scale)
 		self._dataStructure = tuple(val)
 
-			
+
 	def _getEncoding(self):
 		return self.BackendObject.Encoding
-	
+
 	def _setEncoding(self, val):
 		self.BackendObject.Encoding = val
-		
-	
+
+
 	def _getIsAdding(self):
 		""" Return True if the current record is a new record."""
 		if self.RowCount <= 0:
@@ -2100,7 +2100,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		recKey = self.pkExpression()
 		ret = self._newRecords.has_key(recKey)
 		return ret
-	
+
 
 	def _getIsPrefCursor(self):
 		return self._isPrefCursor
@@ -2134,8 +2134,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		except AttributeError:
 			v = self._lastSQL = None
 		return v
-		
-			
+
+
 	def _getRecord(self):
 		try:
 			ret = self._cursorRecord
@@ -2144,16 +2144,16 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				def __init__(self):
 					self.cursor = None
 					super(CursorRecord, self).__init__()
-				
+
 				def __getattr__(self, att):
 					return self.cursor.getFieldVal(att)
-			
+
 				def __setattr__(self, att, val):
 					if att in ("cursor", ):
 						super(CursorRecord, self).__setattr__(att, val)
 					else:
 						self.cursor.setFieldVal(att, val)
-			
+
 			ret = self._cursorRecord = CursorRecord()
 			self._cursorRecord.cursor = self
 		return ret
@@ -2165,7 +2165,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		except AttributeError:
 			ret = -1
 		return ret
-		
+
 
 	def _getRowNumber(self):
 		try:
@@ -2174,17 +2174,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			ret = -1
 		return ret
 
-	
+
 	def _setRowNumber(self, num):
 		self.__rownumber = num
-	
+
 
 	def _getTable(self):
 		try:
 			return self._table
 		except AttributeError:
 			return ""
-			
+
 	def _setTable(self, table):
 		self._table = str(table)
 		self.AuxCursor._table = str(table)
@@ -2192,9 +2192,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			# Get the PK field, if any
 			try:
 				self._keyField = [fld[0] for fld in self.getFields(table)
-						if fld[2] ][0]	
+						if fld[2] ][0]
 			except: pass
-	
+
 
 	def _getUserSQL(self):
 		try:
@@ -2217,24 +2217,24 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	AutoCommit = property(_getAutoCommit, _setAutoCommit, None,
 			_("Do we need explicit begin/commit/rollback commands for transactions?  (bool)"))
-	
+
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None,
-			_("When inserting a new record, does the backend populate the PK field?")) 
-	
+			_("When inserting a new record, does the backend populate the PK field?"))
+
 	AutoQuoteNames = property(_getAutoQuoteNames, _setAutoQuoteNames, None,
-			_("""When True (default), table and column names are enclosed with 
+			_("""When True (default), table and column names are enclosed with
 			quotes during SQL creation.  (bool)"""))
-	
+
 	AutoSQL = property(_getAutoSQL, None, None,
 			_("Returns the SQL statement automatically generated by the sql manager."))
 
 	AuxCursor = property(_getAuxCursor, None, None,
 			_("""Auxiliary cursor object that handles queries that would otherwise
-			affect the main cursor's data set.  (dCursorMixin subclass)""")) 
-	
+			affect the main cursor's data set.  (dCursorMixin subclass)"""))
+
 	BackendObject = property(_getBackendObject, _setBackendObject, None,
-			_("Returns a reference to the object defining backend-specific behavior (dBackend)")) 
-	
+			_("Returns a reference to the object defining backend-specific behavior (dBackend)"))
+
 	CurrentSQL = property(_getCurrentSQL, None, None,
 			_("Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."))
 
@@ -2254,43 +2254,43 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	Encoding = property(_getEncoding, _setEncoding, None,
 			_("Encoding type used by the Backend  (string)") )
-			
+
 	FieldDescription = property(_getDescrip, None, None,
 			_("Tuple of field names and types, as returned by the backend  (tuple)") )
-			
+
 	IsAdding = property(_getIsAdding, None, None,
 			_("Returns True if the current record is new and unsaved"))
-			
+
 	IsPrefCursor = property(_getIsPrefCursor, _setIsPrefCursor, None,
-			_("""Returns True if this cursor is used for managing internal 
+			_("""Returns True if this cursor is used for managing internal
 			Dabo preferences and settings. Default=False.  (bool)"""))
-	
+
 	LastSQL = property(_getLastSQL, None, None,
 			_("Returns the last executed SQL statement."))
 
 	KeyField = property(_getKeyField, _setKeyField, None,
 			_("Name of field that is the PK. If multiple fields make up the key, "
 			"separate the fields with commas. (str)"))
-	
+
 	Record = property(_getRecord, None, None,
 			_("""Represents a record in the data set. You can address individual
 			columns by referring to 'self.Record.fieldName' (read-only) (no type)"""))
-	
+
 	RowNumber = property(_getRowNumber, _setRowNumber, None,
 			_("Current row in the recordset."))
-	
+
 	RowCount = property(_getRowCount, None, None,
 			_("Current number of rows in the recordset. Read-only."))
 
 	Table = property(_getTable, _setTable, None,
 			_("The name of the table in the database that this cursor is updating."))
-			
+
 	UserSQL = property(_getUserSQL, _setUserSQL, None,
 			_("SQL statement to run. If set, the automatic SQL builder will not be used."))
 
 	VirtualFields = property(_getVirtualFields, _setVirtualFields, None,
 			_("""A dictionary mapping virtual_field_name to a function to call.
 
-			The specified function will be called when getFieldVal() is called on 
+			The specified function will be called when getFieldVal() is called on
 			the specified field name."""))
 

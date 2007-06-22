@@ -19,17 +19,17 @@ class dControlItemMixin(dDataControlMixin):
 		self._sortFunction = None
 		super(dControlItemMixin, self).__init__(*args, **kwargs)
 
-		
+
 	def _initEvents(self):
 		super(dControlItemMixin, self)._initEvents()
 
-	
+
 	def _onWxHit(self, evt):
 		# Flush value on every hit:
 		self.flushValue()
 		super(dControlItemMixin, self)._onWxHit(evt)
 
-	
+
 	def appendItem(self, txt, select=False):
 		""" Adds a new item to the end of the list """
 		chc = self._choices
@@ -37,8 +37,8 @@ class dControlItemMixin(dDataControlMixin):
 		self.Choices = chc
 		if select:
 			self.StringValue = txt
-	
-	
+
+
 	def insertItem(self, pos, txt, select=False):
 		""" Inserts a new item into the specified position. """
 		chc = self._choices[:pos]
@@ -47,8 +47,8 @@ class dControlItemMixin(dDataControlMixin):
 		self.Choices = chc
 		if select:
 			self.StringValue = txt
-	
-	
+
+
 	def removeItem(self, pos):
 		""" Removes the item at the specified position. """
 		del self._choices[pos]
@@ -59,14 +59,14 @@ class dControlItemMixin(dDataControlMixin):
 		""" Removes all entries from the control. """
 		self._choices = []
 		self.Clear()
-		
-	
+
+
 	def clearSelections(self):
 		""" Stub method. Only used in the list box, where there
 		can be multiple selections.
 		"""
 		pass
-		
+
 
 	def setSelection(self, index):
 		"""Same as setting property PositionValue."""
@@ -92,7 +92,7 @@ class dControlItemMixin(dDataControlMixin):
 			ms = False
 		return ms
 
-		
+
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getChoices(self):
@@ -101,8 +101,8 @@ class dControlItemMixin(dDataControlMixin):
 		except AttributeError:
 			_choices = self._choices = []
 		return _choices
-		
-		
+
+
 	def _setChoices(self, choices):
 		if self._constructed():
 			vm = self.ValueMode
@@ -125,7 +125,7 @@ class dControlItemMixin(dDataControlMixin):
 
 	def _getCount(self):
 		return self.GetCount()
-	
+
 
 	def _getKeys(self):
 		try:
@@ -133,8 +133,8 @@ class dControlItemMixin(dDataControlMixin):
 		except AttributeError:
 			keys = self._keys = {}
 		return keys
-		
-		
+
+
 	def _setKeys(self, val):
 		if isinstance(val, dict):
 			self._keys = val
@@ -144,7 +144,7 @@ class dControlItemMixin(dDataControlMixin):
 			self._invertedKeys = None
 		else:
 			raise TypeError, _("Keys must be a dictionary or list/tuple.")
-			
+
 
 	def _getKeyValue(self):
 		selections = self.PositionValue
@@ -168,29 +168,29 @@ class dControlItemMixin(dDataControlMixin):
 					values.append(self._invertedKeys[selection])
 				except KeyError:
 					values.append(None)
-		
+
 		if not self._isMultiSelect():
 			if len(values) > 0:
 				return values[0]
 			else:
-				return None		
+				return None
 		else:
 			return tuple(values)
-			
-		
+
+
 	def _setKeyValue(self, value):
 		if self._constructed():
 			# This function takes a key value or values, such as 10992 or
-			# (10992, 92991), finds the mapped position or positions, and 
+			# (10992, 92991), finds the mapped position or positions, and
 			# and selects that position or positions.
-	
+
 			# convert singular to tuple:
 			if not isinstance(value, (list, tuple)):
 				value = (value,)
-		
+
 			# Clear all current selections:
 			self.clearSelections()
-			
+
 			# Check what type of key collection we are using: dict or list
 			keysAreDict = isinstance(self.Keys, dict)
 			# Select items that match indices in value:
@@ -202,11 +202,11 @@ class dControlItemMixin(dDataControlMixin):
 						# a new record. In my case, the iclientid field is ''. I want the list
 						# to display "< None >" and map that to a value of None, so I set up a
 						# Choice and a Key for that in my app code.
-	
+
 						# setting key to None here will result in an exception if there is no
 						# key on None (user code must set their Keys to have a None key). But
 						# the effect this has is that if the control is getting set to a value
-						# that doesn't exist in self.Keys, we'll set the list to select the 
+						# that doesn't exist in self.Keys, we'll set the list to select the
 						# item that is matched to None, if available. Else, it's a runtime
 						# exception.
 						key = None
@@ -217,7 +217,7 @@ class dControlItemMixin(dDataControlMixin):
 						self.setSelection(self.Keys.index(key))
 					except:
 						# No such key; write an info message, but otherwise ignore it.
-						dabo.infoLog.write(_("Key '%s' not found") % key)
+						dabo.logInfo(_("Key '%s' not found") % key)
 						continue
 			self._afterValueChanged()
 		else:
@@ -237,7 +237,7 @@ class dControlItemMixin(dDataControlMixin):
 				selections = self.GetSelections()
 				ret = tuple(selections)
 		return ret
-		
+
 
 	def _setPositionValue(self, value):
 		if self._constructed():
@@ -257,7 +257,7 @@ class dControlItemMixin(dDataControlMixin):
 		else:
 			self._properties["PositionValue"] = value
 
-	
+
 	def _getSorted(self):
 		return self._sorted
 
@@ -316,8 +316,8 @@ class dControlItemMixin(dDataControlMixin):
 				return None
 		else:
 			return tuple(strings)
-			
-	
+
+
 	def _setStringValue(self, value):
 		if self._constructed():
 			# convert singular to tuple:
@@ -341,7 +341,7 @@ class dControlItemMixin(dDataControlMixin):
 		else:
 			self._properties["StringValue"] = value
 
-		
+
 	def _getValue(self):
 		if self.ValueMode == "position":
 			ret = self.PositionValue
@@ -350,8 +350,8 @@ class dControlItemMixin(dDataControlMixin):
 		else:
 			ret = self.StringValue
 		return ret
-		
-		
+
+
 	def _setValue(self, value):
 		if self.ValueMode == "position":
 			self.PositionValue = value
@@ -359,29 +359,29 @@ class dControlItemMixin(dDataControlMixin):
 			self.KeyValue = value
 		else:
 			self.StringValue = value
-			
+
 
 	def _getValueMode(self):
 		try:
 			vm = {"p": "position", "s": "string", "k": "key"}[self._valueMode]
-		except AttributeError:	
+		except AttributeError:
 			vm = self._valueMode = "string"
 		return vm
-		
-		
+
+
 	def _setValueMode(self, val):
 		val = str(val).lower()[0]
 		if val in ("p", "s", "k"):
 			self._valueMode = val
-			
-		
+
+
 	# Property definitions:
 	Choices = property(_getChoices, _setChoices, None,
 			_("""Specifies the string choices to display in the list.
 			-> List of strings. Read-write at runtime.
-			The list index becomes the PositionValue, and the string 
+			The list index becomes the PositionValue, and the string
 			becomes the StringValue.""") )
-	
+
 	Count = property(_getCount, None, None,
 			_("""Number of items in the control.
 			-> Integer. Read-only.""") )
@@ -389,21 +389,21 @@ class dControlItemMixin(dDataControlMixin):
 	Keys = property(_getKeys, _setKeys, None,
 			_("""Specifies a mapping between arbitrary values and item positions.
 			-> Dictionary. Read-write at runtime.
-			The Keys property is a dictionary, where each key resolves into a 
+			The Keys property is a dictionary, where each key resolves into a
 			list index (position). If using keys, you should update the Keys
 			property whenever you update the Choices property, to make sure they
 			are in sync.
-			-> Optionally, Keys can be a list/tuple that is a 1:1 mapping of the 
+			-> Optionally, Keys can be a list/tuple that is a 1:1 mapping of the
 			Choices property. So if your 3rd Choices entry is selected, KeyValue
 			will return the 3rd entry in the Keys property.""") )
-		
+
 	KeyValue = property(_getKeyValue, _setKeyValue, None,
 			_("""Specifies the key value or values of the selected item or items.
 			-> Type can vary. Read-write at runtime.
-			Returns the key value or values of the selected item(s), or selects 
-			the item(s) with the specified KeyValue(s).	An exception will be 
+			Returns the key value or values of the selected item(s), or selects
+			the item(s) with the specified KeyValue(s).	An exception will be
 			raised if the Keys property hasn't been set up to accomodate.""") )
-		
+
 	PositionValue = property(_getPositionValue, _setPositionValue, None,
 			_("""Specifies the position (index) of the selected item(s).
 			-> Integer or tuple of integers. Read-write at runtime.
@@ -412,18 +412,18 @@ class dControlItemMixin(dDataControlMixin):
 	Sorted = property(_getSorted, _setSorted, None,
 			_("""Are the items in the control automatically sorted? Default=False.
 			If True, whenever the Choices property is changed, the resulting list
-			will be first sorted using the SortFunction property, which defaults to 
+			will be first sorted using the SortFunction property, which defaults to
 			None, giving a default sort order.  (bool)"""))
-	
+
 	SortFunction = property(_getSortFunction, _setSortFunction, None,
-			_("""Function used to sort list items when Sorted=True. Default=None, 
+			_("""Function used to sort list items when Sorted=True. Default=None,
 			which gives the default sorting  (callable or None)"""))
-	
+
 	StringValue = property(_getStringValue, _setStringValue, None,
 			_("""Specifies the text of the selected item.
 			-> String or tuple of strings. Read-write at runtime.
-			Returns the text of the selected item(s), or selects the item(s) 
-			with the specified text. An exception is raised if there is no 
+			Returns the text of the selected item(s), or selects the item(s)
+			with the specified text. An exception is raised if there is no
 			position with matching text.""") )
 
 	Value = property(_getValue, _setValue, None,
@@ -433,7 +433,7 @@ class dControlItemMixin(dDataControlMixin):
 				+ ValueMode="Position" : the index of the selected item(s) (integer)
 				+ ValueMode="String"   : the displayed string of the selected item(s) (string)
 				+ ValueMode="Key"      : the key of the selected item(s) (can vary)""") )
-	
+
 	ValueMode = property(_getValueMode, _setValueMode, None,
 			_("""Specifies the information that the Value property refers to.
 			-> String. Read-write at runtime.

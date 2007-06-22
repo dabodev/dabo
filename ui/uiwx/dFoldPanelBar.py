@@ -12,9 +12,9 @@ from dabo.ui import makeDynamicProperty
 
 
 class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
-	def __init__(self, parent, caption=None, collapsed=None, properties=None, 
+	def __init__(self, parent, caption=None, collapsed=None, properties=None,
 			attProperties=None, *args, **kwargs):
-		
+
 		self._baseClass = dFoldPanel
 		preClass = fpb.FoldPanelItem
 		self._widthAlreadySet = self._heightAlreadySet = True
@@ -28,11 +28,11 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 			if collapsed is None:
 				# They might have passed it as 'Expanded'
 				collapsed = not self._extractKey((kwargs, properties), "Expanded", True)
-		
+
 		cbstyle = self._extractKey((kwargs, properties), "cbstyle", None)
 		if cbstyle is None:
 			kwargs["cbstyle"] = fpb.CaptionBarStyle()
-		
+
 		if isinstance(parent, fpb.FoldPanelBar):
 			# Items have to be added to the internal panel instead
 			self._bar = parent
@@ -42,9 +42,9 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 			self._bar = parent.GetParent()
 
 		self._captionForeColor = "black"
-		self._barStyles = ("Borderless", "BorderOnly", 
+		self._barStyles = ("Borderless", "BorderOnly",
 				"FilledBorder", "VerticalFill", "HorizontalFill")
-		self._barStylesLow = ("borderless", "borderonly", 
+		self._barStylesLow = ("borderless", "borderonly",
 				"filledborder", "verticalfill", "horizontalfill")
 		self._barStyleConstants = {"nostyle" : fpb.CAPTIONBAR_NOSTYLE,
 				"verticalfill" : fpb.CAPTIONBAR_GRADIENT_V,
@@ -61,7 +61,7 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 			self.Collapsed = collapsed
 		# Enable detection of clicks on the caption bar
 		self._captionBar.Bind(wx.EVT_LEFT_UP, self.__onWxCaptionClick)
-	
+
 
 	def GetBestSize(self):
 		ret = super(dFoldPanel, self).GetBestSize()
@@ -82,23 +82,23 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 					if ret.GetHeight() > pHt - capHt:
 						ret.SetHeight(pHt - capHt)
 		return ret
-		
-		
+
+
 	def onChildBorn(self, evt):
 		self._bar.lockDisplay()
 		ch = evt.child
 		self._bar.AddFoldPanelWindow(self, ch)
 		self._bar.RefreshPanelsFrom(self)
 		self._bar.unlockDisplay()
-	
-	
+
+
 	def appendSeparator(self, color=None):
 		"""This draws a separator line on the panel"""
 		if color is None:
 			color = "black"
 		self.AddSeparator(self._getWxColour(color))
-		
-	
+
+
 	def layout(self):
 		""" Wrap the wx version of the call, if possible. """
 		self.Layout()
@@ -113,7 +113,7 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 	def __onWxCaptionClick(self, evt):
 		self.raiseEvent(dEvents.FoldPanelCaptionClick, evt)
-				
+
 
 	def _getBarColor1(self):
 		return self._barColor1
@@ -142,7 +142,7 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 	def _setBarStyle(self, val):
 		if val.lower().strip() not in self._barStylesLow:
-			dabo.errorLog.write(_("Unknown BarStyle passed: %s. BarStyle must be one of: %s")
+			dabo.logError(_("Unknown BarStyle passed: %s. BarStyle must be one of: %s")
 					% (val, ", ".join(self._barStyles)))
 		else:
 			self._barStyle = val
@@ -150,7 +150,7 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 			style = self._captionBar.GetCaptionStyle()
 			style.SetCaptionStyle(self._barStyleConstants[val.lower().strip()])
 			self._captionBar.SetCaptionStyle(style)
-			
+
 
 	def _getCaption(self):
 		return self._captionBar._caption
@@ -158,13 +158,13 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 	def _setCaption(self, val):
 		self._captionBar._caption = val
 		self.refresh()
-		
+
 
 	def _getCaptionForeColor(self):
 		return self._captionForeColor
 
 	def _setCaptionForeColor(self, val):
-# 		dabo.infoLog.write("CaptionForeColor - Not implemented yet")
+# 		dabo.logInfo("CaptionForeColor - Not implemented yet")
 		self._captionForeColor = val
 		style = self._captionBar.GetCaptionStyle()
 		style.SetCaptionColour(self._getWxColour(val))
@@ -201,14 +201,14 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 	BarColor1 = property(_getBarColor1, _setBarColor1, None,
 			_("Main color for the caption bar  (dColor)"))
-	
+
 	BarColor2 = property(_getBarColor2, _setBarColor2, None,
 			_("Secondary color for the caption bar. Only used in gradients  (dColor)"))
-	
+
 	BarStyle = property(_getBarStyle, _setBarStyle, None,
-			_(""""Determines how the bar containing the caption 
+			_(""""Determines how the bar containing the caption
 			for this panel is drawn. (str)
-			
+
 			Can be one of the following:
 				Borderless		(no border, just a plain fill color; default)
 				BorderOnly		(simple border, no fill color)
@@ -219,20 +219,20 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("Caption displayed on the panel bar  (str)"))
-	
+
 	CaptionForeColor = property(_getCaptionForeColor, _setCaptionForeColor, None,
 			_("Text color of the caption bar  (str or tuple)"))
-	
+
 	CaptionHeight = property(_getCaptionHeight, None, None,
 			_("Height of the caption bar. Read-only  (int)"))
-	
+
 	Collapsed = property(_getCollapsed, _setCollapsed, None,
 			_("Is the panel's contents hidden?  (bool)"))
-	
+
 	Expanded = property(_getExpanded, _setExpanded, None,
 			_("Is the panel's contents visible?  (bool)"))
 
-	Parent = property(_getParent, None, None, 
+	Parent = property(_getParent, None, None,
 			_("Reference to the containing dFoldPanelBar."))
 
 	DynamicBarColor1 = makeDynamicProperty(BarColor1)
@@ -245,14 +245,14 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 
 
-	
+
 class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
-	"""Creates a control consisting of several panels that can be 
+	"""Creates a control consisting of several panels that can be
 	hidden or revealed by clicking on their 'caption bar'.
-	
+
 	This allows you to collapse each panel down to its caption bar,
 	which either remains in place or drops to the bottom.
-	"""	
+	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dFoldPanelBar
 		preClass = fpb.FoldPanelBar
@@ -264,12 +264,12 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		self.__inSingletonProcess = False
 		# Flag to track the currently expanded panel in Singleton format.
 		self.__openPanel = None
-		
+
 		dcm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 		self._setInitialOpenPanel()
 		self.bindEvent(dEvents.FoldPanelChange, self.__onFoldPanelChange)
-	
+
 
 	def append(self, pnl):
 		pos = 0
@@ -277,9 +277,9 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			pos = self._panels[-1].GetItemPos() + self._panels[-1].GetPanelLength()
 		pnl.Reposition(pos)
 		self._panels.append(pnl)
-		self.raiseEvent(dEvents.FoldPanelChange, 
+		self.raiseEvent(dEvents.FoldPanelChange,
 				self._createCapBarEvt(pnl))
-		pnl.bindEvent(dEvents.FoldPanelCaptionClick, 
+		pnl.bindEvent(dEvents.FoldPanelCaptionClick,
 				self.onFoldPanelCaptionClick, pnl)
 
 
@@ -297,22 +297,22 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		evt.SetBar(cap)
 		return evt
 
-		
+
 	def Collapse(self, pnl):
 		if pnl.Collapsed:
 			# nothing to do here
 			return
 		super(dFoldPanelBar, self).Collapse(pnl)
-		self.raiseEvent(dEvents.FoldPanelChange, 
+		self.raiseEvent(dEvents.FoldPanelChange,
 				self._createCapBarEvt(pnl))
 
-	
+
 	def Expand(self, pnl):
 		if pnl.Expanded:
 			# nothing to do here
 			return
 		super(dFoldPanelBar, self).Expand(pnl)
-		self.raiseEvent(dEvents.FoldPanelChange, 
+		self.raiseEvent(dEvents.FoldPanelChange,
 				self._createCapBarEvt(pnl))
 
 	# Throw in Dabo-style wrapper names
@@ -323,8 +323,8 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 	def collapseAll(self):
 		for pnl in self._panels:
 			pnl.Collapsed = True
-	
-	
+
+
 	def expandAll(self):
 		for pnl in self._panels:
 			pnl.Expanded = True
@@ -337,7 +337,7 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			vertical = self.IsVertical()
 			if vertical and rect.GetHeight() > 0 or not vertical and rect.GetWidth() > 0:
 				self.RefreshRect(rect)
-			
+
 
 	def layout(self):
 		""" Wrap the wx version of the call, if possible. """
@@ -346,10 +346,10 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			return
 		self.Layout()
 
-	
+
 	def onResize(self, evt):
 		self.sizePanelHeights()
-		
+
 
 	def _setInitialOpenPanel(self):
 		"""When self.Singleton is true, ensures that one panel is
@@ -358,7 +358,7 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		if not self.Singleton:
 			return
 		# Make sure that one panel is open. If not, open the first.
-		# If there is more than one panel open, close all but the 
+		# If there is more than one panel open, close all but the
 		# first open panel.
 		if len(self._panels) == 0:
 			return
@@ -372,11 +372,11 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 					self.__openPanel = pnl
 					found = True
 		if not found:
-			self._panels[0].Expanded = True	
+			self._panels[0].Expanded = True
 			self.__openPanel = self._panels[0]
 		self.__inSingletonProcess = False
-		
-		
+
+
 	def __onFoldPanelChange(self, evt):
 		"""This ensures that one and only one panel remains expanded
 		when the control is in Singleton mode.
@@ -402,7 +402,7 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 					curr.Collapsed = True
 			self.__openPanel = evtPanel
 		else:
-			# The panel is closing. If it was the current panel, 
+			# The panel is closing. If it was the current panel,
 			# keep it open.
 			if curr is None:
 				# This is the first panel being added; keep it open
@@ -416,7 +416,7 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			self.refresh()
 		self.__inSingletonProcess = False
 
-	
+
 	def sizePanelHeights(self, force=False):
 		"""Control the heights of the panels. Originally I thought we only needed
 		this when running in Singleton mode, but now it seems better to run this
@@ -430,7 +430,7 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		if self.CollapseToBottom:
 			# Sort so that the first panel is the expanded one.
 			pnlList.sort(lambda x, y: cmp(x.Collapsed, y.Collapsed))
-		fp = pnlList[0]		
+		fp = pnlList[0]
 		fp.Reposition(0)
 		self.RefreshPanelsFrom(fp)
 		for pnl in pnlList:
@@ -444,12 +444,12 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			pnl.layout()
 			top += pnl.Height
 		dabo.ui.callAfter(self.layout)
-		
+
 
 	def _getChildren(self):
 		return self._panels
-	
-	
+
+
 	def _getCollapseToBottom(self):
 		return bool(self._extraStyle & fpb.FPB_COLLAPSE_TO_BOTTOM)
 
@@ -465,7 +465,7 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			self.RefreshPanelsFrom(fp)
 			self.sizePanelHeights(force=True)
 			self.layout()
-			
+
 
 	def _getSingleClick(self):
 		return self._singleClick
@@ -485,14 +485,14 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 
 	Children = property(_getChildren, None, None,
 			_("List of all panels in the control  (list))"))
-			
+
 	CollapseToBottom = property(_getCollapseToBottom, _setCollapseToBottom, None,
 			_("When True, all collapsed panels are displayed at the bottom  (bool)"))
-	
+
 	SingleClick = property(_getSingleClick, _setSingleClick, None,
-			_("""When True, a single click on the caption bar toggles the 
+			_("""When True, a single click on the caption bar toggles the
 			expanded/collapsed state  (bool)"""))
-	
+
 	Singleton = property(_getSingleton, _setSingleton, None,
 			_("When True, one and only one panel at a time will be expanded  (bool)"))
 
@@ -507,14 +507,14 @@ if __name__ == "__main__":
 		def afterInit(self):
 			dFoldPanelBar(self, RegID="FoldBar")
 			self.Sizer.append1x(self.FoldBar)
-			self.p1 = dabo.ui.dFoldPanel(self.FoldBar, Caption="First", 
+			self.p1 = dabo.ui.dFoldPanel(self.FoldBar, Caption="First",
 					BackColor="orange")
-			self.p2 = dabo.ui.dFoldPanel(self.FoldBar, Caption="Second", 
-					Collapsed=True, BarStyle="FilledBorder", 
+			self.p2 = dabo.ui.dFoldPanel(self.FoldBar, Caption="Second",
+					Collapsed=True, BarStyle="FilledBorder",
 					BarColor1="SpringGreen", BackColor="lightgreen")
 			self.p3 = dabo.ui.dFoldPanel(self.FoldBar, Caption="Third",
 					BarStyle="BorderOnly", BackColor="bisque")
-			
+
 			pnl = dabo.ui.dPanel(self.p1)
 			self.p1.Sizer = dabo.ui.dSizer("v")
 			self.p1.Sizer.appendSpacer(self.p1.CaptionHeight)
@@ -526,7 +526,7 @@ if __name__ == "__main__":
 			dabo.ui.dLabel(self.p2, Caption="Two Step", FontItalic=True,
 					FontSize=24)
 			dabo.ui.dLabel(self.p3, Caption="Three Strikes")
-			
+
 			hsz = dabo.ui.dSizer("h")
 			btnCollapse = dabo.ui.dButton(self, Caption="Collapse All")
 			btnCollapse.bindEvent(dEvents.Hit, self.onCollapseAll)
@@ -536,11 +536,11 @@ if __name__ == "__main__":
 			hsz.appendSpacer(10)
 			hsz.append(btnExpand)
 			hsz.appendSpacer(10)
-			chkSingleton = dabo.ui.dCheckBox(self, Caption="Singleton Style", 
+			chkSingleton = dabo.ui.dCheckBox(self, Caption="Singleton Style",
 					DataSource="self.Form.FoldBar", DataField="Singleton")
-			chkSingle = dabo.ui.dCheckBox(self, Caption="Single Click to Toggle", 
+			chkSingle = dabo.ui.dCheckBox(self, Caption="Single Click to Toggle",
 					DataSource="self.Form.FoldBar", DataField="SingleClick")
-			chkBottom = dabo.ui.dCheckBox(self, Caption="Collapsed Panels To Bottom", 
+			chkBottom = dabo.ui.dCheckBox(self, Caption="Collapsed Panels To Bottom",
 					DataSource="self.Form.FoldBar", DataField="CollapseToBottom")
 			self.Sizer.appendSpacer(10)
 			vsz = dabo.ui.dSizer("v")
@@ -559,20 +559,20 @@ if __name__ == "__main__":
 			obj = evt.EventObject
 			obj.Enabled = False
 			self.p1.appendSeparator("white")
-			
-			lbl = dabo.ui.dLabel(obj.Parent, Caption="Changed!", 
+
+			lbl = dabo.ui.dLabel(obj.Parent, Caption="Changed!",
 					FontItalic=True, FontSize=48)
 			obj.Parent.Sizer.append(lbl)
 			obj.Parent.layout()
-			
+
 
 		def onCollapseAll(self, evt):
 			self.FoldBar.collapseAll()
-			
+
 		def onExpandAll(self, evt):
 			self.FoldBar.expandAll()
-			
-	
+
+
 	app = dabo.dApp()
 	app.MainFormClass = TestForm
 	app.start()
