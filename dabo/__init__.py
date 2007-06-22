@@ -124,29 +124,17 @@ dAppRef = None
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
 from dabo.lib.logger import Log
-log = Log()
-log.LogObject = sys.stdout
-logDebug = log.logDebug
-logInfo = log.logInfo
-logError = log.logError
-logException = log.logException
-logCritical = log.logCritical
-logDBActivity = log.logDBActivity
-addLogLevel = log.addLogLevel
-delLogLevel = log.delLogLevel
-
-
-#infoLog = Log()
-#infoLog.Caption = "Dabo Info Log"
-#infoLog.LogObject = sys.stdout
-#errorLog = Log()
-#errorLog.Caption = "Dabo Error Log"
-#errorLog.LogObject = sys.stderr
+infoLog = Log()
+infoLog.Caption = "Dabo Info Log"
+infoLog.LogObject = sys.stdout
+errorLog = Log()
+errorLog.Caption = "Dabo Error Log"
+errorLog.LogObject = sys.stderr
 # This log is set to None by default. It must be manually activated
 # via the Application object.
-#dbActivityLog = Log()
-#dbActivityLog.Caption = "Database Activity Log"
-#dbActivityLog.LogObject = None
+dbActivityLog = Log()
+dbActivityLog.Caption = "Database Activity Log"
+dbActivityLog.LogObject = None
 
 # Import global settings (do this first, as other imports may rely on it):
 from settings import *
