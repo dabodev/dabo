@@ -13,17 +13,17 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	functions along with their own property() statements.
 	"""
 	def __init__(self, preClass, parent=None, properties=None, *args, **kwargs):
-		# This is the major, common constructor code for all the dabo/ui/uitk
+		# This is the major, common constructor code for all the dabo/ui/uitk 
 		# classes. The __init__'s of each class are just thin wrappers to this
 		# code.
 
 		# self.properties can be set in the userland beforeInit() hook.
 		self._properties = {}
-
+		
 		# This will implicitly call the following user hooks:
 		#    beforeInit()
 		self._beforeInit()
-
+		
 		# The keyword properties can come from either, both, or none of:
 		#    + self.properties (set by user code in self.beforeInit())
 		#    + the properties dict
@@ -34,8 +34,8 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			for k,v in properties.items():
 				self._properties[k] = v
 		properties = self._extractKeywordProperties(kwargs, self._properties)
-
-		# If a Name isn't given, a default name will be used, and it'll
+		
+		# If a Name isn't given, a default name will be used, and it'll 
 		# autonegotiate by adding an integer until it is a unique name.
 		# If a Name is given explicitly, a NameError will be raised if
 		# the given Name isn't unique among siblings:
@@ -43,16 +43,16 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 		# Do the init:
 		preClass.__init__(self, *args, **kwargs)
-
+		
 		self._initName(name, _explicitName=_explicitName)
-
+		
 		self._afterInit()
 		print properties
 		try:
 			self.setProperties(properties)
 		except:
 			pass
-
+	
 
 	def __getattr__(self, att):
 		""" Try to resolve att to a child object reference.
@@ -60,7 +60,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		This allows accessing children with the style:
 			self.mainPanel.txtName.Value = "test"
 		"""
-
+		
 		children = self.winfo_children()
 
 		ret = None
@@ -68,27 +68,27 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			if child.winfo_name() == att:
 				ret = child
 				exit
-
+				
 		if not ret:
 			raise AttributeError, "%s object has no attribute %s" % (
 				self._name, att)
 		else:
 			return ret
 
-
+	
 	def _beforeInit(self):
 		self._name = '?'
-
+		
 		# Call the subclass hook:
 		self.beforeInit()
 
-
+	
 	def _afterInit(self):
 		self.debug = False
-
+		
 		self.initProperties()
 		self.afterInit()
-
+		
 		self._mouseLeftDown, self._mouseRightDown = False, False
 
 		self._initEvents()
@@ -96,10 +96,10 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 		self.raiseEvent(dEvents.Create)
 
-
+					
 	def _initEvents(self):
 		# Bind tk events to handlers that re-raise the Dabo events:
-
+		
 		self.bind("<Destroy>", self._onTkDestroy)
 		self.bind("<FocusIn>", self._onTkGotFocus)
 		self.bind("<FocusOut>", self._onTkLostFocus)
@@ -110,22 +110,22 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 		self.bind("<KeyPress>", self._onTkKeyDown)
 		self.bind("<KeyRelease>", self._onTkKeyUp)
-
+		
 		self.bind("<Enter>", self._onTkMouseEnter)
 		self.bind("<Leave>", self._onTkMouseLeave)
 		self.bind("<Button-1>", self._onTkMouseLeftDown)
 		self.bind("<ButtonRelease-1>", self._onTkMouseLeftUp)
 		self.bind("<Button-3>", self._onTkMouseRightDown)
 		self.bind("<ButtonRelease-3>", self._onTkMouseRightUp)
-
-
-
+				
+		
+			
 	def _onTkDestroy(self, event):
 		return self.raiseEvent(dEvents.Destroy, event)
-
+		
 	def _onTkGotFocus(self, event):
 		return self.raiseEvent(dEvents.GotFocus, event)
-
+		
 	def _onTkLostFocus(self, event):
 		return self.raiseEvent(dEvents.LostFocus, event)
 
@@ -162,7 +162,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self.raiseEvent(dEvents.MouseLeftClick, event)
 			self._mouseLeftDown = False
 		return r
-
+			
 	def _onTkMouseRightDown(self, event):
 		self._mouseRightDown = True
 		return self.raiseEvent(dEvents.MouseRightDown, event)
@@ -174,42 +174,42 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			self.raiseEvent(dEvents.MouseRightClick, event)
 			self._mouseLeftDown = False
 		return r
-
-
+			
+		
 	def raiseEvent(self, eventClass, nativeEvent=None, *args, **kwargs):
 		# Call the Dabo-native raiseEvent(), passing along the Tkinter after_idle
 		# function, so that the Dabo events can be processed at next idle.
-#		return self.super(eventClass, nativeEvent, callAfterFunc=self.after_idle,
+#		return self.super(eventClass, nativeEvent, callAfterFunc=self.after_idle, 
 #			*args, **kwargs)
 		super(dPemMixin, self).raiseEvent(eventClass, nativeEvent, callAfterFunc=self.after_idle,
 				*args, **kwargs)
-
-
+	
+		
 	def getPropertyInfo(self, name):
 		d = self.super(name)   # the property helper does most of the work
-
+		
 		# Hide some wx-specific props in the designer:
 		d['showInDesigner'] = not name in ('Size', 'Position', 'WindowHandle', 'TypeID')
 
 		# Some wx-specific props need to be initialized early. Let the designer know:
-		d['preInitProperty'] = name in ('Alignment', 'BorderStyle', 'PasswordEntry',
+		d['preInitProperty'] = name in ('Alignment', 'BorderStyle', 'PasswordEntry', 
 				'Orientation', 'ShowLabels', 'TabPosition')
 
 		return d
-
-
+		
+	
 	def addObject(self, classRef, name, *args, **kwargs):
 		""" Instantiate object as a child of self.
-
+		
 		The class reference must be a Dabo object (must inherit dPemMixin).
-
-		The name parameter will be used on the resulting instance, and additional
+		
+		The name parameter will be used on the resulting instance, and additional 
 		arguments received will be passed on to the constructor of the object.
 		"""
 		object = classRef(self, name=name, *args, **kwargs)
 		return object
 
-
+			
 	def reCreate(self, child=None):
 		""" Recreate self.
 		"""
@@ -224,25 +224,25 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			return newObj
 		else:
 			return self.Parent.reCreate(self)
-
-
+	
+	
 	def clone(self, obj, name=None):
-		""" Create another object just like the passed object. It assumes that the
+		""" Create another object just like the passed object. It assumes that the 
 		calling object will be the container of the newly created object.
 		"""
 		propValDict = self.getPropValDict(obj)
 		if name is None:
 			name = obj.Name + "1"
-		newObj = self.addObject(obj.__class__,
+		newObj = self.addObject(obj.__class__, 
 				name, style=obj.GetWindowStyle() )
 		self.applyPropValDict(newObj, propValDict)
 		return newObj
-
+		
 
 	# Scroll to the bottom to see the property definitions.
 
 	# Property get/set/delete methods follow.
-
+	
 	def _getGeometryTuple(self):
 		""" Convert Tkinter's 'widthXheight+left+top' format into a more usable
 		set of 2-tuples. The first tuple is (width,height) and the second is
@@ -268,31 +268,31 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		except AttributeError:
 			self.width, self.height = size[0], size[1]
 			#self.winfo_geometry("%sx%s+%s+%s" % (size[0], size[1], pos[0], pos[1]))
-
+		
 
 
 	def _getFont(self):
 		return "Not implemented yet."
-
+	
 	def _getFontEditorInfo(self):
 		return {'editor': 'font'}
-
+	
 	def _setFont(self, font):
-		dabo.logError("_setFont not implemented yet.")
+		dabo.errorLog.write("_setFont not implemented yet.")
 
-
+		
 	def _getFontInfo(self):
 		return "Not implemented yet."
 
 	def _getFontBold(self):
 		return "Not implemented yet."
 	def _setFontBold(self, fontBold):
-		dabo.logError("_setFontBold not implemented yet.")
+		dabo.errorLog.write("_setFontBold not implemented yet.")
 
 	def _getFontItalic(self):
 		return "Not implemented yet."
 	def _setFontItalic(self, fontItalic):
-		dabo.logError("_setFontItalic not implemented yet.")
+		dabo.errorLog.write("_setFontItalic not implemented yet.")
 
 	def _getFontFace(self):
 		return "Not implemented yet."
@@ -300,12 +300,12 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	def _getFontSize(self):
 		return "Not implemented yet."
 	def _setFontSize(self, fontSize):
-		dabo.logError("_setFontSize not implemented yet.")
+		dabo.errorLog.write("_setFontSize not implemented yet.")
 
 	def _getFontUnderline(self):
 		return "Not implemented yet."
 	def _setFontUnderline(self, val):
-		dabo.logError("_setFontUnderline not implemented yet.")
+		dabo.errorLog.write("_setFontUnderline not implemented yet.")
 
 
 	def _getTop(self):
@@ -316,7 +316,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		pos[1] = top
 		pos = tuple(pos)
 		self._setGeometryTuple((size, pos))
-
+		
 	def _getLeft(self):
 		return self._getGeometryTuple()[1][0]
 	def _setLeft(self, left):
@@ -365,7 +365,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _getSize(self):
 		return self._getGeometryTuple()[0]
-
+		
 	def _setSize(self, size):
 		pos = self._getGeometryTuple()[1]
 		size = tuple(size)
@@ -375,11 +375,11 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 		name = self.winfo_name()
 		self._name = name
 		return name
-
+	
 	def _setName(self, val, _userExplicit=False):
 		# Can't set tk name after initialized. However, we should try to implement
 		# our own Dabo name which we can refer to and set/reset as we please.
-		self._properties["name"] = val
+		self._properties["name"] = val			
 		# Also, see ui/uiwx/dPemMixin._setName(), where we enforce a unique name
 		# among siblings. That code should be refactored into dPemMixinBase...
 
@@ -389,7 +389,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			return self.wm_title()
 		except AttributeError:
 			return self.cget("text")
-
+			
 	def _setCaption(self, caption):
 		try:
 			self.wm_title(str(caption))
@@ -472,7 +472,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			return parent
 		else:
 			return None
-
+		
 	def _setParent(self, obj):
 		return None
 
@@ -496,7 +496,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			return 'Default'
 
 	def _getBorderStyleEditorInfo(self):
-		return {'editor': 'list', 'values': ['Default', 'None', 'Simple', 'Sunken',
+		return {'editor': 'list', 'values': ['Default', 'None', 'Simple', 'Sunken', 
 						'Raised', 'Double', 'Static']}
 
 	def _setBorderStyle(self, style):
@@ -529,7 +529,7 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
 	# Property definitions follow
-
+	
 	WindowHandle = property(_getWindowHandle, None, None,
 			'The platform-specific handle for the window. Read-only. (long)')
 
@@ -548,11 +548,11 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 	FontUnderline = property(_getFontUnderline, _setFontUnderline, None,
 			'Specifies whether text is underlined. (bool)')
 
-	Top = property(_getTop, _setTop, None,
+	Top = property(_getTop, _setTop, None, 
 			'The top position of the object. (int)')
 	Left = property(_getLeft, _setLeft, None,
 			'The left position of the object. (int)')
-	Position = property(_getPosition, _setPosition, None,
+	Position = property(_getPosition, _setPosition, None, 
 			'The (x,y) position of the object. (tuple)')
 
 	Width = property(_getWidth, _setWidth, None,
@@ -563,14 +563,14 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 			'The size of the object. (tuple)')
 
 
-	Caption = property(_getCaption, _setCaption, None,
+	Caption = property(_getCaption, _setCaption, None, 
 			'The caption of the object. (str)')
 
 	Enabled = property(_getEnabled, _setEnabled, None,
 			'Specifies whether the object (and its children) can get user input. (bool)')
 
 	Visible = property(_getVisible, _setVisible, None,
-			'Specifies whether the object is visible at runtime. (bool)')
+			'Specifies whether the object is visible at runtime. (bool)')                    
 
 
 	BackColor = property(_getBackColor, _setBackColor, None,
@@ -581,11 +581,11 @@ class dPemMixin(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	MousePointer = property(_getMousePointer, _setMousePointer, None,
 			'Specifies the shape of the mouse pointer when it enters this window. (obj)')
-
-	Name = property(_getName, _setName, None,
+	
+	Name = property(_getName, _setName, None, 
 			'The name of the object. (str)')
-
-	Parent = property(_getParent, _setParent, None,
+	
+	Parent = property(_getParent, _setParent, None,	
 			'The containing object. (obj)')
 
 	ToolTipText = property(_getToolTipText, _setToolTipText, None,

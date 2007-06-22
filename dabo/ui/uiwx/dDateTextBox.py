@@ -23,10 +23,10 @@ class CalPanel(dPanel):
 			self.date = dt
 		self.ctrl = ctrl
 		super(CalPanel, self).__init__(parent, pos=pos)
-
-
+		
+	
 	def afterInit(self):
-		""" Create the calendar control, and resize this panel
+		""" Create the calendar control, and resize this panel 
 		to the calendar's size.
 		"""
 		self.cal = dabo.ui.dCalendar(self, Position=(5, 5))
@@ -37,23 +37,23 @@ class CalPanel(dPanel):
 		self.Size = (wd+10, ht+10)
 		self.BackColor = (192, 192, 0)
 		self.cal.Visible = True
-
-
+		
+		
 	def onCalSelection(self, evt):
 		if self.ctrl is not None:
 			self.ctrl.setDate(self.cal.Date)
 			self.ctrl.setFocus()
 		self.Visible = False
-
-
+	
+	
 	def onCalKey(self, evt):
 		if evt.keyCode == wx.WXK_ESCAPE:
 			evt.Continue = False
 			if self.ctrl is not None:
 				self.ctrl.setFocus()
 			self.Visible = False
-
-
+		
+		
 
 class dDateTextBox(dTextBox):
 	""" This is a specialized textbox class designed to work with date values.
@@ -68,13 +68,13 @@ class dDateTextBox(dTextBox):
 		self.dbYearLastDTPat = re.compile("(\d{1,2})[-/\.](\d{1,2})[-/\.](\d{4}) (\d{1,2}):(\d{1,2}):([\d\.]+)")
 		self.dbYearLastDPat = re.compile("(\d{1,2})[-/\.](\d{1,2})[-/\.](\d{4})")
 
-		# Two-digit year value that is the cutoff in interpreting
+		# Two-digit year value that is the cutoff in interpreting 
 		# dates as being either 19xx or 20xx.
 		self.rollover = 50
 		# Optional behavior: if a key is pressed for moving to the first
 		# or last of a period and the date is already at that boundary, do
-		# we continue to the next period? E.g.: if the current date is
-		# March 31 and the user presses 'H'. We are already at the end of
+		# we continue to the next period? E.g.: if the current date is 
+		# March 31 and the user presses 'H'. We are already at the end of 
 		# the month, so do we interpret this to mean continue to the end
 		# of the following month, or do we do nothing?
 		self.continueAtBoundary = True
@@ -83,8 +83,8 @@ class dDateTextBox(dTextBox):
 		self.showCalButton = False
 		# Do we display datetimes in 24-hour clock, or with AM/PM?
 		self.ampm = False
-
-
+	
+	
 	def afterInit(self):
 		self._baseClass = dDateTextBox
 		self.Value = datetime.date.today()
@@ -94,7 +94,7 @@ class dDateTextBox(dTextBox):
 					Right=self.Right, Caption="V")
 			self.calButton.Visible = True
 			self.calButton.bindEvent(dEvents.Hit, self.onDblClick)
-
+			
 		# Tooltip help
 		self.ToolTipText = """Available Keys:
 =============
@@ -109,19 +109,19 @@ Y : First Day of Year
 R : Last Day of yeaR
 C: Popup Calendar to Select
 """
-
+	
 	def initEvents(self):
 		super(dDateTextBox, self).initEvents()
 		self.bindEvent(dEvents.KeyChar, self.__onChar)
 		self.bindEvent(dEvents.LostFocus, self.__onLostFocus)
 		self.bindEvent(dEvents.MouseLeftDoubleClick, self.__onDblClick)
-
-
+	
+		
 	def __onDblClick(self, evt):
 		""" Display a calendar to allow users to select dates."""
 		self.showCalendar()
-
-
+		
+		
 	def showCalendar(self):
 		availHt = self.Parent.Bottom - self.Bottom
 		try:
@@ -143,17 +143,17 @@ C: Popup Calendar to Select
 		cp.Visible = True
 		cp.bringToFront()
 		cp.setFocus()
-
-
+		
+	
 	def __onChar(self, evt):
-		""" If a shortcut key was pressed, process that. Otherwise, eat
+		""" If a shortcut key was pressed, process that. Otherwise, eat 
 		inappropriate characters.
 		"""
 		try:
 			key = evt.keyChar.lower()
 			ctrl = evt.controlDown
 			shift = evt.shiftDown
-
+			
 			if ctrl:
 				if shift and self.Application.Platform == "GTK":
 					# Linux reads keys differently depending on the Shift key
@@ -163,33 +163,33 @@ C: Popup Calendar to Select
 		except:
 			# spurious key event; ignore
 			return
-
+		
 		shortcutKeys = "t+-mhsyrc[]"
 		dateEntryKeys = "0123456789/- :."
 		if self.ampm:
 			dateEntryKeys + "apm"
-
+		
 		if key in shortcutKeys:
-			# There is a conflict if the key, such as '-', is used in both the
+			# There is a conflict if the key, such as '-', is used in both the 
 			# date formatting and as a shortcut. So let's check the text
 			# of this field to see if it is a full date or if the user is typing in
 			# a value.
 			adjust = True
 			val = self.GetValue()
-
+			
 			if val:
 				valDt = self.strToDate(val, testing=True)
 				if valDt is None:
 					adjust = False
 				else:
 					# They've just finished typing a new date, or are just
-					# positioned on the field. Either way, update the stored
+					# positioned on the field. Either way, update the stored 
 					# date to make sure they are in sync.
 					self.Value = valDt
 					evt.Continue = False
 				if adjust:
 					self.adjustDate(key, ctrl, shift)
-
+	
 		elif key in dateEntryKeys:
 			# key can be used for date entry: allow
 			pass
@@ -201,7 +201,7 @@ C: Popup Calendar to Select
 			# Pass the key up the chain to process - perhaps a Tab, Enter, or Backspace...
 			pass
 
-
+	
 	def __onLostFocus(self, evt):
 		val = self.Value
 		try:
@@ -209,10 +209,10 @@ C: Popup Calendar to Select
 			if newVal != val:
 				self.Value = newVal
 		except: pass
-
+		
 
 	def adjustDate(self, key, ctrl=False, shift=False):
-		""" Modifies the current date value if the key is one of the
+		""" Modifies the current date value if the key is one of the 
 		shortcut keys.
 		"""
 		# Save the original value for comparison
@@ -227,7 +227,7 @@ C: Popup Calendar to Select
 		isDateTime = isinstance(self.Value, datetime.datetime)
 		# Did the key move to a boundary?
 		toBoundary = False
-
+		
 		if key == "t":
 			# Today
 			if isDateTime:
@@ -305,9 +305,9 @@ C: Popup Calendar to Select
 			checkBoundary = False
 		else:
 			# This shouldn't happen, because onChar would have filtered it out.
-			dabo.logInfo("Warning in dDateTextBox.adjustDate: %s key sent." % key)
+			dabo.infoLog.write("Warning in dDateTextBox.adjustDate: %s key sent." % key)
 			return
-
+		
 		if not self.dateOK:
 			return
 		if toBoundary and checkBoundary and self.continueAtBoundary:
@@ -320,38 +320,38 @@ C: Popup Calendar to Select
 				else:
 					self.dayInterval(-1)
 				self.adjustDate(key)
-
-
+	
+	
 	def hourInterval(self, hours):
 		"""Adjusts the date by the given number of hours; negative
 		values move backwards.
 		"""
 		self.Value += datetime.timedelta(hours=hours)
 
-
+	
 	def minuteInterval(self, minutes):
 		"""Adjusts the date by the given number of minutes; negative
 		values move backwards.
 		"""
 		self.Value += datetime.timedelta(minutes=minutes)
 
-
+	
 	def secondInterval(self, seconds):
 		"""Adjusts the date by the given number of seconds; negative
 		values move backwards.
 		"""
 		self.Value += datetime.timedelta(seconds=seconds)
 
-
+	
 	def dayInterval(self, days):
 		"""Adjusts the date by the given number of days; negative
 		values move backwards.
 		"""
 		self.Value += datetime.timedelta(days)
 
-
+	
 	def monthInterval(self, months):
-		"""Adjusts the date by the given number of months; negative
+		"""Adjusts the date by the given number of months; negative 
 		values move backwards.
 		"""
 		mn = self.Value.month + months
@@ -371,8 +371,8 @@ C: Popup Calendar to Select
 				ok = True
 			except:
 				dy -= 1
-
-
+	
+	
 	def setToLastMonthDay(self):
 		mn = self.Value.month
 		td = datetime.timedelta(1)
@@ -380,7 +380,7 @@ C: Popup Calendar to Select
 			self.Value += td
 		# We're now at the first of the next month. Go back one.
 		self.Value -= td
-
+		
 
 	def getDateTuple(self):
 		dt = self.Value
@@ -399,10 +399,10 @@ C: Popup Calendar to Select
 		else:
 			self.Value = dt
 
-
+			
 	def strToDate(self, val, testing=False):
-		""" This routine parses the text representing a date, using the
-		current format. It adjusts for years given with two digits, using
+		""" This routine parses the text representing a date, using the 
+		current format. It adjusts for years given with two digits, using 
 		the rollover value to determine the century. It then returns a
 		datetime.date object set to the entered date.
 		"""
@@ -469,28 +469,28 @@ C: Popup Calendar to Select
 				# There is no separator
 				sep = ""
 				dtPieces = []
-
+				
 		if isDateTime:
 			try:
 				ret = datetime.datetime(year, month, day, hr, mn, sec)
 			except:
 				if not testing:
-					# Don't fill up the logs with error messages from tests that
+					# Don't fill up the logs with error messages from tests that 
 					# are expected to fail.
-					dabo.logError(_("Invalid datetime specified: %s") % val )
+					dabo.errorLog.write(_("Invalid datetime specified: %s") % val )
 				ret = None
 		else:
 			try:
 				ret = datetime.date(year, month, day)
 			except:
 				if not testing:
-					# Don't fill up the logs with error messages from tests that
+					# Don't fill up the logs with error messages from tests that 
 					# are expected to fail.
-					dabo.logError(_("Invalid date specified: %s") % val )
+					dabo.errorLog.write(_("Invalid date specified: %s") % val )
 				ret = None
 		return ret
-
-
+	
+	
 
 if __name__ == "__main__":
 	import test

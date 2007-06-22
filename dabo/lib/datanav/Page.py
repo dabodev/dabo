@@ -30,7 +30,7 @@ class SelectTextBox(SelectControlMixin, dabo.ui.dTextBox): pass
 class SelectCheckBox(SelectControlMixin, dabo.ui.dCheckBox): pass
 class SelectLabel(SelectControlMixin, dabo.ui.dLabel):
 	def afterInit(self):
-		# Basically, we don't want anything to display, but it's
+		# Basically, we don't want anything to display, but it's 
 		# easier if every selector has a matching control.
 		self.Caption = ""
 class SelectDateTextBox(SelectControlMixin, dabo.ui.dDateTextBox): pass
@@ -40,51 +40,51 @@ class SelectionOpDropdown(dabo.ui.dDropdownList):
 	def initProperties(self):
 		self.super()
 		self.SaveRestoreValue = True
-
+		
 	def initEvents(self):
 		self.super()
 		self.bindEvent(dEvents.Hit, self.onChoiceMade)
 		self.bindEvent(dEvents.ValueChanged, self.onValueChanged)
-
+		
 	def onValueChanged(self, evt):
 		# italicize if we are ignoring the field:
 		self.FontItalic = (IGNORE_STRING in self.Value)
 		if self.Target:
 			self.Target.FontItalic = self.FontItalic
-
+		
 	def onChoiceMade(self, evt):
 		if IGNORE_STRING not in self.StringValue:
 			# A comparison op was selected; let 'em enter a value
 			self.Target.setFocus()
-
+		
 	def _getTarget(self):
 		try:
 			_target = self._target
 		except AttributeError:
 			_target = self._target = None
 		return _target
-
+			
 	def _setTarget(self, tgt):
 		self._target = tgt
 		if self.Target:
 			self.Target.FontItalic = self.FontItalic
-
+		
 	Target = property(_getTarget, _setTarget, None, "Holds a reference to the edit control.")
-
-
+	
+				
 class Page(dabo.ui.dPage):
 	def newRecord(self, ds=None):
-		""" Called by a browse grid when the user wants to add a new row.
+		""" Called by a browse grid when the user wants to add a new row. 
 		"""
 		if ds is None:
 			self.Form.new()
 			self.editRecord()
 		else:
 			self.Parent.newByDataSource(ds)
-
-
+	
+		
 	def deleteRecord(self, ds=None):
-		""" Called by a browse grid when the user wants to delete the current row.
+		""" Called by a browse grid when the user wants to delete the current row. 
 		"""
 		if ds is None:
 			self.Form.delete()
@@ -93,20 +93,20 @@ class Page(dabo.ui.dPage):
 
 
 	def editRecord(self, ds=None):
-		""" Called by a browse grid when the user wants to edit the current row.
+		""" Called by a browse grid when the user wants to edit the current row. 
 		"""
 		if ds is None:
 			self.Parent.SetSelection(2)
 		else:
 			self.Parent.editByDataSource(ds)
 
-
+		
 class SelectOptionsPanel(dPanel):
 	""" Base class for the select options panel.
 	"""
 	def initProperties(self):
 		self.Name = "selectOptionsPanel"
-
+		
 
 class SortLabel(dabo.ui.dLabel):
 	def initEvents(self):
@@ -122,7 +122,7 @@ class SelectPage(Page):
 
 		## The following line is needed to get the Select page scrollbars to lay
 		## out without the user having to resize manually. I tried putting it in
-		## dPage but that caused problems with the Class Designer. We need to
+		## dPage but that caused problems with the Class Designer. We need to 
 		## figure out the best way to abstract this wx call, or find a different
 		## way to get the scrollbars.
 		self.Sizer.FitInside(self)
@@ -145,7 +145,7 @@ class SelectPage(Page):
 		if self.sortFields:
 			mn.append(_("Show sort order"), OnHit=self.handleSortOrder)
 		if self.sortFields.has_key(self.sortDS):
-			mn.append(_("Remove sort on ") + self.sortCap,
+			mn.append(_("Remove sort on ") + self.sortCap, 
 					OnHit=self.handleSortRemove)
 
 		mn.append(_("Sort Ascending"), OnHit=self.handleSortAsc)
@@ -153,9 +153,9 @@ class SelectPage(Page):
 		self.PopupMenu(mn, obj.formCoordinates(evt.EventData["mousePosition"]) )
 		mn.release()
 
-	def handleSortOrder(self, evt):
+	def handleSortOrder(self, evt): 
 		self.handleSort(evt, "show")
-	def handleSortRemove(self, evt):
+	def handleSortRemove(self, evt): 
 		self.handleSort(evt, "remove")
 	def handleSortAsc(self, evt):
 		self.handleSort(evt, ASC)
@@ -184,15 +184,15 @@ class SelectPage(Page):
 				newPos += 1
 		elif action != "show":
 			if self.sortFields.has_key(self.sortDS):
-				self.sortFields[self.sortDS] = (self.sortFields[self.sortDS][0],
+				self.sortFields[self.sortDS] = (self.sortFields[self.sortDS][0], 
 						action, self.sortCap)
 			else:
 				self.sortFields[self.sortDS] = (self.sortIndex, action, self.sortCap)
 				self.sortIndex += 1
 		self.sortCap = self.sortDS = ""
-
-
-
+				
+			
+		
 	def createItems(self):
 		self.selectOptionsPanel = self.getSelectOptionsPanel()
 		self.GetSizer().append(self.selectOptionsPanel, "expand", 1, border=20)
@@ -200,12 +200,12 @@ class SelectPage(Page):
 		super(SelectPage, self).createItems()
 		if self.Form.RequeryOnLoad:
 			dabo.ui.callAfter(self.requery)
-
+			
 
 	def setFrom(self, biz):
 		"""Subclass hook."""
 		pass
-
+	
 	def setGroupBy(self, biz):
 		"""Subclass hook."""
 		pass
@@ -233,7 +233,7 @@ class SelectPage(Page):
 			baseWhere = biz.getBaseWhereClause()
 		except AttributeError:
 			# prior datanav apps inherited from dBizobj directly,
-			# and dBizobj doesn't define getBaseWhereClause.
+			# and dBizobj doesn't define getBaseWhereClause. 
 			baseWhere = ""
 		biz.setWhereClause(baseWhere)
 		tbl = biz.DataSource
@@ -243,7 +243,7 @@ class SelectPage(Page):
 			if fld == "limit":
 				# Handled elsewhere
 				continue
-
+			
 			try:
 				## the datanav bizobj has an optional dict that contains
 				## mappings from the fld to the actual names of the backend
@@ -286,11 +286,11 @@ class SelectPage(Page):
 							matchStr = biz.escQuote(matchVal + "%")
 						else:
 							matchStr = biz.escQuote("%" + matchVal + "%")
-
+							
 				elif fldType in ("date", "datetime"):
 					if isinstance(ctrl, dabo.ui.dDateTextBox):
 						dtTuple = ctrl.getDateTuple()
-						dt = "%s-%s-%s" % (dtTuple[0], padl(dtTuple[1], 2, "0"),
+						dt = "%s-%s-%s" % (dtTuple[0], padl(dtTuple[1], 2, "0"), 
 								padl(dtTuple[2], 2, "0") )
 					else:
 						dt = matchVal
@@ -317,14 +317,14 @@ class SelectPage(Page):
 						opStr = "<"
 					elif opVal.lower() == "greater than":
 						opStr = ">"
-
+						
 				elif fldType == "bool":
 					opStr = "="
 					if opVal == CHOICE_TRUE:
 						matchStr = "True"
 					else:
 						matchStr = "False"
-
+				
 				# We have the pieces of the clause; assemble them together
 				if useStdFormat:
 					whr = "%s.%s %s %s" % (table, field, opStr, matchStr)
@@ -332,14 +332,14 @@ class SelectPage(Page):
 					biz.addWhere(whr)
 		return
 
-
+	
 	def onRequery(self, evt):
 		self.requery()
-
-
+	
+	
 	def setLimit(self, biz):
 		biz.setLimitClause(self.selectFields["limit"]["ctrl"].Value)
-
+		
 
 	def requery(self):
 		frm = self.Form
@@ -357,25 +357,25 @@ class SelectPage(Page):
 				self.setOrderBy(bizobj)
 				self.setGroupBy(bizobj)
 				self.setLimit(bizobj)
-
+			
 				sql = bizobj.getSQL()
 				bizobj.setSQL(sql)
-
+	
 			ret = frm.requery()
 
 		if ret:
 			if self.Parent.SelectedPageNumber == 0:
 				# If the select page is active, now make the browse page active
 				self.Parent.SelectedPageNumber = 1
-
-
+	
+	
 	def getSelectorOptions(self, typ, wordSearch=False):
 		# The fieldspecs version sends the wordSearch parameter as a "1" or "0"
 		# string. The following conversion should work no matter what:
 		wordSearch = bool(int(wordSearch))
 		if typ in ("char", "memo"):
 			if typ == "char":
-				chcList = [n_("Equals"),
+				chcList = [n_("Equals"), 
 						n_("Begins With"),
 						n_("Contains")]
 			elif typ == "memo":
@@ -391,7 +391,7 @@ class SelectPage(Page):
 					n_("Before"),
 					n_("After") )
 		elif typ in ("int", "float", "decimal"):
-			chc = (n_("Equals"),
+			chc = (n_("Equals"), 
 					n_("Greater than"),
 					n_("Greater than/Equal to"),
 					n_("Less than"),
@@ -399,7 +399,7 @@ class SelectPage(Page):
 		elif typ == "bool":
 			chc = (CHOICE_TRUE, CHOICE_FALSE)
 		else:
-			dabo.logError("Type '%s' not recognized." % typ)
+			dabo.errorLog.write("Type '%s' not recognized." % typ)
 			chc = ()
 		return chc
 
@@ -418,7 +418,7 @@ class SelectPage(Page):
 		label.FontSize = label.FontSize + 2
 		label.FontBold = True
 		gsz.append(label, colSpan=3, alignment="center")
-
+		
 		if fs is not None:
 			# Get all the fields that should be included into a list. Order them
 			# into the order specified in the specs.
@@ -427,17 +427,17 @@ class SelectPage(Page):
 				if int(fs[fld]["searchInclude"]):
 					fldList.append( (fld, int(fs[fld]["searchOrder"])) )
 			fldList.sort(lambda x, y: cmp(x[1], y[1]))
-
+		
 			for fldOrd in fldList:
 				fld = fldOrd[0]
 				fldInfo = fs[fld]
 				lbl = SortLabel(panel)
 				lbl.Caption = "%s:" % fldInfo["caption"]
 				lbl.relatedDataField = fld
-
+			
 				# First try getting the selector options from the user hook:
 				opt = self.Form.getSelectOptionsForField(fld)
-
+			
 				if opt is None:
 					# Automatically get the selector options based on the field type:
 					opt = self.getSelectorOptions(fldInfo["type"], fldInfo["wordSearch"])
@@ -445,7 +445,7 @@ class SelectPage(Page):
 				# Add the blank choice and create the dropdown:
 				opt = (IGNORE_STRING,) + tuple(opt)
 				opList = SelectionOpDropdown(panel, choices=opt)
-
+			
 				# First try getting the control class from the user hook:
 				ctrlClass = self.Form.getSelectControlClassForField(fld)
 
@@ -458,11 +458,11 @@ class SelectPage(Page):
 					if not opList.StringValue:
 						opList.StringValue = opList.GetString(0)
 					opList.Target = ctrl
-
+				
 					gsz.append(lbl, halign="right")
 					gsz.append(opList, halign="left")
 					gsz.append(ctrl, "expand")
-
+				
 					# Store the info for later use when constructing the query
 					self.selectFields[fld] = {
 							"ctrl" : ctrl,
@@ -470,11 +470,11 @@ class SelectPage(Page):
 							"type": fldInfo["type"]
 							}
 				else:
-					dabo.logError("No control class found for field '%s'." % fld)
+					dabo.errorLog.write("No control class found for field '%s'." % fld)
 					lbl.release()
 					opList.release()
 
-
+				
 		# Now add the limit field
 		lbl = dabo.ui.dLabel(panel)
 		lbl.Caption =  _("&Limit")
@@ -496,13 +496,13 @@ class SelectPage(Page):
 		requeryButton.DefaultButton = True
 		requeryButton.bindEvent(dEvents.Hit, self.onRequery)
 		btnRow = gsz.findFirstEmptyCell()[0] + 1
-		gsz.append(requeryButton, row=btnRow, col=1,
+		gsz.append(requeryButton, row=btnRow, col=1, 
 				halign="right", border=3)
-
+		
 		# Make the last column growable
 		gsz.setColExpand(True, 2)
 		panel.SetSizerAndFit(gsz)
-
+		
 		vsz = dabo.ui.dSizer("v")
 		vsz.append(gsz, 1, "expand")
 
@@ -521,7 +521,7 @@ class SelectPage(Page):
 				self.setWhere(bizobj)
 				self.setOrderBy(bizobj)
 				self.setLimit(bizobj)
-
+			
 				sql = bizobj.getSQL()
 
 			dlg = dabo.ui.dDialog(self, Caption=_("Set Custom SQL"))
@@ -530,12 +530,12 @@ class SelectPage(Page):
 			dlg.show()
 			self.Form.CustomSQL = eb.Value
 			dlg.release()
-
+			
 		else:
 			# Clear the custom SQL
 			self.Form.CustomSQL = None
 
-
+	
 	def getSearchCtrlClass(self, typ):
 		"""Returns the appropriate editing control class for the given data type.
 		"""
@@ -546,8 +546,8 @@ class SelectPage(Page):
 		elif typ == "date":
 			return SelectDateTextBox
 		return None
-
-
+	
+	
 class BrowsePage(Page):
 	def __init__(self, parent, Name=None, *args, **kwargs):
 		if Name is None:
@@ -584,7 +584,7 @@ class BrowsePage(Page):
 				self.fillGrid(False)
 				self.BrowseGrid.update()
 
-
+		
 	def createItems(self):
 		bizobj = self.Form.getBizobj()
 		grid = self.Form.BrowseGridClass(self, NameBase="BrowseGrid", Size=(10,10))
@@ -597,12 +597,12 @@ class BrowsePage(Page):
 			grid.DataSource = self.Form.previewDataSource
 		self.Sizer.append(grid, 2, "expand")
 		self.itemsCreated = True
-
+	
 
 	def fillGrid(self, redraw=False):
 		self.BrowseGrid.populate()
 		self.layout()
-
+		
 
 class EditPage(Page):
 	def __init__(self, parent, ds=None, *args, **kwargs):
@@ -615,14 +615,14 @@ class EditPage(Page):
 		if self.DataSource:
 			self.buildPage()
 
-
+			
 	def initEvents(self):
 		super(EditPage, self).initEvents()
 		self.bindEvent(dEvents.PageEnter, self.__onPageEnter)
 		self.bindEvent(dEvents.PageLeave, self.__onPageLeave)
 		self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
-
-
+	
+	
 	def buildPage(self):
 		if not self.DataSource:
 			return
@@ -637,8 +637,8 @@ class EditPage(Page):
 
 	def __onPageLeave(self, evt):
 		self.Form.setPrimaryBizobjToDefault(self.DataSource)
-
-
+	
+	
 	def __onPageEnter(self, evt):
 		self.Form.PrimaryBizobj = self.DataSource
 		focusToControl = self._focusToControl
@@ -648,30 +648,30 @@ class EditPage(Page):
 		# The current row may have changed. Make sure that the
 		# values are current
 		self.__onRowNumChanged(None)
-
+		
 
 	def createItems(self):
 		fs = self.fieldSpecs
 		relationSpecs = self.Form.RelationSpecs
 		if fs is None:
 			return
-		showEdit = [ (fld, int(fs[fld]["editOrder"]))
+		showEdit = [ (fld, int(fs[fld]["editOrder"])) 
 				for fld in fs
 				if (fs[fld]["editInclude"] == "1")]
 		showEdit.sort(lambda x, y: cmp(x[1], y[1]))
 		mainSizer = self.GetSizer()
 		firstControl = None
 		gs = dabo.ui.dGridSizer(VGap=5, MaxCols=3)
-
+		
 		for fld in showEdit:
 			fieldName = fld[0]
 			fldInfo = fs[fieldName]
 			fieldType = fldInfo["type"]
 			cap = fldInfo["caption"]
 			fieldEnabled = (fldInfo["editReadOnly"] != "1")
-
+			
 			label = dabo.ui.dLabel(self)		#, style=labelStyle)
-			label.NameBase="lbl%s" % fieldName
+			label.NameBase="lbl%s" % fieldName 
 
 			# Hook into user's code in case they want to control the object displaying
 			# the data:
@@ -685,7 +685,7 @@ class EditPage(Page):
 				elif fieldType in ["date",]:
 					#pkm: temporary: dDateTextBox is misbehaving still. So, until we get
 					#     it figured out, change the type of control used for date editing
-					#     to a raw dTextBox, which can handle viewing/setting dates but
+					#     to a raw dTextBox, which can handle viewing/setting dates but 
 					#     doesn't have all the extra features of dDateTextBox. (2005/08/28)
 					#classRef = dabo.ui.dDateTextBox
 					classRef = dabo.ui.dTextBox
@@ -697,12 +697,12 @@ class EditPage(Page):
 			objectRef.DataSource = self.DataSource
 			objectRef.DataField = fieldName
 			objectRef.enabled = fieldEnabled
-
+			
 			if fieldEnabled and firstControl is None:
 				firstControl = objectRef
-
+			
 			if classRef == dabo.ui.dCheckBox:
-				# Use the label for a spacer, but don't set the
+				# Use the label for a spacer, but don't set the 
 				# caption because checkboxes have their own caption.
 				label.Caption = ""
 				objectRef.Caption = cap
@@ -738,7 +738,7 @@ class EditPage(Page):
 					grdLabel.FontSize = 14
 					grdLabel.FontBold = True
 					#mainSizer.append( (10, -1) )
-					mainSizer.append(grdLabel, 0, "expand", alignment="center",
+					mainSizer.append(grdLabel, 0, "expand", alignment="center", 
 							border=10, borderSides=("left", "right") )
 					grid = self.addObject(Grid.Grid, "BrowseGrid" + child)
 					grid.FieldSpecs = self.Form.getFieldSpecsForTable(child)
@@ -746,10 +746,10 @@ class EditPage(Page):
 					self.childGrids.append(grid)
 					grid.populate()
 					#grid.Height = 100
-
+				
 					mainSizer.append(grid, 1, "expand", border=10,
 							borderSides=("left", "right") )
-
+		
 		if childGridCount == 0:
 			# Let the edit fields expand normally.
 			gsProportion = 1
@@ -757,7 +757,7 @@ class EditPage(Page):
 			# Each of the child grids got proportions of 1 in the above block,
 			# so they'll size equally. Because the presence of even one child grid
 			# is going to likely push the grid off the bottom, requiring a scroll,
-			# minimize that as much as possible by not allowing the non-grid controls
+			# minimize that as much as possible by not allowing the non-grid controls 
 			# to expand.
 			### For some reason, this is preventing the scroll panels from display
 			### the grids properly. So set this back to one for now.
@@ -778,7 +778,7 @@ class EditPage(Page):
 		self._dataSource = val
 		if not self.itemsCreated:
 			self.buildPage()
-
+			
 	DataSource = property(_getDS, _setDS, None,
 			_("Table that is the primary source for the fields displayed on the page  (str)") )
 

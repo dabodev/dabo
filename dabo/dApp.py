@@ -27,7 +27,7 @@ class Collection(list):
 	def add(self, objRef):
 		"""Add the object reference to the collection."""
 		self.append(objRef)
-
+		
 
 	def remove(self, objRef):
 		"""Delete the object reference from the collection."""
@@ -41,7 +41,7 @@ class Collection(list):
 
 
 class TempFileHolder(object):
-	"""Utility class to get temporary file names and to make sure they are
+	"""Utility class to get temporary file names and to make sure they are 
 	deleted when the Python session ends.
 	"""
 	def __init__(self):
@@ -50,8 +50,8 @@ class TempFileHolder(object):
 
 	def __del__(self):
 		self._eraseTempFiles()
-
-
+		
+		
 	def _eraseTempFiles(self):
 		# Try to erase all temp files created during life.
 		# Need to re-import the os module here for some reason.
@@ -69,10 +69,10 @@ class TempFileHolder(object):
 		except:
 			# In these rare cases, Python has already 'gone away', so just bail
 			pass
-
-
+	
+	
 	def release(self):
-		self._eraseTempFiles()
+		self._eraseTempFiles()		
 
 
 	def append(self, f):
@@ -116,13 +116,13 @@ class dApp(dObject):
 	Normally, dApp gets instantiated from the client app's main Python script,
 	and lives through the life of the application.
 
-		-- set up an empty data connections object which holds
-		-- connectInfo objects connected to pretty names. If there
+		-- set up an empty data connections object which holds 
+		-- connectInfo objects connected to pretty names. If there 
 		-- is a file named 'default.cnxml' present, it will import the
 		-- connection definitions contained in that. If no file of that
 		-- name exists, it will import any .cnxml file it finds. If there
 		-- are no such files, it will then revert to the old behavior
-		-- of importing a file in the current directory called
+		-- of importing a file in the current directory called 
 		-- 'dbConnectionDefs.py', which contains connection
 		-- definitions in python code format instead of XML.
 
@@ -132,8 +132,8 @@ class dApp(dObject):
 
 		-- decide which ui to use (wx) and gets that ball rolling
 
-		-- look for a MainForm in an expected place, otherwise use default dabo
-		-- dMainForm, and instantiate that.
+		-- look for a MainForm in an expected place, otherwise use default dabo 
+		-- dMainForm, and instantiate that. 
 
 		-- maintain a forms collection and provide interfaces for
 		-- opening dForms, closing them, and iterating through them.
@@ -145,11 +145,11 @@ class dApp(dObject):
 	"""
 	_call_beforeInit, _call_afterInit, _call_initProperties = False, False, True
 	# Behaviors which are normal in the framework may need to
-	# be modified when run as the Designer. This flag will
+	# be modified when run as the Designer. This flag will 
 	# distinguish between the two states.
 	isDesigner = False
 
-
+	
 	def __init__(self, selfStart=False, properties=None, *args, **kwargs):
 		self._uiAlreadySet = False
 		dabo.dAppRef = self
@@ -162,7 +162,7 @@ class dApp(dObject):
 		self.splashImage = self._extractKey(kwargs, "splashImage", img)
 		self.splashMaskColor = self._extractKey(kwargs, "splashMaskColor", None)
 		self.splashTimeout = self._extractKey(kwargs, "splashTimeout", 5000)
-
+		
 		super(dApp, self).__init__(properties, *args, **kwargs)
 		# egl: added the option of keeping the main form hidden
 		# initially. The default behavior is for it to be shown, as usual.
@@ -178,7 +178,7 @@ class dApp(dObject):
 		self.getTempFile = self._tempFileHolder.getTempFile
 
 		# List of form classes to open on App Startup
-		self.formsToOpen = []
+		self.formsToOpen = []  
 		# Form to open if no forms were passed as a parameter
 		self.default_form = None
 
@@ -191,19 +191,19 @@ class dApp(dObject):
 
 		self._afterInit()
 		self.autoBindEvents()
-
+		
 
 	def __del__(self):
 		"""Make sure that temp files are removed"""
 		self._tempFileHolder.release()
-
+		
 
 	def setup(self, initUI=True):
 		"""Set up the application object."""
 		# dabo is going to want to import various things from the Home Directory
 		if self.HomeDirectory not in sys.path:
 			sys.path.append(self.HomeDirectory)
-
+		
 		def initAppInfo(item, default):
 			if not self.getAppInfo(item):
 				self.setAppInfo(item, default)
@@ -214,7 +214,7 @@ class dApp(dObject):
 		initAppInfo("vendorName", "")
 
 		self._initDB()
-
+		
 		if initUI:
 			self._initUI()
 			if self.UI is not None:
@@ -232,8 +232,8 @@ class dApp(dObject):
 
 
 	def startupForms(self):
-		"""Open one or more of the defined forms. The default one is specified
-		in .default_form. If form names were passed on the command line,
+		"""Open one or more of the defined forms. The default one is specified 
+		in .default_form. If form names were passed on the command line, 
 		they will be opened instead of the default one as long as they exist.
 		"""
 		form_names = [class_name[3:] for class_name in dir(self.ui) if class_name[:3] == "Frm"]
@@ -248,46 +248,46 @@ class dApp(dObject):
 			frm(self.MainForm).show()
 
 	def initUIApp(self):
-		"""Callback from the initial app setup. Used to allow the
+		"""Callback from the initial app setup. Used to allow the 
 		splash screen, if any, to be shown quickly.
 		"""
 		self.uiApp.setup()
-
-
+		
+	
 	def start(self):
 		"""Start the application event loop."""
 		if not self._wasSetup:
 			# Convenience; if you don't need to customize setup(), just
 			# call start()
 			self.setup()
-
+			
 		if (not self.SecurityManager or not self.SecurityManager.RequireAppLogin
 			or self.SecurityManager.login()):
-
+			
 			userName = self.getUserCaption()
 			if userName:
 				userName = " (%s)" % userName
 			else:
 				userName = ""
-
+			
 			self._retrieveMRUs()
 			self.uiApp.start(self)
 		self.finish()
-
-
+	
+	
 	def finish(self):
 		"""Called when the application event loop has ended."""
 		self._persistMRU()
 		self.uiApp.finish()
 		self.closeConnections()
 		self._tempFileHolder.release()
-		dabo.logInfo(_("Application finished."))
+		dabo.infoLog.write(_("Application finished."))
 
 
 	def getLoginInfo(self, message=None):
 		"""Return the user/password to dSecurityManager.login().
 
-		The default is to display the standard login dialog, and return the
+		The default is to display the standard login dialog, and return the 
 		user/password as entered by the user, but subclasses can override to get
 		the information from whereever is appropriate.
 
@@ -299,18 +299,18 @@ class dApp(dObject):
 		ld.show()
 		user, password = ld.user, ld.password
 		return user, password
-
-
+	
+	
 	def _persistMRU(self):
 		"""Persist any MRU lists to disk."""
 		base = "MRU.%s" % self.getAppInfo("appName")
-		self.deleteAllUserSettings(base)
+		self.deleteAllUserSettings(base)		
 		for cap in self._persistentMRUs.keys():
 			mruList = self.uiApp.getMRUListForMenu(cap)
 			setName = ".".join((base, cap))
 			self.setUserSetting(setName, mruList)
-
-
+	
+	
 	def _retrieveMRUs(self):
 		"""Retrieve any saved MRU lists."""
 		base = "MRU.%s" % self.getAppInfo("appName")
@@ -320,7 +320,7 @@ class dApp(dObject):
 				# Should be a list of items. Add 'em in reverse order
 				for itm in itms:
 					self.uiApp.addToMRU(cap, itm, fcn)
-
+		
 
 	def getAppInfo(self, item):
 		"""Look up the item, and return the value."""
@@ -338,13 +338,13 @@ class dApp(dObject):
 
 	def getUserSettingKeys(self, spec):
 		"""Return a list of all keys underneath <spec> in the user settings table.
-
+		
 		For example, if spec is "appWizard.dbDefaults", and there are
 		userSettings entries for:
 			appWizard.dbDefaults.pkm.Host
 			appWizard.dbDefaults.pkm.User
 			appWizard.dbDefaults.egl.Host
-
+			
 		The return value would be ["pkm", "egl"]
 		"""
 		usp = self.UserSettingProvider
@@ -366,8 +366,8 @@ class dApp(dObject):
 		usp = self.UserSettingProvider
 		if usp:
 			usp.setUserSetting(item, value)
-
-
+	
+	
 	def setUserSettings(self, setDict):
 		"""Convenience method for setting several settings with one
 		call. Pass a dict containing {settingName: settingValue} pairs.
@@ -375,22 +375,22 @@ class dApp(dObject):
 		usp = self.UserSettingProvider
 		if usp:
 			usp.setUserSettings(setDict)
-
-
+	
+	
 	def deleteUserSetting(self, item):
 		"""Removes the given item from the user settings file."""
 		usp = self.UserSettingProvider
 		if usp:
 			usp.deleteUserSetting(item)
-
-
+	
+	
 	def deleteAllUserSettings(self, spec):
 		"""Deletes all settings that begin with the supplied spec."""
 		usp = self.UserSettingProvider
 		if usp:
 			usp.deleteAllUserSettings(spec)
-
-
+		
+		
 	def getUserCaption(self):
 		""" Return the full name of the currently logged-on user."""
 		if self.SecurityManager:
@@ -429,24 +429,24 @@ class dApp(dObject):
 	# These two methods pass encryption/decryption requests
 	# to the Crypto object
 	def encrypt(self, val):
-		"""Return the encrypted string value. The request is passed
+		"""Return the encrypted string value. The request is passed 
 		to the Crypto object for processing.
 		"""
 		return self.Crypto.encrypt(val)
-
+		
 
 	def decrypt(self, val):
-		"""Return decrypted string value. The request is passed to
+		"""Return decrypted string value. The request is passed to 
 		the Crypto object for processing.
 		"""
 		return self.Crypto.decrypt(val)
 
-
+	
 	def getCharset(self):
 		"""Returns one of 'unicode' or 'ascii'."""
 		return self.uiApp.charset
-
-
+		
+		
 	def _initProperties(self):
 		""" Initialize the public properties of the app object."""
 		self.uiType   = None    # ("wx", "qt", "curses", "http", etc.)
@@ -466,9 +466,9 @@ class dApp(dObject):
 		self._appInfo = {}
 		super(dApp, self)._initProperties()
 
-
+		
 	def _initDB(self):
-		"""Set the available connection definitions for use by the app.
+		"""Set the available connection definitions for use by the app. 
 
 		First read in all .cnxml files. If no such XML definition files exist,
 		check for a python code definition file named 'dbConnectionDefs.py'.
@@ -484,7 +484,7 @@ class dApp(dObject):
 					connDefs.update(cn)
 					for kk in cn.keys():
 						self.dbConnectionNameToFiles[kk] = f
-
+		
 		# Import any python code connection definitions (the "old" way).
 		try:
 			import dbConnectionDefs
@@ -494,21 +494,21 @@ class dApp(dObject):
 				self.dbConnectionNameToFiles[kk] = os.abspath("dbConnectionDefs.py")
 		except:
 			pass
-
-		# For each connection definition, add an entry to
-		# self.dbConnectionDefs that contains a key on the
+		
+		# For each connection definition, add an entry to 
+		# self.dbConnectionDefs that contains a key on the 
 		# name, and a value of a dConnectInfo object.
 		for k,v in connDefs.items():
 			ci = dabo.db.dConnectInfo()
 			ci.setConnInfo(v)
 			self.dbConnectionDefs[k] = ci
 
-		dabo.logInfo(_("%s database connection definition(s) loaded.")
+		dabo.infoLog.write(_("%s database connection definition(s) loaded.") 
 			% (len(self.dbConnectionDefs)))
 
 
 	def _initUI(self):
-		""" Set the user-interface library for the application. Ignored
+		""" Set the user-interface library for the application. Ignored 
 		if the UI was already explicitly set by user code.
 		"""
 		if self.UI is None and not self._uiAlreadySet:
@@ -518,7 +518,7 @@ class dApp(dObject):
 			self.UI = "wx"
 		else:
 			# Custom app code or the dabo.ui module already set this: don't touch
-			dabo.logInfo(_("User interface already set to '%s', so dApp didn't touch it.")
+			dabo.infoLog.write(_("User interface already set to '%s', so dApp didn't touch it.") 
 					% self.UI)
 
 
@@ -538,13 +538,13 @@ class dApp(dObject):
 		except KeyError:
 			ret = None
 		return ret
-
-
+	
+	
 	def getConnectionNames(self):
 		"""Returns a list of all defined connection names"""
 		return self.dbConnectionDefs.keys()
-
-
+		
+		
 	def closeConnections(self):
 		"""Cleanup as the app is exiting."""
 		for conn in self.dbConnections:
@@ -552,8 +552,8 @@ class dApp(dObject):
 				conn.close()
 			except:
 				pass
-
-
+	
+	
 	def addConnectInfo(self, ci, name=None):
 		if name is None:
 			try:
@@ -563,7 +563,7 @@ class dApp(dObject):
 				name = "%s@%s" % (ci.User, ci.Host)
 		self.dbConnectionDefs[name] = ci
 		self.dbConnectionNameToFiles[name] = None
-
+	
 
 	def addConnectFile(self, connFile):
 		"""Accepts a cnxml file path, and reads in the connections
@@ -582,20 +582,20 @@ class dApp(dObject):
 					break
 		if os.path.exists(connFile):
 			connDefs = importConnections(connFile)
-			# For each connection definition, add an entry to
-			# self.dbConnectionDefs that contains a key on the
+			# For each connection definition, add an entry to 
+			# self.dbConnectionDefs that contains a key on the 
 			# name, and a value of a dConnectInfo object.
 			for k,v in connDefs.items():
 				ci = dabo.db.dConnectInfo()
 				ci.setConnInfo(v)
 				self.dbConnectionDefs[k] = ci
 				self.dbConnectionNameToFiles[k] = connFile
-
+	
 	def showCommandWindow(self, context=None):
 		"""Shows a command window with a full Python interpreter.
 
 		This is great for debugging during development, but you should turn off
-		app.ShowCommandWindowMenu in production, perhaps leaving backdoor
+		app.ShowCommandWindowMenu in production, perhaps leaving backdoor 
 		access to this function.
 
 		The context argument tells dShell what object becomes 'self'. If not
@@ -656,13 +656,13 @@ class dApp(dObject):
 		self.uiApp.addToMRU(menu, prmpt, bindfunc, *args, **kwargs)
 	def onMenuOpenMRU(self, menu):
 		self.uiApp.onMenuOpenMRU(menu)
-	############################
-
-
+	############################	
+	
+	
 	def copyToClipboard(self, txt):
 		"""Place the passed text onto the clipboard."""
 		self.uiApp.copyToClipboard(txt)
-
+		
 
 	def onHelpAbout(self, evt):
 		about = self.AboutFormClass
@@ -677,20 +677,20 @@ class dApp(dObject):
 			frm = None
 		dlg = about(frm)
 		dlg.show()
-
-
+	
+	
 	def addToAbout(self):
 		"""Adds additional app-specific information to the About form.
 		This is just a stub method; override in subclasses if needed."""
 		pass
-
-
+	
+	
 	def clearActiveForm(self, frm):
 		"""Called by the form when it is deactivated."""
 		if frm is self.ActiveForm:
 			self.uiApp.ActiveForm = None
 
-
+	
 	def _getAboutFormClass(self):
 		return getattr(self, "_aboutFormClass", None)
 
@@ -703,13 +703,13 @@ class dApp(dObject):
 			return self.uiApp.ActiveForm
 		else:
 			return None
-
+			
 	def _setActiveForm(self, frm):
 		if hasattr(self, "uiApp") and self.uiApp is not None:
 			self.uiApp._setActiveForm(frm)
 		else:
-			dabo.logError(_("Can't set ActiveForm: no uiApp."))
-
+			dabo.errorLog.write(_("Can't set ActiveForm: no uiApp."))
+	
 
 	def _getBasePrefKey(self):
 		try:
@@ -725,7 +725,7 @@ class dApp(dObject):
 				ret = self.MainForm.BasePrefKey
 			except: pass
 		if not ret:
-			dabo.logInfo(_("WARNING: No BasePrefKey has been set for this application."))
+			dabo.infoLog.write(_("WARNING: No BasePrefKey has been set for this application."))
 			try:
 				f = inspect.stack()[-1][1]
 				pth = os.path.abspath(f)
@@ -760,7 +760,7 @@ class dApp(dObject):
 			try:
 				f = open(val, "a")
 			except:
-				dabo.logError(_("Could not open file: '%s'") % val)
+				dabo.errorLog.write(_("Could not open file: '%s'") % val)
 				return
 		else:
 			f = val
@@ -769,17 +769,17 @@ class dApp(dObject):
 
 	def _getDrawSizerOutlines(self):
 		return self.uiApp.DrawSizerOutlines
-
+	
 	def _setDrawSizerOutlines(self, val):
 		self.uiApp.DrawSizerOutlines = val
-
+	
 
 	def _getEncoding(self):
 		ret = locale.getlocale()[1]
 		if ret is None:
 			ret = dabo.defaultEncoding
 		return ret
-
+		
 
 	def _getHomeDirectory(self):
 		try:
@@ -801,9 +801,9 @@ class dApp(dObject):
 				# mangle HomeDirectory to not be the py2exe library.zip file,
 				# but the containing directory (the directory where the exe lives)
 				hd = os.path.split(hd)[0]
-			self._homeDirectory = hd
+			self._homeDirectory = hd			
 		return hd
-
+		
 	def _setHomeDirectory(self, val):
 		if os.path.exists(val):
 			self._homeDirectory = os.path.abspath(val)
@@ -817,7 +817,7 @@ class dApp(dObject):
 	def _setIcon(self, val):
 		self._icon = val
 
-
+				
 	def _getMainForm(self):
 		try:
 			frm = self._mainForm
@@ -825,12 +825,12 @@ class dApp(dObject):
 			frm = None
 			self._mainForm = None
 		return frm
-
+			
 	def _setMainForm(self, val):
 		self.uiApp.setMainForm(val)
 		self._mainForm = val
 
-
+				
 	def _getMainFormClass(self):
 		try:
 			cls = self._mainFormClass
@@ -838,11 +838,11 @@ class dApp(dObject):
 			cls = dabo.ui.dFormMain
 			self._mainFormClass = cls
 		return cls
-
+			
 	def _setMainFormClass(self, val):
 		self._mainFormClass = val
-
-
+		
+		
 	def _getNoneDisp(self):
 		v = self._noneDisplay = getattr(self, "_noneDisplay", _("< None >"))
 		return v
@@ -850,7 +850,7 @@ class dApp(dObject):
 	def _setNoneDisp(self, val):
 		assert isinstance(val, basestring)
 		self._noneDisplay = val
-
+		
 
 	def _getPlatform(self):
 		try:
@@ -868,20 +868,20 @@ class dApp(dObject):
 			return self._searchDelay
 		except AttributeError:
 			## I've found that a value of 300 isn't too fast nor too slow:
-			# egl: 2006-11-16 - based on feedback from others, I'm
+			# egl: 2006-11-16 - based on feedback from others, I'm 
 			# 	lengthening this to 500 ms.
 			return 500
-
+			
 	def _setSearchDelay(self, value):
-		self._searchDelay = int(value)
+		self._searchDelay = int(value)			
 
-
+			
 	def _getSecurityManager(self):
 		try:
 			return self._securityManager
 		except AttributeError:
 			return None
-
+			
 	def _setSecurityManager(self, value):
 		if isinstance(value, dSecurityManager.dSecurityManager):
 			if self.SecurityManager:
@@ -889,18 +889,18 @@ class dApp(dObject):
 			self._securityManager = value
 		else:
 			raise TypeError, _("SecurityManager must descend from dSecurityManager.")
-
-
+			
+			
 	def _getShowCommandWindowMenu(self):
 		try:
 			v = self._showCommandWindowMenu
 		except AttributeError:
 			v = self._showCommandWindowMenu = True
 		return v
-
+			
 	def _setShowCommandWindowMenu(self, val):
 		self._showCommandWindowMenu = bool(val)
-
+			
 
 	def _getShowSizerLinesMenu(self):
 		try:
@@ -908,33 +908,33 @@ class dApp(dObject):
 		except AttributeError:
 			v = self._showSizerLinesMenu = True
 		return v
-
+			
 	def _setShowSizerLinesMenu(self, val):
 		self._showSizerLinesMenu = bool(val)
 
-
+			
 	def _getUI(self):
 		try:
 			return dabo.ui.getUIType()
 		except AttributeError:
 			return None
-
+			
 	def _setUI(self, uiType):
 		# Load the appropriate ui module. dabo.ui will now contain
 		# the classes of that library, wx for instance.
 		if self.UI is None:
 			if uiType is None:
 				self._uiAlreadySet = True
-				dabo.logInfo(_("User interface set set to None."))
+				dabo.infoLog.write(_("User interface set set to None."))
 			elif dabo.ui.loadUI(uiType):
 				self._uiAlreadySet = True
-				dabo.logInfo(_("User interface set to '%s' by dApp.") % uiType)
+				dabo.infoLog.write(_("User interface set to '%s' by dApp.") % uiType)
 			else:
-				dabo.logInfo(_("Tried to set UI to '%s', but it failed.") % uiType)
+				dabo.infoLog.write(_("Tried to set UI to '%s', but it failed.") % uiType)
 		else:
 			raise RuntimeError, _("The UI cannot be reset once assigned.")
 
-
+	
 	def _getUserSettingProvider(self):
 		try:
 			ret = self._userSettingProvider
@@ -945,7 +945,7 @@ class dApp(dObject):
 			else:
 				ret = self._userSettingProvider = None
 		return ret
-
+		
 	def _setUserSettingProvider(self, val):
 		self._userSettingProvider = val
 
@@ -965,36 +965,36 @@ class dApp(dObject):
 	AboutFormClass = property(_getAboutFormClass, _setAboutFormClass, None,
 			_("Specifies the form class to use for the application's About screen."))
 
-	ActiveForm = property(_getActiveForm, _setActiveForm, None,
+	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
 			_("Returns the form that currently has focus, or None.  (dForm)" ) )
-
+	
 	BasePrefKey = property(_getBasePrefKey, _setBasePrefKey, None,
 			_("""Base key used when saving/restoring preferences. This differs
-			from the default definition of this property in that if it is empty, it
+			from the default definition of this property in that if it is empty, it 
 			will return the ActiveForm's BasePrefKey or the MainForm's BasePrefKey
 			in that order. (str)"""))
-
-	Crypto = property(_getCrypto, _setCrypto, None,
+	
+	Crypto = property(_getCrypto, _setCrypto, None, 
 			_("Reference to the object that provides cryptographic services.  (varies)" ) )
-
+	
 	DatabaseActivityLog = property(_getDatabaseActivityLog, _setDatabaseActivityLog, None,
-			_("""Path to the file (or file-like object) to be used for logging all database
+			_("""Path to the file (or file-like object) to be used for logging all database 
 			activity. Default=None, which means no log is kept.   (file or str)"""))
-
+	
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
 			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)"))
-
+	
 	Encoding = property(_getEncoding, None, None,
 			_("Name of encoding to use for unicode  (str)") )
-
+			
 	HomeDirectory = property(_getHomeDirectory, _setHomeDirectory, None,
 			_("""Specifies the application's home directory. (string)
 
 			The HomeDirectory is the top-level directory for your application files,
-			the directory where your main script lives. You never know what the
+			the directory where your main script lives. You never know what the 
 			current directory will be on a given system, but HomeDirectory will always
 			get you to your files."""))
-
+		
 	Icon = property(_getIcon, _setIcon, None,
 			_("""Specifies the icon to use on all forms and dialogs by default.
 
@@ -1007,7 +1007,7 @@ class dApp(dObject):
 	MainForm = property(_getMainForm, _setMainForm, None,
 			_("""The object reference to the main form of the application, or None.
 
-			The MainForm gets instantiated automatically during application setup,
+			The MainForm gets instantiated automatically during application setup, 
 			based on the value of MainFormClass. If you want to swap in your own
 			MainForm instance, do it after setup() but before start(), as in:
 
@@ -1016,12 +1016,12 @@ class dApp(dObject):
 			>>> app.setup()
 			>>> app.MainForm = myMainFormInstance
 			>>> app.start()"""))
-
+		
 	MainFormClass = property(_getMainFormClass, _setMainFormClass, None,
 			_("""Specifies the class to instantiate for the main form. Can be a
 			class reference, or the path to a .cdxml file.
 
-			Defaults to the dFormMain base class. Set to None if you don't want a
+			Defaults to the dFormMain base class. Set to None if you don't want a 
 			main form, or set to your own main form class. Do this before calling
 			dApp.start(), as in:
 
@@ -1030,64 +1030,64 @@ class dApp(dObject):
 			>>> app.MainFormClass = MyMainFormClass
 			>>> app.start()
 			(dForm) """))
-
-	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None,
+	
+	NoneDisplay = property(_getNoneDisp, _setNoneDisp, None, 
 			_("Text to display for null (None) values.  (str)") )
-
+	
 	Platform = property(_getPlatform, None, None,
-			_("""Returns the platform we are running on. This will be
+			_("""Returns the platform we are running on. This will be 
 			one of 'Mac', 'Win' or 'GTK'.  (str)""") )
 
 	SearchDelay = property(_getSearchDelay, _setSearchDelay, None,
 			_("""Specifies the delay before incrementeal searching begins.  (int)
 
 				As the user types, the search string is modified. If the time between
-				keystrokes exceeds SearchDelay (milliseconds), the search will run and
+				keystrokes exceeds SearchDelay (milliseconds), the search will run and 
 				the search string	will be cleared.
 
 				The value set here in the Application object will become the default for
 				all objects that provide incremental searching application-wide.""") )
+			
+	SecurityManager = property(_getSecurityManager, _setSecurityManager, None, 
+			_("""Specifies the Security Manager, if any. 
 
-	SecurityManager = property(_getSecurityManager, _setSecurityManager, None,
-			_("""Specifies the Security Manager, if any.
-
-			You must subclass dSecurityManager, overriding the appropriate hooks
-			and properties, and then set dApp.SecurityManager to an instance of your
-			subclass. There is no security manager by default - you explicitly set
+			You must subclass dSecurityManager, overriding the appropriate hooks 
+			and properties, and then set dApp.SecurityManager to an instance of your 
+			subclass. There is no security manager by default - you explicitly set 
 			this to use Dabo security.""") )
 
 	ShowCommandWindowMenu = property(_getShowCommandWindowMenu,
-			_setShowCommandWindowMenu, None,
+			_setShowCommandWindowMenu, None, 
 			_("""Specifies whether the command window option is shown in the menu.
 
 			If True (the default), there will be a File|Command Window option
-			available in the base menu. If False, your code can still start the
+			available in the base menu. If False, your code can still start the 
 			command window by calling app.showCommandWindow() directly.""") )
 
 	ShowSizerLinesMenu = property(_getShowSizerLinesMenu,
-			_setShowSizerLinesMenu, None,
+			_setShowSizerLinesMenu, None, 
 			_("""Specifies whether the "Show Sizer Lines" option is shown in the menu.
 
 			If True (the default), there will be a View|Show Sizer Lines option
 			available in the base menu.""") )
 
-	UI = property(_getUI, _setUI, None,
+	UI = property(_getUI, _setUI, None, 
 			_("""Specifies the user interface to load, or None. (str)
 
 			This is the user interface library, such as 'wx' or 'tk'. Note that
 			'wx' is the only supported user interface library at this point."""))
 
-	UserSettingProvider = property(_getUserSettingProvider,
+	UserSettingProvider = property(_getUserSettingProvider, 
 			_setUserSettingProvider, None,
 			_("""Specifies the reference to the object providing user preference persistence.
-
+			
 			The default UserSettingProvider will save user preferences inside the .dabo
 			directory inside the user's home directory."""))
 
 	UserSettingProviderClass = property(_getUserSettingProviderClass,
 			_setUserSettingProviderClass, None,
 			_("""Specifies the class to use for user preference persistence.
-
+			
 			The default UserSettingProviderClass will save user preferences inside the .dabo
 			directory inside the user's home directory, and will be instantiated by Dabo
 			automatically."""))
