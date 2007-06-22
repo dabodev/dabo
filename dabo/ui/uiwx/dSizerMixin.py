@@ -786,8 +786,7 @@ class dSizerMixin(dObject):
 			cs = ob.ControllingSizer
 			if cs is None:
 				# Something's wrong!
-				dabo.logError(_("Nested sizer missing its ControllingSizer"))
-				break
+				raise RuntimeError, _("Nested sizer missing its ControllingSizer")
 			else:
 				ob = cs
 				ret = ob._parent
