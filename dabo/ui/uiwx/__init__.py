@@ -13,7 +13,7 @@ from dabo.dLocalize import _
 # Very first thing: check for proper wxPython build:
 _failedLibs = []
 # note: may need wx.animate as well
-for lib in ("wx", "wx.stc", "wx.lib.foldpanelbar", "wx.gizmos", 
+for lib in ("wx", "wx.stc", "wx.lib.foldpanelbar", "wx.gizmos",
 		"wx.lib.calendar", "wx.lib.masked", "wx.lib.buttons"):
 	try:
 		__import__(lib)
@@ -27,7 +27,7 @@ the following required libraries have been built:
 
 	%s
 	""" % "\n\t".join(_failedLibs)
-	
+
 	sys.exit(msg)
 del(_failedLibs)
 #######################################################
@@ -51,7 +51,7 @@ assertionException = wx._core.PyAssertionError
 nativeScrollBar = wx.ScrollBar
 
 # Import dPemMixin first, and then manually put into dabo.ui module. This is
-# because dControlMixinBase, which is in dabo.ui, descends from dPemMixin, which 
+# because dControlMixinBase, which is in dabo.ui, descends from dPemMixin, which
 # is in dabo.ui.uiwx. Must also do the same with dControlMixin, as dDataControlMixinBase
 # descends from it.
 from dPemMixin import dPemMixin
@@ -188,15 +188,15 @@ def getUiApp(app, callback=None):
 		if callback is not None:
 			wx.CallAfter(callback)
 	return ret
-	
+
 
 def callAfter(fnc, *args, **kwargs):
 	"""There are times when this functionality is needed when creating UI
-	code. This function simply wraps the wx.CallAfter function so that 
+	code. This function simply wraps the wx.CallAfter function so that
 	developers do not need to use wx code in their apps.
 	"""
 	wx.CallAfter(fnc, *args, **kwargs)
-	
+
 
 _callAfterIntervalReferences = {}
 def callAfterInterval(interval, func, *args, **kwargs):
@@ -225,24 +225,24 @@ def setAfter(obj, prop, val):
 		fnc = eval("obj.__class__.%s.fset" % prop)
 		wx.CallAfter(fnc, obj, val)
 	except StandardError, e:
-		dabo.errorLog.write(_("setAfter() failed to set property '%s' to value '%s': %s.")
+		dabo.logError(_("setAfter() failed to set property '%s' to value '%s': %s.")
 				% (prop, val, e))
-	
+
 
 def setAfterInterval(interval, obj, prop, val):
-	"""Like callAfterInterval(), but allows you to set a property instead 
+	"""Like callAfterInterval(), but allows you to set a property instead
 	of calling a function.
 	"""
 	try:
 		fnc = eval("obj.__class__.%s.fset" % prop)
 		callAfterInterval(interval, fnc, obj, val)
 	except StandardError, e:
-		dabo.errorLog.write(_("setAfterInterval() failed to set property '%s' to value '%s': %s.")
+		dabo.logError(_("setAfterInterval() failed to set property '%s' to value '%s': %s.")
 				% (prop, val, e))
 
 
 def callEvery(interval, func, *args, **kwargs):
-	"""Creates and returns a timer object that fires the specified function 
+	"""Creates and returns a timer object that fires the specified function
 	at the specified interval. Interval is given in milliseconds. It will pass along
 	any additional arguments to the function when it is called.
 	"""
@@ -256,17 +256,17 @@ def callEvery(interval, func, *args, **kwargs):
 
 def yieldUI(*args, **kwargs):
 	"""Yield to other apps/messages."""
-	wx.Yield(*args, **kwargs)	
+	wx.Yield(*args, **kwargs)
 
 
 def beep():
 	wx.Bell()
-	
+
 
 def busyInfo(msg="Please wait...", *args, **kwargs):
 	"""Display a message that the system is busy.
 
-	Assign the return value to a local object, and the message will stay until the 
+	Assign the return value to a local object, and the message will stay until the
 	object is explicitly unbound. For example:
 
 	bi = dabo.ui.busyInfo("Please wait while I count to 10000...")
@@ -287,10 +287,10 @@ def continueEvent(evt):
 		if isinstance(evt, dabo.dEvents.dEvent):
 			pass
 		else:
-			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
+			dabo.logError("Incorrect event class (%s) passed to continueEvent. Error: %s"
 					% (str(evt), str(e)))
-	
-	
+
+
 def discontinueEvent(evt):
 	try:
 		evt.Skip(False)
@@ -299,18 +299,18 @@ def discontinueEvent(evt):
 		if isinstance(evt, dabo.dEvents.dEvent):
 			pass
 		else:
-			dabo.errorLog.write("Incorrect event class (%s) passed to continueEvent. Error: %s"
+			dabo.logError("Incorrect event class (%s) passed to continueEvent. Error: %s"
 					% (str(evt), str(e)))
-	
-	
+
+
 def getEventData(wxEvt):
 	ed = {}
 	eventType = wxEvt.GetEventType()
-	
+
 	if isinstance(wxEvt, (wx.KeyEvent, wx.MouseEvent, wx.TreeEvent,
 			wx.CommandEvent, wx.CloseEvent, wx.grid.GridEvent,
 			wx.grid.GridSizeEvent, wx.SplitterEvent) ):
-		
+
 		if dabo.allNativeEventInfo:
 			# Cycle through all the attributes of the wx events, and evaluate them
 			# for insertion into the dEvent.EventData dict.
@@ -318,9 +318,9 @@ def getEventData(wxEvt):
 			try:
 				upPems = [p for p in d if p[0].isupper()]
 				for pem in upPems:
-					if pem in ("Skip", "Clone", "Destroy", "Button", "ButtonIsDown", 
-							"GetLogicalPosition", "ResumePropagation", "SetEventObject", 
-							"SetEventType", "SetId", "SetExtraLong", "SetInt", "SetString", 
+					if pem in ("Skip", "Clone", "Destroy", "Button", "ButtonIsDown",
+							"GetLogicalPosition", "ResumePropagation", "SetEventObject",
+							"SetEventType", "SetId", "SetExtraLong", "SetInt", "SetString",
 							"SetTimestamp", "StopPropagation"):
 						continue
 					try:
@@ -330,7 +330,7 @@ def getEventData(wxEvt):
 						pass
 			except:
 				pass
-	
+
 	if isinstance(wxEvt, (wx.SplitterEvent,) ):
 		try:
 			ed["mousePosition"] = (wxEvt.GetX(), wxEvt.GetY())
@@ -361,7 +361,7 @@ def getEventData(wxEvt):
 			ed["prompt"] = None
 		else:
 			ed["prompt"] = menu.Caption
-		
+
 
 	if isinstance(wxEvt, wx.CommandEvent):
 		# It may have mouse information
@@ -387,28 +387,28 @@ def getEventData(wxEvt):
 		try:
 			if wx.Platform in ("__WXMAC__", "__WXGTK__"):
 				ed["keyChar"] = chr(wxEvt.GetKeyCode())
-			else:	
+			else:
 				ed["keyChar"] = chr(wxEvt.GetRawKeyCode())
 		except (ValueError, OverflowError):
 			ed["keyChar"] = None
 		if not ed["keyChar"]:
 			# See if it is one of the keypad keys
-			numpadKeys = { wx.WXK_NUMPAD0: "0", wx.WXK_NUMPAD1: "1", 
-					wx.WXK_NUMPAD2: "2", wx.WXK_NUMPAD3: "3", wx.WXK_NUMPAD4: "4", 
-					wx.WXK_NUMPAD5: "5", wx.WXK_NUMPAD6: "6", wx.WXK_NUMPAD7: "7", 
+			numpadKeys = { wx.WXK_NUMPAD0: "0", wx.WXK_NUMPAD1: "1",
+					wx.WXK_NUMPAD2: "2", wx.WXK_NUMPAD3: "3", wx.WXK_NUMPAD4: "4",
+					wx.WXK_NUMPAD5: "5", wx.WXK_NUMPAD6: "6", wx.WXK_NUMPAD7: "7",
 					wx.WXK_NUMPAD8: "8", wx.WXK_NUMPAD9: "9", wx.WXK_NUMPAD_SPACE: " ",
-					wx.WXK_NUMPAD_TAB: "\t", wx.WXK_NUMPAD_ENTER: "\r", 
-					wx.WXK_NUMPAD_EQUAL: "=", wx.WXK_NUMPAD_MULTIPLY: "*", 
-					wx.WXK_NUMPAD_ADD: "+", wx.WXK_NUMPAD_SUBTRACT: "-", 
+					wx.WXK_NUMPAD_TAB: "\t", wx.WXK_NUMPAD_ENTER: "\r",
+					wx.WXK_NUMPAD_EQUAL: "=", wx.WXK_NUMPAD_MULTIPLY: "*",
+					wx.WXK_NUMPAD_ADD: "+", wx.WXK_NUMPAD_SUBTRACT: "-",
 					wx.WXK_NUMPAD_DECIMAL: ".", wx.WXK_NUMPAD_DIVIDE: "/"}
 			ed["keyChar"] = numpadKeys.get(ed["keyCode"], None)
-	
+
 	if isinstance(wxEvt, wx.ContextMenuEvent):
 		ed["mousePosition"] = wxEvt.GetPosition()
 
 	if isinstance(wxEvt, wx.CloseEvent):
 		ed["force"] = not wxEvt.CanVeto()
-		
+
 	if isinstance(wxEvt, wx.TreeEvent):
 		tree = wxEvt.GetEventObject()
 		sel = tree.Selection
@@ -424,7 +424,7 @@ def getEventData(wxEvt):
 			ed["itemNode"] = tree.find(ed["itemID"])[0]
 		except:
 			pass
-	
+
 	if isinstance(wxEvt, wx.SplitterEvent):
 		try:
 			ed["sashPosition"] = wxEvt.GetSashPosition()
@@ -435,7 +435,7 @@ def getEventData(wxEvt):
 				ed["windowRemoved"] = wxEvt.GetWindowBeingRemoved()
 			except:
 				ed["windowRemoved"] = None
-		
+
 	if hasattr(wxEvt, "GetId"):
 		ed["id"] = wxEvt.GetId()
 
@@ -445,7 +445,7 @@ def getEventData(wxEvt):
 		if hasattr(wxEvt, "GetSelection"):
 			ed["index"] = wxEvt.GetSelection()
 
-	
+
 	if isinstance(wxEvt, wx.grid.GridEvent):
 		ed["row"] = wxEvt.GetRow()
 		ed["col"] = wxEvt.GetCol()
@@ -458,7 +458,7 @@ def getEventData(wxEvt):
 			# Don't think this is implemented yet
 			ed["commandDown"] = wxEvt.CmdDown()
 		except: pass
-	
+
 	if isinstance(wxEvt, wx.grid.GridSizeEvent):
 		#ed["rowOrCol"] = wxEvt.GetRowOrCol()
 		if eventType == wx.grid.EVT_GRID_ROW_SIZE.evtType[0]:
@@ -474,7 +474,7 @@ def getEventData(wxEvt):
 			# Don't think this is implemented yet
 			ed["commandDown"] = wxEvt.CmdDown()
 		except: pass
-	
+
 	if isinstance(wxEvt, wx.calendar.CalendarEvent):
 		ed["date"] = wxEvt.PyGetDate()
 		# This will be undefined for all but the
@@ -485,16 +485,16 @@ def getEventData(wxEvt):
 		ed["expanded"] = wxEvt.GetFoldStatus()
 		ed["collapsed"] = not ed["expanded"]
 		ed["panel"] = wxEvt.GetEventObject().GetParent()
-		
+
 	try:
 		if isinstance(wxEvt, wx.html.HtmlLinkEvent):
 			ed["href"] = wxEvt.href
 	except:
 		# wxPython 2.6 and earlier doesn't seem to have this event
 		pass
-		
+
 	return ed
-	
+
 
 def getMousePosition():
 	"""Returns the position of the mouse on the screen."""
@@ -507,12 +507,12 @@ def getFormMousePosition():
 	"""
 	actwin = dabo.dAppRef.ActiveForm
 	return actwin.relativeCoordinates(wx.GetMousePosition())
-	
+
 
 def getMouseObject():
 	"""Returns a reference to the object below the mouse pointer
-	at the moment the command is issued. Useful for interactive 
-	development when testing changes to classes 'in the wild' of a 
+	at the moment the command is issued. Useful for interactive
+	development when testing changes to classes 'in the wild' of a
 	live application.
 	"""
 # 	print "MOUSE POS:", getMousePosition()
@@ -521,7 +521,7 @@ def getMouseObject():
 # 	print "ACTWIN", actwin
 	if isinstance(actwin, dabo.ui.dShell.dShell):
 		actwin.lockDisplay()
-		actwin.sendToBack()	
+		actwin.sendToBack()
 	else:
 		actwin = None
 	win = wx.FindWindowAtPointer()
@@ -564,22 +564,22 @@ def isMouseMiddleDown():
 	return wx.GetMouseState().middleDown
 
 
-#### This will have to wait until I can figure out how to simulate a 
+#### This will have to wait until I can figure out how to simulate a
 #### modal form for the calendar.
 # def popupCalendar(dt=None, x=None, y=None, pos="topleft"):
 # 	"""Pops up a calendar control at the specified x,y location, relative
-# 	to the position. Positions can be one of 'topleft', 'topright', 
-# 	'bottomleft', 'bottomright'. If no date is specified, defaults to 
+# 	to the position. Positions can be one of 'topleft', 'topright',
+# 	'bottomleft', 'bottomright'. If no date is specified, defaults to
 # 	today. Returns the selected date, or None if the user presses Esc.
 # 	"""
 # 	class popCal(dBorderlessForm):
 # 		def afterInit(self):
 # 			dCalendar(self, RegID="cal", Position=(0,0))
 # 			self.Size = self.cal.Size
-# 			
+#
 # 		def onHit_cal(self, evt):
 # 			self.Visible = False
-# 		
+#
 # 	pos = pos.lower().strip()
 # 	if dt is None:
 # 		dt = datetime.date.today()
@@ -587,7 +587,7 @@ def isMouseMiddleDown():
 # 		x,y = wx.GetMousePosition()
 # 	else:
 # 		x, y = wx.ClientToScreen(x, y)
-# 	
+#
 # 	calForm = popCal(None)
 # 	calForm.cal.Date = dt
 # 	if "right" in pos:
@@ -604,7 +604,7 @@ def isMouseMiddleDown():
 # 	calForm.release()
 # 	return ret
 
-	
+
 def _getActiveForm():
 	app = dabo.dAppRef
 	if app is not None:
@@ -612,7 +612,7 @@ def _getActiveForm():
 	return None
 
 
-def getString(message=_("Please enter a string:"), caption="Dabo", 
+def getString(message=_("Please enter a string:"), caption="Dabo",
 		defaultValue="", **kwargs):
 	"""Simple dialog for returning a small bit of text from the user.
 
@@ -621,7 +621,7 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
 
 	# Give the textbox a default value:
 	txt = dabo.ui.getString(defaultValue="initial string value")
-	
+
 	# Password Entry (*'s instead of the actual text)
 	txt = dabo.ui.getString(PasswordEntry=True)
 	"""
@@ -636,7 +636,7 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
 			hs.append(self.strVal, 1)
 			self.Sizer.append(hs, "expand")
 			dabo.ui.callAfter(self.strVal.setFocus)
-	
+
 	if defaultValue:
 		kwargs["Value"] = defaultValue
 	dlg = StringDialog(_getActiveForm())
@@ -649,7 +649,7 @@ def getString(message=_("Please enter a string:"), caption="Dabo",
 	return val
 
 
-def getInt(message=_("Enter an integer value:"), caption="Dabo", 
+def getInt(message=_("Enter an integer value:"), caption="Dabo",
 		defaultValue=0, **kwargs):
 	"""Simple dialog for returning an integer value from the user."""
 	class IntDialog(dabo.ui.dOkCancelDialog):
@@ -663,7 +663,7 @@ def getInt(message=_("Enter an integer value:"), caption="Dabo",
 			hs.append(self.spnVal)
 			self.Sizer.append(hs)
 			dabo.ui.callAfter(self.spnVal.setFocus)
-			
+
 	if defaultValue:
 		kwargs["Value"] = defaultValue
 	dlg = IntDialog(_getActiveForm())
@@ -674,7 +674,7 @@ def getInt(message=_("Enter an integer value:"), caption="Dabo",
 		val = None
 	dlg.Destroy()
 	return val
-	
+
 
 # The next two methods prompt the user to select from a list. The first allows
 # a single selection, while the second allows for multiple selections.
@@ -705,8 +705,8 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 		def addControls(self):
 			self.Caption = caption
 			lbl = dabo.ui.dLabel(self, Caption=message)
-			self.lst = dabo.ui.dListBox(self, Choices=choices, 
-					PositionValue=defaultPos, MultipleSelect=mult, 
+			self.lst = dabo.ui.dListBox(self, Choices=choices,
+					PositionValue=defaultPos, MultipleSelect=mult,
 					OnMouseLeftDoubleClick=self.onOK)
 			sz = self.Sizer
 			sz.appendSpacer(25)
@@ -732,16 +732,16 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 				sz.append(dabo.ui.dLine(self), "x", border=44,
 						borderSides=("left", "right"))
 			sz.appendSpacer(24)
-		
+
 		def selectAll(self, evt):
 			self.lst.selectAll()
-		
+
 		def unselectAll(self, evt):
 			self.lst.unselectAll()
-		
+
 		def invertSelection(self, evt):
 			self.lst.invertSelections()
-			
+
 	dlg = ChoiceDialog(_getActiveForm())
 	dlg.show()
 	if dlg.Accepted:
@@ -749,7 +749,7 @@ def _getChoiceDialog(choices, message, caption, defaultPos, mult):
 	else:
 		val = None
 	dlg.release()
-	return val			
+	return val
 
 
 # For convenience, make it so one can call dabo.ui.stop("Can't do that")
@@ -774,7 +774,7 @@ def getColor(color=None):
 
 
 def getDate(dt=None):
-	"""Displays a calendar dialog for the user to select a date. 
+	"""Displays a calendar dialog for the user to select a date.
 	Defaults to the given date parameter, or today if no value
 	is passed.
 	"""
@@ -783,7 +783,7 @@ def getDate(dt=None):
 	try:
 		mm, dd, yy = dt.month, dt.day, dt.year
 	except:
-		dabo.errorLog.write(_("Invalid date value passed to getDate(): %s") % dt)
+		dabo.logError(_("Invalid date value passed to getDate(): %s") % dt)
 		return None
 	dlg = wx.lib.calendar.CalenDlg(_getActiveForm(), mm, dd, yy)
 	dlg.Centre()
@@ -792,7 +792,7 @@ def getDate(dt=None):
 		day = int(result[1])
 		month = result[2]
 		year = int(result[3])
-		monthNames = ["January", "February", "March", "April", "May", "June", 
+		monthNames = ["January", "February", "March", "April", "May", "June",
 				"July", "August", "September", "October", "November", "December"]
 		ret = datetime.date(year, monthNames.index(month)+1, day)
 	else:
@@ -813,7 +813,7 @@ def getFont(font=None):
 	else:
 		if not isinstance(font, dFont):
 			# This will help identify older code
-			dabo.errorLog.write("Invalid font class passed to getFont")
+			dabo.logError("Invalid font class passed to getFont")
 			return None
 		param = font._nativeFont
 	dlg = dFontDialog(_getActiveForm(), param)
@@ -831,7 +831,7 @@ def getAvailableFonts():
 	fEnum.EnumerateFacenames()
 	list = fEnum.GetFacenames()
 	list.sort()
-	return list	
+	return list
 
 
 def _getPath(cls, wildcard, **kwargs):
@@ -851,10 +851,10 @@ def _getPath(cls, wildcard, **kwargs):
 def getFile(*args, **kwargs):
 	"""Display the file selection dialog for the platform, and return selection(s).
 
-	Send an optional multiple=True for the user to pick more than one file. In 
+	Send an optional multiple=True for the user to pick more than one file. In
 	that case, the return value will be a sequence of unicode strings.
 
-	Returns the path to the selected file or files, or None if no selection	was 
+	Returns the path to the selected file or files, or None if no selection	was
 	made. Only file may be selected if multiple is False.
 
 	Optionally, you may send wildcard arguments to limit the displayed files by
@@ -864,7 +864,7 @@ def getFile(*args, **kwargs):
 	"""
 	wc = _getWild(*args)
 	return _getPath(dFileDialog, wildcard=wc, **kwargs)[0]
-		
+
 
 def getFileAndType(*args, **kwargs):
 	"""Displays the file selection dialog for the platform.
@@ -878,7 +878,7 @@ def getFileAndType(*args, **kwargs):
 	else:
 		ret = (pth, args[idx])
 	return ret
-	
+
 
 def getSaveAs(*args, **kwargs):
 	if not kwargs.has_key("message"):
@@ -910,7 +910,7 @@ def getFolder(message=_("Choose a folder"), defaultPath="", wildcard="*"):
 	Returns the path to the selected folder, or None if no selection
 	was made.
 	"""
-	return _getPath(dFolderDialog, message=message, defaultPath=defaultPath, 
+	return _getPath(dFolderDialog, message=message, defaultPath=defaultPath,
 			wildcard=wildcard)[0]
 
 
@@ -928,15 +928,15 @@ def _getWild(*args):
 		args = expanded
 		arglist = []
 		tmplt = "%s Files (*.%s)|*.%s"
-		fileDict = {"html" : "HTML", 
+		fileDict = {"html" : "HTML",
 			"xml" : "XML",
 			"txt" : "Text",
 			"jpg" : "JPEG",
 			"gif" : "GIF",
 			"png" : "PNG",
-			"ico" : "Icon", 
+			"ico" : "Icon",
 			"bmp" : "Bitmap" }
-			
+
 		for a in args:
 			descrp = ext = ""
 			if a == "py":
@@ -1012,14 +1012,14 @@ def createForm(srcFile, show=False, *args, **kwargs):
 
 
 def createMenuBar(srcFile, form=None, previewFunc=None):
-	"""Pass in an .mnxml file saved from the Menu Designer, 
-	and this will instantiate a MenuBar from that spec. Returns 
+	"""Pass in an .mnxml file saved from the Menu Designer,
+	and this will instantiate a MenuBar from that spec. Returns
 	a reference to the newly-created MenuBar. You can optionally
 	pass in a reference to the form to which this menu is
-	associated, so that you can enter strings that represent 
-	form functions in the Designer, such as 'form.close', which 
+	associated, so that you can enter strings that represent
+	form functions in the Designer, such as 'form.close', which
 	will call the associated form's close() method. If 'previewFunc'
-	is passed, the menu command that would have been eval'd 
+	is passed, the menu command that would have been eval'd
 	and executed on a live menu will instead be passed back as
 	a parameter to that function.
 	"""
@@ -1038,7 +1038,7 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 			# No children defined for this menu
 			return
 		app = dabo.dAppRef
-		for itm in items:	
+		for itm in items:
 			if "Separator" in itm["name"]:
 				menu.appendSeparator()
 			else:
@@ -1058,18 +1058,18 @@ def createMenuBar(srcFile, form=None, previewFunc=None):
 					binding = eval(fnc)
 				help = itmatts["HelpText"]
 				menuItem = menu.append(cap, OnHit=binding, help=help,
-						picture=pic)	
-	
+						picture=pic)
+
 	mnd = dabo.lib.xmltodict.xmltodict(srcFile)
 	mb = dabo.ui.dMenuBar()
 	for mn in mnd["children"]:
 		addMenu(mb, mn, form, previewFunc)
 	return mb
-	
-	
+
+
 def browse(dataSource, parent=None):
 	"""Given a data source, a form with a grid containing the data
-	is created and displayed. If the source is a Dabo cursor object, 
+	is created and displayed. If the source is a Dabo cursor object,
 	its getDataSet() method will be called to extract the data.
 
 	If parent is passed, the form isn't created, and the browsegrid
@@ -1122,12 +1122,12 @@ def fontMetricFromDrawObject(obj):
 	"""Given a drawn text object, returns the width and height of the text."""
 	return fontMetric(txt=obj.Text, face=obj.FontFace, size=obj.FontSize,
 			bold=obj.FontBold, italic=obj.FontItalic)
-	
+
 
 def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 		italic=None):
 	"""Calculate the width and height of the given text using the supplied
-	font information. If any font parameters are missing, they are taken 
+	font information. If any font parameters are missing, they are taken
 	from the specified window, or, if no window is specified, the currently
 	active form. If no form is active, the app's MainForm is used.
 	"""
@@ -1172,7 +1172,7 @@ def fontMetric(txt=None, wind=None, face=None, size=None, bold=None,
 def saveScreenShot(obj=None, imgType=None, pth=None, delaySeconds=None):
 	"""Takes a screenshot of the specified and writes it to a file, converting
 	it to the requested image type. If no object is specified, the current
-	ActiveForm is used. You can add an optional delaySeconds setting that 
+	ActiveForm is used. You can add an optional delaySeconds setting that
 	will let you set things up as needed before the image is taken; if not specified,
 	the image is taken immediately.
 	"""
@@ -1188,7 +1188,7 @@ def _saveScreenShot(obj, imgType, pth):
 	if obj is None:
 		# Nothing active!
 		stop(_("There is no active form to capture."), _("No Active Form"))
-		return		
+		return
 	bmp = obj.getCaptureBitmap()
 	knownTypes = ("png", "jpg", "bmp", "pcx")
 	if imgType is None:
@@ -1198,8 +1198,8 @@ def _saveScreenShot(obj, imgType, pth):
 			imgType = knownTypes
 		else:
 			imgType = (imgType, )
-	wxTypeDict = {"png":  wx.BITMAP_TYPE_PNG, 
-			"jpg":  wx.BITMAP_TYPE_JPEG, 
+	wxTypeDict = {"png":  wx.BITMAP_TYPE_PNG,
+			"jpg":  wx.BITMAP_TYPE_JPEG,
 			"bmp":  wx.BITMAP_TYPE_BMP,
 			"pcx":  wx.BITMAP_TYPE_PCX}
 	if pth is None:
@@ -1217,10 +1217,10 @@ def _saveScreenShot(obj, imgType, pth):
 			pth = "%s.%s" % (pth, typ)
 	img = wx.ImageFromBitmap(bmp)
 	img.SaveFile(pth, wxTypeDict[typ])
-		
-	
-		
-	
+
+
+
+
 
 
 # - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - - -
@@ -1230,8 +1230,8 @@ def _saveScreenShot(obj, imgType, pth):
 # bitmap and an image, respectively.
 def bitmapFromData(data):
 	return BitmapFromImage(imageFromData(data))
-	
-	
+
+
 def imageFromData(data):
 	stream = cStringIO.StringIO(data)
 	return ImageFromStream(stream)
@@ -1240,13 +1240,13 @@ def imageFromData(data):
 
 # For applications that use the same image more than once,
 # this speeds up resolution of the requested image name.
-_bmpCache = {}	
+_bmpCache = {}
 def strToBmp(val, scale=None, width=None, height=None):
 	"""This can be either a path, or the name of a built-in graphic.
 	If an adjusted size is desired, you can either pass a 'scale' value
-	(where 1.00 is full size, 0.5 scales it to 50% in both Height and 
-	Width), or you can pass specific 'height' and 'width' values. The 
-	final image will be a bitmap resized to those specs.	
+	(where 1.00 is full size, 0.5 scales it to 50% in both Height and
+	Width), or you can pass specific 'height' and 'width' values. The
+	final image will be a bitmap resized to those specs.
 	"""
 	ret = None
 	if _bmpCache.has_key(val):
@@ -1255,9 +1255,9 @@ def strToBmp(val, scale=None, width=None, height=None):
 		ret = pathToBmp(val)
 	else:
 		# Include all the pathing possibilities
-		iconpaths = [os.path.join(pth, val) 
+		iconpaths = [os.path.join(pth, val)
 				for pth in dabo.icons.__path__]
-		dabopaths = [os.path.join(pth, val) 
+		dabopaths = [os.path.join(pth, val)
 				for pth in dabo.__path__]
 		localpaths = [os.path.join(os.getcwd(), pth, val)
 				for pth in ("icons", "resources")]
@@ -1277,7 +1277,7 @@ def strToBmp(val, scale=None, width=None, height=None):
 		ret = wx.EmptyBitmap(1, 1)
 	else:
 		_bmpCache[val] = ret
-	
+
 	if ret is not None:
 		if scale is None and width is None and height is None:
 			# No resize specs
@@ -1304,10 +1304,10 @@ def strToBmp(val, scale=None, width=None, height=None):
 					# Scale the width
 					newWd = oldWd * (newHt / oldHt)
 			img.Rescale(newWd, newHt)
-			ret = img.ConvertToBitmap()	
+			ret = img.ConvertToBitmap()
 	return ret
-	
-	
+
+
 def pathToBmp(pth):
 	img = wx.NullImage
 	img.LoadFile(pth)
@@ -1318,10 +1318,10 @@ def resizeBmp(bmp, wd, ht):
 	img = bmp.ConvertToImage()
 	img.Rescale(wd, ht)
 	return img.ConvertToBitmap()
-	
-	
+
+
 def getCommonBitmap(name):
-	"""wxPython comes with several built-in bitmaps for common icons. 
+	"""wxPython comes with several built-in bitmaps for common icons.
 	This wraps the procedure for generating these bitmaps. If a name is
 	passed for which there is no icon, an image denoting a missing image
 	is returned.
@@ -1335,7 +1335,7 @@ def getCommonBitmap(name):
 
 
 def getImagePath(nm, url=False):
-	"""Given the name of an image in either the Dabo common directory, or the 
+	"""Given the name of an image in either the Dabo common directory, or the
 	current directory, returns the full path to the image. If 'url' is true, returns
 	the path in a 'file:///image.ext' format.
 	"""
@@ -1367,7 +1367,7 @@ def getImagePath(nm, url=False):
 		else:
 			ret = "file://%s" % ret
 	return ret
-		
+
 
 
 def setdFormClass(typ):

@@ -15,7 +15,7 @@ from dabo.ui import makeDynamicProperty
 
 class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 	""" Create a simple bitmap to display images."""
-	def __init__(self, parent, properties=None, attProperties=None, 
+	def __init__(self, parent, properties=None, attProperties=None,
 			*args, **kwargs):
 		self._baseClass = dImage
 		preClass = wx.StaticBitmap
@@ -29,44 +29,44 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		self.__imageData = None
 		bmp = wx.EmptyBitmap(1, 1)
 		picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
-	
+
 		dim.dImageMixin.__init__(self)
-		dcm.__init__(self, preClass, parent, properties, attProperties, 
+		dcm.__init__(self, preClass, parent, properties, attProperties,
 				bitmap=bmp, *args, **kwargs)
-		
-		# Display the picture, if any. This will also initialize the 
+
+		# Display the picture, if any. This will also initialize the
 		# self._picture attribute
 		self.Picture = picName
-	
-	
+
+
 	def _initEvents(self):
 		super(dImage, self)._initEvents()
 		self.bindEvent(dEvents.Resize, self._onResize)
-	
-	
+
+
 	def _onResize(self, evt):
 		if not self._inShowPic:
 			self._showPic()
-		
-	
+
+
 	def update(self):
 		dabo.ui.callAfterInterval(100, super(dImage, self).update)
-	
-	
+
+
 	def rotateCounterClockwise(self):
 		self._rotation -= 1
 		if self._rotation == -4:
 			self._rotation = 0
 		self._showPic()
-		
-		
+
+
 	def rotateClockwise(self):
 		self._rotation += 1
 		if self._rotation == 4:
 			self._rotation = 0
 		self._showPic()
-	
-	
+
+
 	def getImgType(self):
 		data = self.__imageData
 		ret = (None, None)
@@ -86,8 +86,8 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 				except StandardError, e:
 					print "ERROR", e
 		return ret
-	
-	
+
+
 	def getOriginalImgSize(self):
 		"""Since the image can be scaled, this returns the size of
 		the unscaled image.
@@ -117,26 +117,26 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			switchProportions = (absRotate % 2 == 1)
 			for xx in range(absRotate):
 				img = img.Rotate90(cw)
-			
+
 		w, h = origW, origH = self.Width, self.Height
 		if w == h == 1:
 			# Initial empty bitmap, let the image determine the size
 			w = origW = img.GetWidth()
 			h = origH = img.GetHeight()
 		w, h = float(w), float(h)
-		
+
 		if h == 0:
 			szProp = 1
 		else:
 			szProp = w/h
 		imgProp = self._imgProp
-		
+
 		if switchProportions:
 			# The image has been rotated.
 			imgProp = 1/imgProp
-			
+
 		sm = self.ScaleMode[0].lower()
-		
+
 		if self._Image.GetWidth() ==  self._Image.GetHeight() == 1:
 			# Empty bitmap; no need to scale.
 			img = img
@@ -157,12 +157,12 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		else:
 			# Stretch; just use the control size
 			img = img.Scale(w, h)
-		
+
 		# We have the adjusted image; now generate the bitmap
 		self.Bitmap = img.ConvertToBitmap()
 		self._bitmapHeight = self.Bitmap.GetHeight()
 		self._bitmapWidth = self.Bitmap.GetWidth()
-		
+
 		self.Freeze()
 		try:
 			self.SetBitmap(self.Bitmap)
@@ -170,12 +170,12 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		self.Thaw()
 		self.SetSize((origW, origH))
 		self._inShowPic = False
-		
+
 
 	# Property definitions
 	def _getPic(self):
 		return self._picture
-		
+
 	def _setPic(self, val):
 		if isinstance(val, wx.Image):
 			# An image stored as a stream is being used
@@ -209,7 +209,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 
 	def _getScaleMode(self):
 		return self._scaleMode
-		
+
 	def _setScaleMode(self, val):
 		"""Only the first letter is significant. """
 		initial = val[0].lower()
@@ -218,7 +218,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self._scaleMode = modes[initial]
 			self._showPic()
 		except KeyError:
-			dabo.errorLog.write(_("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'.") )
+			dabo.logError(_("ScaleMode must be either 'Clip', 'Proportional' or 'Stretch'.") )
 
 
 	def _getValue(self):
@@ -267,7 +267,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self.__image = wx.NullImage
 		return self.__image
 
-	
+
 	Picture = property(_getPic, _setPic, None,
 			_("The file used as the source for the displayed image.  (str)") )
 
@@ -279,18 +279,18 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 					its original proportions. (default)
 				Stretch: the image resizes to the Height/Width of the control.
 			""") )
-	
-	Value = property(_getValue, _setValue, None,
-			_("Image content for this control  (binary img data)"))	
 
-	_Image = property(_getImg, None, None, 
+	Value = property(_getValue, _setValue, None,
+			_("Image content for this control  (binary img data)"))
+
+	_Image = property(_getImg, None, None,
 			_("Underlying image handler object  (wx.Image)") )
 
 
 	DynamicPicture = makeDynamicProperty(Picture)
 	DynamicScaleMode = makeDynamicProperty(ScaleMode)
 
-	
+
 if __name__ == "__main__":
 	class ImgForm(dabo.ui.dForm):
 		def afterInit(self):
@@ -305,7 +305,7 @@ if __name__ == "__main__":
 				Value=100, OnHit=self.onSlider)
 			self.HSlider = dabo.ui.dSlider(mp, Orientation="H", Min=1, Max=100,
 				Value=100, OnHit=self.onSlider)
-			
+
 			psz = self.imgPanel.Sizer = dabo.ui.dSizer("V")
 			hsz = dabo.ui.dSizer("H")
 			hsz.append1x(self.imgPanel)
@@ -321,7 +321,7 @@ if __name__ == "__main__":
 
 			# Create the image control
 			self.img = dImage(self.imgPanel)
-			
+
 			hsz = dabo.ui.dSizer("H")
 			hsz.DefaultSpacing = 10
 			dabo.ui.dBitmapButton(mp, RegID="btnRotateCW",
@@ -329,13 +329,13 @@ if __name__ == "__main__":
 			dabo.ui.dBitmapButton(mp, RegID="btnRotateCCW",
 					Picture="rotateCCW", OnHit=self.rotateCCW)
 			hsz.append(self.btnRotateCW)
-			hsz.append(self.btnRotateCCW)			
-			self.ddScale = dabo.ui.dDropdownList(mp, 
+			hsz.append(self.btnRotateCCW)
+			self.ddScale = dabo.ui.dDropdownList(mp,
 					Choices=["Proportional", "Stretch", "Clip"],
 					DataSource = "self.Form.img",
 					DataField = "ScaleMode")
 			self.ddScale.PositionValue = 0
-			btn = dabo.ui.dButton(mp, Caption="Load Image", 
+			btn = dabo.ui.dButton(mp, Caption="Load Image",
 					OnHit=self.onLoadImage)
 			btnOK = dabo.ui.dButton(mp, Caption="Done", OnHit=self.close)
 			hsz.append(self.ddScale, 0, "x")
@@ -343,7 +343,7 @@ if __name__ == "__main__":
 			hsz.append(btnOK, 0, "x")
 			sz.append(hsz, 0, alignment="right")
 			sz.appendSpacer(25)
-			
+
 			# Set the idle update flage
 			self.needUpdate = False
 
@@ -366,27 +366,27 @@ if __name__ == "__main__":
 				self.img.Width = (self.imgPanel.Width * val)
 			else:
 				self.img.Height = (self.imgPanel.Height * val)
-			
-			
-		def onLoadImage(self, evt): 
+
+
+		def onLoadImage(self, evt):
 			f = dabo.ui.getFile("jpg", "png", "gif", "bmp", "*")
 			if f:
 				self.img.Picture = f
-		
-		
+
+
 		def onResize(self, evt):
 			self.needUpdate = True
-			
-		
+
+
 		def onIdle(self, evt):
 			if self.needUpdate:
 				self.needUpdate = False
 				wd = self.HSlider.Value * 0.01 * self.imgPanel.Width
 				ht = self.VSlider.Value * 0.01 * self.imgPanel.Height
 				self.img.Size = (wd, ht)
-						
+
 
 	app = dabo.dApp()
 	app.MainFormClass = ImgForm
 	app.start()
-	
+

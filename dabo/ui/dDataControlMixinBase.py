@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-""" dDataControlMixin.py: Provide behavior common to all 
+""" dDataControlMixin.py: Provide behavior common to all
 	data-aware dControls.
 """
 import dabo, dabo.ui
@@ -18,31 +18,31 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self._oldVal = None
 
 		dabo.ui.dControlMixin.__init__(self, *args, **kwargs)
-			
+
 		self._value = self.Value
 		self._enabled = True
 		# Initialize runtime properties
-		
-	
+
+
 	def _initEvents(self):
 		super(dDataControlMixinBase, self)._initEvents()
-		
+
 		self.bindEvent(dEvents.Create, self.__onCreate)
 		self.bindEvent(dEvents.Destroy, self.__onDestroy)
 		self.bindEvent(dEvents.GotFocus, self.__onGotFocus)
 		self.bindEvent(dEvents.LostFocus, self.__onLostFocus)
-	
-		
+
+
 	def __onCreate(self, evt):
 		if self.SaveRestoreValue:
 			self.restoreValue()
-	
-	
+
+
 	def __onDestroy(self, evt):
 		if self.SaveRestoreValue:
 			self.saveValue()
-	
-	
+
+
 	def __onGotFocus(self, evt):
 		self._gotFocus()
 
@@ -61,8 +61,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		except AttributeError:
 			# only text controls have SelectOnEntry
 			pass
-	
-	
+
+
 	def _lostFocus(self):
 		ok = True
 		if self._inFldValid or (self._oldVal != self.Value):
@@ -129,33 +129,33 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				## Couldn't evaluate, for whatever reason. Do the same thing that we do
 				## for bizobj datasources: fill in the blank value.
 				self.Value = self.getBlankValue()
-				#dabo.errorLog.write("Could not evaluate value for %s" % expr)
-			
-			
+				#dabo.logError("Could not evaluate value for %s" % expr)
+
+
 	def select(self, position, length):
 		""" Select all text from <position> for <length> or end of string.
-		
+
 		UI lib must override.
 		"""
 		pass
-	
-	
+
+
 	def selectAll(self):
 		""" Select all text in the control.
-		
+
 		UI lib must override.
 		"""
 		pass
-	
-	
+
+
 	def selectNone(self):
 		""" Select no text in the control.
-		
+
 		UI lib must override.
 		"""
 		pass
-	
-	
+
+
 	def flushValue(self):
 		""" Save any changes to the underlying source field."""
 		curVal = self.Value
@@ -171,7 +171,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			oldVal = None
 		if not isChanged:
 			if isinstance(curVal, float) and isinstance(oldVal, float):
-				# If it is a float, make sure that it has changed by more than the 
+				# If it is a float, make sure that it has changed by more than the
 				# rounding error.
 				isChanged = (abs(curVal - oldVal) > 0.0000001)
 			else:
@@ -189,13 +189,13 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 								ret = src.setFieldVal(self.DataField, curVal)
 							except AttributeError:
 								# Eventually, we'll want our global error handler be the one to write
-								# to the errorLog, at which point we should reraise the exception as 
+								# to the errorLog, at which point we should reraise the exception as
 								# commented below. However, raising the exception here without a global
 								# handler results in some ugly GTK messages and a segfault, so for now
 								# let's just log the problem and let the app continue on.
 								#raise AttributeError, "No source object found for datasource '%s'" % self.DataSource
-								dabo.errorLog.write("No source object found for datasource '%s'" % self.DataSource)
-					else:	
+								dabo.logError("No source object found for datasource '%s'" % self.DataSource)
+					else:
 						# If the binding is to a method, do not try to assign to that method.
 						if self._srcIsInstanceMethod is None:
 							if isinstance(self.DataSource, basestring):
@@ -208,7 +208,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 							try:
 								exec ("src.%s = curVal" % self.DataField)
 							except StandardError, e:
-								dabo.errorLog.write("Could not bind to '%s.%s'\nReason: %s" % (self.DataSource, self.DataField, e) )
+								dabo.logError("Could not bind to '%s.%s'\nReason: %s" % (self.DataSource, self.DataField, e) )
 						else:
 							# The source is a direct object reference
 							try:
@@ -218,7 +218,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 									nm = self.DataSource._name
 								else:
 									nm = str(self.DataSource)
-								dabo.errorLog.write("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e) )
+								dabo.logError("Could not bind to '%s.%s'\nReason: %s" % (nm, self.DataField, e) )
 				self._oldVal = curVal
 			self._afterValueChanged(_from_flushValue=True)
 
@@ -238,17 +238,17 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return
 		# It is too late to get Value directly (since we are being called from Destroy, and wx
 		# has already released the C++ part of the object).
-		value = self._value	
+		value = self._value
 		if self.Application:
 			if self.RegID:
 				name = "%s.%s" % (self.Form.Name, self.RegID)
 			else:
 				name = self.getAbsoluteName()
 			self.Application.setUserSetting("%s.Value" % name, value)
-		
-			
+
+
 	def restoreValue(self):
-		""" Set the control's value to the value in dApp's user settings table."""			
+		""" Set the control's value to the value in dApp's user settings table."""
 		if self.Application:
 			if self.RegID:
 				name = "%s.%s" % (self.Form.Name, self.RegID)
@@ -260,9 +260,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 				try:
 					self.Value = value
 				except TypeError:
-					self.Value = self.getBlankValue()		
-			
-			
+					self.Value = self.getBlankValue()
+
+
 	def getShortDataType(self, value):
 		if isinstance(value, (int, long)):
 			return "I"
@@ -273,17 +273,17 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		elif isinstance(value, bool):
 			return "L"
 		else:
-			dabo.infoLog.write(_("getShortDataType - unknown type: %s") % (value,))
+			dabo.logInfo(_("getShortDataType - unknown type: %s") % (value,))
 			return "?"
-			
-			
+
+
 	def _afterValueChanged(self, _from_flushValue=False):
 		"""Called after the control's value has changed.
-		
+
 		This is defined as one of:
 			+ the user changed the value and then the control lost focus
 			+ the control's Value property was set and the value changed
-			
+
 		User code shouldn't need to access or override this.
 		"""
 
@@ -294,15 +294,15 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		# so we need a copy of the value for any routine that happens
 		# upon Destroy (saveValue, for instance)):
 		self._value = self.Value
-		
-		if not _from_flushValue and (self.Form.ActiveControl != self 
+
+		if not _from_flushValue and (self.Form.ActiveControl != self
 				or not getattr(self, "_flushOnLostFocus", False)):
-			# Value was changed programatically, and flushValue won't ever be 
+			# Value was changed programatically, and flushValue won't ever be
 			# called automatically (either the control won't flush itself upon
 			# LostFocus, or the control isn't the active control so the GotFocus/
 			# LostFocus mechanism won't recognize the change), so do it now.
 			self.flushValue()
-			
+
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getDataSource(self):
@@ -310,7 +310,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return self._DataSource
 		except AttributeError:
 			return ""
-			
+
 	def _setDataSource(self, value):
 		# Clear any old DataSource
 		self.__src = None
@@ -322,10 +322,10 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 			return self._DataField
 		except AttributeError:
 			return ""
-			
+
 	def _setDataField(self, value):
 		self._DataField = str(value)
-		
+
 
 	def _getDesignerMode(self):
 		if self._designerMode is None:
@@ -342,21 +342,21 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		except AttributeError:
 			self._isSecret = False
 			return self._isSecret
-			
+
 	def _setSecret(self, val):
 		self._isSecret = val
-		
+
 
 	def _getSaveRestoreValue(self):
 		try:
 			return self._SaveRestoreValue
 		except AttributeError:
 			return False
-			
+
 	def _setSaveRestoreValue(self, value):
 		self._SaveRestoreValue = bool(value)
-		
-		
+
+
 	def _getSrc(self):
 		if self.__src is None:
 			ds = self.DataSource
@@ -371,7 +371,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 						self.__src = self.Form
 					elif ds.startswith("self."):
 						# it's a locally resolvable reference.
-						try: 
+						try:
 							self.__src = eval(ds)
 						except: pass
 					else:
@@ -398,33 +398,33 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					self._srcIsInstanceMethod = False
 					if not isinstance(ds, dObject):
 						# Warn about possible unsupported behavior.
-						dabo.infoLog.write(_("DataSource '%s' does not inherit from dObject. This may result in unsupported problems.") % ds)
+						dabo.logInfo(_("DataSource '%s' does not inherit from dObject. This may result in unsupported problems.") % ds)
 		return self.__src
 
-	
+
 	# Property definitions:
 	DataSource = property(_getDataSource, _setDataSource, None,
 			_("Specifies the dataset to use as the source of data.  (str)") )
-	
+
 	DataField = property(_getDataField, _setDataField, None,
-			_("""Specifies the data field of the dataset to use as the source 
+			_("""Specifies the data field of the dataset to use as the source
 			of data. (str)""") )
-	
+
 	_DesignerMode = property(_getDesignerMode, None, None,
 			_("""When True, the control is not running live, but being used
 			in design mode.  (bool)"""))
-	
+
 	IsSecret = property(_getSecret, _setSecret, None,
 			_("Flag for indicating sensitive data that is not to be persisted.   (bool)") )
-			
-	SaveRestoreValue = property(_getSaveRestoreValue, _setSaveRestoreValue, None, 
-			_("""Specifies whether the Value of the control gets saved when 
-			destroyed and restored when created. Use when the control isn't 
-			bound to a dataSource and you want to persist the value, as in 
+
+	SaveRestoreValue = property(_getSaveRestoreValue, _setSaveRestoreValue, None,
+			_("""Specifies whether the Value of the control gets saved when
+			destroyed and restored when created. Use when the control isn't
+			bound to a dataSource and you want to persist the value, as in
 			an options dialog.  (bool)""") )
-	
+
 	Source = property(_getSrc, None, None,
 			_("Reference to the object to which this control's Value is bound  (object)") )
-			
+
 	Value = property(None, None, None,
 			_("Specifies the current state of the control (the value of the field). (varies)") )
