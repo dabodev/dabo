@@ -430,6 +430,24 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(bizChild.RowCount, 2)
 			
 
+	def testChildren_clearParent(self):
+		"""Requerying bizMain to 0 records should remove bizChild's records, too."""
+		bizMain = self.biz
+		bizChild = dabo.biz.dBizobj(self.con)
+		bizChild.UserSQL = "select * from %s" % self.temp_child_table_name
+		bizChild.KeyField = "pk"
+		bizChild.DataSource = self.temp_child_table_name
+		bizChild.LinkField = "parent_fk"
+		bizChild.FillLinkFromParent = True
+		
+		bizMain.addChild(bizChild)
+		bizMain.requery()
+
+		bizMain.UserSQL = "select * from %s where 1=0" % self.temp_table_name
+		bizMain.requery()
+		self.assertEqual(bizMain.RowCount, 0)
+		self.assertEqual(bizChild.RowCount, 0)
+	
 	def testNullRecord(self):
 		biz = self.biz
 		self.createNullRecord()
