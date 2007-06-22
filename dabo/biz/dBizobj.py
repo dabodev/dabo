@@ -742,6 +742,7 @@ class dBizobj(dObject):
 			currPK = None
 
 		# run the requery
+		uiException = None
 		cursor = self._CurrentCursor
 		try:
 			cursor.requery(params)
@@ -755,6 +756,11 @@ class dBizobj(dObject):
 			# Pass the exception to the UI
 			raise dException.DBQueryException, e
 
+		except dException.NoRecordsException:
+			# No need to abort the transaction because of this, but
+			# we still need to pass the exception to the UI
+			uiException = dException.NoRecordsException
+			
 		except dException.dException, e:
 			# Something failed; reset things.
 			cursor.rollbackTransaction()
@@ -769,6 +775,8 @@ class dBizobj(dObject):
 		except dException.NoRecordsException:
 			pass
 		self.afterRequery()
+		if uiException:
+			raise uiException
 
 
 	def setChildLinkFilter(self):
