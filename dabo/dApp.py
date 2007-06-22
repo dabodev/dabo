@@ -646,11 +646,19 @@ class dApp(dObject):
 		self.uiApp.onEditFindAgain(evt)
 	def onShowSizerLines(self, evt):
 		self.uiApp.onShowSizerLines(evt)
+
 	def onEditPreferences(self, evt):
 		try:
 			self.ActiveForm.onEditPreferences(evt)
 		except:
-			self.uiApp.onEditPreferences(evt)
+			if self.PreferenceDialogClass:
+				dlgPref = self.PreferenceDialogClass()
+				dlgPref.show()
+				if dlgPref.Modal:
+					dlgPref.release()
+			else:
+				dabo.infoLog.write(_("Stub: dApp.onEditPreferences()"))
+
 	# These handle MRU menu requests
 	def addToMRU(self, menu, prmpt, bindfunc=None, *args, **kwargs):
 		self.uiApp.addToMRU(menu, prmpt, bindfunc, *args, **kwargs)
@@ -863,6 +871,13 @@ class dApp(dObject):
 			return "?"
 
 
+	def _getPreferenceDialogClass(self):
+		return getattr(self, "_preferenceDialogClass", None)
+
+	def _setPreferenceDialogClass(self, val):
+		self._preferenceDialogClass = val
+
+
 	def _getSearchDelay(self):
 		try:
 			return self._searchDelay
@@ -1037,6 +1052,13 @@ class dApp(dObject):
 	Platform = property(_getPlatform, None, None,
 			_("""Returns the platform we are running on. This will be 
 			one of 'Mac', 'Win' or 'GTK'.  (str)""") )
+
+	PreferenceDialogClass = property(_getPreferenceDialogClass, _setPreferenceDialogClass, None,
+			_("""Specifies the dialog to use for the application's user preferences.
+
+			If None, the application will try to run the active form's onEditPreferences()
+			method, if any. Otherwise, the preference dialog will be instantiated and 
+			shown when the user chooses to see the preferences."""))
 
 	SearchDelay = property(_getSearchDelay, _setSearchDelay, None,
 			_("""Specifies the delay before incrementeal searching begins.  (int)

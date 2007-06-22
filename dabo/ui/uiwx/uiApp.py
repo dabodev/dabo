@@ -450,10 +450,6 @@ class uiApp(dObject, wx.App):
 				win = None
 		return ret
 		
-		
-	def onEditPreferences(self, evt):
-		dabo.infoLog.write(_("Stub: uiApp.onEditPreferences()"))
-
 
 	def onEditUndo(self, evt):
 		if self.ActiveForm:
