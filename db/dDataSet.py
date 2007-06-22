@@ -103,7 +103,7 @@ class dDataSet(tuple):
 	def replace(self, field, Expr, scope=None):
 		"""Replaces the value of the specified field with the given expression.
 
-		All records matching the scope are affected; if	no scope is specified,
+		All records matching the scope are affected; if	no scope is specified, 
 		all records are affected.
 
 		Scope is a boolean expression.
@@ -272,7 +272,7 @@ class dDataSet(tuple):
 			alias = "dataset"
 		if len(ds) == 0:
 			# Can't create and populate a table without a structure
-			dabo.logError(_("Cannot populate without data for alias %s")
+			dabo.errorLog.write(_("Cannot populate without data for alias %s")
 					% alias)
 			return None
 		if ds._populated:

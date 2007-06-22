@@ -13,8 +13,8 @@ from dabo.ui import makeDynamicProperty
 class _dDockManager(aui.AuiManager):
 	def __init__(self, win):
 		super(_dDockManager, self).__init__(win)
-
-
+	
+	
 	def addPane(self, win, name=None, typ=None, caption=None):
 		pi = PaneInfo()
 		if name is not None:
@@ -40,7 +40,7 @@ class _dDockManager(aui.AuiManager):
 		if not win or win._finito:
 			return
 		self.Update()
-
+		
 
 
 class _dDockPanel(dabo.ui.dPanel):
@@ -55,7 +55,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		else:
 			kwargs["Caption"] = pcap
 		self._paramType = ptype
-
+		
 		# Initialize attributes that underly properties
 		self._bottomDockable = True
 		self._leftDockable = True
@@ -78,16 +78,16 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self.Floating:
 			self._floatingPosition = self.GetParent().GetPosition().Get()
 			self._floatingSize = self.GetParent().GetSize().Get()
-
-
+	
+	
 	def float(self):
 		"""Float the panel if it isn't already floating."""
 		if self.Floating or not self.Floatable:
 			return
 		self.__pi.Float()
 		self.Form._refreshState()
-
-
+		
+		
 	def dock(self, side=None):
 		"""Dock the panel. If side is specified, it is docked on that side of the
 		form. If no side is specified, it is docked in its default location.
@@ -100,23 +100,16 @@ class _dDockPanel(dabo.ui.dPanel):
 			func = {"l": inf.Left, "r": inf.Right, "t": inf.Top, "b": inf.Bottom}.get(s, None)
 			if func:
 				func()
-			else:
-				dabo.logError(_("Invalid dock position: '%s'.") % side)
+			else:	
+				dabo.errorLog.write(_("Invalid dock position: '%s'.") % side)
 		inf.Dock()
 		self.Form._refreshState()
-
-    def SetFlag(self, flag, option):
-        if flag == optionFloating and not option:
-            raise dEvents.Pane_Docking
-        elif flag == optionFloating and option:
-            raise dEvents.Pane_Undocking
-
-        super(_dDockPanel, self).SetFlag(flag, option)
-
+			
+		
 	def _beforeSetProperties(self, props):
-		"""Some properties of Floating panels cannot be set at the usual
+		"""Some properties of Floating panels cannot be set at the usual 
 		point in the process, since the panel will still be docked, and you
-		can't change dimensions/location of a docked panel. So extract
+		can't change dimensions/location of a docked panel. So extract 
 		them now, and then set them afterwards.
 		"""
 		self._propDelayDict = {}
@@ -125,8 +118,8 @@ class _dDockPanel(dabo.ui.dPanel):
 			if val:
 				self._propDelayDict[delayed] = val
 		return super(_dDockPanel, self)._beforeSetProperties(props)
-
-
+		
+		
 	def _setProperties(self, props):
 		frm = self.Form
 		self.__pi = frm._mgr.addPane(self, name=props["NameBase"],
@@ -140,15 +133,15 @@ class _dDockPanel(dabo.ui.dPanel):
 		if self._propDelayDict:
 			self.setProperties(self._propDelayDict)
 		del self._propDelayDict
-
-
+		
+		
 	def __getPosition(self):
 		if self.Floating:
 			obj = self.GetParent()
 		else:
 			obj = self
 		return obj.GetPosition().Get()
-
+		
 
 	def __getSize(self):
 		if self.Floating:
@@ -156,7 +149,7 @@ class _dDockPanel(dabo.ui.dPanel):
 		else:
 			obj = self
 		return obj.GetSize().Get()
-
+		
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -168,7 +161,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if self.Floating:
 				self.FloatingBottom = val
 			else:
-				dabo.logError(_("Cannot set the position of a docked panel"))
+				dabo.errorLog.write(_("Cannot set the position of a docked panel"))
 		else:
 			self._properties["Bottom"] = val
 
@@ -214,7 +207,7 @@ class _dDockPanel(dabo.ui.dPanel):
 
 	def _getDockable(self):
 		return self._bottomDockable or self._leftDockable or self._rightDockable or self._topDockable
-
+		
 	def _setDockable(self, val):
 		if self._constructed():
 			self._dockable = val
@@ -397,7 +390,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if self.Floating:
 				self.FloatingHeight = val
 			else:
-				dabo.logError(_("Cannot set the Size of a docked panel"))
+				dabo.errorLog.write(_("Cannot set the Size of a docked panel"))
 		else:
 			self._properties["Height"] = val
 
@@ -410,7 +403,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if self.Floating:
 				self.FloatingLeft = val
 			else:
-				dabo.logError(_("Cannot set the position of a docked panel"))
+				dabo.errorLog.write(_("Cannot set the position of a docked panel"))
 		else:
 			self._properties["Left"] = val
 
@@ -458,7 +451,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if self.Floating:
 				self.FloatingRight = val
 			else:
-				dabo.logError(_("Cannot set the position of a docked panel"))
+				dabo.errorLog.write(_("Cannot set the position of a docked panel"))
 		else:
 			self._properties["Right"] = val
 
@@ -570,7 +563,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if self.Floating:
 				self.FloatingTop = val
 			else:
-				dabo.logError(_("Cannot set the position of a docked panel"))
+				dabo.errorLog.write(_("Cannot set the position of a docked panel"))
 		else:
 			self._properties["Top"] = val
 
@@ -605,7 +598,7 @@ class _dDockPanel(dabo.ui.dPanel):
 			if self.Floating:
 				self.FloatingWidth = val
 			else:
-				dabo.logError(_("Cannot set the Size of a docked panel"))
+				dabo.errorLog.write(_("Cannot set the Size of a docked panel"))
 		else:
 			self._properties["Width"] = val
 
@@ -618,7 +611,7 @@ class _dDockPanel(dabo.ui.dPanel):
 
 	Caption = property(_getCaption, _setCaption, None,
 			_("Text that appears in the title bar  (str)"))
-
+	
 	DestroyOnClose = property(_getDestroyOnClose, _setDestroyOnClose, None,
 			_("When the panel's Close button is clicked, does the panel get destroyed (True) or just hidden (False, default)  (bool)"))
 
@@ -627,18 +620,18 @@ class _dDockPanel(dabo.ui.dPanel):
 
 	Docked = property(_getDocked, _setDocked, None,
 			_("Determines whether the pane is floating (False) or docked (True)  (bool)"))
-
+	
 	DockSide = property(_getDockSide, _setDockSide, None,
-			_("""Side of the form that the panel is either currently docked to,
-			or would be if dock() were to be called. Possible values are
-			'Left', 'Right', 'Top' and 'Bottom'.  (str)"""))
-
+			_("""Side of the form that the panel is either currently docked to, 
+			or would be if dock() were to be called. Possible values are 
+			'Left', 'Right', 'Top' and 'Bottom'.  (str)"""))	
+			
 	Floatable = property(_getFloatable, _setFloatable, None,
 			_("Can the panel be undocked from the form and float independently? Default=True  (bool)"))
 
 	Floating = property(_getFloating, _setFloating, None,
 			_("Determines whether the pane is floating (True) or docked (False)  (bool)"))
-
+	
 	FloatingBottom = property(_getFloatingBottom, _setFloatingBottom, None,
 			_("Bottom coordinate of the panel when floating  (int)"))
 
@@ -717,8 +710,8 @@ class _dDockPanel(dabo.ui.dPanel):
 	Width = property(_getWidth, _setWidth, None,
 			_("Position in pixels of the width of the panel. Read-only when docked; read-write when floating  (int)"))
 
-
-
+	
+		
 
 class dDockForm(dabo.ui.dForm):
 	def _afterInit(self):
@@ -728,12 +721,12 @@ class dDockForm(dabo.ui.dForm):
 		self._centerPanel.Sizer = dabo.ui.dSizer("v")
 		super(dDockForm, self)._afterInit()
 		self.bindEvent(dEvents.Destroy, self.__onDestroy)
-
-
+	
+	
 	def __onDestroy(self, evt):
 		if self._finito:
 			self._mgr.UnInit()
-
+	
 	def getBasePanelClass(cls):
 		return _dDockPanel
 	getBasePanelClass = classmethod(getBasePanelClass)
@@ -743,18 +736,18 @@ class dDockForm(dabo.ui.dForm):
 		ok = isinstance(evt.child, (_dDockPanel, dabo.ui.dStatusBar, dabo.ui.dShell.dShell))
 		if not ok:
 			print "BORN:", evt.child
-
-
+		
+		
 	def addObject(self, classRef, Name=None, *args, **kwargs):
 		self._centerPanel.addObject(classRef, Name=Name, *args, **kwargs)
-
-
+		
+	
 	def addPanel(self, *args, **kwargs):
 		pnl = _dDockPanel(self, *args, **kwargs)
 		self._refreshState()
 		return pnl
-
-
+	
+	
 	def _refreshState(self, interval=None):
 		if self._finito:
 				return
@@ -763,7 +756,7 @@ class dDockForm(dabo.ui.dForm):
 		if interval == 0:
 			self._mgr.Update()
 		else:
-			dabo.ui.callAfterInterval(interval, self._mgr.runUpdate)
+			dabo.ui.callAfterInterval(interval, self._mgr.runUpdate)		
 
 
 	# Property get/set/del methods follow. Scroll to bottom to see the property
@@ -774,8 +767,8 @@ class dDockForm(dabo.ui.dForm):
 
 	CenterPanel = property(_getCenterPanel, None, None,
 			_("Reference to the center (i.e., non-docking) panel. (read-only) (dPanel)"))
-
-
+	
+	
 
 
 
@@ -783,7 +776,7 @@ class _dDockForm_test(dDockForm):
 	def afterInit(self):
 		self.fp = _dDockPanel(self, Floating=True, BackColor="orange",
 				Caption="I'm Floating!", Top=70, Left=100)
-		self.dp = _dDockPanel(self, Floating=False, BackColor="slateblue",
+		self.dp = _dDockPanel(self, Floating=False, BackColor="slateblue", 
 				ShowCaption=False, ShowPinButton=True, ShowCloseButton=False,
 				ShowGripper=True)
 		btn = dabo.ui.dButton(self._centerPanel, Caption="Test Orange", OnHit=self.onTestFP)
@@ -798,8 +791,8 @@ class _dDockForm_test(dDockForm):
 		if self.fp.Docked:
 			state = "Docked"
 		return "I'm %s!" % state
-
-
+		
+	
 	def onTestFP(self, evt):
 		self.printTest(self.fp)
 	def onTestDP(self, evt):

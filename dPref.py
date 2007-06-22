@@ -15,33 +15,33 @@ except ImportError:
 		# pkm: We can't use the errorLog to warn of this problem, because errorLog
 		#      descends from dObject, which needs to load dPref.py first.
 		warnings.warn("Class dPref requires package 'pysqlite2'.")
-		#dabo.logError("This class requires SQLite")
+		#dabo.errorLog.write("This class requires SQLite")
 
 # We don't want to deal with these as preferences.
-regularAtts = ("AutoPersist", "__base__", "__bases__", "__basicsize__", "__call__",
-		"__cmp__", "_deletionCache", "__dictoffset__", "__flags__", "__itemsize__",
-		"__members__", "__methods__", "__mro__", "__name__", "__subclasses__",
-		"__weakrefoffset__", "_autoPersist", "_cache", "_cursor", "_cxn",
+regularAtts = ("AutoPersist", "__base__", "__bases__", "__basicsize__", "__call__", 
+		"__cmp__", "_deletionCache", "__dictoffset__", "__flags__", "__itemsize__", 
+		"__members__", "__methods__", "__mro__", "__name__", "__subclasses__", 
+		"__weakrefoffset__", "_autoPersist", "_cache", "_cursor", "_cxn", 
 		"_getAttributeNames", "_key", "_noneType", "_parent", "_persistAll", "_typeDict", "mro")
 
 
 class dPref(object):
 	"""dPref is a class that is used to automatically manage preferences. It requires
-	SQLite in order to function; without that installed, you cannot use this class. It
+	SQLite in order to function; without that installed, you cannot use this class. It 
 	automatically supports nesting of preferences; if you have a dPref object named
-	'basePref', and then issue the statement 'basePref.subPref.something=True', a
-	new dPref object named 'subPref' will be created, and can be referred to using
-	'basePref.subPref'.
-
-	Normally you should specify the initial key for your prefs. This will ensure that
-	your preference names do not conflict with other dabo preferences. This is much like
+	'basePref', and then issue the statement 'basePref.subPref.something=True', a 
+	new dPref object named 'subPref' will be created, and can be referred to using 
+	'basePref.subPref'. 
+	
+	Normally you should specify the initial key for your prefs. This will ensure that 
+	your preference names do not conflict with other dabo preferences. This is much like 
 	the approach to modules in the Python namespace. Failure to specify a base
-	key would put all of your prefs into the 'root' namespace, where collisions can more
-	easily happen, and thus is not allowed.
-
-	All preference assignments are automatically persisted to the database unless
-	the 'AutoPersist' property on this object or one of its 'ancestors' is set to False.
-	When that is False, you must call the persist() method manually, or your settings
+	key would put all of your prefs into the 'root' namespace, where collisions can more 
+	easily happen, and thus is not allowed. 
+	
+	All preference assignments are automatically persisted to the database unless 
+	the 'AutoPersist' property on this object or one of its 'ancestors' is set to False. 
+	When that is False, you must call the persist() method manually, or your settings 
 	will not be saved. Calling 'persist()' will write any values of that object and all of its
 	child objects to the database.
 	"""
@@ -61,7 +61,7 @@ class dPref(object):
 		self._parent = None
 		self._noneType = type(None)
 		self._typeDict = {int: "int", float: "float", long: "long", str: "str", unicode: "unicode",
-				bool: "bool", list: "list", tuple: "tuple", datetime.date: "date",
+				bool: "bool", list: "list", tuple: "tuple", datetime.date: "date", 
 				datetime.datetime: "datetime", self._noneType: "none"}
 		if crs is None:
 			prefdir = utils.getUserAppDataDirectory(appName)
@@ -77,8 +77,8 @@ class dPref(object):
 			self._cxn = cxn
 		if self._cursor:
 			self._cursor.AutoCommit = True
-
-
+		
+		
 	def __getattr__(self, att):
 		if att in regularAtts:
 			if self.__dict__.has_key(att):
@@ -130,8 +130,8 @@ class dPref(object):
 		if persist:
 			self._persist(att, val)
 		self._cache[att] = val
-
-
+		
+	
 	def _getKey(self):
 		"""The key is a concatenation of this object's name and the names of its
 		ancestors, separated with periods.
@@ -143,8 +143,8 @@ class dPref(object):
 			if self._parent is not None:
 				ret = ".".join((self._parent._getKey(), ret))
 		return ret
-
-
+	
+	
 	def _encodeType(self, val, typ):
 		"""Takes various value types and converts them to a string formats that
 		can be converted back when needed.
@@ -158,8 +158,8 @@ class dPref(object):
 		else:
 			ret = unicode(val)
 		return ret
-
-
+		
+	
 	def _decodeType(self, rec):
 		"""Take a record containing a cvalue and ctype, and convert the type
 		as needed.
@@ -189,14 +189,14 @@ class dPref(object):
 # 			print "NONE", rec
 		return ret
 
-
+		
 	def _persist(self, att, val):
 		"""Writes the value of the particular att to the database with the proper key."""
 		# Make sure that we have a valid key
 		baseKey = self._getKey()
 		if not baseKey:
 			if not self._persistAll:
-				dabo.logError(_("No base key set; preference will not be persisted."))
+				dabo.errorLog.write(_("No base key set; preference will not be persisted."))
 				return
 			else:
 				key = att
@@ -220,8 +220,8 @@ class dPref(object):
 			sql = "insert into daboprefs (ckey, ctype, cvalue) values (?, ?, ?)"
 			prm = (key, typ, val)
 			crs.execute(sql, prm)
-
-
+	
+	
 	def persist(self):
 		"""Manually save preferences to the database."""
 		for key, val in self._cache.items():
@@ -234,10 +234,10 @@ class dPref(object):
 		for key in self._deletionCache.keys():
 			self._cursor.execute("delete from daboprefs where ckey like ? ", (key, ))
 		self._deletionCache = {}
-
-
+	
+	
 	def deletePref(self, att, nested=False):
-		"""Deletes a particular preference from both the database
+		"""Deletes a particular preference from both the database 
 		and the cache. If 'nested' is True, and the att is a node containing
 		sub-prefs, that node and all its children will be deleted.
 		"""
@@ -260,8 +260,8 @@ class dPref(object):
 			self._deletionCache[key] = None
 			if self._cache.has_key(att):
 				del self._cache[att]
-
-
+			
+	
 	def deleteAllPrefs(self):
 		"""Deletes all preferences for this object, and all sub-prefs as well."""
 		basekey = self._getKey()
@@ -276,13 +276,13 @@ class dPref(object):
 					# In case there are any other references to it hanging around,
 					# clear its cache.
 					val.flushCache()
-			self._cache = {}
+			self._cache = {}		
 		else:
 			# Update the caches
 			self._cache = {}
 			self._deletionCache[key] = None
-
-
+			
+	
 	def flushCache(self):
 		"""Clear the cache, forcing fresh reads from the database."""
 		for key, val in self._cache.items():
@@ -290,8 +290,8 @@ class dPref(object):
 				val.flushCache()
 			else:
 				del self._cache[key]
-
-
+	
+	
 	def getPrefs(self, returnNested=False, key=None, asDataSet=False):
 		"""Returns all the preferences set for this object. If returnNested is True,
 		returns any sub-preferences too.
@@ -315,8 +315,8 @@ class dPref(object):
 		for rec in ds:
 			ret[rec["ckey"]] = self._decodeType(rec)
 		return ret
-
-
+	
+	
 	def getPrefKeys(self, spec=None):
 		"""Return a list of all preference keys for this key."""
 		crs = self._cursor
@@ -357,10 +357,10 @@ class dPref(object):
 			tmp[itm] = None
 		ret = tmp.keys()
 		return ret
-
-
+	
+	
 	def getValue(self, key):
-		"""Given a key, returns the corresponding value, or a
+		"""Given a key, returns the corresponding value, or a 
 		dPref object if it exists as a sub key. If there is no match
 		for 'key', None is returned.
 		"""
@@ -376,13 +376,13 @@ class dPref(object):
 		sql = "insert into daboprefs (ckey, ctype, cvalue) values (?, ?, ?)"
 		prm = (key, newTyp, val)
 		self._cursor.execute(sql, prm)
-
-
+	
+	
 	def setValue(self, key, val):
 		"""Given a key and value, sets the preference to that value."""
 		self.__setattr__(key, val)
-
-
+	
+	
 	def getPrefTree(self, spec=None):
 		"""Returns a tree-like series of nested preference keys."""
 		crs = self._cursor
@@ -402,7 +402,7 @@ class dPref(object):
 
 		def uniqKeys(dct, val):
 			dct[val] = None
-
+		
 		def mkTree(vals):
 			ret = []
 			# Get all the first-tier keys
@@ -422,10 +422,10 @@ class dPref(object):
 					keylist.append(mkTree(kids))
 				ret.append(keylist)
 			return ret
-
+		
 		return mkTree(vs)
-
-
+		
+	
 	# Property definitions start here
 	def _getAutoPersist(self):
 		ret = self._autoPersist
@@ -440,11 +440,11 @@ class dPref(object):
 
 	AutoPersist = property(_getAutoPersist, _setAutoPersist, None,
 			_("Do property assignments automatically save themselves? Default=True  (bool)"))
+	
 
 
-
-
-
+			
+		
 
 if __name__ == "__main__":
 	a = dPref(key="TESTING")
@@ -462,7 +462,7 @@ if __name__ == "__main__":
 	print a.getPrefs(True)
 	a.deletePref("b.c", True)
 	print a.getPrefs(True)
-
+	
 	print "Just 'a' prefs:"
 	print a.getPrefs()
 	print
@@ -474,18 +474,18 @@ if __name__ == "__main__":
 	print "SUB PREFS", zz
 	zz = a.getPrefKeys()
 	print "PREF KEYS", zz
-
+	
 	a.AutoPersist = False
 	a.b.shouldntStay = "XXXXXXXXXX"
-
+	
 	print "BEFORE FLUSH", a.b.getPrefKeys()
 	a.flushCache()
 	print "AFTER FLUSH", a.b.getPrefKeys()
-
+	
 	print "DELETE ONE"
 	a.deletePref("anotherValue")
 	print a.getPrefs(True)
 	print "DELETE ALL"
 	a.deleteAllPrefs()
 	print a.getPrefs(True)
-
+	

@@ -12,7 +12,7 @@ from dabo.dObject import dObject
 
 # It doesn't look like Tkinter has an application object, just a mainloop() method.
 class uiApp(dObject):
-
+	
 	def __init__(self, app, callback=None, *args):
 		self.Name = "uiApp"
 		self.dApp = app
@@ -30,7 +30,7 @@ class uiApp(dObject):
 
 	def finish(self):
 		self.raiseEvent(dEvents.Deactivate)
-
+		
 	def onFileExit(self, evt):
 		self.MainForm.Close(True)
 
@@ -46,7 +46,7 @@ class uiApp(dObject):
 # 			selectedText = win.GetStringSelection()
 # 		except AttributeError:
 # 			selectedText = None
-#
+# 
 # 		if selectedText:
 # 			data = wx.TextDataObject()
 # 			data.SetText(selectedText)
@@ -54,7 +54,7 @@ class uiApp(dObject):
 # 			cb.Open()
 # 			cb.SetData(data)
 # 			cb.Close()
-#
+# 
 # 			if cut:
 # 				win.Remove(win.GetSelection()[0], win.GetSelection()[1])
 
@@ -66,41 +66,41 @@ class uiApp(dObject):
 # 			selection = win.GetSelection()
 # 		except AttributeError:
 # 			selection = None
-#
+# 
 # 		if selection != None:
 # 			data = wx.TextDataObject()
 # 			cb = wx.TheClipboard
 # 			cb.Open()
 # 			success = cb.GetData(data)
-# 			cb.Close()
-# 			if success:
+# 			cb.Close() 
+# 			if success: 
 # 				win.Replace(selection[0], selection[1], data.GetText())
-
+		
 
 
 	def onEditPreferences(self, evt):
-		dabo.logInfo("Stub: uiApp.onEditPreferences()")
+		dabo.infoLog.write("Stub: uiApp.onEditPreferences()")
 
 
 	def onEditFind(self, evt):
-		""" Display a Find dialog.
+		""" Display a Find dialog. 
 		"""
 		pass
 # 		win = wx.GetActiveWindow().FindFocus()
 # 		if win:
 # 			self.findWindow = win           # Save reference for use by self.OnFind()
-#
+# 
 # 			try:
 # 				data = self.findReplaceData
 # 			except AttributeError:
 # 				data = wx.FindReplaceData(wx.FR_DOWN)
 # 				self.findReplaceData = data
 # 			dlg = wx.FindReplaceDialog(win, data, "Find")
-#
+# 
 # 			dlg.Bind(wx.EVT_FIND, self.OnFind)
 # 			dlg.Bind(wx.EVT_FIND_NEXT, self.OnFind)
 # 			dlg.Bind(wx.EVT_CLOSE, self.OnFindClose)
-#
+# 
 # 			dlg.Show()
 
 
@@ -126,25 +126,25 @@ class uiApp(dObject):
 		Run the search on the current control, if it is a text-based control.
 		Select the found text in the control.
 		"""
-		return
+		return 
 # 		win = self.findWindow
 # 		if win:
-# 			try:
+# 			try: 
 # 				value = win.GetValue()
 # 			except AttributeError:
 # 				value = None
 # 			if type(value) not in (type(str()), type(unicode())):
-# 				dabo.logError("Active control isn't text-based.")
+# 				dabo.errorLog.write("Active control isn't text-based.")
 # 				return
-#
+# 
 # 			flags = event.GetFlags()
 # 			findString = event.GetFindString()
 # 			downwardSearch = (flags & wx.FR_DOWN) == wx.FR_DOWN
 # 			wholeWord = (flags & wx.FR_WHOLEWORD) == wx.FR_WHOLEWORD
 # 			matchCase = (flags & wx.FR_MATCHCASE) == wx.FR_MATCHCASE
-#
+# 
 # 			currentPos = win.GetInsertionPoint()
-#
+# 
 # 			if downwardSearch:
 # 				value = win.GetValue()[currentPos:]
 # 			else:
@@ -155,11 +155,11 @@ class uiApp(dObject):
 # 				findString = list(findString)
 # 				findString.reverse()
 # 				findString = ''.join(findString)
-#
+# 
 # 			if not matchCase:
 # 				value = value.lower()
 # 				findString = findString.lower()
-#
+# 
 # 			result = value.find(findString)
 # 			if result >= 0:
 # 				if downwardSearch:
@@ -168,14 +168,14 @@ class uiApp(dObject):
 # 					win.SetSelection(currentPos-result, currentPos-result-len(findString))
 # 				win.ShowPosition(win.GetSelection()[1])
 # 			else:
-# 				dabo.logInfo("Not found")
+# 				dabo.infoLog.write("Not found")
 
 
 	def onHelpAbout(self, event):
 		dlg = ui.dAbout(self.MainForm, self.dApp)
 		dlg.Show()
 
-
+		
 	def getLoginInfo(self, message=None):
 		""" Display the login form, and return the user/password as entered by the user.
 		"""
@@ -195,4 +195,4 @@ class uiApp(dObject):
 #			pass
 #		self.SetTopWindow(val)
 #		val.Show(self.dApp.showMainFormOnStart)
-
+		

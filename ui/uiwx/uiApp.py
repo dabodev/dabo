@@ -12,15 +12,15 @@ import dabo.dConstants as kons
 class SplashScreen(wx.Frame):
 	"""This is a specialized form that is meant to be used as a startup
 	splash screen. It takes an image file, bitmap, icon, etc., which is used
-	to size and shape the form. If you specify a mask color, that color
-	will be masked in the bitmap to appear transparent, and will affect the
-	shape of the form.
-
+	to size and shape the form. If you specify a mask color, that color 
+	will be masked in the bitmap to appear transparent, and will affect the 
+	shape of the form. 
+	
 	You may also pass a 'timeout' value; this is in milliseconds, and determines
 	how long until the splash screen automatically closes. If you pass zero
-	(or don't pass anything), the screen will remain visible until the user
+	(or don't pass anything), the screen will remain visible until the user 
 	clicks on it.
-
+	
 	Many thanks to Andrea Gavana, whose 'AdvancedSplash' class was a
 	huge inspiration (and source of code!) for this Dabo class. I also borrowed
 	some ideas/code from the wxPython demo by Robin Dunn.
@@ -28,29 +28,29 @@ class SplashScreen(wx.Frame):
 	def __init__(self, bitmap=None, maskColor=None, timeout=0):
 		style = wx.FRAME_NO_TASKBAR | wx.FRAME_SHAPED | wx.STAY_ON_TOP
 		wx.Frame.__init__(self, None, -1, style=style)
-
+		
 		self.SetBackgroundStyle(wx.BG_STYLE_CUSTOM)
 		if isinstance(bitmap, basestring):
 			# Convert it
 			self._bmp = dabo.ui.pathToBmp(bitmap)
 		else:
 			self._bmp = bitmap
-
+		
 		if maskColor is not None:
 			if isinstance(maskColor, basestring):
 				maskColor = dabo.dColors.colorTupleFromName(maskColor)
 			self._bmp.SetMask(wx.Mask(self._bmp, maskColor))
-
+			
 		if wx.Platform == "__WXGTK__":
 			self.Bind(wx.EVT_WINDOW_CREATE, self.setSizeAndShape)
 		else:
 			self.setSizeAndShape()
-
+		
 		self.Bind(wx.EVT_MOUSE_EVENTS, self._onMouseEvents)
 		self.Bind(wx.EVT_PAINT, self._onPaint)
 		if timeout > 0:
 			self.fc = wx.FutureCall(timeout, self._onTimer)
-
+		
 
 	def setSizeAndShape(self, evt=None):
 		w = self._bmp.GetWidth()
@@ -61,17 +61,17 @@ class SplashScreen(wx.Frame):
 		self.CenterOnScreen()
 		if evt is not None:
 			evt.Skip()
-
+		
 
 	def _onMouseEvents(self, evt):
 		if evt.LeftDown() or evt.RightDown():
 			self._disappear()
-
-
+		
+		
 	def _onTimer(self):
 		self._disappear()
 
-
+	
 	def _disappear(self):
 		try:
 			self.fc.Stop()
@@ -83,8 +83,8 @@ class SplashScreen(wx.Frame):
 
 	def _onPaint(self, evt):
 		dc = wx.BufferedPaintDC(self, self._bmp)
-		# I plan on adding support for a text string to be
-		# displayed. This is Andrea's code, which I may use as
+		# I plan on adding support for a text string to be 
+		# displayed. This is Andrea's code, which I may use as 
 		# the basis for this.
 # 		textcolour = self.GetTextColour()
 # 		textfont = self.GetTextFont()
@@ -106,7 +106,7 @@ class uiApp(dObject, wx.App):
 		self.callback = callback
 		wx.App.__init__(self, 0, *args)
 		dObject.__init__(self)
-
+		
 		self.Name = _("uiApp")
 		# wx has properties for appName and vendorName, so Dabo should update
 		# these. Among other possible uses, I know that on Win32 wx will use
@@ -114,12 +114,12 @@ class uiApp(dObject, wx.App):
 		self.SetAppName(self.dApp.getAppInfo("appName"))
 		self.SetClassName(self.dApp.getAppInfo("appName"))
 		self.SetVendorName(self.dApp.getAppInfo("vendorName"))
-
+		
 		# Set the platform info.
 		self.charset = "unicode"
 		if not self.charset in wx.PlatformInfo:
 			self.charset = "ascii"
-		txt = "wxPython Version: %s %s (%s)" % (wx.VERSION_STRING,
+		txt = "wxPython Version: %s %s (%s)" % (wx.VERSION_STRING, 
 				wx.PlatformInfo[1], self.charset)
 		if wx.PlatformInfo[0] == "__WXGTK__":
 			self._platform = _("GTK")
@@ -128,7 +128,7 @@ class uiApp(dObject, wx.App):
 			self._platform = _("Mac")
 		elif wx.PlatformInfo[0] == "__WXMSW__":
 			self._platform = _("Win")
-		dabo.logInfo(txt)
+		dabo.infoLog.write(txt)
 		self.Bind(wx.EVT_ACTIVATE_APP, self._onWxActivate)
 		self.Bind(wx.EVT_KEY_DOWN, self._onWxKeyDown)
 		self.Bind(wx.EVT_KEY_UP, self._onWxKeyUp)
@@ -148,12 +148,12 @@ class uiApp(dObject, wx.App):
 		self._mruMenuLinks = {}
 		self._mruMaxItems = 12
 		wx.InitAllImageHandlers()
-
-
+		
+		
 	def OnInit(self):
 		app = self.dApp
 		if app.showSplashScreen:
-			splash = SplashScreen(app.splashImage, app.splashMaskColor,
+			splash = SplashScreen(app.splashImage, app.splashMaskColor, 
 					app.splashTimeout)
 			splash.CenterOnScreen()
 			splash.Show()
@@ -165,8 +165,8 @@ class uiApp(dObject, wx.App):
 		del self.callback
 		self.Bind(wx.EVT_KEY_DOWN, self._onKeyPress)
 		return True
-
-
+	
+	
 	def _onKeyPress(self, evt):
 		## Zoom In / Out / Normal:
 		alt = evt.AltDown()
@@ -227,7 +227,7 @@ class uiApp(dObject, wx.App):
 				# default (as of this writing) is "Dabo Application"
 				frm.Caption = self.dApp.getAppInfo("appName")
 
-
+			
 	def setMainForm(self, val):
 		try:
 			self.dApp.MainForm.Destroy()
@@ -249,15 +249,15 @@ class uiApp(dObject, wx.App):
 			self.raiseEvent(dEvents.Activate)
 		self.MainLoop()
 
-
+	
 	def finish(self):
 		# Manually raise Deactivate, as wx doesn't do that automatically
 		self.raiseEvent(dEvents.Deactivate)
-
-
+	
+	
 	def _getPlatform(self):
 		return self._platform
-
+		
 
 	def _onWxActivate(self, evt):
 		""" Raise the Dabo Activate or Deactivate appropriately."""
@@ -266,19 +266,19 @@ class uiApp(dObject, wx.App):
 		else:
 			self.dApp.raiseEvent(dEvents.Deactivate, evt)
 		evt.Skip()
-
+	
 	def _onWxKeyChar(self, evt):
 		self.dApp.raiseEvent(dEvents.KeyChar, evt)
 		evt.Skip()
-
+			
 	def _onWxKeyDown(self, evt):
 		self.dApp.raiseEvent(dEvents.KeyDown, evt)
 		evt.Skip()
-
+			
 	def _onWxKeyUp(self, evt):
 		self.dApp.raiseEvent(dEvents.KeyUp, evt)
 		evt.Skip()
-
+			
 
 	def onCmdWin(self, evt):
 		self.showCommandWindow()
@@ -291,7 +291,7 @@ class uiApp(dObject, wx.App):
 		dlg = dabo.ui.dShell.dShell(context)
 		dlg.show()
 
-
+	
 	def onWinClose(self, evt):
 		"""Close the topmost window, if any."""
 		if self.ActiveForm:
@@ -299,7 +299,7 @@ class uiApp(dObject, wx.App):
 
 
 	def onFileExit(self, evt):
-		"""The MainForm contains the logic in its close methods to
+		"""The MainForm contains the logic in its close methods to 
 		cycle through all the forms and determine if they can all be
 		safely closed. If it closes them all, it will close itself.
 		"""
@@ -325,23 +325,23 @@ class uiApp(dObject, wx.App):
 			while frms:
 				frm = frms[0]
 				# This will allow forms to veto closing (i.e., user doesn't
-				# want to save pending changes).
+				# want to save pending changes). 
 				if frm:
 					if frm.close() == False:
 						# The form stopped the closing process. The user
-						# must deal with this form (save changes, etc.)
+						# must deal with this form (save changes, etc.) 
 						# before the app can exit.
 						frm.bringToFront()
 						return False
 				frms.remove(frm)
-
+		
 
 	def onEditCut(self, evt):
 		self.onEditCopy(evt, cut=True)
 
 
 	def onEditCopy(self, evt, cut=False):
-		# If Dabo subclasses define copy() or cut(), it will handle. Otherwise,
+		# If Dabo subclasses define copy() or cut(), it will handle. Otherwise, 
 		# some controls (stc...) have Cut(), Copy(), Paste() methods - call those.
 		# If neither of the above works, then copy text to the clipboard.
 		if self.ActiveForm:
@@ -378,12 +378,12 @@ class uiApp(dObject, wx.App):
 					selectedText = win.GetStringSelection()
 				except AttributeError:
 					selectedText = None
-
+	
 				if selectedText:
 					self.copyToClipboard(selectedText)
 					if cut:
 						win.Remove(win.GetSelection()[0], win.GetSelection()[1])
-
+	
 
 	def copyToClipboard(self, txt):
 		data = wx.TextDataObject()
@@ -410,7 +410,7 @@ class uiApp(dObject, wx.App):
 				if hasattr(win, "Paste"):
 					win.Paste()
 					handled = True
-
+			
 			if not handled:
 				try:
 					selection = win.GetSelection()
@@ -421,10 +421,10 @@ class uiApp(dObject, wx.App):
 					cb = wx.TheClipboard
 					cb.Open()
 					success = cb.GetData(data)
-					cb.Close()
-					if success:
+					cb.Close() 
+					if success: 
 						win.Replace(selection[0], selection[1], data.GetText())
-
+		
 
 	def onEditSelectAll(self, evt):
 		if self.ActiveForm:
@@ -432,9 +432,9 @@ class uiApp(dObject, wx.App):
 			if win:
 				try:
 					win.SetSelection(-1, -1)
-				except: pass
+				except: pass			
 
-
+			
 	def _getContainingGrid(self, win):
 		"""Returns the grid that contains the specified window, or None
 		if the window is not contained in a grid.
@@ -449,10 +449,10 @@ class uiApp(dObject, wx.App):
 			except AttributeError:
 				win = None
 		return ret
-
-
+		
+		
 	def onEditPreferences(self, evt):
-		dabo.logInfo(_("Stub: uiApp.onEditPreferences()"))
+		dabo.infoLog.write(_("Stub: uiApp.onEditPreferences()"))
 
 
 	def onEditUndo(self, evt):
@@ -463,8 +463,8 @@ class uiApp(dObject, wx.App):
 				try:
 					win.Undo()
 				except AttributeError:
-					dabo.logError(_("No apparent way to undo."))
-
+					dabo.errorLog.write(_("No apparent way to undo."))
+	
 
 	def onEditRedo(self, evt):
 		if self.ActiveForm:
@@ -474,13 +474,13 @@ class uiApp(dObject, wx.App):
 				try:
 					win.Redo()
 				except AttributeError:
-					dabo.logError(_("No apparent way to redo."))
+					dabo.errorLog.write(_("No apparent way to redo."))
 
 
 	def onEditFindAlone(self, evt):
 		self.onEditFind(evt, False)
-
-
+		
+		
 	def onEditFind(self, evt, replace=True):
 		""" Display a Find dialog.	By default, both 'Find' and 'Find/Replace'
 		will be a single dialog. By calling this method with replace=False,
@@ -503,26 +503,26 @@ class uiApp(dObject, wx.App):
 					data.SetReplaceString(self._replaceString)
 					self.findReplaceData = data
 				if replace:
-					dlg = wx.FindReplaceDialog(win, data, _("Find/Replace"),
+					dlg = wx.FindReplaceDialog(win, data, _("Find/Replace"), 
 							wx.FR_REPLACEDIALOG)
 				else:
 					dlg = wx.FindReplaceDialog(win, data, _("Find"))
-
+				
 				# Map enter key to find button:
 				anId = wx.NewId()
 				dlg.SetAcceleratorTable(wx.AcceleratorTable([(wx.ACCEL_NORMAL, wx.WXK_RETURN, anId),]))
 				dlg.Bind(wx.EVT_MENU, self.onEnterInFindDialog, id=anId)
-
+	
 				dlg.Bind(wx.EVT_FIND, self.OnFind)
 				dlg.Bind(wx.EVT_FIND_NEXT, self.OnFind)
 				dlg.Bind(wx.EVT_FIND_REPLACE, self.OnFindReplace)
 				dlg.Bind(wx.EVT_FIND_REPLACE_ALL, self.OnFindReplaceAll)
 				dlg.Bind(wx.EVT_FIND_CLOSE, self.OnFindClose)
-
+	
 				dlg.Show()
 				self.findDialog = dlg
-
-
+			
+	
 	def setFindDialogIDs(self):
 		"""Since the Find dialog is a wxPython control, we can't determine
 		which text control holds the Find value, and which holds the Replace
@@ -530,18 +530,18 @@ class uiApp(dObject, wx.App):
 		Find textbox is physically above the Replace textbox, so we can use
 		its position to determine its function.
 		"""
-		tbs = [{ctl.GetPosition()[1] : ctl.GetId()}
+		tbs = [{ctl.GetPosition()[1] : ctl.GetId()} 
 				for ctl in self.findDialog.GetChildren()
 				if isinstance(ctl, wx.TextCtrl)]
-
+		
 		tbs.sort()
 		self._findDlgID = tbs[0].values()[0]
 		self._replaceDlgID = tbs[1].values()[0]
-
-
+		
+		
 	def onEnterInFindDialog(self, evt):
 		"""We need to simulate what happens in the Find dialog when
-		the user clicks the Find button. This requires that we manually
+		the user clicks the Find button. This requires that we manually 
 		update the find data with the dialog values, and then carry out the
 		find as before.
 		"""
@@ -571,7 +571,7 @@ class uiApp(dObject, wx.App):
 		frd.SetFlags(flags)
 		# We've set all the values; now do the Find.
 		self.OnFind(evt)
-
+					
 
 	def onEditFindAgain(self, evt):
 		"""Repeat the last search."""
@@ -587,7 +587,7 @@ class uiApp(dObject, wx.App):
 		except AttributeError, e:
 			self.onEditFind(None)
 			return
-
+			
 
 	def OnFindClose(self, evt):
 		""" User clicked the close button, so hide the dialog."""
@@ -600,11 +600,11 @@ class uiApp(dObject, wx.App):
 		self.findDialog = None
 		evt.Skip()
 
-
+	
 	def OnFindReplace(self, evt):
 		self.OnFind(evt, action="Replace")
-
-
+		
+		
 	def OnFindReplaceAll(self, evt):
 		total = 0
 		wx.BeginBusyCursor()
@@ -619,8 +619,8 @@ class uiApp(dObject, wx.App):
 		if total == 1:
 			msg = _("1 replacement was made")
 		dabo.ui.info(msg, title=_("Replacement Complete"))
-
-
+		
+		
 	def OnFind(self, evt, action="Find"):
 		""" User clicked the 'find' button in the find dialog.
 		Run the search on the current control, if it is a text-based control.
@@ -642,7 +642,7 @@ class uiApp(dObject, wx.App):
 				if action == "Replace":
 					# Make sure that there is something to replace
 					selectPos = win.GetSelection()
-					if selectPos[1] - selectPos[0] > 0:
+					if selectPos[1] - selectPos[0] > 0: 
 						# There is something selected to replace
 						win.ReplaceSelection(replaceString)
 				selectPos = win.GetSelection()
@@ -668,15 +668,15 @@ class uiApp(dObject, wx.App):
 					ret = True
 					win.SetSelection(pos, pos+len(findString))
 				return ret
-
+				
 			else:
 				# Regular text control
-				try:
+				try: 
 					value = win.GetValue()
 				except AttributeError:
 					value = None
 				if not isinstance(value, basestring):
-					dabo.logError(_("Active control isn't text-based."))
+					dabo.errorLog.write(_("Active control isn't text-based."))
 					return
 
 				if action == "Replace":
@@ -710,12 +710,12 @@ class uiApp(dObject, wx.App):
 					win.SetSelection(selStart, selEnd)
 					win.ShowPosition(win.GetSelection()[1])
 				else:
-					dabo.logInfo(_("Not found"))
+					dabo.infoLog.write(_("Not found"))
 				return ret
-
+				
 
 	def addToMRU(self, menu, prompt, bindfunc=None):
-		"""Adds the specified menu to the top of the list of
+		"""Adds the specified menu to the top of the list of 
 		MRU prompts for that menu.
 		"""
 		if isinstance(menu, basestring):
@@ -732,9 +732,9 @@ class uiApp(dObject, wx.App):
 		mf[prompt] = bindfunc
 		self._mruMenuFuncs[cap] = mf
 
-
+	
 	def onMenuOpenMRU(self, menu):
-		"""Make sure that the MRU items are there and are in the
+		"""Make sure that the MRU items are there and are in the 
 		correct order.
 		"""
 		cap = menu.Caption
@@ -744,7 +744,7 @@ class uiApp(dObject, wx.App):
 		if menu._mruSeparator is None:
 			menu._mruSeparator = menu.appendSeparator()
 		tmplt = "&%s %s"
-		promptList = [tmplt % (pos+1, txt)
+		promptList = [tmplt % (pos+1, txt) 
 				for pos, txt in enumerate(mnPrm)]
 		idx = -1
 		ok = True
@@ -779,8 +779,8 @@ class uiApp(dObject, wx.App):
 				itm = menu.append(tmplt % (pos+1, txt), OnHit=fncs.get(txt, None))
 				lnks[itm.GetId()] = itm
 			self._mruMenuLinks[menu] = lnks
-
-
+	
+	
 	def getMRUListForMenu(self, menu):
 		"""Gets the current list of MRU entries for the given menu."""
 		if isinstance(menu, basestring):
@@ -789,17 +789,17 @@ class uiApp(dObject, wx.App):
 		else:
 			cap = menu.Caption
 		return self._mruMenuPrompts.get(cap, [])
-
-
+		
+	
 	def onShowSizerLines(self, evt):
-		"""Toggles whether sizer lines are drawn. This is simply a tool
+		"""Toggles whether sizer lines are drawn. This is simply a tool 
 		to help people visualize how sizers lay out objects.
 		"""
 		self._drawSizerOutlines = not self._drawSizerOutlines
 		if self.ActiveForm:
 			self.ActiveForm.refresh()
-
-
+		
+	
 	def _getActiveForm(self):
 		af = getattr(self, "_activeForm", None)
 		if af is None:
@@ -808,18 +808,18 @@ class uiApp(dObject, wx.App):
 
 	def _setActiveForm(self, frm):
 		self._activeForm = frm
-
-
+		
+		
 	def _getDrawSizerOutlines(self):
 		return self._drawSizerOutlines
-
+	
 	def _setDrawSizerOutlines(self, val):
 		self._drawSizerOutlines = val
-
-
-	ActiveForm = property(_getActiveForm, _setActiveForm, None,
+	
+	
+	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
 			_("Returns the form that currently has focus, or None.	(dForm)" ) )
 
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
 			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)") )
-
+	

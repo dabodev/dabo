@@ -8,29 +8,29 @@ from dabo.lib.SimpleCrypt import SimpleCrypt
 
 
 class dConnectInfo(dObject):
-	""" Holder for the properties for connecting to the backend. Each
+	""" Holder for the properties for connecting to the backend. Each 
 	backend may have different names for properties, but this object
-	tries to abstract that. The value stored in the Password must be
+	tries to abstract that. The value stored in the Password must be 
 	encrypted in the format set in the app. This class has  'encrypt' and
 	'decrypt' functions for doing this, or you can set the PlainTextPassword
 	property, and the class will encypt that value and set the Password
 	property for you.
-
-	You can create it in several ways, like most Dabo objects. First, you
+	
+	You can create it in several ways, like most Dabo objects. First, you 
 	can pass all the settings as parameters to the constructor:
-
+	
 		ci = dConnectInfo(DbType="MySQL", Host="domain.com",
 			User="daboUser", PlainTextPassword="secret", Port=3306,
 			Database="myData", Name="mainConnection")
-
+			
 	Or you can create a dictionary of the various props, and pass that
 	in the 'connInfo' parameter:
-
+	
 		connDict = {"DbType" : "MySQL", "Host" : "domain.com",
-			"User" : "daboUser", "PlainTextPassword" : "secret",
+			"User" : "daboUser", "PlainTextPassword" : "secret", 
 			"Port" : 3306, "Database" : "myData", "Name" : "mainConnection"}
 		ci = dConnectInfo(connInfo=connDict)
-
+		
 	Or, finally, you can create the object and then set the props
 	individually:
 
@@ -50,10 +50,10 @@ class dConnectInfo(dObject):
 		if connInfo:
 			self.setConnInfo(connInfo)
 
-
+	
 	def lowerKeys(self, dct):
 		"""Takes a dict, and returns another dict identical except
-		for the fact that all the keys that were string types are now
+		for the fact that all the keys that were string types are now 
 		lower case.
 		"""
 		ret = {}
@@ -62,8 +62,8 @@ class dConnectInfo(dObject):
 				kk = kk.lower()
 			ret[kk] = vv
 		return ret
-
-
+		
+		
 	def setConnInfo(self, connInfo, nm=""):
 		if isinstance(connInfo, dict):
 			# The info is already in dict format
@@ -73,27 +73,27 @@ class dConnectInfo(dObject):
 			# XML, or it is a path to the XML file. Either way, the parser
 			# will handle it.
 			cd = importConnections(connInfo)
-			# There may be multiple connections in this file. If they passed a
+			# There may be multiple connections in this file. If they passed a 
 			# name, use that connection; otherwise, use the first.
 			try:
 				connDict = cd[nm]
 			except:
 				nm = cd.keys()[0]
 				connDict = cd[nm]
-
+		
 		# Run through the connDict, and set the appropriate properties. If it isn't
 		# a valid property name, raise TypeError.
 		mapping = {"name": "Name", "dbtype": "DbType", "host": "Host",
-				"user": "User", "password": "Password", "database": "Database",
+				"user": "User", "password": "Password", "database": "Database", 
 				"plaintextpassword": "PlainTextPassword", "port": "Port"}
 		for k, v in connDict.items():
 			prop = mapping.get(k, None)
 			if prop:
 				setattr(self, prop, v)
 			else:
-				raise TypeError, "Property '%s' invalid." % k
-
-
+				raise TypeError, "Property '%s' invalid." % k				
+	
+	
 	def getConnection(self, **kwargs):
 		return self._backendObject.getConnection(self, **kwargs)
 
@@ -103,7 +103,7 @@ class dConnectInfo(dObject):
 			return self._backendObject.getDictCursorClass()
 		except TypeError:
 			return None
-
+		
 
 	def encrypt(self, val):
 		if self.Application:
@@ -111,7 +111,7 @@ class dConnectInfo(dObject):
 		else:
 			cryp = SimpleCrypt()
 			return cryp.encrypt(val)
-
+			
 
 	def decrypt(self, val):
 		if self.Application:
@@ -119,26 +119,26 @@ class dConnectInfo(dObject):
 		else:
 			cryp = SimpleCrypt()
 			return cryp.decrypt(val)
-
-
+	
+	
 	def revealPW(self):
 		return self.decrypt(self.Password)
-
-
+	
+	
 	def getBackendObject(self):
 		return self._backendObject
 
 
-	def _getDbType(self):
+	def _getDbType(self): 
 		try:
 			return self._dbType
 		except AttributeError:
 			return None
-
+			
 	def _setDbType(self, dbType):
 		""" Set the backend type for the connection if valid. """
 		_oldObject = self._backendObject
-		# As other backends are coded into the framework, we will need
+		# As other backends are coded into the framework, we will need 
 		# to expand the if/elif list.
 		if dbType is not None:
 			# Evaluate each type of backend
@@ -165,7 +165,7 @@ class dConnectInfo(dObject):
 				else:
 					raise ValueError, "Invalid database type: %s." % nm
 			except ImportError:
-				dabo.logError(_("You do not have the database module for %s installed") % dbType)
+				dabo.errorLog.write(_("You do not have the database module for %s installed") % dbType)
 				self._dbType = None
 				self._backendObject = None
 			if _oldObject != self._backendObject:
@@ -175,52 +175,52 @@ class dConnectInfo(dObject):
 			self._backendObject = None
 
 
-	def _getDatabase(self):
+	def _getDatabase(self): 
 		return self._database
-
-	def _setDatabase(self, database):
+		
+	def _setDatabase(self, database): 
 		self._database = database
 
-
+			
 	def _getHost(self):
 		return self._host
-
-	def _setHost(self, host):
+		
+	def _setHost(self, host): 
 		self._host = host
 
 
 	def _getName(self):
 		return self._name
-
-	def _setName(self, val):
+		
+	def _setName(self, val): 
 		self._name = val
 
 
-	def _getUser(self):
+	def _getUser(self): 
 		return self._user
-
-	def _setUser(self, user):
+		
+	def _setUser(self, user): 
 		self._user = user
 
 
-	def _getPassword(self):
+	def _getPassword(self): 
 		return self._password
-
-	def _setPassword(self, password):
+		
+	def _setPassword(self, password): 
 		self._password = password
 
 
-	def _setPlainPassword(self, val):
+	def _setPlainPassword(self, val): 
 		self._password = self.encrypt(val)
 
-	def _getPort(self):
+	def _getPort(self): 
 		return self._port
-
+		
 	def _setPort(self, port):
 		try:
 			self._port = int(port)
 		except:
-			self._port = None
+			self._port = None		
 
 
 	DbType = property(_getDbType, _setDbType, None,
@@ -229,10 +229,10 @@ class dConnectInfo(dObject):
 	Database = property(_getDatabase, _setDatabase, None,
 			_("The database name to login to. (str)"))
 
-	Host = property(_getHost, _setHost, None,
+	Host = property(_getHost, _setHost, None, 
 			_("The host name or ip address. (str)"))
 
-	Name = property(_getName, _setName, None,
+	Name = property(_getName, _setName, None, 
 			_("The name used to reference this connection. (str)"))
 
 	Password = property(_getPassword, _setPassword, None,
@@ -242,7 +242,7 @@ class dConnectInfo(dObject):
 			_("""Write-only property that encrypts the value and stores that
 				in the Password property. (str)"""))
 
-	Port = property(_getPort, _setPort, None,
+	Port = property(_getPort, _setPort, None, 
 			_("The port to connect on (may not be applicable for all databases). (int)"))
 
 	User = property(_getUser, _setUser, None,

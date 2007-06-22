@@ -3,13 +3,13 @@ import dabo
 import dabo.ui
 from uiApp import uiApp
 
-dabo.logInfo("The Tkinter module is experimental only, and doesn't work. You've been warned.")
+dabo.infoLog.write("The Tkinter module is experimental only, and doesn't work. You've been warned.")
 uiType = {'shortName': 'tk', 'moduleName': 'uitk', 'longName': 'Tkinter'}
 
 _uiApp = None
 
 # Import dPemMixin first, and then manually put into dabo.ui module. This is
-# because dControlMixin, which is in dabo.ui, descends from dPemMixin, which
+# because dControlMixin, which is in dabo.ui, descends from dPemMixin, which 
 # is in dabo.ui.uitk. Must also do this for dControlMixin.
 from dPemMixin import dPemMixin
 dabo.ui.dPemMixin = dPemMixin
@@ -47,8 +47,8 @@ from dPanel import dPanel
 
 # Tell Dabo Designer what classes to put in the selection menu:
 #__dClasses = [dCheckBox, dCommandButton, dDateControl, dEditBox, dForm,
-#		dFormDataNav, dFormMain, dGauge, dLabel, dListbook, dPanel,
-#		dPageFrame, dPage, dRadioGroup, dScrollPanel, dSlider,
+#		dFormDataNav, dFormMain, dGauge, dLabel, dListbook, dPanel, 
+#		dPageFrame, dPage, dRadioGroup, dScrollPanel, dSlider, 
 #		dSpinner, dTextBox]
 
 #daboDesignerClasses = []
@@ -66,32 +66,32 @@ def continueEvent(evt):
 	# Tkinter determines whether to let an event continue propagation based on whether
 	# the string "break" is returned from the event handler or not.
 	return None
-
+	
 def discontinueEvent(evt):
 	# Tkinter determines whether to let an event continue propagation based on whether
 	# the string "break" is returned from the event handler or not.
 	return "break"
-
+	
 
 def getEventData(uiEvent):
 	ed = {}
 	ed["mousePosition"] = (uiEvent.x, uiEvent.y)
-
+	
 	if "shift_" in uiEvent.keysym.lower():
 		ed["shiftDown"] = True
 	else:
 		ed["shiftDown"] = False
-
+	
 	if "alt_" in uiEvent.keysym.lower():
 		ed["altDown"] = True
 	else:
 		ed["altDown"] = False
-
+	
 	if "control_" in uiEvent.keysym.lower():
 		ed["controlDown"] = True
 	else:
 		ed["controlDown"] = False
-
+	
 	#ed["commandDown"] = wxEvt.CmdDown()
 	#ed["metaDown"] = wxEvt.MetaDown()
 	ed["keyCode"] = uiEvent.keysym_num
@@ -119,5 +119,5 @@ def getUiApp(app, callback=None):
 		if callback is not None:
 			callback()
 	return ret
-
+	
 
