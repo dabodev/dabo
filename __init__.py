@@ -136,6 +136,14 @@ dbActivityLog = Log()
 dbActivityLog.Caption = "Database Activity Log"
 dbActivityLog.LogObject = None
 
+def logInfo(msg, *args, **kwargs):
+	infoLog.write(msg)
+def logError(msg, *args, **kwargs):
+	errorLog.write(msg)
+def logDBActivity(msg, *args, **kwargs):
+	dbActivityLog.write(msg)
+
+
 # Import global settings (do this first, as other imports may rely on it):
 from settings import *
 
