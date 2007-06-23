@@ -57,8 +57,10 @@ class dBizobj(dObject):
 		self._restorePositionOnRequery = True
 
 		# Various attributes used for Properties
+		self._autoCommit = False
 		self._caption = ""
 		self._dataSource = ""
+		self._nonUpdateFields = []
 		self._scanRestorePosition = True
 		self._scanReverse = False
 		self._SQL = ""
@@ -132,11 +134,11 @@ class dBizobj(dObject):
 		"""
 		if self.__cursors:
 			_dataStructure = getattr(self.__cursors[self.__cursors.keys()[0]], "_dataStructure", None)
-			_virtualFields = getattr(self.__cursors[self.__cursors.keys()[0]], "_virtualFields", {})
+			self._virtualFields = getattr(self.__cursors[self.__cursors.keys()[0]], "_virtualFields", {})
 		else:
 			# The first cursor is being created, before DataStructure is assigned.
 			_dataStructure = None
-			_virtualFields = {}
+			self._virtualFields = {}
 		errMsg = self.beforeCreateCursor()
 		if errMsg:
 			raise dException.dException, errMsg
@@ -154,7 +156,7 @@ class dBizobj(dObject):
 		crs = self.__cursors[key]
 		if _dataStructure is not None:
 			crs._dataStructure = _dataStructure
-		crs._virtualFields = _virtualFields
+		crs._virtualFields = self._virtualFields
 		crs.KeyField = self.KeyField
 		crs.Table = self.DataSource
 		crs.AutoPopulatePK = self.AutoPopulatePK
@@ -493,6 +495,7 @@ class dBizobj(dObject):
 
 	def execute(self, sql):
 		"""Execute the sql on the cursor. Dangerous. Use executeSafe instead."""
+		self._syncWithCursors()
 		return self._CurrentCursor.execute(sql)
 
 
@@ -502,6 +505,7 @@ class dBizobj(dObject):
 		This is considered 'safe', because it won't harm the contents of the
 		main cursor.
 		"""
+		self._syncWithCursors()
 		return self._CurrentCursor.executeSafe(sql)
 
 
@@ -1447,12 +1451,28 @@ class dBizobj(dObject):
 	def afterCreateCursor(self, cursor): pass
 
 
+	def _syncWithCursors(self):
+		"""Many bizobj properties need to be passed through to the cursors
+		that provide it with data connectivity. This method ensures that all
+		such cursors are in sync with the bizobj.
+		"""
+		for crs in self.__cursors.values():
+			crs.AutoCommit = self._autoCommit
+			crs.AutoPopulatePK = self._autoPopulatePK
+			crs.AutoQuoteNames = self._autoQuoteNames
+			crs.Table = self._dataSource
+			crs.VirtualFields = self._virtualFields
+			crs.Encoding = self.Encoding
+			crs.KeyField = self._keyField
+			crs.setNonUpdateFields(self._nonUpdateFields)
+	
+
 	def _getAutoCommit(self):
 		return self._CurrentCursor.AutoCommit
 
 	def _setAutoCommit(self, val):
-		for crs in self.__cursors.values():
-			crs.AutoCommit = val
+		self._autoCommit = val
+		self._syncWithCursors()
 
 
 	def _getAutoPopulatePK(self):
@@ -1463,8 +1483,7 @@ class dBizobj(dObject):
 
 	def _setAutoPopulatePK(self, val):
 		self._autoPopulatePK = bool(val)
-		for crs in self.__cursors.values():
-			crs.AutoPopulatePK = val
+		self._syncWithCursors()
 
 
 	def _getAutoQuoteNames(self):
@@ -1472,8 +1491,7 @@ class dBizobj(dObject):
 
 	def _setAutoQuoteNames(self, val):
 		self._autoQuoteNames = val
-		for crs in self.__cursors.values():
-			crs.AutoQuoteNames = val
+		self._syncWithCursors()
 
 
 	def _getAutoSQL(self):
@@ -1525,8 +1543,7 @@ class dBizobj(dObject):
 
 	def _setDataSource(self, val):
 		self._dataSource = str(val)
-		for crs in self.__cursors.values():
-			crs.Table = val
+		self._syncWithCursors()
 
 
 	def _getDataStructure(self):
@@ -1558,26 +1575,29 @@ class dBizobj(dObject):
 		return self._CurrentCursor.VirtualFields
 
 	def _setVirtualFields(self, val):
-		for crs in self.__cursors.values():
-			crs.VirtualFields = val
 		self._virtualFields = val
+		self._syncWithCursors()
 
 
 	def _getEncoding(self):
-		ret = None
-		cursor = self._CurrentCursor
-		if cursor is not None:
-			ret = cursor.Encoding
-		if ret is None:
-			if self.Application:
-				ret = self.Application.Encoding
-			else:
-				ret = dabo.defaultEncoding
+		try:
+			ret = self._encoding
+		except AttributeError:
+			ret = None
+			cursor = self._CurrentCursor
+			if cursor is not None:
+				ret = cursor.Encoding
+			if ret is None:
+				if self.Application:
+					ret = self.Application.Encoding
+				else:
+					ret = dabo.defaultEncoding
+			self._encoding = ret
 		return ret
 
 	def _setEncoding(self, val):
-		for crs in self.__cursors.values():
-			crs.Encoding = val
+		self._encoding = val
+		self._syncWithCursors()
 
 
 	def _getFillLinkFromParent(self):
@@ -1602,8 +1622,7 @@ class dBizobj(dObject):
 
 	def _setKeyField(self, val):
 		self._keyField = val
-		for crs in self.__cursors.values():
-			crs.KeyField = val
+		self._syncWithCursors()
 
 
 	def _getLastSQL(self):
@@ -1650,8 +1669,8 @@ class dBizobj(dObject):
 	def _setNonUpdateFields(self, fldList=None):
 		if fldList is None:
 			fldList = []
-		for crs in self.__cursors.values():
-			crs.setNonUpdateFields(fldList)
+		self._nonUpdateFields = fldList
+		self._syncWithCursors()
 
 
 	def _getParent(self):
