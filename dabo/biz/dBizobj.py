@@ -91,8 +91,8 @@ class dBizobj(dObject):
 
 
 	def setConnection(self, conn):
-		"""Normally connections are established before bizobj creation, but 
-		for those cases where connections are created later, use this method to 
+		"""Normally connections are established before bizobj creation, but
+		for those cases where connections are created later, use this method to
 		establish the connection used by the bizobj.
 		"""
 		self._cursorFactory = conn
@@ -118,7 +118,7 @@ class dBizobj(dObject):
 		crs.BackendObject = cf.getBackendObject()
 		crs.setCursorFactory(cf.getCursor, cursorClass)
 		return crs
-		
+
 
 	def createCursor(self, key=None):
 		""" Create the cursor that this bizobj will be using for data, and store it
@@ -266,7 +266,7 @@ class dBizobj(dObject):
 		if useTransact:
 			# Tell the cursor to begin a transaction, if needed.
 			cursor.beginTransaction()
-		
+
 		try:
 			self.scanChangedRows(self.save, includeNewUnchanged=self.SaveNewUnchanged,
 					startTransaction=False, topLevel=False)
@@ -341,7 +341,7 @@ class dBizobj(dObject):
 				self.requeryAllChildren()
 
 		except dException.ConnectionLostException, e:
-			raise 
+			raise
 
 		except dException.NoRecordsException, e:
 			raise
@@ -389,7 +389,7 @@ class dBizobj(dObject):
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
 		if ignoreNoRecords is None:
-			# Canceling changes when there are no records should 
+			# Canceling changes when there are no records should
 			# normally not be a problem.
 			ignoreNoRecords = True
 		# Tell the cursor and all children to cancel themselves:
@@ -397,8 +397,8 @@ class dBizobj(dObject):
 		for child in self.__children:
 			child.cancelAll(ignoreNoRecords=ignoreNoRecords)
 		self.afterCancel()
-		
-	
+
+
 	def deleteAllChildren(self, startTransaction=False):
 		"""Delete all children associated with the current record without
 		deleting the current record in this bizobj.
@@ -463,14 +463,14 @@ class dBizobj(dObject):
 				else:
 					child.cancelAll()
 					child.requery()
-					
+
 			if startTransaction:
 				cursor.commitTransaction()
-				
-			# Some backends (Firebird particularly) need to be told to write 
+
+			# Some backends (Firebird particularly) need to be told to write
 			# their changes even if no explicit transaction was started.
 			cursor.flush()
-			
+
 			self.afterPointerMove()
 			self.afterChange()
 			self.afterDelete()
@@ -506,8 +506,8 @@ class dBizobj(dObject):
 
 
 	def getChangedRows(self, includeNewUnchanged=False):
-		""" Returns a list of row numbers for which isChanged() returns True. The 
-		changes may therefore not be in the record itself, but in a dependent child 
+		""" Returns a list of row numbers for which isChanged() returns True. The
+		changes may therefore not be in the record itself, but in a dependent child
 		record. If includeNewUnchanged is True, the presence of a new unsaved
 		record that has not been modified from its defaults will suffice to mark the
 		record as changed.
@@ -549,15 +549,15 @@ class dBizobj(dObject):
 		back to the first.
 		"""
 		return _bizIterator(self)
-		
-		
+
+
 	def scan(self, func, *args, **kwargs):
 		"""Iterate over all records and apply the passed function to each.
 
 		Set self.exitScan to True to exit the scan on the next iteration.
 
 		If self.ScanRestorePosition is True, the position of the current
-		record in the recordset is restored after the iteration. If 
+		record in the recordset is restored after the iteration. If
 		self.ScanReverse is True, the records are processed in reverse order.
 		"""
 		self.scanRows(func, range(self.RowCount), *args, **kwargs)
@@ -592,7 +592,7 @@ class dBizobj(dObject):
 						row = self.RowCount  - 1
 						if row >= 0:
 							self.RowNumber = row
-				
+
 		try:
 			if self.ScanReverse:
 				rows.reverse()
@@ -605,15 +605,15 @@ class dBizobj(dObject):
 			restorePosition()
 			raise
 		restorePosition()
-		
+
 
 	def scanChangedRows(self, func, allCursors=False, includeNewUnchanged=False,
 			*args, **kwargs):
 		"""Move the record pointer to each changed row, and call func.
 
-		If allCursors is True, all other cursors for different parent records will 
+		If allCursors is True, all other cursors for different parent records will
 		be iterated as well.
-		
+
 		If includeNewUnchanged is True, new unsaved records that have not been
 		edited from their default values will be counted as 'changed'.
 
@@ -648,7 +648,7 @@ class dBizobj(dObject):
 					self._CurrentCursor = old_currentCursorKey
 					self._positionUsingPK(old_pk)
 					raise
-		
+
 		self._CurrentCursor = old_currentCursorKey
 		if old_pk is not None:
 			self._positionUsingPK(old_pk)
@@ -760,7 +760,7 @@ class dBizobj(dObject):
 			# No need to abort the transaction because of this, but
 			# we still need to pass the exception to the UI
 			uiException = dException.NoRecordsException
-			
+
 		except dException.dException, e:
 			# Something failed; reset things.
 			cursor.rollbackTransaction()
@@ -973,17 +973,17 @@ class dBizobj(dObject):
 		if cc is None:
 			# No cursor, no changes.
 			return False
-		
+
 		if cc.isChanged(allRows=True, includeNewUnchanged=self.SaveNewUnchanged):
 			return True
-	
+
 		# Nothing's changed in the top level, so we need to recurse the children:
 		try:
 			pk = self.getPK()
 		except dException.NoRecordsException:
 			# If there are no records, there can be no changes
 			return False
-			
+
 		for child in self.__children:
 			if child.isAnyChanged(parentPK=pk):
 				return True
@@ -1072,9 +1072,9 @@ class dBizobj(dObject):
 
 
 	def onNew(self):
-		"""Called when a new record is added. 
+		"""Called when a new record is added.
 
-		Use this hook to add additional default field values, or anything else 
+		Use this hook to add additional default field values, or anything else
 		you need. If you change field values here, the memento system will not
 		catch it (the record will not be marked 'dirty'). Use afterNew() if you
 		instead want the memento system to record the changes.
@@ -1222,9 +1222,8 @@ class dBizobj(dObject):
 
 
 	def getParentPK(self):
-		""" Return the value of the parent bizobjs' PK field.
-
-		Alternatively, user code can just call self.Parent.getPK().
+		""" Return the value of the parent bizobjs' PK field. Alternatively, 
+		user code can just call self.Parent.getPK().
 		"""
 		try:
 			return self.Parent.getPK()
@@ -1248,7 +1247,7 @@ class dBizobj(dObject):
 				ret = cursor.setFieldVal(fld, val)
 			except dException.NoRecordsException:
 				ret = False
-		return ret	
+		return ret
 
 
 	def getDataSet(self, flds=(), rowStart=0, rows=None):
@@ -1423,8 +1422,8 @@ class dBizobj(dObject):
 	def beforeChildRequery(self): return ""
 	def beforeCreateCursor(self): return ""
 	########## Post-hook interface section ##############
-	def afterNew(self): 
-		"""Called after a new record is added. 
+	def afterNew(self):
+		"""Called after a new record is added.
 
 		Use this hook to change field values, or anything else you need. If you
 		change field values here, the memento system will catch it. If you want
@@ -1452,7 +1451,8 @@ class dBizobj(dObject):
 		return self._CurrentCursor.AutoCommit
 
 	def _setAutoCommit(self, val):
-		self._CurrentCursor.AutoCommit = val
+		for crs in self.__cursors.values():
+			crs.AutoCommit = val
 
 
 	def _getAutoPopulatePK(self):
@@ -1463,8 +1463,8 @@ class dBizobj(dObject):
 
 	def _setAutoPopulatePK(self, val):
 		self._autoPopulatePK = bool(val)
-		if self._CurrentCursor:
-			self._CurrentCursor.AutoPopulatePK = val
+		for crs in self.__cursors.values():
+			crs.AutoPopulatePK = val
 
 
 	def _getAutoQuoteNames(self):
@@ -1472,8 +1472,8 @@ class dBizobj(dObject):
 
 	def _setAutoQuoteNames(self, val):
 		self._autoQuoteNames = val
-		if self._CurrentCursor:
-			self._CurrentCursor.AutoQuoteNames = val
+		for crs in self.__cursors.values():
+			crs.AutoQuoteNames = val
 
 
 	def _getAutoSQL(self):
@@ -1525,9 +1525,8 @@ class dBizobj(dObject):
 
 	def _setDataSource(self, val):
 		self._dataSource = str(val)
-		cursor = self._CurrentCursor
-		if cursor is not None:
-			cursor.Table = val
+		for crs in self.__cursors.values():
+			crs.Table = val
 
 
 	def _getDataStructure(self):
@@ -1559,8 +1558,8 @@ class dBizobj(dObject):
 		return self._CurrentCursor.VirtualFields
 
 	def _setVirtualFields(self, val):
-		for key, cursor in self.__cursors.items():
-			cursor.VirtualFields = val
+		for crs in self.__cursors.values():
+			crs.VirtualFields = val
 		self._virtualFields = val
 
 
@@ -1577,9 +1576,8 @@ class dBizobj(dObject):
 		return ret
 
 	def _setEncoding(self, val):
-		cursor = self._CurrentCursor
-		if cursor is not None:
-			cursor.Encoding = val
+		for crs in self.__cursors.values():
+			crs.Encoding = val
 
 
 	def _getFillLinkFromParent(self):
@@ -1604,9 +1602,8 @@ class dBizobj(dObject):
 
 	def _setKeyField(self, val):
 		self._keyField = val
-		cursor = self._CurrentCursor
-		if cursor is not None:
-			cursor.KeyField = val
+		for crs in self.__cursors.values():
+			crs.KeyField = val
 
 
 	def _getLastSQL(self):
@@ -1653,7 +1650,8 @@ class dBizobj(dObject):
 	def _setNonUpdateFields(self, fldList=None):
 		if fldList is None:
 			fldList = []
-		self._CurrentCursor.setNonUpdateFields(fldList)
+		for crs in self.__cursors.values():
+			crs.setNonUpdateFields(fldList)
 
 
 	def _getParent(self):
@@ -1821,9 +1819,9 @@ class dBizobj(dObject):
 			_("Determines if we are using a table that auto-generates its PKs. (bool)"))
 
 	AutoQuoteNames = property(_getAutoQuoteNames, _setAutoQuoteNames, None,
-			_("""When True (default), table and column names are enclosed with 
+			_("""When True (default), table and column names are enclosed with
 			quotes during SQL creation in the cursor.  (bool)"""))
-	
+
 	AutoSQL = property(_getAutoSQL, None, None,
 			_("Returns the SQL statement automatically generated by the sql manager."))
 
@@ -1852,7 +1850,7 @@ class dBizobj(dObject):
 				This information will try to come from a few places, in order:
 				1) The explicitly-set DataStructure property
 				2) The backend table method"""))
- 
+
 	DefaultValues = property(_getDefaultValues, _setDefaultValues, None,
 			_("""A dictionary specifying default values for fields when a new record is added.
 
@@ -1865,7 +1863,7 @@ class dBizobj(dObject):
 
 	FillLinkFromParent = property(_getFillLinkFromParent, _setFillLinkFromParent, None,
 			_("""In the onNew() method, do we fill in the foreign key field specified by the
-			LinkField property with the value returned by calling the bizobj's 	getParentPK() 
+			LinkField property with the value returned by calling the bizobj's 	getParentPK()
 			method? (bool)"""))
 
 	IsAdding = property(_isAdding, None, None,
@@ -1900,7 +1898,7 @@ class dBizobj(dObject):
 	Record = property(_getRecord, None, None,
 			_("""Represents a record in the data set. You can address individual
 			columns by referring to 'self.Record.fieldName' (read-only) (no type)"""))
-	
+
 	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
 			_("Do we requery child bizobjs after a Save()? (bool)"))
 
@@ -1928,14 +1926,14 @@ class dBizobj(dObject):
 			_("The current position of the record pointer in the result set. (int)"))
 
 	SaveNewUnchanged = property(_getSaveNewUnchanged, _setSaveNewUnchanged, None,
-			_("""Normally new, unmodified records are not saved. If you need 
+			_("""Normally new, unmodified records are not saved. If you need
 			this behavior, set this to True.  (bool)"""))
-	
+
 	ScanRestorePosition = property(_getScanRestorePosition, _setScanRestorePosition, None,
-			_("""After running a scan, do we attempt to restore the record position to 
-			where it was before the scan (True, default), or do we leave the pointer 
+			_("""After running a scan, do we attempt to restore the record position to
+			where it was before the scan (True, default), or do we leave the pointer
 			at the end of the recordset (False). (bool)"""))
-	
+
 	ScanReverse = property(_getScanReverse, _setScanReverse, None,
 			_("""Do we scan the records in reverse order? (Default: False) (bool)"""))
 
@@ -1951,7 +1949,7 @@ class dBizobj(dObject):
 	VirtualFields = property(_getVirtualFields, _setVirtualFields, None,
 			_("""A dictionary mapping virtual_field_name to function to call.
 
-			The specified function will be called when getFieldVal() is called on 
+			The specified function will be called when getFieldVal() is called on
 			the specified virtual field name."""))
 
 
@@ -1967,7 +1965,7 @@ class _bizIterator(object):
 			raise RuntimeError, _("Cannot reverse in the middle of iteration.")
 		self.__nextfunc = self._prior
 		return self
-		
+
 
 	def _prior(self):
 		if self.__firstpass:
@@ -1982,7 +1980,7 @@ class _bizIterator(object):
 			except dException.BeginningOfFileException:
 				raise StopIteration
 		return self.obj.RowNumber
-				
+
 
 	def _next(self):
 		if self.__firstpass:
@@ -1997,11 +1995,11 @@ class _bizIterator(object):
 			except dException.EndOfFileException:
 				raise StopIteration
 		return self.obj.RowNumber
-	
-	
+
+
 	def next(self):
 		return self.__nextfunc()
-		
+
 
 	def __iter__(self):
 		self.__firstpass = True
