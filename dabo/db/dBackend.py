@@ -415,7 +415,7 @@ class dBackend(dObject):
 		return None
 
 
-	def setNonUpdateFields(self, cursor, autoQuote=True):
+	def setNonUpdateFields(self, cursor, callback, autoQuote=True):
 		"""Normally, this routine should work for all backends. But
 		in the case of SQLite, the routine that grabs an empty cursor
 		doesn't fill in the description, so that backend has to use
@@ -441,17 +441,18 @@ class dBackend(dObject):
 		stdFlds = auxCrs.FieldDescription
 
 		# Get all the fields that are not in the table.
-		cursor.__nonUpdateFields = [d[0] for d in descFlds
+		ret0 = [d[0] for d in descFlds
 				if d[0] not in [s[0] for s in stdFlds] ]
 		# Extract the remaining fields (no need to test any already excluded
-		remFlds = [ d for d in descFlds if d[0] not in cursor.__nonUpdateFields ]
+		remFlds = [ d for d in descFlds if d[0] not in ret0]
 
 		# Now add any for which the members (except the display value,
 		# which is in position 2) do not match
-		cursor.__nonUpdateFields += [ b[0] for b in remFlds
+		ret0 += [ b[0] for b in remFlds
 				for s in [z for z in stdFlds if z[0] == b[0] ]
 				if (b[1] != s[1]) or (b[3] != s[3]) or (b[4] != s[4])
 				or (b[5] != s[5]) or (b[6] != s[6]) ]
+		callback(ret0)
 
 
 	def getStructureDescription(self, cursor):
@@ -466,7 +467,6 @@ class dBackend(dObject):
 			aux = cursor.AuxCursor
 			aux.execute(structure_only_sql)
 			field_description = aux.FieldDescription
-
 		for field_info in field_description:
 			field_name = field_info[0]
 			field_type = self.getDaboFieldType(field_info[1])
