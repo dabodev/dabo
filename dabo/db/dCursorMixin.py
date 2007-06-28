@@ -70,7 +70,7 @@ class dCursorMixin(dObject):
 		self.__unsortedRows = []
 		# Holds the name of fields to be skipped when updating the backend, such
 		# as calculated or derived fields, or fields that are otherwise not to be updated.
-		self.__nonUpdateFields = []
+		self.__nonUpdateFields = None
 		# User-editable list of non-updated fields
 		self.nonUpdateFields = []
 		# Flag that is set when the user explicitly sets the Key Field
@@ -613,24 +613,34 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def getNonUpdateFields(self):
+		if self.__nonUpdateFields is None:
+			# They haven't been set yet
+			self.__setNonUpdateFields()
 		return list(set(self.nonUpdateFields + self.__nonUpdateFields))
 
 
-	def __setNonUpdateFields(self):
+	def __setNonUpdateFields(self, nonUp=None):
 		"""Automatically set the non-update fields."""
+		if nonUp is not None:
+			# This is being called back by the BackendObject
+			self.__nonUpdateFields = nonUp
+			return
 		dataStructure = getattr(self, "_dataStructure", None)
 		if dataStructure is not None:
 			# Use the explicitly-set DataStructure to find the NonUpdateFields.
 			nonUpdateFieldAliases = []
+			realFields = [f[0] for f in self.getFields()]
 			for field in dataStructure:
 				field_alias = field[0]
 				table_name = field[3]
 				if table_name != self.Table:
 					nonUpdateFieldAliases.append(field_alias)
+				elif field_alias not in realFields:
+					nonUpdateFieldAliases.append(field_alias)
 			self.__nonUpdateFields = nonUpdateFieldAliases
 		else:
 			# Delegate to the backend object to figure it out.
-			self.BackendObject.setNonUpdateFields(self)
+			self.BackendObject.setNonUpdateFields(self, self.__setNonUpdateFields)
 
 
 	def isChanged(self, allRows=True, includeNewUnchanged=False):
@@ -1623,10 +1633,11 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		bo = self.BackendObject
 		aq = self.AutoQuoteNames
 		tblPrefix = bo.getUpdateTablePrefix(self.Table, autoQuote=aq)
+		nonup = self.getNonUpdateFields()
 		for fld, val in diff.items():
 			old_val, new_val = val
 			# Skip the fields that are not to be updated.
-			if fld in self.getNonUpdateFields():
+			if fld in nonup:
 				continue
 			if ret:
 				ret += ", "
