@@ -29,6 +29,11 @@ class dListControl(dcm.dControlItemMixin,
 		self._lastSelectedIndex = None
 		self._hitIndex = None
 		self._valCol = 0
+		self._sortOrder = 0
+		self._sortColumn = -1
+		self._sortOnHeaderClick = True
+		# Do we auto-convert all entries to strings?
+		self._autoConvertToString = True
 
 		try:
 			style = style | wx.LC_REPORT
@@ -40,6 +45,9 @@ class dListControl(dcm.dControlItemMixin,
 		ListMixin.ListCtrlAutoWidthMixin.__init__(self)
 		# Dictionary for tracking images by key value
 		self.__imageList = {}	
+		# Need to set this after the superclass call in order to override the default for
+		# a control with items
+		self.SortFunction = self._listControlSort
 
 
 	def _initEvents(self):
@@ -49,8 +57,13 @@ class dListControl(dcm.dControlItemMixin,
 		self.Bind(wx.EVT_LIST_ITEM_ACTIVATED, self.__onActivation)
 		self.Bind(wx.EVT_LIST_ITEM_FOCUSED, self.__onFocus)
 		self.Bind(wx.EVT_LIST_KEY_DOWN, self.__onWxKeyDown)
-	
-	
+		self.Bind(wx.EVT_LIST_COL_CLICK, self.__onWxHeaderClick)
+		self.Bind(wx.EVT_LIST_COL_RIGHT_CLICK, self.__onWxHeaderRightClick)
+
+		self.bindEvent(dEvents.ListHeaderMouseLeftClick, self.__onHeaderMouseLeftClick)
+		self.bindEvent(dEvents.ListHeaderMouseRightClick, self.__onHeaderMouseRightClick)
+		
+
 	def addColumn(self, caption):
 		""" Add a column with the selected caption. """
 		self.InsertColumn(self.GetColumnCount(), caption)
@@ -169,12 +182,16 @@ class dListControl(dcm.dControlItemMixin,
 				new_item = self.InsertStringItem(row, "")
 			currCol = col
 			for itm in tx:
+				if not isinstance(itm, basestring) and self.AutoConvertToString:
+					tx = u"%s" % itm
 				new_item = self.append(itm, currCol, row)
 				currCol += 1
 		else:
 			if col < self.ColumnCount:
 				if insert:
 					new_item = self.InsertStringItem(row, "")
+				if not isinstance(tx, basestring) and self.AutoConvertToString:
+					tx = u"%s" % tx
 				self.SetStringItem(row, col, tx)
 			else:
 				# should we raise an error? Add the column automatically?
@@ -333,28 +350,94 @@ class dListControl(dcm.dControlItemMixin,
 		self.raiseEvent(dEvents.KeyDown, evt)
 		
 		
-	def _getSelectedIndices(self):
-		ret = []
-		pos = -1
-		while True:
-			indx = self.GetNextItem(pos, wx.LIST_NEXT_ALL, wx.LIST_STATE_SELECTED)
-			if indx == -1:
-				break
-			pos = indx
-			ret.append(indx)
-		return ret
+	def __onWxHeaderClick(self, evt):
+		self.raiseEvent(dEvents.ListHeaderMouseLeftClick, evt)
 		
 		
-	def _setSelectedIndices(self, selList):
-		if self._constructed():
-			self.unselectAll()
-			for id in selList:
-				self.SetItemState(id, wx.LIST_STATE_SELECTED, 
-						wx.LIST_STATE_SELECTED)
-		else:
-			self._properties["SelectedIndices"] = selList
-			
+	def __onWxHeaderRightClick(self, evt):
+		self.raiseEvent(dEvents.ListHeaderMouseRightClick, evt)
 
+
+	def __onHeaderMouseLeftClick(self, evt):
+		if self.SortOnHeaderClick:
+			if self._sortColumn != evt.col:
+				self._sortColumn = evt.col
+				self._sortOrder = 0
+			else:
+				self._sortOrder += 1
+			self.sort()
+		
+
+	def __onHeaderMouseRightClick(self, evt):
+		pass
+	
+	
+	def _listControlSort(self, x, y):
+		# Default to standard Python comparison
+		return cmp(x, y)
+
+		
+	def sort(self, sortFunction=None):
+		# Sorts the control based on the current sort column.
+		if sortFunction is None:
+			sortFunction = self.SortFunction
+		itemData = self._getItemDataDict()
+		self._fillItemData(self._sortColumn)
+		self.SortItems(sortFunction)
+		self._restoreItemData(itemData)
+	
+	
+	def _getItemDataDict(self):
+		"""Return a dict with the items as keys, and the ItemData as values."""
+		ret = {}
+		for row in range(self.RowCount):
+			ret[row] = self.GetItemData(row)
+		return ret
+
+
+	def _fillItemData(self, col):
+		"""Sets the Item Data for each row to be the value corresponding to the order
+		for each column.
+		"""
+		data = []
+		col = self._sortColumn
+		for row in range(self.RowCount):
+			try:	
+				itm = self.GetItem(row, col)
+				data.append((itm.GetText(), row))
+			except:
+				pass
+		data.sort()
+		if (self._sortOrder % 2):
+			# Odd number of sorts
+			data.reverse()
+		for pos, elem in enumerate(data):
+			self.SetItemData(elem[1], pos)
+	
+	
+	def _restoreItemData(self, dct):
+		"""After a sort, returns the original item data values."""
+		for row, val in dct.items():
+			self.SetItemData(row, val)
+		
+	
+	# Property get/set/del methods follow. Scroll to bottom to see the property
+	# definitions themselves.
+	def _getAutoConvertToString(self):
+		return self._autoConvertToString
+
+	def _setAutoConvertToString(self, val):
+		if self._constructed():
+			self._autoConvertToString = val
+		else:
+			self._properties["AutoConvertToString"] = val
+
+
+	def _getChoices(self):
+		dabo.errorLog(_("'Choices' is not a valid property for a dListControl."))
+		return []
+
+		
 	def _getColumnCount(self):
 		return self.GetColumnCount()
 
@@ -372,39 +455,19 @@ class dListControl(dcm.dControlItemMixin,
 			self._properties["ColumnCount"] = val
 		
 		
-	def _getRowCount(self):
-		return self.GetItemCount()
-		
-		
-	def _getHitIndex(self):
-		return self._hitIndex
-		
-
-	def _getLastSelectedIndex(self):
-		return self._lastSelectedIndex
-		
-
-	def _getMultipleSelect(self):
-		return not self._hasWindowStyleFlag(wx.LC_SINGLE_SEL)
-		
-
-	def _setMultipleSelect(self, val):
-		if bool(val):
-			self._delWindowStyleFlag(wx.LC_SINGLE_SEL)
-		else:
-			self._addWindowStyleFlag(wx.LC_SINGLE_SEL)
-			
-
 	def _getHeaderVisible(self):
 		return not self._hasWindowStyleFlag(wx.LC_NO_HEADER)
 		
-
 	def _setHeaderVisible(self, val):
 		if bool(val):
 			self._delWindowStyleFlag(wx.LC_NO_HEADER)
 		else:
 			self._addWindowStyleFlag(wx.LC_NO_HEADER)
-			
+
+
+	def _getHitIndex(self):
+		return self._hitIndex
+		
 
 	def _getHorizontalRules(self, val):
 		return self._hasWindowStyleFlag(wx.LC_HRULES)
@@ -417,6 +480,55 @@ class dListControl(dcm.dControlItemMixin,
 			self._delWindowStyleFlag(wx.LC_HRULES)
 			
 
+	def _getLastSelectedIndex(self):
+		return self._lastSelectedIndex
+		
+
+	def _getMultipleSelect(self):
+		return not self._hasWindowStyleFlag(wx.LC_SINGLE_SEL)
+
+	def _setMultipleSelect(self, val):
+		if bool(val):
+			self._delWindowStyleFlag(wx.LC_SINGLE_SEL)
+		else:
+			self._addWindowStyleFlag(wx.LC_SINGLE_SEL)
+			
+
+	def _getRowCount(self):
+		return self.GetItemCount()
+		
+		
+	def _getSelectedIndices(self):
+		ret = []
+		pos = -1
+		while True:
+			indx = self.GetNextItem(pos, wx.LIST_NEXT_ALL, wx.LIST_STATE_SELECTED)
+			if indx == -1:
+				break
+			pos = indx
+			ret.append(indx)
+		return ret
+		
+	def _setSelectedIndices(self, selList):
+		if self._constructed():
+			self.unselectAll()
+			for id in selList:
+				self.SetItemState(id, wx.LIST_STATE_SELECTED, 
+						wx.LIST_STATE_SELECTED)
+		else:
+			self._properties["SelectedIndices"] = selList
+			
+
+	def _getSortOnHeaderClick(self):
+		return self._sortOnHeaderClick
+
+	def _setSortOnHeaderClick(self, val):
+		if self._constructed():
+			self._sortOnHeaderClick = val
+		else:
+			self._properties["SortOnHeaderClick"] = val
+
+
 	def _getValue(self):
 		if self.GetItemCount() == 0:
 			return None
@@ -424,7 +536,6 @@ class dListControl(dcm.dControlItemMixin,
 		idx = self.LastSelectedIndex
 		colcnt = self.ColumnCount
 		vc = self.ValueColumn
-		
 		if idx is not None:
 			if 0 <= vc <= colcnt:
 				item = self.GetItem(idx, vc)
@@ -433,7 +544,6 @@ class dListControl(dcm.dControlItemMixin,
 		else:
 			return item.GetText()
 			
-
 	def _setValue(self, val):
 		if self._constructed():
 			if isinstance(val, int):
@@ -456,16 +566,16 @@ class dListControl(dcm.dControlItemMixin,
 				ret.append(item.GetText())
 		return ret
 		
-	
+
 	def _getValCol(self):
 		return self._valCol
+
 	def _setValCol(self, val):
 		self._valCol = val
 		
 		
 	def _getVerticalRules(self, val):
 		return self._hasWindowStyleFlag(wx.LC_VRULES)
-		
 
 	def _setVerticalRules(self, val):
 		if bool(val):
@@ -474,6 +584,15 @@ class dListControl(dcm.dControlItemMixin,
 			self._delWindowStyleFlag(wx.LC_VRULES)
 
 
+	AutoConvertToString = property(_getAutoConvertToString, _setAutoConvertToString, None,
+			_("""When True (default), all non-string values are forced to strings. When False, 
+			attempting to use a non-string value will throw an error.  (bool)"""))
+	
+	Choices = property(_getChoices, None, None,
+			_("""Since dListControl doesn't have the equivalent to 'Choices' as the 
+			other item controls do, this will return an empty list and print a warning 
+			message. (read-only) (list)"""))
+	
 	ColumnCount = property(_getColumnCount, _setColumnCount, None,
 			_("Number of columns in the control  (int)"))
 
@@ -501,6 +620,9 @@ class dListControl(dcm.dControlItemMixin,
 	SelectedIndices = property(_getSelectedIndices, _setSelectedIndices, None, 
 			_("Returns a list of selected row indices.  (list of int)") )
 	
+	SortOnHeaderClick = property(_getSortOnHeaderClick, _setSortOnHeaderClick, None,
+			_("When True (default), clicking a column header cycles the sorting on that column.  (bool)"))
+	
 	Value = property(_getValue, _setValue, None,
 			_("Returns current value (str)" ) )
 		
@@ -521,19 +643,23 @@ class dListControl(dcm.dControlItemMixin,
 	DynamicValueColumn = makeDynamicProperty(ValueColumn)
 	DynamicVerticalRules = makeDynamicProperty(VerticalRules)
 	
-
+	
+	
 class _dListControl_test(dListControl):
 	def afterInit(self):
-		self.setColumns( ("Main Column", "Another Column") )
+		self.setColumns( ("Title", "Subtitle", "Release Year") )
 		self.setColumnWidth(0, 150)
-		self.append( ("The Phantom Menace", "Episode 1") )
-		self.append( ("Attack of the Clones", "Episode 2") )
-		self.append( ("Revenge of the Sith", "Episode 3") )
-		self.insert( ("A New Hope", "Episode 4") )
+		self.setColumnWidth(1, 100)
+		self.setColumnWidth(2, 200)
+		self.append( ("The Phantom Menace", "Episode 1", 1999) )
+		self.append( ("Attack of the Clones", "Episode 2", 2002) )
+		self.append( ("Revenge of the Sith", "Episode 3", 2005) )
+		self.append( ("A New Hope", "Episode 4", 1977) )
+		self.append( ("The Empire Strikes Back", "Episode 5", 1980) )
+		self.append( ("Return of the Jedi", "Episode 6", 1983) )
+
 
 	def initProperties(self):
-		self.Width = 275
-		self.Height = 200
 		self.MultipleSelect = True
 		self.HorizontalRules = True
 		self.VerticalRules = True
@@ -553,13 +679,6 @@ class _dListControl_test(dListControl):
 		print "Row deselected:", evt.EventData["index"]
 
 
-if __name__ == '__main__':
-	class TestForm(dabo.ui.dForm): pass
-	app = dabo.dApp(MainFormClass=TestForm)
-	app.setup()
-	
-	mf = app.MainForm
-	mf.testListControl = _dListControl_test(mf)
-
-	app.start()
-
+if __name__ == "__main__":
+	import test
+	test.Test().runTest(_dListControl_test)

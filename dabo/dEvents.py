@@ -715,6 +715,7 @@ class GridCellEditorHit(GridEvent):
 	For a checkbox, this occurs when the user toggles the checkmark.
 	This event is not implemented for other grid cell editors, yet.
 	"""
+	pass
 
 
 class GridColSize(GridEvent):
@@ -729,6 +730,16 @@ class GridBeforeSort(GridEvent):
 
 class GridAfterSort(GridEvent):
 	"""Occurs after the grid is sorted"""
+	pass
+
+
+class ListHeaderMouseLeftClick(GridEvent, MouseEvent):
+	"""Occurs when the left mouse button is clicked in the header region of dListControl."""
+	pass
+
+
+class ListHeaderMouseRightClick(GridEvent, MouseEvent):
+	"""Occurs when the right mouse button is clicked in the header region of dListControl."""
 	pass
 
 

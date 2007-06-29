@@ -92,6 +92,15 @@ class dControlItemMixin(dDataControlMixin):
 			ms = False
 		return ms
 
+
+	def sort(self, sortFunction=None):
+		"""Sorts the list items. By default, the Python 'cmp' function is 
+		used, but this can be overridden with a custom sortFunction.
+		"""
+		if sortFunction is None:
+			sortFunction = self._sortFunction
+		self._choices.sort(sortFunction)
+
 		
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
@@ -110,7 +119,7 @@ class dControlItemMixin(dDataControlMixin):
 			self.Clear()
 			self._choices = list(choices)
 			if self._sorted:
-				self._choices.sort(self._sortFunction)
+				self.sort()
 			self.AppendItems(self._choices)
 			if oldVal is not None:
 				# Try to get back to the same row:
@@ -267,7 +276,7 @@ class dControlItemMixin(dDataControlMixin):
 				self._sorted = val
 				if val:
 					# Force a re-ordering
-					self._setChoices(self._choices)
+					self.sort()
 		else:
 			self._properties["Sorted"] = val
 
@@ -280,7 +289,7 @@ class dControlItemMixin(dDataControlMixin):
 			if callable(val):
 				self._sortFunction = val
 				# Force a re-ordering
-				self._setChoices(self._choices)
+				self.sort()
 			else:
 				raise TypeError, _("SortFunction must be callable")
 		else:
