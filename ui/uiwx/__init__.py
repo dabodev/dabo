@@ -346,12 +346,16 @@ def getEventData(wxEvt):
 		ed["shiftDown"] = wxEvt.ShiftDown()
 		if isinstance(wxEvt, wx.MouseEvent):
 			ed["mouseDown"] = ed["dragging"] = wxEvt.Dragging()
-
+			
 	if isinstance(wxEvt, wx.ListEvent):
 		pos = wxEvt.GetPosition()
 		obj = wxEvt.GetEventObject()
 		idx, flg = obj.HitTest(pos)
 		ed["listIndex"] = idx
+		try:
+			ed["col"] = wxEvt.GetColumn()
+		except:
+			pass
 
 	if isinstance(wxEvt, wx.MenuEvent):
 		menu = wxEvt.GetMenu()
