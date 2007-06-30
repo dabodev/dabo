@@ -743,6 +743,11 @@ class ListHeaderMouseRightClick(GridEvent, MouseEvent):
 	pass
 
 
+class ListColumnResize(GridEvent, MouseEvent):
+	"""Occurs when the user manually resizes a column of dListControl."""
+	pass
+
+
 class DocumentationHint(EditorEvent):
 	"""Occurs when the editor wants documentation information to change.
 	
