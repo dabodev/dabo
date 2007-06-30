@@ -19,10 +19,6 @@ class dListControl(dcm.dControlItemMixin,
 	elements inside of the row. If you need to be able to work with individual
 	elements, you should use a dGrid.
 	"""
-
-	# The ListMixin allows the rightmost column to expand as the
-	# control is resized. There is no way to turn that off as of now.
-
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dListControl
 
@@ -34,6 +30,10 @@ class dListControl(dcm.dControlItemMixin,
 		self._sortOnHeaderClick = True
 		# Do we auto-convert all entries to strings?
 		self._autoConvertToString = True
+		# Do we grow the ExpandColumn to fill the width of the control?
+		self._expandToFit = True
+		# Which column expands to fill the width of the control?
+		self._expandColumn = "LAST"
 
 		try:
 			style = style | wx.LC_REPORT
@@ -48,6 +48,8 @@ class dListControl(dcm.dControlItemMixin,
 		# Need to set this after the superclass call in order to override the default for
 		# a control with items
 		self.SortFunction = self._listControlSort
+		# Set the default sorting column to 0 after everything is instantiated
+		dabo.ui.setAfter(self, "SortColumn", 0)
 
 
 	def _initEvents(self):
@@ -59,9 +61,16 @@ class dListControl(dcm.dControlItemMixin,
 		self.Bind(wx.EVT_LIST_KEY_DOWN, self.__onWxKeyDown)
 		self.Bind(wx.EVT_LIST_COL_CLICK, self.__onWxHeaderClick)
 		self.Bind(wx.EVT_LIST_COL_RIGHT_CLICK, self.__onWxHeaderRightClick)
+		self.Bind(wx.EVT_LIST_COL_END_DRAG, self.__onWxColumnResize)
 
 		self.bindEvent(dEvents.ListHeaderMouseLeftClick, self.__onHeaderMouseLeftClick)
 		self.bindEvent(dEvents.ListHeaderMouseRightClick, self.__onHeaderMouseRightClick)
+		self.bindEvent(dEvents.ListColumnResize, self.__onColumnResize)
+
+
+	def _doResize(self):
+		if self and self.ExpandToFit:
+			ListMixin.ListCtrlAutoWidthMixin._doResize(self)
 
 
 	def addColumn(self, caption):
@@ -138,12 +147,17 @@ class dListControl(dcm.dControlItemMixin,
 	selectNone = unselectAll
 
 
+	def getColumnWidth(self, col):
+		return self.GetColumnWidth(col)
+
+
 	def setColumnWidth(self, col, wd):
 		"""Sets the width of the specified column."""
 		if isinstance(wd, basestring):
 			self.autoSizeColumn(col)
 		else:
 			self.SetColumnWidth(col, wd)
+		dabo.ui.callAfterInterval(100, self._doResize)
 
 
 	def autoSizeColumn(self, col):
@@ -155,6 +169,7 @@ class dListControl(dcm.dControlItemMixin,
 		if self.GetColumnWidth(col) < wd:
 			self.SetColumnWidth(col, wd)
 		self.unlockDisplay()
+		dabo.ui.callAfterInterval(100, self._doResize)
 
 
 	def autoSizeColumns(self, colList=None):
@@ -358,6 +373,10 @@ class dListControl(dcm.dControlItemMixin,
 		self.raiseEvent(dEvents.ListHeaderMouseRightClick, evt)
 
 
+	def __onWxColumnResize(self, evt):
+		self.raiseEvent(dEvents.ListColumnResize, evt)
+
+
 	def __onHeaderMouseLeftClick(self, evt):
 		if self.SortOnHeaderClick:
 			if self._sortColumn != evt.col:
@@ -369,6 +388,10 @@ class dListControl(dcm.dControlItemMixin,
 
 
 	def __onHeaderMouseRightClick(self, evt):
+		pass
+
+
+	def __onColumnResize(self, evt):
 		pass
 
 
@@ -421,6 +444,17 @@ class dListControl(dcm.dControlItemMixin,
 			self.SetItemData(row, val)
 
 
+	def _resetSize(self, col):
+		# Called when a column was marked to expand, and then
+		# changed to a normal column.
+		cc = self.ColumnCount
+		if isinstance(col, basestring):
+			# Last column
+			col = cc - 1
+		if col < cc:
+			self.autoSizeColumn(col)
+
+
 	# Property get/set/del methods follow. Scroll to bottom to see the property
 	# definitions themselves.
 	def _getAutoConvertToString(self):
@@ -453,6 +487,38 @@ class dListControl(dcm.dControlItemMixin,
 					self.addColumn(_("Column %s") % self.GetColumnCount())
 		else:
 			self._properties["ColumnCount"] = val
+
+
+	def _getExpandColumn(self):
+		return self._expandColumn
+
+	def _setExpandColumn(self, val):
+		if self._constructed():
+			if isinstance(val, basestring):
+				val = val.upper().strip()
+			else:
+				if val >= self.ColumnCount:
+					raise IndexError, _("Invalid column %s specified for dListControl.ExpandColumn") % val
+			if self._expandColumn != val:
+				self._resetSize(self._expandColumn)
+				self._expandColumn = val
+				if isinstance(val, (int, long)):
+					# Need to decrease by one, since the mixin uses a 1-based column numbering
+					self.setResizeColumn(val+1)
+				else:
+					self.setResizeColumn(val)
+		else:
+			self._properties["ExpandColumn"] = val
+
+
+	def _getExpandToFit(self):
+		return self._expandToFit
+
+	def _setExpandToFit(self, val):
+		if self._constructed():
+			self._expandToFit = val
+		else:
+			self._properties["ExpandToFit"] = val
 
 
 	def _getHeaderVisible(self):
@@ -517,6 +583,16 @@ class dListControl(dcm.dControlItemMixin,
 						wx.LIST_STATE_SELECTED)
 		else:
 			self._properties["SelectedIndices"] = selList
+
+
+	def _getSortColumn(self):
+		return self._sortColumn
+
+	def _setSortColumn(self, val):
+		if self._constructed():
+			self._sortColumn = val
+		else:
+			self._properties["SortColumn"] = val
 
 
 	def _getSortOnHeaderClick(self):
@@ -599,6 +675,14 @@ class dListControl(dcm.dControlItemMixin,
 	Count = property(_getRowCount, None, None,
 			_("Number of rows in the control (read-only). Alias for RowCount  (int)"))
 
+	ExpandColumn = property(_getExpandColumn, _setExpandColumn, None,
+			_("""Designates the column to expand to fill the control when ExpandToFit is True.
+			Can either be an integer specifying the column number, or the string 'LAST' (default),
+			which will expand the rightmost column.  (int or str)"""))
+
+	ExpandToFit = property(_getExpandToFit, _setExpandToFit, None,
+			_("When True (default), the column designated by ExpandColumn expands to fill the width of the control.  (bool)"))
+
 	HeaderVisible = property(_getHeaderVisible, _setHeaderVisible, None,
 			_("Specifies whether the header is shown or not."))
 
@@ -619,6 +703,9 @@ class dListControl(dcm.dControlItemMixin,
 
 	SelectedIndices = property(_getSelectedIndices, _setSelectedIndices, None,
 			_("Returns a list of selected row indices.  (list of int)") )
+
+	SortColumn = property(_getSortColumn, _setSortColumn, None,
+			_("Column to be sorted when sort() is called. Default=0  (int)"))
 
 	SortOnHeaderClick = property(_getSortOnHeaderClick, _setSortOnHeaderClick, None,
 			_("When True (default), clicking a column header cycles the sorting on that column.  (bool)"))
