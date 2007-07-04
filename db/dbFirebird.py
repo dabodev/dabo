@@ -250,6 +250,7 @@ class Firebird(dBackend):
 					from rdb$database""" % gen
 			cursor.execute(sql)
 			ret = cursor.getFieldVal("nextval")
+		dabo.dbActivityLog.write("SQL: result of pregenPk: %d" % ret)
 		return ret
 	
 
