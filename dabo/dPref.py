@@ -61,7 +61,7 @@ class dPref(object):
 		self._parent = None
 		self._noneType = type(None)
 		self._typeDict = {int: "int", float: "float", long: "long", str: "str", unicode: "unicode",
-				bool: "bool", list: "list", tuple: "tuple", datetime.date: "date", 
+				bool: "bool", list: "list", tuple: "tuple", datetime.date: "date", dict: "dict",
 				datetime.datetime: "datetime", self._noneType: "none"}
 		if crs is None:
 			prefdir = utils.getUserAppDataDirectory(appName)
@@ -177,7 +177,7 @@ class dPref(object):
 			ret = long(val)
 		elif typ == "bool":
 			ret = (val == "True")
-		elif typ in ("list", "tuple"):
+		elif typ in ("list", "tuple", "dict"):
 			ret = eval(val)
 		elif typ == "date":
 			ret = eval("datetime.date%s" % val)
@@ -469,7 +469,6 @@ if __name__ == "__main__":
 	print "'a' prefs and all sub-prefs:"
 	print a.getPrefs(True)
 
-
 	zz=a.getSubPrefKeys()
 	print "SUB PREFS", zz
 	zz = a.getPrefKeys()
@@ -488,4 +487,3 @@ if __name__ == "__main__":
 	print "DELETE ALL"
 	a.deleteAllPrefs()
 	print a.getPrefs(True)
-	
