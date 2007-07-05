@@ -85,7 +85,7 @@ class BaseForm(fm.dFormMixin):
 		return ret
 		
 		
-	def notifyUser(self, msg, title="Notice", severe=False):
+	def notifyUser(self, msg, title="Notice", severe=False, exception=None):
 		""" Displays an alert messagebox for the user. You can customize
 		this in your own classes if you prefer a different display.
 		"""
@@ -260,7 +260,7 @@ class BaseForm(fm.dFormMixin):
 			self.setStatusText(self.getCurrentRecordText(dataSource) + " (EOF)")
 			return False
 		except dException.dException, e:
-			self.notifyUser(str(e))
+			self.notifyUser(str(e), exception=e)
 			return False
 		else:
 			if biz.RowNumber != oldRowNum:
@@ -348,7 +348,7 @@ class BaseForm(fm.dFormMixin):
 					
 		except dException.ConnectionLostException, e:
 			msg = self._connectionLostMsg(str(e))
-			self.notifyUser(msg, title=_("Data Connection Lost"), severe=True)
+			self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
 			sys.exit()
 
 		except dException.NoRecordsException, e:
@@ -359,13 +359,13 @@ class BaseForm(fm.dFormMixin):
 		except dException.BusinessRuleViolation, e:
 			self.setStatusText(_("Save failed."))
 			msg = "%s:\n\n%s" % (_("Save Failed"), _( str(e) ))
-			self.notifyUser(msg, severe=True)
+			self.notifyUser(msg, severe=True, exception=e)
 			return False
 
 		except dException.DBQueryException, e:
 			self.setStatusText(_("Save failed."))
 			msg = "%s:\n\n%s" % (_("Save Failed"), e)
-			self.notifyUser(msg, severe=True)
+			self.notifyUser(msg, severe=True, exception=e)
 			return False
 
 		self.afterSave()
@@ -403,7 +403,7 @@ class BaseForm(fm.dFormMixin):
 			dabo.errorLog.write(_("Cancel failed; no records to cancel."))
 		except dException.dException, e:
 			dabo.errorLog.write(_("Cancel failed with response: %s") % str(e))
-			self.notifyUser(str(e), title=_("Cancel Not Allowed") )
+			self.notifyUser(str(e), title=_("Cancel Not Allowed"), exception=e)
 		self.afterCancel()
 		self.refresh()
 
@@ -456,23 +456,23 @@ class BaseForm(fm.dFormMixin):
 					elapsed == 1 and "." or "s."))
 
 		except dException.MissingPKException, e:
-			self.notifyUser(str(e), title=_("Requery Failed"), severe=True)
+			self.notifyUser(str(e), title=_("Requery Failed"), severe=True, exception=e)
 			self.StatusText = ""
 
 		except dException.ConnectionLostException, e:
 			msg = self._connectionLostMsg(str(e))
-			self.notifyUser(msg, title=_("Data Connection Lost"), severe=True)
+			self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
 			self.StatusText = ""
 			sys.exit()
 
 		except dException.DBQueryException, e:
 			dabo.errorLog.write(_("Database Execution failed with response: %s") % str(e))
-			self.notifyUser(str(e), title=_("Database Action Failed"), severe=True)
+			self.notifyUser(str(e), title=_("Database Action Failed"), severe=True, exception=e)
 			self.StatusText = ""
 
 		except dException.dException, e:
 			dabo.errorLog.write(_("Requery failed with response: %s") % str(e))
-			self.notifyUser(str(e), title=_("Requery Not Allowed"), severe=True)
+			self.notifyUser(str(e), title=_("Requery Not Allowed"), severe=True, exception=e)
 			self.StatusText = ""
 
 		self.afterRequery()
@@ -514,11 +514,11 @@ class BaseForm(fm.dFormMixin):
 				self.raiseEvent(dEvents.RowNumChanged)
 			except dException.ConnectionLostException, e:
 				msg = self._connectionLostMsg(str(e))
-				self.notifyUser(msg, title=_("Data Connection Lost"), severe=True)
+				self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
 				sys.exit()
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete failed with response: %s") % str(e))
-				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
+				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True, exception=e)
 			self.afterDelete()
 		self.update()
 		self.refresh()
@@ -547,11 +547,11 @@ class BaseForm(fm.dFormMixin):
 				self.raiseEvent(dEvents.RowNumChanged)
 			except dException.ConnectionLostException, e:
 				msg = self._connectionLostMsg(str(e))
-				self.notifyUser(msg, title=_("Data Connection Lost"), severe=True)
+				self.notifyUser(msg, title=_("Data Connection Lost"), severe=True, exception=e)
 				sys.exit()
 			except dException.dException, e:
 				dabo.errorLog.write(_("Delete All failed with response: %s") % str(e))
-				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True)
+				self.notifyUser(str(e), title=_("Deletion Not Allowed"), severe=True, exception=e)
 		self.afterDeleteAll()
 		self.update()
 		self.refresh()
@@ -574,7 +574,7 @@ class BaseForm(fm.dFormMixin):
 			bizobj.new()
 		except dException.dException, e:
 			self.notifyUser(_("Add new record failed with response:\n\n%s" % str(e)), 
-					severe=True)
+					severe=True, exception=e)
 
 		statusText = self.getCurrentRecordText(dataSource)
 		self.setStatusText(statusText)
