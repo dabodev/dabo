@@ -87,9 +87,6 @@ class dCursorMixin(dObject):
 		self._autoPopulatePK = True
 		self._autoQuoteNames = True
 
-		self._blank = {}
-		self.__unsortedRows = []
-		self.nonUpdateFields = []
 		self.__tmpPK = -1		# temp PK value for new records.
 		# Holds the data types for each field
 		self._types = {}
@@ -1108,6 +1105,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		rec = self._records[row]
 		recKey = self.pkExpression(rec)
 		newrec = self._newRecords.has_key(recKey)
+		newPKVal = None
+		if newrec and self.AutoPopulatePK:
+			# Some backends do not provide a means to retrieve
+			# auto-generated PKs; for those, we need to create the
+			# PK before inserting the record so that we can pass it on
+			# to any linked child records. NOTE: if you are using
+			# compound PKs, this cannot be done.
+			newPKVal = self.pregenPK()
+			if newPKVal and not self._compoundKey:
+				self.setFieldVal(self.KeyField, newPKVal, row)
+
 		if newrec:
 			diff = self._getNewRecordDiff(row)
 		else:
@@ -1123,7 +1131,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 						if self._compoundKey:
 							skipIt = (kk in kf)
 						else:
-							skipIt = (kk == self.KeyField)
+							# Skip the key field, unless we pre-generated its value above.
+							skipIt = (kk == self.KeyField) and not newPKVal
 						if skipIt:
 							# we don't want to include the PK in the insert
 							continue
@@ -1152,17 +1161,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				updClause = self.makeUpdClause(diff)
 				sql = "update %s set %s where %s" % (self.BackendObject.encloseNames(self.Table, aq),
 						updClause, pkWhere)
-			oldPKVal = self.pkExpression(rec)
-			newPKVal = None
-			if newrec and self.AutoPopulatePK:
-				# Some backends do not provide a means to retrieve
-				# auto-generated PKs; for those, we need to create the
-				# PK before inserting the record so that we can pass it on
-				# to any linked child records. NOTE: if you are using
-				# compound PKs, this cannot be done.
-				newPKVal = self.pregenPK()
-				if newPKVal and not self._compoundKey:
-					self.setFieldVal(self.KeyField, newPKVal, row)
 
 			#run the update
 			aux = self.AuxCursor
@@ -1177,7 +1175,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 			self._clearMemento(row)
 			if newrec:
-				self._clearNewRecord(row=row, pkVal=oldPKVal)
+				self._clearNewRecord(row=row, pkVal=recKey)
 			else:
 				if not res:
 					# Different backends may cause res to be None
@@ -1200,7 +1198,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _clearNewRecord(self, row=None, pkVal=None):
 		"""Erase the new record flag for the passed row, or current row if none passed."""
-
 		# If pkVal passed, delete that reference:
 		if pkVal is not None:
 			try:
