@@ -217,7 +217,8 @@ class dCursorMixin(dObject):
 				try:
 					return pythonType(field_val)
 				except Exception, e:
-					pass
+					dabo.infoLog.write(_("_correctFieldType() failed for field: '%s'; value: '%s'; type: '%s'") %
+							field_name, field_val, type(field_val))
 
 		# Do the unicode conversion last:
 		if isinstance(field_val, str) and self._convertStrToUnicode:
@@ -1069,11 +1070,13 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			except dException.DBQueryException, e:
 				# Error was raised. Exit and rollback the changes if
 				# this object started the transaction.
+				dabo.dbActivityLog.write(_("DBQueryException encountered in save(): %s") % e)
 				if useTransaction:
 					self.rollbackTransaction()
 				raise dException.DBQueryException, e
 			except StandardError, e:
 				if "connect" in str(e).lower():
+					dabo.dbActivityLog.write(_("Connection Lost exception encountered in saverow(): %s") % e)
 					raise dException.ConnectionLostException, e
 				else:
 					# Error was raised. Exit and rollback the changes if
