@@ -399,6 +399,8 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					if not isinstance(ds, dObject):
 						# Warn about possible unsupported behavior.
 						dabo.infoLog.write(_("DataSource '%s' does not inherit from dObject. This may result in unsupported problems.") % ds)
+					else:
+						self._srcIsBizobj = isinstance(ds, dabo.biz.dBizobj)
 		return self.__src
 
 	
