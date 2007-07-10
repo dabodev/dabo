@@ -97,7 +97,7 @@ class EditMenu(dMenu):
 
 		self.appendSeparator()
 
-		itm = self.append(_("&Preferences"), OnHit=app.onEditPreferences, 
+		itm = self.append(_("Pr&eferences"), OnHit=app.onEditPreferences, 
 				bmp="%s/categories/preferences-system.png" % iconPath,
 				help=_("Set user preferences") )
 
