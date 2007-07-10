@@ -72,6 +72,95 @@ class StyleTimer(dTimer.dTimer):
 				self.Parent.SetLexer(stc.STC_LEX_CONTAINER)
 
 
+class STCPrintout(wx.Printout):
+	"""Printout class for styled text controls. Taken from the following
+	program by Riaan Booysen:
+		-----------------------------------------------------------------------------
+		 Name:		   STCPrinting.py
+		 Purpose:
+		
+		 Author:	   Riaan Booysen
+		
+		 Created:	   2003/05/21
+		 RCS-ID:	   $Id: STCPrinting.py,v 1.8 2006/10/12 12:19:17 riaan Exp $
+		 Copyright:   (c) 2003 - 2006
+		 Licence:	   wxWidgets
+		-----------------------------------------------------------------------------
+		Boa:Dialog:STCPrintDlg
+	"""
+	margin = 0.1
+	linesPerPage = 80
+
+	def __init__(self, stc, colourMode=0, filename='', doPageNums=1):
+		wx.Printout.__init__(self)
+		self.stc = stc
+		self.colourMode = colourMode
+		self.filename = filename
+		self.doPageNums = doPageNums
+
+		self.pageTotal, m = divmod(stc.GetLineCount(), self.linesPerPage)
+		if m: self.pageTotal += 1
+
+
+	def HasPage(self, page):
+		return (page <= self.pageTotal)
+
+
+	def GetPageInfo(self):
+		return (1, self.pageTotal, 1, 32000)
+
+
+	def OnPrintPage(self, page):
+		stc = self.stc
+		self.stcLineHeight = stc.TextHeight(0)
+
+		# calculate sizes including margin and scale
+		dc = self.GetDC()
+		dw, dh = dc.GetSizeTuple()
+		mw = self.margin*dw
+		mh = self.margin*dh
+		textAreaHeight = dh - mh*2
+		textAreaWidth = dw - mw*2
+		scale = float(textAreaHeight)/(self.stcLineHeight*self.linesPerPage)
+		dc.SetUserScale(scale, scale)
+
+		# render page titles and numbers
+		f = dc.GetFont()
+		f.SetFamily(wx.ROMAN)
+		f.SetFaceName('Times New Roman')
+		f.SetPointSize(f.GetPointSize()+3)
+		dc.SetFont(f)
+
+		if self.filename:
+			tlw, tlh = dc.GetTextExtent(self.filename)
+			dc.DrawText(self.filename,
+				  int(dw/scale/2-tlw/2), int(mh/scale-tlh*3))
+
+		if self.doPageNums:
+			pageLabel = _('Page: %d') % page
+			plw, plh = dc.GetTextExtent(pageLabel)
+			dc.DrawText(pageLabel,
+				  int(dw/scale/2-plw/2), int((textAreaHeight+mh)/scale+plh*2))
+
+		# render stc into dc
+		stcStartPos = stc.PositionFromLine((page-1)*self.linesPerPage)
+		stcEndPos = stc.GetLineEndPosition(page*self.linesPerPage-1)
+
+		maxWidth = 32000
+		stc.SetPrintColourMode(self.colourMode)
+		ep = stc.FormatRange(1, stcStartPos, stcEndPos, dc, dc,
+						wx.Rect(int(mw/scale), int(mh/scale),
+							   maxWidth, int(textAreaHeight/scale)),
+						wx.Rect(0, (page-1)*self.linesPerPage*self.stcLineHeight,
+							maxWidth, self.stcLineHeight*self.linesPerPage))
+		# warn when fewer characters than expected are rendered by the stc when
+		# printing
+		if not self.IsPreview():
+			if ep < stcEndPos:
+				print _('warning: on page %s: not enough chars rendered, diff: %s')%(page, stcEndPos-ep)
+		return True
+
+
 class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	# The Editor is copied from the wxPython demo, StyledTextCtrl_2.py, 
 	# and modified. Thanks to Robin Dunn and everyone that contributed to 
@@ -118,6 +207,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				_explicitName=_explicitName, *args, **kwargs)
 		self._afterInit()
 		
+		self._printData = wx.PrintData()
+		self._printout = STCPrintout(self)
 		self._newFileName = _("< New File >")
 		self._curdir = os.getcwd()
 		self._registerFunc = None
@@ -191,6 +282,44 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._unRegisterFunc(self)
 		super(dEditor, self).__del__()
 	
+	
+	def onPrintSetup(self):
+		dlgData = wx.PageSetupDialogData(self._printData)
+		printDlg = wx.PageSetupDialog(self, dlgData)
+		printDlg.ShowModal()
+		self._printData = wx.PrintData(dlgData.GetPrintData())
+		printDlg.Destroy()
+		
+	
+	def onPrintPreview(self):
+		po1 = STCPrintout(self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG,
+				self._fileName, False)
+		po2 = STCPrintout(self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG,
+				self._fileName, False)
+		self._printPreview = wx.PrintPreview(po1, po2, self._printData)
+		if not self._printPreview.Ok():
+			dabo.errorLog.write(_("An error occured while preparing preview."))
+			return
+		frame = wx.PreviewFrame(self._printPreview, self.Form, _("Print Preview"))
+		frame.Initialize()
+		frame.SetSize(self.Form.Size)
+		frame.CenterOnScreen()
+		frame.Show(True)
+
+
+	def onPrint(self, evt=None):
+		pdd = wx.PrintDialogData()
+		pdd.SetPrintData(self._printData)
+		printer = wx.Printer(pdd)
+		printout = STCPrintout(self, stc.STC_PRINT_COLOURONWHITEDEFAULTBG,
+				self._fileName, False)
+
+		if not printer.Print(self.Form, printout):
+			dabo.errorLog.write(_("An error occured while printing."))
+		else:
+			self.printData = wx.PrintData(printer.GetPrintDialogData().GetPrintData())
+		printout.Destroy()
+		
 	
 	def setBookmark(self, nm, line=None):
 		"""Creates a bookmark that can be referenced by the 
