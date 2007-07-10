@@ -164,8 +164,19 @@ class uiApp(dObject, wx.App):
 			wx.CallAfter(self.callback)
 		del self.callback
 		self.Bind(wx.EVT_KEY_DOWN, self._onKeyPress)
-		return True
-	
+		return self.__checkForUpdates()
+
+
+	def __checkForUpdates(self):
+		answer = False
+		if self.dApp._checkForUpdates():
+			answer = dabo.ui.areYouSure(_("Framework updates are available. Do you want to update now?"),
+					title=_("Dabo Updates"), cancelButton=False)
+			if answer:
+				self.dApp._updateFramework()
+				dabo.ui.info(_("The app will now exit. Please re-run the application."))
+		return not answer
+		
 	
 	def _onKeyPress(self, evt):
 		## Zoom In / Out / Normal:
