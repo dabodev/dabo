@@ -7,7 +7,12 @@ import glob
 import tempfile
 import ConfigParser
 import inspect
-import dabo, dabo.ui, dabo.db
+import datetime
+import urllib
+import shutil
+import dabo
+import dabo.ui
+import dabo.db
 from dabo.lib.connParser import importConnections
 import dSecurityManager
 from dLocalize import _
@@ -154,6 +159,7 @@ class dApp(dObject):
 		self._uiAlreadySet = False
 		dabo.dAppRef = self
 		self._beforeInit()
+		
 		# If we are displaying a splash screen, these attributes control
 		# its appearance. Extract them before the super call.
 		self.showSplashScreen = self._extractKey(kwargs, "showSplashScreen", False)
@@ -176,6 +182,8 @@ class dApp(dObject):
 		# Create the temp file handlers.
 		self._tempFileHolder = TempFileHolder()
 		self.getTempFile = self._tempFileHolder.getTempFile
+		# Create the framework-level preference manager
+		self._frameworkPrefs = dabo.dPref(key="dabo_framework")
 
 		# List of form classes to open on App Startup
 		self.formsToOpen = []  
@@ -336,6 +344,89 @@ class dApp(dObject):
 		self._appInfo[item] = value
 
 
+	def _currentUpdateVersion(self):
+		localVers = dabo.version["revision"]
+		try:
+			localVers = localVers.split(":")[1]
+		except:
+			# Not a mixed version
+			pass
+		ret = int("".join([ch for ch in localVers if ch.isdigit()]))
+		return ret
+
+		
+	def _checkForUpdates(self):
+		ret = False
+		prf = self._frameworkPrefs
+		val = prf.getValue
+		now = datetime.datetime.now()
+		autoUpdate = val("auto_update")
+		if autoUpdate:
+			checkInterval = val("update_interval")
+			if checkInterval is None:
+				# Default to one day
+				checkInterval = 24 * 60
+			mins = datetime.timedelta(minutes=checkInterval)
+			lastCheck = val("last_check")
+			if lastCheck is None:
+				lastCheck = datetime.datetime(1900, 1, 1)
+			if now > (lastCheck + mins):
+				# See if there is a later version
+				url = "http://dabodev.com/frameworkVersions/latest"
+				try:
+					vers = int(urllib.urlopen(url).read())
+				except:
+					vers = -1
+				localVers = self._currentUpdateVersion()
+				ret = localVers < vers
+				
+				print "LOCAL V", localVers
+				print "WEB VER", vers
+		prf.setValue("last_check", now)
+		return ret
+
+
+	def _updateFramework(self):
+		"""Get any changed files from the dabodev.com server, and replace the local copies with them."""
+		url = "http://dabodev.com/frameworkVersions/changedFiles/%s" % self._currentUpdateVersion()
+		try:
+			resp = urllib.urlopen(url)
+		except:
+			# No internet access, or Dabo site is down.
+			return
+		flist = eval(resp.read())
+		basePth = os.path.split(dabo.__file__)[0]
+		url = "http://dabodev.com/versions/dabo/%s"
+		for mtype, fpth in flist:
+			localFile = os.path.join(basePth, fpth)
+			localPath = os.path.split(localFile)[0]
+			if mtype == "D" and os.path.exists(localFile):
+				if os.path.isdir(localFile):
+					shutil.rmtree(localFile)
+				else:
+					os.remove(localFile)
+			else:
+				if not os.path.isdir(localPath):
+					os.mkdirs(localPath)
+				try:
+					urllib.urlretrieve(url % fpth, localFile)
+				except StandardError, e:
+					dabo.errorLog.write(_("Cannot update file: '%s'. Error: %s") % (fpth, e))
+		
+
+	def _setAutoUpdate(self, auto, interval=None):
+		"""Sets the auto-update settings for the entire framework. If set to True, the 
+		interval is expected to be in minutes between checks.
+		"""
+		prf = self._frameworkPrefs
+		prf.setValue("auto_update", auto)
+		if auto:
+			if interval is None:
+				# They want it checked every time
+				interval = 0
+			prf.setValue("update_interval", interval)
+		
+		
 	def getUserSettingKeys(self, spec):
 		"""Return a list of all keys underneath <spec> in the user settings table.
 		
