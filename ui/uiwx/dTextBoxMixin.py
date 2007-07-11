@@ -623,8 +623,11 @@ class dTextBoxMixin(dTextBoxMixinBase):
 				# assignments, we know the datatype to expect.
 				self._lastDataType = type(val)
 
-			# Update the display no matter what:
-			setter(strVal)
+			# Update the display if it is different from what is already displayed
+			# (note that if we did it unconditionally, the user's selection could
+			# be reset, which isn't very nice):
+			if strVal != self.GetValue():
+				setter(strVal)
 		
 			if type(_oldVal) != type(val) or _oldVal != val:
 				self._afterValueChanged()
