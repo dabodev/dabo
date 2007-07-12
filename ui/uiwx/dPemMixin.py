@@ -1083,7 +1083,7 @@ class dPemMixin(dPemMixinBase):
 	##      Let's see if we can reduce all this code into _setParent.
 	def _changeParent(self, newParent):
 		"""The native wx method doesn't work on Macs."""
-		return newParent.adopt(self)
+		return newParent._adopt(self)
 		
 	
 	def _adopt(self, obj):
