@@ -9,6 +9,9 @@ import dabo.dException as dException
 from dabo.dObject import dObject
 
 
+NO_RECORDS_PK = "75426755-2f32-4d3d-86b6-9e2a1ec47f2c"  ## Can't use None
+
+
 class dBizobj(dObject):
 	""" The middle tier, where the business logic resides."""
 	# Class to instantiate for the cursor object
@@ -786,12 +789,12 @@ class dBizobj(dObject):
 	def setChildLinkFilter(self):
 		""" If this is a child bizobj, its record set is dependent on its parent's
 		current PK value. This will add the appropriate WHERE clause to
-		filter the child records. If the parent is a new, unsaved record,
-		there cannot be any child records saved yet, so an empty query
-		is built.
+		filter the child records. If the parent is a new, unsaved record, or if
+		there is no parent record, there cannot be any child records saved yet, 
+		so an empty query	is built.
 		"""
 		if self.DataSource and self.LinkField and self.Parent:
-			if self.Parent.IsAdding:
+			if self.Parent.IsAdding or self.Parent.RowCount == 0:
 				# Parent is new and not yet saved, so we cannot have child records yet.
 				self.setWhereClause("")
 				filtExpr = " 1 = 0 "
@@ -1207,7 +1210,14 @@ class dBizobj(dObject):
 		if self.IsAdding and self.AutoPopulatePK:
 			pk = None
 		else:
-			pk = self.getPK()
+			try:
+				pk = self.getPK()
+			except dException.NoRecordsException:
+				# There aren't any records, all children should requery to 0 records.
+				# We can't set the pk to None, because None has special meaning 
+				# elsewhere (self.__currentCursorKey).
+				pk = NO_RECORDS_PK
+
 		for child in self.__children:
 			# Let the child know the current dependent PK
 			if child.RequeryWithParent:
