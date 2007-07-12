@@ -63,7 +63,10 @@ class SQLite(dBackend):
 	def escQuote(self, val):			
 		sl = "\\"
 		qt = "\'"
-		return qt + str(val).replace(sl, sl+sl).replace(qt, qt+qt) + qt
+		if not isinstance(val, basestring):
+			# Make sure we aren't trying to coerce unicode chars to str
+			val = str(val)
+		return qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
 	
 	
 	def setAutoCommitStatus(self, cursor, val):
@@ -91,7 +94,9 @@ class SQLite(dBackend):
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
-		return "%s%s%s" % (sqt, str(val), sqt)
+		if not isinstance(val, basestring):
+			val = str(val)
+		return "%s%s%s" % (sqt, val, sqt)
 		
 	
 	def _isExistingTable(self, tablename):
