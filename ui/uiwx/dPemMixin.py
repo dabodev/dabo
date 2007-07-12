@@ -2,6 +2,7 @@
 import sys
 import time
 import types
+import math
 import wx
 from wx._core import PyAssertionError
 import dabo
@@ -1292,6 +1293,24 @@ class dPemMixin(dPemMixinBase):
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
 				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
 				Shape="polygon", Points=points, DrawMode=mode)
+		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
+
+
+	def drawPolyLines(self, points, penColor="black", penWidth=1, 
+			lineStyle=None, mode=None, persist=True):
+		"""Draws a series of connected line segments defined by the specified points.
+
+		The 'points' parameter should be a tuple of (x,y) pairs defining the shape. Lines
+		are drawn connecting the points sequentially, but a segment from the last
+		point to the first is not drawn, leaving an 'open' polygon. As a result, there is no 
+		FillColor or HatchStyle defined for this.
+
+		See the 'drawCircle()' method above for more details.
+		"""
+		obj = DrawObject(self, PenColor=penColor, PenWidth=penWidth, LineStyle=lineStyle, 
+				Shape="polylines", Points=points, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
@@ -2694,6 +2713,7 @@ class DrawObject(dObject):
 		
 		if self.Shape == "circle":
 			dc.DrawCircle(x, y, self.Radius)
+			self._width = self._height = self.Radius * 2
 		elif self.Shape == "rect":
 			w, h = self.Width, self.Height
 			# If any of these values is -1, use the parent object's size
@@ -2702,12 +2722,25 @@ class DrawObject(dObject):
 			if h < 0:
 				h = self.Parent.Height
 			dc.DrawRectangle(x, y, w, h)
-		elif self.Shape == "polygon":
-			dc.DrawPolygon(self.Points)
+		elif self.Shape in ("polygon", "polylines"):
+			if self.Shape == "polygon":
+				dc.DrawPolygon(self.Points)
+			else:
+				dc.DrawLines(self.Points)
+			xs = [pt[0] for pt in self.Points]
+			ys = [pt[1] for pt in self.Points]
+			self._xPos = min(xs)
+			self._yPos = min(ys)
+			self._width = max(xs) - self._xPos
+			self._height = max(ys) - self._yPos
 		elif self.Shape == "line":
 			x1, y1 = self.Points[0]
 			x2, y2 = self.Points[1]
 			dc.DrawLine(x1, y1, x2, y2)
+			self._xPos = min(x1, x2)
+			self._yPos = min(y1, y2)
+			self._width = abs(x1 - x2)
+			self._height = abs(y1 - y2)
 		elif self.Shape == "gradient":
 			self._drawGradient(dc, x, y)
 		elif self.Shape == "text":
@@ -2747,6 +2780,18 @@ class DrawObject(dObject):
 				dc.DrawText(txt, x, y)
 			else:
 				dc.DrawRotatedText(txt, x, y, self._angle)
+			w, h = dabo.ui.fontMetricFromDrawObject(self)
+			angle = self._angle % 360
+			if angle % 90 == 0:
+				if angle % 180 == 0:
+					self._width, self._height = w, h
+				else:
+					# 90 degree variant; switch the values.
+					self._width, self._height = h, w
+			else:
+				rad = math.radians(angle)
+				self._width = abs(math.cos(rad) * w) + abs(math.sin(rad) * h)
+				self._height = abs(math.sin(rad) * w) + abs(math.cos(rad) * h)
 
 
 	def _drawGradient(self, dc, xpos, ypos):
@@ -3024,6 +3069,15 @@ class DrawObject(dObject):
 			self.update()
 			
 
+	def _getPosition(self):
+		return (self._xPos, self._yPos)
+
+	def _setPosition(self, val):
+		if (self._xPos, self._yPos) != val:
+			self._xPos, self._yPos = val
+			self.update()
+
+
 	def _getRadius(self):
 		return self._radius
 		
@@ -3031,8 +3085,47 @@ class DrawObject(dObject):
 		if self._radius != val:
 			self._radius = val
 			self.update()
-			
-		
+
+
+	def _getRect(self):
+		x, y, w, h = self._xPos, self._yPos, self._width, self._height
+		if self._shape == "circle":
+			# x and y are the center, so correct for that.
+			x = x - self._radius
+			y = y - self._radius
+		elif (self._shape == "text") and (self._angle % 360 != 0):
+			tw, th = dabo.ui.fontMetricFromDrawObject(self)
+			angle = self._angle % 360
+			if 0 < angle <= 90:
+				rad = math.radians(angle)
+				cos = math.cos(rad)
+				y -= (h - cos*th)
+			elif 90 < angle <= 180:
+				rad = math.radians(90 - angle)
+				cos = math.cos(rad)
+				y -= h
+				x -= (w - cos*th)
+			elif 180 < angle <= 270:
+				rad = math.radians(180 - angle)
+				cos = math.cos(rad)
+				y -= cos*th
+				x -= w
+			else:
+				rad = math.radians(270 - angle)
+				cos = math.cos(rad)
+				x -= cos*th
+		return wx.Rect(x, y, w, h)
+
+
+	def _getSize(self):
+		return (self._width, self._height)
+
+	def _setSize(self, val):
+		if (self._width, self._height) != val:
+			self._width, self._height = val
+			self.update()
+
+
 	def _getShape(self):
 		return self._shape
 		
@@ -3180,9 +3273,18 @@ class DrawObject(dObject):
 	Points = property(_getPoints, _setPoints, None,
 			_("Tuple of (x,y) pairs defining a polygon.  (tuple)"))
 
+	Position = property(_getPosition, _setPosition, None,
+			_("Shorthand for (Xpos, Ypos).  (2-tuple)"))
+	
 	Radius = property(_getRadius, _setRadius, None,
 			_("For circles, the radius of the shape  (int)"))
 
+	Rect = property(_getRect, None, None,
+			_("Reference to a wx.Rect that encompasses the drawn object (read-only) (wx.Rect)"))
+	
+	Size = property(_getSize, _setSize, None,
+			_("Convenience property, equivalent to (Width, Height)  (2-tuple)"))
+	
 	Shape = property(_getShape, _setShape, None,
 			_("Type of shape to draw  (str)"))
 
