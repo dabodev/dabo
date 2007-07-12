@@ -356,7 +356,7 @@ class uiApp(dObject, wx.App):
 		# some controls (stc...) have Cut(), Copy(), Paste() methods - call those.
 		# If neither of the above works, then copy text to the clipboard.
 		if self.ActiveForm:
-			win = self.ActiveForm.ActiveControl
+			win = self.ActiveForm.FindFocus()
 			handled = False
 			if cut:
 				if hasattr(win, "cut"):
@@ -407,7 +407,7 @@ class uiApp(dObject, wx.App):
 
 	def onEditPaste(self, evt):
 		if self.ActiveForm:
-			win = self.ActiveForm.ActiveControl
+			win = self.ActiveForm.FindFocus()
 			handled = False
 			if hasattr(win, "paste"):
 				handled = (win.paste() is not None)
