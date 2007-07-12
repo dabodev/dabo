@@ -783,6 +783,12 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 	
 	
 	def makeDirTree(self, dirPath, wildcard=None, showHidden=False):
+		"""Make this dTreeView show a filesystem directory hierarchy.
+
+		Warning: Don't use this for huge hierarchies, as it blocks while
+		filling the complete tree, instead of only filling the nodes as
+		they are opened.
+		"""
 		self.clear()
 		# Add any trailing slash character
 		self._pathNode = {}
@@ -814,8 +820,11 @@ class dTreeView(dcm.dControlMixin, wx.TreeCtrl):
 					if not fullName in res:
 						continue
 				nd.appendChild(f)
+
 		def sortNode(arg, currDir, fNames):
-			self.SortChildren(self._pathNode[currDir].itemID)
+			if currDir in self._pathNode:
+				self.SortChildren(self._pathNode[currDir].itemID)
+
 		os.path.walk(dirPath, addNode, showHidden)
 		os.path.walk(dirPath, sortNode, None)
 
