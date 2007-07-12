@@ -1079,14 +1079,14 @@ class dPemMixin(dPemMixinBase):
 			return self.Parent.recreate(self)
 	
 
-	## pkm: changeParent/adopt seem to be dupes of setting the Parent property.
+	## pkm: _changeParent/_adopt seem to be dupes of setting the Parent property.
 	##      Let's see if we can reduce all this code into _setParent.
-	def changeParent(self, newParent):
+	def _changeParent(self, newParent):
 		"""The native wx method doesn't work on Macs."""
 		return newParent.adopt(self)
 		
 	
-	def adopt(self, obj):
+	def _adopt(self, obj):
 		"""Moves an object to a new parent container."""
 		if self.Application.Platform != "Mac":
 			# Reparent() doesn't work on Macs
@@ -2165,7 +2165,7 @@ class dPemMixin(dPemMixinBase):
 	
 	def _setParent(self, val):
 		if self._constructed():
-			self.changeParent(val)
+			self._changeParent(val)
 			## When the object's parent changes, we need to autobind again:
 			self.autoBindEvents(force=False)
 		else:
