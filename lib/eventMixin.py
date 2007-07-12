@@ -89,15 +89,19 @@ class EventMixin(object):
 					# the next event idle cycle.
 					uiCallAfterFunc(bindingFunction, event)
 				else:
+					bindingFunction(event)
+					# Previously, we were printing any raised exception and then 
+					# letting it go, which just seems wrong. Commented out:
+
 					# Wrap the call so that if an exception is raised in one
 					# handler, the rest of the handlers still get a whack at 
 					# the event. This matches the behavior as if we were using
 					# the real event loop in the ui lib. This is only necessary
 					# because we aren't using a uiCallAfterFunc().
-					try:
-						bindingFunction(event)
-					except:
-						traceback.print_exc()
+					#try:
+					#	bindingFunction(event)
+					#except:
+					#	traceback.print_exc()
 			if not event.Continue:
 				# The event handler set the Continue flag to False, specifying that
 				# no more event handlers should process the event.
