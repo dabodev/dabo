@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import os
 import re
 from dabo.dLocalize import _
@@ -50,6 +51,7 @@ class SQLite(dBackend):
 
 		self._dictCursorClass = DictCursor
 		pth = os.path.expanduser(connectInfo.Database)
+		pth = pth.decode(sys.getfilesystemencoding()).encode("utf-8")
 		self._connection = self.dbapi.connect(pth, factory=DictConnection)
 		return self._connection
 		
