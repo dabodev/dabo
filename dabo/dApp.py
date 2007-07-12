@@ -835,6 +835,7 @@ class dApp(dObject):
 				pth = pth[:-3]
 			pthList = pth.strip(os.sep).split(os.sep)
 			ret = ".".join(pthList)
+			ret = ret.decode(sys.getfilesystemencoding())
 		return ret
 
 	def _setBasePrefKey(self, val):
