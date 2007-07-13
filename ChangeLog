@@ -1,4 +1,30 @@
 See the Subversion log for all the details.
+===============================================================================
+Dabo 0.8.1 (2007-07-13) (Revision 3251):
++ Added ScanRestorePosition property to dBizobj. Added optional parameter
+  scanReverse to scan(). This fixes the fact that previously user code
+  didn't have access to the __scanRestorePosition and __scanReverse
+  attributes.
+
++ Refactored/fixed the case of an exception happening during scan: previously,
+  another exception would happen because we tried to restore the row number 
+  even if we saved the PK value instead. (Ticket #1064)
+
++ The "Preferences" menu item in dBaseMenuBar's Edit menu used a hotkey of "P", 
+  which conflicted with Paste. Checked around and other apps use the "e" for
+  the hotkey instead. Fixed in trunk and stable.
+
++ Fixed a problem where textboxes would lose their selection when moving 
+  focus. 
+
++ Fixed a KeyError in dTreeView's makeDirTree() function, thanks to a fix
+  by hraban in ticket #1076.
+
++ Fixed some unicode issues in paths in 3 places in the framework, thanks to
+  Wolfram Hinderer in ticket #1083.
+
++ Fixed copy/paste in dShell. Ticket #1039.
+
 
 ===============================================================================
 Dabo 0.8 (2007-05-09) (Revision 3111):
