@@ -86,6 +86,7 @@ class MSSQL(dBackend):
 		tempCursor = self._connection.cursor()
 		tempCursor.execute("select count(*) as ncount from '%(tablename)'" % tableName)
 		return tempCursor.fetchall()[0][0]
+		
 
 	def _fieldTypeNativeToDabo(self, nativeType):
 		""" converts the results of 
@@ -147,6 +148,7 @@ class MSSQL(dBackend):
 			print 'KeyError:', nativeType
 			ret = '?'
 		return ret
+		
 
 	def getFields(self, tableName):
 		""" Returns the list of fields of the passed table
@@ -218,3 +220,13 @@ class MSSQL(dBackend):
 				whereClause, groupByClause, orderByClause)
 		sql = "SELECT " + "\n".join( [clause for clause in clauses if clause] )
 		return sql
+
+
+	def getLastInsertID(self, cursor):
+		"""Pymssql does not populate the 'lastrowid' attribute of the cursor, so we
+		need to get the newly-inserted PK ourselves.
+		"""
+		# Use the AuxCursor so as not to disturb the contents of the primary data cursor.
+		crs = cursor.AuxCursor
+		crs.execute("select @@IDENTITY as newid")
+		return crs.getFieldVal("newid")
