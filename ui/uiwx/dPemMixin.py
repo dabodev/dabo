@@ -1241,17 +1241,17 @@ class dPemMixin(dPemMixinBase):
 
 
 	def drawCircle(self, xPos, yPos, rad, penColor="black", penWidth=1,
-			fillColor=None, lineStyle=None, hatchStyle=None, mode=None, 
+			fillColor=None, lineStyle=None, hatchStyle=None, mode=None,
 			persist=True):
 		"""Draws a circle of the specified radius around the specified point.
 
-		You can set the color and thickness of the line, as well as the 
-		color and hatching style of the fill. Normally, when persist=True, 
-		the circle will be re-drawn on paint events, but if you pass False, 
+		You can set the color and thickness of the line, as well as the
+		color and hatching style of the fill. Normally, when persist=True,
+		the circle will be re-drawn on paint events, but if you pass False,
 		it will be drawn once only.
-		
-		A drawing object is returned, or None if persist=False. You can 
-		'remove' the drawing by setting the Visible property of the 
+
+		A drawing object is returned, or None if persist=False. You can
+		'remove' the drawing by setting the Visible property of the
 		returned object to False. You can also manipulate the position, size,
 		color, and fill by changing the various properties of the object.
 		"""
@@ -1261,31 +1261,85 @@ class dPemMixin(dPemMixinBase):
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
-	
-	
-	def drawRectangle(self, xPos, yPos, width, height, penColor="black", 
+
+
+	def drawArc(self, xPos, yPos, rad, startAngle, endAngle, penColor="black",
 			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
 			mode=None, persist=True):
-		"""Draws a rectangle of the specified size beginning at the specified 
-		point. 
+		"""Draws an arc (pie slice) of a circle centered around the specified point,
+		starting from 'startAngle' degrees, and sweeping counter-clockwise
+		until 'endAngle' is reached.
 
 		See the 'drawCircle()' method above for more details.
 		"""
 		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
-				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle, 
-				Shape="rect", Xpos=xPos, Ypos=yPos, Width=width, Height=height, 
+				PenWidth=penWidth, Radius=rad, StartAngle=startAngle,
+				EndAngle=endAngle, LineStyle=lineStyle, HatchStyle=hatchStyle,
+				Shape="arc", Xpos=xPos, Ypos=yPos, DrawMode=mode)
+		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
+
+
+	def drawEllipse(self, xPos, yPos, width, height, penColor="black",
+			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
+			mode=None, persist=True):
+		"""Draws an ellipse contained within the rectangular space defined by
+		the position and size coordinates
+
+		See the 'drawCircle()' method above for more details.
+		"""
+		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
+				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
+				Shape="ellipse", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
 				DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
 		return obj
 
 
-	def drawPolygon(self, points, penColor="black", penWidth=1, 
-			fillColor=None, lineStyle=None, hatchStyle=None, 
+	def drawEllipticArc(self, xPos, yPos, width, height, startAngle, endAngle,
+			penColor="black", penWidth=1, fillColor=None, lineStyle=None,
+			hatchStyle=None, mode=None, persist=True):
+		"""Draws an arc (pie slice) of a ellipse contained by the specified
+		dimensions, starting from 'startAngle' degrees, and sweeping
+		counter-clockwise until 'endAngle' is reached.
+
+		See the 'drawCircle()' method above for more details.
+		"""
+		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
+				PenWidth=penWidth, StartAngle=startAngle,
+				EndAngle=endAngle, LineStyle=lineStyle, HatchStyle=hatchStyle,
+				Shape="ellipticarc", Xpos=xPos, Ypos=yPos, Width=width,
+				Height=height, DrawMode=mode)
+		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
+
+
+	def drawRectangle(self, xPos, yPos, width, height, penColor="black",
+			penWidth=1, fillColor=None, lineStyle=None, hatchStyle=None,
+			mode=None, persist=True):
+		"""Draws a rectangle of the specified size beginning at the specified
+		point.
+
+		See the 'drawCircle()' method above for more details.
+		"""
+		obj = DrawObject(self, FillColor=fillColor, PenColor=penColor,
+				PenWidth=penWidth, LineStyle=lineStyle, HatchStyle=hatchStyle,
+				Shape="rect", Xpos=xPos, Ypos=yPos, Width=width, Height=height,
+				DrawMode=mode)
+		# Add it to the list of drawing objects
+		obj = self._addToDrawnObjects(obj, persist)
+		return obj
+
+
+	def drawPolygon(self, points, penColor="black", penWidth=1,
+			fillColor=None, lineStyle=None, hatchStyle=None,
 			mode=None, persist=True):
 		"""Draws a polygon defined by the specified points.
 
-		The 'points' parameter should be a tuple of (x,y) pairs defining the 
+		The 'points' parameter should be a tuple of (x,y) pairs defining the
 		polygon.
 
 		See the 'drawCircle()' method above for more details.
@@ -1298,18 +1352,18 @@ class dPemMixin(dPemMixinBase):
 		return obj
 
 
-	def drawPolyLines(self, points, penColor="black", penWidth=1, 
+	def drawPolyLines(self, points, penColor="black", penWidth=1,
 			lineStyle=None, mode=None, persist=True):
 		"""Draws a series of connected line segments defined by the specified points.
 
 		The 'points' parameter should be a tuple of (x,y) pairs defining the shape. Lines
 		are drawn connecting the points sequentially, but a segment from the last
-		point to the first is not drawn, leaving an 'open' polygon. As a result, there is no 
+		point to the first is not drawn, leaving an 'open' polygon. As a result, there is no
 		FillColor or HatchStyle defined for this.
 
 		See the 'drawCircle()' method above for more details.
 		"""
-		obj = DrawObject(self, PenColor=penColor, PenWidth=penWidth, LineStyle=lineStyle, 
+		obj = DrawObject(self, PenColor=penColor, PenWidth=penWidth, LineStyle=lineStyle,
 				Shape="polylines", Points=points, DrawMode=mode)
 		# Add it to the list of drawing objects
 		obj = self._addToDrawnObjects(obj, persist)
@@ -2580,6 +2634,8 @@ class DrawObject(dObject):
 		self._penWidth = None
 		self._points = None
 		self._radius = None
+		self._startAngle = None
+		self._endAngle = None
 		self._shape = None
 		self._visible = True
 		self._width = 0
@@ -2714,14 +2770,26 @@ class DrawObject(dObject):
 		if self.Shape == "circle":
 			dc.DrawCircle(x, y, self.Radius)
 			self._width = self._height = self.Radius * 2
-		elif self.Shape == "rect":
+		elif self.Shape == "arc":
+			xc, yc = self.Xpos, self.Ypos
+			x1 = xc + (math.cos(math.radians(self.StartAngle)) * self.Radius)
+			y1 = yc - (math.sin(math.radians(self.StartAngle)) * self.Radius)
+			x2 = xc + (math.cos(math.radians(self.EndAngle)) * self.Radius)
+			y2 = yc - (math.sin(math.radians(self.EndAngle)) * self.Radius)
+			dc.DrawArc(x1, y1, x2, y2, xc, yc)			
+		elif self.Shape == "ellipticarc":
+			dc.DrawEllipticArc(self.Xpos, self.Ypos, self.Width, self.Height, self.StartAngle, self.EndAngle)
+		elif self.Shape in ("rect", "ellipse"):
 			w, h = self.Width, self.Height
 			# If any of these values is -1, use the parent object's size
 			if w < 0:
 				w = self.Parent.Width
 			if h < 0:
 				h = self.Parent.Height
-			dc.DrawRectangle(x, y, w, h)
+			if self.Shape == "rect":
+				dc.DrawRectangle(x, y, w, h)
+			else:
+				dc.DrawEllipse(x, y, w, h)
 		elif self.Shape in ("polygon", "polylines"):
 			if self.Shape == "polygon":
 				dc.DrawPolygon(self.Points)
@@ -2907,6 +2975,15 @@ class DrawObject(dObject):
 			if val != self._drawMode:
 				self._drawMode = val
 				self.update()
+
+
+	def _getEndAngle(self):
+		return self._endAngle
+
+	def _setEndAngle(self, val):
+		if self._endAngle != val:
+			self._endAngle = val
+			self.update()
 
 
 	def _getFillColor(self):
@@ -3133,6 +3210,15 @@ class DrawObject(dObject):
 		self._shape = val
 		
 		
+	def _getStartAngle(self):
+		return self._startAngle
+
+	def _setStartAngle(self, val):
+		if self._startAngle != val:
+			self._startAngle = val
+			self.update()
+
+
 	def _getText(self):
 		return self._text
 
@@ -3184,7 +3270,7 @@ class DrawObject(dObject):
 		
 		
 	Angle = property(_getAngle, _setAngle, None,
-			_("Angle to draw text  (int)"))
+			_("Angle (in degrees) to draw text  (int)"))
 	
 	BackColor = property(_getBackColor, _setBackColor, None,
 			_("Background color of text when using text objects  (str or tuple)"))
@@ -3211,6 +3297,9 @@ class DrawObject(dObject):
 				src_invert
 				xor
 			"""))
+	
+	EndAngle = property(_getEndAngle, _setEndAngle, None,
+			_("Angle (in degrees) used to end drawing a circular arc  (int)"))
 	
 	FillColor = property(_getFillColor, _setFillColor, None,
 			_("Background color for the shape  (color)"))
@@ -3288,6 +3377,9 @@ class DrawObject(dObject):
 	Shape = property(_getShape, _setShape, None,
 			_("Type of shape to draw  (str)"))
 
+	StartAngle = property(_getStartAngle, _setStartAngle, None,
+			_("Angle (in degrees) used to start drawing a circular arc  (int)"))
+	
 	Text = property(_getText, _setText, None,
 			_("Text to be drawn  (str)"))
 	
