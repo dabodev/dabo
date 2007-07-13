@@ -3299,7 +3299,7 @@ class DrawObject(dObject):
 			"""))
 	
 	EndAngle = property(_getEndAngle, _setEndAngle, None,
-			_("Angle (in degrees) used to end drawing a circular arc  (int)"))
+			_("Angle (in degrees) used to end drawing a circular or elliptic arc  (int)"))
 	
 	FillColor = property(_getFillColor, _setFillColor, None,
 			_("Background color for the shape  (color)"))
@@ -3378,7 +3378,7 @@ class DrawObject(dObject):
 			_("Type of shape to draw  (str)"))
 
 	StartAngle = property(_getStartAngle, _setStartAngle, None,
-			_("Angle (in degrees) used to start drawing a circular arc  (int)"))
+			_("Angle (in degrees) used to start drawing a circular or elliptic arc  (int)"))
 	
 	Text = property(_getText, _setText, None,
 			_("Text to be drawn  (str)"))
