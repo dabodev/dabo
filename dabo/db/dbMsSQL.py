@@ -102,13 +102,13 @@ class MSSQL(dBackend):
 			ret = {
 			"BINARY": "I",
 			"BIT": "I",
-			"BIGINT": "I",
+			"BIGINT": "G",
 			"BLOB": "M",
 			"CHAR": "C",
 			"DATE": "D",
 			"DATETIME": "T",
 			"DECIMAL": "N",
-			"DOUBLE": "G",
+			"DOUBLE": "G",  ## G maps to Long (INT), but this could be wrong if it is supposed to be a double float.
 			"ENUM": "C",
 			"FLOAT": "F",
 			"GEOMETRY": "?",
