@@ -66,3 +66,5 @@ class DBQueryException(DatabaseException):
 	def __str__(self):
 		return self.err_desc + '\nSQL: ' + self.sql
 
+class XmlException(dException):
+	pass
