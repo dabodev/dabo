@@ -7,7 +7,6 @@ import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
-import dControlMixin as cm
 import dPage
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _
@@ -35,9 +34,7 @@ class dPageFrame(dPageFrameMixin, wx.Notebook):
 		self._baseClass = dPageFrame
 		preClass = wx.PreNotebook
 		
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
-		# Dictionary for tracking images by key value
-		self._imageList = {}
+		dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
 	def _afterInit(self):
@@ -60,7 +57,8 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 		preClass = wx.PreListbook
 		# Dictionary for tracking images by key value
 		self._imageList = {}
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+
 		self.Bind(wx.EVT_LIST_ITEM_MIDDLE_CLICK, self.__onWxMiddleClick)
 		self.Bind(wx.EVT_LIST_ITEM_RIGHT_CLICK, self.__onWxRightClick)
 
@@ -105,7 +103,7 @@ class dPageSelect(dPageFrameMixin, wx.Choicebook):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPageSelect
 		preClass = wx.PreChoicebook
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		dPageFrameMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 		# Dictionary for tracking images by key value
 		self._imageList = {}
 
