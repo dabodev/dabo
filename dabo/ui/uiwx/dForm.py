@@ -886,7 +886,7 @@ class dForm(BaseForm, wx.Frame):
 	def _setVisible(self, val):
 		if self._constructed():
 			val = bool(val)
-			if val and self.Modal:
+			if val and self.Modal and hasattr(self, "ShowModal"):
 				self.ShowModal()
 			else:
 				self.Show(val)
