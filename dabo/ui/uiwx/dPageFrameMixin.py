@@ -15,6 +15,7 @@ from dabo.ui import makeDynamicProperty
 class dPageFrameMixin(cm.dControlMixin):
 	"""Creates a container for an unlimited number of pages."""
 	def _beforeInit(self, pre):
+		self._imageList = {}
 		self._pageSizerClass = dabo.ui.dSizer
 		super(dPageFrameMixin, self)._beforeInit(pre)
 		
