@@ -1834,14 +1834,14 @@ class dPemMixin(dPemMixinBase):
 			self._properties["Enabled"] = False
 
 
-	def _getFont(self):
+	def _getDaboFont(self):
 		if hasattr(self, "_font"):
 			v = self._font
 		else:
 			v = self.Font = dabo.ui.dFont(_nativeFont=self.GetFont())
 		return v
 	
-	def _setFont(self, val):
+	def _setDaboFont(self, val):
 		assert isinstance(val, dabo.ui.dFont)
 		if self._constructed():
 			self._font = val
@@ -2465,7 +2465,7 @@ class dPemMixin(dPemMixinBase):
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("""Specifies whether the object and children can get user input. (bool)""") )
 
-	Font = property(_getFont, _setFont, None,
+	Font = property(_getDaboFont, _setDaboFont, None,
 			_("Specifies font object for this control. (dFont)") )
 	
 	FontBold = property(_getFontBold, _setFontBold, None,

@@ -2,6 +2,7 @@
 import re
 import datetime
 import wx
+import wx.lib.masked as masked
 import dabo.lib.dates
 
 try:
@@ -380,6 +381,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 class dTextBoxMixin(dTextBoxMixinBase):
 	def __init__(self, preClass, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._dregex = {}
+		self._mask = None
 		self._lastDataType = unicode
 		
 		dTextBoxMixinBase.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
@@ -524,6 +526,24 @@ class dTextBoxMixin(dTextBoxMixinBase):
 	
 	
 	# property get/set functions
+	def _getMask(self):
+		return self._mask
+
+	def _setMask(self, val):
+		if self._constructed():
+			self._mask = val
+			try:
+				self.SetMask(val)
+			except AttributeError:
+				raise TypeError, _("You must initialize the Mask property when the control is constructed.")
+		else:
+			self._properties["Mask"] = val
+
+
+	def _getMaskedValue(self):
+		return self.GetValue()
+
+
 	def _getPasswordEntry(self):
 		return self._hasWindowStyleFlag(wx.TE_PASSWORD)
 	
@@ -558,7 +578,10 @@ class dTextBoxMixin(dTextBoxMixinBase):
 		
 		# Get the string value as reported by wx, which is the up-to-date 
 		# string value of the control:
-		strVal = self.GetValue()
+		if isinstance(self, masked.TextCtrl) and hasattr(self, "_template"):
+			strVal = self.GetPlainValue()
+		else:
+			strVal = self.GetValue()
 		
 		# Convert the current string value of the control, as entered by the 
 		# user, into the proper data type.
@@ -636,6 +659,12 @@ class dTextBoxMixin(dTextBoxMixinBase):
 	
 	
 	# Property definitions:
+	Mask = property(_getMask, _setMask, None,
+			_("Display Mask for the control  (str)"))
+	
+	MaskedValue = property(_getMaskedValue, None, None,
+			_("Value of the control, including mask characters, if any. (read-only) (str)"))
+	
 	PasswordEntry = property(_getPasswordEntry, _setPasswordEntry, None,
 			_("Specifies whether plain-text or asterisks are echoed. (bool)"))
 	
