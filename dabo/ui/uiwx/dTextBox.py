@@ -2,8 +2,8 @@
 import re
 import datetime
 import wx
-
-import dabo, dabo.ui
+import wx.lib.masked as masked
+import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
@@ -14,7 +14,18 @@ class dTextBox(tbm.dTextBoxMixin, wx.TextCtrl):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dTextBox
 		
-		preClass = wx.PreTextCtrl
+		msk = self._extractKey((properties, attProperties, kwargs), "Mask")
+		if msk is not None:
+			kwargs["mask"] = msk
+			kwargs["formatcodes"] = "_"
+			def _preMask():
+				return wx.lib.masked.TextCtrl
+			preClass = wx.lib.masked.TextCtrl
+			
+			dTextBox.__bases__ = (tbm.dTextBoxMixin, masked.TextCtrl)
+		else:
+			preClass = wx.PreTextCtrl
+		
 		tbm.dTextBoxMixin.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
 
@@ -32,15 +43,19 @@ if __name__ == "__main__":
 	# This test sets up several textboxes, each editing different data types.	
 	class TestBase(dTextBox):
 		def initProperties(self):
+			self.SelectOnEntry = True
 			self.super()
 			self.LogEvents = ["ValueChanged",]
 			
 		def onValueChanged(self, evt):
 			if self.IsSecret:
-				print "%s changed, but the new value is a secret!" % self.Name
+				print "%s changed, but the new value is a secret! " % self.Name,
 			else:
-				print "%s.onValueChanged:" % self.Name, self.Value, type(self.Value)
-		
+				print "%s.onValueChanged:" % self.Name, self.Value, type(self.Value),
+			if self.Mask:
+				print "Masked Value:", self.MaskedValue
+			else:
+				print
 
 	class IntText(TestBase):
 		def afterInit(self):
@@ -73,7 +88,12 @@ if __name__ == "__main__":
 		def afterInit(self):
 			self.Value = datetime.datetime.now()
 	
-	testParms = [IntText, FloatText, StrText, PWText, BoolText, DateText, DateTimeText]			
+	class MaskedText(TestBase):
+		def __init__(self, *args, **kwargs):
+			kwargs["Mask"] = "(###) ###-####"
+			super(MaskedText, self).__init__(*args, **kwargs)
+	
+	testParms = [IntText, FloatText, StrText, PWText, BoolText, DateText, DateTimeText, MaskedText]
 	
 	try:
 		import mx.DateTime
