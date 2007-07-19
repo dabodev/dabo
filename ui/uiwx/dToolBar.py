@@ -20,8 +20,9 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 	You may also add items to a toolbar such as separators and real Dabo
 	controls, such as dropdown lists, radio boxes, and text boxes.
 
-	The toolbar can be detached into a floating toolbar, and reattached by the
-	user at will.
+	Under Gtk only, the toolbar can be detached into a floating toolbar, 
+	and reattached by the user at will. wxPython doesn't support this behavior
+	for Windows or Mac yet, though.
 	"""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dToolBar
