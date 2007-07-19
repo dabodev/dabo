@@ -327,7 +327,7 @@ msgstr ""
 
 #: ./dApp.py:913
 msgid "%s: Path does not exist."
-msgstr "%s: No Existo El Patho."
+msgstr "%s: La trayectoria no existe."
 
 #: ./dApp.py:949 ./ui/uiwx/dGrid.py:3866
 msgid "< None >"
