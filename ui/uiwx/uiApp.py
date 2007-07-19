@@ -164,12 +164,12 @@ class uiApp(dObject, wx.App):
 			wx.CallAfter(self.callback)
 		del self.callback
 		self.Bind(wx.EVT_KEY_DOWN, self._onKeyPress)
-		return self.__checkForUpdates()
+		return self.checkForUpdates()
 
 
-	def __checkForUpdates(self):
+	def checkForUpdates(self, force=False):
 		answer = False
-		if self.dApp._checkForUpdates():
+		if self.dApp._checkForUpdates(force=force):
 			answer = dabo.ui.areYouSure(_("Framework updates are available. Do you want to update now?"),
 					title=_("Dabo Updates"), cancelButton=False)
 			if answer:
@@ -796,6 +796,19 @@ class uiApp(dObject, wx.App):
 		else:
 			cap = menu.Caption
 		return self._mruMenuPrompts.get(cap, [])
+	
+	
+	def onWebUpdatePrefs(self, evt):
+		"""Show the form that lets the user change their preferences for
+		web updates to the framework.
+		"""
+		dlg = dabo.ui.createForm(webPrefDialogCDXML)
+		dlg.show()
+		if dlg.Accepted:
+			shouldUpdate = dlg.getCheck()
+			freq = dlg.getFrequency()
+			self.dApp._setWebUpdate(shouldUpdate, interval=freq)
+		dlg.release()
 		
 	
 	def onShowSizerLines(self, evt):
@@ -830,3 +843,81 @@ class uiApp(dObject, wx.App):
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
 			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)") )
 	
+
+
+# Rather than include a separate cdxml, just include the contents here.
+webPrefDialogCDXML = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
+<dOkCancelDialog Name="dOkCancelDialog" Caption="Web Update Preferences" SaveRestorePosition="True" Top="122" Height="309" Width="487" designerClass="DesForm" Left="241">
+	<code>
+		<wantsUpdates><![CDATA[
+def wantsUpdates(self):
+	return self.chkForUpdates.Value
+]]>
+		</wantsUpdates>
+		<getFrequency><![CDATA[
+def getFrequency(self):
+	pos = self.radFrequency.PositionValue
+	dayMins= 24*60
+	return {0: 0, 1: dayMins, 2: dayMins*7, 3: dayMins*30}[pos]
+]]>
+		</getFrequency>
+		<getCheck><![CDATA[
+def getCheck(self):
+	return self.chkForUpdates.Value
+]]>
+		</getCheck>
+		<checkNow><![CDATA[
+def checkNow(self):
+	ret = self.Application.checkForUpdates()
+	if ret:
+		dabo.ui.info(_("No updates are available now."), title=_("Web Updates"))
+]]>
+		</checkNow>
+		<afterInitAll><![CDATA[
+def afterInitAll(self):
+	self.chkForUpdates.Value, minutes = self.Application.getWebUpdateInfo()
+	dayMins= 24*60
+	self.radFrequency.PositionValue = {0: 0, dayMins: 1, dayMins*7: 2, dayMins*30: 3}.get(minutes, 0)
+	self.update()
+]]>
+		</afterInitAll>
+		<importStatements><![CDATA[
+from dabo.dLocalize import _
+]]>
+		</importStatements>
+	</code>
+
+	<dSizer SlotCount="2" designerClass="LayoutSizer" Orientation="Vertical">
+		<dSizer SlotCount="3" sizerInfo="{'HAlign': 'Center'}" designerClass="LayoutSizer" Orientation="Horizontal">
+			<dCheckBox sizerInfo="{'HAlign': 'Center', 'Border': 16, 'Expand': False, 'VAlign': 'Middle'}" Name="chkForUpdates" Caption="Check for framework updates" designerClass="controlMix" RegID="chkForUpdates" ToolTipText="Does the framework check for updates?">
+				<code>
+					<onHit><![CDATA[
+def onHit(self, evt):
+	self.Form.update()
+]]>
+					</onHit>
+				</code>
+			</dCheckBox>
+			<dPanel sizerInfo="{'HAlign': 'Center', 'Expand': True, 'VAlign': 'Middle'}" designerClass="LayoutSpacerPanel"></dPanel>
+			<dButton Caption="Check now..." sizerInfo="{'HAlign': 'Center', 'Border': 5, 'VAlign': 'Middle'}" designerClass="controlMix" ToolTipText="Check the Dabo server for updates">
+				<code>
+					<onHit><![CDATA[
+def onHit(self, evt):
+	self.Form.checkNow()
+]]>
+					</onHit>
+				</code>
+			</dButton>
+		</dSizer>
+		<dRadioList sizerInfo="{'HAlign': 'Center', 'Proportion': 0, 'Border': 5, 'Expand': False, 'VAlign': 'Middle'}" Orientation="Vertical" Value="Every time an app is run" Choices="[u&apos;Every time an app is run&apos;, u&apos;Once a day&apos;, u&apos;Once a week&apos;, u&apos;Once a month&apos;]" Caption="Check every..." designerClass="controlMix" RegID="radFrequency" ToolTipText="How often does the framework check for updates?">
+			<code>
+				<afterInit><![CDATA[
+def afterInit(self):
+	self.DynamicEnabled = self.Form.wantsUpdates
+]]>
+				</afterInit>
+			</code>
+		</dRadioList>
+	</dSizer>
+</dOkCancelDialog>
+"""
