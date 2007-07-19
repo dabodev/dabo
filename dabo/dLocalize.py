@@ -9,8 +9,13 @@ import dabo
 def getLanguages():
 	# Probably need to add more
 	langs = gettext.find("dabo", daboLocaleDir, languages=_trans.keys(), all=True)
-	langPat = re.compile(".+/locale/([a-z]{2})/LC_MESSAGES.+")
-	ret = [langPat.sub(r"\1", lang) for lang in langs]
+	sep = os.path.sep
+	
+	ret = []
+	for lang in langs:
+		pathparts = lang.split(sep)
+		pos = pathparts.index("locale")
+		ret.append(pathparts[pos+1])
 	return ret
 
 
