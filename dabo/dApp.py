@@ -788,7 +788,9 @@ class dApp(dObject):
 
 	def onWebUpdatePrefs(self, evt):
 		self.uiApp.onWebUpdatePrefs(evt)
-		
+
+	def showWebUpdatePrefs(self):
+		self.onWebUpdatePrefs(None)		
 		
 	def onHelpAbout(self, evt):
 		about = self.AboutFormClass
@@ -1047,6 +1049,16 @@ class dApp(dObject):
 		self._showSizerLinesMenu = bool(val)
 
 			
+	def _getShowWebUpdateMenu(self):
+		v = getattr(self, "_showWebUpdateMenu", None)
+		if v is None:
+			v = self._showWebUpdateMenu = False
+		return v
+			
+	def _setShowWebUpdateMenu(self, val):
+		self._showWebUpdateMenu = bool(val)
+
+
 	def _getUI(self):
 		try:
 			return dabo.ui.getUIType()
@@ -1211,6 +1223,13 @@ class dApp(dObject):
 
 			If True (the default), there will be a View|Show Sizer Lines option
 			available in the base menu.""") )
+
+	ShowWebUpdateMenu = property(_getShowWebUpdateMenu, _setShowWebUpdateMenu, None, 
+			_("""Specifies whether the web update option is shown in the menu.
+
+			If True, there will be a Web Update Options menu item in the Help menu. 
+			If False (the default), your code can still start the Web Update Options
+			screen by calling app.showWebUpdatePrefs() directly.""") )
 
 	UI = property(_getUI, _setUI, None, 
 			_("""Specifies the user interface to load, or None. (str)

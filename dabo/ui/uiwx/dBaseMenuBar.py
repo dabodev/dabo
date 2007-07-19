@@ -141,8 +141,9 @@ class HelpMenu(dMenu):
 		wx.App_SetMacAboutMenuItemId(itm.GetId())
 		wx.App_SetMacHelpMenuTitleName(self.Caption)
 		
-		self.append(_("Framework Web Update Settings"), OnHit=app.onWebUpdatePrefs,
-				help=_("Change your preferences for web updates for the Dabo Framework"))
+		if app.ShowWebUpdateMenu:
+			self.append(_("Framework Web Update Settings"), OnHit=app.onWebUpdatePrefs,
+					help=_("Change your preferences for web updates for the Dabo Framework"))
 
 
 class dBaseMenuBar(dMenuBar):
