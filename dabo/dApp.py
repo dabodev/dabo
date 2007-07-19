@@ -354,34 +354,39 @@ class dApp(dObject):
 		ret = int("".join([ch for ch in localVers if ch.isdigit()]))
 		return ret
 
+	
+	def checkForUpdates(self, evt=None):
+		"""Public interface to the web updates mechanism."""
+		return self.uiApp.checkForUpdates(force=True)
 		
-	def _checkForUpdates(self):
+		
+	def _checkForUpdates(self, force=False):
 		ret = False
 		prf = self._frameworkPrefs
 		val = prf.getValue
+		runCheck = False
 		now = datetime.datetime.now()
-		autoUpdate = val("auto_update")
-		if autoUpdate:
-			checkInterval = val("update_interval")
-			if checkInterval is None:
-				# Default to one day
-				checkInterval = 24 * 60
-			mins = datetime.timedelta(minutes=checkInterval)
-			lastCheck = val("last_check")
-			if lastCheck is None:
-				lastCheck = datetime.datetime(1900, 1, 1)
-			if now > (lastCheck + mins):
-				# See if there is a later version
-				url = "http://dabodev.com/frameworkVersions/latest"
-				try:
-					vers = int(urllib.urlopen(url).read())
-				except:
-					vers = -1
-				localVers = self._currentUpdateVersion()
-				ret = localVers < vers
-				
-				print "LOCAL V", localVers
-				print "WEB VER", vers
+		if not force:
+			webUpdate = val("web_update")
+			if webUpdate:
+				checkInterval = val("update_interval")
+				if checkInterval is None:
+					# Default to one day
+					checkInterval = 24 * 60
+				mins = datetime.timedelta(minutes=checkInterval)
+				lastCheck = val("last_check")
+				if lastCheck is None:
+					lastCheck = datetime.datetime(1900, 1, 1)
+				runCheck = (now > (lastCheck + mins))
+		if runCheck:
+			# See if there is a later version
+			url = "http://dabodev.com/frameworkVersions/latest"
+			try:
+				vers = int(urllib.urlopen(url).read())
+			except:
+				vers = -1
+			localVers = self._currentUpdateVersion()
+			ret = localVers < vers
 		prf.setValue("last_check", now)
 		return ret
 
@@ -412,19 +417,28 @@ class dApp(dObject):
 					urllib.urlretrieve(url % fpth, localFile)
 				except StandardError, e:
 					dabo.errorLog.write(_("Cannot update file: '%s'. Error: %s") % (fpth, e))
+		urllib.urlcleanup()
 		
 
-	def _setAutoUpdate(self, auto, interval=None):
-		"""Sets the auto-update settings for the entire framework. If set to True, the 
+	def _setWebUpdate(self, auto, interval=None):
+		"""Sets the web update settings for the entire framework. If set to True, the 
 		interval is expected to be in minutes between checks.
 		"""
 		prf = self._frameworkPrefs
-		prf.setValue("auto_update", auto)
+		prf.setValue("web_update", auto)
 		if auto:
 			if interval is None:
 				# They want it checked every time
 				interval = 0
 			prf.setValue("update_interval", interval)
+	
+	
+	def getWebUpdateInfo(self):
+		"""Returns a 2-tuple that reflects the current settings for web updates.
+		The first position is a boolean that reflects whether auto-checking is turned
+		on; the second is the update frequency in minutes.
+		"""
+		return (self._frameworkPrefs.web_update, self._frameworkPrefs.update_interval)
 		
 		
 	def getUserSettingKeys(self, spec):
@@ -681,7 +695,16 @@ class dApp(dObject):
 				ci.setConnInfo(v)
 				self.dbConnectionDefs[k] = ci
 				self.dbConnectionNameToFiles[k] = connFile
-	
+
+
+	def setLanguage(self, lang, charset=None):
+		"""Allows you to change the language used for localization. If the language
+		passed is not one for which there is a translation file, an IOError exception
+		will be raised. You may optionally pass a character set to use.
+		"""
+		dabo.dLocalize.setLanguage(lang, charset)
+
+		
 	def showCommandWindow(self, context=None):
 		"""Shows a command window with a full Python interpreter.
 
@@ -763,6 +786,10 @@ class dApp(dObject):
 		self.uiApp.copyToClipboard(txt)
 		
 
+	def onWebUpdatePrefs(self, evt):
+		self.uiApp.onWebUpdatePrefs(evt)
+		
+		
 	def onHelpAbout(self, evt):
 		about = self.AboutFormClass
 		if about is None:
