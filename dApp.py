@@ -1227,11 +1227,11 @@ class dApp(dObject):
 	ShowWebUpdateMenu = property(_getShowWebUpdateMenu, _setShowWebUpdateMenu, None, 
 			_("""Specifies whether the web update option is shown in the menu.
 
-			If True, there will be a Web Update Options menu item in the Help menu. 
-			If False (the default), your code can still start the Web Update Options
+			If True (the default), there will be a Web Update Options menu item in 
+			the Help menu. If False, your code can still start the Web Update Options
 			screen by calling app.showWebUpdatePrefs() directly.""") )
 
-	UI = property(_getUI, _setUI, None, 
+	UI = property(_getUI, _setUI, None,
 			_("""Specifies the user interface to load, or None. (str)
 
 			This is the user interface library, such as 'wx' or 'tk'. Note that
