@@ -1052,7 +1052,7 @@ class dApp(dObject):
 	def _getShowWebUpdateMenu(self):
 		v = getattr(self, "_showWebUpdateMenu", None)
 		if v is None:
-			v = self._showWebUpdateMenu = False
+			v = self._showWebUpdateMenu = True
 		return v
 			
 	def _setShowWebUpdateMenu(self, val):
