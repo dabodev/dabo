@@ -33,6 +33,8 @@ def setLanguage(lang=None, charset=None):
 				lang = {"english": "en", 
 						"spanish": "es", "espanol": "es", "español": "es",
 						"french": "fr", "francais": "fr", "français": "fr", 
+						"german": "de", "deutsch": "de", 
+						"italian": "it", "italiano": "it", 
 						"portuguese": "pt", "portuguése": "pt",
 						"russian": "ru"}[lang]
 			except KeyError:
@@ -60,7 +62,7 @@ def n_(s):
 
 
 daboLocaleDir = os.path.join(os.path.split(dabo.__file__)[0], "locale")
-_trans = {"en": None, "fr": None, "es": None, "pt": None, "ru": None}
+_trans = {"en": None, "fr": None, "es": None, "pt": None, "ru": None, "de": None, "it": None}
 defLang, defCharset = locale.getlocale()
 if defLang is None:
 	defLang = "en"
