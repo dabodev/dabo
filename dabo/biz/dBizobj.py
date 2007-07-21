@@ -1222,7 +1222,7 @@ class dBizobj(dObject):
 			# Let the child know the current dependent PK
 			if child.RequeryWithParent:
 				child.setCurrentParent(pk, fromChildRequery=True)
-				if not child.isChanged():
+				if not child.isAnyChanged():
 					child.requery()
 		self.afterChildRequery()
 
