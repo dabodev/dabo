@@ -1312,14 +1312,14 @@ class ReportWriter(object):
 					show = obj.get("show")
 					if show is not None:
 						try:
-							ev = eval(show)
+							ev = obj.getProp("show") ##eval(show)
 						except:
 							## expression failed to eval: default to True (show it)
 							ev = True
 						if not ev:
 							# user's show evaluated to False: don't print!
 							continue
-
+	
 					x1 = self.getPt(obj.getProp("x"))
 					y1 = self.getPt(obj.getProp("y"))
 					x1 = x + x1
