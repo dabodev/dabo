@@ -448,6 +448,76 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(bizMain.RowCount, 0)
 		self.assertEqual(bizChild.RowCount, 0)
 	
+
+	def testChildren_moveParentRecordPointer(self):
+		"""Moving the parent record pointer shouldn't erase child changes."""
+		bizMain = self.biz
+		bizChild = dabo.biz.dBizobj(self.con)
+		bizChild.UserSQL = "select * from %s" % self.temp_child_table_name
+		bizChild.KeyField = "pk"
+		bizChild.DataSource = self.temp_child_table_name
+		bizChild.LinkField = "parent_fk"
+		bizChild.FillLinkFromParent = True
+		
+		bizMain.addChild(bizChild)
+		bizMain.requery()
+
+		# preliminary sanity checks:
+		self.assertEqual(bizChild.RowCount, 2)
+		bizChild.RowNumber = 1
+		bizMain.next()
+		self.assertEqual(bizChild.RowCount, 0)
+		bizMain.prior()
+		self.assertEqual(bizChild.RowCount, 2)
+		self.assertEqual(bizMain.RowNumber, 0)
+		self.assertEqual(bizChild.RowNumber, 1)
+		bizMain.RowNumber = 2
+		self.assertEqual(bizChild.RowNumber, 0)
+
+		# We are in row 2 of main, and row 0 of child
+
+		# Change a field, and test isChanged() both before and after moving the 
+		# parent record pointer:
+		bizChild.Record.cInvNum = "pkm0023"
+		self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': u'IN00024'}})
+		self.assertEqual(bizChild.isChanged(), True)
+		self.assertEqual(bizMain.isChanged(), True)
+
+		# Prove no problem with simple change, and moving parent record pointer:
+		bizMain.RowNumber = 2
+		self.assertEqual(bizChild.Record.cInvNum, "pkm0023")
+		self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': u'IN00024'}})
+		self.assertEqual(bizChild.isChanged(), True)
+		self.assertEqual(bizMain.isChanged(), True)
+
+		# Prove no problem with simple change, adding new record, and changing the
+		# new record: the simple change is still there.
+		bizChild.new()
+		bizChild.Record.cInvNum = "pkm0024"
+		self.assertEqual(bizChild.RowCount, 2)
+		bizMain.RowNumber = 2
+		self.assertEqual(bizChild.isAnyChanged(), True)
+		self.assertEqual(bizChild.RowCount, 2)
+		self.assertEqual(bizChild.isChanged(), True)
+		bizChild.RowNumber = 0
+		self.assertEqual(bizChild.isChanged(), True)
+		self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': u'IN00024'}, -1: {'cInvNum': u''}})
+
+		# Now, here's the problem. If we add a new record to the child but don't 
+		# change any fields in that new record, then move the main record pointer, 
+		# all child changes in other records will be lost, not just the blank 
+		# new record which gets removed due to Dabo's design.
+		bizChild.new()
+		self.assertEqual(bizChild.RowCount, 3)
+		self.assertEqual(bizChild.isAnyChanged(), True)
+		self.assertEqual(bizChild._CurrentCursor._mementos, {3: {'cInvNum': u'IN00024'}, -1: {'cInvNum': u''}, -1: {'cInvNum': u''}})
+		bizMain.RowNumber = 2
+		# boom! a simple record change in the parent removed the change to the first
+		# record, the new record with a change, as well as the expected last new record
+		# that had no changes:
+		self.assertEqual(bizChild.isAnyChanged(), True)
+
+
 	def testNullRecord(self):
 		biz = self.biz
 		self.createNullRecord()
