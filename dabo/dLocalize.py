@@ -14,7 +14,11 @@ def getLanguages():
 	ret = []
 	for lang in langs:
 		pathparts = lang.split(sep)
-		pos = pathparts.index("locale")
+		try:
+			pos = pathparts.index("locale")
+		except ValueError:
+			# frozen App?
+			pos = pathparts.index("dabo.locale")
 		ret.append(pathparts[pos+1])
 	return ret
 
@@ -40,7 +44,7 @@ def setLanguage(lang=None, charset=None):
 			except KeyError:
 				pass
 	if not lang in getLanguages():
-		raise IOError, "Invalid language '%s'" % lang
+		raise IOError, "Invalid language '%s' (localeDir: %s)" % (lang, daboLocaleDir)
 	
 	if _trans.get(lang) is None:
 		_trans[lang] = gettext.translation("dabo", daboLocaleDir, 
@@ -62,6 +66,9 @@ def n_(s):
 
 
 daboLocaleDir = os.path.join(os.path.split(dabo.__file__)[0], "locale")
+if not os.path.exists(daboLocaleDir):
+	# Frozen app?
+	daboLocaleDir = os.path.join(os.getcwd(), "dabo.locale")
 _trans = {"en": None, "fr": None, "es": None, "pt": None, "ru": None, "de": None, "it": None}
 defLang, defCharset = locale.getlocale()
 if defLang is None:
