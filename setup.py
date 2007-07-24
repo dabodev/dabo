@@ -20,6 +20,18 @@ def getIconSubDir(arg, dirname, fnames):
 			iconDirs[subdir] = ["*.png"]
 os.path.walk(iconDir, getIconSubDir, iconDir)
 
+# locale dirs:
+localeDir = "dabo/locale"
+localeDirs = []
+def getLocaleDirs(arg, dirname, fnames):
+	if ".svn" not in dirname and dirname[-1] != "\\":
+		po_files = tuple(glob.glob(os.path.join(dirname, "*.po")))
+		mo_files = tuple(glob.glob(os.path.join(dirname, "*.mo")))
+		if po_files or mo_files:
+			subdir = os.path.join(localeDir, dirname[len(arg)+1:])
+			localeDirs.append((subdir, po_files + mo_files))
+os.path.walk(localeDir, getLocaleDirs, localeDir)
+
 package_data = {
 		'':['ANNOUNCE', 'AUTHORS', 'ChangeLog', 'INSTALL',
 		'LICENSE.TXT', 'README', 'TODO'],
@@ -31,9 +43,13 @@ package_data = {
 		'dabo.ui.uiwx.macImageProblem':['*.png'],
 		'dabo.ui.uiwx.masked':['README'],
 		}
-
+	
 package_data.update(iconDirs)
 
+data_files = [
+		('dabo/locale', glob.glob('dabo/locale/*.pot')),
+		]
+data_files.extend(localeDirs)
 
 setup(
 		name = "Dabo",
@@ -45,4 +61,5 @@ setup(
 		license = 'MIT',
 		packages = find_packages(),
 		package_data = package_data,
+		data_files = data_files
 )
