@@ -9,7 +9,7 @@ from dabo.__version__ import version
 daboVersion = version["version"]
 
 # List the paths under dabo/icon/themes:
-iconDir = "dabo/icons/themes"
+iconDir = os.path.join("dabo", "icons", "themes")
 iconDirs = {}
 def getIconSubDir(arg, dirname, fnames):
 	if ".svn" not in dirname and "cards" not in dirname.lower() and dirname[-1] != "\\":
@@ -21,7 +21,7 @@ def getIconSubDir(arg, dirname, fnames):
 os.path.walk(iconDir, getIconSubDir, iconDir)
 
 # locale dirs:
-localeDir = "dabo/locale"
+localeDir = os.path.join("dabo", "locale")
 localeDirs = []
 def getLocaleDirs(arg, dirname, fnames):
 	if ".svn" not in dirname and dirname[-1] != "\\":
@@ -47,7 +47,7 @@ package_data = {
 package_data.update(iconDirs)
 
 data_files = [
-		('dabo/locale', glob.glob('dabo/locale/*.pot')),
+		(os.path.join('dabo', 'locale'), glob.glob('dabo/locale/*.pot')),
 		]
 data_files.extend(localeDirs)
 
