@@ -1,4 +1,4 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
 import gettext
 import locale
 import os
@@ -68,7 +68,15 @@ def n_(s):
 daboLocaleDir = os.path.join(os.path.split(dabo.__file__)[0], "locale")
 if not os.path.exists(daboLocaleDir):
 	# Frozen app?
-	daboLocaleDir = os.path.join(os.getcwd(), "dabo.locale")
+	# First need to find the directory that contains the .exe:
+	startupDir = daboLocaleDir
+	while startupDir:
+		startupDir = os.path.split(startupDir)[0]
+		if os.path.isdir(startupDir):
+			break
+	daboLocaleDir = os.path.join(startupDir, "dabo.locale")
+#	raise ValueError, daboLocaleDir
+
 _trans = {"en": None, "fr": None, "es": None, "pt": None, "ru": None, "de": None, "it": None}
 defLang, defCharset = locale.getlocale()
 if defLang is None:
