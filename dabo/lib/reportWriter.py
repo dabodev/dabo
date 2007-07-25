@@ -15,7 +15,7 @@ import os
 ######################################################
 # Very first thing: check for required libraries:
 _failedLibs = []
-for lib in ("reportlab", "PIL", "matplotlib"):
+for lib in ("reportlab", "PIL"):
 	try:
 		__import__(lib)
 	except ImportError:
@@ -34,13 +34,9 @@ http://www.pythonware.com/products/pil
 reportlab is the ReportLab toolkit available from
 http://www.reportlab.org
 
-matplotlib is a python 2D plotting library from
-http://matplotlib.sourceforge.net
-
 If you are on a Debian Linux system, just issue:
 sudo apt-get install python-reportlab
 sudo apt-get install python-imaging
-sudo apt-get install python-matplotlib
 
 	""" % "\n\t".join(_failedLibs)
 
@@ -60,11 +56,8 @@ from dabo.lib.xmltodict import dicttoxml
 from dabo.dLocalize import _
 from dabo.lib.caselessDict import CaselessDict
 from reportlab.lib.utils import ImageReader
-from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
-from matplotlib.figure import Figure
 from StringIO import StringIO
 from PIL import Image as PILImage
-from pylab import *
 
 # The below block tried to use the experimental para.Paragraph which
 # handles more html tags, including hyperlinks. However, I couldn't 
@@ -1128,6 +1121,12 @@ class ReportWriter(object):
 			except:
 				pass
 		elif objType == "BarGraph":
+			# Do these imports here so as not to require the huge matplotlib unless
+			# necessary (I was unable to get my py2exe configured correctly to handle
+			# matplotlib). -- pkm
+			from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+			from matplotlib.figure import Figure
+			## from pylab import *  ## Bad! Please change this to 'import pylab' or to only import the names needed.
 			borderWidth = self.getPt(obj.getProp("borderWidth"))
 			borderColor = obj.getProp("borderColor")
 			mask = obj.getProp("imageMask")
