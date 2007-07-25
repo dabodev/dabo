@@ -86,10 +86,16 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 		while classparts[-1] == classparts[-2]:
 			classparts.pop()
 		classname = ".".join(classparts)
+
 		try:
 			nm = self.Name
 		except AttributeError:
 			nm = ""
+
+		regid = getattr(self, "RegID", "")
+		if regid:
+			nm = regid
+
 		if (not nm) or (nm == "?"):
 			# No name; use module.classname
 			nm = "%s.%s" % (self.__class__.__module__, self.__class__.__name__)

@@ -16,5 +16,6 @@ class dControlMixinBase(dabo.ui.dPemMixin):
 
 	def __onGotFocus(self, evt):
 		if self.Form:
+			self.Form.activeControlValid()  ## make sure prior control's value has been flushed.
 			self.Form._activeControl = self
 
