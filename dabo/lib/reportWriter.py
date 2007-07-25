@@ -15,7 +15,7 @@ import os
 ######################################################
 # Very first thing: check for required libraries:
 _failedLibs = []
-for lib in ("reportlab", "PIL"):
+for lib in ("reportlab", "PIL", "matplotlib"):
 	try:
 		__import__(lib)
 	except ImportError:
@@ -34,10 +34,14 @@ http://www.pythonware.com/products/pil
 reportlab is the ReportLab toolkit available from
 http://www.reportlab.org
 
+matplotlib is a python 2D plotting library from
+http://matplotlib.sourceforge.net
+
 If you are on a Debian Linux system, just issue:
 sudo apt-get install python-reportlab
 sudo apt-get install python-imaging
-.
+sudo apt-get install python-matplotlib
+
 	""" % "\n\t".join(_failedLibs)
 
 	sys.exit(msg)
@@ -55,6 +59,12 @@ from dabo.lib.xmltodict import xmltodict
 from dabo.lib.xmltodict import dicttoxml
 from dabo.dLocalize import _
 from dabo.lib.caselessDict import CaselessDict
+from reportlab.lib.utils import ImageReader
+from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
+from matplotlib.figure import Figure
+from StringIO import StringIO
+from PIL import Image as PILImage
+from pylab import *
 
 # The below block tried to use the experimental para.Paragraph which
 # handles more html tags, including hyperlinks. However, I couldn't 
@@ -581,7 +591,74 @@ class Image(Drawable):
 				"scale" will change the image size to fit the frame. "clip" will
 				display the image in the frame as-is.""")
 
+class BarGraph(Drawable):
+        """Represents a bar graph"""
+	def initAvailableProps(self):
+		super(BarGraph, self).initAvailableProps()
 
+		self.AvailableProps["expr"] = toPropDict(list, [], 
+				"""Specifies the data to display on the graph.""")
+
+		self.AvailableProps["Labels"] = toPropDict(list, [], 
+				"""Specifies the lables to display on the bottom.""")
+		
+		self.AvailableProps["Title"] = toPropDict(str, "Title", 
+				"""Specifies the title to display on the graph.""")
+		
+		self.AvailableProps["XLabel"] = toPropDict(str, "X-Label", 
+				"""Specifies the label to display on the x axis.""")
+		
+		self.AvailableProps["YLabel"] = toPropDict(str, "Y-Label", 
+				"""Specifies the label to display on the y axis.""")
+		
+		self.AvailableProps["XGrid"] = toPropDict(bool, False, 
+				"""Specifies if a grid should be displayed on the major ticks of the x axis.""")
+		
+		self.AvailableProps["YGrid"] = toPropDict(bool, False, 
+				"""Specifies if a grid should be displayed on the major ticks of the y axis.""")		
+
+		self.AvailableProps["Orientation"] = toPropDict(str, "horizontal", 
+				"""Orientation of the graph (vertical, horizontal).""")			
+
+		self.AvailableProps["Log"] = toPropDict(bool, False,
+				"""True sets orientation axis to log scale""")			
+								
+		self.AvailableProps["LabelTextSize"] = toPropDict(str, "x-small", 
+				"""The size of the text to display for the labels.""")
+
+		self.AvailableProps["BarColor"] = toPropDict(str, "blue", 
+				"""Specifies the colour of the bars.""")
+		
+		self.AvailableProps["BarBorder"] = toPropDict(int, 0, 
+				"""Specifies the size of the border of the bar.""")
+
+		self.AvailableProps["BarBorderColor"] = toPropDict(str, "black", 
+				"""Specifies the colour of the border of the bar.""")			
+				
+		self.AvailableProps["Error"] = toPropDict(list, [], 
+				"""Specifies the error bars to display on the graph.""")		
+		
+		self.AvailableProps["CapSize"] = toPropDict(int, 3, 
+				"""Determines the length in points of the error bar caps""")
+		
+		self.AvailableProps["ErrorBarColor"] = toPropDict(str, "black", 
+				"""Specifies the colour of the error bars.""")			
+						
+		self.AvailableProps["BorderWidth"] = toPropDict(float, 0, 
+				"""Specifies the width of the image border.""")
+
+		self.AvailableProps["BorderColor"] = toPropDict(tuple, (0, 0, 0), 
+				"""Specifies the color of the image border.""")
+		
+		self.AvailableProps["BackgroundColor"] = toPropDict(str, "white", 
+				"""Specifies the colour of the border of the bar.""")			
+				
+		self.AvailableProps["ScaleMode"] = toPropDict(str, "scale", 
+				"""Specifies how to handle frame and image of differing size.
+
+				"scale" will change the image size to fit the frame. "clip" will
+				display the image in the frame as-is.""")        
+		
 class Line(Drawable):
 	"""Represents a line."""
 	def initAvailableProps(self):
@@ -634,6 +711,9 @@ class Frameset(Drawable):
 
 		self.AvailableProps["ColumnCount"] = toPropDict(int, 1, 
 				"""Specifies the number of columns in the frame.""")
+
+		self.AvailableProps["calculatedHeight"] = toPropDict(float, 0, 
+				"""(to remove)""")
 
 	def insertRequiredElements(self):
 		"""Insert any missing required elements into the frameset."""
@@ -723,13 +803,13 @@ class ReportWriter(object):
 	_clearMemento = True
 
 
-	def draw(self, obj, origin, _getNeededHeight=False):
+	def draw(self, obj, origin, getNeededHeight=False):
 		"""Draw the given object on the Canvas.
 
 		The object is a dictionary containing properties, and	origin is the (x,y)
-		tuple where the object will be drawn.
+		tuple where the object will be drawn. 
 		"""
-		_neededHeight = 0
+		neededHeight = 0
 
 		## (Can't get x,y directly from object because it may have been modified 
 		## by the calling program to adjust for	band position, and draw() 
@@ -745,16 +825,15 @@ class ReportWriter(object):
 
 		## These properties can apply to all objects:
 		width = self.getPt(obj.getProp("width"))
-		height = obj.getProp("height")
-		if height is None:
-			# Only valid for framesets at this time: specifies that the height
-			# of the frameset will be whatever is necessary to fit the content.
-			try:
-				height = obj._calculatedHeight
-			except:
-				height = 0
-		else:
+	
+		try:
+			height = obj.getProp("calculatedHeight")
+		except ValueError:
+			height = None
+		if height is not None:
 			height = self.getPt(height)
+		else:
+			height = self.getPt(obj.getProp("Height"))
 	
 		rotation = obj.getProp("rotation")
 		hAnchor = obj.getProp("hAnchor").lower()
@@ -924,9 +1003,9 @@ class ReportWriter(object):
 			padRight = self.getPt(obj.getProp("padRight"))
 			padTop = self.getPt(obj.getProp("padTop"))
 			padBottom = self.getPt(obj.getProp("padBottom"))
-			frameColumnCount = obj.getProp("columnCount")
+			columnCount = obj.getProp("columnCount")
 	
-			columnWidth = width / frameColumnCount
+			columnWidth = width/columnCount
 
 			## Set canvas props based on our props:
 			c.translate(x, y)
@@ -1000,19 +1079,16 @@ class ReportWriter(object):
 						story.append(p)
 						objNeededHeight += p.wrap(columnWidth-padLeft-padRight, None)[1]
 
-				_neededHeight = max(objNeededHeight, _neededHeight) + padTop + padBottom
+				neededHeight = max(neededHeight, objNeededHeight) + padTop + padBottom
 
-			for columnIndex in range(frameColumnCount):
+			for columnIndex in range(columnCount):
 				f = platypus.Frame(columnIndex*columnWidth, 0, columnWidth, height, leftPadding=padLeft,
 						rightPadding=padRight, topPadding=padTop,
 						bottomPadding=padBottom, id=frameId, 
 						showBoundary=boundary)
-				if _getNeededHeight:
-					# Stuff in the calculated height for use during the next (actual)
-					# draw cycle.
-					obj._calculatedHeight = _neededHeight
+				if getNeededHeight:
+					obj["calculatedHeight"] = "%s" % neededHeight
 				else:
-					# This is the actual draw cycle:
 					f.addFromList(story, c)
 	
 		elif objType == "Image":
@@ -1051,12 +1127,95 @@ class ReportWriter(object):
 				c.drawImage(imageFile, 0, 0, width, height, mask)
 			except:
 				pass
+		elif objType == "BarGraph":
+			borderWidth = self.getPt(obj.getProp("borderWidth"))
+			borderColor = obj.getProp("borderColor")
+			mask = obj.getProp("imageMask")
+			mode = obj.getProp("scaleMode")
+
+			c.translate(x, y)
+			c.rotate(rotation)
+			c.setLineWidth(borderWidth)
+			c.setStrokeColor(borderColor)
+	
+			if borderWidth > 0:
+				stroke = 1
+			else:
+				stroke = 0
+	
+			# clip around the outside of the image:
+			p = c.beginPath()
+			p.rect(-1, -1, width+2, height+2)
+			c.clipPath(p, stroke=stroke)
+	
+			if mode == "clip":
+				# Need to set w,h to None for the drawImage, which will draw it in its
+				# "natural" state 1:1 pixel:point, which could flow out of the object's
+				# width/height, resulting in clipping.
+				width, height = None, None
+	
+			data = obj.getProp("expr")
+			labels = obj.getProp("Labels")	
+			title = obj.getProp("Title")	
+			xlabel = obj.getProp("XLabel")	
+			ylabel = obj.getProp("YLabel")	
+			textsize = obj.getProp("LabelTextSize")	
+			xgrid = obj.getProp("XGrid")	
+			ygrid = obj.getProp("YGrid")
+			orientation = obj.getProp("Orientation")
+			log = obj.getProp("Log")		
+			error = obj.getProp("Error")
+			capsize = obj.getProp("CapSize")
+			ecolor = obj.getProp("ErrorBarColor")
+			barborder = obj.getProp("BarBorder")
+			barbordercolor = obj.getProp("BarBorderColor")
+			bgcolor = obj.getProp("BackgroundColor")
+			barcolor = obj.getProp("BarColor")				
+
+			fig = Figure(facecolor=bgcolor)
+			canvas = FigureCanvas(fig)
+			ax = fig.add_subplot(111)			
+			xlocations = [0.25+x for x in range(len(data))]
+			barwidth = 0.5
+			ax.bar(xlocations, data, yerr=error, linewidth=barborder,
+			       log=log, color=barcolor, ecolor=ecolor,
+			       capsize=capsize, edgecolor=barbordercolor)
+			ax.set_xlabel(xlabel, size=textsize)
+			ax.set_ylabel(ylabel, size=textsize)
+			ax.set_title(title)
+			ax.grid(False)
+			ax.xaxis.grid(xgrid, which='major')
+			ax.yaxis.grid(ygrid, which='major')
+			frame = ax.axesPatch
+			frame.set_edgecolor(frame.get_facecolor())
+			# Specify a line in axes coords to represent the left and bottom axes.
+			bottom = Line2D([0, 1], [0, 0], transform=ax.transAxes)
+			left   = Line2D([0, 0], [0, 1], transform=ax.transAxes)
+			ax.add_line(bottom)
+			ax.add_line(left)
+			ax.set_xticks([barwidth/2+x+0.15 for x in xlocations])
+			ax.set_xticklabels(labels)
+			ax.set_xlim(0, xlocations[-1]+barwidth*2)
+			labels = ax.get_xticklabels() + ax.get_yticklabels()
+			for label in labels:
+				label.set_size(textsize)                        
+                        
+                        canvas.draw()
+                        size = canvas.get_renderer().get_canvas_width_height()
+                        buf=canvas.tostring_rgb()
+                        im=PILImage.fromstring('RGB', size, buf, 'raw', 'RGB', 0, 1)
+                        im.fp = "PILIMAGE"
+                        imageData = ImageReader(im)            
+
+			try:
+				c.drawImage(imageData, 0, 0, width, height, mask)
+			except:
+				pass			
 		## All done, restore the canvas state to how we found it (important because
 		## rotating, scaling, etc. are cumulative, not absolute and we don't want
 		## to start with a canvas in an unknown state.)
 		c.restoreState()
-		if _getNeededHeight:
-			return _neededHeight
+		return neededHeight
 
 
 	def getColorTupleFromReportLab(self, val):
@@ -1312,14 +1471,14 @@ class ReportWriter(object):
 					show = obj.get("show")
 					if show is not None:
 						try:
-							ev = obj.getProp("show") ##eval(show)
+							ev = eval(show)
 						except:
 							## expression failed to eval: default to True (show it)
 							ev = True
 						if not ev:
 							# user's show evaluated to False: don't print!
 							continue
-	
+
 					x1 = self.getPt(obj.getProp("x"))
 					y1 = self.getPt(obj.getProp("y"))
 					x1 = x + x1
@@ -1435,10 +1594,7 @@ class ReportWriter(object):
 
 		
 	def calculateObjectHeight(self, obj):
-		"""Only called for objects with None for height, and setting None for 
-		object height is only supported	for FrameSets at this time.
-		"""
-		neededHeight = self.draw(obj, (0,0), _getNeededHeight=True)
+		neededHeight = self.draw(obj, (0,0), getNeededHeight=True)
 		return neededHeight
 
 
@@ -1643,7 +1799,7 @@ class ReportWriter(object):
 				"GroupHeader": GroupHeader,	"GroupFooter": GroupFooter, 
 				"PageForeground": PageForeground, "Rect": Rectangle,
 				"Rectangle": Rectangle,
-				"String": String, "Image": Image, "Line": Line,
+				"String": String, "Image": Image, "BarGraph": BarGraph, "Line": Line,
 				"Frameset": Frameset, "Paragraph": Paragraph,
 				"Variables": Variables, "Groups": Groups, "Objects": Objects,
 				"TestCursor": TestCursor, "TestRecord": TestRecord})
