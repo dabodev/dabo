@@ -16,6 +16,7 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		self.__src = self._srcIsBizobj = self._srcIsInstanceMethod = None
 		self._designerMode = None
 		self._oldVal = None
+		self._userChanged = False
 
 		dabo.ui.dControlMixin.__init__(self, *args, **kwargs)
 
@@ -162,6 +163,11 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 		ret = None
 		isChanged = False
 		oldVal = self._oldVal
+
+		if self._userChanged:
+			self.raiseEvent(dabo.dEvents.InteractiveChange, oldVal=oldVal)
+			self._userChanged = False
+		
 		if oldVal is None and curVal is None:
 			# Could be changed and we just don't know it...
 			isChanged = True

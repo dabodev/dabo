@@ -6,6 +6,11 @@ from dabo.ui import makeDynamicProperty
 
 
 class dDataControlMixin(dDataControlMixinBase):
+	def _onWxHit(self, evt, *args, **kwargs):
+		self._userChanged = True  ## set the dirty flag so that InteractiveChange can be raised.
+		super(dDataControlMixin, self)._onWxHit(evt, *args, **kwargs)
+
+
 	def select(self, position, length):
 		""" Select all text from <position> for <length> or end of string."""
 		try:
