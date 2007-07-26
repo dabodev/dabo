@@ -783,6 +783,12 @@ class ValueChanged(dEvent):
 		return issubclass(objectClass, dabo.ui.dDataControlMixin)
 	appliesToClass = classmethod(appliesToClass)
 
+class InteractiveChange(dEvent):
+	"""Occurs when the user interactively changes the control's value."""
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dDataControlMixin)
+	appliesToClass = classmethod(appliesToClass)
+
 
 class Update(dEvent):
 	"""Occurs when a container wants its controls to update
