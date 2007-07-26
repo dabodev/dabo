@@ -21,6 +21,63 @@ from dabo.dLocalize import _
 import dDataControlMixin as dcm
 import dTimer
 
+LexerDic = {"ada":stc.STC_LEX_ADA,
+				"ave":stc.STC_LEX_AVE,
+				"baan":stc.STC_LEX_BAAN,
+				"batch":stc.STC_LEX_BATCH,
+				"bullant":stc.STC_LEX_BULLANT,
+				"config":stc.STC_LEX_CONF,
+				"container":stc.STC_LEX_CONTAINER,
+				"c++":stc.STC_LEX_CPP,
+				"diff":stc.STC_LEX_DIFF,
+				"eiffel":stc.STC_LEX_EIFFEL,
+				"eiffelKw":stc.STC_LEX_EIFFELKW,
+				"errorlist":stc.STC_LEX_ERRORLIST,
+				"html":stc.STC_LEX_HTML,
+				"latex":stc.STC_LEX_LATEX,
+				"lisp":stc.STC_LEX_LISP,
+				"lua":stc.STC_LEX_LUA,
+				"makefile":stc.STC_LEX_MAKEFILE,
+				"matlab":stc.STC_LEX_MATLAB,
+				"nncrontab":stc.STC_LEX_NNCRONTAB,
+				"plain text":stc.STC_LEX_NULL,
+				"pascal":stc.STC_LEX_PASCAL,
+				"perl":stc.STC_LEX_PERL,
+ 				"php":stc.STC_LEX_PHPSCRIPT,
+				"props":stc.STC_LEX_PROPERTIES,
+				"python":stc.STC_LEX_PYTHON,
+				"ruby":stc.STC_LEX_RUBY,
+				"sql":stc.STC_LEX_SQL,
+				"tcl":stc.STC_LEX_TCL,
+				"vb":stc.STC_LEX_VB,
+				"vbscript":stc.STC_LEX_VBSCRIPT,
+				"xcode":stc.STC_LEX_XCODE,
+				"xml":stc.STC_LEX_XML}
+
+fileFormatsDic = {".ada":"ada",
+						".bat":"batch",
+						".cfg":"config",
+						".config":"config",
+						".c":"c++",
+						".h":"c++",
+						".cpp":"c++",
+						".diff":"diff",
+						".html":"html",
+						".htm":"html",
+						".css":"html",
+						".tex":"latex",
+						".cls":"latex",
+						".py":"python",
+						".pyw":"python",
+						".php":"php",
+						".txt":"plain text",
+						".cdxml":"xml",
+						".cnxml":"xml",
+						".mnxml":"xml",
+						".rfxml":"xml",
+						".xml":"xml"}
+
+
 ## testing load performance:
 delay = False
 
@@ -57,14 +114,9 @@ class StyleTimer(dTimer.dTimer):
 	def onHit(self, evt):
 		#self.Interval = 0
 		self.stop()
-		if self.mode == "python":
+		if self.mode in LexerDic.keys():
 			if self.Parent:
-				self.Parent.SetLexer(stc.STC_LEX_PYTHON)
-			self.mode = "container"
-			self.Interval = self.styleTimerInterval
-		elif self.mode == "xml":
-			if self.Parent:
-				self.Parent.SetLexer(stc.STC_LEX_XML)
+				self.Parent.SetLexer(LexerDic[self.mode])
 			self.mode = "container"
 			self.Interval = self.styleTimerInterval
 		else:
@@ -914,14 +966,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		"""Sets the appropriate lexer for syntax coloring."""
 		lex = self.Language.lower()
 		if color and lex:
-			if lex == "python":
-				self.SetLexer(stc.STC_LEX_PYTHON)
-				if not self._keyWordsSet:
-					self.SetKeyWords(0, " ".join(keyword.kwlist))
-					self._keyWordsSet = True
-				self.Colourise(-1, -1)
-			elif lex == "xml":
-				self.SetLexer(stc.STC_LEX_XML)
+			if lex in LexerDic.keys():
+				self.SetLexer(LexerDic[lex])
+				if lex == "python":
+					if not self._keyWordsSet:
+						self.SetKeyWords(0, " ".join(keyword.kwlist))
+						self._keyWordsSet = True
+					self.Colourise(-1, -1)
 		else:
 			self.ClearDocumentStyle()
 			self.SetLexer(stc.STC_LEX_CONTAINER)		
@@ -1361,10 +1412,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			self._fileName = fileSpec
 			pth, fname = os.path.split(fileSpec)
 			fext = os.path.splitext(fname)[1]
-			if fext == ".py":
-				self.Language = "Python"
-			elif fext.endswith("xml"):
-				self.Language = "XML"
+			self.Language = fileFormatsDic.get(fext, self.Language)
 			self._curdir = pth
 			self.SetText(text)
 			self._clearDocument(clearText=False)
@@ -1838,10 +1886,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 	def _setLanguage(self, val):
 		if self._constructed():
 			if val != self._language:
-				if val.lower() in ("python", "xml"):
-					self._language = val
+				if val.lower() in LexerDic.keys():
+					self._language = val.lower()
 				else:
-					dabo.errorLog.write(_("Currently only Python and XML are supported"))
+					dabo.errorLog.write(_("Currently only %s are supported" % ", ".join(LexerDic.keys())))
 				self.setDefaults()
 				self._defaultsSet = True
 
