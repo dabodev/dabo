@@ -1,15 +1,27 @@
 # -*- coding: utf-8 -*-
 
-# First thing is to try to make sure the default charset is unicode, not ascii:
 import sys
 import locale
 
+# Do this up here, because we may be changing sys.getdefaultencoding:
+defLang, defCharset = locale.getlocale()  ## need to respect this, if set, IIUC
+if defLang is None:
+	defLang = locale.getdefaultlocale()[0]
+	if defLang is None:
+		defLang = "en"
+
+if defCharset is None:
+	defCharset = sys.getfilesystemencoding()
+	if defCharset is None:
+		defCharset = "utf-8"
+
 reload(sys)
-sys.setdefaultencoding(locale.getdefaultlocale()[1])
+sys.setdefaultencoding(defCharset)
 
 import os
 import gettext
 import dabo
+
 
 _appInitialized = False
 _appHasLocale = False
@@ -130,24 +142,23 @@ def setLanguage(lang=None, charset=None, domain="dabo", localedir=None):
 		return False
 		
 
-defLang, defCharset = locale.getdefaultlocale()
+defLang, defCharset = ("en", "utf-8")
+#defLang, defCharset = locale.getdefaultlocale()
 
-if defLang is None:
-	defLang = "en"
-else:
-	defLang = defLang[:2]
-if defCharset is None:
-	defCharset = "UTF-8"
+#if defLang is None:
+#	defLang = "en"
+#else:
+#	defLang = defLang[:2]
+#if defCharset is None:
+#	defCharset = "UTF-8"
 
 setLanguage(domain="dabo")
 
 if __name__ == "__main__":
-	# this code is important for every non-unicode locale  
-	import sys
-	import locale
-	reload(sys)
-	sys.setdefaultencoding(locale.getdefaultlocale()[1])
-	
-	print "user locale is ", locale.getdefaultlocale()
-	print "framework locale is ", defLang, defCharset
-	print _("Framework localization test")
+	print "user default locale:", locale.getdefaultlocale()
+	print "framework locale:", defLang, defCharset
+
+	for lan in ("en", "es"):
+		setLanguage(lan)
+		print "%s:" % lan, _("Framework localization test")
+
