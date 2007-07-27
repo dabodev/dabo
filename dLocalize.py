@@ -65,9 +65,9 @@ def _(s):
 		if app:
 			_appInitialized = True
 			# If appShortName not changed in user app, defaults to "daboapplication"
-			shortName = app.getAppInfo("appShortName")
-			if shortName is not None:
-				_appHasLocale = setLanguage(domain=shortName.lower(),
+			appName = app.getAppInfo("appShortName")
+			if appName is not None:
+				_appHasLocale = setLanguage(domain=appName.lower().replace(" ", "_"),
 						localedir=os.path.join(app.HomeDirectory, _localeDir))
 
 
