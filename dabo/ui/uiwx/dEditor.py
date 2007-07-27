@@ -972,6 +972,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 					if not self._keyWordsSet:
 						self.SetKeyWords(0, " ".join(keyword.kwlist))
 						self._keyWordsSet = True
+				else:
+					# Until we can get other keyword lists, we need to clear this out
+					self.SetKeyWords(0, "")
+					self._keyWordsSet = False
 				dabo.ui.callAfter(self.Colourise, 0, 1)
 		else:
 			self.ClearDocumentStyle()
