@@ -1126,7 +1126,7 @@ class ReportWriter(object):
 			# matplotlib). -- pkm
 			from matplotlib.backends.backend_agg import FigureCanvasAgg as FigureCanvas
 			from matplotlib.figure import Figure
-			## from pylab import *  ## Bad! Please change this to 'import pylab' or to only import the names needed.
+			from pylab import Line2D
 			borderWidth = self.getPt(obj.getProp("borderWidth"))
 			borderColor = obj.getProp("borderColor")
 			mask = obj.getProp("imageMask")
@@ -1197,14 +1197,14 @@ class ReportWriter(object):
 			ax.set_xlim(0, xlocations[-1]+barwidth*2)
 			labels = ax.get_xticklabels() + ax.get_yticklabels()
 			for label in labels:
-				label.set_size(textsize)                        
-                        
-                        canvas.draw()
-                        size = canvas.get_renderer().get_canvas_width_height()
-                        buf=canvas.tostring_rgb()
-                        im=PILImage.fromstring('RGB', size, buf, 'raw', 'RGB', 0, 1)
-                        im.fp = "PILIMAGE"
-                        imageData = ImageReader(im)            
+				label.set_size(textsize)           
+			
+			canvas.draw()
+			size = canvas.get_renderer().get_canvas_width_height()
+			buf=canvas.tostring_rgb()
+			im=PILImage.fromstring('RGB', size, buf, 'raw', 'RGB', 0, 1)
+			im.fp = "PILIMAGE"
+			imageData = ImageReader(im)
 
 			try:
 				c.drawImage(imageData, 0, 0, width, height, mask)
