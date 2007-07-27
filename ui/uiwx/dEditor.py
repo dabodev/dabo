@@ -972,7 +972,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 					if not self._keyWordsSet:
 						self.SetKeyWords(0, " ".join(keyword.kwlist))
 						self._keyWordsSet = True
-					self.Colourise(-1, -1)
+				dabo.ui.callAfter(self.Colourise, 0, 1)
 		else:
 			self.ClearDocumentStyle()
 			self.SetLexer(stc.STC_LEX_CONTAINER)		
