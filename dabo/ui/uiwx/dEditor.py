@@ -244,7 +244,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._codeCompletion = True
 		self._syntaxColoring = True
 		self._language = ""
-		self._keyWordsSet = False
+		self._keyWordsLanguage = ""
 		self._defaultsSet = False
 		self._fontFace = None
 		self._fontSize = None
@@ -969,13 +969,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 			if lex in LexerDic.keys():
 				self.SetLexer(LexerDic[lex])
 				if lex == "python":
-					if not self._keyWordsSet:
+					if not self._keyWordsLanguage == lex:
 						self.SetKeyWords(0, " ".join(keyword.kwlist))
-						self._keyWordsSet = True
+						self._keyWordsLanguage = lex
 				else:
 					# Until we can get other keyword lists, we need to clear this out
 					self.SetKeyWords(0, "")
-					self._keyWordsSet = False
+					self._keyWordsLanguage = ""
 				dabo.ui.callAfter(self.Colourise, 0, 1)
 		else:
 			self.ClearDocumentStyle()
