@@ -1,88 +1,149 @@
-﻿# -*- coding: utf-8 -*-
-import gettext
+# -*- coding: utf-8 -*-
+
+# First thing is to try to make sure the default charset is unicode, not ascii:
+import sys
 import locale
+
+reload(sys)
+sys.setdefaultencoding(locale.getdefaultlocale()[1])
+
 import os
-import re
+import gettext
 import dabo
 
+__app_initialized = False
+__app_has_locale = False
+__dabo_trans = None
+__app_trans = None
+_localedir = "locale"
+_frozenlocaledir = "dabo.locale"
 
-def getLanguages():
-	# Probably need to add more
-	langs = gettext.find("dabo", daboLocaleDir, languages=_trans.keys(), all=True)
-	sep = os.path.sep
-	
-	ret = []
-	for lang in langs:
-		pathparts = lang.split(sep)
-		try:
-			pos = pathparts.index("locale")
-		except ValueError:
-			# frozen App?
-			pos = pathparts.index("dabo.locale")
-		ret.append(pathparts[pos+1])
-	return ret
+language_aliases = {"english": "en",
+		"spanish": "es", "espanol": "es", "español": "es",
+		"french": "fr", "francais": "fr", "français": "fr", 
+		"german": "de", "deutsch": "de",
+		"italian": "it", "italiano": "it", 
+		"portuguese": "pt", "portuguése": "pt",
+		"russian": "ru"}
 
-
-def setLanguage(lang=None, charset=None):
-	global defLang, defCharset, _trans
-	if charset is None:
-		charset = defCharset
-	if lang is None:
-		lang = defLang
-	else:
-		lang = lang.lower()
-		# It might be the full name instead of the two-letter abbreviation
-		if lang not in getLanguages():
-			try:
-				lang = {"english": "en", 
-						"spanish": "es", "espanol": "es", "español": "es",
-						"french": "fr", "francais": "fr", "français": "fr", 
-						"german": "de", "deutsch": "de", 
-						"italian": "it", "italiano": "it", 
-						"portuguese": "pt", "portuguése": "pt",
-						"russian": "ru"}[lang]
-			except KeyError:
-				pass
-	if not lang in getLanguages():
-		raise IOError, "Invalid language '%s' (localeDir: %s)" % (lang, daboLocaleDir)
-	
-	if _trans.get(lang) is None:
-		_trans[lang] = gettext.translation("dabo", daboLocaleDir, 
-				languages=[lang], codeset=charset)
-	defLang = lang
-	
-	
 def _(s):
-	global defLang, _trans
-	return _trans[defLang].gettext(s)
+	"""Translate the passed string into the current language, if possible.   
+
+	Dabo provides translations of common strings into several languages. If a 
+	translation is found for the passed string, it will be returned. Otherwise,
+	the identical string will be returned.
+
+	In addition, user applications can define their own translations, in which
+	case we'll first look for translations in the application's locale directory,
+	and then fall back on Dabo's translations.
+ 
+	Localization files of app should be in under its locale directory, with the .mo
+	file's named after the application's short name. The default application name
+	is "daboapplication", so by default the app's .mo files should be named
+	"daboapplication.mo". 
+	"""
+	global defLang, __app_initialized, __app_has_locale
 	
+	if not __app_initialized:
+		try:
+			app = dabo.dAppRef
+		except AttributeError:
+			app = None
+			
+		if app:
+			__app_initialized = True
+			# If appShortName not changed in user app, defaults to "daboapplication"
+			__app_has_locale = setLanguage(domain=app.getAppInfo("appShortName").lower(),
+					localedir=os.path.join(app.HomeDirectory, _localedir))
+
+
+	# Always return Unicode strings
+	if __app_initialized and __app_has_locale:
+		# Use app's localization, with Dabo's as a fallback:
+		return __app_trans.ugettext(s)
+	else:
+		# App's localization is not in place; use only Dabo's:
+		return __dabo_trans.ugettext(s)
 
 def n_(s):
 	""" Use it if you want to tell translation service about string
 	but don't want to translate it inplace.
 	"""
-	global defLang
-	return _trans[defLang].gettext(s)
+	return s
+	#TODO: wouldn't it be better, if we will use something like _("string",False) in _ function ??? 
+	# i.e. one more argument for _function, telling by default to translate strings ?
+	# def _(s, translate=True):
+	#  pkm: Agree. Actually, can someone give an example of when you'd even want this?
+	#	   Do we use it even?
 
+def setLanguage(lang=None, charset=None, domain="dabo", localedir=None):
+	"""Use it if you want to switch to another localizations than your default.
+	You should call it twice - once for dabo framework, and once for app.
+	"""
+	global defLang, defCharset, __dabo_trans, __app_trans
+	
+	#TODO: we should search system localizations directory as well
 
-daboLocaleDir = os.path.join(os.path.split(dabo.__file__)[0], "locale")
-if not os.path.exists(daboLocaleDir):
-	# Frozen app?
-	# First need to find the directory that contains the .exe:
-	startupDir = daboLocaleDir
-	while startupDir:
-		startupDir = os.path.split(startupDir)[0]
-		if os.path.isdir(startupDir):
-			break
-	daboLocaleDir = os.path.join(startupDir, "dabo.locale")
-#	raise ValueError, daboLocaleDir
+	if localedir is None:
+		localedir = os.path.join(os.path.split(dabo.__file__)[0], _localedir)
+		if not os.path.exists(localedir):
+			# Frozen app?
+			# First need to find the directory that contains the .exe:
+			startupDir = localeDir
+			while startupDir:
+				startupDir = os.path.split(startupDir)[0]
+				if os.path.isdir(startupDir):
+					break
+			if domain == "dabo":
+				frozenLocaleDir = _frozenlocaledir
+			else:
+				frozenLocaleDir = _localedir
+			localedir = os.path.join(startupDir, frozenLocaleDir)
 
-_trans = {"en": None, "fr": None, "es": None, "pt": None, "ru": None, "de": None, "it": None}
-defLang, defCharset = locale.getlocale()
+	if charset is None:
+		charset = defCharset
+
+	if lang is None:
+		lang = defLang
+	else:
+		lang = lang.lower()
+		# It might be the full name instead of the two-letter abbreviation:
+		lang = language_aliases.get(lang, lang)
+		
+	localefile = gettext.find(domain, localedir, languages=[lang], all=True)
+
+	if domain == "dabo":
+		if not localefile:
+			raise IOError, "No translation files found for Dabo. Looked in %s." % localedir
+		__dabo_trans = gettext.translation(domain, localedir, languages=[lang], codeset=charset)
+		defLang = lang
+	else:
+		if localefile:
+			__app_trans = gettext.translation(domain, localedir, languages=[lang], codeset=charset)
+			if __app_trans:
+				__app_trans.add_fallback(__dabo_trans)
+			return bool(__app_trans)
+		return False
+		
+
+defLang, defCharset = locale.getdefaultlocale()
+
 if defLang is None:
 	defLang = "en"
 else:
 	defLang = defLang[:2]
 if defCharset is None:
-	defCharset = "ISO8859-1"
-setLanguage()
+	defCharset = "UTF-8"
+
+setLanguage(domain="dabo")
+
+if __name__ == "__main__":
+	# this code is important for every non-unicode locale  
+	import sys
+	import locale
+	reload(sys)
+	sys.setdefaultencoding(locale.getdefaultlocale()[1])
+	
+	print 'user locale is ', locale.getdefaultlocale()
+	print 'framework locale is ', defLang, defCharset
+	print _("Framework localization test")
