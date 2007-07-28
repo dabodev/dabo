@@ -82,10 +82,10 @@ def getDaboLocaleDir():
 # All kinds of user apps (think appwizard) have the deprecated import of _:
 def _(s):
 	warnings.warn("Please remove your 'from dLocalize import _' statement.", DeprecationWarning, stacklevel=2)
-	__builtins__["_"](s)
+	return __builtins__["_"](s)
 
 def n_(s):
 	warnings.warn("Please remove your 'from dLocalize import n_' statement.", DeprecationWarning, stacklevel=2)
-	__builtins__["_"](s)
+	return s
 
 
