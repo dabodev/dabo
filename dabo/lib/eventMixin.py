@@ -3,7 +3,6 @@ import string
 import types
 import traceback
 import dabo
-from dabo.dLocalize import _
 
 
 class EventMixin(object):

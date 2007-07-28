@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import dPanel, dSizer
 import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 

@@ -121,6 +121,12 @@ pysqlite2: http://initd.org/tracker/pysqlite
 # dApp will change the following values upon its __init__:
 dAppRef = None
 
+# Install localization service for dabo. dApp will install localization service
+# for the user application separately.
+import dLocalize
+dLocalize.install("dabo")
+
+
 # Instantiate the logger object, which will send messages to user-overridable
 # locations. Do this before any other imports.
 from dabo.lib.logger import Log

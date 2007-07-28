@@ -5,7 +5,6 @@ import wx
 import dabo
 import dabo.dException as dException
 import dabo.dEvents as dEvents
-from dabo.dLocalize import _, n_
 from dabo.lib.utils import padl
 from dabo.dObject import dObject
 

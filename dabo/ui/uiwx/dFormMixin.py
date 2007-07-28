@@ -7,7 +7,6 @@ import dPemMixin as pm
 import dBaseMenuBar as mnb
 import dMenu
 import dabo.icons
-from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.lib.xmltodict import xmltodict as XTD

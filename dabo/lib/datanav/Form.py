@@ -6,7 +6,6 @@ import wx
 import dabo.dEvents as dEvents
 import dabo.ui
 from dabo.lib.specParser import importRelationSpecs, importFieldSpecs
-from dabo.dLocalize import _, n_
 import dabo.lib.reportUtils as reportUtils
 import PageFrame
 import Page

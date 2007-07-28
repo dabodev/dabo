@@ -6,7 +6,6 @@ import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 #import dControlMixin as dcm
 from dDataControlMixin import dDataControlMixin as dcm
 import dImageMixin as dim

@@ -24,7 +24,6 @@ some refactoring of the code to handle a situation that is unique to this
 particular database.
 """
 import datetime
-from dabo.dLocalize import _
 from dBackend import dBackend
 
 

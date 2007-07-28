@@ -8,7 +8,6 @@ if __name__ == "__main__":
 import dControlMixin as dcm
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
-from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 

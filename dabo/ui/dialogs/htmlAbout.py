@@ -6,7 +6,6 @@ import dabo, dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 
 
 class HtmlAbout(dabo.ui.dDialog):

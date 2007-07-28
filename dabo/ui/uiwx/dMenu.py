@@ -6,7 +6,6 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dPemMixin as pm
 import dIcons
-from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 

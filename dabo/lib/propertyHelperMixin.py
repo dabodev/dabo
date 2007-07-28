@@ -1,6 +1,5 @@
 # -*- coding: utf-8 -*-
 import string
-from dabo.dLocalize import _
 
 
 class PropertyHelperMixin(object):

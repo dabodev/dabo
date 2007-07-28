@@ -2,7 +2,6 @@
 import wx
 import dabo
 import dabo.dConstants as kons
-from dabo.dLocalize import _
 
 
 class OsDialogMixin(object):

@@ -14,7 +14,6 @@ would issue:
 """
 import os, traceback
 import dabo
-from dabo.dLocalize import _
 
 
 def getUIType():

@@ -2,7 +2,6 @@
 import datetime
 import re
 import dabo
-from dabo.dLocalize import _
 from dBackend import dBackend
 from dCursorMixin import dCursorMixin
 

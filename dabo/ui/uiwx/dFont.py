@@ -3,7 +3,6 @@ import wx
 import decimal
 import dabo
 from dabo.dObject import dObject
-from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 

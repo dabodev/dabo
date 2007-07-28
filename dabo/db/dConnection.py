@@ -1,5 +1,4 @@
 # -*- coding: utf-8 -*-
-from dabo.dLocalize import _
 from dabo.dObject import dObject
 from dConnectInfo import dConnectInfo
 from dCursorMixin import dCursorMixin

@@ -4,7 +4,6 @@ import dabo
 import dabo.ui
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
-from dabo.dLocalize import _
 
 
 class dLed(dabo.ui.dPanel):

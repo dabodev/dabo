@@ -10,7 +10,6 @@ import re
 import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 from dabo.dObject import dObject
 import dabo.ui.dialogs as dlgs
 import dabo.lib.xmltodict as xtd

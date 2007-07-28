@@ -1,7 +1,6 @@
 # -*- coding: utf-8 -*-
 import sys, os, time
 from dabo.dObject import dObject
-from dabo.dLocalize import _
 
 class Log(dObject):
 	""" Generic logger object for Dabo. 

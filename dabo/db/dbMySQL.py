@@ -4,7 +4,6 @@ try:
 	import decimal
 except ImportError:
 	decimal = None
-from dabo.dLocalize import _
 from dBackend import dBackend
 import dabo.dException as dException
 from dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ

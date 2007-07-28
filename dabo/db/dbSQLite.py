@@ -2,7 +2,6 @@
 import sys
 import os
 import re
-from dabo.dLocalize import _
 from dBackend import dBackend
 from dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 from dCursorMixin import dCursorMixin

@@ -2,7 +2,6 @@
 import sys
 import re
 import dabo
-from dabo.dLocalize import _
 import datetime
 
 # Make sure that the user's installation supports Decimal.
