@@ -30,7 +30,7 @@ def install(domain="dabo", localedir=None, unicode_mo=True):
 		localedir = getDaboLocaleDir()
 	_domains[domain] = localedir
 	gettext.install(domain, localedir, unicode=unicode_mo)
-	setLanguage()
+	#setLanguage()  ## worked on Linux, not Mac. Not needed, anyway.
 
 
 def isValidDomain(domain, localedir):
