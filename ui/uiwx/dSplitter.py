@@ -5,7 +5,6 @@ import dabo
 dabo.ui.loadUI("wx")
 import dForm
 import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 import dabo.dColors as dColors
 import dControlMixin as cm
 from dabo.ui import makeDynamicProperty

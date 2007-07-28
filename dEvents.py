@@ -3,7 +3,6 @@ import time
 import dabo
 from dabo.dObject import dObject
 import dabo.ui as ui
-from dabo.dLocalize import _
 
 
 class dEvent(dObject):

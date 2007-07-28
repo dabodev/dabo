@@ -3,7 +3,6 @@ import wx
 import dabo
 import dPemMixin as pm
 import dMenu
-from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
 

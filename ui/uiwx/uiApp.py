@@ -5,7 +5,6 @@ import dabo.ui as ui
 import dabo.dEvents as dEvents
 import dabo.lib.utils as utils
 from dabo.dObject import dObject
-from dabo.dLocalize import _, n_
 import dabo.dConstants as kons
 
 
@@ -882,7 +881,6 @@ def afterInitAll(self):
 ]]>
 		</afterInitAll>
 		<importStatements><![CDATA[
-from dabo.dLocalize import _
 ]]>
 		</importStatements>
 	</code>

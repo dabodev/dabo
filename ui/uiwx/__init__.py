@@ -7,7 +7,6 @@ import urllib
 import datetime
 import time
 import cStringIO
-from dabo.dLocalize import _
 
 ######################################################
 # Very first thing: check for proper wxPython build:

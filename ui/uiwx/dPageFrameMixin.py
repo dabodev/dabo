@@ -8,7 +8,6 @@ if __name__ == "__main__":
 import dControlMixin as cm
 from dPage import dPage
 import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 	
 

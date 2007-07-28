@@ -13,7 +13,6 @@ import dabo.ui.uiwx.dDataControlMixin as dcm
 import dabo.ui.uiwx.dTextBox as dTextBox
 import format
 
-from dabo.dLocalize import _
 
 def _add_properties(parent_name, param_names):
 	ret = []

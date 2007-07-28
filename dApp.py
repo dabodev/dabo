@@ -13,9 +13,10 @@ import shutil
 import dabo
 import dabo.ui
 import dabo.db
+import dLocalize
 from dabo.lib.connParser import importConnections
+from dabo import dLocalize
 import dSecurityManager
-from dLocalize import _
 from dabo.lib.SimpleCrypt import SimpleCrypt
 from dabo.dObject import dObject
 import dUserSettingProvider
@@ -220,6 +221,15 @@ class dApp(dObject):
 		initAppInfo("appShortName", self.getAppInfo("appName").replace(" ", ""))
 		initAppInfo("appVersion", "")
 		initAppInfo("vendorName", "")
+
+		# If there's a locale directory for the app and it looks valid, install it:
+		localeDir = os.path.join(self.HomeDirectory, "locale")
+		localeDomain = self.getAppInfo("appShortName").replace(" ", "_").lower()
+		if os.path.isdir(localeDir) and dLocalize.isValidDomain(localeDomain, localeDir):
+			lang = getattr(self, "_language", None)
+			charset = getattr(self, "_charset", None)
+			dLocalize.install(localeDomain, localeDir)
+			dLocalize.setLanguage(lang, charset)
 
 		self._initDB()
 		
@@ -702,7 +712,8 @@ class dApp(dObject):
 		passed is not one for which there is a translation file, an IOError exception
 		will be raised. You may optionally pass a character set to use.
 		"""
-		dabo.dLocalize.setLanguage(lang, charset)
+		self._language, self._charset = lang, charset
+		dLocalize.setLanguage(lang, charset)
 
 		
 	def showCommandWindow(self, context=None):

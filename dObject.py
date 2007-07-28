@@ -8,7 +8,6 @@ from dabo.lib.doDefaultMixin import DoDefaultMixin
 from dabo.lib.eventMixin import EventMixin
 from dabo.lib.autosuper import autosuper
 from dabo.dPref import dPref
-from dabo.dLocalize import _
 
 class Dummy(object):
 	# Much thanks to Robin Dunn for a workaround to a nasty problem that reared

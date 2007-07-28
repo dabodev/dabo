@@ -3,7 +3,6 @@ import wx
 import dabo
 import dabo.dEvents as dEvents
 from dDataControlMixin import dDataControlMixin
-from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 

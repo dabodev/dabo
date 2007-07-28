@@ -53,7 +53,6 @@ import reportlab.platypus as platypus
 #import reportlab.lib.colors as colors
 from dabo.lib.xmltodict import xmltodict
 from dabo.lib.xmltodict import dicttoxml
-from dabo.dLocalize import _
 from dabo.lib.caselessDict import CaselessDict
 from reportlab.lib.utils import ImageReader
 from StringIO import StringIO

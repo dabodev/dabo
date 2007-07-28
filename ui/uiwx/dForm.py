@@ -8,7 +8,6 @@ if __name__ == "__main__":
 import dabo.dEvents as dEvents
 import dFormMixin as fm
 import dabo.dException as dException
-from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 

@@ -6,7 +6,6 @@ if __name__ == "__main__":
 
 import dTextBoxMixin as tbm
 import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 

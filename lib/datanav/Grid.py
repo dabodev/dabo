@@ -10,7 +10,6 @@ import dabo
 import dabo.ui
 import dabo.dException as dException
 dabo.ui.loadUI("wx")
-from dabo.dLocalize import _, n_
 import dabo.dEvents as dEvents
 
 class Grid(dabo.ui.dGrid):

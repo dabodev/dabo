@@ -2,7 +2,6 @@
 import wx
 import dabo
 import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")

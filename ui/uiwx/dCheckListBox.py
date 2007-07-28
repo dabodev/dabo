@@ -5,7 +5,6 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dControlItemMixin as dcm
 import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 
 
 class dCheckListBox(dcm.dControlItemMixin, wx.CheckListBox):

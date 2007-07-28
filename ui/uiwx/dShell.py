@@ -6,7 +6,6 @@ import wx.py
 from wx.py import pseudo
 import dabo
 import dabo.dEvents as dEvents
-from dabo.dLocalize import _
 from dSplitForm import dSplitForm
 from dabo.ui import makeDynamicProperty
 from dPemMixin import dPemMixin

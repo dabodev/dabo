@@ -6,7 +6,6 @@ import dabo, dabo.ui
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.dObject import dObject
-from dabo.dLocalize import _
 
 
 class dDataControlMixinBase(dabo.ui.dControlMixin):

@@ -3,7 +3,6 @@
 
 import dabo
 import dabo.ui
-from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
 class dControlMixinBase(dabo.ui.dPemMixin):

@@ -2,7 +2,6 @@
 import dabo.ui
 import dabo.dEvents as dEvents
 import Page as pag
-from dabo.dLocalize import _, n_
 
 
 class PageFrameMixin(object):

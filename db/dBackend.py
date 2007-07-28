@@ -3,7 +3,6 @@ import sys
 import re
 import datetime
 import dabo
-from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dabo.db import dTable

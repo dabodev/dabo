@@ -12,7 +12,6 @@ from xml.parsers import expat
 # If we're in Dabo, get the default encoding.
 import dabo
 import dabo.lib.DesignerUtils as desUtil
-from dabo.dLocalize import _
 from dabo.lib.utils import resolvePath
 app = dabo.dAppRef
 if app is not None:

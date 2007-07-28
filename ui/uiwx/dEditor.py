@@ -17,7 +17,6 @@ if __name__ == "__main__":
 
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
-from dabo.dLocalize import _
 import dDataControlMixin as dcm
 import dTimer
 
