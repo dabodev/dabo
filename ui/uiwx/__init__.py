@@ -140,6 +140,11 @@ from dLed import dLed
 import dUICursors as dUICursors
 import dShell
 
+try:
+	from dLinePlot import dLinePlot
+except:
+	pass
+
 # dDockForm is not available with wxPython < 2.7
 if wx.VERSION >= (2, 7):
 	from dDockForm import dDockForm
