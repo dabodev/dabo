@@ -21,6 +21,15 @@ class _TraceMixin(object):
 		self.attributes['legend'] = str(val)
 	
 	
+	def _getPoints(self):
+		return self._points
+	
+	def _setPoints(self, val):
+		for point in val:
+			if not (point is tuple and len(point)==2):
+				raise ValueError, 'Points must be tuples of length 2'
+	
+	
 	def _getTraceColor(self):
 		return self.attributes['colour']
 	
@@ -38,6 +47,9 @@ class _TraceMixin(object):
 	#Property Definitions
 	Caption = property(_getCaption, _setCaption, None,
 			_("The caption in the legend (default='') (str)"))
+	
+	Points = property(_getPoints, _setPoints, None,
+			_("The points that are plotted on the trace (list)"))
 	
 	TraceColor = property(_getTraceColor, _setTraceColor, None,
 			_("The color of the plotted trace.  Must be a wx.NamedColour (default='black') (str)"))
@@ -247,6 +259,35 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 			self._properties["Caption"] = val
 	
 	
+	def _getEnableDrag(self):
+		return self._dragEnabled
+	
+	def _setEnableDrag(self, val):
+		self.SetEnableDrag(val)
+	
+	
+	def _getEnableZoom(self):
+		return self._zoomEnabled
+	
+	def _setEnableZoom(self, val):
+		self.SetEnableZoom(val)
+	
+	
+	def _getFontSize(self):
+		return self._fontSizeTitle
+	
+	def _setFontSize(self, val):
+		self._fontSizeTitle = val
+	
+	
+	def _getLegendFontSize(self):
+		return self._fontSizeLegend
+	
+	def _setLegendFontSize(self, val):
+		self._fontSizeLegend = int(val)
+		self.Redraw()
+	
+	
 	def _getLogScale(self):
 		return self._logscale
 	
@@ -389,6 +430,18 @@ class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 	
 	Caption = property(_getCaption, _setCaption, None,
 			_("Title of the graph (str)"))
+	
+	EnableDrag = property(_getEnableDrag, _setEnableDrag, None,
+			_("Determines whether drag is enabled (bool)"))
+	
+	EnableZoom = property(_getEnableZoom, _setEnableZoom, None,
+			_("Determines whether zoom is enabled"))
+	
+	FontSize = property(_getFontSize, _setFontSize, None,
+			_("The font size of the caption"))
+	
+	LegendFontSize = property(_getLegendFontSize, _setLegendFontSize, None,
+			_("Font size of the legend (default=7) (int)"))
 	
 	LogScale = property(_getLogScale, _setLogScale, None,
 			_("Determines whether each axis is on a logscale (tuple)"))
