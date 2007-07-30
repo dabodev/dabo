@@ -920,6 +920,8 @@ def getFolder(message=_("Choose a folder"), defaultPath="", wildcard="*"):
 	"""
 	return _getPath(dFolderDialog, message=message, defaultPath=defaultPath,
 			wildcard=wildcard)[0]
+# Create an alias that uses 'directory' instead of 'folder'
+getDirectory = getFolder
 
 
 def _getWild(*args):
