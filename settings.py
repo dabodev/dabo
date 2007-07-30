@@ -104,6 +104,8 @@ defaultFontSize = 10
 # Default encoding to use when none is specified
 defaultEncoding = "utf-8"
 
+# Default log file for the dabo.dBug.loggit function
+loggitFile = "functionCall.log"
 
 ### Settings - end
 
