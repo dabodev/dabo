@@ -1928,7 +1928,7 @@ class dBizobj(dObject):
 			columns by referring to 'self.Record.fieldName' (read-only) (no type)"""))
 
 	RequeryChildOnSave = property(_getRequeryChildOnSave, _setRequeryChildOnSave, None,
-			_("Do we requery child bizobjs after a Save()? (bool)"))
+			_("Do we requery child bizobjs after a save()? (bool)"))
 
 	RequeryOnLoad = property(_getRequeryOnLoad, _setRequeryOnLoad, None,
 			_("""When True, the cursor object runs its query immediately. This
