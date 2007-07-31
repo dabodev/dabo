@@ -1,9 +1,20 @@
-# -*- coding: utf-8 -*-
+﻿# -*- coding: utf-8 -*-
+
+import sys
+import locale
 import os
 import gettext
-import locale
 import warnings
 import dabo
+
+
+_defaultLanguage, _defaultEncoding = locale.getlocale()
+
+if _defaultLanguage is None:
+	_defaultLanguage = "en"
+
+if _defaultEncoding is None:
+	_defaultEncoding = "utf-8"
 
 _domains = {}
 
@@ -22,7 +33,7 @@ def install(domain="dabo", localedir=None, unicode_mo=True):
 	Either Dabo will be the only domain, or Dabo will be the fallback for a 
   different domain that the user's application set up.
 	"""
-	global _domains
+	global _domains, _defaultLanguage, _defaultEncoding
 
 	if localedir is None:
 		if domain != "dabo":
@@ -30,7 +41,7 @@ def install(domain="dabo", localedir=None, unicode_mo=True):
 		localedir = getDaboLocaleDir()
 	_domains[domain] = localedir
 	gettext.install(domain, localedir, unicode=unicode_mo)
-	#setLanguage()  ## worked on Linux, not Mac. Not needed, anyway.
+	setLanguage(_defaultLanguage, _defaultEncoding)
 
 
 def isValidDomain(domain, localedir):
