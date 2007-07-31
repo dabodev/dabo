@@ -8,9 +8,9 @@ msgstr ""
 "POT-Creation-Date: 2007-07-18 09:19+EDT\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: Espa–ol <LL@li.org>\n"
+"Language-Team: Espanol <LL@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=latin-1\n"
+"Content-Type: text/plain; charset=utf-8\n"
 "Content-Transfer-Encoding: utf-8\n"
 "Generated-By: pygettext.py 1.5\n"
 
@@ -295,7 +295,7 @@ msgstr ""
 
 #: ./dApp.py:292
 msgid "Application finished."
-msgstr "Applicac’on termino"
+msgstr "Uso acabado."
 
 #: ./dApp.py:411
 msgid "Cannot update file: '%s'. Error: %s"
@@ -1793,31 +1793,31 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:56
 msgid "&Edit"
-msgstr "&Caminar"
+msgstr "&Corrija"
 
 #: ./ui/uiwx/dBaseMenuBar.py:58
 msgid "&Undo"
-msgstr "&Reverso"
+msgstr "&Deshaga"
 
 #: ./ui/uiwx/dBaseMenuBar.py:60
 msgid "Undo last action"
-msgstr "Reverso!"
+msgstr "Deshaga la acci\xc3\xb3n pasada."
 
 #: ./ui/uiwx/dBaseMenuBar.py:62
 msgid "&Redo"
-msgstr "hacer otra vez"
+msgstr "Haga de nuevo"
 
 #: ./ui/uiwx/dBaseMenuBar.py:64
 msgid "Undo last undo"
-msgstr ""
+msgstr "Deshaga deshacen por \xc3\xbaltimo"
 
 #: ./ui/uiwx/dBaseMenuBar.py:68
 msgid "Cu&t"
-msgstr "slicio"
+msgstr "Corte"
 
 #: ./ui/uiwx/dBaseMenuBar.py:70
 msgid "Cut selected text"
-msgstr ""
+msgstr "Corte el texto seleccionado"
 
 #: ./ui/uiwx/dBaseMenuBar.py:72
 msgid "&Copy"
