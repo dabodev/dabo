@@ -4,6 +4,7 @@ import re
 import dabo
 import dabo.dConstants as kons
 from dabo.db.dCursorMixin import dCursorMixin
+from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 

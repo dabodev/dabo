@@ -8,6 +8,7 @@ if __name__ == "__main__":
 import dDataControlMixin as dcm
 import dControlItemMixin as cim
 import dabo.dEvents as dEvents
+from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 

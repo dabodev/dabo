@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """ dFormMixin.py """
 import dPemMixin as pm
+from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
 class dFormMixin(pm.dPemMixin):

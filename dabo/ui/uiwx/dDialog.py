@@ -5,6 +5,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
 import dabo.dConstants as kons
+from dabo.dLocalize import _
 import dFormMixin as fm
 from dabo.ui import makeDynamicProperty
 

@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import warnings
+from dabo.dLocalize import _
 from Form import Form
 from Grid import Grid
 from Page import Page, SelectPage, EditPage, BrowsePage, SortLabel

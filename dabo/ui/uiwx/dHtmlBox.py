@@ -7,6 +7,7 @@ import urllib2
 import urlparse
 import datetime
 import dabo
+from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")

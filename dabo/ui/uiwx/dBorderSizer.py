@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 

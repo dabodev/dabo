@@ -8,6 +8,7 @@ dabo.ui.loadUI("wx")
 
 import dControlMixin as cm
 import dMenu
+from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty

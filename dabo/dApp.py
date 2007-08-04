@@ -14,6 +14,7 @@ import dabo
 import dabo.ui
 import dabo.db
 import dLocalize
+from dabo.dLocalize import _
 from dabo.lib.connParser import importConnections
 from dabo import dLocalize
 import dSecurityManager

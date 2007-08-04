@@ -9,6 +9,7 @@ if __name__ == "__main__":
 
 import dDataControlMixin as dcm
 import dImageMixin as dim
+from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 
 class dToggleButton(dcm.dDataControlMixin, dim.dImageMixin,

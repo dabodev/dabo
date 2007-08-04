@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import time
 from dabo.dObject import dObject
+from dLocalize import _
 
 
 class dSecurityManager(dObject):

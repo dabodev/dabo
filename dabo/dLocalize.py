@@ -17,6 +17,7 @@ if _defaultEncoding is None:
 	_defaultEncoding = "utf-8"
 
 _domains = {}
+_currentTrans = None
 
 _languageAliases = {"english": "en",
 		"spanish": "es", "espanol": "es", "español": "es",
@@ -25,6 +26,16 @@ _languageAliases = {"english": "en",
 		"italian": "it", "italiano": "it", 
 		"portuguese": "pt", "portuguése": "pt",
 		"russian": "ru"}
+
+def _(s):
+	"""Return the localized translation of s, or s if translation not possible."""
+	if _currentTrans is not None:
+		return _currentTrans(s)
+	return s
+
+
+def n_(s):
+	return s
 
 
 def install(domain="dabo", localedir=None, unicode_mo=True):
@@ -40,7 +51,7 @@ def install(domain="dabo", localedir=None, unicode_mo=True):
 			raise ValueError, "Must send your application's localedir explicitly."
 		localedir = getDaboLocaleDir()
 	_domains[domain] = localedir
-	gettext.install(domain, localedir, unicode=unicode_mo)
+	#gettext.install(domain, localedir, unicode=unicode_mo)  ## No, don't globally bind _
 	setLanguage(_defaultLanguage, _defaultEncoding)
 
 
@@ -51,7 +62,7 @@ def isValidDomain(domain, localedir):
 
 def setLanguage(lang=None, charset=None):
 	"""Change the language that strings get translated to, for all installed domains."""
-	global _domains
+	global _domains, _currentTrans
 
 	lang = _languageAliases.get(lang, lang)
 
@@ -62,7 +73,8 @@ def setLanguage(lang=None, charset=None):
 	daboLocaleDir = _domains.get("dabo", None)
 	if daboLocaleDir:
 		daboTranslation = gettext.translation("dabo", daboLocaleDir, languages=lang, codeset=charset)
-		daboTranslation.install()
+#		daboTranslation.install()  ## No, don't globally bind _
+		_currentTrans = daboTranslation.ugettext
 
 	for domain, localedir in _domains.items():
 		if domain == "dabo":
@@ -73,7 +85,8 @@ def setLanguage(lang=None, charset=None):
 			raise IOError, "No translation found for domain '%s' and language %s." % (domain, lang)
 		if daboTranslation:
 			translation.add_fallback(daboTranslation)
-		translation.install()
+#		translation.install()  ## No, don't globally bind _
+		_currentTrans = translation.ugettext
 
 
 def getDaboLocaleDir():
@@ -90,13 +103,15 @@ def getDaboLocaleDir():
 	return localedir
 
 
-# All kinds of user apps (think appwizard) have the deprecated import of _:
-def _(s):
-	warnings.warn("Please remove your 'from dLocalize import _' statement.", DeprecationWarning, stacklevel=2)
-	return __builtins__["_"](s)
-
-def n_(s):
-	warnings.warn("Please remove your 'from dLocalize import n_' statement.", DeprecationWarning, stacklevel=2)
-	return s
-
+if __name__ == "__main__":
+	install()
+	print "sys.getdefaultencoding():", sys.getdefaultencoding()
+	print "locale.getlocale():", locale.getlocale()
+	print "_defaultLanguage, _defaultEncoding:", _defaultLanguage, _defaultEncoding
+	stringsToTranslate = ("Hey", "Application finished.")
+	for lang in set(_languageAliases.values()):
+		print "Setting language to '%s'." % (lang)
+		setLanguage(lang)
+		for s in stringsToTranslate:
+			print "Translating '%s':" % s, _(s)
 

@@ -9,6 +9,7 @@ if __name__ == "__main__":
 
 import dPage
 import dabo.dEvents as dEvents
+from dabo.dLocalize import _
 from dPageFrameMixin import dPageFrameMixin
 
 
