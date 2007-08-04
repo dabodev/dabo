@@ -6,6 +6,7 @@ if __name__ == "__main__":
 
 import dControlMixin as cm
 import dPemMixin as pm
+from dabo.dLocalize import _
 from dIcons import getIconBitmap
 from dabo.ui import makeDynamicProperty
 import dImageMixin as dim

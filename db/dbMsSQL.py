@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+from dabo.dLocalize import _
 from dBackend import dBackend
 
 class MSSQL(dBackend):

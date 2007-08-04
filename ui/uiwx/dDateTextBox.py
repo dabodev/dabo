@@ -8,6 +8,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dDataControlMixin as dcm
 import dabo.dEvents as dEvents
+from dabo.dLocalize import _
 from dTextBox import dTextBox
 from dPanel import dPanel
 from dButton import dButton

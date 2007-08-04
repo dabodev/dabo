@@ -4,6 +4,7 @@ import dabo
 import types
 from dabo.dObject import dObject
 import dabo.dException as dException
+from dabo.dLocalize import _
 
 
 class dPemMixinBase(dObject):

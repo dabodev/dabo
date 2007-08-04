@@ -17,6 +17,7 @@ except ImportError:
 
 import dabo
 import dabo.dConstants as kons
+from dabo.dLocalize import _
 import dabo.dException as dException
 from dabo.dObject import dObject
 from dNoEscQuoteStr import dNoEscQuoteStr

@@ -5,6 +5,7 @@ import dabo, dabo.ui
 dabo.ui.loadUI("wx")
 
 import dTextBoxMixin as tbm
+from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 

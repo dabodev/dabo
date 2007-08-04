@@ -4,6 +4,7 @@ import wx
 import dPemMixin as pm
 import dIcons
 import dabo
+from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 

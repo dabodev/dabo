@@ -3,6 +3,7 @@ import random
 import dabo
 from dabo.lib.connParser import importConnections
 from dabo.dObject import dObject
+from dabo.dLocalize import _
 from dabo.lib.SimpleCrypt import SimpleCrypt
 
 

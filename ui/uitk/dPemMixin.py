@@ -2,6 +2,7 @@
 """ dPemMixin.py: Provide common PEM functionality """
 import sys, types
 import dabo
+from dabo.dLocalize import _
 import dabo.ui.dPemMixinBase
 import dabo.dEvents as dEvents
 

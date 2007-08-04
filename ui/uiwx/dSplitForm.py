@@ -4,6 +4,7 @@ import dabo
 dabo.ui.loadUI("wx")
 from dSplitter import dSplitter
 import dabo.dEvents as dEvents
+from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 

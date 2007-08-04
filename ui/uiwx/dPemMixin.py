@@ -6,6 +6,7 @@ import math
 import wx
 from wx._core import PyAssertionError
 import dabo
+from dabo.dLocalize import _
 from dabo.ui.dPemMixinBase import dPemMixinBase
 import dabo.dEvents as dEvents
 import dabo.dException as dException

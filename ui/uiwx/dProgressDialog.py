@@ -31,6 +31,7 @@ import time
 from threading import *
 import wx
 import dabo
+from dabo.dLocalize import _
 
 ID_CANCEL = wx.NewId()
 EVT_RESULT_ID = wx.NewId()

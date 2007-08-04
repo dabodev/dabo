@@ -2,6 +2,7 @@
 import dabo
 dabo.ui.loadUI("wx")
 import dabo.dEvents as dEvents
+from dabo.dLocalize import _
 
 
 class SortingForm(dabo.ui.dOkCancelDialog):

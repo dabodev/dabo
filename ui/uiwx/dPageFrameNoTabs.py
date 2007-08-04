@@ -5,6 +5,7 @@ from dPage import dPage
 from dPanel import dPanel
 import dabo.dEvents as dEvents
 import dabo.dColors as dColors
+from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 
 

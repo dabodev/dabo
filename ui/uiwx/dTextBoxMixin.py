@@ -16,6 +16,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dDataControlMixin as dcm
+from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
 

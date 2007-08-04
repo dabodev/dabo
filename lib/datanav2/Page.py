@@ -4,15 +4,18 @@ import sys
 import dabo
 import dabo.dException as dException
 import dabo.dEvents as dEvents
+from dabo.dLocalize import _, n_
 from dabo.lib.utils import padl
 from dabo.dObject import dObject
 
 from dabo.ui import dPanel
 import Grid
 
-IGNORE_STRING, CHOICE_TRUE, CHOICE_FALSE = ("-ignore-", "Is True", "Is False")
+IGNORE_STRING, CHOICE_TRUE, CHOICE_FALSE = (n_("-ignore-"),
+		n_("Is True"),
+		n_("Is False") )
 
-ASC, DESC = ("asc", "desc")
+ASC, DESC = (n_("asc"), n_("desc"))
 
 # Controls for the select page:
 class SelectControlMixin(dObject):
@@ -370,24 +373,27 @@ class SelectPage(Page):
 		wordSearch = bool(int(wordSearch))
 		if typ in ("char", "memo"):
 			if typ == "char":
-				chcList = ["Equals", "Begins With",	"Contains"]
+				chcList = [n_("Equals"), 
+						n_("Begins With"),
+						n_("Contains")]
 			elif typ == "memo":
-				chcList = ["Begins With", "Contains"]
+				chcList = [n_("Begins With"),
+						n_("Contains")]
 			if wordSearch:
-				chcList.append("Matches Words")
+				chcList.append(n_("Matches Words"))
 			chc = tuple(chcList)
 		elif typ in ("date", "datetime"):
-			chc = ("Equals",
-					"On or Before",
-					"On or After",
-					"Before",
-					"After")
+			chc = (n_("Equals"),
+					n_("On or Before"),
+					n_("On or After"),
+					n_("Before"),
+					n_("After") )
 		elif typ in ("int", "float", "decimal"):
-			chc = ("Equals", 
-					"Greater than",
-					"Greater than/Equal to",
-					"Less than",
-					"Less than/Equal to")
+			chc = (n_("Equals"), 
+					n_("Greater than"),
+					n_("Greater than/Equal to"),
+					n_("Less than"),
+					n_("Less than/Equal to"))
 		elif typ == "bool":
 			chc = (CHOICE_TRUE, CHOICE_FALSE)
 		else:

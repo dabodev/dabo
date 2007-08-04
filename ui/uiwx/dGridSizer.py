@@ -3,6 +3,7 @@ import wx
 import dabo
 import dPemMixin
 import dSizerMixin
+from dabo.dLocalize import _
 from dabo.ui import makeDynamicProperty
 import warnings
 

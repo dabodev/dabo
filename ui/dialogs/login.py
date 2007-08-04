@@ -8,6 +8,7 @@ import dabo.icons
 if dabo.ui.getUIType() is None:
 	dabo.ui.loadUI("wx")
 
+from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 dKeys = dabo.ui.dKeys
 

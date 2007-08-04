@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import wx
 import dabo
+from dabo.dLocalize import _
 
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")

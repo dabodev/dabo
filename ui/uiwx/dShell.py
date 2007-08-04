@@ -6,6 +6,7 @@ import wx.py
 from wx.py import pseudo
 import dabo
 import dabo.dEvents as dEvents
+from dabo.dLocalize import _
 from dSplitForm import dSplitForm
 from dabo.ui import makeDynamicProperty
 from dPemMixin import dPemMixin
@@ -26,13 +27,6 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 	
 	def _afterInit(self):
 		super(_Shell, self)._afterInit()
-
-		# Workaround for the fact that otherwise, the global _() function will get
-		# replaced by the shell interpreter's default behavior of stuffing the 
-		# results of the last function call into the global _(), resulting in all
-		# subsequent localization attempts failing:
-		self.interp.push("_ = _")
-
 		# Set some font defaults
 		plat = wx.Platform
 		if plat == "__WXGTK__":
@@ -197,7 +191,7 @@ class dShell(dSplitForm):
 
 		# create the output control
 		outControl = dabo.ui.dEditBox(op, RegID="edtOut", 
-				ReadOnly = True)
+				ReadOnly=True)
 		op.Sizer.append1x(outControl)
 		outControl.bindEvent(dEvents.MouseRightDown, 
 				self.outputRightDown)
