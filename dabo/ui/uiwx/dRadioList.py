@@ -320,6 +320,10 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 				self.Sizer.Caption = val
 			except AttributeError:
 				pass
+			try:
+				self.Parent.layout()
+			except:
+				self.layout()
 		else:
 			self._properties["Caption"] = val
 
@@ -404,54 +408,61 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 
 	def _setShowBox(self, val):
 		if self._constructed():
-			if val != self._showBox:
-				self._showBox = val
-				fromSz = self.Sizer
-				if fromSz is None:
-					# Control hasn't been constructed yet
-					return
-				parent = fromSz.Parent
-				isInSizer = fromSz.ControllingSizer is not None
-				if isInSizer:
-					csz = fromSz.ControllingSizer
-					pos = fromSz.getPositionInSizer()
-					szProps = csz.getItemProps(fromSz)
-				if isinstance(fromSz, dabo.ui.dBorderSizer):
-					toCls = fromSz.getNonBorderedClass()
-					toSz = toCls()
-				else:
-					toCls = fromSz.getBorderedClass()
-					toSz = toCls(parent)
-					toSz.Caption = self._caption
-				toSz.Orientation = fromSz.Orientation
-				memberItems = fromSz.Children
-				members = [fromSz.getItem(mem) for mem in memberItems]
-				memberProps = dict.fromkeys(members)
-				szProps = ("Border", "Proportion", "Expand", "HAlign", "VAlign", "BorderSides")
-				for pos, member in enumerate(members):
-					pd = {}
-					for sp in szProps:
-						pd[sp] = fromSz.getItemProp(memberItems[pos], sp)
-					memberProps[member] = pd
-				for member in members[::-1]:
-					try:
-						fromSz.remove(member)
-					except:
-						# probably a spacer
-						pass
-				setSizer = (parent is not None) and (parent.Sizer is fromSz)
-				if setSizer:
-					parent.Sizer = None
-				# Delete the old sizer. 
-				fromSz.release()
-				if setSizer:
-					parent.Sizer = toSz
-				if isInSizer:
-					itm = csz.insert(pos, toSz)
-					csz.setItemProps(itm, szProps)
-				for member in members:
-					itm = toSz.append(member)
-					toSz.setItemProps(itm, memberProps[member])
+			fromSz = self.Sizer
+			if fromSz is None:
+				# Control hasn't been constructed yet
+				dabo.ui.setAfter(self, "ShowBox", val)
+				return
+			self._showBox = val
+			parent = fromSz.Parent
+			isInSizer = fromSz.ControllingSizer is not None
+			if isInSizer:
+				csz = fromSz.ControllingSizer
+				pos = fromSz.getPositionInSizer()
+				szProps = csz.getItemProps(fromSz)
+			isBorderSz = isinstance(fromSz, dabo.ui.dBorderSizer)
+			needChange = (val and not isBorderSz) or (not val and isBorderSz)
+			if not needChange:	
+				return
+			if isBorderSz:
+				toCls = fromSz.getNonBorderedClass()
+				toSz = toCls()
+			else:
+				toCls = fromSz.getBorderedClass()
+				toSz = toCls(parent)
+				toSz.Caption = self._caption
+			toSz.Orientation = fromSz.Orientation
+			memberItems = fromSz.Children
+			members = [fromSz.getItem(mem) for mem in memberItems]
+			memberProps = dict.fromkeys(members)
+			szProps = ("Border", "Proportion", "Expand", "HAlign", "VAlign", "BorderSides")
+			for pos, member in enumerate(members):
+				pd = {}
+				for sp in szProps:
+					pd[sp] = fromSz.getItemProp(memberItems[pos], sp)
+				memberProps[member] = pd
+			for member in members[::-1]:
+				try:
+					fromSz.remove(member)
+				except:
+					# probably a spacer
+					pass
+			setSizer = (parent is not None) and (parent.Sizer is fromSz)
+			if setSizer:
+				parent.Sizer = None
+			# Delete the old sizer. 
+			fromSz.release()
+			if setSizer:
+				parent.Sizer = toSz
+			if isInSizer:
+				itm = csz.insert(pos, toSz)
+				csz.setItemProps(itm, szProps)
+			for member in members:
+				itm = toSz.append(member)
+				toSz.setItemProps(itm, memberProps[member])
+			try:
+				self.Parent.layout()
+			except:
 				self.layout()
 		else:
 			self._properties["ShowBox"] = val
@@ -532,6 +543,9 @@ class dRadioList(cim.dControlItemMixin, wx.Panel):
 	
 
 class _dRadioList_test(dRadioList):
+# 	def initProperties(self):
+# 		self.ShowBox = False
+		
 	def afterInit(self):
 		self.Caption = "Developers"
 		self.BackColor = "lightyellow"
