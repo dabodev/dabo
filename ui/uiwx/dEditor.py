@@ -252,7 +252,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._selectionBackColor = None
 		self._selectionForeColor = None
 		self._title = ""
-				
+		self._importPat = re.compile(r"\bimport\b")
+
 		stc.StyledTextCtrl.__init__(self, parent, -1, 
 				style = wx.NO_BORDER)
 		dcm.dDataControlMixin.__init__(self, name, properties, attProperties, 
@@ -1690,20 +1691,11 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		
 	
 	def _fillNamespaces(self):
-		"""Get the names that will exist at runtime into the _namespaces dict."""
+		"""Get as many of the names that will exist at runtime as possible 
+		into the _namespaces dict. We do this by finding all the 'import' 
+		statements and executing them into the _namespaces dict.
+		"""
 		self._namespaces = {}
-		# Execute the script line-by-line, into self._namespaces.
-		# Ignore any errors. Note: if this editor gets slow, this
-		# is likely the reason. It needs to be line by line, otherwise
-		# if there are any errors the entire script will fail.
-
-		# This whole process is really unsafe... the user code could, for
-		# example, change the current working directory or some other "global"
-		# effect.
-		
-		# Only execute the script up to the current line to save
-		# unnecessary cycles.
-
 		# Need to save and restore sys.stderr and sys.stdout, as
 		# code.InteractiveConsole sends output there, cluttering up
 		# my terminal during debug. Also made a subclass to override
@@ -1717,10 +1709,12 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		
 		ic = IC(self._namespaces)
 		for lineNum in range(self.LineNumber + 1):
-			line = self.GetLine(lineNum).rstrip()
-			try:
-				ic.push(line)
-			except StandardError, e: pass
+			line = self.GetLine(lineNum).strip()
+			if self._importPat.search(line):
+				# It's an 'import' statement, or at least a line that contains the word 'import'.
+				try:
+					ic.push(line)
+				except StandardError, e: pass
 		sys.stderr, sys.stdout = stdErr, stdOut
 
 
