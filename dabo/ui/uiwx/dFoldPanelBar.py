@@ -180,9 +180,9 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 	def _setCollapsed(self, val):
 		if val:
-			self._bar.Collapse(self)
+			self._bar.collapse(self)
 		else:
-			self._bar.Expand(self)
+			self._bar.expand(self)
 
 
 	def _getExpanded(self):
@@ -190,9 +190,9 @@ class dFoldPanel(dcm.dControlMixin, fpb.FoldPanelItem):
 
 	def _setExpanded(self, val):
 		if val:
-			self._bar.Expand(self)
+			self._bar.expand(self)
 		else:
-			self._bar.Collapse(self)
+			self._bar.collapse(self)
 
 
 	def _getParent(self):
@@ -315,6 +315,7 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 		self.raiseEvent(dEvents.FoldPanelChange, 
 				self._createCapBarEvt(pnl))
 
+
 	# Throw in Dabo-style wrapper names
 	expand = Expand
 	collapse = Collapse
@@ -399,17 +400,17 @@ class dFoldPanelBar(dcm.dControlMixin, wx.lib.foldpanelbar.FoldPanelBar):
 			if curr is not None:
 				if curr is not evtPanel:
 					# Close the current one
-					curr.Collapsed = True
+					dabo.ui.callAfter(self.collapse, curr)
 			self.__openPanel = evtPanel
 		else:
 			# The panel is closing. If it was the current panel, 
 			# keep it open.
 			if curr is None:
 				# This is the first panel being added; keep it open
-				evtPanel.Expanded = True
+				self.expand(evtPanel)
 				self.__openPanel = evtPanel
 			elif curr is evtPanel:
-				curr.Expanded = True
+				self.expand(curr)
 		if changing:
 			self.layout()
 			dabo.ui.callAfter(self.sizePanelHeights)

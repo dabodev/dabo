@@ -40,6 +40,17 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 			self.FontSize = 10	
 
 
+# 	def processLine(self):
+# 		"""This is a workaroundfor the fact that otherwise, the global _() function 
+# 		will get replaced by the Python interpreter's default behavior of stuffing 
+# 		the results of the last evaluation into the __builtin__ module's '_' attribute.
+# 		This results in all subsequent localization attempts failing, so after every line
+# 		that executes we re-assign the value to the one held in dabo.dLocalize.
+# 		"""
+# 		super(_Shell, self).processLine()
+# 		__builtin__._ = dabo.dLocalize._translationFunction
+		
+
 	def setDefaultFont(self, fontFace, fontSize):
 		# Global default styles for all languages
 		self.StyleSetSpec(stc.STC_STYLE_DEFAULT, "face:%s,size:%d" % (fontFace, fontSize))
@@ -47,60 +58,60 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 
 		# Global default styles for all languages
 		self.StyleSetSpec(stc.STC_STYLE_DEFAULT,
-			"face:%s,size:%d" % (self._fontFace, fontSize))
+				"face:%s,size:%d" % (self._fontFace, fontSize))
 		self.StyleSetSpec(stc.STC_STYLE_LINENUMBER,
-			"back:#C0C0C0,face:%s,size:%d" % (self._fontFace, 8))
+				"back:#C0C0C0,face:%s,size:%d" % (self._fontFace, 8))
 		self.StyleSetSpec(stc.STC_STYLE_CONTROLCHAR,
-			"face:%s" % fontFace)
+				"face:%s" % fontFace)
 		self.StyleSetSpec(stc.STC_STYLE_BRACELIGHT,
-			"fore:#000000,back:#00FF00,bold")
+				"fore:#000000,back:#00FF00,bold")
 		self.StyleSetSpec(stc.STC_STYLE_BRACEBAD,
-			"fore:#000000,back:#FF0000,bold")
+				"fore:#000000,back:#FF0000,bold")
 
 
 	def setPyFont(self, fontFace, fontSize):
 		# Python-specific styles
 		self.StyleSetSpec(stc.STC_P_DEFAULT,
-			"fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
+				"fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
 		# Comments
 		self.StyleSetSpec(stc.STC_P_COMMENTLINE,
-			"fore:#007F00,face:%s,size:%d,italic" % (fontFace, fontSize))
+				"fore:#007F00,face:%s,size:%d,italic" % (fontFace, fontSize))
 		# Number
 		self.StyleSetSpec(stc.STC_P_NUMBER,
-			"fore:#007F7F,size:%d" % fontSize)
+				"fore:#007F7F,size:%d" % fontSize)
 		# String
 		self.StyleSetSpec(stc.STC_P_STRING,
-			"fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
+				"fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
 		# Single quoted string
 		self.StyleSetSpec(stc.STC_P_CHARACTER,
-			"fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
+				"fore:#7F007F,face:%s,size:%d" % (fontFace, fontSize))
 		# Keyword
 		self.StyleSetSpec(stc.STC_P_WORD,
-			"fore:#00007F,bold,size:%d" % fontSize)
+				"fore:#00007F,bold,size:%d" % fontSize)
 		# Triple quotes
 		self.StyleSetSpec(stc.STC_P_TRIPLE,
-			"fore:#7F0000,size:%d,italic" % fontSize)
+				"fore:#7F0000,size:%d,italic" % fontSize)
 		# Triple double quotes
 		self.StyleSetSpec(stc.STC_P_TRIPLEDOUBLE,
-			"fore:#7F0000,size:%d,italic" % fontSize)
+				"fore:#7F0000,size:%d,italic" % fontSize)
 		# Class name definition
 		self.StyleSetSpec(stc.STC_P_CLASSNAME,
-			"fore:#0000FF,bold,underline,size:%d" % fontSize)
+				"fore:#0000FF,bold,underline,size:%d" % fontSize)
 		# Function or method name definition
 		self.StyleSetSpec(stc.STC_P_DEFNAME,
-			"fore:#007F7F,bold,size:%d" % fontSize)
+				"fore:#007F7F,bold,size:%d" % fontSize)
 		# Operators
 		self.StyleSetSpec(stc.STC_P_OPERATOR,
-			"bold,size:%d" % fontSize)
+				"bold,size:%d" % fontSize)
 		# Identifiers
 		self.StyleSetSpec(stc.STC_P_IDENTIFIER,
-			"fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
+				"fore:#000000,face:%s,size:%d" % (fontFace, fontSize))
 		# Comment-blocks
 		self.StyleSetSpec(stc.STC_P_COMMENTBLOCK,
-			"fore:#7F7F7F,size:%d,italic" % fontSize)
+				"fore:#7F7F7F,size:%d,italic" % fontSize)
 		# End of line where string is not closed
 		self.StyleSetSpec(stc.STC_P_STRINGEOL,
-			"fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize))
+				"fore:#000000,face:%s,back:#E0C0E0,eol,size:%d" % (fontFace, fontSize))
 	
 
 	def _getFontSize(self):
@@ -134,7 +145,6 @@ class _Shell(dPemMixin, wx.py.shell.Shell):
 	
 	FontSize = property(_getFontSize, _setFontSize, None,
 			_("Size of the font used in the shell  (int)"))
-	
 
 
 
