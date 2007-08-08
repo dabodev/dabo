@@ -1643,7 +1643,11 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				break
 		if args:
 			classdef = "class self(%s): pass" % args
-			exec classdef in self._namespaces
+			try:
+				exec classdef in self._namespaces
+			except NameError:
+				# Class is not in the namespace
+				pass
 
 		
 	def _getRuntimeObject(self, runtimeObjectName):
