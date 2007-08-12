@@ -2,14 +2,15 @@
 import wx
 import wx.lib.plot as plot
 
+import numpy.oldnumeric as _Numeric
+
 import dabo
 import dabo.dEvents as dEvents
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 import dControlMixin as cm
 from dabo.ui import makeDynamicProperty
-
-import numpy.oldnumeric as _Numeric
+from dabo.dLocalize import _
 
 
 class _TraceMixin(object):
