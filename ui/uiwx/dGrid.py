@@ -3358,8 +3358,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			def onHit(evt):
 				self._checkBoxToggled(editor)
 
-			ed = self._activeEditorControl = evt.Control
-			ed.WindowStyle |= wx.WANTS_CHARS
+			ed = self._activeEditorControl = evt.GetControl()
+			style = ed.GetWindowStyle()
+			style |= wx.WANTS_CHARS
+			ed.SetWindowStyle(style)
 			ed.Bind(wx.EVT_KEY_DOWN, onKeyDown)
 			ed.Bind(wx.EVT_CHECKBOX, onHit)
 		evt.Skip()
