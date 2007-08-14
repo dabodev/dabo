@@ -1,9 +1,9 @@
 # -*- coding: utf-8 -*-
-# The following 2 lines are the only thing you should change in this file.
+# The following 3 lines are the only thing you should change in this file.
 # Everything else is boilerplate copied also to other dabo repositories.
 package_name = "dabo"
 _version = "0.9a"
-
+_approximateRevision = "HEAD"
 
 import os
 import lib
@@ -22,12 +22,9 @@ if os.path.exists(os.path.join(package_path, ".svn")):
 		_revision = None
 
 if _revision is None:
-	# Okay, svninfo not available, which probably means svn isn't present, which
-	# means the version information in lib._daborevs will likely be correct. That
-	# revision information reflects the current revision at the time the 
-	# distribution was rolled up.
-	from lib._daborevs import _revs
-	_revision = _revs.get(package_name, "")
+	# Subversion doesn't appear to be installed, so just go with the approximate
+	# revision, which we update manually when rolling up new tagged versions.
+	_revision = "~%s" % _approximateRevision
 
 version = {"version": _version,
 		"revision": _revision}
