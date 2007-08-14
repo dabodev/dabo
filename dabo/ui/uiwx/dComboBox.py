@@ -26,6 +26,15 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 		dcm.dControlItemMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 
 
+	def _preInitUI(self, kwargs):
+		print kwargs
+		style = kwargs.get("style", 0)
+		style |= wx.PROCESS_ENTER
+		kwargs["style"] = style
+		print kwargs
+		return kwargs
+
+
 	def _initEvents(self):
 		super(dComboBox, self)._initEvents()
 		self.Bind(wx.EVT_COMBOBOX, self.__onComboBox)
