@@ -21,61 +21,70 @@ from dabo.dLocalize import _
 import dDataControlMixin as dcm
 import dTimer
 
-LexerDic = {"ada":stc.STC_LEX_ADA,
-				"ave":stc.STC_LEX_AVE,
-				"baan":stc.STC_LEX_BAAN,
-				"batch":stc.STC_LEX_BATCH,
-				"bullant":stc.STC_LEX_BULLANT,
-				"config":stc.STC_LEX_CONF,
-				"container":stc.STC_LEX_CONTAINER,
-				"c++":stc.STC_LEX_CPP,
-				"diff":stc.STC_LEX_DIFF,
-				"eiffel":stc.STC_LEX_EIFFEL,
-				"eiffelKw":stc.STC_LEX_EIFFELKW,
-				"errorlist":stc.STC_LEX_ERRORLIST,
-				"html":stc.STC_LEX_HTML,
-				"latex":stc.STC_LEX_LATEX,
-				"lisp":stc.STC_LEX_LISP,
-				"lua":stc.STC_LEX_LUA,
-				"makefile":stc.STC_LEX_MAKEFILE,
-				"matlab":stc.STC_LEX_MATLAB,
-				"nncrontab":stc.STC_LEX_NNCRONTAB,
-				"plain text":stc.STC_LEX_NULL,
-				"pascal":stc.STC_LEX_PASCAL,
-				"perl":stc.STC_LEX_PERL,
- 				"php":stc.STC_LEX_PHPSCRIPT,
-				"props":stc.STC_LEX_PROPERTIES,
-				"python":stc.STC_LEX_PYTHON,
-				"ruby":stc.STC_LEX_RUBY,
-				"sql":stc.STC_LEX_SQL,
-				"tcl":stc.STC_LEX_TCL,
-				"vb":stc.STC_LEX_VB,
-				"vbscript":stc.STC_LEX_VBSCRIPT,
-				"xcode":stc.STC_LEX_XCODE,
-				"xml":stc.STC_LEX_XML}
+LexerDic = {
+		"ada": stc.STC_LEX_ADA,
+		"ave": stc.STC_LEX_AVE,
+		"baan": stc.STC_LEX_BAAN,
+		"batch": stc.STC_LEX_BATCH,
+		"bullant": stc.STC_LEX_BULLANT,
+		"config": stc.STC_LEX_CONF,
+		"container": stc.STC_LEX_CONTAINER,
+		"c++": stc.STC_LEX_CPP,
+		"diff": stc.STC_LEX_DIFF,
+		"eiffel": stc.STC_LEX_EIFFEL,
+		"eiffelKw": stc.STC_LEX_EIFFELKW,
+		"errorlist": stc.STC_LEX_ERRORLIST,
+		"html": stc.STC_LEX_HTML,
+		"latex": stc.STC_LEX_LATEX,
+		"lisp": stc.STC_LEX_LISP,
+		"lua": stc.STC_LEX_LUA,
+		"makefile": stc.STC_LEX_MAKEFILE,
+		"matlab": stc.STC_LEX_MATLAB,
+		"nncrontab": stc.STC_LEX_NNCRONTAB,
+		"plain text": stc.STC_LEX_NULL,
+		"pascal": stc.STC_LEX_PASCAL,
+		"perl": stc.STC_LEX_PERL,
+		"php": stc.STC_LEX_PHPSCRIPT,
+		"props": stc.STC_LEX_PROPERTIES,
+		"python": stc.STC_LEX_PYTHON,
+		"ruby": stc.STC_LEX_RUBY,
+		"sql": stc.STC_LEX_SQL,
+		"tcl": stc.STC_LEX_TCL,
+		"vb": stc.STC_LEX_VB,
+		"vbscript": stc.STC_LEX_VBSCRIPT,
+		"xcode": stc.STC_LEX_XCODE,
+		"xml": stc.STC_LEX_XML}
 
-fileFormatsDic = {".ada":"ada",
-						".bat":"batch",
-						".cfg":"config",
-						".config":"config",
-						".c":"c++",
-						".h":"c++",
-						".cpp":"c++",
-						".diff":"diff",
-						".html":"html",
-						".htm":"html",
-						".css":"html",
-						".tex":"latex",
-						".cls":"latex",
-						".py":"python",
-						".pyw":"python",
-						".php":"php",
-						".txt":"plain text",
-						".cdxml":"xml",
-						".cnxml":"xml",
-						".mnxml":"xml",
-						".rfxml":"xml",
-						".xml":"xml"}
+fileFormatsDic = {
+		".ada": "ada",
+		".bat": "batch",
+		".cfg": "config",
+		".config": "config",
+		".c": "c++",
+		".h": "c++",
+		".cpp": "c++",
+		".diff": "diff",
+		".html": "html",
+		".htm": "html",
+		".css": "html",
+		".tex": "latex",
+		".cls": "latex",
+		".lsp": "lisp",
+		".pas": "pascal",
+		".py": "python",
+		".pyw": "python",
+		".php": "php",
+		".pl": "perl",
+		".rb": "ruby",
+		".ruby": "ruby",
+		".sql": "sql",
+		".txt": "plain text",
+		".vbs": "vbscript",
+		".cdxml": "xml",
+		".cnxml": "xml",
+		".mnxml": "xml",
+		".rfxml": "xml",
+		".xml": "xml"}
 
 
 ## testing load performance:
@@ -243,7 +252,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._showCallTips = True
 		self._codeCompletion = True
 		self._syntaxColoring = True
-		self._language = ""
+		self._language = "plain text"
 		self._keyWordsLanguage = ""
 		self._defaultsSet = False
 		self._fontFace = None
@@ -253,6 +262,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		self._selectionForeColor = None
 		self._title = ""
 		self._importPat = re.compile(r"\bimport\b")
+		self._classPat = re.compile(r"^\s*class ([^\(]+)\(([^\)]*?)\)")
+		self._defPat = re.compile(r"^\s*def ")
 
 		stc.StyledTextCtrl.__init__(self, parent, -1, 
 				style = wx.NO_BORDER)
@@ -962,6 +973,13 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if self.AutoCompActive():
 			self.AutoCompCancel()
 			
+	
+	def getAvailableLanguages(self):
+		"""Returns an alphabetical list of all languages we have lexers for."""
+		ret = LexerDic.keys()
+		ret.sort()
+		return ret
+		
 		
 	def setSyntaxColoring(self, color=None):
 		"""Sets the appropriate lexer for syntax coloring."""
@@ -1144,9 +1162,8 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		if obj is not None:
 			kw = []
 			pos = self.GetCurrentPos()
-			for k in dir(obj):
-				if k[0] != "_":
-					kw.append(k)
+			kw = [k for k in dir(obj)
+				if not k.startswith("_")]
 			
 			# Sort upper case:
 			kw.sort(lambda a,b: cmp(a.upper(), b.upper()))
@@ -1675,10 +1692,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		# Different editor usages may require additional namespace
 		# hacks, such as the above. This is a hook for adding such hacks.
 		self._namespaceHacks()
-		try:
-			o = self._namespaces[outerObjectName]
-		except KeyError:
-			o = None
+		o = self._namespaces.get(outerObjectName)
 		if o is not None:
 			innerObjectNames = '.'.join(s[1:])
 			if len(innerObjectNames) > 0:
@@ -1699,31 +1713,49 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 		into the _namespaces dict. We do this by finding all the 'import' 
 		statements and executing them into the _namespaces dict.
 		"""
+		def genRange(rng):
+			curr = 0
+			while curr < rng:
+				yield curr
+				curr += 1
+				
 		self._namespaces = {}
-		# Need to save and restore sys.stderr and sys.stdout, as
-		# code.InteractiveConsole sends output there, cluttering up
-		# my terminal during debug. Also made a subclass to override
-		# the write() method for the same reason.
-		stdErr, stdOut = sys.stderr, sys.stdout
-		sys.stderr, sys.stdout = None, None
-		
-		class IC(code.InteractiveConsole):
-			def write(self, string):
-				pass
-		
-		ic = IC(self._namespaces)
-		for lineNum in range(self.LineNumber + 1):
-			line = self.GetLine(lineNum).strip()
+		code2exec = []
+		numGen = genRange(self.LineNumber + 1)
+		for lineNum in numGen:
+			line = self.GetLine(lineNum).rstrip()
+			if not line.strip() or line.strip().startswith("#"):
+				continue
+				
 			if self._importPat.search(line):
 				# It's an 'import' statement, or at least a line that contains the word 'import'.
-				try:
-					ic.push(line)
-				except StandardError, e: pass
-		sys.stderr, sys.stdout = stdErr, stdOut
+				code2exec.append(line)
+				
+			elif self._classPat.search(line):
+				# It's a class definition statement.
+				code2exec.append(line)
+
+			elif self._defPat.search(line):
+				# Add that def, but ignore any code
+				while line.endswith("\n"):
+					line = line[:-1]
+				while not line.rstrip().endswith(":"):
+					# Continued line
+					lineNum += numGen.next()
+					nextLine = self.GetLine(lineNum).strip()
+					line = "%s %s" % (line, nextLine)
+				line += " pass"
+				code2exec.append(line)
+
+		if code2exec:
+			cd = "\n".join(code2exec)
+			try:
+				exec cd in self._namespaces
+			except StandardError, e:
+				pass
 
 
 	### Property definitions start here
-	
 	def _getAutoAutoComplete(self):
 		try:
 			return self._autoAutoComplete
