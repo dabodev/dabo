@@ -2907,8 +2907,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if dragging:
 			x,y = evt.EventData["mousePosition"]
 
-			if not headerIsSizing and 
-					(self.getColNumByX(x) == self.getColNumByX(x-5) == self.getColNumByX(x+5)):
+			if not headerIsSizing and (self.getColNumByX(x) == self.getColNumByX(x-5) == self.getColNumByX(x+5)):
 				if not headerIsDragging:
 					if self.MovableColumns:
 						# A header reposition is beginning
