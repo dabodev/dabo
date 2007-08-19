@@ -2,7 +2,9 @@
 import sys
 import os
 import re
+import dabo
 from dabo.dLocalize import _
+from dabo.dException import dException
 from dBackend import dBackend
 from dNoEscQuoteStr import dNoEscQuoteStr as dNoEQ
 from dCursorMixin import dCursorMixin
@@ -69,25 +71,35 @@ class SQLite(dBackend):
 		return qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
 	
 	
-	def setAutoCommitStatus(self, cursor, val):
-		"""SQLite doesn't use an 'autocommit()' method. Instead,
-		set the isolation_level property of the connection.
-		"""
-		if val:
-			self._connection.isolation_level = None
-		else:
-			self._connection.isolation_level = ""
-		self._autoCommit = val
-		
-	
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction. Since pysqlite does an implicit
-		'begin' even when not using autocommit, simply do nothing.
+		'begin' all the time, simply do nothing.
 		"""
+		dabo.dbActivityLog.write("SQL: begin (implicit, nothing done)")
 		pass
-	
+
+
+	def commitTransaction(self, cursor):
+		""" Commit a SQL transaction."""
+		try:
+			cursor.execute("COMMIT")
+			dabo.dbActivityLog.write("SQL: commit")
+		except Exception, e:
+			if "no transaction is active" in str(e):
+				pass
+			else:
+				dabo.dbActivityLog.write("SQL: commit failed: %s" % e)
+				raise dException.DBQueryException, e			
+
+
+	def rollbackTransaction(self, cursor):
+		""" Rollback a SQL transaction."""
+		cursor.execute("ROLLBACK")
+		dabo.dbActivityLog.write("SQL: rollback")
+
 	
 	def flush(self, crs):
+		dabo.dbActivityLog.write("SQL: flush")
 		self._connection.commit()
 
 

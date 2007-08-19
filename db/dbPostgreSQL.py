@@ -13,7 +13,6 @@ class Postgres(dBackend):
 		#self.dbModuleName = "pgdb"
 		#self.dbModuleName = "PgSQL"
 		self.dbModuleName = "psycopg"
-		self.useTransactions = True  # this does not appear to be required
 		self.conn_user = ''
 
 
@@ -222,7 +221,8 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 		to the database written to disk.
 		"""
 		self.commitTransaction(cursor)
-		
+
+
 	def getLastInsertID(self, cursor):
 		""" Return the ID of the last inserted row, or None.
 		

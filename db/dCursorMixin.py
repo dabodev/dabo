@@ -352,7 +352,6 @@ class dCursorMixin(dObject):
 			# Redundant!
 			return
 		ac = self.AuxCursor
-		ac.AutoCommit = self.AutoCommit
 		ac.AutoPopulatePK = self.AutoPopulatePK
 		ac.AutoQuoteNames = self.AutoQuoteNames
 		ac.DataStructure = self.DataStructure
@@ -1056,7 +1055,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			raise dException.NoRecordsException, _("No records in data set")
 
 
-	def save(self, allRows=False, useTransaction=False):
+	def save(self, allRows=False):
 		""" Save any changes to the data back to the data store."""
 		# Make sure that there is data to save
 		if self.RowCount <= 0:
@@ -1068,26 +1067,20 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			try:
 				self.__saverow(row)
 			except dException.DBQueryException, e:
-				# Error was raised. Exit and rollback the changes if
-				# this object started the transaction.
+				# Error was encountered. Raise an exception so that the
+				# calling bizobj can rollback the transaction if necessary
 				dabo.dbActivityLog.write(_("DBQueryException encountered in save(): %s") % e)
-				if useTransaction:
-					self.rollbackTransaction()
 				raise dException.DBQueryException, e
 			except StandardError, e:
 				if "connect" in str(e).lower():
 					dabo.dbActivityLog.write(_("Connection Lost exception encountered in saverow(): %s") % e)
 					raise dException.ConnectionLostException, e
 				else:
-					# Error was raised. Exit and rollback the changes if
-					# this object started the transaction.
-					if useTransaction:
-						self.rollbackTransaction()
+					# Error was encountered. Raise an exception so that the
+					# calling bizobj can rollback the transaction if necessary
 					raise
 
 		self._syncAuxProperties()
-		if useTransaction:
-			self.beginTransaction()
 
 		# Faster to deal with 2 specific cases: all rows or just current row
 		if allRows:
@@ -1099,9 +1092,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			pk = self.pkExpression()
 			if pk in self._mementos.keys():
 				saverow(self.RowNumber)
-
-		if useTransaction:
-			self.commitTransaction()
 
 
 	def __saverow(self, row):
@@ -1726,8 +1716,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Begin a SQL transaction."""
 		ret = None
 		if self.BackendObject:
-			if not self.AutoCommit:
-				ret = self.BackendObject.beginTransaction(self.AuxCursor)
+			ret = self.BackendObject.beginTransaction(self.AuxCursor)
 		return ret
 
 
@@ -1735,8 +1724,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		""" Commit a SQL transaction."""
 		ret = None
 		if self.BackendObject:
-			if not self.AutoCommit:
-				ret = self.BackendObject.commitTransaction(self.AuxCursor)
+			ret = self.BackendObject.commitTransaction(self.AuxCursor)
 		return ret
 
 
@@ -2014,14 +2002,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	## Property getter/setter methods ##
-	def _getAutoCommit(self):
-		return self.BackendObject.getAutoCommitStatus(self)
-
-
-	def _setAutoCommit(self, val):
-		self.BackendObject.setAutoCommitStatus(self, val)
-
-
 	def _getAutoSQL(self):
 		return self.getSQL()
 
@@ -2251,9 +2231,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		assert isinstance(val, dict)
 		self._virtualFields = val
 
-
-	AutoCommit = property(_getAutoCommit, _setAutoCommit, None,
-			_("Do we need explicit begin/commit/rollback commands for transactions?  (bool)"))
 
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None,
 			_("When inserting a new record, does the backend populate the PK field?"))

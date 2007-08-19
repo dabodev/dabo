@@ -25,9 +25,6 @@ class dBackend(dObject):
 
 	def __init__(self):
 		self._baseClass = dBackend
-		self._autoCommit = False
-		# This forces the setting on the connection
-		self.AutoCommit = False
 		super(dBackend, self).__init__()
 		self.dbModuleName = None
 		self._connection = None
@@ -196,31 +193,16 @@ class dBackend(dObject):
 		return tuple([(d[0], self.getDaboFieldType(d[1]), None) for d in cursorDescription])
 
 
-	def getAutoCommitStatus(self, cursor):
-		return self._autoCommit
-
-
-	def setAutoCommitStatus(self, cursor, val):
-		if hasattr(self._connection, "autocommit"):
-			self._connection.autocommit(val)
-			self._autoCommit = val
-		else:
-			# Without an autocommit method, assume no autocommit.
-			self._autoCommit = False
-			if val:
-				raise ValueError, "Can't set AutoCommit to True for this backend."
-
-
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction. Override in subclasses if needed."""
-		pass
+		self._connection.begin()
+		dabo.dbActivityLog.write("SQL: begin")
 
 
 	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
-		if not cursor.AutoCommit:
-			self._connection.commit()
-			dabo.dbActivityLog.write("SQL: commit")
+		self._connection.commit()
+		dabo.dbActivityLog.write("SQL: commit")
 
 
 	def rollbackTransaction(self, cursor):

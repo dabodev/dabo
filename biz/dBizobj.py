@@ -60,7 +60,6 @@ class dBizobj(dObject):
 		self._restorePositionOnRequery = True
 
 		# Various attributes used for Properties
-		self._autoCommit = False
 		self._caption = ""
 		self._dataSource = ""
 		self._nonUpdateFields = []
@@ -166,7 +165,6 @@ class dBizobj(dObject):
 		crs.AutoQuoteNames = self.AutoQuoteNames
 		crs.BackendObject = cf.getBackendObject()
 		crs.sqlManager = self.SqlManager
-		crs.AutoCommit = self.AutoCommit
 		crs._bizobj = self
 		if self.RequeryOnLoad:
 			crs.requery()
@@ -262,37 +260,41 @@ class dBizobj(dObject):
 		self.afterLast()
 
 
-	def saveAll(self, startTransaction=False, topLevel=True):
+	def saveAll(self, startTransaction=True):
 		"""Saves all changes to the bizobj and children."""
-		useTransact = startTransaction or topLevel
 		cursor = self._CurrentCursor
 		current_row = self.RowNumber
-
-		if useTransact:
-			# Tell the cursor to begin a transaction, if needed.
-			cursor.beginTransaction()
+		app = self.Application
+		isTransactionManager = False
+		if startTransaction:
+			isTransactionManager = app.getTransactionToken(self)
+			if isTransactionManager:
+				cursor.beginTransaction()
 
 		try:
 			self.scanChangedRows(self.save, includeNewUnchanged=self.SaveNewUnchanged,
-					startTransaction=False, topLevel=False)
+					startTransaction=False)
+			if isTransactionManager:
+				cursor.commitTransaction()
+				app.releaseTransactionToken(self)
+
 		except dException.ConnectionLostException, e:
 			self.RowNumber = current_row
 			raise dException.ConnectionLostException, e
 		except dException.DBQueryException, e:
 			# Something failed; reset things.
-			if useTransact:
+			if isTransactionManager:
 				cursor.rollbackTransaction()
+				app.releaseTransactionToken(self)
 			# Pass the exception to the UI
 			self.RowNumber = current_row
 			raise dException.DBQueryException, e
 		except dException.dException, e:
-			if useTransact:
+			if isTransactionManager:
 				cursor.rollbackTransaction()
+				app.releaseTransactionToken(self)
 			self.RowNumber = current_row
 			raise
-
-		if useTransact:
-			cursor.commitTransaction()
 
 		if current_row >= 0:
 			try:
@@ -300,7 +302,7 @@ class dBizobj(dObject):
 			except: pass
 
 
-	def save(self, startTransaction=False, topLevel=True):
+	def save(self, startTransaction=True):
 		"""Save any changes that have been made in the current row.
 
 		If the save is successful, the saveAll() of all child bizobjs will be
@@ -318,10 +320,12 @@ class dBizobj(dObject):
 		# validation, an Exception will be raised.
 		self._validate()
 
-		useTransact = startTransaction or topLevel
-		if useTransact:
-			# Tell the cursor to begin a transaction, if needed.
-			cursor.beginTransaction()
+		app = self.Application
+		isTransactionManager = False
+		if startTransaction:
+			isTransactionManager = app.getTransactionToken(self)
+			if isTransactionManager:
+				cursor.beginTransaction()
 
 		# Save to the Database, but first save the IsAdding flag as the save() call
 		# will reset it to False:
@@ -337,11 +341,12 @@ class dBizobj(dObject):
 				# No need to start another transaction. And since this is a child bizobj,
 				# we need to save all rows that have changed.
 				if child.RowCount > 0:
-					child.saveAll(startTransaction=False, topLevel=False)
+					child.saveAll(startTransaction=False)
 
 			# Finish the transaction, and requery the children if needed.
-			if useTransact:
+			if isTransactionManager:
 				cursor.commitTransaction()
+				app.releaseTransactionToken(self)
 			if self.RequeryChildOnSave:
 				self.requeryAllChildren()
 
@@ -353,21 +358,19 @@ class dBizobj(dObject):
 
 		except dException.DBQueryException, e:
 			# Something failed; reset things.
-			if useTransact:
+			if isTransactionManager:
 				cursor.rollbackTransaction()
+				app.releaseTransactionToken(self)
 			# Pass the exception to the UI
 			raise dException.DBQueryException, e
 
 		except dException.dException, e:
 			# Something failed; reset things.
-			if useTransact:
+			if isTransactionManager:
 				cursor.rollbackTransaction()
+				app.releaseTransactionToken(self)
 			# Pass the exception to the UI
 			raise
-
-		# Some backends (Firebird particularly) need to be told to write
-		# their changes even if no explicit transaction was started.
-		cursor.flush()
 
 		# Two hook methods: one specific to Save(), and one which is called after any change
 		# to the data (either save() or delete()).
@@ -404,37 +407,45 @@ class dBizobj(dObject):
 		self.afterCancel()
 
 
-	def deleteAllChildren(self, startTransaction=False):
+	def deleteAllChildren(self, startTransaction=True):
 		"""Delete all children associated with the current record without
 		deleting the current record in this bizobj.
 		"""
 		cursor = self._CurrentCursor
+		app = self.Application
 		errMsg = self.beforeDeleteAllChildren()
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
 
+		isTransactionManager = False
 		if startTransaction:
-			cursor.beginTransaction()
+			isTransactionManager = app.getTransactionToken(self)
+			if isTransactionManager:
+				cursor.beginTransaction()
 
 		try:
 			for child in self.__children:
 				child.deleteAll(startTransaction=False)
-			if startTransaction:
+			if isTransactionManager:
 				cursor.commitTransaction()
-			self.afterDeleteAllChildren()
+				app.releaseTransactionToken(self)
 
 		except dException.DBQueryException, e:
-			if startTransaction:
+			if isTransactionManager:
 				cursor.rollbackTransaction()
+				app.releaseTransactionToken(self)
 			raise dException.DBQueryException, e
 		except StandardError, e:
-			if startTransaction:
+			if isTransactionManager:
 				cursor.rollbackTransaction()
+				app.releaseTransactionToken(self)
 			raise StandardError, e
+		self.afterDeleteAllChildren()
 
 
-	def delete(self, startTransaction=False):
+	def delete(self, startTransaction=True, inLoop=False):
 		"""Delete the current row of the data set."""
+		app = self.Application
 		cursor = self._CurrentCursor
 		errMsg = self.beforeDelete()
 		if not errMsg:
@@ -451,8 +462,11 @@ class dBizobj(dObject):
 				if child.RowCount > 0:
 					raise dException.dException, _("Deletion prohibited - there are related child records.")
 
+		isTransactionManager = False
 		if startTransaction:
-			cursor.beginTransaction()
+			isTransactionManager = app.getTransactionToken(self)
+			if isTransactionManager:
+				cursor.beginTransaction()
 
 		try:
 			cursor.delete()
@@ -469,31 +483,54 @@ class dBizobj(dObject):
 					child.cancelAll()
 					child.requery()
 
-			if startTransaction:
+			if isTransactionManager:
 				cursor.commitTransaction()
+				app.releaseTransactionToken(self)
 
-			# Some backends (Firebird particularly) need to be told to write
-			# their changes even if no explicit transaction was started.
-			cursor.flush()
+			if not inLoop:
+				self.afterPointerMove()
+				self.afterChange()
+				self.afterDelete()
+		except dException.DBQueryException, e:
+			if isTransactionManager:
+				cursor.rollbackTransaction()
+				app.releaseTransactionToken(self)
+			raise dException.DBQueryException, e
+		except StandardError, e:
+			if isTransactionManager:
+				cursor.rollbackTransaction()
+				app.releaseTransactionToken(self)
+			raise StandardError, e
+
+
+	def deleteAll(self, startTransaction=True):
+		""" Delete all rows in the data set."""
+		isTransactionManager = False
+		if startTransaction:
+			isTransactionManager = app.getTransactionToken(self)
+			if isTransactionManager:
+				cursor.beginTransaction()
+		try:
+			while self.RowCount > 0:
+				self.first()
+				ret = self.delete(startTransaction=False, inLoop=True)
+			if isTransactionManager:
+				cursor.commitTransaction()
+				app.releaseTransactionToken(self)
 
 			self.afterPointerMove()
 			self.afterChange()
 			self.afterDelete()
 		except dException.DBQueryException, e:
-			if startTransaction:
+			if isTransactionManager:
 				cursor.rollbackTransaction()
+				app.releaseTransactionToken(self)
 			raise dException.DBQueryException, e
 		except StandardError, e:
-			if startTransaction:
+			if isTransactionManager:
 				cursor.rollbackTransaction()
+				app.releaseTransactionToken(self)
 			raise StandardError, e
-
-
-	def deleteAll(self, startTransaction=False):
-		""" Delete all rows in the data set."""
-		while self.RowCount > 0:
-			self.first()
-			ret = self.delete(startTransaction)
 
 
 	def execute(self, sql):
@@ -758,19 +795,14 @@ class dBizobj(dObject):
 			raise dException.ConnectionLostException, e
 
 		except dException.DBQueryException, e:
-			# Something failed; reset things.
-			cursor.rollbackTransaction()
 			# Pass the exception to the UI
 			raise dException.DBQueryException, e
 
 		except dException.NoRecordsException:
-			# No need to abort the transaction because of this, but
-			# we still need to pass the exception to the UI
+			# Pass the exception to the UI
 			uiException = dException.NoRecordsException
 
 		except dException.dException, e:
-			# Something failed; reset things.
-			cursor.rollbackTransaction()
 			# Pass the exception to the UI
 			raise dException.dException, e
 
@@ -1467,7 +1499,6 @@ class dBizobj(dObject):
 		such cursors are in sync with the bizobj.
 		"""
 		for crs in self.__cursors.values():
-			crs.AutoCommit = self._autoCommit
 			crs.AutoPopulatePK = self._autoPopulatePK
 			crs.AutoQuoteNames = self._autoQuoteNames
 			crs.Table = self._dataSource
@@ -1477,14 +1508,7 @@ class dBizobj(dObject):
 			crs.setNonUpdateFields(self._nonUpdateFields)
 	
 
-	def _getAutoCommit(self):
-		return self._CurrentCursor.AutoCommit
-
-	def _setAutoCommit(self, val):
-		self._autoCommit = val
-		self._syncWithCursors()
-
-
+	## Property getter/setter methods ##
 	def _getAutoPopulatePK(self):
 		try:
 			return self._autoPopulatePK
@@ -1841,9 +1865,6 @@ class dBizobj(dObject):
 
 
 	### -------------- Property Definitions ------------------  ##
-	AutoCommit = property(_getAutoCommit, _setAutoCommit, None,
-			_("Do we need explicit begin/commit/rollback commands for transactions?  (bool)"))
-
 	AutoPopulatePK = property(_getAutoPopulatePK, _setAutoPopulatePK, None,
 			_("Determines if we are using a table that auto-generates its PKs. (bool)"))
 

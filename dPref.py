@@ -72,11 +72,10 @@ class dPref(object):
 			# Make sure that the table exists
 			if not  "daboprefs" in self._cursor.getTables():
 				self._cursor.execute("create table daboprefs (ckey text not null, ctype text not null, cvalue text not null)")
+				self._cursor.commitTransaction()
 		else:
 			self._cursor = crs
 			self._cxn = cxn
-		if self._cursor:
-			self._cursor.AutoCommit = True
 		
 		
 	def __getattr__(self, att):
@@ -220,6 +219,7 @@ class dPref(object):
 			sql = "insert into daboprefs (ckey, ctype, cvalue) values (?, ?, ?)"
 			prm = (key, typ, val)
 			crs.execute(sql, prm)
+		self._cursor.commitTransaction()
 	
 	
 	def persist(self):
@@ -234,6 +234,7 @@ class dPref(object):
 		for key in self._deletionCache.keys():
 			self._cursor.execute("delete from daboprefs where ckey like ? ", (key, ))
 		self._deletionCache = {}
+		self._cursor.commitTransaction()
 	
 	
 	def deletePref(self, att, nested=False):
@@ -260,7 +261,8 @@ class dPref(object):
 			self._deletionCache[key] = None
 			if self._cache.has_key(att):
 				del self._cache[att]
-			
+		self._cursor.commitTransaction()
+
 	
 	def deleteAllPrefs(self):
 		"""Deletes all preferences for this object, and all sub-prefs as well."""
@@ -281,7 +283,8 @@ class dPref(object):
 			# Update the caches
 			self._cache = {}
 			self._deletionCache[key] = None
-			
+		self._cursor.commitTransaction()
+
 	
 	def flushCache(self):
 		"""Clear the cache, forcing fresh reads from the database."""
@@ -376,6 +379,7 @@ class dPref(object):
 		sql = "insert into daboprefs (ckey, ctype, cvalue) values (?, ?, ?)"
 		prm = (key, newTyp, val)
 		self._cursor.execute(sql, prm)
+		self._cursor.commitTransaction()
 	
 	
 	def setValue(self, key, val):

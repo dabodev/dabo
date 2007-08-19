@@ -43,11 +43,7 @@ def autoCreateTables(noAccessDialog=None):
 
 	g._toExc = {}
 	for biz in g._AutoTables.values():
-		ac = biz.AutoCommit
-		biz.AutoCommit = True
-		biz.CreateTable()
-
-		biz.AutoCommit = ac
+		biz.createTable()
 
 	if g._toExc:
 		if dabo.dAppRef is not None:
@@ -138,7 +134,7 @@ def autoCreateTables(noAccessDialog=None):
 						tempConn = dabo.db.dConnection(ci)
 					except dException.DBNoAccessException:
 						dabo.ui.stop(_("Could not access the database with the given username and password."))
-						_WriteQueriesToFile(g._toExc)
+						_writeQueriesToFile(g._toExc)
 						raise dException.DBNoAccessException
 					else:
 						cur = tempConn.getDaboCursor()
@@ -149,20 +145,20 @@ def autoCreateTables(noAccessDialog=None):
 								cur.execute(query)
 							except dException.DBNoAccessExeption:
 								dabo.ui.stop(_("Could not setup the database. Access was denied."))
-								_WriteQueriesToFile(g._toExc)
+								_writeQueriesToFile(g._toExc)
 								raise dException.DBNoAccessException
 
 				else:
 					login.release()
-					_WriteQueriesToFile(g._toExc)
+					_writeQueriesToFile(g._toExc)
 					raise dException.DBNoAccessException
 
 		else:
-			_WriteQueriesToFile(g._toExc)
+			_writeQueriesToFile(g._toExc)
 			raise dException.DBNoAccessException
 
 
-def _WriteQueriesToFile(queries):
+def _writeQueriesToFile(queries):
 	f = open("queries.sql", "w")
 	for k in queries.keys():
 		f.write(_("#Queries for DB '%s' on host '%s':\n") % (k.ConnectInfo.Database, k.ConnectInfo.Host))
@@ -170,6 +166,8 @@ def _WriteQueriesToFile(queries):
 			f.write("%s;\n" % (query))
 
 	f.close()
+
+
 
 class dAutoBizobj(dBizobj):
 	"""This class is just like bBizobj but is supports the auto creation of
@@ -244,7 +242,7 @@ class dAutoBizobj(dBizobj):
 		#Override in subclass
 
 
-	def CreateTable(self):
+	def createTable(self):
 		"""Create the tables that has been asigned to this bizobj."""
 		if self._table is None:
 			raise dException.dException(_("No table has been defined for this bizobj."))

@@ -193,8 +193,8 @@ class Firebird(dBackend):
 	
 	def beginTransaction(self, cursor):
 		""" Begin a SQL transaction."""
-		if not cursor.connection._has_transaction():
-			cursor.connection.begin()
+		if not self._connection._has_transaction():
+			self._connection.begin()
 			dabo.dbActivityLog.write("SQL: begin")
 
 		
@@ -202,7 +202,7 @@ class Firebird(dBackend):
 		""" Firebird requires an explicit commit in order to have changes
 		to the database written to disk.
 		"""
-		cursor.connection.commit()
+		self._connection.commit()
 		dabo.dbActivityLog.write("SQL: commit")
 
 	
