@@ -717,13 +717,10 @@ class dApp(dObject):
 		is no other transaction pending. If the bizobj gets the token, further requests for the
 		token will receive a reply of False, meaning that they should not be handling the transaction.
 		"""
-		print "TOKEN REQUEST", biz
 		if self._transactionBizobj is None:
-			print "TOKEN SET TO ", biz
 			self._transactionBizobj = biz
 			return True
 		else:
-			print "TOKEN DENIED; holder=", self._transactionBizobj
 			return False
 
 
@@ -733,11 +730,8 @@ class dApp(dObject):
 		ensure that the releasing bizobj is the one currently holding the token; if it is, the 
 		internal attribute is reset.
 		"""
-		print "APP RELEASE TOKEN FROM:", biz,
 		if biz is self._transactionBizobj:
 			self._transactionBizobj = None
-			print "RELEASED",
-		print ""
 
 
 	def setLanguage(self, lang, charset=None):
