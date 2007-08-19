@@ -45,16 +45,6 @@ class Test_dCursorMixin(object):
 		return ""
 
 	## - Begin property unit tests -
-	def test_AutoCommit(self):
-		cur = self.cur
-		self.assertEqual(cur.AutoCommit, False)
-		try:
-			cur.AutoCommit = True
-			self.assertEqual(cur.AutoCommit, True)
-		except ValueError:
-			# Okay; this db didn't allow the setting of AutoCommit.
-			self.assertEqual(cur.AutoCommit, False)
-
 	def test_AutoSQL(self):
 		cur = self.cur
 		self.assertEqual(cur.AutoSQL, "select *\n  from %s\n limit 1000" % self.temp_table_name)

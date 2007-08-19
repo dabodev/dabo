@@ -186,6 +186,9 @@ class dApp(dObject):
 		self.getTempFile = self._tempFileHolder.getTempFile
 		# Create the framework-level preference manager
 		self._frameworkPrefs = dabo.dPref(key="dabo_framework")
+		# Hold a reference to the bizobj, if any, controlling the current 
+		# database transaction
+		self._transactionBizobj = None
 
 		# List of form classes to open on App Startup
 		self.formsToOpen = []  
@@ -397,7 +400,7 @@ class dApp(dObject):
 			except:
 				vers = -1
 			localVers = self._currentUpdateVersion()
-			ret = localVers < vers
+			ret = (localVers != vers)
 		prf.setValue("last_check", now)
 		return ret
 
@@ -706,6 +709,35 @@ class dApp(dObject):
 				ci.setConnInfo(v)
 				self.dbConnectionDefs[k] = ci
 				self.dbConnectionNameToFiles[k] = connFile
+
+
+	def getTransactionToken(self, biz):
+		"""Only one bizobj at a time can begin and end transactions. This allows the bizobj
+		to query the app for the 'token', which is simply an acknowledgement that there
+		is no other transaction pending. If the bizobj gets the token, further requests for the
+		token will receive a reply of False, meaning that they should not be handling the transaction.
+		"""
+		print "TOKEN REQUEST", biz
+		if self._transactionBizobj is None:
+			print "TOKEN SET TO ", biz
+			self._transactionBizobj = biz
+			return True
+		else:
+			print "TOKEN DENIED; holder=", self._transactionBizobj
+			return False
+
+
+	def releaseTransactionToken(self, biz):
+		"""When a process that would normally close a transaction happens, the bizobj that is
+		holding the transaction token calls this message to return the token. A check is run to 
+		ensure that the releasing bizobj is the one currently holding the token; if it is, the 
+		internal attribute is reset.
+		"""
+		print "APP RELEASE TOKEN FROM:", biz,
+		if biz is self._transactionBizobj:
+			self._transactionBizobj = None
+			print "RELEASED",
+		print ""
 
 
 	def setLanguage(self, lang, charset=None):

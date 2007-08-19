@@ -44,12 +44,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 """ % self.temp_table_name)
 
 	## - Begin property unit tests -
-	def test_AutoCommit(self):
-		biz = self.biz
-		self.assertEqual(biz.AutoCommit, False)
-		biz.AutoCommit = True
-		self.assertEqual(biz.AutoCommit, True)
-
 	def test_AutoSQL(self):
 		biz = self.biz
 		self.assertEqual(biz.AutoSQL, "select *\n  from %s\n limit 1000" % self.temp_table_name)

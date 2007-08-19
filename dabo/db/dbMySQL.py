@@ -4,6 +4,7 @@ try:
 	import decimal
 except ImportError:
 	decimal = None
+import dabo
 from dabo.dLocalize import _
 from dBackend import dBackend
 import dabo.dException as dException
@@ -58,6 +59,24 @@ class MySQL(dBackend):
 	def getDictCursorClass(self):
 		import MySQLdb.cursors as cursors
 		return cursors.DictCursor
+
+
+	def beginTransaction(self, cursor):
+		""" Begin a SQL transaction."""
+		cursor.execute("START TRANSACTION")
+		dabo.dbActivityLog.write("SQL: begin")
+
+
+	def commitTransaction(self, cursor):
+		""" Commit a SQL transaction."""
+		cursor.execute("COMMIT")
+		dabo.dbActivityLog.write("SQL: commit")
+
+
+	def rollbackTransaction(self, cursor):
+		""" Rollback a SQL transaction."""
+		cursor.execute("ROLLBACK")
+		dabo.dbActivityLog.write("SQL: rollback")
 
 
 	def escQuote(self, val):
