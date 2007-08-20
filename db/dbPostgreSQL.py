@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 import datetime
+import dabo
 from dabo.dLocalize import _
 from dBackend import dBackend
 
@@ -31,6 +32,10 @@ class Postgres(dBackend):
 			DSN += " %s=%s" % (kw, val)
 		self._connection = dbapi.connect(DSN)
 		return self._connection
+	
+	def beginTransaction(self, cursor):
+		dabo.dbActivityLog.write("SQL: begin (implicit, nothing done)")
+		pass
 
 
 	def getDictCursorClass(self):
@@ -221,6 +226,7 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 		to the database written to disk.
 		"""
 		self.commitTransaction(cursor)
+		dabo.dbActivityLog.write("SQL: Commit")
 
 
 	def getLastInsertID(self, cursor):
