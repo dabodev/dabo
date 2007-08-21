@@ -83,7 +83,13 @@ class dCursorMixin(dObject):
 		self._records = dDataSet()
 		# Attribute that holds the current row number
 		self.__rownumber = -1
-
+		# Data structure info
+		self._dataStructure = None
+		self._table = ""
+		self._keyField = ""
+		self._userSQL = ""
+		self._virtualFields = {}
+		
 		self._autoPopulatePK = True
 		self._autoQuoteNames = True
 
@@ -2024,7 +2030,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def _getAuxCursor(self):
-		if self.__auxCursor is None:
+		isnew = self.__auxCursor is None
+		if isnew:
 			if self._cursorFactoryClass is not None:
 				if self._cursorFactoryFunc is not None:
 					self.__auxCursor = self._cursorFactoryFunc(self._cursorFactoryClass)
@@ -2032,6 +2039,17 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			self.__auxCursor = self.BackendObject.getCursor(self.__class__)
 		self.__auxCursor.BackendObject = self.BackendObject
 		self.__auxCursor._isAuxiliary = True
+		if isnew:
+			ac = self.__auxCursor
+			ac._autoPopulatePK = self._autoPopulatePK
+			ac._autoQuoteNames = self._autoQuoteNames
+			ac._dataStructure = self._dataStructure
+			ac._encoding = self.Encoding
+			ac._isPrefCursor = self._isPrefCursor
+			ac._keyField = self._keyField
+			ac._table = self._table
+			ac._userSQL = self._userSQL
+			ac._virtualFields = self._virtualFields
 		return self.__auxCursor
 
 
@@ -2127,10 +2145,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def _getKeyField(self):
-		try:
-			return self._keyField
-		except AttributeError:
-			return ""
+		return self._keyField
 
 	def _setKeyField(self, kf):
 		if "," in kf:
@@ -2197,10 +2212,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def _getTable(self):
-		try:
-			return self._table
-		except AttributeError:
-			return ""
+		return self._table
 
 	def _setTable(self, table):
 		self._table = str(table)
@@ -2214,18 +2226,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def _getUserSQL(self):
-		try:
-			v = self._userSQL
-		except AttributeError:
-			v = self._userSQL = None
-		return v
+		return self._userSQL
 
 	def _setUserSQL(self, val):
 		self._userSQL = val
 
 
 	def _getVirtualFields(self):
-		return getattr(self, "_virtualFields", {})
+		return self._virtualFields
 
 	def _setVirtualFields(self, val):
 		assert isinstance(val, dict)
