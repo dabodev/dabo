@@ -100,6 +100,7 @@ the command window.
 Have fun in your exploration of Dabo. 
 """
 
+import os
 import sys
 try:
 	import pysqlite2
@@ -160,3 +161,38 @@ from dPref import dPref
 import dabo.db
 import dabo.biz
 import dabo.ui
+
+
+# Method to create a standard Dabo directory structure layout
+def makeDaboDirectories(homedir=None):
+	"""If homedir is passes, the directories will be created off of that
+	directory. Otherwise, it is assumed that they should be created
+	in the current directory location.
+	"""
+	currLoc = os.getcwd()
+	if homedir is not None:
+		os.chdir(homedir)
+	for d in ("biz", "db", "ui", "resources", "reports"):
+		if not os.path.exists(d):
+			os.mkdir(d)
+	os.chdir(currLoc)
+
+
+def quickStart(homedir=None):
+	"""This creates a bare-bones application in either the specified 
+	directory, or the current one if none is specified.
+	"""
+	currLoc = os.getcwd()
+	if homedir is not None:
+		os.chdir(homedir)
+	makeDaboDirectories()
+	open("main.py", "w").write("""#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+import dabo
+
+app = dabo.dApp()
+app.start()
+""")
+	os.chmod("main.py", 0744)
+	os.chdir(currLoc)
+	
