@@ -2044,7 +2044,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			ac._autoPopulatePK = self._autoPopulatePK
 			ac._autoQuoteNames = self._autoQuoteNames
 			ac._dataStructure = self._dataStructure
-			ac._encoding = self.Encoding
+			if self.BackendObject:
+				ac._encoding = self.Encoding
 			ac._isPrefCursor = self._isPrefCursor
 			ac._keyField = self._keyField
 			ac._table = self._table
