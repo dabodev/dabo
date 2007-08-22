@@ -81,15 +81,16 @@ class SQLite(dBackend):
 
 	def commitTransaction(self, cursor):
 		""" Commit a SQL transaction."""
+		opError = self.dbapi.OperationalError
 		try:
-			cursor.execute("COMMIT")
+			cursor.execute("COMMIT", errorClass=opError)
 			dabo.dbActivityLog.write("SQL: commit")
+		except opError, e:
+			# There is no transaction active in this case, so ignore the error.
+			pass
 		except Exception, e:
-			if "no transaction is active" in str(e):
-				pass
-			else:
-				dabo.dbActivityLog.write("SQL: commit failed: %s" % e)
-				raise dException.DBQueryException, e			
+			dabo.dbActivityLog.write("SQL: commit failed: %s" % e)
+			raise dException.DBQueryException, e			
 
 
 	def rollbackTransaction(self, cursor):
