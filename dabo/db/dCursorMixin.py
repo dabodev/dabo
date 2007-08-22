@@ -258,18 +258,15 @@ class dCursorMixin(dObject):
 		return ret
 
 
-	def execute(self, sql, params=(), _fromRequery=False):
+	def execute(self, sql, params=(), _fromRequery=False, errorClass=None):
 		""" Execute the sql, and populate the DataSet if it is a select statement."""
 		# The idea here is to let the super class do the actual work in
 		# retrieving the data. However, many cursor classes can only return
 		# row information as a list, not as a dictionary. This method will
 		# detect that, and convert the results to a dictionary.
-
-		#### NOTE: NEEDS TO BE TESTED THOROUGHLY!!!!  ####
-
-		# Some backends, notably Firebird, require that fields be specially marked.
 		if not isinstance(sql, unicode):
 			sql = unicode(sql, self.Encoding)
+		# Some backends, notably Firebird, require that fields be specially marked.
 		sql = self.processFields(sql)
 
 		try:
@@ -282,6 +279,11 @@ class dCursorMixin(dObject):
 				if not self.IsPrefCursor:
 					dabo.dbActivityLog.write("SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(params)))
 		except Exception, e:
+			# There can be cases where errors are expected. In those cases, the 
+			# calling routine will pass the class of the expected error, and will
+			# handle it appropriately.
+			if isinstance(e, errorClass):
+				raise errorClass, e
 			dabo.dbActivityLog.write("FAILED SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(params)))
 			# If this is due to a broken connection, let the user know.
 			# Different backends have different messages, but they
