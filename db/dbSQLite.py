@@ -75,8 +75,8 @@ class SQLite(dBackend):
 		""" Begin a SQL transaction. Since pysqlite does an implicit
 		'begin' all the time, simply do nothing.
 		"""
-		dabo.dbActivityLog.write("SQL: begin (implicit, nothing done)")
-		pass
+		cursor.execute("BEGIN")
+		dabo.dbActivityLog.write("SQL: begin")
 
 
 	def commitTransaction(self, cursor):
