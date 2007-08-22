@@ -87,7 +87,7 @@ class dCursorMixin(dObject):
 		self._dataStructure = None
 		self._table = ""
 		self._keyField = ""
-		self._userSQL = ""
+		self._userSQL = None
 		self._virtualFields = {}
 		
 		self._autoPopulatePK = True
