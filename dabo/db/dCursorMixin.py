@@ -282,7 +282,7 @@ class dCursorMixin(dObject):
 			# There can be cases where errors are expected. In those cases, the 
 			# calling routine will pass the class of the expected error, and will
 			# handle it appropriately.
-			if isinstance(e, errorClass):
+			if errorClass is not None and isinstance(e, errorClass):
 				raise errorClass, e
 			dabo.dbActivityLog.write("FAILED SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(params)))
 			# If this is due to a broken connection, let the user know.
@@ -363,12 +363,9 @@ class dCursorMixin(dObject):
 		ac.AutoPopulatePK = self.AutoPopulatePK
 		ac.AutoQuoteNames = self.AutoQuoteNames
 		ac.DataStructure = self.DataStructure
-		ac.Encoding = self.Encoding
 		ac.IsPrefCursor = self.IsPrefCursor
 		ac.KeyField = self.KeyField
 		ac.Table = self.Table
-		ac.UserSQL = self.UserSQL
-		ac.VirtualFields = self.VirtualFields
 
 
 	def requery(self, params=None):
@@ -2021,14 +2018,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			return True
 
 	def _setAutoPopulatePK(self, autopop):
-		self._autoPopulatePK = bool(autopop)
+		self._autoPopulatePK = self.AuxCursor._autoPopulatePK = bool(autopop)
 
 
 	def _getAutoQuoteNames(self):
 		return self._autoQuoteNames
 
 	def _setAutoQuoteNames(self, val):
-		self._autoQuoteNames = val
+		self._autoQuoteNames = self.AuxCursor._autoQuoteNames = val
 
 
 	def _getAuxCursor(self):
@@ -2051,8 +2048,6 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			ac._isPrefCursor = self._isPrefCursor
 			ac._keyField = self._keyField
 			ac._table = self._table
-			ac._userSQL = self._userSQL
-			ac._virtualFields = self._virtualFields
 		return self.__auxCursor
 
 
@@ -2061,7 +2056,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _setBackendObject(self, obj):
 		self.__backend = obj
-#		self.AuxCursor.__backend = obj
+		if self.__auxCursor:
+			self.__auxCursor.__backend = obj
 
 
 	def _getCurrentSQL(self):
@@ -2121,7 +2117,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			except IndexError:
 				field_scale = None
 			val[idx] = (field_alias, field_type, field_pk, table_name, field_name, field_scale)
-		self._dataStructure = tuple(val)
+		self._dataStructure = self.AuxCursor._dataStructure = tuple(val)
 
 
 	def _getEncoding(self):
@@ -2144,7 +2140,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self._isPrefCursor
 
 	def _setIsPrefCursor(self, val):
-		self._isPrefCursor = val
+		self._isPrefCursor = self.AuxCursor._isPrefCursor = val
 
 
 	def _getKeyField(self):
@@ -2160,7 +2156,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			self._compoundKey = False
 		self.AuxCursor._keyField = self._keyField
 		self.AuxCursor._compoundKey = self._compoundKey
-		self._keyFieldSet = True
+		self._keyFieldSet = self.AuxCursor._keyFieldSet = True
 
 
 	def _getLastSQL(self):
@@ -2218,8 +2214,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		return self._table
 
 	def _setTable(self, table):
-		self._table = str(table)
-		self.AuxCursor._table = str(table)
+		self._table = self.AuxCursor._table = str(table)
 		if not self._keyFieldSet:
 			# Get the PK field, if any
 			try:
