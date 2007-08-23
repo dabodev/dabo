@@ -58,8 +58,7 @@ class Postgres(dBackend):
 		return "%s%s%s" % (sqt, str(val), sqt)
 	
 	
-	def getTables(self, includeSystemTables=False):
-		tempCursor = self._connection.cursor()
+	def getTables(self, cursor, includeSystemTables=False):
 		# jfcs 11/01/04 assumed public schema
 		#tempCursor.execute("select tablename from pg_tables where schemaname = 'public'")
 		# jfcs 01/22/07 added below to support schema 
@@ -70,24 +69,20 @@ class Postgres(dBackend):
 		else:
 			sqltablestr = (("SELECT schemaname || '.' || tablename AS tablename FROM pg_tables WHERE (schemaname not like 'pg_%s' and schemaname not like 'information%s') and has_table_privilege('%s', schemaname || '.' || tablename, 'SELECT')") % ('%','%',self.conn_user))
 						
-		tempCursor.execute(sqltablestr)
-		rs = tempCursor.fetchall()
-		
-		
+		cursor.execute(sqltablestr)
+		rs = cursor.getDataSet()
 		tables = []
 		for record in rs:
 			tables.append(record[0])
 		return tuple(tables)
 
 	
-	def getTableRecordCount(self, tableName):
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("select count(*) as ncount from %s" % tableName)
-		return tempCursor.fetchall()[0][0]
+	def getTableRecordCount(self, tableName, cursor):
+		cursor.execute("select count(*) as ncount from %s" % tableName)
+		return cursor.getDataSet()[0][0]
 
 
-	def getFields(self, tableName):
-		tempCursor = self._connection.cursor()
+	def getFields(self, tableName, cursor):
 		tableNameBreak=tableName.split('.',1)
 		localSchemaName = tableNameBreak[0]
 		localTableName = tableNameBreak[1]
@@ -117,15 +112,14 @@ class Postgres(dBackend):
 				#on a.attrelid = c.oid inner join pg_type t on a.atttypid = t.oid 
 				#where c.relname = '%s' and a.attnum > 0 """ % tableName)
 		# JFCS 01/22/07 Added support for schema 
-		tempCursor.execute("""select c.oid,a.attname, t.typname, b.schemaname from pg_class c 
+		cursor.execute("""select c.oid,a.attname, t.typname, b.schemaname from pg_class c 
 inner join pg_attribute a on a.attrelid = c.oid 
 inner join pg_type t on a.atttypid = t.oid 
 inner join pg_tables b on b.tablename=c.relname
 where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName)
-		rs = tempCursor.fetchall()
+		rs = cursor.getDataSet()
 
 		## get the PK the code should work well with 7.4 - 8.2 versions
-		
 		sqlstr = """SELECT n.nspname AS schema_name, c.relname AS table_name,
            c.oid AS table_oid, a.attname AS column_name, idx.n + 1 AS ordinal_position
       FROM pg_class c, pg_attribute a, pg_index i, pg_namespace n, generate_series(0, 31) idx(n)
@@ -136,9 +130,9 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
        AND has_table_privilege(c.oid, 'SELECT'::text)
        AND c.relnamespace = n.oid and c.relname = '%s' and n.nspname = '%s' """ % ('%',localTableName,localSchemaName)
 		
-		tempCursor.execute(sqlstr)
-		rs2=tempCursor.fetchall()
-		if rs2==[]:
+		cursor.execute(sqlstr)
+		rs2 = cursor.getDataSet()
+		if rs2 == []:
 			thePKFieldName = None
 		else:
 			#thestr = rs2[0][3]
@@ -249,7 +243,7 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 		localSchemaName = tableNameBreak[0]
 		localTableName = tableNameBreak[1]
 		
-		tempCursor = self._connection.cursor()
+		tempCursor = self._cursor.AuxCursor
 		sqltablestr = """SELECT seq.relname::text
 		FROM pg_class src, pg_class seq, pg_namespace, pg_attribute,
 		pg_depend

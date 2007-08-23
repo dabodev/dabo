@@ -112,17 +112,15 @@ class SQLite(dBackend):
 		return "%s%s%s" % (sqt, val, sqt)
 		
 	
-	def _isExistingTable(self, tablename):
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=%s" % self.escQuote(tablename))
-		rs = tempCursor.fetchall()
+	def _isExistingTable(self, tablename, cursor):
+		cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name=%s" % self.escQuote(tablename))
+		rs = cursor.getDataSet()
 		return len(rs) > 0
 	
 	
-	def getTables(self, includeSystemTables=False):
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("select * from sqlite_master")
-		rs = tempCursor.fetchall()
+	def getTables(self, cursor, includeSystemTables=False):
+		cursor.execute("select * from sqlite_master")
+		rs = cursor.getDataSet()
 		if includeSystemTables:
 			tables = [rec["name"] for rec in rs 
 					if rec["type"] == "table"]
@@ -133,16 +131,14 @@ class SQLite(dBackend):
 		return tuple(tables)
 		
 		
-	def getTableRecordCount(self, tableName):
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("select count(*) as ncount from %s" % tableName)
-		return tempCursor.fetchall()[0]["ncount"]
+	def getTableRecordCount(self, tableName, cursor):
+		cursor.execute("select count(*) as ncount from %s" % tableName)
+		return cursor.getDataSet(rows=1)["ncount"]
 
 
-	def getFields(self, tableName):
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("pragma table_info('%s')" % tableName)
-		rs = tempCursor.fetchall()
+	def getFields(self, tableName, cursor):
+		cursor.execute("pragma table_info('%s')" % tableName)
+		rs = cursor.getDataSet()
 		fields = []
 		for rec in rs:
 			typ = rec["type"].lower()

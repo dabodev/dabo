@@ -94,39 +94,35 @@ class MySQL(dBackend):
 		return "%s%s%s" % (sqt, str(val), sqt)
 	
 	
-	def _isExistingTable(self, tablename):
-		tempCursor = self._connection.cursor()
+	def _isExistingTable(self, tablename, cursor):
 		tbl = self.encloseNames(self.escQuote(tablename))
-		tempCursor.execute("SHOW TABLES LIKE %s" % tbl)
-		rs = tempCursor.fetchall()
+		cursor.execute("SHOW TABLES LIKE %s" % tbl)
+		rs = tempCursor.getDataSet()
 		return bool(rs)
 			
 	
-	def getTables(self, includeSystemTables=False):
+	def getTables(self, cursor, includeSystemTables=False):
 		# MySQL doesn't have system tables, in the traditional sense, as 
 		# they exist in the mysql database.
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("show tables")
-		rs = tempCursor.fetchall()
+		cursor.execute("show tables")
+		rs = tempCursor.getDataSet()
 		tables = []
 		for record in rs:
 			tables.append(record[0])
 		return tuple(tables)
 		
 		
-	def getTableRecordCount(self, tableName):
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("select count(*) as ncount from %s" % self.encloseNames(tableName))
-		return tempCursor.fetchall()[0][0]
+	def getTableRecordCount(self, tableName, cursor):
+		cursor.execute("select count(*) as ncount from %s" % self.encloseNames(tableName))
+		return tempCursor.getDataSet()[0][0]
 
 
-	def getFields(self, tableName):
+	def getFields(self, tableName, cursor):
 		if not tableName:
 			return tuple()
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("describe %s" % self.encloseNames(tableName))
-		rs = tempCursor.fetchall()
-		fldDesc = tempCursor.description
+		cursor.execute("describe %s" % self.encloseNames(tableName))
+		rs = cursor.getDataSet()
+		fldDesc = cursor.description
 		# The field name is the first element of the tuple. Find the
 		# first entry with the field name 'Key'; that will be the 
 		# position for the PK flag
