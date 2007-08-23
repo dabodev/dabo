@@ -102,16 +102,16 @@ class Firebird(dBackend):
 			
 		cursor.execute("select rdb$relation_name from rdb$relations "
 			"%s order by rdb$relation_name" % whereClause)
-		rs = tempCursor.getDataSet()
+		rs = cursor.getDataSet()
 		tables = []
 		for record in rs:
-			tables.append(record[0].strip())
+			tables.append(record["rdb$relation_name"].strip())
 		return tuple(tables)
 		
 		
 	def getTableRecordCount(self, tableName, cursor):
 		cursor.execute("select count(*) as ncount from %s where 1=1" % tableName)
-		return tempCursor.getDataSet()[0][0]
+		return cursor.getDataSet()[0][0]
 
 
 	def getFields(self, tableName, cursor):
@@ -131,7 +131,7 @@ class Firebird(dBackend):
 		cursor.execute(sql)
 		rs = cursor.getDataSet(rows=1)
 		try:
-			pkField = rs[0].strip()
+			pkField = rs[0]["column_name"].strip()
 		except:
 			pkField = None
 		
@@ -149,24 +149,23 @@ class Firebird(dBackend):
  AND d.RDB$FIELD_NAME = 'RDB$FIELD_TYPE'
  AND a.RDB$RELATION_NAME = '%s'
  ORDER BY b.RDB$FIELD_ID """ % tableName.upper()
- 
+
 		cursor.execute(sql)
 		rs = cursor.getDataSet()
 		fields = []
 		for r in rs:
-			name = r[0].strip()
-
-			ftype = r[1].strip().lower()
+			name = r["rdb$field_name"].strip()
+			ftype = r["rdb$type_name"].strip().lower()
 			if ftype == "text":
 				ft = "C"
 			elif ftype == "varying":
-				if r[2] > 64:
+				if r["rdb$field_length"] > 64:
 					ft = "M"
 				else:
 					ft = "C"
 			elif ftype in ("long", "short", "int64", "double"):
 				# Can be either integers or float types, depending on column 3
-				if r[3] == 0:
+				if r["rdb$field_scale"] == 0:
 					# integer
 					ft = "I"
 				else:
