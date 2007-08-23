@@ -2056,7 +2056,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _setBackendObject(self, obj):
 		self.__backend = obj
-		if obj:
+		if obj and obj._cursor is None:
 			obj._cursor = self
 		if self.__auxCursor:
 			self.__auxCursor.__backend = obj
