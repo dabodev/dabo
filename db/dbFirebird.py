@@ -116,11 +116,18 @@ class Firebird(dBackend):
 
 	def getFields(self, tableName, cursor):
 		# Get the PK
-		sql = """ select inseg.rdb$field_name
-		from rdb$indices idxs join rdb$index_segments inseg
-			on idxs.rdb$index_name = inseg.rdb$index_name
-			where idxs.rdb$relation_name = '%s'
-	and idxs.rdb$unique_flag = 1 """ % tableName.upper()
+### The SQL for the PK changed by Uwe Grauer 2007.08.23
+# 		sql = """ select inseg.rdb$field_name
+# 		from rdb$indices idxs join rdb$index_segments inseg
+# 			on idxs.rdb$index_name = inseg.rdb$index_name
+# 			where idxs.rdb$relation_name = '%s'
+# 	and idxs.rdb$unique_flag = 1 """ % tableName.upper()
+		sql = """ SELECT S.RDB$FIELD_NAME AS COLUMN_NAME
+		FROM RDB$RELATION_CONSTRAINTS RC
+			LEFT JOIN RDB$INDICES I ON (I.RDB$INDEX_NAME = RC.RDB$INDEX_NAME)
+			LEFT JOIN RDB$INDEX_SEGMENTS S ON (S.RDB$INDEX_NAME = I.RDB$INDEX_NAME)
+		WHERE (RC.RDB$CONSTRAINT_TYPE = 'PRIMARY KEY')
+		AND (I.RDB$RELATION_NAME = '%s') """ % tableName.upper()
 		cursor.execute(sql)
 		rs = cursor.getDataSet(rows=1)
 		try:
