@@ -63,29 +63,27 @@ class MSSQL(dBackend):
 		return "%s%s%s" % (sqt, str(val), sqt)
 	
 	
-	def getTables(self, includeSystemTables=False):
-		tempCursor = self._connection.cursor()
+	def getTables(self, cursor, includeSystemTables=False):
 		# jfcs 11/01/06 assumed public schema
 		# cfk: this worries me: how does it know what db is being used?
 		# tempCursor.execute("select name from sysobjects where xtype = 'U' order by name")
 		
 		dbName = self.database
-		tempCursor.execute("select table_name"
+		cursor.execute("select table_name"
 			" from INFORMATION_SCHEMA.TABLES"
 			" where table_catalog = %(db)s"
 			" and table_type = 'BASE TABLE'"
 			" order by table_name",
 			 {'db':dbName} )
-		rs = tempCursor.fetchall()
+		rs = cursor.getDataSet()
 		tables = [x[0] for x in rs]
 		tables = tuple(tables)
 		return tables
 
 	
-	def getTableRecordCount(self, tableName):
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("select count(*) as ncount from '%(tablename)'" % tableName)
-		return tempCursor.fetchall()[0][0]
+	def getTableRecordCount(self, tableName, cursor):
+		cursor.execute("select count(*) as ncount from '%(tablename)'" % tableName)
+		return tempCursor.getDataSet()[0][0]
 		
 
 	def _fieldTypeNativeToDabo(self, nativeType):
@@ -150,26 +148,24 @@ class MSSQL(dBackend):
 		return ret
 		
 
-	def getFields(self, tableName):
+	def getFields(self, tableName, cursor):
 		""" Returns the list of fields of the passed table
-			field: ( fieldname, dabo data type, key )
-			"""
-		tempCursor = self._connection.cursor()
+		field: ( fieldname, dabo data type, key )
+		"""
 		# fairly standard way of getting column settings
 		# this may be standard enough to put in the super class
-
 		dbName = self.database
 		
-		tempCursor.execute(
+		cursor.execute(
 			"select COLUMN_NAME, DATA_TYPE" 
 			" from INFORMATION_SCHEMA.COLUMNS"
 			" where table_catalog = %(db)s"
 			" and table_name = %(table)s"
 			" order by ORDINAL_POSITION",
 			 {'table':tableName, 'db':dbName} )
-		fieldDefs = tempCursor.fetchall()
+		fieldDefs = cursor.getDataSet()
 
-		tempCursor.execute(
+		cursor.execute(
 			"select COLUMN_NAME "
 			" from information_schema.Constraint_Column_Usage CCU"
 			" join information_schema.TABLE_CONSTRAINTS TC"
@@ -179,7 +175,7 @@ class MSSQL(dBackend):
 			" and TC.CONSTRAINT_CATALOG = %(db)s" 
 			" and TC.Table_Name = %(table)s",
 			 {'table':tableName, 'db':dbName} )
-		pkFields = tempCursor.fetchall()
+		pkFields = cursor.getDataSet()
 
 		fields = []
 		for r in fieldDefs:

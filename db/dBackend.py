@@ -38,6 +38,8 @@ class dBackend(dObject):
 		# True in the given db module to tell dCursorMixin not to bother. As of this
 		# writing, only dbSQLite is set up for this.
 		self._alreadyCorrectedFieldTypes = False
+		# Reference to the cursor that is using this object
+		self._cursor = None
 
 
 	def isValidModule(self):
@@ -155,7 +157,7 @@ class dBackend(dObject):
 			return None
 
 
-	def getTables(self, includeSystemTables=False):
+	def getTables(self, cursor, includeSystemTables=False):
 		""" Return a tuple of the tables in the current database.
 
 		Different backends will do this differently, so override in subclasses.
@@ -163,12 +165,12 @@ class dBackend(dObject):
 		return tuple()
 
 
-	def getTableRecordCount(self, tableName):
+	def getTableRecordCount(self, tableName, cursor):
 		""" Return the number of records in the backend table."""
 		return -1
 
 
-	def getFields(self, tableName):
+	def getFields(self, tableName, cursor):
 		""" Return field information from the backend table.
 
 		See dCursorMixin.getFields() for a description of the return value.
@@ -479,13 +481,14 @@ class dBackend(dObject):
 	##########		Created by Echo 	##############
 	def isExistingTable(self, table):
 		"""Returns whether or not the table exists."""
+		crs = self._cursor.AuxCursor
 		if isinstance(table, dTable):
-			return self._isExistingTable(table.name)
+			return self._isExistingTable(table.name, crs)
 		else:
-			return self._isExistingTable(table)
+			return self._isExistingTable(table, crs)
 
 
-	def _isExistingTable(self, tablename):
+	def _isExistingTable(self, tablename, cursor):
 		# OVERRIDE IN SUBCLASSES!
 		return False
 

@@ -1654,12 +1654,12 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def getTables(self, includeSystemTables=False):
 		""" Return a tuple of tables in the current database."""
-		return self.BackendObject.getTables(includeSystemTables)
+		return self.BackendObject.getTables(self.AuxCursor, includeSystemTables)
 
 
 	def getTableRecordCount(self, tableName):
 		""" Get the number of records in the backend table."""
-		return self.BackendObject.getTableRecordCount(tableName)
+		return self.BackendObject.getTableRecordCount(tableName, self.AuxCursor)
 
 
 	def getFields(self, tableName=None):
@@ -1673,7 +1673,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if tableName is None:
 			# Use the default
 			tableName = self.Table
-		return self.BackendObject.getFields(tableName)
+		return self.BackendObject.getFields(tableName, self.AuxCursor)
 
 
 	def getFieldInfoFromDescription(self):
@@ -2056,6 +2056,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _setBackendObject(self, obj):
 		self.__backend = obj
+		if obj:
+			obj._cursor = self
 		if self.__auxCursor:
 			self.__auxCursor.__backend = obj
 

@@ -94,38 +94,35 @@ class Firebird(dBackend):
 		return "%s%s%s" % (sqt, str(val), sqt)
 
 
-	def getTables(self, includeSystemTables=False):
+	def getTables(self, cursor, includeSystemTables=False):
 		if includeSystemTables:
 			whereClause = ''
 		else:
 			whereClause = "where rdb$relation_name not starting with 'RDB$' "
 			
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("select rdb$relation_name from rdb$relations "
+		cursor.execute("select rdb$relation_name from rdb$relations "
 			"%s order by rdb$relation_name" % whereClause)
-		rs = tempCursor.fetchall()
+		rs = tempCursor.getDataSet()
 		tables = []
 		for record in rs:
 			tables.append(record[0].strip())
 		return tuple(tables)
 		
 		
-	def getTableRecordCount(self, tableName):
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("select count(*) as ncount from %s where 1=1" % tableName)
-		return tempCursor.fetchall()[0][0]
+	def getTableRecordCount(self, tableName, cursor):
+		cursor.execute("select count(*) as ncount from %s where 1=1" % tableName)
+		return tempCursor.getDataSet()[0][0]
 
 
-	def getFields(self, tableName):
-		tempCursor = self._connection.cursor()
+	def getFields(self, tableName, cursor):
 		# Get the PK
 		sql = """ select inseg.rdb$field_name
 		from rdb$indices idxs join rdb$index_segments inseg
 			on idxs.rdb$index_name = inseg.rdb$index_name
 			where idxs.rdb$relation_name = '%s'
 	and idxs.rdb$unique_flag = 1 """ % tableName.upper()
-		tempCursor.execute(sql)
-		rs = tempCursor.fetchone()
+		cursor.execute(sql)
+		rs = cursor.getDataSet(rows=1)
 		try:
 			pkField = rs[0].strip()
 		except:
@@ -146,8 +143,8 @@ class Firebird(dBackend):
  AND a.RDB$RELATION_NAME = '%s'
  ORDER BY b.RDB$FIELD_ID """ % tableName.upper()
  
-		tempCursor.execute(sql)
-		rs = tempCursor.fetchall()
+		cursor.execute(sql)
+		rs = cursor.getDataSet()
 		fields = []
 		for r in rs:
 			name = r[0].strip()

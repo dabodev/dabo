@@ -74,31 +74,28 @@ class NEWDATABASE(dBackend):
 		return "%s%s%s" % (sqt, str(val), sqt)
 
 		
-	def getTables(self, includeSystemTables=False):
+	def getTables(self, cursor, includeSystemTables=False):
 		#### TODO: Verify that this works with NEWDATABASE, including
 		####    the option for including/excluding system tables.
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("show tables")
-		rs = tempCursor.fetchall()
+		cursor.execute("show tables")
+		rs = cursor.getDataSet()
 		tables = []
 		for record in rs:
 			tables.append(record[0])
 		return tuple(tables)
 
 		
-	def getTableRecordCount(self, tableName):
+	def getTableRecordCount(self, tableName, cursor):
 		#### TODO: Verify that this is the correct syntax for NEWDATABASE
-		tempCursor = self._connection.cursor()
-		tempCursor.execute("select count(*) as ncount from %s" % tableName)
-		return tempCursor.fetchall()[0][0]
+		cursor.execute("select count(*) as ncount from %s" % tableName)
+		return cursor.getDataSet()[0][0]
 
 
-	def getFields(self, tableName):
-		tempCursor = self._connection.cursor()
+	def getFields(self, tableName, cursor):
 		#### TODO: Modify for NEWDATABASE syntax
-		tempCursor.execute("describe %s" % tableName)
-		rs = tempCursor.fetchall()
-		fldDesc = tempCursor.description
+		cursor.execute("describe %s" % tableName)
+		rs = cursor.getDataSet()
+		fldDesc = cursor.description
 		# The field name is the first element of the tuple. Find the
 		# first entry with the field name 'Key'; that will be the 
 		# position for the PK flag
