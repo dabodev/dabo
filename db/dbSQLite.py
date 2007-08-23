@@ -54,7 +54,8 @@ class SQLite(dBackend):
 		self._dictCursorClass = DictCursor
 		pth = os.path.expanduser(connectInfo.Database)
 		pth = pth.decode(sys.getfilesystemencoding()).encode("utf-8")
-		self._connection = self.dbapi.connect(pth, factory=DictConnection)
+		# Need to specify "isolation_level=None" to have transactions working correctly.
+		self._connection = self.dbapi.connect(pth, factory=DictConnection, isolation_level=None)
 		return self._connection
 		
 
