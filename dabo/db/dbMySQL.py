@@ -97,7 +97,7 @@ class MySQL(dBackend):
 	def _isExistingTable(self, tablename, cursor):
 		tbl = self.encloseNames(self.escQuote(tablename))
 		cursor.execute("SHOW TABLES LIKE %s" % tbl)
-		rs = tempCursor.getDataSet()
+		rs = cursor.getDataSet()
 		return bool(rs)
 			
 	
@@ -105,37 +105,28 @@ class MySQL(dBackend):
 		# MySQL doesn't have system tables, in the traditional sense, as 
 		# they exist in the mysql database.
 		cursor.execute("show tables")
-		rs = tempCursor.getDataSet()
+		# Non-select statements don't get read into the data set
+		rs = cursor.fetchall()
 		tables = []
 		for record in rs:
-			tables.append(record[0])
+			tables.append(record.values()[0])
 		return tuple(tables)
 		
 		
 	def getTableRecordCount(self, tableName, cursor):
 		cursor.execute("select count(*) as ncount from %s" % self.encloseNames(tableName))
-		return tempCursor.getDataSet()[0][0]
+		return cursor.getDataSet()[0]["ncount"]
 
 
 	def getFields(self, tableName, cursor):
 		if not tableName:
 			return tuple()
 		cursor.execute("describe %s" % self.encloseNames(tableName))
-		rs = cursor.getDataSet()
-		fldDesc = cursor.description
-		# The field name is the first element of the tuple. Find the
-		# first entry with the field name 'Key'; that will be the 
-		# position for the PK flag
-		pkPos = 0
-		for i in range(len(fldDesc)):
-			if fldDesc[i][0] == "Key":
-				pkPos = i
-				break
-		
+		rs = cursor.fetchall()
 		fields = []
 		for r in rs:
-			name = r[0]
-			ft = r[1]
+			name = r["Field"]
+			ft = r["Type"]
 			if ft.split()[0] == "tinyint(1)" or "bit" in ft:
 				ft = "B"
 			elif "int" in ft:
@@ -167,8 +158,7 @@ class MySQL(dBackend):
 				ft = "C"
 			else:
 				ft = "?"
-			pk = (r[pkPos] == "PRI")
-			
+			pk = (r["Key"] == "PRI")
 			fields.append((name.strip(), ft, pk))
 		return tuple(fields)
 

@@ -76,14 +76,14 @@ class MSSQL(dBackend):
 			" order by table_name",
 			 {'db':dbName} )
 		rs = cursor.getDataSet()
-		tables = [x[0] for x in rs]
+		tables = [x["table_name"] for x in rs]
 		tables = tuple(tables)
 		return tables
 
 	
 	def getTableRecordCount(self, tableName, cursor):
 		cursor.execute("select count(*) as ncount from '%(tablename)'" % tableName)
-		return tempCursor.getDataSet()[0][0]
+		return cursor.getDataSet()[0]["ncount"]
 		
 
 	def _fieldTypeNativeToDabo(self, nativeType):
@@ -179,9 +179,9 @@ class MSSQL(dBackend):
 
 		fields = []
 		for r in fieldDefs:
-			name = r[0]
-			ft = self._fieldTypeNativeToDabo(r[1])
-			pk = (name,) in pkFields
+			name = r["column_name"]
+			ft = self._fieldTypeNativeToDabo(r["data_type"])
+			pk = (name,) in [(p["column_name"], ) for p in pkFields]
 			fields.append((name, ft, pk))
 		return tuple(fields)
 
