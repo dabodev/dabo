@@ -7,12 +7,8 @@ from dBackend import dBackend
 class Postgres(dBackend):
 	"""Class providing PostgreSQL connectivity. Uses psycopg."""
 	def __init__(self):
+		""" JFCS 08/23/07 Currently supporting only psycopg2"""
 		dBackend.__init__(self)
-		#- jfcs 11/01/04 I have to use alpha/beta of psycopg (currently 1.99.10)
-		#- because the 1.1.x series does not support a cursor class (confirmed
-		#- by the author of the module).
-		#self.dbModuleName = "pgdb"
-		#self.dbModuleName = "PgSQL"
 		self.dbModuleName = "psycopg"
 		self.conn_user = ''
 
@@ -60,12 +56,10 @@ class Postgres(dBackend):
 	
 	def getTables(self, cursor, includeSystemTables=False):
 		# jfcs 11/01/04 assumed public schema
-		#tempCursor.execute("select tablename from pg_tables where schemaname = 'public'")
 		# jfcs 01/22/07 added below to support schema 
 		# thanks to Phillip J. Allen who provided a Select state that filtered for the user name
 		if includeSystemTables:
 			sqltablestr = (("SELECT schemaname || '.' || tablename AS tablename FROM pg_tables WHERE has_table_privilege('%s', schemaname || '.' || tablename, 'SELECT')") % self.conn_user)
-	
 		else:
 			sqltablestr = (("SELECT schemaname || '.' || tablename AS tablename FROM pg_tables WHERE (schemaname not like 'pg_%s' and schemaname not like 'information%s') and has_table_privilege('%s', schemaname || '.' || tablename, 'SELECT')") % ('%','%',self.conn_user))
 						
@@ -83,35 +77,11 @@ class Postgres(dBackend):
 
 
 	def getFields(self, tableName, cursor):
+		"""JFCS support for 7.4 and greater
+		   Requires that each table have a primary key"""
 		tableNameBreak=tableName.split('.',1)
 		localSchemaName = tableNameBreak[0]
 		localTableName = tableNameBreak[1]
-		#jfcs 11/01/04 works great from psql (but does not work with the psycopg
-		#module) and only with postgres 7.4.x and later.  Too bad, the statement
-		#does everything in one shot.
-		#jfcs 11/02/04 below now works just fine
-		#comment it if your working with 7.3.x
-		# make sure you uncomment the other code out
-		
-		# jfcs 01/22/07 actually I'm not sure Dabo is still able to support 7.1 - 7.4
-		# should you attempt to Dabo with 7.4 or below please let us know.
-		
-		#tempCursor.execute("select c.column_name as fielname, c.data_type as fieldtyp, \
-		#i.indisprimary AS is_pkey \
-		#FROM information_schema.columns c \
-		#LEFT JOIN information_schema.key_column_usage cu \
-		#ON (c.table_name=cu.table_name AND c.column_name=cu.column_name) \
-		#LEFT JOIN pg_class cl ON(cl.relname=cu.table_name) \
-		#LEFT JOIN pg_index i ON(cl.oid= i.indrelid) WHERE c.table_name= '%s'" % tableName)
-		#rs=tempCursor.fetchall()
-		
-		
-		# Ok get the 'field name', 'field type'
-		#tempCursor.execute("""select c.oid,a.attname, t.typname 
-				#from pg_class c inner join pg_attribute a 
-				#on a.attrelid = c.oid inner join pg_type t on a.atttypid = t.oid 
-				#where c.relname = '%s' and a.attnum > 0 """ % tableName)
-		# JFCS 01/22/07 Added support for schema 
 		cursor.execute("""select c.oid,a.attname, t.typname, b.schemaname from pg_class c 
 inner join pg_attribute a on a.attrelid = c.oid 
 inner join pg_type t on a.atttypid = t.oid 
@@ -137,12 +107,14 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 		else:
 			#thestr = rs2[0][3]
 			#thePKFieldName = thestr[thestr.find("(") + 1: thestr.find(")")].split(", ")
-			thePKFieldName = rs2[0][3]
+			#thePKFieldName = rs2[0][3]
+			thePKFieldName = rs2[0]['column_name']
 		
 		fields = []
 		for r in rs:
-			name = r[1]
-			fldType =r[2]
+			name = r['attname']
+			#fldType =r[2]
+			fldType =r['typname']
 			pk = False
 			if thePKFieldName is not None:
 				pk = (name in thePKFieldName)
@@ -243,7 +215,8 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 		localSchemaName = tableNameBreak[0]
 		localTableName = tableNameBreak[1]
 		
-		tempCursor = self._cursor.AuxCursor
+		#tempCursor = self._cursor.AuxCursor
+		tempCursor =self._connection.cursor()
 		sqltablestr = """SELECT seq.relname::text
 		FROM pg_class src, pg_class seq, pg_namespace, pg_attribute,
 		pg_depend
@@ -260,6 +233,9 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 		
 		tempCursor.execute(sqltablestr)
 		rs = tempCursor.fetchall()
+		#if rs is None:
+			#dabo.dbActivityLog.write("no data in getLastInsertID")
+
 		sqlWithseq_name="""select currval('%s') as curval""" % (rs[0][0],)
 		tempCursor.execute(sqlWithseq_name) 
 		rs = tempCursor.fetchall()
