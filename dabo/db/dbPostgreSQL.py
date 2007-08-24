@@ -67,13 +67,13 @@ class Postgres(dBackend):
 		rs = cursor.getDataSet()
 		tables = []
 		for record in rs:
-			tables.append(record[0])
+			tables.append(record["tablename"])
 		return tuple(tables)
 
 	
 	def getTableRecordCount(self, tableName, cursor):
 		cursor.execute("select count(*) as ncount from %s" % tableName)
-		return cursor.getDataSet()[0][0]
+		return cursor.getDataSet()[0]["ncount"]
 
 
 	def getFields(self, tableName, cursor):
@@ -106,15 +106,12 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 			thePKFieldName = None
 		else:
 			#thestr = rs2[0][3]
-			#thePKFieldName = thestr[thestr.find("(") + 1: thestr.find(")")].split(", ")
-			#thePKFieldName = rs2[0][3]
 			thePKFieldName = rs2[0]['column_name']
 		
 		fields = []
 		for r in rs:
-			name = r['attname']
-			#fldType =r[2]
-			fldType =r['typname']
+			name = r["attname"]
+			fldType =r["typname"]
 			pk = False
 			if thePKFieldName is not None:
 				pk = (name in thePKFieldName)
