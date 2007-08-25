@@ -1,4 +1,4 @@
-# Spanish translation for dabo
+# Finnish translation for dabo
 # Copyright (c) 2007 Rosetta Contributors and Canonical Ltd 2007
 # This file is distributed under the same license as the dabo package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2007.
@@ -9,23 +9,22 @@ msgstr ""
 "Project-Id-Version: dabo\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2007-07-18 09:19+EDT\n"
-"PO-Revision-Date: 2007-08-14 11:36+0000\n"
-"Last-Translator: Aida I. Rivera <air@abac.com>\n"
-"Language-Team: Spanish <es@li.org>\n"
+"PO-Revision-Date: 2007-07-31 20:27+0000\n"
+"Last-Translator: Lauri Ojansivu <lauri.ojansivu@gmail.com>\n"
+"Language-Team: Finnish <fi@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Rosetta-Export-Date: 2007-08-24 12:58:22+0000\n"
+"X-Rosetta-Export-Date: 2007-08-24 12:58:35+0000\n"
 
 #: ./biz/dAutoBizobj.py:42
 msgid "No tables have been setup for autocreation."
-msgstr "Noy hay tablas configuradas para autocreación."
+msgstr "Yhtään taulukkoa ei ole asetettu luotavaksi automaattisesti."
 
 #: ./biz/dAutoBizobj.py:65
 msgid "The database could not be setup. Contact your DB administrator."
 msgstr ""
-"La base de datos no pudo ser configurada.  Contacte al Administrador de Base "
-"de Datos."
+"Tietokantaa ei pystytty asettamaan. Ota yhteyttä tietokannan ylläpitäjään."
 
 #: ./biz/dAutoBizobj.py:66
 msgid ""
@@ -35,148 +34,152 @@ msgid ""
 "database to create the needed tables.\n"
 "  2. or executing all the quries in the 'queries.sql' file."
 msgstr ""
-"Para el Administrador de Base de Datos:\n"
-"Las tablas deben ser creadas de una de las siguientes formas:\n"
-"1. Utilizando este programa dándole acceso TEMPORERO a la base de datos para "
-"crear las tablas necesarias.\n"
-"2. o ejecutando todo el fichero 'queries.sql'."
+"Tietokannan ylläpitäjälle:\n"
+" Taulukot täytyy luoda joko:\n"
+"  1. käytämällä tätä ohjelmaa antaen VÄLIAIKAISESTI tälle ohjelmalle "
+"oikeudet tehdä tarvittavat taulukot tietokantaan.\n"
+"  2. tai suorittamalla kaikki kyselyt 'queries.sql' tiedostosta."
 
 #: ./biz/dAutoBizobj.py:71
 msgid ""
 "DBA, please enter the username and password that has access to create tables "
 "for database on server '%s' and database '%s'"
 msgstr ""
-"Administrador de Base de Datos, favor entrar el nombre del usuario y "
-"contraseña para acceder a crear las tablas de la base de datos en el "
-"servidor '%s' y la base de datos '%s'"
+"Tietokannan ylläpitäjä, ole hyvä ja kirjoita käyttäjänimi ja salasana joilla "
+"on oikeudet luoda taulukot palvelimelle '%s' ja tietokantaan '%s'"
 
 #: ./biz/dAutoBizobj.py:73
 msgid "Username"
-msgstr "Nombre del usuario"
+msgstr "Käyttäjätunnus"
 
 #: ./biz/dAutoBizobj.py:78
 msgid "Password"
-msgstr "Contraseña:"
+msgstr "Salasana"
 
 #: ./biz/dAutoBizobj.py:84
 msgid "OK"
-msgstr "ACEPTAR"
+msgstr "OK"
 
 #: ./biz/dAutoBizobj.py:88 ./lib/datanav/Form.py:179 ./lib/datanav2/Form.py:98
 #: ./ui/dialogs/Wizard.py:102
 msgid "Cancel"
-msgstr "Cancelar"
+msgstr "Hylkää"
 
 #: ./biz/dAutoBizobj.py:102
 msgid "You must enter the username first."
-msgstr "Debe entrar primero el nombre del usuario."
+msgstr "Sinun täytyy kirjoittaa käyttäjätunnus ensin."
 
 #: ./biz/dAutoBizobj.py:106
 msgid "You must enter the password first."
-msgstr "Debe entrar primero la contraseña."
+msgstr "Sinun täytyy kirjoittaa salasana ensin."
 
 #: ./biz/dAutoBizobj.py:140
 msgid "Could not access the database with the given username and password."
 msgstr ""
-"No puedo acceder la base de datos con el nombre del usuario y contraseña "
-"indicada."
+"Ei saatu yhteyttä tietokantaan annetulla käyttänimellä ja salasanalla."
 
 #: ./biz/dAutoBizobj.py:151
+#, fuzzy
 msgid "Could not setup the database. Access was denied."
-msgstr "No puedo configurar la base de datos.  El acceso fue denegado."
+msgstr "Ei pystytty asettamaan tietokantaa. Pääsy oli evätty."
 
 #: ./biz/dAutoBizobj.py:168
+#, fuzzy
 msgid "#Queries for DB '%s' on host '%s':\n"
-msgstr "#Consultas por base de datos '%s' en el servidor '%s':\n"
+msgstr "#Kyselyt tietokannalle '%s' palvelimella '%s':\n"
 
 #: ./biz/dAutoBizobj.py:250
 msgid "No table has been defined for this bizobj."
-msgstr "No hay tablas definidas para este objecto de negocio [bizobj]."
+msgstr "Yhtään taulukkoa ei ole määritelly tälle Bizobjektille."
 
 #: ./biz/dAutoBizobj.py:303
 msgid "The table definition for this bizobj.  (object)"
-msgstr ""
-"La definición de la tabla para este objecto de negocio [bizobj. (objeto)"
+msgstr "Taulukon määritelmä tälle Bizobjektille. (object)"
 
 #: ./biz/dBizobj.py:315 ./biz/dBizobj.py:446 ./biz/dBizobj.py:1233
 msgid "No key field defined for table: "
-msgstr "No se ha definido una clave primaria para esta tabla. "
+msgstr "Avainkenttää ei ole määritelty taulukolle: "
 
 #: ./biz/dBizobj.py:452
+#, fuzzy
 msgid "Deletion prohibited - there are related child records."
-msgstr "No se permite borrar - Hay registros hijos"
+msgstr "Poistaminen kielletty - on olemassa tähän viittaavia alitietueita."
 
 #: ./biz/dBizobj.py:736
+#, fuzzy
 msgid "No Primary Key defined in the Bizobj for %s"
-msgstr ""
-"No hay una clave primaria definida para este objecto de negocio [Bizobj] "
-"para %s."
+msgstr "Perusavainta ei ole määritelty Bizobjektissa %s:lle"
 
 #: ./biz/dBizobj.py:943
+#, fuzzy
 msgid "PK Value %s not found in the dataset"
-msgstr ""
-"El valor de la clave %s primaria %s  no se encuentra en el conjunto de datos "
-"[dataset]"
+msgstr "Perusavain arvoa %s ei löytynyt tiedoista"
 
 #: ./biz/dBizobj.py:1696
+#, fuzzy
 msgid "Parent must descend from dBizobj"
-msgstr "El Padre debe descender de dBizobj"
+msgstr "Perusluokka tulee olla johdannainen dBizobjektista"
 
 #: ./biz/dBizobj.py:1845 ./db/dCursorMixin.py:2256
+#, fuzzy
 msgid ""
 "Do we need explicit begin/commit/rollback commands for transactions?  (bool)"
 msgstr ""
-"¿Son obligatorios los comandos begin/commit/rollback para transacciones? "
-"(booleano)"
+"Tarvitsemmeko täsmällisiä begin/commit/rollback komentoja transaktioille? "
+"(bool)"
 
 #: ./biz/dBizobj.py:1848
+#, fuzzy
 msgid ""
 "Determines if we are using a table that auto-generates its PKs. (bool)"
 msgstr ""
-"Determina si estamos utilizando una tabla para auto-generar sus claves "
-"primarias. (bool)"
+"Määrittää sen, että käytämmekö taulukkoa joka muodostaa automaattisesti "
+"perusavaimensa."
 
 #: ./biz/dBizobj.py:1851
+#, fuzzy
 msgid ""
 "When True (default), table and column names are enclosed with\n"
 "\t\t\tquotes during SQL creation in the cursor.  (bool)"
 msgstr ""
-"Cuando es verdadero (predeterminado), el nombre de la tabla y las columnas "
-"es encerrado entre\n"
-"\t\t\tcomillas durante la creacion del cursor SQL. (booleano)"
+"Kun Tosi (oletus), taulukko- ja sarakenimet on ympäröity\n"
+"\t\t\tlainausmerkeillä SQL:n luomisen aikana kursorissa. (boolean)"
 
 #: ./biz/dBizobj.py:1855 ./db/dCursorMixin.py:2266
+#, fuzzy
 msgid "Returns the SQL statement automatically generated by the sql manager."
-msgstr ""
-"Devuelve la instrucción en SQL generada automaticamente por el manejador de "
-"sql."
+msgstr "Palauttaa SQL lauseen jonka sql hallinta on luonut automaattisesti."
 
 #: ./biz/dBizobj.py:1858
+#, fuzzy
 msgid ""
 "The friendly title of the cursor, used in messages to the end user. (str)"
 msgstr ""
-"El nombre familiar del cursor, utilizado en mensajes para el usuario. (str)"
+"Ystävällinen otsikko kursorille, käytetty viesteissä loppukäyttäjälle. (str)"
 
 #: ./biz/dBizobj.py:1861 ./db/dCursorMixin.py:2276
+#, fuzzy
 msgid ""
 "Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."
 msgstr ""
-"Devuelve el SQL actual que va a ser ejecutado, que es UserSQL o AutoSQL."
+"Palauttaa nykyisen ajettavan SQL:n, joka on joko UserSQL tai AutoSQL."
 
 #: ./biz/dBizobj.py:1864
+#, fuzzy
 msgid ""
 "The cursor object for the currently selected key value. (dCursorMixin child)"
 msgstr ""
-"El objeto cursor para la llave actualmente seleccionada. (dCursorMixin hijo)"
+"Kursori objekti nyt valittuna olevalle avainarvolle. (dCursorMixin child)"
 
 #: ./biz/dBizobj.py:1867
+#, fuzzy
 msgid ""
 "The title of the cursor. Used in resolving DataSource references. (str)"
 msgstr ""
-"El nombre del cursor.  Utilizado en resolver las referencias de la Fuente de "
-"Data. (str)"
+"Kursorin otsikko. Käytetään ratkaistaessa DataSource viittauksia. (str)"
 
 #: ./biz/dBizobj.py:1870 ./db/dCursorMixin.py:2279
+#, fuzzy
 msgid ""
 "Returns the structure of the cursor in a tuple of 6-tuples.\n"
 "\n"
@@ -191,20 +194,21 @@ msgid ""
 "\t\t\t\t1) The explicitly-set DataStructure property\n"
 "\t\t\t\t2) The backend table method"
 msgstr ""
-"Devuelve la estructura del cursor en una matriz de 6 filas.\n"
+"Palauttaa kursorin rakenteen 6-monikon monikkoina.\n"
 "\n"
-"\t\t\t\t0: alias del campo (texto)\n"
-"\t\t\t\t1: codigo del tipo de datos (texto)\n"
-"\t\t\t\t2: llave primaria (boleano)\n"
-"\t\t\t\t3: nombre de la tabla (texto)\n"
-"\t\t\t\t4: nombre del campo (texto)\n"
-"\t\t\t\t5: escala del campo  (entero o Ninguno)\n"
+"\t\t\t\t0: kenttä alias (str)\n"
+"\t\t\t\t1: data tyyppi koodi (str)\n"
+"\t\t\t\t2: perusavain kenttä (bool)\n"
+"\t\t\t\t3: taulukon nimi (str)\n"
+"\t\t\t\t4: kentän nimi (str)\n"
+"\t\t\t\t5: kentän skaala (int tai None)\n"
 "\n"
-"\t\t\t\tEsta informacion intentara obtenerse de: \n"
-"\t\t\t\t1) La propiedad DataStructure explicitamente definida \n"
-"\t\t\t\t2) El metodo tabla del proveedor de datos"
+"\t\t\t\tNämä tiedot yritetään saada muutamasta paikasta, järjestyksessä:\n"
+"\t\t\t\t1) Explisiittisesti asetetusta DataStructure ominaisuudesta\n"
+"\t\t\t\t2) Backend taulukon metodista"
 
 #: ./biz/dBizobj.py:1884
+#, fuzzy
 msgid ""
 "A dictionary specifying default values for fields when a new record is "
 "added.\n"
@@ -215,114 +219,120 @@ msgid ""
 "is added\n"
 "\t\t\tto the bizobj."
 msgstr ""
-"Una lista especificando valores predeterminados para los campos cuando se "
-"agrega un nuevo registro.\n"
+"Sanakirja joka määrittää oletusarvot kentille kun uusi tietue lisätään.\n"
 "\n"
-"tab]\t\tLos valores de la lista pueden ser literales (deben correspondera al "
-"tipo de campo), o \n"
-"\t\t\tpuden ser un objeto funcion que se ejecutara cuando el nuevo registro "
-"sea agregado\n"
-"\t\t\tal bizobj."
+"\t\t\tSanakirjan arvot voivat olla sanatarkkoja (täytyy täsmätä kentän "
+"tyyppiin), tai\n"
+"\t\t\tne voi olla funktio objektina jota kutsutaan kun uusi tietue lisätään\n"
+"\t\t\tBizobjektiin."
 
 #: ./biz/dBizobj.py:1891 ./dApp.py:1097 ./ui/uiwx/dGrid.py:4250
+#, fuzzy
 msgid "Name of encoding to use for unicode  (str)"
-msgstr "Nombre del codigo que usa para unicode (texto)"
+msgstr "Merkistökoodauksen nimi jota käytetään unicodelle (str)"
 
 #: ./biz/dBizobj.py:1894
+#, fuzzy
 msgid ""
 "In the onNew() method, do we fill in the foreign key field specified by the\n"
 "\t\t\tLinkField property with the value returned by calling the bizobj's \t"
 "getParentPK()\n"
 "\t\t\tmethod? (bool)"
 msgstr ""
-"En el metodo onNew(), ¿debe llenarse la clave foranea especificada en la\n"
-"\t\t\tpropiedad LinkField con el valor devuelto al hacer la llamada al "
-"metodo \tgetParentPK()\n"
-"\t\t\tdel bizobj? (boleano)"
+"onNew() metodissa, täytämmekö viiteavain kentän määriteltynä\n"
+"\t\t\tLinkField ominaisuudessa arvolla joka on palautettu kutsumalla "
+"Bizobjektin \tgetParentPK()\n"
+"\t\t\tmetodia? (bool)"
 
 #: ./biz/dBizobj.py:1899
+#, fuzzy
 msgid "Returns True if the current record is new and unsaved."
-msgstr ""
-"Devuelve Cierto si el récord seleccionado es nuevo y no se ha guardado."
+msgstr "Palauttaa Tosi jos nykyinen tietue on uusi ja tallentamaton."
 
 #: ./biz/dBizobj.py:1902
+#, fuzzy
 msgid ""
 "Name of field that is the PK. If multiple fields make up the key,\n"
 "\t\t\tseparate the fields with commas. (str)"
 msgstr ""
-"Nombre del campo que es la llave primaria. Si varios campos componen la "
-"llave,\n"
-"\t\t\tsepare los nombres con comas. (texto)"
+"Nimi kentälle joka on perusavain. Jos usea kenttä muodostaa avaimen,\n"
+"\t\t\terota kentät pilkuilla. (str)"
 
 #: ./biz/dBizobj.py:1906 ./db/dCursorMixin.py:2306
+#, fuzzy
 msgid "Returns the last executed SQL statement."
-msgstr "Devuelve la última instrucción de SQL ejecutada."
+msgstr "Palauttaa viimeisimmän suoritetun SQL kyselyn."
 
 #: ./biz/dBizobj.py:1909
+#, fuzzy
 msgid "Name of the field that is the foreign key back to the parent. (str)"
-msgstr ""
-"Nombre del campo, llave foránea, que hace referencia al padre. (texto)"
+msgstr "Nimi kentälle joka on viiteavain takaisin perusluokkaan. (str)"
 
 #: ./biz/dBizobj.py:1912
+#, fuzzy
 msgid ""
 "Should new child records be added when a new parent record is added? (bool)"
 msgstr ""
-"¿Se deben agregar registros hijos cuando se agrega un  registro padre? "
-"(booleano)"
+"Pitäisikö uusia alitietueita lisätä kun uusi pääluokka tietue on lisätty? "
+"(bool)"
 
 #: ./biz/dBizobj.py:1915
+#, fuzzy
 msgid ""
 "If this bizobj's parent has NewChildOnNew==True, do we create a record here? "
 "(bool)"
 msgstr ""
-"Si el objeto bizobj tiene la propiedad NewChildOnNew en verdadero, ¿se debe "
-"crear un nuevo registro? (booleano)"
+"Jos tämän Bizobjektin pääluokassa on NewChildOnNew==True, luommeko uuden "
+"tietueen tähän? (bool)"
 
 #: ./biz/dBizobj.py:1918
+#, fuzzy
 msgid "Fields in the cursor to be ignored during updates"
-msgstr ""
-"Los campos en el cursor que serán ignorados durante las actualizaciones."
+msgstr "Kursorin kentät jotka tulee jättää huomiotta päivityksiä tehdessä"
 
 #: ./biz/dBizobj.py:1921
+#, fuzzy
 msgid "Reference to the parent bizobj to this one. (dBizobj)"
-msgstr "Referencia de este objeto con el bizobj padre. (dBizobj)"
+msgstr "Viittaus pääluokasta tähän. (dBizobj)"
 
 #: ./biz/dBizobj.py:1924
+#, fuzzy
 msgid ""
 "Name of the field in the parent table that is used to determine child\n"
 "\t\t\trecords. If empty, it is assumed that the parent's PK is used  (str)"
 msgstr ""
-"Nombre del campo en la tabla padre que es usado para determinar los "
-"registros hijos.\n"
-"\t\t\tSi esa en blanco, se asume que la llave primaria del padre es usada "
-"(texto)"
+"Nimi kentällepääluokka taulukossa jota käytetään määrittelemään\n"
+"\t\t\talitietueet. Jos tyhjä, oletetaan että pääluokan perusavainta "
+"käytetään (str)"
 
 #: ./biz/dBizobj.py:1928 ./db/dCursorMixin.py:2313
+#, fuzzy
 msgid ""
 "Represents a record in the data set. You can address individual\n"
 "\t\t\tcolumns by referring to 'self.Record.fieldName' (read-only) (no type)"
 msgstr ""
-"Representa un registro en el conjunto de datos.  Puede hacer referencia "
-"individualmente\n"
-"\t\t\ta cada columna de la forma: 'self.Record.nombredecampo' (solo lectura) "
-"(sin tipo)"
+"Kuvaa tietuetta tiedoissa. Voit osoittaa yksittäisiä\n"
+"\t\t\tsarakkeita viittaamalla 'self.Record.fieldName' (vain luku) (ei "
+"tyyppiä)"
 
 #: ./biz/dBizobj.py:1932
+#, fuzzy
 msgid "Do we requery child bizobjs after a Save()? (bool)"
 msgstr ""
-"¿Se deben actualizar los objetos hijos despues de guardar los datos ? "
-"(booleano)"
+"Teemmekö kyselyn uudelleen ali-Bizobjekteihin Save():n jälkeen? (bool)"
 
 #: ./biz/dBizobj.py:1935
+#, fuzzy
 msgid ""
 "When True, the cursor object runs its query immediately. This\n"
 "\t\t\tis useful for lookup tables or fixed-size (small) tables. (bool)"
 msgstr ""
-"Cuando es verdadero, el objeto cursor ejecuta su consulta inmediatamente.  "
-"Esto\n"
-"\t\t\tes útil para tablas de consulta o de tamaño pequeño. (Booleano)"
+"Kun Tosi, kursori objekti ajaa kyselyn välittömästi. Tämä\n"
+"\t\t\ton hyödyllistä katsontataulukoille (lookup tables) tai kiinteän koon "
+"(pienille) taulukoille. (bool)"
 
 #: ./biz/dBizobj.py:1939
+#, fuzzy
 msgid ""
 "Specifies whether a child bizobj gets requeried automatically.\n"
 "\n"
@@ -332,176 +342,193 @@ msgid ""
 "\t\t\t\tchild.requery() at the appropriate time.\n"
 "\t\t\t\t"
 msgstr ""
-"Especifica si un objeto bizobj hijo se actualiza automáticamente.\n"
+"Määrittelee sen, uudelleenkyselläänkö ali-Bizobjekti automaattisesti.\n"
 "\n"
-"\t\t\t\tCuando es Verdadero (predeterminado) al mover el puntero o "
-"actualizar\n"
-"\t\t\t\tel objeto bizobj padre, hará que el bizobj hijo también sea "
-"actualizado.\n"
-"\t\t\t\tCuando es Falso, el usuario debe especificar manualmente cuando \n"
-"\t\t\t\thacer la actualizacion del objeto hijo.\n"
+"\t\t\t\tKun Tosi (oletus) tietue osoittimen siirtäminen tai uudelleenkysely\n"
+"\t\t\t\tperusluokka Bizobjektiin johtaa ali-Bizobjektin uudelleenkyselyihin\n"
+"\t\t\t\tsamoin. Kun Epätosi, käyttäjän koodin täytyy manuaalisesti kutsua\n"
+"\t\t\t\tchild.requery() tarvittaessa.\n"
 "\t\t\t\t"
 
 #: ./biz/dBizobj.py:1948
+#, fuzzy
 msgid ""
 "After a requery, do we try to restore the record position to the same PK?"
 msgstr ""
-"¿Restaurar la posicion del registro en la misma llave primaria despues de la "
-"actualizacion?"
+"Uudelleenkysely jälkeen, yritämmenkö palauttaa tietuekohdan samaan "
+"perusavaimeen?"
 
 #: ./biz/dBizobj.py:1951
+#, fuzzy
 msgid ""
 "The number of records in the cursor's data set. It will be -1 if the\n"
 "\t\t\tcursor hasn't run any successful queries yet. (int)"
 msgstr ""
-"El número de registros en el cursor.  Será -1 si \n"
-"\t\t\tno regresa ningun registro al hacer la consulta. (entero)"
+"Tietueiden määrä kursorin tiedoissa. Se tulee olemaan -1 jos\n"
+"\t\t\tkursori ei ole ajanut onnistuneesi kyselyitä vielä. (int)"
 
 #: ./biz/dBizobj.py:1955
+#, fuzzy
 msgid "The current position of the record pointer in the result set. (int)"
-msgstr "La posición actual del puntero en el conjunto de datos. (entero)"
+msgstr "Nykyinen tietue osoittimen paikka tulosjoukossa. (int)"
 
 #: ./biz/dBizobj.py:1958
+#, fuzzy
 msgid ""
 "Normally new, unmodified records are not saved. If you need\n"
 "\t\t\tthis behavior, set this to True.  (bool)"
 msgstr ""
-"Normalmente los registros nuevos y sin modificaciones no son guardados.  Si "
-"desea \n"
-"\t\t\tque sean guardados, asigne esta propiedad como Verdadero. (boleano)"
+"Normaalisti uusia, muokkaamattomia tietueita ei tallenneta. Jos tarvitset\n"
+"\t\t\ttätä käytöstä, aseta sen arvoksi Tosi. (bool)"
 
 #: ./biz/dBizobj.py:1962
+#, fuzzy
 msgid ""
 "After running a scan, do we attempt to restore the record position to\n"
 "\t\t\twhere it was before the scan (True, default), or do we leave the "
 "pointer\n"
 "\t\t\tat the end of the recordset (False). (bool)"
 msgstr ""
-"Despues de hacer una busqueda, restaurar la posicion del puntero\n"
-"\t\t\ta la posición en la que estaba antes de la busqueda (Verdadero, "
-"predeterminado), o dejar el puntero\n"
-"\t\t\tal final del conjuto de datos (Falso). (boleano)"
+"Kun olet ajanut haun, yritämmekö palauttaa tietuekohdan\n"
+"\t\t\tsinne missä se oli enne hakua (Tosi, oletus), vai jätämmekö "
+"osoittimen\n"
+"\t\t\ttietuejoukon loppuun (Epätosi). (bool)"
 
 #: ./biz/dBizobj.py:1967
+#, fuzzy
 msgid "Do we scan the records in reverse order? (Default: False) (bool)"
 msgstr ""
-"¿Buscar los registros en orden inverso? (Predeterminado: Falseo) (Boleano)"
+"Etsimmekö tietueita käänteisessä järjestyksessä? (Oletus: Epätosi) (bool)"
 
 #: ./biz/dBizobj.py:1970
+#, fuzzy
 msgid "SQL statement used to create the cursor's data. (str)"
-msgstr "instrucción de SQL utilizada para crear la data del cursor. (str)"
+msgstr "SQL kysely jota käytetään luomaan kursorin tiedot. (str)"
 
 #: ./biz/dBizobj.py:1973
+#, fuzzy
 msgid "Reference to the cursor that handles SQL Builder information (cursor)"
-msgstr ""
-"Hace referencia al cursor que maneja la información del creador de SQL "
-"(cursor)"
+msgstr "Viittaus kursoriin joka käsittelee SQL Builder tietoja (cursor)"
 
 #: ./biz/dBizobj.py:1976 ./db/dCursorMixin.py:2326
+#, fuzzy
 msgid ""
 "SQL statement to run. If set, the automatic SQL builder will not be used."
 msgstr ""
-"La instrucción de SQL a ejecutar.  Si es seleccionada, el creador de SQL "
-"automático no será utilizado."
+"SQL kysely joka ajetaan. Jos asetettu, automaattista SQL Builderia ei "
+"käytetä."
 
 #: ./biz/dBizobj.py:1979
+#, fuzzy
 msgid ""
 "A dictionary mapping virtual_field_name to function to call.\n"
 "\n"
 "\t\t\tThe specified function will be called when getFieldVal() is called on\n"
 "\t\t\tthe specified virtual field name."
 msgstr ""
-"Una lista de relaciones entre el nombre_virtual_del_campo hacia funciones "
-"para ejecutar.\n"
+"Sanakirja joka asettaa virtual_field_name:n osoittamaan funktioon jota "
+"kutsutaan.\n"
 "\n"
-"\t\t\tLa función especificada será llamada cuando getFieldVal() sea "
-"ejecutado\n"
-"\t\t\tdesde el nombre de campo virtual."
+"\t\t\tMääritettyä funktiota kutsutaan kun getFieldVal() on kutsuttu\n"
+"\t\t\tmääritetyllä virtuaalisen kentän nimellä."
 
 #: ./biz/dBizobj.py:1994
+#, fuzzy
 msgid "Cannot reverse in the middle of iteration."
-msgstr "No se puede reversar dentro de un bucle"
+msgstr "Ei voida vaihtaa suuntaa kesken käsittelyn."
 
 #: ./dApp.py:292
+#, fuzzy
 msgid "Application finished."
-msgstr "Aplicación terminada."
+msgstr "Ohjelma valmis."
 
 #: ./dApp.py:411
+#, fuzzy
 msgid "Cannot update file: '%s'. Error: %s"
-msgstr "No puedo actualizar el archivo: '%s'. Error. %s"
+msgstr "Ei pystytty päivittämään tiedostoa: '%s'. Virhe: %s"
 
 #: ./dApp.py:595
+#, fuzzy
 msgid "%s database connection definition(s) loaded."
-msgstr "%s definición(es) de conección del database fueron cargadas."
+msgstr "%s tietokanta yhteyden määritykset ladattu."
 
 #: ./dApp.py:610
+#, fuzzy
 msgid "User interface already set to '%s', so dApp didn't touch it."
-msgstr ""
-"La interface del usuario se ha establecido a '%s', dApp no hara ningún "
-"cambio."
+msgstr "Käyttöliittymä on jo asetettu '%s':ksi, joten dApp ei koskenut sitä."
 
 #: ./dApp.py:749
+#, fuzzy
 msgid "Stub: dApp.onEditPreferences()"
-msgstr "Fragmento: dApp.onEditPreferences()"
+msgstr "Tynkä: dApp.onEditPreferences()"
 
 #: ./dApp.py:812
+#, fuzzy
 msgid "Can't set ActiveForm: no uiApp."
-msgstr "No pude configurar el ActiveForm:  no existe uiApp."
+msgstr "Ei pystytty asettamaan ActiveForm: ei uiApp."
 
 #: ./dApp.py:829
+#, fuzzy
 msgid "WARNING: No BasePrefKey has been set for this application."
-msgstr ""
-"ADVERTENCIA:  No se ha configurado el BasePrefKey para esta aplicación."
+msgstr "VAROITUS: Ei BasePrefKey:tä asetettuna tälle ohjelmalle."
 
 #: ./dApp.py:865
+#, fuzzy
 msgid "Could not open file: '%s'"
-msgstr "No puedo abrir el archivo: '%s'"
+msgstr "Ei pystytty avaamaan tiedostoa: '%s'"
 
 #: ./dApp.py:913
+#, fuzzy
 msgid "%s: Path does not exist."
-msgstr "%s: Subdirectorio no existe."
+msgstr "%s: Polkua ei löydy."
 
 #: ./dApp.py:949 ./ui/uiwx/dGrid.py:3866
+#, fuzzy
 msgid "< None >"
-msgstr "<Nada>"
+msgstr "< Ei mitään >"
 
 #: ./dApp.py:997
+#, fuzzy
 msgid "SecurityManager previously set"
-msgstr "El Manejador de Seguridad fue previamente seleccionado"
+msgstr "SecurityManager asetettu jo aiemmin"
 
 #: ./dApp.py:1000
+#, fuzzy
 msgid "SecurityManager must descend from dSecurityManager."
-msgstr "El manejador de Seguridad debe descender del dSecurityManager"
+msgstr "SecurityManager täytyy olla johdannainen dSecurityManager:ista."
 
 #: ./dApp.py:1037
+#, fuzzy
 msgid "User interface set set to None."
-msgstr "Interfase de usuario configurado a Ninguno."
+msgstr "Käyttöliittymäksi asetettu arvoon Ei mikään."
 
 #: ./dApp.py:1040
+#, fuzzy
 msgid "User interface set to '%s' by dApp."
-msgstr "Interfase de usuario configurado a '%s' por dApp."
+msgstr "dApp asetti käyttöliittymän arvoon '%s'."
 
 #: ./dApp.py:1042
+#, fuzzy
 msgid "Tried to set UI to '%s', but it failed."
-msgstr "Se trató de configurar el Interfase de Usuario a '%s', pero falló."
+msgstr "Yritetty asettaa käyttöliittymäksi '%s', mutta se epäonnistui."
 
 #: ./dApp.py:1044
+#, fuzzy
 msgid "The UI cannot be reset once assigned."
-msgstr ""
-"El Interfase de Usuario no puede ser reconfigurado una vez ha sido asignado."
+msgstr "Käyttöliittymää ei voi nollata kun se on kerran asettettu."
 
 #: ./dApp.py:1075
+#, fuzzy
 msgid "Specifies the form class to use for the application's About screen."
-msgstr ""
-"Especifica la clase del formulario a ser utilizado por la pantalla Acerca de "
-"de la aplicación."
+msgstr "Määrittää lomake luokan jota käytetään ohjelman About ruudussa."
 
 #: ./dApp.py:1078
+#, fuzzy
 msgid "Returns the form that currently has focus, or None.  (dForm)"
-msgstr ""
-"Devuelve el formulario que actualmente tiene el foco, o ninguno. (dForm)"
+msgstr "Palauttaa lomakkeen joka nyt on aktiivisena, tai Ei mitään. (dForm)"
 
 #: ./dApp.py:1081
+#, fuzzy
 msgid ""
 "Base key used when saving/restoring preferences. This differs\n"
 "\t\t\tfrom the default definition of this property in that if it is empty, "
@@ -510,29 +537,35 @@ msgid ""
 "BasePrefKey\n"
 "\t\t\tin that order. (str)"
 msgstr ""
-"La clave utilizada cuando se establecieron las preferencias de "
-"grabado/restauración.  Esto difiere\n"
-"\t\t\tde la definición para esta propiedad en que esta vacia, va a\n"
-"\t\t\tdevolver BasePrefKey del fomulario activo o el BasePrefKey del "
-"formulario principal\n"
-"\t\t\ten ese orden. (str)"
+"Yleisavain jota käytetään tallentaessa/palauttaessa asetuksia. Tämä eroaa\n"
+"\t\t\tominaisuuden oletuarvosta siinä, että jos se on tyhjä, se \n"
+"\t\t\tpalauttaa ActiveForm:in BasePrefKey:n tai MainForm:in BasePrefKey:n\n"
+"\t\t\tsiinä järjestyksessä. (str)"
 
 #: ./dApp.py:1087
+#, fuzzy
 msgid ""
 "Reference to the object that provides cryptographic services.  (varies)"
-msgstr "Referencia al objeto que provee servicios de crytografia. (varia)"
+msgstr "Viittaus objektiin joka tarjoaa kryptaus palveluja. (vaihtelee)"
 
 #: ./dApp.py:1090
+#, fuzzy
 msgid ""
 "Path to the file (or file-like object) to be used for logging all database \n"
 "\t\t\tactivity. Default=None, which means no log is kept.   (file or str)"
 msgstr ""
+"Polku tiedostoon (tai tiedoston kaltaiseen objektiin) käytettäväsi "
+"kirjatessa lokiin kaikkea tietokanta \n"
+"\t\t\taktiviteettia. Oletus=Ei mitään, joka tarkoittaa että lokia ei pidetä. "
+"(tiedosto tai str)"
 
 #: ./dApp.py:1094 ./ui/uiwx/uiApp.py:839
+#, fuzzy
 msgid "Determines if sizer outlines are drawn on the ActiveForm.  (bool)"
-msgstr ""
+msgstr "Määrittää jos sizer outline:t piirretään ActiveForm:iin. (bool)"
 
 #: ./dApp.py:1100
+#, fuzzy
 msgid ""
 "Specifies the application's home directory. (string)\n"
 "\n"
@@ -543,8 +576,16 @@ msgid ""
 "always\n"
 "\t\t\tget you to your files."
 msgstr ""
+"Määrittää ohjelman kotihakemiston. (string)\n"
+"\n"
+"\t\t\tKotihakemisto on ylätason hakemisto ohjelmatiedostoillesi,\n"
+"\t\t\thakemisto jossa pääskriptisi on. Et voi koskaan tietää mikä \n"
+"\t\t\tnykyinen hakemisto on missäkin järjestelmässä, mutta kotihakemistosta "
+"aina\n"
+"\t\t\tlöydät tiedostoihisi.."
 
 #: ./dApp.py:1108
+#, fuzzy
 msgid ""
 "Specifies the icon to use on all forms and dialogs by default.\n"
 "\n"
@@ -554,6 +595,16 @@ msgid ""
 "\t\t\tsystem will not have to scale the icon, resulting in a much better\n"
 "\t\t\tappearance."
 msgstr ""
+"Määrittää ikonin jota käytetään kaikissa lomakkeissa ja kyselyikkunoissa "
+"oletuksena.\n"
+"\n"
+"\t\t\tAnnettu arvo voi olla binääri ikoni bittikarttagrafiikka, "
+"tiedostonimi, tai\n"
+"\t\t\ttiedostonimien joukko. Tarjoamalla joukon tiedostonimiä jotka "
+"osoittavat\n"
+"\t\t\tikoneihin odotetussa koossa 16, 22, ja 32 px tarkoittaa että\n"
+"\t\t\tjärjestelmän ei tarvitse skaalata ikonia, johtaen paljon parempaan\n"
+"\t\t\tulkoasuun."
 
 #: ./dApp.py:1117
 msgid ""
@@ -570,8 +621,22 @@ msgid ""
 "\t\t\t>>> app.MainForm = myMainFormInstance\n"
 "\t\t\t>>> app.start()"
 msgstr ""
+"Objektin viittaus ohjelman päälomakkeeseen, tai Ei mitään.\n"
+"\n"
+"\t\t\tPäälomakkeesta luodaan esiintymä automaattisesti ohjelmaa "
+"asetettaessa,\n"
+"\t\t\tperustuen arvoon MainFormClass:issa. Jos haluat vaihtaa siihen oman\n"
+"\t\t\tMainForm esiintymäsi, tee se setup():n jälkeen mutta ennen start():ia, "
+"kuten seuraavassa:\n"
+"\n"
+"\t\t\t>>> import dabo\n"
+"\t\t\t>>> app = dabo.dApp()\n"
+"\t\t\t>>> app.setup()\n"
+"\t\t\t>>> app.MainForm = myMainFormInstance\n"
+"\t\t\t>>> app.start()"
 
 #: ./dApp.py:1130
+#, fuzzy
 msgid ""
 "Specifies the class to instantiate for the main form. Can be a\n"
 "\t\t\tclass reference, or the path to a .cdxml file.\n"
@@ -587,18 +652,36 @@ msgid ""
 "\t\t\t>>> app.start()\n"
 "\t\t\t(dForm) "
 msgstr ""
+"Määrittää luokan josta tehdään esiintymä päälomakkeelle. Voi olla\n"
+"\t\t\tluokka viittaus, tai polku .cdxml tiedostoon.\n"
+"\n"
+"\t\t\tOletusarvoisesti osoittaa dFormMain:n base luokkaan. Aseta arvoksi Ei "
+"mitään jos et halua\n"
+"\t\t\tpäälomaketta, tai aseta omaksi päälomake luokaksesi. Tee tämä ennen "
+"kuin kutsut\n"
+"\t\t\tdApp.start(), kuten seuraavassa:\n"
+"\n"
+"\t\t\t>>> import dabo\n"
+"\t\t\t>>> app = dabo.dApp()\n"
+"\t\t\t>>> app.MainFormClass = MyMainFormClass\n"
+"\t\t\t>>> app.start()\n"
+"\t\t\t(dForm) "
 
 #: ./dApp.py:1144 ./ui/uiwx/dGrid.py:4289
 msgid "Text to display for null (None) values.  (str)"
-msgstr "Texto a desplegar para nulo (Ningún) valor. (str)"
+msgstr "Teksti joka näytetään null (Ei mitään) arvoille. (str)"
 
 #: ./dApp.py:1147
+#, fuzzy
 msgid ""
 "Returns the platform we are running on. This will be \n"
 "\t\t\tone of 'Mac', 'Win' or 'GTK'.  (str)"
 msgstr ""
+"Palauttaa alustan jolla olemme. Tämä on jokin \n"
+"\t\t\tseuraavista: 'Mac', 'Win' tai 'GTK'. (str)"
 
 #: ./dApp.py:1151
+#, fuzzy
 msgid ""
 "Specifies the dialog to use for the application's user preferences.\n"
 "\n"
@@ -608,8 +691,16 @@ msgid ""
 "and \n"
 "\t\t\tshown when the user chooses to see the preferences."
 msgstr ""
+"Määrittää kyselyikkunan jota käytetään ohjelman käyttäjäasetuksiin.\n"
+"\n"
+"\t\t\tJos Ei mitään, ohjelma yrittää ajaa aktiivisen lomakkeen "
+"onEditPreferences()\n"
+"\t\t\tmetodin, jos sellainen on olemassa. Muutoin, asetus kyselyikkunasta "
+"muodostetaan esiintymä ja\n"
+"\t\t\tnäytetään kun käyttäjä valitsee nähtäväkseen asetukset."
 
 #: ./dApp.py:1158
+#, fuzzy
 msgid ""
 "Specifies the delay before incrementeal searching begins.  (int)\n"
 "\n"
@@ -623,8 +714,19 @@ msgid ""
 "for\n"
 "\t\t\t\tall objects that provide incremental searching application-wide."
 msgstr ""
+"Määrittää viiveen ennenkuin vaiheittainen haku alkaa. (int)\n"
+"\n"
+"\t\t\t\tSitä mukaa kun käyttäjä kirjoittaa, hakusanaa muokataan. Jos aika "
+"näppäilyjen\n"
+"\t\t\t\tvälissä ylittää SearchDelay:n (millisekunneissa), haku ajetaan ja\n"
+"\t\t\t\thakusana \ttyhjennetään.\n"
+"\n"
+"\t\t\t\tArvo asetettuna tässä Application objektissa tulee oletusarvoksi\n"
+"\t\t\t\tkaikille objekteille jotka tarjoavat vaiheittaisen haun koko "
+"ohjelman laajuisesti."
 
 #: ./dApp.py:1168
+#, fuzzy
 msgid ""
 "Specifies the Security Manager, if any. \n"
 "\n"
@@ -635,8 +737,17 @@ msgid ""
 "\n"
 "\t\t\tthis to use Dabo security."
 msgstr ""
+"Määrittää Security Manager:in, jos mitään.\n"
+"\n"
+"\t\t\tSinun täytyy tehdä aliluokka dSecurityManager, syrjäyttäen tarvittavat "
+"koukut\n"
+"\t\t\tja ominaisuudet, ja sitten asettaa dApp.SecurityManager aliluokkasi\n"
+"\t\t\tesiintymäksi. Security manageria ei ole oletuksena - sinä vartavasten "
+"asetat\n"
+"\t\t\tsen käyttämään Dabo tietoturvaa."
 
 #: ./dApp.py:1177
+#, fuzzy
 msgid ""
 "Specifies whether the command window option is shown in the menu.\n"
 "\n"
@@ -644,22 +755,37 @@ msgid ""
 "\t\t\tavailable in the base menu. If False, your code can still start the \n"
 "\t\t\tcommand window by calling app.showCommandWindow() directly."
 msgstr ""
+"Määrittää näytetäänkö komentoikkuna vaihtoehto valikossa.\n"
+"\n"
+"\t\t\tJos Tosi (oletus), tulee File|Command Window vaihtoehto\n"
+"\t\t\tsaataville base valikkoon. Jos Epätosi, koodisi voi silti käynnistää \n"
+"\t\t\tkomentoikkunan kutsumalla app.showCommandWindow() suoraan."
 
 #: ./dApp.py:1185
+#, fuzzy
 msgid ""
 "Specifies whether the \"Show Sizer Lines\" option is shown in the menu.\n"
 "\n"
 "\t\t\tIf True (the default), there will be a View|Show Sizer Lines option\n"
 "\t\t\tavailable in the base menu."
 msgstr ""
+"Määrittää näytetäänkö \"Show Sizer Lines\" vaihtoehto valikossa.\n"
+"\n"
+"\t\t\tJos Tosi (oletus),tulee View|Show Sizer Lines vaihtoehto\n"
+"\t\t\tsaataville base valikkoon."
 
 #: ./dApp.py:1191
+#, fuzzy
 msgid ""
 "Specifies the user interface to load, or None. (str)\n"
 "\n"
 "\t\t\tThis is the user interface library, such as 'wx' or 'tk'. Note that\n"
 "\t\t\t'wx' is the only supported user interface library at this point."
 msgstr ""
+"Määrittää ladattavan käyttöliittymän, tai Ei mitään. (str)\n"
+"\n"
+"\t\t\tTämä on käyttöliittymä kirjasto, kuten 'wx' tai 'tk'. Huomioi että\n"
+"\t\t\t'wx' on ainoa tuettu käyttöliittymä tässä vaiheessa."
 
 #: ./dApp.py:1198
 msgid ""
@@ -700,7 +826,7 @@ msgstr ""
 
 #: ./dObject.py:222
 msgid "Method '%s' of object '%s' has the following error: %s"
-msgstr "El método '%s' del objeto '%s' tiene el siguiente error: %s"
+msgstr ""
 
 #: ./dObject.py:350
 msgid "Read-only object reference to the Dabo Application object.  (dApp)."
@@ -708,17 +834,15 @@ msgstr ""
 
 #: ./dObject.py:353
 msgid "The base Dabo class of the object. Read-only.  (class)"
-msgstr "La clase Dabo base del objeto. Lectura solamente. (clase)"
+msgstr ""
 
 #: ./dObject.py:356
 msgid "Base key used when saving/restoring preferences  (str)"
 msgstr ""
-"Clave base utilizada cuando se graban/restauran las preferencias (str)"
 
 #: ./dObject.py:359
 msgid "The class the object is based on. Read-only.  (class)"
 msgstr ""
-"La clase en la cual el objeto esta basado. Lectura solamente. (clase)"
 
 #: ./dObject.py:362
 msgid ""
@@ -736,7 +860,7 @@ msgstr ""
 
 #: ./dObject.py:372
 msgid "The name of the object.  (str)"
-msgstr "El nombre del objeto. (str)"
+msgstr ""
 
 #: ./dObject.py:375
 msgid "The containing object.  (obj)"
@@ -777,7 +901,7 @@ msgstr ""
 
 #: ./dPref.py:199
 msgid "No base key set; preference will not be persisted."
-msgstr "No se ha configurado la clave basica;  no permanece la preferencia."
+msgstr ""
 
 #: ./dPref.py:442
 msgid ""
@@ -803,7 +927,7 @@ msgstr ""
 
 #: ./dSecurityManager.py:21
 msgid "Login incorrect, please try again. (%s/%s)"
-msgstr "Claves de entrada incorrectas, favor tratar nuevamente. (%s/%s)"
+msgstr ""
 
 #: ./dSecurityManager.py:104 ./ui/dialogs/login.py:25
 msgid "Please enter your login information."
@@ -812,14 +936,10 @@ msgstr ""
 #: ./dSecurityManager.py:158
 msgid "Specifies the number of attempts the user has to login successfully."
 msgstr ""
-"Especifica el numero de intentos que tiene el usuario para entrar "
-"exitosamente."
 
 #: ./dSecurityManager.py:161
 msgid "Specifies the message to initially display on the login form."
 msgstr ""
-"Especifica el mensaje que se desplegara inicialmente en el formulario de "
-"entrada."
 
 #: ./dSecurityManager.py:164
 msgid "Number of seconds to wait between successive login attempts."
@@ -852,7 +972,7 @@ msgstr ""
 
 #: ./db/dBackend.py:115
 msgid "No records deleted"
-msgstr "No se eliminaron récords"
+msgstr ""
 
 #: ./db/dBackend.py:562
 msgid "Backend encoding  (str)"
@@ -860,7 +980,7 @@ msgstr ""
 
 #: ./db/dConnectInfo.py:168
 msgid "You do not have the database module for %s installed"
-msgstr "No tiene el modulo de la base de datos para %s instalado."
+msgstr ""
 
 #: ./db/dConnectInfo.py:227
 msgid "Name of the backend database type.  (str)"
