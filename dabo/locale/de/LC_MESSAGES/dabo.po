@@ -1,139 +1,174 @@
-# Dabo Translation File
-# Copyright (C) 2007 Ed Leafe, Paul McNett
-# Ed Leafe <ed-pot@leafe.com>, 2007.
+# German translation for dabo
+# Copyright (c) 2007 Rosetta Contributors and Canonical Ltd 2007
+# This file is distributed under the same license as the dabo package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, 2007.
 #
+#, fuzzy
 msgid ""
 msgstr ""
-"Project-Id-Version: Dabo 0.8\n"
+"Project-Id-Version: dabo\n"
+"Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2007-07-18 09:19+EDT\n"
-"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
-"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
-"Language-Team: German <LL@li.org>\n"
+"PO-Revision-Date: 2007-08-22 12:54+0000\n"
+"Last-Translator: Uwe Grauer <uwemailmeister@googlemail.com>\n"
+"Language-Team: German <de@li.org>\n"
 "MIME-Version: 1.0\n"
-"Content-Type: text/plain; charset=latin-1\n"
-"Content-Transfer-Encoding: utf-8\n"
-"Generated-By: pygettext.py 1.5\n"
-
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"X-Rosetta-Export-Date: 2007-08-24 12:58:47+0000\n"
 
 #: ./biz/dAutoBizobj.py:42
 msgid "No tables have been setup for autocreation."
 msgstr ""
+"Es wurden keine Tabellen für die automatische Erzeugung eingerichtet."
 
 #: ./biz/dAutoBizobj.py:65
 msgid "The database could not be setup. Contact your DB administrator."
 msgstr ""
+"Die Datenbank konnte nicht eingerichtet werden. Kontaktieren Sie den "
+"Datenbankadministrator."
 
 #: ./biz/dAutoBizobj.py:66
 msgid ""
 "For the DB Admin:\n"
 " The tables must either created by:\n"
-"  1. using this program by TEMPORARLY giving this program access to the database to create the needed tables.\n"
+"  1. using this program by TEMPORARLY giving this program access to the "
+"database to create the needed tables.\n"
 "  2. or executing all the quries in the 'queries.sql' file."
 msgstr ""
+"Für den DB Admin:\n"
+" Die Tabellen müssen erzeugt werden:\n"
+"  1. durch dieses Programm indem temporär Zugriff auf die Datenbank gewährt "
+"wird um die benötigten Tabellen zu erzeugen.\n"
+"  2. durch ausführen aller Befehle in der Datei 'queries.sql'."
 
 #: ./biz/dAutoBizobj.py:71
-msgid "DBA, please enter the username and password that has access to create tables for database on server '%s' and database '%s'"
+msgid ""
+"DBA, please enter the username and password that has access to create tables "
+"for database on server '%s' and database '%s'"
 msgstr ""
+"Bitte Username und Passwort für den Zugriff zur Erzeugung der Tabellen für "
+"die Datenbank auf Server '%s' und Datenbank '%s' eingeben"
 
 #: ./biz/dAutoBizobj.py:73
 msgid "Username"
-msgstr ""
+msgstr "Benutzername:"
 
 #: ./biz/dAutoBizobj.py:78
 msgid "Password"
-msgstr ""
+msgstr "Passwort:"
 
 #: ./biz/dAutoBizobj.py:84
 msgid "OK"
-msgstr ""
+msgstr "Bestätigen"
 
 #: ./biz/dAutoBizobj.py:88 ./lib/datanav/Form.py:179 ./lib/datanav2/Form.py:98
 #: ./ui/dialogs/Wizard.py:102
 msgid "Cancel"
-msgstr ""
+msgstr "Abbruch"
 
 #: ./biz/dAutoBizobj.py:102
 msgid "You must enter the username first."
-msgstr ""
+msgstr "Sie müssen zuerst einen Benutzernamen eingeben."
 
 #: ./biz/dAutoBizobj.py:106
 msgid "You must enter the password first."
-msgstr ""
+msgstr "Sie müssen zuerst ein Passwort eingeben."
 
 #: ./biz/dAutoBizobj.py:140
 msgid "Could not access the database with the given username and password."
 msgstr ""
+"Mit dem angegebenen Benutzernamen und Passwort konnte nicht auf die "
+"Datenbank zugegriffen werden."
 
 #: ./biz/dAutoBizobj.py:151
 msgid "Could not setup the database. Access was denied."
-msgstr ""
+msgstr "Datenbank konnte nicht erzeugt werden. Zugriff wurde verweigert."
 
 #: ./biz/dAutoBizobj.py:168
-msgid ""
-"#Queries for DB '%s' on host '%s':\n"
-msgstr ""
+msgid "#Queries for DB '%s' on host '%s':\n"
+msgstr "# Abfragen für DB '%s' auf server '%s':\n"
 
 #: ./biz/dAutoBizobj.py:250
 msgid "No table has been defined for this bizobj."
-msgstr ""
+msgstr "Für dieses Bizobj wurde keine Tabelle angegeben."
 
 #: ./biz/dAutoBizobj.py:303
 msgid "The table definition for this bizobj.  (object)"
-msgstr ""
+msgstr "Die Tabelle für dieses Bizobj. (object)"
 
 #: ./biz/dBizobj.py:315 ./biz/dBizobj.py:446 ./biz/dBizobj.py:1233
 msgid "No key field defined for table: "
-msgstr ""
+msgstr "Es wurde kein Schlüsselfeld für die Tabelle angegeben. "
 
 #: ./biz/dBizobj.py:452
 msgid "Deletion prohibited - there are related child records."
-msgstr ""
+msgstr "Löschen verboten - es sind zugehörige Detaildatensätze vorhanden."
 
 #: ./biz/dBizobj.py:736
 msgid "No Primary Key defined in the Bizobj for %s"
-msgstr ""
+msgstr "Im Bizobj wurde kein Primärschlüssel für '%s' angegeben."
 
 #: ./biz/dBizobj.py:943
 msgid "PK Value %s not found in the dataset"
-msgstr ""
+msgstr "Primärschlüssel %s wurde im Datenbestand nicht gefunden"
 
 #: ./biz/dBizobj.py:1696
 msgid "Parent must descend from dBizobj"
-msgstr ""
+msgstr "Basisklasse muss von dBizObj abgeleitet sein"
 
 #: ./biz/dBizobj.py:1845 ./db/dCursorMixin.py:2256
-msgid "Do we need explicit begin/commit/rollback commands for transactions?  (bool)"
-msgstr ""
+msgid ""
+"Do we need explicit begin/commit/rollback commands for transactions?  (bool)"
+msgstr "Werden explizite begin/commit/rollback Befehle verwendet? (bool)"
 
 #: ./biz/dBizobj.py:1848
-msgid "Determines if we are using a table that auto-generates its PKs. (bool)"
+msgid ""
+"Determines if we are using a table that auto-generates its PKs. (bool)"
 msgstr ""
+"Gibt an, ob eine Tabelle mit automatisch generiertem Primärschlüssel "
+"verwendet wird. (bool)"
 
 #: ./biz/dBizobj.py:1851
 msgid ""
 "When True (default), table and column names are enclosed with\n"
 "\t\t\tquotes during SQL creation in the cursor.  (bool)"
 msgstr ""
+"Gibt an, ob Tabellen- und Feldnamen bei der Ausführung von Hochkommas "
+"umschlossen werden.\n"
+"\t\t\tVorgabewert ist True. (bool)"
 
 #: ./biz/dBizobj.py:1855 ./db/dCursorMixin.py:2266
 msgid "Returns the SQL statement automatically generated by the sql manager."
-msgstr ""
+msgstr "Gibt den vom sql manager automatisch generierten SQL Befehl zurück."
 
 #: ./biz/dBizobj.py:1858
-msgid "The friendly title of the cursor, used in messages to the end user. (str)"
+msgid ""
+"The friendly title of the cursor, used in messages to the end user. (str)"
 msgstr ""
+"Der anwenderfreundliche Titel des Cursors zur Anzeige von Meldungen für den "
+"Benutzer. (str)"
 
 #: ./biz/dBizobj.py:1861 ./db/dCursorMixin.py:2276
-msgid "Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."
+msgid ""
+"Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."
 msgstr ""
+"Gibt den aktuellen auszuführenden SQL Befehl zurück. Entspricht UserSQL oder "
+"AutoSQL"
 
 #: ./biz/dBizobj.py:1864
-msgid "The cursor object for the currently selected key value. (dCursorMixin child)"
+msgid ""
+"The cursor object for the currently selected key value. (dCursorMixin child)"
 msgstr ""
+"Das Cursor Objekt des momentan ausgewählten Schlüsselwertes. (dCursorMixin "
+"Kind)"
 
 #: ./biz/dBizobj.py:1867
-msgid "The title of the cursor. Used in resolving DataSource references. (str)"
+msgid ""
+"The title of the cursor. Used in resolving DataSource references. (str)"
 msgstr ""
+"Der Titel des Cursors. Wird zur Auflösung von Referenzen auf Datenquellen "
+"benutzt."
 
 #: ./biz/dBizobj.py:1870 ./db/dCursorMixin.py:2279
 msgid ""
@@ -150,82 +185,123 @@ msgid ""
 "\t\t\t\t1) The explicitly-set DataStructure property\n"
 "\t\t\t\t2) The backend table method"
 msgstr ""
+"Gibt die Struktur des Positionszeigers zurück.\n"
+"\t\t\t\t0: Feldalias (str)\n"
+"\t\t\t\t1: Code des Datentyps (str)\n"
+"\t\t\t\t2: Primärschlüsselfeld (bool)\n"
+"\t\t\t\t3: Tabellenname (str)\n"
+"\t\t\t\t4: Feldname (str)\n"
+"\t\t\t\t5: Skalierung (int oder None)\n"
+"\n"
+"\t\t\t\tDiese Information resultiert der Reihe nach aus :\n"
+"\t\t\t\t1) Die explizit  angegebe Datenstruktur\n"
+"\t\t\t\t2) Tabellenbeschreibung der DB"
 
 #: ./biz/dBizobj.py:1884
 msgid ""
-"A dictionary specifying default values for fields when a new record is added.\n"
+"A dictionary specifying default values for fields when a new record is "
+"added.\n"
 "\n"
-"\t\t\tThe values of the dictionary can be literal (must match the field type), or\n"
-"\t\t\tthey can be a function object which will be called when the new record is added\n"
+"\t\t\tThe values of the dictionary can be literal (must match the field "
+"type), or\n"
+"\t\t\tthey can be a function object which will be called when the new record "
+"is added\n"
 "\t\t\tto the bizobj."
 msgstr ""
+"Eine Beschreibung der Standardwerte für Felder eines neuen Datensatzes.\n"
+"\n"
+"\t\t\t- Die eigentlichen Werte der Beschreibung (entsprechend Feldtypen)\n"
+"\t\t\t- Funktionsobjekt, das bei einem neuen Datensatz aufgerufen wird"
 
 #: ./biz/dBizobj.py:1891 ./dApp.py:1097 ./ui/uiwx/dGrid.py:4250
 msgid "Name of encoding to use for unicode  (str)"
-msgstr ""
+msgstr "Name der Unicode Kodierung (str)"
 
 #: ./biz/dBizobj.py:1894
 msgid ""
 "In the onNew() method, do we fill in the foreign key field specified by the\n"
-"\t\t\tLinkField property with the value returned by calling the bizobj's \tgetParentPK()\n"
+"\t\t\tLinkField property with the value returned by calling the bizobj's \t"
+"getParentPK()\n"
 "\t\t\tmethod? (bool)"
 msgstr ""
+"Wird, in der onNew() Methode, das mit LinkField spezifizierte Feld mit dem "
+"Rückgabewert der getParentPK() Methode gefüllt? (Vorgabe: False) (bool)"
 
 #: ./biz/dBizobj.py:1899
 msgid "Returns True if the current record is new and unsaved."
 msgstr ""
+"Gibt bei einem neuen oder nicht gespeicherten aktuellen Datensatz True "
+"zurück."
 
 #: ./biz/dBizobj.py:1902
 msgid ""
 "Name of field that is the PK. If multiple fields make up the key,\n"
 "\t\t\tseparate the fields with commas. (str)"
 msgstr ""
+"Name des Primärschlüssels. Besteht dieses aus mehreren Feldern, \n"
+"\t\t\tsind diese durch Kommas getrennt. (str)"
 
 #: ./biz/dBizobj.py:1906 ./db/dCursorMixin.py:2306
 msgid "Returns the last executed SQL statement."
-msgstr ""
+msgstr "Gibt das zuletzt ausgeführte SQL Kommando zurück."
 
 #: ./biz/dBizobj.py:1909
 msgid "Name of the field that is the foreign key back to the parent. (str)"
-msgstr ""
+msgstr "Name des Fremdschlüsselfeldes zum Hauptdatensatz. (str)"
 
 #: ./biz/dBizobj.py:1912
-msgid "Should new child records be added when a new parent record is added? (bool)"
+msgid ""
+"Should new child records be added when a new parent record is added? (bool)"
 msgstr ""
+"Sollen Detaildatensätze beim Anlegen von neuen Hauptdatensätzen erzeugt "
+"werden? (bool)"
 
 #: ./biz/dBizobj.py:1915
-msgid "If this bizobj's parent has NewChildOnNew==True, do we create a record here? (bool)"
+msgid ""
+"If this bizobj's parent has NewChildOnNew==True, do we create a record here? "
+"(bool)"
 msgstr ""
+"Wird ein neuer Datensatz erzeugt wenn das Eltern Bizobj NewChildOnNew==True "
+"gesetzt hat? (Vorgabe: False) (bool)"
 
 #: ./biz/dBizobj.py:1918
 msgid "Fields in the cursor to be ignored during updates"
-msgstr ""
+msgstr "Felder des Cursors, die bei Änderungen ignoriert werden sollen"
 
 #: ./biz/dBizobj.py:1921
 msgid "Reference to the parent bizobj to this one. (dBizobj)"
-msgstr ""
+msgstr "Referenz zum Hauptbizobj. (dBizobj)"
 
 #: ./biz/dBizobj.py:1924
 msgid ""
 "Name of the field in the parent table that is used to determine child\n"
 "\t\t\trecords. If empty, it is assumed that the parent's PK is used  (str)"
 msgstr ""
+"Name des Feldes der Haupttabelle das zur Ermittlung des Detaildatensatzes "
+"dient.\n"
+"\t\t\tBei Nichtverwendung wird der Primärschlüssel verwendet. (str)"
 
 #: ./biz/dBizobj.py:1928 ./db/dCursorMixin.py:2313
 msgid ""
 "Represents a record in the data set. You can address individual\n"
 "\t\t\tcolumns by referring to 'self.Record.fieldName' (read-only) (no type)"
 msgstr ""
+"Repräsentiert einen Datensatz im Datenbestand. Einzelne Felder können mit "
+"self.Record.FELDNAME referenziert werden. (read-only) (kein Typ)"
 
 #: ./biz/dBizobj.py:1932
 msgid "Do we requery child bizobjs after a Save()? (bool)"
 msgstr ""
+"Detail Bizobjs neu selektieren nach einem save() Aufruf. (Vorgabe:False) "
+"(bool)"
 
 #: ./biz/dBizobj.py:1935
 msgid ""
 "When True, the cursor object runs its query immediately. This\n"
 "\t\t\tis useful for lookup tables or fixed-size (small) tables. (bool)"
 msgstr ""
+"Wenn True wird die Selektion sofort ausgeführt. Dies ist Nützlich für "
+"Nachschlagetabellen oder kleine Tabellen. (Vorgabe: False) (bool)"
 
 #: ./biz/dBizobj.py:1939
 msgid ""
@@ -237,49 +313,71 @@ msgid ""
 "\t\t\t\tchild.requery() at the appropriate time.\n"
 "\t\t\t\t"
 msgstr ""
+"Spezifiziert ob ein Detailbizobj automatisch neu selektiert wird. Falls True "
+"wird das Bizobj sofort neu selektiert wenn beim Hauptbizobj der Datensatz "
+"gewechselt oder das Hauptbizobj neu selektiert wird. (Vorgabe: True) (bool)\n"
+"\t\t\t\t"
 
 #: ./biz/dBizobj.py:1948
-msgid "After a requery, do we try to restore the record position to the same PK?"
+msgid ""
+"After a requery, do we try to restore the record position to the same PK?"
 msgstr ""
+"Nach einem Requery versuchen, die Rekordposition zum gleichen PK "
+"wiederherzustellen?"
 
 #: ./biz/dBizobj.py:1951
 msgid ""
 "The number of records in the cursor's data set. It will be -1 if the\n"
 "\t\t\tcursor hasn't run any successful queries yet. (int)"
 msgstr ""
+"Anzahl der Datensätze im Datenbestand. -1 wenn noch keine erfolgreiche "
+"Selektion ausgeführt wurde. (int)"
 
 #: ./biz/dBizobj.py:1955
 msgid "The current position of the record pointer in the result set. (int)"
-msgstr ""
+msgstr "Die gegenwärtige Position des Datensatzzeigers im Result Set. (int)"
 
 #: ./biz/dBizobj.py:1958
 msgid ""
 "Normally new, unmodified records are not saved. If you need\n"
 "\t\t\tthis behavior, set this to True.  (bool)"
 msgstr ""
+"Auf True setzen damit auch unmodifizierte Datensätze gespeichert werden. "
+"(bool)"
 
 #: ./biz/dBizobj.py:1962
 msgid ""
 "After running a scan, do we attempt to restore the record position to\n"
-"\t\t\twhere it was before the scan (True, default), or do we leave the pointer\n"
+"\t\t\twhere it was before the scan (True, default), or do we leave the "
+"pointer\n"
 "\t\t\tat the end of the recordset (False). (bool)"
 msgstr ""
+"Falls True wird die Postion im Recordset nach einem Scan auf den "
+"ursprünglichen Wert zurück gesetzt, ansonsten bleibt der Zeiger am Ende des "
+"Recordset. (Vorgabe:False) (bool)"
 
 #: ./biz/dBizobj.py:1967
 msgid "Do we scan the records in reverse order? (Default: False) (bool)"
 msgstr ""
+"Sollen Datensätze in umgekehrter Reihenfolge abgesucht werden? (Vorgabe: "
+"False) (bool)"
 
 #: ./biz/dBizobj.py:1970
 msgid "SQL statement used to create the cursor's data. (str)"
-msgstr ""
+msgstr "SQL Befehl Aufgrund dessen die Daten selektiert wurden. (str)"
 
 #: ./biz/dBizobj.py:1973
 msgid "Reference to the cursor that handles SQL Builder information (cursor)"
 msgstr ""
+"Referenz auf den Cursor welcher die SQL Builder Informationen verarbeitet. "
+"(cursor)"
 
 #: ./biz/dBizobj.py:1976 ./db/dCursorMixin.py:2326
-msgid "SQL statement to run. If set, the automatic SQL builder will not be used."
+msgid ""
+"SQL statement to run. If set, the automatic SQL builder will not be used."
 msgstr ""
+"SQL Befehl, der ausgeführt werden soll. Wenn angegeben, wird der SQL Builder "
+"nicht benutzt."
 
 #: ./biz/dBizobj.py:1979
 msgid ""
@@ -287,115 +385,145 @@ msgid ""
 "\n"
 "\t\t\tThe specified function will be called when getFieldVal() is called on\n"
 "\t\t\tthe specified virtual field name."
-msgstr ""
+msgstr "Dictionary zum mappen von virtual_field_name zu einer Funktion."
 
 #: ./biz/dBizobj.py:1994
 msgid "Cannot reverse in the middle of iteration."
-msgstr ""
+msgstr "Umkehrung während des iterierens nicht möglich."
 
 #: ./dApp.py:292
 msgid "Application finished."
-msgstr ""
+msgstr "Anwendung beendet."
 
 #: ./dApp.py:411
 msgid "Cannot update file: '%s'. Error: %s"
-msgstr ""
+msgstr "Datei '%s' kann nicht geändert werden. Fehler: %s"
 
 #: ./dApp.py:595
 msgid "%s database connection definition(s) loaded."
-msgstr ""
+msgstr "%s Database Connection Definition(en) geladen."
 
 #: ./dApp.py:610
 msgid "User interface already set to '%s', so dApp didn't touch it."
 msgstr ""
+"Die Benutzerschnittstelle war bereits auf '%s' eingestellt, keine Änderung "
+"von dApp."
 
 #: ./dApp.py:749
 msgid "Stub: dApp.onEditPreferences()"
-msgstr ""
+msgstr "Stub: dApp.onEditPreferences()"
 
 #: ./dApp.py:812
 msgid "Can't set ActiveForm: no uiApp."
-msgstr ""
+msgstr "Setzen von ActiveForm nicht möglich: keine uiApp."
 
 #: ./dApp.py:829
 msgid "WARNING: No BasePrefKey has been set for this application."
-msgstr ""
+msgstr "WARNUNG: Für diese Anwendung wurde kein BasePrefKey gesetzt."
 
 #: ./dApp.py:865
 msgid "Could not open file: '%s'"
-msgstr ""
+msgstr "Datei '%s' konnte nicht geöffnet werden."
 
 #: ./dApp.py:913
 msgid "%s: Path does not exist."
-msgstr ""
+msgstr "%s: Pfad existiert nicht."
 
 #: ./dApp.py:949 ./ui/uiwx/dGrid.py:3866
 msgid "< None >"
-msgstr ""
+msgstr "< None >"
 
 #: ./dApp.py:997
 msgid "SecurityManager previously set"
-msgstr ""
+msgstr "SecurityManager war schon vorher gesetzt"
 
 #: ./dApp.py:1000
 msgid "SecurityManager must descend from dSecurityManager."
-msgstr ""
+msgstr "SecurityManager muß vom dSecurityManager abgeleitet werden."
 
 #: ./dApp.py:1037
 msgid "User interface set set to None."
-msgstr ""
+msgstr "User interface ist nicht gesetzt (None)."
 
 #: ./dApp.py:1040
 msgid "User interface set to '%s' by dApp."
-msgstr ""
+msgstr "User Interface wurde durch dApp auf '%s' gesetzt."
 
 #: ./dApp.py:1042
 msgid "Tried to set UI to '%s', but it failed."
 msgstr ""
+"Es wurde versucht, UI auf '%s' umzustellen, aber dies ist fehlgeschlagen."
 
 #: ./dApp.py:1044
 msgid "The UI cannot be reset once assigned."
 msgstr ""
+"Das UI kann nicht zurückgestellt werden, nachdem es einmal  zugewiesen wurde "
+"."
 
 #: ./dApp.py:1075
 msgid "Specifies the form class to use for the application's About screen."
 msgstr ""
+"Spezifiziert die Formklasse, die für den About-Screen der Applikation "
+"benutzt werden soll."
 
 #: ./dApp.py:1078
 msgid "Returns the form that currently has focus, or None.  (dForm)"
 msgstr ""
+"Gibt die momentan Form zurück, die momentan den Focus besitzt, oder None. "
+"(dForm)"
 
 #: ./dApp.py:1081
 msgid ""
 "Base key used when saving/restoring preferences. This differs\n"
-"\t\t\tfrom the default definition of this property in that if it is empty, it \n"
-"\t\t\twill return the ActiveForm's BasePrefKey or the MainForm's BasePrefKey\n"
+"\t\t\tfrom the default definition of this property in that if it is empty, "
+"it \n"
+"\t\t\twill return the ActiveForm's BasePrefKey or the MainForm's "
+"BasePrefKey\n"
 "\t\t\tin that order. (str)"
 msgstr ""
+"Verwendender Basisschlüssel beim Speichern der Präferenzen.\n"
+"\t\t\tDieser unterscheidet sich von dem Defaultproperty in dem, \n"
+"\t\t\twenn er leer ist, der BasePrefKey der aktiven Form oder der \n"
+"\t\t\tHauptform (in dieser Reihenfolge) zurückgegeben  wird. (str)"
 
 #: ./dApp.py:1087
-msgid "Reference to the object that provides cryptographic services.  (varies)"
+msgid ""
+"Reference to the object that provides cryptographic services.  (varies)"
 msgstr ""
+"Referenz des Objekts, das cryptographischen Service bereitstellt. (varies)"
 
 #: ./dApp.py:1090
 msgid ""
 "Path to the file (or file-like object) to be used for logging all database \n"
 "\t\t\tactivity. Default=None, which means no log is kept.   (file or str)"
 msgstr ""
+"Pfad der Datei, die zum loggen aller Datenbankaktivitäten benutzt wird. "
+"Default=None, d.H. kein Logging. (file or str)"
 
 #: ./dApp.py:1094 ./ui/uiwx/uiApp.py:839
 msgid "Determines if sizer outlines are drawn on the ActiveForm.  (bool)"
 msgstr ""
+"Legt fest, ob Sizer Outlines[Umrisse] auf die ActiveForm gezeichnet werden. "
+"(bool)"
 
 #: ./dApp.py:1100
 msgid ""
 "Specifies the application's home directory. (string)\n"
 "\n"
-"\t\t\tThe HomeDirectory is the top-level directory for your application files,\n"
+"\t\t\tThe HomeDirectory is the top-level directory for your application "
+"files,\n"
 "\t\t\tthe directory where your main script lives. You never know what the \n"
-"\t\t\tcurrent directory will be on a given system, but HomeDirectory will always\n"
+"\t\t\tcurrent directory will be on a given system, but HomeDirectory will "
+"always\n"
 "\t\t\tget you to your files."
 msgstr ""
+"Spezifiziert das Heimatverzeichnis der Anwendung. (string)\n"
+"\t\t\tDas Heimatverzeichnis ist oberste Verzeichnis der Anwendungsdateien,\n"
+"\t\t\tdas Verzeichnis, in dem sich das Startscript befindet. Auch wenn nicht "
+"bekannt ist  \n"
+"\t\t\two sich das momentane Verzeichnis im System befindet, gelangt man "
+"immer über \n"
+"\t\t\tdas Heimatverzeichnis zu den Dateien."
 
 #: ./dApp.py:1108
 msgid ""
@@ -407,12 +535,19 @@ msgid ""
 "\t\t\tsystem will not have to scale the icon, resulting in a much better\n"
 "\t\t\tappearance."
 msgstr ""
+"Spezifiziert das Standardsymbol aller Formen und Dialoge.\n"
+"\t\t\tDer übergebene Wert kann eine binäre Symbolbitmap, ein Dateiname,\n"
+"\t\t\toder eine Reihe von Dateinamen sein. Bei Angabe einer Reihe von \n"
+"\t\t\tSymboldateien in Grossen von 16, 22 und 32 Pixeln bedeutet, das \n"
+"\t\t\tdiese vom System nicht skaliert werden müssen. Dies resultiert in\n"
+"\t\t\teiner besseren Darstellung."
 
 #: ./dApp.py:1117
 msgid ""
 "The object reference to the main form of the application, or None.\n"
 "\n"
-"\t\t\tThe MainForm gets instantiated automatically during application setup, \n"
+"\t\t\tThe MainForm gets instantiated automatically during application setup, "
+"\n"
 "\t\t\tbased on the value of MainFormClass. If you want to swap in your own\n"
 "\t\t\tMainForm instance, do it after setup() but before start(), as in:\n"
 "\n"
@@ -422,13 +557,25 @@ msgid ""
 "\t\t\t>>> app.MainForm = myMainFormInstance\n"
 "\t\t\t>>> app.start()"
 msgstr ""
+"Die Objektreferenz zur Hauptform der Anwendung, oder None.\n"
+"\t\t\tDie Hauptform wird automatisch während Initialisierung der Anwendung\n"
+"\t\t\tbasierend auf den Wert der MainFormClass erzeugt. Wenn Sie eine \n"
+"\t\t\teigende MainForm verwenden möchten, tun Sie dies nach setup() aber\n"
+"\t\t\tbevor start(), wie in:\n"
+"\n"
+"\t\t\t>>> import dabo\n"
+"\t\t\t>>> app = dabo.dApp()\n"
+"\t\t\t>>> app.setup()\n"
+"\t\t\t>>> app.MainForm = myMainFormInstance\n"
+"\t\t\t>>> app.start()"
 
 #: ./dApp.py:1130
 msgid ""
 "Specifies the class to instantiate for the main form. Can be a\n"
 "\t\t\tclass reference, or the path to a .cdxml file.\n"
 "\n"
-"\t\t\tDefaults to the dFormMain base class. Set to None if you don't want a \n"
+"\t\t\tDefaults to the dFormMain base class. Set to None if you don't want a "
+"\n"
 "\t\t\tmain form, or set to your own main form class. Do this before calling\n"
 "\t\t\tdApp.start(), as in:\n"
 "\n"
@@ -438,47 +585,89 @@ msgid ""
 "\t\t\t>>> app.start()\n"
 "\t\t\t(dForm) "
 msgstr ""
+"Spezifiziert die zu instanziierende Klasse der Hauptform. Dies kann eine\n"
+"\t\t\tKlassenreferenz oder ein Pfad zu einer .cdxml Datei sein.\n"
+"\n"
+"\t\t\tResultiert in der dFormMain Basisklasse. Setzten Sie sie auf None\n"
+"\t\t\twenn Sie keine Hauptform wollen, oder auf eine eigene Hauptform.\n"
+"\t\t\tTun Sie dies vor dem Aufruf von dApp.start(), wie in:\n"
+"\n"
+"\t\t\t>>> import dabo\n"
+"\t\t\t>>> app = dabo.dApp()\n"
+"\t\t\t>>> app.MainFormClass = MyMainFormClass\n"
+"\t\t\t>>> app.start()\n"
+"\t\t\t(dForm) "
 
 #: ./dApp.py:1144 ./ui/uiwx/dGrid.py:4289
 msgid "Text to display for null (None) values.  (str)"
-msgstr ""
+msgstr "Text zur Anzeige von Nullwerten (None).  (str)"
 
 #: ./dApp.py:1147
 msgid ""
 "Returns the platform we are running on. This will be \n"
 "\t\t\tone of 'Mac', 'Win' or 'GTK'.  (str)"
 msgstr ""
+"Gibt die Platform zurück, auf der die Anwendung ausgeführt wird.\n"
+"\t\t\tKann 'Mac', 'Win' or 'GTK' sein. (str)"
 
 #: ./dApp.py:1151
 msgid ""
 "Specifies the dialog to use for the application's user preferences.\n"
 "\n"
-"\t\t\tIf None, the application will try to run the active form's onEditPreferences()\n"
-"\t\t\tmethod, if any. Otherwise, the preference dialog will be instantiated and \n"
+"\t\t\tIf None, the application will try to run the active form's "
+"onEditPreferences()\n"
+"\t\t\tmethod, if any. Otherwise, the preference dialog will be instantiated "
+"and \n"
 "\t\t\tshown when the user chooses to see the preferences."
 msgstr ""
+"Spezifiziert den Dialog, der für die Anwendungseinstellungen benutzt wird.\n"
+"\t\t\tWenn None, versucht die Anwendung die Methode onEditPreferences\n"
+"\t\t\tder aktiven Form auszuführen. Andernfalls wird der Einstellungsdialog\n"
+"\t\t\tinstanziiert und angezeigt, wenn der Anwender die Einstellungen "
+"auswählt."
 
 #: ./dApp.py:1158
 msgid ""
 "Specifies the delay before incrementeal searching begins.  (int)\n"
 "\n"
-"\t\t\t\tAs the user types, the search string is modified. If the time between\n"
-"\t\t\t\tkeystrokes exceeds SearchDelay (milliseconds), the search will run and \n"
+"\t\t\t\tAs the user types, the search string is modified. If the time "
+"between\n"
+"\t\t\t\tkeystrokes exceeds SearchDelay (milliseconds), the search will run "
+"and \n"
 "\t\t\t\tthe search string\twill be cleared.\n"
 "\n"
-"\t\t\t\tThe value set here in the Application object will become the default for\n"
+"\t\t\t\tThe value set here in the Application object will become the default "
+"for\n"
 "\t\t\t\tall objects that provide incremental searching application-wide."
 msgstr ""
+"Spezifiziert die Verzögerung bevor die inkrementielle Suche beginnt. (int)\n"
+"\n"
+"\t\t\t\tBei der Eingabe wird ser Suchstring angepasst. Falls die Zeit "
+"zwischen\n"
+"\t\t\t\tden Tastendrücken die Vezögerung (Millisekunden) überschreitet,\n"
+"\t\t\t\twird die Suche ausgeführt und der Suchbegriff gelöscht.\n"
+"\n"
+"\t\t\t\tDer hier gesetzte Wert wird der Anwendungweite Standardwert\n"
+"\t\t\t\tfür alle Objekte, die eine inkrementielle Suche bereitstellen."
 
 #: ./dApp.py:1168
 msgid ""
 "Specifies the Security Manager, if any. \n"
 "\n"
 "\t\t\tYou must subclass dSecurityManager, overriding the appropriate hooks \n"
-"\t\t\tand properties, and then set dApp.SecurityManager to an instance of your \n"
-"\t\t\tsubclass. There is no security manager by default - you explicitly set \n"
+"\t\t\tand properties, and then set dApp.SecurityManager to an instance of "
+"your \n"
+"\t\t\tsubclass. There is no security manager by default - you explicitly set "
+"\n"
 "\t\t\tthis to use Dabo security."
 msgstr ""
+"Spezifiziert den Security Manager, falls vorhanden.\n"
+"\n"
+"\t\t\tMuss von dSecurityManager abgeleitet sein und die entsprechenden \n"
+"\t\t\tProperties und Hooks definieren. Besetzen Sie dApp.SecurityManager\n"
+"\t\t\tmit einer instanz der abgeleiteten Klasse.\n"
+"\t\t\tEs ist kein Security Manager vorgegeben - Sie müssen dies explizit "
+"zuweisen."
 
 #: ./dApp.py:1177
 msgid ""
@@ -488,6 +677,11 @@ msgid ""
 "\t\t\tavailable in the base menu. If False, your code can still start the \n"
 "\t\t\tcommand window by calling app.showCommandWindow() directly."
 msgstr ""
+"Spezifiziert ob die Kommandofensteroption im Menü gezeigt wird.\n"
+"\n"
+"tab]\t\tWenn True (default), ist im Dateimenü eine Kommandofensteroption\n"
+"tab]\t\tvorhanden. Wenn False, kann das Kommandofenster direkt über\n"
+"tab]\t\tden Aufruf von app.showCommandWindow() angezeigt werden."
 
 #: ./dApp.py:1185
 msgid ""
@@ -496,6 +690,10 @@ msgid ""
 "\t\t\tIf True (the default), there will be a View|Show Sizer Lines option\n"
 "\t\t\tavailable in the base menu."
 msgstr ""
+"Spezifiziert ob die Option 'Show Sizer Lines' im Menü angezeigt wird.\n"
+"\n"
+"\t\t\tWenn True (Vorgabe), wird die Option 'View/Show Sizer Lines'\n"
+"\t\t\tim Basismenü angezeigt."
 
 #: ./dApp.py:1191
 msgid ""
@@ -504,99 +702,130 @@ msgid ""
 "\t\t\tThis is the user interface library, such as 'wx' or 'tk'. Note that\n"
 "\t\t\t'wx' is the only supported user interface library at this point."
 msgstr ""
+"Gibt die zu ladende Benutzerschittstelle an.\n"
+"\t\t\tDies ist die Benutzerschnittstellenbibliothek, so wie 'wx' oder 'tk'.\n"
+"\t\t\tBeachten Sie das 'wx' im Moment die einzige unterstützte Bibliothek "
+"ist."
 
 #: ./dApp.py:1198
 msgid ""
-"Specifies the reference to the object providing user preference persistence.\n"
+"Specifies the reference to the object providing user preference "
+"persistence.\n"
 "\t\t\t\n"
-"\t\t\tThe default UserSettingProvider will save user preferences inside the .dabo\n"
+"\t\t\tThe default UserSettingProvider will save user preferences inside the "
+".dabo\n"
 "\t\t\tdirectory inside the user's home directory."
 msgstr ""
+"Gibt die Referenz  zum Objekt an, das die Voreinstellungen verwaltet.\n"
+"\t\t\tDer Standard UserSettingProvider speichert Benutzerpreferenzen im "
+".dabo\n"
+"\t\t\tVerzeichnis innerhalb des Heimatverzeichnis des Benutzers."
 
 #: ./dApp.py:1205
 msgid ""
 "Specifies the class to use for user preference persistence.\n"
 "\t\t\t\n"
-"\t\t\tThe default UserSettingProviderClass will save user preferences inside the .dabo\n"
-"\t\t\tdirectory inside the user's home directory, and will be instantiated by Dabo\n"
+"\t\t\tThe default UserSettingProviderClass will save user preferences inside "
+"the .dabo\n"
+"\t\t\tdirectory inside the user's home directory, and will be instantiated "
+"by Dabo\n"
 "\t\t\tautomatically."
 msgstr ""
+"Spezifiziert Die Klasse zum speichern der Anwender-Voreinstellungen.\n"
+"\n"
+"\t\t\tDie vorgegebene UserSettingProviderClass speichert die "
+"Voreinstellungen\n"
+"\t\t\tinnerhalb des .dabo Verzeichnisses des Anwender Heimatverzeichnis \n"
+"\t\t\tund wird von Dabo automatisch instantiiert."
 
 #: ./dEvents.py:131
 msgid ""
 "Specifies whether the event is allowed to continue\n"
 "\t\t\ton to the next handler.  (bool)"
-msgstr ""
+msgstr "Spezifiziert ob der Event zum nächsten Handler weitergegeben wird."
 
 #: ./dEvents.py:135
 msgid "References the object that emitted the event.  (obj)"
-msgstr ""
+msgstr "Referenziert das Object, das den Event gesendet hat. (obj)"
 
 #: ./dEvents.py:138
 msgid ""
 "Dictionary of data name/value pairs associated\n"
 "\t\t\twith the event.  (dict)"
-msgstr ""
+msgstr "Dictionary der zugehörigen Name/Wert Paare des Events. (dict)"
 
 #: ./dObject.py:222
 msgid "Method '%s' of object '%s' has the following error: %s"
-msgstr ""
+msgstr "Methode '%s' von Objekt '%s' hat den folgendenFehler: %s"
 
 #: ./dObject.py:350
 msgid "Read-only object reference to the Dabo Application object.  (dApp)."
-msgstr ""
+msgstr "Read-only Objektverweis auf Dabo-Applications-Object. (dApp)."
 
 #: ./dObject.py:353
 msgid "The base Dabo class of the object. Read-only.  (class)"
-msgstr ""
+msgstr "Die Dabo-Basisklasse des Objektes.  Schreibgeschützt. (class)"
 
 #: ./dObject.py:356
 msgid "Base key used when saving/restoring preferences  (str)"
 msgstr ""
+"Benutzter Basisschlüssel zum speichern/widerherstellen der Eigenschaften "
+"(str)"
 
 #: ./dObject.py:359
 msgid "The class the object is based on. Read-only.  (class)"
-msgstr ""
+msgstr "Die Klasse, von der das  Object abgeleitet wurde. Read-only. (class)"
 
 #: ./dObject.py:362
 msgid ""
 "Specifies which events to log.  (list of strings)\n"
 "\t\t\t\n"
-"\t\t\tIf the first element is 'All', all events except the following listed events \n"
+"\t\t\tIf the first element is 'All', all events except the following listed "
+"events \n"
 "\t\t\twill be logged. \n"
-"\t\t\tEvent logging is resource-intensive, so in addition to setting this LogEvents\n"
+"\t\t\tEvent logging is resource-intensive, so in addition to setting this "
+"LogEvents\n"
 "\t\t\tproperty, you also need to make the following call:\n"
 "\t\t\t>>> dabo.eventLogging = True\n"
 "\t\t\t"
 msgstr ""
+"Spezifiziert welche Events geloggt werden. (liste von strings)\n"
+"\n"
+"\t\t\tIst das erste Element 'All', werden alle bis auf die folgenden Events "
+"geloggt.\n"
+"\t\t\tDas loggen der Events ist resourcenintensiv. Deshalb muss zusätzlich "
+"zur\n"
+"\t\t\tAngabe der Einstellung von LogEvents der folgende Aufruf erfolgen:\n"
+"\t\t\t>>> dabo.eventLogging = True\n"
+"\t\t\t"
 
 #: ./dObject.py:372
 msgid "The name of the object.  (str)"
-msgstr ""
+msgstr "Name des Objektes. (str)"
 
 #: ./dObject.py:375
 msgid "The containing object.  (obj)"
-msgstr ""
+msgstr "Die enthaltene Textbox. (obj)"
 
 #: ./dObject.py:378
 msgid "Reference to the Preference Management object  (dPref)"
-msgstr ""
+msgstr "Referenz zum verwaltenden Objekt der Eigenschaften. (dPref)"
 
 #: ./dObject.py:387
 msgid "Testing doDefault():"
-msgstr ""
+msgstr "doDefault() wird getestet:"
 
 #: ./dObject.py:394 ./dObject.py:445
 msgid "MyTest1.myMethod called."
-msgstr ""
+msgstr "MyTest1.myMethod wurde augerufen"
 
 #: ./dObject.py:401 ./dObject.py:452
 msgid "MyTest.myMethod called."
-msgstr ""
+msgstr "MyTest.myMethod wurde aufgerufen"
 
 #: ./dObject.py:404 ./dObject.py:455
 msgid "Test 1: simple test:"
-msgstr ""
+msgstr "Test 1: Simple Test:"
 
 #: ./dObject.py:408 ./dObject.py:459
 msgid ""
@@ -610,286 +839,342 @@ msgid ""
 "\n"
 "Testing super():"
 msgstr ""
+"\n"
+"\n"
+"super() wird getestet:"
 
 #: ./dPref.py:199
 msgid "No base key set; preference will not be persisted."
-msgstr ""
+msgstr "Kein Basisschlüssel gesetzt; Eigenschaft wird nicht gespeichert."
 
 #: ./dPref.py:442
-msgid "Do property assignments automatically save themselves? Default=True  (bool)"
+msgid ""
+"Do property assignments automatically save themselves? Default=True  (bool)"
 msgstr ""
+"Sollen Vorgabeeinstellungen automatisch gespeichert werden? Vorgabe=True "
+"(bool)"
 
 #: ./dReportWriter.py:50 ./lib/reportWriter.py:1875
 msgid "Specifies the encoding for unicode strings.  (str)"
-msgstr ""
+msgstr "Spezifiziert die Encodierung für Unicode strings. (str)"
 
 #: ./dReportWriter.py:53
 msgid ""
 "Specifies the home directory for the report.\n"
 "\n"
-"\t\tResources on disk (image files, etc.) will be looked for relative to the\n"
-"\t\tHomeDirectory if specified with relative pathing. The HomeDirectory should\n"
+"\t\tResources on disk (image files, etc.) will be looked for relative to "
+"the\n"
+"\t\tHomeDirectory if specified with relative pathing. The HomeDirectory "
+"should\n"
 "\t\tbe the directory that contains the report form file. If you set \n"
 "\t\tself.ReportFormFile, HomeDirectory will be set for you automatically.\n"
 "\t\tOtherwise, it will get set to self.Application.HomeDirectory."
 msgstr ""
+"Spezifiziert das Heimatverzeichnis für den Report.\n"
+"\n"
+"\t\tResourcen auf der Festplatte (Bilddateien, etc.) werden relativ zum\n"
+"\t\tHeimatverzeichnis gesucht falls diese relativ angegeben wurden.\n"
+"\t\tDas Heimatverzeichnis sollte das Verzeichnis sein, das die Reportform "
+"enthält.\n"
+"\t\tWenn Sie self.ReportFormFile setzten wird das Heimatverzeichnis "
+"automatisch \n"
+"\t\tfür Sie gesetzt. Andernfalls wird es auf self.Application.HomeDirectory "
+"gesetzt."
 
 #: ./dSecurityManager.py:21
 msgid "Login incorrect, please try again. (%s/%s)"
-msgstr ""
+msgstr "Login fehlgeschlagen, bitte nochmals versuchen. (%s/%s)"
 
 #: ./dSecurityManager.py:104 ./ui/dialogs/login.py:25
 msgid "Please enter your login information."
-msgstr ""
+msgstr "Bitte Login Informationen eintragen."
 
 #: ./dSecurityManager.py:158
 msgid "Specifies the number of attempts the user has to login successfully."
 msgstr ""
+"Spezifiziert die Anzahl Versuche, die der Benutzer für Login zur Verfügung "
+"hat."
 
 #: ./dSecurityManager.py:161
 msgid "Specifies the message to initially display on the login form."
 msgstr ""
+"Spezifiziert die Nachricht, die auf der Login-Form zuerst anzuzeigen ist."
 
 #: ./dSecurityManager.py:164
 msgid "Number of seconds to wait between successive login attempts."
 msgstr ""
+"Anzahl der Sekunden, die zwischen aufeinanderfolgenden Logins zu warten ist."
 
 #: ./dSecurityManager.py:167
 msgid "Specifies whether the user is required to login at app startup."
-msgstr ""
+msgstr "Gibt an, ob der User sich für die Anwendung anmelden muss."
 
 #: ./dSecurityManager.py:170
 msgid "The long descriptive name of the logged-on user."
-msgstr ""
+msgstr "Der lange beschreibende Name des eingeloggten Benutzers."
 
 #: ./dSecurityManager.py:173
 msgid ""
 "The tuple of groups that the user belongs to.\n"
 "\n"
-"\t\tBusiness objects can be configured to selectively allow/deny various types\n"
+"\t\tBusiness objects can be configured to selectively allow/deny various "
+"types\n"
 "\t\tof access based on the group(s) of the logged-in user."
 msgstr ""
+"Eine Tuple der Gruppen denen der Benutzer angehört.\n"
+"\n"
+"tab]\tBasierend auf den Gruppen, denen der Benutzer angehört,\n"
+"tab]\tkann die Zustimmung/Verweigerung des Zugriffs des angemeldeten \n"
+"tab]\tBenutzers konfiguriert werden."
 
 #: ./dSecurityManager.py:179
 msgid "The name of the logged-on user. Read-only."
-msgstr ""
+msgstr "Name des angemeldeten Benutzers. Read-only."
 
 #: ./db/dBackend.py:108
 msgid "No records updated"
-msgstr ""
+msgstr "Keine Datensätze aktualisiert"
 
 #: ./db/dBackend.py:115
 msgid "No records deleted"
-msgstr ""
+msgstr "Keine Datensätze gelöscht"
 
 #: ./db/dBackend.py:562
 msgid "Backend encoding  (str)"
-msgstr ""
+msgstr "Backend Kodierung (Zeichenkette)"
 
 #: ./db/dConnectInfo.py:168
 msgid "You do not have the database module for %s installed"
-msgstr ""
+msgstr "Sie haben das Modul für die Datenbank %s nicht installiert"
 
 #: ./db/dConnectInfo.py:227
 msgid "Name of the backend database type.  (str)"
-msgstr ""
+msgstr "Name des Backend Datenbank-Types (Zeichenkette)"
 
 #: ./db/dConnectInfo.py:230
 msgid "The database name to login to. (str)"
-msgstr ""
+msgstr "Name der Datenbank, in die eingelogged werden soll."
 
 #: ./db/dConnectInfo.py:233
 msgid "The host name or ip address. (str)"
-msgstr ""
+msgstr "Hostname oder IP Addresse. (str)"
 
 #: ./db/dConnectInfo.py:236
 msgid "The name used to reference this connection. (str)"
-msgstr ""
+msgstr "Der benutze Name zur Referenzierung der Connection. (str)"
 
 #: ./db/dConnectInfo.py:239
 msgid "The encrypted password of the user. (str)"
-msgstr ""
+msgstr "Verschlüssektes Passwort des Nutzers (Zeichenkette)"
 
 #: ./db/dConnectInfo.py:242
 msgid ""
 "Write-only property that encrypts the value and stores that\n"
 "\t\t\t\tin the Password property. (str)"
 msgstr ""
+"Write-only Eigenschaft zum Encrypten und Speichern des Wertes \n"
+"\t\t\t\tdes Passwortfeldes. (str)"
 
 #: ./db/dConnectInfo.py:246
-msgid "The port to connect on (may not be applicable for all databases). (int)"
-msgstr ""
+msgid ""
+"The port to connect on (may not be applicable for all databases). (int)"
+msgstr "Connection Port (evtl. nicht für alle Datenbanken zutreffend) (int)"
 
 #: ./db/dConnectInfo.py:249
 msgid "The user name. (str)"
-msgstr ""
+msgstr "Benutzername. (str)"
 
 #: ./db/dConnection.py:95
 msgid "The connectInfo for the connection.  (dConnectInfo)"
-msgstr ""
+msgstr "Die ConnectInfo für die Connection. (dConnectInfo)"
 
 #: ./db/dConnection.py:98
 msgid "The name of the connection.  (str)"
-msgstr ""
+msgstr "Der Name der Connection. (str)"
 
 #: ./db/dCursorMixin.py:220
 msgid "_correctFieldType() failed for field: '%s'; value: '%s'; type: '%s'"
 msgstr ""
+"_correctFieldType() fehlgeschlagen für Feld: '%s'; Wert: '%s'; Typ: '%s'"
 
 #: ./db/dCursorMixin.py:240
-msgid "Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead"
+msgid ""
+"Field %(fname)s: Incorrect unicode encoding set; using '%(enc)s' instead"
 msgstr ""
+"Feld %(fname)s: Falsche Unicode Kodierung gesetzt; Benutzt wird stattdessen "
+"'%(enc)s'"
 
 #: ./db/dCursorMixin.py:250
 msgid "%s couldn't be converted to %s (field %s)"
-msgstr ""
+msgstr "%s konnte nicht nach %s konvertiert werden (Feld %s)"
 
 #: ./db/dCursorMixin.py:415
 msgid "No rows to sort."
-msgstr ""
+msgstr "Keine Zeilen zu sortieren"
 
 #: ./db/dCursorMixin.py:419
 msgid "Invalid column specified for sort: "
-msgstr ""
+msgstr "Ungültige Spalte für Sortierung ausgewählt "
 
 #: ./db/dCursorMixin.py:437 ./db/dCursorMixin.py:448
 msgid "Invalid Sort direction specified: "
-msgstr ""
+msgstr "Ungültige Sortierrichtung ausgewählt "
 
 #: ./db/dCursorMixin.py:736 ./db/dCursorMixin.py:754
 msgid "No records in the data set."
-msgstr ""
+msgstr "Keine Datensätze im Data Set"
 
 #: ./db/dCursorMixin.py:778
 msgid "Field"
-msgstr ""
+msgstr "Feld"
 
 #: ./db/dCursorMixin.py:778
 msgid "does not exist in the data set"
-msgstr ""
+msgstr "ist im Data Set nicht vorhanden"
 
 #: ./db/dCursorMixin.py:814
 msgid "No records in the data set"
-msgstr ""
+msgstr "Keine Datensätze im Data Set"
 
 #: ./db/dCursorMixin.py:826
 msgid "Field '%s' does not exist in the data set."
-msgstr ""
+msgstr "Feld '%s' ist im Data Set nicht vorhanden"
 
 #: ./db/dCursorMixin.py:879
 msgid "!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s"
-msgstr ""
+msgstr "!!! Falsche Datentypzuordnung: Feld=%s. Erwartet: %s; Erhalten: %s"
 
 #: ./db/dCursorMixin.py:1026 ./db/dCursorMixin.py:1037
 #: ./db/dCursorMixin.py:1048 ./db/dCursorMixin.py:1056
 msgid "No records in data set"
-msgstr ""
+msgstr "Keine Datensätze im Data Set"
 
 #: ./db/dCursorMixin.py:1035
 msgid "Already at the beginning of the data set."
-msgstr ""
+msgstr "Bereits am Anfang des Datenbestands."
 
 #: ./db/dCursorMixin.py:1046
 msgid "Already at the end of the data set."
-msgstr ""
+msgstr "Bereits am Ende des Datenbestands."
 
 #: ./db/dCursorMixin.py:1063
 msgid "No data to save"
-msgstr ""
+msgstr "Es sind keine Daten zu speichern"
 
 #: ./db/dCursorMixin.py:1073
 msgid "DBQueryException encountered in save(): %s"
-msgstr ""
+msgstr "DBQueryException aufgetreten in save(): %s"
 
 #: ./db/dCursorMixin.py:1079
 msgid "Connection Lost exception encountered in saverow(): %s"
-msgstr ""
+msgstr "Connection Lost exception aufgetreten in saverow(): %s"
 
 #: ./db/dCursorMixin.py:1254
 msgid "No data to cancel."
-msgstr ""
+msgstr "Keine Daten zum Abbruch vorhanden."
 
 #: ./db/dCursorMixin.py:1309
 msgid "No record to delete"
-msgstr ""
+msgstr "Kein Datensatz zur Löschung vorhanden."
 
 #: ./db/dCursorMixin.py:1380
 msgid "Can't set default value for nonexistent field '%s'."
 msgstr ""
+"Vorgabewert für das nicht existierende Feld '%s' kann nicht gesetzt werden."
 
 #: ./db/dCursorMixin.py:1425
 msgid "Failed to create newval for field '%s'"
-msgstr ""
+msgstr "Anlegen von 'newval' fur Feld '%s'  fehlgeschlagen."
 
 #: ./db/dCursorMixin.py:1480
 msgid "Invalid row specified."
-msgstr ""
+msgstr "Ungültige Zeile gewählt"
 
 #: ./db/dCursorMixin.py:1502
 msgid "No field specified for seek()"
-msgstr ""
+msgstr "Kein Feld für seek() gewählt"
 
 #: ./db/dCursorMixin.py:1578
 msgid "checkPK failed; no primary key specified"
-msgstr ""
+msgstr "checkPK fehlgeschlagen; Kein Primärschlüssel angegeben."
 
 #: ./db/dCursorMixin.py:1587
 msgid "Primary key field does not exist in the data set: "
-msgstr ""
+msgstr "Primärschlüsselfeld existiert nicht im Datensatz.: "
 
 #: ./db/dCursorMixin.py:2259
 msgid "When inserting a new record, does the backend populate the PK field?"
-msgstr ""
+msgstr "Setzt das Backend den Primärschlüssel für neu eingefügte Datensätze?"
 
 #: ./db/dCursorMixin.py:2262
 msgid ""
 "When True (default), table and column names are enclosed with\n"
 "\t\t\tquotes during SQL creation.  (bool)"
 msgstr ""
+"Wenn True (Vorgabe), werden Tabellen und Feldnamen während der\n"
+"\t\t\tErzeugung der SQL Befehle in Anführungszeichen gesetzt."
 
 #: ./db/dCursorMixin.py:2269
 msgid ""
 "Auxiliary cursor object that handles queries that would otherwise\n"
 "\t\t\taffect the main cursor's data set.  (dCursorMixin subclass)"
 msgstr ""
+"Hilfscursor Objekt zur Abarbeitung von Abfragen die andernfalls den \n"
+"\t\t\tDatenbestand des Hauptcursors beeinflussen würden. (dCursorMixin "
+"subclass)"
 
 #: ./db/dCursorMixin.py:2273
-msgid "Returns a reference to the object defining backend-specific behavior (dBackend)"
+msgid ""
+"Returns a reference to the object defining backend-specific behavior "
+"(dBackend)"
 msgstr ""
+"Gibt eine Referenz zum Objekt zurück, welches das Backend spezifische "
+"Verhalten definiert. (dBackend)"
 
 #: ./db/dCursorMixin.py:2293
 msgid "Encoding type used by the Backend  (string)"
-msgstr ""
+msgstr "Der vom Backend verwendete Kodierungtyp (string)"
 
 #: ./db/dCursorMixin.py:2296
 msgid "Tuple of field names and types, as returned by the backend  (tuple)"
 msgstr ""
+"Tuple von Feldnamen und Typen, wie Sie vom Backend zurückgegeben werden "
+"(tuple)"
 
 #: ./db/dCursorMixin.py:2299
 msgid "Returns True if the current record is new and unsaved"
 msgstr ""
+"Gibt True zurück, wenn der aktuelle Datensatz neu oder nicht gespeichert ist"
 
 #: ./db/dCursorMixin.py:2302
 msgid ""
 "Returns True if this cursor is used for managing internal\n"
 "\t\t\tDabo preferences and settings. Default=False.  (bool)"
 msgstr ""
+"Gibt True zurück, wenn dieser Cursor für die Verwaltung von Dabo\n"
+"Voreinstellungen benutzt wird. (Vorgabe=False). (bool)"
 
 #: ./db/dCursorMixin.py:2309
-msgid "Name of field that is the PK. If multiple fields make up the key, separate the fields with commas. (str)"
+msgid ""
+"Name of field that is the PK. If multiple fields make up the key, separate "
+"the fields with commas. (str)"
 msgstr ""
+"Name des Feldes welches der Primärschlüssel ist. Wenn mehrere Felder zum "
+"Schlüssel gehören,
+\n"
+"werden die Felder mit Kommas getrennt. (str)"
 
 #: ./db/dCursorMixin.py:2317
 msgid "Current row in the recordset."
-msgstr ""
+msgstr "Aktuelle Zeile im Recordset"
 
 #: ./db/dCursorMixin.py:2320
 msgid "Current number of rows in the recordset. Read-only."
-msgstr ""
+msgstr "Aktuelle Anzahl Zeilen im Recordset. (Read-Only)"
 
 #: ./db/dCursorMixin.py:2323
 msgid "The name of the table in the database that this cursor is updating."
-msgstr ""
+msgstr "Name der Tabelle in der Datenbank, den dieser Cursor verändert."
 
 #: ./db/dCursorMixin.py:2329
 msgid ""
@@ -898,340 +1183,354 @@ msgid ""
 "\t\t\tThe specified function will be called when getFieldVal() is called on\n"
 "\t\t\tthe specified field name."
 msgstr ""
+"Ein Dictionary zur Zuordung von virtual_field_name zu einer Funktion."
 
 #: ./db/dDataSet.py:275
 msgid "Cannot populate without data for alias %s"
 msgstr ""
 
 #: ./db/dDataSet.py:414
-msgid "Reference to the bizobj that 'owns' this data set. Default=None  (bizobj)"
+msgid ""
+"Reference to the bizobj that 'owns' this data set. Default=None  (bizobj)"
 msgstr ""
+"Referenz zum Bizobj dem der Datenbestand zugehört. (Vorgabe=None) (bizobj)"
 
 #: ./db/dDataSet.py:417
-msgid "Reference to the bizobj that 'owns' this data set. Default=None  (dCursorMixin)"
+msgid ""
+"Reference to the bizobj that 'owns' this data set. Default=None  "
+"(dCursorMixin)"
 msgstr ""
+"Referenz zum Bizobj dem der Datenbestand zugehört. (Vorgabe=None) "
+"(dCursorMixin)"
 
 #: ./db/dDataSet.py:420
 msgid " The encoding used for data in the dataset.  (str)"
-msgstr ""
+msgstr " Die benutzte Kodierung der Daten im DataSet. (str)"
 
 #: ./db/dTable.py:122
 msgid "List of the fields in the table. (list)"
-msgstr ""
+msgstr "Liste der Feldnamen in der Tabelle. (List)"
 
 #: ./db/dTable.py:125
 msgid "List of the indexes in the table. (list)"
-msgstr ""
+msgstr "Liste der Indices der Tabelle. (list)"
 
 #: ./db/dTable.py:128
 msgid "Whether or not the table is temporary. (bool)"
-msgstr ""
+msgstr "Gibt an, ob dies eine temporäre Tabelle ist. (bool)"
 
 #: ./db/dTable.py:131 ./db/dTable.py:303
 msgid "The name of the table. (str)"
-msgstr ""
+msgstr "Der Name der Tabelle. (str)"
 
 #: ./db/dTable.py:134
 msgid "The primary key of the table. (str)"
-msgstr ""
+msgstr "Der Primärschlüssel der Tabelle. (str)"
 
 #: ./db/dTable.py:176
 msgid "Fields which comprise the index.  (list)"
-msgstr ""
+msgstr "Felder die zum Index gehören. (list)"
 
 #: ./db/dTable.py:179
 msgid "Name of the index.  (str)"
-msgstr ""
+msgstr "Name des Index (str)"
 
 #: ./db/dTable.py:286
 msgid "Whether or not nulls are allowed. Default:True (bool)"
-msgstr ""
+msgstr "Gibt an, ob Nullwerte erlaubt sind. Vorgabe:True (bool)"
 
 #: ./db/dTable.py:289
 msgid "The type of the column. (str)"
-msgstr ""
+msgstr "Datentyp des Feldes (str)"
 
 #: ./db/dTable.py:292
 msgid "The default value for the field. Default:None (str)"
-msgstr ""
+msgstr "Defaultwert für dieses Feld. Default:None (str)"
 
 #: ./db/dTable.py:296
 msgid ""
 "Whether or not the field is an auto incrementing field. \n"
 "\t\t\tDefault:False  (bool)"
 msgstr ""
+"Gibt an, ob dieses Feld ein autoincrement Feld ist. (Vorgabe:False) (bool)"
 
 #: ./db/dTable.py:300
 msgid "Whether or not the field has the primary key. (bool)"
-msgstr ""
+msgstr "Gibt an, ob das Feld Primärschlüssel ist. (bool)"
 
 #: ./db/dTable.py:306 ./db/dTable.py:382
 msgid "The total number of decimal places  (int)"
-msgstr ""
+msgstr "Die Anzahl der dezimalen Stellen (int)"
 
 #: ./db/dTable.py:309 ./db/dTable.py:385
 msgid ""
 "The number of decimal places to the right\n"
 "\t\t\tof the period.  (int)"
-msgstr ""
+msgstr "Die Anzahl der dezimalen Stellen nach dem Komma. (int)"
 
 #: ./db/dTable.py:313
-msgid "The size required for the column in bytes or character units if it's a string. (int)"
+msgid ""
+"The size required for the column in bytes or character units if it's a "
+"string. (int)"
 msgstr ""
+"Spaltengröße in Byte oder die Anzahl der Buchstaben erforderlich, falls es "
+"sich um eine Zeichenkette handelt"
 
 #: ./db/dTable.py:316
 msgid "The type of the column.  (class)"
-msgstr ""
+msgstr "Der Typ der Spalte. (class)"
 
 #: ./db/dTable.py:379
 msgid "Type of data for this field  (str)"
-msgstr ""
+msgstr "Datentyp für diese Feld (str)"
 
 #: ./db/dTable.py:389
 msgid "Size of this field  (int)"
-msgstr ""
+msgstr "Länge des Feldes (int)"
 
 #: ./lib/DesignerXmlConverter.py:630
 msgid "When True, classes are mixed-in with the DesignerControlMixin  (bool)"
-msgstr ""
+msgstr "Wenn True, sind Klassen mixed-in mit DesignerControlMixin (bool)"
 
 #: ./lib/datanav/Form.py:157 ./lib/datanav2/Form.py:76
 msgid "First"
-msgstr ""
+msgstr "Anfang"
 
 #: ./lib/datanav/Form.py:157 ./lib/datanav2/Form.py:76
 msgid "Go to the first record"
-msgstr ""
+msgstr "Auf den ersten Datensatz positionieren"
 
 #: ./lib/datanav/Form.py:159 ./lib/datanav2/Form.py:78
 msgid "Go to the prior record"
-msgstr ""
+msgstr "Auf den vorherigen Datensatz positionieren"
 
 #: ./lib/datanav/Form.py:159 ./lib/datanav2/Form.py:78
 msgid "Prior"
-msgstr ""
+msgstr "Vorheriger"
 
 #: ./lib/datanav/Form.py:161 ./lib/datanav2/Form.py:80
 msgid "Requery"
-msgstr ""
+msgstr "Requery"
 
 #: ./lib/datanav/Form.py:161 ./lib/datanav2/Form.py:80
 msgid "Requery dataset"
-msgstr ""
+msgstr "Abfrage wiederholen"
 
 #: ./lib/datanav/Form.py:163 ./lib/datanav2/Form.py:82
 msgid "Go to the next record"
-msgstr ""
+msgstr "Auf den nächsten Datensatz positionieren"
 
 #: ./lib/datanav/Form.py:163 ./lib/datanav2/Form.py:82
 msgid "Next"
-msgstr ""
+msgstr "Nächster"
 
 #: ./lib/datanav/Form.py:165 ./lib/datanav2/Form.py:84
 msgid "Go to the last record"
-msgstr ""
+msgstr "Auf den letzten Datensatz positionieren"
 
 #: ./lib/datanav/Form.py:165 ./lib/datanav2/Form.py:84
 msgid "Last"
-msgstr ""
+msgstr "Letzter"
 
 #: ./lib/datanav/Form.py:170 ./lib/datanav/Grid.py:171
 #: ./lib/datanav2/Form.py:89 ./lib/datanav2/Grid.py:144
 msgid "Add a new record"
-msgstr ""
+msgstr "Neuen Datensatz hinzufügen"
 
 #: ./lib/datanav/Form.py:170 ./lib/datanav2/Form.py:89
 msgid "New"
-msgstr ""
+msgstr "Neu"
 
 #: ./lib/datanav/Form.py:172 ./lib/datanav/Grid.py:175
 #: ./lib/datanav2/Form.py:91 ./lib/datanav2/Grid.py:148
 msgid "Delete this record"
-msgstr ""
+msgstr "Den Datensatz löschen"
 
 #: ./lib/datanav/Form.py:172 ./lib/datanav2/Form.py:91
 msgid "Delete"
-msgstr ""
+msgstr "Löschen"
 
 #: ./lib/datanav/Form.py:177 ./lib/datanav2/Form.py:96
 msgid "Save"
-msgstr ""
+msgstr "Speichern"
 
 #: ./lib/datanav/Form.py:177 ./lib/datanav2/Form.py:96
 msgid "Save changes"
-msgstr ""
+msgstr "Änderungen speichern"
 
 #: ./lib/datanav/Form.py:179 ./lib/datanav2/Form.py:98
 msgid "Cancel changes"
-msgstr ""
+msgstr "Änderungen verwerfen"
 
 #: ./lib/datanav/Form.py:183 ./lib/datanav/Form.py:184
 #: ./lib/datanav2/Form.py:102 ./lib/datanav2/Form.py:103
 msgid "Quick Report"
-msgstr ""
+msgstr "Schnellreport"
 
 #: ./lib/datanav/Form.py:185 ./lib/datanav2/Form.py:104
 msgid "Run a Quick Report on the current dataset"
-msgstr ""
+msgstr "Quickreport für aktuellen Datenbestand ausführen"
 
 #: ./lib/datanav/Form.py:191 ./lib/datanav2/Form.py:110
 msgid "&Actions"
-msgstr ""
+msgstr "&Aktionen"
 
 #: ./lib/datanav/Form.py:193 ./lib/datanav2/Form.py:112
 msgid "Set Selection &Criteria"
-msgstr ""
+msgstr "Setzte Selection und Kriterium"
 
 #: ./lib/datanav/Form.py:195 ./lib/datanav2/Form.py:114
 msgid "Set the selection criteria for the recordset."
-msgstr ""
+msgstr "Selektionskriterien für Recordset setzen"
 
 #: ./lib/datanav/Form.py:197 ./lib/datanav2/Form.py:116
 msgid "&Browse Records"
-msgstr ""
+msgstr "&Ansehen"
 
 #: ./lib/datanav/Form.py:199 ./lib/datanav2/Form.py:118
 msgid "Browse the records in the current recordset."
-msgstr ""
+msgstr "Datensätze im aktuellen Datenbestand durchsuchen"
 
 #: ./lib/datanav/Form.py:211 ./lib/datanav2/Form.py:130
 msgid "Edit the fields of the currently selected record."
-msgstr ""
+msgstr "Editieren der Felder des momentan ausgewählten Datensatztes."
 
 #: ./lib/datanav/Form.py:223 ./lib/datanav/Page.py:495
 #: ./lib/datanav2/Form.py:142
 msgid "&Requery"
-msgstr ""
+msgstr "Neue Abfrage"
 
 #: ./lib/datanav/Form.py:225 ./lib/datanav2/Form.py:144
 msgid "Get a new recordset from the backend."
-msgstr ""
+msgstr "Neuen Datensatz vom Backend anfordern."
 
 #: ./lib/datanav/Form.py:228 ./lib/datanav2/Form.py:147
 msgid "&Save Changes"
-msgstr ""
+msgstr "Änderungen speichern"
 
 #: ./lib/datanav/Form.py:230 ./lib/datanav2/Form.py:149
 msgid "Save any changes made to the records."
-msgstr ""
+msgstr "Alle Datensatzänderungen speichern."
 
 #: ./lib/datanav/Form.py:231 ./lib/datanav2/Form.py:150
 msgid "&Cancel Changes"
-msgstr ""
+msgstr "Änderungen abbrechen"
 
 #: ./lib/datanav/Form.py:233 ./lib/datanav2/Form.py:152
 msgid "Cancel any changes made to the records."
-msgstr ""
+msgstr "Alle Datensatzänderungen abbrechen."
 
 #: ./lib/datanav/Form.py:243 ./lib/datanav2/Form.py:162
 msgid "Select &First Record"
-msgstr ""
+msgstr "&Erster Datensatz"
 
 #: ./lib/datanav/Form.py:245 ./lib/datanav2/Form.py:164
 msgid "Go to the first record in the set."
-msgstr ""
+msgstr "Gehe zum ersten Datensatz der Selektion"
 
 #: ./lib/datanav/Form.py:246 ./lib/datanav2/Form.py:165
 msgid "Select &Prior Record"
-msgstr ""
+msgstr "&Vorherigen Datensatz auswählen"
 
 #: ./lib/datanav/Form.py:248 ./lib/datanav2/Form.py:167
 msgid "Go to the prior record in the set."
-msgstr ""
+msgstr "Gehe zum vorherigen Datensatz der Selektion"
 
 #: ./lib/datanav/Form.py:249 ./lib/datanav2/Form.py:168
 msgid "Select Ne&xt Record"
-msgstr ""
+msgstr "N&ächsten Datensatz auswählen"
 
 #: ./lib/datanav/Form.py:251 ./lib/datanav2/Form.py:170
 msgid "Go to the next record in the set."
-msgstr ""
+msgstr "Gehe zum nächsten Datensatz der Selektion"
 
 #: ./lib/datanav/Form.py:252 ./lib/datanav2/Form.py:171
 msgid "Select &Last Record"
-msgstr ""
+msgstr "&Letzter Datensatz"
 
 #: ./lib/datanav/Form.py:254 ./lib/datanav2/Form.py:173
 msgid "Go to the last record in the set."
-msgstr ""
+msgstr "Gehe zum letzten Datensatz der Selektion"
 
 #: ./lib/datanav/Form.py:258 ./lib/datanav2/Form.py:177
 msgid "&New Record"
-msgstr ""
+msgstr "&Neuer Datensatz"
 
 #: ./lib/datanav/Form.py:260 ./lib/datanav2/Form.py:179
 msgid "Add a new record to the dataset."
-msgstr ""
+msgstr "Neuen Datensatz anlegen"
 
 #: ./lib/datanav/Form.py:261 ./lib/datanav2/Form.py:180
 msgid "&Delete Current Record"
-msgstr ""
+msgstr "&Lösche aktuellen Datensatz"
 
 #: ./lib/datanav/Form.py:263 ./lib/datanav2/Form.py:182
 msgid "Delete the current record from the dataset."
-msgstr ""
+msgstr "Löschen des aktuellen Datensatzes der Selektion"
 
 #: ./lib/datanav/Form.py:267 ./lib/datanav2/Form.py:186
 msgid "Show S&QL"
-msgstr ""
+msgstr "Zeige S&QL"
 
 #: ./lib/datanav/Form.py:270 ./lib/datanav2/Form.py:189
 msgid "Quick &Report"
-msgstr ""
+msgstr "Schell%report"
 
 #: ./lib/datanav/Form.py:300 ./lib/datanav2/Form.py:219
 msgid "Actions"
-msgstr ""
+msgstr "Aktionen"
 
 #: ./lib/datanav/Form.py:306 ./lib/datanav2/Form.py:225
 #: ./ui/uiwx/dShell.py:270
 msgid "View"
-msgstr ""
+msgstr "Ansicht"
 
 #: ./lib/datanav/Form.py:356 ./lib/datanav/Form.py:358
 #: ./lib/datanav/PageFrame.py:69 ./lib/datanav2/Form.py:275
 #: ./lib/datanav2/Form.py:277 ./lib/datanav2/PageFrame.py:44
 #: ./ui/uiwx/dShell.py:279
 msgid "Edit"
-msgstr ""
+msgstr "Bearbeiten"
 
 #: ./lib/datanav/Form.py:397 ./lib/datanav2/Form.py:309
 msgid "Last SQL"
-msgstr ""
+msgstr "Letztes SQL"
 
 #: ./lib/datanav/Form.py:408 ./lib/datanav2/Form.py:327
 msgid "Sorry, there are no records to report on."
-msgstr ""
+msgstr "Keine Datensätze für Report vorhanden."
 
 #: ./lib/datanav/Form.py:408 ./lib/datanav2/Form.py:328
 msgid "No Records"
-msgstr ""
+msgstr "Keine Datensätze"
 
 #: ./lib/datanav/Form.py:1095
 msgid ""
 "Should the form automatically add edit pages for \n"
 "\t\t\tchild bizobjs? (default=True)  (bool)"
 msgstr ""
+"Soll die Form automatisch Seiten für Detailbizobjs bereitstellen? "
+"(Vorgabe=True) bool"
 
 #: ./lib/datanav/Form.py:1099 ./lib/datanav2/Form.py:968
 msgid "Specifies the class to use for the browse grid."
-msgstr ""
+msgstr "Spezifiziert die Klasse zur Benutzung des Browserelements."
 
 #: ./lib/datanav/Form.py:1102 ./lib/datanav2/Form.py:971
 msgid "Specifies the class to use for the browse page."
-msgstr ""
+msgstr "Spezifiziert die Klasse zur Benutzung des Browserseite."
 
 #: ./lib/datanav/Form.py:1105 ./lib/datanav2/Form.py:974
 msgid "Specifies custom (overridden) SQL to use."
-msgstr ""
+msgstr "Spezifiziert massgeschneidertes (überschriebenes) SQL."
 
 #: ./lib/datanav/Form.py:1108 ./lib/datanav2/Form.py:977
 msgid "Specifies the class to use for the edit page."
-msgstr ""
+msgstr "Spezifiziert die Klasse zur Benutzung der Editierseite."
 
 #: ./lib/datanav/Form.py:1111
 msgid "Reference to the dictionary containing field behavior specs"
-msgstr ""
+msgstr "Referenz zum Dictionary, welches Feldspezifisches Verhalten enthält."
 
 #: ./lib/datanav/Form.py:1114
 msgid ""
@@ -1252,67 +1551,71 @@ msgstr ""
 
 #: ./lib/datanav/Form.py:1130
 msgid "Reference to the dictionary containing table relation specs"
-msgstr ""
+msgstr "Referenz zum Dictionary, welches Tabellenrelationen enthält."
 
 #: ./lib/datanav/Form.py:1133 ./lib/datanav2/Form.py:1013
 msgid "Specifies the class to use for the select page."
-msgstr ""
+msgstr "Spezifiziert die Klasse zur Benutzung für die Auwahlseite"
 
 #: ./lib/datanav/Form.py:1137 ./lib/datanav2/Form.py:1017
 msgid "Does the focus go to the browse grid when the browse page is entered?"
 msgstr ""
+"Soll der Focus zum Browse-Grid wechseln, wenn die Browse-Seite gewählt wird ?"
 
 #: ./lib/datanav/Grid.py:167 ./lib/datanav2/Grid.py:140
 msgid "&Pick"
-msgstr ""
+msgstr "&Wählen"
 
 #: ./lib/datanav/Grid.py:168 ./lib/datanav2/Grid.py:141
 msgid "Pick this record"
-msgstr ""
+msgstr "Wähle diesen Datensatz"
 
 #: ./lib/datanav/Grid.py:170 ./lib/datanav2/Grid.py:143
 msgid "&New"
-msgstr ""
+msgstr "&Neu ..."
 
 #: ./lib/datanav/Grid.py:173 ./lib/datanav2/Grid.py:146
 msgid "Edit this record"
-msgstr ""
+msgstr "Datensatz bearbeiten"
 
 #: ./lib/datanav/Grid.py:221
 msgid "Holds the fields specs for this form  (dict)"
-msgstr ""
+msgstr "Enthält die Feldbeschreibungen für diese Form (dict)"
 
 #: ./lib/datanav/Page.py:146 ./lib/datanav2/Page.py:143
 msgid "Show sort order"
-msgstr ""
+msgstr "Zeige Sortierfolge"
 
 #: ./lib/datanav/Page.py:148 ./lib/datanav2/Page.py:145
 msgid "Remove sort on "
-msgstr ""
+msgstr "Sortierung aufheben für "
 
 #: ./lib/datanav/Page.py:151 ./lib/datanav2/Page.py:148
 msgid "Sort Ascending"
-msgstr ""
+msgstr "Aufsteigend sortieren"
 
 #: ./lib/datanav/Page.py:152 ./lib/datanav2/Page.py:149
 msgid "Sort Descending"
-msgstr ""
+msgstr "Absteigend Sortieren"
 
 #: ./lib/datanav/Page.py:417
 msgid "Please enter your record selection criteria:"
-msgstr ""
+msgstr "Bitte Selektionskriterien eingeben"
 
 #: ./lib/datanav/Page.py:480
 msgid "&Limit"
-msgstr ""
+msgstr "&Begrenzung"
 
 #: ./lib/datanav/Page.py:527 ./lib/datanav2/Page.py:424
 msgid "Set Custom SQL"
-msgstr ""
+msgstr "Spezifischen SQL Befehl eingeben"
 
 #: ./lib/datanav/Page.py:783 ./lib/datanav2/Page.py:560
-msgid "Table that is the primary source for the fields displayed on the page  (str)"
+msgid ""
+"Table that is the primary source for the fields displayed on the page  (str)"
 msgstr ""
+"Tabelle, welche die Hauptdatenquelle für die Felder bildet, die auf der Form "
+"dargestellt werden (str)"
 
 #: ./lib/datanav/PageFrame.py:63 ./lib/datanav2/PageFrame.py:38
 msgid "Select"
@@ -1323,7 +1626,9 @@ msgid "Browse"
 msgstr ""
 
 #: ./lib/datanav/__init__.py:11
-msgid "This version of the datanav framework is deprecated; please run the current AppWizard to regenerate your application using the datanav2 framework."
+msgid ""
+"This version of the datanav framework is deprecated; please run the current "
+"AppWizard to regenerate your application using the datanav2 framework."
 msgstr ""
 
 #: ./lib/datanav2/Form.py:963
@@ -1337,16 +1642,19 @@ msgstr ""
 msgid ""
 "Specifies the type of form this is.\n"
 "\n"
-"\t\t\tThe type of form determines the runtime behavior. FormType can be one of:\n"
+"\t\t\tThe type of form determines the runtime behavior. FormType can be one "
+"of:\n"
 "\t\t\t\tNormal: \n"
 "\t\t\t\t\tA normal dataNav form. The default.\n"
 "\n"
 "\t\t\t\tPickList: \n"
-"\t\t\t\t\tOnly select/browse pages shown, and the form is modal, returning the \n"
+"\t\t\t\t\tOnly select/browse pages shown, and the form is modal, returning "
+"the \n"
 "\t\t\t\t\tPrimary Key of the picked record.\n"
 "\n"
 "\t\t\t\tEdit:\n"
-"\t\t\t\t\tModal version of normal, with no Select/Browse pages. User code sends\n"
+"\t\t\t\t\tModal version of normal, with no Select/Browse pages. User code "
+"sends\n"
 "\t\t\t\t\tthe Primary Key of the record to edit.\n"
 msgstr ""
 
@@ -1374,34 +1682,37 @@ msgstr ""
 #: ./lib/datanav2/Form.py:1021
 msgid "Does the 'Advanced' button appear in the Quick Report dialog?"
 msgstr ""
+"Soll der \"Experten\"-Button auf dem Kurzbericht- Dialog erscheinen ?"
 
 #: ./lib/datanav2/Form.py:1025
 msgid "Can the user choose the 'expanded' quick report?"
-msgstr ""
+msgstr "Darf der Benutzer den \"erweiterten\" Kurzbericht auswählen ?"
 
 #: ./lib/eventMixin.py:349
 msgid "The list of event bindings ([Event, callback]) for this object."
-msgstr ""
+msgstr "Die Liste der Event-Bindings ([Event, callback]) für dieses Objekt."
 
 #: ./lib/logger.py:84
 msgid "The log's label: will get prepended to the log entry"
-msgstr ""
+msgstr "Der Logtitel: wird dem Logeintrag vorangestellt"
 
 #: ./lib/logger.py:87
 msgid "The object that is to receive the log messages."
-msgstr ""
+msgstr "Das Objekt, das die Logmeldungen empfängt."
 
 #: ./lib/logger.py:90
-msgid "Specifies whether a timestamp is logged with the message. Default: True"
+msgid ""
+"Specifies whether a timestamp is logged with the message. Default: True"
 msgstr ""
+"Spezifiziert, ob ein Zeitstempel mit der Meldung geloggt wird. Vorgabe: True"
 
 #: ./lib/propertyHelperMixin.py:39
 msgid "The only accepted values for this property are "
-msgstr ""
+msgstr "Gültige Werte für dieses Property sind "
 
 #: ./lib/propertyHelperMixin.py:42
 msgid "and"
-msgstr ""
+msgstr "und"
 
 #: ./lib/reportWriter.py:97 ./lib/reportWriter.py:298
 msgid ""
@@ -1422,21 +1733,23 @@ msgstr ""
 
 #: ./lib/reportWriter.py:1872
 msgid "Specifies the data cursor that the report runs against."
-msgstr ""
+msgstr "Spezifiziert den Data Cursor, auf dem der Bericht arbeitet."
 
 #: ./lib/reportWriter.py:1878
 msgid ""
 "Specifies the home directory for the report.\n"
 "\n"
-"\t\tResources on disk (image files, etc.) will be looked for relative to the\n"
-"\t\tHomeDirectory if specified with relative pathing. The HomeDirectory should\n"
+"\t\tResources on disk (image files, etc.) will be looked for relative to "
+"the\n"
+"\t\tHomeDirectory if specified with relative pathing. The HomeDirectory "
+"should\n"
 "\t\tbe the directory that contains the report form file. If you set \n"
 "\t\tself.ReportFormFile, HomeDirectory will be set for you automatically."
 msgstr ""
 
 #: ./lib/reportWriter.py:1886
 msgid "Specifies the output PDF file (name or file object)."
-msgstr ""
+msgstr "Spezifiziert die Ausgabe PDF Datei (Name der Datei):"
 
 #: ./lib/reportWriter.py:1889
 msgid ""
@@ -1451,24 +1764,26 @@ msgstr ""
 
 #: ./lib/reportWriter.py:1898
 msgid "Returns the current record number of Cursor."
-msgstr ""
+msgstr "Gibt die momentane Datensatznummer des Cursors zurück."
 
 #: ./lib/reportWriter.py:1901
+#, fuzzy
 msgid "Specifies the python report form data dictionary."
 msgstr ""
 
 #: ./lib/reportWriter.py:1904
 msgid "Specifies the path and filename of the report form spec file."
-msgstr ""
+msgstr "Benennt Pfad- und Dateiname der Berichtsattributsdatei."
 
 #: ./lib/reportWriter.py:1907
 msgid "Specifies the report format xml."
-msgstr ""
+msgstr "Spezifiziert das XML-Reportformat."
 
 #: ./lib/reportWriter.py:1910
 msgid ""
 "Specifies whether the report bands are printed with outlines for\n"
-"\t\tdebugging and informational purposes. In addition to the band, there is also\n"
+"\t\tdebugging and informational purposes. In addition to the band, there is "
+"also\n"
 "\t\ta caption with the band name at the x,y origin point for the band."
 msgstr ""
 
@@ -1479,21 +1794,24 @@ msgstr ""
 #: ./lib/xmltodict.py:175
 msgid "The XML in '%s' is not well-formed and cannot be parsed: %s"
 msgstr ""
+"Das XML in '%s' ist nicht richtig gestaltet und kann nicht geparst werden: %s"
 
 #: ./lib/xmltodict.py:180
 msgid "The file '%s' could not be found"
-msgstr ""
+msgstr "Die Datei '%s' konnte nicht gefunden werden"
 
 #: ./lib/xmltodict.py:185
 msgid "An invalid XML string was encountered"
-msgstr ""
+msgstr "Ein ungültiger XML String wurde gefunden"
 
 #: ./ui/dDataControlMixinBase.py:275
 msgid "getShortDataType - unknown type: %s"
 msgstr ""
 
 #: ./ui/dDataControlMixinBase.py:400
-msgid "DataSource '%s' does not inherit from dObject. This may result in unsupported problems."
+msgid ""
+"DataSource '%s' does not inherit from dObject. This may result in "
+"unsupported problems."
 msgstr ""
 
 #: ./ui/dDataControlMixinBase.py:408
@@ -1527,12 +1845,14 @@ msgid ""
 msgstr ""
 
 #: ./ui/dDataControlMixinBase.py:429
-msgid "Reference to the object to which this control's Value is bound  (object)"
-msgstr ""
+msgid ""
+"Reference to the object to which this control's Value is bound  (object)"
+msgstr "Objektreferenz, an welche der Wert des Controls gebunden ist."
 
 #: ./ui/dDataControlMixinBase.py:432 ./ui/uiwx/dCheckBox.py:119
 #: ./ui/uiwx/dTextBoxMixin.py:678
-msgid "Specifies the current state of the control (the value of the field). (varies)"
+msgid ""
+"Specifies the current state of the control (the value of the field). (varies)"
 msgstr ""
 
 #: ./ui/dPemMixinBase.py:186
@@ -1544,11 +1864,14 @@ msgstr ""
 
 #: ./ui/dPemMixinBase.py:191
 msgid "List of child objects."
-msgstr ""
+msgstr "Liste der Kindobjekte."
 
 #: ./ui/dPemMixinBase.py:194
-msgid "Object reference to the dForm containing the object. Read-only. (dForm)."
+msgid ""
+"Object reference to the dForm containing the object. Read-only. (dForm)."
 msgstr ""
+"Objektreferenz zur dForm, welche das Objekt enthält. Schreibgeschützt. "
+"(dForm)"
 
 #: ./ui/dPemMixinBase.py:197
 msgid ""
@@ -1559,35 +1882,37 @@ msgstr ""
 
 #: ./ui/dialogs/SortingForm.py:47
 msgid "Caption for the sorting list  (str)"
-msgstr ""
+msgstr "Titel der sortierten Liste (str)"
 
 #: ./ui/dialogs/SortingForm.py:50
 msgid "Items in the list to sort.   (list)"
-msgstr ""
+msgstr "Einträge der zu sortierenden Liste. (list)"
 
 #: ./ui/dialogs/Wizard.py:23
-msgid "Deprecated parameter 'image' used in wizard. Use the 'Picture' property instead."
+msgid ""
+"Deprecated parameter 'image' used in wizard. Use the 'Picture' property "
+"instead."
 msgstr ""
 
 #: ./ui/dialogs/Wizard.py:53
 msgid "Are you sure you want to exit?"
-msgstr ""
+msgstr "Sind Sie sicher, dass Sie beenden wollen?"
 
 #: ./ui/dialogs/Wizard.py:100
 msgid "< Back"
-msgstr ""
+msgstr "< Zurück"
 
 #: ./ui/dialogs/Wizard.py:101 ./ui/dialogs/Wizard.py:244
 msgid "Next >"
-msgstr ""
+msgstr "Weiter >"
 
 #: ./ui/dialogs/Wizard.py:246
 msgid "Finish"
-msgstr ""
+msgstr "Fertigstellen"
 
 #: ./ui/dialogs/Wizard.py:260
 msgid "This Space For Rent"
-msgstr ""
+msgstr "Noch zu vermieten"
 
 #: ./ui/dialogs/Wizard.py:377
 msgid "Index of the current page in the wizard  (WizardPage)"
@@ -1599,19 +1924,19 @@ msgstr ""
 
 #: ./ui/dialogs/Wizard.py:383
 msgid "Sets the visible icon for the wizard.  (str/path)"
-msgstr ""
+msgstr "Setzt das sichbare Icon für den Wizard. (str/path)"
 
 #: ./ui/dialogs/Wizard.py:386
 msgid "Height of the wizard icon in pixels  (int)"
-msgstr ""
+msgstr "Höhe des Wizard Icons in Pixel (int)"
 
 #: ./ui/dialogs/Wizard.py:389
 msgid "Width of the wizard icon in pixels  (int)"
-msgstr ""
+msgstr "Breite des Wizard Icons in Pixel (int)"
 
 #: ./ui/dialogs/Wizard.py:399
 msgid "This is the first page"
-msgstr ""
+msgstr "Dies ist die erste Seite"
 
 #: ./ui/dialogs/Wizard.py:400
 msgid ""
@@ -1619,10 +1944,13 @@ msgid ""
 "\n"
 "I know that I am!!"
 msgstr ""
+"Sind Sie jetzt aufgeregt?\n"
+"\n"
+"Ich weiss, das ich es bin!!"
 
 #: ./ui/dialogs/Wizard.py:409
 msgid "This is the second page"
-msgstr ""
+msgstr "Dies ist die zweite Seite"
 
 #: ./ui/dialogs/Wizard.py:410
 msgid ""
@@ -1633,7 +1961,7 @@ msgstr ""
 
 #: ./ui/dialogs/Wizard.py:432
 msgid "This is the third page"
-msgstr ""
+msgstr "Dies ist die drittte Seite"
 
 #: ./ui/dialogs/Wizard.py:433
 msgid ""
@@ -1643,28 +1971,27 @@ msgstr ""
 
 #: ./ui/dialogs/Wizard.py:441
 msgid "This is the fourth page"
-msgstr ""
+msgstr "Dies ist die vierste Seite"
 
 #: ./ui/dialogs/Wizard.py:443
-msgid ""
-"Did the skipping work OK?\n"
+msgid "Did the skipping work OK?\n"
 msgstr ""
 
 #: ./ui/dialogs/Wizard.py:448
 msgid "You cannot move forward if this textbox is empty"
-msgstr ""
+msgstr "Bei leerem Textfeld kann nicht weiter gemacht werden."
 
 #: ./ui/dialogs/Wizard.py:453
 msgid "Also note that this page has a different icon!"
-msgstr ""
+msgstr "Beachte Sie, dass diese Seite ein anderes Icon hat!"
 
 #: ./ui/dialogs/Wizard.py:475
 msgid "Fill in the text box!!"
-msgstr ""
+msgstr "Bitte einen Wert in das Textfeld eingeben!"
 
 #: ./ui/dialogs/Wizard.py:482
 msgid "This is the fifth (and last) page"
-msgstr ""
+msgstr "Dies ist die fünfte (und letzte) Seite"
 
 #: ./ui/dialogs/Wizard.py:483
 msgid ""
@@ -1675,33 +2002,34 @@ msgstr ""
 
 #: ./ui/dialogs/WizardPage.py:13
 msgid "Wizard Page"
-msgstr ""
+msgstr "Wizard-Seite"
 
 #: ./ui/dialogs/WizardPage.py:193
 msgid "The text that appears as the title of the page  (str)"
-msgstr ""
+msgstr "Der text, der als Titel der Seite erscheint  (str)"
 
 #: ./ui/dialogs/WizardPage.py:196
 msgid ""
-"Normally None, but you can set it to some other image to have the wizard display\n"
+"Normally None, but you can set it to some other image to have the wizard "
+"display\n"
 "\t\t\ta different picture for this page  (None or image path)"
 msgstr ""
 
 #: ./ui/dialogs/WizardPage.py:200
 msgid "Controls whether the title text is bold.  (bool)"
-msgstr ""
+msgstr "Steuert, ob Titelzeile in fett darzustellen ist (bool)"
 
 #: ./ui/dialogs/WizardPage.py:203
 msgid "Name of the font face used for the Title.  (string)"
-msgstr ""
+msgstr "Name der Schriftart für den Titel. (string)"
 
 #: ./ui/dialogs/WizardPage.py:206
 msgid "Controls whether the title text is italic.  (bool)"
-msgstr ""
+msgstr "Steuert, ob Titelzeile in kursiv darzustellen ist. (bool)"
 
 #: ./ui/dialogs/WizardPage.py:209
 msgid "Size in points for the Title (default=18).  (int)"
-msgstr ""
+msgstr "Grösse in pt für die Titelschriftart (default=18). (int)"
 
 #: ./ui/dialogs/WizardPage.py:212
 msgid "Reference to the wizard form this page is in  (Wizard object)"
@@ -1709,55 +2037,59 @@ msgstr ""
 
 #: ./ui/dialogs/about.py:13 ./ui/dialogs/htmlAbout.py:16
 msgid "About"
-msgstr ""
+msgstr "Über"
 
 #: ./ui/dialogs/about.py:53 ./ui/dialogs/htmlAbout.py:33
 msgid "Copy Info"
-msgstr ""
+msgstr "Informationen kopieren"
 
 #: ./ui/uiwx/__init__.py:228
 msgid "setAfter() failed to set property '%s' to value '%s': %s."
 msgstr ""
+"Setzen der Eigenschaft '%s' auf den Wert '%s' in setAfter() nicht möglich: "
+"%s."
 
 #: ./ui/uiwx/__init__.py:240
 msgid "setAfterInterval() failed to set property '%s' to value '%s': %s."
 msgstr ""
+"Setzen der Eigenschaft '%s' auf den Wert '%s' in setAfterInterval() nicht "
+"möglich: %s."
 
 #: ./ui/uiwx/__init__.py:619
 msgid "Please enter a string:"
-msgstr ""
+msgstr "Bitte Zeichnkette eingeben:"
 
 #: ./ui/uiwx/__init__.py:656
 msgid "Enter an integer value:"
-msgstr ""
+msgstr "Bitte Zahlenwert eingeben:"
 
 #: ./ui/uiwx/__init__.py:701
 msgid "Please make your selection:"
-msgstr ""
+msgstr "Bitte Auswählen"
 
 #: ./ui/uiwx/__init__.py:722
 msgid "Select All"
-msgstr ""
+msgstr "Alles auswählen"
 
 #: ./ui/uiwx/__init__.py:724
 msgid "Unselect All"
-msgstr ""
+msgstr "Gesamte Auswahl aufheben"
 
 #: ./ui/uiwx/__init__.py:726
 msgid "Invert Selection"
-msgstr ""
+msgstr "Auswahl umkehren"
 
 #: ./ui/uiwx/__init__.py:790
 msgid "Invalid date value passed to getDate(): %s"
-msgstr ""
+msgstr "Ein ungültiger Datumswert wurde an getDate() übergeben: %s"
 
 #: ./ui/uiwx/__init__.py:912 ./ui/uiwx/dFileDialog.py:116
 msgid "Choose a folder"
-msgstr ""
+msgstr "Wähle ein Verzeichnis"
 
 #: ./ui/uiwx/__init__.py:1211
 msgid "No Active Form"
-msgstr ""
+msgstr "Keine aktive Form"
 
 #: ./ui/uiwx/__init__.py:1211
 msgid "There is no active form to capture."
@@ -1765,23 +2097,23 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:32
 msgid "&File"
-msgstr ""
+msgstr "&Datei"
 
 #: ./ui/uiwx/dBaseMenuBar.py:35
 msgid "Command Win&dow"
-msgstr ""
+msgstr "Kommandofenster"
 
 #: ./ui/uiwx/dBaseMenuBar.py:37
 msgid "Open up a command window for debugging"
-msgstr ""
+msgstr "Öffne Befehlsfenster zum Debuggen"
 
 #: ./ui/uiwx/dBaseMenuBar.py:39
 msgid "Close Windo&w"
-msgstr ""
+msgstr "Fenster Schliessen"
 
 #: ./ui/uiwx/dBaseMenuBar.py:41
 msgid "Close the current window"
-msgstr ""
+msgstr "Aktuelles Fenster schließen"
 
 #: ./ui/uiwx/dBaseMenuBar.py:45
 msgid "&Quit"
@@ -1789,7 +2121,7 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:48
 msgid "Exit the application"
-msgstr ""
+msgstr "Anwendung beenede"
 
 #: ./ui/uiwx/dBaseMenuBar.py:56
 msgid "&Edit"
@@ -1797,15 +2129,15 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:58
 msgid "&Undo"
-msgstr ""
+msgstr "&Rückgängig:"
 
 #: ./ui/uiwx/dBaseMenuBar.py:60
 msgid "Undo last action"
-msgstr ""
+msgstr "Letzte Aktion rückgängig machen"
 
 #: ./ui/uiwx/dBaseMenuBar.py:62
 msgid "&Redo"
-msgstr ""
+msgstr "&Wiederholen:"
 
 #: ./ui/uiwx/dBaseMenuBar.py:64
 msgid "Undo last undo"
@@ -1813,75 +2145,75 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:68
 msgid "Cu&t"
-msgstr ""
+msgstr "A&usschneiden"
 
 #: ./ui/uiwx/dBaseMenuBar.py:70
 msgid "Cut selected text"
-msgstr ""
+msgstr "Ausgew&ählten Text ausschneiden"
 
 #: ./ui/uiwx/dBaseMenuBar.py:72
 msgid "&Copy"
-msgstr ""
+msgstr "&Kopieren"
 
 #: ./ui/uiwx/dBaseMenuBar.py:74
 msgid "Copy selected text"
-msgstr ""
+msgstr "Kopiert ausgew&ählten Text"
 
 #: ./ui/uiwx/dBaseMenuBar.py:76
 msgid "&Paste"
-msgstr ""
+msgstr "Ein&fügen"
 
 #: ./ui/uiwx/dBaseMenuBar.py:78
 msgid "Paste text from clipboard"
-msgstr ""
+msgstr "F�gt Text aus Zwischenablage ein"
 
 #: ./ui/uiwx/dBaseMenuBar.py:80
 msgid "Select &All"
-msgstr ""
+msgstr "&Alle auswählen"
 
 #: ./ui/uiwx/dBaseMenuBar.py:82
 msgid "Select all text"
-msgstr ""
+msgstr "Ganzen Text selektieren"
 
 #: ./ui/uiwx/dBaseMenuBar.py:88
 msgid "&Find / Replace"
-msgstr ""
+msgstr "&Suchen / Ersetzen"
 
 #: ./ui/uiwx/dBaseMenuBar.py:90
 msgid "Find or Replace text in the active window"
-msgstr ""
+msgstr "Suchen oder Ersetzen des Textes im aktiven Fenster"
 
 #: ./ui/uiwx/dBaseMenuBar.py:95
 msgid "Find A&gain"
-msgstr ""
+msgstr "Erneut Suchen"
 
 #: ./ui/uiwx/dBaseMenuBar.py:96
 msgid "Repeat the last search"
-msgstr ""
+msgstr "Letzte Suche wiederholen"
 
 #: ./ui/uiwx/dBaseMenuBar.py:100
 msgid "Pr&eferences"
-msgstr ""
+msgstr "&Einstellungen"
 
 #: ./ui/uiwx/dBaseMenuBar.py:102
 msgid "Set user preferences"
-msgstr ""
+msgstr "Benutzereinstellungen setzen"
 
 #: ./ui/uiwx/dBaseMenuBar.py:113
 msgid "&View"
-msgstr ""
+msgstr "&Anzeige"
 
 #: ./ui/uiwx/dBaseMenuBar.py:115
 msgid "Increase Font Size"
-msgstr ""
+msgstr "Vergrössere Font"
 
 #: ./ui/uiwx/dBaseMenuBar.py:116
 msgid "Decrease Font Size"
-msgstr ""
+msgstr "Schriftgrösse verkleinern"
 
 #: ./ui/uiwx/dBaseMenuBar.py:117
 msgid "Normal Font Size"
-msgstr ""
+msgstr "Normale Schriftgrösse"
 
 #: ./ui/uiwx/dBaseMenuBar.py:121
 msgid "Show/Hide Sizer &Lines"
@@ -1893,23 +2225,23 @@ msgstr ""
 
 #: ./ui/uiwx/dBaseMenuBar.py:130
 msgid "&Help"
-msgstr ""
+msgstr "&Hilfe"
 
 #: ./ui/uiwx/dBaseMenuBar.py:133
 msgid "&About"
-msgstr ""
+msgstr "&Über..."
 
 #: ./ui/uiwx/dBaseMenuBar.py:139
 msgid "About this application"
-msgstr ""
+msgstr "Über diese Anwendung"
 
 #: ./ui/uiwx/dBaseMenuBar.py:145
 msgid "Web Update Settings"
-msgstr ""
+msgstr "Web Update-Einstellungen"
 
 #: ./ui/uiwx/dBaseMenuBar.py:146
 msgid "Change your preferences for web updates"
-msgstr ""
+msgstr "Ändere die Einstellungen für Webupdates"
 
 #: ./ui/uiwx/dBitmapButton.py:79
 msgid "CancelButton isn't implemented yet."
@@ -1921,7 +2253,7 @@ msgstr ""
 
 #: ./ui/uiwx/dBitmapButton.py:172
 msgid "The bitmap normally displayed on the button.  (wx.Bitmap)"
-msgstr ""
+msgstr "Normalerweise auf dem Button angezeigte Bitmap. (wx.Bitmap)"
 
 #: ./ui/uiwx/dBitmapButton.py:175
 msgid "Extra space around the bitmap, used when auto-sizing.  (int)"
@@ -1929,7 +2261,7 @@ msgstr ""
 
 #: ./ui/uiwx/dBitmapButton.py:178
 msgid "Specifies whether this Bitmap button gets clicked on -Escape-."
-msgstr ""
+msgstr "Gibt an, ob click-Methode dieses Buttons bei Escape gefeuert wird."
 
 #: ./ui/uiwx/dBitmapButton.py:181
 msgid "Specifies whether this Bitmap button gets clicked on -Enter-."
@@ -1940,15 +2272,18 @@ msgid "The bitmap displayed on the button when it is depressed.  (wx.Bitmap)"
 msgstr ""
 
 #: ./ui/uiwx/dBitmapButton.py:187
-msgid "Specifies the image displayed on the button when it is depressed.  (str)"
+msgid ""
+"Specifies the image displayed on the button when it is depressed.  (str)"
 msgstr ""
 
 #: ./ui/uiwx/dBitmapButton.py:190
-msgid "The bitmap displayed on the button when it receives focus.  (wx.Bitmap)"
+msgid ""
+"The bitmap displayed on the button when it receives focus.  (wx.Bitmap)"
 msgstr ""
 
 #: ./ui/uiwx/dBitmapButton.py:193
-msgid "Specifies the image displayed on the button when it receives focus.  (str)"
+msgid ""
+"Specifies the image displayed on the button when it receives focus.  (str)"
 msgstr ""
 
 #: ./ui/uiwx/dBitmapButton.py:196
@@ -1960,7 +2295,7 @@ msgstr ""
 
 #: ./ui/uiwx/dBorderSizer.py:125
 msgid "Color of the box background  (str or tuple)"
-msgstr ""
+msgstr "Hintergrundfarbe der Box (str oder tuple)"
 
 #: ./ui/uiwx/dBorderSizer.py:128
 msgid "Reference to the box used in the sizer  (dBox)"
@@ -2000,7 +2335,7 @@ msgstr ""
 
 #: ./ui/uiwx/dCalendar.py:303
 msgid "The current Date of the calendar  (datetime.date)"
-msgstr ""
+msgstr "Aktuelles Datum des Kalenders (datetime.date)"
 
 #: ./ui/uiwx/dCalendar.py:307
 msgid ""
@@ -2095,7 +2430,8 @@ msgid ""
 "\t\t\t\n"
 "\t\t\tUserValue can differ from StringValue, which would mean that the user\n"
 "\t\t\thas typed in arbitrary text. Unlike StringValue, PositionValue, and \n"
-"\t\t\tKeyValue, setting UserValue does not change the currently selected item\n"
+"\t\t\tKeyValue, setting UserValue does not change the currently selected "
+"item\n"
 "\t\t\tin the list portion of the ComboBox."
 msgstr ""
 
@@ -2105,7 +2441,7 @@ msgstr ""
 
 #: ./ui/uiwx/dControlItemMixin.py:229
 msgid "Key '%s' not found"
-msgstr ""
+msgstr "Schlüssel '%s' nicht gefunden"
 
 #: ./ui/uiwx/dControlItemMixin.py:294
 msgid "SortFunction must be callable"
@@ -2166,7 +2502,8 @@ msgstr ""
 msgid ""
 "Are the items in the control automatically sorted? Default=False.\n"
 "\t\t\tIf True, whenever the Choices property is changed, the resulting list\n"
-"\t\t\twill be first sorted using the SortFunction property, which defaults to \n"
+"\t\t\twill be first sorted using the SortFunction property, which defaults "
+"to \n"
 "\t\t\tNone, giving a default sort order.  (bool)"
 msgstr ""
 
@@ -2189,9 +2526,12 @@ msgstr ""
 msgid ""
 "Specifies which item is currently selected in the list.\n"
 "\t\t\t-> Type can vary. Read-write at runtime.\n"
-"\t\t\tValue refers to one of the following, depending on the setting of ValueMode:\n"
-"\t\t\t\t+ ValueMode=\"Position\" : the index of the selected item(s) (integer)\n"
-"\t\t\t\t+ ValueMode=\"String\"   : the displayed string of the selected item(s) (string)\n"
+"\t\t\tValue refers to one of the following, depending on the setting of "
+"ValueMode:\n"
+"\t\t\t\t+ ValueMode=\"Position\" : the index of the selected item(s) "
+"(integer)\n"
+"\t\t\t\t+ ValueMode=\"String\"   : the displayed string of the selected "
+"item(s) (string)\n"
 "\t\t\t\t+ ValueMode=\"Key\"      : the key of the selected item(s) (can vary)"
 msgstr ""
 
@@ -2200,8 +2540,10 @@ msgid ""
 "Specifies the information that the Value property refers to.\n"
 "\t\t\t-> String. Read-write at runtime.\n"
 "\t\t\t'Position' : Value refers to the position in the choices (integer).\n"
-"\t\t\t'String'   : Value refers to the displayed string for the selection (default) (string).\n"
-"\t\t\t'Key'      : Value refers to a separate key, set using the Keys property (can vary)."
+"\t\t\t'String'   : Value refers to the displayed string for the selection "
+"(default) (string).\n"
+"\t\t\t'Key'      : Value refers to a separate key, set using the Keys "
+"property (can vary)."
 msgstr ""
 
 #: ./ui/uiwx/dDataControlMixin.py:81 ./ui/uiwx/dEditor.py:2083
@@ -2216,19 +2558,19 @@ msgstr ""
 
 #: ./ui/uiwx/dDateTextBox.py:480
 msgid "Invalid datetime specified: %s"
-msgstr ""
+msgstr "Ungültige Datum/Zeitangabe: %s"
 
 #: ./ui/uiwx/dDateTextBox.py:489
 msgid "Invalid date specified: %s"
-msgstr ""
+msgstr "ungültiges Datum angegeben: %s"
 
 #: ./ui/uiwx/dDialog.py:336
 msgid "Specifies whether the user accepted the dialog, or canceled.  (bool)"
-msgstr ""
+msgstr "Beschreibt, ob Benutzer den Dialog akzeptiert oder abgelehnt hat."
 
 #: ./ui/uiwx/dDialog.py:339
 msgid "Reference to the Cancel button on the form  (dButton)."
-msgstr ""
+msgstr "Referenz auf den \"Abbrechen\"-Button der Form"
 
 #: ./ui/uiwx/dDialog.py:342
 msgid ""
@@ -2240,7 +2582,7 @@ msgstr ""
 
 #: ./ui/uiwx/dDialog.py:348
 msgid "Reference to the OK button on the form  (dButton)."
-msgstr ""
+msgstr "Referenz auf den \"Ok\"-Button der Form"
 
 #: ./ui/uiwx/dDockForm.py:104
 msgid "Invalid dock position: '%s'."
@@ -2256,11 +2598,14 @@ msgid "Cannot set the Size of a docked panel"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:614
-msgid "Position in pixels of the bottom side of the panel. Read-only when docked; read-write when floating  (int)"
+msgid ""
+"Position in pixels of the bottom side of the panel. Read-only when docked; "
+"read-write when floating  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:617
-msgid "Can the panel be docked to the bottom edge of the form? Default=True  (bool)"
+msgid ""
+"Can the panel be docked to the bottom edge of the form? Default=True  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:620
@@ -2268,7 +2613,9 @@ msgid "Text that appears in the title bar  (str)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:623
-msgid "When the panel's Close button is clicked, does the panel get destroyed (True) or just hidden (False, default)  (bool)"
+msgid ""
+"When the panel's Close button is clicked, does the panel get destroyed "
+"(True) or just hidden (False, default)  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:626
@@ -2276,7 +2623,8 @@ msgid "Can the panel be docked to the form? Default=True  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:629
-msgid "Determines whether the pane is floating (False) or docked (True)  (bool)"
+msgid ""
+"Determines whether the pane is floating (False) or docked (True)  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:632
@@ -2287,11 +2635,14 @@ msgid ""
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:637
-msgid "Can the panel be undocked from the form and float independently? Default=True  (bool)"
+msgid ""
+"Can the panel be undocked from the form and float independently? "
+"Default=True  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:640
-msgid "Determines whether the pane is floating (True) or docked (False)  (bool)"
+msgid ""
+"Determines whether the pane is floating (True) or docked (False)  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:643
@@ -2327,19 +2678,26 @@ msgid "Width of the panel when floating  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:667
-msgid "Position in pixels of the height of the panel. Read-only when docked; read-write when floating  (int)"
+msgid ""
+"Position in pixels of the height of the panel. Read-only when docked; read-"
+"write when floating  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:670
-msgid "Position in pixels of the left side of the panel. Read-only when docked; read-write when floating  (int)"
+msgid ""
+"Position in pixels of the left side of the panel. Read-only when docked; "
+"read-write when floating  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:673
-msgid "Can the panel be docked to the left edge of the form? Default=True  (bool)"
+msgid ""
+"Can the panel be docked to the left edge of the form? Default=True  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:676
-msgid "Can the panel be moved (True, default), or is it in a fixed position (False).  (bool)"
+msgid ""
+"Can the panel be moved (True, default), or is it in a fixed position "
+"(False).  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:679
@@ -2347,11 +2705,14 @@ msgid "Can the panel be resized? Default=True  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:682
-msgid "Position in pixels of the right side of the panel. Read-only when docked; read-write when floating  (int)"
+msgid ""
+"Position in pixels of the right side of the panel. Read-only when docked; "
+"read-write when floating  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:685
-msgid "Can the panel be docked to the right edge of the form? Default=True  (bool)"
+msgid ""
+"Can the panel be docked to the right edge of the form? Default=True  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:688
@@ -2359,11 +2720,13 @@ msgid "Should the panel's border be shown when floating?  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:691
-msgid "Should the panel's Caption be shown when it is docked? Default=True  (bool)"
+msgid ""
+"Should the panel's Caption be shown when it is docked? Default=True  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:694
-msgid "Does the panel display a close button when floating? Default=True  (bool)"
+msgid ""
+"Does the panel display a close button when floating? Default=True  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:697
@@ -2371,23 +2734,29 @@ msgid "Does the panel display a draggable gripper? Default=False  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:700
-msgid "Does the panel display a maximize button when floating? Default=False  (bool)"
+msgid ""
+"Does the panel display a maximize button when floating? Default=False  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:703
-msgid "Does the panel display a minimize button when floating? Default=False  (bool)"
+msgid ""
+"Does the panel display a minimize button when floating? Default=False  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:706
-msgid "Does the panel display a pin button when floating? Default=False  (bool)"
+msgid ""
+"Does the panel display a pin button when floating? Default=False  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:709
-msgid "Position in pixels of the top side of the panel. Read-only when docked; read-write when floating  (int)"
+msgid ""
+"Position in pixels of the top side of the panel. Read-only when docked; read-"
+"write when floating  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:712
-msgid "Can the panel be docked to the top edge of the form? Default=True  (bool)"
+msgid ""
+"Can the panel be docked to the top edge of the form? Default=True  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:715
@@ -2395,11 +2764,14 @@ msgid "Is the panel shown?  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:718
-msgid "Position in pixels of the width of the panel. Read-only when docked; read-write when floating  (int)"
+msgid ""
+"Position in pixels of the width of the panel. Read-only when docked; read-"
+"write when floating  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dDockForm.py:776
-msgid "Reference to the center (i.e., non-docking) panel. (read-only) (dPanel)"
+msgid ""
+"Reference to the center (i.e., non-docking) panel. (read-only) (dPanel)"
 msgstr ""
 
 #: ./ui/uiwx/dEditBox.py:67
@@ -2411,20 +2783,24 @@ msgid ""
 msgstr ""
 
 #: ./ui/uiwx/dEditableList.py:180
+#, fuzzy
 msgid "Reference to the new item button  (wx.Button)"
-msgstr ""
+msgstr "Referenz auf den \"Zeile-Neu\"-Button auf der Form"
 
 #: ./ui/uiwx/dEditableList.py:183
+#, fuzzy
 msgid "Determines if the user can add new entries to the list  (bool)"
-msgstr ""
+msgstr "Ermittelt, ob Benutzer neue Einträge anlegen darl"
 
 #: ./ui/uiwx/dEditableList.py:187
+#, fuzzy
 msgid "Determines if the user can delete entries from the list  (bool)"
-msgstr ""
+msgstr "Ermittelt, ob Benutzer Einträge löschen darl"
 
 #: ./ui/uiwx/dEditableList.py:191
+#, fuzzy
 msgid "Determines if the user can re-order items  (bool)"
-msgstr ""
+msgstr "Ermittelt, ob Benutzer Einträge umsortieren darl"
 
 #: ./ui/uiwx/dEditableList.py:195
 msgid "Text that appears in the top panel of the control  (str)"
@@ -2435,20 +2811,23 @@ msgid "List that contains the entries in the control  (list)"
 msgstr ""
 
 #: ./ui/uiwx/dEditableList.py:202
+#, fuzzy
 msgid "Reference to the delete item button  (wx.Button)"
-msgstr ""
+msgstr "Referenz auf den \"Zeile-Löschen\"-Button auf der Form"
 
 #: ./ui/uiwx/dEditableList.py:205
+#, fuzzy
 msgid "Reference to the move item down button  (wx.Button)"
-msgstr ""
+msgstr "Referenz auf den \"Zeile-nach-Unten\"-Button auf der Form"
 
 #: ./ui/uiwx/dEditableList.py:208
 msgid "Determines if the user can change existing entries  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dEditableList.py:212
+#, fuzzy
 msgid "Reference to the edit item button  (wx.Button)"
-msgstr ""
+msgstr "Referenz auf den \"Bearbeiten\"-Button auf der Form"
 
 #: ./ui/uiwx/dEditableList.py:215
 msgid ""
@@ -2457,12 +2836,14 @@ msgid ""
 msgstr ""
 
 #: ./ui/uiwx/dEditableList.py:219
+#, fuzzy
 msgid "Reference to the move item up button  (wx.Button)"
-msgstr ""
+msgstr "Referenz auf den \"Zeile-Aufwärts\"-Button auf der Form"
 
 #: ./ui/uiwx/dEditor.py:140
+#, fuzzy
 msgid "Page: %d"
-msgstr ""
+msgstr "Seite: %d"
 
 #: ./ui/uiwx/dEditor.py:160
 msgid "warning: on page %s: not enough chars rendered, diff: %s"
@@ -2470,7 +2851,7 @@ msgstr ""
 
 #: ./ui/uiwx/dEditor.py:212
 msgid "< New File >"
-msgstr ""
+msgstr "< Neue Datei >"
 
 #: ./ui/uiwx/dEditor.py:301
 msgid "An error occured while preparing preview."
@@ -2482,7 +2863,7 @@ msgstr ""
 
 #: ./ui/uiwx/dEditor.py:318
 msgid "An error occured while printing."
-msgstr ""
+msgstr "Fehler beim Drucken"
 
 #: ./ui/uiwx/dEditor.py:711
 msgid "Invalid value passed to changeFontSize: %s"
@@ -2490,10 +2871,11 @@ msgstr ""
 
 #: ./ui/uiwx/dEditor.py:1844
 msgid "Currently only Python and XML are supported"
-msgstr ""
+msgstr "Momentan werden nur Python und XML unterstützt"
 
 #: ./ui/uiwx/dEditor.py:2106
-msgid "Determines if auto-completion pops up without a special trigger key  (bool)"
+msgid ""
+"Determines if auto-completion pops up without a special trigger key  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dEditor.py:2109
@@ -2531,7 +2913,9 @@ msgid "String used to prefix lines that are commented out  (str)"
 msgstr ""
 
 #: ./ui/uiwx/dEditor.py:2133
-msgid "Type of encoding to use. Defaults to the application's default encoding.  (str)"
+msgid ""
+"Type of encoding to use. Defaults to the application's default encoding.  "
+"(str)"
 msgstr ""
 
 #: ./ui/uiwx/dEditor.py:2136
@@ -2572,7 +2956,7 @@ msgstr ""
 
 #: ./ui/uiwx/dEditor.py:2162
 msgid "Total number of lines in the document  (int)"
-msgstr ""
+msgstr "Anzahl der Zeilen im Dokument (int)"
 
 #: ./ui/uiwx/dEditor.py:2165
 msgid "Has the content of this editor been modified?  (bool)"
@@ -2599,7 +2983,9 @@ msgid "Selected text. (read-only) (str)"
 msgstr ""
 
 #: ./ui/uiwx/dEditor.py:2183
-msgid "Tuple containing the start/end positions of the selected text.  (2-tuple of int)"
+msgid ""
+"Tuple containing the start/end positions of the selected text.  (2-tuple of "
+"int)"
 msgstr ""
 
 #: ./ui/uiwx/dEditor.py:2186
@@ -2700,16 +3086,17 @@ msgid "The full path of the selected file (str)  or files (tuple of strs)"
 msgstr ""
 
 #: ./ui/uiwx/dFileDialog.py:88
-msgid "The wildcard that will limit the files displayed in the dialog.  (str)"
+msgid ""
+"The wildcard that will limit the files displayed in the dialog.  (str)"
 msgstr ""
 
 #: ./ui/uiwx/dFileDialog.py:96
 msgid "Choose a file"
-msgstr ""
+msgstr "Datei auswählen"
 
 #: ./ui/uiwx/dFileDialog.py:128
 msgid "Save to:"
-msgstr ""
+msgstr "Speichern unter:"
 
 #: ./ui/uiwx/dFoldPanelBar.py:145
 msgid "Unknown BarStyle passed: %s. BarStyle must be one of: %s"
@@ -2732,8 +3119,10 @@ msgid ""
 "\t\t\t\tBorderless\t\t(no border, just a plain fill color; default)\n"
 "\t\t\t\tBorderOnly\t\t(simple border, no fill color)\n"
 "\t\t\t\tFilledBorder\t(combination of the two above)\n"
-"\t\t\t\tVerticalFill\t\t(vertical gradient fill, using the two caption colors)\n"
-"\t\t\t\tHorizontalFill\t\t(horizontal gradient fill, using the two caption colors)\n"
+"\t\t\t\tVerticalFill\t\t(vertical gradient fill, using the two caption "
+"colors)\n"
+"\t\t\t\tHorizontalFill\t\t(horizontal gradient fill, using the two caption "
+"colors)\n"
 "\t\t\t"
 msgstr ""
 
@@ -2781,11 +3170,11 @@ msgstr ""
 
 #: ./ui/uiwx/dFont.py:83
 msgid "The font '%s' doesn't exist on the system. Used '%s' instead."
-msgstr ""
+msgstr "Schriftart '%s' existiert nicht im System. Benutzen Sie '%s'."
 
 #: ./ui/uiwx/dFont.py:86
 msgid "The font '%s' doesn't exist on the system."
-msgstr ""
+msgstr "Schriftart '%s' existiert nicht im System."
 
 #: ./ui/uiwx/dFont.py:117
 msgid "Setting FontSize to %s failed"
@@ -2801,7 +3190,7 @@ msgstr ""
 
 #: ./ui/uiwx/dFont.py:141
 msgid "Name of the font face  (str)"
-msgstr ""
+msgstr "Name der Schriftart (str)"
 
 #: ./ui/uiwx/dFont.py:145
 msgid "Italic setting for this font  (bool)"
@@ -2809,7 +3198,7 @@ msgstr ""
 
 #: ./ui/uiwx/dFont.py:149
 msgid "Size in points for this font  (int)"
-msgstr ""
+msgstr "Größe der Schriftart in pt (int)"
 
 #: ./ui/uiwx/dFont.py:153
 msgid "Underline setting for this font  (bool)"
@@ -2817,7 +3206,7 @@ msgstr ""
 
 #: ./ui/uiwx/dForm.py:200
 msgid "Do you wish to save your changes?"
-msgstr ""
+msgstr "Wollen Sie die Änderungen speichern?"
 
 #: ./ui/uiwx/dForm.py:223
 msgid "added"
@@ -2842,11 +3231,11 @@ msgstr ""
 
 #: ./ui/uiwx/dForm.py:360 ./ui/uiwx/dForm.py:366
 msgid "Save failed."
-msgstr ""
+msgstr "Speichern fehlgeschlagen."
 
 #: ./ui/uiwx/dForm.py:361 ./ui/uiwx/dForm.py:367
 msgid "Save Failed"
-msgstr ""
+msgstr "Speichern fehlgeschlagen"
 
 #: ./ui/uiwx/dForm.py:399
 msgid "Changes to %s canceled."
@@ -2862,7 +3251,7 @@ msgstr ""
 
 #: ./ui/uiwx/dForm.py:406
 msgid "Cancel Not Allowed"
-msgstr ""
+msgstr "Abbruch nicht erlaubt"
 
 #: ./ui/uiwx/dForm.py:436
 msgid "Please wait... requerying dataset..."
@@ -2894,7 +3283,7 @@ msgstr ""
 
 #: ./ui/uiwx/dForm.py:499
 msgid "Nothing to delete!"
-msgstr ""
+msgstr "Nichts zu Löschen!"
 
 #: ./ui/uiwx/dForm.py:507
 msgid ""
@@ -2905,15 +3294,15 @@ msgstr ""
 
 #: ./ui/uiwx/dForm.py:512
 msgid "Record Deleted."
-msgstr ""
+msgstr "Datensatz gelöscht"
 
 #: ./ui/uiwx/dForm.py:520
 msgid "Delete failed with response: %s"
-msgstr ""
+msgstr "Löschen fehlgeschlagen mit der Antwort: %s"
 
 #: ./ui/uiwx/dForm.py:521 ./ui/uiwx/dForm.py:554
 msgid "Deletion Not Allowed"
-msgstr ""
+msgstr "Löschung nicht erlaubt"
 
 #: ./ui/uiwx/dForm.py:540
 msgid ""
@@ -2924,7 +3313,7 @@ msgstr ""
 
 #: ./ui/uiwx/dForm.py:553
 msgid "Delete All failed with response: %s"
-msgstr ""
+msgstr "Alle Löschen fehlgeschlagen mit der Meldung: %s"
 
 #: ./ui/uiwx/dForm.py:604
 msgid ""
@@ -2946,8 +3335,10 @@ msgstr ""
 msgid ""
 "Specifies whether the user is prompted to save or discard changes. (bool)\n"
 "\n"
-"\t\t\tIf True (the default), when operations such as requery() or the closing\n"
-"\t\t\tof the form are about to occur, the user will be presented with a dialog\n"
+"\t\t\tIf True (the default), when operations such as requery() or the "
+"closing\n"
+"\t\t\tof the form are about to occur, the user will be presented with a "
+"dialog\n"
 "\t\t\tbox asking whether to save changes, discard changes, or cancel the \n"
 "\t\t\toperation that led to the dialog being presented."
 msgstr ""
@@ -2970,9 +3361,12 @@ msgstr ""
 msgid ""
 "Specifies whether this dForm is modal or not  (bool)\n"
 "\n"
-"\t\t\tA modal dForm runs its own event loop, blocking program flow until the\n"
-"\t\t\tform is hidden or closed, exactly like a dDialog does it. This property\n"
-"\t\t\tmay only be sent to the constructor, and once instantiated you may not\n"
+"\t\t\tA modal dForm runs its own event loop, blocking program flow until "
+"the\n"
+"\t\t\tform is hidden or closed, exactly like a dDialog does it. This "
+"property\n"
+"\t\t\tmay only be sent to the constructor, and once instantiated you may "
+"not\n"
 "\t\t\tchange the modality of a form. For example,\n"
 "\t\t\t\t\tfrm = dabo.ui.dForm(Modal=True)\n"
 "\t\t\twill create a modal form.\n"
@@ -2991,11 +3385,11 @@ msgstr ""
 
 #: ./ui/uiwx/dForm.py:953
 msgid "Activate"
-msgstr ""
+msgstr "Aktivieren"
 
 #: ./ui/uiwx/dForm.py:955
 msgid "Deactivate"
-msgstr ""
+msgstr "Deaktivieren"
 
 #: ./ui/uiwx/dForm.py:959
 msgid "Close Borderless Form"
@@ -3006,7 +3400,9 @@ msgid "Could not establish connection '%s'"
 msgstr ""
 
 #: ./ui/uiwx/dFormMixin.py:279
-msgid "The underlying UI toolkit does not support modal forms. Use a dDialog instead."
+msgid ""
+"The underlying UI toolkit does not support modal forms. Use a dDialog "
+"instead."
 msgstr ""
 
 #: ./ui/uiwx/dFormMixin.py:455
@@ -3022,7 +3418,9 @@ msgid "Contains a reference to the active control on the form, or None."
 msgstr ""
 
 #: ./ui/uiwx/dFormMixin.py:911
-msgid "Does this form update the status text with the current record position?  (bool)"
+msgid ""
+"Does this form update the status text with the current record position?  "
+"(bool)"
 msgstr ""
 
 #: ./ui/uiwx/dFormMixin.py:914
@@ -3067,8 +3465,10 @@ msgstr ""
 msgid ""
 "Returns True if this is a MDI (Multiple Document Interface) form.  (bool)\n"
 "\t\n"
-"\t\t\tOtherwise, returns False if this is a SDI (Single Document Interface) form.\n"
-"\t\t\tUsers on Microsoft Windows seem to expect MDI, while on other platforms SDI is\n"
+"\t\t\tOtherwise, returns False if this is a SDI (Single Document Interface) "
+"form.\n"
+"\t\t\tUsers on Microsoft Windows seem to expect MDI, while on other "
+"platforms SDI is\n"
 "\t\t\tpreferred.\n"
 "\t\t\t\n"
 "\t\t\tSee also: the dabo.MDI global setting.  (bool)"
@@ -3089,7 +3489,8 @@ msgstr ""
 #: ./ui/uiwx/dFormMixin.py:962
 msgid ""
 "Specifies whether the form's position and size as set by the user\n"
-"\t\t\t\twill get saved and restored in the next session. Default is True for\n"
+"\t\t\t\twill get saved and restored in the next session. Default is True "
+"for\n"
 "\t\t\t\tforms and False for dialogs."
 msgstr ""
 
@@ -3098,7 +3499,8 @@ msgid "Specifies whether the caption is displayed in the title bar. (bool)."
 msgstr ""
 
 #: ./ui/uiwx/dFormMixin.py:970
-msgid "Specifies whether a close button is displayed in the title bar. (bool)."
+msgid ""
+"Specifies whether a close button is displayed in the title bar. (bool)."
 msgstr ""
 
 #: ./ui/uiwx/dFormMixin.py:973
@@ -3106,7 +3508,8 @@ msgid "Specifies whether the form is shown in the taskbar.  (bool)."
 msgstr ""
 
 #: ./ui/uiwx/dFormMixin.py:976
-msgid "Specifies whether a maximize button is displayed in the title bar. (bool)."
+msgid ""
+"Specifies whether a maximize button is displayed in the title bar. (bool)."
 msgstr ""
 
 #: ./ui/uiwx/dFormMixin.py:979
@@ -3114,7 +3517,8 @@ msgid "Specifies whether a menubar is created and shown automatically."
 msgstr ""
 
 #: ./ui/uiwx/dFormMixin.py:982
-msgid "Specifies whether a minimize button is displayed in the title bar. (bool)."
+msgid ""
+"Specifies whether a minimize button is displayed in the title bar. (bool)."
 msgstr ""
 
 #: ./ui/uiwx/dFormMixin.py:985
@@ -3122,7 +3526,8 @@ msgid "Specifies whether the status bar gets automatically created."
 msgstr ""
 
 #: ./ui/uiwx/dFormMixin.py:988
-msgid "Specifies whether a system menu is displayed in the title bar. (bool)."
+msgid ""
+"Specifies whether a system menu is displayed in the title bar. (bool)."
 msgstr ""
 
 #: ./ui/uiwx/dFormMixin.py:991
@@ -3172,7 +3577,8 @@ msgid ""
 msgstr ""
 
 #: ./ui/uiwx/dGauge.py:78
-msgid "Specifies whether the gauge is displayed as Horizontal or Vertical.  (str)"
+msgid ""
+"Specifies whether the gauge is displayed as Horizontal or Vertical.  (str)"
 msgstr ""
 
 #: ./ui/uiwx/dGauge.py:81
@@ -3225,7 +3631,8 @@ msgid ""
 "Dictionary of custom list choices for this column. Default: {}.\n"
 "\n"
 "\t\t\tSet this to override the default list choices on a row-by-row basis.\n"
-"\t\t\tIf there is no custom entry for a given row in CustomListEditorChoices,\n"
+"\t\t\tIf there is no custom entry for a given row in "
+"CustomListEditorChoices,\n"
 "\t\t\tthe ListEditorChoices property setting will apply."
 msgstr ""
 
@@ -3233,7 +3640,8 @@ msgstr ""
 msgid ""
 "Custom Renderer class for this column. Default: None.\n"
 "\n"
-"\t\t\tSet this to override the default renderer class, which Dabo will select based\n"
+"\t\t\tSet this to override the default renderer class, which Dabo will "
+"select based\n"
 "\t\t\ton the data type of the field."
 msgstr ""
 
@@ -3241,8 +3649,10 @@ msgstr ""
 msgid ""
 "Dictionary of custom renderers for this column. Default: {}.\n"
 "\n"
-"\t\t\tSet this to override the default renderer class on a row-by-row basis.\n"
-"\t\t\tIf there is no custom renderer for a given row in CustomRenderers, the\n"
+"\t\t\tSet this to override the default renderer class on a row-by-row "
+"basis.\n"
+"\t\t\tIf there is no custom renderer for a given row in CustomRenderers, "
+"the\n"
 "\t\t\tCustomRendererClass property setting will apply."
 msgstr ""
 
@@ -3262,7 +3672,8 @@ msgstr ""
 #: ./ui/uiwx/dGrid.py:1418
 msgid ""
 "Returns the editor class used for cells in the column. This\n"
-"\t\t\t\twill be self.CustomEditorClass if set, or the default editor for the\n"
+"\t\t\t\twill be self.CustomEditorClass if set, or the default editor for "
+"the\n"
 "\t\t\t\tdatatype of the field.  (varies)"
 msgstr ""
 
@@ -3293,7 +3704,9 @@ msgid "Specifies the font face for the column cells. (str)"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:1442
-msgid "Specifies the platform-native font info string for the column cells. Read-only. (str)"
+msgid ""
+"Specifies the platform-native font info string for the column cells. Read-"
+"only. (str)"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:1445
@@ -3333,7 +3746,9 @@ msgid "Specifies the font face for the column header. (str)"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:1472
-msgid "Specifies the platform-native font info string for the column header. Read-only. (str)"
+msgid ""
+"Specifies the platform-native font info string for the column header. Read-"
+"only. (str)"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:1475
@@ -3353,18 +3768,23 @@ msgid "Optional color for the foreground (text) of the column header  (str)"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:1487
-msgid "Specifies the horizontal alignment of the header caption. ('Left', 'Center', 'Right')"
+msgid ""
+"Specifies the horizontal alignment of the header caption. ('Left', 'Center', "
+"'Right')"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:1490
-msgid "Specifies the vertical alignment of the header caption. ('Top', 'Center', 'Bottom')"
+msgid ""
+"Specifies the vertical alignment of the header caption. ('Top', 'Center', "
+"'Bottom')"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:1493
 msgid ""
 "Horizontal alignment for all cells in this column. (str)\n"
 "\t\t\t\tAcceptable values are:\n"
-"\t\t\t\t\t'Automatic': The cell's contents will align right for numeric data, left for text. (default)\n"
+"\t\t\t\t\t'Automatic': The cell's contents will align right for numeric "
+"data, left for text. (default)\n"
 "\t\t\t\t\t'Left'\n"
 "\t\t\t\t\t'Center'\n"
 "\t\t\t\t\t'Right' "
@@ -3389,14 +3809,16 @@ msgstr ""
 #: ./ui/uiwx/dGrid.py:1512
 msgid ""
 "Returns the renderer class used for cells in the column. This will be\n"
-"\t\t\tself.CustomRendererClass if set, or the default renderer class for the\n"
+"\t\t\tself.CustomRendererClass if set, or the default renderer class for "
+"the\n"
 "\t\t\tdatatype of the field.  (varies)"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:1517
 msgid ""
 "Specifies whether this column's incremental search is enabled.\n"
-"\t\t\tDefault: True. The grid's Searchable property will override this setting.\n"
+"\t\t\tDefault: True. The grid's Searchable property will override this "
+"setting.\n"
 "\t\t\t(bool)"
 msgstr ""
 
@@ -3421,7 +3843,9 @@ msgid "Width of this column  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:1536
-msgid "When True, text longer than the column width will wrap to the next line  (bool)"
+msgid ""
+"When True, text longer than the column width will wrap to the next line  "
+"(bool)"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:2252
@@ -3449,7 +3873,8 @@ msgid "Autosize all columns in the grid."
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:4190
-msgid "Specifies whether the cell editor, if any, is activated upon cell selection."
+msgid ""
+"Specifies whether the cell editor, if any, is activated upon cell selection."
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:4193
@@ -3504,7 +3929,8 @@ msgid ""
 "\t\t\t\tsuch as what you get from calling dBizobj.getDataSet(), will\n"
 "\t\t\t\tdefine the source of the data that the grid displays.\n"
 "\n"
-"\t\t\t\tIf DataSource is defined, DataSet is read-only and returns the dataSet\n"
+"\t\t\t\tIf DataSource is defined, DataSet is read-only and returns the "
+"dataSet\n"
 "\t\t\t\tfrom the bizobj."
 msgstr ""
 
@@ -3512,7 +3938,8 @@ msgstr ""
 msgid ""
 "The source of the data to display in the grid.  (str)\n"
 "\n"
-"\t\t\t\tThis corresponds to a bizobj with a matching DataSource on the form,\n"
+"\t\t\t\tThis corresponds to a bizobj with a matching DataSource on the "
+"form,\n"
 "\t\t\t\tand setting this makes it impossible to set DataSet."
 msgstr ""
 
@@ -3520,10 +3947,13 @@ msgstr ""
 msgid ""
 "This setting enables/disables cell editing globally.  (bool)\n"
 "\n"
-"\t\t\tWhen False, no cells will be editable by the user. When True, cells in\n"
-"\t\t\tcolumns set as Editable\twill be editable by the user. Note that grids\n"
+"\t\t\tWhen False, no cells will be editable by the user. When True, cells "
+"in\n"
+"\t\t\tcolumns set as Editable\twill be editable by the user. Note that "
+"grids\n"
 "\t\t\tand columns are both set with Editable=False by default, so to enable\n"
-"\t\t\tcell editing you need to turn\tit on in the appropriate column as well\n"
+"\t\t\tcell editing you need to turn\tit on in the appropriate column as "
+"well\n"
 "\t\t\tas in the grid."
 msgstr ""
 
@@ -3531,15 +3961,18 @@ msgstr ""
 msgid ""
 "Optional color for the background of the column headers.  (str or None)\n"
 "\n"
-"\t\t\tThis is only the default: setting the corresponding dColumn property will\n"
+"\t\t\tThis is only the default: setting the corresponding dColumn property "
+"will\n"
 "\t\t\toverride."
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:4259
 msgid ""
-"Optional color for the foreground (text) of the column headers.  (str or None)\n"
+"Optional color for the foreground (text) of the column headers.  (str or "
+"None)\n"
 "\n"
-"\t\t\tThis is only the default: setting the corresponding dColumn property will\n"
+"\t\t\tThis is only the default: setting the corresponding dColumn property "
+"will\n"
 "\t\t\toverride."
 msgstr ""
 
@@ -3549,9 +3982,11 @@ msgstr ""
 
 #: ./ui/uiwx/dGrid.py:4268
 msgid ""
-"The horizontal alignment of the header captions. ('Left', 'Center', 'Right')\n"
+"The horizontal alignment of the header captions. ('Left', 'Center', "
+"'Right')\n"
 "\n"
-"\t\t\tThis is only the default: setting the corresponding dColumn property will\n"
+"\t\t\tThis is only the default: setting the corresponding dColumn property "
+"will\n"
 "\t\t\toverride."
 msgstr ""
 
@@ -3559,7 +3994,8 @@ msgstr ""
 msgid ""
 "The vertical alignment of the header captions. ('Top', 'Center', 'Bottom')\n"
 "\n"
-"\t\t\tThis is only the default: setting the corresponding dColumn property will\n"
+"\t\t\tThis is only the default: setting the corresponding dColumn property "
+"will\n"
 "\t\t\toverride."
 msgstr ""
 
@@ -3568,11 +4004,15 @@ msgid "Is scrolling enabled in the horizontal direction?  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:4283
-msgid "When False, the user cannot re-order the columns by dragging the headers  (bool)"
+msgid ""
+"When False, the user cannot re-order the columns by dragging the headers  "
+"(bool)"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:4286
-msgid "When True (default), more than one cell/row/col can be selected at once  (bool)"
+msgid ""
+"When True (default), more than one cell/row/col can be selected at once  "
+"(bool)"
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:4292
@@ -3631,23 +4071,32 @@ msgstr ""
 msgid ""
 "Specifies the delay before incrementeal searching begins.  (int or None)\n"
 "\n"
-"\t\t\t\tAs the user types, the search string is modified. If the time between\n"
-"\t\t\t\tkeystrokes exceeds SearchDelay (milliseconds), the search will run and\n"
+"\t\t\t\tAs the user types, the search string is modified. If the time "
+"between\n"
+"\t\t\t\tkeystrokes exceeds SearchDelay (milliseconds), the search will run "
+"and\n"
 "\t\t\t\tthe search string\twill be cleared.\n"
 "\n"
-"\t\t\t\tIf SearchDelay is set to None (the default), Application.SearchDelay will\n"
+"\t\t\t\tIf SearchDelay is set to None (the default), Application.SearchDelay "
+"will\n"
 "\t\t\t\tbe used."
 msgstr ""
 
 #: ./ui/uiwx/dGrid.py:4340
 msgid ""
 "Returns either a list of row/column numbers if SelectionMode is set to\n"
-"\t\t\teither 'Row' or 'Column'. If SelectionMode is 'Cell', returns a list of 2-tuples,\n"
-"\t\t\twhere each 2-tuple represents a selected range of cells: the top-left and\n"
-"\t\t\tbottom-right coordinates for a given range. If only a single cell is selected,\n"
-"\t\t\tthere will be only one 2-tuple in the list, with both values being the same.\n"
-"\t\t\tIf a continuous block of cells is selected, there will be only one 2-tuple in the\n"
-"\t\t\tlist, but the values will differ. If more than one discontinuous range is selected,\n"
+"\t\t\teither 'Row' or 'Column'. If SelectionMode is 'Cell', returns a list "
+"of 2-tuples,\n"
+"\t\t\twhere each 2-tuple represents a selected range of cells: the top-left "
+"and\n"
+"\t\t\tbottom-right coordinates for a given range. If only a single cell is "
+"selected,\n"
+"\t\t\tthere will be only one 2-tuple in the list, with both values being the "
+"same.\n"
+"\t\t\tIf a continuous block of cells is selected, there will be only one 2-"
+"tuple in the\n"
+"\t\t\tlist, but the values will differ. If more than one discontinuous range "
+"is selected,\n"
 "\t\t\tthere will be as many 2-tuples as there are range blocks.  (list)"
 msgstr ""
 
@@ -3700,7 +4149,8 @@ msgid "Reference to the internal table class  (dGridDataTable)"
 msgstr ""
 
 #: ./ui/uiwx/dGridSizer.py:46
-msgid "Deprecated parameter '%(k)s' used. Use the '%(newProp)s' property instead."
+msgid ""
+"Deprecated parameter '%(k)s' used. Use the '%(newProp)s' property instead."
 msgstr ""
 
 #: ./ui/uiwx/dGridSizer.py:109
@@ -3724,15 +4174,21 @@ msgid "Highest row position that contains any item. Read-only.  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dGridSizer.py:652
-msgid "When adding elements to the sizer, controls the max number of rows to add before a new column is started. (int)"
+msgid ""
+"When adding elements to the sizer, controls the max number of rows to add "
+"before a new column is started. (int)"
 msgstr ""
 
 #: ./ui/uiwx/dGridSizer.py:656
-msgid "When adding elements to the sizer, controls the max number of columns to add before a new row is started. (int)"
+msgid ""
+"When adding elements to the sizer, controls the max number of columns to add "
+"before a new row is started. (int)"
 msgstr ""
 
 #: ./ui/uiwx/dGridSizer.py:660
-msgid "When adding elements to the sizer, this property determines  if we use rows or columns as the limiting value. (char: 'r' or 'c'(default) )"
+msgid ""
+"When adding elements to the sizer, this property determines  if we use rows "
+"or columns as the limiting value. (char: 'r' or 'c'(default) )"
 msgstr ""
 
 #: ./ui/uiwx/dGridSizer.py:664
@@ -3744,15 +4200,19 @@ msgid "Vertical gap between cells in the sizer  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dHtmlBox.py:161 ./ui/uiwx/dPanel.py:212
-msgid "Controls whether this object will scroll horizontally (default=True)  (bool)"
+msgid ""
+"Controls whether this object will scroll horizontally (default=True)  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dHtmlBox.py:164
-msgid "URL or file path of the current page being displayed. (default='')  (string)"
+msgid ""
+"URL or file path of the current page being displayed. (default='')  (string)"
 msgstr ""
 
 #: ./ui/uiwx/dHtmlBox.py:167
-msgid "When True (default), clicking a link will attempt to load that linked page.  (bool)"
+msgid ""
+"When True (default), clicking a link will attempt to load that linked page.  "
+"(bool)"
 msgstr ""
 
 #: ./ui/uiwx/dHtmlBox.py:170
@@ -3764,7 +4224,8 @@ msgid "Html source of the current page being display. (default='')  (string)"
 msgstr ""
 
 #: ./ui/uiwx/dHtmlBox.py:176 ./ui/uiwx/dPanel.py:215
-msgid "Controls whether this object will scroll vertically (default=True)  (bool)"
+msgid ""
+"Controls whether this object will scroll vertically (default=True)  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dHyperLink.py:149
@@ -3789,7 +4250,7 @@ msgstr ""
 
 #: ./ui/uiwx/dHyperLink.py:164
 msgid "URL for this link  (str)"
-msgstr ""
+msgstr "URL für diesen Link (str)"
 
 #: ./ui/uiwx/dHyperLink.py:167
 msgid "Has this link been visited?  (bool)"
@@ -3815,7 +4276,8 @@ msgstr ""
 msgid ""
 "Determines how the image responds to sizing. Can be one\n"
 "\t\t\tof the following:\n"
-"\t\t\t\tClip: Only that part of the image that fits in the control's size is displayed\n"
+"\t\t\t\tClip: Only that part of the image that fits in the control's size is "
+"displayed\n"
 "\t\t\t\tProportional: the image resizes to fit the control without changing\n"
 "\t\t\t\t\tits original proportions. (default)\n"
 "\t\t\t\tStretch: the image resizes to the Height/Width of the control.\n"
@@ -3933,14 +4395,16 @@ msgstr ""
 
 #: ./ui/uiwx/dListControl.py:664
 msgid ""
-"When True (default), all non-string values are forced to strings. When False,\n"
+"When True (default), all non-string values are forced to strings. When "
+"False,\n"
 "\t\t\tattempting to use a non-string value will throw an error.  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dListControl.py:668
 msgid ""
 "Since dListControl doesn't have the equivalent to 'Choices' as the\n"
-"\t\t\tother item controls do, this will return an empty list and print a warning\n"
+"\t\t\tother item controls do, this will return an empty list and print a "
+"warning\n"
 "\t\t\tmessage. (read-only) (list)"
 msgstr ""
 
@@ -3954,13 +4418,17 @@ msgstr ""
 
 #: ./ui/uiwx/dListControl.py:679
 msgid ""
-"Designates the column to expand to fill the control when ExpandToFit is True.\n"
-"\t\t\tCan either be an integer specifying the column number, or the string 'LAST' (default),\n"
+"Designates the column to expand to fill the control when ExpandToFit is "
+"True.\n"
+"\t\t\tCan either be an integer specifying the column number, or the string "
+"'LAST' (default),\n"
 "\t\t\twhich will expand the rightmost column.  (int or str)"
 msgstr ""
 
 #: ./ui/uiwx/dListControl.py:684
-msgid "When True (default), the column designated by ExpandColumn expands to fill the width of the control.  (bool)"
+msgid ""
+"When True (default), the column designated by ExpandColumn expands to fill "
+"the width of the control.  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dListControl.py:687
@@ -3996,7 +4464,9 @@ msgid "Column to be sorted when sort() is called. Default=0  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dListControl.py:711
-msgid "When True (default), clicking a column header cycles the sorting on that column.  (bool)"
+msgid ""
+"When True (default), clicking a column header cycles the sorting on that "
+"column.  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dListControl.py:714
@@ -4004,7 +4474,8 @@ msgid "Returns current value (str)"
 msgstr ""
 
 #: ./ui/uiwx/dListControl.py:717
-msgid "Returns a list containing the Value of all selected rows  (list of str)"
+msgid ""
+"Returns a list containing the Value of all selected rows  (list of str)"
 msgstr ""
 
 #: ./ui/uiwx/dListControl.py:720
@@ -4118,7 +4589,8 @@ msgstr ""
 #: ./ui/uiwx/dPageFrameMixin.py:405 ./ui/uiwx/dPageFrameNoTabs.py:243
 msgid ""
 "Default sizer class for pages added automatically to this control. Set\n"
-"\t\t\tthis to None to prevent sizers from being automatically added to child\n"
+"\t\t\tthis to None to prevent sizers from being automatically added to "
+"child\n"
 "\t\t\tpages. (dSizer or None)"
 msgstr ""
 
@@ -4153,24 +4625,28 @@ msgstr ""
 
 #: ./ui/uiwx/dPageFrameNoTabs.py:240
 msgid "List of all the pages.   (list)"
-msgstr ""
+msgstr "Auflistung aller Seiten. (list)"
 
 #: ./ui/uiwx/dPageFrameNoTabs.py:248
 msgid "Returns a reference to the currently displayed page  (dPage | dPanel)"
 msgstr ""
 
 #: ./ui/uiwx/dPageFrameNoTabs.py:251
-msgid "Returns a reference to the index of the currently displayed page  (int)"
+msgid ""
+"Returns a reference to the index of the currently displayed page  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dPanel.py:133
 msgid ""
-"When True, the sizer settings are always cleared before a layout() is called.\n"
-"\t\t\tThis may be necessary when a panel needs to reduce its size. Default=False   (bool)"
+"When True, the sizer settings are always cleared before a layout() is "
+"called.\n"
+"\t\t\tThis may be necessary when a panel needs to reduce its size. "
+"Default=False   (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dPanel.py:137
-msgid "Does this panel use double-buffering to create smooth redrawing?  (bool)"
+msgid ""
+"Does this panel use double-buffering to create smooth redrawing?  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dPanel.py:140
@@ -4214,7 +4690,8 @@ msgid "The object %s does not support the Visible property."
 msgstr ""
 
 #: ./ui/uiwx/dPemMixin.py:2405 ./ui/uiwx/dPemMixinX.py:2369
-msgid "Specifies the background color of the object. (str, 3-tuple, or wx.Colour)"
+msgid ""
+"Specifies the background color of the object. (str, 3-tuple, or wx.Colour)"
 msgstr ""
 
 #: ./ui/uiwx/dPemMixin.py:2408 ./ui/uiwx/dPemMixinX.py:2372
@@ -4284,7 +4761,8 @@ msgstr ""
 #: ./ui/uiwx/dPemMixin.py:2456 ./ui/uiwx/dPemMixinX.py:2420
 msgid ""
 "Reference to the object that will handle files dropped on this control.\n"
-"\t\t\tWhen files are dropped, a list of them will be passed to this object's \n"
+"\t\t\tWhen files are dropped, a list of them will be passed to this object's "
+"\n"
 "\t\t\t'processDroppedFiles()' method. Default=None  (object or None)"
 msgstr ""
 
@@ -4332,7 +4810,8 @@ msgid "Specifies whether text is underlined. (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dPemMixin.py:2493 ./ui/uiwx/dPemMixinX.py:2457
-msgid "Specifies the foreground color of the object. (str, 3-tuple, or wx.Colour)"
+msgid ""
+"Specifies the foreground color of the object. (str, 3-tuple, or wx.Colour)"
 msgstr ""
 
 #: ./ui/uiwx/dPemMixin.py:2496 ./ui/uiwx/dPemMixinX.py:2460
@@ -4380,15 +4859,18 @@ msgid "Minimum allowable width for the control in pixels.  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dPemMixin.py:2528 ./ui/uiwx/dPemMixinX.py:2492
-msgid "Specifies the shape of the mouse pointer when it enters this window. (obj)"
+msgid ""
+"Specifies the shape of the mouse pointer when it enters this window. (obj)"
 msgstr ""
 
 #: ./ui/uiwx/dPemMixin.py:2531 ./ui/uiwx/dPemMixinX.py:2495
 msgid ""
 "Specifies the name of the object, which must be unique among siblings.\n"
 "\t\t\t\n"
-"\t\t\tIf the specified name isn't unique, an exception will be raised. See also\n"
-"\t\t\tNameBase, which let's you set a base name and Dabo will automatically append\n"
+"\t\t\tIf the specified name isn't unique, an exception will be raised. See "
+"also\n"
+"\t\t\tNameBase, which let's you set a base name and Dabo will automatically "
+"append\n"
 "\t\t\tintegers to make it unique."
 msgstr ""
 
@@ -4396,13 +4878,17 @@ msgstr ""
 msgid ""
 "Specifies the base name of the object.\n"
 "\t\t\t\n"
-"\t\t\tThe base name specified will become the object's Name, unless another sibling\n"
-"\t\t\talready has that name, in which case Dabo will find the next unique name by\n"
-"\t\t\tadding integers to the end of the base name. For example, if your code says:\n"
+"\t\t\tThe base name specified will become the object's Name, unless another "
+"sibling\n"
+"\t\t\talready has that name, in which case Dabo will find the next unique "
+"name by\n"
+"\t\t\tadding integers to the end of the base name. For example, if your code "
+"says:\n"
 "\t\t\t\n"
 "\t\t\t\tself.NameBase = \"txtAddress\" \n"
 "\t\t\t\t\n"
-"\t\t\tand there is already a sibling object with that name, your object will end up\n"
+"\t\t\tand there is already a sibling object with that name, your object will "
+"end up\n"
 "\t\t\twith Name = \"txtAddress1\".\n"
 "\t\t\t\n"
 "\t\t\tThis property is write-only at runtime."
@@ -4491,7 +4977,8 @@ msgid ""
 msgstr ""
 
 #: ./ui/uiwx/dPemMixin.py:3302
-msgid "Angle (in degrees) used to end drawing a circular or elliptic arc  (int)"
+msgid ""
+"Angle (in degrees) used to end drawing a circular or elliptic arc  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dPemMixin.py:3305 ./ui/uiwx/dPemMixinX.py:3264
@@ -4582,7 +5069,9 @@ msgid "For circles, the radius of the shape  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dPemMixin.py:3372 ./ui/uiwx/dPemMixinX.py:3331
-msgid "Reference to a wx.Rect that encompasses the drawn object (read-only) (wx.Rect)"
+msgid ""
+"Reference to a wx.Rect that encompasses the drawn object (read-only) "
+"(wx.Rect)"
 msgstr ""
 
 #: ./ui/uiwx/dPemMixin.py:3375 ./ui/uiwx/dPemMixinX.py:3334
@@ -4594,7 +5083,8 @@ msgid "Type of shape to draw  (str)"
 msgstr ""
 
 #: ./ui/uiwx/dPemMixin.py:3381
-msgid "Angle (in degrees) used to start drawing a circular or elliptic arc  (int)"
+msgid ""
+"Angle (in degrees) used to start drawing a circular or elliptic arc  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dPemMixin.py:3384 ./ui/uiwx/dPemMixinX.py:3343
@@ -4635,14 +5125,15 @@ msgstr ""
 
 #: ./ui/uiwx/dRadioList.py:220
 msgid "Could not find a button with Caption of '%s'"
-msgstr ""
+msgstr "Es konnte kein Button mit der Aufschrift '%s' gefunden werden"
 
 #: ./ui/uiwx/dRadioList.py:482
 msgid "No radio button matching '%s' was found."
-msgstr ""
+msgstr "Es konnte kein Radio-Button mit '%s' gefunden werden."
 
 #: ./ui/uiwx/dRadioList.py:489
-msgid "Class to use for the radio buttons. Default=_dRadioButton  (dRadioButton)"
+msgid ""
+"Class to use for the radio buttons. Default=_dRadioButton  (dRadioButton)"
 msgstr ""
 
 #: ./ui/uiwx/dRadioList.py:492
@@ -4673,7 +5164,8 @@ msgid "Is the surrounding box visible?  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dRadioList.py:518
-msgid "Class to use for the border sizer. Default=dabo.ui.dBorderSizer  (dSizer)"
+msgid ""
+"Class to use for the border sizer. Default=dabo.ui.dBorderSizer  (dSizer)"
 msgstr ""
 
 #: ./ui/uiwx/dRadioList.py:521
@@ -4681,7 +5173,8 @@ msgid ""
 "Specifies the text of the selected button.\n"
 "\t\t\tString. Read-write at runtime.\t\t\n"
 "\t\t\tReturns the text of the current item, or changes the current position\n"
-"\t\t\tto the position with the specified text. An exception is raised if there\n"
+"\t\t\tto the position with the specified text. An exception is raised if "
+"there\n"
 "\t\t\tis no position with matching text."
 msgstr ""
 
@@ -4768,7 +5261,9 @@ msgid ""
 msgstr ""
 
 #: ./ui/uiwx/dSizer.py:20
-msgid "Deprecated parameter 'orientation' used. Use the 'Orientation' property instead."
+msgid ""
+"Deprecated parameter 'orientation' used. Use the 'Orientation' property "
+"instead."
 msgstr ""
 
 #: ./ui/uiwx/dSizerMixin.py:789
@@ -4776,19 +5271,26 @@ msgid "Nested sizer missing its ControllingSizer"
 msgstr ""
 
 #: ./ui/uiwx/dSizerMixin.py:814
-msgid "List of all the sizer items managed by this sizer  (list of sizerItems"
+msgid ""
+"List of all the sizer items managed by this sizer  (list of sizerItems"
 msgstr ""
 
 #: ./ui/uiwx/dSizerMixin.py:817
-msgid "List of all the sizers that are directly managed by this sizer  (list of sizers"
+msgid ""
+"List of all the sizers that are directly managed by this sizer  (list of "
+"sizers"
 msgstr ""
 
 #: ./ui/uiwx/dSizerMixin.py:820
-msgid "List of all the spacer items that are directly managed by this sizer  (list of spacer items"
+msgid ""
+"List of all the spacer items that are directly managed by this sizer  (list "
+"of spacer items"
 msgstr ""
 
 #: ./ui/uiwx/dSizerMixin.py:823
-msgid "List of all the windows that are directly managed by this sizer  (list of controls"
+msgid ""
+"List of all the windows that are directly managed by this sizer  (list of "
+"controls"
 msgstr ""
 
 #: ./ui/uiwx/dSizerMixin.py:829
@@ -4850,7 +5352,8 @@ msgstr ""
 
 #: ./ui/uiwx/dSlider.py:108
 msgid ""
-"When True, the Hit event is raised as the slider moves. When False (default),\n"
+"When True, the Hit event is raised as the slider moves. When False "
+"(default),\n"
 "\t\t\tit is only raised when the thumb control is released.  (bool)"
 msgstr ""
 
@@ -4864,14 +5367,17 @@ msgstr ""
 
 #: ./ui/uiwx/dSlider.py:118
 msgid ""
-"Specifies whether the Slider is displayed as Horizontal or Vertical. Must be set\n"
-"\t\t\twhen the object is created; setting it afterwards has no effect. Default='Horizontal'  (str)"
+"Specifies whether the Slider is displayed as Horizontal or Vertical. Must be "
+"set\n"
+"\t\t\twhen the object is created; setting it afterwards has no effect. "
+"Default='Horizontal'  (str)"
 msgstr ""
 
 #: ./ui/uiwx/dSlider.py:122
 msgid ""
 "Specifies if the labels are shown on the slider. Must be set\n"
-"\t\t\twhen the object is created; setting it afterwards has no effect. Default=True  (bool)"
+"\t\t\twhen the object is created; setting it afterwards has no effect. "
+"Default=True  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dSpinner.py:104
@@ -4883,7 +5389,8 @@ msgid "Specifies the lowest possible value for the spinner. (int)"
 msgstr ""
 
 #: ./ui/uiwx/dSpinner.py:110
-msgid "Specifies whether the spinner value wraps at the high/low value. (bool)"
+msgid ""
+"Specifies whether the spinner value wraps at the high/low value. (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dSplitForm.py:80 ./ui/uiwx/dSplitter.py:426
@@ -4907,7 +5414,8 @@ msgid "Position of the sash when the window is split.  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dSplitter.py:98
-msgid "Determines if the Split/Unsplit context menu is shown (default=True)  (bool)"
+msgid ""
+"Determines if the Split/Unsplit context menu is shown (default=True)  (bool)"
 msgstr ""
 
 #: ./ui/uiwx/dSplitter.py:429
@@ -4925,8 +5433,10 @@ msgstr ""
 #: ./ui/uiwx/dSplitter.py:438
 msgid ""
 "Class used for creating panels. If the class does not descend from \n"
-"\t\t\tSplitterPanelMixin, that class will be mixed-into the class specified here. \n"
-"\t\t\tThis must be set before the panels are created; setting it afterward has \n"
+"\t\t\tSplitterPanelMixin, that class will be mixed-into the class specified "
+"here. \n"
+"\t\t\tThis must be set before the panels are created; setting it afterward "
+"has \n"
 "\t\t\tno effect unless you destroy the panels and re-create them.  \n"
 "\t\t\tDefault=dPanel  (dPanel)"
 msgstr ""
@@ -4968,7 +5478,9 @@ msgid "Position of the insertion point within the control  (int)"
 msgstr ""
 
 #: ./ui/uiwx/dTextBoxMixin.py:346
-msgid "Currently selected text. Returns the empty string if nothing is selected  (str)"
+msgid ""
+"Currently selected text. Returns the empty string if nothing is selected  "
+"(str)"
 msgstr ""
 
 #: ./ui/uiwx/dTextBoxMixin.py:349
@@ -4996,11 +5508,13 @@ msgid "The maximum length the entered text can be. (int)"
 msgstr ""
 
 #: ./ui/uiwx/dTextBoxMixin.py:366
-msgid "Specifies the current state of the control (the value of the field). (string)"
+msgid ""
+"Specifies the current state of the control (the value of the field). (string)"
 msgstr ""
 
 #: ./ui/uiwx/dTextBoxMixin.py:538
-msgid "You must initialize the Mask property when the control is constructed."
+msgid ""
+"You must initialize the Mask property when the control is constructed."
 msgstr ""
 
 #: ./ui/uiwx/dTextBoxMixin.py:663
@@ -5008,7 +5522,8 @@ msgid "Display Mask for the control  (str)"
 msgstr ""
 
 #: ./ui/uiwx/dTextBoxMixin.py:666
-msgid "Value of the control, including mask characters, if any. (read-only) (str)"
+msgid ""
+"Value of the control, including mask characters, if any. (read-only) (str)"
 msgstr ""
 
 #: ./ui/uiwx/dTextBoxMixin.py:669
@@ -5017,9 +5532,11 @@ msgstr ""
 
 #: ./ui/uiwx/dTextBoxMixin.py:672
 msgid ""
-"Specifies whether date values must be entered in strict ISO8601 format. Default=False.\n"
+"Specifies whether date values must be entered in strict ISO8601 format. "
+"Default=False.\n"
 "\n"
-"\t\t\tIf not strict, dates can be accepted in YYYYMMDD, YYMMDD, and MMDD format,\n"
+"\t\t\tIf not strict, dates can be accepted in YYYYMMDD, YYMMDD, and MMDD "
+"format,\n"
 "\t\t\twhich will be coerced into sensible date values automatically."
 msgstr ""
 
@@ -5028,7 +5545,10 @@ msgid "Specifies the timer interval (milliseconds)."
 msgstr ""
 
 #: ./ui/uiwx/dTimer.py:90
-msgid "Alternative means of starting/stopping the timer, or determining its status. If Enabled is set to True and the timer has a positive value for its Interval, the timer will be started."
+msgid ""
+"Alternative means of starting/stopping the timer, or determining its status. "
+"If Enabled is set to True and the timer has a positive value for its "
+"Interval, the timer will be started."
 msgstr ""
 
 #: ./ui/uiwx/dToggleButton.py:98
@@ -5047,7 +5567,8 @@ msgstr ""
 msgid ""
 "Specifies whether the toolbar can be docked and undocked.  (bool)\n"
 "\n"
-"\t\t\tCurrently, this only seems to work on Linux, and can't be changed after\n"
+"\t\t\tCurrently, this only seems to work on Linux, and can't be changed "
+"after\n"
 "\t\t\tinstantiation. Default is True."
 msgstr ""
 
@@ -5096,7 +5617,8 @@ msgstr ""
 msgid ""
 "Specifies the text caption of the toolbar item.\n"
 "\n"
-"\t\t\tYou will only see the caption if dToolBar.ShowCaptions is set to True.\n"
+"\t\t\tYou will only see the caption if dToolBar.ShowCaptions is set to "
+"True.\n"
 "\t\t\t"
 msgstr ""
 
@@ -5112,7 +5634,8 @@ msgstr ""
 msgid ""
 "Specifies whether the toolbar item is toggled or not.  (bool)\n"
 "\n"
-"\t\t\tFor items with CanToggle = True, returns one of True or False, depending\n"
+"\t\t\tFor items with CanToggle = True, returns one of True or False, "
+"depending\n"
 "\t\t\ton the state of the button. For items with CanToggle = False, returns\n"
 "\t\t\tNone."
 msgstr ""
@@ -5126,11 +5649,13 @@ msgid "Returns/sets the text of this node.  (str)"
 msgstr ""
 
 #: ./ui/uiwx/dTreeView.py:271
-msgid "List of all nodes for which this is their parent node.  (list of dNodes)"
+msgid ""
+"List of all nodes for which this is their parent node.  (list of dNodes)"
 msgstr ""
 
 #: ./ui/uiwx/dTreeView.py:274
-msgid "List of all nodes for which this node is a direct ancestor.  (list of dNodes)"
+msgid ""
+"List of all nodes for which this node is a direct ancestor.  (list of dNodes)"
 msgstr ""
 
 #: ./ui/uiwx/dTreeView.py:277
@@ -5154,7 +5679,8 @@ msgid "Specifies the font face for the node. (str)"
 msgstr ""
 
 #: ./ui/uiwx/dTreeView.py:292
-msgid "Specifies the platform-native font info string for the node. Read-only. (str)"
+msgid ""
+"Specifies the platform-native font info string for the node. Read-only. (str)"
 msgstr ""
 
 #: ./ui/uiwx/dTreeView.py:295
@@ -5174,7 +5700,9 @@ msgid "Foreground (text) color of this node  (str, 3-tuple, or wx.Colour)"
 msgstr ""
 
 #: ./ui/uiwx/dTreeView.py:307
-msgid "Full dot-separated string of the captions of this node and its ancestors (read-only) (str)"
+msgid ""
+"Full dot-separated string of the captions of this node and its ancestors "
+"(read-only) (str)"
 msgstr ""
 
 #: ./ui/uiwx/dTreeView.py:310
@@ -5229,13 +5757,16 @@ msgstr ""
 msgid ""
 "Specifies which node or nodes are selected.\n"
 "\n"
-"\t\tIf MultipleSelect is False, an integer referring to the currently selected\n"
-"\t\tnode is specified. If MultipleSelect is True, a list of selected nodes is\n"
+"\t\tIf MultipleSelect is False, an integer referring to the currently "
+"selected\n"
+"\t\tnode is specified. If MultipleSelect is True, a list of selected nodes "
+"is\n"
 "\t\tspecified."
 msgstr ""
 
 #: ./ui/uiwx/dTreeView.py:1126
-msgid "Specifies whether +/- indicators are show at the left of parent nodes."
+msgid ""
+"Specifies whether +/- indicators are show at the left of parent nodes."
 msgstr ""
 
 #: ./ui/uiwx/dTreeView.py:1129
@@ -5246,8 +5777,10 @@ msgstr ""
 msgid ""
 "Specifies whether the root node is included in the treeview.\n"
 "\n"
-"\t\tThere can be only one root node, so if you want several root nodes you can\n"
-"\t\tfake it by setting ShowRootNode to False. Now, your top child nodes have\n"
+"\t\tThere can be only one root node, so if you want several root nodes you "
+"can\n"
+"\t\tfake it by setting ShowRootNode to False. Now, your top child nodes "
+"have\n"
 "\t\tthe visual indication of being sibling root nodes."
 msgstr ""
 
@@ -5261,27 +5794,27 @@ msgstr ""
 
 #: ./ui/uiwx/uiApp.py:125
 msgid "GTK"
-msgstr ""
+msgstr "GTK"
 
 #: ./ui/uiwx/uiApp.py:128
 msgid "Mac"
-msgstr ""
+msgstr "Mac"
 
 #: ./ui/uiwx/uiApp.py:130
 msgid "Win"
-msgstr ""
+msgstr "Win"
 
 #: ./ui/uiwx/uiApp.py:173
 msgid "Framework updates are available. Do you want to update now?"
-msgstr ""
+msgstr "Neue Framework Updates sind verfügbar. Wollen Sie jetzt updaten ?"
 
 #: ./ui/uiwx/uiApp.py:174
 msgid "Dabo Updates"
-msgstr ""
+msgstr "Dabo Updates"
 
 #: ./ui/uiwx/uiApp.py:177
 msgid "The app will now exit. Please re-run the application."
-msgstr ""
+msgstr "Die Applikation wird jetzt herunterfahren. Bitte erneut ausführen."
 
 #: ./ui/uiwx/uiApp.py:473
 msgid "No apparent way to undo."
@@ -5293,33 +5826,32 @@ msgstr ""
 
 #: ./ui/uiwx/uiApp.py:513
 msgid "Find/Replace"
-msgstr ""
+msgstr "Suchen/Ersetzen"
 
 #: ./ui/uiwx/uiApp.py:516
 msgid "Find"
-msgstr ""
+msgstr "Suchen"
 
 #: ./ui/uiwx/uiApp.py:625
 msgid "%s replacements were made"
-msgstr ""
+msgstr "%s Stellen wurden ersetzt."
 
 #: ./ui/uiwx/uiApp.py:627
 msgid "1 replacement was made"
-msgstr ""
+msgstr "1 Stelle wurde ersetzt"
 
 #: ./ui/uiwx/uiApp.py:628
 msgid "Replacement Complete"
-msgstr ""
+msgstr "Ersetzten abgeschlossen"
 
 #: ./ui/uiwx/uiApp.py:686
 msgid "Active control isn't text-based."
-msgstr ""
+msgstr "Aktives Eingabeelement ist kein Textelement"
 
 #: ./ui/uiwx/uiApp.py:720
 msgid "Not found"
-msgstr ""
+msgstr "Nicht gefunden"
 
 #: ./ui/uiwx/uiApp.py:836
 msgid "Returns the form that currently has focus, or None.\t(dForm)"
-msgstr ""
-
+msgstr "Gibt die aktive Form zurück, oder None. (dForm)"

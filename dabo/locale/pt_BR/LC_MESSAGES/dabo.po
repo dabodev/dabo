@@ -1,4 +1,4 @@
-# Spanish translation for dabo
+# Brazilian Portuguese translation for dabo
 # Copyright (c) 2007 Rosetta Contributors and Canonical Ltd 2007
 # This file is distributed under the same license as the dabo package.
 # FIRST AUTHOR <EMAIL@ADDRESS>, 2007.
@@ -9,23 +9,23 @@ msgstr ""
 "Project-Id-Version: dabo\n"
 "Report-Msgid-Bugs-To: FULL NAME <EMAIL@ADDRESS>\n"
 "POT-Creation-Date: 2007-07-18 09:19+EDT\n"
-"PO-Revision-Date: 2007-08-14 11:36+0000\n"
-"Last-Translator: Aida I. Rivera <air@abac.com>\n"
-"Language-Team: Spanish <es@li.org>\n"
+"PO-Revision-Date: 2007-08-16 01:54+0000\n"
+"Last-Translator: Helio <helio.wakasugui@gmail.com>\n"
+"Language-Team: Brazilian Portuguese <pt_BR@li.org>\n"
 "MIME-Version: 1.0\n"
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
-"X-Rosetta-Export-Date: 2007-08-24 12:58:22+0000\n"
+"X-Rosetta-Export-Date: 2007-08-24 12:58:18+0000\n"
 
 #: ./biz/dAutoBizobj.py:42
 msgid "No tables have been setup for autocreation."
-msgstr "Noy hay tablas configuradas para autocreación."
+msgstr "Nenhuma tabela foi configurada para auto-criação"
 
 #: ./biz/dAutoBizobj.py:65
 msgid "The database could not be setup. Contact your DB administrator."
 msgstr ""
-"La base de datos no pudo ser configurada.  Contacte al Administrador de Base "
-"de Datos."
+"O banco de dados não pôde ser configurado. Contate o seu administrador de BD "
+"(DBA)."
 
 #: ./biz/dAutoBizobj.py:66
 msgid ""
@@ -35,32 +35,31 @@ msgid ""
 "database to create the needed tables.\n"
 "  2. or executing all the quries in the 'queries.sql' file."
 msgstr ""
-"Para el Administrador de Base de Datos:\n"
-"Las tablas deben ser creadas de una de las siguientes formas:\n"
-"1. Utilizando este programa dándole acceso TEMPORERO a la base de datos para "
-"crear las tablas necesarias.\n"
-"2. o ejecutando todo el fichero 'queries.sql'."
+"Para o Administrador do BD (DBA):\n"
+" As tabelas devem ser criadas:\n"
+"  1. usando este programa e TEMPORÁRIAMENTE dando a este programa acesso ao "
+"banco de dados para criar as tabelas necessárias.\n"
+"  2. ou executando todas as queries no arquivo 'queries.sql'."
 
 #: ./biz/dAutoBizobj.py:71
 msgid ""
 "DBA, please enter the username and password that has access to create tables "
 "for database on server '%s' and database '%s'"
 msgstr ""
-"Administrador de Base de Datos, favor entrar el nombre del usuario y "
-"contraseña para acceder a crear las tablas de la base de datos en el "
-"servidor '%s' y la base de datos '%s'"
+"DBA, por favor digite o nome do usuário e a senha que tenha permissão para "
+"criar tabelas  no servidor '%s' and database '%s'"
 
 #: ./biz/dAutoBizobj.py:73
 msgid "Username"
-msgstr "Nombre del usuario"
+msgstr "Nome de Usuário"
 
 #: ./biz/dAutoBizobj.py:78
 msgid "Password"
-msgstr "Contraseña:"
+msgstr "Senha"
 
 #: ./biz/dAutoBizobj.py:84
 msgid "OK"
-msgstr "ACEPTAR"
+msgstr "OK"
 
 #: ./biz/dAutoBizobj.py:88 ./lib/datanav/Form.py:179 ./lib/datanav2/Form.py:98
 #: ./ui/dialogs/Wizard.py:102
@@ -69,114 +68,113 @@ msgstr "Cancelar"
 
 #: ./biz/dAutoBizobj.py:102
 msgid "You must enter the username first."
-msgstr "Debe entrar primero el nombre del usuario."
+msgstr "Primeiro você precisa digitar o nome do usuário."
 
 #: ./biz/dAutoBizobj.py:106
 msgid "You must enter the password first."
-msgstr "Debe entrar primero la contraseña."
+msgstr "Primeiro você precisa digitar a senha."
 
 #: ./biz/dAutoBizobj.py:140
 msgid "Could not access the database with the given username and password."
 msgstr ""
-"No puedo acceder la base de datos con el nombre del usuario y contraseña "
-"indicada."
+"Não foi possível acessar o banco de dados com o usuário e senha informados."
 
 #: ./biz/dAutoBizobj.py:151
 msgid "Could not setup the database. Access was denied."
-msgstr "No puedo configurar la base de datos.  El acceso fue denegado."
+msgstr "Não foi possível configurar o banco de dados. O acesso foi negado."
 
 #: ./biz/dAutoBizobj.py:168
 msgid "#Queries for DB '%s' on host '%s':\n"
-msgstr "#Consultas por base de datos '%s' en el servidor '%s':\n"
+msgstr ""
 
 #: ./biz/dAutoBizobj.py:250
 msgid "No table has been defined for this bizobj."
-msgstr "No hay tablas definidas para este objecto de negocio [bizobj]."
+msgstr "Nenhuma tabela foi definida para este bizobj."
 
 #: ./biz/dAutoBizobj.py:303
 msgid "The table definition for this bizobj.  (object)"
-msgstr ""
-"La definición de la tabla para este objecto de negocio [bizobj. (objeto)"
+msgstr "A definição de tabela para este bizobj. (object)"
 
 #: ./biz/dBizobj.py:315 ./biz/dBizobj.py:446 ./biz/dBizobj.py:1233
 msgid "No key field defined for table: "
-msgstr "No se ha definido una clave primaria para esta tabla. "
+msgstr "Nenhuma chave foi definida para a tabela: "
 
 #: ./biz/dBizobj.py:452
 msgid "Deletion prohibited - there are related child records."
-msgstr "No se permite borrar - Hay registros hijos"
+msgstr "Deleção proibida - existem registros filhos relacionados."
 
 #: ./biz/dBizobj.py:736
 msgid "No Primary Key defined in the Bizobj for %s"
-msgstr ""
-"No hay una clave primaria definida para este objecto de negocio [Bizobj] "
-"para %s."
+msgstr "Nenhuma Chave Primária definida no Bizobj para %s"
 
 #: ./biz/dBizobj.py:943
 msgid "PK Value %s not found in the dataset"
-msgstr ""
-"El valor de la clave %s primaria %s  no se encuentra en el conjunto de datos "
-"[dataset]"
+msgstr "Valor de Chave Primária %s não foi encontrado no dataset"
 
 #: ./biz/dBizobj.py:1696
 msgid "Parent must descend from dBizobj"
-msgstr "El Padre debe descender de dBizobj"
+msgstr "Ancestral deve derivar de dBizobj"
 
 #: ./biz/dBizobj.py:1845 ./db/dCursorMixin.py:2256
 msgid ""
 "Do we need explicit begin/commit/rollback commands for transactions?  (bool)"
 msgstr ""
-"¿Son obligatorios los comandos begin/commit/rollback para transacciones? "
-"(booleano)"
+"Precisamos de comandos begin/commit/rollback explícitos para transações?"
 
 #: ./biz/dBizobj.py:1848
+#, fuzzy
 msgid ""
 "Determines if we are using a table that auto-generates its PKs. (bool)"
 msgstr ""
-"Determina si estamos utilizando una tabla para auto-generar sus claves "
-"primarias. (bool)"
+"Determina se nós estamos usando uma tabela que gera automaticamente suas "
+"chaves primarias.(bool)"
 
 #: ./biz/dBizobj.py:1851
+#, fuzzy
 msgid ""
 "When True (default), table and column names are enclosed with\n"
 "\t\t\tquotes during SQL creation in the cursor.  (bool)"
 msgstr ""
-"Cuando es verdadero (predeterminado), el nombre de la tabla y las columnas "
-"es encerrado entre\n"
-"\t\t\tcomillas durante la creacion del cursor SQL. (booleano)"
+"Quando Verdadeiro (default), nomes de tabelas e colunas estarão cercadas "
+"com\n"
+"quotes \t\t\t no cursor durante a criação via SQL."
 
 #: ./biz/dBizobj.py:1855 ./db/dCursorMixin.py:2266
+#, fuzzy
 msgid "Returns the SQL statement automatically generated by the sql manager."
-msgstr ""
-"Devuelve la instrucción en SQL generada automaticamente por el manejador de "
-"sql."
+msgstr "Retorna o comando SQL automaticamente gerado pelo gerenciador sql."
 
 #: ./biz/dBizobj.py:1858
+#, fuzzy
 msgid ""
 "The friendly title of the cursor, used in messages to the end user. (str)"
 msgstr ""
-"El nombre familiar del cursor, utilizado en mensajes para el usuario. (str)"
+"O título amigável do cursor, utilizado em mensagens para o usuário final. "
+"(str)"
 
 #: ./biz/dBizobj.py:1861 ./db/dCursorMixin.py:2276
+#, fuzzy
 msgid ""
 "Returns the current SQL that will be run, which is one of UserSQL or AutoSQL."
 msgstr ""
-"Devuelve el SQL actual que va a ser ejecutado, que es UserSQL o AutoSQL."
+"Retorna o SQL que irá ser executado, o qual será um UserSQL ou AutoSQL."
 
 #: ./biz/dBizobj.py:1864
 msgid ""
 "The cursor object for the currently selected key value. (dCursorMixin child)"
 msgstr ""
-"El objeto cursor para la llave actualmente seleccionada. (dCursorMixin hijo)"
+"O objeto de cursor para o valor de chave selecionado no momento. "
+"(dCursorMIxin child)"
 
 #: ./biz/dBizobj.py:1867
+#, fuzzy
 msgid ""
 "The title of the cursor. Used in resolving DataSource references. (str)"
 msgstr ""
-"El nombre del cursor.  Utilizado en resolver las referencias de la Fuente de "
-"Data. (str)"
+"O título do cursor. Utilizado para resolver referências de DataSource. (str)"
 
 #: ./biz/dBizobj.py:1870 ./db/dCursorMixin.py:2279
+#, fuzzy
 msgid ""
 "Returns the structure of the cursor in a tuple of 6-tuples.\n"
 "\n"
@@ -191,20 +189,20 @@ msgid ""
 "\t\t\t\t1) The explicitly-set DataStructure property\n"
 "\t\t\t\t2) The backend table method"
 msgstr ""
-"Devuelve la estructura del cursor en una matriz de 6 filas.\n"
+"Retorna a estrutura do cursor num tuple de 6-tuples.\n"
+"\t\t\t\t0: apelido do campo (str)\n"
+"\t\t\t\t1: código de tipo de dados (str)\n"
+"\t\t\t\t2: campo pk (bool)\n"
+"\t\t\t\t3: nome da tabela (str)\n"
+"\t\t\t\t4: nome do campo (str)\n"
+"\t\t\t\t5: escala do campo (int ou Nenhum)\n"
 "\n"
-"\t\t\t\t0: alias del campo (texto)\n"
-"\t\t\t\t1: codigo del tipo de datos (texto)\n"
-"\t\t\t\t2: llave primaria (boleano)\n"
-"\t\t\t\t3: nombre de la tabla (texto)\n"
-"\t\t\t\t4: nombre del campo (texto)\n"
-"\t\t\t\t5: escala del campo  (entero o Ninguno)\n"
-"\n"
-"\t\t\t\tEsta informacion intentara obtenerse de: \n"
-"\t\t\t\t1) La propiedad DataStructure explicitamente definida \n"
-"\t\t\t\t2) El metodo tabla del proveedor de datos"
+"\t\t\t\tEsta informação tentará vir de alguns poucos lugares, em ordem:\n"
+"\t\t\t\t1) A propriedade DataStructure configurada explicitamente.\n"
+"\t\t\t\t2) O método de tabela backend"
 
 #: ./biz/dBizobj.py:1884
+#, fuzzy
 msgid ""
 "A dictionary specifying default values for fields when a new record is "
 "added.\n"
@@ -215,18 +213,18 @@ msgid ""
 "is added\n"
 "\t\t\tto the bizobj."
 msgstr ""
-"Una lista especificando valores predeterminados para los campos cuando se "
-"agrega un nuevo registro.\n"
+"Um dicionário especificando valores default para campos no momento em que um "
+"novo registro é adicionado.\n"
 "\n"
-"tab]\t\tLos valores de la lista pueden ser literales (deben correspondera al "
-"tipo de campo), o \n"
-"\t\t\tpuden ser un objeto funcion que se ejecutara cuando el nuevo registro "
-"sea agregado\n"
-"\t\t\tal bizobj."
+"\t\t\tOs valores do dicionário podem ser literais (devem combinar com o tipo "
+"de campo), ou\n"
+"\t\t\teles podem ser um objeto função o qual será chamado quando um novo "
+"registro é adicionado\n"
+"\t\t\tno bizobj."
 
 #: ./biz/dBizobj.py:1891 ./dApp.py:1097 ./ui/uiwx/dGrid.py:4250
 msgid "Name of encoding to use for unicode  (str)"
-msgstr "Nombre del codigo que usa para unicode (texto)"
+msgstr ""
 
 #: ./biz/dBizobj.py:1894
 msgid ""
@@ -235,92 +233,69 @@ msgid ""
 "getParentPK()\n"
 "\t\t\tmethod? (bool)"
 msgstr ""
-"En el metodo onNew(), ¿debe llenarse la clave foranea especificada en la\n"
-"\t\t\tpropiedad LinkField con el valor devuelto al hacer la llamada al "
-"metodo \tgetParentPK()\n"
-"\t\t\tdel bizobj? (boleano)"
+"No método onNew(), nós devemos preencher o campo de chave estrangeira "
+"especificado pela\n"
+"\t\t\tpropriedade LinkField com o valor retornado pela chamada ao método\n"
+"\tgetParentPK()?(bool)"
 
 #: ./biz/dBizobj.py:1899
 msgid "Returns True if the current record is new and unsaved."
 msgstr ""
-"Devuelve Cierto si el récord seleccionado es nuevo y no se ha guardado."
 
 #: ./biz/dBizobj.py:1902
 msgid ""
 "Name of field that is the PK. If multiple fields make up the key,\n"
 "\t\t\tseparate the fields with commas. (str)"
 msgstr ""
-"Nombre del campo que es la llave primaria. Si varios campos componen la "
-"llave,\n"
-"\t\t\tsepare los nombres con comas. (texto)"
 
 #: ./biz/dBizobj.py:1906 ./db/dCursorMixin.py:2306
 msgid "Returns the last executed SQL statement."
-msgstr "Devuelve la última instrucción de SQL ejecutada."
+msgstr ""
 
 #: ./biz/dBizobj.py:1909
 msgid "Name of the field that is the foreign key back to the parent. (str)"
 msgstr ""
-"Nombre del campo, llave foránea, que hace referencia al padre. (texto)"
 
 #: ./biz/dBizobj.py:1912
 msgid ""
 "Should new child records be added when a new parent record is added? (bool)"
 msgstr ""
-"¿Se deben agregar registros hijos cuando se agrega un  registro padre? "
-"(booleano)"
 
 #: ./biz/dBizobj.py:1915
 msgid ""
 "If this bizobj's parent has NewChildOnNew==True, do we create a record here? "
 "(bool)"
 msgstr ""
-"Si el objeto bizobj tiene la propiedad NewChildOnNew en verdadero, ¿se debe "
-"crear un nuevo registro? (booleano)"
 
 #: ./biz/dBizobj.py:1918
 msgid "Fields in the cursor to be ignored during updates"
 msgstr ""
-"Los campos en el cursor que serán ignorados durante las actualizaciones."
 
 #: ./biz/dBizobj.py:1921
 msgid "Reference to the parent bizobj to this one. (dBizobj)"
-msgstr "Referencia de este objeto con el bizobj padre. (dBizobj)"
+msgstr ""
 
 #: ./biz/dBizobj.py:1924
 msgid ""
 "Name of the field in the parent table that is used to determine child\n"
 "\t\t\trecords. If empty, it is assumed that the parent's PK is used  (str)"
 msgstr ""
-"Nombre del campo en la tabla padre que es usado para determinar los "
-"registros hijos.\n"
-"\t\t\tSi esa en blanco, se asume que la llave primaria del padre es usada "
-"(texto)"
 
 #: ./biz/dBizobj.py:1928 ./db/dCursorMixin.py:2313
 msgid ""
 "Represents a record in the data set. You can address individual\n"
 "\t\t\tcolumns by referring to 'self.Record.fieldName' (read-only) (no type)"
 msgstr ""
-"Representa un registro en el conjunto de datos.  Puede hacer referencia "
-"individualmente\n"
-"\t\t\ta cada columna de la forma: 'self.Record.nombredecampo' (solo lectura) "
-"(sin tipo)"
 
 #: ./biz/dBizobj.py:1932
 msgid "Do we requery child bizobjs after a Save()? (bool)"
 msgstr ""
-"¿Se deben actualizar los objetos hijos despues de guardar los datos ? "
-"(booleano)"
 
 #: ./biz/dBizobj.py:1935
 msgid ""
 "When True, the cursor object runs its query immediately. This\n"
 "\t\t\tis useful for lookup tables or fixed-size (small) tables. (bool)"
 msgstr ""
-"Cuando es verdadero, el objeto cursor ejecuta su consulta inmediatamente.  "
-"Esto\n"
-"\t\t\tes útil para tablas de consulta o de tamaño pequeño. (Booleano)"
 
 #: ./biz/dBizobj.py:1939
 msgid ""
@@ -332,43 +307,27 @@ msgid ""
 "\t\t\t\tchild.requery() at the appropriate time.\n"
 "\t\t\t\t"
 msgstr ""
-"Especifica si un objeto bizobj hijo se actualiza automáticamente.\n"
-"\n"
-"\t\t\t\tCuando es Verdadero (predeterminado) al mover el puntero o "
-"actualizar\n"
-"\t\t\t\tel objeto bizobj padre, hará que el bizobj hijo también sea "
-"actualizado.\n"
-"\t\t\t\tCuando es Falso, el usuario debe especificar manualmente cuando \n"
-"\t\t\t\thacer la actualizacion del objeto hijo.\n"
-"\t\t\t\t"
 
 #: ./biz/dBizobj.py:1948
 msgid ""
 "After a requery, do we try to restore the record position to the same PK?"
 msgstr ""
-"¿Restaurar la posicion del registro en la misma llave primaria despues de la "
-"actualizacion?"
 
 #: ./biz/dBizobj.py:1951
 msgid ""
 "The number of records in the cursor's data set. It will be -1 if the\n"
 "\t\t\tcursor hasn't run any successful queries yet. (int)"
 msgstr ""
-"El número de registros en el cursor.  Será -1 si \n"
-"\t\t\tno regresa ningun registro al hacer la consulta. (entero)"
 
 #: ./biz/dBizobj.py:1955
 msgid "The current position of the record pointer in the result set. (int)"
-msgstr "La posición actual del puntero en el conjunto de datos. (entero)"
+msgstr "A posição atual do ponteiro no result set. (int)"
 
 #: ./biz/dBizobj.py:1958
 msgid ""
 "Normally new, unmodified records are not saved. If you need\n"
 "\t\t\tthis behavior, set this to True.  (bool)"
 msgstr ""
-"Normalmente los registros nuevos y sin modificaciones no son guardados.  Si "
-"desea \n"
-"\t\t\tque sean guardados, asigne esta propiedad como Verdadero. (boleano)"
 
 #: ./biz/dBizobj.py:1962
 msgid ""
@@ -377,32 +336,23 @@ msgid ""
 "pointer\n"
 "\t\t\tat the end of the recordset (False). (bool)"
 msgstr ""
-"Despues de hacer una busqueda, restaurar la posicion del puntero\n"
-"\t\t\ta la posición en la que estaba antes de la busqueda (Verdadero, "
-"predeterminado), o dejar el puntero\n"
-"\t\t\tal final del conjuto de datos (Falso). (boleano)"
 
 #: ./biz/dBizobj.py:1967
 msgid "Do we scan the records in reverse order? (Default: False) (bool)"
 msgstr ""
-"¿Buscar los registros en orden inverso? (Predeterminado: Falseo) (Boleano)"
 
 #: ./biz/dBizobj.py:1970
 msgid "SQL statement used to create the cursor's data. (str)"
-msgstr "instrucción de SQL utilizada para crear la data del cursor. (str)"
+msgstr "Expressão SQL utilizada para criar os dados do cursor. (str)"
 
 #: ./biz/dBizobj.py:1973
 msgid "Reference to the cursor that handles SQL Builder information (cursor)"
 msgstr ""
-"Hace referencia al cursor que maneja la información del creador de SQL "
-"(cursor)"
 
 #: ./biz/dBizobj.py:1976 ./db/dCursorMixin.py:2326
 msgid ""
 "SQL statement to run. If set, the automatic SQL builder will not be used."
 msgstr ""
-"La instrucción de SQL a ejecutar.  Si es seleccionada, el creador de SQL "
-"automático no será utilizado."
 
 #: ./biz/dBizobj.py:1979
 msgid ""
@@ -411,95 +361,84 @@ msgid ""
 "\t\t\tThe specified function will be called when getFieldVal() is called on\n"
 "\t\t\tthe specified virtual field name."
 msgstr ""
-"Una lista de relaciones entre el nombre_virtual_del_campo hacia funciones "
-"para ejecutar.\n"
-"\n"
-"\t\t\tLa función especificada será llamada cuando getFieldVal() sea "
-"ejecutado\n"
-"\t\t\tdesde el nombre de campo virtual."
 
 #: ./biz/dBizobj.py:1994
 msgid "Cannot reverse in the middle of iteration."
-msgstr "No se puede reversar dentro de un bucle"
+msgstr ""
 
 #: ./dApp.py:292
 msgid "Application finished."
-msgstr "Aplicación terminada."
+msgstr ""
 
 #: ./dApp.py:411
 msgid "Cannot update file: '%s'. Error: %s"
-msgstr "No puedo actualizar el archivo: '%s'. Error. %s"
+msgstr "Não é possível atualizar o arquivo: '%s'. Erro: %s"
 
 #: ./dApp.py:595
 msgid "%s database connection definition(s) loaded."
-msgstr "%s definición(es) de conección del database fueron cargadas."
+msgstr ""
 
 #: ./dApp.py:610
 msgid "User interface already set to '%s', so dApp didn't touch it."
 msgstr ""
-"La interface del usuario se ha establecido a '%s', dApp no hara ningún "
-"cambio."
 
 #: ./dApp.py:749
 msgid "Stub: dApp.onEditPreferences()"
-msgstr "Fragmento: dApp.onEditPreferences()"
+msgstr ""
 
 #: ./dApp.py:812
 msgid "Can't set ActiveForm: no uiApp."
-msgstr "No pude configurar el ActiveForm:  no existe uiApp."
+msgstr ""
 
 #: ./dApp.py:829
 msgid "WARNING: No BasePrefKey has been set for this application."
 msgstr ""
-"ADVERTENCIA:  No se ha configurado el BasePrefKey para esta aplicación."
 
 #: ./dApp.py:865
 msgid "Could not open file: '%s'"
-msgstr "No puedo abrir el archivo: '%s'"
+msgstr "Não foi possível abrir o arquivo: '%s'"
 
 #: ./dApp.py:913
 msgid "%s: Path does not exist."
-msgstr "%s: Subdirectorio no existe."
+msgstr "%s: Caminho não existe."
 
 #: ./dApp.py:949 ./ui/uiwx/dGrid.py:3866
 msgid "< None >"
-msgstr "<Nada>"
+msgstr "< Nenhum >"
 
 #: ./dApp.py:997
 msgid "SecurityManager previously set"
-msgstr "El Manejador de Seguridad fue previamente seleccionado"
+msgstr ""
 
 #: ./dApp.py:1000
 msgid "SecurityManager must descend from dSecurityManager."
-msgstr "El manejador de Seguridad debe descender del dSecurityManager"
+msgstr ""
 
 #: ./dApp.py:1037
 msgid "User interface set set to None."
-msgstr "Interfase de usuario configurado a Ninguno."
+msgstr ""
 
 #: ./dApp.py:1040
 msgid "User interface set to '%s' by dApp."
-msgstr "Interfase de usuario configurado a '%s' por dApp."
+msgstr "Interface de usuário configurada para '%s' pelo dApp."
 
 #: ./dApp.py:1042
 msgid "Tried to set UI to '%s', but it failed."
-msgstr "Se trató de configurar el Interfase de Usuario a '%s', pero falló."
+msgstr ""
 
 #: ./dApp.py:1044
 msgid "The UI cannot be reset once assigned."
-msgstr ""
-"El Interfase de Usuario no puede ser reconfigurado una vez ha sido asignado."
+msgstr "A UI não pode ser redefinida."
 
 #: ./dApp.py:1075
 msgid "Specifies the form class to use for the application's About screen."
 msgstr ""
-"Especifica la clase del formulario a ser utilizado por la pantalla Acerca de "
-"de la aplicación."
+"Especifica a classe do formulário a ser utilizada para a tela 'Sobre' do "
+"aplicativo."
 
 #: ./dApp.py:1078
 msgid "Returns the form that currently has focus, or None.  (dForm)"
 msgstr ""
-"Devuelve el formulario que actualmente tiene el foco, o ninguno. (dForm)"
 
 #: ./dApp.py:1081
 msgid ""
@@ -510,17 +449,11 @@ msgid ""
 "BasePrefKey\n"
 "\t\t\tin that order. (str)"
 msgstr ""
-"La clave utilizada cuando se establecieron las preferencias de "
-"grabado/restauración.  Esto difiere\n"
-"\t\t\tde la definición para esta propiedad en que esta vacia, va a\n"
-"\t\t\tdevolver BasePrefKey del fomulario activo o el BasePrefKey del "
-"formulario principal\n"
-"\t\t\ten ese orden. (str)"
 
 #: ./dApp.py:1087
 msgid ""
 "Reference to the object that provides cryptographic services.  (varies)"
-msgstr "Referencia al objeto que provee servicios de crytografia. (varia)"
+msgstr ""
 
 #: ./dApp.py:1090
 msgid ""
@@ -590,7 +523,7 @@ msgstr ""
 
 #: ./dApp.py:1144 ./ui/uiwx/dGrid.py:4289
 msgid "Text to display for null (None) values.  (str)"
-msgstr "Texto a desplegar para nulo (Ningún) valor. (str)"
+msgstr ""
 
 #: ./dApp.py:1147
 msgid ""
@@ -700,7 +633,7 @@ msgstr ""
 
 #: ./dObject.py:222
 msgid "Method '%s' of object '%s' has the following error: %s"
-msgstr "El método '%s' del objeto '%s' tiene el siguiente error: %s"
+msgstr ""
 
 #: ./dObject.py:350
 msgid "Read-only object reference to the Dabo Application object.  (dApp)."
@@ -708,17 +641,15 @@ msgstr ""
 
 #: ./dObject.py:353
 msgid "The base Dabo class of the object. Read-only.  (class)"
-msgstr "La clase Dabo base del objeto. Lectura solamente. (clase)"
+msgstr ""
 
 #: ./dObject.py:356
 msgid "Base key used when saving/restoring preferences  (str)"
 msgstr ""
-"Clave base utilizada cuando se graban/restauran las preferencias (str)"
 
 #: ./dObject.py:359
 msgid "The class the object is based on. Read-only.  (class)"
 msgstr ""
-"La clase en la cual el objeto esta basado. Lectura solamente. (clase)"
 
 #: ./dObject.py:362
 msgid ""
@@ -736,7 +667,7 @@ msgstr ""
 
 #: ./dObject.py:372
 msgid "The name of the object.  (str)"
-msgstr "El nombre del objeto. (str)"
+msgstr ""
 
 #: ./dObject.py:375
 msgid "The containing object.  (obj)"
@@ -777,7 +708,7 @@ msgstr ""
 
 #: ./dPref.py:199
 msgid "No base key set; preference will not be persisted."
-msgstr "No se ha configurado la clave basica;  no permanece la preferencia."
+msgstr ""
 
 #: ./dPref.py:442
 msgid ""
@@ -803,7 +734,7 @@ msgstr ""
 
 #: ./dSecurityManager.py:21
 msgid "Login incorrect, please try again. (%s/%s)"
-msgstr "Claves de entrada incorrectas, favor tratar nuevamente. (%s/%s)"
+msgstr ""
 
 #: ./dSecurityManager.py:104 ./ui/dialogs/login.py:25
 msgid "Please enter your login information."
@@ -812,14 +743,10 @@ msgstr ""
 #: ./dSecurityManager.py:158
 msgid "Specifies the number of attempts the user has to login successfully."
 msgstr ""
-"Especifica el numero de intentos que tiene el usuario para entrar "
-"exitosamente."
 
 #: ./dSecurityManager.py:161
 msgid "Specifies the message to initially display on the login form."
 msgstr ""
-"Especifica el mensaje que se desplegara inicialmente en el formulario de "
-"entrada."
 
 #: ./dSecurityManager.py:164
 msgid "Number of seconds to wait between successive login attempts."
@@ -852,7 +779,7 @@ msgstr ""
 
 #: ./db/dBackend.py:115
 msgid "No records deleted"
-msgstr "No se eliminaron récords"
+msgstr ""
 
 #: ./db/dBackend.py:562
 msgid "Backend encoding  (str)"
@@ -860,7 +787,7 @@ msgstr ""
 
 #: ./db/dConnectInfo.py:168
 msgid "You do not have the database module for %s installed"
-msgstr "No tiene el modulo de la base de datos para %s instalado."
+msgstr ""
 
 #: ./db/dConnectInfo.py:227
 msgid "Name of the backend database type.  (str)"
@@ -5613,6 +5540,7 @@ msgid "Class to use when creating nodes  (dNode)"
 msgstr ""
 
 #: ./ui/uiwx/dTreeView.py:1119
+#, fuzzy
 msgid ""
 "Specifies which node or nodes are selected.\n"
 "\n"
@@ -5622,17 +5550,26 @@ msgid ""
 "is\n"
 "\t\tspecified."
 msgstr ""
+"Especifica qual ou quais nós estão selecionados.\n"
+"\n"
+"\t\tSe MultipleSelect é Falsa, um inteiro referindo-se ao nó selecionado\n"
+"\t\tno momento é especificado. Se MultipleSelect é Verdadeira, uma lista de\n"
+"\t\tnós selecionados é especificada."
 
 #: ./ui/uiwx/dTreeView.py:1126
+#, fuzzy
 msgid ""
 "Specifies whether +/- indicators are show at the left of parent nodes."
 msgstr ""
+"Especifica se +/- indicadores são exibidos à esquerda dos nós parentes "
+"superiores."
 
 #: ./ui/uiwx/dTreeView.py:1129
 msgid "Specifies whether lines are drawn between nodes.  (bool)"
-msgstr ""
+msgstr "Especifica se linhas serão desenhadas entre nós. (bool)"
 
 #: ./ui/uiwx/dTreeView.py:1132
+#, fuzzy
 msgid ""
 "Specifies whether the root node is included in the treeview.\n"
 "\n"
@@ -5642,75 +5579,89 @@ msgid ""
 "have\n"
 "\t\tthe visual indication of being sibling root nodes."
 msgstr ""
+"Especifica se o nó principal será incluído na visão em árvore.\n"
+"\n"
+"\t\tSomente pode existir um nó principal, se você desejar vários nós "
+"principais você pode\n"
+"\t\tforjar a situação configurando ShowRootNode para Falso. Agora, os "
+"primeiros\n"
+"\t\tnós inferiores apresentarão a indicação visual de que são nós principais "
+"em um mesmo nível."
 
 #: ./ui/uiwx/dTreeView.py:1139
+#, fuzzy
 msgid "Specifies whether vertical lines are shown between root siblings."
 msgstr ""
+"Especifica se linhas verticais serão exibidas entre raízes no mesmo nível."
 
 #: ./ui/uiwx/uiApp.py:110
+#, fuzzy
 msgid "uiApp"
-msgstr ""
+msgstr "uiApp"
 
 #: ./ui/uiwx/uiApp.py:125
 msgid "GTK"
-msgstr ""
+msgstr "GTK"
 
 #: ./ui/uiwx/uiApp.py:128
 msgid "Mac"
-msgstr ""
+msgstr "MAC"
 
 #: ./ui/uiwx/uiApp.py:130
+#, fuzzy
 msgid "Win"
-msgstr ""
+msgstr "Win"
 
 #: ./ui/uiwx/uiApp.py:173
+#, fuzzy
 msgid "Framework updates are available. Do you want to update now?"
 msgstr ""
+"Atualizações de framework estão disponíveis. Você deseja atualizar agora?"
 
 #: ./ui/uiwx/uiApp.py:174
 msgid "Dabo Updates"
-msgstr ""
+msgstr "Atualizações do Dabo"
 
 #: ./ui/uiwx/uiApp.py:177
 msgid "The app will now exit. Please re-run the application."
-msgstr ""
+msgstr "A aplicação irá se encerrar agora. Por favor a execute novamente."
 
 #: ./ui/uiwx/uiApp.py:473
 msgid "No apparent way to undo."
-msgstr ""
+msgstr "Nenhum modo aparente para desfazer a última ação."
 
 #: ./ui/uiwx/uiApp.py:484
 msgid "No apparent way to redo."
-msgstr ""
+msgstr "Nenhum modo aparente para refazer a ação."
 
 #: ./ui/uiwx/uiApp.py:513
 msgid "Find/Replace"
-msgstr ""
+msgstr "Localizar/Substituir"
 
 #: ./ui/uiwx/uiApp.py:516
 msgid "Find"
-msgstr ""
+msgstr "Localizar"
 
 #: ./ui/uiwx/uiApp.py:625
 msgid "%s replacements were made"
-msgstr ""
+msgstr "%s substituições foram feitas"
 
 #: ./ui/uiwx/uiApp.py:627
 msgid "1 replacement was made"
-msgstr ""
+msgstr "1 substituição foi feita"
 
 #: ./ui/uiwx/uiApp.py:628
 msgid "Replacement Complete"
-msgstr ""
+msgstr "Substituição Completa"
 
 #: ./ui/uiwx/uiApp.py:686
 msgid "Active control isn't text-based."
-msgstr ""
+msgstr "Controle ativo não é baseado em texto."
 
 #: ./ui/uiwx/uiApp.py:720
 msgid "Not found"
-msgstr ""
+msgstr "Não encontrado"
 
 #: ./ui/uiwx/uiApp.py:836
 msgid "Returns the form that currently has focus, or None.\t(dForm)"
-msgstr ""
+msgstr "Retorna o formulário em foco, ou Nenhum.\t(dForm}"
