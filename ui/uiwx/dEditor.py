@@ -1923,7 +1923,7 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 				if val.lower() in LexerDic.keys():
 					self._language = val.lower()
 				else:
-					dabo.errorLog.write(_("Currently only %s are supported" % ", ".join(LexerDic.keys())))
+					dabo.errorLog.write(_("Currently only %s are supported") % ", ".join(LexerDic.keys()))
 				self.setDefaults()
 				self._defaultsSet = True
 
