@@ -65,8 +65,8 @@ class dPref(object):
 				datetime.datetime: "datetime", self._noneType: "none"}
 		if crs is None:
 			prefdir = utils.getUserAppDataDirectory(appName)
-			self._cxn = dabo.db.dConnection(connectInfo={"dbType": "SQLite",
-					"database": os.path.join(prefdir, "DaboPreferences.db")})
+			db = os.path.join(prefdir, "DaboPreferences.db")
+			self._cxn = dabo.db.dConnection(connectInfo={"DbType": "SQLite", "Database": db})
 			self._cursor = self._cxn.getDaboCursor()
 			self._cursor.IsPrefCursor = True
 			# Make sure that the table exists
