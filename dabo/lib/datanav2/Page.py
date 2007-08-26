@@ -213,8 +213,10 @@ class SelectPage(Page):
 
 	def _orderByClause(self, infoOnly=False):
 		sf = self.sortFields
-		if infoOnly: parts = lambda (k): (sf[k][2], _(sf[k][1]))
-		else:        parts = lambda (k): (k, sf[k][1].upper())
+		if infoOnly: 
+			parts = lambda (k): (sf[k][2], sf[k][1])
+		else:
+			parts = lambda (k): (k, sf[k][1].upper())
 
 		flds = [(self.sortFields[k][0], k, " ".join(parts(k)))
 			for k in self.sortFields.keys()]

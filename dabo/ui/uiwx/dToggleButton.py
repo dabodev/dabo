@@ -116,7 +116,7 @@ class _dToggleButton_test(dToggleButton):
 			state = ("down", "True")
 		else:
 			state = ("up", "False")
-		self.Caption = _("State: %s (Boolean: %s)" % state)
+		self.Caption = _("State: %s (Boolean: %s)") % state
 
 
 if __name__ == "__main__":

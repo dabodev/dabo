@@ -217,8 +217,10 @@ class SelectPage(Page):
 
 	def _orderByClause(self, infoOnly=False):
 		sf = self.sortFields
-		if infoOnly: parts = lambda (k): (sf[k][2], _(sf[k][1]))
-		else:        parts = lambda (k): (k, sf[k][1].upper())
+		if infoOnly:
+			parts = lambda (k): (sf[k][2], sf[k][1])
+		else:
+			parts = lambda (k): (k, sf[k][1].upper())
 
 		flds = [(self.sortFields[k][0], k, " ".join(parts(k)))
 			for k in self.sortFields.keys()]
@@ -735,7 +737,7 @@ class EditPage(Page):
 					child = rs["target"]
 					childBiz = self.Form.getBizobj(child)
 					grdLabel = self.addObject(dabo.ui.dLabel, "lblChild" + child)
-					grdLabel.Caption = _(self.Form.getBizobj(child).Caption)
+					grdLabel.Caption = self.Form.getBizobj(child).Caption
 					grdLabel.FontSize = 14
 					grdLabel.FontBold = True
 					#mainSizer.append( (10, -1) )

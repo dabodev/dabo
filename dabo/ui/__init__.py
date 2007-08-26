@@ -9,26 +9,26 @@ ui module you want as a parameter. For instance, to load wxPython, you
 would issue:
 
 	import dabo.ui
-	dabo.ui.loadUI('wx')
+	dabo.ui.loadUI("wx")
 	
 """
-import os, traceback
+import os
+import traceback
+import inspect
 import dabo
 from dabo.dLocalize import _
 
 
 def getUIType():
-	""" Return the identifier of the currently loaded UI, or None.
-	"""
+	""" Return the identifier of the currently loaded UI, or None."""
 	try:
-		return uiType['shortName']
+		return uiType["shortName"]
 	except (AttributeError, NameError, KeyError):
 		return None
 		
 		
 def loadUI(uiType):
-	""" Load the given UI into the global namespace.
-	"""
+	""" Load the given UI into the global namespace."""
 	retVal = False
 	currType = getUIType()
 	mods = {"wx" : "dabo.ui.uiwx", "tk" : "dabo.ui.uitk"}
@@ -48,15 +48,13 @@ def loadUI(uiType):
 			# Record the actual problem
 			#dabo.errorLog.write("Error Loading UI: %s" % e)
 			traceback.print_exc()
-				
 	else:
 		if currType == typ:
 			# No problem; just a redundant call
 			pass
 		else:
-			dabo.infoLog.write(_("Cannot change the uiType to '%s', because UI '%s' is already loaded."
-				% (typ, currType)))
-			
+			dabo.infoLog.write(_("Cannot change the uiType to '%s', because UI '%s' is already loaded.")
+				% (typ, currType))
 	return retVal
 
 	
@@ -67,20 +65,19 @@ def loadUI(uiType):
 # everyone setting this environment variable. To specify the UI for your
 # app, you should instead set the UI property of the dApp object.
 try:
-	__defaultUI = os.environ['DABO_DEFAULT_UI']
+	__defaultUI = os.environ["DABO_DEFAULT_UI"]
 except KeyError:
 	__defaultUI = None
 
 if __defaultUI:
-	dabo.infoLog.write(_("Automatically loading default ui '%s'..." % __defaultUI))
+	dabo.infoLog.write(_("Automatically loading default ui '%s'...") % __defaultUI)
 	# For now, don't do the tempting option:
 	#loadUI(defaultUI)
 	# ...unless it will work with single-file installers. I think that
 	# for single-file installers, it needs to see the import statement.
 	# Therefore, do it explicitly:
-	if __defaultUI in ('wx', 'wxPython', 'uiwx'):
+	if __defaultUI in ("wx", "wxPython", "uiwx"):
 		from uiwx import *
-	
 else:
 	pass
 	#dabo.infoLog.write(_("No default UI set. (DABO_DEFAULT_UI)"))
@@ -105,8 +102,6 @@ def makeDynamicProperty(prop, additionalDoc=None):
 	Caption = property(_getCaption, _setCaption, None, None)
 	DynamicCaption = makeDynamicProperty(Caption)
 	"""
-	import inspect
-
 	propName = None
 	frame = inspect.currentframe(1)
 	for k, v in frame.f_locals.items():
@@ -134,7 +129,7 @@ Specify a function and optional arguments that will get called from the
 update() method. The return value of the function will get set to the
 %s property. If Dynamic%s is set to None (the default), %s 
 will not be dynamically evaluated.
-""" % (propName, propName, propName, propName))
+""") % (propName, propName, propName, propName)
 
 	if additionalDoc:
 		doc += "\n\n" + additionalDoc

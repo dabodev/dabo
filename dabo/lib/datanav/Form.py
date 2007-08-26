@@ -205,12 +205,12 @@ class Form(dabo.ui.dForm):
 		if self.FormType != "PickList":
 			for index in range(2, self.pageFrame.PageCount):
 				if index == 2:
-					title = "&%s\tAlt+3" % (_(self.pageFrame.Pages[index].Caption))
+					title = "&%s\tAlt+3" % (self.pageFrame.Pages[index].Caption)
 					onHit = self.onEditCurrentRecord
 					tag = self.pageFrame.Pages[index].DataSource
 					help = _("Edit the fields of the currently selected record.")
 				else:
-					title = "%s\tAlt+%d" % (_(self.pageFrame.Pages[index].Caption), index + 1)
+					title = "%s\tAlt+%d" % (self.pageFrame.Pages[index].Caption, index + 1)
 					onHit = onActivatePage
 					tag = self.pageFrame.Pages[index]
 					help = ""
@@ -353,7 +353,7 @@ class Form(dabo.ui.dForm):
 	def addEditPages(self, ds):
 		biz = self.getBizobj(ds)
 		if biz:
-			title = _("Edit") + " " + _(biz.Caption)
+			title = _("Edit") + " " + biz.Caption
 		else:
 			title = _("Edit")
 		self.addEditPage(ds, title)

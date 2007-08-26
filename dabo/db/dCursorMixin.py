@@ -1496,7 +1496,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 		if not fld:
 			raise dException.FieldNotFoundException, _("No field specified for seek()")
 		if not self._records[0].has_key(fld) and not self.VirtualFields.has_key(fld):
-			raise dException.FieldNotFoundException, _("Non-existent field '%s'" % fld)
+			raise dException.FieldNotFoundException, _("Non-existent field '%s'") % fld
 
 		# Copy the specified field vals and their row numbers to a list, and
 		# add those lists to the sort list

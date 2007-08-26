@@ -358,7 +358,7 @@ class BaseForm(fm.dFormMixin):
 			
 		except dException.BusinessRuleViolation, e:
 			self.setStatusText(_("Save failed."))
-			msg = "%s:\n\n%s" % (_("Save Failed"), _( str(e) ))
+			msg = "%s:\n\n%s" % (_("Save Failed"), str(e))
 			self.notifyUser(msg, severe=True, exception=e)
 			return False
 
@@ -573,7 +573,7 @@ class BaseForm(fm.dFormMixin):
 		try:
 			bizobj.new()
 		except dException.dException, e:
-			self.notifyUser(_("Add new record failed with response:\n\n%s" % str(e)), 
+			self.notifyUser(_("Add new record failed with response:\n\n%s") % str(e), 
 					severe=True, exception=e)
 
 		statusText = self.getCurrentRecordText(dataSource)
@@ -709,7 +709,7 @@ Database error message: %s""") %	err
 					rowNumber = bizobj.RowNumber+1
 				else:
 					rowNumber = 1
-		return _("Record %s/%s" % (rowNumber, rowCount))
+		return _("Record %s/%s") % (rowNumber, rowCount)
 
 
 	def validateField(self, ctrl):
