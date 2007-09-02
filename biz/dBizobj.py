@@ -66,7 +66,7 @@ class dBizobj(dObject):
 		self._scanRestorePosition = True
 		self._scanReverse = False
 		self._SQL = ""
-		self._userSQL = ""
+		self._userSQL = None
 		self._requeryOnLoad = False
 		self._parent  = None
 		self._autoPopulatePK = True

@@ -2063,7 +2063,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 
 	def _getCurrentSQL(self):
-		if self.UserSQL is not None:
+		if self.UserSQL:
 			return self.UserSQL
 		return self.AutoSQL
 
