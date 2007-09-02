@@ -66,6 +66,7 @@ class dBizobj(dObject):
 		self._scanRestorePosition = True
 		self._scanReverse = False
 		self._SQL = ""
+		self._UserSQL = ""
 		self._requeryOnLoad = False
 		self._parent  = None
 		self._autoPopulatePK = True
@@ -1502,6 +1503,7 @@ class dBizobj(dObject):
 			crs.AutoPopulatePK = self._autoPopulatePK
 			crs.AutoQuoteNames = self._autoQuoteNames
 			crs.Table = self._dataSource
+			crs.UserSQL = self._userSQL
 			crs.VirtualFields = self._virtualFields
 			crs.Encoding = self.Encoding
 			crs.KeyField = self._keyField
@@ -1853,14 +1855,10 @@ class dBizobj(dObject):
 
 
 	def _getUserSQL(self):
-		try:
-			v = self._CurrentCursor.UserSQL
-		except AttributeError:
-			v = None
-		return v
+		return self._userSQL
 
 	def _setUserSQL(self, val):
-		self._CurrentCursor.UserSQL = val
+		self._CurrentCursor.UserSQL = self._userSQL = val
 
 
 
