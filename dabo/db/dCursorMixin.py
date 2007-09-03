@@ -224,7 +224,7 @@ class dCursorMixin(dObject):
 					return pythonType(field_val)
 				except Exception, e:
 					dabo.infoLog.write(_("_correctFieldType() failed for field: '%s'; value: '%s'; type: '%s'") %
-							field_name, field_val, type(field_val))
+							(field_name, field_val, type(field_val)))
 
 		# Do the unicode conversion last:
 		if isinstance(field_val, str) and self._convertStrToUnicode:
