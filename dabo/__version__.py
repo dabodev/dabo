@@ -3,7 +3,7 @@
 # Everything else is boilerplate copied also to other dabo repositories.
 package_name = "dabo"
 _version = "0.9a"
-_approximateRevision = "HEAD"
+_approximateRevision = "~3340"
 
 import os
 import lib
@@ -22,9 +22,7 @@ if os.path.exists(os.path.join(package_path, ".svn")):
 		_revision = None
 
 if _revision is None:
-	# Subversion doesn't appear to be installed, so just go with the approximate
-	# revision, which we update manually when rolling up new tagged versions.
-	_revision = "~%s" % _approximateRevision
+	_revision = _approximateRevision
 
 version = {"version": _version,
 		"revision": _revision}
