@@ -41,7 +41,7 @@ out of this, but that is outside the scope of Dabo itself, and you'll use
 a different method for each target platform.
 
 To run Dabo, and apps based on Dabo, you need:
-	+ Python 2.3 or higher (2.4 recommended)
+	+ Python 2.3 or higher (2.5 recommended)
 
 	+ wxPython 2.6.1.1 or higher (latest build highly recommended)
 		(only necessary for apps with a ui: because of the modular
