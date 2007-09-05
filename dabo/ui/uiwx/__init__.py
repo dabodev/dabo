@@ -1014,6 +1014,22 @@ def createForm(srcFile, show=False, *args, **kwargs):
 	to the newly-created form.
 	"""
 	from dabo.lib.DesignerXmlConverter import DesignerXmlConverter
+	isRawXML = srcFile.strip().startswith("<")
+	if not isRawXML:
+		# Make sure that the file exists
+		if not os.path.exists(srcFile):
+			# Try common paths
+			ok = False
+			cwd = os.getcwd()
+			for subd in ("ui", "forms", "resources"):
+				newpth = os.path.join(cwd, subd, srcFile)
+				if os.path.exists(newpth):
+					srcFile = newpth
+					ok = True
+					break
+			if not ok:
+				stop(_("The file '%s' cannot be found") % srcFile, _("File Not Found"))
+				return
 	conv = DesignerXmlConverter()
 	cls = conv.classFromXml(srcFile)
 	frm = cls(*args, **kwargs)
