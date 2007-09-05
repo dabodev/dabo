@@ -97,7 +97,7 @@ the command window.
 
 	print tb.Value
 
-Have fun in your exploration of Dabo. 
+Have fun in your exploration of Dabo! 
 """
 
 import os
