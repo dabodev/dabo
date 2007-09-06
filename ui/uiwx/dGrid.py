@@ -1617,6 +1617,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._inAutoSizeLoop = False
 		# Flag to indicate we are in a range selection event
 		self._inRangeSelect = False
+		# Flag to indicate we are in a selection update event
+		self._inUpdateSelection = True
+
 
 		# These hold the values that affect row/col hiliting
 		self._selectionForeColor = "black"
@@ -3094,12 +3097,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _updateSelection(self):
-		if self.SelectionMode =="Cell":
+		if self._inUpdateSelection or self.SelectionMode =="Cell":
 			return
+		self._inUpdateSelection = True
 		self.ClearSelection()
 		fnc = {"Row": self.SelectRow, "Col": self.SelectCol}[self.SelectionMode]
 		for num in self.Selection:
 			fnc(num, True)
+		self._inUpdateSelection = False
 
 
 	def _checkSelectionType(self):
