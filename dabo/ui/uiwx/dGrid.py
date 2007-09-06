@@ -3090,6 +3090,16 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					pass
 			if self.Form is not None:
 				dabo.ui.callAfter(self.Form.update)
+		dabo.ui.callAfter(self._updateSelection)
+
+
+	def _updateSelection(self):
+		if self.SelectionMode =="Cell":
+			return
+		self.ClearSelection()
+		fnc = {"Row": self.SelectRow, "Col": self.SelectCol}[self.SelectionMode]
+		for num in self.Selection:
+			fnc(num, True)
 
 
 	def _checkSelectionType(self):
