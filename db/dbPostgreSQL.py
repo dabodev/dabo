@@ -102,7 +102,7 @@ where (b.schemaname || '.'|| c.relname)  = '%s' and a.attnum > 0 """ % tableName
 		
 		cursor.execute(sqlstr)
 		rs2 = cursor.getDataSet()
-		if rs2 == []:
+		if rs2 == ():
 			thePKFieldName = None
 		else:
 			#thestr = rs2[0][3]
