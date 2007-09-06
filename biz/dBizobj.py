@@ -166,6 +166,7 @@ class dBizobj(dObject):
 		crs.AutoQuoteNames = self.AutoQuoteNames
 		crs.BackendObject = cf.getBackendObject()
 		crs.sqlManager = self.SqlManager
+		crs.UserSQL = self.UserSQL
 		crs._bizobj = self
 		if self.RequeryOnLoad:
 			crs.requery()
@@ -506,6 +507,8 @@ class dBizobj(dObject):
 
 	def deleteAll(self, startTransaction=True):
 		""" Delete all rows in the data set."""
+		app = self.Application
+		cursor = self._CurrentCursor
 		isTransactionManager = False
 		if startTransaction:
 			isTransactionManager = app.getTransactionToken(self)
