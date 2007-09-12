@@ -13,14 +13,12 @@ import shutil
 import dabo
 import dabo.ui
 import dabo.db
-import dLocalize
 from dabo.dLocalize import _
 from dabo.lib.connParser import importConnections
-from dabo import dLocalize
-import dSecurityManager
+from dabo import dSecurityManager
 from dabo.lib.SimpleCrypt import SimpleCrypt
 from dabo.dObject import dObject
-import dUserSettingProvider
+from dabo import dUserSettingProvider
 
 
 class Collection(list):
@@ -235,6 +233,7 @@ class dApp(dObject):
 			dLocalize.install(localeDomain, localeDir)
 			dLocalize.setLanguage(lang, charset)
 
+		self._initModuleNames()
 		self._initDB()
 		
 		if initUI:
@@ -598,8 +597,18 @@ class dApp(dObject):
 		"""
 		connDefs = {}
 
-		# Import any .cnxml files in HomeDir and/or HomeDir/db:
-		for dbDir in (os.path.join(self.HomeDirectory, "db"), self.HomeDirectory):
+		# Import any .cnxml files in the following locations:
+		#		HomeDir
+		#		HomeDir/db
+		#		HomeDir/data
+		#		os.getcwd()
+		#		os.getcwd()/db
+		#		os.getcwd()/data
+		hd = self.HomeDirectory
+		cwd = os.getcwd()
+		dbDirs = (hd, os.path.join(hd, "db"), os.path.join(hd, "data"), 
+				cwd, os.path.join(cwd, "db"), os.path.join(cwd, "data"))
+		for dbDir in dbDirs:
 			if os.path.exists(dbDir) and os.path.isdir(dbDir):
 				files = glob.glob(os.path.join(dbDir, "*.cnxml"))
 				for f in files:
@@ -628,6 +637,19 @@ class dApp(dObject):
 
 		dabo.infoLog.write(_("%s database connection definition(s) loaded.") 
 			% (len(self.dbConnectionDefs)))
+
+
+	def _initModuleNames(self):
+		"""Import the common application-level module names into attributes
+		of this application object, so that the app code can easily reference them.
+		Example: f there is a 'biz' directory that can be imported, other objects in 
+		the system can reference bizobjs using the 'self.Application.biz' syntax
+		"""
+		for dd in ("biz", "db", "ui", "resources", "reports"):
+			try:
+				self.__setattr__(dd, __import__(dd, level=0))
+			except:
+				self.__setattr__(dd, None)
 
 
 	def _initUI(self):
