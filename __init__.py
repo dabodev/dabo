@@ -163,16 +163,21 @@ import dabo.biz
 import dabo.ui
 
 
+# Define the standard Dabo subdirectory stucture for apps.
+def _getAppDirectoryNames():
+	return ("biz", "db", "ui", "resources", "reports")
+	
+	
 # Method to create a standard Dabo directory structure layout
 def makeDaboDirectories(homedir=None):
-	"""If homedir is passes, the directories will be created off of that
+	"""If homedir is passed, the directories will be created off of that
 	directory. Otherwise, it is assumed that they should be created
 	in the current directory location.
 	"""
 	currLoc = os.getcwd()
 	if homedir is not None:
 		os.chdir(homedir)
-	for d in ("biz", "db", "ui", "resources", "reports"):
+	for d in _getAppDirectoryNames():
 		if not os.path.exists(d):
 			os.mkdir(d)
 	os.chdir(currLoc)
@@ -184,15 +189,44 @@ def quickStart(homedir=None):
 	"""
 	currLoc = os.getcwd()
 	if homedir is not None:
+		if not os.path.exists(homedir):
+			os.makedirs(homedir)
 		os.chdir(homedir)
 	makeDaboDirectories()
 	open("main.py", "w").write("""#!/usr/bin/env python
 # -*- coding: utf-8 -*-
 import dabo
+dabo.ui.loadUI("wx")
 
 app = dabo.dApp()
+
+# IMPORTANT! Change app.MainFormClass value to the name
+# of the form class that you want to run when your
+# application starts up.
+app.MainFormClass = dabo.ui.dFormMain
+
 app.start()
 """)
+
+	template = """#!/usr/bin/env python
+# -*- coding: utf-8 -*-
+######
+# In order for Dabo to 'see' classes in your %(dd)s directory, add an 
+# import statement here for each class. E.g., if you have a file named
+# 'MyClasses.py' in this directory, and it defines two classes named 'FirstClass'
+# and 'SecondClass', add these lines:
+# 
+# from MyClass import FirstClass
+# from MyClass import SecondClass
+# 
+# Now you can refer to these classes as: self.Application.%(dd)s.FirstClass and
+# self.Application.%(dd)s.SecondClass
+######
+
+"""
+	for dd in dabo._getAppDirectoryNames():
+		fname = "%s/__init__.py" % dd
+		txt = template % locals()
+		open(fname, "w").write(txt)
 	os.chmod("main.py", 0744)
 	os.chdir(currLoc)
-	
