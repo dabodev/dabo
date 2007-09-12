@@ -1,6 +1,4 @@
-﻿# -*- coding: utf-8 -*-
-
-import sys
+﻿import sys
 import locale
 import os
 import gettext
@@ -108,10 +106,45 @@ if __name__ == "__main__":
 	print "sys.getdefaultencoding():", sys.getdefaultencoding()
 	print "locale.getlocale():", locale.getlocale()
 	print "_defaultLanguage, _defaultEncoding:", _defaultLanguage, _defaultEncoding
-	stringsToTranslate = ("Hey", "Application finished.")
-	for lang in set(_languageAliases.values()):
-		print "Setting language to '%s'." % (lang)
+	stringsToTranslate = ("File", "Edit", "Help", "Application finished.")
+	max_len = {}
+	for s in stringsToTranslate:
+		max_len[s] = len(s)
+	translatedStrings = []
+	for lang in sorted(set(_languageAliases.values()) - set(("en",))):
+		translatedStringsLine = [lang]
 		setLanguage(lang)
 		for s in stringsToTranslate:
-			print "Translating '%s':" % s, _(s)
+			translated = _(s)
+			translatedStringsLine.append(translated)
+			max_len[s] = max(max_len[s], len(translated))
+		translatedStrings.append(tuple(translatedStringsLine))
 
+	def line(strings=None):
+		if strings is None:
+			# print the boundary
+			lin =  "+----"
+			for s in stringsToTranslate:
+				lin += "+-%s-" % ("-" * max_len[s])
+			lin += "+"
+		else:
+			# print the text
+			lin = ''
+			for idx, s in enumerate(strings):
+				if idx == 0:
+					len_s = 2
+				else:
+					len_s = max_len.get(stringsToTranslate[idx-1], len(s))
+				s = s.decode("utf-8")
+				lin += "| %s " % s.ljust(len_s)
+			lin += "|"
+		return lin
+
+	print line()
+	print line(("en",) + stringsToTranslate)
+	print line()
+	for l in translatedStrings:
+		setLanguage(l[0])
+		print line(l)
+	print line()
+	
