@@ -4,7 +4,6 @@ import sys
 import wx
 import dabo
 import dPemMixin as pm
-import dBaseMenuBar as mnb
 import dMenu
 import dabo.icons
 from dabo.dLocalize import _
@@ -651,7 +650,7 @@ class dFormMixin(pm.dPemMixin):
 		try:
 			mb = self._menuBarClass
 		except AttributeError:
-			mb = self._menuBarClass = mnb.dBaseMenuBar
+			mb = self._menuBarClass = self.Application.DefaultMenuBarClass
 		return mb
 
 	def _setMenuBarClass(self, val):
