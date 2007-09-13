@@ -960,6 +960,17 @@ class dApp(dObject):
 		dabo.dbActivityLog.LogObject = f
 
 
+	def _getDefaultMenuBarClass(self):
+		try:
+			cls = self._defaultMenuBarClass
+		except AttributeError:
+			cls = self._defaultMenuBarClass = dabo.ui.dBaseMenuBar
+		return cls
+
+	def _setDefaultMenuBarClass(self, val):
+		self._defaultMenuBarClass = val
+		
+
 	def _getDrawSizerOutlines(self):
 		return self.uiApp.DrawSizerOutlines
 	
@@ -1190,6 +1201,10 @@ class dApp(dObject):
 	DatabaseActivityLog = property(_getDatabaseActivityLog, _setDatabaseActivityLog, None,
 			_("""Path to the file (or file-like object) to be used for logging all database 
 			activity. Default=None, which means no log is kept.   (file or str)"""))
+	
+	DefaultMenuBarClass = property(_getDefaultMenuBarClass, _setDefaultMenuBarClass, None,
+			_("""The class used by all forms in the application when no specific MenuBarClass 
+			is specified  (dabo.ui.dMenuBar)"""))
 	
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
 			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)"))
