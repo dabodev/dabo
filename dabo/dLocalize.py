@@ -106,7 +106,7 @@ if __name__ == "__main__":
 	print "sys.getdefaultencoding():", sys.getdefaultencoding()
 	print "locale.getlocale():", locale.getlocale()
 	print "_defaultLanguage, _defaultEncoding:", _defaultLanguage, _defaultEncoding
-	stringsToTranslate = ("File", "Edit", "Help", "Application finished.")
+	stringsToTranslate = ("&File", "&Edit", "&Help", "Application finished.")
 	max_len = {}
 	for s in stringsToTranslate:
 		max_len[s] = len(s)
