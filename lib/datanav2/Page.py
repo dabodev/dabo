@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import warnings
 import dabo
 import dabo.dException as dException
 import dabo.dEvents as dEvents
@@ -106,14 +107,15 @@ class SelectOptionsPanel(dPanel):
 		
 
 class SortLabel(dabo.ui.dLabel):
-	def initEvents(self):
-		super(SortLabel, self).initEvents()
-		self.bindEvent(dEvents.MouseRightClick, self.Parent.Parent.onSortLabelRClick)
-		# Add a property for the related field
-		self.relatedDataField = ""
+	## Deprecated; older AppWizard apps use this.
+	warnings.warn("SortLabel deprecated; use dabo.ui.dLabel instead.", DeprecationWarning)
 
 
 class SelectPage(Page):
+	def onSortLabelRClick(self, evt):
+		# Only here to keep from breaking old AppWizard apps.
+		pass
+ 
 	def _createItems(self):
 		self.super()
 
@@ -130,65 +132,7 @@ class SelectPage(Page):
 		# Holds info which will be used to create the dynamic
 		# WHERE clause based on user input
 		self.selectFields = {}
-		self.sortFields = {}
-		self.sortIndex = 0
 
-
-	def onSortLabelRClick(self, evt):
-		obj = self.sortObj = evt.EventObject
-		self.sortDS = obj.relatedDataField
-		self.sortCap = obj.Caption
-		mn = dabo.ui.dMenu()
-		if self.sortFields:
-			mn.append(_("Show sort order"), OnHit=self.handleSortOrder)
-		if self.sortFields.has_key(self.sortDS):
-			mn.append(_("Remove sort on ") + self.sortCap, 
-					OnHit=self.handleSortRemove)
-
-		mn.append(_("Sort Ascending"), OnHit=self.handleSortAsc)
-		mn.append(_("Sort Descending"), OnHit=self.handleSortDesc)
-		self.PopupMenu(mn, obj.formCoordinates(evt.EventData["mousePosition"]) )
-		mn.release()
-
-	def handleSortOrder(self, evt): 
-		self.handleSort(evt, "show")
-	def handleSortRemove(self, evt): 
-		self.handleSort(evt, "remove")
-	def handleSortAsc(self, evt):
-		self.handleSort(evt, ASC)
-	def handleSortDesc(self, evt):
-		self.handleSort(evt, DESC)
-	def handleSort(self, evt, action):
-		if action == "remove":
-			try:
-				del self.sortFields[self.sortDS]
-			except:
-				pass
-		elif action== "show":
-			# Get the descrips and order
-			sf = self.sortFields
-			sfk = sf.keys()
-			dd = [(sf[kk][0], kk, "%s %s" % (sf[kk][2], sf[kk][1]))
-					for kk in sfk ]
-			dd.sort()
-			sortDesc = [itm[2] for itm in dd]
-			sortedList = dabo.ui.sortList(sortDesc)
-			newPos = 0
-			for itm in sortedList:
-				origPos = sortDesc.index(itm)
-				key = dd[origPos][1]
-				self.sortFields[key] = (newPos, self.sortFields[key][1], self.sortFields[key][2])
-				newPos += 1
-		elif action != "show":
-			if self.sortFields.has_key(self.sortDS):
-				self.sortFields[self.sortDS] = (self.sortFields[self.sortDS][0], 
-						action, self.sortCap)
-			else:
-				self.sortFields[self.sortDS] = (self.sortIndex, action, self.sortCap)
-				self.sortIndex += 1
-		self.sortCap = self.sortDS = ""
-				
-			
 		
 	def createItems(self):
 		if not self.Sizer:
@@ -207,25 +151,9 @@ class SelectPage(Page):
 		"""Subclass hook."""
 		pass
 
-
 	def setOrderBy(self, biz):
-		biz.setOrderByClause(self._orderByClause())
-
-	def _orderByClause(self, infoOnly=False):
-		sf = self.sortFields
-		if infoOnly: 
-			parts = lambda (k): (sf[k][2], sf[k][1])
-		else:
-			parts = lambda (k): (k, sf[k][1].upper())
-
-		flds = [(self.sortFields[k][0], k, " ".join(parts(k)))
-			for k in self.sortFields.keys()]
-		flds.sort()
-		if infoOnly:
-			return [e[1:] for e in flds]
-		else:
-			return ",".join([ k[2] for k in flds])
-
+		"""Subclass hook."""
+		pass
 
 	def setWhere(self, biz):
 		try:
