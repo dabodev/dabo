@@ -108,7 +108,9 @@ class SelectOptionsPanel(dPanel):
 
 class SortLabel(dabo.ui.dLabel):
 	## Deprecated; older AppWizard apps use this.
-	warnings.warn("SortLabel deprecated; use dabo.ui.dLabel instead.", DeprecationWarning)
+	def __init__(self, *args, **kwargs):
+		warnings.warn("SortLabel deprecated; use dabo.ui.dLabel instead.", DeprecationWarning)
+		super(SortLabel, self).__init__(*args, **kwargs)
 
 
 class SelectPage(Page):
