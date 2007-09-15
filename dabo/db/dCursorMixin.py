@@ -364,6 +364,8 @@ class dCursorMixin(dObject):
 		"""Attempts to parse the SQL to determine if the fields being selected will require
 		a new call to set the structure. Non-select statements likewise will return False.
 		"""
+		if self._isAuxiliary:
+			return False
 		if sql == self.__lastExecute:
 			return False
 		# See if it's a select statement
