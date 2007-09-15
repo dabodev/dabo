@@ -34,7 +34,7 @@ class SQLite(dBackend):
 			fieldNames = (fld[0] for fld in cursor.description)
 			for idx, field_name in enumerate(fieldNames):
 				if _types:
-					ret[field_name] = cursor._correctFieldType(row[idx], field_name, _fromRequery=True)
+					ret[field_name] = cursor._correctFieldType(row[idx], field_name, _newQuery=True)
 				else:
 					ret[field_name] = row[idx]
 			return ret
@@ -161,13 +161,13 @@ class SQLite(dBackend):
 		return tuple(fields)
 
 
-	def setNonUpdateFields(self, cursor, callback):
+	def setNonUpdateFields(self, cursor):
 		# Use an alternative, since grabbing an empty cursor, as is done in the 
 		# default method, doesn't provide a  description. Assume that any field with 
 		# the same name as the fields in the base table will be updatable.
 		if not cursor.Table:
 			# No table specified, so no update checking is possible
-			return
+			return None
 		# This is the current description of the cursor.
 		descFlds = cursor.FieldDescription
 		# Get the field info for the table
@@ -177,8 +177,8 @@ class SQLite(dBackend):
 
 		stdFlds = [ff["name"] for ff in rs]
 		# Get all the fields that are not in the table.
-		callback([d[0] for d in descFlds 
-				if d[0] not in [s[0] for s in stdFlds] ])
+		return [d[0] for d in descFlds 
+				if d[0] not in [s[0] for s in stdFlds] ]
 		
 		
 	def getUpdateTablePrefix(self, table, autoQuote=True):
