@@ -66,6 +66,14 @@ class dCursorMixin(dObject):
 		self.sortOrder = ""
 		# Is the sort case-sensitive?
 		self.sortCase = True
+		# Holds the last SQL run in a requery() call.
+		self._lastSQL = ""
+		# These are used to determine if the field list of successive select statements
+		# are identical.
+		self.__lastExecute = ""
+		self.__lastFieldList = ""
+		self._whitespacePat = re.compile(r"(\s+)")
+		self._selectStatementPat = re.compile(r"\bselect\b(.+)\bfrom\b", re.I | re.M | re.S)
 		# Holds the keys in the original, unsorted order for unsorting the dataset
 		self.__unsortedRows = []
 		# Holds the name of fields to be skipped when updating the backend, such
@@ -167,7 +175,7 @@ class dCursorMixin(dObject):
 		return pk
 
 
-	def _correctFieldType(self, field_val, field_name, _fromRequery=False):
+	def _correctFieldType(self, field_val, field_name, _newQuery=False):
 		"""Correct the type of the passed field_val, based on self.DataStructure.
 
 		This is called by self.execute(), and contains code to convert all strings
@@ -177,7 +185,7 @@ class dCursorMixin(dObject):
 		"""
 		ret = field_val
 		showError = False
-		if _fromRequery:
+		if _newQuery:
 			pythonType = self._types.get(field_name, type(field_val))
 			daboType = dabo.db.getDaboType(pythonType)
 
@@ -258,7 +266,7 @@ class dCursorMixin(dObject):
 		return ret
 
 
-	def execute(self, sql, params=(), _fromRequery=False, errorClass=None):
+	def execute(self, sql, params=(), _newQuery=False, errorClass=None):
 		""" Execute the sql, and populate the DataSet if it is a select statement."""
 		# The idea here is to let the super class do the actual work in
 		# retrieving the data. However, many cursor classes can only return
@@ -299,7 +307,7 @@ class dCursorMixin(dObject):
 		# This allows each backend to handle these quirks individually.
 		self.BackendObject.massageDescription(self)
 
-		if _fromRequery:
+		if self._newStructure(sql):
 			self._storeFieldTypes()
 
 		if sql.strip().split()[0].lower() not in  ("select", "pragma"):
@@ -322,7 +330,7 @@ class dCursorMixin(dObject):
 					dic = {}
 					for idx, fldName in enumerate(fldNames):
 						dic[fldName] = self._correctFieldType(field_val=row[idx],
-								field_name=fldName, _fromRequery=_fromRequery)
+								field_name=fldName, _newQuery=_newQuery)
 					tmpRows.append(dic)
 				_records = tmpRows
 			else:
@@ -330,7 +338,7 @@ class dCursorMixin(dObject):
 				for row in _records:
 					for fld, val in row.items():
 						row[fld] = self._correctFieldType(field_val=val, field_name=fld,
-								_fromRequery=_fromRequery)
+								_newQuery=_newQuery)
 
 		self._records = dDataSet(_records)
 
@@ -350,6 +358,25 @@ class dCursorMixin(dObject):
 		ac = self.AuxCursor
 		self._syncAuxProperties()
 		return ac.execute(sql)
+	
+	
+	def _newStructure(self, sql):
+		"""Attempts to parse the SQL to determine if the fields being selected will require
+		a new call to set the structure. Non-select statements likewise will return False.
+		"""
+		if sql == self.__lastExecute:
+			return False
+		# See if it's a select statement
+		mtch = self._selectStatementPat.search(sql)
+		if not mtch:
+			return False
+		# Normalize white space
+		fldlist = self._whitespacePat.sub(" ", mtch.groups()[0]).strip()
+		if self.__lastFieldList == fldlist:
+			return False
+		else:
+			self.__lastFieldList = fldlist
+			return True
 
 
 	def _syncAuxProperties(self):
@@ -369,19 +396,22 @@ class dCursorMixin(dObject):
 
 
 	def requery(self, params=None):
-		self._lastSQL = self.CurrentSQL
+		currSQL = self.CurrentSQL
+		newQuery = (self._lastSQL != currSQL)
+		self._lastSQL = currSQL
 		self.lastParams = params
 		self._savedStructureDescription = []
 
-		self.execute(self.CurrentSQL, params, _fromRequery=True)
+		self.execute(currSQL, params, _newQuery=newQuery)
 
 		# clear mementos and new record flags:
 		self._mementos = {}
 		self._newRecords = {}
 
-		# Check for any derived fields that should not be included in
-		# any updates.
-		self.__setNonUpdateFields()
+		if newQuery:
+			# Check for any derived fields that should not be included in
+			# any updates.
+			self.__setNonUpdateFields()
 
 		# Clear the unsorted list, and then apply the current sort
 		self.__unsortedRows = []
@@ -641,8 +671,10 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 					nonUpdateFieldAliases.append(field_alias)
 			self.__nonUpdateFields = nonUpdateFieldAliases
 		else:
+			# Create the _dataStructure attribute
+			self._getDataStructure()
 			# Delegate to the backend object to figure it out.
-			self.BackendObject.setNonUpdateFields(self, self.__setNonUpdateFields)
+			self.__nonUpdateFields = self.BackendObject.setNonUpdateFields(self)
 
 
 	def isChanged(self, allRows=True, includeNewUnchanged=False):

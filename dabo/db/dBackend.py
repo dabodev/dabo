@@ -399,7 +399,7 @@ class dBackend(dObject):
 		return None
 
 
-	def setNonUpdateFields(self, cursor, callback, autoQuote=True):
+	def setNonUpdateFields(self, cursor, autoQuote=True):
 		"""Normally, this routine should work for all backends. But
 		in the case of SQLite, the routine that grabs an empty cursor
 		doesn't fill in the description, so that backend has to use
@@ -407,7 +407,7 @@ class dBackend(dObject):
 		"""
 		if not cursor.Table:
 			# No table specified, so no update checking is possible
-			return
+			return None
 		# This is the current description of the cursor.
 		if not cursor.FieldDescription:
 			# A query hasn't been run yet; so we need to get one
@@ -436,7 +436,7 @@ class dBackend(dObject):
 				for s in [z for z in stdFlds if z[0] == b[0] ]
 				if (b[1] != s[1]) or (b[3] != s[3]) or (b[4] != s[4])
 				or (b[5] != s[5]) or (b[6] != s[6]) ]
-		callback(ret0)
+		return ret0
 
 
 	def getStructureDescription(self, cursor):
