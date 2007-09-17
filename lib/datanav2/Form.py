@@ -950,6 +950,13 @@ class Form(dabo.ui.dForm):
 		self._showExpandedQuickReport = bool(val)
 
 
+	def _getShowSortFields(self):
+		return getattr(self, "_showSortFields", True)
+
+	def _setShowSortFields(self, val):
+		self._showSortFields = bool(val)
+
+
 	def _getTesting(self):
 		return getattr(self, "_testing", False)
 
@@ -1023,6 +1030,9 @@ class Form(dabo.ui.dForm):
 	ShowExpandedQuickReport = property(_getShowExpandedQuickReport,
 			_setShowExpandedQuickReport, None,
 			_("""Can the user choose the 'expanded' quick report?"""))
+
+	ShowSortFields = property(_getShowSortFields, _setShowSortFields, None,
+			_("""Can the user sort fields in the select page?"""))
 
 	Testing = property(_getTesting, _setTesting, None, 
 			"Flag for use when testing elements of the form.")
