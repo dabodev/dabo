@@ -65,7 +65,9 @@ class dConnection(dObject):
 		bo = self.getBackendObject()
 		crs = bo.getCursor(DaboCursor)
 		crs.BackendObject = bo
-		return crs
+		# Return the AuxCursor, as it skips some of the unnecessary
+		# configuration and housekeeping
+		return crs.AuxCursor
 
 
 	def _openConnection(self, **kwargs):
