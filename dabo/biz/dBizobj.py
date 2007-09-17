@@ -119,7 +119,7 @@ class dBizobj(dObject):
 		cf = self._cursorFactory
 		cursorClass = self._getCursorClass(self.dCursorMixinClass,
 				self.dbapiCursorClass)
-		crs = cf.getCursor(cursorClass)
+		crs = cf.getCursor(cursorClass).AuxCursor
 		crs.BackendObject = cf.getBackendObject()
 		crs.setCursorFactory(cf.getCursor, cursorClass)
 		return crs
