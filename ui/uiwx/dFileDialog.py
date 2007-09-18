@@ -100,7 +100,7 @@ class dFileDialog(OsDialogMixin, wx.FileDialog):
 			# wxPython changed the constant after 2.6
 			try:
 				multStyle = wx.FD_MULTIPLE
-			except AttributeError
+			except AttributeError:
 				multStyle = wx.MULTIPLE
 			style = style | multStyle
 
