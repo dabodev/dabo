@@ -98,7 +98,10 @@ class dFileDialog(OsDialogMixin, wx.FileDialog):
 		self._baseClass = dFileDialog
 		if multiple:
 			# wxPython changed the constant after 2.6
-			multStyle = {True: wx.FD_MULTIPLE, False: wx.MULTIPLE}[wx.VERSION >= (2, 7)]
+			try:
+				multStyle = wx.FD_MULTIPLE
+			except AttributeError
+				multStyle = wx.MULTIPLE
 			style = style | multStyle
 
 			self._multiple = True
