@@ -172,6 +172,9 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 	Source = property(_getSource, _setSource, None,
 			_("Html source of the current page being display. (default='')  (string)"))
 
+	# alias to fall in line with the rest of Dabo.
+	Value = Source
+
 	VerticalScroll = property(_getVerticalScroll, _setVerticalScroll, None,
 			_("Controls whether this object will scroll vertically (default=True)  (bool)"))
 
