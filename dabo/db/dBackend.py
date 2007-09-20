@@ -225,20 +225,30 @@ class dBackend(dObject):
 		return ret
 
 
-	def encloseNames(self, exp, autoQuote=True):
+	def encloseNames(self, exp, autoQuote=True, keywords=None):
 		"""When table/field names contain spaces, this will safely enclose them
 		in quotes or whatever delimiter is appropriate for the backend, unless
-		autoQuote is False, in which case it leaves things untouched.
+		autoQuote is False, in which case it leaves things untouched. If there are
+		keywords that are part of the expression that should not be enclosed
+		within the field name, pass them as a tuple to the keywords parameter.
 		"""
 		if autoQuote:
-			# First separate any alias structures, e.g., 'foo as bar'.
-			parts = re.split(r"\s+as\s+", exp)
+			if keywords is None:
+				parts = [exp]
+				subs = lowkeys = tuple()
+			else:
+				# First separate any keywords: e.g., 'foo as bar'.
+				pat = re.compile(r"(\b%s\b)" % r"\b|\b".join(keywords), re.I)
+				parts = pat.split(exp)
+				subs = tuple(pat.findall(exp))
+				lowkeys = [k.lower() for k in keywords]
 			delim = self.nameEnclosureChar
 			def encPart(part):
-				qtd = [delim + pt + delim for pt in part.split(".") if pt]
+				qtd = [delim + pt.strip() + delim for pt in part.split(".") if pt]
 				return ".".join(qtd)
-			exp = " as ".join([encPart(pt) for pt in parts])
-		return exp
+			exp = " %s ".join([encPart(pt) for pt in parts
+					if pt.lower() not in lowkeys])
+		return exp % subs
 	
 	
 	def addField(self, clause, exp, alias=None, autoQuote=True):
@@ -246,9 +256,9 @@ class dBackend(dObject):
 		indent = len("select ") * " "
 		# If exp is a function, don't do anything special about spaces.
 		if not self.functionPat.match(exp):
-			exp = self.encloseNames(exp, autoQuote=autoQuote)
+			exp = self.encloseNames(exp, autoQuote=autoQuote, keywords=("as",))
 		if alias:
-			alias = self.encloseNames(alias, autoQuote=autoQuote)
+			alias = self.encloseNames(alias, autoQuote=autoQuote, keywords=("as",))
 			exp = "%(exp)s as %(alias)s" % locals()
 		# Give the backend-specific code a chance to update the format
 		exp = self.processFields(exp)
@@ -257,14 +267,14 @@ class dBackend(dObject):
 	
 	def addFrom(self, clause, exp, autoQuote=True):
 		""" Add a table to the sql statement."""
-		exp = self.encloseNames(exp, autoQuote=autoQuote)
+		exp = self.encloseNames(exp, autoQuote=autoQuote, keywords=("as",))
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 	
 	
 	def addJoin(self, tbl, joinCondition, exp, joinType=None, autoQuote=True):
 		""" Add a joined table to the sql statement."""
-		tbl = self.encloseNames(tbl, autoQuote=autoQuote)
+		tbl = self.encloseNames(tbl, autoQuote=autoQuote, keywords=("as",))
 		joinType = self.formatJoinType(joinType)
 		indent = len("select ") * " "
 		clause = "%(joinType)s join %(tbl)s on %(joinCondition)s" % locals()
@@ -287,7 +297,7 @@ class dBackend(dObject):
 
 	def addOrderBy(self, clause, exp, autoQuote=True):
 		""" Add an expression to the order-by clause."""
-		exp = self.encloseNames(exp, autoQuote=autoQuote)
+		exp = self.encloseNames(exp, autoQuote=autoQuote, keywords=("asc", "desc"))
 		indent = len("select ") * " "
 		return self.addWithSep(clause, exp, sep=",\n%s" % indent)
 
