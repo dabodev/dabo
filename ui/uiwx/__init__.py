@@ -123,7 +123,7 @@ from dPageFrame import dPageList
 from dPageFrame import dPageSelect
 from dPageFrameNoTabs import dPageFrameNoTabs
 from dPage import dPage
-#from dPdfWindow import dPdfWindow
+from dPdfWindow import dPdfWindow
 from dSizer import dSizer
 from dBorderSizer import dBorderSizer
 from dSlider import dSlider
