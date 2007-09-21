@@ -123,7 +123,7 @@ from dPageFrame import dPageList
 from dPageFrame import dPageSelect
 from dPageFrameNoTabs import dPageFrameNoTabs
 from dPage import dPage
-from dPdfWindow import dPdfWindow
+#from dPdfWindow import dPdfWindow
 from dSizer import dSizer
 from dBorderSizer import dBorderSizer
 from dSlider import dSlider
@@ -545,6 +545,7 @@ def getMouseObject():
 	return win
 
 
+
 def isControlDown():
 	return wx.GetMouseState().controlDown
 
@@ -944,6 +945,8 @@ def _getWild(*args):
 			"txt" : "Text",
 			"jpg" : "JPEG",
 			"gif" : "GIF",
+			"tif" : "TIFF",
+			"tiff" : "TIFF",
 			"png" : "PNG",
 			"ico" : "Icon",
 			"bmp" : "Bitmap" }
