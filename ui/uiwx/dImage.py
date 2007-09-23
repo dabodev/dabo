@@ -29,6 +29,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		self.__imageData = None
 		bmp = wx.EmptyBitmap(1, 1)
 		picName = self._extractKey((kwargs, properties, attProperties), "Picture", "")
+		self._pictureIndex = self._extractKey((kwargs, properties, attProperties), "PictureIndex", -1)
 	
 		dim.dImageMixin.__init__(self)
 		dcm.__init__(self, preClass, parent, properties, attProperties, 
@@ -199,12 +200,36 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 					raise IOError, "No file named '%s' exists." % origVal
 			self._picture = val
 			self._rotation = 0
-			self._Image.LoadFile(val)
+			idx = self.PictureIndex
+			
+			# This only works for TIFF and ICO, not GIF
+# 			if idx != -1:
+# 				cnt = self.__image.GetImageCount(self.Picture)
+# 				# The image count is 1-based.
+# 				if idx > (cnt-1):
+# 					dabo.errorLog.write(_("Attempt to set PictureIndex (%(idx)s)to a value greater than the number of pictures in the image (%(cnt)s).") % locals())
+# 					idx = cnt
+			try:
+				self._Image.LoadFile(val, index=idx)
+			except:
+				self._Image.LoadFile(val, index=-1)
 		if self._Image.Ok():
 			self._imgProp = float(self._Image.GetWidth()) / float(self._Image.GetHeight())
 		else:
 			self._imgProp = 1.0
 		self._showPic()
+
+
+	def _getPictureIndex(self):
+		return self._pictureIndex
+
+	def _setPictureIndex(self, val):
+		if self._constructed():
+			self._pictureIndex = val
+			# Re-load the image
+			self.Picture = self._picture
+		else:
+			self._properties["PictureIndex"] = val
 
 
 	def _getScaleMode(self):
@@ -271,6 +296,12 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 	Picture = property(_getPic, _setPic, None,
 			_("The file used as the source for the displayed image.  (str)") )
 
+	PictureIndex = property(_getPictureIndex, _setPictureIndex, None,
+			_("""When displaying images from files that can contain multiple 
+			images, such as GIF, TIFF and ICO, this determines which image 
+			is used. Default=-1, which displays the first image for GIF and TIFF, 
+			and the main image for ICO.  (int)"""))
+	
 	ScaleMode = property(_getScaleMode, _setScaleMode, None,
 			_("""Determines how the image responds to sizing. Can be one
 			of the following:
