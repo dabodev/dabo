@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import tempfile
+import imghdr
 import wx
 import dabo
 if __name__ == "__main__":
@@ -25,6 +26,7 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		self._rotation = 0
 		self.__image = None
 		self._inShowPic = False
+		self._inReload = False
 		self.__val = None
 		self.__imageData = None
 		bmp = wx.EmptyBitmap(1, 1)
@@ -174,6 +176,16 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 		
 
 	# Property definitions
+	def _getFrameCount(self):
+		typ = imghdr.what(file(self.Picture))
+		if typ in ("gif", ):
+			anim = wx.animate.Animation(self.Picture)
+			cnt = anim.GetFrameCount()
+		else:
+			cnt = self.__image.GetImageCount(self.Picture)
+		return cnt
+
+
 	def _getPic(self):
 		return self._picture
 		
@@ -201,14 +213,12 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self._picture = val
 			self._rotation = 0
 			idx = self.PictureIndex
-			
-			# This only works for TIFF and ICO, not GIF
-# 			if idx != -1:
-# 				cnt = self.__image.GetImageCount(self.Picture)
-# 				# The image count is 1-based.
-# 				if idx > (cnt-1):
-# 					dabo.errorLog.write(_("Attempt to set PictureIndex (%(idx)s)to a value greater than the number of pictures in the image (%(cnt)s).") % locals())
-# 					idx = cnt
+			if idx != -1:
+				# The image count is 1-based.
+				maxIdx = self.FrameCount - 1
+				if idx > maxIdx:
+					dabo.errorLog.write(_("Attempt to set PictureIndex (%(idx)s)to a value greater than the maximum index available (%(maxIdx)s).") % locals())
+					idx = self.PictureIndex = maxIdx
 			try:
 				self._Image.LoadFile(val, index=idx)
 			except:
@@ -226,8 +236,11 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 	def _setPictureIndex(self, val):
 		if self._constructed():
 			self._pictureIndex = val
-			# Re-load the image
-			self.Picture = self._picture
+			if not self._inReload:
+				# Re-load the image
+				self._inReload = True
+				self.Picture = self._picture
+				self._inReload = False
 		else:
 			self._properties["PictureIndex"] = val
 
@@ -292,6 +305,9 @@ class dImage(dcm, dim.dImageMixin, wx.StaticBitmap):
 			self.__image = wx.NullImage
 		return self.__image
 
+	
+	FrameCount = property(_getFrameCount, None, None,
+			_("Number of frames in the current image. Will be 1 for most images, but can be greater for animated GIFs, ICOs and some TIFF files. (read-only) (int)"))
 	
 	Picture = property(_getPic, _setPic, None,
 			_("The file used as the source for the displayed image.  (str)") )
@@ -400,7 +416,7 @@ if __name__ == "__main__":
 			
 			
 		def onLoadImage(self, evt): 
-			f = dabo.ui.getFile("jpg", "png", "gif", "bmp", "*")
+			f = dabo.ui.getFile("jpg", "png", "gif", "bmp", "tif", "ico", "*")
 			if f:
 				self.img.Picture = f
 		
