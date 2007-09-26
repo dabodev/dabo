@@ -248,7 +248,8 @@ class dBackend(dObject):
 				return ".".join(qtd)
 			exp = " %s ".join([encPart(pt) for pt in parts
 					if pt.lower() not in lowkeys])
-		return exp % subs
+			return exp % subs
+		return exp
 	
 	
 	def addField(self, clause, exp, alias=None, autoQuote=True):
