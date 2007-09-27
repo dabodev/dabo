@@ -140,10 +140,6 @@ class HelpMenu(dMenu):
 		# Put the about menu in the App Menu on Mac
 		wx.App_SetMacAboutMenuItemId(itm.GetId())
 		wx.App_SetMacHelpMenuTitleName(self.Caption)
-		
-		if app.ShowWebUpdateMenu:
-			self.append(_("Framework Web Update Settings"), OnHit=app.onWebUpdatePrefs,
-					help=_("Change your preferences for web updates for the Dabo Framework"))
 
 
 class dBaseMenuBar(dMenuBar):

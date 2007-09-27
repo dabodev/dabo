@@ -9,6 +9,7 @@ from dabo.dLocalize import _, n_
 import dabo.dConstants as kons
 
 
+
 class SplashScreen(wx.Frame):
 	"""This is a specialized form that is meant to be used as a startup
 	splash screen. It takes an image file, bitmap, icon, etc., which is used
@@ -142,6 +143,10 @@ class uiApp(dObject, wx.App):
 		self._findDlgID = self._replaceDlgID = None
 		self.findReplaceData = None
 		self.findDialog = None
+		# Preference handler. We need the import here, because the UI module
+		# is not yet set up before this.
+		from dabo.ui.dialogs.PreferenceDialog import PreferenceDialog as PrefDialog
+		self._preferenceDialogClass = PrefDialog
 		# Atts used to manage MRU (Most Recently Used) menus.
 		self._mruMenuPrompts = {}
 		self._mruMenuFuncs = {}
@@ -460,7 +465,35 @@ class uiApp(dObject, wx.App):
 			except AttributeError:
 				win = None
 		return ret
-		
+
+
+	def onEditPreferences(self, evt):
+		"""If a preference handler is defined for the form, use that. Otherwise,
+		use the generic preference dialog.
+		"""
+		af = self.ActiveForm
+		try:
+			af.onEditPreferences(evt)
+		except AttributeError:
+			if self.PreferenceDialogClass:
+				dlgPref = self.PreferenceDialogClass()
+				if af:
+					af.fillPreferenceDialog(dlgPref)
+				try:
+					# By default, this adds stub language if the nothing else is defined 
+					# for the pref form.
+					dlgPref._stub()
+				except AttributeError:
+					pass
+				dlgPref.show()
+				if dlgPref.Accepted:
+					if hasattr(dlgPref, "_onAccept"):
+						dlgPref._onAccept()
+				if dlgPref.Modal:
+					dlgPref.release()
+			else:
+				dabo.infoLog.write(_("Stub: dApp.onEditPreferences()"))
+
 
 	def onEditUndo(self, evt):
 		if self.ActiveForm:
@@ -796,19 +829,6 @@ class uiApp(dObject, wx.App):
 		else:
 			cap = menu.Caption
 		return self._mruMenuPrompts.get(cap, [])
-	
-	
-	def onWebUpdatePrefs(self, evt):
-		"""Show the form that lets the user change their preferences for
-		web updates to the framework.
-		"""
-		dlg = dabo.ui.createForm(webPrefDialogCDXML)
-		dlg.show()
-		if dlg.Accepted:
-			shouldUpdate = dlg.getCheck()
-			freq = dlg.getFrequency()
-			self.dApp._setWebUpdate(shouldUpdate, interval=freq)
-		dlg.release()
 		
 	
 	def onShowSizerLines(self, evt):
@@ -818,8 +838,8 @@ class uiApp(dObject, wx.App):
 		self._drawSizerOutlines = not self._drawSizerOutlines
 		if self.ActiveForm:
 			self.ActiveForm.refresh()
-		
-	
+
+
 	def _getActiveForm(self):
 		af = getattr(self, "_activeForm", None)
 		if af is None:
@@ -837,87 +857,19 @@ class uiApp(dObject, wx.App):
 		self._drawSizerOutlines = val
 	
 	
+	def _getPreferenceDialogClass(self):
+		return self._preferenceDialogClass
+
+	def _setPreferenceDialogClass(self, val):
+		self._preferenceDialogClass = val
+
+
 	ActiveForm = property(_getActiveForm, _setActiveForm, None, 
 			_("Returns the form that currently has focus, or None.	(dForm)" ) )
 
 	DrawSizerOutlines = property(_getDrawSizerOutlines, _setDrawSizerOutlines, None,
 			_("Determines if sizer outlines are drawn on the ActiveForm.  (bool)") )
 	
-
-
-# Rather than include a separate cdxml, just include the contents here.
-webPrefDialogCDXML = """<?xml version="1.0" encoding="utf-8" standalone="no"?>
-<dOkCancelDialog Name="dOkCancelDialog" Caption="Web Update Preferences" SaveRestorePosition="True" Top="122" Height="309" Width="487" designerClass="DesForm" Left="241">
-	<code>
-		<wantsUpdates><![CDATA[
-def wantsUpdates(self):
-	return self.chkForUpdates.Value
-]]>
-		</wantsUpdates>
-		<getFrequency><![CDATA[
-def getFrequency(self):
-	pos = self.radFrequency.PositionValue
-	dayMins= 24*60
-	return {0: 0, 1: dayMins, 2: dayMins*7, 3: dayMins*30}[pos]
-]]>
-		</getFrequency>
-		<getCheck><![CDATA[
-def getCheck(self):
-	return self.chkForUpdates.Value
-]]>
-		</getCheck>
-		<checkNow><![CDATA[
-def checkNow(self):
-	ret = self.Application.checkForUpdates()
-	if ret:
-		dabo.ui.info(_("No updates are available now."), title=_("Web Updates"))
-]]>
-		</checkNow>
-		<afterInitAll><![CDATA[
-def afterInitAll(self):
-	self.chkForUpdates.Value, minutes = self.Application.getWebUpdateInfo()
-	dayMins= 24*60
-	self.radFrequency.PositionValue = {0: 0, dayMins: 1, dayMins*7: 2, dayMins*30: 3}.get(minutes, 0)
-	self.update()
-]]>
-		</afterInitAll>
-		<importStatements><![CDATA[
-from dabo.dLocalize import _
-]]>
-		</importStatements>
-	</code>
-
-	<dSizer SlotCount="2" designerClass="LayoutSizer" Orientation="Vertical">
-		<dSizer SlotCount="3" sizerInfo="{'HAlign': 'Center'}" designerClass="LayoutSizer" Orientation="Horizontal">
-			<dCheckBox sizerInfo="{'HAlign': 'Center', 'Border': 16, 'Expand': False, 'VAlign': 'Middle'}" Name="chkForUpdates" Caption="Check for framework updates" designerClass="controlMix" RegID="chkForUpdates" ToolTipText="Does the framework check for updates?">
-				<code>
-					<onHit><![CDATA[
-def onHit(self, evt):
-	self.Form.update()
-]]>
-					</onHit>
-				</code>
-			</dCheckBox>
-			<dPanel sizerInfo="{'HAlign': 'Center', 'Expand': True, 'VAlign': 'Middle'}" designerClass="LayoutSpacerPanel"></dPanel>
-			<dButton Caption="Check now..." sizerInfo="{'HAlign': 'Center', 'Border': 5, 'VAlign': 'Middle'}" designerClass="controlMix" ToolTipText="Check the Dabo server for updates">
-				<code>
-					<onHit><![CDATA[
-def onHit(self, evt):
-	self.Form.checkNow()
-]]>
-					</onHit>
-				</code>
-			</dButton>
-		</dSizer>
-		<dRadioList sizerInfo="{'HAlign': 'Center', 'Proportion': 0, 'Border': 5, 'Expand': False, 'VAlign': 'Middle'}" Orientation="Vertical" Value="Every time an app is run" Choices="[u&apos;Every time an app is run&apos;, u&apos;Once a day&apos;, u&apos;Once a week&apos;, u&apos;Once a month&apos;]" Caption="Check every..." designerClass="controlMix" RegID="radFrequency" ToolTipText="How often does the framework check for updates?">
-			<code>
-				<afterInit><![CDATA[
-def afterInit(self):
-	self.DynamicEnabled = self.Form.wantsUpdates
-]]>
-				</afterInit>
-			</code>
-		</dRadioList>
-	</dSizer>
-</dOkCancelDialog>
-"""
+	PreferenceDialogClass = property(_getPreferenceDialogClass, _setPreferenceDialogClass, None,
+			_("Class to instantiate for the application's preference editing  (dForm/dDialog)"))
+	

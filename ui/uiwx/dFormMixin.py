@@ -481,12 +481,23 @@ class dFormMixin(pm.dPemMixin):
 				tip=tip, help=help, *args, **kwargs)
 
 
+	def fillPreferenceDialog(self, dlg):
+		"""This method is called with a reference to the pref dialog. It can be overridden
+		in subclasses to add application-specific content to the pref dialog. To add a 
+		new page to the dialog, call the dialog's addCategory() method, passing the caption
+		for that page. It will return a reference to the newly-created page, to which you 
+		then add your controls.
+		"""
+		pass
+
+
 	def _setAbsoluteFontZoom(self, amt):
-		# Let the default behavior run, but then save the font zoom level to 
-		# the user preferences file. The loading of the saved pref happens in 
-		# the individual control (dPemMixinBase) so that the restoration of the 
-		# control's font zoom isn't dependent on the control being created at 
-		# form load time.
+		"""Let the default behavior run, but then save the font zoom level to 
+		the user preferences file. The loading of the saved pref happens in 
+		the individual control (dPemMixinBase) so that the restoration of the 
+		control's font zoom isn't dependent on the control being created at 
+		form load time.
+		"""
 		self.super(amt)
 		if self.Application and self.SaveRestorePosition:
 			self.Application.setUserSetting("%s.fontzoom" 
