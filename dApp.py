@@ -826,16 +826,7 @@ class dApp(dObject):
 		self.uiApp.onShowSizerLines(evt)
 
 	def onEditPreferences(self, evt):
-		try:
-			self.ActiveForm.onEditPreferences(evt)
-		except:
-			if self.PreferenceDialogClass:
-				dlgPref = self.PreferenceDialogClass()
-				dlgPref.show()
-				if dlgPref.Modal:
-					dlgPref.release()
-			else:
-				dabo.infoLog.write(_("Stub: dApp.onEditPreferences()"))
+		self.uiApp.onEditPreferences(evt)
 
 	# These handle MRU menu requests
 	def addToMRU(self, menu, prmpt, bindfunc=None, *args, **kwargs):
@@ -850,12 +841,6 @@ class dApp(dObject):
 		self.uiApp.copyToClipboard(txt)
 		
 
-	def onWebUpdatePrefs(self, evt):
-		self.uiApp.onWebUpdatePrefs(evt)
-
-	def showWebUpdatePrefs(self):
-		self.onWebUpdatePrefs(None)		
-		
 	def onHelpAbout(self, evt):
 		about = self.AboutFormClass
 		if about is None:
@@ -1124,16 +1109,6 @@ class dApp(dObject):
 		self._showSizerLinesMenu = bool(val)
 
 			
-	def _getShowWebUpdateMenu(self):
-		v = getattr(self, "_showWebUpdateMenu", None)
-		if v is None:
-			v = self._showWebUpdateMenu = True
-		return v
-			
-	def _setShowWebUpdateMenu(self, val):
-		self._showWebUpdateMenu = bool(val)
-
-
 	def _getUI(self):
 		try:
 			return dabo.ui.getUIType()
@@ -1302,13 +1277,6 @@ class dApp(dObject):
 
 			If True (the default), there will be a View|Show Sizer Lines option
 			available in the base menu.""") )
-
-	ShowWebUpdateMenu = property(_getShowWebUpdateMenu, _setShowWebUpdateMenu, None, 
-			_("""Specifies whether the web update option is shown in the menu.
-
-			If True (the default), there will be a Web Update Options menu item in 
-			the Help menu. If False, your code can still start the Web Update Options
-			screen by calling app.showWebUpdatePrefs() directly.""") )
 
 	UI = property(_getUI, _setUI, None,
 			_("""Specifies the user interface to load, or None. (str)
