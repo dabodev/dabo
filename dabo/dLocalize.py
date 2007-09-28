@@ -88,8 +88,8 @@ def setLanguage(lang=None, charset=None):
 
 
 def getDaboLocaleDir():
-	localedir = os.path.join(os.path.split(dabo.__file__)[0], "locale")
-	if not os.path.isdir(localedir):
+	localeDir = os.path.join(os.path.split(dabo.__file__)[0], "locale")
+	if not os.path.isdir(localeDir):
 		# Frozen app?
 		# First need to find the directory that contains the .exe:
 		startupDir = localeDir
@@ -97,8 +97,8 @@ def getDaboLocaleDir():
 			startupDir = os.path.split(startupDir)[0]
 			if os.path.isdir(startupDir):
 				break
-		localedir = os.path.join(startupDir, "dabo.locale")
-	return localedir
+		localeDir = os.path.join(startupDir, "dabo.locale")
+	return localeDir
 
 
 if __name__ == "__main__":
