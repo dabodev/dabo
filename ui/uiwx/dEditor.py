@@ -1741,7 +1741,10 @@ class dEditor(dcm.dDataControlMixin, stc.StyledTextCtrl):
 					line = line[:-1]
 				while not line.rstrip().endswith(":"):
 					# Continued line
-					lineNum += numGen.next()
+					try:
+						lineNum += numGen.next()
+					except StopIteration:
+						break
 					nextLine = self.GetLine(lineNum).strip()
 					line = "%s %s" % (line, nextLine)
 				line += " pass"
