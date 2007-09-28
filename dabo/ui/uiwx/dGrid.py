@@ -1835,6 +1835,15 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		#self.SetCellRenderer(row, col, rnd)
 
 
+	def getTableClass(cls):
+		"""We don't expose the underlying table class to the ui namespace, as it's a 
+		wx-specific implementation detail, but for cases where you need to subclass
+		the table, this classmethod will return the class reference.
+		"""
+		return dGridDataTable
+	getTableClass = classmethod(getTableClass)
+	
+
 	def setTableAttributes(self, tbl=None):
 		"""Set the attributes for table display"""
 		if tbl is None:
