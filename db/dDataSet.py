@@ -100,7 +100,7 @@ class dDataSet(tuple):
 		return None
 
 
-	def replace(self, field, Expr, scope=None):
+	def replace(self, field, valOrExpr, scope=None):
 		"""Replaces the value of the specified field with the given expression.
 
 		All records matching the scope are affected; if	no scope is specified, 
@@ -108,7 +108,6 @@ class dDataSet(tuple):
 
 		Scope is a boolean expression.
 		"""
-
 		if scope is None:
 			scope = "True"
 		else:
@@ -125,8 +124,7 @@ class dDataSet(tuple):
 				if literal:
 					rec[field] = valOrExpr
 				else:
-					expr = "rec['%s'] = %s" % (field, valOrExpr)
-					exec(expr)
+					rec[field] = eval(valOrExpr)
 
 
 	def sort(self, col, ascdesc=None, caseSensitive=None):
