@@ -14,12 +14,6 @@ import types
 
 import dabo.dEvents as dEvents
 
-# For now, 'wx' is the only valid UI. In the future, though, try changing
-# this to 'tk' or 'qt'...
-ui = "wx"
-if not dabo.ui.loadUI(ui):
-	dabo.errorLog.write("Could not load ui '%s'." % ui)
-
 
 class EasyDialogBuilder(object):
 	def makePageFrame(self, parent, pageData, properties=None):
@@ -174,14 +168,14 @@ class EasyDialogBuilder(object):
 			
 			labelTitle += ":"
 			
-			if hasRegID:
+			if hasRegIDs:
 				buttonProperties = {"RegID":"%s_button"%(name,)}
 			else:
 				buttonProperties = {}
 			
 			exec("self.%s = dabo.ui.dTextBox(parent, ReadOnly=True, properties=Properties)" % (name,))
 			exec("controlList.append(self.%s)" % (name,))
-			exec("self.%s_button = fileButton(parent, format, directory, self.%s, buttonProperties" % (name, name))
+			exec("self.%s_button = fileButton(parent, format, directory, self.%s, buttonProperties)" % (name, name))
 			exec("controlList.append(self.%s_button)" % (name,))
 		else:
 			if issubclass(control, (dabo.ui.dCheckBox, dabo.ui.dButton)):
