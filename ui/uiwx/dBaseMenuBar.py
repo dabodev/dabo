@@ -32,18 +32,18 @@ class FileMenu(dMenu):
 		self.Caption = _("&File")
 
 		if self.Application.ShowCommandWindowMenu:
-			self.append(_("Command Win&dow") + "\tCtrl+D", OnHit=app.onCmdWin, 
+			self.append(_("Command Win&dow"), HotKey="Ctrl+D", OnHit=app.onCmdWin, 
 					bmp="%s/apps/utilities-terminal.png" % iconPath,
 					help=_("Open up a command window for debugging") )
 		
-		prmpt = _("Close Windo&w") + "\tCtrl+W"
-		self.append(prmpt, OnHit=app.onWinClose,
+		prmpt = _("Close Windo&w")
+		self.append(prmpt, HotKey="Ctrl+W", OnHit=app.onWinClose,
 				help=_("Close the current window") )
 
 		self.appendSeparator()
 
-		prmpt = _("&Quit") + "\tCtrl+Q"
-		self.append(prmpt, id=wx.ID_EXIT, OnHit=app.onFileExit, 
+		prmpt = _("&Quit")
+		self.append(prmpt, HotKey="Ctrl+Q", id=wx.ID_EXIT, OnHit=app.onFileExit, 
 				bmp="%s/actions/system-log-out.png" % iconPath, 
 				help=_("Exit the application") )
 
@@ -55,29 +55,29 @@ class EditMenu(dMenu):
 		app = self.Application
 		self.Caption = _("&Edit")
 
-		self.append(_("&Undo") + "\tCtrl+Z", OnHit=app.onEditUndo, 
+		self.append(_("&Undo"), HotKey="Ctrl+Z", OnHit=app.onEditUndo, 
 				bmp="%s/actions/edit-undo.png" % iconPath,
 				help=_("Undo last action") )
 
-		self.append(_("&Redo") + "\tCtrl+R", OnHit=app.onEditRedo, 
+		self.append(_("&Redo"), HotKey="Ctrl+R", OnHit=app.onEditRedo, 
 				bmp="%s/actions/edit-redo.png" % iconPath,
 				help=_("Undo last undo") )
 
 		self.appendSeparator()
 
-		self.append(_("Cu&t") + "\tCtrl+X", OnHit=app.onEditCut, 
+		self.append(_("Cu&t"), HotKey="Ctrl+X", OnHit=app.onEditCut, 
 				bmp="%s/actions/edit-cut.png" % iconPath,
 				help=_("Cut selected text") )
 
-		self.append(_("&Copy") + "\tCtrl+C", OnHit=app.onEditCopy, 
+		self.append(_("&Copy"), HotKey="Ctrl+C", OnHit=app.onEditCopy, 
 				bmp="%s/actions/edit-copy.png" % iconPath,
 				help=_("Copy selected text") )
 
-		self.append(_("&Paste") + "\tCtrl+V", OnHit=app.onEditPaste, 
+		self.append(_("&Paste"), HotKey="Ctrl+V", OnHit=app.onEditPaste, 
 				bmp="%s/actions/edit-paste.png" % iconPath,
 				help=_("Paste text from clipboard") )
 
-		self.append(_("Select &All") + "\tCtrl+A", OnHit=app.onEditSelectAll, 
+		self.append(_("Select &All"), HotKey="Ctrl+A", OnHit=app.onEditSelectAll, 
 				bmp="%s/actions/edit-select-all.png" % iconPath,
 				help=_("Select all text") )
 
@@ -85,14 +85,14 @@ class EditMenu(dMenu):
 
 		# By default, the Find and Replace functions use a single dialog. The
 		# commented lines below this enable the plain Find dialog call.
-		self.append(_("&Find / Replace") + "\tCtrl+F", OnHit=app.onEditFind, 
+		self.append(_("&Find / Replace"), HotKey="Ctrl+F", OnHit=app.onEditFind, 
 				bmp="%s/actions/edit-find-replace.png" % iconPath, 
 				help=_("Find or Replace text in the active window") )
 
-# 		self.append(_("Find") + "\tShift+Ctrl+F", OnHit=app.onEditFindAlone, 
+# 		self.append(_("Find"), HotKey="Shift+Ctrl+F", OnHit=app.onEditFindAlone, 
 # 				bmp="%s/actions/edit-find.png" % iconPath, help=_("Find text in the active window") )
 
-		self.append(_("Find A&gain") + "\tCtrl+G", OnHit=app.onEditFindAgain, bmp="",
+		self.append(_("Find A&gain"), HotKey="Ctrl+G", OnHit=app.onEditFindAgain, bmp="",
 				help=_("Repeat the last search") )
 
 		self.appendSeparator()
@@ -112,13 +112,13 @@ class ViewMenu(dMenu):
 		app = self.Application
 		self.Caption = _("&View")
 	
-		self.append(_("Increase Font Size") + "\tCtrl++", OnHit=app.fontZoomIn)
-		self.append(_("Decrease Font Size") + "\tCtrl+-", OnHit=app.fontZoomOut)
-		self.append(_("Normal Font Size") + "\tCtrl+/", OnHit=app.fontZoomNormal)
+		self.append(_("Increase Font Size"), HotKey="Ctrl++", OnHit=app.fontZoomIn)
+		self.append(_("Decrease Font Size"), HotKey="Ctrl+-", OnHit=app.fontZoomOut)
+		self.append(_("Normal Font Size"), HotKey="Ctrl+/", OnHit=app.fontZoomNormal)
 	
 		if app.ShowSizerLinesMenu:
 			self.appendSeparator()
-			self.append(_("Show/Hide Sizer &Lines")+"\tCtrl+L",	
+			self.append(_("Show/Hide Sizer &Lines"), HotKey="Ctrl+L",	
 					OnHit=app.onShowSizerLines, menutype="check",
 					help=_("Cool sizer visualizing feature; check it out!"))
 

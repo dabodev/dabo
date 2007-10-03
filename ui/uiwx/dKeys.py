@@ -3,6 +3,7 @@ import wx
 import dabo
 
 key_Alt = wx.WXK_ALT
+key_Command = wx.WXK_COMMAND
 key_Back = wx.WXK_BACK
 key_Tab = wx.WXK_TAB
 key_Return = wx.WXK_RETURN
@@ -118,6 +119,7 @@ key_Windows_menu = wx.WXK_WINDOWS_MENU
 mod_Alt = wx.ACCEL_ALT
 mod_Shift = wx.ACCEL_SHIFT
 mod_Ctrl = wx.ACCEL_CTRL
+mod_Cmd = wx.ACCEL_CMD
 mod_Normal = wx.ACCEL_NORMAL
 
 arrowKeys = {
@@ -130,6 +132,7 @@ modifierStrings = {
 	"alt": mod_Alt,
 	"shift": mod_Shift,
 	"ctrl": mod_Ctrl,
+	"cmd": mod_Cmd,
 }
 
 ## pkm: I didn't include all the keycodes below - I want to see what is

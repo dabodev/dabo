@@ -21,6 +21,10 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		if not text:
 			text = "dMenuItem"
 		kwargs["text"] = text
+		# Main text of the menu item
+		self._caption = ""
+		# Holds the key combination used to trigger the menu
+		self._hotKey = None		
 		
 		pm.dPemMixin.__init__(self, preClass, parent, properties, *args, **kwargs)
 
@@ -49,18 +53,30 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 		evt.Skip(False)
 
 
-	def _getCaption(self):
-		return self.GetText()
-
-	def _setCaption(self, val):
-		if self._constructed():
+	def _redefine(self):
+		"""Combine the Caption and HotKey into the format needed by wxPython."""
+		cap = self.Caption
+		hk = self.HotKey
+		if hk:
+			cap = "%s\t%s" % (cap, hk)
+		curr = self.GetText()
+		if cap != curr:
 			## Win32 seems to need to clear the caption first, or funkiness
 			## can arise. And win32 in wx2.8 needs for the caption to never be
 			## an empty string, or you'll get an invalid stock id assertion.
 			self.SetText(" ")
-			if val == "":
-				val = " "
-			self.SetText(val)
+			if cap == "":
+				cap = " "
+			self.SetText(cap)
+
+
+	def _getCaption(self):
+		return self._caption
+
+	def _setCaption(self, val):
+		if self._constructed():
+			self._caption = val
+			self._redefine()
 		else:
 			self._properties["Caption"] = val
 
@@ -87,6 +103,17 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 			self.SetHelp(val)
 		else:
 			self._properties["HelpText"] = val
+
+
+	def _getHotKey(self):
+		return self._hotKey
+
+	def _setHotKey(self, val):
+		if self._constructed():
+			self._hotKey = val
+			self._redefine()
+		else:
+			self._properties["HotKey"] = val
 
 
 	def _getIcon(self):
@@ -129,6 +156,9 @@ class dMenuItem(pm.dPemMixin, wx.MenuItem):
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("Specifies whether the menu item can be interacted with."))
 
+	HotKey = property(_getHotKey, _setHotKey, None,
+			_("Key combination that will trigger the menu  (str)"))
+	
 	Icon = property(_getIcon, _setIcon, None,
 			_("Specifies the icon for the menu item."))
 
