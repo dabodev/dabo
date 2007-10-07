@@ -1054,10 +1054,10 @@ class dApp(dObject):
 
 
 	def _getPreferenceDialogClass(self):
-		return getattr(self, "_preferenceDialogClass", None)
+		return self.uiApp.PreferenceDialogClass
 
 	def _setPreferenceDialogClass(self, val):
-		self._preferenceDialogClass = val
+		self.uiApp.PreferenceDialogClass = val
 
 
 	def _getSearchDelay(self):
