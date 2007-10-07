@@ -485,10 +485,25 @@ class uiApp(dObject, wx.App):
 					dlgPref._stub()
 				except AttributeError:
 					pass
+				# Turn off AutoPersist for any of the dialog's preferenceKeys. Track those that 
+				# previously had it on, so we know which ones to revert afterwards.
+				keysToRevert = [pk for pk in dlgPref.preferenceKeys
+						if pk.AutoPersist]
+				for k in keysToRevert:
+					k.AutoPersist = False
 				dlgPref.show()
 				if dlgPref.Accepted:
-					if hasattr(dlgPref, "_onAccept"):
-						dlgPref._onAccept()
+					if hasattr(dlgPref, "_onAcceptPref"):
+						dlgPref._onAcceptPref()
+					for k in keysToRevert:
+						k.persist()
+						k.AutoPersist = True
+				else:
+					if hasattr(dlgPref, "_onCancelPref"):
+						dlgPref._onCancelPref()
+					for k in keysToRevert:
+						k.cancel()
+						k.AutoPersist = True
 				if dlgPref.Modal:
 					dlgPref.release()
 			else:

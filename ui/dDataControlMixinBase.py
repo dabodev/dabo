@@ -6,6 +6,7 @@ import dabo, dabo.ui
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.dObject import dObject
+from dabo.dPref import dPref
 from dabo.dLocalize import _
 
 
@@ -401,9 +402,9 @@ class dDataControlMixinBase(dabo.ui.dControlMixin):
 					# It's an object reference
 					self.__src = ds
 					self._srcIsInstanceMethod = False
-					if not isinstance(ds, dObject):
+					if not isinstance(ds, (dObject, dPref)):
 						# Warn about possible unsupported behavior.
-						dabo.infoLog.write(_("DataSource '%s' does not inherit from dObject. This may result in unsupported problems.") % ds)
+						dabo.infoLog.write(_("DataSource '%s' does not inherit from a proper Dabo class. This may result in unsupported problems.") % ds.__repr__())
 					else:
 						self._srcIsBizobj = isinstance(ds, dabo.biz.dBizobj)
 		return self.__src
