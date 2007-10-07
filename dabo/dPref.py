@@ -293,6 +293,7 @@ class dPref(object):
 				val.flushCache()
 			else:
 				del self._cache[key]
+	cancel = flushCache
 	
 	
 	def getPrefs(self, returnNested=False, key=None, asDataSet=False):
