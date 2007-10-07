@@ -37,9 +37,11 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 			# no such event, so we need to override the OnCellClicked event
 			self.OnCellClicked = self.__OnCellClicked
 
+
 	def _initEvents(self):
+		super(dHtmlBox, self)._initEvents()
 		self.bindEvent(dEvents.HtmlLinkClicked, self.__onLinkClicked)
-		self.super()
+
 
 	def __OnCellClicked(self, cell, x, y, evt):
 		self.raiseEvent(dEvents.HtmlLinkClicked, href=cell.GetLink().GetHref())

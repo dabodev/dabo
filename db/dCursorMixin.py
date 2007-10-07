@@ -189,7 +189,7 @@ class dCursorMixin(dObject):
 			pythonType = self._types.get(field_name, type(field_val))
 			daboType = dabo.db.getDaboType(pythonType)
 
-			if pythonType in (type(None), None) or isinstance(field_val, pythonType):
+			if pythonType is None or isinstance(field_val, pythonType):
 				# No conversion needed.
 				return ret
 
