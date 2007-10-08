@@ -479,12 +479,6 @@ class uiApp(dObject, wx.App):
 				dlgPref = self.PreferenceDialogClass()
 				if af:
 					af.fillPreferenceDialog(dlgPref)
-				try:
-					# By default, this adds stub language if the nothing else is defined 
-					# for the pref form.
-					dlgPref._stub()
-				except AttributeError:
-					pass
 				# Turn off AutoPersist for any of the dialog's preferenceKeys. Track those that 
 				# previously had it on, so we know which ones to revert afterwards.
 				keysToRevert = [pk for pk in dlgPref.preferenceKeys

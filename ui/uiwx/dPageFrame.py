@@ -71,10 +71,16 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 		self.raiseEvent(dEvents.MouseRightClick, evt)
 
 
+	def layout(self):
+		"""We need to force the control to adjust the list size."""
+		self.GetChildren()[0].InvalidateBestSize()
+		self.Layout()
+		
+
 	def SetPageText(self, pos, val):
 		super(dPageList, self).SetPageText(pos, val)
 		# Force the list to re-align the spacing
-		self.ListSpacing = self.ListSpacing
+		self.layout()
 		
 		
 	def _getListSpacing(self):

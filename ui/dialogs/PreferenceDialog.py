@@ -7,14 +7,11 @@ dayMins= 24*60
 
 
 class PreferenceDialog(dabo.ui.dOkCancelDialog):
-	def addControls(self):
-		"""Add the base PageList, and then delete this method from the 
-		namespace. Users will customize with addCategory() and then 
-		adding controls to the category page.
-		"""
+	def _afterInit(self):
+		self._includeDefaultPages = False
+		self.Size = (700, 600)
+		self.AutoSize = False
 		self.Caption = _("Preferences")
-		self.pglCategory = dabo.ui.dPageList(self, TabPosition="Left", Size=(500, 400))
-		self.Sizer.append1x(self.pglCategory)
 		# Set up a list of functions to call when the user clicks 'OK' to accept changes,
 		# and one for functions to call when the user cancels.
 		self.callOnAccept = []
@@ -23,8 +20,31 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		# off when the dialog is shown, and either canceled or persisted, depending
 		# on the user's action.
 		self.preferenceKeys = []
+		super(PreferenceDialog, self)._afterInit()
+	
+
+	def addControls(self):
+		"""Add the base PageList, and then delete this method from the 
+		namespace. Users will customize with addCategory() and then 
+		adding controls to the category page.
+		"""
+		self._addPages()
+# 		dabo.ui.callAfter(self.pglCategory.fitToSizer)
 		# Use this to 'delete' addControls() so that users don't try to use this method.
 		self.addControls = None
+	
+	
+	def _addPages(self):
+		self.pglCategory = dabo.ui.dPageList(self, TabPosition="Left",
+				ListSpacing=20)
+		self.addPages()
+		if self.pglCategory.PageCount == 0 or self.IncludeDefaultPages:
+			self._addDefaultPages()
+		self.Sizer.append1x(self.pglCategory)
+		self.layout()
+	
+	
+	def addPages(self): pass
 	
 	
 	def _onAcceptPref(self):
@@ -70,8 +90,10 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		return self.pglCategory.insertPage(pos, caption=category)
 	
 	
-	def _stub(self):
-		"""Called when no other code exists to fill the dialog."""
+	def _addDefaultPages(self):
+		"""Called when no other code exists to fill the dialog, or when
+		the class's IncludeDefaultPages is True.
+		"""
 		wuPage = self.pgWebUpdate = self.addCategory(_("Web Update"))
 		# Set the framework-level pref manager
 		fp = self.Application._frameworkPrefs
@@ -110,3 +132,18 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		ret = self.Application.checkForUpdates()
 		if ret:
 			dabo.ui.info(_("No updates are available now."), title=_("Web Updates"))
+	
+	def _getIncludeDefaultPages(self):
+		return self._includeDefaultPages
+
+	def _setIncludeDefaultPages(self, val):
+		if self._constructed():
+			self._includeDefaultPages = val
+		else:
+			self._properties["IncludeDefaultPages"] = val
+
+
+	IncludeDefaultPages = property(_getIncludeDefaultPages, _setIncludeDefaultPages, None,
+			_("""When True, the _addDefaultPages() method is called to add the common 
+			Dabo settings. Default=False  (bool)"""))
+	
