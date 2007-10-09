@@ -143,10 +143,6 @@ class uiApp(dObject, wx.App):
 		self._findDlgID = self._replaceDlgID = None
 		self.findReplaceData = None
 		self.findDialog = None
-		# Preference handler. We need the import here, because the UI module
-		# is not yet set up before this.
-		from dabo.ui.dialogs.PreferenceDialog import PreferenceDialog as PrefDialog
-		self._preferenceDialogClass = PrefDialog
 		# Atts used to manage MRU (Most Recently Used) menus.
 		self._mruMenuPrompts = {}
 		self._mruMenuFuncs = {}
@@ -489,15 +485,17 @@ class uiApp(dObject, wx.App):
 				if dlgPref.Accepted:
 					if hasattr(dlgPref, "_onAcceptPref"):
 						dlgPref._onAcceptPref()
-					for k in keysToRevert:
+					for k in dlgPref.preferenceKeys:
 						k.persist()
-						k.AutoPersist = True
+						if k in keysToRevert:
+							k.AutoPersist = True
 				else:
 					if hasattr(dlgPref, "_onCancelPref"):
 						dlgPref._onCancelPref()
-					for k in keysToRevert:
+					for k in dlgPref.preferenceKeys:
 						k.cancel()
-						k.AutoPersist = True
+						if k in keysToRevert:
+							k.AutoPersist = True
 				if dlgPref.Modal:
 					dlgPref.release()
 			else:
@@ -867,10 +865,10 @@ class uiApp(dObject, wx.App):
 	
 	
 	def _getPreferenceDialogClass(self):
-		return self._preferenceDialogClass
+		return self.dApp.PreferenceDialogClass
 
 	def _setPreferenceDialogClass(self, val):
-		self._preferenceDialogClass = val
+		self.dApp.PreferenceDialogClass = val
 
 
 	ActiveForm = property(_getActiveForm, _setActiveForm, None, 

@@ -1054,10 +1054,15 @@ class dApp(dObject):
 
 
 	def _getPreferenceDialogClass(self):
-		return self.uiApp.PreferenceDialogClass
+		try:
+			return self._preferenceDialogClass
+		except AttributeError:
+			# Use the default if they haven't set it
+			from dabo.ui.dialogs.PreferenceDialog import PreferenceDialog
+			return PreferenceDialog
 
 	def _setPreferenceDialogClass(self, val):
-		self.uiApp.PreferenceDialogClass = val
+		self._preferenceDialogClass = val
 
 
 	def _getSearchDelay(self):
