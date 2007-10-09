@@ -31,7 +31,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		adding controls to the category page.
 		"""
 		self._addPages()
-# 		dabo.ui.callAfter(self.pglCategory.fitToSizer)
+		dabo.ui.callAfter(self.update)
+		self.layout()
 		# Use this to 'delete' addControls() so that users don't try to use this method.
 		self.addControls = None
 	
@@ -121,10 +122,6 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 				ToolTipText=_("How often does the framework check for updates?"),
 				DynamicEnabled = lambda: self.chkForWebUpdates.Value)
 		sz.append(radFrequency, halign="center")
-		wui = self.Application.getWebUpdateInfo()
-		self.chkForWebUpdates.Value, self.radWebUpdateFrequency.Value = wui
-		dabo.ui.callAfter(self.update)
-		self.layout()
 	
 	
 	def onChkUpdate(self, evt):
@@ -152,9 +149,12 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 
 
 if __name__ == "__main__":
-	app = dabo.dApp(MainFormClass=None)
-	app.setup()
-	frm = PreferenceDialog()
-	frm.show()
+	class TestForm(dabo.ui.dForm):
+		def afterInit(self):
+			lbl = dabo.ui.dLabel(self, Caption="Preference Manager Demo\n" +
+				"Select 'Preferences' from the menu.", WordWrap=True)
+			self.Sizer.append(lbl, halign="center", border=20)
+
+	app = dabo.dApp(MainFormClass=TestForm)
 	app.start()
 	
