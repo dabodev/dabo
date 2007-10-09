@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import dabo
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 
 dayMins= 24*60
@@ -119,7 +121,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 				ToolTipText=_("How often does the framework check for updates?"),
 				DynamicEnabled = lambda: self.chkForWebUpdates.Value)
 		sz.append(radFrequency, halign="center")
-		self.chkForWebUpdates.Value, self.radWebUpdateFrequency.Value = self.Application.getWebUpdateInfo()
+		wui = self.Application.getWebUpdateInfo()
+		self.chkForWebUpdates.Value, self.radWebUpdateFrequency.Value = wui
 		dabo.ui.callAfter(self.update)
 		self.layout()
 	
@@ -146,4 +149,12 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 	IncludeDefaultPages = property(_getIncludeDefaultPages, _setIncludeDefaultPages, None,
 			_("""When True, the _addDefaultPages() method is called to add the common 
 			Dabo settings. Default=False  (bool)"""))
+
+
+if __name__ == "__main__":
+	app = dabo.dApp(MainFormClass=None)
+	app.setup()
+	frm = PreferenceDialog()
+	frm.show()
+	app.start()
 	
