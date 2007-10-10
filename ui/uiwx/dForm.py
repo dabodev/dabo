@@ -116,9 +116,11 @@ class BaseForm(fm.dFormMixin):
 		else:
 			dabo.ui.callAfterInterval(interval, self.__refresh)
 	def __refresh(self):
+		self.Freeze()
 		super(BaseForm, self).refresh()
-		
-		
+		self.Thaw()
+
+
 	def update(self, interval=None):
 		"""Updates the contained controls with current values from the source. 
 
@@ -432,6 +434,7 @@ class BaseForm(fm.dFormMixin):
 			# A False from confirmChanges means "don't proceed"
 			return
 
+		self.Freeze()
 		try:
 			busy = dabo.ui.busyInfo(_("Please wait... requerying dataset..."))
 			self.stopWatch.Start()
@@ -477,6 +480,7 @@ class BaseForm(fm.dFormMixin):
 
 		self.afterRequery()
 		self.refresh()
+		self.Thaw()
 		return ret
 		
 
