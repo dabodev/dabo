@@ -21,6 +21,8 @@ import dabo.dColors as dColors
 from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 
+# from dabo.lib.profilehooks import profile
+
 # See if the new decimal module is present. This is necessary
 # because if running under Python 2.4 or later and using MySQLdb,
 # some values will be returned as decimals, and we need to
@@ -47,6 +49,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.grid.setTableAttributes(self)
 
 
+# 	@profile
 	def GetAttr(self, row, col, kind=0):
 		## dColumn maintains one attribute object that applies to every row
 		## in the column. This can be extended later with optional cell-specific
@@ -77,20 +80,19 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 		# If a cell attr is set up, use it. Else, use the one set up for the column.
 		if dcol._gridCellAttrs:
-			attr = dcol._gridCellAttrs.get(row).Clone()
+			attr = dcol._gridCellAttrs.get(row, dcol._gridColAttr).Clone()
 		else:
 			attr = dcol._gridColAttr.Clone()
 
 		## Now, override with a custom renderer for this row/col if applicable.
 		## Note that only the renderer is handled here, as we are segfaulting when
 		## handling the editor here.
-		if dcol._customRenderers:
-			r = dcol.getRendererClassForRow(row)
-			if r is not None:
-				rnd = r()
-				attr.SetRenderer(rnd)
-				if r is dcol.floatRendererClass:
-					rnd.SetPrecision(dcol.Precision)
+		r = dcol.getRendererClassForRow(row)
+		if r is not None:
+			rnd = r()
+			attr.SetRenderer(rnd)
+			if r is dcol.floatRendererClass:
+				rnd.SetPrecision(dcol.Precision)
 		# Now check for alternate row coloration
 		if self.alternateRowColoring:
 			attr.SetBackgroundColour((self.rowColorEven, self.rowColorOdd)[row % 2])
@@ -630,7 +632,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def getRendererClassForRow(self, row):
 		"""Return the cell renderer class for the passed row."""
-		return self.CustomRenderers.get(row, self.RendererClass)
+		return self._customRenderers.get(row, self._rendererClass)
 
 
 	def _getHeaderRect(self):
@@ -730,7 +732,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			if editorClass in (wx.grid.GridCellChoiceEditor,):
 				kwargs["choices"] = self.ListEditorChoices
 			editor = editorClass(**kwargs)
-		if self._gridColAttr.GetEditor(self.Parent, 0, 0) != editor:
+		try:
+			curr = self._gridColAttr.GetEditor(self.Parent, 0, 0)
+		except:
+			curr = None
+		if curr != editor:
 			self._gridColAttr.SetEditor(editor)
 
 
@@ -744,7 +750,11 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		else:
 			self._rendererClass = rendClass
 			renderer = rendClass()
-		if self._gridColAttr.GetRenderer(self.Parent, 0, 0) != renderer:
+		try:
+			curr = self._gridColAttr.GetRenderer(self.Parent, 0, 0)
+		except:
+			curr = None
+		if curr != renderer:
 			self._gridColAttr.SetRenderer(renderer)
 
 
@@ -2786,7 +2796,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 	def refresh(self, sort=False):
 		if self._inRefreshDelay:
-			dabo.ui.callAfterInterval(500, self._clearRefreshDelay, sort)
+			dabo.ui.callAfterInterval(300, self._clearRefreshDelay, sort)
 			return
 		self._inRefreshDelay = True
 		if sort:
@@ -2798,7 +2808,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._syncColumnCount()
 		self._syncRowCount()
 		super(dGrid, self).refresh()
-		dabo.ui.callAfterInterval(500, self._clearRefreshDelay, False, recall=False)
+		dabo.ui.callAfterInterval(300, self._clearRefreshDelay, False, recall=False)
 
 
 	def _clearRefreshDelay(self, sort, recall=True):
