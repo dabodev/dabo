@@ -76,17 +76,21 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 			#  just empty - no columns or rows added yet)
 
 		# If a cell attr is set up, use it. Else, use the one set up for the column.
-		attr = dcol._gridCellAttrs.get(row, dcol._gridColAttr).Clone()
+		if dcol._gridCellAttrs:
+			attr = dcol._gridCellAttrs.get(row).Clone()
+		else:
+			attr = dcol._gridColAttr.Clone()
 
 		## Now, override with a custom renderer for this row/col if applicable.
 		## Note that only the renderer is handled here, as we are segfaulting when
 		## handling the editor here.
-		r = dcol.getRendererClassForRow(row)
-		if r is not None:
-			rnd = r()
-			attr.SetRenderer(rnd)
-			if r is dcol.floatRendererClass:
-				rnd.SetPrecision(dcol.Precision)
+		if dcol._customRenderers:
+			r = dcol.getRendererClassForRow(row)
+			if r is not None:
+				rnd = r()
+				attr.SetRenderer(rnd)
+				if r is dcol.floatRendererClass:
+					rnd.SetPrecision(dcol.Precision)
 		# Now check for alternate row coloration
 		if self.alternateRowColoring:
 			attr.SetBackgroundColour((self.rowColorEven, self.rowColorOdd)[row % 2])
@@ -214,7 +218,9 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 
 
 	def fillTable(self, force=False):
-		""" Fill the grid's data table to match the data set."""
+		""" Fill the grid's data table to match the data set. Returns the number
+		of rows in the table.
+		"""
 		_oldRowCount = self._oldRowCount
 
 		# Get the data from the grid.
@@ -226,7 +232,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		else:
 			dataSet = self.grid.DataSet
 			if dataSet is None:
-				return
+				return 0
 			_newRowCount = len(dataSet)
 			if _oldRowCount is None:
 				## still haven't tracked down why, but bizobj grids needed _oldRowCount
@@ -236,7 +242,7 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				_oldRowCount = 0
 
 		if _oldRowCount == _newRowCount and not force:
-			return
+			return _newRowCount
 
 		self.grid._syncRowCount()
 		# Column widths come from multiple places. In decreasing precedence:
@@ -267,23 +273,27 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 		self.grid.EndBatch()
 
 		self._oldRowCount = _newRowCount
+		return _newRowCount
 
 
 	# The following methods are required by the grid, to find out certain
 	# important details about the underlying table.
-	def GetNumberRows(self):
-		bizobj = self.grid.getBizobj()
-		if bizobj:
-			return bizobj.RowCount
-		try:
-			num = len(self.grid.DataSet)
-		except:
-			num = 0
-		return num
+# 	def GetNumberRows(self):
+# 		bizobj = self.grid.getBizobj()
+# 		if bizobj:
+# 			return bizobj.RowCount
+# 		try:
+# 			num = len(self.grid.DataSet)
+# 		except:
+# 			num = 0
+# 		return num
 
 
-	def GetNumberCols(self):
-		return self.grid.ColumnCount
+# 	def GetNumberCols(self, useNative=False):
+# 		if useNative:
+# 			return super(dGridDataTable, self).GetNumberCols()
+# 		else:
+# 			return self.grid.ColumnCount
 
 
 	def IsEmptyCell(self, row, col):
@@ -438,7 +448,12 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		self._wordWrap = False
 		# Is the column shown?
 		self._visible = True
-
+		# Holds the default renderer class for the column
+		self._rendererClass = None
+		# Custom editors/renderers
+		self._customRenderers = {}
+		self._customEditors = {}
+		
 		self._beforeInit()
 		kwargs["Parent"] = parent
 		# dColumn maintains one attr object that the grid table will use for
@@ -492,6 +507,9 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			"decimal" : self.decimalEditorClass,
 			"float" : self.floatEditorClass,
 			"list" : self.listEditorClass }
+
+		# Default to string renderer
+		self._rendererClass = self.stringRendererClass
 
 
 	def _afterInit(self):
@@ -601,28 +619,18 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def getListEditorChoicesForRow(self, row):
 		"""Return the list of choices for the list editor for the given row."""
-		choices = self.CustomListEditorChoices.get(row)
-		if choices is None:
-			choices = self.ListEditorChoices
-		return choices
+		return self.CustomListEditorChoices.get(row, self.ListEditorChoices)
 
 
 	def getEditorClassForRow(self, row):
 		"""Return the cell editor class for the passed row."""
 		d = self.CustomEditors
-		e = d.get(row)
-		if e is None:
-			e = self.EditorClass
-		return e
+		return d.get(row, self.EditorClass)
 
 
 	def getRendererClassForRow(self, row):
 		"""Return the cell renderer class for the passed row."""
-		d = self.CustomRenderers
-		r = d.get(row)
-		if r is None:
-			r = self.RendererClass
-		return r
+		return self.CustomRenderers.get(row, self.RendererClass)
 
 
 	def _getHeaderRect(self):
@@ -722,17 +730,22 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			if editorClass in (wx.grid.GridCellChoiceEditor,):
 				kwargs["choices"] = self.ListEditorChoices
 			editor = editorClass(**kwargs)
-		self._gridColAttr.SetEditor(editor)
+		if self._gridColAttr.GetEditor(self.Parent, 0, 0) != editor:
+			self._gridColAttr.SetEditor(editor)
 
 
 	def _updateRenderer(self):
 		"""The Field, DataType, or CustomRenderer has changed: set in the attr"""
-		rendClass = self.RendererClass
+		rendClass = self.CustomRendererClass
+		if rendClass is None:
+			rendClass = self.defaultRenderers.get(self.DataType)
 		if rendClass is None:
 			renderer = None
 		else:
+			self._rendererClass = rendClass
 			renderer = rendClass()
-		self._gridColAttr.SetRenderer(renderer)
+		if self._gridColAttr.GetRenderer(self.Parent, 0, 0) != renderer:
+			self._gridColAttr.SetRenderer(renderer)
 
 
 	def _onFontPropsChanged(self, evt):
@@ -1241,10 +1254,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 
 	def _getRendererClass(self):
-		v = self.CustomRendererClass
-		if v is None:
-			v = self.defaultRenderers.get(self.DataType)
-		return v
+		return self._rendererClass
 
 
 	def _getSearchable(self):
@@ -1331,12 +1341,19 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 
 	def _setWidth(self, val):
 		if self._constructed():
+			try:
+				if val == self._width:
+					return
+			except AttributeError:
+				pass
 			self._width = val
-			if self.Parent:
+			grd = self.Parent
+			if grd:
+				grd._syncColumnCount()
 				idx = self._GridColumnIndex
 				if idx >= 0:
 					# Change the size in the wx grid:
-					self.Parent.SetColSize(idx, val)
+					grd.SetColSize(idx, val)
 					self.Parent.refresh(sort=False)
 		else:
 			self._properties["Width"] = val
@@ -1596,6 +1613,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._sortRestored = False
 		# Internal flag to determine if refresh should be called after sorting.
 		self._refreshAfterSort = True
+		# Flag to help optimize refresh() calls.
+		self._inRefreshDelay = False
+		# Local count of rows in the data table
+		self._tableRows = 0
 
 		# Used to provide 'data' when the DataSet is empty.
 		self.emptyRowsToAdd = 0
@@ -1877,7 +1898,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			# Used for display purposes when no data is present.
 			self._addEmptyRows()
 		tbl.setColumns(self.Columns)
-		tbl.fillTable(force)
+		self._tableRows = tbl.fillTable(force)
 
 		if not self._sortRestored:
 			dabo.ui.callAfter(self._restoreSort)
@@ -2764,6 +2785,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def refresh(self, sort=False):
+		if self._inRefreshDelay:
+			dabo.ui.callAfterInterval(500, self._clearRefreshDelay, sort)
+			return
+		self._inRefreshDelay = True
 		if sort:
 			ref = self._refreshAfterSort
 			self._refreshAfterSort = False
@@ -2773,6 +2798,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._syncColumnCount()
 		self._syncRowCount()
 		super(dGrid, self).refresh()
+		dabo.ui.callAfterInterval(500, self._clearRefreshDelay, False, recall=False)
+
+
+	def _clearRefreshDelay(self, sort, recall=True):
+		self._inRefreshDelay = False
+		if recall:
+			self.refresh(sort)
 
 
 	def update(self):
@@ -2827,14 +2859,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if diff < 0:
 			msg = wx.grid.GridTableMessage(self._Table,
 					wx.grid.GRIDTABLE_NOTIFY_ROWS_DELETED,
-					0,
-					abs(diff))
-
+					0, abs(diff))
 		elif diff > 0:
 			msg = wx.grid.GridTableMessage(self._Table,
 					wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,
 					diff)
-
 		if msg:
 			self.ProcessTableMessage(msg)
 		self.EndBatch()
@@ -3100,8 +3129,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					##     unneccesary.
 					#self.SetGridCursor(0,0)
 					pass
-			if self.Form is not None:
-				dabo.ui.callAfter(self.Form.update)
 		dabo.ui.callAfter(self._updateSelection)
 
 
@@ -3932,7 +3959,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getRowCount(self):
-		return self._Table.GetNumberRows()
+		return self._tableRows
 
 
 	def _getRowHeight(self):
