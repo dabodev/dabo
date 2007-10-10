@@ -22,6 +22,7 @@ from dabo.dObject import dObject
 from dabo.ui import makeDynamicProperty
 
 # from dabo.lib.profilehooks import profile
+# from dabo.dBug import loggit
 
 # See if the new decimal module is present. This is necessary
 # because if running under Python 2.4 or later and using MySQLdb,
@@ -301,11 +302,10 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def IsEmptyCell(self, row, col):
 		if row >= self.grid.RowCount:
 			return True
-
 		bizobj = self.grid.getBizobj()
 		field = self.grid.Columns[col].DataField
 		if bizobj:
-			if field:
+			if field and (row < bizobj.RowCount):
 				return not bizobj.getFieldVal(field, row)
 			else:
 				return True
@@ -324,16 +324,13 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 	def GetValue(self, row, col):
 		if row >= self.grid.RowCount:
 			return ""
-
 		bizobj = self.grid.getBizobj()
 		col_obj = self.grid.Columns[col]
 		field = col_obj.DataField
-
 		dabo.ui.callAfterInterval(200, col_obj._updateDynamicProps)
 		dabo.ui.callAfterInterval(200, col_obj._updateCellDynamicProps, row)
-
 		if bizobj:
-			if field:
+			if field and (row < bizobj.RowCount):
 				ret = bizobj.getFieldVal(field, row)
 			else:
 				ret = ""
@@ -342,7 +339,6 @@ class dGridDataTable(wx.grid.PyGridTableBase):
 				ret = self.grid.DataSet[row][field]
 			except:
 				ret = ""
-
 		if ret is None:
 			ret = self.grid.NoneDisplay
 		return ret
@@ -2045,7 +2041,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				cap = keyCaption[colKey]
 			except:
 				cap = colKey
-			col = self.addColumn()
+			col = self.addColumn(inBatch=True)
 			col.Caption = cap
 			col.DataField = colKey
 
@@ -2795,10 +2791,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def refresh(self, sort=False):
-		if self._inRefreshDelay:
-			dabo.ui.callAfterInterval(300, self._clearRefreshDelay, sort)
-			return
+# 		if self._inRefreshDelay:
+# 			dabo.ui.callAfterInterval(300, self._clearRefreshDelay, sort)
+# 			return
 		self._inRefreshDelay = True
+		self.Freeze()
 		if sort:
 			ref = self._refreshAfterSort
 			self._refreshAfterSort = False
@@ -2808,13 +2805,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._syncColumnCount()
 		self._syncRowCount()
 		super(dGrid, self).refresh()
-		dabo.ui.callAfterInterval(300, self._clearRefreshDelay, False, recall=False)
+# 		dabo.ui.callAfterInterval(300, self._clearRefreshDelay, False, recall=False)
+		self.Thaw()
 
 
-	def _clearRefreshDelay(self, sort, recall=True):
-		self._inRefreshDelay = False
-		if recall:
-			self.refresh(sort)
+# 	def _clearRefreshDelay(self, sort, recall=True):
+# 		self._inRefreshDelay = False
+# 		if recall:
+# 			self.refresh(sort)
 
 
 	def update(self):
@@ -2842,7 +2840,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	def _syncColumnCount(self):
 		"""Sync wx's rendition of column count with our self.ColumnCount"""
 		msg = None
-		self.BeginBatch()
 		wxColumnCount = self.GetNumberCols()
 		daboColumnCount = len(self.Columns)
 		diff = daboColumnCount - wxColumnCount
@@ -2855,14 +2852,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
 					diff)
 		if msg:
+			self.BeginBatch()
 			self.ProcessTableMessage(msg)
-		self.EndBatch()
+			dabo.ui.callAfterInterval(50, self._endBatch)
 
 
 	def _syncRowCount(self):
 		"""Sync wx's rendition of row count with our self.RowCount"""
 		msg = None
-		self.BeginBatch()
 		wxRowCount = self.GetNumberRows()
 		daboRowCount = self.RowCount
 		diff = daboRowCount - wxRowCount
@@ -2875,8 +2872,14 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,
 					diff)
 		if msg:
+			self.BeginBatch()
 			self.ProcessTableMessage(msg)
-		self.EndBatch()
+			dabo.ui.callAfterInterval(50, self._endBatch)
+
+
+	def _endBatch(self):
+		for ii in xrange(self.GetBatchCount()):
+			self.EndBatch()
 
 
 	def _getDefaultGridColAttr(self):
@@ -3268,7 +3271,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if getattr(self, "_inSelect", False):
 			# Avoid recursion
 			return
-
 		if self.ColumnCount == 0:
 			# Grid is not fully constructed yet
 			return
@@ -3276,13 +3278,13 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if col.Editable and col.RendererClass == col.boolRendererClass:
 			# user is clicking on a checkbox
 			wx.CallAfter(self.EnableCellEditControl)
-
 		self._inSelect = True
 		if evt.Selecting():
 			self._updateWxSelection(evt)
 		self.raiseEvent(dEvents.GridCellSelected, evt)
 		self._lastRow, self._lastCol = evt.GetRow(), evt.GetCol()
-		evt.Skip()
+		if not sys.platform.startswith("win"):
+			evt.Skip()
 		self._inSelect = False
 
 
