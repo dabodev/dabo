@@ -96,7 +96,7 @@ class dDateTextBox(dTextBox):
 			self.calButton.bindEvent(dEvents.Hit, self.onDblClick)
 			
 		# Tooltip help
-		self.ToolTipText = """Available Keys:
+		self._defaultToolTipText = """Available Keys:
 =============
 T : Today
 + : Up One Day
@@ -109,20 +109,26 @@ Y : First Day of Year
 R : Last Day of yeaR
 C: Popup Calendar to Select
 """
-	
+		self.DynamicToolTipText = lambda: {True: self._defaultToolTipText, 
+				False: None}[self.Enabled and not self.ReadOnly]
+
+
 	def initEvents(self):
 		super(dDateTextBox, self).initEvents()
 		self.bindEvent(dEvents.KeyChar, self.__onChar)
 		self.bindEvent(dEvents.LostFocus, self.__onLostFocus)
 		self.bindEvent(dEvents.MouseLeftDoubleClick, self.__onDblClick)
 	
-		
+	
 	def __onDblClick(self, evt):
 		""" Display a calendar to allow users to select dates."""
 		self.showCalendar()
 		
 		
 	def showCalendar(self):
+		if self.ReadOnly:
+			# ignore
+			return
 		availHt = self.Parent.Bottom - self.Bottom
 		try:
 			self.calPanel.cal.Date = self.Value
@@ -169,7 +175,7 @@ C: Popup Calendar to Select
 		if self.ampm:
 			dateEntryKeys + "apm"
 		
-		if key in shortcutKeys:
+		if key in shortcutKeys and not self.ReadOnly:
 			# There is a conflict if the key, such as '-', is used in both the 
 			# date formatting and as a shortcut. So let's check the text
 			# of this field to see if it is a full date or if the user is typing in
