@@ -1645,8 +1645,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# Flag to indicate we are in a range selection event
 		self._inRangeSelect = False
 		# Flag to indicate we are in a selection update event
-		self._inUpdateSelection = True
-
+		self._inUpdateSelection = False
 
 		# These hold the values that affect row/col hiliting
 		self._selectionForeColor = "black"
@@ -3268,7 +3267,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def __onWxGridSelectCell(self, evt):
-		if getattr(self, "_inSelect", False):
+		if getattr(self, "_inSelect", False) or getattr(self, "_inUpdateSelection", False):
 			# Avoid recursion
 			return
 		if self.ColumnCount == 0:
