@@ -1612,6 +1612,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# Local count of rows in the data table
 		self._tableRows = 0
 
+		# When user selects new row, does the form have responsibility for making the change?
+		self._mediateRowNumberThroughForm = True
+
 		# Used to provide 'data' when the DataSet is empty.
 		self.emptyRowsToAdd = 0
 
@@ -3091,7 +3094,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			bizobj = self.getBizobj()
 			if bizobj:
 				if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
-					if isinstance(self.Form, dabo.ui.dForm) and not isinstance(self.DataSource, dabo.biz.dBizobj):
+					if self._mediateRowNumberThroughForm and isinstance(self.Form, dabo.ui.dForm) and not isinstance(self.DataSource, dabo.biz.dBizobj):
 						# run it through the form:
 						if not self.Form.moveToRowNumber(newRow, bizobj.DataSource):
 							dabo.ui.callAfter(self.refresh)
