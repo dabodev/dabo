@@ -728,12 +728,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 			if editorClass in (wx.grid.GridCellChoiceEditor,):
 				kwargs["choices"] = self.ListEditorChoices
 			editor = editorClass(**kwargs)
-		try:
-			curr = self._gridColAttr.GetEditor(self.Parent, 0, 0)
-		except:
-			curr = None
-		if curr != editor:
-			self._gridColAttr.SetEditor(editor)
+		self._gridColAttr.SetEditor(editor)
 
 
 	def _updateRenderer(self):
@@ -746,12 +741,7 @@ class dColumn(dabo.ui.dPemMixinBase.dPemMixinBase):
 		else:
 			self._rendererClass = rendClass
 			renderer = rendClass()
-		try:
-			curr = self._gridColAttr.GetRenderer(self.Parent, 0, 0)
-		except:
-			curr = None
-		if curr != renderer:
-			self._gridColAttr.SetRenderer(renderer)
+		self._gridColAttr.SetRenderer(renderer)
 
 
 	def _onFontPropsChanged(self, evt):
@@ -1619,8 +1609,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		self._sortRestored = False
 		# Internal flag to determine if refresh should be called after sorting.
 		self._refreshAfterSort = True
-		# Flag to help optimize refresh() calls.
-		self._inRefreshDelay = False
 		# Local count of rows in the data table
 		self._tableRows = 0
 
@@ -2595,8 +2583,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		# there are more efficient search algorithms, but for this purpose, we'll
 		# just use brute force
 		for fldval, row in sortList:
-# 			if not isinstance(fldval, basestring):
-# 				fldval = str(fldval)
 			if not compString or caseSensitive:
 				match = (fldval == srchStr)
 			else:
@@ -2790,28 +2776,17 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def refresh(self, sort=False):
-# 		if self._inRefreshDelay:
-# 			dabo.ui.callAfterInterval(300, self._clearRefreshDelay, sort)
-# 			return
-		self._inRefreshDelay = True
 		self.Freeze()
 		if sort:
 			ref = self._refreshAfterSort
 			self._refreshAfterSort = False
 			self._restoreSort()
 			self._refreshAfterSort = ref
-		self._syncCurrentRow()
 		self._syncColumnCount()
 		self._syncRowCount()
+		self._syncCurrentRow()
 		super(dGrid, self).refresh()
-# 		dabo.ui.callAfterInterval(300, self._clearRefreshDelay, False, recall=False)
 		self.Thaw()
-
-
-# 	def _clearRefreshDelay(self, sort, recall=True):
-# 		self._inRefreshDelay = False
-# 		if recall:
-# 			self.refresh(sort)
 
 
 	def update(self):
@@ -2831,9 +2806,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 		Has no effect if the grid's DataSource isn't a link to a bizobj.
 		"""
-		bizobj = self.getBizobj()
-		if bizobj:
-			self.CurrentRow = bizobj.RowNumber
+		try:
+			self.CurrentRow = self.getBizobj().RowNumber
+		except AttributeError:
+			pass
 
 
 	def _syncColumnCount(self):
@@ -2851,9 +2827,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					wx.grid.GRIDTABLE_NOTIFY_COLS_APPENDED,
 					diff)
 		if msg:
-			self.BeginBatch()
 			self.ProcessTableMessage(msg)
-			dabo.ui.callAfterInterval(50, self._endBatch)
 
 
 	def _syncRowCount(self):
@@ -2871,14 +2845,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 					wx.grid.GRIDTABLE_NOTIFY_ROWS_APPENDED,
 					diff)
 		if msg:
-			self.BeginBatch()
 			self.ProcessTableMessage(msg)
-			dabo.ui.callAfterInterval(50, self._endBatch)
-
-
-	def _endBatch(self):
-		for ii in xrange(self.GetBatchCount()):
-			self.EndBatch()
 
 
 	def _getDefaultGridColAttr(self):
@@ -2899,6 +2866,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			settingName = "%s.%s.%s" % (form.Name, self.Name, prop)
 			ret = app.getUserSetting(settingName)
 		return ret
+
 
 	def _setUserSetting(self, prop, val):
 		"""Persist the value of prop to the user settings table."""
@@ -3724,9 +3692,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if self.DataSource is not None:
 			ret = None
 			bo = self.getBizobj()
-			if bo:
-				ret = bo.getDataSet()
-			else:
+			try:
+				ret = self.getBizobj().getDataSet()
+			except AttributeError:
 				# See if the DataSource is a reference
 				try:
 					ret = eval(self.DataSource)
@@ -3749,8 +3717,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 				val = dabo.db.dDataSet(val)
 			self._dataSet = val
 			dabo.ui.callAfter(self.refresh)
-			biz = self.getBizobj()
-			if biz:
+			if self.getBizobj():
 				## I think I want to have the bizobj raise the RowNumChanged event,
 				## but for now this will suffice:
 				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
@@ -3798,10 +3765,9 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getEncoding(self):
-		bo = self.getBizobj()
-		if bo is not None:
-			ret = bo.Encoding
-		else:
+		try:
+			ret = self.getBizobj().Encoding
+		except AttributeError:
 			ret = self.Application.Encoding
 		return ret
 
@@ -3970,6 +3936,10 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 
 
 	def _getRowCount(self):
+		try:
+			self._tableRows = self.getBizobj().RowCount
+		except AttributeError:
+			pass
 		return self._tableRows
 
 
