@@ -267,7 +267,8 @@ class BaseForm(fm.dFormMixin):
 		else:
 			if biz.RowNumber != oldRowNum:
 				# Notify listeners that the row number changed:
-				dabo.ui.callAfter(self.raiseEvent, dEvents.RowNumChanged)
+				dabo.ui.callAfter(self.raiseEvent, dEvents.RowNumChanged, 
+						newRowNumber=biz.RowNumber, oldRowNumber=oldRowNum)
 			self.update()
 		self.afterPointerMove()
 		self.refresh()
