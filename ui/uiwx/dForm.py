@@ -232,17 +232,23 @@ class BaseForm(fm.dFormMixin):
 
 	def moveToRowNumber(self, rowNumber, dataSource=None):
 		""" Move the record pointer to the specified row."""
-		bizobj = self.getBizobj(dataSource)
+		if isinstance(dataSource, dabo.biz.dBizobj):
+			bizobj = dataSource
+		else:
+			bizobj = self.getBizobj(dataSource)
 		if bizobj is None:
 			# Running in preview or some other non-live mode
 			return
-		return self._moveRecordPointer(bizobj.moveToRowNumber, dataSource, rowNumber)
+		return self._moveRecordPointer(bizobj.moveToRowNumber, dataSource=bizobj, 
+				rowNumber=rowNumber)
 
 
 	def _moveRecordPointer(self, func, dataSource=None, *args, **kwargs):
 		""" Move the record pointer using the specified function."""
-		
-		biz = self.getBizobj(dataSource)
+		if isinstance(dataSource, dabo.biz.dBizobj):
+			biz = dataSource
+		else:
+			biz = self.getBizobj(dataSource)
 		oldRowNum = biz.RowNumber
 
 		self.activeControlValid()
@@ -268,7 +274,8 @@ class BaseForm(fm.dFormMixin):
 			if biz.RowNumber != oldRowNum:
 				# Notify listeners that the row number changed:
 				dabo.ui.callAfter(self.raiseEvent, dEvents.RowNumChanged, 
-						newRowNumber=biz.RowNumber, oldRowNumber=oldRowNum)
+						newRowNumber=biz.RowNumber, oldRowNumber=oldRowNum,
+						bizobj=biz)
 			self.update()
 		self.afterPointerMove()
 		self.refresh()
@@ -425,6 +432,7 @@ class BaseForm(fm.dFormMixin):
 		if bizobj is None:
 			# Running in preview or some other non-live mode
 			return
+		oldRowNumber = bizobj.RowNumber
 		self.activeControlValid()
 
 		err = self.beforeRequery()
@@ -447,8 +455,14 @@ class BaseForm(fm.dFormMixin):
 			self.update()
 			del busy
 
-			# Notify listeners that the row number changed:
-			self.raiseEvent(dEvents.RowNumChanged)
+			newRowNumber = bizobj.RowNumber
+			if newRowNumber != oldRowNumber:
+				# Notify listeners that the row number changed:
+				self.raiseEvent(dEvents.RowNumChanged,
+						newRowNumber=newRowNumber, oldRowNumber=oldRowNumber,
+						bizobj=bizobj)
+
+
 			# We made it through without errors
 			ret = True
 		

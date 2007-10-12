@@ -1987,7 +1987,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 		if colTypes is None:
 			colTypes = {}
 
-		if isinstance(ds, basestring):
+		if isinstance(ds, basestring) or isinstance(ds, dabo.biz.dBizobj):
 			# Assume it is a bizobj datasource.
 			if self.DataSource != ds:
 				self.DataSource = ds
@@ -2773,7 +2773,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			form = self.Form
 			while form is not None:
 				if hasattr(form, "getBizobj"):
-					return form.getBizobj(ds)
+					newDS = form.getBizobj(ds)
+					if isinstance(newDS, dabo.biz.dBizobj):
+						# Store the reference
+						self._dataSource = newDS
+					return newDS
 				form = form.Form
 		return None
 
@@ -2886,10 +2890,11 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	##----------------------------------------------------------##
 	def __onRowNumChanged(self, evt):
 		# The form reports that the rownum has changed: sync the grid CurrentRow
-		try:
-			self.CurrentRow = evt.newRowNumber
-		except AttributeError:
-			pass
+		if evt.bizobj is self.getBizobj():
+			try:
+				self.CurrentRow = evt.newRowNumber
+			except AttributeError:
+				pass
 
 
 	def _onGridCellEdited(self, evt):
@@ -3097,7 +3102,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			bizobj = self.getBizobj()
 			if bizobj:
 				if bizobj.RowCount > newRow and bizobj.RowNumber != newRow:
-					if self._mediateRowNumberThroughForm and isinstance(self.Form, dabo.ui.dForm) and not isinstance(self.DataSource, dabo.biz.dBizobj):
+					if self._mediateRowNumberThroughForm and isinstance(self.Form, dabo.ui.dForm):
 						# run it through the form:
 						if not self.Form.moveToRowNumber(newRow, bizobj.DataSource):
 							dabo.ui.callAfter(self.refresh)
