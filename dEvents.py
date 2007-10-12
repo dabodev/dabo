@@ -93,7 +93,7 @@ class dEvent(dObject):
 		if eventName not in noLogEvents:
 			for logEventName in logEvents:
 				if logEventName.lower() == "all" or logEventName == eventName:
-					dabo.infoLog.write("dEvent Fired: %s %s" %
+					dabo.eventLog.write("dEvent Fired: %s %s" %
 							(self._eventObject.getAbsoluteName(),
 							self.__class__.__name__,))
 					break
