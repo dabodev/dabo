@@ -137,6 +137,10 @@ infoLog.LogObject = sys.stdout
 errorLog = Log()
 errorLog.Caption = "Dabo Error Log"
 errorLog.LogObject = sys.stderr
+# Create a separate log reference for event tracking.
+eventLog = Log()
+eventLog.Caption = "Dabo Event Log"
+eventLog.LogObject = sys.stdout
 # This log is set to None by default. It must be manually activated 
 # via the Application object.
 dbActivityLog = Log()
