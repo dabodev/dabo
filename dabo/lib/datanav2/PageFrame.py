@@ -45,17 +45,25 @@ class PageFrameMixin(object):
 		page = self.addPage(self.Form.EditPageClass, caption, "edit")
 		page.DataSource = ds
 		self.dsEditPages[ds] = self.PageCount - 1
-	
-	
+
+
 	def editByDataSource(self, ds):
+		if isinstance(ds, dabo.biz.dBizobj):
+			ds = ds.DataSource
 		self.SelectedPage = self.dsEditPages[ds]
 
+
 	def newByDataSource(self, ds):
+		if isinstance(ds, dabo.biz.dBizobj):
+			ds = ds.DataSource
 		self.Form.new(ds)
 		self.SelectedPage = self.dsEditPages[ds]
 		self.SelectedPage.update()
-		
+
+
 	def deleteByDataSource(self, ds):
+		if isinstance(ds, dabo.biz.dBizobj):
+			ds = ds.DataSource
 		self.Form.delete(ds)	
 
 
