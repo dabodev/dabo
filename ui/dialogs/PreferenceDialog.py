@@ -3,6 +3,7 @@ import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
+from dabo.ui.dialogs.HotKeyEditor import HotKeyEditor
 
 dayMins= 24*60
 
@@ -10,7 +11,8 @@ dayMins= 24*60
 
 class PreferenceDialog(dabo.ui.dOkCancelDialog):
 	def _afterInit(self):
-		self._includeDefaultPages = False
+		self._includeDefaultPages = True
+		self._includeFrameworkPages = False
 		self.Size = (700, 600)
 		self.AutoSize = False
 		self.Caption = _("Preferences")
@@ -41,8 +43,11 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		self.pglCategory = dabo.ui.dPageList(self, TabPosition="Left",
 				ListSpacing=20)
 		self.addPages()
-		if self.pglCategory.PageCount == 0 or self.IncludeDefaultPages:
+		incl = self.pglCategory.PageCount == 0
+		if incl or self.IncludeDefaultPages:
 			self._addDefaultPages()
+		if incl or self.IncludeFrameworkPages:
+			self._addFrameworkPages()
 		self.Sizer.append1x(self.pglCategory)
 		self.layout()
 	
@@ -95,7 +100,121 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 	
 	def _addDefaultPages(self):
 		"""Called when no other code exists to fill the dialog, or when
-		the class's IncludeDefaultPages is True.
+		the class's IncludeDefaultPages property is True.
+		"""
+		try:
+			mb = self.Application.ActiveForm.MenuBar
+			menuOK = True
+		except:
+			menuOK = False
+		if menuOK:
+			pm = self.PreferenceManager.menu
+			self.preferenceKeys.append(pm)
+			menuPage = self.pgMenuKeys = self.addCategory(_("Menu Keys"))
+			self._selectedItem = None	
+			menuPage.Sizer.Orientation = "H"
+			tree = dabo.ui.dTreeView(menuPage, OnTreeSelection=self._onMenuTreeSelection)
+			root = tree.setRootNode(_("Menu"))
+			for mn in mb.Children:
+				cap = self._cleanMenuCaption(mn.Caption, "&")
+				prefcap = self._cleanMenuCaption(mn.Caption)
+				nd = root.appendChild(cap)
+				nd.pref = pm
+				nd.hotkey = "n/a"
+				nd.object = mn
+				menukey = pm.get(prefcap)
+				self._recurseMenu(mn, nd, menukey)
+			menuPage.Sizer.append1x(tree, border=10)
+			root.expand()
+			
+			sz = dabo.ui.dGridSizer(MaxCols=2, HGap=5, VGap=10)
+			lbl = dabo.ui.dLabel(menuPage, Caption=_("Current Key:"))
+			txt = dabo.ui.dTextBox(menuPage, ReadOnly=True, Alignment="Center",
+					RegID="txtMenuCurrentHotKey")
+			sz.append(lbl, halign="right")
+			sz.append(txt)
+			sz.appendSpacer(1)
+			btn = dabo.ui.dButton(menuPage, Caption=_("Set Key..."),
+					OnHit=self._setHotKey, DynamicEnabled=self._canSetHotKey)
+			sz.append(btn)
+			sz.appendSpacer(1)
+			btn = dabo.ui.dButton(menuPage, Caption=_("Clear Key"),
+					OnHit=self._clearHotKey, DynamicEnabled=self._canClearHotKey)
+			sz.append(btn)
+			menuPage.Sizer.append1x(sz, border=10)
+
+
+	def _recurseMenu(self, mn, nd, pref):
+		""" mn is the menu; nd is the tree node for that menu; pref is the pref key for the menu."""
+		for itm in mn.Children:
+			native = True
+			try:
+				cap = self._cleanMenuCaption(itm.Caption, "&")
+				prefcap = self._cleanMenuCaption(itm.Caption)
+			except:
+				# A separator line
+				continue
+			kidnode = nd.appendChild(cap)
+			if itm.Children:
+				subpref = pref.get(prefcap)
+				self._recurseMenu(itm, kidnode, subpref)
+			else:
+				kidnode.hotkey = itm.HotKey
+				kidnode.pref = pref
+				kidnode.object = itm
+
+	
+	def _onMenuTreeSelection(self, evt):
+		self._selectedItem = nd = evt.selectedNode
+		if nd.IsRootNode:
+			return
+		if nd.hotkey == "n/a":
+			self.txtMenuCurrentHotKey.Value = ""
+		else:
+			self.txtMenuCurrentHotKey.Value = nd.hotkey
+		self.update()
+	
+	
+	def _setHotKey(self, evt):
+		dlg = HotKeyEditor(self)
+		itm = self._selectedItem
+		dlg.setKey(itm.hotkey)
+		dlg.show()
+		if dlg.Accepted:
+			hk = dlg.KeyText
+			self.txtMenuCurrentHotKey.Value = itm.hotkey = itm.object.HotKey = hk
+			itm.pref.setValue(self._cleanMenuCaption(itm.Caption), hk)
+		dlg.release()
+
+
+	def _canSetHotKey(self):
+		itm = self._selectedItem
+		return (itm is not None) and (itm.hotkey != "n/a")
+	
+	
+	def _clearHotKey(self, evt):
+		itm = self._selectedItem
+		self.txtMenuCurrentHotKey.Value = itm.hotkey = itm.object.HotKey = None
+		itm.pref.setValue(self._cleanMenuCaption(itm.Caption), None)
+		
+
+	def _canClearHotKey(self):
+		itm = self._selectedItem
+		return (itm is not None) and (itm.hotkey not in ("n/a", None))
+	
+	
+	def _cleanMenuCaption(self, cap, bad=None):
+		if bad is None:
+			bad = "&. "
+		ret = cap
+		for ch in bad:
+			ret = ret.replace(ch, "")
+		return ret
+	
+	
+	def _addFrameworkPages(self):
+		"""Called when no other code exists to fill the dialog, or when
+		the class's IncludeFrameworkPages property is True.
 		"""
 		wuPage = self.pgWebUpdate = self.addCategory(_("Web Update"))
 		# Set the framework-level pref manager
@@ -143,8 +262,22 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 			self._properties["IncludeDefaultPages"] = val
 
 
+	def _getIncludeFrameworkPages(self):
+		return self._includeFrameworkPages
+
+	def _setIncludeFrameworkPages(self, val):
+		if self._constructed():
+			self._includeFrameworkPages = val
+		else:
+			self._properties["IncludeFrameworkPages"] = val
+
+
 	IncludeDefaultPages = property(_getIncludeDefaultPages, _setIncludeDefaultPages, None,
 			_("""When True, the _addDefaultPages() method is called to add the common 
+			Dabo settings. Default=True  (bool)"""))
+
+	IncludeFrameworkPages = property(_getIncludeFrameworkPages, _setIncludeFrameworkPages, None,
+			_("""When True, the _addFrameworkPages() method is called to add the common 
 			Dabo settings. Default=False  (bool)"""))
 
 
