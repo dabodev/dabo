@@ -280,16 +280,16 @@ class dShell(dSplitForm):
 		viewMenu = self.MenuBar.getMenu(_("View"))
 		if viewMenu.Children:
 			viewMenu.appendSeparator()
-		viewMenu.append(_("Zoom &In\tCtrl+="), OnHit=self.onViewZoomIn, 
+		viewMenu.append(_("Zoom &In"), HotKey="Ctrl+=", OnHit=self.onViewZoomIn, 
 				bmp="zoomIn", help=_("Zoom In"))
-		viewMenu.append(_("&Normal Zoom\tCtrl+/"), OnHit=self.onViewZoomNormal, 
+		viewMenu.append(_("&Normal Zoom"), HotKey="Ctrl+/", OnHit=self.onViewZoomNormal, 
 				bmp="zoomNormal", help=_("Normal Zoom"))
-		viewMenu.append(_("Zoom &Out\tCtrl+-"), OnHit=self.onViewZoomOut, 
+		viewMenu.append(_("Zoom &Out"), HotKey="Ctrl+-", OnHit=self.onViewZoomOut, 
 				bmp="zoomOut", help=_("Zoom Out"))
 		editMenu = self.MenuBar.getMenu(_("Edit"))
 		if editMenu.Children:
 			editMenu.appendSeparator()
-		editMenu.append(_("Clear O&utput\tCtrl+Back"), 
+		editMenu.append(_("Clear O&utput"), HotKey="Ctrl+Back", 
 				OnHit=self.onClearOutput, help=_("Clear Output Window"))
 		
 		
