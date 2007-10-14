@@ -3,7 +3,11 @@ import wx
 import dabo
 
 key_Alt = wx.WXK_ALT
-key_Command = wx.WXK_COMMAND
+try:
+	# Versions < 2.8 don't have this
+	key_Command = wx.WXK_COMMAND
+except:
+	key_Command = None
 key_Back = wx.WXK_BACK
 key_Tab = wx.WXK_TAB
 key_Return = wx.WXK_RETURN
@@ -119,7 +123,11 @@ key_Windows_menu = wx.WXK_WINDOWS_MENU
 mod_Alt = wx.ACCEL_ALT
 mod_Shift = wx.ACCEL_SHIFT
 mod_Ctrl = wx.ACCEL_CTRL
-mod_Cmd = wx.ACCEL_CMD
+try:
+	# Versions < 2.8 don't have this
+	mod_Cmd = wx.ACCEL_CMD
+except:
+	mod_Cmd = None
 mod_Normal = wx.ACCEL_NORMAL
 
 arrowKeys = {
