@@ -88,7 +88,10 @@ class dPageList(dPageFrameMixin, wx.Listbook):
 
 	def _setListSpacing(self, val):
 		if self._constructed():
-			self.GetChildren()[0].SetItemSpacing(val)
+			try:
+				self.GetChildren()[0].SetItemSpacing(val)
+			except AttributeError:
+				dabo.errorLog.write(_("ListSpacing is not supported in wxPython %s") % wx.__version__)
 		else:
 			self._properties["ListSpacing"] = val
 
