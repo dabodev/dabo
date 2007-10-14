@@ -21,7 +21,7 @@ except ImportError:
 regularAtts = ("AutoPersist", "__base__", "__bases__", "__basicsize__", "__call__", 
 		"__cmp__", "_deletionCache", "__dictoffset__", "__flags__", "__itemsize__", 
 		"__members__", "__methods__", "__mro__", "__name__", "__subclasses__", 
-		"__weakrefoffset__", "_autoPersist", "_cache", "_cursor", "_cxn", 
+		"__weakrefoffset__", "_autoPersist", "_cache", "_cursor", "_cxn", "get",
 		"_getAttributeNames", "_key", "_noneType", "_parent", "_persistAll", "_typeDict", "mro")
 
 
@@ -129,6 +129,13 @@ class dPref(object):
 		if persist:
 			self._persist(att, val)
 		self._cache[att] = val
+	
+	
+	def get(self, att):
+		"""If the specified name is a subkey, it is returned. If it is a value, the value is 
+		returned. If it doesn't exist, a new subkey is created with that name.
+		"""
+		return self.__getattr__(att)
 		
 	
 	def _getKey(self):
@@ -443,8 +450,16 @@ class dPref(object):
 		self._autoPersist = val
 
 
+	def _getFullPath(self):
+		return self._getKey()
+
+
 	AutoPersist = property(_getAutoPersist, _setAutoPersist, None,
 			_("Do property assignments automatically save themselves? Default=True  (bool)"))
+	
+	FullPath = property(_getFullPath, None, None,
+			_("""The fully-qualified path to this object, consisting of all ancestor 
+			names along with this name, joined by periods (read-only) (str)"""))
 	
 
 
