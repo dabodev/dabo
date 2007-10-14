@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<xs:schema xmlns:xs="http://www.w3.org/2001/XMLSchema"
+	targetNamespace="http://www.dabodev.com"
+	xmlns="http://www.dabodev.com"
+	elementFormDefault="qualified">
+<xs:element name="connection">
+    <xs:complexType>
+      <xs:sequence>
+        <xs:element name="xxhost" type="xs:string"/>
+        <xs:element name="database" type="xs:string"/>
+        <xs:element name="user" type="xs:string"/>
+        <xs:element name="password" type="xs:string"/>
+        <xs:element name="port" type="xs:integer"/>
+      </xs:sequence>
+      <xs:attribute name="dbtype" type="xs:string" />
+    </xs:complexType>
+</xs:element>
+</xs:schema>

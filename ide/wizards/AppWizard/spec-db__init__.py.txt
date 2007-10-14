@@ -1,0 +1,9 @@
+# -*- coding: utf-8 -*-
+
+## To have any database functions, classes, etc. available from the
+## Application.db namespace, you need to explicitly import them by name here.
+
+# example:
+# from getInvoicesDataSet import getInvoicesDataSet
+
+from getSampleDataSet import getSampleDataSet

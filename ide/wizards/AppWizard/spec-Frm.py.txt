@@ -1,0 +1,39 @@
+# -*- coding: utf-8 -*-
+
+import os
+import dabo
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
+from FrmBase import FrmBase
+from Grd%(tableName)s import Grd%(tableName)s
+from PagSelect%(tableName)s import PagSelect%(tableName)s
+from PagEdit%(tableName)s import PagEdit%(tableName)s
+
+
+class Frm%(tableName)s(FrmBase):
+
+	def initProperties(self):
+		self.super()
+		self.NameBase = "frm%(tableName)s"
+		self.Caption = "%(tableName)s"
+		self.SelectPageClass = PagSelect%(tableName)s
+		self.BrowseGridClass = Grd%(tableName)s
+		self.EditPageClass = PagEdit%(tableName)s
+
+
+	def afterInit(self):
+		if not self.Testing:
+			# Instantiate the bizobj and register it with dForm, and then let the 
+			# superclass take over.
+			app = self.Application
+			biz%(tableName)s = app.biz.%(tableName)s(app.dbConnection)
+			self.addBizobj(biz%(tableName)s)
+		self.super()
+
+
+if __name__ == "__main__":
+	app = dabo.dApp(MainFormClass=None)
+	app.setup()
+	frm = Frm%(tableName)s(Caption="Test Of Frm%(tableName)s", Testing=True)
+	frm.show()
+	app.start()

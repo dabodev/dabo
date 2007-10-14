@@ -1,0 +1,17 @@
+# -*- coding: utf-8 -*-
+
+import datetime
+import decimal
+import dabo
+
+
+def getSampleDataSet():
+	"""Return the dataset for the sample report.
+
+	Your real code here would run ad-hoc sql queries and build up a
+	dataset (list of dicts).
+	"""
+	ds = [{"name": "Denise", "sex": "F"},
+		{"name": "Paul", "sex": "M"}]
+	return ds
+
