@@ -30,11 +30,13 @@ key_Next = wx.WXK_NEXT
 key_End = wx.WXK_END
 key_Home = wx.WXK_HOME
 if wx.Platform == "__WXMAC__":
+	key_Insert = 323
 	key_Left = 28
 	key_Up = 30
 	key_Right = 29
 	key_Down = 31
 else:
+	key_Insert = wx.WXK_INSERT
 	key_Left = wx.WXK_LEFT
 	key_Up = wx.WXK_UP
 	key_Right = wx.WXK_RIGHT
@@ -43,7 +45,6 @@ key_Select = wx.WXK_SELECT
 key_Print = wx.WXK_PRINT
 key_Execute = wx.WXK_EXECUTE
 key_Snapshot = wx.WXK_SNAPSHOT
-key_Insert = wx.WXK_INSERT
 key_Help = wx.WXK_HELP
 key_Numpad0 = wx.WXK_NUMPAD0
 key_Numpad1 = wx.WXK_NUMPAD1
