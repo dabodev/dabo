@@ -77,6 +77,7 @@ def loggit(fnc):
 		for stk in inspect.stack()[1:-7]:
 			loggit.fhwr.write("\t%s, %s, line %s\n" % (os.path.split(stk[1])[1], stk[3], stk[2]))
 		result = fnc(*args, **kwargs)
+		loggit.fhwr.flush()
 		return result
 	wrapped.__doc__ = fnc.__doc__
 	return wrapped
