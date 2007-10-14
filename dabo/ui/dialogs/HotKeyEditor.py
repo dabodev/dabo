@@ -22,6 +22,8 @@ class HotKeyEditor(dabo.ui.dOkCancelDialog):
 		sz = self.Sizer
 		sz.append(dabo.ui.dLabel(self, Caption=_("Press the desired key combination")),
 				border=10, halign="center")
+		sz.append(dabo.ui.dLabel(self, Caption=_("Press Ctrl-Delete to clear the key")),
+				border=10, halign="center")
 		sz.appendSpacer(10)
 		bsz = dabo.ui.dBorderSizer(self, "v")
 		self.hkLabel = dabo.ui.dLabel(self, Caption=" "*80, FontSize=16, FontBold=True)
@@ -41,25 +43,33 @@ class HotKeyEditor(dabo.ui.dOkCancelDialog):
 		if kcd in (306, 307, 308, 396, 400):
 			# Just the modifier keys being released
 			return
-		if kcd in (dKeys.key_Tab, dKeys.key_Left, dKeys.key_Right,
-					dKeys.key_Up, dKeys.key_Down, dKeys.key_Return):
+		if kcd in (dKeys.key_Tab, dKeys.key_Escape, dKeys.key_Return):
 			# Navigation keys; ignore
 			return
 		self._keyChar = kcr = evt.keyChar
-		if 340 <= kcd <= 354:
-			# Function keys
-			self._keyChar = kcr = "F%s" % ((kcd-339), )
 		self._ctrl = dabo.ui.isControlDown() or dabo.ui.isCommandDown()
 		self._shift = dabo.ui.isShiftDown()
 		self._alt = dabo.ui.isAltDown()
+		keyStrings = {dKeys.key_Back: "Back", dKeys.key_Delete: "Del", dKeys.key_Pageup: "PgUp", 
+				dKeys.key_Pagedown: "PgDn", dKeys.key_Insert: "Ins", dKeys.key_Home: "Home", 
+				dKeys.key_End: "End", dKeys.key_Left: "Left", dKeys.key_Right: "Right", 
+				dKeys.key_Up: "Up", dKeys.key_Down: "Down"}
+		if 340 <= kcd <= 354:
+			# Function keys
+			self._keyChar = kcr = "F%s" % ((kcd-339), )
+		elif kcd == dKeys.key_Delete and self._ctrl:
+			# Ctrl-Delete was pressed
+			kcr = None
+		elif kcd in keyStrings.keys():
+			self._keyChar = kcr = keyStrings[kcd]
 		if kcr is not None:
 			ctlTxt = {True: "Ctrl+", False: ""}[self._ctrl]
 			shiftTxt = {True: "Shift+", False: ""}[self._shift]
 			altTxt = {True: "Alt+", False: ""}[self._alt]
 			self._keyText = ctlTxt + altTxt + shiftTxt + kcr.upper()
 		else:
-			self._keyText = ""
-			self._keyChar = ""
+			self._keyText = None
+			self._keyChar = None
 		self.hkLabel.Caption = self._keyText
 		self.layout()
 
