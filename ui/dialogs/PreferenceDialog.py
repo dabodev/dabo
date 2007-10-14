@@ -132,15 +132,16 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 			txt = dabo.ui.dTextBox(menuPage, ReadOnly=True, Alignment="Center",
 					RegID="txtMenuCurrentHotKey")
 			sz.append(lbl, halign="right")
-			sz.append(txt)
+			sz.append(txt, "x")
 			sz.appendSpacer(1)
 			btn = dabo.ui.dButton(menuPage, Caption=_("Set Key..."),
 					OnHit=self._setHotKey, DynamicEnabled=self._canSetHotKey)
-			sz.append(btn)
+			sz.append(btn, halign="center")
 			sz.appendSpacer(1)
 			btn = dabo.ui.dButton(menuPage, Caption=_("Clear Key"),
 					OnHit=self._clearHotKey, DynamicEnabled=self._canClearHotKey)
-			sz.append(btn)
+			sz.append(btn, halign="center")
+			sz.setColExpand(True, 1)
 			menuPage.Sizer.append1x(sz, border=10)
 
 
@@ -155,12 +156,12 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 				# A separator line
 				continue
 			kidnode = nd.appendChild(cap)
+			subpref = pref.get(prefcap)
+			kidnode.pref = subpref
 			if itm.Children:
-				subpref = pref.get(prefcap)
 				self._recurseMenu(itm, kidnode, subpref)
 			else:
 				kidnode.hotkey = itm.HotKey
-				kidnode.pref = pref
 				kidnode.object = itm
 
 	
@@ -183,7 +184,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		if dlg.Accepted:
 			hk = dlg.KeyText
 			self.txtMenuCurrentHotKey.Value = itm.hotkey = itm.object.HotKey = hk
-			itm.pref.setValue(self._cleanMenuCaption(itm.Caption), hk)
+			itm.pref.setValue("hotkey", hk)
 		dlg.release()
 
 
@@ -195,7 +196,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 	def _clearHotKey(self, evt):
 		itm = self._selectedItem
 		self.txtMenuCurrentHotKey.Value = itm.hotkey = itm.object.HotKey = None
-		itm.pref.setValue(self._cleanMenuCaption(itm.Caption), None)
+		itm.pref.setValue("hotkey", None)
 		
 
 	def _canClearHotKey(self):
