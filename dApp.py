@@ -293,17 +293,24 @@ class dApp(dObject):
 				userName = ""
 			
 			self._retrieveMRUs()
+			self._finished = False
 			self.uiApp.start(self)
-		self.finish()
+		if not self._finished:
+			self.finish()
 	
 	
 	def finish(self):
-		"""Called when the application event loop has ended."""
+		"""Called when the application event loop has ended.
+
+		You may also call this explicitly to exit the application event loop.
+		"""
+		self.uiApp.exit()
 		self._persistMRU()
 		self.uiApp.finish()
 		self.closeConnections()
 		self._tempFileHolder.release()
 		dabo.infoLog.write(_("Application finished."))
+		self._finished = True
 
 
 	def getLoginInfo(self, message=None):

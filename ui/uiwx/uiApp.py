@@ -261,6 +261,11 @@ class uiApp(dObject, wx.App):
 			self.raiseEvent(dEvents.Activate)
 		self.MainLoop()
 
+
+	def exit(self):
+		"""Exit the application event loop."""
+		self.Exit()
+
 	
 	def finish(self):
 		# Manually raise Deactivate, as wx doesn't do that automatically
