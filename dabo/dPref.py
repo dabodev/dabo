@@ -350,6 +350,11 @@ class dPref(object):
 		return ret
 
 
+	def hasKey(self, key):
+		"""Provides a way to test for a key without automatically adding it."""
+		return key in self.getPrefKeys()
+
+
 	def getSubPrefKeys(self, spec=None):
 		"""Return a list of all 'child' keys for this key."""
 		crs = self._cursor
