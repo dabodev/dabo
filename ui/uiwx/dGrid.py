@@ -2890,7 +2890,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	##----------------------------------------------------------##
 	def __onRowNumChanged(self, evt):
 		# The form reports that the rownum has changed: sync the grid CurrentRow
-		if evt.bizobj is self.getBizobj():
+		if getattr(evt, "bizobj", None) is self.getBizobj():
 			try:
 				self.CurrentRow = evt.newRowNumber
 			except AttributeError:
