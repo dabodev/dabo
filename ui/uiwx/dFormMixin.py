@@ -10,7 +10,7 @@ from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 import dabo.dException as dException
 from dabo.lib.xmltodict import xmltodict as XTD
-from dabo.lib.utils import dictStringify
+from dabo.lib.utils import cleanMenuCaption
 from dabo.ui import makeDynamicProperty
 
 
@@ -110,7 +110,9 @@ class dFormMixin(pm.dPemMixin):
 						self._cxnName)
 		# If code to create bizobjs is present, run it.
 		self.createBizobjs()
-			
+		# If there are custom menu hotkey bindings, re-set them
+		wx.CallAfter(self._restoreMenuPrefs)
+		
 		super(dFormMixin, self)._afterInit()
 	
 	
@@ -254,7 +256,33 @@ class dFormMixin(pm.dPemMixin):
 		code that the user can later enhance.
 		"""
 		pass
-		
+	
+	
+	def _restoreMenuPrefs(self):
+		pm = self.PreferenceManager
+		mb = self.MenuBar
+		if mb is None or not pm.hasKey("menu"):
+			return
+		menus = mb.Children
+		pmMenu = pm.menu
+		menuPath = pmMenu.FullPath + "."
+		prefs = pmMenu.getPrefs(returnNested=True)
+		for itmPath, hk in prefs.items():
+			relPath, setting = itmPath.replace(menuPath, "").rsplit(".", 1)
+			menuItem = mb
+			for pth in relPath.split("."):
+				try:
+					menuItem = [ch for ch in menuItem.Children 
+							if hasattr(ch, "Caption")
+							and cleanMenuCaption(ch.Caption) == pth][0]
+				except IndexError:
+					# No such menu; skip it
+					menuItem = None
+					break
+			if menuItem is not None:
+				if setting == "hotkey":
+					menuItem.HotKey = hk
+
 	
 	def _gtk_show_fix(self, show=True):
 		# On Gtk, in wxPython 2.8.1.1 at least, the form will get re-shown at its

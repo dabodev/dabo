@@ -91,8 +91,7 @@ class dDataControlMixin(dDataControlMixinBase):
 
 		
 	Value = property(_getValue, _setValue, None,
-		_("""Specifies the current state of the control (the value of the 
-				field).  (varies)"""))
+			_("""Specifies the current state of the control (the value of the field).  (varies)"""))
 				
 				
 	DynamicValue = makeDynamicProperty(Value)

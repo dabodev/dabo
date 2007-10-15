@@ -4,6 +4,7 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 from dabo.ui.dialogs.HotKeyEditor import HotKeyEditor
+from dabo.lib.utils import cleanMenuCaption
 
 dayMins= 24*60
 
@@ -102,13 +103,14 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		"""Called when no other code exists to fill the dialog, or when
 		the class's IncludeDefaultPages property is True.
 		"""
+		af = self.Application.ActiveForm
 		try:
-			mb = self.Application.ActiveForm.MenuBar
+			mb = af.MenuBar
 			menuOK = True
 		except:
 			menuOK = False
 		if menuOK:
-			pm = self.PreferenceManager.menu
+			pm = af.PreferenceManager.menu
 			self.preferenceKeys.append(pm)
 			menuPage = self.pgMenuKeys = self.addCategory(_("Menu Keys"))
 			self._selectedItem = None	
@@ -116,8 +118,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 			tree = dabo.ui.dTreeView(menuPage, OnTreeSelection=self._onMenuTreeSelection)
 			root = tree.setRootNode(_("Menu"))
 			for mn in mb.Children:
-				cap = self._cleanMenuCaption(mn.Caption, "&")
-				prefcap = self._cleanMenuCaption(mn.Caption)
+				cap = cleanMenuCaption(mn.Caption, "&")
+				prefcap = cleanMenuCaption(mn.Caption)
 				nd = root.appendChild(cap)
 				nd.pref = pm
 				nd.hotkey = "n/a"
@@ -150,8 +152,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		for itm in mn.Children:
 			native = True
 			try:
-				cap = self._cleanMenuCaption(itm.Caption, "&")
-				prefcap = self._cleanMenuCaption(itm.Caption)
+				cap = cleanMenuCaption(itm.Caption, "&")
+				prefcap = cleanMenuCaption(itm.Caption)
 			except:
 				# A separator line
 				continue
@@ -202,15 +204,6 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 	def _canClearHotKey(self):
 		itm = self._selectedItem
 		return (itm is not None) and (itm.hotkey not in ("n/a", None))
-	
-	
-	def _cleanMenuCaption(self, cap, bad=None):
-		if bad is None:
-			bad = "&. "
-		ret = cap
-		for ch in bad:
-			ret = ret.replace(ch, "")
-		return ret
 	
 	
 	def _addFrameworkPages(self):

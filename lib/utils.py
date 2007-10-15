@@ -240,3 +240,17 @@ def resolvePath(val, pth=None, abspath=False):
 		ret = os.path.abspath(ret)
 	return ret
 
+
+def cleanMenuCaption(cap, bad=None):
+	"""Menu captions can contain several special characters that make them
+	unsuitable for things such as preference settings. This method provides 
+	a simple way of getting the 'clean' version of these captions. By default it
+	strips ampersands, spaces and periods; you can change that by passing 
+	the characters you want stripped in the 'bad' parameter.
+	"""
+	if bad is None:
+		bad = "&. "
+	ret = cap
+	for ch in bad:
+		ret = ret.replace(ch, "")
+	return ret
