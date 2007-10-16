@@ -653,11 +653,16 @@ class dApp(dObject):
 		Example: f there is a 'biz' directory that can be imported, other objects in 
 		the system can reference bizobjs using the 'self.Application.biz' syntax
 		"""
+		currdir = os.getcwd()
+		currsyspath = sys.path
+		if not currdir in sys.path:
+			sys.path.insert(0, currdir)
 		for dd in ("biz", "db", "ui", "resources", "reports"):
 			try:
 				self.__setattr__(dd, __import__(dd, level=0))
-			except:
+			except ImportError:
 				self.__setattr__(dd, None)
+		sys.path = currsyspath
 
 
 	def _initUI(self):
