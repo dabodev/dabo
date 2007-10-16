@@ -259,6 +259,9 @@ class dFormMixin(pm.dPemMixin):
 	
 	
 	def _restoreMenuPrefs(self):
+		if not self:
+			# Form has already been released
+			return
 		pm = self.PreferenceManager
 		mb = self.MenuBar
 		if mb is None or not pm.hasKey("menu"):
