@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8" standalone="yes"?>
+<connectiondefs xmlns="http://www.dabodev.com"
+xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+xsi:schemaLocation="http://www.dabodev.com conn.xsd"
+xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/conn.xsd">
+
+	<connection dbtype="MySQL">
+		<name>MySQL-default</name>
+		<host>dabodev.com</host>
+		<database>webtest</database>
+		<user>webuser</user>
+		<password>Y56Z5CC69Q42VD1X2ES21HBD</password>
+		<port>3306</port>
+	</connection>
+
+
+</connectiondefs>
