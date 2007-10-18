@@ -1,0 +1,28 @@
+# -*- coding: utf-8 -*-
+
+import dabo
+if __name__ == "__main__":
+	dabo.ui.loadUI("wx")
+from PagEditBase import PagEditBase
+
+
+class PagEdit%(tableName)s(PagEditBase):
+
+	def createItems(self):
+		"""Called by the datanav framework, when it is time to create the controls."""
+%(createItems)s
+		self.super()
+
+
+if __name__ == "__main__":
+	from Frm%(tableName)s import Frm%(tableName)s
+	app = dabo.dApp(MainFormClass=None)
+	app.setup()
+	class TestForm(Frm%(tableName)s):
+		def afterInit(self): pass
+	frm = TestForm(Caption="Test Of PagEdit%(tableName)s", Testing=True)
+	test = frm.addObject(PagEdit%(tableName)s)
+	test.createItems()
+	frm.Sizer.append1x(test)
+	frm.show()
+	app.start()
