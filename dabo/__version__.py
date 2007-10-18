@@ -25,7 +25,8 @@ if _revision is None:
 	_revision = _approximateRevision
 
 version = {"version": _version,
-		"revision": _revision}
+		"revision": _revision,
+		"file_revision": _approximateRevision}
 
 if __name__ == "__main__":
 	print """
