@@ -396,18 +396,15 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 		If the item isn't found, None is returned.
 		"""
-		ret = None
+		def is_match(menu_cap, user_cap):
+			return (menu_cap == user_cap 
+					or menu_cap == user_cap.replace("&", "")
+					or menu_cap.replace("_", "") == user_cap.replace("&", ""))
+				
 		for pos, itm in enumerate(self.Children):
-			if itm.GetLabel() == caption:
-				ret = pos
-				break
-		if ret is None and "&" in caption:
-			cap = caption.replace("&", "")
-			for pos, itm in enumerate(self.Children):
-				if itm.GetLabel() == cap:
-					ret = pos
-					break
-		return ret
+			if is_match(itm.GetLabel(), caption):
+				return pos
+		return None
 		
 
 	def getItem(self, caption):
