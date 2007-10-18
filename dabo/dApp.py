@@ -366,17 +366,13 @@ class dApp(dObject):
 
 
 	def _currentUpdateVersion(self):
-		localVers = dabo.version["revision"]
-		if "~" in localVers:
-			# It's the approximate version
-			ret = 0
-		else:
-			try:
-				localVers = localVers.split(":")[1]
-			except:
-				# Not a mixed version
-				pass
-			ret = int("".join([ch for ch in localVers if ch.isdigit()]))
+		localVers = dabo.version["file_revision"]
+		try:
+			localVers = localVers.split(":")[1]
+		except:
+			# Not a mixed version
+			pass
+		ret = int("".join([ch for ch in localVers if ch.isdigit()]))
 		return ret
 
 	
