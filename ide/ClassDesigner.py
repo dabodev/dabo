@@ -226,12 +226,6 @@ class ClassDesigner(dabo.dApp):
 		self.start()
 
 
-	def addToAbout(self):
-		""" Add the IDE version."""
-		from __version__ import version
-		return "Dabo IDE version: %(version)s (Revision %(revision)s)" % version
-
-
 	def _initSizerDefaults(self):
 		"""Create a dict containing the sizer default settings
 		for each designer class.
