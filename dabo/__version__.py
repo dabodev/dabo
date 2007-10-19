@@ -9,7 +9,7 @@ import os
 import lib
 
 _revision = None
-# First, try to get the revisionfrom svninfo, which lets the developer go back 
+# First, try to get the revision from svninfo, which lets the developer go back 
 # and forth through revisions and the version information will still reflect
 # reality.
 package_path = os.path.split(os.path.split(lib.__file__)[0])[0]
