@@ -660,7 +660,27 @@ class dTextBoxMixin(dTextBoxMixinBase):
 	
 	# Property definitions:
 	Mask = property(_getMask, _setMask, None,
-			_("Display Mask for the control  (str)"))
+			_("""Display Mask for the control. Must be set when the control is constructed, but may be 
+			changed afterwards.  (str)
+			
+			These are the allowed mask characters and their function:
+			===============================================
+			Character   Function
+			===============================================
+				#       Allow numeric only (0-9)
+				N       Allow letters and numbers (0-9)
+				A       Allow uppercase letters only
+				a       Allow lowercase letters only
+				C       Allow any letter, upper or lower
+				X       Allow string.letters, string.punctuation, string.digits
+				&       Allow string.punctuation only (doesn't include all unicode symbols)
+				*       Allow any visible character
+				|       explicit field boundary (takes no space in the control; allows mix
+						of adjacent mask characters to be treated as separate fields,
+						eg: '&|###' means "field 0 = '&', field 1 = '###'", but there's
+						no fixed characters in between.
+			===============================================
+			"""))
 	
 	MaskedValue = property(_getMaskedValue, None, None,
 			_("Value of the control, including mask characters, if any. (read-only) (str)"))
