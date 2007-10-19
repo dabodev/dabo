@@ -396,13 +396,10 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 		If the item isn't found, None is returned.
 		"""
-		def is_match(menu_cap, user_cap):
-			return (menu_cap == user_cap 
-					or menu_cap == user_cap.replace("&", "")
-					or menu_cap.replace("_", "") == user_cap.replace("&", ""))
-				
-		for pos, itm in enumerate(self.Children):
-			if is_match(itm.GetLabel(), caption):
+		wxItem = self.FindItem(caption)
+		for pos in xrange(self.GetMenuItemCount()):
+			fip = self.FindItemByPosition(pos).GetId()
+			if self.FindItemByPosition(pos).GetId() == wxItem:
 				return pos
 		return None
 		
@@ -412,12 +409,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 		If the item isn't found, None is returned.
 		"""
-		idx = self.getItemIndex(caption)
-		if idx is not None:
-			wxItem = self.FindItemByPosition(idx)
-			if wxItem:
-				return self._daboChildren.get(wxItem.GetId(), wxItem)
-		return None
+		return self._daboChildren.get(self.FindItem(caption), None)
 
 
 	def GetChildren(self):
