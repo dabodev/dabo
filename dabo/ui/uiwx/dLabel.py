@@ -25,6 +25,8 @@ class dLabel(cm.dControlMixin, wx.StaticText):
 		"""Event binding is set when Wrap=True. Tell the label
 		to wrap to its current width.
 		"""
+		dabo.ui.callAfterInterval(50, self.__onResizeExecute)
+	def __onResizeExecute(self):
 		# We need to set the caption to the internally-saved caption, since 
 		# WordWrap can introduce additional linefeeds.
 		self.SetLabel(self._caption)
