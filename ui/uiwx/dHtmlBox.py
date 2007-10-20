@@ -2,6 +2,7 @@
 import wx.html
 import os
 import re
+import string
 import types
 import urllib2
 import urlparse
@@ -72,6 +73,14 @@ class dHtmlBox(cm.dControlMixin, wx.html.HtmlWindow):
 					if url is None:
 						# Use the original
 						url = src
+
+				if self.Application.Platform == "Win":
+					# broken image links if the path contains the drive letter
+					pos = url.find(":/", len("file:///"), len(url))
+					if pos:
+						drive_letter = url[pos-1]
+						if drive_letter in string.ascii_letters:
+							url = url.replace("%s:/" % drive_letter, "") 
 				ret = ret + val[:beg] + "<img %(befSrc)ssrc=%(qt1)s%(url)s%(qt2)s%(aftSrc)s>" % locals()
 				val = val[end:]
 			else:
