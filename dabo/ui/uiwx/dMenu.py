@@ -9,6 +9,7 @@ import dIcons
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
 from dabo.ui import makeDynamicProperty
+from dabo.lib.utils import cleanMenuCaption
 
 # wx constants for styles
 NormalItemType = wx.ITEM_NORMAL
@@ -391,25 +392,34 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		return False
 
 
-	def getItemIndex(self, caption):
-		"""Returns the index of the item with the specified caption.
-
-		If the item isn't found, None is returned.
+	def _itemByCaption(self, cap, returnPos=False):
+		"""Common method for locating a menu item by its caption, ignoring
+		all the 'special' characters for acceleration.
 		"""
-		wxItem = self.FindItem(caption)
+		cap = cleanMenuCaption(cap, "&_")
 		for pos in xrange(self.GetMenuItemCount()):
-			fip = self.FindItemByPosition(pos).GetId()
-			if self.FindItemByPosition(pos).GetId() == wxItem:
-				return pos
+			itm = self.FindItemByPosition(pos)
+			itmCap = cleanMenuCaption(itm.GetLabel(), "&_")
+			if itmCap == cap:
+				if returnPos:
+					return pos
+				else:
+					return self._daboChildren.get(itm.GetId(), None)
 		return None
+
+
+	def getItemIndex(self, caption):
+		"""Returns the index of the item with the specified caption. If the item
+		isn't found, None is returned.
+		"""
+		return self._itemByCaption(caption, True)
 		
 
 	def getItem(self, caption):
-		"""Returns a reference to the menu item with the specified caption.
-
-		If the item isn't found, None is returned.
+		"""Returns a reference to the menu item with the specified caption. If the item
+		isn't found, None is returned.
 		"""
-		return self._daboChildren.get(self.FindItem(caption), None)
+		return self._itemByCaption(caption)
 
 
 	def GetChildren(self):
