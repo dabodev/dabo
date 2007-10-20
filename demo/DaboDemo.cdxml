@@ -60,7 +60,7 @@ def saveModCode(self):
 		</saveModCode>
 		<afterInitAll><![CDATA[
 def afterInitAll(self):
-	pth = os.path.abspath(os.path.join(os.getcwd(), "samples"))
+	pth = os.path.abspath(os.path.join(self.Application.HomeDirectory, "samples"))
 	if pth not in sys.path:
 		sys.path.insert(0, pth)
 	self.demos = demos = {}

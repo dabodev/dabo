@@ -46,7 +46,7 @@ class DemoModules:
 	"""
 	modOrig = 0
 	modMod = 1
-	origDir = "samples"
+	origDir = os.path.join(dabo.dAppRef.HomeDirectory, "samples")
 	try:
 		getUserAppDataDirectory = utils.getUserAppDataDirectory
 	except:
