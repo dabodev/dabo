@@ -262,14 +262,44 @@ class dBizobj(dObject):
 		self.afterLast()
 
 
+	def _getTransactionToken(self):
+		"""Ask the Application for the transaction token.
+
+		If the token is granted, then this bizobj	has the ability to begin and 
+		end transactions.
+		"""
+		app = self.Application
+		if not app:
+			# No Application in play: fake it.
+			if not hasattr(dabo, "_bizTransactionToken"):
+				dabo._bizTransactionToken = self
+				return True
+			return False
+		return app.getTransactionToken(self)
+
+
+	def _releaseTransactionToken(self):
+		"""Ask the Application to give up the transaction token.
+
+		Once this is done, other bizobjs can receive the token to begin and 
+		end transactions.
+		"""
+		app = self.Application
+		if app:
+			app.releaseTransactionToken(self)
+		else:
+			# No Application in play: fake it.
+			if hasattr(dabo, "_bizTransactionToken") and dabo._bizTransactionToken == self:
+				del(dabo._bizTransactionToken)
+
+
 	def saveAll(self, startTransaction=True):
 		"""Saves all changes to the bizobj and children."""
 		cursor = self._CurrentCursor
 		current_row = self.RowNumber
-		app = self.Application
 		isTransactionManager = False
 		if startTransaction:
-			isTransactionManager = app.getTransactionToken(self)
+			isTransactionManager = self._getTransactionToken()
 			if isTransactionManager:
 				cursor.beginTransaction()
 
@@ -278,7 +308,7 @@ class dBizobj(dObject):
 					startTransaction=False)
 			if isTransactionManager:
 				cursor.commitTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 
 		except dException.ConnectionLostException, e:
 			self.RowNumber = current_row
@@ -287,14 +317,14 @@ class dBizobj(dObject):
 			# Something failed; reset things.
 			if isTransactionManager:
 				cursor.rollbackTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 			# Pass the exception to the UI
 			self.RowNumber = current_row
 			raise dException.DBQueryException, e
 		except dException.dException, e:
 			if isTransactionManager:
 				cursor.rollbackTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 			self.RowNumber = current_row
 			raise
 
@@ -322,10 +352,9 @@ class dBizobj(dObject):
 		# validation, an Exception will be raised.
 		self._validate()
 
-		app = self.Application
 		isTransactionManager = False
 		if startTransaction:
-			isTransactionManager = app.getTransactionToken(self)
+			isTransactionManager = self._getTransactionToken()
 			if isTransactionManager:
 				cursor.beginTransaction()
 
@@ -348,7 +377,7 @@ class dBizobj(dObject):
 			# Finish the transaction, and requery the children if needed.
 			if isTransactionManager:
 				cursor.commitTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 			if self.RequeryChildOnSave:
 				self.requeryAllChildren()
 
@@ -362,7 +391,7 @@ class dBizobj(dObject):
 			# Something failed; reset things.
 			if isTransactionManager:
 				cursor.rollbackTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 			# Pass the exception to the UI
 			raise dException.DBQueryException, e
 
@@ -370,7 +399,7 @@ class dBizobj(dObject):
 			# Something failed; reset things.
 			if isTransactionManager:
 				cursor.rollbackTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 			# Pass the exception to the UI
 			raise
 
@@ -414,14 +443,13 @@ class dBizobj(dObject):
 		deleting the current record in this bizobj.
 		"""
 		cursor = self._CurrentCursor
-		app = self.Application
 		errMsg = self.beforeDeleteAllChildren()
 		if errMsg:
 			raise dException.BusinessRuleViolation, errMsg
 
 		isTransactionManager = False
 		if startTransaction:
-			isTransactionManager = app.getTransactionToken(self)
+			isTransactionManager = self._getTransactionToken()
 			if isTransactionManager:
 				cursor.beginTransaction()
 
@@ -430,24 +458,23 @@ class dBizobj(dObject):
 				child.deleteAll(startTransaction=False)
 			if isTransactionManager:
 				cursor.commitTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 
 		except dException.DBQueryException, e:
 			if isTransactionManager:
 				cursor.rollbackTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 			raise dException.DBQueryException, e
 		except StandardError, e:
 			if isTransactionManager:
 				cursor.rollbackTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 			raise StandardError, e
 		self.afterDeleteAllChildren()
 
 
 	def delete(self, startTransaction=True, inLoop=False):
 		"""Delete the current row of the data set."""
-		app = self.Application
 		cursor = self._CurrentCursor
 		errMsg = self.beforeDelete()
 		if not errMsg:
@@ -466,7 +493,7 @@ class dBizobj(dObject):
 
 		isTransactionManager = False
 		if startTransaction:
-			isTransactionManager = app.getTransactionToken(self)
+			isTransactionManager = self._getTransactionToken()
 			if isTransactionManager:
 				cursor.beginTransaction()
 
@@ -487,7 +514,7 @@ class dBizobj(dObject):
 
 			if isTransactionManager:
 				cursor.commitTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 
 			if not inLoop:
 				self.afterPointerMove()
@@ -496,22 +523,21 @@ class dBizobj(dObject):
 		except dException.DBQueryException, e:
 			if isTransactionManager:
 				cursor.rollbackTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 			raise dException.DBQueryException, e
 		except StandardError, e:
 			if isTransactionManager:
 				cursor.rollbackTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 			raise StandardError, e
 
 
 	def deleteAll(self, startTransaction=True):
 		""" Delete all rows in the data set."""
-		app = self.Application
 		cursor = self._CurrentCursor
 		isTransactionManager = False
 		if startTransaction:
-			isTransactionManager = app.getTransactionToken(self)
+			isTransactionManager = self._getTransactionToken()
 			if isTransactionManager:
 				cursor.beginTransaction()
 		try:
@@ -520,7 +546,7 @@ class dBizobj(dObject):
 				ret = self.delete(startTransaction=False, inLoop=True)
 			if isTransactionManager:
 				cursor.commitTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 
 			self.afterPointerMove()
 			self.afterChange()
@@ -528,12 +554,12 @@ class dBizobj(dObject):
 		except dException.DBQueryException, e:
 			if isTransactionManager:
 				cursor.rollbackTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 			raise dException.DBQueryException, e
 		except StandardError, e:
 			if isTransactionManager:
 				cursor.rollbackTransaction()
-				app.releaseTransactionToken(self)
+				self._releaseTransactionToken()
 			raise StandardError, e
 
 
