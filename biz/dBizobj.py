@@ -268,14 +268,13 @@ class dBizobj(dObject):
 		If the token is granted, then this bizobj	has the ability to begin and 
 		end transactions.
 		"""
-		app = self.Application
-		if not app:
-			# No Application in play: fake it.
+		try:
+			return self.Application.getTransactionToken(self)
+		except AttributeError:
 			if not hasattr(dabo, "_bizTransactionToken"):
 				dabo._bizTransactionToken = self
 				return True
 			return False
-		return app.getTransactionToken(self)
 
 
 	def _releaseTransactionToken(self):
@@ -284,10 +283,9 @@ class dBizobj(dObject):
 		Once this is done, other bizobjs can receive the token to begin and 
 		end transactions.
 		"""
-		app = self.Application
-		if app:
-			app.releaseTransactionToken(self)
-		else:
+		try:
+			self.Application.releaseTransactionToken(self)
+		except AttributeError:
 			# No Application in play: fake it.
 			if hasattr(dabo, "_bizTransactionToken") and dabo._bizTransactionToken == self:
 				del(dabo._bizTransactionToken)
