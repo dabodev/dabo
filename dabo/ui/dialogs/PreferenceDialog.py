@@ -114,8 +114,10 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 			self.preferenceKeys.append(pm)
 			menuPage = self.pgMenuKeys = self.addCategory(_("Menu Keys"))
 			self._selectedItem = None	
+			self._hotKeyMap = {}
 			menuPage.Sizer.Orientation = "H"
-			tree = dabo.ui.dTreeView(menuPage, OnTreeSelection=self._onMenuTreeSelection)
+			tree = dabo.ui.dTreeView(menuPage, OnTreeSelection=self._onMenuTreeSelection,
+					RegID="menuKeyAssignmentTree")
 			root = tree.setRootNode(_("Menu"))
 			for mn in mb.Children:
 				cap = cleanMenuCaption(mn.Caption, "&")
@@ -123,7 +125,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 				nd = root.appendChild(cap)
 				nd.pref = pm
 				nd.hotkey = "n/a"
-				nd.object = mn
+				nd.Object = mn
 				menukey = pm.get(prefcap)
 				self._recurseMenu(mn, nd, menukey)
 			menuPage.Sizer.append1x(tree, border=10)
@@ -164,7 +166,8 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 				self._recurseMenu(itm, kidnode, subpref)
 			else:
 				kidnode.hotkey = itm.HotKey
-				kidnode.object = itm
+				self._hotKeyMap[itm.HotKey] = itm
+				kidnode.Object = itm
 
 	
 	def _onMenuTreeSelection(self, evt):
@@ -181,12 +184,36 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 	def _setHotKey(self, evt):
 		dlg = HotKeyEditor(self)
 		itm = self._selectedItem
-		dlg.setKey(itm.hotkey)
+		origKey = itm.hotkey
+		dlg.setKey(origKey)
 		dlg.show()
 		if dlg.Accepted:
 			hk = dlg.KeyText
-			self.txtMenuCurrentHotKey.Value = itm.hotkey = itm.object.HotKey = hk
-			itm.pref.setValue("hotkey", hk)
+			change = (hk != origKey)
+			dupeItem = None
+			if change:
+				dupeItem = self._hotKeyMap.get(hk)
+				if dupeItem and (dupeItem is not itm):
+					msg = _("This key combination is assigned to the menu command '%s'. " + 
+							"Do you wish to re-assign it to the command '%s'?") % (cleanMenuCaption(dupeItem.Caption, "&_"), 
+							cleanMenuCaption(itm.Caption, "&_"))
+					change = dabo.ui.areYouSure(msg, title=_("Duplicate Keystroke"), defaultNo=True, 
+							cancelButton=False)
+			if change:
+				if dupeItem:
+					# Un-assign that hotkey
+					dupeItem.HotKey = None
+					# Clear it from the tree
+					nd = self.menuKeyAssignmentTree.nodeForObject(dupeItem)
+					if nd:
+						nd.hotkey = None
+				if origKey:
+					self._hotKeyMap.pop(origKey)
+				if hk:
+					# Set the internal key map.
+					self._hotKeyMap[hk] = itm.Object
+				self.txtMenuCurrentHotKey.Value = itm.hotkey = itm.Object.HotKey = hk
+				itm.pref.setValue("hotkey", hk)
 		dlg.release()
 
 
@@ -197,7 +224,7 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 	
 	def _clearHotKey(self, evt):
 		itm = self._selectedItem
-		self.txtMenuCurrentHotKey.Value = itm.hotkey = itm.object.HotKey = None
+		self.txtMenuCurrentHotKey.Value = itm.hotkey = itm.Object.HotKey = None
 		itm.pref.setValue("hotkey", None)
 		
 
