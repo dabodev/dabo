@@ -255,7 +255,11 @@ class dPageFrameMixin(cm.dControlMixin):
 		except:
 			pass
 		for pg in self.Pages:
-			pg.layout()
+			try:
+				pg.layout()
+			except AttributeError:
+				# could be that the page is a single control, not a container
+				pass
 		if self.Application.Platform == "Win":
 			self.refresh()
 
