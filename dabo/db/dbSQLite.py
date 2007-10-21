@@ -178,7 +178,7 @@ class SQLite(dBackend):
 		stdFlds = [ff["name"] for ff in rs]
 		# Get all the fields that are not in the table.
 		return [d[0] for d in descFlds 
-				if d[0] not in [s[0] for s in stdFlds] ]
+				if d[0] not in stdFlds ]
 		
 		
 	def getUpdateTablePrefix(self, table, autoQuote=True):
