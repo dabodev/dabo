@@ -450,6 +450,8 @@ class dTextBoxMixin(dTextBoxMixinBase):
 					retVal = decimal.Decimal(strVal)
 			except:
 				raise ValueError, "Can't convert to decimal."
+		elif dataType in (tuple, list):
+			retVal = eval(strVal)
 		else:
 			# Other types can convert directly.
 			if dataType == str:
