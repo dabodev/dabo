@@ -14,7 +14,6 @@ class Test_dBizobj(unittest.TestCase):
 		self.temp_table_name = "unittest%s" % uniqueName
 		self.temp_child_table_name = "ut_child%s" % uniqueName
 		self.createSchema()
-		biz.UserSQL = "select * from %s" % self.temp_table_name
 		biz.KeyField = "pk"
 		biz.DataSource = self.temp_table_name
 		biz.requery()
@@ -56,6 +55,8 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
 	def test_CurrentSQL(self):
 		biz = self.biz
+		self.assertEqual(biz.CurrentSQL, biz.AutoSQL)
+		biz.UserSQL = "select * from %s limit 2" % self.temp_table_name
 		self.assertEqual(biz.CurrentSQL, biz.UserSQL)
 
 	def test_DataSource(self):
@@ -109,6 +110,9 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 
 	def test_LastSQL(self):
 		biz = self.biz
+		self.assertEqual(biz.LastSQL, biz.AutoSQL)
+		biz.UserSQL = "select * from %s limit 23" % (self.temp_table_name)
+		biz.requery()
 		self.assertEqual(biz.LastSQL, biz.UserSQL)
 
 	def test_KeyField(self):
@@ -284,7 +288,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 	def testChildren(self):
 		bizMain = self.biz
 		bizChild = dabo.biz.dBizobj(self.con)
-		bizChild.UserSQL = "select * from %s" % self.temp_child_table_name
 		bizChild.KeyField = "pk"
 		bizChild.DataSource = self.temp_child_table_name
 		bizChild.LinkField = "parent_fk"
@@ -407,7 +410,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 	def testChildren_cancel(self):
 		bizMain = self.biz
 		bizChild = dabo.biz.dBizobj(self.con)
-		bizChild.UserSQL = "select * from %s" % self.temp_child_table_name
 		bizChild.KeyField = "pk"
 		bizChild.DataSource = self.temp_child_table_name
 		bizChild.LinkField = "parent_fk"
@@ -428,7 +430,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		"""Requerying bizMain to 0 records should remove bizChild's records, too."""
 		bizMain = self.biz
 		bizChild = dabo.biz.dBizobj(self.con)
-		bizChild.UserSQL = "select * from %s" % self.temp_child_table_name
 		bizChild.KeyField = "pk"
 		bizChild.DataSource = self.temp_child_table_name
 		bizChild.LinkField = "parent_fk"
@@ -447,7 +448,6 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		"""Moving the parent record pointer shouldn't erase child changes."""
 		bizMain = self.biz
 		bizChild = dabo.biz.dBizobj(self.con)
-		bizChild.UserSQL = "select * from %s" % self.temp_child_table_name
 		bizChild.KeyField = "pk"
 		bizChild.DataSource = self.temp_child_table_name
 		bizChild.LinkField = "parent_fk"
