@@ -170,12 +170,23 @@ class uiApp(dObject, wx.App):
 
 	def checkForUpdates(self, force=False):
 		answer = False
-		if self.dApp._checkForUpdates(force=force):
-			answer = dabo.ui.areYouSure(_("Framework updates are available. Do you want to update now?"),
-					title=_("Dabo Updates"), cancelButton=False)
+		msg = ""
+		isFirst, updAvail = self.dApp._checkForUpdates(force=force)
+		if isFirst:
+			msg = _("This appears to be the first time you are running Dabo. If you are "
+					"connected to the internet, Dabo will check for updates and install them "
+					"if you wish. Click 'Yes' to get the latest version of Dabo now, or 'No' if "
+					"you do not have internet access.")
+			# Default to checking once a day.
+			self.dApp._setWebUpdate(True, 24*60)
+		elif updAvail:
+			msg = _("Framework updates are available. Do you want to update now?")
+		if msg:
+			answer = dabo.ui.areYouSure(msg, title=_("Dabo Updates"), cancelButton=False)
 			if answer:
-				self.dApp._updateFramework()
-				dabo.ui.info(_("The app will now exit. Please re-run the application."))
+				vers = self.dApp._updateFramework()
+				dabo.ui.info(_("Dabo has been updated to revision %s. The app "
+						"will now exit. Please re-run the application.") % vers)
 		return not answer
 		
 	
