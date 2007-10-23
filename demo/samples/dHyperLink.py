@@ -123,35 +123,6 @@ class TestPanel(dabo.ui.dPanel):
 category = "Controls.dHyperLink"
 
 overview = """
-<b>dHyperLink</b> creates a text link that, when clicked, launches the specified URL in the user's default browser.
+<b>dHyperLink</b> creates a text link that, when clicked, launches the 
+specified URL in the user's default browser.
 """
-
-
-
-# 	HoverColor = property(_getHoverColor, _setHoverColor, None,
-# 			_("Color of the link when the mouse passes over it.  (str or tuple)"))
-# 	
-# 	HoverUnderline = property(_getHoverUnderline, _setHoverUnderline, None,
-# 			_("Is the link underlined when the mouse passes over it?  (bool)"))
-# 	
-# 	LinkColor = property(_getLinkColor, _setLinkColor, None,
-# 			_("Normal (unvisited) link text color.  (str or tuple)"))
-# 	
-# 	LinkUnderline = property(_getLinkUnderline, _setLinkUnderline, None,
-# 			_("Is the link underlined in the normal state?  (bool)"))
-# 	
-# 	ShowHover = property(_getShowHover, _setShowHover, None,
-# 			_("Does the link show the hover effect?  (bool)"))
-# 	
-# 	URL = property(_getURL, _setURL, None,
-# 			_("URL for this link  (str)"))
-# 	
-# 	Visited = property(_getVisited, _setVisited, None,
-# 			_("Has this link been visited?  (bool)"))
-# 	
-# 	VisitedColor = property(_getVisitedColor, _setVisitedColor, None,
-# 			_("Color of visited links  (str or tuple)"))
-# 	
-# 	VisitedUnderline = property(_getVisitedUnderline, _setVisitedUnderline, None,
-# 			_("Is the link underlined in the visited state?  (bool)"))
-# 
