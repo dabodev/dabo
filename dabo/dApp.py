@@ -377,50 +377,65 @@ class dApp(dObject):
 
 	
 	def checkForUpdates(self, evt=None):
-		"""Public interface to the web updates mechanism."""
+		"""Public interface to the web updates mechanism. Returns a 2-tuple
+		consisting of two booleans: the first is whether this is the first time that
+		the framework is being run, and the second is whether updates are 
+		available now.
+		"""
 		return self.uiApp.checkForUpdates(force=True)
 		
 		
 	def _checkForUpdates(self, force=False):
-		ret = False
+		# If they are running Subversion, don't update.
+		usesSubversion = os.path.isdir(os.path.join(os.path.split(dabo.__file__)[0], ".svn"))
+		if usesSubversion:
+			self._setWebUpdate(False)
+			return (False, False)
 		prf = self._frameworkPrefs
-		val = prf.getValue
-		runCheck = False
-		now = datetime.datetime.now()
-		if not force:
-			webUpdate = val("web_update")
-			if webUpdate:
-				checkInterval = val("update_interval")
-				if checkInterval is None:
-					# Default to one day
-					checkInterval = 24 * 60
-				mins = datetime.timedelta(minutes=checkInterval)
-				lastCheck = val("last_check")
-				if lastCheck is None:
-					lastCheck = datetime.datetime(1900, 1, 1)
-				runCheck = (now > (lastCheck + mins))
-		if runCheck:
-			# See if there is a later version
-			url = "http://dabodev.com/frameworkVersions/latest"
-			try:
-				vers = int(urllib.urlopen(url).read())
-			except:
-				vers = -1
-			localVers = self._currentUpdateVersion()
-			ret = (localVers != vers)
-		prf.setValue("last_check", now)
-		return ret
+		retAvailable = False
+		retFirstTime = not prf.hasKey("web_update")
+		if not retFirstTime:
+			val = prf.getValue
+			runCheck = False
+			now = datetime.datetime.now()
+			if not force:
+				webUpdate = val("web_update")
+				if webUpdate:
+					checkInterval = val("update_interval")
+					if checkInterval is None:
+						# Default to one day
+						checkInterval = 24 * 60
+					mins = datetime.timedelta(minutes=checkInterval)
+					lastCheck = val("last_check")
+					if lastCheck is None:
+						lastCheck = datetime.datetime(1900, 1, 1)
+					runCheck = (now > (lastCheck + mins))
+			if runCheck:
+				# See if there is a later version
+				url = "http://dabodev.com/frameworkVersions/latest"
+				try:
+					vers = int(urllib.urlopen(url).read())
+				except:
+					vers = -1
+				localVers = self._currentUpdateVersion()
+				retAvailable = (localVers < vers)
+				urllib.urlcleanup()
+			prf.setValue("last_check", now)
+		return (retFirstTime, retAvailable)
 
 
 	def _updateFramework(self):
-		"""Get any changed files from the dabodev.com server, and replace the local copies with them."""
+		"""Get any changed files from the dabodev.com server, and replace 
+		the local copies with them. Return the new revision number"""
 		url = "http://dabodev.com/frameworkVersions/changedFiles/%s" % self._currentUpdateVersion()
 		try:
 			resp = urllib.urlopen(url)
 		except:
 			# No internet access, or Dabo site is down.
+			dabo.errorLog.write(_("Cannot access the Dabo site."))
 			return
 		flist = eval(resp.read())
+		flist = eval(zz)
 		basePth = os.path.split(dabo.__file__)[0]
 		url = "http://dabodev.com/versions/dabo/%s"
 		for mtype, fpth in flist:
@@ -438,7 +453,13 @@ class dApp(dObject):
 					urllib.urlretrieve(url % fpth, localFile)
 				except StandardError, e:
 					dabo.errorLog.write(_("Cannot update file: '%s'. Error: %s") % (fpth, e))
+		url = "http://dabodev.com/frameworkVersions/latest"
+		try:
+			vers = int(urllib.urlopen(url).read())
+		except:
+			vers = self._currentUpdateVersion()
 		urllib.urlcleanup()
+		return vers
 		
 
 	def _setWebUpdate(self, auto, interval=None):
