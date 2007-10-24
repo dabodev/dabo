@@ -14,7 +14,7 @@ from dabo.ui import makeDynamicProperty
 try:
 	import wx.lib.pdfwin as pdfwin
 	PDFWindow = pdfwin.PDFWindow
-except ImportError:
+except:
 	class Dummy(object):
 		_dummy = True
 	PDFWindow = Dummy
