@@ -12,9 +12,9 @@ class TestPanel(dabo.ui.dPanel):
 		sz = self.Sizer = dabo.ui.dSizer("v")
 		sz.appendSpacer(40)
 		
-		lbl = dabo.ui.dLabel(self, Caption="Bubblet is a fun and somewhat addictive game.\nFor instructions, please see the Overview tab.")
+		lbl = dabo.ui.dLabel(self, Caption="Bubblet is a fun and somewhat addictive game.\n\nFor instructions, please see the Overview tab.")
 		sz.append(lbl, halign="center")
-		sz.appendSpacer(20)
+		sz.appendSpacer(30)
 		btn = dabo.ui.dButton(self, Caption="Run the Bubblet Game",
 				OnHit=self.runGame)
 		sz.append(btn, halign="center")
