@@ -67,6 +67,8 @@ def afterInitAll(self):
 	exFiles = glob.glob(os.path.join(pth, "*.py"))
 	for f in exFiles:
 		justFname = os.path.splitext(os.path.split(f)[1])[0]
+		if justFname.startswith("_"):
+			continue
 		exec("import %s as exx" % justFname)
 		maincat, subcat = exx.category.split(".")
 		if maincat not in demos:
