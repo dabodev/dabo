@@ -1,7 +1,110 @@
 See the Subversion log for all the details.
 
 ===============================================================================
+Dabo 0.8.2 (2007-10-24) (Revision 3566):
+
+Most Notable Things:
++ The dabodemo and daboide repositories are now inside the main dabo repository.
+
++ We no longer maintain separate stable branch; point releases are snapshots of
+  the development branch instead of merely backported bugfixes.
+
++ Web Update is available; after downloading and installing this version of 
+  Dabo, you can turn Web Update on in the new Edit|Preferences window and
+  receive updates automatically or semi-automatically.
+
+
+UI:
++ Added masking ability to dTextBox and dEditBox, via the Mask and 
+  MaskedValue properties.
+
++ Added dRadioMenuItem
+
++ dEditor now formats lots of languages, not just python. Thanks Nate!
+
++ Improved the code completion logic of dEditor to not just blindly execute code, 
+  which is slow and dangerous.
+
++ Added dEvents.InteractiveChange,
+
++ dLinePlot added thanks to Nate.
+
++ Fixed ShowBox property in dRadioList (#1093).
+
++ Fixed Enter not firing Hit in dComboBox (#1061).
+
++ Fixed dEditor bug if a def statement was the last line in the file. (#1031).
+
++ Fixed problem in dGrid where a column sizing operation would sometimes start
+  a sort operation. Thanks Larry!
+
++ Put in Kevin Edward's solution for replacing deprecated calls in dGridSizer.py. 
+  Thanks Kevin!
+
++ Grid selection wasn't updating correctly when navigating with the keyboard. Thanks
+  Simen for reporting and helping to fix the problem.
+
++ Added FrameCount property to dImage.
+
++ Added PreferenceDialog class, a central place for putting application preferences.
+
++ Added the HotKey property to dMenuItem, allowing for setting the hotkeys separately
+  from the Caption. Added ui.dialogs.HotKeyEditor, for use by the user in the new
+  PreferenceDialog to remap hotkeys.
+
++ Enhanced dPageList to be better behaved when resizing.
+
++ Added Transparency property to forms. 255 is totally opaque; 0 is totally transparent.
+
++ Disabled the calendar and shortcut keys in dDateTextBox when ReadOnly=True. (#1103).
+
++ The RowNumChanged event now passes the old and new row numbers, and the bizobj
+  that changed rows.
+
++ Improved performance of refreshes for dLabel with WordWrap=True. (#1105).
+
++ Fixed dHtmlBox to find inline images on Windows.
+
++ Corrected a problem with text controls losing their selection information when they 
+  lose focus. (#1104).
+
+
+db:
++ Improved the firebird code to get the pk of the table. Thanks Uwe!
+
++ John made improvements to dbPostgres.py
+
++ Fixed problem in determining NonUpdateFields.
+
+
+biz:
++ Found and fixed bugs related to parent/child relationships
+
++ Major improvements to transaction handling. 
+
+
+General Framework:
++ dLocalize now converts strings into the given language. Set your language
+  using dApp.setLanguage(). The locales have been added to Launchpad, and we'll
+  regularly sync up with LP for our translations. 
+
++ Fixed case mismatch in dLocalize (#1086).
+
++ Added dApp.makeDaboDirectories() and quickStart(), which set up a structure for
+  dabo-based applications. 
+
+
+Reporting:
++ Fixed the Show property to evaluate correctly at runtime.
+
++ BarGraph added, thanks to Gary.
+
++ Fixed a traceback when trying to start ReportDesigner. (#1106).
+
+
+===============================================================================
 Dabo 0.8.1 (2007-07-13) (Revision 3251):
+
 + Added ScanRestorePosition property to dBizobj. Added optional parameter
   scanReverse to scan(). This fixes the fact that previously user code
   didn't have access to the __scanRestorePosition and __scanReverse
