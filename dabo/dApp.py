@@ -388,7 +388,7 @@ class dApp(dObject):
 	def _checkForUpdates(self, force=False):
 		# If they are running Subversion, don't update.
 		usesSubversion = os.path.isdir(os.path.join(os.path.split(dabo.__file__)[0], ".svn"))
-		if usesSubversion:
+		if usesSubversion and not force:
 			self._setWebUpdate(False)
 			return (False, False)
 		prf = self._frameworkPrefs
@@ -396,7 +396,7 @@ class dApp(dObject):
 		retFirstTime = not prf.hasKey("web_update")
 		if not retFirstTime:
 			val = prf.getValue
-			runCheck = False
+			runCheck = force
 			now = datetime.datetime.now()
 			if not force:
 				webUpdate = val("web_update")
