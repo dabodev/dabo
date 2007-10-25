@@ -470,8 +470,12 @@ class uiApp(dObject, wx.App):
 			win = self.ActiveForm.ActiveControl
 			if win:
 				try:
-					win.SetSelection(-1, -1)
-				except: pass			
+					win.SelectAll()
+				except:
+					try:
+						win.SetSelection(-1, -1)
+					except:
+						pass
 
 			
 	def _getContainingGrid(self, win):
