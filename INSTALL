@@ -8,14 +8,35 @@ PREREQUISITES:
 + reportlab
 + PIL (also known as Imaging or the Python Imaging Library)
 
+
 INSTALLATION:
-As root or administrator, execute the following shell command:
-	python setup.py install
+Windows: run 'win_setup.bat'
+Mac or Linux: As root or administrator, execute the following shell command:
+    python setup.py install
 
 That's it! 
 
-But... if you have trouble, and for whatever reason the setup.py doesn't
-work, just add a file named 'dabo.pth' to your site-packages directory,
+
+OTHER STUFF:
+There are two other directories in the same folder as this file: 'demo' and 
+'ide'. They contain useful programs (written in Dabo, of course!) to help
+you explore and develop with Dabo. You should move these to a convenient 
+folder on your system, such as 'My Documents\Dabo' on Windows, or '~/dabo' on 
+Linux or Mac.
+
+The 'demo' folder contains the DaboDemo application, which shows off a lot of
+the cool things in Dabo. This is still a work-in-progress, with more demos
+being added all the time. Be sure to check the website for updates!
+
+The 'ide' folder contains our visual tools, such as the Class Designer, which
+you can use to visually design your UI; the connection editor ('CxnEditor'),
+which is used to create connections to database servers, as well as several 
+other useful visual tools. 
+
+
+HAVING PROBLEMS?
+But... if you have trouble installing, and for whatever reason the setup.py 
+doesn't work, just add a file named 'dabo.pth' to your site-packages directory,
 with the path to dabo e.g. '/home/pmcnett/projects/dabo'.
 
 If you are on Linux and got the following error:
