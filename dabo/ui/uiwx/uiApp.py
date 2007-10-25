@@ -185,8 +185,19 @@ class uiApp(dObject, wx.App):
 			answer = dabo.ui.areYouSure(msg, title=_("Dabo Updates"), cancelButton=False)
 			if answer:
 				vers = self.dApp._updateFramework()
-				dabo.ui.info(_("Dabo has been updated to revision %s. The app "
-						"will now exit. Please re-run the application.") % vers)
+				if vers is None:
+					# Update was not successful
+					dabo.ui.info(_("There was a problem getting a response from the Dabo site. "
+							"Please check your internet connection and try again later."), title=_("Update Failed"))
+					answer = False
+				elif vers == 0:
+					# There were no changed files available.
+					dabo.ui.info(_("There were no changed files available - your system is up-to-date!"), 
+							title=_("Update Failed"))
+					answer = False
+				else:
+					dabo.ui.info(_("Dabo has been updated to revision %s. The app "
+							"will now exit. Please re-run the application.") % vers, title=_("Success!"))
 		return not answer
 		
 	
