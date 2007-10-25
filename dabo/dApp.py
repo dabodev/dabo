@@ -433,9 +433,13 @@ class dApp(dObject):
 		except:
 			# No internet access, or Dabo site is down.
 			dabo.errorLog.write(_("Cannot access the Dabo site."))
-			return
-		flist = eval(resp.read())
-		flist = eval(zz)
+			return None
+		respFiles = resp.read()
+		if not respFiles:
+			# No updates available
+			dabo.errorLog.write(_("No changed files available."))
+			return 0
+		flist = eval(respFiles)		
 		basePth = os.path.split(dabo.__file__)[0]
 		url = "http://dabodev.com/versions/dabo/%s"
 		for mtype, fpth in flist:
