@@ -11,7 +11,7 @@ Most Notable Things:
 
 + Web Update is available; after downloading and installing this version of 
   Dabo, you can turn Web Update on in the new Edit|Preferences window and
-  receive updates automatically or semi-automatically.
+  be notified when updates are available. Dabo will then update itself if you wish.
 
 
 UI:
@@ -44,7 +44,8 @@ UI:
 + Grid selection wasn't updating correctly when navigating with the keyboard. Thanks
   Simen for reporting and helping to fix the problem.
 
-+ Added FrameCount property to dImage.
++ Added FrameCount and PictureIndex properties to dImage to deal with multi-image
+  files.
 
 + Added PreferenceDialog class, a central place for putting application preferences.
 
