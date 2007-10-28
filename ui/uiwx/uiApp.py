@@ -193,7 +193,7 @@ class uiApp(dObject, wx.App):
 				elif vers == 0:
 					# There were no changed files available.
 					dabo.ui.info(_("There were no changed files available - your system is up-to-date!"), 
-							title=_("Update Failed"))
+							title=_("No Update Needed"))
 					answer = False
 				else:
 					dabo.ui.info(_("Dabo has been updated to revision %s. The app "
