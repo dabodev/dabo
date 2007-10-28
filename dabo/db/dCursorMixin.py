@@ -167,11 +167,14 @@ class dCursorMixin(dObject):
 	def pkExpression(self, rec=None):
 		"""Returns the PK expression for the passed record."""
 		if rec is None:
-			rec = self._records[self.RowNumber]
+			try:
+				rec = self._records[self.RowNumber]
+			except IndexError:
+				rec = {}
 		if isinstance(self.KeyField, tuple):
 			pk = tuple([rec[kk] for kk in self.KeyField])
 		else:
-			pk = rec[self.KeyField]
+			pk = rec.get(self.KeyField, None)
 		return pk
 
 
@@ -508,7 +511,7 @@ class dCursorMixin(dObject):
 					key = tuple([row[k] for k in kf])
 					self.__unsortedRows.append(key)
 				else:
-					self.__unsortedRows.append(row[self.KeyField])
+					self.__unsortedRows.append(row[kf])
 
 		# First, preserve the PK of the current row so that we can reset
 		# the RowNumber property to point to the same row in the new order.
@@ -517,7 +520,7 @@ class dCursorMixin(dObject):
 				currRow = self._records[self.RowNumber]
 				currRowKey = tuple([currRow[k] for k in kf])
 			else:
-				currRowKey = self._records[self.RowNumber][self.KeyField]
+				currRowKey = self._records[self.RowNumber][kf]
 		except IndexError:
 			# Row no longer exists, such as after a Requery that returns
 			# fewer rows.
@@ -531,7 +534,7 @@ class dCursorMixin(dObject):
 					key = tuple([row[k] for k in kf])
 					sortList.append([self.__unsortedRows.index(key), row])
 				else:
-					sortList.append([self.__unsortedRows.index(row[self.KeyField]), row])
+					sortList.append([self.__unsortedRows.index(row[kf]), row])
 		else:
 			for row, rec in enumerate(self._records):
 				sortList.append([self.getFieldVal(col, row), rec])
@@ -585,7 +588,7 @@ class dCursorMixin(dObject):
 					key = tuple([row[k] for k in kf])
 					found = (key == currRowKey)
 				else:
-					found = row[self.KeyField] == currRowKey
+					found = row[kf] == currRowKey
 				if found:
 					self.RowNumber = ii
 					break
@@ -782,7 +785,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			if isinstance(kf, tuple):
 				ret = tuple([rec[k] for k in kf])
 			else:
-				ret = rec[kf]
+				ret = rec.get(kf, None)
 		return ret
 
 
@@ -911,7 +914,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 				else:
 					# This can also happen with a new record, since we just stuff the
 					# fields full of empty strings.
-					ignore = self._newRecords.has_key(rec[keyField])
+					ignore = self._newRecords.has_key(rec.get(keyField, None))
 
 				if not ignore:
 					msg = _("!!! Data Type Mismatch: field=%s. Expecting: %s; got: %s") \
@@ -1472,13 +1475,14 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _getRecordByPk(self, pk):
 		"""Find the record with the passed primary key; return (row, record)."""
-		for idx, rec in enumerate(self._records):
-			if self._compoundKey:
-				key = tuple([rec[k] for k in self.KeyField])
-			else:
-				key = rec[self.KeyField]
-			if key == pk:
-				return (idx, rec)
+		if self.KeyField:
+			for idx, rec in enumerate(self._records):
+				if self._compoundKey:
+					key = tuple([rec[k] for k in self.KeyField])
+				else:
+					key = rec[self.KeyField]
+				if key == pk:
+					return (idx, rec)
 		return (None, None)
 
 
@@ -1621,6 +1625,9 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 		Optionally pass in a row number, otherwise use the current record.
 		"""
+		if not self.KeyField:
+			# Cannot update without a KeyField
+			return "1 = 0"
 		bo = self.BackendObject
 		tblPrefix = bo.getWhereTablePrefix(self.Table,
 					autoQuote=self.AutoQuoteNames)
@@ -2047,7 +2054,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _getAutoPopulatePK(self):
 		try:
-			return self._autoPopulatePK
+			return self._autoPopulatePK and self.KeyField
 		except AttributeError:
 			return True
 
@@ -2192,7 +2199,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			self._compoundKey = False
 		self.AuxCursor._keyField = self._keyField
 		self.AuxCursor._compoundKey = self._compoundKey
-		self._keyFieldSet = self.AuxCursor._keyFieldSet = True
+		self._keyFieldSet = self.AuxCursor._keyFieldSet = (self._hasValidKeyField)
 
 
 	def _getLastSQL(self):
@@ -2325,8 +2332,8 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 			_("Returns the last executed SQL statement."))
 
 	KeyField = property(_getKeyField, _setKeyField, None,
-			_("Name of field that is the PK. If multiple fields make up the key, "
-			"separate the fields with commas. (str)"))
+			_("""Name of field that is the PK. If multiple fields make up the key,
+			separate the fields with commas. (str)"""))
 
 	Record = property(_getRecord, None, None,
 			_("""Represents a record in the data set. You can address individual
