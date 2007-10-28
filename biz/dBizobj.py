@@ -988,11 +988,12 @@ class dBizobj(dObject):
 		It exists so that a bizobj can move through the records in its cursor
 		*without* firing additional code.
 		"""
-		self._CurrentCursor.moveToPK(pk)
-		if updateChildren:
-			for child in self.__children:
-				# Let the child know the current dependent PK
-				child.setCurrentParent(pk)
+		if pk is not None:
+			self._CurrentCursor.moveToPK(pk)
+			if updateChildren:
+				for child in self.__children:
+					# Let the child know the current dependent PK
+					child.setCurrentParent(pk)
 
 
 	def moveToPK(self, pk):
