@@ -9,7 +9,6 @@ from dabo.dLocalize import _, n_
 import dabo.dConstants as kons
 
 
-
 class SplashScreen(wx.Frame):
 	"""This is a specialized form that is meant to be used as a startup
 	splash screen. It takes an image file, bitmap, icon, etc., which is used
@@ -498,35 +497,41 @@ class uiApp(dObject, wx.App):
 		"""If a preference handler is defined for the form, use that. Otherwise,
 		use the generic preference dialog.
 		"""
+		from dabo.ui.dialogs import PreferenceDialog
+
 		af = self.ActiveForm
 		try:
 			af.onEditPreferences(evt)
 		except AttributeError:
 			if self.PreferenceDialogClass:
 				dlgPref = self.PreferenceDialogClass()
-				if af:
-					af.fillPreferenceDialog(dlgPref)
-				# Turn off AutoPersist for any of the dialog's preferenceKeys. Track those that 
-				# previously had it on, so we know which ones to revert afterwards.
-				keysToRevert = [pk for pk in dlgPref.preferenceKeys
-						if pk.AutoPersist]
-				for k in keysToRevert:
-					k.AutoPersist = False
+				if isinstance(dlgPref, PreferenceDialog):
+					if af:
+						af.fillPreferenceDialog(dlgPref)
+					# Turn off AutoPersist for any of the dialog's preferenceKeys. Track those that 
+					# previously had it on, so we know which ones to revert afterwards.
+					keysToRevert = [pk for pk in dlgPref.preferenceKeys
+							if pk.AutoPersist]
+					for k in keysToRevert:
+						k.AutoPersist = False
+
 				dlgPref.show()
-				if dlgPref.Accepted:
-					if hasattr(dlgPref, "_onAcceptPref"):
-						dlgPref._onAcceptPref()
-					for k in dlgPref.preferenceKeys:
-						k.persist()
-						if k in keysToRevert:
-							k.AutoPersist = True
-				else:
-					if hasattr(dlgPref, "_onCancelPref"):
-						dlgPref._onCancelPref()
-					for k in dlgPref.preferenceKeys:
-						k.cancel()
-						if k in keysToRevert:
-							k.AutoPersist = True
+
+				if isinstance(dlgPref, PreferenceDialog):
+					if dlgPref.Accepted:
+						if hasattr(dlgPref, "_onAcceptPref"):
+							dlgPref._onAcceptPref()
+						for k in dlgPref.preferenceKeys:
+							k.persist()
+							if k in keysToRevert:
+								k.AutoPersist = True
+					else:
+						if hasattr(dlgPref, "_onCancelPref"):
+							dlgPref._onCancelPref()
+						for k in dlgPref.preferenceKeys:
+							k.cancel()
+							if k in keysToRevert:
+								k.AutoPersist = True
 				if dlgPref.Modal:
 					dlgPref.release()
 			else:
