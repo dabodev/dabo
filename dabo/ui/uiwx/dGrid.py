@@ -2890,12 +2890,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 	##----------------------------------------------------------##
 	def __onRowNumChanged(self, evt):
 		# The form reports that the rownum has changed: sync the grid CurrentRow
-		if getattr(evt, "bizobj", None) is self.getBizobj():
-			try:
-				self.CurrentRow = evt.newRowNumber
-			except AttributeError:
-				pass
-
+		self.refresh()
 
 	def _onGridCellEdited(self, evt):
 		bizobj = self.getBizobj()
@@ -3729,8 +3724,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self._dataSet = val
 			dabo.ui.callAfter(self.refresh)
 			if self.getBizobj():
-				## I think I want to have the bizobj raise the RowNumChanged event,
-				## but for now this will suffice:
 				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		else:
 			self._properties["DataSet"] = val
@@ -3755,8 +3748,6 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			self.fillGrid(True)
 			biz = self.getBizobj()
 			if biz:
-				## I think I want to have the bizobj raise the RowNumChanged event,
-				## but for now this will suffice:
 				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
 		else:
 			self._properties["DataSource"] = val
