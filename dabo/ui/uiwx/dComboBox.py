@@ -27,11 +27,9 @@ class dComboBox(dcm.dControlItemMixin, wx.ComboBox):
 
 
 	def _preInitUI(self, kwargs):
-		print kwargs
 		style = kwargs.get("style", 0)
 		style |= wx.PROCESS_ENTER
 		kwargs["style"] = style
-		print kwargs
 		return kwargs
 
 
