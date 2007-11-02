@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import sys
 import warnings
 import wx
 import dabo
@@ -108,27 +109,33 @@ class dMenu(pm.dPemMixin, wx.Menu):
 		evt.Skip()
 
 
+	def _getWxItem(self, wxFunc, dMenuItemInstance, pos=None):
+		if pos is not None:
+			wxItem = wxFunc(pos, dMenuItemInstance)
+		else:
+			wxItem = wxFunc(dMenuItemInstance)
+		dMenuItemInstance.Parent = self
+		self._daboChildren[wxItem.GetId()] = dMenuItemInstance
+		if sys.platform.lower()[:3] == "win":
+			wxItem.SetBitmap(dMenuItemInstance.Icon)
+		return wxItem
+
+
 	def appendItem(self, item):
 		"""Insert a dMenuItem at the bottom of the menu."""
-		wxItem = self.AppendItem(item)
-		item.Parent = self
-		self._daboChildren[wxItem.GetId()] = item
+		wxItem = self._getWxItem(self.AppendItem, item)
 		return item
 		
 
 	def insertItem(self, pos, item):
 		"""Insert a dMenuItem before the specified position in the menu."""
-		wxItem = self.InsertItem(pos, item)
-		item.Parent = self
-		self._daboChildren[wxItem.GetId()] = item
+		wxItem = self._getWxItem(self.InsertItem, item, pos)
 		return item
 		
 
 	def prependItem(self, item):
 		"""Insert a dMenuItem at the top of the menu."""
-		wxItem = self.PrependItem(item)
-		item.Parent = self
-		self._daboChildren[wxItem.GetId()] = item
+		wxItem = self._getWxItem(self.PrependItem, item)
 		return item
 
 
