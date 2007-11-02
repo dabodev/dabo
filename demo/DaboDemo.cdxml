@@ -89,6 +89,7 @@ def afterInitAll(self):
 			sn = tree.appendNode(nd, sc)
 			sn._obj = demos[mc][sc]
 	tree.expandAll()
+	tree.setFocus()
 ]]>
 		</afterInitAll>
 		<onClearOutput><![CDATA[
