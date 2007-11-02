@@ -2054,7 +2054,7 @@ xsi:noNamespaceSchemaLocation = "http://dabodev.com/schema/dabocursor.xsd">
 
 	def _getAutoPopulatePK(self):
 		try:
-			return self._autoPopulatePK and self.KeyField
+			return self._autoPopulatePK and bool(self.KeyField)
 		except AttributeError:
 			return True
 
