@@ -51,7 +51,8 @@ class Postgres(dBackend):
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
-		return "%s%s%s" % (sqt, str(val), sqt)
+		val = self._stringify(val)
+		return "%s%s%s" % (sqt, val, sqt)
 	
 	
 	def getTables(self, cursor, includeSystemTables=False):

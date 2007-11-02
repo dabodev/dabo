@@ -42,6 +42,13 @@ class dBackend(dObject):
 		self._cursor = None
 
 
+	def _stringify(self, val):
+		"""Convert passed val to string; if unicode, leave as-is."""
+		if not isinstance(val, basestring):
+			val = str(val)
+		return val
+
+
 	def isValidModule(self):
 		""" Test the dbapi to see if it is supported on this computer."""
 		try:
