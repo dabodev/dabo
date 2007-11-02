@@ -72,7 +72,7 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 
 	def show(self):
 		if self.AutoSize:
-			self.Fit()
+			wx.CallAfter(self.Fit)
 		if self.Centered:
 			wx.CallAfter(self.Centre)
 		retVals = {wx.ID_OK : kons.DLG_OK, 
