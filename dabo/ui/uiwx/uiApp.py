@@ -9,6 +9,7 @@ from dabo.dLocalize import _, n_
 import dabo.dConstants as kons
 
 
+
 class SplashScreen(wx.Frame):
 	"""This is a specialized form that is meant to be used as a startup
 	splash screen. It takes an image file, bitmap, icon, etc., which is used
@@ -887,6 +888,8 @@ class uiApp(dObject, wx.App):
 		af = getattr(self, "_activeForm", None)
 		if af is None:
 			af = wx.GetActiveWindow()
+		if isinstance(af, wx.MDIParentFrame):
+			af = af.GetActiveChild()
 		return af
 
 	def _setActiveForm(self, frm):
