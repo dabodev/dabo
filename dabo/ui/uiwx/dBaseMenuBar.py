@@ -164,6 +164,5 @@ class dBaseMenuBar(dMenuBar):
 if __name__ == "__main__":
 	app = dabo.dApp()
 	app.setup()
-	app.MainForm.MenuBar = None
-#	app.MainForm.MenuBar = dBaseMenuBar()
+	app.MainForm.MenuBar = dBaseMenuBar()
 	app.start()
