@@ -70,11 +70,20 @@ class dDialog(fm.dFormMixin, wx.Dialog):
 		self.show()
 
 
-	def show(self):
+	def _afterShow(self):
 		if self.AutoSize:
-			wx.CallAfter(self.Fit)
+			self.Fit()
 		if self.Centered:
-			wx.CallAfter(self.Centre)
+			self.Centre()
+
+
+	def show(self):
+		# Call _afterShow() once immediately, and then once after the dialog is visible, which
+		# will correct minor mistakes such as the height of wordwrapped labels not being 
+		# accounted for. If we only called it after the dialog was already shown, then we
+		# risk the dialog being too jumpy.
+		self._afterShow()
+		dabo.ui.callAfter(self._afterShow)
 		retVals = {wx.ID_OK : kons.DLG_OK, 
 				wx.ID_CANCEL : kons.DLG_CANCEL}
 		if self.Modal:
