@@ -87,20 +87,17 @@ class TestPanel(dabo.ui.dPanel):
 				txt = getGettyAddr()
 				lbl = self.gettyLabel = dabo.ui.dLabel(self, Caption=txt, WordWrap=True)
 				sz.append(lbl, 1, border=10)
-				sz.appendSpacer(200)
 				
 				self.Caption = _("WordWrap Demo")
-				self.Width = 800
-				self.Height = 600
+				self.Width = 640
+				self.Height = 480
 				self.layout()
-				self.fitToSizer()
 			
 			def onSlider(self, evt):
 				wd = (self.slider.Value/100.0) * self.slider.Width
 				self.gettyLabel.Width = wd
 				
-		dlg = WordWrapDialog(self, BorderResizable=True)
-		dlg.Centered = True
+		dlg = WordWrapDialog(self, BorderResizable=True, AutoSize=False, Centered=True)
 		dlg.show()
 
 
