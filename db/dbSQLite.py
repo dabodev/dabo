@@ -66,9 +66,7 @@ class SQLite(dBackend):
 	def escQuote(self, val):			
 		sl = "\\"
 		qt = "\'"
-		if not isinstance(val, basestring):
-			# Make sure we aren't trying to coerce unicode chars to str
-			val = str(val)
+		val = self._stringify(val)
 		return qt + val.replace(sl, sl+sl).replace(qt, qt+qt) + qt
 	
 	
@@ -108,8 +106,7 @@ class SQLite(dBackend):
 	def formatDateTime(self, val):
 		""" We need to wrap the value in quotes. """
 		sqt = "'"		# single quote
-		if not isinstance(val, basestring):
-			val = str(val)
+		val = self._stringify(val)
 		return "%s%s%s" % (sqt, val, sqt)
 		
 	

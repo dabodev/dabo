@@ -71,7 +71,8 @@ class NEWDATABASE(dBackend):
 		#### TODO: Make sure that the format for DateTime 
 		####    values is returned correctly 
 		sqt = "'"		# single quote
-		return "%s%s%s" % (sqt, str(val), sqt)
+		val = self._stringify(val)
+		return "%s%s%s" % (sqt, val, sqt)
 
 		
 	def getTables(self, cursor, includeSystemTables=False):
