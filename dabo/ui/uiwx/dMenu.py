@@ -116,7 +116,7 @@ class dMenu(pm.dPemMixin, wx.Menu):
 			wxItem = wxFunc(dMenuItemInstance)
 		dMenuItemInstance.Parent = self
 		self._daboChildren[wxItem.GetId()] = dMenuItemInstance
-		if sys.platform.lower()[:3] == "win":
+		if dMenuItemInstance.Icon and sys.platform.lower()[:3] == "win":
 			wxItem.SetBitmap(dMenuItemInstance.Icon)
 		return wxItem
 
