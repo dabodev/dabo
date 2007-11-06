@@ -395,7 +395,7 @@ class dApp(dObject):
 				update = False
 
 			# Frozen App:
-			if sys.hasattr("frozen"):
+			if hasattr(sys, "frozen"):
 				update = False
 
 			if not update:
