@@ -44,9 +44,10 @@ class PreferenceDialog(dabo.ui.dOkCancelDialog):
 		self.pglCategory = dabo.ui.dPageList(self, TabPosition="Left",
 				ListSpacing=20)
 		self.addPages()
-		incl = self.pglCategory.PageCount == 0
+		incl = (self.pglCategory.PageCount == 0)
 		if incl or self.IncludeDefaultPages:
 			self._addDefaultPages()
+		incl = (self.pglCategory.PageCount == 0)
 		if incl or self.IncludeFrameworkPages:
 			self._addFrameworkPages()
 		self.Sizer.append1x(self.pglCategory)
