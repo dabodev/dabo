@@ -386,11 +386,22 @@ class dApp(dObject):
 		
 		
 	def _checkForUpdates(self, force=False):
-		# If they are running Subversion, don't update.
-		usesSubversion = os.path.isdir(os.path.join(os.path.split(dabo.__file__)[0], ".svn"))
-		if usesSubversion and not force:
-			self._setWebUpdate(False)
-			return (False, False)
+		if not force:
+			# Check for cases where we absolutely will not Web Update.
+			update = True
+
+			# If they are running Subversion, don't update.
+			if os.path.isdir(os.path.join(os.path.split(dabo.__file__)[0], ".svn")):
+				update = False
+
+			# Frozen App:
+			if sys.hasattr("frozen"):
+				update = False
+
+			if not update:
+				self._setWebUpdate(False)
+				return (False, False)
+
 		prf = self._frameworkPrefs
 		retAvailable = False
 		retFirstTime = not prf.hasKey("web_update")
