@@ -107,6 +107,9 @@ defaultEncoding = "utf-8"
 # Default log file for the dabo.dBug.loggit function
 loggitFile = "functionCall.log"
 
+# Check for web updates?
+checkForWebUpdates = True
+
 ### Settings - end
 
 # Do not copy/paste anything below this line into settings_override.py.
