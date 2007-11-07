@@ -3,7 +3,7 @@
 # Everything else is boilerplate copied also to other dabo repositories.
 package_name = "dabo"
 _version = "0.8.2"
-_approximateRevision = "~3637"
+_approximateRevision = "~3639"
 
 import os
 import lib
