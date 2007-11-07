@@ -3,6 +3,12 @@ class dException(StandardError):
 	"""	Base class in the framework for passing exceptions."""
 	
 
+class FontException(dException):
+	pass
+
+class FontNotFoundException(FontException):
+	pass
+
 class BeginningOfFileException(dException):
 	pass
 
