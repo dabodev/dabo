@@ -388,14 +388,16 @@ class dApp(dObject):
 	def _checkForUpdates(self, force=False):
 		if not force:
 			# Check for cases where we absolutely will not Web Update.
-			update = True
+			update = dabo.settings.checkForWebUpdates
+
 			# If they are running Subversion, don't update.
 			if os.path.isdir(os.path.join(os.path.split(dabo.__file__)[0], ".svn")):
 				update = False
+
 			# Frozen App:
-			if hasattr(sys, "frozen"):
-				mainProg = inspect.stack()[-1][1]
-				update = (mainProg != "daborun.py")
+			if hasattr(sys, "frozen") and inspect.stack()[-1][1] != "daborun.py":
+				update = False
+
 			if not update:
 				self._setWebUpdate(False)
 				return (False, False)
