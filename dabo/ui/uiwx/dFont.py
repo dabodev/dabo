@@ -79,12 +79,8 @@ class dFont(dObject):
 						automatic_face = trial
 						break
 
-			if automatic_face:
-				dabo.infoLog.write(_("The font '%s' doesn't exist on the system. Used '%s' instead.") 
-						% (val, automatic_face))
-			else:
-				dabo.errorLog.write(_("The font '%s' doesn't exist on the system.")
-						% val)
+			if not automatic_face:
+				raise dabo.dException.FontNotFoundException, _("The font '%s' doesn't exist on this system.") % val
  
 		self._propsChanged()
 
