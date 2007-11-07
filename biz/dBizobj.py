@@ -1482,7 +1482,15 @@ class dBizobj(dObject):
 
 
 	########## Pre-hook interface section ##############
-	def beforeNew(self): return ""
+	def beforeNew(self):
+		"""Called before a new record is added.
+
+		Subclasses can put in additional code to run, and/or return a non-empty
+		string to signify that the new record should not be added. The contents
+		of the string will be displayed to the user.
+		"""
+		return ""
+
 	def beforeDelete(self): return ""
 	def beforeDeleteAllChildren(self): return ""
 	def beforeFirst(self): return ""
@@ -1506,6 +1514,7 @@ class dBizobj(dObject):
 		instead.
 		"""
 		pass
+
 	def afterDelete(self): pass
 	def afterDeleteAllChildren(self): return ""
 	def afterFirst(self): pass
