@@ -165,7 +165,10 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False):
 	"""Given an xml string or file, return a Python dictionary."""
 	parser = Xml2Obj()
 	parser.attsToSkip = attsToSkip
-	isPath = os.path.exists(xml)
+	if eol in xml and "<?xml" in xml:
+		isPath = False
+	else:
+		isPath = os.path.exists(xml)
 	errmsg = ""
 	if eol not in xml and isPath:
 		# argument was a file
@@ -175,14 +178,10 @@ def xmltodict(xml, attsToSkip=[], addCodeFile=False):
 			errmsg = _("The XML in '%s' is not well-formed and cannot be parsed: %s") % (xml, e)
 	else:
 		# argument must have been raw xml:
-		if not xml.strip().startswith("<?xml "):
-			# it's a bad file name
-			errmsg = _("The file '%s' could not be found") % xml
-		else:
-			try:
-				ret = parser.Parse(xml)
-			except expat.ExpatError:
-				errmsg = _("An invalid XML string was encountered")
+		try:
+			ret = parser.Parse(xml)
+		except expat.ExpatError:
+			errmsg = _("An invalid XML string was encountered")
 	if errmsg:
 		raise dabo.dException.XmlException, errmsg
 	if addCodeFile and isPath:
