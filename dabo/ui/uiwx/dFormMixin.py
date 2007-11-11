@@ -62,6 +62,12 @@ class dFormMixin(pm.dPemMixin):
 		self._tempForm = False
 		# Transparency level
 		self._transparency = None
+		# Defaults for window sizing
+		self._defaultLeft = 50
+		self._defaultTop = 50
+		self._defaultWidth = 600
+		self._defaultHeight = 500
+		self._defaultState = "Normal"
 
 		super(dFormMixin, self).__init__(preClass, parent, properties, 
 				attProperties, *args, **kwargs)
@@ -415,11 +421,11 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		if self.Application and self.SaveRestorePosition:
 			name = self.getAbsoluteName()
-			left = self.Application.getUserSetting("%s.left" % name)
-			top = self.Application.getUserSetting("%s.top" % name)
-			width = self.Application.getUserSetting("%s.width" % name)
-			height = self.Application.getUserSetting("%s.height" % name)
-			state = self.Application.getUserSetting("%s.windowstate" % name)
+			left = self.Application.getUserSetting("%s.left" % name, self._defaultLeft)
+			top = self.Application.getUserSetting("%s.top" % name, self._defaultTop)
+			width = self.Application.getUserSetting("%s.width" % name, self._defaultWidth)
+			height = self.Application.getUserSetting("%s.height" % name, self._defaultHeight)
+			state = self.Application.getUserSetting("%s.windowstate" % name, self._defaultState)
 
 			if isinstance(left, int) and isinstance(top, int):
 				self.Position = (left,top)
