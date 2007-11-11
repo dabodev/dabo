@@ -100,7 +100,7 @@ class dBizobj(dObject):
 		for those cases where connections are created later, use this method to
 		establish the connection used by the bizobj.
 		"""
-		self._cursorFactory = conn
+		self._cursorFactory = self._connection = conn
 		if conn:
 			# Base cursor class : the cursor class from the db api
 			self.dbapiCursorClass = self._cursorFactory.getDictCursorClass()
