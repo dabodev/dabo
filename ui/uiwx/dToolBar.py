@@ -154,6 +154,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 			picBmp = dabo.ui.strToBmp(pic)
 		else:
 			picBmp = pic
+		enabled = self._extractKey(kwargs, "Enabled", True)
 		
 		wd, ht = picBmp.GetWidth(), picBmp.GetHeight()
 		needScale = False
@@ -201,6 +202,7 @@ class dToolBar(cm.dControlMixin, wx.ToolBar):
 		else:
 			self._daboChildren.insert(pos, butt)
 		butt._parent = self
+		butt.Enabled = enabled
 
 		return butt
 			
