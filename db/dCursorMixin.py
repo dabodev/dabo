@@ -279,6 +279,7 @@ class dCursorMixin(dObject):
 			sql = unicode(sql, self.Encoding)
 		# Some backends, notably Firebird, require that fields be specially marked.
 		sql = self.processFields(sql)
+		paramStr = ["%s" % p for p in params]
 
 		try:
 			if params is None or len(params) == 0:
@@ -288,14 +289,15 @@ class dCursorMixin(dObject):
 			else:
 				res = self.superCursor.execute(self, sql, params)
 				if not self.IsPrefCursor:
-					dabo.dbActivityLog.write("SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(params)))
+					dabo.dbActivityLog.write("SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(paramStr)))
 		except Exception, e:
 			# There can be cases where errors are expected. In those cases, the 
 			# calling routine will pass the class of the expected error, and will
 			# handle it appropriately.
 			if errorClass is not None and isinstance(e, errorClass):
 				raise errorClass, e
-			dabo.dbActivityLog.write("FAILED SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(params)))
+			paramStr = ["%s" % p for p in params]
+			dabo.dbActivityLog.write("FAILED SQL: %s, PARAMS: %s" % (sql.replace("\n", " "), ", ".join(paramStr)))
 			# If this is due to a broken connection, let the user know.
 			# Different backends have different messages, but they
 			# should all contain the string 'connect' in them.
