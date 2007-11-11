@@ -40,7 +40,7 @@ sudo apt-get install python-imaging
 
 	""" % "\n\t".join(_failedLibs)
 
-	sys.exit(msg)
+	raise ImportError, msg
 del(_failedLibs)
 #######################################################
 
