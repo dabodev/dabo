@@ -40,6 +40,11 @@ def showCode(self, line=-1):
 		<afterInit><![CDATA[
 def afterInit(self):
 	self.BasePrefKey = "demo.DaboDemo"
+	self._defaultLeft = 50
+	self._defaultTop = 50
+	w, h = dabo.ui.getDisplaySize()
+	self._defaultWidth = w - 100
+	self._defaultHeight = h - 100
 	self.setupMenu()
 ]]>
 		</afterInit>
