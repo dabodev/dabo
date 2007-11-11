@@ -355,15 +355,16 @@ class dCursorMixin(dObject):
 		return res
 
 
-	def executeSafe(self, sql):
+	def executeSafe(self, sql, params=None):
 		"""Execute the passed SQL using an auxiliary cursor.
 		This is considered 'safe', because it won't harm the contents
-		of the main cursor.
+		of the main cursor. Returns the temp cursor.
 		"""
 		ac = self.AuxCursor
 		self._syncAuxProperties()
-		return ac.execute(sql)
-	
+		ac.execute(sql, params)
+		return ac
+		
 	
 	def _newStructure(self, sql):
 		"""Attempts to parse the SQL to determine if the fields being selected will require
