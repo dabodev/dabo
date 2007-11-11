@@ -574,6 +574,11 @@ def isMouseMiddleDown():
 	return wx.GetMouseState().middleDown
 
 
+def getDisplaySize():
+	"""Returns the current display resolution in (width, height) format."""
+	return wx.DisplaySize()
+
+
 #### This will have to wait until I can figure out how to simulate a
 #### modal form for the calendar.
 # def popupCalendar(dt=None, x=None, y=None, pos="topleft"):
