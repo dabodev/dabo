@@ -561,20 +561,20 @@ class dBizobj(dObject):
 			raise StandardError, e
 
 
-	def execute(self, sql):
+	def execute(self, sql, params=None):
 		"""Execute the sql on the cursor. Dangerous. Use executeSafe instead."""
 		self._syncWithCursors()
-		return self._CurrentCursor.execute(sql)
+		return self._CurrentCursor.execute(sql, params)
 
 
-	def executeSafe(self, sql):
+	def executeSafe(self, sql, params=None):
 		"""Execute the passed SQL using an auxiliary cursor.
 
 		This is considered 'safe', because it won't harm the contents of the
 		main cursor.
 		"""
 		self._syncWithCursors()
-		return self._CurrentCursor.executeSafe(sql)
+		return self._CurrentCursor.executeSafe(sql, params)
 
 
 	def getChangedRows(self, includeNewUnchanged=False):
