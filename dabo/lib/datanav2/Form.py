@@ -9,6 +9,13 @@ import dabo.lib.reportUtils as reportUtils
 import PageFrame
 import Page
 import Grid
+# See if the reporting libraries are present
+_has_reporting_libs = True
+try:
+	from dabo.lib.reportWriter import Report, Page, TestCursor, TestRecord, String, Rectangle
+	from dabo.lib.reportWriter import ReportWriter
+except ImportError, e:
+	_has_reporting_libs = False
 
 dabo.ui.loadUI("wx")
 
@@ -100,7 +107,7 @@ class Form(dabo.ui.dForm):
 
 		if self.FormType == "Normal":
 			self.appendToolBarButton(_("Quick Report"), "%s/actions/document-print-preview.png" % iconPath,
-					OnHit=self.onQuickReport, tip=_("Quick Report"),
+					OnHit=self.onQuickReport, tip=_("Quick Report"), Enabled=_has_reporting_libs,
 					help=_("Run a Quick Report on the current dataset"))
 
 
@@ -202,7 +209,7 @@ class Form(dabo.ui.dForm):
 	def enableQuickReport(self):
 		## Can't enable quick report unless the dataset has been requeried once and
 		## the browse grid exists (because it gets the layout from the browse grid).
-		ret = True
+		ret = _has_reporting_libs
 		try:
 			self.PageFrame.Pages[1].BrowseGrid
 		except AttributeError:
@@ -546,8 +553,6 @@ class Form(dabo.ui.dForm):
 
 
 	def getAutoReportForm_list(self):
-		from dabo.lib.reportWriter import Report, Page, TestCursor, TestRecord, String, Rectangle
-		from dabo.lib.reportWriter import ReportWriter
 		grid = self.PageFrame.Pages[1].BrowseGrid
 		rw = ReportWriter()
 		rf = rw.ReportForm = Report(reportWriter=rw, parent=None)
