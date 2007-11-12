@@ -229,7 +229,7 @@ class MenuPanel(CaptionPanel):
 		return self.itemList.Visible
 
 	def _setPanelVisible(self, val):
-		print "SETVIS", self.Caption, val
+#		print "SETVIS", self.Caption, val
 		if val:
 			localPos = (self.Left, self.Bottom)
 			formPos = self.Parent.formCoordinates(localPos)
