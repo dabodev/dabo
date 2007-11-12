@@ -288,8 +288,9 @@ class dControlItemMixin(dDataControlMixin):
 		if self._constructed():
 			if callable(val):
 				self._sortFunction = val
-				# Force a re-ordering
-				self.sort()
+				if not isinstance(self, dabo.ui.dListControl):
+					# Force a re-ordering
+					self.sort()
 			else:
 				raise TypeError, _("SortFunction must be callable")
 		else:
