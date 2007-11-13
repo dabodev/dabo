@@ -249,6 +249,13 @@ def onHit(self, evt):
 							</dSizer>
 						</dPage>
 						<dPage Caption="Filter" designerClass="controlMix" Name="dPage1">
+							<code>
+								<onPageEnter><![CDATA[
+def onPageEnter(self, evt):
+	self.txtFilter.SetFocus()
+]]>
+								</onPageEnter>
+							</code>
 							<dSizer SlotCount="4" designerClass="LayoutSizer" Orientation="Vertical">
 								<dBorderSizer SlotCount="1" Caption="Filter Expression" sizerInfo="{'BorderSides': ['Right'], 'Border': 200, 'Expand': True}" designerClass="LayoutBorderSizer" Orientation="Horizontal">
 									<dTextBox RegID="txtFilter" sizerInfo="{'Proportion': 1, 'VAlign': 'Middle', 'Border': 3, 'Expand': True}" designerClass="controlMix" Name="txtFilter">

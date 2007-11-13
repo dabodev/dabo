@@ -30,6 +30,11 @@ class PemForm(dabo.ui.dForm):
 
 
 	def afterInit(self):
+		self._defaultLeft = 610
+		self._defaultTop = 50
+		self._defaultWidth = 370
+		self._defaultHeight = 580
+
 		self.Caption = _("Object Info")
 		pnl = dabo.ui.dPanel(self)
 		self.Sizer.append1x(pnl)

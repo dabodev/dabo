@@ -49,6 +49,7 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		self._dragObjOffset = (0, 0)
 		self._dragDrawPos = (0, 0)
 		self._appNotifiedClose = False
+		self._savedState = {}
 		# Need to store references to handles along with a reference
 		# to the control they are enclosing
 		self.handles = {}
@@ -74,16 +75,30 @@ class ClassDesignerFormMixin(LayoutSaverMixin):
 		self.onActivate(None)
 	
 	
+	def afterInit(self):
+		self._defaultLeft = 30
+		self._defaultTop = 50
+		self._defaultWidth = 570
+		self._defaultHeight = 550
+
+	
 	def afterInitAll(self):
 		self.refresh()
+
 		
 	def bringToFront(self):
 		super(ClassDesignerFormMixin, self).bringToFront()
-	
+
+
 	def saveState(self):
 		self._savedState = self._getSavedState()
-	
-	
+
+
+	def restoreSizeAndPosition(self):
+		super(ClassDesignerFormMixin, self).restoreSizeAndPosition()
+		self.saveState()
+
+
 	def _getSavedState(self):
 		if self._formMode:
 			# Save the whole form

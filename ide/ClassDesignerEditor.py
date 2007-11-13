@@ -125,6 +125,11 @@ class EditorControl(dui.dEditor):
 
 class EditorForm(dui.dForm):
 	def afterInit(self):
+		self._defaultLeft = 30
+		self._defaultTop = 620
+		self._defaultWidth = 800
+		self._defaultHeight = 260
+
 		self._objHierarchy = []
 		pnl = dabo.ui.dPanel(self)
 		self.Sizer.append1x(pnl)
