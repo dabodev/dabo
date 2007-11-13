@@ -18,6 +18,11 @@ try:
 	openGL = True
 except ImportError:
 	openGL = False
+except StandardError, e:
+	# Report the error, and abandon the import
+	dabo.errorLog.write(_("Error importing OpenGL: %s") % e)
+	openGL = False
+	
 
 class dGlWindow(cm.dControlMixin, glcanvas.GLCanvas):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
