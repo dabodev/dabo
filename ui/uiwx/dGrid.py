@@ -3722,6 +3722,7 @@ class dGrid(cm.dControlMixin, wx.grid.Grid):
 			if not isinstance(val, dabo.db.dDataSet):
 				val = dabo.db.dDataSet(val)
 			self._dataSet = val
+			self.fillGrid()
 			dabo.ui.callAfter(self.refresh)
 			if self.getBizobj():
 				self.Form.bindEvent(dEvents.RowNumChanged, self.__onRowNumChanged)
