@@ -696,7 +696,7 @@ class ClassDesigner(dabo.dApp):
 		frm.Centered = True
 		frm.Visible = True
 		# Save the initial state
-		frm.saveState()
+		dabo.ui.callAfter(frm.saveState)
 
 		return frm
 
@@ -1456,7 +1456,7 @@ class ClassDesigner(dabo.dApp):
 			if issubclass(cls, (dui.dSizer, dui.dGridSizer)):
 				obj = cls()
 			elif issubclass(cls, (dui.dBorderSizer,	 )):
-				frm = dui.dForm(None)
+				frm = dui.dForm(None, Visible=False, NameBase="BORD")
 				obj = cls(frm)
 			elif issubclass(cls, (dui.dForm, dui.dDialog)):
 				cf = self.CurrentForm
@@ -1465,7 +1465,7 @@ class ClassDesigner(dabo.dApp):
 				self.CurrentForm = cf
 				dui.callAfterInterval(100, self.updateLayout)
 			else:
-				frm = dui.dForm(None)
+				frm = dui.dForm(None, Visible=False, NameBase="DEFA")
 				# We need to handle all the dependent class types
 				if issubclass(cls, dui.dPage) and isinstance(srcObj.Parent,
 						self.pagedControls):
@@ -3947,11 +3947,10 @@ if __name__ == '__main__':
 			except dui.deadObjectException:
 				noPem = True
 		if noPem:
-			pf = self._pemForm = PemForm(None, Visible=False)
+			pf = self._pemForm = PemForm(None)
 			pf.restoreSizeAndPosition()
 			pf.Controller = self
 			dui.callAfterInterval(100, self.updateLayout)
-			pf.Visible = True
 		return self._pemForm
 
 

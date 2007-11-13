@@ -30,6 +30,8 @@ class LayoutSaverMixin(object):
 			classID=None, classDict=None, propsToExclude=None):
 		app = self.Controller
 		ret = {}
+		if not app:
+			return ret
 		if not allProps:
 			# Can be set globally by the save routine
 			allProps = app.saveAllProps

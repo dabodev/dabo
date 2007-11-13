@@ -736,9 +736,9 @@ class PropertyGrid(dabo.ui.dGrid):
 			
 			if not isinstance(pd, dict):
 				if pd is None:
-					print _("None PROP DICT:, ROW="),
+					print _("None PROP DICT:, ROW="), row
 				else:
-					print _("BAD PROP DICT:"), pd, type(pd), _("ROW="),
+					print _("BAD PROP DICT:"), pd, type(pd), _("ROW="), row
 			else:
 				if pd["type"] == "multi":
 					# This is a catch-all setting for props such as 'Value' that 
