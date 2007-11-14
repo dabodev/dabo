@@ -557,14 +557,17 @@ and type 'python %(appname)s.py' at the commandline.
 
 
 class AppWizard(Wizard):
-	def __init__(self, parent=None, *args, **kwargs):
+	def __init__(self, parent=None, defaultDirectory=None, *args, **kwargs):
 		super(AppWizard, self).__init__(parent=parent, *args, **kwargs)
 		
 		self.Caption = _("Dabo Application Wizard")
 		self.Picture = "daboIcon064"
 		self.Size = (520, 560)
 		
-		self.wizDir = sys.path[0]
+		if defaultDirectory is None:
+			self.wizDir = sys.path[0]
+		else:
+			self.wizDir = defaultDirectory
 		self.tableDict = {}
 		self.selectedTables = []
 		self.outputDirectory = ""
@@ -1169,8 +1172,10 @@ if __name__ == "__main__":
 	app.setAppInfo("appShortName", "AppWizard")
 
 	app.MainFormClass = None
+	# Need to capture this before app.setup() is called.
+	defdir = sys.path[0]
 	app.setup()
-	wiz = AppWizard(None)
+	wiz = AppWizard(None, defaultDirectory=defdir)
 	
 	# No need to start the app; when the wizard exits, so will the app.
 	
