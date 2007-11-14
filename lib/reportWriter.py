@@ -1894,7 +1894,8 @@ class ReportWriter(object):
 		return v
 		
 	def _setOutputFile(self, val):
-		if isinstance(val, file):
+		if not isinstance(val, basestring):
+			# We assume it is either a file or file-like object
 			self._outputFile = val
 		else:
 			s = os.path.split(val)
