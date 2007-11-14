@@ -816,7 +816,7 @@ class AppWizard(Wizard):
 			
 		createItems += """
 		mainSizer = self.Sizer = dabo.ui.dSizer("v")
-		gs = dabo.ui.dGridSizer(VGap=5, MaxCols=3)
+		gs = dabo.ui.dGridSizer(VGap=7, HGap=5, MaxCols=3)
 """		
 		sortedFieldNames = self.getSortedFieldNames( fieldDict )
 
@@ -826,10 +826,9 @@ class AppWizard(Wizard):
 		itemSpec = """
 		## Field %(table)s.%(fieldName)s
 		label = self.addObject(dabo.ui.dLabel, NameBase="lbl%(fieldName)s", 
-				Caption="%(fieldName)s")
-		objectRef = self.addObject(%(classRef)s, Caption="%(fieldName)s", 
-				NameBase="%(fieldName)s", DataSource="%(table)s", 
-				DataField="%(fieldName)s")
+				Caption="%(labelCaption)s")
+		objectRef = self.addObject(%(classRef)s, NameBase="%(fieldName)s", 
+				DataSource="%(table)s", DataField="%(fieldName)s"%(ctrlCap)s)
 			
 		gs.append(label, alignment=("top", "right") )%(memo_sizer)s	
 		gs.append(objectRef, "expand")
@@ -837,17 +836,17 @@ class AppWizard(Wizard):
 """
 
 		for tup in sortedFieldNames:
+			ctrlCap = ""
 			fieldName = tup[1]
 			fieldInfo = fieldDict[fieldName]
 			fieldType = typeConversion.get(fieldInfo["type"], "char")
 			labelCaption = fieldName
-			objectCaption = ""
 			if fieldType in ["memo", "blob"]:
 				classRef = "dabo.ui.dEditBox"
 			elif fieldType in ["bool",]:
 				classRef = "dabo.ui.dCheckBox"
 				labelCaption = ""
-				objectCaption = fieldName
+				ctrlCap = ', Caption="%s"' % fieldName
 			elif fieldType in ["date",]:
 				#pkm: temporary: dDateTextBox is misbehaving still. So, until we get
 				#     it figured out, change the type of control used for date editing
