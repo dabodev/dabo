@@ -50,8 +50,11 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 		
 	def __onWxMenuOpen(self, evt):
+		if not self:
+			return
+		cap = self.Caption
 		try:
-			if evt.GetMenu().Caption == self.Caption:
+			if evt.GetMenu().Caption == cap:
 				# Opening a single menu will trigger the wx event 
 				# for every menu in the menubar.
 				self.raiseEvent(dEvents.MenuOpen, evt)
@@ -62,8 +65,11 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def __onWxMenuClose(self, evt):
+		if not self:
+			return
+		cap = self.Caption
 		try:
-			if evt.GetMenu().Caption == self.Caption:
+			if evt.GetMenu().Caption == cap:
 				# Closing a single menu will trigger the wx event 
 				# for every menu in the menubar.
 				self.raiseEvent(dEvents.MenuClose, evt)
@@ -79,15 +85,17 @@ class dMenu(pm.dPemMixin, wx.Menu):
 	
 	
 	def _initEvents(self):
-		## see self._setId(), which is where the binding of wxEvents needs to take 
-		## place.
+		"""See self._setId(), which is where the binding of wxEvents needs to take 
+		place.
+		"""
 		self.bindEvent(dEvents.MenuHighlight, self._onMenuHighlight)
 
 
 	def _onMenuHighlight(self, evt):
-		## Note that this code is here in a dabo binding instead of in the wx binding
-		## because of the way we've worked around wx limitations: dMenu as a top-level
-		## menu in a menu bar doesn't send wx events.
+		"""Note that this code is here in a dabo binding instead of in the wx binding
+		because of the way we've worked around wx limitations: dMenu as a top-level
+		menu in a menu bar doesn't send wx events.
+		"""
 		self._setDynamicEnabled()
 
 
@@ -394,11 +402,6 @@ class dMenu(pm.dPemMixin, wx.Menu):
 					self.__onWxMenuHighlight, id=id_)
 	
 	
-	def _isPopupMenu(self):
-		## TODO: Make dMenu work as a submenu, a child of dMenuBar, or as a popup.
-		return False
-
-
 	def _itemByCaption(self, cap, returnPos=False):
 		"""Common method for locating a menu item by its caption, ignoring
 		all the 'special' characters for acceleration.
@@ -430,10 +433,11 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 
 	def GetChildren(self):
-		# wx doesn't provide GetChildren() for menubars or menus, but dPemMixin
-		# calls it in _getChildren(). The Dabo developer wants the submenus and
-		# items in this menu, but is using the consistent Children property to 
-		# do it.
+		"""wx doesn't provide GetChildren() for menubars or menus, but dPemMixin
+		calls it in _getChildren(). The Dabo developer wants the submenus and
+		items in this menu, but is using the consistent Children property to 
+		do it.
+		"""
 		children = self.GetMenuItems()
 		daboChildren = [self._daboChildren.get(c.GetId(), c) for c in children]
 		return daboChildren
@@ -448,9 +452,14 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 	def _setCaption(self, val):
 		if self._constructed():
+			# This is only needed for popups, but won't hurt menubar menus
+			self.SetTitle(val)
+			prnt = self.Parent
+			if isinstance(prnt, wx.MenuBar):
+				pos = prnt.FindMenu(self._caption)
+				if pos >= 0:
+					prnt.SetLabelTop(pos, val)
 			self._caption = val
-			if self._isPopupMenu():
-				self.SetTitle(val)
 		else:
 			self._properties["Caption"] = val
 
