@@ -63,3 +63,13 @@ def getPythonType(daboType):
 def getDaboType(pythonType):
 	"""Given a python data type, return the associated Dabo type code."""
 	return pythonTypes.get(pythonType, "?")
+
+def getDataType(pythonType):
+	"""Given a python data type, returns the appropriate type for database values.
+	This is generally the same as the original, except when the value is float and 
+	the Decimal type is available.
+	"""
+	ret = pythonType
+	if pythonType is float:
+		ret = daboTypes["N"]
+	return ret

@@ -190,6 +190,8 @@ class dCursorMixin(dObject):
 		showError = False
 		if _newQuery:
 			pythonType = self._types.get(field_name, type(field_val))
+			if pythonType is None:
+				pythonType = self._types[field_name] = dabo.db.getDataType(type(field_val))
 			daboType = dabo.db.getDaboType(pythonType)
 
 			if pythonType is None or isinstance(field_val, pythonType):
