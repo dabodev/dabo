@@ -111,7 +111,6 @@ class dPemMixin(dPemMixinBase):
 				properties[prop] = attVal
 		properties = dictStringify(properties)
 
-
 		# Hacks to fix up various things:
 		import dMenuBar, dMenuItem, dMenu, dFoldPanelBar, dToggleButton
 		if isinstance(self, dMenuItem.dMenuItem):
@@ -1840,17 +1839,22 @@ class dPemMixin(dPemMixinBase):
 		else:
 			v = self.Font = dabo.ui.dFont(_nativeFont=self.GetFont())
 		return v
-	
+
 	def _setDaboFont(self, val):
-		assert isinstance(val, dabo.ui.dFont)
+		#PVG: also accep wxFont parameter
+		if isinstance(val, (wx.Font, wx._gdi.Font)):
+			val = dabo.ui.dFont(_nativeFont=val)
 		if self._constructed():
 			self._font = val
-			self.SetFont(val._nativeFont)
+			try:
+				self.SetFont(val._nativeFont)
+			except AttributeError, e:
+				dabo.errorLog.write(_("Error setting font for %s") % self.Name)
 			val.bindEvent(dabo.dEvents.FontPropertiesChanged, self._onFontPropsChanged)
 		else:
 			self._properties["Font"] = val
 
-	
+
 	def _getFontBold(self):
 		return self.Font.Bold
 	
