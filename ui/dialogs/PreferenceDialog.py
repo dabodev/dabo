@@ -1,4 +1,6 @@
 # -*- coding: utf-8 -*-
+import sys
+import os
 import dabo
 if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
@@ -13,7 +15,15 @@ dayMins= 24*60
 class PreferenceDialog(dabo.ui.dOkCancelDialog):
 	def _afterInit(self):
 		self._includeDefaultPages = True
-		self._includeFrameworkPages = False
+		update = dabo.settings.checkForWebUpdates
+		if update:
+			# If they are running Subversion, don't update.
+			if os.path.isdir(os.path.join(os.path.split(dabo.__file__)[0], ".svn")):
+				update = False
+			# Frozen App:
+			if hasattr(sys, "frozen") and inspect.stack()[-1][1] != "daborun.py":
+				update = False
+		self._includeFrameworkPages = update
 		self.Size = (700, 600)
 		self.AutoSize = False
 		self.Caption = _("Preferences")
