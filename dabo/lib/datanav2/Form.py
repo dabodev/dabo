@@ -12,7 +12,6 @@ import Grid
 # See if the reporting libraries are present
 _has_reporting_libs = True
 try:
-	from dabo.lib.reportWriter import Report, Page, TestCursor, TestRecord, String, Rectangle
 	from dabo.lib.reportWriter import ReportWriter
 except ImportError, e:
 	_has_reporting_libs = False
@@ -334,6 +333,8 @@ class Form(dabo.ui.dForm):
 			dabo.ui.exclaim(_("Sorry, there are no records to report on."), 
 					title=_("No Records"))
 			return
+		from dabo.lib.reportWriter import Report, Page, TestCursor, TestRecord, String, Rectangle
+		from dabo.lib.reportWriter import ReportWriter
 
 		showAdvancedQuickReport = self.ShowAdvancedQuickReport
 		showExpandedQuickReport = self.ShowExpandedQuickReport
