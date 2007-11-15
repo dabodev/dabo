@@ -185,9 +185,9 @@ class dApp(dObject):
 		self.getTempFile = self._tempFileHolder.getTempFile
 		# Create the framework-level preference manager
 		self._frameworkPrefs = dabo.dPref(key="dabo_framework")
-		# Hold a reference to the bizobj, if any, controlling the current 
-		# database transaction
-		self._transactionBizobj = None
+		# Hold a reference to the bizobj and connection, if any, controlling 
+		# the current database transaction
+		self._transactionTokens = {}
 
 		# List of form classes to open on App Startup
 		self.formsToOpen = []  
@@ -787,26 +787,31 @@ class dApp(dObject):
 
 
 	def getTransactionToken(self, biz):
-		"""Only one bizobj at a time can begin and end transactions. This allows the bizobj
-		to query the app for the 'token', which is simply an acknowledgement that there
-		is no other transaction pending. If the bizobj gets the token, further requests for the
-		token will receive a reply of False, meaning that they should not be handling the transaction.
+		"""Only one bizobj at a time can begin and end transactions per connection. 
+		This allows the bizobj to query the app for the 'token', which is simply an 
+		acknowledgement that there is no other transaction pending for that connection. 
+		If the bizobj gets the token, further requests for the token from bizobjs using the
+		same transaction will receive a reply of False, meaning that they should not be 
+		handling the transaction.
 		"""
-		if self._transactionBizobj is None:
-			self._transactionBizobj = biz
+		cn = biz._connection
+		if self._transactionTokens.get(cn) is None:
+			self._transactionTokens[cn] = biz
 			return True
 		else:
 			return False
 
 
 	def releaseTransactionToken(self, biz):
-		"""When a process that would normally close a transaction happens, the bizobj that is
-		holding the transaction token calls this message to return the token. A check is run to 
-		ensure that the releasing bizobj is the one currently holding the token; if it is, the 
-		internal attribute is reset.
+		"""When a process that would normally close a transaction happens, the 
+		bizobj that is holding the transaction token for its connection calls this 
+		method to return the token. A check is run to ensure that the releasing bizobj 
+		is the one currently holding the token for its connection; if it is, the item is 
+		removed from the _transactionTokens dict.
 		"""
-		if biz is self._transactionBizobj:
-			self._transactionBizobj = None
+		cn = biz._connection
+		if biz is self._transactionTokens.get(cn):
+			del self._transactionTokens[cn]
 
 
 	def setLanguage(self, lang, charset=None):
