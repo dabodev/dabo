@@ -306,7 +306,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		"""Given an object that is contained in this grid
 		sizer, returns a (row,col) tuple for that item's location.
 		"""
-		if isinstance(obj, self.GridSizerItem):
+		if isinstance(obj, (self.GridSizerItem, self.SizerItem)):
 			obj = self.getItem(obj)
 		try:
 			row, col = self.GetItemPosition(obj)
@@ -320,7 +320,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		"""Given an object that is contained in this grid
 		sizer, returns a (row,col) tuple for that item's cell span.
 		"""
-		if isinstance(obj, self.GridSizerItem):
+		if isinstance(obj, (self.GridSizerItem, self.SizerItem)):
 			obj = self.getItem(obj)
 		try:
 			row, col = self.GetItemSpan(obj)
@@ -336,7 +336,7 @@ class dGridSizer(dSizerMixin.dSizerMixin, wx.GridBagSizer):
 		True if successful, or False if it fails, due to another
 		item in the way.
 		"""
-		if isinstance(obj, self.GridSizerItem):
+		if isinstance(obj, (self.GridSizerItem, self.SizerItem)):
 			obj = self.getItem(obj)
 		currRow, currCol = self.getGridSpan(obj)
 		if row is None:
