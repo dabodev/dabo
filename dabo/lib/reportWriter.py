@@ -982,7 +982,11 @@ class ReportWriter(object):
 			s = obj.getProp("expr", returnException=True)
 
 			if isinstance(s, basestring):
-				s = s.encode(self.Encoding)
+				try:
+					s = s.encode(self.Encoding)
+				except UnicodeDecodeError:
+					# s must have already been encoded, and the default encoding is ascii.
+					pass
 			else:
 				s = unicode(s)
 			func(posx, 0, s)
