@@ -368,7 +368,7 @@ class BaseForm(fm.dFormMixin):
 			
 		except dException.BusinessRuleViolation, e:
 			self.setStatusText(_("Save failed."))
-			msg = "%s:\n\n%s" % (_("Save Failed"), str(e))
+			msg = "%s:\n\n%s" % (_("Save Failed"), self.Application.str2Unicode(e))
 			self.notifyUser(msg, severe=True, exception=e)
 			return False
 
