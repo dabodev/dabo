@@ -1347,7 +1347,10 @@ class DesignerBand(DesignerPanel):
 
 			if objType == "Rectangle":
 				strokeWidth = self._rw.getPt(obj.getProp("strokeWidth")) * self.Parent.Zoom
-				strokeColor = self._rw.getColorTupleFromReportLab(obj.getProp("strokeColor"))
+				sc = obj.getProp("strokeColor")
+				if sc is None:
+					sc = (0, 0, 0)
+				strokeColor = self._rw.getColorTupleFromReportLab(sc)
 				fillColor = obj.getProp("fillColor")
 				if fillColor is not None:
 					fillColor = self._rw.getColorTupleFromReportLab(fillColor)
@@ -2135,8 +2138,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 				length = self.Length
 				pointLength = self.pointLength
 				rulerPos = self.rulerPos
-
-				for pos in range(0, pointLength+smallest, smallest):
+				for pos in range(0, int(pointLength+smallest), smallest):
 					for test in ("large", "medium", "small"):
 						if pos % size[test] == 0:
 							ruleSize = ruleSizes[test]
