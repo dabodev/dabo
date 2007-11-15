@@ -452,13 +452,21 @@ class dMenu(pm.dPemMixin, wx.Menu):
 
 	def _setCaption(self, val):
 		if self._constructed():
-			# This is only needed for popups, but won't hurt menubar menus
-			self.SetTitle(val)
 			prnt = self.Parent
 			if isinstance(prnt, wx.MenuBar):
 				pos = prnt.FindMenu(self._caption)
 				if pos >= 0:
 					prnt.SetLabelTop(pos, val)
+			else:
+				isPopup = False
+				while prnt:
+					if isinstance(prnt, wx.MenuBar):
+						isPopup = True
+						break
+					prnt = prnt.Parent
+				if isPopup:
+					# This is only needed for popups
+					self.SetTitle(val)
 			self._caption = val
 		else:
 			self._properties["Caption"] = val
