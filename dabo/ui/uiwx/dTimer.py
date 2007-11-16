@@ -45,6 +45,12 @@ class dTimer(cm.dControlMixin, wx.Timer):
 		return not self.IsRunning()
 	
 	
+	def release(self):
+		"""Make sure that the timer is stopped first"""
+		self.Stop()
+		super(dTimer, self).release()
+	
+	
 	# The following methods are not needed except for 
 	# compatibility with the various properties.
 	def Show(self, val):
@@ -58,17 +64,6 @@ class dTimer(cm.dControlMixin, wx.Timer):
 		
 		
 	# property get/set functions
-	def _getInterval(self):
-		try:
-			v = self._interval
-		except AttributeError:
-			v = self._interval = 0
-		return v
-	
-	def _setInterval(self, val):
-		self._interval = val
-	
-	
 	def _getEnabled(self):
 		return self.IsRunning()
 		
@@ -82,15 +77,28 @@ class dTimer(cm.dControlMixin, wx.Timer):
 			self._properties["Enabled"] = val
 			
 		
-	Interval = property(_getInterval, _setInterval, None,
-			_("Specifies the timer interval (milliseconds)."))
-	DynamicInterval = makeDynamicProperty(Interval)
+	def _getInterval(self):
+		try:
+			v = self._interval
+		except AttributeError:
+			v = self._interval = 0
+		return v
+	
+	def _setInterval(self, val):
+		self._interval = val
+	
 	
 	Enabled = property(_getEnabled, _setEnabled, None,
 			_("Alternative means of starting/stopping the timer, or determining "
 			"its status. If Enabled is set to True and the timer has a positive value "
 			"for its Interval, the timer will be started."))
+
+	Interval = property(_getInterval, _setInterval, None,
+			_("Specifies the timer interval (milliseconds)."))
+	
+
 	DynamicEnabled = makeDynamicProperty(Enabled)
+	DynamicInterval = makeDynamicProperty(Interval)
 	
 	
 class _dTimer_test(dPanel.dPanel):
