@@ -68,17 +68,17 @@ class Xml2Obj:
 
 		else:
 			if self._inCode:
-				self._mthdName = name.encode()
+				self._mthdName = name	#.encode()
 			elif self._inProp:
 				if self._propName:
 					# In the middle of a prop definition
-					self._currPropAtt = name.encode()
+					self._currPropAtt = name	#.encode()
 				else:
-					self._propName = name.encode()
+					self._propName = name	#.encode()
 					self._currPropDict = {}
 					self._currPropAtt = ""
 			else:
-				element = {"name": name.encode()}
+				element = {"name": name}	#.encode()}
 				if len(attributes) > 0:
 					for att in self.attsToSkip:
 						if attributes.has_key(att):
@@ -130,7 +130,7 @@ class Xml2Obj:
 		"""SAX character data event handler"""
 		if self._inCode or data.strip():
 			data = data.replace("&lt;", "<")
-			data = data.encode()
+			data = data	#.encode()
 			if self._inCode:
 				if self._mthdCode:
 					self._mthdCode += data
