@@ -109,6 +109,7 @@ from dLine import dLine
 from dListBox import dListBox
 from dListControl import dListControl
 from dBaseMenuBar import dBaseMenuBar
+from dMaskedTextBox import dMaskedTextBox
 from dMenuBar import dMenuBar
 from dMenu import dMenu
 from dMenuItem import dMenuItem
