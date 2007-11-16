@@ -1885,9 +1885,7 @@ class ReportDesigner(dabo.ui.dScrollPanel):
 		else:
 			self._fileName = fileSpec
 		xml = self._rw._getXMLFromForm(self._rw.ReportForm)
-		file = open(fileSpec, "wb")
-		file.write(xml)
-		file.close()
+		file(fileSpec, "wb").write(xml.encode(dabo.defaultEncoding))
 		self._rw._setMemento()
 		self.setCaption()
 
