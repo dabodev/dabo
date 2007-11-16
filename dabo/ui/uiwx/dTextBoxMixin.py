@@ -52,9 +52,7 @@ class dTextBoxMixinBase(dcm.dDataControlMixin):
 		setter = self.SetValue
 		if hasattr(self, "ChangeValue"):
 			setter = self.ChangeValue
-		val = self.getStringValue(self.Value)
-		print "VAL", val
-		setter(val)
+		setter(self.getStringValue(self.Value))
 		self.InsertionPosition = insPos
 		self.SelectionStart = startPos
 		self.SelectionEnd = endPos
