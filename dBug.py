@@ -35,6 +35,11 @@ def logPoint(msg="", levels=None):
 	return s
 
 
+def mainProgram():
+	"""Returns the name of first program in the call stack"""
+	return inspect.stack()[-1][1]
+	
+
 def loggit(fnc):
 	"""Decorator function to create a log of all methods as they are called. To use
 	it, modify all your methods from:
