@@ -42,7 +42,13 @@ class PgConnectionSelect(WizardPage):
 		btn = dabo.ui.dButton(self, Caption=_("Create..."), RegID="btnCreate")
 		btn.bindEvent(dEvents.Hit, self.onFileCreate)
 		gsz.appendItems((lbl, btn))
-		
+		if self.Application.Platform == "GTK":
+			# Gtk does not allow a modal form to invoke another modal form.
+			btn.Enabled = False	
+			btn.Caption = _(" Not available in Gtk ")
+			btn.FontSize -=2
+			btn.FontItalic = True
+
 		sz.append1x(gsz)
 		sz.appendSpacer(1)
 		self.layout()
