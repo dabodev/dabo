@@ -12,7 +12,7 @@ import Grid
 # See if the reporting libraries are present
 _has_reporting_libs = True
 try:
-	from dabo.lib.reportWriter import ReportWriter
+	import dabo.lib.reportWriter as lrw
 except ImportError, e:
 	_has_reporting_libs = False
 
@@ -333,8 +333,6 @@ class Form(dabo.ui.dForm):
 			dabo.ui.exclaim(_("Sorry, there are no records to report on."), 
 					title=_("No Records"))
 			return
-		from dabo.lib.reportWriter import Report, Page, TestCursor, TestRecord, String, Rectangle
-		from dabo.lib.reportWriter import ReportWriter
 
 		showAdvancedQuickReport = self.ShowAdvancedQuickReport
 		showExpandedQuickReport = self.ShowExpandedQuickReport
@@ -555,8 +553,8 @@ class Form(dabo.ui.dForm):
 
 	def getAutoReportForm_list(self):
 		grid = self.PageFrame.Pages[1].BrowseGrid
-		rw = ReportWriter()
-		rf = rw.ReportForm = Report(reportWriter=rw, parent=None)
+		rw = lrw.ReportWriter()
+		rf = rw.ReportForm = lrw.Report(reportWriter=rw, parent=None)
 		rf["Title"] = "Quick Report: %s" % self.Caption
 		rf["PageHeader"]["Height"] = '''"0.75 in"'''
 
@@ -587,7 +585,7 @@ class Form(dabo.ui.dForm):
 				# We'll run off the edge of the page, ignore the rest:
 				break
 
-			rect = rf["PageHeader"].addObject(Rectangle)
+			rect = rf["PageHeader"].addObject(lrw.Rectangle)
 			rect["Width"] = repr(rectWidth)
 			rect["Height"] = repr(grid.HeaderHeight)
 			rect["StrokeWidth"] = "0.25"
@@ -595,7 +593,7 @@ class Form(dabo.ui.dForm):
 			rect["x"] = repr(x)
 			rect["y"] = "0"
 			
-			string = rf["PageHeader"].addObject(String)
+			string = rf["PageHeader"].addObject(lrw.String)
 			string["Width"] = repr(col.Width)
 			string["Height"] = repr(col.HeaderFontSize)
 			string["FontSize"] = repr(col.HeaderFontSize)
@@ -609,7 +607,7 @@ class Form(dabo.ui.dForm):
 		reportWidth = x
 
 		# Page Header Title:
-		string = rf["PageHeader"].addObject(String)
+		string = rf["PageHeader"].addObject(lrw.String)
 		string["Width"] = repr(reportWidth)
 		string["Height"] = '''15.96'''
 		string["FontSize"] = '''14'''
@@ -641,8 +639,8 @@ class Form(dabo.ui.dForm):
 			else:
 				textY = vertBuffer
 
-			rect = rf["Detail"].addObject(Rectangle)
-			string = rf["Detail"].addObject(String)
+			rect = rf["Detail"].addObject(lrw.Rectangle)
+			string = rf["Detail"].addObject(lrw.String)
 
 			rect["Width"] = repr(rectWidth)
 			rect["Height"] = repr(grid.RowHeight)
@@ -673,7 +671,7 @@ class Form(dabo.ui.dForm):
 		rf["Page"]["Size"] = '''"letter"'''
 		rf["Page"]["Orientation"] = repr(orientation)
 
-		testCursor = rf.addElement(TestCursor)
+		testCursor = rf.addElement(lrw.TestCursor)
 		for rec in self.getBizobj().getDataSet(rows=10):
 			tRec = {}
 			for fld, val in rec.items():
