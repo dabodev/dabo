@@ -421,8 +421,9 @@ class dFormMixin(pm.dPemMixin):
 		"""
 		if self.Application and self.SaveRestorePosition:
 			name = self.getAbsoluteName()
-			left = self.Application.getUserSetting("%s.left" % name, self._defaultLeft)
-			top = self.Application.getUserSetting("%s.top" % name, self._defaultTop)
+			if not self.Centered:
+				left = self.Application.getUserSetting("%s.left" % name, self._defaultLeft)
+				top = self.Application.getUserSetting("%s.top" % name, self._defaultTop)
 			width = self.Application.getUserSetting("%s.width" % name, self._defaultWidth)
 			height = self.Application.getUserSetting("%s.height" % name, self._defaultHeight)
 			state = self.Application.getUserSetting("%s.windowstate" % name, self._defaultState)
