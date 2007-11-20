@@ -34,7 +34,8 @@ class dObject(Dummy, autosuper, DoDefaultMixin, PropertyHelperMixin,
 	_call_beforeInit, _call_afterInit, _call_initProperties = True, True, True
 
 	def __init__(self, properties=None, *args, **kwargs):
-		self._properties = {}
+		if not hasattr(self, "_properties"):
+			self._properties = {}
 		if self._call_beforeInit:
 			self._beforeInit()
 		if self._call_initProperties:
