@@ -209,6 +209,7 @@ class dPemMixin(dPemMixinBase):
 		## runtime classes.
 		if self._beforeSetProperties(properties) is False:
 			return
+		self._properties = {}
 		self.setProperties(properties)
 		self._afterSetProperties()
 	
