@@ -271,7 +271,7 @@ class dCursorMixin(dObject):
 		return ret
 
 
-	def execute(self, sql, params=(), _newQuery=False, errorClass=None):
+	def execute(self, sql, params=None, _newQuery=False, errorClass=None):
 		""" Execute the sql, and populate the DataSet if it is a select statement."""
 		# The idea here is to let the super class do the actual work in
 		# retrieving the data. However, many cursor classes can only return
@@ -281,6 +281,9 @@ class dCursorMixin(dObject):
 			sql = unicode(sql, self.Encoding)
 		# Some backends, notably Firebird, require that fields be specially marked.
 		sql = self.processFields(sql)
+
+		if params is None:
+			params = ()
 		paramStr = ["%s" % p for p in params]
 
 		try:
