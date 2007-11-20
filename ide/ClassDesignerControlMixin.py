@@ -779,6 +779,9 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"SashPosition": {"type" : int, "readonly" : False},
 				"ShowPanelSplitMenu" : {"type" : bool, "readonly" : False},
 				"Split" : {"type" : bool, "readonly" : False}}
+		spinnerProps = {"Max": {"type" : int, "readonly" : False},
+				"Min": {"type" : int, "readonly" : False},
+				"SpinnerWrap": {"type" : bool, "readonly" : False}]}
 		textProps = {"Alignment": {"type": list, "readonly": False,
 					"values": ["Left", "Center", "Right"]},
 				"ForceCase": {"type" : list, "readonly" : False,
@@ -938,6 +941,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 			ret.update(colorProps)
 			ret.update(fontProps)
 		elif isinstance(self, dabo.ui.dSpinner):
+			ret.update(spinnerProps)
 			ret.update(colorProps)
 			ret.update(fontProps)
 		elif isinstance(self, dabo.ui.dSplitter):
