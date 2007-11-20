@@ -781,7 +781,7 @@ class ClassDesignerControlMixin(LayoutSaverMixin):
 				"Split" : {"type" : bool, "readonly" : False}}
 		spinnerProps = {"Max": {"type" : int, "readonly" : False},
 				"Min": {"type" : int, "readonly" : False},
-				"SpinnerWrap": {"type" : bool, "readonly" : False}]}
+				"SpinnerWrap": {"type" : bool, "readonly" : False}}
 		textProps = {"Alignment": {"type": list, "readonly": False,
 					"values": ["Left", "Center", "Right"]},
 				"ForceCase": {"type" : list, "readonly" : False,
