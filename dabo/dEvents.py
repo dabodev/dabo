@@ -152,10 +152,12 @@ class EditorEvent(dEvent):
 		return issubclass(objectClass, dabo.ui.dEditor)
 	appliesToClass = classmethod(appliesToClass)
 
+
 class GridEvent(dEvent):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dGrid)
 	appliesToClass = classmethod(appliesToClass)
+
 
 class KeyEvent(dEvent):
 	def appliesToClass(eventClass, objectClass):
@@ -197,6 +199,12 @@ class CalendarEvent(dEvent):
 class TreeEvent(dEvent):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dTreeView)
+	appliesToClass = classmethod(appliesToClass)
+
+
+class SpinnerEvent(dEvent):
+	def appliesToClass(eventClass, objectClass):
+		return issubclass(objectClass, dabo.ui.dSpinner)
 	appliesToClass = classmethod(appliesToClass)
 
 
@@ -804,3 +812,26 @@ class HtmlLinkClicked(dEvent):
 	def appliesToClass(eventClass, objectClass):
 		return issubclass(objectClass, dabo.ui.dHtmlBox)
 	appliesToClass = classmethod(appliesToClass)
+
+
+class SpinUp(SpinnerEvent):
+	"""Occurs when the spinner is incremented, either by clicking
+	the spinner 'up' button or by using the keyboard up arrow.
+	"""
+	pass
+
+
+class SpinDown(SpinnerEvent):
+	"""Occurs when the spinner is decremented, either by clicking
+	the spinner 'down' button or by using the keyboard down arrow.
+	"""
+	pass
+
+
+class Spinner(SpinnerEvent):
+	"""Occurs when the spinner is changed, either by clicking
+	one of the spinner buttons or by using the keyboard arrows.
+	"""
+	pass
+
+

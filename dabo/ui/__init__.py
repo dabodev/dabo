@@ -136,3 +136,85 @@ will not be dynamically evaluated.
 
 	return property(fget, fset, None, doc)	
 
+
+def makeProxyProperty(dct, nm, proxyAtts):
+	"""When creating composite controls, it is necessary to be able to pass through
+	property get/set calls to an object or objects within the composite control. For
+	example, if a class based on dPanel contains a textbox and a label, I might want 
+	to proxy the class's Caption to the label's Caption, the Value to the textbox, and
+	the FontSize to both. In order to do this, the object(s) to be proxied must be 
+	stored in the custom class as references in attributes of the custom class, and 
+	passed in the 'proxyAtts' parameter. In addition, passing 'self' as one of the 
+	proxyAtts will apply the property to the custom class itself; a good example 
+	would be a property like 'Height': the outer panel needs to grow as well as the 
+	inner controls. In this case, assuming you store a reference to the textbox and 
+	label in attributes named '_textbox' and '_label', respectively, the code in your 
+	custom composite class would look like:
+	
+		_proxyDict = {}
+		Caption = makeProxyProperty(_proxyDict, "Caption", "_label")
+		FontSize = makeProxyProperty(_proxyDict, "FontSize", ("_textbox", "_label"))
+		Height = makeProxyProperty(_proxyDict, "Value", ("self", "_textbox"))
+		Value = makeProxyProperty(_proxyDict, "Value", "_textbox")
+	
+	For setter operations, if the 'proxyAtts' is a sequence of more than one object, the 
+	setting will be applied to all. For the getter, only the first object in the sequence 
+	with that property will be used.
+	
+	You must declare an attribute named '_proxyDict' in the class definition before you
+	call this method; '_proxyDict' should be an empty dictionary. This dict needs to be
+	passed to this method, since there is no 'self' reference at the time that properties 
+	are declared in a class definition.
+	
+	'nm' is the name of the property to be proxied. 'proxyAtts' is either a single string
+	with the name of the attribute that will hold the reference to the inner control, or
+	it should be a tuple of strings, each of which is the name of an attribute that contains
+	the reference to an inner control.
+	"""
+	def _resolveGet(self, nm):
+		ret = None
+		for att in self.__class__._proxyDict[nm]:
+			try:
+				if att == "self":
+					base = getattr(self, "_baseClass", self.__class__)
+					obj = base.__bases__[0]
+					prop = getattr(obj, nm)
+					ret = prop.fget(self)
+				else:
+					obj = getattr(self, att)
+					ret = getattr(obj, nm)
+				break
+			except:
+				continue
+		return ret
+	
+	def _resolveSet(self, nm, val):
+		if not self._constructed():
+			return
+		resolveProps = getattr(self, "_set_resolve_props", [])
+		if nm in resolveProps:
+			return
+		resolveProps.append(nm)
+		for att in self.__class__._proxyDict[nm]:
+			if att == "self":
+				base = getattr(self, "_baseClass", self.__class__)
+				obj = base.__bases__[0]
+				prop = getattr(obj, nm)
+				prop.fset(self, val)
+			else:
+				obj = getattr(self, att)
+				setattr(obj, nm, val)
+		resolveProps.remove(nm)
+		# This may not be needed, but helps in many cases...
+		self.layout()
+
+
+	if not isinstance(proxyAtts, (list, tuple)):
+		proxyAtts = (proxyAtts, )
+	dct[nm] = proxyAtts
+	def fget(self):
+		return _resolveGet(self, nm)
+	def fset(self, val):
+		return _resolveSet(self, nm, val)
+	return property(fget, fset)
+
