@@ -174,6 +174,8 @@ class dPemMixin(dPemMixinBase):
 			name, _explicitName = self._processName(kwargs, self.__class__.__name__)
 			self._initName(name, _explicitName=_explicitName)
 
+		# Add any properties that were re-set 
+		properties.update(self._properties)
 		# Set the properties *before* calling the afterInit hook
 		self._setProperties(properties)
 		
