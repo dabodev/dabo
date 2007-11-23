@@ -317,7 +317,7 @@ insert into %s (cField, iField, nField) values (NULL, NULL, NULL)
 		self.assertEqual(bizMain.Record.pk, 2)
 		self.assertEqual(bizMain.RowNumber, 1)
 		self.assertEqual(bizChild.RowCount, 0)
-		self.assertEqual(bizChild.RowNumber, 0)
+		self.assertEqual(bizChild.RowNumber, -1)
 		
 		# Trying to get the field value from the nonexistent record should raise
 		# dException.NoRecordsException:
