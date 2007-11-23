@@ -117,6 +117,7 @@ from dMenuItem import dCheckMenuItem
 from dMenuItem import dRadioMenuItem
 import dMessageBox
 from dRadioList import dRadioList
+from dPanel import dDataPanel
 from dPanel import dPanel
 from dPanel import dScrollPanel
 from dPageFrame import dPageFrame
@@ -128,7 +129,11 @@ from dPdfWindow import dPdfWindow
 from dSizer import dSizer
 from dBorderSizer import dBorderSizer
 from dSlider import dSlider
-from dSpinner import dSpinner
+
+# Switch the commenting out of the next two lines to try the new spinner.
+from dSpinner import dSpinner as dSpinner
+#from dSpinnerX import dSpinnerX as dSpinner
+
 from dSplitForm import dSplitForm
 from dSplitter import dSplitter
 from dStatusBar import dStatusBar

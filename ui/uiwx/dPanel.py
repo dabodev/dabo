@@ -7,11 +7,12 @@ if __name__ == "__main__":
 	dabo.ui.loadUI("wx")
 
 import dControlMixin as cm
+import dDataControlMixin as dcm
 from dabo.ui import makeDynamicProperty
 
 
-class _PanelMixin(cm.dControlMixin):
-	def __init__(self, preClass, parent, properties=None, attProperties=None, 
+class _BasePanelMixin:
+	def __init__(self, superclass, preClass, parent, properties=None, attProperties=None, 
 			*args, **kwargs):
 		self._minSizerWidth = 10
 		self._minSizerHeight = 10
@@ -28,7 +29,7 @@ class _PanelMixin(cm.dControlMixin):
 		kwargs["style"] = style
 		# For performance, store this at init
 		self._platformIsWindows = (self.Application.Platform == "Win")
-		cm.dControlMixin.__init__(self, preClass, parent, properties, attProperties, 
+		superclass.__init__(self, preClass, parent, properties, attProperties, 
 				*args, **kwargs)
 	
 
@@ -144,6 +145,19 @@ class _PanelMixin(cm.dControlMixin):
 	
 	
 
+class _PanelMixin(cm.dControlMixin, _BasePanelMixin):
+	def __init__(self, preClass, parent, properties=None, attProperties=None, 
+			*args, **kwargs):
+		_BasePanelMixin.__init__(self, cm.dControlMixin, preClass, parent, properties=None, attProperties=None, 
+			*args, **kwargs)
+
+
+class _DataPanelMixin(dcm.dDataControlMixin, _BasePanelMixin):
+	def __init__(self, preClass, parent, properties=None, attProperties=None, 
+			*args, **kwargs):
+		_BasePanelMixin.__init__(self, dcm.dDataControlMixin, preClass, parent, 
+				properties=None, attProperties=None, *args, **kwargs)
+
 
 class dPanel(_PanelMixin, wx.Panel):
 	"""Creates a panel, a basic container for controls.
@@ -158,6 +172,22 @@ class dPanel(_PanelMixin, wx.Panel):
 		_PanelMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
 	
 		
+
+class dDataPanel(_DataPanelMixin, wx.Panel):
+	"""Creates a panel, a basic container for controls. This panel, unlike the plain
+	dPanel class, inherits from the Data Control mixin class, which makes it useful 
+	building composite controls that have a Value that can be bound like any simple
+	control.
+	
+	NOTE: you are responsible for implementing the Value property correctly in
+	your subclasses.
+	"""
+	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
+		self._baseClass = dDataPanel
+		preClass = wx.PrePanel
+		_DataPanelMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+
+
 
 class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 	""" This is a basic container for controls that allows scrolling.
