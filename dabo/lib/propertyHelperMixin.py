@@ -179,6 +179,13 @@ class PropertyHelperMixin(object):
 		def _setProps(_propDict):
 			delayedSettings = {}
 			for prop in _propDict.keys():
+				if prop == "Name":
+					try:
+						self._setName(_propDict[prop])
+						continue
+					except:
+						# Not a class that implements _setName()
+						pass
 				propRef = eval("self.__class__.%s" % prop)
 				if type(propRef) == property:
 					setter = propRef.fset

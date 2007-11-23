@@ -108,13 +108,15 @@ class dSpinnerX(dabo.ui.dDataPanel):
 		keys = dabo.ui.dKeys
 		kc = evt.keyCode
 		if kc in (keys.key_Up, keys.key_Numpad_up):
+			self._spinUp()
 			self.raiseEvent(dEvents.SpinUp, spinType="key")
 			self.raiseEvent(dEvents.Spinner, spinType="key")
-			self._spinUp()
+			self._onWxHit(None)
 		elif kc in (keys.key_Down, keys.key_Numpad_down):
+			self._spinDown()
 			self.raiseEvent(dEvents.SpinDown, spinType="key")
 			self.raiseEvent(dEvents.Spinner, spinType="key")
-			self._spinDown()
+			self._onWxHit(None)
 
 
 	def _numericStringVal(self, val):
@@ -293,13 +295,13 @@ class _dSpinnerX_test(dSpinnerX):
 		print "HIT!", self.Value
 	
 	def onSpinUp(self, evt):
-		print "Spin up event!"
+		print "Spin up event."
 	
 	def onSpinDown(self, evt):
-		print "Spin down event!"
+		print "Spin down event."
 	
 	def onSpinner(self, evt):
-		print "Spinner event!"
+		print "Spinner event."
 
 
 if __name__ == '__main__':
@@ -339,10 +341,18 @@ if __name__ == '__main__':
 			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="FontSize")
 			gsz.append(lbl, halign="right")
 			gsz.append(txt)
-			lbl = dabo.ui.dLabel(pnl, Caption="ForeColor")
-			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="ForeColor")
+			lbl = dabo.ui.dLabel(pnl, Caption="Height")
+			txt = dabo.ui.dTextBox(pnl, DataSource=spn, DataField="Height")
 			gsz.append(lbl, halign="right")
 			gsz.append(txt)
+			lbl = dabo.ui.dLabel(pnl, Caption="ForeColor")
+			txt = dabo.ui.dTextBox(pnl, ReadOnly=True, DataSource=spn, DataField="ForeColor")
+			btn = dabo.ui.dButton(pnl, Caption="...", OnHit=self.onColor, Width=36)
+			hsz = dabo.ui.dSizer("h")
+			hsz.append(txt, 1)
+			hsz.append(btn)
+			gsz.append(lbl, halign="right")
+			gsz.append(hsz)
 			lbl = dabo.ui.dLabel(pnl, Caption="Enabled")
 			chk = dabo.ui.dCheckBox(pnl, DataSource=spn, DataField="Enabled")
 			gsz.append(lbl, halign="right")
@@ -351,6 +361,12 @@ if __name__ == '__main__':
 			sz.append(gsz, halign="center")
 			self.update()
 			self.layout()
+
+		def onColor(self, evt):
+			color = dabo.ui.getColor(self.spinner.ForeColor)
+			if color is not None:
+				self.spinner.ForeColor = color
+				self.update()
 
 	app = dabo.dApp(MainFormClass=TestForm)
 	app.start()
