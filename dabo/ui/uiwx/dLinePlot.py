@@ -2,7 +2,14 @@
 import wx
 import wx.lib.plot as plot
 
-import numpy.oldnumeric as _Numeric
+try:
+	import numpy.oldnumeric as _Numeric
+except ImportError:
+	_Numeric = False
+except StandardError, e:
+	# Report the error, and abandon the import
+	dabo.errorLog.write(_("Error importing numpy.oldnumeric: %s") % e)
+	_Numeric = False
 
 import dabo
 import dabo.dEvents as dEvents
@@ -138,6 +145,8 @@ class plotMarkers(_TraceMixin, plot.PolyMarker):
 class dLinePlot(cm.dControlMixin, plot.PlotCanvas):
 	"""Creates a panel that can load and display a line graph."""
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
+		if not _Numeric:
+			raise ImportError, "numpy.oldnumeric is not present, so dLinePlot cannot instantiate."
 		self._plotManager = plot.PlotGraphics([])
 		
 		self._baseClass = dLinePlot
