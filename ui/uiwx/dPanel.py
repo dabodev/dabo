@@ -29,8 +29,8 @@ class _BasePanelMixin:
 		kwargs["style"] = style
 		# For performance, store this at init
 		self._platformIsWindows = (self.Application.Platform == "Win")
-		superclass.__init__(self, preClass, parent, properties, attProperties, 
-				*args, **kwargs)
+		superclass.__init__(self, preClass=preClass, parent=parent, 
+				properties=properties, attProperties=attProperties, *args, **kwargs)
 	
 
 	def layout(self, resetMin=False):
@@ -148,15 +148,15 @@ class _BasePanelMixin:
 class _PanelMixin(cm.dControlMixin, _BasePanelMixin):
 	def __init__(self, preClass, parent, properties=None, attProperties=None, 
 			*args, **kwargs):
-		_BasePanelMixin.__init__(self, cm.dControlMixin, preClass, parent, properties=None, attProperties=None, 
-			*args, **kwargs)
+		_BasePanelMixin.__init__(self, cm.dControlMixin, preClass=preClass, parent=parent, 
+				properties=properties, attProperties=attProperties, *args, **kwargs)
 
 
 class _DataPanelMixin(dcm.dDataControlMixin, _BasePanelMixin):
 	def __init__(self, preClass, parent, properties=None, attProperties=None, 
 			*args, **kwargs):
-		_BasePanelMixin.__init__(self, dcm.dDataControlMixin, preClass, parent, 
-				properties=None, attProperties=None, *args, **kwargs)
+		_BasePanelMixin.__init__(self, dcm.dDataControlMixin, preClass=preClass, parent=parent, 
+				properties=properties, attProperties=attProperties, *args, **kwargs)
 
 
 class dPanel(_PanelMixin, wx.Panel):
@@ -169,7 +169,8 @@ class dPanel(_PanelMixin, wx.Panel):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dPanel
 		preClass = wx.PrePanel
-		_PanelMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		_PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties, 
+				attProperties=attProperties, *args, **kwargs)
 	
 		
 
@@ -185,7 +186,8 @@ class dDataPanel(_DataPanelMixin, wx.Panel):
 	def __init__(self, parent, properties=None, attProperties=None, *args, **kwargs):
 		self._baseClass = dDataPanel
 		preClass = wx.PrePanel
-		_DataPanelMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		_DataPanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties, 
+				attProperties=attProperties, *args, **kwargs)
 
 
 
@@ -200,7 +202,8 @@ class dScrollPanel(_PanelMixin, wx.ScrolledWindow):
 		self._horizontalScroll = self._verticalScroll = True
 		self._baseClass = dScrollPanel
 		preClass = wx.PreScrolledWindow
-		_PanelMixin.__init__(self, preClass, parent, properties, attProperties, *args, **kwargs)
+		_PanelMixin.__init__(self, preClass=preClass, parent=parent, properties=properties, 
+				attProperties=attProperties, *args, **kwargs)
 		self.SetScrollRate(10, 10)
 #		self.SetScrollbars(10, 10, -1, -1)
 			
