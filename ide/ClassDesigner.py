@@ -377,8 +377,7 @@ class ClassDesigner(dabo.dApp):
 			self._classEvents[cls] = evtsForClass(cls)
 			self._classMethods[cls] = mthdsForClass(cls)
 
-
-	def getFormClass(self):
+	def getFormClass(self, filepath=None):
 		"""If the selected class is a form/dialog, return a mixed-in
 		subclass of it. Otherwise, return the base ClassDesignerForm.
 		"""
@@ -398,6 +397,7 @@ class ClassDesigner(dabo.dApp):
 		class DesForm(dfm, base):
 			_superBase = base
 			_superMixin = dfm
+			_classFile = filepath
 			def __init__(self, parent=None, *args, **kwargs):
 				self._isMain = formIsMain
 				if isDialog:
@@ -527,9 +527,16 @@ class ClassDesigner(dabo.dApp):
 		return a dict that can be used to re-create the object.
 		"""
 		try:
+			if not os.path.exists(pth):
+				if os.path.exists(os.path.abspath(pth)):
+					pth = os.path.abspath(pth)
 			dct = xtd.xmltodict(pth, addCodeFile=True)
-		except:
-			raise IOError, _("This does not appear to be a valid class file.")
+		except StandardError, e:
+			if pth.strip().startswith("<?xml") or os.path.exists(pth):
+				raise IOError, _("This does not appear to be a valid class file.")
+			else:
+				raise IOError, _("The class file '%s' was not found.") % pth
+			
 
 		# Traverse the dct, looking for superclass information
 		super = xtd.flattenClassDict(dct)
@@ -629,7 +636,7 @@ class ClassDesigner(dabo.dApp):
 		else:
 			# For now, just create a standard dForm mixed-in ClassDesigner
 			# form as the base.
-			frmClass = self.getFormClass()
+			frmClass = self.getFormClass(filepath=pth)
 			if isWiz:
 				self._extractKey(atts, "PageCount")
 			frm = frmClass(None, Name=nm, SaveRestorePosition=False,
