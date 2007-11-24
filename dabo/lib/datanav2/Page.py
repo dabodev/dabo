@@ -5,7 +5,6 @@ import dabo
 import dabo.dException as dException
 import dabo.dEvents as dEvents
 from dabo.dLocalize import _, n_
-from dabo.lib.utils import padl
 from dabo.dObject import dObject
 
 from dabo.ui import dPanel
@@ -295,8 +294,8 @@ class SelectPage(Page):
 				elif fldType in ("date", "datetime"):
 					if isinstance(ctrl, dabo.ui.dDateTextBox):
 						dtTuple = ctrl.getDateTuple()
-						dt = "%s-%s-%s" % (dtTuple[0], padl(dtTuple[1], 2, "0"), 
-								padl(dtTuple[2], 2, "0") )
+						dt = "%s-%s-%s" % (dtTuple[0], str(dtTuple[1]).zfill(2), 
+								str(dtTuple[2]).zfill(2) )
 					else:
 						dt = matchVal
 					matchStr = biz.formatDateTime(dt)
