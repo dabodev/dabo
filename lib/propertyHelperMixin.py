@@ -179,7 +179,7 @@ class PropertyHelperMixin(object):
 		def _setProps(_propDict):
 			delayedSettings = {}
 			for prop in _propDict.keys():
-				if prop == "Name":
+				if prop in ("Name", "NameBase"):
 					try:
 						self._setName(_propDict[prop])
 						continue
