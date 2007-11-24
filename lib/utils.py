@@ -12,7 +12,7 @@
 
 import os
 import sys
-
+import dabo
 try:
 	from win32com.shell import shell, shellcon
 except ImportError:
@@ -26,32 +26,6 @@ def reverseText(tx):
 		=> returns "!looc os si siht ,woW"
 	"""
 	return tx[::-1]
-
-
-def padl(txt, lngth, fill=" "):
-	"""Left pads the given string to the given length."""
-	txt = str(txt)[:lngth]
-	return (fill * (lngth-len(txt)) ) + txt
-		
-
-def padr(txt, lngth, fill=" "):
-	"""Right pads the given string to the given length."""
-	txt = str(txt)[:lngth]
-	return txt + (fill * (lngth-len(txt)) )
-		
-
-def padc(txt, lngth, fill=" "):
-	""" Return string of the specified length, padded with the
-	specified fill character equally on the left and right (center
-	the string). Default fill character	is space.
-	"""
-	txt = str(txt)[:lngth]
-	# If the difference is odd, the extra character goes on the right
-	diff = lngth - len(txt)
-	dl = int( diff / 2)
-	dr = diff - dl
-	
-	return (fill * dl) + txt[:lngth] + (fill * dr)
 
 
 def getUserHomeDirectory():
@@ -145,7 +119,11 @@ def dictStringify(dct):
 	ret = {}
 	for kk, vv in dct.items():
 		if isinstance(kk, unicode):
-			ret[str(kk)] = vv
+			try:
+				ret[str(kk)] = vv
+			except UnicodeEncodeError:
+				kk = kk.encode(dabo.defaultEncoding)
+				ret[kk] = vv
 		else:
 			ret[kk] = vv
 	return ret
@@ -160,7 +138,10 @@ def relativePathList(toLoc, fromLoc=None):
 	if fromLoc is None:
 		fromLoc = os.getcwd()
 	if toLoc.startswith(".."):
-		toLoc = os.path.join(os.path.split(fromLoc)[0], toLoc)
+		if os.path.isdir(fromLoc):
+			toLoc = os.path.join(fromLoc, toLoc)
+		else:
+			toLoc = os.path.join(os.path.split(fromLoc)[0], toLoc)
 	toLoc = os.path.abspath(toLoc)
 	if os.path.isfile(toLoc):
 		toDir, toFile = os.path.split(toLoc)
