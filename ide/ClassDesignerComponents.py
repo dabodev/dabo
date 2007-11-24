@@ -139,10 +139,13 @@ class LayoutSaverMixin(object):
 			if prop in propsToExclude:
 				continue
 			if (hasSizer or isinstance(self, dabo.ui.dPage) or isSplitPanel) and prop in ("Left",
-					"Right", "Top", "Bottom", "Width", "Height"):
+					"Right", "Top", "Bottom"):		#, "Width", "Height"
+					##"Right", "Top", "Bottom", "Width", "Height"):
 					## Note: there may be additional cases where we might have to fine-tune
 					## which if these parameters are skipped/included.
-					##"Right", "Top", "Bottom"):		#, "Width", "Height"
+				continue
+			if (hasSizer or isinstance(self, dabo.ui.dPage) or isSplitPanel) and prop in ("Width",
+					"Height") and self.ControllingSizer.getItemProp(self, "Expand"):
 				continue
 			if prop == "BackColor" and isinstance(self, (LayoutPanel, LayoutSpacerPanel)):
 				continue
@@ -159,8 +162,8 @@ class LayoutSaverMixin(object):
 			# accidentally contain a legal path but which do not represent paths.
 			if not prop in ("Alignment", "Caption", "DataField", "DataSource",
 					"FontFace", "HAlign", "Name", "RegID", "SelectionMode",
-					"ToolTipText", "VAlign", "Value") and (not prop.startswith("Border")
-					and not prop.startswith("Header") and not prop.startswith("Sizer_")):
+					"ToolTipText", "VAlign", "Value") and (
+					not prop.startswith(("Border", "Header", "Sizer_"))):
 				if isinstance(val, basestring) and os.path.exists(val):
 					# It's a path; convert it to a relative path
 					if isinstance(self, (dabo.ui.dForm, dabo.ui.dDialog)):
