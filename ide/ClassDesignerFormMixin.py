@@ -6,7 +6,6 @@ import random
 import new
 import dabo
 from dabo.dLocalize import _
-from dabo.lib.utils import padl
 import dabo.dEvents as dEvents
 import ClassDesignerPropSheet	
 import dabo.dConstants as kons

@@ -4,7 +4,6 @@ import dabo
 dabo.ui.loadUI("wx")
 from dabo.dLocalize import _
 import dabo.dEvents as dEvents
-from dabo.lib.utils import padl
 import dabo.ui.dialogs as dlgs
 from ClassDesignerExceptions import PropertyUpdateException
 from dabo.lib.xmltodict import xmltodict
@@ -305,7 +304,7 @@ class LayoutSaverMixin(object):
 		list. This enables us to maintain object order within
 		a dictionary, which is otherwise unordered.
 		"""
-		return "d%s%s" % (padl(numItems, 3, "0"), nm)
+		return "d%s%s" % (strl(numItems).zfill(3), nm)
 
 
 	def getChildrenPropDict(self, clsChildren=None):
