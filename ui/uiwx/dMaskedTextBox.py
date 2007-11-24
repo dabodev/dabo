@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+import datetime
 import wx
 import wx.lib.masked as masked
 import dabo
@@ -17,6 +18,7 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 	mask determines what characters are allowed in the textbox, and can also
 	include formatting characters that are not part of the control's Value.
 	"""
+	_allowedInputCodes = ("_", "!", "^", "R", "r", "<", ">", ",", "-", "0", "D", "T", "F", "V", "S")
 	_formatMap = {"phone-us": "USPHONEFULL",
 			"phone-us-ext": "USPHONEFULLEXT",
 			"ssn-us": "USSOCIALSEC",
@@ -67,14 +69,16 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		self._baseClass = dMaskedTextBox
 		self._mask = self._extractKey((properties, attProperties, kwargs), "Mask", "")
 		self._format = self._extractKey((properties, attProperties, kwargs), "Format", "")
+		self._inputCodes = self._uniqueCodes(self._extractKey((properties, attProperties, kwargs), 
+				"InputCodes", "_>"))
 		kwargs["mask"] = self._mask
-		kwargs["formatcodes"] = "_"
+		kwargs["formatcodes"] = self._inputCodes
 		if self._format:
 			code = self._formatMap.get(self._format.lower(), "")
 			if code:
 				kwargs["autoformat"] = code
-				kwargs["mask"] = ""
-		#kwargs["useFixedWidthFont"] = bool(self._mask)
+				kwargs.pop("mask")
+				kwargs.pop("formatcodes")
 		kwargs["useFixedWidthFont"] = False
 		
 		preClass = wx.lib.masked.TextCtrl
@@ -87,7 +91,14 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 		return cls._formatMap.keys()
 	getFormats = classmethod(getFormats)
 
-
+	
+	def _uniqueCodes(self, codes):
+		"""Take a string and return the same string with any duplicate characters removed.
+		The order of the characters is not preserved.
+		"""
+		return "".join(dict.fromkeys(codes).keys())
+		
+		
 	# property get/set functions
 	def _getFormat(self):
 		return self._format
@@ -101,6 +112,26 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 				dabo.errorLog.write(_("Invalid Format value: %s") % val)
 		else:
 			self._properties["Format"] = val
+
+
+	def _getInputCodes(self):
+		return self.GetFormatcodes()
+
+	def _setInputCodes(self, val):
+		if self._constructed():
+			if self.GetAutoformat() and val:
+				# Cannot have both a mask and a format
+				dabo.errorLog.write(_("Cannot set InputCodes when a Format has been set"))
+			elif [cd for cd in val if cd not in self._allowedInputCodes]:
+				# Illegal codes
+				bad = "".join([cd for cd in val if cd not in self._allowedInputCodes])
+				dabo.errorLog.write(_("Invalid InputCodes: %s") % bad)				
+			else:
+				val = self._uniqueCodes(val)
+				self._inputCodes = val
+				self.SetFormatcodes(val)
+		else:
+			self._properties["InputCodes"] = val
 
 
 	def _getMask(self):
@@ -139,6 +170,67 @@ class dMaskedTextBox(tbm.dTextBoxMixin, masked.TextCtrl):
 				Phone (US)
 				"""))
 	
+	InputCodes = property(_getInputCodes, _setInputCodes, None,
+			_("""Characters that define the type of input that the control will accept.  (str)
+			
+			These are the available input codes and their meaning:
+			===============================================
+			Character   Meaning
+			===============================================
+				#       Allow numeric only (0-9)
+
+				_        Allow spaces
+				!        Force upper
+				^        Force lower
+				R        Right-align field(s)
+				r        Right-insert in field(s) (implies R)
+				<        Stay in field until explicit navigation out of it
+				
+				>        Allow insert/delete within partially filled fields (as
+				         opposed to the default "overwrite" mode for fixed-width
+				         masked edit controls.)  This allows single-field controls
+				         or each field within a multi-field control to optionally
+				         behave more like standard text controls.
+				         (See EMAIL or phone number autoformat examples.)
+				
+				         *Note: This also governs whether backspace/delete operations
+				         shift contents of field to right of cursor, or just blank the
+				         erased section.
+				
+				         Also, when combined with 'r', this indicates that the field
+				         or control allows right insert anywhere within the current
+				         non-empty value in the field.  (Otherwise right-insert behavior
+				         is only performed to when the entire right-insertable field is
+				         selected or the cursor is at the right edge of the field.*
+				
+				,        Allow grouping character in integer fields of numeric controls
+				         and auto-group/regroup digits (if the result fits) when leaving
+				         such a field.  (If specified, .SetValue() will attempt to
+				         auto-group as well.)
+				         ',' is also the default grouping character.  To change the
+				         grouping character and/or decimal character, use the groupChar
+				         and decimalChar parameters, respectively.
+				         Note: typing the "decimal point" character in such fields will
+				         clip the value to that left of the cursor for integer
+				         fields of controls with "integer" or "floating point" masks.
+				         If the ',' format code is specified, this will also cause the
+				         resulting digits to be regrouped properly, using the current
+				         grouping character.
+				-        Prepend and reserve leading space for sign to mask and allow
+				         signed values (negative #s shown in red by default.) Can be
+				         used with argument useParensForNegatives (see below.)
+				0        integer fields get leading zeros
+				D        Date[/time] field
+				T        Time field
+				F        Auto-Fit: the control calulates its size from
+				         the length of the template mask
+				V        validate entered chars against validRegex before allowing them
+				         to be entered vs. being allowed by basic mask and then having
+				         the resulting value just colored as invalid.
+				         (See USSTATE autoformat demo for how this can be used.)
+				S        select entire field when navigating to new field
+			"""))
+	
 	Mask = property(_getMask, _setMask, None,
 			_("""Display Mask for the control.  (str)
 			
@@ -175,50 +267,162 @@ if __name__ == "__main__":
 	class MaskedForm(dabo.ui.dForm):
 		def afterInit(self):
 			self.Caption = "dMaskedTextBox"
-			pnl = dabo.ui.dScrollPanel(self)
-			self.Sizer.append1x(pnl, border=20)
-			sz = pnl.Sizer = dabo.ui.dGridSizer(MaxCols=2, HGap=5, VGap=5)
+			pgf = dabo.ui.dPageFrame(self, TabPosition="Left", PageCount=3)
+			self.Sizer.append1x(pgf, border=20)
+			pg1, pg2, pg3 = pgf.Pages
+			pg1.Caption = "Basic Masks"
+			pg2.Caption = "Pre-defined Formats"
+			pg3.Caption = "Input Codes"
+
+			sz = pg1.Sizer = dabo.ui.dGridSizer(MaxCols=2, HGap=5, VGap=5)
 			
-			lbl = dabo.ui.dLabel(pnl, Caption="Basic Masks")
+			lbl = dabo.ui.dLabel(pg1, Caption="Basic Masks")
 			lbl.FontSize += 2
 			sz.append(lbl, colSpan=2, halign="center")
 	
-			sz.append(dabo.ui.dLabel(pnl, Caption="Uppercase Letters Only:"), halign="right")
-			sz.append(dMaskedTextBox(pnl, Width=240, Mask="A{20}"))
+			sz.append(dabo.ui.dLabel(pg1, Caption="Uppercase Letters Only:"), halign="right")
+			sz.append(dMaskedTextBox(pg1, Width=240, Mask="A{20}"))
 			
-			sz.append(dabo.ui.dLabel(pnl, Caption="Lowercase Letters Only:"), halign="right")
-			sz.append(dMaskedTextBox(pnl, Width=240, Mask="a{20}"))
+			sz.append(dabo.ui.dLabel(pg1, Caption="Lowercase Letters Only:"), halign="right")
+			sz.append(dMaskedTextBox(pg1, Width=240, Mask="a{20}"))
 			
-			sz.append(dabo.ui.dLabel(pnl, Caption="Letters (any case) Only:"), halign="right")
-			sz.append(dMaskedTextBox(pnl, Width=240, Mask="C{20}"))
+			sz.append(dabo.ui.dLabel(pg1, Caption="Letters (any case) Only:"), halign="right")
+			sz.append(dMaskedTextBox(pg1, Width=240, Mask="C{20}"))
 			
-			sz.append(dabo.ui.dLabel(pnl, Caption="Punctuation Only:"), halign="right")
-			sz.append(dMaskedTextBox(pnl, Width=240, Mask="&{20}"))
+			sz.append(dabo.ui.dLabel(pg1, Caption="Punctuation Only:"), halign="right")
+			sz.append(dMaskedTextBox(pg1, Width=240, Mask="&{20}"))
 			
-			sz.append(dabo.ui.dLabel(pnl, Caption="Letter left; Numbers right:"), halign="right")
-			sz.append(dMaskedTextBox(pnl, Width=240, Mask="C{6} - #{6}"))
+			sz.append(dabo.ui.dLabel(pg1, Caption="Letter left; Numbers right:"), halign="right")
+			sz.append(dMaskedTextBox(pg1, Width=240, Mask="C{6} - #{6}"))
 			
-			sz.append(dabo.ui.dLabel(pnl, Caption="No Mask:"), halign="right")
-			sz.append(dMaskedTextBox(pnl, Width=240, Mask=""))
-			lbl = dabo.ui.dLabel(pnl, FontItalic=True,
+			sz.append(dabo.ui.dLabel(pg1, Caption="No Mask:"), halign="right")
+			sz.append(dMaskedTextBox(pg1, Width=240, Mask=""))
+			lbl = dabo.ui.dLabel(pg1, FontItalic=True,
 					Caption="The 'No Mask' value can never be valid,\nand will be cleared when the control loses focus.")
 			lbl.FontSize -= 2
 			sz.append(lbl, colSpan=2, halign="center")
+			sz.setColExpand(1, True)
 			
-			sz.appendSpacer(10, colSpan=2)
-			
-			lbl = dabo.ui.dLabel(pnl, Caption="Pre-defined Formats")
+			sz = pg2.Sizer = dabo.ui.dGridSizer(MaxCols=2, HGap=5, VGap=5)
+		
+			lbl = dabo.ui.dLabel(pg2, Caption="Pre-defined Formats")
 			lbl.FontSize += 2
 			sz.append(lbl, colSpan=2, halign="center")
 	
 			fmts = dMaskedTextBox.getFormats()
 			fmts.sort()
 			for fmt in fmts:
-				self.addRow(fmt, pnl)
-			
+				self.addRow(fmt, pg2)
 			sz.setColExpand(1, True)
+			
+			sz = pg3.Sizer = dabo.ui.dSizer("V", DefaultBorder=10, DefaultBorderLeft=True,
+					DefaultBorderRight=True)
+			sz.appendSpacer(10)
+			lbl = dabo.ui.dLabel(pg3, Caption="Check/Uncheck the following InputCodes to apply them\n" + 
+					"to the textbox below. Then type into the textbox to see\nthe effect that each code has.",
+					FontBold=True, Alignment="Center")
+			sz.append(lbl, "x")
+			sz.appendSpacer(5)
+			gsz = dabo.ui.dGridSizer(MaxCols=4, HGap=25, VGap=5)
+			lbl = dabo.ui.dLabel(pg3, Caption="General Codes", FontBold=True)
+			gsz.append(lbl, halign="center", colSpan=4)
+			chk = dabo.ui.dCheckBox(pg3, Caption="_", ToolTipText="Allow Spaces",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			chk = dabo.ui.dCheckBox(pg3, Caption="R", ToolTipText="Right Align",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			chk = dabo.ui.dCheckBox(pg3, Caption="r", ToolTipText="Right Insert",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			chk = dabo.ui.dCheckBox(pg3, Caption="<", ToolTipText="Stay in field until explicit navigation",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			chk = dabo.ui.dCheckBox(pg3, Caption=">", ToolTipText="Insert/delete inside fields",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			chk = dabo.ui.dCheckBox(pg3, Caption="F", ToolTipText="Auto-fit field width",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			chk = dabo.ui.dCheckBox(pg3, Caption="V", ToolTipText="Validate against ValidRegex property",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			chk = dabo.ui.dCheckBox(pg3, Caption="S", ToolTipText="Select full field",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			sz.append(gsz, 1, halign="center")
+			sz.appendSpacer(5)
+
+			gsz = dabo.ui.dGridSizer(MaxCols=2, HGap=25, VGap=5)			
+			lbl = dabo.ui.dLabel(pg3, Caption="Character Codes", FontBold=True)
+			gsz.append(lbl, halign="center", colSpan=2)
+			chk = dabo.ui.dCheckBox(pg3, Caption="!", ToolTipText="Force Upper Case",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			chk = dabo.ui.dCheckBox(pg3, Caption="^", ToolTipText="Force Lower Case",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			txt = self.charText = dabo.ui.dMaskedTextBox(pg3, Value="", Mask="C{30}")
+			gsz.append(txt, "x", colSpan=2)
+			sz.append(gsz, 1, halign="center")
+			sz.appendSpacer(5)
+
+			gsz = dabo.ui.dGridSizer(MaxCols=2, HGap=25, VGap=5)
+			lbl = dabo.ui.dLabel(pg3, Caption="Numeric Codes", FontBold=True)
+			gsz.append(lbl, halign="center", colSpan=2)
+			chk = dabo.ui.dCheckBox(pg3, Caption=",", ToolTipText="Allow grouping character in numeric values",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			chk = dabo.ui.dCheckBox(pg3, Caption="-", ToolTipText="Reserve space for leading sign for negatives",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			chk = dabo.ui.dCheckBox(pg3, Caption="0", ToolTipText="Leading Zeros in integer fields",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			gsz.appendSpacer(1)
+			txt = self.numText = dabo.ui.dMaskedTextBox(pg3, Value="", Mask="#{30}")
+			gsz.append(txt, "x", colSpan=2)
+			sz.append(gsz, 1, halign="center")
+			sz.appendSpacer(5)
+
+			gsz = dabo.ui.dGridSizer(MaxCols=2, HGap=25, VGap=5)
+			lbl = dabo.ui.dLabel(pg3, Caption="Date/DateTime/Time Codes", FontBold=True)
+			gsz.append(lbl, halign="center", colSpan=2)
+			chk = dabo.ui.dCheckBox(pg3, Caption="D", ToolTipText="Date/Datetime field",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			chk = dabo.ui.dCheckBox(pg3, Caption="T", ToolTipText="Time Field",
+					OnHit=self.onCheckHit)
+			gsz.append(chk)
+			txt = self.dateText = dabo.ui.dMaskedTextBox(pg3, InputCodes="D", Value=datetime.date.today())
+			gsz.append(txt, "x", colSpan=2)
+			sz.append(gsz, 1, halign="center")
 		
 		
+		def onCheckHit(self, evt):
+			chk = evt.EventObject
+			cap = chk.Caption
+			val = chk.Value
+			print cap, val
+			txts = (self.charText, self.numText, self.dateText)
+			if cap in "!^":
+				# Char
+				txts = (self.charText, )
+			elif cap in ",-0":
+				# Num
+				txts = (self.numText, )
+			elif cap in "DT":
+				# Num
+				txts = (self.dateText, )
+			for txt in txts:
+				if val:
+					txt.InputCodes += cap
+				else:
+					txt.InputCodes = txt.InputCodes.replace(chk.Caption, "")
+				txt.setFocus()
+				txt.refresh()
+			
+
 		def addRow(self, fmt, parent):
 			sz = parent.Sizer
 			sz.append(dabo.ui.dLabel(parent, Caption="%s:" % fmt), halign="right")
