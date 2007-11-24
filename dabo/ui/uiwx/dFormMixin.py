@@ -108,6 +108,16 @@ class dFormMixin(pm.dPemMixin):
 		self._normTop = self.Top
 
 		if self._cxnFile:
+			if hasattr(self, "_classFile") and self._classFile is not None:
+				if not os.path.exists(self._cxnFile):
+					# The path should be relative to the _classFile, not
+					# the current directory
+					rp = dabo.lib.utils.relativePath
+					osp = os.path
+					cwd = os.getcwd()
+					relCP = rp(self._classFile, cwd)
+					newpth = osp.join(cwd, osp.split(relCP)[0], rp(self._cxnFile, self._classFile))
+					self._cxnFile = osp.normpath(newpth)
 			app.addConnectFile(self._cxnFile)
 		if self._cxnName:
 			self.Connection = app.getConnectionByName(self._cxnName)
@@ -424,12 +434,12 @@ class dFormMixin(pm.dPemMixin):
 			if not self.Centered:
 				left = self.Application.getUserSetting("%s.left" % name, self._defaultLeft)
 				top = self.Application.getUserSetting("%s.top" % name, self._defaultTop)
+				if isinstance(left, int) and isinstance(top, int):
+					self.Position = (left,top)
 			width = self.Application.getUserSetting("%s.width" % name, self._defaultWidth)
 			height = self.Application.getUserSetting("%s.height" % name, self._defaultHeight)
 			state = self.Application.getUserSetting("%s.windowstate" % name, self._defaultState)
 
-			if isinstance(left, int) and isinstance(top, int):
-				self.Position = (left,top)
 			if isinstance(width, int) and isinstance(height, int):
 				if self.BorderResizable:
 					self.Size = (width,height)
