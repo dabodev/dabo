@@ -142,9 +142,9 @@ class dPemMixin(dPemMixinBase):
 				self._preInitProperties["ID"] = self._preInitProperties["id"]
 				del self._preInitProperties["id"]
 		# This is needed when running from a saved design file
-		self._extractKey(properties, "designerClass")
+		self._extractKey((properties, self._properties), "designerClass")
 		# This attribute is used when saving code with a design file
-		self._extractKey(properties, "code-ID")
+		self._extractKey((properties, self._properties), "code-ID")
 		
 		# The user's subclass code has had a chance to tweak the init properties.
 		# Insert any of those into the arguments to send to the wx constructor:
@@ -165,22 +165,23 @@ class dPemMixin(dPemMixinBase):
 			self.PostCreate(pre)
 
 		self._pemObject = self
-
-		# If a Name isn't given, a default name will be used, and it'll 
-		# autonegotiate by adding an integer until it is a unique name.
-		# If a Name is given explicitly, a NameError will be raised if
-		# the given Name isn't unique among siblings:
-		if not dabo.fastNameSet:
-			name, _explicitName = self._processName(kwargs, self.__class__.__name__)
-			self._initName(name, _explicitName=_explicitName)
-
-		# Add any properties that were re-set 
-		properties.update(self._properties)
-		# Set the properties *before* calling the afterInit hook
-		self._setProperties(properties)
 		
-		# Set any passed event bindings
-		self._setKwEventBindings(self._kwEvents)
+		if self._constructed():
+			# If a Name isn't given, a default name will be used, and it'll 
+			# autonegotiate by adding an integer until it is a unique name.
+			# If a Name is given explicitly, a NameError will be raised if
+			# the given Name isn't unique among siblings:
+			if not dabo.fastNameSet:
+				name, _explicitName = self._processName(kwargs, self.__class__.__name__)
+				self._initName(name, _explicitName=_explicitName)
+	
+			# Add any properties that were re-set 
+			properties.update(self._properties)
+			# Set the properties *before* calling the afterInit hook
+			self._setProperties(properties)
+			
+			# Set any passed event bindings
+			self._setKwEventBindings(self._kwEvents)
 		
 		self._initEvents()
 		self._afterInit()
@@ -2112,7 +2113,12 @@ class dPemMixin(dPemMixinBase):
 		return name
 	
 	def _setName(self, name, _userExplicit=True):
-		if self._constructed():
+		if not self._constructed():
+			if _userExplicit:
+				self._properties["Name"] = name
+			else:
+				self._properties["NameBase"] = name
+		else:
 			currentName = self._getName()
 			if dabo.fastNameSet:
 				# The user is responsible for setting and unsetting the global fastNameSet
@@ -2209,9 +2215,6 @@ class dPemMixin(dPemMixinBase):
 
 			## When the name changes, we need to autobind again:
 			self.autoBindEvents(force=False)
-
-		else:
-			self._properties["Name"] = name
 	
 
 	def _setNameBase(self, val):
