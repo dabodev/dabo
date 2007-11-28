@@ -86,13 +86,16 @@ class PropertyHelperMixin(object):
 		if not isinstance(kwdict, (tuple, list)):
 			kwdict = (kwdict, )
 		ret = defaultVal
+		found = False
 		for dd in kwdict:
 			if dd is None:
 				continue
 			try:
-				ret = dd[key]
+				if not found:
+					ret = dd[key]
+					found = True
 				del dd[key]
-				break
+# 				break
 			except KeyError:
 				pass
 		return ret
