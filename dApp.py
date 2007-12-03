@@ -464,7 +464,7 @@ class dApp(dObject):
 					os.remove(localFile)
 			else:
 				if not os.path.isdir(localPath):
-					os.mkdirs(localPath)
+					os.makedirs(localPath)
 				try:
 					urllib.urlretrieve(url % fpth, localFile)
 				except StandardError, e:
